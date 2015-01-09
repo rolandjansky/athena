@@ -46,6 +46,7 @@ PixelConditionsSummarySvc::PixelConditionsSummarySvc(const std::string& name, IS
   declareProperty("UseDCS", m_useDCS, "Switch for usage of DCS");
   declareProperty("UseByteStream", m_useBS, "Switch for usage of the ByteStream error service");
   declareProperty("UseTDAQ", m_useTDAQ, "Switch for usage of TDAQ");
+  declareProperty("TDAQSvcName", m_pixelTDAQSvc, "Instance of the PixelTDAQSvc");
 
   declareProperty("StoreGateSvc", m_detStore);
 }

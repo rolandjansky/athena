@@ -33,6 +33,7 @@ PixelOfflineCalibServiceTest::PixelOfflineCalibServiceTest(const std::string& na
      //m_detStore  (0), 
      m_calibsvc("PixelOfflineCalibSvc",name),
      m_dbTool("PixelRecoDbTool"),
+     m_pat(0),
      m_setup(0),
      par_rfile1(""),
      par_rfile2(""),

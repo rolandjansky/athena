@@ -81,6 +81,8 @@ class IPixelCalibSvc : virtual public IInterface
       virtual float getTotP1(const Identifier& pix_id) const =0;
       virtual float getTotP2(const Identifier& pix_id) const =0;
       virtual float getTotRes(const Identifier& pix_id, float Q) const =0;
+      virtual float getTotMean(const Identifier& pix_id, float Q) const =0;
+      virtual void disableDb() =0;
       
     }; 
 

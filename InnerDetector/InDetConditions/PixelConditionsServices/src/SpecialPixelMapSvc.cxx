@@ -62,7 +62,8 @@ SpecialPixelMapSvc::SpecialPixelMapSvc(const std::string& name, ISvcLocator* sl)
   m_connectivityTag("PIT-ALL-V39"),
   m_aliasTag("PIT-ALL-V39"),
   m_fileListFileName("filelist"),
-  m_pixelID(0)
+  m_pixelID(0),
+  m_pixman(0)
 {
   declareProperty("DBFolders", m_condAttrListCollectionKeys, "list of database folders to be accessed"); 
   declareProperty("SpecialPixelMapKeys", m_specialPixelMapKeys, "StoreGate keys at which pixel maps are to be stored"); 
@@ -166,6 +167,7 @@ StatusCode SpecialPixelMapSvc::initialize()
       Identifier ident = element->identify(); 
       if(m_pixelID->is_pixel(ident)){  // OK this Element is included 
 	const InDetDD::PixelModuleDesign* design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+	if(!design)continue;
 	unsigned int mchips = design->numberOfCircuits();
 	int mrow =design->rows();  
 	if(mchips==8||abs(m_pixelID->barrel_ec(ident))==2||(m_pixelID->barrel_ec(ident)==0&&m_pixelID->layer_disk(ident)>0)){
@@ -761,7 +763,7 @@ StatusCode SpecialPixelMapSvc::createFromDetectorStore(const std::string condAtt
   
   DetectorSpecialPixelMap* spm = new DetectorSpecialPixelMap();
 
-  spm->resize(m_pixelID->wafer_hash_max());
+  spm->resize(m_pixelID->wafer_hash_max(),NULL);
   
   StatusCode sc = m_detStore->record(spm, pixelMapKey);
   if ( !sc.isSuccess() ){
@@ -837,12 +839,14 @@ StatusCode SpecialPixelMapSvc::createFromDetectorStore(const std::string condAtt
 	  if( (*attribute).specification().typeName() == "blob" ){
 
 	    const coral::Blob& blob = (*attrList).second["SpecialPixelMap"].data<const coral::Blob>();
-	    (*spm)[idhash] = new ModuleSpecialPixelMap(blob, getChips(idhash) );
+            delete (*spm)[idhash];
+            (*spm)[idhash] = new ModuleSpecialPixelMap(blob, getChips(idhash) );
 	  }
 	  else{
 
 	    const std::string& clob = (*attrList).second["ModuleSpecialPixelMap_Clob"].data<const std::string>();
-	    (*spm)[idhash] = new ModuleSpecialPixelMap(clob, getChips(idhash) );
+            delete (*spm)[idhash];
+            (*spm)[idhash] = new ModuleSpecialPixelMap(clob, getChips(idhash) );
 	  }
 	}
       }
@@ -875,7 +879,7 @@ StatusCode SpecialPixelMapSvc::createFromTextfiles( bool fillMissing ) const{
 
   DetectorSpecialPixelMap* spm = new DetectorSpecialPixelMap;
 
-  spm->resize(m_pixelID->wafer_hash_max());
+  spm->resize(m_pixelID->wafer_hash_max(), NULL);
 
   StatusCode sc = m_detStore->record(spm, m_specialPixelMapKeys[0]);
   if (sc.isFailure()) {
@@ -966,7 +970,8 @@ StatusCode SpecialPixelMapSvc::createFromTextfiles( bool fillMissing ) const{
 	  Identifier id( m_pixelID->wafer_id( component, layer, phi, eta ) );
 	  unsigned int idhash = m_pixelID->wafer_hash(id);
 	  if(idhash < m_pixelID->wafer_hash_max()){
-	    (*spm)[idhash] = new ModuleSpecialPixelMap(filename.c_str(), getChips(idhash));
+            delete (*spm)[idhash];
+            (*spm)[idhash] = new ModuleSpecialPixelMap(filename.c_str(), getChips(idhash));
 	  }
 	}
       }
@@ -994,6 +999,7 @@ StatusCode SpecialPixelMapSvc::createFromTextfiles( bool fillMissing ) const{
           Identifier id( m_pixelID->wafer_id( component, layer, phi, eta ) );
 	  unsigned int idhash = m_pixelID->wafer_hash(id);
           if(idhash < m_pixelID->wafer_hash_max()){
+            delete (*spm)[idhash] ;
             (*spm)[idhash] = new ModuleSpecialPixelMap(filename.c_str(), getChips(idhash) );
           }
         }

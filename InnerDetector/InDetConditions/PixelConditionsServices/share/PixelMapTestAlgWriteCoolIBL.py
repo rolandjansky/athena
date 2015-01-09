@@ -1,27 +1,56 @@
 isIBL = 1
-mySQ = 1
-import AthenaCommon.AtlasUnixGeneratorJob
+import AthenaCommon.AtlasUnixStandardJob
 
-## GlobalFlags
+### set up conddb
+
+from IOVDbSvc.CondDB import conddb
+#conddb.setGlobalTag('OFLCOND-CSC-00-00-00')
+#conddb.setGlobalTag('OFLCOND-MC12-SIM-00')
+conddb.setGlobalTag('OFLCOND-RUN12-SDR-07')
+if isIBL:
+  conddb.iovdbsvc.dbConnection = "sqlite://;schema=pixmapdb_ibl3ddbm_IBL3D25DBM-04-01.db;dbname=OFLP200"
+else:
+  conddb.iovdbsvc.dbConnection = "sqlite://;schema=pixmap.db;dbname=OFLP200"  
+
+### set up auditors
+
+from AthenaCommon.AppMgr import ServiceMgr
+
+from GaudiSvc.GaudiSvcConf import AuditorSvc
+
+ServiceMgr += AuditorSvc()
+theAuditorSvc = ServiceMgr.AuditorSvc
+
+theAuditorSvc.Auditors  += [ "ChronoAuditor"]
+theAuditorSvc.Auditors  += [ "MemStatAuditor" ]
+theApp.AuditAlgorithms=True
+
+
+## globalflags
 
 from AthenaCommon.GlobalFlags import globalflags
 
 #globalflags.DetGeo = 'atlas'
 globalflags.DataSource = 'geant4'
+
 if isIBL:
-  globalflags.DetDescrVersion = 'ATLAS-IBL3D25-03-00-00'
+  globalflags.DetDescrVersion = 'ATLAS-IBL3D25-04-00-02'
 else:  
   globalflags.DetDescrVersion = 'ATLAS-GEO-08-00-00'
-
+  
 globalflags.InputFormat = 'pool'
 globalflags.print_JobProperties()
 
-### set up conddb
+
+## DetFlags
 
 from AthenaCommon.DetFlags import DetFlags
+
 DetFlags.all_setOff()
 DetFlags.pixel_setOn()
 DetFlags.Print()
+
+#DetDescrVersion = "ATLAS-GEO-08-00-00"
 
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
@@ -38,44 +67,6 @@ print SLHC_Flags
 from InDetIBL_Example.SLHC_Setup import SLHC_Setup
 SLHC_Setup = SLHC_Setup()
 
-from IOVDbSvc.CondDB import conddb
-#conddb.setGlobalTag('OFLCOND-CSC-00-00-00')
-conddb.setGlobalTag('OFLCOND-MC12-SIM-00')
-
-#conddb.iovdbsvc.dbConnection = "sqlite://;schema=pixmapibl.db;dbname=OFLP200"
-
-#conddb.addFolder("PIXEL_OFL","/PIXEL/PixMapShort")
-#conddb.addFolder("PIXEL_OFL","/PIXEL/PixMapLong")
-#conddb.addFolder("PIXEL_OFL","/PIXEL/PixMapOverlay")
-#conddb.addOverride('/PIXEL/PixMapShort','PixMapShort-Test-00')
-#conddb.addOverride('/PIXEL/PixMapLong','PixMapLong-Test-00')
-
-if mySQ:
-  conddb.iovdbsvc.Folders = [ "<dbConnection>sqlite://;schema=pixmapibl.db;dbname=OFLP200</dbConnection> /PIXEL/PixMapShort <tag>PixMapShort-Test-00</tag>" ]
-  conddb.iovdbsvc.Folders += [ "<dbConnection>sqlite://;schema=pixmapibl.db;dbname=OFLP200</dbConnection> /PIXEL/PixMapLong <tag>PixMapLong-Test-00</tag>" ]
-else:  
-  conddb.addFolder("PIXEL_OFL","/PIXEL/PixMapShort")
-  conddb.addFolder("PIXEL_OFL","/PIXEL/PixMapLong")
-  conddb.addFolder("PIXEL_OFL","/PIXEL/PixMapOverlay")
-
-### configure the special pixel map service
-
-from PixelConditionsServices.PixelConditionsServicesConf import SpecialPixelMapSvc 
-SpecialPixelMapSvc = SpecialPixelMapSvc()
-
-SpecialPixelMapSvc.DBFolders = [ "/PIXEL/PixMapShort", "/PIXEL/PixMapLong" ]
-SpecialPixelMapSvc.SpecialPixelMapKeys = [ "SpecialPixelMap", "SpecialPixelMapLong" ]
-
-#SpecialPixelMapSvc.OverlayFolder = "/PIXEL/PixMapOverlay"
-#SpecialPixelMapSvc.OverlayKey = "PixMapOverlay"
-#SpecialPixelMapSvc.RegisterCallback = False
-#SpecialPixelMapSvc.DataSource = "Textfiles"
-SpecialPixelMapSvc.ModuleIDsForPrinting = [ "all" ]
-
-### configure the event selector
-
-ServiceMgr.EventSelector.RunNumber = 5
-
 
 ### define the job
 
@@ -83,35 +74,144 @@ from AthenaCommon.AlgSequence import AlgSequence
 
 job = AlgSequence()
 
-from PixelConditionsServices.PixelConditionsServicesConf import PixelMapTestAlg
+from PixelConditionsServices.PixelConditionsServicesConf import PixelMapTestAlg, SpecialPixelMapSvc
+
 job += PixelMapTestAlg()
-PixelMapTestAlg = PixelMapTestAlg()
-PixelMapTestAlg.WriteTextFile = TRUE
-PixelMapTestAlg.MakeDummy = FALSE
+job.PixelMapTestAlg.UseSummarySvc = False
 
-ServiceMgr += SpecialPixelMapSvc
+from AthenaServices.AthenaServicesConf import AthenaOutputStream
+
+job += AthenaOutputStream( "Stream1" )
 
 
+### configure the special pixel map service
+
+ServiceMgr += SpecialPixelMapSvc()
+SpecialPixelMapSvc = ServiceMgr.SpecialPixelMapSvc
+
+SpecialPixelMapSvc.DBFolders = [ "/PIXEL/PixMap" ]
+# if reading from the database, this must be one of the IOVDbSvc folders
+# default: empty 
+
+SpecialPixelMapSvc.SpecialPixelMapKeys = [ "SpecialPixelMap" ]
+# default: empty
+
+SpecialPixelMapSvc.OutputFolder = "/PIXEL/PixMapShort"
+SpecialPixelMapSvc.OutputLongFolder = "/PIXEL/PixMapLong"
+
+SpecialPixelMapSvc.UseDualFolderStructure = True
+# If true, only module masks which fit in a String4k are written to
+# the OutputFolder. Module masks which are longer are written to 
+# OuputLongFolder as Blob16M
+
+SpecialPixelMapSvc.DifferentialUpdates = False
+# If true, the new map is compared to the first map in SpecialPixelMapSvc.SpecialPixelMapKeys 
+# and only channels for which the contents have changed are updated.
+
+SpecialPixelMapSvc.DataSource = "Textfiles"
+
+# note: Filelist should be inside the directory of FileListDir
+if isIBL:
+  SpecialPixelMapSvc.FileList = "filelistibl" 
+  SpecialPixelMapSvc.FileListDir = "SpecialMapIBL3D_OFLCOND_RUN1_SDR_06_orig"
+else:
+  SpecialPixelMapSvc.FileList = "Filelist"
+  SpecialPixelMapSvc.FileListDir = "SpecialMap_orig"
+  
+# "Database", "Textfiles" or "None"; default: "Database"
+# data source to be used when SpecialPixelMapSvc::create() is called
+# when the DataSource is "Textfiles" the DetectorSpecialPixelMap and the corresponding CondAttrListCollection are created
+# when the DataSource is "Database" only the DetectorSpecialPixelMap is created
+# default: "None" (special pixel maps are not created with "create()" but by callback function)
+
+#SpecialPixelMapSvc.ModuleIDsForPrinting = [ "all" ]
+# list of modules IDs to print when SpecialPixelMapSvc::print() is called, can be "all"
+# default: empty
+
+SpecialPixelMapSvc.RegisterCallback = False    
+# triggers registration of callback in SpecialPixelMapSvc::initialize()
+# which automatically updates the list of DetectorSpecialPixelMaps in the detector store
+# whenever the corresponding CondAttrListCollections are updated by the IOVDbSvc
+# default: true
+
+SpecialPixelMapSvc.PrintVerbosePixelID = True
+# print pixel ID as chip/column/row (verbose) or unsigned int (not verbose)
+# default: true
+
+SpecialPixelMapSvc.PrintBinaryPixelStatus = True
+# print pixel status in binary or decimal format
+# default: true
+
+SpecialPixelMapSvc.MarkSpecialRegions = True
+# if true, regions (modules/chips/column pairs) of pixels with the same pixel status are marked
+# the status for those regions is stored in a special data structure, the individual pixel status integers
+# are removed from the map
+# default: true
+
+SpecialPixelMapSvc.MergePixelMaps = True
+# merge all pixel maps into one, stored at SGKeys(0)
+# default: true
+
+
+### configure OutputConditionsAlg
+
+from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg
+
+OutputConditionsAlg = OutputConditionsAlg("OutputConditionsAlg","dummy.root")
+
+OutputConditionsAlg.ObjectList=[ "CondAttrListCollection#/PIXEL/PixMapShort" ]
+OutputConditionsAlg.ObjectList+=[ "CondAttrListCollection#/PIXEL/PixMapLong" ]
+
+OutputConditionsAlg.WriteIOV=True
+
+#OutputConditionsAlg.Run1=1
+#OutputConditionsAlg.LB1=4
+#OutputConditionsAlg.Run2=1
+#OutputConditionsAlg.LB2=9
+
+if isIBL:
+  OutputConditionsAlg.IOVTagList=[ "PixMapShort-IBL3D25DBM-04-01" ]
+  OutputConditionsAlg.IOVTagList+=[ "PixMapLong-IBL3D25DBM-04-01" ]
+else:
+  OutputConditionsAlg.IOVTagList=[ "PixMapShort-Test-00" ]
+  OutputConditionsAlg.IOVTagList+=[ "PixMapLong-Test-00" ]
+
+### configure IOVRegistrationSvc for writing of CLOBs
+
+from RegistrationServices.RegistrationServicesConf import IOVRegistrationSvc
+
+ServiceMgr += IOVRegistrationSvc()
+regSvc = ServiceMgr.IOVRegistrationSvc
+
+regSvc.OverrideNames = [ "ModuleSpecialPixelMap_Clob" ]
+regSvc.OverrideTypes = [ "String4k" ]
+regSvc.OverrideNames += [ "SpecialPixelMap" ]
+regSvc.OverrideTypes += [ "Blob16M" ]
+
+regSvc.PayloadTable = True
+
+theApp.CreateSvc += [ ServiceMgr.IOVRegistrationSvc.getFullName() ]
+
+### configure the event selector
+
+from GaudiSvc.GaudiSvcConf import EventSelector
+
+ServiceMgr += EventSelector()
+
+EventSelector.RunNumber         = 200805
+EventSelector.EventsPerRun      = 5
+EventSelector.FirstEvent        = 1
+EventSelector.InitialTimeStamp  = 0
+EventSelector.TimeStampInterval = 5
 theApp.EvtMax                   = 1
-
-
-### set up auditors
-
-from AthenaCommon.AppMgr import ServiceMgr
-
-from GaudiSvc.GaudiSvcConf import AuditorSvc
-
-ServiceMgr += AuditorSvc()
-theAuditorSvc = ServiceMgr.AuditorSvc
-
-theAuditorSvc.Auditors  += [ "ChronoAuditor"]
-theAuditorSvc.Auditors  += [ "MemStatAuditor" ]
-theApp.AuditAlgorithms=True
 
 
 ### configure the message service
 # Set output level threshold (1=VERBOSE, 2=DEBUG, 3=INFO, 4=WARNING, 5=ERROR, 6=FATAL )
 
-MessageSvc.OutputLevel      = 3
+MessageSvc.OutputLevel      = 2
 MessageSvc.debugLimit       = 100000
 MessageSvc.infoLimit        = 10000
+MessageSvc.errorLimit       = 1000
+
+conddb.blockFolder('/Indet/Align')

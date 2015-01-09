@@ -15,6 +15,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "PixelConditionsData/PixelCalibDataColl.h"
+#include "PixelGeoModel/IBLParameterSvc.h"
 
 
 class AtlasDetectorID;
@@ -77,6 +78,8 @@ class PixelCalibSvc : public AthService, virtual public IPixelCalibSvc
       virtual float getTotP1(const Identifier& pix_id) const;
       virtual float getTotP2(const Identifier& pix_id) const;
       virtual float getTotRes(const Identifier& pix_id, float Q) const;
+      virtual float getTotMean(const Identifier& pix_id, float Q) const;
+      virtual void disableDb() {m_disableDb = true;}
     private:
 
       int PixelType(const Identifier& wafer_id, int irow, int icol) const; // type of pixel
@@ -95,6 +98,20 @@ class PixelCalibSvc : public AthService, virtual public IPixelCalibSvc
       mutable Identifier                   m_wafer_id; //<! wafer_id  
         
       // int/double/bool  m_propertyName;
+      double                    m_totparA;
+      double                    m_totparE;
+      double                    m_totparC;
+      double                    m_totparP1; /**< Correction for dispersion */
+      double                    m_totparP2; 
+      int                       m_discrThresh;          /**< discriminator threshold value */
+      int                       m_discrThreshIBL;          /**< discriminator threshold value */
+      int                       m_discrThreshSigma;     /**< discriminator threshold sigma value */
+      int                       m_intimeThresh;         /**< intime threshold */
+      int                       m_intimeThreshIBL;         /**< intime threshold */
+      int                       m_noiseThresh;          /**< threshold noise*/
+      bool m_IBLabsent;
+      bool m_disableDb;
+      ServiceHandle<IBLParameterSvc> m_IBLParameterSvc; 
       
     }; 
 

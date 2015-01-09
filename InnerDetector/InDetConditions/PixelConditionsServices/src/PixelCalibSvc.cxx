@@ -59,12 +59,35 @@ PixelCalibSvc::PixelCalibSvc(const std::string& name, ISvcLocator* sl)
   m_pixid(0),
   //m_pixidmap("PixelCablingSvc",name),
   m_pat(0),
-  m_wafer_id(0)
+  m_wafer_id(0),
+  m_totparA(70.2),
+  m_totparE(-3561.25),
+  m_totparC(26000),
+  m_totparP1(-0.68),
+  m_totparP2(0.17),
+  m_discrThresh(3500),
+  m_discrThreshIBL(1500),
+  m_discrThreshSigma(300),
+  m_intimeThresh(5000),
+  m_intimeThreshIBL(1900),
+  m_noiseThresh(200),
+  m_IBLabsent(true),
+  m_disableDb(false),
+  m_IBLParameterSvc("IBLParameterSvc",name)
 {
   //  template for property decalration
   //declareProperty("PropertyName", m_propertyName);
   declareProperty("CalibrationDbTool",m_dbTool);
   //declareProperty("CablingService"   ,m_pixidmap);
+  declareProperty("ToTParA",            m_totparA,              "TOT parameter A");
+  declareProperty("ToTParE",            m_totparE,              "TOT parameter E");
+  declareProperty("ToTParC",            m_totparC,              "TOT parameter C");
+  declareProperty("ToTParP1",           m_totparP1,             "TOT smearing parameter p1");
+  declareProperty("ToTParP2",           m_totparP2,             "TOT smearing parameter p2");
+  declareProperty("DiscrThresh",        m_discrThresh,          "Discriminator threshold");
+  declareProperty("DiscrThreshVar",     m_discrThreshSigma,     "Discriminator threshold sigma");
+  declareProperty("IntimeThresh",       m_intimeThresh,         "Discriminator in-time threshold");
+  declareProperty("NoiseThresh",        m_noiseThresh,          "Discriminator noise");
 }
 
 //================ Destructor =================================================
@@ -102,7 +125,7 @@ StatusCode PixelCalibSvc::initialize()
   // locate the conditions store ptr to it.
   // sc = service("DetectorStore", m_detStore);
 
-  if (m_detStore.retrieve().isFailure() || m_detStore == 0)  {
+  if (m_detStore.retrieve().isFailure())  {
     msg(MSG::FATAL) <<"Could not find DetStore" <<endreq;
     return StatusCode::FAILURE;
   }
@@ -131,6 +154,12 @@ StatusCode PixelCalibSvc::initialize()
       return sc;
   }
   */
+  if (m_IBLParameterSvc.retrieve().isFailure()) {
+       ATH_MSG_WARNING( "Could not retrieve IBLParameterSvc");
+  }
+  else {
+	m_IBLParameterSvc->setBoolParameters(m_IBLabsent,"IBLAbsent");
+  }
   return StatusCode::SUCCESS;
 
 }
@@ -251,6 +280,7 @@ int PixelCalibSvc::PixelCirc(const Identifier& pix_id, const Identifier& wafer_i
 // hasCalibData
 bool PixelCalibSvc::hasCalibData(const Identifier& wafer_id) const
 {
+  if (m_disableDb) return false;
   if(wafer_id !=m_wafer_id){
     m_pat = m_dbTool->getCalibPtr(wafer_id);
     m_wafer_id = wafer_id;
@@ -300,7 +330,7 @@ int PixelCalibSvc::getThreshold(const Identifier& wafer_id, int irow, int icol, 
   int type = PixelType(wafer_id,irow,icol);
   if(hasCalibData(wafer_id)&&circ<getNFE(wafer_id)){
   return m_pat->getPixelChipSummaryData(circ)->getThreshold(type);}
-  else {return 0;}
+  else return m_IBLabsent || m_pixid->layer_disk(wafer_id)>0 ? m_discrThresh : m_discrThreshIBL;
 }
   
 // getThreshold 
@@ -311,7 +341,7 @@ int PixelCalibSvc::getThreshold(const Identifier& pix_id) const
   int type = PixelType(pix_id,wafer_id,circ); 
   if(hasCalibData(wafer_id)&&circ>-1){
     return m_pat->getPixelChipSummaryData(circ)->getThreshold(type);}
-  else{return 0;}
+  else return m_IBLabsent || m_pixid->layer_disk(wafer_id)>0 ? m_discrThresh : m_discrThreshIBL;
 }
 
 
@@ -321,7 +351,7 @@ int PixelCalibSvc::getThresholdSigma(const Identifier& wafer_id, int irow, int i
   int type = PixelType(wafer_id,irow,icol); 
   if(hasCalibData(wafer_id)&&circ<getNFE(wafer_id)){
     return m_pat->getPixelChipSummaryData(circ)->getThresholdSigma(type);}
-  else{ return 0;}
+  else{ return m_discrThreshSigma;}
 }
 
 // getThresholdSigma
@@ -332,7 +362,7 @@ int PixelCalibSvc::getThresholdSigma(const Identifier& pix_id) const
   int type = PixelType(pix_id, wafer_id,circ); 
   if(hasCalibData(wafer_id)&&circ>-1){
     return m_pat->getPixelChipSummaryData(circ)->getThresholdSigma(type);}
-  else{return 0;}
+  else{ return m_discrThreshSigma;}
 }
   
 
@@ -342,7 +372,7 @@ int PixelCalibSvc::getNoise(const Identifier& wafer_id, int irow, int icol, int 
   int type = PixelType(wafer_id,irow,icol); 
   if(hasCalibData(wafer_id)&&circ<getNFE(wafer_id)){
     return m_pat->getPixelChipSummaryData(circ)->getNoise(type);}
-  else{return 0;}
+  else{return m_noiseThresh;}
 }
 
 // getNoise
@@ -353,7 +383,7 @@ int PixelCalibSvc::getNoise(const Identifier& pix_id) const
   int type = PixelType(pix_id, wafer_id,circ); 
   if(hasCalibData(wafer_id)&&circ>-1){
     return m_pat->getPixelChipSummaryData(circ)->getNoise(type);}
-  else{return 0;}
+  else{return m_noiseThresh;}
 }
 
   
@@ -363,7 +393,7 @@ int PixelCalibSvc::getTimeWalk(const Identifier& wafer_id, int irow, int icol, i
   int type = PixelType(wafer_id,irow,icol); 
   if(hasCalibData(wafer_id)&&circ<getNFE(wafer_id)){
     return m_pat->getPixelChipSummaryData(circ)->getTimeWalk(type);}
-  else{return 0;}
+  else return m_IBLabsent || m_pixid->layer_disk(wafer_id)>0 ? m_intimeThresh : m_intimeThreshIBL;
 }
 
 // getTimeWalk 
@@ -374,7 +404,7 @@ int PixelCalibSvc::getTimeWalk(const Identifier& pix_id) const
   int type = PixelType(pix_id, wafer_id,circ); 
   if(hasCalibData(wafer_id)&&circ>-1){
     return m_pat->getPixelChipSummaryData(circ)->getTimeWalk(type);}
-  else{ return 0;}
+  else return m_IBLabsent || m_pixid->layer_disk(wafer_id)>0 ? m_intimeThresh : m_intimeThreshIBL;
 }
 
   
@@ -384,7 +414,7 @@ float PixelCalibSvc::getQ2TotA(const Identifier& wafer_id, int irow, int icol, i
   int type = PixelType(wafer_id,irow,icol); 
   if(hasCalibData(wafer_id)&&circ<getNFE(wafer_id)){
     return m_pat->getPixelChipSummaryData(circ)->getQ2TotA(type);}
-  else{return 0.;}
+  else{return m_totparA;}
 }
 
 //getQ2TotA 
@@ -395,7 +425,7 @@ float PixelCalibSvc::getQ2TotA(const Identifier& pix_id) const
   int type = PixelType(pix_id, wafer_id,circ); 
   if(hasCalibData(wafer_id)&&circ>-1){
     return m_pat->getPixelChipSummaryData(circ)->getQ2TotA(type);}
-  else{return 0.;}
+  else{return m_totparA;}
 }
 
   
@@ -405,7 +435,7 @@ float PixelCalibSvc::getQ2TotE(const Identifier& wafer_id, int irow, int icol, i
   int type = PixelType(wafer_id,irow,icol); 
   if(hasCalibData(wafer_id)&&circ<getNFE(wafer_id)){
     return m_pat->getPixelChipSummaryData(circ)->getQ2TotE(type);}
-  else{return 0.;}
+  else{return m_totparE;}
 }
 
 //getQ2TotB
@@ -416,7 +446,7 @@ float PixelCalibSvc::getQ2TotE(const Identifier& pix_id) const
   int type = PixelType(pix_id,wafer_id,circ); 
   if(hasCalibData(wafer_id)&&circ>-1){
     return m_pat->getPixelChipSummaryData(circ)->getQ2TotE(type);}
-  else{return 0.;}
+  else{return m_totparE;}
 }
   
 //getQ2TotC
@@ -425,7 +455,7 @@ float PixelCalibSvc::getQ2TotC(const Identifier& wafer_id, int irow, int icol, i
   int type = PixelType(wafer_id,irow,icol); 
   if(hasCalibData(wafer_id)&&circ<getNFE(wafer_id)){
     return m_pat->getPixelChipSummaryData(circ)->getQ2TotC(type);}
-  else{return 0.;}
+  else{return m_totparC;}
 }
 
 //getQ2TotC
@@ -437,7 +467,7 @@ float PixelCalibSvc::getQ2TotC(const Identifier& pix_id) const
   int type = PixelType(pix_id, wafer_id,circ); 
   if(hasCalibData(wafer_id)&&circ>-1){
     return m_pat->getPixelChipSummaryData(circ)->getQ2TotC(type);}
-  else{return 0.;}
+  else{return m_totparC;}
 }
 
 //getTotP1
@@ -445,7 +475,7 @@ float PixelCalibSvc::getTotP1(const Identifier& wafer_id, int circ) const
 {
   if(hasCalibData(wafer_id)&&circ<getNFE(wafer_id)){
     return m_pat->getPixelChipSummaryData(circ)->getTotP1(); }
-  else{return 0.;}
+  else{return m_totparP1;}
 }
 
 //getTotP1
@@ -455,7 +485,7 @@ float PixelCalibSvc::getTotP1(const Identifier& pix_id) const
   int circ = PixelCirc(pix_id, wafer_id);
   if(hasCalibData(wafer_id)&&circ>-1){
     return m_pat->getPixelChipSummaryData(circ)->getTotP1();}
-  else{return 0.;}
+  else{return m_totparP1;}
 }
 
 
@@ -464,7 +494,7 @@ float PixelCalibSvc::getTotP2(const Identifier& wafer_id, int circ) const
 {
   if(hasCalibData(wafer_id)&&circ<getNFE(wafer_id)){
     return m_pat->getPixelChipSummaryData(circ)->getTotP2(); }
-  else{return 0.;}
+  else{return m_totparP2;}
 }
 
 //getTotP2
@@ -474,7 +504,7 @@ float PixelCalibSvc::getTotP2(const Identifier& pix_id) const
   int circ =  PixelCirc(pix_id, wafer_id);
   if(hasCalibData(wafer_id)&&circ>-1){
     return m_pat->getPixelChipSummaryData(circ)->getTotP2();}
-  else{return 0.;}
+  else{return m_totparP2;}
 }
 
 
@@ -483,7 +513,7 @@ float PixelCalibSvc::getTotRes(const Identifier& wafer_id, int circ, float Q) co
 {
   if(hasCalibData(wafer_id)&&circ<getNFE(wafer_id)){
     return m_pat->getPixelChipSummaryData(circ)->getTotRes(Q);}
-  else{return 0.;}
+  else{ return m_totparP1+m_totparP2*Q;}
 }
 
 //getTotRes
@@ -493,9 +523,19 @@ float PixelCalibSvc::getTotRes(const Identifier& pix_id, float Q) const
   int circ =  PixelCirc(pix_id, wafer_id);
   if(hasCalibData(wafer_id)&&circ>-1){
     return m_pat->getPixelChipSummaryData(circ)->getTotRes(Q);}
-  else{return 0.;}
+  else{return m_totparP1+m_totparP2*Q;}
 }
 
+//getTotMean
+float PixelCalibSvc::getTotMean(const Identifier& pix_id, float Q) const
+{
+  Identifier wafer_id = m_pixid->wafer_id(pix_id);
+  int circ;
+  int type = PixelType(pix_id,wafer_id,circ); 
+  if(hasCalibData(wafer_id)&&circ>-1){
+    return m_pat->getPixelChipSummaryData(circ)->getQ2Tot(type,Q);}
+  else{return m_totparA*(m_totparE+Q)/(m_totparC+Q);}
+}
   
 
   

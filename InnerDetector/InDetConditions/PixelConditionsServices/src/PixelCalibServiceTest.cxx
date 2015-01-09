@@ -42,12 +42,14 @@ PixelCalibServiceTest::PixelCalibServiceTest(const std::string& name, ISvcLocato
      m_pixid(0),
      m_setup(0),
      par_rfile(""),
-     m_dummy(false)
+     m_dummy(false),
+     par_histf(0)
 {
  
   // declare algorithm parameters
   declareProperty("OutputTextFile",par_rfile);
   declareProperty("MakeDummy",m_dummy);
+  for(int i =0; i<14; ++i)_myhf[i] =0;
 }
 
 
@@ -99,13 +101,15 @@ StatusCode PixelCalibServiceTest::initialize() {
         // making dump calib file for SLHC
         if(m_dummy&isIBL){
           const InDetDD::PixelModuleDesign* design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
-          unsigned int mchips = design->numberOfCircuits();
-	  // std::cout<<"I am here "<<m_pixid->barrel_ec(ident)<<","<<m_pixid->layer_disk(ident)<<","<<m_pixid->phi_module(ident)<<","<<m_pixid->eta_module(ident)<<" mchips="<<mchips<<" dio="<<design->numberOfDiodes()<<" columnsrdo="<<design->columnsPerCircuit()<<" rowsrdo="<<design->rowsPerCircuit()<<" columns="<<design->columns()<<" rows="<<design->rows()<<std::endl;
-          if(mchips==8||abs(m_pixid->barrel_ec(ident))==2||(m_pixid->barrel_ec(ident)==0&&m_pixid->layer_disk(ident)>0))mchips *=2; // guess numberOfCircuits()
-          *outfile<<m_pixid->barrel_ec(ident)<<","<<m_pixid->layer_disk(ident)<<","<<m_pixid->phi_module(ident)<<","<<m_pixid->eta_module(ident)<<std::endl;
-          for(int ichip=0; ichip<static_cast<int>(mchips); ++ichip){
-	    *outfile<<"I"<<ichip<<" "<<"4160 69 192 5090 4160 69 192 5090 4160 69 192 5090 499 -1501 294329 499 -1501 294329 0.03 0.025"<<std::endl;
-          }
+	  if(design){
+	    unsigned int mchips = design->numberOfCircuits();
+	    // std::cout<<"I am here "<<m_pixid->barrel_ec(ident)<<","<<m_pixid->layer_disk(ident)<<","<<m_pixid->phi_module(ident)<<","<<m_pixid->eta_module(ident)<<" mchips="<<mchips<<" dio="<<design->numberOfDiodes()<<" columnsrdo="<<design->columnsPerCircuit()<<" rowsrdo="<<design->rowsPerCircuit()<<" columns="<<design->columns()<<" rows="<<design->rows()<<std::endl;
+	    if(mchips==8||abs(m_pixid->barrel_ec(ident))==2||(m_pixid->barrel_ec(ident)==0&&m_pixid->layer_disk(ident)>0))mchips *=2; // guess numberOfCircuits()
+	    *outfile<<m_pixid->barrel_ec(ident)<<","<<m_pixid->layer_disk(ident)<<","<<m_pixid->phi_module(ident)<<","<<m_pixid->eta_module(ident)<<std::endl;
+	    for(int ichip=0; ichip<static_cast<int>(mchips); ++ichip){
+	      *outfile<<"I"<<ichip<<" "<<"4160 69 192 5090 4160 69 192 5090 4160 69 192 5090 499 -1501 294329 499 -1501 294329 0.03 0.025"<<std::endl;
+	    }
+	  }
         }
 	++totpixmodule;
       }
@@ -188,6 +192,7 @@ StatusCode PixelCalibServiceTest::execute() {
 	const Identifier ident = element->identify();
 	if(m_pixid->is_pixel(ident)){  // OK this Element is included
 	  const InDetDD::PixelModuleDesign* design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+	  if(!design)continue;
 	  unsigned int mchips = design->numberOfCircuits();
 	  if(mchips==8||abs(m_pixid->barrel_ec(ident))==2||(m_pixid->barrel_ec(ident)==0&&m_pixid->layer_disk(ident)>0))mchips *=2; // guess numberOfCircuits() 
 	  //

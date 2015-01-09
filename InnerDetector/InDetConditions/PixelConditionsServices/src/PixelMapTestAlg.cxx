@@ -42,7 +42,8 @@ PixelMapTestAlg::PixelMapTestAlg(const std::string& name, ISvcLocator* pSvcLocat
   m_useSummarySvc(true),
   m_writeTextfile(false),
   m_dummy(false),
-  m_pixelID(0)
+  m_pixelID(0),
+  m_pixman(0)
 {
   declareProperty("UseSummarySvc", m_useSummarySvc, "switch for use of PixelConditionsSummarySvc"); 
   declareProperty("SpecialPixelMapSvc", m_specialPixelMapSvc); 
@@ -95,6 +96,7 @@ StatusCode PixelMapTestAlg::initialize(){
 	const Identifier ident = element->identify();
 	if(m_pixelID->is_pixel(ident)){  // OK this Element is included
 	  const InDetDD::PixelModuleDesign* design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+	  if(!design)continue;
           unsigned int mchips = design->numberOfCircuits();
 	  int mrow =design->rows();
           if(mchips==8||abs(m_pixelID->barrel_ec(ident))==2||(m_pixelID->barrel_ec(ident)==0&&m_pixelID->layer_disk(ident)>0)){
