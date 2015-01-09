@@ -16,6 +16,7 @@ MdtDeadTubeStatus::MdtDeadTubeStatus()
   m_mlayer      = 0;
   m_layer       = 0;
   m_tubeid      = 0;
+  m_status      = -1;
   m_mlayerArray.clear();
 }
 
