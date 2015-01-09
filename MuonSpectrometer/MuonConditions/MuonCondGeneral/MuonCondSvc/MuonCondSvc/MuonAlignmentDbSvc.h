@@ -9,6 +9,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 #include "GaudiKernel/Service.h"
+#include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"
 
 #include "MuonCondInterface/IMuonAlignmentDbTool.h"
@@ -21,8 +22,8 @@ const InterfaceID InterfaceID_IMuonAlignmentDbSvc("MuonAlignmentDbSvc", 1, 0);
 class IMuonAlignmentDBTool;
 
 
-class MuonAlignmentDbSvc : public Service, virtual public IInterface {
-   
+class MuonAlignmentDbSvc : public AthService, virtual public IInterface {
+  friend class SvcFactory<MuonAlignmentDbSvc>; 
  public:
    MuonAlignmentDbSvc (const std::string& name, ISvcLocator* pSvcLocator);
 

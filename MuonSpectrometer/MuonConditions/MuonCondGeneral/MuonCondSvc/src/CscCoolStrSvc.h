@@ -13,7 +13,7 @@
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGate.h"
-
+#include "AthenaBaseComps/AthService.h"
 
 //Added for attribute list declarations (might not need all of these)
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
@@ -35,6 +35,7 @@
 #include "MuonCondData/CscCondDataCollection.h"
 #include "MuonCondInterface/CscICoolStrSvc.h"
 
+    template <class TYPE> class SvcFactory;
 namespace MuonCalib {
 
   /**
@@ -46,9 +47,9 @@ namespace MuonCalib {
 
     Contains the major code to write and read calibration files to the database. 
    */
-  class CscCoolStrSvc : public virtual CscICoolStrSvc, public virtual Service
+  class CscCoolStrSvc : public AthService, public virtual CscICoolStrSvc
   {
-    template <class TYPE> class SvcFactory;
+    friend class SvcFactory<CscCoolStrSvc>;
 
     public:
     CscCoolStrSvc(const std::string& name, ISvcLocator* svc);

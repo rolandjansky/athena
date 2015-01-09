@@ -26,7 +26,8 @@
 namespace MuonCalib {
 
 MdtCoolStrSvc::MdtCoolStrSvc(const std::string& name, ISvcLocator* svc) :
-  Service(name,svc)
+  AthService(name,svc),
+  p_detstore(0)
 {
   // declare properties
 }
@@ -43,7 +44,7 @@ StatusCode MdtCoolStrSvc::queryInterface(const InterfaceID& riid, void** ppvInte
   if (MdtICoolStrSvc::interfaceID().versionMatch(riid)) {
     *ppvInterface=(MdtICoolStrSvc*)this;
   } else {
-    return Service::queryInterface(riid,ppvInterface);
+    return AthService::queryInterface(riid,ppvInterface);
   }
   return StatusCode::SUCCESS;
 }
@@ -54,12 +55,11 @@ StatusCode MdtCoolStrSvc::initialize()
 
   MsgStream log(msgSvc(),name());
 
-  if (StatusCode::SUCCESS!=Service::initialize()) log << MSG::ERROR <<
-	    "Service initialisation failed" << endreq;
-
   log << MSG::DEBUG << "in initialize()" << endreq;
 
   // get detector store
+
+  
   if (StatusCode::SUCCESS!=service("DetectorStore",p_detstore)) {
     log << MSG::FATAL << "Detector store not found" << endreq; 
     return StatusCode::FAILURE;
@@ -132,7 +132,7 @@ StatusCode MdtCoolStrSvc::putFileT0(const std::string& folder,
     int size_fin = sdata_t0.size();
     std::cout << "size of fin " << size_fin << std::endl;
     
-    return putData(folder,filename,chan,tech,sdata_t0 ); 
+    putData(folder,filename,chan,tech,sdata_t0 ); 
   } else {
     log << MSG::INFO << "Cannot open file " << filename << endreq;
     return StatusCode::FAILURE;
@@ -147,13 +147,18 @@ StatusCode MdtCoolStrSvc::putFileRT(const std::string& folder,
     folder << " chan " << chan << " technology " << tech << endreq;
   // transform to a string
   FILE* f = fopen (filename.c_str(),"rb");
-  fseek (f, 0L, SEEK_END);
-  int size = ftell (f);
-  fseek (f, 0L, SEEK_SET);
+  int size;
   char string[255];
-  fgets (string , 255 ,f );
+  if (f) {
+      fseek (f, 0L, SEEK_END);
+      size = ftell (f);
+      fseek (f, 0L, SEEK_SET);
+      
+      fgets (string , 255 ,f );
+  }
+
   //puts (string);
-  char header[16000];
+  char header[16000]={""};
  
   char * pch;
   int i=0;
@@ -180,18 +185,20 @@ StatusCode MdtCoolStrSvc::putFileRT(const std::string& folder,
          std::cout<<" more than one Rt "<<numberOfRts
            <<" in the same file, format currently not supported!!!"<<std::endl;
          std::cout<<"ERROR ERROR ERROR ERROR ERROR ERROR ERROR"<<std::endl; 
+	  fclose (f);
          return StatusCode::FAILURE;
       }
     }
     if (i==toSkip) {
       // region number
-      strcpy(header, pch);
-      strcat(header, ",");
+      if (sizeof(header)>=sizeof(pch)) strcpy(header, pch);
+      
+      if (sizeof(header)>=sizeof(pch)+1) strcat(header, ",");
     }
     if (i==toSkip+1) {
       // number of rt points
-      strcat(header, pch);
-      strcat(header, " ");
+      if (sizeof(header)>=sizeof(pch))  strcat(header, pch);
+      if (sizeof(header)>=sizeof(pch)+1) strcat(header, " ");
     }
     pch = strtok (NULL, " ");
     i++;
@@ -207,13 +214,14 @@ StatusCode MdtCoolStrSvc::putFileRT(const std::string& folder,
       {
 	float rad; float sigma; float time;
 	
-	fscanf(f,"%f %f %f", &rad, &time, &sigma);
+	int ret = fscanf(f,"%f %f %f", &rad, &time, &sigma);
 	//printf("\n %8.3f %8.3f %8.3f \n",rad,time,sigma);
-	char * xmlt0;
-	asprintf (&xmlt0, "%f,%f,%f,", rad, time, sigma);
-	strcpy(pack,xmlt0);
-	strcat(header,pack);
-
+	if (ret!=0){
+	  char * xmlt0;
+	  asprintf (&xmlt0, "%f,%f,%f,", rad, time, sigma);
+	  if (sizeof(pack)>=sizeof(xmlt0)) strcpy(pack,xmlt0);
+	  if (sizeof(header)>=sizeof(pack)) strcat(header,pack);
+	}
       }
 
     std::string sdata = strcat(header," end ");
@@ -226,7 +234,7 @@ StatusCode MdtCoolStrSvc::putFileRT(const std::string& folder,
       int size_fin2 = sdata_rt.size();
       std::cout << "size of fin " << size_fin2 << std::endl;
 
-    return putData(folder,filename,chan,tech,sdata_rt );
+    putData(folder,filename,chan,tech,sdata_rt );
   } else {
     log << MSG::INFO << "Cannot open file " << filename << endreq;
     return StatusCode::FAILURE;
@@ -315,7 +323,7 @@ StatusCode MdtCoolStrSvc::putFileAlignCorr(const std::string& folder,
 
    f.close();
    //return StatusCode::SUCCESS;
-   return putData(folder,filename,chan,tech,sdata );
+   putData(folder,filename,chan,tech,sdata );
   } else {
     log << MSG::INFO << "Cannot open file " << filename << endreq;
     return StatusCode::FAILURE;
@@ -336,7 +344,7 @@ StatusCode MdtCoolStrSvc::putAligFromFile(const std::string& folder,
   fseek (f, 0L, SEEK_SET);
   
   std::string sdata;
-  if (f != NULL)   {
+  if (size!=0)   {
     log << MSG::INFO << "Input file size is " << size << endreq;
     char pack[1000];
     while(!feof(f)){
@@ -355,8 +363,8 @@ StatusCode MdtCoolStrSvc::putAligFromFile(const std::string& folder,
 	  if (i<11) {
 	    //printf ("%s\n",pch);
 	    //name=pch;
-	    strcpy(pack,pch);
-	    strcat(pack, ",");
+	    if (sizeof(pack)>=sizeof(pch)) strcpy(pack,pch);
+	    if (sizeof(pack)>=sizeof(pch)+1)strcat(pack, ",");
 	    if (pack != NULL) {
 	      sdata += pack;
 	    }
@@ -371,7 +379,7 @@ StatusCode MdtCoolStrSvc::putAligFromFile(const std::string& folder,
     std::cout<< sdata<< std::endl;
     fclose (f);
     
-    return putData(folder,filename,chan,tech,sdata );
+    putData(folder,filename,chan,tech,sdata );
   } else {
     log << MSG::INFO << "Cannot open file " << filename << endreq;
     return StatusCode::FAILURE;
@@ -401,12 +409,12 @@ StatusCode MdtCoolStrSvc::putFileTube(const std::string& folder,
   std::string sdata;
   // log << MSG::INFO << "entro nel loop"  << endreq;
 
-  if (f != NULL)   {
+  if (size!=0)   {
     log << MSG::INFO << "Input file size is " << size << endreq;
     
     while(!feof(f)){
       
-      char line[100];
+      char line[200];
       fgets (line , 200 ,f ); // header of the file
       puts(line);
      
@@ -420,39 +428,39 @@ StatusCode MdtCoolStrSvc::putFileTube(const std::string& folder,
 	  if (i==1) {
 	    printf ("%s\n",pch);
 	    //name=pch;
-	    strcpy(pack,pch);
-	    strcat(pack, ",");
+	    if (sizeof(pack)>=sizeof(pch)) strcpy(pack,pch);
+	    if (sizeof(pack)>=sizeof(pch)+1) strcat(pack, ",");
 	  }
 	   if (i==4) {
 	    printf ("%s\n",pch);
 	    //mlayer=pch;
-	    strcat(pack,pch);
-	    strcat(pack, ",");
+	    if (sizeof(pack)>=sizeof(pch)) strcat(pack,pch);
+	    if (sizeof(pack)>=sizeof(pch)+1) strcat(pack, ",");
 	  }
 	   if (i==5) {
 	    printf ("%s\n",pch);
 	    //layer=pch;
-	    strcat(pack,pch);
-	    strcat(pack, ",");
+	    if (sizeof(pack)>=sizeof(pch)) strcat(pack,pch);
+	    if (sizeof(pack)>=sizeof(pch)+1) strcat(pack, ",");
 	  }
 	    if (i==6) {
 	    printf ("%s\n",pch);
 	    //tube=pch;
-	    strcat(pack,pch);
-	    strcat(pack, ",");
+	    if (sizeof(pack)>=sizeof(pch)) strcat(pack,pch);
+	    if (sizeof(pack)>=sizeof(pch)+1) strcat(pack, ",");
 	  }
 	    i++;
 	  pch = strtok (NULL, " ,");
 	}
       
-      if (pack != NULL) sdata += pack;
+      if (sizeof(pack)!=0) sdata += pack;
       std::cout<< sdata<< std::endl;
 
     }
       
     sdata += " end";
     fclose (f);
-    return putData(folder,filename,chan,tech,sdata );
+    putData(folder,filename,chan,tech,sdata );
   } else {
     log << MSG::INFO << "Cannot open file " << filename << endreq;
     return StatusCode::FAILURE;

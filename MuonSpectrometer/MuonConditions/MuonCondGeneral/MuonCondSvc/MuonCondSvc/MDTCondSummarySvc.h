@@ -19,6 +19,7 @@
 
 #include "MuonCondInterface/IMDTConditionsSvc.h"
 #include "MuonCondInterface/IMDT_DCSConditionsSvc.h"
+#include "MuonCondInterface/IMDT_DCSConditionsRun2Svc.h"
 //Gaudi includes
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -43,6 +44,7 @@ class StatusCode;
 class Identifier;
 class IMDTConditionsSvc;
 class IMDT_DCSConditionsSvc;
+class IMDT_DCSConditionsRun2Svc;
 
 
 class MDTCondSummarySvc: virtual public IMDTConditionsSvc, public AthService{

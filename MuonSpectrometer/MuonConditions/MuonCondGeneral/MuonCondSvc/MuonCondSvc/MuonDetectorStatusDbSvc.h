@@ -9,7 +9,7 @@
 #include "StoreGate/DataHandle.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IInterface.h"
-
+#include "AthenaBaseComps/AthService.h"
 //#include "MuonIdHelpers/MdtIdHelper.h"
 #include "MuonCondInterface/IMuonDetectorStatusDbTool.h"
 #include "MuonCondData/MdtDeadTubeStatusContainer.h"
@@ -17,15 +17,15 @@
 
 
 class IIOVSvc;
-
+template <class TYPE> class SvcFactory;
 //namespace MuonCalib 
 //{  
 const InterfaceID InterfaceID_IMuonDetectorStatusDbSvc("MuonDetectorStatusDbSvc", 1, 0);
 class IMuonDetectorStatusDBTool;
 
 
-class MuonDetectorStatusDbSvc : public Service, virtual public IInterface {
-   
+class MuonDetectorStatusDbSvc : public AthService, virtual public IInterface {
+   friend class SvcFactory<MuonDetectorStatusDbSvc>;   
  public:
    MuonDetectorStatusDbSvc (const std::string& name, ISvcLocator* pSvcLocator);
 

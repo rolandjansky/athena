@@ -20,7 +20,9 @@
 
 
 RpcStatusDbSvc::RpcStatusDbSvc(const std::string& name, ISvcLocator* pSvcLocator) :
-  Service(name, pSvcLocator){
+  AthService(name, pSvcLocator),
+  m_dbTool(0)
+{
 
 
   m_dbToolType = "RpcDetectorStatusDbTool"; 
@@ -42,7 +44,7 @@ StatusCode RpcStatusDbSvc::queryInterface(const InterfaceID& riid, void** ppvIF)
     { 
       *ppvIF = (RpcStatusDbSvc*)this; 
     } else { 
-      return Service::queryInterface(riid, ppvIF); 
+      return AthService::queryInterface(riid, ppvIF); 
     }
   return StatusCode::SUCCESS;
 } 

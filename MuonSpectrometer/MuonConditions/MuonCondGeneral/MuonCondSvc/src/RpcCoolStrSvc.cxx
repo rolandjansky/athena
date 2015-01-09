@@ -47,9 +47,12 @@ namespace MuonCalib {
   //Half are for potential upgrade.
   
   RpcCoolStrSvc::RpcCoolStrSvc(const string& name, ISvcLocator* svc) :
-    Service(name,svc),
+    AthService(name,svc),
+    p_detstore(0),
+    m_rpcId(0),
     m_log(msgSvc(),name),  
-    m_folder("")
+    m_folder(""),   
+    m_debugLevel(false)
   {
     //declare properties
     declareProperty("Folder",m_folder);
@@ -67,7 +70,7 @@ namespace MuonCalib {
     if (RpcICoolStrSvc::interfaceID().versionMatch(riid)) {
       *ppvInterface=(RpcICoolStrSvc*)this;
     } else {
-      return Service::queryInterface(riid,ppvInterface);
+      return AthService::queryInterface(riid,ppvInterface);
     }
     return StatusCode::SUCCESS;
   }
@@ -79,8 +82,6 @@ namespace MuonCalib {
     m_debugLevel = (m_log.level() <= MSG::DEBUG);
     
     m_log << MSG::INFO << "Initializing RpcCoolStrSvc" <<endreq;
-    if (StatusCode::SUCCESS!=Service::initialize()) 
-      m_log << MSG::ERROR << "Service initialisation failed" << endreq;
     
     // get detector store, linked to cool database by other algorithms in your
     // jobOptions file.

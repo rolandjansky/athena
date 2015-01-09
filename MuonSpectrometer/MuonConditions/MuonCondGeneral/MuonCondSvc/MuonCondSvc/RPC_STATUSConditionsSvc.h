@@ -113,11 +113,8 @@ friend class SvcFactory<RPC_STATUSConditionsSvc>;
   std::string         m_DataLocation;
   std::string         m_dbToolType;
   std::string         m_dbToolName;
-  float m_RPC_PanelEfficiency;
-
-
   ToolHandle<IRpcDetectorStatusDbTool> m_condDataTool;
- 
+  float m_RPC_PanelEfficiency; 
 };
 
 #endif

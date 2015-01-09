@@ -14,6 +14,11 @@
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGate.h"
 
+#include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/DataHandle.h"
+#include "GaudiKernel/IInterface.h"
+#include "AthenaBaseComps/AthService.h"
+
 
 //Added for attribute list declarations (might not need all of these)
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
@@ -37,7 +42,7 @@
 #include "MuonCondInterface/RpcICoolStrSvc.h"
 
 class RpcIdHelper;
-
+template <class TYPE> class SvcFactory;
 namespace MuonCalib {
 
   /**
@@ -52,9 +57,9 @@ namespace MuonCalib {
 
   class RpcCalibDBEntry;
 
-  class RpcCoolStrSvc : public virtual RpcICoolStrSvc, public virtual Service
+  class RpcCoolStrSvc : public AthService, virtual public RpcICoolStrSvc
   {
-    template <class TYPE> class SvcFactory;
+   friend class SvcFactory<RpcCoolStrSvc>;
 
     public:
     RpcCoolStrSvc(const std::string& name, ISvcLocator* svc);
@@ -92,8 +97,7 @@ namespace MuonCalib {
     /**p_detstore hold a pointer to the transient data storage*/
     StoreGateSvc* p_detstore;
 
-    /**m_log used for sending messages*/
-    mutable MsgStream m_log;
+  
 
     /**RpcIdHelper is used to convert from identifiers to hash ids. MuonDetector manager is a
       requirement on RpcIdHelper*/
@@ -108,7 +112,8 @@ namespace MuonCalib {
     /// Conditions Attribute List collections used for getting datahandles for callback functions*/
     // const CondAttrListCollection* m_runAtrColl;
     // const CondAttrListCollection* m_pulserAtrColl;
-
+  /**m_log used for sending messages*/
+    mutable MsgStream m_log;
     /**Cool folder name*/
     std::string m_folder;
 

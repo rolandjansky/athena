@@ -43,7 +43,7 @@
 using namespace std;
 namespace MuonCalib {
   CscCoolStrSvc::CscCoolStrSvc(const string& name, ISvcLocator* svc) :
-    Service(name,svc),
+    AthService(name,svc),
     m_log(msgSvc(),name),  
     m_maxChamberHash(32), //retrieved later from cscIdHelper
     m_maxChanHash(61440), //retrieved later from cscIdHelper
@@ -91,7 +91,7 @@ namespace MuonCalib {
     if (CscICoolStrSvc::interfaceID().versionMatch(riid)) {
       *ppvInterface=(CscICoolStrSvc*)this;
     } else {
-      return Service::queryInterface(riid,ppvInterface);
+      return AthService::queryInterface(riid,ppvInterface);
     }
     return StatusCode::SUCCESS;
   }
@@ -106,13 +106,6 @@ namespace MuonCalib {
     m_verbose = (m_log.level() <= MSG::VERBOSE);
 
     m_log << MSG::INFO << "Initializing CscCoolStrSvc" <<endreq;
-
-    if (StatusCode::SUCCESS!=Service::initialize()) 
-    {
-      m_log << MSG::FATAL << "Service initialisation failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-
 
     // get detector store, linked to cool database by other algorithms in your
     // jobOptions file.

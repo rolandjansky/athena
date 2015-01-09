@@ -26,10 +26,12 @@ using namespace std;
 namespace MuonCalib{
 
 TriggerCoolSvc::TriggerCoolSvc(const string& name, ISvcLocator* svc) :
-  Service(name,svc),
+  AthService(name,svc),
+  p_detstore(0),
   m_log(msgSvc(),name),  
   m_etafolder("/RPC/TRIGGER/CM_THR_ETA"),
-  m_phifolder("/RPC/TRIGGER/CM_THR_PHI")
+  m_phifolder("/RPC/TRIGGER/CM_THR_PHI"),
+  m_debugLevel(false)
 {
   //declare properties
   declareProperty("EtaFolder",m_etafolder);
@@ -48,7 +50,7 @@ StatusCode TriggerCoolSvc::queryInterface(const InterfaceID& riid, void** ppvInt
   if (ITriggerCoolSvc::interfaceID().versionMatch(riid)) {
     *ppvInterface=(ITriggerCoolSvc*)this;
   } else {
-    return Service::queryInterface(riid,ppvInterface);
+    return AthService::queryInterface(riid,ppvInterface);
   }
   return StatusCode::SUCCESS;
 }
@@ -60,8 +62,6 @@ StatusCode TriggerCoolSvc::initialize()
   m_debugLevel = (m_log.level() <= MSG::DEBUG);
   
   m_log << MSG::INFO << "Initializing TriggerCoolSvc" <<endreq;
-  if (StatusCode::SUCCESS!=Service::initialize()) 
-    m_log << MSG::ERROR << "Service initialisation failed" << endreq;
   
   // get detector store, linked to cool database by other algorithms in your
   // jobOptions file.
@@ -106,11 +106,14 @@ StatusCode TriggerCoolSvc::writeToDBEta(const std::string& m_etafolder, const st
   FILE* f = fopen (filename_Th0.c_str(),"rb");
   if (f != NULL)   {
     fseek (f, 0L, SEEK_END);
-    int size = ftell (f);
+    unsigned int size = ftell (f);
     fseek (f, 0L, SEEK_SET);
     m_log << MSG::INFO << "Input Th0 file size is " << size << endreq;
+
     std::vector<char> sbuf(size);
-    fread(&sbuf[0],size,1,f);
+
+    if (sbuf.size()>= size) fread(&sbuf[0],size,1,f);
+    
     fclose (f);
     
     std::string sdata_Th0(sbuf.begin(),sbuf.begin()+size);

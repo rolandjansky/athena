@@ -15,6 +15,10 @@
 #include "StoreGate/StoreGate.h"
 
 
+#include "StoreGate/DataHandle.h"
+
+#include "GaudiKernel/IInterface.h"
+#include "AthenaBaseComps/AthService.h"
 //Added for attribute list declarations (might not need all of these)
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
@@ -26,12 +30,13 @@
 
 
 #include "MuonCondInterface/ITriggerCoolSvc.h"
+template <class TYPE> class SvcFactory;
 namespace MuonCalib {
 
-class TriggerCoolSvc : public virtual ITriggerCoolSvc, public virtual Service
+  class TriggerCoolSvc : public AthService, virtual public ITriggerCoolSvc
 {
-  template <class TYPE> class SvcFactory;
   
+ friend class SvcFactory<TriggerCoolSvc>; 
  public:
   TriggerCoolSvc(const std::string& name, ISvcLocator* svc);
 

@@ -27,13 +27,21 @@ def getProperty(configurable,property):
 def MDTCondSummarySvc(name,**kwargs):
     
      if athenaCommonFlags.isOnline:
-    
+
          kwargs['ConditionsServices'] = []  # COOL folders not available online
      else: 
-#         print "non-online", globalflags.DatabaseInstance, globalflags.DataSource, globalflags.ConditionsTag   
-         if globalflags.DatabaseInstance == 'CONDBR2' or globalflags.ConditionsTag == 'CONDBR2-ES1PA-2014-00':
-             
-             kwargs['ConditionsServices'] = []  # COOL folders not available online  // patch for RUN2 M5       
+         print "non-online", conddb.dbdata , globalflags.DatabaseInstance, globalflags.DataSource, globalflags.ConditionsTag   
+         #if globalflags.DatabaseInstance == 'CONDBR2' or globalflags.ConditionsTag == 'CONDBR2-ES1PA-2014-00':
+         if globalflags.DataSource != 'data':
+
+             kwargs['ConditionsServices'] = ['MDT_DCSConditionsSvc']
+         if globalflags.DataSource == 'data':
+
+             if conddb.dbdata=="CONDBR2":
+                 kwargs['ConditionsServices'] = ['MDT_DCSConditionsRun2Svc']
+             if conddb.dbdata !="CONDBR2":
+                 kwargs['ConditionsServices'] = ['MDT_DCSConditionsSvc']  
+           
      return CfgMgr.MDTCondSummarySvc(name,**kwargs)
 
 def RPCCondSummarySvc(name,**kwargs):
@@ -99,7 +107,8 @@ class MDT_DCSConditionsTool(CfgMgr.MDT_DCSConditionsTool):
         ### transfer some tool folders to conddb
         # if data COMP200
         if globalflags.DataSource == 'data':
-            if globalflags.DatabaseInstance != 'CONDBR2':
+            if globalflags.DatabaseInstance != 'CONDBR2'or conddb.dbdata!="CONDBR2":
+
                 self._folderHelper.dbFolderProperties = [ "DropChamberFolder", "LVFolder", "HVFolder", "JTAGFolder", "SetPointsV0Folder", "SetPointsV1Folder" ]
         else: # if MC or simulation
             self._folderHelper.dbFolderProperties = [ "DropChamberFolder", "LVFolder" ]
@@ -110,6 +119,28 @@ class MDT_DCSConditionsTool(CfgMgr.MDT_DCSConditionsTool):
     # automatic forwarding to conddb if folder property is set later on
     def __setattr__(self,name,value):
         super(MDT_DCSConditionsTool,self).__setattr__(name,value)
+        if hasattr(self,'_folderHelper'):
+            self._folderHelper.setupDbFolderFromPropertyIf(name)
+
+
+
+class MDT_DCSConditionsRun2Tool(CfgMgr.MDT_DCSConditionsRun2Tool):
+    __slots__ = ( '_folderHelper', ) # NB: comma is required to make it a tuple of length 1. Otherwise it is just a string.
+
+    def __init__(self,name="MDT_DCSConditionsRun2Tool",**kwargs):
+        # data vs. MC/simulation no Simulation with this tool
+        super(MDT_DCSConditionsRun2Tool,self).__init__(name,**kwargs)
+        self._folderHelper = MuonConditionsFolderHelper(self,"DCS_OFL")
+        if globalflags.DataSource == 'data':
+            if globalflags.DatabaseInstance == 'CONDBR2'or conddb.dbdata=="CONDBR2":
+                self._folderHelper.dbFolderProperties = [ "LVFolder", "HVFolder" ]
+        
+        self._folderHelper.setupDbFolders()
+
+
+    # automatic forwarding to conddb if folder property is set later on
+    def __setattr__(self,name,value):
+        super(MDT_DCSConditionsRun2Tool,self).__setattr__(name,value)
         if hasattr(self,'_folderHelper'):
             self._folderHelper.setupDbFolderFromPropertyIf(name)
 

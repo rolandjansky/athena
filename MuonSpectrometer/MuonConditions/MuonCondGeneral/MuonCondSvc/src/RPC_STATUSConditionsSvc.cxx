@@ -24,7 +24,8 @@
 
 RPC_STATUSConditionsSvc::RPC_STATUSConditionsSvc(const std::string& name, ISvcLocator* pSvcLocator) :
   AthService(name, pSvcLocator),
-  m_condDataTool("RpcDetectorStatusDbTool")
+  m_condDataTool("RpcDetectorStatusDbTool"),
+  m_RPC_PanelEfficiency(0)
 {
  
   //  declareProperty( "DCSInfofromCool",m_dcsInfofromCool=true);

@@ -16,7 +16,10 @@
 namespace MuonCalib 
 {  
 MuonAlignmentDbSvc::MuonAlignmentDbSvc(const std::string& name, ISvcLocator* pSvcLocator) :
-  Service(name, pSvcLocator){
+  AthService(name, pSvcLocator),
+  m_dbTool(0)
+{
+
 
      m_dbToolType = "MuonCalib::MuonAlignmentDbTool";
      m_dbToolName = "MuonCalib_MuonAlignmentDbTool";
@@ -39,7 +42,7 @@ StatusCode MuonAlignmentDbSvc::queryInterface(const InterfaceID& riid, void** pp
     { 
       *ppvIF = (MuonAlignmentDbSvc*)this; 
     } else { 
-      return Service::queryInterface(riid, ppvIF); 
+      return AthService::queryInterface(riid, ppvIF); 
     }
   return StatusCode::SUCCESS;
 } 

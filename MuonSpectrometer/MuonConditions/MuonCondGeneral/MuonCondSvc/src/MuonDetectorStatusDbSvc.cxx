@@ -20,7 +20,9 @@
 //namespace MuonCalib 
 //{  
 MuonDetectorStatusDbSvc::MuonDetectorStatusDbSvc(const std::string& name, ISvcLocator* pSvcLocator) :
-  Service(name, pSvcLocator){
+  AthService(name, pSvcLocator),
+  m_dbTool(0)
+{
 
 
   m_dbToolType = "MuonDetectorStatusDbTool"; 
@@ -42,7 +44,7 @@ StatusCode MuonDetectorStatusDbSvc::queryInterface(const InterfaceID& riid, void
     { 
       *ppvIF = (MuonDetectorStatusDbSvc*)this; 
     } else { 
-      return Service::queryInterface(riid, ppvIF); 
+      return AthService::queryInterface(riid, ppvIF); 
     }
   return StatusCode::SUCCESS;
 } 

@@ -35,7 +35,7 @@ MDTCondSummarySvc::MDTCondSummarySvc( const std::string& name, ISvcLocator* pSvc
   m_reportingServices(name),m_pHelper(0),
   m_detStore("DetectorStore",name),m_noReports(true){
   // default services
-  m_reportingServices.push_back("MDT_DCSConditionsSvc");
+  //  m_reportingServices.push_back("MDT_DCSConditionsSvc");
   
   declareProperty("ConditionsServices",m_reportingServices);
   declareProperty("DetStore", m_detStore);
@@ -311,13 +311,16 @@ const std::vector<std::string>& MDTCondSummarySvc::deadMultiLayers() const{
     ServiceHandleArray<IMDTConditionsSvc>::const_iterator svc(m_reportingServices.begin());
     ServiceHandleArray<IMDTConditionsSvc>::const_iterator lastSvc(m_reportingServices.end());
     for (;svc not_eq lastSvc;++svc){
-      return (*svc)->deadMultiLayers();
+      if ((*svc)->deadMultiLayers().size()!=0){
+	return (*svc)->deadMultiLayers();
+      }else {
+	msg(MSG::VERBOSE)<<" Dead Stations MDTConditionsSummarySvc "<<endreq;
+	
+      }
     }
-    msg(MSG::VERBOSE)<<" Dead Stations MDTConditionsSummarySvc "<<endreq;
-     
   }
   return empty; 
-}
+  }
 
 
 

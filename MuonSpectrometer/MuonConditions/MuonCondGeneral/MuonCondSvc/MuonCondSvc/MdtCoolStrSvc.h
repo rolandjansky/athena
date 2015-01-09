@@ -5,14 +5,20 @@
 #ifndef MUONCONDSVC_MDTCOOLSTRSVC_H
 #define MUONCONDSVC_MDTCOOLSTRSVC_H
 
+#include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/DataHandle.h"
+#include "GaudiKernel/Service.h"
+#include "GaudiKernel/IInterface.h"
+#include "AthenaBaseComps/AthService.h"
 
 #include "MuonCondInterface/MdtICoolStrSvc.h"
 #include "GaudiKernel/Service.h"
 #include "StoreGate/StoreGate.h"
 namespace MuonCalib {
-class MdtCoolStrSvc : public virtual MdtICoolStrSvc, public virtual Service
+class MdtCoolStrSvc : public AthService, virtual MdtICoolStrSvc
 {
-  template <class TYPE> class SvcFactory;
+  friend class SvcFactory<MdtCoolStrSvc>;   
+  //  template <class TYPE> class SvcFactory;
 
  public:
   MdtCoolStrSvc(const std::string& name, ISvcLocator* svc);

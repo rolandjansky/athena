@@ -9,7 +9,7 @@
 #include "StoreGate/DataHandle.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IInterface.h"
-
+#include "AthenaBaseComps/AthService.h"
 
 #include "MuonCondInterface/IRpcDetectorStatusDbTool.h"
 //#include "MuonCondData/RpcCalibDataContainer.h"
@@ -22,8 +22,8 @@ const InterfaceID InterfaceID_IRpcStatusDbSvc("RpcStatusDbSvc", 1, 0);
 class IRpcStatusDBTool;
 
 
-class RpcStatusDbSvc : public Service, virtual public IInterface {
-   
+class RpcStatusDbSvc : public AthService, virtual public IInterface {
+  friend class SvcFactory<RpcStatusDbSvc>; 
  public:
    RpcStatusDbSvc (const std::string& name, ISvcLocator* pSvcLocator);
 

@@ -10,4 +10,5 @@ addTool("MuonCondSvc.MuonTopCondSvcConfig.MDT_DCSConditionsTool","MDT_DCSConditi
 addTool("MuonCondSvc.MuonTopCondSvcConfig.RpcDetectorStatusDbTool","RpcDetectorStatusDbTool")
 addTool("MuonCondSvc.MuonTopCondSvcConfig.CSC_DCSConditionsTool","CSC_DCSConditionsTool")
 addTool("MuonCondSvc.MuonTopCondSvcConfig.RPC_DCSConditionsTool","RPC_DCSConditionsTool") 
+addTool("MuonCondSvc.MuonTopCondSvcConfig.MDT_DCSConditionsRun2Tool","MDT_DCSConditionsRun2Tool")
 #addTool("MuonCondSvc.MuonTopCondSvcConfig.TGC_STATUSConditionsTool","TGC_STATUSConditionsTool")
