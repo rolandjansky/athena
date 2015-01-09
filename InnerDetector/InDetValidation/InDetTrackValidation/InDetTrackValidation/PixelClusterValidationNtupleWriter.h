@@ -21,13 +21,28 @@
 #include <vector>
 #include <string>
 
+// Constants to deal with diffenrent geometries.
+#define ATLAS 0
+#define IBL   1
+#define SLHC  2
+#define SLHC2  3
+
+#define ATLASPITCHY  0.4
+#define SLHCPITCHY  0.25
+#define IBLPITCHY  0.25
+#define SLHC2_PITCHY_A  0.15
+#define SLHC2_PITCHY_B  0.25
+
+
+
+
 class PixelID;
 class TTree;
 class SiHit;
 class IPixelOfflineCalibSvc;
-
 class IBeamCondSvc;
-
+class IGeoModelSvc;
+class IBLParameterSvc;
 
 
 namespace InDet {
@@ -79,7 +94,7 @@ public:
     std::vector<int> FindMultipleAssociatedParticle(int, int, int);
     
 private:
-    //    NNinput*  createInput(const InDet::PixelCluster , HepPoint3D  , double , int , int );
+    //    NNinput*  createInput(const InDet::PixelCluster , HepPoint3D  , double , double , int , int );
 
     StatusCode fillClusterVector(const InDet::PixelCluster& cluster, IdentifierHash element_hash );
 
@@ -87,6 +102,7 @@ private:
                      //    HepPoint3D & beamSpotPosition,
                            Amg::Vector3D & beamSpotPosition,
                          double & tanl,
+                         double & pitch_y,
                          int sizeX=7,
                          int sizeY=7);
 
@@ -103,9 +119,11 @@ private:
     bool mjo_NotAssociated;				 //!< jobOption: fill not associated Pixel Geant4 hits info
     bool mjo_WriteDetailedPixelInformation;              //!< jobOption: fill pixel info: ToT, Charge, eta, phi, LVL1A
     bool mjo_NN;			 	   	 //!< jobOption: Write training NN ntuple 
+    bool mjo_ToT;			 	   	 //!< jobOption: Write ToT instead of charge to the NN training ntuple 
     bool mjo_onTrack;                                    //!< jobOption: fill only for cluster on track
     mutable const TrackCollection*        m_trackCollection;
- 
+    bool                              m_IBLAbsent;
+    ServiceHandle<IBLParameterSvc>    m_IBLParameterSvc; 
     ServiceHandle<IPixelOfflineCalibSvc> m_pixelCalib;
     ServiceHandle<IBeamCondSvc> m_iBeamCondSvc;
 
@@ -120,12 +138,23 @@ private:
     TTree* m_nt;
     TTree* m_nnt;
 
+    // --- Contans Geometry
+    int _geoId;    //!< Geometry ID (see defines in header).
+    float _pitchY; //!< default y pitch.
+    // Number of layers to flip in SLHC 
+    int _slhc_layer_flip_1;
+    int _slhc_layer_flip_2;
+    int _slhc_layer_flip_3;
+
     // --- ntuple items ---
     long m_eventNumber;      //!< current event number
     long m_pixClusNum;       //!< number of pixel clusters per event
     long m_nRIOs;
 
     long m_lvl1TriggerType;  //!< Level1 Trigger type (stream) UNIT:8-bit
+
+    /// Access to GeoModelSvc for tags
+    IGeoModelSvc* m_geoModel;   
     
     std::vector<float>*   m_PixClusLocX;      //!< Local X coordinate of the cluster (digital position) UNIT:mm
     std::vector<float>*   m_PixClusLocY;      //!< Local Y coordinate of the cluster (digital position) UNIT:mm
@@ -188,6 +217,8 @@ private:
     std::vector<float>*   m_PixHitTime;      	//!< G4 hit arrival time UNIT:ns
     std::vector<int>*     m_PixHitPDGParticle; 	//!< G4 hit particle PDG code 
     std::vector<int>*	  m_PixHitFlag;      	//!< G4 hit flag
+    std::vector<int>*	    m_PixHitBarcode;      	//!< G4 hit flag
+    std::vector<float>*   m_PixHitParticleP;
 //    std::vector<int>*     m_PixHitEtaIndex_delta;
 //    std::vector<int>*     m_PixHitPhiIndex_delta;
 
@@ -200,6 +231,8 @@ private:
     std::vector<float>*   m_MC_Time; 	       //!< G4 hit associated to cluster arrival time UNIT:ns
     std::vector<int>*     m_MC_PDGParticle;    //!< G4 hit associated to cluster particle PDG code 
     std::vector<int>*     m_MC_Flag; 	       //!< G4 hit associated to cluster flag 
+    std::vector<int>*     m_MC_Barcode;      //!< G4 hit associated to cluster particle PDG code 
+    std::vector<float>*   m_MC_Momentum;      //!< G4 hit associated to cluster particle PDG code 
 
     std::vector<float>*   m_NotAssociated_Xpos;  	  //!< Local X position of G4 hit not associated to any cluster UNIT:mm
     std::vector<float>*   m_NotAssociated_Ypos; 	  //!< Local Y position of G4 hit not associated to any cluster UNIT:mm
@@ -244,6 +277,15 @@ private:
 
     std::vector<std::vector<float> >* m_NN_theta;
     std::vector<std::vector<float> >* m_NN_phi;
+    
+    
+    std::vector<std::vector<int> >* m_NN_pdgid;
+    std::vector<std::vector<int> >* m_NN_barcode;
+
+    std::vector<std::vector<float> >* m_NN_momentum;
+    std::vector<std::vector<float> >* m_NN_distanceX;
+    std::vector<std::vector<float> >* m_NN_distanceY;
+
 
     Amg::Vector2D GetDigitalPosition(const InDet::PixelCluster*& pix,
 			                  const InDetDD::SiDetectorElement*& EL) const;

@@ -19,8 +19,7 @@
 
 #include "GaudiKernel/ListItem.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "InDetPrepRawData/TRT_DriftCircle.h"
 
@@ -101,12 +100,12 @@ StatusCode InDet::TRT_DriftCircleValidationNtupleWriter::execute() {
 
     //-------------
     // get the event number    
-    const EventInfo* eventInfo;
+    const xAOD::EventInfo* eventInfo;
     sc = evtStore()->retrieve(eventInfo);
     if (sc.isFailure()) {
         ATH_MSG_ERROR( "Could not retrieve event info" );
     }
-    m_eventNumber = eventInfo->event_ID()->event_number();
+    m_eventNumber = eventInfo->eventNumber();
     int RIOindex = 0;
     // reset variables
     m_nRIOs = 0;

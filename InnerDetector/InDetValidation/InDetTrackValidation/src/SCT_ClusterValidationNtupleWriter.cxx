@@ -33,8 +33,7 @@
 #include "TrkTrack/TrackCollection.h"
 #include "DataModel/DataVector.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "InDetPrepRawData/SCT_Cluster.h"
 
@@ -284,16 +283,16 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
 
     //-------------
     // get some event properties    
-    const EventInfo* eventInfo;
+    const xAOD::EventInfo* eventInfo;
     sc = evtStore()->retrieve(eventInfo);
     if (sc.isFailure()) {
         ATH_MSG_ERROR( "Could not retrieve event info" );
     }
-    m_runNumber     = eventInfo->event_ID()->run_number(); 
-    m_eventNumber   = eventInfo->event_ID()->event_number();
-    m_lumiBlock     = eventInfo->event_ID()->lumi_block();
-    m_timeStamp     = eventInfo->event_ID()->time_stamp();
-    m_bunchCrossing = eventInfo->event_ID()->bunch_crossing_id();
+    m_runNumber     = eventInfo->runNumber(); 
+    m_eventNumber   = eventInfo->eventNumber();
+    m_lumiBlock     = eventInfo->lumiBlock();
+    m_timeStamp     = eventInfo->timeStamp();
+    m_bunchCrossing = eventInfo->bcid();
 
     // reset variables
     m_nRIOs = 0;

@@ -48,8 +48,7 @@
 #include "CLHEP/Vector/TwoVector.h"
 
 #include "TrkTrack/TrackStateOnSurface.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/TriggerInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
@@ -613,15 +612,12 @@ StatusCode InDet::SiResidualValidationNtupleHelper::fillMeasurementData (
 		const int& detectorType, const bool& isOutlier) const{
 
 
-	const EventInfo* m_eventInfo;
+        const xAOD::EventInfo* m_eventInfo;
 	StatusCode status = evtStore()->retrieve(m_eventInfo);
 	if (status.isFailure())
 		ATH_MSG_ERROR( "Could not retrieve event info" );
 
-	const TriggerInfo* myTriggerInfo=m_eventInfo->trigger_info();
-	if (myTriggerInfo!=0) m_lvl1TriggerType = myTriggerInfo->level1TriggerType();
-	else m_lvl1TriggerType=-1000;
-
+	m_lvl1TriggerType = m_eventInfo->level1TriggerType();
 	ATH_MSG_DEBUG(m_lvl1TriggerType );
 
 

@@ -15,6 +15,7 @@ use TrkValInterfaces        TrkValInterfaces-*          Tracking/TrkValidation
 use GaudiInterface          GaudiInterface-*            External
 use TrkTrack                TrkTrack-*                  Tracking/TrkEvent
 
+
 library InDetTrackValidation *.cxx components/*.cxx
 apply_pattern component_library
 
@@ -31,9 +32,12 @@ use TrkRIO_OnTrack          TrkRIO_OnTrack-*            Tracking/TrkEvent
 use TrkMeasurementBase      TrkMeasurementBase-*        Tracking/TrkEvent
 use TrkPrepRawData          TrkPrepRawData-*            Tracking/TrkEvent
 use TrkSurfaces             TrkSurfaces-*               Tracking/TrkDetDescr
-use EventInfo               EventInfo-*                 Event
+use xAODEventInfo           xAODEventInfo-*             Event/xAOD
 use AtlasHepMC              AtlasHepMC-*                External
 use GeneratorObjects        GeneratorObjects-*          Generators
+
+use GeoModelInterfaces      GeoModelInterfaces-*        DetectorDescription/GeoModel
+use PixelGeoModel           PixelGeoModel-*             InnerDetector/InDetDetDescr
 
 use InDetIdentifier         InDetIdentifier-*           InnerDetector/InDetDetDescr
 use InDetRIO_OnTrack        InDetRIO_OnTrack-*          InnerDetector/InDetRecEvent
