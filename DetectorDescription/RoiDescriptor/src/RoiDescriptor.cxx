@@ -42,7 +42,7 @@ RoiDescriptor::RoiDescriptor( bool fullscan )
     m_drdzMinus(0), m_drdzPlus(0), 
     m_fullscan(fullscan),
     m_composite(false),
-    m_manageConstituents(false),
+    m_manageConstituents(true),
     m_version(4)
 {
   /// if full scan, give it full detector limits just in 
@@ -65,7 +65,7 @@ RoiDescriptor::RoiDescriptor(double _eta, double _etaMinus, double _etaPlus,
      m_drdzMinus(0), m_drdzPlus(0), 
      m_fullscan(false),
      m_composite(false),
-     m_manageConstituents(false),
+     m_manageConstituents(true),
      m_version(4)
 {
   construct( _eta, _etaMinus, _etaPlus, _phi, _phiMinus, _phiPlus, _zed, _zedMinus, _zedPlus );
@@ -82,7 +82,7 @@ RoiDescriptor::RoiDescriptor(double _etaMinus, double _etaPlus,
      m_drdzMinus(0), m_drdzPlus(0), 
      m_fullscan(false),
      m_composite(false),
-     m_manageConstituents(false),
+     m_manageConstituents(true),
      m_version(4)
 {
   double _eta = 0.5*(_etaMinus+_etaPlus);
@@ -274,8 +274,7 @@ RoiDescriptor::operator std::string() const {
   std::stringstream ss;
   ss << " z: "   << zed() << " (" <<  zedMinus() << " - " << zedPlus() << ")" 
      << " eta: " << eta() << " (" <<  etaMinus() << " - " << etaPlus() << ")" 
-     << " phi: " << phi() << " (" <<  phiMinus() << " - " << phiPlus() << ")" 
-     << " RoIid: " << roiId() << " RoIword: " << roiWord();
+     << " phi: " << phi() << " (" <<  phiMinus() << " - " << phiPlus() << ")"; 
   if ( composite() ) { 
     ss << "\t : components: " << size() << "\n";
     for ( unsigned i=0 ; i<size() ; i++ ) ss << "\t\t" << i << *at(i) << "\n";

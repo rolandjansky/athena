@@ -110,7 +110,7 @@ public:
   int   version() const { return m_version; } 
 
   /// output
-  operator std::string() const;
+  virtual operator std::string() const;
 
   /// is this a full scan RoI?
   bool  isFullscan() const { return m_fullscan; }
@@ -184,7 +184,7 @@ protected:
 		 double zed, double zedMinus, double zedPlus); 
 
 
-private:
+protected:
 
   /// these should be virtual, and not part of the interface
 
