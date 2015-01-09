@@ -69,7 +69,6 @@ TrigTauRec_h5_EF.TrigTauCalibrate.FudgeFactor        = 1.011
 #TrigTauRec_h5_EF.TrigTauCuts.PtMaxTrackMin           = 10000.0  # Min. Pt of the hardest track
 
 
-include( "TrackToCalo/ExtrapolToCaloTool_joboptions.py" )
 TrigTauRec_h5_EF.TrigTauTracks.tauRecTTCExtrapolator.Extrapolator='Trk::Extrapolator/InDetExtrapolator'
 TrigTauRec_h5_EF.TrigTauTracks.tauRecTTCExtrapolator.CaloDepthTool.DepthChoice = "entrance"
 

@@ -20,18 +20,19 @@ use TrigInterfaces          TrigInterfaces-*             Trigger/TrigSteer
 use TrigSteeringEvent       TrigSteeringEvent-*          Trigger/TrigEvent
 use TrigTimeAlgs            TrigTimeAlgs-*               Trigger/TrigTools
 
-use LumiBlockComps          LumiBlockComps-*             LumiBlock # MY EDIT
+use LumiBlockComps          LumiBlockComps-*             LumiBlock
+use InDetBeamSpotService    InDetBeamSpotService-*	 InnerDetector/InDetConditions
 
 private
-use CaloEvent		    CaloEvent-*			 Calorimeter
-use EventKernel		    EventKernel-*		 Event
-use NavFourMom	  	    NavFourMom-*		 Event
-use Particle		    Particle-*			 Reconstruction
-use TrigT1Interfaces        TrigT1Interfaces-*           Trigger/TrigT1
-use VxVertex		    VxVertex-*			 Tracking/TrkEvent
-use  xAODTau                    xAODTau-*                       Event/xAOD
-use  xAODJet                    xAODJet-*                       Event/xAOD
-use xAODTracking		xAODTracking-*			Event/xAOD
+use CaloEvent		CaloEvent-*		Calorimeter
+use EventKernel		EventKernel-*		Event
+use NavFourMom		NavFourMom-*		Event
+use Particle		Particle-*		Reconstruction
+use TrigT1Interfaces	TrigT1Interfaces-*	Trigger/TrigT1
+use VxVertex		VxVertex-*		Tracking/TrkEvent
+use xAODTau		xAODTau-*		Event/xAOD
+use xAODJet		xAODJet-*		Event/xAOD
+use xAODTracking	xAODTracking-*		Event/xAOD
 
 # =====================================================================
 apply_pattern dual_use_library files=*.cxx

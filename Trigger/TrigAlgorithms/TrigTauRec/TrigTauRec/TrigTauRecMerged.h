@@ -24,10 +24,13 @@
 #include "tauRec/TauToolBase.h"
 
 #include "LumiBlockComps/ILuminosityTool.h" 
+#include "InDetBeamSpotService/IBeamCondSvc.h"
 
 namespace HLT {
   class TriggerElement;
 }
+
+class ILumiBlockMuTool;
 
 class TrigTauRecMerged: public HLT::FexAlgo {
 
@@ -80,14 +83,22 @@ class TrigTauRecMerged: public HLT::FexAlgo {
   };
 
 
+  /** output container name */
+  std::string m_outputName;
+
   /** internal tool store */
   ToolHandleArray<TauToolBase>  m_tools;
 
   /** internal tool store */
   ToolHandleArray<TauToolBase>  m_endtools;
 
-  ToolHandle<ILuminosityTool>   m_lumiTool; 
+  /** Luminosity Tool */
+  ToolHandle<ILuminosityTool>  m_lumiTool; 
+  ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool;
 
+  /** Beam spot service */
+  ServiceHandle<IBeamCondSvc>  m_beamSpotSvc;
+  
   /** only build taus with eta_seed < m_maxeta */
   float m_maxeta;
 

@@ -40,6 +40,8 @@
 #include "xAODTau/TauJetAuxContainer.h"
 #include "xAODTau/TauDefs.h"
 
+#include "LumiBlockComps/ILumiBlockMuTool.h"
+
 #include "TrigTauRec/TrigTauRecMerged.h"
 
 
@@ -49,129 +51,137 @@ using namespace std;
 // Invokes base class constructor.
 TrigTauRecMerged::TrigTauRecMerged(const std::string& name,ISvcLocator* pSvcLocator):
 		  HLT::FexAlgo(name, pSvcLocator),
+		  m_outputName("TrigTauRecMerged"),
 		  m_tools(this),
 		  m_endtools(this),
 		  m_lumiTool("LuminosityTool"),
+		  m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),
+		  m_beamSpotSvc("BeamCondSvc", name),
 		  m_maxeta( 2.5 ),
 		  m_minpt( 10000 ),
 		  m_trkcone( 0.2 )
 {
-
-	// The following properties can be specified at run-time
-	// (declared in jobOptions file)
-
-	/** Maximal eta value for the seeds to be accepted */
-	declareProperty("maxeta",m_maxeta,"max eta for tau");
-
-	/** minimal pt of a seed */
-	declareProperty("minpt",m_minpt,"min pt for tau");
-
-	/** list of tool names to be invoked */
-	declareProperty( "Tools", m_tools, "List of TauToolBase tools" );
-
-	/** list of end tool names to be invoked */
-	declareProperty( "EndTools", m_endtools, "List of End TauToolBase tools" );
-
-	/** cone for trk seed  */
-	declareProperty("trkcone",m_trkcone,"max distance track seed from roi center");
-
-	declareProperty("LuminosityTool", m_lumiTool, "Luminosity Tool");
-
-	/** number of cells in ROI */
-	declareMonitoredVariable("nRoI_EFTauCells",m_nCells);
-
-	/** number of tracks in ROI */
-	declareMonitoredVariable("nRoI_EFTauTracks",m_nTracks);
-
-	/** eta of Tau - eta ROI */
-	declareMonitoredVariable("dEtaEFTau_RoI",m_dEta);
-
-	/** phi of Tau - phi ROI */
-	declareMonitoredVariable("dPhiEFTau_RoI",m_dPhi);
-
-	/** EMRadius */
-	declareMonitoredVariable("EF_EMRadius",m_emRadius);
-
-	/** HadRadius */
-	declareMonitoredVariable("EF_HadRadius",m_hadRadius);
-
-	/** Calibrated Et */
-	declareMonitoredVariable("EF_EtFinal",m_EtFinal);
-
-	/** Et at EM scale*/
-	declareMonitoredVariable("EF_Et",m_Et);
-
-	/** had Et at EM scale*/
-	declareMonitoredVariable("EF_EtHad",m_EtHad);
-
-	/** EM Et at EM scale */
-	declareMonitoredVariable("EF_EtEm",m_EtEm);
-
-	/** EM fraction of tau energy */
-	declareMonitoredVariable("EF_EMFrac",m_EMFrac);
-
-	/** Isolation fraction */
-	declareMonitoredVariable("EF_IsoFrac",m_IsoFrac);
-
-	/** seedCalo_centFrac **/
-	declareMonitoredVariable("EF_centFrac",m_centFrac);
-	/** seedCalo_nWideTrk **/
-	declareMonitoredVariable("EF_nWideTrk",m_nWideTrk);
-	/** ipSigLeadTrk **/
-	declareMonitoredVariable("EF_ipSigLeadTrk",m_ipSigLeadTrk);
-	/** trFlightPathSig **/
-	declareMonitoredVariable("EF_trFlightPathSig",m_trFlightPathSig);
-	/** massTrkSys **/
-	declareMonitoredVariable("EF_massTrkSys",m_massTrkSys);
-	/** seedCalo_dRmax **/
-	declareMonitoredVariable("EF_dRmax",m_dRmax);
-	/** Number of tracks used for tau ID */
-	declareMonitoredVariable("EF_NTrk",m_numTrack);
-
-	/** Track Average Distance used for tau ID */
-	declareMonitoredVariable("EF_TrkAvgDist",m_trkAvgDist);
-
-	/** Et over lead track pt used for tau ID */
-	declareMonitoredVariable("EF_EtovPtLead",m_etovPtLead);
-
-	/** presampler strip energy fraction **/
-	declareMonitoredVariable("EF_PSSFraction",m_PSSFraction);
-
-	/** EMPOverTrkSysP **/
-	declareMonitoredVariable("EF_EMPOverTrkSysP",m_EMPOverTrkSysP);
-
-	/** EM energy of charged pions over calorimetric EM energy **/
-	declareMonitoredVariable("EF_ChPiEMEOverCaloEME",m_ChPiEMEOverCaloEME);
-
-	/** Number tau candidates */
-	declareMonitoredVariable("EF_nCand",m_Ncand);
-
-	/** Eta of L1 RoI */
-	declareMonitoredVariable("EtaL1",m_EtaL1);
-
-	/** Phi of L1 RoI */
-	declareMonitoredVariable("PhiL1",m_PhiL1);
-
-	/** Eta of L1 RoI */
-	declareMonitoredVariable("EtaEF",m_EtaEF);
-
-	/** Phi of L1 RoI */
-	declareMonitoredVariable("PhiEF",m_PhiEF);
-
-	/** Errors */
-	declareMonitoredStdContainer("EF_calo_errors",m_calo_errors);
-
-	/** Errors */
-	declareMonitoredStdContainer("EF_track_errors",m_track_errors);
-
-	/** Author */
-	declareMonitoredStdContainer("EF_author",m_author);
-
-	/** deltaZ0 core Trks*/
-	declareMonitoredStdContainer("EF_deltaZ0coreTrks",m_deltaZ0coreTrks);
-
-	/** deltaZ0 wide Trks*/
-	declareMonitoredStdContainer("EF_deltaZ0wideTrks",m_deltaZ0wideTrks);
+  
+  // The following properties can be specified at run-time
+  // (declared in jobOptions file)
+  
+  /** Name of output collection */
+  declareProperty("OutputCollection",m_outputName,"Name of output collection");
+  
+  /** Maximal eta value for the seeds to be accepted */
+  declareProperty("maxeta",m_maxeta,"max eta for tau");
+  
+  /** minimal pt of a seed */
+  declareProperty("minpt",m_minpt,"min pt for tau");
+  
+  /** list of tool names to be invoked */
+  declareProperty( "Tools", m_tools, "List of TauToolBase tools" );
+  
+  /** list of end tool names to be invoked */
+  declareProperty( "EndTools", m_endtools, "List of End TauToolBase tools" );
+  
+  /** cone for trk seed  */
+  declareProperty("trkcone",m_trkcone,"max distance track seed from roi center");
+  
+  /** Luminosity tools - first is deprecated but kept in case of need  */
+  declareProperty("LuminosityTool", m_lumiTool, "Luminosity Tool");
+  declareProperty("LumiBlockMuTool", m_lumiBlockMuTool, "Luminosity Tool" );
+  
+  /** number of cells in ROI */
+  declareMonitoredVariable("nRoI_EFTauCells",m_nCells);
+  
+  /** number of tracks in ROI */
+  declareMonitoredVariable("nRoI_EFTauTracks",m_nTracks);
+  
+  /** eta of Tau - eta ROI */
+  declareMonitoredVariable("dEtaEFTau_RoI",m_dEta);
+  
+  /** phi of Tau - phi ROI */
+  declareMonitoredVariable("dPhiEFTau_RoI",m_dPhi);
+  
+  /** EMRadius */
+  declareMonitoredVariable("EF_EMRadius",m_emRadius);
+  
+  /** HadRadius */
+  declareMonitoredVariable("EF_HadRadius",m_hadRadius);
+  
+  /** Calibrated Et */
+  declareMonitoredVariable("EF_EtFinal",m_EtFinal);
+  
+  /** Et at EM scale*/
+  declareMonitoredVariable("EF_Et",m_Et);
+  
+  /** had Et at EM scale*/
+  declareMonitoredVariable("EF_EtHad",m_EtHad);
+  
+  /** EM Et at EM scale */
+  declareMonitoredVariable("EF_EtEm",m_EtEm);
+  
+  /** EM fraction of tau energy */
+  declareMonitoredVariable("EF_EMFrac",m_EMFrac);
+  
+  /** Isolation fraction */
+  declareMonitoredVariable("EF_IsoFrac",m_IsoFrac);
+  
+  /** seedCalo_centFrac **/
+  declareMonitoredVariable("EF_centFrac",m_centFrac);
+  /** seedCalo_nWideTrk **/
+  declareMonitoredVariable("EF_nWideTrk",m_nWideTrk);
+  /** ipSigLeadTrk **/
+  declareMonitoredVariable("EF_ipSigLeadTrk",m_ipSigLeadTrk);
+  /** trFlightPathSig **/
+  declareMonitoredVariable("EF_trFlightPathSig",m_trFlightPathSig);
+  /** massTrkSys **/
+  declareMonitoredVariable("EF_massTrkSys",m_massTrkSys);
+  /** seedCalo_dRmax **/
+  declareMonitoredVariable("EF_dRmax",m_dRmax);
+  /** Number of tracks used for tau ID */
+  declareMonitoredVariable("EF_NTrk",m_numTrack);
+  
+  /** Track Average Distance used for tau ID */
+  declareMonitoredVariable("EF_TrkAvgDist",m_trkAvgDist);
+  
+  /** Et over lead track pt used for tau ID */
+  declareMonitoredVariable("EF_EtovPtLead",m_etovPtLead);
+  
+  /** presampler strip energy fraction **/
+  declareMonitoredVariable("EF_PSSFraction",m_PSSFraction);
+  
+  /** EMPOverTrkSysP **/
+  declareMonitoredVariable("EF_EMPOverTrkSysP",m_EMPOverTrkSysP);
+  
+  /** EM energy of charged pions over calorimetric EM energy **/
+  declareMonitoredVariable("EF_ChPiEMEOverCaloEME",m_ChPiEMEOverCaloEME);
+  
+  /** Number tau candidates */
+  declareMonitoredVariable("EF_nCand",m_Ncand);
+  
+  /** Eta of L1 RoI */
+  declareMonitoredVariable("EtaL1",m_EtaL1);
+  
+  /** Phi of L1 RoI */
+  declareMonitoredVariable("PhiL1",m_PhiL1);
+  
+  /** Eta of L1 RoI */
+  declareMonitoredVariable("EtaEF",m_EtaEF);
+  
+  /** Phi of L1 RoI */
+  declareMonitoredVariable("PhiEF",m_PhiEF);
+  
+  /** Errors */
+  declareMonitoredStdContainer("EF_calo_errors",m_calo_errors);
+  
+  /** Errors */
+  declareMonitoredStdContainer("EF_track_errors",m_track_errors);
+  
+  /** Author */
+  declareMonitoredStdContainer("EF_author",m_author);
+  
+  /** deltaZ0 core Trks*/
+  declareMonitoredStdContainer("EF_deltaZ0coreTrks",m_deltaZ0coreTrks);
+  
+  /** deltaZ0 wide Trks*/
+  declareMonitoredStdContainer("EF_deltaZ0wideTrks",m_deltaZ0wideTrks);
 
 }
 
@@ -236,17 +246,29 @@ HLT::ErrorCode TrigTauRecMerged::hltInitialize()
 		}
 	}
 
-	// For now, we don't try to retrieve the lumi tool
-	//if (m_lumiTool.retrieve().isFailure()) {                                     
-	//msg() << MSG::ERROR << "Unable to retrieve Luminosity Tool" << endreq;     
-	//return HLT::ERROR;                                                         
-	//} else {                                                                     
-	//msg() << MSG::DEBUG << "Successfully retrieved Luminosity Tool" << endreq; 
-	//}                                                                            
+	// // Try to retrieve the lumi tool
+	// if (m_lumiTool.retrieve().isFailure()) {                                     
+	//   msg() << MSG::WARNING << "Unable to retrieve Luminosity Tool" << endreq;     
+	// } else {                                                                     
+	//   msg() << MSG::DEBUG << "Successfully retrieved Luminosity Tool" << endreq; 
+	// }                                                                            
+
+	if (m_lumiBlockMuTool.retrieve().isFailure()) {                                     
+	  msg() << MSG::WARNING << "Unable to retrieve LumiBlockMuTool" << endreq;     
+	} else {                                                                     
+	  msg() << MSG::DEBUG << "Successfully retrieved LumiBlockMuTool" << endreq; 
+	}                                                                            
+
+	// Retrieve beam conditions
+	if(m_beamSpotSvc.retrieve().isFailure()) {
+	  msg() << MSG::WARNING << "Unable to retrieve Beamspot service" << endreq;
+        } else {
+          msg() << MSG::DEBUG << "Successfully retrieved Beamspot service" << endreq;
+	}
 	
 	msg() << MSG::INFO << " " << endreq;
 	msg() << MSG::INFO << "------------------------------------" << endreq;
-
+	
 	return HLT::OK;
 }
 
@@ -321,6 +343,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	}
 
 	// get CaloCellContainer
+	// Probably not necessary
 	vector<const CaloCellContainer*> vectorCaloCellContainer;
 	hltStatus = getFeatures(inputTE, vectorCaloCellContainer);
 
@@ -400,7 +423,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 		msg() << MSG::DEBUG << " cluster key for back cluster is " << collKey << endreq;
 
 	
-	// Not sure why this would be necessary...
+	// Not necessary anymore
 	/*
 	const INavigable4MomentumCollection*  RoICaloClusterContainer;
 	StatusCode sc = store()->retrieve(RoICaloClusterContainer,collKey);
@@ -434,7 +457,6 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	
 
 	// get TrackContainer
-	// xxx ToDo: this needs to be a xAOD container
 	vector<const xAOD::TrackParticleContainer*> vectorTrackContainer;
 	hltStatus = getFeatures(inputTE,vectorTrackContainer);
 
@@ -459,7 +481,6 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	}
 
 	// get Vertex Container
-	// xxx ToDo: this needs to be a xAOD container
 	vector<const xAOD::VertexContainer*> vectorVxContainer;
 	hltStatus = getFeatures(inputTE,vectorVxContainer);
 	const xAOD::VertexContainer* RoIVxContainer = NULL;
@@ -481,9 +502,51 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 		}
 	}
 
-	// Eventually: get Online Luminosity 
-	//double mu = m_lumiTool->lbLuminosityPerBCID() / m_lumiTool->muToLumi(); // (retrieve mu for the current BCID) 
-	//std::cout << "TrigTauRecMerged: mu = " << mu << std::endl;
+	//-------------------------------------------------------------------------
+	// Get the online luminosity                                                                                                               
+	//-------------------------------------------------------------------------
+	// double mu = 0.0;
+        // double avg_mu = 0.0;
+        // mu = m_lumiTool->lbLuminosityPerBCID() / m_lumiTool->muToLumi(); // (retrieve mu for the current BCID)                                             
+	// avg_mu = m_lumiTool->lbAverageInteractionsPerCrossing();
+        // msg() << MSG::DEBUG << "REGTEST: lbLuminosityPerBCID : " << m_lumiTool->lbLuminosityPerBCID() << endreq;
+        // msg() << MSG::DEBUG << "REGTEST: muToLumi            : " << m_lumiTool->muToLumi() << endreq;
+	// msg() << MSG::DEBUG << "REGTEST: Retrieved Mu Value  : " << mu << endreq;
+        // msg() << MSG::DEBUG << "REGTEST: Average Mu Value    : " << avg_mu << endreq;
+
+	double mu = 0.0;
+        double avg_mu = 0.0;
+	if(m_lumiBlockMuTool){
+
+	  mu = m_lumiBlockMuTool->actualInteractionsPerCrossing(); // (retrieve mu for the current BCID)
+	  avg_mu = m_lumiBlockMuTool->averageInteractionsPerCrossing();
+	  msg() << MSG::DEBUG << "REGTEST: Retrieved Mu Value : " << mu << endreq;
+	  msg() << MSG::DEBUG << "REGTEST: Average Mu Value   : " << avg_mu << endreq;
+	}
+	
+
+	//-------------------------------------------------------------------------
+	// Get beamspot
+	//-------------------------------------------------------------------------
+
+	// Copy the first vertex from a const object
+	xAOD::Vertex theBeamspot;
+	theBeamspot.makePrivateStore();
+	const xAOD::Vertex* ptrBeamspot = 0;
+
+	if(m_beamSpotSvc){
+	
+	  // Alter the position of the vertex
+	  theBeamspot.setPosition(m_beamSpotSvc->beamPos());
+	
+	  // Create a AmgSymMatrix to alter the vertex covariance mat.
+	  AmgSymMatrix(3) cov = m_beamSpotSvc->beamVtx().covariancePosition();
+	  theBeamspot.setCovariancePosition(cov);
+
+	  ptrBeamspot = &theBeamspot;
+
+	}
+
 
 	//-------------------------------------------------------------------------
 	// Creating jet container used as "tau seed" for tau reconstruction
@@ -515,6 +578,7 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	aJet->setConstituentsSignalState(xAOD::JetConstitScale::CalibratedJetConstituent);
 	
 	// Make a minimal effort to speed things up ;)
+	// Eventually, want to use FastJet here?
 	TLorentzVector myCluster;
   	TLorentzVector TauBarycenter(0., 0., 0., 0.);
   
@@ -534,7 +598,6 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	  aJet->addConstituent(*clusterIt);
 
 	  TauBarycenter += myCluster;
-
 	}
 	
 	aJet->setJetP4(xAOD::JetFourMom_t(TauBarycenter.Pt(), TauBarycenter.Eta(), TauBarycenter.Phi(), TauBarycenter.M() ) ); 
@@ -578,7 +641,9 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 	rTauData.setObject("InTrigger?", true );
 	rTauData.setObject("TrackContainer", RoITrackContainer);
 	rTauData.setObject("VxPrimaryCandidate", RoIVxContainer);
-
+	if(m_lumiBlockMuTool) rTauData.setObject("AvgInteractions", mu);
+	if(m_beamSpotSvc) rTauData.setObject("Beamspot", ptrBeamspot);
+	
 	//-------------------------------------------------------------------------
 	// eventInitialize tauRec colls
 	//-------------------------------------------------------------------------
@@ -608,9 +673,6 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 
 	if(p_seed->e()<=0) {
 		msg() << MSG::DEBUG << " Roi: changing eta due to energy " << p_seed->e() << endreq;
-		//rTauData.xAODTau->setEta(roiDescriptor->eta0());
-		//rTauData.xAODTau->setPhi(roiDescriptor->phi0());
-		// Direct accessors not avilable anymore
 		rTauData.xAODTau->setP4(rTauData.xAODTau->pt(), roiDescriptor->eta(), roiDescriptor->phi(), rTauData.xAODTau->m());
 		
 		msg() << MSG::DEBUG << "Roi: " << roiDescriptor->roiId()
@@ -674,150 +736,132 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 		if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "clean up done after jet seed" << endreq;
 	}
 	else if( processStatus.isSuccess()) {
-	  // if this is a tau candidate.. save it
-	  // To-do: will need to solve this, as it's a bare minimum already
-	  //rTauData.xAODTauContainer->push_back( rTauData.xAODTau );
 
-		float fJetEnergy = (*rTauData.xAODTau->jetLink())->e();
-		msg() << MSG::DEBUG << " Roi: jet e "<< fJetEnergy <<endreq;
-
-		if( fJetEnergy < 0.00001 ) {
-			msg() << MSG::DEBUG << " Roi: changing eta phi to L1 ones due to energy negative (PxPyPzE flips eta and phi)"<<endreq;
-			msg() << MSG::DEBUG << " Roi: this is probably not needed anymore, method PxPyPzE has been corrected"<<endreq;
-
-			//rTauData.xAODTau->setEta(roiDescriptor->eta0());
-			//rTauData.xAODTau->setPhi(roiDescriptor->phi0());
-			// Direct accessors not available anymore
-			rTauData.xAODTau->setP4(rTauData.xAODTau->pt(), roiDescriptor->eta(), roiDescriptor->phi(), rTauData.xAODTau->m());
-
-			msg() << MSG::DEBUG << " Roi: " << roiDescriptor->roiId()
-            				    << " Tau eta: " << rTauData.xAODTau->eta()
-            				    << " Tau phi: " << rTauData.xAODTau->phi()
-            				    << " Tau pT : "<< rTauData.xAODTau->pt()<< endreq;
-		}
-
-		// loop over end tools
-		ToolHandleArray<TauToolBase> ::iterator p_itET = m_endtools.begin();
-		ToolHandleArray<TauToolBase> ::iterator p_itETE = m_endtools.end();
-		for (; p_itET != p_itETE; ++p_itET ) {
-			msg() << MSG::VERBOSE << "Invoking endTool ";
-			msg() << ( *p_itET )->name() << endreq;
-
-			processStatus = ( *p_itET )->execute( &rTauData );
-			if( processStatus.isFailure() ) break;
-		}
-
-		// Get L1 RoiDescriptor
-		const TrigRoiDescriptor* roiL1Descriptor = 0;
-		HLT::ErrorCode tmpStatus = getFeature(inputTE, roiL1Descriptor,"initialRoI");
-
-		if(tmpStatus==HLT::OK && roiL1Descriptor) {
-			m_EtaL1         =  roiL1Descriptor->eta();
-			m_PhiL1         =  roiL1Descriptor->phi();
-		}
-
-		// get tau detail variables for Monitoring
-		m_numTrack      = rTauData.xAODTau->nTracks();
-		m_nWideTrk      = rTauData.xAODTau->nWideTracks();
-		rTauData.xAODTau->detail(xAOD::TauJetParameters::trkAvgDist, m_trkAvgDist);
-		rTauData.xAODTau->detail(xAOD::TauJetParameters::etOverPtLeadTrk, m_etovPtLead);
-		rTauData.xAODTau->detail(xAOD::TauJetParameters::EMRadius, m_emRadius);
-		rTauData.xAODTau->detail(xAOD::TauJetParameters::hadRadius, m_hadRadius);
-		rTauData.xAODTau->detail(xAOD::TauJetParameters::isolFrac, m_IsoFrac);
-		rTauData.xAODTau->detail(xAOD::TauJetParameters::centFrac, m_centFrac);
-		rTauData.xAODTau->detail(xAOD::TauJetParameters::ipSigLeadTrk, m_ipSigLeadTrk);
-		rTauData.xAODTau->detail(xAOD::TauJetParameters::trFlightPathSig, m_trFlightPathSig);
-		rTauData.xAODTau->detail(xAOD::TauJetParameters::dRmax, m_dRmax);
-		rTauData.xAODTau->detail(xAOD::TauJetParameters::massTrkSys, m_massTrkSys);
-
-		rTauData.xAODTau->detail(xAOD::TauJetParameters::PSSFraction, m_PSSFraction);
-		rTauData.xAODTau->detail(xAOD::TauJetParameters::EMPOverTrkSysP, m_EMPOverTrkSysP);
-		rTauData.xAODTau->detail(xAOD::TauJetParameters::ChPiEMEOverCaloEME, m_ChPiEMEOverCaloEME);
-
-		m_massTrkSys /= 1000.; // make GeV
-		rTauData.xAODTau->detail(xAOD::TauJetParameters::etEMAtEMScale, m_EtEm);
-		m_EtEm /= 1000.;  // make GeV
-		rTauData.xAODTau->detail(xAOD::TauJetParameters::etHadAtEMScale, m_EtHad);
-		m_EtHad /= 1000.; // make GeV
-		m_Et            = m_EtEm + m_EtHad;
-		m_EtFinal       = rTauData.xAODTau->pt()/1000.;
-
-		m_EtaEF = rTauData.xAODTau->eta();
-		m_PhiEF = rTauData.xAODTau->phi();
-
-		if( m_Et !=0) m_EMFrac =  m_EtEm/ m_Et ;
-
-		m_dEta =  m_EtaEF - roiDescriptor->eta();
-		m_dPhi =  m_PhiEF - roiDescriptor->phi();
-		if(m_dPhi<-M_PI) m_dPhi += 2.0*M_PI;
-		if(m_dPhi>M_PI)  m_dPhi -= 2.0*M_PI;
-
-		// author variable removed. There are no different tau reco algs anymor
-
-		// write out delta Z0
-		/*
-		 * FF, March 2014: deactivated.
-		 * If the output of these variables is still needed, drop me a line.
-		 * We can either print them here as done before or put them into tauEDM to have them available globally
-		if (m_useTauPVTool) {
-			m_tauPVTool->getDeltaZ0Values(m_deltaZ0coreTrks, m_deltaZ0wideTrks);
-
-			msg() << MSG::DEBUG << "REGTEST: deltaZ0 for core trk ";
-			for ( unsigned int i=0; i<m_deltaZ0coreTrks.size(); ++i) msg() << MSG::DEBUG << i << ": " << m_deltaZ0coreTrks[i] << ", ";
-			msg() << MSG::DEBUG << endreq;
-
-			msg() << MSG::DEBUG << "REGTEST: deltaZ0 for wide trk ";
-			for ( unsigned int i=0; i<m_deltaZ0wideTrks.size(); ++i) msg() << MSG::DEBUG << i << ": " << m_deltaZ0wideTrks[i] << ", ";
-			msg() << MSG::DEBUG << endreq;
-		}
-		*/
-
-		msg() << MSG::DEBUG << "REGTEST: Roi: " << roiDescriptor->roiId()
-        					<< " Tau being saved eta: " << m_EtaEF << " Tau phi: " << m_PhiEF
-        					<< " wrt L1 dEta "<< m_dEta<<" dPhi "<<m_dPhi
-        					<< " Tau Et (GeV): "<< m_EtFinal << endreq;
-
-		++m_Ncand;
+	  float fJetEnergy = (*rTauData.xAODTau->jetLink())->e();
+	  msg() << MSG::DEBUG << " Roi: jet e "<< fJetEnergy <<endreq;
+	  
+	  if( fJetEnergy < 0.00001 ) {
+	    msg() << MSG::DEBUG << " Roi: changing eta phi to L1 ones due to energy negative (PxPyPzE flips eta and phi)"<<endreq;
+	    msg() << MSG::DEBUG << " Roi: this is probably not needed anymore, method PxPyPzE has been corrected"<<endreq;
+	    
+	    //rTauData.xAODTau->setEta(roiDescriptor->eta0());
+	    //rTauData.xAODTau->setPhi(roiDescriptor->phi0());
+	    // Direct accessors not available anymore
+	    rTauData.xAODTau->setP4(rTauData.xAODTau->pt(), roiDescriptor->eta(), roiDescriptor->phi(), rTauData.xAODTau->m());
+	    
+	    msg() << MSG::DEBUG << " Roi: " << roiDescriptor->roiId()
+		  << " Tau eta: " << rTauData.xAODTau->eta()
+		  << " Tau phi: " << rTauData.xAODTau->phi()
+		  << " Tau pT : "<< rTauData.xAODTau->pt()<< endreq;
+	  }
+	  
+	  // loop over end tools
+	  ToolHandleArray<TauToolBase> ::iterator p_itET = m_endtools.begin();
+	  ToolHandleArray<TauToolBase> ::iterator p_itETE = m_endtools.end();
+	  for (; p_itET != p_itETE; ++p_itET ) {
+	    msg() << MSG::VERBOSE << "Invoking endTool ";
+	    msg() << ( *p_itET )->name() << endreq;
+	    
+	    processStatus = ( *p_itET )->execute( &rTauData );
+	    if( processStatus.isFailure() ) break;
+	  }
+	  
+	  // Get L1 RoiDescriptor
+	  const TrigRoiDescriptor* roiL1Descriptor = 0;
+	  HLT::ErrorCode tmpStatus = getFeature(inputTE, roiL1Descriptor,"initialRoI");
+	  
+	  if(tmpStatus==HLT::OK && roiL1Descriptor) {
+	    m_EtaL1         =  roiL1Descriptor->eta();
+	    m_PhiL1         =  roiL1Descriptor->phi();
+	  }
+	  
+	  // get tau detail variables for Monitoring
+	  m_numTrack      = rTauData.xAODTau->nTracks();
+	  m_nWideTrk      = rTauData.xAODTau->nWideTracks();
+	  rTauData.xAODTau->detail(xAOD::TauJetParameters::trkAvgDist, m_trkAvgDist);
+	  rTauData.xAODTau->detail(xAOD::TauJetParameters::etOverPtLeadTrk, m_etovPtLead);
+	  rTauData.xAODTau->detail(xAOD::TauJetParameters::EMRadius, m_emRadius);
+	  rTauData.xAODTau->detail(xAOD::TauJetParameters::hadRadius, m_hadRadius);
+	  rTauData.xAODTau->detail(xAOD::TauJetParameters::isolFrac, m_IsoFrac);
+	  rTauData.xAODTau->detail(xAOD::TauJetParameters::centFrac, m_centFrac);
+	  rTauData.xAODTau->detail(xAOD::TauJetParameters::ipSigLeadTrk, m_ipSigLeadTrk);
+	  rTauData.xAODTau->detail(xAOD::TauJetParameters::trFlightPathSig, m_trFlightPathSig);
+	  rTauData.xAODTau->detail(xAOD::TauJetParameters::dRmax, m_dRmax);
+	  rTauData.xAODTau->detail(xAOD::TauJetParameters::massTrkSys, m_massTrkSys);
+	  
+	  rTauData.xAODTau->detail(xAOD::TauJetParameters::PSSFraction, m_PSSFraction);
+	  rTauData.xAODTau->detail(xAOD::TauJetParameters::EMPOverTrkSysP, m_EMPOverTrkSysP);
+	  rTauData.xAODTau->detail(xAOD::TauJetParameters::ChPiEMEOverCaloEME, m_ChPiEMEOverCaloEME);
+	  
+	  m_massTrkSys /= 1000.; // make GeV
+	  rTauData.xAODTau->detail(xAOD::TauJetParameters::etEMAtEMScale, m_EtEm);
+	  m_EtEm /= 1000.;  // make GeV
+	  rTauData.xAODTau->detail(xAOD::TauJetParameters::etHadAtEMScale, m_EtHad);
+	  m_EtHad /= 1000.; // make GeV
+	  m_Et            = m_EtEm + m_EtHad;
+	  m_EtFinal       = rTauData.xAODTau->pt()/1000.;
+	  
+	  m_EtaEF = rTauData.xAODTau->eta();
+	  m_PhiEF = rTauData.xAODTau->phi();
+	  
+	  if( m_Et !=0) m_EMFrac =  m_EtEm/ m_Et ;
+	  
+	  m_dEta =  m_EtaEF - roiDescriptor->eta();
+	  m_dPhi =  m_PhiEF - roiDescriptor->phi();
+	  if(m_dPhi<-M_PI) m_dPhi += 2.0*M_PI;
+	  if(m_dPhi>M_PI)  m_dPhi -= 2.0*M_PI;
+	  
+	  // author variable removed. There are no different tau reco algs anymor
+	  
+	  // write out delta Z0
+	  /*
+	   * FF, March 2014: deactivated.
+	   * If the output of these variables is still needed, drop me a line.
+	   * We can either print them here as done before or put them into tauEDM to have them available globally
+	   if (m_useTauPVTool) {
+	   m_tauPVTool->getDeltaZ0Values(m_deltaZ0coreTrks, m_deltaZ0wideTrks);
+	   
+	   msg() << MSG::DEBUG << "REGTEST: deltaZ0 for core trk ";
+	   for ( unsigned int i=0; i<m_deltaZ0coreTrks.size(); ++i) msg() << MSG::DEBUG << i << ": " << m_deltaZ0coreTrks[i] << ", ";
+	   msg() << MSG::DEBUG << endreq;
+	   
+	   msg() << MSG::DEBUG << "REGTEST: deltaZ0 for wide trk ";
+	   for ( unsigned int i=0; i<m_deltaZ0wideTrks.size(); ++i) msg() << MSG::DEBUG << i << ": " << m_deltaZ0wideTrks[i] << ", ";
+	   msg() << MSG::DEBUG << endreq;
+	   }
+	  */
+	  
+	  msg() << MSG::DEBUG << "REGTEST: Roi: " << roiDescriptor->roiId()
+		<< " Tau being saved eta: " << m_EtaEF << " Tau phi: " << m_PhiEF
+		<< " wrt L1 dEta "<< m_dEta<<" dPhi "<<m_dPhi
+		<< " Tau Et (GeV): "<< m_EtFinal << endreq;
+	  
+	  ++m_Ncand;
 	}
 	else {
-		pContainer->pop_back();
-		rTauData.xAODTau = 0;
-
-		if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "deleted tau done after jet seed" << endreq;
+	  pContainer->pop_back();
+	  rTauData.xAODTau = 0;
+	  
+	  if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "deleted tau done after jet seed" << endreq;
 	}
-
+	
 	// call eventFinalize on the booked tau tools
 	for ( firstTool = m_tools.begin(); firstTool != lastTool; firstTool++ ) {
-		processStatus = (*firstTool)->eventFinalize( &rTauData );
-		if( processStatus != StatusCode :: SUCCESS ) {
-			msg() << MSG :: INFO << "tool "<<(*firstTool)->name()<< "failed in eventFinalize" << endreq;
-			return HLT :: TOOL_FAILURE;
-		}
+	  processStatus = (*firstTool)->eventFinalize( &rTauData );
+	  if( processStatus != StatusCode :: SUCCESS ) {
+	    msg() << MSG :: INFO << "tool "<<(*firstTool)->name()<< "failed in eventFinalize" << endreq;
+	    return HLT :: TOOL_FAILURE;
+	  }
 	}
 	msg() << MSG :: DEBUG << "tools succeed in eventFinalize" << endreq;
-
-
-	/* xxx ToDo: is this needed for trigger??
-	 *
-	Analysis::TauJetContainer::iterator tau_it = Tau_data.tauContainer->begin();
-	Analysis::TauJetContainer::iterator tau_end = Tau_data.tauContainer->end();
-	for( ; tau_it != tau_end; tau_it++ ) {
-		(*tau_it)->cellClusterLink().reset();
-		delete (*tau_it)->cellCluster();
-
-		const Analysis::TauCommonDetails*  taudetConst = (*tau_it)->details<const Analysis::TauCommonDetails>();
-		Analysis::TauCommonDetails*  taudet = const_cast< Analysis::TauCommonDetails*> (taudetConst);
-		if(taudet!=NULL) delete taudet->cellEM012Cluster();
-		if(taudet!=NULL) taudet->cellEM012ClusterLink().reset();
-	}
-	*/
-
+	
+	
 	//-------------------------------------------------------------------------
 	// all done, register the tau Container in TDS.
 	//-------------------------------------------------------------------------
-	// xxx ToDo: check recording. The new container are of type xAOD. Can HLT handle this?
+
 	tauKey = "";
-	hltStatus=recordAndAttachFeature(outputTE, pContainer,tauKey,"TrigTauRecMerged");
+	hltStatus=recordAndAttachFeature(outputTE, pContainer,tauKey,m_outputName);
 	if (hltStatus!=HLT::OK )  {
 		msg() << MSG::ERROR << "Unable to record tau Container in TDS" << endreq;
 		m_calo_errors.push_back(NoHLTtauAttach);
@@ -827,20 +871,8 @@ HLT::ErrorCode TrigTauRecMerged::hltExecute(const HLT::TriggerElement* inputTE,
 		if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Recorded a tau container: " << "HLT_" <<tauKey << "_" << "TrigTauRecMerged" << endreq;
 	}
 
-	/*
-	tauKey = "";
-	hltStatus=recordAndAttachFeature(outputTE, pAuxContainer,tauKey,"TrigTauDetailsMerged");
-	if (hltStatus!=HLT::OK){
-		msg() << MSG::ERROR << "Unable to record tau details Container in TDS" << endreq;
-		m_calo_errors.push_back(NoHLTtauDetAttach);
-		return hltStatus;
-	}
-	else {
-		if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Recorded a tau details container: " << "HLT_" <<tauKey << "_" << "TrigTauDetailsMerged" << endreq;
-	}
-	*/
 	if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "the tau object has been registered in the tau container" << endreq;
-
+	
 	// set status of TE to always true for FE algorithms
 	return HLT::OK;
 }

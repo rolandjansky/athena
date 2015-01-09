@@ -128,22 +128,6 @@ def getCellVariables(cellConeSize=0.2, prefix=''):
     cached_instances[_name] = TauCellVariables   
     return TauCellVariables
 
-########################################################################
-# ExtrapolateToCaloTool
-def getExtrapolateToCaloTool():
-    _name = sPrefix + 'ExtrapolateToCaloTool'
-    
-    from AthenaCommon.AppMgr import ToolSvc
-    
-    if _name in cached_instances:
-        return cached_instances[_name]
-    
-    from TrackToCalo.TrackToCaloConf import ExtrapolateToCaloTool
-    tauExtrapolateToCaloTool=ExtrapolateToCaloTool(name = _name, Extrapolator = getAtlasExtrapolator())
-    
-    ToolSvc += tauExtrapolateToCaloTool  
-    cached_instances[_name] = tauExtrapolateToCaloTool
-    return tauExtrapolateToCaloTool   
 
                 
 ########################################################################
@@ -364,8 +348,7 @@ def getElectronVetoVars():
     
     from tauRec.tauRecConf import TauElectronVetoVariables
     TauElectronVetoVariables = TauElectronVetoVariables(name = _name,
-                                                        CellCorrection = doCellCorrection,
-                                                        TTCExtrapolator = getExtrapolateToCaloTool())
+                                                        CellCorrection = doCellCorrection)
     
     cached_instances[_name] = TauElectronVetoVariables
     return TauElectronVetoVariables
@@ -412,7 +395,6 @@ def getBonnPi0ClusterFinder():
     from tauRec.tauRecConf import TauPi0BonnCreateROI
     TauPi0BonnCreateROI = TauPi0BonnCreateROI(name = _name,
         CaloWeightTool = getCellWeightTool(),
-        ExtrapolateToCaloTool = getExtrapolateToCaloTool(),
         CellMakerTool = TauCellContainerFinalizer,
         #LonParFile = "longitudinal_para.dat",
         #LatParFile = "lateral_para.dat",
@@ -434,7 +416,6 @@ def getBonnPi0ClusterCreator():
     
     from tauRec.tauRecConf import TauPi0BonnClusterCreator
     TauPi0BonnClusterCreator = TauPi0BonnClusterCreator(name = _name,
-        ExtrapolateToCaloTool = getExtrapolateToCaloTool(),
         InputPi0ClusterContainerName = 'TauPi0BonnSubtractedClusterContainer',
         OutputPi0ClusterContainerName = 'TauPi0BonnClusterContainer',
         NeutralPFOContainerName= 'TauPi0BonnNeutralPFOContainer',
@@ -655,7 +636,6 @@ def getTauTrackFinder(applyZ0cut=False, maxDeltaZ0=2, prefix=''):
                                     TrackSelectorToolTau  = getInDetTrackSelectorTool(),
                                     TrackParticleContainer    = _DefaultTrigTauTrackContainer,  #???
                                     TrackToVertexTool         = getTrackToVertexTool(),
-                                    TTCExtrapolator = getExtrapolateToCaloTool(),                                    
                                     maxDeltaZ0wrtLeadTrk = maxDeltaZ0, #in mm
                                     removeTracksOutsideZ0wrtLeadTrk = applyZ0cut
                                     )
