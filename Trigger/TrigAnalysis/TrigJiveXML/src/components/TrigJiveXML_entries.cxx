@@ -9,6 +9,9 @@
 #include "TrigJiveXML/TriggerInfoRetriever.h"
 #include "TrigJiveXML/CTPDecisionRetriever.h"
 #include "TrigJiveXML/xAODEmTauROIRetriever.h"
+#include "TrigJiveXML/xAODJetROIRetriever.h"
+#include "TrigJiveXML/xAODMuonROIRetriever.h"
+#include "TrigJiveXML/xAODTrigDecisionRetriever.h"
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
@@ -25,6 +28,9 @@ DECLARE_TOOL_FACTORY(TrigSiSpacePointRetriever)
 DECLARE_TOOL_FACTORY(TriggerInfoRetriever)
 DECLARE_TOOL_FACTORY(CTPDecisionRetriever)
 DECLARE_TOOL_FACTORY(xAODEmTauROIRetriever)
+DECLARE_TOOL_FACTORY(xAODJetROIRetriever)
+DECLARE_TOOL_FACTORY(xAODMuonROIRetriever)
+DECLARE_TOOL_FACTORY(xAODTrigDecisionRetriever)
 
 DECLARE_FACTORY_ENTRIES(TrigJiveXML) {
   DECLARE_ALGTOOL(EmTauROIRetriever)
@@ -38,4 +44,7 @@ DECLARE_FACTORY_ENTRIES(TrigJiveXML) {
   DECLARE_ALGTOOL(TriggerInfoRetriever)
   DECLARE_ALGTOOL(CTPDecisionRetriever)
   DECLARE_ALGTOOL(xAODEmTauROIRetriever)
+  DECLARE_ALGTOOL(xAODJetROIRetriever)
+  DECLARE_ALGTOOL(xAODMuonROIRetriever)
+  DECLARE_ALGTOOL(xAODTrigDecisionRetriever)
 }

@@ -39,11 +39,13 @@ namespace JiveXML {
   DataVect thrPattern; 
 
   //// which of those two option is working:
+
+  const xAOD::EmTauRoIContainer* emTauRoIs = 0; 
+
     //xAOD::EmTauRoIContainer* emTauRoIs = 0;
-    const DataHandle<xAOD::EmTauRoIContainer>  emTauRoIs = 0;
 
     // L1JetObject -not- available
-    m_sgKey = "LVL1EmTauROIs"; 
+    m_sgKey = "LVL1EmTauRoIs"; 
     if ( evtStore()->retrieve(emTauRoIs,m_sgKey).isFailure() ) {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No LVL1EmTauROIs found in SG " << endreq;
       return StatusCode::SUCCESS;
@@ -64,13 +66,15 @@ namespace JiveXML {
        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "xAOD EmTauRoI #" << counter++ 
           << ", eta: " << (*itEM)->eta() << ", phi: " << (*itEM)->phi() << endreq;
 
-        /*
-        energy.push_back(DataType( itEM->getTauClus() /CLHEP::GeV ));
-	energyEM.push_back(DataType( itEM->getEMClus() / CLHEP::GeV ));
-	energyTAU.push_back(DataType( itEM->getTauClus() /CLHEP::GeV ));
-        roiWord.push_back(DataType( itEM->getROIWord()));
-	thrPattern.push_back(DataType( itEM->getThrPattern()));
-        */
+// Placeholders ! No direct access to those in Run-2
+// Reference:
+//    Event/xAOD/xAODTrigger/trunk/Root/EmTauRoI_v2.cxx
+// jpt 9Jan15:
+        energy.push_back(DataType( 0. ));
+        energyEM.push_back(DataType( 0. ));
+        energyTAU.push_back(DataType( 0. ));
+        roiWord.push_back(DataType( 0. ));
+	thrPattern.push_back(DataType( 0. ));
       }
 
     DataMap myDataMap;
