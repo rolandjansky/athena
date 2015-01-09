@@ -9,7 +9,7 @@
 #include "MuonCondInterface/IRPCTriggerDbTool.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/MsgStream.h"
-
+#include "AthenaBaseComps/AthAlgTool.h"
 
 class Identifier; 
 class StoreGateSvc; 
@@ -19,7 +19,7 @@ class IIOVSvc;
 class StatusCode;
 
 
-class RPCTriggerDbTool: public AlgTool, public IRPCTriggerDbTool
+class RPCTriggerDbTool: public AthAlgTool, public IRPCTriggerDbTool
 {
 
 public:    

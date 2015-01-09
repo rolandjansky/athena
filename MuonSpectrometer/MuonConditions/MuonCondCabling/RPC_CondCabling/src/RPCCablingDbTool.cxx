@@ -41,7 +41,7 @@
 RPCCablingDbTool::RPCCablingDbTool (const std::string& type,
                              const std::string& name,
                              const IInterface* parent)
-  : AlgTool(type, name, parent)  
+  : AthAlgTool(type, name, parent)  
 {
 
   declareInterface<IRPCCablingDbTool>(this);

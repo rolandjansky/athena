@@ -14,9 +14,12 @@ use MuonIdHelpers          MuonIdHelpers-*            MuonSpectrometer
 
 public
 
+use AthenaBaseComps        AthenaBaseComps-*          Control
+
 use AtlasPolicy            AtlasPolicy-* 
 use GaudiInterface         GaudiInterface-*           External
 use MuonCondInterface      MuonCondInterface-*        MuonSpectrometer/MuonConditions/MuonCondGeneral
+
 
 library RPC_CondCabling  *.cxx components/*.cxx
 
