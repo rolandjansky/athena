@@ -19,9 +19,10 @@
 
 
 //***** DetectorSpecialPixelMap *****//
+const int nmtype(5);
 static unsigned int columnsPerFEIX[5]={18,80,132,80,132}; // number of columns per FEI3, 4, 50, 51, 52 
-static unsigned int rowsPerFEIX[5]={164, 336, 672, 339, 678}; // number of rows per FEI3, 4, 50, 51, 52
-static unsigned int rowsRdoPerFEIX[5]={160, 336, 672, 336, 672}; // number of rows readout per FEI3, 4, 50, 51, 52
+//static unsigned int rowsPerFEIX[5]={164, 336, 672, 339, 678}; // number of rows per FEI3, 4, 50, 51, 52
+//static unsigned int rowsRdoPerFEIX[5]={160, 336, 672, 336, 672}; // number of rows readout per FEI3, 4, 50, 51, 52
 
 
 DetectorSpecialPixelMap::DetectorSpecialPixelMap(){}
@@ -82,8 +83,9 @@ ModuleSpecialPixelMap::ModuleSpecialPixelMap(const coral::Blob& blob, unsigned i
 ModuleSpecialPixelMap::ModuleSpecialPixelMap(const std::map<unsigned int, unsigned int>& pixels, 
 					     unsigned int module_status,
 					     std::vector<unsigned int> chip_status,
-					     std::vector<std::vector<unsigned int> > column_pair_status) :
-  PixelCoralClientUtils::ModuleSpecialPixelMap(pixels, module_status, chip_status, column_pair_status){}
+					     std::vector<std::vector<unsigned int> > column_pair_status,
+					     unsigned int mchips) :
+  PixelCoralClientUtils::ModuleSpecialPixelMap(pixels, module_status, chip_status, column_pair_status, mchips){}
 
 ModuleSpecialPixelMap::~ModuleSpecialPixelMap(){}
 
@@ -110,8 +112,9 @@ void ModuleSpecialPixelMap::print(int component,
   subSystem = 1;
 
   int itype = (int)m_chipsPerModule%10;
+  if(itype>(nmtype-1))itype=nmtype-1;
   int mch = (int)m_chipsPerModule/10;
-  int mcolumns = columnsPerFEIX[itype];
+  int mcolumns = columnsPerFEIX[itype]; // set protection here
 
   int moduleID = itype==0 ? ( ((component + 2) / 2) << 25 ) + ( layer << 23 ) + ( phi << 17 ) + ( (eta + 6) << 13 ) : -1;
 

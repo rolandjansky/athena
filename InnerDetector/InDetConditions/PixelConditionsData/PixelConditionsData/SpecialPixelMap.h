@@ -67,16 +67,16 @@ class ModuleSpecialPixelMap : public PixelCoralClientUtils::ModuleSpecialPixelMa
    ModuleSpecialPixelMap();
    ModuleSpecialPixelMap(const ModuleSpecialPixelMap& mspm);                     
    //!< construct a copy
-   ModuleSpecialPixelMap(const char* filename, unsigned mchips);                                
+   ModuleSpecialPixelMap(const char* filename, unsigned int mchips);                                
    //!< construct from text file (for details on the format see the README file in PixelConditionsServices/doc)
-   ModuleSpecialPixelMap(const std::string& clob, unsigned mchips);                              
+   ModuleSpecialPixelMap(const std::string& clob, unsigned int mchips);                              
    //!< construct from string
-   ModuleSpecialPixelMap(const coral::Blob& blob, unsigned mchips);
+   ModuleSpecialPixelMap(const coral::Blob& blob, unsigned int mchips);
    //!< construct from blob
    ModuleSpecialPixelMap(const std::map<unsigned int, unsigned int>& pixels, 
 			 unsigned int module_status,
 			 std::vector<unsigned int> chip_status,
-			 std::vector<std::vector<unsigned int> > column_pair_status); 
+			 std::vector<std::vector<unsigned int> > column_pair_status, unsigned int mchips); 
    //!< construct from contents
    ~ModuleSpecialPixelMap();
 
