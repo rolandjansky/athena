@@ -31,10 +31,9 @@
 LArRegionSelectorTable::LArRegionSelectorTable(const std::string& type, 
 					       const std::string& name,
 					       const IInterface* parent)
-  :  AlgTool(type,name,parent),
+  :  AthAlgTool(type,name,parent),
 
   m_printTable(false),
-  m_detStore("DetectorStore",name),
   m_ttman(0),
   m_TT_ID(0),
   m_roiMap(0),
@@ -68,91 +67,44 @@ LArRegionSelectorTable::~LArRegionSelectorTable()
 
 StatusCode LArRegionSelectorTable::initialize(){
 
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "initialize()" << endreq;
+  ATH_MSG_INFO ( "initialize()" );
 
-  log << MSG::INFO << "Tool Properties" << endreq;
-  log << MSG::INFO << " Print Table:      " 
-      << ((m_printTable) ? "true" : "false") <<endreq;
+  ATH_MSG_INFO ( "Tool Properties" );
+  ATH_MSG_INFO ( " Print Table:      " 
+                 << ((m_printTable) ? "true" : "false") );
 
-  if (m_printTable) log << MSG::INFO << " Output Files:      " 
-	<< m_roiFileNameEM_0 << "," << m_roiFileNameEM_1 << "," 
-	<< m_roiFileNameEM_2 << "," << m_roiFileNameEM_3 << "," 
-	<< m_roiFileNameHEC_0 << "," << m_roiFileNameHEC_1 << "," 
-	<< m_roiFileNameHEC_2 << "," << m_roiFileNameHEC_3 << "," 
-	<< m_roiFileNameFCALem_0 << "," 
-	<< m_roiFileNameFCALhad_0 << "," << m_roiFileNameFCALhad_1 <<endreq;
+  if (m_printTable)
+    ATH_MSG_INFO ( " Output Files:      " 
+                   << m_roiFileNameEM_0 << "," << m_roiFileNameEM_1 << "," 
+                   << m_roiFileNameEM_2 << "," << m_roiFileNameEM_3 << "," 
+                   << m_roiFileNameHEC_0 << "," << m_roiFileNameHEC_1 << "," 
+                   << m_roiFileNameHEC_2 << "," << m_roiFileNameHEC_3 << "," 
+                   << m_roiFileNameFCALem_0 << "," 
+                   << m_roiFileNameFCALhad_0 << "," << m_roiFileNameFCALhad_1 );
 
-  StatusCode sc;
+  ATH_CHECK( detStore()->retrieve(m_ttman) );
+  ATH_MSG_DEBUG ( "CaloTTMgr Manager found" );
 
-  // Get DetectorStore service
-  sc = m_detStore.retrieve();
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "DetectorStore service not found !" << endreq;
-    return StatusCode::FAILURE;
-  } 
-
-  // Retrieve TT manager and helper:
-
-  sc=m_detStore->retrieve(m_ttman);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "Could not find the CaloTTMgr "
-	<< endreq;
-    return StatusCode::FAILURE;
-  } else {
-    log << MSG::DEBUG << "CaloTTMgr Manager found" << endreq;
-  }
-
-  if(StatusCode::SUCCESS != m_detStore->retrieve(m_TT_ID) ) {
-    log << MSG::FATAL << " failed to get CaloLVL1_ID "	<< endreq;
-    return StatusCode::FAILURE;
-  } else {
-    log << MSG::DEBUG << "CaloLVL1_ID helper found" << endreq;
-  } 
+  ATH_CHECK( detStore()->retrieve(m_TT_ID) );
+  ATH_MSG_DEBUG ( "CaloLVL1_ID helper found" );
 
   // Retrieve needed tools: LArRoI_Map, LArCablingSvc 
 
-  IToolSvc* toolSvc;
-  sc   = service( "ToolSvc",toolSvc  );
-  if(! sc.isSuccess()) { 
-    log << MSG::FATAL << " failed to get ToolSvc "	<< endreq;
-    return sc;
-  } else {
-    log << MSG::DEBUG << " Successfully retrieved ToolSvc "	<< endreq;
-  }
+  IToolSvc* toolSvc = nullptr;
+  ATH_CHECK( service( "ToolSvc",toolSvc) );
+  ATH_MSG_DEBUG ( " Successfully retrieved ToolSvc "	);
 
-  if(StatusCode::SUCCESS != toolSvc->retrieveTool("LArRoI_Map", m_roiMap ) ) {
-    log << MSG::ERROR << " Can't get AlgTool LArRoI_Map " << endreq;
-    return StatusCode::FAILURE; 
-  }
-  /*
-  sc =toolSvc->retrieveTool("LArCablingService",m_cablingSvc);
-  if(!sc.isSuccess() ) {
-    log << MSG::FATAL << " failed to get LArCablingSvc "	<< endreq;
-    return sc;
-  } else {
-    log << MSG::DEBUG << " Successfully retrieved LArCablingSvc "	<< endreq;
-  }
-  */
-
-  // The 10 files and 3 LUT are filled by a loop on the TT region descriptors. 
-  // if(m_printTable) ascii files will be written out.
-
+  ATH_CHECK ( toolSvc->retrieveTool("LArRoI_Map", m_roiMap ) );
   fillMaps();
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode LArRegionSelectorTable::execute() {
-
-  StatusCode sc;
-
-  sc = StatusCode::SUCCESS;
-
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -165,9 +117,7 @@ StatusCode LArRegionSelectorTable::finalize() {
   }
   */
 
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "finalize()" << endreq;
-
+  ATH_MSG_INFO ( "finalize()" );
   return StatusCode::SUCCESS;
 }
 
@@ -178,8 +128,6 @@ StatusCode LArRegionSelectorTable::finalize() {
 const RegionSelectorLUT * 
 LArRegionSelectorTable::getLUT(std::string subSyst) const
 {
-
-  MsgStream log(msgSvc(), name());
 
   if(subSyst=="EM") {
     return m_emLUT;
@@ -194,8 +142,8 @@ LArRegionSelectorTable::getLUT(std::string subSyst) const
     return m_fcalhadLUT;
   }
   else {
-    log << MSG::WARNING << "getLUT called with wrong argument, returning EM by default" << endreq;
-    log << MSG::WARNING << "valid list of arguments is EM HEC FCALEM FCALHAD" << endreq;
+    ATH_MSG_WARNING ( "getLUT called with wrong argument, returning EM by default" );
+    ATH_MSG_WARNING ( "valid list of arguments is EM HEC FCALEM FCALHAD" );
     return m_emLUT;
   }
 
@@ -214,23 +162,14 @@ LArRegionSelectorTable::fillMaps()
   // Create RegionSelectorLUT pointers for LAr
   // and dump the eta phi region for each TT 
 
-  StatusCode sc;
-  MsgStream log(msgSvc(), name());
-
   LArReadoutModuleService larReadoutModuleSvc;
-
-  bool dump=false;
-  if (log.level()<=MSG::VERBOSE) dump=true;
-  bool dump2=false;
-  if (log.level()<=MSG::DEBUG) dump2=true;
-
 
   // check on the first map if job not already done by s.o. else
   std::string larKey = "LArRegionSelectorLUT_EM";
-  sc = m_detStore->contains< RegionSelectorLUT >(larKey);
+  StatusCode sc = detStore()->contains< RegionSelectorLUT >(larKey);
   if (sc == StatusCode::SUCCESS ) {
-    log << MSG::ERROR << " RegionSelectorLUT " << larKey 
-	<< " already exists => do nothing " << endreq;
+    ATH_MSG_ERROR ( " RegionSelectorLUT " << larKey 
+                    << " already exists => do nothing " );
     return;
   }
 
@@ -348,11 +287,11 @@ LArRegionSelectorTable::fillMaps()
     if(vROBID.size() > 0) { 
 
       if(vROBID.size() > 1) {
-	if (dump2) log << MSG::DEBUG << "More than 1  (" << vROBID.size()
-	      << ") ROBID for this TT, sampling, layer, etamin, phimin= " 
-	      << m_TT_ID->show_to_string(lay_id) << " " 
-	      << sam << " " << layer << " " << e1 << " " << p1
-	      << endreq;
+        ATH_MSG_DEBUG ( "More than 1  (" << vROBID.size()
+                        << ") ROBID for this TT, sampling, layer, etamin, phimin= " 
+                        << m_TT_ID->show_to_string(lay_id) << " " 
+                        << sam << " " << layer << " " << e1 << " " << p1
+                        );
       }
       //	     *ttmap << m_TT_ID->show_to_string(lay_id) << " " << hashid 
       if(m_printTable && ttmap)
@@ -382,29 +321,28 @@ LArRegionSelectorTable::fillMaps()
 	
 	ttLut->additem((double)e1,(double)e2,(double)p1,(double)p2,
 		       sam,layer,(int)hashid,(int)rod_id);
-	if (dump) log << MSG::VERBOSE << ncount << " filled LUT with following info"
-	        << " hashid,sampling, layer, etamin, phimin= " 
-	        << m_TT_ID->show_to_string(lay_id) << " " 
-	        << hashid << " "
-	        << sam << " " << layer << " " << e1 << " " << p1
-	        << endreq;
+	ATH_MSG_VERBOSE ( ncount << " filled LUT with following info"
+                          << " hashid,sampling, layer, etamin, phimin= " 
+                          << m_TT_ID->show_to_string(lay_id) << " " 
+                          << hashid << " "
+                          << sam << " " << layer << " " << e1 << " " << p1 );
 	
-      ++ncount; 
+        ++ncount; 
       }
       
       if(m_printTable && ttmap)      *ttmap<<std::dec<<std::endl; 
       ++ncount1; 
     } else {
       // no ROBID for this TT. not abnormal (not all layers exist in all TTs)
-      log << MSG::DEBUG << "No ROBID for this TT, sign, sampling, layer, etamin, phimin= " 
-	  << m_TT_ID->show_to_string(lay_id) << " " << sam << " " << layer << " " << e1 << " " << p1
-	  << endreq;
+      ATH_MSG_DEBUG ( "No ROBID for this TT, sign, sampling, layer, etamin, phimin= " 
+                      << m_TT_ID->show_to_string(lay_id) << " " << sam << " " << layer << " " << e1 << " " << p1
+                      );
     }
     
   } // end loop on "regions"
 
-  log << MSG::INFO <<" Total number of records = "<<ncount<< endreq;
-  log << MSG::INFO <<" Total number of TTs = "<<ncount1<< endreq;
+  ATH_MSG_INFO (" Total number of records = "<<ncount);
+  ATH_MSG_INFO (" Total number of TTs = "<<ncount1);
 
 
   // save pointer as member.
@@ -414,16 +352,28 @@ LArRegionSelectorTable::fillMaps()
   m_fcalhadLUT = ttLutFCALhad;
 
   larKey = "LArRegionSelectorLUT_EM";
-  sc = recordMap(ttLutEM,larKey);
+  if (recordMap(ttLutEM,larKey).isFailure()) {
+    ATH_MSG_ERROR("Cannot record " << larKey);
+    return;
+  }
 
   larKey = "LArRegionSelectorLUT_HEC";
-  sc = recordMap(ttLutHEC,larKey);
+  if (recordMap(ttLutHEC,larKey).isFailure()) {
+    ATH_MSG_ERROR("Cannot record " << larKey);
+    return;
+  }
 
   larKey = "LArRegionSelectorLUT_FCALem";
-  sc = recordMap(ttLutFCALem,larKey);
+  if (recordMap(ttLutFCALem,larKey).isFailure()) {
+    ATH_MSG_ERROR("Cannot record " << larKey);
+    return;
+  }
 
   larKey = "LArRegionSelectorLUT_FCALhad";
-  sc = recordMap(ttLutFCALhad,larKey);
+  if (recordMap(ttLutFCALhad,larKey).isFailure()) {
+    ATH_MSG_ERROR("Cannot record " << larKey);
+    return;
+  }
 
   if(m_printTable) {
     delete ttmapEM[0];
@@ -448,28 +398,15 @@ LArRegionSelectorTable::fillMaps()
 StatusCode 
 LArRegionSelectorTable::recordMap(RegionSelectorLUT* larRSlut, std::string larKey) 
 {
-  StatusCode sc;
-  MsgStream log(msgSvc(), name());
-
   static const bool SETCONST(false);
-  sc = m_detStore->contains< RegionSelectorLUT >(larKey);
+  StatusCode sc = detStore()->contains< RegionSelectorLUT >(larKey);
   if (sc == StatusCode::SUCCESS ) {
-    log << MSG::ERROR << " RegionSelectorLUT " << larKey 
-	<< " already exists " << endreq;
+    ATH_MSG_ERROR ( " RegionSelectorLUT " << larKey 
+                    << " already exists " );
   } else {
-    sc = m_detStore->record(larRSlut, larKey,SETCONST);
-    if ( sc.isFailure() ) {
-      log << MSG::ERROR 
-	  << " could not register RegionSelectorLUT " 
-	   << larKey << endreq;
-    } else {
-      log << MSG::INFO 
-	  << "LArRegionSelectorLUT successfully saved in detector Store" 
-	  << larKey << endreq;
-    }
+    ATH_CHECK( detStore()->record(larRSlut, larKey,SETCONST) );
+    ATH_MSG_INFO ( "LArRegionSelectorLUT successfully saved in detector Store" 
+                   << larKey );
   }
-  return sc;
+  return StatusCode::SUCCESS;
 }
-
-
-

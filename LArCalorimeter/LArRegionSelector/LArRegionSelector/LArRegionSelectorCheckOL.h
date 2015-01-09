@@ -5,13 +5,12 @@
 #ifndef LArRegionSelector_LArRegionSelectorCheckOL_h
 #define LArRegionSelector_LArRegionSelectorCheckOL_h
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "Identifier/Identifier.h" 
 #include "Identifier/HWIdentifier.h" 
 #include "CaloIdentifier/LArID_Exception.h" 
 
-class StoreGateSvc;
 class CaloDetDescrManager;
 class CaloTTDescrManager;
 class CaloLVL1_ID;
@@ -23,7 +22,7 @@ class CaloTriggerTowerService;
 
 /** @brief This algorithm is to be run in standalone mode for debug/exploration purposes of 
     the "public" service LArRegionSelectorTable */
-class LArRegionSelectorCheckOL : public Algorithm {
+class LArRegionSelectorCheckOL : public AthAlgorithm {
 
 public:
 
@@ -43,15 +42,12 @@ private:
   bool m_testTable;
   bool m_checkOVL;
 
-  StoreGateSvc*                  m_detStore;
   const CaloDetDescrManager*     m_ddman; 
   const CaloTTDescrManager*      m_ttman; 
   const CaloLVL1_ID*             m_TT_ID; 
         IToolSvc*                m_toolSvc;
         LArCablingService*       m_cablingSvc; 
         CaloTriggerTowerService*  m_ttSvc; 
-
-
 };
 
 #endif // LArRegionSelector_LArRegionSelectorCheckOL_h

@@ -24,11 +24,10 @@
 
 
 LArRegionSelectorCheckOL::LArRegionSelectorCheckOL
-(const std::string& name, ISvcLocator* pSvcLocator): Algorithm(name, pSvcLocator), 
+(const std::string& name, ISvcLocator* pSvcLocator): AthAlgorithm(name, pSvcLocator), 
 
   m_testTable(true),
   m_checkOVL(true),
-  m_detStore(0),
   m_ddman(0),
   m_ttman(0),
   m_TT_ID(0),
@@ -44,74 +43,24 @@ LArRegionSelectorCheckOL::LArRegionSelectorCheckOL
 
 StatusCode LArRegionSelectorCheckOL::initialize(){
 
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "initialize()" << endreq;
+  ATH_MSG_INFO ( "initialize()" );
 
-  log << MSG::INFO << "Algorithm Properties" << endreq;
-  log << MSG::INFO << " Test Table:      " 
-      << ((m_testTable) ? "true" : "false") <<endreq;
+  ATH_MSG_INFO ( "Algorithm Properties" );
+  ATH_MSG_INFO ( " Test Table:      "  << ((m_testTable) ? "true" : "false") );
 
-  StatusCode sc;
+  ATH_CHECK( detStore()->retrieve(m_ddman) );
+  ATH_MSG_DEBUG ( "CaloDetDescr Manager found" );
 
-  // Get DetectorStore service
-  sc = service("DetectorStore",m_detStore);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "DetectorStore service not found !" << endreq;
-    return StatusCode::FAILURE;
-  } 
+  ATH_CHECK( detStore()->retrieve(m_TT_ID) );
+  ATH_MSG_DEBUG ( "CaloLVL1_ID helper found" );
 
-  // Retrieve DD manager:
+  ATH_CHECK( service( "ToolSvc",m_toolSvc  ) );
 
-  sc=m_detStore->retrieve(m_ddman);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "Could not find the CaloDetDescrMgr "
-	<< endreq;
-    return StatusCode::FAILURE;
-  } else {
-    log << MSG::DEBUG << "CaloDetDescr Manager found" << endreq;
-  }
+  ATH_CHECK( m_toolSvc->retrieveTool("LArCablingService",m_cablingSvc) );
+  ATH_MSG_DEBUG ( "Successfully retrieved LArCablingSvc" );
 
-  // Retrieve TT manager and helper:
-  /*
-  sc=m_detStore->retrieve(m_ttman);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "Could not find the CaloTTMgr "
-	<< endreq;
-    return StatusCode::FAILURE;
-  } else {
-    log << MSG::DEBUG << "CaloTTMgr Manager found" << endreq;
-  }
-  */
-  if(StatusCode::SUCCESS != m_detStore->retrieve(m_TT_ID) ) {
-    log << MSG::FATAL << " failed to get CaloLVL1_ID "
-	<< endreq;
-    return StatusCode::FAILURE;
-  } else {
-    log << MSG::DEBUG << "CaloLVL1_ID helper found" << endreq;
-  } 
-
-  // Retrieve needed tools: LArCablingSvc 
-
-  sc   = service( "ToolSvc",m_toolSvc  );
-  if(! sc.isSuccess()) { 
-     return sc;
-  }  
-
-  sc =m_toolSvc->retrieveTool("LArCablingService",m_cablingSvc);
-  if(!sc.isSuccess() ) {
-    log << MSG::DEBUG << "Failed to retrieve LArCablingSvc" << endreq;
-    return sc;
-  } else {
-    log << MSG::DEBUG << "Successfully retrieved LArCablingSvc" << endreq;
-  }
-
-  sc =m_toolSvc->retrieveTool("CaloTriggerTowerService",m_ttSvc);
-  if(!sc.isSuccess() ) {
-    log << MSG::DEBUG << "Failed to retrieve CaloTriggerTowerSvc" << endreq;
-    return sc;
-  } else {
-    log << MSG::DEBUG << "Successfully retrieved CaloTriggerTowerSvc" << endreq;
-  }
+  ATH_CHECK( m_toolSvc->retrieveTool("CaloTriggerTowerService",m_ttSvc) );
+  ATH_MSG_DEBUG ( "Successfully retrieved CaloTriggerTowerSvc" );
 
   return StatusCode::SUCCESS;
 }
@@ -120,20 +69,11 @@ StatusCode LArRegionSelectorCheckOL::initialize(){
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode LArRegionSelectorCheckOL::execute() {
-  MsgStream log(msgSvc(), name());
-
-  StatusCode sc;
-
   if(!m_ttman){
-   sc=m_detStore->retrieve(m_ttman);
-   if (sc.isFailure()) {
-    log << MSG::FATAL << "Could not find the CaloTTMgr "
-	<< endreq;
-    return StatusCode::FAILURE;
-   } else {
-    log << MSG::DEBUG << "CaloTTMgr Manager found" << endreq;
-   }
+    ATH_CHECK( detStore()->retrieve(m_ttman) );
+    ATH_MSG_DEBUG ( "CaloTTMgr Manager found" );
   }
+  StatusCode sc;
   if (m_checkOVL) sc = checkOverlaps();
   else sc = StatusCode::SUCCESS;
 
@@ -146,10 +86,7 @@ StatusCode LArRegionSelectorCheckOL::execute() {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode LArRegionSelectorCheckOL::finalize() {
-
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "finalize()" << endreq;
-
+  ATH_MSG_INFO ( "finalize()" );
   return StatusCode::SUCCESS;
 }
 
@@ -159,7 +96,6 @@ StatusCode LArRegionSelectorCheckOL::finalize() {
 StatusCode 
 LArRegionSelectorCheckOL::checkOverlaps() {
 
-  MsgStream log(msgSvc(), name());
   CaloTTDescrManager::calo_region_const_iterator it2 =
     m_ttman->calo_region_begin();	
   CaloTTDescrManager::calo_region_const_iterator it2_end =
@@ -366,42 +302,32 @@ LArRegionSelectorCheckOL::checkOverlaps() {
 StatusCode 
 LArRegionSelectorCheckOL::testMaps() {
 
-  MsgStream log(msgSvc(), name());
-  bool dump=false;
-  if (log.level()<=MSG::DEBUG) dump=true;
-  
   IRegionLUT_Creator * lutCreator = 0;
-  StatusCode sc = m_toolSvc->retrieveTool("LArRegionSelectorTable", lutCreator);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Error retrieving LArRegionSelectorTable Tool "<<endreq;
-    return 0;
-  } else {
-    log << MSG::DEBUG << "Found LArRegionSelectorTable Tool " << endreq;
+  ATH_CHECK( m_toolSvc->retrieveTool("LArRegionSelectorTable", lutCreator) );
+  ATH_MSG_DEBUG ( "Found LArRegionSelectorTable Tool " );
 
-    const RegionSelectorLUT* ttLutEM=lutCreator->getLUT("EM");
+  const RegionSelectorLUT* ttLutEM=lutCreator->getLUT("EM");
 
-    unsigned int nbElem=ttLutEM->maxHash();
-    if(dump) log << MSG::DEBUG << " Retrieved RegionSelectorLUT for LArEM, containing following info (nb Elem): "<< nbElem << endreq;
-    if(dump) log << MSG::DEBUG << " i, HashId, sampling, etamin,etamax,phimin,phimax,robid"	<< endreq;
-    for(unsigned int i=0;i<nbElem;++i){
-      int hashid=ttLutEM->hashId(i);
-      double etamin=ttLutEM->etaMin(i);
-      double etamax=ttLutEM->etaMax(i);
-      double phimin=ttLutEM->phiMin(i);
-      double phimax=ttLutEM->phiMax(i);
-      int samp=ttLutEM->sampling(i);
-      int robid=ttLutEM->robId(i);
-      if(dump) log << MSG::DEBUG << i << " " << hashid << " " << samp << " "
-	  << etamin << " " << etamax << " "
-	  << phimin << " " << phimax << " "
-	  << robid
-	  << endreq;
-    }
+  unsigned int nbElem=ttLutEM->maxHash();
+  ATH_MSG_DEBUG ( " Retrieved RegionSelectorLUT for LArEM, containing following info (nb Elem): "<< nbElem );
+  ATH_MSG_DEBUG ( " i, HashId, sampling, etamin,etamax,phimin,phimax,robid"	);
+  for(unsigned int i=0;i<nbElem;++i){
+    int hashid=ttLutEM->hashId(i);
+    double etamin=ttLutEM->etaMin(i);
+    double etamax=ttLutEM->etaMax(i);
+    double phimin=ttLutEM->phiMin(i);
+    double phimax=ttLutEM->phiMax(i);
+    int samp=ttLutEM->sampling(i);
+    int robid=ttLutEM->robId(i);
+    ATH_MSG_DEBUG ( i << " " << hashid << " " << samp << " "
+                    << etamin << " " << etamax << " "
+                    << phimin << " " << phimax << " "
+                    << robid );
 
     const RegionSelectorLUT* ttLutHEC=lutCreator->getLUT("HEC");
     nbElem=ttLutHEC->maxHash();
-    if(dump) log << MSG::DEBUG << " Retrieved RegionSelectorLUT for LArHEC, containing following info (nb Elem): "<< nbElem << endreq;
-    if(dump) log << MSG::DEBUG << " i, HashId, sampling, etamin,etamax,phimin,phimax,robid"	<< endreq;
+    ATH_MSG_DEBUG ( " Retrieved RegionSelectorLUT for LArHEC, containing following info (nb Elem): "<< nbElem );
+    ATH_MSG_DEBUG ( " i, HashId, sampling, etamin,etamax,phimin,phimax,robid"	);
     for(unsigned int i=0;i<nbElem;++i){
       int hashid=ttLutHEC->hashId(i);
       double etamin=ttLutHEC->etaMin(i);
@@ -410,17 +336,16 @@ LArRegionSelectorCheckOL::testMaps() {
       double phimax=ttLutHEC->phiMax(i);
       int samp=ttLutHEC->sampling(i);
       int robid=ttLutHEC->robId(i);
-      if(dump) log << MSG::DEBUG << i << " " << hashid << " " << samp << " "
-	  << etamin << " " << etamax << " "
-	  << phimin << " " << phimax << " "
-	  << robid
-	  << endreq;
+      ATH_MSG_DEBUG ( i << " " << hashid << " " << samp << " "
+                      << etamin << " " << etamax << " "
+                      << phimin << " " << phimax << " "
+                      << robid );
     }
 
     const RegionSelectorLUT* ttLutFCALem=lutCreator->getLUT("FCALEM");
     nbElem=ttLutFCALem->maxHash();
-    if(dump) log << MSG::DEBUG << " Retrieved RegionSelectorLUT for LArFCALem, containing following info (nb Elem): "<< nbElem << endreq;
-    if(dump) log << MSG::DEBUG << " i, HashId, sampling, etamin,etamax,phimin,phimax,robid"	<< endreq;
+    ATH_MSG_DEBUG ( " Retrieved RegionSelectorLUT for LArFCALem, containing following info (nb Elem): "<< nbElem );
+    ATH_MSG_DEBUG ( " i, HashId, sampling, etamin,etamax,phimin,phimax,robid"	);
     for(unsigned int i=0;i<nbElem;++i){
       int hashid=ttLutFCALem->hashId(i);
       double etamin=ttLutFCALem->etaMin(i);
@@ -429,17 +354,16 @@ LArRegionSelectorCheckOL::testMaps() {
       double phimax=ttLutFCALem->phiMax(i);
       int samp=ttLutFCALem->sampling(i);
       int robid=ttLutFCALem->robId(i);
-      if(dump) log << MSG::DEBUG << i << " " << hashid << " " << samp << " "
-	  << etamin << " " << etamax << " "
-	  << phimin << " " << phimax << " "
-	  << robid
-	  << endreq;
+      ATH_MSG_DEBUG ( i << " " << hashid << " " << samp << " "
+                      << etamin << " " << etamax << " "
+                      << phimin << " " << phimax << " "
+                      << robid );
     }
 
     const RegionSelectorLUT* ttLutFCALhad=lutCreator->getLUT("FCALHAD");
     nbElem=ttLutFCALhad->maxHash();
-    if(dump) log << MSG::DEBUG << " Retrieved RegionSelectorLUT for LArFCALhad, containing following info (nb Elem): "<< nbElem<< endreq;
-    if(dump)log << MSG::DEBUG << " i, HashId, sampling, etamin,etamax,phimin,phimax,robid"	<< endreq;
+    ATH_MSG_DEBUG ( " Retrieved RegionSelectorLUT for LArFCALhad, containing following info (nb Elem): "<< nbElem);
+    ATH_MSG_DEBUG ( " i, HashId, sampling, etamin,etamax,phimin,phimax,robid"	);
     for(unsigned int i=0;i<nbElem;++i){
       int hashid=ttLutFCALhad->hashId(i);
       double etamin=ttLutFCALhad->etaMin(i);
@@ -448,15 +372,12 @@ LArRegionSelectorCheckOL::testMaps() {
       double phimax=ttLutFCALhad->phiMax(i);
       int samp=ttLutFCALhad->sampling(i);
       int robid=ttLutFCALhad->robId(i);
-      if(dump)log << MSG::DEBUG << i << " " << hashid << " " << samp << " "
-	  << etamin << " " << etamax << " "
-	  << phimin << " " << phimax << " "
-	  << robid
-	  << endreq;
+      ATH_MSG_DEBUG ( i << " " << hashid << " " << samp << " "
+                      << etamin << " " << etamax << " "
+                      << phimin << " " << phimax << " "
+                      << robid );
     }
-
   }
 
-
-  return sc;
+  return StatusCode::SUCCESS;
 }

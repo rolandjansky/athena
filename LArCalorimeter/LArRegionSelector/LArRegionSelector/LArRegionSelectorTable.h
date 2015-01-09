@@ -7,7 +7,7 @@
 
 #include "RegionSelector/IRegionLUT_Creator.h"
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "Identifier/Identifier.h" 
@@ -16,7 +16,6 @@
 
 #include <string>
 
-class StoreGateSvc;
 class RegionSelectorLUT;
 class CaloTTDescrManager;
 class CaloLVL1_ID;
@@ -47,7 +46,7 @@ class LArCablingService;
 */
 
 
-class LArRegionSelectorTable : public AlgTool, virtual public IRegionLUT_Creator
+class LArRegionSelectorTable : public AthAlgTool, virtual public IRegionLUT_Creator
  {
 
 public:
@@ -81,7 +80,6 @@ private:
       Only used for debug purposes, as the tables are meant to be retrieved from StoreGate */
   bool m_printTable;
 
-  ServiceHandle<StoreGateSvc> m_detStore;
   const CaloTTDescrManager* m_ttman; 
   const CaloLVL1_ID*        m_TT_ID; 
   const LArRoI_Map*         m_roiMap;
