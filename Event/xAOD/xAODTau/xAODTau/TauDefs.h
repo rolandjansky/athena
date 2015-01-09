@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauDefs.h 602664 2014-06-19 14:20:50Z janus $
+// $Id: TauDefs.h 638520 2015-01-09 13:21:05Z janus $
 #ifndef XAODTAU_TAUDEFS_H
 #define XAODTAU_TAUDEFS_H
 
@@ -15,6 +15,22 @@
 /// Namespace holding all the xAOD EDM classes
 namespace xAOD {
   typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<float> > PtEtaPhiMVectorF;
+
+	/* define type traits for xAOD Tau.
+	 * needs to be outside of the TauJet namespace
+	 */
+	// empty return type for all types T.
+	// Leads to a compilation failure if one tries to use it with other types then a specialization is given for.
+	template <class T>
+	struct xAODTAU_return_type;
+
+	// specialization for ints
+	template <>
+	struct xAODTAU_return_type<int> { typedef int type; };
+
+	// specialization for floats
+	template <>
+	struct xAODTAU_return_type<float> { typedef float type; };
 
 
 namespace TauJetParameters
@@ -79,7 +95,7 @@ namespace TauJetParameters
         //! BDT score which is background transformed/flattened
         BDTJetScoreBkgTrans   = 19,  // new
         //! PanTau's Score
-        PanTauScore           = 20
+        PanTauScore           = 20   //deprecated
     };
 
     //-------------------------------------------------------------------------
@@ -131,9 +147,9 @@ namespace TauJetParameters
         JetBDTBkgLoose       = 25, // new
         JetBDTBkgMedium      = 26, // new
         JetBDTBkgTight       = 27,  // new
-        PanTauScoreLoose     = 28,
-        PanTauScoreMedium    = 29,
-        PanTauScoreTight     = 30
+        PanTauScoreLoose     = 28, //deprecated
+        PanTauScoreMedium    = 29, //deprecated
+        PanTauScoreTight     = 30  //deprecated
     };
 
     //-------------------------------------------------------------------------
@@ -274,7 +290,28 @@ namespace TauJetParameters
       
       //for TES parameters
       TESOffset,
-      TESCalibConstant
+      TESCalibConstant,
+
+      centFracCorrected,
+      etOverPtLeadTrkCorrected,
+      innerTrkAvgDist,
+      innerTrkAvgDistCorrected,
+      SumPtTrkFrac,
+      SumPtTrkFracCorrected,
+      
+      mEflowApprox,
+      ptRatioEflowApprox,
+
+      /// pileup-corrected ID variables
+      ipSigLeadTrkCorrected,
+      trFlightPathSigCorrected,
+      massTrkSysCorrected,
+      dRmaxCorrected,
+      ChPiEMEOverCaloEMECorrected,
+      EMPOverTrkSysPCorrected,
+      ptRatioEflowApproxCorrected,
+      mEflowApproxCorrected
+
 
     };
 
@@ -370,8 +407,12 @@ namespace TauJetParameters
       pantau_eflowRecInput_BDTVar_Neutral_PID_BDTValues_BDTSort_2,
       pantau_eflowRecInput_BDTVar_Neutral_Ratio_EtOverEtAllConsts,
       pantau_eflowRecInput_BDTVar_Neutral_Mean_DRToLeading_WrtEtAllConsts,
-      pantau_eflowRecInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged
+      pantau_eflowRecInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged,
       
+
+      // new variables for pantau BDT
+      pantau_CellBasedInput_BDTVar_Charged_HLV_SumM
+
     };
   
   
@@ -386,7 +427,28 @@ namespace TauJetParameters
       pantau_CellBasedInput_ChargedConstituents,
       pantau_CellBasedInput_Neutral
     };
-    
+
+  enum DecayMode 
+    {
+      Mode_1p0n,
+      Mode_1p1n,
+      Mode_1pXn,
+      Mode_3p0n,
+      Mode_3pXn,
+      Mode_Other,   // for 2p, 4p, 5p taus
+      Mode_NotSet,  // for 0p, >= 6p
+      Mode_Error    // use this as initialisation
+    };
+
+  //-------------------------------------------------------------------------
+  //! Enum for tau track flags
+  //-------------------------------------------------------------------------
+  enum TauTrackFlag
+    {
+      isConversion    = 0,
+      failTrackFilter = 1
+    };
+
 }//end namespace TauJetParameters
 
 }

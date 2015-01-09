@@ -8,7 +8,7 @@ author Michel Janus <janus@cern.ch>
 use AtlasPolicy   AtlasPolicy-*
 use SGTools       SGTools-*       Control
 use AthContainers AthContainers-* Control
-use  AtlasROOT 	  AtlasROOT-*     External
+use AtlasROOT 	  AtlasROOT-*     External
 
 # The code needs libGenVector.so...
 apply_tag ROOTGenVectorLibs
@@ -20,18 +20,17 @@ use xAODTracking		  xAODTracking-* 	   Event/xAOD
 use xAODJet      	  	  xAODJet-*    		   Event/xAOD
 use xAODPFlow      	  	  xAODPFlow-*		   Event/xAOD
 use AthLinks      		  AthLinks-*      	   Control
+use xAODTruth         		  xAODTruth-*              Event/xAOD
 
 library xAODTau ../Root/*.cxx
 apply_pattern installed_library
 
 private
-
 use AtlasReflex   AtlasReflex-*   External
 
 apply_pattern lcgdict dict=xAODTau selectionfile=selection.xml \
                       headerfiles="../xAODTau/xAODTauDict.h" \
 		      extralibfiles=../Root/dict/*.cxx
 
-private
 use TestTools TestTools-* AtlasTest
 apply_pattern UnitTest_run unit_test=xAODTau_TauJet

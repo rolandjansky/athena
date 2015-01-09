@@ -4,10 +4,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauJetAccessors_v1.icc 629526 2014-11-19 15:55:34Z janus $
+// $Id: TauJetAccessors_v2.icc 638520 2015-01-09 13:21:05Z janus $
 
-#ifndef XAODTAU_TAUACCESSORS_V1_ICC
-#define XAODTAU_TAUACCESSORS_V1_ICC
+#ifndef XAODTAU_TAUACCESSORS_V2_ICC
+#define XAODTAU_TAUACCESSORS_V2_ICC
 
 // System include(s):
 #include <iostream>
@@ -21,7 +21,7 @@
 break;
 
 
-  SG::AuxElement::Accessor< float >* discriminantAccessorV1( xAOD::TauJetParameters::TauID discriminant ) {
+  SG::AuxElement::Accessor< float >* discriminantAccessorV2( xAOD::TauJetParameters::TauID discriminant ) {
 
     switch( discriminant ) {
 	
@@ -41,10 +41,10 @@ break;
   }
 
   template <class T>  SG::AuxElement::Accessor< T >*
-  panTauDetailsAccessorV1( xAOD::TauJetParameters::PanTauDetails /*detail*/ ) {
+  panTauDetailsAccessorV2( xAOD::TauJetParameters::PanTauDetails /*detail*/ ) {
   }
 
-  template <> SG::AuxElement::Accessor< float >* panTauDetailsAccessorV1<float>( xAOD::TauJetParameters::PanTauDetails detail ) {
+  template <> SG::AuxElement::Accessor< float >* panTauDetailsAccessorV2<float>( xAOD::TauJetParameters::PanTauDetails detail ) {
     
     switch( detail ) {
 	
@@ -64,11 +64,8 @@ break;
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_CellBasedInput_BDTVar_Neutral_Ratio_EtOverEtAllConsts );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_CellBasedInput_BDTVar_Neutral_Shots_NPhotonsInSeed );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_CellBasedInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged );
-
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_CellBasedInput_BDTVar_Charged_HLV_SumM );
-
-
-
+    
       //!PanTau variables when using eflowRec pfos
       //BDT output distributions
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_eflowRecInput_BDTValue_1p0n_vs_1p1n );
@@ -84,6 +81,7 @@ break;
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_eflowRecInput_BDTVar_Neutral_Ratio_EtOverEtAllConsts );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_eflowRecInput_BDTVar_Neutral_Mean_DRToLeading_WrtEtAllConsts );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, pantau_eflowRecInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged );
+      
 
 
     default:
@@ -93,7 +91,7 @@ break;
     }
   }
 
-  template <> SG::AuxElement::Accessor< int >* panTauDetailsAccessorV1<int>( xAOD::TauJetParameters::PanTauDetails detail ) {
+  template <> SG::AuxElement::Accessor< int >* panTauDetailsAccessorV2<int>( xAOD::TauJetParameters::PanTauDetails detail ) {
 
     switch( detail ) {
 	
@@ -130,10 +128,10 @@ break;
 
 
 
-  template <class T>  SG::AuxElement::Accessor< T >* detailsAccessorV1( xAOD::TauJetParameters::Detail /*detail*/ ) {
+  template <class T>  SG::AuxElement::Accessor< T >* detailsAccessorV2( xAOD::TauJetParameters::Detail /*detail*/ ) {
   }
 
-  template <> SG::AuxElement::Accessor< float >* detailsAccessorV1<float>( xAOD::TauJetParameters::Detail detail ) {
+  template <> SG::AuxElement::Accessor< float >* detailsAccessorV2<float>( xAOD::TauJetParameters::Detail detail ) {
     
     switch( detail ) {
 
@@ -200,12 +198,25 @@ break;
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, mEflowTopo );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, ptRatioEflowTopo );
 
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, innerTrkAvgDist );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, SumPtTrkFrac );
+
+
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, centFracCorrected );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, etOverPtLeadTrkCorrected );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, innerTrkAvgDist );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, innerTrkAvgDistCorrected );
-      DEFINE_TAUJETPARAMETER_ACCESSOR( float, SumPtTrkFrac );
       DEFINE_TAUJETPARAMETER_ACCESSOR( float, SumPtTrkFracCorrected );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, ipSigLeadTrkCorrected );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, trFlightPathSigCorrected );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, massTrkSysCorrected );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, dRmaxCorrected );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, ChPiEMEOverCaloEMECorrected );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, EMPOverTrkSysPCorrected );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, ptRatioEflowApproxCorrected );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, mEflowApproxCorrected );
+
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, mEflowApprox );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( float, ptRatioEflowApprox );
 
     default:
       std::cerr << "xAOD::TauJetParameters ERROR Unknown float detail ("
@@ -214,7 +225,7 @@ break;
     }
   }
 
-  template <> SG::AuxElement::Accessor< int >* detailsAccessorV1<int>( xAOD::TauJetParameters::Detail detail ) {
+  template <> SG::AuxElement::Accessor< int >* detailsAccessorV2<int>( xAOD::TauJetParameters::Detail detail ) {
 
     switch( detail ) {
 
@@ -234,4 +245,6 @@ break;
   }
 
 
-#endif // XAODTAU_TAUJETACCESSORS_V1_ICC
+#endif // XAODTAU_TAUJETACCESSORS_V2_ICC
+
+//  LocalWords:  EMPOverTrkSysPCorrected

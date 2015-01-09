@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauJet_v1.cxx 596235 2014-05-09 13:12:18Z janus $
+// $Id: TauJet_v1.cxx 616524 2014-09-12 15:44:47Z janus $
 
 
 // System include(s):
@@ -29,136 +29,62 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, pt)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, eta)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, phi)
-  // AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, e)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, m)
 
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, pt,  setPt)
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, eta, setEta)
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, phi, setPhi)
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, e,   setE)  
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, m,   setM)
 
   //primitive setters and getters for jetseed 4-vector
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, ptJetSeed)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, etaJetSeed)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, phiJetSeed)
-  //AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, eJetSeed)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, mJetSeed)
-
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, ptJetSeed,  setPtJetSeed) 
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, etaJetSeed, setEtaJetSeed)
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, phiJetSeed, setPhiJetSeed)
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, eJetSeed,   setEJetSeed)  
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, mJetSeed,   setMJetSeed)  
 
   //primitive setters and getters for jetseed 4-vector
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, ptDetectorAxis)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, etaDetectorAxis)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, phiDetectorAxis)
-  //AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, eDetectorAxis)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, mDetectorAxis)
-
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, ptDetectorAxis,  setPtDetectorAxis) 
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, etaDetectorAxis, setEtaDetectorAxis)
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, phiDetectorAxis, setPhiDetectorAxis)
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, eDetectorAxis,   setEDetectorAxis)  
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, mDetectorAxis,   setMDetectorAxis)  
 
   //primitive setters and getters for IntermediateAxis 4-vector
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, ptIntermediateAxis)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, etaIntermediateAxis)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, phiIntermediateAxis)
-  //AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, eIntermediateAxis)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, mIntermediateAxis)
-
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, ptIntermediateAxis,  setPtIntermediateAxis) 
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, etaIntermediateAxis, setEtaIntermediateAxis)
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, phiIntermediateAxis, setPhiIntermediateAxis)
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, eIntermediateAxis,   setEIntermediateAxis)  
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, mIntermediateAxis,   setMIntermediateAxis)  
 
   //primitive setters and getters for TauEnergyScale 4-vector
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, ptTauEnergyScale)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, etaTauEnergyScale)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, phiTauEnergyScale)
-  //AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, eTauEnergyScale)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, mTauEnergyScale)
-
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, ptTauEnergyScale,  setPtTauEnergyScale) 
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, etaTauEnergyScale, setEtaTauEnergyScale)
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, phiTauEnergyScale, setPhiTauEnergyScale)
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, eTauEnergyScale,   setETauEnergyScale)  
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, mTauEnergyScale,   setMTauEnergyScale)  
-
 
   //primitive setters and getters for jetseed 4-vector
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, ptTauEtaCalib)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, etaTauEtaCalib)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, phiTauEtaCalib)
-  //AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, eTauEtaCalib)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, mTauEtaCalib)
-
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, ptTauEtaCalib,  setPtTauEtaCalib) 
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, etaTauEtaCalib, setEtaTauEtaCalib)
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, phiTauEtaCalib, setPhiTauEtaCalib)
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, eTauEtaCalib,   setETauEtaCalib)  
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, mTauEtaCalib,   setMTauEtaCalib)  
-
 
   //primitive setters and getters for jetseed 4-vector
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, ptPanTauEFlowRecProto)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, etaPanTauEFlowRecProto)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, phiPanTauEFlowRecProto)
-  //AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, ePanTauEFlowRecProto)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, mPanTauEFlowRecProto)
-
-/*  AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, ptPanTauEFlowRecProto,  setPtPanTauEFlowRecProto) 
-  AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, etaPanTauEFlowRecProto, setEtaPanTauEFlowRecProto)
-  AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, phiPanTauEFlowRecProto, setPhiPanTauEFlowRecProto)
-  AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, ePanTauEFlowRecProto,   setEPanTauEFlowRecProto)  
-  AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, mPanTauEFlowRecProto,   setMPanTauEFlowRecProto) */ 
-
 
   //primitive setters and getters for jetseed 4-vector
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, ptPanTauEFlowRec)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, etaPanTauEFlowRec)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, phiPanTauEFlowRec)
-  //AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, ePanTauEFlowRec)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, mPanTauEFlowRec)
-
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, ptPanTauEFlowRec,  setPtPanTauEFlowRec) 
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, etaPanTauEFlowRec, setEtaPanTauEFlowRec)
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, phiPanTauEFlowRec, setPhiPanTauEFlowRec)
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, ePanTauEFlowRec,   setEPanTauEFlowRec)  
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, mPanTauEFlowRec,   setMPanTauEFlowRec)  
-
 
   //primitive setters and getters for jetseed 4-vector
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, ptPanTauCellBasedProto)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, etaPanTauCellBasedProto)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, phiPanTauCellBasedProto)
-  //AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, ePanTauCellBasedProto)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, mPanTauCellBasedProto)
-
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, ptPanTauCellBasedProto,  setPtPanTauCellBasedProto) 
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, etaPanTauCellBasedProto, setEtaPanTauCellBasedProto)
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, phiPanTauCellBasedProto, setPhiPanTauCellBasedProto)
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, ePanTauCellBasedProto,   setEPanTauCellBasedProto)  
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, mPanTauCellBasedProto,   setMPanTauCellBasedProto)  
-
 
   //primitive setters and getters for jetseed 4-vector
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, ptPanTauCellBased)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, etaPanTauCellBased)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, phiPanTauCellBased)
-  //AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, ePanTauCellBased)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v1, float, double, mPanTauCellBased)
-
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, ptPanTauCellBased,  setPtPanTauCellBased) 
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, etaPanTauCellBased, setEtaPanTauCellBased)
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, phiPanTauCellBased, setPhiPanTauCellBased)
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, ePanTauCellBased,   setEPanTauCellBased)  
-//   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST( TauJet_v1, float, double, mPanTauCellBased,   setMPanTauCellBased)  
 
 
   double TauJet_v1::e() const {
@@ -681,6 +607,35 @@ namespace xAOD {
 
 
   /////default pfos
+  // setters and getters for the hadronic PFO links
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( TauJet_v1,
+  				     TauJet_v1::PFOLinks_t,
+  				     hadronic_PFOLinks,
+  				     setHadronic_PFOLinks )
+  
+
+
+  static SG::AuxElement::Accessor< TauJet_v1::PFOLinks_t > hadronic_PFOAcc( "hadronic_PFOLinks" );
+  
+  const PFO* TauJet_v1::hadronic_PFO( size_t i ) const {
+   return ( *hadronic_PFOAcc( *this )[ i ] );
+  }
+  
+  size_t TauJet_v1::nHadronic_PFOs() const {
+   return hadronic_PFOAcc( *this ).size();
+  }
+  
+  void TauJet_v1::addHadronic_PFOLink( const ElementLink< PFOContainer >& pfo) {
+   
+   hadronic_PFOAcc( *this ).push_back( pfo );
+   return;
+    }
+  
+  void TauJet_v1::clearHadronic_PFOLinks() {
+   hadronic_PFOAcc( *this ).clear();
+   return;
+  }
+
   // setters and getters for the shot PFO links
   AUXSTORE_OBJECT_SETTER_AND_GETTER( TauJet_v1,
   				     TauJet_v1::PFOLinks_t,
@@ -709,7 +664,6 @@ namespace xAOD {
    shot_PFOAcc( *this ).clear();
    return;
   }
-
 
 
   // setters and getters for the charged PFO links
@@ -1003,67 +957,6 @@ namespace xAOD {
 	  std::cout << this->detail<int>(xAOD::TauJetParameters::numTopoClusters) << std::endl;
   }
   
-
-
-  //comment out for now, awaiting decision on whether enum-based accessors are sufficient
-  // //setters and getters for details variables
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, ipZ0SinThetaSigLeadTrk ,                setIpZ0SinThetaSigLeadTrk )		    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, etOverPtLeadTrk ,			    setEtOverPtLeadTrk )			    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, leadTrkPt ,		         	    setLeadTrkPt )			    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, ipSigLeadTrk ,			    setIpSigLeadTrk )			    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, ipSigLeadLooseTrk ,		            setIpSigLeadLooseTrk )		    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, etOverPtLeadLooseTrk ,		    setEtOverPtLeadLooseTrk )		    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, leadLooseTrkPt ,			    setLeadLooseTrkPt )			    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, chrgLooseTrk ,			    setChrgLooseTrk )			    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, massTrkSys ,			    setMassTrkSys )			    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, trkWidth2 ,		         	    setTrkWidth2 )			    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, trFlightPathSig ,			    setTrFlightPathSig )			    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, etEflow ,				    setEtEflow )				    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, mEflow ,				    setMEflow )				    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, ele_E237E277 ,			    setEle_E237E277 )			    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, ele_PresamplerFraction ,		    setEle_PresamplerFraction )		    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, ele_ECALFirstFraction ,		    setEle_ECALFirstFraction )		    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, int, numCells ,				    setNumCells )				    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, int, numTopoClusters ,			    setNumTopoClusters )			    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, numEffTopoClusters ,		    setNumEffTopoClusters )		    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, topoInvMass ,			    setTopoInvMass )			    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, effTopoInvMass ,			    setEffTopoInvMass )			    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, topoMeanDeltaR ,			    setTopoMeanDeltaR )			    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, effTopoMeanDeltaR ,		            setEffTopoMeanDeltaR )		    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, seedCalo_EMRadius ,		            setSeedCalo_EMRadius )		    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, seedCalo_hadRadius ,		    setSeedCalo_hadRadius )		    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, seedCalo_etEMAtEMScale ,		    setSeedCalo_etEMAtEMScale )		    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, seedCalo_etHadAtEMScale ,		    setSeedCalo_etHadAtEMScale )		    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, seedCalo_isolFrac ,		            setSeedCalo_isolFrac )		    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, seedCalo_centFrac ,		            setSeedCalo_centFrac )		    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, seedCalo_stripWidth2 ,		    setSeedCalo_stripWidth2 )		    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, int  , seedCalo_nStrip ,			    setSeedCalo_nStrip )			    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, seedCalo_etEMCalib ,		    setSeedCalo_etEMCalib )		    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, seedCalo_etHadCalib ,		    setSeedCalo_etHadCalib )		    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, seedCalo_eta ,			    setSeedCalo_eta )			    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, seedCalo_phi ,			    setSeedCalo_phi )			    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, seedCalo_nIsolLooseTrk ,		    setSeedCalo_nIsolLooseTrk )		    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, seedCalo_trkAvgDist ,		    setSeedCalo_trkAvgDist )		    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, seedCalo_trkRmsDist ,		    setSeedCalo_trkRmsDist )		    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, seedCalo_lead2ClusterEOverAllClusterE,  setSeedCalo_lead2ClusterEOverAllClusterE )
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, seedCalo_lead3ClusterEOverAllClusterE,  setSeedCalo_lead3ClusterEOverAllClusterE )
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, seedCalo_caloIso ,			    setSeedCalo_caloIso )			    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, seedCalo_caloIsoCorrected , 	    setSeedCalo_caloIsoCorrected )	    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, seedCalo_dRmax ,			    setSeedCalo_dRmax )			    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, EM_TES_scale ,			    setEM_TES_scale )			    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, LC_TES_precalib ,			    setLC_TES_precalib )			    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, cellBasedEnergyRing1 ,		    setCellBasedEnergyRing1 )		    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, cellBasedEnergyRing2 ,		    setCellBasedEnergyRing2 )		    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, cellBasedEnergyRing3 ,		    setCellBasedEnergyRing3 )		    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, cellBasedEnergyRing4 ,		    setCellBasedEnergyRing4 )		    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, cellBasedEnergyRing5 ,		    setCellBasedEnergyRing5 )		    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, cellBasedEnergyRing6 ,		    setCellBasedEnergyRing6 )		    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, cellBasedEnergyRing7 ,		    setCellBasedEnergyRing7 )		    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, TRT_NHT_OVER_NLT ,			    setTRT_NHT_OVER_NLT )			    
-  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauJet_v1, float, TauJetVtxFraction ,                     setTauJetVtxFraction )                    
-
-
-
 } // namespace xAOD
 
 //  LocalWords:  panTauDetail mJetSeed

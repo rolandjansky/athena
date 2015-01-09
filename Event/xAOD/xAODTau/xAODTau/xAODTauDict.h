@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTauDict.h 591517 2014-04-05 15:10:19Z krasznaa $
+// $Id: xAODTauDict.h 632166 2014-11-29 15:06:03Z krasznaa $
 #ifndef XAODTAU_XAODTAUDICT_H
 #define XAODTAU_XAODTAUDICT_H
 
@@ -24,6 +24,17 @@
 // Local include(s):
 #include "xAODTau/versions/TauJetContainer_v1.h"
 #include "xAODTau/versions/TauJetAuxContainer_v1.h"
+#include "xAODTau/versions/TauJetContainer_v2.h"
+#include "xAODTau/versions/TauJetAuxContainer_v2.h"
+#include "xAODTau/TauJetContainer.h"
+#include "xAODTau/TauJetAuxContainer.h"
+
+/// Declare a dummy CLID for xAOD::TauJetContainer_v1. This is only necessary
+/// to get DataLink<xAOD::TauJetContainer_v1> and
+/// ElementLink<xAOD::TauJetContainer_v1> compiling in the dictionary. The CLID
+/// is not needed in the "real" code, since users are never exposed to the _v1
+/// classes in Athena anymore.
+CLASS_DEF( xAOD::TauJetContainer_v1, 12345678, 10 )
 
 namespace {
   struct GCCXML_DUMMY_INSTANTIATION_XAODTAU {
@@ -35,6 +46,16 @@ namespace {
     std::vector< ElementLink< xAOD::TauJetContainer_v1 > > l5;
     std::vector< std::vector< ElementLink< xAOD::TauJetContainer_v1 > > > l6;
     std::vector< ElementLinkVector< xAOD::TauJetContainer_v1 > > l7;
+
+    xAOD::TauJetContainer_v2 c2;
+    DataLink< xAOD::TauJetContainer_v2 > l8;
+    ElementLink< xAOD::TauJetContainer_v2 > l9;
+    ElementLinkVector< xAOD::TauJetContainer_v2 > l10;
+    std::vector< DataLink< xAOD::TauJetContainer_v2 > > l11;
+    std::vector< ElementLink< xAOD::TauJetContainer_v2 > > l12;
+    std::vector< std::vector< ElementLink< xAOD::TauJetContainer_v2 > > > l13;
+    std::vector< ElementLinkVector< xAOD::TauJetContainer_v2 > > l14;
+
 
     // Instantiate the classes used by xAOD::TauJetAuxContainer, so that
     // Reflex would see them with their "correct type". Note that the

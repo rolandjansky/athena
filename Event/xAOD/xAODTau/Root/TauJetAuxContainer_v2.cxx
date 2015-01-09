@@ -2,15 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauJetAuxContainer_v1.cxx 624685 2014-10-28 18:21:50Z janus $
+// $Id: TauJetAuxContainer_v2.cxx 638520 2015-01-09 13:21:05Z janus $
 
 
 // Local include(s):
-#include "xAODTau/versions/TauJetAuxContainer_v1.h"
+#include "xAODTau/versions/TauJetAuxContainer_v2.h"
 
 namespace xAOD {
   
-  TauJetAuxContainer_v1::TauJetAuxContainer_v1()
+  TauJetAuxContainer_v2::TauJetAuxContainer_v2()
     : AuxContainerBase() {
     
     AUX_VARIABLE( pt );
@@ -75,7 +75,6 @@ namespace xAOD {
     AUX_VARIABLE( SafeLikelihood );
     AUX_VARIABLE( BDTJetScore );
     AUX_VARIABLE( BDTEleScore );
-    AUX_VARIABLE( PanTauScore );
 
     //additional discriminant outputs
     AUX_VARIABLE( BDTJetScoreSigTrans );
@@ -87,11 +86,10 @@ namespace xAOD {
     AUX_VARIABLE( isTauFlags );
 
     AUX_VARIABLE( trackLinks );
-    AUX_VARIABLE( conversionTrackLinks );
     AUX_VARIABLE( wideTrackLinks );
     AUX_VARIABLE( otherTrackLinks );
 
-    AUX_VARIABLE( trackFilterPass );
+    AUX_VARIABLE( trackFlags );
     AUX_VARIABLE( trackFilterProngs );
     AUX_VARIABLE( trackFilterQuality );
     AUX_VARIABLE( pi0ConeDR );
@@ -105,17 +103,14 @@ namespace xAOD {
     AUX_VARIABLE( vertexLink );
     AUX_VARIABLE( secondaryVertexLink );
 
-    AUX_VARIABLE( charged_PFOLinks );
-    AUX_VARIABLE( neutral_PFOLinks );
-    AUX_VARIABLE( pi0_PFOLinks );
-    AUX_VARIABLE( cellBased_Charged_PFOLinks );
-    AUX_VARIABLE( cellBased_Neutral_PFOLinks );
-    AUX_VARIABLE( cellBased_Pi0_PFOLinks );
-    AUX_VARIABLE( eflowRec_Charged_PFOLinks );
-    AUX_VARIABLE( eflowRec_Neutral_PFOLinks );
-    AUX_VARIABLE( eflowRec_Pi0_PFOLinks );
-    AUX_VARIABLE( shot_PFOLinks ); 
-    AUX_VARIABLE( hadronic_PFOLinks ); 
+    AUX_VARIABLE( chargedPFOLinks );
+    AUX_VARIABLE( neutralPFOLinks );
+    AUX_VARIABLE( pi0PFOLinks );
+    AUX_VARIABLE( protoChargedPFOLinks );
+    AUX_VARIABLE( protoNeutralPFOLinks );
+    AUX_VARIABLE( protoPi0PFOLinks );
+    AUX_VARIABLE( shotPFOLinks ); 
+    AUX_VARIABLE( hadronicPFOLinks ); 
 
 
 
@@ -194,6 +189,29 @@ namespace xAOD {
     AUX_VARIABLE( mEflowTopo );
     AUX_VARIABLE( ptRatioEflowTopo );
 
+    AUX_VARIABLE( mEflowApprox );
+    AUX_VARIABLE( ptRatioEflowApprox );
+
+    AUX_VARIABLE( innerTrkAvgDist );
+
+    AUX_VARIABLE( SumPtTrkFrac );
+
+
+    AUX_VARIABLE( etOverPtLeadTrkCorrected );
+    AUX_VARIABLE( ipSigLeadTrkCorrected );
+    AUX_VARIABLE( trFlightPathSigCorrected );
+    AUX_VARIABLE( massTrkSysCorrected );
+    AUX_VARIABLE( dRmaxCorrected );
+    AUX_VARIABLE( ChPiEMEOverCaloEMECorrected );
+    AUX_VARIABLE( EMPOverTrkSysPCorrected );
+    AUX_VARIABLE( ptRatioEflowApproxCorrected );
+    AUX_VARIABLE( mEflowApproxCorrected );
+    AUX_VARIABLE( centFracCorrected );
+    AUX_VARIABLE( innerTrkAvgDistCorrected );
+    AUX_VARIABLE( SumPtTrkFracCorrected );
+
+
+
     //trigger details
     AUX_VARIABLE( PSSFraction );
     AUX_VARIABLE( ChPiEMEOverCaloEME );
@@ -223,6 +241,7 @@ namespace xAOD {
     AUX_VARIABLE( pantau_CellBasedInput_BDTVar_Neutral_Ratio_EtOverEtAllConsts );
     AUX_VARIABLE( pantau_CellBasedInput_BDTVar_Neutral_Shots_NPhotonsInSeed );
     AUX_VARIABLE( pantau_CellBasedInput_BDTVar_Combined_DeltaR1stNeutralTo1stCharged );
+    AUX_VARIABLE( pantau_CellBasedInput_BDTVar_Charged_HLV_SumM );
     
     ////!PanTau variables when using eflowRec pfos
     ////Flag whether this seed has pantau info

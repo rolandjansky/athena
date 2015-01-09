@@ -4,9 +4,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TauJet_v1.h 632784 2014-12-01 17:45:25Z janus $
-#ifndef XAODTAU_VERSIONS_TAUJET_V1_H
-#define XAODTAU_VERSIONS_TAUJET_V1_H
+// $Id: TauJet_v2.h 632784 2014-12-01 17:45:25Z janus $
+#ifndef XAODTAU_VERSIONS_TAUJET_V2_H
+#define XAODTAU_VERSIONS_TAUJET_V2_H
 
 
 // Core include(s):
@@ -32,11 +32,11 @@ namespace xAOD {
    ///
    /// @author Michel Janus <janus@cern.ch>
    ///
-  class TauJet_v1 : public IParticle {
+  class TauJet_v2 : public IParticle {
 
   public:
     /// Default constructor
-    TauJet_v1();
+    TauJet_v2();
     
     /// @name xAOD::IParticle functions
     /// @{
@@ -240,10 +240,9 @@ namespace xAOD {
     /// Remove all tracks from the tau
     void clearTrackLinks();
     
-    //name accessors for trackFilterPass
-    int trackFilterPass(unsigned int numTrack) const;
-    //name accessors for trackFilterPass
-    void setTrackFilterPass(unsigned int numTrack, int pass);
+    // Get and set track flags
+    bool trackFlag(const TrackParticle* track, TauJetParameters::TauTrackFlag flag) const;
+    void setTrackFlag(const TrackParticle* track, TauJetParameters::TauTrackFlag flag, bool value);
 
     //name accessors for trackFilterProngs
     int trackFilterProngs() const;
@@ -271,20 +270,6 @@ namespace xAOD {
     float trackPhiStrip(unsigned int numTrack) const;
     //name accessors for trackPhiStrip
     void setTrackPhiStrip(unsigned int numTrack, float phi);
-
-
-    //conversion tracks
-    const TrackParticleLinks_t& conversionTrackLinks() const;
-    
-    void setConversionTrackLinks( const TrackParticleLinks_t& trackParticles );
-    /// Get the pointer to a given track associated with this tau
-    const TrackParticle* conversionTrack( size_t i ) const;
-    /// Get the number of track particles associated with this tau
-    size_t nConversionTracks() const;
-    /// add a track to the tau
-    void addConversionTrackLink( const ElementLink< TrackParticleContainer >& tr);
-    /// Remove all tracks from the tau
-    void clearConversionTrackLinks();
 
 
     //wide tracks
@@ -320,75 +305,75 @@ namespace xAOD {
 
 
     //photon shot PFOs
-    const PFOLinks_t& hadronic_PFOLinks() const;
+    const PFOLinks_t& hadronicPFOLinks() const;
 
-    void setHadronic_PFOLinks( const PFOLinks_t& hadronic_PFOs );
+    void setHadronicPFOLinks( const PFOLinks_t& hadronicPFOs );
     /// Get the pointer to a given hadronic PFO associated with this tau
-    const PFO* hadronic_PFO( size_t i ) const;
+    const PFO* hadronicPFO( size_t i ) const;
     /// Get the number of hadronic PFO particles associated with this tau
-    size_t nHadronic_PFOs() const;
+    size_t nHadronicPFOs() const;
     /// add a hadronic PFO to the tau
-    void addHadronic_PFOLink( const ElementLink< PFOContainer >& pfo);
+    void addHadronicPFOLink( const ElementLink< PFOContainer >& pfo);
     /// Remove all hadronic PFOs from the tau
-    void clearHadronic_PFOLinks();
+    void clearHadronicPFOLinks();
 
 
     //photon shot PFOs
-    const PFOLinks_t& shot_PFOLinks() const;
+    const PFOLinks_t& shotPFOLinks() const;
 
-    void setShot_PFOLinks( const PFOLinks_t& shot_PFOs );
+    void setShotPFOLinks( const PFOLinks_t& shotPFOs );
     /// Get the pointer to a given shot PFO associated with this tau
-    const PFO* shot_PFO( size_t i ) const;
+    const PFO* shotPFO( size_t i ) const;
     /// Get the number of shot PFO particles associated with this tau
-    size_t nShot_PFOs() const;
+    size_t nShotPFOs() const;
     /// add a shot PFO to the tau
-    void addShot_PFOLink( const ElementLink< PFOContainer >& pfo);
+    void addShotPFOLink( const ElementLink< PFOContainer >& pfo);
     /// Remove all shot PFOs from the tau
-    void clearShot_PFOLinks();
+    void clearShotPFOLinks();
 
 
     ///default pfos
     //
     //charged PFOs
-    const PFOLinks_t& charged_PFOLinks() const;
+    const PFOLinks_t& chargedPFOLinks() const;
 
-    void setCharged_PFOLinks( const PFOLinks_t& charged_PFOs );
+    void setChargedPFOLinks( const PFOLinks_t& chargedPFOs );
     /// Get the pointer to a given charged PFO associated with this tau
-    const PFO* charged_PFO( size_t i ) const;
+    const PFO* chargedPFO( size_t i ) const;
     /// Get the number of charged PFO particles associated with this tau
-    size_t nCharged_PFOs() const;
+    size_t nChargedPFOs() const;
     /// add a charged PFO to the tau
-    void addCharged_PFOLink( const ElementLink< PFOContainer >& pfo);
+    void addChargedPFOLink( const ElementLink< PFOContainer >& pfo);
     /// Remove all charged PFOs from the tau
-    void clearCharged_PFOLinks();
+    void clearChargedPFOLinks();
 
 
     //neutral PFOs
-    const PFOLinks_t& neutral_PFOLinks() const;
+    const PFOLinks_t& neutralPFOLinks() const;
 
-    void setNeutral_PFOLinks( const PFOLinks_t& neutral_PFOs );
+    void setNeutralPFOLinks( const PFOLinks_t& neutralPFOs );
     /// Get the pointer to a given neutral PFO associated with this tau
-    const PFO* neutral_PFO( size_t i ) const;
+    const PFO* neutralPFO( size_t i ) const;
     /// Get the number of neutral PFO particles associated with this tau
-    size_t nNeutral_PFOs() const;
+    size_t nNeutralPFOs() const;
     /// add a neutral PFO to the tau
-    void addNeutral_PFOLink( const ElementLink< PFOContainer >& pfo);
+    void addNeutralPFOLink( const ElementLink< PFOContainer >& pfo);
     /// Remove all neutral PFOs from the tau
-    void clearNeutral_PFOLinks();
+    void clearNeutralPFOLinks();
 
 
     //pi0 PFOs
-    const PFOLinks_t& pi0_PFOLinks() const;
+    const PFOLinks_t& pi0PFOLinks() const;
 
-    void setPi0_PFOLinks( const PFOLinks_t& pi0_PFOs );
+    void setPi0PFOLinks( const PFOLinks_t& pi0PFOs );
     /// Get the pointer to a given pi0 PFO associated with this tau
-    const PFO* pi0_PFO( size_t i ) const;
+    const PFO* pi0PFO( size_t i ) const;
     /// Get the number of pi0 PFO particles associated with this tau
-    size_t nPi0_PFOs() const;
+    size_t nPi0PFOs() const;
     /// add a pi0 PFO to the tau
-    void addPi0_PFOLink( const ElementLink< PFOContainer >& pfo);
+    void addPi0PFOLink( const ElementLink< PFOContainer >& pfo);
     /// Remove all pi0 PFOs from the tau
-    void clearPi0_PFOLinks();
+    void clearPi0PFOLinks();
 
 
 
@@ -396,93 +381,48 @@ namespace xAOD {
     ///cellbased pfos
     //
     //cellbased_charged PFOs
-    const PFOLinks_t& cellBased_Charged_PFOLinks() const;
+    const PFOLinks_t& protoChargedPFOLinks() const;
 
-    void setCellBased_Charged_PFOLinks( const PFOLinks_t& cellBased_Charged_PFOs );
+    void setProtoChargedPFOLinks( const PFOLinks_t& protoChargedPFOs );
     /// Get the pointer to a given cellbased_charged PFO associated with this tau
-    const PFO* cellBased_Charged_PFO( size_t i ) const;
+    const PFO* protoChargedPFO( size_t i ) const;
     /// Get the number of cellbased_charged PFO particles associated with this tau
-    size_t nCellBased_Charged_PFOs() const;
+    size_t nProtoChargedPFOs() const;
     /// add a cellbased_charged PFO to the tau
-    void addCellBased_Charged_PFOLink( const ElementLink< PFOContainer >& pfo);
+    void addProtoChargedPFOLink( const ElementLink< PFOContainer >& pfo);
     /// Remove all cellbased_charged PFOs from the tau
-    void clearCellBased_Charged_PFOLinks();
+    void clearProtoChargedPFOLinks();
 
 
     //cellbased_neutral PFOs
-    const PFOLinks_t& cellBased_Neutral_PFOLinks() const;
+    const PFOLinks_t& protoNeutralPFOLinks() const;
 
-    void setCellBased_Neutral_PFOLinks( const PFOLinks_t& cellBased_Neutral_PFOs );
+    void setProtoNeutralPFOLinks( const PFOLinks_t& protoNeutralPFOs );
     /// Get the pointer to a given cellbased_neutral PFO associated with this tau
-    const PFO* cellBased_Neutral_PFO( size_t i ) const;
+    const PFO* protoNeutralPFO( size_t i ) const;
     /// Get the number of cellbased_neutral PFO particles associated with this tau
-    size_t nCellBased_Neutral_PFOs() const;
+    size_t nProtoNeutralPFOs() const;
     /// add a cellbased_neutral PFO to the tau
-    void addCellBased_Neutral_PFOLink( const ElementLink< PFOContainer >& pfo);
+    void addProtoNeutralPFOLink( const ElementLink< PFOContainer >& pfo);
     /// Remove all cellbased_neutral PFOs from the tau
-    void clearCellBased_Neutral_PFOLinks();
+    void clearProtoNeutralPFOLinks();
 
 
     //pi0 PFOs
-    const PFOLinks_t& cellBased_Pi0_PFOLinks() const;
+    const PFOLinks_t& protoPi0PFOLinks() const;
 
-    void setCellBased_Pi0_PFOLinks( const PFOLinks_t& cellBased_Pi0_PFOs );
+    void setProtoPi0PFOLinks( const PFOLinks_t& protoPi0PFOs );
     /// Get the pointer to a given cellbased_pi0 PFO associated with this tau
-    const PFO* cellBased_Pi0_PFO( size_t i ) const;
+    const PFO* protoPi0PFO( size_t i ) const;
     /// Get the number of cellbased_pi0 PFO particles associated with this tau
-    size_t nCellBased_Pi0_PFOs() const;
+    size_t nProtoPi0PFOs() const;
     /// add a cellbased_pi0 PFO to the tau
-    void addCellBased_Pi0_PFOLink( const ElementLink< PFOContainer >& pfo);
+    void addProtoPi0PFOLink( const ElementLink< PFOContainer >& pfo);
     /// Remove all cellbased_pi0 PFOs from the tau
-    void clearCellBased_Pi0_PFOLinks();
+    void clearProtoPi0PFOLinks();
 
 
-
-
-    ///eflowRec pfos
-    //
-    //eflowRec_charged PFOs
-    const PFOLinks_t& eflowRec_Charged_PFOLinks() const;
-
-    void setEflowRec_Charged_PFOLinks( const PFOLinks_t& eflowRec_Charged_PFOs );
-    /// Get the pointer to a given eflowRec_charged PFO associated with this tau
-    const PFO* eflowRec_Charged_PFO( size_t i ) const;
-    /// Get the number of eflowRec_charged PFO particles associated with this tau
-    size_t nEflowRec_Charged_PFOs() const;
-    /// add a eflowRec_charged PFO to the tau
-    void addEflowRec_Charged_PFOLink( const ElementLink< PFOContainer >& pfo);
-    /// Remove all eflowRec_charged PFOs from the tau
-    void clearEflowRec_Charged_PFOLinks();
-
-
-    //eflowRec_neutral PFOs
-    const PFOLinks_t& eflowRec_Neutral_PFOLinks() const;
-
-    void setEflowRec_Neutral_PFOLinks( const PFOLinks_t& eflowRec_Neutral_PFOs );
-    /// Get the pointer to a given eflowRec_neutral PFO associated with this tau
-    const PFO* eflowRec_Neutral_PFO( size_t i ) const;
-    /// Get the number of eflowRec_neutral PFO particles associated with this tau
-    size_t nEflowRec_Neutral_PFOs() const;
-    /// add a eflowRec_neutral PFO to the tau
-    void addEflowRec_Neutral_PFOLink( const ElementLink< PFOContainer >& pfo);
-    /// Remove all eflowRec_neutral PFOs from the tau
-    void clearEflowRec_Neutral_PFOLinks();
-
-
-    //pi0 PFOs
-    const PFOLinks_t& eflowRec_Pi0_PFOLinks() const;
-
-    void setEflowRec_Pi0_PFOLinks( const PFOLinks_t& eflowRec_Pi0_PFOs );
-    /// Get the pointer to a given eflowRec_pi0 PFO associated with this tau
-    const PFO* eflowRec_Pi0_PFO( size_t i ) const;
-    /// Get the number of eflowRec_pi0 PFO particles associated with this tau
-    size_t nEflowRec_Pi0_PFOs() const;
-    /// add a eflowRec_pi0 PFO to the tau
-    void addEflowRec_Pi0_PFOLink( const ElementLink< PFOContainer >& pfo);
-    /// Remove all eflowRec_pi0 PFOs from the tau
-    void clearEflowRec_Pi0_PFOLinks();
-
-   
+  
     /// @}
     
 
@@ -504,13 +444,13 @@ namespace xAOD {
 // Set up a CLID for the class:
 #ifndef XAOD_STANDALONE
 #include "SGTools/CLASS_DEF.h"
-CLASS_DEF( xAOD::TauJet_v1, 23821074, 1 )
+CLASS_DEF( xAOD::TauJet_v2, 23821073, 1 )
 #endif // not XAOD_STANDALONE
 
-// Declare IParticle as a base class of TauJet_v1:
+// Declare IParticle as a base class of TauJet_v2:
 #include "AthContainers/DataVector.h"
-DATAVECTOR_BASE( xAOD::TauJet_v1, xAOD::IParticle );
+DATAVECTOR_BASE( xAOD::TauJet_v2, xAOD::IParticle );
 
-#endif // XAODTAU_VERSIONS_TAUJET_V1_H
+#endif // XAODTAU_VERSIONS_TAUJET_V2_H
 
 //  LocalWords:  newROIWord
