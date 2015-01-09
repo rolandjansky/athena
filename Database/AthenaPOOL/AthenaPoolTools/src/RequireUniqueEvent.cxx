@@ -22,8 +22,7 @@
     
 RequireUniqueEvent::RequireUniqueEvent(const std::string& name, 
 			ISvcLocator* pSvcLocator) :
-              Algorithm(name, pSvcLocator), 
-	      m_sGevent("StoreGateSvc", name),
+              AthAlgorithm(name, pSvcLocator), 
 	      m_cnt(0)
 {}
 
@@ -32,43 +31,27 @@ RequireUniqueEvent::~RequireUniqueEvent()
 
 StatusCode RequireUniqueEvent::initialize() 
 { 
-   MsgStream log(msgSvc(), name());
-   log << MSG::INFO << "in initialize()" << endreq;
-
+   ATH_MSG_INFO ( "in initialize()" );
    m_evList.clear();
    m_cnt=0;
-                                                                                
-   // Locate the StoreGateSvc and initialize our local ptr
-   StatusCode sc = m_sGevent.retrieve();
-   if (!sc.isSuccess() || 0 == m_sGevent) {
-            log << MSG::ERROR << "Could not find StoreGateSvc" << endreq;
-   } 
-   return sc;
+   return StatusCode::SUCCESS;
 }
 
 StatusCode RequireUniqueEvent::execute() 
 {
-   StatusCode sc = StatusCode::SUCCESS;
-   MsgStream log(msgSvc(), name());
-   log << MSG::DEBUG << "in execute()" << endreq;
+   ATH_MSG_DEBUG ( "in execute()" );
    
    // Check for event header
    const DataHandle<EventInfo> evt;
-   sc = m_sGevent->retrieve(evt);
-   if (sc.isFailure()) {
-       log << MSG::FATAL << "Could not find event" << endreq;
-       return(StatusCode::FAILURE);
-   }
-   else {
-       log << MSG::DEBUG << "Found EventInfo in SG" << endreq;
-   }
+   ATH_CHECK( evtStore()->retrieve(evt) );
+   ATH_MSG_DEBUG ( "Found EventInfo in SG" );
     
    if (!evt.isValid()) {
-       log << MSG::FATAL << "Could not find event" << endreq;
+       ATH_MSG_FATAL ( "Could not find event" );
        return(StatusCode::FAILURE);
    }
-   log << MSG::DEBUG << "EventInfo event: " << evt->event_ID()->event_number() 
-                    << " run: " << evt->event_ID()->run_number() << endreq;
+   ATH_MSG_DEBUG ( "EventInfo event: " << evt->event_ID()->event_number() 
+                   << " run: " << evt->event_ID()->run_number() );
    //
    // Check if EventID has occurred previously. If so, issue a warning
    //  -- Use brute force, i.e. let the set keep the index and do the search
@@ -76,7 +59,7 @@ StatusCode RequireUniqueEvent::execute()
    //
    EventID ev( evt->event_ID()->run_number(), evt->event_ID()->event_number() ); 
    if (!m_evList.insert(ev).second) {
-       log << MSG::WARNING << "Duplicate record " << ev << endreq;
+       ATH_MSG_WARNING ( "Duplicate record " << ev );
        m_cnt++;
    }
 
@@ -87,10 +70,8 @@ StatusCode RequireUniqueEvent::finalize()
 {
    // Just print out the count at the end
 
-   MsgStream log(msgSvc(), name());
-
    if (m_cnt>0) {
-      log << MSG::INFO << "** Found " << m_cnt << " duplicate EventID's **" << endreq; 
+     ATH_MSG_INFO ( "** Found " << m_cnt << " duplicate EventID's **" );
    }
 
    return StatusCode::SUCCESS; 

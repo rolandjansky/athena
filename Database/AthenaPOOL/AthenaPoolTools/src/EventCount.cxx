@@ -18,6 +18,8 @@
 #include "EventInfo/EventType.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/TriggerInfo.h"
+#include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/FileIncident.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/IClassIDSvc.h"
@@ -31,9 +33,8 @@ EventCount::ObjSum::ObjSum(int n) : num(n)
 
 //___________________________________________________________________________
 EventCount::EventCount(const std::string& name, ISvcLocator* pSvcLocator) : 
-   Algorithm(name, pSvcLocator), 
+   AthAlgorithm(name, pSvcLocator), 
    m_dump(false),
-   m_sGevent ( "StoreGateSvc", name ),
    m_pCLIDSvc( "ClassIDSvc",   name ),
    m_nev(0),
    m_first(-1),
@@ -58,39 +59,58 @@ StatusCode EventCount::initialize()
    //m_prov_keys.clear();
    m_guids.clear();
 
-   MsgStream log(msgSvc(), name());
-   log << MSG::INFO << "in initialize()" << endreq;
+   ATH_MSG_INFO ( "in initialize()" );
 
-   // Locate the StoreGateSvc and initialize our local ptr
-   StatusCode sc = m_sGevent.retrieve();
-   if (!sc.isSuccess() || 0 == m_sGevent) {
-      log << MSG::ERROR << "Could not find StoreGateSvc" << endreq;
-      sc = StatusCode::FAILURE;
-   }
-   return(sc);
+   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
+   ATH_CHECK( incSvc.retrieve() );
+   incSvc->addListener(this, "BeginInputFile", 100); 
+
+   return StatusCode::SUCCESS;
+}
+
+void EventCount::handle(const Incident& inc)
+{
+  
+  ATH_MSG_DEBUG("handle() " << inc.type());
+
+  // Need to get input file name for event comparison
+  if (inc.type()=="BeginInputFile") {
+    const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
+    m_currentFile = "Undefined";
+    if (fileInc != 0) { 
+      m_currentFile = fileInc->fileName();
+    } 
+    else { 
+      ATH_MSG_ERROR("Could not get file name at BeginInputFile");
+    }
+  }
 }
 
 StatusCode EventCount::execute() 
 {
    StatusCode sc = StatusCode::SUCCESS;
-   MsgStream log(msgSvc(), name());
-   log << MSG::DEBUG << "in execute()" << endreq;
+   ATH_MSG_DEBUG ( "in execute()" );
 
    // Get the event header, print out event and run number
    const DataHandle<EventInfo> evt;
-   sc = m_sGevent->retrieve(evt);
-   if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not find event" << endreq;
-      return(StatusCode::FAILURE);
-   }
+   ATH_CHECK( evtStore()->retrieve(evt) );
    if (!evt.isValid()) {
-      log << MSG::FATAL << "Could not find event" << endreq;
+      ATH_MSG_FATAL ( "Could not find event" );
       return(StatusCode::FAILURE);
    }
    ++m_nev;
    if (m_nev==1) {
       m_first = evt->event_ID()->event_number(); 
       m_firstlb= evt->event_ID()->lumi_block();
+   }
+   std::map<std::string,std::set<EventID> >::iterator kit = m_fileEvents.find(m_currentFile);
+   if (kit==m_fileEvents.end()) {
+     std::set<EventID> ini;
+     ini.insert(*(evt->event_ID()));
+     m_fileEvents.insert(std::make_pair(m_currentFile,ini));
+   }
+   else {
+     kit->second.insert(*(evt->event_ID()));
    }
    // track final event number
    m_final = evt->event_ID()->event_number();
@@ -129,26 +149,25 @@ StatusCode EventCount::execute()
    }
    
 
-   log << MSG::DEBUG << "EventInfo event: " << evt->event_ID()->event_number() 
-	            << " run: " << evt->event_ID()->run_number() << endreq;
+   ATH_MSG_DEBUG ( "EventInfo event: " << evt->event_ID()->event_number() 
+                   << " run: " << evt->event_ID()->run_number() );
    // 
    // Now check what objects are in storegate
    //
    //if (m_dump) {
        const DataHandle<DataHeader> beg; 
        const DataHandle<DataHeader> ending; 
-       StatusCode status = m_sGevent->retrieve(beg,ending);
+       StatusCode status = evtStore()->retrieve(beg,ending);
        if (status.isFailure() || beg==ending) {
-     	 log << MSG::DEBUG << "No DataHeaders present in StoreGate"
-	     << endreq;
+     	 ATH_MSG_DEBUG ( "No DataHeaders present in StoreGate" );
        }
        else {
          // Find input data header
          for (; beg != ending; ++beg) {
              if (beg->isInput()) {
 	         DataHeader doh = *beg;
-	         log << MSG::DEBUG << "DataHeader with key " 
-	  	     << beg.key() << " is input" << endreq;
+	         ATH_MSG_DEBUG ( "DataHeader with key " 
+                                 << beg.key() << " is input" );
 
                  std::vector<DataHeaderElement>::const_iterator it = doh.begin();
                  std::vector<DataHeaderElement>::const_iterator last = doh.end();
@@ -156,7 +175,7 @@ StatusCode EventCount::execute()
                  std::vector<DataHeaderElement>::const_iterator last_pr = doh.endProvenance();
 
 	         // Loop over DataHeaderElements
-	         log << MSG::DEBUG << " About to loop over DH elements" << endreq;
+	         ATH_MSG_DEBUG ( " About to loop over DH elements" );
                  int ccnt = 0;
 	         for (; it!=last; ++it) {
 	             std::set<CLID> list = it->getClassIDs();
@@ -164,8 +183,8 @@ StatusCode EventCount::execute()
 	             // Loop over clids in dhe
                      int dcnt = 0;
 	             while (c!=list.end()) {
-  	                 log << MSG::DEBUG << ccnt << " " << dcnt << " Inserting CLID " << *c 
-                                           << " " << it->getKey() << endreq;
+                       ATH_MSG_DEBUG ( ccnt << " " << dcnt << " Inserting CLID " << *c 
+                                       << " " << it->getKey() );
                          // Look for clid in current list
 		         std::map<int,int>::iterator cpos = m_clids.find(*c);
 		         if (cpos==m_clids.end()) {
@@ -216,10 +235,10 @@ StatusCode EventCount::execute()
                         std::pair<std::map<Guid,std::string>::iterator,bool> ins_stat2; 
                         ins_stat2 = m_guids.insert(std::make_pair(tk != 0 ? tk->dbID() : Guid::null(),it_pr->getKey()));
                         if (ins_stat2.second) {
-  	                    log << MSG::DEBUG << "Provenance key " 
-                                              << it_pr->getKey() << endreq;
-  	                    log << MSG::DEBUG << "New provenance token found " 
-                                              << (tk != 0 ? tk->toString() : "") << endreq;
+                          ATH_MSG_DEBUG ( "Provenance key " 
+                                          << it_pr->getKey() );
+                          ATH_MSG_DEBUG ( "New provenance token found " 
+                                          << (tk != 0 ? tk->toString() : "") );
                         }
 /*
                         else {
@@ -231,7 +250,7 @@ StatusCode EventCount::execute()
 	         }
  	     }  // input check if, else
 	     else {
-	         log << MSG::DEBUG << "Not input header" << endreq;
+               ATH_MSG_DEBUG ( "Not input header" );
 	     }
           }  // loop over data headers
        }  
@@ -242,39 +261,60 @@ StatusCode EventCount::execute()
 
 StatusCode EventCount::finalize() 
 {
-   MsgStream log(msgSvc(), name());
+   ATH_MSG_DEBUG ( "in m_finalize()" );
+   
+   // file event overlaps
+   ATH_MSG_INFO ( "-- OUTPUT FILE EVENT OVERLAP SUMMARY --" );
+   for (std::map<std::string, std::set<EventID> >::const_iterator fit = m_fileEvents.begin();
+        fit != m_fileEvents.end(); ++fit) {
+      std::string curfile = fit->first;
+      std::set<EventID> curList = fit->second;
+      ATH_MSG_INFO ( "File " << curfile << " " << curList.size() << " events" );
+      for (std::map<std::string, std::set<EventID> >::const_iterator fit2 = m_fileEvents.begin();
+          fit2 != m_fileEvents.end(); ++fit2) {
+        if (fit2->first != curfile) {
+	   std::vector<EventID> test; 
+           std::set_intersection(curList.begin(),curList.end(),
+                                 fit2->second.begin(),fit2->second.end(),
+                                 std::back_inserter(test));
+           ATH_MSG_INFO ( "--> overlap fraction " << fit2->first 
+                          << " " << float(test.size())/float(curList.size()) );
+        }
+      }
+   }
+
    //
    // Present summary information regardless of dump setting
    //
    // Show beginning and ending event numbers
    //
-   log << MSG::DEBUG << "in m_finalize()" << endreq;
-   log << MSG::INFO << "---------- INPUT FILE SUMMARY ----------" << endreq;
-   log << MSG::INFO << "Input contained: " << m_nev << " events" << endreq;
-   log << MSG::INFO << " -- Event Range ( " << m_first
-	            << " .. " <<  m_final << " )" << endreq;
-   log << MSG::INFO << " -- Lumiblock Range ( " << m_firstlb
-	            << " .. " <<  m_finallb << " )" << endreq;
-   log << MSG::INFO << "Input contained: " << m_runs.size() << " runs" << endreq;
-   log << MSG::INFO << " --";
+   ATH_MSG_INFO ( "---------- INPUT FILE SUMMARY ----------" );
+   ATH_MSG_INFO ( "Input contained: " << m_nev << " events" );
+   ATH_MSG_INFO ( " -- Event Range ( " << m_first
+                  << " .. " <<  m_final << " )" );
+   ATH_MSG_INFO ( " -- Lumiblock Range ( " << m_firstlb
+                  << " .. " <<  m_finallb << " )" );
+   ATH_MSG_INFO ( "Input contained: " << m_runs.size() << " runs" );
+
+   msg() << MSG::INFO << " --";
    // List all the runs
    std::vector<int>::iterator it = m_runs.begin();
    while (it!=m_runs.end()) {
-      log << " " << *it; ++it;
+     msg() << " " << *it; ++it;
    }
-   log << endreq;
+   msg() << endreq;
    // List all the event types
-   log << MSG::INFO << "Input contained the following Event Types" << endreq;
+   ATH_MSG_INFO ( "Input contained the following Event Types" );
    std::set<std::string>::iterator itype=m_types.begin();
    while (itype != m_types.end()) {
-      log << MSG::INFO << " -- " << *itype << endreq; 
+      ATH_MSG_INFO ( " -- " << *itype );
       ++itype;
    }
    // List all the event streams
-   log << MSG::INFO << "Input contained the following Streams" << endreq;
+   ATH_MSG_INFO ( "Input contained the following Streams" );
    std::map<std::string,int>::iterator istr=m_streams.begin();
    while (istr != m_streams.end()) {
-      log << MSG::INFO << " -- " << istr->first << " (" << istr->second <<")" << endreq; 
+      ATH_MSG_INFO ( " -- " << istr->first << " (" << istr->second <<")" );
       ++istr;
    }
 /*
@@ -285,31 +325,29 @@ StatusCode EventCount::finalize()
       ++ipr;
    }
 */
-   log << MSG::INFO << "Input contained references to the following File GUID's" << endreq;
+   ATH_MSG_INFO ( "Input contained references to the following File GUID's" );
    std::string fkey = "";
    std::map<Guid,std::string>::iterator ifr = m_guids.begin();
    while (ifr!=m_guids.end()) {
       if (ifr->second != fkey) {
           fkey = ifr->second;
-          log << MSG::INFO << " -> " << fkey << endreq;
+          ATH_MSG_INFO ( " -> " << fkey );
       }
-      log << MSG::INFO << "      - " << ifr->first << endreq;
+      ATH_MSG_INFO ( "      - " << ifr->first );
       ++ifr;
    }
    //
    // If dump flag set, then show full contents
    //
    if (m_dump) {
-      log << MSG::INFO << "Input contained the following CLIDs and Keys" << endreq;
+      ATH_MSG_INFO ( "Input contained the following CLIDs and Keys" );
       // Get pointer to classid service
       bool clidTran = false;
       if (m_pCLIDSvc.retrieve().isSuccess()) {
 	  clidTran = true;
       }
       else {
-          log << MSG::WARNING 
-	      << "Could not locate ClassIDSvc" 
-	      << endreq;
+        ATH_MSG_WARNING ( "Could not locate ClassIDSvc" );
       }
       //log << MSG::INFO << "--------- D A T A - O B J ---------" << endreq;
       std::map<int,int>::iterator i = m_clids.begin();
@@ -319,25 +357,23 @@ StatusCode EventCount::finalize()
           classname = "Unknown";
           if(clidTran) clidsvc_sc = m_pCLIDSvc->getTypeNameOfID(i->first,classname);
           if (!clidsvc_sc.isSuccess())
-              log << MSG::DEBUG << "CLIDSvc bad return code" << endmsg;
-          log << MSG::INFO << " -> " << i->first << " " 
+            ATH_MSG_DEBUG ("CLIDSvc bad return code" );
+          ATH_MSG_INFO ( " -> " << i->first << " " 
                            << classname
-		           << " (" << i->second << ") " 
-		           << endreq;
+		           << " (" << i->second << ") "  );
 	  // Now check for key list
 	  std::map<int,ObjSum>::iterator keyloc = m_summaries.find(i->first);
 	  if (keyloc != m_summaries.end()) {
 	      ObjSum out = keyloc->second;
 	      std::set<std::string>::iterator ot = out.keys.begin();
 	      while(ot != out.keys.end()) {
-		  log << MSG::INFO << "      - "
-		                   << *ot << endreq;
+                  ATH_MSG_INFO ( "      - " << *ot );
 		  ++ot;
 	      }
 	  } 
           ++i;
       }
-      log << MSG::INFO << "----------------------------------------" << endreq;
+      ATH_MSG_INFO ( "----------------------------------------" );
    }
    return(StatusCode::SUCCESS);
 }

@@ -16,6 +16,7 @@ apply_pattern declare_runtime files="PoolMove"
 private
 use StoreGate             StoreGate-*        Control
 use AthenaKernel          AthenaKernel-*     Control
+use AthenaBaseComps       AthenaBaseComps-*  Control
 use PersistentDataModel   PersistentDataModel-*      Database
 use EventInfo             EventInfo-*        Event
 use GaudiInterface        GaudiInterface-*   External 

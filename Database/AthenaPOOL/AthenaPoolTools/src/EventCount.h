@@ -4,8 +4,8 @@
 
 // EventCount.h
 
-#ifndef ATHENAPOOLUTILITIES_EVENTCOUNT_H
-#define ATHENAPOOLUTILITIES_EVENTCOUNT_H
+#ifndef ATHENAPOOLTOOLS_EVENTCOUNT_H
+#define ATHENAPOOLTOOLS_EVENTCOUNT_H
 /**
  * @file EventCount.h
  * @brief class definition for EventCount
@@ -26,14 +26,15 @@
 #include <vector>
 #include <map>
 #include <set>
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/IIncidentListener.h"
 #include "PersistentDataModel/Guid.h"
+#include "EventInfo/EventID.h"
 
-class StoreGateSvc;
 class IClassIDSvc;
 
-class EventCount : public Algorithm {
+class EventCount : public AthAlgorithm, virtual public IIncidentListener {
 public:
 
   /**
@@ -50,14 +51,15 @@ public:
   EventCount(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~EventCount();
   
-  virtual StatusCode initialize(); /// Algorithm interface. Cannot re-initialize with this
-  virtual StatusCode execute();    /// Algorithm interface.
-  virtual StatusCode finalize();   /// Algorithm interface.
+  StatusCode initialize(); /// Algorithm interface. Cannot re-initialize with this
+  StatusCode execute();    /// Algorithm interface.
+  StatusCode finalize();   /// Algorithm interface.
+
+  void handle(const Incident& inc);
   
 private:
   bool m_dump;                     /// PROP If dump is set to true then the 
 				   ///  object summary will be printed 
-  ServiceHandle<StoreGateSvc> m_sGevent;         /// cache for efficiency.
   ServiceHandle<IClassIDSvc> m_pCLIDSvc;
   
   int m_nev;                        /// Event count for output
@@ -66,8 +68,10 @@ private:
   int m_firstlb;                    /// first lumiblock number in file
   int m_finallb;                    /// last lumiblock number in file
   int m_currentRun;                 /// State marker
+  std::string m_currentFile;        ///
   std::vector<int> m_runs;          /// list of unique runs in file
   std::map<std::string,int> m_streams; /// list of streams
+  std::map<std::string,std::set<EventID>> m_fileEvents; 
   std::set<std::string> m_types;    /// list of unique event types in file
   std::map<int,int> m_clids;        /// map of clids to counts for that clid
   //std::map<int,int> m_clids_pr;     /// map of clids to counts for that clid for provenance records

@@ -22,16 +22,15 @@
  * $Id: RequireUniqueEvent.h,v 1.3 2007-06-20 15:38:49 cranshaw Exp $
  */
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "EventInfo/EventID.h"
 #include <set>
 
 class string;
 class ISvcLocator;
-class StoreGateSvc;
      
-class RequireUniqueEvent : public Algorithm 
+class RequireUniqueEvent : public AthAlgorithm 
 {
 public:
   RequireUniqueEvent(const std::string& name, ISvcLocator* pSvcLocator);
@@ -42,7 +41,6 @@ public:
   virtual StatusCode finalize();
                                                                 
 private:
-  ServiceHandle<StoreGateSvc> m_sGevent;  /// cache for efficiency.
   std::set<EventID> m_evList;
   int m_cnt;
 };
