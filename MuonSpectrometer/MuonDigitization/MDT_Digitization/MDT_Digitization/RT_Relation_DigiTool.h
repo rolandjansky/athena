@@ -5,7 +5,7 @@
 #ifndef MDT_DIGITIZATION_RT_RELATION_DIGITOOL_H
 #define MDT_DIGITIZATION_RT_RELATION_DIGITOOL_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "MDT_Digitization/MdtDigiToolOutput.h"
 #include "MDT_Digitization/IMDT_DigitizationTool.h"
 
@@ -27,7 +27,7 @@ namespace MuonGM{
 class MdtIdHelper;
 
 
-class RT_Relation_DigiTool : public AlgTool, 
+class RT_Relation_DigiTool : public AthAlgTool, 
 			      virtual public IMDT_DigitizationTool {
  public:
   RT_Relation_DigiTool( const std::string& type, 

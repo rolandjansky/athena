@@ -11,7 +11,6 @@ Digitization tool which uses an rt-relation from Conditions Database
 Adopted from RT_Relation_DigiTool
 -----------------------------------------------*/
 
-#include "GaudiKernel/AlgTool.h"
 #include "MDT_Digitization/MdtDigiToolOutput.h"
 #include "MDT_Digitization/IMDT_DigitizationTool.h"
 #include "Identifier/Identifier.h"
