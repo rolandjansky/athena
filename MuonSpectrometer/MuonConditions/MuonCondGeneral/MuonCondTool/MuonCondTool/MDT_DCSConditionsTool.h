@@ -11,6 +11,8 @@
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "MuonCondInterface/IMDT_MapConversion.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 //#include "StoreGate/StoreGateSvc.h"
 
 class Identifier;
@@ -21,7 +23,7 @@ class IIOVSvc;
 class StatusCode;
 class IMDT_MapConversion;
 
-class MDT_DCSConditionsTool: public AlgTool, virtual public IMDT_DCSConditionsTool
+class MDT_DCSConditionsTool: public AthAlgTool, virtual public IMDT_DCSConditionsTool
 {
 
 public:   

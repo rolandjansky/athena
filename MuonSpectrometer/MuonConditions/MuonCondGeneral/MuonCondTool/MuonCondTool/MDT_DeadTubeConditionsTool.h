@@ -7,6 +7,8 @@
 
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonCondInterface/IMDT_DeadTubeConditionsTool.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 //#include "MuonCondData/MdtDeadTubeStatusContainer.h"
@@ -24,7 +26,7 @@ class IIOVSvc;
 class StatusCode;
 class IMDT_MapConversion;
 
-class MDT_DeadTubeConditionsTool: public AlgTool, virtual public IMDT_DeadTubeConditionsTool
+class MDT_DeadTubeConditionsTool: public AthAlgTool, virtual public IMDT_DeadTubeConditionsTool
 {
 
 public:   

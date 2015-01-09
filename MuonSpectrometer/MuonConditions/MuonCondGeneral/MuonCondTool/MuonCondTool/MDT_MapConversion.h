@@ -8,7 +8,8 @@
 #include "GaudiKernel/AlgTool.h"
 #include "MuonCondInterface/IMDT_MapConversion.h"
 #include "GaudiKernel/IChronoStatSvc.h"
-
+#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 
 class Identifier;
@@ -19,7 +20,7 @@ class IIOVSvc;
 class StatusCode;
 
 
-class MDT_MapConversion: public AlgTool, virtual public IMDT_MapConversion
+class MDT_MapConversion: public AthAlgTool, virtual public IMDT_MapConversion
 {
 
 public:   

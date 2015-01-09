@@ -39,7 +39,7 @@
 RPC_DCSConditionsTool::RPC_DCSConditionsTool (const std::string& type,
 				    const std::string& name,
 				    const IInterface* parent)
-	  : AlgTool(type, name, parent), 
+	  : AthAlgTool(type, name, parent), 
 	    log( msgSvc(), name ),
 	    m_debug(false),
 	    m_verbose(false)  

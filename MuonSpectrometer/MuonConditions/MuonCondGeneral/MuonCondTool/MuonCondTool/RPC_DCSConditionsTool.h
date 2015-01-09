@@ -7,6 +7,8 @@
 
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonCondInterface/IRPC_DCSConditionsTool.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -21,7 +23,7 @@ class IIOVSvc;
 class StatusCode;
 class IRPC_MapConversion;
 
-class RPC_DCSConditionsTool: public AlgTool, virtual public IRPC_DCSConditionsTool
+class RPC_DCSConditionsTool: public AthAlgTool, virtual public IRPC_DCSConditionsTool
 {
 
 public:   

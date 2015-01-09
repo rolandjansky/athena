@@ -7,7 +7,8 @@
 
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/IChronoStatSvc.h"
-
+#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonCondInterface/ITGC_STATUSConditionsTool.h"
 
 
@@ -18,7 +19,7 @@ class IIOVSvc;
 class StatusCode;
 
 
-class TGC_STATUSConditionsTool: public AlgTool, virtual public ITGC_STATUSConditionsTool {
+class TGC_STATUSConditionsTool: public AthAlgTool, virtual public ITGC_STATUSConditionsTool {
 
 public:   
 

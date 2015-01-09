@@ -41,7 +41,7 @@
 MuonAlignmentDbTool::MuonAlignmentDbTool (const std::string& type,
                              const std::string& name,
                              const IInterface* parent)
-  : AlgTool(type, name, parent), 
+  : AthAlgTool(type, name, parent), 
     m_log( msgSvc(), name ),
     m_debug(false),
     m_verbose(false)  

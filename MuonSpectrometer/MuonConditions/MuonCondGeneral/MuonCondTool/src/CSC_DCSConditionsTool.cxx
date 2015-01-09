@@ -36,7 +36,7 @@
 CSC_DCSConditionsTool::CSC_DCSConditionsTool (const std::string& type,
 				    const std::string& name,
 				    const IInterface* parent)
-	  : AlgTool(type, name, parent), 
+	  : AthAlgTool(type, name, parent), 
 	    log( msgSvc(), name ),
 	    m_debug(true),
 	    m_verbose(false) 

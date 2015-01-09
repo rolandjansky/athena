@@ -10,7 +10,8 @@
 #include "MuonCondData/MdtDeadTubeStatusContainer.h"
 #include "MuonCondData/MdtDeadTubeStatus.h"
 #include "MuonCondData/MdtDeadChamberStatus.h"
-
+#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 class Identifier; 
 class StoreGateSvc; 
 class MdtIdHelper;
@@ -18,7 +19,7 @@ class IIOVSvc;
 class StatusCode;
 
 
-class MuonDetectorStatusDbTool: public AlgTool,
+class MuonDetectorStatusDbTool: public AthAlgTool,
 	             virtual public IMuonDetectorStatusDbTool
 {
 

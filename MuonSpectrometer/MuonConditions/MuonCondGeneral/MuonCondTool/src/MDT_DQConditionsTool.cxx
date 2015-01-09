@@ -42,7 +42,7 @@
 MDT_DQConditionsTool::MDT_DQConditionsTool (const std::string& type,
 				    const std::string& name,
 				    const IInterface* parent)
-	  : AlgTool(type, name, parent),
+	  : AthAlgTool(type, name, parent),
 	    m_condMapTool("MDT_MapConversion"), 
 	    log( msgSvc(), name ),
 	    m_debug(false),

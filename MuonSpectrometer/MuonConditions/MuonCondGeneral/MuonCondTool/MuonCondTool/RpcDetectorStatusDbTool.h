@@ -11,7 +11,8 @@
 //#include "MuonCondData/RpcConditionPar.h"
 #include "GaudiKernel/MsgStream.h"
 //#include "StoreGate/StoreGateSvc.h"
-
+#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 class Identifier; 
 class StoreGateSvc; 
 
@@ -20,7 +21,7 @@ class IIOVSvc;
 class StatusCode;
 
 
-class RpcDetectorStatusDbTool: public AlgTool,
+class RpcDetectorStatusDbTool: public AthAlgTool,
 	             virtual public IRpcDetectorStatusDbTool
 {
 

@@ -7,6 +7,8 @@
 
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "MuonCondInterface/ICSC_DCSConditionsTool.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 
@@ -17,7 +19,7 @@ class CscHelper;
 class IIOVSvc;
 class StatusCode;
 
-class CSC_DCSConditionsTool: public AlgTool, virtual public ICSC_DCSConditionsTool
+class CSC_DCSConditionsTool: public AthAlgTool, virtual public ICSC_DCSConditionsTool
 {
 
 public:   

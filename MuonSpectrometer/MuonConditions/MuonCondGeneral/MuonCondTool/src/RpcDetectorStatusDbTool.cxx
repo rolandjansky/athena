@@ -30,7 +30,7 @@
 RpcDetectorStatusDbTool::RpcDetectorStatusDbTool (const std::string& type,
                              const std::string& name,
                              const IInterface* parent)
-  : AlgTool(type, name, parent), 
+  : AthAlgTool(type, name, parent), 
     m_log( msgSvc(), name ),
     m_debug(false),
     m_verbose(false)
@@ -483,9 +483,10 @@ StatusCode RpcDetectorStatusDbTool::loadRpcDqStatus(IOVSVC_CALLBACK_ARGS_P(I,key
     if( m_debug )  {
       m_log << MSG::DEBUG << "Size of RPC_PanelFracDeadStripMap " << RPC_PanelFracDeadStripMap.size() 
 	    << "; in panel " <<  channum 
-	    << " FracDeadStri(in fid.area) " << FracDeadStripMap 
-	    << " (incl. borders) "<<float(countdeadstrip)/float(countpanelstrip)
-	    << " nDeadStrips,InFidArea/nStrips "<<countdeadstrip<<","<<countdeadstripinfidarea<<"/"<<countpanelstrip
+	    << " FracDeadStri(in fid.area) " << FracDeadStripMap ;
+      if( countpanelstrip == 0 ) m_log << " (incl. borders) DIVISION BY ZERO IMPOSSIBLE";
+      else m_log << " (incl. borders) "<<float(countdeadstrip)/float(countpanelstrip);
+      m_log << " nDeadStrips,InFidArea/nStrips "<<countdeadstrip<<","<<countdeadstripinfidarea<<"/"<<countpanelstrip
 	    <<endreq;    
     }
     if (Efficiency-(0.99-FracDeadStripMap)>0.) 

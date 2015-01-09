@@ -8,6 +8,8 @@
 #include "GaudiKernel/AlgTool.h"
 #include "MuonCondInterface/IMuonAlignmentDbTool.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 //#include "StoreGate/StoreGateSvc.h"
 class Identifier; 
 class StoreGateSvc; 
@@ -18,7 +20,7 @@ class TgcIdHelper;
 class IIOVSvc;
 class StatusCode;
 
-class MuonAlignmentDbTool: public AlgTool, public IMuonAlignmentDbTool
+class MuonAlignmentDbTool: public AthAlgTool, public IMuonAlignmentDbTool
 {
 
 public:    

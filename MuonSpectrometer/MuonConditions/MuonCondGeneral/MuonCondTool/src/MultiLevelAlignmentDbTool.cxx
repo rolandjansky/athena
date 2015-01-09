@@ -244,12 +244,16 @@ StatusCode MultiLevelAlignmentDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,ke
     }
     else {
       ATH_MSG_DEBUG("retrieved a/b lines");
-      ATH_MSG_DEBUG("alineData size: "<<m_alineData->size());
+      if (m_alineData) ATH_MSG_DEBUG("alineData size: "<<m_alineData->size());
     }
   }    
 
   ATH_MSG_DEBUG("alineData: "<<m_alineData);
   if (m_alineData) ATH_MSG_DEBUG("alineData size: "<<m_alineData->size());
+  else {
+    ATH_MSG_INFO("multilevel LoadParameters done - with no alineData!");
+    return sc;
+  }
 
 //   if (abKeys.size()>0) {
 //     ATH_MSG_DEBUG("calling abLineDbTool->loadParameters()");

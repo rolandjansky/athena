@@ -2,17 +2,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MUONCONDTOOL_MDT_DQCONDITIONSTOOL_H
-#define MUONCONDTOOL_MDT_DQCONDITIONSTOOL_H
+#ifndef MUONCONDTOOL_MDT_DCSCONDITIONSRUN2TOOL_H
+#define MUONCONDTOOL_MDT_DCSCONDITIONSRUN2TOOL_H
 
 #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "MuonCondInterface/IMDT_DQConditionsTool.h"
+#include "MuonCondInterface/IMDT_DCSConditionsRun2Tool.h"
 #include "GaudiKernel/IChronoStatSvc.h"
 #include "MuonCondInterface/IMDT_MapConversion.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 //#include "StoreGate/StoreGateSvc.h"
 
 class Identifier;
@@ -23,12 +23,12 @@ class IIOVSvc;
 class StatusCode;
 class IMDT_MapConversion;
 
-class MDT_DQConditionsTool: public AthAlgTool, virtual public IMDT_DQConditionsTool
+class MDT_DCSConditionsRun2Tool: public AthAlgTool, virtual public IMDT_DCSConditionsRun2Tool
 {
 
 public:   
 
-  MDT_DQConditionsTool(const std::string& type,
+  MDT_DCSConditionsRun2Tool(const std::string& type,
                 const std::string& name,
                 const IInterface* parent);
 
@@ -38,20 +38,17 @@ public:
   
   virtual StatusCode initialize();
 
-  virtual std::string DeadFolderName() const {return m_deadFolder;}
-  virtual std::string NoisyFolderName() const {return m_noisyFolder;}
 
-  virtual bool Simulation_Setup() const {return m_simulation_Setup;}
+  virtual std::string HVFolderName() const {return m_hvFolder;}
+  virtual std::string LVFolderName() const {return m_lvFolder;}
+  //  virtual std::string JTAGFolderName() const {return m_jtagFolder;}
+
+
+
 
   virtual const std::vector<std::string>& deadStations(){ return m_cachedDeadStations;}
   virtual const std::vector<Identifier>& deadStationsId(){ return m_cachedDeadStationsId;}
-  virtual const std::vector<Identifier>& deadTubesId(){ return m_cachedDeadTubesId;}
-  //  virtual const std::vector<Identifier>& deadTubes(){ return m_cachedDeadTubes;}
   virtual const std::vector<Identifier>& deadMultiLayersId(){ return m_cachedDeadMultiLayersId;} 
-  virtual const std::vector<Identifier>& deadLayersId(){ return m_cachedDeadLayersId;} 
-
-
-  virtual const std::vector<Identifier>& List_Chambers_with_deadTube(){ return m_Chamber_with_deadTube;}
 
   const std::string OnlineName(Identifier OfflineId);
   const Identifier OfflineName(std::string OnlineId);
@@ -61,8 +58,10 @@ public:
 
  
   virtual StatusCode loadParameters(IOVSVC_CALLBACK_ARGS);
-  virtual StatusCode loadDeadChamber(IOVSVC_CALLBACK_ARGS);
-  virtual StatusCode loadNoisyChamber(IOVSVC_CALLBACK_ARGS);
+
+  virtual StatusCode loadHV(IOVSVC_CALLBACK_ARGS);
+  virtual StatusCode loadLV(IOVSVC_CALLBACK_ARGS);
+  // virtual StatusCode loadJTAG(IOVSVC_CALLBACK_ARGS);
 
        
   StoreGateSvc* m_detStore;
@@ -72,46 +71,50 @@ public:
 
   std::map<int, Identifier> Chamber_Naming_standby;
 
+  std::map<Identifier, float> ChamberML_V0;
+  std::map<Identifier, float> ChamberML_V1;
 
+  std::map<int, float> ChamberML_V0_chanum;
+  std::map<int, float> ChamberML_V1_chanum;
   const MdtIdHelper* m_mdtIdHelper;
  
   std::string m_OnlineName;
   Identifier m_OfflineName;
   
-  std::vector<Identifier> m_Chamber_with_deadTube;
+  std::vector<std::string> m_cachedDropStations;
+  std::vector<Identifier> m_cachedDropStationsId;
+  
   std::vector<std::string> m_cachedDeadStations;
   std::vector<Identifier> m_cachedDeadStationsId;
 
   std::vector<std::string> m_cachedDeadMultiLayers;
   std::vector<Identifier> m_cachedDeadMultiLayersId;
+  std::vector<Identifier> m_cachedDeadMultiLayersId_standby;
 
-  std::vector<std::string> m_cachedDeadLayers;
-  std::vector<Identifier> m_cachedDeadLayersId;
+  
+  std::vector<std::string> m_cachedDeadLVStations;
+  std::vector<Identifier> m_cachedDeadLVStationsId;
 
-  std::vector<std::string> m_cachedDeadTubes;
-  std::vector<Identifier> m_cachedDeadTubesId;
-
-
-
-
-  std::vector<Identifier> m_cachedNoisyStationsId;
-  std::vector<Identifier> m_cachedNoisyMultiLayersId;
-  std::vector<Identifier> m_cachedNoisyLayersId;
-  std::vector<Identifier> m_cachedNoisyTubesId;
-
+  std::vector<std::string> m_cachedDeadJTAGStatus;
+  std::vector<Identifier> m_cachedDeadJTAGStatusId;
 
   //private comparison function for Identifier sorting
   static bool compareId(Identifier x,Identifier y) { return (x > y); } 
   
-  //  bool m_check_on_setPoint;
+  bool m_check_on_setPoint;
   bool m_simulation_Setup;
-  //  std::string      m_DataLocation;
+  std::string      m_DataLocation;
  
-  std::string     m_deadFolder;
-  std::string     m_noisyFolder;
-  
-  //std::vector<std::string> parlineFolder() { return m_parlineFolder; }
- 
+
+  std::string     m_hvFolder;
+  std::string     m_lvFolder;
+  // std::string     m_jtagFolder;
+
+  std::vector<std::string> parlineFolder() { return m_parlineFolder; }
+  std::stringstream MDTChamDrop;
+  std::stringstream MDTLV;
+  std::stringstream MDTHV;
+  std::stringstream MDTJTAG;
   IChronoStatSvc* m_chronoSvc;
   std::vector<std::string>      m_parlineFolder;
   std::string m_chrono1;
