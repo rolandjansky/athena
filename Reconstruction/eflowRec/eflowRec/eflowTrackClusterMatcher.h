@@ -34,7 +34,6 @@ class eflowTrackClusterMatcher  {
 
   static double m_coneRSq;
 
-  const xAOD::CaloCluster* m_cluster;
   double m_etaCluster;
   eflowAzimuth m_phiCluster;
   double m_varEtaCl;

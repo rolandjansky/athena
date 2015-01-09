@@ -13,7 +13,6 @@ CREATED: 16 January 2014
 ********************************************************************/
 
 #include "eflowRec/eflowRecoverSplitShowersTool.h"
-#include "eflowRec/eflowTrackToCaloTrackExtrapolatorTool.h"
 #include "eflowRec/eflowUtil.h"
 
 #include "eflowRec/eflowRecCluster.h"
@@ -23,6 +22,7 @@ CREATED: 16 January 2014
 #include "eflowRec/eflowTrackCaloPoints.h"
 #include "eflowRec/eflowCellList.h"
 #include "eflowRec/eflowCellEOverPTool.h"
+#include "eflowRec/PFTrackClusterMatchingTool.h"
 #include "eflowRec/eflowBinnedParameters.h"
 #include "eflowRec/eflowLayerIntegrator.h"
 #include "eflowRec/eflowCellSubtractionManager.h"
@@ -37,15 +37,19 @@ m_debug(0),
 m_rCell(0.75),
 m_windowRms(0.032),
 m_theEOverPTool("eflowCellEOverPTool",this),
-m_binnedParameters(new eflowBinnedParameters(m_rCell,1.0e6)),
+m_matchingTool("PFTrackClusterMatchingTool/RcvrSpltMatchingTool", this),
+m_binnedParameters(new eflowBinnedParameters()),
 m_integrator(new eflowLayerIntegrator(m_windowRms, 1.0e-3, 3.0)),
-m_subtractionSigmaCut(1.28),
-m_recoverIsolatedTracks(false)
+m_subtractionSigmaCut(1.5),
+m_recoverIsolatedTracks(false),
+m_nTrackClusterMatches(0)
 {
   declareInterface<eflowRecoverSplitShowersTool>(this);
   declareProperty("SubtractionSigmaCut",m_subtractionSigmaCut);
-  declareProperty("eflowCellEOverPTool", m_theEOverPTool,"Energy Flow E/P Values and Shower Paremeters Tool");
+  declareProperty("eflowCellEOverPTool", m_theEOverPTool,"Energy Flow E/P Values and Shower Parameters Tool");
+  declareProperty("PFTrackClusterMatchingTool", m_matchingTool, "The track-cluster matching tool");
   declareProperty("RecoverIsolatedTracks",m_recoverIsolatedTracks,"Whether to recover isolated tracks also");
+  eflowCellSubtractionManager::setRMaxAndWeightRange(m_rCell, 1.0e6);
 }
 
 eflowRecoverSplitShowersTool::~eflowRecoverSplitShowersTool() {}
@@ -56,6 +60,11 @@ StatusCode eflowRecoverSplitShowersTool::initialize(){
   IToolSvc* myToolSvc;
   if ( service("ToolSvc",myToolSvc).isFailure() ) {
     msg(MSG::WARNING) << " Tool Service Not Found" << endreq;
+    return StatusCode::SUCCESS;
+  }
+
+  if (m_matchingTool.retrieve().isFailure()){
+    msg(MSG::WARNING) << "Couldn't retrieve PFTrackClusterMatchingTool." << endreq;
     return StatusCode::SUCCESS;
   }
 
@@ -89,6 +98,8 @@ void eflowRecoverSplitShowersTool::execute(eflowCaloObjectContainer* theEflowCal
 }
 
 StatusCode eflowRecoverSplitShowersTool::finalize(){
+
+  msg(MSG::INFO) << "Produced " << m_nTrackClusterMatches << " track-cluster matches." << endreq;
 
   delete m_binnedParameters;
   delete m_integrator;
@@ -143,7 +154,7 @@ void eflowRecoverSplitShowersTool::getTracksToRecover() {
 
     /* Skip isolated tracks if flag set */
     if (thisEflowCaloObject->nClusters() == 0 && !m_recoverIsolatedTracks) {
-      unsigned int nTrk = 0;
+      unsigned int nTrk = thisEflowCaloObject->nTracks();
       /* But make sure we get eflowObjects from them
        * TODO: replace this mechanism by something better */
       for (unsigned int iTrk = 0; iTrk < nTrk; ++iTrk) {
@@ -183,47 +194,13 @@ void eflowRecoverSplitShowersTool::performRecovery() {
     }
 
     /* Get list of matched clusters */
-    std::vector<eflowRecCluster*> matchedClusters = getMatchedClusterList(thisEfRecTrack);
+    std::vector<eflowRecCluster*> matchedClusters = m_matchingTool->allMatches(thisEfRecTrack, m_clustersToConsider);
+    m_nTrackClusterMatches += matchedClusters.size();
 
     /* Subtract the track from all matched clusters */
     subtractTrackFromClusters(thisEfRecTrack, matchedClusters);
     thisEfRecTrack->setSubtracted();
  }
-}
-
-std::vector<eflowRecCluster*> eflowRecoverSplitShowersTool::getMatchedClusterList(eflowRecTrack* efRecTrack) {
-
-  std::vector<eflowRecCluster*> result;
-
-  double dRSqCut = 0.2*0.2;
-  std::pair<float, float> trackEM2EtaPhi = efRecTrack->getTrackCaloPoints().getEM2etaPhi();
-
-  std::vector<eflowRecCluster*>::iterator  itCluster = m_clustersToConsider.begin();
-  std::vector<eflowRecCluster*>::iterator endCluster = m_clustersToConsider.end();
-  for (; itCluster != endCluster; ++itCluster){
-
-    eflowRecCluster* thisEfRecCluster = *itCluster;
-    const xAOD::CaloCluster* thisCluster = thisEfRecCluster->getCluster();
-
-    /* TODO: Use eflowEtaPhiPosition for deltaRSq. */
-    //      eflowEtaPhiPosition clusterEtaPhi(thisCluster->eta(), thisCluster->phi());
-    //      if (clusterEtaPhi.dRSq(trackEM2etaPhiPos) < dRSqCut){
-
-    double etaDiff = thisCluster->eta() - trackEM2EtaPhi.first;
-    double phiDiff = fabs(thisCluster->phi() - trackEM2EtaPhi.second);
-    if (phiDiff > M_PI) phiDiff = 2*M_PI - phiDiff;
-
-    if ((etaDiff*etaDiff) + (phiDiff*phiDiff) < dRSqCut){
-      result.push_back(thisEfRecCluster);
-
-      if (1 == m_debug) std::cout << "Have matched cluster with e, eta and phi: " << thisCluster->e() << ", " << thisCluster->eta() << " and " << thisCluster->phi() << std::endl;
-    }
-
-  }
-
-  std::sort(result.begin(),result.end(),eflowRecCluster::SortDescendingPt());
-
-  return result;
 }
 
 void eflowRecoverSplitShowersTool::subtractTrackFromClusters(eflowRecTrack* efRecTrack,

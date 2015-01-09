@@ -29,10 +29,10 @@ class eflowRecCluster;
 class eflowRecTrack;
 class eflowTrackCaloPoints;
 class eflowCellList;
-class eflowTrackToCaloTrackExtrapolatorTool;
 class eflowLayerIntegrator;
 class eflowBinnedParameters;
 class eflowCellEOverPTool;
+class PFTrackClusterMatchingTool;
 
 static const InterfaceID IID_eflowRecoverSplitShowersTool("eflowRecoverSplitShowersTool", 1, 0);
 
@@ -54,7 +54,6 @@ class eflowRecoverSplitShowersTool : virtual public eflowBaseAlgTool, public Ath
   void getClustersToConsider();
   void getTracksToRecover();
   void performRecovery();
-  std::vector<eflowRecCluster*> getMatchedClusterList(eflowRecTrack* efRecTrack);
   void subtractTrackFromClusters(eflowRecTrack* efRecTrack,
                                  std::vector<eflowRecCluster*> matchedClusters);
   void makeOrderedCellList(const eflowTrackCaloPoints& trackCalo, const std::vector<xAOD::CaloCluster*>& clusters, eflowCellList& orderedCells);
@@ -74,7 +73,10 @@ class eflowRecoverSplitShowersTool : virtual public eflowBaseAlgTool, public Ath
 
   /* Tool for getting e/p values and hadronic shower cell ordering principle parameters */
   ToolHandle<eflowCellEOverPTool> m_theEOverPTool;
-  
+
+  /** Track-Cluster matching tool */
+  ToolHandle<PFTrackClusterMatchingTool> m_matchingTool;
+
   eflowBinnedParameters* m_binnedParameters;
   eflowLayerIntegrator* m_integrator;
 
@@ -82,6 +84,8 @@ class eflowRecoverSplitShowersTool : virtual public eflowBaseAlgTool, public Ath
 
   bool m_recoverIsolatedTracks;
 
+  /** Count the number of track-cluster matches -- for the summary in finalize */
+  unsigned int m_nTrackClusterMatches;
 };
 
 inline const InterfaceID& eflowRecoverSplitShowersTool::interfaceID()

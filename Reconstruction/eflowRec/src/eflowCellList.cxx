@@ -28,8 +28,7 @@ CREATED:  18th Aug, 2005
 
 eflowCellList::eflowCellList() :
   m_etaFF(eflowCalo::nRegions),
-  m_phiFF(eflowCalo::nRegions)
-{}
+  m_phiFF(eflowCalo::nRegions) {}
 
 void eflowCellList::setNewExtrapolatedTrack(const eflowTrackCaloPoints* trackCalo) {
   setNewExtrapolatedTrack(*trackCalo);
@@ -45,10 +44,8 @@ void eflowCellList::setNewExtrapolatedTrack(const eflowTrackCaloPoints& trackCal
   m_cellPositionToCellMap.clear();
 }
 
-void eflowCellList::addCell(std::pair<CaloCell*,int> cell)
-{
-
-  eflowCellPosition myPos(this,cell);
+void eflowCellList::addCell(std::pair<CaloCell*,int> cell) {
+  eflowCellPosition myPos(this,cell.first);
 
   std::map<eflowCellPosition, std::vector<std::pair<CaloCell*,int> > >::iterator inmap = m_cellPositionToCellMap.find( myPos );
 
@@ -61,69 +58,39 @@ void eflowCellList::addCell(std::pair<CaloCell*,int> cell)
 
 }
 
-void eflowCellList::reorderWithoutLayers()
-{
+void eflowCellList::reorderWithoutLayers() {
   /* Collect all cells in layer EMB2 and higher, i.e. start with dR = 0 to the track in EMB2 */
   CellIt it = m_cellPositionToCellMap.lower_bound( eflowCellPosition(this, eflowCalo::EMB2, 0.0) );
   CellIt end = m_cellPositionToCellMap.end();
   while (it != end) {
-
-    /* Create a cell position in EMB1 that has the same dR to the track as in its original layer */
+    /* Create a CellPosition in EMB1 that has the same dR to the track as in its original layer */
     eflowCellPosition tempPos(this, eflowCalo::EMB1, it->first.dR());
 
-    std::vector<std::pair<CaloCell*,int> >::iterator firstEntry = it->second.begin();
-    std::vector<std::pair<CaloCell*,int> >::iterator lastEntry = it->second.end();
+    /* (Try to) insert the new CellPosition into the map. The resulting iterator either points to the inserted or to the already existing element (but we don't care). */
+    std::map<eflowCellPosition, std::vector<std::pair<CaloCell*,int> > >::iterator itInserted =
+        m_cellPositionToCellMap.insert( std::make_pair(tempPos, std::vector<std::pair<CaloCell*,int> >(0) ) ).first;
 
-    std::vector<std::pair<CaloCell*,int> > newPairVector;
+    /* Append the cell/index pairs of the original CellPosition to the (either newly inserted or already existing) element */
+    std::vector<std::pair<CaloCell*,int> >& pairVector(it->second);
+    itInserted->second.insert(itInserted->second.end(), pairVector.begin(), pairVector.end());
 
-    for (; firstEntry != lastEntry; firstEntry++){
-
-      std::pair<CaloCell*,int> thisPair = *firstEntry;
-
-      CaloCell* pCell = thisPair.first;
-      int indexOfCell = thisPair.second;
-
-      std::pair<CaloCell*,int> myPair(pCell,indexOfCell);
-      newPairVector.push_back(myPair);
-
-    }
-
+    /* Remove the original CellPosition from the map */
     std::map<eflowCellPosition,std::vector<std::pair<CaloCell*,int> > >::iterator tempIt = it;
     ++it;
-      
     m_cellPositionToCellMap.erase(tempIt);
-
-    std::map<eflowCellPosition, std::vector<std::pair<CaloCell*,int> > >::iterator inmap = m_cellPositionToCellMap.find( tempPos );
-
-    if (inmap != m_cellPositionToCellMap.end()) {
-
-      std::vector<std::pair<CaloCell*,int> >::iterator firstOne = newPairVector.begin();
-      std::vector<std::pair<CaloCell*,int> >::iterator lastOne = newPairVector.end();
-
-      for (; firstOne != lastOne; ++firstOne){
-	inmap->second.push_back(*firstOne);
-      }
-    }
-    else m_cellPositionToCellMap.insert( std::map<eflowCellPosition, std::vector<std::pair<CaloCell*,int> > >::value_type( tempPos, newPairVector ) );
-
   }
 }
 
-double eflowCellList::dR2(double eta, double phi, eflowCaloENUM layer) const
-{
+double eflowCellList::dR2(double eta, double phi, eflowCaloENUM layer) const {
   if (eflowCalo::Unknown != layer) {
-
     double dEta = eta - m_etaFF[layer];
     double dPhi = cycle(phi, m_phiFF[layer]) - m_phiFF[layer];
     return dEta * dEta + dPhi * dPhi;
-  }
-  else {
-
+  } else {
     return -999.0;
   }
 }
 
-double eflowCellList::dR(double eta, double phi, eflowCaloENUM layer) const
-{
+double eflowCellList::dR(double eta, double phi, eflowCaloENUM layer) const {
   return (eflowCalo::Unknown != layer) ? sqrt(dR2(eta, phi, layer)) : -999.0;
 }

@@ -31,11 +31,10 @@ CREATED:  18th Aug, 2005
 
 eflowLayerIntegrator::eflowLayerIntegrator(double stdDev, double error, double rMaxOverStdDev) :
     m_rMax(rMaxOverStdDev * stdDev),
-    m_lpEDens(eflowCalo::nRegions, 0.0),
+    m_allClustersIntegral(eflowCalo::nRegions, 0.0),
     m_nUnitCellPerWindowOverCellEtaPhiArea(eflowCalo::nRegions),
     m_integrator(new eflowCellIntegrator<0>(stdDev, error)),
-    m_integratorLookup(new eflowCellIntegrator<1>(stdDev, error))
-{
+    m_integratorLookup(new eflowCellIntegrator<1>(stdDev, error)) {
   eflowDatabase database;
 
   /* Set up density conversion factors */
@@ -58,36 +57,59 @@ eflowLayerIntegrator::eflowLayerIntegrator(double stdDev, double error, double r
   }
 }
 
+eflowLayerIntegrator::eflowLayerIntegrator(const eflowLayerIntegrator& anEFlowLayerIntegrator){
+  m_rMax = anEFlowLayerIntegrator.m_rMax;
+  m_allClustersIntegral =  anEFlowLayerIntegrator.m_allClustersIntegral;
+  m_nUnitCellPerWindowOverCellEtaPhiArea = anEFlowLayerIntegrator.m_nUnitCellPerWindowOverCellEtaPhiArea;
+  m_integrator = new eflowCellIntegrator<0>(*anEFlowLayerIntegrator.m_integrator);
+  m_integratorLookup = new eflowCellIntegrator<1>(*anEFlowLayerIntegrator.m_integratorLookup);
+
+  for (int i = 0; i < eflowCalo::nRegions; i++){
+    m_densityConversion[i] = anEFlowLayerIntegrator.m_densityConversion[i];
+    m_nUnitCellPerWindowOverCellEtaPhiArea[i] = anEFlowLayerIntegrator.m_nUnitCellPerWindowOverCellEtaPhiArea[i];
+  }
+}
+
+void eflowLayerIntegrator::operator=(const eflowLayerIntegrator& anEFlowLayerIntegrator){
+  m_rMax = anEFlowLayerIntegrator.m_rMax;
+  m_allClustersIntegral =  anEFlowLayerIntegrator.m_allClustersIntegral;
+  m_nUnitCellPerWindowOverCellEtaPhiArea = anEFlowLayerIntegrator.m_nUnitCellPerWindowOverCellEtaPhiArea;
+  m_integrator = new eflowCellIntegrator<0>(*anEFlowLayerIntegrator.m_integrator);
+  m_integratorLookup = new eflowCellIntegrator<1>(*anEFlowLayerIntegrator.m_integratorLookup);
+
+  for (int i = 0; i < eflowCalo::nRegions; i++){
+    m_densityConversion[i] = anEFlowLayerIntegrator.m_densityConversion[i];
+    m_nUnitCellPerWindowOverCellEtaPhiArea[i] = anEFlowLayerIntegrator.m_nUnitCellPerWindowOverCellEtaPhiArea[i];
+  }
+}
+
 eflowLayerIntegrator::~eflowLayerIntegrator() {
   delete m_integrator;
   delete m_integratorLookup;
 }
 
-void eflowLayerIntegrator::reset(const eflowTrackCaloPoints& trackCalo) {
-  for (int i = 0; i < eflowCalo::nRegions; i++) {
-    m_lpEDens[i] = trackCalo.haveLayer((eflowCaloENUM)i) ? 0.0 : eflowTrackCaloPoints::defaultEta();
+void eflowLayerIntegrator::resetAllClustersIntegralForNewTrack(const eflowTrackCaloPoints& trackCalo) {
+  for (int iLayer = 0; iLayer < eflowCalo::nRegions; iLayer++) {
+    m_allClustersIntegral[iLayer] = trackCalo.haveLayer((eflowCaloENUM)iLayer) ? 0.0 : eflowTrackCaloPoints::defaultEta();
   }
-  calcDepthArray(trackCalo.getEM2eta());
+
+  /* Calculate the caloDepthArray */
+  double em2Eta = trackCalo.getEM2eta();
+  if ( fabs(em2Eta) > 2.5 ) { em2Eta = 2.49; }   //sometimes track extrapolator returns e.g. 2.51 for em2Eta, which causes depth array to be filled with zeroes.
+  m_caloModel.calcDepthArray(em2Eta, 1.0e-4);
 }
 
-void eflowLayerIntegrator::calcDepthArray(double eta) {
-  //sometimes track extrapolator returns e.g. 2.51 for eta, which causes depth array to be filled with zeroes.
-  if ( fabs(eta) > 2.5 ) eta = 2.49;
-  m_caloModel.calcDepthArray(eta, 1.0e-4);
-}
-
-void eflowLayerIntegrator::addClusterIntegral(const std::vector<double>& clusterIntegral) {
-  assert(clusterIntegral.size() == m_lpEDens.size());
+void eflowLayerIntegrator::addToAllClustersIntegral(const std::vector<double>& clusterIntegral) {
+  assert(clusterIntegral.size() == m_allClustersIntegral.size());
   for (int i = 0; i < eflowCalo::nRegions; i++) {
-    if (m_lpEDens[i] != eflowTrackCaloPoints::defaultEta()){
-      m_lpEDens[i] += clusterIntegral[i];
+    if (m_allClustersIntegral[i] != eflowTrackCaloPoints::defaultEta()){
+      m_allClustersIntegral[i] += clusterIntegral[i];
     }
   }
 }
 
-void eflowLayerIntegrator::measureNewClus(std::vector<xAOD::CaloCluster*> clusVec, const eflowTrackCaloPoints& trackCalo)
-{
-  reset(trackCalo);
+void eflowLayerIntegrator::measureNewClus(std::vector<xAOD::CaloCluster*> clusVec, const eflowTrackCaloPoints& trackCalo) {
+  resetAllClustersIntegralForNewTrack(trackCalo);
 
   std::vector<xAOD::CaloCluster*>::iterator itCluster    = clusVec.begin();
   std::vector<xAOD::CaloCluster*>::iterator itClusterEnd = clusVec.end();
@@ -97,7 +119,7 @@ void eflowLayerIntegrator::measureNewClus(std::vector<xAOD::CaloCluster*> clusVe
 }
 
 void eflowLayerIntegrator::measureNewClus(std::vector<eflowRecCluster*> efRecClusters, eflowRecTrack* track) {
-  reset(track->getTrackCaloPoints());
+  resetAllClustersIntegralForNewTrack(track->getTrackCaloPoints());
 
   std::vector<eflowRecCluster*>::iterator  itCluster = efRecClusters.begin();
   std::vector<eflowRecCluster*>::iterator endCluster = efRecClusters.end();
@@ -108,14 +130,13 @@ void eflowLayerIntegrator::measureNewClus(std::vector<eflowRecCluster*> efRecClu
 }
 
 void eflowLayerIntegrator::measureNewClus(eflowTrackClusterLink* trackClusterLink) {
-  reset(trackClusterLink->getTrack()->getTrackCaloPoints());
+  resetAllClustersIntegralForNewTrack(trackClusterLink->getTrack()->getTrackCaloPoints());
 
   measureCluster(trackClusterLink);
 }
 
-void eflowLayerIntegrator::measureNewClus(const xAOD::CaloCluster* clus, const eflowTrackCaloPoints& trackCalo)
-{
-  reset(trackCalo);
+void eflowLayerIntegrator::measureNewClus(const xAOD::CaloCluster* clus, const eflowTrackCaloPoints& trackCalo) {
+  resetAllClustersIntegralForNewTrack(trackCalo);
 
   measureCluster(clus, trackCalo);
 }
@@ -124,17 +145,18 @@ void eflowLayerIntegrator::measureCluster(eflowTrackClusterLink* trackClusterLin
   if (trackClusterLink->getClusterIntegral().empty()){
     /* The track-cluster pair hasn't been integrated yet. Integrate as usual and store the results */
     measureCluster(trackClusterLink->getCluster()->getCluster(), trackClusterLink->getTrack()->getTrackCaloPoints());
-    trackClusterLink->setClusterIntegral(m_lastClusterIntegral);
+    trackClusterLink->setClusterIntegral(m_singleClusterIntegral);
     if (trackClusterLink->getTrack()->getCaloDepthArray().empty()) {
       trackClusterLink->getTrack()->setCaloDepthArray(m_caloModel.getDepthArray());
     }
   } else {
-    addClusterIntegral(trackClusterLink->getClusterIntegral());
+    /* The track-cluster pair has already been integrated. Take integral from the TrackClusterLink and add to total integral */
+    addToAllClustersIntegral(trackClusterLink->getClusterIntegral());
   }
 }
 
 void eflowLayerIntegrator::measureCluster(const xAOD::CaloCluster* clus, const eflowTrackCaloPoints& trackCalo) {
-  m_lastClusterIntegral.assign(eflowCalo::nRegions, 0.0);
+  m_singleClusterIntegral.assign(eflowCalo::nRegions, 0.0);
 
   const CaloClusterCellLink* theCellLink = clus->getCellLinks();
 
@@ -148,7 +170,7 @@ void eflowLayerIntegrator::measureCluster(const xAOD::CaloCluster* clus, const e
     }
   }//if valid cell link
 
-  addClusterIntegral(m_lastClusterIntegral);
+  addToAllClustersIntegral(m_singleClusterIntegral);
 }
 
 void eflowLayerIntegrator::measureCell(const CaloCell* cell, const eflowTrackCaloPoints& trackCalo) {
@@ -156,11 +178,14 @@ void eflowLayerIntegrator::measureCell(const CaloCell* cell, const eflowTrackCal
   if (!caloDetDescrElement) return;
 
   eflowCaloENUM layer = eflowCalo::translateSampl(caloDetDescrElement->getSampling());
-  if (eflowCalo::Unknown == layer) return;
+  if (eflowCalo::Unknown == layer) { return; }
 
   const double extrapTrackEta = trackCalo.getEta(layer);
   const double extrapTrackPhi = trackCalo.getPhi(layer);
-  if (extrapTrackEta == eflowTrackCaloPoints::defaultEta() || extrapTrackPhi == eflowTrackCaloPoints::defaultPhi()) return;
+  if (extrapTrackEta == eflowTrackCaloPoints::defaultEta() ||
+      extrapTrackPhi == eflowTrackCaloPoints::defaultPhi()) {
+    return;
+  }
 
   const double etaWidth = caloDetDescrElement->deta();
   const double phiWidth = caloDetDescrElement->dphi();
@@ -177,7 +202,7 @@ void eflowLayerIntegrator::measureCell(const CaloCell* cell, const eflowTrackCal
 //    const double weight = m_integrator->integrate(etaRange, phiRange);
     const double weight     = m_integratorLookup->integrate(etaRange, phiRange);
 
-    m_lastClusterIntegral[layer] += weight * cell->energy() / caloDetDescrElement->volume();
+    m_singleClusterIntegral[layer] += weight * cell->energy() / caloDetDescrElement->volume();
   }
 }
 
@@ -187,13 +212,13 @@ eflowFirstIntENUM eflowLayerIntegrator::getFirstIntLayer() const {
 
   double xPrev = 0.0;
   double yPrev = 0.0;
-  int j1st = eflowCalo::Unknown;
+  int result = eflowCalo::Unknown;
   double maxGradient = -10.0;
 
   for (int layer = 0; layer < eflowCalo::nRegions; ++layer){
-    if (m_lpEDens[layer] == eflowTrackCaloPoints::defaultEta()) { continue; }
+    if (m_allClustersIntegral[layer] == eflowTrackCaloPoints::defaultEta()) { continue; }
 
-    double convertedDensity = m_lpEDens[layer] * m_densityConversion[layer];
+    double convertedDensity = m_allClustersIntegral[layer] * m_densityConversion[layer];
     eflowDepthLayerENUM depthLayer = eflowDepthCalculator::depthIndex((eflowCaloENUM)layer);
 
     const double dx = depthArray[depthLayer+1] - xPrev;
@@ -204,9 +229,9 @@ eflowFirstIntENUM eflowLayerIntegrator::getFirstIntLayer() const {
 
     if (gradient > maxGradient) {
       maxGradient = gradient;
-      j1st = layer;
+      result = layer;
     }
   }
 
-  return eflowFirstIntRegions::translateCalo((eflowCaloENUM)j1st);
+  return eflowFirstIntRegions::translateCalo((eflowCaloENUM)result);
 }

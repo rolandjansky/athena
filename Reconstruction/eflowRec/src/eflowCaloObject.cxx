@@ -32,21 +32,13 @@ eflowCaloObject::~eflowCaloObject() {
   for (; itTrack != endTrack; ++itTrack) { delete *itTrack; }
 }
 
-eflowTrackClusterLink* eflowCaloObject::addTrack(eflowRecTrack* track, eflowRecCluster* cluster) {
+void eflowCaloObject::addTrack(eflowRecTrack* track, eflowTrackClusterLink* trackClusterLink) {
   m_eflowRecTracks.push_back(track);
-
-  if (!cluster){
-    return 0;
+  if (trackClusterLink){
+    m_trackClusterLinks.push_back(trackClusterLink);
   }
-  eflowTrackClusterLink* trackClusterLink = eflowTrackClusterLink::getInstance(track, cluster);
-  track->addClusterMatch(trackClusterLink);
-  cluster->addTrackMatch(trackClusterLink);
-  m_trackClusterLinks.push_back(trackClusterLink);
-  return trackClusterLink;
 }
 
-eflowRecCluster* eflowCaloObject::addCluster(ElementLink<xAOD::CaloClusterContainer> clusterElementLink) {
-  m_eflowRecClusters.push_back(new eflowRecCluster(clusterElementLink, this));
-  return m_eflowRecClusters.back();
+void eflowCaloObject::addCluster(eflowRecCluster* cluster) {
+  m_eflowRecClusters.push_back(cluster);
 }
-

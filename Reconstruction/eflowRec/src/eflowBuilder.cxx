@@ -38,7 +38,7 @@ PURPOSE:  Loop over tracks and clusters to build calo objects, then
     
 eflowBuilder::eflowBuilder(const std::string& name, 
 		       ISvcLocator* pSvcLocator): 
-  Algorithm(name, pSvcLocator), 
+  AthAlgorithm(name, pSvcLocator), 
   m_eflowCaloObjectBuilderAlgName("eflowCaloObjectBuilder/caloObjectBuilderAlg"),
   m_eflowObjectBuilderAlgName("eflowObjectBuilder/objectBuilderAlg"),
   m_eflowQuantitiesAlgName("eflowQuantities/quantAlg")
@@ -55,7 +55,6 @@ eflowBuilder::eflowBuilder(const std::string& name,
   m_eflowCaloObjectBuilderAlg = 0;
   m_eflowObjectBuilderAlg = 0;
   m_eflowQuantitiesAlg = 0;
-  m_storeGate = 0;
 }
 
 eflowBuilder::~eflowBuilder()
@@ -69,15 +68,6 @@ StatusCode eflowBuilder::initialize()
   MsgStream log( messageService(), name() );  
 
   // Get pointer to StoreGateSvc and cache:
-
-  sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure())
-  {
-    log << MSG::ERROR 
-	<< "Unable to retrieve pointer to StoreGateSvc"
-	<< endreq;
-    return sc;
-  }
 
   //////////////////////////////////////////////////////////////////
   // Create the eflowCaloObjectBuilder Algorithm:

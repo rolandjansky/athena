@@ -12,17 +12,18 @@ class eflowTauToolDefault(eflowTauTool) :
 
         mlog = logging.getLogger( 'eflowTauToolDefault::__init__ ' )
         mlog.info("entering")
-
+        
         try:
-            from eflowRec.eflowTrackToCaloTrackExtrapolatorTool import eflowTrackToCaloTrackExtrapolatorToolDefault
-            TrackToCaloTrackExtrapolatorToolDefault=eflowTrackToCaloTrackExtrapolatorToolDefault()
-            TrackToCaloTrackExtrapolatorToolDefault.IsTauMode = True
+            from eflowRec.eflowRecConf import eflowTrackCaloExtensionTool 
+            TrackCaloExtensionTool=eflowTrackCaloExtensionTool()
         except:
-            mlog.error("could not import eflowRec.eflowTrackToCaloTrackExtrapolatorToolDefault")
+            mlog.error("could not import eflowRec.eflowTrackCaloExtensionTool")
             print traceback.format_exc()
             return False
 
-        self.eflowTrackToCaloTrackExtrapolatorTool=TrackToCaloTrackExtrapolatorToolDefault
+        eflowTauTool.eflowExtrapolator = TrackCaloExtensionTool
+
+
 
         self.SubtractionSigmaCut = 2.0
         self.ConsistencySigmaCut = 1.0

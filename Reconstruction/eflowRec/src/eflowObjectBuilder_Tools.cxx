@@ -15,7 +15,6 @@ CREATED:  24th January, 2005
 #include "eflowRec/eflowObjectBuilder_Tools.h"
 #include "eflowRec/eflowCaloObject.h"
 #include "eflowRec/eflowTrackClusterLink.h"
-#include "eflowRec/eflowTrack.h"
 #include "eflowRec/eflowBaseAlgTool.h"
 #include "eflowRec/eflowRecoverSplitShowersTool.h"
 #include "eflowRec/eflowLCCalibTool.h"
@@ -35,6 +34,7 @@ eflowObjectBuilder_Tools::eflowObjectBuilder_Tools(const std::string& name,  ISv
   eflowBaseAlg(name, pSvcLocator),
   m_eflowClustersOutputName("PFOClusters_JetETMiss"),
   m_eflowCaloObjectsName("eflowCaloObjects01"),
+  m_storeGate(nullptr),
   m_tools(this)
 {
   /* The following properties can be specified at run-time (declared in jobOptions file) */

@@ -22,7 +22,7 @@ class eflowCellLevelSubtractionToolDefault(eflowCellLevelSubtractionTool) :
         mlog = logging.getLogger( 'eflowCellLevelSubtractionToolDefault::__init__ ' )
         mlog.info("entering")
 
-        self.SubtractionSigmaCut = 2.0
+        self.SubtractionSigmaCut = 1.5
         self.ConsistencySigmaCut = 1.0
 
         from eflowRec.eflowRecFlags import jobproperties

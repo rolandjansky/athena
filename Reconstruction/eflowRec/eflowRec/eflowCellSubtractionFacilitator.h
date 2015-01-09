@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EFLOWCELLSUBTRACTIONFACILITATOR_H
+  #ifndef EFLOWCELLSUBTRACTIONFACILITATOR_H
 #define EFLOWCELLSUBTRACTIONFACILITATOR_H
 
 /********************************************************************
@@ -27,13 +27,14 @@ class eflowCellSubtractionFacilitator{
 
   eflowCellSubtractionFacilitator();
 
-  double subtractCells(eflowCellSubtractionManager& cellSubtractionManager, double trackEnergy, xAOD::CaloCluster* tracksClus,eflowCellList& orderedCells);
-  double subtractCells(eflowCellSubtractionManager& cellSubtractionManager, double trackEnergy, std::vector<xAOD::CaloCluster*> tracksClus,eflowCellList& orderedCells);
+  double subtractCells(eflowCellSubtractionManager& cellSubtractionManager, double trackEnergy, xAOD::CaloCluster* tracksClus, eflowCellList& orderedCells);
+  double subtractCells(eflowCellSubtractionManager& cellSubtractionManager, double trackEnergy, std::vector<xAOD::CaloCluster*> tracksClus, eflowCellList& orderedCells);
   bool annFlag() {return m_annFlag;}
 
  private:
   bool m_annFlag;
   CaloClusterCellLink::iterator getCellIterator(const xAOD::CaloCluster* thisCluster, const CaloCell* thisCell);
-
+  void updateClusterKinematics(std::vector<xAOD::CaloCluster*>& tracksClusters);
+  void updateClusterKinematics(xAOD::CaloCluster*);
 };
 #endif

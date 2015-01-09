@@ -17,20 +17,19 @@ CREATED:  8th November, 2001
 // INCLUDE HEADER FILES:
 
 #include "eflowRec/eflowCaloObjectBuilder.h"
-#include "eflowRec/eflowTrack.h"
 #include "eflowRec/eflowRecTrack.h"
 #include "eflowRec/eflowRecCluster.h"
 #include "eflowRec/eflowTrackClusterLink.h"
-#include "eflowRec/eflowTrackClusterMatcher.h"
 #include "eflowRec/eflowTrackCaloPoints.h"
 #include "eflowRec/eflowCellSubtractionManager.h"
 #include "eflowRec/eflowBinnedParameters.h"
 #include "eflowRec/eflowLayerIntegrator.h"
 #include "eflowRec/eflowCellEOverPTool.h"
+#include "eflowRec/PFTrackClusterMatchingTool.h"
 
 #include "eflowRec/eflowCaloObject.h"
 #include "eflowRec/eflowBaseAlg.h"
-#include "eflowRec/eflowTrackToCaloTrackExtrapolatorTool.h"
+#include "eflowRec/eflowTrackExtrapolatorBaseAlgTool.h"
 
 #include "CaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloCluster.h"
@@ -80,31 +79,38 @@ eflowCaloObjectBuilder::eflowCaloObjectBuilder(const std::string& name, ISvcLoca
   m_binnedParameters(0),
   m_integrator(0),
   m_theEOverPTool("eflowCellEOverPTool",this),
-  m_theTrackExtrapolatorTool("eflowTrackToCaloTrackExtrapolatorTool",this),
+  m_theTrackExtrapolatorTool("Trk::ParticleCaloExtensionTool",this),
+  m_matchingTool("PFTrackClusterMatchingTool/CalObjBldMatchingTool", this),
   m_eflowMode("FullMode"),
+  m_selectedElectrons(nullptr),
+  m_selectedMuons(nullptr),
+  m_leptonCellContainer(nullptr),
   m_egammaTrackMapName("GSFTrackAssociation"),
-  m_electronsName("ElectronCollection"),
+  m_electronsName("Electrons"),
   m_muonsName("Muons"),
   m_useLeptons(true),
   m_storeLeptonCells(false),
   m_eflowElectronsName("eflowRec_selectedElectrons_EM"),
-  m_eflowLeptonCellsName("eflowRec_leptonCellContainer_EM")
+  m_eflowLeptonCellsName("eflowRec_leptonCellContainer_EM"),
+  m_nMatches(0)
 {
 // The following properties can be specified at run-time
 // (declared in jobOptions file)
-  declareProperty("ClustersName",m_clustersName);
+  declareProperty("ClustersName", m_clustersName);
   declareProperty("TracksName", m_tracksName);
-  declareProperty("EflowCaloObjectsOutputName",m_eflowCaloObjectsOutputName);
-  declareProperty("eflowCellEOverPTool", m_theEOverPTool,"Energy Flow E/P Values and Shower Paremeters Tool");
-  declareProperty("eflowTrackToCaloTrackExtrapolatorTool",m_theTrackExtrapolatorTool,"AlgTool to use TrackToCalo Tool");
-  declareProperty("EFlowMode",m_eflowMode);
-  declareProperty("egammaTrackMapName",m_egammaTrackMapName);
-  declareProperty("electronsName",m_electronsName);
-  declareProperty("muonsName",m_muonsName);
-  declareProperty("useLeptons",m_useLeptons);
-  declareProperty("storeLeptonCells",m_storeLeptonCells);
-  declareProperty("eflowElectronsName",m_eflowElectronsName);
-  declareProperty("eflowLeptonCellsName",m_eflowLeptonCellsName);
+  declareProperty("EflowCaloObjectsOutputName", m_eflowCaloObjectsOutputName);
+  declareProperty("PFTrackClusterMatchingTool", m_matchingTool, "The track-cluster matching tool");
+  declareProperty("eflowCellEOverPTool", m_theEOverPTool, "Energy Flow E/P Values and Shower Paremeters Tool");
+  declareProperty("TrackExtrapolatorTool", m_theTrackExtrapolatorTool, "AlgTool to use for track extrapolation");
+  declareProperty("EFlowMode", m_eflowMode);
+  declareProperty("egammaTrackMapName", m_egammaTrackMapName);
+  declareProperty("electronsName", m_electronsName);
+  declareProperty("muonsName", m_muonsName);
+  declareProperty("useLeptons", m_useLeptons);
+  declareProperty("storeLeptonCells", m_storeLeptonCells);
+  declareProperty("eflowElectronsName", m_eflowElectronsName);
+  declareProperty("eflowLeptonCellsName", m_eflowLeptonCellsName);
+  declareProperty("TrackSelectionTool", m_selTool);
 }
 
 eflowCaloObjectBuilder::~eflowCaloObjectBuilder() {
@@ -118,55 +124,62 @@ StatusCode eflowCaloObjectBuilder::initialize() {
 
   // tool service
   IToolSvc* myToolSvc;
-  sc = service("ToolSvc",myToolSvc);
-  
-  if ( sc.isFailure() ) {
+  sc = service("ToolSvc", myToolSvc);
+
+  if (sc.isFailure()) {
     msg(MSG::WARNING) << " Tool Service Not Found" << endreq;
     return StatusCode::SUCCESS;
   }
 
   m_integrator = new eflowLayerIntegrator(0.032, 1.0e-3, 3.0);
-  m_binnedParameters = new eflowBinnedParameters(0.75,1.0e6);
+  m_binnedParameters = new eflowBinnedParameters();
+  eflowCellSubtractionManager::setRMaxAndWeightRange(0.75, 1.0e6);
 
   sc = m_theEOverPTool.retrieve();
 
-  if (sc.isFailure()){
+  if (sc.isFailure()) {
     msg(MSG::WARNING) << "Cannot find eflowEOverPTool" << endreq;
     return StatusCode::SUCCESS;
   }
 
+  if (m_matchingTool.retrieve().isFailure()) {
+    msg(MSG::WARNING) << "Cannot find PFTrackClusterMatchingTool" << endreq;
+  }
+
   sc = m_theTrackExtrapolatorTool.retrieve();
 
-  if ( sc.isFailure() ) {
+  if (sc.isFailure()) {
     msg(MSG::WARNING) << "Cannot find eflowTrackToCaloExtrapolatroTool " << endreq;
     return StatusCode::SUCCESS;
   }
 
   sc = m_theEOverPTool->execute(m_binnedParameters);
 
-  if (sc.isFailure()){
+  if (sc.isFailure()) {
     msg(MSG::WARNING) << "Could not execute eflowCellEOverPTool " << endreq;
     return StatusCode::SUCCESS;
   }
 
   if (m_useLeptons) m_selectedMuons = new xAOD::MuonContainer(SG::VIEW_ELEMENTS);
 
+  ATH_CHECK(m_selTool.retrieve());
   return sc;
 }
 
-StatusCode eflowCaloObjectBuilder::finalize() { 
+StatusCode eflowCaloObjectBuilder::finalize() {
+
+  msg(MSG::INFO) << "Produced " << m_nMatches << " track-cluster matches." << endreq;
 
   if (m_useLeptons && m_selectedMuons) delete m_selectedMuons;
-  return StatusCode::SUCCESS; 
+
+  return StatusCode::SUCCESS;
 
 }
 
 StatusCode eflowCaloObjectBuilder::execute() {
 
-  if (m_useLeptons) this->clearContainers();  
-
+  if (m_useLeptons) this->clearContainers();
   int debug = 0;
-
   StatusCode sc;
 
   /* Create the eflowCaloObjectContainer and register it */
@@ -179,11 +192,11 @@ StatusCode eflowCaloObjectBuilder::execute() {
     return StatusCode::SUCCESS;
   }
 
-  if (m_useLeptons){
+  if (m_useLeptons) {
 
     /* Put electron container and list of lepton cells into Storegate 
-       By contrast muons do NOT go into storegate, because they are not needed downstream */
-    if (recordLeptonContainers().isFailure()){
+     By contrast muons do NOT go into storegate, because they are not needed downstream */
+    if (recordLeptonContainers().isFailure()) {
       return StatusCode::SUCCESS;
     }
 
@@ -193,14 +206,13 @@ StatusCode eflowCaloObjectBuilder::execute() {
       //won't mask out the tracks, but issue WARNING
       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Did not select any electrons " << endreq;
     }
-    
+
     /* Select some muons */
     sc = this->selectMuons();
     if (sc.isFailure()) {
       //won't mask out the tracks, but issue WARNING
       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Did not select any muons " << endreq;
     }
-    
   }
 
   /* Create eflowCaloObject static calo cluster container */
@@ -230,47 +242,34 @@ StatusCode eflowCaloObjectBuilder::execute() {
 StatusCode eflowCaloObjectBuilder::makeClusterList() {
 
   /* Retrieve the cluster container */
-
   const xAOD::CaloClusterContainer* thisCaloClusterContainer;
   StatusCode code = evtStore()->retrieve(thisCaloClusterContainer, m_clustersName);
-  if (code != StatusCode::SUCCESS || !thisCaloClusterContainer) {
-    if (msgLvl(MSG::WARNING)) {
-      msg(MSG::WARNING) << " Can not retrieve clus Container: " << m_clustersName << endreq;
-    }
-    return StatusCode::FAILURE;
+  if (evtStore()->retrieve(thisCaloClusterContainer, m_clustersName).isFailure() || !thisCaloClusterContainer) {
+    msg(MSG::WARNING) << " Can not retrieve cluster Container: " << m_clustersName << endreq;
+    return StatusCode::SUCCESS;
   }
 
-  /* TODO (tuning): Check if resize(0) might be faster than clear() */
+  /* Fill the vector of eflowRecClusters */
   m_eflowClusterList.clear();
-  m_eflowClusterList.reserve(thisCaloClusterContainer->size());
-
-  /* Loop over clusters in the container */
-
-  xAOD::CaloClusterContainer::const_iterator itCluster = thisCaloClusterContainer->begin();
-  xAOD::CaloClusterContainer::const_iterator endCluster = thisCaloClusterContainer->end();
-  for (int index = 0; itCluster != endCluster; ++itCluster, ++index) {
-    const xAOD::CaloCluster* thisCluster = *itCluster;
-
-    eflowCaloObject* calob = new eflowCaloObject();
-    m_caloObjectContainer->push_back(calob);
-
-    m_eflowClusterList.push_back(calob->addCluster(ElementLink<xAOD::CaloClusterContainer>(*thisCaloClusterContainer, index)));
-
-    /* Initialize the track-cluster mather, i.e. calculate cluster centre and width from plain cell positions */
-    m_eflowClusterList.back()->getTrackClusterMatcher().setCluster(thisCluster);
+  unsigned int nClusters = thisCaloClusterContainer->size();
+  m_eflowClusterList.reserve(nClusters);
+  for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster) {
+    eflowRecCluster* thisEFRecCluster = new eflowRecCluster(ElementLink<xAOD::CaloClusterContainer>(*thisCaloClusterContainer, iCluster));
+    m_eflowClusterList.push_back(thisEFRecCluster);
 
     if (msgLvl(MSG::DEBUG)) {
+      const xAOD::CaloCluster* thisCluster = thisCaloClusterContainer->at(iCluster);
       msg(MSG::DEBUG) << "eflowCaloObjectBuilder clus = " << thisCluster->eta() << " "
 		      << thisCluster->phi() << " " << thisCluster->e()/cosh(thisCluster->eta()) << " " << endreq;
       //Not sure if we can get this
 	//<< thisCluster->getNumberOfCells() << " " << endreq;
     }
-  } //end loop over clus
+  }
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode  eflowCaloObjectBuilder::makeTrackList() {
+StatusCode eflowCaloObjectBuilder::makeTrackList() {
   /* Retrieve xAOD::TrackParticle Container, return 'failure' if not existing */
   const xAOD::TrackParticleContainer* trackContainer;
   StatusCode sc = evtStore()->retrieve(trackContainer, m_tracksName);
@@ -287,17 +286,14 @@ StatusCode  eflowCaloObjectBuilder::makeTrackList() {
   int trackIndex = 0;
   for (; itTrackParticle != trackContainer->end(); ++itTrackParticle, ++trackIndex) {
     const xAOD::TrackParticle* track = (*itTrackParticle);
-
     if (!track) continue; // TODO: Print a WARNING here!
 
     bool rejectTrack((m_eflowMode == "FullMode") && !selectTrack(track));
 
-    if (m_useLeptons){
-
+    if (m_useLeptons) {
       bool isElectron = this->isElectron(track);
       bool isMuon = this->isMuon(track);
       if (true == isElectron || true == isMuon) rejectTrack = true;
-
     }
 
     if (!rejectTrack) {
@@ -306,28 +302,14 @@ StatusCode  eflowCaloObjectBuilder::makeTrackList() {
     }
   }
 
-  std::sort(m_eflowTrackList.begin(),m_eflowTrackList.end(),eflowRecTrack::SortDescendingPt());
+  std::sort(m_eflowTrackList.begin(), m_eflowTrackList.end(), eflowRecTrack::SortDescendingPt());
 
   return StatusCode::SUCCESS;
 }
 
 bool eflowCaloObjectBuilder::selectTrack(const xAOD::TrackParticle* track) {
-  uint8_t numberOfPixelHits = 0;
-  bool gotValue = track->summaryValue(numberOfPixelHits, xAOD::numberOfPixelHits);
-  if (false == gotValue) if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Could not get number of pixel hits " << endreq;
-  uint8_t numberOfSCTHits = 0;
-  gotValue = track->summaryValue(numberOfSCTHits, xAOD::numberOfSCTHits);
-  if (false == gotValue) if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Could not get number of SCT hits " << endreq;
-  uint8_t numberOfPixelHoles = 0;
-  gotValue = track->summaryValue(numberOfPixelHoles, xAOD::numberOfPixelHoles);
-  if (false == gotValue) if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Could not get number of pixel holes " << endreq;
-
-  if (fabs(track->eta()) < 2.5 &&
-      numberOfPixelHits+numberOfSCTHits >= 9 && numberOfPixelHoles == 0 &&
-      eflowRange(0.5, 40.0).contains(track->pt() * 0.001)) {
-    return true;
-  }
-  return false;
+  if (track->pt()*0.001 < 40.0) return m_selTool->accept(*track, track->vertex());
+  else return false;
 }
 
 void eflowCaloObjectBuilder::matchTracksWithClusters(int debug) {
@@ -335,10 +317,8 @@ void eflowCaloObjectBuilder::matchTracksWithClusters(int debug) {
   std::vector<eflowRecTrack*>::iterator trackIter = m_eflowTrackList.begin();
   std::vector<eflowRecTrack*>::iterator trackEnd = m_eflowTrackList.end();
   for (; trackIter != trackEnd; ++trackIter) {
-
-    std::vector<eflowRecCluster*>::iterator itBestCluster = getBestClusterMatch(*trackIter);
-
-    if (itBestCluster == m_eflowClusterList.end()) {
+    eflowRecCluster* bestCluster = m_matchingTool->bestMatch(*trackIter, m_eflowClusterList);
+    if (!bestCluster) {
       /* Track only (no match): Book new Calo Object with track */
       eflowCaloObject* calob = new eflowCaloObject();
       calob->addTrack(*trackIter);
@@ -347,8 +327,12 @@ void eflowCaloObjectBuilder::matchTracksWithClusters(int debug) {
         std::cout << "Isolated" << printTrack((*trackIter)->getTrack()) << std::endl;
       }
     } else {
-      /* Matched cluster: add the track to the corresponding CaloClusterObject */
-      eflowTrackClusterLink* trackClusterLink = (*itBestCluster)->getCaloObject()->addTrack(*trackIter, *itBestCluster);
+      /* Matched cluster: create TrackClusterLink and add it to both the track and the cluster (eflowCaloObject will be created later) */
+      m_nMatches++;
+      eflowTrackClusterLink* trackClusterLink = eflowTrackClusterLink::getInstance(*trackIter,
+                                                                                   bestCluster);
+      (*trackIter)->addClusterMatch(trackClusterLink);
+      bestCluster->addTrackMatch(trackClusterLink);
 
       /* Do shower simulation:
        * - do cell integration and determine LFI
@@ -358,28 +342,25 @@ void eflowCaloObjectBuilder::matchTracksWithClusters(int debug) {
       simulateShower(trackClusterLink);
     }
   }
-}
 
-std::vector<eflowRecCluster*>::iterator eflowCaloObjectBuilder::getBestClusterMatch(const eflowRecTrack* efRecTrack) {
+  /* Create all eflowCaloObjects that contain a cluster */
+  unsigned int nClusters = m_eflowClusterList.size();
+  for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster) {
+    /* Create the eflowCaloObject and put it in the container */
+    eflowCaloObject* thisEflowCaloObject = new eflowCaloObject();
+    m_caloObjectContainer->push_back(thisEflowCaloObject);
 
-  double dr;
-  double bestDr(10.0);
-  std::vector<eflowRecCluster*>::iterator result = m_eflowClusterList.end();
+    /* Add the eflowRecCluster */
+    eflowRecCluster* thisEFRecCluster = m_eflowClusterList[iCluster];
+    thisEflowCaloObject->addCluster(thisEFRecCluster);
 
-  /* Loop through all clusters */
-  std::vector<eflowRecCluster*>::iterator itCluster = m_eflowClusterList.begin();
-  std::vector<eflowRecCluster*>::iterator endCluster = m_eflowClusterList.end();
-
-  for(int thisClusIndex = 0; itCluster != endCluster; ++itCluster, ++thisClusIndex) {
-    // Check if cluster matches track
-    dr = (*itCluster)->getTrackClusterMatcher().match(efRecTrack->getTrackCaloPoints().getEM2etaPhiPos());
-    if (dr && (dr < bestDr)) {
-      bestDr = dr;
-      result = itCluster;
+    /* Add all tracks that were matched to the cluster */
+    const std::vector<eflowTrackClusterLink*>& theseTrackLinks = thisEFRecCluster->getTrackMatches();
+    unsigned int nMatches = theseTrackLinks.size();
+    for (unsigned int iMatch = 0; iMatch < nMatches; ++iMatch) {
+      thisEflowCaloObject->addTrack(theseTrackLinks[iMatch]->getTrack(), theseTrackLinks[iMatch]);
     }
-  } //end of clus loop
-
-  return result;
+  }
 }
 
 std::string eflowCaloObjectBuilder::printTrack(const xAOD::TrackParticle* track) {
@@ -430,7 +411,7 @@ void eflowCaloObjectBuilder::printAllClusters() {
     } else {
       std::cout << "Matched" << printCluster((*itCluster)->getCluster()) << std::endl;
       int nTrackMatches = (*itCluster)->getNTracks();
-      std::vector <eflowTrackClusterLink*> theTrackLinks = (*itCluster)->getTrackMatches();
+      std::vector<eflowTrackClusterLink*> theTrackLinks = (*itCluster)->getTrackMatches();
       for (int iTrackMatch = 0; iTrackMatch < nTrackMatches; ++iTrackMatch) {
         std::cout << "Matched" << printTrack(theTrackLinks[iTrackMatch]->getTrack()->getTrack()) << std::endl;
       }
@@ -443,39 +424,35 @@ StatusCode eflowCaloObjectBuilder::recordLeptonContainers(){
   m_selectedElectrons = new xAOD::ElectronContainer(SG::VIEW_ELEMENTS);
 
   StatusCode sc = evtStore()->record(m_selectedElectrons,m_eflowElectronsName,false);
-  if (sc.isFailure())
-  {
+  if (sc.isFailure()) {
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)
         << "Could not record egammaContainer in TDS"
         << endreq;
     return sc;
   }
 
-  if (true == m_storeLeptonCells){
-
+  if (true == m_storeLeptonCells) {
     m_leptonCellContainer = new ConstDataVector<CaloCellContainer>(SG::VIEW_ELEMENTS);
 
     //record the cell container
-    sc = evtStore()->record(m_leptonCellContainer,m_eflowLeptonCellsName,false);
+    sc = evtStore()->record(m_leptonCellContainer, m_eflowLeptonCellsName, false);
 
-    if (sc.isFailure())
-      {
-	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)
-				    << "Could not record eflowRec LeptonCellContainer in TDS"
-				    << endreq;
-	return sc;
-      }
+    if (sc.isFailure()) {
+      if (msgLvl(MSG::WARNING))
+        msg(MSG::WARNING) << "Could not record eflowRec LeptonCellContainer in TDS" << endreq;
+      return sc;
+    }
   }
 
   return StatusCode::SUCCESS;
 
 }
 
-StatusCode eflowCaloObjectBuilder::selectMuons(){
+StatusCode eflowCaloObjectBuilder::selectMuons() {
 
   const xAOD::MuonContainer* muonContainer(NULL);
   StatusCode sc = evtStore()->retrieve(muonContainer, m_muonsName);
-  if (sc.isFailure() || !muonContainer){
+  if (sc.isFailure() || !muonContainer) {
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " No xAOD Muon container found in TDS with the name " << m_muonsName << endreq;
     //fall back on staco muons, so we can run on older files without third chain
     return this->selectStacoMuons();
@@ -484,39 +461,42 @@ StatusCode eflowCaloObjectBuilder::selectMuons(){
   xAOD::MuonContainer::const_iterator firstMuon = muonContainer->begin();
   xAOD::MuonContainer::const_iterator lastMuon = muonContainer->end();
 
-  for ( ; firstMuon != lastMuon; ++firstMuon){
+  for (; firstMuon != lastMuon; ++firstMuon) {
     const xAOD::Muon* theMuon = *firstMuon;
     xAOD::Muon::MuonType muonType = theMuon->muonType();
-    if (xAOD::Muon::Combined == muonType && theMuon->pt()>5000.  ){
+    if (xAOD::Muon::Combined == muonType && theMuon->pt() > 5000.) {
 
-      const ElementLink< xAOD::TrackParticleContainer > theLink = theMuon->primaryTrackParticleLink();
-      if (theLink.isValid()){
-	const xAOD::TrackParticle* primary_track = *theLink;
-	if (primary_track){
-	  
-	  float chi2 = primary_track->chiSquared();
-	  float numberOfDoF = primary_track->numberDoF();
-	  float chi2OverDoF = chi2/numberOfDoF;
-	  if (chi2OverDoF < 10){
-	    if (m_selectedMuons) m_selectedMuons->push_back(const_cast<xAOD::Muon*>(theMuon));
-	    else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " Invalid pointer to m_selectedMuons in selectMuons " << std::endl;
-	    if (true == m_storeLeptonCells) this->storeMuonCells(theMuon);
-	  }//chi2 cut 
-	}
-	else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " This muon has an invalid pointer to its primary track " << endreq;
-      }
-      else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " This muon has an invalid link to its primary track " << endreq;
-    }//isCombinedMuon with pt > 5 GeV
-  }//muon loop
+      const ElementLink<xAOD::TrackParticleContainer> theLink = theMuon->primaryTrackParticleLink();
+      if (theLink.isValid()) {
+        const xAOD::TrackParticle* primary_track = *theLink;
+        if (primary_track) {
+
+          float chi2 = primary_track->chiSquared();
+          float numberOfDoF = primary_track->numberDoF();
+          float chi2OverDoF = chi2 / numberOfDoF;
+          if (chi2OverDoF < 10) {
+            if (m_selectedMuons) {
+              m_selectedMuons->push_back(const_cast<xAOD::Muon*>(theMuon));
+            } else if (msgLvl(MSG::WARNING)) {
+              msg(MSG::WARNING) << " Invalid pointer to m_selectedMuons in selectMuons " << std::endl;
+            }
+            if (true == m_storeLeptonCells) this->storeMuonCells(theMuon);
+          } //chi2 cut
+        } else if (msgLvl(MSG::WARNING))
+          msg(MSG::WARNING) << " This muon has an invalid pointer to its primary track " << endreq;
+      } else if (msgLvl(MSG::WARNING))
+        msg(MSG::WARNING) << " This muon has an invalid link to its primary track " << endreq;
+    } //isCombinedMuon with pt > 5 GeV
+  } //muon loop
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode eflowCaloObjectBuilder::selectStacoMuons(){
+StatusCode eflowCaloObjectBuilder::selectStacoMuons() {
 
   const xAOD::MuonContainer* muonContainer(NULL);
   StatusCode sc = evtStore()->retrieve(muonContainer, "StacoMuonCollection");
-  if (sc.isFailure() || !muonContainer){
+  if (sc.isFailure() || !muonContainer) {
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " No Staco Muon container found in TDS" << endreq;
     return StatusCode::FAILURE;
   }
@@ -524,17 +504,17 @@ StatusCode eflowCaloObjectBuilder::selectStacoMuons(){
   xAOD::MuonContainer::const_iterator firstMuon = muonContainer->begin();
   xAOD::MuonContainer::const_iterator lastMuon = muonContainer->end();
 
-  for (; firstMuon != lastMuon ; ++firstMuon){
+  for (; firstMuon != lastMuon ; ++firstMuon) {
     const xAOD::Muon* theMuon = *firstMuon;
     if (theMuon){
-      if (theMuon->pt() > 6000 && fabs(theMuon->eta()) < 2.5){
+      if (theMuon->pt() > 6000 && fabs(theMuon->eta()) < 2.5) {
 	xAOD::Muon::MuonType muonType = theMuon->muonType();
 	if (xAOD::Muon::Combined == muonType || xAOD::Muon::SegmentTagged == muonType){
 	  xAOD::Muon::Quality quality = theMuon->quality();
-          if (xAOD::Muon::Loose == quality){
+          if (xAOD::Muon::Loose == quality) {
 	    const xAOD::TrackParticle* ID_track = *theMuon->inDetTrackParticleLink();
 
-            if (ID_track){
+            if (ID_track) {
 	      
 	      //in xAOD version have remvoed b-layer cuts which appear not to be required according to MCP twiki
 	      uint8_t numberOfPixelHits = 0, numberOfPixelDeadSensors = 0;
@@ -668,7 +648,7 @@ StatusCode eflowCaloObjectBuilder::selectElectrons(){
     const xAOD::Electron* theElectron = *firstElectron;
     if (theElectron){
       if (theElectron->pt() > 10000){
-	bool val_med = false;
+        bool val_med = false;
 	bool gotID = theElectron->passSelection(val_med, "Medium");
 	if (!gotID) {
 	  if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not get Electron ID " << endreq;

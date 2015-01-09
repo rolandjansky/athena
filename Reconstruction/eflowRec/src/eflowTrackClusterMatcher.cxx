@@ -17,15 +17,15 @@ CREATED:  30 June 2005
 
 #include "CaloEvent/CaloCell.h"
 
-#include <math.h>
+#include <cmath>
 
 /* Set cone R (90% two-sided) */
 double eflowTrackClusterMatcher::m_coneRSq = 1.64*1.64;
 
 eflowTrackClusterMatcher::eflowTrackClusterMatcher() :
-    m_cluster(0), m_etaCluster(0), m_phiCluster(0), m_varEtaCl(0), m_varPhiCl(0) { }
+    m_etaCluster(0), m_phiCluster(0), m_varEtaCl(0), m_varPhiCl(0) { }
 eflowTrackClusterMatcher::eflowTrackClusterMatcher(const xAOD::CaloCluster* cluster) :
-    m_cluster(cluster), m_etaCluster(0), m_phiCluster(0), m_varEtaCl(0), m_varPhiCl(0) {
+    m_etaCluster(0), m_phiCluster(0), m_varEtaCl(0), m_varPhiCl(0) {
   setCluster(cluster);
 }
 
@@ -43,8 +43,6 @@ double eflowTrackClusterMatcher::match(const eflowEtaPhiPosition& trackEtaPhi) c
 }
 
 void eflowTrackClusterMatcher::setCluster(const xAOD::CaloCluster* cluster) {
-
-  m_cluster = cluster;
 
   if (!cluster) return;
 

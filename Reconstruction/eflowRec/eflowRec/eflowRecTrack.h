@@ -13,6 +13,7 @@
 #define EFLOWRECTRACK_H_
 
 #include <iostream>
+#include <cassert>
 #include "GaudiKernel/ToolHandle.h"
 
 #include "CxxUtils/fpcompare.h"
@@ -23,28 +24,24 @@
 
 #include "eflowRec/eflowTrackCaloPoints.h"
 #include "eflowRec/eflowCellSubtractionManager.h"
+#include "eflowRec/PFMatchInterfaces.h"
 
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
 class eflowTrackClusterLink;
 
-class eflowTrackToCaloTrackExtrapolatorTool;
+class eflowTrackExtrapolatorBaseAlgTool;
 
 class eflowRecTrack {
 public:
   eflowRecTrack(const ElementLink<xAOD::TrackParticleContainer>& trackElemLink,
-                const ToolHandle<eflowTrackToCaloTrackExtrapolatorTool>& theTrackExtrapolatorTool) :
-                  m_trackElemLink(trackElemLink), m_track(*trackElemLink), m_type(5),
-                  m_isSubtracted(false), m_hasBin(true),
-                  m_eExpect(NAN), m_varEExpect(NAN),
-                  m_trackCaloPoints(theTrackExtrapolatorTool, *trackElemLink) {
-  }
-  virtual ~eflowRecTrack() { }
+                const ToolHandle<eflowTrackExtrapolatorBaseAlgTool>& theTrackExtrapolatorTool);
+  virtual ~eflowRecTrack();
 
   const xAOD::TrackParticle* getTrack() const { return m_track; }
 
-  const eflowTrackCaloPoints& getTrackCaloPoints() const { return m_trackCaloPoints; }
+  const eflowTrackCaloPoints& getTrackCaloPoints() const { return *m_trackCaloPoints; }
 
   ElementLink<xAOD::TrackParticleContainer> getTrackElemLink() const { return m_trackElemLink; }
   void addClusterMatch(eflowTrackClusterLink* clusterMatch) { m_clusterMatches.push_back(clusterMatch); }
@@ -65,9 +62,7 @@ public:
   void setCaloDepthArray(const double* depthArray);
   const std::vector<double>& getCaloDepthArray() const { return m_caloDepthArray; }
 
-  bool isSubtracted() const {
-    return m_isSubtracted;
-  }
+  bool isSubtracted() const { return m_isSubtracted; }
 
   void setSubtracted() {
     if (isSubtracted()){
@@ -89,7 +84,7 @@ private:
 
   std::vector<double> m_caloDepthArray;
 
-  eflowTrackCaloPoints m_trackCaloPoints;
+  eflowTrackCaloPoints* m_trackCaloPoints;
   eflowCellSubtractionManager m_cellSubtractionManager;
   std::vector<eflowTrackClusterLink*> m_clusterMatches;
 
@@ -101,6 +96,18 @@ public:
                                           b->getTrack()->pt());
     }
   };
+};
+class eflowRecMatchTrack: public PFMatch::ITrack {
+public:
+  eflowRecMatchTrack(const eflowRecTrack* efRecTrack): m_efRecTrack(efRecTrack) { assert(m_efRecTrack); }
+  virtual ~eflowRecMatchTrack() { }
+
+  virtual eflowEtaPhiPosition etaPhiInLayer(PFMatch::LayerType layer) const {
+    return m_efRecTrack->getTrackCaloPoints().getEtaPhiPos(layer);
+  }
+
+private:
+  const eflowRecTrack* m_efRecTrack;
 };
 
 #endif /* EFLOWRECTRACK_H_ */

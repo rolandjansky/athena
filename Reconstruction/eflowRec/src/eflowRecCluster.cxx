@@ -9,19 +9,35 @@
  *      Author: tlodd
  */
 
-#include "eflowEvent/eflowCaloCluster.h"
-
 #include "eflowRec/eflowRecCluster.h"
 #include "eflowRec/eflowRecTrack.h"
 #include "eflowRec/eflowTrackClusterLink.h"
 
-eflowRecCluster::eflowRecCluster(const ElementLink<xAOD::CaloClusterContainer>& clusElementLink, eflowCaloObject* calob) :
-    m_cluster(*clusElementLink), m_clusElementLink(clusElementLink), m_isTouchable(false), m_caloObject(calob) { }
+eflowRecCluster::eflowRecCluster(const ElementLink<xAOD::CaloClusterContainer>& clusElementLink) :
+    m_cluster(*clusElementLink), m_clusElementLink(clusElementLink), m_isTouchable(false), m_matchCluster(0) {
+  m_matchCluster = new eflowMatchCluster(this);
+}
+
+eflowRecCluster::eflowRecCluster(const eflowRecCluster& anEFlowRecCluster){
+  m_cluster = anEFlowRecCluster.m_cluster;
+  m_clusElementLink = anEFlowRecCluster.m_clusElementLink;
+  m_isTouchable = m_isTouchable;
+  m_matchCluster = new eflowMatchCluster(this);
+}
+
+void eflowRecCluster::operator=(const eflowRecCluster& anEFlowRecCluster){
+  m_cluster = anEFlowRecCluster.m_cluster;
+  m_clusElementLink = anEFlowRecCluster.m_clusElementLink;
+  m_isTouchable = m_isTouchable;
+  m_matchCluster = new eflowMatchCluster(this);
+}
+
+
+eflowRecCluster::~eflowRecCluster() { delete m_matchCluster; }
 
 void eflowRecCluster::replaceClusterByCopyInContainer(xAOD::CaloClusterContainer* container) {
   xAOD::CaloCluster* copiedCluster = new xAOD::CaloCluster(*m_cluster);
   container->push_back(copiedCluster);
-
   m_cluster = copiedCluster;
 
   m_clusElementLink = ElementLink<xAOD::CaloClusterContainer>();

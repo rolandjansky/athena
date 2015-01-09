@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EFLOWCELLLEVELSUBTRACTION_H
-#define EFLOWCELLLLEVELSUBTRACTION_H
+#ifndef EFLOWREC_EFLOWCELLLEVELSUBTRACTIONTOOL_H
+#define EFLOWREC_EFLOWCELLLEVELSUBTRACTIONTOOL_H
 
 /********************************************************************
 
@@ -71,4 +71,4 @@ inline const InterfaceID& eflowCellLevelSubtractionTool::interfaceID()
   return IID_eflowCellLevelSubtractionTool; 
 }
 
-#endif
+#endif // not EFLOWREC_EFLOWCELLLEVELSUBTRACTIONTOOL_H

@@ -1,1 +1,1 @@
-include("eflowRec/eflowRec_config_DC14_JetETMiss.py")
+include("eflowRec/eflowRec_config_MC15_JetETMiss.py")

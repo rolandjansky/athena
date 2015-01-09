@@ -25,8 +25,9 @@
 
 eflowOverlapRemoval::eflowOverlapRemoval(const std::string& name,ISvcLocator* pSvcLocator): 
   eflowBaseAlg(name, pSvcLocator),
-  m_PFOName("neutralJetETMissPFO_eflowRec"),
-  m_egammaContainerName("PhotonCollection"),
+  m_PFOName("JetETMissNeutralParticleFlowObjects"),
+  m_storeGate(nullptr),  
+  m_egammaContainerName("Photons"),
   m_eflowElectronContainerName("eflowRec_selectedElectrons_EM"),
   m_radialDist(0.2),
   m_longSig(1.0),           // 3.0

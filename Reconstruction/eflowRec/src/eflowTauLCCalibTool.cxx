@@ -142,39 +142,51 @@ StatusCode eflowTauLCCalibTool::execute(const eflowTauObject& eflowTauObject){
 
 	CaloClusterCollectionProcessor* myCollectionProcessor_calibTool = &(*m_clusterLocalCalibTool);
 	CaloClusterProcessor* myCalibProcessor_calibTool = dynamic_cast<CaloClusterProcessor*>(myCollectionProcessor_calibTool);
-
-	clusToolSC = myCalibProcessor_calibTool->execute(theCluster);
-        if (clusToolSC.isFailure()) {
-          if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not execute ClusterLocalCalibTool " << endreq;
-        }
+	
+	if (myCalibProcessor_calibTool){
+	  clusToolSC = myCalibProcessor_calibTool->execute(theCluster);
+	  if (clusToolSC.isFailure()) {
+	    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not execute ClusterLocalCalibTool " << endreq;
+	  }
+	}
+	else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " dynamic_cast to CaloClusterProcessor generated a nullptr " << endreq;
 
 	CaloClusterCollectionProcessor* myCollectionProcessor_calibOOCCTool = &(*m_clusterLocalCalibOOCCTool);
 	CaloClusterProcessor* myCalibProcessor_calibOOCCTool = dynamic_cast<CaloClusterProcessor*>(myCollectionProcessor_calibOOCCTool);
 
-	clusToolSC = myCalibProcessor_calibOOCCTool->execute(theCluster);
-	if (clusToolSC.isFailure()) {
-	  if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not execute ClusterLocalCalibOOCCTool " << endreq;
+	if (myCalibProcessor_calibOOCCTool){
+	  clusToolSC = myCalibProcessor_calibOOCCTool->execute(theCluster);
+	  if (clusToolSC.isFailure()) {
+	    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not execute ClusterLocalCalibOOCCTool " << endreq;
+	  }
 	}
+	else if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " dynamic_cast to CaloClusterProcessor generated a nullptr " << endreq;
 
 	if (1 == debug) std::cout << "B about to calibrate cluster with e, eta and phi :  " << theCluster->e() << ", " << theCluster->eta() << " and " << theCluster->phi() << std::endl;
 
 	CaloClusterCollectionProcessor* myCollectionProcessor_calibOOCCPi0Tool = &(*m_clusterLocalCalibOOCCPi0Tool);
 	CaloClusterProcessor* myCalibProcessor_calibOOCCPi0Tool = dynamic_cast<CaloClusterProcessor*>(myCollectionProcessor_calibOOCCPi0Tool);
 
-	clusToolSC = myCalibProcessor_calibOOCCPi0Tool->execute(theCluster);
-	if (clusToolSC.isFailure()) {
-	  if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not execute ClusterLocalCalibOOCCPi0Tool " << endreq;
+	if ( myCalibProcessor_calibOOCCPi0Tool){
+	  clusToolSC = myCalibProcessor_calibOOCCPi0Tool->execute(theCluster);
+	  if (clusToolSC.isFailure()) {
+	    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not execute ClusterLocalCalibOOCCPi0Tool " << endreq;
+	  }
 	}
+	else if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " dynamic_cast to CaloClusterProcessor generated a nullptr " << endreq;
 	
 	if (1 == debug) std::cout << " C about to calibrate cluster with e, eta and phi :  " << theCluster->e() << ", " << theCluster->eta() << " and " << theCluster->phi() << std::endl;
 
 	CaloClusterCollectionProcessor* myCollectionProcessor_calibDMTool = &(*m_clusterLocalCalibDMTool);
 	CaloClusterProcessor* myCalibProcessor_calibDMTool = dynamic_cast<CaloClusterProcessor*>(myCollectionProcessor_calibDMTool);
 
-	clusToolSC = myCalibProcessor_calibDMTool->execute(theCluster);
-	if (clusToolSC.isFailure()) {
-	  if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not execute ClusterLocalCalibDMTool " << endreq;
+	if (myCalibProcessor_calibDMTool){
+	  clusToolSC = myCalibProcessor_calibDMTool->execute(theCluster);
+	  if (clusToolSC.isFailure()) {
+	    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not execute ClusterLocalCalibDMTool " << endreq;
+	  }
 	}
+	else if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " dynamic_cast to CaloClusterProcessor generated a nullptr " << endreq;
 
 	if (1 == debug) std::cout << " D about to calibrate cluster with e, eta and phi :  " << theCluster->e() << ", " << theCluster->eta() << " and " << theCluster->phi() << std::endl;
 

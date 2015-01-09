@@ -30,7 +30,11 @@ use xAODMuon            xAODMuon-*              Event/xAOD
 use xAODCaloEvent       xAODCaloEvent-*         Event/xAOD
 use xAODPFlow           xAODPFlow-*             Event/xAOD
 use xAODTracking        xAODTracking-*          Event/xAOD
+use TrkParameters 	TrkParameters-* 	Tracking/TrkEvent
+use TrkExInterfaces	TrkExInterfaces-*	Tracking/TrkExtrapolation
 use eflowEvent          eflowEvent-*            Reconstruction
+
+use InDetTrackSelectionTool InDetTrackSelectionTool-*	InnerDetector/InDetRecTools
 
 private
 
@@ -43,9 +47,10 @@ use ParticleEvent       ParticleEvent-*         PhysicsAnalysis/AnalysisCommon
 
 use PathResolver        PathResolver-*          Tools
 use TrkToolInterfaces   TrkToolInterfaces-*     Tracking/TrkTools
-use TrkParameters 	TrkParameters-* 	Tracking/TrkEvent
 use TrkTrack 		TrkTrack-* 		Tracking/TrkEvent
 use TrkSurfaces         TrkSurfaces-*           Tracking/TrkDetDescr
+use TrkCaloExtension	TrkCaloExtension-*	Tracking/TrkEvent
+use TrkParametersIdentificationHelpers	TrkParametersIdentificationHelpers-* Tracking/TrkEvent
 
 use CaloDetDescr   	CaloDetDescr-*   	Calorimeter
 use CaloInterface       CaloInterface-*         Calorimeter
@@ -59,8 +64,10 @@ public
 
 use AtlasROOT           AtlasROOT-*             External
 
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS TMVA)"
 
-apply_pattern declare_runtime files="../share/TMVAClassification_Pi0BDT.weights.xml"
+apply_pattern declare_runtime files="../share/TMVAClassification_Pi0BDT.weights.xml ../share/rmsvsdr.dat"
 
 apply_pattern component_library library=eflowRec
 

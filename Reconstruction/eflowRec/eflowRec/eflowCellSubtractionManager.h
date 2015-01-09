@@ -29,9 +29,14 @@ class eflowCellSubtractionManager :  public eflowFirstInt {
 
   eflowCellSubtractionManager();
   eflowCellSubtractionManager(const eflowCellSubtractionManager& other);
+  void operator=(const eflowCellSubtractionManager& other);
   ~eflowCellSubtractionManager() {}
 
-  void setParameters(const eflowFirstIntParameters& param, const std::vector<double>& ringThickness, double rMax, double range);
+  static void setRMaxAndWeightRange(double rMax, double weightRange) {
+    m_rMax = rMax;
+    m_weightRange = weightRange;
+  }
+  void setParameters(const eflowFirstIntParameters& param, const std::vector<double>& ringThickness);
   void clear()  {m_rankMap.clear();}
 
   std::map<double,RingId>::const_iterator rankBegin() const  {return m_rankMap.begin();}
@@ -46,5 +51,7 @@ class eflowCellSubtractionManager :  public eflowFirstInt {
   std::vector<double> m_ringThickness;
   std::map<double,RingId> m_rankMap;
 
+  static double m_rMax;
+  static double m_weightRange;
 };
 #endif

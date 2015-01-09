@@ -35,7 +35,7 @@ namespace EFlow_Fn{
   class gtpt_eflow{
   public:
     inline gtpt_eflow() {};
-    inline bool operator () (xAOD::PFO pf1, xAOD::PFO pf2){
+    inline bool operator () (const xAOD::PFO& pf1, const xAOD::PFO& pf2){
       return (pf1.e()/cosh(pf1.eta())) > (pf2.e()/cosh(pf2.eta()));
     }
   };
@@ -44,7 +44,7 @@ namespace EFlow_Fn{
 
 eflowObjectCreatorTool::eflowObjectCreatorTool(const std::string& type, const std::string& name, const IInterface* parent) :
     AthAlgTool(type, name, parent),
-    m_PFOOutputName("JetETMissPFO"),
+    m_PFOOutputName("JetETMiss"),
     m_chargedPFOContainer(0),
     m_neutralPFOContainer(0),
     m_neutralPFOContainer_nonModified(0),
@@ -117,27 +117,45 @@ StatusCode eflowObjectCreatorTool::finalize(){ return StatusCode::SUCCESS; }
 
 StatusCode eflowObjectCreatorTool::setupPFOContainers() {
   m_chargedPFOContainer = new xAOD::PFOContainer();
-  CHECK( evtStore()->record( m_chargedPFOContainer, "charged" + m_PFOOutputName + "_eflowRec"  ) );
-
+  
   xAOD::PFOAuxContainer* chargedPFOAuxContainer = new xAOD::PFOAuxContainer();
-  CHECK( evtStore()->record( chargedPFOAuxContainer, "charged" + m_PFOOutputName + "_eflowRecAux." ) );
+  
+  if (evtStore()->contains<xAOD::PFOContainer>(m_PFOOutputName + "ChargedParticleFlowObjects")){
+    CHECK( evtStore()->overwrite( m_chargedPFOContainer, m_PFOOutputName + "ChargedParticleFlowObjects"  ) );
+    CHECK( evtStore()->overwrite( chargedPFOAuxContainer, m_PFOOutputName + "ChargedParticleFlowObjectsAux." ) );
+  }
+  else{
+    CHECK( evtStore()->record( m_chargedPFOContainer, m_PFOOutputName + "ChargedParticleFlowObjects"  ) );
+    CHECK( evtStore()->record( chargedPFOAuxContainer, m_PFOOutputName + "ChargedParticleFlowObjectsAux." ) );
+  }
   m_chargedPFOContainer->setStore(chargedPFOAuxContainer);
-
+  
   m_neutralPFOContainer = new xAOD::PFOContainer();
-  CHECK( evtStore()->record( m_neutralPFOContainer, "neutral" + m_PFOOutputName + "_eflowRec"  ) );
-
   xAOD::PFOAuxContainer* neutralPFOAuxContainer = new xAOD::PFOAuxContainer();
-  CHECK( evtStore()->record( neutralPFOAuxContainer, "neutral" + m_PFOOutputName + "_eflowRecAux." ) );
+  
+  if (evtStore()->contains<xAOD::PFOContainer>(m_PFOOutputName + "NeutralParticleFlowObjects")){
+    CHECK( evtStore()->overwrite( m_neutralPFOContainer, m_PFOOutputName + "NeutralParticleFlowObjects"  ) );
+    CHECK( evtStore()->overwrite( neutralPFOAuxContainer, m_PFOOutputName + "NeutralParticleFlowObjectsAux." ) );
+  }
+  else{
+    CHECK( evtStore()->record( m_neutralPFOContainer,  m_PFOOutputName + "NeutralParticleFlowObjects"  ) );
+    CHECK( evtStore()->record( neutralPFOAuxContainer,  m_PFOOutputName + "NeutralParticleFlowObjectsAux." ) );
+  }
   m_neutralPFOContainer->setStore(neutralPFOAuxContainer);
-
+  
   if (true == m_LCMode){
-    m_neutralPFOContainer_nonModified = new  xAOD::PFOContainer();
-    CHECK( evtStore()->record( m_neutralPFOContainer_nonModified, "neutral" + m_PFOOutputName + "_NonModified_eflowRec"  ) );
+    m_neutralPFOContainer_nonModified = new xAOD::PFOContainer();
     xAOD::PFOAuxContainer* neutralPFOAuxContainer_nonModified = new xAOD::PFOAuxContainer();
-    CHECK( evtStore()->record( neutralPFOAuxContainer_nonModified, "neutral" + m_PFOOutputName + "_NonModified_eflowRecAux." ) );
+    if (evtStore()->contains<xAOD::PFOContainer>(m_PFOOutputName + "NonModifiedNeutralParticleFlowObjects"  )){
+      CHECK( evtStore()->overwrite( m_neutralPFOContainer_nonModified, m_PFOOutputName + "NonModifiedNeutralPFO"   ) );
+      CHECK( evtStore()->overwrite( neutralPFOAuxContainer_nonModified, m_PFOOutputName + "NonModifiedNeutralParticleFlowObjectsAux." ) );
+    }
+    else{
+      CHECK( evtStore()->record( m_neutralPFOContainer_nonModified, m_PFOOutputName + "NonModifiedNeutralParticleFlowObjects"  ) );
+      CHECK( evtStore()->record( neutralPFOAuxContainer_nonModified, m_PFOOutputName + "NonModifiedNeutralParticleFlowObjectsAux." ) );
+    }
     m_neutralPFOContainer_nonModified->setStore(neutralPFOAuxContainer_nonModified);
   }
-
   return StatusCode::SUCCESS;
 }
 
@@ -208,12 +226,14 @@ void eflowObjectCreatorTool::createNeutralEflowObjects(eflowCaloObject* energyFl
     /* Create the efo, add the cluster and set the four-momentum, charge and type */
 
     xAOD::PFO* thisEflowObject = new xAOD::PFO();
-    if (false == m_LCMode) m_neutralPFOContainer->push_back(thisEflowObject);
-    else{
-      if (thisEfRecCluster->isTouchable())  m_neutralPFOContainer->push_back(thisEflowObject);
-      else {
+    if (m_LCMode) {
+      if (thisEfRecCluster->isTouchable()) {
+        m_neutralPFOContainer->push_back(thisEflowObject);
+      } else {
        m_neutralPFOContainer_nonModified->push_back(thisEflowObject);
       }
+    } else {
+      m_neutralPFOContainer->push_back(thisEflowObject);
     }
 
     ElementLink<xAOD::CaloClusterContainer> theClusterLink = thisEfRecCluster->getClusElementLink();
@@ -222,12 +242,32 @@ void eflowObjectCreatorTool::createNeutralEflowObjects(eflowCaloObject* energyFl
 
     const xAOD::CaloCluster* cluster = thisEfRecCluster->getCluster();
     //be careful here - cluster p4 methods do not store sign. Thus -ve energy clusters have +ve pt and hence +ve energy
-    thisEflowObject->setP4(cluster->pt(), cluster->eta(), cluster->phi(), cluster->m());
-    if (false == m_LCMode) thisEflowObject->setP4EM(cluster->rawE()/cosh(cluster->rawEta()), cluster->rawEta(),cluster->rawPhi(),cluster->rawM());
+    if (!m_LCMode) {
+      //in EM->EM/LC mode we use eta,phi at EM scale for both 4-vectors
+      thisEflowObject->setP4(cluster->pt(), cluster->rawEta(), cluster->rawPhi(), cluster->m());
+      thisEflowObject->setP4EM(cluster->rawE()/cosh(cluster->rawEta()), cluster->rawEta(),cluster->rawPhi(),cluster->rawM());
+    }
+    else{
+      //in LC-> mode we use the LC 4-vector for the LC scale
+      thisEflowObject->setP4(cluster->pt(), cluster->eta(), cluster->phi(), cluster->m());
+      //we cannot access geometric weights for LC clusters, so we make an approximation of the EM energy by looping over the calocells
+      //Then the EM 4-vector uses the energy/pt at this EM scale + eta,phi from LC 4-vector
+      const CaloClusterCellLink* theCellLink = cluster->getCellLinks();
+      auto theFirstCell = theCellLink->begin();
+      auto theLastCell = theCellLink->end();
+      float emPt = 0.0;
+      for (; theFirstCell != theLastCell; ++theFirstCell){
+	const CaloCell* thisCell = *theFirstCell;
+	emPt += thisCell->e()/cosh(thisCell->eta());
+      }
+      thisEflowObject->setP4EM(emPt,cluster->eta(),cluster->phi(),0.0);//mass is always zero at EM scale
+
+    }
+
     thisEflowObject->setCharge(0);
 
     //now set the moments for touchable clusters (i.e. ones we modify) in LC mode or all clusters in EM mode
-    if ( (true == m_LCMode && thisEfRecCluster->isTouchable()) || false == m_LCMode){
+    if ( (m_LCMode && thisEfRecCluster->isTouchable()) || !m_LCMode) {
       this->addMoment(xAOD::CaloCluster::LATERAL,xAOD::PFODetails::PFOAttributes::eflowRec_LATERAL,cluster, thisEflowObject);
       this->addMoment(xAOD::CaloCluster::LONGITUDINAL,xAOD::PFODetails::PFOAttributes::eflowRec_LONGITUDINAL,cluster, thisEflowObject);
       this->addMoment(xAOD::CaloCluster::SECOND_R,xAOD::PFODetails::PFOAttributes::eflowRec_SECOND_R,cluster, thisEflowObject);
@@ -265,6 +305,22 @@ void eflowObjectCreatorTool::createNeutralEflowObjects(eflowCaloObject* energyFl
 
     xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_HEC0 = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_HEC0;
     thisEflowObject->setAttribute<float>(myAttribute_layerEnergy_HEC0, layerEnergy_HEC0);
+
+    //now set properties that are required for jet cleaning
+    float layerEnergy_HEC1 = cluster->eSample(xAOD::CaloCluster::CaloSample::HEC1);
+    float layerEnergy_HEC2 = cluster->eSample(xAOD::CaloCluster::CaloSample::HEC2);
+    float layerEnergy_HEC3 = cluster->eSample(xAOD::CaloCluster::CaloSample::HEC3);
+
+    float layerEnergy_HEC = layerEnergy_HEC0 + layerEnergy_HEC1 + layerEnergy_HEC2 + layerEnergy_HEC3;
+
+    xAOD::PFODetails::PFOAttributes myAttribute_layerEnergy_HEC = xAOD::PFODetails::PFOAttributes::eflowRec_LAYERENERGY_HEC;
+    thisEflowObject->setAttribute<float>(myAttribute_layerEnergy_HEC, layerEnergy_HEC);
+
+    float clusterTiming = cluster->time();
+
+    xAOD::PFODetails::PFOAttributes myAttribute_TIMING = xAOD::PFODetails::PFOAttributes::eflowRec_TIMING;
+    thisEflowObject->setAttribute<float>(myAttribute_TIMING, clusterTiming);
+
 
     if (m_debug){
       std::cout << "Created neutral EFO with E, eta and phi of " << thisEflowObject->e() << ", " << thisEflowObject->eta() << " and " << thisEflowObject->phi() << std::endl;

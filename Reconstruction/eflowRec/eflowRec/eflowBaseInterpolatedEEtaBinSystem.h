@@ -16,53 +16,40 @@ CREATED:  17th May, 2006
 
 ********************************************************************/
 
-#include "eflowRec/eflowBaseEEtaBinSystem.h"
+#include <vector>
 
-class vector;
+class eflowParamEtaBin;
 
-class eflowBaseInterpolatedEtaBin :  public eflowBaseEtaBin
-{
- public:
-
-  eflowBaseInterpolatedEtaBin(double eMin, double eMax, double etaMin, double etaMax) :  eflowBaseEtaBin::eflowBaseEtaBin(eMin, eMax, etaMin, etaMax)  {}
-  eflowBaseInterpolatedEtaBin()  {}
-  virtual ~eflowBaseInterpolatedEtaBin()  {};
-
-  virtual void setToUndefined() = 0;
-};
-
-
-
-
-class eflowBaseInterpolatedEEtaBinSystem :  public eflowBaseEEtaBinSystem
-{
+class eflowBaseInterpolatedEEtaBinSystem {
  public:
 
   enum EnergyInterpolationMode { LIN, LOG };
 
-  eflowBaseInterpolatedEEtaBinSystem(const std::vector<double>& eBinBounds, const std::vector<double>& etaBinBounds, EnergyInterpolationMode mode = LOG, bool useAbsEta = true);
-  eflowBaseInterpolatedEEtaBinSystem(const std::vector<double>& eBinBounds, int nEtaBins, double etaMin, double etaMax, EnergyInterpolationMode mode = LOG, bool useAbsEta = true);
-  eflowBaseInterpolatedEEtaBinSystem() :  m_mode(LOG)  {}
-  virtual ~eflowBaseInterpolatedEEtaBinSystem()  {}
+  eflowBaseInterpolatedEEtaBinSystem() :  m_mode(LOG)  { m_useAbsEta = true; }
+  virtual ~eflowBaseInterpolatedEEtaBinSystem();
   
-  bool getBin(eflowBaseInterpolatedEtaBin& meanBin, double e, double eta) const;  // builds interpolated bin
+  bool binExists(double e, double eta) const  { return (getEBinIndex(e) >= 0 && getEtaBinIndex(eta) >= 0); }
 
-  int getNumEBins() const    {return m_eBinBounds.size();}
+  static double getErrorReturnValue()  {return m_errorReturnValue;}
 
  protected:
 
-  virtual eflowBaseEtaBin* makeNewEtaBin(int eBinIndex, int etaBinIndex) const = 0;
+  int getNumEBins() const { return m_eBinBounds.size(); }
+  int getNumEtaBins() const { return m_etaBinBounds.size(); }
 
-  virtual void getWeightedMeanBin(eflowBaseInterpolatedEtaBin& meanBin, const eflowBaseEtaBin* bin1, const eflowBaseEtaBin* bin2, double w1) const = 0;
-  // for usual purposes, only need to implement for data specific to the derived class. GetBin will take care of bin bounds.
-
-  void getInterpolation(const eflowBaseEtaBin** bin1, const eflowBaseEtaBin** bin2, double& w1, double e, double eta) const;
+  void getInterpolation(const eflowParamEtaBin** bin1, const eflowParamEtaBin** bin2, double& w1, double e, double eta) const;
 
   int getEBinIndex(double e) const;
+  int getEtaBinIndex(double eta) const;
+  int getBinIndex(double x, const std::vector<double>& binBounds) const;
 
   EnergyInterpolationMode m_mode;
+
+  static const double m_errorReturnValue;
+
+  bool m_useAbsEta;
+  std::vector<double> m_eBinBounds;
+  std::vector<double> m_etaBinBounds;
+  std::vector< std::vector<eflowParamEtaBin*> > m_bins;
 };
-
-
-
 #endif

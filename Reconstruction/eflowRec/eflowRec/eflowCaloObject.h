@@ -37,16 +37,14 @@ public:
   eflowRecTrack* efRecTrack(int i) { return m_eflowRecTracks[i]; }
   int nTracks() { return m_eflowRecTracks.size(); }
 
-  eflowTrackClusterLink* addTrack(eflowRecTrack* track, eflowRecCluster* efRecCluster = 0);
+  void addTrack(eflowRecTrack* track, eflowTrackClusterLink* trackClusterLink = 0);
 
   /* Cluster accessor methods */
 
   eflowRecCluster* efRecCluster(int i) { return m_eflowRecClusters[i]; }
-  std::vector<eflowRecCluster*>::iterator efRecCluster_begin() { return m_eflowRecClusters.begin(); }
-  std::vector<eflowRecCluster*>::iterator efRecCluster_end() { return m_eflowRecClusters.end(); }
   int nClusters() { return m_eflowRecClusters.size(); }
 
-  eflowRecCluster* addCluster(ElementLink<xAOD::CaloClusterContainer> clusterElementLink);
+  void addCluster(eflowRecCluster* cluster);
 
   /* Static container accessors */
   static void setClusterContainerPtr(xAOD::CaloClusterContainer* clusCont, xAOD::CaloClusterAuxContainer* auxCont) {

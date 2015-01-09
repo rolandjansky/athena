@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EFLOWABSTRACTCELLLIST_H
-#define EFLOWBSTRACTCELLLIST_H
+#ifndef EFLOWREC_EFLOWABSTRACTCELLLIST_H
+#define EFLOWREC_EFLOWABSTRACTCELLLIST_H
 
 /********************************************************************
 
@@ -54,4 +54,4 @@ class eflowAbstractCellList {
   virtual double dR(double eta, double phi, eflowCaloENUM layer) const = 0;
   
 };
-#endif
+#endif // not EFLOWREC_EFLOWABSTRACTCELLLIST_H

@@ -47,7 +47,7 @@ CREATED:  25th January, 2005
 eflowCellLevelSubtractionTool::eflowCellLevelSubtractionTool(const std::string& type,const std::string& name,const IInterface* parent) :
   AthAlgTool( type, name, parent),
   m_rCell(0.75),
-  m_subtractionSigmaCut(1.28),
+  m_subtractionSigmaCut(1.5),
   m_consistencySigmaCut(1.0),
   m_calcEOverP(false),
   m_goldenModeString("")

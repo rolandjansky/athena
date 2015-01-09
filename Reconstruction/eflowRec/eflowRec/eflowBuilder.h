@@ -15,12 +15,12 @@ CREATED:  10th November, 2001
 ********************************************************************/
 
 
-#include <GaudiKernel/Algorithm.h>
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 class eflowBaseAlg;
 class StoreGateSvc;
 
-class eflowBuilder : public Algorithm
+class eflowBuilder : public AthAlgorithm
 {
 
  public:
@@ -40,8 +40,6 @@ class eflowBuilder : public Algorithm
   std::string m_eflowCaloObjectBuilderAlgName;
   std::string m_eflowObjectBuilderAlgName;
   std::string m_eflowQuantitiesAlgName;
-
-  StoreGateSvc* m_storeGate;
 
   // Pointers to the corresponding sub-algorithms:
   eflowBaseAlg* m_eflowCaloObjectBuilderAlg;   // Build calo objects

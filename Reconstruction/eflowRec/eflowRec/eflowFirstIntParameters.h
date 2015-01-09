@@ -29,8 +29,6 @@ class eflowFirstIntParameters :  public eflowFirstInt {
   eflowFirstIntParameters();
   ~eflowFirstIntParameters()  {}
 
-  friend std::istream& operator>> (std::istream& in, eflowFirstIntParameters& rhs);
-
   const std::vector<double>& getShapeParameters(eflowCaloENUM layer) const  {return m_p[layer];}
   double getShapeParameter(eflowCaloENUM layer, int paramIndex) const  {return m_p[layer][paramIndex];}
 

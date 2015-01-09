@@ -13,22 +13,22 @@ PACKAGE:  offline/Reconstruction/eflowRec
 AUTHORS:  M.Hodgkinson
 CREATED:  14th Septemeber, 2006
 
-Description: This class can take via python a set of EOverP values and cell subtraction parametyers needed for energy flow
+Description: This class can take via python a set of EOverP values and cell subtraction parameters needed for energy flow
 
 ********************************************************************/
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 class eflowBinnedParameters;
 
 /** Must declare this, with name of interface*/
 static const InterfaceID IID_IEFlowCellEOverPTool("IEFlowCellEOverPTool", 1, 0);
 
-class IEFlowCellEOverPTool : public AlgTool {
+class IEFlowCellEOverPTool : public AthAlgTool {
 
  public:
 
-  IEFlowCellEOverPTool(const std::string& type,const std::string& name,const IInterface* parent) : AlgTool(type,name,parent) {};
+  IEFlowCellEOverPTool(const std::string& type,const std::string& name,const IInterface* parent) : AthAlgTool(type,name,parent) {};
   
   virtual ~IEFlowCellEOverPTool() {};
 

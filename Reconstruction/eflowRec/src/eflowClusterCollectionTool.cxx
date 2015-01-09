@@ -30,15 +30,19 @@ xAOD::CaloClusterContainer* eflowClusterCollectionTool::execute(eflowCaloObjectC
     /* Add all clusters on the eflowCaloObject to the container */
     unsigned int nClusters = thisEflowCaloObject->nClusters();
     for (unsigned int iCluster = 0; iCluster < nClusters; ++iCluster) {
-      /* Only add clusters if should run calibration tools or if touchable (i.e. we modified them */
-      if ( (false == useNonModifiedClusters && thisEflowCaloObject->efRecCluster(iCluster)->isTouchable()) || true == useNonModifiedClusters){
-	xAOD::CaloCluster* thisCluster =  thisEflowCaloObject->efRecCluster(iCluster)->getClusterForModification(eflowCaloObject::getClusterContainerPtr());
-	result->push_back(thisCluster);
-	msg(MSG::DEBUG) << "Adding cluster with E, eta and phi to moments maker " << thisCluster->e()
-			<< ", " << thisCluster->eta() << " and " << thisCluster->phi() << endreq;
-      }
-    }
+      eflowRecCluster* thisEfRecCluster = thisEflowCaloObject->efRecCluster(iCluster);
 
+      /* Only add clusters if should run calibration tools or if touchable (i.e. we modified them */
+      if (!useNonModifiedClusters && !thisEfRecCluster->isTouchable()  ) {
+        continue;
+      }
+
+      xAOD::CaloCluster* thisCluster = thisEfRecCluster->getClusterForModification(eflowCaloObject::getClusterContainerPtr());
+      result->push_back(thisCluster);
+
+      msg(MSG::DEBUG) << "Adding cluster with E, eta and phi to moments maker "
+          << thisCluster->e() << ", " << thisCluster->eta() << " and " << thisCluster->phi() << endreq;
+    }
   }
   return result;
 }

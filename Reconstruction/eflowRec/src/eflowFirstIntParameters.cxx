@@ -19,8 +19,8 @@ CREATED:  18th Aug, 2005
 #include <iostream>
 
 eflowFirstIntParameters::eflowFirstIntParameters() :
-  m_p(eflowCalo::nRegions)
-{
+  m_p(eflowCalo::nRegions) {
+
   const int np = eflowBinnedParameters::nShapeParams();
 
   for (int i = 0; i < eflowCalo::nRegions; i++) {
@@ -29,30 +29,10 @@ eflowFirstIntParameters::eflowFirstIntParameters() :
   }
 }
 
-
-
-void eflowFirstIntParameters::printM_P()
-{
+void eflowFirstIntParameters::printM_P() {
   const int np = eflowBinnedParameters::nShapeParams();
 
   for (int i = 0; i < eflowCalo::nRegions; i++)
     for (int j = 0; j < np; j++)
       std::cout << "m_p[" << i << "][" << j << "] is " << m_p[i][j] << std::endl;
-}
-
-
-std::istream& operator>> (std::istream& in, eflowFirstIntParameters& rhs)
-{
-  const int np = eflowBinnedParameters::nShapeParams();
-
-  in >> rhs.m_fudgeMean >> rhs.m_fudgeStdDev;
-
-  std::cout << "rhs.m_fudgeMean is " << rhs.m_fudgeMean << std::endl;
-  std::cout << "rhs.m_fudgeStdDev is " << rhs.m_fudgeStdDev << std::endl;
-
-  for (int i = 0; i < eflowCalo::nRegions; i++)
-    for (int j = 0; j < np; j++)
-      in >> rhs.m_p[i][j];
-
-  return in;
 }

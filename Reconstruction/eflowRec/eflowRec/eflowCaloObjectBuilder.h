@@ -33,15 +33,20 @@ CREATED:  10th November, 2001
 #include "AthLinks/ElementLink.h"
 #include "AthContainers/ConstDataVector.h"
 
+#include "AthenaBaseComps/AthAlgorithm.h"
+
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+
 class eflowRecTrack;
 class eflowRecCluster;
 class eflowTrackClusterLink;
-class eflowTrackToCaloTrackExtrapolatorTool;
+class eflowTrackExtrapolatorBaseAlgTool;
 class eflowCaloObject;
 class eflowCaloObjectContainer;
 class eflowCellEOverPTool;
 class eflowBinnedParameters;
 class eflowLayerIntegrator;
+class PFTrackClusterMatchingTool;
 
 class egammaContainer;
 class egamma;
@@ -56,8 +61,8 @@ class eflowCaloObjectBuilder : public eflowBaseAlg {
   eflowCaloObjectBuilder(const std::string& name, ISvcLocator* pSvcLocator);
 
   ~eflowCaloObjectBuilder();
-  // Gaudi algorithm hooks
 
+  // Gaudi algorithm hooks
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();
@@ -90,7 +95,9 @@ class eflowCaloObjectBuilder : public eflowBaseAlg {
   ToolHandle<eflowCellEOverPTool> m_theEOverPTool;
 
   /* Handle to interface on TrackToCalo tool. */
-  ToolHandle<eflowTrackToCaloTrackExtrapolatorTool> m_theTrackExtrapolatorTool;
+  ToolHandle<eflowTrackExtrapolatorBaseAlgTool> m_theTrackExtrapolatorTool;
+
+  ToolHandle<PFTrackClusterMatchingTool> m_matchingTool;
 
   /* Which eflow mode is in use - Tau, MET or Full */
   std::string m_eflowMode;
@@ -153,5 +160,10 @@ class eflowCaloObjectBuilder : public eflowBaseAlg {
   /** bool to assign mame to container of lepton cells, to be used to remove lepton cells */
   std::string m_eflowLeptonCellsName;
 
+  /** Count the number of track-cluster matches -- for the summary in finalize() */
+  unsigned int m_nMatches;
+
+  /** New track selection tool */
+    ToolHandle<InDet::IInDetTrackSelectionTool> m_selTool;
 };
 #endif

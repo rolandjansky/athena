@@ -24,18 +24,12 @@ class eflowCellPosition {
 
  public:
 
-  eflowCellPosition()  :  m_deposit(0) {};
-  eflowCellPosition(const eflowAbstractCellList* deposit, eflowCaloENUM layer, double eta, double phi);
   eflowCellPosition(const eflowAbstractCellList* deposit, eflowCaloENUM layer, double dR);
   eflowCellPosition(const eflowAbstractCellList* deposit, const CaloCell* cell);
-  eflowCellPosition(const eflowAbstractCellList* deposit, std::pair<const CaloCell*,int> cell);
   ~eflowCellPosition() {}
     
   bool operator<(const eflowCellPosition& rhs) const;
   
-  eflowCaloENUM Layer() const   {return m_layer;}
-  double Eta() const  {return m_eta;}
-  double Phi() const  {return m_phi;}
   double dR() const;
 
  private:

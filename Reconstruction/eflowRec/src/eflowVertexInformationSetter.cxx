@@ -9,7 +9,7 @@
 
 #include "xAODCaloEvent/CaloCluster.h"
 
-eflowVertexInformationSetter::eflowVertexInformationSetter(const std::string& name,ISvcLocator* pSvcLocator): eflowBaseAlg(name, pSvcLocator), m_PFOName("neutralJetETMissPFO_eflowRec") {
+eflowVertexInformationSetter::eflowVertexInformationSetter(const std::string& name,ISvcLocator* pSvcLocator): eflowBaseAlg(name, pSvcLocator), m_PFOName("JetETMissNeutralParticleFlowObjects") {
 declareProperty("PFOInputName",m_PFOName,"Name of container of PFO to use");
  m_storeGate = 0;
 }

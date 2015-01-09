@@ -39,6 +39,7 @@ eflowTauPi0TaggerTool::eflowTauPi0TaggerTool(const std::string& type,const std::
   m_eta = 0;
   m_theXMLFile = "";
   m_storeGate = 0;
+  m_Reader = nullptr;
 }
 
 eflowTauPi0TaggerTool::~eflowTauPi0TaggerTool(){

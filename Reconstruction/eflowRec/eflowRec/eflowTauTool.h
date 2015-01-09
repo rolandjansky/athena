@@ -21,7 +21,7 @@ CREATED:  MAY 2013
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
 class eflowTauObject;
-class eflowTrackToCaloTrackExtrapolatorTool;
+class eflowTrackExtrapolatorBaseAlgTool;
 class eflowBinnedParameters;
 class eflowLayerIntegrator;
 class eflowCellEOverPTool;
@@ -59,7 +59,7 @@ class eflowTauTool : virtual public eflowTauBaseAlgTool, public AthAlgTool {
   eflowBinnedParameters* m_binnedParameters;
   eflowLayerIntegrator* m_integrator;
 
-  ToolHandle<eflowTrackToCaloTrackExtrapolatorTool> m_theTrackExtrapolatorTool;
+  ToolHandle<eflowTrackExtrapolatorBaseAlgTool> m_theTrackExtrapolatorTool;
   ToolHandle<eflowCellEOverPTool> m_theEOverPTool;
 
 };

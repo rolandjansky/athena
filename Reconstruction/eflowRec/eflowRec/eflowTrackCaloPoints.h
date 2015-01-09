@@ -18,65 +18,65 @@ CREATED:  4th January, 2006
 
 #include <map>
 #include "eflowRec/eflowCaloRegions.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GeoPrimitives/GeoPrimitives.h"
+#include "GeoPrimitives/GeoPrimitives.h" // compiles without, throws down warning: CHECKREQ---> The following packages are apparently not needed. (severity 2)
+#include "TrkParameters/TrackParameters.h"  // typedef
 #include "eflowRec/eflowUtil.h"
-#include "xAODTracking/TrackParticle.h"
 
 class MsgStream;
-class eflowTrackToCaloTrackExtrapolatorTool;
+
 
 class eflowTrackCaloPoints {
  public:
 
-  eflowTrackCaloPoints(const eflowTrackCaloPoints& other);
-  eflowTrackCaloPoints(const ToolHandle<eflowTrackToCaloTrackExtrapolatorTool>& extrapolator, const xAOD::TrackParticle* track);
-  eflowTrackCaloPoints() : m_isInBarrel(false)  {}
-  ~eflowTrackCaloPoints() {}
+  eflowTrackCaloPoints(std::map<eflowCalo::LAYER, const Trk::TrackParameters*> trackParameters);
+  eflowTrackCaloPoints() : m_isEMBarrel(false)  {}
+  ~eflowTrackCaloPoints();
 
-  const std::pair<float, float> operator[] (eflowCalo::LAYER lay) const;
-  const eflowEtaPhiPosition& getEtaPhiPos(eflowCalo::LAYER lay) const;
+  const std::pair<float, float> operator[] (eflowCalo::LAYER layer) const;
+  const eflowEtaPhiPosition& getEtaPhiPos(eflowCalo::LAYER layer) const;
 
-  double getEta(eflowCalo::LAYER lay) const {return getEtaPhiPos(lay).getEta();}
-  double getPhi(eflowCalo::LAYER lay) const {return getEtaPhiPos(lay).getPhiD();}
+  double getEta(eflowCalo::LAYER layer) const {return getEtaPhiPos(layer).getEta();}
+  double getPhi(eflowCalo::LAYER layer) const {return getEtaPhiPos(layer).getPhiD();}
 
   const std::pair<float, float> getEM2etaPhi() const  {return (*this)[getEM2Layer()]; }
   const eflowEtaPhiPosition& getEM2etaPhiPos() const  {return getEtaPhiPos(getEM2Layer()); }
   double getEM2eta() const {return getEM2etaPhiPos().getEta(); }
   double getEM1eta() const {return getEtaPhiPos(getEM1Layer()).getEta(); }
 
+  Amg::Vector3D getPosition(eflowCalo::LAYER layer);
+  Amg::Vector3D getDirection(eflowCalo::LAYER layer);
+
   static double defaultEta();
   static double defaultPhi();
 
-  inline bool haveLayer(eflowCalo::LAYER lay) const { return getEta(lay) != m_defaultEtaPhiPair.first;  }
+  inline bool haveLayer(eflowCalo::LAYER layer) const { return getEta(layer) != m_defaultEtaPhiPair.first;  }
+
+  void setEtaPhi(eflowCaloENUM secondLayer, double eta, double phi);
+  void setEtaPhi(eflowCalo::LAYER lay, const Amg::Vector3D& vec);
+  void copyEtaPhi(eflowCalo::LAYER fromLay, eflowCalo::LAYER toLay);
+
+  Amg::Vector3D parToPosition(const Trk::TrackParameters* extrapolatedParameters);
+  Amg::Vector3D parToDirection(const Trk::TrackParameters* extrapolatedParameters);
+  const Trk::TrackParameters* getParameters(eflowCalo::LAYER layer);
+
+  bool m_isEMBarrel;
 
  private:
 
-  std::pair<Amg::Vector3D, Amg::Vector3D >
-  setLastPointAndDirection(const std::vector<Amg::Vector3D >& vecEM);
-  void fixFailedEmExtrapolations(const eflowCalo::LAYER firstLayer);
-  void doHcalBarrelLinearExtrapolations(const Amg::Vector3D& lastPoint, const Amg::Vector3D& direction);
-  std::vector<Amg::Vector3D > getAllExtrapolations(const std::vector<CaloCell_ID::CaloSample>& allSamples,
-      const ToolHandle<eflowTrackToCaloTrackExtrapolatorTool>& extrapolator, const xAOD::TrackParticle* track, MsgStream& log);
+  static const Amg::Vector3D m_nullVector;
 
-  void setEtaPhi(eflowCalo::LAYER lay, const Amg::Vector3D& vec);
-  void copyEtaPhi(eflowCalo::LAYER fromLay, eflowCalo::LAYER toLay);
-  inline eflowCalo::LAYER getEM2Layer() const { return m_isInBarrel ? eflowCalo::EMB2 : eflowCalo::EME2; }
-  inline eflowCalo::LAYER getEM1Layer() const { return m_isInBarrel ? eflowCalo::EMB1 : eflowCalo::EME1; }
+  inline eflowCalo::LAYER getEM2Layer() const { return m_isEMBarrel ? eflowCalo::EMB2 : eflowCalo::EME2; }
+  inline eflowCalo::LAYER getEM1Layer() const { return m_isEMBarrel ? eflowCalo::EMB1 : eflowCalo::EME1; }
+
 
   static const std::pair<float, float>  m_defaultEtaPhiPair;
-  static const Amg::Vector3D m_nullVector;
   static const eflowEtaPhiPosition m_defaultEtaPhiPosition;
 
-  bool m_isInBarrel;
+  std::map<eflowCalo::LAYER, const Trk::TrackParameters*> m_trackParameters;
+  std::map<eflowCalo::LAYER, Amg::Vector3D > m_positions;
+  std::map<eflowCalo::LAYER, Amg::Vector3D > m_directions;
   std::map<eflowCalo::LAYER, eflowEtaPhiPosition>  m_etaPhiPositions;
 };
-
-
-inline void eflowTrackCaloPoints::setEtaPhi(eflowCalo::LAYER lay, const Amg::Vector3D& vec) {
-  m_etaPhiPositions[lay] = (vec != m_nullVector) ? eflowEtaPhiPosition(vec.eta(), vec.phi())
-                                                 : m_defaultEtaPhiPosition;
-}
 
 inline void eflowTrackCaloPoints::copyEtaPhi(eflowCalo::LAYER fromLay, eflowCalo::LAYER toLay) {
   std::map<eflowCalo::LAYER, eflowEtaPhiPosition>::const_iterator it = m_etaPhiPositions.find(fromLay);

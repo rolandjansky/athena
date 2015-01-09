@@ -8,7 +8,7 @@
 #include "eflowEvent/eflowCaloCluster.h"
 
 #include "eflowRec/eflowTauTool.h"
-#include "eflowRec/eflowTrackToCaloTrackExtrapolatorTool.h"
+#include "eflowRec/eflowTrackExtrapolatorBaseAlgTool.h"
 #include "eflowRec/eflowTrackCaloPoints.h"
 #include "eflowRec/eflowTrackClusterMatcher.h"
 #include "eflowRec/eflowBinnedParameters.h"
@@ -65,18 +65,19 @@ eflowTauTool::eflowTauTool(const std::string& type,const std::string& name,const
   m_doAnnihilation(false),
   m_consistencySigmaCut(1.0),
   m_subtractionSigmaCut(1.28),
-  m_theTrackExtrapolatorTool("eflowTrackToCaloTrackExtrapolatorTool",this),
+  m_theTrackExtrapolatorTool("Trk::ParticleCaloExtensionTool",this),
   m_theEOverPTool("eflowCellEOverPTool",this)
 {
   declareProperty("RecoverIsolatedTracks",m_recoverIsolatedTracks);
   declareProperty("doAnnihilation",m_doAnnihilation);
-  declareProperty("eflowTrackToCaloTrackExtrapolatorTool",m_theTrackExtrapolatorTool,"AlgTool to use TrackToCalo Tool");
+  declareProperty("eflowExtrapolator",m_theTrackExtrapolatorTool,"AlgTool to use TrackToCalo Tool");
   declareProperty("eflowCellEOverPTool", m_theEOverPTool,"Energy Flow E/P Values and Shower Paremeters Tool");
   declareProperty("SubtractionSigmaCut",m_subtractionSigmaCut);
   declareProperty("ConsistencySigmaCut",m_consistencySigmaCut);
 
   m_integrator = new eflowLayerIntegrator(0.032, 1.0e-3, 3.0);
-  m_binnedParameters = new eflowBinnedParameters(0.75,1.0e6);
+  m_binnedParameters = new eflowBinnedParameters();
+  eflowCellSubtractionManager::setRMaxAndWeightRange(0.75, 1.0e6);
 }
 
 eflowTauTool::~eflowTauTool(){
@@ -171,7 +172,7 @@ StatusCode eflowTauTool::execute(const eflowTauObject& eflowTauObject){
     chargedPFO->setP4(theTrack->pt(),theTrack->eta(),theTrack->phi(),theTrack->m());
 
     MsgStream log( msgSvc(), name() );
-    eflowTrackCaloPoints *trackCalo = new eflowTrackCaloPoints(m_theTrackExtrapolatorTool, theTrack);
+    eflowTrackCaloPoints *trackCalo = m_theTrackExtrapolatorTool->execute(theTrack);
 
     const eflowEtaPhiPosition& trackEM2etaPhi = trackCalo->getEM2etaPhiPos();
 

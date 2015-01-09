@@ -35,7 +35,8 @@ eflowTauProcessingTools::eflowTauProcessingTools(const std::string& name, ISvcLo
   m_PFOOutputName("TauPFO_eflowRec"),
   m_eflowClustersOutputName("eflowClusters_tauMode"),
   m_topoClusterCandsName("CaloTopoCluster"),
-  m_tauRecCandsName("TauRecContainer"),
+  m_tauRecCandsName("TauJets"),
+  m_storeGate(nullptr),
   m_tools(this)
 {
   //Tool configuration
@@ -309,7 +310,7 @@ StatusCode eflowTauProcessingTools::execute(){
 	thisChargedLink.setElement(thisPFO);
 	thisChargedLink.setStorableObject(*chargedPFOContainer);
 	xAOD::TauJet* theNonConstTau = const_cast<xAOD::TauJet*>(theTau);
-	theNonConstTau->addEflowRec_Charged_PFOLink(thisChargedLink);
+	theNonConstTau->addProtoChargedPFOLink(thisChargedLink);
       }
       else {
 	neutralPFOContainer->push_back(thisPFO);
@@ -317,10 +318,10 @@ StatusCode eflowTauProcessingTools::execute(){
 	thisNeutralLink.setElement(thisPFO);
 	thisNeutralLink.setStorableObject(*neutralPFOContainer);
 	xAOD::TauJet* theNonConstTau = const_cast<xAOD::TauJet*>(theTau);
-	theNonConstTau->addEflowRec_Neutral_PFOLink(thisNeutralLink);
+	theNonConstTau->addProtoNeutralPFOLink(thisNeutralLink);
 	bool result = false;
 	eflowPi0Cuts.isPi0(result, thisPFO->eta(), thisPFO->e()/cosh(thisPFO->eta()), thisPFO->bdtPi0Score(), innerTrackContainer.size());
-	if (true == result) theNonConstTau->addEflowRec_Pi0_PFOLink(thisNeutralLink);
+	if (true == result) theNonConstTau->addProtoPi0PFOLink(thisNeutralLink);
       }
     }
 

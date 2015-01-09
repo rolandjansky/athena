@@ -56,7 +56,7 @@ class recoverIsolatedTracks(JobProperty):
     """
     statusOn = True
     allowedTypes = ['bool']
-    StoredValue = True
+    StoredValue = False
 
 class UseElectronHadronID(JobProperty):
     """ Flag to decide whether to use electron/pion ID

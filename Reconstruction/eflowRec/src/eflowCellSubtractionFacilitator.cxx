@@ -12,145 +12,156 @@
 //C++ Headers
 #include <map>
 
-eflowCellSubtractionFacilitator::eflowCellSubtractionFacilitator() {
-  //initialise data members
-  m_annFlag = false;
-}
+eflowCellSubtractionFacilitator::eflowCellSubtractionFacilitator(): m_annFlag(false) { }
 
 double eflowCellSubtractionFacilitator::subtractCells(eflowCellSubtractionManager& cellSubtractionManager, double trackEnergy, xAOD::CaloCluster* tracksCluster, eflowCellList& orderedCells) {
   return subtractCells(cellSubtractionManager, trackEnergy, std::vector<xAOD::CaloCluster*> (1,tracksCluster), orderedCells);
+}
+
+void eflowCellSubtractionFacilitator::updateClusterKinematics(std::vector<xAOD::CaloCluster*>& tracksClusters) {
+  std::vector<xAOD::CaloCluster*>::iterator itClus = tracksClusters.begin();
+  std::vector<xAOD::CaloCluster*>::iterator endCluster = tracksClusters.end();
+  for (; itClus != endCluster; itClus++) {
+    updateClusterKinematics(*itClus);
+  }
+}
+
+void eflowCellSubtractionFacilitator::updateClusterKinematics(xAOD::CaloCluster* theCluster) {
+  float oldEnergy = theCluster->e();
+  CaloClusterKineHelper::calculateKine(theCluster, true, true);
+  if (0.0 != oldEnergy) {
+    float energyAdjustment = theCluster->e() / oldEnergy;
+    theCluster->setRawE(theCluster->rawE() * energyAdjustment);
+    theCluster->setRawEta(theCluster->eta());
+    theCluster->setRawPhi(theCluster->phi());
+  }
 }
 
 double eflowCellSubtractionFacilitator::subtractCells(eflowCellSubtractionManager& cellSubtractionManager, double trackEnergy, std::vector<xAOD::CaloCluster*> tracksClusters, eflowCellList& orderedCells) {
 
   int debug = 0;
 
-  std::map<double,RingId>::const_iterator ringIt = cellSubtractionManager.rankBegin();
-  std::map<double,RingId>::const_iterator ringEnd = cellSubtractionManager.rankEnd();
-
   const double eExpect = cellSubtractionManager.fudgeMean() * trackEnergy;
   const double sigmaEExpect = cellSubtractionManager.fudgeStdDev() * trackEnergy;
 
-  if (1 == debug) { std::cout << "So eExpect is " << eExpect << std::endl; }
-
-  std::vector<xAOD::CaloCluster*>::iterator firstClus = tracksClusters.begin();
-  std::vector<xAOD::CaloCluster*>::iterator lastClus = tracksClusters.end();
-
-  double eClusOld = 0;
-
-  for (; firstClus != lastClus; firstClus++) {
-    eClusOld += (*firstClus)->e();
+  if (1 == debug) {
+    std::cout << "So eExpect is " << eExpect << std::endl;
   }
 
-  double eSubt = 0.0;
+  /* Summed energy of all clusters before subtraction */
+  std::vector<xAOD::CaloCluster*>::iterator itCluster = tracksClusters.begin();
+  std::vector<xAOD::CaloCluster*>::iterator endCluster = tracksClusters.end();
+  double eClustersOld = 0;
+  for (; itCluster != endCluster; itCluster++) {
+    eClustersOld += (*itCluster)->e();
+  }
 
-  for (ringIt = cellSubtractionManager.rankBegin(); ringIt != ringEnd; ++ringIt){
+  double eSubtracted = 0.0;
 
-    const std::pair<eflowCaloENUM,short>& ring = ringIt->second;
+  std::map<double, RingId>::const_iterator ringIt = cellSubtractionManager.rankBegin();
+  std::map<double, RingId>::const_iterator ringEnd = cellSubtractionManager.rankEnd();
+  for (ringIt = cellSubtractionManager.rankBegin(); ringIt != ringEnd; ++ringIt) {
 
+    const std::pair<eflowCaloENUM, short>& ring = ringIt->second;
     const eflowCaloENUM subtLayer = ring.first;
     const short ringNo = ring.second;
 
     const double r1 = ringNo * cellSubtractionManager.ringThickness(subtLayer);
     const double r2 = (ringNo + 1) * cellSubtractionManager.ringThickness(subtLayer);
 
-    CellIt begin = orderedCells.getLowerBound(subtLayer, r1);
-    CellIt end = orderedCells.getLowerBound(subtLayer, r2);
-
+    CellIt beginRing = orderedCells.getLowerBound(subtLayer, r1);
+    CellIt endRing = orderedCells.getLowerBound(subtLayer, r2);
 
     /*  * * *  Do Subtraction * * * */
 
     /* Find total energy in ring */
     double eRing = 0.0;
-    for (CellIt it = begin; it != end; ++it) {
-      std::vector<std::pair<CaloCell*,int> >::iterator   itEntry = it->second.begin();
-      std::vector<std::pair<CaloCell*,int> >::iterator lastEntry = it->second.end();
-      for (; itEntry != lastEntry; itEntry++){
-        std::pair<CaloCell*,int> thisPair = *itEntry;
+    for (CellIt it = beginRing; it != endRing; ++it) {
+      std::vector<std::pair<CaloCell*, int> >::iterator itEntry = it->second.begin();
+      std::vector<std::pair<CaloCell*, int> >::iterator lastEntry = it->second.end();
+      for (; itEntry != lastEntry; itEntry++) {
+        std::pair<CaloCell*, int> thisPair = *itEntry;
 
         const xAOD::CaloCluster* clus = tracksClusters[thisPair.second];
-        CaloClusterCellLink::iterator theIterator = this->getCellIterator(clus,thisPair.first);	
+        CaloClusterCellLink::iterator theIterator = this->getCellIterator(clus, thisPair.first);
         double cellWeight = theIterator.weight();
-	
-        eRing += thisPair.first->energy()*cellWeight;
-        if (1 == debug) std::cout << "added cell with e " << thisPair.first->energy()*cellWeight << " from cluster with e " << clus->e() << " to ring " << std::endl;
-      }//loop over all pairs in vector
-    }//loop over CellIt
+
+        eRing += thisPair.first->energy() * cellWeight;
+        if (1 == debug)
+          std::cout << "added cell with e " << thisPair.first->energy() * cellWeight
+                    << " from cluster with e " << clus->e() << " to ring " << std::endl;
+      } //loop over all pairs in vector
+    } //loop over CellIt
 
     // subtract energy from ring
 
     if (1 == debug) std::cout << "ring energy is " << eRing << std::endl;
-    if (1 == debug) std::cout << "eSubt is and eExpect is " << eSubt << " and " << eExpect << std::endl;
+    if (1 == debug)
+      std::cout << "eSubt is and eExpect is " << eSubtracted << " and " << eExpect << std::endl;
 
-    if (eSubt + eRing > eExpect){  // don't need to subtract whole ring
+    if (eSubtracted + eRing > eExpect) {  // don't need to subtract whole ring
+      /* Target ring energy is ring energy minus the energy that still needs to be subtracted */
+      double targetRingEnergy = eRing - (eExpect - eSubtracted);
 
-      for (CellIt it = begin; it != end; ++it){
+      for (CellIt it = beginRing; it != endRing; ++it) {
 
-        std::vector<std::pair<CaloCell*,int> >::iterator   itEntry = it->second.begin();
-        std::vector<std::pair<CaloCell*,int> >::iterator lastEntry = it->second.end();
-        for (; itEntry != lastEntry; itEntry++){
-          std::pair<CaloCell*,int> thisPair = *itEntry;
+        std::vector<std::pair<CaloCell*, int> >::iterator itEntry = it->second.begin();
+        std::vector<std::pair<CaloCell*, int> >::iterator lastEntry = it->second.end();
+        for (; itEntry != lastEntry; itEntry++) {
+          std::pair<CaloCell*, int> thisPair = *itEntry;
 
-	  xAOD::CaloCluster* cluster = tracksClusters[thisPair.second];
+          xAOD::CaloCluster* cluster = tracksClusters[thisPair.second];
           CaloCell* cell = thisPair.first;
-          CaloClusterCellLink::iterator theIterator = this->getCellIterator(cluster,cell);	
+          CaloClusterCellLink::iterator theIterator = this->getCellIterator(cluster, cell);
           double oldCellWeight = theIterator.weight();
-          const double newCellWeight = oldCellWeight * ( 1.0 - (eExpect - eSubt) / eRing);
+          const double newCellWeight = oldCellWeight * targetRingEnergy / eRing;
+
           theIterator.reweight(newCellWeight);
         } //loop over all pairs in vector
       } //loop over CellIt
 
-      eSubt = eExpect;
+      eSubtracted = eExpect;
 
-      std::vector<xAOD::CaloCluster*>::iterator itClus = tracksClusters.begin();
-      
-      for (; itClus != lastClus; itClus++){
-	xAOD::CaloCluster* theCluster = *itClus;
-	float oldEnergy = theCluster->e();
-	CaloClusterKineHelper::calculateKine(theCluster,true, true);
-	if (0.0 != oldEnergy){
-	  float energyAdjustment = theCluster->e()/oldEnergy;
-	  theCluster->setRawE( theCluster->rawE()*energyAdjustment );
-	  theCluster->setRawEta( theCluster->eta() );
-	  theCluster->setRawPhi( theCluster->phi() );
-	}
-      }
+      /* Update the cluster four-momenta having done the subtraction */
+      updateClusterKinematics(tracksClusters);
 
       return sigmaEExpect;  // finished subtraction
 
     } else {  // subtract whole ring
       if (1 == debug) std::cout << " subtract full ring " << std::endl;
 
-      for (CellIt it = begin; it != end; ++it) {
+      for (CellIt it = beginRing; it != endRing; ++it) {
 
-        std::vector<std::pair<CaloCell*,int> >::iterator   itEntry = it->second.begin();
-        std::vector<std::pair<CaloCell*,int> >::iterator lastEntry = it->second.end();
-        for (; itEntry != lastEntry; itEntry++){
-          std::pair<CaloCell*,int> thisPair = *itEntry;
+        std::vector<std::pair<CaloCell*, int> >::iterator itEntry = it->second.begin();
+        std::vector<std::pair<CaloCell*, int> >::iterator lastEntry = it->second.end();
+        for (; itEntry != lastEntry; itEntry++) {
+          std::pair<CaloCell*, int> thisPair = *itEntry;
 
-	  xAOD::CaloCluster* cluster = tracksClusters[thisPair.second];
+          xAOD::CaloCluster* cluster = tracksClusters[thisPair.second];
           cluster->removeCell(thisPair.first);
-        }//loop over all pairs in vector
-      }//loop over CellIt
-      orderedCells.deleteFromList(begin, end);
-      eSubt += eRing;
+        }  //loop over all pairs in vector
+      }  //loop over CellIt
+      orderedCells.deleteFromList(beginRing, endRing);
+      eSubtracted += eRing;
     }
 
-    if (1 == debug) { std::cout << " now esubt is " << eSubt << std::endl; }
+    if (1 == debug) {
+      std::cout << " now esubt is " << eSubtracted << std::endl;
+    }
 
-    if ( fabs(eClusOld - eSubt) < 1.0e-6 * eClusOld )  {
+    if (fabs(eClustersOld - eSubtracted) < 1.0e-6 * eClustersOld) {
       //annihilate clusters
 
       std::vector<xAOD::CaloCluster*>::iterator itClus = tracksClusters.begin();
 
-      for (; itClus != lastClus; itClus++){
+      for (; itClus != endCluster; itClus++) {
 
         const CaloClusterCellLink* theCellLink = (*itClus)->getCellLinks();
-	CaloClusterCellLink* theCellLink_nonConst = const_cast<CaloClusterCellLink*>(theCellLink);
-	CaloClusterCellLink::iterator theFirstCell = theCellLink_nonConst->begin();
-	CaloClusterCellLink::iterator theLastCell = theCellLink_nonConst->end();
-	
-	for (; theFirstCell != theLastCell; ++theFirstCell){
+        CaloClusterCellLink* theCellLink_nonConst = const_cast<CaloClusterCellLink*>(theCellLink);
+        CaloClusterCellLink::iterator theFirstCell = theCellLink_nonConst->begin();
+        CaloClusterCellLink::iterator theLastCell = theCellLink_nonConst->end();
+
+        for (; theFirstCell != theLastCell; ++theFirstCell) {
           (*itClus)->removeCell(*theFirstCell);
         }
         (*itClus)->setCalE(0.0);
@@ -159,137 +170,76 @@ double eflowCellSubtractionFacilitator::subtractCells(eflowCellSubtractionManage
         orderedCells.eraseList();
         m_annFlag = true;
 
-      }//clus loop
+      }  //clus loop
 
       itClus = tracksClusters.begin();
 
-      for (; itClus != lastClus; itClus++){
-	xAOD::CaloCluster* theCluster = *itClus;
-	float oldEnergy = theCluster->e();
-	CaloClusterKineHelper::calculateKine(theCluster,true, true);
-	if (0.0 != oldEnergy){
-	  float energyAdjustment = theCluster->e()/oldEnergy;
-	  theCluster->setRawE( theCluster->rawE()*energyAdjustment );
-	  theCluster->setRawEta( theCluster->eta() );
-	  theCluster->setRawPhi( theCluster->phi() );
-	}
-      }
+      /* Update the cluster four-momenta having done the subtraction */
+      updateClusterKinematics(tracksClusters);
 
       return sigmaEExpect;
-    }//if no energy left
-  }//end of loop on cell rings in order
+    }  //if no energy left
+  }  //end of loop on cell rings in order
 
-  //update the clusters having done the subtraction
-  std::vector<xAOD::CaloCluster*>::iterator itClus = tracksClusters.begin();
+  /* Update the cluster four-momenta having done the subtraction */
+  updateClusterKinematics(tracksClusters);
 
-  for (; itClus != lastClus; itClus++){
-    xAOD::CaloCluster* theCluster = *itClus;
-    float oldEnergy = theCluster->e();
-    CaloClusterKineHelper::calculateKine(theCluster,true, true);
-    if (0.0 != oldEnergy){
-      float energyAdjustment = theCluster->e()/oldEnergy;
-      theCluster->setRawE( theCluster->rawE()*energyAdjustment );
-      theCluster->setRawEta( theCluster->eta() );
-      theCluster->setRawPhi( theCluster->phi() );
-    }
+  if (1 == debug) {
+    std::cout << " here esubt and eExpect are finally " << eSubtracted << " and " << eExpect << std::endl;
   }
 
-  if (1 == debug) std::cout << " here esubt and eExpect are finally " << eSubt << " and " << eExpect << std::endl;
+  if (orderedCells.mapSize() > 0 && eSubtracted < eExpect) {
 
-  if ( orderedCells.mapSize() > 0 && eSubt < eExpect ) {
+    orderedCells.reorderWithoutLayers(); // just want to go through in order of increasing dR (not by layer)
 
-    orderedCells.reorderWithoutLayers();  // just want to go through in order of increasing dR (not by layer)
+    CellIt endCells = orderedCells.end();
+    for (CellIt itCellPosition = orderedCells.begin(); itCellPosition != endCells;) {
 
-    CellIt end = orderedCells.end();
-    for (CellIt it = orderedCells.begin(); it != end;){
+      std::vector<std::pair<CaloCell*, int> >::iterator itEntry = itCellPosition->second.begin();
+      for (; itEntry != itCellPosition->second.end(); ++itEntry) {
+        std::pair<CaloCell*, int> thisPair = *itEntry;
 
-      std::vector<std::pair<CaloCell*,int> >::iterator   itEntry = it->second.begin();
-      std::vector<std::pair<CaloCell*,int> >::iterator lastEntry = it->second.end();
-      /* Don't need a for loop here - "incrementation" is done implicitly when erasing a pair from the vector */
-
-
-      while (itEntry != lastEntry){
-
-        std::pair<CaloCell*,int> thisPair = *itEntry;
-
-	xAOD::CaloCluster* cluster = tracksClusters[thisPair.second];
+        xAOD::CaloCluster* cluster = tracksClusters[thisPair.second];
         CaloCell* cell = thisPair.first;
 
-        CaloClusterCellLink::iterator theIterator = this->getCellIterator(cluster,cell);	
+        CaloClusterCellLink::iterator theIterator = this->getCellIterator(cluster, cell);
         double oldCellWeight = theIterator.weight();
+        double oldCellEnergy = cell->energy() * oldCellWeight;
 
-        double oldCellEnergy = cell->energy()*oldCellWeight;
+        if (eSubtracted + oldCellEnergy > eExpect && oldCellEnergy != 0.) {
+          /* Target cell energy is cell energy minus the energy that still needs to be subtracted */
+          double targetCellEnergy = oldCellEnergy - (eExpect - eSubtracted);
 
-        if (eSubt + oldCellEnergy > eExpect && oldCellEnergy!=0.) {
-
-          double temp = eExpect - eSubt;
-       
-          double newCellWeight = oldCellWeight * ((oldCellEnergy - temp)/oldCellEnergy);
+          double newCellWeight = oldCellWeight * targetCellEnergy / oldCellEnergy;
           theIterator.reweight(newCellWeight);
 
-          //cell->setEnergy(oldCellEnergy - temp);
-          eSubt = eExpect;
+          eSubtracted = eExpect;
 
-          //update the clusters having done the subtraction
-	  itClus = tracksClusters.begin();
-
-	  for (; itClus != lastClus; itClus++){
-	    xAOD::CaloCluster* theCluster = *itClus;
-	    float oldEnergy = theCluster->e();
-	    CaloClusterKineHelper::calculateKine(theCluster,true, true);
-	    if (0.0 != oldEnergy){
-	      float energyAdjustment = theCluster->e()/oldEnergy;
-	      theCluster->setRawE( theCluster->rawE()*energyAdjustment );
-	      theCluster->setRawEta( theCluster->eta() );
-	      theCluster->setRawPhi( theCluster->phi() );
-	    }
-	  }
+          /* Update the cluster four-momenta having done the subtraction */
+          updateClusterKinematics(tracksClusters);
 
           return sigmaEExpect;
 
         } else {
-
-          double oldClusterEnergy = cluster->e();
           cluster->removeCell(cell);
+          eSubtracted += cluster->e();
+
           //update the clusters having done the subtraction
-	  CaloClusterKineHelper::calculateKine(cluster,true, true);
-          double newClusterEnergy = cluster->e();
-          if (0.0 != oldClusterEnergy) {
-            cluster->setRawE(cluster->rawE()*newClusterEnergy/oldClusterEnergy);
-	    cluster->setRawEta( cluster->eta() );
-	    cluster->setRawPhi( cluster->phi() );
-          }
-          eSubt += oldCellEnergy;
-          itEntry = it->second.erase(itEntry);
-          lastEntry = it->second.end(); // gets invalidated by the erase method otherwise, resulting in an endless loop
+          updateClusterKinematics(cluster);
         }
 
-      }//loop over all pairs in vector
+      } //loop over all pairs in vector
 
-      //check whether cluster has been killed
-      if (0 == it->second.size()){
-        CellIt eraseIt = it;
-        ++it;
-        orderedCells.deleteFromList(eraseIt);
-      } else {
-        ++it;
-      }
-    }//Cell It Loop
+      /* Erase the CellPosition from the cell list */
+      CellIt eraseIt = itCellPosition;
+      ++itCellPosition;
+      orderedCells.deleteFromList(eraseIt);
+
+    } //Cell It Loop
   }
 
-  itClus = tracksClusters.begin();
-
-  for (; itClus != lastClus; itClus++){
-    xAOD::CaloCluster* theCluster = *itClus;
-    float oldEnergy = theCluster->e();
-    CaloClusterKineHelper::calculateKine(theCluster,true, true);
-    if (0.0 != oldEnergy){
-      float energyAdjustment = theCluster->e()/oldEnergy;
-      theCluster->setRawE( theCluster->rawE()*energyAdjustment );
-      theCluster->setRawEta( theCluster->eta() );
-      theCluster->setRawPhi( theCluster->phi() );
-    }
-  }
+  /* Update the cluster four-momenta having done the subtraction */
+  updateClusterKinematics(tracksClusters);
 
   return sigmaEExpect;
 

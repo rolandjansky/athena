@@ -43,16 +43,15 @@ def setup_eflowCaloObjectBulder(Configured, nameModifier,mlog):
         
         eflowCaloObjectBuilderAlgorithm.eflowCellEOverPTool=CellEOverPTool
 
-
     try:
-            from eflowRec.eflowTrackToCaloTrackExtrapolatorTool import eflowTrackToCaloTrackExtrapolatorToolDefault
-            TrackToCaloTrackExtrapolatorToolDefault=eflowTrackToCaloTrackExtrapolatorToolDefault()
+        from eflowRec.eflowRecConf import eflowTrackCaloExtensionTool
+        TrackCaloExtensionTool=eflowTrackCaloExtensionTool()
     except:
-            mlog.error("could not import eflowRec.eflowTrackToCaloTrackExtrapolatorToolDefault")
-            print traceback.format_exc()
-            return False
+        mlog.error("could not import eflowRec.eflowTrackCaloExtensionTool")
+        print traceback.format_exc()
+        return False
 
-    eflowCaloObjectBuilderAlgorithm.eflowTrackToCaloTrackExtrapolatorTool=TrackToCaloTrackExtrapolatorToolDefault
+    eflowCaloObjectBuilderAlgorithm.TrackExtrapolatorTool = TrackCaloExtensionTool
 
     # sets output key of C++ algorithm equal to the python side 
     eflowCaloObjectBuilderAlgorithm.EflowCaloObjectsOutputName=Configured.outputKey()
@@ -76,7 +75,29 @@ def setup_eflowCaloObjectBulder(Configured, nameModifier,mlog):
     if "LC" == nameModifier:
         eflowCaloObjectBuilderAlgorithm.EflowCaloObjectsOutputName="eflowCaloObjects_LC"
         eflowCaloObjectBuilderAlgorithm.eflowElectronsName="eflowRec_selectedElectrons_LC"
-         
+
+    try:
+        from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
+        TrackSelectionTool = InDet__InDetTrackSelectionTool()
+    except:
+        mlog.error("could not import InDetTrackSelectionTool.InDet__InDetTrackSelectionTool")
+        print traceback.format_exc()
+        return False
+
+    try:
+             from AthenaCommon.AppMgr import ToolSvc
+    except:
+             mlog.error("could not import ToolSvc")
+             print traceback.format_exc()
+             return False
+
+    ToolSvc += TrackSelectionTool
+
+    TrackSelectionTool.CutLevel = "TightPrimary"
+    TrackSelectionTool.minPt = 500.0 
+
+    eflowCaloObjectBuilderAlgorithm.TrackSelectionTool = TrackSelectionTool
+
     from RecExConfig.ObjKeyStore import objKeyStore
     objKeyStore.addTransient(Configured.outputType(),Configured.outputKey())
 

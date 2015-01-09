@@ -6,6 +6,8 @@
 #include "eflowRec/eflowCaloObject.h"
 #include "eflowRec/eflowRecCluster.h"
 
+#include "xAODCaloEvent/CaloClusterKineHelper.h"
+
 eflowMomentCalculatorTool::eflowMomentCalculatorTool(const std::string& type,const std::string& name,const IInterface* parent) :
   AthAlgTool( type, name, parent),
   m_clusterCollectionTool("eflowRecClusterCollectionTool",this),
@@ -43,6 +45,15 @@ void eflowMomentCalculatorTool::execute(eflowCaloObjectContainer* theEflowCaloOb
   if (m_clusterMomentsMaker->execute(tempClusterContainer).isFailure()) {
     msg(MSG::WARNING) << "Could not execute ClusterMomentsMaker " << endreq;
   }
+
+  /* Set the layer energies */
+
+  xAOD::CaloClusterContainer::iterator  itCluster = tempClusterContainer->begin();
+  xAOD::CaloClusterContainer::iterator endCluster = tempClusterContainer->end();
+  for (; itCluster != endCluster; ++itCluster){
+    CaloClusterKineHelper::calculateKine(*itCluster, true, true);
+  }
+
 
   delete tempClusterContainer;
 

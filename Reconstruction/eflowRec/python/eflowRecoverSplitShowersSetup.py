@@ -33,10 +33,24 @@ def setup_eflowRecoverSplitShowers(Configured, nameModifier,mlog):
 
         Configured.eflowCellEOverPTool=CellEOverPTool
     
+ 
     from eflowRec.eflowRecFlags import jobproperties
     
     if jobproperties.eflowRecFlags.recoverIsolatedTracks == True:
         Configured.RecoverIsolatedTracks = True
+        
 
+    try:
+        from eflowRec.eflowRecConf import PFTrackClusterMatchingTool
+        MatchingTool = PFTrackClusterMatchingTool()
+    except:
+        mlog.error("could not import eflowRec.PFTrackClusterMatchingTool")
+        print traceback.format_exc()
+        return False
+    MatchingTool.TrackPositionType   = 'EM2EtaPhi' # str
+    MatchingTool.ClusterPositionType = 'PlainEtaPhi' # str
+    MatchingTool.DistanceType        = 'EtaPhiSquareDistance' # str
+    MatchingTool.MatchCut = 0.2*0.2 # float
+    Configured.PFTrackClusterMatchingTool = MatchingTool
 
     return True

@@ -108,10 +108,13 @@ void eflowLCCalibTool::apply(ToolHandle<CaloClusterCollectionProcessor>& calibTo
 
   CaloClusterCollectionProcessor* myCollectionProcessor = &(*calibTool);
   CaloClusterProcessor* myCalibProcessor = dynamic_cast<CaloClusterProcessor*>(myCollectionProcessor);
-  if (myCalibProcessor->execute(cluster).isFailure()) {
-    if (msgLvl(MSG::WARNING))
-      msg(MSG::WARNING) << "Could not execute " << calibTool.name() << endreq;
+  if (myCalibProcessor){
+    if (myCalibProcessor->execute(cluster).isFailure()) {
+      if (msgLvl(MSG::WARNING))
+	msg(MSG::WARNING) << "Could not execute " << calibTool.name() << endreq;
+    }
   }
+  else if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " dynamic_cast provided NULL pointer to CaloClusterProcessor " << endreq;
 
 }
 

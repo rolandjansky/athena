@@ -34,6 +34,8 @@ class eflowLayerIntegrator {
  public:
 
   eflowLayerIntegrator(double stdDev, double error, double rMaxOverStdDev);
+  eflowLayerIntegrator(const eflowLayerIntegrator& anEFlowLayerIntegrator);
+  void operator=(const eflowLayerIntegrator& anEFlowLayerIntegrator);
   ~eflowLayerIntegrator();
 
   void measureNewClus(const xAOD::CaloCluster* clus, const eflowTrackCaloPoints& trackCalo);
@@ -44,9 +46,8 @@ class eflowLayerIntegrator {
   eflowFirstIntENUM getFirstIntLayer() const;
 
  private:
-  void reset(const eflowTrackCaloPoints& trackCalo);
-  void calcDepthArray(double eta);
-  void addClusterIntegral(const std::vector<double>& clusterIntegral);
+  void resetAllClustersIntegralForNewTrack(const eflowTrackCaloPoints& trackCalo);
+  void addToAllClustersIntegral(const std::vector<double>& clusterIntegral);
 
   void measureCluster(eflowTrackClusterLink* trackClusterLink);
   void measureCluster(const xAOD::CaloCluster* clus, const eflowTrackCaloPoints& trackCalo);
@@ -54,8 +55,8 @@ class eflowLayerIntegrator {
 
   double m_rMax;
 
-  std::vector<double> m_lpEDens;
-  std::vector<double> m_lastClusterIntegral;
+  std::vector<double> m_allClustersIntegral;
+  std::vector<double> m_singleClusterIntegral;
   
   eflowDepthCalculator m_caloModel;
 
