@@ -29,9 +29,8 @@
 
 */
 #ifndef MUONDIGITIZATION_MDT_DIGITIZATIONTOOL_H
-#define MUONDIGITIZATION_MDT_DIGITIZATIONTOOL_H 1
+#define MUONDIGITIZATION_MDT_DIGITIZATIONTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 

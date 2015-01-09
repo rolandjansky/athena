@@ -3,7 +3,6 @@
 */
 
 #include "GaudiKernel/ToolFactory.h"
-#include "GaudiKernel/MsgStream.h"
 
 #include "StoreGate/StoreGateSvc.h"
 
@@ -55,7 +54,7 @@ StatusCode RT_Relation_DB_DigiTool::initialize()
 	ATH_MSG_DEBUG("MuonGeoModelDetectorManager retrieved from StoreGate");
         //initialize the MdtIdHelper
 //         m_idHelper = m_muonGeoMgr->mdtIdHelper();
-//         log << MSG::DEBUG << "MdtIdHelper: " << m_idHelper << endreq;
+//         ATH_MSG_DEBUG("MdtIdHelper: " << m_idHelper );
 //         if(!m_idHelper) return status;
       }
     }
@@ -64,14 +63,12 @@ StatusCode RT_Relation_DB_DigiTool::initialize()
   if ( !m_calibDbSvc.retrieve().isSuccess() )
   {
     ATH_MSG_FATAL("Unable to retrieve pointer to MdtCalibrationDbSvc");
-   // log << MSG::FATAL << "Unable to retrieve pointer to MdtCalibrationDbSvc" << endreq;
     return StatusCode::FAILURE;
   }
   
   if ( !m_rndmSvc.retrieve().isSuccess() )
   {
     ATH_MSG_ERROR("Could not initialize Random Number Service");
-//    log << MSG::ERROR << " Could not initialize Random Number Service" << endreq;
   }      
   
   // random numbers stream
@@ -79,7 +76,6 @@ StatusCode RT_Relation_DB_DigiTool::initialize()
   if (m_rndmEngine==0)
   {
     ATH_MSG_ERROR("Could not find RndmEngine : " << m_rndmEngineName);
-    //log << MSG::ERROR << "Could not find RndmEngine : " << m_rndmEngineName << endreq;
     return StatusCode::FAILURE;
   }
   
@@ -92,9 +88,7 @@ StatusCode RT_Relation_DB_DigiTool::initialize()
 
 MdtDigiToolOutput RT_Relation_DB_DigiTool::digitize(const MdtDigiToolInput& input)
 {
-  //MsgStream log(msgSvc(),name());
   ATH_MSG_DEBUG("Digitizing input ");
- // log << MSG::DEBUG << "Digitizing input " << endreq;
   
   if( isTubeEfficient( input.radius() ) )
   {

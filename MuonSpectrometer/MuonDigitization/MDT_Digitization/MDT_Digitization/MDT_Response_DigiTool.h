@@ -5,7 +5,7 @@
 #ifndef MDT_DIGITIZATION_MDT_RESPONSE_DIGITOOL_H
 #define MDT_DIGITIZATION_MDT_RESPONSE_DIGITOOL_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "MDT_Digitization/MdtDigiToolOutput.h"
 #include "MDT_Digitization/IMDT_DigitizationTool.h"
 #include "MDT_Response/MDT_Response.h"
@@ -15,10 +15,10 @@
 #include "CLHEP/Random/RandomEngine.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 /*-----------------------------------------------
-  
+
    Created 7-5-2004 by Niels van Eldik
 
- Digitization tool which uses MDT_Response to convert MDT digitization 
+ Digitization tool which uses MDT_Response to convert MDT digitization
  input quantities into the output
 
 -----------------------------------------------*/
@@ -29,15 +29,15 @@ namespace MuonGM{
 class MdtIdHelper;
 class IAtRndmGenSvc;
 
-class MDT_Response_DigiTool : public AlgTool, 
+class MDT_Response_DigiTool : public AthAlgTool,
 			      virtual public IMDT_DigitizationTool {
  public:
-  MDT_Response_DigiTool( const std::string& type, 
-			 const std::string& name, 
+  MDT_Response_DigiTool( const std::string& type,
+			 const std::string& name,
 			 const IInterface* parent );
 
   MdtDigiToolOutput digitize(const MdtDigiToolInput& input);
-  
+
   StatusCode initialize();
 
   bool initializeTube();
@@ -58,7 +58,7 @@ class MDT_Response_DigiTool : public AlgTool,
   bool m_DoQballGamma;
 //    CLHEP::HepRandomEngine* p_engine;
 
- protected:  
+ protected:
     CLHEP::HepRandomEngine *m_rndmEngine;    // Random number engine used - not init in SiDigitization
     std::string m_rndmEngineName;// name of random engine
     ServiceHandle <IAtRndmGenSvc> m_rndmSvc;      // Random number service
