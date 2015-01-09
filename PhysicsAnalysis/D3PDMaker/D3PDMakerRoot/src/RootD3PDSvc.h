@@ -17,7 +17,7 @@
 #define D3PDMAKERROOT_ROOTD3PDSVC_H
 
 #include "D3PDMakerInterfaces/ID3PDSvc.h"
-#include "GaudiKernel/Service.h"
+#include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include <vector>
@@ -34,7 +34,7 @@ class RootD3PD;
  * @brief Service to create a root-based D3PD.
  */
 class RootD3PDSvc
-  : public Service, public ID3PDSvc
+  : public extends1<AthService, ID3PDSvc>
 {
 public:
   /**
@@ -64,11 +64,6 @@ public:
    * @param d3pd[out] The created tree.
    */
   virtual StatusCode make (const std::string& name, ID3PD* & d3pd);
-
-
-  /// Standard Gaudi @c queryInterface method.
-  virtual StatusCode queryInterface( const InterfaceID& riid,
-                                     void** ppvIf );
 
 
 private:

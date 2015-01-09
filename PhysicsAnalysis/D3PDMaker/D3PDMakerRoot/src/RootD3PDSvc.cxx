@@ -31,7 +31,7 @@ namespace D3PD {
  */
 RootD3PDSvc::RootD3PDSvc (const std::string& name,
                           ISvcLocator* svcloc)
-  : Service (name, svcloc),
+  : base_class (name, svcloc),
     m_histSvc ("THistSvc", name)
 {
   // See comments on cleanup().
@@ -94,7 +94,7 @@ void RootD3PDSvc::cleanup ()
  */
 StatusCode RootD3PDSvc::initialize()
 {
-  CHECK( Service::initialize() );
+  CHECK( AthService::initialize() );
   CHECK( m_histSvc.retrieve() );
   return StatusCode::SUCCESS;
 }
@@ -180,22 +180,4 @@ StatusCode RootD3PDSvc::make (const std::string& name, ID3PD* & d3pd)
 }
 
 
-/**
- * @brief Standard Gaudi @c queryInterface method.
- */
-StatusCode
-RootD3PDSvc::queryInterface( const InterfaceID& riid, void** ppvIf )
-{
-  if ( riid == ID3PDSvc::interfaceID() )  {
-    *ppvIf = static_cast<ID3PDSvc*> (this);
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-
-  return Service::queryInterface( riid, ppvIf );
-}
-
-
 } // namespace D3PD
-
-
