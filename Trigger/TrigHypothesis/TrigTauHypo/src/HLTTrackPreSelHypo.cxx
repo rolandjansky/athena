@@ -141,15 +141,29 @@ HLT::ErrorCode HLTTrackPreSelHypo::hltExecute(const HLT::TriggerElement* inputTE
   float roIPhi = roiDescriptor->phi();
   
   //look at fast-tracks
+  std::vector<const TrackCollection*> vectorFoundTracks;
   const TrackCollection* foundTracks = 0;
-  status = getFeature(inputTE, foundTracks, "TrigFastTrackFinder_Tau");
-  if ( status != HLT::OK || foundTracks == 0 ) {
-    msg() << MSG::ERROR << "Input track collection could not be found " << endreq;
+
+  //status = getFeature(inputTE, foundTracks, "TrigFastTrackFinder_Tau");
+
+  status = getFeatures(inputTE,vectorFoundTracks);
+  
+  if (status !=HLT::OK) {
+    msg() << MSG::ERROR << "No FastTrackFinder container was found.  Aborting pre-selection." << endreq;
     return status;
-  } else {
-    msg() << MSG::DEBUG << " Input track collection has size " << foundTracks->size() << endreq;
+  }
+  else {
+    if (vectorFoundTracks.size()<1) {
+      msg() << MSG::ERROR << "FastTrackFinder vector was empty.  Aborting pre-selection." << endreq;
+      return HLT::ERROR;
+    }
   }
 
+  // Retrieve last container to be appended
+  foundTracks = vectorFoundTracks.back();
+  
+  msg() << MSG::DEBUG << " Input track collection has size " << foundTracks->size() << endreq;
+  
   if(foundTracks){
     const Trk::Track *Ltrack = 0;
     const Trk::Perigee *tp = 0;

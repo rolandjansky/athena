@@ -23,7 +23,6 @@
  *********************************************************************/
 
 #include "TrigInterfaces/HypoAlgo.h"
-#include "TrackToCalo/ExtrapolateToCaloTool.h"
 //#include "InDetRecToolInterfaces/IVertexFinder.h"
 #include "ITrackToVertex/ITrackToVertex.h"
 #include "Particle/TrackParticleContainer.h"
@@ -118,7 +117,6 @@ class EFHadCalibHypo : public HLT::HypoAlgo
   bool m_DQtrackPass;
  
   /* track to calo extrapolation tool */
-  ToolHandle<IExtrapolateToCaloTool> m_toCalo;
   ToolHandle<Reco::ITrackToVertex>   m_toVertex;
 
 };

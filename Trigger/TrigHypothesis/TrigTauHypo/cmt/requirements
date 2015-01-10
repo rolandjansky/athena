@@ -15,7 +15,6 @@ use     TrigTopoEvent           TrigTopoEvent-*         Trigger/TrigEvent
 use     egammaEvent             egammaEvent-*           Reconstruction/egamma
 use     TrigMuonEvent           TrigMuonEvent-*         Trigger/TrigEvent
 
-use     TrackToCalo             TrackToCalo-*           Reconstruction/RecoTools
 use     ITrackToVertex          ITrackToVertex-*        Reconstruction/RecoTools
 use     MuidEvent               MuidEvent-*             Reconstruction/MuonIdentification
 use     VxVertex                VxVertex-*              Tracking/TrkEvent

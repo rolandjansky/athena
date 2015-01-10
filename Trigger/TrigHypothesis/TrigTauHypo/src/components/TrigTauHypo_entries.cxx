@@ -13,6 +13,9 @@
 #include "TrigTauHypo/EFTauTauCombFexAlgo.h"
 #include "TrigTauHypo/HLTCaloPreSelHypo.h"
 #include "TrigTauHypo/HLTTrackPreSelHypo.h"
+#include "TrigTauHypo/HLTTauGenericHypo.h"
+#include "TrigTauHypo/HLTTauTrackRoiUpdater.h"
+#include "TrigTauHypo/HLTTauCaloRoiUpdater.h"
 
 DECLARE_ALGORITHM_FACTORY( T2CaloTauHypo )
 DECLARE_ALGORITHM_FACTORY( T2IDTauHypo )
@@ -28,6 +31,9 @@ DECLARE_ALGORITHM_FACTORY( EFTauTauCombHypo )
 DECLARE_ALGORITHM_FACTORY( EFTauTauCombFexAlgo )
 DECLARE_ALGORITHM_FACTORY( HLTCaloPreSelHypo )
 DECLARE_ALGORITHM_FACTORY( HLTTrackPreSelHypo )
+DECLARE_ALGORITHM_FACTORY( HLTTauGenericHypo )
+DECLARE_ALGORITHM_FACTORY( HLTTauTrackRoiUpdater )
+DECLARE_ALGORITHM_FACTORY( HLTTauCaloRoiUpdater )
 
 DECLARE_FACTORY_ENTRIES( TrigTauHypo ) {
   DECLARE_ALGORITHM( T2CaloTauHypo );
@@ -44,4 +50,7 @@ DECLARE_FACTORY_ENTRIES( TrigTauHypo ) {
   DECLARE_ALGORITHM( EFTauTauCombFexAlgo );
   DECLARE_ALGORITHM( HLTCaloPreSelHypo );
   DECLARE_ALGORITHM( HLTTrackPreSelHypo );
+  DECLARE_ALGORITHM( HLTTauGenericHypo );
+  DECLARE_ALGORITHM( HLTTauTrackRoiUpdater );
+  DECLARE_ALGORITHM( HLTTauCaloRoiUpdater );
 }

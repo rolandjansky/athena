@@ -24,7 +24,6 @@ class ISvcLocator;
 EFHadCalibHypo::EFHadCalibHypo(const std::string& name, 
 			       ISvcLocator* pSvcLocator):
   HLT::HypoAlgo(name, pSvcLocator),
-  m_toCalo("ExtrapolateToCaloTool"),
   m_toVertex("Reco::TrackToVertex")
 {
 
@@ -84,11 +83,11 @@ HLT::ErrorCode EFHadCalibHypo::hltInitialize()
   msg() << MSG::INFO << " REGTEST: ------ "                                       << endreq;
 
   //Retrieve the tool for track extrapolate to the calorimeter
-  if (m_toCalo.retrieve().isFailure()) 
-    {
-      msg() << MSG::FATAL << "Could not retrieve m_toCalo " << m_toCalo << endreq;
-      return HLT::BAD_JOB_SETUP;
-    }
+  //if (m_toCalo.retrieve().isFailure()) 
+  //  {
+  //    msg() << MSG::FATAL << "Could not retrieve m_toCalo " << m_toCalo << endreq;
+  //    return HLT::BAD_JOB_SETUP;
+  //  }
 
   msg() << MSG::INFO << "Initialization of EFHadCalibHypo completed successfully" << endreq;
   return HLT::OK;
@@ -273,7 +272,7 @@ HLT::ErrorCode EFHadCalibHypo::hltExecute(const HLT::TriggerElement* inputTE, bo
 	  // Count only tracks with a certain pT:
 	  if( fabs( (*trackIter2)->pt()) < m_maxPtInIso ) continue;
 
-	  const Trk::TrackParameters * param_at_calo;
+	  const Trk::TrackParameters * param_at_calo = 0;
 
 	  if( msgLvl() <= MSG::VERBOSE ){ 
 	    msg() << MSG::VERBOSE << "Extrapolating track to calo." << endreq;
@@ -283,6 +282,7 @@ HLT::ErrorCode EFHadCalibHypo::hltExecute(const HLT::TriggerElement* inputTE, bo
 		  << endreq;
 	  }
 
+	  /*
 	  if (fabs( (*trackIter2)->eta()) < GAP_ETA)
 	    {
 	      param_at_calo = m_toCalo->extrapolate(( Trk::TrackParticleBase) *(*trackIter2),
@@ -299,7 +299,8 @@ HLT::ErrorCode EFHadCalibHypo::hltExecute(const HLT::TriggerElement* inputTE, bo
 						    Trk::alongMomentum,
 						    Trk::undefined);
 	    }
-
+	  */
+	  
 	  if (!param_at_calo) 
 	    {
 	      //use non-extrapolated track direction
