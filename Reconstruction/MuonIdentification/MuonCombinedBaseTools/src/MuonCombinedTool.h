@@ -10,6 +10,7 @@
 #include "MuonCombinedToolInterfaces/IMuonCombinedTool.h"
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
+#include "MuonCombinedDebuggerTool.h"
 
 namespace Muon
 {
@@ -40,9 +41,11 @@ namespace MuonCombined {
     // helpers, managers, tools
     ToolHandle<Muon::MuonEDMPrinterTool>            m_printer;
     ToolHandleArray<MuonCombined::IMuonCombinedTagTool>  m_muonCombinedTagTools;
+    ToolHandle<MuonCombinedDebuggerTool> m_muonCombDebugger;
 
     double m_deltaEtaPreSelection;
     double m_deltaPhiPreSelection;
+    bool m_runMuonCombinedDebugger;
   };
 
 }	// end of namespace

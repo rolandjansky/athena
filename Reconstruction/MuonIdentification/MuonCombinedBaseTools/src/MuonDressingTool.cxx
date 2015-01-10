@@ -89,6 +89,13 @@ namespace MuonCombined {
     uint8_t etaLayer3Holes = 0;
     uint8_t etaLayer4Holes = 0;
 
+    uint8_t numberOfPrecisionLayers = 0;
+    uint8_t numberOfPrecisionHoleLayers = 0;
+    uint8_t numberOfPhiLayers = 0;
+    uint8_t numberOfPhiHoleLayers = 0;
+    uint8_t numberOfTriggerEtaLayers = 0;
+    uint8_t numberOfTriggerEtaHoleLayers = 0;
+
     if( !trackSummary ){
       // get link to track particle
       ElementLink< xAOD::TrackParticleContainer > tpLink = muon.combinedTrackParticleLink();
@@ -108,6 +115,13 @@ namespace MuonCombined {
       for( auto sec : summary.sectors ){
 	if( sec != summary.mainSector ) secondSector = sec;
       }
+
+      numberOfPrecisionLayers = summary.nprecisionLayers;
+      numberOfPrecisionHoleLayers = summary.nprecisionHoleLayers;
+      numberOfPhiLayers = summary.nphiLayers;
+      numberOfPhiHoleLayers = summary.nphiHoleLayers;
+      numberOfTriggerEtaLayers = summary.ntrigEtaLayers;
+      numberOfTriggerEtaHoleLayers = summary.ntrigEtaHoleLayers;
 
       // hack for now to get hit counts onto the track particle
       ElementLink< xAOD::TrackParticleContainer > tpLink = muon.combinedTrackParticleLink();
@@ -225,6 +239,14 @@ namespace MuonCombined {
 	}
       }
     }
+
+    muon.setSummaryValue(numberOfPrecisionLayers,xAOD::numberOfPrecisionLayers);
+    muon.setSummaryValue(numberOfPrecisionHoleLayers,xAOD::numberOfPrecisionHoleLayers);
+    muon.setSummaryValue(numberOfPhiLayers,xAOD::numberOfPhiLayers);
+    muon.setSummaryValue(numberOfPhiHoleLayers,xAOD::numberOfPhiHoleLayers);
+    muon.setSummaryValue(numberOfTriggerEtaLayers,xAOD::numberOfTriggerEtaLayers);
+    muon.setSummaryValue(numberOfTriggerEtaHoleLayers,xAOD::numberOfTriggerEtaHoleLayers);
+
     muon.setSummaryValue(mainSector,xAOD::primarySector);
     muon.setSummaryValue(secondSector,xAOD::secondarySector);
     muon.setSummaryValue(innerSmallHits,xAOD::innerSmallHits);

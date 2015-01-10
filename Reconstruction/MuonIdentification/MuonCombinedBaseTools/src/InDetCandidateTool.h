@@ -11,14 +11,10 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
 
-namespace Rec {
-  class ITrackThroughDetectorBoundaries;
-}
 namespace Trk {
   class ITrackSelectorTool;
-  class IParticleCaloExtensionTool;
-  class IParticleCaloCellAssociationTool;
 }
+
 namespace MuonCombined {
 
   class InDetCandidateTool: public AthAlgTool, virtual public IInDetCandidateTool
@@ -35,9 +31,6 @@ namespace MuonCombined {
     void create( const xAOD::TrackParticleContainer& indetTrackParticles, InDetCandidateCollection& outputContainer ) const;
 
   private:
-    ToolHandle <Rec::ITrackThroughDetectorBoundaries>  m_vectorExtrapolator; //!< Tool to make the step-wise extrapolation
-    ToolHandle <Trk::IParticleCaloExtensionTool>       m_caloExtensionTool; //!< Tool to make the step-wise extrapolation
-    ToolHandle <Trk::IParticleCaloCellAssociationTool> m_caloCellAssociationTool; //!< Tool to make the step-wise extrapolation
     ToolHandle <Trk::ITrackSelectorTool>               m_trackSelector; //!< Tool to select tracks
 
   };

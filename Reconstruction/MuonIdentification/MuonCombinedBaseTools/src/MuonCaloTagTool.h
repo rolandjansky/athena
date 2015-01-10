@@ -18,7 +18,8 @@
 #include "xAODTracking/TrackParticle.h"
 #include "MuonCombinedEvent/InDetCandidate.h"
 #include "TrkParameters/TrackParameters.h"
-#include "IsolationTool/ITrackIsolationTool.h"
+// #include "IsolationTool/ITrackIsolationTool.h"
+#include "RecoToolInterfaces/ITrackIsolationTool.h"
 
 #include "muonEvent/DepositInCalo.h"
 

@@ -18,6 +18,7 @@
 #include "MuonCombinedToolInterfaces/IMuonCombinedTagTool.h"
 #include "MuonCombinedEvent/InDetCandidate.h"
 #include "MuonCaloTagTool.h"
+#include "RecoToolInterfaces/IsolationCommon.h"
 #include <vector>
 
 
@@ -352,9 +353,12 @@ namespace MuonCombined {
 
     if( m_trackIsolationTool.empty() ) return true;
 
-    std::vector<xAOD::Iso::IsolationType> ptcones = { xAOD::Iso::ptcone45 };
+    //std::vector<xAOD::Iso::IsolationType> ptcones = { xAOD::Iso::ptcone45 };
+    xAOD::TrackCorrection corrlist;
+    corrlist.trackbitset.set(static_cast<unsigned int>(xAOD::Iso::IsolationTrackCorrection::coreTrackPtr));
+    std::vector<xAOD::Iso::IsolationType> ptcones = { xAOD::Iso::ptcone40 };
     xAOD::TrackIsolation trackIsolation;
-    if( !m_trackIsolationTool->trackIsolation( trackIsolation, tp,ptcones ) ) {
+    if( !m_trackIsolationTool->trackIsolation( trackIsolation, tp,ptcones,corrlist ) ) {
       ATH_MSG_WARNING(" Calculation of TrackIsolation failed");
       return false;
     }

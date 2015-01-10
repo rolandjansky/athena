@@ -2,6 +2,7 @@
 #include "../MuonCandidateTool.h"
 #include "../InDetCandidateTool.h"
 #include "../MuonCombinedTool.h"
+#include "../MuonCombinedDebuggerTool.h"
 #include "../MuonCreatorTool.h"
 #include "../MuonDressingTool.h"
 #include "../MuonCombinedStacoTagTool.h"
@@ -14,6 +15,7 @@ using namespace MuonCombined;
 DECLARE_TOOL_FACTORY( MuonCandidateTool )
 DECLARE_TOOL_FACTORY( InDetCandidateTool )
 DECLARE_TOOL_FACTORY( MuonCombinedTool )
+DECLARE_TOOL_FACTORY( MuonCombinedDebuggerTool )
 DECLARE_TOOL_FACTORY( MuonCreatorTool )
 DECLARE_TOOL_FACTORY( MuonDressingTool )
 DECLARE_TOOL_FACTORY( MuonCombinedStacoTagTool )
@@ -27,6 +29,7 @@ DECLARE_FACTORY_ENTRIES( MuonCombinedBaseTools )
   DECLARE_TOOL( InDetCandidateTool )
   DECLARE_TOOL( MuonCandidateTool )
   DECLARE_TOOL( MuonCombinedTool )
+  DECLARE_TOOL( MuonCombinedDebuggerTool )
   DECLARE_TOOL( MuonCreatorTool )
   DECLARE_TOOL( MuonDressingTool )
   DECLARE_TOOL( MuonCombinedStacoTagTool )

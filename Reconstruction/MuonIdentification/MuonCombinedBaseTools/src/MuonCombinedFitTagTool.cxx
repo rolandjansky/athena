@@ -28,6 +28,7 @@
 #include "MuonCombinedEvent/MuonCandidate.h"
 #include "MuonCombinedEvent/CombinedFitTag.h"
 #include "TrkToolInterfaces/ITrackScoringTool.h"
+#include "TrkTrackSummary/TrackSummary.h"
 
 #include "muonEvent/CaloEnergy.h"
 
@@ -351,19 +352,23 @@ namespace MuonCombined {
 		       << "  ratio " << deltaE/caloEnergyExtrapolated->sigmaDeltaE());
       return true;
     }
-    
+
     DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator o =
 	originalTrack.trackStateOnSurfaces()->rbegin();
     DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator c =
 	combTrack.trackStateOnSurfaces()->rbegin();
     for (; o != originalTrack.trackStateOnSurfaces()->rend(); ++o) {
       if (dynamic_cast<const Trk::PerigeeSurface*>(&(**o).surface()))	break;
-      
+
       // compare measurements
-      if ((**o).measurementOnTrack()) {
+      if ((**o).measurementOnTrack() && (**o).trackParameters()) {
 
 	// check measurements in phase
-	while (! (**c).measurementOnTrack()) ++c;
+	while ( c != combTrack.trackStateOnSurfaces()->rend() && 
+		(!(**c).measurementOnTrack() || !(**c).trackParameters()) ) ++c;	
+
+	if( c == combTrack.trackStateOnSurfaces()->rend() ) continue;
+
 	double separation = ((**o).trackParameters()->associatedSurface().center() -
 			     (**c).trackParameters()->associatedSurface().center()).mag();
 	if (fabs(separation) > 1.*CLHEP::mm) {
@@ -395,7 +400,7 @@ namespace MuonCombined {
 	}
 	++c;
       }
-    }    
+    }  
     return false;    
   }
 

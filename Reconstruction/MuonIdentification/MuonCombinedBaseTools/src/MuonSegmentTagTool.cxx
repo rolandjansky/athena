@@ -27,13 +27,13 @@
 
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/Track.h"
+#include "TrkTrackSummary/TrackSummary.h"
 #include "TrkEventPrimitives/PropDirection.h"
 #include "MuonSegment/MuonSegment.h"
 
 #include "MSSurfaces.h"
 #include "MuonCombinedEvent/MuonSegmentInfo.h"
 #include "MuonCombinedEvent/SegmentTag.h"
-#include "Particle/ParticleExtrapolationMap.h"
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "xAODMuon/MuonSegment.h"
 #include "AthLinks/ElementLink.h"
@@ -41,7 +41,7 @@
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "xAODMuon/MuonSegment.h"
 
-#include "xAODTracking/ParticleCaloExtension.h" 
+#include "TrkCaloExtension/CaloExtension.h" 
 
 #include <iomanip>
 #include <vector>
@@ -279,7 +279,6 @@ namespace MuonCombined {
        
       matchedSegment = false ;
       const Trk::Track* track = idTP->indetTrackParticle().track();
-      const Rec::ParticleExtrapolationVector* particleExtrapolationVector = idTP->particleExtrapolationVector(); 
 
       if( !track ) continue;
       if( !track->perigeeParameters() ) continue;
@@ -378,30 +377,15 @@ namespace MuonCombined {
 	if( i_extrapolations == 1 ) direction = Trk::oppositeMomentum;
         
         // in case of along momentum extrapolation, use pre-existing extrapolation if available 
-        if( direction == Trk::alongMomentum && particleExtrapolationVector ){
-          for( const auto& entry : *particleExtrapolationVector ) {
-            if( entry.second == RecIntersect::MSEntrance ) {
-              trackAtMSEntrance[i_extrapolations] = entry.first->clone();
-              if( msgLvl(MSG::DEBUG) ){
-                if( !entry.first ) ATH_MSG_DEBUG("No extrapolation available: momentum " << track->perigeeParameters()->momentum().mag() );
-                else               ATH_MSG_DEBUG("Found muon entry: r " << entry.first->position().perp() << " z " << entry.first->position().z() 
-                                                 << " pt " << entry.first->momentum().perp() );
-              }
-              break;
-            }
-          }
-          const xAOD::ParticleCaloExtension* extension = !m_caloExtensionTool.empty() ? m_caloExtensionTool->caloExtension( const_cast<xAOD::TrackParticle&>(idTP->indetTrackParticle())) : 0;
-          if( extension ) {
-            if( msgLvl(MSG::DEBUG) && extension && extension->numberOfParameters() != 0 ){
-              ATH_MSG_DEBUG("Got calo extension " << extension->numberOfParameters() << " cells " << extension->caloCells().size() );
-              for( unsigned int i=0;i<extension->numberOfParameters();++i){
-                if( extension->parameterIdentifier(i) != 3 ) continue;
-                Trk::CurvilinearParameters pars = extension->curvilinearParameters(i);
-                ATH_MSG_DEBUG( " MS entry pos: r " << pars.position().perp() 
-                               << " z " << pars.position().z()
-                               << " momentum " << pars.momentum().perp() << " cov " << pars.covariance() );
-              }
-            }
+        const Trk::CaloExtension* extension = 0;
+        if( !m_caloExtensionTool.empty() )  m_caloExtensionTool->caloExtension( idTP->indetTrackParticle(), extension );
+        if( direction == Trk::alongMomentum ){
+          if( extension && extension->muonEntryLayerIntersection() ){
+            const Trk::TrackParameters& pars = *extension->muonEntryLayerIntersection();
+            trackAtMSEntrance[i_extrapolations] = pars.clone();
+            ATH_MSG_DEBUG("Got MS entry pos: r " << pars.position().perp() 
+                          << " z " << pars.position().z()
+                          << " momentum " << pars.momentum().perp() << " cov " << pars.covariance() );
           }
         }else{
           trackAtMSEntrance[i_extrapolations] = p_MuTagMatchingTool->ExtrapolateTrktoMSEntrance( track, direction ); 

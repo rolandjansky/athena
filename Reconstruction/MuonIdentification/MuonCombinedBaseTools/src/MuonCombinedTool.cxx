@@ -26,7 +26,8 @@ namespace MuonCombined {
 
   MuonCombinedTool::MuonCombinedTool (const std::string& type, const std::string& name, const IInterface* parent)
     :	AthAlgTool(type, name, parent),
-	m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
+	m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
+	m_muonCombDebugger("MuonCombined::MuonCombinedDebuggerTool/MuonCombinedDebuggerTool")
 	//m_muonCombinedTagTools("MuonCombined::MuonCombinedStacoTagTool/MuonCombinedStacoTagTool")
   {
     declareInterface<IMuonCombinedTool>(this);
@@ -34,6 +35,7 @@ namespace MuonCombined {
     declareProperty("MuonCombinedTagTools",     m_muonCombinedTagTools);
     declareProperty("DeltaEtaPreSelection",     m_deltaEtaPreSelection = 0.5 );
     declareProperty("DeltaPhiPreSelection",     m_deltaPhiPreSelection = 1.  );
+    declareProperty("RunMuonCombinedDebugger",  m_runMuonCombinedDebugger = false );
   }
 
   MuonCombinedTool::~MuonCombinedTool()
@@ -45,6 +47,12 @@ namespace MuonCombined {
 
     ATH_CHECK(m_printer.retrieve());
     ATH_CHECK(m_muonCombinedTagTools.retrieve());
+
+    // debug tree
+    if(m_runMuonCombinedDebugger) {
+      ATH_CHECK(m_muonCombDebugger.retrieve());
+      m_muonCombDebugger->bookBranches();
+    }
 
     return StatusCode::SUCCESS;
   }
@@ -59,6 +67,10 @@ namespace MuonCombined {
     if( inDetCandidates.empty() ) return;
     if( muonCandidates.empty() )  return;
 
+    // debug tree
+    if(m_runMuonCombinedDebugger) {
+      m_muonCombDebugger->fillBranches(muonCandidates, inDetCandidates);
+    }
 
     // loop over muon track particles
     for( auto muonCandidate : muonCandidates ){
@@ -70,7 +82,7 @@ namespace MuonCombined {
       if( associatedIdCandidates.empty() ) continue;
       ATH_MSG_DEBUG("Associated ID candidates " << associatedIdCandidates.size() );
       // build combined muons
-      for(auto tool : m_muonCombinedTagTools) 
+      for(auto& tool : m_muonCombinedTagTools) 
 	tool->combine(*muonCandidate,associatedIdCandidates);
       
     }    
