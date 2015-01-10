@@ -4,9 +4,28 @@ author scott snyder
 
 use ExternalPolicy ExternalPolicy-* External
 
+macro CheckerGccPlugins_native_version "CheckerGccPlugins-00-01-08"
+macro CheckerGccPlugins_home "${ATLAS_EXTERNAL}/CheckerGccPlugins/$(CheckerGccPlugins_native_version)"
+
+
+##### Construct the compiler command-line arguments for enabling checking.
+
+# Find the directory containing the plugin.
+# If this package is being built locally, then we use the library
+# directory for the local project.   Otherwise, we use the external
+# version.
+apply_tag CheckerGccPlugins_project_$(CheckerGccPlugins_project)
+
+macro CheckerGccPlugins_plugin_dir "$(CheckerGccPlugins_cmtpath)/$(cmt_installarea_prefix)/$(CMTCONFIG)/lib" \
+  CheckerGccPlugins_project_AtlasCore "$(CheckerGccPlugins_home)/$(CMTCONFIG)" \
+  CheckerGccPlugins_project_AtlasProduction "$(CheckerGccPlugins_home)/$(CMTCONFIG)" \
+  CheckerGccPlugins_project_AtlasPhysics "$(CheckerGccPlugins_home)/$(CMTCONFIG)"
+
+macro CheckerGccPlugins_args "" target-gcc " -fplugin=$(CheckerGccPlugins_plugin_dir)/libchecker_gccplugins.so "
 
 private
-# building checker_gccplugin
+
+##### building checker_gccplugin
 
 use gmp v* LCG_Interfaces
 # gmp isn't available in experimental LCG

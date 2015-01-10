@@ -45,6 +45,8 @@ const char* type_name (tree t)
  */
 void type_callback (void* gcc_data, void* /*user_data*/)
 {
+  const char* url = "<https://twiki.cern.ch/twiki/bin/view/AtlasComputing/ImprovingSoftware>";
+
   // Select complete named struct/class types.
   tree t = (tree)gcc_data;
   tree tt = t;//TYPE_MAIN_VARIANT(t);
@@ -68,7 +70,15 @@ void type_callback (void* gcc_data, void* /*user_data*/)
       name == "SegMemSvc" ||
       name == "ActiveStoreSvc" ||
       name == "StoreGateSvc" ||
-      name == "__shadow__::__StoreGateSvc")
+      name == "SGImplSvc" ||
+      name == "SG::HiveMgrSvc" ||
+      name == "AddressProviderSvc" ||
+      name == "Algtest" ||
+      name == "Algtooltest" ||
+      name == "Servtest" ||
+      name == "ClassIDSvc")
+    return;
+  if (name.substr (0, 12) == "__shadow__::")
     return;
 
   // Loop over direct base classes.
@@ -85,24 +95,24 @@ void type_callback (void* gcc_data, void* /*user_data*/)
         location_t loc = DECL_SOURCE_LOCATION(TYPE_MAIN_DECL(tt));
         warning_at (loc, 0, 
                     "%<%D%> derives directly from %<Algorithm%>; "
-                    "should derive from %<AthAlgorithm%> instead.",
-                    tt);
+                    "should derive from %<AthAlgorithm%> instead.  (See %s.)",
+                    tt, url);
       }
 
       else if (bname == "AlgTool") {
         location_t loc = DECL_SOURCE_LOCATION(TYPE_MAIN_DECL(tt));
         warning_at (loc, 0, 
                     "%<%D%> derives directly from %<AlgTool%>; "
-                    "should derive from %<AthAlgTool%> instead.",
-                    tt);
+                    "should derive from %<AthAlgTool%> instead.  (See %s.)",
+                    tt, url);
       }
 
       else if (bname == "Service") {
         location_t loc = DECL_SOURCE_LOCATION(TYPE_MAIN_DECL(tt));
         warning_at (loc, 0, 
                     "%<%D%> derives directly from %<Service%>; "
-                    "should derive from %<AthService%> instead.",
-                    tt);
+                    "should derive from %<AthService%> instead.  (See %s.)",
+                    tt, url);
       }
     }
   }
