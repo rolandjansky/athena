@@ -2,7 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define  GAUDISVC_EVENTLOOPMGR_CPP
+#ifdef ATHENAHIVE
+#define  ATHENASERVICES_ATHENAHIVEEVENTLOOPMGR_CPP
 
 #include <cassert>
 #include <ios>
@@ -22,8 +23,13 @@
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IDataManagerSvc.h"
+#include "GaudiKernel/IDataProviderSvc.h"
 #include "GaudiKernel/IConversionSvc.h"
+#include "GaudiKernel/IJobOptionsSvc.h"
 #include "GaudiKernel/GaudiException.h"
+#include "GaudiKernel/AppReturnCode.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/Property.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/ActiveStoreSvc.h"
@@ -33,14 +39,19 @@
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventType.h"
 
+#include "AthenaHiveEventLoopMgr.h"
+
+#include <GaudiKernel/IScheduler.h>
+// External libraries
+#include "tbb/tick_count.h"
+
 #include "ClearStorePolicy.h"
 
-#include "AthenaEventLoopMgr.h"
 
 //=========================================================================
 // Standard Constructor
 //=========================================================================
-AthenaEventLoopMgr::AthenaEventLoopMgr(const std::string& nam, 
+AthenaHiveEventLoopMgr::AthenaHiveEventLoopMgr(const std::string& nam, 
 				       ISvcLocator* svcLoc)
   : MinimalEventLoopMgr(nam, svcLoc), 
     m_incidentSvc ( "IncidentSvc",  nam ), 
@@ -52,7 +63,7 @@ AthenaEventLoopMgr::AthenaEventLoopMgr(const std::string& nam,
     m_pITK(0), 
     m_currentRun(0), m_firstRun(true), m_tools(this), m_nevt(0), m_writeHists(false),
     m_msg( msgSvc(), nam ),
-    m_nev(0), m_proc(0), m_useTools(false)
+    m_nev(0), m_proc(0), m_useTools(false),m_doEvtHeartbeat(false)
 
 {
   declareProperty("EvtSel", m_evtsel, 
@@ -65,7 +76,7 @@ AthenaEventLoopMgr::AthenaEventLoopMgr(const std::string& nam,
   declareProperty("TimeKeeper", m_timeKeeperName, 
 		  "Name of TimeKeeper to use. NONE or empty string (default) "
 		  "means no time limit control on event loop");
-  m_timeKeeperName.declareUpdateHandler(&AthenaEventLoopMgr::setupTimeKeeper, this);
+  m_timeKeeperName.declareUpdateHandler(&AthenaHiveEventLoopMgr::setupTimeKeeper, this);
   declareProperty("HistWriteInterval",    m_writeInterval=0 ,
 		  "histogram write/update interval");
   declareProperty("FailureMode",          m_failureMode=1 , 
@@ -82,22 +93,31 @@ AthenaEventLoopMgr::AthenaEventLoopMgr(const std::string& nam,
 		  "(default as it is makes things easier for memory management"
 		  ") or at BeginEvent (easier e.g. for interactive use)");
   declareProperty("PreSelectTools",m_tools,"AlgTools for event pre-selection")->
-declareUpdateHandler( &AthenaEventLoopMgr::setupPreSelectTools, this ); ;
+    declareUpdateHandler( &AthenaHiveEventLoopMgr::setupPreSelectTools, this ); ;
   
+  declareProperty("SchedulerSvc", m_schedulerName="ForwardSchedulerSvc",
+                  "Name of the scheduler to be used");
+  
+  declareProperty("WhiteboardSvc", m_whiteboardName="EventDataSvc",
+		  "Name of the Whiteboard to be used");
+
+  declareProperty("EventStore", m_eventStore);
+
+  m_scheduledStop = false;
 
 }
 
 //=========================================================================
 // Standard Destructor
 //=========================================================================
-AthenaEventLoopMgr::~AthenaEventLoopMgr()   
+AthenaHiveEventLoopMgr::~AthenaHiveEventLoopMgr()   
 {
 }
 
 //=========================================================================
 // implementation of IAppMgrUI::initalize
 //=========================================================================
-StatusCode AthenaEventLoopMgr::initialize()    
+StatusCode AthenaHiveEventLoopMgr::initialize()    
 {
 
   // configure our MsgStream
@@ -121,8 +141,28 @@ StatusCode AthenaEventLoopMgr::initialize()
   }
 
 //-------------------------------------------------------------------------
-// Setup access to event data services
+// Setup stuff for hive
 //-------------------------------------------------------------------------
+
+  m_whiteboard = serviceLocator()->service(m_whiteboardName);
+  if( !m_whiteboard.isValid() )  {
+    fatal() << "Error retrieving " << m_whiteboardName << " interface IHiveWhiteBoard." 
+	    << endmsg;
+    return StatusCode::FAILURE;
+  }
+  
+  m_schedulerSvc = serviceLocator()->service(m_schedulerName);
+  if ( !m_schedulerSvc.isValid()){
+    fatal() << "Error retrieving SchedulerSvc interface ISchedulerSvc." 
+	    << endmsg;
+    return StatusCode::FAILURE;    
+  }
+  // Setup algorithm resource pool
+  m_algResourcePool = serviceLocator()->service("AlgResourcePool");
+  if( !m_algResourcePool.isValid() ) {
+    fatal() << "Error retrieving AlgResourcePool" << endmsg;
+    return StatusCode::FAILURE;
+  }
 
   sc = m_eventStore.retrieve();
   if( !sc.isSuccess() )  
@@ -306,11 +346,17 @@ StatusCode AthenaEventLoopMgr::initialize()
   return sc;
 }
 
+inline
+StoreGateSvc* 
+AthenaHiveEventLoopMgr::eventStore() const {
+  return &*m_eventStore;
+}
+
 //=========================================================================
 // property handlers
 //=========================================================================
 void 
-AthenaEventLoopMgr::setupTimeKeeper(Property&) {
+AthenaHiveEventLoopMgr::setupTimeKeeper(Property&) {
   const std::string& tkName(m_timeKeeperName.value());
   // We do not expect a TimeKeeper necessarily being declared  
   if( tkName != "NONE" && tkName.length() != 0) {
@@ -324,7 +370,7 @@ AthenaEventLoopMgr::setupTimeKeeper(Property&) {
 }
 
 void 
-AthenaEventLoopMgr::setClearStorePolicy(Property&) {
+AthenaHiveEventLoopMgr::setClearStorePolicy(Property&) {
   const std::string& policyName = m_clearStorePolicy.value();
 
   if ( policyName != "BeginEvent" &&
@@ -345,7 +391,7 @@ AthenaEventLoopMgr::setClearStorePolicy(Property&) {
 }
 
 void
-AthenaEventLoopMgr::setupPreSelectTools(Property&) {
+AthenaHiveEventLoopMgr::setupPreSelectTools(Property&) {
 
   m_toolInvoke.clear();
   m_toolReject.clear();
@@ -378,14 +424,14 @@ AthenaEventLoopMgr::setupPreSelectTools(Property&) {
 //=========================================================================
 // implementation of IAppMgrUI::finalize
 //=========================================================================
-StatusCode AthenaEventLoopMgr::finalize()    
+StatusCode AthenaHiveEventLoopMgr::finalize()    
 {
 
   StatusCode sc = MinimalEventLoopMgr::finalize();
   if (sc.isFailure()) 
   {
     m_msg << MSG::ERROR 
-	  << "Error in Algorithm Finalize" 
+	  << "Error in Service base class Finalize" 
 	  << endreq;
   }
 
@@ -402,10 +448,20 @@ StatusCode AthenaEventLoopMgr::finalize()
   m_histoPersSvc.release().ignore();
   m_activeStoreSvc.release().ignore();
 
-  m_evtSelector   = releaseInterface(m_evtSelector);
+  m_whiteboard = 0;
+  m_algResourcePool = 0;
+  m_schedulerSvc = 0;
+  // m_evtDataSvc = 0;
+
   m_incidentSvc.release().ignore();
 
-  delete m_evtContext; m_evtContext = 0;
+  // Release event selector context
+  if ( m_evtSelector && m_evtContext )   {
+    m_evtSelector->releaseContext(m_evtContext).ignore();
+    //    m_evtSelector   = releaseInterface(m_evtSelector);
+    delete m_evtContext; m_evtContext = 0;
+  }
+
 
   if(m_useTools) {
     tool_iterator firstTool = m_tools.begin();
@@ -444,7 +500,7 @@ StatusCode AthenaEventLoopMgr::finalize()
 //=========================================================================
 // write out the histograms
 //=========================================================================
-StatusCode AthenaEventLoopMgr::writeHistograms(bool force) {
+StatusCode AthenaHiveEventLoopMgr::writeHistograms(bool force) {
 
 
   StatusCode sc (StatusCode::SUCCESS);
@@ -516,24 +572,10 @@ StatusCode AthenaEventLoopMgr::writeHistograms(bool force) {
 //=========================================================================
 // Run the algorithms beginRun hook
 //=========================================================================
-StatusCode AthenaEventLoopMgr::beginRunAlgorithms(const EventInfo& event) {
+StatusCode AthenaHiveEventLoopMgr::beginRunAlgorithms(const EventInfo& event) {
 
   // Fire BeginRun "Incident"
   m_incidentSvc->fireIncident(EventIncident(event, name(),"BeginRun"));
-
-  // Call the execute() method of all top algorithms 
-  for ( ListAlg::iterator ita = m_topAlgList.begin(); 
-        ita != m_topAlgList.end();
-        ita++ ) 
-  {
-    const StatusCode& sc = (*ita)->sysBeginRun(); 
-    if ( !sc.isSuccess() ) {
-      m_msg << MSG::INFO  << "beginRun of algorithm "
-	    << (*ita)->name() << " failed with StatusCode::" << sc
-	    << endreq;
-      return sc;
-    }
-  }
 
   return StatusCode::SUCCESS;
 }
@@ -541,24 +583,10 @@ StatusCode AthenaEventLoopMgr::beginRunAlgorithms(const EventInfo& event) {
 //=========================================================================
 // Run the algorithms endRun hook
 //=========================================================================
-StatusCode AthenaEventLoopMgr::endRunAlgorithms() {
+StatusCode AthenaHiveEventLoopMgr::endRunAlgorithms() {
 
   // Fire EndRun Incident
   m_incidentSvc->fireIncident(Incident(name(),"EndRun"));
-
-  // Call the execute() method of all top algorithms 
-  for ( ListAlg::iterator ita = m_topAlgList.begin(); 
-        ita != m_topAlgList.end();
-        ita++ ) 
-  {
-    const StatusCode& sc = (*ita)->sysEndRun();
-    if ( !sc.isSuccess() ) {
-      m_msg << MSG::INFO  << "endRun of algorithm "
-	    << (*ita)->name() << " failed with StatusCode::" << sc
-	    << endreq;
-      return sc;
-    }  
-  }
 
   return StatusCode::SUCCESS;
 }
@@ -566,37 +594,7 @@ StatusCode AthenaEventLoopMgr::endRunAlgorithms() {
 //=========================================================================
 // Call sysInitialize() on all algorithms and output streams
 //=========================================================================
-StatusCode AthenaEventLoopMgr::initializeAlgorithms() {
-
-  // Initialize the list of Algorithms. Note that existing Algorithms
-  // are protected against multiple initialization attempts.
-  ListAlg::iterator ita;
-  for ( ita = m_topAlgList.begin(); ita != m_topAlgList.end(); ++ita )
-    {
-      StatusCode sc = (*ita)->sysInitialize();
-      if( sc.isFailure() )
-	{
-	  m_msg << MSG::ERROR
-		<< "Unable to initialize Algorithm: "
-		<< (*ita)->name()
-		<< endreq;
-	  return sc;
-	}
-    }
-
-  // Initialize the list of Output Streams. Note that existing Output Streams
-  // are protected against multiple initialization attempts.
-  for (ita = m_outStreamList.begin(); ita != m_outStreamList.end(); ++ita )
-    {
-      StatusCode sc = (*ita)->sysInitialize();
-      if( sc.isFailure() ) {
-	m_msg << MSG::ERROR
-	      << "Unable to initialize Output Stream: "
-	      << (*ita)->name()
-	      << endreq;
-	return sc;
-      }
-    }
+StatusCode AthenaHiveEventLoopMgr::initializeAlgorithms() {
 
   return StatusCode::SUCCESS;
 }
@@ -604,22 +602,7 @@ StatusCode AthenaEventLoopMgr::initializeAlgorithms() {
 //=========================================================================
 // Run the algorithms for the current event
 //=========================================================================
-StatusCode AthenaEventLoopMgr::executeAlgorithms() {
-
-  // Call the execute() method of all top algorithms 
-  for ( ListAlg::iterator ita = m_topAlgList.begin(); 
-        ita != m_topAlgList.end();
-        ita++ ) 
-  {
-    (*ita)->resetExecuted(); 
-    const StatusCode& sc = (*ita)->sysExecute(); 
-    if ( !sc.isSuccess() ) {
-      m_msg << MSG::INFO  << "Execution of algorithm "
-	    << (*ita)->name() << " failed with StatusCode::" << sc
-	    << endreq;
-      return sc;
-    }
-  }
+StatusCode AthenaHiveEventLoopMgr::executeAlgorithms() {
 
   return StatusCode::SUCCESS;
 }
@@ -628,10 +611,38 @@ StatusCode AthenaEventLoopMgr::executeAlgorithms() {
 //=========================================================================
 // executeEvent(void* par)
 //=========================================================================
-StatusCode AthenaEventLoopMgr::executeEvent(void* par)    
+StatusCode AthenaHiveEventLoopMgr::executeEvent(void* createdEvts_IntPtr )
 {
 
-  const EventInfo* pEvent(reinterpret_cast<EventInfo*>(par)); //AUIII!
+  // Leave the interface intact and swallow this C trick.
+  int& createdEvts = *((int*)createdEvts_IntPtr);
+
+  EventContext* evtContext(nullptr);
+
+  if ( m_createEventContext(evtContext,createdEvts).isFailure() ){
+    fatal() << "Impossible to create event context" << endmsg;
+    return StatusCode::FAILURE;
+  }
+
+  // An incident may schedule a stop, in which case is better to exit before the actual execution.
+  if ( m_scheduledStop ) {
+    m_msg << MSG::ALWAYS
+	  << "A stopRun was requested by an incidentListener. "
+	  << "Do not process this event." 
+	  << endreq;
+    return (StatusCode::SUCCESS);
+  }
+
+  StatusCode declEvtRootSc = m_declareEventRootAddress(evtContext);
+  if (declEvtRootSc.isFailure()) { // We ran out of events!
+    createdEvts = -1;  // Set created event to a negative value: we finished!
+    return StatusCode::SUCCESS;
+  }
+
+
+
+  // const EventInfo* pEvent(reinterpret_cast<EventInfo*>(createdEvts_IntPtr)); //AUIII!
+  const EventInfo* pEvent = m_pEvent;
   assert(pEvent);
 
   /// Fire begin-Run incident if new run:
@@ -651,7 +662,9 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* par)
   }
 
   bool toolsPassed=true;
-  bool eventFailed = false;
+  // CGL: FIXME
+  // bool eventFailed = false;
+
   // Call any attached tools to reject events early
   unsigned int toolCtr=0;
   if(m_useTools) {
@@ -668,268 +681,175 @@ StatusCode AthenaEventLoopMgr::executeEvent(void* par)
   }
 
 
-  uint64_t evtNumber = pEvent->event_ID()->event_number();
-  bool doEvtHeartbeat(m_eventPrintoutInterval.value() > 0 && 
-                      0 == (m_nev % m_eventPrintoutInterval.value()));
-  if (doEvtHeartbeat)  {
-   if(!m_useTools) m_msg << MSG::INFO
-	<< "  ===>>>  start processing event #" << evtNumber << ", run #" << m_currentRun 
-	<< " " << m_nev << " events processed so far  <<<===" << endreq;
-   else m_msg << MSG::INFO
-	<< "  ===>>>  start processing event #" << evtNumber << ", run #" << m_currentRun 
-	<< " " << m_nev << " events read and " << m_proc 
-        << " events processed so far  <<<===" << endreq;   
+  EventID::number_type evtNumber = pEvent->event_ID()->event_number();
+  m_doEvtHeartbeat = (m_eventPrintoutInterval.value() > 0 && 
+		 0 == (m_nev % m_eventPrintoutInterval.value()));
+  if (m_doEvtHeartbeat)  {
+   if(!m_useTools) 
+     m_msg << MSG::INFO
+           << "  ===>>>  start processing event #" << evtNumber << ", run #" << m_currentRun 
+           << " on slot " << evtContext->slot() << ",  " << m_proc 
+           << " events processed so far  <<<===" << endreq;
+   else 
+     m_msg << MSG::INFO
+           << "  ===>>>  start processing event #" << evtNumber << ", run #" << m_currentRun 
+           << " on slot " << evtContext->slot() << ",  " 
+           << m_nev << " events read and " << m_proc 
+           << " events processed so far  <<<===" << endreq;   
   }
 
   // Reset the timeout singleton
   resetTimeout(Athena::Timeout::instance());
   if(toolsPassed) {
-  // Fire BeginEvent "Incident"
-  m_incidentSvc->fireIncident(EventIncident(*pEvent, name(),"BeginEvent"));
-
-  // An incident may schedule a stop, in which case is better to exit before the actual execution.
-  if ( m_scheduledStop ) {
-    m_msg << MSG::ALWAYS
-	  << "A stopRun was requested by an incidentListener. "
-	  << "Do not process this event." 
-	  << endreq;
-    return (StatusCode::SUCCESS);
-  }
-
-  // Execute Algorithms
-  //  StatusCode sc = MinimalEventLoopMgr::executeEvent(par);
-
-  // Call the execute() method of all top algorithms 
-  StatusCode sc = executeAlgorithms();
-
-  if(!sc.isSuccess()) {
-    eventFailed = true; 
-
- /// m_failureMode 1, 
- ///    RECOVERABLE: skip algorithms, but do not terminate job
- ///    FAILURE: terminate job 
-    if (m_failureMode == 1 && sc.isRecoverable() ) {
-      m_msg << MSG::WARNING
-	    << "RECOVERABLE error returned by algorithm. "
-	    << "Skipping remaining algorithms." << std::endl
-	    << "\tNo output will be written for this event, "
-	    << "but job will continue to next event"
-	    << endreq;
-      eventFailed = false;
-    }
-
- /// m_failureMode 2: skip algorithms, but do not terminate job
-    if (m_failureMode >= 2) {
-      m_msg << MSG::INFO
-	    << "Skipping remaining algorithms." << std::endl
-	    << "\tNo output will be written for this event, "
-	    << "but job will continue to next event"
-	    << endreq;
-      eventFailed = false;
-    }
-
-  }  else {
-
-    // Call the execute() method of all output streams 
-    for (ListAlg::iterator ito = m_outStreamList.begin(); 
-	 ito != m_outStreamList.end(); ito++ ) {
-      (*ito)->resetExecuted();
-      sc = (*ito)->sysExecute(); 
-      if( !sc.isSuccess() ) {
-	eventFailed = true; 
-      } 
+    // Fire BeginEvent "Incident"
+    m_incidentSvc->fireIncident(EventIncident(*pEvent, name(),"BeginEvent"));
+    
+    
+    // Now add event to the scheduler 
+    info() << "Adding event " << evtContext->evt() 
+	   << ", slot " << evtContext->slot()
+	   << " to the scheduler" << endmsg;
+    
+    m_incidentSvc->fireIncident(Incident(name(), IncidentType::BeginProcessing));
+    StatusCode addEventStatus = m_schedulerSvc->pushNewEvent(evtContext);
+    
+    // If this fails, we need to wait for something to complete
+    if (!addEventStatus.isSuccess()){
+      fatal() << "An event processing slot should be now free in the scheduler, but it appears not to be the case." << endmsg;
     }
     
-    writeHistograms().ignore();
-
-  }
-
-  // Fire EndEvent "Incident"
-  m_incidentSvc->fireIncident(EventIncident(*pEvent, name(),"EndEvent"));
-  ++m_proc;
   }  // end of toolsPassed test
+
   ++m_nev;
-  if (doEvtHeartbeat) {
-   if(!m_useTools) m_msg << MSG::INFO
-	<< "  ===>>>  done processing event #" << evtNumber << ", run #" << m_currentRun 
-	<< " " << m_nev << " events processed so far  <<<===" << endreq;
-   else m_msg << MSG::INFO
-	<< "  ===>>>  done processing event #" << evtNumber << ", run #" << m_currentRun 
-	<< " " << m_nev << " events read and " << m_proc 
-        << " events processed so far <<<===" << endreq;
-   std::ofstream outfile( "eventLoopHeartBeat.txt");
-   if ( !outfile ) {
-     m_msg << MSG::ERROR << " unable to open: eventLoopHeartBeat.txt" << endreq;
-   } else {
-     outfile << "  done processing event #" << evtNumber << ", run #" << m_currentRun 
-	     << " " << m_nev << " events read so far  <<<===" << std::endl;
-     outfile.close();
-   }  
 
-  }
+  createdEvts++;
 
-  //------------------------------------------------------------------------
-  // Check if there was an error processing current event
-  //------------------------------------------------------------------------
-  return eventFailed?StatusCode::FAILURE:StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 
 }
 
 //=========================================================================
 // implementation of IEventProcessor::executeRun
 //=========================================================================
-StatusCode AthenaEventLoopMgr::executeRun(int maxevt)
+StatusCode AthenaHiveEventLoopMgr::executeRun(int maxevt)
 {
-  if (!(this->nextEvent(maxevt)).isSuccess()) return StatusCode::FAILURE;
-  m_incidentSvc->fireIncident(Incident(name(),"EndEvtLoop"));
+
+  StatusCode  sc;
+  bool eventfailed = false;
+  
+  sc = m_algResourcePool->beginRun();
+  if (sc.isFailure()) 
+    eventfailed=true;
+
+  // Call now the nextEvent(...)
+  sc = nextEvent(maxevt);
+  if (!sc.isSuccess())
+    eventfailed = true;
+
+  sc = m_algResourcePool->endRun();
+  if (sc.isFailure())
+    eventfailed=true;
+
+  if (eventfailed) {
+    return StatusCode::FAILURE;
+  } else {
+    m_incidentSvc->fireIncident(Incident(name(),"EndEvtLoop"));
+    //    return this->endRunAlgorithms();
+    return StatusCode::SUCCESS;
+  }
+
   return this->endRunAlgorithms();
 }
+//-----------------------------------------------------------------------------
+// Implementation of IEventProcessor::stopRun()
+//-----------------------------------------------------------------------------
+StatusCode AthenaHiveEventLoopMgr::stopRun() {
+  // Set the application return code
+  SmartIF<IProperty> appmgr(serviceLocator());
+  if(Gaudi::setAppReturnCode(appmgr, Gaudi::ReturnCode::ScheduledStop).isFailure()) {
+    error() << "Could not set return code of the application ("
+            << Gaudi::ReturnCode::ScheduledStop << ")" << endmsg;
+  }
+  m_scheduledStop = true;
+  return StatusCode::SUCCESS;
+}
+
 
 //=========================================================================
 // implementation of IAppMgrUI::nextEvent
 //=========================================================================
-StatusCode AthenaEventLoopMgr::nextEvent(int maxevt)   
+StatusCode AthenaHiveEventLoopMgr::nextEvent(int maxevt)   
 {
   // make nextEvent(0) a dummy call
   if (0 == maxevt) return StatusCode::SUCCESS;
 
-  static int        total_nevt = 0;
+  // CGL: FIXME  
+  // static int        total_nevt = 0;
 
+  // CGL: FIXME  
   // the current 'clear-store' policy
-  static const ClearStorePolicy::Type s_clearStore = 
-    clearStorePolicy( m_clearStorePolicy.value(), m_msg );
+  // static const ClearStorePolicy::Type s_clearStore = 
+  //   clearStorePolicy( m_clearStorePolicy.value(), m_msg );
+
+  // Calculate runtime
+  auto start_time = tbb::tick_count::now();
+  auto secsFromStart = [&start_time]()->double{
+    return (tbb::tick_count::now()-start_time).seconds();
+  };
+
+  // Reset the application return code.
+  Gaudi::setAppReturnCode(m_appMgrProperty, Gaudi::ReturnCode::Success, true).ignore();  
 
 
-  // These following two initialization loops are performed here in case new
-  // Top level Algorithms or Output Streams have been created interactively
-  // at run-time instead of configuration time. Note also that it is possible
-  // that some newly created Algorithms are still not initialized as a result
-  // of these loops (e.g. where the membership of an existing Sequencer is 
-  // changed at run-time. In this case, the Algorithm::sysExecute() function 
-  // will ensure that the Algorithm is correctly initialized. This mechanism 
-  // actually makes loops redundant, but they do  provide a well defined 
-  // location for the initialization to take place in the non-interactive case.
 
-  StatusCode sc = initializeAlgorithms();
-  if(sc.isFailure())
-    return sc;
+  int finishedEvts =0;
+  int createdEvts =0;
+  info() << "Starting loop on events" << endmsg;
 
   // loop over events if the maxevt (received as input) is different from -1.
   // if evtmax is -1 it means infinite loop (till time limit that is)
   //  int nevt(0);
-  bool noTimeLimit(false);
-  while((maxevt == -1 || m_nevt < maxevt) && 
-	(noTimeLimit = (m_pITK == 0 || m_pITK->nextIter()) ) ) {
-    // Check if there is a scheduled stop issued by some algorithm/sevice
-    if ( m_scheduledStop ) {
-      m_scheduledStop = false;
-      m_msg << MSG::ALWAYS 
-	    << "A stopRun was requested. Terminating event loop." << endreq;
-      break;
-    }
-
-    ++m_nevt; ++total_nevt; 
-    //-----------------------------------------------------------------------
-    // Clear the event store, if used in the event loop
-    //-----------------------------------------------------------------------
-    if( s_clearStore == ClearStorePolicy::BeginEvent &&
-	0 != total_nevt ) {
-      sc = eventStore()->clearStore();
-      if( !sc.isSuccess() ) {
-	m_msg << MSG::ERROR
-	      << "Clear of Event data store failed" << endreq;
-        m_incidentSvc->fireIncident(Incident(name(),"EndEvtLoop"));
-	return sc;
-      }
-    }
-
-    //-----------------------------------------------------------------------
-    // we need an EventInfo Object to fire the incidents. 
-    //-----------------------------------------------------------------------
-    const EventInfo* pEvent(0);
-    if ( m_evtContext )
-    {   // Deal with the case when an EventSelector is provided
-
-      IOpaqueAddress* addr = 0;
-
-      sc = m_evtSelector->next(*m_evtContext);
-
-      if ( !sc.isSuccess() )
-      {
-        // This is the end of the loop. No more events in the selection
-        m_msg << MSG::INFO 
-	      << "No more events in event selection " << endreq;
-	sc = StatusCode::SUCCESS;
-        break;
-      }
-
-      if (m_evtSelector->createAddress(*m_evtContext, addr).isFailure()) {
-        m_msg << MSG::ERROR
-	      << "Could not create an IOpaqueAddress" << endreq;
-        break;
-      }
+  // CGL: FIXME
+  // bool noTimeLimit(false);
+  bool loop_ended=false;
+  while ( !loop_ended and (maxevt < 0 or finishedEvts < maxevt)){
+    
+    if (createdEvts >= 0 && // The events are not finished with an unlimited number of events
+        (createdEvts < maxevt or maxevt<0) &&  // The events are not finished with a limited number of events
+        m_schedulerSvc->freeSlots()>0){ // There are still free slots in the scheduler
       
+      debug() << "createdEvts: " << createdEvts << ", freeslots: " << m_schedulerSvc->freeSlots() << endmsg;
+      
+      
+      StatusCode sc(StatusCode::SUCCESS,true);
 
-      // Most iterators provide the IOA of an event header (EventInfo, DataHeader)
-      if (0 != addr) {
-	//create its proxy
-	sc = eventStore()->recordAddress(addr);
-	if( !sc.isSuccess() ) {
-	  m_msg << MSG::WARNING 
-		<< "Error declaring Event object" << endreq;
-	  continue;
-	}
-      } 
-      if ((sc=eventStore()->loadEventProxies()).isFailure()) {
+      
+      sc = executeEvent(&createdEvts);
+      if (sc.isFailure()) {
 	m_msg << MSG::ERROR 
-	      << "Error loading Event proxies" << endreq;
-	continue;
-      } 
-  
-      // Retrieve the Event object
-      sc = eventStore()->retrieve(pEvent);
-      if( !sc.isSuccess() ) {
-	m_msg << MSG::ERROR 
-	      << "Unable to retrieve Event root object" << endreq;
-	break;
+	      << "Terminating event processing loop due to errors" << endreq;
+        return StatusCode::FAILURE;
+      }
+
+    } // end if condition createdEvts < maxevt
+    else{ 
+      // all the events were created but not all finished or the slots were 
+      // all busy: the scheduler should finish its job
+
+      debug() << "Draining the scheduler" << endmsg;
+
+      // Pull out of the scheduler the finished events
+      if (m_drainScheduler(finishedEvts).isFailure()){
+        loop_ended = true;
       }
     }
-    else 
-    {
-      //with no iterator it's up to us to create an EventInfo
-      pEvent = new EventInfo(new EventID(0,m_nevt), new EventType());
-      pEvent->event_ID()->set_lumi_block( m_nevt );
-      sc = eventStore()->record(pEvent,"");
-      if( !sc.isSuccess() )  {
-        m_msg << MSG::ERROR 
-	      << "Error declaring event data object" << endreq;
-	break;
-      } 
-    }
+  } // end main loop on finished events  
 
-    // Execute event for all required algorithms
-    sc = executeEvent(reinterpret_cast<void*>(const_cast<EventInfo*>(pEvent))); //AHI!
-    if( !sc.isSuccess() )
-    {
-      m_msg << MSG::ERROR 
-	    << "Terminating event processing loop due to errors" << endreq;
-      break;
-    }
+  info() << "---> Loop Finished (seconds): " << secsFromStart() <<endmsg;
 
-    //-----------------------------------------------------------------------
-    // Clear the event store, if used in the event loop
-    //-----------------------------------------------------------------------
-    if ( s_clearStore == ClearStorePolicy::EndEvent ) {
-      sc = eventStore()->clearStore();
-      if( !sc.isSuccess() ) {
-        m_msg << MSG::ERROR 
-	      << "Clear of Event data store failed" << endreq;
-	break;
-      }
-    }
-  } //event loop
 
-  return (noTimeLimit ? sc : StatusCode::FAILURE);
+  return StatusCode::SUCCESS;
+
 
 }
 
@@ -938,7 +858,7 @@ StatusCode AthenaEventLoopMgr::nextEvent(int maxevt)
 // Seek to a given event.
 // The event selector must support the IEventSeek interface for this to work.
 //=========================================================================
-StatusCode AthenaEventLoopMgr::seek (int evt)
+StatusCode AthenaHiveEventLoopMgr::seek (int evt)
 {
   IEventSeek* is = dynamic_cast<IEventSeek*> (m_evtSelector);
   if (is == 0) {
@@ -965,7 +885,7 @@ StatusCode AthenaEventLoopMgr::seek (int evt)
 //=========================================================================
 // Return the current event count.
 //=========================================================================
-int AthenaEventLoopMgr::curEvent() const
+int AthenaHiveEventLoopMgr::curEvent() const
 {
   return m_nevt;
 }
@@ -973,7 +893,7 @@ int AthenaEventLoopMgr::curEvent() const
 //=========================================================================
 // Return the collection size
 //=========================================================================
-int AthenaEventLoopMgr::size()
+int AthenaHiveEventLoopMgr::size()
 {
   ICollectionSize* cs = dynamic_cast<ICollectionSize*> (m_evtSelector);
   if (cs == 0) {
@@ -984,7 +904,10 @@ int AthenaEventLoopMgr::size()
   return cs->size();
 }
 
-void AthenaEventLoopMgr::handle(const Incident& inc)
+//=========================================================================
+// Handle Incidents
+//=========================================================================
+void AthenaHiveEventLoopMgr::handle(const Incident& inc)
 {
   if(inc.type()!="BeforeFork")
     return;
@@ -1043,6 +966,8 @@ void AthenaEventLoopMgr::handle(const Incident& inc)
   m_firstRun=false;
   m_currentRun = pEvent->event_ID()->run_number();
 
+  m_pEvent = pEvent;
+
   // Clear Store
   const ClearStorePolicy::Type s_clearStore = clearStorePolicy( m_clearStorePolicy.value(), m_msg );
   if(s_clearStore==ClearStorePolicy::EndEvent) {
@@ -1059,11 +984,14 @@ void AthenaEventLoopMgr::handle(const Incident& inc)
 //   Return: StatusCode indicating SUCCESS or FAILURE.
 // N.B. Don't forget to release the interface after use!!!
 StatusCode 
-AthenaEventLoopMgr::queryInterface(const InterfaceID& riid, 
+AthenaHiveEventLoopMgr::queryInterface(const InterfaceID& riid, 
 				   void** ppvInterface) 
 {
   if ( IEventSeek::interfaceID().versionMatch(riid) ) {
     *ppvInterface = dynamic_cast<IEventSeek*>(this);
+  }
+  else if ( IEventProcessor::interfaceID().versionMatch(riid) ) {
+    *ppvInterface = dynamic_cast<IEventProcessor*>(this);
   }
   else if ( ICollectionSize::interfaceID().versionMatch(riid) ) {
     *ppvInterface = dynamic_cast<ICollectionSize*>(this);
@@ -1074,7 +1002,263 @@ AthenaEventLoopMgr::queryInterface(const InterfaceID& riid,
   addRef();
   return StatusCode::SUCCESS;
 }
-StoreGateSvc* 
-AthenaEventLoopMgr::eventStore() const {
-  return &*m_eventStore;
+
+//---------------------------------------------------------------------------
+
+/// Create event address using event selector
+StatusCode AthenaHiveEventLoopMgr::getEventRoot(IOpaqueAddress*& refpAddr)  {
+  refpAddr = 0;
+  StatusCode sc = m_evtSelector->next(*m_evtContext);
+  if ( !sc.isSuccess() )  {
+    return sc;
+  }
+  // Create root address and assign address to data service
+  sc = m_evtSelector->createAddress(*m_evtContext,refpAddr);
+  if( !sc.isSuccess() )  {
+    sc = m_evtSelector->next(*m_evtContext);
+    if ( sc.isSuccess() )  {
+      sc = m_evtSelector->createAddress(*m_evtContext,refpAddr);
+      if ( !sc.isSuccess() )  {
+        warning() << "Error creating IOpaqueAddress." << endmsg;
+      }
+    }
+  }
+  return sc;
 }
+
+//---------------------------------------------------------------------------
+
+StatusCode AthenaHiveEventLoopMgr::m_declareEventRootAddress(const EventContext* ctx){
+  
+  StatusCode sc(StatusCode::SUCCESS);
+
+  //-----------------------------------------------------------------------
+  // we need an EventInfo Object to fire the incidents. 
+  //-----------------------------------------------------------------------
+  const EventInfo* pEvent(0);
+  m_pEvent = pEvent;
+  if ( m_evtContext ) {
+    // Deal with the case when an EventSelector is provided
+
+    //
+    // FIXME: flow control if no more events in selector, etc.
+    //
+    
+    IOpaqueAddress* addr = 0;
+    
+    sc = m_evtSelector->next(*m_evtContext);
+    
+    if ( !sc.isSuccess() ) {
+      // This is the end of the loop. No more events in the selection
+      m_msg << MSG::INFO 
+	    << "No more events in event selection " << endreq;
+      sc = StatusCode::SUCCESS;
+      return sc;
+    }
+    
+    if (m_evtSelector->createAddress(*m_evtContext, addr).isFailure()) {
+      m_msg << MSG::ERROR
+	    << "Could not create an IOpaqueAddress" << endreq;
+      sc = StatusCode::FAILURE;
+      return sc;
+    }
+    
+      
+    // Most iterators provide the IOA of an event header (EventInfo, DataHeader)
+    if (0 != addr) {
+      //create its proxy
+      sc = eventStore()->recordAddress(addr);
+      if( !sc.isSuccess() ) {
+	m_msg << MSG::WARNING 
+	      << "Error declaring Event object" << endreq;
+	return sc;
+      }
+    } if ((sc=eventStore()->loadEventProxies()).isFailure()) {
+      m_msg << MSG::ERROR 
+	    << "Error loading Event proxies" << endreq;
+      return sc;
+    } 
+    
+    // Retrieve the Event object
+    sc = eventStore()->retrieve(pEvent);
+    if( !sc.isSuccess() ) {
+      m_msg << MSG::ERROR 
+	    << "Unable to retrieve Event root object" << endreq;
+      return sc;
+    }
+
+    m_pEvent = pEvent;
+
+  }  else  {
+
+    //with no iterator it's up to us to create an EventInfo
+    pEvent = new EventInfo(new EventID(0,m_nevt), new EventType());
+    pEvent->event_ID()->set_lumi_block( m_nevt );
+
+    m_pEvent = pEvent;
+
+    m_msg << MSG::DEBUG
+	  << "selecting store: " << ctx->slot() << endmsg;
+
+    m_whiteboard->selectStore( ctx->slot() ).ignore();
+
+    m_msg << MSG::DEBUG
+	  << "recording EventInfo " << *pEvent->event_ID() << " in "
+	  << eventStore()->name() << endmsg;
+    sc = eventStore()->record(pEvent,"");
+    if( !sc.isSuccess() )  {
+      m_msg << MSG::ERROR 
+	    << "Error declaring event data object" << endreq;
+      return sc;
+    } 
+  }
+  
+  return sc;
+}
+
+//---------------------------------------------------------------------------
+
+StatusCode  AthenaHiveEventLoopMgr::m_createEventContext(EventContext*& evtContext, int createdEvts){
+  evtContext = new EventContext(createdEvts, m_whiteboard->allocateStore(createdEvts));
+
+  // evtContext->m_evt_num = createdEvts;
+  // evtContext->m_evt_slot = m_whiteboard->allocateStore(createdEvts);
+  // evtContext->m_evt_failed = false;
+
+  m_nevt = createdEvts;
+  
+  StatusCode sc = m_whiteboard->selectStore(evtContext->slot());
+  if (sc.isFailure()){
+    warning() << "Slot " << evtContext->slot()
+              << " could not be selected for the WhiteBoard" << endmsg;
+  } else {
+    debug() << "created EventContext, num: " << evtContext->evt()  << "  in slot: " 
+	    << evtContext->slot() << endmsg;
+  }
+  return sc;
+}
+
+//---------------------------------------------------------------------------
+
+StatusCode AthenaHiveEventLoopMgr::m_drainScheduler(int& finishedEvts){
+
+  StatusCode sc(StatusCode::SUCCESS);
+    
+  // maybe we can do better
+  std::vector<EventContext*> finishedEvtContexts;
+
+  EventContext* finishedEvtContext(nullptr);
+
+  // Here we wait not to loose cpu resources
+  debug() << "Waiting for a context" << endmsg;
+  sc = m_schedulerSvc->popFinishedEvent(finishedEvtContext);
+
+  // We got past it: cache the pointer
+  if (sc.isSuccess()){
+    debug() << "Context obtained" << endmsg;
+    finishedEvtContexts.push_back(finishedEvtContext);
+  } else{
+    return StatusCode::FAILURE;
+  }
+
+  // Let's see if we can pop other event contexts
+  while (m_schedulerSvc->tryPopFinishedEvent(finishedEvtContext).isSuccess()){
+    finishedEvtContexts.push_back(finishedEvtContext);
+  }
+
+  // Now we flush them
+  for (auto& thisFinishedEvtContext : finishedEvtContexts){
+    if (!thisFinishedEvtContext)
+      fatal() << "Detected nullptr ctxt while clearing WB!"<< endmsg;
+
+    if (thisFinishedEvtContext->evtFail()){
+      fatal() << "Failed event detected"<< endmsg;
+      delete thisFinishedEvtContext;
+      return StatusCode::FAILURE;
+    }
+    
+
+    int n_run(0);
+    int n_evt(0);
+
+    const EventInfo* pEvent(0);
+    if (m_whiteboard->selectStore(thisFinishedEvtContext->slot()).isSuccess()) {
+      if (eventStore()->retrieve(pEvent).isFailure()) {
+	m_msg << MSG::WARNING << "DrainSched: unable to get EventInfo obj" << endreq;
+      } else {
+	n_run = pEvent->event_ID()->run_number();
+	n_evt = pEvent->event_ID()->event_number();
+      }
+    } else {
+      m_msg << MSG::WARNING << "DrainSched: unable to select store "
+	    << thisFinishedEvtContext->slot() << endreq;
+    }
+
+    info() << "Clearing slot " << thisFinishedEvtContext->slot() 
+	   << " (event " << thisFinishedEvtContext->evt()
+          << ") of the whiteboard" << endmsg;
+    
+    StatusCode sc = m_clearWBSlot(thisFinishedEvtContext->slot());
+    if (!sc.isSuccess())
+      error() << "Whiteboard slot " << thisFinishedEvtContext->slot() 
+                << " could not be properly cleared";
+
+    
+    
+    finishedEvts++;
+
+    writeHistograms().ignore();
+    ++m_proc;
+
+    if (m_doEvtHeartbeat) {
+      if(!m_useTools) 
+        m_msg << MSG::INFO
+              << "  ===>>>  done processing event #" << n_evt << ", run #" << n_run 
+              << " on slot " << thisFinishedEvtContext->slot() << ",  "
+              << m_proc << " events processed so far  <<<===" << endreq;
+      else 
+        m_msg << MSG::INFO
+              << "  ===>>>  done processing event #" << n_evt << ", run #" << n_run 
+              << " on slot " << thisFinishedEvtContext->slot() << ",  "          
+              << m_nev << " events read and " << m_proc 
+              << " events processed so far <<<===" << endreq;
+      std::ofstream outfile( "eventLoopHeartBeat.txt");
+      if ( !outfile ) {
+	m_msg << MSG::ERROR << " unable to open: eventLoopHeartBeat.txt" << endreq;
+      } else {
+	outfile << "  done processing event #" << n_evt << ", run #" << n_run 
+		<< " " << m_nev << " events read so far  <<<===" << std::endl;
+	outfile.close();
+      }  
+    }
+
+
+    delete thisFinishedEvtContext;
+
+    m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndProcessing));    
+    m_incidentSvc->fireIncident(Incident(name(), IncidentType::EndEvent));
+    
+  }
+  return StatusCode::SUCCESS;
+}
+
+//---------------------------------------------------------------------------
+
+StatusCode AthenaHiveEventLoopMgr::m_clearWBSlot(int evtSlot)  {
+  StatusCode sc = m_whiteboard->clearStore(evtSlot);
+  if( !sc.isSuccess() )  {
+    warning() << "Clear of Event data store failed" << endmsg;    
+  }
+  return m_whiteboard->freeStore(evtSlot);  
+}
+//---------------------------------------------------------------------------
+
+
+#endif /*ATHENAHIVE*/
+
+
+
+
+
+
+

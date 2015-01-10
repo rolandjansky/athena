@@ -61,7 +61,7 @@ apply_pattern install_runtime
 use TestTools       TestTools-*          AtlasTest
 
 apply_pattern UnitTest_run unit_test=AthenaOutputStream \
-extrapatterns="^SGAudSvc +(INFO|DEBUG)|of type DataHistory|DEBUG Recorded object|object modifiable when retrieved|^ToolSvc +DEBUG Service base class initialized|^IncidentSvc *DEBUG Adding .* listener|^Py:Athena *INFO using release|DecisionSvc +DEBUG|DEBUG loadDictFiller - Ntypes|: duplicate entry|^IoComponentMgr +(INFO|DEBUG)|DBReplicaSvc|^HistogramPersis.*DEBUG|^JobOptionsSvc +INFO|^//GP:=|^ItemListSvc +(INFO|DEBUG)|Info File PoolFileCatalog.xml does not exist|DataModelCompatSvc::initialize|^ProxyProviderSvc +DEBUG|^DataModelCompatSvc +DEBUG"
+extrapatterns="^AthenaRootStrea... +(INFO|DEBUG)|^AthenaSealSvc +DEBUG|^SGAudSvc +(INFO|DEBUG)|of type DataHistory|DEBUG Recorded object|object modifiable when retrieved|^ToolSvc +DEBUG Service base class initialized|^IncidentSvc *DEBUG Adding .* listener|^Py:Athena *INFO using release|DecisionSvc +DEBUG|: duplicate entry|^IoComponentMgr +(INFO|DEBUG)|DBReplicaSvc|^HistogramPersis.*DEBUG|^JobOptionsSvc +INFO|^//GP:=|^ItemListSvc +(INFO|DEBUG)|Info File PoolFileCatalog.xml does not exist|DataModelCompatSvc::initialize|^ProxyProviderSvc +DEBUG|^DataModelCompatSvc +DEBUG|^AthenaOutputStreamVERBOSE|^AthenaOutputStream +DEBUG"
 use ToyConversion   ToyConversion-*   Control/AthenaExamples
 macro_append AthenaOutputStream_testlinkopts " -L../$(CMTCONFIG) -lAthenaServices -L$(CMTINSTALLAREA)/lib/$(tag) $(ToyConversion_linkopts)"
 
@@ -72,7 +72,7 @@ macro_append FPEControlSvc_testlinkopts " -L../$(CMTCONFIG) -lAthenaServices"
 apply_pattern athenarun_test name="TestStopRun" \
 pre_script="../cmt/setup.sh"	\
 options="AthenaServices/TestStopRun.py" \
-post_script="post.sh TestStopRun $(q)SGAudSvc +INFO Finalizing|SGAudSvc +INFO Initializing|No duplicates have been found|duplicate entry.*ignored|^Py:ConfigurableDb WARNING|Read module info for|^ToolSvc.* INFO( finalize:)? Removing all tools|^CoreDumpSvc *INFO Handling signals|types added|including file|^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)|local .* libGaudiKernelDict.so|^Number of My|^Py:Athena +INFO using release|^StoreGateSvc +INFO Start|^Py:AthenaDsoDb +INFO could not install alias|Bindings.py:660newobj = object.__new__|Updating ROOT::Reflex::PluginService::SetDebug|^ApplicationMgr +INFO|^StoreGateSvc +INFO$(q)"
+post_script="post.sh TestStopRun $(q)SGAudSvc +INFO Finalizing|SGAudSvc +INFO Initializing|^Py:Athena +INFO executing ROOT6Setup|No duplicates have been found|duplicate entry.*ignored|^Py:ConfigurableDb WARNING|Read module info for|^ToolSvc.* INFO( finalize:)? Removing all tools|^CoreDumpSvc *INFO Handling signals|types added|including file|^(Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)|local .* libGaudiKernelDict.so|^Number of My|^Py:Athena +INFO using release|^StoreGateSvc +INFO Start|^Py:AthenaDsoDb +INFO could not install alias|Bindings.py:660newobj = object.__new__|Updating ROOT::Reflex::PluginService::SetDebug|^ApplicationMgr +INFO|^StoreGateSvc +INFO$(q)"
 
 #
 # dictionary creation for python event loop mgr
@@ -91,15 +91,5 @@ post_script="post.sh TestStopRun $(q)SGAudSvc +INFO Finalizing|SGAudSvc +INFO In
 
 macro_append DOXYGEN_INPUT " ../test "
 
-# macro_append AthenaServices_linkopts " /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_2/External/AtlasGdb/x86_64-slc5-gcc43-opt/pkg-build-install-gdb/lib/libbfd.a /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_2/External/AtlasGdb/x86_64-slc5-gcc43-opt/pkg-build-install-gdb/lib64/libiberty.a -lz "
-
-# macro_append AthenaServices_linkopts " /cvmfs/atlas.cern.ch/repo/sw/software/i686-slc5-gcc43-opt/17.2.3/AtlasCore/17.2.3/External/AtlasGdb/i686-slc5-gcc43-opt/pkg-build-install-gdb/lib/libbfd.a /cvmfs/atlas.cern.ch/repo/sw/software/i686-slc5-gcc43-opt/17.2.3/AtlasCore/17.2.3/External/AtlasGdb/i686-slc5-gcc43-opt/pkg-build-install-gdb/lib/libiberty.a -lz "
-
 private
 use DataModelRoot                  DataModelRoot-*                  Control
-
-
-
-
-
-

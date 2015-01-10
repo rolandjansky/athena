@@ -352,6 +352,13 @@ AthenaSealSvc::member_is_ok(const std::string& typeName,
 	memberName == "m_trackCollection") {
 	return (true);
     }
+#if ROOT_VERSION_CODE > ROOT_VERSION(6,0,0)
+    if( typeName.find("DataVector<") == 0 && memberName == "m_pCont") {
+       msg(MSG::VERBOSE) << "**** Ignoring  " << typeName << "." << memberName << endreq;
+       return (true);
+    }
+#endif
+    
     return (false);
 }
 
@@ -468,7 +475,6 @@ AthenaSealSvc::find_extra_types (const ReflexType& t,
 	    if (ta.IsPointer()) ta = ta.ToType();
 	    
 	    if (ta) {
-	        if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << ta.Name() << " ";
 		newTypes.push_back(ta);
                 if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " name " << ta.Name()<< " " << endreq;
 	    }
@@ -559,10 +565,22 @@ AthenaSealSvc::missing_member_types (const ReflexType& t) const
 	    ReflexType t2 = m.TypeOf ();
 	    bool transient = m.IsTransient();
             bool is_static = m.IsStatic();
+#ifdef ROOT6_MIGRATION_HAVE_REFLEX
+            // enum class members don't exist in Reflex
+            bool is_enum   = false;
+#else
+            bool is_enum   = m.IsEnum();
+            //MN: protect against anonymous enums
+            if( t2.Name().find("(anonymous)") != std::string::npos )
+               is_enum = true;
+#endif            
 
-	    //msg(MSG::VERBOSE) << "Type of member: " << t1.Name(7) << " " << t2.Name(7) << endreq;
-	    if (!t2 && !member_is_ok(t1.Name(), m.Name()) && !transient && !is_static) {
-
+	    msg(MSG::VERBOSE) << "Checking member: " << m.Name() << " of type " << t1.Name(7) << "::" << t2.Name(7) << endreq;
+#ifndef ROOT6_MIGRATION_HAVE_REFLEX
+	    msg(MSG::VERBOSE) << "Trans:" << transient << " Static:" << is_static << " Enum:" << is_enum << " Const:" << m.IsConstant() << endreq;
+#endif            
+	    if (!t2 && !member_is_ok(t1.Name(), m.Name())
+                && !transient && !is_static && !is_enum ) {
                 // Missing type, try to load it
                 //  We ignore transient types and some special members
 		std::string name = t2.Name(7);
@@ -591,7 +609,7 @@ AthenaSealSvc::missing_member_types (const ReflexType& t) const
 	    else {
 		// 0 => possible error:
 		// Know exceptions:
-		if (member_is_ok(t1.Name(), m.Name()) || transient || is_static) {
+		if (member_is_ok(t1.Name(), m.Name()) || transient || is_static || is_enum ) {
 		    if (first) {
 			first = false;
 			ATH_MSG_VERBOSE (' ');
@@ -638,7 +656,8 @@ AthenaSealSvc::missing_member_types (const ReflexType& t) const
 //----------------------------------------------------------------------------  
 StatusCode AthenaSealSvc::checkClass(const std::string& typeName) const
 {
-
+   //msg().setLevel(MSG::VERBOSE);
+   
     if(!m_checkDictionary) {
         ATH_MSG_VERBOSE 
             ("checkClass - AthenaSealSvc.CheckDictionary is set to false. "
@@ -717,7 +736,8 @@ StatusCode AthenaSealSvc::checkClass(const std::string& typeName) const
     std::map<std::string, ReflexType> checked;
     std::string cn = t.Name();
     checked[cn] = t;
-    if(cn.find('*') == std::string::npos)m_checkedClasses.insert(cn);
+    if(cn.find('*') == std::string::npos)
+       m_checkedClasses.insert(cn);
 
     // Print names for verbose
 //      ATH_MSG_VERBOSE ("Found classes");
@@ -731,27 +751,28 @@ StatusCode AthenaSealSvc::checkClass(const std::string& typeName) const
     bool continueCheck = true;
 
     do {
+       if( !ignoreName(t.Name()) ) {
+          if(missingTypes(t)) return (StatusCode::FAILURE);
 
-	if(missingTypes(t)) return (StatusCode::FAILURE);
+          ATH_MSG_VERBOSE ("checkClass - check for class " << t.Name() << " ok");
+          // Collect the extra types for this class - fields, base
+          // classes, template args, etc.
+          find_extra_types (t, toCheck);
 
-	ATH_MSG_VERBOSE ("checkClass - check for class " << t.Name() << " ok");
-
-	// Collect the extra types for this class - fields, base
-	// classes, template args, etc.
-	find_extra_types (t, toCheck);
-
-	// Select the new classes to be checked
-	for (it = toCheck.begin(); it != toCheck.end(); ++it) {
-	    if (checked.find((*it).Name()) == checked.end()) {
+          // Select the new classes to be checked
+          for (it = toCheck.begin(); it != toCheck.end(); ++it) {
+             if (checked.find((*it).Name()) == checked.end()) {
 		toCheckAll.push_back((*it));
 		cn = (*it).Name();
 		checked[cn] = (*it);
-		if(cn.find('*') == std::string::npos)m_checkedClasses.insert(cn);
+		if(cn.find('*') == std::string::npos)
+                   m_checkedClasses.insert(cn);
 //		ATH_MSG_VERBOSE ("checkClass - added class " << (*it)->fullName());
-	    }
-	}
-	toCheck.clear();
-
+             }
+          }
+          toCheck.clear();
+       }
+       
 	if (toCheckAll.size() > 0) {
 	    // Select the next one to check and save in set
 	    t = toCheckAll[0];
@@ -1027,7 +1048,9 @@ void AthenaSealSvc::setDefaultDictNames()
     dictNames.reserve( 10 );
 
     // STL dictionaries 
+#ifdef ROOT6_MIGRATION_HAVE_REFLEX
     dictNames.push_back( "STLRflx" );
+#endif
 //   dictNames.push_back( "STLAddRflx" );
 //   dictNames.push_back( "AtlasSTLAddReflexDict" );
 
@@ -1109,6 +1132,9 @@ void AthenaSealSvc::setDefaultIgnoreNames()
     /// Ignore extra template args
     ignoreNames.push_back( "greater<int>" );
     ignoreNames.push_back( "allocator<" );
+
+    // MN:  adding stuff for ROOT6
+    ignoreNames.push_back( "string" );
 
     m_ignoreNames.set( ignoreNames );
     return;

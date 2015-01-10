@@ -4,12 +4,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ATHENASERVICES_ATHENAEVENTLOOPMGR_H
-#define ATHENASERVICES_ATHENAEVENTLOOPMGR_H
-/** @file AthenaEventLoopMgr.h
+#ifndef ATHENASERVICES_ATHENAHIVEEVENTLOOPMGR_H
+#define ATHENASERVICES_ATHENAHIVEEVENTLOOPMGR_H
+/** @file AthenaHiveEventLoopMgr.h
     @brief The default ATLAS batch event loop manager.
 
-  * $Id: AthenaEventLoopMgr.h,v 1.14 2009-03-16 16:38:38 leggett Exp $
+  * $Id: AthenaHiveEventLoopMgr.h 638639 2015-01-10 01:27:17Z calaf $
 */
 
 #include <string>
@@ -39,6 +39,19 @@
 #include "AthenaKernel/IEventSeek.h"
 #include "AthenaKernel/ICollectionSize.h"
 
+//////////////////////////////////////////////////
+#include "GaudiKernel/IAlgResourcePool.h"
+#include "GaudiKernel/IEvtSelector.h"
+#include "GaudiKernel/IHiveWhiteBoard.h"
+#include "GaudiKernel/IScheduler.h"
+
+// Standard includes
+#include <functional>
+
+// External Libraries
+#include "tbb/concurrent_queue.h"
+//////////////////////////////////////////////////
+
 #ifndef EVENTINFO_EVENTID_H
 # include "EventInfo/EventID.h"  /* number_type */
 #endif
@@ -48,16 +61,14 @@
 // Forward declarations
 class IConversionSvc;
 class IDataManagerSvc;
+class IDataProviderSvc;
 class IIncidentSvc;
 class ITimeKeeper;
 class StoreGateSvc;
-////class ActiveStoreSvc;
-
 class ISvcLocator;
 template <class TYPE> class SvcFactory;
 
-
-/** @class AthenaEventLoopMgr
+/** @class AthenaHiveEventLoopMgr
     @brief The default ATLAS batch event loop manager.
     
     @details It loops over input events according to
@@ -67,7 +78,7 @@ template <class TYPE> class SvcFactory;
     - 1: (DEFAULT) RECOVERABLE skips to next event, FAILURE terminates job.
     - 2: RECOVERABLE and FAILURE skip to next events
 */
-class AthenaEventLoopMgr 
+class AthenaHiveEventLoopMgr 
   : virtual public IEventSeek,
     virtual public ICollectionSize,
     virtual public IIncidentListener,
@@ -76,7 +87,7 @@ class AthenaEventLoopMgr
 {
 public:
   /// Creator friend class
-  friend class SvcFactory<AthenaEventLoopMgr>;
+  friend class SvcFactory<AthenaHiveEventLoopMgr>;
   typedef IEvtSelector::Context   EvtContext;
 
 protected:
@@ -154,10 +165,10 @@ protected:
   void setClearStorePolicy(Property& clearStorePolicy);
 
   /// Standard Constructor
-  AthenaEventLoopMgr(const std::string& nam, ISvcLocator* svcLoc);
+  AthenaHiveEventLoopMgr(const std::string& nam, ISvcLocator* svcLoc);
  
   /// Standard Destructor
-  virtual ~AthenaEventLoopMgr();
+  virtual ~AthenaHiveEventLoopMgr();
 
   /// Dump out histograms as needed
   virtual StatusCode writeHistograms(bool force=false);
@@ -174,6 +185,50 @@ protected:
   /// Initialize all algorithms and output streams
   StatusCode initializeAlgorithms();
 
+
+  //***********************************************************//
+  // for Hive
+protected:
+
+  /// Reference to the Whiteboard interface
+  SmartIF<IHiveWhiteBoard>  m_whiteboard;
+
+  /// Reference to the Algorithm resource pool
+  SmartIF<IAlgResourcePool>  m_algResourcePool;
+
+  /// Property interface of ApplicationMgr
+  SmartIF<IProperty>        m_appMgrProperty;
+
+
+  /// A shortcut for the scheduler
+  SmartIF<IScheduler> m_schedulerSvc;
+  /// Clear a slot in the WB 
+  StatusCode m_clearWBSlot(int evtSlot);
+  /// Declare the root address of the event
+  StatusCode m_declareEventRootAddress(const EventContext*);
+  /// Create event context
+  StatusCode m_createEventContext(EventContext*& eventContext, int createdEvents);
+  /// Drain the scheduler from all actions that may be queued
+  StatusCode m_drainScheduler(int& finishedEvents);
+  /// Instance of the incident listener waiting for AbortEvent. 
+  SmartIF< IIncidentListener >  m_abortEventListener;
+  /// Name of the scheduler to be used
+  std::string m_schedulerName;
+  /// Name of the Whiteboard to be used
+  std::string m_whiteboardName;
+  /// Scheduled stop of event processing
+  bool                m_scheduledStop;
+
+
+
+public:
+  /// Create event address using event selector
+  StatusCode getEventRoot(IOpaqueAddress*& refpAddr);    
+
+
+
+//***********************************************************//
+
 public:
   /// implementation of IAppMgrUI::initalize
   virtual StatusCode initialize();
@@ -185,6 +240,10 @@ public:
   virtual StatusCode executeEvent(void* par);
   /// implementation of IEventProcessor::executeRun(int maxevt)
   virtual StatusCode executeRun(int maxevt);
+  /// implementation of IEventProcessor::stopRun()
+  virtual StatusCode stopRun();
+
+
   /// Seek to a given event.
   virtual StatusCode seek(int evt);
   /// Return the current event count.
@@ -202,9 +261,9 @@ public:
   virtual const std::string& name() const { return Service::name(); } //FIXME 
 
 private:
-  AthenaEventLoopMgr(); ///< no implementation
-  AthenaEventLoopMgr(const AthenaEventLoopMgr&); ///< no implementation
-  AthenaEventLoopMgr& operator= (const AthenaEventLoopMgr&); ///< no implementation
+  AthenaHiveEventLoopMgr(); ///< no implementation
+  AthenaHiveEventLoopMgr(const AthenaHiveEventLoopMgr&); ///< no implementation
+  AthenaHiveEventLoopMgr& operator= (const AthenaHiveEventLoopMgr&); ///< no implementation
 
   int m_nevt;
   /// @property histogram write/update interval
@@ -218,7 +277,20 @@ private:
   unsigned int m_nev;
   unsigned int m_proc;
   bool m_useTools;
+  bool m_doEvtHeartbeat;
+
+  // from MinimalEventLoopMgr
+public:
+  typedef std::list<SmartIF<IAlgorithm> >  ListAlg;
+  // typedef std::list<IAlgorithm*>  ListAlgPtrs;
+  // typedef std::list<std::string>   ListName;
+  // typedef std::vector<std::string> VectorName;
+
+private:
   StoreGateSvc* eventStore() const;
+  const EventInfo* m_pEvent;
+
+
 };
 
-#endif // STOREGATE_ATHENAEVENTLOOPMGR_H
+#endif // ATHENASERVICES_ATHENAHIVEEVENTLOOPMGR_H

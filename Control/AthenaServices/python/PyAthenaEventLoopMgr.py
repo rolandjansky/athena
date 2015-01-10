@@ -91,20 +91,20 @@ class PyAthenaEventLoopMgr( PyGaudi.iService ):
     # Note that this is all a poor man's way of not needing to have dictionaries
     # for all base classes of the C++ PyAthenaEventLoopMgr.
 
-      import PyCintex
+      import cppyy
 
     # need to set all the following through the __dict__ b/c of iPropert.__setattr__
 
     # the expect IEventSeek
-      self.__dict__[ '_evtSeek' ] = PyCintex.gbl.BindObject( cppself, PyCintex.gbl.IEventSeek );
+      self.__dict__[ '_evtSeek' ] = cppyy.gbl.BindObject( cppself, cppyy.gbl.IEventSeek );
 
     # the IService needed for iService._isvc and likewise iProperty._ip
-      self.__dict__[ '_isvc' ] = PyGaudi.InterfaceCast( PyCintex.gbl.IService )( self._evtSeek )
-      self.__dict__[ '_ip' ] = PyGaudi.InterfaceCast( PyCintex.gbl.IProperty )( self._evtSeek )
+      self.__dict__[ '_isvc' ] = PyGaudi.InterfaceCast( cppyy.gbl.IService )( self._evtSeek )
+      self.__dict__[ '_ip' ] = PyGaudi.InterfaceCast( cppyy.gbl.IProperty )( self._evtSeek )
 
     # IStateful and IEventProcessor
-      self.__dict__[ '_state' ] = PyGaudi.InterfaceCast( PyCintex.gbl.IStateful )( self._evtSeek )
-      self.__dict__[ '_evtpro' ] = PyGaudi.InterfaceCast( PyCintex.gbl.IEventProcessor )( self._evtSeek )
+      self.__dict__[ '_state' ] = PyGaudi.InterfaceCast( cppyy.gbl.IStateful )( self._evtSeek )
+      self.__dict__[ '_evtpro' ] = PyGaudi.InterfaceCast( cppyy.gbl.IEventProcessor )( self._evtSeek )
 
    def __getattr__( self, attr ):
     # note the lookup order: should be as per the C++ side

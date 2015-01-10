@@ -188,8 +188,12 @@ private:
    /// Add item data objects to output streamer list
    void addItemObjects(const SG::FolderItem&);
 
-   std::pair<std::string,std::string> breakAtSep(const std::string,const std::string) const;
-   bool matchKey(const std::pair<std::string, std::string>& key, const SG::DataProxy* proxy) const;
+   /// tokenize a string based on a substring
+   void tokenizeAtSep( std::vector<std::string>&, const std::string&, const std::string& ) const;
+
+   /// Try to match a DataProxy to a vector of strings
+   bool matchKey(const std::vector<std::string>& key, const SG::DataProxy* proxy) const;
+
 };
 
 #endif // ATHENASERVICES_OUTPUTSTREAM_H

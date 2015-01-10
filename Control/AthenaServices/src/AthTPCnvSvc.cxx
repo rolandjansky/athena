@@ -10,7 +10,6 @@
 /////////////////////////////////////////////////////////////////// 
 
 #include "AthTPCnvSvc.h"
-#include "Gaudi/PluginService.h"
 
 
 // Constructors

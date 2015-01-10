@@ -8,6 +8,10 @@ using std::string;
 #include <vector>
 using std::vector;
 
+#include <boost/tokenizer.hpp>
+using boost::tokenizer;
+using boost::char_separator;
+
 // Framework include files
 #include "GaudiKernel/GaudiException.h"
 #include "GaudiKernel/Tokenizer.h"
@@ -40,17 +44,17 @@ using std::vector;
 
 // Standard Constructor
 AthenaOutputStream::AthenaOutputStream(const string& name, ISvcLocator* pSvcLocator)
-		: FilteredAlgorithm(name, pSvcLocator),
-		m_dataStore("StoreGateSvc", name),
-		m_metadataStore("MetaDataStore", name),
-		m_currentStore(&m_dataStore),
+        : FilteredAlgorithm(name, pSvcLocator),
+        m_dataStore("StoreGateSvc", name),
+        m_metadataStore("MetaDataStore", name),
+        m_currentStore(&m_dataStore),
                 m_itemSvc("ItemListSvc", name),
-  		m_pCLIDSvc("ClassIDSvc", name),
-  		m_outSeqSvc("OutputStreamSequencerSvc", name),
-		m_p2BWritten(string("SG::Folder/") + name + string("_TopFolder"), this),
-		m_decoder(string("SG::Folder/") + name + string("_excluded"), this),
+          m_pCLIDSvc("ClassIDSvc", name),
+          m_outSeqSvc("OutputStreamSequencerSvc", name),
+        m_p2BWritten(string("SG::Folder/") + name + string("_TopFolder"), this),
+        m_decoder(string("SG::Folder/") + name + string("_excluded"), this),
                 m_events(0),
-		m_streamer(string("AthenaOutputStreamTool/") + name + string("Tool"), this),
+        m_streamer(string("AthenaOutputStreamTool/") + name + string("Tool"), this),
    m_helperTools(this) {
    assert(pSvcLocator);
    declareProperty("ItemList",               m_itemList);
@@ -155,7 +159,7 @@ StatusCode AthenaOutputStream::initialize() {
    ATH_MSG_INFO("Found " << m_helperTools << endreq << "Data output: " << m_outputName);
 
    for (std::vector<ToolHandle<IAthenaOutputTool> >::const_iterator iter = m_helperTools.begin();
-		   iter != m_helperTools.end(); iter++) {
+           iter != m_helperTools.end(); iter++) {
       if (!(*iter)->postInitialize().isSuccess()) {
          status = StatusCode::FAILURE;
       }
@@ -199,7 +203,7 @@ void AthenaOutputStream::handle(const Incident& inc) {
              ATH_MSG_ERROR("Cannot finalize helper tool");
          }
       }
-      // Always force a final commit in stop - mainly applies to AthenaPool 
+      // Always force a final commit in stop - mainly applies to AthenaPool
       if (m_writeOnFinalize) {
          if (write().isFailure()) {  // true mean write AND commit
             ATH_MSG_ERROR("Cannot write on finalize");
@@ -215,7 +219,7 @@ void AthenaOutputStream::handle(const Incident& inc) {
          m_checkNumberOfWrites = false;
          const std::string outputName0 = m_outputName;
          m_outputName += "[OutputCollection=MetaDataHdr][PoolContainerPrefix=MetaData][AttributeListKey=][DataHeaderSatellites=]";
-         // BackwardCompatibility: Get MetadataItemList properties from ItemList of Stream_FH 
+         // BackwardCompatibility: Get MetadataItemList properties from ItemList of Stream_FH
          ServiceHandle<IJobOptionsSvc> joSvc("JobOptionsSvc", name());
          if (!joSvc.retrieve().isSuccess()) {
             throw GaudiException("Cannot get JobOptionsSvc", name(), StatusCode::FAILURE);
@@ -261,7 +265,7 @@ void AthenaOutputStream::handle(const Incident& inc) {
          }
          ATH_MSG_INFO("Records written: " << m_events);
          for (std::vector<ToolHandle<IAthenaOutputTool> >::const_iterator iter = m_helperTools.begin();
-	         iter != m_helperTools.end(); iter++) {
+             iter != m_helperTools.end(); iter++) {
             if (!(*iter)->postInitialize().isSuccess()) {
                 ATH_MSG_ERROR("Cannot initialize helper tool");
             }
@@ -295,7 +299,7 @@ StatusCode AthenaOutputStream::finalize() {
 StatusCode AthenaOutputStream::execute() {
    bool failed = false;
    for (std::vector<ToolHandle<IAthenaOutputTool> >::const_iterator iter = m_helperTools.begin();
-		   iter != m_helperTools.end(); iter++) {
+           iter != m_helperTools.end(); iter++) {
       if (!(*iter)->preExecute().isSuccess()) {
          failed = true;
       }
@@ -307,7 +311,7 @@ StatusCode AthenaOutputStream::execute() {
       }
    }
    for (std::vector<ToolHandle<IAthenaOutputTool> >::const_iterator iter = m_helperTools.begin();
-		   iter != m_helperTools.end(); iter++) {
+           iter != m_helperTools.end(); iter++) {
       if(!(*iter)->postExecute().isSuccess()) {
          failed = true;
       }
@@ -336,7 +340,7 @@ StatusCode AthenaOutputStream::write() {
          bool first = true;
          unsigned int lastCount = 0;
          for (CounterMapType::iterator cit = m_objectWriteCounter.begin(),
-		         clast = m_objectWriteCounter.end(); cit != clast; ++cit) {
+                 clast = m_objectWriteCounter.end(); cit != clast; ++cit) {
             bool isError = false;
             if (first) {
                lastCount = (*cit).second;
@@ -348,14 +352,14 @@ StatusCode AthenaOutputStream::write() {
             }
             if (isError) {
                ATH_MSG_ERROR(" INCORRECT Object/count: "
-		               << (*cit).first << ", " << (*cit).second << " should be: " << lastCount);
+                       << (*cit).first << ", " << (*cit).second << " should be: " << lastCount);
             } else {
                ATH_MSG_DEBUG(" Object/count: " << (*cit).first << ", " << (*cit).second);
             }
          }
          if (checkCountError) {
             ATH_MSG_FATAL("Check number of writes failed. See messages above "
-		            "to identify which continer is not always written");
+                    "to identify which continer is not always written");
             return(StatusCode::FAILURE);
          }
       }
@@ -425,7 +429,7 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
    static const std::string wildCard = "*";
    std::set<std::string> clidKeys;
    for (SG::IFolder::const_iterator iter = m_decoder->begin(), iterEnd = m_decoder->end();
-		   iter != iterEnd; iter++) {
+           iter != iterEnd; iter++) {
       if (iter->id() == item.id()) {
          clidKeys.insert(iter->key());
       }
@@ -437,23 +441,31 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
       bool added = false, removed = false;
       // For item list entry
       // Check for wildcard within string, i.e. 'xxx*yyy', and save the matching parts
-      std::pair<std::string, std::string> key = breakAtSep(item_key, wildCard);
+      std::vector<std::string> keyTokens;
+      keyTokens.reserve(2);
+      std::vector<std::string> xkeyTokens;
+      xkeyTokens.reserve(2);
+      ATH_MSG_VERBOSE("Calling tokenizeAtStep( " << keyTokens << ", " << item_key << ", " << wildCard << ")" );
+      this->tokenizeAtSep( keyTokens, item_key, wildCard );
+      ATH_MSG_VERBOSE("Done calling tokenizeAtStep( " << keyTokens << ", " << item_key << ", " << wildCard << ")" );
+      //std::pair<std::string, std::string> key = breakAtSep(item_key, wildCard);
       SG::TransientAddress* tAddr = 0;
       // Now loop over any found proxies
-      for (; iter != end; iter++) {
+      for (; iter != end; ++iter) {
          SG::DataProxy* itemProxy(iter->second);
          // Does this key match the proxy key name - allow for wildcarding and aliases
          bool keyMatch = (item_key == "*" || item_key == itemProxy->name()
-		         || itemProxy->alias().find(item_key) != itemProxy->alias().end());
+                 || itemProxy->alias().find(item_key) != itemProxy->alias().end());
          if (!keyMatch) {
-            ATH_MSG_DEBUG("Proxy name=" << itemProxy->name() );
-            keyMatch = matchKey(key, itemProxy);
-         }
+            ATH_MSG_VERBOSE("Calling matchKey( " << keyTokens << ", " << itemProxy->name() << ")" );
+            keyMatch = matchKey(keyTokens, itemProxy);
+            ATH_MSG_VERBOSE("Done calling matchKey( " << keyTokens << ", " << itemProxy->name() << ") with result: " << keyMatch );
+        }
 
          // Now undo the flag based on a similar analysis of excluded wildcard keys
          bool xkeyMatch = false;
          for (std::set<std::string>::const_iterator c2k_it = clidKeys.begin(), c2k_itEnd = clidKeys.end();
-		         keyMatch && c2k_it != c2k_itEnd; c2k_it++) {
+                 keyMatch && c2k_it != c2k_itEnd; ++c2k_it) {
             if (*c2k_it == wildCard) {
                xkeyMatch = true;  // wildcard first
             } else {
@@ -465,9 +477,11 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                      xkeyMatch = true;
                   }
                } else { // Otherwise take before and after wildcard for later use
-                  std::pair<std::string, std::string> xkey = breakAtSep(*c2k_it, wildCard);
+                  this->tokenizeAtSep( xkeyTokens, *c2k_it, wildCard );
+                  //std::pair<std::string, std::string> xkey = breakAtSep(*c2k_it, wildCard);
                   ATH_MSG_DEBUG("x Proxy name=" << itemProxy->name() );
-                  xkeyMatch = matchKey(xkey, itemProxy);
+                  xkeyMatch = matchKey(xkeyTokens, itemProxy);
+                  //xkeyMatch = matchKey(xkey, itemProxy);
                }
             }
          }
@@ -477,47 +491,45 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                if (!m_persToPers) {
                   if (0 == itemProxy->accessData()) {
                      ATH_MSG_ERROR(" Could not get data object for id "
-		                     << item.id() << ",\"" << itemProxy->name());
+                             << item.id() << ",\"" << itemProxy->name());
                   }
                } else if (true /*m_exemptPersToPers.find(item.id()) != m_exemptPersToPers.end()*/) {
                   if (0 == itemProxy->accessData()) {
                      ATH_MSG_ERROR(" Could not get data object for id "
-		                     << item.id() << ",\"" << itemProxy->name());
+                             << item.id() << ",\"" << itemProxy->name());
                   }
                }
             }
             if (0 != itemProxy->object()) {
-               SG::IAuxStoreIO* auxio(0);
-               try {
-                  SG::fromStorable(itemProxy->object(), auxio, true);
-               }catch( const std::exception& ) {
-                  // exception from Control/StoreGateBindings/src/SgPyDataModel.cxx:71
-                  ATH_MSG_DEBUG( "Error in casting object with CLID "
-                                 << itemProxy->clID() << " to SG::IAuxStoreIO*" );
-                  auxio = 0;
-               }
                if( std::find(m_objects.begin(), m_objects.end(), itemProxy->object()) == m_objects.end() ) {
                   m_objects.push_back(itemProxy->object());
                   ATH_MSG_DEBUG(" Added object " << item.id() << ",\"" << itemProxy->name() << "\"");
-                  // clear any old selections
-                  if( auxio ) {
-                     auxio->selectAux( std::set<string>() );
-                  }
                }
 
-               if( auxio ) {
-                  // collect dynamic Aux selection (parse the line, attributes separated by dot)
-                  std::set<std::string> attributes;
-                  if( aux_attr.size() ) {
-                     std::stringstream ss(aux_attr);
-                     std::string attr;
-                     while( std::getline(ss, attr, '.') ) {
-                        attributes.insert(attr);
+               if (aux_attr.size()) {
+                  SG::IAuxStoreIO* auxio(0);
+                  try {
+                     SG::fromStorable(itemProxy->object(), auxio, true);
+                  }catch( const std::exception& ) {
+                     // exception from Control/StoreGateBindings/src/SgPyDataModel.cxx:71
+                     ATH_MSG_DEBUG( "Error in casting object with CLID "
+                                    << itemProxy->clID() << " to SG::IAuxStoreIO*" );
+                     auxio = 0;
+                  }
+                  if( auxio ) {
+                     // collect dynamic Aux selection (parse the line, attributes separated by dot)
+                     std::set<std::string> attributes;
+                     if( aux_attr.size() ) {
+                        std::stringstream ss(aux_attr);
+                        std::string attr;
+                        while( std::getline(ss, attr, '.') ) {
+                           attributes.insert(attr);
+                        }
+                        // don't let keys with wildcard overwrite existing selections
+                        if( auxio->getSelectedAuxIDs().size() == auxio->getDynamicAuxIDs().size()
+                            || item_key.find('*') == string::npos )
+                           auxio->selectAux(attributes);
                      }
-                     // don't let keys with wildcard overwrite existing selections
-                     if( auxio->getSelectedAuxIDs().size() == auxio->getDynamicAuxIDs().size()
-                         || item_key.find('*') == string::npos )
-                        auxio->selectAux(attributes);
                   }
                }
 
@@ -528,7 +540,7 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                   std::stringstream tns;
                   if (!m_pCLIDSvc->getTypeNameOfID(item.id(), tn).isSuccess()) {
                      ATH_MSG_ERROR(" Could not get type name for id "
-		                     << item.id() << ",\"" << itemProxy->name());
+                             << item.id() << ",\"" << itemProxy->name());
                      tns << item.id() << '_' << itemProxy->name();
                   } else {
                      tn += '_' + itemProxy->name();
@@ -560,13 +572,13 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
       if (!added && !removed) {
          if (m_persToPers && tAddr != 0) {
             ATH_MSG_DEBUG(" Going to attempt direct persistent copy for "
-		            << item.id() << ",\"" << item_key  << "\"");
+                    << item.id() << ",\"" << item_key  << "\"");
             DataObject* ics = new DataObject();
             SG::DataProxy* proxy = new SG::DataProxy(ics, tAddr);
             m_objects.push_back(proxy->object());
          } else if (m_provideDef) {
             ATH_MSG_DEBUG(" Going to attempt providing persistent default for "
-		            << item.id() << ",\"" << item_key  << "\"");
+                    << item.id() << ",\"" << item_key  << "\"");
             tAddr = new SG::TransientAddress(item.id(), item_key);
             DataObject* ics = new DataObject();
             SG::DataProxy* proxy = new SG::DataProxy(ics, tAddr);
@@ -576,11 +588,11 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
          }
       } else if (removed) {
          ATH_MSG_DEBUG(" Object being excluded based on property setting "
-		         << item.id() << ",\"" << item_key  << "\". Skipping");
+                 << item.id() << ",\"" << item_key  << "\". Skipping");
       }
    } else {
       ATH_MSG_DEBUG(" Failed to receive proxy iterators from StoreGate for "
-		      << item.id() << ",\"" << item_key  << "\". Skipping");
+              << item.id() << ",\"" << item_key  << "\". Skipping");
    }
 }
 
@@ -588,8 +600,8 @@ void AthenaOutputStream::itemListHandler(Property& /* theProp */) {
    // Assuming concrete SG::Folder also has an itemList property
    IProperty *pAsIProp(0);
    if ((m_p2BWritten.retrieve()).isFailure() ||
-		   0 == (pAsIProp = dynamic_cast<IProperty*>(&*m_p2BWritten)) ||
-		   (pAsIProp->setProperty(m_itemList)).isFailure()) {
+           0 == (pAsIProp = dynamic_cast<IProperty*>(&*m_p2BWritten)) ||
+           (pAsIProp->setProperty(m_itemList)).isFailure()) {
       throw GaudiException("Folder property [itemList] not found", name(), StatusCode::FAILURE);
    }
 }
@@ -597,46 +609,86 @@ void AthenaOutputStream::itemListHandler(Property& /* theProp */) {
 void AthenaOutputStream::excludeListHandler(Property& /* theProp */) {
    IProperty *pAsIProp(0);
    if ((m_decoder.retrieve()).isFailure() ||
-		   0 == (pAsIProp = dynamic_cast<IProperty*>(&*m_decoder)) ||
-		   (pAsIProp->setProperty("ItemList", m_excludeList.toString())).isFailure()) {
+           0 == (pAsIProp = dynamic_cast<IProperty*>(&*m_decoder)) ||
+           (pAsIProp->setProperty("ItemList", m_excludeList.toString())).isFailure()) {
       throw GaudiException("Folder property [itemList] not found", name(), StatusCode::FAILURE);
    }
 }
 
-std::pair<std::string,std::string> AthenaOutputStream::breakAtSep(const std::string portia,
-		const std::string sepchar) const {
-   std::pair<std::string, std::string> key;
-   std::string::size_type sep = portia.find(sepchar);
-   if (sep != std::string::npos) {
-      key.first = portia.substr(0, sep);
-      key.second = portia.substr(sep + 1, portia.size());
-   }
-   return(key);
+
+void AthenaOutputStream::tokenizeAtSep( std::vector<std::string>& subStrings,
+                                        const std::string& portia,
+                                        const std::string& sepstr ) const {
+  //ATH_MSG_VERBOSE("Going to break up: " << portia << ", using separator: " << sepstr);
+  subStrings.clear(); // clear from previous iteration step
+  // If the portia starts with a wildcard, add an empty string
+  if ( portia.find(sepstr) == 0 ) {
+    //ATH_MSG_VERBOSE("String '" << portia << "' starts with wildcard '" << sepstr);
+    subStrings.push_back("");
+  }
+  boost::char_separator<char> csep(sepstr.c_str());
+  boost::tokenizer<char_separator<char>> tokens(portia, csep);
+  for (const std::string& t : tokens) {
+    //ATH_MSG_VERBOSE("Now on token: " << t);
+    subStrings.push_back(t);
+  }
+  // If the portia ends with a wildcard, add an empty string
+  if ( portia.size() >= sepstr.size() &&
+       portia.compare( portia.size() - sepstr.size(), sepstr.size(), sepstr) == 0 ) {
+    //ATH_MSG_VERBOSE("String '" << portia << "' ends with wildcard '" << sepstr);
+    subStrings.push_back("");
+  }
+  //ATH_MSG_VERBOSE("Done breaking up: " << portia << ", using separator: " << sepstr);
+  return;
 }
 
-bool AthenaOutputStream::matchKey(const std::pair<std::string, std::string>& key,
-		const SG::DataProxy* proxy) const {
-   bool keyMatch = false;
-   // Allow wildcarding within the key
-   if (!key.first.empty() && !key.second.size()) {
-      // Must match both pre- and post- strings
-      if (proxy->name().find(key.first) != std::string::npos &&
-		      proxy->name().find(key.second) != std::string::npos) {
-         keyMatch = true;
-      }
-   } else if (!key.first.empty()) {
-      // Must match both pre- and post- strings
-      if (proxy->name().find(key.first) != std::string::npos) {
-         keyMatch = true;
-      }
-   } else if (!key.second.empty()) {
-      // Must match both pre- and post- strings
-      if (proxy->name().find(key.second) != std::string::npos) {
-         keyMatch = true;
-      }
-   }
-   return(keyMatch);
+
+
+bool AthenaOutputStream::matchKey(const std::vector<std::string>& key,
+                                  const SG::DataProxy* proxy) const {
+  bool keyMatch = true; // default return
+
+  // Get an iterator to the first (not zeroth!) string in the vector
+  std::vector<std::string>::const_iterator itrEnd = key.cend();
+  std::vector<std::string>::const_iterator itr = key.cbegin();
+
+  // Walk through the whole proxyName string and try to match to all sub-keys
+  // We are using that: std::string::npos!=string.find("") is always true
+  const std::string& proxyName = proxy->name();
+  std::string::size_type proxyNamePos=0;
+  while ( itr != itrEnd &&
+          std::string::npos != ( proxyNamePos = proxyName.find(*itr, proxyNamePos) )
+          ) {
+    // If we are at the begin iterator and the first element is Not an empty string
+    ATH_MSG_VERBOSE("If we are at the begin iterator and the first element is Not an empty string");
+    if ( !(key.front().empty()) && itr == key.cbegin() && proxyNamePos != 0 ) {
+      // We had to match a precise name at the beginning, but didn't find it at the beginning
+      ATH_MSG_VERBOSE("We had to match a precise name at the beginning, but didn't find it at the beginning");
+      break;
+    }
+    // If we are at the end iterator and the last element is Not an empty string
+    if ( !(key.back().empty()) && itr == --(key.cend()) && (proxyNamePos+itr->size()!=proxyName.size()) ) {
+      // We had to match a precise name at the end, but didn't find it at the end
+      ATH_MSG_VERBOSE("We had to match a precise name at the end, but didn't find it at the end");
+      break;
+    }
+    ATH_MSG_VERBOSE("Found a match of subkey: " << *itr << " in string: " << proxyName
+                    << " at position: " << proxyNamePos );
+    // If we have a good match, increment the iterator and the search position
+    proxyNamePos += itr->size();
+    ++itr;
+  }
+  // Didn't find everything
+  if ( itr != itrEnd ) {
+    keyMatch = false;
+    ATH_MSG_VERBOSE("Couldn't match every sub-string... return: " << keyMatch);
+  }
+  else { ATH_MSG_VERBOSE("Did match every sub-string... return: " << keyMatch); }
+
+  return(keyMatch);
 }
+
+
 
 StatusCode AthenaOutputStream::io_reinit() {
    ATH_MSG_INFO("I/O reinitialization...");
@@ -651,7 +703,7 @@ StatusCode AthenaOutputStream::io_reinit() {
    }
    incSvc->addListener(this, "MetaDataStop", 50);
    for (std::vector<ToolHandle<IAthenaOutputTool> >::const_iterator iter = m_helperTools.begin();
-	   iter != m_helperTools.end(); iter++) {
+       iter != m_helperTools.end(); iter++) {
       if (!(*iter)->postInitialize().isSuccess()) {
           ATH_MSG_ERROR("Cannot initialize helper tool");
       }
@@ -661,7 +713,7 @@ StatusCode AthenaOutputStream::io_reinit() {
 StatusCode AthenaOutputStream::io_finalize() {
    ATH_MSG_INFO("I/O finalization...");
    for (std::vector<ToolHandle<IAthenaOutputTool> >::const_iterator iter = m_helperTools.begin();
-	   iter != m_helperTools.end(); iter++) {
+       iter != m_helperTools.end(); iter++) {
       if (!(*iter)->preFinalize().isSuccess()) {
           ATH_MSG_ERROR("Cannot finalize helper tool");
       }
