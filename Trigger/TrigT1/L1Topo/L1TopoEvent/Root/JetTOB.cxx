@@ -4,21 +4,22 @@
 //  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 
 #include "L1TopoEvent/JetTOB.h"
-#include "L1TopoEvent/GenericTOB.h"
+//#include "L1TopoEvent/GenericTOB.h"
 
 unsigned int TCS::JetTOB::fg_instances = 0;
-TCS::Heap<TCS::JetTOB> TCS::JetTOB::fg_heap;
+TCS::Heap<TCS::JetTOB> TCS::JetTOB::fg_heap("Jet");
 
 // constructors
 // default constructor
-TCS::JetTOB::JetTOB() : BaseTOB()
+TCS::JetTOB::JetTOB(uint32_t roiWord) :
+   BaseTOB( roiWord )
 {
    ++fg_instances;
 }
 
 // constructor with initial values
-TCS::JetTOB::JetTOB(int Et1, int Et2, int eta, int phi) :
-   BaseTOB()
+TCS::JetTOB::JetTOB(unsigned int Et1, unsigned int Et2, int eta, int phi, uint32_t roiWord) :
+   BaseTOB( roiWord )
    , m_Et1(Et1)
    , m_Et2(Et2)
    , m_eta(eta)
@@ -32,7 +33,8 @@ TCS::JetTOB::JetTOB(int Et1, int Et2, int eta, int phi) :
 }
 
 // constructor with initial values
-TCS::JetTOB::JetTOB(const JetTOB & jet) : BaseTOB()
+TCS::JetTOB::JetTOB(const JetTOB & jet) :
+   BaseTOB( jet.roiWord() )
    , m_Et1(jet.m_Et1)
    , m_Et2(jet.m_Et2)
    , m_eta(jet.m_eta)

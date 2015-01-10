@@ -23,13 +23,13 @@ namespace TCS {
 
 
       // default constructor
-      MuonTOB();
+      MuonTOB(uint32_t roiWord = 0);
       
       // constructor with individual values
-      MuonTOB(int et, int isolation, int eta, int phi);
+      MuonTOB(unsigned int et, unsigned int isolation, int eta, int phi, uint32_t roiWord = 0);
 
       // constructor with initial values
-      MuonTOB(const MuonTOB & cluster);
+      MuonTOB(const MuonTOB & muon);
 
       // destructor
       virtual ~MuonTOB();
@@ -37,8 +37,8 @@ namespace TCS {
       // accessors
       unsigned int Et() const { return m_Et; }
       unsigned int isolation() const { return m_isolation; }
-      unsigned int eta() const { return m_eta; }
-      unsigned int phi() const { return m_phi; }
+      int eta() const { return m_eta; }
+      int phi() const { return m_phi; }
 
       double EtDouble() const { return m_EtDouble; }
       double EtaDouble() const { return m_etaDouble; }
@@ -46,13 +46,15 @@ namespace TCS {
       
       // setters
       void setEt(unsigned int et) { m_Et = sizeCheck(et, nBitsEt()); }
-      void setIsolation(int et) { m_isolation = sizeCheck(et, nBitsIsolation()); }
+      void setIsolation(unsigned int et) { m_isolation = sizeCheck(et, nBitsIsolation()); }
       void setEta(int eta) { m_eta = sizeCheck(eta, nBitsEta()); }
       void setPhi(int phi) { m_phi = sizeCheck(phi, nBitsPhi()); }
       
       void setEtDouble(double et) { m_EtDouble = et; }
       void setEtaDouble(double eta) { m_etaDouble = eta; }
       void setPhiDouble(double phi) { m_phiDouble = phi; }
+
+      inputTOBType_t tobType() const { return MUON; }
       
       // memory management
       static MuonTOB* createOnHeap(const MuonTOB& cl);
@@ -71,8 +73,8 @@ namespace TCS {
       
       unsigned int m_Et;
       unsigned int m_isolation;
-      unsigned int m_eta;
-      unsigned int m_phi;
+      int m_eta;
+      int m_phi;
 
       double m_EtDouble;
       double m_etaDouble;

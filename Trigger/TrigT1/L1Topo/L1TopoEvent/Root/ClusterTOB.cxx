@@ -6,31 +6,35 @@
 #include "L1TopoEvent/ClusterTOB.h"
 
 unsigned int TCS::ClusterTOB::fg_instances = 0;
-TCS::Heap<TCS::ClusterTOB> TCS::ClusterTOB::fg_heap;
+TCS::Heap<TCS::ClusterTOB> TCS::ClusterTOB::fg_heap("Cluster");
 
-unsigned int TCS::ClusterTOB::g_nBitsEt = 8;
+unsigned int TCS::ClusterTOB::g_nBitsEt = 10;
 unsigned int TCS::ClusterTOB::g_nBitsIsolation = 5;
 unsigned int TCS::ClusterTOB::g_nBitsEta = 6;
-unsigned int TCS::ClusterTOB::g_nBitsPhi = 6;
+unsigned int TCS::ClusterTOB::g_nBitsPhi = 7;
 
 // default constructor
-TCS::ClusterTOB::ClusterTOB() : BaseTOB()
+TCS::ClusterTOB::ClusterTOB(uint32_t roiWord) :
+   BaseTOB( roiWord )
 {
    ++fg_instances;
 }
 
 // constructor with initial values
-TCS::ClusterTOB::ClusterTOB(int et, int isolation, int eta, int phi) : BaseTOB()
+TCS::ClusterTOB::ClusterTOB(unsigned int et, unsigned int isolation, int eta, int phi, inputTOBType_t tobType, uint32_t roiWord) :
+   BaseTOB( roiWord )
    , m_Et( sizeCheck(et, nBitsEt()) )
    , m_isolation( sizeCheck( isolation, nBitsIsolation()) )
    , m_eta( sizeCheck(eta, nBitsEta()) )
    , m_phi( sizeCheck(phi, nBitsPhi()) )
+   , m_tobType( tobType )
 {
    ++fg_instances;
 }
 
 // constructor with individual values
-TCS::ClusterTOB::ClusterTOB(const TCS::ClusterTOB & cluster) : BaseTOB()
+TCS::ClusterTOB::ClusterTOB(const TCS::ClusterTOB & cluster) :
+   BaseTOB( cluster.roiWord() )
    , m_Et( cluster.m_Et )
    , m_isolation( cluster.m_isolation )
    , m_eta( cluster.m_eta )
@@ -38,6 +42,7 @@ TCS::ClusterTOB::ClusterTOB(const TCS::ClusterTOB & cluster) : BaseTOB()
    , m_EtDouble( cluster.m_EtDouble )
    , m_etaDouble( cluster.m_etaDouble )
    , m_phiDouble( cluster.m_phiDouble )
+   , m_tobType( cluster.m_tobType )
 {
    ++fg_instances;
 }

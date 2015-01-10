@@ -23,10 +23,10 @@ namespace TCS {
 
 
       // default constructor
-      ClusterTOB();
+      ClusterTOB(uint32_t roiWord = 0);
       
       // constructor with individual values
-      ClusterTOB(int et, int isolation, int eta, int phi);
+      ClusterTOB(unsigned int et, unsigned int isolation, int eta, int phi, inputTOBType_t tobType = NONE, uint32_t roiWord = 0);
 
       // constructor with initial values
       ClusterTOB(const ClusterTOB & cluster);
@@ -63,6 +63,10 @@ namespace TCS {
 
       virtual void print(std::ostream &o) const;
 
+      void setTobType(inputTOBType_t tobType) { m_tobType = tobType; }
+
+      inputTOBType_t tobType() const { return m_tobType; }
+
    private:
       static unsigned int g_nBitsEt;
       static unsigned int g_nBitsIsolation;
@@ -77,6 +81,8 @@ namespace TCS {
       double m_EtDouble {0};
       double m_etaDouble {0};
       double m_phiDouble {0};
+
+      inputTOBType_t  m_tobType { NONE };
 
       static unsigned int fg_instances;
 

@@ -6,7 +6,7 @@
 #include "L1TopoEvent/CompositeTOB.h"
 
 unsigned int TCS::CompositeTOB::fg_instances = 0;
-TCS::Heap<TCS::CompositeTOB> TCS::CompositeTOB::fg_heap;
+TCS::Heap<TCS::CompositeTOB> TCS::CompositeTOB::fg_heap("Composite");
 
 using namespace std;
 

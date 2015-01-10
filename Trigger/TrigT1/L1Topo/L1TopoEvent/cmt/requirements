@@ -6,6 +6,7 @@ use  Boost              *      LCG_Interfaces
 
 # Trigger dependencies
 use L1TopoCommon        *      Trigger/TrigT1/L1Topo
+use TrigConfBase        *      Trigger/TrigConfiguration
 
 
 # CMT package configuration

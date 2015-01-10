@@ -18,13 +18,14 @@ namespace TCS {
       
       static unsigned int nBitsEx() { return g_nBitsEx; }
       static unsigned int nBitsEy() { return g_nBitsEy; }
+      static unsigned int nBitsEt() { return g_nBitsEt; }
 
 
       // default constructor
       MetTOB();
       
       // constructor with individual values
-      MetTOB(int ex, int ey);
+      MetTOB(int ex, int ey, int et);
 
       // constructor with initial values
       MetTOB(const MetTOB & met);
@@ -35,17 +36,23 @@ namespace TCS {
       // accessors
       int Ex() const { return m_Ex; }
       int Ey() const { return m_Ey; }
+      int Et() const { return m_Et; }
 
       double ExDouble() const { return m_ExDouble; }
       double EyDouble() const { return m_EyDouble; }
+      double EtDouble() const { return m_EtDouble; }
       
       // setters
       void setEx(int ex) { m_Ex = sizeCheck(ex, nBitsEx()); }
-      void setEy(int ey) { m_Ex = sizeCheck(ey, nBitsEy()); }
+      void setEy(int ey) { m_Ey = sizeCheck(ey, nBitsEy()); }
+      void setEt(int et) { m_Et = sizeCheck(et, nBitsEt()); }
       
       void setExDouble(double ex) { m_ExDouble = ex; }
       void setEyDouble(double ey) { m_EyDouble = ey; }
+      void setEtDouble(double et) { m_EtDouble = et; }
       
+      inputTOBType_t tobType() const { return MET; }
+
       // memory management
       static MetTOB* createOnHeap(const MetTOB& cl);
       static void clearHeap();
@@ -58,12 +65,15 @@ namespace TCS {
    private:
       static unsigned int g_nBitsEx;
       static unsigned int g_nBitsEy;
+      static unsigned int g_nBitsEt;
       
       int m_Ex = { 0 };
       int m_Ey = { 0 };
+      int m_Et = { 0 };
 
       double m_ExDouble = { 0 };
       double m_EyDouble = { 0 };
+      double m_EtDouble = { 0 };
 
       static unsigned int fg_instances;
 

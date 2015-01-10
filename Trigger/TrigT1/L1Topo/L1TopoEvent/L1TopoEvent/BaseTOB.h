@@ -7,15 +7,30 @@
 #define __TopoCore__BaseTOB__
 
 #include <iostream>
+#include "L1TopoCommon/Types.h"
 
 namespace TCS {
    
    class BaseTOB {
    public:
+      BaseTOB(int roiWord);
+
       virtual void print(std::ostream&) const = 0;
+
+      virtual inputTOBType_t tobType() const = 0;
       
+      uint32_t roiWord() const { return m_roiWord; }
+
    protected:
-      int sizeCheck(int value, unsigned int size);
+      int sizeCheck(int value, unsigned int size) const;
+
+      unsigned int sizeCheck(unsigned int value, unsigned int size) const;
+
+
+   private:
+      
+      uint32_t m_roiWord;
+
    };
    
 } // end of namespace TCS

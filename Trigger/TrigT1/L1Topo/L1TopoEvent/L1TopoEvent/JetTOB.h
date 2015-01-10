@@ -24,31 +24,30 @@ namespace TCS {
       enum JetSize { JS1, JS2 };
       
       // default constructor
-      JetTOB();
+      JetTOB(uint32_t roiWord = 0);
 
       // copy constructor
       JetTOB(const JetTOB & jet);
 
       // constructor with initial values
-      JetTOB(int Et1, int Et2, int eta, int phi);
+      JetTOB(unsigned int Et1, unsigned int Et2, int eta, int phi, uint32_t roiWord = 0 );
 
       // destructor
       virtual ~JetTOB();
       
       // accessors
-      // TODO default value to be removed
-      int energy(JetSize js = JS1) const { return js==JS1?m_Et1:m_Et2; }
-      int Et(JetSize js = JS1) const { return js==JS1?m_Et1:m_Et2; }
+      int energy(JetSize js ) const { return js==JS1?m_Et1:m_Et2; }
+      int Et(JetSize js ) const { return js==JS1?m_Et1:m_Et2; }
       
       // accessors
-      int Et1()      const { return m_Et1; }
-      int EtWide()   const { return m_Et1; }
-      int Et2()      const { return m_Et2; }
-      int EtNarrow() const { return m_Et2; }
+      unsigned int Et1()      const { return m_Et1; }
+      unsigned int EtWide()   const { return m_Et1; }
+      unsigned int Et2()      const { return m_Et2; }
+      unsigned int EtNarrow() const { return m_Et2; }
       int eta() const { return m_eta; }
       int phi() const { return m_phi; }
       
-      double EtDouble(JetSize js = JS1) const { return js==JS1?m_Et1Double:m_Et2Double; }
+      double EtDouble(JetSize js ) const { return js==JS1?m_Et1Double:m_Et2Double; }
       double Et1Double() const { return m_Et1Double; }
       double Et2Double() const { return m_Et2Double; }
       double etaDouble() const { return m_etaDouble; }
@@ -67,6 +66,8 @@ namespace TCS {
       void setEtaDouble(double eta) { m_etaDouble = eta; }
       void setPhiDouble(double phi) { m_phiDouble = phi; }
 
+      inputTOBType_t tobType() const { return JET; }
+
       static JetTOB* createOnHeap(const JetTOB& jet);
       static void clearHeap();
 
@@ -81,8 +82,8 @@ namespace TCS {
       static unsigned int g_nBitsEta;
       static unsigned int g_nBitsPhi;
 
-      int m_Et1 { 0 };
-      int m_Et2 { 0 };
+      unsigned int m_Et1 { 0 };
+      unsigned int m_Et2 { 0 };
       int m_eta { 0 };
       int m_phi { 0 };
 

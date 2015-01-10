@@ -6,7 +6,7 @@
 #include "L1TopoEvent/MuonTOB.h"
 
 unsigned int TCS::MuonTOB::fg_instances = 0;
-TCS::Heap<TCS::MuonTOB> TCS::MuonTOB::fg_heap;
+TCS::Heap<TCS::MuonTOB> TCS::MuonTOB::fg_heap("Muon");
 
 unsigned int TCS::MuonTOB::g_nBitsEt = 8;
 unsigned int TCS::MuonTOB::g_nBitsIsolation = 5;
@@ -14,7 +14,8 @@ unsigned int TCS::MuonTOB::g_nBitsEta = 6;
 unsigned int TCS::MuonTOB::g_nBitsPhi = 6;
 
 // default constructor
-TCS::MuonTOB::MuonTOB() : BaseTOB()
+TCS::MuonTOB::MuonTOB(uint32_t roiWord) :
+   BaseTOB( roiWord )
    , m_Et(0)
    , m_isolation(0)
    , m_eta(0)
@@ -24,7 +25,8 @@ TCS::MuonTOB::MuonTOB() : BaseTOB()
 }
 
 // constructor with initial values
-TCS::MuonTOB::MuonTOB(int et, int isolation, int eta, int phi) : BaseTOB()
+TCS::MuonTOB::MuonTOB(unsigned int et, unsigned int isolation, int eta, int phi, uint32_t roiWord) :
+   BaseTOB( roiWord )
    , m_Et( sizeCheck(et, nBitsEt()) )
    , m_isolation( sizeCheck( isolation, nBitsIsolation()) )
    , m_eta( sizeCheck(eta, nBitsEta()) )
@@ -34,11 +36,15 @@ TCS::MuonTOB::MuonTOB(int et, int isolation, int eta, int phi) : BaseTOB()
 }
 
 // constructor with individual values
-TCS::MuonTOB::MuonTOB(const TCS::MuonTOB & cluster) : BaseTOB()
-   , m_Et( cluster.m_Et )
-   , m_isolation( cluster.m_isolation )
-   , m_eta( cluster.m_eta )
-   , m_phi( cluster.m_phi )
+TCS::MuonTOB::MuonTOB(const TCS::MuonTOB & muon) : 
+   BaseTOB( muon.roiWord() )
+   , m_Et( muon.m_Et )
+   , m_isolation( muon.m_isolation )
+   , m_eta( muon.m_eta )
+   , m_phi( muon.m_phi )
+   , m_EtDouble( muon.m_Et )
+   , m_etaDouble( muon.m_eta )
+   , m_phiDouble( muon.m_phi )
 {
    ++fg_instances;
 }

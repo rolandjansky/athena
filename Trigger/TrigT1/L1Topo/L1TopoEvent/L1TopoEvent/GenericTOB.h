@@ -11,6 +11,8 @@
 #include "L1TopoEvent/BaseTOB.h"
 #include "L1TopoEvent/JetTOB.h"
 #include "L1TopoEvent/ClusterTOB.h"
+#include "L1TopoEvent/MuonTOB.h"
+
 
 // TODO implement sizecheck lile in ClusterTOB
 
@@ -20,10 +22,10 @@ namespace TCS {
    public:
 
       // default constructor
-      GenericTOB();
+      GenericTOB(uint32_t roiWord = 0);
 
       // constructor from individual values
-      GenericTOB(int Et, int eta, int phi);
+      GenericTOB(unsigned int Et, int eta, int phi, uint32_t roiWord = 0);
 
       // copy constructor
       GenericTOB(const GenericTOB & other);
@@ -33,6 +35,10 @@ namespace TCS {
 
       // constructor from cluster
       GenericTOB(const ClusterTOB & cluster);
+
+      // constructor from muon
+      GenericTOB(const MuonTOB & muon);
+      
 
       // destructor
       ~GenericTOB();
@@ -44,7 +50,10 @@ namespace TCS {
       static const Heap<TCS::GenericTOB>& heap() { return fg_heap; }
 
    public:
-      int Et() const { return m_Et; }
+      unsigned int Et() const { return m_Et; }
+      unsigned int EtWide() const { return m_EtWide; }
+      unsigned int EtNarrow() const { return m_EtNarrow; }
+
       int eta() const { return m_eta; }
       int phi() const { return m_phi; }
       
@@ -54,16 +63,26 @@ namespace TCS {
 
       virtual void print(std::ostream &o) const;
 
+      void setTobType(inputTOBType_t tobType) { m_tobType = tobType; }
+
+      inputTOBType_t tobType() const { return m_tobType; }
+
       static unsigned int instances() { return fg_instances; }
 
    private:
-      int m_Et { 0 };
+      unsigned int m_Et { 0 };
+      unsigned int m_EtNarrow { 0 };
+      unsigned int m_EtWide { 0 };
+
+
       int m_eta { 0 };
       int m_phi { 0 };
 
       double m_EtDouble { 0 };
       double m_etaDouble { 0 };
       double m_phiDouble { 0 };
+      
+      inputTOBType_t   m_tobType { NONE };
 
       static unsigned int fg_instances;
 

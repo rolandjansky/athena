@@ -6,28 +6,31 @@
 #include "L1TopoEvent/MetTOB.h"
 
 unsigned int TCS::MetTOB::fg_instances = 0;
-TCS::Heap<TCS::MetTOB> TCS::MetTOB::fg_heap;
+TCS::Heap<TCS::MetTOB> TCS::MetTOB::fg_heap("Met");
 
 unsigned int TCS::MetTOB::g_nBitsEx = 15;
 unsigned int TCS::MetTOB::g_nBitsEy = 15;
+unsigned int TCS::MetTOB::g_nBitsEt = 15;
 
 // default constructor
-TCS::MetTOB::MetTOB() : BaseTOB() {
+TCS::MetTOB::MetTOB() : BaseTOB(0) {
    ++fg_instances;
 }
 
 // constructor with initial values
-TCS::MetTOB::MetTOB(int ex, int ey) : BaseTOB()
+TCS::MetTOB::MetTOB(int ex, int ey, int et) : BaseTOB(0)
    , m_Ex( sizeCheck(ex, nBitsEx()) )
    , m_Ey( sizeCheck(ey, nBitsEy()) )
+   , m_Et( sizeCheck(et, nBitsEt()) )
 {
    ++fg_instances;
 }
 
 // constructor with initial values
-TCS::MetTOB::MetTOB(const MetTOB & met) : BaseTOB()
+TCS::MetTOB::MetTOB(const MetTOB & met) : BaseTOB(0)
    , m_Ex( met.m_Ex )
    , m_Ey( met.m_Ey )
+   , m_Et( met.m_Et )
 {
    ++fg_instances;
 }
@@ -49,5 +52,5 @@ TCS::MetTOB::clearHeap() {
 }
 
 void TCS::MetTOB::print(std::ostream &o) const {
-    o << "MET signed Ex: " << Ex() << ", signed Ey: " << Ey();
+   o << "MET signed Ex: " << Ex() << ", signed Ey: " << Ey() << ", sum Et: " << Et();
 }

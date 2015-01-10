@@ -32,7 +32,6 @@ namespace TCS {
 
       void sort(sort_fnc);
 
-
    private:
       // print method (can be invoked via <<)
       virtual void print(std::ostream&) const;

@@ -14,12 +14,15 @@ TopoInputEvent::TopoInputEvent(const string & clusterName,
                                const string & jetName,
                                const string & muonName,
                                const string & metName) :
+   TrigConfMessaging("TopoInputEvent"),
    m_clusters(clusterName,120),
    m_taus(tauName,120),
    m_jets(jetName,60),
    m_muons(muonName,32),
    m_met(metName,1)
-{}
+{
+   setMET(MetTOB(0,0,0)); // default MET
+}
 
 TopoInputEvent::~TopoInputEvent() {}
 
@@ -44,7 +47,8 @@ StatusCode TopoInputEvent::addMuon(const TCS::MuonTOB & muon) {
 }
 
 StatusCode TopoInputEvent::setMET(const TCS::MetTOB & met) {
-   m_met[0] = met;
+   m_met.clear();
+   m_met.push_back(met);
    return StatusCode::SUCCESS;
 }
 
@@ -55,7 +59,7 @@ TopoInputEvent::inputTOBs(inputTOBType_t tobType) const {
    case CLUSTER: return &m_clusters;
    case JET: return &m_jets;
    case MUON: return &m_muons;
-   case TAU: return &m_muons;
+   case TAU: return &m_taus;
    case MET: return &m_met;
    }
    return 0;
@@ -72,6 +76,9 @@ TCS::TopoInputEvent::clear() {
    m_taus.clear();
    m_muons.clear();
    m_met.clear();
+
+   setMET(MetTOB(0,0,0)); // default MET
+
    return StatusCode::SUCCESS;
 }
 
@@ -94,11 +101,26 @@ TopoInputEvent::dump() {
       file << cluster->Et() << "  " << cluster->isolation() << "  " << cluster->eta() << "  " << cluster->phi() << "  " << cluster->etaDouble() << "  " << cluster->phiDouble() << endl;
    }
    file << "</cluster>" << endl;
+   file << "<tau>" << endl;
+   for(ClusterTOB* tau : m_taus) {
+      file << tau->Et() << "  " << tau->isolation() << "  " << tau->eta() << "  " << tau->phi() << "  " << tau->etaDouble() << "  " << tau->phiDouble() << endl;
+   }
+   file << "</tau>" << endl;
    file << "<jet>" << endl;
    for(JetTOB* jet : m_jets) {
       file << jet->Et1() << "  " << jet->Et2() << "  " << jet->eta() << "  " << jet->phi() << "  " << jet->etaDouble() << "  " << jet->phiDouble() << endl;
    }
    file << "</jet>" << endl;
+   file << "<muon>" << endl;
+   for(MuonTOB* muon : m_muons) {
+      file << muon->Et() << "  " << muon->eta() << "  " << muon->phi() << "  " << muon->EtaDouble() << "  " << muon->PhiDouble() << endl;
+   }
+   file << "</muon>" << endl;
+   file << "<met>" << endl;
+   for(MetTOB* met : m_met) {
+      file << met->Ex() << "  " << met->Ey() << "  " << met->Et() << endl;
+   }
+   file << "</met>" << endl;
    file << "</event>" << endl;
    file.close();
 }
@@ -140,3 +162,28 @@ std::ostream & operator<<(std::ostream &o, const TCS::TopoInputEvent &evt) {
 
    return o;
 }
+
+
+void
+TopoInputEvent::print() const {
+   TRG_MSG_INFO("Event:");
+   TRG_MSG_INFO("  #clusters: " << clusters().size() << " (capacity: " << clusters().capacity() << ")");
+   TRG_MSG_INFO("  #taus    : " << taus().size() << " (capacity: " << taus().capacity() << ")");
+   TRG_MSG_INFO("  #jets    : " << jets().size() << " (capacity: " << jets().capacity() << ")");
+   TRG_MSG_INFO("  #muons   : " << muons().size() << " (capacity: " << muons().capacity() << ")");
+   TRG_MSG_INFO("  #met     : " << m_met.size() << " (capacity: " << m_met.capacity() << ")");
+   
+   TRG_MSG_DEBUG("Details:");
+   TRG_MSG_DEBUG("Cluster input vector (" << clusters().name() << "):");
+   for(auto * x : clusters()) TRG_MSG_DEBUG("      " << *x);
+   TRG_MSG_DEBUG("Tau input vector (" << taus().name() << "):");// << endl << taus();
+   for(auto * x : taus()) TRG_MSG_DEBUG("      " << *x);
+   TRG_MSG_DEBUG("Jet input vector (" << jets().name() << "):");// << endl << jets();
+   for(auto * x : jets()) TRG_MSG_DEBUG("      " << *x);
+   TRG_MSG_DEBUG("Muon input vector (" << muons().name() << "):");// << endl << muons();
+   for(auto * x : muons()) TRG_MSG_DEBUG("      " << *x);
+   TRG_MSG_DEBUG("MET input (" << m_met.name() << "):");// << endl << m_met;
+   for(auto * x : m_met) TRG_MSG_DEBUG("      " << *x);
+}
+
+
