@@ -4,9 +4,9 @@ author NLAA
 use AtlasPolicy AtlasPolicy-*
 use AsgTools AsgTools-* Control/AthToolSupport
 use AtlasROOT AtlasROOT-* External
+use AtlasBoost AtlasBoost-* External
 
 private
-use AtlasBoost AtlasBoost-* External
 use RootCoreUtils RootCoreUtils-* PhysicsAnalysis/D3PDTools
 end_private
 

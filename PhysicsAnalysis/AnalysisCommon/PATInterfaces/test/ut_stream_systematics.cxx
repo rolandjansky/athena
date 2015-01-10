@@ -17,7 +17,7 @@
 
 
 /// Main unit test function
-int main(int argc, char* argv[])
+int main(int /*argc*/, char** /*argv*/)
 {
   //std::cout << "running ut_stream_systematics" << std::endl;
   std::string fileDir =

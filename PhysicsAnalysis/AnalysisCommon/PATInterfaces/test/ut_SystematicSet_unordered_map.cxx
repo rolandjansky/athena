@@ -19,7 +19,7 @@ namespace sys
 }
 
 /// Main unit test function
-int main(int argc, char* argv[])
+int main(int argc, char** /*argv*/)
 {
 
   // Any argument turns on verbose
