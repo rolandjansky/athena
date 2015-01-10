@@ -28,7 +28,9 @@ theJetRecJetRetriever.TrackCollection="CombinedInDetTracks"
 ## but due to jet-track-association issue (wrong links), use instead default:
 theJetRecJetRetriever.TrackCollection="Tracks"
 ## To write-out extended jet quality parameters:
-theJetRecJetRetriever.WriteJetQuality = True
+#### This fails after xAOD migration ! Not sure how to recover. jpt 10Jan15
+#### Retriever also forcing flag to 'False' now.
+##theJetRecJetRetriever.WriteJetQuality = True
 #
 from RecJiveXML.RecJiveXMLConf import JiveXML__MissingETRetriever
 theMissingETRetriever = JiveXML__MissingETRetriever (name = "MissingETRetriever")

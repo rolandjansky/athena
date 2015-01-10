@@ -265,6 +265,8 @@ namespace JiveXML {
     JetCollection::const_iterator itr = jets->begin();
     DataVect cellVec;
 
+
+
 //    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Loop over cell collections, Size of collection: " << 
 //        jets->size() << endreq;
 
@@ -387,19 +389,22 @@ namespace JiveXML {
       // basic jet quality 
       quality.push_back(DataType((*itr)->getMoment("LArQuality")));
 
-      isGood.push_back(DataType( -1111. ));  // placeholder
-      isBad.push_back(DataType( -1111. ));  // placeholder
-      isUgly.push_back(DataType( -1111. ));  // placeholder
-      emfrac.push_back(DataType( -1111. )); // placeholder
+      isGood.push_back(DataType( 1 ));  // placeholder
+      isBad.push_back(DataType( 0 ));  // placeholder
+      isUgly.push_back(DataType( 0 ));  // placeholder
+      emfrac.push_back(DataType( 0.5 )); // placeholder
 
+      ///// need proper replacement from xAOD, esp emfrac
       //  isGood.push_back(DataType(JetCaloQualityUtils::isGood(*itr)));
       //  isBad.push_back(DataType(JetCaloQualityUtils::isBad(*itr)));
       //  isUgly.push_back(DataType(JetCaloQualityUtils::isUgly(*itr)));
-      //      emfrac.push_back(DataType(JetCaloHelper::jetEMFraction(*itr)));
+      //  emfrac.push_back(DataType(JetCaloHelper::jetEMFraction(*itr)));
 
      jvf.push_back(DataType((*itr)->getMoment("JVF")));
 
-      /* not working after xAOD migration
+     m_writeJetQuality = false; // over-write flag. JetQuality broken after xAOD migration
+
+     /* not working after xAOD migration
       if ( m_writeJetQuality ){ // extended jet quality
 	qualityLAr.push_back(DataType(JetCaloQualityUtils::jetQualityLAr(*itr)));
 	qualityTile.push_back(DataType(JetCaloQualityUtils::jetQualityTile(*itr)));
