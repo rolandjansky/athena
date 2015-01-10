@@ -60,6 +60,10 @@ namespace CP
     iterator find(const SystematicVariation& sys) const
     { return m_sysVariations.find(sys); }
 
+    /// returns: whether the set is empty
+    bool empty() const
+    { return m_sysVariations.empty(); }
+
     /// returns: size of the set
     size_t size() const
     { return m_sysVariations.size(); }

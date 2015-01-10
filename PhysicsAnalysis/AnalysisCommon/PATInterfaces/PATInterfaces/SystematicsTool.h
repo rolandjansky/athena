@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: SystematicsTool.h 613763 2014-08-28 05:05:33Z sfarrell $
+// $Id: SystematicsTool.h 638687 2015-01-10 20:31:47Z sfarrell $
 #ifndef PATINTERFACES_SYSTEMATICS_TOOL_H
 #define PATINTERFACES_SYSTEMATICS_TOOL_H
 
@@ -10,6 +10,7 @@
 //          http://www.boost.org/LICENSE_1_0.txt)
 
 // System include(s):
+#include <boost/unordered_map.hpp>
 
 // Local include(s):
 #include "PATInterfaces/ISystematicsTool.h"
@@ -42,8 +43,8 @@ namespace CP {
    /// @author Nils Krumnack <nils.erik.krumnack@cern.ch>
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 613763 $
-   /// $Date: 2014-08-28 07:05:33 +0200 (Thu, 28 Aug 2014) $
+   /// $Revision: 638687 $
+   /// $Date: 2015-01-10 21:31:47 +0100 (Sat, 10 Jan 2015) $
    ///
    class SystematicsTool : virtual public ISystematicsTool {
 
@@ -149,6 +150,9 @@ namespace CP {
    private:
       /// description: pointer to currenty applied systematics
       SystematicSet* m_appliedSystematics;
+
+      /// map of cached systematics filtering
+      boost::unordered_map<SystematicSet, SystematicSet> m_systFilterMap;
 
    }; // class SystematicsTool
 

@@ -1,4 +1,4 @@
-// $Id: SystematicsTool.cxx 619296 2014-10-01 04:42:40Z sfarrell $
+// $Id: SystematicsTool.cxx 638686 2015-01-10 20:31:36Z sfarrell $
 //        Copyright Iowa State University 2014.
 //                  Author: Nils Krumnack
 // Distributed under the Boost Software License, Version 1.0.
@@ -10,7 +10,6 @@
 
 // System include(s):
 #include <iostream>
-#include <unordered_map>
 
 // Infrastructure include(s):
 #include "RootCoreUtils/Assert.h"
@@ -78,18 +77,11 @@ namespace CP {
 
       RCU_CHANGE_INVARIANT( this );
 
-      // Cache the mapping of systConfig to applied systematics,
-      // to take advantage of the name+hash caching mechanisms
-      // of SystematicSet
-      //static boost::unordered_map
-      static std::unordered_map
-        <SystematicSet, SystematicSet> systSetFilterMap;
-
       // First, try to find this input set in the map
-      auto itr = systSetFilterMap.find(systConfig);
+      auto itr = m_systFilterMap.find(systConfig);
 
       // This is a new input set, so we need to filter it
-      if(itr == systSetFilterMap.end()){
+      if(itr == m_systFilterMap.end()){
 
          // Filter input systematics with the affecting systematics
          SystematicSet myAppliedSystematics;
@@ -102,7 +94,8 @@ namespace CP {
          }
 
          // Insert the new filtered set onto our filter map
-         itr = systSetFilterMap.insert(std::make_pair(systConfig, myAppliedSystematics)).first;
+         itr = m_systFilterMap.insert
+           (std::make_pair(systConfig, myAppliedSystematics)).first;
 
       }
 
