@@ -19,6 +19,9 @@
 #include "TStreamerElement.h"
 #include "TStreamerInfo.h"
 #include "TRealData.h"
+#include "TDataMember.h"
+#include "TMethodCall.h"
+#include "TInterpreter.h"
 #include "TROOT.h"
 #include <vector>
 #include <sstream>
@@ -158,6 +161,9 @@ void* DataVectorConvertStreamer::convert_ptr (void* from)
   if (m_from == m_to || from == 0)
     return from;
 
+  // We used to to the conversion like this.
+  // But this doesn't work in root6 if virtual derivation is used.
+#if 0
   // We do the conversion by finding the actual (most-derived) class
   // of this instance, then looking up the base class offsets of the
   // source and destination classes.  In principle, if the source
@@ -174,6 +180,16 @@ void* DataVectorConvertStreamer::convert_ptr (void* from)
   if (offs1 < 0 || offs2 < 0)
     return 0;
   return (char*)from - offs1 + offs2;
+#endif
+
+  // So instead, just call to the interpreter.
+  // Slow, but doesn't matter so much here since this is just
+  // for backwards compatibility.
+  std::ostringstream os;
+  os << "dynamic_cast<" << m_to->GetName() << "*>((" << m_from->GetName() << "*)" << from << ")";
+  std::string line = os.str();
+  Long_t ret = gInterpreter->Calc (line.c_str());
+  return reinterpret_cast<void*> (ret);
 }
 
 
@@ -213,6 +229,35 @@ TClass* find_class (RootUtils::ILogger* logfn,
     logfn->debug (ss.str().c_str());
   }
   return cls;
+}
+
+
+/**
+ * @brief Get data member offset within DataVector.
+ * @param dv_class The top-level DataVector class.
+ * @param dm The member for which we want to find the offset.
+ *
+ * Returns -1 on failure.
+ *
+ * We can't just use dv_class->GetRealData(); that doesn't work
+ * in root6 if there's virtual derivation.
+ */
+int get_member_offset (TClass* dv_class, TDataMember* dm)
+{
+  TMethodCall meth;
+  meth.InitWithPrototype (dv_class, "baseOffset", "const std::type_info&");
+  if (!meth.IsValid()) {
+    return -1;
+  }
+  TClass* mcls = dm->GetClass();
+  meth.ResetParam();
+  meth.SetParam (reinterpret_cast<Long_t> (mcls->GetTypeInfo()));
+  Long_t ret = 0;
+  meth.Execute (ret);
+  TRealData* rd = mcls->GetRealData (dm->GetName());
+  if (rd)
+    return rd->GetThisOffset() + ret;
+  return -1;
 }
 
 
@@ -270,8 +315,18 @@ void diddle_dv_streaminfo (RootUtils::ILogger* logfn,
   while (TStreamerElement* elem = dynamic_cast<TStreamerElement*> (next())) {
     elem->SetNewType (elem->GetType());
     TRealData* rd = dv_class->GetRealData (elem->GetName());
-    if (rd)
-      elem->SetOffset (rd->GetThisOffset());
+    if (rd) {
+      // We used to do this; however this doesn't work with
+      // root6 if there's virtual derivation (root6 will quietly
+      // return garbage in such a case).  We have to get the offsets
+      // in a more roundabout way.
+      //elem->SetOffset (rd->GetThisOffset());
+      int offs = get_member_offset (dv_class, rd->GetDataMember());
+      if (offs >= 0)
+        elem->SetOffset (offs);
+      else
+        elem->SetNewType (-2);
+    }
     else
       elem->SetNewType (-2);
   }

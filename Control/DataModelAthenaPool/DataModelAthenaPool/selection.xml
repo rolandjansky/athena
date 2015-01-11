@@ -63,6 +63,7 @@
 
   <class name="DataModelAthenaPool::DataVectorConvert"/>
   <class name="DataModelAthenaPool::CLHEPConverters"/>
+  <function name="DataModelAthenaPool::installPackedContainerConverters"/>
 
   <class name="AthenaBarCode_p1" />
 

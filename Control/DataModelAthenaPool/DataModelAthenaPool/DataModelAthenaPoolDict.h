@@ -20,6 +20,7 @@
 #include "DataModelAthenaPool/NavigableVector_p2.h"
 #include "DataModelAthenaPool/DataVectorConvert.h"
 #include "DataModelAthenaPool/CLHEPConverters.h"
+#include "DataModelAthenaPool/PackedContainerConverter.h"
 #include "DataModelAthenaPool/AthenaBarCode_p1.h"
 #include "DataModelAthenaPool/UserDataStore_p1.h"
 

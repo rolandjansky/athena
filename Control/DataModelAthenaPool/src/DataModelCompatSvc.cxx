@@ -15,7 +15,7 @@
 #include "DataModelAthenaPool/DataModelCompatSvc.h"
 #include "DataModelAthenaPool/DataVectorConvert.h"
 #include "DataModelAthenaPool/CLHEPConverters.h"
-#include "ElementLinkStreamer.h"
+#include "DataModelAthenaPool/PackedContainerConverter.h"
 #include "RootConversions/VectorConverters.h"
 #include "RootConversions/TConvertingStreamerInfo.h"
 #include "RootConversions/TConvertingBranchElement.h"
@@ -36,7 +36,7 @@
  */
 DataModelCompatSvc::DataModelCompatSvc (const std::string& name,
                                         ISvcLocator* svc)
-  : Service (name, svc),
+  : AthService (name, svc),
     m_initialized (false)
 {
   // no properties...
@@ -49,7 +49,7 @@ DataModelCompatSvc::DataModelCompatSvc (const std::string& name,
 StatusCode DataModelCompatSvc::initialize()
 {
   // Base class initialization.
-  CHECK( Service::initialize() );
+  CHECK( AthService::initialize() );
 
   // We're going to want to scan all types, looking for @c DataVector
   // instantiations.  We can't do that, though, until the data file
@@ -65,7 +65,7 @@ StatusCode DataModelCompatSvc::initialize()
   TConvertingBranchElement::Initialize();
   DataModelAthenaPool::CLHEPConverters::initialize();
   RootConversions::VectorConverters::initialize();
-  DataModelAthenaPool::installElementLinkBaseStreamer();
+  DataModelAthenaPool::installPackedContainerConverters();
 
   return StatusCode::SUCCESS;
 }

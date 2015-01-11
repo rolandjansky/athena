@@ -30,7 +30,7 @@
 #define DATAMODELCOMPATSVC_H
 
 #include "RootUtils/ILogger.h"
-#include "GaudiKernel/Service.h"
+#include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IIncidentListener.h"
 
 
@@ -38,7 +38,7 @@
  * @brief Service for @c DataVector backwards compatibility.
  */
 class DataModelCompatSvc
-  : public Service,
+  : public AthService,
     public RootUtils::ILogger,
     virtual public IIncidentListener
 {

@@ -7,6 +7,7 @@
 
 UserDataStoreCnv::UserDataStoreCnv(ISvcLocator* svcloc) : 
   T_AthenaPoolCustomCnv<UserDataStore, UserDataStore_p1 >( svcloc),
+  m_converterP1(),
   m_guidP1("1D3E6FC1-54CD-4239-9714-9C467160F3FA"),
   mlog(messageService(), "UserDataStoreCnv")
 {}
