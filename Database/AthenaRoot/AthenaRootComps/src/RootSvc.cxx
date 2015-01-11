@@ -137,7 +137,11 @@ RootSvc::writeObject(const std::string& placement,
 
 /// Destruct a given object of type `RootType`.
 void
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
 RootSvc::destructObject(RootType type, void* pObj) const
+#else
+RootSvc::destructObject(RootType /*type*/, void* /*pObj*/) const
+#endif
 {
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
   type.Destruct(pObj);

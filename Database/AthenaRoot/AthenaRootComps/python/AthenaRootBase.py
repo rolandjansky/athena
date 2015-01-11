@@ -38,7 +38,6 @@ def _loadBasicAthenaRoot():
      # Make sure AthenaPoolServices is loaded for custom streamer
      try:
           svcMgr += CfgMgr.AthenaRootStreamerSvc()
-          theApp.CreateSvc += ["AthenaRootStreamerSvc"]
      except TypeError:
           msg.info("could not load AthenaRootStreamerSvc")
           pass

@@ -35,6 +35,7 @@ RootNtupleOutputStream::RootNtupleOutputStream(const std::string& name, ISvcLoca
   : FilteredAlgorithm(name, pSvcLocator),
     m_dataStore("StoreGateSvc", name),
     m_pCLIDSvc("ClassIDSvc", name),
+    m_events(0),
     m_streamer(std::string("AthenaOutputStreamTool/") + 
                name + std::string("Tool"), this),
     m_helperTools(this) 

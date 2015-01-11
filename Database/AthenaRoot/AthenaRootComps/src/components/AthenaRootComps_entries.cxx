@@ -2,10 +2,10 @@
 #include "../TTreeEventSelector.h"
 #include "../TTreeEventSelectorHelperSvc.h"
 #include "../NtupleCnvSvc.h"
-#include "../LeafCnv.h"
+//#include "../LeafCnv.h"
 #include "../RootOutputStreamTool.h"
 
-#include "../RootCnv.h"
+//#include "../RootCnv.h"
 #include "../RootCnvSvc.h"
 #include "../RootSvc.h"
 
@@ -21,9 +21,9 @@
 DECLARE_SERVICE_FACTORY( TTreeEventSelector )
 DECLARE_SERVICE_FACTORY( TTreeEventSelectorHelperSvc )
 DECLARE_NAMESPACE_SERVICE_FACTORY(Athena, NtupleCnvSvc)
-DECLARE_NAMESPACE_CONVERTER_FACTORY (Athena, LeafCnv)
+//DECLARE_NAMESPACE_CONVERTER_FACTORY (Athena, LeafCnv)
 
-DECLARE_NAMESPACE_CONVERTER_FACTORY (Athena, RootCnv)
+//DECLARE_NAMESPACE_CONVERTER_FACTORY (Athena, RootCnv)
 DECLARE_NAMESPACE_SERVICE_FACTORY( Athena, RootCnvSvc )
 DECLARE_NAMESPACE_SERVICE_FACTORY( Athena, RootSvc )
 DECLARE_NAMESPACE_TOOL_FACTORY( Athena, RootOutputStreamTool )

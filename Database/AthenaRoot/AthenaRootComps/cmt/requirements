@@ -26,6 +26,9 @@ use AthenaRootKernel AthenaRootKernel-* Database/AthenaRoot
 
 ##
 
+# Add cmake compatibility (doesn't do anything on CMT side of things)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS RIO)"
+
 branches src src/components doc python share
 
 ## default is to make a component library
@@ -38,8 +41,6 @@ apply_pattern declare_scripts files="$(AthenaRootComps_root)/test/*.sh $(AthenaR
 
 #macro test_patter_opt_only "athenarun_test" \
 #      debug       ""
-
-#apply_pattern athenarun_test name="AthenaRootCompsFilter" pre_script="../test/pre_check.sh AthenaRootCompsFilter" options="AthenaRootComps/test_athena_ntuple_filter.py" post_script="../test/post_check.sh AthenaRootCompsFilter"
 
 apply_pattern athenarun_test name="AthenaRootCompsEventless" pre_script="../test/pre_check.sh AthenaRootCompsEventless" options="AthenaRootComps/test_athena_ntuple_eventless.py" post_script="../test/post_check.sh AthenaRootCompsEventless"
 

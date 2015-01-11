@@ -17,6 +17,7 @@
 
 // stl
 #include "CxxUtils/unordered_set.h" // move to stl
+#include "CxxUtils/make_unique.h"
 
 // Gaudi
 #include "GaudiKernel/IConversionSvc.h"
@@ -156,9 +157,22 @@ RootNtupleOutputMetadataTool::handle(const Incident& inc)
 {
   ATH_MSG_DEBUG("handle() incident type: " << inc.type());
   if (inc.type()=="BeginInputFile") {
-     m_treesWritten.clear();
-  }
-  if (inc.type()=="EndInputFile") {
+    // Have to clean out any previous file metadata trees 
+    const DataHandle<TransferTree> titer; 
+    const DataHandle<TransferTree> tend; 
+    StatusCode pc = m_ometaStore->retrieve(titer,tend); 
+    if (pc.isSuccess()) { 
+      for (; titer != tend; titer++) { 
+        if (titer.cptr()!=0) { 
+          if (m_ometaStore->removeDataAndProxy(titer.cptr()).isFailure()) { 
+            ATH_MSG_ERROR("Unable to remove TransferTree after writing"); 
+          } 
+        } 
+      } 
+    } 
+    m_treesWritten.clear(); 
+  } 
+  else if (inc.type()=="EndInputFile") {
      if(copyMetadata().isFailure()) ATH_MSG_ERROR("Could not copy input metadata");
      if(writeMetadata().isFailure()) ATH_MSG_ERROR("Could not connect for metadata writing");
   }
@@ -234,7 +248,13 @@ RootNtupleOutputMetadataTool::writeMetadata()
       std::string key = titer.key();
       if (m_treesWritten.find(key) == m_treesWritten.end()) {
         if (titer.cptr()!=0) {
-          if (conn->addMetadata(key,titer.cptr()->tree(),typeid(TTree)).isFailure()) failure=true;
+          const TTree* x = (TTree*)titer.cptr()->tree(); 
+          try { 
+            if (conn->addMetadata(key,x,typeid(TTree)).isFailure()) failure=true; 
+          } 
+          catch (...) { 
+            ATH_MSG_INFO("Error adding metadata for TTree " << key); 
+          } 
         }
         else ATH_MSG_INFO("Retrieve TTree with null pointer from input metadata store");
         m_treesWritten.insert(key);
@@ -259,8 +279,8 @@ RootNtupleOutputMetadataTool::copyMetadata()
   bool failure = false; 
   if (pc.isSuccess()) {
     for (; iter != end; iter++) {
-      std::string* toCopy = new std::string(*iter);
       if (!m_ometaStore->contains<std::string>(iter.key())) {
+        std::string* toCopy = new std::string(*iter);
         if (m_ometaStore->record(toCopy,iter.key()).isFailure()) failure=true;
       }
     }
@@ -276,9 +296,9 @@ RootNtupleOutputMetadataTool::copyMetadata()
   if (pc.isSuccess()) {
     for (; titer != tend; titer++) {
       if (titer.cptr()!=0) {
-        TransferTree* toCopy = new TransferTree(*titer);
+        auto toCopy = CxxUtils::make_unique<TransferTree>(*titer);
         if (!m_ometaStore->contains<TransferTree>(titer.key())) {
-          if (m_ometaStore->record(toCopy,titer.key()).isFailure()) failure=true;
+          if (m_ometaStore->record(std::move(toCopy),titer.key()).isFailure()) failure=true;
         }
       }
       else ATH_MSG_INFO("Retrieve TTree with null pointer from input metadata store");

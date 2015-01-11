@@ -55,6 +55,11 @@ RootCnvSvc::initialize()
   ATH_CHECK(m_rootsvc.retrieve());
   // Get the I/O service
   ATH_CHECK(m_iosvc.retrieve());
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
+  // Initialize AthenaRootStreamerSvc
+  ServiceHandle<IService> arssvc("AthenaRootStreamerSvc", this->name());
+  ATH_CHECK(arssvc.retrieve());
+#endif
   return StatusCode::SUCCESS;
 }
 

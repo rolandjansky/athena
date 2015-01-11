@@ -494,7 +494,6 @@ RootNtupleEventSelector::next( IEvtSelector::Context& ctx ) const
       ATH_MSG_ERROR
         ("Problem loading tree for event [" << m_curEvt << "] !!");
       throw "RootNtupleEventSelector: Problem loading input tree";
-      return StatusCode::FAILURE;
     } else {
       ATH_MSG_DEBUG("==> loaded-tree(" << m_curEvt << ")");
     }
@@ -562,9 +561,10 @@ RootNtupleEventSelector::next( IEvtSelector::Context& ctx ) const
     return next(*rctx);
   }
   
+  // NOT REACHED
   // std::cout << "***end of collections***" << std::endl;
   // end of collections
-  return StatusCode::FAILURE;
+  //return StatusCode::FAILURE;
 }
 
 StatusCode RootNtupleEventSelector::next( Context& ctx, int jump ) const
@@ -1177,7 +1177,6 @@ RootNtupleEventSelector::do_init_io()
   m_tuple = fetchNtuple(m_inputCollectionsName.value()[m_collIdx]);
   if (!m_tuple) {
     throw "RootNtupleEventSelector: Unable to fetch Ntuple";
-    return StatusCode::FAILURE;
   }
 
   // std::cout << "::clear-root-addresses..." << std::endl;

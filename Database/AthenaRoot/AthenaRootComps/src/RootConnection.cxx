@@ -203,7 +203,11 @@ StatusCode RootConnection::addMetadata (const std::string& key,
       while (metadir->FindObject (thekey.c_str())) {
         ++i;
         std::ostringstream ss;
-        ss << m_tree->GetName() << "-" << i;
+        if (m_tree)
+          ss << m_tree->GetName();
+        else
+          ss << dir->GetName();
+        ss << "-" << i;
         thekey = ss.str();
       }
     }
