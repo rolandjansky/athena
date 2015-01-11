@@ -5,6 +5,7 @@
 #include "TrigT2CaloCalibration/EgammaLWCalibration.h"
 #include "TrigT2CaloCalibration/EgammaGapCalibration.h"
 #include "TrigT2CaloCalibration/EgammaSshapeCalibration.h"
+#include "TrigT2CaloCalibration/EgammaTransitionRegions.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_TOOL_FACTORY( T2JESCalibTool )
@@ -14,6 +15,7 @@ DECLARE_TOOL_FACTORY( EgammaHitsCalibration )
 DECLARE_TOOL_FACTORY( EgammaLWCalibration )
 DECLARE_TOOL_FACTORY( EgammaGapCalibration )
 DECLARE_TOOL_FACTORY( EgammaSshapeCalibration )
+DECLARE_TOOL_FACTORY( EgammaTransitionRegions )
 
 DECLARE_FACTORY_ENTRIES( TrigT2CaloCalibration ) {
     DECLARE_TOOL( T2JESCalibTool );
@@ -23,4 +25,5 @@ DECLARE_FACTORY_ENTRIES( TrigT2CaloCalibration ) {
     DECLARE_TOOL( EgammaHitsCalibration );
     DECLARE_TOOL( EgammaGapCalibration );
     DECLARE_TOOL( EgammaSshapeCalibration );
+    DECLARE_TOOL( EgammaTransitionRegions );
 }

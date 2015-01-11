@@ -239,7 +239,7 @@ void EgammaHitsCalibration::makeCorrection(xAOD::TrigEMCluster* clus,
         e_front_reco= (p1 + p2 * shower_lbary + p3 * shower_lbary * shower_lbary);
         if (e_front_reco<0.) e_front_reco=eps_base;
     }
-
+ 
     // -------------------------------------------------------------
     // Now compute the total energy and finally update the cluster energies
     // -------------------------------------------------------------

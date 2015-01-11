@@ -112,3 +112,21 @@ class EgammaSshapeCalibrationEndcapConfig(EgammaSshapeCalibration):
         self.energy_degree=3
         self.rangeBarrel=False
 
+
+#############################
+# EgammaTransitionRegions
+#############################
+from TrigT2CaloCalibration.TrigT2CaloCalibrationConf import EgammaTransitionRegions
+from CaloClusterCorrection.CaloSwTransitionRegionsCorr_v5_1 import *
+
+class EgammaTransitionRegionsConfig(EgammaTransitionRegions):
+    __slots__=[]
+    def __init__(self,name="EgammaTransitionRegionsConfig"):
+      super(EgammaTransitionRegionsConfig,self).__init__(name)
+      self.correction=str(CaloSwTransitionRegionsCorr_v5_1_ele)
+      self.etamin_TR00 =0.001
+      self.etamax_TR00 =0.015
+      self.etamin_TR08 =0.78
+      self.etamax_TR08 =0.82
+      self.use_raw_eta=True
+      self.OutputLevel=0
