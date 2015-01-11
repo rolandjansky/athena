@@ -19,11 +19,14 @@
 
 #include "TrigInterfaces/HypoAlgo.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigCaloEvent/RingerRings.h"
-#include "TrigCaloEvent/TrigEMCluster.h"
-#include "TrigCaloEvent/TrigRNNOutput.h"
-#include "CaloEvent/CaloSampling.h"
-
+//#include "TrigCaloEvent/RingerRings.h"
+//#include "TrigCaloEvent/TrigEMCluster.h"
+//#include "TrigCaloEvent/TrigRNNOutput.h"
+#include "xAODTrigRinger/TrigRingerRings.h"
+#include "xAODTrigRinger/TrigRNNOutput.h"
+#include "xAODTrigCalo/TrigEMCluster.h"
+//#include "CaloEvent/CaloSampling.h"
+#include "CaloGeoHelpers/CaloSampling.h"
 
 class TrigRingerNeuralHypo: public HLT::HypoAlgo {
   

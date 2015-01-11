@@ -12,31 +12,28 @@
  */
 
 #include <numeric>
-
 #include "TrigMultiVarHypo/TrigRingerNeuralFex.h"
 #include "TrigTimeAlgs/TrigTimer.h"
-#include "TrigCaloEvent/TrigEMCluster.h"
-#include "TrigCaloEvent/RingerRings.h"
+#include "xAODTrigRinger/TrigRingerRingsContainer.h"
+#include "xAODTrigRinger/TrigRingerRings.h"
+#include "xAODTrigRinger/TrigRNNOutput.h"
+#include "xAODTrigCalo/TrigEMCluster.h"
 #include "TrigMultiVarHypo/Neural.h"
-#include "TrigCaloEvent/TrigRNNOutput.h"
-#include "TrigCaloEvent/TrigRNNOutputContainer.h"
 
 const double TrigRingerNeuralFex::ENERGY_THRESHOLD = 0.001;
+
 
 TrigRingerNeuralFex::TrigRingerNeuralFex(const std::string& name, ISvcLocator* pSvcLocator):
   HLT::FexAlgo(name, pSvcLocator), m_network(0)
 {
   declareProperty("HltFeature", m_hlt_feature = "TrigRingerNeuralFex");
   declareProperty("Feature", m_feature = "TrigT2CaloEgamma");
-
   declareProperty("NodesVector", m_nodes);
   declareProperty("WeightVector", m_weight);
   declareProperty("BiasVector", m_bias);
-
   declareProperty("NRings", m_nRings);
   declareProperty("NormalisationRings", m_normRings);
   declareProperty("SectionRings", m_sectionRings);
-
   m_key="";
 }
 
@@ -58,8 +55,10 @@ HLT::ErrorCode TrigRingerNeuralFex::hltInitialize() {
   catch(int i){
     if (i==BAD_WEIGHT_SIZE)
       msg() << MSG::ERROR << "Weight vector size is not compatible with nodes vector." << endreq;
+
     if (i==BAD_BIAS_SIZE)
       msg() << MSG::ERROR << "Bias vector size is not compatible with nodes vector." << endreq;
+
     return HLT::ERROR;
   }
 
@@ -85,11 +84,6 @@ HLT::ErrorCode TrigRingerNeuralFex::hltFinalize() {
   return HLT::OK;
 }
 
-const TrigEMCluster* TrigRingerNeuralFex::get_cluster (const HLT::TriggerElement* ote) {
-  const TrigEMCluster *pattern = 0;
-  HLT::ErrorCode status = getFeature(ote, pattern, m_feature);
-  return (status == HLT::OK) ? pattern : 0;
-}
 
 void TrigRingerNeuralFex::sequential(Pattern& rings, const Feature& stop_energy) {
 
@@ -199,26 +193,27 @@ void TrigRingerNeuralFex::normalize_rings(std::vector<RingSet>& rset) {
     {
       case RingSet::EVENT:
         if (event > ENERGY_THRESHOLD) {
-		for (size_t i = 0; i < jt->pattern().size(); ++i)
-			jt->pattern()[i] /= fabs(event);
-		}
-      break;
+          for (size_t i = 0; i < jt->pattern().size(); ++i)
+            jt->pattern()[i] /= fabs(event);
+        }
+        break;
       case RingSet::SECTION:
         if (jt->section() == RingSet::EM)
         {
-	        if (emsection > ENERGY_THRESHOLD) {
-			for (size_t i = 0; i < jt->pattern().size(); ++i)
-				jt->pattern()[i] /= fabs(emsection);
-		}
+	   if (emsection > ENERGY_THRESHOLD) {
+             for (size_t i = 0; i < jt->pattern().size(); ++i)
+               jt->pattern()[i] /= fabs(emsection);
+           }
         }
         else
         {
-	        if (hadsection > ENERGY_THRESHOLD) {
-			for (size_t i = 0; i < jt->pattern().size(); ++i)
-				jt->pattern()[i] /= fabs(hadsection);
-		}
+          if (hadsection > ENERGY_THRESHOLD) {
+            for (size_t i = 0; i < jt->pattern().size(); ++i)
+              jt->pattern()[i] /= fabs(hadsection);
+          }
         }
-      break;
+        break;
+
       default: //do nothing
       break;
     }
@@ -227,22 +222,24 @@ void TrigRingerNeuralFex::normalize_rings(std::vector<RingSet>& rset) {
 
 
 HLT::ErrorCode TrigRingerNeuralFex::hltExecute(const HLT::TriggerElement* te, HLT::TriggerElement* outputTE) {
+
   te = NULL; // just to avoid the compiler warning about unused variable.
 
-  const TrigEMCluster *rtrig = get_cluster(outputTE);
-  if (!rtrig) {
-    msg() << MSG::ERROR << "Could not get TrigEMCluster from Navigation." << endreq;
-    return HLT::MISSING_FEATURE;
-  }
+  const xAOD::TrigRingerRings* rings = get_rings(outputTE);
+  const xAOD::TrigEMCluster* cluster = get_cluster(outputTE);
 
-  const RingerRings* rings = rtrig->rings();
   if (!rings) {
-    msg() << MSG::ERROR << "There is no RingerRings available in this TrigEMCluster. Perhaps the chain's FEX wasn't correctly configured!! Are you using RingerFex?!?!?!" << endreq;
+    msg() << MSG::ERROR << "There is no xAOD::TrigRingerRings available in this TriggerElement." 
+                        << "Perhaps the chain's FEX wasn't correctly configured!! Are you using RingerFex?!?!?!" << endreq;
+
     return HLT::BAD_ALGO_CONFIG;
   }
+ 
 
-  if (m_nodes.at(0) != rings->rings().size()) {
-    msg() << MSG::FATAL << "Number of rings calculated by RingerFex (" << rings->rings() << ") is different from input layer at this neural network (" << m_nodes.at(0) << ")" << endreq;
+  if (m_nodes.at(0) != (rings->rings()).size()) {
+    msg() << MSG::FATAL << "Number of rings calculated by RingerFex (" << rings->size() << ") is different "
+                        << "from input layer at this neural network (" << m_nodes.at(0) << ")" << endreq;
+
     return HLT::BAD_ALGO_CONFIG;
   }
 
@@ -262,8 +259,7 @@ HLT::ErrorCode TrigRingerNeuralFex::hltExecute(const HLT::TriggerElement* te, HL
   normalize_rings(m_ringsSet);
 
   // RingSets 2 RingerRings
-  std::vector<float> &ref_rings = m_rings.rings();
-  ref_rings.clear();
+  std::vector<float> ref_rings;
   ref_rings.reserve( m_maxRingsAccumulated );
   for (std::vector<RingSet>::iterator jt=m_ringsSet.begin(); jt!=m_ringsSet.end(); ++jt) {
     ref_rings.insert(ref_rings.end(), jt->pattern().begin(), jt->pattern().end());
@@ -274,33 +270,42 @@ HLT::ErrorCode TrigRingerNeuralFex::hltExecute(const HLT::TriggerElement* te, HL
   if (doTiming()) m_decisionTimer->start();
   
   if ( msg().level() <= MSG::DEBUG ) msg() << MSG::DEBUG<<"RingerRings size is " << ref_rings.size() <<endreq;
+
   const std::vector<float> &theInput = ref_rings;
-  const float decision = m_network->propagate(theInput);          // TODO: Extend propagate() to return output VECTORS and support NN with more than one output neuron!
+  const float decision = m_network->propagate(theInput); // TODO: Extend propagate() to return output VECTORS and support NN with more than one output neuron!
+
   if (doTiming()) m_decisionTimer->stop();
 
   if ( msg().level() <= MSG::DEBUG ) msg() << MSG::DEBUG<<"Neural Network output is " << decision <<endreq;
-  
+
+  // stard dumping  
   if (doTiming()) m_storeTimer->start();
-  
-  // save the decision at the StoreGate
+ 
   HLT::ErrorCode hltStatus;
-  TrigRNNOutput *rnnOutput = new TrigRNNOutput;
-  rnnOutput->output().push_back(decision);
-  
-  hltStatus = recordAndAttachFeature<TrigRNNOutput>(outputTE, rnnOutput, m_key, m_hlt_feature);
-  if (hltStatus != HLT::OK) {
-    msg() << MSG::ERROR << "Failed to record TrigRNNOutput to StoreGate." << endreq;
-    if (doTiming()) m_storeTimer->stop();
+  ElementLink<xAOD::TrigRingerRingsContainer> ringer_link;
+
+  hltStatus = getFeatureLink<xAOD::TrigRingerRingsContainer,xAOD::TrigRingerRings>(outputTE, ringer_link);
+
+  if( (hltStatus != HLT::OK) || (!ringer_link.isValid())){
+    msg() << MSG::ERROR << "Failed to access ElementLink to TrigRingerRings" << endreq;
     return HLT::ERROR;
   }
-  
-  // Link it to TrigEMCluster
-  ElementLink<TrigEMClusterContainer> el_cluster;
-  hltStatus = getFeatureLink<TrigEMClusterContainer, TrigEMCluster>(outputTE, el_cluster);
-  if ( (hltStatus != HLT::OK) || (!el_cluster.isValid()) ) {
-    msg() << MSG::ERROR << "Cannot get ElementLink to TrigEMCluster. I'll not link the TrigRNNOutput to the TrigEMCluster" << endreq;
-  } else {
-    rnnOutput->setCluster(*(el_cluster.getStorableObjectPointer()), (unsigned int) el_cluster.index());
+
+   xAOD::TrigRNNOutput *rnnOutput = new xAOD::TrigRNNOutput();
+  rnnOutput->makePrivateStore();  
+  //rnnOutput->setRnnDecision(decision); 
+  rnnOutput->setDecision(decision);
+  rnnOutput->setRoIword(cluster->RoIword());
+  rnnOutput->setEt(cluster->et());
+  rnnOutput->auxdata<ElementLink<xAOD::TrigRingerRingsContainer>>( "ringerLink"  ) = ringer_link; // decorator
+  //rnnOutput->setRingerLink( ringer_link );
+
+  hltStatus = recordAndAttachFeature<xAOD::TrigRNNOutput>(outputTE, rnnOutput, m_key, m_hlt_feature);
+    
+  if (hltStatus != HLT::OK) {
+    msg() << MSG::ERROR << "Failed to record xAOD::TrigRNNOutput to StoreGate." << endreq;
+    if (doTiming()) m_storeTimer->stop();
+    return HLT::ERROR;
   }
   
   if (doTiming()) m_storeTimer->stop();
@@ -319,3 +324,25 @@ TrigRingerNeuralFex::RingSet::RingSet (unsigned int max, const Normalisation &no
 TrigRingerNeuralFex::RingSet::~RingSet()
 {
 }
+
+const xAOD::TrigEMCluster* TrigRingerNeuralFex::get_cluster(const HLT::TriggerElement* ote) {
+    const xAOD::TrigEMCluster *pattern = 0;
+    HLT::ErrorCode status = getFeature(ote, pattern, m_feature);
+    return (status == HLT::OK) ? pattern : 0;
+}
+
+// get the ringer rings inside of container
+const xAOD::TrigRingerRings* TrigRingerNeuralFex::get_rings(const HLT::TriggerElement* ote){
+    const xAOD::TrigRingerRings *pattern = 0;
+    HLT::ErrorCode status = getFeature(ote, pattern, m_feature);
+    return (status == HLT::OK) ? pattern : 0;
+}
+
+
+
+
+
+
+
+
+

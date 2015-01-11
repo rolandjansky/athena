@@ -10,12 +10,16 @@ use 	AtlasPolicy         	AtlasPolicy-*
 #use 	StoreGate       	StoreGate-*             Control
 
 # Trigger 
-#use     TrigT1Interfaces    	TrigT1Interfaces-*      Trigger/TrigT1
+#use    TrigT1Interfaces    	TrigT1Interfaces-*      Trigger/TrigT1
 use     TrigInterfaces    	TrigInterfaces-*        Trigger/TrigSteer
 use     TrigSteeringEvent     	TrigSteeringEvent-*     Trigger/TrigEvent
-use     TrigCaloEvent		  TrigCaloEvent-*			Trigger/TrigEvent
-use	CaloEvent		CaloEvent-*		Calorimeter
+use     TrigCaloEvent		TrigCaloEvent-*	        Trigger/TrigEvent
+#use	CaloEvent		CaloEvent-*		Calorimeter
+use     CaloGeoHelpers          CaloGeoHelpers-*        Calorimeter
 use     TrigTimeAlgs            TrigTimeAlgs-*          Trigger/TrigTools
+use     xAODTrigRinger          xAODTrigRinger-*        Event/xAOD
+use     xAODTrigCalo            xAODTrigCalo-*          Event/xAOD
+
 
 public
 

@@ -1,5 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
+
+
 import os
 from TrigMultiVarHypo.TrigMultiVarHypoConf import TrigRingerNeuralHypo, TrigRingerNeuralFex
 
@@ -67,52 +69,25 @@ class TrigRingerNeuralHypoConfig( TrigRingerNeuralHypo ):
     self.doTiming = True
 
 
-class TrigRingerNeuralFexConfig_e5( TrigRingerNeuralFexConfig ):
-  __slots__ = []
-	
-  def __init__(self, name = "TrigRingerNeuralFexConfig_e5"):
-    super(TrigRingerNeuralFexConfig_e5, self).__init__(name)
 
-class TrigRingerNeuralFexConfig_e5_NoCut( TrigRingerNeuralFexConfig ):
+
+class TrigRingerNeuralFexConfig_NoCut( TrigRingerNeuralFexConfig ):
   __slots__ = []
 	
-  def __init__(self, name = "TrigRingerNeuralFexConfig_e5_NoCut"):
+  def __init__(self, name = "TrigRingerNeuralFexConfig_NoCut"):
     super(TrigRingerNeuralFexConfig_e5_NoCut, self).__init__(name)
 
-class TrigRingerNeuralFexConfig_e10( TrigRingerNeuralFexConfig ):
-  __slots__ = []
-	
-  def __init__(self, name = "TrigRingerNeuralFexConfig_e10"):
-    super(TrigRingerNeuralFexConfig_e10, self).__init__(name)
 
-class TrigRingerNeuralFexConfig_e15i( TrigRingerNeuralFexConfig ):
-  __slots__ = []
-	
-  def __init__(self, name = "TrigRingerNeuralFexConfig_e15i"):
-    super(TrigRingerNeuralFexConfig_e15i, self).__init__(name)
 
-class TrigRingerNeuralHypoConfig_e5( TrigRingerNeuralHypoConfig ):
+class TrigRingerNeuralHypoConfig_NoCut( TrigRingerNeuralHypoConfig ):
   __slots__ = []
 	
-  def __init__(self, name = "TrigRingerNeuralHypoConfig_e5"):
-    super(TrigRingerNeuralHypoConfig_e5, self).__init__(name)
-
-class TrigRingerNeuralHypoConfig_e5_NoCut( TrigRingerNeuralHypoConfig ):
-  __slots__ = []
-	
-  def __init__(self, name = "TrigRingerNeuralHypoConfig_e5_NoCut"):
+  def __init__(self, name = "TrigRingerNeuralHypoConfig_NoCut"):
     super(TrigRingerNeuralHypoConfig_e5_NoCut, self).__init__(name)
     self.AcceptAll = True
 
-class TrigRingerNeuralHypoConfig_e10( TrigRingerNeuralHypoConfig ):
-  __slots__ = []
-	
-  def __init__(self, name = "TrigRingerNeuralHypoConfig_e10"):
-    super(TrigRingerNeuralHypoConfig_e10, self).__init__(name)
 
-class TrigRingerNeuralHypoConfig_e15i( TrigRingerNeuralHypoConfig ):
-  __slots__ = []
-	
-  def __init__(self, name = "TrigRingerNeuralHypoConfig_e15i"):
-    super(TrigRingerNeuralHypoConfig_e15i, self).__init__(name)
+
+
+
 

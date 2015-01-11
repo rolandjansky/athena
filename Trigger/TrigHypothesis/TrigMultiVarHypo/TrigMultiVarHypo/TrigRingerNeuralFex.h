@@ -18,8 +18,12 @@
 
 #include "TrigInterfaces/FexAlgo.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigCaloEvent/TrigEMCluster.h"
-#include "CaloEvent/CaloSampling.h"
+
+#include "xAODTrigCalo/TrigEMCluster.h"
+#include "xAODTrigRinger/TrigRingerRings.h"
+
+//#include "CaloEvent/CaloSampling.h"
+#include "CaloGeoHelpers/CaloSampling.h"
 #include "TrigMultiVarHypo/Neural.h"
 #include "TrigTimeAlgs/TrigTimer.h"
 
@@ -115,13 +119,17 @@ class TrigRingerNeuralFex: public HLT::FexAlgo {
 
 
   /**
-   * This function retrieves the associated TrigEMCluster object for this TE.
+   * This function retrieves the associated xAOD::TrigEMCluster object for this TE.
    *
    * @param ote Output trigger element that initiated the execution.
    * @return The TrigEMCluster retrieved from Store Gate for the specified TriggerElement.
    */
-  const TrigEMCluster* get_cluster (const HLT::TriggerElement* ote);
-
+  
+  /* joao.victor.da.fonseca.pinto@cern.ch,  17/10/2014 */
+  const xAOD::TrigRingerRings* get_rings(const HLT::TriggerElement* ote);
+  const xAOD::TrigEMCluster* get_cluster(const HLT::TriggerElement* ote);
+    
+    
   // Properties:
   std::vector<unsigned> m_nodes;
   std::vector<float> m_bias;
@@ -162,7 +170,7 @@ class TrigRingerNeuralFex: public HLT::FexAlgo {
   void normalize_rings(std::vector<RingSet>&  rset);
 
   std::vector<RingSet>  m_ringsSet;           // It will containg the raw rings generated and their configuration.
-  RingerRings m_rings;
+  //const xAOD::RingerRings *m_rings;
 
 };
 
