@@ -6,7 +6,7 @@
 /**
 // filename: TrigTrackingxAODCnv.h
 //
-// author: Jiri Masik 
+// author: Jiri Masik
 //         Jiri.Masik@manchester.ac.uk
 //
 //
@@ -57,7 +57,7 @@ namespace InDet
 
   private:
     void ResetMon();
-    void FillMonPerTrack(const Rec::TrackParticle *, const double&, const double&);
+    void FillMonPerTrack(const xAOD::TrackParticle *, const double&, const double&);
     void FillMonPerRoi(const double&, const double&);
 
   private:
@@ -67,7 +67,7 @@ namespace InDet
 
     bool m_doSharedHits;
 
-    //Monitoring 
+    //Monitoring
     std::string                  m_slice_name;
     bool                         m_mon_doSliceSpecific;
     int                          m_mon_counter;
@@ -107,7 +107,7 @@ namespace InDet
     std::vector<float>          m_dqm_ta_roidr;
     float                       m_dqm_ta_L_pt;    //+++ pT of leading (L) pT track
     float                       m_dqm_ta_frac_pt; //+++ fraction pT_L/pT_NL, NL= next-to-leading
-    float                       m_dqm_ta_sum_ch;  //+++ Charge sum all tracks 
+    float                       m_dqm_ta_sum_ch;  //+++ Charge sum all tracks
     float                       m_dqm_ta_asy_ch;  //+++ Charge asymmetry all tracks
     float                       m_dqm_ta_m;       //+++ Inv mass all tracks
 

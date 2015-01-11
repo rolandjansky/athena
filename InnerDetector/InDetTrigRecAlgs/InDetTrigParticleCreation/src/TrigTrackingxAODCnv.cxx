@@ -5,8 +5,8 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "InDetTrigParticleCreation/TrigTrackingxAODCnv.h"
 #include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
-#include "xAODTracking/TrackParticleAuxContainer.h" 
-#include "xAODTracking/TrackParticleContainer.h" 
+#include "xAODTracking/TrackParticleAuxContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
 #include "VxVertex/VxContainer.h"
 #include "VxVertex/VxTrackAtVertex.h"
 #include "Particle/TrackParticle.h"
@@ -25,14 +25,14 @@ namespace InDet
 {
 
 
-  TrigTrackingxAODCnv::TrigTrackingxAODCnv(const std::string &name, 
+  TrigTrackingxAODCnv::TrigTrackingxAODCnv(const std::string &name,
 					   ISvcLocator *pSvcLocator)
     : HLT::FexAlgo (name, pSvcLocator),
       m_particleCreatorTool("Trk::ParticleCreatorTool"),
       m_tracks(0),
       m_slice_name(""),
       m_mon_doSliceSpecific(true),
-      m_mon_counter(0), 
+      m_mon_counter(0),
       m_mon_prescale(1),
       m_mon_ptmin(1)
   {
@@ -65,7 +65,7 @@ namespace InDet
     declareMonitoredVariable("mu_eta",    m_dqm_mu_eta);
     declareMonitoredVariable("mu_phi",    m_dqm_mu_phi);
     declareMonitoredVariable("mu_qOverP", m_dqm_mu_qOverP);
-    declareMonitoredVariable("mu_pt",     m_dqm_mu_pt); 
+    declareMonitoredVariable("mu_pt",     m_dqm_mu_pt);
     declareMonitoredVariable("mu_nPIXHits", m_dqm_mu_npix_hits);
     declareMonitoredVariable("mu_nSCTHits", m_dqm_mu_nsct_hits);
     declareMonitoredVariable("mu_nTRTHits", m_dqm_mu_ntrt_hits);
@@ -90,7 +90,7 @@ namespace InDet
   //----------------------------------------------------------------------------
   HLT::ErrorCode TrigTrackingxAODCnv::hltBeginRun() {
     msg() << MSG::INFO << "TrigTrackingxAODCnv::beginRun()" << endreq;
-    m_mon_counter = 1; 
+    m_mon_counter = 1;
 
     return HLT::OK;
   }
@@ -118,10 +118,10 @@ namespace InDet
     slice_names.push_back("Bphysics");
     slice_names.push_back("Electron");
     slice_names.push_back("MinBias");
-    slice_names.push_back("Photon"); 
-    slice_names.push_back("Bjet"); 
-    slice_names.push_back("FullScan"); 
-    slice_names.push_back("Muon"); 
+    slice_names.push_back("Photon");
+    slice_names.push_back("Bjet");
+    slice_names.push_back("FullScan");
+    slice_names.push_back("Muon");
     slice_names.push_back("Tau");
 
     m_slice_name="";
@@ -138,7 +138,7 @@ namespace InDet
   // Execute HLT Algorithm
   ///////////////////////////////////////////////////////////////////
   HLT::ErrorCode TrigTrackingxAODCnv::hltExecute(const HLT::TriggerElement*, HLT::TriggerElement* outputTE) {
- 
+
     int outputLevel = msgLvl();
 
     if(outputLevel <= MSG::DEBUG)
@@ -183,7 +183,7 @@ namespace InDet
       if(outputLevel <= MSG::DEBUG)
 	msg() << MSG::DEBUG << " Input track collection was not attached. Algorithm not executed!" << endreq;
       runAlg = false;
-      statCode = HLT::OK; 
+      statCode = HLT::OK;
     } else {
       if(outputLevel <= MSG::VERBOSE)
 	msg() << MSG::VERBOSE << " Input track collection has size " << m_tracks->size() << endreq;
@@ -191,36 +191,37 @@ namespace InDet
 	if(outputLevel <= MSG::DEBUG)
 	  msg() << MSG::DEBUG << " Input track collection has 0 size. Algorithm not executed!" << endreq;
 	runAlg = false;
-	statCode=HLT::OK; 
+	statCode=HLT::OK;
       }
     }
 
 
     //convert tracks
 
-    xAOD::TrackParticleContainer* tpCont = new xAOD::TrackParticleContainer(); 
-    //    xAOD::TrackParticleAuxContainer* tpAuxCont = new xAOD::TrackParticleAuxContainer(); 
+    xAOD::TrackParticleContainer* tpCont = new xAOD::TrackParticleContainer();
+    //    xAOD::TrackParticleAuxContainer* tpAuxCont = new xAOD::TrackParticleAuxContainer();
     xAOD::TrackParticleAuxContainer tpAuxCont; // = new xAOD::TrackParticleAuxContainer();      //this guy should allow reset
-    tpCont->setStore( &tpAuxCont ); 
-   
-    if(m_tracks && runAlg)
-      for(unsigned int idtr=0; idtr< m_tracks->size(); ++idtr) { 
-        const ElementLink<TrackCollection> trackLink(*m_tracks, idtr); 
-        
-        xAOD::TrackParticle* tp = m_particleCreatorTool->createParticle( trackLink, tpCont); 
-        if(outputLevel <= MSG::DEBUG){
+    tpCont->setStore( &tpAuxCont );
+
+    if(m_tracks && runAlg) {
+      for(unsigned int idtr=0; idtr< m_tracks->size(); ++idtr) {
+        const ElementLink<TrackCollection> trackLink(*m_tracks, idtr);
+
+        xAOD::TrackParticle* tp = m_particleCreatorTool->createParticle( trackLink, tpCont);
+        if((outputLevel <= MSG::DEBUG) && (tp != 0)){
   	msg() << MSG::DEBUG << "REGTEST: " << std::setw(5) << idtr
   	      << "  pT:  " << std::setw(10) << tp->pt()
   	      << "  eta: " << tp->eta()
   	      << "  phi: " << tp->phi()
-  	  //<< "\t" << npix << "/" << nsct << "/" << ntrt << "//" << npixh << "/" << nscth 
+  	  //<< "\t" << npix << "/" << nsct << "/" << ntrt << "//" << npixh << "/" << nscth
   	      << endreq;
-  
+
         }
       }
+    }
 
     if(outputLevel <= MSG::DEBUG){
-      msg() << MSG::DEBUG << "REGTEST container size = " << tpCont->size() << endreq; 
+      msg() << MSG::DEBUG << "REGTEST container size = " << tpCont->size() << endreq;
     }
 
 
@@ -234,17 +235,17 @@ namespace InDet
       }
     }
 
-      
+
 
     /*
-  
+
     //
     //  Attach resolved tracks to the trigger element.
     //  std::string sgkey;
     //if ( HLT::OK !=  recordAndAttachFeature(outputTE, m_trackPC, sgkey, "TrackPart") ) {
     if ( HLT::OK !=  attachFeature(outputTE, m_trackPC, name()) ) {
       msg() << MSG::ERROR << "Could not attach feature to the TE" << endreq;
-    
+
       return HLT::NAV_ERROR;
     }
     else {
@@ -279,7 +280,7 @@ namespace InDet
 		  << "  pT:  " << std::setw(10) << mp->pT()
 		  << "  eta: " << mp->eta()
 		  << "  phi: " << mp->parameters()[Trk::phi]
-		  << "\t" << npix << "/" << nsct << "/" << ntrt << "//" << npixh << "/" << nscth 
+		  << "\t" << npix << "/" << nsct << "/" << ntrt << "//" << npixh << "/" << nscth
 		  << endreq;
 	  }
 	}
@@ -288,10 +289,15 @@ namespace InDet
 
     */
 
+    for (xAOD::TrackParticleContainer::iterator itr = tpCont->begin();
+     itr != tpCont->end(); ++itr)  {
+      FillMonPerTrack(*itr, tmp_eta_roi, tmp_phi_roi);
+    }
+
     if (runAlg){
       //+++ DQM (SA): per RoI quantities
       FillMonPerRoi(tmp_eta_roi, tmp_phi_roi);
-      ++m_mon_counter; 
+      ++m_mon_counter;
 
       return HLT::OK;
     } else {
@@ -305,7 +311,7 @@ namespace InDet
   ///////////////////////////////////////////////////////////////////
   // Finalize
   ///////////////////////////////////////////////////////////////////
-  
+
   HLT::ErrorCode TrigTrackingxAODCnv::hltFinalize() {
 
     msg() << MSG::DEBUG << "finalize() success" << endreq;
@@ -316,9 +322,9 @@ namespace InDet
   //          endRun method:
   //----------------------------------------------------------------------------
   HLT::ErrorCode TrigTrackingxAODCnv::hltEndRun() {
-   
+
     msg() << MSG::INFO << "TrigTrackingxAODCnv::endRun()" << endreq;
-   
+
     return HLT::OK;
   }
   //---------------------------------------------------------------------------
@@ -327,71 +333,74 @@ namespace InDet
   //---------------------------------------------------------------------------
   //  update the monitoring arrays
   //---------------------------------------------------------------------------
-  void TrigTrackingxAODCnv::FillMonPerTrack(const Rec::TrackParticle *particle, 
-					    const double &tmp_eta_roi, const double &tmp_phi_roi) {	
-  
+  void TrigTrackingxAODCnv::FillMonPerTrack(const xAOD::TrackParticle *particle,
+					    const double &tmp_eta_roi, const double &tmp_phi_roi) {
+
     //+++ Prescale
     if (m_mon_counter != m_mon_prescale) return;
 
     //+++ Common for all slices
     float tmp_eta = -999;
     float tmp_phi = -999;
-    const Trk::Perigee *tmpMp = particle->measuredPerigee();
-    const Trk::TrackSummary *tmpSum = particle->trackSummary();
-    const Trk::FitQuality *tmpQty = particle->fitQuality();
-    if (tmpMp){
-      tmp_eta = tmpMp->eta();
-      tmp_phi = tmpMp->parameters()[Trk::phi];
-      m_dqm_d0.push_back(tmpMp->parameters()[Trk::d0]);
-      m_dqm_z0.push_back(tmpMp->parameters()[Trk::z0]);
-      m_dqm_eta.push_back(tmp_eta);
-      m_dqm_phi.push_back(tmp_phi);
-      m_dqm_qOverP.push_back(tmpMp->parameters()[Trk::qOverP]);
+
+    tmp_eta = particle->eta();
+    tmp_phi = particle->phi();
+    m_dqm_d0.push_back(particle->d0());
+    m_dqm_z0.push_back(particle->z0());
+    m_dqm_eta.push_back(tmp_eta);
+    m_dqm_phi.push_back(tmp_phi);
+    m_dqm_qOverP.push_back(particle->qOverP());
+
+    uint8_t numberOfPixelHits = 0;
+    particle->summaryValue(numberOfPixelHits, xAOD::numberOfPixelHits);
+    m_dqm_npix_hits.push_back(static_cast<int>(numberOfPixelHits));
+    uint8_t numberOfSCTHits = 0;
+    particle->summaryValue(numberOfSCTHits, xAOD::numberOfSCTHits);
+    m_dqm_nsct_hits.push_back(static_cast<int>(numberOfSCTHits));
+    uint8_t numberOfTRTHits = 0;
+    particle->summaryValue(numberOfTRTHits, xAOD::numberOfTRTHits);
+    m_dqm_ntrt_hits.push_back(static_cast<int>(numberOfTRTHits));
+
+    if(particle->numberDoF()>0) {
+      m_dqm_chi2dof.push_back(particle->chiSquared() / particle->numberDoF());
     }
-    if (tmpSum){
-      m_dqm_npix_hits.push_back(tmpSum->get(Trk::numberOfPixelHits));
-      m_dqm_nsct_hits.push_back(tmpSum->get(Trk::numberOfSCTHits));
-      m_dqm_ntrt_hits.push_back(tmpSum->get(Trk::numberOfTRTHits));
-    }
-    if (tmpQty){
-      if(tmpQty->numberDoF()>0) m_dqm_chi2dof.push_back(tmpQty->chiSquared() / tmpQty->numberDoF());
-    }
+
     m_dqm_eta_roi.push_back(tmp_eta_roi);
     m_dqm_phi_roi.push_back(tmp_phi_roi);
 
     //+++ Slice specific
-    if (m_mon_doSliceSpecific) { 
+    if (m_mon_doSliceSpecific) {
       if (m_slice_name == "Tau") {
-	float tmp_deta = tmp_eta - tmp_eta_roi;
-	float tmp_dphi = tmp_phi - tmp_phi_roi;
-	float tmp_roidr = sqrt(tmp_deta*tmp_deta + tmp_dphi*tmp_dphi);
-	m_dqm_ta_roidr.push_back(tmp_roidr); 
+      	float tmp_deta = tmp_eta - tmp_eta_roi;
+      	float tmp_dphi = tmp_phi - tmp_phi_roi;
+      	float tmp_roidr = sqrt(tmp_deta*tmp_deta + tmp_dphi*tmp_dphi);
+      	m_dqm_ta_roidr.push_back(tmp_roidr);
       }
     }
- 
+
     return;
   }
 
 
-  void TrigTrackingxAODCnv::FillMonPerRoi(const double &tmp_eta_roi, const double &tmp_phi_roi) {	
+  void TrigTrackingxAODCnv::FillMonPerRoi(const double &tmp_eta_roi, const double &tmp_phi_roi) {
 
     Rec::TrackParticleContainer *m_trackPC = 0;
-    
+
     //+++ Prescale
-    if (m_mon_counter >= m_mon_prescale) { 
+    if (m_mon_counter >= m_mon_prescale) {
       m_mon_counter = 0;
     } else {
-      return;       
+      return;
     }
 
- 
+
     //+++ Common for all slices
     if (m_tracks) m_dqm_ntrk = m_tracks->size();
     if (m_trackPC) m_dqm_ntrkpart = m_trackPC->size();
 
 
     //+++ Slice specific
-    if (m_mon_doSliceSpecific) {  
+    if (m_mon_doSliceSpecific) {
       //+++ Bjet
       if (m_slice_name == "Bjet") {
 	const Trk::Perigee * tmpMp = 0;
@@ -400,15 +409,15 @@ namespace InDet
 	    tmpMp = (*tpItr)->measuredPerigee();
 	    if (tmpMp) {
 	      m_dqm_bj_sumpt += tmpMp->pT()/1000;
-	    } 
+	    }
 	  }
 	}
       //+++ Muon
       } else if (m_slice_name == "Muon") {
-	
+
 	m_dqm_mu_eta_roi = tmp_eta_roi;
 	m_dqm_mu_phi_roi = tmp_phi_roi;
-	
+
 	//+++ Find leading track with pT > X
 	const Rec::TrackParticle * tpL = 0;
 	const Trk::Perigee * tmpMp = 0;
@@ -422,10 +431,10 @@ namespace InDet
 		tpL = (*tpItr);
 		tmp_pt_max = tmp_pt;
 	      }
-	    } 
+	    }
 	  }
 	}
-	
+
 	//+++ Fill leading histograms
 	const Trk::TrackSummary * tmpSum = 0;
 	const Trk::FitQuality *   tmpQty = 0;
@@ -487,10 +496,10 @@ namespace InDet
 	      } else {
 		++tmp_pos_ch;
 	      }
-	    } 
+	    }
 	  }
 	}
-	
+
 	//+++ Fill m and pT of L and NL track
 	float tmp_p2 = tmp_px*tmp_px + tmp_py*tmp_py + tmp_pz*tmp_pz;
 	float tmp_m2 = tmp_e*tmp_e - tmp_p2;
@@ -500,7 +509,7 @@ namespace InDet
 	if (tmpLMp){
 	  m_dqm_ta_L_pt = tmpLMp->pT()/1000;
 	  if (tmpNLMp) {
-	    float tmp_NL_pt = tmpNLMp->pT()/1000;	      
+	    float tmp_NL_pt = tmpNLMp->pT()/1000;
 	    if (m_dqm_ta_L_pt!=0) m_dqm_ta_frac_pt = tmp_NL_pt / m_dqm_ta_L_pt;
 	  }
 	}
@@ -514,10 +523,10 @@ namespace InDet
           m_dqm_ta_asy_ch = -999;
         }
 
-	
+
       }
     }
-    
+
     return;
   }
 
@@ -564,7 +573,7 @@ namespace InDet
     m_dqm_ta_m = -999;
 
     return;
-  }	
+  }
 
 
 } // end namespace
