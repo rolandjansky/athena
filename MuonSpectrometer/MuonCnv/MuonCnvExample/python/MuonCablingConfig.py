@@ -46,69 +46,45 @@ if DetFlags.readRDOBS.RPC_on() or DetFlags.readRDOPool.RPC_on() or DetFlags.read
     from MuonCablingServers.MuonCablingServersConf import RPCcablingServerSvc
     ServiceMgr += RPCcablingServerSvc()
     theApp.CreateSvc += [ "RPCcablingServerSvc" ] # TODO: Remove once the C++ dependencies are fixed
-    if muonCnvFlags.RpcCablingMode=='sim':
-        ServiceMgr.RPCcablingServerSvc.Atlas=False
-        ServiceMgr.RPCcablingServerSvc.forcedUse=True
-        ServiceMgr.RPCcablingServerSvc.useMuonRPC_CablingSvc=False 
-        from RPCcablingSim.RPCcablingSimConf import RPCcablingSimSvc 
-        # ServiceMgr += RPCcablingSimSvc()
-    elif muonCnvFlags.RpcCablingMode=='old':  
-        ServiceMgr.RPCcablingServerSvc.Atlas=True
-        ServiceMgr.RPCcablingServerSvc.forcedUse=True
-        ServiceMgr.RPCcablingServerSvc.useMuonRPC_CablingSvc=False 
-        from RPCcabling.RPCcablingConf import RPCcablingSvc 
-        # ServiceMgr += RPCcablingSvc()
-    elif muonCnvFlags.RpcCablingMode=='new':  
-        log.info("setting for data NEW rpc cabling svc: MuonRPC_Cabling")
-        ServiceMgr.RPCcablingServerSvc.Atlas=True
-        ServiceMgr.RPCcablingServerSvc.forcedUse=True
-        ServiceMgr.RPCcablingServerSvc.useMuonRPC_CablingSvc=True #Needed to switch to new cabling
-    elif muonCnvFlags.RpcCablingMode=='auto':  
-        log.info("setting for auto configuration of the rpc cabling svc")
-        ServiceMgr.RPCcablingServerSvc.Atlas=False
-        ServiceMgr.RPCcablingServerSvc.forcedUse=False
-        ServiceMgr.RPCcablingServerSvc.useMuonRPC_CablingSvc=True #irrelevant if Atlas = False 
-        from RPCcablingSim.RPCcablingSimConf import RPCcablingSimSvc 
-    else:
-      raise RuntimeError("RpcCablingMode=%r not supported" % muonCnvFlags.RpcCablingMode())
+    ServiceMgr.RPCcablingServerSvc.Atlas=True
+    ServiceMgr.RPCcablingServerSvc.forcedUse=True
+    ServiceMgr.RPCcablingServerSvc.useMuonRPC_CablingSvc=True #Needed to switch to new cabling
 
-    if muonCnvFlags.RpcCablingMode=='auto' or muonCnvFlags.RpcCablingMode=='new':  
-        from MuonRPC_Cabling.MuonRPC_CablingConf import MuonRPC_CablingSvc
-        # ServiceMgr += MuonRPC_CablingSvc()
-        import MuonRPC_Cabling.MuonRPC_CablingConfig
-#        ServiceMgr.MuonRPC_CablingSvc.OutputLevel = 3
-        ServiceMgr.MuonRPC_CablingSvc.RPCTriggerRoadsfromCool=True
-        from IOVDbSvc.CondDB import conddb
-        #
-        # Cabling maps folders from DB
-        # examples to connect to development db INTR
-        # notice this requires special authentication.xml file
-        #conddb.addFolder("","<db>oracle://INTR;schema=ATLAS_COOL_RPCDQ;dbname=RPC_DQA;user=ATLAS_COOL_RPCDQ_R</db> /RPC/CABLING/MAP_SCHEMA_NEW <tag>ver42</tag>")
-        #conddb.addFolder("","<db>oracle://INTR;schema=ATLAS_COOL_RPCDQ;dbname=RPC_DQA;user=ATLAS_COOL_RPCDQ_R</db> /RPC/CABLING/MAP_SCHEMA_CORR_2 <tag>ver10</tag>")
-        #
-        # for production DB when tags are not yet associated to global tags 
-        #conddb.addFolder("RPC","/RPC/CABLING/MAP_SCHEMA <tag>RPCCablingMapSchema_version42</tag>")
-        #conddb.addFolder("RPC","/RPC/CABLING/MAP_SCHEMA_CORR <tag>RPCCablingMapSchemaCorr_version10</tag>")
-        #
-        # for production DB
-        conddb.addFolderSplitMC("RPC","/RPC/CABLING/MAP_SCHEMA"     , "/RPC/CABLING/MAP_SCHEMA")
-        conddb.addFolderSplitMC("RPC","/RPC/CABLING/MAP_SCHEMA_CORR", "/RPC/CABLING/MAP_SCHEMA_CORR")
+    from MuonRPC_Cabling.MuonRPC_CablingConf import MuonRPC_CablingSvc
+    # ServiceMgr += MuonRPC_CablingSvc()
+    import MuonRPC_Cabling.MuonRPC_CablingConfig
+    # ServiceMgr.MuonRPC_CablingSvc.OutputLevel = 3
+    ServiceMgr.MuonRPC_CablingSvc.RPCTriggerRoadsfromCool=True
+    from IOVDbSvc.CondDB import conddb
+    #
+    # Cabling maps folders from DB
+    # examples to connect to development db INTR
+    # notice this requires special authentication.xml file
+    # conddb.addFolder("","<db>oracle://INTR;schema=ATLAS_COOL_RPCDQ;dbname=RPC_DQA;user=ATLAS_COOL_RPCDQ_R</db> /RPC/CABLING/MAP_SCHEMA_NEW <tag>ver42</tag>")
+    # conddb.addFolder("","<db>oracle://INTR;schema=ATLAS_COOL_RPCDQ;dbname=RPC_DQA;user=ATLAS_COOL_RPCDQ_R</db> /RPC/CABLING/MAP_SCHEMA_CORR_2 <tag>ver10</tag>")
+    #
+    # for production DB when tags are not yet associated to global tags 
+    # conddb.addFolder("RPC","/RPC/CABLING/MAP_SCHEMA <tag>RPCCablingMapSchema_version42</tag>")
+    # conddb.addFolder("RPC","/RPC/CABLING/MAP_SCHEMA_CORR <tag>RPCCablingMapSchemaCorr_version10</tag>")
+    #
+    # for production DB
+    conddb.addFolderSplitMC("RPC","/RPC/CABLING/MAP_SCHEMA"     , "/RPC/CABLING/MAP_SCHEMA")
+    conddb.addFolderSplitMC("RPC","/RPC/CABLING/MAP_SCHEMA_CORR", "/RPC/CABLING/MAP_SCHEMA_CORR")
 
-        # Trigger Roads folders from DB
-        # for production DB when tags are not yet associated to global tags 
-        #conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_RPC;dbname=OFLP200</db>/RPC/TRIGGER/CM_THR_ETA<tag>EtaTrigRoads_MC_April2010</tag>")
-        #conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_RPC;dbname=OFLP200</db>/RPC/TRIGGER/CM_THR_PHI<tag>PhiTrigRoads_MC_April2010</tag>")
-        #
-        # for production DB
-        conddb.addFolderSplitMC("RPC","/RPC/TRIGGER/CM_THR_ETA", "/RPC/TRIGGER/CM_THR_ETA")
-        conddb.addFolderSplitMC("RPC","/RPC/TRIGGER/CM_THR_PHI", "/RPC/TRIGGER/CM_THR_PHI")
-
-        from RPC_CondCabling.RPC_CondCablingConf import RPCCablingDbTool
-        RPCCablingDbTool = RPCCablingDbTool()
-        RPCCablingDbTool.MapConfigurationFolder = "/RPC/CABLING/MAP_SCHEMA"
-        RPCCablingDbTool.MapCorrectionFolder    = "/RPC/CABLING/MAP_SCHEMA_CORR"
-        ToolSvc+=RPCCablingDbTool
-        
+    # Trigger Roads folders from DB
+    # for production DB when tags are not yet associated to global tags 
+    # conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_RPC;dbname=OFLP200</db>/RPC/TRIGGER/CM_THR_ETA<tag>EtaTrigRoads_MC_April2010</tag>")
+    # conddb.addFolder("","<db>oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_RPC;dbname=OFLP200</db>/RPC/TRIGGER/CM_THR_PHI<tag>PhiTrigRoads_MC_April2010</tag>")
+    #
+    # for production DB
+    conddb.addFolderSplitMC("RPC","/RPC/TRIGGER/CM_THR_ETA", "/RPC/TRIGGER/CM_THR_ETA")
+    conddb.addFolderSplitMC("RPC","/RPC/TRIGGER/CM_THR_PHI", "/RPC/TRIGGER/CM_THR_PHI")
+    from RPC_CondCabling.RPC_CondCablingConf import RPCCablingDbTool
+    RPCCablingDbTool = RPCCablingDbTool()
+    RPCCablingDbTool.MapConfigurationFolder = "/RPC/CABLING/MAP_SCHEMA"
+    RPCCablingDbTool.MapCorrectionFolder    = "/RPC/CABLING/MAP_SCHEMA_CORR"
+    ToolSvc+=RPCCablingDbTool
+    
 if DetFlags.readRDOBS.TGC_on() or DetFlags.readRDOPool.TGC_on() or DetFlags.readRIOPool.TGC_on() or DetFlags.digitize.TGC_on():
     log.info("TGC cabling is using mode: %s" % muonCnvFlags.TgcCablingMode())
     

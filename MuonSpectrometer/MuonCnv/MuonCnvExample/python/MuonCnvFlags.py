@@ -45,16 +45,16 @@ class MuonCnv(JobPropertyContainer):
 
 
         # MDT
-        if globalflags.InputFormat.is_bytestream() and globalflags.DataSource() == 'geant4':
-            setDefault(self.MdtCablingMode, 'old')
-        else:
-            if any(re.match(tag,globalflags.ConditionsTag()) for tag in problematic_tags_mdtrpc):
-                setDefault(self.MdtCablingMode, 'old')
-            else:
-                if globalflags.DataSource() == 'data' or DetFlags.digitize.MDT_on():
-                    setDefault(self.MdtCablingMode, 'new')
-                else:
-                    setDefault(self.MdtCablingMode, 'auto')
+#        if globalflags.InputFormat.is_bytestream() and globalflags.DataSource() == 'geant4':
+#            setDefault(self.MdtCablingMode, 'old')
+#        else:
+#            if any(re.match(tag,globalflags.ConditionsTag()) for tag in problematic_tags_mdtrpc):
+#                setDefault(self.MdtCablingMode, 'old')
+#            else:
+#                if globalflags.DataSource() == 'data' or DetFlags.digitize.MDT_on():
+#                    setDefault(self.MdtCablingMode, 'new')
+#                else:
+#                    setDefault(self.MdtCablingMode, 'auto')
 
 
         # RPC
