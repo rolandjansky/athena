@@ -279,14 +279,26 @@ class genDictionary(object) :
       tname = self.genTypeName (tid)
       if tname.startswith( self.selectionname+'::NO_SELF_AUTOSELECT'): self_autoselect = 0
       if tname.startswith (self.selectionname+'::AUTOSELECT'):
-        if 'members' in c:
+        if f['name'].startswith ('__base'):
+          nbase = 0
+          try:
+            nbase = int(f['name'][6:])
+          except ValueError:
+            pass
+          blist = c['bases'].split()
+          if nbase >= 1 and nbase <= len(blist):
+            base = blist[nbase-1]
+            fattrs = self.xref[base]['attrs']
+            if fattrs.has_key('extra') : fattrs['extra']['autoselect'] = c['id']
+            else                       : fattrs['extra'] = {'autoselect':c['id']}
+        elif 'members' in c:
           for mnum in c['members'].split():
             m = self.xref[mnum]
             if 'name' in m['attrs'] and m['attrs']['name'] == f['name']:
               if m['elem'] == 'Field':
                 fattrs = self.xref[m['attrs']['type']]['attrs']
-                if fattrs.has_key('extra') : fattrs['extra']['autoselect'] = 'true'
-                else                       : fattrs['extra'] = {'autoselect':'true'}
+                if fattrs.has_key('extra') : fattrs['extra']['autoselect'] = c['id']
+                else                       : fattrs['extra'] = {'autoselect':c['id']}
               else :
                 print '--->> genreflex: WARNING: AUTOSELECT selection functionality for %s not implemented yet' % m['elem']
                 self.warnings += 1
@@ -475,7 +487,7 @@ class genDictionary(object) :
     return
   def autosel(self, classes):
     types = []
-    for c in self.classes:
+    for c in classes:
       self.getdependent(c['id'], types)
 
       #pos = c['name'].find('<')
@@ -490,8 +502,11 @@ class genDictionary(object) :
             
     for t in types:
       c = self.xref[t]['attrs']
-      if 'extra' in c and c['extra'].get('autoselect') and c not in classes:
-        classes.append (c)
+      if 'extra' in c:
+        parent_id = c['extra'].get('autoselect')
+        if parent_id and c not in classes:
+          if parent_id == 'true' or self.xref[parent_id]['attrs'] in classes:
+            classes.append (c)
     return classes  
 #----------------------------------------------------------------------------------
   def selfunctions(self, sel) :
@@ -748,8 +763,8 @@ class genDictionary(object) :
     #----Filter any non-public data members for minimal interpreter dict -----
     if self.interpreter and elem in ('Field') and 'access' in attrs : # assumes that the default is "public"
       return 0
-    #----Filter any non public method
-    if attrs.get('access') in ('protected', 'private') : 
+    #----Filter any non public or deleted method
+    if attrs.get('access') in ('protected', 'private') or attrs.get('deleted')=='1': 
       if elem in ('Constructor','Destructor','Method','OperatorMethod','Converter') : return 0
     #----Filter any copy constructor with a private copy constructor in any base
     if elem == 'Constructor' and len(args) == 1 and 'name' in args[0] and args[0]['name'] == '_ctor_arg' :
@@ -897,6 +912,7 @@ class genDictionary(object) :
          if elem == 'OperatorMethod' and len(args) == 1 and attr.get('name') == '=':
            if self.genTypeName(args[0]['type']) == 'const '+self.genTypeName(attr['context'])+'&' :
              if 'access' in attr and attr['access'] in ['private','protected'] : return True
+             if attr.get('deleted') == '1': return True
              if not attr.get('artificial'): return False
 
          # Test data members too.  If a data member itself has a private
@@ -1248,7 +1264,8 @@ class genDictionary(object) :
         for rule in ruleList:
           if not rule['attrs'].has_key( 'include' ):
             continue
-          lst = [r.strip() for r in rule['attrs']['include'].split( ';' )]
+          inclist = rule['attrs']['include'].replace(',',';')
+          lst = [r.strip() for r in inclist.split( ';' )]
           for r in lst:
             testDict[r] = 1
     return testDict.keys()
@@ -2848,6 +2865,7 @@ def ClassDefImplementation(selclasses, self) :
            and "ImplFileName" in listOfMembers :
 
       clname = '::' + attrs['fullname']
+      scopename = attrs['fullname']
 
       haveClassDef = 1
       extraval = '!RAW!' + str(derivesFromTObject)
@@ -2875,6 +2893,7 @@ def ClassDefImplementation(selclasses, self) :
             break
           if specclname:
             specclname = enclattrs['name'] + '::' + specclname
+            scopename = enclattrs['name'] + '::' + scopename
           else:
             #this is the first time through so we want the class name
             specclname = enclattrs['name']
@@ -2972,7 +2991,11 @@ def ClassDefImplementation(selclasses, self) :
       returnValue += '      b.WriteClassBuffer(' + clname  + '::Class(),this);\n'
       returnValue += '   }\n'
       returnValue += '}\n'
+      returnValue += '#if ROOT_VERSION_CODE >= ROOT_VERSION(6,1,0) || (ROOT_VERSION_CODE>=ROOT_VERSION(5,34,22) && ROOT_VERSION_CODE<ROOT_VERSION(6,0,0))\n'
+      returnValue += template + 'atomic_TClass_ptr ' + scopename + '::fgIsA;\n'
+      returnValue += '#else\n'
       returnValue += template + 'TClass* ' + specclname + '::fgIsA = 0;\n'
+      returnValue += '#endif\n'
       returnValue += namespacelevel * '}' + '\n'
     elif derivesFromTObject :
       # no fgIsA etc members but derives from TObject!

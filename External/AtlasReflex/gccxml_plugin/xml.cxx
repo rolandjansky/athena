@@ -445,7 +445,9 @@ do_xml_output (const char* filename)
 #if defined(GCCXML_PLUGIN_VERSION_FULL)
   fprintf (file, " version=\"" GCCXML_PLUGIN_VERSION_FULL "\"");
 #endif
-  fprintf (file, " cvs_revision=\"%s\"", xml_get_xml_c_version());
+  const char* version = xml_get_xml_c_version();
+  fprintf (file, " cvs_revision=\"%s\"", version);
+  free ((char*)version);
   fprintf (file, ">\n");
 
   /* Dump the complete nodes.  */
@@ -2144,10 +2146,7 @@ xml_output_typedef (xml_dump_info_p xdi, tree td, xml_dump_node_p dn)
   xml_print_location_attribute (xdi, td);
 
   /* Output typedef attributes (contributed by Steven Kilthau - May 2004).  */
-  if (td)
-    {
-      xml_print_attributes_attribute (xdi, DECL_ATTRIBUTES(td), 0);
-    }
+  xml_print_attributes_attribute (xdi, DECL_ATTRIBUTES(td), 0);
 
   fprintf (xdi->file, "/>\n");
 }
@@ -2302,7 +2301,7 @@ xml_output_function_decl (xml_dump_info_p xdi, tree fd, xml_dump_node_p dn)
     /* A class destructor.  */
     tag = "Destructor"; do_virtual = 1; do_artificial = 1;
     }
-  else if (DECL_OVERLOADED_OPERATOR_P (fd))
+  else if (DECL_OVERLOADED_OPERATOR_P (fd) != ERROR_MARK)
     {
     if (DECL_CONV_FN_P (fd))
       {
@@ -2387,6 +2386,7 @@ xml_output_function_decl (xml_dump_info_p xdi, tree fd, xml_dump_node_p dn)
   xml_print_attributes_attribute (xdi, DECL_ATTRIBUTES(fd),
                                   TYPE_ATTRIBUTES(TREE_TYPE(fd)));
   xml_print_befriending_attribute (xdi, DECL_BEFRIENDING_CLASSES (fd));
+  fprintf (xdi->file, " deleted=\"%d\"", DECL_DELETED_FN(fd));
 
   /* Prepare to iterator through argument list.  */
   arg = DECL_ARGUMENTS (fd);
