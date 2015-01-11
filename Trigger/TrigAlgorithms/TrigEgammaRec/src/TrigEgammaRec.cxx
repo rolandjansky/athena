@@ -52,8 +52,9 @@ PURPOSE:  Algorithm is an adaptation for the trigger of the egammaBuilder.cxx
 #include "egammaInterfaces/IEMBremCollectionBuilder.h"
 #include "egammaInterfaces/IEMFourMomBuilder.h"
 #include "egammaInterfaces/IEMAmbiguityTool.h"
-#include "egammaInterfaces/IEMIsolationBuilder.h"
-
+#include "RecoToolInterfaces/ITrackIsolationTool.h"
+#include "RecoToolInterfaces/ICaloCellIsolationTool.h"
+#include "RecoToolInterfaces/ICaloTopoClusterIsolationTool.h"
 // xAOD
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -66,7 +67,9 @@ PURPOSE:  Algorithm is an adaptation for the trigger of the egammaBuilder.cxx
 #include "egammaRecEvent/egammaRecContainer.h"
 
 #include "egammaEvent/egammaParamDefs.h"
-
+#include "xAODPrimitives/IsolationFlavour.h"
+#include "xAODPrimitives/IsolationConeSize.h"
+#include "xAODPrimitives/IsolationHelpers.h"
 
 // INCLUDE GAUDI HEADER FILES:
  
@@ -81,24 +84,24 @@ PURPOSE:  Algorithm is an adaptation for the trigger of the egammaBuilder.cxx
 // needed for online monitor histograms
 class ISvcLocator;
 
+// Template class for monitoring
 namespace {
     template <class DEST,class SRC>
         inline DEST** my_pp_cast(SRC** ptr) {
             return (DEST**)(ptr);
         }
 }
-
 /////////////////////////////////////////////////////////////////
-
 
 //  CONSTRUCTOR:
 
 TrigEgammaRec::TrigEgammaRec(const std::string& name,ISvcLocator* pSvcLocator):
-    HLT::FexAlgo(name, pSvcLocator)
+    HLT::FexAlgo(name, pSvcLocator),
+    m_lumiTool("LuminosityTool")
 {
 
-    // The following properties are specified at run-time
-    // (declared in jobOptions file)
+    // The following default propertiesare configured in TrigEgammaRecConfig using Factories
+    // Specific configurations are found in TriggerMenu
 
     declareProperty("ElectronContainerAliasSuffix", m_electronContainerAliasSuffix="egamma_electron");
     declareProperty("PhotonContainerAliasSuffix",   m_photonContainerAliasSuffix="egamma_photon");
@@ -113,13 +116,31 @@ TrigEgammaRec::TrigEgammaRec(const std::string& name,ISvcLocator* pSvcLocator):
     declareProperty("TrackMatchBuilderTool", m_trackMatchBuilder, "Handle to TrackMatchBuilder");
     // AmbiguityTool
     declareProperty("AmbiguityTool", m_ambiguityTool, "Handle to AmbiguityTool");
-    //IsolationBuilder
-    declareProperty("IsolationBuilderTool", m_isolationBuilder, "Handle to IsolationBuilder"); 
+    //ElectronPIDBuilder
+    declareProperty("ElectronPIDBuilder", m_electronPIDBuilder, "Handle to ElectronPIDBuilder"); 
+    //ElectronCaloPIDBuilder
+    declareProperty("ElectronCaloPIDBuilder", m_electronCaloPIDBuilder, "Handle to ElectronCaloPIDBuilder"); 
+    //PhotonPIDBuilder
+    declareProperty("PhotonPIDBuilder", m_photonPIDBuilder, "Handle to PhotonPIDBuilder"); 
+    // Isolation
+    declareProperty("TrackIsolationTool",       m_trackIsolationTool,   "Handle of the track IsolationTool");  
+    declareProperty("CaloCellIsolationTool",    m_caloCellIsolationTool,   "Handle of the caloCell IsolationTool");  
+    declareProperty("CaloTopoIsolationTool",           m_topoIsolationTool,    "Handle of the calo topo IsolationTool");
+    declareProperty("doTrackIsolation",       m_doTrackIsolation = false,   "Handle of the track IsolationTool");  
+    declareProperty("doCaloCellIsolation",    m_doCaloCellIsolation = false,   "Handle of the caloCell IsolationTool");  
+    declareProperty("doCaloTopoIsolation",           m_doTopoIsolation = false,    "Handle of the calo topo IsolationTool");
+
+    /** Luminosity tool */
+    declareProperty("LuminosityTool", m_lumiTool, "Luminosity Tool");
+
+    /** @brief Track to track assoc after brem, set to false. If true and no GSF original track in cone */
+    declareProperty("useBremAssoc",                    m_useBremAssoc          = false, "use track to track assoc after brem"); 
     
+    declareProperty("IsoTypes", m_egisoInts, "The isolation types to do for egamma: vector of vector of enum type Iso::IsolationType, stored as float");
     // Set flag for track matching
-    declareProperty("doTrackMatching",m_doTrackMatching = false);
+    declareProperty("doTrackMatching",m_doTrackMatching = false, "run TrackMatchBuilder");
     // Set flag for conversions 
-    declareProperty("doConversions",m_doConversions = false);
+    declareProperty("doConversions",m_doConversions = false, "run ConversionBuilder");
 
     // Monitoring
     typedef const DataVector<xAOD::Electron> xAODElectronDV_type;
@@ -176,11 +197,11 @@ TrigEgammaRec::TrigEgammaRec(const std::string& name,ISvcLocator* pSvcLocator):
     declareMonitoredCollection("Ph_E0Eaccordion",  *my_pp_cast <xAODElectronDV_type>(&m_photon_container), &getE0Eaccordion);
     
     //Track-related monitoring accesible from xAOD::Electron
-    declareMonitoredCollection("nBLayerHits",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfBLayerHits);
-    declareMonitoredCollection("expectBLayerHit",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_expectBLayerHit);
+    declareMonitoredCollection("nBLayerHits",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfInnermostPixelLayerHits);
+    declareMonitoredCollection("expectBLayerHit",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_expectInnermostPixelLayerHit);
     declareMonitoredCollection("nPixelHits",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfPixelHits);
     declareMonitoredCollection("nSCTHits",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfSCTHits);
-    declareMonitoredCollection("nBLayerOutliers",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfBLayerOutliers);
+    declareMonitoredCollection("nBLayerOutliers",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfInnermostPixelLayerOutliers);
     declareMonitoredCollection("nPixelOutliers",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfPixelOutliers);
     declareMonitoredCollection("nSCTOutliers",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfSCTOutliers);
     declareMonitoredCollection("nTRTHits",	         *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getTrackSummary_numberOfTRTHits);
@@ -196,6 +217,8 @@ TrigEgammaRec::TrigEgammaRec(const std::string& name,ISvcLocator* pSvcLocator):
     declareMonitoredCollection("rTRT",	                 *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &rTRT);
     declareMonitoredCollection("SigmaD0",	                 *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getSigmaD0);
     declareMonitoredCollection("D0sig",	                 *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getD0sig);
+
+    declareMonitoredStdContainer("LHValue", m_lhval);
 
     //Vertex-related monitoring for Photons
     //TBD
@@ -307,39 +330,187 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
         if (timerSvc()) m_timerTool5 = addTimer("EMShowerBuilder");
     }
     
-    if (m_isolationBuilder.empty()) {
-        ATH_MSG_ERROR("EMIsolationBuilder is empty");
+    
+
+    /** @brief Retrieve EMPIDBuilders */ 
+    if (m_electronPIDBuilder.empty()) {
+        ATH_MSG_ERROR("ElectronPIDBuilder is empty");
         return HLT::BAD_JOB_SETUP;
     }
-
-    if((m_isolationBuilder.retrieve()).isFailure()) {
-        ATH_MSG_ERROR("Unable to retrieve "<<m_isolationBuilder);
+    if((m_electronPIDBuilder.retrieve()).isFailure()) {
+        ATH_MSG_ERROR("Unable to retrieve "<<m_electronPIDBuilder);
         return HLT::BAD_JOB_SETUP;
     }
     else {
-        ATH_MSG_DEBUG("Retrieved Tool "<<m_isolationBuilder);
-        if (timerSvc()) m_timerTool6 = addTimer("EMIsolationBuilder");
+        ATH_MSG_DEBUG("Retrieved Tool "<<m_electronPIDBuilder);
+        if (timerSvc()) m_timerPIDTool1 = addTimer("ElectronPIDBuilder");
+    }
+    
+    if (m_electronCaloPIDBuilder.empty()) {
+        ATH_MSG_ERROR("ElectronPIDBuilder is empty");
+        return HLT::BAD_JOB_SETUP;
+    }
+    if((m_electronPIDBuilder.retrieve()).isFailure()) {
+        ATH_MSG_ERROR("Unable to retrieve "<<m_electronCaloPIDBuilder);
+        return HLT::BAD_JOB_SETUP;
+    }
+    else {
+        ATH_MSG_DEBUG("Retrieved Tool "<<m_electronCaloPIDBuilder);
+        if (timerSvc()) m_timerPIDTool2 = addTimer("ElectronCaloPIDBuilder");
+    }
+    
+    if (m_photonPIDBuilder.empty()) {
+        ATH_MSG_ERROR("PhotonPIDBuilder is empty");
+        return HLT::BAD_JOB_SETUP;
+    }
+    if((m_photonPIDBuilder.retrieve()).isFailure()) {
+        ATH_MSG_ERROR("Unable to retrieve "<<m_photonPIDBuilder);
+        return HLT::BAD_JOB_SETUP;
+    }
+    else {
+        ATH_MSG_DEBUG("Retrieved Tool "<<m_photonPIDBuilder);
+        if (timerSvc()) m_timerPIDTool3 = addTimer("PhotonPIDBuilder");
     }
 
+    // No longer required with Two-step Calo
     ATH_MSG_DEBUG("Obtain CaloCellDetPos tool for calo-frame variables");
     m_caloCellDetPos = new CaloCellDetPos();
 
-    //print summary info
-    if(msgLvl() <= MSG::INFO) {
-        msg() << MSG::INFO << "REGTEST: xAOD Reconstruction for Run2" << endreq;
-        msg() << MSG::INFO << "REGTEST: Initialization completed successfully, tools initialized:  " << endreq;
-        msg() << MSG::INFO << "REGTEST: TrackMatch tool: " << m_trackMatchBuilder << endreq;
-        msg() << MSG::INFO << "REGTEST: Conversions tool: " << m_conversionBuilder << endreq;
-        msg() << MSG::INFO << "REGTEST: Shower  tool: " << m_showerBuilder << endreq;
-        msg() << MSG::INFO << "REGTEST: Four Momentum tool: " << m_fourMomBuilder << endreq; 
-        msg() << MSG::INFO << "REGTEST: Ambiguity tool: " << m_ambiguityTool << endreq;
-        msg() << MSG::INFO << "REGTEST: Isolation tool: " << m_isolationBuilder << endreq;
+    // For now, we don't try to retrieve the lumi tool
+    if (m_lumiTool.retrieve().isFailure()) {                                     
+        ATH_MSG_DEBUG("Unable to retrieve Luminosity Tool"); 
+        // 244            return HLT::ERROR;                                                         
+    } else {                                                                     
+        ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");
+    }      
 
-        if (m_electronContainerAliasSuffix.size() > 0 ) 
-            msg() << MSG::VERBOSE << "REGTEST: suffix added to ElectronContainer alias: " << m_electronContainerAliasSuffix << endreq;
-        if (m_photonContainerAliasSuffix.size() > 0 ) 
-            msg() << MSG::VERBOSE << "REGTEST: suffix added to PhotonContainer alias: " << m_photonContainerAliasSuffix << endreq;
+    /** @brief Isolation Configuration */ 
+    // Build helpers and decorators for all required isolations
+    std::set<std::string> runIsoType;
+    unsigned int nI = m_egisoInts.size();
+    if (nI > 0 && m_egisoInts[0].size() > 0)
+        ATH_MSG_INFO("Will built egamma isolation types : ");
+    else
+        nI = 0;
+    for (unsigned int ii = 0; ii < nI; ii++) {
+        std::vector<std::string> isoNames;
+        std::vector<xAOD::Iso::IsolationType> isoTypes;
+        std::vector<SG::AuxElement::Decorator<float>*> Deco;
+        std::string flavName;
+        for (unsigned int jj = 0; jj < m_egisoInts[ii].size(); jj++) {
+            int egIso = int(m_egisoInts[ii][jj]+0.5);
+            std::pair<std::string,std::string> apair = decodeEnum(egIso);
+            flavName = apair.first;
+            std::string decName  = apair.second;
+            isoNames.push_back(decName);
+            xAOD::Iso::IsolationType isoType = static_cast<xAOD::Iso::IsolationType>(egIso);
+            isoTypes.push_back(isoType);
+            Deco.push_back(new SG::AuxElement::Decorator<float>(decName));
+            ATH_MSG_INFO(decName);
+            if (flavName == "ptcone") {
+                decName = "ptvarcone";
+                int is = 100*xAOD::Iso::coneSize(isoType);
+                decName += std::to_string(is);
+                Deco.push_back(new SG::AuxElement::Decorator<float>(decName));
+                ATH_MSG_INFO(decName);
+            }
+        }
+        IsoHelp isoH;
+        isoH.isoNames = isoNames;
+        isoH.isoTypes = isoTypes;
+        isoH.isoDeco  = Deco;
+        if (flavName == "etcone" || flavName == "topoetcone" ){ 
+            CaloIsoHelp cisoH;
+            cisoH.help = isoH;
+            xAOD::CaloCorrection corrlist;
+            // Subtract central 5x7 cells from cone
+            corrlist.calobitset.set(static_cast<unsigned int>(xAOD::Iso::core57cells));
+            // Correct for out of cone leakage as function of pt
+            corrlist.calobitset.set(static_cast<unsigned int>(xAOD::Iso::ptCorrection));
+            cisoH.CorrList = corrlist;
+            m_egCaloIso.insert(make_pair(flavName,cisoH));
+        } else if (flavName == "ptcone") {
+            TrackIsoHelp tisoH;
+            tisoH.help = isoH;
+            xAOD::TrackCorrection corrlist;
+            // Remove electron track from cone
+            corrlist.trackbitset.set(static_cast<unsigned int>(xAOD::Iso::coreTrackPtr));
+            tisoH.CorrList = corrlist;
+            m_egTrackIso.insert(make_pair(flavName,tisoH));
+        } else
+            ATH_MSG_WARNING("Isolation flavour " << flavName << " does not exist ! Check your inputs");
+        if (runIsoType.find(flavName) == runIsoType.end()) runIsoType.insert(flavName);
     }
+    
+    /** @brief Retrieve IsolationTools based on IsoTypes configured */
+    if(m_doTrackIsolation){
+        if (!m_trackIsolationTool.empty() && runIsoType.find("ptcone") != runIsoType.end()){ 
+            ATH_MSG_DEBUG("Retrieve TrackIsolationTool");
+
+            if(m_trackIsolationTool.retrieve().isFailure()){
+                ATH_MSG_ERROR("Unable to retrieve " << m_trackIsolationTool);
+                return HLT::BAD_JOB_SETUP;
+            }
+            else {
+                ATH_MSG_DEBUG("Retrieved Tool "<<m_trackIsolationTool);
+                if (timerSvc()) m_timerIsoTool1 = addTimer("TrackIsolationTool");
+            }
+        }
+    }
+    if(m_doCaloCellIsolation){
+        if (!m_caloCellIsolationTool.empty() && runIsoType.find("etcone") != runIsoType.end()) {
+            ATH_MSG_DEBUG("Retrieve CaloIsolationTool is empty");
+            if(m_caloCellIsolationTool.retrieve().isFailure()){
+                ATH_MSG_ERROR("Unable to retrieve " << m_caloCellIsolationTool);
+                return HLT::BAD_JOB_SETUP;
+            }
+            else {
+                ATH_MSG_DEBUG("Retrieved Tool "<<m_caloCellIsolationTool);
+                if (timerSvc()) m_timerIsoTool2 = addTimer("CaloCellIsolationTool");
+            }
+        }
+    }
+    if(m_doTopoIsolation){
+        if (!m_topoIsolationTool.empty() && runIsoType.find("topoetcone") != runIsoType.end()) {
+            ATH_MSG_DEBUG("Retrieve TopoIsolationTool is empty");
+            if(m_topoIsolationTool.retrieve().isFailure()){
+                ATH_MSG_ERROR("Unable to retrieve " << m_topoIsolationTool);
+                return HLT::BAD_JOB_SETUP;
+            }
+            else {
+                ATH_MSG_DEBUG("Retrieved Tool "<<m_topoIsolationTool);
+                if (timerSvc()) m_timerIsoTool3 = addTimer("topoIsolationTool");
+            }
+        }
+    }
+    //print summary info
+    ATH_MSG_INFO("REGTEST: xAOD Reconstruction for Run2" );
+    ATH_MSG_INFO("REGTEST: Initialization completed successfully, tools initialized:  " );
+    ATH_MSG_INFO("REGTEST: TrackMatch tool: "   <<      m_trackMatchBuilder );
+    ATH_MSG_INFO("REGTEST: Conversions tool: "  <<      m_conversionBuilder );
+    ATH_MSG_INFO("REGTEST: Shower  tool: "      <<      m_showerBuilder );
+    ATH_MSG_INFO("REGTEST: Four Momentum tool: "<<      m_fourMomBuilder );
+    ATH_MSG_INFO("REGTEST: Ambiguity tool: "    <<      m_ambiguityTool );
+    ATH_MSG_INFO("REGTEST: TrackIsolationTool " <<      m_trackIsolationTool );
+    ATH_MSG_INFO("REGTEST: CaloCellIsolationTool " <<   m_caloCellIsolationTool );
+    ATH_MSG_INFO("REGTEST: TopoIsolationTool "  <<      m_topoIsolationTool );
+    ATH_MSG_INFO("REGTEST: ElectronPID tool: "  <<      m_electronPIDBuilder); 
+    ATH_MSG_INFO("REGTEST: ElectronCaloPID tool: " <<   m_electronCaloPIDBuilder); 
+    ATH_MSG_INFO("REGTEST: PhotonPID tool: "    <<      m_photonPIDBuilder);
+    ATH_MSG_INFO("REGTEST: LumiTool "           <<      m_lumiTool);
+
+
+    ATH_MSG_DEBUG("REGTEST: Check properties");
+    ATH_MSG_DEBUG("REGTEST: TrackIsolation "        << m_doTrackIsolation);
+    ATH_MSG_DEBUG("REGTEST: Do Conversions: "       << m_doConversions);
+    ATH_MSG_DEBUG("REGTEST: Do TrackMatching: "     << m_doTrackMatching);
+    ATH_MSG_DEBUG("REGTEST: Do Track Isolation: "   << m_doTrackIsolation);
+    ATH_MSG_DEBUG("REGTEST: Do CaloCell Isolation: "<< m_doCaloCellIsolation);
+    ATH_MSG_DEBUG("REGTEST: Do TopoIsolation: "     << m_doTopoIsolation);
+    ATH_MSG_DEBUG("REGTEST: Use BremAssoc: "        << m_useBremAssoc);
+
+    ATH_MSG_INFO("REGTEST: suffix added to ElectronContainer alias: " << m_electronContainerAliasSuffix );
+    ATH_MSG_INFO("REGTEST: suffix added to PhotonContainer alias: " << m_photonContainerAliasSuffix );
     return HLT::OK;
 }
 
@@ -348,9 +519,21 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
 
 HLT::ErrorCode TrigEgammaRec::hltFinalize() {
     delete m_caloCellDetPos;
-    if(msgLvl() <= MSG::INFO) msg() << MSG::INFO << "Finalization of TrigEgammaRec completed successfully"
-        << endreq;
-    
+   
+    // Delete pointers to decorators
+    std::map<std::string,CaloIsoHelp>::iterator itc = m_egCaloIso.begin(), itcE = m_egCaloIso.end();
+    for (; itc != itcE; itc++) {
+        std::vector<SG::AuxElement::Decorator<float>*> vec = itc->second.help.isoDeco;
+        for (unsigned int ii = 0; ii < vec.size(); ii++)
+            delete vec[ii];
+    }
+    std::map<std::string,TrackIsoHelp>::iterator itt = m_egTrackIso.begin(), ittE = m_egTrackIso.end();
+    for (; itt != ittE; itt++) {
+        std::vector<SG::AuxElement::Decorator<float>*> vec = itt->second.help.isoDeco;
+        for (unsigned int ii = 0; ii < vec.size(); ii++)
+            delete vec[ii];
+    }
+    ATH_MSG_INFO("Finalization of TrigEgammaRec completed successfully");
 
     return HLT::OK;
 }
@@ -590,6 +773,8 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG
             << " REGTEST: no VxContainer from TE, m_doConversions: " << m_doConversions << endreq;
     } else {
+        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " REGTEST: Got " << vectorVxContainer.size()
+            << " VertexContainers associated to the TE " << endreq;
         // check that it is not empty
         if (vectorVxContainer.size() < 1) {
             m_doConversions= false;
@@ -627,13 +812,12 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     //
     // Need method which takes egRec and VxContainer
     if(m_doConversions){
+        ATH_MSG_DEBUG("REGTEST:: Run Conversion Builder for egContainer");
         if (timerSvc()) m_timerTool2->start(); //timer
         for(auto egRec : eg_container) {
-            if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG 
-                << "REGTEST:: Running ConversionBuilder" << endreq;
+            ATH_MSG_DEBUG( "REGTEST:: Running ConversionBuilder");
             if(m_conversionBuilder->hltExecute(egRec,pVxContainer).isFailure())
-                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG 
-                    << "REGTEST: no Conversion" << endreq;
+                ATH_MSG_DEBUG("REGTEST: no Conversion");
         }
         if (timerSvc()) m_timerTool2->stop(); //timer
     } //m_doConversions/
@@ -848,12 +1032,12 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         } //Photon
     }//end loop of egRec
 
+
     //Dress the Electron objects
     for (const auto& eg : *m_electron_container){
         // EMFourMomentum
         if (timerSvc()) m_timerTool4->start(); //timer
-        if(msgLvl() <= MSG::DEBUG) 
-            msg() << MSG::DEBUG << "about to run hltExecute(eg,index)" << endreq;
+        ATH_MSG_DEBUG("about to run EMFourMomBuilder::hltExecute(eg,index)");
         if(m_fourMomBuilder->hltExecute(eg,0)); // What is the index?
         else if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: problem with fourmom tool" << endreq; 
         if (timerSvc()) m_timerTool4->stop(); //timer
@@ -861,43 +1045,155 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         // Shower Shape
         // Track Isolation tool no longer runs for trigger in showershape, but we can do ourselves
         if (timerSvc()) m_timerTool5->start(); //timer
-        ATH_MSG_DEBUG("about to run recoExecute(eg,pCaloCellContainer)");
+        ATH_MSG_DEBUG("about to run EMShowerBuilder::recoExecute(eg,pCaloCellContainer)");
         if( m_showerBuilder->recoExecute(eg,pCaloCellContainer) );
         else if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: no shower built for this cluster" << endreq;
         if (timerSvc()) m_timerTool5->stop(); //timer
         
         // Isolation
-        if (timerSvc()) m_timerTool6->start(); //timer
-        ATH_MSG_DEBUG("about to run recoExecute(eg,pCaloCellContainer,pTrackParticleConainer)");
-        if( m_isolationBuilder->recoExecute(eg,pCaloCellContainer,pTrackParticleContainer) );
-        else if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: no isolation computed" << endreq;
-        if (timerSvc()) m_timerTool6->stop(); //timer
+        //
+        // Calo Isolation types
+        
+        if(m_doCaloCellIsolation || m_doTopoIsolation){       
+            if (timerSvc()) m_timerIsoTool2->start(); //timer
+            std::map<std::string,CaloIsoHelp>::iterator itc = m_egCaloIso.begin(), itcE = m_egCaloIso.end();
+            for (; itc != itcE; itc++) {
+                CaloIsoHelp isoH = itc->second;
+                std::string flav = itc->first;
+                bool bsc = false;
+                if (flav == "etcone" && pCaloCellContainer)
+                    bsc = m_caloCellIsolationTool->decorateParticle_caloCellIso(*eg, isoH.help.isoTypes, isoH.CorrList, pCaloCellContainer);
+                /*else if (flav == "topoetcone" )
+                    // Add check for topoclusters (when available);
+                    //bsc = m_topoIsolationTool->decorateParticle_topoClusterIso(*eg, isoH.help.isoTypes, isoH.CorrList, pTopoClusterContainer);*/
+                if (!bsc) 
+                    ATH_MSG_WARNING("Call to CaloIsolationTool failed for flavour " << flav);
+            }
+            ATH_MSG_DEBUG(" REGTEST: etcone20   =  " << getIsolation_etcone20(eg));
+            ATH_MSG_DEBUG(" REGTEST: etcone30   =  " << getIsolation_etcone30(eg));
+            ATH_MSG_DEBUG(" REGTEST: etcone40   =  " << getIsolation_etcone40(eg));
+            if (timerSvc()) m_timerIsoTool2->stop(); //timer
+        }
+        if(m_doTrackIsolation){
+            ATH_MSG_DEBUG("Running TrackIsolationTool for Electrons");
+            if (timerSvc()) m_timerIsoTool1->start(); //timer
+            if(m_egTrackIso.size() != 0) {
+                // Track Isolation types
+                std::map<std::string,TrackIsoHelp>::iterator itt = m_egTrackIso.begin(), ittE = m_egTrackIso.end();
+                for (; itt != ittE; itt++) {
+                    TrackIsoHelp isoH = itt->second;
+                    std::string flav  = itt->first;
+                    const std::set<const xAOD::TrackParticle*> tracksToExclude = xAOD::EgammaHelpers::getTrackParticles(eg, m_useBremAssoc); // For GSF this may need to be property
+                    xAOD::Vertex *vx = 0;
+
+                    // Need the decorate methods from IsolationTool
+                    bool bsc = m_trackIsolationTool->decorateParticle(*eg, isoH.help.isoTypes, isoH.CorrList, vx, &tracksToExclude,pTrackParticleContainer);
+                    if (!bsc) 
+                        ATH_MSG_WARNING("Call to TrackIsolationTool failed for flavour " << flav);
+                }
+                ATH_MSG_DEBUG(" REGTEST: ptcone20   =  " << getIsolation_ptcone20(eg));
+                ATH_MSG_DEBUG(" REGTEST: ptcone30   =  " << getIsolation_ptcone30(eg));
+                ATH_MSG_DEBUG(" REGTEST: ptcone40   =  " << getIsolation_ptcone40(eg));
+
+            }
+            if (timerSvc()) m_timerIsoTool1->stop(); //timer       
+        }
+     
+        // PID
+        ATH_MSG_DEBUG("about to run execute(eg) for PID");
+        if (timerSvc()) m_timerPIDTool1->start(); //timer
+        if( m_electronPIDBuilder->execute(eg)){
+            ATH_MSG_DEBUG("Computed PID and dressed");
+            m_lhval.push_back(eg->likelihoodValue("LHValue"));
+        }
+        else ATH_MSG_DEBUG("Problem in electron PID");
+        if (timerSvc()) m_timerPIDTool1->stop(); //timer
+        // PID
+        ATH_MSG_DEBUG("about to run execute(eg) for Calo LH PID");
+        if (timerSvc()) m_timerPIDTool2->start(); //timer
+        if( m_electronCaloPIDBuilder->execute(eg)){
+            ATH_MSG_DEBUG("Computed PID and dressed");
+        }
+        else ATH_MSG_DEBUG("Problem in electron PID");
+        if (timerSvc()) m_timerPIDTool2->stop(); //timer
+        ATH_MSG_DEBUG(" REGTEST: xAOD Reconstruction Electron variables: ");
+        if(msgLvl() <= MSG::DEBUG) PrintElectron(eg);
     }
+
     //Dress the Photon objects
     for (const auto& eg : *m_photon_container){
         // EMFourMomentum
         if (timerSvc()) m_timerTool4->start(); //timer
-        if(msgLvl() <= MSG::DEBUG) 
-            msg() << MSG::DEBUG << "about to run hltExecute(eg,index)" << endreq;
+        ATH_MSG_DEBUG("about to run EMFourMomBuilder::hltExecute(eg,index)");
         if(m_fourMomBuilder->hltExecute(eg,0)); // What is the index?
         else if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: problem with fourmom tool" << endreq; 
         if (timerSvc()) m_timerTool4->stop(); //timer
 
         // Shower Shape
         if (timerSvc()) m_timerTool5->start(); //timer
-        ATH_MSG_DEBUG("about to run recoExecute(eg,pCaloCellContainer)");
+        ATH_MSG_DEBUG("about to run EMShowerBuilderrecoExecute(eg,pCaloCellContainer)");
         if( m_showerBuilder->recoExecute(eg,pCaloCellContainer) );
         else if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: no shower built for this cluster" << endreq;
         if (timerSvc()) m_timerTool5->stop(); //timer
         
         // Isolation
-        if (timerSvc()) m_timerTool6->start(); //timer
-        ATH_MSG_DEBUG("about to run recoExecute(eg,pCaloCellContainer,pTrackParticleConainer)");
-        if( m_isolationBuilder->recoExecute(eg,pCaloCellContainer,pTrackParticleContainer) );
-        else if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: no isolation computed" << endreq;
-        if (timerSvc()) m_timerTool6->stop(); //timer
-    }
+        
+        if(m_doCaloCellIsolation || m_doTopoIsolation){       
+            if (timerSvc()) m_timerIsoTool2->start(); //timer
+            std::map<std::string,CaloIsoHelp>::iterator itc = m_egCaloIso.begin(), itcE = m_egCaloIso.end();
+            for (; itc != itcE; itc++) {
+                CaloIsoHelp isoH = itc->second;
+                std::string flav = itc->first;
+                bool bsc = false;
+                if (flav == "etcone" && pCaloCellContainer)
+                    bsc = m_caloCellIsolationTool->decorateParticle_caloCellIso(*eg, isoH.help.isoTypes, isoH.CorrList, pCaloCellContainer);
+                /*else if (flav == "topoetcone" )
+                    // Add check for topoclusters (when available);
+                    //bsc = m_topoIsolationTool->decorateParticle_topoClusterIso(*eg, isoH.help.isoTypes, isoH.CorrList, pTopoClusterContainer);*/
+                if (!bsc) 
+                    ATH_MSG_WARNING("Call to CaloIsolationTool failed for flavour " << flav);
+            }
+            ATH_MSG_DEBUG(" REGTEST: etcone20   =  " << getIsolation_etcone20(eg));
+            ATH_MSG_DEBUG(" REGTEST: etcone30   =  " << getIsolation_etcone30(eg));
+            ATH_MSG_DEBUG(" REGTEST: etcone40   =  " << getIsolation_etcone40(eg));
+            if (timerSvc()) m_timerIsoTool2->stop(); //timer
+        }
+        if(m_doTrackIsolation){
+            ATH_MSG_DEBUG("Running TrackIsolationTool for Photons");
+            if (timerSvc()) m_timerIsoTool1->start(); //timer
+            if(m_egTrackIso.size() != 0) {
+                // Track Isolation types
+                std::map<std::string,TrackIsoHelp>::iterator itt = m_egTrackIso.begin(), ittE = m_egTrackIso.end();
+                for (; itt != ittE; itt++) {
+                    TrackIsoHelp isoH = itt->second;
+                    std::string flav  = itt->first;
+                    const std::set<const xAOD::TrackParticle*> tracksToExclude = xAOD::EgammaHelpers::getTrackParticles(eg, m_useBremAssoc); // For GSF this may need to be property
+                    xAOD::Vertex *vx = 0;
 
+                    // Need the decorate methods from IsolationTool
+                    bool bsc = m_trackIsolationTool->decorateParticle(*eg, isoH.help.isoTypes, isoH.CorrList, vx, &tracksToExclude,pTrackParticleContainer);
+                    if (!bsc) 
+                        ATH_MSG_WARNING("Call to TrackIsolationTool failed for flavour " << flav);
+                }
+                ATH_MSG_DEBUG(" REGTEST: ptcone20   =  " << getIsolation_ptcone20(eg));
+                ATH_MSG_DEBUG(" REGTEST: ptcone30   =  " << getIsolation_ptcone30(eg));
+                ATH_MSG_DEBUG(" REGTEST: ptcone40   =  " << getIsolation_ptcone40(eg));
+
+            }
+            if (timerSvc()) m_timerIsoTool1->stop(); //timer     
+        }
+       
+    
+        // Particle ID
+        if (timerSvc()) m_timerPIDTool3->start(); //timer
+        if( m_photonPIDBuilder->execute(eg)){
+            ATH_MSG_DEBUG("Computed PID and dressed");
+        }
+        else ATH_MSG_DEBUG("Problem in electron PID");
+        if (timerSvc()) m_timerPIDTool3->stop(); //timer
+        ATH_MSG_DEBUG(" REGTEST: xAOD Reconstruction Photon variables: ");
+        if(msgLvl() <= MSG::DEBUG) PrintPhoton(eg);
+    }
 
     // attach electron container to the TE
     stat = reAttachFeature( outputTE, m_electron_container, electronContSGName, electronKey);
@@ -955,80 +1251,180 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         }
     }
 
-
-
-    // debug message
-    if(msgLvl() <= MSG::DEBUG) {
-        //const xAOD::CaloCluster* clus=0;
-        //const xAOD::TrackParticle* trackParticle=0; 
-        float val_float=-99;
-        //DEBUG output for Egamma container
-        msg() << MSG::DEBUG << " REGTEST: xAOD Reconstruction variables: " << endreq; 
-        //Cluster and ShowerShape info
-        for (const auto& eg : *m_electron_container){
-            //REGTEST printout
-            if (eg) {
-                msg() << MSG::DEBUG << " REGTEST: egamma energy: " << eg->e() << endreq;
-                msg() << MSG::DEBUG << " REGTEST: egamma eta: " << eg->eta() << endreq;
-                msg() << MSG::DEBUG << " REGTEST: egamma phi: " << eg->phi() << endreq;
-            } else{
-                msg() << MSG::DEBUG << " REGTEST: problems with egamma pointer" << endreq;
-            }
-
-            ATH_MSG_DEBUG(" REGTEST: cluster variables");
-            if (eg->caloCluster()) {
-                msg() << MSG::DEBUG << " REGTEST: egamma cluster transverse energy: " << eg->caloCluster()->et() << endreq;
-                msg() << MSG::DEBUG << " REGTEST: egamma cluster eta: " << eg->caloCluster()->eta() << endreq;
-                msg() << MSG::DEBUG << " REGTEST: egamma cluster phi: " << eg->caloCluster()->phi() << endreq;
-                ATH_MSG_DEBUG(" REGTEST: egamma Calo-frame coords. etaCalo = " << eg->caloCluster()->auxdata<float>("etaCalo"));
-                ATH_MSG_DEBUG(" REGTEST: egamma Calo-frame coords. phiCalo = " << eg->caloCluster()->auxdata<float>("phiCalo"));
-            } else{
-                msg() << MSG::DEBUG << " REGTEST: problems with egamma cluster pointer" << endreq;
-            }
-            
-            ATH_MSG_DEBUG(" REGTEST: EMShower variables");
-            ATH_MSG_DEBUG(" REGTEST: ethad    =  " << getShowerShape_ethad(eg));
-            ATH_MSG_DEBUG(" REGTEST: e011     =  " << getShowerShape_e011(eg));
-            ATH_MSG_DEBUG(" REGTEST: e132     =  " << getShowerShape_e132(eg)); 
-            ATH_MSG_DEBUG(" REGTEST: etcone20   =  " << getIsolation_etcone20(eg));
-            ATH_MSG_DEBUG(" REGTEST: etcone30   =  " << getIsolation_etcone30(eg));
-            ATH_MSG_DEBUG(" REGTEST: etcone40   =  " << getIsolation_etcone40(eg));
-            ATH_MSG_DEBUG(" REGTEST: ptcone20   =  " << getIsolation_ptcone20(eg));
-            ATH_MSG_DEBUG(" REGTEST: ptcone30   =  " << getIsolation_ptcone30(eg));
-            ATH_MSG_DEBUG(" REGTEST: ptcone40   =  " << getIsolation_ptcone40(eg));
-            ATH_MSG_DEBUG(" REGTEST: nucone20   =  " << getIsolation_nucone20(eg));
-            ATH_MSG_DEBUG(" REGTEST: nucone30   =  " << getIsolation_nucone30(eg));
-            ATH_MSG_DEBUG(" REGTEST: nucone40   =  " << getIsolation_nucone40(eg));
-            eg->showerShapeValue(val_float,xAOD::EgammaParameters::e237); 
-            ATH_MSG_DEBUG(" REGTEST: e237     =  " << val_float);
-            eg->showerShapeValue(val_float,xAOD::EgammaParameters::e335); 
-            ATH_MSG_DEBUG(" REGTEST: e335     =  " << val_float);
-            eg->showerShapeValue(val_float,xAOD::EgammaParameters::e2ts1); 
-            ATH_MSG_DEBUG(" REGTEST: e2ts1    =  " << val_float);
-            eg->showerShapeValue(val_float,xAOD::EgammaParameters::e2tsts1); 
-            ATH_MSG_DEBUG(" REGTEST: e2tsts1  =  " << val_float);
-           
-            //DEBUG info for Electrons which by definition have a track match
-            ATH_MSG_DEBUG(" REGTEST: trackmatch variables");
-            
-            if(eg->trackParticle()){
-                msg() << MSG::DEBUG << " REGTEST: pt=  " << eg->trackParticle()->pt() << endreq;
-                msg() << MSG::VERBOSE << " REGTEST: charge=  " << eg->trackParticle()->charge() << endreq;
-                msg() << MSG::DEBUG << " REGTEST: E/p=  " << eg->caloCluster()->et() / eg->trackParticle()->pt() << endreq;
-                eg->trackCaloMatchValue(val_float,xAOD::EgammaParameters::deltaEta1);
-                msg() << MSG::DEBUG << " REGTEST: Delta eta 1st sampling=  " << val_float << endreq;
-                eg->trackCaloMatchValue(val_float,xAOD::EgammaParameters::deltaPhi2);
-                msg() << MSG::DEBUG << " REGTEST: Delta phi 2nd sampling=  " << val_float << endreq;
-            } else{
-                msg() << MSG::DEBUG << " REGTEST: no electron eg->trackParticle() pointer" << endreq; 
-            }
-        }
-        //DEBUG infor for Photons and conversions
-        msg() << MSG::DEBUG << "HLTAlgo Execution of xAOD TrigEgammaRec completed successfully" << endreq;
-    } 
-
+    ATH_MSG_DEBUG("HLTAlgo Execution of xAOD TrigEgammaRec completed successfully");
     // Time total TrigEgammaRec execution time.
     if (timerSvc()) m_timerTotal->stop();
 
     return HLT::OK;
+}
+
+/** @brief Decoration debug method for electrons */
+void TrigEgammaRec::PrintElectron(xAOD::Electron *eg){
+    // This will return exception if string not correct
+    // Safe method to pass value to fill
+    unsigned int isEMbit=0;
+    ATH_MSG_DEBUG("isEMVLoose " << eg->selectionisEM(isEMbit,"isEMVLoose"));
+    ATH_MSG_DEBUG("isEMVLoose bit " << std::hex << isEMbit); 
+    ATH_MSG_DEBUG("isEMLoose " << eg->selectionisEM(isEMbit,"isEMLoose"));
+    ATH_MSG_DEBUG("isEMLoose bit " << std::hex << isEMbit); 
+    ATH_MSG_DEBUG("isEMMedium " << eg->selectionisEM(isEMbit,"isEMMedium"));
+    ATH_MSG_DEBUG("isEMMedium bit " << std::hex << isEMbit); 
+    ATH_MSG_DEBUG("isEMTight " << eg->selectionisEM(isEMbit,"isEMTight"));
+    ATH_MSG_DEBUG("isEMTight bit " << std::hex << isEMbit); 
+
+    ATH_MSG_DEBUG("LHValue " << eg->likelihoodValue("LHValue"));
+
+    ATH_MSG_DEBUG("LHVLoose " << eg->passSelection("LHVLoose"));
+    ATH_MSG_DEBUG("LHLoose " << eg->passSelection("LHLoose"));
+    ATH_MSG_DEBUG("LHMedium " << eg->passSelection("LHMedium"));
+    ATH_MSG_DEBUG("LHTight " << eg->passSelection("LHTight"));
+
+    ATH_MSG_DEBUG("isEMLHVLoose " << eg->selectionisEM(isEMbit,"isEMLHVLoose"));
+    ATH_MSG_DEBUG("isEMLHVLoose bit " << std::hex << isEMbit); 
+    ATH_MSG_DEBUG("isEMLHLoose " << eg->selectionisEM(isEMbit,"isEMLHLoose"));
+    ATH_MSG_DEBUG("isEMLHLoose bit " << std::hex << isEMbit); 
+    ATH_MSG_DEBUG("isEMLHMedium " << eg->selectionisEM(isEMbit,"isEMLHMedium"));
+    ATH_MSG_DEBUG("isEMLHMedium bit " << std::hex << isEMbit); 
+    ATH_MSG_DEBUG("isEMLHTight " << eg->selectionisEM(isEMbit,"isEMLHTight"));
+    ATH_MSG_DEBUG("isEMLHTight bit " << std::hex << isEMbit); 
+    float val_float=-99;
+    //DEBUG output for Egamma container
+    
+    //Cluster and ShowerShape info
+    //REGTEST printout
+    if (eg) {
+        msg() << MSG::DEBUG << " REGTEST: egamma energy: " << eg->e() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: egamma eta: " << eg->eta() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: egamma phi: " << eg->phi() << endreq;
+    } else{
+        msg() << MSG::DEBUG << " REGTEST: problems with egamma pointer" << endreq;
+    }
+
+    ATH_MSG_DEBUG(" REGTEST: cluster variables");
+    if (eg->caloCluster()) {
+        msg() << MSG::DEBUG << " REGTEST: egamma cluster transverse energy: " << eg->caloCluster()->et() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: egamma cluster eta: " << eg->caloCluster()->eta() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: egamma cluster phi: " << eg->caloCluster()->phi() << endreq;
+        ATH_MSG_DEBUG(" REGTEST: egamma Calo-frame coords. etaCalo = " << eg->caloCluster()->auxdata<float>("etaCalo"));
+        ATH_MSG_DEBUG(" REGTEST: egamma Calo-frame coords. phiCalo = " << eg->caloCluster()->auxdata<float>("phiCalo"));
+    } else{
+        msg() << MSG::DEBUG << " REGTEST: problems with egamma cluster pointer" << endreq;
+    }
+
+    ATH_MSG_DEBUG(" REGTEST: EMShower variables");
+    ATH_MSG_DEBUG(" REGTEST: ethad    =  " << getShowerShape_ethad(eg));
+    ATH_MSG_DEBUG(" REGTEST: e011     =  " << getShowerShape_e011(eg));
+    ATH_MSG_DEBUG(" REGTEST: e132     =  " << getShowerShape_e132(eg)); 
+    ATH_MSG_DEBUG(" REGTEST: etcone20   =  " << getIsolation_etcone20(eg));
+    ATH_MSG_DEBUG(" REGTEST: etcone30   =  " << getIsolation_etcone30(eg));
+    ATH_MSG_DEBUG(" REGTEST: etcone40   =  " << getIsolation_etcone40(eg));
+    ATH_MSG_DEBUG(" REGTEST: ptcone20   =  " << getIsolation_ptcone20(eg));
+    ATH_MSG_DEBUG(" REGTEST: ptcone30   =  " << getIsolation_ptcone30(eg));
+    ATH_MSG_DEBUG(" REGTEST: ptcone40   =  " << getIsolation_ptcone40(eg));
+    eg->showerShapeValue(val_float,xAOD::EgammaParameters::e237); 
+    ATH_MSG_DEBUG(" REGTEST: e237     =  " << val_float);
+    eg->showerShapeValue(val_float,xAOD::EgammaParameters::e335); 
+    ATH_MSG_DEBUG(" REGTEST: e335     =  " << val_float);
+    eg->showerShapeValue(val_float,xAOD::EgammaParameters::e2ts1); 
+    ATH_MSG_DEBUG(" REGTEST: e2ts1    =  " << val_float);
+    eg->showerShapeValue(val_float,xAOD::EgammaParameters::e2tsts1); 
+    ATH_MSG_DEBUG(" REGTEST: e2tsts1  =  " << val_float);
+
+    //DEBUG info for Electrons which by definition have a track match
+    ATH_MSG_DEBUG(" REGTEST: trackmatch variables");
+
+    if(eg->trackParticle()){
+        msg() << MSG::DEBUG << " REGTEST: pt=  " << eg->trackParticle()->pt() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: charge=  " << eg->trackParticle()->charge() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: E/p=  " << eg->caloCluster()->et() / eg->trackParticle()->pt() << endreq;
+        eg->trackCaloMatchValue(val_float,xAOD::EgammaParameters::deltaEta1);
+        msg() << MSG::DEBUG << " REGTEST: Delta eta 1st sampling=  " << val_float << endreq;
+        eg->trackCaloMatchValue(val_float,xAOD::EgammaParameters::deltaPhi2);
+        msg() << MSG::DEBUG << " REGTEST: Delta phi 2nd sampling=  " << val_float << endreq;
+    } else{
+        msg() << MSG::DEBUG << " REGTEST: no electron eg->trackParticle() pointer" << endreq; 
+    }
+}
+
+/** @brief Decoration debug method for photons */
+void TrigEgammaRec::PrintPhoton(xAOD::Photon *eg){
+    // This will return exception if string not correct
+    // Safe method to pass value to fill
+    unsigned int isEMbit=0;
+    //ATH_MSG_DEBUG("isEMLoose " << eg->selectionisEM(isEMbit,"isEMLoose"));
+    //ATH_MSG_DEBUG("isEMLoose " << std::hex << isEMbit); 
+    //ATH_MSG_DEBUG("isEMMedium " << eg->selectionisEM(isEMbit,"isEMMedium"));
+    //ATH_MSG_DEBUG("isEMMedium " << std::hex << isEMbit); 
+    ATH_MSG_DEBUG("isEMTight " << eg->selectionisEM(isEMbit,"isEMTight"));
+    ATH_MSG_DEBUG("isEMTight bit " << std::hex << isEMbit); 
+    float val_float=-99;
+    //DEBUG output for Egamma container
+    msg() << MSG::DEBUG << " REGTEST: xAOD Reconstruction Photon variables: " << endreq; 
+    //Cluster and ShowerShape info
+    //REGTEST printout
+    if (eg) {
+        msg() << MSG::DEBUG << " REGTEST: egamma energy: " << eg->e() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: egamma eta: " << eg->eta() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: egamma phi: " << eg->phi() << endreq;
+    } else{
+        msg() << MSG::DEBUG << " REGTEST: problems with egamma pointer" << endreq;
+    }
+
+    ATH_MSG_DEBUG(" REGTEST: cluster variables");
+    if (eg->caloCluster()) {
+        msg() << MSG::DEBUG << " REGTEST: egamma cluster transverse energy: " << eg->caloCluster()->et() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: egamma cluster eta: " << eg->caloCluster()->eta() << endreq;
+        msg() << MSG::DEBUG << " REGTEST: egamma cluster phi: " << eg->caloCluster()->phi() << endreq;
+        ATH_MSG_DEBUG(" REGTEST: egamma Calo-frame coords. etaCalo = " << eg->caloCluster()->auxdata<float>("etaCalo"));
+        ATH_MSG_DEBUG(" REGTEST: egamma Calo-frame coords. phiCalo = " << eg->caloCluster()->auxdata<float>("phiCalo"));
+    } else{
+        msg() << MSG::DEBUG << " REGTEST: problems with egamma cluster pointer" << endreq;
+    }
+
+    ATH_MSG_DEBUG(" REGTEST: EMShower variables");
+    ATH_MSG_DEBUG(" REGTEST: ethad    =  " << getShowerShape_ethad(eg));
+    ATH_MSG_DEBUG(" REGTEST: e011     =  " << getShowerShape_e011(eg));
+    ATH_MSG_DEBUG(" REGTEST: e132     =  " << getShowerShape_e132(eg)); 
+    ATH_MSG_DEBUG(" REGTEST: etcone20   =  " << getIsolation_etcone20(eg));
+    ATH_MSG_DEBUG(" REGTEST: etcone30   =  " << getIsolation_etcone30(eg));
+    ATH_MSG_DEBUG(" REGTEST: etcone40   =  " << getIsolation_etcone40(eg));
+    ATH_MSG_DEBUG(" REGTEST: ptcone20   =  " << getIsolation_ptcone20(eg));
+    ATH_MSG_DEBUG(" REGTEST: ptcone30   =  " << getIsolation_ptcone30(eg));
+    ATH_MSG_DEBUG(" REGTEST: ptcone40   =  " << getIsolation_ptcone40(eg));
+    eg->showerShapeValue(val_float,xAOD::EgammaParameters::e237); 
+    ATH_MSG_DEBUG(" REGTEST: e237     =  " << val_float);
+    eg->showerShapeValue(val_float,xAOD::EgammaParameters::e335); 
+    ATH_MSG_DEBUG(" REGTEST: e335     =  " << val_float);
+    eg->showerShapeValue(val_float,xAOD::EgammaParameters::e2ts1); 
+    ATH_MSG_DEBUG(" REGTEST: e2ts1    =  " << val_float);
+    eg->showerShapeValue(val_float,xAOD::EgammaParameters::e2tsts1); 
+    ATH_MSG_DEBUG(" REGTEST: e2tsts1  =  " << val_float);
+
+    //DEBUG info for Electrons which by definition have a track match
+    ATH_MSG_DEBUG(" REGTEST: trackmatch variables");
+
+}
+
+// Taken from IsolationBuilder to set the decoration -- should not need to do this ourselves
+std::pair<std::string,std::string> TrigEgammaRec::decodeEnum(int isoT) {
+    std::string baseN     = "";
+
+    xAOD::Iso::IsolationType Type          = static_cast<xAOD::Iso::IsolationType>(isoT);
+    xAOD::Iso::IsolationFlavour isoFlav    = xAOD::Iso::isolationFlavour(Type);
+    int is = 100*xAOD::Iso::coneSize(Type);
+    if (isoFlav == xAOD::Iso::IsolationFlavour::neflowisol)
+        baseN = "neflowisol";
+    else if (isoFlav == xAOD::Iso::IsolationFlavour::etcone)
+        baseN = "etcone";
+    else if (isoFlav == xAOD::Iso::IsolationFlavour::topoetcone)
+        baseN = "topoetcone";
+    else if (isoFlav == xAOD::Iso::IsolationFlavour::ptcone)
+        baseN = "ptcone";
+    else if (isoFlav == xAOD::Iso::IsolationFlavour::ptvarcone)
+        baseN = "ptvarcone";
+    else
+        ATH_MSG_WARNING("This isolation flavour is not dealt with this algorithm ! Check your inputs");
+    std::string aN = baseN; aN += std::to_string(is);
+
+    return make_pair(baseN,aN);
 }

@@ -23,7 +23,9 @@ use TrigCaloEvent		TrigCaloEvent-*		      Trigger/TrigEvent
 use TrigParticle		TrigParticle-*		      Trigger/TrigEvent
 
 use CaloUtils                   CaloUtils-*                   Calorimeter
-
+use RecoToolInterfaces RecoToolInterfaces-* Reconstruction/RecoTools
+use xAODPrimitives     xAODPrimitives-*     Event/xAOD
+use LumiBlockComps          LumiBlockComps-*             LumiBlock
 private
 use egammaEvent                 egammaEvent-*                 Reconstruction/egamma
 use xAODCaloEvent               xAODCaloEvent-*                 Event/xAOD
