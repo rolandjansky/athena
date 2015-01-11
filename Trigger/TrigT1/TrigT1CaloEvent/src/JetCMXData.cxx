@@ -124,23 +124,99 @@ unsigned int LVL1::JetCMXData::presenceMap() const {
   return value;
 }
 
+/** Report whether TOB overflow occurred */
+bool LVL1::JetCMXData::overflow() const {
+
+  bool overflow = false;
+
+  /// Don't waste time if PresenceMap empty 
+  if ( (m_DataWords[0] & 0xff) == 0 ) return overflow;
+  
+  /// Otherwise count non-zero bits in presence map
+  int ntob = 0;
+  for (unsigned int i = 0; i < 8; ++i) {
+    
+    if ( (m_DataWords[0] & (1<<i)) > 0 ) ntob++;
+      
+  } // step through presence map
+  
+  // Set overflow flags if needed
+  if (ntob > 4) overflow = true;
+  
+  return overflow;
+}
+
 /** the 4 raw backplane data words */
 std::vector<unsigned int> LVL1::JetCMXData::DataWords() const {
   return m_DataWords;
 }
 
-/** Local Coordinates for up to 4 TOBs */
-std::vector<unsigned int> LVL1::JetCMXData::TOBLocalCoords() const {
-  std::vector<unsigned int> coords;
+/** Locations in Presence Map for up to 4 TOBs */
+std::vector<unsigned int> LVL1::JetCMXData::TOBPresenceBits() const {
+
+  std::vector<unsigned int> bits;
   
+  int ntob = 0;
+  for (unsigned int i = 0; i < 8; ++i) {
+    
+    if ( (m_DataWords[0] & (1<<i)) > 0 ) {
+      
+      if (ntob < 4) bits.push_back(i);
+      ntob++;
+      
+    } // bit set in presence map
+    
+  } // step through presence map
+  
+  return bits;
+}
+
+
+/** Data words (2b LC + 9b Small ET + 10b Large ET) for up to 4 TOBs */
+std::vector<unsigned int> LVL1::JetCMXData::TOBWords() const {
+  
+  std::vector<unsigned int> data;
+
+  /// If PresenceMap empty just return
+  if ( (m_DataWords[0] & 0xff) == 0 ) return data;
+  
+  /// Otherwise decode data words
   int ntob = 0;
   for (unsigned int i = 0; i < 8; ++i) {
     
     if ( (m_DataWords[0] & (1<<i)) > 0 ) {
       
       if (ntob < 4) {
-        unsigned int coord = (m_DataWords[ntob] >> 11) & 3;
-        coords.push_back(coord);
+        
+        unsigned int word;
+        unsigned int coord;
+        unsigned int etSmall;
+        unsigned int etLarge;
+      
+        switch (ntob) {
+          case 0:
+            coord   =  (m_DataWords[0] >> 11) & 0x3;
+            etSmall = ((m_DataWords[0] >> 8)  & 0x7) + ((m_DataWords[1] & 0x3f) << 3);
+            etLarge =  (m_DataWords[0] >> 13) & 0x3ff;
+            break;
+          case 1:
+            coord   =  (m_DataWords[1] >> 11) & 0x3;
+            etSmall = ((m_DataWords[1] >> 6)  & 0x1f) + ((m_DataWords[2] & 0xf) << 5);
+            etLarge =  (m_DataWords[1] >> 13) & 0x3ff;
+            break;
+          case 2:
+            coord   =  (m_DataWords[2] >> 11) & 0x3;
+            etSmall = ((m_DataWords[2] >> 4)  & 0x7f) + ((m_DataWords[3] & 0x3) << 7);
+            etLarge =  (m_DataWords[2] >> 13) & 0x3ff;
+            break;
+          case 3:
+            coord   =  (m_DataWords[3] >> 11) & 0x3;
+            etSmall =  (m_DataWords[3] >> 2)  & 0x1ff;
+            etLarge =  (m_DataWords[3] >> 13) & 0x3ff;
+            break;
+        }
+        word = etLarge + (etSmall<<10) + (coord<<19);
+        data.push_back(word);
       }
       ntob++;
       
@@ -148,21 +224,59 @@ std::vector<unsigned int> LVL1::JetCMXData::TOBLocalCoords() const {
     
   } // step through presence map
   
-  return coords;
+  return data;
 }
 
-/** Large Cluster ET values for up to 4 TOBs */
-std::vector<unsigned int> LVL1::JetCMXData::TOBETLarge() const {
-  std::vector<unsigned int> et;
+
+/** L1Topo TOB words (1bRO + 4b JEM + 3b Frame + 2b LC + 9b Small ET + 10b Large ET) for up to 4 TOBs */
+std::vector<unsigned int> LVL1::JetCMXData::TopoTOBs() const {
+
+  std::vector<unsigned int> data;
+
+  /// If PresenceMap empty just return
+  if ( (m_DataWords[0] & 0xff) == 0 ) return data;
   
+  /// Otherwise decode data words
   int ntob = 0;
   for (unsigned int i = 0; i < 8; ++i) {
     
     if ( (m_DataWords[0] & (1<<i)) > 0 ) {
       
       if (ntob < 4) {
-        unsigned int value = (m_DataWords[ntob] >> 13) & 0x3ff;
-        et.push_back(value);
+        
+        unsigned int frame = i;
+        
+        unsigned int word;
+        
+        unsigned int coord;
+        unsigned int etSmall;
+        unsigned int etLarge;
+      
+        switch (ntob) {
+          case 0:
+            coord   =  (m_DataWords[0] >> 11) & 0x3;
+            etSmall = ((m_DataWords[0] >> 8)  & 0x7) + ((m_DataWords[1] & 0x3f) << 3);
+            etLarge =  (m_DataWords[0] >> 13) & 0x3ff;
+            break;
+          case 1:
+            coord   =  (m_DataWords[1] >> 11) & 0x3;
+            etSmall = ((m_DataWords[1] >> 6)  & 0x1f) + ((m_DataWords[2] & 0xf) << 5);
+            etLarge =  (m_DataWords[1] >> 13) & 0x3ff;
+            break;
+          case 2:
+            coord   =  (m_DataWords[2] >> 11) & 0x3;
+            etSmall = ((m_DataWords[2] >> 4)  & 0x7f) + ((m_DataWords[3] & 0x3) << 7);
+            etLarge =  (m_DataWords[2] >> 13) & 0x3ff;
+            break;
+          case 3:
+            coord   =  (m_DataWords[3] >> 11) & 0x3;
+            etSmall =  (m_DataWords[3] >> 2)  & 0x1ff;
+            etLarge =  (m_DataWords[3] >> 13) & 0x3ff;
+            break;
+        }
+        
+        word = etLarge + (etSmall<<10) + (coord<<19) + (frame<<21) + (m_module<<24);
+        data.push_back(word);
       }
       ntob++;
       
@@ -170,45 +284,8 @@ std::vector<unsigned int> LVL1::JetCMXData::TOBETLarge() const {
     
   } // step through presence map
   
-  return et;
+  return data;
 }
 
-/** Small Cluster ET values for up to 4 TOBs */
-std::vector<unsigned int> LVL1::JetCMXData::TOBETSmall() const {
-  std::vector<unsigned int> et;
-  
-  int ntob = 0;
-  for (unsigned int i = 0; i < 8; ++i) {
-    
-    if ( (m_DataWords[0] & (1<<i)) > 0 ) {
-      
-      unsigned int value;
-      
-      switch (ntob) {
-        case 0:
-          value = ( (m_DataWords[0] >> 8) & 7 ) + ( m_DataWords[1] & 0x3f );
-          et.push_back(value);
-          break;
-        case 1:
-          value = ( (m_DataWords[1] >> 6) & 0x1f ) + ( m_DataWords[2] & 0xf );
-          et.push_back(value);
-          break;
-        case 2:
-          value = ( (m_DataWords[2] >> 4) & 0x3f ) + ( m_DataWords[3] & 3 );
-          et.push_back(value);
-          break;
-        case 3:
-          value = (m_DataWords[3] >> 2) & 0x1ff;
-          et.push_back(value);
-          break;
-      }
-      ntob++;
-      
-    } // bit set in presence map
-    
-  } // step through presence map
-  
-  return et;
-}
 
 } // end namespace

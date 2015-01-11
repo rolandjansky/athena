@@ -45,10 +45,11 @@
     int crate() const;
     int module() const;
     unsigned int presenceMap() const;
+    bool overflow() const;
     std::vector<unsigned int> DataWords() const;
-    std::vector<unsigned int> TOBLocalCoords() const;
-    std::vector<unsigned int> TOBETLarge() const;
-    std::vector<unsigned int> TOBETSmall() const;
+    std::vector<unsigned int> TOBPresenceBits() const;
+    std::vector<unsigned int> TOBWords() const;
+    std::vector<unsigned int> TopoTOBs() const;
       
   /** Internal data */
     private:

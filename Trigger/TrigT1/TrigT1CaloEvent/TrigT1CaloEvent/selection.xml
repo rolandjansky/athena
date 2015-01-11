@@ -3,14 +3,27 @@
 
   <class name="DataVector<LVL1::TriggerTower>" id="1B6DA81A-2F27-4B50-ACF6-D3FC19B40ADB"/> 
   <class name="std::vector<LVL1::TriggerTower*>" />
+  <class name="LVL1::TriggerTower" ></class>
 
-  <class name="LVL1::TriggerTower" >
-  </class>
+
+  <class name="DataVector<LVL1::CPMTower>" id="b606a8f0-3dcc-11e4-916c-0800200c9a66"/> 
+  <class name="std::vector<LVL1::CPMTower*>" />
+  <class name="LVL1::CPMTower" ></class>
+
+  <class name="DataVector<LVL1::CMXCPTob>" id="37586b10-a89b-436d-8c72-98150a7465f8"/> 
+  <class name="std::vector<LVL1::CMXCPTob*>" />
+  <class name="LVL1::CMXCPTob" ></class>
+
+  <class name="DataVector<LVL1::CMXCPHits>" id="2b292e65-2c39-421d-b256-608f164dcfa6"/> 
+  <class name="std::vector<LVL1::CMXCPHits*>" />
+  <class name="LVL1::CMXCPHits" ></class>
+
+  <class name="DataVector<LVL1::CPMTobRoI>" id="256347a2-373f-47c5-8136-b67b18c51ea4"/> 
+  <class name="std::vector<LVL1::CPMTobRoI*>" />
+  <class name="LVL1::CPMTobRoI" ></class>
 
   <class name="DataVector<LVL1::JetElement>" id="48B92167-4892-4694-9E9E-E201F1E1FFFE" />
   <class name="std::vector<LVL1::JetElement*>" />
-
   <class name="LVL1::JetElement"/>
-
 
 </lcgdict>

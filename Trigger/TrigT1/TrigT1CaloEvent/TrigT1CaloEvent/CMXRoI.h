@@ -20,7 +20,7 @@ class CMXRoI {
 
  public:
 
-   enum SumType { NORMAL, MASKED };
+   enum SumType { NORMAL = 0, MASKED = 1 };
 
    CMXRoI();
    CMXRoI(uint32_t roiWord0, uint32_t roiWord1, uint32_t roiWord2,
@@ -56,6 +56,12 @@ class CMXRoI {
 
    /// Return packed Energy RoI word (0-5)
    uint32_t roiWord(int word) const;
+   /// Return Ex RoI word
+   unsigned int exWord(SumType type = NORMAL)        const;
+   /// Return Ey RoI word
+   unsigned int eyWord(SumType type = NORMAL)        const;
+   /// Return ET RoI word
+   unsigned int etWord(SumType type = NORMAL)        const;
    /// Set RoI word with ID check
    bool setRoiWord(uint32_t roiWord);
 
@@ -63,8 +69,8 @@ class CMXRoI {
 
    //  RoI word IDs
    static const int s_wordIdVal0           = 0x4;
-   static const int s_wordIdVal1           = 0x5;
-   static const int s_wordIdVal2           = 0x6;
+   static const int s_wordIdVal1           = 0x6;
+   static const int s_wordIdVal2           = 0x5;
    //  Data locations
    static const int s_wordIdBit            = 28;
    static const int s_sumEtHitsBit         = 16;
@@ -72,7 +78,7 @@ class CMXRoI {
    static const int s_missingEtSigHitsBit  = 16;
    static const int s_energyBit            = 0;
    static const int s_overflowBit          = 15;
-   static const int s_sumTypeBit           = 27;
+   static const int s_sumTypeBit           = 26;
    //  Data masks
    static const int s_wordIdMask           = 0xf;
    static const int s_sumEtHitsMask        = 0xff;
@@ -140,6 +146,21 @@ inline unsigned int CMXRoI::missingEtSigHits() const
 inline uint32_t CMXRoI::roiWord(int word) const
 {
   return (word < s_maxRoiWords) ? m_roiWords[word] : 0;
+}
+
+inline unsigned int CMXRoI::exWord(SumType type) const
+{
+  return m_roiWords[s_exOffset+type];
+}
+
+inline unsigned int CMXRoI::eyWord(SumType type) const
+{
+  return m_roiWords[s_eyOffset+type];
+}
+
+inline unsigned int CMXRoI::etWord(SumType type) const
+{
+  return m_roiWords[s_etOffset+type];
 }
 
 } // end namespace

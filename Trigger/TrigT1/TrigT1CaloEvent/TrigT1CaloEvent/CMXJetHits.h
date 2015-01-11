@@ -28,10 +28,18 @@
     class CMXJetHits  {
     public:
 
-    enum Sources { REMOTE_MAIN, LOCAL_MAIN, TOTAL_MAIN,
-                   REMOTE_FORWARD, LOCAL_FORWARD, TOTAL_FORWARD,
-                   TOPO_CHECKSUM, TOPO_OCCUPANCY_MAP, TOPO_OCCUPANCY_COUNTS,
-		   MAX_SOURCE };
+    enum Sources {
+	REMOTE_MAIN = 0,
+	LOCAL_MAIN = 1,
+	TOTAL_MAIN = 2,
+        REMOTE_FORWARD = 4,
+	LOCAL_FORWARD = 5,
+	TOTAL_FORWARD = 6,
+        TOPO_CHECKSUM = 8,
+	TOPO_OCCUPANCY_MAP = 9,
+	TOPO_OCCUPANCY_COUNTS = 10,
+	MAX_SOURCE = 15
+    };
 
     /** Constructors */
     CMXJetHits();

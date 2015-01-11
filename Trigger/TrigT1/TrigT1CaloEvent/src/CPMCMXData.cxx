@@ -284,13 +284,30 @@ std::vector<unsigned int> LVL1::CPMCMXData::TopoTOBs() const {
     
   } // step through presence map
   
-  // Set overflow flags if needed
-  if (ntob > 5) {
-    unsigned int overflow = 1<<23;
-    for (unsigned int tob = 0; tob < data.size(); ++tob) data[tob] += overflow;
-  }
-  
   return data;
+}
+
+
+/** Report whether TOB overflow occurred */
+bool LVL1::CPMCMXData::overflow() const {
+
+  bool overflow = false;
+
+  /// Don't waste time if PresenceMap empty 
+  if ( (m_DataWords[0] & 0xffff) == 0 ) return overflow;
+  
+  /// Otherwise count non-zero bits in presence map
+  int ntob = 0;
+  for (unsigned int i = 0; i < 16; ++i) {
+    
+    if ( (m_DataWords[0] & (1<<i)) > 0 ) ntob++;
+      
+  } // step through presence map
+  
+  // Set overflow flags if needed
+  if (ntob > 5) overflow = true;
+  
+  return overflow;
 }
 
 

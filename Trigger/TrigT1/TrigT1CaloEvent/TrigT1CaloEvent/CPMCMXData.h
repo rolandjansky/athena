@@ -46,6 +46,7 @@
     int module() const;
     int type() const;
     unsigned int presenceMap() const;
+    bool overflow() const;
     std::vector<unsigned int> DataWords() const;
     std::vector<unsigned int> TOBPresenceBits() const;
     std::vector<unsigned int> TOBWords() const;
