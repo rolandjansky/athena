@@ -24,7 +24,7 @@
 LArPhaseToolConst::LArPhaseToolConst (const std::string& type,
                                       const std::string& name,
                                       const IInterface* parent)
-  : AlgTool (type, name, parent)
+  : AthAlgTool (type, name, parent)
 {
   declareInterface<ILArPhaseTool> (this);
   declareProperty ("Phase", m_phase = 0);

@@ -13,8 +13,7 @@
 #ifndef LArTCMFitterTool_H
 #define LArTCMFitterTool_H
 
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "StoreGate/DataHandle.h" 
 
@@ -27,7 +26,7 @@ class TH1D;
 
 static const InterfaceID IID_LArTCMFitterTool("LArTCMFitterTool", 1 , 0); 
 
-class LArTCMFitterTool : public AlgTool
+class LArTCMFitterTool : public AthAlgTool
 {
 
 public: 

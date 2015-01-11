@@ -11,14 +11,14 @@
 ********************************************************************/
 
 // Include files
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArElecCalib/ILArAutoCorrTotalTool.h"
 
 //-----------------------------------------------------------------------
-class LArAutoCorrToolToDB : public Algorithm
+class LArAutoCorrToolToDB : public AthAlgorithm
 //-----------------------------------------------------------------------
 {
  public:
@@ -42,10 +42,6 @@ class LArAutoCorrToolToDB : public Algorithm
   StatusCode finalize();
   
  private:
-
-  // StoreGate service
-  StoreGateSvc * m_storeGateSvc;
-  StoreGateSvc * m_detStore;
   const LArOnlineID * m_onlineHelper;
 
   ToolHandle<ILArAutoCorrTotalTool> m_autocorrTool;

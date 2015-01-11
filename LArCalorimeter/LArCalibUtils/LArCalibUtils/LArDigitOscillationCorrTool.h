@@ -12,7 +12,7 @@
 #ifndef LARCALIBUTILS_LARDIGITOSCILLATIONCORRTOOL_H
 #define LARCALIBUTILS_LARDIGITOSCILLATIONCORRTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -26,14 +26,13 @@
 //#include "LArTools/LArMCSymTool.h"
 #include "LArIdentifier/LArOnlineID.h"
 
-class StoreGateSvc; 
 class LArCablingService ;
 class LArDigitContainer;
 class LArDigit;
 
 static const InterfaceID IID_LArDigitOscillationCorrTool("LArDigitOscillationCorrTool", 1 , 0); 
 
-class LArDigitOscillationCorrTool: public AlgTool,
+class LArDigitOscillationCorrTool: public AthAlgTool,
 		      virtual public ILArDigitOscillationCorrTool, 
 		      public IIncidentListener 
 {
@@ -74,12 +73,7 @@ class LArDigitOscillationCorrTool: public AlgTool,
  const LArOnlineID* m_lar_on_id; 
  
  ToolHandle<LArCablingService> m_cablingService;
- 
- StoreGateSvc*      m_detStore;
- 
 };
-
-
 
 
 #endif

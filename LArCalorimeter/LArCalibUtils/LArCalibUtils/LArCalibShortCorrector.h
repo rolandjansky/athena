@@ -6,10 +6,8 @@
 #ifndef LARCALIBSHORTCORRECTOR_H
 #define LARCALIBSHORTCORRECTOR_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "LArTools/LArCablingService.h"
 #include "LArElecCalib/ILArPedestal.h"
@@ -24,7 +22,7 @@ class LArCablingService;
 class HWIdentifier;
 
 
-class LArCalibShortCorrector : public Algorithm//, public IIncidentListener 
+class LArCalibShortCorrector : public AthAlgorithm//, public IIncidentListener 
 {
  public:
   LArCalibShortCorrector(const std::string & name, ISvcLocator * pSvcLocator);
@@ -40,9 +38,6 @@ class LArCalibShortCorrector : public Algorithm//, public IIncidentListener
  private:
 
   StatusCode findShortedNeighbors();
-
-  StoreGateSvc*       m_storeGateSvc;
-  StoreGateSvc*       m_detStore;
 
   ToolHandle<LArCablingService> m_larCablingSvc;
   ToolHandle<ILArBadChanTool> m_badChannelTool;
@@ -60,7 +55,6 @@ class LArCalibShortCorrector : public Algorithm//, public IIncidentListener
   std::vector<std::pair<HWIdentifier,HWIdentifier> > m_shortedNeighbors;
   typedef std::vector<std::pair<HWIdentifier,HWIdentifier> >::const_iterator SHORT_IT;
  
-  MsgStream* m_log;
   bool m_shortsCached;
 };
 

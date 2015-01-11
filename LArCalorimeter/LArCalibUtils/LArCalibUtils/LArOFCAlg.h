@@ -15,10 +15,14 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "LArElecCalib/ILArAutoCorrDecoderTool.h"
 
-#include "LArElecCalib/ILArPedestal.h"
+//#include "LArElecCalib/ILArPedestal.h"
 #include "CaloIdentifier/CaloGain.h"
 #include "LArRawConditions/LArCaliWaveContainer.h"
 #include "LArRawConditions/LArPhysWaveContainer.h"
+
+#include "LArRawConditions/LArOFCComplete.h"
+#include "LArRawConditions/LArOFCBinComplete.h"
+#include "LArRawConditions/LArShapeComplete.h"
 
 #include "StoreGate/DataHandle.h"
 
@@ -26,6 +30,7 @@
 
 #include <Eigen/Dense>
 
+#include "tbb/blocked_range.h"
 
 class LArOnlineID; 
 class CaloDetDescrManager; 
@@ -42,32 +47,63 @@ public:
   StatusCode execute() {return StatusCode::SUCCESS;}
   virtual StatusCode stop();
   StatusCode finalize(){return StatusCode::SUCCESS;}
-  Eigen::VectorXd  getAmpCoef();
-  Eigen::VectorXd  getATauCoef();
+  //  Eigen::VectorXd  getAmpCoef();
+  //Eigen::VectorXd  getATauCoef();
 
 private:
 
-  void           perCalc();
-  void           Optfilt(std::vector<float> &, std::vector<float> &);
+  struct perChannelData_t {
+    //Input:
+    const LArWaveCumul* inputWave;
+    HWIdentifier chid;
+    unsigned gain;
 
-  // LArPhysWaveContainer
-  typedef LArPhysWaveContainer::ConstConditionsMapIterator PhysWaveIt;
-  StatusCode     initPhysWaveContainer(const std::string& keyPhys,
- 				       unsigned&   gain_it, 
-				       PhysWaveIt& wave_it) ; 
-  const LArWaveCumul* getWave         (unsigned&   gain_it,
-                                       PhysWaveIt& wave_it) ;  
+    //Output:
+    std::vector<std::vector<float> > ofc_a;
+    std::vector<std::vector<float> > ofc_b;
 
-  // LArCaliWaveContainer
-  typedef LArCaliWaveContainer::ConstConditionsMapIterator    CaliCellIt;
-  typedef LArCaliWaveContainer::LArCaliWaves::const_iterator  CaliWaveIt;
-  StatusCode     initCaliWaveContainer(const std::string& keyCali, 
-				       unsigned&   gain_it,
-				       CaliCellIt& cell_it, 
-				       CaliWaveIt& wave_it) ;
-  const LArWaveCumul* getWave         (unsigned&   gain_it,
-                                       CaliCellIt& cell_it,
-				       CaliWaveIt& wave_it) ;  
+    std::vector<std::vector<float> > ofcV2_a;
+    std::vector<std::vector<float> > ofcV2_b;
+
+    std::vector<std::vector<float> >shape;
+    std::vector<std::vector<float> >shapeDer;
+    
+    float tstart;
+    float timeBinWidthOFC;
+    unsigned phasewMaxAt3;
+    bool faultyOFC;
+    bool shortWave;
+
+
+    perChannelData_t(const LArWaveCumul* wave, const HWIdentifier hi, const unsigned g) : 
+      inputWave(wave), chid(hi), gain(g),tstart(0), timeBinWidthOFC(25./24), phasewMaxAt3(0), faultyOFC(false), shortWave(false) {};
+
+  };
+
+
+  std::vector<perChannelData_t> m_allChannelData;
+
+  void           optFilt(const std::vector<float> &gWave_in, const std::vector<float>  &gDerivWave_in, const Eigen::MatrixXd& autoCorrInv, //input variables
+			 std::vector<float>& OFCa, std::vector<float>& OFCb // Output variables;
+			 ) const; 
+
+  void           optFiltDelta(const std::vector<float> &gWave_in, const std::vector<float>  &gDerivWave_in, const Eigen::MatrixXd& autoCorrInv, 
+			      const Eigen::VectorXd& delta, //input variables
+			      std::vector<float>& vecOFCa, std::vector<float>& vecOFCb // Output variables;
+			      ) const; 
+
+  void process(perChannelData_t&) const;
+
+
+  bool verify(const HWIdentifier chid, const std::vector<float>& OFCa, const std::vector<float>& OFCb, 
+	      const std::vector<float>& Shape, const char* ofcversion, const unsigned phase) const;
+
+  void printOFCVec(const std::vector<float>& vec, MsgStream& mLog) const;
+
+  
+  StatusCode     initPhysWaveContainer();
+  StatusCode     initCaliWaveContainer();
+
     
   std::string              m_dumpOFCfile ;
   std::vector<std::string> m_keylist;
@@ -75,28 +111,22 @@ private:
   bool                     m_normalize;
   bool                     m_timeShift;
   int                      m_timeShiftByIndex ;
- //  CLHEP::HepVector         m_gResp;
-//   CLHEP::HepVector         m_gDerivResp;
-//  CLHEP::HepMatrix         m_AutoCorrMatrix;
-//   CLHEP::HepVector         m_a; // the a coefficients  for A
-//   CLHEP::HepVector         m_b; // the b coefficients for A*Tau
-
-  Eigen::VectorXd          m_gResp;
-  Eigen::VectorXd          m_gDerivResp;
-  Eigen::MatrixXd          m_AutoCorrMatrix;
-  Eigen::VectorXd          m_a; // the a coefficients  for A
-  Eigen::VectorXd          m_b; // the b coefficients for A*Tau
 
 
-  int                      m_optNpt;
   unsigned int             m_nSamples;
   unsigned int             m_nPhases;
   unsigned int             m_dPhases; // number of samples between two neighboring phases (OFC sets)
   unsigned int             m_nDelays ;
-
+  unsigned int             m_nPoints;
   float                    m_addOffset;
 
   ToolHandle<ILArAutoCorrDecoderTool> m_AutoCorrDecoder;
+  ToolHandle<ILArAutoCorrDecoderTool> m_AutoCorrDecoderV2;
+
+  ToolHandle<LArCablingService> m_cablingService;
+  const LArOnlineID*       m_onlineID; 
+  const CaloDetDescrManager* m_calo_dd_man;
+  const LArOFCBinComplete* m_larPhysWaveBin;
 
   double m_errAmpl;
   double m_errTime;
@@ -104,29 +134,48 @@ private:
   bool                     m_readCaliWave ;
   bool                     m_fillShape ;
   std::string              m_ofcKey; 
+  std::string              m_ofcKeyV2; 
   std::string              m_shapeKey; 
   bool                     m_storeMaxPhase;
   std::string              m_ofcBinKey;
 
-  const LArCaliWaveContainer* m_larCaliWaveContainer;
-  const LArPhysWaveContainer* m_larPhysWaveContainer;
-  
-  // Groupinf type
+  // Grouping type
   std::string              m_groupingType;
   std::string              m_larPhysWaveBinKey;
 
   int                      m_useDelta;
-  bool                     m_thisChan_useDelta;
-  const LArOnlineID*       m_onlineID; 
+  int                      m_useDeltaV2;
+  bool                     m_computeV2;
+  bool                     m_runThreaded;
 
-  //CLHEP::HepVector         m_delta;
-  Eigen::VectorXd          m_delta;
-  HWIdentifier             m_id; 
-  void getDelta(std::vector<float>& v);
-  ToolHandle<LArCablingService> m_cablingService;
-  const CaloDetDescrManager* m_calo_dd_man;
+  Eigen::VectorXd getDelta(std::vector<float>& samples, const HWIdentifier chid, unsigned nSamples) const;
+ 
+
+
+  bool useDelta(const HWIdentifier chid, const int jobOFlag) const;
+
+  static const float m_fcal3Delta[5];
+  static const float m_fcal2Delta[5];
+  static const float m_fcal1Delta[5];
+
+
+  //Functor for processing with TBB
+  class Looper {
+  public:
+    Looper(std::vector<perChannelData_t>* p, const LArOFCAlg* a) : m_perChanData(p), m_ofcAlg(a) {};
+    void operator() (tbb::blocked_range<size_t>& r) const {
+      //std::cout << "TBB grainsize " << r.end() - r.begin() << std::endl;
+      for (size_t i=r.begin();i!=r.end();++i) {
+	m_ofcAlg->process(m_perChanData->at(i));
+      }
+    }
+  private:
+    std::vector<perChannelData_t>* m_perChanData;
+    const LArOFCAlg* m_ofcAlg;
+  };
 
 };
+
 
 #endif
 

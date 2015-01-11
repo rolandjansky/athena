@@ -8,7 +8,7 @@
 #ifndef LARTIMETUNING
 #define LARTIMETUNING
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArElecCalib/ILArOFCTool.h"
 #include "LArRawUtils/LArRoI_Map.h"
 #include "LArRawUtils/LArRawOrdering.h"
@@ -21,7 +21,7 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/LArEM_ID.h"
 
-class LArTimeTuning : public Algorithm
+class LArTimeTuning : public AthAlgorithm
 {
 
 public:
@@ -35,8 +35,6 @@ public:
 
 private:
   const LArOnlineID* m_onlineHelper;
-  StoreGateSvc* m_storeGateSvc;
-  StoreGateSvc* m_detStore;
   std::string m_DataLocation;
   std::string m_globalTimeOffsetOut, m_febTimeOffsetOut, m_cellTimeOffsetOut;
 

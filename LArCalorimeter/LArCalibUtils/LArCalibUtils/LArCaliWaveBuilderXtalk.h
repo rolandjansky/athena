@@ -48,10 +48,8 @@
 
 #ifndef LARCALIWAVEBUILDERXTALK_H
 #define LARCALIWAVEBUILDERXTALK_H
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "LArRawEvent/LArAccumulatedCalibDigitContainer.h"
 #include "LArRawConditions/LArCaliWaveContainer.h"
 #include "LArIdentifier/LArOnlineID.h"
@@ -64,7 +62,7 @@
 #include <string>
 #include <map>
 
-class LArCaliWaveBuilderXtalk : public Algorithm
+class LArCaliWaveBuilderXtalk : public AthAlgorithm
 {
  public:
   LArCaliWaveBuilderXtalk(const std::string & name, ISvcLocator * pSvcLocator);
@@ -90,7 +88,6 @@ class LArCaliWaveBuilderXtalk : public Algorithm
   typedef LArConditionsContainer<WaveMap> WaveContainer;
   WaveContainer   m_waves;
 
-  StoreGateSvc* m_storeGateSvc;
   const LArOnlineID*   m_onlineHelper;
   ToolHandle<LArCablingService> m_larCablingSvc;
 

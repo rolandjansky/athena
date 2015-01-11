@@ -128,7 +128,7 @@ StatusCode LArShapeCorrector::stop() {
       }
 
       // check if shape and residuals sizes match
-      if ( vShape.size() != vShapeResidual.size() ) {
+      if ( vShape.size() > vShapeResidual.size() ) { //FIXME, allow to apply 5 sample residual on 4 sample shape
 	msg(MSG::WARNING) << "Shape residual size does not match the shape size for channel 0x" 
 			  << std::hex << id.get_compact() << std::dec 
 			  << ". Will be not corrected!" << endreq;

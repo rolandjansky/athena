@@ -28,10 +28,8 @@ using CLHEP::megahertz;
 
 
 LArTimeTuning::LArTimeTuning (const std::string& name, ISvcLocator* pSvcLocator):
-  Algorithm(name, pSvcLocator),
+  AthAlgorithm(name, pSvcLocator),
   m_onlineHelper(0),
-  m_storeGateSvc(0),
-  m_detStore(0),
   m_DataLocation("FREE"),
   m_AdcCut(1300),
   m_AdcMax(4095),
@@ -81,41 +79,16 @@ LArTimeTuning::~LArTimeTuning()
 {}
 
 StatusCode LArTimeTuning::initialize(){
-  MsgStream log(msgSvc(), name());
-  StatusCode sc;
-
-  //Initialize stores, services & tools:
-  sc= service("StoreGateSvc",m_storeGateSvc);
-  if(sc.isFailure()) {
-    log << MSG::ERROR << "StoreGate service not found" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  sc= service("DetectorStore",m_detStore);
-  if(sc.isFailure()) {
-    log << MSG::ERROR << "DetectorStore service not found" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  // get LArOnlineID helper
-  sc = m_detStore->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID" << endreq;
-    return sc;
-  }
+  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
 
   // Retrieve LArCablingService
   ToolHandle<LArCablingService> larCablingSvc("LArCablingService");
-  sc = larCablingSvc.retrieve();
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << " Can't get LArCablingSvc " << endreq;
-    return sc;
-  }
+  ATH_CHECK( larCablingSvc.retrieve() );
 
   const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
   m_emId = caloIdMgr->getEM_ID();
   if (!m_emId) {
-    log << MSG::ERROR << "Could not access lar EM ID helper" << endreq;
+    ATH_MSG_ERROR ( "Could not access lar EM ID helper" );
     return StatusCode::FAILURE;
   }
   
@@ -131,7 +104,7 @@ StatusCode LArTimeTuning::initialize(){
   else if (m_scopeStr=="CELL")
     m_scope=CELL;
   else {
-    log << MSG::ERROR << "Unknown scope '" << m_scopeStr << "'" << endreq;
+    ATH_MSG_ERROR ( "Unknown scope '" << m_scopeStr << "'" );
     return StatusCode::FAILURE;
   }
 
@@ -159,10 +132,10 @@ StatusCode LArTimeTuning::initialize(){
     m_SamplingPeriodeLowerLimit = 0;
   }
 
-  log << MSG::INFO << " *** Number of OFC time bins per sampling periode = " << m_NOFCTimeBins << endreq;
-  log << MSG::INFO << " *** Sampling Periode = " << m_SamplingPeriode << "ns" << endreq;
-  log << MSG::INFO << " *** Sampling Periode Limits: ( " << m_SamplingPeriodeLowerLimit
-                                                 << ", " << m_SamplingPeriodeUpperLimit << " ) ns" << endreq;
+  ATH_MSG_INFO ( " *** Number of OFC time bins per sampling periode = " << m_NOFCTimeBins );
+  ATH_MSG_INFO ( " *** Sampling Periode = " << m_SamplingPeriode << "ns" );
+  ATH_MSG_INFO ( " *** Sampling Periode Limits: ( " << m_SamplingPeriodeLowerLimit
+                 << ", " << m_SamplingPeriodeUpperLimit << " ) ns" );
   
   m_nIterAverage = 0 ; 
 
@@ -174,9 +147,6 @@ StatusCode LArTimeTuning::initialize(){
 StatusCode LArTimeTuning::execute() {
   m_Nevents++;
 
-  StatusCode sc;
-  MsgStream log(msgSvc(), name());
-  
   const LArDigitContainer* larDigitContainer=NULL;
   const ILArPedestal* larPedestal;
   const ILArOFC* larOFC;
@@ -203,61 +173,44 @@ StatusCode LArTimeTuning::execute() {
   std::map<HWIdentifier,double> cellTimeOffset;
 
   // DigitContainer
-  sc=m_storeGateSvc->retrieve(larDigitContainer,m_DataLocation);
-  if(sc.isFailure()) {
-    log << MSG::ERROR << "Can't retrieve LArDigitContainer with key " <<
-           m_DataLocation << " from StoreGate." << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( evtStore()->retrieve(larDigitContainer,m_DataLocation) );
   
-  // Pedestal
-  sc=m_detStore->retrieve(larPedestal);
+  ATH_CHECK( detStore()->retrieve(larPedestal) );
+  ATH_CHECK( detStore()->retrieve(larOFC) );
+
+  StatusCode sc=detStore()->retrieve(larGlobalTimeOffset);
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Can't retrieve LArPedestal from Conditions Store" << endreq;
-    return StatusCode::FAILURE;
-  }
-  
-  // OFCs
-  sc=m_detStore->retrieve(larOFC);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Can't retrieve LArOFC from Conditions Store" << endreq;
-    return StatusCode::FAILURE;
-  }
-  
-  // Get Global Time Offset from Detector Store
-  sc=m_detStore->retrieve(larGlobalTimeOffset);
-  if (sc.isFailure()) {
-    log << MSG::VERBOSE << "Failed to retrieve LArGlobalTimeOffset. Set to zero." << endreq;
+    ATH_MSG_VERBOSE ( "Failed to retrieve LArGlobalTimeOffset. Set to zero." );
     larGlobalTimeOffset = &dummyGlobalTimeOffset;
   }
 
   if (m_scope==GLOBAL) {
     larGlobalTimeOffset_corr = new LArGlobalTimeOffset();
-    m_storeGateSvc->record(larGlobalTimeOffset_corr,m_globalTimeOffsetOut);
+    ATH_CHECK( evtStore()->record(larGlobalTimeOffset_corr,m_globalTimeOffsetOut) );
   }
   else
     larGlobalTimeOffset_corr = &dummyGlobalTimeOffset;
 
-  sc=m_detStore->retrieve(larFebTimeOffset);
+  sc=detStore()->retrieve(larFebTimeOffset);
   if (sc.isFailure()) {
-    log << MSG::VERBOSE << "Failed to retrieve FEB to FEB Timing. Set to zero." << endreq;
+    ATH_MSG_VERBOSE ( "Failed to retrieve FEB to FEB Timing. Set to zero." );
     larFebTimeOffset = &dummyFebTimeOffset;
   }    
 
   if (m_scope==FEB) {
     //Get Feb to Feb Time Offset
     larFebTimeOffset_corr = new LArFEBTimeOffset();
-    m_storeGateSvc->record(larFebTimeOffset_corr,m_febTimeOffsetOut);
+    ATH_CHECK( evtStore()->record(larFebTimeOffset_corr,m_febTimeOffsetOut) );
   }
   else
     larFebTimeOffset_corr = &dummyFebTimeOffset;
 
   if (m_scope!=PHASE) {
     //Get TB TDC Phase    
-    sc = m_storeGateSvc->retrieve(theTBPhase,"TBPhase");
+    sc = evtStore()->retrieve(theTBPhase,"TBPhase");
     if (sc.isFailure()) {
       // this should be only a 'warning', since TBPhase can miss due to Guard Cut...
-      log << MSG::WARNING << "cannot allocate TBPhase with key <TBPhase>. Exiting."<< endreq;
+      ATH_MSG_WARNING ( "cannot allocate TBPhase with key <TBPhase>. Exiting.");
       if (m_scope==GLOBAL) {
         larGlobalTimeOffset_corr->setTimeOffset(-999);
       }
@@ -272,7 +225,7 @@ StatusCode LArTimeTuning::execute() {
     } 
     phaseTime=theTBPhase->getPhase();
     if (m_phaseInv) phaseTime = m_SamplingPeriode - phaseTime ;
-    log << MSG::DEBUG << " *** Phase = " << phaseTime << endreq;
+    ATH_MSG_DEBUG ( " *** Phase = " << phaseTime );
   } 
   
   
@@ -283,7 +236,7 @@ StatusCode LArTimeTuning::execute() {
 
   do { // Iteration, outermost loop
     
-    log << MSG::DEBUG << "Iteration " << nIter << endreq;
+    ATH_MSG_DEBUG ( "Iteration " << nIter );
     nIter++;
     
     globalOFCTime = 0;
@@ -340,9 +293,9 @@ StatusCode LArTimeTuning::execute() {
         }
       }
       if ( m_skipSaturCell && nSatur>-1 ) {
-        log << MSG::WARNING << "Saturation on channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
-	                    << " (FEB 0x" << MSG::hex << febid.get_compact() << MSG::dec 
-			    << "), sample " << nSatur << " (" << *sIt << "). Skipping channel." << endreq;      
+        ATH_MSG_WARNING ( "Saturation on channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+                          << " (FEB 0x" << MSG::hex << febid.get_compact() << MSG::dec 
+                          << "), sample " << nSatur << " (" << *sIt << "). Skipping channel." );
         continue; //Ignore this cell, saturation on at least one sample
       }
       
@@ -354,29 +307,29 @@ StatusCode LArTimeTuning::execute() {
       
       //Add corrections:
       if (m_scope==GLOBAL) {
-	log << MSG::DEBUG << " GlobCorr=" << larGlobalTimeOffset_corr->TimeOffset();
+	ATH_MSG_DEBUG ( " GlobCorr=" << larGlobalTimeOffset_corr->TimeOffset() );
 	timeOffsetSum += larGlobalTimeOffset_corr->TimeOffset();
       }
       else if (m_scope==FEB) {
-	log << MSG::DEBUG << " FEBCorr=" << larFebTimeOffset_corr->TimeOffset(febid);
+	ATH_MSG_DEBUG ( " FEBCorr=" << larFebTimeOffset_corr->TimeOffset(febid) );
 	timeOffsetSum += larFebTimeOffset_corr->TimeOffset(febid);
       }
       else if (m_scope==CELL) {
-	log << MSG::DEBUG << " CellCorr=" << CellTimeMap[chid].timePeak;
+	ATH_MSG_DEBUG ( " CellCorr=" << CellTimeMap[chid].timePeak );
 	timeOffsetSum += CellTimeMap[chid].timePeak;
       }
       
       int timeSampleShift = m_initialTimeSampleShift;
       int timeOffsetSteps = (int)(timeOffsetSum/m_OFCTimeBin);
       
-      log << MSG::VERBOSE << "Time offests sum = " << timeOffsetSum << " ( = " << timeOffsetSteps << " steps)" << endreq;
+      ATH_MSG_VERBOSE ( "Time offests sum = " << timeOffsetSum << " ( = " << timeOffsetSteps << " steps)" );
       
       if ( m_allowTimeJump && timeOffsetSum >= m_NOFCPhases*m_OFCTimeBin ) {
-	log << MSG::VERBOSE << "Time Sample jump: +1" << endreq;
+	ATH_MSG_VERBOSE ( "Time Sample jump: +1" );
 	timeSampleShift += 1;
 	timeOffsetSum   -= m_NOFCTimeBins*m_OFCTimeBin ;
       } else if ( m_allowTimeJump && timeOffsetSum < 0 ) {
-	log << MSG::VERBOSE << "Time Sample jump: -1" << endreq;
+	ATH_MSG_VERBOSE ( "Time Sample jump: -1" );
 	timeSampleShift -= 1;
 	timeOffsetSum   += m_NOFCTimeBins*m_OFCTimeBin ;
       }
@@ -391,25 +344,25 @@ StatusCode LArTimeTuning::execute() {
       */
 
       if (m_allowTimeJump && ( timeOffsetSteps > m_NOFCPhases || timeOffsetSteps < 0 ) ) {
-	log << MSG::ERROR << "Time offset steps out of range for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+	ATH_MSG_ERROR ( "Time offset steps out of range for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
 	                  << " (FEB 0x" << MSG::hex << febid.get_compact() << MSG::dec << "). Found " 
-	                  << timeOffsetSteps <<", expected ( 0 - " << m_NOFCPhases << ") steps. Skipping channel." << endreq;
+                        << timeOffsetSteps <<", expected ( 0 - " << m_NOFCPhases << ") steps. Skipping channel." );
 	continue;
       }
 
       
       if (m_allowTimeJump && timeSampleShift<0) {
-	log << MSG::ERROR << "Negative time sample shift (" << timeSampleShift << ") found for channel 0x" 
+	ATH_MSG_ERROR ( "Negative time sample shift (" << timeSampleShift << ") found for channel 0x" 
 	                  << MSG::hex << chid.get_compact() << MSG::dec << " (FEB 0x" 	                  
-	                  << MSG::hex << febid.get_compact() << MSG::dec << "). Skipping channel." << endreq;
+                        << MSG::hex << febid.get_compact() << MSG::dec << "). Skipping channel." );
 	continue;
       }      
       
       // Pedestal for this channel & gain:
       float pedestal=larPedestal->pedestal(chid,gain);
       if (pedestal <= (1.0+LArElecCalib::ERRORCODE)) {
-	log << MSG::DEBUG << "No pedestal found for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
-	    << " Skipping channel." << endreq;
+	ATH_MSG_DEBUG ( "No pedestal found for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+                        << " Skipping channel." );
 	continue;
       }
       //Assume there is only one pedestal value, even the ILArPedestal object returns a vector<float>
@@ -424,19 +377,15 @@ StatusCode LArTimeTuning::execute() {
       //else 
       //   OFCTimeBin -= 1 ;
 	 
-      log << MSG::VERBOSE << " *** OFCTimeBin = " << OFCTimeBin << endreq;
+      ATH_MSG_VERBOSE ( " *** OFCTimeBin = " << OFCTimeBin );
       
       if ( OFCTimeBin < 0 ) {
-        log << MSG::ERROR << " OFCTimeBin = " << OFCTimeBin 
-	//<< ". Reset to 0." << endreq;
-        //OFCTimeBin=0;
-	<< ". Skipping channel." << endreq;
+        ATH_MSG_ERROR ( " OFCTimeBin = " << OFCTimeBin 
+                        << ". Skipping channel." );
 	continue;
       } else if( OFCTimeBin >= m_NOFCPhases ) {
-        log << MSG::ERROR << "OFCTimeBin = " << OFCTimeBin 
-	//<< ". Reset to (m_NOFCPhases-1) = " <<  m_NOFCPhases << endreq;
-        //OFCTimeBin = m_NOFCPhases-1;
-        << ". Skipping channel." << endreq;
+        ATH_MSG_ERROR ( "OFCTimeBin = " << OFCTimeBin 
+                        << ". Skipping channel." );
 	continue;
       }
       
@@ -445,19 +394,19 @@ StatusCode LArTimeTuning::execute() {
       
       //Check if we have OFC for this channel and time bin
       if (ofc_a.size()==0) {
-	log << MSG::DEBUG << "No OFC's found for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
-	    << " TimeShift=" << timeOffsetSum <<". Skipping channel." << endreq;
+	ATH_MSG_DEBUG ( "No OFC's found for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+                        << " TimeShift=" << timeOffsetSum <<". Skipping channel." );
 	continue;
       } 
       
       //Check if we have OFC for this channel and time bin
       if (ofc_a.size()+timeSampleShift>nSamples || ofc_b.size()+timeSampleShift>nSamples) {
 	if (timeSampleShift==0)
-	  log << MSG::DEBUG << "Found LArDigit with " << nSamples << " samples, but OFCs for " 
-	      << ofc_a.size() << " samples. Skipping Channel "<< endreq;
+	  ATH_MSG_DEBUG ( "Found LArDigit with " << nSamples << " samples, but OFCs for " 
+                          << ofc_a.size() << " samples. Skipping Channel ");
 	else //have time sample shift
-	  log << MSG::DEBUG << "After time sample shift of " << timeSampleShift << ", " << nSamples-timeSampleShift
-	      << " samples left, but have OFCs for " << ofc_a.size() << " samples. Skipping Channel "<< endreq;
+	  ATH_MSG_DEBUG ( "After time sample shift of " << timeSampleShift << ", " << nSamples-timeSampleShift
+                          << " samples left, but have OFCs for " << ofc_a.size() << " samples. Skipping Channel ");
 	continue;
       } 
       nCells++;
@@ -470,10 +419,10 @@ StatusCode LArTimeTuning::execute() {
       for (unsigned i=0;i<(ofc_b.size());++i) 
 	tauPeak += (samples[i+timeSampleShift]-pedestalAverage)*ofc_b.at(i);
       
-      log << MSG::DEBUG << "Channel: " << MSG::hex << chid.get_compact() << MSG::dec 
-	  << " - TimeOffsetSum = " << timeOffsetSum 
-	  << " - TimeSampleShift = " << timeSampleShift << " timeOffsetSteps=" <<timeOffsetSteps 
-	  << " Corr: " << tauPeak/ADCPeak << " Peak=" << (int)ADCPeak << " G=" << (*cell_it)->gain() << endreq;
+      ATH_MSG_DEBUG ( "Channel: " << MSG::hex << chid.get_compact() << MSG::dec 
+                      << " - TimeOffsetSum = " << timeOffsetSum 
+                      << " - TimeSampleShift = " << timeSampleShift << " timeOffsetSteps=" <<timeOffsetSteps 
+                      << " Corr: " << tauPeak/ADCPeak << " Peak=" << (int)ADCPeak << " G=" << (*cell_it)->gain() );
 
       //remaining error (for loop conditions)
       err_Peak     += ADCPeak;
@@ -495,7 +444,7 @@ StatusCode LArTimeTuning::execute() {
     } // End loop over all cells
 
     if (nCells==0) {
-      log << MSG::WARNING << "No cell above threshold for this event." << endreq;
+      ATH_MSG_WARNING ( "No cell above threshold for this event." );
       break;
     }
     
@@ -521,9 +470,9 @@ StatusCode LArTimeTuning::execute() {
       phaseTime-=globalOFCTime;
     }
     
-    log << MSG::DEBUG << " " << endreq ;
-    log << MSG::DEBUG << " ==> End of iteration " << nIter << ", remaining Error = " << err_timePeak/err_Peak << endreq;
-    log << MSG::DEBUG << " " << endreq ;
+    ATH_MSG_DEBUG ( " " );
+    ATH_MSG_DEBUG ( " ==> End of iteration " << nIter << ", remaining Error = " << err_timePeak/err_Peak );
+    ATH_MSG_DEBUG ( " " );
   
   } while (err_timePeak/err_Peak>m_OFCTimePrecision && nIter<m_maxIterations);
   
@@ -546,11 +495,11 @@ StatusCode LArTimeTuning::execute() {
   
   if (m_maxIterations>1 && nIter==m_maxIterations && fabs(globalOFCTime)>m_OFCTimePrecision) //Iteration failed
   
-    log << MSG::VERBOSE << "Iteration failed. Remaining time offset=" << globalOFCTime << endreq;   
+    ATH_MSG_VERBOSE ( "Iteration failed. Remaining time offset=" << globalOFCTime );
   
   else { // Iteration converged
     
-    log << MSG::VERBOSE << "Iteration converged. Remaining time offset = " << globalOFCTime << endreq; 
+    ATH_MSG_VERBOSE ( "Iteration converged. Remaining time offset = " << globalOFCTime );
     m_Nconv++;
     m_nIterAverage += nIter;
     
@@ -572,9 +521,9 @@ StatusCode LArTimeTuning::execute() {
     if(m_scope==PHASE) { 
        const short phaseIndex=(int)round(phaseTime/m_NOFCTimeBins);
        TBPhase* thePhase=new TBPhase(phaseTime,phaseIndex);
-       sc=m_storeGateSvc->record(thePhase,"TBPhase");
+       sc=evtStore()->record(thePhase,"TBPhase");
        if (sc.isFailure())
- 	 log << MSG::ERROR << "Could not record TBPhase with key 'TBPhase' to StoreGate" << endreq;
+ 	 ATH_MSG_ERROR ( "Could not record TBPhase with key 'TBPhase' to StoreGate" );
     }     
     else if (m_scope==CELL) { //Fill cell time offset map member variable
       WeightedAverageMAP::const_iterator it=CellTimeMap.begin();
@@ -595,31 +544,28 @@ StatusCode LArTimeTuning::execute() {
 
 StatusCode LArTimeTuning::stop()
 {
- MsgStream log(msgSvc(), name());
- StatusCode sc;
-   
  if (m_scope==CELL) {
    LArCellTimeOffset *cellTimeOffset=new LArCellTimeOffset();
    WeightedAverageMAP::const_iterator it=m_CellTimeAverage.begin();
    WeightedAverageMAP::const_iterator it_e=m_CellTimeAverage.end();
    for (;it!=it_e;it++) {
      cellTimeOffset->setTimeOffset(it->first,it->second.get());
-     log << MSG::DEBUG << "Ch = " << std::hex << it->first.get_compact() << std::dec
-               << " Time = " << cellTimeOffset->TimeOffset(it->first) << endreq;
+     ATH_MSG_DEBUG ( "Ch = " << std::hex << it->first.get_compact() << std::dec
+                     << " Time = " << cellTimeOffset->TimeOffset(it->first) );
    }
-   sc=m_storeGateSvc->record(cellTimeOffset,m_cellTimeOffsetOut);
+   StatusCode sc=evtStore()->record(cellTimeOffset,m_cellTimeOffsetOut);
    if (sc.isFailure())
-      log << MSG::ERROR << "Could not record LArCellTimeOffset with key '" << m_cellTimeOffsetOut << "' to StoreGate" << endreq;
+     ATH_MSG_ERROR ( "Could not record LArCellTimeOffset with key '" << m_cellTimeOffsetOut << "' to StoreGate" );
 
  }
  
  if ( m_Nconv > 0 ) m_nIterAverage /= m_Nconv ;
- log << MSG::INFO << "===============================================================" << endreq ;
- log << MSG::INFO << "Summary:  " << m_NaboveThreshold << " out of " << m_Nevents 
-                  << " events have at least one cell above threshold (ADC cut = " << m_AdcCut << ")"<< endreq ;
- log << MSG::INFO << "Summary: iteration converged for " << m_Nconv << " out of " << m_NaboveThreshold << " events above threshold" << endreq ;
- log << MSG::INFO << "Summary: average number of iteration(s) = " << m_nIterAverage << endreq ;
- log << MSG::INFO << "===============================================================" << endreq ;
+ ATH_MSG_INFO ( "===============================================================" );
+ ATH_MSG_INFO ( "Summary:  " << m_NaboveThreshold << " out of " << m_Nevents 
+                << " events have at least one cell above threshold (ADC cut = " << m_AdcCut << ")");
+ ATH_MSG_INFO ( "Summary: iteration converged for " << m_Nconv << " out of " << m_NaboveThreshold << " events above threshold" );
+ ATH_MSG_INFO ( "Summary: average number of iteration(s) = " << m_nIterAverage );
+ ATH_MSG_INFO ( "===============================================================" );
  
  return StatusCode::SUCCESS;
 }

@@ -28,8 +28,7 @@
 LArPhaseToolTB::LArPhaseToolTB (const std::string& type,
                                 const std::string& name,
                                 const IInterface* parent)
-  : AlgTool (type, name, parent),
-    m_storegate (0),
+  : AthAlgTool (type, name, parent),
     m_tbphase (0),
     m_have_phase (false)
 {
@@ -45,9 +44,6 @@ LArPhaseToolTB::LArPhaseToolTB (const std::string& type,
  */
 StatusCode LArPhaseToolTB::initialize()
 {
-  // Get the storegate service.
-  CHECK( service("StoreGateSvc", m_storegate) );
-
   // Get the incident service, and register to look at
   // end-of-event incidents.
   IIncidentSvc* incsvc = 0;
@@ -83,7 +79,7 @@ StatusCode LArPhaseToolTB::phase (const Identifier& /*cell*/, float& phase)
   // once per event, rather than once per cell.
   if (! m_have_phase) {
     TBPhase* tbphase;
-    CHECK( m_storegate->retrieve (tbphase, m_phasekey) );
+    CHECK( evtStore()->retrieve (tbphase, m_phasekey) );
     m_tbphase = tbphase->getPhase();
     m_have_phase = true;
   }

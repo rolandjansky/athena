@@ -7,6 +7,7 @@ use GaudiInterface  GaudiInterface-*     External
 use StoreGate       StoreGate-*          Control
 use AthenaKernel    AthenaKernel*        Control
 use AthenaBaseComps     AthenaBaseComps-*       Control
+use AtlasTBB 		AtlasTBB-* 		External
 
 use LArRawEvent      LArRawEvent-*           LArCalorimeter 
 use LArRawConditions LArRawConditions-*      LArCalorimeter
@@ -28,7 +29,7 @@ use AtlasEigen       AtlasEigen-*         External
 private
 use AtlasCLHEP       AtlasCLHEP-*         External
 use AtlasGSL            AtlasGSL-*          External
-use EventInfo           EventInfo-*         Event
+use xAODEventInfo       xAODEventInfo-*     Event/xAOD
 use CaloDetDescr        CaloDetDescr-*      Calorimeter
 use LArSimEvent         LArSimEvent-*       LArCalorimeter
 use LArBadChannelTool   LArBadChannelTool-* LArCalorimeter
@@ -37,6 +38,9 @@ use TrigAnalysisInterfaces TrigAnalysisInterfaces-* Trigger/TrigAnalysis
 apply_tag ROOTMathLibs
 apply_tag ROOTGraphicsLibs 
 end_private
+
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Minuit)"
 
 library  LArCalibUtils *.cxx components/*.cxx
 
@@ -58,7 +62,7 @@ apply_pattern declare_python_modules files="*.py"
 #
 # uncomment to compile in debug mode
 #
-#private
+private
 #macro cppdebugflags '$(cppdebugflags_s) -g '
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"

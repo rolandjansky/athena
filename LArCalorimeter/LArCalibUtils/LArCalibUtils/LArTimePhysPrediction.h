@@ -8,9 +8,7 @@
 #ifndef LARTIMEPHYSPREDICTION_H
 #define LARTIMEPHYSPREDICTION_H
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/INTupleSvc.h"
 #include "GaudiKernel/NTuple.h"
 #include "GaudiKernel/ITHistSvc.h"
@@ -19,7 +17,7 @@ class CaloDepthTool;
 class CaloDetDescrManager;
 class ITHistSvc;
 
-class LArTimePhysPrediction : public Algorithm
+class LArTimePhysPrediction : public AthAlgorithm
 {
 
  public:

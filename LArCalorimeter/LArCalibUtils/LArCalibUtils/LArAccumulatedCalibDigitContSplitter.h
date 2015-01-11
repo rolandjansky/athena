@@ -12,14 +12,13 @@
 #ifndef LARACCUMULATEDCALIBDIGITCONTSPLITTER_H
 #define LARACCUMULATEDCALIBDIGITCONTSPLITTER_H
 
-#include "GaudiKernel/Algorithm.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include <vector>
 #include <string>
 #include <map>
 
-class LArAccumulatedCalibDigitContSplitter : public Algorithm
+class LArAccumulatedCalibDigitContSplitter : public AthAlgorithm
 {
  public:
   LArAccumulatedCalibDigitContSplitter(const std::string & name, ISvcLocator * pSvcLocator);
@@ -43,10 +42,7 @@ class LArAccumulatedCalibDigitContSplitter : public Algorithm
 
   bool m_useDacAndIsPulsedIndex;//used to store different waves for different HEC calib lines
 
-  StoreGateSvc* m_storeGateSvc;
-  
   unsigned m_event_counter; 
-  
 };  
 
 #endif

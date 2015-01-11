@@ -10,10 +10,9 @@
 // ----------------------------------------------------------------------------
 
 #ifndef LARCALIWAVESELECTOR_H
-#define LArCALIWAVESELECTOR_H
+#define LARCALIWAVESELECTOR_H
 
-#include "GaudiKernel/Algorithm.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include <vector>
 #include <string>
@@ -25,7 +24,7 @@ class LArOnlineID;
 class CaloCell_ID;
 class LArOnOffIdMap;
 
-class LArCaliWaveSelector : public Algorithm
+class LArCaliWaveSelector : public AthAlgorithm
 {
  public:
   LArCaliWaveSelector(const std::string & name, ISvcLocator * pSvcLocator);
@@ -38,7 +37,7 @@ class LArCaliWaveSelector : public Algorithm
     
  private:
 
-  void parseSelection(MsgStream *log);
+  void parseSelection();
 
   const CaloCell_ID *m_cellID;
 

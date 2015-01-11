@@ -15,15 +15,13 @@
 #ifndef LARRAMPFCALCORR_H
 #define LARRAMPFCALCORR_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "LArRawConditions/LArRampComplete.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "StoreGate/StoreGateSvc.h"
 
-class  StoreGateSvc;
 
-class LArRampFCalCorr : public Algorithm
+class LArRampFCalCorr : public AthAlgorithm
 {
  public:
   LArRampFCalCorr(const std::string& name,ISvcLocator* pSvcLocator);
@@ -40,7 +38,6 @@ class LArRampFCalCorr : public Algorithm
 
   int toMod(int& slot);
 
-  StoreGateSvc* m_detStore;
   const LArOnlineID* m_onlineHelper;
 
   float m_threshold;

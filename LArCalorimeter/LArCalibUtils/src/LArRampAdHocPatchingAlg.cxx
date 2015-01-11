@@ -8,9 +8,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 LArRampAdHocPatchingAlg::LArRampAdHocPatchingAlg (const std::string& name, ISvcLocator* pSvcLocator) 
- : Algorithm(name,pSvcLocator),
-   m_detStore(0),
-   m_log(NULL),
+ : AthAlgorithm(name,pSvcLocator),
    m_contIn(0),
    m_contOut(0)
 {
@@ -32,37 +30,35 @@ LArRampAdHocPatchingAlg::LArRampAdHocPatchingAlg (const std::string& name, ISvcL
 
 LArRampAdHocPatchingAlg::~LArRampAdHocPatchingAlg() 
 {
-  delete m_log;
 }
 
 
 StatusCode LArRampAdHocPatchingAlg::initialize() 
 {
-  m_log=new MsgStream(msgSvc(),name());
-  (*m_log) << MSG::INFO << "Initialing LArRampAdHocPatchingAlg..." << endreq;
-  (*m_log) << MSG::INFO << "HG: "<<m_channelsToBePatchedHG.size()<<" "<<m_patchesToBeAppliedHG.size()<<endreq;
-  (*m_log) << MSG::INFO << "MG: "<<m_channelsToBePatchedMG.size()<<" "<<m_patchesToBeAppliedMG.size()<<endreq;
-  (*m_log) << MSG::INFO << "LG: "<<m_channelsToBePatchedLG.size()<<" "<<m_patchesToBeAppliedLG.size()<<endreq;
+  ATH_MSG_INFO ( "Initialing LArRampAdHocPatchingAlg..." );
+  ATH_MSG_INFO ( "HG: "<<m_channelsToBePatchedHG.size()<<" "<<m_patchesToBeAppliedHG.size());
+  ATH_MSG_INFO ( "MG: "<<m_channelsToBePatchedMG.size()<<" "<<m_patchesToBeAppliedMG.size());
+  ATH_MSG_INFO ( "LG: "<<m_channelsToBePatchedLG.size()<<" "<<m_patchesToBeAppliedLG.size());
 
   if ( m_channelsToBePatchedHG.size() && ( m_channelsToBePatchedHG.size() !=  m_patchesToBeAppliedHG.size() ) ) {
-    (*m_log) << MSG::ERROR << "Wrong size of HIGH gain input vectors!" << endreq;
+    ATH_MSG_ERROR ( "Wrong size of HIGH gain input vectors!" );
     return StatusCode::FAILURE;
   } else {
-    (*m_log) << MSG::INFO << m_channelsToBePatchedHG.size() << " ad-hoc patches to be applied in HIGH gain" << endreq;
+    ATH_MSG_INFO ( m_channelsToBePatchedHG.size() << " ad-hoc patches to be applied in HIGH gain" );
   } 
 
   if ( m_channelsToBePatchedMG.size() && ( m_channelsToBePatchedMG.size() !=  m_patchesToBeAppliedMG.size() ) ) {
-    (*m_log) << MSG::ERROR << "Wrong size of MEDIUM gain input vectors!" << endreq;
+    ATH_MSG_ERROR ( "Wrong size of MEDIUM gain input vectors!" );
     return StatusCode::FAILURE;
   } else {
-    (*m_log) << MSG::INFO << m_channelsToBePatchedMG.size() << " ad-hoc patches to be applied in MEDIUM gain" << endreq;
+    ATH_MSG_INFO ( m_channelsToBePatchedMG.size() << " ad-hoc patches to be applied in MEDIUM gain" );
   } 
 
   if ( m_channelsToBePatchedLG.size() && ( m_channelsToBePatchedLG.size() !=  m_patchesToBeAppliedLG.size() ) ) {
-    (*m_log) << MSG::ERROR << "Wrong size of LOW gain input vectors!" << endreq;
+    ATH_MSG_ERROR ( "Wrong size of LOW gain input vectors!" );
     return StatusCode::FAILURE;
   } else {
-    (*m_log) << MSG::INFO << m_channelsToBePatchedLG.size() << " ad-hoc patches to be applied in LOW gain" << endreq;
+    ATH_MSG_INFO ( m_channelsToBePatchedLG.size() << " ad-hoc patches to be applied in LOW gain" );
   } 
 
   return StatusCode::SUCCESS;
@@ -71,82 +67,40 @@ StatusCode LArRampAdHocPatchingAlg::initialize()
 
 StatusCode LArRampAdHocPatchingAlg::stop() 
 {
-  (*m_log) << MSG::INFO << "Entering LArRampAdHocPatchingAlg" << endreq;
+  ATH_MSG_INFO ( "Entering LArRampAdHocPatchingAlg" );
 
-  StatusCode sc = service("DetectorStore", m_detStore);
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << " Cannot locate DetectorStore " << endreq;
-    return StatusCode::FAILURE;
-  } 
-  
   if (m_newContainerKey.size()) { //New container key give -> different containers for reading and writing
-    sc=m_detStore->retrieve(m_contIn,m_containerKey); //const-retrieve
-    if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Failed to retrieve const object with key " << m_containerKey 
-	       << " from DetectorStore." << endreq;
-      return StatusCode::FAILURE;
-    }    
+    ATH_CHECK( detStore()->retrieve(m_contIn,m_containerKey) ); //const-retrieve
     m_contOut=new LArRampComplete();
     m_contOut->setGroupingType((LArConditionsContainerBase::GroupingType)m_contIn->groupingType());
-    sc=m_contOut->initialize();
-    if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Failed to inizialize output container" << endreq;
-      return StatusCode::FAILURE;
-    }
-    sc=m_detStore->record(m_contOut,m_newContainerKey);
-    if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Failed to record object with key " << m_containerKey 
-	       << " to DetectorStore." << endreq;
-      return StatusCode::FAILURE;
-    }
-    sc=m_detStore->symLink(m_contOut,(ILArRamp*)m_contOut);
-    if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Failed to symlink LArRampComplete to ILArRamp" << endreq;
-      return StatusCode::FAILURE;
-    }
-    (*m_log) << MSG::INFO << "Loaded input container " << m_containerKey 
-	     << ", write to new container " << m_newContainerKey << endreq;
+    ATH_CHECK( m_contOut->initialize() );
+    ATH_CHECK( detStore()->record(m_contOut,m_newContainerKey) );
+    ATH_CHECK( detStore()->symLink(m_contOut,(ILArRamp*)m_contOut) );
+    ATH_MSG_INFO ( "Loaded input container " << m_containerKey 
+                   << ", write to new container " << m_newContainerKey );
   }
   else { //Same container for reading and writing (must not be locked)
-    sc=m_detStore->retrieve(m_contOut,m_containerKey); //non-const retrieve
-    if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Failed to retrieve non-const object with key " << m_containerKey 
-	       << " from DetectorStore." << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( detStore()->retrieve(m_contOut,m_containerKey) ); //non-const retrieve
     m_contIn=const_cast<const LArRampComplete*>(m_contOut);
-    (*m_log) << MSG::INFO << "Work on container '" <<  m_containerKey  << "'" << endreq;
+    ATH_MSG_INFO ( "Work on container '" <<  m_containerKey  << "'" );
   }
 
   if (m_channelsToBePatchedHG.size()) {
-      (*m_log) << MSG::INFO << "Going to apply ad-hoc patches to HIGH gain ramps." << endreq;
-    sc = ApplyAdHocPatches(m_channelsToBePatchedHG,m_patchesToBeAppliedHG,0);
-    if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Failed to apply ad-hoc patches to HIGH gain ramps." << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_MSG_INFO ( "Going to apply ad-hoc patches to HIGH gain ramps." );
+    ATH_CHECK( ApplyAdHocPatches(m_channelsToBePatchedHG,m_patchesToBeAppliedHG,0) );
   }
 
   if (m_channelsToBePatchedMG.size()) {
-      (*m_log) << MSG::INFO << "Going to apply ad-hoc patches to MEDIUM gain ramps." << endreq;
-    sc = ApplyAdHocPatches(m_channelsToBePatchedMG,m_patchesToBeAppliedMG,1);
-    if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Failed to apply ad-hoc patches to MEDIUM gain ramps." << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_MSG_INFO ( "Going to apply ad-hoc patches to MEDIUM gain ramps." );
+    ATH_CHECK( ApplyAdHocPatches(m_channelsToBePatchedMG,m_patchesToBeAppliedMG,1) );
   }
 
   if (m_channelsToBePatchedLG.size()) {
-      (*m_log) << MSG::INFO << "Going to apply ad-hoc patches to LOW gain ramps." << endreq;
-    sc = ApplyAdHocPatches(m_channelsToBePatchedLG,m_patchesToBeAppliedLG,2);
-    if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Failed to apply ad-hoc patches to MEDIUM gain ramps." << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_MSG_INFO ( "Going to apply ad-hoc patches to LOW gain ramps." );
+    ATH_CHECK( ApplyAdHocPatches(m_channelsToBePatchedLG,m_patchesToBeAppliedLG,2) );
   }
 
-  (*m_log) << MSG::INFO << "Done with LArRampAdHocPatchingAlg" << endreq;
-
+  ATH_MSG_INFO ( "Done with LArRampAdHocPatchingAlg" );
   return StatusCode::SUCCESS;
 }
 
@@ -185,7 +139,7 @@ bool LArRampAdHocPatchingAlg::ZeroTheIntercept(HWIdentifier chid, unsigned gain)
   LArRampObj patch;
   patch.m_vRamp.clear();
   patch.m_vRamp.resize(s);
-  (*m_log) << MSG::INFO << "Size of the patched object: "<<s<<endreq;
+  ATH_MSG_INFO ( "Size of the patched object: "<<s);
   if(s==0) return false;
   patch.m_vRamp[0] = 0.; // zeroes the intercept
   for (unsigned i=1;i<s;++i){ // copy the other coefficients
@@ -193,12 +147,12 @@ bool LArRampAdHocPatchingAlg::ZeroTheIntercept(HWIdentifier chid, unsigned gain)
   }
   StatusCode sc=m_contOut->insertCorrection(chid,patch,gain,m_useCorrChannel);
   if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Failed to zero the ramp intercept channel 0x" 
-	     << MSG::hex << chid.get_compact()  << MSG::dec << ", gain " << gain << "." << endreq;
+    ATH_MSG_ERROR ( "Failed to zero the ramp intercept channel 0x" 
+                    << MSG::hex << chid.get_compact()  << MSG::dec << ", gain " << gain << "." );
     return false;
   } else {
-    (*m_log) << MSG::INFO << "Successfully zeroed the ramp intercept channel 0x" 
-	     << MSG::hex << chid.get_compact()  << MSG::dec << ", gain " << gain << "." << endreq;
+    ATH_MSG_INFO ( "Successfully zeroed the ramp intercept channel 0x" 
+                   << MSG::hex << chid.get_compact()  << MSG::dec << ", gain " << gain << "." );
     return true;
   }
 }

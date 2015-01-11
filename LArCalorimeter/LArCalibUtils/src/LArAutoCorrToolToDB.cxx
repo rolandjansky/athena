@@ -21,9 +21,7 @@
 
 
 LArAutoCorrToolToDB::LArAutoCorrToolToDB(const std::string& name, ISvcLocator* pSvcLocator) 
-  : Algorithm(name, pSvcLocator),
-    m_storeGateSvc(0),
-    m_detStore(0),
+  : AthAlgorithm(name, pSvcLocator),
     m_onlineHelper(0),
     m_autocorrTool("LArAutoCorrTotalTool")
 {
@@ -39,39 +37,9 @@ LArAutoCorrToolToDB::~LArAutoCorrToolToDB()
 //----------------------------------------------------------------------------
 StatusCode LArAutoCorrToolToDB::initialize()
 {
-  // StoreGate service
-  MsgStream log(msgSvc(), name());
-  StatusCode sc = service("StoreGateSvc", m_storeGateSvc);
-  if (sc.isFailure())
-    {
-      log << MSG::FATAL << " StoreGate service not found " << std::endl;
-      sc = StatusCode::FAILURE;
-      return sc;
-    }
-  
-  // Get DetectorStore service
-  sc = service("DetectorStore", m_detStore);
-  if (sc.isFailure())
-    {
-      log << MSG::FATAL << " DetectorStore service not found " << std::endl;
-      sc = StatusCode::FAILURE;
-      return sc;
-    }
-  
-  sc = m_detStore->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  sc = m_autocorrTool.retrieve();
-  if (sc.isFailure()) {
-      log << MSG::ERROR << "Cannot retrieve LArAutoCorrTotalTool " << endreq;
-      return sc;
-  }
-
+  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
+  ATH_CHECK( m_autocorrTool.retrieve() );
   return StatusCode::SUCCESS;
-
 }
 
 // ---------------------------------------
@@ -89,22 +57,12 @@ StatusCode LArAutoCorrToolToDB::execute()
 //---------------------------------------------------------------------------
 StatusCode LArAutoCorrToolToDB::stop() {
 
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << ">>> stop()" << endreq;
+  ATH_MSG_INFO ( ">>> stop()" );
 
   LArAutoCorrComplete* larAutoCorrComplete = new LArAutoCorrComplete();
   // Initialize LArAutoCorrComplete 
-  StatusCode sc=larAutoCorrComplete->setGroupingType(m_groupingType,log);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Failed to set groupingType for LArAutoCorrComplete object" << endreq;
-    return sc;
-  }
-  sc=larAutoCorrComplete->initialize(); 
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Failed initialize LArAutoCorrComplete object" << endreq;
-    return sc;
-  }
-
+  ATH_CHECK( larAutoCorrComplete->setGroupingType(m_groupingType,msg()) );
+  ATH_CHECK( larAutoCorrComplete->initialize() );
 
   //Loop over gains
   for (unsigned igain=0;igain<(int)CaloGain::LARNGAIN;igain++) {
@@ -154,24 +112,14 @@ StatusCode LArAutoCorrToolToDB::stop() {
       larAutoCorrComplete->set(chid,gain,cov);
       ++nDone;
     }//end loop over all cells
-    log << MSG::INFO << "Gain " << gain << ": " << nDone << " channeles done, " << nSkipped  << " channels skipped (no Elec Noise AC in input)" << endreq;
+    ATH_MSG_INFO ( "Gain " << gain << ": " << nDone << " channeles done, " << nSkipped  << " channels skipped (no Elec Noise AC in input)" );
   }//end loop over gains
 
   // Record LArAutoCorrComplete
-  sc = m_detStore->record(larAutoCorrComplete,m_acContName);
-  if (sc != StatusCode::SUCCESS) { 
-    log << MSG::ERROR  << " Cannot store LArAutoCorrComplete in TDS "<< endreq;
-    delete larAutoCorrComplete;
-    return sc;
-  }
-  else
-    log << MSG::INFO << "Recorded LArAutCorrComplete object with key " << m_acContName << endreq;
+  ATH_CHECK( detStore()->record(larAutoCorrComplete,m_acContName) );
+  ATH_MSG_INFO ( "Recorded LArAutCorrComplete object with key " << m_acContName );
   // Make symlink
-  sc = m_detStore->symLink(larAutoCorrComplete, (ILArAutoCorr*)larAutoCorrComplete);
-  if (sc != StatusCode::SUCCESS)  {
-    log << MSG::ERROR  << " Cannot make link for Data Object " << endreq;
-    return sc;
-  }
+  ATH_CHECK( detStore()->symLink(larAutoCorrComplete, (ILArAutoCorr*)larAutoCorrComplete) );
    
   return StatusCode::SUCCESS;
 }

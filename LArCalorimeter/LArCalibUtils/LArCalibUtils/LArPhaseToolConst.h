@@ -16,7 +16,7 @@
 #define LARCALIBUTILS_LARPHASETOOLCONST_H
 
 #include "LArElecCalib/ILArPhaseTool.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include <string>
 
 
@@ -34,7 +34,7 @@
  * for all cells.
  */
 class LArPhaseToolConst
-  : public AlgTool,
+  : public AthAlgTool,
     virtual public ILArPhaseTool
 {
 public: 

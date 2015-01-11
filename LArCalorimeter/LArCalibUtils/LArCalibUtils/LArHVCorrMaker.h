@@ -2,21 +2,23 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef  LARHVCORRMAKER_H
+//Dear emacs, this is -*-c++-*-
+
+#ifndef LARHVCORRMAKER_H
 #define LARHVCORRMAKER_H
 
 // Include files
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "LArElecCalib/ILArHVCorrTool.h"
 
-#include "LArRawConditions/LArHVScaleCorrComplete.h"
-#include "LArIdentifier/LArOnlineID.h"
+//#include "LArIdentifier/LArOnlineID.h"
+
+class LArOnlineID;
 
 //-----------------------------------------------------------------------
-class LArHVCorrMaker : public Algorithm
+class LArHVCorrMaker : public AthAlgorithm
 //-----------------------------------------------------------------------
 {
  public:
@@ -38,12 +40,7 @@ class LArHVCorrMaker : public Algorithm
   StatusCode finalize(){return StatusCode::SUCCESS;}
   
  private:
-
-  // StoreGate service
-  StoreGateSvc * m_detStore;
-
   const LArOnlineID*        m_lar_on_id;
-
   ToolHandle<ILArHVCorrTool> m_hvCorrTool;
 };
 

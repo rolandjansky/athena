@@ -166,16 +166,16 @@ StatusCode LArPhysWavePredictor::stop()
   LArWaveHelper larWaveHelper;
 
   // Get access to the Detector Store
-  StoreGateSvc* detStore; 
-  StatusCode sc = service("DetectorStore",detStore);
-  if (sc!=StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << "Cannot get DetectorStore!" << endreq;
-    return sc;
-  }
+  //StoreGateSvc* detStore; 
+  //StatusCode sc = service("DetectorStore",detStore);
+  //if (sc!=StatusCode::SUCCESS) {
+  //  msg(MSG::ERROR) << "Cannot get DetectorStore!" << endreq;
+  //  return sc;
+  //}
   
   // Retrieve LArPhysWaveTool
   ToolHandle<LArPhysWaveTool> larPhysWaveTool("LArPhysWaveTool");
-  sc=larPhysWaveTool.retrieve();
+  StatusCode sc=larPhysWaveTool.retrieve();
   if (sc!=StatusCode::SUCCESS) {
     msg(MSG::ERROR) << " Can't get LArPhysWaveTool " << endreq;
     return sc;
@@ -217,7 +217,7 @@ StatusCode LArPhysWavePredictor::stop()
   const ILArPhysCaliTdiff*   larPhysCaliTdiff;
 
   if ( !m_useJOCaliPulseParams ) {
-    sc = detStore->retrieve(larCaliPulseParams);
+    sc = detStore()->retrieve(larCaliPulseParams);
     if ( sc == StatusCode::FAILURE ) {
       msg(MSG::WARNING) << "Cannot retrieve LArCaliPulseParams" << endreq ;
       return sc;
@@ -228,7 +228,7 @@ StatusCode LArPhysWavePredictor::stop()
 
   if ( !m_useJODetCellParams ) {
     if (!m_isHEC) {
-      sc = detStore->retrieve(larDetCellParams);
+      sc = detStore()->retrieve(larDetCellParams);
       if ( sc == StatusCode::FAILURE ) {
 	msg(MSG::WARNING) << "Cannot retrieve LArDetCellParams" << endreq;
 	return sc;
@@ -241,7 +241,7 @@ StatusCode LArPhysWavePredictor::stop()
   }
   
   if ( !m_useJOTdrift ) {
-    sc = detStore->retrieve(larTdrift);
+    sc = detStore()->retrieve(larTdrift);
     if ( sc == StatusCode::FAILURE ) {
       msg(MSG::WARNING) << "Cannot retrieve LArTdriftComplete" << endreq;
       return sc;
@@ -251,7 +251,7 @@ StatusCode LArPhysWavePredictor::stop()
   }
   
   if ( !m_useJOPhysCaliTdiff ) {
-    sc = detStore->retrieve(larPhysCaliTdiff);
+    sc = detStore()->retrieve(larPhysCaliTdiff);
     if ( sc == StatusCode::FAILURE ) {
       msg(MSG::WARNING) << "Cannot retrieve LArPhysCaliTdiff" << endreq; 
       return sc;
@@ -279,7 +279,7 @@ StatusCode LArPhysWavePredictor::stop()
     }
     if ( m_timeShiftByFEB ) {
       msg(MSG::INFO) << "Manually shifting pulses by *FEB* time indexes." << endreq;
-      sc = detStore->retrieve(larFebTshift);
+      sc = detStore()->retrieve(larFebTshift);
       if (sc.isFailure())
          larFebTshift = NULL;
     }
@@ -343,18 +343,10 @@ StatusCode LArPhysWavePredictor::stop()
 
   /////////////IDEAL PHYSWAVE/////////////////////////////
   // Get current LArPhysWaveContainer
-  const LArPhysWaveContainer* larIdealPhysWaveContainer;
+  const LArPhysWaveContainer* larIdealPhysWaveContainer=0;
   if(m_isHEC){
-    sc = detStore->retrieve(larIdealPhysWaveContainer,m_keyIdealPhys);
-    if (sc.isFailure()) {
-      msg(MSG::WARNING) << "LArPhysWaveContainer (key = " << m_keyIdealPhys << ") not found in StoreGate" << endreq;
-    }
-    else
-      msg(MSG::INFO) <<"LArPhysWaveContainer with (key = " << m_keyIdealPhys << ") reading from StoreGate" << endreq;
-    if ( larIdealPhysWaveContainer == NULL ) {
-      msg(MSG::ERROR) << "LArPhysWaveContainer (key = " << m_keyIdealPhys << ") is empty" << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(detStore()->retrieve(larIdealPhysWaveContainer,m_keyIdealPhys));
+    msg(MSG::INFO) <<"LArPhysWaveContainer with (key = " << m_keyIdealPhys << ") reading from StoreGate" << endreq;
   }
   /////////////IDEAL PHYSWAVE/////////////////////////////
     
@@ -369,7 +361,7 @@ StatusCode LArPhysWavePredictor::stop()
 
     // Get current LArCaliWaveContainer
     const LArCaliWaveContainer* caliWaveContainer;
-    sc = detStore->retrieve(caliWaveContainer,*key_it);
+    sc = detStore()->retrieve(caliWaveContainer,*key_it);
     if (sc.isFailure()) {
        //log << MSG::INF0 << "LArCaliWaveContainer (key = " << *key_it << ") not found in StoreGate" << endreq;
        continue;   
@@ -549,6 +541,7 @@ StatusCode LArPhysWavePredictor::stop()
 	  float Amplitude = 1. ;
           LArWFParams wfParams(Tcali,Fstep,Tdrift,Omega0,Taur,Tshaper,Amplitude);
           wfParams.setFlag( 0 ) ;  // this should contain the method used to find parameters and the gain
+          wfParams.setTdiff(Tdiff);
 	  	  
           // calibration pulse normalization 
 	  // (should be done here instead than in LArPhysWaveTool to get 
@@ -573,7 +566,7 @@ StatusCode LArPhysWavePredictor::stop()
 	  //      
 	  LArPhysWave larPhysWave;
 	  float MphysMcali ;	
-	  if(m_isHEC && emId->is_lar_hec(id)) {
+	  if(larIdealPhysWaveContainer && emId->is_lar_hec(id)) {
 	    const LArPhysWave& laridealPhysWave = larIdealPhysWaveContainer -> get(chid,gain);
 	    int LArWaveFlag=LArWave::predCali;    // 111 - for HEC Wave
 	    //int LArIdealPhysWaveFlag=LArWave::predCali;    // 111 - for HEC Wave
@@ -643,14 +636,14 @@ StatusCode LArPhysWavePredictor::stop()
 	    msg(MSG::INFO) << "Test mode selected, process only one channel!" << endreq ;
 	    
 	    // Record LArPhysWaveContainer to DetectorStore
-  	    sc = detStore->record(larPhysWaveContainer,m_keyPhys);
+  	    sc = detStore()->record(larPhysWaveContainer,m_keyPhys);
 	    if (sc.isFailure()) {
 	      msg(MSG::FATAL) << "Cannot record LArPhysWaveContainer to StoreGate! key=" << m_keyPhys << endreq;
 	      return StatusCode::FAILURE;
             }
 
             // Record LArMphysOverMcalComplete to DetectorStore
-            sc = detStore->record(MphysOverMcalComplete,m_keyMphysMcali); 
+            sc = detStore()->record(MphysOverMcalComplete,m_keyMphysMcali); 
             if (sc.isFailure()) {
               msg(MSG::FATAL) << "Cannot record LArMphysOverMcalComplete to StoreGate! key=" << m_keyMphysMcali << endreq;
               return StatusCode::FAILURE;
@@ -659,7 +652,7 @@ StatusCode LArPhysWavePredictor::stop()
             // Symlink LArMphysOverMcalComplete to ILArMphysOverMcal for further use
             ATH_MSG_DEBUG("Trying to symlink ILArMphysOverMcal with LArMphysOverMcalComplete...");
             ILArMphysOverMcal *larMphysOverMcal = NULL;
-            sc = detStore->symLink(MphysOverMcalComplete,larMphysOverMcal);
+            sc = detStore()->symLink(MphysOverMcalComplete,larMphysOverMcal);
             if (sc.isFailure()) {
               msg(MSG::FATAL) << "Could not symlink ILArMphysOverMcal with LArMphysOverMcalComplete." << endreq;
               return StatusCode::FAILURE;
@@ -717,14 +710,14 @@ StatusCode LArPhysWavePredictor::stop()
   msg(MSG::INFO) << "\n" << endreq;
 
   // Record LArPhysWaveContainer to DetectorStore
-  sc = detStore->record(larPhysWaveContainer,m_keyPhys);
+  sc = detStore()->record(larPhysWaveContainer,m_keyPhys);
   if (sc.isFailure()) {
     msg(MSG::FATAL) << "Cannot record LArPhysWaveContainer to StoreGate! key=" << m_keyPhys << endreq;
     return StatusCode::FAILURE;
   }
 
   // Record LArMphysOverMcalComplete to DetectorStore
-  sc = detStore->record(MphysOverMcalComplete,m_keyMphysMcali); 
+  sc = detStore()->record(MphysOverMcalComplete,m_keyMphysMcali); 
   if (sc.isFailure()) {
     msg(MSG::FATAL) << "Cannot record LArMphysOverMcalComplete to StoreGate! key=" << m_keyMphysMcali << endreq;
     return StatusCode::FAILURE;
@@ -733,7 +726,7 @@ StatusCode LArPhysWavePredictor::stop()
   // Symlink LArMphysOverMcalComplete to ILArMphysOverMcal for further use
   ATH_MSG_DEBUG("Trying to symlink ILArMphysOverMcal with LArMphysOverMcalComplete...");
   ILArMphysOverMcal *larMphysOverMcal = NULL;
-  sc = detStore->symLink(MphysOverMcalComplete,larMphysOverMcal);
+  sc = detStore()->symLink(MphysOverMcalComplete,larMphysOverMcal);
   if (sc.isFailure()) {
       msg(MSG::FATAL) << "Could not symlink ILArMphysOverMcal with LArMphysOverMcalComplete." << endreq;
       return StatusCode::FAILURE;

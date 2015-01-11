@@ -17,12 +17,11 @@
 
 #include "LArElecCalib/ILArPhaseTool.h"
 #include "GaudiKernel/IIncidentListener.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include <vector>
 #include <string>
 
 
-class StoreGateSvc;
 class CaloCell_ID;
 class ITriggerTime;
 
@@ -42,7 +41,7 @@ class ITriggerTime;
  * done during digitization.
  */
 class LArPhaseToolMC
-  : public AlgTool,
+  : public AthAlgTool,
     virtual public ILArPhaseTool,
     virtual public IIncidentListener
 {
@@ -85,9 +84,6 @@ private:
 
   /// Tool to calculate cell hashes.
   const CaloCell_ID* m_idhelper;
-
-  /// The event data store.
-  StoreGateSvc* m_storegate;
 
   /// Pointer to tool to get the global trigger time.
   ITriggerTime* m_trigtime_tool;

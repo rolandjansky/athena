@@ -8,8 +8,7 @@
 #ifndef LARPHYSWAVEHECTOOL_H
 #define LARPHYSWAVEHECTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "LArRawConditions/LArWFParams.h"
 #include "LArRawConditions/LArCaliWave.h"
@@ -34,7 +33,7 @@
 
 static const InterfaceID IID_LArPhysWaveHECTool("LArPhysWaveHECTool", 1 , 0); 
 
-class LArPhysWaveHECTool : public AlgTool
+class LArPhysWaveHECTool : public AthAlgTool
 {
  public: 
 

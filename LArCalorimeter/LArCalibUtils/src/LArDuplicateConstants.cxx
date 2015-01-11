@@ -19,10 +19,8 @@ typedef LArOFCComplete::ConstConditionsMapIterator OFCIt;
 typedef LArShapeComplete::ConstConditionsMapIterator ShapeIt;
 
 LArDuplicateConstants::LArDuplicateConstants (const std::string& name, ISvcLocator* pSvcLocator) 
- : Algorithm(name,pSvcLocator),
-   m_detStore(0),   
-   m_onlineHelper(0),
-   m_log(NULL)
+ : AthAlgorithm(name,pSvcLocator),
+   m_onlineHelper(0)
 {
   declareProperty("SourceGain"    , m_gainIN   = 1);
   declareProperty("TargetGain"    , m_gainOUT  = 2);
@@ -36,35 +34,23 @@ LArDuplicateConstants::LArDuplicateConstants (const std::string& name, ISvcLocat
 
 LArDuplicateConstants::~LArDuplicateConstants() 
 {
-  delete m_log;
 }
 
 
 StatusCode LArDuplicateConstants::initialize() 
 {
-  m_log = new MsgStream(msgSvc(),name());
-  (*m_log) << MSG::INFO << "Initialing " << name() << endreq;
-  (*m_log) << MSG::INFO << "INPUT  gain = " << m_gainIN  << endreq;
-  (*m_log) << MSG::INFO << "OUTPUT gain = " << m_gainOUT << endreq;
+  ATH_MSG_INFO ( "Initialing " << name() );
+  ATH_MSG_INFO ( "INPUT  gain = " << m_gainIN  );
+  ATH_MSG_INFO ( "OUTPUT gain = " << m_gainOUT );
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode LArDuplicateConstants::stop() 
 {
-  (*m_log) << MSG::INFO << "Entering LArDuplicateConstants" << endreq;
+  ATH_MSG_INFO ( "Entering LArDuplicateConstants" );
 
-  StatusCode sc = service("DetectorStore", m_detStore);
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Cannot locate DetectorStore" << endreq;
-    return sc;
-  } 
-
-  sc = m_detStore->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR <<"Could not get LArOnlineID helper"<<endreq;
-    return sc;
-  }
+  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
 
   // PEDESTAL
 
@@ -72,11 +58,7 @@ StatusCode LArDuplicateConstants::stop()
 
     const LArPedestalComplete* PedestalIN;
     LArPedestalComplete* PedestalOUT;
-    sc = m_detStore->retrieve(PedestalIN,m_keyPed);
-    if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Failed to retrieve const Pedestal object from DetectorStore with key " << m_keyPed << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( detStore()->retrieve(PedestalIN,m_keyPed) );
     PedestalOUT=const_cast<LArPedestalComplete*>(PedestalIN); // cast to non-const the same container
 
     unsigned int n_tot_ped   = 0;
@@ -85,7 +67,7 @@ StatusCode LArDuplicateConstants::stop()
     PedestalIt ped_it   = PedestalIN->begin(m_gainIN);
     PedestalIt ped_it_e = PedestalIN->end(m_gainIN);
     if ( ped_it == ped_it_e ) {
-      (*m_log) << MSG::WARNING << "LArPedestalComplete (key = " << m_keyPed << ") has no pedestals with gain = " << m_gainIN << endreq; 
+      ATH_MSG_WARNING ( "LArPedestalComplete (key = " << m_keyPed << ") has no pedestals with gain = " << m_gainIN );
     }  
     for ( ; ped_it!=ped_it_e; ped_it++) {
       const HWIdentifier chid = ped_it.channelId();
@@ -96,46 +78,38 @@ StatusCode LArDuplicateConstants::stop()
 	  n_dup_ped++;
 	  const LArPedestalP1& ped = PedestalIN->get(chid,m_gainIN);      
 	  PedestalOUT->setPdata(chid,ped,m_gainOUT);
-	  (*m_log) << MSG::VERBOSE << "Pedestal for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
-		   << " duplicated from gain " << m_gainIN << " to gain " << m_gainOUT << endreq;
+	  ATH_MSG_VERBOSE ( "Pedestal for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+                            << " duplicated from gain " << m_gainIN << " to gain " << m_gainOUT );
 	} else {
-	  (*m_log) << MSG::VERBOSE << "Pedestal for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
-		   << " in gain " << m_gainOUT << " exists! Not duplicating..." << endreq;
+	  ATH_MSG_VERBOSE ( "Pedestal for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+                            << " in gain " << m_gainOUT << " exists! Not duplicating..." );
 	}
       }
     }
-    (*m_log) << MSG::INFO << "LArPedestalComplete (key = " << m_keyPed << ") content duplicated from gain " 
-	     << m_gainIN << " to gain " << m_gainOUT 
-	     << " (" << n_dup_ped << "/" << n_tot_ped << " PS channels)" << endreq;
+    ATH_MSG_INFO ( "LArPedestalComplete (key = " << m_keyPed << ") content duplicated from gain " 
+                   << m_gainIN << " to gain " << m_gainOUT 
+                   << " (" << n_dup_ped << "/" << n_tot_ped << " PS channels)" );
   }
 
   // RAMP
 
   if (!m_keyRamp.empty()) {
 
-    const LArRampComplete* RampIN;
-    LArRampComplete* RampOUT;
-    sc = m_detStore->retrieve(RampIN,m_keyRamp);
-    if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Failed to retrieve const Ramp object from DetectorStore with key " << m_keyRamp << endreq;
-      return StatusCode::FAILURE;
-    }
+    const LArRampComplete* RampIN = nullptr;
+    LArRampComplete* RampOUT = nullptr;
+    ATH_CHECK( detStore()->retrieve(RampIN,m_keyRamp) );
     RampOUT=const_cast<LArRampComplete*>(RampIN); // cast to non-const the same container
 
     bool undoCorr=false;
 
     if (!RampOUT->correctionsApplied()) {
-      sc=RampOUT->applyCorrections();
-      if (sc.isFailure()) {
-	(*m_log) << MSG::ERROR << "Failed to apply correction!" << endreq;
-	return sc;
-      }
+      ATH_CHECK( RampOUT->applyCorrections() );
       undoCorr=true;
-      (*m_log) << MSG::INFO << "Applied corrections for Ramp" << endreq;
+      ATH_MSG_INFO ( "Applied corrections for Ramp" );
     }
     unsigned deltaGain = (m_gainOUT-m_gainIN); // Ex: 2-1  = 1
     float scaleRamp = pow(10.,deltaGain);      // Ex: 10^1 = 10
-    (*m_log) << MSG::INFO << "Ramp scale factor = " << scaleRamp << endreq;
+    ATH_MSG_INFO ( "Ramp scale factor = " << scaleRamp );
 
     unsigned int n_tot_ramp  = 0;
     unsigned int n_dup_ramp  = 0;
@@ -144,7 +118,7 @@ StatusCode LArDuplicateConstants::stop()
     RampIt ramp_it   = RampIN->begin(m_gainIN);
     RampIt ramp_it_e = RampIN->end(m_gainIN);
     if ( ramp_it == ramp_it_e ) {
-      (*m_log) << MSG::WARNING << "LArRampComplete (key = " << m_keyRamp << ") has no ramps with gain = " << m_gainIN << endreq; 
+      ATH_MSG_WARNING ( "LArRampComplete (key = " << m_keyRamp << ") has no ramps with gain = " << m_gainIN );
     }
     for ( ; ramp_it!=ramp_it_e; ramp_it++) {
       const HWIdentifier chid = ramp_it.channelId();
@@ -163,21 +137,17 @@ StatusCode LArDuplicateConstants::stop()
 	    newramp.m_vRamp[i] = ramp.m_vRamp[i] * scaleRamp;      
 	  }    
 	  RampOUT->setPdata(chid,newramp,m_gainOUT);
-	  (*m_log) << MSG::VERBOSE << "Ramp for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
-		   << " duplicated from gain " << m_gainIN << " to gain " << m_gainOUT << endreq;
+	  ATH_MSG_VERBOSE ( "Ramp for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+                            << " duplicated from gain " << m_gainIN << " to gain " << m_gainOUT );
 	} else {
-	  (*m_log) << MSG::VERBOSE << "Ramp for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
-		   << " in gain " << m_gainOUT << " exists! Not duplicating..." << endreq;
+	  ATH_MSG_VERBOSE ( "Ramp for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+                            << " in gain " << m_gainOUT << " exists! Not duplicating..." );
 	}
       }
     }
     if (undoCorr) {
-      sc=RampOUT->undoCorrections();
-      if (sc.isFailure()) {
-	(*m_log) << MSG::ERROR << "Failed to undo corrections!" << endreq;
-	return sc;
-      }
-      (*m_log) << MSG::INFO << "Undo corrections for Ramp" << endreq;
+      ATH_CHECK( RampOUT->undoCorrections() );
+      ATH_MSG_INFO ( "Undo corrections for Ramp" );
     }
     else {
       //Now work on correction channels
@@ -194,31 +164,23 @@ StatusCode LArDuplicateConstants::stop()
 	  for (unsigned i=0;i<s;i++) {      
 	    newramp.m_vRamp[i] = ramp.m_vRamp[i] * scaleRamp;      
 	  }    
-	  sc=RampOUT->insertCorrection(chid,newramp,m_gainOUT,false); 
-	  if (sc.isFailure()) {
-	    (*m_log) << MSG::ERROR << "Failed to insert correction channel" << endreq;
-	    return StatusCode::FAILURE;
-	  }
+	  ATH_CHECK( RampOUT->insertCorrection(chid,newramp,m_gainOUT,false) );
 	  ++nCorrChans;
 	}//end if isEMBPS
       } // end loop over correction channels
     }
-    (*m_log) << MSG::INFO << "LArRampComplete (key = " << m_keyRamp << ") content duplicated from gain " 
-	     << m_gainIN << " to gain " << m_gainOUT 
-	     << " (" << n_dup_ramp << "/" << n_tot_ramp << " + " << nCorrChans << " PS channels)" << endreq;    
+    ATH_MSG_INFO ( "LArRampComplete (key = " << m_keyRamp << ") content duplicated from gain " 
+                   << m_gainIN << " to gain " << m_gainOUT 
+                   << " (" << n_dup_ramp << "/" << n_tot_ramp << " + " << nCorrChans << " PS channels)" );
   }
   
   // MPHYSOVERMCALI
 
   if (!m_keyMPMC.empty()) {
 
-    const LArMphysOverMcalComplete* MphysMcaliIN;
-    LArMphysOverMcalComplete* MphysMcaliOUT;
-    sc = m_detStore->retrieve(MphysMcaliIN,m_keyMPMC);
-    if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Failed to retrieve const Mphys/Mcali object from DetectorStore with key " << m_keyMPMC << endreq;
-      return StatusCode::FAILURE;
-    }
+    const LArMphysOverMcalComplete* MphysMcaliIN = nullptr;
+    LArMphysOverMcalComplete* MphysMcaliOUT = nullptr;
+    ATH_CHECK( detStore()->retrieve(MphysMcaliIN,m_keyMPMC) );
     MphysMcaliOUT=const_cast<LArMphysOverMcalComplete*>(MphysMcaliIN); // cast to non-const the same container
     
     unsigned int n_tot_mpmc  = 0;
@@ -227,7 +189,7 @@ StatusCode LArDuplicateConstants::stop()
     MpMcIt mpmc_it   = MphysMcaliIN->begin(m_gainIN);
     MpMcIt mpmc_it_e = MphysMcaliIN->end(m_gainIN);
     if ( mpmc_it == mpmc_it_e ) {
-      (*m_log) << MSG::WARNING << "LArMphysOverMcaliComplete (key = " << m_keyMPMC << ") has no Mphys/Mcali with gain = " << m_gainIN << endreq; 
+      ATH_MSG_WARNING ( "LArMphysOverMcaliComplete (key = " << m_keyMPMC << ") has no Mphys/Mcali with gain = " << m_gainIN );
     }  
     for ( ; mpmc_it!=mpmc_it_e; mpmc_it++) {    
       const HWIdentifier chid = mpmc_it.channelId();
@@ -238,30 +200,26 @@ StatusCode LArDuplicateConstants::stop()
 	  n_dup_mpmc++;
 	  const LArSingleFloatP& mpmc = MphysMcaliIN->get(chid,m_gainIN);      
 	  MphysMcaliOUT->setPdata(chid,mpmc,m_gainOUT);
-	  (*m_log) << MSG::VERBOSE << "MpMc for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
-		   << " duplicated from gain " << m_gainIN << " to gain " << m_gainOUT << endreq;
+	  ATH_MSG_VERBOSE ( "MpMc for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+                            << " duplicated from gain " << m_gainIN << " to gain " << m_gainOUT );
 	} else {
-	  (*m_log) << MSG::VERBOSE << "MpMc for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
-		   << " in gain " << m_gainOUT << " exists! Not duplicating..." << endreq;
+	  ATH_MSG_VERBOSE ( "MpMc for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+                            << " in gain " << m_gainOUT << " exists! Not duplicating..." );
 	}
       }
     }
-    (*m_log) << MSG::INFO << "LArMphysOverMcaliComplete (key = " << m_keyMPMC << ") content duplicated from gain " 
-	     << m_gainIN << " to gain " << m_gainOUT
-	     << " (" << n_dup_mpmc << "/" << n_tot_mpmc << " PS channels)" << endreq;
+    ATH_MSG_INFO ( "LArMphysOverMcaliComplete (key = " << m_keyMPMC << ") content duplicated from gain " 
+                   << m_gainIN << " to gain " << m_gainOUT
+                   << " (" << n_dup_mpmc << "/" << n_tot_mpmc << " PS channels)" );
   }
   
   // OFC
 
   if (!m_keyOFC.empty()) {
 
-    const LArOFCComplete* OFCIN;
-    LArOFCComplete* OFCOUT;
-    sc = m_detStore->retrieve(OFCIN,m_keyOFC); 
-    if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Failed to retrieve const OFC object from DetectorStore with key " << m_keyOFC << endreq;
-      return StatusCode::FAILURE;
-    }
+    const LArOFCComplete* OFCIN = nullptr;
+    LArOFCComplete* OFCOUT = nullptr;
+    ATH_CHECK( detStore()->retrieve(OFCIN,m_keyOFC) );
     OFCOUT=const_cast<LArOFCComplete*>(OFCIN); // cast to non-const the same container
     
     unsigned int n_tot_ofc   = 0;
@@ -270,7 +228,7 @@ StatusCode LArDuplicateConstants::stop()
     OFCIt ofc_it   = OFCIN->begin(m_gainIN);
     OFCIt ofc_it_e = OFCIN->end(m_gainIN);
     if ( ofc_it == ofc_it_e ) {
-      (*m_log) << MSG::WARNING << "LArOFCComplete (key = " << m_keyOFC << ") has no OFCs with gain = " << m_gainIN << endreq; 
+      ATH_MSG_WARNING ( "LArOFCComplete (key = " << m_keyOFC << ") has no OFCs with gain = " << m_gainIN );
     }  
     for ( ; ofc_it!=ofc_it_e; ofc_it++) {    
       const HWIdentifier chid = ofc_it.channelId();
@@ -288,31 +246,27 @@ StatusCode LArDuplicateConstants::stop()
 	  n_dup_ofc++;
 	  const LArOFCP1& ofc = OFCIN->get(chid,m_gainIN); // why is this working here? Because it;s not empty?
 	  OFCOUT->setPdata(chid,ofc,m_gainOUT);
-	  (*m_log) << MSG::VERBOSE << "OFC for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
-		   << " duplicated from gain " << m_gainIN << " to gain " << m_gainOUT << endreq;      
+	  ATH_MSG_VERBOSE ( "OFC for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+                            << " duplicated from gain " << m_gainIN << " to gain " << m_gainOUT );
 	} else {
-	  (*m_log) << MSG::VERBOSE << "OFC for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
-		   << " in gain " << m_gainOUT << " exists! Not duplicating..." << endreq;
+	  ATH_MSG_VERBOSE ( "OFC for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+                            << " in gain " << m_gainOUT << " exists! Not duplicating..." );
 	  
 	}
       }
     }
-    (*m_log) << MSG::INFO << "LArOFCComplete (key = " << m_keyOFC << ") content duplicated from gain " 
-	     << m_gainIN << " to gain " << m_gainOUT 
-	     << " (" << n_dup_ofc << "/" << n_tot_ofc << " PS channels)" << endreq;
+    ATH_MSG_INFO ( "LArOFCComplete (key = " << m_keyOFC << ") content duplicated from gain " 
+                   << m_gainIN << " to gain " << m_gainOUT 
+                   << " (" << n_dup_ofc << "/" << n_tot_ofc << " PS channels)" );
   }
 
   // SHAPE
 
   if (!m_keyShape.empty()) {
 
-    const LArShapeComplete* ShapeIN;
-    LArShapeComplete* ShapeOUT;
-    sc = m_detStore->retrieve(ShapeIN,m_keyShape); 
-    if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Failed to retrieve const Shape object from DetectorStore with key " << m_keyShape << endreq;
-      return StatusCode::FAILURE;
-    }
+    const LArShapeComplete* ShapeIN = nullptr;
+    LArShapeComplete* ShapeOUT = nullptr;
+    ATH_CHECK( detStore()->retrieve(ShapeIN,m_keyShape) );
     ShapeOUT=const_cast<LArShapeComplete*>(ShapeIN); // cast to non-const the same container
     
     unsigned int n_tot_shape = 0;
@@ -321,7 +275,7 @@ StatusCode LArDuplicateConstants::stop()
     ShapeIt shape_it   = ShapeIN->begin(m_gainIN);
     ShapeIt shape_it_e = ShapeIN->end(m_gainIN);
     if ( shape_it == shape_it_e ) {
-    (*m_log) << MSG::WARNING << "LArShapeComplete (key = " << m_keyShape << ") has no Shapes with gain = " << m_gainIN << endreq; 
+      ATH_MSG_WARNING ( "LArShapeComplete (key = " << m_keyShape << ") has no Shapes with gain = " << m_gainIN );
     }  
     for ( ; shape_it!=shape_it_e; shape_it++) {    
       const HWIdentifier chid = shape_it.channelId();
@@ -337,20 +291,20 @@ StatusCode LArDuplicateConstants::stop()
 	  n_dup_shape++;
 	  const LArShapeP2& shape = ShapeIN->get(chid,m_gainIN);
 	  ShapeOUT->setPdata(chid,shape,m_gainOUT);
-	  (*m_log) << MSG::VERBOSE << "Shape for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
-		   << " duplicated from gain " << m_gainIN << " to gain " << m_gainOUT << endreq;      
+	  ATH_MSG_VERBOSE ( "Shape for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+                            << " duplicated from gain " << m_gainIN << " to gain " << m_gainOUT );
 	} else {
-	  (*m_log) << MSG::VERBOSE << "Shape for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
-		   << " in gain " << m_gainOUT << " exists! Not duplicating..." << endreq;
+	  ATH_MSG_VERBOSE ( "Shape for channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+                            << " in gain " << m_gainOUT << " exists! Not duplicating..." );
 	}
       }
     }
-    (*m_log) << MSG::INFO << "LArShapeComplete (key = " << m_keyShape << ") content duplicated from gain " 
-	     << m_gainIN << " to gain " << m_gainOUT 
-	     << " (" << n_dup_shape << "/" << n_tot_shape << " PS channels)" << endreq;
+    ATH_MSG_INFO ( "LArShapeComplete (key = " << m_keyShape << ") content duplicated from gain " 
+                   << m_gainIN << " to gain " << m_gainOUT 
+                   << " (" << n_dup_shape << "/" << n_tot_shape << " PS channels)" );
     
   }
 
-  (*m_log) << MSG::INFO << "Done with LArDuplicateConstants" << endreq;
+  ATH_MSG_INFO ( "Done with LArDuplicateConstants" );
   return StatusCode::SUCCESS;
 }

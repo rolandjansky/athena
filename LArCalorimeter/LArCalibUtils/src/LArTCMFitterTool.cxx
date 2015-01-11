@@ -27,7 +27,7 @@ void LArTCMFitterTool_fcn_wrapper(int &npar, double *gin, double &f, double *par
 
 
 LArTCMFitterTool::LArTCMFitterTool ( const std::string& type, const std::string& name,const IInterface* parent )
-  : AlgTool(type,name,parent),
+  : AthAlgTool(type,name,parent),
     m_minuit(0),
     m_minuitoutputlevel(0),
     m_taud(0),
@@ -60,11 +60,9 @@ LArTCMFitterTool::~LArTCMFitterTool()
 /////////////////////////////////////
 StatusCode LArTCMFitterTool::initialize()
 {
-	MsgStream log(msgSvc(), name());
-	
 	if( static_LArTCMFitterTool_pointer != NULL ) {
-		log << MSG::ERROR << "Problem with static pointer to the data object used by minuits FCN-function!!!" << endreq;	
-		return StatusCode::FAILURE;
+          ATH_MSG_ERROR ( "Problem with static pointer to the data object used by minuits FCN-function!!!" );
+          return StatusCode::FAILURE;
 	}
 	
 	//m_nparams = 8;
@@ -87,9 +85,6 @@ StatusCode LArTCMFitterTool::initialize()
 ////////////////////////////////////////////////////////////////////////////////////////////////
 LArPhysWave LArTCMFitterTool::Fit(const LArCaliWave &larCaliWave, const LArPhysWave &larPhysWave) 
 {  
-	
-	MsgStream log(msgSvc(), name());
-	
 	m_gCali = larCaliWave;
 	m_gPhys = larPhysWave;
 
@@ -97,7 +92,7 @@ LArPhysWave LArTCMFitterTool::Fit(const LArCaliWave &larCaliWave, const LArPhysW
 	static_LArTCMFitterTool_pointer	 = this;
 	m_minuit->SetFCN(LArTCMFitterTool_fcn_wrapper);
 	m_minuit->SetPrintLevel(m_minuitoutputlevel); // -1: no output, 1: std output
-	log<<MSG::INFO<<"Minuit and FCN initialized"<<endreq;
+	ATH_MSG_INFO("Minuit and FCN initialized");
 
 
 	// Find beginning of the caliWave
@@ -166,8 +161,8 @@ LArPhysWave LArTCMFitterTool::Fit(const LArCaliWave &larCaliWave, const LArPhysW
 	m_minuit->GetParameter(7,m_alpha,m_alphaerr);
 	m_chi2=amin;
 	
-	log<<MSG::INFO<<"Final set of parameters:"<<endreq;
-	log<<MSG::INFO<<"taud: "<<m_taud<<" tauexp: "<<m_tauexp<<" f: "<<m_f<<" w0: "<<m_w0<<" taur: "<<m_taur<<" caliStart: "<<m_caliStart<<" phyShift: "<<m_physShift<<endreq;
+	ATH_MSG_INFO("Final set of parameters:");
+	ATH_MSG_INFO("taud: "<<m_taud<<" tauexp: "<<m_tauexp<<" f: "<<m_f<<" w0: "<<m_w0<<" taur: "<<m_taur<<" caliStart: "<<m_caliStart<<" phyShift: "<<m_physShift);
 
 	delete m_minuit;
 	
@@ -190,7 +185,7 @@ LArPhysWave LArTCMFitterTool::Fit(const LArCaliWave &larCaliWave, const LArPhysW
 	
 	if(Mcal!=0) m_MphyMcal = Mphy/Mcal;
 	else m_MphyMcal=-999;
-	log<<MSG::DEBUG<<"MphyMcal: "<<m_MphyMcal<<endreq;
+	ATH_MSG_DEBUG("MphyMcal: "<<m_MphyMcal);
 	
 	//need to normalize and scale predLArPhysWave by MphyMcal
 	const unsigned int N = predLArPhysWave.getSize();

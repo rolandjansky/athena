@@ -20,9 +20,7 @@
 
 ********************************************************************/
 
-#include "GaudiKernel/Algorithm.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "LArRawEvent/LArPedestal.h"
 #include "LArRawEvent/LArDigitContainer.h"
@@ -33,7 +31,7 @@
 
 
 //-----------------------------------------------------------------------
-class LArPedestalMaker : public Algorithm
+class LArPedestalMaker : public AthAlgorithm
 //-----------------------------------------------------------------------
 {
  public:
@@ -55,11 +53,6 @@ class LArPedestalMaker : public Algorithm
   StatusCode finalize(){return StatusCode::SUCCESS;}
   
  private:
-
-  // StoreGate service
-  StoreGateSvc * m_storeGateSvc;
-  StoreGateSvc * m_detStore;
-
   // Container key list
   std::vector<std::string> m_keylist;
   std::string m_keyoutput;

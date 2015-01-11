@@ -8,13 +8,11 @@
 #ifndef LARCALIWAVEMERGER_H
 #define LARCALIWAVEMERGER_H
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArRawConditions/LArCaliWaveContainer.h"
 #include <string>
 
-class LArCaliWaveMerger : public Algorithm
+class LArCaliWaveMerger : public AthAlgorithm
 {
 
  public:

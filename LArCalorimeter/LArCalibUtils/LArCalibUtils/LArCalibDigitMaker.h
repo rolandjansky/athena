@@ -4,16 +4,14 @@
 
 #ifndef LARCALIBDIGITMAKER
 #define LARCALIBDIGITMAKER
-#include "GaudiKernel/Algorithm.h"
-//#include "GaudiKernel/MsgStream.h"
-#include  "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "LArRawEvent/LArDigitContainer.h"
 #include "GaudiKernel/ToolHandle.h"	// Modif J. Labbe from JF Marchand - Nov. 2009
 #include "LArTools/LArCablingService.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include <fstream>
 
-class LArCalibDigitMaker : public Algorithm
+class LArCalibDigitMaker : public AthAlgorithm
 {
  public:
   LArCalibDigitMaker(const std::string & name, ISvcLocator * pSvcLocator);
@@ -25,7 +23,6 @@ class LArCalibDigitMaker : public Algorithm
   StatusCode execute();
   StatusCode finalize(){return StatusCode::SUCCESS;}
  private:
-  StoreGateSvc *m_storeGateSvc, *m_detStore;
   ToolHandle<LArCablingService> m_larCablingSvc; //   LArCablingService *m_larCablingSvc; 	// Modif J. Labbe from JF Marchand - Nov. 2009
   //const LArOnlineID* m_onlineHelper;
   //JobOpts:

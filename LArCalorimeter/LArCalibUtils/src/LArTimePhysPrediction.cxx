@@ -28,7 +28,7 @@ typedef LArCaliWaveContainer::ConstConditionsMapIterator CaliCellIt;
 typedef LArCaliWaveContainer::LArCaliWaves::const_iterator CaliWaveIt;
 
 LArTimePhysPrediction::LArTimePhysPrediction (const std::string& name, ISvcLocator* pSvcLocator) : 
-  Algorithm(name, pSvcLocator),
+  AthAlgorithm(name, pSvcLocator),
   m_thistSvc(0),
   m_CaloDepthTool(0),
   m_nt(0)  
@@ -61,21 +61,13 @@ LArTimePhysPrediction::~LArTimePhysPrediction()
 
 StatusCode LArTimePhysPrediction::initialize() 
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "LArTimePhysPrediction in initialize()" << endreq ;
-  StatusCode sc;  
-  
-  //Initialize histograms
-  sc = service("THistSvc", m_thistSvc);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to retrieve pointer to THistSvc" << endreq;
-    return sc;
-  }
+  ATH_MSG_INFO ( "LArTimePhysPrediction in initialize()" );
+  ATH_CHECK( service("THistSvc", m_thistSvc) );
   
   //Initialize ntuples
   NTupleFilePtr file1(ntupleSvc(),"/NTUPLES/FILE1");
   if (!file1){
-    log  << MSG::ERROR << "Could not get NTupleFilePtr: failed" << endreq;
+    ATH_MSG_ERROR ( "Could not get NTupleFilePtr: failed" );
     return StatusCode::FAILURE;
   }
   NTuplePtr nt(ntupleSvc(),"/NTUPLES/FILE1/MyNtuple");
@@ -83,142 +75,44 @@ StatusCode LArTimePhysPrediction::initialize()
     nt=ntupleSvc()->book("/NTUPLES/FILE1/MyNtuple",CLID_ColumnWiseTuple,"Timing ntuple");
   }
   if (!nt){
-    log  << MSG::ERROR << "Booking of NTuple failed" << endreq;
+    ATH_MSG_ERROR ( "Booking of NTuple failed" );
     return StatusCode::FAILURE; 
   }
   
   m_nt=nt;
     
   //Book leaves 
-  sc=nt->addItem("Chid",m_Chid);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem Chid failed" << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc=nt->addItem("Channel",m_Channel);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem Channel failed" << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc=nt->addItem("CalibLine",m_CalibLine);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem CalibLine" << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc=nt->addItem("is_lar_em",m_is_lar_em);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem is_lar_em failed" << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc=nt->addItem("is_lar_hec",m_is_lar_hec);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem is_lar_hec failed" << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc=nt->addItem("is_lar_fcal",m_is_lar_fcal);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem is_lar_fcal failed" << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc=nt->addItem("pos_neg",m_pos_neg);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem pos_neg failed" << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc=nt->addItem("barrel_ec",m_barrel_ec);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem barrel_ec failed" << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc=nt->addItem("FT",m_FT);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem FT failed" << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc=nt->addItem("FEBid",m_FEBid);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem FEBid failed" << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc=nt->addItem("slot",m_slot);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem slot failed" << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc=nt->addItem("eta",m_eta);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem eta failed" << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc=nt->addItem("phi",m_phi);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem phi failed" << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc=nt->addItem("layer",m_layer);
- if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem layer failed" << endreq;
-    return StatusCode::FAILURE;
-  }
- sc=nt->addItem("real_eta",m_real_eta);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem real_eta failed" << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc=nt->addItem("real_phi",m_real_phi);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem real_phi failed" << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc=nt->addItem("t0",m_t0);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem t0 failed" << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc=nt->addItem("tcali",m_tcali);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem tcali failed" << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc=nt->addItem("tCalibPredicted",m_tCalibPredicted);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem tCalibPredicted failed" << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc=nt->addItem("CalibCables",m_CalibCables);
-  if (sc!=StatusCode::SUCCESS) {
-   log << MSG::ERROR << "addItem CalibCables failed" << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc=nt->addItem("SignalCables",m_SignalCables);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem SignalCables failed" << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc=nt->addItem("TOF",m_TOF);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem TOF failed" << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc=nt->addItem("DeltaTTC",m_DeltaTTC);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem DeltaTTC failed" << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc=nt->addItem("tPhysPredicted",m_tPhysPredicted);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem tPhysPredicted failed" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( nt->addItem("Chid",m_Chid) );
+  ATH_CHECK( nt->addItem("Channel",m_Channel) );
+  ATH_CHECK( nt->addItem("CalibLine",m_CalibLine) );
+  ATH_CHECK( nt->addItem("is_lar_em",m_is_lar_em) );
+  ATH_CHECK( nt->addItem("is_lar_hec",m_is_lar_hec) );
+  ATH_CHECK( nt->addItem("is_lar_fcal",m_is_lar_fcal) );
+  ATH_CHECK( nt->addItem("pos_neg",m_pos_neg) );
+  ATH_CHECK( nt->addItem("barrel_ec",m_barrel_ec) );
+  ATH_CHECK( nt->addItem("FT",m_FT) );
+  ATH_CHECK( nt->addItem("FEBid",m_FEBid) );
+  ATH_CHECK( nt->addItem("slot",m_slot) );
+  ATH_CHECK( nt->addItem("eta",m_eta) );
+  ATH_CHECK( nt->addItem("phi",m_phi) );
+  ATH_CHECK( nt->addItem("layer",m_layer) );
+  ATH_CHECK( nt->addItem("real_eta",m_real_eta) );
+  ATH_CHECK( nt->addItem("real_phi",m_real_phi) );
+  ATH_CHECK( nt->addItem("t0",m_t0) );
+  ATH_CHECK( nt->addItem("tcali",m_tcali) );
+  ATH_CHECK( nt->addItem("tCalibPredicted",m_tCalibPredicted) );
+  ATH_CHECK( nt->addItem("CalibCables",m_CalibCables) );
+  ATH_CHECK( nt->addItem("SignalCables",m_SignalCables) );
+  ATH_CHECK( nt->addItem("TOF",m_TOF) );
+  ATH_CHECK( nt->addItem("DeltaTTC",m_DeltaTTC) );
+  ATH_CHECK( nt->addItem("tPhysPredicted",m_tPhysPredicted) );
   
- return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode LArTimePhysPrediction::stop() 
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "LArTimePhysPrediction in stop()" << endreq ;
-  StatusCode sc;
+  ATH_MSG_INFO ( "LArTimePhysPrediction in stop()" );
   //Intermediate variables declaration (should be removed in an updated version)
   const double meter2ns = 3.33564095;
   int Channel;
@@ -242,89 +136,38 @@ StatusCode LArTimePhysPrediction::stop()
   double real_phi;
   double radius=0;
   
-  //DetectorStore
-  StoreGateSvc* detStore; 
-  sc = service("DetectorStore",detStore);
-  if (sc != StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Cannot get DetectorStore!" << endreq;
-    return sc;
-  }
-
   //Retrieve the LArCaliwaveContainer
-  const LArCaliWaveContainer* larCaliWaveContainer;    
-  sc = detStore->retrieve(larCaliWaveContainer, m_keyinput);
-  if (sc.isFailure()) {
-    log << MSG::WARNING << "Cannot read LArCaliWaveContainer from StoreGate with key = " << m_keyinput << endreq;
-    return StatusCode::FAILURE;
-  } else {
-    log << MSG::INFO << "Loaded LArCaliWaveContainer with key = " << m_keyinput << endreq;
-  }
+  const LArCaliWaveContainer* larCaliWaveContainer = nullptr;
+  ATH_CHECK( detStore()->retrieve(larCaliWaveContainer, m_keyinput) );
+  ATH_MSG_INFO ( "Loaded LArCaliWaveContainer with key = " << m_keyinput );
 
   //Create the LArPhysCaliTdiffComplete object
   LArPhysCaliTdiffComplete *larPhysCaliTdiffComplete = new LArPhysCaliTdiffComplete();
-  sc=larPhysCaliTdiffComplete->setGroupingType(m_groupingType,log);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Failed to set groupingType for LArPhysCaliTdiffComplete object" << endreq;
-    return sc;
-  }
-  
-  sc=larPhysCaliTdiffComplete->initialize(); 
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Failed to initialize LArPhysCaliTdiffComplete object" << endreq;
-    return sc;
-  }
+  ATH_CHECK( larPhysCaliTdiffComplete->setGroupingType(m_groupingType,msg()) );
+  ATH_CHECK( larPhysCaliTdiffComplete->initialize() );
 
-  //Pointer to Tool Service
-  IToolSvc* p_toolSvc = 0;
-  sc = service("ToolSvc", p_toolSvc);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << " Tool Service not found " << endreq;
-    return StatusCode::FAILURE;
-  } else {
-    
-    //Create CaloDepthTool
-    IAlgTool* algTool;
-    sc = p_toolSvc->retrieveTool("CaloDepthTool", algTool, this);
-    
-    if (sc.isFailure()) {
-      log << MSG::FATAL
-	  << "Unable to find tool for CaloDepthTool"
-	  << endreq; 
-      return sc;
-    }
-    else 
-      {
-	m_CaloDepthTool=dynamic_cast<CaloDepthTool*>(algTool);
-	log << MSG::INFO << "CaloDepthTool retrieved with name " << m_CaloDepth << endreq;
-      }
-  }
+  IAlgTool* algTool = nullptr;
+  ATH_CHECK( toolSvc()->retrieveTool("CaloDepthTool", algTool, this) );
+  m_CaloDepthTool=dynamic_cast<CaloDepthTool*>(algTool);
+  ATH_MSG_INFO ( "CaloDepthTool retrieved with name " << m_CaloDepth );
   
   //LArCablingSvc
   ToolHandle<LArCablingService> larCablingSvc("LArCablingService");
-  sc = larCablingSvc.retrieve();
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << " Can't get LArCablingSvc " << endreq;
-    return sc;
-  }
+  ATH_CHECK( larCablingSvc.retrieve() );
   
   //Define helpers
   LArWaveHelper larWaveHelper;
   
-  const LArOnlineID* m_onlineHelper;
-  sc = detStore->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Can't get LArOnlineID helper " << endreq;
-    return StatusCode::FAILURE;
-  }
+  const LArOnlineID* m_onlineHelper = nullptr;
+  ATH_CHECK(  detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
   
   //Calo DDM gives "detector description"
   //including real positions of cells
   const CaloDetDescrManager* caloDDM = CaloDetDescrManager::instance() ;
   if ( ! caloDDM->isInitialized() )
     {
-      log << MSG::ERROR
-	  << "CaloDetDescrManager is not initialized, module unusable!"
-	  << endreq;
+      ATH_MSG_ERROR
+        ( "CaloDetDescrManager is not initialized, module unusable!" );
       return false;
     }
     
@@ -347,10 +190,10 @@ StatusCode LArTimePhysPrediction::stop()
       CaliCellIt cell_it_e = larCaliWaveContainer->end(gain_it) ;
       
       if ( cell_it == cell_it_e ) {
-	log << MSG::DEBUG << "LArCaliWaveContainer (key = " << m_keyinput << ") has no wave with gain = " << gain_it << endreq;
+	ATH_MSG_DEBUG ( "LArCaliWaveContainer (key = " << m_keyinput << ") has no wave with gain = " << gain_it );
 	continue;
       } else {
-	log << MSG::INFO << "Processing LArCaliWaveContainer (key = " << m_keyinput << ") in gain = " << gain_it << endreq;
+	ATH_MSG_INFO ( "Processing LArCaliWaveContainer (key = " << m_keyinput << ") in gain = " << gain_it );
       }
       
       //counters for channels and waves
@@ -366,7 +209,7 @@ StatusCode LArTimePhysPrediction::stop()
 	CaliWaveIt wave_it = cell_it->begin();
 	CaliWaveIt wave_it_e = cell_it->end();
 	if ( wave_it == wave_it_e ) {
-	  log << MSG::DEBUG << "Empty channel found..." << endreq ;
+	  ATH_MSG_DEBUG ( "Empty channel found..." );
 	  continue; // skip empty channels
 	} 
       
@@ -382,7 +225,7 @@ StatusCode LArTimePhysPrediction::stop()
 	try {
 	  id = larCablingSvc->cnvToIdentifier(chid);   
 	} catch ( LArID_Exception ) {
-	  log << MSG::ERROR << "LArCablingSvc exception caught for channel " << MSG::hex << chid << MSG::dec << endreq ;
+	  ATH_MSG_ERROR ( "LArCablingSvc exception caught for channel " << MSG::hex << chid << MSG::dec );
 	  continue;
 	}
 
@@ -405,7 +248,10 @@ StatusCode LArTimePhysPrediction::stop()
 	  eta=m_fcalId->eta(id); 
 	  phi=m_fcalId->phi(id);
 	  layer=m_fcalId->module(id);}
-	else { log << MSG::INFO << "cell not in the calorimeters " << endreq; continue;}
+	else {
+          ATH_MSG_INFO ( "cell not in the calorimeters " );
+          continue;
+        }
 	  
 	//identification using the online helper (common to all LAr calorimeters)
 	pos_neg = m_onlineHelper->pos_neg(chid);
@@ -422,7 +268,7 @@ StatusCode LArTimePhysPrediction::stop()
 	const CaloDetDescrElement* theDDE = caloDDM->get_element(theHash) ;
 	
 	if(theDDE==0) {
-	  log << MSG::INFO << "CellIndex =  " << theHash << " has a DDE pointer NULL " << endreq;
+	  ATH_MSG_INFO ( "CellIndex =  " << theHash << " has a DDE pointer NULL " );
 	  continue;
 	}
 	
@@ -618,16 +464,9 @@ StatusCode LArTimePhysPrediction::stop()
 	  //m_SignalCables: already filled
 	  //m_tCalibPredicted: already filled (computation to be finalized) 
 	  
-	  log << MSG::VERBOSE << "Try to write to ntuple " << endreq ;
-	  sc=ntupleService()->writeRecord(m_nt);
-	  if (sc!=StatusCode::SUCCESS) {
-	    log << MSG::ERROR << "writeRecord failed" << endreq;
-	    return StatusCode::FAILURE;
-	  } else {
-	    log << MSG::VERBOSE << "wave written to ntuple" << endreq ;
-	  }
-
-	  
+	  ATH_MSG_VERBOSE ( "Try to write to ntuple " );
+	  ATH_CHECK( ntupleService()->writeRecord(m_nt) );
+          ATH_MSG_VERBOSE ( "wave written to ntuple" );
 	} // end of loop over DACs 	
 	
       }// end of loop over Channels
@@ -656,6 +495,6 @@ StatusCode LArTimePhysPrediction::stop()
     //-----------------------------------end of the main loop-------------------------------------------------------------------------
     //--------------------------------------------------------------------------------------------------------------------------------
     
-    log << MSG::INFO << "end of stop" << endreq;
+    ATH_MSG_INFO ( "end of stop" );
     return StatusCode::SUCCESS ;
 }

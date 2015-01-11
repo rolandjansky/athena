@@ -18,8 +18,7 @@
 ********************************************************************/
 
 // Include files
-#include "GaudiKernel/Algorithm.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "LArRawEvent/LArPedestal.h"
 #include "LArRawEvent/LArDigitContainer.h"
@@ -32,7 +31,7 @@
 typedef std::vector<LArPedestal> LArPedestalVect;
 
 //-----------------------------------------------------------------------
-class LArPedestalInPhysicsMaker : public Algorithm
+class LArPedestalInPhysicsMaker : public AthAlgorithm
 //-----------------------------------------------------------------------
 {
  public:
@@ -56,11 +55,6 @@ class LArPedestalInPhysicsMaker : public Algorithm
   StatusCode fillDB();
 
  private:
-
-  // StoreGate service
-  StoreGateSvc * m_storeGateSvc;
-  StoreGateSvc * m_detStore;
-
   // Container key list
   std::vector<std::string> m_keylist;//, m_keylistproperty;
   std::string m_keyoutput;

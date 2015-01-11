@@ -17,8 +17,7 @@
 typedef std::map<int, LArCaliWave> WaveMap;
   
 LArCaliWaveAverage::LArCaliWaveAverage(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator),
-  m_detStore(0),
+  AthAlgorithm(name, pSvcLocator),
   m_larCablingSvc(0),
   m_onlineHelper(0),
   m_emId(0),
@@ -36,48 +35,32 @@ LArCaliWaveAverage::LArCaliWaveAverage(const std::string& name, ISvcLocator* pSv
 LArCaliWaveAverage::~LArCaliWaveAverage() {}
 
 StatusCode LArCaliWaveAverage::initialize() {
-  MsgStream log(msgSvc(), name());
-  
-  StatusCode sc = service("DetectorStore",m_detStore);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Cannot get DetectorStore!" << endreq;
-    return sc;
-  }
-  
   const CaloIdManager *caloIdMgr = CaloIdManager::instance();
   m_emId = caloIdMgr->getEM_ID();
   if (!m_emId) {
-    log << MSG::ERROR << "Could not get lar EM ID helper!" << endreq;
+    ATH_MSG_ERROR ( "Could not get lar EM ID helper!" );
     return StatusCode::FAILURE;
   }
   m_fcalId=caloIdMgr->getFCAL_ID();
   if (!m_fcalId) {
-    log << MSG::ERROR << "Could not get lar FCAL ID helper" << endreq;
+    ATH_MSG_ERROR ( "Could not get lar FCAL ID helper" );
     return StatusCode::FAILURE;
   }
   m_hecId=caloIdMgr->getHEC_ID();
   if (!m_hecId) {
-    log << MSG::ERROR << "Could not get lar HEC ID helper" << endreq;
+    ATH_MSG_ERROR ( "Could not get lar HEC ID helper" );
     return StatusCode::FAILURE;
   }
 
-  sc = m_detStore->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID!" << endreq;
-    return sc;
-  }
+  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
   
   ToolHandle<LArCablingService> larCablingSvc("LArCablingService");
-  sc = larCablingSvc.retrieve();
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << " Can't get LArCablingSvc " << endreq;
-    return sc;
-  }
+  ATH_CHECK( larCablingSvc.retrieve() );
 
   if ( m_chids.size() > 0 ) {
-     log << MSG::INFO << m_chids.size() << " channels selected for averaging." << endreq;
+    ATH_MSG_INFO ( m_chids.size() << " channels selected for averaging." );
   } else {
-    log << MSG::ERROR << "No channels selected for averaging!" << endreq;
+    ATH_MSG_ERROR ( "No channels selected for averaging!" );
     return StatusCode::FAILURE;
   }
 
@@ -85,48 +68,32 @@ StatusCode LArCaliWaveAverage::initialize() {
 }
 
 StatusCode LArCaliWaveAverage::execute() {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "execute()" << endreq;
+  ATH_MSG_INFO ( "execute()" );
   return StatusCode::SUCCESS;
 }
 
 StatusCode LArCaliWaveAverage::stop() {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "stop()" << endreq;
+  ATH_MSG_INFO ( "stop()" );
   
   // Get input LArCaliWaveContainer
   const LArCaliWaveContainer* theLArCaliWaveContainer;
-  StatusCode sc = m_detStore->retrieve(theLArCaliWaveContainer,m_keyInput);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "LArCaliWaveContainer (key = " << m_keyInput << ") not found in StoreGate" << endreq;
-    return sc;
-  }
+  ATH_CHECK( detStore()->retrieve(theLArCaliWaveContainer,m_keyInput) );
   if ( theLArCaliWaveContainer == NULL ) {
-    log << MSG::ERROR << "LArCaliWaveContainer (key = " << m_keyInput << ") is empty" << endreq;
+    ATH_MSG_ERROR ( "LArCaliWaveContainer (key = " << m_keyInput << ") is empty" );
     return StatusCode::FAILURE;
   }
   
   // create correction LArCaliWaveContainer
   LArCaliWaveContainer* larCaliWaveContainerCorr = new LArCaliWaveContainer();
-  if (larCaliWaveContainerCorr->setGroupingType(m_groupingType,log).isFailure()) {
-    log << MSG::ERROR << "Failed to set groupingType for LArCaliWaveContainer object" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  if (larCaliWaveContainerCorr->initialize().isFailure()) {
-    log << MSG::ERROR << "Failed to initialize LArCaliWaveContainer object" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( larCaliWaveContainerCorr->setGroupingType(m_groupingType,msg()) );
+  ATH_CHECK( larCaliWaveContainerCorr->initialize() );
   
   // create symmetric waves LArCaliWaveContainer
   LArCaliWaveContainer* larCaliWaveContainerSymm = new LArCaliWaveContainer();
-  if (larCaliWaveContainerSymm->setGroupingType(m_groupingType,log).isFailure()) {
-    log << MSG::ERROR << "Failed to set groupingType for LArCaliWaveContainer object" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( larCaliWaveContainerSymm->setGroupingType(m_groupingType,msg()) );
 
   if (larCaliWaveContainerSymm->initialize()) {
-    log << MSG::ERROR << "Failed to initialize LArCaliWaveContainer object" << endreq;
+    ATH_MSG_ERROR ( "Failed to initialize LArCaliWaveContainer object" );
     return StatusCode::FAILURE;
   }
   
@@ -137,23 +104,22 @@ StatusCode LArCaliWaveAverage::stop() {
     std::vector<HWIdentifier> theSymmetricChannels = SymmetricChannels(chid,m_chids);
     
     if ( theSymmetricChannels.size() == 0) {
-      log << MSG::WARNING << "No symmetric channels found for channel 0x" << MSG::hex << chid << MSG::dec << ". Cannot average." << endreq;    
+      ATH_MSG_WARNING ( "No symmetric channels found for channel 0x" << MSG::hex << chid << MSG::dec << ". Cannot average." );
       continue;
     } 
     
-    log << MSG::INFO << theSymmetricChannels.size() << " symmetric channels indentified for channel 0x" << MSG::hex << chid << MSG::dec << endreq;    
+    ATH_MSG_INFO ( theSymmetricChannels.size() << " symmetric channels indentified for channel 0x" << MSG::hex << chid << MSG::dec );
     
     for ( unsigned gain = CaloGain::LARHIGHGAIN ; gain < CaloGain::LARNGAIN ; ++ gain ) { // loop over gains
       
-      log << MSG::VERBOSE << "Now processing gain = " << gain << endreq;
+      ATH_MSG_VERBOSE ( "Now processing gain = " << gain );
     
       // get Wave vector for current ChID/Gain, assuming it exists
       const LArCaliWaveContainer::LArCaliWaves& theCaliWaves = theLArCaliWaveContainer->get(chid,gain);
       if ( theCaliWaves.size()==0 ){
-        log << MSG::WARNING << "No pulses found for channel 0x" << MSG::hex << chid << MSG::dec 
-	                    << " in gain " << gain 
-			    << ". Are you sure that readout is working? For the time being I'm skipping..."
-			    << endreq;
+        ATH_MSG_WARNING ( "No pulses found for channel 0x" << MSG::hex << chid << MSG::dec 
+                          << " in gain " << gain 
+                          << ". Are you sure that readout is working? For the time being I'm skipping..." );
         continue;	
       }
 
@@ -186,20 +152,19 @@ StatusCode LArCaliWaveAverage::stop() {
 	
 	if ( theSymmetricWavesThisDAC.size()>0 ) {
 	  
-	  log << MSG::INFO << theSymmetricWavesThisDAC.size() 
-	                   << " symmetric LArCaliWaves found for channel 0x" << MSG::hex << chid << MSG::dec 
-	                   << " for DAC " << theDAC << " in gain " << gain 
-                           << ". Now averaging ... " 
-			   << endreq;  
+	  ATH_MSG_INFO ( theSymmetricWavesThisDAC.size() 
+                         << " symmetric LArCaliWaves found for channel 0x" << MSG::hex << chid << MSG::dec 
+                         << " for DAC " << theDAC << " in gain " << gain 
+                         << ". Now averaging ... "  );
 	  
 	  // Average symmetric waves corresponding to this DAC/gain
           LArCaliWave theAverageWave = WaveAverage(theSymmetricWavesThisDAC);
 
-	  log << MSG::VERBOSE << "... Done. Saving average to LArCaliWave vector." << endreq;
+	  ATH_MSG_VERBOSE ( "... Done. Saving average to LArCaliWave vector." );
 	  
 	  theAverageWaves.push_back(theAverageWave);
 
-          log << MSG::VERBOSE << "Storing symmetric waves for the current DAC..." << endreq;
+          ATH_MSG_VERBOSE ( "Storing symmetric waves for the current DAC..." );
 
           for (unsigned kSym=0;kSym<theSymmetricWavesThisDAC.size();++kSym) {
 	    theSymmetricWavesAll.push_back(theSymmetricWavesThisDAC[kSym]);
@@ -207,18 +172,18 @@ StatusCode LArCaliWaveAverage::stop() {
 
 
         } else {
-	  log << MSG::WARNING << "No symmetrich waves found for channel 0x" << MSG::hex << chid << MSG::dec 
-	                      << " for DAC " << theDAC << ": no average will be computed." << endreq;  
+	  ATH_MSG_WARNING ( "No symmetrich waves found for channel 0x" << MSG::hex << chid << MSG::dec 
+                            << " for DAC " << theDAC << ": no average will be computed." );
 	}
 		
       } // end of loop over DAC values  
     
       // fill new LArCaliWaveContainer with average wave
-      log << MSG::VERBOSE << "Saving LArCaliWave vector to correction container." << endreq;
+      ATH_MSG_VERBOSE ( "Saving LArCaliWave vector to correction container." );
       larCaliWaveContainerCorr->setPdata(chid,theAverageWaves,gain);
 
       // store symmetric waves in other LArCaliWaveContainer (this is working only for a sinle DAC value!)
-      log << MSG::VERBOSE << "Saving LArCaliWave vector to symmetric waves' container (flag contains FT info)" << endreq;
+      ATH_MSG_VERBOSE ( "Saving LArCaliWave vector to symmetric waves' container (flag contains FT info)" );
       larCaliWaveContainerSymm->setPdata(chid,theSymmetricWavesAll,gain);
 
     } // end of loop over gains
@@ -226,18 +191,8 @@ StatusCode LArCaliWaveAverage::stop() {
   } // end of loop over selected channels
   
   // Record average LArCaliWaveContainer to DetectorStore
-  sc=m_detStore->record(larCaliWaveContainerCorr,m_keyOutputCorr);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "Cannot record LArCaliWaveContainer to StoreGate with key = " << m_keyOutputCorr << endreq;
-    return sc;
-  }
-
-  sc=m_detStore->record(larCaliWaveContainerSymm,m_keyOutputSymm);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "Cannot record LArCaliWaveContainer to StoreGate with key = " << m_keyOutputSymm << endreq;
-    return sc;
-  }
-  
+  ATH_CHECK( detStore()->record(larCaliWaveContainerCorr,m_keyOutputCorr) );
+  ATH_CHECK( detStore()->record(larCaliWaveContainerSymm,m_keyOutputSymm) );
   return StatusCode::SUCCESS;
 }
 
@@ -247,9 +202,7 @@ StatusCode LArCaliWaveAverage::stop() {
 */
 std::vector<HWIdentifier> LArCaliWaveAverage::SymmetricChannels(HWIdentifier ChID, std::vector<unsigned> ChannelsNotToUse) 
 {
-  MsgStream log(msgSvc(), name());
-
-  log << MSG::VERBOSE << "Seeking symmetric cells for channel 0x" << MSG::hex << ChID << MSG::dec << endreq;
+  ATH_MSG_VERBOSE ( "Seeking symmetric cells for channel 0x" << MSG::hex << ChID << MSG::dec );
   
   std::vector<HWIdentifier> theSymmetricChannels;
   theSymmetricChannels.resize(0);
@@ -258,7 +211,7 @@ std::vector<HWIdentifier> LArCaliWaveAverage::SymmetricChannels(HWIdentifier ChI
   try {
     id = m_larCablingSvc->cnvToIdentifier(ChID);
   } catch (LArID_Exception & execpt) {
-    log << MSG::ERROR << "LArCabling exception caught for channel 0x" << MSG::hex << ChID << MSG::dec << endreq ;
+    ATH_MSG_ERROR ( "LArCabling exception caught for channel 0x" << MSG::hex << ChID << MSG::dec );
     return theSymmetricChannels;
   }
   
@@ -305,25 +258,25 @@ std::vector<HWIdentifier> LArCaliWaveAverage::SymmetricChannels(HWIdentifier ChI
      */
   }
 
-  log << MSG::VERBOSE << "  Detector  = "  << detector  << endreq;
-  log << MSG::VERBOSE << "  PosNeg    = "  << pos_neg   << endreq;
-  log << MSG::VERBOSE << "  Barrel/EC = "  << barrel_ec << endreq;
+  ATH_MSG_VERBOSE ( "  Detector  = "  << detector  );
+  ATH_MSG_VERBOSE ( "  PosNeg    = "  << pos_neg   );
+  ATH_MSG_VERBOSE ( "  Barrel/EC = "  << barrel_ec );
 
-  log << MSG::VERBOSE << "  FT        = "  << FT      << endreq;
-  log << MSG::VERBOSE << "  Slot      = "  << slot    << endreq;
-  log << MSG::VERBOSE << "  Channel   = "  << channel << endreq;
+  ATH_MSG_VERBOSE ( "  FT        = "  << FT      );
+  ATH_MSG_VERBOSE ( "  Slot      = "  << slot    );
+  ATH_MSG_VERBOSE ( "  Channel   = "  << channel );
   
   /*
-  log << MSG::VERBOSE << "  Region   = "   << region << endreq;
-  log << MSG::VERBOSE << "  Layer    = "   << layer  << endreq;  
-  log << MSG::VERBOSE << "  Eta      = "   << eta    << endreq;
-  log << MSG::VERBOSE << "  Phi      = "   << phi    << endreq;
+    ATH_MSG_VERBOSE ( "  Region   = "   << region );
+    ATH_MSG_VERBOSE ( "  Layer    = "   << layer  );
+    ATH_MSG_VERBOSE ( "  Eta      = "   << eta    );
+    ATH_MSG_VERBOSE ( "  Phi      = "   << phi    );
   */
   
   unsigned nFT = 0;
   
   if ( detector != 0 ) {
-    log << MSG::ERROR << "Sorry, still implemented for EM only :-(" << endreq ;
+    ATH_MSG_ERROR ( "Sorry, still implemented for EM only :-(" );
     return theSymmetricChannels;   
   } else {
     nFT = 32;
@@ -353,15 +306,13 @@ std::vector<HWIdentifier> LArCaliWaveAverage::SymmetricChannels(HWIdentifier ChI
 
 LArCaliWave LArCaliWaveAverage::WaveAverage(std::vector<LArCaliWave> ToBeAveraged) 
 {   
-  MsgStream log(msgSvc(), name()); 
-  
   if ( ToBeAveraged.size()>0 ) { 
     
-    log << MSG::VERBOSE << "... Averaging wave number 1" << endreq;
+    ATH_MSG_VERBOSE ( "... Averaging wave number 1" );
     LArWave theWaveAverage = (LArWave)ToBeAveraged[0];
     
     for (unsigned i=1;i<ToBeAveraged.size();++i) {
-      log << MSG::VERBOSE << "... Averaging wave number " << i+1 << endreq;
+      ATH_MSG_VERBOSE ( "... Averaging wave number " << i+1 );
       theWaveAverage = theWaveAverage + (LArWave)ToBeAveraged[i];
     }
     

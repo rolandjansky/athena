@@ -28,8 +28,7 @@
 
 #include "StoreGate/DataHandle.h"
 #include "LArIdentifier/LArOnlineID.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 //#include "LArRawEvent/LArFEB_Digit.h"
 #include "TBEvent/TBPhase.h"
@@ -43,9 +42,7 @@
 #include <vector>
 
 LArPedestalInPhysicsMaker::LArPedestalInPhysicsMaker(const std::string& name, ISvcLocator* pSvcLocator) 
-  : Algorithm(name, pSvcLocator),
-    m_storeGateSvc(0),
-    m_detStore(0),
+  : AthAlgorithm(name, pSvcLocator),
     m_groupingType("SubDetector") // SubDetector, Single, FeedThrough
 {
   m_count = 0;
@@ -78,11 +75,7 @@ LArPedestalInPhysicsMaker::~LArPedestalInPhysicsMaker()
 StatusCode LArPedestalInPhysicsMaker::initialize()
 //---------------------------------------------------------------------------
 {
-  StatusCode sc;
-  
-  // Use the message service
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << ">>> Initialize" << endreq;
+  ATH_MSG_INFO ( ">>> Initialize" );
 
   m_mean.resize(1);
   m_rms.resize(1);  
@@ -90,31 +83,8 @@ StatusCode LArPedestalInPhysicsMaker::initialize()
   // create persistent structure vector
   //vPedestal = new LArPedestalP1();
 
-  // StoreGate service
-  sc = service("StoreGateSvc", m_storeGateSvc);
-  if (sc.isFailure()) 
-    {
-      log << MSG::FATAL << " StoreGate service not found " << std::endl;
-      sc = StatusCode::FAILURE; 
-      return sc;
-    }
-
-  // Get DetectorStore service
-  sc = service("DetectorStore", m_detStore);
-  if (sc.isFailure()) 
-    {
-      log << MSG::FATAL << " DetectorStore service not found " << std::endl;
-      sc = StatusCode::FAILURE; 
-      return sc;
-    }
-  
-  // Incident Service: 
- IIncidentSvc* incSvc;
- sc = service("IncidentSvc", incSvc);
- if (sc.isFailure()) 
-   {log << MSG::ERROR << "Unable to get IncidentSvc "<< endreq;
-    return sc;
-   }
+ IIncidentSvc* incSvc = nullptr;
+ ATH_CHECK( service("IncidentSvc", incSvc) );
 
  // m_fullFolderName="/lar/"+m_folderName+"/LArPedestal";
  if (!m_keylist.size()) // No key list given
@@ -133,28 +103,25 @@ StatusCode LArPedestalInPhysicsMaker::execute()
 //---------------------------------------------------------------------------
 {
   int write=0;
-  MsgStream log(msgSvc(), name());
-  StatusCode sc;
   if (m_keylist.size()==0) {
-    log << MSG::ERROR << "Key list is empty! No containers to process!" << endreq;
+    ATH_MSG_ERROR ( "Key list is empty! No containers to process!" );
     return StatusCode::FAILURE;
   } 
 
   // Retrieve EventInfo
-  const DataHandle<EventInfo> thisEventInfo;
-  sc=m_storeGateSvc->retrieve(thisEventInfo);
+  const DataHandle<xAOD::EventInfo> thisEventInfo;
+  StatusCode sc=evtStore()->retrieve(thisEventInfo);
   int eventnumber=0;
   if (sc!=StatusCode::SUCCESS)
-    log << MSG::WARNING << "No EventInfo object found!" << endreq;
+    ATH_MSG_WARNING ( "No EventInfo object found!" );
   else {
-    EventID *thisEvent=thisEventInfo->event_ID();
-    if(m_run==0) m_run=thisEvent->run_number();
-    eventnumber=thisEvent->event_number();
+    if(m_run==0) m_run=thisEventInfo->runNumber();
+    eventnumber=thisEventInfo->eventNumber();
   }
 
 //  // Retrieve the TBScintillators
 // const TBScintillatorCont * theTBScint;
-//  sc = m_storeGateSvc->retrieve(theTBScint,"ScintillatorCont");
+//  sc = evtStore()->retrieve(theTBScint,"ScintillatorCont");
 //  if (sc.isFailure()) 
 //    {
 //      log << MSG::ERROR << " Cannot read TBScintillatorCont from StoreGate! " << endreq;
@@ -183,7 +150,7 @@ StatusCode LArPedestalInPhysicsMaker::execute()
 //
 //  //Retrieve the TBPhase
 //  const TBPhase* theTBPhase;
-//  sc = m_storeGateSvc->retrieve(theTBPhase, "TBPhase");
+//  sc = evtStore()->retrieve(theTBPhase, "TBPhase");
 //  float time = -1;
 //  int  itime = -1;
 //
@@ -200,18 +167,15 @@ StatusCode LArPedestalInPhysicsMaker::execute()
 
   //Retrieve the TBTriggerPatternUnit
   const TBTriggerPatternUnit* theTBTriggerPatternUnit;
-  sc = m_storeGateSvc->retrieve(theTBTriggerPatternUnit, "TBTrigPat");
+  sc = evtStore()->retrieve(theTBTriggerPatternUnit, "TBTrigPat");
   unsigned int trigger=1;
 
   if (sc.isFailure()) {
-    log << MSG::ERROR
-	<< "cannot allocate TBTriggerPatternUnit"
-	<< endreq;
+    ATH_MSG_ERROR( "cannot allocate TBTriggerPatternUnit" );
     //return StatusCode::FAILURE;
   } else {
     trigger = theTBTriggerPatternUnit->getTriggerWord();
-    log << MSG::INFO << "TBTriggerPatternUnit retrieved from storegate - "
-	<< trigger << endreq;
+    ATH_MSG_INFO ( "TBTriggerPatternUnit retrieved from storegate - " << trigger );
   }
 
   // Check whether we are in Physics
@@ -229,13 +193,13 @@ StatusCode LArPedestalInPhysicsMaker::execute()
   const LArDigitContainer* larDigitContainer;
   //std::cout << "Reading LArCalibDigitContainer from StoreGate! key=" << *key_it << endl;
   for (;key_it!=key_it_e;key_it++) {
-    sc= m_storeGateSvc->retrieve(larDigitContainer,*key_it);
+    sc= evtStore()->retrieve(larDigitContainer,*key_it);
     if (sc.isFailure() || !larDigitContainer) {
-      log << MSG::DEBUG << "Cannot read LArCalibDigitContainer from StoreGate! key=" << *key_it << endreq;
+      ATH_MSG_DEBUG ( "Cannot read LArCalibDigitContainer from StoreGate! key=" << *key_it );
       continue;
     }
     if(larDigitContainer->size()==0) {
-      log << MSG::DEBUG << "Got empty LArDigitContainer (key=" << *key_it << ")." <<endreq;
+      ATH_MSG_DEBUG ( "Got empty LArDigitContainer (key=" << *key_it << ")." );
       continue;
     }
     LArDigitContainer::const_iterator it=larDigitContainer->begin();
@@ -245,7 +209,7 @@ StatusCode LArPedestalInPhysicsMaker::execute()
       CaloGain::CaloGain gain=(*it)->gain();
       //log << MSG::DEBUG << "Cell: " << icell << " with gain " << gain << endreq;
       if (gain<0 || gain>CaloGain::LARNGAIN) {
-	log << MSG::ERROR << "Found odd gain number ("<< (int)gain <<")" << endreq;
+	ATH_MSG_ERROR ( "Found odd gain number ("<< (int)gain <<")" );
 	return StatusCode::FAILURE;
       }
       const std::vector<short> & samples = (*it)->samples();
@@ -263,13 +227,13 @@ StatusCode LArPedestalInPhysicsMaker::execute()
     std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
     const LArDigitContainer* larDigitContainer;
     for (;key_it!=key_it_e;key_it++) {
-      sc= m_storeGateSvc->retrieve(larDigitContainer,*key_it);
+      sc= evtStore()->retrieve(larDigitContainer,*key_it);
       if (sc.isFailure() || !larDigitContainer) {
-	log << MSG::DEBUG << "Cannot read LArCalibDigitContainer from StoreGate! key=" << *key_it << endreq;
+	ATH_MSG_DEBUG ( "Cannot read LArCalibDigitContainer from StoreGate! key=" << *key_it );
 	continue;
       }
       if(larDigitContainer->size()==0) {
-	log << MSG::DEBUG << "Got empty LArDigitContainer (key=" << *key_it << ")." <<endreq;
+	ATH_MSG_DEBUG( "Got empty LArDigitContainer (key=" << *key_it << ")." );
 	continue;
       }
       LArDigitContainer::const_iterator it=larDigitContainer->begin();
@@ -278,7 +242,7 @@ StatusCode LArPedestalInPhysicsMaker::execute()
 	HWIdentifier chid=(*it)->hardwareID();
 	CaloGain::CaloGain gain=(*it)->gain();
 	if (gain<0 || gain>CaloGain::LARNGAIN) {
-	  log << MSG::ERROR << "Found odd gain number ("<< (int)gain <<")" << endreq;
+	  ATH_MSG_ERROR ( "Found odd gain number ("<< (int)gain <<")" );
 	  return StatusCode::FAILURE;
 	}
 	m_pedestal[gain][chid].zero();
@@ -300,13 +264,13 @@ StatusCode LArPedestalInPhysicsMaker::stop()
   log << MSG::INFO << ">>> Stop" << endreq;
 
   if (m_keylist.size()==0) {
-    log << MSG::ERROR << "Key list is empty! No containers processed!" << endreq;
+    ATH_MSG_ERROR ( "Key list is empty! No containers processed!" );
     return StatusCode::FAILURE;
   } 
 
-  log << MSG::INFO << "########################################################" << endreq;
-  log << MSG::INFO << "Number of random events found: " << m_count << endreq;
-  log << MSG::INFO << "########################################################" << endreq;
+  ATH_MSG_INFO ( "########################################################" );
+  ATH_MSG_INFO ( "Number of random events found: " << m_count );
+  ATH_MSG_INFO ( "########################################################" );
 
   return StatusCode::SUCCESS;
 }
@@ -316,35 +280,24 @@ StatusCode LArPedestalInPhysicsMaker::stop()
 StatusCode LArPedestalInPhysicsMaker::fillDB()
 //---------------------------------------------------------------------------
 {
-  StatusCode sc;
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << ">>> Fill DB" << endreq;
+  ATH_MSG_INFO ( ">>> Fill DB" );
 
   // Create the LArPedestalComplete object
   LArPedestalComplete* larPedestalComplete = new LArPedestalComplete();
 
-  sc=larPedestalComplete->setGroupingType(m_groupingType,log);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Failed to set groupingType for LArPedestalComplete object" << endreq;
-    return sc;
-  }
+  ATH_CHECK( larPedestalComplete->setGroupingType(m_groupingType,msg()) );
+  ATH_CHECK( larPedestalComplete->initialize() );
 
-  sc=larPedestalComplete->initialize(); 
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Failed initialize LArPedestalComplete object" << endreq;
-    return sc;
-  }
-
-  log << MSG::INFO << "########################################################" << endreq;
-  log << MSG::INFO << "Number of randoms:              " << m_count << endreq;
-  log << MSG::INFO << "Creating new IOV at run event:  " << m_run << " " << m_event << endreq;
-  log << MSG::INFO << "########################################################" << endreq;
+  ATH_MSG_INFO ( "########################################################" );
+  ATH_MSG_INFO ( "Number of randoms:              " << m_count );
+  ATH_MSG_INFO ( "Creating new IOV at run event:  " << m_run << " " << m_event );
+  ATH_MSG_INFO ( "########################################################" );
 
   //Outermost loop goes over all gains (different containers).
   for (int gain=0;gain<(int)CaloGain::LARNGAIN;gain++) {
   
-   log << MSG::INFO << "Gain " << gain << ", m_pedestal size for this gain = " 
-       <<  m_pedestal[gain].size() << endreq;
+    ATH_MSG_INFO ( "Gain " << gain << ", m_pedestal size for this gain = " 
+                   <<  m_pedestal[gain].size() );
    if(m_pedestal[gain].size()<=1) continue;    //No data for this gain
    LARPEDMAP::const_iterator cell_it=m_pedestal[gain].begin();
    LARPEDMAP::const_iterator cell_it_e=m_pedestal[gain].end();
@@ -372,25 +325,8 @@ StatusCode LArPedestalInPhysicsMaker::fillDB()
  }
 
  if(m_record) {
-   // Record LArPedestalComplete
-   sc = m_detStore->record(larPedestalComplete, m_keyoutput);
-   if (sc != StatusCode::SUCCESS) 
-     {
-       log << MSG::ERROR	
-	   << " Cannot store LArPedestalComplete in TDS " 
-	   << endreq;
-       return sc;
-     }
-   
-   // Make symlink
-   sc = m_detStore->symLink(larPedestalComplete, (ILArPedestal*)larPedestalComplete);
-   if (sc != StatusCode::SUCCESS) 
-     {
-       log << MSG::ERROR 
-	   << " Cannot make link for Data Object "
-	   << endreq;
-       return sc;
-     }
+   ATH_CHECK( detStore()->record(larPedestalComplete, m_keyoutput) );
+   ATH_CHECK( detStore()->symLink(larPedestalComplete, (ILArPedestal*)larPedestalComplete) );
    m_record=0;
  }
 

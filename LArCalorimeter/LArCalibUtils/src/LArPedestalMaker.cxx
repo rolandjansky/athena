@@ -32,9 +32,7 @@
 
 
 LArPedestalMaker::LArPedestalMaker(const std::string& name, ISvcLocator* pSvcLocator) 
-  : Algorithm(name, pSvcLocator),
-    m_storeGateSvc(0),
-    m_detStore(0),
+  : AthAlgorithm(name, pSvcLocator),
     m_groupingType("SubDetector") // SubDetector, Single, FeedThrough
 {
   m_nref = 50;
@@ -52,32 +50,10 @@ LArPedestalMaker::~LArPedestalMaker()
 
 StatusCode LArPedestalMaker::initialize()
 {
-  StatusCode sc;
-  
-  // Use the message service
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << ">>> Initialize" << endreq;
+  ATH_MSG_INFO ( ">>> Initialize" );
 
   m_mean.resize(1);
   m_rms.resize(1);  
-  
-  // StoreGate service
-  sc = service("StoreGateSvc", m_storeGateSvc);
-  if (sc.isFailure()) 
-    {
-      log << MSG::FATAL << " StoreGate service not found " << std::endl;
-      sc = StatusCode::FAILURE; 
-      return sc;
-    }
-
-  // Get DetectorStore service
-  sc = service("DetectorStore", m_detStore);
-  if (sc.isFailure()) 
-    {
-      log << MSG::FATAL << " DetectorStore service not found " << std::endl;
-      sc = StatusCode::FAILURE; 
-      return sc;
-    }
   
  // m_fullFolderName="/lar/"+m_folderName+"/LArPedestal";
  if (!m_keylist.size()) // Not key list given
@@ -88,11 +64,7 @@ StatusCode LArPedestalMaker::initialize()
    }
   //m_EventCounters.resize(CaloGain::LARNGAIN,0); //Initialize Event counters, one per container
  m_pedestal.setGroupingType(LArConditionsContainerBase::SingleGroup);
- sc=m_pedestal.initialize();
- if (sc.isFailure()) {
-   log << MSG::ERROR << "Failed initialize intermediate Pedestal object" << endreq;
-   return sc;
- }
+ ATH_CHECK( m_pedestal.initialize() );
  return StatusCode::SUCCESS;
 }
 
@@ -101,10 +73,8 @@ StatusCode LArPedestalMaker::initialize()
 StatusCode LArPedestalMaker::execute()
 //---------------------------------------------------------------------------
 {
-  MsgStream log(msgSvc(), name());
-  StatusCode sc;
   if (m_keylist.size()==0) {
-    log << MSG::ERROR << "Key list is empty! No containers to process!" << endreq;
+    ATH_MSG_ERROR ( "Key list is empty! No containers to process!" );
     return StatusCode::FAILURE;
   } 
   std::vector<std::string>::const_iterator key_it=m_keylist.begin();
@@ -112,13 +82,13 @@ StatusCode LArPedestalMaker::execute()
   const LArDigitContainer* larDigitContainer;
 
   for (;key_it!=key_it_e;key_it++) {
-    sc= m_storeGateSvc->retrieve(larDigitContainer,*key_it);
+    StatusCode sc= evtStore()->retrieve(larDigitContainer,*key_it);
     if (sc.isFailure() || !larDigitContainer) {
-      log << MSG::DEBUG << "Cannot read LArCalibDigitContainer from StoreGate! key=" << *key_it << endreq;
+      ATH_MSG_DEBUG ( "Cannot read LArCalibDigitContainer from StoreGate! key=" << *key_it );
       continue;
     }
     if(larDigitContainer->size()==0) {
-      log << MSG::DEBUG << "Got empty LArDigitContainer (key=" << *key_it << ")." <<endreq;
+      ATH_MSG_DEBUG ( "Got empty LArDigitContainer (key=" << *key_it << ")." );
       continue;
     }
     LArDigitContainer::const_iterator it=larDigitContainer->begin();
@@ -130,7 +100,7 @@ StatusCode LArPedestalMaker::execute()
       LArPedestal& thisPed=m_pedestal.get(chid,gain);
       //log << MSG::DEBUG << "Cell: " << icell << " with gain " << gain << endreq;
       if (gain<0 || gain>CaloGain::LARNGAIN) {
-	log << MSG::ERROR << "Found odd gain number ("<< (int)gain <<")" << endreq;
+	ATH_MSG_ERROR ( "Found odd gain number ("<< (int)gain <<")" );
 	return StatusCode::FAILURE;
       }
       const std::vector<short> & samples = (*it)->samples();
@@ -167,29 +137,18 @@ StatusCode LArPedestalMaker::execute()
 StatusCode LArPedestalMaker::stop()
 //---------------------------------------------------------------------------
 {
-  StatusCode sc;
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << ">>> Stop" << endreq;
+  ATH_MSG_INFO ( ">>> Stop" );
 
   if (m_keylist.size()==0) {
-    log << MSG::ERROR << "Key list is empty! No containers processed!" << endreq;
+    ATH_MSG_ERROR ( "Key list is empty! No containers processed!" );
     return StatusCode::FAILURE;
   } 
   
   // Create the LArPedestalComplete object
   LArPedestalComplete* larPedestalComplete = new LArPedestalComplete();
 
-  sc=larPedestalComplete->setGroupingType(m_groupingType,log);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Failed to set groupingType for LArPedestalComplete object" << endreq;
-    return sc;
-  }
-
-  sc=larPedestalComplete->initialize(); 
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Failed initialize LArPedestalComplete object" << endreq;
-    return sc;
-  }
+  ATH_CHECK( larPedestalComplete->setGroupingType(m_groupingType,msg()) );
+  ATH_CHECK( larPedestalComplete->initialize() );
 
  //Outermost loop goes over all gains (different containers).
  for (int gain=0;gain<(int)CaloGain::LARNGAIN;gain++) {
@@ -225,40 +184,23 @@ StatusCode LArPedestalMaker::stop()
        larPedestalComplete->set(ch_id,gain,m_mean[0],m_rms[0]);
    }
  
-   log << MSG::INFO << "Gain " << gain << " Number of cells with 0 events to compute pedestal: " <<  n_zero << endreq;
-   log << MSG::INFO << "Gain " << gain << " Minimum number of events|samples to compute pedestal: " <<  n_min << endreq;
-   log << MSG::INFO << "Gain " << gain << " Maximum number of events|samples to compute pedestal: " <<  n_max << endreq;
+   ATH_MSG_INFO ( "Gain " << gain << " Number of cells with 0 events to compute pedestal: " <<  n_zero );
+   ATH_MSG_INFO ( "Gain " << gain << " Minimum number of events|samples to compute pedestal: " <<  n_min );
+   ATH_MSG_INFO ( "Gain " << gain << " Maximum number of events|samples to compute pedestal: " <<  n_max );
  }
 
- log << MSG::INFO << " Summary : Number of cells with a pedestal value computed : " << larPedestalComplete->totalNumberOfConditions()  << endreq;
- log << MSG::INFO << " Summary : Number of Barrel PS cells side A or C (connected+unconnected):  4096 " << endreq;
- log << MSG::INFO << " Summary : Number of Barrel    cells side A or C (connected+unconnected): 53248 " << endreq;
- log << MSG::INFO << " Summary : Number of EMEC      cells side A or C (connected+unconnected): 35328 " << endreq;
- log << MSG::INFO << " Summary : Number of HEC       cells side A or C (connected+unconnected):  3072 "<< endreq;
- log << MSG::INFO << " Summary : Number of FCAL      cells side A or C (connected+unconnected):  1792 " << endreq;
+ ATH_MSG_INFO ( " Summary : Number of cells with a pedestal value computed : " << larPedestalComplete->totalNumberOfConditions()  );
+ ATH_MSG_INFO ( " Summary : Number of Barrel PS cells side A or C (connected+unconnected):  4096 " );
+ ATH_MSG_INFO ( " Summary : Number of Barrel    cells side A or C (connected+unconnected): 53248 " );
+ ATH_MSG_INFO ( " Summary : Number of EMEC      cells side A or C (connected+unconnected): 35328 " );
+ ATH_MSG_INFO ( " Summary : Number of HEC       cells side A or C (connected+unconnected):  3072 ");
+ ATH_MSG_INFO ( " Summary : Number of FCAL      cells side A or C (connected+unconnected):  1792 " );
  
  // Record LArPedestalComplete
- sc = m_detStore->record(larPedestalComplete,m_keyoutput);
- if (sc != StatusCode::SUCCESS) 
-   {
-     log << MSG::ERROR	
-	 << " Cannot store LArPedestalComplete in TDS " 
-	 << endreq;
-     return sc;
-   }
+ ATH_CHECK( detStore()->record(larPedestalComplete,m_keyoutput) );
+ ATH_CHECK( detStore()->symLink(larPedestalComplete, (ILArPedestal*)larPedestalComplete) );
  
- // Make symlink
- sc = m_detStore->symLink(larPedestalComplete, (ILArPedestal*)larPedestalComplete);
- if (sc != StatusCode::SUCCESS) 
-   {
-     log << MSG::ERROR 
-	 << " Cannot make link for Data Object "
-	  << endreq;
-     return sc;
-   }
- 
- log << MSG::INFO << ">>> End of finalize" << endreq;
- 
+ ATH_MSG_INFO ( ">>> End of finalize" );
  return StatusCode::SUCCESS;
 }
 

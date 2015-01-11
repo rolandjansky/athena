@@ -18,6 +18,7 @@ Use a phases stored in CondDB (using a Tshaper raw condition) or a default 0.
 #include "AthenaBaseComps/AthAlgorithm.h"
 
 class LArOFCBinComplete;
+class LArOnlineID;
 
 class LArOFPhasePicker : public AthAlgorithm
 {
@@ -35,6 +36,7 @@ class LArOFPhasePicker : public AthAlgorithm
  private:
 
   const LArOFCBinComplete* m_inputPhase;
+  const LArOnlineID*       m_onlineID; 
 
   //Job properties
   std::string m_keyOFC;

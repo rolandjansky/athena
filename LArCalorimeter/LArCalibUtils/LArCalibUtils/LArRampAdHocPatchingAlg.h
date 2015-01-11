@@ -14,14 +14,14 @@
 #ifndef LARRAMPADHOCPATCHINGALG_H
 #define LARRAMPADHOCPATCHINGALG_H
  
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 //#include "GaudiKernel/ToolHandle.h"
 #include "LArRawConditions/LArRampComplete.h"
 
 #include <vector>
 #include <string>
 
-class LArRampAdHocPatchingAlg : public Algorithm 
+class LArRampAdHocPatchingAlg : public AthAlgorithm 
 { 
  public:
   /**
@@ -57,9 +57,6 @@ class LArRampAdHocPatchingAlg : public Algorithm
  private:
 
   typedef LArRampComplete::LArCondObj LArRampObj;
-
-  StoreGateSvc* m_detStore;    
-  MsgStream* m_log;
 
   const LArRampComplete* m_contIn; 
   LArRampComplete* m_contOut;  

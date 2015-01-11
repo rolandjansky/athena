@@ -8,10 +8,8 @@
 #ifndef LARMASTERWAVEBUILDER_H
 #define LARMASTERWAVEBUILDER_H
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "LArRawConditions/LArWave.h"
 #include "LArRawConditions/LArWaveHelper.h"
 #include "LArRawConditions/LArCaliWave.h"
@@ -23,7 +21,7 @@
 #include <string>
 #include <map>
 
-class LArMasterWaveBuilder : public Algorithm {
+class LArMasterWaveBuilder : public AthAlgorithm {
 public:
   LArMasterWaveBuilder(const std::string & name, ISvcLocator * pSvcLocator);
 

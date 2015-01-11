@@ -18,7 +18,7 @@
 #include <vector>
 #include <string>
  
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "LArRecConditions/ILArBadChanTool.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
@@ -45,7 +45,7 @@
 
 
 template<class CONDITIONSCONTAINER>
-class LArCalibPatchingAlg:public Algorithm {
+class LArCalibPatchingAlg:public AthAlgorithm {
  
 public:
   /**
@@ -175,8 +175,6 @@ private:
     FEBAverage
   };
 
-  StoreGateSvc* m_detStore;    
-  MsgStream* m_log;
   ToolHandle<ILArBadChanTool> m_badChannelTool;
   ToolHandle<ILArBadChannelMasker> m_maskingTool;
   ToolHandle<LArCablingService> m_larCablingSvc;  

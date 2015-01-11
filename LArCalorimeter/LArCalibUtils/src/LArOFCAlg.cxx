@@ -8,10 +8,6 @@
 
 #include "LArCalibUtils/LArOFCAlg.h"
 
-//#include "GaudiKernel/MsgStream.h"
-//#include "GaudiKernel/ISvcLocator.h" 
-//#include "StoreGate/StoreGateSvc.h"
-
 #include "LArRawConditions/LArWaveHelper.h"
 #include "LArRawConditions/LArOFCComplete.h"
 #include "LArRawConditions/LArShapeComplete.h"
@@ -27,18 +23,19 @@
 
 #include <cassert>
 
+#include "tbb/parallel_for.h"
 
 //#define LAROFCALG_DEBUGOUTPUT
 
+
 LArOFCAlg::LArOFCAlg(const std::string& name, ISvcLocator* pSvcLocator) 
 	: AthAlgorithm(name, pSvcLocator),
-          m_optNpt(0),
-	  m_AutoCorrDecoder(0),
-	  m_larCaliWaveContainer(0),
-	  m_larPhysWaveContainer(0),
-	  m_groupingType("SubDetector"), // SubDetector, Single, FeedThrough
-          m_onlineID(0),
-          m_calo_dd_man(0)
+	  m_AutoCorrDecoder(nullptr),
+	  m_AutoCorrDecoderV2(nullptr),
+          m_onlineID(nullptr),
+          m_calo_dd_man(nullptr),
+	  m_larPhysWaveBin(nullptr),
+	  m_groupingType("SubDetector") // SubDetector, Single, FeedThrough
 {
 
   declareProperty("Nsample",m_nSamples = 5);
@@ -51,6 +48,7 @@ LArOFCAlg::LArOFCAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("ReadCaliWave",      m_readCaliWave=true); // false == PhysWave
   declareProperty("FillShape",         m_fillShape=false); 
   declareProperty("KeyOFC",            m_ofcKey="LArOFC"); 
+  declareProperty("KeyOFCV2",          m_ofcKeyV2="LArOFCV2"); 
   declareProperty("KeyShape",          m_shapeKey="LArShape"); 
 
   declareProperty("Normalize",         m_normalize=false);
@@ -58,8 +56,8 @@ LArOFCAlg::LArOFCAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("TimeShiftByIndex",  m_timeShiftByIndex=-1);
   
   declareProperty("Verify",            m_verify=true);
-  declareProperty("ErrAmplitude",      m_errAmpl=0.001);
-  declareProperty("ErrTime",           m_errTime=0.001);
+  declareProperty("ErrAmplitude",      m_errAmpl=0.01);
+  declareProperty("ErrTime",           m_errTime=0.01);
   
   declareProperty("DumpOFCfile",       m_dumpOFCfile=std::string(""));  
 
@@ -69,17 +67,26 @@ LArOFCAlg::LArOFCAlg(const std::string& name, ISvcLocator* pSvcLocator)
 
   declareProperty("LArPhysWaveBinKey", m_larPhysWaveBinKey="");
 
-  declareProperty("AddTimeOffset"      ,m_addOffset=0.);
+  declareProperty("AddTimeOffset",     m_addOffset=0.);
+
+  declareProperty("ComputeOFCV2",      m_computeV2=false);
 
   declareProperty("UseDelta",          m_useDelta=0); // 0= not use Delta, 1=only EMECIW/HEC/FCAL, 2=all , 3 = only EMECIW/HEC/FCAL1+high eta FCAL2-3
+  declareProperty("UseDeltaV2",        m_useDeltaV2=0); // 0= not use Delta, 1=only EMECIW/HEC/FCAL, 2=all , 3 = only EMECIW/HEC/FCAL1+high eta FCAL2-3
 
   declareProperty("DecoderTool",       m_AutoCorrDecoder); 
+  declareProperty("DecoderToolV2",       m_AutoCorrDecoderV2); 
 
+  declareProperty("RunThreaded",       m_runThreaded=false);
+
+  m_nPoints = m_nDelays * ( m_nSamples-1 ) + m_nPhases * m_dPhases ;
 }
 
 
 
 StatusCode LArOFCAlg::initialize(){
+
+  m_nPoints = m_nDelays * ( m_nSamples-1 ) + m_nPhases * m_dPhases ;
 
   if ( m_nSamples>32 ) {
     msg(MSG::ERROR) << "You are not allowed to compute OFC for Nsamples = " << m_nSamples << endreq ;
@@ -95,32 +102,36 @@ StatusCode LArOFCAlg::initialize(){
   }
 
 
-  if (m_useDelta > 0 ){
-
-    StatusCode sc = detStore()->retrieve(m_onlineID); 
+  if (m_computeV2) {
+    sc = m_AutoCorrDecoderV2.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "failed to retrieve LArOnlineID " << endreq;
-      return sc;
-    }
-
-    if (m_useDelta == 3 ){
-      /**
-      sc = detStore()->retrieve(m_calo_dd_man); 
-      if (sc.isFailure()) {
-	msg(MSG::ERROR) << "failed to CaloDetDescrManager " << endreq;
-	return sc;
-      }
-      */
-
-      sc = m_cablingService.retrieve() ;
-      if (sc.isFailure()) {
-	msg(MSG::ERROR) << "failed to retrieve LArCablingService " << endreq;
-	return sc;
-      }
-      msg(MSG::INFO) << " retrieved CaloDetDescrManager and LArCablingService " << endreq;
+      msg(MSG::FATAL) << "Could not retrieve AutoCorrDecoderV2 " << m_AutoCorrDecoderV2 << endreq;
+      return StatusCode::FAILURE;
+    } else {
+      msg(MSG::INFO) << "Retrieved Decoder Tool: "<< m_AutoCorrDecoderV2 << endreq;
     }
   }
 
+
+  sc = detStore()->retrieve(m_onlineID); 
+  if (sc.isFailure()) {
+    msg(MSG::ERROR) << "failed to retrieve LArOnlineID " << endreq;
+    return sc;
+  }
+
+  sc = m_cablingService.retrieve() ;
+  if (sc.isFailure()) {
+    msg(MSG::ERROR) << "failed to retrieve LArCablingService " << endreq;
+    return sc;
+  }
+  msg(MSG::INFO) << " retrieved LArCablingService " << endreq;
+
+  msg(MSG::INFO) << "Number of wave points needed : " << m_nPoints  << endreq ;
+  if (m_computeV2) {
+    msg(MSG::INFO) << "Will compute two flavors of OFCs" << endreq;
+    msg(MSG::INFO) << "Version 1: useDelta= " << m_useDelta <<", output key: " <<  m_ofcKey << " AutoCorrDecoder: " << m_AutoCorrDecoder.name() << endreq;
+    msg(MSG::INFO) << "Version 2: useDelta= " << m_useDeltaV2 <<", output key: " <<  m_ofcKeyV2 << " AutoCorrDecoder: " << m_AutoCorrDecoderV2.name() << endreq;
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -136,18 +147,14 @@ StatusCode LArOFCAlg::stop()
   msg(MSG::INFO) << "Spacing between two phases   : " << m_dPhases  << endreq ;
 
 
-  if (m_useDelta == 3 ){
-    StatusCode sc = detStore()->retrieve(m_calo_dd_man); 
+  StatusCode sc;
+  if (m_useDelta == 3 || m_useDeltaV2==3){
+    sc = detStore()->retrieve(m_calo_dd_man); 
     if (sc.isFailure()) {
       msg(MSG::ERROR) << "failed to CaloDetDescrManager " << endreq;
       return sc;
     }
   }
-
-
-  unsigned nPoints = m_nDelays * ( m_nSamples-1 ) + m_nPhases * m_dPhases ;
-
-  msg(MSG::INFO) << "Number of wave points needed : " << nPoints  << endreq ;
 
   if ( m_timeShift ) {
     if( m_timeShiftByIndex == -1 ) {
@@ -157,9 +164,74 @@ StatusCode LArOFCAlg::stop()
     }
   }
   
+
+  if (m_larPhysWaveBinKey.size()) {
+    sc=detStore()->retrieve(m_larPhysWaveBin,m_larPhysWaveBinKey);
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Failed to retrieve LArOFCBinComplete object with key " << m_larPhysWaveBinKey << endreq;
+      return sc;
+    }
+  }
+
+  if (m_readCaliWave) {
+    sc=this->initCaliWaveContainer();
+  }
+  else {
+    sc=this->initPhysWaveContainer();
+  }
+
+  if (sc.isFailure()) return sc;
+
+  if (m_allChannelData.size()==0) {
+    msg(MSG::ERROR) << "No input waves found" << endreq;
+    return StatusCode::FAILURE;
+  }
+
+  ////////////
+  if (m_runThreaded) {
+    //There are sone external tools, etc. that potentially cached stuff.
+    //We need to call them at least once to make sure all caches are filled before we go multi-threaded
+    perChannelData_t& chanData=m_allChannelData[0];
+
+    //ToolHandle<ILArAutoCorrDecoderTool> m_AutoCorrDecoder;
+    m_AutoCorrDecoder->AutoCorr(chanData.chid,(CaloGain::CaloGain)chanData.gain,m_nSamples);
+    if (m_computeV2)
+      m_AutoCorrDecoderV2->AutoCorr(chanData.chid,(CaloGain::CaloGain)chanData.gain,m_nSamples);
+      
+    //ToolHandle<LArCablingService> m_cablingService;
+    Identifier id=m_cablingService->cnvToIdentifier(chanData.chid);
+    if (m_useDelta==3 || m_useDeltaV2) {
+      //const CaloDetDescrManager* m_calo_dd_man;
+      m_calo_dd_man->get_element(id);
+    }
+
+    //const LArOnlineID*       m_onlineID; 
+    m_onlineID->isFCALchannel(chanData.chid);
+
+    ///const LArOFCBinComplete* m_larPhysWaveBin;
+    m_larPhysWaveBin->bin(chanData.chid,(CaloGain::CaloGain)chanData.gain);
+
+    //Instanciated the functor and start parallel_for
+    Looper looper(&m_allChannelData,this);
+    tbb::blocked_range<size_t> range(0, m_allChannelData.size());
+    msg(MSG::INFO) << "Starting parallel execution" << endreq;
+    tbb::parallel_for(tbb::blocked_range<size_t>(0, m_allChannelData.size()),looper);
+
+    msg(MSG::INFO) << "Done with parallel execution" << endreq;
+
+  }
+  else {
+    msg(MSG::INFO) << "Single threaded execution" << endreq;
+    for (perChannelData_t& chanData : m_allChannelData) {
+      this->process(chanData);
+    }
+  }
+
+  /////////////
+
   // OFC persistent object
   LArOFCComplete *larOFCComplete=new LArOFCComplete();
-  StatusCode sc = larOFCComplete->setGroupingType(m_groupingType,msg());
+  sc = larOFCComplete->setGroupingType(m_groupingType,msg());
   if (sc.isFailure()) {
     msg(MSG::ERROR) << "Failed to set groupingType for LArOFCComplete object" << endreq;
     return sc;
@@ -169,6 +241,20 @@ StatusCode LArOFCAlg::stop()
     msg(MSG::ERROR) << "Failed initialize LArOFCComplete object" << endreq;
     return sc;
   }
+
+
+  LArOFCComplete *larOFCCompleteV2=new LArOFCComplete();
+  sc = larOFCComplete->setGroupingType(m_groupingType,msg());
+  if (sc.isFailure()) {
+    msg(MSG::ERROR) << "Failed to set groupingType for LArOFCComplete object" << endreq;
+    return sc;
+  }
+  sc=larOFCCompleteV2->initialize(); 
+  if (sc.isFailure()) {
+    msg(MSG::ERROR) << "Failed initialize LArOFCComplete object" << endreq;
+    return sc;
+  }
+
 
   LArOFCBinComplete *larOFCBinComplete=NULL;
   if (m_storeMaxPhase) {
@@ -202,390 +288,72 @@ StatusCode LArOFCAlg::stop()
   }
 
 
-  const LArOFCBinComplete* larPhysWaveBin=NULL;
-  if (m_larPhysWaveBinKey.size()) {
-    sc=detStore()->retrieve(larPhysWaveBin,m_larPhysWaveBinKey);
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to retrieve LArOFCBinComplete object with key " << m_larPhysWaveBinKey << endreq;
-      return sc;
-    }
-  }
+  //Counters (for information only):
+  unsigned nChannels=0;
+  unsigned nFailed=0;
 
-  LArWaveHelper larWaveHelper;
-  int NOFC=0;
-  
-  for ( unsigned k=0 ; k<m_keylist.size() ; k++ ) { // Loop over all containers that are to be processed (e.g. different gains)
-        
-    msg(MSG::INFO) << "Processing WaveContainer from StoreGate! key = " << m_keylist[k] << endreq;
-
-    // Iterators for LArCaliWaveContainer
-    unsigned   caliGain_it;
-    CaliCellIt caliCell_it;
-    CaliWaveIt caliWave_it;
-    // Iterator for LArPhysWaveContainer
-    unsigned   physGain_it;
-    PhysWaveIt physWave_it;
-     
-    const LArWaveCumul* nextWave = 0;
-    HWIdentifier ch_id;
-    CaloGain::CaloGain gain;
-    if (m_readCaliWave) {
- 	// Init for LArCaliWaveContainer
- 	sc = initCaliWaveContainer(m_keylist[k], caliGain_it, caliCell_it, caliWave_it); 
- 	if (sc.isFailure()) {
-	  ATH_MSG_DEBUG( "Cannot read CaliWaveContainer from StoreGate!");
-	  continue ;
-         }
-	 nextWave = &(*caliWave_it);
-         ch_id    = caliCell_it.channelId();
-         gain     = (CaloGain::CaloGain)caliGain_it;
-    }
-    else {
-	// Init for LArPhysWaveContainer
-	sc = initPhysWaveContainer(m_keylist[k], physGain_it, physWave_it) ; 
-	if (sc.isFailure()) {
-	  ATH_MSG_DEBUG( "Cannot read PhysWaveContainer from StoreGate!");
-	  continue ;
-	}
-	nextWave = &(*physWave_it);
-        ch_id    = physWave_it.channelId();
-        gain     = (CaloGain::CaloGain)physGain_it;
+  for (const perChannelData_t& chanData : m_allChannelData) {
+    ++nChannels;
+    if (chanData.faultyOFC) ++nFailed;
+    // register channel to LArOFCComplete
+    const HWIdentifier ch_id=chanData.chid;
+    const int gain=chanData.gain;
+    ATH_MSG_DEBUG( "add to LArOFCComplete, channel " << m_onlineID->channel_name(ch_id) << ", gain=" << (int)gain);
+    const std::vector<std::vector<float> > & allPhaseOFCa=chanData.ofc_a;
+    const std::vector<std::vector<float> > & allPhaseOFCb=chanData.ofc_b;
+    const std::vector<std::vector<float> > & allPhaseShape=chanData.shape;
+    const std::vector<std::vector<float> > & allPhaseShapeDer=chanData.shapeDer;
+    larOFCComplete->set(ch_id,gain,allPhaseOFCa,allPhaseOFCb,chanData.tstart,chanData.timeBinWidthOFC);
+    if (larOFCBinComplete) larOFCBinComplete->set(ch_id,gain,chanData.phasewMaxAt3);      
+    if ( m_fillShape ) larShapeComplete->set(ch_id,gain,allPhaseShape,allPhaseShapeDer,chanData.tstart,chanData.timeBinWidthOFC);      
+    
+    
+    if (m_computeV2) {
+      const std::vector<std::vector<float> > & allPhaseOFCV2a=chanData.ofcV2_a;
+      const std::vector<std::vector<float> > & allPhaseOFCV2b=chanData.ofcV2_b;
+      larOFCCompleteV2->set(ch_id,gain,allPhaseOFCV2a,allPhaseOFCV2b,chanData.tstart,chanData.timeBinWidthOFC);
     }
     
-    unsigned nItem      = 0;
-    unsigned nChanTot   = 0;
-    
-    unsigned nWaveSmall = 0;
-    unsigned nACmissing = 0;
-    unsigned nFaultyOFC = 0;
+  } // end loop over m_allChannelData
 
-    while (nextWave) { // loop through channels
-    
-      if ( nextWave->getFlag() == LArWave::dac0 ) continue ; // skip dac0 waves
-      ++nChanTot;
+  msg(MSG::INFO) << " Summary : Computed OFCs for " << nChannels << " channels * gains" << endreq;
+  if (nFailed) 
+    msg(MSG::ERROR) << "Number of channels * gains with failed OFC verification: " <<  nFailed << endreq;
 
-      ATH_MSG_DEBUG( "Computing OFC for channel 0x" 
-		     << std::hex << ch_id.get_compact() << std::dec 
-		     << " in gain = " << gain);
-          
-      // the current waveform
-      //const LArWave& aWave = *nextWave;
-      // Actually *copying* the Wave to get rid of the const: need to manipulate Wave to normalize...
-      LArWave aWave = *nextWave;
-    
-      // check constistency of settings
-      if ( nPoints > aWave.getSize() ) {
-        msg(MSG::ERROR) << "Wave size (" << aWave.getSize() 
-			<< ") is too small to fit your OFC request (" << nPoints << " points)" << endreq ;
-	nWaveSmall++ ;
-	// move to next wave
-	if (m_readCaliWave) {
-	  nextWave = getWave(caliGain_it, caliCell_it, caliWave_it);
-          ch_id    = caliCell_it.channelId();
-          gain     = (CaloGain::CaloGain)caliGain_it;
-        } else {
-	  nextWave = getWave(physGain_it, physWave_it);
-          ch_id    = physWave_it.channelId();
-          gain     = (CaloGain::CaloGain)physGain_it;
-        }
-	continue ; // skip channel if wave is too small
-      }
-
-
-      if (larPhysWaveBin) {
-	const int bin = larPhysWaveBin->bin(ch_id,gain);
-	if (bin>-998) { //>ERRORCODE
-	  ATH_MSG_VERBOSE("Channel 0x" << MSG::hex << ch_id.get_compact() << MSG::dec << ": shift by index " << bin);
-	  aWave=larWaveHelper.translate(aWave,-bin,0);
-	}
-	else
-	  ATH_MSG_VERBOSE("Channel 0x" << MSG::hex << ch_id.get_compact() << MSG::dec << ": No valid index for shifting");
-      }//end if larPhysWaveBin
-      // normalize input wave, if requested      
-      if (m_normalize) {
-	double peak = aWave.getSample( larWaveHelper.getMax(aWave) );
-        ATH_MSG_VERBOSE("Channel 0x" << std::hex << ch_id.get_compact() << std::dec 
-			<< " has amplitude = " << peak << ": normalizing...");
-
-	if ( peak == 0 ) {
-	  msg(MSG::ERROR) << "Wave maximum is zero, skipping channel 0x" << std::hex << ch_id.get_compact() << std::dec << endreq ;
-	  // Move to next wave
-          if (m_readCaliWave) {
-	    nextWave = getWave(caliGain_it, caliCell_it, caliWave_it);
-            ch_id    = caliCell_it.channelId();
-            gain     = (CaloGain::CaloGain)caliGain_it;
-          } else {
-	    nextWave = getWave(physGain_it, physWave_it);
-            ch_id    = physWave_it.channelId();
-            gain     = (CaloGain::CaloGain)physGain_it;
-          }
-	  continue ;
-	}
-        aWave = aWave * (1./peak);
-      } 
-
-      double Amplitude = aWave.getSample( larWaveHelper.getMax(aWave) );
-      ATH_MSG_VERBOSE("Channel 0x" << std::hex << ch_id.get_compact() << std::dec << " has now amplitude = " << Amplitude);
-      // compute tstart to shift input wave, if requested
-      int tstart = 0 ;
-      if ( m_timeShift ) {
-        if( m_timeShiftByIndex == -1 ) {
-          tstart = larWaveHelper.getStart(aWave) ;
-        } else {
-          tstart = m_timeShiftByIndex;
-        }
-      }
-      
-      ATH_MSG_DEBUG("Channel 0x" << std::hex << ch_id.get_compact() << std::dec << ", Tstart = " << tstart);
-
-      //Calculate derivative for this wave
-      LArWave aDerivedWave = larWaveHelper.derive_smooth(aWave);
-
-      // Get the AutoCorrelatio  matrix
-      m_AutoCorrMatrix = m_AutoCorrDecoder->AutoCorr(ch_id,gain,m_nSamples);
-
-      //Define vectors for OFC coeffs.(Outer vector: tbin, inner one: coeffs)
-      std::vector<std::vector<float> > vOFC_a; 
-      std::vector<std::vector<float> > vOFC_b;
-      
-      //Define vectors for Shape and ShapeDer (Outer vector: tbin, inner one: Shapes)
-      std::vector<std::vector<float> > vShape; 
-      std::vector<std::vector<float> > vShapeDer;
-
-      bool faultyOFC = false ;
-
-      float timeBinWidthOFC = m_dPhases*aWave.getDt();
-
-      unsigned phasewMaxAt3=999;
-      float maxSampleValAt3=-1;
-
-      m_id = ch_id; 
-
-      for (unsigned iPhase=0;iPhase<m_nPhases;iPhase++) { //Loop over all phases
-      	
-	ATH_MSG_VERBOSE ("Channel 0x" << std::hex << ch_id.get_compact() << std::dec 
-			 << ", Gain = " << (int)(gain) << ", Phase = " << iPhase << ":");
-
-	std::vector<float> theSamples;
-	std::vector<float> theSamplesDer;
-
-	for (unsigned iSample=0;iSample<m_nSamples;++iSample){ //Loop over all samples
-	
-	  unsigned tbin = tstart + iPhase*m_dPhases + iSample*m_nDelays ;
-	  
-	  theSamples.push_back( aWave.getSample(tbin) );
-	  theSamplesDer.push_back( aDerivedWave.getSample(tbin) );
-#ifdef LAROFCALG_DEBUGOUTPUT
-          ATH_MSG_VERBOSE("tbin: " << tbin);
-	  ATH_MSG_VERBOSE("g[" << iSample << "][" << iPhase << "] = " << aWave.getSample(tbin)
-			  << " g'[" << iSample << "][" << iPhase << "]=" << aDerivedWave.getSample(tbin));
-#endif
-	} //End loop over samples
-
-	std::vector<float> theSamples32;
-	std::vector<float> theSamplesDer32;
-	unsigned nSample_shape=32;
-	
-	for (unsigned iSample=0;iSample<nSample_shape ;++iSample){ //Loop over all samples
-	
-	    unsigned tbin = tstart + iPhase*m_dPhases + iSample*m_nDelays ;	  
-	    if ( tbin>=aWave.getSize() )
-	      {
-		continue;
-	      }
-	    theSamples32.push_back( aWave.getSample(tbin) );
-	    theSamplesDer32.push_back( aDerivedWave.getSample(tbin) );
-	} //End loop over samples
-
-
-	m_thisChan_useDelta = false;
-	if (m_useDelta==2)
-	  {
-	    m_thisChan_useDelta = true;
-	  }
-	else if(m_useDelta==1)
-	  { // only HEC/EMECIW/FCAL
-	    if (m_onlineID->isEMECIW(m_id) || m_onlineID->isFCALchannel(m_id) || m_onlineID->isHECchannel(m_id)) 
-	      {
-		m_thisChan_useDelta = true;
-	      }
-	  }
-	else if(m_useDelta==3)
-	  { // only HEC/EMECIW/FCAL1 and high eta FCAL2-3 
-	    if (m_onlineID->isEMECIW(m_id) ||  m_onlineID->isHECchannel(m_id)) 
-	      {
-		m_thisChan_useDelta = true;
-	      }
-	    else if (m_onlineID->isFCALchannel(m_id) ){
-
-	      if (m_cablingService->isOnlineConnected (m_id)){
-		Identifier ofl_id = m_cablingService->cnvToIdentifier(m_id);
-		const CaloDetDescrElement* dde = m_calo_dd_man->get_element(ofl_id);
-		if (! dde) {
-		  ATH_MSG_ERROR( " dde = 0 , onl_id, ofl_id= "<< m_id<<" "<<ofl_id );
-		  return StatusCode::FAILURE; 
-		}
-		CaloCell_ID::CaloSample sampling = dde->getSampling();
-		float eta = dde->eta();
-		if (sampling==CaloCell_ID::FCAL0){
-		  m_thisChan_useDelta = true;
-		}
-		else
-		  {
-		    if (fabs(eta)>4.0){
-		      m_thisChan_useDelta = true;
-		    }
-		  }
-		
-	      }
-	    }
-
-	  }
-	
-	if ( m_thisChan_useDelta ){
-	  getDelta(theSamples32 );
-	  if (m_delta.size()==0){
-	    m_thisChan_useDelta=false;
-	  }
-	}
-
-
-	// Fill Shape and ShapeDer vectors
-	if (m_fillShape) {
-	  vShape.push_back(theSamples);
-	  vShapeDer.push_back(theSamplesDer);
-	}
-
-	if (m_storeMaxPhase && m_nSamples>2 && theSamples[2]>maxSampleValAt3) {
-	  maxSampleValAt3=theSamples[2];
-	  phasewMaxAt3=iPhase;
-	}
-
-	// OFC calculation for the current phase
-	Optfilt(theSamples,theSamplesDer);
-	
-	// Fill OFC data vectors
-	std::vector<float> vOFC_as,vOFC_bs;
-	for (unsigned iSample=0;iSample<m_nSamples;++iSample){
-	  vOFC_as.push_back(m_a[iSample]);
-	  vOFC_bs.push_back(m_b[iSample]);
-	}
-	vOFC_a.push_back(vOFC_as);
-	vOFC_b.push_back(vOFC_bs);
-
-        // verify OFC consistency
-	if (m_verify) {
-	  double recAmpl=0, recTime=0;
-	  for (unsigned iSample=0;iSample<m_nSamples;++iSample){
-	    unsigned tbin = tstart + iPhase*m_dPhases + iSample*m_nDelays ;
-            #ifdef LAROFCALG_DEBUGOUTPUT
-	    ATH_MSG_VERBOSE("a["<<iSample<<"]="<<vOFC_as[iSample] << " b["<<iSample<<"]="<<vOFC_bs[iSample] 
-			    << " Sample=" << aWave.getSample(tbin));
-            #endif
-	    recAmpl += vOFC_as[iSample] * ( aWave.getSample(tbin) ) ;
-	    recTime += vOFC_bs[iSample] * ( aWave.getSample(tbin) ) ;
-	  }
-	  recTime /= recAmpl ;
-	  // At this point the reconstructed amplitude must be = 1 by definition, whatever the initial normalisation!
-	  ATH_MSG_VERBOSE("recAmp=" << recAmpl << " ; recTime=" << recTime);
-	  if ( fabs(1.-recAmpl) > m_errAmpl ) {
-	    msg(MSG::WARNING) << "Applying the OFC to original wave yields an Amplitude of "<< recAmpl 
-			      << " instead of 1. -> Wrong OFCs? channel 0x" << std::hex << ch_id.get_compact() << std::dec << endreq;
-	    faultyOFC = true ;
-	    continue ;
-	  }
-	  if ( fabs(recTime) > m_errTime ) {
-	    msg( MSG::WARNING) << "Applying the OFC to original wave yields a time offset of " << recTime 
-			       << " -> Wrong OFCs? channel 0x" << std::hex << ch_id.get_compact() << std::dec << endreq;
-	    faultyOFC = true ;
-	    continue ;
-	  }
-	} // end if (m_verify)
-	
-      } //End loop over all phases
-
-      //std::cout << "WL: Channel 0x" << std::hex << ch_id.get_compact() << std::dec << " ; gain=" << (int)gain 
-      //	<< " maxPhase= " << phasewMaxAt3 << " Sample[2]= " << maxSampleValAt3 << std::endl;
-      if ( faultyOFC ) {
-        nFaultyOFC++ ;
-        // Move to next wave
-        if (m_readCaliWave) {
-	  nextWave = getWave(caliGain_it, caliCell_it, caliWave_it);
-          ch_id    = caliCell_it.channelId();
-          gain     = (CaloGain::CaloGain)caliGain_it;
-        } else {
-	  nextWave = getWave(physGain_it, physWave_it);
-          ch_id    = physWave_it.channelId();
-          gain     = (CaloGain::CaloGain)physGain_it;
-        }
-        continue; // skip registration of previous channel (that failed OFC verification!)
-      }
-
-      NOFC++;      
-
-      // in case we're dealing with a LArPhysWave, add any possible previous time shift
-      if (!m_readCaliWave) tstart += (*physWave_it).getTimeOffset()+m_addOffset;
-
-      // register channel to LArOFCComplete
-      ATH_MSG_DEBUG( "add to LArOFCComplete, channel 0x" 
-		     << std::hex << ch_id.get_compact() << std::dec << " ; gain=" << (int)gain);
-      larOFCComplete->set(ch_id,(int)gain,vOFC_a,vOFC_b,tstart,timeBinWidthOFC);
-      if (larOFCBinComplete) larOFCBinComplete->set(ch_id,(int)gain,phasewMaxAt3);      
-      if ( m_fillShape ) larShapeComplete->set(ch_id,(int)gain,vShape,vShapeDer,tstart,timeBinWidthOFC);      
-      ATH_MSG_DEBUG( "... added!  ( item = " << nItem++ << " )");
-
-      // Move to next wave
-      if (m_readCaliWave) {
-	nextWave = getWave(caliGain_it, caliCell_it, caliWave_it);
-        ch_id    = caliCell_it.channelId();
-        gain     = (CaloGain::CaloGain)caliGain_it;
-      } else {
-	nextWave = getWave(physGain_it, physWave_it);
-        ch_id    = physWave_it.channelId();
-        gain     = (CaloGain::CaloGain)physGain_it;
-      }
-
-    } // end loop over waves
-
-    msg(MSG::INFO) << nWaveSmall << " channel(s) out of " << nChanTot
- 	<< " skipped because wave was too small." << endreq;
-  
-    msg(MSG::INFO) << nACmissing << " channel(s) out of " << nChanTot
- 	<< " skipped due to missing AC matrix." << endreq;
-    
-    msg(MSG::INFO) << nFaultyOFC << " channel(s) out of " << nChanTot
-        << " skipped due to faulty OFC." << endreq;
-    
-
-  } // end loop over containers
-
-  //msg(MSG::INFO) << " Summary : Number of cells with a OFC value computed : " << larOFCComplete->totalNumberOfConditions()  << endreq;
-  msg(MSG::INFO) << " Summary : Number of cells with a OFC value computed : " << NOFC  << endreq;
-  msg(MSG::INFO) << " Summary : Number of Barrel PS cells side A or C (connected+unconnected):   3904+ 192 =  4096 " << endreq;
-  msg(MSG::INFO) << " Summary : Number of Barrel    cells side A or C (connected+unconnected):  50944+2304 = 53248 " << endreq;
-  msg(MSG::INFO) << " Summary : Number of EMEC      cells side A or C (connected+unconnected):  31872+3456 = 35328 " << endreq;
-  msg(MSG::INFO) << " Summary : Number of HEC       cells side A or C (connected+unconnected):   2816+ 256 =  3072 " << endreq;
-  msg(MSG::INFO) << " Summary : Number of FCAL      cells side A or C (connected+unconnected):   1762+  30 =  1792 " << endreq;
-  
-  // record and symlynk LArOFCComplete object
-  ATH_MSG_DEBUG( "Trying to record LArOFCComplete object to detector store, key = " << m_ofcKey);
+  // record and symlink LArOFCComplete object
   sc = detStore()->record(larOFCComplete,m_ofcKey);
   if (sc.isFailure()) {
       msg(MSG::ERROR) << "Could not record LArOFCComplete to DetStore with key " << m_ofcKey << endreq;
       return StatusCode::FAILURE;
   }
-  msg(MSG::INFO) << "LArOFCComplete object recorded to DetStore successfully with key " << m_ofcKey << endreq ;
+  msg(MSG::INFO) << "LArOFCComplete object recorded with key " << m_ofcKey << endreq ;
 
-  ATH_MSG_DEBUG( "Trying to symlink ILArOFC with LArOFCComplete");
-  ILArOFC* larOFC = 0;
-  sc = detStore()->symLink(larOFCComplete, larOFC);
+  sc = detStore()->symLink(larOFCComplete,(ILArOFC*)larOFCComplete);
   if (sc.isFailure()) {
       msg(MSG::ERROR) << "Could not symlink ILArOFC with LArOFCComplete." << endreq;
       return StatusCode::FAILURE;
   } 
-  msg(MSG::INFO) << "ILArOFC symlink with LArOFCComplete successfully" << endreq ;
+  msg(MSG::INFO) << "Symlink with ILArOFC done" << endreq ;
   
-  if ( m_dumpOFCfile != std::string("") ) {
+
+  // record and symlink second version of LArOFCComplete object
+  if (m_computeV2) {
+    sc = detStore()->record(larOFCCompleteV2,m_ofcKeyV2);
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Could not record LArOFCComplete to DetStore with key " << m_ofcKeyV2 << endreq;
+      return StatusCode::FAILURE;
+    }
+    msg(MSG::INFO) << "LArOFCComplete object recorded with key " << m_ofcKeyV2 << endreq ;
+
+    sc = detStore()->symLink(larOFCCompleteV2,(ILArOFC*)larOFCCompleteV2);
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Could not symlink ILArOFC with LArOFCComplete." << endreq;
+      return StatusCode::FAILURE;
+    } 
+    msg(MSG::INFO) << "Symlink with ILArOFC done" << endreq ;
+  }
+
+  if ( m_dumpOFCfile.size()) {
     msg(MSG::INFO) << "Dumping OFCs to file " << m_dumpOFCfile << endreq ;
     larOFCComplete->dumpOFC(m_dumpOFCfile) ;
   }
@@ -598,7 +366,7 @@ StatusCode LArOFCAlg::stop()
     }
   }
   
-  // record and symlynk LArShapeComplete object
+  // record and symlink LArShapeComplete object
   if ( m_fillShape ) {
     ATH_MSG_DEBUG( "Trying to record LArShapeComplete object to detector store, key = " << m_shapeKey);
     sc = detStore()->record(larShapeComplete,m_shapeKey);
@@ -616,302 +384,350 @@ StatusCode LArOFCAlg::stop()
     } 
     msg(MSG::INFO) << "ILArShape symlink with LArShapeComplete successfully" << endreq ;
   }  
-  // undo corrections, if applied
-  if(m_readCaliWave) {
-     if(m_larCaliWaveContainer->correctionsApplied()) {
-        LArCaliWaveContainer* cnt=const_cast<LArCaliWaveContainer*>(m_larCaliWaveContainer);
-        if(cnt->correctionsApplied()) {
-          msg(MSG::INFO) << "Undoing the correction in CaliWaveContainer." << endreq;
-          sc = cnt->undoCorrections();
-          if (sc.isFailure()) {
-           msg(MSG::ERROR) << "Could not undo the correction in CaliWaveContainer." << endreq;
-          }
-        }
-     }
-  } else {
-     LArPhysWaveContainer* cnt=const_cast<LArPhysWaveContainer*>(m_larPhysWaveContainer);
-     if(cnt->correctionsApplied()) {
-        sc = cnt->undoCorrections();
-          if (sc.isFailure()) {
-           msg(MSG::ERROR) << "Could not undo the correction in PhysWaveContainer." << endreq;
-          }
-     }
-  }
-  
+
+
   return StatusCode::SUCCESS;
 }
 
 
-StatusCode
-LArOFCAlg::initPhysWaveContainer(const std::string& keyPhys,
-                                       unsigned&   gain_it,	
-				       PhysWaveIt& wave_it)
-{
-     ATH_MSG_DEBUG( "initPhysWaveContainer ");
-    // Retrieve the container with the given key	
-    std::string key = keyPhys;
-    StatusCode sc = detStore()->retrieve(m_larPhysWaveContainer,key);	    
-    if (sc.isFailure()) {
-    	msg(MSG::ERROR) << "Cannot read LArPhysWaveContainer from StoreGate! key=" << key << endreq;
-    	return StatusCode::FAILURE;
-    } else {
-    	msg(MSG::INFO) << "Read LArPhysWaveContainer from StoreGate! key= "  << key << endreq;
-    }	 
+void LArOFCAlg::process(perChannelData_t& chanData) const {
 
-    if (!m_larPhysWaveContainer->correctionsApplied()) {
-      msg(MSG::INFO) << "LArPhysWaveContainer: Corrections not yet applied, applying them now..." << endreq;
-      LArPhysWaveContainer* cnt=const_cast<LArPhysWaveContainer*>(m_larPhysWaveContainer);
-      sc=cnt->applyCorrections();
-      if (sc.isFailure()) {
-	msg(MSG::ERROR) << "Failed to apply corrections to LArPhysWaveContainer!" << endreq;
-	return sc;
-      }
-    }
-    else
-      msg(MSG::INFO) << "LArPhysWaveContainer: Corrections already applied" << endreq;
-
-    // set iterators for first wave
-    for ( gain_it = CaloGain::LARHIGHGAIN ; gain_it < CaloGain::LARNGAIN ; gain_it++ ) { // loop on possible gains
-       int ncell = 0;
-       for ( wave_it = m_larPhysWaveContainer->begin(gain_it); wave_it != m_larPhysWaveContainer->end(gain_it); ++wave_it) {
-            if ( wave_it == m_larPhysWaveContainer->begin(gain_it) )
-	      ATH_MSG_DEBUG( "LArPhysWaveContainer (key = " << key << ") has at least one wave with gain = " << gain_it);
-	    ATH_MSG_DEBUG( "Seeking for first non-empty channel at position " << ++ncell);
-	    if ( !wave_it->isEmpty() ) {
-	      ATH_MSG_DEBUG( "First non-empty channel found at position " << ncell);
-	      return StatusCode::SUCCESS;
-	    }   
-       }  
-       ATH_MSG_DEBUG( "LArPhysWaveContainer (key = " << key << ") has no wave with gain = " << gain_it);
-    }
-    ATH_MSG_DEBUG( "LArPhysWaveContainer (key = " << key << ") is empty!");
-    return StatusCode::FAILURE;
-}
-
-
-const LArWaveCumul*
-LArOFCAlg::getWave(unsigned& gain_it, PhysWaveIt& wave_it) 
-{
-    const LArWaveCumul* result = 0;
-    while ( gain_it < CaloGain::LARNGAIN ) {
-	while ( wave_it != m_larPhysWaveContainer->end(gain_it) ) {
-	  ATH_MSG_DEBUG( "Trying next cell...");
-	    ++wave_it;
-	    if ( wave_it != m_larPhysWaveContainer->end(gain_it) 
-		 && wave_it->getSize() != 0 ) {
-		result = &(*wave_it);
-		return result ;
-	    }
-	}
-	// try next gain
-	ATH_MSG_DEBUG( "Trying next gain...");
-	++gain_it;
-	if ( gain_it < CaloGain::LARNGAIN ) {
-	    wave_it = m_larPhysWaveContainer->begin(gain_it);
-	    if ( wave_it != m_larPhysWaveContainer->end(gain_it) 
-		 && wave_it->getSize() != 0 ) {
-		result = &(*wave_it);
-		return (result);  	
-	}
-      }
-    }
-    
-    ATH_MSG_DEBUG("LArPhysWaveContainer exausted.");
-    return (result);
-}
-
-
-
-StatusCode
-LArOFCAlg::initCaliWaveContainer(const std::string& keyCali,
-                                       unsigned&   gain_it,
-				       CaliCellIt& cell_it, 	
-				       CaliWaveIt& wave_it)
-{
- 
-    ATH_MSG_DEBUG("initCaliWaveContainer");
-    // Retrieve the container with the given key	
-    std::string key = keyCali;
-    StatusCode sc = detStore()->retrieve(m_larCaliWaveContainer,key);	    
-    if (sc.isFailure()) {
-    	msg(MSG::ERROR) << "Cannot read LArCaliWaveContainer from StoreGate! key=" << key << endreq;
-    	return StatusCode::FAILURE;
-    } else {
-    	msg(MSG::INFO) << "Read LArCaliWaveContainer from StoreGate! key= "  << key << endreq;
-    }
-    if (!m_larCaliWaveContainer->correctionsApplied()) {
-      msg(MSG::INFO) << "LArCaliWaveContainer: Corrections not yet applied, applying them now..." << endreq;
-      LArCaliWaveContainer* cnt=const_cast<LArCaliWaveContainer*>(m_larCaliWaveContainer);
-      sc=cnt->applyCorrections();
-      if (sc.isFailure()) {
-	msg(MSG::ERROR) << "Failed to apply corrections to LArCaliWaveContainer!" << endreq;
-	return sc;
-      }	 
-    }
-    else
-      msg(MSG::INFO) << "LArCaliWaveContainer: Corrections already applied" << endreq;
-
-    // set iterators for first wave
-    for ( gain_it = CaloGain::LARHIGHGAIN ; gain_it < CaloGain::LARNGAIN ; gain_it++ ) { // loop on possible gains
-       int ncell = 0;
-       for ( cell_it = m_larCaliWaveContainer->begin(gain_it); cell_it != m_larCaliWaveContainer->end(gain_it); ++ cell_it) {         
-	    
-	    if (cell_it == m_larCaliWaveContainer->begin(gain_it) )
-	      ATH_MSG_DEBUG( "LArCaliWaveContainer (key = " << key << ") has at least one wave with gain = " << gain_it);
-	    
-	    ATH_MSG_DEBUG( "Seeking for first non-empty channel at position " << ++ncell);
-	    
-	    if ( cell_it->begin() != cell_it->end() ) {
-	      ATH_MSG_DEBUG( "First non-empty channel found at position " << ncell);
-		wave_it = cell_it->begin();
-	        return StatusCode::SUCCESS;
-	    }
-	    
-       }  
-       ATH_MSG_DEBUG( "LArCaliWaveContainer (key = " << key << ") has no wave with gain = " << gain_it);
-    }
-    ATH_MSG_DEBUG( "LArCaliWaveContainer (key = " << key << ") is empty!");
-    return StatusCode::FAILURE;
-}
-
-
-
-const LArWaveCumul*
-LArOFCAlg::getWave(unsigned& gain_it, CaliCellIt& cell_it, CaliWaveIt& wave_it) 
-{
-    const LArWaveCumul* result = 0;
-    
-    while ( gain_it < CaloGain::LARNGAIN ) {
-	while ( cell_it != m_larCaliWaveContainer->end(gain_it) ) {
-	    while ( wave_it != cell_it->end() ) {
-	      ATH_MSG_DEBUG( "Trying next wave for current cell...");
-	       ++wave_it; // check if there are other waves for the current cell
-	       if ( wave_it != cell_it->end() &&
-	            wave_it->getSize() != 0 ) {
-		  result = &(*wave_it);
-		  return result ;
-	       }
-	    }
-	    // try next cell
-	    ATH_MSG_DEBUG( "Trying next cell...");
-	    ++cell_it;
-	    if ( cell_it != m_larCaliWaveContainer->end(gain_it) ) {
-	       wave_it = cell_it->begin();
-	       if ( wave_it != cell_it->end() &&
-	            wave_it->getSize() != 0 ) {
-	         result = &(*wave_it);
-		 return (result); 
-	       }
-	    }
-	}
-	// try next gain
-	ATH_MSG_DEBUG( "Trying next gain...");
-	++gain_it;
-	if ( gain_it < CaloGain::LARNGAIN ) {
-	    cell_it = m_larCaliWaveContainer->begin(gain_it);
-	    if ( cell_it != m_larCaliWaveContainer->end(gain_it) ) {
-	       wave_it = cell_it->begin();
-	       if ( wave_it != cell_it->end() &&
-	            wave_it->getSize() != 0 ) {
-	         result = &(*wave_it);
-		 return (result); 
-	       }
-	    }
-        }
-    }
-    
-    ATH_MSG_DEBUG( "LArCaliWaveContainer exausted.");
-    return (result);
-}
-
-
-void LArOFCAlg::Optfilt(std::vector<float> &gWave_in, std::vector<float>  &gDerivWave_in) 
-{
-
-  assert(gWave_in.size()==gDerivWave_in.size());
-  m_optNpt = gWave_in.size();
-
-  Eigen::VectorXd gResp_in(m_optNpt), gDerivResp_in(m_optNpt);
-  
-  for (int i=0;i<m_optNpt;i++) {
-    gResp_in[i] = gWave_in[i];
-    gDerivResp_in[i] = gDerivWave_in[i];
+  LArWaveHelper larWaveHelper;
+  const LArWaveCumul* nextWave=chanData.inputWave;
+  if (!nextWave) {
+    msg(MSG::ERROR) << "input wave is 0" << endreq;
+    return;
   }
 
-  m_gResp= gResp_in;
-  m_gDerivResp = gDerivResp_in;
+  if ( nextWave->getFlag() == LArWave::dac0 ) return ; // skip dac0 waves
 
-  perCalc();
+  const HWIdentifier ch_id=chanData.chid;
+  const unsigned gain=chanData.gain;
+  ATH_MSG_DEBUG( "Computing OFC for channel " << m_onlineID->channel_name(ch_id) << " in gain = " << gain);
+      
+      
+  // check constistency of settings
+  if ( m_nPoints > nextWave->getSize() ) {
+    msg(MSG::ERROR) << "Channel " << m_onlineID->channel_name(ch_id) <<": Wave size (" << nextWave->getSize() 
+		    << ") is too small to fit your OFC request (" << m_nPoints << " points)" << endreq ;
+    chanData.shortWave=true;
+    return;
+  }
 
+  // the current waveform
+  LArWave aWave = *nextWave; // Actually *copying* the Wave to get rid of the const: need to manipulate Wave to normalize...
+
+  if (m_larPhysWaveBin) {
+    const int bin = m_larPhysWaveBin->bin(ch_id,gain);
+    if (bin>-998) { //>ERRORCODE
+      ATH_MSG_VERBOSE("Channel " << m_onlineID->channel_name(ch_id) << ": shift by index " << bin);
+      aWave=larWaveHelper.translate(aWave,-bin,0);
+    }
+    else
+      ATH_MSG_VERBOSE("Channel 0x" << MSG::hex << ch_id.get_identifier32().get_compact() << MSG::dec << ": No valid index for shifting");
+  }//end if larPhysWaveBin
+
+
+  // normalize input wave, if requested      
+  if (m_normalize) {
+    const double peak = aWave.getSample( larWaveHelper.getMax(aWave) );
+    if ( peak == 0 ) {
+      msg(MSG::ERROR) << "Wave maximum is zero, skipping channel " << m_onlineID->channel_name(ch_id) << endreq ;
+      return;
+    }
+
+    ATH_MSG_VERBOSE("Channel 0x" << m_onlineID->channel_name(ch_id) << " has amplitude = " << peak << ": normalizing...");
+    aWave = aWave * (1./peak);
+  } 
+
+  ATH_MSG_VERBOSE("Channel " << m_onlineID->channel_name(ch_id) <<  " has now amplitude = " <<  aWave.getSample( larWaveHelper.getMax(aWave)));
+  // compute tstart to shift input wave, if requested
+  if ( m_timeShift ) {
+    if( m_timeShiftByIndex == -1 ) {
+      chanData.tstart = larWaveHelper.getStart(aWave) ;
+    } else {
+      chanData.tstart = m_timeShiftByIndex;
+    }
+  }
+      
+  ATH_MSG_DEBUG("Channel" << m_onlineID->channel_name(ch_id) << ", Tstart = " << chanData.tstart);
+
+  //Calculate derivative for this wave
+  LArWave aDerivedWave = larWaveHelper.derive_smooth(aWave);
+
+  chanData.timeBinWidthOFC = m_dPhases*aWave.getDt();
+
+  float maxSampleValAt3=-1;
+      
+  //prepare output vectors
+  chanData.ofc_a.resize(m_nPhases);
+  chanData.ofc_b.resize(m_nPhases);  
+  chanData.shape.resize(m_nPhases);     
+  chanData.shapeDer.resize(m_nPhases);  
+
+  if (m_computeV2) {
+     chanData.ofcV2_a.resize(m_nPhases);
+     chanData.ofcV2_b.resize(m_nPhases);  
+  }
+
+
+  const Eigen::MatrixXd acInverse=m_AutoCorrDecoder->AutoCorr(chanData.chid,(CaloGain::CaloGain)chanData.gain,m_nSamples).inverse();
+  Eigen::MatrixXd acInverseV2;
+  if (m_computeV2)
+    acInverseV2=m_AutoCorrDecoderV2->AutoCorr(chanData.chid,(CaloGain::CaloGain)chanData.gain,m_nSamples).inverse();
+
+  for (unsigned iPhase=0;iPhase<m_nPhases;iPhase++) { //Loop over all phases
+      	
+    ATH_MSG_VERBOSE ("Channel " << m_onlineID->channel_name(ch_id) 
+		     << ", Gain = " << gain << ", Phase = " << iPhase << ":");
+
+
+    //Reference to the samples and deriviative to be filled
+    std::vector<float>& theSamples=chanData.shape[iPhase];
+    std::vector<float>& theSamplesDer=chanData.shapeDer[iPhase];
+
+    //Extract the points where we compute the OFCs from the wave and the derived wave
+    //and fill the samples an derivative vector
+    theSamples.reserve(m_nSamples);
+    theSamplesDer.reserve(m_nSamples);
+    for (unsigned iSample=0;iSample<m_nSamples;++iSample){ //Loop over all samples
+      const unsigned tbin = chanData.tstart + iPhase*m_dPhases + iSample*m_nDelays ;	  
+      theSamples.push_back( aWave.getSample(tbin) );
+      theSamplesDer.push_back( aDerivedWave.getSample(tbin) );
+    } //End loop over samples
+
+
+    if (m_storeMaxPhase && m_nSamples>2 && theSamples[2]>maxSampleValAt3) {
+      maxSampleValAt3=theSamples[2];
+      chanData.phasewMaxAt3=iPhase;
+    }
+
+    bool thisChanUseDelta=useDelta(ch_id,m_useDelta);
+    bool thisChanUseDeltaV2=m_computeV2 && useDelta(ch_id,m_useDeltaV2);
+    Eigen::VectorXd delta;
+
+    if (thisChanUseDelta || thisChanUseDeltaV2) { // will need delta for at least one of the two versions
+      std::vector<float> theSamples32;
+      theSamples32.reserve(32);
+      for (unsigned iSample=0;iSample<32 ;++iSample){ //Loop over all samples
+	const unsigned tbin = chanData.tstart + iPhase*m_dPhases + iSample*m_nDelays ;	  
+	if (tbin>=aWave.getSize()) continue;
+	theSamples32.push_back( aWave.getSample(tbin) );
+      } //End loop over samples
+      delta=getDelta(theSamples32,ch_id,m_nSamples);
+    }
+
+    //OFC V1 computiation (i.e. not pileup-optimized)
+    //Reference to the OFCa and OFCb to be filled
+    std::vector<float>& vOFC_a= chanData.ofc_a[iPhase];
+    std::vector<float>& vOFC_b= chanData.ofc_b[iPhase];
+
+    if (thisChanUseDelta) {      
+      optFiltDelta(theSamples,theSamplesDer,acInverse,delta,vOFC_a,vOFC_b);  
+    } 
+    else { //don't use Delta
+      optFilt(theSamples,theSamplesDer,acInverse,vOFC_a,vOFC_b);
+    }
+    
+    // verify OFC consistency
+    if (m_verify) {
+      chanData.faultyOFC |= verify(chanData.chid,vOFC_a,vOFC_b,theSamples,"OFC",iPhase);
+    } 
+	
+
+    if (m_computeV2) {
+      //OFC V2 computiation (i.e. pileup-optimized)
+      //Reference to the OFCa and OFCb to be filled
+      std::vector<float>& vOFCV2_a= chanData.ofcV2_a[iPhase];
+      std::vector<float>& vOFCV2_b= chanData.ofcV2_b[iPhase];
+      
+      if (thisChanUseDeltaV2) {
+	optFiltDelta(theSamples,theSamplesDer,acInverseV2,delta,vOFCV2_a,vOFCV2_b);
+      } 
+      else { //don't use Delta
+	optFilt(theSamples,theSamplesDer,acInverseV2,vOFCV2_a,vOFCV2_b);
+      }
+
+      // verify OFC consistency
+      if (m_verify) {
+	chanData.faultyOFC |= verify(chanData.chid,vOFCV2_a,vOFCV2_b,theSamples,"OFCV2",iPhase);
+      } 
+    }//end if computeV2
+  } //End loop over all phases
+
+  // in case we're dealing with a LArPhysWave, add any possible previous time shift
+  if (!m_readCaliWave) {
+    const LArPhysWave* pwave=dynamic_cast<const LArPhysWave*>(nextWave);
+    if (pwave)
+      chanData.tstart += pwave->getTimeOffset()+m_addOffset;
+  }
+  return;
 }
 
 
-void LArOFCAlg::perCalc() {
-  
 
-#ifdef LAROFCALG_DEBUGOUTPUT
-  static bool firstTime=true ;
-  if ( firstTime ) {
-    std::cout << m_AutoCorrMatrix  << std::endl ;
-    firstTime=false ;
+
+StatusCode LArOFCAlg::initPhysWaveContainer() {
+
+  typedef LArPhysWaveContainer::ConstConditionsMapIterator WAVEIT;
+
+  for (unsigned k=0 ; k<m_keylist.size() ; k++ ) { // Loop over all containers that are to be processed (e.g. different gains)
+    msg(MSG::INFO) << "Processing WaveContainer from StoreGate! key = " << m_keylist[k] << endreq;
+
+    const LArPhysWaveContainer* waveCnt;
+    StatusCode sc=detStore()->retrieve(waveCnt,m_keylist[k]);
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Failed to retrieve a LArPhysWaveContainer with key " << m_keylist[k] << endreq;
+      return sc;
+    }
+      
+    m_allChannelData.reserve(m_allChannelData.size()+128*waveCnt->size());// Size doesn't give the expected response on a CondtitionsContainer 
+
+    for (unsigned gain = CaloGain::LARHIGHGAIN ; gain < CaloGain::LARNGAIN ; gain++ ) { // loop on possible gains
+      WAVEIT it=waveCnt->begin(gain);
+      WAVEIT it_e=waveCnt->end(gain);
+      for (;it!=it_e;++it) {
+	const HWIdentifier chid=it.channelId();
+	if (m_cablingService->isOnlineConnected (chid)){
+	  const LArWaveCumul* wave= &(*it); //down-cast
+	  if (!wave->isEmpty()) {
+	    m_allChannelData.emplace_back(wave, chid,gain);
+	  }
+	}
+	//std::cout << "Got wave size=" << wave->getSize() <<", id=" << it.channelId().get_identifier32().get_compact() << ", gain=" << gain << std::endl;
+      } //end loop over channels
+    }//end loop over gains
+  }//end loop over SG keys
+  return StatusCode::SUCCESS;
+}   
+
+
+StatusCode LArOFCAlg::initCaliWaveContainer() {
+
+  typedef LArCaliWaveContainer::ConstConditionsMapIterator WAVEIT;
+  for (unsigned k=0 ; k<m_keylist.size() ; k++ ) { // Loop over all containers that are to be processed (e.g. different gains)
+    msg(MSG::INFO) << "Processing WaveContainer from StoreGate! key = " << m_keylist[k] << endreq;
+
+    //Input cali-wave might come from the same job. In this case we see a non-const container in SG probably w/o corrections applied.
+    //Try non-const retrieve:
+    const LArCaliWaveContainer* waveCnt;
+    LArCaliWaveContainer* waveCnt_nc=detStore()->tryRetrieve<LArCaliWaveContainer>(m_keylist[k]);
+    if (waveCnt_nc) {
+      waveCnt=waveCnt_nc; //Retain const pointer
+      if (!waveCnt_nc->correctionsApplied()) {
+	msg(MSG::INFO) << "LArCaliWaveContainer: Corrections not yet applied, applying them now..." << endreq;
+	if (waveCnt_nc->applyCorrections().isFailure()) {
+	  msg(MSG::ERROR) << "Failed to apply corrections to LArCaliWaveContainer!" << endreq;
+	  return StatusCode::FAILURE;
+	}
+      }
+    }
+    else {
+      waveCnt=detStore()->tryConstRetrieve<LArCaliWaveContainer>(m_keylist[k]);
+      if (!waveCnt) {
+	msg(MSG::ERROR) << "Failed to retrieve a LArCaliWaveContainer with key " << m_keylist[k] << endreq;
+	return  StatusCode::FAILURE;
+      }
+    }   
+   
+
+    m_allChannelData.reserve(m_allChannelData.size()+128*waveCnt->size());// Size doesn't give the expected response on a CondtitionsContainer 
+
+    for (unsigned gain = CaloGain::LARHIGHGAIN ; gain < CaloGain::LARNGAIN ; gain++ ) { // loop on possible gains
+      WAVEIT it=waveCnt->begin(gain);
+      WAVEIT it_e=waveCnt->end(gain);
+      for (;it!=it_e;++it) {
+	const LArCaliWaveVec& wVec=*it;
+	for (const auto& cw : wVec) {
+	  const LArWaveCumul* wave= &(cw); //down-cast
+	  if (!wave->isEmpty()) {
+	    m_allChannelData.emplace_back(wave,it.channelId(),gain);
+	  }
+	}
+      } //end loop over channels
+    }//end loop over gains
+  }//end loop over SG keys
+  return StatusCode::SUCCESS;
+}
+
+
+void  LArOFCAlg::optFilt(const std::vector<float> &gWave, const std::vector<float>  &gDerivWave, const Eigen::MatrixXd& acInverse, //input variables
+			 std::vector<float>& vecOFCa, std::vector<float>& vecOFCb) const { // Output variables;
+  assert(gWave.size()==gDerivWave.size());
+  //assert autoCorr size ....
+  const int optNpt = gWave.size();
+  
+  Eigen::VectorXd gResp(optNpt), gDerivResp(optNpt);
+  for (int i=0;i<optNpt;i++) {
+    gResp[i] = gWave[i];
+    gDerivResp[i] = gDerivWave[i];
   }
-#endif
 
-  //HepMatrix acInverse = m_AutoCorrMatrix.inverse(ifail);
-  //assert (ifail == 0 );
- 
-  // //const unsigned acSize
-//   Eigen::MatrixXd ac(m_AutoCorrMatrix.num_row(),m_AutoCorrMatrix.num_col());
-//   for (int r=0;r<m_AutoCorrMatrix.num_row();++r) {
-//     for (int c=0;c<m_AutoCorrMatrix.num_col();++c) {
-//       ac(r,c)=m_AutoCorrMatrix[r][c];
-//     }
-//   }
-  const Eigen::MatrixXd acInverse=m_AutoCorrMatrix.inverse();
-  
+  Eigen::Matrix2d isol;
+  isol << 
+    (gResp.transpose()*acInverse*gResp)[0],
+    (gResp.transpose()*acInverse*gDerivResp)[0],
+    (gDerivResp.transpose()*acInverse*gResp)[0],
+    (gDerivResp.transpose()*acInverse*gDerivResp)[0];
 
-  if (! m_thisChan_useDelta){
+  Eigen::Vector2d Amp; 
+  Eigen::Vector2d Atau;
+  Eigen::Vector2d Ktemp;
+  Eigen::Matrix2d isolInv = isol.inverse();
 
-    Eigen::Matrix2d isol;
-    isol << 
-      (m_gResp.transpose()*acInverse*m_gResp)[0],
-      (m_gResp.transpose()*acInverse*m_gDerivResp)[0],
-      (m_gDerivResp.transpose()*acInverse*m_gResp)[0],
-      (m_gDerivResp.transpose()*acInverse*m_gDerivResp)[0];
+  //Output vector (eigen version)
+  //Eigen::VectorXd(m_optNpt) a;
+  //Eigen::VectorXd(m_optNpt) b;
 
-    Eigen::Vector2d Amp; 
-    Eigen::Vector2d Atau;
-    Eigen::Vector2d Ktemp;
-    Eigen::MatrixXd isolInv = isol.inverse();
-
-    m_a = Eigen::VectorXd(m_optNpt);
-    m_b = Eigen::VectorXd(m_optNpt);
-
-  // assert(ifail == 0);
   //  we solve for the lagrange multiplers
-
-    Ktemp[0] = 1.;
-    Ktemp[1] = 0.;
-    Amp = isolInv*Ktemp;
+  Ktemp[0] = 1.;
+  Ktemp[1] = 0.;
+  Amp = isolInv*Ktemp;
   
-    Ktemp[0] = 0.; 
-    Ktemp[1] = -1.;
-    Atau = isolInv*Ktemp;
+  Ktemp[0] = 0.; 
+  Ktemp[1] = -1.;
+  Atau = isolInv*Ktemp;
 
-    //m_a = HepVector(m_optNpt);
-    //m_b = HepVector(m_optNpt);
-    // we express the a and b vectors in terms of the lagrange multipliers
-    m_a = Amp[0]*acInverse*m_gResp + Amp[1]*acInverse*m_gDerivResp;
-    m_b = Atau[0]*acInverse*m_gResp + Atau[1]*acInverse*m_gDerivResp;
-
-
+  //m_a = HepVector(m_optNpt);
+  //m_b = HepVector(m_optNpt);
+  // we express the a and b vectors in terms of the lagrange multipliers
+  Eigen::VectorXd OFCa = Amp[0]*acInverse*gResp + Amp[1]*acInverse*gDerivResp;
+  Eigen::VectorXd OFCb = Atau[0]*acInverse*gResp + Atau[1]*acInverse*gDerivResp;
+  
+  //Convert back to std::vector
+  vecOFCa.resize(optNpt);
+  vecOFCb.resize(optNpt);
+  for (int i=0;i<optNpt;i++) {
+    vecOFCa[i]=OFCa[i];
+    vecOFCb[i]=OFCb[i];
   }
-  else
-  {
+  return;
+}
+
+
+
+
+
+
+void  LArOFCAlg::optFiltDelta(const std::vector<float> &gWave, const std::vector<float>  &gDerivWave, 
+			      const Eigen::MatrixXd& acInverse, const Eigen::VectorXd& delta, 
+			      std::vector<float>& vecOFCa, std::vector<float>& vecOFCb) const{ 
+
+  
+
+  assert(gWave.size()==gDerivWave.size());
+  //assert autoCorr size ....
+  const int optNpt = gWave.size();
+  
+  Eigen::VectorXd gResp(optNpt), gDerivResp(optNpt);
+  for (int i=0;i<optNpt;i++) {
+    gResp[i] = gWave[i];
+    gDerivResp[i] = gDerivWave[i];
+  }
 
   // try 3X3 matrix with offsets
 
-    Eigen::Matrix3d isol;
+  
   /**
   HepVector delta(5) ; 
   
@@ -921,114 +737,195 @@ void LArOFCAlg::perCalc() {
   delta[3]=-5.90850592618;
   delta[4]=1.8260451328;
   */
-    isol << 
-      (m_gResp.transpose()*acInverse*m_gResp)[0],
-      (m_gResp.transpose()*acInverse*m_gDerivResp),
-      (m_gResp.transpose()*acInverse*m_delta)[0],
-
-      (m_gDerivResp.transpose()*acInverse*m_gResp)[0],
-      (m_gDerivResp.transpose()*acInverse*m_gDerivResp)[0],
-      (m_gDerivResp.transpose()*acInverse*m_delta)[0],
-
-      (m_delta.transpose()*acInverse*m_gResp)[0],
-      (m_delta.transpose()*acInverse*m_gDerivResp)[0],
-      (m_delta.transpose()*acInverse*m_delta)[0];
-
-
-    Eigen::Vector3d Amp; 
-    Eigen::Vector3d Atau;
-    Eigen::Vector3d Ktemp;
-    Eigen::MatrixXd isolInv = isol.inverse();
-
-    m_a = Eigen::VectorXd(m_optNpt);
-    m_b = Eigen::VectorXd(m_optNpt);
- 
-
-    // assert(ifail == 0);
-    //  we solve for the lagrange multiplers
-
-    Ktemp[0] = 1.;
-    Ktemp[1] = 0.;
-    Ktemp[2] = 0.;
-
-    Amp = isolInv*Ktemp;
+  Eigen::Matrix3d isol;
+  isol << 
+    (gResp.transpose()*acInverse*gResp)[0],
+    (gResp.transpose()*acInverse*gDerivResp),
+    (gResp.transpose()*acInverse*delta)[0],
     
-    Ktemp[0] = 0.; 
-    Ktemp[1] = -1.;
-    Atau = isolInv*Ktemp;
+    (gDerivResp.transpose()*acInverse*gResp)[0],
+    (gDerivResp.transpose()*acInverse*gDerivResp)[0],
+    (gDerivResp.transpose()*acInverse*delta)[0],
+    
+    (delta.transpose()*acInverse*gResp)[0],
+    (delta.transpose()*acInverse*gDerivResp)[0],
+    (delta.transpose()*acInverse*delta)[0];
+  
 
-    // we express the a and b vectors in terms of the lagrange multipliers
-    m_a = Amp[0]*acInverse*m_gResp + Amp[1]*acInverse*m_gDerivResp + Amp[2]*acInverse * m_delta;
-    m_b = Atau[0]*acInverse*m_gResp + Atau[1]*acInverse*m_gDerivResp + Atau[2]*acInverse * m_delta  ;
+  Eigen::Vector3d Amp; 
+  Eigen::Vector3d Atau;
+  Eigen::Vector3d Ktemp;
+  Eigen::Matrix3d isolInv = isol.inverse();
+
+  //  we solve for the lagrange multiplers
+
+  Ktemp[0] = 1.;
+  Ktemp[1] = 0.;
+  Ktemp[2] = 0.;
+
+  Amp = isolInv*Ktemp;
+    
+  Ktemp[0] = 0.; 
+  Ktemp[1] = -1.;
+  Atau = isolInv*Ktemp;
+
+  // we express the a and b vectors in terms of the lagrange multipliers
+  Eigen::VectorXd OFCa = Amp[0]*acInverse*gResp + Amp[1]*acInverse*gDerivResp + Amp[2]*acInverse * delta;
+  Eigen::VectorXd OFCb = Atau[0]*acInverse*gResp + Atau[1]*acInverse*gDerivResp + Atau[2]*acInverse * delta  ;
+
+
+  //Convert back to std::vector
+  vecOFCa.resize(optNpt);
+  vecOFCb.resize(optNpt);
+  for (int i=0;i<optNpt;i++) {
+    vecOFCa[i]=OFCa[i];
+    vecOFCb[i]=OFCb[i];
   }
+  return;
 }
 
 
-void LArOFCAlg::getDelta( std::vector<float>& samples ){
 
-  m_delta= Eigen::VectorXd(5);
-  if (m_onlineID->isFCALchannel(m_id) ){
+const float LArOFCAlg::m_fcal3Delta[5]  ={0.0790199937765,  0.0952000226825,  0.0790199937765,  0.0952000226825,  0.0790199937765};
+const float LArOFCAlg::m_fcal2Delta[5]={-0.01589001104,  -0.0740399733186, -0.01589001104,   -0.0740399733186, -0.01589001104};
+const float LArOFCAlg::m_fcal1Delta[5] ={0.0679600232979, -0.139479996869,   0.0679600232979, -0.139479996869,   0.0679600232979};
+
+Eigen::VectorXd LArOFCAlg::getDelta(std::vector<float>& samples, const HWIdentifier chid, unsigned nSamples) const{
+
+  if (nSamples>5) nSamples=5;
+
+  Eigen::VectorXd delta(nSamples); //return value
+
+  if (m_onlineID->isFCALchannel(chid) ){
     // FCAL use fixed delta from data. 
-
-    int slot = m_onlineID->slot(m_id) ; 
-    if ( slot <=9){
-      // FCAL 1
-      m_delta[0]= 0.0679600232979;
-      m_delta[1]= -0.139479996869;
-      m_delta[2]=0.0679600232979;
-      m_delta[3]= -0.139479996869;
-      m_delta[4]=0.0679600232979;
+    const int slot = m_onlineID->slot(chid) ; 
+    if ( slot <=9){ // FCAL 1
+      for (unsigned i=0;i<nSamples;++i) {
+	delta[i]=m_fcal1Delta[i];
+      }
     }else
-      if(slot <=13){
-	// FCAL 2
-	m_delta[0]=-0.01589001104;
-	m_delta[1]=-0.0740399733186;
-	m_delta[2]=-0.01589001104;
-	m_delta[3]=-0.0740399733186;
-	m_delta[4]=-0.01589001104;
-    }else
-	{ //FCAL 3 
-	m_delta[0]=0.0790199937765;
-	m_delta[1]=0.0952000226825;
-	m_delta[2]=0.0790199937765;
-	m_delta[3]=0.0952000226825;
-	m_delta[4]=0.0790199937765;
+      if(slot <=13){ // FCAL 2
+	for (unsigned i=0;i<nSamples;++i) {
+	  delta[i]=m_fcal2Delta[i];
+	}
+      }else {  //FCAL 3 
+	for (unsigned i=0;i<nSamples;++i) {
+	  delta[i]=m_fcal3Delta[i];
+	}
       }
 
   }else
     { // from Shape 
-
       float odd = 0.;
       float even = 0.;
-      for (unsigned int i = 0;i<samples.size();++i)
-	{
+      for (unsigned int i = 0;i<samples.size();++i) {
 	  if (i%2==0){
 	    even  += samples[i];
 	  }
-	  else
-	  {
+	  else {
 	    odd += samples[i];
 	  }
 	}
 
-      m_delta[0]=even;
-      m_delta[1]=odd;
-      m_delta[2]=even;
-      m_delta[3]=odd;
-      m_delta[4]=even;
+      for (unsigned i=0;i<nSamples;++i) {
+	if (i%2==0)
+	  delta[i]=even;
+	else
+	  delta[i]=odd;
+      }
+    }
+
+  return delta;
+
+}
+
+ bool LArOFCAlg::useDelta(const HWIdentifier chid, const int jobOFlag) const {
+
+  if (jobOFlag==2){
+      return true;
+    }
+
+  if(jobOFlag==1) { // only HEC/EMECIW/FCAL
+    if (m_onlineID->isEMECIW(chid) || m_onlineID->isFCALchannel(chid) || m_onlineID->isHECchannel(chid)) {
+      return true;
+    }
   }
 
-  return ;
+  if(jobOFlag==3) { // only HEC/EMECIW/FCAL1 and high eta FCAL2-3 
+    if (m_onlineID->isEMECIW(chid) ||  m_onlineID->isHECchannel(chid)) {
+      return true;
+    }
+    else if (m_onlineID->isFCALchannel(chid) ){
 
+      if (m_cablingService->isOnlineConnected (chid)){
+	Identifier ofl_id = m_cablingService->cnvToIdentifier(chid);
+	const CaloDetDescrElement* dde = m_calo_dd_man->get_element(ofl_id);
+	if (! dde) {
+	  ATH_MSG_ERROR( " dde = 0 , onl_id, ofl_id= "<< chid<<" "<<ofl_id );
+	  return false; // Exception better? 
+	}
+	CaloCell_ID::CaloSample sampling = dde->getSampling();
+	if (sampling==CaloCell_ID::FCAL0){
+	  return true;
+	}
+	else {
+	  if (fabs(dde->eta())>4.0){
+	   return true;
+	  }
+	}
+	
+      }//end if connected
+    }//end if isFCALchannel
+
+  }//else if jobOFlag=3
+
+  return false;
 }
 
-Eigen::VectorXd LArOFCAlg::getAmpCoef(){
-  return(m_a);
+
+
+bool LArOFCAlg::verify(const HWIdentifier chid, const std::vector<float>& OFCa, const std::vector<float>& OFCb, 
+		       const std::vector<float>& Shape, const char* ofcversion, const unsigned phase) const {
+
+  bool result=false;
+  float recAmpl=0, recTime=0;
+  for (unsigned iSample=0;iSample<m_nSamples;++iSample){
+
+#ifdef LAROFCALG_DEBUGOUTPUT
+    ATH_MSG_VERBOSE("a["<<iSample<<"]="<<vOFC_a[iSample] << " b["<<iSample<<"]="<<vOFC_b[iSample] 
+		    << " Sample=" << aWave.getSample(tbin));
+#endif
+    recAmpl += OFCa[iSample] * Shape[iSample];
+    recTime += OFCb[iSample] * Shape[iSample];
+  } //End loop over samples
+
+  recTime /= recAmpl ;
+
+  // At this point the reconstructed amplitude must be = 1 by definition, whatever the initial normalisation!
+  ATH_MSG_VERBOSE("recAmp=" << recAmpl << " ; recTime=" << recTime);
+  if ( fabs(1.-recAmpl) > m_errAmpl ) {
+    msg(MSG::WARNING) << "Applying phase " << phase << " of " << ofcversion << " to original wave yields an Amplitude of "<< recAmpl 
+		      << " instead of 1. -> Wrong OFCs? channel " << m_onlineID->channel_name(chid) << endreq;
+    this->printOFCVec(OFCa,msg());
+    result=true;
+  }
+  if ( fabs(recTime) > m_errTime ) {
+    msg( MSG::WARNING) << "Applying  phase " << phase << " of " << ofcversion << " to original wave yields a time offset of " << recTime 
+		       << " -> Wrong OFCs? channel " << m_onlineID->channel_name(chid) << endreq;
+    this->printOFCVec(OFCb,msg());
+    result=true; 
+  }
+  return result;
 }
 
-Eigen::VectorXd LArOFCAlg::getATauCoef(){
-  return(m_b);
+void LArOFCAlg::printOFCVec(const std::vector<float>& vec, MsgStream& mLog) const {
+  mLog << MSG::WARNING << "OFCs";
+    for(float v : vec) 
+      mLog << " " << v;
+  mLog << endreq;
+  return;
 }
+
 
 #ifdef LAROFCALG_DEBUGOUTPUT
 #undef LAROFCALG_DEBUGOUTPUT

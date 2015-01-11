@@ -15,14 +15,14 @@
 #ifndef LARDUPLICATECONSTANTS_H
 #define LARDUPLICATECONSTANTS_H
  
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "LArIdentifier/LArOnlineID.h"
 
 #include <vector>
 #include <string>
 
-class LArDuplicateConstants : public Algorithm 
+class LArDuplicateConstants : public AthAlgorithm 
 { 
  public:
   LArDuplicateConstants(const std::string& name, ISvcLocator* pSvcLocator);
@@ -34,10 +34,7 @@ class LArDuplicateConstants : public Algorithm
   StatusCode finalize(){return StatusCode::SUCCESS;}
 
  private:
-
-  StoreGateSvc* m_detStore;  
   const LArOnlineID* m_onlineHelper;
-  MsgStream* m_log;
 
   unsigned int m_gainIN;
   unsigned int m_gainOUT;

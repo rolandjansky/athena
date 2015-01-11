@@ -8,8 +8,7 @@
 #include "GaudiKernel/IToolSvc.h"
 
 LArFill::LArFill(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator),
-  m_detStore(0),
+  AthAlgorithm(name, pSvcLocator),
   m_lar_on_id(0),
   m_adc2dac(0),
   m_dac2ua(0),
@@ -27,32 +26,13 @@ LArFill::~LArFill()
 
 StatusCode LArFill::initialize()
 {
-  MsgStream  log(messageService(),name());
-
-  // retrieve detector Store
-  StatusCode sc = service("DetectorStore", m_detStore);
-  if (sc.isFailure()) 
-  {
-    log << MSG::ERROR
-	<< "Unable to retrieve pointer to DetectorStore "
-	<< endreq;
-    return sc;
-  }
-
-  sc = m_detStore->retrieve(m_lar_on_id,"LArOnlineID");
-  if (sc.isFailure()) {
-    log  << MSG::ERROR << "Unable to retrieve  LArOnlineID from DetectorStore" << endreq;
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK( detStore()->retrieve(m_lar_on_id,"LArOnlineID") );
   return StatusCode::SUCCESS;
 }
 
 StatusCode LArFill::execute()
 {
-  MsgStream  log(messageService(),name());  
-  
-  log<<MSG::DEBUG<<" In execute() " << endreq;
+  ATH_MSG_DEBUG(" In execute() " );
 
   std::vector<HWIdentifier>::const_iterator it   = m_lar_on_id->channel_begin();
   std::vector<HWIdentifier>::const_iterator it_e = m_lar_on_id->channel_end();
@@ -83,9 +63,7 @@ StatusCode LArFill::execute()
     }
   }  
 
-  log<<MSG::DEBUG<<" Loop over " << count << " calo cells" << endreq;
- 
-
+  ATH_MSG_DEBUG(" Loop over " << count << " calo cells" );
   return StatusCode::SUCCESS;
 }
 
@@ -93,43 +71,23 @@ StatusCode LArFill::execute()
 
 StatusCode LArFill::stop()
 {
+  ATH_MSG_DEBUG(" In stop() " );
 
-  MsgStream  log(messageService(),name());  
-  
-  log<<MSG::DEBUG<<" In stop() " << endreq;
-
-  StatusCode sc;
-  sc = m_detStore->record(m_adc2dac, m_keyADC2DAC);
-  sc = m_detStore->symLink(m_adc2dac, (ILArRamp*)m_adc2dac);
-
-  sc = m_detStore->record(m_dac2ua, m_keyDAC2uA);
-  sc = m_detStore->symLink(m_dac2ua, (ILArDAC2uA*)m_dac2ua);
-
-  sc = m_detStore->record(m_ua2mev, m_keyuA2MeV);
-  sc = m_detStore->symLink(m_ua2mev, (ILAruA2MeV*)m_ua2mev);
-  
- //---- retrieve the ADC2MeV tool ----------------
-  ISvcLocator* svcLoc = Gaudi::svcLocator();
-  IToolSvc* p_toolSvc;// Pointer to Tool Service
-  sc = svcLoc->service("ToolSvc",p_toolSvc);
-  if (sc.isFailure()) {
-    log << MSG::FATAL
-	<< " Tool Service not found "
-	<< endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->record(m_adc2dac, m_keyADC2DAC) );
+  ATH_CHECK( detStore()->symLink(m_adc2dac, (ILArRamp*)m_adc2dac) );
+  ATH_CHECK( detStore()->record(m_dac2ua, m_keyDAC2uA) );
+  ATH_CHECK( detStore()->symLink(m_dac2ua, (ILArDAC2uA*)m_dac2ua) );
+  ATH_CHECK( detStore()->record(m_ua2mev, m_keyuA2MeV) );
+  ATH_CHECK( detStore()->symLink(m_ua2mev, (ILAruA2MeV*)m_ua2mev) );
   
   IAlgTool* algtool = 0;
   ListItem corr(m_ADC2MeVToolName);       
-  sc = p_toolSvc->retrieveTool(m_ADC2MeVToolName, algtool);
+  ATH_CHECK( toolSvc()->retrieveTool(m_ADC2MeVToolName, algtool) );
   m_ADC2MeVtool=dynamic_cast<ILArADC2MeVTool*>(algtool);
-  if (sc.isFailure() || !m_ADC2MeVtool ) {
-    log << MSG::INFO
-	<< "Unable to find tool for " << m_ADC2MeVToolName
-	<< endreq;
+  if (!m_ADC2MeVtool ) {
+    ATH_MSG_INFO( "Unable to find tool for " << m_ADC2MeVToolName );
     return StatusCode::FAILURE;
   }  
-
 
   std::vector<HWIdentifier>::const_iterator it   = m_lar_on_id->channel_begin();
  
@@ -138,9 +96,7 @@ StatusCode LArFill::stop()
   int gain = 1;
   const std::vector<float> result = m_ADC2MeVtool->ADC2MEV(id2,gain);
   
-  log << MSG::FATAL << "result = " << result << endreq;
-
+  ATH_MSG_FATAL ( "result = " << result );
   return StatusCode::SUCCESS;
-  
 }
 

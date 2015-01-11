@@ -13,7 +13,7 @@
 #include <fstream>
 
 LArDeltaRespPredictor::LArDeltaRespPredictor (const std::string& name, ISvcLocator* pSvcLocator) : 
-  Algorithm(name, pSvcLocator)
+  AthAlgorithm(name, pSvcLocator)
 {
   // list of gains to be processed
   m_keylist.clear() ;
@@ -33,47 +33,16 @@ StatusCode LArDeltaRespPredictor::initialize()
 
 StatusCode LArDeltaRespPredictor::stop() 
 {
-  MsgStream log(msgSvc(), name());
-
-  // Get access to the Detector Store
-  StoreGateSvc* detStore; 
-  StatusCode sc=service("DetectorStore",detStore);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Cannot get DetectorStore!" << endreq;
-    return sc;
-  }
-
-  // Retrieve LArWFParamTool
   ToolHandle<LArWFParamTool> larWFParamTool("LArWFParamTool");
-  sc=larWFParamTool.retrieve();
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << " Can't get LArWFParamTool" << endreq;
-    return sc;
-  }
-  
+  ATH_CHECK( larWFParamTool.retrieve() );
 
-  // Retrieve LArWFParamTool
   ToolHandle<LArDeltaRespTool> larDeltaRespTool("LArDeltaRespTool");
-  sc=larDeltaRespTool.retrieve();
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << " Can't get LArDeltaRespTool" << endreq;
-    return sc;
-  }
+  ATH_CHECK( larDeltaRespTool.retrieve() );
     
-  // Retrieve container
-  const LArCaliWaveContainer* caliWaveContainer;
+  const LArCaliWaveContainer* caliWaveContainer = nullptr;
   std::string keyCali = "CaliWave" ;
-  sc= detStore->retrieve(caliWaveContainer,keyCali);
-  if (sc.isFailure()) {
-      log << MSG::DEBUG << "LArCaliWaveContainer (key='CaliWave') not found in StoreGate" 
-	  << endreq;
-      return StatusCode::FAILURE;
-  }
-  if ( caliWaveContainer == NULL ) {
-      log << MSG::DEBUG << "LArCaliWaveContainer (key='CaliWave') is empty" << endreq;
-      return StatusCode::FAILURE;
-  }
-  log << MSG::INFO << "Processing LArCaliWaveContainer from StoreGate, key='CaliWave'" << endreq;
+  ATH_CHECK( detStore()->retrieve(caliWaveContainer,keyCali) );
+  ATH_MSG_INFO ( "Processing LArCaliWaveContainer from StoreGate, key='CaliWave'" );
 
 
   // Create new LArCaliWaveContainer for DeltaResp(s)
@@ -88,11 +57,7 @@ StatusCode LArDeltaRespPredictor::stop()
     
   // Record LArDeltaRespContainer to DetectorStore
   keyCali += "_delta" ;
-  sc=detStore->record(larDeltaRespContainer,keyCali);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "Cannot record LArDeltaRespContainer to StoreGate! key=" << keyCali << endreq;
-    return StatusCode::FAILURE;
-  } 
+  ATH_CHECK( detStore()->record(larDeltaRespContainer,keyCali) );
   
   // get the waveforms from the detector store 
   std::vector<std::string>::const_iterator key_it=m_keylist.begin();
@@ -133,8 +98,8 @@ StatusCode LArDeltaRespPredictor::stop()
                                                            (CaloGain::CaloGain)gain,
                                                            wfParams);
           if (sc.isFailure()) { // bad parameters
-            log << MSG::INFO << "Bad parameters for channel " << 
-	                        (itVec.channelId()) << endreq ;
+            ATH_MSG_INFO ( "Bad parameters for channel " << 
+                           (itVec.channelId()) );
 	  } else { // Compute Delta Response
   	    LArCaliWave lardeltaresp = larDeltaRespTool->makeLArDeltaResp(wfParams, 
 									  larCaliWave);
@@ -146,7 +111,6 @@ StatusCode LArDeltaRespPredictor::stop()
     }  // end loop over cell vecs
   }  // End loop over all CaliWave containers
 
-  log << MSG::DEBUG << "LArDeltaRespPredictor stopped!" << endreq;  
-  
+  ATH_MSG_DEBUG ( "LArDeltaRespPredictor stopped!" );
   return StatusCode::SUCCESS;
 }

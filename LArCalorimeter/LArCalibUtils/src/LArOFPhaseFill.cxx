@@ -15,8 +15,7 @@
 typedef unsigned int uint;
 
 LArOFPhaseFill::LArOFPhaseFill(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator),
-  m_detStore(0),
+  AthAlgorithm(name, pSvcLocator),
   m_lar_on_id(0),
   m_OFCbin(0),
   m_groupingType(0)
@@ -32,23 +31,7 @@ LArOFPhaseFill::~LArOFPhaseFill()
 
 StatusCode LArOFPhaseFill::initialize()
 {
-  MsgStream  log(messageService(),name());
-
-  // retrieve detector Store
-  StatusCode sc = service("DetectorStore", m_detStore);
-  if (sc.isFailure()) 
-  {
-    log << MSG::ERROR
-	<< "Unable to retrieve pointer to DetectorStore "
-	<< endreq;
-    return sc;
-  }
-
-  sc = m_detStore->retrieve(m_lar_on_id,"LArOnlineID");
-  if (sc.isFailure()) {
-    log  << MSG::ERROR << "Unable to retrieve  LArOnlineID from DetectorStore" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve(m_lar_on_id,"LArOnlineID") );
 
   if ( m_groupingName == "Unknown" ) {
      m_groupingType = LArConditionsContainerBase::Unknown ;
@@ -63,8 +46,8 @@ StatusCode LArOFPhaseFill::initialize()
   } else if ( m_groupingName == "ExtendedSubDet" ) {
      m_groupingType = LArConditionsContainerBase::ExtendedSubDetGrouping ;
   } else {
-     log << MSG::ERROR << "Grouping type " << m_groupingName << " is not foreseen!" << endreq ;
-     log << MSG::ERROR << "Only \"Unknown\", \"SingleGroup\", \"SubDetector\", \"FeedThrough\", \"ExtendedFeedThrough\" and \"ExtendedSubDet\" are allowed" << endreq ;
+    ATH_MSG_ERROR ( "Grouping type " << m_groupingName << " is not foreseen!" );
+    ATH_MSG_ERROR ( "Only \"Unknown\", \"SingleGroup\", \"SubDetector\", \"FeedThrough\", \"ExtendedFeedThrough\" and \"ExtendedSubDet\" are allowed" );
      return StatusCode::FAILURE ;
   }
 
@@ -73,12 +56,7 @@ StatusCode LArOFPhaseFill::initialize()
 
 StatusCode LArOFPhaseFill::execute()
 {
-  MsgStream  log(messageService(),name());  
-  
-  log<<MSG::DEBUG<<" In execute() " << endreq;
-
- 
-
+  ATH_MSG_DEBUG(" In execute() " );
   return StatusCode::SUCCESS;
 }
 
@@ -86,10 +64,7 @@ StatusCode LArOFPhaseFill::execute()
 
 StatusCode LArOFPhaseFill::stop()
 {
-
-  MsgStream  log(messageService(),name());  
-  
-  log<<MSG::DEBUG<<" In stop() " << endreq;
+  ATH_MSG_DEBUG(" In stop() " );
 
   typedef std::pair<HWIdentifier, int> idi;
   std::map<idi, uint > inmap;
@@ -99,8 +74,8 @@ StatusCode LArOFPhaseFill::stop()
   if(m_InputFile.size() > 0) {
      std::ifstream *in = new std::ifstream(m_InputFile.c_str());
      if(!in->good()) {
-        log<<MSG::ERROR<<"Could not open map file "<<m_InputFile<<endreq;
-        log<<MSG::ERROR<<"Using default phase " << m_defaultPhase << " for all channels"<<endreq;
+       ATH_MSG_ERROR("Could not open map file "<<m_InputFile);
+       ATH_MSG_ERROR("Using default phase " << m_defaultPhase << " for all channels");
      } else {
         uint phase;
         count = 0;
@@ -112,36 +87,36 @@ StatusCode LArOFPhaseFill::stop()
            std::istringstream iss(line);
            iss>>std::dec>>b_ec>>p_n>>ft>>sl>>ch>>g>>phase;
            if(!iss.good()) {
-              log<<MSG::WARNING<<"Wrong line: "<<line<<endreq;
+              ATH_MSG_WARNING("Wrong line: "<<line);
               continue;
            }
            if(b_ec > 1) {
-               log<<MSG::ERROR<<"Wrong barrel_ec: "<<b_ec<<", not taken"<<endreq;
-               continue;
+             ATH_MSG_ERROR("Wrong barrel_ec: "<<b_ec<<", not taken");
+             continue;
            }
            if(p_n > 1) {
-               log<<MSG::ERROR<<"Wrong pos_neg: "<<p_n<<", not taken"<<endreq;
-               continue;
+             ATH_MSG_ERROR("Wrong pos_neg: "<<p_n<<", not taken");
+             continue;
            }
            if(ft > 31) {
-               log<<MSG::ERROR<<"Wrong FTH: "<<ft<<", not taken"<<endreq;
-               continue;
+             ATH_MSG_ERROR("Wrong FTH: "<<ft<<", not taken");
+             continue;
            }
            if(sl == 0 || sl > 15) {
-               log<<MSG::ERROR<<"Wrong slot: "<<sl<<", not taken"<<endreq;
-               continue;
+             ATH_MSG_ERROR("Wrong slot: "<<sl<<", not taken");
+             continue;
            }
            if(ch > 127) {
-               log<<MSG::ERROR<<"Wrong channel: "<<ch<<", not taken"<<endreq;
-               continue;
+             ATH_MSG_ERROR("Wrong channel: "<<ch<<", not taken");
+             continue;
            }
            if((int)g < (int)CaloGain::LARHIGHGAIN || g > CaloGain::LARLOWGAIN) {
-               log<<MSG::ERROR<<"Wrong gain: "<<g<<", not taken"<<endreq;
-               continue;
+             ATH_MSG_ERROR("Wrong gain: "<<g<<", not taken");
+             continue;
            }
            if(phase > 50) {
-               log<<MSG::ERROR<<"Wrong phase: "<<phase<<", not taken"<<endreq;
-               continue;
+             ATH_MSG_ERROR("Wrong phase: "<<phase<<", not taken");
+             continue;
            }
            HWIdentifier oc = m_lar_on_id->channel_Id(b_ec, p_n, ft, sl, ch); 
            inmap[std::make_pair(oc,g)] = phase;
@@ -156,11 +131,7 @@ StatusCode LArOFPhaseFill::stop()
   StatusCode sc;
   m_OFCbin = new LArOFCBinComplete();
   m_OFCbin->setGroupingType( static_cast<LArConditionsContainerBase::GroupingType>(m_groupingType) );
-  sc  = m_OFCbin->initialize(); 
-  if ( sc.isFailure() ) {
-     log << MSG::ERROR << "Could not initialize data object - exit!" << endreq ;
-     return sc ;
-  }
+  ATH_CHECK(  m_OFCbin->initialize() );
 
   int fphase;
   count = 0;
@@ -179,17 +150,13 @@ StatusCode LArOFPhaseFill::stop()
 	fphase = inmap[std::make_pair(oc,g)]; 
       else 
 	fphase = m_defaultPhase;
-       log<<MSG::DEBUG<<"B_EC: "<<b_ec<<" Pos_Neg: "<<p_n<<" FT: "<<ft<<" Slot: "<<sl<<" Chan: "<<ch<<" Phase: "<<fphase<<endreq;
+      ATH_MSG_DEBUG("B_EC: "<<b_ec<<" Pos_Neg: "<<p_n<<" FT: "<<ft<<" Slot: "<<sl<<" Chan: "<<ch<<" Phase: "<<fphase);
        m_OFCbin->set(id,g,fphase);
     }
   }  
 
-  log<<MSG::DEBUG<<" Loop over " << count << " cells" << endreq;
-
-  sc = m_detStore->record(m_OFCbin, m_keyOFCbin);
-
-
+  ATH_MSG_DEBUG(" Loop over " << count << " cells" );
+  ATH_CHECK( detStore()->record(m_OFCbin, m_keyOFCbin) );
   return StatusCode::SUCCESS;
-  
 }
 

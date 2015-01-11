@@ -25,7 +25,7 @@ inline std::string ChanDacGain(HWIdentifier ch,int DAC,int gain) {
 }
 
 LArMasterWaveBuilder::LArMasterWaveBuilder (const std::string& name, ISvcLocator* pSvcLocator) : 
-  Algorithm(name, pSvcLocator),
+  AthAlgorithm(name, pSvcLocator),
   m_waveHelper(0),
   m_groupingType("FeedThrough") // SubDetector, Single, FeedThrough
 {
@@ -62,33 +62,30 @@ LArMasterWaveBuilder::~LArMasterWaveBuilder()
 {}
 
 StatusCode LArMasterWaveBuilder::initialize() {
-  StatusCode sc ;
-  MsgStream log(msgSvc(), name());
-  
   // Check DACMin jobOption consistency, in case setup default values
   if ( m_dacMinLayer0.size()<3 ) {
-     log << MSG::WARNING << "DACMinPS     jobOption has wrong size. Will use default." << endreq ;
+     ATH_MSG_WARNING ( "DACMinPS     jobOption has wrong size. Will use default." );
      m_dacMinLayer0.resize(3);
      m_dacMinLayer0[0] = 50; 
      m_dacMinLayer0[1] = 50 ;
      m_dacMinLayer0[2] = 50 ;
   }
   if ( m_dacMinLayer1.size()<3 ) {
-     log << MSG::WARNING << "DACMinStrips jobOption has wrong size. Will use default." << endreq ;
+     ATH_MSG_WARNING ( "DACMinStrips jobOption has wrong size. Will use default." );
      m_dacMinLayer1.resize(3);
      m_dacMinLayer1[0] = 50 ; 
      m_dacMinLayer1[1] = 50 ;
      m_dacMinLayer1[2] = 50 ;
   }
   if ( m_dacMinLayer2.size()<3 ) {
-     log << MSG::WARNING << "DACMinMiddle jobOption has wrong size. Will use default." << endreq ;
+     ATH_MSG_WARNING ( "DACMinMiddle jobOption has wrong size. Will use default." );
      m_dacMinLayer2.resize(3);
      m_dacMinLayer2[0] = 50 ; 
      m_dacMinLayer2[1] = 50 ;
      m_dacMinLayer2[2] = 50 ;
   }
   if ( m_dacMinLayer3.size()<3 ) {
-     log << MSG::WARNING << "DACMinBack   jobOption has wrong size. Will use default." << endreq ;
+     ATH_MSG_WARNING ( "DACMinBack   jobOption has wrong size. Will use default." );
      m_dacMinLayer3.resize(3);
      m_dacMinLayer3[0] = 50 ; 
      m_dacMinLayer3[1] = 50 ;
@@ -97,28 +94,28 @@ StatusCode LArMasterWaveBuilder::initialize() {
 
   // Check DACMax jobOption consistency, in case setup default values
   if ( m_dacMaxLayer0.size()<3 ) {
-     log << MSG::WARNING << "DACMaxPS     jobOption has wrong size. Will use default." << endreq ;
+     ATH_MSG_WARNING ( "DACMaxPS     jobOption has wrong size. Will use default." );
      m_dacMaxLayer0.resize(3);
      m_dacMaxLayer0[0] = 15000; 
      m_dacMaxLayer0[1] = 50000 ;
      m_dacMaxLayer0[2] = 65000 ;
   }
   if ( m_dacMaxLayer1.size()<3 ) {
-     log << MSG::WARNING << "DACMaxStrips jobOption has wrong size. Will use default." << endreq ;
+     ATH_MSG_WARNING ( "DACMaxStrips jobOption has wrong size. Will use default." );
      m_dacMaxLayer1.resize(3);
      m_dacMaxLayer1[0] = 800 ; 
      m_dacMaxLayer1[1] = 8000 ;
      m_dacMaxLayer1[2] = 65000 ;
   }
   if ( m_dacMaxLayer2.size()<3 ) {
-     log << MSG::WARNING << "DACMaxMiddle jobOption has wrong size. Will use default." << endreq ;
+     ATH_MSG_WARNING ( "DACMaxMiddle jobOption has wrong size. Will use default." );
      m_dacMaxLayer2.resize(3);
      m_dacMaxLayer2[0] = 1000 ; 
      m_dacMaxLayer2[1] = 10000 ;
      m_dacMaxLayer2[2] = 65000 ;
   }
   if ( m_dacMaxLayer3.size()<3 ) {
-     log << MSG::WARNING << "DACMaxBack   jobOption has wrong size. Will use default." << endreq ;
+     ATH_MSG_WARNING ( "DACMaxBack   jobOption has wrong size. Will use default." );
      m_dacMaxLayer3.resize(3);
      m_dacMaxLayer3[0] = 800 ; 
      m_dacMaxLayer3[1] = 8000 ;
@@ -132,106 +129,71 @@ StatusCode LArMasterWaveBuilder::initialize() {
 
 StatusCode LArMasterWaveBuilder::stop()
 {
-  MsgStream log(msgSvc(), name());
-
-  log << MSG::INFO << "LArMasterWaveBuilder in stop..." << endreq ;
-
-  // Get access to the Detector Store
-  StoreGateSvc* detStore; 
-  StatusCode sc=service("DetectorStore",detStore);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Cannot get DetectorStore!" << endreq;
-    return sc;
-  }
+  ATH_MSG_INFO ( "LArMasterWaveBuilder in stop..." );
 
   const LArOnlineID*   onlineHelper;
   const LArEM_ID*      emId;
   
   // Retrieve LArCablingService
   ToolHandle<LArCablingService> larCablingSvc("LArCablingService");
-  sc = larCablingSvc.retrieve();
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << " Can't get LArCablingSvc " << endreq;
-    return sc;
-  }
-
-  sc = detStore->retrieve(onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( larCablingSvc.retrieve() );
+  ATH_CHECK(  detStore()->retrieve(onlineHelper, "LArOnlineID") );
   
   const CaloIdManager* caloIdMgr=CaloIdManager::instance();
   emId=caloIdMgr->getEM_ID();
 
-
-  log << MSG::INFO << "Check on ADC saturation: " ;
+  msg() << MSG::INFO << "Check on ADC saturation: " ;
   if ( m_ADCsatur > 0 ) {
-    log << "absolute maximum less than " << m_ADCsatur << endreq ;
+    msg() << "absolute maximum less than " << m_ADCsatur << endreq ;
   } else if ( m_ADCsatur < 0 ) {
-    log << "maximum relative to sample 0 less than " << -m_ADCsatur << endreq ;
+    msg() << "maximum relative to sample 0 less than " << -m_ADCsatur << endreq ;
   } else {
-    log << "none!" << endreq ;
+    msg() << "none!" << endreq ;
   }
-  log << MSG::INFO << "Check on mimimum DAC value: " ;
+  msg() << MSG::INFO << "Check on mimimum DAC value: " ;
   if ( m_DACmin > 0 ) {
-    log << m_DACmin << endreq ;
+    msg() << m_DACmin << endreq ;
   } else {
-    log << "none!" << endreq ;
+    msg() << "none!" << endreq ;
   }
   if ( m_normalize ) {
-    log << MSG::INFO << "Master Waveforms will be normalized" << endreq ;
+    ATH_MSG_INFO ( "Master Waveforms will be normalized" );
   } else {
-    log << MSG::INFO << "Master Waveforms will NOT be normalized" << endreq ;
+    ATH_MSG_INFO ( "Master Waveforms will NOT be normalized" );
   }
   if ( m_timeShift ) {
-    log << MSG::INFO << "Master Waveforms will be shifted to the origin" << endreq ;
+    ATH_MSG_INFO ( "Master Waveforms will be shifted to the origin" );
   } else {
-    log << MSG::INFO << "Master Waveforms will NOT be shifted to the origin" << endreq ;
+    ATH_MSG_INFO ( "Master Waveforms will NOT be shifted to the origin" );
   }
   if ( m_buildMWoneDAC ) {
-    log << MSG::INFO << "Build MWs even with only one usable DAC" << endreq ;
+    ATH_MSG_INFO ( "Build MWs even with only one usable DAC" );
   } else {
-    log << MSG::INFO << "Don't build MWs if only one usable DAC" << endreq ;
+    ATH_MSG_INFO ( "Don't build MWs if only one usable DAC" );
   }
   if ( m_diffWaveNormPeak ) {
-    log << MSG::INFO << "For linearity check, normalize to peak " << endreq ;
+    ATH_MSG_INFO ( "For linearity check, normalize to peak " );
   } else {
-    log << MSG::INFO << "For linearity check, normalize to DAC " << endreq ;
+    ATH_MSG_INFO ( "For linearity check, normalize to DAC " );
   }
-  log << MSG::INFO << "Linearity tolerance = " << m_linearityTolerance << endreq ;
-
+  ATH_MSG_INFO ( "Linearity tolerance = " << m_linearityTolerance );
 
   // Retrieve container
-  const LArCaliWaveContainer* caliWaveContainer;
-  sc= detStore->retrieve(caliWaveContainer,m_keyinput);
-  if (sc.isFailure()) {
-      log << MSG::DEBUG << "LArCaliWaveContainer (key = " << m_keyinput << ") not found in StoreGate" 
-	  << endreq;
-      return StatusCode::FAILURE;
-  }
+  const LArCaliWaveContainer* caliWaveContainer = nullptr;
+  ATH_CHECK( detStore()->retrieve(caliWaveContainer,m_keyinput) );
   
   if ( caliWaveContainer == NULL ) {
-      log << MSG::DEBUG << "LArCaliWaveContainer (" << m_keyinput << ") is empty" << endreq;
-      return StatusCode::FAILURE;
+    ATH_MSG_DEBUG ( "LArCaliWaveContainer (" << m_keyinput << ") is empty" );
+    return StatusCode::FAILURE;
   }
   
-  log << MSG::INFO << "Processing LArCaliWaveContainer from StoreGate, key = " << m_keyinput << endreq;
+  ATH_MSG_INFO ( "Processing LArCaliWaveContainer from StoreGate, key = " << m_keyinput );
 
   // create new LArCaliWaveContainer for master waveforms and dac0 waveforms
   LArCaliWaveContainer* mwContainer = new LArCaliWaveContainer();
 
-  sc=mwContainer->setGroupingType(m_groupingType,log);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Failed to set groupingType for LArCaliWaveContainer object" << endreq;
-    return sc;
-  }
-  sc=mwContainer->initialize(); 
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Failed initialize LArCaliWaveContainer object" << endreq;
-    return sc;
-  }
-
+  ATH_CHECK( mwContainer->setGroupingType(m_groupingType,msg()) );
+  ATH_CHECK( mwContainer->initialize() );
   
   // prepare a map for bad channels/DACs (i.e.not linear, not pulsed...). Access is badDACs[gain][channel][k-DAC]
   std::vector< std::map<HWIdentifier, std::vector<int> > > badDACs ;
@@ -241,7 +203,7 @@ StatusCode LArMasterWaveBuilder::stop()
 
   for ( unsigned gain_it = CaloGain::LARHIGHGAIN; gain_it!=CaloGain::LARNGAIN; ++gain_it ) { // Loop over Gains
 
-    log << MSG::DEBUG << "Evaluating master wavefroms for gain " << gain_it << endreq ;
+    ATH_MSG_DEBUG ( "Evaluating master wavefroms for gain " << gain_it );
 
     // set gain factor
     unsigned gainFactor = (unsigned)(pow(10,2-gain_it)) ;  // 100 for HG, 10 for MG, 1 for LG
@@ -257,10 +219,10 @@ StatusCode LArMasterWaveBuilder::stop()
     maxDAC.push_back(m_dacMaxLayer2[gain_it]) ;
     maxDAC.push_back(m_dacMaxLayer3[gain_it]) ;
     
-    log << MSG::INFO << "Minimum DAC allowed for layers 0,1,2,3 and gain " << gain_it << endreq ;
-    log << MSG::INFO << "       " << minDAC << endreq ;
-    log << MSG::INFO << "Maximum DAC allowed for layers 0,1,2,3 and gain " << gain_it << endreq ;
-    log << MSG::INFO << "       " << maxDAC << endreq ;
+    ATH_MSG_INFO ( "Minimum DAC allowed for layers 0,1,2,3 and gain " << gain_it );
+    ATH_MSG_INFO ( "       " << minDAC );
+    ATH_MSG_INFO ( "Maximum DAC allowed for layers 0,1,2,3 and gain " << gain_it );
+    ATH_MSG_INFO ( "       " << maxDAC );
 
     int DACMin = 0 ;
     int DACMax = 65000 ;
@@ -269,10 +231,10 @@ StatusCode LArMasterWaveBuilder::stop()
     CaliCellIt cell_it_e = caliWaveContainer->end(gain_it);
 
     if ( cell_it == cell_it_e ) {
-      log << MSG::DEBUG << "LArCaliWaveContainer (key = " << m_keyinput << ") has no wave with gain = " << gain_it << endreq;
+      ATH_MSG_DEBUG ( "LArCaliWaveContainer (key = " << m_keyinput << ") has no wave with gain = " << gain_it );
       continue;
     } else {
-      log << MSG::DEBUG << "Processing LArCaliWaveContainer (key = " << m_keyinput << ") in gain = " << gain_it << endreq;
+      ATH_MSG_DEBUG ( "Processing LArCaliWaveContainer (key = " << m_keyinput << ") in gain = " << gain_it );
     }
 
     for ( ; cell_it!=cell_it_e ; ++cell_it ) { // loop through channels
@@ -280,7 +242,7 @@ StatusCode LArMasterWaveBuilder::stop()
       CaliWaveIt wave_it = cell_it->begin();
       CaliWaveIt wave_it_e = cell_it->end();
       if ( wave_it == wave_it_e ) {
-        log << MSG::DEBUG << "Empty channel found..." << endreq ;
+        ATH_MSG_DEBUG ( "Empty channel found..." );
         continue; // skip empty channels
       } 
       
@@ -290,12 +252,12 @@ StatusCode LArMasterWaveBuilder::stop()
       double dt         = vCaliWaves[0].getDt() ;
       unsigned nDACs    = vCaliWaves.size() ;
 
-      log << MSG::DEBUG << nDACs << " DAC's found for channel 0x" << MSG::hex << chID.get_compact() << MSG::dec 
-	                << " in gain " << gain_it << endreq ;
-      log << MSG::DEBUG << "DAC list: " ;
+      ATH_MSG_DEBUG ( nDACs << " DAC's found for channel 0x" << MSG::hex << chID.get_compact() << MSG::dec 
+                      << " in gain " << gain_it );
+      msg() << MSG::DEBUG << "DAC list: " ;
       for ( unsigned i=0 ; i<nDACs ; i++ ) 
-	  log << vCaliWaves[i].getDAC() << " " ;
-      log << endreq ;
+        msg() << vCaliWaves[i].getDAC() << " " ;
+      msg() << endreq ;
       
       long layer  = -1; 
       long region = -1;
@@ -305,9 +267,9 @@ StatusCode LArMasterWaveBuilder::stop()
         layer  = emId->sampling(id) ;
         region = emId->region(id) ;
       } catch ( LArID_Exception & except ) { 
-     	log << MSG::WARNING << "A larCablingSvc exception was caught for channel 0x" 
-     	    << MSG::hex << chID.get_compact() << MSG::dec 
-     	    << ". Skipping." << endreq;
+     	ATH_MSG_WARNING ( "A larCablingSvc exception was caught for channel 0x" 
+                          << MSG::hex << chID.get_compact() << MSG::dec 
+                          << ". Skipping." );
      	continue ;
       }
 
@@ -331,29 +293,29 @@ StatusCode LArMasterWaveBuilder::stop()
 	thisPeak[i] = vCaliWaves[i].getSample(m_waveHelper->getMax(vCaliWaves[i])) ;
 	// check overall DAC threshold
 	if ( m_DACmin > 0 && thisDAC[i] < m_DACmin ) {  
-	    log << MSG::DEBUG << ChanDacGain(chID,thisDAC[i],gain_it) 
-		<< "DAC below threshold... skip!" << endreq ;
+            ATH_MSG_DEBUG ( ChanDacGain(chID,thisDAC[i],gain_it) 
+                            << "DAC below threshold... skip!" );
 	    usable[i] = false ;
 	    continue ;
 	}
 	// check overall ADC saturation
 	if ( m_ADCsatur != 0 ) {  
 	    if ( m_ADCsatur>0 && thisPeak[i]>m_ADCsatur ) { // suitable if no pedestal subtraction
-	      log << MSG::DEBUG << ChanDacGain(chID,thisDAC[i],gain_it) 
-		  << " absolute ADC saturation... skip!" << endreq ;
+	      ATH_MSG_DEBUG ( ChanDacGain(chID,thisDAC[i],gain_it) 
+                              << " absolute ADC saturation... skip!" );
 	      usable[i] = false ;
 	      continue ;
 	    } else if ( m_ADCsatur<0 && (thisPeak[i]-vCaliWaves[i].getSample(0))>(-m_ADCsatur) ) { 
 	      // for pedestal subtracted
-	      log << MSG::DEBUG << ChanDacGain(chID,thisDAC[i],gain_it) 
-		  << " relative ADC saturation... skip!" << endreq ;
+	      ATH_MSG_DEBUG ( ChanDacGain(chID,thisDAC[i],gain_it) 
+                              << " relative ADC saturation... skip!" );
 	      usable[i] = false ;
 	      continue ;
 	    }
 	}
 	// check if clearly no signal
 	if ( fabs( thisPeak[i]/thisDAC[i] ) < gainFactor*0.0001 ) {
-	    log << MSG::DEBUG << ChanDacGain(chID,thisDAC[i],gain_it) << " low signal... skip!" << endreq ;
+          ATH_MSG_DEBUG ( ChanDacGain(chID,thisDAC[i],gain_it) << " low signal... skip!" );
 	    usable[i] = false ;
 	    continue ; 
 	}
@@ -382,30 +344,30 @@ StatusCode LArMasterWaveBuilder::stop()
 
       // reject strongly non-linear waves (if reference wave was found)
       if ( refIndex >=0 ) {
-	  log << MSG::DEBUG << "Check non-linearity against DAC " << refDAC << endreq ;
+          ATH_MSG_DEBUG ( "Check non-linearity against DAC " << refDAC );
 	  for ( unsigned i=0 ; i<nDACs ; i++ ) {
 	    if ( ! usable[i] ) continue ;
 	    int tbin ;
 	    double relDiff = diffWave(vCaliWaves[i],vCaliWaves[refIndex],tbin,m_diffWaveNormPeak) ;
 	    if ( ! m_diffWaveNormPeak )  relDiff *= (refDAC/thisPeak[refIndex]) ;
 	    if ( relDiff > m_linearityTolerance ) {
-	      log << MSG::DEBUG << ChanDacGain(chID,thisDAC[i],gain_it) 
-		  << " non-linearity detected, rel.resid= " << relDiff 
-		  << " at t= " << tbin*vCaliWaves[i].getDt() << " tbin= " << tbin
-		  << " ... skip!" << endreq ;
+	      ATH_MSG_DEBUG ( ChanDacGain(chID,thisDAC[i],gain_it) 
+                              << " non-linearity detected, rel.resid= " << relDiff 
+                              << " at t= " << tbin*vCaliWaves[i].getDt() << " tbin= " << tbin
+                              << " ... skip!" );
 	      usable[i] = false ;
 	    } else if ( relDiff < 0 ) {
-	      log << MSG::DEBUG << ChanDacGain(chID,thisDAC[i],gain_it) 
-		  << " could not check linearity... skip!" << endreq ;
+	      ATH_MSG_DEBUG ( ChanDacGain(chID,thisDAC[i],gain_it) 
+                              << " could not check linearity... skip!" );
 	      usable[i] = false ;
 	    } else {
-	      log << MSG::DEBUG << ChanDacGain(chID,thisDAC[i],gain_it) 
-		  << " linear within " << relDiff << endreq ;
+	      ATH_MSG_DEBUG ( ChanDacGain(chID,thisDAC[i],gain_it) 
+                              << " linear within " << relDiff );
 	    }
 	  } // end for i
       } else {
-	  log << MSG::DEBUG << "Could not find reference DAC, just reject all waves not in DAC ["
-	      << DACMin << "," << DACMax << "]" << endreq ;
+        ATH_MSG_DEBUG ( "Could not find reference DAC, just reject all waves not in DAC ["
+                        << DACMin << "," << DACMax << "]" );
 	  for ( unsigned i=0 ; i<nDACs ; i++ ) {
 	    if ( thisDAC[i]<DACMin || thisDAC[i]>DACMax )  usable[i] = false ;
 	  }
@@ -422,35 +384,35 @@ StatusCode LArMasterWaveBuilder::stop()
 	  }
       }
       unsigned nGoodDACs = vDACs.size() ;
-      log << MSG::DEBUG << nGoodDACs << " DAC's selected for MW evaluation, channel 0x"  
-	  << MSG::hex << chID.get_compact() << MSG::dec << endreq ;
-      log << MSG::DEBUG << "    : " << vDACs << endreq ;
+      ATH_MSG_DEBUG ( nGoodDACs << " DAC's selected for MW evaluation, channel 0x"  
+                      << MSG::hex << chID.get_compact() << MSG::dec );
+      ATH_MSG_DEBUG ( "    : " << vDACs );
 
       std::vector<LArWave> fitWave ;
       if ( nGoodDACs >= 2 ) {
 	  fitWave = m_waveHelper->linearMasterWave(vWaves,vDACs) ;
 	  if ( fitWave.size()==0 ) {
-	    log << MSG::ERROR << "Master waveform linear fit failed! Channel 0x" 
-		<< MSG::hex << chID.get_compact() << MSG::dec << ", gain = " << gain_it << endreq ;
+	    ATH_MSG_ERROR ( "Master waveform linear fit failed! Channel 0x" 
+                            << MSG::hex << chID.get_compact() << MSG::dec << ", gain = " << gain_it );
 	    continue ;  // skip rest and go to next wave
 	  }
       } else if ( m_buildMWoneDAC && nGoodDACs==1 && vDACs[0]>=DACMin && vDACs[0]<=DACMax ) {
-	  log << MSG::WARNING << "Only one DAC available: " << vDACs[0] 
-	      << " just divide caliwave by DAC! Channel 0x" 
-	      << MSG::hex << chID.get_compact() << MSG::dec << ", gain = " << gain_it << endreq ;
+        ATH_MSG_WARNING ( "Only one DAC available: " << vDACs[0] 
+                          << " just divide caliwave by DAC! Channel 0x" 
+                          << MSG::hex << chID.get_compact() << MSG::dec << ", gain = " << gain_it );
 	  fitWave.resize(2) ;
 	  fitWave[1] = (*vWaves[0])*(1./vDACs[0]) ;
 	  fitWave[1].setFlag(LArWave::mwf) ;
 	  fitWave[0] = LArWave(vWaves[0]->getSize(),vWaves[0]->getDt(),LArWave::dac0) ;
       } else {
-	  log << MSG::ERROR << "No DACs available, cannot build MW! Channel 0x" 
-	      << MSG::hex << chID.get_compact() << MSG::dec << ", gain = " << gain_it << endreq ;
-	  continue ;  // skip rest and go to next wave
+        ATH_MSG_ERROR ( "No DACs available, cannot build MW! Channel 0x" 
+                        << MSG::hex << chID.get_compact() << MSG::dec << ", gain = " << gain_it );
+        continue ;  // skip rest and go to next wave
       }
 
-      log << MSG::DEBUG << "master waveform evaluation succeeded for channel 0x" 
-          << MSG::hex  << chID.get_compact() << MSG::dec << ", gain = " << gain_it << endreq ;
-      log << MSG::DEBUG << "   ... with " << nGoodDACs << " DAC values: " << vDACs << endreq ;
+      ATH_MSG_DEBUG ( "master waveform evaluation succeeded for channel 0x" 
+                      << MSG::hex  << chID.get_compact() << MSG::dec << ", gain = " << gain_it );
+      ATH_MSG_DEBUG ( "   ... with " << nGoodDACs << " DAC values: " << vDACs );
 
       if ( m_timeShift ) {
 	  int tStart = m_waveHelper->getStart(fitWave[1]) ;
@@ -463,7 +425,7 @@ StatusCode LArMasterWaveBuilder::stop()
 	  if ( peak != 0 ) {
 	    fitWave[1] = fitWave[1] * (1/peak) ;
 	  } else {
-	    log << MSG::WARNING << "Wave peak = 0 , cannot normalize" << endreq ;
+	    ATH_MSG_WARNING ( "Wave peak = 0 , cannot normalize" );
 	  }
       }
 
@@ -476,23 +438,20 @@ StatusCode LArMasterWaveBuilder::stop()
       dacWaves.push_back( dac0Wave );
       nMasterWaves ++ ;
 
-      log << MSG::DEBUG << "MW and DAC0 evaluated and written in container, channel 0x" 
-                        << MSG::hex << chID.get_compact() << MSG::dec << endreq ;
+      ATH_MSG_DEBUG ( "MW and DAC0 evaluated and written in container, channel 0x" 
+                      << MSG::hex << chID.get_compact() << MSG::dec );
 	
     }  // end loop over channels
 
-    log << MSG::INFO << nMasterWaves << " master wfs generated for gain " << gain_it << endreq ;
+    ATH_MSG_INFO ( nMasterWaves << " master wfs generated for gain " << gain_it );
 
   }  // end loop over gains
 
   // register MW/DAC0 container into detStore
-  if ( StatusCode::SUCCESS != detStore->record(mwContainer,m_keyoutput) ) {
-      log << MSG::ERROR << "Cannot record master waveform container to StoreGate, key = " << m_keyoutput << endreq ;
-      return StatusCode::FAILURE ;
-  }
-  log << MSG::INFO << "Master waveforms' container recorded into StoreGate, key = " << m_keyoutput << endreq ;
+  ATH_CHECK( detStore()->record(mwContainer,m_keyoutput) );
+  ATH_MSG_INFO ( "Master waveforms' container recorded into StoreGate, key = " << m_keyoutput );
 
-  log << MSG::INFO << "List of DACs rejected" << endreq ; 
+  ATH_MSG_INFO ( "List of DACs rejected" );
   
   for ( unsigned gain_it=0 ; gain_it<CaloGain::LARNGAIN ; gain_it++ ) {  
     
@@ -526,10 +485,10 @@ StatusCode LArMasterWaveBuilder::stop()
           sprintf( formOut, "%2s 0x%8x [%1d;%1d;%3d;%2d] [%2d;%3d;%3d;%3d]",
         	 gainName[gain_it], ich, region, layer, eta, phi,
         	 FT, slot, channel, calibLine ) ;
-        log << MSG::INFO << "*** " << std::string(formOut) << " : " << DACs << endreq ;
+          ATH_MSG_INFO ( "*** " << std::string(formOut) << " : " << DACs );
         } 
 	catch( LArID_Exception & except ) {
-          log << MSG::ERROR << "LArID_Exception: channel 0x" << MSG::hex << chId << MSG::dec << " not registered " << endreq;
+          ATH_MSG_ERROR ( "LArID_Exception: channel 0x" << MSG::hex << chId << MSG::dec << " not registered " );
         }  
 
       }

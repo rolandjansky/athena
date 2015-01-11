@@ -11,14 +11,15 @@
 
 LArOFPhasePicker::LArOFPhasePicker(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_inputPhase(0),
+  m_inputPhase(nullptr),
+  m_onlineID(nullptr),
   m_groupingType(LArConditionsContainerBase::Unknown)
 {
   declareProperty("KeyOFC",m_keyOFC="LArOFC_org");
   declareProperty("KeyOFC_new",m_keyOFC_new="LArOFC");
   declareProperty("KeyShape",m_keyShape="LArShape_org");
   declareProperty("KeyShape_new",m_keyShape_new="LArShape");
-  declareProperty("KeyPhase",m_keyPhase);
+  declareProperty("KeyPhase",m_keyPhase="");
   declareProperty("GroupingType",m_groupingName="ExtendedSubDetector");
   declareProperty("TimeOffsetCorrection",m_timeOffsetCorr=0);
   declareProperty("DefaultPhase",m_defaultPhase=4);
@@ -49,6 +50,9 @@ StatusCode LArOFPhasePicker::initialize()
      return StatusCode::FAILURE ;
   }
 
+
+  ATH_CHECK(detStore()->retrieve(m_onlineID));
+
   return StatusCode::SUCCESS;
 }
 
@@ -62,24 +66,27 @@ StatusCode LArOFPhasePicker::execute()
 StatusCode LArOFPhasePicker::stop() {
 
   ATH_MSG_DEBUG(" In stop() ");
-  StatusCode sc;
 
   m_inputPhase=NULL;
-  sc=detStore()->retrieve(m_inputPhase,m_keyPhase);
-  if (sc.isFailure()) {
-    msg(MSG::ERROR)<< "Failed to get input OFC phase with key " << m_keyPhase << endreq;
-    msg(MSG::ERROR)<< "Will use default phase !!" << endreq;
-    m_inputPhase=NULL;
+  if (m_keyPhase.size()) {
+    StatusCode sc=detStore()->retrieve(m_inputPhase,m_keyPhase);
+    if (sc.isFailure()) {
+      msg(MSG::ERROR)<< "Failed to get input OFC phase with key " << m_keyPhase << endreq;
+      msg(MSG::ERROR)<< "Will use default phase !!" << endreq;
+      m_inputPhase=NULL;
+    }
+  }
+  else {
+    msg(MSG::INFO) << "No StoreGate key for OFC bin given. Will use default phase=" << m_defaultPhase << endreq;
   }
 
+
   if (m_doOFC) {
-    sc=pickOFC();
-    if (sc.isFailure()) return sc;
+    ATH_CHECK(pickOFC());
   }
 
   if (m_doShape) {
-    sc=pickShape();
-    if (sc.isFailure()) return sc;
+    ATH_CHECK(pickShape());
   }
   return StatusCode::SUCCESS;
 }
@@ -113,7 +120,7 @@ StatusCode LArOFPhasePicker::pickOFC() {
       const HWIdentifier id = it.channelId() ; 
       const int nPhases=ofc.OFC_aSize();
       if (nPhases==0) {
-	ATH_MSG_DEBUG("Got empty OFC object for channel " << id.get_compact() << "(disconnected?)");
+	ATH_MSG_DEBUG("Got empty OFC object for channel " << m_onlineID->channel_name(id) << " (disconnected?)");
 	continue;
       }
       count++;
@@ -123,18 +130,17 @@ StatusCode LArOFPhasePicker::pickOFC() {
 	 const int p = m_inputPhase->bin(id, gain);
 	 if (p>0 && p<nPhases) phase=p;
        }
-
+      ATH_MSG_VERBOSE("OFC picking, gain=" << gain << ", channel "  << m_onlineID->channel_name(id) <<", phase=" << phase);
       ILArOFC::OFCRef_t vOFC_a = ofc.OFC_a(phase);
       ILArOFC::OFCRef_t vOFC_b = ofc.OFC_b(phase);
       const float timeOffset=ofc.timeOffset()+m_timeOffsetCorr;
       //some sanity check on the OFCs
       if ( vOFC_a.size() == 0 || vOFC_b.size() == 0 ) {
-	msg(MSG::WARNING) << "OFC not found for gain "<< gain << " channel 0x"  << std::hex << id.get_compact() << std::dec 
-	    << " Will be not exported !!!" << endreq;
+	msg(MSG::WARNING) << "OFC not found for gain "<< gain << " channel "  <<  m_onlineID->channel_name(id) << endreq;
 
       }else if ( vOFC_a.size() != vOFC_b.size() ) {
-	msg(MSG::WARNING) << "OFC a (" << vOFC_a.size() << ") and b (" << vOFC_b.size() << ") are not the same size for channel 0x" 
-	    << std::hex << id.get_compact() << std::dec << endreq;
+	msg(MSG::WARNING) << "OFC a (" << vOFC_a.size() << ") and b (" << vOFC_b.size() << ") are not the same size for channel " 
+			  <<  m_onlineID->channel_name(id) << endreq;
 	msg(MSG::WARNING) << "Will be not exported !!!" << endreq;
       } else { // save in new container
 	std::vector<std::vector<float> > OFC_a;
@@ -193,7 +199,7 @@ StatusCode LArOFPhasePicker::pickShape()
       const HWIdentifier id = it.channelId() ; 
       const int nPhases=shape.shapeSize();
       if (nPhases==0) {
-	ATH_MSG_DEBUG("Got empty Shape object for channel " << id.get_compact() << " (disconnected?)");
+	ATH_MSG_DEBUG("Got empty Shape object for channel " <<  m_onlineID->channel_name(id) << " (disconnected?)");
 	continue;
       }
       count++;
@@ -204,20 +210,18 @@ StatusCode LArOFPhasePicker::pickShape()
 	 if (p>0 && p<nPhases) phase=p;
        }
 
+      ATH_MSG_VERBOSE("Shape picking, gain=" << gain << ", channel "  << m_onlineID->channel_name(id) << ", phase=" << phase);
       ILArShape::ShapeRef_t vShape = shape.shape(phase);
       ILArShape::ShapeRef_t vShapeDer = shape.shapeDer(phase);
       const float timeOffset=shape.timeOffset();
       //some sanity check on the Shapes
       if ( vShape.size() == 0 || vShapeDer.size() == 0 ) {
-	msg(MSG::WARNING) << "Shape not found for gain "<< gain << " channel 0x"  << std::hex << id.get_compact() << std::dec 
-	    << " Will be not exported !!!" << endreq;
+	msg(MSG::WARNING) << "Shape not found for gain "<< gain << " channel " <<  m_onlineID->channel_name(id) << endreq;
       } else if ( vShape.size() != vShapeDer.size() ) {
-	msg(MSG::WARNING) << "Shape a (" << vShape.size() << ") and b (" << vShapeDer.size() << ") are not the same size for channel 0x" 
-	    << std::hex << id.get_compact() << std::dec << endreq;
+	msg(MSG::WARNING) << "Shape a (" << vShape.size() << ") and b (" << vShapeDer.size() << ") are not the same size for channel" 
+			  <<  m_onlineID->channel_name(id) << endreq;
 	msg(MSG::WARNING) << "Will be not exported !!!" << endreq;
       } else { // save in new container
-	std::vector<float> theShape;
-	std::vector<float> theShapeDer;
 	std::vector<std::vector<float> > shapeDer;
 	std::vector<std::vector<float> > shapeAmpl;
 	shapeAmpl.push_back(vShape.asVector());

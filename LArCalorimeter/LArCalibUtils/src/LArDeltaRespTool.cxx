@@ -9,7 +9,7 @@ const int LArDeltaRespTool::DEFAULT=-1;
 
 // constructor
 LArDeltaRespTool::LArDeltaRespTool ( const std::string& type, const std::string& name,const IInterface* parent )
-  : AlgTool(type,name,parent),
+  : AthAlgTool(type,name,parent),
     m_Tdrift(0),
     m_Fstep(0),
     m_Tcal(0),
@@ -46,8 +46,6 @@ LArCaliWave LArDeltaRespTool::makeLArDeltaResp( const LArWFParams &larWFParam,
 
 void LArDeltaRespTool::compute_deltaresp() 
 {
-  MsgStream log(msgSvc(), name());
-
   LArWaveHelper wHelper;
 
   // calib. signal at Mother Board :
@@ -61,31 +59,31 @@ void LArDeltaRespTool::compute_deltaresp()
   
   // normalization of calibration pulse
   if ( m_normalizeCali ) {
-    log << MSG::VERBOSE << "*** Normalisation \t|-> YES" << endreq ;
+    ATH_MSG_VERBOSE ( "*** Normalisation \t|-> YES" );
     double peak = gCaliMB.getSample( wHelper.getMax(gCaliMB) ) ;
-    log << MSG::VERBOSE  << "peak = " << peak << endreq ;
+    ATH_MSG_VERBOSE  ( "peak = " << peak );
     if ( peak <=0 ) {
-      log << MSG::WARNING << "Peak value <=0 , cannot normalize!" << endreq ;
+      ATH_MSG_WARNING ( "Peak value <=0 , cannot normalize!" );
     } else {
       gCaliMB = gCaliMB * (1./peak)  ;
     }
   } else {
-    log << MSG::VERBOSE << "*** Normalisation \t|-> NO" << endreq ;
+    ATH_MSG_VERBOSE ( "*** Normalisation \t|-> NO" );
   }
 
   // delta responde waveform prediction
-  log << MSG::VERBOSE << "*** Delta response \t|-> m_Fstep   = " << m_Fstep  << " ns " << endreq ;
-  log << MSG::VERBOSE << "*** Delta response \t|-> m_Tcal    = " << m_Tcal   << " ns " << endreq ;
-  log << MSG::VERBOSE << "*** Delta response \t|-> m_Omega0  = " << m_Omega0 << " GHz" << endreq ;
-  log << MSG::VERBOSE << "*** Delta response \t|-> m_Taur    = " << m_Taur   << " ns " << endreq ;
+  ATH_MSG_VERBOSE ( "*** Delta response \t|-> m_Fstep   = " << m_Fstep  << " ns " );
+  ATH_MSG_VERBOSE ( "*** Delta response \t|-> m_Tcal    = " << m_Tcal   << " ns " );
+  ATH_MSG_VERBOSE ( "*** Delta response \t|-> m_Omega0  = " << m_Omega0 << " GHz" );
+  ATH_MSG_VERBOSE ( "*** Delta response \t|-> m_Taur    = " << m_Taur   << " ns " );
   
   if ( ! m_injPointCorr ) {
     // perform only exp->triangle correction
-    log << MSG::VERBOSE << "*** Inj.Point Corr. \t|-> NO" << endreq ;
+    ATH_MSG_VERBOSE ( "*** Inj.Point Corr. \t|-> NO" );
     gDelta = deltaResp ( gCaliMB ) ;
   } else {
     // perform exp->triangle and then injection point correction
-    log << MSG::VERBOSE << "*** Inj.Point Corr. \t|-> YES" << endreq ;
+    ATH_MSG_VERBOSE ( "*** Inj.Point Corr. \t|-> YES" );
     //gDelta = deltaResp ( gCaliMB ) ;
     //gDelta = LArPhysWaveTool::injResp( gDelta ); // HOW TO MAKE THIS WORKING???
     gDelta = injResp( deltaResp ( gCaliMB ) ) ;

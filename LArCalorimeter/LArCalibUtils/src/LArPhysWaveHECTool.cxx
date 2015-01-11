@@ -16,6 +16,8 @@
 
 #include <TGraphSmooth.h>
 
+#include "RVersion.h"
+
 using std::cout;
 using std::endl;
 
@@ -57,7 +59,7 @@ const int LArPhysWaveHECTool::DEFAULT=-1;
 int LArWaveFlag=0, Tp4_gsl_err_counter=0, Tp5_gsl_err_counter=0;
 
 LArPhysWaveHECTool::LArPhysWaveHECTool ( const std::string& type, const std::string& name,const IInterface* parent )
-  : AlgTool(type,name,parent)
+  : AthAlgTool(type,name,parent)
 {
 
   // Declare additional interface
@@ -80,20 +82,7 @@ LArPhysWaveHECTool::~LArPhysWaveHECTool() {}
 
 StatusCode LArPhysWaveHECTool::initialize()
 {    
-  MsgStream log(msgSvc(), name());
-  // Get access to the Detector Store
-  StoreGateSvc* detStore; 
-  StatusCode sc = service("DetectorStore",detStore);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Cannot get DetectorStore!" << endreq;
-    return sc;
-  }
-  //const LArOnlineID* onlineHelper;
-  sc = detStore->retrieve(onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID" << endreq;
-    return sc;
-  }  
+  ATH_CHECK( detStore()->retrieve(onlineHelper, "LArOnlineID") );
   return StatusCode::SUCCESS;
 }
 
@@ -102,7 +91,6 @@ StatusCode LArPhysWaveHECTool::makeLArPhysWaveHEC(LArWFParams& wfParam, LArCaliW
 						  LArPhysWave & predLArPhysWave, const LArPhysWave & idealPhysWave,
 						  float & MphysMcali, const HWIdentifier& chid, const int gain, 
 						  int & LArPhysWaveFlag) {
-  MsgStream log(msgSvc(), name());
   LArPhysWaveFlag=LArWave::predCali;
   Tp4_gsl_err_counter=0, Tp5_gsl_err_counter=0;
   // set input objects
@@ -114,18 +102,18 @@ StatusCode LArPhysWaveHECTool::makeLArPhysWaveHEC(LArWFParams& wfParam, LArCaliW
 //    return StatusCode::FAILURE;
 //  }
   if(wfParam.fstep()<m_FstepMin || wfParam.fstep()>m_FstepMax){ 
-    log<< MSG::INFO <<" Fstep="<< wfParam.fstep() << " out of accepted region ("<<m_FstepMin<< ","<<m_FstepMax<<") average used instead : "<<m_FstepAverage<<endreq;
+    ATH_MSG_INFO (" Fstep="<< wfParam.fstep() << " out of accepted region ("<<m_FstepMin<< ","<<m_FstepMax<<") average used instead : "<<m_FstepAverage);
     wfParam.setFstep(m_FstepAverage);
   }
   if(wfParam.tcal()<m_TcalMin || wfParam.tcal()>m_TcalMax ){
-    log<< MSG::INFO <<" Tcal="<< wfParam.tcal() << "out of accepted region ("<<m_TcalMin<< ","<<m_TcalMax<<") average used instead : "<<m_TcalAverage<<endreq;
+    ATH_MSG_INFO (" Tcal="<< wfParam.tcal() << "out of accepted region ("<<m_TcalMin<< ","<<m_TcalMax<<") average used instead : "<<m_TcalAverage);
     wfParam.setTcal(m_TcalAverage);
   }
   //if(m_Fstep<0.01) m_Fstep=0.65; // 0.04-.09  -> property into JO
   //if(m_Tcal>600)   m_Tcal=417;   // 400-460   -> property into JO
 
-  log << MSG::DEBUG <<" Tdrift="<< wfParam.tdrift() <<" Tcal="<<wfParam.tcal()<<" Fstep="<< wfParam.fstep()<<" m_Omega0="<< m_Omega0<<" m_Taur="<<m_Taur<<" LArWaveFlag="
-      << LArWaveFlag <<" LArPhysWaveFlag="<< LArPhysWaveFlag << endreq;
+  ATH_MSG_DEBUG (" Tdrift="<< wfParam.tdrift() <<" Tcal="<<wfParam.tcal()<<" Fstep="<< wfParam.fstep()<<" m_Omega0="<< m_Omega0<<" m_Taur="<<m_Taur<<" LArWaveFlag="
+                 << LArWaveFlag <<" LArPhysWaveFlag="<< LArPhysWaveFlag );
   predict_phys_HEC(wfParam,caliWave,predLArPhysWave, MphysMcali,chid,gain);
   //LArPhysWaveFlag=LArWaveFlag;
 //  std::cout<<"makeLArPhysWaveHEC: LArWaveFlag="<<LArWaveFlag<<" LArPhysWaveFlag="<< LArPhysWaveFlag <<std::endl;
@@ -138,7 +126,6 @@ StatusCode LArPhysWaveHECTool::makeLArPhysWaveHEC(LArWFParams& wfParam, LArCaliW
 					  LArPhysWave & predLArPhysWave, 
 					  float & MphysMcali, const HWIdentifier& chid, const int gain) {
 
-  MsgStream log(msgSvc(), name());
   // calib. signal at Mother Board :
   LArWave gCaliMB=caliWave ;//deep-copy and cast to base-class
   LArWaveHelper wHelper;
@@ -158,14 +145,14 @@ StatusCode LArPhysWaveHECTool::makeLArPhysWaveHEC(LArWFParams& wfParam, LArCaliW
   if ( m_normalizeCali ) {
     double peak = gCaliMB.getSample( wHelper.getMax(gCaliMB) ) ;
     peak_tmp=peak;
-    log << MSG::VERBOSE << "*** Normalisation \t|-> YES (CaliWave peak = " << peak << ")" << endreq ;
+    ATH_MSG_VERBOSE ( "*** Normalisation \t|-> YES (CaliWave peak = " << peak << ")" );
     if ( peak <=0 ) {
-      log << MSG::WARNING << "Peak value <=0 , cannot normalize!" << endreq ;
+      ATH_MSG_WARNING ( "Peak value <=0 , cannot normalize!" );
     } else {
       gCaliMB = gCaliMB * (1./peak)  ;
     }
   } else {
-    log << MSG::VERBOSE << "*** Normalisation \t|-> NO" << endreq ;
+    ATH_MSG_VERBOSE ( "*** Normalisation \t|-> NO" );
   }
 
   
@@ -174,10 +161,10 @@ StatusCode LArPhysWaveHECTool::makeLArPhysWaveHEC(LArWFParams& wfParam, LArCaliW
   int Channel = onlineHelper->channel(chid);
   int adc = 128*(Slot-5)+ Channel+1;
 
-  log << MSG::VERBOSE << "*** Physics waveform\t|-> FT=" << FT   << " Slot=" << Slot << " Channel=" <<Channel<< " adc=" << adc << " gain=" << gain <<endreq ;
-  log << MSG::VERBOSE << "*** Physics waveform\t|-> m_Tdrift  = " << wfParam.tdrift() << " ns " << endreq ;
-  log << MSG::VERBOSE << "*** Physics waveform\t|-> m_Fstep   = " << wfParam.fstep()  << " ns " << endreq ;
-  log << MSG::VERBOSE << "*** Physics waveform\t|-> m_Tcal    = " << wfParam.tcal() << " ns " << endreq ;
+  ATH_MSG_VERBOSE ( "*** Physics waveform\t|-> FT=" << FT   << " Slot=" << Slot << " Channel=" <<Channel<< " adc=" << adc << " gain=" << gain );
+  ATH_MSG_VERBOSE ( "*** Physics waveform\t|-> m_Tdrift  = " << wfParam.tdrift() << " ns " );
+  ATH_MSG_VERBOSE ( "*** Physics waveform\t|-> m_Fstep   = " << wfParam.fstep()  << " ns " );
+  ATH_MSG_VERBOSE ( "*** Physics waveform\t|-> m_Tcal    = " << wfParam.tcal() << " ns " );
   
 
 
@@ -208,12 +195,12 @@ StatusCode LArPhysWaveHECTool::makeLArPhysWaveHEC(LArWFParams& wfParam, LArCaliW
     CALIWAVE_SHIFT=1.0*repro_count;
 
     if(repro_count>0){
-      log << MSG::INFO <<"FT="<<FT<<" Slot="<<Slot<<" Ch="<<Channel<<" Gain="<<gain<<" adc="<<adc<<endreq;
-      log << MSG::INFO <<repro_count<<". Iteration of INTEGRATION: CALIWAVE IS MOVED UP by "<<CALIWAVE_SHIFT<<" ADC units"<<endreq ;
+      ATH_MSG_INFO ("FT="<<FT<<" Slot="<<Slot<<" Ch="<<Channel<<" Gain="<<gain<<" adc="<<adc);
+      ATH_MSG_INFO (repro_count<<". Iteration of INTEGRATION: CALIWAVE IS MOVED UP by "<<CALIWAVE_SHIFT<<" ADC units");
       if(DIFF_AMPL>=QUAL_REQ_AMPL)
-	log << MSG::INFO <<"Problematic bin="<<idx_bad_time_ampl<<" AmplPhysGSL="<<Ampl_problem_ampl<<" Time="<< Time_problem_ampl <<" Deviation="<<DIFF_AMPL<<" ADC units"<<" Peak="<<peak_tmp<<endreq ;
+	ATH_MSG_INFO ("Problematic bin="<<idx_bad_time_ampl<<" AmplPhysGSL="<<Ampl_problem_ampl<<" Time="<< Time_problem_ampl <<" Deviation="<<DIFF_AMPL<<" ADC units"<<" Peak="<<peak_tmp);
       if(DIFF>=QUAL_REQ)
-	log << MSG::INFO <<"Problematic bin="<<idx_bad_time<<" AmplPhysGSL="<<Ampl_problem<<" Time="<<Time_problem<<" Deviation="<<DIFF<<" ADC units"<< " Peak="<<peak_tmp<<endreq ;
+	ATH_MSG_INFO ("Problematic bin="<<idx_bad_time<<" AmplPhysGSL="<<Ampl_problem<<" Time="<<Time_problem<<" Deviation="<<DIFF<<" ADC units"<< " Peak="<<peak_tmp);
     }
 
     pcal.Reset();
@@ -252,7 +239,7 @@ StatusCode LArPhysWaveHECTool::makeLArPhysWaveHEC(LArWFParams& wfParam, LArCaliW
   }
 
   if(repro_count>=ITER_MAX && (DIFF>=QUAL_REQ || DIFF_AMPL>=QUAL_REQ_AMPL)){
-    log << MSG::WARNING <<"FT="<<FT<<" Slot="<<Slot<<" Ch="<<Channel<<" Gain="<<gain<<" #iterations for CALIWAVE increasing reached the limit! LArWaveFlag set to -1" << endreq ;
+    ATH_MSG_WARNING ("FT="<<FT<<" Slot="<<Slot<<" Ch="<<Channel<<" Gain="<<gain<<" #iterations for CALIWAVE increasing reached the limit! LArWaveFlag set to -1" );
     LArWaveFlag=-1;
   }
 
@@ -283,7 +270,7 @@ StatusCode LArPhysWaveHECTool::makeLArPhysWaveHEC(LArWFParams& wfParam, LArCaliW
     MphysMcali = predLArPhysWave.getSample( wHelper.getMax(predLArPhysWave) ) /
       gCaliMB.getSample( wHelper.getMax(gCaliMB) ) ;
   }  
-  log << MSG::VERBOSE << "*** Physics waveform\t|-> m_MphysMcali = " << MphysMcali << " adc=" <<adc<<endreq ;
+  ATH_MSG_VERBOSE ( "*** Physics waveform\t|-> m_MphysMcali = " << MphysMcali << " adc=" <<adc);
   
   return ;			 
 }
@@ -648,17 +635,24 @@ static double f5_gsl(Double_t x, void *par)
 //version for the Gauss
 Double_t Tp4(Double_t t)
 {
-  static Double_t a,b, par[1];
+  static Double_t a,b;//, par[1];
   static const Double_t epsrel = 0.001;
   static TF1 *fun4 = NULL;
 
   if(fun4 == NULL) fun4 = new TF1("fun4",&f4_g,0.,NMAX,1);
 
-  par[0] = t;
   a = t - tdr;
   b = t;
 
+
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
+  static Double_t par[1];
+  par[0]=t;
   return fun4->Integral(a,b,par,epsrel);
+#else
+  fun4->SetParameter(0,t);
+  return fun4->Integral(a,b,epsrel);
+#endif
 
 }
 // Integrand for the Tp4 function
@@ -675,17 +669,21 @@ static Double_t f4_g(Double_t *x, Double_t *par)
 // version for the Gauss
 Double_t Tp5(Double_t t)
 {
-  static Double_t b, par[1];
+  static Double_t b;//, par[1];
   static const Double_t a = 0., epsrel = 0.001;
   static TF1 *fun5 = NULL;
 
   if(fun5 == NULL) fun5 = new TF1("fun5",&f5_g,0.,NMAX,1);
 
-  par[0] = t;
-  b = t - tdr;
-
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
+  static Double_t par[1];
+  par[0]=t;
   return fun5->Integral(a,b,par,epsrel);
-
+#else
+  b = t - tdr;
+  fun5->SetParameter(0,t);
+  return fun5->Integral(a,b,epsrel);
+#endif
 }
 
 // Integrand for the Tp5 function

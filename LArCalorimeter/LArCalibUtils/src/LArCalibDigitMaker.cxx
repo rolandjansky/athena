@@ -7,8 +7,7 @@
 #include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -24,9 +23,7 @@ using CLHEP::ns;
 
 
 LArCalibDigitMaker::LArCalibDigitMaker(const std::string& name, ISvcLocator* pSvcLocator)
-  : Algorithm(name, pSvcLocator),
-    m_storeGateSvc(0),
-    m_detStore(0),
+  : AthAlgorithm(name, pSvcLocator),
     m_nTrigger(0)
 {
   //declareProperty("DigitKey",m_key="");
@@ -45,25 +42,9 @@ LArCalibDigitMaker::~LArCalibDigitMaker()
 }
 
 StatusCode LArCalibDigitMaker::initialize()
-{ MsgStream log(msgSvc(), name());
- log << MSG::DEBUG << "======== LArCalibDigitMaker Initialize ========" << endreq;
-  StatusCode sc = service("StoreGateSvc", m_storeGateSvc);
-  if (sc.isFailure()) 
-    {log << MSG::FATAL << " Cannot locate StoreGateSvc " << std::endl;
-     return StatusCode::FAILURE;
-    } 
-  
-  sc = service( "DetectorStore", m_detStore);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Could not locate DetectorStore" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  sc = m_larCablingSvc.retrieve();
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << " Can't get LArCablingSvc " << endreq;
-    return sc;
-  }
+{
+  ATH_MSG_DEBUG ( "======== LArCalibDigitMaker Initialize ========" );
+  ATH_CHECK( m_larCablingSvc.retrieve() );
     
 //  std::cout << "Pattern.size()=" << m_vPattern.size() << std::endl;
 //   std::cout << "DAC.size()=" << m_vDAC.size() << std::endl;
@@ -74,14 +55,14 @@ StatusCode LArCalibDigitMaker::initialize()
   //Check if calibParams are given consistently: Either all or non
   if (!((m_vBoardIDs.size()==0 && m_vDAC.size()==0 && m_vDelay.size()==0 && m_vPattern.size()==0 && m_nTrigger==0) ||
       (m_vBoardIDs.size() && m_vDAC.size() && m_vDelay.size() && m_vPattern.size() && m_nTrigger))) {
-    log << MSG::ERROR << "Problem with jobOptions! Please set either ALL calibration parameters" << std:: endl 
-	<< "(DAC, Delay, Pattern, BoardIDs and nTigger) or non!" << endreq;
+    ATH_MSG_ERROR ( "Problem with jobOptions! Please set either ALL calibration parameters" << std:: endl 
+                    << "(DAC, Delay, Pattern, BoardIDs and nTigger) or non!" );
     return StatusCode::FAILURE;
   }
   //if we have calib board params as jobOpts, set them
   if (m_vBoardIDs.size() && m_vDAC.size() && m_vDelay.size() && m_vPattern.size() && m_nTrigger) {
     if (m_vPattern.size()%4) {
-      log << MSG::ERROR << "Problem with jobOptions! One Pattern must conists of 4 32bit values!" << endreq;
+      ATH_MSG_ERROR ( "Problem with jobOptions! One Pattern must conists of 4 32bit values!" );
       return StatusCode::FAILURE;
     }
     LArCalibParams* calibParams=new LArCalibParams;
@@ -92,7 +73,7 @@ StatusCode LArCalibDigitMaker::initialize()
       const HWIdentifier calibBoardHWID(*it);
       calibParams->set(calibBoardHWID,m_nTrigger,m_vPattern,m_vDAC,m_vDelay);
     }
-    sc=m_detStore->record(calibParams,"LArCalibParams");
+    ATH_CHECK( detStore()->record(calibParams,"LArCalibParams") );
   }//End set calib board parameters
 
   if (m_keylist.size()==0) {
@@ -101,8 +82,7 @@ StatusCode LArCalibDigitMaker::initialize()
     m_keylist.push_back("LOW");
   }
 
-
-  log << MSG::DEBUG << "======== LArCalibDigitMaker initialize successfully ========" << endreq;
+  ATH_MSG_DEBUG ( "======== LArCalibDigitMaker initialize successfully ========" );
   return StatusCode::SUCCESS;
 }
 
@@ -110,40 +90,30 @@ StatusCode LArCalibDigitMaker::initialize()
 StatusCode LArCalibDigitMaker::execute()
 {if (m_dontRun)
   return StatusCode::SUCCESS;
- MsgStream log(msgSvc(), name());
- StatusCode sc; 
- const DataHandle<EventInfo> thisEventInfo;
- sc=m_storeGateSvc->retrieve(thisEventInfo);
- if (sc.isFailure()) {
-   log << MSG::FATAL << "Cannot read EventID from StoreGate" << endreq;
-   return StatusCode::FAILURE;
- }
+ const DataHandle<xAOD::EventInfo> thisEventInfo;
+ ATH_CHECK( evtStore()->retrieve(thisEventInfo) );
  // Modif J. Labbe from JF. Marchand - Nov. 2009
  //  const unsigned eventNb=thisEventInfo->event_ID()->event_number();
- const unsigned eventNb=(thisEventInfo->event_ID()->event_number())&0xffffff ;
- log << MSG::DEBUG << "======== executing event "<< eventNb << " ========" << endreq;
+ const unsigned eventNb=(thisEventInfo->eventNumber())&0xffffff ;
+ ATH_MSG_DEBUG ( "======== executing event "<< eventNb << " ========" );
  
- const LArCalibParams* calibParams;
- sc=m_detStore->retrieve(calibParams,"LArCalibParams");
- if (sc.isFailure())
-   {log << MSG::ERROR << "Cannot load LArCalibParams from DetStore. Please provide paramters as jobOpts!" << endreq;
-    return StatusCode::FAILURE;
-   }
+ const LArCalibParams* calibParams = nullptr;
+ ATH_CHECK( detStore()->retrieve(calibParams,"LArCalibParams") );
 
  std::vector<std::string>::const_iterator key_it=m_keylist.begin();
  std::vector<std::string>::const_iterator key_it_e=m_keylist.end();
  for (;key_it!=key_it_e;key_it++) { //Loop over all containers that are to be processed (e.g. different gains)
-   log << MSG::DEBUG << "Retrieving LArDigitContainer. Key= " << (*key_it) << endreq; 
+   ATH_MSG_DEBUG ( "Retrieving LArDigitContainer. Key= " << (*key_it) );
    const LArDigitContainer* larDigitCont;
-   sc = m_storeGateSvc->retrieve(larDigitCont,*key_it);
-   if (sc.isFailure()) 
-     {log << MSG::DEBUG << "Cannot read LArDigitContainer from StoreGate! key=" << *key_it << endreq;
-      continue; //Try next container
-     }
-   if (larDigitCont->size()==0)
-     {log << MSG::DEBUG << "LArDigitContainer with key '" << *key_it << "' is empty. Ignored." << endreq;
-      continue; //Try next container
-     }
+   StatusCode sc = evtStore()->retrieve(larDigitCont,*key_it);
+   if (sc.isFailure())  {
+     ATH_MSG_DEBUG ( "Cannot read LArDigitContainer from StoreGate! key=" << *key_it );
+     continue; //Try next container
+   }
+   if (larDigitCont->size()==0) {
+     ATH_MSG_DEBUG ( "LArDigitContainer with key '" << *key_it << "' is empty. Ignored." );
+     continue; //Try next container
+   }
    //Iterate over LArDigitContainer and build LArCalibDigitContainer
    LArCalibDigitContainer* calibDigitContainer=new LArCalibDigitContainer();
    calibDigitContainer->setDelayScale(m_delayScale);
@@ -170,11 +140,7 @@ StatusCode LArCalibDigitMaker::execute()
      LArCalibDigit* calibDigit=new LArCalibDigit(chid,gain, samples, dac, delay, ispulsed);
      calibDigitContainer->push_back(calibDigit);
    } //End iteration to build calibDigits
-   sc = m_storeGateSvc->record(calibDigitContainer,*key_it);
-   if (sc.isFailure()) 
-     {log << MSG::FATAL << " Cannot record LArCalibDigitContainer from StoreGate! key=" << *key_it << endreq;
-      return StatusCode::FAILURE;
-     }
+   ATH_CHECK( evtStore()->record(calibDigitContainer,*key_it) );
    //log << MSG::DEBUG << "LArCalibDigitContainer recorded to StoreGate. key=" << m_key << endreq;
  } //End loop key list
  return StatusCode::SUCCESS;

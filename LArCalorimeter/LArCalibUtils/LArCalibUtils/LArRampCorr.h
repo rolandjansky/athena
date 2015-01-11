@@ -4,8 +4,7 @@
 
 #ifndef LARRAMPCORR_H
 #define LARRAMPCORR_H
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/IIncidentListener.h" 
 #include "StoreGate/StoreGateSvc.h"
 #include "LArIdentifier/LArOnlineID.h"
@@ -17,7 +16,7 @@
 // Simple algorithm to produce correction for Ramps from an ascii file
 // author: G.Unal
 
-class LArRampCorr : public Algorithm//, public IIncidentListener 
+class LArRampCorr : public AthAlgorithm//, public IIncidentListener 
 {
  public:
   LArRampCorr(const std::string & name, ISvcLocator * pSvcLocator);
@@ -30,9 +29,6 @@ class LArRampCorr : public Algorithm//, public IIncidentListener
   StatusCode finalize(){return StatusCode::SUCCESS;}
 
 private:
-
-  StoreGateSvc* m_detStore;
-
   // Output key
   std::string m_keyoutput;
     
@@ -43,7 +39,6 @@ private:
   std::vector<std::string> m_inputStringIDs;
   
   const LArOnlineID* m_onlineHelper;
-
 };
 
 #endif

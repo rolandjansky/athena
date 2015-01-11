@@ -8,10 +8,8 @@
 #ifndef LARPHYSWAVETOOL_H
 #define LARPHYSWAVETOOL_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "StoreGate/DataHandle.h" 
-
-#include "GaudiKernel/MsgStream.h"
 
 #include "LArRawConditions/LArWFParams.h"
 #include "LArRawConditions/LArCaliWave.h"
@@ -20,7 +18,7 @@
 
 static const InterfaceID IID_LArPhysWaveTool("LArPhysWaveTool", 1 , 0); 
 
-class LArPhysWaveTool : public AlgTool
+class LArPhysWaveTool : public AthAlgTool
 {
  public: 
 

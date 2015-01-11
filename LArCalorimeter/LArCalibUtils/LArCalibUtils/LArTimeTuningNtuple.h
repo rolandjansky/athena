@@ -8,9 +8,7 @@
 #ifndef LARTIMETUNINGNTUPLE
 #define LARTIMETUNINGNTUPLE
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/INTupleSvc.h"
 #include "GaudiKernel/NTuple.h"
 #include "GaudiKernel/SmartDataPtr.h"
@@ -24,7 +22,7 @@
 #include <string>
 #include <map>
 
-class LArTimeTuningNtuple : public Algorithm
+class LArTimeTuningNtuple : public AthAlgorithm
 {
  public:
   LArTimeTuningNtuple(const std::string & name, ISvcLocator * pSvcLocator);
@@ -69,8 +67,6 @@ class LArTimeTuningNtuple : public Algorithm
 
   //NTuplePtr nt;
   NTuple::Tuple* m_ntuplePtr;
-
-  StoreGateSvc* m_storeGateSvc;
 
   const LArOnlineID* m_larOnlineHelper;
 };

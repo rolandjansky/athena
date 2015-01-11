@@ -30,8 +30,7 @@ using std::pow;
 #include <cmath>
 
 LArRampFCalCorr::LArRampFCalCorr(const std::string& name,ISvcLocator* pSvcLocator)
-  :Algorithm(name, pSvcLocator),
-   m_detStore(0),
+  :AthAlgorithm(name, pSvcLocator),
    m_onlineHelper(0)
 {
   declareProperty("Threshold", m_threshold = 1.0);  // Baseplane problem threshold at HIGH gain.
@@ -40,22 +39,8 @@ LArRampFCalCorr::LArRampFCalCorr(const std::string& name,ISvcLocator* pSvcLocato
 LArRampFCalCorr::~LArRampFCalCorr() {}
 
 StatusCode LArRampFCalCorr::initialize(){
-  // acquire LArRampComplete
-  MsgStream  log(msgSvc(),name());
-  log << MSG::DEBUG << " in initialize() " <<endreq;
-
-  StatusCode sc = service("DetectorStore", m_detStore);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << " Cannot locate DetectorStore " << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  // Online Helper
-  sc = m_detStore->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    log <<MSG::ERROR <<"Could not get LArOnlineID helper"<<endreq;
-    return sc;
-  }
+  ATH_MSG_DEBUG ( " in initialize() " );
+  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
   return StatusCode::SUCCESS;
 }
 
@@ -63,18 +48,11 @@ StatusCode LArRampFCalCorr::execute() {return StatusCode::SUCCESS;}
 
 StatusCode LArRampFCalCorr::stop(){
 
-  MsgStream  log(msgSvc(),name());
-  log << MSG::DEBUG << " in stop() " <<endreq;
+  ATH_MSG_DEBUG ( " in stop() " );
 
-  const LArRampComplete* ramp;
-  StatusCode sc = m_detStore->retrieve(ramp);
-  if (sc.isFailure() || !ramp) {
-    log << MSG::WARNING << "Unable to retrieve LArRampComplete from DetectorStore" << endreq;
-    return sc;
-  }
-  else log << MSG::DEBUG << "found LarRampComplete" << endreq;
-
-  
+  const LArRampComplete* ramp = nullptr;
+  ATH_CHECK( detStore()->retrieve(ramp) );
+  ATH_MSG_DEBUG ( "found LarRampComplete" );
 
   HWIdentifier chid;
   std::vector<int> badChan;
@@ -99,10 +77,10 @@ StatusCode LArRampFCalCorr::stop(){
          || module == -1) continue;
       slot = m_onlineHelper->slot(chid);
       channel = m_onlineHelper->channel(chid);
-      log << MSG::VERBOSE << slot << " " << channel << endreq;
+      ATH_MSG_VERBOSE ( slot << " " << channel );
       if (it->m_vRamp[1] > m_threshold*std::pow(10.0,(int)gain)){ // Note: ramp contains inverse of slope.  Therefore, baseplane problems have a high value.
-	log << MSG::DEBUG << "Bad chan: slot" << slot << " chan: " << channel
-           << " amp " << it->m_vRamp[1] << endreq;
+	ATH_MSG_DEBUG ( "Bad chan: slot" << slot << " chan: " << channel
+                        << " amp " << it->m_vRamp[1] );
         badChan.push_back(channel); // Record baseplane faults.
       }
     }
@@ -127,10 +105,10 @@ StatusCode LArRampFCalCorr::stop(){
       else
         avg[i] = 1.0; // avg[i] = gainRatio[gain];
 
-    log << MSG::DEBUG << "Averages modules 1: " << avg[0]  << " 2: " << avg[1] 
-       << " 3: " << avg[2] << endreq;
-    log << MSG::DEBUG << "NumChan modules 1: " << numChan[0]  << " 2: " << numChan[1]
-       << " 3: " << numChan[2] << endreq;
+    ATH_MSG_DEBUG ( "Averages modules 1: " << avg[0]  << " 2: " << avg[1] 
+                    << " 3: " << avg[2] );
+    ATH_MSG_DEBUG ( "NumChan modules 1: " << numChan[0]  << " 2: " << numChan[1]
+                    << " 3: " << numChan[2] );
 
   // Apply corrections
     for ( LArRampIt it = ramp->begin(gain); it != ramp->end(gain); ++it) {
@@ -148,13 +126,13 @@ StatusCode LArRampFCalCorr::stop(){
         else
           rampP.m_vRamp[1] *= 1.027 * avg[module];  // Correct the amplitude and normalize
       } else
-	log << MSG::DEBUG << "Channel 0x" << std::hex << chid << std::dec
-           << " Slot " << slot << " Chan " << channel
-           << " No normalization applied." << endreq;
+	ATH_MSG_DEBUG ( "Channel 0x" << std::hex << chid << std::dec
+                        << " Slot " << slot << " Chan " << channel
+                        << " No normalization applied." );
       //larRampComplete->set(chid, gain, rampP.m_vRamp);  // Rerecords all channels.  Including those not normalized
     }
   } // end loop over gains
-  log << MSG::INFO << "Completed LArRampFCalCorr" << endreq;
+  ATH_MSG_INFO ( "Completed LArRampFCalCorr" );
 
   return StatusCode::SUCCESS;
 }

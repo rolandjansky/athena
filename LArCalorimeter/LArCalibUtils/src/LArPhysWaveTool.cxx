@@ -9,7 +9,7 @@ const int LArPhysWaveTool::DEFAULT=-1;
 LArPhysWaveTool::LArPhysWaveTool ( const std::string& type, 
 				   const std::string& name, 
 				   const IInterface* parent )
-  : AlgTool(type,name,parent)
+  : AthAlgTool(type,name,parent)
 {
   // Declare additional interface
   declareInterface<LArPhysWaveTool>(this);
@@ -79,23 +79,23 @@ void LArPhysWaveTool::predict_phys() {
 
   if ( m_normalizeCali ) {
     double peak = gCaliMB.getSample( wHelper.getMax(gCaliMB) ) ;
-    log << MSG::VERBOSE << "*** Normalisation \t|-> YES (CaliWave peak = " << peak << ")" << endreq ;
+    ATH_MSG_VERBOSE ( "*** Normalisation \t|-> YES (CaliWave peak = " << peak << ")" );
     if ( peak <=0 ) {
-      log << MSG::WARNING << "Peak value <=0 , cannot normalize!" << endreq ;
+      ATH_MSG_WARNING ( "Peak value <=0 , cannot normalize!" );
     } else {
       gCaliMB = gCaliMB * (1./peak)  ;
     }
   } else {
-    log << MSG::VERBOSE << "*** Normalisation \t|-> NO" << endreq ;
+    ATH_MSG_VERBOSE ( "*** Normalisation \t|-> NO" );
   }
 
   // ionisation waveform prediction
 
-  log << MSG::VERBOSE << "*** Physics waveform\t|-> m_Tdrift  = " << m_Tdrift << " ns " << endreq ;
-  log << MSG::VERBOSE << "*** Physics waveform\t|-> m_Fstep   = " << m_Fstep  << " ns " << endreq ;
-  log << MSG::VERBOSE << "*** Physics waveform\t|-> m_Tcal    = " << m_Tcal   << " ns " << endreq ;
-  log << MSG::VERBOSE << "*** Physics waveform\t|-> m_Omega0  = " << m_Omega0 << " GHz" << endreq ;
-  log << MSG::VERBOSE << "*** Physics waveform\t|-> m_Taur    = " << m_Taur   << " ns " << endreq ;
+  ATH_MSG_VERBOSE ( "*** Physics waveform\t|-> m_Tdrift  = " << m_Tdrift << " ns " );
+  ATH_MSG_VERBOSE ( "*** Physics waveform\t|-> m_Fstep   = " << m_Fstep  << " ns " );
+  ATH_MSG_VERBOSE ( "*** Physics waveform\t|-> m_Tcal    = " << m_Tcal   << " ns " );
+  ATH_MSG_VERBOSE ( "*** Physics waveform\t|-> m_Omega0  = " << m_Omega0 << " GHz" );
+  ATH_MSG_VERBOSE ( "*** Physics waveform\t|-> m_Taur    = " << m_Taur   << " ns " );
   
   //  bool doInjPointCorr = ( ( ( m_region==0 && m_layer>=0 && m_layer<4 && m_injPointCorrLayer[m_layer] ) || m_injPointCorr )
   //			  && m_Omega0 != 0. ) ;
@@ -105,14 +105,14 @@ void LArPhysWaveTool::predict_phys() {
   
   if ( ! doInjPointCorr ) {
     // perform only exp->triangle correction
-    log << MSG::VERBOSE << "*** Inj. Point Corr \t|-> NO" << endreq ;
+    ATH_MSG_VERBOSE ( "*** Inj. Point Corr \t|-> NO" );
     gPhys = exp2Tri ( gCaliMB ) ;
   } else {
     // perform exp->triangle and then injection point correction
-    log << MSG::VERBOSE << "*** Inj. Point Corr \t|-> YES" << endreq ;
+    ATH_MSG_VERBOSE ( "*** Inj. Point Corr \t|-> YES" );
     if ( !m_injPointUseTauR[m_layer] ) {
       m_Taur = 0.;
-      log << MSG::VERBOSE << "*** Inj. Point TauR \t|-> NO" << endreq ;
+      ATH_MSG_VERBOSE ( "*** Inj. Point TauR \t|-> NO" );
     }
     gPhys = injResp ( exp2Tri ( gCaliMB ) );
   }
@@ -125,7 +125,7 @@ void LArPhysWaveTool::predict_phys() {
      m_MphysMcali = gPhys.getSample( wHelper.getMax(gPhys) ) /
                     gCaliMB.getSample( wHelper.getMax(gCaliMB) ) ;
   }  
-  log << MSG::VERBOSE << "*** Physics waveform\t|-> m_MphysMcali = " << m_MphysMcali << endreq ;
+  ATH_MSG_VERBOSE ( "*** Physics waveform\t|-> m_MphysMcali = " << m_MphysMcali );
   
   m_gPhys = LArPhysWave( gPhys.getWave() ,
 			 m_gCali.getDt() );

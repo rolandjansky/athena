@@ -13,7 +13,7 @@ CREATED:  Jan. 2004
 
 ********************************************************************/
 
-#include "GaudiKernel/Algorithm.h" 
+#include "AthenaBaseComps/AthAlgorithm.h" 
 
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArTools/LArCablingService.h"
@@ -38,9 +38,7 @@ CREATED:  Jan. 2004
 
 #include "LArElecCalib/ILArADC2MeVTool.h"
 
-class StoreGateSvc;
-
-class LArFill : public Algorithm
+class LArFill : public AthAlgorithm
 {
 
  public:
@@ -55,8 +53,6 @@ class LArFill : public Algorithm
 
  private:
 
-  // Services 
-  StoreGateSvc*             m_detStore;
   //  const LArEM_ID*           em_id;
   const LArOnlineID*        m_lar_on_id;
 

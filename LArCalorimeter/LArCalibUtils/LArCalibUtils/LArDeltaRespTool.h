@@ -8,8 +8,7 @@
 #ifndef LARDELTARESPTOOL_H
 #define LARDELTARESPTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "LArRawConditions/LArWFParams.h"
 #include "LArRawConditions/LArCaliWave.h"
@@ -17,7 +16,7 @@
 
 static const InterfaceID IID_LArDeltaRespTool("LArDeltaRespTool", 1 , 0); 
 
-class LArDeltaRespTool : public AlgTool
+class LArDeltaRespTool : public AthAlgTool
 {
  public: 
 

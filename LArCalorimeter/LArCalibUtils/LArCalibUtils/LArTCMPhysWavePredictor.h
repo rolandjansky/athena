@@ -13,11 +13,9 @@
 #ifndef LARTCMPHYSWAVEPREDICTOR
 #define LARTCMPHYSWAVEPREDICTOR
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "LArRawConditions/LArWFParams.h"
 #include "LArRawConditions/LArPhysWave.h"
 #include "LArRawConditions/LArCaliWave.h"
@@ -28,7 +26,7 @@
 #include <vector>
 #include <string>
 
-class LArTCMPhysWavePredictor : public Algorithm
+class LArTCMPhysWavePredictor : public AthAlgorithm
 {
  public:
   LArTCMPhysWavePredictor(const std::string & name, ISvcLocator * pSvcLocator);

@@ -30,7 +30,7 @@
  * @brief svcloc The service locator object.
  */
 LArDumpShapes::LArDumpShapes (const std::string& name, ISvcLocator* svcloc)
-  : Algorithm (name, svcloc),
+  : AthAlgorithm (name, svcloc),
     m_first (true)
 {
   // Set up properties.
@@ -58,10 +58,8 @@ StatusCode LArDumpShapes::execute()
     return StatusCode::SUCCESS;
 
   // Get the shapes from the detector store.
-  StoreGateSvc* detstore = 0;
-  CHECK( service("DetectorStore", detstore) );
   const DataHandle<ILArShape> dd_shape;
-  CHECK( detstore->retrieve (dd_shape) );
+  CHECK( detStore()->retrieve (dd_shape) );
 
   // Get the cabling service.
   LArCablingService * cabling = 0;

@@ -28,8 +28,7 @@ class StoreGateSvc;
 class LArCablingService;
 
 class LArAutoCorrDecoderTool: public AthAlgTool,
-			      virtual public ILArAutoCorrDecoderTool,
-			      public IIncidentListener
+			      virtual public ILArAutoCorrDecoderTool
 
 {
  public:
@@ -50,10 +49,6 @@ class LArAutoCorrDecoderTool: public AthAlgTool,
   virtual StatusCode initialize();
   virtual StatusCode finalize(){return StatusCode::SUCCESS;}
 
-  //IOV Callback functions
-  virtual StatusCode LoadAutoCorr(IOVSVC_CALLBACK_ARGS);
-  virtual void handle(const Incident&);
-
   static const InterfaceID& interfaceID() { 
     return ILArAutoCorrDecoderTool::interfaceID();
   } 
@@ -62,18 +57,17 @@ class LArAutoCorrDecoderTool: public AthAlgTool,
 
   unsigned m_decodemode;
 
+  bool m_alwaysHighGain;
+
   const Eigen::MatrixXd ACDiagonal( const HWIdentifier&  CellID, int gain, unsigned nSamples) const;
   const Eigen::MatrixXd ACPhysics( const HWIdentifier&  CellID, int gain, unsigned nSamples) const;
 
-  const LArOnlineID*  m_lar_on_id;
+  const LArOnlineID*  m_onlineID;
   ToolHandle<LArCablingService> m_cablingService;
 
   std::string m_keyAutoCorr;
-  bool m_loadAtBegin;
 
-  const DataHandle<ILArAutoCorr> m_AutoCorr;
-
-  mutable bool m_cacheValid;
+  const DataHandle<ILArAutoCorr> m_autoCorr;
 
 };
 

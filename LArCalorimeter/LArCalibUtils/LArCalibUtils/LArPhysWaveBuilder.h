@@ -24,14 +24,13 @@
 
 #ifndef LARPHYSWAVEBUILDER_H
 #define LARPHYSWAVEBUILDER_H
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "Identifier/Identifier.h"
 #include "Identifier/HWIdentifier.h"
 #include <vector>
 #include <string>
 
 
-class StoreGateSvc;
 class LArPhysWave;
 class LArPhysWaveContainer;
 class LArParabolaPeakRecoTool;
@@ -44,7 +43,7 @@ class TH2F;
 /**
  * @brief Build LAr wave shapes from real data.
  */
-class LArPhysWaveBuilder : public Algorithm
+class LArPhysWaveBuilder : public AthAlgorithm
 {
  public:
   /**
@@ -80,12 +79,6 @@ private:
   StatusCode write_root (LArPhysWaveContainer* larPhysWaveContainer);
 
   /// === Services & Tools 
-  /// Event data store.
-  StoreGateSvc* m_storeGateSvc;
-
-  /// Detector store.
-  StoreGateSvc* m_detectorStore;
-
   /// Tool to fit a parabola to the shape.
   LArParabolaPeakRecoTool* m_peakParabolaTool;
 

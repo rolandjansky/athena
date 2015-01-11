@@ -6,9 +6,7 @@
 
 template<class CONDITIONSCONTAINER>
 LArCalibCopyAlg<CONDITIONSCONTAINER>::LArCalibCopyAlg (const std::string& name, ISvcLocator* pSvcLocator) : 
-  Algorithm(name,pSvcLocator),
-  m_detStore(0),
-  m_log(NULL),
+  AthAlgorithm(name,pSvcLocator),
   m_groupingType("ExtendedSubDetector"),
   m_useCorrChannel(true)
  {		
@@ -22,24 +20,14 @@ LArCalibCopyAlg<CONDITIONSCONTAINER>::LArCalibCopyAlg (const std::string& name, 
 
 template<class CONDITIONSCONTAINER>
 LArCalibCopyAlg<CONDITIONSCONTAINER>::~LArCalibCopyAlg() {
-  delete m_log;
 }
 
 
 template<class CONDITIONSCONTAINER>
 StatusCode LArCalibCopyAlg<CONDITIONSCONTAINER>::initialize() {
-  m_log=new MsgStream(msgSvc(),name());
-
-  // Get Detector store
-  StatusCode sc = service("DetectorStore", m_detStore);
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Cannot locate DetectorStore " << endreq;
-    return StatusCode::FAILURE;
-  } 
-
   //Block correction application
   bool setFlag =   LArConditionsContainerBase::applyCorrectionsAtInit(true, false);
-  (*m_log) << MSG::INFO << "LArConditionsContainerBase::applyCorrectionsAtInit set to " << setFlag << endreq;
+  ATH_MSG_INFO ( "LArConditionsContainerBase::applyCorrectionsAtInit set to " << setFlag );
 
   return StatusCode::SUCCESS;
 }
@@ -47,39 +35,22 @@ StatusCode LArCalibCopyAlg<CONDITIONSCONTAINER>::initialize() {
 
 template<class CONDITIONSCONTAINER>
 StatusCode LArCalibCopyAlg<CONDITIONSCONTAINER>::stop() {
-  (*m_log) << MSG::INFO << "Entering LArCalibCopyAlg" << endreq;
+  ATH_MSG_INFO ( "Entering LArCalibCopyAlg" );
 
-  const CONDITIONSCONTAINER* input=0;
-  StatusCode sc=m_detStore->retrieve(input,m_inputName);
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Failed to load input container with name " << m_inputName << " from DetectorStore." << endreq;
-    return sc;
-  }
+  const CONDITIONSCONTAINER* input = nullptr;
+  ATH_CHECK( detStore()->retrieve(input,m_inputName) );
 
   CONDITIONSCONTAINER* output=new CONDITIONSCONTAINER();
-  sc=output->setGroupingType(m_groupingType,(*m_log));
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Failed to set groupingType for ouptut container" << endreq;
-    return sc;
-  }
-  sc=output->initialize(); 
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Failed initialize output container" << endreq;
-    return sc;
-  }
+  ATH_CHECK( output->setGroupingType(m_groupingType,(msg())) );
+  ATH_CHECK( output->initialize() );
   
-  sc=m_detStore->record(output,m_outputName);
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Failed to record object with key " << m_outputName
-	     << " to DetectorStore." << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->record(output,m_outputName) );
 
   //Make symlink ....
-  if (setSymlink(output).isFailure()) return sc;
+  ATH_CHECK( setSymlink(output) );
    
-  (*m_log) << MSG::INFO << "Loaded input container " << m_inputName 
-	   << ", write to new container " << m_outputName << endreq;
+  ATH_MSG_INFO ( "Loaded input container " << m_inputName 
+                 << ", write to new container " << m_outputName );
 
 
   //Start copying data ...
@@ -106,18 +77,14 @@ StatusCode LArCalibCopyAlg<CONDITIONSCONTAINER>::stop() {
     for (;it!=it_e;it++) {
       const HWIdentifier chid(it->first);
       const LArCondObj& payload=it->second;
-      sc=output->insertCorrection(chid,payload,igain,m_useCorrChannel); 
-      if (sc.isFailure()) {
-	(*m_log) << MSG::ERROR << "Failed to insert correction channel" << endreq;
-	return StatusCode::FAILURE;
-      }
+      ATH_CHECK( output->insertCorrection(chid,payload,igain,m_useCorrChannel) );
     } // end loop over channels
     ++nCorrChans;
   } //end loop over gains
 
 
-  (*m_log) << MSG::INFO << "Copied " << nDataChans << " data channels and " << nCorrChans << " correction channels from container '" 
-	   << m_inputName << "' to container '" << m_outputName << "'" << endreq;
+ATH_MSG_INFO ( "Copied " << nDataChans << " data channels and " << nCorrChans << " correction channels from container '" 
+               << m_inputName << "' to container '" << m_outputName << "'" );
 
   return StatusCode::SUCCESS;
 }
@@ -125,54 +92,40 @@ StatusCode LArCalibCopyAlg<CONDITIONSCONTAINER>::stop() {
 
 template<class CONDITIONSCONTAINER>
 StatusCode  LArCalibCopyAlg<CONDITIONSCONTAINER>::setSymlink(const LArRampComplete* ramp) const {
-  StatusCode sc=m_detStore->symLink(ramp, (ILArRamp*)ramp);
-  if (sc.isFailure()) 
-    (*m_log) << MSG::ERROR << "Failed to symlink LArRampComplete to ILArRamp" << endreq;
-  return sc;
+  ATH_CHECK( detStore->symLink(ramp, (ILArRamp*)ramp) );
+  return StatusCode::SUCCESS;
 }
 
 template<class CONDITIONSCONTAINER>
 StatusCode  LArCalibCopyAlg<CONDITIONSCONTAINER>::setSymlink(const LArPedestalComplete* pedestal) const {
-  StatusCode sc=m_detStore->symLink(pedestal, (ILArPedestal*)pedestal);
-  if (sc.isFailure()) 
-    (*m_log) << MSG::ERROR << "Failed to symlink LArPedestalComplete to ILArPedestal" << endreq;
-  return sc;
+  ATH_CHECK( detStore()->symLink(pedestal, (ILArPedestal*)pedestal) );
+  return StatusCode::SUCCESS;
 }
 
 template<class CONDITIONSCONTAINER>
 StatusCode  LArCalibCopyAlg<CONDITIONSCONTAINER>::setSymlink(const LArDAC2uAMC* obj) const {
-  StatusCode sc=m_detStore->symLink(obj, (ILArDAC2uA*)obj);
-  if (sc.isFailure()) 
-    (*m_log) << MSG::ERROR << "Failed to symlink LArDAC2uAMC to ILArDAC2uA" << endreq;
-  else
-    (*m_log) << MSG::INFO << "Successfully symlinked LArDAC2uAMC to ILArDAC2uA" << endreq;
-  return sc;
+  ATH_CHECK( detStore()->symLink(obj, (ILArDAC2uA*)obj) );
+  ATH_MSG_INFO ( "Successfully symlinked LArDAC2uAMC to ILArDAC2uA" );
+  return StatusCode::SUCCESS;
 }
 
 template<class CONDITIONSCONTAINER>
 StatusCode  LArCalibCopyAlg<CONDITIONSCONTAINER>::setSymlink(const LArTdriftComplete* obj) const {
-  StatusCode sc=m_detStore->symLink(obj, (ILArTdrift*)obj);
-  if (sc.isFailure()) 
-    (*m_log) << MSG::ERROR << "Failed to symlink LArTdriftComplete to ILArTdrift" << endreq;
-  else
-    (*m_log) << MSG::INFO << "Successfully symlinked LArTdriftComplete to ILArTdrift" << endreq;
-  return sc;
+  ATH_CHECK( detStore()->symLink(obj, (ILArTdrift*)obj) );
+  ATH_MSG_INFO ( "Successfully symlinked LArTdriftComplete to ILArTdrift" );
+  return StatusCode::SUCCESS;
 }
 
 template<class CONDITIONSCONTAINER>
 StatusCode  LArCalibCopyAlg<CONDITIONSCONTAINER>::setSymlink(const LArOFCComplete* ofc) const {
-  StatusCode sc=m_detStore->symLink(ofc, (ILArOFC*)ofc);
-  if (sc.isFailure()) 
-    (*m_log) << MSG::ERROR << "Failed to symlink LArOFCComplete to ILArOFC" << endreq;
-  return sc;
+  ATH_CHECK ( detStore()->symLink(ofc, (ILArOFC*)ofc) );
+  return StatusCode::SUCCESS;
 }
 
 
 template<class CONDITIONSCONTAINER>
 StatusCode  LArCalibCopyAlg<CONDITIONSCONTAINER>::setSymlink(const LArMphysOverMcalComplete* mpmc) const {
-  StatusCode sc=m_detStore->symLink(mpmc, (ILArMphysOverMcal*)mpmc);
-  if (sc.isFailure()) 
-    (*m_log) << MSG::ERROR << "Failed to symlink LArMphysOverMcalComplete to ILArMphysOverMcal" << endreq;
-  return sc;
+  ATH_CHECK( detStore()->symLink(mpmc, (ILArMphysOverMcal*)mpmc) );
+  return StatusCode::SUCCESS;
 }
 

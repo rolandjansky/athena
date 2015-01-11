@@ -24,9 +24,8 @@ using CLHEP::ns;
 
 //=========================================================================================================
 LArCaliWaveBuilderXtalk::LArCaliWaveBuilderXtalk(const std::string& name, ISvcLocator* pSvcLocator) 
-  : Algorithm(name, pSvcLocator),
+  : AthAlgorithm(name, pSvcLocator),
     m_groupingType("ExtendedFeedThrough"), // SubDetector, Single, FeedThrough
-    m_storeGateSvc(NULL),
     m_onlineHelper(NULL),
     m_larCablingSvc("LArCablingService"),
     m_posOrNeg(0),
@@ -86,8 +85,10 @@ StatusCode LArCaliWaveBuilderXtalk::initialize()
   else if (m_partition == "BarrelA") {m_barrelEndcap = 0; m_posOrNeg = 1;}
   else if (m_partition == "EndcapC") {m_barrelEndcap = 1; m_posOrNeg = 0;}
   else if (m_partition == "EndcapA") {m_barrelEndcap = 1; m_posOrNeg = 1;}
-  else {log << MSG::ERROR << "Can't find partition " << m_partition << " ! Use BarrelC instead." << endreq;}
-  log << MSG::INFO << "Partition : " << m_partition << " (barrel_ec=" << m_barrelEndcap << " ; pos_neg=" << m_posOrNeg << ")" << endreq;
+  else {
+    ATH_MSG_ERROR ( "Can't find partition " << m_partition << " ! Use BarrelC instead." );
+  }
+  ATH_MSG_INFO ( "Partition : " << m_partition << " (barrel_ec=" << m_barrelEndcap << " ; pos_neg=" << m_posOrNeg << ")" );
     
   // Test m_isSpecialCrate, set m_isInnerWheel, and check FT number for EMEC
   if (m_barrelEndcap==1) {
@@ -102,24 +103,24 @@ StatusCode LArCaliWaveBuilderXtalk::initialize()
       else {
 	m_isInnerWheel = false;
 	if (! emecSpecialRegion_test.Contains("outer"))
-	  log << MSG::WARNING << "Can't read EMEC special region (Inner/Outer Wheel) - set SpecialRegion to OuterWheel." << endreq;
+	  ATH_MSG_WARNING ( "Can't read EMEC special region (Inner/Outer Wheel) - set SpecialRegion to OuterWheel." );
       }
 
       if (m_isInnerWheel == false){	// EMEC outer wheel special crates
 	if ( !(m_feedthroughNumber==2 || m_feedthroughNumber==9 || m_feedthroughNumber==15 || m_feedthroughNumber==21) ){
-	  log << MSG::WARNING << "FeedthroughPul=" << m_feedthroughNumber << ". For EMEC outer wheel special crates studies one should use FT = 2, 9, 15 or 21." << endreq;
-	  log << MSG::WARNING << "Set FeedthroughPul to 2."<< endreq;
+	  ATH_MSG_WARNING ( "FeedthroughPul=" << m_feedthroughNumber << ". For EMEC outer wheel special crates studies one should use FT = 2, 9, 15 or 21." );
+	  ATH_MSG_WARNING ( "Set FeedthroughPul to 2.");
 	  m_feedthroughNumber = 2;
 	}
-	log << MSG::INFO << "Look at EM end-cap outer wheel special crates. Check calibration patterns with FT number " << m_feedthroughNumber << endreq;
+	ATH_MSG_INFO ( "Look at EM end-cap outer wheel special crates. Check calibration patterns with FT number " << m_feedthroughNumber );
       }
       else {				// EMEC inner wheel (special crates)
 	if ( !(m_feedthroughNumber==3 || m_feedthroughNumber==10 || m_feedthroughNumber==16 || m_feedthroughNumber==22) ){
-	  log << MSG::WARNING << "FeedthroughPul=" << m_feedthroughNumber << ". For EMEC inner wheel studies one should use FT = 3, 10, 16 or 22." << endreq;
-	  log << MSG::WARNING << "Set FeedthroughPul to 3."<< endreq;
+	  ATH_MSG_WARNING ( "FeedthroughPul=" << m_feedthroughNumber << ". For EMEC inner wheel studies one should use FT = 3, 10, 16 or 22." );
+	  ATH_MSG_WARNING ( "Set FeedthroughPul to 3.");
 	  m_feedthroughNumber = 3;
 	}
-	log << MSG::INFO << "Look at EM end-cap inner wheel (special crates). Check calibration patterns with FT number " << m_feedthroughNumber << endreq;
+	ATH_MSG_INFO ( "Look at EM end-cap inner wheel (special crates). Check calibration patterns with FT number " << m_feedthroughNumber );
       }
 
     }
@@ -130,30 +131,17 @@ StatusCode LArCaliWaveBuilderXtalk::initialize()
 	  || m_feedthroughNumber==2 || m_feedthroughNumber==9  || m_feedthroughNumber==15 || m_feedthroughNumber==21
 	  || m_feedthroughNumber==3 || m_feedthroughNumber==10 || m_feedthroughNumber==16 || m_feedthroughNumber==22
 	  || m_feedthroughNumber>24) {
-	log << MSG::WARNING << "FeedthroughPul=" << m_feedthroughNumber << " : not in EMEC standard crates." << endreq;
-	log << MSG::WARNING << "Set FeedthroughPul to 1."<< endreq;
+	ATH_MSG_WARNING ( "FeedthroughPul=" << m_feedthroughNumber << " : not in EMEC standard crates." );
+	ATH_MSG_WARNING ( "Set FeedthroughPul to 1.");
 	m_feedthroughNumber = 1;
       }
-      log << MSG::INFO << "Look at EM end-cap standard crates. Check calibration patterns with FT number " << m_feedthroughNumber << endreq;
+      ATH_MSG_INFO ( "Look at EM end-cap standard crates. Check calibration patterns with FT number " << m_feedthroughNumber );
     }
   } else {
     // EM Barrel
-    log << MSG::INFO << "Look at EM barrel. Check calibration patterns with FT number " << m_feedthroughNumber << endreq;
+    ATH_MSG_INFO ( "Look at EM barrel. Check calibration patterns with FT number " << m_feedthroughNumber );
   }
   
-
-  StatusCode sc = service("StoreGateSvc", m_storeGateSvc);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << " Cannot locate StoreGateSvc " << endreq;
-    return StatusCode::FAILURE;
-  }   
-
-  StoreGateSvc* detStore;
-  sc=service("DetectorStore",detStore);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Cannot get DetectorStore!" << endreq;
-    return sc;
-  }
 
   if (!m_keylistproperty.size()) // Not key list given
     {
@@ -164,38 +152,16 @@ StatusCode LArCaliWaveBuilderXtalk::initialize()
   m_keylist= m_keylistproperty;
 
   //FIXME probably useless because m_wave isn't written anywhere
-  sc=m_waves.setGroupingType(m_groupingType,log);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Failed to set groupingType for LArCaliWave intermediate object" << endreq;
-    return sc;
-  }
-
-  sc=m_waves.initialize(); 
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Failed initialize migrated to ToolHandle object" << endreq;
-    return sc;
-  }
+  ATH_CHECK( m_waves.setGroupingType(m_groupingType,msg()) );
+  ATH_CHECK( m_waves.initialize() );
 
   m_event_counter=0; 
 
   //m_dt=25*ns/m_NStep;
   m_dt = m_SamplingPeriod/m_NStep;
 
-
-  //Get Online helper from DetStore
-  sc = detStore->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
-    return sc;
-  }
-
-
-  sc = m_larCablingSvc.retrieve(); 
-  if(sc.isFailure()){
-    log << MSG::ERROR << "Could not retrieve LArCablingService Tool" << endreq;
-    return sc;
-  }
-
+  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
+  ATH_CHECK( m_larCablingSvc.retrieve() );
   
   return StatusCode::SUCCESS;
 }
@@ -206,15 +172,13 @@ StatusCode LArCaliWaveBuilderXtalk::initializeCabling()
 { 
   // bug in LArTools, on-off map doesn't work at initialization stage
 
-  MsgStream log(msgSvc(), name());
-
-  log << MSG::INFO << "Consider only partition " <<  m_partition << endreq;
+  ATH_MSG_INFO ( "Consider only partition " <<  m_partition );
 
   // Temporary solution to create onoff map as long as it is not done in calibSlotLine()
   // WAITING FOR A FIX in LArTools
  
   Identifier cellId = m_larCablingSvc->cnvToIdentifier(m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,1,4));
-  log << MSG::INFO << "Dummy ids - TEMPORARY " << m_onlineHelper->show_to_string(cellId) << endreq;
+  ATH_MSG_INFO ( "Dummy ids - TEMPORARY " << m_onlineHelper->show_to_string(cellId) );
 
 
   // Fill the m_CalibLineHW vector,containing all the calib line HW id 
@@ -238,11 +202,11 @@ StatusCode LArCaliWaveBuilderXtalk::initializeCabling()
       
       const std::vector<HWIdentifier>& calibLine = m_larCablingSvc->calibSlotLine(theConsidChannel);
       
-      log << MSG::INFO << "Considered Online Channel " << m_onlineHelper->show_to_string(theConsidChannel) << endreq;
-      log << MSG::DEBUG << "Number of associated calib line " << calibLine.size() << endreq;
+      ATH_MSG_INFO ( "Considered Online Channel " << m_onlineHelper->show_to_string(theConsidChannel) );
+      ATH_MSG_DEBUG ( "Number of associated calib line " << calibLine.size() );
       if (calibLine.size() != 0) {
 	m_CalibLineHW.push_back(calibLine[0]);
-	log << MSG::INFO << "Calib line" << m_onlineHelper->show_to_string(calibLine[0]) << endreq;
+	ATH_MSG_INFO ( "Calib line" << m_onlineHelper->show_to_string(calibLine[0]) );
       }
     }
     
@@ -260,10 +224,10 @@ StatusCode LArCaliWaveBuilderXtalk::initializeCabling()
       if (m_calibPattern.find("8",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,70);
       
       const std::vector<HWIdentifier>& calibLine = m_larCablingSvc->calibSlotLine(theConsidChannel);
-      log << MSG::INFO << "Considered Channel " << m_onlineHelper->show_to_string(theConsidChannel) << endreq;
+      ATH_MSG_INFO ( "Considered Channel " << m_onlineHelper->show_to_string(theConsidChannel) );
       if (calibLine.size() != 0) {
 	m_CalibLineHW.push_back(calibLine[0]);
-	log << MSG::INFO << "Calib Line " << m_onlineHelper->show_to_string(calibLine[0]) << endreq;
+	ATH_MSG_INFO ( "Calib Line " << m_onlineHelper->show_to_string(calibLine[0]) );
       }
     }
     
@@ -277,10 +241,10 @@ StatusCode LArCaliWaveBuilderXtalk::initializeCabling()
       if (m_calibPattern.find("4",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,6);
       
       const std::vector<HWIdentifier>& calibLine = m_larCablingSvc->calibSlotLine(theConsidChannel);
-      log << MSG::INFO << "Considered Channel " << m_onlineHelper->show_to_string(theConsidChannel) << endreq;
+      ATH_MSG_INFO ( "Considered Channel " << m_onlineHelper->show_to_string(theConsidChannel) );
       if (calibLine.size() != 0) {
 	m_CalibLineHW.push_back(calibLine[0]);
-	log << MSG::INFO << "Calib Line " << m_onlineHelper->show_to_string(calibLine[0]) << endreq;
+	ATH_MSG_INFO ( "Calib Line " << m_onlineHelper->show_to_string(calibLine[0]) );
       }
     }
 
@@ -295,7 +259,7 @@ StatusCode LArCaliWaveBuilderXtalk::initializeCabling()
 
     // StripSingle pattern  
     if (m_isInnerWheel && m_isSpecialCrate && m_calibPattern.find("StripSingle",0) != std::string::npos )
-      log << MSG::WARNING << "There is no StripSingle pattern for EMEC inner wheel. You should try another pattern (MiddleSingle[1-4] or BackSingle[1-4])." << endreq;
+      ATH_MSG_WARNING ( "There is no StripSingle pattern for EMEC inner wheel. You should try another pattern (MiddleSingle[1-4] or BackSingle[1-4])." );
     else if( m_calibPattern.find("StripSingle",0) != std::string::npos ){
       HWIdentifier theConsidChannel;
 
@@ -309,11 +273,11 @@ StatusCode LArCaliWaveBuilderXtalk::initializeCabling()
 
       const std::vector<HWIdentifier>& calibLine = m_larCablingSvc->calibSlotLine(theConsidChannel);
       
-      log << MSG::INFO << "Considered Online Channel " << m_onlineHelper->show_to_string(theConsidChannel) << endreq;
-      log << MSG::DEBUG << "Number of associated calib line " << calibLine.size() << endreq;
+      ATH_MSG_INFO ( "Considered Online Channel " << m_onlineHelper->show_to_string(theConsidChannel) );
+      ATH_MSG_DEBUG ( "Number of associated calib line " << calibLine.size() );
       if (calibLine.size() != 0) {
 	m_CalibLineHW.push_back(calibLine[0]);
-	log << MSG::INFO << "Calib line" << m_onlineHelper->show_to_string(calibLine[0]) << endreq;
+	ATH_MSG_INFO ( "Calib line" << m_onlineHelper->show_to_string(calibLine[0]) );
       }
     }
 
@@ -341,11 +305,11 @@ StatusCode LArCaliWaveBuilderXtalk::initializeCabling()
       
       const std::vector<HWIdentifier>& calibLine = m_larCablingSvc->calibSlotLine(theConsidChannel);
       
-      log << MSG::INFO << "Considered Channel " << m_onlineHelper->show_to_string(theConsidChannel) << endreq;
-      log << MSG::DEBUG << "Number of associated calib line " << calibLine.size() << endreq;
+      ATH_MSG_INFO ( "Considered Channel " << m_onlineHelper->show_to_string(theConsidChannel) );
+      ATH_MSG_DEBUG ( "Number of associated calib line " << calibLine.size() );
       if (calibLine.size() != 0) {
 	m_CalibLineHW.push_back(calibLine[0]);
-	log << MSG::INFO << "Calib Line " << m_onlineHelper->show_to_string(calibLine[0]) << endreq;
+	ATH_MSG_INFO ( "Calib Line " << m_onlineHelper->show_to_string(calibLine[0]) );
       }
     }// End of MiddleSingle pattern
 
@@ -379,10 +343,10 @@ StatusCode LArCaliWaveBuilderXtalk::initializeCabling()
       if (m_calibPattern.find("4",0) != std::string::npos )theConsidChannel = m_onlineHelper->channel_Id(m_barrelEndcap,m_posOrNeg,m_feedthroughNumber,pulsedSlot,pulsedCell4);
       
       const std::vector<HWIdentifier>& calibLine = m_larCablingSvc->calibSlotLine(theConsidChannel);
-      log << MSG::INFO << "Considered Channel " << m_onlineHelper->show_to_string(theConsidChannel) << endreq;
+      ATH_MSG_INFO ( "Considered Channel " << m_onlineHelper->show_to_string(theConsidChannel) );
       if (calibLine.size() != 0) {
 	m_CalibLineHW.push_back(calibLine[0]);
-	log << MSG::INFO << "Calib Line " << m_onlineHelper->show_to_string(calibLine[0]) << endreq;
+	ATH_MSG_INFO ( "Calib Line " << m_onlineHelper->show_to_string(calibLine[0]) );
       }
     }// End of BackSingle pattern	  
 
@@ -395,18 +359,15 @@ StatusCode LArCaliWaveBuilderXtalk::initializeCabling()
 StatusCode LArCaliWaveBuilderXtalk::execute()
 //=========================================================================================================
 {
-  MsgStream log(msgSvc(), name());
-  StatusCode sc;
- 
   if (m_event_counter==0) initializeCabling();
 
   // Print progression
   if ( m_event_counter < 100 || ( m_event_counter < 1000 && m_event_counter%100==0 ) || m_event_counter%1000==0 ) 
-    log << MSG::INFO << "Processing event " << m_event_counter << endreq;
+    ATH_MSG_INFO ( "Processing event " << m_event_counter );
   m_event_counter++ ;
  
   if (m_keylist.size()==0) {
-    log << MSG::ERROR << "Key list is empty! No containers to process!" << endreq;
+    ATH_MSG_ERROR ( "Key list is empty! No containers to process!" );
     return StatusCode::FAILURE;
   } 
 
@@ -417,9 +378,9 @@ StatusCode LArCaliWaveBuilderXtalk::execute()
 
   for (;key_it!=key_it_e; ++key_it) { //Loop over all containers that are to be processed (e.g. different gains)
  
-    sc = m_storeGateSvc->retrieve(larAccumulatedCalibDigitContainer,*key_it);
+    StatusCode sc = evtStore()->retrieve(larAccumulatedCalibDigitContainer,*key_it);
     if (sc.isFailure()) {
-      log << MSG::WARNING << "Cannot read LArAccumulatedCalibDigitContainer from StoreGate! key=" << *key_it << endreq;
+      ATH_MSG_WARNING ( "Cannot read LArAccumulatedCalibDigitContainer from StoreGate! key=" << *key_it );
       continue; // Try next container
     }
 
@@ -427,7 +388,7 @@ StatusCode LArCaliWaveBuilderXtalk::execute()
     LArAccumulatedCalibDigitContainer::const_iterator it_end=larAccumulatedCalibDigitContainer->end();
 
     if (it == it_end) {
-      log << MSG::DEBUG << "LArAccumulatedCalibDigitContainer with key=" << *key_it << " is empty " << endreq;
+      ATH_MSG_DEBUG ( "LArAccumulatedCalibDigitContainer with key=" << *key_it << " is empty " );
       continue; // at this event LArAccumulatedCalibDigitContainer is empty, do not even try to loop on it...
     }
    
@@ -494,14 +455,14 @@ StatusCode LArCaliWaveBuilderXtalk::execute()
     */
 
     // Debug : print number of events per detector region
-    log << MSG::DEBUG << "Event nb " << m_event_counter - 1<< " - " ;
-    log << MSG::DEBUG << "Entries : EMB PS/F/M/B=" << nbOfEventPart[0] << "/" << nbOfEventPart[1] << "/" << nbOfEventPart[2] << "/" << nbOfEventPart[3];
-    log << MSG::DEBUG << "  -  EMEC Std PS/F/M/B=" << nbOfEventPart[4] << "/" << nbOfEventPart[5] << "/" << nbOfEventPart[6] << "/" << nbOfEventPart[7];
-    log << MSG::DEBUG << " - A/(A+C)=" << (sideA+sideC==0 ? -1 : float(sideA)/float(sideA+sideC));
+    msg() << MSG::DEBUG << "Event nb " << m_event_counter - 1<< " - " ;
+    msg() << MSG::DEBUG << "Entries : EMB PS/F/M/B=" << nbOfEventPart[0] << "/" << nbOfEventPart[1] << "/" << nbOfEventPart[2] << "/" << nbOfEventPart[3];
+    msg() << MSG::DEBUG << "  -  EMEC Std PS/F/M/B=" << nbOfEventPart[4] << "/" << nbOfEventPart[5] << "/" << nbOfEventPart[6] << "/" << nbOfEventPart[7];
+    msg() << MSG::DEBUG << " - A/(A+C)=" << (sideA+sideC==0 ? -1 : float(sideA)/float(sideA+sideC));
     if (!relevantForXtalk) 
-      log << MSG::DEBUG << " - don't keep (partition/pattern)" << endreq;
+      msg() << MSG::DEBUG << " - don't keep (partition/pattern)" << endreq;
     else 
-      log << MSG::DEBUG << " - KEEP THIS EVENT" << endreq;
+      msg() << MSG::DEBUG << " - KEEP THIS EVENT" << endreq;
 
 
     // Process relevant events
@@ -525,14 +486,14 @@ StatusCode LArCaliWaveBuilderXtalk::execute()
 	if ( (m_barrelEndcap == m_onlineHelper->barrel_ec(chid)) && (m_posOrNeg == m_onlineHelper->pos_neg(chid)) ){ 
 
 	  if (!hasbeenprinted){
-	    log << MSG::DEBUG << "This event is relevant for the studied partition" << endreq;
+	    ATH_MSG_DEBUG ( "This event is relevant for the studied partition" );
 	    hasbeenprinted = true;
 	  }
 
 	  CaloGain::CaloGain gain=(*it)->gain();
 	 
 	  if (gain<0 || gain>CaloGain::LARNGAIN) {
-	    log << MSG::ERROR << "Found not-matching gain number ("<< (int)gain <<")" << endreq;
+	    ATH_MSG_ERROR ( "Found not-matching gain number ("<< (int)gain <<")" );
 	    return StatusCode::FAILURE;
 	  }
 	 
@@ -591,34 +552,14 @@ StatusCode LArCaliWaveBuilderXtalk::execute()
 StatusCode LArCaliWaveBuilderXtalk::stop()
 //=========================================================================================================
 {
-  MsgStream log(msgSvc(), name()); 
-  log << MSG::INFO << "Stop" << endreq;
-
-  StoreGateSvc* detStore;
-
-  StatusCode sc=service("DetectorStore",detStore);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Cannot get DetectorStore!" << endreq;
-    return sc;
-  }
-  else log << MSG::DEBUG << "Got DetectorStore" << endreq;
- 
   // Create wave container using feedthru grouping and initialize
   LArCaliWaveContainer* caliWaveContainer = new LArCaliWaveContainer();
   
-  sc=caliWaveContainer->setGroupingType(m_groupingType,log);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Failed to set groupingType for LArCaliWaveContainer object" << endreq;
-    return sc;
-  }
-  else log << MSG::DEBUG << "Set groupingType for LArCaliWaveContainer object" << endreq;
+  ATH_CHECK( caliWaveContainer->setGroupingType(m_groupingType,msg()) );
+  ATH_MSG_DEBUG ( "Set groupingType for LArCaliWaveContainer object" );
 
-  sc=caliWaveContainer->initialize(); 
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Failed initialize LArCaliWaveContainer object" << endreq;
-    return sc;
-  }
-  else log << MSG::DEBUG << "Initialized LArCaliWaveContainer object" << endreq;
+  ATH_CHECK( caliWaveContainer->initialize() );
+  ATH_MSG_DEBUG ( "Initialized LArCaliWaveContainer object" );
 
   // Note : sometimes a Segmentation fault happen at this stage
   // not yet solved
@@ -664,8 +605,8 @@ StatusCode LArCaliWaveBuilderXtalk::stop()
 	      
       const WaveMap& waveMap = (*cell_it);
       if (waveMap.size()==0) {
-	log << MSG::INFO << "Empty accumulated wave. Last id: " << MSG::hex 
-	    << lastId << MSG::dec << endreq;
+	ATH_MSG_INFO ( "Empty accumulated wave. Last id: " << MSG::hex 
+                       << lastId << MSG::dec );
 	continue;
       }
 
@@ -694,7 +635,7 @@ StatusCode LArCaliWaveBuilderXtalk::stop()
        	   
 	double waveMax = thisWave.getSample( wHelper.getMax(thisWave) ) ;
 	if ( m_ADCsatur>0 && waveMax>m_ADCsatur ) { 
-	  log << MSG::INFO << "Absolute ADC saturation at DAC = " << thisWave.getDAC() << " ... skip!" << endreq ;
+	  ATH_MSG_INFO ( "Absolute ADC saturation at DAC = " << thisWave.getDAC() << " ... skip!" );
 	  continue ;
 	} else {
 
@@ -719,15 +660,12 @@ StatusCode LArCaliWaveBuilderXtalk::stop()
 
   } //end loop over m_keyList
  
-  log << MSG::INFO << "Summary : Number of cells with a CaliWave  reconstructed : " << NCaliWave  << endreq;    
-  log << MSG::INFO << "Size of LAr calibration waves container : " << caliWaveContainer->size()  << endreq;    
+  ATH_MSG_INFO ( "Summary : Number of cells with a CaliWave  reconstructed : " << NCaliWave  );
+  ATH_MSG_INFO ( "Size of LAr calibration waves container : " << caliWaveContainer->size()  );
  
   // Record in detector store with key (m_keyoutput)
-  if (StatusCode::SUCCESS!=detStore->record(caliWaveContainer, m_keyoutput)) {
-    log << MSG::ERROR << "Cannot record caliWaveContainer with key '" << m_keyoutput << "' to StoreGate!" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->record(caliWaveContainer, m_keyoutput) );
 
-  log << MSG::INFO << "LArCaliWaveBuilderXtalk has finished." << endreq;
+  ATH_MSG_INFO ( "LArCaliWaveBuilderXtalk has finished." );
   return StatusCode::SUCCESS;
 }

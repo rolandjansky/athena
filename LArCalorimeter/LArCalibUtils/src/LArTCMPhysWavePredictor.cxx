@@ -23,7 +23,7 @@
 typedef LArPhysWaveContainer::ConstConditionsMapIterator PhysWaveIt;
 
 LArTCMPhysWavePredictor::LArTCMPhysWavePredictor (const std::string& name, ISvcLocator* pSvcLocator) : 
-  Algorithm(name, pSvcLocator)
+  AthAlgorithm(name, pSvcLocator)
 {
   declareProperty("TestMode",m_testmode=false);
 
@@ -63,42 +63,19 @@ LArTCMPhysWavePredictor::~LArTCMPhysWavePredictor()
 ////////////////////////////////////////////////
 StatusCode LArTCMPhysWavePredictor::initialize() 
 {
-  MsgStream log(msgSvc(), name());
-  StatusCode sc ;
-
-  log << MSG::INFO << " Initialize..."<<endreq;
- 
-   return StatusCode::SUCCESS ;
+  ATH_MSG_INFO ( " Initialize...");
+  return StatusCode::SUCCESS ;
 }
 
 StatusCode LArTCMPhysWavePredictor::stop()
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "From stop..."<<endreq;
+  ATH_MSG_INFO ( "From stop...");
   
-  // Get access to the Detector Store
-  StoreGateSvc* detStore; 
-  StatusCode sc=service("DetectorStore",detStore);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Cannot get DetectorStore!" << endreq;
-    return sc;
-  }
-  
-  // Retrieve LArWFParamTool
   ToolHandle<LArWFParamTool> larWFParamTool("LArWFParamTool");
-  sc=larWFParamTool.retrieve();
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << " Can't get LArWFParamTool" << endreq;
-    return sc;
-  }
+  ATH_CHECK( larWFParamTool.retrieve() );
 
-  //retrieve LArTCMFitterToolTool
   ToolHandle<LArTCMFitterTool> larTCMFitterTool("LArTCMFitterTool");
-  sc=larTCMFitterTool.retrieve();
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << " Can't get LArTCMFitterTool" << endreq;
-    return sc;
-  }
+  ATH_CHECK( larTCMFitterTool.retrieve() );
   
   larTCMFitterTool->setminuitoutputlevel(m_minuitoutputlevel);
   
@@ -107,17 +84,13 @@ StatusCode LArTCMPhysWavePredictor::stop()
   const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
   emId = caloIdMgr->getEM_ID();
   if (!emId) {
-      log << MSG::ERROR << "Could not access lar EM ID helper" << endreq;
-      return StatusCode::FAILURE;
+    ATH_MSG_ERROR ( "Could not access lar EM ID helper" );
+    return StatusCode::FAILURE;
   }   
   
   // Retrieve LArCablingService
   ToolHandle<LArCablingService> larCablingSvc("LArCablingService");
-  sc = larCablingSvc.retrieve();
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << " Can't get LArCablingSvc " << endreq;
-    return sc;
-  }
+  ATH_CHECK( larCablingSvc.retrieve() );
 
   //open ouput file for dumping waves
   TFile f(m_rootoutputfile.c_str(),"recreate");	//need to implement: if (m_rootrawdump)
@@ -213,25 +186,16 @@ StatusCode LArTCMPhysWavePredictor::stop()
   if (!m_datafromfile) {
       // retrieve Physics pulses from database   
       const LArPhysWaveContainer* constphysWaveContainer;
-      sc = detStore->retrieve(constphysWaveContainer);
+      ATH_CHECK( detStore()->retrieve(constphysWaveContainer) );
       physWaveContainer = (LArPhysWaveContainer*) constphysWaveContainer;
-      if (sc.isFailure()) {
-	  log << MSG::FATAL << "LArPhysWaveContainer not found in StoreGate" << endreq;
-	  return StatusCode::FAILURE;
-      } else log << MSG::INFO << "LArPhysWaveContainer found in StoreGate." << endreq;
+      ATH_MSG_INFO ( "LArPhysWaveContainer found in StoreGate." );
   } else {
       //from self external file; to debug and compare with emtb
       // for the moment just test P13 phi=9 layer 2
       physWaveContainer = new LArPhysWaveContainer();
-      if (physWaveContainer->setGroupingType(m_groupingType,log).isFailure()) {
-	log << MSG::ERROR << "Failed to set groupingType for LArPhysWaveContainer object" << endreq;
-	return StatusCode::FAILURE;
-      }
+      ATH_CHECK( physWaveContainer->setGroupingType(m_groupingType,msg()) );
 
-      if (physWaveContainer->initialize().isFailure()){
-	log << MSG::ERROR << "Failed to initialize LArPhysWaveContainer object" << endreq;
-	return StatusCode::FAILURE;
-      }
+      ATH_CHECK( physWaveContainer->initialize() );
     
       TFile physicsinput("/afs/cern.ch/user/p/prieur/scratch0/OF-P13_21-PhyPredDataFile.root");
       physicsinput.cd("PhysicsPulses");
@@ -259,7 +223,7 @@ StatusCode LArTCMPhysWavePredictor::stop()
 	  //if ((ilayer==1)||(ilayer==2)) larPhysWave = new LArPhysWave(175,1,1); //gain 1 for debug	
 	  //else larPhysWave = new LArPhysWave(175,1,1);
 	  LArPhysWave larPhysWave (175, 1, 1);
-	  log<<MSG::DEBUG<<"name: "<<name<<" ilayer: "<<ilayer<<" ieta: "<<ieta<<" iphi: "<<iphi<<" id "<< chID.get_compact()<<endreq;
+	  ATH_MSG_DEBUG("name: "<<name<<" ilayer: "<<ilayer<<" ieta: "<<ieta<<" iphi: "<<iphi<<" id "<< chID.get_compact());
 		
 	  // decode id to check if correct
 	  //HWIdentifier testchID = larPhysWave->channelID();
@@ -285,15 +249,9 @@ StatusCode LArTCMPhysWavePredictor::stop()
 
   //Create LArPhysWaveContainer for Predicted Pulses
   LArPhysWaveContainer*  larpredPhysWaveContainer = new LArPhysWaveContainer();
-  if (larpredPhysWaveContainer->setGroupingType(m_groupingType,log).isFailure()) {
-    log << MSG::ERROR << "Failed to set groupingType for LArPhysWaveContainer object" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( larpredPhysWaveContainer->setGroupingType(m_groupingType,msg()) );
 
-  if (larpredPhysWaveContainer->initialize().isFailure()){
-    log << MSG::ERROR << "Failed to initialize LArPhysWaveContainer object" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( larpredPhysWaveContainer->initialize() );
   
   //Create container for Params
 //  LArWFParamsContainer* larWFParamsContainer=new LArWFParamsContainer();
@@ -306,19 +264,14 @@ StatusCode LArTCMPhysWavePredictor::stop()
   
       std::string keyCali = *key_it ;
       
-      const LArCaliWaveContainer* caliWaveContainer;
-      sc= detStore->retrieve(caliWaveContainer,keyCali);
-      if (sc.isFailure()) {
-        log << MSG::INFO
-	    << "LArCaliWaveContainer (key=" << keyCali << ") not found in StoreGate" << endreq;
-        continue;	
-      }
+      const LArCaliWaveContainer* caliWaveContainer = nullptr;
+      ATH_CHECK( detStore()->retrieve(caliWaveContainer,keyCali) );
       
-      log << MSG::INFO << "Processing LArCaliWaveContainer from StoreGate, key = " << keyCali << endreq;
+      ATH_MSG_INFO ( "Processing LArCaliWaveContainer from StoreGate, key = " << keyCali );
       
       for ( unsigned gain = CaloGain::LARHIGHGAIN ; gain < CaloGain::LARNGAIN ; ++gain ) {  // Loop over gains in current container
   
-      log << MSG::VERBOSE << "Now processing gain = " << gain << " in LArCaliWaveContainer with key = " << keyCali << endreq;
+        ATH_MSG_VERBOSE ( "Now processing gain = " << gain << " in LArCaliWaveContainer with key = " << keyCali );
          
       // loop over cali wave container
       typedef LArCaliWaveContainer::ConstConditionsMapIterator const_iterator;
@@ -326,7 +279,7 @@ StatusCode LArTCMPhysWavePredictor::stop()
       const_iterator itVec_e = caliWaveContainer->end(gain);
       
       if ( itVec == itVec_e ) {
-         log << MSG::INFO << "LArCaliWaveContainer (key=" << keyCali << ") has no wave with gain = " << gain << endreq;
+        ATH_MSG_INFO ( "LArCaliWaveContainer (key=" << keyCali << ") has no wave with gain = " << gain );
          continue ;
       }
 
@@ -336,10 +289,10 @@ StatusCode LArTCMPhysWavePredictor::stop()
           LArCaliWaveContainer::LArCaliWaves::const_iterator cont_it_e = (*itVec).end();
           	  
 	  if ( cont_it == cont_it_e ) { 
-	     log << MSG::DEBUG <<  "Empty channel found in LArCaliWave container: skipping..." << endreq ;          
+            ATH_MSG_DEBUG (  "Empty channel found in LArCaliWave container: skipping..." );
 	     continue ; 	  
 	  } else {
-	     log << MSG::DEBUG << (*itVec).size() << " LArCaliWaves found for channel 0x" << MSG::hex << itVec.channelId() << MSG::dec << endreq;
+            ATH_MSG_DEBUG ( (*itVec).size() << " LArCaliWaves found for channel 0x" << MSG::hex << itVec.channelId() << MSG::dec );
 	  }
 	  
 	  const HWIdentifier chID = itVec.channelId();
@@ -348,7 +301,7 @@ StatusCode LArTCMPhysWavePredictor::stop()
 	  try {
 	    id = larCablingSvc->cnvToIdentifier(chID);   
 	  } catch ( LArID_Exception ) {
-	    log << MSG::ERROR << "LArCablingSvc exception caught for channel 0x" << MSG::hex << chID << MSG::dec << endreq ;
+	    ATH_MSG_ERROR ( "LArCablingSvc exception caught for channel 0x" << MSG::hex << chID << MSG::dec );
 	  }
 	  int layer = emId->sampling(id);
           int eta   = emId->eta(id);
@@ -357,13 +310,13 @@ StatusCode LArTCMPhysWavePredictor::stop()
 	  if ( m_filter_cells ) {	//Filter Cells
 	  
 	      if ( m_filter_layer!=-1 && layer!=m_filter_layer ) {
-	        log << MSG::INFO << "Skipping channel 0x" << MSG::hex << chID << MSG::dec << " because of FilterCells_Layer cut."<< endreq ;
+	        ATH_MSG_INFO ( "Skipping channel 0x" << MSG::hex << chID << MSG::dec << " because of FilterCells_Layer cut.");
 	        continue;
 	      }	    	    
 	      
 	      if ( m_filter_eta )
 	         if ( (eta<m_filter_eta_min) || (eta>m_filter_eta_max) ) {
-	           log << MSG::INFO << "Skipping channel 0x" << MSG::hex << chID << MSG::dec << " because of FilterCells_Eta cut."<< endreq ;
+	           ATH_MSG_INFO ( "Skipping channel 0x" << MSG::hex << chID << MSG::dec << " because of FilterCells_Eta cut.");
 		   continue;		    	 
                  }
 	  
@@ -372,7 +325,7 @@ StatusCode LArTCMPhysWavePredictor::stop()
 		 if ( (layer==1 && ( phi<m_filter_phi_min/4 || phi>m_filter_phi_max/4) ) ||
 		      (layer!=1 && ( phi<m_filter_phi_min   || phi>m_filter_phi_max  ) ) 
 		    ) {
-		   log << MSG::INFO << "Skipping channel 0x" << MSG::hex << chID << MSG::dec << " because of FilterCells_Phi cut."<< endreq ;
+		   ATH_MSG_INFO ( "Skipping channel 0x" << MSG::hex << chID << MSG::dec << " because of FilterCells_Phi cut.");
 		   continue;	    	 
 		 } 
 
@@ -381,13 +334,12 @@ StatusCode LArTCMPhysWavePredictor::stop()
 	  } // end filter cells
 	  
 	  
-	  log << MSG::VERBOSE << "Channel 0x" << MSG::hex << chID << MSG::dec 
-	                      << " (Layer = " << layer 
-	                      << " - Eta = " << eta
-			      << " - Phi = " << phi
-			      << " - Gain = " << gain
-			      << ") passed filtering selection. Now processing..."
-			      << endreq ;
+	  ATH_MSG_VERBOSE( "Channel 0x" << MSG::hex << chID << MSG::dec 
+                           << " (Layer = " << layer 
+                           << " - Eta = " << eta
+                           << " - Phi = " << phi
+                           << " - Gain = " << gain
+                           << ") passed filtering selection. Now processing...");
 	  
 	  // Always use the caliwave with higher dac value for each gain.
 	  // Predicted waves are fitted to gain 0 physics waves for sampling 0 
@@ -401,7 +353,7 @@ StatusCode LArTCMPhysWavePredictor::stop()
 	  if ((layer==3)&&(gain==0)) { idac=500;  physgain=0; }
 	  if ((layer==3)&&(gain==1)) { idac=3000; physgain=0; } //no phys data for back in MG
 	  
-	  log << MSG::VERBOSE << "... will use LArCaliWave with DAC = " << idac << " and LArPhysWave with Gain = " << physgain << endreq;
+	  ATH_MSG_VERBOSE ( "... will use LArCaliWave with DAC = " << idac << " and LArPhysWave with Gain = " << physgain );
 	  
 	  unsigned ndac = 0 ;
 	  
@@ -410,46 +362,45 @@ StatusCode LArTCMPhysWavePredictor::stop()
 	      const LArCaliWave& larCaliWave = (*cont_it);
 	      int dac = larCaliWave.getDAC() ;
 	      
-	      log << MSG::VERBOSE << ++ndac << ". DAC = " << dac << endreq ;
+	      ATH_MSG_VERBOSE ( ++ndac << ". DAC = " << dac );
 
 	      if ( dac!=idac ) continue; // skip unwanted DAC waves
 		
-	      log << MSG::INFO << " Processing channel 0x" << MSG::hex << chID << MSG::dec 
-	                       << " -> Layer = " << layer
-			       << " - Eta = " << eta
-			       << " - Phi = " << phi
-			       << " - Gain = "  << gain
-			       << " - LArCaliWave DAC = "   << dac 
-	                       << endreq ;
+	      ATH_MSG_INFO ( " Processing channel 0x" << MSG::hex << chID << MSG::dec 
+                             << " -> Layer = " << layer
+                             << " - Eta = " << eta
+                             << " - Phi = " << phi
+                             << " - Gain = "  << gain
+                             << " - LArCaliWave DAC = "   << dac );
 	      
 	      // get corresponding physcs wave
 	      const LArPhysWave& larPhysWave = physWaveContainer->get(chID,physgain);
 	      
 	      if ( larPhysWave.isEmpty() ) {
 	      
-	         log << MSG::ERROR << "No LArPhysWave found for channel 0x" << MSG::hex << itVec.channelId() << MSG::dec << endreq ;
+                ATH_MSG_ERROR ( "No LArPhysWave found for channel 0x" << MSG::hex << itVec.channelId() << MSG::dec );
 	      
 	      } else { // LArPhysWave found, perform TCM fit and phys wave prediction from fit params
 	      	          
 		  //log << MSG::INFO << "Now processing channel " << ++nchannel << " with TCM fit " << endreq ;  
 		  
-		  log << MSG::DEBUG << "larPhysWave gain = " << gain << endreq ;
-		  log << MSG::DEBUG << "larPhysWave size = " << larPhysWave.getSize() << endreq ;
-		  log << MSG::DEBUG << "larPhysWave flag = " << larPhysWave.getFlag() << endreq ;
+                ATH_MSG_DEBUG ( "larPhysWave gain = " << gain );
+                ATH_MSG_DEBUG ( "larPhysWave size = " << larPhysWave.getSize() );
+                ATH_MSG_DEBUG ( "larPhysWave flag = " << larPhysWave.getFlag() );
 				  
 		  LArPhysWave predlarPhysWave = 
 		    larTCMFitterTool->Fit(larCaliWave,larPhysWave); // <---
 		  
 		  predlarPhysWave.setFlag(LArWave::predFitPhys);
 			
-		  log<<MSG::INFO << " End of TCM fit" << endreq;	
+		  ATH_MSG_INFO ( " End of TCM fit" );
 			
 		  //output fit values
-		  log<<MSG::DEBUG<<"Fit values from larTCMFitterTool:"<<endreq;
-		  log<<MSG::DEBUG<<larTCMFitterTool->getTaud()<<" "<<larTCMFitterTool->getTauexp()<<" "<<larTCMFitterTool->getTaur()
-		     <<" "<<larTCMFitterTool->getf()<<" "<<larTCMFitterTool->getW0()<<endreq;		
-		  log<<MSG::DEBUG<<larTCMFitterTool->getcaliStart()<<" "<<larTCMFitterTool->getphysShift()<<endreq;		
-		  log<<MSG::DEBUG<<larTCMFitterTool->getEmean()<<" "<<larTCMFitterTool->getMphyMcal()<<" "<<larTCMFitterTool->getchi2()<<endreq;
+		  ATH_MSG_DEBUG("Fit values from larTCMFitterTool:");
+		  ATH_MSG_DEBUG(larTCMFitterTool->getTaud()<<" "<<larTCMFitterTool->getTauexp()<<" "<<larTCMFitterTool->getTaur()
+                                <<" "<<larTCMFitterTool->getf()<<" "<<larTCMFitterTool->getW0());
+		  ATH_MSG_DEBUG(larTCMFitterTool->getcaliStart()<<" "<<larTCMFitterTool->getphysShift());
+		  ATH_MSG_DEBUG(larTCMFitterTool->getEmean()<<" "<<larTCMFitterTool->getMphyMcal()<<" "<<larTCMFitterTool->getchi2());
 		
 		  //Store fit parameters in LArWFParams 
 #if 0
@@ -554,8 +505,8 @@ StatusCode LArTCMPhysWavePredictor::stop()
 	  } // end loop over DAC values
        
           if ( m_testmode && nchannel >= 1 ) {
-	     log << MSG::DEBUG << "Test mode selected: only 1 channel processed." << endreq ;
-	     break ;
+            ATH_MSG_DEBUG ( "Test mode selected: only 1 channel processed." );
+            break ;
 	  }
 	  
         } // end loop over cells
@@ -568,11 +519,8 @@ StatusCode LArTCMPhysWavePredictor::stop()
   
   // Record larpredPhysWaveContainer to detector store
   keyout = "LArPhysWavesTCM" ;
-  sc=detStore->record(larpredPhysWaveContainer,keyout);
-  if (sc.isFailure()) {
-      log << MSG::FATAL << "Cannot record LArPhysWaveContainer to StoreGate! key="<<keyout<<endreq;
-      return StatusCode::FAILURE;
-  } else log << MSG::INFO << "LArPhysWaveContainer has been recorded to StoreGate with key="<<keyout<<endreq;
+  ATH_CHECK( detStore()->record(larpredPhysWaveContainer,keyout) );
+  ATH_MSG_INFO ( "LArPhysWaveContainer has been recorded to StoreGate with key="<<keyout);
 
   // Record larWFParamsContainer to DetectorStore
 //   keyout = "LArWFParamsTCM" ;

@@ -18,15 +18,14 @@
 ********************************************************************/
 
 // Include files
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 
 class LArOnlineID;
 class ILArBadChanTool;
 
 //-----------------------------------------------------------------------
-class LArAutoCorrExtrapolate : public Algorithm
+class LArAutoCorrExtrapolate : public AthAlgorithm
 //-----------------------------------------------------------------------
 {
  public:
@@ -48,9 +47,6 @@ class LArAutoCorrExtrapolate : public Algorithm
   StatusCode finalize(){return StatusCode::SUCCESS;}
   
  private:
-
-  // StoreGate service
-  StoreGateSvc * m_detStore;
 
   // Container key list
   std::string m_keyoutput;

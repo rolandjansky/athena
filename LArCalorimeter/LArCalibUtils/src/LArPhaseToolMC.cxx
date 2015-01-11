@@ -32,9 +32,8 @@
 LArPhaseToolMC::LArPhaseToolMC (const std::string& type,
                                 const std::string& name,
                                 const IInterface* parent)
-  : AlgTool (type, name, parent),
+  : AthAlgTool (type, name, parent),
     m_idhelper (0),
-    m_storegate (0),
     m_trigtime_tool (0)
 {
   declareInterface<ILArPhaseTool> (this);
@@ -52,9 +51,6 @@ LArPhaseToolMC::LArPhaseToolMC (const std::string& type,
  */
 StatusCode LArPhaseToolMC::initialize()
 {
-  // Get the storegate service.
-  CHECK( service("StoreGateSvc", m_storegate) );
-
   // Get the trigger time tool. 
   if (!m_trigtime_tool_name.empty()) {
     //CHECK( toolSvc()->retrieveTool (m_trigtime_tool_name,
@@ -137,8 +133,8 @@ StatusCode LArPhaseToolMC::fill_phases ()
   // Scan over all hit containers.
   for (unsigned int icont=0; icont < m_container_names.size(); ++icont) {
     const DataHandle<LArHitContainer> hit_container;
-    if (m_storegate->retrieve (hit_container,
-                               m_container_names[icont]) . isSuccess())
+    if (evtStore()->retrieve (hit_container,
+                              m_container_names[icont]) . isSuccess())
     {
       // Scan over all hits in the container.
       LArHitContainer::const_iterator end = hit_container->end();

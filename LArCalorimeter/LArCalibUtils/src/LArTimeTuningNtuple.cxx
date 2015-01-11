@@ -14,9 +14,8 @@
 #include "CaloIdentifier/CaloIdManager.h"
 
 LArTimeTuningNtuple::LArTimeTuningNtuple (const std::string& name, ISvcLocator* pSvcLocator):
-  Algorithm(name, pSvcLocator),
+  AthAlgorithm(name, pSvcLocator),
   m_ntuplePtr(0),
-  m_storeGateSvc(0),
   m_larOnlineHelper(0)
 {
   declareProperty("TBPhaseKey",m_TBPhaseKey="");
@@ -29,28 +28,7 @@ LArTimeTuningNtuple::~LArTimeTuningNtuple()
 {}
                        
 StatusCode LArTimeTuningNtuple::initialize(){
-  MsgStream logstr(msgSvc(), name());
-  StoreGateSvc* detStore;
-  StatusCode sc;
-
-  sc= service("StoreGateSvc",m_storeGateSvc);
-  if(sc.isFailure()) {
-    logstr<< MSG::ERROR << "StoreGate service not found" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  sc=service("DetectorStore",detStore);
-  if(sc.isFailure()) {
-    logstr<< MSG::ERROR << "Detector service not found" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  sc = detStore->retrieve(m_larOnlineHelper,"LArOnlineID");
-  if (sc.isFailure()) {
-    logstr  << MSG::ERROR << "Unable to retrieve  LArOnlineID from DetectorStore" << endreq;
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK( detStore()->retrieve(m_larOnlineHelper,"LArOnlineID") );
 
   const std::string ntuplePath="/NTUPLES/FILE1/TIMETUNING";
   const std::string ntupleTitle="LAr Time Tuning";
@@ -60,114 +38,36 @@ StatusCode LArTimeTuningNtuple::initialize(){
   }
 
   if (!nt) {
-    logstr<< MSG::ERROR << "Booking of NTuple failed" << endreq;
+    ATH_MSG_ERROR ( "Booking of NTuple failed" );
     return StatusCode::FAILURE;
   }
   if (m_GlobalTimeKey.length()>0) {
-    sc=nt->addItem("GlobalTimeOffset",m_globalTimeNt,-100.0,100.0);
-    if (sc!=StatusCode::SUCCESS) {
-      logstr<< MSG::ERROR << "addItem 'GlobalTimeOffset' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( nt->addItem("GlobalTimeOffset",m_globalTimeNt,-100.0,100.0) );
   }
   if (m_TBPhaseKey.length()) {
-    sc=nt->addItem("PhaseTimeOffset",m_phaseNt,-100.0,100.0);
-    if (sc!=StatusCode::SUCCESS) {
-      logstr<< MSG::ERROR << "addItem 'PhaseTimeOffset' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( nt->addItem("PhaseTimeOffset",m_phaseNt,-100.0,100.0) );
   }
   if (m_FebTimeKey.length()) {
-    sc=nt->addItem("FebIndex",m_nFebNt,0,1500);
-    if (sc!=StatusCode::SUCCESS) {
-      logstr<< MSG::ERROR << "addItem 'FebIndex' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-    sc=nt->addItem("FebTimeOffset",m_nFebNt,m_febTimeNt);
-    if (sc!=StatusCode::SUCCESS) {
-      logstr<< MSG::ERROR << "addItem 'FebTimeOffset' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-    sc=nt->addItem("FebSlot",m_nFebNt,m_febSlotNt);
-    if (sc!=StatusCode::SUCCESS) {
-      logstr<< MSG::ERROR << "addItem 'FebSlot' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-    sc=nt->addItem("FebFT",m_nFebNt,m_febFTNt);
-    if (sc!=StatusCode::SUCCESS) {
-      logstr<< MSG::ERROR << "addItem 'FebFT' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-    sc=nt->addItem("FebID",m_nFebNt,m_febIDNt);
-    if (sc!=StatusCode::SUCCESS) {
-      logstr<< MSG::ERROR << "addItem 'FebID' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( nt->addItem("FebIndex",m_nFebNt,0,1500) );
+    ATH_CHECK( nt->addItem("FebTimeOffset",m_nFebNt,m_febTimeNt) );
+    ATH_CHECK( nt->addItem("FebSlot",m_nFebNt,m_febSlotNt) );
+    ATH_CHECK( nt->addItem("FebFT",m_nFebNt,m_febFTNt) );
+    ATH_CHECK( nt->addItem("FebID",m_nFebNt,m_febIDNt) );
   }
   
   if (m_CellTimeOffsetKey.length()) {
-    sc=nt->addItem("CellIndex",m_nCellNt,0,1500);
-    if (sc!=StatusCode::SUCCESS) {
-      logstr<< MSG::ERROR << "addItem 'CellIndex' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-    sc=nt->addItem("CellTimeOffset",m_nCellNt,m_cellTimeNt);
-    if (sc!=StatusCode::SUCCESS) {
-      logstr<< MSG::ERROR << "addItem 'CellTimeOffset' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-    sc=nt->addItem("CellSlot",m_nCellNt,m_cellSlotNt);
-    if (sc!=StatusCode::SUCCESS) {
-      logstr<< MSG::ERROR << "addItem 'CellSlot' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-    sc=nt->addItem("CellFT",m_nCellNt,m_cellFTNt);
-    if (sc!=StatusCode::SUCCESS) {
-      logstr<< MSG::ERROR << "addItem 'CellFT' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-    sc=nt->addItem("CellID",m_nCellNt,m_cellIDNt);
-    if (sc!=StatusCode::SUCCESS) {
-      logstr<< MSG::ERROR << "addItem 'CellID' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-    sc=nt->addItem("CellRegion",m_nCellNt,m_cellRegionNt);
-    if (sc!=StatusCode::SUCCESS) {
-      logstr<< MSG::ERROR << "addItem 'CellRegion' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-    sc=nt->addItem("CellLayer",m_nCellNt,m_cellLayerNt);
-    if (sc!=StatusCode::SUCCESS) {
-      logstr<< MSG::ERROR << "addItem 'CellLayer' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-    sc=nt->addItem("CellEta",m_nCellNt,m_cellEtaNt);
-    if (sc!=StatusCode::SUCCESS) {
-      logstr<< MSG::ERROR << "addItem 'CellEta' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-    sc=nt->addItem("CellPhi",m_nCellNt,m_cellPhiNt);
-    if (sc!=StatusCode::SUCCESS) {
-      logstr<< MSG::ERROR << "addItem 'CellPhi' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-    sc=nt->addItem("CellGain",m_nCellNt,m_cellGainNt);
-    if (sc!=StatusCode::SUCCESS) {
-      logstr<< MSG::ERROR << "addItem 'CellGain' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-    sc=nt->addItem("CellChannel",m_nCellNt,m_cellChannelNt);
-    if (sc!=StatusCode::SUCCESS) {
-      logstr<< MSG::ERROR << "addItem 'CellChannel' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-    sc=nt->addItem("CellCalibLine",m_nCellNt,m_cellCalibLineNt);
-    if (sc!=StatusCode::SUCCESS) {
-      logstr<< MSG::ERROR << "addItem 'CellCalibLine' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-
-
+    ATH_CHECK( nt->addItem("CellIndex",m_nCellNt,0,1500) );
+    ATH_CHECK( nt->addItem("CellTimeOffset",m_nCellNt,m_cellTimeNt) );
+    ATH_CHECK( nt->addItem("CellSlot",m_nCellNt,m_cellSlotNt) );
+    ATH_CHECK( nt->addItem("CellFT",m_nCellNt,m_cellFTNt) );
+    ATH_CHECK( nt->addItem("CellID",m_nCellNt,m_cellIDNt) );
+    ATH_CHECK( nt->addItem("CellRegion",m_nCellNt,m_cellRegionNt) );
+    ATH_CHECK( nt->addItem("CellLayer",m_nCellNt,m_cellLayerNt) );
+    ATH_CHECK( nt->addItem("CellEta",m_nCellNt,m_cellEtaNt) );
+    ATH_CHECK( nt->addItem("CellPhi",m_nCellNt,m_cellPhiNt) );
+    ATH_CHECK( nt->addItem("CellGain",m_nCellNt,m_cellGainNt) );
+    ATH_CHECK( nt->addItem("CellChannel",m_nCellNt,m_cellChannelNt) );
+    ATH_CHECK( nt->addItem("CellCalibLine",m_nCellNt,m_cellCalibLineNt) );
   }
   
   m_ntuplePtr=nt;
@@ -177,36 +77,33 @@ StatusCode LArTimeTuningNtuple::initialize(){
 
 StatusCode LArTimeTuningNtuple::execute()
 {  
-  MsgStream logstr(msgSvc(), name());
-  StatusCode sc;
-  
   if (m_GlobalTimeKey.length()>0) {
     const LArGlobalTimeOffset* larGlobalTimeOffset;
-    sc=m_storeGateSvc->retrieve(larGlobalTimeOffset,m_GlobalTimeKey);
+    StatusCode sc=evtStore()->retrieve(larGlobalTimeOffset,m_GlobalTimeKey);
     if (sc.isSuccess()) {
       m_globalTimeNt=larGlobalTimeOffset->TimeOffset();
       //std::cout << "Global Time Offset= " << m_globalTimeNt << std::endl;
     }
-    else 
-      {logstr << MSG::WARNING << "Could not retrieve LArGlobalTimeOffset with key '" << m_GlobalTimeKey << "'" << endreq;
-       m_globalTimeNt=-999;
-      }
+    else {
+      ATH_MSG_WARNING ( "Could not retrieve LArGlobalTimeOffset with key '" << m_GlobalTimeKey << "'" );
+      m_globalTimeNt=-999;
+    }
   }
   
   if (m_TBPhaseKey.length()>0) {
     const TBPhase* tbPhase;
-    sc=m_storeGateSvc->retrieve(tbPhase,m_TBPhaseKey);
+    StatusCode sc=evtStore()->retrieve(tbPhase,m_TBPhaseKey);
     if (sc.isSuccess()) 
       m_phaseNt=tbPhase->getPhase();
     else {
-      logstr << MSG::WARNING << "Could not retrieve TBPhase with key '" << m_TBPhaseKey << "'" << endreq;
+      ATH_MSG_WARNING ( "Could not retrieve TBPhase with key '" << m_TBPhaseKey << "'" );
       m_phaseNt=-999;
     }  
   }
     
   if (m_FebTimeKey.length()>0) {
     LArFEBTimeOffset* larFebTimeOffset;
-    sc=m_storeGateSvc->retrieve(larFebTimeOffset,m_FebTimeKey);
+    StatusCode sc=evtStore()->retrieve(larFebTimeOffset,m_FebTimeKey);
     if (sc.isSuccess() && larFebTimeOffset->size()>0) {
       larFebTimeOffset->setDefaultReturnValue(-999);
       std::vector<HWIdentifier>::const_iterator it=m_larOnlineHelper->feb_begin();
@@ -221,43 +118,31 @@ StatusCode LArTimeTuningNtuple::execute()
       }
     }
     else 
-      logstr << MSG::WARNING << "Could not retrieve LArFebTimeOffset with key '" << m_FebTimeKey << "'" << endreq;
+      ATH_MSG_WARNING ( "Could not retrieve LArFebTimeOffset with key '" << m_FebTimeKey << "'" );
   }
 
-  sc=ntupleSvc()->writeRecord(m_ntuplePtr);
-  if (sc!=StatusCode::SUCCESS) {
-    logstr << MSG::ERROR << "writeRecord failed" << endreq;
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK( ntupleSvc()->writeRecord(m_ntuplePtr) );
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode LArTimeTuningNtuple::stop(){
 
-  MsgStream logstr(msgSvc(), name());
-  StatusCode sc;
-  
   const LArEM_ID* emId;
   const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
   emId=caloIdMgr->getEM_ID();
   if (!emId) {
-    logstr << MSG::ERROR << "Could not get lar EM ID helper" << endreq;
+    ATH_MSG_ERROR ( "Could not get lar EM ID helper" );
     return StatusCode::FAILURE;
   }
   
   ToolHandle<LArCablingService> larCablingSvc("LArCablingService");
-  sc = larCablingSvc.retrieve();
-  if (sc!=StatusCode::SUCCESS) {
-    logstr << MSG::ERROR << " Can't get LArCablingSvc " << endreq;
-    return sc;
-  }
+  ATH_CHECK(  larCablingSvc.retrieve() );
   
   if (m_CellTimeOffsetKey.length()>0) {
     
     LArCellTimeOffset *cellTimeOffset=new LArCellTimeOffset();
-    sc=m_storeGateSvc->retrieve(cellTimeOffset,m_CellTimeOffsetKey);
+    StatusCode sc=evtStore()->retrieve(cellTimeOffset,m_CellTimeOffsetKey);
     if (sc.isSuccess() && cellTimeOffset->size()>0) {
     
       cellTimeOffset->setDefaultReturnValue(-999);
@@ -290,16 +175,10 @@ StatusCode LArTimeTuningNtuple::stop(){
       }
     }
     else
-      logstr << MSG::WARNING << "Could not retrieve LArCellTimeOffset with key '" << m_CellTimeOffsetKey << "'" << endreq;
+      ATH_MSG_WARNING ( "Could not retrieve LArCellTimeOffset with key '" << m_CellTimeOffsetKey << "'" );
   
-    sc=ntupleSvc()->writeRecord(m_ntuplePtr);
-    if (sc!=StatusCode::SUCCESS) {
-      logstr << MSG::ERROR << "writeRecord failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-  
+    ATH_CHECK( ntupleSvc()->writeRecord(m_ntuplePtr) );
   }
 
   return StatusCode::SUCCESS;
-
 }

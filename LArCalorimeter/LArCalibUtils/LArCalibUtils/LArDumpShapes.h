@@ -31,7 +31,7 @@
 #ifndef LARDUMPSHAPES_H
 #define LARDUMPSHAPES_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include <string>
 
 /**
@@ -44,7 +44,7 @@
  * On subsequent events, this algorithm does nothing.
  */
 class LArDumpShapes
-  : public Algorithm
+  : public AthAlgorithm
 {
 public:
   /**

@@ -11,8 +11,7 @@
 //#define LARRAMPBUILDER_DEBUGOUTPUT
 
 LArRampCorr::LArRampCorr(const std::string& name, ISvcLocator* pSvcLocator)
-  : Algorithm(name, pSvcLocator),
-    m_detStore(0),
+  : AthAlgorithm(name, pSvcLocator),
     m_onlineHelper(0)
 {
  m_inputStringIDs.resize(0);
@@ -26,21 +25,7 @@ LArRampCorr::~LArRampCorr()
 
 StatusCode LArRampCorr::initialize()
 {
-
-  MsgStream log(msgSvc(), name());
-  
-  StatusCode sc = service("DetectorStore", m_detStore);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << " Cannot locate DetectorStore " << std::endl;
-    return StatusCode::FAILURE;
-  } 
-  
-  sc = m_detStore->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
-    return StatusCode::FAILURE;
-  }
-  
+  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
   return StatusCode::SUCCESS;
 }
 
@@ -54,22 +39,11 @@ StatusCode LArRampCorr::execute()
 // ********************** FINALIZE ****************************
 StatusCode LArRampCorr::stop()
 { 
- MsgStream log(msgSvc(), name());
- log << MSG::INFO << "in stop." << endreq; 
+  ATH_MSG_INFO ( "in stop." );
   
  LArRampComplete* larRampCorr =new LArRampComplete();
- StatusCode sc=larRampCorr->setGroupingType(m_groupingType,log);
- if (sc.isFailure()) {
-   log << MSG::ERROR << "Failed to set groupingType for LArRampComplete object" << endreq;
-   return sc;
- }
-
- sc=larRampCorr->initialize(); 
- if (sc.isFailure()) {
-   log << MSG::ERROR << "Failed initialize LArRampComplete object" << endreq;
-   return sc;
- }
-
+ ATH_CHECK( larRampCorr->setGroupingType(m_groupingType,msg()) );
+ ATH_CHECK( larRampCorr->initialize() );
 
  std::vector<float> coeffs;
   
@@ -95,15 +69,13 @@ StatusCode LArRampCorr::stop()
    catch(LArOnlID_Exception & except){
     
     
-    log << MSG::ERROR 
-	<<  " LArOnlId exception creating chid " 
-	<< (std::string)except
-	<< " barrel_ec, side, feedthrough, slot, channel= " << iBarrel << " " 
-	<< iSide << " " 
-	<< iFT << " " 
-	<< iSlot << " "
-	<< iChannel 
-	<< endreq;
+     ATH_MSG_ERROR(  " LArOnlId exception creating chid " 
+                     << (std::string)except
+                     << " barrel_ec, side, feedthrough, slot, channel= " << iBarrel << " " 
+                     << iSide << " " 
+                     << iFT << " " 
+                     << iSlot << " "
+                     << iChannel );
    }
 
    coeffs.resize(2,0);
@@ -120,9 +92,9 @@ StatusCode LArRampCorr::stop()
    larRampCorr->insertCorrection(chid,ramp,iGain);
  }
 
- m_detStore->record(larRampCorr,m_keyoutput);
- m_detStore->symLink(larRampCorr, (ILArRamp*)larRampCorr);
- log << MSG::INFO << "LArRampCorr has finished." << endreq;
+ ATH_CHECK( detStore()->record(larRampCorr,m_keyoutput) );
+ ATH_CHECK( detStore()->symLink(larRampCorr, (ILArRamp*)larRampCorr) );
+ ATH_MSG_INFO ( "LArRampCorr has finished." );
  
  return StatusCode::SUCCESS;
 }// end finalize-method.

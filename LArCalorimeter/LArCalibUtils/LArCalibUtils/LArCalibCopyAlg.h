@@ -18,7 +18,7 @@
 #include <vector>
 #include <string>
  
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "LArRecConditions/ILArBadChanTool.h"
 #include "LArRecConditions/ILArBadChannelMasker.h"
@@ -38,7 +38,7 @@
 
 
 template<class CONDITIONSCONTAINER>
-class LArCalibCopyAlg:public Algorithm {
+class LArCalibCopyAlg:public AthAlgorithm {
  
 public:
   /**
@@ -91,9 +91,6 @@ private:
 
   
   
-  StoreGateSvc* m_detStore;    
-  MsgStream* m_log;
-
   std::string m_inputName;
   std::string m_outputName;
   std::string  m_groupingType;

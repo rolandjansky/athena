@@ -6,9 +6,7 @@
 
 template<class CONDITIONSCONTAINER>
 LArCalibPatchingAlg<CONDITIONSCONTAINER>::LArCalibPatchingAlg (const std::string& name, ISvcLocator* pSvcLocator) : 
-  Algorithm(name,pSvcLocator),
-  m_detStore(0),
-  m_log(NULL),
+  AthAlgorithm(name,pSvcLocator),
   m_badChannelTool("LArBadChanTool"),
   m_maskingTool("LArBadChannelMaskingTool"),
   m_larCablingSvc("LArCablingService"),
@@ -43,13 +41,11 @@ LArCalibPatchingAlg<CONDITIONSCONTAINER>::LArCalibPatchingAlg (const std::string
 
 template<class CONDITIONSCONTAINER>
 LArCalibPatchingAlg<CONDITIONSCONTAINER>::~LArCalibPatchingAlg() {
-  delete m_log;
 }
 
 
 template<class CONDITIONSCONTAINER>
 StatusCode LArCalibPatchingAlg<CONDITIONSCONTAINER>::initialize() {
-  m_log=new MsgStream(msgSvc(),name());
   if(m_patchMethodProp=="FEBNeighbor") {
     m_patchMethod=FEBNeighbor;
     return StatusCode::SUCCESS;
@@ -69,127 +65,54 @@ StatusCode LArCalibPatchingAlg<CONDITIONSCONTAINER>::initialize() {
   }
   else if (m_patchMethodProp=="FEBAverage") {
     if (typeid(CONDITIONSCONTAINER)==typeid(LArCaliWaveContainer)) {
-      (*m_log) << MSG::ERROR << "FEBAverage not implemented for CaliWaveContainer." 
-	       << "Please choose other patching strategy" << endreq;
+      ATH_MSG_ERROR ( "FEBAverage not implemented for CaliWaveContainer." 
+                      << "Please choose other patching strategy" );
       return StatusCode::FAILURE;
     }
     m_patchMethod=FEBAverage;
     return StatusCode::SUCCESS;
   }
 
-  (*m_log) << MSG::ERROR << "Unknown patching method: " << m_patchMethodProp << endreq;
-  (*m_log) << MSG::ERROR << "Allowed values: [Empty, FEBNeighbor, PhiNeighbor, PhiAverage]" << endreq;
+  ATH_MSG_ERROR ( "Unknown patching method: " << m_patchMethodProp );
+  ATH_MSG_ERROR ( "Allowed values: [Empty, FEBNeighbor, PhiNeighbor, PhiAverage]" );
   
   return StatusCode::FAILURE; 
 }
 
 template<class CONDITIONSCONTAINER>
 StatusCode LArCalibPatchingAlg<CONDITIONSCONTAINER>::stop() {
-  (*m_log) << MSG::INFO << "Entering LArCalibPatchingAlg" << endreq;
-  StatusCode sc = service("DetectorStore", m_detStore);
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << " Cannot locate DetectorStore " << endreq;
-    return StatusCode::FAILURE;
-  } 
+  ATH_MSG_INFO ( "Entering LArCalibPatchingAlg" );
+  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
+  ATH_CHECK( detStore()->retrieve(m_emId, "LArEM_ID") );
+  ATH_CHECK( detStore()->retrieve(m_hecId, "LArHEC_ID") );
+  ATH_CHECK( detStore()->retrieve(m_fcalId, "LArFCAL_ID") );
+  ATH_CHECK( detStore()->retrieve(m_caloId, "CaloCell_ID") );
 
-  sc = m_detStore->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
-    return StatusCode::FAILURE;
-  }
-  
-  sc = m_detStore->retrieve(m_emId, "LArEM_ID");
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Could not get LArEM_ID helper !" << endreq;
-    return StatusCode::FAILURE;
-  } 
-  sc = m_detStore->retrieve(m_hecId, "LArHEC_ID");
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Could not get LArHEC_ID helper !" << endreq;
-    return StatusCode::FAILURE;
-  } 
-  sc = m_detStore->retrieve(m_fcalId, "LArFCAL_ID");
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Could not get LArFCAL_ID helper !" << endreq;
-    return StatusCode::FAILURE;
-  } 
-
-  sc = m_detStore->retrieve(m_caloId, "CaloCell_ID");
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Could not get CaloCell_ID helper !" << endreq;
-    return StatusCode::FAILURE;
-  } 
-
-
-  sc=m_badChannelTool.retrieve();
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Could not retrieve BadChannelTool "
-	     << m_badChannelTool << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  sc=m_larCablingSvc.retrieve();
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Could not retrieve LArCablingService" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  sc=m_maskingTool.retrieve();
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Could not retrieve " << m_maskingTool << endreq;
-    return StatusCode::FAILURE;
-  } 
-  
+  ATH_CHECK( m_badChannelTool.retrieve() );
+  ATH_CHECK( m_larCablingSvc.retrieve() );
+  ATH_CHECK( m_maskingTool.retrieve() );
 
   if (m_newContainerKey.size()) {
     //New container key give -> different containers for reading and writing
-    sc=m_detStore->retrieve(m_contIn,m_containerKey); //const-retrieve
-    if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Failed to retrieve const object with key " << m_containerKey 
-	       << " from DetectorStore." << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( detStore()->retrieve(m_contIn,m_containerKey) ); //const-retrieve
     
     m_contOut=new CONDITIONSCONTAINER();
     m_contOut->setGroupingType((LArConditionsContainerBase::GroupingType)m_contIn->groupingType());
-    sc=m_contOut->initialize();
-    if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Failed to inizialize output container" << endreq;
-      return StatusCode::FAILURE;
-    }
-
-
-    sc=m_detStore->record(m_contOut,m_newContainerKey);
-    if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Failed to record object with key " << m_containerKey 
-	       << " to DetectorStore." << endreq;
-      return StatusCode::FAILURE;
-    }
-    sc=setSymlink(m_contOut);
-    if (sc.isFailure()) 
-      return StatusCode::FAILURE;
-    (*m_log) << MSG::INFO << "Loaded input container " << m_containerKey 
-	     << ", write to new container " << m_newContainerKey << endreq;
+    ATH_CHECK( m_contOut->initialize() );
+    ATH_CHECK( detStore()->record(m_contOut,m_newContainerKey) );
+    ATH_CHECK( setSymlink(m_contOut) );
+    ATH_MSG_INFO ( "Loaded input container " << m_containerKey 
+                   << ", write to new container " << m_newContainerKey );
   }
   else { //Same container for reading and writing
     if (m_unlock) {
-       sc=m_detStore->retrieve(m_contIn,m_containerKey); //const-retrieve
-       if (sc.isFailure()) {
-	 (*m_log) << MSG::ERROR << "Failed to retrieve const object with key " << m_containerKey 
-		  << " from DetectorStore." << endreq;
-	 return StatusCode::FAILURE;
-       }
-       m_contOut=const_cast<CONDITIONSCONTAINER*>(m_contIn);
+      ATH_CHECK( detStore()->retrieve(m_contIn,m_containerKey) ); //const-retrieve
+      m_contOut=const_cast<CONDITIONSCONTAINER*>(m_contIn);
     }
     else{
-      sc=m_detStore->retrieve(m_contOut,m_containerKey); //non-const retrieve
-      if (sc.isFailure()) {
-	(*m_log) << MSG::ERROR << "Failed to retrieve non-const object with key " << m_containerKey 
-		 << " from DetectorStore." << endreq;
-	return StatusCode::FAILURE;
-      }
+      ATH_CHECK( detStore()->retrieve(m_contOut,m_containerKey) ); //non-const retrieve
       m_contIn=const_cast<const CONDITIONSCONTAINER*>(m_contOut);
-      (*m_log) << MSG::INFO << "Work on container '" <<  m_containerKey  << "'" << endreq;
+      ATH_MSG_INFO ( "Work on container '" <<  m_containerKey  << "'" );
     }
   }
   for (unsigned igain=CaloGain::LARHIGHGAIN; 
@@ -200,45 +123,44 @@ StatusCode LArCalibPatchingAlg<CONDITIONSCONTAINER>::stop() {
       const HWIdentifier chid = it.channelId();
       if (!m_larCablingSvc->isOnlineConnected(chid)) continue; //Don't care about disconnected channels
       if (m_maskingTool->cellShouldBeMasked(chid)) {
-	(*m_log) << MSG::INFO << "Found problematic channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
-		 <<" Gain:" << igain << " " <<  m_onlineHelper->channel_name(chid) << ". Trying to patch." << endreq;
+	ATH_MSG_INFO ( "Found problematic channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+                       <<" Gain:" << igain << " " <<  m_onlineHelper->channel_name(chid) << ". Trying to patch." );
 	if (patch(chid,igain)) {
-	  (*m_log) << MSG::INFO << "Sucessfully patched  channel 0x" << MSG::hex << chid.get_compact() << MSG::dec <<" Gain:" << igain << endreq;
+	  ATH_MSG_INFO ( "Sucessfully patched  channel 0x" << MSG::hex << chid.get_compact() << MSG::dec <<" Gain:" << igain );
         } else {
-	  (*m_log) << MSG::WARNING << "Failed to patch channel 0x" << MSG::hex << chid.get_compact() << MSG::dec <<" Gain:" << igain << endreq;
+	  ATH_MSG_WARNING ( "Failed to patch channel 0x" << MSG::hex << chid.get_compact() << MSG::dec <<" Gain:" << igain );
         } 
       }//end if channel is in bad-channel database
       else 
 	if (it->isEmpty()) { //check if data-object is empty (eg the default instance
-	  (*m_log) << MSG::ERROR << "The channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+	  ATH_MSG_ERROR ( "The channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
 		   <<" Gain:" << igain << " " << m_onlineHelper->channel_name(chid) 
-		   << " has no calibration but is not (yet?) flagged in the bad-channel database" << endreq;
+                          << " has no calibration but is not (yet?) flagged in the bad-channel database" );
 	  if (m_patchAllMissing) {
-	    (*m_log) << MSG::INFO << "Will try to patch anyway." << endreq;
+	    ATH_MSG_INFO ( "Will try to patch anyway." );
 	    if (patch(chid,igain)) {
-	      (*m_log) << MSG::INFO << "Sucessfully patched  channel 0x" << MSG::hex << chid.get_compact() << MSG::dec <<" Gain:" << igain << endreq;
+	      ATH_MSG_INFO ( "Sucessfully patched  channel 0x" << MSG::hex << chid.get_compact() << MSG::dec <<" Gain:" << igain );
 	    } else {
-	      (*m_log) << MSG::WARNING << "Failed to patch channel 0x" << MSG::hex << chid.get_compact() << MSG::dec <<" Gain:" << igain << endreq;
+	      ATH_MSG_WARNING ( "Failed to patch channel 0x" << MSG::hex << chid.get_compact() << MSG::dec <<" Gain:" << igain );
 	    }
 	  }//end if m_patchAllMissing
 	  else 
-	    (*m_log) << MSG::ERROR << "Channel remains un-patched!" << endreq;
+	    ATH_MSG_ERROR ( "Channel remains un-patched!" );
 	}//end if isEmpty
     }//end loop over all channels
   }//end loop over all gains
   
   std::vector<unsigned> completedChans = m_contOut->completeCorrectionChannels();
   if (completedChans.size()>0 && m_useCorrChannel) {
-    (*m_log) << MSG::INFO << "Artificially inserted correction subsets in COOL channels";
+    msg() << MSG::INFO << "Artificially inserted correction subsets in COOL channels";
     for(size_t j=0;j<completedChans.size();++j) 
-      (*m_log) << MSG::INFO << " " << completedChans[j];
-    (*m_log) << MSG::INFO << endreq;
+      msg() << MSG::INFO << " " << completedChans[j];
+    msg() << MSG::INFO << endreq;
   }
 
 
-  (*m_log) << MSG::INFO << "Done with LArCalibPatchingAlg" << endreq;
-  if (msgSvc()->outputLevel(name()) <= MSG::DEBUG) 
-    (*m_log) << MSG::DEBUG << m_detStore->dump() << endreq;
+  ATH_MSG_INFO ( "Done with LArCalibPatchingAlg" );
+  ATH_MSG_DEBUG ( detStore()->dump() );
   return StatusCode::SUCCESS;
 }
 
@@ -256,11 +178,11 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::patch(const HWIdentifier chid, co
 	if (!patch.isEmpty()) {
 	  StatusCode sc=m_contOut->insertCorrection(chid,patch,gain,m_useCorrChannel); 
 	  if (sc.isFailure()) 
-	    (*m_log) << MSG::ERROR << "Failed to insert correction for channel 0x" << MSG::hex << chid.get_compact() 
-		     << MSG::dec <<", gain " << gain << "." << endreq;
+	    ATH_MSG_ERROR ( "Failed to insert correction for channel 0x" << MSG::hex << chid.get_compact() 
+                            << MSG::dec <<", gain " << gain << "." );
 	  else
-	    (*m_log) << MSG::INFO << "Replaced channel 0x" << MSG::hex << chid.get_compact() 
-		     <<  " by it's left FEB neighbor 0x" << chid_patch.get_compact() << MSG::dec << endreq;
+	    ATH_MSG_INFO ( "Replaced channel 0x" << MSG::hex << chid.get_compact() 
+                           <<  " by it's left FEB neighbor 0x" << chid_patch.get_compact() << MSG::dec );
 	  return true;
 	}
       }//end if patch connected and good
@@ -272,17 +194,17 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::patch(const HWIdentifier chid, co
 	if (!patch.isEmpty()) {
 	  StatusCode sc=m_contOut->insertCorrection(chid,patch,gain,m_useCorrChannel); 
 	  if (sc.isFailure()) {
-	    (*m_log) << MSG::ERROR << "Failed to insert correction for channel 0x" << MSG::hex << chid.get_compact() 
-		     << MSG::dec << ", gain " << gain << "." << endreq;
+	    ATH_MSG_ERROR ( "Failed to insert correction for channel 0x" << MSG::hex << chid.get_compact() 
+                            << MSG::dec << ", gain " << gain << "." );
 	  }
 	  else
-	    (*m_log) << MSG::INFO << "Replaced channel 0x" << MSG::hex << chid.get_compact() 
-		     <<  " by it's right FEB neighbor 0x" << chid_patch.get_compact() << MSG::dec << endreq;
+	    ATH_MSG_INFO ( "Replaced channel 0x" << MSG::hex << chid.get_compact() 
+                           <<  " by it's right FEB neighbor 0x" << chid_patch.get_compact() << MSG::dec );
 	  return true;
 	}
       }//end if patch connected and good
     }//end if chan<max
-    (*m_log) << MSG::ERROR << "None of the FEB neighbors is good!" << endreq;
+    ATH_MSG_ERROR ( "None of the FEB neighbors is good!" );
     return false;
 
   } else if (m_patchMethod==PhiNeighbor) {
@@ -298,19 +220,19 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::patch(const HWIdentifier chid, co
       phi_max =m_caloId->phi_max(regionID);
       phi_range=phi_max-phi_min+1;
       if (eta==CaloCell_ID::NOT_VALID || phi==CaloCell_ID::NOT_VALID ||  phi_min==CaloCell_ID::NOT_VALID ||  phi_max==CaloCell_ID::NOT_VALID) {
-	(*m_log) << MSG::ERROR << "CaloCell_ID returned NOT_VALID for offline id 0x"<< std::hex << id.get_compact() 
-		 <<", online id 0x" << chid.get_compact() << std::dec << endreq;
+	ATH_MSG_ERROR ( "CaloCell_ID returned NOT_VALID for offline id 0x"<< std::hex << id.get_compact() 
+                        <<", online id 0x" << chid.get_compact() << std::dec );
 	return false;
       }
-      (*m_log) << MSG::VERBOSE << "Problem channel has phi="<< phi << " eta=" << eta << endreq;
+      ATH_MSG_VERBOSE ( "Problem channel has phi="<< phi << " eta=" << eta );
       //Try both phi-neighbors
       int phi_list[4]={phi-1,phi+1,phi-2,phi+2};
       for (unsigned i=0;i<4;i++) {
 	int phi_patch=phi_list[i];
 	if (phi_patch<m_caloId->phi_min(regionID)) phi_patch=phi_patch+phi_range;
 	if (phi_patch>m_caloId->phi_max(regionID)) phi_patch=phi_patch-phi_range+phi_min;
-	(*m_log) << MSG::VERBOSE << "Iteration " << i << " Using cell with phi=" 
-		 << phi_patch << " eta=" << eta << endreq;
+	ATH_MSG_VERBOSE ( "Iteration " << i << " Using cell with phi=" 
+                          << phi_patch << " eta=" << eta );
 	//std::cout << "i=" << i << " Using cell with phi=" 
 	//	  << phi_patch << " eta=" << eta << std::endl;
 	Identifier patch_id=m_caloId->cell_id(regionID,eta,phi_patch);
@@ -320,57 +242,47 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::patch(const HWIdentifier chid, co
 	  if (!patch.isEmpty()) {
 	    StatusCode sc=m_contOut->insertCorrection(chid,patch,gain,m_useCorrChannel); 
 	    if (sc.isFailure())
-	      (*m_log) << MSG::ERROR << "Failed to insert correction for channel 0x" << MSG::hex << chid.get_compact() 
-		       << MSG::dec << ", gain " << gain << "." << endreq;
+	      ATH_MSG_ERROR ( "Failed to insert correction for channel 0x" << MSG::hex << chid.get_compact() 
+                              << MSG::dec << ", gain " << gain << "." );
 	     else
-	       (*m_log) << MSG::INFO << "Replaced channel 0x" << MSG::hex << chid.get_compact() 
-			<<  " by neighbor 0x" << chid_patch.get_compact() << MSG::dec << " (phi " << phi << " to " << phi_patch <<")" << endreq;
+	       ATH_MSG_INFO ( "Replaced channel 0x" << MSG::hex << chid.get_compact() 
+                              <<  " by neighbor 0x" << chid_patch.get_compact() << MSG::dec << " (phi " << phi << " to " << phi_patch <<")" );
 	     return true;
 	   }//end if isEmtpy()
 	 }//end if neighbor is good
       }// end for loop
-      (*m_log) << MSG::ERROR << "All phi-neighbors of channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
-	       << " are either absent or bad." << endreq;
+      ATH_MSG_ERROR ( "All phi-neighbors of channel 0x" << MSG::hex << chid.get_compact() << MSG::dec 
+                      << " are either absent or bad." );
       return false; 
     }catch(LArID_Exception& except) {
-      (*m_log) << MSG::ERROR << "LArID_Exception caught!" << endreq;
+      ATH_MSG_ERROR ( "LArID_Exception caught!" );
       return false;
     }
   }  
   else if (m_patchMethod==PhiAverage) {
     LArCondObj patch;
     if (!getAverage(chid,gain,patch)){
-      (*m_log) << MSG::ERROR << "Failed get phi-average!" << endreq;
+      ATH_MSG_ERROR ( "Failed get phi-average!" );
       return false;
     } else {
-      (*m_log) << MSG::DEBUG << "Got a phi-average..." << endreq;
+      ATH_MSG_DEBUG ( "Got a phi-average..." );
     }
-    StatusCode sc=m_contOut->insertCorrection(chid,patch,gain,m_useCorrChannel);      
-    if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Failed to insert correction for channel 0x" 
-	       << MSG::hex << chid.get_compact()  << MSG::dec << ", gain " << gain << "." << endreq;
-	return false;
-    }
+    ATH_CHECK( m_contOut->insertCorrection(chid,patch,gain,m_useCorrChannel) );
     return true;
   }
   else if (m_patchMethod==FEBAverage) {
     LArCondObj patch;
     if (!getAverage(chid,gain,patch,false)){
-      (*m_log) << MSG::ERROR << "Failed get FEB-average!" << endreq;
+      ATH_MSG_ERROR ( "Failed get FEB-average!" );
       return false;
     } else {
-      (*m_log) << MSG::DEBUG << "Got a FEB-average..." << endreq;
+      ATH_MSG_DEBUG ( "Got a FEB-average..." );
     }
-    StatusCode sc=m_contOut->insertCorrection(chid,patch,gain,m_useCorrChannel);      
-    if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Failed to insert correction for channel 0x" 
-	       << MSG::hex << chid.get_compact()  << MSG::dec << ", gain " << gain << "." << endreq;
-	return false;
-    }
+    ATH_CHECK( m_contOut->insertCorrection(chid,patch,gain,m_useCorrChannel) );
     return true;
   }
   else //failed...
-    (*m_log) << MSG::ERROR << "Unknown correction method." << endreq;
+    ATH_MSG_ERROR ( "Unknown correction method." );
   return false;
 }
 
@@ -388,16 +300,16 @@ std::vector<HWIdentifier>& LArCalibPatchingAlg<CONDITIONSCONTAINER>::getPhiRing(
     phi      = m_caloId->phi(id);
     phi_min =m_caloId->phi_min(regionID);
     phi_max =m_caloId->phi_max(regionID);
-    (*m_log) << MSG::VERBOSE << "Assembling phi-ring for eta=" << eta << " phi=" << phi << endreq;
+    ATH_MSG_VERBOSE ( "Assembling phi-ring for eta=" << eta << " phi=" << phi );
     //std::cout << "Assembling phi-ring for eta=" << eta << " phi=" << phi << std::endl;
     if (eta==CaloCell_ID::NOT_VALID || phi==CaloCell_ID::NOT_VALID ||  phi_min==CaloCell_ID::NOT_VALID ||  phi_max==CaloCell_ID::NOT_VALID) {
-      (*m_log) << MSG::ERROR << "CaloCell_ID returned NOT_VALID for offline id 0x"<< std::hex << id.get_compact() 
-	       <<", online id 0x" << chid.get_compact() << std::dec << endreq;
+      ATH_MSG_ERROR ( "CaloCell_ID returned NOT_VALID for offline id 0x"<< std::hex << id.get_compact() 
+                      <<", online id 0x" << chid.get_compact() << std::dec );
       return m_idList;
     }
     
     if ((phi_max-phi_min)%distance) {
-      (*m_log) << MSG::ERROR << "Can't divide " << (phi_min-phi_max) << " by " << distance << endreq;
+      ATH_MSG_ERROR ( "Can't divide " << (phi_min-phi_max) << " by " << distance );
       return m_idList;
     }
 
@@ -406,8 +318,8 @@ std::vector<HWIdentifier>& LArCalibPatchingAlg<CONDITIONSCONTAINER>::getPhiRing(
     for (int i=1;i<=nSteps;i++) {
       int phi_patch=phi+i*distance;
       if (phi_patch>phi_max) phi_patch=phi_patch-phi_max+phi_min-1;
-      (*m_log) << MSG::VERBOSE << "i=" << i << " Adding cell with phi=" 
-	       << phi_patch << " eta=" << eta << endreq;
+      ATH_MSG_VERBOSE ( "i=" << i << " Adding cell with phi=" 
+                        << phi_patch << " eta=" << eta );
       //std::cout << "i=" << i << " Adding cell with phi=" 
       //	<< phi_patch << " eta=" << eta << std::endl;
       Identifier patch_id=m_caloId->cell_id(regionID,eta,phi_patch);
@@ -416,11 +328,11 @@ std::vector<HWIdentifier>& LArCalibPatchingAlg<CONDITIONSCONTAINER>::getPhiRing(
 	m_idList.push_back(chid_patch);
       }
       else
-        (*m_log) << MSG::VERBOSE << "This cell is bad as well. Ignored." << endreq;
+        ATH_MSG_VERBOSE ( "This cell is bad as well. Ignored." );
     }//end loop over phi-steps
   
   }catch(LArID_Exception& except) {
-    (*m_log) << MSG::ERROR << "LArID_Exception caught!" << endreq;
+    ATH_MSG_ERROR ( "LArID_Exception caught!" );
   }  
  return m_idList;
 }
@@ -429,7 +341,7 @@ template<class CONDITIONSCONTAINER>
 std::vector<HWIdentifier>& LArCalibPatchingAlg<CONDITIONSCONTAINER>::getFEBChans(const HWIdentifier chid) {
   m_idList.clear();
   HWIdentifier febid = m_onlineHelper->feb_Id(chid);
-  (*m_log) << MSG::VERBOSE << "Assembling list of channels for FEB=" << febid  << endreq;
+  ATH_MSG_VERBOSE ( "Assembling list of channels for FEB=" << febid  );
   for (int i=0;i<128;++i) {
       HWIdentifier fchan = m_onlineHelper->channel_Id(febid,i);
       if(fchan == chid) continue;
@@ -443,13 +355,13 @@ std::vector<HWIdentifier>& LArCalibPatchingAlg<CONDITIONSCONTAINER>::getFEBChans
            if(!m_fcalId->is_connected(id)) continue;
         }
       } catch(LArID_Exception& except) {
-        (*m_log) << MSG::ERROR << "LArID_Exception caught!" << endreq;
+        ATH_MSG_ERROR ( "LArID_Exception caught!" );
       }
-      (*m_log) << MSG::VERBOSE  << " Adding channel =" << i << endreq;
+      ATH_MSG_VERBOSE  ( " Adding channel =" << i );
       if (m_badChannelTool->status(fchan).good()) {
 	m_idList.push_back(fchan);
       } else {
-        (*m_log) << MSG::VERBOSE << "This channel is bad as well. Ignored." << endreq;
+        ATH_MSG_VERBOSE ( "This channel is bad as well. Ignored." );
       }
   }//end loop over chans
   
@@ -480,7 +392,7 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
    it_e=symCells.end();
   }
   if (it==it_e) {
-    (*m_log) << MSG::ERROR << "No symmetry cells found!" << endreq;
+    ATH_MSG_ERROR ( "No symmetry cells found!" );
     return false;
   }
   size_t s=m_contIn->get(*it,gain).m_vRamp.size();
@@ -492,25 +404,25 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
     if (ramp.m_vRamp.size()==0) continue; //This one is empty...
     if (ramp.m_vRamp.size()!=s) {
       if(isphi) {
-         (*m_log) << MSG::WARNING <<"Cell with same phi but different size of ramp polynom found!" << endreq;
+        ATH_MSG_WARNING ("Cell with same phi but different size of ramp polynom found!" );
       } else {
-         (*m_log) << MSG::WARNING <<"Cell with same FEB but different size of ramp polynom found!" << endreq;
+        ATH_MSG_WARNING ("Cell with same FEB but different size of ramp polynom found!" );
       }
       continue;
     }
-    (*m_log) << MSG::DEBUG << "Adding cell 0x"<< std::hex << it->get_compact() << std::dec << " Ramp:";
+    msg() << MSG::DEBUG << "Adding cell 0x"<< std::hex << it->get_compact() << std::dec << " Ramp:";
     for (size_t i=0;i<s;i++) {
       patch.m_vRamp[i]+=ramp.m_vRamp[i];
-      (*m_log) << MSG::DEBUG << ramp.m_vRamp[i] << " ";
+      msg() << MSG::DEBUG << ramp.m_vRamp[i] << " ";
     }
-    (*m_log) << MSG::DEBUG << endreq;
+    msg() << MSG::DEBUG << endreq;
     nCells++;
   }
   if (nCells==0) {
     if(isphi) {
-       (*m_log) << MSG::ERROR << "No good ramp with same phi found!" << endreq;
+      ATH_MSG_ERROR ( "No good ramp with same phi found!" );
     } else {
-       (*m_log) << MSG::ERROR << "No good ramp with same FEB found!" << endreq;
+      ATH_MSG_ERROR ( "No good ramp with same FEB found!" );
     }
     return false;
   }
@@ -518,10 +430,10 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
    patch.m_vRamp[i]=patch.m_vRamp[i]/nCells;
 
  //FIXME: We should somehow watch the rms....
- (*m_log) << MSG::INFO << "Patched Ramp (based on " << nCells << " channels):" ; 
-   for (size_t i=0;i<s;i++)
-     (*m_log) << MSG::INFO << " " << patch.m_vRamp[i];
-   (*m_log) << MSG::INFO << endreq;
+ msg() << MSG::INFO << "Patched Ramp (based on " << nCells << " channels):" ; 
+ for (size_t i=0;i<s;i++)
+   msg() << MSG::INFO << " " << patch.m_vRamp[i];
+ msg() << MSG::INFO << endreq;
  return true;
 }
 
@@ -534,17 +446,17 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
   std::vector<HWIdentifier>::const_iterator it_e=symCells.end();
 
   if (it==it_e) {
-    (*m_log) << MSG::ERROR << "No symmetry cells found!" << endreq;
+    ATH_MSG_ERROR ( "No symmetry cells found!" );
     return false;
   }
   const size_t nPhases=m_contIn->get(*it,gain).m_vOFC_a.size();
   if (!nPhases) {
-    (*m_log) << MSG::ERROR << "OFC of neighbor nPhase=0!" << endreq;
+    ATH_MSG_ERROR ( "OFC of neighbor nPhase=0!" );
     return false;
   }
   const size_t nSamples=m_contIn->get(*it,gain).mvOFC_a[0].size();
   if (!nPhases) {
-    (*m_log) << MSG::ERROR << "OFC of neighbor nSamples=0!" << endreq;
+    ATH_MSG_ERROR ( "OFC of neighbor nSamples=0!" );
     return false;
   }
 
@@ -560,19 +472,19 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
     const LArOFCP1& ofc=m_contIn->get(*it,gain);
     if (ofc.OFC_aSize()==0 || ofc.OFC_bSize()==0) continue; //This one is empty...
     if (ofc.OFC_aSize()!=nPhases) {
-      (*m_log) << MSG::WARNING <<"Cell with same phi but different nPhases found! Ignored" << endreq;
+      ATH_MSG_WARNING ("Cell with same phi but different nPhases found! Ignored" );
       continue;
     }
     if (ofc.timeOffset()!=timeOffset) {
-      (*m_log) << MSG::WARNING <<"Cell with same phi but different time-offset found! Ignored" << endreq;
+      ATH_MSG_WARNING ("Cell with same phi but different time-offset found! Ignored" );
       continue;
     }
     if (ofc.timeBinWidth()!=timeBinWidth) {
-      (*m_log) << MSG::WARNING <<"Cell with same phi but different time-offset found! Ignored" << endreq;
+      ATH_MSG_WARNING ("Cell with same phi but different time-offset found! Ignored" );
       continue;
     }
 
-    (*m_log) << MSG::DEBUG << "Adding cell 0x"<< std::hex << it->get_compact() << std::dec << endreq;
+    ATH_MSG_DEBUG ( "Adding cell 0x"<< std::hex << it->get_compact() << std::dec );
     for (size_t iPhase=0;iPhase<nPhases;++iPhase) {
       //Check size of vector?
       for (size_t iSample=0;iSample<nSamples;++iSample) {
@@ -583,7 +495,7 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
     nCells++;
   }
   if (nCells==0) {
-    (*m_log) << MSG::ERROR << "No good OFC set with same phi found!" << endreq;
+    ATH_MSG_ERROR ( "No good OFC set with same phi found!" );
     return false;
   }
 
@@ -612,16 +524,16 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
   std::vector<HWIdentifier>::const_iterator it_e=symCells.end();
 
   if (it==it_e) {
-    (*m_log) << MSG::ERROR << "No symmetry cells found!" << endreq;
+    ATH_MSG_ERROR ( "No symmetry cells found!" );
     return false;
   }
-  (*m_log) << MSG::DEBUG << "Averaging for " << symCells.size() << " cells" << endreq;
+  ATH_MSG_DEBUG ( "Averaging for " << symCells.size() << " cells" );
   size_t s=m_contIn->get(*it,gain).size();
   if (s == 0) {
-    (*m_log) << MSG::WARNING << "No CaliWaves for channel 0x"<<std::hex<<chid.get_compact() << std::dec << ", not patched" << endreq;
+    ATH_MSG_WARNING ( "No CaliWaves for channel 0x"<<std::hex<<chid.get_compact() << std::dec << ", not patched" );
     return false;
   }
-  (*m_log) << MSG::DEBUG << "Averaging for " << s << " DACs" << endreq;
+  ATH_MSG_DEBUG ( "Averaging for " << s << " DACs" );
   patch.clear();
 //  patch.resize(s);
   std::vector<LArWave> patch_wave; // Vector of Waves for averaging...
@@ -650,8 +562,8 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
        }
        if(idx == patch.size()) { // New DAC
          if(idx >= s) {
-            (*m_log) << MSG::ERROR << "Why more DAC's in cell 0x"<< std::hex << it->get_compact() << std::dec << endreq;
-            continue;
+           ATH_MSG_ERROR ( "Why more DAC's in cell 0x"<< std::hex << it->get_compact() << std::dec );
+           continue;
          }
          patch.push_back(cwave);
          /*dmax =*/ wHelper.getDMax(cwave, tmax);
@@ -668,14 +580,14 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
        ++patch_nadd[idx]; 
      }
   }
-  (*m_log) << MSG::DEBUG << "Averaged tmax computed: "<<patch_max[idx]<<" starting to add waves"<<endreq;
+  ATH_MSG_DEBUG ( "Averaged tmax computed: "<<patch_max[idx]<<" starting to add waves");
 
   it=symCells.begin(); // Again from beginning
   patch_nadd.clear();
   patch.clear();
        
   for ( ; it_e != it; it++) {
-    (*m_log) << MSG::DEBUG << "Adding ch. "<<*it<<", layer: "<<m_caloId->sampling(m_larCablingSvc->cnvToIdentifier(*it))<<", region: "<<m_caloId->region(m_larCablingSvc->cnvToIdentifier(*it))<<" eta: "<<m_caloId->eta(m_larCablingSvc->cnvToIdentifier(*it))<<", phi: "<<m_caloId->phi(m_larCablingSvc->cnvToIdentifier(*it))<<endreq;
+    ATH_MSG_DEBUG ( "Adding ch. "<<*it<<", layer: "<<m_caloId->sampling(m_larCablingSvc->cnvToIdentifier(*it))<<", region: "<<m_caloId->region(m_larCablingSvc->cnvToIdentifier(*it))<<" eta: "<<m_caloId->eta(m_larCablingSvc->cnvToIdentifier(*it))<<", phi: "<<m_caloId->phi(m_larCablingSvc->cnvToIdentifier(*it)));
 
     std::vector<LArCaliWave>::const_iterator vecit = m_contIn->get(*it,gain).begin();
     std::vector<LArCaliWave>::const_iterator vecit_e = m_contIn->get(*it,gain).end();
@@ -683,7 +595,7 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
        const LArCaliWave& cwave = *vecit;
        // Check if we have such DAC in our patched vector
        int ourDAC = vecit->getDAC();
-       (*m_log) << MSG::DEBUG << "Checking DAC: " << ourDAC << endreq;
+       ATH_MSG_DEBUG ( "Checking DAC: " << ourDAC );
        for(idx=0; idx<patch.size(); ++idx) {
           if(patch[idx].getDAC() == ourDAC) {
               break;
@@ -691,32 +603,32 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
        }
        if(idx == patch.size()) { // New DAC
          if(idx >= s) {
-            (*m_log) << MSG::ERROR << "Why more DAC's in cell 0x"<< std::hex << it->get_compact() << std::dec << endreq;
+           ATH_MSG_ERROR ( "Why more DAC's in cell 0x"<< std::hex << it->get_compact() << std::dec );
             continue;
          }
          patch.push_back(cwave);
          /*dmax =*/ wHelper.getDMax(cwave, tmax); 
          LArWave wtrans = wHelper.Dtranslate(cwave, patch_max[idx] - tmax);
          patch_wave.push_back(LArWave(wtrans.getWave(), wtrans.getDt()));
-         (*m_log) << MSG::DEBUG << "New DAC " << endreq;
+         ATH_MSG_DEBUG ( "New DAC " );
 //         (*m_log) << MSG::DEBUG << "size of first wave: "<<patch_wave.back().getSize()<<endreq;
-         (*m_log) << MSG::DEBUG << " shifted by: "<< patch_max[idx] - tmax << endreq;
-         (*m_log) << MSG::DEBUG <<tmax<<endreq;
+         ATH_MSG_DEBUG ( " shifted by: "<< patch_max[idx] - tmax );
+         ATH_MSG_DEBUG (tmax);
          patch_nadd.push_back(1);
        } else { // We have such DAC already, shift and add
          /*dmax =*/ wHelper.getDMax(cwave, tmax); 
-         (*m_log) << MSG::DEBUG << "Adding cell 0x"<< std::hex << it->get_compact() << std::dec << endreq;
-         (*m_log) << MSG::DEBUG << " shifted by: "<< patch_max[idx] - tmax << endreq;
+         ATH_MSG_DEBUG ( "Adding cell 0x"<< std::hex << it->get_compact() << std::dec );
+         ATH_MSG_DEBUG ( " shifted by: "<< patch_max[idx] - tmax );
          //(*m_log) << MSG::DEBUG <<tmax<<endreq;
          if(tmax < 0 || fabs(patch_max[idx] - tmax) > cwave.getWave().size()*cwave.getDt()) {
-             (*m_log) << MSG::WARNING << "Wrong patch_max[idx]-tmax:"<<patch_max[idx]-tmax<<" for cell 0x" << std::hex << it->get_compact() << std::dec <<", not added in average"<<endreq;
+           ATH_MSG_WARNING ( "Wrong patch_max[idx]-tmax:"<<patch_max[idx]-tmax<<" for cell 0x" << std::hex << it->get_compact() << std::dec <<", not added in average");
              continue;
          }
          LArWave wtrans = wHelper.Dtranslate(cwave, patch_max[idx] - tmax);
          wtrans = wtrans * (1. / patch_nadd[idx]);
          patch_wave[idx]  = (patch_wave[idx] + wtrans) * (patch_nadd[idx] / (patch_nadd[idx] + 1.));
          ++patch_nadd[idx]; 
-         (*m_log) << MSG::DEBUG << patch_nadd[idx] << " cells added "<< endreq;
+         ATH_MSG_DEBUG ( patch_nadd[idx] << " cells added ");
 //         (*m_log) << MSG::DEBUG << "size after adding: "<<patch_wave[idx].getSize()<<endreq;
        }
        nCells++;
@@ -726,7 +638,7 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
     }
   }
   if (nCells==0) {
-    (*m_log) << MSG::ERROR << "No good CaliWaves with same phi found!" << endreq;
+    ATH_MSG_ERROR ( "No good CaliWaves with same phi found!" );
     return false;
   }
 
@@ -753,8 +665,8 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
   }
 
  if (nCells==0) {
-    (*m_log) << MSG::ERROR << "No good symmetry cells found!" << endreq;
-    return false;
+   ATH_MSG_ERROR ( "No good symmetry cells found!" );
+   return false;
  }
  patch.m_MphysOverMcal/=nCells;
  return true;
@@ -783,8 +695,8 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
   }
 
  if (nCells==0) {
-    (*m_log) << MSG::ERROR << "No good symmetry cells found!" << endreq;
-    return false;
+   ATH_MSG_ERROR ( "No good symmetry cells found!" );
+   return false;
  }
  patch.m_data/=nCells;
  return true;
@@ -796,28 +708,22 @@ bool LArCalibPatchingAlg<CONDITIONSCONTAINER>::getAverage(const HWIdentifier chi
 
 template<class CONDITIONSCONTAINER>
 StatusCode  LArCalibPatchingAlg<CONDITIONSCONTAINER>::setSymlink(const LArRampComplete* ramp) const {
-  StatusCode sc=m_detStore->symLink(ramp, (ILArRamp*)ramp);
-  if (sc.isFailure()) 
-    (*m_log) << MSG::ERROR << "Failed to symlink LArRampComplete to ILArRamp" << endreq;
-  return sc;
+  ATH_CHECK( detStore()->symLink(ramp, (ILArRamp*)ramp) );
+  return StatusCode::SUCCESS;
 }
 
 
 template<class CONDITIONSCONTAINER>
 StatusCode  LArCalibPatchingAlg<CONDITIONSCONTAINER>::setSymlink(const LArOFCComplete* ofc) const {
-  StatusCode sc=m_detStore->symLink(ofc, (ILArOFC*)ofc);
-  if (sc.isFailure()) 
-    (*m_log) << MSG::ERROR << "Failed to symlink LArOFCComplete to ILArOFC" << endreq;
-  return sc;
+  ATH_CHECK( detStore()->symLink(ofc, (ILArOFC*)ofc) );
+  return StatusCode::SUCCESS;
 }
 
 
 template<class CONDITIONSCONTAINER>
 StatusCode  LArCalibPatchingAlg<CONDITIONSCONTAINER>::setSymlink(const LArMphysOverMcalComplete* ramp) const {
-  StatusCode sc=m_detStore->symLink(ramp, (ILArMphysOverMcal*)ramp);
-  if (sc.isFailure()) 
-    (*m_log) << MSG::ERROR << "Failed to symlink LArMphysOverMcalComplete to ILArMphysOverMcal" << endreq;
-  return sc;
+  ATH_CHECK( detStore()->symLink(ramp, (ILArMphysOverMcal*)ramp) );
+  return StatusCode::SUCCESS;
 }
 
 

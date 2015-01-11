@@ -16,9 +16,7 @@
 #include <math.h>
 
 LArCalibShortCorrector::LArCalibShortCorrector(const std::string& name, ISvcLocator* pSvcLocator) : 
-  Algorithm(name, pSvcLocator),
-  m_storeGateSvc(0),
-  m_detStore(0),
+  AthAlgorithm(name, pSvcLocator),
   m_larCablingSvc("LArCablingService"),
   m_badChannelTool("LArBadChanTool"),
   m_onlineId(0),
@@ -29,61 +27,18 @@ LArCalibShortCorrector::LArCalibShortCorrector(const std::string& name, ISvcLoca
   declareProperty("PedestalKey",m_pedKey="Pedestal",
 		  "Key of the pedestal object (to be subtracted)");
   declareProperty("BadChannelTool",m_badChannelTool);
-  m_log=NULL;
   m_shortsCached=false;
 }
 
 LArCalibShortCorrector::~LArCalibShortCorrector()  {
-  delete m_log;
 }
 
 StatusCode LArCalibShortCorrector::initialize() {
-  m_log = new MsgStream(msgSvc(),name());
-  StatusCode sc = service("StoreGateSvc", m_storeGateSvc);
-  if (sc.isFailure()) 
-    {(*m_log) << MSG::FATAL << " Cannot locate StoreGateSvc " << std::endl;
-      return StatusCode::FAILURE;
-    } 
-  
-  sc = service("DetectorStore", m_detStore);
-  if (sc.isFailure()) {
-    (*m_log) << MSG::FATAL << " Cannot locate DetectorStore " << std::endl;
-    return StatusCode::FAILURE;
-  } 
-  
-  sc = m_detStore->retrieve(m_onlineId, "LArOnlineID");
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
-    return StatusCode::FAILURE;
-  }
-  
-  sc = m_detStore->retrieve(m_caloCellId, "CaloCell_ID");
-  if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Could not get LArEM_ID helper !" << endreq;
-    return StatusCode::FAILURE;
-  }
-  
-  // Retrieve LArCablingService
-  sc = m_larCablingSvc.retrieve();
-  if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << " Can't get LArCablingSvc " << m_larCablingSvc << endreq;
-    return sc;
-  }
-
-  // Retrieve LArCablingService
-  sc = m_badChannelTool.retrieve();
-  if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << " Can't get LArBadChanelTool " << m_badChannelTool << endreq;
-    return sc;
-  }
-
-
-  sc = m_detStore->regHandle(m_larPedestal,m_pedKey);
-  if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "Could not register DataHandle for pedestal with key " << m_pedKey  << endreq;
-    return sc;
-  }
-
+  ATH_CHECK( detStore()->retrieve(m_onlineId, "LArOnlineID") );
+  ATH_CHECK( detStore()->retrieve(m_caloCellId, "CaloCell_ID") );
+  ATH_CHECK( m_larCablingSvc.retrieve() );
+  ATH_CHECK( m_badChannelTool.retrieve() );
+  ATH_CHECK( detStore()->regHandle(m_larPedestal,m_pedKey) );
   return StatusCode::SUCCESS;
 }
 
@@ -109,17 +64,17 @@ StatusCode LArCalibShortCorrector::findShortedNeighbors() {
 	
        const Identifier id1=m_larCablingSvc->cnvToIdentifier(chid1);
        const IdentifierHash id1_h=m_caloCellId->calo_cell_hash(id1);
-       (*m_log) << MSG::DEBUG << "Channel " << chid1.get_compact() << " marked as short" << endreq;
+       ATH_MSG_DEBUG ( "Channel " << chid1.get_compact() << " marked as short" );
        //Find neighbor
        std::vector<IdentifierHash> neighbors;
        m_caloCellId->get_neighbours(id1_h,LArNeighbours::faces2D,neighbors);
        HWIdentifier chid2;
        if (neighbors.size()==0) {
-	 (*m_log) << MSG::ERROR << "No neighbors found for channel with id " << chid1.get_compact() << endreq;
+	 ATH_MSG_ERROR ( "No neighbors found for channel with id " << m_onlineId->channel_name(chid1) );
 	 return StatusCode::FAILURE;
        }
        else
-	 (*m_log) << MSG::DEBUG << " Found " << neighbors.size() << " neighbors found for channel with id " << chid1.get_compact() << endreq; 
+	 ATH_MSG_DEBUG ( " Found " << neighbors.size() << " neighbors found for channel with id " << m_onlineId->channel_name(chid1) );
 
        
        std::vector<IdentifierHash>::const_iterator nbrit=neighbors.begin();
@@ -128,18 +83,20 @@ StatusCode LArCalibShortCorrector::findShortedNeighbors() {
 	 const HWIdentifier chid_nbr=m_larCablingSvc->createSignalChannelIDFromHash(*nbrit);
 	 if (m_badChannelTool->status(chid_nbr).shortProblem()) { //Found neighbor with 'short'
 	   if (chid2.is_valid()) {
-	     (*m_log) << MSG::ERROR << "Found more than one neighbor with short bit set! Identifiers: "
-		 << chid1.get_compact() << ", " << chid2.get_compact() << ", " << chid_nbr.get_compact() << endreq;
+	     ATH_MSG_ERROR ( "Found more than one neighbor with short bit set! Identifiers: "
+                             << m_onlineId->channel_name(chid1) << ", "
+                             << m_onlineId->channel_name(chid2) << ", "
+                             << m_onlineId->channel_name(chid_nbr) );
 	     return StatusCode::FAILURE;
 	   }
 	   else {
 	     chid2=chid_nbr;
-	     (*m_log) << MSG::DEBUG << "Found pair " << chid1.get_compact() << " " << chid2.get_compact()  << endreq;
+	     ATH_MSG_DEBUG ( "Found pair " << m_onlineId->channel_name(chid1) << " " <<  m_onlineId->channel_name(chid2) );
 	   }
 	 }
        }//End loop over neighbors
        if (!chid2.is_valid()) {
-	 (*m_log) << MSG::ERROR << "No neighbor with 'short' bit set for channel with id: " << chid1.get_compact() << endreq;
+	 ATH_MSG_ERROR ( "No neighbor with 'short' bit set for channel with id: " << chid1.get_compact() );
 	 return StatusCode::FAILURE;
        }
        m_shortedNeighbors.push_back(std::make_pair(chid1,chid2));
@@ -147,11 +104,11 @@ StatusCode LArCalibShortCorrector::findShortedNeighbors() {
    }//End loop over all identifiers
 
    if (this->outputLevel() <= MSG::INFO) {
-     (*m_log) << MSG::INFO << "Found " << m_shortedNeighbors.size() << " pairs of shorted neighbors" << endreq;
+     ATH_MSG_INFO ( "Found " << m_shortedNeighbors.size() << " pairs of shorted neighbors" );
      std::vector<std::pair<HWIdentifier,HWIdentifier> >::const_iterator itm=m_shortedNeighbors.begin();
      std::vector<std::pair<HWIdentifier,HWIdentifier> >::const_iterator itm_e=m_shortedNeighbors.end();
      for (;itm!=itm_e;itm++) 
-       (*m_log) << MSG::INFO << " Shorted pair: " << itm->first << ", " << itm->second << endreq;
+       ATH_MSG_INFO ( " Shorted pair: " << m_onlineId->channel_name(itm->first) << ", " << m_onlineId->channel_name(itm->second) );
    }
 
    return StatusCode::SUCCESS;
@@ -161,11 +118,7 @@ StatusCode LArCalibShortCorrector::findShortedNeighbors() {
 
 StatusCode LArCalibShortCorrector::execute(){
   if (!m_shortsCached){
-    StatusCode sc=findShortedNeighbors();
-    if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Failed to build list of shorted neighbors" << endreq;
-      return sc;
-    }
+    ATH_CHECK( findShortedNeighbors() );
     m_shortsCached=true;
   }
   const size_t nShorts=m_shortedNeighbors.size();
@@ -179,9 +132,9 @@ StatusCode LArCalibShortCorrector::execute(){
   // now start to deal with digits   
   
   for (;key_it!=key_it_e;key_it++) { // Loop over all containers that are to be processed (e.g. different gains)
-    StatusCode sc = m_storeGateSvc->retrieve(larAccumulatedCalibDigitContainer,*key_it);
+    StatusCode sc = evtStore()->retrieve(larAccumulatedCalibDigitContainer,*key_it);
     if (sc.isFailure()){ 
-      (*m_log) << MSG::WARNING << "Cannot read LArAccumulatedCalibDigitContainer from StoreGate! key=" << *key_it << endreq;
+      ATH_MSG_WARNING ( "Cannot read LArAccumulatedCalibDigitContainer from StoreGate! key=" << *key_it );
       continue; // Try next container
     }
     
@@ -192,12 +145,12 @@ StatusCode LArCalibShortCorrector::execute(){
     LArAccumulatedCalibDigitContainer::const_iterator it=larAccumulatedCalibDigitContainer->begin();
     LArAccumulatedCalibDigitContainer::const_iterator it_e=larAccumulatedCalibDigitContainer->end();    
     if(it == it_e) {
-      (*m_log) << MSG::VERBOSE << "LArAccumulatedCalibDigitContainer with key = " << *key_it << " is empty " << endreq;
+      ATH_MSG_VERBOSE ( "LArAccumulatedCalibDigitContainer with key = " << *key_it << " is empty " );
       //return StatusCode::SUCCESS;
       continue; // Try next container
     } else {
-      (*m_log) << MSG::DEBUG << "Processing LArAccumulatedCalibDigitContainer with key = " << *key_it 
-	       << ". Size: " << larAccumulatedCalibDigitContainer->size() << endreq;
+      ATH_MSG_DEBUG ( "Processing LArAccumulatedCalibDigitContainer with key = " << *key_it 
+                      << ". Size: " << larAccumulatedCalibDigitContainer->size() );
     }
 
     for(;it!=it_e;++it) { //Loop over calib-digits
@@ -218,7 +171,7 @@ StatusCode LArCalibShortCorrector::execute(){
     for (size_t ii=0;ii<nShorts;ii++) {
       if (shortedDigits[ii].first==NULL) continue; //Not in the data at all, or only the not-pulsed channel in the data
       if (shortedDigits[ii].second==NULL) { //Only the pulsed channel in the data
-	(*m_log) << MSG::WARNING << "Second channel of a shorted pair not found in data. Try factor 2 correction." << endreq;
+	ATH_MSG_WARNING ( "Second channel of a shorted pair not found in data. Try factor 2 correction." );
 	shortedDigits[ii].second=shortedDigits[ii].first;
       }
 
@@ -229,12 +182,12 @@ StatusCode LArCalibShortCorrector::execute(){
       
 
       if (sampleSumsPulsed.size() != sampleSumsNeighbor.size()) {
-	(*m_log) << MSG::ERROR << "Inconsistent size of samples-vector!" << endreq;
+	ATH_MSG_ERROR ( "Inconsistent size of samples-vector!" );
 	return StatusCode::FAILURE;
       }
 
       if (shortedDigits[ii].first->nTriggers() != shortedDigits[ii].second->nTriggers()) {
-	(*m_log) << MSG::ERROR << "Inconsistent number of Triggers!" << endreq;
+	ATH_MSG_ERROR ( "Inconsistent number of Triggers!" );
 	return StatusCode::FAILURE;
       }
 
@@ -242,8 +195,8 @@ StatusCode LArCalibShortCorrector::execute(){
       float pedestal = m_larPedestal->pedestal(shortedDigits[ii].second->hardwareID(),
 								   shortedDigits[ii].second->gain());
       if (pedestal<= (1.0+LArElecCalib::ERRORCODE)) {
-	(*m_log) << MSG::ERROR << "Failed to get pedestal for channel with id " << shortedDigits[ii].second->hardwareID().get_compact()
-		 << std::endl;
+	ATH_MSG_ERROR ( "Failed to get pedestal for channel " <<  m_onlineId->channel_name(shortedDigits[ii].second->hardwareID())
+                        << ", gain=" << shortedDigits[ii].second->gain() );
 	return StatusCode::FAILURE;
       }
       const unsigned int ped=(unsigned)round(double(pedestal)*shortedDigits[ii].second->nTriggers());
@@ -262,7 +215,7 @@ StatusCode LArCalibShortCorrector::execute(){
 
 
 StatusCode LArCalibShortCorrector::stop(){ 
-  (*m_log) << MSG::INFO << "in stop." << endreq; 
+  ATH_MSG_INFO ( "in stop." );
   return StatusCode::SUCCESS;
 }
 

@@ -8,7 +8,7 @@
 #ifndef LARCALIWAVEAVERAGE_H
 #define LARCALIWAVEAVERAGE_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "LArTools/LArCablingService.h"
@@ -19,7 +19,7 @@
 
 #include <string>
 
-class LArCaliWaveAverage:public Algorithm {
+class LArCaliWaveAverage:public AthAlgorithm {
 
 public:
 
@@ -33,7 +33,6 @@ public:
 
 private:
 
-  StoreGateSvc*      m_detStore;
   LArCablingService* m_larCablingSvc;
   const LArOnlineID* m_onlineHelper;
   

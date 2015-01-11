@@ -177,9 +177,7 @@ LArPhysWaveBuilder::Cellwave::Cellwave ()
  */
 LArPhysWaveBuilder::LArPhysWaveBuilder (const std::string& name,
                                         ISvcLocator* pSvcLocator)
-  : Algorithm(name, pSvcLocator),
-    m_storeGateSvc(0),
-    m_detectorStore(0),
+  : AthAlgorithm(name, pSvcLocator),
     m_peakParabolaTool (0),
     m_adc2mevTool (0),
     m_phase_tool (0),
@@ -268,8 +266,6 @@ LArPhysWaveBuilder::~LArPhysWaveBuilder()
 StatusCode LArPhysWaveBuilder::initialize()
 {
   // Fetch tools and services.
-  CHECK( service("StoreGateSvc", m_storeGateSvc) );
-  CHECK( service("DetectorStore", m_detectorStore) );
   CHECK( toolSvc()->retrieveTool("LArADC2MeVTool", m_adc2mevTool) );
   if (m_phase_tool_name != "peak")
     CHECK( toolSvc()->retrieveTool(m_phase_tool_name, m_phase_tool) );
@@ -301,8 +297,7 @@ StatusCode LArPhysWaveBuilder::initialize()
  */
 StatusCode LArPhysWaveBuilder::execute()
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "LArPhysWaveBuilder in execute()" << endreq;
+  ATH_MSG_DEBUG ( "LArPhysWaveBuilder in execute()" );
 
   // We'll defer retrieving the cabling service until the first time
   // we need it.
@@ -313,15 +308,15 @@ StatusCode LArPhysWaveBuilder::execute()
 
   // Our input data.
   const LArDigitContainer* digcontainer =
-    m_storeGateSvc->retrieve<const LArDigitContainer> (m_gainCont);
+    evtStore()->retrieve<const LArDigitContainer> (m_gainCont);
 
   // Get the pedestal information.
   const ILArPedestal* larPedestal =
-    m_detectorStore->retrieve<const ILArPedestal> ();
+    detStore()->retrieve<const ILArPedestal> ();
 
   // Get the ID hash helper.
   const LArOnlineID* online_helper =
-    m_detectorStore->retrieve<const LArOnlineID> ("LArOnlineID");
+    detStore()->retrieve<const LArOnlineID> ("LArOnlineID");
 
   if (!digcontainer || !online_helper) {
     REPORT_ERROR (StatusCode::FAILURE) << "Cannot find storegate inputs";
@@ -378,7 +373,7 @@ StatusCode LArPhysWaveBuilder::execute()
           cellwave.id = cabling->cnvToIdentifier( chid );
         }
         catch( LArID_Exception & except ) {
-          log << MSG::ERROR << "Channel not registered: " << chid << endreq;
+          ATH_MSG_ERROR ( "Channel not registered: " << chid );
         }  
       }
       if (!cellwave.id.is_valid() || !emId->is_lar_em(cellwave.id)) {
@@ -399,8 +394,7 @@ StatusCode LArPhysWaveBuilder::execute()
     // Fill histograms for debugging
     m_hDigiGainSampling->Fill(gain_index, sampling);
 
-    log << MSG::DEBUG << "gain = " << digiGain << " of channel id = "
-        << chid <<endreq;
+    ATH_MSG_DEBUG ( "gain = " << digiGain << " of channel id = " << chid );
 
     // Get the vector of sample values.
     const std::vector<short>& samples = p_lardigit->samples();
@@ -416,13 +410,13 @@ StatusCode LArPhysWaveBuilder::execute()
         pedestal=db_pedestal; 
       else
         pedestal = samples[0];   
-      log<<MSG::DEBUG<<"pedestal: "<<pedestal<<endreq;
+      ATH_MSG_DEBUG("pedestal: "<<pedestal);
 
       float  db_sigma=larPedestal->pedestalRMS(chid,digiGain);
       if (db_sigma >= (1.0+LArElecCalib::ERRORCODE))
         sigma = db_sigma;
     } else {
-      log<<MSG::DEBUG<<"Pedestal not loaded - subtract sample[0]"<<endreq;
+      ATH_MSG_DEBUG("Pedestal not loaded - subtract sample[0]");
       pedestal=samples[0];	
     }
 
@@ -472,9 +466,9 @@ StatusCode LArPhysWaveBuilder::execute()
           energy = energy * maxADCPeak + ramp[i];
         energy *= maxADCPeak;
 
-        log<<MSG::DEBUG<<" layer = " << sampling
-           << " gain = " << digiGain 
-           << " energy = "<< energy << " chid = " << chid  << endreq;
+        ATH_MSG_DEBUG(" layer = " << sampling
+                      << " gain = " << digiGain 
+                      << " energy = "<< energy << " chid = " << chid  );
       }
     }
 
@@ -503,10 +497,9 @@ StatusCode LArPhysWaveBuilder::execute()
         if(peak.size() >2){
           ADCpeak = peak[0]-pedestal;
           ADCtime = peak[2];
-          log << MSG::DEBUG << "Computed from Parabola" << endreq;
+          ATH_MSG_DEBUG ( "Computed from Parabola" );
         }else{
-          log << MSG::DEBUG
-              << "No pic is computed from Parabola. Use Max Sample." << endreq;
+          ATH_MSG_DEBUG( "No pic is computed from Parabola. Use Max Sample." );
           ADCpeak = -9999;
           ADCtime = -9999;
           fit_failed = true;
@@ -567,7 +560,7 @@ StatusCode LArPhysWaveBuilder::execute()
     } // energy/sigma cut
   } // end loop on LArDigit in LArDigitContainer
 
-  log<<MSG::DEBUG<<" end of execute "<<endreq;
+  ATH_MSG_DEBUG(" end of execute ");
 
 
   return StatusCode::SUCCESS;
@@ -579,8 +572,6 @@ StatusCode LArPhysWaveBuilder::execute()
  */
 StatusCode LArPhysWaveBuilder::stop()
 {
-  MsgStream log(msgSvc(), name());
-
   LArPhysWaveContainer*  larPhysWaveContainer = 0;
   CHECK( make_container(larPhysWaveContainer) );
 
@@ -589,11 +580,11 @@ StatusCode LArPhysWaveBuilder::stop()
     CHECK( write_root (larPhysWaveContainer) );
 
   // Record LArPhysWaveContainer to detector store
-  CHECK( m_detectorStore->record(larPhysWaveContainer, "") );
-  log << MSG::DEBUG << "LArPhysWaveContainer has been recorded to StoreGate"
-      << " with key= size="<<larPhysWaveContainer->size()<<endreq;
+  CHECK( detStore()->record(larPhysWaveContainer, "") );
+  ATH_MSG_DEBUG ( "LArPhysWaveContainer has been recorded to StoreGate"
+                  << " with key= size="<<larPhysWaveContainer->size());
  
-  log << MSG::DEBUG << "End of stop" << endreq;
+  ATH_MSG_DEBUG ( "End of stop" );
   return StatusCode::SUCCESS;
 }
 
@@ -610,24 +601,15 @@ StatusCode LArPhysWaveBuilder::make_container (LArPhysWaveContainer*&
   // Create LArPhysWaveContainer
   larPhysWaveContainer = new LArPhysWaveContainer();
 
-  StatusCode sc=larPhysWaveContainer->setGroupingType(m_groupingType,log);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Failed to set groupingType for LArPhysWaveContainer object" << endreq;
-    return sc;
-  }
-
-  sc=larPhysWaveContainer->initialize(); 
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Failed initialize LArPhysWaveContainer object" << endreq;
-    return sc;
-  }
+  ATH_CHECK( larPhysWaveContainer->setGroupingType(m_groupingType,msg()) );
+  ATH_CHECK( larPhysWaveContainer->initialize() );
         
   // Create LArPhysWave and put it to LArPhysWaveContainer
   int nentries[N_GAINS] = {0};
   int nentries_cut[N_GAINS] = {0};
 
   int nchannels = m_waves.size();
-  log << MSG::DEBUG <<"nchannels: "<<nchannels<<endreq;
+  ATH_MSG_DEBUG ("nchannels: "<<nchannels);
   for (int i=0; i<nchannels; i++) { //loop on channels
     Cellwave& cellwave = m_waves[i];
     for (int gain=0; gain < N_GAINS; ++gain) {
@@ -652,13 +634,13 @@ StatusCode LArPhysWaveBuilder::make_container (LArPhysWaveContainer*&
     }
   }
     
-  log<<MSG::INFO<<" | Summary of processed channels"<<endreq;
+  ATH_MSG_INFO(" | Summary of processed channels");
   for (int gain=0; gain < N_GAINS; ++gain) {
-    log << MSG::INFO << " | " << gain_names[gain] << " : "
-        << nentries[gain] << " channels accepted. "
-        << nentries_cut[gain] << " channels rejected (nentries cut)" << endreq;
+    ATH_MSG_INFO ( " | " << gain_names[gain] << " : "
+                   << nentries[gain] << " channels accepted. "
+                   << nentries_cut[gain] << " channels rejected (nentries cut)" );
   }
-  log<<MSG::DEBUG<<"LArPhysWave created"<<endreq;
+  ATH_MSG_DEBUG("LArPhysWave created");
 
   return StatusCode::SUCCESS;
 }
@@ -671,8 +653,6 @@ StatusCode LArPhysWaveBuilder::make_container (LArPhysWaveContainer*&
 StatusCode
 LArPhysWaveBuilder::write_root (LArPhysWaveContainer* larPhysWaveContainer)
 {
-  MsgStream log(msgSvc(), name());
-
   // Get ID translators.
   const LArEM_ID* emId = CaloIdManager::instance()->getEM_ID();
   LArCablingService * cabling = 0;
@@ -746,8 +726,8 @@ LArPhysWaveBuilder::write_root (LArPhysWaveContainer* larPhysWaveContainer)
     
   // Close the root file.
   rootoutputfile.Close();
-  log << MSG::INFO << nwave << " profile histos dumped to root file"
-      << m_rootoutputfile << endreq;
+  ATH_MSG_INFO ( nwave << " profile histos dumped to root file"
+                 << m_rootoutputfile );
 
   return StatusCode::SUCCESS;
 }

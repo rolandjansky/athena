@@ -19,7 +19,13 @@ LArStripsCrossTalkCorrector::LArStripsCrossTalkCorrector(const std::string& name
   m_badChannelTool("LArBadChanTool"),
   m_dontUseForCorr("LArBadChannelMasker/DontUseForXtalkCorr",this),
   m_dontCorrect("LArBadChannelMasker/NoXtalkCorr",this),
+  m_onlineHelper(nullptr),
+  m_emId(nullptr),
+  m_event_counter(0),
+  m_MAXeta(208), 
+  m_MINeta(1),
   m_MAXphi(64),
+  m_nStrips(-1),
   m_fatalFebErrorPattern(0xffff),
   m_noIdx(9999999),
   m_differences(6,0.3) { 

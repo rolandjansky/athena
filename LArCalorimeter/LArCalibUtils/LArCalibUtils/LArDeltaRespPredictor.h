@@ -8,10 +8,8 @@
 #ifndef LARDELTARESPPREDICTOR_H
 #define LARDELTARESPPREDICTOR_H
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
-#include "StoreGate/StoreGateSvc.h"
 #include "LArRawConditions/LArWFParams.h"
 #include "LArRawConditions/LArCaliWave.h"
 
@@ -21,7 +19,7 @@
 #include <vector>
 #include <string>
 
-class LArDeltaRespPredictor : public Algorithm
+class LArDeltaRespPredictor : public AthAlgorithm
 {
  public:
  

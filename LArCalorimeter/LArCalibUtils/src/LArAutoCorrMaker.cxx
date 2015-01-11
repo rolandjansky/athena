@@ -36,8 +36,7 @@
 #include <unistd.h>
 
 #include "TrigAnalysisInterfaces/IBunchCrossingTool.h"
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 
 LArAutoCorrMaker::LArAutoCorrMaker(const std::string& name, ISvcLocator* pSvcLocator) 
@@ -105,13 +104,13 @@ StatusCode LArAutoCorrMaker::execute()
 {
   StatusCode sc;
   if (m_bunchCrossingsFromFront>0) {
-    const EventInfo* eventInfo;
+    const xAOD::EventInfo* eventInfo;
     sc=evtStore()->retrieve( eventInfo ); 
     if (sc.isFailure()) {
       msg(MSG::ERROR) << "Failed to retrieve EventInfo object!" << endreq;
       return sc;
     }
-    EventID::number_type bcid = eventInfo->event_ID()->bunch_crossing_id();  
+    uint32_t bcid = eventInfo->bcid();
     const int nBCsFromFront=m_bunchCrossingTool->distanceFromFront(bcid,Trig::IBunchCrossingTool:: BunchCrossings);
     if (nBCsFromFront < m_bunchCrossingsFromFront) {
       ATH_MSG_DEBUG("BCID " << bcid << " only " << nBCsFromFront << " BCs from front of BunchTrain. Event ignored. (min=" <<m_bunchCrossingsFromFront 

@@ -17,7 +17,7 @@
 
 #include "LArElecCalib/ILArPhaseTool.h"
 #include "GaudiKernel/IIncidentListener.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include <string>
 
 
@@ -38,7 +38,7 @@ class StoreGateSvc;
  * test beam scintillators.
  */
 class LArPhaseToolTB
-  : public AlgTool,
+  : public AthAlgTool,
     virtual public ILArPhaseTool,
     virtual public IIncidentListener
 {
@@ -75,9 +75,6 @@ public:
 
 
 private:
-  /// The event data store.
-  StoreGateSvc* m_storegate;
-
   /// The phase value for the current event.
   float m_tbphase;
 

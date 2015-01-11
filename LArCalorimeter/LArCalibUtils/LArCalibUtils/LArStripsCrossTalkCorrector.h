@@ -123,7 +123,7 @@ class LArStripsCrossTalkCorrector : public AthAlgorithm
 
 
 inline void LArStripsCrossTalkCorrector::correctSamples(std::vector<double>& dest, const LArStripsCrossTalkCorrector::neighbour_t& nb) const {
-  const size_t& nSamples=std::min(dest.size(),nb.dig->sampleSum().size());
+  const size_t nSamples=std::min(dest.size(),nb.dig->sampleSum().size());
   const double pedTimesTrig=nb.ped*(double)nb.dig->nTriggers();
   for (size_t i=0;i<nSamples;++i) {
     dest[i]+=nb.weight*(nb.dig->sampleSum()[i]-pedTimesTrig);
