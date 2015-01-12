@@ -15,7 +15,7 @@
 #include <boost/function_types/function_arity.hpp>
 #include <boost/typeof/std/utility.hpp>
 #include <boost/type_traits/remove_pointer.hpp>
-#include "DataModel/ElementLink.h"
+//#include "DataModel/ElementLink.h"
 
 
 namespace HLT{
@@ -26,23 +26,26 @@ namespace TypeInformation{
 // the container type that is saved to SG
 
 // we want to know when a list ends (similar to how we terminate const char arrays with a "\0" terminatino sequence)
-struct nil{};
+struct nil{
+static const int last_index=-1;
+};
 
 // this implements a generic linked list that makes up an array
 // from each element we can go the the next one by the rest typedef
 // we also define two 'methods' add and join that add a single element
 // and concatenates the present list with a new list respectively
 
+/*  MN: ROOT6 Clang is not able to parse definitions with get_list_index<>
 template <class type,class list_of_types> struct list;
-
 
 template<class a_list> struct get_list_index {static const int result = 1+ get_list_index<typename a_list::rest>::result;};
 template<class first_element> struct get_list_index<list<first_element,nil> > {static const int result = 0;};
-
+*/
 
 template<class type,class list_of_types>
 struct list {
-  static const int last_index = get_list_index<list<type,list_of_types> >::result;
+  static const int last_index = 1 + list_of_types::last_index;
+  //static const int last_index = get_list_index<list<type,list_of_types> >::result;
   typedef type first;
   typedef list_of_types rest;
   typedef list<type,list_of_types> done;

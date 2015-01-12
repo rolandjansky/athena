@@ -40,6 +40,10 @@ namespace Analysis{
 #include "xAODBTagging/BTaggingContainer.h"
 #include "xAODBTagging/BTaggingAuxContainer.h"
 
+#include "xAODBTagging/BTagVertex.h"
+#include "xAODBTagging/BTagVertexContainer.h"
+#include "xAODBTagging/BTagVertexAuxContainer.h"
+
 
 HLT_BEGIN_TYPE_REGISTRATION
     // Level2
@@ -69,6 +73,7 @@ HLT_BEGIN_TYPE_REGISTRATION
   HLT_REGISTER_TYPE(xAOD::TrigElectron, xAOD::TrigElectronContainer, xAOD::TrigElectronContainer, xAOD::TrigElectronAuxContainer)
   HLT_REGISTER_TYPE(xAOD::TrigPhoton, xAOD::TrigPhotonContainer, xAOD::TrigPhotonContainer, xAOD::TrigPhotonAuxContainer)
   HLT_REGISTER_TYPE(xAOD::BTagging, xAOD::BTaggingContainer, xAOD::BTaggingContainer, xAOD::BTaggingAuxContainer)
+  HLT_REGISTER_TYPE(xAOD::BTagVertex, xAOD::BTagVertexContainer, xAOD::BTagVertexContainer, xAOD::BTagVertexAuxContainer)
   
 HLT_END_TYPE_REGISTRATION(TrigParticle)
 

@@ -23,6 +23,23 @@
 #include "xAODTrigMinBias/TrigT2MbtsBitsContainer.h"
 #include "xAODTrigMinBias/TrigT2MbtsBitsAuxContainer.h"
 
+#include "xAODTrigMinBias/TrigT2ZdcSignals.h"
+#include "xAODTrigMinBias/TrigT2ZdcSignalsContainer.h"
+#include "xAODTrigMinBias/TrigT2ZdcSignalsAuxContainer.h"
+
+
+#include "xAODTrigRinger/TrigRingerRings.h"
+#include "xAODTrigRinger/TrigRingerRingsContainer.h"
+#include "xAODTrigRinger/TrigRingerRingsAuxContainer.h"
+
+#include "xAODTrigRinger/TrigRNNOutput.h"
+#include "xAODTrigRinger/TrigRNNOutputContainer.h"
+#include "xAODTrigRinger/TrigRNNOutputAuxContainer.h"
+
+
+#include "xAODTrigL1Calo/TriggerTowerContainer.h"
+#include "xAODTrigL1Calo/TriggerTowerAuxContainer.h"
+
 
 HLT_BEGIN_TYPE_REGISTRATION
   HLT_REGISTER_TYPE(struct TrigEMCluster, struct TrigEMCluster,struct TrigEMClusterContainer)
@@ -51,8 +68,13 @@ HLT_BEGIN_TYPE_REGISTRATION
   HLT_REGISTER_TYPE(xAOD::TrigCaloCluster, xAOD::TrigCaloCluster, xAOD::TrigCaloClusterContainer, xAOD::TrigCaloClusterAuxContainer)
   HLT_REGISTER_TYPE(xAOD::TrigEMCluster, xAOD::TrigEMCluster, xAOD::TrigEMClusterContainer, xAOD::TrigEMClusterAuxContainer)
   HLT_REGISTER_TYPE(xAOD::TrigEMCluster, xAOD::TrigEMClusterContainer, xAOD::TrigEMClusterContainer, xAOD::TrigEMClusterAuxContainer) 
-  HLT_REGISTER_TYPE(xAOD::TrigT2MbtsBits, xAOD::TrigT2MbtsBits, xAOD::TrigT2MbtsBitsContainer, xAOD::TrigT2MbtsBitsAuxContainer)
 
+  HLT_REGISTER_TYPE(xAOD::TrigT2MbtsBits, xAOD::TrigT2MbtsBits, xAOD::TrigT2MbtsBitsContainer, xAOD::TrigT2MbtsBitsAuxContainer)
+  HLT_REGISTER_TYPE(xAOD::TrigT2ZdcSignals, xAOD::TrigT2ZdcSignals, xAOD::TrigT2ZdcSignalsContainer, xAOD::TrigT2ZdcSignalsAuxContainer)
+
+  HLT_REGISTER_TYPE(xAOD::TrigRingerRings, xAOD::TrigRingerRings, xAOD::TrigRingerRingsContainer, xAOD::TrigRingerRingsAuxContainer)
+  HLT_REGISTER_TYPE(xAOD::TrigRNNOutput, xAOD::TrigRNNOutput, xAOD::TrigRNNOutputContainer, xAOD::TrigRNNOutputAuxContainer)
+  HLT_REGISTER_TYPE(xAOD::TriggerTower, xAOD::TriggerTowerContainer, xAOD::TriggerTowerContainer, xAOD::TriggerTowerAuxContainer)
 HLT_END_TYPE_REGISTRATION(TrigCaloEvent)
 
 
