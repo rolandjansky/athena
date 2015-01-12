@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/********************************************************************
+/**
 
  NAME:     T2CaloEgamma.h
  PACKAGE:  Trigger/TrigAlgorithms/TrigT2CaloEgamma
@@ -13,8 +13,12 @@
 	   Calorimeter Egamma Algorithm. Receives and decodes LVL1
 	   information (RoI position), creates the TrigEMCluster to
 	   be the output of LVL2 Calo with extracted features. Call
-	   IAlgToolCalos to perform FEX.
- *******************************************************************/
+	   IAlgToolCalos to perform FEX. Has support to Ringer 
+           Algorithm. This information create rings of energy
+           which describe the complete shower shape of the event.
+           The ringer cluster has an element link to TrigEMCluster
+           and can be enable into AlgToolList using python config.
+ **/
 
 #ifndef TRIGT2CALOEGAMMA_T2CALOEGAMMA_H
 #define TRIGT2CALOEGAMMA_T2CALOEGAMMA_H
@@ -23,13 +27,12 @@
 #include "TrigT2CaloCommon/T2CaloBase.h"
 #include "egammaInterfaces/Iegammaqweta2c.h"
 #include "xAODTrigCalo/TrigEMCluster.h"
+#include "xAODTrigRinger/TrigRingerRings.h"
 
 class IAlgToolCalo;
 class IEgammaCalibration;
 class T2CaloEgammaMon;
 class MsgStream;
-//class TrigEMCluster;
-//class RingerRings;
 
 /** Main LVL2 Algorithm. Processes LVL1 information, call FEX
     IAlgToolCalos and produces the TrigEMCluster output. */
@@ -44,22 +47,21 @@ class T2CaloEgamma: public T2CaloBase {
 
     /** hltExecute will call FEX IAlgToolCalo::execute() to process RoI.
 	called by the Steering per EMRoI. */
-    HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE,
-			      HLT::TriggerElement* outputTE);
+    HLT::ErrorCode hltExecute(const HLT::TriggerElement* input, HLT::TriggerElement* outputTE);
     /** hltInitialize. Called by the Steering. */
     HLT::ErrorCode hltInitialize();
     /** hltFinalize. Called by the Steering. */
     HLT::ErrorCode hltFinalize();
-    /** Method that allow tools to save the ringers attached to EM Clusters */
-#ifdef DISABLED
-    HLT::ErrorCode recordAndAttachRings(xAOD::TrigEMCluster *clus, RingerRings *rings,
-                  std::string &key, const std::string &featureLabel);
-#endif
-
+    /** calculate zo mass */
     float calculateZ0(const float etaLayer1, const float etaLayer2);
 
-  private:
+     /** Method that allow tools to save the ringers attached to EM Clusters 
+         parse the ringer info between RingerFex and T2CaloEgamma */
+    void setRingsFeature(xAOD::TrigRingerRings *rings, std::string &key, const std::string &featureLabel);
+    /** link trigEMCluster with rings and attach into the storegate */
+    HLT::ErrorCode recordAndAttachRings(HLT::TriggerElement *outputTE);
 
+  private:
     /** log output cached to avoid fetching MsgStream once per RoI */
     MsgStream* m_log;
     /** Monitoring Tool */
@@ -98,12 +100,20 @@ class T2CaloEgamma: public T2CaloBase {
     CaloCellContainer* m_Container;
     /** Correction tool for the cluster width */
     ToolHandle<Iegammaqweta2c> m_egammaqweta2c;
-    /** temporary handle to a output TE */
-    HLT::TriggerElement *m_tmpOutputTE;
+
     /* Variables to calculate Z0 position */
     std::vector<float> m_rhoFirstLayer, m_rhoMiddleLayer, m_zFirstLayer, m_zMiddleLayer;
-    std::vector<float> m_rhoEta, m_zEta;
+    std::vector<float> m_rhoEta, m_zEta;/* Variables to calculate Z0 position */
 
+    /** RingerFex support */
+    /** temporary handle to a output TE */
+    HLT::TriggerElement *m_tmpOutputTE;
+    /** Ringer EDM */
+    xAOD::TrigRingerRings *m_rings;    
+    /** ringer key */
+    std::string m_ringerKey;
+    /** name of the feature to attach the ringer information into the StoreGate */
+    std::string m_ringerFeatureLabel;
 };
 
 #endif

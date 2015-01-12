@@ -15,6 +15,7 @@ use CaloIdentifier      CaloIdentifier-*             Calorimeter
 use CaloEvent           CaloEvent-*                  Calorimeter
 use CaloGeoHelpers      CaloGeoHelpers-*             Calorimeter
 use xAODTrigCalo        xAODTrigCalo-*               Event/xAOD
+use xAODTrigRinger      xAODTrigRinger-*             Event/xAOD
 use TrigT2CaloCommon    TrigT2CaloCommon-*           Trigger/TrigAlgorithms
 use TrigT2CaloCalibration  TrigT2CaloCalibration-*   Trigger/TrigTools
  
@@ -29,6 +30,8 @@ use CLIDSvc             CLIDSvc-*                    Control
 
 private
 use IRegionSelector     IRegionSelector-*            DetectorDescription
+use AthLinks            AthLinks-*                   Control
+
 
 apply_pattern dual_use_library files=*.cxx
 apply_pattern declare_runtime

@@ -93,17 +93,17 @@ class TrigT2CaloEgammaRingerTimeMonitoring(TrigGenericMonitoringToolConfig) :
       super(TrigT2CaloEgammaRingerTimeMonitoring,self).__init__(name)
       self.defineTarget("Time")
 
-      self.Histograms+= [defineHistogram ('RingerFexGetRings',
-                                            type='TH1F',title='RingerFexGetRings'
+      self.Histograms+= [defineHistogram ('Time_RingerFexGetRings',
+                                            type='TH1F',title='Time_RingerFexGetRings'
                                             ,xbins=50,xmin=0.0,xmax=5)]
-      self.Histograms+= [defineHistogram ('RingerFexGenerateCluster',
-                                            type='TH1F',title='RingerFexGenerateCluster'
+      self.Histograms+= [defineHistogram ('Time_RingerFexRegSel',
+                                            type='TH1F',title='Time_RingerFexRegSel'
                                             ,xbins=50,xmin=0.0,xmax=5)]
-      self.Histograms+= [defineHistogram ('RingerFexSaveRoI',
-                                            type='TH1F',title='RingerFexSaveRoI'
-                                            ,xbins=50,xmin=0.0,xmax=5)]
-      self.Histograms+= [defineHistogram ('RingerFexExecute',
-                                            type='TH1F',title='RingerFexExecute'
+      #self.Histograms+= [defineHistogram ('Time_RingerFexSaveRoI',
+      #                                      type='TH1F',title='RingerFexSaveRoI'
+      #                                      ,xbins=50,xmin=0.0,xmax=5)]
+      self.Histograms+= [defineHistogram ('Time_RingerFexExecute',
+                                            type='TH1F',title='Time_RingerFexExecute'
                                             ,xbins=50,xmin=0.0,xmax=5)]
 
 class TrigT2CaloEgammaCosmicMonitoring(TrigGenericMonitoringToolConfig) :

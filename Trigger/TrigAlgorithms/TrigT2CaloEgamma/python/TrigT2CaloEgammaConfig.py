@@ -4,13 +4,15 @@ from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloSwSeed, T2CaloSwCluster
 
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaSamp1Fex,EgammaSamp2Fex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaEmEnFex, EgammaHadEnFex
-#from TrigT2CaloEgamma.TrigT2CaloEgammaConf import RingerFex, EgammaAllFex
+from TrigT2CaloEgamma.TrigT2CaloEgammaConf import RingerFex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import EgammaAllFex
 from TrigT2CaloEgamma.TrigT2CaloEgammaConf import T2CaloEgamma
 
 from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaHitsCalibrationBarrelConfig, EgammaHitsCalibrationEndcapConfig, EgammaGapCalibrationConfig
+from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaTransitionRegionsConfig
+
 from TrigT2CaloCalibration.EgammaCalibrationConfig import EgammaSshapeCalibrationBarrelConfig, EgammaSshapeCalibrationEndcapConfig
-from TrigT2CaloEgamma.TrigT2CaloEgammaMonitoring import TrigT2CaloEgammaValMonitoring, TrigT2CaloEgammaCosmicMonitoring, TrigT2CaloEgammaOnMonitoring, TrigT2CaloEgammaSwValMonitoring, TrigT2CaloEgammaSwOnMonitoring, TrigT2CaloEgammaSwCosMonitoring, TrigT2CaloEgammaTimeMonitoring, TrigT2CaloEgammaAllTimeMonitoring#, TrigT2CaloEgammaRingerTimeMonitoring
+from TrigT2CaloEgamma.TrigT2CaloEgammaMonitoring import TrigT2CaloEgammaValMonitoring, TrigT2CaloEgammaCosmicMonitoring, TrigT2CaloEgammaOnMonitoring, TrigT2CaloEgammaSwValMonitoring, TrigT2CaloEgammaSwOnMonitoring, TrigT2CaloEgammaSwCosMonitoring, TrigT2CaloEgammaTimeMonitoring, TrigT2CaloEgammaAllTimeMonitoring, TrigT2CaloEgammaRingerTimeMonitoring
 from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
 #from TrigTimeMonitor.TrigTimeTreeToolConfig import TrigTimeTreeToolConfig
 
@@ -51,11 +53,12 @@ class T2CaloEgamma_eGamma (T2CaloEgamma):
        self.AthenaMonTools += [ TrigT2CaloEgammaValMonitoring(),
                          TrigT2CaloEgammaCosmicMonitoring(),
 			 TrigT2CaloEgammaOnMonitoring(name="TrigT2CaloEgammaOnMonitoring_doTimeHist",doTimeHist=True),
-			TrigT2CaloEgammaTimeMonitoring()]
+ 			 TrigT2CaloEgammaTimeMonitoring()]
        self.CalibListEndcap=[EgammaSshapeCalibrationEndcapConfig()]
        self.CalibListBarrel=[EgammaSshapeCalibrationBarrelConfig()]
        self.CalibListBarrel+=[EgammaHitsCalibrationBarrelConfig()]
        self.CalibListBarrel+=[EgammaGapCalibrationConfig()]
+       self.CalibListBarrel+=[EgammaTransitionRegionsConfig()]
        self.CalibListEndcap+=[EgammaHitsCalibrationEndcapConfig()]
        self.CalibListEndcap+=[EgammaGapCalibrationConfig()]
        self.doTiming=True
@@ -162,6 +165,7 @@ class T2CaloEgamma_cells (T2CaloEgamma):
        self.CalibListBarrel=[EgammaSshapeCalibrationBarrelConfig()]
        self.CalibListBarrel+=[EgammaHitsCalibrationBarrelConfig()]
        self.CalibListBarrel+=[EgammaGapCalibrationConfig()]
+       self.CalibListBarrel+=[EgammaTransitionRegionsConfig()]
        self.CalibListEndcap+=[EgammaHitsCalibrationEndcapConfig()]
        self.CalibListEndcap+=[EgammaGapCalibrationConfig()]
        self.doTiming=True
@@ -192,6 +196,7 @@ class T2CaloEgamma_eGamma_NoHad (T2CaloEgamma):
        self.CalibListBarrel=[EgammaSshapeCalibrationBarrelConfig()]
        self.CalibListBarrel+=[EgammaHitsCalibrationBarrelConfig()]
        self.CalibListBarrel+=[EgammaGapCalibrationConfig()]
+       self.CalibListBarrel+=[EgammaTransitionRegionsConfig()]
        self.CalibListEndcap+=[EgammaHitsCalibrationEndcapConfig()]
        self.CalibListEndcap+=[EgammaGapCalibrationConfig()]
 
@@ -292,42 +297,42 @@ class T2CaloEgamma_SwCluster (T2CaloSwCluster):
                          EgammaGapCalibrationConfig()]
        self.doTiming=True
 
-#class RingerFexConfig( RingerFex ):
-#  __slots__ = []
-#  def __init__(self, name = "RingerFexConfig"):
-#    super(RingerFexConfig, self).__init__(name)
-#
-#    self.HltFeature = "HLT_TrigT2CaloEgamma"
-#    self.Feature = "TrigT2CaloEgamma"
+class RingerFexConfig( RingerFex ):
+  __slots__ = []
+  def __init__(self, name = "RingerFexConfig"):
+    super(RingerFexConfig, self).__init__(name)
 
-#    self.GlobalCenter = False;
-#    self.EtaSearchWindowSize = 0.1;
-#    self.PhiSearchWindowSize = 0.1;
-#    self.SaveRoI = False;
+    self.HltFeature = "HLT_TrigT2CaloEgamma"
+    self.Feature = "TrigT2CaloEgamma"
 
-#    from TrigT2CaloEgamma.RingerConstants import Layer
+    self.GlobalCenter = False;
+    self.EtaSearchWindowSize = 0.1;
+    self.PhiSearchWindowSize = 0.1;
+    self.SaveRoI = False;
 
-#    self.DEtaRings = [0.025, 0.003125, 0.025, 0.05, 0.1, 0.1, 0.2];
-#    self.DPhiRings = [0.098174770424681, 0.098174770424681, 0.024543692606170, 0.024543692606170, 0.098174770424681, 0.098174770424681, 0.098174770424681];
-#    self.NRings = [8, 64, 8, 8, 4, 4, 4];
+    from TrigT2CaloEgamma.RingerConstants import Layer
 
-    # Warning: Do not change the lines above, unless you really know what you are doing!!!
-#    self.LayersRings = [Layer.PreSamplerB,Layer.PreSamplerE,
-#                        Layer.EMB1,Layer.EME1,
-#                        Layer.EMB2,Layer.EME2,
-#                        Layer.EMB3,Layer.EME3,
-#                        Layer.TileBar0,Layer.TileGap0,Layer.TileExt0,
-#                        Layer.TileBar1,Layer.TileGap1,Layer.TileExt1,
-#                        Layer.TileBar2,Layer.TileGap2,Layer.TileExt2];
-#    self.NLayersRings = [2, 2, 2, 2, 3, 3, 3];
-#    self.NMaxCells = [320, 512, 272, 128, 120, 108, 64];
+    self.DEtaRings = [0.025, 0.003125, 0.025, 0.05, 0.1, 0.1, 0.2];
+    self.DPhiRings = [0.098174770424681, 0.098174770424681, 0.024543692606170, 0.024543692606170, 0.098174770424681, 0.098174770424681, 0.098174770424681];
+    self.NRings = [8, 64, 8, 8, 4, 4, 4];
 
-#class T2CaloEgamma_Ringer (T2CaloEgamma_eGamma):
-#   __slots__ = []
-#   def __init__ (self, name="T2CaloEgamma_Ringer"):
-#       super(T2CaloEgamma_Ringer, self).__init__(name)
-       # here put your customizations
-#       self.IAlgToolList += [RingerFexConfig()]
-#       self.TimerNtuple="T2CaloEgamma.T2CaEgtTotRinger"
-#       self.AthenaMonTools += [TrigT2CaloEgammaRingerTimeMonitoring()]
+   # Warning: Do not change the lines above, unless you really know what you are doing!!!
+    self.LayersRings = [Layer.PreSamplerB,Layer.PreSamplerE,
+                        Layer.EMB1,Layer.EME1,
+                        Layer.EMB2,Layer.EME2,
+                        Layer.EMB3,Layer.EME3,
+                        Layer.TileBar0,Layer.TileGap0,Layer.TileExt0,
+                        Layer.TileBar1,Layer.TileGap1,Layer.TileExt1,
+                        Layer.TileBar2,Layer.TileGap2,Layer.TileExt2];
+    self.NLayersRings = [2, 2, 2, 2, 3, 3, 3];
+    self.NMaxCells = [320, 512, 272, 128, 120, 108, 64];
+
+class T2CaloEgamma_Ringer (T2CaloEgamma_eGamma):
+   __slots__ = []
+   def __init__ (self, name="T2CaloEgamma_Ringer"):
+       super(T2CaloEgamma_Ringer, self).__init__(name)
+      # here put your customizations
+       self.IAlgToolList += [RingerFexConfig()]
+       self.TimerNtuple="T2CaloEgamma.T2CaEgtTotRinger"
+       self.AthenaMonTools += [TrigT2CaloEgammaRingerTimeMonitoring()]
 

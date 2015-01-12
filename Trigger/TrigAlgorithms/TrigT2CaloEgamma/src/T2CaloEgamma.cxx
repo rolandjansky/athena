@@ -2,23 +2,23 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// ********************************************************************
-//
-// NAME:     T2CaloEgamma.cxx
-// PACKAGE:  Trigger/TrigAlgorithms/TrigT2CaloEgamma
-//
-// AUTHOR:   M.P. Casado
-//           S.R. Armstrong
-//
-// - Add variables for job option controlled region limits, set defaults
-//   to most likely values.
-// - Add function EtaPhiRange to return the maximum and minimum eta or phi
-//   values to use when calculating energy sums over a region  - R. Soluk
-// ********************************************************************
+/*
+ NAME:     T2CaloEgamma.cxx
+ PACKAGE:  Trigger/TrigAlgorithms/TrigT2CaloEgamma
+
+ AUTHOR:   M.P. Casado
+           S.R. Armstrong
+
+ - Add variables for job option controlled region limits, set defaults
+   to most likely values.
+ - Add function EtaPhiRange to return the maximum and minimum eta or phi
+   values to use when calculating energy sums over a region  - R. Soluk
+*/
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/StatusCode.h"
+#include "AthLinks/ElementLink.h"
 
 #include "TrigT1Interfaces/RecEmTauRoI.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -26,6 +26,8 @@
 //#include "TrigCaloEvent/TrigEMClusterContainer.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigCalo/TrigEMClusterAuxContainer.h"
+#include "xAODTrigRinger/TrigRingerRings.h"
+#include "xAODTrigRinger/TrigRingerRingsContainer.h"
 
 #include "TrigT2CaloEgamma/T2CaloEgamma.h"
 //#include "TrigT2CaloEgamma/T2CaloEgammaMon.h"
@@ -67,41 +69,33 @@ HLT::ErrorCode T2CaloEgamma::hltInitialize()
 
   // Support for new monitoring
   declareMonitoredVariable("Eta", m_MonEta);
-  declareMonitoredVariable("Phi",m_MonPhi);
-  declareMonitoredObject("Et",
-			m_monitoredCluster,&xAOD::TrigEMCluster::et);
-  declareMonitoredObject("Had1Et",
-			m_monitoredCluster,&xAOD::TrigEMCluster::ehad1);
-  declareMonitoredObject("weta2",
-			m_monitoredCluster,&xAOD::TrigEMCluster::weta2);
- declareMonitoredObject("frac73",
-			m_monitoredCluster,&xAOD::TrigEMCluster::fracs1);
+  declareMonitoredVariable("Phi", m_MonPhi);
+  declareMonitoredObject("Et", m_monitoredCluster,&xAOD::TrigEMCluster::et);
+  declareMonitoredObject("Had1Et", m_monitoredCluster,&xAOD::TrigEMCluster::ehad1);
+  declareMonitoredObject("weta2", m_monitoredCluster,&xAOD::TrigEMCluster::weta2);
+  declareMonitoredObject("frac73", m_monitoredCluster,&xAOD::TrigEMCluster::fracs1);
   // More complicated variables to be monitored
   declareMonitoredVariable("Rcore", m_rCore );
   declareMonitoredVariable("Eratio",m_eRatio);
   declareMonitoredVariable("ConversionErrors", m_conversionError);
   declareMonitoredVariable("AlgorithmErrors", m_algorithmError);
-  if ( m_calibsBarrel.retrieve().isFailure() )
-	(*m_log) << MSG::DEBUG << "No Calibration Available for the Barrel" << endreq;
-  if ( m_calibsEndcap.retrieve().isFailure() )
-	(*m_log) << MSG::DEBUG << "No Calibration Available for the Endcap" << endreq;
+  if ( m_calibsBarrel.retrieve().isFailure() ) (*m_log) << MSG::DEBUG << "No Calibration Available for the Barrel" << endreq;
+  if ( m_calibsEndcap.retrieve().isFailure() ) (*m_log) << MSG::DEBUG << "No Calibration Available for the Endcap" << endreq;
+
   // Sets the name of the key container 
   ToolHandleArray<IAlgToolCalo>::iterator it = m_emAlgTools.begin();
   for (; it < m_emAlgTools.end(); it++)
     (*it)->setCellContainerPointer(&m_Container);
 
   if ( (m_egammaqweta2c.retrieve()).isFailure() ){
-                        (*m_log) << MSG::FATAL
-                        << "Could not find egammaqweta2c" << endreq;
-                        return HLT::TOOL_FAILURE;
-                }
-
+    (*m_log) << MSG::FATAL << "Could not find egammaqweta2c" << endreq;
+    return HLT::TOOL_FAILURE;
+  }
   return HLT::OK;
 }
 
 
-HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE,
-					HLT::TriggerElement* outputTE)
+HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElement* outputTE)
 {
   // Time total T2CaloEgamma execution time.
   if ( m_timersvc ) m_timer[0]->start();
@@ -111,6 +105,8 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE,
 
   // Necessary to add RingerRings' ElementLink
   m_tmpOutputTE = outputTE;
+  m_rings = 0;
+
   
 #ifndef NDEBUG
   if ( (*m_log).level() <= MSG::DEBUG ) 
@@ -239,11 +235,15 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE,
   ptrigEmCluster->setE233(-999);
   ptrigEmCluster->setWstot(-999);
   ptrigEmCluster->setEta1(-999);
+  ptrigEmCluster->setNCells(0);
+  ptrigEmCluster->setRawEta(-999);
+  ptrigEmCluster->setRawPhi(-999);
   m_monitoredCluster = ptrigEmCluster;
+
   // It is a good idea to clear the energies
   for(int i=0;i<CaloSampling::CaloSample::MINIFCAL0;i++){
-		ptrigEmCluster->setEnergy((CaloSampling::CaloSample )i,0.);
-		ptrigEmCluster->setRawEnergy((CaloSampling::CaloSample )i,0.);
+    ptrigEmCluster->setEnergy((CaloSampling::CaloSample )i,0.);
+    ptrigEmCluster->setRawEnergy((CaloSampling::CaloSample )i,0.);
   }
   // Initial cluster position is the LVL1 position
   ptrigEmCluster->setEta(etaL1);
@@ -328,7 +328,6 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE,
 
   
   float calZ0 = 0;
-
   /// don't use calculated z position yet ...
   //  calZ0 = calculateZ0((*ptrigEmCluster).Eta1(), (*ptrigEmCluster).eta());;
 
@@ -336,10 +335,9 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE,
   // Print out Cluster produced  
   if ( (*m_log).level() <= MSG::DEBUG ) {
     (*m_log) << MSG::DEBUG  << " Values of Cluster produced: "<< endreq;
-    (*m_log) << MSG::DEBUG  << " REGTEST: emEnergy = "<< (*ptrigEmCluster).energy()
-	     << endreq;
-    (*m_log) << MSG::DEBUG  << " REGTEST: hadEnergy = "<< (*ptrigEmCluster).ehad1()
-	     << endreq;
+    (*m_log) << MSG::DEBUG  << " REGTEST: emEnergy = "<< (*ptrigEmCluster).energy() << endreq;
+    (*m_log) << MSG::DEBUG  << " REGTEST: hadEnergy = "<< (*ptrigEmCluster).ehad1() << endreq;
+
     if ( ptrigEmCluster->e277()!=0. )
       (*m_log) << MSG::DEBUG  << " REGTEST: rCore = "
 	       << ((*ptrigEmCluster).e237() )/ ((*ptrigEmCluster).e277()) << endreq;
@@ -348,28 +346,22 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE,
 	     << (((*ptrigEmCluster).emaxs1()-(*ptrigEmCluster).e2tsts1())/
 		 ((*ptrigEmCluster).emaxs1()+(*ptrigEmCluster).e2tsts1()))
 	     << endreq;
-    (*m_log) << MSG::DEBUG  << " REGTEST: clusterWidth = "
-	     << (*ptrigEmCluster).weta2() << endreq;
-    (*m_log) << MSG::DEBUG  << " REGTEST: frac73 = "
-	     << (*ptrigEmCluster).fracs1() << endreq;
-    (*m_log) << MSG::DEBUG  << " REGTEST: e233 = "
-	     << (*ptrigEmCluster).e233() << endreq;
-    (*m_log) << MSG::DEBUG  << " REGTEST: wstot = "
-	     << (*ptrigEmCluster).wstot() << endreq;
+
+    (*m_log) << MSG::DEBUG  << " REGTEST: clusterWidth = " << (*ptrigEmCluster).weta2() << endreq;
+    (*m_log) << MSG::DEBUG  << " REGTEST: frac73 = " << (*ptrigEmCluster).fracs1() << endreq;
+    (*m_log) << MSG::DEBUG  << " REGTEST: e233 = " << (*ptrigEmCluster).e233() << endreq;
+    (*m_log) << MSG::DEBUG  << " REGTEST: wstot = " << (*ptrigEmCluster).wstot() << endreq;
     (*m_log) << MSG::DEBUG  << " REGTEST: eta = "<< (*ptrigEmCluster).eta() << endreq;
     (*m_log) << MSG::DEBUG  << " REGTEST: phi = "<< (*ptrigEmCluster).phi() << endreq;
-    
     (*m_log) << MSG::DEBUG  << " REGTEST: Eta1 = "<< (*ptrigEmCluster).eta1() << endreq;
-
     (*m_log) << MSG::DEBUG  << " REGTEST: calZ0 = "<< calZ0 << endreq;
-    
     (*m_log) << MSG::DEBUG  << " REGTEST: quality = "<< (*ptrigEmCluster).clusterQuality() << endreq;
-    (*m_log) << MSG::DEBUG  << std::hex << " REGTEST: roiWord = 0x"
-	     << (*ptrigEmCluster).RoIword() << std::dec <<endreq;
+    (*m_log) << MSG::DEBUG  << std::hex << " REGTEST: roiWord = 0x" << (*ptrigEmCluster).RoIword() << std::dec <<endreq;
   }
   std::string key = "";
 
-  hltStatus = reAttachFeature(outputTE, ptrigEmCluster, key, m_trigEmClusterKey);
+  hltStatus = recordAndAttachFeature(outputTE, ptrigEmCluster, key, m_trigEmClusterKey);
+
   if (hltStatus != HLT::OK){
 #ifndef NDEBUG
   if ( (*m_log).level() <= MSG::DEBUG ) 
@@ -380,10 +372,7 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE,
     return hltStatus;
   }
 
-
-
   if ( m_storeCells ) {
-
     if ( m_Container != 0 ) {
       hltStatus = recordAndAttachFeature(outputTE, m_Container, key, "TrigT2CaloEgammaCells");
       if (hltStatus != HLT::OK){
@@ -434,6 +423,22 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE,
      return hltStatus;
   }
 
+
+ // record ringer feature if available
+  if(m_rings){
+    hltStatus = recordAndAttachRings(outputTE);
+    if(hltStatus != HLT::OK){
+      (*m_log)  << MSG::ERROR << "Can not attach the xAOD::TrigRingerRings features into StoreGate." << endreq;
+      return hltStatus;
+    }
+    if( (*m_log).level() <= MSG::DEBUG){
+      (*m_log) << MSG::DEBUG << "attach xAOD::TrigRingerRings with feature name " << m_ringerFeatureLabel
+                             //<< " and with roiword 0x" << std::hex << m_rings->emCluster()->RoIword() << std::dec << endreq;
+                             << " and with roiword 0x" << std::hex << m_rings->RoIword() << std::dec << endreq;
+    }
+  }
+
+
 #ifndef NDEBUG
   if ( (*m_log).level() <= MSG::DEBUG ) {
     (*m_log) << MSG::DEBUG  << "Recorded an RoiDescriptor " << *newRoiDescriptor << endreq;
@@ -442,7 +447,7 @@ HLT::ErrorCode T2CaloEgamma::hltExecute(const HLT::TriggerElement* inputTE,
 	  << endreq;
   }
 #endif
-  
+ 
   //  if ( error ) return HLT::TOOL_FAILURE;
   if ( error )
      return HLT::ErrorCode(HLT::Action::CONTINUE,HLT::Reason::USERDEF_2);
@@ -463,26 +468,53 @@ HLT::ErrorCode T2CaloEgamma::hltFinalize(){
   return HLT::OK;
 }
 
-#ifdef DISABLED
-HLT::ErrorCode T2CaloEgamma::recordAndAttachRings(TrigEMCluster *clus, RingerRings *rings, std::string &key, const std::string &featureLabel) {
+
+void T2CaloEgamma::setRingsFeature(xAOD::TrigRingerRings *rings, std::string &key, const std::string &featureLabel){
+  m_rings = rings;
+  m_ringerKey = key;
+  m_ringerFeatureLabel = featureLabel;
+}
+
+
+HLT::ErrorCode T2CaloEgamma::recordAndAttachRings(HLT::TriggerElement *outputTE) {
   HLT::ErrorCode hltStatus;
+
   if (m_tmpOutputTE) {
-    hltStatus = recordAndAttachFeature<RingerRings>(m_tmpOutputTE, rings, key, featureLabel);
+    ElementLink<xAOD::TrigEMClusterContainer> el_t2calo_clus;
+
+    // retrieve TrigEMCluster using the Navigation methods
+    hltStatus = getFeatureLink<xAOD::TrigEMClusterContainer,xAOD::TrigEMCluster>(outputTE, el_t2calo_clus);
+    if (hltStatus != HLT::OK){
+      return hltStatus;
+    }
+    if(el_t2calo_clus.isValid()){
+      if ( (*m_log).level() <= MSG::DEBUG ) {
+        (*m_log) << MSG::DEBUG << "ElementLink to xAOD::TrigEMClusterContainer is valid. set into xAOD::TrigRingerRings..." << endreq;
+      }
+
+      
+      m_rings->auxdata< ElementLink< xAOD::TrigEMClusterContainer >  >("emClusterLink") = el_t2calo_clus;// decoration for now.
+      if( (*m_log).level() <= MSG::DEBUG){
+        static SG::AuxElement::Accessor<ElementLink<xAOD::TrigEMClusterContainer>>orig("emClusterLink");
+        if( !orig.isAvailable(*m_rings) || !orig(*m_rings).isValid() ){
+          (*m_log) << MSG::DEBUG << "Problem with emClusterLink." << endreq;
+        }
+      }
+      
+      //m_rings->setEmClusterLink( el_t2calo_clus  );
+    }
+
+    hltStatus = recordAndAttachFeature<xAOD::TrigRingerRings>(m_tmpOutputTE, m_rings, m_ringerKey, m_ringerFeatureLabel);
     if (hltStatus != HLT::OK) {
       return hltStatus;
     }
-    ElementLink<RingerRingsContainer> el_rings;
-    hltStatus = getFeatureLink<RingerRingsContainer, RingerRings>(m_tmpOutputTE, el_rings);
-    if ( (hltStatus != HLT::OK) && (!el_rings.isValid()) ) {
-      return hltStatus;
-    }
-    clus->setRings(*(el_rings.getStorableObjectPointer()), (unsigned int) el_rings.index());
   } else {
     return HLT::OK; // Should return error code!
   }
   return HLT::OK;
 }
-#endif
+
+
 
 float T2CaloEgamma::calculateZ0(const float etaLayer1, const float etaLayer2) {
 

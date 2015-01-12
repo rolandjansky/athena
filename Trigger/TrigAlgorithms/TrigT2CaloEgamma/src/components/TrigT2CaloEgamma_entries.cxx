@@ -5,7 +5,7 @@
 #include "TrigT2CaloEgamma/EgammaSamp1Fex.h"
 #include "TrigT2CaloEgamma/EgammaEmEnFex.h"
 #include "TrigT2CaloEgamma/EgammaHadEnFex.h"
-//#include "TrigT2CaloEgamma/RingerFex.h"
+#include "TrigT2CaloEgamma/RingerFex.h"
 #include "TrigT2CaloEgamma/T2CaloSwSeed.h"
 #include "TrigT2CaloEgamma/T2CaloSwCluster.h"
 #include "TrigT2CaloEgamma/EgammaAllFex.h"
@@ -19,7 +19,7 @@ DECLARE_TOOL_FACTORY( EgammaSamp2Fex )
 DECLARE_TOOL_FACTORY( EgammaSamp1Fex )
 DECLARE_TOOL_FACTORY( EgammaEmEnFex )
 DECLARE_TOOL_FACTORY( EgammaHadEnFex )
-//DECLARE_TOOL_FACTORY( RingerFex )
+DECLARE_TOOL_FACTORY( RingerFex )
 DECLARE_TOOL_FACTORY( EgammaAllFex )
 //DECLARE_TOOL_FACTORY( T2CaloEgammaMon )
 
@@ -32,6 +32,6 @@ DECLARE_FACTORY_ENTRIES(TrigT2CaloEgamma) {
     DECLARE_TOOL( EgammaSamp1Fex );
     DECLARE_TOOL( EgammaEmEnFex );
     DECLARE_TOOL( EgammaHadEnFex );
-//    DECLARE_TOOL( RingerFex );
+    DECLARE_TOOL( RingerFex );
 //    DECLARE_TOOL( T2CaloEgammaMon );
 }
