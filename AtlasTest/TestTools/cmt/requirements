@@ -26,7 +26,7 @@ macro whichGroup check
 #	debug    "check"
 
 pattern UnitTest_run \
-	application <unit_test>_test -group=$(whichGroup) ../test/<unit_test>_test.cxx ; \
+	application <unit_test>_test -group=$(whichGroup) ../test/<unit_test>_test.cxx <extra_sources> ; \
 	document athenarun_launcher <unit_test>_utest -group=$(whichGroup) \
         athenarun_exe="'../${CMTCONFIG}/<unit_test>_test.exe'" \
         athenarun_pre="'. ../cmt/setup.sh'" \

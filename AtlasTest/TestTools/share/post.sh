@@ -23,6 +23,12 @@ else
  RESET=""
 fi
 
+# consider these name pairs identical in the diff
+read -d '' II <<EOF
+s/StoreGateSvc_Impl/StoreGateSvc/
+s/SGImplSvc/StoreGateSvc/
+EOF
+
 # ignore diff annotations
 PP='^---|^[[:digit:]]+[acd,][[:digit:]]+'
 
@@ -97,9 +103,15 @@ PP="$PP"'|^AtRanluxGenSvc       INFO Initializing AtRanluxGenSvc'
 PP="$PP"'|including file \"\$HOME/.athenarc'
 #ignore known gaudi python warning
 PP="$PP"'|Bindings.py:660: DeprecationWarning'
-
+#ignore the ignored
+PP="$PP"'|Warning in <TEnvRec::ChangeValue>: duplicate entry <Root.ErrorIgnoreLevel=Print> for level 1; ignored'
+PP="$PP"'|^JobOptionsSvc +INFO'
 # Gaudi 31
 PP="$PP"'|PluginService::SetDebug|setting LC_ALL'
+# Ignore root6 duplicate dictionary warnings
+PP="$PP"'|^Warning in .* (header|class) .* is already in'
+# Ignore GaudiHive timeline printouts
+PP="$PP"'|^TimelineSvc +INFO'
 
 
 if [ "$extrapatterns" != "" ]; then
@@ -120,11 +132,15 @@ else
        reflog=../share/${test}.ref
        if [ -r $reflog ]
            then
+	   jobrep=${joblog}-rep
+	   sed "$II" $joblog > $jobrep
+	   refrep=${reflog}-rep
+	   sed "$II" $reflog > $refrep
            jobdiff=${joblog}-todiff
            refdiff=`basename ${reflog}`-todiff
-           egrep -a -v "$PP" < $joblog > $jobdiff
-           egrep -a -v "$PP" < $reflog > $refdiff
-           diff -a -b -B -u $jobdiff $refdiff
+           egrep -a -v "$PP" < $jobrep > $jobdiff
+           egrep -a -v "$PP" < $refrep > $refdiff
+           diff -a -b -E -B -u $jobdiff $refdiff
            diffStatus=$?
            if [ $diffStatus != 0 ] ; then
                echo "$RED post.sh> ERROR: $joblog and $reflog differ $RESET"
