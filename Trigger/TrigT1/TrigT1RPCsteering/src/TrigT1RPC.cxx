@@ -32,6 +32,9 @@
 // next candidate for removal
 //#include "TrigT1RPCmonitoring/DetailedTW.h" 
 
+#include "TrigT1RPChardware/SectorLogic.h"
+#include "TrigT1RPChardware/MatrixReadOut.h"
+
 #include "TrigT1RPClogic/decodeSL.h"
 
 #include "TrigT1Interfaces/Lvl1MuCTPIInput.h"
@@ -56,7 +59,6 @@ TrigT1RPC::TrigT1RPC(const std::string& name, ISvcLocator* pSvcLocator) :
   m_EvtStore("StoreGateSvc",name),
   m_cabling_getter("RPCcablingServerSvc/RPCcablingServerSvc","TrigT1RPC"),
   m_cabling(0)
-
 {
   declareProperty ( "EventStore",m_EvtStore,"StoreGate Service");
   declareProperty ( "FastDebug", m_fast_debug=0 );
@@ -83,6 +85,9 @@ TrigT1RPC::TrigT1RPC(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty ( "RXrostructdebug", m_rx_rostruct_debug=0 );
   declareProperty ( "SLrostructdebug", m_sl_rostruct_debug=0 );
 
+  m_activeStore=0;
+  m_MuonMgr=0;
+  m_rpcId=0;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -197,7 +202,7 @@ StatusCode TrigT1RPC::execute() {
 
   ///// Creates the PAD patterns from the CMA patterns ///////////////////
   debug = (m_hardware_emulation)? m_pad_debug : m_fast_debug;           //
-  PADdata pads(&patterns,debug);                                        //
+  PADdata pads(&patterns,m_cabling,debug);                                        //
                                                                         //
   mylog << MSG::DEBUG << "PADs created from CMA patterns:" << endl      //
         << ShowData<PADdata>(pads,"",m_data_detail) << endreq;          //  
