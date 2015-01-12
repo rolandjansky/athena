@@ -16,6 +16,9 @@ public:
   }
 
   virtual ~APRTreeFormula();
+
+  APRTreeFormula (const APRTreeFormula&) = delete;
+  APRTreeFormula& operator= (const APRTreeFormula&) = delete;
   
   
   typedef long double LDouble_t;

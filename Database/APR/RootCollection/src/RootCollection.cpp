@@ -31,6 +31,10 @@
 #include "TMessage.h"
 #include "TDirectory.h"
 
+#ifdef XAOD_ANALYSIS
+#include "TError.h"
+#endif
+
 #define corENDL coral::MessageStream::endmsg
 
 #include <map>
@@ -115,7 +119,7 @@ namespace pool {
         TTree *tree( NULL );
         if( m_file ) {
            tree = dynamic_cast<TTree*>(m_file->Get(c_treeName));
-           if( !tree ) {
+           if( !tree && m_file->Get(c_attributeListLayoutName) ) {
               tree = dynamic_cast<TTree*>(m_file->Get(c_oldTreeName));
               if( tree )
                  m_poolOut << coral::Info << "Found old Collection TTree name: "
@@ -355,7 +359,15 @@ namespace pool {
 	      if (io_mode.isWrite()) {
 		SHARED = true;
 	      }	       
+#ifdef XAOD_ANALYSIS
+long tmpError = gErrorIgnoreLevel;
+gErrorIgnoreLevel=kError; //silences the warnings we get about missing classes when opening files in AthAnalysisBase
+#endif
 	      int r = m_fileMgr->open(Io::ROOT,"RootCollection",m_fileName,io_mode,vf,"TAG",SHARED);
+#ifdef XAOD_ANALYSIS
+gErrorIgnoreLevel=tmpError;
+#endif
+
 	      if (r < 0) {
 		m_poolOut << coral::Error << "unable to open \"" << m_fileName
 			  << "\" for " << root_mode

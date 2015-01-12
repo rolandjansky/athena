@@ -18,6 +18,7 @@
 #ifdef HAVE_GAUDI_PLUGINSVC
 #include "Gaudi/PluginService.h"
 #endif
+#include "GAUDI_VERSION.h"
 
 #include <string>
 #include <vector>
@@ -73,7 +74,11 @@ namespace pool {
     
      public:
 #ifdef HAVE_GAUDI_PLUGINSVC
-typedef Gaudi::PluginService::Factory3<ICollection*, const ICollectionDescription*, ICollection::OpenMode, ISession*> Factory;
+#if GAUDI_VERSION > CALC_GAUDI_VERSION(25, 3) 
+	typedef Gaudi::PluginService::Factory<ICollection*, const ICollectionDescription*, ICollection::OpenMode, ISession*> Factory;
+#else  
+	typedef Gaudi::PluginService::Factory3<ICollection*, const ICollectionDescription*, ICollection::OpenMode, ISession*> Factory;
+#endif
 #endif
     
         /// Constructor

@@ -127,6 +127,26 @@ pool::RootCollection::RootCollectionCursor::currentRow() const
 }
 
 
+bool
+pool::RootCollection::RootCollectionCursor::seek(long long int position)
+{
+   if( position >= m_entries ) {
+      return false;
+   }
+
+   m_idx = position-1;
+
+  return true;
+}
+
+
+int
+pool::RootCollection::RootCollectionCursor::size()
+{
+  return m_entries;
+}
+
+
 const Token& 
 pool::RootCollection::RootCollectionCursor::eventRef() const
 {

@@ -23,6 +23,11 @@
 #include <cstdlib>
 #include "CoralBase/Attribute.h"
 
+#include "TInterpreter.h"
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+#include "Cintex/Cintex.h"
+#endif
+
 using namespace std;
 using namespace pool;
 
@@ -395,6 +400,11 @@ TestDriver::read()
      = collection->metadata().begin();
   while( mdIter !=  collection->metadata().end() ) {
      cout << "  Metadata Key=" << mdIter.key();
+     if (mdIter.key() == "POOLCollectionID") {
+       // The contents of this line will vary from run to run.
+       // Add this to prevent post.sh from comparing it.
+       cout << " [0x00000000]";
+     }
      cout << ",  Value=" << mdIter.value() << endl;
      ++mdIter;
   }
@@ -410,6 +420,12 @@ TestDriver::read()
 
 int main()
 {
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+  ROOT::Cintex::Cintex::Enable();
+#endif
+  gInterpreter->EnableAutoLoading();
+
+   (void)remove("test_collection.root");
    try {
       std::cout << "Read test starting..." << std::endl;
       TestDriver driver( "test_collection", "" );

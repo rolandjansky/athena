@@ -12,6 +12,9 @@
 #include "CollectionBase/ICollectionDescription.h"
 #include "CollectionBase/ICollectionCursor.h"
 
+#include "PersistencySvc/IPositionSeek.h"
+#include "AthenaKernel/ICollectionSize.h"
+
 #include "TTree.h"
 #include "TEventList.h"
 
@@ -22,7 +25,9 @@ namespace pool {
        *
        * An interface used to navigate the result of a query on a collection.
        */
-      class RootCollectionCursor : public ICollectionCursor
+      class RootCollectionCursor : public ICollectionCursor,
+                                   virtual public IPositionSeek,
+                                   virtual public ICollectionSize
       {
      public:
 
@@ -38,6 +43,12 @@ namespace pool {
 
         /// Returns the selected Tokens and Attributes for the current row of the query result set.
         virtual const pool::CollectionRowBuffer& currentRow() const;
+
+        /// Seeks the cursor to a given position in the collection.
+        virtual bool seek(long long int position);
+
+        /// Return the size of the collection.
+        virtual int size();
 
         /// Returns the event reference Token for the current row.
         virtual const Token& eventRef() const;

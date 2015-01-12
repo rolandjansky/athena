@@ -320,7 +320,7 @@ Double_t APRTreeFormula::EvalInstance(Int_t instance, const char *stringStackArg
       }
    }
 
-   LDouble_t tab[kMAXFOUND];
+   LDouble_t tab[kMAXFOUND] = {};
    const Int_t kMAXSTRINGFOUND = 10;
    const char *stringStackLocal[kMAXSTRINGFOUND];
    const char **stringStack = stringStackArg?stringStackArg:stringStackLocal;

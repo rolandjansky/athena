@@ -23,6 +23,11 @@
 #include <cstdlib>
 #include "CoralBase/Attribute.h"
 
+#include "TInterpreter.h"
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+#include "Cintex/Cintex.h"
+#endif
+
 using namespace std;
 using namespace pool;
 
@@ -249,6 +254,11 @@ TestDriver::query() {
 
 int main( int argc, char ** )
 {
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+  ROOT::Cintex::Cintex::Enable();
+#endif
+  gInterpreter->EnableAutoLoading();
+
    try {
       std::cout << "Update test starting..." << std::endl;
       TestDriver driver( "test_collection", "" );
@@ -276,9 +286,4 @@ int main( int argc, char ** )
    
    return 0;
 }
-
-
-
-
-
 

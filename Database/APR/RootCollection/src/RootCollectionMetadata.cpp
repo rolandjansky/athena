@@ -21,8 +21,11 @@ namespace pool {
       static char emptyStr[2] = { (char)0xFF, (char)0x00 }; 
 
       RootCollectionMetadata::RootCollectionMetadata() :
-	    m_charBuffer(0)
-	    ,m_poolOut(0)
+        m_mode(ICollection::READ),
+        m_keyBranch(0),
+        m_valBranch(0),
+        m_charBuffer(0),
+        m_poolOut(0)
       {
          m_hasKeys = false;
          m_tree = 0;
