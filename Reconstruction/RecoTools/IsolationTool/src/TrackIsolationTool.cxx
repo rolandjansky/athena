@@ -10,6 +10,19 @@
 
 //<<<<<< INCLUDES                                                       >>>>>>
 #include "TrackIsolationTool.h"
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+#include "xAODTracking/VertexContainer.h"
+#include "xAODPrimitives/IsolationFlavour.h"
+#include "xAODPrimitives/IsolationConeSize.h"
+#include "xAODPrimitives/IsolationHelpers.h"
+#include "xAODPrimitives/IsolationCorrectionHelper.h"
+#include "xAODPrimitives/tools/getIsolationAccessor.h"
+#include "xAODPrimitives/tools/getIsolationCorrectionAccessor.h"
+#include "xAODMuon/Muon.h"
+
+#include "GaudiKernel/IProperty.h"
+#include "GaudiKernel/Property.h"
+#include "GaudiKernel/SmartIF.h"
 
 namespace xAOD {
  
@@ -17,13 +30,16 @@ namespace xAOD {
 
   TrackIsolationTool::TrackIsolationTool (const std::string& type, const std::string& name, const IInterface* parent)
     :	AthAlgTool(type, name, parent),
-        m_tracksInConeTool("xAOD::TrackParticlesInConeTool/TrackParticlesInConeTool")
+        m_tracksInConeTool("xAOD::TrackParticlesInConeTool/TrackParticlesInConeTool"),
+	m_trkselTool( "InDet::InDetTrackSelectionTool/TrackSelectionTool", this )
   {
     declareInterface<ITrackIsolationTool>(this);
+    //declareInterface<IChargedEFlowIsolationTool>(this);
     declareProperty("TrackParticleLocation",m_indetTrackParticleLocation = "InDetTrackParticles");
     declareProperty("TracksInConeTool", m_tracksInConeTool);
     declareProperty("SimpleIsolation",  m_simpleIsolation = false);
-    declareProperty("OverlapCone",      m_overlapCone2 = 0.1); /// will be squared later
+    declareProperty("OverlapCone",      m_overlapCone2 = 0.1); // will be squared later
+    declareProperty("TrackSelectionTool", m_trkselTool );
   }
 
   TrackIsolationTool::~TrackIsolationTool()
@@ -31,9 +47,26 @@ namespace xAOD {
 
   //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
-  StatusCode TrackIsolationTool::initialize() {
-
+  StatusCode TrackIsolationTool::initialize() 
+  {
     if( !m_simpleIsolation ) ATH_CHECK(m_tracksInConeTool.retrieve());
+
+    if(m_trkselTool){
+      if(m_trkselTool.retrieve().isFailure()){
+	ATH_MSG_FATAL("Could not retrieve InDetTrackSelectionTool");    
+	return 0.;
+      }else{
+	//m_trkselTool->setCutLevel(InDet::CutLevel::TightPrimary,false); // do it in jobO as it has no effect here !!!
+	SmartIF<IProperty> tool2Prop(&*m_trkselTool);
+	DoubleProperty p;
+	p.assign(tool2Prop->getProperty("maxZ0SinTheta"));
+	m_z0cut = p.value();
+	ATH_MSG_DEBUG("From InDetTrackSelectionTool config, |z0|sinT cut = " << m_z0cut);
+      }
+    }else{
+      ATH_MSG_WARNING("Will not retrieve InDetTrackSelectionTool");      
+    }
+
 
     /** square cone */
     m_overlapCone2 *= m_overlapCone2;
@@ -41,12 +74,13 @@ namespace xAOD {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode TrackIsolationTool::finalize() {
+  StatusCode TrackIsolationTool::finalize() 
+  {
     return StatusCode::SUCCESS;
   }
 
-  const TrackParticleContainer* TrackIsolationTool::retrieveTrackParticleContainer() const {
-    // retrieve MuonSpectrometer tracks
+  const TrackParticleContainer* TrackIsolationTool::retrieveTrackParticleContainer() const 
+  {
     const TrackParticleContainer* indetTrackParticles = 0;
     if(evtStore()->contains<TrackParticleContainer>(m_indetTrackParticleLocation)) {
       if(evtStore()->retrieve(indetTrackParticles,m_indetTrackParticleLocation).isFailure()) {
@@ -57,29 +91,79 @@ namespace xAOD {
     return indetTrackParticles;
   }
 
-  bool TrackIsolationTool::trackIsolation( TrackIsolation& result, const IParticle& tp, const std::vector<Iso::IsolationType>& isoTypes, 
-                                           TrackIsolationTool::SubtractionStrategy strategy, const Vertex* vertex, 
-                                           const std::set<const xAOD::TrackParticle*>* exclusionSet,
-                                           const TrackParticleContainer* indetTrackParticles ) {
+  const Vertex* TrackIsolationTool::retrieveIDBestPrimaryVertex() const 
+  {
+    std::string m_PVXLocation = "PrimaryVertices";
+    const VertexContainer *vtxC = 0;
+    if (evtStore()->contains<VertexContainer>(m_PVXLocation)) {
+      if (evtStore()->retrieve(vtxC,m_PVXLocation).isFailure()) {
+        ATH_MSG_FATAL( "Unable to retrieve " << m_PVXLocation);
+        return 0;
+      } else {
+	if (vtxC->size() == 0) {
+	  ATH_MSG_INFO("No vertex in container " << m_PVXLocation);
+	  return 0;
+	}
+	return vtxC->front(); // the first one, probably the beam spot if a single one in the container
+      }
+    }
+    return 0;
+  }
 
+  const IParticle* TrackIsolationTool::getReferenceParticle(const IParticle& particle) const {
+    const TrackParticle* tp = dynamic_cast<const TrackParticle*>(&particle);
+    if( tp ) return tp;
+    const Muon* muon = dynamic_cast<const Muon*>(&particle);
+    if( muon ) {
+      const xAOD::TrackParticle* tp = 0;
+      if(muon->inDetTrackParticleLink().isValid()) tp = *muon->inDetTrackParticleLink();
+      if( !tp ) tp = muon->primaryTrackParticle();
+      if( !tp ) {
+        ATH_MSG_WARNING(" No TrackParticle found for muon " );
+        return 0;
+      }
+      return tp;
+    }
+    return &particle;
+  }
+
+
+  bool TrackIsolationTool::trackIsolation( TrackIsolation& result, const IParticle& particle, 
+					   const std::vector<Iso::IsolationType>& isoTypes, 
+                                           TrackCorrection corrbitset, 
+					   const Vertex* vertex, 
+                                           const std::set<const TrackParticle*>* exclusionSet,
+                                           const TrackParticleContainer* indetTrackParticles ) 
+  {
     /// prepare input
-    TrackIsolationInput input( &tp, strategy, vertex, exclusionSet );
+    if (vertex == 0 && m_z0cut < 2e4) { // 20 m should be sufficient; the max in the TrackSelectionTool is 1e16 ! 
+      vertex = retrieveIDBestPrimaryVertex();
+      if (vertex) 
+	ATH_MSG_DEBUG("No vertex provided, but a cut on |Z0|SinTheta is required. Use the ID-chosen pvx, z = " << vertex->z());
+    }
+
+    /// get track particle
+    const IParticle* tp = getReferenceParticle(particle);
+    if( !tp ){
+      ATH_MSG_WARNING("Failed to obtain reference particle");
+      return false;
+    }
+    TrackIsolationInput input( tp, corrbitset, vertex, exclusionSet );
     
     for( auto isoType : isoTypes ){
       Iso::IsolationFlavour flavour = Iso::isolationFlavour(isoType);
-      if( flavour != Iso::ptcone && flavour != Iso::nucone ) {
-        ATH_MSG_WARNING("Unsupported isolation type passed, cannot calculate isolation " << static_cast<int>(isoType));
+      if( flavour != Iso::ptcone ) {
+        ATH_MSG_WARNING("Unsupported isolation type passed, cannot calculate isolation " << Iso::toString(isoType));
         return false;
       }
-      float coneSize = Iso::coneSize(isoType);
-      input.cones.push_back(coneSize*coneSize);
+      float conesize = Iso::coneSize(isoType);
+      input.coneSizesSquared.push_back(conesize*conesize);
     }
-    std::sort(input.cones.begin(),input.cones.end(),[](float i, float j) { return i>j; });
+    std::sort(input.coneSizesSquared.begin(),input.coneSizesSquared.end(),[](float i, float j) { return i>j; });
 
-    /// setup cones and max radius: 
-    result.ptcones.resize(input.cones.size(),0.);
-    result.nucones.resize(input.cones.size(),0.);
-    input.maxRadius = sqrt(input.cones[0]);
+    initresult(result, corrbitset, input.coneSizesSquared.size());
+
+    input.maxRadius = sqrt(input.coneSizesSquared[0]);
     
     bool success = false;
     // run isolation code
@@ -93,7 +177,7 @@ namespace xAOD {
       }else{
         msg(MSG::DEBUG) << "Calculated track isolation: ";
         for( unsigned int i = 0; i< result.ptcones.size();++i ){
-          msg(MSG::DEBUG) << " coneSize " << std::setw(3) << sqrt(input.cones[i]) << " value " << result.ptcones[i];
+          msg(MSG::DEBUG) << " coneSizeSquared " << std::setw(3) << sqrt(input.coneSizesSquared[i]) << " value " << result.ptcones[i];
         }
         msg(MSG::DEBUG) << endreq;
       }
@@ -101,19 +185,105 @@ namespace xAOD {
     return success;
   }
 
+  bool TrackIsolationTool::decorateParticle( IParticle& tp, 
+                                             const std::vector<Iso::IsolationType>& cones, 
+                                             TrackCorrection corrections, 
+                                             const Vertex* vertex, 
+                                             const std::set<const TrackParticle*>* exclusionSet, 
+                                             const TrackParticleContainer* indetTrackParticles ) {
+    
+    // calculate the isolation
+    TrackIsolation result;
+    if( !trackIsolation(result,tp,cones,corrections,vertex,exclusionSet,indetTrackParticles) ) {
+      ATH_MSG_DEBUG("Calculation of TrackIsolation failed");
+      return false;
+    }
 
-  bool TrackIsolationTool::binnedIsolation( TrackIsolationInput& input, TrackIsolation& result ) {
+    // get the applied corrections
+    std::vector<Iso::IsolationTrackCorrection> correctionTypes;
+    Iso::IsolationTrackCorrectionBitsetHelper::decode(corrections.trackbitset,correctionTypes);
+    ATH_MSG_DEBUG("Decoded correction types: " << correctionTypes.size() );
 
+
+    // decorate the track particle
+
+    // This is independant of the size. At least for the time being
+    // fill bitset
+    //    SG::AuxElement::Accessor< uint32_t >* bitsetAcc = getIsolationCorrectionBitsetAccessor(cones[0]);
+    SG::AuxElement::Accessor< uint32_t >* bitsetAcc = getIsolationCorrectionBitsetAccessor(Iso::isolationFlavour(cones[0]));
+
+    if( bitsetAcc ){
+      (*bitsetAcc)(tp) = corrections.trackbitset.to_ulong();
+    }
+    
+    // fill corrections
+    for( auto ctype : correctionTypes ){
+      auto el = result.coreCorrections.find(ctype);
+      if( el == result.coreCorrections.end() ){
+	ATH_MSG_WARNING("Correction value not found " << Iso::toString(ctype) );         
+	continue;
+      }
+      SG::AuxElement::Accessor< float >* isoCorAcc = getIsolationCorrectionAccessor( Iso::isolationFlavour(cones[0]), ctype );
+      if( isoCorAcc ){
+	(*isoCorAcc)(tp) = el->second;
+      }        
+    }
+
+    // loop over cones
+    for( unsigned int i=0;i<cones.size();++i ){
+
+      Iso::IsolationType type = cones[i];
+      //Iso::IsolationFlavour flavour = Iso::isolationFlavour(type);
+      Iso::IsolationConeSize coneSize = enumconeSize(type);
+
+      // fill main isolation
+      if( result.ptcones.size() == cones.size() ){
+        SG::AuxElement::Accessor< float >* isoTypeAcc = getIsolationAccessor(type);
+        if( isoTypeAcc ){
+	  ATH_MSG_DEBUG("Filling std cone " << result.ptcones[i]);
+          (*isoTypeAcc)(tp) = result.ptcones[i];
+        }
+      }else if( !result.ptcones.empty() ){
+        ATH_MSG_WARNING("Inconsistent ptcones vector size: " << result.ptvarcones_10GeVDivPt.size() << " number of cones " << cones.size() );
+      }
+
+      // also fill var cone
+      if( result.ptvarcones_10GeVDivPt.size() == cones.size() ){
+        Iso::IsolationType varIsoType = Iso::isolationType( Iso::ptvarcone, coneSize );
+        SG::AuxElement::Accessor< float >* isoTypeAcc = getIsolationAccessor(varIsoType);
+        if( isoTypeAcc ){
+	  ATH_MSG_DEBUG("Filling var cone " << result.ptvarcones_10GeVDivPt[i]);
+          (*isoTypeAcc)(tp) = result.ptvarcones_10GeVDivPt[i];
+        }
+      }else if( !result.ptvarcones_10GeVDivPt.empty() ){
+        ATH_MSG_WARNING("Inconsistent ptvarcones_10GeVDivPt vector size: " << result.ptvarcones_10GeVDivPt.size() << " number of cones " << cones.size() );
+      }
+
+    }
+    return true;
+  }
+
+
+  bool TrackIsolationTool::binnedIsolation( TrackIsolationInput& input, TrackIsolation& result ) 
+  {
     /// prepare look-up structure
     std::vector<const TrackParticle*> tps;
     if( !m_tracksInConeTool->particlesInCone(input.particle->eta(),input.particle->phi(),input.maxRadius,tps) ) return false;
     
-    for( const auto& tp : tps ) add( input,*tp, result );
+    for( const auto& tp : tps ) {
+      if( ! m_trkselTool->accept( *tp , input.vertex ) ){
+	ATH_MSG_DEBUG("reject track pt = " << tp->pt());
+	continue;
+      } else 
+	ATH_MSG_DEBUG("Accept track, pt = " << tp->pt());
+      add( input,*tp, result );
+
+    }
     return true;
   }
 
-  bool TrackIsolationTool::simpleIsolation( TrackIsolationInput& input, TrackIsolation& result, const TrackParticleContainer* indetTrackParticles ) const {
-
+  bool TrackIsolationTool::simpleIsolation( TrackIsolationInput& input, TrackIsolation& result, const TrackParticleContainer* indetTrackParticles ) const 
+  {
     /// retrieve track particles if not passed into the interface
     if( !indetTrackParticles ) indetTrackParticles = retrieveTrackParticleContainer();
     
@@ -121,9 +291,73 @@ namespace xAOD {
     if( !indetTrackParticles ) return false;
 
     // loop over all track particles
-    for( const auto& tp : *indetTrackParticles ) add( input, *tp, result );
+    for( const auto& tp : *indetTrackParticles ) {
+      if( ! m_trkselTool->accept( *tp , input.vertex ) ){
+	ATH_MSG_DEBUG("[2] reject track pt = " << tp->pt());
+	continue;
+      }
+
+      add( input, *tp, result );
+    }
     
     return true;
   } 
+  
+  void TrackIsolationTool::add( TrackIsolationInput& input, const TrackParticle& tp2, TrackIsolation& result ) const 
+  {
+    // check if track pointer matches the one of input or one of the exclusion set
+    if(input.corrections.trackbitset.test(static_cast<unsigned int>(Iso::coreTrackPtr))){
+	 if(input.particle == &tp2 || (input.exclusionSet && input.exclusionSet->count(&tp2))){
+	   ATH_MSG_DEBUG("track pointer " << &tp2 << ", track pt = " << tp2.pt() << ", input pt = " << input.particle->pt()) ;
+	   result.coreCorrections[Iso::coreTrackPtr] += tp2.pt();
+	   return;
+	 }
+       }
+
+    // check eta
+    float deta = input.particle->eta()-tp2.eta();
+    if( fabs(deta) > input.maxRadius ) return;
+
+    // check phi
+    float dphi = phiInRange(input.particle->phi()-tp2.phi());
+    if( fabs(dphi) > input.maxRadius ) return;
+
+    // check dr2
+    float dr2 = deta*deta + dphi*dphi;   
+      
+    // check cone if using cone based overlap removal
+    if(input.corrections.trackbitset.test(static_cast<unsigned int>(Iso::coreTrackCone))
+       && dr2 < m_overlapCone2 ) {
+      result.coreCorrections[Iso::coreTrackCone] += tp2.pt();
+      return;
+    }
+      
+    /// sum up particle to the different cones
+    for( unsigned int k=0;k<input.coneSizesSquared.size();++k ){
+      if( dr2 >= input.coneSizesSquared[k] ) return; 
+      result.ptcones[k] += tp2.pt();
+      if( dr2 <= input.ptvarconeRadiusSquared ){
+        result.ptvarcones_10GeVDivPt[k] += tp2.pt();
+      }
+    }      
+  }  
+
+  void TrackIsolationTool::initresult(TrackIsolation& result, 
+				      TrackCorrection corrlist, 
+				      unsigned int typesize){
+
+    result.corrlist = corrlist;
+    result.coreCorrections.clear();
+    result.ptcones.resize(typesize,0.);
+    result.ptvarcones_10GeVDivPt.resize(typesize,0.);
+
+    std::vector<float> vec;
+    vec.resize(typesize,0.);
+    
+    for(unsigned int i=0;i<static_cast<unsigned int>(Iso::numIsolationTrackCorrections);i++){
+      result.coreCorrections[static_cast<Iso::IsolationTrackCorrection>(i)] = 0.;
+    }
+  }
+
 
 }	// end of namespace
