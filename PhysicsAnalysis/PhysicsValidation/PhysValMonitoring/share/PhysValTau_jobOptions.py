@@ -4,6 +4,9 @@ tool1.EnableLumi = False
 tool1.OutputLevel = WARNING
 tool1.DetailLevel = 10
 
+tool1.TauContainerName = "TauJets"
+tool1.TruthParticleContainerName = "TruthParticles"
+
 from AthenaCommon.AppMgr import ToolSvc
 ToolSvc += tool1
 

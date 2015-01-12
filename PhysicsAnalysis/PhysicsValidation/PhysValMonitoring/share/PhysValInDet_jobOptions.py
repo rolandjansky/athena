@@ -4,6 +4,7 @@ tool1 = InDetPhysValMonitoringTool()
 #Are we using a track selector...?
 tool1.useTrackSelection = False
 tool1.EnableLumi = False
+tool1.TruthParticleContainerName = "TruthParticles"
 ToolSvc += tool1
 monMan.AthenaMonTools += [tool1]
 '''

@@ -3,6 +3,7 @@ tool1 = MissingEtDQA__PhysValMET()
 tool1.EnableLumi = False
 tool1.OutputLevel = WARNING
 tool1.DetailLevel = 10
+tool1.METContainerName = "MET_Reference_AntiKt4LCTopo"
 
 from AthenaCommon.AppMgr import ToolSvc
 ToolSvc += tool1

@@ -182,7 +182,7 @@ namespace PhysVal {
 
     const xAOD::MissingETContainer* met_container (0);
     ATH_CHECK(evtStore()->retrieve(met_container, m_metName));
-    const xAOD::MissingET* met = (*met_container)["Final"];
+    const xAOD::MissingET* met = (*met_container)["FinalClus"];
     if (!met) {
       ATH_MSG_ERROR ("Couldn't retrieve MET Final");
       return StatusCode::SUCCESS;
