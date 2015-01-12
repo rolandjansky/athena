@@ -1,5 +1,5 @@
 package xAODTauAthenaPool
-# $Id: requirements 581660 2014-02-05 15:52:29Z janus $
+# $Id: requirements 635819 2014-12-13 04:01:46Z ssnyder $
 
 author Michel Janus <janus@cern.ch>
 
@@ -12,6 +12,8 @@ private
 
 # Base package(s):
 use GaudiInterface      GaudiInterface-*      External
+use AthenaKernel        AthenaKernel-*        Control
+use AthContainers       AthContainers-*       Control
 
 # POOL package(s):
 use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
