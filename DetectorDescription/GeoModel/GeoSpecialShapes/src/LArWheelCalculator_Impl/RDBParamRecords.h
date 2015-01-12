@@ -19,6 +19,8 @@ class RDBParamRecords {
 		typedef RDBParamRecords self_t;
 
 		RDBParamRecords(RDBParamReader* rdbParAcc, IRDBRecordset_ptr initRecSet);
+                RDBParamRecords(const RDBParamRecords& other);
+                RDBParamRecords& operator=(const RDBParamRecords& other) = delete;
 		~RDBParamRecords();
 		self_t & fallback_to(const std::string& node, const std::string& tag, const std::string& tag2node="");
 		const self_t & param(unsigned int &outval,    const std::string& name, unsigned int index=0) const;

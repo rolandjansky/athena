@@ -226,8 +226,7 @@ namespace LArWheelCalculator_Impl {
 				}
 			}
 		}
-		assert(false);
-		return 0.;
+                std::abort();
 	}
 
 	CLHEP::Hep3Vector DistanceCalculatorSaggingOff::NearestPointOnNeutralFibre(const CLHEP::Hep3Vector &P) const

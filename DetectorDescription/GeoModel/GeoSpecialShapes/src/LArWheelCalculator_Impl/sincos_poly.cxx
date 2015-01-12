@@ -15,6 +15,7 @@
 #include <math.h>
 
 #include "CLHEP/Units/SystemOfUnits.h"
+#define DEBUGPRINT 0
 
 using namespace CLHEP;
 
@@ -70,7 +71,7 @@ static TVectorD findLinearApproximation(
 void LArWheelCalculator::fill_sincos_parameterization(void)
 {
 	const Int_t nrPolyDegree = LARWC_SINCOS_POLY;
-#if LARWC_SINCOS_POLY > 4
+#if LARWC_SINCOS_POLY > 4 && DEBUGPRINT
 	std::cout << "LARWC_SINCOS_POLY: " << LARWC_SINCOS_POLY << std::endl;
 #endif
 	const Int_t nBasisFunctions = nrPolyDegree + 1;
@@ -128,12 +129,16 @@ void LArWheelCalculator::fill_sincos_parameterization(void)
 
 	filled[S] = true;
 
+#if DEBUGPRINT
 	std::cout << "sin params:" << params_sin << std::endl;
 	std::cout << "cos params:" << params_cos << std::endl;
 
-	double dsin = 0., dcos = 0.;
 	double dsinr = 0., dcosr = 0.;
-	double dtrig = 0., dtrigr = 0.;
+        double dtrigr = 0;
+#endif
+
+	double dsin = 0., dcos = 0.;
+	double dtrig = 0.;
 	for(double r = Rmin + 40.; r < Rmax - 40.; r += Rstep / 10.){
 		CxxUtils::sincos scalpha(parameterized_slant_angle(r));
 		double sin_a, cos_a;
@@ -141,24 +146,32 @@ void LArWheelCalculator::fill_sincos_parameterization(void)
 		double ds = fabs(scalpha.sn - sin_a);
 		if(ds > dsin){
 			dsin = ds;
+#if DEBUGPRINT
 			dsinr = r;
+#endif
 		}
 		double dc = fabs(scalpha.cs - cos_a);
 		if(dc > dcos){
 			dcos = dc;
+#if DEBUGPRINT
 			dcosr = r;
+#endif
 		}
 		double dt = fabs(sin_a*sin_a + cos_a*cos_a - 1.);
 		if(dt > dtrig){
 			dtrig = dt;
+#if DEBUGPRINT
 			dtrigr = r;
+#endif
 		}
 	}
 
+#if DEBUGPRINT
 	std::cout << "Max. difference: " << std::endl
 	          << "\tsin: " << dsin << " at " << dsinr << std::endl
 	          << "\tcos: " << dcos << " at " << dcosr << std::endl
 	          << "\tsin^2+cos^2: " << dtrig << " at " << dtrigr << std::endl;
+#endif
 
 #ifdef HARDDEBUG
 	TVectorD y_test(dataLen);

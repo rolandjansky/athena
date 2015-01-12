@@ -9,6 +9,7 @@
 //#include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
+#include <iostream>
 
 
 RDBParamReader::RDBParamReader(IRDBAccessSvc* rdbAccess) :
@@ -32,7 +33,8 @@ IRDBRecordset_ptr  RDBParamReader::_getRecordsetPtr(const std::string& node, con
 }
 
 void RDBParamReader::acquire() {
-	m_rdbAccess->connect();
+  if (!m_rdbAccess->connect())
+    std::cout << "ERROR: RDBParamReader: cannot connect.\n";
 }
 
 void RDBParamReader::release() {

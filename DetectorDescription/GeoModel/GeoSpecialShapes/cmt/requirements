@@ -7,6 +7,9 @@ use AtlasPolicy     AtlasPolicy-*
 use AtlasCLHEP      AtlasCLHEP-*           External
 use GeoModelKernel  GeoModelKernel-*       DetectorDescription/GeoModel
 
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Matrix)"
+
 library GeoSpecialShapes *.cxx LArWheelCalculator_Impl/*.cxx
 apply_pattern installed_library
 
