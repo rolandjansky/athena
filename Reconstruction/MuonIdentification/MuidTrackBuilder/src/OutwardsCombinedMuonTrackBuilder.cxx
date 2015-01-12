@@ -368,6 +368,7 @@ OutwardsCombinedMuonTrackBuilder::fit (const Trk::Track&		indetTrack,
         for (;itStates!=endStates;itStates++) {
           if ((*itStates)->materialEffectsOnTrack()) {
             const Trk::MaterialEffectsOnTrack *meot=dynamic_cast<const Trk::MaterialEffectsOnTrack *>((*itStates)->materialEffectsOnTrack());
+            if(!meot) continue;
             if (meot->scatteringAngles() && !meot->energyLoss()) {
               double pullphi=std::abs(meot->scatteringAngles()->deltaPhi()/meot->scatteringAngles()->sigmaDeltaPhi());
               double pulltheta=std::abs(meot->scatteringAngles()->deltaTheta()/meot->scatteringAngles()->sigmaDeltaTheta());

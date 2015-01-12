@@ -818,11 +818,13 @@ MuonTrackQuery::outgoingTrack (const Trk::Track& track) const
     // check if perigee needs flip
     const Trk::Perigee* perigee	= outgoingPerigee(track);
     if (perigee == track.perigeeParameters()) return &track;
-
+    if (!perigee ) return 0;
+  
     // flipping requires rot creation
     if (m_mdtRotCreator.empty())
     {
 	ATH_MSG_WARNING( " outgoingTrack: please configure rot creator for this method to work" );
+        delete perigee;
 	return 0;
     }
     

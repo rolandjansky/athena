@@ -63,6 +63,7 @@ namespace Trk
     class TrackStateOnSurface;
     class TrackingVolume;
     class Volume;
+    class ITrkMaterialProviderTool;
 }
 namespace Rec
 {
@@ -166,7 +167,7 @@ namespace Rec
 	    const Trk::Track*						combinedTrack,
 	    const Trk::Track*						muonTrack) const;
 	Trk::Track*					createExtrapolatedTrack(
-                                                                                const Trk::TrackInfo&					info,
+                                                                                const Trk::Track&					spectrometerTrack,
                                                                                 const Trk::TrackParameters&					parameters,
                                                                                 Trk::ParticleHypothesis					particleHypothesis,
                                                                                 Trk::RunOutlierRemoval					runOutlier,
@@ -178,7 +179,7 @@ namespace Rec
 	    DataVector<const Trk::TrackStateOnSurface>::const_iterator	begin,
 	    DataVector<const Trk::TrackStateOnSurface>::const_iterator	end) const;
 	Trk::Track*					createMuonTrack(
-	    const Trk::TrackInfo&					info,
+	    const Trk::Track&	       				        muonTrack,
 	    const Trk::TrackParameters*					parameters,
 	    const CaloEnergy*						caloEnergy,
 	    DataVector<const Trk::TrackStateOnSurface>::const_iterator	begin,
@@ -242,7 +243,8 @@ namespace Rec
 	ServiceHandle<Trk::ITrackingVolumesSvc>		m_trackingVolumesSvc;
 	ToolHandle<Rec::IMuonTrackQuery>		m_trackQuery;
 	ToolHandle<Trk::ITrackSummaryTool>		m_trackSummary;
-	
+	ToolHandle<Trk::ITrkMaterialProviderTool>       m_materialUpdator;
+
 	// other configuration and tolerances
 	bool						m_allowCleanerVeto;
 	bool						m_cleanCombined;
@@ -298,7 +300,10 @@ namespace Rec
 	
 	// count warnings 
  	mutable MessageHelper*				m_messageHelper;
-	
+
+	bool                                            m_updateWithCaloTG;
+	bool                                            m_useCaloTG;
+	bool                                            m_iterateCombinedTrackFit;
     };
  
 }	// end of namespace

@@ -57,6 +57,7 @@
 #include "TrkiPatFitterUtils/MessageHelper.h"
 #include "VxVertex/RecVertex.h"
 #include "muonEvent/CaloEnergy.h"
+#include "TrkToolInterfaces/ITrkMaterialProviderTool.h"
 
 namespace Rec
 {
@@ -88,6 +89,7 @@ CombinedMuonTrackBuilder::CombinedMuonTrackBuilder (const std::string&type,
 	m_trackingVolumesSvc		("TrackingVolumesSvc/TrackingVolumesSvc",name),
 	m_trackQuery			("Rec::MuonTrackQuery/MuonTrackQuery"),
 	m_trackSummary			("Trk::TrackSummaryTool/MuidTrackSummaryTool"),
+	m_materialUpdator               ("Trk::TrkMaterialProviderTool/TrkMaterialProviderTool"),
 	m_allowCleanerVeto		(true),
 	m_cleanCombined			(true),
 	m_cleanStandalone		(true),
@@ -123,7 +125,10 @@ CombinedMuonTrackBuilder::CombinedMuonTrackBuilder (const std::string&type,
 	m_countVertexRegion		(0),
 	m_combinedEnergyParameters	(0),
 	m_muonEnergyParameters		(0),
-	m_messageHelper			(0)
+	m_messageHelper			(0),
+	m_updateWithCaloTG              (false),
+	m_useCaloTG                     (false),
+	m_iterateCombinedTrackFit       (true)
 {
     m_messageHelper	= new MessageHelper(*this);
     declareInterface<ICombinedMuonTrackBuilder>(this);
@@ -169,6 +174,11 @@ CombinedMuonTrackBuilder::CombinedMuonTrackBuilder (const std::string&type,
     // deprecated
     declareProperty("IndetSlimming",			m_indetSlimming); 
     declareProperty("InputSlimming",			m_inputSlimming);
+
+    declareProperty("UpdateWithCaloTG",			m_updateWithCaloTG);
+    declareProperty("UseCaloTG",			m_useCaloTG);
+    declareProperty("CaloMaterialProvider",             m_materialUpdator);
+    declareProperty("IterateCombinedTrackFit",          m_iterateCombinedTrackFit);
 }
 
 CombinedMuonTrackBuilder::~CombinedMuonTrackBuilder (void) 
@@ -482,8 +492,16 @@ CombinedMuonTrackBuilder::initialize()
     {
 	ATH_MSG_DEBUG( "Retrieved tool " << m_trackSummary );
     }
+    if (m_materialUpdator.retrieve().isFailure())
+    {
+        ATH_MSG_FATAL( "Failed to retrieve tool " << m_materialUpdator );
+        return StatusCode::FAILURE;
+    }
+    else
+    {
+	ATH_MSG_DEBUG( "Retrieved tool " << m_materialUpdator );
+    }
     
-
         
     // retrieve services
     if (m_trackingGeometrySvc.retrieve().isFailure())
@@ -583,7 +601,7 @@ CombinedMuonTrackBuilder::combinedFit (const Trk::Track& indetTrack,
 				       const Trk::Track& extrapolatedTrack,
 				       const Trk::Track& /*spectrometerTrack*/) const
 {
-    ATH_MSG_VERBOSE( "combinedFit:: " );
+    ATH_MSG_VERBOSE( "===== Start of combinedFit:: " );
 
     // require MeasuredPerigee for indetTrack
     const Trk::Perigee* indetPerigee = indetTrack.perigeeParameters();
@@ -615,37 +633,49 @@ CombinedMuonTrackBuilder::combinedFit (const Trk::Track& indetTrack,
     
     // match extrapolated indet track to inner calorimeter scattering surface
     // provided momentum defined (solenoid on)
-    if (surface && m_magFieldSvc->solenoidOn())
-    {
-	const Trk::TrackStateOnSurface* innerTSOS =
-	    m_caloTSOS->innerTSOS(*indetTrack.perigeeParameters());
-	if (! innerTSOS)
-	{
-	    ATH_MSG_DEBUG( " indet track fails to intersect the calorimeter " );
-	    return 0;
+    if (surface && m_magFieldSvc->solenoidOn() && !m_updateWithCaloTG)
+      {	
+	const Trk::TrackStateOnSurface* innerTSOS = 0;
+	if(m_useCaloTG) 
+	  {
+	    std::vector<const Trk::TrackStateOnSurface*>* caloTSOS 
+	      = m_materialUpdator->getCaloTSOS(*indetTrack.perigeeParameters(), extrapolatedTrack, extrapolatedTrack.perigeeParameters()); 
+	    if(caloTSOS && !caloTSOS->empty()) 
+	      innerTSOS = caloTSOS->at(0);
+	    std::vector<const Trk::TrackStateOnSurface*>::const_iterator it = caloTSOS->begin()+1;
+	    std::vector<const Trk::TrackStateOnSurface*>::const_iterator itEnd = caloTSOS->end();
+	    for (; it != itEnd; ++it) delete *it;
+	    delete caloTSOS;	  
+	  }
+	else
+	  innerTSOS = m_caloTSOS->innerTSOS(*indetTrack.perigeeParameters());
+	  
+	if (! innerTSOS) {
+	  ATH_MSG_DEBUG( " indet track fails to intersect the calorimeter " );
+	  return 0;
 	}
-
+	
 	// will re-associate the calorimeter if they are not the same surface
 	double surfaceOffset =
-	    (surface->globalReferencePoint() -
-	     innerTSOS->materialEffectsOnTrack()->associatedSurface().globalReferencePoint()).mag();
+	  (surface->globalReferencePoint() -
+	   innerTSOS->materialEffectsOnTrack()->associatedSurface().globalReferencePoint()).mag();
 	delete innerTSOS;
 	if (surfaceOffset > 1.*Gaudi::Units::mm)
-	{
+	  {
 	    ATH_MSG_DEBUG( " different inner-calo-surface obtained from indet extrapolation, "
 			   << "surface reference "	<< surface->globalReferencePoint()
 			   << " with offset "		<< surfaceOffset
 			   << "mm. Re-evaluate the caloTSOS " );
 	    surface = 0;
-	}
-    }
-
+	  }
+      }
+    
     // create a muon track without perigee in case of non-optimal precision -
     //   such as need to replace calorimeter material or presence of pseudomeasurements
     Trk::Track* muonTrack = 0;
     if (! surface)		// extrapolate outwards to associate calorimeter material effects
     {
-	muonTrack = createMuonTrack(extrapolatedTrack.info(),
+	muonTrack = createMuonTrack(extrapolatedTrack,
 				    indetTrack.perigeeParameters(),
 				    0,
 				    extrapolatedTrack.trackStateOnSurfaces()->begin(),
@@ -654,7 +684,7 @@ CombinedMuonTrackBuilder::combinedFit (const Trk::Track& indetTrack,
     }
     else if (m_trackQuery->numberPseudoMeasurements(extrapolatedTrack) > 1)	// remove pseudo meas
     {
-	muonTrack = createMuonTrack(extrapolatedTrack.info(),
+	muonTrack = createMuonTrack(extrapolatedTrack,
 				    0,
 				    0,
 				    extrapolatedTrack.trackStateOnSurfaces()->begin(),
@@ -698,7 +728,7 @@ CombinedMuonTrackBuilder::combinedFit (const Trk::Track& indetTrack,
 	if (! combinedTrack->perigeeParameters()
 	    || ! m_indetVolume->inside(combinedTrack->perigeeParameters()->position()))
 	{
-          if( !combinedTrack ) ATH_MSG_DEBUG( " no perigee");
+          if( !combinedTrack->perigeeParameters() ) ATH_MSG_DEBUG( " no perigee");
           else                 ATH_MSG_DEBUG("  position: r " << combinedTrack->perigeeParameters()->position().perp() 
                                              << " z " << combinedTrack->perigeeParameters()->position().z() );
 	    // combinedTrack fails as perigee outside indet
@@ -716,7 +746,7 @@ CombinedMuonTrackBuilder::combinedFit (const Trk::Track& indetTrack,
 	return 0;
     }
 
-    // quit if failure to associate CaloEnergy 
+    // Get parameters at calo position 
     const CaloEnergy* caloEnergy = caloEnergyParameters(combinedTrack,muonTrack);
     if (! caloEnergy)
     {
@@ -729,20 +759,23 @@ CombinedMuonTrackBuilder::combinedFit (const Trk::Track& indetTrack,
 
     // if significant momentum change: re-evaluate calo energy and refit
     double pRatio = m_muonEnergyParameters->momentum().mag() /
-		    m_combinedEnergyParameters->momentum().mag();
-    if (fabs(pRatio-1.) > m_largeMomentumChange)
-    {
-	ATH_MSG_DEBUG( " iterate as significant momentum change after fit " << pRatio
-		       << ", pT before " << m_muonEnergyParameters->momentum().perp()/Gaudi::Units::GeV
-		       << ", after " << m_combinedEnergyParameters->momentum().perp()/Gaudi::Units::GeV << " GeV" );
-
+      m_combinedEnergyParameters->momentum().mag();
+    if (fabs(pRatio-1.) > m_largeMomentumChange || m_iterateCombinedTrackFit)
+      {
+	if(!m_iterateCombinedTrackFit)
+	  ATH_MSG_DEBUG( " iterate combined fit to recollect calorimeter material as significant momentum change after fit " << pRatio
+			 << ", pT before " << m_muonEnergyParameters->momentum().perp()/Gaudi::Units::GeV
+			 << ", after " << m_combinedEnergyParameters->momentum().perp()/Gaudi::Units::GeV << " GeV" );
+	else
+	  ATH_MSG_DEBUG( " iterate combined fit to recollect calorimeter material");
+	
 	const DataVector<const Trk::TrackStateOnSurface>* combinedTSOS =
 	    combinedTrack->trackStateOnSurfaces();
 	Trk::Track*  indetNewTrack	= createIndetTrack(indetTrack.info(),
 							   combinedTSOS->begin(),
 							   combinedTSOS->end());	
 	Trk::Track*  oldTrack		= muonTrack;
-	muonTrack = createMuonTrack(extrapolatedTrack.info(),
+	muonTrack = createMuonTrack(extrapolatedTrack,
 				    m_combinedEnergyParameters,
 				    0,
 				    combinedTSOS->begin(),
@@ -771,7 +804,7 @@ CombinedMuonTrackBuilder::combinedFit (const Trk::Track& indetTrack,
     
     // tracks with caloEnergy type 'tail' can arise from an incorrect categorization as isolated
     // in case of significant energy gain, switch to parametrization and reclassify as NotIsolated
-    if (muonTrack && caloEnergy->energyLossType() == CaloEnergy::Tail)
+    if (muonTrack && caloEnergy->energyLossType() == CaloEnergy::Tail && (!m_updateWithCaloTG || m_useCaloTG))
     {            
 	double tolerance = 0;
 	if (!indetPerigee->covariance()) {
@@ -785,16 +818,24 @@ CombinedMuonTrackBuilder::combinedFit (const Trk::Track& indetTrack,
 	double indetMaxE	= 1./(fabs(indetPerigee->parameters()[Trk::qOverP]) - tolerance);
 	double energyBalance	=
 	    m_combinedEnergyParameters->momentum().mag() + caloEnergy->deltaE() - indetMaxE;
+
+	// get parametrised eloss if large energy imbalance and refit track
 	CaloEnergy* paramEnergy = 0;
 	if (indetMaxE > 0. && energyBalance > m_numberSigmaFSR*caloEnergy->sigmaMinusDeltaE())
-	{
+	  {
 	    // parametrized energy deposition
-	    paramEnergy = m_caloEnergyParam->energyLoss(m_combinedEnergyParameters->momentum().mag(),
-							m_combinedEnergyParameters->position().eta(),
-							m_combinedEnergyParameters->position().phi());
+	    // run-2 schema, update default eloss with parametrised value
+	    if(m_useCaloTG)
+	      paramEnergy = m_materialUpdator->getParamCaloELoss(muonTrack);
+	    else{
+	      // run-1 schema, recalculate parametrised eloss
+	      paramEnergy = m_caloEnergyParam->energyLoss(m_combinedEnergyParameters->momentum().mag(),
+							  m_combinedEnergyParameters->position().eta(),
+							  m_combinedEnergyParameters->position().phi());
+	    }
 	    paramEnergy->set_energyLossType(CaloEnergy::NotIsolated);
-	}
-
+	  }
+	
 	// FIXME: add criterion on energy-balance significance param vs tail ?
 	if (paramEnergy)
 	{
@@ -810,7 +851,7 @@ CombinedMuonTrackBuilder::combinedFit (const Trk::Track& indetTrack,
 			   << (caloEnergy->deltaE() - paramEnergy->deltaE())/Gaudi::Units::GeV );
 
 	    Trk::Track*  oldTrack = muonTrack;
-	    muonTrack = createMuonTrack(extrapolatedTrack.info(),
+	    muonTrack = createMuonTrack(extrapolatedTrack,
 					0,
 					paramEnergy,
 					oldTrack->trackStateOnSurfaces()->begin(),
@@ -1069,7 +1110,7 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
 {
     if (msgLvl(MSG::VERBOSE))
     {
-	msg(MSG::VERBOSE) << endreq << "standaloneFit:: " << std::setiosflags(std::ios::fixed);
+	msg(MSG::VERBOSE) << endreq << "==== Start of standaloneFit:: " << std::setiosflags(std::ios::fixed);
 
 	if (m_trackQuery->isExtrapolated(inputSpectrometerTrack))
  	{
@@ -1164,7 +1205,7 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
 	}
 	
 	// inconsistent TSOS on input track
-	if (measurements < fitQuality->numberDoF() + 4)
+	if (fitQuality && measurements < fitQuality->numberDoF() + 4)
 	{
 	    m_messageHelper->printWarning(49);
             ATH_MSG_VERBOSE(" SA::failed (2)");
@@ -1342,7 +1383,7 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
 	if (badlyDeterminedCurvature
 	    && parameters->momentum().mag() > m_lowMomentum) particleHypothesis = Trk::nonInteracting;
 	
-	prefit	= createExtrapolatedTrack(spectrometerTrack.info(),
+	prefit	= createExtrapolatedTrack(spectrometerTrack,
 					  *parameters,
 					  particleHypothesis,
 					  false,
@@ -1416,7 +1457,7 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
 	spectrometerTSOS->clear();
 	if (! prefit)
 	{
-	    delete caloParameters;
+//	    delete caloParameters;
 	    delete spectrometerParameters;
 	    delete spectrometerTSOS;
 	    if (haveSpectrometerRefit) delete spectrometerFit;
@@ -1485,7 +1526,7 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
     particleHypothesis		= Trk::muon;
     bool returnAfterCleaner	= false;
     if (! m_magFieldSvc->toroidOn()) returnAfterCleaner = true;
-    Trk::Track* extrapolated	= createExtrapolatedTrack(spectrometerTrack.info(),
+    Trk::Track* extrapolated	= createExtrapolatedTrack(spectrometerTrack,
 							  *parameters,
 							  particleHypothesis,
 							  m_cleanStandalone,
@@ -1538,7 +1579,7 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
 		for ( ; s != prefit->trackStateOnSurfaces()->end(); ++s)
 		    spectrometerTSOS->push_back((**s).clone());
 		delete extrapolated;
-		extrapolated	= createExtrapolatedTrack(spectrometerTrack.info(),
+		extrapolated	= createExtrapolatedTrack(spectrometerTrack,
 							  *caloParameters,
 							  particleHypothesis,
 							  false,
@@ -1634,7 +1675,7 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
 	    if (! (**s).type(Trk::TrackStateOnSurface::Perigee))
 		spectrometerTSOS->push_back((**s).clone());
 	}
-	track = createExtrapolatedTrack(spectrometerTrack.info(),
+	track = createExtrapolatedTrack(spectrometerTrack,
 					*parameters,
 					particleHypothesis,
 					m_cleanStandalone,
@@ -1658,25 +1699,27 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
     }
 
     // in case of the unexpected ...
-    if (! track || ! m_trackQuery->isCaloAssociated(*track))
-    {
-	if (! track)
+    if (! track)
 	{
 	    // final track lost, this should not happen
 	    m_messageHelper->printWarning(11);
+	    spectrometerTSOS->clear();
+	    delete spectrometerTSOS;
+	    if (haveSpectrometerRefit) delete spectrometerFit;
+            ATH_MSG_VERBOSE(" SA::failed (11)");
+	    return 0;
 	}
-	else
+    else if (! m_trackQuery->isCaloAssociated(*track)) 
 	{
 	    // fail as calo incorrectly described
 	    m_messageHelper->printWarning(12);
 	    delete track;
+	    spectrometerTSOS->clear();
+	    delete spectrometerTSOS;
+	    if (haveSpectrometerRefit) delete spectrometerFit;
+            ATH_MSG_VERBOSE(" SA::failed (12)");
+	    return 0;
 	}   
-	spectrometerTSOS->clear();
-	delete spectrometerTSOS;
-	if (haveSpectrometerRefit) delete spectrometerFit;
-        ATH_MSG_VERBOSE(" SA::failed (11)");
-	return 0;
-    }
 
     // hole recovery, error optimization, attach TrackSummary
     finalTrackBuild(track);
@@ -1698,6 +1741,7 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
     delete spectrometerTSOS;
     if (haveSpectrometerRefit) delete spectrometerFit;
     ATH_MSG_VERBOSE(" SA::ok ");
+
     return track;
 }
 
@@ -1900,7 +1944,7 @@ CombinedMuonTrackBuilder::standaloneRefit (const Trk::Track&	combinedTrack) cons
 
 	// get parameters at middleSurface for energy correction,
 	// start with parameters from middle surface when vertex in fit
-	if (outerScattering)
+	if (outerScattering && middleTSOS)
 	{
 	    parameters	= middleTSOS->trackParameters()->clone();
 	}
@@ -2210,7 +2254,15 @@ CombinedMuonTrackBuilder::fit (const Trk::Track&		track,
 	DataVector<const Trk::TrackStateOnSurface>* combinedTSOS =
 	    new DataVector<const Trk::TrackStateOnSurface>;
 	combinedTSOS->reserve(track.trackStateOnSurfaces()->size() + 3);
-	bool caloAssociated	= false;
+	bool caloAssociated = false;
+
+	// run-2 schema, update default eloss with parametrised value
+	if(m_useCaloTG) {
+	  ATH_MSG_VERBOSE( "Updating Calorimeter TSOS in Muon Combined (re)Fit ..." );
+	  m_materialUpdator->updateCaloTSOS(const_cast<Trk::Track&>(track));
+	  caloAssociated = true;
+	}
+
 	for (DataVector<const Trk::TrackStateOnSurface>::const_iterator
 		 s = track.trackStateOnSurfaces()->begin();
 	     s != track.trackStateOnSurfaces()->end();
@@ -2229,38 +2281,54 @@ CombinedMuonTrackBuilder::fit (const Trk::Track&		track,
 	    }
 	    else
 	    {
-		const Trk::TrackStateOnSurface* tsos = m_caloTSOS->innerTSOS(*track.perigeeParameters());
-		if (tsos)
+	      const Trk::TrackStateOnSurface* tsos = m_caloTSOS->innerTSOS(*track.perigeeParameters());
+	      if (tsos)
 		{
-		    combinedTSOS->push_back(tsos);
-		    const Trk::TrackParameters* parameters	= tsos->trackParameters();
-		    if ((**s).type(Trk::TrackStateOnSurface::CaloDeposit))
+		  combinedTSOS->push_back(tsos);
+		  const Trk::TrackParameters* parameters	= tsos->trackParameters();
+		  if ((**s).type(Trk::TrackStateOnSurface::CaloDeposit))
 		    {
-			combinedTSOS->push_back((**s).clone());
-			tsos = m_caloTSOS->outerTSOS(*parameters);
-			if (tsos) combinedTSOS->push_back(tsos);
+		      combinedTSOS->push_back((**s).clone());
+		      tsos = m_caloTSOS->outerTSOS(*parameters);
+		      if (tsos) combinedTSOS->push_back(tsos);
 		    }
-		    else
+		  else
 		    {
-			tsos = m_caloTSOS->middleTSOS(*parameters);
-			if (tsos) combinedTSOS->push_back(tsos);
-			tsos = m_caloTSOS->outerTSOS(*parameters);
-			if (tsos) combinedTSOS->push_back(tsos);
-			combinedTSOS->push_back((**s).clone());
+		      tsos = m_caloTSOS->middleTSOS(*parameters);
+		      if (tsos) combinedTSOS->push_back(tsos);
+		      tsos = m_caloTSOS->outerTSOS(*parameters);
+		      if (tsos) combinedTSOS->push_back(tsos);
+		      combinedTSOS->push_back((**s).clone());
 		    }
 		}
-		caloAssociated	= true;
+	      caloAssociated = true;
 	    }
 	}
-	Trk::Track* combinedTrack	= new Trk::Track(track.info(), combinedTSOS, 0);
+
+	Trk::Track* combinedTrack = new Trk::Track(track.info(), combinedTSOS, 0);
 	caloAssociated	= m_trackQuery->isCaloAssociated(*combinedTrack);
-		caloAssociated	= true;
-	fittedTrack			= fitter->fit(*combinedTrack, false, particleHypothesis);
+	caloAssociated	= true;       
+	
+	// Updates the calo TSOS with the ones from TG+corrections
+	if(m_updateWithCaloTG && !m_useCaloTG && particleHypothesis==Trk::muon) {
+	  ATH_MSG_VERBOSE( "Updating Calorimeter TSOS in Muon Combined (re)Fit ..." );
+	  m_materialUpdator->updateCaloTSOS(*combinedTrack);
+	}
+	
+	// FIT
+	fittedTrack = fitter->fit(*combinedTrack, false, particleHypothesis);
 	delete combinedTrack;
     }
     else
     {
-	fittedTrack = fitter->fit(track, false, particleHypothesis);
+      // Updates the calo TSOS with the ones from TG+corrections
+      if(m_updateWithCaloTG && !m_useCaloTG && particleHypothesis==Trk::muon) {
+	ATH_MSG_VERBOSE( "Updating Calorimeter TSOS in Muon Standalone Fit ..." );
+      	m_materialUpdator->updateCaloTSOS(const_cast<Trk::Track&>(track));
+      }
+
+      // FIT
+      fittedTrack = fitter->fit(track, false, particleHypothesis);
     }
 
     // quit if fit has failed
@@ -2274,12 +2342,14 @@ CombinedMuonTrackBuilder::fit (const Trk::Track&		track,
 
 	// muon cleaner
 	ATH_MSG_VERBOSE( " perform track cleaning... "  << m_printer->print(*fittedTrack) << std::endl << m_printer->printStations(*fittedTrack) );
+
         Trk::Track* cleanTrack = m_cleaner->clean(*fittedTrack);
+
 	if (! cleanTrack)
-	{
+	  {
 	    if (m_allowCleanerVeto && chi2Before > m_badFitChi2)
-	    {
-		ATH_MSG_DEBUG( " cleaner veto " );
+	      {
+		ATH_MSG_DEBUG( " cleaner veto A " );
 		++m_countStandaloneCleanerVeto;
 		delete fittedTrack;
 		fittedTrack = 0;
@@ -2295,7 +2365,6 @@ CombinedMuonTrackBuilder::fit (const Trk::Track&		track,
 	    if (chi2After < m_badFitChi2 || chi2After < chi2Before)
 	    {
 		ATH_MSG_VERBOSE( " found and removed spectrometer outlier(s) " );
-
 		delete fittedTrack;
 		fittedTrack = cleanTrack;
 	    }
@@ -2358,13 +2427,14 @@ CombinedMuonTrackBuilder::fit (const Trk::MeasurementSet&	measurementSet,
 					   *perigeeSurface);
     }
     
-    // fit
+    // FIT
     Trk::Track* fittedTrack = fitter->fit(measurementSet,*perigee,false,particleHypothesis);
     if (perigeeSurface)
     {
 	delete perigeeSurface;
 	delete perigee;
     }
+
     if (! fittedTrack)			return 0;
 
     // track cleaning
@@ -2380,7 +2450,7 @@ CombinedMuonTrackBuilder::fit (const Trk::MeasurementSet&	measurementSet,
 	{
 	    if (m_allowCleanerVeto && chi2Before > m_badFitChi2)
 	    {
-		ATH_MSG_DEBUG( " cleaner veto " );
+		ATH_MSG_DEBUG( " cleaner veto B" );
 		++m_countExtensionCleanerVeto;
 		delete fittedTrack;
 		fittedTrack = 0;
@@ -2450,9 +2520,17 @@ CombinedMuonTrackBuilder::fit (const Trk::Track&		indetTrack,
 	m_messageHelper->printWarning(33);
     }
     
-    // fit
-    ATH_MSG_VERBOSE( " perform combined fit... " << std::endl << m_printer->print(indetTrack) << std::endl << m_printer->print(extrapolatedTrack) );
+    // Updates the calo TSOS with the ones from TG+corrections
+    if(m_updateWithCaloTG && !m_useCaloTG && particleHypothesis==Trk::muon) {
+      ATH_MSG_VERBOSE( "Updating Calorimeter TSOS in Muon Combined Fit ..." );
+      m_materialUpdator->updateCaloTSOS(const_cast<Trk::Track&>(indetTrack), 
+					const_cast<Trk::Track&>(extrapolatedTrack));
+    }
+
+    // FIT
+    ATH_MSG_VERBOSE( " perform combined fit... " << std::endl << m_printer->print(indetTrack) << std::endl << m_printer->print(extrapolatedTrack) );    
     Trk::Track* fittedTrack = fitter->fit(indetTrack, extrapolatedTrack, false, particleHypothesis);
+    
     if (! fittedTrack)	return 0;
     
     // track cleaning
@@ -2469,7 +2547,7 @@ CombinedMuonTrackBuilder::fit (const Trk::Track&		indetTrack,
 	{
 	    if (m_allowCleanerVeto && chi2Before > m_badFitChi2)
 	    {
-		ATH_MSG_DEBUG( " cleaner veto " );
+		ATH_MSG_DEBUG( " cleaner veto C" );
 		++m_countCombinedCleanerVeto;
 		delete fittedTrack;
 		fittedTrack = 0;
@@ -2618,7 +2696,7 @@ CombinedMuonTrackBuilder::caloEnergyParameters(const Trk::Track* combinedTrack,
 
 Trk::Track*
 CombinedMuonTrackBuilder::createExtrapolatedTrack(
-    const Trk::TrackInfo&				info,
+    const Trk::Track&				        spectrometerTrack,
     const Trk::TrackParameters&				parameters,
     Trk::ParticleHypothesis				particleHypothesis,
     Trk::RunOutlierRemoval				runOutlier,
@@ -2669,12 +2747,17 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(
 	bool caloAssociated		= false;
 	if (particleHypothesis == Trk::muon)
 	{
-	  caloTSOS	= m_caloTSOS->caloTSOS(*leadingParameters);
+	  if(m_useCaloTG) 
+	    caloTSOS = m_materialUpdator->getCaloTSOS(*leadingParameters, spectrometerTrack);
+	  else
+	    caloTSOS = m_caloTSOS->caloTSOS(*leadingParameters);
+	  
 	  if (caloTSOS && caloTSOS->size() > 2)	caloAssociated	= true;
 	  else ATH_MSG_VERBOSE("Failed to associated calorimeter");
 	}
 	else
 	{
+	    // TDDO Run2 Calo TG
 	    const Trk::TrackStateOnSurface* tsos = m_caloTSOS->innerTSOS(parameters);
 	    if (tsos)
 	    {
@@ -2751,25 +2834,31 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(
 					       *m_perigeeSurface);
 	    particleHypothesis = Trk::nonInteracting;
 	    runOutlier = false;
-	    const Trk::TrackStateOnSurface* tsos = m_caloTSOS->innerTSOS(*trackParameters);
-	    if (tsos)
-	    {
-		caloTSOS    = new std::vector<const Trk::TrackStateOnSurface*>;
-		caloTSOS->reserve(2);
-		caloTSOS->push_back(tsos);
-		tsos = m_caloTSOS->outerTSOS(*trackParameters);
+
+	    if(m_useCaloTG) 
+	      caloTSOS = m_materialUpdator->getCaloTSOS(*trackParameters, spectrometerTrack);
+	    else
+	      {
+		const Trk::TrackStateOnSurface* tsos = m_caloTSOS->innerTSOS(*trackParameters);
 		if (tsos)
-		{
+		  {
+		    caloTSOS    = new std::vector<const Trk::TrackStateOnSurface*>;
+		    caloTSOS->reserve(2);
 		    caloTSOS->push_back(tsos);
-		}
-		else
-		{
-		    delete trackParameters;
-		    trackParameters = 0;
-		}
-	    }
+		    tsos = m_caloTSOS->outerTSOS(*trackParameters);
+		    if (tsos)
+		      {
+			caloTSOS->push_back(tsos);
+		      }
+		    else
+		      {
+			delete trackParameters;
+			trackParameters = 0;
+		      }
+		  }
+	      }
 	}
-    
+	
 	// failure in calo association and/or extrapolation to indet
 	if (! trackParameters || ! caloTSOS)
 	{
@@ -2802,9 +2891,11 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(
     }
 
     // set seed if provided
+    bool deleteTrackParameters = false;
     if( seedParameters ) {
       delete trackParameters;
       trackParameters = seedParameters->clone();
+      if(trackParameters) deleteTrackParameters = true;
     }
     // append TSOS objects into DataVector
     // reserve allows for perigee + vertex + calo + entrancePerigee + spectrometer TSOS
@@ -2820,7 +2911,7 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(
     perigeeType.set(Trk::TrackStateOnSurface::Perigee);
     if( trackParameters && !trackParameters->covariance() )     ATH_MSG_VERBOSE(" createExtrapolatedTrack: no cov (2)" );
 
-    trackStateOnSurfaces->push_back
+    if(trackParameters) trackStateOnSurfaces->push_back
 	(new const Trk::TrackStateOnSurface(0,
 					    dynamic_cast<const Trk::Perigee*>(trackParameters),
 					    0,
@@ -2828,7 +2919,7 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(
 					    perigeeType) );
     
     // optionally append a pseudoMeasurement describing the vertex
-    if (vertex)
+    if (vertex&&trackParameters)
     {
 	const Trk::PseudoMeasurementOnTrack* vertexInFit = vertexOnTrack(*trackParameters,vertex);
 	if (vertexInFit)
@@ -2854,10 +2945,12 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(
     // MS entrance perigee
     if (m_perigeeAtSpectrometerEntrance)
     {
-	trackParameters		= trackStateOnSurfaces->back()->trackParameters();
-	if (! trackParameters) trackParameters		= spectrometerTSOS.front()->trackParameters();
-	const Trk::TrackStateOnSurface*	entranceTSOS	= entrancePerigee(trackParameters);
-	if (entranceTSOS) trackStateOnSurfaces->push_back(entranceTSOS);
+	const Trk::TrackParameters*  mstrackParameters		= trackStateOnSurfaces->back()->trackParameters();
+	if (! mstrackParameters) mstrackParameters		= spectrometerTSOS.front()->trackParameters();
+        if(mstrackParameters) {
+  	  const Trk::TrackStateOnSurface*	entranceTSOS	= entrancePerigee(mstrackParameters);
+	  if (entranceTSOS) trackStateOnSurfaces->push_back(entranceTSOS);
+        }
     }
     
     // append leading MS material TSOS
@@ -2881,9 +2974,10 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(
     for (s = spectrometerTSOS.begin(); s != spectrometerTSOS.end(); ++s){
 	if (! (**s).type(Trk::TrackStateOnSurface::Perigee)) trackStateOnSurfaces->push_back(*s);
         if( (**s).measurementOnTrack() && dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((**s).measurementOnTrack()) ) ATH_MSG_VERBOSE(" MS Pseudo");
-    }
+    }    
+
     // create track
-    Trk::Track* track = new Trk::Track(info,trackStateOnSurfaces,0);
+    Trk::Track* track = new Trk::Track(spectrometerTrack.info(),trackStateOnSurfaces,0);
 
     // remove material when curvature badly determined (to remove energy loss uncertainty)
     if (particleHypothesis == Trk::nonInteracting)
@@ -2901,6 +2995,7 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(
     }
     
     Trk::Track* fittedTrack = fit(*track,runOutlier,particleHypothesis);
+
     if (fittedTrack)
     {
 	delete track;
@@ -2911,6 +3006,7 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(
 	{
 	    ATH_MSG_DEBUG( "  back extrapolation problem: fitted perigee outside indet volume " );
 	    delete fittedTrack;
+            if(deleteTrackParameters) delete trackParameters;
 	    return 0;
 	}
 	
@@ -2963,148 +3059,178 @@ CombinedMuonTrackBuilder::createIndetTrack(
    
 Trk::Track*
 CombinedMuonTrackBuilder::createMuonTrack(
-    const Trk::TrackInfo&					info,
+    const Trk::Track&					        muonTrack,
     const Trk::TrackParameters*					parameters,
     const CaloEnergy*						caloEnergy,
     DataVector<const Trk::TrackStateOnSurface>::const_iterator	begin,
     DataVector<const Trk::TrackStateOnSurface>::const_iterator	end,
     unsigned							size) const
 {
-    // set iterator to current TSOS on input track to be after the indet
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator s = begin;
-    while ((**s).trackParameters()
-	   && (m_indetVolume->inside((**s).trackParameters()->position())
-	       || (**s).type(Trk::TrackStateOnSurface::Perigee)))
+  // set iterator to current TSOS on input track to be after the indet
+  const Trk::TrackParameters* lastIDtp = 0;	
+  DataVector<const Trk::TrackStateOnSurface>::const_iterator s = begin;
+  while ((**s).trackParameters()
+	 && (m_indetVolume->inside((**s).trackParameters()->position())
+	     || (**s).type(Trk::TrackStateOnSurface::Perigee)))
     {
-	++s;
-	--size;
+      if(m_indetVolume->inside((**s).trackParameters()->position()))
+	lastIDtp = (**s).trackParameters();	 
+      ++s;
+      --size;
     }
-    
-    // create muon track TSOS vector
-    DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces =
-	new DataVector<const Trk::TrackStateOnSurface>;
-
-    // redo calo association from inside if requested
-    if (parameters)
+  
+  // create muon track TSOS vector
+  DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces =
+    new DataVector<const Trk::TrackStateOnSurface>;
+  
+  // redo calo association from inside if requested
+  bool redoCaloAssoc=false;
+  if (parameters)
     {
-	// move current TSOS iterator to be outside the calorimeter
-	while ((**s).trackParameters()
-	       && (m_calorimeterVolume->inside((**s).trackParameters()->position())
-		   || (**s).type(Trk::TrackStateOnSurface::Perigee)))
+      redoCaloAssoc=true;
+      
+      // move current TSOS iterator to be outside the calorimeter
+      while ((**s).trackParameters()
+	     && (m_calorimeterVolume->inside((**s).trackParameters()->position())
+		 || (**s).type(Trk::TrackStateOnSurface::Perigee)))
 	{
-	    ++s;
-	    --size;
+	  ++s;
+	  --size;
 	}
-
-	// associate calo by extrapolation from parameters
-	std::vector<const Trk::TrackStateOnSurface*>* caloTSOS = m_caloTSOS->caloTSOS(*parameters);
-
-	if (! caloTSOS || caloTSOS->size() < 3)
+      
+      // associate calo by extrapolation from last ID parameters	
+      std::vector<const Trk::TrackStateOnSurface*>* caloTSOS;
+      if(m_useCaloTG) {
+	// get first MS TSOS with TP
+	DataVector<const Trk::TrackStateOnSurface>::const_iterator ss = s;
+	const Trk::TrackParameters* firstMStp = 0;	
+	while(ss!=end) {
+	  if((**ss).trackParameters() && (**ss).trackParameters()->covariance()) {
+	    firstMStp = (**ss).trackParameters();
+	    break;
+	  }
+	  ++ss;
+	}
+	if(!lastIDtp) 
+	  lastIDtp = parameters;
+	caloTSOS = m_materialUpdator->getCaloTSOS(*lastIDtp, muonTrack, firstMStp);
+      }else
+	caloTSOS = m_caloTSOS->caloTSOS(*parameters);
+      
+      if (! caloTSOS || caloTSOS->size() < 3)
 	{
-	    ATH_MSG_DEBUG( " muonTrack: parameters fail to fully intersect the calorimeter" );
-	    if (caloTSOS)
+	  ATH_MSG_DEBUG( " muonTrack: parameters fail to fully intersect the calorimeter" );
+	  if (caloTSOS)
 	    {
-		for (std::vector<const Trk::TrackStateOnSurface*>::const_iterator t = caloTSOS->begin();
-		     t != caloTSOS->end();
-		     ++t)
-		    delete *t;
-		
-		delete caloTSOS;
+	      for (std::vector<const Trk::TrackStateOnSurface*>::const_iterator t = caloTSOS->begin();
+		   t != caloTSOS->end();
+		   ++t)
+		delete *t;
+	      
+	      delete caloTSOS;
 	    }
-	    delete trackStateOnSurfaces;
-	    return 0;
+	  delete trackStateOnSurfaces;
+	  return 0;
 	}
-	size += caloTSOS->size();
-	trackStateOnSurfaces->reserve(size+1);
-
-	// start with the calo TSOS
-	for (std::vector<const Trk::TrackStateOnSurface*>::const_iterator t = caloTSOS->begin();
-	     t != caloTSOS->end();
-	     ++t)
-	    trackStateOnSurfaces->push_back(*t);
-	delete caloTSOS;
+      size += caloTSOS->size();
+      trackStateOnSurfaces->reserve(size+1);
+      
+      // start with the calo TSOS
+      for (std::vector<const Trk::TrackStateOnSurface*>::const_iterator t = caloTSOS->begin();
+	   t != caloTSOS->end();
+	   ++t)
+	trackStateOnSurfaces->push_back(*t);
+      delete caloTSOS;
     }
-    else
+  else
     {
-	trackStateOnSurfaces->reserve(size+1);
+      trackStateOnSurfaces->reserve(size+1);
     }
-
-    // if requested, replace caloEnergy on appropriate TSOS
-    if (caloEnergy
-	&& (**s).trackParameters()
-	&& m_calorimeterVolume->inside((**s).trackParameters()->position()))
+  
+  // if requested, replace caloEnergy on appropriate TSOS
+  if (caloEnergy
+      && (**s).trackParameters()
+      && m_calorimeterVolume->inside((**s).trackParameters()->position()))
     {
-	const Trk::TrackStateOnSurface* TSOS =
-	    const_cast<const Trk::TrackStateOnSurface*>((**s).clone());
-	trackStateOnSurfaces->push_back(TSOS);
-	++s;
-
-	// create MEOT owning CaloEnergy
-	if ((**s).trackParameters()
-	    && m_calorimeterVolume->inside((**s).trackParameters()->position()))
+      const Trk::TrackStateOnSurface* TSOS =
+	const_cast<const Trk::TrackStateOnSurface*>((**s).clone());
+      trackStateOnSurfaces->push_back(TSOS);
+      ++s;
+      
+      // create MEOT owning CaloEnergy
+      if ((**s).trackParameters()
+	  && m_calorimeterVolume->inside((**s).trackParameters()->position()))
 	{	    
-	    std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes> typePattern;
-	    typePattern.set(Trk::MaterialEffectsBase::EnergyLossEffects);
-	    const Trk::MaterialEffectsOnTrack*	materialEffects =
-		new const Trk::MaterialEffectsOnTrack(0.,
-						      dynamic_cast<const Trk::EnergyLoss*>(caloEnergy),
-						      (**s).trackParameters()->associatedSurface(),
-						      typePattern);
-    
-	    // create TSOS
-	    const Trk::FitQualityOnSurface*	fitQoS		= 0;
-	    const Trk::MeasurementBase*	measurementBase		= 0;
-	    std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type;
-	    type.set(Trk::TrackStateOnSurface::CaloDeposit);
-	    TSOS = new const Trk::TrackStateOnSurface(measurementBase,
-						      (**s).trackParameters()->clone(),
-						      fitQoS,
-						      materialEffects,
-						      type);
-	    trackStateOnSurfaces->push_back(TSOS);
-	    ++s;
+	  std::bitset<Trk::MaterialEffectsBase::NumberOfMaterialEffectsTypes> typePattern;
+	  typePattern.set(Trk::MaterialEffectsBase::EnergyLossEffects);
+	  const Trk::MaterialEffectsOnTrack*	materialEffects =
+	    new const Trk::MaterialEffectsOnTrack(0.,
+						  dynamic_cast<const Trk::EnergyLoss*>(caloEnergy),
+						  (**s).trackParameters()->associatedSurface(),
+						  typePattern);
+	  
+	  // create TSOS
+	  const Trk::FitQualityOnSurface*	fitQoS		= 0;
+	  const Trk::MeasurementBase*	measurementBase		= 0;
+	  std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> type;
+	  type.set(Trk::TrackStateOnSurface::CaloDeposit);
+	  TSOS = new const Trk::TrackStateOnSurface(measurementBase,
+						    (**s).trackParameters()->clone(),
+						    fitQoS,
+						    materialEffects,
+						    type);
+	  trackStateOnSurfaces->push_back(TSOS);
+	  ++s;
 	}
-	else
+      else
 	{
-	    // should never happen: FSR caloEnergy delete
-	    m_messageHelper->printWarning(37);
-	    delete caloEnergy;
+	  // should never happen: FSR caloEnergy delete
+	  m_messageHelper->printWarning(37);
+	  delete caloEnergy;
 	}
     }
   
-    // MS entrance perigee
-    if (m_perigeeAtSpectrometerEntrance)
+  // MS entrance perigee
+  if (m_perigeeAtSpectrometerEntrance)
     {
-	// copy calorimeter TSOS
-	while ((**s).trackParameters()
-	       && m_calorimeterVolume->inside((**s).trackParameters()->position()))
+      // copy calorimeter TSOS
+      while ((**s).trackParameters()
+	     && m_calorimeterVolume->inside((**s).trackParameters()->position()))
 	{
-	    if (! (**s).type(Trk::TrackStateOnSurface::Perigee))
+	  if (! (**s).type(Trk::TrackStateOnSurface::Perigee))
 	    {
-		const Trk::TrackStateOnSurface* TSOS =
-		    const_cast<const Trk::TrackStateOnSurface*>((**s).clone());
-		trackStateOnSurfaces->push_back(TSOS);
+	      const Trk::TrackStateOnSurface* TSOS =
+		const_cast<const Trk::TrackStateOnSurface*>((**s).clone());
+	      trackStateOnSurfaces->push_back(TSOS);
 	    }
-	    ++s;
+	  ++s;
 	}
-
-	// add entrance TSOS
-	const Trk::TrackStateOnSurface*	entranceTSOS	= 0;
-	if ((**s).trackParameters())
+      
+      // add entrance TSOS
+      const Trk::TrackStateOnSurface*	entranceTSOS	= 0;
+      if ((**s).trackParameters())
 	{
-	    entranceTSOS	= entrancePerigee((**s).trackParameters());
+	  entranceTSOS	= entrancePerigee((**s).trackParameters());
 	}
-	else
+      else
 	{
-	    entranceTSOS	= entrancePerigee(trackStateOnSurfaces->back()->trackParameters());
+	  entranceTSOS	= entrancePerigee(trackStateOnSurfaces->back()->trackParameters());
 	} 
-	if (entranceTSOS) trackStateOnSurfaces->push_back(entranceTSOS);
+      if (entranceTSOS) trackStateOnSurfaces->push_back(entranceTSOS);
     }
-   
-    // then append selected TSOS from the extrapolated or spectrometer track
-    appendSelectedTSOS(*trackStateOnSurfaces,s,end);
-
-    return new Trk::Track(info,trackStateOnSurfaces,0);
+  
+  // then append selected TSOS from the extrapolated or spectrometer track
+  appendSelectedTSOS(*trackStateOnSurfaces,s,end);
+  
+  Trk::Track* newMuonTrack = new Trk::Track(muonTrack.info(),trackStateOnSurfaces,0);
+  
+  // Updates the calo TSOS with the ones from TG+corrections (if needed)
+  if(m_updateWithCaloTG && !m_useCaloTG && redoCaloAssoc) {
+    ATH_MSG_VERBOSE( "Updating Calorimeter TSOS in CreateMuonTrack ..." );
+    m_materialUpdator->updateCaloTSOS(*newMuonTrack, parameters);
+  }
+  
+  return newMuonTrack;
 }
     
 const Trk::TrackStateOnSurface*
@@ -3314,6 +3440,7 @@ const Trk::TrackStateOnSurface*
 CombinedMuonTrackBuilder::entrancePerigee(const Trk::TrackParameters*	parameters) const
 {
     // make sure the spectrometer entrance volume is available
+    if (! parameters) 		return 0;
     if (! m_spectrometerEntrance)
     {
 	if (! m_trackingGeometrySvc)
@@ -3329,7 +3456,7 @@ CombinedMuonTrackBuilder::entrancePerigee(const Trk::TrackParameters*	parameters
 	}
     }
 
-    if (! parameters) 		return 0;
+    if (! m_spectrometerEntrance) 		return 0;
     const Trk::TrackParameters* entranceParameters =
 	m_extrapolator->extrapolateToVolume(*parameters,
 					    *m_spectrometerEntrance,
@@ -3411,11 +3538,13 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool&			badlyDeterminedCurvatur
     }
     
     if (curvatureOK)
-    {
-	// energy loss correction
-	CaloEnergy* caloEnergy 		= m_caloEnergyParam->energyLoss(trackEnergy,
-									parameters->position().eta(),
-									parameters->position().phi());
+      {
+	// TDDO Run2 Calo TG
+        // energy loss correction
+        CaloEnergy* caloEnergy = m_caloEnergyParam->energyLoss(trackEnergy,
+							       parameters->position().eta(),
+							       parameters->position().phi());
+	
 	if (trackEnergy + caloEnergy->deltaE() < m_minEnergy)
 	{
 	    ATH_MSG_DEBUG( "standaloneFit: trapped in calorimeter" );
@@ -3622,7 +3751,8 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool&			badlyDeterminedCurvatur
 							   1.,
 							   *m_perigeeSurface);
 	correctedParameters		= m_propagator->propagate(*perigee,
-								  parameters->associatedSurface(),
+								  perigee->associatedSurface(),
+//								  parameters->associatedSurface(),
 								  Trk::alongMomentum,
 								  false,
 								  m_magFieldProperties,
