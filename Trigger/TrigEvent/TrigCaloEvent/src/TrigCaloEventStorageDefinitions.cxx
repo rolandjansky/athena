@@ -19,6 +19,9 @@
 #include "CaloEvent/CaloCell2ClusterMap.h"
 #include "CaloEvent/CaloTopoTowerContainer.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
+#include "xAODTrigRinger/TrigRingerRingsContainer.h"
+#include "xAODTrigRinger/TrigRNNOutputContainer.h"
+#include "xAODTrigL1Calo/TriggerTowerContainer.h"
 
 #include "TrigNavigation/TypeRegistration.h"
 REGISTER_PACKAGE_WITH_NAVI(TrigCaloEvent)

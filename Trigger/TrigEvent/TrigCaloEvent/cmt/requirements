@@ -23,8 +23,10 @@ use TrigMissingEtEvent	TrigMissingEtEvent-*	Trigger/TrigEvent
 private
 use CaloEvent           CaloEvent-*		Calorimeter
 use xAODTrigCalo	xAODTrigCalo-*		Event/xAOD
+use xAODTrigL1Calo	xAODTrigL1Calo-*	Event/xAOD
 use xAODCaloEvent	xAODCaloEvent-*		Event/xAOD
 use xAODTrigMinBias	xAODTrigMinBias-*	Event/xAOD
+use xAODTrigRinger      xAODTrigRinger-*        Event/xAOD
 end_private
 
 library TrigCaloEvent *.cxx -s=components *.cxx
@@ -57,14 +59,22 @@ apply_pattern sercnv files="-s=${TrigCaloEvent_root}/TrigCaloEvent TrigCaloClust
 apply_pattern sercnv \ 
 libtag="xAOD" \
 typesWithNamespace="xAOD::CaloCluster xAOD::CaloClusterContainer xAOD::CaloClusterAuxContainer \
-		    xAOD::TrigCaloCluster xAOD::TrigCaloClusterContainer xAOD::TrigCaloClusterAuxContainer \
-		    xAOD::TrigEMCluster xAOD::TrigEMClusterContainer xAOD::TrigEMClusterAuxContainer \
-		    xAOD::TrigT2MbtsBits xAOD::TrigT2MbtsBitsContainer xAOD::TrigT2MbtsBitsAuxContainer" \
-files="-s=${xAODTrigCalo_root}/xAODTrigCalo TrigCaloCluster.h TrigCaloClusterContainer.h TrigCaloClusterAuxContainer.h \
-                               TrigEMCluster.h TrigEMClusterContainer.h TrigEMClusterAuxContainer.h \
+                    xAOD::TrigCaloCluster xAOD::TrigCaloClusterContainer xAOD::TrigCaloClusterAuxContainer \
+                    xAOD::TrigEMCluster xAOD::TrigEMClusterContainer xAOD::TrigEMClusterAuxContainer \
+                    xAOD::TrigT2MbtsBits xAOD::TrigT2MbtsBitsContainer xAOD::TrigT2MbtsBitsAuxContainer \
+                    xAOD::TrigCaloCluster xAOD::TrigCaloClusterContainer xAOD::TrigCaloClusterAuxContainer \
+                    xAOD::TrigEMCluster xAOD::TrigEMClusterContainer xAOD::TrigEMClusterAuxContainer \
+                    xAOD::TrigRingerRings xAOD::TrigRingerRingsContainer xAOD::TrigRingerRingsAuxContainer\
+                    xAOD::TrigRNNOutput xAOD::TrigRNNOutputContainer xAOD::TrigRNNOutputAuxContainer\
+                    xAOD::TrigT2MbtsBits xAOD::TrigT2MbtsBitsContainer xAOD::TrigT2MbtsBitsAuxContainer \
+		    xAOD::TriggerTower xAOD::TriggerTowerContainer xAOD::TriggerTowerAuxContainer" \
+       files="-s=${xAODTrigCalo_root}/xAODTrigCalo TrigCaloCluster.h TrigCaloClusterContainer.h TrigCaloClusterAuxContainer.h \
+                                TrigEMCluster.h TrigEMClusterContainer.h TrigEMClusterAuxContainer.h \
+       -s=${xAODTrigL1Calo_root}/xAODTrigL1Calo TriggerTower.h TriggerTowerContainer.h TriggerTowerAuxContainer.h \
+       -s=${xAODTrigRinger_root}/xAODTrigRinger TrigRingerRings.h TrigRingerRingsContainer.h TrigRingerRingsAuxContainer.h\
+                                  TrigRNNOutput.h TrigRNNOutputContainer.h TrigRNNOutputAuxContainer.h\
        -s=${xAODTrigMinBias_root}/xAODTrigMinBias TrigT2MbtsBits.h TrigT2MbtsBitsContainer.h TrigT2MbtsBitsAuxContainer.h \
-       -s=${xAODCaloEvent_root}/xAODCaloEvent CaloCluster.h CaloClusterContainer.h CaloClusterAuxContainer.h"
-
+       -s=${xAODCaloEvent_root}/xAODCaloEvent CaloCluster.h CaloClusterContainer.h CaloClusterAuxContainer.h" 
 
 
 # Doxygen switches
