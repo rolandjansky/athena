@@ -585,7 +585,7 @@ Trk::Track* Trk::GaussianSumFitter::fit ( const Trk::PrepRawDataSet&    prepRawD
 
   
   // Create new track
-  Trk::TrackInfo info(Trk::TrackInfo::GaussianSumFilter, Trk::undefined); 
+  Trk::TrackInfo info(Trk::TrackInfo::GaussianSumFilter, particleHypothesis); 
   info.setTrackProperties(TrackInfo::BremFit); 
   info.setTrackProperties(TrackInfo::BremFitSuccessful);
   fittedTrack = new Track(info, smoothedTrajectory, fitQuality );

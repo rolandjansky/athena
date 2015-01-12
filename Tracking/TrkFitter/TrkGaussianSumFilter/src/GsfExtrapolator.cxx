@@ -26,7 +26,6 @@ decription           : Implementation code for GsfExtrapolator class
 #include "TrkGeometry/MaterialProperties.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/Layer.h"
-#include "TrkGeometry/EntryLayerProvider.h"
 
 #include "TrkSurfaces/Surface.h"
 #include "TrkParameters/TrackParameters.h"
@@ -38,6 +37,8 @@ decription           : Implementation code for GsfExtrapolator class
 #include "TrkGeometry/MagneticFieldProperties.h"
 
 #include "GaudiKernel/Chrono.h"
+
+bool useBoundaryMaterialUpdate(true);
 
 Trk::GsfExtrapolator::GsfExtrapolator(const std::string& type, const std::string& name, const IInterface* parent)
   :
@@ -323,8 +324,7 @@ const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolate( const Trk::IP
     // New current state is the state extrapolated to the tracking volume boundary.
     currentState = m_stateAtBoundarySurface.stateAtBoundary;
 
-    
-      // New reference parameters are the navigation parameters at the boundary surface
+    // New reference parameters are the navigation parameters at the boundary surface
     referenceParameters = m_stateAtBoundarySurface.navigationParameters;
     if (referenceParameters) printState("New Ref Parameters at next surface ", *referenceParameters);
 
@@ -380,53 +380,6 @@ const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolate( const Trk::IP
 
     ATH_MSG_DEBUG ("Switching tracking volume look for Material: " << nextVolume->volumeName() );
 
-    //Search for exit and entry layers to volumes
-    //bool entryLayerFound(false); //variable not used?
-     
-    if (currentState && nextVolume && currentVolume ){     
-      // Check that the nextVolume can provide the entry layer 
-      //// and that we have not already extrpolated
-      //// to the exitLayer of the previous Volume
-      if( nextVolume->entryLayerProvider() ) {       
-        ATH_MSG_DEBUG( "Searching for entry layer of Volume  " << nextVolume->volumeName()<< " from " <<currentVolume->volumeName() ); 
-       
-        const Trk::Layer* entryLayer = nextVolume->entryLayer( currentState->begin()->first->position(), direction*currentState->begin()->first->momentum().unit() );       
-        // check if a) entryLayer exists
-        //          b) it has material properties: and is thus worth it to go there
-
-        if (entryLayer && entryLayer->layerMaterialProperties()){
-          ATH_MSG_DEBUG( "Entry layer to volume found" );         
-          const Trk::MultiComponentState* nextState = extrapolateToIntermediateLayer( propagator,
-                                                                                      *currentState,
-                                                                                      *entryLayer,
-                                                                                      *currentVolume,
-                                                                                      direction,
-                                                                                      particleHypothesis );
-                                
-          // Fallback to original state if the extrapolation fails & clean up memory
-          
-          if ( nextState && nextState != currentState && nextState != &multiComponentState )
-          {
-            throwIntoGarbageBin( nextState );
-          }   
-          currentState = nextState ? nextState : currentState;
-  
-          // Update the combined state if necessary
-          if ( currentState != m_stateAtBoundarySurface.stateAtBoundary )
-          {
-            //entryLayerFound = true; //variable not used?
-            ATH_MSG_DEBUG( "Entry layer successfully hit!!");              
-          }
-        } else {
-          ATH_MSG_DEBUG( "No entry layer to volume! No need to extrpolate to intermediate layer" );
-        }
-      } else{
-        ATH_MSG_DEBUG( "nextVolume does not have an entryLayerProvider => no material on entry layer" );
-      }
-
-      
-    } // end Volume material lookup
-   
     // Initialise the oscillation checker
     previousVolume = currentVolume;
 
@@ -712,7 +665,7 @@ void Trk::GsfExtrapolator::extrapolateToVolumeBoundary ( const Trk::IPropagator&
 
   // Start the timer
   Chrono chrono( &(*m_chronoSvc), "extrapolateToVolumeBoundary()" );
-  
+
   // MultiComponentState propagation and material effects
   const Trk::MultiComponentState* currentState  = &multiComponentState;
 
@@ -731,16 +684,7 @@ void Trk::GsfExtrapolator::extrapolateToVolumeBoundary ( const Trk::IPropagator&
   {
     ATH_MSG_DEBUG( "No assoicated layer passed with volume.... lets get one" );
     // Get entry layer but do not use it as  it should have already be hit if it was desired
-    associatedLayer = trackingVolume.entryLayer( combinedState->position(), combinedState->momentum() );
-
-    if ( associatedLayer && associatedLayer->layerMaterialProperties() ){
-      ATH_MSG_DEBUG( "Assoicated layer at entry layer to volume and has material" );
-      ATH_MSG_DEBUG( "...the layers position " << layerRZoutput(*associatedLayer));
-
-      associatedLayer = associatedLayer->nextLayer( combinedState->position(), combinedState->momentum() );
-      ATH_MSG_DEBUG( "Assoicated layer defined by nextLayer" );
-    }
-
+    associatedLayer = trackingVolume.associatedLayer( combinedState->position() );
     associatedLayer = associatedLayer ? associatedLayer : trackingVolume.nextLayer( combinedState->position(), direction * combinedState->momentum().unit(), associatedLayer );
 
     if (associatedLayer)
@@ -765,10 +709,8 @@ void Trk::GsfExtrapolator::extrapolateToVolumeBoundary ( const Trk::IPropagator&
     // Refresh updated state pointer
     updatedState = updatedState ? updatedState : currentState;
     
-    if(updatedState != currentState )
+    if (updatedState != currentState )
       addMaterialtoVector( layer, currentState->begin()->first );
-
-      
       
     //----------------------------------------
     //   Component reduction
@@ -794,7 +736,7 @@ void Trk::GsfExtrapolator::extrapolateToVolumeBoundary ( const Trk::IPropagator&
   // If an associated surface can be found, extrapolation within the tracking volume is mandatory
   // This will take extrapolate to the last layer in the volume
   if ( associatedLayer ){
-    
+
     nextState = extrapolateFromLayerToLayer( propagator, 
                *currentState, 
                trackingVolume, 
@@ -816,7 +758,7 @@ void Trk::GsfExtrapolator::extrapolateToVolumeBoundary ( const Trk::IPropagator&
 
 
   /* =============================================
-     Find the bounday surface using the navigator
+     Find the boundary surface using the navigator
      ============================================= */
 
   Trk::NavigationCell nextNavigationCell(0,0);
@@ -874,48 +816,53 @@ void Trk::GsfExtrapolator::extrapolateToVolumeBoundary ( const Trk::IPropagator&
     
   }
   
-  //At the end of current volume  serach for an exit layer with material
-  if(trackingVolume.entryLayerProvider() ){
-    
-    ATH_MSG_DEBUG( "Searching for exit layer of Volume  " << trackingVolume.volumeName() ); 
-     
-    const Trk::Layer* exitLayer = trackingVolume.exitLayer( currentState->begin()->first->position(), direction*currentState->begin()->first->momentum().unit() );       
-    // check if a) exitLayer exists
-    //          b) it has material properties: and is thus worth it to go there
-    if (exitLayer && exitLayer->layerMaterialProperties()){
-      ATH_MSG_DEBUG( "Exit layer to volume found " );         
-      const Trk::MultiComponentState* nextState = extrapolateToIntermediateLayer( propagator,
-                                                                                  *currentState,
-                                                                                  *exitLayer,
-                                                                                  trackingVolume,
-                                                                                  direction,
-                                                                                  particleHypothesis );
+  // !< TODO check the material on the boundary
+  if (useBoundaryMaterialUpdate) {
+   
+    //Check for two things:
+    // 1. If the next volume was found
+    // 2. If there is material associated with the boundary layer.
+    // If so, apply material effects update.
   
-      // Fallback to original state if the extrapolation fails
-    
-      if ( nextState && nextState != currentState && currentState != &multiComponentState )
-      {
+    //Get layer associated with boundary surface.
+    const Trk::TrackParameters     *paramsAtBoundary     = nextNavigationCell.parametersOnBoundary;
+    const Trk::Layer               *layerAtBoundary      = (paramsAtBoundary) ? (paramsAtBoundary->associatedSurface()).materialLayer() : 0;
+    const Trk::TrackParameters     *matUpdatedParameters = 0;
+    const Trk::MultiComponentState *matUpdatedState      = 0;
 
-        throwIntoGarbageBin( currentState );
-        throwIntoGarbageBin( navigationParameters );
-        navigationParameters = currentState->begin()->first->clone();
+    if (nextVolume && layerAtBoundary) {
 
-      }   
-      currentState = nextState ? nextState : currentState;
-  
-      // Update the combined state if necessary
-      if ( currentState != m_stateAtBoundarySurface.stateAtBoundary )
-            ATH_MSG_DEBUG( "Exit layer successfully hit!!");  
-  
-    } else {
+      if (layerAtBoundary->layerMaterialProperties()) {
+	ATH_MSG_DEBUG("Boundary surface has material - updating properties");
+	if (currentState) {
+	  matUpdatedState = m_materialUpdator->postUpdate(*currentState, 
+							  *layerAtBoundary,
+							  direction, 
+							  particleHypothesis );
+	}
+      }
+    }
 
-      ATH_MSG_DEBUG( "No exit layer to volume" );
+    //If state has changed due to boundary material, modify state, parameters accordingly.
+    if ( matUpdatedState && matUpdatedState != currentState ) {
+
+      ATH_MSG_DEBUG("Performing state update");
+      
+      //Clean out memory, update state.
+      delete currentState;
+      currentState = matUpdatedState;
+
+      //Update navigation parameters (?).
+      matUpdatedParameters = currentState->begin()->first->clone();
+      if (matUpdatedParameters != navigationParameters) {
+	delete navigationParameters;
+	navigationParameters = matUpdatedParameters;
+      }
+
+      //Add to material vector.
+      addMaterialtoVector(layerAtBoundary, currentState->begin()->first );
 
     }
-  } else{
-
-    ATH_MSG_DEBUG( "currentVolume does not have an entryLayerProvider => no material on exit layer" );
-
   }
   
   // Update the boundary information      
@@ -997,16 +944,7 @@ const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolateInsideVolume ( 
   
     ATH_MSG_DEBUG( "No assoicated layer passed with volume.... lets get one" );
     // Get entry layer but do not use it as  it should have already be hit if it was desired
-    associatedLayer = trackingVolume.entryLayer( combinedState->position(), combinedState->momentum() );
-
-    if ( associatedLayer && associatedLayer->layerMaterialProperties() ){
-      ATH_MSG_DEBUG( "Assoicated layer at entry layer to volume and has material" );
-      ATH_MSG_DEBUG( "...the layers position " << layerRZoutput(*associatedLayer));
-
-      associatedLayer = associatedLayer->nextLayer( combinedState->position(), combinedState->momentum() );
-      ATH_MSG_DEBUG( "Assoicated layer defined by nextLayer" );
-    }
-
+    associatedLayer = trackingVolume.associatedLayer( combinedState->position() );
     associatedLayer = associatedLayer ? associatedLayer : trackingVolume.nextLayer( combinedState->position(), direction * combinedState->momentum().unit(), associatedLayer );
 
     if (associatedLayer)
@@ -1016,10 +954,10 @@ const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolateInsideVolume ( 
 
   else if ( associatedLayer != destinationLayer && trackingVolume.confinedLayers() &&  associatedLayer->layerMaterialProperties() ){
 
-    const Trk::MultiComponentState* updatedState = m_materialUpdator->postUpdate( *currentState, 
-                      *associatedLayer, 
-                      direction,
-                      particleHypothesis );
+    const Trk::MultiComponentState* updatedState = m_materialUpdator->update( *currentState, 
+									      *associatedLayer, 
+									      direction,
+									      particleHypothesis );
     
     // Memory clean-up
     if ( updatedState && updatedState != currentState && currentState != &multiComponentState )
@@ -1199,6 +1137,7 @@ const Trk::MultiComponentState* Trk::GsfExtrapolator::extrapolateFromLayerToLaye
     delete currentState;
     currentState = 0;
   }
+
   return currentState;
   
 }
@@ -1947,7 +1886,7 @@ void Trk::GsfExtrapolator::addMaterialtoVector(const Trk::Layer* nextLayer,
 
   
   if (m_matstates) {
-    pathcorr = pathcorr > 0. ? pathcorr : nextLayer->pathCorrection(  *nextPar );
+    pathcorr = pathcorr > 0. ? pathcorr : nextLayer->surfaceRepresentation().pathCorrection(nextPar->position(),nextPar->momentum());
     double thick = pathcorr * materialProperties->thickness();                 
     double dInX0 = thick / materialProperties->x0();
     double absP=1/fabs(nextPar->parameters()[Trk::qOverP]);

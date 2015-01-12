@@ -710,19 +710,18 @@ const Trk::MultiComponentState* Trk::GsfSmoother::addCCOT( const Trk::TrackState
   // Now build a dummy measurement ....  we dont want to a double count the measurement but
   // we need to extrapolate back to origin to allow for the perigee parameters to be estimated
   // Note this only important if the track is refit otherwise it has no influence.
-  AmgSymMatrix(5)* covMatrix = new AmgSymMatrix(5);
-  covMatrix->setZero();
-  (*covMatrix)(0,0) = 1e6;
+  AmgSymMatrix(5) covMatrix;
+  covMatrix.setZero();
+  covMatrix(0,0) = 1e6;
 
-  Trk::LocalParameters* locpars(0);
   Trk::DefinedParameter locX( 0 ,  Trk::locX  ) ;
   std::vector<Trk::DefinedParameter> defPar ;
   defPar.push_back( locX ) ;
-  locpars = new Trk::LocalParameters( defPar ) ;
+  Trk::LocalParameters locpars( defPar ) ;
 
   Trk::PseudoMeasurementOnTrack* pseudoMeasurement
-                                  = new PseudoMeasurementOnTrack( *locpars,
-                                                                  *covMatrix,
+                                  = new PseudoMeasurementOnTrack( locpars,
+                                                                  covMatrix,
                                                                  *currentSurface);
 
   //  Combine the state using and find the mode of the distribution

@@ -128,7 +128,7 @@ const Trk::TrackParameters* Trk::MultipleScatterUpdator::update( const Trk::Trac
   }
   
   // Define the path correction
-  pathCorrection = pathCorrection > 0. ? pathCorrection : layer.pathCorrection( *trackParameters );
+  pathCorrection = pathCorrection > 0. ? pathCorrection : layer.surfaceRepresentation().pathCorrection(trackParameters->position(), trackParameters->momentum() );
 
   double pathLength = pathCorrection * materialProperties->thickness();
 

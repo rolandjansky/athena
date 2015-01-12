@@ -142,7 +142,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::updateState ( co
 
 
   // Define the path correction
-  pathCorrection = pathCorrection > 0. ? pathCorrection : layer.pathCorrection( *trackParameters );
+  pathCorrection = pathCorrection > 0. ? pathCorrection : layer.surfaceRepresentation().pathCorrection(trackParameters->position(),trackParameters->momentum());
 
   // The pathlength ( in mm ) is the path correction * the thickness of the material
   double pathLength = pathCorrection * materialProperties->thickness();
@@ -255,7 +255,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::preUpdateState( 
 
 
   // Define the path correction
-  pathCorrection = pathCorrection > 0. ? pathCorrection : layer.pathCorrection( *trackParameters );
+  pathCorrection = pathCorrection > 0. ? pathCorrection : layer.surfaceRepresentation().pathCorrection(trackParameters->position(),trackParameters->momentum());
   
   // Scale the correction by the pre-update factor
   pathCorrection *= preUpdateFactor;
@@ -351,8 +351,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialEffectsUpdator::postUpdateState 
   }
 
   // Define the path correction
-  pathCorrection = pathCorrection > 0. ? pathCorrection : layer.pathCorrection( *trackParameters );
-
+  pathCorrection = pathCorrection > 0. ? pathCorrection : layer.surfaceRepresentation().pathCorrection(trackParameters->position(),trackParameters->momentum());
   // Scale the correction by the pre-update factor
   pathCorrection *= postUpdateFactor;
 

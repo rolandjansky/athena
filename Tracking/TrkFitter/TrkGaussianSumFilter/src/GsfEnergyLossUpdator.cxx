@@ -90,7 +90,7 @@ const Trk::TrackParameters* Trk::GsfEnergyLossUpdator::update( const Trk::TrackP
   if (!materialProperties)
     return trackParameters->clone();
 
-  double pathLength = layer.pathCorrection( *trackParameters ) * materialProperties->thickness();
+  double pathLength = layer.surfaceRepresentation().pathCorrection(trackParameters->position(),trackParameters->momentum()) * materialProperties->thickness();
   return this->update( *trackParameters, *materialProperties, pathLength, direction );
 
 }

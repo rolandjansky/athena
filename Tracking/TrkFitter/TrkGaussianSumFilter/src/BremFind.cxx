@@ -30,7 +30,6 @@ description : Class for finding brem points in the inner detector using the GSF
 #include "TrkGeometry/Layer.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/TrackingGeometry.h"
-#include "TrkGeometry/EntryLayerProvider.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 
 #include "TrkVolumes/AbstractVolume.h"
@@ -755,12 +754,11 @@ Amg::Vector3D Trk::BremFind::SurfacePosition(const Trk::TrackParameters& trackpa
   const Amg::Vector3D position(x,y,z);
   const Amg::Vector3D momentum((&trackparameter)->momentum());
   
-  const Trk::CylinderSurface *cylinderSurface = new CylinderSurface (new Amg::Transform3D, r, 5000.0);
-  const Trk::TrackParameters *bremParameters = new AtaCylinder(position,momentum,(&trackparameter)->charge(),*cylinderSurface);
-  delete cylinderSurface;
-  
-  
+
   if (!m_usePropagate) {
+    Trk::CylinderSurface cylinderSurface(new Amg::Transform3D, r, 5000.0);
+    const Trk::TrackParameters *bremParameters = new AtaCylinder(position,momentum,(&trackparameter)->charge(),cylinderSurface);
+
     m_brem_TrackParameters.push_back(bremParameters);
     return position;
   }
@@ -813,26 +811,9 @@ Amg::Vector3D Trk::BremFind::SurfacePosition(const Trk::TrackParameters& trackpa
   return nullPos;
 }
 
-const Trk::Surface* Trk::BremFind::ClosestSurface(double value, double phi, double theta, const Trk::TrackParameters& trackparameter)
+const Trk::Surface* Trk::BremFind::ClosestSurface(double, double, double, const Trk::TrackParameters& trackparameter)
 {
-  //Go to cartesian coordinates. Note: these are not standard spherical definitions
-  double x,y,z;
-  if (m_Z_mode) {
-    x = value * tan(theta) * cos(phi);
-    y = value * tan(theta) * sin(phi);
-    z = value;
-  }
-  else {
-    x = value * cos(phi);
-    y = value * sin(phi);
-    z = value * cos(theta);
-  }
-
-  Amg::Vector3D position(x,y,z);
-  Amg::Vector3D momentum((&trackparameter)->momentum());
-  const Trk::Layer* associatedLayer = m_trackingGeometry->closestMaterialLayer(position, momentum ).layer;
-  
-
+  const Trk::Layer* associatedLayer = m_trackingGeometry->closestMaterialLayer<const Trk::TrackParameters>(trackparameter).object;      
   if (associatedLayer) {
     m_brem_layers.push_back(associatedLayer);
     const Trk::Surface* associatedSurface = &(associatedLayer->surfaceRepresentation());
