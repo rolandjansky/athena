@@ -133,6 +133,11 @@ if 1:
   nsubjettiness = ToolSvc.nsubjettiness
   jetrec2.JetModifiers += [nsubjettiness]
 
+  from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import NSubjettinessRatiosTool
+  ToolSvc += NSubjettinessRatiosTool("nsubjettinessratios")
+  nsubjettinessratios = ToolSvc.nsubjettinessratios
+  jetrec2.JetModifiers += [nsubjettinessratios]
+
   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import KTSplittingScaleTool
   ToolSvc += KTSplittingScaleTool("ktsplittingscale")
   ktsplittingscale = ToolSvc.ktsplittingscale
@@ -174,6 +179,11 @@ if 1:
   #energycorrelator.Beta = 0.5
   jetrec2.JetModifiers += [energycorrelator]
 
+  from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorrelatorRatiosTool
+  ToolSvc += EnergyCorrelatorRatiosTool("energycorrelatorratios")
+  energycorrelatorratios = ToolSvc.energycorrelatorratios
+  jetrec2.JetModifiers += [energycorrelatorratios]
+
   from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetPullTool
   ToolSvc += JetPullTool("pull")
   pull = ToolSvc.pull
@@ -195,6 +205,27 @@ if 1:
   sd = ToolSvc.sd
   jetrec2.JetModifiers += [sd]
 
+  from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import SubjetMakerTool
+  ToolSvc += SubjetMakerTool("subjetmaker")
+  subjetmaker = ToolSvc.subjetmaker
+  subjetmaker.type = "Kt"
+  subjetmaker.R = 0.3
+  subjetmaker.PtCut = 5000;
+  jetrec2.JetModifiers += [subjetmaker]
+
+  from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import SubjetFinderTool
+  ToolSvc += SubjetFinderTool("subjetfinder")
+  subjetfinder = ToolSvc.subjetfinder
+  from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import SubjetRecorderTool
+  ToolSvc += SubjetRecorderTool("subjetrecorder")
+  subjetrecorder = ToolSvc.subjetrecorder
+  subjetfinder.JetAlgorithm = "Kt"
+  subjetfinder.JetRadius = 0.3
+  subjetrecorder.SubjetLabel = "Kt3Subjets"
+  subjetrecorder.SubjetContainerName = "MyCopiedJets_Kt3Subjets"
+  subjetfinder.SubjetRecorder = subjetrecorder
+  jetrec2.JetModifiers += [subjetfinder]
+
 # Dump copied jets.
 if 1:
   from JetRec.JetRecConf import JetDumper
@@ -206,6 +237,8 @@ if 1:
   jdmp2.MaxObject = 20
   jdmp2.FloatMoments = ["Tau1", "Tau2", "Tau3"]
   jdmp2.FloatMoments += ["Tau1_wta", "Tau2_wta", "Tau3_wta"]
+  jdmp2.FloatMoments += ["Tau21", "Tau32"]
+  jdmp2.FloatMoments += ["Tau21_wta", "Tau32_wta"]
   jdmp2.FloatMoments += ["Split12", "Split23", "Split34"]
   jdmp2.FloatMoments += ["ZCut12", "ZCut23", "ZCut34"]
   jdmp2.FloatMoments += ["Dip12", "Dip13", "Dip23", "DipExcl12"]
@@ -217,13 +250,26 @@ if 1:
   jdmp2.FloatMoments += ["FoxWolfram0", "FoxWolfram1", "FoxWolfram2", "FoxWolfram3", "FoxWolfram4"]
   jdmp2.FloatMoments += ["Sphericity", "Aplanarity"]
   jdmp2.FloatMoments += ["ECF1", "ECF2", "ECF3"]
+  jdmp2.FloatMoments += ["D2", "C1", "C2"]
   jdmp2.FloatMoments += ["PullMag", "PullPhi", "Pull_C00", "Pull_C01", "Pull_C10", "Pull_C11"]
   jdmp2.FloatMoments += ["Charge"]
   #jdmp2.FloatMoments += ["Volatility"]
   jdmp2.FloatMoments += ["ShowerDeconstructionW", "ShowerDeconstructionTop"]
+  jdmp2.FloatVectorMoments += ["SubjetKt30_e"]
  # jdmp2.FourVectorMoments = ["ActiveArea4vec"]
+  jdmp2.AssociatedParticleVectors += ["Kt3Subjets"]
   jdmp2.OutputLevel = INFO
   jetalg.Tools += [jdmp2]
+
+  ToolSvc += JetDumper("jdmp3")
+  jdmp3 = ToolSvc.jdmp3
+  jdmp3.ContainerName = "MyCopiedJets_Kt3Subjets"
+  jdmp3.Detail = 2
+  jdmp3.LineDetail = 3
+  jdmp3.MaxObject = 20
+  jdmp3.OutputLevel = INFO
+  jdmp3.ElementLinkMoments += ["Parent"]
+  jetalg.Tools += [jdmp3]
 
 
 # Create a POOL output file with the StoreGate contents:
