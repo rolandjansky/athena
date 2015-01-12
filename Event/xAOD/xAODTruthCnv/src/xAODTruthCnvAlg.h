@@ -62,6 +62,9 @@ namespace xAODMaker {
     std::string m_xaodTruthParticleContainerName;
     std::string m_xaodTruthVertexContainerName;
     std::string m_truthLinkContainerName;
+    /// Pile-up options
+    bool m_doAllPileUp;
+    bool m_doInTimePileUp;
 
   }; // class xAODTruthCnvAlg
 

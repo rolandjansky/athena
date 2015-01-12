@@ -6,7 +6,7 @@ rec.doTruth = True
 printMCOutput = False
  
 # Set up the reading of a file:
-FNAME = "/afs/cern.ch/atlas/project/PAT/data/mc11/mc11_7TeV.106047.PythiaZmumu_no_filter.recon.AOD.e815_s1272_s1274_r2730_tid516371_00/AOD.516371._000209.pool.root.1"
+FNAME = "/afs/cern.ch/work/j/jcatmore/public/mc12_8TeV.117050.PowhegPythia_P2011C_ttbar.merge.AOD.e1728_s1975_s1776_r3925_r3549_tid01485606_00/AOD.01485606._002019.pool.root.1"
 include( "AthenaPython/iread_file.py" )
  
 # Access the algorithm sequence:
@@ -16,6 +16,9 @@ theJob = AlgSequence()
 # Run the xAOD truth builder
 from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__xAODTruthCnvAlg
 alg = xAODMaker__xAODTruthCnvAlg()
+# Pile up options... default is no pile-up
+#alg.WriteInTimePileUpTruth = True
+#alg.WriteAllPileUpTruth = False
 alg.OutputLevel = INFO  
 theJob += alg
 
@@ -25,8 +28,8 @@ from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 xaodStream = MSMgr.NewPoolRootStream( "StreamAOD", "xAOD.pool.root" )
 
 # Additional type(s) created automatically by RecExCommon:
-xaodStream.AddItem( "xAOD::EventInfo_v1#EventInfo" )
-xaodStream.AddItem( "xAOD::EventAuxInfo_v1#EventInfoAux." )
+xaodStream.AddItem( "xAOD::EventInfo#EventInfo" )
+xaodStream.AddItem( "xAOD::EventAuxInfo#EventInfoAux." )
 
 # The types created explicitly by this job:
 xaodStream.AddItem( "xAOD::TruthEventContainer#*" )

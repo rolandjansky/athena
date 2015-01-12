@@ -37,7 +37,7 @@ namespace xAODReader {
     std::string m_xaodTruthParticleContainerName;
     std::string m_xaodTruthVertexContainerName;
 
-    void printEvent(const xAOD::TruthEvent*);
+    void printEvent(const xAOD::TruthEventBase*);
     void printVertex(const xAOD::TruthVertex*);
     void printParticle(const xAOD::TruthParticle*);
 

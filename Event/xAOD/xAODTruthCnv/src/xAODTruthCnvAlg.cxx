@@ -40,13 +40,16 @@ namespace xAODMaker {
     : AthAlgorithm( name, svcLoc )
   {
     declareProperty("AODContainerName", m_aodContainerName="GEN_AOD" );
-    declareProperty("xAODTruthEventContainerName", m_xaodTruthEventContainerName="TruthEvent" );
+    declareProperty("xAODTruthEventContainerName", m_xaodTruthEventContainerName="TruthEvents" );
     declareProperty("xAODTruthPileupEventContainerName", m_xaodTruthPUEventContainerName="TruthPileupEvents" );
     /// @todo TruthParticle -> TruthParticles
-    declareProperty("xAODTruthParticleContainerName", m_xaodTruthParticleContainerName="TruthParticle" );
+    declareProperty("xAODTruthParticleContainerName", m_xaodTruthParticleContainerName="TruthParticles" );
     /// @todo TruthVertex -> TruthVertices
-    declareProperty("xAODTruthVertexContainerName", m_xaodTruthVertexContainerName="TruthVertex" );
+    declareProperty("xAODTruthVertexContainerName", m_xaodTruthVertexContainerName="TruthVertices" );
     declareProperty("TruthLinks", m_truthLinkContainerName="xAODTruthLinks" );
+    declareProperty( "WriteAllPileUpTruth", m_doAllPileUp = false);
+    declareProperty( "WriteInTimePileUpTruth", m_doInTimePileUp = false);
+
   }
 
 
@@ -57,6 +60,14 @@ namespace xAODMaker {
     ATH_MSG_DEBUG("xAOD TruthPileupEventContainer name = " << m_xaodTruthPUEventContainerName );
     ATH_MSG_DEBUG("xAOD TruthParticleContainer name = " << m_xaodTruthParticleContainerName );
     ATH_MSG_DEBUG("xAOD TruthVertexContainer name = " << m_xaodTruthVertexContainerName );
+    if (m_doAllPileUp && m_doInTimePileUp) {
+        ATH_MSG_FATAL( "Contradictory xAOD truth pile-up setting: all pile-up AND in-time alone requested simultaneously. Check settings." );
+        return StatusCode::FAILURE;
+    }
+    if (m_doAllPileUp) ATH_MSG_INFO( "All pile-up truth (including out-of-time) will be written" );
+    if (m_doInTimePileUp) ATH_MSG_INFO( "In-time pile-up truth (but not out-of-time) will be written" );
+    if (!m_doAllPileUp && !m_doInTimePileUp) ATH_MSG_INFO( "No pile-up truth will be written" );
+
     return StatusCode::SUCCESS;
   }
 
@@ -66,7 +77,7 @@ namespace xAODMaker {
     // If the containers already exist then assume that nothing needs to be done
     /// @todo Should this check be AND rather than OR?
     if (evtStore()->contains< xAOD::TruthEventContainer >(m_xaodTruthEventContainerName) ||
-        //evtStore()->contains< xAOD::TruthPileupEventContainer >(m_xaodTruthPUEventContainerName) ||
+        evtStore()->contains< xAOD::TruthPileupEventContainer >(m_xaodTruthPUEventContainerName) ||
         evtStore()->contains< xAOD::TruthParticleContainer >(m_xaodTruthParticleContainerName) ||
         evtStore()->contains< xAOD::TruthVertexContainer >(m_xaodTruthVertexContainerName)) {
       ATH_MSG_WARNING("xAOD Truth seems to be already available in the event");
@@ -94,12 +105,12 @@ namespace xAODMaker {
       xTruthEventContainer->setStore( xTruthEventAuxContainer );
       ATH_MSG_DEBUG( "Recorded TruthEventContainer with key: " << m_xaodTruthEventContainerName );
       // Pile-up events
-      // xAOD::TruthPileupEventContainer* xTruthPileupEventContainer = new xAOD::TruthPileupEventContainer();
-      // CHECK( evtStore()->record( xTruthPileupEventContainer, m_xaodTruthPUEventContainerName ) );
-      // xAOD::TruthPileupEventAuxContainer* xTruthPileupEventAuxContainer = new xAOD::TruthPileupEventAuxContainer();
-      // CHECK( evtStore()->record( xTruthPileupEventAuxContainer, m_xaodTruthPUEventContainerName + "Aux." ) );
-      // xTruthEventContainer->setStore( xTruthPileupEventAuxContainer );
-      // ATH_MSG_DEBUG( "Recorded TruthPileupEventContainer with key: " << m_xaodTruthPUEventContainerName );
+      xAOD::TruthPileupEventContainer* xTruthPileupEventContainer = new xAOD::TruthPileupEventContainer();
+      CHECK( evtStore()->record( xTruthPileupEventContainer, m_xaodTruthPUEventContainerName ) );
+      xAOD::TruthPileupEventAuxContainer* xTruthPileupEventAuxContainer = new xAOD::TruthPileupEventAuxContainer();
+      CHECK( evtStore()->record( xTruthPileupEventAuxContainer, m_xaodTruthPUEventContainerName + "Aux." ) );
+      xTruthPileupEventContainer->setStore( xTruthPileupEventAuxContainer );
+      ATH_MSG_DEBUG( "Recorded TruthPileupEventContainer with key: " << m_xaodTruthPUEventContainerName );
       // Particles
       xAOD::TruthParticleContainer* xTruthParticleContainer = new xAOD::TruthParticleContainer();
       CHECK( evtStore()->record( xTruthParticleContainer, m_xaodTruthParticleContainerName ) );
@@ -154,152 +165,165 @@ namespace xAODMaker {
       /// @todo Rewrite to fill the single signal event on cntr==0, and to copy one signal vtx (from
       /// signal_vertex, else from the end vtx of a beam particle, else first vtx) into each PU event
       for (unsigned int cntr = 0; cntr < mcColl->size(); ++cntr) {
-
         McEventCollection::const_iterator itr = mcColl->begin();
         const HepMC::GenEvent* genEvt = *itr;
 
-        if (cntr == 0) {
-          // Handle the signal (first) event specially
+        bool isSignalProcess(false);
+        if (cntr==0) isSignalProcess=true;
+        if (cntr>0) {
+            // Handle pile-up events
+            // If in-time pileup only is requested, loop stops when
+            // the separator between out-of-time and in-time is reached
+            // Separator defined by pid==0 and eventNumber==-1 as per
+            // https://twiki.cern.ch/twiki/bin/viewauth/AtlasComputing/PileupDigitization#Arrangement_of_Truth_Information
+            if (!m_doInTimePileUp && !m_doAllPileUp) break;  
+            isSignalProcess=false;
+            int pid = genEvt->signal_process_id();
+            int eventNumber = genEvt->event_number();
+            if (m_doInTimePileUp && pid==0 && eventNumber==-1) break; // stop at the separator
+        }
 
-          xAOD::TruthEvent* xTruthEvent = new xAOD::TruthEvent();
-          xTruthEventContainer->push_back( xTruthEvent );
+        xAOD::TruthEvent* xTruthEvent = new xAOD::TruthEvent();
+        xAOD::TruthPileupEvent* xTruthPileupEvent = new xAOD::TruthPileupEvent(); 
 
-          /// @todo Drop or re-enable these? Signal process can be set to DSID... preferably not to the gen-name code
-          //xTruthEvent->setSignalProcessId(genEvt->signal_process_id());
-          //xTruthEvent->setEventNumber(genEvt->event_number());
+        /// @todo Drop or re-enable these? Signal process can be set to DSID... preferably not to the gen-name code
+        //xTruthEvent->setSignalProcessId(genEvt->signal_process_id());
+        //xTruthEvent->setEventNumber(genEvt->event_number());
 
-          // Cross-section
-          const HepMC::GenCrossSection* const crossSection = genEvt->cross_section();
-          xTruthEvent->setCrossSection(crossSection ? (float)crossSection->cross_section() : -1);
-          xTruthEvent->setCrossSectionError(crossSection ? (float)crossSection->cross_section_error() : -1);
+        if (isSignalProcess) {
+		xTruthEventContainer->push_back( xTruthEvent ); 
+        	// Cross-section
+        	const HepMC::GenCrossSection* const crossSection = genEvt->cross_section();
+        	xTruthEvent->setCrossSection(crossSection ? (float)crossSection->cross_section() : -1);
+        	xTruthEvent->setCrossSectionError(crossSection ? (float)crossSection->cross_section_error() : -1);
 
-          // Event weights
-          vector<float> weights;
-          for (const double& w : genEvt->weights()) weights.push_back((float)(w));
-          xTruthEvent->setWeights(weights);
+        	// Event weights
+        	vector<float> weights;
+        	for (const double& w : genEvt->weights()) weights.push_back((float)(w));
+        	xTruthEvent->setWeights(weights);
 
-          // Heavy ion info
-          const HepMC::HeavyIon* const hiInfo = genEvt->heavy_ion();
-          if (hiInfo) {
-            xTruthEvent->setHeavyIonParameter(hiInfo->Ncoll_hard(), xAOD::TruthEvent::NCOLLHARD);
-            xTruthEvent->setHeavyIonParameter(hiInfo->Npart_proj(), xAOD::TruthEvent::NPARTPROJ);
-            xTruthEvent->setHeavyIonParameter(hiInfo->Npart_targ(), xAOD::TruthEvent::NPARTTARG);
-            xTruthEvent->setHeavyIonParameter(hiInfo->Ncoll(), xAOD::TruthEvent::NCOLL);
-            xTruthEvent->setHeavyIonParameter(hiInfo->spectator_neutrons(), xAOD::TruthEvent::SPECTATORNEUTRONS);
-            xTruthEvent->setHeavyIonParameter(hiInfo->spectator_protons(), xAOD::TruthEvent::SPECTATORPROTONS);
-            xTruthEvent->setHeavyIonParameter(hiInfo->N_Nwounded_collisions(), xAOD::TruthEvent::NNWOUNDEDCOLLISIONS);
-            xTruthEvent->setHeavyIonParameter(hiInfo->Nwounded_N_collisions(), xAOD::TruthEvent::NWOUNDEDNCOLLISIONS);
-            xTruthEvent->setHeavyIonParameter(hiInfo->Nwounded_Nwounded_collisions(), xAOD::TruthEvent::NWOUNDEDNWOUNDEDCOLLISIONS);
-            xTruthEvent->setHeavyIonParameter(hiInfo->impact_parameter(), xAOD::TruthEvent::IMPACTPARAMETER);
-            xTruthEvent->setHeavyIonParameter(hiInfo->event_plane_angle(), xAOD::TruthEvent::EVENTPLANEANGLE);
-            xTruthEvent->setHeavyIonParameter(hiInfo->eccentricity(), xAOD::TruthEvent::ECCENTRICITY);
-            xTruthEvent->setHeavyIonParameter(hiInfo->sigma_inel_NN(), xAOD::TruthEvent::SIGMAINELNN);
-            // This doesn't yet exist in our version of HepMC
-            // xTruthEvent->setHeavyIonParameter(hiInfo->centrality(),xAOD::TruthEvent::CENTRALITY);
-          }
+        	// Heavy ion info
+        	const HepMC::HeavyIon* const hiInfo = genEvt->heavy_ion();
+        	if (hiInfo) {
+        	  xTruthEvent->setHeavyIonParameter(hiInfo->Ncoll_hard(), xAOD::TruthEvent::NCOLLHARD);
+        	  xTruthEvent->setHeavyIonParameter(hiInfo->Npart_proj(), xAOD::TruthEvent::NPARTPROJ);
+        	  xTruthEvent->setHeavyIonParameter(hiInfo->Npart_targ(), xAOD::TruthEvent::NPARTTARG);
+        	  xTruthEvent->setHeavyIonParameter(hiInfo->Ncoll(), xAOD::TruthEvent::NCOLL);
+        	  xTruthEvent->setHeavyIonParameter(hiInfo->spectator_neutrons(), xAOD::TruthEvent::SPECTATORNEUTRONS);
+        	  xTruthEvent->setHeavyIonParameter(hiInfo->spectator_protons(), xAOD::TruthEvent::SPECTATORPROTONS);
+        	  xTruthEvent->setHeavyIonParameter(hiInfo->N_Nwounded_collisions(), xAOD::TruthEvent::NNWOUNDEDCOLLISIONS);
+        	  xTruthEvent->setHeavyIonParameter(hiInfo->Nwounded_N_collisions(), xAOD::TruthEvent::NWOUNDEDNCOLLISIONS);
+        	  xTruthEvent->setHeavyIonParameter(hiInfo->Nwounded_Nwounded_collisions(), xAOD::TruthEvent::NWOUNDEDNWOUNDEDCOLLISIONS);
+        	  xTruthEvent->setHeavyIonParameter(hiInfo->impact_parameter(), xAOD::TruthEvent::IMPACTPARAMETER);
+        	  xTruthEvent->setHeavyIonParameter(hiInfo->event_plane_angle(), xAOD::TruthEvent::EVENTPLANEANGLE);
+        	  xTruthEvent->setHeavyIonParameter(hiInfo->eccentricity(), xAOD::TruthEvent::ECCENTRICITY);
+        	  xTruthEvent->setHeavyIonParameter(hiInfo->sigma_inel_NN(), xAOD::TruthEvent::SIGMAINELNN);
+        	  // This doesn't yet exist in our version of HepMC
+        	  // xTruthEvent->setHeavyIonParameter(hiInfo->centrality(),xAOD::TruthEvent::CENTRALITY);
+        	}
 
-          // Parton density info
-          // This will exist 99% of the time, except for e.g. cosmic or particle gun simulation
-          const HepMC::PdfInfo* const pdfInfo = genEvt->pdf_info();
-          if (pdfInfo) {
-            xTruthEvent->setPdfInfoParameter(pdfInfo->id1(), xAOD::TruthEvent::PDGID1);
-            xTruthEvent->setPdfInfoParameter(pdfInfo->id2(), xAOD::TruthEvent::PDGID2);
-            xTruthEvent->setPdfInfoParameter(pdfInfo->pdf_id1(), xAOD::TruthEvent::PDFID1);
-            xTruthEvent->setPdfInfoParameter(pdfInfo->pdf_id2(), xAOD::TruthEvent::PDFID2);
+        	// Parton density info
+        	// This will exist 99% of the time, except for e.g. cosmic or particle gun simulation
+        	const HepMC::PdfInfo* const pdfInfo = genEvt->pdf_info();
+        	if (pdfInfo) {
+        	  xTruthEvent->setPdfInfoParameter(pdfInfo->id1(), xAOD::TruthEvent::PDGID1);
+        	  xTruthEvent->setPdfInfoParameter(pdfInfo->id2(), xAOD::TruthEvent::PDGID2);
+        	  xTruthEvent->setPdfInfoParameter(pdfInfo->pdf_id1(), xAOD::TruthEvent::PDFID1);
+        	  xTruthEvent->setPdfInfoParameter(pdfInfo->pdf_id2(), xAOD::TruthEvent::PDFID2);
 
-            xTruthEvent->setPdfInfoParameter((float)pdfInfo->x1(), xAOD::TruthEvent::X1);
-            xTruthEvent->setPdfInfoParameter((float)pdfInfo->x2(), xAOD::TruthEvent::X2);
-            xTruthEvent->setPdfInfoParameter((float)pdfInfo->scalePDF(), xAOD::TruthEvent::Q);
-            xTruthEvent->setPdfInfoParameter((float)pdfInfo->pdf1(), xAOD::TruthEvent::XF1);
-            xTruthEvent->setPdfInfoParameter((float)pdfInfo->pdf2(), xAOD::TruthEvent::XF2);
-          }
+        	  xTruthEvent->setPdfInfoParameter((float)pdfInfo->x1(), xAOD::TruthEvent::X1);
+        	  xTruthEvent->setPdfInfoParameter((float)pdfInfo->x2(), xAOD::TruthEvent::X2);
+        	  //xTruthEvent->setPdfInfoParameter((float)pdfInfo->scalePDF(), xAOD::TruthEvent::Q);
+        	  xTruthEvent->setPdfInfoParameter((float)pdfInfo->pdf1(), xAOD::TruthEvent::XF1);
+        	  xTruthEvent->setPdfInfoParameter((float)pdfInfo->pdf2(), xAOD::TruthEvent::XF2);
+        	}
+	}
+	if (!isSignalProcess) xTruthPileupEventContainer->push_back( xTruthPileupEvent );
 
+        // (2) Build particles and vertices
+        // Map for building associations between particles and vertices
+        // The pair in the map is the (incomingParticles . outgoingParticles) of the given vertex
+        VertexMap vertexMap;
+        VertexMap::iterator mapItr;
+        vector<const HepMC::GenVertex*> vertices;
 
-          // (2) Build particles and vertices
-          // Map for building associations between particles and vertices
-          // The pair in the map is the (incomingParticles . outgoingParticles) of the given vertex
-          VertexMap vertexMap;
-          VertexMap::iterator mapItr;
-          vector<const HepMC::GenVertex*> vertices;
+        // Loop over GenParticles
+        unsigned int i(0);
+        // Get the beam particles
+        pair<HepMC::GenParticle*,HepMC::GenParticle*> beamParticles;
+        if ( genEvt->valid_beam_particles() ) beamParticles = genEvt->beam_particles();
+        for (HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr, ++i) {
+          // (a) create TruthParticle
+          xAOD::TruthParticle* xTruthParticle = new xAOD::TruthParticle();
+          xTruthParticleContainer->push_back( xTruthParticle );
+          fillParticle(xTruthParticle, *pitr); // (b) Copy HepMC info into the new particle
+          // (c) Put particle into container; Build Event<->Particle element link
+          const ElementLink<xAOD::TruthParticleContainer> eltp(*xTruthParticleContainer, i);
+          if (isSignalProcess) xTruthEvent->addTruthParticleLink(eltp);
+	  if (!isSignalProcess) xTruthPileupEvent->addTruthParticleLink(eltp);
 
-          // Loop over GenParticles
-          unsigned int i(0);
-          // Get the beam particles
-          pair<HepMC::GenParticle*,HepMC::GenParticle*> beamParticles;
-          if ( genEvt->valid_beam_particles() ) beamParticles = genEvt->beam_particles();
-          for (HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr, ++i) {
-            // (a) create TruthParticle
-            xAOD::TruthParticle* xTruthParticle = new xAOD::TruthParticle();
-            xTruthParticleContainer->push_back( xTruthParticle );
-            fillParticle(xTruthParticle, *pitr); // (b) Copy HepMC info into the new particle
-            // (c) Put particle into container; Build Event<->Particle element link
-            const ElementLink<xAOD::TruthParticleContainer> eltp(*xTruthParticleContainer, i);
-            xTruthEvent->addTruthParticleLink(eltp);
+          // Create link between HepMC and xAOD truth
+          truthLinkVec->push_back(new xAODTruthParticleLink(HepMcParticleLink((*pitr),genEvt->event_number()), eltp));
 
-            // Create link between HepMC and xAOD truth
-            truthLinkVec->push_back(new xAODTruthParticleLink(HepMcParticleLink((*pitr),genEvt->event_number()), eltp));
-
-            // Is this one of the beam particles?
-            if (genEvt->valid_beam_particles()) {
+          // Is this one of the beam particles?
+          if (genEvt->valid_beam_particles()) {
+	    if (isSignalProcess) {
               if (*pitr == beamParticles.first) xTruthEvent->setBeamParticle1Link(eltp);
               if (*pitr == beamParticles.second) xTruthEvent->setBeamParticle2Link(eltp);
             }
-            // (d) Particle's production vertex
-            HepMC::GenVertex* productionVertex = (*pitr)->production_vertex();
-            if (productionVertex) {
-              VertexParticles& parts = vertexMap[productionVertex];
-              if (parts.incoming.empty() && parts.outgoing.empty())
-                vertices.push_back (productionVertex);
-              parts.outgoingEL.push_back(eltp);
-              parts.outgoing.push_back(xTruthParticle);
-            }
-            //
-            // else maybe want to keep track that this is the production vertex
-            //
-            // (e) Particle's decay vertex
-            HepMC::GenVertex* decayVertex = (*pitr)->end_vertex();
-            if (decayVertex) {
-              VertexParticles& parts = vertexMap[decayVertex];
-              if (parts.incoming.empty() && parts.outgoing.empty())
-                vertices.push_back (decayVertex);
-              parts.incomingEL.push_back(eltp);
-              parts.incoming.push_back(xTruthParticle);
-            }
+	  }	
+          // (d) Particle's production vertex
+          HepMC::GenVertex* productionVertex = (*pitr)->production_vertex();
+          if (productionVertex) {
+            VertexParticles& parts = vertexMap[productionVertex];
+            if (parts.incoming.empty() && parts.outgoing.empty())
+              vertices.push_back (productionVertex);
+            parts.outgoingEL.push_back(eltp);
+            parts.outgoing.push_back(xTruthParticle);
+          }
+          //
+          // else maybe want to keep track that this is the production vertex
+          //
+          // (e) Particle's decay vertex
+          HepMC::GenVertex* decayVertex = (*pitr)->end_vertex();
+          if (decayVertex) {
+            VertexParticles& parts = vertexMap[decayVertex];
+            if (parts.incoming.empty() && parts.outgoing.empty())
+              vertices.push_back (decayVertex);
+            parts.incomingEL.push_back(eltp);
+            parts.incoming.push_back(xTruthParticle);
+          }
 
-          } // end of loop over particles
+        } // end of loop over particles
 
-          // (3) Loop over the map
-          HepMC::GenVertex* signalProcessVtx = genEvt->signal_process_vertex(); // Get the signal process vertex
-          for (const HepMC::GenVertex* vertex : vertices) {
-            const auto& parts = vertexMap[vertex];
-            // (a) create TruthVertex
-            xAOD::TruthVertex* xTruthVertex = new xAOD::TruthVertex();
-            xTruthVertexContainer->push_back( xTruthVertex );
-            fillVertex(xTruthVertex, vertex); // (b) Copy HepMC info into the new vertex
-            // (c) Put particle into container; Build Event<->Vertex element link
-            ElementLink<xAOD::TruthVertexContainer> eltv(*xTruthVertexContainer, xTruthVertexContainer->size()-1);
-            // Mark if this is the signal process vertex
-            if (vertex == signalProcessVtx) xTruthEvent->setSignalProcessVertexLink(eltv);
-            xTruthEvent->addTruthVertexLink(eltv);
-            // (d) Assign incoming particles to the vertex, from the map
-            xTruthVertex->setIncomingParticleLinks( parts.incomingEL );
-            // (e) Assign outgoing particles to the vertex, from the map
-            xTruthVertex->setOutgoingParticleLinks( parts.outgoingEL );
-            // (f) Set Particle<->Vertex links for incoming particles
-            for (xAOD::TruthParticle* p : parts.incoming) p->setDecayVtxLink(eltv);
-            // (g) Set Particle<->Vertex links for incoming particles
-            for (xAOD::TruthParticle* p : parts.outgoing) p->setProdVtxLink(eltv);
-          } //end of loop over vertices
+        // (3) Loop over the map
+        HepMC::GenVertex* signalProcessVtx = genEvt->signal_process_vertex(); // Get the signal process vertex
+        for (const HepMC::GenVertex* vertex : vertices) {
+          const auto& parts = vertexMap[vertex];
+          // (a) create TruthVertex
+          xAOD::TruthVertex* xTruthVertex = new xAOD::TruthVertex();
+          xTruthVertexContainer->push_back( xTruthVertex );
+          fillVertex(xTruthVertex, vertex); // (b) Copy HepMC info into the new vertex
+          // (c) Put particle into container; Build Event<->Vertex element link
+          ElementLink<xAOD::TruthVertexContainer> eltv(*xTruthVertexContainer, xTruthVertexContainer->size()-1);
+          // Mark if this is the signal process vertex
+          if (vertex == signalProcessVtx) xTruthEvent->setSignalProcessVertexLink(eltv);
+          if (isSignalProcess) xTruthEvent->addTruthVertexLink(eltv);
+	  if (!isSignalProcess) xTruthPileupEvent->addTruthVertexLink(eltv);
+          // (d) Assign incoming particles to the vertex, from the map
+          xTruthVertex->setIncomingParticleLinks( parts.incomingEL );
+          // (e) Assign outgoing particles to the vertex, from the map
+          xTruthVertex->setOutgoingParticleLinks( parts.outgoingEL );
+          // (f) Set Particle<->Vertex links for incoming particles
+          for (xAOD::TruthParticle* p : parts.incoming) p->setDecayVtxLink(eltv);
+          // (g) Set Particle<->Vertex links for incoming particles
+          for (xAOD::TruthParticle* p : parts.outgoing) p->setProdVtxLink(eltv);
+        } //end of loop over vertices
 
-          // end of signal (i.e. first) event handling
+        // Delete the event that wasn't used
+        if (isSignalProcess) delete xTruthPileupEvent;
+        if (!isSignalProcess) delete xTruthEvent;
 
-        } else {
-
-          // Handle pile-up events... currently do nothing at all
-
-          /// @todo Provide some options for either full or limited pile-up event conversion
-
-        }
       } // end of loop over McEventCollection
 
     } else {
@@ -361,8 +385,8 @@ namespace xAODMaker {
 
     const HepMC::Polarization& pol = gp->polarization();
     if (pol.is_defined()) {
-      tp->setPolarizationParameter(pol.theta(), xAOD::TruthParticle::THETA);
-      tp->setPolarizationParameter(pol.phi(), xAOD::TruthParticle::PHI);
+      tp->setPolarizationParameter(pol.theta(), xAOD::TruthParticle::polarizationTheta);
+      tp->setPolarizationParameter(pol.phi(), xAOD::TruthParticle::polarizationPhi);
     }
 
     tp->setM(gp->generated_mass());
