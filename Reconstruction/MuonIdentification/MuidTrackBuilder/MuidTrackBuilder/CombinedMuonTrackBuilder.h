@@ -179,7 +179,8 @@ namespace Rec
 	    DataVector<const Trk::TrackStateOnSurface>::const_iterator	begin,
 	    DataVector<const Trk::TrackStateOnSurface>::const_iterator	end) const;
 	Trk::Track*					createMuonTrack(
-	    const Trk::Track&	       				        muonTrack,
+	    const Trk::Track&	       				        spectrometerTrack,
+	    const Trk::Track&	       				        extrapolatedTrack,
 	    const Trk::TrackParameters*					parameters,
 	    const CaloEnergy*						caloEnergy,
 	    DataVector<const Trk::TrackStateOnSurface>::const_iterator	begin,

@@ -599,7 +599,7 @@ CombinedMuonTrackBuilder::finalize()
 Trk::Track*
 CombinedMuonTrackBuilder::combinedFit (const Trk::Track& indetTrack,
 				       const Trk::Track& extrapolatedTrack,
-				       const Trk::Track& /*spectrometerTrack*/) const
+				       const Trk::Track& spectrometerTrack) const
 {
     ATH_MSG_VERBOSE( "===== Start of combinedFit:: " );
 
@@ -675,7 +675,8 @@ CombinedMuonTrackBuilder::combinedFit (const Trk::Track& indetTrack,
     Trk::Track* muonTrack = 0;
     if (! surface)		// extrapolate outwards to associate calorimeter material effects
     {
-	muonTrack = createMuonTrack(extrapolatedTrack,
+	muonTrack = createMuonTrack(spectrometerTrack,
+				    extrapolatedTrack,
 				    indetTrack.perigeeParameters(),
 				    0,
 				    extrapolatedTrack.trackStateOnSurfaces()->begin(),
@@ -684,7 +685,8 @@ CombinedMuonTrackBuilder::combinedFit (const Trk::Track& indetTrack,
     }
     else if (m_trackQuery->numberPseudoMeasurements(extrapolatedTrack) > 1)	// remove pseudo meas
     {
-	muonTrack = createMuonTrack(extrapolatedTrack,
+        muonTrack = createMuonTrack(spectrometerTrack,
+				    extrapolatedTrack,
 				    0,
 				    0,
 				    extrapolatedTrack.trackStateOnSurfaces()->begin(),
@@ -775,7 +777,8 @@ CombinedMuonTrackBuilder::combinedFit (const Trk::Track& indetTrack,
 							   combinedTSOS->begin(),
 							   combinedTSOS->end());	
 	Trk::Track*  oldTrack		= muonTrack;
-	muonTrack = createMuonTrack(extrapolatedTrack,
+	muonTrack = createMuonTrack(spectrometerTrack,
+				    extrapolatedTrack,
 				    m_combinedEnergyParameters,
 				    0,
 				    combinedTSOS->begin(),
@@ -851,7 +854,8 @@ CombinedMuonTrackBuilder::combinedFit (const Trk::Track& indetTrack,
 			   << (caloEnergy->deltaE() - paramEnergy->deltaE())/Gaudi::Units::GeV );
 
 	    Trk::Track*  oldTrack = muonTrack;
-	    muonTrack = createMuonTrack(extrapolatedTrack,
+	    muonTrack = createMuonTrack(spectrometerTrack,
+					extrapolatedTrack,
 					0,
 					paramEnergy,
 					oldTrack->trackStateOnSurfaces()->begin(),
@@ -1041,7 +1045,7 @@ CombinedMuonTrackBuilder::indetExtension (const Trk::Track&		indetTrack,
 									       fitQoS,
 									       materialEffects,
 									       typeP) );
-	    frontParameters	= 0;
+ 	    frontParameters	= 0;
 	}
 	else if (*m == midMeasurement)
 	{
@@ -3059,7 +3063,8 @@ CombinedMuonTrackBuilder::createIndetTrack(
    
 Trk::Track*
 CombinedMuonTrackBuilder::createMuonTrack(
-    const Trk::Track&					        muonTrack,
+    const Trk::Track&					        spectrometerTrack,
+    const Trk::Track&					        extrapolatedTrack,
     const Trk::TrackParameters*					parameters,
     const CaloEnergy*						caloEnergy,
     DataVector<const Trk::TrackStateOnSurface>::const_iterator	begin,
@@ -3113,7 +3118,7 @@ CombinedMuonTrackBuilder::createMuonTrack(
 	}
 	if(!lastIDtp) 
 	  lastIDtp = parameters;
-	caloTSOS = m_materialUpdator->getCaloTSOS(*lastIDtp, muonTrack, firstMStp);
+	caloTSOS = m_materialUpdator->getCaloTSOS(*lastIDtp, spectrometerTrack, firstMStp);
       }else
 	caloTSOS = m_caloTSOS->caloTSOS(*parameters);
       
@@ -3222,7 +3227,7 @@ CombinedMuonTrackBuilder::createMuonTrack(
   // then append selected TSOS from the extrapolated or spectrometer track
   appendSelectedTSOS(*trackStateOnSurfaces,s,end);
   
-  Trk::Track* newMuonTrack = new Trk::Track(muonTrack.info(),trackStateOnSurfaces,0);
+  Trk::Track* newMuonTrack = new Trk::Track(extrapolatedTrack.info(),trackStateOnSurfaces,0);
   
   // Updates the calo TSOS with the ones from TG+corrections (if needed)
   if(m_updateWithCaloTG && !m_useCaloTG && redoCaloAssoc) {
