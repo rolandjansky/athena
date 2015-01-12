@@ -74,7 +74,7 @@ class TrigT2HistoPrmVtxBase {
    * - longitudinal impact parameter >= 2mm
    *
    */
-  bool efTrackSel(const Rec::TrackParticle*&, unsigned int, float, float);
+  bool efTrackSel(const xAOD::TrackParticle*&, unsigned int, float, float);
 
   /** @brief To calculate, through a sliding window approach, the three positions of the window in the histogram that maximize the entries of longitudinal impact parameter. */
   void findPrmVtx();
@@ -150,8 +150,9 @@ class TrigT2HistoPrmVtxBase {
   /** @brief DeclareProperty: lower bound of pT of the reconstructed track at EF (to perform track selection). */
   float m_efTrkSelPt;
 
-  /** @brief Beam spot position. */
+  /** @brief Beam spot position and precision. */
   float m_xBeamSpot,m_yBeamSpot,m_zBeamSpot;
+  float m_xBeamSpotSigma,m_yBeamSpotSigma,m_zBeamSpotSigma;
 
   /** @brief DeclareProperty: to monitor track selection for likelihood methods. */
   std::vector<float> m_listCutApplied;

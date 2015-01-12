@@ -8,7 +8,7 @@ public
 
 use     AtlasPolicy             AtlasPolicy-*
 use     TrigInterfaces          TrigInterfaces-*                Trigger/TrigSteer
-
+use     xAODTracking            xAODTracking-*              	Event/xAOD
 
 # ============================================================================================
 private
@@ -23,7 +23,7 @@ use     TrigInDetEvent          TrigInDetEvent-*                Trigger/TrigEven
 use     TrigSteeringEvent       TrigSteeringEvent-*             Trigger/TrigEvent
 use	TrigNavigation		TrigNavigation-*		Trigger/TrigEvent
 use     TrigTimeAlgs            TrigTimeAlgs-*                  Trigger/TrigTools
-
+use     xAODBase                xAODBase-*                  	Event/xAOD
 
 # ============================================================================================
 public
