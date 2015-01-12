@@ -3,19 +3,20 @@
 */
 
 /** @file
- * @class TrigVxSecondary
- * @brief An EF algorithm for secondary vertexing using offline tools.
+ * @class TrigVxSecondaryCombo
+ * @brief An HLT algorithm for secondary vertexing using offline tools.
+ * Basically the same as TrigVxSecondary but takes two TEs as input
  * Please look at the mainpage of this package 
- * @author Andrew John Lowe
+ * @author Katharine Leney
  */
 
-#ifndef INDETTRIGVXSECONDARY_VXSECONDARY_H
-#define INDETTRIGVXSECONDARY_VXSECONDARY_H
+#ifndef INDETTRIGVXSECONDARY_VXSECONDARYCOMBO_H
+#define INDETTRIGVXSECONDARY_VXSECONDARYCOMBO_H
 
 #include "GaudiKernel/ToolHandle.h"
 
 // Trigger specific stuff
-#include "TrigInterfaces/FexAlgo.h"
+#include "TrigInterfaces/ComboAlgo.h"
 #include "TrigTrackJetFinderTool/ITrigTrackJetFinderTool.h"
 
 #include "VxSecVertex/VxSecVertexInfo.h"
@@ -27,7 +28,7 @@
 class StoreGateSvc;
 
 
-//class VxContainer;
+class VxContainer;
 class TLorentzVector;
 
 namespace Trk {
@@ -42,27 +43,38 @@ namespace InDet {
   class TrackJetFinder;
   class ISecVertexInJetFinder;
   
-  class TrigVxSecondary: public HLT::FexAlgo {
+  class TrigVxSecondaryCombo: public HLT::ComboAlgo {
 
   public:
-    TrigVxSecondary(const std::string& name, ISvcLocator* pSvcLocator);
-    virtual ~TrigVxSecondary();
+    TrigVxSecondaryCombo(const std::string& name, ISvcLocator* pSvcLocator);
+    virtual ~TrigVxSecondaryCombo();
     HLT::ErrorCode hltInitialize();
-    HLT::ErrorCode hltExecute(const HLT::TriggerElement*, HLT::TriggerElement* outputTE);    
+    //HLT::ErrorCode hltExecute(const HLT::TriggerElement*, HLT::TriggerElement* outputTE);    
+/*     HLT::ErrorCode hltExecute(const HLT::TriggerElement* /\*jetTrackingTE*\/,  */
+/* 			      const HLT::TriggerElement* /\*primaryVertexTE*\/,  */
+/* 			      HLT::TriggerElement* outputTE); */
+
+    HLT::ErrorCode hltExecute(HLT::TEConstVec& inputTEs /* : primaryVertex and Tracks*/, 
+			      HLT::TriggerElement* outputTE);
+
+
     HLT::ErrorCode hltFinalize();
 
   private:
 
     /** @brief Get primary vertex. */
+    //HLT::ErrorCode getEFPrmVtxForFit(Trk::RecVertex*& bestFitPriVertex,
     HLT::ErrorCode getEFPrmVtxForFit(xAOD::Vertex*& bestFitPriVertex,
-				     HLT::TriggerElement* outputTE,
+				     const HLT::TriggerElement* outputTE,
 				     unsigned int& numPrimaryVertices,
 				     float& xPrmVtx,float& yPrmVtx,float& zPrmVtx); 
     
     
     /** @brief Get primary vertex for beamspot. */
+    //HLT::ErrorCode getPrmVtxForFit(Trk::RecVertex*& vertex,
     HLT::ErrorCode getPrmVtxForFit(xAOD::Vertex*& vertex,
-				   HLT::TriggerElement* outputTE,
+				   //const HLT::TriggerElement* outputTE,
+				   const xAOD::VertexContainer* prmVtxColl,
 				   unsigned int& numPrimaryVertices,
 				   float& xPrmVtx,float& yPrmVtx,float& zPrmVtx, int& status); 
     
@@ -111,16 +123,15 @@ namespace InDet {
      */ 
     const Trk::VxSecVertexInfo* m_secVertexInfo;
     Trk::VxSecVertexInfoContainer* m_secVertexInfoContainer;
-    //VxContainer* m_secondaryVxContainer;
-    xAOD::VertexContainer* m_secondaryVxContainer;
+    VxContainer* m_secondaryVxContainer;
 
     /** @brief Sort vertices true/false switch.
-     * Default is true. Set in InDetTrigVxSecondary_LoadTools.py
+     * Default is true. Set in InDetTrigVxSecondaryCombo_LoadTools.py
      */
     bool m_sortSecVxContainer;
 
     /** @brief Algorithm will loop over and run all offline vertexing tool handles contained in this array.
-     * Offline tools set in InDetTrigVxSecondary_LoadTools.py
+     * Offline tools set in InDetTrigVxSecondaryCombo_LoadTools.py
      */
     ToolHandleArray<InDet::ISecVertexInJetFinder> m_secVertexFinderToolsHandleArray;
 
@@ -129,7 +140,7 @@ namespace InDet {
     unsigned int m_nVxSecVertexInfo;
     unsigned int m_nVxSecVertexInfoContainers;
 
-  }; // end of TrigVxSecondary
+  }; // end of TrigVxSecondaryCombo
 } // end of namespace InDet
 
 #endif

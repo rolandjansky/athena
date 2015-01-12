@@ -9,10 +9,12 @@ use 	GaudiInterface     	GaudiInterface-* 		External
 use 	TrigInterfaces      	TrigInterfaces-*        	Trigger/TrigSteer
 use 	VxSecVertex        	VxSecVertex-*       		Tracking/TrkEvent
 use 	TrigTrackJetFinderTool  TrigTrackJetFinderTool-*	Trigger/TrigTools
+use 	xAODTracking		xAODTracking-*			Event/xAOD
 
 # ============================================================================================
 private
 use     AtlasROOT               AtlasROOT-*                     External
+use     AthContainers           AthContainers-*                 Control
 use     GeoPrimitives           GeoPrimitives-*                 DetectorDescription
 use 	InDetBeamSpotService    InDetBeamSpotService-*          InnerDetector/InDetConditions
 use 	InDetRecToolInterfaces 	InDetRecToolInterfaces-* 	InnerDetector/InDetRecTools
@@ -23,7 +25,6 @@ use     TrigInDetEvent          TrigInDetEvent-*                Trigger/TrigEven
 use     TrigSteeringEvent       TrigSteeringEvent-*             Trigger/TrigEvent
 use 	IRegionSelector        	IRegionSelector-*		DetectorDescription
 use	xAODBase		xAODBase-*			Event/xAOD  
-use 	xAODTracking		xAODTracking-*			Event/xAOD
 end_private
 
 # ============================================================================================

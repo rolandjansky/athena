@@ -2,12 +2,12 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "InDetTrigVxSecondary/TrigVxSecondary.h"
+#include "InDetTrigVxSecondary/TrigVxSecondaryCombo.h"
 #include "GaudiKernel/MsgStream.h"
 #include "InDetRecToolInterfaces/ISecVertexInJetFinder.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkParameters/TrackParameters.h"
-//#include "VxVertex/VxContainer.h"
+#include "VxVertex/VxContainer.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrigInDetEvent/TrigVertexCollection.h"
@@ -16,10 +16,12 @@
 #include <sstream>
 #include <TLorentzVector.h>
 //#include "xAODTracking/Vertex.h"
+//#include "xAODTracking/VertexContainer.h"
 #include "xAODBase/IParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "AthContainers/ConstDataVector.h"
 
-/* @brief Comparison operator for sorting objects of type VxContainer.
+/** @brief Comparison operator for sorting objects of type VxContainer.
  * Enables vertices to be sorted in order of increasing chi2/NDoF
  */
 namespace VxSort { 
@@ -38,14 +40,15 @@ namespace VxSort {
 
 namespace InDet {
 
-  TrigVxSecondary::TrigVxSecondary(const std::string &name, ISvcLocator *pSvcLocator):
-    HLT::FexAlgo(name, pSvcLocator),
+  TrigVxSecondaryCombo::TrigVxSecondaryCombo(const std::string &name, ISvcLocator *pSvcLocator):
+    HLT::ComboAlgo(name, pSvcLocator),
     m_trackJetFinderTool("TrigTrackJetFinderTool",this),
     m_secVertexFinderToolsHandleArray(),
     m_nVxCandidates(0),
     m_nVxContainers(0),
     m_nVxSecVertexInfo(0),
     m_nVxSecVertexInfoContainers(0) {
+    
     declareProperty("PriVtxKey",            m_priVtxKey            = "EFHistoPrmVtx");
     declareProperty("SecVtxKey",            m_secVtxKey            = "SecVtxInfo");
     declareProperty("SecVtxFinderList",     m_secVertexFinderToolsHandleArray); //!< Default = InDetVKalVxInJetTool only
@@ -66,13 +69,15 @@ namespace InDet {
     m_jetDirection = new TLorentzVector;
   }
   
-  TrigVxSecondary::~TrigVxSecondary() {
+  TrigVxSecondaryCombo::~TrigVxSecondaryCombo() {
     delete m_jetDirection;
-  }
+  }	
+	
+  //** ----------------------------------------------------------------------------------------------------------------- **//
   
-  HLT::ErrorCode TrigVxSecondary::hltInitialize() {
+  HLT::ErrorCode TrigVxSecondaryCombo::hltInitialize() {
     
-    msg() << MSG::INFO << "TrigVxSecondary::initialize()" << endreq;
+    msg() << MSG::INFO << "TrigVxSecondaryCombo::initialize()" << endreq;
 
     //* declareProperty overview *//
     if (msgLvl() <= MSG::DEBUG) {
@@ -128,43 +133,57 @@ namespace InDet {
   }
 
   // Execute HLT algorithm
-  HLT::ErrorCode TrigVxSecondary::hltExecute(const HLT::TriggerElement*, HLT::TriggerElement* outputTE) {
+  HLT::ErrorCode TrigVxSecondaryCombo::hltExecute(HLT::TEConstVec& inputTEs, HLT::TriggerElement* outputTE) {
 
     int outputLevel = msgLvl();
 
-    if(outputLevel <= MSG::DEBUG)
+    if(outputLevel <= MSG::DEBUG) {
       msg() << MSG::DEBUG << ">>>>>>>> In execHLTAlgorithm() <<<<<<<<" << endreq;
+      msg() << MSG::DEBUG << "Require 2 TEs as input: [0] = jet tracks, [1] = primary vertex" << endreq;
+    }
 
-    const xAOD::TrackParticleContainer* trackTES;
+    const HLT::TriggerElement* jetTrackTE = inputTEs[0];
+    const HLT::TriggerElement* prmVtxTE   = inputTEs[1];
 
-    if(HLT::OK != getFeature(outputTE, trackTES)) {
-      msg() << MSG::ERROR << "Input track collection could not be found" << endreq;
+    if (inputTEs.size() != 2 ) {
+      msg() << MSG::ERROR << "Need 2 TEs as input: [0] = jet tracks, [1] = primary vertex" << endreq;
       return HLT::NAV_ERROR;
     }
 
-    if(!trackTES) {
+    const xAOD::TrackParticleContainer* trackContainer;
+    if(HLT::OK != getFeature(jetTrackTE, trackContainer)) {
+      msg() << MSG::ERROR << "Input track collection could not be retrieved from input TE" << endreq;
+      return HLT::NAV_ERROR;
+    }
+
+    if(!trackContainer) {
       if(outputLevel <= MSG::DEBUG)
     	msg() << MSG::DEBUG << "Input track collection is null pointer" << endreq;
       return HLT::MISSING_FEATURE; 
     }
     
-    if(trackTES->size() == 0) {
+    if(trackContainer->size() == 0) {
       if(outputLevel <= MSG::DEBUG)
     	msg() << MSG::DEBUG << "Input track collection is empty" << endreq;
       return HLT::MISSING_FEATURE; 
     }
 
-    m_secVtx_numTrkTot = trackTES->size();
+    m_secVtx_numTrkTot = trackContainer->size();
     if(outputLevel <= MSG::DEBUG) 
       msg() << MSG::DEBUG << "Retrieved input track collection with " << m_secVtx_numTrkTot << " tracks." << endreq;
 
-    // Create the xAOD container and its auxiliary store:
-    // From Jiri
+    const xAOD::VertexContainer* primaryVxContainer;
+
+    if(HLT::OK != getFeature(prmVtxTE, primaryVxContainer, "EFHistoPrmVtx")) {
+      msg() << MSG::ERROR << "Input primary vertex container could not be retreived from input TE" << endreq;
+      return HLT::NAV_ERROR;
+    }
+
     // TEMP: CARLO  xAOD::VertexContainer* xaod = new xAOD::VertexContainer(); 
     // TEMP: CARLO  xAOD::VertexAuxContainer aux;
     // TEMP: CARLO  xaod->setStore( &aux );
 
-    //Trk::RecVertex* bestFitPriVertex(0);
+    // TEMP: CARLO  xAOD::Vertex* bestFitPriVertex = new xAOD::Vertex();
     xAOD::Vertex* bestFitPriVertex(0);
 
     // TEMP: CARLO  xaod->push_back(bestFitPriVertex); 
@@ -176,17 +195,18 @@ namespace InDet {
 
        int prmVtxStatusBitMap=0;
 
-       HLT::ErrorCode sc = getPrmVtxForFit(bestFitPriVertex,outputTE,m_secVtx_numPV,m_xPrmVtx,m_yPrmVtx,m_zPrmVtx,prmVtxStatusBitMap);
-       
+       HLT::ErrorCode sc = getPrmVtxForFit(bestFitPriVertex, primaryVxContainer, m_secVtx_numPV, m_xPrmVtx, m_yPrmVtx, m_zPrmVtx, prmVtxStatusBitMap);
+
        if(sc != HLT::OK) {
 
 	 if(outputLevel <= MSG::DEBUG)
 	   msg() << MSG::DEBUG << "Failed to get beamspot primary vertex proxy" << endreq;
 
-	  if(bestFitPriVertex) delete bestFitPriVertex;
+	 if(bestFitPriVertex) delete bestFitPriVertex;
           return sc;     
        
-       } else {
+       } 
+       else {
 
 	 if(outputLevel <= MSG::DEBUG)
 	   msg() << MSG::DEBUG << "Successfully found beamspot primary vertex proxy with status bitmap: " << prmVtxStatusBitMap << endreq;
@@ -212,19 +232,21 @@ namespace InDet {
           return HLT::MISSING_FEATURE;
        }
    
-    } else {
+    } 
+    else {
            
-       HLT::ErrorCode sc = getEFPrmVtxForFit(bestFitPriVertex,outputTE,m_secVtx_numPV,m_xPrmVtx,m_yPrmVtx,m_zPrmVtx);
+      HLT::ErrorCode sc = getEFPrmVtxForFit(bestFitPriVertex, prmVtxTE ,m_secVtx_numPV, m_xPrmVtx, m_yPrmVtx, m_zPrmVtx);
        
        if(sc!=HLT::OK) {
 
 	 if(outputLevel <= MSG::DEBUG)
 	   msg() << MSG::DEBUG << "Failed to get EF primary vertex found" << endreq;
 
-	  if(bestFitPriVertex) delete bestFitPriVertex;
+	 if(bestFitPriVertex) delete bestFitPriVertex;
           return sc;
 
-       } else {
+       } 
+       else {
 
 	 if(outputLevel <= MSG::DEBUG)
 	   msg() << MSG::DEBUG << "Successfully found EF primary vertex" << endreq;
@@ -239,11 +261,14 @@ namespace InDet {
        }
     }
 
-    if (trackTES->size() < 2) {
+    // Should have found a PV by this point.  Now start looking for a SV.
+
+    if (trackContainer->size() < 2) {
 
        if (msgLvl() <= MSG::DEBUG) 
 	 msg() << MSG::DEBUG << "Less than 2 tracks; won't try to reconstruct sv" << endreq;
 
+       // TEMP: CARLO - WAS COMMENTED OUT BEFORE
        if(bestFitPriVertex) delete bestFitPriVertex;
        return HLT::OK;
     }
@@ -256,10 +281,10 @@ namespace InDet {
     
     for(unsigned int i = 0; i < m_secVtx_numTrkTot; ++i) {
       
-      const xAOD::TrackParticle* track = (*trackTES)[i];
+      const xAOD::TrackParticle* track = (*trackContainer)[i];
 
       // NEED TRACKJETFINDERTOOL TO EVOLVE AND ACCEPT XAOD::TRACKPARTICLES AS INPUT
-      //m_trackJetFinderTool->addTrack(track, i);
+      // m_trackJetFinderTool->addTrack(track, i);
 
       if(outputLevel <= MSG::DEBUG) {
 	msg() << MSG::DEBUG << "ID: " << std::fixed << std::setw(2) << i
@@ -269,19 +294,6 @@ namespace InDet {
 	      << std::setprecision(5) << endreq;
       }
     }
-
-    // Sanity check for getting the jet direction from the super RoI
-    const TrigRoiDescriptor* roi = 0;
-    if ( (getFeature(outputTE, roi) == HLT::OK) && roi ) {
-      if (msgLvl() <= MSG::DEBUG) {
-	msg() << MSG::DEBUG << "RoI: " << *roi << endreq;
-      }
-      if (m_useJetDirection == 1 && roi->composite() ) {
-	msg() << MSG::WARNING << "You were trying to take the jet direction from the RoI direction but using a SuperRoi - THIS WON'T WORK!!" << endreq;
-	msg() << MSG::WARNING << "Setting m_useJetDirection to 2 " << endreq;
-	m_useJetDirection = 2;
-      }
-    } 
         
     if(m_useJetDirection == 2) {
        
@@ -289,11 +301,11 @@ namespace InDet {
        m_trackJetFinderTool->inputPrimaryVertexZ(m_zPrmVtx);
        
        if(outputLevel <= MSG::DEBUG)
-          msg() << MSG::DEBUG << "Loop over tracks and find jet direction" << endreq;
+          msg() << MSG::DEBUG << "Loop over tracks and find jet direction (method 2)" << endreq;
        
        for(unsigned int i = 0; i < m_secVtx_numTrkTot; ++i) {
         
-	 const xAOD::TrackParticle* track = (*trackTES)[i];
+	 const xAOD::TrackParticle* track = (*trackContainer)[i];
 
 	 // NEED TRACKJETFINDERTOOL TO EVOLVE AND ACCEPT XAOD::TRACKPARTICLES AS INPUT
 	 //m_trackJetFinderTool->addTrack(track, i);
@@ -339,16 +351,20 @@ namespace InDet {
        m_jetDirection->SetY(sin(phiTrackJet));
        m_jetDirection->SetZ(sinh(etaTrackJet));
        
-    } else if(m_useJetDirection == 1) {
+    } 
+    else if(m_useJetDirection == 1) {
+
+       if(outputLevel <= MSG::DEBUG)
+	 msg() << MSG::DEBUG << "Find jet direction from ROI (method 1)" << endreq;
        
        const TrigRoiDescriptor* roiDescriptor = 0;
-       if ( (getFeature(outputTE, roiDescriptor) == HLT::OK) && roiDescriptor ) {
+
+       if ( (getFeature(jetTrackTE, roiDescriptor) == HLT::OK) && roiDescriptor ) {
           if (msgLvl() <= MSG::DEBUG) {
-	    msg() << MSG::DEBUG << "Using inputTE: " << *roiDescriptor << endreq;
-//              msg() << MSG::DEBUG << "Using inputTE: " 
-//                    << "RoI id " << roiDescriptor->roiId()
-//                    << ", Phi = " <<  roiDescriptor->phi()
-//                    << ", Eta = " << roiDescriptor->eta() << endreq;
+             msg() << MSG::DEBUG << "Using inputTE (of jet): " 
+                   << "RoI id " << roiDescriptor->roiId()
+                   << ", Phi = " <<  roiDescriptor->phi()
+                   << ", Eta = " << roiDescriptor->eta() << endreq;
           }
        } 
        else {
@@ -392,12 +408,12 @@ namespace InDet {
 	vertex->makePrivateStore();
 	vertex->setPosition(bestFitPriVertex->position());
 	vertex->setCovariancePosition(bestFitPriVertex->covariancePosition());
-	vertex->setFitQuality(bestFitPriVertex->chiSquared(), bestFitPriVertex->numberDoF () ); 
+	vertex->setFitQuality(bestFitPriVertex->chiSquared(), bestFitPriVertex->numberDoF ()); 
 
 	std::vector<const xAOD::IParticle*> inputIParticles;
 	
-	xAOD::TrackParticleContainer::const_iterator trackIt = trackTES->begin();
-	xAOD::TrackParticleContainer::const_iterator lastTrackIt = trackTES->end();	
+	xAOD::TrackParticleContainer::const_iterator trackIt     = trackContainer->begin();
+	xAOD::TrackParticleContainer::const_iterator lastTrackIt = trackContainer->end();	
 	
 	for(; trackIt != lastTrackIt; ++trackIt)
 	  inputIParticles.push_back(*trackIt);
@@ -413,9 +429,12 @@ namespace InDet {
 	}
 	else {
 	  if (m_secVertexInfo->vertices().size()) {
-	    m_secVertexInfo->vertices().front()->setVertexType((xAOD::VxType::VertexType)2);
+	    m_secVertexInfo->vertices().front()->setVertexType((xAOD::VxType::VertexType)2); 
+	    if(outputLevel <= MSG::DEBUG)
+	      msg() << MSG::DEBUG<< "SV has z-position = " << m_secVertexInfo->vertices().front()->z() << endreq;
 	  }
 	  m_secVertexInfoContainer->push_back(const_cast<Trk::VxSecVertexInfo*>(m_secVertexInfo));
+	  
 	  m_secVertexInfoContainer->back()->getSVOwnership(true);
 	  m_nVxSecVertexInfo++;
 	}
@@ -427,14 +446,14 @@ namespace InDet {
 	//* for monitoring *//
 
 	const Trk::VxSecVKalVertexInfo* m_secVKalVertexInfo = dynamic_cast<const Trk::VxSecVKalVertexInfo*>(m_secVertexInfo);
-	const std::vector<xAOD::Vertex_v1*> & myVertices = m_secVKalVertexInfo->vertices();
+	const std::vector<xAOD::Vertex*> & myVertices = m_secVKalVertexInfo->vertices();
 	if(myVertices.size()>0) {
 	  m_secVtx_twoTrkTot = m_secVKalVertexInfo->n2trackvertices();
 	  m_secVtx_mass      = m_secVKalVertexInfo->mass();
 	  m_secVtx_energy    = m_secVKalVertexInfo->energyFraction();
 
-	  std::vector<xAOD::Vertex_v1*>::const_iterator verticesIt=myVertices.begin();
-	  std::vector<xAOD::Vertex_v1*>::const_iterator verticesEnd=myVertices.end();
+	  std::vector<xAOD::Vertex*>::const_iterator verticesIt  = myVertices.begin();
+	  std::vector<xAOD::Vertex*>::const_iterator verticesEnd = myVertices.end();
 
 	  for( ; verticesIt!=verticesEnd ; ++verticesIt) {
 
@@ -443,7 +462,7 @@ namespace InDet {
 	      continue;
 	    }
 	
-	    msg() << MSG::DEBUG << "xAOD::Vertex at ("
+	    msg() << MSG::DEBUG << "VxCandidate at ("
 		  << (*verticesIt)->position().x() << ","
 		  << (*verticesIt)->position().y() << ","
 		  << (*verticesIt)->position().z() << endreq;
@@ -459,8 +478,39 @@ namespace InDet {
 	std::vector<xAOD::Vertex*>::const_iterator lastVertexIt = m_secVertexInfo->vertices().end();
       }
     }
-    
-    if(bestFitPriVertex) delete bestFitPriVertex;
+
+    //  should this be inside getPriVtx function?
+    // TrigDecisionTool ->ancestor (gets ancestor of feature)  ?
+
+    // Create new ViewContainer of the primary vertex to attach to the TE
+    ConstDataVector<xAOD::VertexContainer>* prmVx = new ConstDataVector<xAOD::VertexContainer>(SG::VIEW_ELEMENTS);
+    if(bestFitPriVertex) {
+      prmVx->clear(SG::VIEW_ELEMENTS); 
+      prmVx->push_back(bestFitPriVertex);
+    }
+
+    // Attach new PrimaryVertex container to the TriggerElement
+    if(HLT::OK != attachFeature(outputTE, prmVx, "T2PrimaryVertex")) {
+      msg() << MSG::ERROR << "Could not attach T2PrimaryVertex feature to the TE" << endreq;
+      return HLT::NAV_ERROR;
+    } 
+
+    // Create new ViewContainer of the jet tracks to attach to the TE
+    // Actually, probably this isn't necessary...  
+    // at least it doesn't solve the problem I was having before... rubbishness squared
+    xAOD::TrackParticleContainer::const_iterator trackIt      = trackContainer->begin();
+    xAOD::TrackParticleContainer::const_iterator lastTrackIt  = trackContainer->end();	
+    ConstDataVector<xAOD::TrackParticleContainer>* bJetTracks = new ConstDataVector<xAOD::TrackParticleContainer>(SG::VIEW_ELEMENTS);
+    bJetTracks->clear(SG::VIEW_ELEMENTS);    
+    for(; trackIt != lastTrackIt; ++trackIt) {
+      bJetTracks->push_back(*trackIt);
+    }
+
+    // Attach JetTracks container to the TriggerElement
+    if(HLT::OK != attachFeature(outputTE, bJetTracks, "bJetTracks")) {
+      msg() << MSG::ERROR << "Could not attach bjetTracks feature to the TE" << endreq;
+      return HLT::NAV_ERROR;
+    } 
 
     // Create dummy xAOD SV output and attach as feature 
     xAOD::VertexAuxContainer trigSecondaryVertexAuxContainer;
@@ -478,10 +528,8 @@ namespace InDet {
     }
 
     // Attach VxSecVertexInfo container to the TriggerElement
-    if(HLT::OK != attachFeature(outputTE, m_secVertexInfoContainer, "SecVtxInfo")) {
-
-      msg() << MSG::ERROR << "Could not attach feature to the TE" << endreq;
-
+    if(HLT::OK != attachFeature(outputTE, m_secVertexInfoContainer, m_secVtxKey)) {
+      msg() << MSG::ERROR << "Could not attach SecVtxInfo feature to the TE" << endreq;
       return HLT::NAV_ERROR;
     } 
     else {
@@ -491,31 +539,34 @@ namespace InDet {
     }
     
     if(outputLevel <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "xAOD::VertexContainer size: " << m_secVtx_numSV << endreq;
+      msg() << MSG::DEBUG << "VxContainer size: " << m_secVtx_numSV << endreq;
       msg() << MSG::DEBUG << "VxSecVertexInfoContainer size: " << m_secVertexInfoContainer->size() << endreq;
     }
 
     // Information about this method invocation
     if(outputLevel <= MSG::DEBUG) {
       msg() << MSG::DEBUG << "~ Execution summary ~" << endreq;
-      msg() << MSG::DEBUG << "Number of xAOD::Vertex so far: " << m_nVxCandidates << endreq;
-      msg() << MSG::DEBUG << "Number of xAOD::VertexContainers so far: " << m_nVxContainers << endreq;
+      //msg() << MSG::DEBUG << "Number of VxCandidates so far (ignore - this always prints 0): " << m_nVxCandidates << endreq;
+      //msg() << MSG::DEBUG << "Number of VxContainers so far (ignore - this always prints 0): " << m_nVxContainers << endreq;
       msg() << MSG::DEBUG << "Number of VxSecVertexInfo objects so far: " << m_nVxSecVertexInfo << endreq;
       msg() << MSG::DEBUG << "Number of VxSecVertexInfo containers so far: " << m_nVxSecVertexInfoContainers << endreq;
     }
+
+    delete bestFitPriVertex;
+
     return HLT::OK;
   }
 
-  HLT::ErrorCode TrigVxSecondary::hltFinalize() {
+  HLT::ErrorCode TrigVxSecondaryCombo::hltFinalize() {
     
-    msg() << MSG::INFO << "TrigVxSecondary::finalize()" << endreq;
+    msg() << MSG::INFO << "TrigVxSecondaryCombo::finalize()" << endreq;
     return HLT::OK;
   }
 
-  HLT::ErrorCode TrigVxSecondary::getPrmVtxForFit(xAOD::Vertex*& vertex,
-						  HLT::TriggerElement* outputTE,
-						  unsigned int& numPrimaryVertices,
-						  float& xPrmVtx,float& yPrmVtx,float& zPrmVtx, int& status ) {
+  HLT::ErrorCode TrigVxSecondaryCombo::getPrmVtxForFit(xAOD::Vertex*& vertex,
+						       const xAOD::VertexContainer* prmVtxColl,
+						       unsigned int& numPrimaryVertices,
+						       float& xPrmVtx, float& yPrmVtx, float& zPrmVtx, int& status ) {
       
     //Retrieve beamspot to use in transverse plane
     // z vertex from T2Histo algorithm
@@ -531,24 +582,12 @@ namespace InDet {
       
     float x, y, z, exx, exy, exz, eyy, eyz, ezz;
     exy = eyz = exz = 0; // cross-correlation 0 for now
-    
-    // Retrieve primary vertex information
-    //std::vector<const TrigVertexCollection*> vectorOfT2PrmVtxCollections;
-    //const TrigVertexCollection* prmVtxColl = NULL;
-
-    std::vector<const xAOD::VertexContainer*> vectorOfT2PrmVtxCollections;
-    const xAOD::VertexContainer* prmVtxColl = NULL;
-
-    if (getFeature(outputTE, prmVtxColl, m_priVtxKey) != HLT::OK) {
-      msg() << MSG::ERROR << "Failed to get xAOD::VertexContainer from the trigger element" << endreq;
-      return HLT::NAV_ERROR;
-    }
 
     if (!prmVtxColl || prmVtxColl->size() == 0) {
 	msg() << MSG::ERROR << "Failed to get xAOD::VertexContainer from the trigger element" << endreq;
 	return HLT::MISSING_FEATURE;
-      }
-
+    }
+    
     z = prmVtxColl->at(0)->z();
     ezz = prmVtxColl->at(0)->covariance()[5];  
     
@@ -556,12 +595,13 @@ namespace InDet {
       msg() << MSG::DEBUG << "xAOD::Vertex was not found" << endreq;
       return HLT::OK;
     }
-    
+
     float ndof = prmVtxColl->at(0)->numberDoF();
     float chi2 = prmVtxColl->at(0)->chiSquared();
     
+    if (msgLvl() <= MSG::DEBUG)
     msg() << MSG::DEBUG <<"Found T2 z vertex at " << z << " +- " << ezz << "   (chi2/ndof="<<chi2<<"/"<<ndof<<")" << endreq;
-     
+    
     //* Retrieve beamspot information *//
     IBeamCondSvc* m_iBeamCondSvc; 
     StatusCode sc = service("BeamCondSvc", m_iBeamCondSvc);
@@ -582,7 +622,6 @@ namespace InDet {
     else {
       if (msgLvl() <= MSG::DEBUG) {
 	msg() << MSG::DEBUG << "Extracting beamspot parameteres" << endreq;
-        
       } 
       
       Amg::Vector3D m_beamSpot = m_iBeamCondSvc->beamPos();
@@ -595,7 +634,7 @@ namespace InDet {
       
       exx = m_iBeamCondSvc->beamSigma(0);
       eyy = m_iBeamCondSvc->beamSigma(1);
-      
+
       //Beamspot status flag
       int beamSpotBitMap = m_iBeamCondSvc->beamStatus();
       
@@ -611,14 +650,13 @@ namespace InDet {
 	      << ", tiltX=" << m_iBeamCondSvc->beamTilt(0) << ", tiltY=" << m_iBeamCondSvc->beamTilt(1) << ", sigmaX=" << exx << ", sigmaY=" << eyy 
 	      << ", sigmaZ=" <<  m_iBeamCondSvc->beamSigma(1) << ", status=" << beamSpotStatus << endreq;
     } 
-      
+
     if (m_useBeamSpotFlag && !beamSpotStatus) {
       
       if(msgLvl() <= MSG::DEBUG) {
 	msg() << MSG::DEBUG << "Beam spot status flag set to " << beamSpotStatus << ". SV weights are not computed." << endreq;
 	msg() << MSG::DEBUG << "Use beam spot flag set to " << m_useBeamSpotFlag << ". SV weights are not computed." << endreq;
       }
-      
       beamSpotErrorCode = beamSpotErrorCode | (1<<1) ; 
     }
       
@@ -630,9 +668,8 @@ namespace InDet {
     err(0,1) = err(1,0) = exy; 
     err(0,2) = err(2,0) = exz;
     err(1,2) = err(2,1) = eyz;
-    
+
     AmgSymMatrix(3) cov = err;
-    //vertex = new Trk::RecVertex(Amg::Vector3D(x,y,z), cov, ndof, chi2);
 
     vertex = new xAOD::Vertex();
     vertex->makePrivateStore(); // does this help?
@@ -641,7 +678,7 @@ namespace InDet {
     vertex->setZ(z);
     vertex->setCovariancePosition(cov);
     vertex->setFitQuality(chi2, ndof);
-
+ 
     xPrmVtx = x;
     yPrmVtx = y;
     zPrmVtx = z;
@@ -651,15 +688,14 @@ namespace InDet {
     return HLT::OK;
   }
 
-  HLT::ErrorCode TrigVxSecondary::getEFPrmVtxForFit(xAOD::Vertex*& bestFitPriVertex,
-                                                    HLT::TriggerElement* outputTE,
-                                                    unsigned int& numPrimaryVertices,
-                                                    float& xPrmVtx,float& yPrmVtx,float& zPrmVtx ) {
+  HLT::ErrorCode TrigVxSecondaryCombo::getEFPrmVtxForFit(xAOD::Vertex*& bestFitPriVertex,
+							 const HLT::TriggerElement* outputTE,
+							 unsigned int& numPrimaryVertices,
+							 float& xPrmVtx, float& yPrmVtx, float& zPrmVtx ) {
      
     int outputLevel = msgLvl();
     
     // Navigate from the TriggerElement to get the input primary vertex container
-    //const VxContainer* primaryVxContainer;
     const xAOD::VertexContainer* primaryVxContainer;
     
     if(HLT::OK != getFeature(outputTE, primaryVxContainer)) {
@@ -705,13 +741,14 @@ namespace InDet {
           msg() << MSG::DEBUG << "Vertex type: " << (*firstPriVx)->vertexType() << endreq;
        
        // Reject dummy vertices      
-       if((*firstPriVx)->vertexType() != xAOD::VxType::PriVtx) {
+       if((*firstPriVx)->vertexType() != xAOD::VxType::PriVtx) { // Trk::PriVtx) {
           if(outputLevel <= MSG::DEBUG)
              msg() << MSG::DEBUG << " -- Not a primary vertex, skipping..." << endreq;
           continue;
        }
        
        numberOfPriVx++;
+
        Chi2 = (*firstPriVx)->chiSquared();
        NDoF = (*firstPriVx)->numberDoF();
        fit = fabs(Chi2/NDoF);
@@ -722,7 +759,8 @@ namespace InDet {
        // Take lowest Chi2/NDoF
        if(fit < minFit && fit != 0) {
           minFit  = fit;
-	  bestFitPriVertex = *firstPriVx;
+	  // Set bestFitPriVertex to this vertex
+	  bestFitPriVertex = *firstPriVx; 
           xPrmVtx = bestFitPriVertex->x();
           yPrmVtx = bestFitPriVertex->y();
           zPrmVtx = bestFitPriVertex->z();
