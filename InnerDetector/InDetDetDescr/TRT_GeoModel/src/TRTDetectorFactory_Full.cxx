@@ -76,6 +76,7 @@ TRTDetectorFactory_Full::TRTDetectorFactory_Full(const InDetDD::AthenaComps * at
     m_overridedigversion(overridedigversion),
     m_alignable(alignable),
     m_sumSvc("TRT_StrawStatusSummarySvc","InDetTRTStrawStatusSummarySvc"),
+    m_strawsvcavailable(0),
     m_doXenonArgonMixture(doXenonArgonMixture)
 { 
 m_sumSvc=m_summarySvc;
@@ -2262,13 +2263,15 @@ GeoFullPhysVol * TRTDetectorFactory_Full::makeStrawPlane(size_t w, bool isArgon)
 
  if (!isArgon){
    if (w>=firstIndexOfC) {
+    // Look above *type2Plane=NULL
      if (type2Plane!=NULL) {
        return type2Plane;
      }
      nstraws=m_data->endcapNumberOfStrawsInStrawLayer_CWheels;
    } 
    else {
-     if (type1Plane!=NULL) {
+     // Look above *type1Plane=NULL
+    if (type1Plane!=NULL) {
        return type1Plane;
      }
      nstraws=m_data->endcapNumberOfStrawsInStrawLayer_AWheels;
@@ -2277,12 +2280,14 @@ GeoFullPhysVol * TRTDetectorFactory_Full::makeStrawPlane(size_t w, bool isArgon)
   }
   else{ 
    if (w>=firstIndexOfC) {
+     // Look above *type2PlaneAr=NULL
      if (type2PlaneAr!=NULL) {
        return type2PlaneAr;
      }
      nstraws=m_data->endcapNumberOfStrawsInStrawLayer_CWheels;
    } 
    else {
+     // Look above *type1PlaneAr=NULL
      if (type1PlaneAr!=NULL) {
        return type1PlaneAr;
      }
@@ -2381,6 +2386,7 @@ GeoFullPhysVol * TRTDetectorFactory_Full::makeStrawPlane(size_t w, bool isArgon)
   GeoPhysVol *pWire = new GeoPhysVol(lWire);
   pStraw->add(pWire);
 
+  // Look above *type2Plane=NULL
   if (w>=firstIndexOfC && type2Plane!=NULL) {
     if (isArgon){
 	    type2PlaneAr=pStrawPlane;
