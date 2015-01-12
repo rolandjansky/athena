@@ -6,7 +6,7 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #1 0 events p
 EventTagReader      DEBUG Executing EventTagReader
 EventTagReader      DEBUG Attribute list is: 
 EventTagReader      DEBUG NAME RunNumber TYPE unsigned int VALUE RunNumber (unsigned int) : 1
-EventTagReader      DEBUG NAME EventNumber TYPE unsigned int VALUE EventNumber (unsigned int) : 1
+EventTagReader      DEBUG NAME EventNumber TYPE unsigned long long VALUE EventNumber (unsigned long long) : 1
 EventTagReader      DEBUG NAME EventTime TYPE unsigned int VALUE EventTime (unsigned int) : 0
 EventTagReader      DEBUG NAME EventTimeNanoSec TYPE unsigned int VALUE EventTimeNanoSec (unsigned int) : 0
 EventTagReader      DEBUG NAME LumiBlockN TYPE unsigned int VALUE LumiBlockN (unsigned int) : 0
@@ -21,7 +21,7 @@ EventTagReader      DEBUG NAME TileFlags TYPE unsigned int VALUE TileFlags (unsi
 EventTagReader      DEBUG NAME MuonFlags TYPE unsigned int VALUE MuonFlags (unsigned int) : 0
 EventTagReader      DEBUG NAME ForwardDetFlags TYPE unsigned int VALUE ForwardDetFlags (unsigned int) : 0
 EventTagReader      DEBUG NAME CoreFlags TYPE unsigned int VALUE CoreFlags (unsigned int) : 0
-EventTagReader      DEBUG NAME IsSimulation TYPE bool VALUE IsSimulation (bool) : TRUE
+EventTagReader      DEBUG NAME IsSimulation TYPE bool VALUE IsSimulation (bool) : FALSE
 EventTagReader      DEBUG NAME IsCalibration TYPE bool VALUE IsCalibration (bool) : FALSE
 EventTagReader      DEBUG NAME IsTestBeam TYPE bool VALUE IsTestBeam (bool) : FALSE
 EventTagReader      DEBUG NAME RandomNumber TYPE float VALUE RandomNumber (float) : 0.286072
@@ -44,7 +44,7 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #2, run #1 1 events p
 EventTagReader      DEBUG Executing EventTagReader
 EventTagReader      DEBUG Attribute list is: 
 EventTagReader      DEBUG NAME RunNumber TYPE unsigned int VALUE RunNumber (unsigned int) : 1
-EventTagReader      DEBUG NAME EventNumber TYPE unsigned int VALUE EventNumber (unsigned int) : 2
+EventTagReader      DEBUG NAME EventNumber TYPE unsigned long long VALUE EventNumber (unsigned long long) : 2
 EventTagReader      DEBUG NAME EventTime TYPE unsigned int VALUE EventTime (unsigned int) : 0
 EventTagReader      DEBUG NAME EventTimeNanoSec TYPE unsigned int VALUE EventTimeNanoSec (unsigned int) : 0
 EventTagReader      DEBUG NAME LumiBlockN TYPE unsigned int VALUE LumiBlockN (unsigned int) : 0
@@ -59,7 +59,7 @@ EventTagReader      DEBUG NAME TileFlags TYPE unsigned int VALUE TileFlags (unsi
 EventTagReader      DEBUG NAME MuonFlags TYPE unsigned int VALUE MuonFlags (unsigned int) : 0
 EventTagReader      DEBUG NAME ForwardDetFlags TYPE unsigned int VALUE ForwardDetFlags (unsigned int) : 0
 EventTagReader      DEBUG NAME CoreFlags TYPE unsigned int VALUE CoreFlags (unsigned int) : 0
-EventTagReader      DEBUG NAME IsSimulation TYPE bool VALUE IsSimulation (bool) : TRUE
+EventTagReader      DEBUG NAME IsSimulation TYPE bool VALUE IsSimulation (bool) : FALSE
 EventTagReader      DEBUG NAME IsCalibration TYPE bool VALUE IsCalibration (bool) : FALSE
 EventTagReader      DEBUG NAME IsTestBeam TYPE bool VALUE IsTestBeam (bool) : FALSE
 EventTagReader      DEBUG NAME RandomNumber TYPE float VALUE RandomNumber (float) : 0.366332
@@ -82,7 +82,7 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #3, run #1 2 events p
 EventTagReader      DEBUG Executing EventTagReader
 EventTagReader      DEBUG Attribute list is: 
 EventTagReader      DEBUG NAME RunNumber TYPE unsigned int VALUE RunNumber (unsigned int) : 1
-EventTagReader      DEBUG NAME EventNumber TYPE unsigned int VALUE EventNumber (unsigned int) : 3
+EventTagReader      DEBUG NAME EventNumber TYPE unsigned long long VALUE EventNumber (unsigned long long) : 3
 EventTagReader      DEBUG NAME EventTime TYPE unsigned int VALUE EventTime (unsigned int) : 0
 EventTagReader      DEBUG NAME EventTimeNanoSec TYPE unsigned int VALUE EventTimeNanoSec (unsigned int) : 0
 EventTagReader      DEBUG NAME LumiBlockN TYPE unsigned int VALUE LumiBlockN (unsigned int) : 0
@@ -97,7 +97,7 @@ EventTagReader      DEBUG NAME TileFlags TYPE unsigned int VALUE TileFlags (unsi
 EventTagReader      DEBUG NAME MuonFlags TYPE unsigned int VALUE MuonFlags (unsigned int) : 0
 EventTagReader      DEBUG NAME ForwardDetFlags TYPE unsigned int VALUE ForwardDetFlags (unsigned int) : 0
 EventTagReader      DEBUG NAME CoreFlags TYPE unsigned int VALUE CoreFlags (unsigned int) : 0
-EventTagReader      DEBUG NAME IsSimulation TYPE bool VALUE IsSimulation (bool) : TRUE
+EventTagReader      DEBUG NAME IsSimulation TYPE bool VALUE IsSimulation (bool) : FALSE
 EventTagReader      DEBUG NAME IsCalibration TYPE bool VALUE IsCalibration (bool) : FALSE
 EventTagReader      DEBUG NAME IsTestBeam TYPE bool VALUE IsTestBeam (bool) : FALSE
 EventTagReader      DEBUG NAME RandomNumber TYPE float VALUE RandomNumber (float) : 0.942989
@@ -120,7 +120,7 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #4, run #1 3 events p
 EventTagReader      DEBUG Executing EventTagReader
 EventTagReader      DEBUG Attribute list is: 
 EventTagReader      DEBUG NAME RunNumber TYPE unsigned int VALUE RunNumber (unsigned int) : 1
-EventTagReader      DEBUG NAME EventNumber TYPE unsigned int VALUE EventNumber (unsigned int) : 4
+EventTagReader      DEBUG NAME EventNumber TYPE unsigned long long VALUE EventNumber (unsigned long long) : 4
 EventTagReader      DEBUG NAME EventTime TYPE unsigned int VALUE EventTime (unsigned int) : 0
 EventTagReader      DEBUG NAME EventTimeNanoSec TYPE unsigned int VALUE EventTimeNanoSec (unsigned int) : 0
 EventTagReader      DEBUG NAME LumiBlockN TYPE unsigned int VALUE LumiBlockN (unsigned int) : 0
@@ -135,7 +135,7 @@ EventTagReader      DEBUG NAME TileFlags TYPE unsigned int VALUE TileFlags (unsi
 EventTagReader      DEBUG NAME MuonFlags TYPE unsigned int VALUE MuonFlags (unsigned int) : 0
 EventTagReader      DEBUG NAME ForwardDetFlags TYPE unsigned int VALUE ForwardDetFlags (unsigned int) : 0
 EventTagReader      DEBUG NAME CoreFlags TYPE unsigned int VALUE CoreFlags (unsigned int) : 0
-EventTagReader      DEBUG NAME IsSimulation TYPE bool VALUE IsSimulation (bool) : TRUE
+EventTagReader      DEBUG NAME IsSimulation TYPE bool VALUE IsSimulation (bool) : FALSE
 EventTagReader      DEBUG NAME IsCalibration TYPE bool VALUE IsCalibration (bool) : FALSE
 EventTagReader      DEBUG NAME IsTestBeam TYPE bool VALUE IsTestBeam (bool) : FALSE
 EventTagReader      DEBUG NAME RandomNumber TYPE float VALUE RandomNumber (float) : 0.278981
@@ -158,7 +158,7 @@ AthenaEventLoopMgr   INFO   ===>>>  start processing event #5, run #1 4 events p
 EventTagReader      DEBUG Executing EventTagReader
 EventTagReader      DEBUG Attribute list is: 
 EventTagReader      DEBUG NAME RunNumber TYPE unsigned int VALUE RunNumber (unsigned int) : 1
-EventTagReader      DEBUG NAME EventNumber TYPE unsigned int VALUE EventNumber (unsigned int) : 5
+EventTagReader      DEBUG NAME EventNumber TYPE unsigned long long VALUE EventNumber (unsigned long long) : 5
 EventTagReader      DEBUG NAME EventTime TYPE unsigned int VALUE EventTime (unsigned int) : 0
 EventTagReader      DEBUG NAME EventTimeNanoSec TYPE unsigned int VALUE EventTimeNanoSec (unsigned int) : 0
 EventTagReader      DEBUG NAME LumiBlockN TYPE unsigned int VALUE LumiBlockN (unsigned int) : 0
@@ -173,7 +173,7 @@ EventTagReader      DEBUG NAME TileFlags TYPE unsigned int VALUE TileFlags (unsi
 EventTagReader      DEBUG NAME MuonFlags TYPE unsigned int VALUE MuonFlags (unsigned int) : 0
 EventTagReader      DEBUG NAME ForwardDetFlags TYPE unsigned int VALUE ForwardDetFlags (unsigned int) : 0
 EventTagReader      DEBUG NAME CoreFlags TYPE unsigned int VALUE CoreFlags (unsigned int) : 0
-EventTagReader      DEBUG NAME IsSimulation TYPE bool VALUE IsSimulation (bool) : TRUE
+EventTagReader      DEBUG NAME IsSimulation TYPE bool VALUE IsSimulation (bool) : FALSE
 EventTagReader      DEBUG NAME IsCalibration TYPE bool VALUE IsCalibration (bool) : FALSE
 EventTagReader      DEBUG NAME IsTestBeam TYPE bool VALUE IsTestBeam (bool) : FALSE
 EventTagReader      DEBUG NAME RandomNumber TYPE float VALUE RandomNumber (float) : 0.18341

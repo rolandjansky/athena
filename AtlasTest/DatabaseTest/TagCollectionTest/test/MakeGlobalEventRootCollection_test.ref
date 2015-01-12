@@ -78,7 +78,7 @@ RegStream1.Regi...  DEBUG Token Attributes for fragment 0
 RegStream1.Regi...  DEBUG Name: TEST1_ref   Type: Token
 RegStream1.Regi...  DEBUG  Metadata Attributes for fragment 0
 RegStream1.Regi...  DEBUG Name: RunNumber   Type: unsigned int
-RegStream1.Regi...  DEBUG Name: EventNumber   Type: unsigned int
+RegStream1.Regi...  DEBUG Name: EventNumber   Type: unsigned long long
 RegStream1.Regi...  DEBUG Name: EventTime   Type: unsigned int
 RegStream1.Regi...  DEBUG Name: EventTimeNanoSec   Type: unsigned int
 RegStream1.Regi...  DEBUG Name: LumiBlockN   Type: unsigned int
@@ -142,7 +142,7 @@ RegStream1.Regi...  DEBUG Token Attributes for fragment 0
 RegStream1.Regi...  DEBUG Name: TEST1_ref   Type: Token
 RegStream1.Regi...  DEBUG  Metadata Attributes for fragment 0
 RegStream1.Regi...  DEBUG Name: RunNumber   Type: unsigned int
-RegStream1.Regi...  DEBUG Name: EventNumber   Type: unsigned int
+RegStream1.Regi...  DEBUG Name: EventNumber   Type: unsigned long long
 RegStream1.Regi...  DEBUG Name: EventTime   Type: unsigned int
 RegStream1.Regi...  DEBUG Name: EventTimeNanoSec   Type: unsigned int
 RegStream1.Regi...  DEBUG Name: LumiBlockN   Type: unsigned int
@@ -208,7 +208,7 @@ RegStream1.Regi...  DEBUG Token Attributes for fragment 0
 RegStream1.Regi...  DEBUG Name: TEST1_ref   Type: Token
 RegStream1.Regi...  DEBUG  Metadata Attributes for fragment 0
 RegStream1.Regi...  DEBUG Name: RunNumber   Type: unsigned int
-RegStream1.Regi...  DEBUG Name: EventNumber   Type: unsigned int
+RegStream1.Regi...  DEBUG Name: EventNumber   Type: unsigned long long
 RegStream1.Regi...  DEBUG Name: EventTime   Type: unsigned int
 RegStream1.Regi...  DEBUG Name: EventTimeNanoSec   Type: unsigned int
 RegStream1.Regi...  DEBUG Name: LumiBlockN   Type: unsigned int
@@ -274,7 +274,7 @@ RegStream1.Regi...  DEBUG Token Attributes for fragment 0
 RegStream1.Regi...  DEBUG Name: TEST1_ref   Type: Token
 RegStream1.Regi...  DEBUG  Metadata Attributes for fragment 0
 RegStream1.Regi...  DEBUG Name: RunNumber   Type: unsigned int
-RegStream1.Regi...  DEBUG Name: EventNumber   Type: unsigned int
+RegStream1.Regi...  DEBUG Name: EventNumber   Type: unsigned long long
 RegStream1.Regi...  DEBUG Name: EventTime   Type: unsigned int
 RegStream1.Regi...  DEBUG Name: EventTimeNanoSec   Type: unsigned int
 RegStream1.Regi...  DEBUG Name: LumiBlockN   Type: unsigned int
@@ -340,7 +340,7 @@ RegStream1.Regi...  DEBUG Token Attributes for fragment 0
 RegStream1.Regi...  DEBUG Name: TEST1_ref   Type: Token
 RegStream1.Regi...  DEBUG  Metadata Attributes for fragment 0
 RegStream1.Regi...  DEBUG Name: RunNumber   Type: unsigned int
-RegStream1.Regi...  DEBUG Name: EventNumber   Type: unsigned int
+RegStream1.Regi...  DEBUG Name: EventNumber   Type: unsigned long long
 RegStream1.Regi...  DEBUG Name: EventTime   Type: unsigned int
 RegStream1.Regi...  DEBUG Name: EventTimeNanoSec   Type: unsigned int
 RegStream1.Regi...  DEBUG Name: LumiBlockN   Type: unsigned int
@@ -391,6 +391,7 @@ RegStream1.Regi...  DEBUG In finalize: 5
 RegStream1.Regi...  DEBUG Calling destructor
 GlobalEventTagB...  DEBUG in finalize()
 GlobalEventTagB...  DEBUG in finalize()
+RegStream1.RegS...  DEBUG Calling destructor
 GlobalEventTagB...  DEBUG Calling destructor
 ApplicationMgr       INFO Application Manager Finalized successfully
 ApplicationMgr       INFO Application Manager Terminated successfully

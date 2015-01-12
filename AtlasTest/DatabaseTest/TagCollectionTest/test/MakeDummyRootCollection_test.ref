@@ -884,5 +884,6 @@ RegStream2          DEBUG In finalize
 RegStream2.Regi...  DEBUG In finalize: 5
 RegStream2.Regi...  DEBUG Calling destructor
 DefaultCollMeta     DEBUG Calling destructor
+RegStream2.RegS...  DEBUG Calling destructor
 ApplicationMgr       INFO Application Manager Finalized successfully
 ApplicationMgr       INFO Application Manager Terminated successfully

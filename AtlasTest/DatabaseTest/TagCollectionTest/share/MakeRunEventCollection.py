@@ -26,6 +26,13 @@
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
+from RecExConfig.ObjKeyStore import objKeyStore
+if( ( not objKeyStore.isInInput( "xAOD::EventInfo_v1") ) and \
+      ( not hasattr( topSequence, "xAODMaker::EventInfoCnvAlg" ) ) ):
+  from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
+  topSequence+=xAODMaker__EventInfoCnvAlg()
+
+
 from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
@@ -98,9 +105,9 @@ include( "EventAthenaPool/EventAthenaPool_joboptions.py" )
 #--------------------------------------------------------------
 # Run OutputStream as an algorithm
 from RegistrationServices.RegistrationServicesConf import RegistrationStream
-from RegistrationServices.RegistrationServicesConf import RegistrationStreamTagTool
+from RegistrationServices.RegistrationServicesConf import RegistrationStreamLCGTool
 
-TagTool = RegistrationStreamTagTool("RegistrationStreamTagTool")
+TagTool = RegistrationStreamLCGTool("RegistrationStreamLCGTool")
 
 RegStream1 = RegistrationStream( "RegStream1" )
 RegStream1.WriteInputDataHeader = True
