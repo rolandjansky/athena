@@ -145,6 +145,10 @@ extractConstituents(xAOD::Jet& jet, const NameList* pghostlabs,
   return nbad;
 }
 
+int JetConstituentFiller::extractConstituents(xAOD::Jet& jet, const fastjet::PseudoJet* ppj2) {
+  return extractConstituents(jet, 0, ppj2);
+}
+
 //**********************************************************************
 
 PseudoJetVector JetConstituentFiller::constituentPseudoJets(const xAOD::Jet& jet, bool ignoreGhosts){
