@@ -200,7 +200,7 @@ StatusCode Trk::CETmaterial::execute()
     //Trk::Perigee initialPerigee( pos,mom,m_charge/p,pos);
     //std::cout << "theta,phi,pos:" << theta << "," << phi << "," << initialPerigee.position() << std::endl;
     const Trk::TrackParameters* seed = initialPerigee.clone();
-    const Trk::PerigeeSurface pSf = initialPerigee.associatedSurface();
+    const Trk::PerigeeSurface& pSf = initialPerigee.associatedSurface();
     //const Trk::MeasuredTrackParameters* measIn = dynamic_cast<const Trk::MeasuredTrackParameters*> (seed);
     //if (measIn) std::cout << "input covariance:" << measIn->localErrorMatrix().covariance() << std::endl;
     material.clear();  matPrec.clear();

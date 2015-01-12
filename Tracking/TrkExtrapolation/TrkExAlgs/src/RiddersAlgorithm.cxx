@@ -334,57 +334,60 @@ StatusCode Trk::RiddersAlgorithm::execute()
    Trk::TransportJacobian* transportJacobian = 0;
    AmgMatrix(5,5) testMatrix; testMatrix.setZero();
    Trk::TransportJacobian currentStepJacobian(testMatrix);
+   double pathLimit = -1.;
 
    const Trk::TrackParameters* trackParameters = m_propagator->propagate(startParameters,
                                                                          destinationSurface,
                                                                          Trk::alongMomentum,
                                                                          false,
                                                                          *m_magFieldProperties,
-                                                                         transportJacobian);
+                                                                         transportJacobian,
+                                                                         pathLimit);
 
   // --------------------- check if test propagation was successful ------------------------------
   if (trackParameters && transportJacobian){
-      unsigned int recStep = 0;
 
+      // recSetep = 0
+      unsigned int recStep = 0;
 
       // [0] Transport Jacobian -----------------------------------------------------
       ATH_MSG_VERBOSE( "TransportJacobian : " << *transportJacobian );
 
-            // and now fill the variables
-            m_loc1loc1[recStep]   = (*transportJacobian)(0,0);
-            m_loc1loc2[recStep]   = (*transportJacobian)(0,1); 
-            m_loc1phi[recStep]    = (*transportJacobian)(0,2);
-            m_loc1theta[recStep]  = (*transportJacobian)(0,3);
-            m_loc1qop[recStep]    = (*transportJacobian)(0,4);
-            m_loc1steps[recStep]  = 0.;
-
-            m_loc2loc1[recStep]   = (*transportJacobian)(1,0); 
-            m_loc2loc2[recStep]   = (*transportJacobian)(1,1); 
-            m_loc2phi[recStep]    = (*transportJacobian)(1,2); 
-            m_loc2theta[recStep]  = (*transportJacobian)(1,3); 
-            m_loc2qop[recStep]    = (*transportJacobian)(1,4); 
-            m_loc2steps[recStep]  = 0.;
-
-            m_philoc1[recStep]    = (*transportJacobian)(2,0); 
-            m_philoc2[recStep]    = (*transportJacobian)(2,1); 
-            m_phiphi[recStep]     = (*transportJacobian)(2,2); 
-            m_phitheta[recStep]   = (*transportJacobian)(2,3); 
-            m_phiqop[recStep]     = (*transportJacobian)(2,4); 
-            m_phisteps[recStep]   = 0.;
-
-            m_thetaloc1[recStep]  = (*transportJacobian)(3,0); 
-            m_thetaloc2[recStep]  = (*transportJacobian)(3,1); 
-            m_thetaphi[recStep]   = (*transportJacobian)(3,2); 
-            m_thetatheta[recStep] = (*transportJacobian)(3,3); 
-            m_thetaqop[recStep]   = (*transportJacobian)(3,4); 
-            m_thetasteps[recStep]  = 0.;
-
-            m_qoploc1[recStep]    = (*transportJacobian)(4,0); 
-            m_qoploc2[recStep]    = (*transportJacobian)(4,1); 
-            m_qopphi[recStep]     = (*transportJacobian)(4,2); 
-            m_qoptheta[recStep]   = (*transportJacobian)(4,3); 
-            m_qopqop[recStep]     = (*transportJacobian)(4,4); 
-            m_qopsteps[recStep]  = 0.;
+      // and now fill the variables
+      m_loc1loc1[recStep]   = (*transportJacobian)(0,0);
+      m_loc1loc2[recStep]   = (*transportJacobian)(0,1); 
+      m_loc1phi[recStep]    = (*transportJacobian)(0,2);
+      m_loc1theta[recStep]  = (*transportJacobian)(0,3);
+      m_loc1qop[recStep]    = (*transportJacobian)(0,4);
+      m_loc1steps[recStep]  = 0.;
+      
+      m_loc2loc1[recStep]   = (*transportJacobian)(1,0); 
+      m_loc2loc2[recStep]   = (*transportJacobian)(1,1); 
+      m_loc2phi[recStep]    = (*transportJacobian)(1,2); 
+      m_loc2theta[recStep]  = (*transportJacobian)(1,3); 
+      m_loc2qop[recStep]    = (*transportJacobian)(1,4); 
+      m_loc2steps[recStep]  = 0.;
+      
+      m_philoc1[recStep]    = (*transportJacobian)(2,0); 
+      m_philoc2[recStep]    = (*transportJacobian)(2,1); 
+      m_phiphi[recStep]     = (*transportJacobian)(2,2); 
+      m_phitheta[recStep]   = (*transportJacobian)(2,3); 
+      m_phiqop[recStep]     = (*transportJacobian)(2,4); 
+      m_phisteps[recStep]   = 0.;
+      
+      m_thetaloc1[recStep]  = (*transportJacobian)(3,0); 
+      m_thetaloc2[recStep]  = (*transportJacobian)(3,1); 
+      m_thetaphi[recStep]   = (*transportJacobian)(3,2); 
+      m_thetatheta[recStep] = (*transportJacobian)(3,3); 
+      m_thetaqop[recStep]   = (*transportJacobian)(3,4); 
+      m_thetasteps[recStep]  = 0.;
+      
+      m_qoploc1[recStep]    = (*transportJacobian)(4,0); 
+      m_qoploc2[recStep]    = (*transportJacobian)(4,1); 
+      m_qopphi[recStep]     = (*transportJacobian)(4,2); 
+      m_qoptheta[recStep]   = (*transportJacobian)(4,3); 
+      m_qopqop[recStep]     = (*transportJacobian)(4,4); 
+      m_qopsteps[recStep]  = 0.;
 
       ++recStep;
 
@@ -589,99 +592,102 @@ StatusCode Trk::RiddersAlgorithm::execute()
       }
 
       // -------------------------------------------------------------------------------
-            // The parabolic interpolation -------------------------------------------------------------------------------
-            // dL1
-            m_loc1loc1[recStep]   = parabolicInterpolation(m_loc1loc1[recStep-1],m_loc1loc1[recStep-2],m_loc1loc1[recStep-3],
-                                                           m_localVariations[2], m_localVariations[1], m_localVariations[0]);
-            m_loc1loc2[recStep]   = parabolicInterpolation(m_loc1loc2[recStep-1],m_loc1loc2[recStep-2],m_loc1loc2[recStep-3],
-                                                           m_localVariations[2], m_localVariations[1], m_localVariations[0]);
-            m_loc1phi[recStep]    = parabolicInterpolation(m_loc1phi[recStep-1],m_loc1phi[recStep-2],m_loc1phi[recStep-3],
-                                                           m_angularVariations[2], m_angularVariations[1], m_angularVariations[0]);
-            m_loc1theta[recStep]  = parabolicInterpolation(m_loc1theta[recStep-1],m_loc1theta[recStep-2],m_loc1theta[recStep-3],
-                                                           m_angularVariations[2], m_angularVariations[1], m_angularVariations[0]);
-            m_loc1qop[recStep]    = parabolicInterpolation(m_loc1qop[recStep-1],m_loc1qop[recStep-2],m_loc1qop[recStep-3],
-                                                           m_qOpVariations[2], m_qOpVariations[1], m_qOpVariations[0]);
-            m_loc1steps[recStep]  = 1;
-            // dL2
-            m_loc2loc1[recStep]   = parabolicInterpolation(m_loc2loc1[recStep-1],m_loc2loc1[recStep-2],m_loc2loc1[recStep-3],
-                                                           m_localVariations[2], m_localVariations[1], m_localVariations[0]);
-            m_loc2loc2[recStep]   = parabolicInterpolation(m_loc2loc2[recStep-1],m_loc2loc2[recStep-2],m_loc2loc2[recStep-3],
-                                                           m_localVariations[2], m_localVariations[1], m_localVariations[0]);
-            m_loc2phi[recStep]    = parabolicInterpolation(m_loc2phi[recStep-1],m_loc2phi[recStep-2],m_loc2phi[recStep-3],
-                                                           m_angularVariations[2], m_angularVariations[1], m_angularVariations[0]);
-            m_loc2theta[recStep]  = parabolicInterpolation(m_loc2theta[recStep-1],m_loc2theta[recStep-2],m_loc2theta[recStep-3],
-                                                           m_angularVariations[2], m_angularVariations[1], m_angularVariations[0]);
-            m_loc2qop[recStep]    = parabolicInterpolation(m_loc2qop[recStep-1],m_loc2qop[recStep-2],m_loc2qop[recStep-3],
-                                                           m_qOpVariations[2], m_qOpVariations[1], m_qOpVariations[0]);
-            m_loc2steps[recStep]  = 1;
-            // dPhi
-            m_philoc1[recStep]   = parabolicInterpolation(m_philoc1[recStep-1],m_philoc1[recStep-2],m_philoc1[recStep-3],
-                                                           m_localVariations[2], m_localVariations[1], m_localVariations[0]);
-            m_philoc2[recStep]   = parabolicInterpolation(m_philoc2[recStep-1],m_philoc2[recStep-2],m_philoc2[recStep-3],
-                                                           m_localVariations[2], m_localVariations[1], m_localVariations[0]);
-            m_phiphi[recStep]    = parabolicInterpolation(m_phiphi[recStep-1],m_phiphi[recStep-2],m_phiphi[recStep-3],
-                                                           m_angularVariations[2], m_angularVariations[1], m_angularVariations[0]);
-            m_phitheta[recStep]  = parabolicInterpolation(m_phitheta[recStep-1],m_phitheta[recStep-2],m_phitheta[recStep-3],
-                                                           m_angularVariations[2], m_angularVariations[1], m_angularVariations[0]);
-            m_phiqop[recStep]    = parabolicInterpolation(m_phiqop[recStep-1],m_phiqop[recStep-2],m_phiqop[recStep-3],
-                                                           m_qOpVariations[2], m_qOpVariations[1], m_qOpVariations[0]);
-            m_phisteps[recStep]  = 1;
-            // dTheta
-            m_thetaloc1[recStep]   = parabolicInterpolation(m_thetaloc1[recStep-1],m_thetaloc1[recStep-2],m_thetaloc1[recStep-3],
-                                                           m_localVariations[2], m_localVariations[1], m_localVariations[0]);
-            m_thetaloc2[recStep]   = parabolicInterpolation(m_thetaloc2[recStep-1],m_thetaloc2[recStep-2],m_thetaloc2[recStep-3],
-                                                           m_localVariations[2], m_localVariations[1], m_localVariations[0]);
-            m_thetaphi[recStep]    = parabolicInterpolation(m_thetaphi[recStep-1],m_thetaphi[recStep-2],m_thetaphi[recStep-3],
-                                                           m_angularVariations[2], m_angularVariations[1], m_angularVariations[0]);
-            m_thetatheta[recStep]  = parabolicInterpolation(m_thetatheta[recStep-1],m_thetatheta[recStep-2],m_thetatheta[recStep-3],
-                                                           m_angularVariations[2], m_angularVariations[1], m_angularVariations[0]);
-            m_thetaqop[recStep]    = parabolicInterpolation(m_thetaqop[recStep-1],m_thetaqop[recStep-2],m_thetaqop[recStep-3],
-                                                           m_qOpVariations[2], m_qOpVariations[1], m_qOpVariations[0]);
-            m_thetasteps[recStep]  = 1;
-            // dTheta
-            m_qoploc1[recStep]   = parabolicInterpolation(m_qoploc1[recStep-1],m_qoploc1[recStep-2],m_qoploc1[recStep-3],
-                                                           m_localVariations[2], m_localVariations[1], m_localVariations[0]);
-            m_qoploc2[recStep]   = parabolicInterpolation(m_qoploc2[recStep-1],m_qoploc2[recStep-2],m_qoploc2[recStep-3],
-                                                           m_localVariations[2], m_localVariations[1], m_localVariations[0]);
-            m_qopphi[recStep]    = parabolicInterpolation(m_qopphi[recStep-1],m_qopphi[recStep-2],m_qopphi[recStep-3],
-                                                           m_angularVariations[2], m_angularVariations[1], m_angularVariations[0]);
-            m_qoptheta[recStep]  = parabolicInterpolation(m_qoptheta[recStep-1],m_qoptheta[recStep-2],m_qoptheta[recStep-3],
-                                                           m_angularVariations[2], m_angularVariations[1], m_angularVariations[0]);
-            m_qopqop[recStep]    = parabolicInterpolation(m_qopqop[recStep-1],m_qopqop[recStep-2],m_qopqop[recStep-3],
-                                                           m_qOpVariations[2], m_qOpVariations[1], m_qOpVariations[0]);
-            m_qopsteps[recStep]  = 1;
-
-            currentStepJacobian(0,0)= m_loc1loc1[recStep];   
-            currentStepJacobian(0,1)= m_loc1loc2[recStep];   
-            currentStepJacobian(0,2)= m_loc1phi[recStep];    
-            currentStepJacobian(0,3)= m_loc1theta[recStep];  
-            currentStepJacobian(0,4)= m_loc1qop[recStep];    
-
-            currentStepJacobian(1,0)= m_loc2loc1[recStep];   
-            currentStepJacobian(1,1)= m_loc2loc2[recStep];   
-            currentStepJacobian(1,2)= m_loc2phi[recStep];    
-            currentStepJacobian(1,3)= m_loc2theta[recStep];  
-            currentStepJacobian(1,4)= m_loc2qop[recStep];    
-
-            currentStepJacobian(2,0)= m_philoc1[recStep];    
-            currentStepJacobian(2,1)= m_philoc2[recStep];    
-            currentStepJacobian(2,2)= m_phiphi[recStep];     
-            currentStepJacobian(2,3)= m_phitheta[recStep];   
-            currentStepJacobian(2,4)= m_phiqop[recStep];     
-
-            currentStepJacobian(3,0)= m_thetaloc1[recStep];  
-            currentStepJacobian(3,1)= m_thetaloc2[recStep]; 
-            currentStepJacobian(3,2)= m_thetaphi[recStep];   
-            currentStepJacobian(3,3)= m_thetatheta[recStep]; 
-            currentStepJacobian(3,4)= m_thetaqop[recStep];   
-
-            currentStepJacobian(4,0)= m_qoploc1[recStep];    
-            currentStepJacobian(4,1)= m_qoploc2[recStep];    
-            currentStepJacobian(4,2)= m_qopphi[recStep];     
-            currentStepJacobian(4,3)= m_qoptheta[recStep];   
-            currentStepJacobian(4,4)= m_qopqop[recStep];     
+      if (recStep > 2){
+          // The parabolic interpolation -------------------------------------------------------------------------------
+          // dL1
+          m_loc1loc1[recStep]   = parabolicInterpolation(m_loc1loc1[recStep-1],m_loc1loc1[recStep-2],m_loc1loc1[recStep-3],
+                                                         m_localVariations[2], m_localVariations[1], m_localVariations[0]);
+          m_loc1loc2[recStep]   = parabolicInterpolation(m_loc1loc2[recStep-1],m_loc1loc2[recStep-2],m_loc1loc2[recStep-3],
+                                                         m_localVariations[2], m_localVariations[1], m_localVariations[0]);
+          m_loc1phi[recStep]    = parabolicInterpolation(m_loc1phi[recStep-1],m_loc1phi[recStep-2],m_loc1phi[recStep-3],
+                                                         m_angularVariations[2], m_angularVariations[1], m_angularVariations[0]);
+          m_loc1theta[recStep]  = parabolicInterpolation(m_loc1theta[recStep-1],m_loc1theta[recStep-2],m_loc1theta[recStep-3],
+                                                         m_angularVariations[2], m_angularVariations[1], m_angularVariations[0]);
+          m_loc1qop[recStep]    = parabolicInterpolation(m_loc1qop[recStep-1],m_loc1qop[recStep-2],m_loc1qop[recStep-3],
+                                                         m_qOpVariations[2], m_qOpVariations[1], m_qOpVariations[0]);
+          m_loc1steps[recStep]  = 1;
+          // dL2
+          m_loc2loc1[recStep]   = parabolicInterpolation(m_loc2loc1[recStep-1],m_loc2loc1[recStep-2],m_loc2loc1[recStep-3],
+                                                         m_localVariations[2], m_localVariations[1], m_localVariations[0]);
+          m_loc2loc2[recStep]   = parabolicInterpolation(m_loc2loc2[recStep-1],m_loc2loc2[recStep-2],m_loc2loc2[recStep-3],
+                                                         m_localVariations[2], m_localVariations[1], m_localVariations[0]);
+          m_loc2phi[recStep]    = parabolicInterpolation(m_loc2phi[recStep-1],m_loc2phi[recStep-2],m_loc2phi[recStep-3],
+                                                         m_angularVariations[2], m_angularVariations[1], m_angularVariations[0]);
+          m_loc2theta[recStep]  = parabolicInterpolation(m_loc2theta[recStep-1],m_loc2theta[recStep-2],m_loc2theta[recStep-3],
+                                                         m_angularVariations[2], m_angularVariations[1], m_angularVariations[0]);
+          m_loc2qop[recStep]    = parabolicInterpolation(m_loc2qop[recStep-1],m_loc2qop[recStep-2],m_loc2qop[recStep-3],
+                                                         m_qOpVariations[2], m_qOpVariations[1], m_qOpVariations[0]);
+          m_loc2steps[recStep]  = 1;
+          // dPhi
+          m_philoc1[recStep]   = parabolicInterpolation(m_philoc1[recStep-1],m_philoc1[recStep-2],m_philoc1[recStep-3],
+                                                         m_localVariations[2], m_localVariations[1], m_localVariations[0]);
+          m_philoc2[recStep]   = parabolicInterpolation(m_philoc2[recStep-1],m_philoc2[recStep-2],m_philoc2[recStep-3],
+                                                         m_localVariations[2], m_localVariations[1], m_localVariations[0]);
+          m_phiphi[recStep]    = parabolicInterpolation(m_phiphi[recStep-1],m_phiphi[recStep-2],m_phiphi[recStep-3],
+                                                         m_angularVariations[2], m_angularVariations[1], m_angularVariations[0]);
+          m_phitheta[recStep]  = parabolicInterpolation(m_phitheta[recStep-1],m_phitheta[recStep-2],m_phitheta[recStep-3],
+                                                         m_angularVariations[2], m_angularVariations[1], m_angularVariations[0]);
+          m_phiqop[recStep]    = parabolicInterpolation(m_phiqop[recStep-1],m_phiqop[recStep-2],m_phiqop[recStep-3],
+                                                         m_qOpVariations[2], m_qOpVariations[1], m_qOpVariations[0]);
+          m_phisteps[recStep]  = 1;
+          // dTheta
+          m_thetaloc1[recStep]   = parabolicInterpolation(m_thetaloc1[recStep-1],m_thetaloc1[recStep-2],m_thetaloc1[recStep-3],
+                                                         m_localVariations[2], m_localVariations[1], m_localVariations[0]);
+          m_thetaloc2[recStep]   = parabolicInterpolation(m_thetaloc2[recStep-1],m_thetaloc2[recStep-2],m_thetaloc2[recStep-3],
+                                                         m_localVariations[2], m_localVariations[1], m_localVariations[0]);
+          m_thetaphi[recStep]    = parabolicInterpolation(m_thetaphi[recStep-1],m_thetaphi[recStep-2],m_thetaphi[recStep-3],
+                                                         m_angularVariations[2], m_angularVariations[1], m_angularVariations[0]);
+          m_thetatheta[recStep]  = parabolicInterpolation(m_thetatheta[recStep-1],m_thetatheta[recStep-2],m_thetatheta[recStep-3],
+                                                         m_angularVariations[2], m_angularVariations[1], m_angularVariations[0]);
+          m_thetaqop[recStep]    = parabolicInterpolation(m_thetaqop[recStep-1],m_thetaqop[recStep-2],m_thetaqop[recStep-3],
+                                                         m_qOpVariations[2], m_qOpVariations[1], m_qOpVariations[0]);
+          m_thetasteps[recStep]  = 1;
+          // dTheta
+          m_qoploc1[recStep]   = parabolicInterpolation(m_qoploc1[recStep-1],m_qoploc1[recStep-2],m_qoploc1[recStep-3],
+                                                         m_localVariations[2], m_localVariations[1], m_localVariations[0]);
+          m_qoploc2[recStep]   = parabolicInterpolation(m_qoploc2[recStep-1],m_qoploc2[recStep-2],m_qoploc2[recStep-3],
+                                                         m_localVariations[2], m_localVariations[1], m_localVariations[0]);
+          m_qopphi[recStep]    = parabolicInterpolation(m_qopphi[recStep-1],m_qopphi[recStep-2],m_qopphi[recStep-3],
+                                                         m_angularVariations[2], m_angularVariations[1], m_angularVariations[0]);
+          m_qoptheta[recStep]  = parabolicInterpolation(m_qoptheta[recStep-1],m_qoptheta[recStep-2],m_qoptheta[recStep-3],
+                                                         m_angularVariations[2], m_angularVariations[1], m_angularVariations[0]);
+          m_qopqop[recStep]    = parabolicInterpolation(m_qopqop[recStep-1],m_qopqop[recStep-2],m_qopqop[recStep-3],
+                                                         m_qOpVariations[2], m_qOpVariations[1], m_qOpVariations[0]);
+          m_qopsteps[recStep]  = 1;
+          
+          currentStepJacobian(0,0)= m_loc1loc1[recStep];   
+          currentStepJacobian(0,1)= m_loc1loc2[recStep];   
+          currentStepJacobian(0,2)= m_loc1phi[recStep];    
+          currentStepJacobian(0,3)= m_loc1theta[recStep];  
+          currentStepJacobian(0,4)= m_loc1qop[recStep];    
+          
+          currentStepJacobian(1,0)= m_loc2loc1[recStep];   
+          currentStepJacobian(1,1)= m_loc2loc2[recStep];   
+          currentStepJacobian(1,2)= m_loc2phi[recStep];    
+          currentStepJacobian(1,3)= m_loc2theta[recStep];  
+          currentStepJacobian(1,4)= m_loc2qop[recStep];    
+          
+          currentStepJacobian(2,0)= m_philoc1[recStep];    
+          currentStepJacobian(2,1)= m_philoc2[recStep];    
+          currentStepJacobian(2,2)= m_phiphi[recStep];     
+          currentStepJacobian(2,3)= m_phitheta[recStep];   
+          currentStepJacobian(2,4)= m_phiqop[recStep];     
+          
+          currentStepJacobian(3,0)= m_thetaloc1[recStep];  
+          currentStepJacobian(3,1)= m_thetaloc2[recStep]; 
+          currentStepJacobian(3,2)= m_thetaphi[recStep];   
+          currentStepJacobian(3,3)= m_thetatheta[recStep]; 
+          currentStepJacobian(3,4)= m_thetaqop[recStep];   
+          
+          currentStepJacobian(4,0)= m_qoploc1[recStep];    
+          currentStepJacobian(4,1)= m_qoploc2[recStep];    
+          currentStepJacobian(4,2)= m_qopphi[recStep];     
+          currentStepJacobian(4,3)= m_qoptheta[recStep];   
+          currentStepJacobian(4,4)= m_qopqop[recStep];     
+    
+       }  
             
-            ATH_MSG_DEBUG( "Interpolated TransportJacobian : " << currentStepJacobian );
+       ATH_MSG_DEBUG( "Interpolated TransportJacobian : " << currentStepJacobian );
        ++recStep;
 
 
@@ -728,43 +734,45 @@ StatusCode Trk::RiddersAlgorithm::execute()
        m_qopqop[recStep]     = diffMatrix(4,4);
        m_qopsteps[recStep]   = 2;
        ++recStep;
+       
        // (A2) 
-       // fill the differences into the last one log (loc1)
-       m_loc1loc1[recStep]   = fabs(m_loc1loc1[recStep-1]  ) > 1e-50 ?  -log10(fabs(m_loc1loc1[recStep-1] )) : 0.;  
-       m_loc1loc2[recStep]   = fabs(m_loc1loc2[recStep-1]  ) > 1e-50 ?  -log10(fabs(m_loc1loc2[recStep-1] )) : 0.;  
-       m_loc1phi[recStep]    = fabs(m_loc1phi[recStep-1]   ) > 1e-50 ?  -log10(fabs(m_loc1phi[recStep-1]  )) : 0.;  
-       m_loc1theta[recStep]  = fabs(m_loc1theta[recStep-1] ) > 1e-50 ?  -log10(fabs(m_loc1theta[recStep-1])) : 0.;  
-       m_loc1qop[recStep]    = fabs(m_loc1qop[recStep-1]   ) > 1e-50 ?  -log10(fabs(m_loc1qop[recStep-1]  )) : 0.;  
-       m_loc1steps[recStep]  = 3;                                       
-       // fill the differences into the last one log (loc2)                                                      
-       m_loc2loc1[recStep]   = fabs(m_loc2loc1[recStep-1]  ) > 1e-50 ?    -log10(fabs(m_loc2loc1[recStep-1] )) : 0.;
-       m_loc2loc2[recStep]   = fabs(m_loc2loc2[recStep-1]  ) > 1e-50 ?    -log10(fabs(m_loc2loc2[recStep-1] )) : 0.;
-       m_loc2phi[recStep]    = fabs(m_loc2phi[recStep-1]   ) > 1e-50 ?    -log10(fabs(m_loc2phi[recStep-1]  )) : 0.;
-       m_loc2theta[recStep]  = fabs(m_loc2theta[recStep-1] ) > 1e-50 ?    -log10(fabs(m_loc2theta[recStep-1])) : 0.;
-       m_loc2qop[recStep]    = fabs(m_loc2qop[recStep-1]   ) > 1e-50 ?    -log10(fabs(m_loc2qop[recStep-1]  )) : 0.;
-       m_loc2steps[recStep]  = 3;
-       // fill the differences into the last one log (phi)
-       m_philoc1[recStep]    = fabs(m_philoc1[recStep-1]  ) > 1e-50 ?      -log10(fabs(m_philoc1[recStep-1] )) : 0.;
-       m_philoc2[recStep]    = fabs(m_philoc2[recStep-1]  ) > 1e-50 ?      -log10(fabs(m_philoc2[recStep-1] )) : 0.;
-       m_phiphi[recStep]     = fabs(m_phiphi[recStep-1]   ) > 1e-50 ?      -log10(fabs(m_phiphi[recStep-1]  )) : 0.;
-       m_phitheta[recStep]   = fabs(m_phitheta[recStep-1] ) > 1e-50 ?      -log10(fabs(m_phitheta[recStep-1])) : 0.;
-       m_phiqop[recStep]     = fabs(m_phiqop[recStep-1]   ) > 1e-50 ?      -log10(fabs(m_phiqop[recStep-1]  )) : 0.;
-       m_phisteps[recStep]   = 3;
-       // fill the differences into the last one log (theta)
-       m_thetaloc1[recStep]  = fabs(m_thetaloc1[recStep-1]  ) > 1e-50 ?    -log10(fabs(m_thetaloc1[recStep-1] )) : 0.;
-       m_thetaloc2[recStep]  = fabs(m_thetaloc2[recStep-1]  ) > 1e-50 ?    -log10(fabs(m_thetaloc2[recStep-1] )) : 0.;
-       m_thetaphi[recStep]   = fabs(m_thetaphi[recStep-1]   ) > 1e-50 ?    -log10(fabs(m_thetaphi[recStep-1]  )) : 0.;
-       m_thetatheta[recStep] = fabs(m_thetatheta[recStep-1] ) > 1e-50 ?    -log10(fabs(m_thetatheta[recStep-1])) : 0.;
-       m_thetaqop[recStep]   = fabs(m_thetaqop[recStep-1]   ) > 1e-50 ?    -log10(fabs(m_thetaqop[recStep-1]  )) : 0.;
-       m_thetasteps[recStep] = 3;
-       // fill the differences into the last one log (qop)
-       m_qoploc1[recStep]    = fabs(m_qoploc1[recStep-1]  ) > 1e-50 ?     -log10(fabs(m_qoploc1[recStep-1] )) : 0.;
-       m_qoploc2[recStep]    = fabs(m_qoploc2[recStep-1]  ) > 1e-50 ?     -log10(fabs(m_qoploc2[recStep-1] )) : 0.;
-       m_qopphi[recStep]     = fabs(m_qopphi[recStep-1]   ) > 1e-50 ?     -log10(fabs(m_qopphi[recStep-1]  )) : 0.;
-       m_qoptheta[recStep]   = fabs(m_qoptheta[recStep-1] ) > 1e-50 ?     -log10(fabs(m_qoptheta[recStep-1])) : 0.;
-       m_qopqop[recStep]     = fabs(m_qopqop[recStep-1]   ) > 1e-50 ?     -log10(fabs(m_qopqop[recStep-1]  )) : 0.;
-       m_qopsteps[recStep]   = 3;
-
+       if (recStep > 1){
+            // fill the differences into the last one log (loc1)
+            m_loc1loc1[recStep]   = fabs(m_loc1loc1[recStep-1]  ) > 1e-50 ?  -log10(fabs(m_loc1loc1[recStep-1] )) : 0.;  
+            m_loc1loc2[recStep]   = fabs(m_loc1loc2[recStep-1]  ) > 1e-50 ?  -log10(fabs(m_loc1loc2[recStep-1] )) : 0.;  
+            m_loc1phi[recStep]    = fabs(m_loc1phi[recStep-1]   ) > 1e-50 ?  -log10(fabs(m_loc1phi[recStep-1]  )) : 0.;  
+            m_loc1theta[recStep]  = fabs(m_loc1theta[recStep-1] ) > 1e-50 ?  -log10(fabs(m_loc1theta[recStep-1])) : 0.;  
+            m_loc1qop[recStep]    = fabs(m_loc1qop[recStep-1]   ) > 1e-50 ?  -log10(fabs(m_loc1qop[recStep-1]  )) : 0.;  
+            m_loc1steps[recStep]  = 3;                                       
+            // fill the differences into the last one log (loc2)                                                      
+            m_loc2loc1[recStep]   = fabs(m_loc2loc1[recStep-1]  ) > 1e-50 ?    -log10(fabs(m_loc2loc1[recStep-1] )) : 0.;
+            m_loc2loc2[recStep]   = fabs(m_loc2loc2[recStep-1]  ) > 1e-50 ?    -log10(fabs(m_loc2loc2[recStep-1] )) : 0.;
+            m_loc2phi[recStep]    = fabs(m_loc2phi[recStep-1]   ) > 1e-50 ?    -log10(fabs(m_loc2phi[recStep-1]  )) : 0.;
+            m_loc2theta[recStep]  = fabs(m_loc2theta[recStep-1] ) > 1e-50 ?    -log10(fabs(m_loc2theta[recStep-1])) : 0.;
+            m_loc2qop[recStep]    = fabs(m_loc2qop[recStep-1]   ) > 1e-50 ?    -log10(fabs(m_loc2qop[recStep-1]  )) : 0.;
+            m_loc2steps[recStep]  = 3;
+            // fill the differences into the last one log (phi)
+            m_philoc1[recStep]    = fabs(m_philoc1[recStep-1]  ) > 1e-50 ?      -log10(fabs(m_philoc1[recStep-1] )) : 0.;
+            m_philoc2[recStep]    = fabs(m_philoc2[recStep-1]  ) > 1e-50 ?      -log10(fabs(m_philoc2[recStep-1] )) : 0.;
+            m_phiphi[recStep]     = fabs(m_phiphi[recStep-1]   ) > 1e-50 ?      -log10(fabs(m_phiphi[recStep-1]  )) : 0.;
+            m_phitheta[recStep]   = fabs(m_phitheta[recStep-1] ) > 1e-50 ?      -log10(fabs(m_phitheta[recStep-1])) : 0.;
+            m_phiqop[recStep]     = fabs(m_phiqop[recStep-1]   ) > 1e-50 ?      -log10(fabs(m_phiqop[recStep-1]  )) : 0.;
+            m_phisteps[recStep]   = 3;
+            // fill the differences into the last one log (theta)
+            m_thetaloc1[recStep]  = fabs(m_thetaloc1[recStep-1]  ) > 1e-50 ?    -log10(fabs(m_thetaloc1[recStep-1] )) : 0.;
+            m_thetaloc2[recStep]  = fabs(m_thetaloc2[recStep-1]  ) > 1e-50 ?    -log10(fabs(m_thetaloc2[recStep-1] )) : 0.;
+            m_thetaphi[recStep]   = fabs(m_thetaphi[recStep-1]   ) > 1e-50 ?    -log10(fabs(m_thetaphi[recStep-1]  )) : 0.;
+            m_thetatheta[recStep] = fabs(m_thetatheta[recStep-1] ) > 1e-50 ?    -log10(fabs(m_thetatheta[recStep-1])) : 0.;
+            m_thetaqop[recStep]   = fabs(m_thetaqop[recStep-1]   ) > 1e-50 ?    -log10(fabs(m_thetaqop[recStep-1]  )) : 0.;
+            m_thetasteps[recStep] = 3;
+            // fill the differences into the last one log (qop)
+            m_qoploc1[recStep]    = fabs(m_qoploc1[recStep-1]  ) > 1e-50 ?     -log10(fabs(m_qoploc1[recStep-1] )) : 0.;
+            m_qoploc2[recStep]    = fabs(m_qoploc2[recStep-1]  ) > 1e-50 ?     -log10(fabs(m_qoploc2[recStep-1] )) : 0.;
+            m_qopphi[recStep]     = fabs(m_qopphi[recStep-1]   ) > 1e-50 ?     -log10(fabs(m_qopphi[recStep-1]  )) : 0.;
+            m_qoptheta[recStep]   = fabs(m_qoptheta[recStep-1] ) > 1e-50 ?     -log10(fabs(m_qoptheta[recStep-1])) : 0.;
+            m_qopqop[recStep]     = fabs(m_qopqop[recStep-1]   ) > 1e-50 ?     -log10(fabs(m_qopqop[recStep-1]  )) : 0.;
+            m_qopsteps[recStep]   = 3;
+       }
        ++recStep;
 
 
@@ -809,40 +817,42 @@ StatusCode Trk::RiddersAlgorithm::execute()
 
        // (R2) 
        // Relative differences ----------------------------------------------------
-       m_loc1loc1[recStep]   = fabs(m_loc1loc1[recStep-1]  ) > 1e-50 ?  -log10(fabs(m_loc1loc1[recStep-1] )) : 0.;  
-       m_loc1loc2[recStep]   = fabs(m_loc1loc2[recStep-1]  ) > 1e-50 ?  -log10(fabs(m_loc1loc2[recStep-1] )) : 0.;  
-       m_loc1phi[recStep]    = fabs(m_loc1phi[recStep-1]   ) > 1e-50 ?  -log10(fabs(m_loc1phi[recStep-1]  )) : 0.;  
-       m_loc1theta[recStep]  = fabs(m_loc1theta[recStep-1] ) > 1e-50 ?  -log10(fabs(m_loc1theta[recStep-1])) : 0.;  
-       m_loc1qop[recStep]    = fabs(m_loc1qop[recStep-1]   ) > 1e-50 ?  -log10(fabs(m_loc1qop[recStep-1]  )) : 0.;  
-       m_loc1steps[recStep]  = 5;                                       
-       // fill the differences into the last one log (loc2)                                                      
-       m_loc2loc1[recStep]   = fabs(m_loc2loc1[recStep-1]  ) > 1e-50 ?    -log10(fabs(m_loc2loc1[recStep-1] )) : 0.;
-       m_loc2loc2[recStep]   = fabs(m_loc2loc2[recStep-1]  ) > 1e-50 ?    -log10(fabs(m_loc2loc2[recStep-1] )) : 0.;
-       m_loc2phi[recStep]    = fabs(m_loc2phi[recStep-1]   ) > 1e-50 ?    -log10(fabs(m_loc2phi[recStep-1]  )) : 0.;
-       m_loc2theta[recStep]  = fabs(m_loc2theta[recStep-1] ) > 1e-50 ?    -log10(fabs(m_loc2theta[recStep-1])) : 0.;
-       m_loc2qop[recStep]    = fabs(m_loc2qop[recStep-1]   ) > 1e-50 ?    -log10(fabs(m_loc2qop[recStep-1]  )) : 0.;
-       m_loc2steps[recStep]  = 5;
-       // fill the differences into the last one log (phi)
-       m_philoc1[recStep]    = fabs(m_philoc1[recStep-1]  ) > 1e-50 ?      -log10(fabs(m_philoc1[recStep-1] )) : 0.;
-       m_philoc2[recStep]    = fabs(m_philoc2[recStep-1]  ) > 1e-50 ?      -log10(fabs(m_philoc2[recStep-1] )) : 0.;
-       m_phiphi[recStep]     = fabs(m_phiphi[recStep-1]   ) > 1e-50 ?      -log10(fabs(m_phiphi[recStep-1]  )) : 0.;
-       m_phitheta[recStep]   = fabs(m_phitheta[recStep-1] ) > 1e-50 ?      -log10(fabs(m_phitheta[recStep-1])) : 0.;
-       m_phiqop[recStep]     = fabs(m_phiqop[recStep-1]   ) > 1e-50 ?      -log10(fabs(m_phiqop[recStep-1]  )) : 0.;
-       m_phisteps[recStep]   = 5;
-       // fill the differences into the last one log (theta)
-       m_thetaloc1[recStep]  = fabs(m_thetaloc1[recStep-1]  ) > 1e-50 ?    -log10(fabs(m_thetaloc1[recStep-1] )) : 0.;
-       m_thetaloc2[recStep]  = fabs(m_thetaloc2[recStep-1]  ) > 1e-50 ?    -log10(fabs(m_thetaloc2[recStep-1] )) : 0.;
-       m_thetaphi[recStep]   = fabs(m_thetaphi[recStep-1]   ) > 1e-50 ?    -log10(fabs(m_thetaphi[recStep-1]  )) : 0.;
-       m_thetatheta[recStep] = fabs(m_thetatheta[recStep-1] ) > 1e-50 ?    -log10(fabs(m_thetatheta[recStep-1])) : 0.;
-       m_thetaqop[recStep]   = fabs(m_thetaqop[recStep-1]   ) > 1e-50 ?    -log10(fabs(m_thetaqop[recStep-1]  )) : 0.;
-       m_thetasteps[recStep] = 5;
-       // fill the differences into the last one log (qop)
-       m_qoploc1[recStep]    = fabs(m_qoploc1[recStep-1]  ) > 1e-50 ?     -log10( fabs(m_qoploc1[recStep-1] ) ): 0.;
-       m_qoploc2[recStep]    = fabs(m_qoploc2[recStep-1]  ) > 1e-50 ?     -log10( fabs(m_qoploc2[recStep-1] ) ): 0.;
-       m_qopphi[recStep]     = fabs(m_qopphi[recStep-1]   ) > 1e-50 ?     -log10( fabs(m_qopphi[recStep-1]  ) ): 0.;
-       m_qoptheta[recStep]   = fabs(m_qoptheta[recStep-1] ) > 1e-50 ?     -log10( fabs(m_qoptheta[recStep-1]) ): 0.;
-       m_qopqop[recStep]     = fabs(m_qopqop[recStep-1]   ) > 1e-50 ?     -log10( fabs(m_qopqop[recStep-1]  ) ): 0.;
-       m_qopsteps[recStep]   = 5;
+       if (recStep > 0){
+         m_loc1loc1[recStep]   = fabs(m_loc1loc1[recStep-1]  ) > 1e-50 ?  -log10(fabs(m_loc1loc1[recStep-1] )) : 0.;  
+         m_loc1loc2[recStep]   = fabs(m_loc1loc2[recStep-1]  ) > 1e-50 ?  -log10(fabs(m_loc1loc2[recStep-1] )) : 0.;  
+         m_loc1phi[recStep]    = fabs(m_loc1phi[recStep-1]   ) > 1e-50 ?  -log10(fabs(m_loc1phi[recStep-1]  )) : 0.;  
+         m_loc1theta[recStep]  = fabs(m_loc1theta[recStep-1] ) > 1e-50 ?  -log10(fabs(m_loc1theta[recStep-1])) : 0.;  
+         m_loc1qop[recStep]    = fabs(m_loc1qop[recStep-1]   ) > 1e-50 ?  -log10(fabs(m_loc1qop[recStep-1]  )) : 0.;  
+         m_loc1steps[recStep]  = 5;                                       
+         // fill the differences into the last one log (loc2)                                                      
+         m_loc2loc1[recStep]   = fabs(m_loc2loc1[recStep-1]  ) > 1e-50 ?    -log10(fabs(m_loc2loc1[recStep-1] )) : 0.;
+         m_loc2loc2[recStep]   = fabs(m_loc2loc2[recStep-1]  ) > 1e-50 ?    -log10(fabs(m_loc2loc2[recStep-1] )) : 0.;
+         m_loc2phi[recStep]    = fabs(m_loc2phi[recStep-1]   ) > 1e-50 ?    -log10(fabs(m_loc2phi[recStep-1]  )) : 0.;
+         m_loc2theta[recStep]  = fabs(m_loc2theta[recStep-1] ) > 1e-50 ?    -log10(fabs(m_loc2theta[recStep-1])) : 0.;
+         m_loc2qop[recStep]    = fabs(m_loc2qop[recStep-1]   ) > 1e-50 ?    -log10(fabs(m_loc2qop[recStep-1]  )) : 0.;
+         m_loc2steps[recStep]  = 5;
+         // fill the differences into the last one log (phi)
+         m_philoc1[recStep]    = fabs(m_philoc1[recStep-1]  ) > 1e-50 ?      -log10(fabs(m_philoc1[recStep-1] )) : 0.;
+         m_philoc2[recStep]    = fabs(m_philoc2[recStep-1]  ) > 1e-50 ?      -log10(fabs(m_philoc2[recStep-1] )) : 0.;
+         m_phiphi[recStep]     = fabs(m_phiphi[recStep-1]   ) > 1e-50 ?      -log10(fabs(m_phiphi[recStep-1]  )) : 0.;
+         m_phitheta[recStep]   = fabs(m_phitheta[recStep-1] ) > 1e-50 ?      -log10(fabs(m_phitheta[recStep-1])) : 0.;
+         m_phiqop[recStep]     = fabs(m_phiqop[recStep-1]   ) > 1e-50 ?      -log10(fabs(m_phiqop[recStep-1]  )) : 0.;
+         m_phisteps[recStep]   = 5;
+         // fill the differences into the last one log (theta)
+         m_thetaloc1[recStep]  = fabs(m_thetaloc1[recStep-1]  ) > 1e-50 ?    -log10(fabs(m_thetaloc1[recStep-1] )) : 0.;
+         m_thetaloc2[recStep]  = fabs(m_thetaloc2[recStep-1]  ) > 1e-50 ?    -log10(fabs(m_thetaloc2[recStep-1] )) : 0.;
+         m_thetaphi[recStep]   = fabs(m_thetaphi[recStep-1]   ) > 1e-50 ?    -log10(fabs(m_thetaphi[recStep-1]  )) : 0.;
+         m_thetatheta[recStep] = fabs(m_thetatheta[recStep-1] ) > 1e-50 ?    -log10(fabs(m_thetatheta[recStep-1])) : 0.;
+         m_thetaqop[recStep]   = fabs(m_thetaqop[recStep-1]   ) > 1e-50 ?    -log10(fabs(m_thetaqop[recStep-1]  )) : 0.;
+         m_thetasteps[recStep] = 5;
+         // fill the differences into the last one log (qop)
+         m_qoploc1[recStep]    = fabs(m_qoploc1[recStep-1]  ) > 1e-50 ?     -log10( fabs(m_qoploc1[recStep-1] ) ): 0.;
+         m_qoploc2[recStep]    = fabs(m_qoploc2[recStep-1]  ) > 1e-50 ?     -log10( fabs(m_qoploc2[recStep-1] ) ): 0.;
+         m_qopphi[recStep]     = fabs(m_qopphi[recStep-1]   ) > 1e-50 ?     -log10( fabs(m_qopphi[recStep-1]  ) ): 0.;
+         m_qoptheta[recStep]   = fabs(m_qoptheta[recStep-1] ) > 1e-50 ?     -log10( fabs(m_qoptheta[recStep-1]) ): 0.;
+         m_qopqop[recStep]     = fabs(m_qopqop[recStep-1]   ) > 1e-50 ?     -log10( fabs(m_qopqop[recStep-1]  ) ): 0.;
+         m_qopsteps[recStep]   = 5;
+       }
        ++recStep;
 
       m_steps = recStep;
