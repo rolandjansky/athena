@@ -15,8 +15,7 @@
 #include <ext/functional>
 #include <iterator>
 #ifdef SIMPLEAMBIGPROCNTUPLECODE
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "GaudiKernel/ITHistSvc.h" 
@@ -443,12 +442,11 @@ TrackCollection*  Trk::SimpleAmbiguityProcessorTool::process(const TrackCollecti
   using namespace std;
 
 #ifdef SIMPLEAMBIGPROCNTUPLECODE
-  const EventInfo* eventInfo;
+  const xAOD::EventInfo* eventInfo;
   if (evtStore()->retrieve(eventInfo).isFailure()) 
     msg(MSG::WARNING)<<"Could not get EventInfo object" << endreq;  
   else {
-    EventID* eventID = eventInfo->event_ID();
-    m_event = (int)eventID->event_number();
+    m_event = (int)eventInfo->eventNumber();
   }
   
   m_truthPIX = 0;

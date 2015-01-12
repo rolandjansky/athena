@@ -8,12 +8,8 @@ private
 use  AthenaBaseComps            AthenaBaseComps-*               Control
 use  AtlasCLHEP                 AtlasCLHEP-*                    External
 use  AtlasDetDescr              AtlasDetDescr-*                 DetectorDescription
-use  AtlasHepMC                 AtlasHepMC-*                    External
 use  AtlasROOT                  AtlasROOT-*                     External
-use  EventInfo                  EventInfo-*                     Event
 use  GaudiInterface             GaudiInterface-*                External
-use  GeneratorObjects           GeneratorObjects-*              Generators
-use  HepPDT                     v*                              LCG_Interfaces
 use  InDetPrepRawData           InDetPrepRawData-*              InnerDetector/InDetRecEvent
 use  TrkDetElementBase          TrkDetElementBase-*             Tracking/TrkDetDescr
 use  TrkEventPrimitives         TrkEventPrimitives-*            Tracking/TrkEvent
@@ -23,7 +19,7 @@ use  TrkRIO_OnTrack             TrkRIO_OnTrack-*                Tracking/TrkEven
 use  TrkToolInterfaces          TrkToolInterfaces-*             Tracking/TrkTools
 use  TrkTrack                   TrkTrack-*                      Tracking/TrkEvent
 use  TrkTrackSummary            TrkTrackSummary-*               Tracking/TrkEvent
-use  TrkTruthData               TrkTruthData-*                  Tracking/TrkEvent
+use  InDetRecToolInterfaces     InDetRecToolInterfaces-*        InnerDetector/InDetRecTools  
 
 # uncomment this line if you do want to build the ntuple writing code in
 # apply_tag  use_trkambproc_ntuple
