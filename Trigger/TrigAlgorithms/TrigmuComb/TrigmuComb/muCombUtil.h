@@ -33,12 +33,16 @@ namespace muCombUtil {
   int    whichECRegion(const float, const float);
 
   ///Get parametrized IDSCAN 1/pt resolution
-  double getIDSCANRes(std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, const TrigInDetTrack* idtrack);
+  double getIDSCANRes(std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, std::vector<double>, double, double);
 
   ///Get parametrized muFast Eta resolution (extrapolated)
   double getMuFastEtaRes(const MuonFeature*);
   ///Get parametrized muFast Phi resolution (extrapolated)
   double getMuFastPhiRes(const MuonFeature*);
+  ///Get parametrized Geant4 Eta resolution (extrapolated)
+  double getG4ExtEtaRes(double, double);
+  ///Get parametrized Geant4 Phi resolution (extrapolated)
+  double getG4ExtPhiRes(double, double);
 
   ///Get DeltaPhi
   double getDeltaPhi(double, double);

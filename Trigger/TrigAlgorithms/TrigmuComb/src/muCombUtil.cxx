@@ -111,10 +111,8 @@ namespace muCombUtil {
 
       return fabs(fracRes * AbsPtInv);
    }
-
-   return 9999.;
 }
-	
+
 int whichECRegion( const float eta, const float phi ) {
    // 0: bulk
    // 1: WeakBfield A
@@ -190,13 +188,13 @@ int whichECRegion( const float eta, const float phi ) {
 
   double getIDSCANRes(std::vector<double> barrelvec, std::vector<double> ec1vec, 
 		      std::vector<double> ec2vec, std::vector<double> ec3vec, std::vector<double> ec4vec,
-		      const TrigInDetTrack* idtrack) {
+		      double pt_id, double eta_id) {
 
-    double pt = idtrack->param()->pT();
+    double pt = pt_id;
     if (pt == 0) return 1.0e33;
 
     double AbsPtInv = fabs(1./pt);
-    double AbsEta   = fabs(idtrack->param()->eta());
+    double AbsEta   = fabs(eta_id);
 
     std::vector<double> vec;
     if (AbsEta < 1.05) vec = barrelvec;
@@ -283,6 +281,63 @@ int whichECRegion( const float eta, const float phi ) {
 	  return 0.08/pt + 0.0025;
 	}
       }
+    }
+  }
+
+  double getG4ExtEtaRes(double pt, double eta) {
+
+    //double pt  = feature->pt();
+    //double eta = feature->eta();
+    if (pt < 4. ) pt = 4.;
+    if (pt > 40.) pt = 40.;
+    // bool ts = false;
+    // if (feature->radius() <= 10.) ts = true;
+
+    //G4 extrapolator eta resolution parametrized as A/pt^2 + B/pt + C + D*pt
+    // Resolution evaluated in regions of eta: 0.0,0.5,1.0,1.5,2.0,above...
+    if (fabs(eta) < 0.5) {
+      return 6.0e-3/(pt*pt) + 4.4e-2/pt + 1.2e-2 + (-3.2e-5*pt);
+    }
+    else if (fabs(eta) >= 0.5 && fabs(eta) < 1.0) {
+      return 5.6e-3/(pt*pt) + 3.9e-2/pt + 1.3e-2 + (-3.7e-5*pt);
+    }
+    else if (fabs(eta) >= 1.0 && fabs(eta) < 1.5) {
+      return 2.1e-1/(pt*pt) + 8.8e-2/pt + 7.1e-4 + (1.7e-4*pt);
+    }
+    else if (fabs(eta) >= 1.5 && fabs(eta) < 2.0) {
+      return 4.5e-3/(pt*pt) + 1.4e-2/pt + 1.1e-2 + (-5.7e-5*pt);
+    }
+    else { // if (fabs(eta) >= 2.0) {
+      return 3.1e-2/(pt*pt) + 4.9e-1/pt + (-2.6e-3) + (3.2e-5*pt);
+    }
+  }
+
+
+  double getG4ExtPhiRes(double pt, double eta) {
+
+    //double pt  = feature->pt();
+    //double eta = feature->eta();
+    if (pt < 4. ) pt = 4.;
+    if (pt > 40.) pt = 40.;
+    // bool ts = false;
+    // if (feature->radius() <= 10.) ts = true;
+
+    //G4 extrapolator phi resolution parametrized as A/pt^2 + B/pt + C + D*pt
+    // Resolution evaluated in regions of eta: 0.0,0.5,1.0,1.5,2.0,above...
+    if (fabs(eta) < 0.5) {
+      return 4.1e-2/(pt*pt) + 1.5e-1/pt + 1.4e-3 + (5.8e-5*pt);
+    }
+    else if (fabs(eta) >= 0.5 && fabs(eta) < 1.0) {
+      return 9.4e-3/(pt*pt) + 8.8e-2/pt + 1.1e-2 + (-1.e-4*pt);
+    }
+    else if (fabs(eta) >= 1.0 && fabs(eta) < 1.5) {
+      return 3.5e-1/(pt*pt) + 9.4e-2/pt + 8.2e-3 + (-3.3e-7*pt);
+    }
+    else if (fabs(eta) >= 1.5 && fabs(eta) < 2.0) {
+      return 2.6e-2/(pt*pt) + 1.2e-1/pt + 3.8e-3 + (2.2e-5*pt);
+    }
+    else { // if (fabs(eta) >= 2.0) {
+      return 2.7e-1/(pt*pt) + 3.2e-2/pt + (9.0e-3) + (-2.6e-5*pt);
     }
   }
 

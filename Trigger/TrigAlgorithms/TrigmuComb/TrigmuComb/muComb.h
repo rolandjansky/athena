@@ -19,20 +19,16 @@
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/INTupleSvc.h"
 #include "GaudiKernel/NTuple.h"
-#include "TrigMuonEvent/CombinedMuonFeature.h"
 #include "TrigInterfaces/FexAlgo.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
-#include "TrigInDetEvent/TrigInDetTrack.h"
-#include "TrigMuonBackExtrapolator/ITrigMuonBackExtrapolator.h"
-#include "CombinedMuonRefit/IExtrapolateMuonToIPTool.h"
-#include "MuonRecToolInterfaces/IMuonTrackExtrapolationTool.h" 
+#include "TrkExInterfaces/IExtrapolator.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
-class MuonFeature;
+#include "xAODTrigMuon/L2CombinedMuonContainer.h"
+#include "xAODTracking/TrackParticle.h"
 
-/** Main LVL2 Algorithm. Sided by a MuonFeature, match the muon spectrometer track with an ID track, 
-    and fill a CombinedMuonFeature. */
+/** Main LVL2 Algorithm. Sided by a xAOD::L2StandaloneMuon, match the muon spectrometer track with an ID track, and produces a xAOD::L2CombinedMuon. */
 class muComb : public HLT::FexAlgo
 {
  public:
@@ -48,8 +44,8 @@ class muComb : public HLT::FexAlgo
   /** hltFinalize. Called by the Steering. */
   HLT::ErrorCode hltFinalize();
    
-  /** recordFeature. Record on the event record the output CombinedMuonFeature. */ 
-  HLT::ErrorCode muCombSeed(HLT::TriggerElement*,CombinedMuonFeature*);
+  /** recordFeature. Record on the event record the output xAOD::L2CombinedMuonCOntainer. */ 
+  HLT::ErrorCode muCombSeed(HLT::TriggerElement*,xAOD::L2CombinedMuonContainer*);
 
  private:
 
@@ -59,11 +55,8 @@ class muComb : public HLT::FexAlgo
   /** Pointer to the ROB data provider */
   ROBDataProviderSvc*  m_pROBDataProvider;
       
-  /** Handle to the LUT backExtrapolator tool */
-  ToolHandle<ITrigMuonBackExtrapolator> m_backExtrapolatorLUT;
-
   /** Handle to the G4 backExtrapolator tool */
-  ToolHandle<Muon::IMuonTrackExtrapolationTool>  m_backExtrapolatorG4;  
+  ToolHandle<Trk::IExtrapolator>  m_backExtrapolatorG4;  
 
   /** Handle to the Magnetic field service */
   MagField::IMagFieldSvc* m_MagFieldSvc; 
@@ -73,13 +66,16 @@ class muComb : public HLT::FexAlgo
 
   std::string m_paramSet;
     
-  int    drptMatch(double, double, double, const TrigInDetTrack*, int, 
+  int    drptMatch(const xAOD::L2StandAloneMuon* feature, 
+                   double, double, double, int, 
 		   double&, double&, double&, double&, double&);
 
-  int    mfMatch(const MuonFeature*, const TrigInDetTrack*, 
+  int    mfMatch(const xAOD::L2StandAloneMuon* feature, 
+                 double, double, double, double,
 		 double&, double&, double&, double&, double&, int&);
 
-  int    g4Match(const MuonFeature*, const TrigInDetTrack*, 
+  int    g4Match(const xAOD::L2StandAloneMuon* feature,
+                 double, double, double, double,
 		 double&, double&, double&, double&, double&, int&);
 
  private:
@@ -94,9 +90,11 @@ class muComb : public HLT::FexAlgo
   /** flag to assume B_Solenoid=0 anyway */
   BooleanProperty m_assumeSolenoidOff;
 
-  TrigInDetTrack::AlgoId m_algoId;
-  /** ID Track collection used for matching */
-  StringProperty m_ID_algo_to_use;
+  /** muComb matching strategy:
+   *  0: auto select best option
+   *  1: simplified R,(Pt) matching
+   */
+  IntegerProperty m_AlgoStrategy;
 
   /** muComb charge assignment strategy:
    *  0: useMuFast
@@ -105,36 +103,18 @@ class muComb : public HLT::FexAlgo
    */
   IntegerProperty m_ChargeStrategy;
 
-  /** muComb matching strategy:
-   *  0: auto select best option
-   *  1: Std: muFast-backextrapolated-ID match
-   *  2: Toroid OFF - Solenoid ON  muFast-ID match   
-   *  3: Toroid ON  - Solenoid OFF muFast-ID match   
-   *  4: Toroid OFF - Solenoid OFF muFast-ID match 
-   *  5: Toroid ON  - Solenoid ON  L1-ID match
-   *  6: Toroid OFF - Solenoid ON  L1-ID match
-   *  7: Toroid ON  - Solenoid OFF L1-ID match
-   *  8: Toroid OFF - Solenoid OFF L1-ID match 
-   */
-  IntegerProperty m_AlgoStrategy;
+  /** ID Track collection used for matching */
+  StringProperty m_ID_algo_to_use;
 
   /** Min Pt to select the ID track for matching */
   DoubleProperty m_PtMinTrk;
   /** Max abs(eta) to select the ID track for matching */
   DoubleProperty m_EtaMaxTrk;
-  /** Max abs(Zeta) to select the ID track for matching */
-  DoubleProperty m_ZMaxTrk;
-  /** Max chi2 to select the ID track for matching */
-  DoubleProperty m_Chi2MaxTrk;
-  /** Min number of PIX space points to select the ID track for matching */
-  IntegerProperty m_NPIXhitMinTrk;
-  /** Min number of SCT space points to select the ID track for matching */
-  IntegerProperty m_NSCThitMinTrk;
 
-  /** matching parameters vector (1) for the various strategies */
-  DoubleArrayProperty m_winPt;
-  /** matching parameters vector (2) for the various strategies */
-  DoubleArrayProperty m_winDR;
+  /** max deltaPt for simpified matching */
+  DoubleProperty m_winPt;
+  /** max deltaR for simplified matching */
+  DoubleProperty m_winDR;
 
   /** Min Number of DOF to apply the chi2 cut on macthing based on LUT and G4 backextrapolators */
   IntegerProperty m_NdofMin;
@@ -206,23 +186,16 @@ class muComb : public HLT::FexAlgo
   float m_ptFL;
   float m_etaFL;
   float m_phiFL;
-  float m_efficiency;
+  int m_efficiency;
   int m_StrategyMC;
   int m_ErrorFlagMC;
   int m_MatchFlagMC;
 
-  std::vector<double> m_muFastRes_barrel;
-  std::vector<double> m_muFastRes_endcap1;
-  std::vector<double> m_muFastRes_endcap2;
-  std::vector<double> m_muFastRes_endcap3;
-  std::vector<double> m_muFastRes_endcap4;
-    
   std::vector<double> m_IDSCANRes_barrel;
   std::vector<double> m_IDSCANRes_endcap1;
   std::vector<double> m_IDSCANRes_endcap2;
   std::vector<double> m_IDSCANRes_endcap3;
   std::vector<double> m_IDSCANRes_endcap4;
-    
 };
 
 #endif // MUCOMB_H

@@ -11,19 +11,19 @@ use TrigTimeAlgs              TrigTimeAlgs-*                 Trigger/TrigTools
 use TrigMuonEvent             TrigMuonEvent-*                Trigger/TrigEvent
 use TrigInDetEvent	      TrigInDetEvent-*               Trigger/TrigEvent
 use MagFieldInterfaces        MagFieldInterfaces-*           MagneticField 
-use TrigMuonBackExtrapolator  TrigMuonBackExtrapolator-*     Trigger/TrigTools
-use CombinedMuonRefit         CombinedMuonRefit-*            Reconstruction/MuonIdentification
 use ByteStreamCnvSvcBase      ByteStreamCnvSvcBase-*         Event
-use MuonRecToolInterfaces     MuonRecToolInterfaces-*        MuonSpectrometer/MuonReconstruction/MuonRecTools
+use TrkExInterfaces	      TrkExInterfaces-*	             Tracking/TrkExtrapolation
+use xAODTrigMuon              xAODTrigMuon-*                 Event/xAOD
+use xAODTracking              xAODTracking-*                 Event/xAOD
 
 private
+use AtlasCLHEP                AtlasCLHEP-*                   External
 use AthenaKernel              AthenaKernel-*                 Control
 use PathResolver              PathResolver-*                 Tools
 use StoreGate 	              StoreGate-*      		     Control
 use TrigSiSpacePointTool      TrigSiSpacePointTool-*         Trigger/TrigTools	
 use TrigT1Interfaces          TrigT1Interfaces-*             Trigger/TrigT1
-use TrkParameters             TrkParameters-*                Tracking/TrkEvent
-use TrkTrack                  TrkTrack-*                     Tracking/TrkEvent
+use TrigConfHLTData           TrigConfHLTData-*              Trigger/TrigConfiguration
 end_private
 
 #########################################################
