@@ -230,7 +230,6 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
     }
   }
    
-
   int n_cl = i_cl;
  
   if (timerSvc()) mTimers[ITIMER_INIT]->stop();
@@ -241,32 +240,52 @@ HLT::ErrorCode MuonCluster::hltExecute(std::vector<std::vector<HLT::TriggerEleme
   }
   for(int i_cl=0; i_cl<n_cl; ++i_cl) { // loop on cluster
     bool improvement = true;
+    int n_itr = 0;
     while(improvement){
+      ++n_itr;
+      double eta_avg=0.0;
+      double cosPhi_avg=0.0;
+      double sinPhi_avg=0.0;
       int n_in_clu = 0;
       for (int j_cl=0; j_cl<n_cl; ++j_cl) { // loop on cluster
-	float deltaR = DeltaR(muonClu0[j_cl],muonClu[i_cl]);
-	if(deltaR<mDeltaR){
-	  ++n_in_clu;
-	  muonClu[i_cl].eta = muonClu[i_cl].eta + (muonClu0[j_cl].eta-muonClu[i_cl].eta)/n_in_clu;
-	  muonClu[i_cl].phi = HLT::wrapPhi(muonClu[i_cl].phi + HLT::wrapPhi(muonClu0[j_cl].phi-muonClu[i_cl].phi)/n_in_clu);
-	}
+          float deltaR = DeltaR(muonClu0[j_cl],muonClu[i_cl]);
+          if(deltaR<mDeltaR){
+              ++n_in_clu;
+              if(n_itr==1){
+                  muonClu[i_cl].eta = muonClu[i_cl].eta + (muonClu0[j_cl].eta-muonClu[i_cl].eta)/n_in_clu;
+                  muonClu[i_cl].phi = HLT::wrapPhi(muonClu[i_cl].phi + HLT::wrapPhi(muonClu0[j_cl].phi-muonClu[i_cl].phi)/n_in_clu);
+              } else{
+                  //to recalculate the average with all RoIs within a dR = 0.4 cone of the seed position
+                  eta_avg += muonClu0[j_cl].eta;
+                  cosPhi_avg += cos(muonClu0[j_cl].phi);
+                  sinPhi_avg += sin(muonClu0[j_cl].phi);
+              }
+          }
+      }
+      if(n_itr > 1){
+      //set cluster position as average position of RoIs
+      //This, coupled with the improvement=true/false below, makes an assumption that
+      //improvement = false means same # RoIs in cluster, but never less (code had this before, too)
+        muonClu[i_cl].eta = eta_avg/n_in_clu;  
+        muonClu[i_cl].phi = atan2(sinPhi_avg,cosPhi_avg);      
       }
       //find the number of ROIs in the new cluster
+      //if the number is the same as before, 
       Int_t n_in_clu2=0;
       for (int j_cl=0; j_cl<n_cl; ++j_cl) { // loop on cluster
-	float deltaR = DeltaR(muonClu0[j_cl],muonClu[i_cl]);
-	if(deltaR<mDeltaR){
-	  ++n_in_clu2;
-	}
+          float deltaR = DeltaR(muonClu0[j_cl],muonClu[i_cl]);
+          if(deltaR<mDeltaR){
+              ++n_in_clu2;
+          }
       }
       if (msgLvl() <= MSG::DEBUG) {
         msg() << MSG::DEBUG << "Finding the number of Muon RoIs in the new Cluster....   " << n_in_clu2 << endreq;
       } 
       if(n_in_clu2>muonClu[i_cl].nroi){
-	muonClu[i_cl].nroi=n_in_clu2;
-	improvement = true;
+          muonClu[i_cl].nroi=n_in_clu2;
+        improvement = true;
       } else  improvement = false;
-    }
+    }//end while
   }
   if (timerSvc()) mTimers[ITIMER_CLUSTER]->stop();
   // find the cluster with max number of rois
