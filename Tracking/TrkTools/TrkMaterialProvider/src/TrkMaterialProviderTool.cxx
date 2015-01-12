@@ -57,7 +57,7 @@ Trk::TrkMaterialProviderTool::TrkMaterialProviderTool(const std::string& t, cons
 	m_maxNTracksIso(2),
 	m_paramPtCut(15.0*Gaudi::Units::GeV),
 	m_useCaloEnergyMeasurement(true),
-	m_useMuonCaloEnergyTool(false)
+	m_useMuonCaloEnergyTool(true)
 {
   declareInterface<ITrkMaterialProviderTool>(this);
 
@@ -707,10 +707,11 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
     
     // Get measured energy in calorimeter (run2 tool)
     if(m_useMuonCaloEnergyTool) {
-      m_muonCaloEnergyTool->calculateMuonEnergies( &muonTrack, 
-						   mopELoss, meanELossIoni, sigmaELossIoni,  
-						   measCaloEnergy, measCaloEnergyError, fsrCaloEnergy, e_exp,
-						   E_em_meas,E_em_exp,E_tile_meas,E_tile_exp,E_HEC_meas,E_HEC_exp,E_dead_exp);
+      if(muonTrack.trackParameters() && muonTrack.trackParameters()->size()>0)
+	m_muonCaloEnergyTool->calculateMuonEnergies( &muonTrack, 
+						     mopELoss, meanELossIoni, sigmaELossIoni,  
+						     measCaloEnergy, measCaloEnergyError, fsrCaloEnergy, e_exp,
+						     E_em_meas,E_em_exp,E_tile_meas,E_tile_exp,E_HEC_meas,E_HEC_exp,E_dead_exp);
     }
     // (run1 tool) used for debugging purposes
     else{
