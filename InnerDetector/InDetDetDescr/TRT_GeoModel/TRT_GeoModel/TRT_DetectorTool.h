@@ -15,7 +15,7 @@
 // Please consult the README for more information about which options to set in your joboptions file. //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-class IGeoDbTagSvc;
+class IGeoModelSvc;
 class IRDBAccessSvc;
 class IGeometryDBSvc;
 
@@ -51,13 +51,12 @@ public:
     int m_overridedigversion;
     bool m_alignable;
 
-    ServiceHandle< IGeoDbTagSvc > m_geoDbTagSvc;
+    ServiceHandle< IGeoModelSvc > m_geoModelSvc;
     ServiceHandle< IRDBAccessSvc > m_rdbAccessSvc;
     ServiceHandle< IGeometryDBSvc > m_geometryDBSvc;
     ServiceHandle<ITRT_StrawStatusSummarySvc> m_sumSvc; // added for Argon
  
-    bool m_doArgonMixture;
-    bool m_doKryptonMixture;
+    bool m_doXenonArgonMixture ;  
  
     const InDetDD::TRT_DetectorManager * m_manager;
     InDetDD::AthenaComps * m_athenaComps;
