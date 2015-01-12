@@ -18,7 +18,7 @@ import PyJobTransforms.trfArgClasses as trfArgClasses
 
 ## Prodsys1 hack...
 # TODO: Remove!
-ListOfDefaultPositionalKeys=['--AMI', '--AMITag', '--DBRelease', '--asetup', '--athena', '--athenaopts', '--autoConfiguration', '--beamType', '--checkEventCount', '--command', '--conditionsTag', '--ecmEnergy', '--eventAcceptanceEfficiency', '--evgenJobOpts', '--execOnly', '--firstEvent', '--geometryVersion', '--ignoreErrors', '--ignoreFilters', '--ignorePatterns', '--inputGenConfFile', '--inputGeneratorFile', '--jobConfig', '--maxEvents', '--omitFileValidation', '--outputEVNTFile', '--postExec', '--postInclude', '--preExec', '--preInclude', '--randomSeed', '--reportName', '--runNumber', '--showGraph', '--showPath', '--showSteps', '--skipEvents', '--uploadtoami', '--validation']
+ListOfDefaultPositionalKeys=['--AMI', '--AMITag', '--DBRelease', '--asetup', '--athena', '--athenaopts', '--autoConfiguration', '--beamType', '--checkEventCount', '--command', '--conditionsTag', '--ecmEnergy', '--eventAcceptanceEfficiency', '--evgenJobOpts', '--execOnly', '--firstEvent', '--geometryVersion', '--ignoreErrors', '--ignoreFilters', '--ignorePatterns', '--inputGenConfFile', '--inputGeneratorFile', '--jobConfig', '--maxEvents', '--omitFileValidation', '--outputEVNTFile', '--postExec', '--postInclude', '--preExec', '--preInclude', '--randomSeed', '--reportName', '--runNumber', '--showGraph', '--showPath', '--showSteps', '--skipEvents', '--uploadtoami', '--validation', '--outputTXTFile']
 
 
 class EvgenExecutor(athenaExecutor):
@@ -47,17 +47,26 @@ class EvgenExecutor(athenaExecutor):
                 zf.close()
 
         def mk_jo_proxy(targetbasepath, pkgname, proxypath="_joproxy", addtosearch=True):
-            "Make a JO proxy dir such that the MCxxJobOptions/dddd dirs' contents are found via include(MCxxJobOptions/yyyy)"
-            if os.path.exists(proxypath):
-                shutil.rmtree(proxypath)
-            os.mkdir(proxypath)
+            "Make a JO proxy dir such that the MCxxJobOptions/dddd dirs contents are found via include(MCxxJobOptions/yyyy)"
+            if proxypath:
+                if os.path.exists(proxypath):
+                    shutil.rmtree(proxypath)
+                os.mkdir(proxypath)
+            os.environ['LOCAL_INSTALL_DIR'] = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]    
             for d in ("common", "share", "gencontrol", "susycontrol"):
                 # TODO: we could _maybe_ add the appropriate share/DSIDxxxx/ dir to the path based on the jobConfig arg... too much magic?
                 dpath = os.path.join(proxypath, d)
-                os.mkdir(dpath)
-                os.symlink(os.path.join(targetbasepath, d), os.path.join(dpath, pkgname))
+                if proxypath:
+                    os.mkdir(dpath)
+                    os.symlink(os.path.join(targetbasepath, d), os.path.join(dpath, pkgname))
                 if addtosearch:
-                    os.environ["JOBOPTSEARCHPATH"] = dpath + ":" + os.environ["JOBOPTSEARCHPATH"]
+                    os.environ["JOBOPTSEARCHPATH"] = dpath+":"+os.environ["JOBOPTSEARCHPATH"]
+                    os.environ["DATAPATH"] =os.path.join(targetbasepath, d)+":"+os.environ["DATAPATH"]
+#                    print("EA: DATAPATH=%s;") % os.environ["DATAPATH"]
+#		    print("EA: dpath=%s;") % (dpath)
+#                    print("EA: realpath=%s;") % os.path.realpath(dpath)
+            os.environ["JOBOPTSEARCHPATH"] = os.environ['LOCAL_INSTALL_DIR']+":"+os.environ["JOBOPTSEARCHPATH"]
+
 
         ## Handle locating of evgen job options / fragments, either from a tarball or CVMFS
         if "evgenJobOpts" in self._trf.argdict: ## Use a specified JO tarball
@@ -78,6 +87,7 @@ class EvgenExecutor(athenaExecutor):
                 msg.info('Evgen tarball download success: %s' % output)
             ## Expand tarball
             expand_if_archive(tarball)
+            mk_jo_proxy(os.getcwd(), "MC14JobOptions", "")
             ## Source setup script (requires some shenanigans to update the Python env robustly)
             # TODO: trf framework now bans use of exec()...
             #import subprocess
