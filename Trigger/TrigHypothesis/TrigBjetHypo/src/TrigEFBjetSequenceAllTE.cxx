@@ -21,6 +21,8 @@
 #include "TrigSteeringEvent/TrigOperationalInfo.h"
 #include "TrigNavigation/TriggerElement.h"
 
+#include "AthContainers/ConstDataVector.h"
+
 //#include "JetEvent/Jet.h"
 //#include "JetEvent/JetCollection.h"
 
@@ -241,11 +243,24 @@ HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::
       TrigOperationalInfo* trigInfoJetEt = new TrigOperationalInfo();
       trigInfoJetEt->set("EFJetEt", jet_Et);
 
-      hltStatus = attachFeature(outputTE, trigInfoJetEt, "EFJetInfo"); 
+      hltStatus = attachFeature(outputTE, trigInfoJetEt, "EFJetInfo");
 
       if (hltStatus != HLT::OK) {
 	msg() << MSG::ERROR << "Failed to attach TrigOperationalInfo as feature" << endreq;
 	return hltStatus;
+      }
+
+      // Make a deep copy of the jet, because can't persistify view containers at the moment
+      xAOD::JetTrigAuxContainer trigJetTrigAuxContainer;
+      xAOD::JetContainer* trigJetContainer = new xAOD::JetContainer();
+      trigJetContainer->setStore(&trigJetTrigAuxContainer);
+      xAOD::Jet* Jet= new xAOD::Jet(*(*jet));
+      trigJetContainer->push_back(Jet);
+
+      hltStatus = attachFeature(outputTE, trigJetContainer, "EFJet"); 
+      if (hltStatus != HLT::OK) {
+        msg() << MSG::ERROR << "Failed to attach xAOD::JetContainer as feature" << endreq;
+        return hltStatus;
       }
     }
   }

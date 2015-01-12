@@ -18,7 +18,6 @@
 #include "TrigInterfaces/HypoAlgo.h"
 
 
-class TrigL2BjetContainer;
 class TrigEFBjetContainer;
 class TrigTimerSvc;
 class TriggerElement;
@@ -63,10 +62,10 @@ class TrigBjetHypo : public HLT::HypoAlgo {
   /** @brief Total execution time of TrigBjetFex class. */
   TrigTimer *m_totTimer;
 
-  /** @brief Pointer to TrigL2Bjet collection. */
-  TrigL2BjetContainer* m_trigL2BjetColl;
   /** @brief Pointer to TrigEFBjet collection. */
   TrigEFBjetContainer* m_trigEFBjetColl;
+
+  std::string m_jetKey;
 
   /** @brief DeclareProperty: if acceptAll flag is set to true, every event is taken. */ 
   bool m_acceptAll;

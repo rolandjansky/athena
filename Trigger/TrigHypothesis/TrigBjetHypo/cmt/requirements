@@ -13,6 +13,8 @@ use 	TrigTrackJetFinderTool  TrigTrackJetFinderTool-*	Trigger/TrigTools
 use     Particle		Particle-*			Reconstruction
 use     VxSecVertex             VxSecVertex-*                   Tracking/TrkEvent
 use     TrigInDetEvent          TrigInDetEvent-*                Trigger/TrigEvent
+use     xAODBase                xAODBase-*                  	Event/xAOD
+use     xAODTracking            xAODTracking-*             	Event/xAOD
 
 # ============================================================================================
 private
@@ -31,9 +33,9 @@ use     TrigMuonEvent           TrigMuonEvent-*                 Trigger/TrigEven
 use     TrigParticle	        TrigParticle-*                  Trigger/TrigEvent
 use 	TrigSteeringEvent       TrigSteeringEvent-*		Trigger/TrigEvent
 use 	TrigNavigation		TrigNavigation-*		Trigger/TrigEvent
-use 	TrigTimeAlgs 		TrigTimeAlgs-* 			Trigger/TrigTools
 use     xAODJet                 xAODJet-*                       Event/xAOD
-
+use     xAODBTagging            xAODBTagging-*              	Event/xAOD
+use 	xAODCore		xAODCore-*			Event/xAOD  
 
 
 # ============================================================================================

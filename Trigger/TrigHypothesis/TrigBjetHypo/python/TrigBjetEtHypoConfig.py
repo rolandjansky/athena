@@ -7,27 +7,33 @@ from AthenaCommon.SystemOfUnits import GeV
 
 
 thresholdsStartSequence = {
+    '0GeV'   : 0,
     '15GeV'  : 15,
     '35GeV'  : 35,
 }
 
 thresholdsBtagging = {
+    '0GeV'   : 0,
     '10GeV'  : 10,
     '15GeV'  : 15,
     '25GeV'  : 25,
     '35GeV'  : 35,
     '45GeV'  : 45,
+    '50GeV'  : 50,
     '55GeV'  : 55,
     '60GeV'  : 60,    
     '65GeV'  : 65,    
-    '75GeV'  : 75,    
+    '70GeV'  : 70,
+    '75GeV'  : 75,        
     '80GeV'  : 80,
     '110GeV' : 110,
     '145GeV' : 145,
+    '150GeV' : 150,
     '165GeV' : 165,    
     '175GeV' : 175,
     '180GeV' : 180,
     '220GeV' : 220,
+    '225GeV' : 225,
     '240GeV' : 240,    
     '280GeV' : 280,
     '300GeV' : 300,
@@ -50,7 +56,7 @@ class BjetEtHypo (TrigBjetEtHypo):
         
         mlog = logging.getLogger('BjetHypoConfig.py')
 
-        AllowedInstances = ["L2","EF"]
+        AllowedInstances = ["EF"]
         AllowedVersions  = ["StartSequence","Btagging"]
 
         if instance not in AllowedInstances :
@@ -80,7 +86,7 @@ class BjetEtHypoNoCut (TrigBjetEtHypo):
         
         mlog = logging.getLogger('BjetHypoConfig.py')
 
-        AllowedInstances = ["L2","EF"]
+        AllowedInstances = ["EF"]
         AllowedVersions  = ["Btagging"]
 
         if instance not in AllowedInstances :

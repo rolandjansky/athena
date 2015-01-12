@@ -195,7 +195,7 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
   
   for (unsigned int j=0 ; Muon != lastMuon; Muon++, j++) {
     
-    TrigMuonEFInfo* muonInfo = (*Muon);
+    const TrigMuonEFInfo* muonInfo = (*Muon);
     
     if (!muonInfo->hasTrack()) continue;
     
@@ -207,7 +207,7 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltExecute(std::vector<std::vector<HLT::
     
     for ( int k=0; Track!=lastTrack; Track++,k++) {
       
-      TrigMuonEFInfoTrack* muonInfoTrack = (*Track);
+      const TrigMuonEFInfoTrack* muonInfoTrack = (*Track);
       
       if (muonInfoTrack->MuonType()!=1) continue;
       

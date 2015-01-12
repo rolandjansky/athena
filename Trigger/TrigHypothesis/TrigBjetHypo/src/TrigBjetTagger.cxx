@@ -64,48 +64,6 @@ TrigBjetTagger::~TrigBjetTagger() {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-float TrigBjetTagger::getIP1DErr(float param, float errParam) {
-
-  float sd0=errParam;
-  
-  if (m_trigBjetFex->m_instance == "L2" && m_trigBjetFex->m_algo == 1) {
-    float eta = fabs(param);
-    float sd0 = 0.173 + 8.43e-3*std::pow(eta,4);
-
-    return sd0;
-  }
-
-  return sd0;
-}
-
-
-//** ----------------------------------------------------------------------------------------------------------------- **//
-
-
-float TrigBjetTagger::getIP2DErr(float param, float errParam ) {
-
-  float sd0=errParam;
-
-  if (m_trigBjetFex->m_instance == "L2" && m_trigBjetFex->m_algo == 1) {
-    float pt = fabs(param);
-    float p0 = 0.023, p1=27, p2=1.48;
-    float sd014 = sqrt(p0*p0 + std::pow((float)(p1/14000.),p2));   
-      
-    sd0 = sqrt(p0*p0 + std::pow((float)(p1/pt),p2));
-	
-    if (pt>14000)
-      sd0 = sd014;
-  
-    return sd0*1.5;
-  }
-  
-  return sd0;
-}
-
-
-//** ----------------------------------------------------------------------------------------------------------------- **//
-
-
 void TrigBjetTagger::getWeights() {
 
   m_taggersXMap["IP1D"] = -50; m_taggersXMap["IP2D"] = -50; m_taggersXMap["IP3D"] = -50; m_taggersXMap["CHI2"] = -50;
@@ -127,6 +85,8 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
     m_log << MSG::DEBUG << "Executing TrigBjetTagger::getWeights" << endreq;
 
   m_taggersWMap["IP1D"]= 1; m_taggersWMap["IP2D"]= 1; m_taggersWMap["IP3D"]= 1; m_taggersWMap["CHI2"]= 1;
+  m_taggersPuMap["IP1D"]= 1; m_taggersPuMap["IP2D"]= 1; m_taggersPuMap["IP3D"]= 1; m_taggersPuMap["CHI2"]= 1;
+  m_taggersPbMap["IP1D"]= 1; m_taggersPbMap["IP2D"]= 1; m_taggersPbMap["IP3D"]= 1; m_taggersPbMap["CHI2"]= 1;
   m_taggersXMap["IP1D"]=-48; m_taggersXMap["IP2D"]=-48; m_taggersXMap["IP3D"]=-48; m_taggersXMap["CHI2"]=-48;
 
 #ifdef VALIDATION_TOOL
@@ -155,18 +115,15 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
     m_trigBjetFex->m_mon_trk_z0_sel_PV.push_back((*pTrack).z0()-m_trigBjetPrmVtxInfo->zPrmVtx());
 
     float w=1;
+    double Pu=1e9;
+    double Pb=1;
 
     float m_IP1D=0, errIP1D=0; 
     float m_IP2D=0, errIP2D=0;
     float z0=0, z0Sign=0, d0Sign=0;
     
-    if (m_trigBjetFex->m_useErrIPParam) {
-      errIP1D = getIP1DErr((*pTrack).eta(), (*pTrack).ez0());
-      errIP2D = getIP2DErr((*pTrack).pT(),  (*pTrack).ed0());
-    } else {
-      errIP1D = (*pTrack).ez0();
-      errIP2D = (*pTrack).ed0();
-    }
+    errIP1D = (*pTrack).ez0();
+    errIP2D = (*pTrack).ed0();
 
     z0 = (*pTrack).z0Corr() - m_trigBjetPrmVtxInfo->zPrmVtx();
 
@@ -196,42 +153,39 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
       if ((*pTagger) == "IP1D") {
 
 	if (errIP1D) m_IP1D = z0Sign/sqrt(errIP1D*errIP1D);
-        if (m_trigBjetFex->m_useLowSiHits && ((*pTrack).siHits() < 7) ) {
-#ifdef VALIDATION_TOOL
-          m_vectorIP1D_lowSiHits.push_back(m_IP1D);
-#endif
-	  w = getW("IP1D_lowSiHits", m_IP1D);
-        } else {
+
+        if ( (*pTrack).siHits() >= 7 ) {
+
 #ifdef VALIDATION_TOOL
           m_vectorIP1D.push_back(m_IP1D);
 #endif
 	  w = getW("IP1D", m_IP1D);
+	  getPuPb("IP1D", m_IP1D, Pu, Pb);
         }
+      } 
 
-      } else if ((*pTagger) == "IP2D") {
+      else if ((*pTagger) == "IP2D") {
 
 	if (errIP2D && m_sigmaBeamSpot) m_IP2D = d0Sign/sqrt(errIP2D*errIP2D + m_sigmaBeamSpot*m_sigmaBeamSpot);
-        if (m_trigBjetFex->m_useLowSiHits && ((*pTrack).siHits() < 7) ) {
-#ifdef VALIDATION_TOOL
-          m_vectorIP2D_lowSiHits.push_back(m_IP2D);
-#endif
-	  w = getW("IP2D_lowSiHits", m_IP2D);
-        } else {
+
+        if ( (*pTrack).siHits() >= 7 ) {
+
 #ifdef VALIDATION_TOOL
           m_vectorIP2D.push_back(m_IP2D);
 #endif
 	  w = getW("IP2D", m_IP2D);
+	  getPuPb("IP2D", m_IP2D, Pu, Pb);
         }
+      } 
 
-      } else if ((*pTagger) == "IP3D") {
+      else if ((*pTagger) == "IP3D") {
 
 	if (errIP1D) m_IP1D = z0Sign/sqrt(errIP1D*errIP1D);
 	if (errIP2D && m_sigmaBeamSpot) m_IP2D = d0Sign/sqrt(errIP2D*errIP2D + m_sigmaBeamSpot*m_sigmaBeamSpot);
 
-        if (m_trigBjetFex->m_useLowSiHits && ((*pTrack).siHits() < 7) ) {
-	  w = getW("IP3D_lowSiHits", m_IP2D, m_IP1D);
-        } else {
+        if ( (*pTrack).siHits() >= 7 ) {
 	  w = getW("IP3D", m_IP2D, m_IP1D);
+	  getPuPb("IP3D", m_IP2D, m_IP1D, Pu, Pb);
         }
 
 	m_trigBjetFex->m_mon_trk_Sz0_sel.push_back(m_IP1D);
@@ -240,11 +194,14 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
       }
       
       if(m_taggersWMap[(*pTagger)]<1e17) m_taggersWMap[(*pTagger)]*= w;
+      m_taggersPuMap[(*pTagger)]*= Pu;
+      m_taggersPbMap[(*pTagger)]*= Pb;
       
       if (m_logLvl <= MSG::DEBUG) {
 	m_log << MSG::DEBUG << (*pTrack) << endreq;
 	m_log << MSG::DEBUG << "---> w(" << (*pTagger) << ") = " << w
-	      << ";   W(" << (*pTagger) << ") = " << m_taggersWMap[(*pTagger)] << endreq;
+	      << ";   W(" << (*pTagger) << ") = " << m_taggersWMap[(*pTagger)]
+	      << ";   W(" << m_taggersPbMap[(*pTagger)] << "/" << m_taggersPuMap[(*pTagger)] << ") = " << m_taggersPbMap[(*pTagger)]/m_taggersPuMap[(*pTagger)] << endreq;
       }
     }
   }
@@ -254,6 +211,8 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
   /////////////////////////////////
 
   m_taggersWMap["MVTX"]= 1; m_taggersWMap["EVTX"]= 1; m_taggersWMap["NVTX"]= 1; m_taggersWMap["SVTX"]= 1;  m_taggersWMap["COMB"]= 1;
+  m_taggersPuMap["MVTX"]= 1; m_taggersPuMap["EVTX"]= 1; m_taggersPuMap["NVTX"]= 1; m_taggersPuMap["SVTX"]= 1; m_taggersPuMap["COMB"]= 1;
+  m_taggersPbMap["MVTX"]= 1; m_taggersPbMap["EVTX"]= 1; m_taggersPbMap["NVTX"]= 1; m_taggersPbMap["SVTX"]= 1; m_taggersPbMap["COMB"]= 1;
   m_taggersXMap["MVTX"]=-48; m_taggersXMap["EVTX"]=-48; m_taggersXMap["NVTX"]=-48; m_taggersXMap["SVTX"]=-48;  m_taggersXMap["COMB"]=-48;
 
   pTagger = m_trigBjetFex->m_taggers.begin();
@@ -268,43 +227,63 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
            m_log << MSG::DEBUG << "Calculating " << (*pTagger) << " likelihood weight" << endreq;
         
         if ((*pTagger) == "MVTX") {
-           
-           m_taggersWMap[(*pTagger)] = getW("MVTX", m_trigBjetSecVtxInfo->vtxMass());
+
+	  double Pu=1, Pb=1;           
+	  getPuPb("MVTX", m_trigBjetSecVtxInfo->vtxMass(), Pu, Pb);
+	  m_taggersWMap[(*pTagger)] = getW("MVTX", m_trigBjetSecVtxInfo->vtxMass());
+	  m_taggersPuMap[(*pTagger)] = Pu;
+	  m_taggersPbMap[(*pTagger)] = Pb;
            
            if (m_logLvl <= MSG::DEBUG) {
               m_log << MSG::DEBUG << "Invariant mass " << m_trigBjetSecVtxInfo->vtxMass() << endreq;
-              m_log << MSG::DEBUG << "---> W(" << (*pTagger) << ") = " << m_taggersWMap[(*pTagger)] << endreq;
+              m_log << MSG::DEBUG << "---> W(" << (*pTagger) << ") = " << m_taggersWMap[(*pTagger)]
+		    << ";   W(" << m_taggersPbMap[(*pTagger)] << "/" << m_taggersPuMap[(*pTagger)] << ") = " << m_taggersPbMap[(*pTagger)]/m_taggersPuMap[(*pTagger)] << endreq;
            }
         }
         
         else if ((*pTagger) == "EVTX") { 
            
-           m_taggersWMap[(*pTagger)] = getW("EVTX", m_trigBjetSecVtxInfo->energyFraction());
+	  double Pu=1, Pb=1;           
+	  getPuPb("EVTX", m_trigBjetSecVtxInfo->energyFraction(), Pu, Pb);
+	  m_taggersWMap[(*pTagger)] = getW("EVTX", m_trigBjetSecVtxInfo->energyFraction());
+	  m_taggersPuMap[(*pTagger)] = Pu;
+	  m_taggersPbMap[(*pTagger)] = Pb;
            
            if (m_logLvl <= MSG::DEBUG) {
               m_log << MSG::DEBUG << "Fraction of energy " << m_trigBjetSecVtxInfo->energyFraction() << endreq;
-              m_log << MSG::DEBUG << "---> W(" << (*pTagger) << ") = " << m_taggersWMap[(*pTagger)] << endreq;
+              m_log << MSG::DEBUG << "---> W(" << (*pTagger) << ") = " << m_taggersWMap[(*pTagger)]
+		    << ";   W(" << m_taggersPbMap[(*pTagger)] << "/" << m_taggersPuMap[(*pTagger)] << ") = " << m_taggersPbMap[(*pTagger)]/m_taggersPuMap[(*pTagger)] << endreq;
            }
         }
         
         else if ((*pTagger) == "NVTX") { 
            
-           m_taggersWMap[(*pTagger)] = getW("NVTX", m_trigBjetSecVtxInfo->nTrksInVtx());
+	  double Pu=1, Pb=1;           
+	  getPuPb("NVTX", m_trigBjetSecVtxInfo->nTrksInVtx(), Pu, Pb);
+	  m_taggersWMap[(*pTagger)] = getW("NVTX", m_trigBjetSecVtxInfo->nTrksInVtx());
+	  m_taggersPuMap[(*pTagger)] = Pu;
+	  m_taggersPbMap[(*pTagger)] = Pb;
            
            if (m_logLvl <= MSG::DEBUG) {
               m_log << MSG::DEBUG << "Number of tracks " << m_trigBjetSecVtxInfo->nTrksInVtx() << endreq;
-              m_log << MSG::DEBUG << "---> W(" << (*pTagger) << ") = " << m_taggersWMap[(*pTagger)] << endreq;
+              m_log << MSG::DEBUG << "---> W(" << (*pTagger) << ") = " << m_taggersWMap[(*pTagger)]
+		    << ";   W(" << m_taggersPbMap[(*pTagger)] << "/" << m_taggersPuMap[(*pTagger)] << ") = " << m_taggersPbMap[(*pTagger)]/m_taggersPuMap[(*pTagger)] << endreq;
            }
         } 
         
         else if ((*pTagger) == "SVTX") {
            
-           m_taggersWMap[(*pTagger)] = getW("SVTX", m_trigBjetSecVtxInfo->vtxMass(), m_trigBjetSecVtxInfo->energyFraction(), m_trigBjetSecVtxInfo->nTrksInVtx());
+	  double Pu=1, Pb=1;           
+	  getPuPb("SVTX", m_trigBjetSecVtxInfo->vtxMass(), m_trigBjetSecVtxInfo->energyFraction(), m_trigBjetSecVtxInfo->nTrksInVtx(), Pu, Pb);
+	  m_taggersWMap[(*pTagger)] = getW("SVTX", m_trigBjetSecVtxInfo->vtxMass(), m_trigBjetSecVtxInfo->energyFraction(), m_trigBjetSecVtxInfo->nTrksInVtx());
+	  m_taggersPuMap[(*pTagger)] = Pu;
+	  m_taggersPbMap[(*pTagger)] = Pb;
            
            if (m_logLvl <= MSG::DEBUG) {
               m_log << MSG::DEBUG << "Invariant mass " << m_trigBjetSecVtxInfo->vtxMass() << " Fraction of energy " 
                     << m_trigBjetSecVtxInfo->energyFraction() << " Number of tracks " << m_trigBjetSecVtxInfo->nTrksInVtx() << endreq;
-              m_log << MSG::DEBUG << "---> W(" << (*pTagger) << ") = " << m_taggersWMap[(*pTagger)] << endreq;
+              m_log << MSG::DEBUG << "---> W(" << (*pTagger) << ") = " << m_taggersWMap[(*pTagger)]
+		    << ";   W(" << m_taggersPbMap[(*pTagger)] << "/" << m_taggersPuMap[(*pTagger)] << ") = " << m_taggersPbMap[(*pTagger)]/m_taggersPuMap[(*pTagger)] << endreq;
            }
         }
      }
@@ -317,6 +296,12 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
      if (m_logLvl <= MSG::DEBUG) {
         m_log << MSG::DEBUG << " No track info or sec vtx info available, set likelihood taggers to default" << endreq;
      }        
+
+     m_taggersPuMap["IP1D"]=m_taggersPuMap["IP2D"]=m_taggersPuMap["IP3D"]=1e9;
+     m_taggersPbMap["IP1D"]=m_taggersPbMap["IP2D"]=m_taggersPbMap["IP3D"]=1;
+     m_taggersPuMap["MVTX"]=m_taggersPuMap["EVTX"]=m_taggersPuMap["NVTX"]=1;
+     m_taggersPbMap["MVTX"]=m_taggersPbMap["EVTX"]=m_taggersPbMap["NVTX"]=1;
+
      for ( ; pTagger != lastTagger; pTagger++)
        m_taggersXMap[(*pTagger)] = -46;
 
@@ -325,6 +310,9 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
     if (m_logLvl <= MSG::DEBUG)
       m_log << MSG::DEBUG << " No track info but the sec vtx exists" << endreq;
 
+    m_taggersPuMap["IP1D"]=m_taggersPuMap["IP2D"]=m_taggersPuMap["IP3D"]=1e9;
+    m_taggersPbMap["IP1D"]=m_taggersPbMap["IP2D"]=m_taggersPbMap["IP3D"]=1;
+    
     for ( ; pTagger != lastTagger; pTagger++) {
       if ((*pTagger).find("COMB") != std::string::npos) continue; //skip the combined here, set separately below
       if ((*pTagger).find("IP") == std::string::npos) {
@@ -347,6 +335,9 @@ void TrigBjetTagger::getWeights(std::vector<TrigBjetTrackInfo>*& m_trigBjetTrack
     if (m_logLvl <= MSG::DEBUG)
       m_log << MSG::DEBUG << " No valid sec vtx but track info exists" << endreq;
     
+    m_taggersPuMap["MVTX"]=m_taggersPuMap["EVTX"]=m_taggersPuMap["NVTX"]=1;
+    m_taggersPbMap["MVTX"]=m_taggersPbMap["EVTX"]=m_taggersPbMap["NVTX"]=1;
+
     for ( ; pTagger != lastTagger; pTagger++) {
       if ((*pTagger).find("COMB") != std::string::npos) continue; //skip combined here, set separately below
       if ((*pTagger).find("VTX") == std::string::npos) {
@@ -469,6 +460,36 @@ void TrigBjetTagger::getBestWeight() {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
+void TrigBjetTagger::getPuPb(const std::string tagger, float val, double& Pu, double& Pb) {
+
+  float min, max, num;
+  float b, u;
+  Pu=1; Pb=1;
+
+  int index;
+
+  min = *m_likelihoodMap[tagger]->getMinXLikelihood();
+  max = *m_likelihoodMap[tagger]->getMaxXLikelihood();
+  num = *m_likelihoodMap[tagger]->getNumXLikelihood();
+
+  index = (int)floor(((val - min)/(max - min))*num);
+
+  if (index > (num - 1)) index = (int)num - 1;
+  else if (index < 0)    index = 0;
+
+  b = m_likelihoodMap[tagger]->getBLikelihoodValue(index);
+  u = m_likelihoodMap[tagger]->getULikelihoodValue(index);
+
+  if (b != 0 && u != 0) {
+    Pu=u; Pb=b;
+  }
+  else if (b != 0) {
+    Pu=1; Pb=100;
+  }
+
+}
+
+
 float TrigBjetTagger::getW(const std::string tagger, float val) {
 
   float min, max, num;
@@ -494,10 +515,52 @@ float TrigBjetTagger::getW(const std::string tagger, float val) {
     w=100.;
 
   return w;
+
 }
 
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
+
+
+void TrigBjetTagger::getPuPb(const std::string tagger, float valX, float valY, double& Pu, double& Pb) {
+    
+  float minX, maxX, numX;
+  float minY, maxY, numY;
+  float b, u;
+  Pu=1; Pb=1;
+
+  int indexX, indexY, index;
+
+  minX = *m_likelihoodMap[tagger]->getMinXLikelihood();
+  maxX = *m_likelihoodMap[tagger]->getMaxXLikelihood();
+  numX = *m_likelihoodMap[tagger]->getNumXLikelihood();
+
+  minY = *m_likelihoodMap[tagger]->getMinYLikelihood();
+  maxY = *m_likelihoodMap[tagger]->getMaxYLikelihood();
+  numY = *m_likelihoodMap[tagger]->getNumYLikelihood();
+
+  indexX = (int)floor(((valX - minX)/(maxX - minX))*numX);
+  indexY = (int)floor(((valY - minY)/(maxY - minY))*numY);
+
+  if (indexX > (numX - 1)) indexX = (int)numX - 1;
+  else if (indexX < 0)     indexX = 0;
+
+  if (indexY > (numY - 1)) indexY = (int)numY - 1;
+  else if (indexY < 0)     indexY = 0;
+
+  index = indexX*(int)numY + indexY;
+
+  b = m_likelihoodMap[tagger]->getBLikelihoodValue(index);
+  u = m_likelihoodMap[tagger]->getULikelihoodValue(index);
+
+  if (b != 0 && u != 0) {
+    Pu=u; Pb=b;
+  }
+  else if (b != 0) {
+    Pu=1; Pb=100;
+  }
+
+}
 
 
 float TrigBjetTagger::getW(const std::string tagger, float valX, float valY) {
@@ -540,6 +603,56 @@ float TrigBjetTagger::getW(const std::string tagger, float valX, float valY) {
 
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
+
+
+void TrigBjetTagger::getPuPb(const std::string tagger, float valX, float valY, float valZ, double& Pu, double& Pb) {
+    
+  float minX, maxX, numX;
+  float minY, maxY, numY;
+  float minZ, maxZ, numZ;
+  float b, u;
+  Pu=1; Pb=1;
+
+  int indexX, indexY, indexZ, index;
+
+  minX = *m_likelihoodMap[tagger]->getMinXLikelihood();
+  maxX = *m_likelihoodMap[tagger]->getMaxXLikelihood();
+  numX = *m_likelihoodMap[tagger]->getNumXLikelihood();
+
+  minY = *m_likelihoodMap[tagger]->getMinYLikelihood();
+  maxY = *m_likelihoodMap[tagger]->getMaxYLikelihood();
+  numY = *m_likelihoodMap[tagger]->getNumYLikelihood();
+
+  minZ = *m_likelihoodMap[tagger]->getMinZLikelihood();
+  maxZ = *m_likelihoodMap[tagger]->getMaxZLikelihood();
+  numZ = *m_likelihoodMap[tagger]->getNumZLikelihood();
+
+  indexX = (int)floor(((valX - minX)/(maxX - minX))*numX);
+  indexY = (int)floor(((valY - minY)/(maxY - minY))*numY);
+  indexZ = (int)floor(((valZ - minZ)/(maxZ - minZ))*numZ);
+
+  if (indexX > (numX - 1)) indexX = (int)numX - 1;
+  else if (indexX < 0)     indexX = 0;
+
+  if (indexY > (numY - 1)) indexY = (int)numY - 1;
+  else if (indexY < 0)     indexY = 0;
+
+  if (indexZ > (numZ - 1)) indexZ = (int)numZ - 1;
+  else if (indexZ < 0)     indexZ = 0;
+
+  index = indexX*(int)(numZ*numY) + indexY*(int)numZ + indexZ;
+
+  b = m_likelihoodMap[tagger]->getBLikelihoodValue(index);
+  u = m_likelihoodMap[tagger]->getULikelihoodValue(index);
+
+  if (b != 0 && u != 0) {
+    Pu=u; Pb=b;
+  }
+  else if (b != 0) {
+    Pu=1; Pb=100;
+  }
+
+}
 
 
 float TrigBjetTagger::getW(const std::string tagger, float valX, float valY, float valZ) {

@@ -16,12 +16,13 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
-#include "TrigParticle/TrigL2BjetContainer.h"
-#include "TrigParticle/TrigEFBjetContainer.h"
-
 #include "TrigSteeringEvent/TrigPassBits.h"
 
 #include "InDetBeamSpotService/IBeamCondSvc.h"
+
+#include "xAODBTagging/BTaggingAuxContainer.h"
+#include "xAODBTagging/BTaggingContainer.h"
+#include "xAODBTagging/BTagging.h"
 
 
 
@@ -32,13 +33,14 @@ TrigBjetHypo::TrigBjetHypo(const std::string& name, ISvcLocator* pSvcLocator) :
   HLT::HypoAlgo(name, pSvcLocator),
   m_cutCounter(0)
 {
-  declareProperty ("AcceptAll", m_acceptAll);
-  declareProperty ("CutXIP2D",  m_xcutIP2D = -20);
-  declareProperty ("CutXIP3D",  m_xcutIP3D = -20);
-  declareProperty ("CutXCOMB",  m_xcutCOMB = -20);
-  declareProperty ("CutXCHI2",  m_xcutCHI2 = -20);
-  declareProperty ("MethodTag", m_methodTag = "");
-  declareProperty ("Instance",  m_instance);
+  declareProperty ("JetKey",    m_jetKey   = ""     ); //"EFJet" or "" needed for default config, "SplitJet" for new config
+  declareProperty ("AcceptAll", m_acceptAll         );
+  declareProperty ("CutXIP2D",  m_xcutIP2D = -20    );
+  declareProperty ("CutXIP3D",  m_xcutIP3D = -20    );
+  declareProperty ("CutXCOMB",  m_xcutCOMB = -20    );
+  declareProperty ("CutXCHI2",  m_xcutCHI2 = -20    );
+  declareProperty ("MethodTag", m_methodTag = ""    );
+  declareProperty ("Instance",  m_instance          );
 
   declareProperty ("UseBeamSpotFlag", m_useBeamSpotFlag = false);
 
@@ -129,7 +131,7 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
 
   //* Get RoI descriptor *//
   const TrigRoiDescriptor* roiDescriptor = 0;
-  HLT::ErrorCode stat = getFeature(outputTE, roiDescriptor, "");
+  HLT::ErrorCode stat = getFeature(outputTE, roiDescriptor, m_jetKey);
   
   if (stat == HLT::OK) {
     if (msgLvl() <= MSG::DEBUG) {
@@ -148,137 +150,67 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   bool result = false;
 
   //* Define TrigPassBits for b-jets *//
-  TrigPassBits *bitsL2=0, *bitsEF=0;
+  TrigPassBits *bitsEF=0;
 
-  if (m_instance == "L2") {
-
-    //* Get vector of L2Bjet *//
-    const TrigL2BjetContainer* trigL2BjetColl = 0;
-    if (getFeature(outputTE, trigL2BjetColl, "L2BjetFex") != HLT::OK) {
-      if (msgLvl() <= MSG::WARNING)
-	msg() << MSG::WARNING << "Failed to get TrigL2Bjet collection" << endreq;
-      return HLT::OK;
-    }
-
-    if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "Got collection with " << trigL2BjetColl->size() << " TrigL2Bjet" << endreq;
-
-    if (trigL2BjetColl->size() > 1) {
-      if (msgLvl() <= MSG::WARNING)
-	msg() << MSG::WARNING << "More than one L2Bjet to analyse: this should never happen" << endreq;
-      return HLT::NAV_ERROR;
-    }
-
-    if (trigL2BjetColl->size() == 0) {
-      if (msgLvl() <= MSG::WARNING)
-	msg() << MSG::WARNING << "No L2Bjet to analyse: this should never happen" << endreq;
-      return HLT::NAV_ERROR;
-    }
-
-    //* Add TrigPassBits for LVL2 b-jets *//
-    bitsL2 = HLT::makeTrigPassBits(trigL2BjetColl);
-
-    //* to separate bad input TE and true behaviour *//
-    m_cutCounter=1;
-    
-    TrigL2BjetContainer::const_iterator pBjet = trigL2BjetColl->begin();
-    TrigL2BjetContainer::const_iterator lastBjet = trigL2BjetColl->end();
-
-    //* Loop over L2Bjets and perform cut *//
-    if (m_methodTag == "COMB") {
-      for ( ; pBjet != lastBjet; pBjet++) { 
-	if ((*pBjet)->xComb() > m_xcutCOMB) {
-	  HLT::markPassing(bitsL2, (*pBjet), trigL2BjetColl); 
-	  result = true;
-	}
-      }
-    } else if (m_methodTag == "CHI2") {
-      for ( ; pBjet != lastBjet; pBjet++) { 
-	if ((*pBjet)->xCHI2() > m_xcutCHI2) {
-	  HLT::markPassing(bitsL2, (*pBjet), trigL2BjetColl); 
-	  result = true;
-	}
-      }
-    } else if (m_methodTag == "IP3D") {
-      for ( ; pBjet != lastBjet; pBjet++) { 
-	if ((*pBjet)->xIP3D() > m_xcutIP3D) {
-	  HLT::markPassing(bitsL2, (*pBjet), trigL2BjetColl); 
-	  result = true;
-	}
-      }
-    } else if (m_methodTag == "IP2D") {
-      for ( ; pBjet != lastBjet; pBjet++) { 
-	if ((*pBjet)->xIP2D() > m_xcutIP2D) {
-	  HLT::markPassing(bitsL2, (*pBjet), trigL2BjetColl); 
-	  result = true;
-	}
-      }
-    }
+  //* Retrieve xAOD b-jet object *//
+  const xAOD::BTaggingContainer* trigBTaggingContainer=0;
+  if(getFeature(outputTE, trigBTaggingContainer, "HLTBjetFex") != HLT::OK) {
+    if (msgLvl() <= MSG::WARNING)
+      msg() << MSG::WARNING << "Failed to get BTaggingContainer" << endreq;
+    return HLT::OK;
+  }
+  if(msgLvl() <= MSG::DEBUG) {
+    msg() << MSG::DEBUG << "Got BTaggingContainer with " << trigBTaggingContainer->size() << " BTagging object" << endreq;
+  }
+  if(trigBTaggingContainer->size() > 1) {
+    if(msgLvl() <= MSG::ERROR)
+      msg() << MSG::ERROR << "More than one BTagging object to analyse: this should never happen" << endreq;
+    return HLT::NAV_ERROR;
+  }
+  if(trigBTaggingContainer->size() == 0) {
+    if(msgLvl() <= MSG::ERROR)
+      msg() << MSG::ERROR << "No BTagging object to analyse: this should never happen" << endreq;
+    return HLT::NAV_ERROR;
   }
 
-  else if (m_instance == "EF")  { 
+  //* Add TrigPassBits for EF b-jets *//
+  bitsEF = HLT::makeTrigPassBits(trigBTaggingContainer);
+  
+  //* to separate bad input TE and true behaviour *//
+  m_cutCounter=1;
+  
+  auto trigBTagging = trigBTaggingContainer->begin();
+  auto trigBTaggingEnd = trigBTaggingContainer->end();
 
-    const TrigEFBjetContainer* trigEFBjetColl = 0;    
-    if (getFeature(outputTE, trigEFBjetColl, "EFBjetFex") != HLT::OK) {
-      if (msgLvl() <= MSG::WARNING)
-	msg() << MSG::WARNING << "Failed to get TrigEFBjet collection" << endreq;
-      return HLT::OK;
-    }
-    
-    if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Got collection with " << trigEFBjetColl->size() 
-	    << " TrigEFBjet" << endreq;
-    }
-    
-    if (trigEFBjetColl->size() > 1) {
-      if (msgLvl() <= MSG::WARNING)
-	msg() << MSG::WARNING << "More than one EFBjet to analyse: this should never happen" << endreq;
-      return HLT::NAV_ERROR;
-    }
-
-    if (trigEFBjetColl->size() == 0) {
-      if (msgLvl() <= MSG::WARNING)
-	msg() << MSG::WARNING << "No EFBjet to analyse: this should never happen" << endreq;
-      return HLT::NAV_ERROR;
-    }
-
-    //* Add TrigPassBits for EF b-jets *//
-    bitsEF = HLT::makeTrigPassBits(trigEFBjetColl);
-
-    //* to separate bad input TE and true behaviour *//
-    m_cutCounter=1;
-    
-    TrigEFBjetContainer::const_iterator pBjet = trigEFBjetColl->begin();
-    TrigEFBjetContainer::const_iterator lastBjet = trigEFBjetColl->end();
-
-    //* Loop over EFBjets and perform cut */
-    if (m_methodTag == "COMB") {
-      for ( ; pBjet != lastBjet; pBjet++) { 
-	if ((*pBjet)->xComb() > m_xcutCOMB) {
-	  HLT::markPassing(bitsEF, (*pBjet), trigEFBjetColl);
-	  result = true;
-	}
+  //* Loop over EFBjets and perform cut */
+  if (m_methodTag == "COMB") {
+    for ( ; trigBTagging != trigBTaggingEnd; trigBTagging++) { 
+      double w=((*trigBTagging)->IP3D_pb()/(*trigBTagging)->IP3D_pu()) * ((*trigBTagging)->SV1_pb()/(*trigBTagging)->SV1_pu());
+      double x=50;
+      if(w/(1+w)<1) x=-1.0*TMath::Log10(1-(w/(1+w)));
+      if(x>m_xcutCOMB) {
+	HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);
+	result = true;
       }
-    } else if (m_methodTag == "CHI2") {
-      for ( ; pBjet != lastBjet; pBjet++) { 
-	if ((*pBjet)->xCHI2() > m_xcutCHI2) {
-	  HLT::markPassing(bitsEF, (*pBjet), trigEFBjetColl);
-	  result = true;
-	}
+    }
+  } else if (m_methodTag == "IP3D") {
+    for ( ; trigBTagging != trigBTaggingEnd; trigBTagging++) { 
+      double w=(*trigBTagging)->IP3D_pb()/(*trigBTagging)->IP3D_pu();
+      double x=-40;
+      if(w>0) x=TMath::Log10(w);
+      if(x>m_xcutIP3D) {
+	HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);
+	result = true;
       }
-    } else if (m_methodTag == "IP3D") {
-      for ( ; pBjet != lastBjet; pBjet++) { 
-	if ((*pBjet)->xIP3D() > m_xcutIP3D) {
-	  HLT::markPassing(bitsEF, (*pBjet), trigEFBjetColl);
-	  result = true;
-	}
-      }
-    } else if (m_methodTag == "IP2D") {
-      for ( ; pBjet != lastBjet; pBjet++) { 
-	if ((*pBjet)->xIP2D() > m_xcutIP2D) {
-	  HLT::markPassing(bitsEF, (*pBjet), trigEFBjetColl);
-	  result = true;
-	}
+    }
+  } else if (m_methodTag == "IP2D") {
+    for ( ; trigBTagging != trigBTaggingEnd; trigBTagging++) { 
+      double w=(*trigBTagging)->IP2D_pb()/(*trigBTagging)->IP2D_pu();
+      double x=-40;
+      if(w>0) x=TMath::Log10(w);
+      if(x>m_xcutIP2D) {
+	HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);
+	result = true;
       }
     }
   }
@@ -296,20 +228,13 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   }
 
   //* Monitoring of method used to perform the cut *//
-  if (m_methodTag == "CHI2")      m_monitorMethod = 0;
-  else if (m_methodTag == "IP2D") m_monitorMethod = 1;
+  if (m_methodTag == "IP2D") m_monitorMethod = 1;
   else if (m_methodTag == "IP3D") m_monitorMethod = 2;
   else if (m_methodTag == "COMB") m_monitorMethod = 3;
 
   //* Print TrigPassBits to outputTE *//
-  if (m_instance == "L2") {
-    if (attachBits(outputTE, bitsL2, "L2Bjets") != HLT::OK) {
-      msg() << MSG::ERROR << "Problem attaching TrigPassBits for b-jets" << endreq;
-    }
-  } else if (m_instance == "EF") {
-    if (attachBits(outputTE, bitsEF, "EFBjets") != HLT::OK) {
-      msg() << MSG::ERROR << "Problem attaching TrigPassBits for b-jets" << endreq;
-    }
+  if (attachBits(outputTE, bitsEF, "EFBjets") != HLT::OK) {
+    msg() << MSG::ERROR << "Problem attaching TrigPassBits for b-jets" << endreq;
   }
  
   if (m_acceptAll) {

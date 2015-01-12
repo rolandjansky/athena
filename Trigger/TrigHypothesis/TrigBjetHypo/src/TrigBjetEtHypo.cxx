@@ -17,6 +17,16 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/TrigOperationalInfo.h"
 
+#include "xAODCore/ShallowCopy.h"
+#include "xAODJet/Jet.h"
+#include "xAODJet/JetContainer.h"
+#include "xAODBTagging/BTagging.h"
+#include "xAODBTagging/BTaggingContainer.h"
+#include "xAODBTagging/BTaggingAuxContainer.h"
+// #include "xAODTracking/VertexContainer.h"
+// #include "xAODTracking/VertexAuxContainer.h"
+// #include "xAODBTagging/BTagVertexContainer.h"
+// #include "xAODBTagging/BTagVertexAuxContainer.h"
 
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
@@ -118,6 +128,51 @@ HLT::ErrorCode TrigBjetEtHypo::hltExecute(const HLT::TriggerElement* outputTE, b
     }
   }
 
+  //xAOD jets from TE
+ 
+  msg() << MSG::DEBUG << "pass Hypo 1 " << m_et << endreq;
+
+ const xAOD::JetContainer* jets(0);
+ HLT::ErrorCode ec = getFeature(outputTE, jets,"EFJet");
+
+ if(ec!=HLT::OK) {
+   ATH_MSG_WARNING("Failed to get JetCollection");
+   return ec;
+ } else {
+   ATH_MSG_DEBUG("Obtained JetContainer");
+ }
+
+  msg() << MSG::DEBUG << "pass Hypo 2 " << &jets << endreq;
+
+  if(jets == 0){
+    ATH_MSG_WARNING("Jet collection pointer is 0");
+    return HLT::ERROR;
+  }
+
+  std::vector<const xAOD::Jet*> theJets(jets->begin(), jets->end());
+
+  msg() << MSG::DEBUG << "pass Hypo 2 jet size: " << theJets.size() 
+        << endreq;
+
+  std::size_t njets = theJets.size();
+  if( njets == 0 ){
+    ATH_MSG_DEBUG("JetCollection is empty");
+    return HLT::OK;
+          } else {
+            ATH_MSG_DEBUG("JetCollection contains " << njets <<"jets");
+  }
+  if(njets > 1)
+    ATH_MSG_DEBUG("Something is wrong, it should not be more than one jet");
+
+  for (const xAOD::Jet* aJet : theJets) {
+    double etjet = aJet->p4().Et();
+    double etajet = aJet->p4().Eta();
+
+    msg() << MSG::DEBUG << "in Hypo et  " << etjet << " and eta " << etajet << endreq;
+  }
+
+  /////////
+ 
   pass = false;
 
   if (m_version=="StartSequence") {

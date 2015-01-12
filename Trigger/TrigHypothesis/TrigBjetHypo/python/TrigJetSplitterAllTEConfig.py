@@ -16,6 +16,6 @@ class JetSplitterAllTE (TrigJetSplitterAllTE):
         super( JetSplitterAllTE, self ).__init__( name )
         
         self.JetInputKey  = "TrigJetRec"
-        self.JetOutputKey = "TrigJetRec"
+        self.JetOutputKey = "SplitJet"
         self.EtaHalfWidth = 0.2
         self.PhiHalfWidth = 0.2

@@ -69,25 +69,45 @@ class TrigBjetTagger {
 
   /** @brief To retrieve particular element of private member m_taggersXMap. */ 
   float taggersXMap(std::string tagger) {return m_taggersXMap[tagger];};
+  double taggersPuMap(std::string tagger) {return m_taggersPuMap[tagger];};
+  double taggersPbMap(std::string tagger) {return m_taggersPbMap[tagger];};
 
   /** @brief To retrieve IP1D tagger distribution (for monitoring). */
   float getXIP1D() const {return m_taggersXMap.find("IP1D")->second;};
+  double getPuIP1D() const {return m_taggersPuMap.find("IP1D")->second;};
+  double getPbIP1D() const {return m_taggersPbMap.find("IP1D")->second;};
   /** @brief To retrieve IP2D tagger distribution (for monitoring). */
   float getXIP2D() const {return m_taggersXMap.find("IP2D")->second;};
+  double getPuIP2D() const {return m_taggersPuMap.find("IP2D")->second;};
+  double getPbIP2D() const {return m_taggersPbMap.find("IP2D")->second;};
   /** @brief To retrieve IP3D tagger distribution (for monitoring). */
   float getXIP3D() const {return m_taggersXMap.find("IP3D")->second;};
+  double getPuIP3D() const {return m_taggersPuMap.find("IP3D")->second;};
+  double getPbIP3D() const {return m_taggersPbMap.find("IP3D")->second;};
   /** @brief To retrieve CHI2 tagger distribution (for monitoring). */
   float getXCHI2() const {return m_taggersXMap.find("CHI2")->second;};
+  double getPuCHI2() const {return m_taggersPuMap.find("CHI2")->second;};
+  double getPbCHI2() const {return m_taggersPbMap.find("CHI2")->second;};
   /** @brief To retrieve SVTX tagger distribution (for monitoring). */
   float getXSVTX() const {return m_taggersXMap.find("SVTX")->second;};
+  double getPuSVTX() const {return m_taggersPuMap.find("SVTX")->second;};
+  double getPbSVTX() const {return m_taggersPbMap.find("SVTX")->second;};
   /** @brief To retrieve COMB tagger distribution (for monitoring). */
   float getXCOMB() const {return m_taggersXMap.find("COMB")->second;};
+  double getPuCOMB() const {return m_taggersPuMap.find("COMB")->second;};
+  double getPbCOMB() const {return m_taggersPbMap.find("COMB")->second;};
   /** @brief To retrieve EVTX tagger distribution (for monitoring). */
   float getXEVTX() const {return m_taggersXMap.find("EVTX")->second;};
+  double getPuEVTX() const {return m_taggersPuMap.find("EVTX")->second;};
+  double getPbEVTX() const {return m_taggersPbMap.find("EVTX")->second;};
   /** @brief To retrieve NVTX tagger distribution (for monitoring). */
   float getXNVTX() const {return m_taggersXMap.find("NVTX")->second;};
+  double getPuNVTX() const {return m_taggersPuMap.find("NVTX")->second;};
+  double getPbNVTX() const {return m_taggersPbMap.find("NVTX")->second;};
   /** @brief To retrieve MVTX tagger distribution (for monitoring). */
   float getXMVTX() const {return m_taggersXMap.find("MVTX")->second;};
+  double getPuMVTX() const {return m_taggersPuMap.find("MVTX")->second;};
+  double getPbMVTX() const {return m_taggersPbMap.find("MVTX")->second;};
 
   /** @brief To fill maps of likelihood taggers using calibrations stored in python files. */
   void fillLikelihoodMap(const std::string tagger, TuningLikelihood* pointerToTuningLikelihood) 
@@ -117,17 +137,15 @@ public:
   TrigBjetFexStandalone* m_trigBjetFex;
 #endif
 
-  /** @brief To parametrize errors on track longitudinal impact parameter at LVL2. */
-  float getIP1DErr(float, float);
-  /** @brief To parametrize errors on track transverse impact parameter at LVL2. */
-  float getIP2DErr(float, float);
-
   /** @brief To get the likelihood ratio of a given track. */
   float getW(const std::string, float);
+  void getPuPb(const std::string, float, double&, double&);
   /** @brief To get the likelihood ratio of a given track for the 2D combination of significances likelihood taggers. */
   float getW(const std::string, float, float);
+  void getPuPb(const std::string, float, float, double&, double&);
   /** @brief To get the likelihood ratio of the three-dimensioanl tagger based on all secondary vertex taggers. */
   float getW(const std::string, float, float, float);
+  void getPuPb(const std::string, float, float, float, double&, double&);
 
   /** @brief To scale the final likelihood weight using X=-std::log10(W). */
   float getX(double);
@@ -148,6 +166,8 @@ public:
 
   /** @brief Association between the name of the tagger and its W variable. */
   std::map<std::string, float> m_taggersWMap;
+  std::map<std::string, double> m_taggersPuMap;
+  std::map<std::string, double> m_taggersPbMap;
   /** @brief Association between the name of the tagger and its X variable (used to perform the selection in TrigBjetHypo). */
   std::map<std::string, float> m_taggersXMap;
   /** @brief Association between the likelihood tagger name and the relative TuningLikelihood object. */

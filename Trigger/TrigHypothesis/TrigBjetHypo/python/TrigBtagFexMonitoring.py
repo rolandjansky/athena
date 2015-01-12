@@ -2,9 +2,9 @@
 
 from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig
 
-class TrigBjetFexMonitoring(TrigGenericMonitoringToolConfig):
-    def __init__ (self, name="TrigBjetFexMonitoring"):
-        super(TrigBjetFexMonitoring, self).__init__(name)
+class TrigBtagFexMonitoring(TrigGenericMonitoringToolConfig):
+    def __init__ (self, name="TrigBtagFexMonitoring"):
+        super(TrigBtagFexMonitoring, self).__init__(name)
 
         self.Histograms += [ defineHistogram('X(IP1D)', type='TH1F', title="Bjet Fex X(IP1D)",
                                              xbins=200, xmin=-50.0, xmax=50.0) ]
@@ -56,9 +56,9 @@ class TrigBjetFexMonitoring(TrigGenericMonitoringToolConfig):
 
 
 
-class TrigEFBjetFexValidationMonitoring(TrigBjetFexMonitoring):
-    def __init__ (self, name="TrigEFBjetFexValidationMonitoring"):
-        super(TrigEFBjetFexValidationMonitoring, self).__init__(name)
+class TrigEFBtagFexValidationMonitoring(TrigBtagFexMonitoring):
+    def __init__ (self, name="TrigEFBtagFexValidationMonitoring"):
+        super(TrigEFBtagFexValidationMonitoring, self).__init__(name)
 
         self.defineTarget("Validation")
         
@@ -73,9 +73,9 @@ class TrigEFBjetFexValidationMonitoring(TrigBjetFexMonitoring):
 
 
 
-class TrigEFBjetFexOnlineMonitoring(TrigBjetFexMonitoring):
-    def __init__ (self, name="TrigEFBjetFexOnlineMonitoring"):
-        super(TrigEFBjetFexOnlineMonitoring, self).__init__(name)
+class TrigEFBtagFexOnlineMonitoring(TrigBtagFexMonitoring):
+    def __init__ (self, name="TrigEFBtagFexOnlineMonitoring"):
+        super(TrigEFBtagFexOnlineMonitoring, self).__init__(name)
 
         self.defineTarget("Online")
         

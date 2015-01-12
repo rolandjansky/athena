@@ -1,19 +1,25 @@
 // emacs: this is -*- c++ -*-
+
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 //
-//   @file    TrigJetSplitterAllTE.cxx        
+//   @file    TrigSuperRoiBuilderAllTE.cxx        
 //
-//            Splits a jet collection into separate TEs
+//            Creates a super ROI from a jet collection
 //                   
 //  
-//   Copyright (C) 2014 M.Sutton (sutt@cern.ch)    
+//   Katharine (dot) Leney (at cern dot ch)
 //
-//   $Id: TrigJetSplitterAllTE.cxx, v0.0   Tue 17 Jun 2014 03:26:44 CEST sutt $
+//   20th October 2014
 
 
 #include "GaudiKernel/IToolSvc.h"
 
-#include "TrigBjetHypo/TrigJetSplitterAllTE.h"
+#include "TrigBjetHypo/TrigSuperRoiBuilderAllTE.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "TrigSteeringEvent/TrigSuperRoi.h"
 #include "TrigSteeringEvent/TrigOperationalInfo.h"
 #include "TrigNavigation/TriggerElement.h"
 
@@ -28,11 +34,11 @@
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-TrigJetSplitterAllTE::TrigJetSplitterAllTE(const std::string & name, ISvcLocator* pSvcLocator) :
+TrigSuperRoiBuilderAllTE::TrigSuperRoiBuilderAllTE(const std::string & name, ISvcLocator* pSvcLocator) :
   HLT::AllTEAlgo(name, pSvcLocator)
 {
   declareProperty ("JetInputKey",  m_jetInputKey  = "TrigJetRec");
-  declareProperty ("JetOutputKey", m_jetOutputKey = "SplitJet");
+  declareProperty ("JetOutputKey", m_jetOutputKey = "SuperRoi");
   declareProperty ("EtaHalfWidth", m_etaHalfWidth = 0.2);
   declareProperty ("PhiHalfWidth", m_phiHalfWidth = 0.2);
   declareProperty ("JetMinEt",     m_minJetEt     = 15.0); // in GeV
@@ -42,10 +48,10 @@ TrigJetSplitterAllTE::TrigJetSplitterAllTE(const std::string & name, ISvcLocator
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-HLT::ErrorCode TrigJetSplitterAllTE::hltInitialize() {
+HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltInitialize() {
 
   if (msgLvl() <= MSG::INFO) 
-    msg() << MSG::INFO << "Initializing TrigJetSplitterAllTE, version " << PACKAGE_VERSION << endreq;
+    msg() << MSG::INFO << "Initializing TrigSuperRoiBuilderAllTE, version " << PACKAGE_VERSION << endreq;
 
   //* declareProperty overview *//
   if (msgLvl() <= MSG::DEBUG) {
@@ -54,6 +60,7 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltInitialize() {
     msg() << MSG::DEBUG << " JetOutputKey = " << m_jetOutputKey << endreq; 
     msg() << MSG::DEBUG << " EtaHalfWidth = " << m_etaHalfWidth << endreq; 
     msg() << MSG::DEBUG << " PhiHalfWidth = " << m_phiHalfWidth << endreq; 
+    msg() << MSG::DEBUG << " MinJetEt     = " << m_minJetEt     << endreq; 
   }
 
   return HLT::OK;
@@ -63,15 +70,15 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltInitialize() {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-TrigJetSplitterAllTE::~TrigJetSplitterAllTE(){}
+TrigSuperRoiBuilderAllTE::~TrigSuperRoiBuilderAllTE(){}
 
 
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& inputTEs, unsigned int output) {
+HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& inputTEs, unsigned int output) {
 
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Running TrigJetSplitterAllTE::hltExecute" << endreq;
+  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Running TrigSuperRoiBuilderAllTE::hltExecute" << endreq;
 
   beforeExecMonitors().ignore();
 
@@ -96,7 +103,7 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
   // xAOD conversion const JetCollection* outJets(0);
   const xAOD::JetContainer* jets = 0;
   //HLT::ErrorCode statusJets = getFeature(inputTE.front(), jets, m_jetInputKey);
-  HLT::ErrorCode statusJets = getFeature(inputTE.front(), jets);  // this should really be given a name - need to find out froim the jet guys what!
+  HLT::ErrorCode statusJets = getFeature(inputTE.front(), jets); // this should really be given a name - need to find out froim the jet guys what!
   
   if (statusJets != HLT::OK) {
     if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Failed to retrieve features" << endreq;
@@ -111,9 +118,15 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
   if (msgLvl() <= MSG::DEBUG)
     msg() << MSG::DEBUG << "Found " << jets->size() << " jets, creating corresponding RoIs" << endreq; 
 
+  // Create a superROI to add all the jet ROIs to.
+  TrigRoiDescriptor* superRoi = new TrigRoiDescriptor();
+  superRoi->setComposite(true);
 
   HLT::TriggerElement* initialTE = config()->getNavigation()->getInitialNode();
-  
+  HLT::TriggerElement* outputTE  = config()->getNavigation()->addNode(initialTE,output);
+  outputTE->setActiveState(true);
+  std::string key = "";
+
   unsigned int i = 0;
   for ( xAOD::JetContainer::const_iterator jetitr=jets->begin() ; jetitr!=jets->end() ; jetitr++ ) { 
   
@@ -130,40 +143,21 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
       continue;
     }
 
-    // Create an output TE seeded by an empty vector
-    HLT::TriggerElement* outputTE = config()->getNavigation()->addNode( initialTE, output );
-    outputTE->setActiveState(true);
+    if (msgLvl() <= MSG::DEBUG)
+      msg() << MSG::DEBUG << "Jet "<< i << "; Et " << jetEt << "; eta "<< jetEta << "; phi " << jetPhi << endreq;
 
-    /// create RoI correspondinding to the jet
+    // create RoI correspondinding to the jet
     double phiMinus = HLT::wrapPhi(jetPhi-m_phiHalfWidth); 
     double phiPlus  = HLT::wrapPhi(jetPhi+m_phiHalfWidth); 
-
     double etaMinus = jetEta-m_etaHalfWidth;  
     double etaPlus  = jetEta+m_etaHalfWidth;  
 
-    // Feed in vertex info and add in z, zplus and zminus
-    // as parameters when constructing the ROI here
     TrigRoiDescriptor* roi =  new TrigRoiDescriptor(jetEta, etaMinus, etaPlus, 
 						    jetPhi, phiMinus, phiPlus );
-    
-    HLT::ErrorCode hltStatus = attachFeature(outputTE, roi, m_jetOutputKey);
-    if ( hltStatus != HLT::OK ) {
-      msg() << MSG::ERROR << "Failed to attach TrigRoiDescriptor as feature " << *roi << endreq;
-      return hltStatus;
-    }
 
-    // Ideally would have liked to attach a view container
-    // but these cannot be persistified at the moment...
-    // ConstDataVector<xAOD::JetContainer>* jc = new ConstDataVector<xAOD::JetContainer>(SG::VIEW_ELEMENTS);
-    // jc->clear(SG::VIEW_ELEMENTS); 
-    // jc->push_back ( *jetitr );
+    msg() << MSG::DEBUG << "Adding ROI descriptor to superROI!" << endreq;
+    superRoi->push_back( roi );
 
-    // ... so for the time being do a deep copy
-    xAOD::JetTrigAuxContainer trigJetTrigAuxContainer;
-    xAOD::JetContainer* jc = new xAOD::JetContainer;
-    jc->setStore(&trigJetTrigAuxContainer);
-    jc->push_back ( new xAOD::Jet(**jetitr) );
-    
     // for checking Et and eta of jets in hypos later
     TrigOperationalInfo* trigInfoJetEt = new TrigOperationalInfo();
     trigInfoJetEt->set("EFJetEt", jetEt);
@@ -180,12 +174,43 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
       msg() << MSG::ERROR << "Failed to attach TrigOperationalInfo (jet eta) as feature" << endreq;
       return hltEtaStatus;
     }
-  
-    hltStatus = attachFeature(outputTE, jc, m_jetOutputKey); 
+
+    // Ideally would have liked to attach a view container
+    // but these cannot be persistified at the moment...
+    // ConstDataVector<xAOD::JetContainer>* jc = new ConstDataVector<xAOD::JetContainer>(SG::VIEW_ELEMENTS);
+    // jc->clear(SG::VIEW_ELEMENTS); 
+    // jc->push_back ( *jetitr );
+
+    // ... so for the time being do a deep copy
+    xAOD::JetTrigAuxContainer trigJetTrigAuxContainer;
+    xAOD::JetContainer* jc = new xAOD::JetContainer;
+    jc->setStore(&trigJetTrigAuxContainer);
+    jc->push_back ( new xAOD::Jet(**jetitr) );
+
+    HLT::ErrorCode hltStatus = attachFeature(outputTE, jc, m_jetOutputKey); 
     if (hltStatus != HLT::OK) {
       msg() << MSG::ERROR << "Failed to attach xAOD::JetContainer (" << m_jetOutputKey << ") as feature jet eta, phi " << jet->eta() << ", " << jet->phi() << endreq;
       return hltStatus;
     }
+
+  }
+
+  msg() << MSG::DEBUG << "Attaching feature" << endreq;
+  // was attached as m_jetOutputKey, now try hardcoding the name
+  HLT::ErrorCode hltStatus = attachFeature(outputTE, superRoi, m_jetOutputKey);
+  if (hltStatus != HLT::OK) {
+    msg() << MSG::ERROR << "Failed to attach SuperRoi as feature" << endreq;
+    return hltStatus;
+  }
+  
+  // Check that we created the superRoi correctly and can retreive it
+  // This is really just a sanity check - can probably be removed...
+  const TrigSuperRoi* newSuperRoi;
+  if (getFeature(outputTE, newSuperRoi) != HLT::OK) {
+    if (msgLvl() <= MSG::WARNING) 
+      msg() <<  MSG::WARNING << "No RoI for this Trigger Element " << endreq;
+    
+    return HLT::NAV_ERROR;
   }
 
   afterExecMonitors().ignore();
@@ -197,7 +222,7 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-HLT::ErrorCode TrigJetSplitterAllTE::hltFinalize() {
+HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltFinalize() {
 
   if ( msgLvl() <= MSG::INFO )
     msg() << MSG::INFO << "in finalize()" << endreq;

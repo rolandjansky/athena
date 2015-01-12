@@ -20,7 +20,9 @@
 
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "TrigInDetEvent/TrigVertexCollection.h"
-#include "Particle/TrackParticleContainer.h"
+//#include "Particle/TrackParticleContainer.h"
+
+
 
 #else
 
@@ -61,43 +63,25 @@ TaggerHelper::~TaggerHelper() {}
 
 #ifndef VALIDATION_TOOL
 
-void TaggerHelper::showParam(const TrigInDetTrack*& track, unsigned int i) {
-
-  //* Print track impact parameters at L2 *//
-  m_log << MSG::VERBOSE << "Print track impact parameters at L2:" << endreq;
-  m_log << MSG::VERBOSE << " Track number " << i+1 << endreq;
-  m_log << MSG::VERBOSE << "  d0 = " << track->param()->a0() 
-	<< "  z0 = " << track->param()->z0() 
-	<< "  eta = " << track->param()->eta() 
-	<< "  phi0 = " << track->param()->phi0()
-	<< "  pT = " << track->param()->pT() << endreq;
-  m_log << MSG::VERBOSE << "  errd0 = " << track->param()->ea0() 
-	<< "  errz0 = " << track->param()->ez0() 
-	<< "  errphi0 = " << track->param()->ephi0()
-	<< "  erreta = " << track->param()->eeta() 
-	<< "  errpT = " << track->param()->epT() << endreq;  
-
-}
-
-
-//** ----------------------------------------------------------------------------------------------------------------- **//
-
-
-void TaggerHelper::showParam(const Rec::TrackParticle*& track, unsigned int i) {
+void TaggerHelper::showParam(const xAOD::TrackParticle*& track, unsigned int i) {
   
   //* Print track impact parameters at EF *//
   m_log << MSG::VERBOSE << "getParam method" << endreq;
   m_log << MSG::VERBOSE << " Track number " << i+1 << endreq;
-  m_log << MSG::VERBOSE << "  d0 = " << track->measuredPerigee()->parameters()[Trk::d0]  
-	<< "  z0 = " << track->measuredPerigee()->parameters()[Trk::z0]
-	<< "  eta = " << track->measuredPerigee()->parameters()[Trk::theta] 
-	<< "  phi0 = " << track->measuredPerigee()->parameters()[Trk::phi0] 
-	<< "  pT = " << track->pt() << endreq;
-  m_log << MSG::VERBOSE << "  errd0 = " << Amg::error(*(track->measuredPerigee()->covariance()),Trk::d0)
-    	<< "  errz0 = " << Amg::error(*(track->measuredPerigee()->covariance()),Trk::z0)
-	<< "  errphi0 = " << Amg::error(*(track->measuredPerigee()->covariance()),Trk::phi0)
-	<< "  erreta = " << Amg::error(*(track->measuredPerigee()->covariance()),Trk::theta)
-	<< "  errpT = " << track->pt() << endreq;
+  m_log << MSG::VERBOSE 
+	<< "  d0 = "    << track->d0() 
+	<< "  z0 = "    << track->z0()
+	<< "  theta = " << track->theta() 
+	<< "  phi0 = "  << track->phi0() 
+	<< "  pT = "    << track->pt() 
+	<< endreq;
+  m_log << MSG::VERBOSE 
+	<< "  errd0 = "    << track->definingParametersCovMatrix()( Trk::d0,   Trk::d0   )
+    	<< "  errz0 = "    << track->definingParametersCovMatrix()( Trk::z0,   Trk::z0   )
+	<< "  errphi0 = "  << track->definingParametersCovMatrix()( Trk::phi0, Trk::phi0 )
+	<< "  errtheta = " << track->definingParametersCovMatrix()( Trk::theta,Trk::theta)
+    //<< "  errpT = "    << track->pt() 
+	<< endreq;
   
 }
 
@@ -105,28 +89,7 @@ void TaggerHelper::showParam(const Rec::TrackParticle*& track, unsigned int i) {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-unsigned int TaggerHelper::getTrackNumber(const TrigInDetTrackCollection* pointerToL2TrackCollections) {
-
-  unsigned int nTracks;
-
-  if (pointerToL2TrackCollections) {
-    nTracks = pointerToL2TrackCollections->size();
-    if (m_logLvl <= MSG::DEBUG)  
-      m_log << MSG::DEBUG << "Found " << nTracks << " tracks in the RoI" << endreq;
-  } else {
-    nTracks = 0;
-    if (m_logLvl <= MSG::DEBUG)  
-      m_log << MSG::DEBUG << "No tracks in the RoI" << endreq;
-  }
-  
-  return nTracks;
-}
-
-
-//** ----------------------------------------------------------------------------------------------------------------- **//
-
-
-unsigned int TaggerHelper::getTrackNumber(const Rec::TrackParticleContainer* pointerToEFTrackCollections) {
+unsigned int TaggerHelper::getTrackNumber(const xAOD::TrackParticleContainer* pointerToEFTrackCollections) {
 
   unsigned int nTracks;
 
@@ -319,11 +282,17 @@ void TaggerHelper::IPCorr(float d0, float z0, float& d0c, float& z0c, float phi0
 
 #ifndef VALIDATION_TOOL
 
-double TaggerHelper::VrtVrtDist(const Trk::RecVertex & PrimVrt, const Amg::Vector3D & SecVrt, const std::vector<double> SecVrtErr, float& Signif) {
+//double TaggerHelper::VrtVrtDist(const Trk::RecVertex & PrimVrt, const Amg::Vector3D & SecVrt, const std::vector<double> SecVrtErr, float& Signif) {
+double TaggerHelper::VrtVrtDist(const xAOD::Vertex& PrimVrt, const Amg::Vector3D & SecVrt, const std::vector<double> SecVrtErr, float& Signif) {
 
-  double distx =  PrimVrt.position().x()- SecVrt.x();
+//const xAOD::Vertex* PrimVrt;	
+/*  double distx =  PrimVrt.position().x()- SecVrt.x();
   double disty =  PrimVrt.position().y()- SecVrt.y();
   double distz =  PrimVrt.position().z()- SecVrt.z();
+*/
+  float distx =  PrimVrt.x()- SecVrt.x();
+  float disty =  PrimVrt.y()- SecVrt.y();
+  float distz =  PrimVrt.z()- SecVrt.z();
 
   AmgSymMatrix(3) PrimCovMtx;  //Create
   PrimCovMtx.setZero(); // Set to zero

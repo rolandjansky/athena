@@ -4,7 +4,7 @@
 
 // ************************************************
 //
-// NAME:     TrigBjetFex.h
+// NAME:     TrigBtagFex.h
 // PACKAGE:  Trigger/TrigHypothesis/TrigBjetHypo
 //
 // AUTHOR:   Andrea Coccaro
@@ -12,8 +12,8 @@
 // 
 // ************************************************
 
-#ifndef TRIGBJETFEX_H
-#define TRIGBJETFEX_H
+#ifndef TRIGBTAGFEX_H
+#define TRIGBTAGFEX_H
 
 #include "GaudiKernel/ToolHandle.h"
 
@@ -60,7 +60,7 @@ namespace Rec {
  */
 
 
-class TrigBjetFex: public HLT::FexAlgo {
+class TrigBtagFex: public HLT::FexAlgo {
   
  public:
 
@@ -68,9 +68,9 @@ class TrigBjetFex: public HLT::FexAlgo {
   friend class TrigBjetTagger;
 
   /** @brief Constructor. */
-  TrigBjetFex(const std::string&, ISvcLocator*);
+  TrigBtagFex(const std::string&, ISvcLocator*);
   /** @brief Destructor. */
-  ~TrigBjetFex();
+  ~TrigBtagFex();
 
   HLT::ErrorCode hltInitialize();
   HLT::ErrorCode hltExecute(const HLT::TriggerElement*, HLT::TriggerElement*);
@@ -78,20 +78,16 @@ class TrigBjetFex: public HLT::FexAlgo {
 
  private:
 
-  std::string m_jetKey;
-  std::string m_priVtxKey;
-
   /** @brief To retrieve track collections reconstructed at EF and stored in TrackParticleContainer. */
   HLT::ErrorCode getCollection(const xAOD::TrackParticleContainer*&, const HLT::TriggerElement*);
   /** @brief To retrieve primary vertex collections reconstructed and stored in TrigVertexCollection. */
-  //  HLT::ErrorCode getPrmVtxCollection(const xAOD::VertexContainer*&, const HLT::TriggerElement*);
+  HLT::ErrorCode getPrmVtxCollection(const TrigVertexCollection*&, const HLT::TriggerElement*);
   /** @brief To retrieve primary vertex collections reconstructed and stored in VxContainer. */
-  HLT::ErrorCode getPrmVtxCollection(const xAOD::VertexContainer*&, const HLT::TriggerElement*);
+  HLT::ErrorCode getPrmVtxCollection(const VxContainer*&, const HLT::TriggerElement*);
   /** @brief To retrieve secondary vertex collections reconstructed and stored in Trk::VxSecVertexInfoContainer. */
   HLT::ErrorCode getSecVtxCollection(const Trk::VxSecVertexInfoContainer*&, const HLT::TriggerElement*);
   /** @brief To retrieve the EF secondary vertex information. */
-  //HLT::ErrorCode getSecVtxInfo(const Trk::VxSecVertexInfoContainer*&, const xAOD::VertexContainer*&, const TrigVertexCollection*&);
-  HLT::ErrorCode getSecVtxInfo(const Trk::VxSecVertexInfoContainer*&, const xAOD::VertexContainer*&);
+  HLT::ErrorCode getSecVtxInfo(const Trk::VxSecVertexInfoContainer*&, const VxContainer*&, const TrigVertexCollection*&);
 
   /** @brief To select EF tracks. */
   bool efTrackSel(const xAOD::TrackParticle*&, unsigned int);
@@ -102,6 +98,9 @@ class TrigBjetFex: public HLT::FexAlgo {
   TrigEFBjetContainer* m_trigEFBjetColl;
   /** @brief Pointer to xAOD::BTaggingContainer. */
   xAOD::BTaggingContainer* m_trigBTaggingContainer;
+
+  /** @brief Pointer to xAOD::BTagVertexContainer. */
+  xAOD::BTagVertexContainer* m_trigBTaggingVertexContainer;
 
   /** @brief Pointer to TaggerHelper class. */ 
   TaggerHelper* m_taggerHelper;
