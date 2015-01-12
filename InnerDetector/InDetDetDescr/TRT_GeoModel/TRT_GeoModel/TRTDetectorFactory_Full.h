@@ -91,7 +91,7 @@ class TRTDetectorFactory_Full : public InDetDD::DetectorFactoryBase  {
   int m_overridedigversion;
   bool m_alignable;
   ServiceHandle<ITRT_StrawStatusSummarySvc> m_sumSvc; // added for Argon
-  bool m_strawsvcavailable	;
+  bool m_strawsvcavailable;
   bool m_doXenonArgonMixture;
 };
 

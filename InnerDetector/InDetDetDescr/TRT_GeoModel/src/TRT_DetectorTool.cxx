@@ -124,20 +124,20 @@ StatusCode TRT_DetectorTool::create( StoreGateSvc* detStore )
 
 
 	// Check if the new switches exists:
-    bool result = true;
+    //bool result = true;
     try {
-       switches->isFieldNull( "DOARGONMIXTURE");
-    }
-    catch(std::runtime_error& ex) {
-      if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Exception caught: " << ex.what() << endreq;
-      result = false;
-     }
-   if (result){ 
+       if(!switches->isFieldNull( "DOARGONMIXTURE")){
       if ( switches->getInt("DOARGONMIXTURE") == 0)		m_doXenonArgonMixture = 0;
       else if ( switches->getInt("DOARGONMIXTURE") == 1)	m_doXenonArgonMixture = 1;
    } else {
      if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Parameter DOARGONMIXTURE not available, m_doXenonArgonMixture= " << m_doXenonArgonMixture << endreq;
    }
+       
+    }
+    catch(std::runtime_error& ex) {
+      if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Exception caught: " << ex.what() << endreq;
+     // result = false;
+     }
 
     if (!switches->isFieldNull("VERSIONNAME")) {
       versionName                    	= switches->getString("VERSIONNAME");
