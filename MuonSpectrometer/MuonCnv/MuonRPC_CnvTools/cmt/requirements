@@ -26,8 +26,11 @@ use TrkSurfaces           TrkSurfaces-*             Tracking/TrkDetDescr
 #use MuonByteStreamErrors  MuonByteStreamErrors-*   MuonSpectrometer/MuonConditions
 #use RpcByteStreamAccess   RpcByteStreamAccess-*    MuonSpectrometer/MuonConditions/MuonByteStreamAccess
 
-public
+# Muon Conditions
+use  MuonCondInterface          MuonCondInterface-*             MuonSpectrometer/MuonConditions/MuonCondGeneral
 
+
+public
 
 use AtlasPolicy          AtlasPolicy-*
 use ByteStreamData       ByteStreamData-*          Event

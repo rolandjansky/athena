@@ -19,6 +19,8 @@
 #include "MuonRDO/RpcCoinMatrix.h"
 
 #include <string>
+#include <set>
+
 #define maxOfflineHash 600 // actually 593
 
 //class IROBDataProviderSvc;
@@ -35,6 +37,7 @@ class RpcPadIdHash;
 class IdentifierHash;
 class RpcPad;
 class RpcPadContainer;
+class IRPCConditionsSvc;
 
 
 namespace Muon {
@@ -75,9 +78,9 @@ public:
   static const InterfaceID& interfaceID() { return IMuonRdoToPrepDataTool::interfaceID(); }
   
 private:
-
-    StatusCode getOfflineToOnlineMap(IOVSVC_CALLBACK_ARGS);
-    //void getOfflineToOnlineMap();
+  ServiceHandle<IRPCConditionsSvc> m_rSummarySvc;   
+  StatusCode getOfflineToOnlineMap(IOVSVC_CALLBACK_ARGS);
+  //void getOfflineToOnlineMap();
   bool isRequested(std::vector<IdentifierHash>& idVect, IdentifierHash rpcHashId) const;
   bool isAlreadyConverted(std::vector<const RpcPad *>& rdoCollVec, const RpcPad* rdoColl) const;
   StatusCode processPad(const RpcPad *rdoColl, bool& processingetaview, bool& processingphiview, int& nPrepRawData, 
@@ -107,11 +110,13 @@ private:
   bool  m_processingData;               //!< data or MC 
   bool  m_producePRDfromTriggerWords;   //!< if 1 store as prd the trigger hits 
   bool  m_solvePhiAmbiguities;          //!< toggle on/off the removal of phi ambiguities 
+  bool  m_doingSecondLoopAmbigColls;    //!< true if running a second loop over ambiguous collections in RoI-based mode
   bool  m_reduceCablingOverlap;         //!< toggle on/off the overlap removal
   float m_timeShift;                    //!< any global time shift ?!
   bool m_useBStoRdoTool;                //!< toggle on/off the decoding of RPC BS into RDO for EF
   bool m_decodeData;                    //!< toggle on/off the decoding of RPC RDO into RpcPerpData
   bool m_writeMapToFile;
+  bool m_RPCInfoFromDb;                 //!< correct time prd from cool db
   // end of configurable options 
 
   /// Muon Detector Descriptor
@@ -140,15 +145,21 @@ private:
 
   //keepTrackOfFullEventDecoding
   bool m_fullEventDone;
+  
+  //the set of already requested and decoded offline collections
+  std::set<IdentifierHash> m_decodedOfflineHashIds;
+  
+  //the set of unrequested collections with phi hits stored with ambiguityFlag > 1
+  std::set<IdentifierHash> m_ambiguousCollections;
 
-    
   // the vector of pad collections already decoded in the event
   std::vector<const RpcPad *> *m_decodedRdoCollVec;
   
   // the map offline to online 
-  unsigned int nPadsForOfflineDataColl[maxOfflineHash];
-  IdentifierHash padHashIdForOfflineDataColl[maxOfflineHash][5];
-    //  Identifier     padIdForOfflineDataColl[maxOfflineHash][5];
+  unsigned int nPadsForOfflineDataColl[maxOfflineHash+1];
+  IdentifierHash padHashIdForOfflineDataColl[maxOfflineHash+1][6];
+    //  Identifier     padIdForOfflineDataColl[maxOfflineHash+1][6];
+    
 };
 }
 

@@ -526,7 +526,13 @@ namespace Muon
 	      }// endif collection not found in the container 
 	  }//end loop over vector of hash id 
 
-	cnv_sc = fillCollectionsFromRob_v302(data,robFrag.rod_ndata(),mapOfCollections,sourceId);
+  if (mapOfCollections.empty()) {
+    ATH_MSG_VERBOSE("mapOfCollections is empty; fillCollectionsFromRob_v302 will not be called");
+    cnv_sc = StatusCode::SUCCESS;
+    return cnv_sc;
+  }
+  
+	cnv_sc = fillCollectionsFromRob_v302(data,robFrag.rod_ndata(),mapOfCollections,rod_sourceId);
 	if (cnv_sc!=StatusCode::SUCCESS)
 	  {
 	    if (cnv_sc==StatusCode::RECOVERABLE) 
