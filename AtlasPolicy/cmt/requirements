@@ -119,6 +119,24 @@ macro_append libraryshr_linkopts        "" \
 macro_append cpplinkflags       "" \ 
         Linux                   " -Wl,--hash-style=both " 
 
+
+
+
+#--------------------------------------------
+# MN: define patterns missing in ROOT5 based LCG
+
+macro rootver_dependent_setup  "root5_setup" \
+      ROOT_GE_6_00             "root6_setup"
+
+pattern root5_setup \
+   pattern set_root_include_path ""
+
+pattern root6_setup \
+   ""
+
+apply_pattern $(rootver_dependent_setup)
+
+
 #-------------------------------------------------------------
 # Global patterns (systematically applied)
 #-------------------------------------------------------------
@@ -132,6 +150,12 @@ pattern -global default_include_path \
     macro <package>_include_dirs "$(<PACKAGE>ROOT)" ; \
     end_private ; \
     include_dirs ${<package>_include_dirs} ; \
+    macro <package>_root_include_path "$(<package>_cmtpath)/$(<project>_installarea_prefix)/root-include-path" \
+        <project>_without_installarea "$(<PACKAGE>ROOT)" ; \
+    private ; \
+    macro <package>_root_include_path "$(<PACKAGE>ROOT)" ; \
+    end_private ; \
+    document install_root_include_path install_root_include_path ; \
     document install_includes install_includes
 
 #  include_dirs $(<package>_cmtpath)/$(cmt_installarea_prefix)/include/<package> 
@@ -144,10 +168,13 @@ ignore_pattern default_include_path
 cmtpath_pattern \
     path_prepend DYLD_LIBRARY_PATH "" <project>_with_installarea&Darwin "<path>/$(<project>_installarea_prefix)/${CMTCONFIG}/lib"
 
+cmtpath_pattern \
+    path_remove  ROOT_INCLUDE_PATH "<path>/$(<project>_installarea_prefix)/root-include-path" ; \
+    path_prepend ROOT_INCLUDE_PATH "<path>/$(<project>_installarea_prefix)/root-include-path"
+
 #-------------------------------------------------------------
 # Simple patterns (to be applied on demand only)
 #-------------------------------------------------------------
-
 
 
 #--------------------------------------------
@@ -571,6 +598,7 @@ pattern do_real_genCLIDDB \
   private ; \
     document genCLIDDB <library>CLIDDB library=<library>  ; \
     macro_append <library>CLIDDB_dependencies " <library> " ; \
+    macro_append <library>ComponentsList_dependencies " <library>CLIDDB " ; \
   end_private
 
 pattern do_null_genCLIDDB \
@@ -766,6 +794,9 @@ make_fragment install_includes_header
 make_fragment install_named_includes -header=install_named_includes_header
 make_fragment install_named_includes_header
 
+make_fragment install_root_include_path -header=install_root_include_path_header
+make_fragment install_root_include_path_header
+
 ##   macro_prepend use_includes   " $(ppcmd)<path>/$(cmt_installarea_prefix)/include "
 
 #--------------------------------------------
@@ -827,8 +858,10 @@ pattern declare_calib \
 #action checkreq "checkreq.py -i 2 -n" ManaCore " echo 'CHECKREQ: checkreq disabled in ManaCore releases' "
 macro_append pp_cppflags "" ManaCore " -DXAOD_MANACORE -DXAOD_ANALYSIS "
 pattern use_ifndef \
+    public ; \
     macro <package>_pplist_<pkg> "`echo "<pplist>" | sed 's/,/\|/g'`" ; \
     macro <package>_check_statement_<pkg> "`echo $(pp_cppflags)|egrep -q '\-D(($(<package>_pplist_<pkg>))( |$|=))' &&echo <package>_<pkg>_hasPP||echo <package>_<pkg>_nothasPP`" ; \
     apply_tag $(<package>_check_statement_<pkg>) ; \
     macro <package>_use_statement_<pkg> "`basename "<pkg>"` `basename "<pkg>"`-* `dirname "<pkg>"`" <package>_<pkg>_hasPP "" ; \
+    end_public ; \
     use $(<package>_use_statement_<pkg>) 
