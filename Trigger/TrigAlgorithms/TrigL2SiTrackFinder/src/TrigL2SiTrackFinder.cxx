@@ -982,7 +982,6 @@ void TrigL2SiTrackFinder::convertToTrkTrack(const TrigInDetTrackCollection* oldT
 
   for(; trIt !=lastIt; trIt++) 
   {
-    AmgSymMatrix(5)* pCV = new AmgSymMatrix(5);
     nTracks++;
     float phi0=HLT::wrapPhi((*trIt)->param()->phi0());
     float theta=2.0*atan(exp(-(*trIt)->param()->eta())); 
@@ -992,33 +991,33 @@ void TrigL2SiTrackFinder::convertToTrkTrack(const TrigInDetTrackCollection* oldT
       //Track failed fit, skip it
       continue;
     }
-    else {
-      int idx=0;
-      for(int i=0;i<5;i++) 
-        for(int j=i;j<5;j++)
-        {
-          Gk[j][i]=Gk[i][j]=(*(*trIt)->param()->cov())[idx];
-          idx++;
-        }
-      float A = -2*sin(0.5*theta)*cos(0.5*theta); //== d(theta) / d(eta)
-      float B = tan(theta)/pT;                    //== d(theta) / d(pT)
-      float C = -sin(theta)/pT;                   //== d(qOverp / d(pT)
-      (*pCV).fillSymmetric(0, 0, Gk[0][0]);
-      (*pCV).fillSymmetric(0, 1, Gk[2][0]);
-      (*pCV).fillSymmetric(0, 2, Gk[1][0]);
-      (*pCV).fillSymmetric(0, 3, A*Gk[3][0] + B*Gk[4][0]);
-      (*pCV).fillSymmetric(0, 4, C*Gk[4][0]);
-      (*pCV).fillSymmetric(1, 1, Gk[2][2]);
-      (*pCV).fillSymmetric(1, 2, Gk[2][1]);
-      (*pCV).fillSymmetric(1, 3, A*Gk[3][2] + B*Gk[4][2]);
-      (*pCV).fillSymmetric(1, 4, C*Gk[4][2]);
-      (*pCV).fillSymmetric(2, 2, Gk[1][1]);
-      (*pCV).fillSymmetric(2, 3, A*Gk[3][1] + B*Gk[4][1]);
-      (*pCV).fillSymmetric(2, 4, C*Gk[4][1]);
-      (*pCV).fillSymmetric(3, 3, A*(A*Gk[3][3] + 2.0*B*Gk[4][3]) + B*B*Gk[4][4]);
-      (*pCV).fillSymmetric(3, 4, C*(A*Gk[4][3] + B*Gk[4][4]));
-      (*pCV).fillSymmetric(4, 4, C*C*Gk[4][4]);
+    int idx=0;
+    for(int i=0;i<5;i++) {
+      for(int j=i;j<5;j++) {
+        Gk[j][i]=Gk[i][j]=(*(*trIt)->param()->cov())[idx];
+        idx++;
+      }
     }
+    float A = -2*sin(0.5*theta)*cos(0.5*theta); //== d(theta) / d(eta)
+    float B = tan(theta)/pT;                    //== d(theta) / d(pT)
+    float C = -sin(theta)/pT;                   //== d(qOverp / d(pT)
+    AmgSymMatrix(5)* pCV = new AmgSymMatrix(5);
+    (*pCV).fillSymmetric(0, 0, Gk[0][0]);
+    (*pCV).fillSymmetric(0, 1, Gk[2][0]);
+    (*pCV).fillSymmetric(0, 2, Gk[1][0]);
+    (*pCV).fillSymmetric(0, 3, A*Gk[3][0] + B*Gk[4][0]);
+    (*pCV).fillSymmetric(0, 4, C*Gk[4][0]);
+    (*pCV).fillSymmetric(1, 1, Gk[2][2]);
+    (*pCV).fillSymmetric(1, 2, Gk[2][1]);
+    (*pCV).fillSymmetric(1, 3, A*Gk[3][2] + B*Gk[4][2]);
+    (*pCV).fillSymmetric(1, 4, C*Gk[4][2]);
+    (*pCV).fillSymmetric(2, 2, Gk[1][1]);
+    (*pCV).fillSymmetric(2, 3, A*Gk[3][1] + B*Gk[4][1]);
+    (*pCV).fillSymmetric(2, 4, C*Gk[4][1]);
+    (*pCV).fillSymmetric(3, 3, A*(A*Gk[3][3] + 2.0*B*Gk[4][3]) + B*B*Gk[4][4]);
+    (*pCV).fillSymmetric(3, 4, C*(A*Gk[4][3] + B*Gk[4][4]));
+    (*pCV).fillSymmetric(4, 4, C*C*Gk[4][4]);
+
     Trk::PerigeeSurface dummySurface;
     const Trk::Perigee* pMP = new Trk::Perigee((*trIt)->param()->a0(),
         (*trIt)->param()->z0(),
@@ -1100,9 +1099,6 @@ void TrigL2SiTrackFinder::convertToTrkTrack(const TrigInDetTrackCollection* oldT
       }
       case TrigInDetTrack::STRATEGY_C_ID: {
           pattRecInfo=Trk::TrackInfo::strategyC;break;
-      }
-      case TrigInDetTrack::STRATEGY_BC_ID: {//Hack
-          pattRecInfo=Trk::TrackInfo::TrigIDSCAN;break;
       }
       case TrigInDetTrack::STRATEGY_F_ID: {
           pattRecInfo=Trk::TrackInfo::FTK;break;

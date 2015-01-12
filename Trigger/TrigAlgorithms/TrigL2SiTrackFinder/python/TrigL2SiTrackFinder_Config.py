@@ -450,11 +450,6 @@ class TrigL2SiTrackFinder_MuonC(TrigL2SiTrackFinderBase):
   def __init__(self, name = "TrigL2SiTrackFinder_MuonC"):
     TrigL2SiTrackFinderBase.__init__(self, "Muon", "C", 0.1, 0.1, True, False, True)
 
-class TrigL2SiTrackFinder_MuonBC(TrigL2SiTrackFinderBase):
-  def __init__(self, name = "TrigL2SiTrackFinder_MuonBC"):
-    TrigL2SiTrackFinderBase.__init__(self, "Muon", "BC", 0.1, 0.1, True, False, True)
-
-
 
 class TrigL2SiTrackFinder_eGammaA(TrigL2SiTrackFinderBase):
   def __init__(self, name = "TrigL2SiTrackFinder_eGammaA"):
@@ -470,10 +465,6 @@ class TrigL2SiTrackFinder_eGammaC(TrigL2SiTrackFinderBase):
   def __init__(self, name = "TrigL2SiTrackFinder_eGammaC"):
     TrigL2SiTrackFinderBase.__init__(self, "eGamma", "C", 0.1, 0.1, True, False, True)
 
-
-class TrigL2SiTrackFinder_eGammaBC(TrigL2SiTrackFinderBase):
-    def __init__(self, name = "TrigL2SiTrackFinder_eGammaBC"):
-        TrigL2SiTrackFinderBase.__init__(self, "eGamma", "BC", 0.1, 0.1, True, False, True)
 
 class TrigL2SiTrackFinder_eGammaA_Brem(TrigL2SiTrackFinderBase):
     def __init__(self, name = "TrigL2SiTrackFinder_eGammaA_Brem"):
@@ -494,11 +485,6 @@ class TrigL2SiTrackFinder_JetC(TrigL2SiTrackFinderBase):
     TrigL2SiTrackFinderBase.__init__(self, "Jet", "C", 0.2, 0.2, True, False, True)
 
 
-class TrigL2SiTrackFinder_JetBC(TrigL2SiTrackFinderBase):
-  def __init__(self, name = "TrigL2SiTrackFinder_JetBC"):
-    TrigL2SiTrackFinderBase.__init__(self, "Jet", "BC", 0.2, 0.2, True, False, True)
-
-
 class TrigL2SiTrackFinder_TauA(TrigL2SiTrackFinderBase):
   def __init__(self, name = "TrigL2SiTrackFinder_TauA"):
     TrigL2SiTrackFinderBase.__init__(self, "Tau", "A", 0.3, 0.3, True, False, True)
@@ -512,11 +498,6 @@ class TrigL2SiTrackFinder_TauB(TrigL2SiTrackFinderBase):
 class TrigL2SiTrackFinder_TauC(TrigL2SiTrackFinderBase):
   def __init__(self, name = "TrigL2SiTrackFinder_TauC"):
     TrigL2SiTrackFinderBase.__init__(self, "Tau", "C", 0.3, 0.3, True, False, True)
-
-
-class TrigL2SiTrackFinder_TauBC(TrigL2SiTrackFinderBase):
-  def __init__(self, name = "TrigL2SiTrackFinder_TauBC"):
-    TrigL2SiTrackFinderBase.__init__(self, "Tau", "BC", 0.3, 0.3, True, False, True)
 
 class TrigL2SiTrackFinder_muonIsoA(TrigL2SiTrackFinderBase):
   def __init__(self, name = "TrigL2SiTrackFinder_muonIsoA"):
@@ -548,10 +529,6 @@ class TrigL2SiTrackFinder_BphysicsC(TrigL2SiTrackFinderBase):
     TrigL2SiTrackFinderBase.__init__(self, "Bphysics", "C", 0.75, 0.75, True, False, True)
 
 
-class TrigL2SiTrackFinder_BphysicsBC(TrigL2SiTrackFinderBase):
-  def __init__(self, name = "TrigL2SiTrackFinder_BphysicsBC"):
-    TrigL2SiTrackFinderBase.__init__(self, "Bphysics", "BC", 0.75, 0.75, True, False, True)
-
 class TrigL2SiTrackFinder_FullScanA(TrigL2SiTrackFinderBase):
   def __init__(self, name = "TrigL2SiTrackFinder_FullScanA"):
     TrigL2SiTrackFinderBase.__init__(self,"FullScan", "A", 3.14159265358, 3.0, True, False, True)
@@ -564,11 +541,6 @@ class TrigL2SiTrackFinder_FullScanB(TrigL2SiTrackFinderBase):
 class TrigL2SiTrackFinder_FullScanC(TrigL2SiTrackFinderBase):
   def __init__(self, name = "TrigL2SiTrackFinder_FullScanC"):
     TrigL2SiTrackFinderBase.__init__(self,"FullScan", "C", 3.14159265358, 3.0, True, False, True)
-
-
-class TrigL2SiTrackFinder_FullScanBC(TrigL2SiTrackFinderBase):
-  def __init__(self, name = "TrigL2SiTrackFinder_FullScanBC"):
-    TrigL2SiTrackFinderBase.__init__(self,"FullScan", "BC", 3.14159265358, 3.0, True, False, True)
 
 
 class TrigL2SiTrackFinder_FullScan_ZF_OnlyA(TrigL2SiTrackFinderBase):
@@ -589,10 +561,6 @@ class TrigL2SiTrackFinder_BeamSpotC(TrigL2SiTrackFinderBase):
   def __init__(self, name = "TrigL2SiTrackFinder_BeamSpotC"):
     TrigL2SiTrackFinderBase.__init__(self,"BeamSpot", "C", 3.14159265358, 3.0, False, False, True)
 
-
-class TrigL2SiTrackFinder_BeamSpotBC(TrigL2SiTrackFinderBase):
-  def __init__(self, name = "TrigL2SiTrackFinder_BeamSpotBC"):
-    TrigL2SiTrackFinderBase.__init__(self,"BeamSpot", "BC", 3.14159265358, 3.0, False, False, True)
 
 #--- experimental 2-step tau reconstruction
 class TrigL2SiTrackFinder_TauCoreB(TrigL2SiTrackFinderBase):
