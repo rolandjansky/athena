@@ -57,6 +57,10 @@ namespace Muon {
     declareProperty("EndcapTrackletUncertainty",m_EndcapTrackletUncert = 0.1);
     declareProperty("RndmEngine",m_rndmEngineName,"Random track killing parameter: engine used");
 
+    // cuts to prevent excessive processing timing 
+    declareProperty("MaxGlobalTracklets", m_maxGlobalTracklets = 40);
+    declareProperty("MaxClusterTracklets", m_maxClusterTracklets = 50);
+
     //extrapolator
     declareProperty("MyExtrapolator", m_extrapolator );
   }
@@ -115,24 +119,79 @@ namespace Muon {
 //** ----------------------------------------------------------------------------------------------------------------- **//
   
 
-  StatusCode MSVertexRecoTool::findMSvertices(std::vector<Tracklet>& tracklets) {
+  StatusCode MSVertexRecoTool::findMSvertices(std::vector<Tracklet>& tracklets, std::vector<MSVertex*>& vertices) {
  
-    //if there are less than 2 tracks, return (vertexing not possible)   
-    if(tracklets.size() < 3 || tracklets.size() > 40) return StatusCode::SUCCESS;
+    //if there are fewer than 3 tracks, vertexing not possible
+    if(tracklets.size() < 3) {
 
-    std::vector<MSVertex*> vertices;
+      //create xAOD::vertex - the container needs to be created for every event
+      xAOD::VertexContainer* xAODVxContainer = new xAOD::VertexContainer();
+      if(evtStore()->record(xAODVxContainer,xAODContainerName).isFailure()) {
+	ATH_MSG_WARNING("Failed to record the xAOD::VertexContainer with key " << xAODContainerName);
+	return StatusCode::FAILURE;
+      }
+      
+      xAOD::VertexAuxContainer* aux = new xAOD::VertexAuxContainer();
+      if(evtStore()->record(aux,xAODContainerName+"Aux.").isFailure()) {
+	ATH_MSG_WARNING("Failed to record the xAOD::VertexAuxContainer with key " << xAODContainerName);
+	return StatusCode::FAILURE;
+      }
+      
+      xAODVxContainer->setStore( aux );
+      return StatusCode::SUCCESS;
+    }
+
+    if(tracklets.size() > m_maxGlobalTracklets) {
+      ATH_MSG_DEBUG( "Too many tracklets found globally. Creating dummy MS vertex and exit." );
+      MSVertex* dummyVtx;
+      MakeDummyVertex(dummyVtx);
+      vertices.push_back(dummyVtx);
+      StatusCode sc = FillOutputContainer(vertices);
+      if(sc.isFailure()) return StatusCode::FAILURE;
+      else               return StatusCode::SUCCESS;
+    }
 
     //group the tracks
     std::vector<Tracklet> BarrelTracklets;
     std::vector<Tracklet> EndcapTracklets;  
     for(unsigned int i=0; i<tracklets.size(); ++i) {
-      if(tracklets.at(i).mdtChamber() <= 11 || tracklets.at(i).mdtChamber() == 52) BarrelTracklets.push_back(tracklets.at(i));
-      else EndcapTracklets.push_back(tracklets.at(i));
+      if(tracklets.at(i).mdtChamber() <= 11 || tracklets.at(i).mdtChamber() == 52) 
+	BarrelTracklets.push_back(tracklets.at(i));
+      else 
+	EndcapTracklets.push_back(tracklets.at(i));
     }    
     
+    if(BarrelTracklets.size() > m_maxClusterTracklets || EndcapTracklets.size() > m_maxClusterTracklets) {
+      ATH_MSG_DEBUG( "Too many tracklets found in barrel or endcap for clustering. Creating dummy MS vertex and exit" );
+      MSVertex* dummyVtx;
+      MakeDummyVertex(dummyVtx);
+      vertices.push_back(dummyVtx);
+      StatusCode sc = FillOutputContainer(vertices);
+      if(sc.isFailure()) return StatusCode::FAILURE;
+      else               return StatusCode::SUCCESS;
+    }
+
+    ATH_MSG_DEBUG( "Running on event with " << BarrelTracklets.size() << " barrel tracklets, " 
+		   << EndcapTracklets.size() << " endcap tracklets." );
+
     //find any clusters of tracks & decide if tracks are from single muon
     std::vector<Muon::MSVertexRecoTool::TrkCluster> BarrelClusters = findTrackClusters(BarrelTracklets);
     std::vector<Muon::MSVertexRecoTool::TrkCluster> EndcapClusters = findTrackClusters(EndcapTracklets);
+
+    for(unsigned int i = 0; i < BarrelClusters.size(); i++) {
+      if(BarrelClusters.at(i).ntrks != (int) BarrelClusters.at(i).tracks.size()) {
+        ATH_MSG_INFO( "ntrks not equal to track container size; this should never happen.  Exiting quietly." );
+        StatusCode sc = FillOutputContainer(vertices);
+        return sc;
+      }
+    }
+    for(unsigned int i = 0; i < EndcapClusters.size(); i++) {
+      if(EndcapClusters.at(i).ntrks != (int) EndcapClusters.at(i).tracks.size()) {
+        ATH_MSG_INFO( "ntrks not equal to track container size; this should never happen.  Exiting quietly." );
+        StatusCode sc = FillOutputContainer(vertices);
+        return sc;
+      }
+    }
     
     //if doSystematics, remove tracklets according to the tracklet reco uncertainty and rerun the cluster finder
     if(m_doSystematics) {
@@ -184,11 +243,11 @@ namespace Muon {
       if(EndcapClusters[i].ntrks < 3) continue; 
       ATH_MSG_DEBUG( "Attempting to build vertex from " << EndcapClusters[i].ntrks << " tracklets in the endcap" );
 
-      MSVertex* endvertex;
+      MSVertex* endvertex=0;
       if(m_useOldMSVxEndcapMethod) 
-        endvertex = MSStraightLineVx_oldMethod(EndcapClusters[i].tracks);
+        MSStraightLineVx_oldMethod(EndcapClusters[i].tracks, endvertex);
       else
-        endvertex = MSStraightLineVx(EndcapClusters[i].tracks);
+        MSStraightLineVx(EndcapClusters[i].tracks, endvertex);
 
       if(!endvertex) continue;
       if(endvertex->getPosition().perp() < 10000 && fabs(endvertex->getPosition().z()) < 14000 && 
@@ -201,54 +260,14 @@ namespace Muon {
 	  vertices.push_back(endvertex);
 	}//end minimum good vertex criteria
       }
+      else 
+        delete endvertex;
+
     }//end loop on endcap tracklet clusters
-    
-    if(vertices.size() == 0) return StatusCode::SUCCESS;
 
-    //convert to xAOD::vertex & cleanup
-    xAOD::VertexContainer* xAODVxContainer = new xAOD::VertexContainer();
-    xAOD::VertexAuxContainer* aux = new xAOD::VertexAuxContainer();
-    xAODVxContainer->setStore( aux );
-    //store the new vertices!
-    CHECK( evtStore()->record( xAODVxContainer, xAODContainerName ) );
-    CHECK( evtStore()->record( aux, xAODContainerName + "Aux" ) );
-    //fill the containers
-    for(std::vector<MSVertex*>::const_iterator vxIt=vertices.begin(); vxIt!=vertices.end(); ++vxIt) {
-      xAOD::Vertex* xAODVx = new xAOD::Vertex();
-      xAODVx->setVertexType( xAOD::VxType::SecVtx );
-      xAODVx->setPosition( (*vxIt)->getPosition() );
-      xAODVx->setFitQuality( (*vxIt)->getChi2(), (*vxIt)->getNTracks()-1 );
-
-      //dress the vertex with the hit counts
-      xAODVx->auxdata< int >( "nMDT" ) = (*vxIt)->getNMDT();
-      xAODVx->auxdata< int >( "nRPC" ) = (*vxIt)->getNRPC();
-      xAODVx->auxdata< int >( "nTGC" ) = (*vxIt)->getNTGC();
-
-      //TODO: Add links to the tracks -- need to think how to proceed .... example code below
-      //unsigned int VTAVsize = vxVertex.vxTrackAtVertex()->size();
-      //for (unsigned int i = 0 ; i < VTAVsize ; ++i) {
-      //	Trk::VxTrackAtVertex* VTAV = vxVertex.vxTrackAtVertex()->at(i);
-      //	Trk::ITrackLink*      trklink = VTAV->trackOrParticleLink();
-      //	//do we need really to check this? or can we assume xAOD::TrackParticle objects to be there?
-      //	// definitely we don't want those to be Rec::TrackParticle do avoid mixing up things
-      //	Trk::LinkToXAODTrackParticle* linkToXAODTP = dynamic_cast<Trk::LinkToXAODTrackParticle*>(trklink);
-      //	if (!linkToXAODTP) {
-      //	  ATH_MSG_WARNING ("Skipping track. Trying to convert to xAOD::Vertex a Trk::VxCandidate with links to something else than xAOD::TrackParticle.");
-      //	} else {
-      //	  //Now set the newlink to the new xAOD vertex
-      //	  xAODVx->addTrackAtVertex(*linkToXAODTP, VTAV->vtxCompatibility());
-      //	}
-      //}
-
-      //store the new xAOD vertex
-      xAODVxContainer->push_back(xAODVx);
-
-      //delete the internal EDM vertex
-      delete (*vxIt);
-    }
-
-
-    return StatusCode::SUCCESS;
+    StatusCode sc = FillOutputContainer(vertices);
+    if(sc.isFailure()) return StatusCode::FAILURE;
+    else               return StatusCode::SUCCESS;
   }//end find vertices
 
 
@@ -265,103 +284,139 @@ namespace Muon {
 
   Muon::MSVertexRecoTool::TrkCluster MSVertexRecoTool::ClusterizeTracks(std::vector<Tracklet>& tracks) {
 
-    if(tracks.size() > 40) {
-      ATH_MSG_DEBUG( "Too many tracks found, results probably not reliable!  returning empty cluster" );
-      TrkCluster emptycluster;
-      emptycluster.ntrks=0;
-      emptycluster.eta=-99999.;
-      emptycluster.phi=-99999.;
-      return emptycluster;
-    }
-    TrkCluster trkClu[50];
-    TrkCluster trkClu0[50];
-    trkClu[0].ntrks = 0;
-    trkClu[0].eta = -10;
-    trkClu[0].phi = -10;
-    int ncluster(0);
-    //use each tracklet as a seed for the clusters
-    for(std::vector<Tracklet>::iterator trkItr=tracks.begin(); trkItr!=tracks.end(); ++trkItr) {
-      TrkCluster clu;
-      clu.eta = trkItr->globalPosition().eta();
-      clu.phi = trkItr->globalPosition().phi();
-      clu.ntrks = 0;
-      for(unsigned int i=0; i<tracks.size(); ++i) clu.trks[i]=0;
-      trkClu[ncluster] = clu;
-      trkClu0[ncluster] = clu;
-      ++ncluster;
-      if(ncluster >= 49) {
-        TrkCluster emptycluster;
-        return emptycluster;
+      if(tracks.size() > m_maxClusterTracklets) {
+          ATH_MSG_DEBUG( "Too many tracks found, returning empty cluster" );
+          TrkCluster emptycluster;
+          emptycluster.ntrks=0;
+          emptycluster.eta=-99999.;
+          emptycluster.phi=-99999.;
+          for(unsigned int i=0; i<tracks.size(); ++i) emptycluster.trks[i]=0;
+          emptycluster.isSystematic = false;
+          return emptycluster;
       }
-    }
-    //loop on the clusters and let the center move to find the optimal cluster centers
-    for(int icl=0; icl<ncluster; ++icl) {
-      bool improvement = true;
-      int nitr(0);
-      while(improvement) {
-        if(nitr > 6) break;
-        int ntracks(0);
-        for(int jcl=0; jcl<ncluster; ++jcl) {
-	  float dEta = trkClu[icl].eta - trkClu0[jcl].eta;
-	  float dPhi = trkClu[icl].phi - trkClu0[jcl].phi;
-	  while(fabs(dPhi) > PI) {
-	    if(dPhi < 0) dPhi += 2*PI;
-	    else dPhi -= 2*PI;
-	  }
-	  if(fabs(dEta) < 0.7 && fabs(dPhi) < PI/3.) {
-	    ntracks++;
-	    trkClu[icl].eta = trkClu[icl].eta - dEta/ntracks;
-	    trkClu[icl].phi = trkClu[icl].phi - dPhi/ntracks;
-	    while(fabs(trkClu[icl].phi) > PI) {
-	      if(trkClu[icl].phi > 0) trkClu[icl].phi -= 2*PI;
-	      else trkClu[icl].phi += 2*PI;
-	    }
-	  }
-        }//end jcl loop
-        //find the number of tracks in the new cluster
-        int itracks[100];
-        for(int k=0; k<ncluster; ++k) itracks[k]=0;
-        int ntracks2(0);
-        for(int jcl=0; jcl<ncluster; ++jcl) {
-	  float dEta = fabs(trkClu[icl].eta - trkClu0[jcl].eta);
-	  float dPhi = trkClu[icl].phi - trkClu0[jcl].phi;
-	  while(fabs(dPhi) > PI) {
-	    if(dPhi < 0) dPhi += 2*PI;
-	    else dPhi -= 2*PI;
-	  }
-	  if(dEta < 0.7 && fabs(dPhi) < PI/3.) {
-	    ntracks2++;
-	    itracks[jcl] = 1;
-	  }
-        }//end jcl loop
-        if(ntracks2 > trkClu[icl].ntrks) {
-	  trkClu[icl].ntrks = ntracks2;
-	  for(int k=0; k<ncluster; ++k) {
-	    trkClu[icl].trks[k] = itracks[k];	
-	  }
-        }
-        else improvement = false;
-        nitr++;
-      }//end while
-    }//end icl loop
-    //find the best cluster
-    TrkCluster BestCluster = trkClu[0];
-    for(int icl=1; icl<ncluster; ++icl) {
-      if(trkClu[icl].ntrks > BestCluster.ntrks) BestCluster = trkClu[icl];
-    }
-    //store the tracks inside the cluster
-    std::vector<Tracklet> unusedTracks;
-    for(std::vector<Tracklet>::iterator trkItr=tracks.begin(); trkItr!=tracks.end(); ++trkItr) {
-      float dEta = fabs(BestCluster.eta - trkItr->globalPosition().eta());
-      float dPhi = BestCluster.phi - trkItr->globalPosition().phi();
-      if(dPhi > PI) dPhi -= 2*PI;
-      else if(dPhi < -PI) dPhi += 2*PI;
-      if(dEta < 0.7 && fabs(dPhi) < PI/3.) BestCluster.tracks.push_back( (*trkItr) );
-      else unusedTracks.push_back( (*trkItr) );
-    }
-    //return the best cluster and the unused tracklets
-    tracks = unusedTracks;
-    return BestCluster;
+      TrkCluster trkClu[100];
+      TrkCluster trkClu0[100];
+      trkClu[0].ntrks = 0;
+      trkClu[0].eta = -10;
+      trkClu[0].phi = -10;
+      int ncluster = 0;
+      //use each tracklet as a seed for the clusters
+      for(std::vector<Tracklet>::iterator trkItr=tracks.begin(); trkItr!=tracks.end(); ++trkItr) {
+          TrkCluster clu;
+          clu.eta = trkItr->globalPosition().eta();
+          clu.phi = trkItr->globalPosition().phi();
+          clu.ntrks = 0;
+          clu.isSystematic = false;
+          for(unsigned int i=0; i<tracks.size(); ++i) clu.trks[i]=0;
+
+          trkClu[ncluster] = clu;
+          trkClu0[ncluster] = clu;
+          ++ncluster;
+          if(ncluster >= 99) {
+              TrkCluster emptycluster;
+              return emptycluster;
+          }
+      }
+      //loop on the clusters and let the center move to find the optimal cluster centers
+      for(int icl=0; icl<ncluster; ++icl) {
+          bool improvement = true;
+          int nitr(0);
+
+          int ntracks(0);
+          for(int jcl=0; jcl<ncluster; ++jcl) {
+              float dEta = trkClu[icl].eta - trkClu0[jcl].eta;
+              float dPhi = trkClu[icl].phi - trkClu0[jcl].phi;
+              while(fabs(dPhi) > PI) {
+                  if(dPhi < 0) dPhi += 2*PI;
+                  else dPhi -= 2*PI;
+              }
+              if(fabs(dEta) < 0.7 && fabs(dPhi) < PI/3.) {
+                  ntracks++;
+                  trkClu[icl].eta = trkClu[icl].eta - dEta/ntracks;
+                  trkClu[icl].phi = trkClu[icl].phi - dPhi/ntracks;
+                  while(fabs(trkClu[icl].phi) > PI) {
+                      if(trkClu[icl].phi > 0) trkClu[icl].phi -= 2*PI;
+                      else trkClu[icl].phi += 2*PI;
+                  }
+              }
+          }//end jcl loop
+          //find the number of tracks in the new cluster
+          double eta_avg_best = trkClu[icl].eta;
+          double phi_avg_best = trkClu[icl].phi;
+
+          while(improvement) {
+              int itracks[100];
+              for(int k=0; k<ncluster; ++k) itracks[k]=0;
+              int ntracks2(0);
+              double eta_avg    = 0.0;
+              double phi_avg    = 0.0;
+              double cosPhi_avg = 0.0;
+              double sinPhi_avg = 0.0;
+
+              for(int jcl=0; jcl<ncluster; ++jcl) {
+
+                  float dEta = fabs(trkClu[icl].eta - trkClu0[jcl].eta);
+                  float dPhi = trkClu[icl].phi - trkClu0[jcl].phi;
+
+                  while(fabs(dPhi) > PI) {
+                      if(dPhi < 0) dPhi += 2*PI;
+                      else dPhi -= 2*PI;
+                  }
+
+                  if(dEta < 0.7 && fabs(dPhi) < PI/3.) {
+                      eta_avg += trkClu0[jcl].eta;
+                      cosPhi_avg += cos(trkClu0[jcl].phi);
+                      sinPhi_avg += sin(trkClu0[jcl].phi);
+                      ntracks2++;
+                      itracks[jcl] = 1;
+                  }
+              }//end jcl loop
+
+              eta_avg = eta_avg/ntracks2;
+              phi_avg = atan2(sinPhi_avg,cosPhi_avg);
+
+              if(ntracks2 > trkClu[icl].ntrks) {
+                  eta_avg_best = trkClu[icl].eta;
+                  phi_avg_best = trkClu[icl].phi;
+                  trkClu[icl].ntrks = ntracks2;
+                  for(int k=0; k<ncluster; ++k) {
+                      trkClu[icl].trks[k] = itracks[k];    
+                  }
+                  if(nitr < 6 ){
+                      trkClu[icl].eta = eta_avg;
+                      trkClu[icl].phi = phi_avg;
+                  } else break;
+
+              }
+              else {
+                  trkClu[icl].eta = eta_avg_best;
+                  trkClu[icl].phi = phi_avg_best;                   
+                  improvement = false;
+              }
+              nitr++;
+          }//end while
+      }//end icl loop
+
+      //find the best cluster
+      TrkCluster BestCluster = trkClu[0];
+      for(int icl=1; icl<ncluster; ++icl) {
+          if(trkClu[icl].ntrks > BestCluster.ntrks) BestCluster = trkClu[icl];
+      }
+      //store the tracks inside the cluster
+      std::vector<Tracklet> unusedTracks;
+      for(std::vector<Tracklet>::iterator trkItr=tracks.begin(); trkItr!=tracks.end(); ++trkItr) {
+          float dEta = fabs(BestCluster.eta - trkItr->globalPosition().eta());
+          float dPhi = BestCluster.phi - trkItr->globalPosition().phi();
+          while(fabs(dPhi) > PI) {
+              if(dPhi < 0) dPhi += 2*PI;
+              else dPhi -= 2*PI;
+          }
+          if(dEta < 0.7 && fabs(dPhi) < PI/3.) BestCluster.tracks.push_back( (*trkItr) );
+          else unusedTracks.push_back( (*trkItr) );
+      }
+      //return the best cluster and the unused tracklets
+      tracks = unusedTracks;
+      return BestCluster;
   }
 
 
@@ -373,6 +428,7 @@ namespace Muon {
     std::vector<TrkCluster> clusters;
     //keep making clusters until there are no more possible
     while(true) {
+      if(trks.size() < 3) break;
       TrkCluster clust = ClusterizeTracks(trks);
       if(clust.ntrks >= 3) clusters.push_back(clust);
       else break;
@@ -392,6 +448,7 @@ namespace Muon {
 
 
   MSVertex* MSVertexRecoTool::MSVxFinder(std::vector<Tracklet>& tracklets) { 
+
     int nTrkToVertex(0);
     float NominalAngle(m_TrackPhiAngle),MaxOpenAngle(0.20+m_TrackPhiAngle);
     float aveX(0),aveY(0),aveR(0),aveZ(0);  
@@ -404,19 +461,22 @@ namespace Muon {
       aveY += trkItr->globalPosition().y();
       aveZ += trkItr->globalPosition().z();
     }
+
     aveX = aveX/(float)tracklets.size();
     aveY = aveY/(float)tracklets.size();
     aveZ = aveZ/(float)tracklets.size();
     aveR = aveR/(float)tracklets.size();
+
     float avePhi = atan2(aveY,aveX);
     while(fabs(avePhi) > PI) {
       if(avePhi < 0) avePhi += 2*PI;
       else avePhi -= 2*PI;
     }
+
     //calculate the two angles (theta & phi)
     float LoF = atan2(aveR,aveZ);//Line of Flight (theta)
-    avePhi = vxPhiFinder(LoF,avePhi);
-  
+    avePhi = vxPhiFinder(fabs(LoF),avePhi);
+
     //find the positions of the radial planes
     float Rpos[MAXPLANES];
     float RadialDist = m_VertexMaxRadialPlane - m_VertexMinRadialPlane;
@@ -429,17 +489,21 @@ namespace Muon {
     std::vector<const Trk::TrackParameters*> TracksForVertexing[MAXPLANES];//vector of tracklets to be used at each vertex plane
     std::vector<const Trk::TrackParameters*> TracksForErrors[MAXPLANES];//vector of tracklets to be used for uncertainty at each vertex plane
     std::vector<bool> isNeutralTrack[MAXPLANES];
+
     for(unsigned int i=0; i<tracklets.size(); ++i) {
-      if(tracklets.at(i).mdtChamber() <= 11 || tracklets.at(i).mdtChamber() == 52) {//only barrel tracklets
+
+      //only barrel tracklets
+      if(tracklets.at(i).mdtChamber() <= 11 || tracklets.at(i).mdtChamber() == 52) {
+
         nTrkToVertex++;
         //coordinate transform variables
         Amg::Vector3D trkgpos(tracklets.at(i).globalPosition().perp()*cos(avePhi),
-				    tracklets.at(i).globalPosition().perp()*sin(avePhi),
-				    tracklets.at(i).globalPosition().z());
+			      tracklets.at(i).globalPosition().perp()*sin(avePhi),
+			      tracklets.at(i).globalPosition().z());
         float x0 = trkgpos.x();
         float y0 = trkgpos.y();
         float r0 = trkgpos.perp();
-        
+
         ////////Tracks for computing the error//////
         //////coordinate transform mess
 	//decide which way the tracklet gets rotated -- positive or negative phi
@@ -449,8 +513,11 @@ namespace Muon {
         float MaxTrkAng = anglesign*MaxOpenAngle;//the rotated tracklet phi position
 
 	//loop over the planes
-        for(int k=0; k<nplanes; ++k) {	
-	  if(Rpos[k] > tracklets.at(i).globalPosition().perp()) break; //only use tracklets that start AFTER the vertex plane
+        for(int k=0; k<nplanes; ++k) {
+
+	  //only use tracklets that start AFTER the vertex plane
+	  if(Rpos[k] > tracklets.at(i).globalPosition().perp()) break;
+
 	  //nominal tracks for vertexing
 	  float Xp = Rpos[k]*cos(avePhi);
 	  float Yp = Rpos[k]*sin(avePhi);       
@@ -500,12 +567,13 @@ namespace Muon {
 	  float errpx = xdir*tracklets.at(i).momentum().perp();
 	  float errpy = ydir*tracklets.at(i).momentum().perp();
 	  float errpz = tracklets.at(i).momentum().z();
-	  
+
 	  //store the tracklet as a Trk::Perigee
 	  AmgSymMatrix(5) * covariance2 = new AmgSymMatrix(5)(tracklets.at(i).errorMatrix());
 	  Amg::Vector3D trkerrmom(errpx,errpy,errpz);
 	  Amg::Vector3D trkerrpos(x1,y1,tracklets.at(i).globalPosition().z());
 	  Trk::Perigee * errPerigee = new Trk::Perigee(0.,0.,trkerrmom.phi(),trkerrmom.theta(),charge/trkerrmom.mag(),Trk::PerigeeSurface(trkerrpos),covariance2);
+
 	  TracksForErrors[k].push_back(errPerigee);
         }//end loop on vertex planes
       }//end selection of barrel tracks
@@ -513,7 +581,7 @@ namespace Muon {
 
     //return if there are not enough tracklets
     if(nTrkToVertex < 3) return NULL;
-    
+      
     //calculate the tracklet positions on each surface
     bool boundaryCheck = true;
     std::vector<float> ExtrapZ[MAXPLANES], dlength[MAXPLANES];//extrapolated position & uncertainty
@@ -522,17 +590,28 @@ namespace Muon {
     std::vector<MSVertex*> m_vertices;
     m_vertices.reserve(nplanes);
 
-    std::vector<float> sigmaZ[MAXPLANES];//total uncertainty at each plane
-    std::vector<Amg::Vector3D> pAtVx[MAXPLANES];//tracklet momentum expressed at the plane
+    //total uncertainty at each plane
+    std::vector<float> sigmaZ[MAXPLANES];
+
+    //tracklet momentum expressed at the plane
+    std::vector<Amg::Vector3D> pAtVx[MAXPLANES];
+
     for(int k=0; k<nplanes; ++k) {
+
       float rpos = Rpos[k];
+
       for(unsigned int i=0; i<TracksForVertexing[k].size(); ++i) {
+
+	// at least three tracklets per plane are needed
+	if (TracksForVertexing[k].size() < 3) break;
+
 	Amg::Transform3D* surfaceTransformMatrix = new Amg::Transform3D;
 	surfaceTransformMatrix->setIdentity();
 	Trk::CylinderSurface cyl(surfaceTransformMatrix, rpos, 10000.);//create the surface
         //extrapolate to the surface
 	const Trk::AtaCylinder* extrap = dynamic_cast<const Trk::AtaCylinder*>(m_extrapolator->extrapolate(*TracksForVertexing[k].at(i), cyl,Trk::anyDirection,boundaryCheck,Trk::muon));
-        if(extrap) {	
+
+        if(extrap) {
 	  //if the track is neutral just store the uncertainty due to angular uncertainty of the orignal tracklet
 	  if(isNeutralTrack[k].at(i)) {	  
 	    float pTot = sqrt(sq(TracksForVertexing[k].at(i)->momentum().perp())+sq(TracksForVertexing[k].at(i)->momentum().z()));
@@ -549,7 +628,7 @@ namespace Muon {
 	      sigmaZ[k].push_back(sz);
 	      pAtVx[k].push_back(extrap->momentum());
 	      dlength[k].push_back(0); 
-	    }
+	    }	  
 	  }//end neutral tracklets
 	  //if the tracklet has a momentum measurement
 	  else {
@@ -576,12 +655,13 @@ namespace Muon {
 	    }		  
 	    else ExtrapSuc[k].push_back(false);//not possible to calculate the uncertainty -- do not use tracklet in vertex
 	    delete extrap2;
-	  }
+	}
         }//fi extrap
         else ExtrapSuc[k].push_back(false);//not possible to extrapolate the tracklet
         delete extrap;
       }//end loop on perigeebase
     }//end loop on radial planes
+
     //vertex routine
     std::vector<Amg::Vector3D> trkp[MAXPLANES];
     //loop on planes
@@ -663,6 +743,7 @@ namespace Muon {
 	    Trk::Perigee * myPerigee = new Trk::Perigee(0.,0.,trklt.momentum().phi(),trklt.momentum().theta(),trklt.charge()/trklt.momentum().mag(),
 							Trk::PerigeeSurface(trklt.globalPosition()),covariance);
 	    xAOD::TrackParticle* trackparticle = new xAOD::TrackParticle();
+	    trackparticle->makePrivateStore();
 	    trackparticle->setFitQuality(1.,(int)trklt.mdtHitsOnTrack().size());
 	    trackparticle->setTrackProperties(xAOD::TrackProperties::LowPtTrack);
 
@@ -720,10 +801,19 @@ namespace Muon {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-  MSVertex* MSVertexRecoTool::MSStraightLineVx(std::vector<Tracklet> trks) {
+  void MSVertexRecoTool::MSStraightLineVx(std::vector<Tracklet> trks, MSVertex*& vtx) {
+
     // Running set of all vertices found.  The inner set is the indices of trks that are used to make the vertex
     std::set<std::set<int> > prelim_vx;
 
+    // We don't consider all 3-tracklet combinations when a  high number of tracklets is found 
+    // Faster method is used for > 40 tracklets
+    if(trks.size() > 40) {
+      MSStraightLineVx_oldMethod(trks, vtx);
+      return;
+    }
+
+    // Okay, if we get here then we know there's 40 or fewer tracklets in the cluster.
     // Make a list of all 3-tracklet combinations that make vertices
     for(unsigned int i = 0; i < trks.size() - 2; i++) {
       for(unsigned int j = i+1; j < trks.size() - 1; j++) {
@@ -735,7 +825,8 @@ namespace Muon {
 
           Amg::Vector3D MyVx;
           MyVx = VxMinQuad(getTracklets(trks, tmpTracks));
-          if(MyVx.perp() < 10000 && fabs(MyVx.z()) > 7000 && fabs(MyVx.z()) < 15000 && !EndcapHasBadTrack(getTracklets(trks, tmpTracks), MyVx))
+          if(MyVx.perp() < 10000 && fabs(MyVx.z()) > 7000 && fabs(MyVx.z()) < 15000 && 
+	     !EndcapHasBadTrack(getTracklets(trks, tmpTracks), MyVx))
             prelim_vx.insert(tmpTracks);
         }
       }
@@ -743,7 +834,7 @@ namespace Muon {
 
     // If no preliminary vertices were found from 3 tracklets, then there is no vertex and we are done.
     if(prelim_vx.size() == 0)
-      return NULL;
+      return;
 
     // The remaining algorithm is very time consuming for large numbers of tracklets.  To control this,
     // we run the old algorithm when there are too many tracklets and a vertex is found.
@@ -763,12 +854,13 @@ namespace Muon {
             std::set<int> tempCluster = *itr;
             if(tempCluster.insert(i_trks).second) {
               Amg::Vector3D MyVx = VxMinQuad(getTracklets(trks, tempCluster));
-              if(MyVx.perp() < 10000 && fabs(MyVx.z()) > 7000 && fabs(MyVx.z()) < 15000 && !EndcapHasBadTrack(getTracklets(trks, tempCluster), MyVx)) {
+              if(MyVx.perp() < 10000 && fabs(MyVx.z()) > 7000 && fabs(MyVx.z()) < 15000 && 
+		 !EndcapHasBadTrack(getTracklets(trks, tempCluster), MyVx)) {
                 new_prelim_vx.insert(tempCluster);
                 prelim_vx.insert(tempCluster);
                 foundNewVx = true;
               }
-            }       
+            }
           }
         }
       }
@@ -777,9 +869,8 @@ namespace Muon {
       // Since there are 20 or more tracklets, we're going to use the old MSVx finding method.  Note that
       // if the old method fails, we do not return here; in this case a 3-tracklet vertex that was found 
       // earlier in this algorithm will be returned
-      MSVertex* tempVertex = MSStraightLineVx_oldMethod(trks);
-      if(tempVertex)
-        return tempVertex;
+      MSStraightLineVx_oldMethod(trks, vtx);
+      if (vtx) return;
     }
 
     // Find the preliminary vertex with the maximum number of tracklets - that is the final vertex.  If
@@ -800,19 +891,18 @@ namespace Muon {
     float tracklet_vxphi = atan2(aveY,aveX);
     Amg::Vector3D MyVx = VxMinQuad(tracklets);
     float vxtheta = atan2(MyVx.x(),MyVx.z());
-    float vxphi = vxPhiFinder(vxtheta,tracklet_vxphi);
+    float vxphi = vxPhiFinder(fabs(vxtheta),tracklet_vxphi);
       
     Amg::Vector3D vxpos(MyVx.x()*cos(vxphi),MyVx.x()*sin(vxphi),MyVx.z());
     std::vector<xAOD::TrackParticle*> vxTrkTracks; 
     for(std::vector<Tracklet>::iterator tracklet = tracklets.begin(); tracklet != tracklets.end(); tracklet++) {
+
       AmgSymMatrix(5)* covariance = new AmgSymMatrix(5)(((Tracklet)*tracklet).errorMatrix());
       Trk::Perigee* myPerigee = new Trk::Perigee(vxpos,((Tracklet)*tracklet).momentum(),0,vxpos,covariance);
-      const Trk::TrackParameters * trkpar = dynamic_cast<const Trk::TrackParameters*>(myPerigee);
-      DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>;
-      trackStateOnSurfaces->push_back( new Trk::TrackStateOnSurface(0,trkpar) );
-      Trk::TrackInfo info( Trk::TrackInfo::Unknown, Trk::undefined);
 
       xAOD::TrackParticle* myTrack = new xAOD::TrackParticle();
+
+      myTrack->makePrivateStore();
       myTrack->setFitQuality(1.,(int)((Tracklet)*tracklet).mdtHitsOnTrack().size());
       myTrack->setDefiningParameters(myPerigee->parameters()[Trk::d0],
 				     myPerigee->parameters()[Trk::z0],
@@ -820,11 +910,29 @@ namespace Muon {
 				     myPerigee->parameters()[Trk::theta],
 				     myPerigee->parameters()[Trk::qOverP]);
 
+      std::vector<float> covMatrixVec;
+      Amg::compress(*covariance,covMatrixVec);
+      myTrack->setDefiningParametersCovMatrixVec(covMatrixVec);
+
       vxTrkTracks.push_back(myTrack);
+
+      delete myPerigee;
     }
     
-    MSVertex* vertex = new MSVertex(2,vxpos,vxTrkTracks,1,0,0,0,0);
-    return vertex;
+    MSVertex vertex(2,vxpos,vxTrkTracks,1,vxTrkTracks.size(),0,0,0);
+    vtx = vertex.clone();
+    return;
+  }
+
+
+//** ----------------------------------------------------------------------------------------------------------------- **//
+
+
+  void MSVertexRecoTool::MakeDummyVertex(MSVertex*& vtx) {
+    const Amg::Vector3D vxpos(-9.99, -9.99, -9.99);
+    MSVertex *vertex = new MSVertex(-1, vxpos, 1., 1., 0, 0, 0);
+    vtx = vertex;
+    return;
   }
 
 
@@ -832,7 +940,7 @@ namespace Muon {
 
 
   //vertex finding routine for the endcap
-  MSVertex* MSVertexRecoTool::MSStraightLineVx_oldMethod(std::vector<Tracklet> trks) {
+  void MSVertexRecoTool::MSStraightLineVx_oldMethod(std::vector<Tracklet> trks, MSVertex*& vtx) {
     //find the line of flight of the vpion
     float aveX(0),aveY(0),aveR(0),aveZ(0);
     for(std::vector<Tracklet>::iterator trkItr=trks.begin(); trkItr!=trks.end(); ++trkItr) {
@@ -845,7 +953,7 @@ namespace Muon {
   
     Amg::Vector3D MyVx(0,0,0);
     std::vector<Tracklet> tracks = RemoveBadTrk(trks,MyVx);
-    if(tracks.size() < 2) return NULL;
+    if(tracks.size() < 2) return;
   
     while(true) {
       MyVx = VxMinQuad(tracks);
@@ -855,7 +963,7 @@ namespace Muon {
     }
     if(tracks.size() >= 3 && MyVx.x() > 0) {
       float vxtheta = atan2(MyVx.x(),MyVx.z());
-      vxphi = vxPhiFinder(vxtheta,vxphi);
+      vxphi = vxPhiFinder(fabs(vxtheta),vxphi);
       Amg::Vector3D vxpos(MyVx.x()*cos(vxphi),MyVx.x()*sin(vxphi),MyVx.z());
       //make Trk::Track for each tracklet used in the vertex fit
       std::vector<xAOD::TrackParticle*> vxTrackParticles;	      
@@ -863,6 +971,7 @@ namespace Muon {
 	AmgSymMatrix(5) * covariance = new AmgSymMatrix(5)(trklt->errorMatrix());
 	Trk::Perigee* myPerigee = new Trk::Perigee(0.,0.,trklt->momentum().phi(),trklt->momentum().theta(),trklt->charge()/trklt->momentum().mag(),Trk::PerigeeSurface(trklt->globalPosition()),covariance);
 	xAOD::TrackParticle* trackparticle = new xAOD::TrackParticle();
+	trackparticle->makePrivateStore();
 	trackparticle->setFitQuality(1.,(int)trklt->mdtHitsOnTrack().size());
 	trackparticle->setTrackProperties(xAOD::TrackProperties::LowPtTrack);
 
@@ -881,10 +990,10 @@ namespace Muon {
 
       }
 
-      MSVertex* vertex = new MSVertex(2,vxpos,vxTrackParticles,1,(float)vxTrackParticles.size(),0,0,0);
-      return vertex;
-    }    
-    return NULL;
+      MSVertex vertex(2,vxpos,vxTrackParticles,1,(float)vxTrackParticles.size(),0,0,0);
+      vtx = vertex.clone();
+    }
+    return;
   }
 
 
@@ -946,6 +1055,56 @@ namespace Muon {
    
     // No tracks found that are too far, so it is okay.
     return false;
+  }
+
+
+//** ----------------------------------------------------------------------------------------------------------------- **//
+
+
+  StatusCode MSVertexRecoTool::FillOutputContainer(std::vector<MSVertex*>& vertices) {
+    
+    //create xAOD::vertex - the container needs to be created for every event
+    xAOD::VertexContainer* xAODVxContainer = new xAOD::VertexContainer();
+    if(evtStore()->record(xAODVxContainer,xAODContainerName).isFailure()) {
+      ATH_MSG_WARNING("Failed to record the xAOD::VertexContainer with key " << xAODContainerName);
+      return StatusCode::FAILURE;
+    }
+    
+    xAOD::VertexAuxContainer* aux = new xAOD::VertexAuxContainer();
+    if(evtStore()->record(aux,xAODContainerName+"Aux.").isFailure()) {
+      ATH_MSG_WARNING("Failed to record the xAOD::VertexAuxContainer with key " << xAODContainerName);
+      return StatusCode::FAILURE;
+    }
+    
+    xAODVxContainer->setStore( aux );
+    
+    for(std::vector<MSVertex*>::const_iterator vxIt=vertices.begin(); vxIt!=vertices.end(); ++vxIt) {
+      
+      xAOD::Vertex* xAODVx = new xAOD::Vertex();
+      xAODVx->makePrivateStore();
+      xAODVx->setVertexType(xAOD::VxType::SecVtx);
+      xAODVx->setPosition( (*vxIt)->getPosition() );
+      xAODVx->setFitQuality( (*vxIt)->getChi2(), (*vxIt)->getNTracks()-1 );
+      
+      //dress the vertex with the hit counts
+      xAODVx->auxdata< int >( "nMDT" ) = (*vxIt)->getNMDT();
+      xAODVx->auxdata< int >( "nRPC" ) = (*vxIt)->getNRPC();
+      xAODVx->auxdata< int >( "nTGC" ) = (*vxIt)->getNTGC();
+
+      //store the new xAOD vertex
+      xAODVxContainer->push_back(xAODVx);
+    }
+
+    //cleanup
+    for(std::vector<MSVertex*>::iterator vxIt=vertices.begin(); vxIt!=vertices.end(); ++vxIt) {
+      if ( (*vxIt) ) {
+	delete (*vxIt);
+	(*vxIt) = 0;
+      }
+    }
+    vertices.clear();
+
+    return StatusCode::SUCCESS;
   }
 
 

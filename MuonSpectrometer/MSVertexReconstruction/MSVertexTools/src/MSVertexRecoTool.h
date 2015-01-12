@@ -50,6 +50,11 @@ namespace Muon {
       int trks[100];
       bool isSystematic;
       std::vector<Tracklet> tracks;
+      TrkCluster() {
+	eta = 0;
+	phi = 0;
+	ntrks = 0;
+      }
     }; 
     
 
@@ -70,6 +75,8 @@ namespace Muon {
     int m_minHighOccupancyChambers;
     int m_ChamberOccupancyMin;
     int m_useOldMSVxEndcapMethod;
+    unsigned int m_maxGlobalTracklets;
+    unsigned int m_maxClusterTracklets;
     float m_MaxTollDist;
     float PI;
     bool m_doSystematics;
@@ -81,16 +88,19 @@ namespace Muon {
 
   public:
 
-    StatusCode findMSvertices(std::vector<Tracklet>& traklets);
+    StatusCode findMSvertices(std::vector<Tracklet>& traklets, std::vector<MSVertex*>& vertices);
     
   private:
     MSVertex* MSVxFinder(std::vector<Tracklet>& tracklets);//barrel vertex reco algorithm
-    MSVertex* MSStraightLineVx(std::vector<Tracklet> trks);//endcap vertex reco algorithm
-    MSVertex* MSStraightLineVx_oldMethod(std::vector<Tracklet> trks);
+    //endcap vertex reco algorithm
+    void MSStraightLineVx(std::vector<Tracklet> trks, MSVertex*& vtx);
+    void MSStraightLineVx_oldMethod(std::vector<Tracklet> trks, MSVertex*& vtx);
+    void MakeDummyVertex(MSVertex*&);
     float vxPhiFinder(float theta,float phi);//vertex phi location reco algorithm
     void HitCounter(MSVertex* MSRecoVx);//counts MDT, RPC & TGC around a reco'd vertex
     std::vector<TrkCluster> findTrackClusters(std::vector<Tracklet>& tracklets);//group tracklets into clusters -- vertex reco runs on each cluster of tracklets
     TrkCluster ClusterizeTracks(std::vector<Tracklet>& tracks);//core algorithm for creating the clusters
+    StatusCode FillOutputContainer(std::vector<MSVertex*>&);
     Amg::Vector3D VxMinQuad(std::vector<Tracklet> tracks);//endcap vertex reco core
     std::vector<Tracklet> RemoveBadTrk(std::vector<Tracklet> tracklets, Amg::Vector3D Vx);//endcap vertex algo track selector
     bool EndcapHasBadTrack(std::vector<Tracklet> tracklets, Amg::Vector3D Vx);

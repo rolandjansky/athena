@@ -111,7 +111,33 @@ namespace Muon {
     //sort the MDT hits into chambers & MLs
     std::vector<std::vector<Muon::MdtPrepData*> > SortedMdt;
     nMDT = SortMDThits(SortedMdt);   
+
+    // SortMDThits returns -1 if sorting fails
+    if(nMDT < 0)
+      return StatusCode::FAILURE;
     
+    if (msgLvl(MSG::DEBUG)) 
+      msg(MSG::DEBUG) << nMDT << " MDT hits are selected and sorted" << endreq;
+
+    if (!nMDT) {
+
+      //record TrackParticle container in StoreGate
+      xAOD::TrackParticleContainer* container = new xAOD::TrackParticleContainer();
+      if(evtStore()->record( container, m_TPContainer ).isFailure()) {
+	ATH_MSG_WARNING("Failed to record the xAOD::TrackParticleContainer with key " << m_TPContainer);
+	return StatusCode::SUCCESS;
+      }
+      
+      xAOD::TrackParticleAuxContainer* aux = new xAOD::TrackParticleAuxContainer();
+      if(evtStore()->record( aux, m_TPContainer + "Aux." ).isFailure()) {
+	ATH_MSG_WARNING("Failed to record the xAOD::TrackParticleAuxContainer with key " << m_TPContainer << "Aux");
+	return StatusCode::SUCCESS;
+      }
+      container->setStore(aux);
+      
+      return StatusCode::SUCCESS;
+    }
+
     //loop over the MDT hits and find segments
     //select the tube combinations to be fit
     /*Select hits in at least 2 layers and require hits be ordered by increasing tube number (see diagrams below).      
@@ -334,15 +360,16 @@ namespace Muon {
 
   //convert tracklets to Trk::Track and store in a TrackCollection
   void MSVertexTrackletTool::convertToTrackParticles(std::vector<Tracklet>& tracklets) {
-
+    
+    //record TrackParticle container in StoreGate
     xAOD::TrackParticleContainer* container = new xAOD::TrackParticleContainer();
     if(evtStore()->record( container, m_TPContainer ).isFailure()) {
       ATH_MSG_WARNING("Failed to record the xAOD::TrackParticleContainer with key " << m_TPContainer);
       return;
     }
-
+    
     xAOD::TrackParticleAuxContainer* aux = new xAOD::TrackParticleAuxContainer();
-    if(evtStore()->record( aux, m_TPContainer + "Aux" ).isFailure()) {
+    if(evtStore()->record( aux, m_TPContainer + "Aux." ).isFailure()) {
       ATH_MSG_WARNING("Failed to record the xAOD::TrackParticleAuxContainer with key " << m_TPContainer << "Aux");
       return;
     }
@@ -355,13 +382,13 @@ namespace Muon {
       Trk::Perigee * myPerigee = new Trk::Perigee(0.,0.,trkItr->momentum().phi(),trkItr->momentum().theta(),
 						  trkItr->charge()/trkItr->momentum().mag(),
 						  Trk::PerigeeSurface(trkItr->globalPosition()),covariance);
-
+      
       //create, store & define the xAOD::TrackParticle
       xAOD::TrackParticle* trackparticle = new xAOD::TrackParticle();
 
       container->push_back( trackparticle );
 
-      trackparticle->setFitQuality(1.,(float)trkItr->mdtHitsOnTrack().size());
+      //trackparticle->setFitQuality(1.,(float)trkItr->mdtHitsOnTrack().size());
       trackparticle->setTrackProperties(xAOD::TrackProperties::LowPtTrack);
       trackparticle->setDefiningParameters(myPerigee->parameters()[Trk::d0],
 					   myPerigee->parameters()[Trk::z0],
@@ -389,16 +416,23 @@ namespace Muon {
     int nMDT(0);
     const Muon::MdtPrepDataContainer* mdtTES = 0;
     if(evtStore()->retrieve(mdtTES,"MDT_DriftCircles").isFailure()) {
-      ATH_MSG_FATAL( "No MdtPrepDataContainer found!!" );
+      if (msgLvl(MSG::DEBUG)) 
+	msg(MSG::DEBUG) << "Muon::MdtPrepDataContainer with key MDT_DriftCircles was not retrieved" << endreq;
       return 0;
+    } else {
+      if (msgLvl(MSG::DEBUG)) 
+	msg(MSG::DEBUG) << "Muon::MdtPrepDataContainer with key MDT_DriftCircles retrieved" << endreq;
     }
+
     Muon::MdtPrepDataContainer::const_iterator MDTItr = mdtTES->begin();
     Muon::MdtPrepDataContainer::const_iterator MDTItrE = mdtTES->end();
-
+    
     for(; MDTItr != MDTItrE; ++MDTItr) {
 
       Muon::MdtPrepDataCollection::const_iterator mpdc = (*MDTItr)->begin();
       Muon::MdtPrepDataCollection::const_iterator mpdcE = (*MDTItr)->end();
+
+      if ((*MDTItr)->size()==0) continue; 
 
       int stName = m_mdtIdHelper->stationName((*mpdc)->identify());
 
@@ -422,47 +456,38 @@ namespace Muon {
 	// Should not happen but is seen in the barrel
 	if((*mpdc)->tdc() < 300 || (*mpdc)->tdc() > 2100) continue;
 
-	// Doesn't include hits on tubes that have multiple, good hits
-        Identifier mpdc_id = (*mpdc)->identify();
-        int hitIsUnique = 1;
-        Muon::MdtPrepDataContainer::const_iterator MDTItr2= mdtTES->begin();
-        for(;MDTItr2 != mdtTES->end(); MDTItr2++) {
-          Muon::MdtPrepDataCollection::const_iterator mpdc2 = (*MDTItr)->begin();
-          Muon::MdtPrepDataCollection::const_iterator mpdcE2 = (*MDTItr)->end();
-          for(;mpdc2 != mpdcE2; mpdc2++) {
-            if(mpdc == mpdc2) continue;
-            if((*mpdc2)->adc() < 50) continue;
-            if((*mpdc2)->status() != 1) continue;
-            if((*mpdc2)->localPosition()[Trk::locR] == 0.) continue;
-	    
-            if((*mpdc2)->identify() == mpdc_id) {
-              hitIsUnique = 0;
-            }
-          }
-        }
-        if(!hitIsUnique) continue;
-
 	nMDT++;
 
-	int foundChamberML = 0;
-        for(unsigned int i = 0; i < SortedMdt.size(); i++) {
-          if(SortedMdt.size() == 0) continue;
-	  
-          Identifier id1 = SortedMdt.at(i).at(0)->identify();
+        bool isNewChamberML(true);
+        if(SortedMdt.size() != 0) {
+          Identifier id1 = SortedMdt.back().front()->identify();
           Identifier id2 = (*mpdc)->identify();
-          if(SortMDT(id1, id2)) { 
-            foundChamberML = 1;
-            SortedMdt.at(i).push_back(*mpdc);
+          if(SortMDT(id1,id2)) {
+            SortedMdt.back().push_back((*mpdc));
+            isNewChamberML = false;
           }
         }
-        if(!foundChamberML) {
+
+        if(isNewChamberML) {
           std::vector<Muon::MdtPrepData*> tempMdt;
           tempMdt.push_back((*mpdc));
           SortedMdt.push_back(tempMdt);
         }
-
       }//end MdtPrepDataCollection
     }//end MdtPrepDataContaier
+
+    for(unsigned int i = 0; i < SortedMdt.size(); i++) {
+      Identifier id1 = SortedMdt.at(i).front()->identify();
+      for(unsigned int j = i + 1; j < SortedMdt.size(); j++) {
+        Identifier id2 = SortedMdt.at(j).front()->identify();
+        
+        if(SortMDT(id1, id2)) {
+          ATH_MSG_ERROR("Failed to correctly sort MDT hits.");
+          return -1;
+        }
+      }
+    }
+
     //loop over ML, remove any with occupancy > 75%
     for(std::vector<std::vector<Muon::MdtPrepData*> >::iterator mlIt=SortedMdt.begin(); mlIt!=SortedMdt.end(); ++mlIt) {
       Identifier id = (*mlIt)[0]->identify();
@@ -471,7 +496,7 @@ namespace Muon {
       if(frac > 0.75) (*mlIt).clear();
       else std::sort(mlIt->begin(),mlIt->end(),MSVertexTrackletTool::mdtComp);//sort the MDTs by layer and tube number
     }
-    
+
     return nMDT;
   }
 
