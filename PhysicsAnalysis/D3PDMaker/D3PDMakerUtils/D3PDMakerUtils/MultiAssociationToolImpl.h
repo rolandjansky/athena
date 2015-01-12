@@ -41,8 +41,7 @@ namespace D3PD {
  * be overridden if the tool should itself fill any tuple variables.
  */
 class MultiAssociationToolImpl
-  : public AthAlgTool,
-    public IMultiAssociationTool,
+  : public extends1<AthAlgTool, IMultiAssociationTool>,
     public AddVariable
 {
 public:
@@ -55,11 +54,6 @@ public:
   MultiAssociationToolImpl (const std::string& type,
                             const std::string& name,
                             const IInterface* parent);
-
-
-  /// Standard Gaudi @c queryInterface method.
-  virtual StatusCode queryInterface( const InterfaceID& riid,
-                                     void** ppvIf );
 
 
   /**

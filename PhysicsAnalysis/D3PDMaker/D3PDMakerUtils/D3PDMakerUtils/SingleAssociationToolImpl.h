@@ -42,8 +42,7 @@ namespace D3PD {
  * be overridden if the tool should itself fill any tuple variables.
  */
 class SingleAssociationToolImpl
-  : public AthAlgTool,
-    public ISingleAssociationTool,
+  : public extends1<AthAlgTool, ISingleAssociationTool>,
     public AddVariable
 {
 public:
@@ -56,11 +55,6 @@ public:
   SingleAssociationToolImpl (const std::string& type,
                              const std::string& name,
                              const IInterface* parent);
-
-
-  /// Standard Gaudi @c queryInterface method.
-  virtual StatusCode queryInterface( const InterfaceID& riid,
-                                     void** ppvIf );
 
 
   /**

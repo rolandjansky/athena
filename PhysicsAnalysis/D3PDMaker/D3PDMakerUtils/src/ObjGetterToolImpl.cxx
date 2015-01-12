@@ -28,25 +28,8 @@ namespace D3PD {
 ObjGetterToolImpl::ObjGetterToolImpl (const std::string& type,
                                       const std::string& name,
                                       const IInterface* parent)
-  : AthAlgTool (type, name, parent)
+  : base_class (type, name, parent)
 {
-}
-
-
-/**
- * @brief Standard Gaudi @c queryInterface method.
- */
-StatusCode
-ObjGetterToolImpl::queryInterface( const InterfaceID& riid,
-                                   void** ppvIf )
-{
-  if ( riid == D3PD::IObjGetterTool::interfaceID() )  {
-    *ppvIf = static_cast<D3PD::IObjGetterTool*> (this);
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-
-  return AlgTool::queryInterface( riid, ppvIf );
 }
 
 

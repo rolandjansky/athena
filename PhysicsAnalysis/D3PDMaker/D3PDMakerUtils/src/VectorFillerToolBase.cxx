@@ -59,7 +59,7 @@ void VectorFillerToolBase::Vars::next_all ()
 VectorFillerToolBase::VectorFillerToolBase (const std::string& type,
                                             const std::string& name,
                                             const IInterface* parent)
-  : AlgTool (type, name, parent),
+  : AthAlgTool (type, name, parent),
     m_metadata (),
     m_prefix (),
     m_blockFillers (this),
@@ -90,7 +90,7 @@ VectorFillerToolBase::VectorFillerToolBase (const std::string& type,
 StatusCode
 VectorFillerToolBase::initialize()
 {
-  CHECK( AlgTool::initialize() );
+  CHECK( AthAlgTool::initialize() );
   CHECK( m_blockFillers.retrieve() );
   return StatusCode::SUCCESS;
 }

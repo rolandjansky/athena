@@ -118,11 +118,10 @@ protected:
   /// Property: Instance of the ClassIDSvc to use.
   ServiceHandle<IClassIDSvc> m_clidsvc;
 
-
-private:
   /// Helper: Resolve the SG key to use.
   SGKeyResolver m_resolver;
 
+private:
   /// CLID for the object being retrieved.
   CLID m_clid;
 

@@ -40,7 +40,7 @@ namespace D3PD {
  * interface.
  */       
 class BlockFillerToolImpl
-  : public AthAlgTool, public IBlockFillerTool, public AddVariable
+  : public extends1<AthAlgTool, IBlockFillerTool>, public AddVariable
 {
 public:
   /**
@@ -52,11 +52,6 @@ public:
   BlockFillerToolImpl (const std::string& type,
                        const std::string& name,
                        const IInterface* parent);
-
-
-  /// Standard Gaudi @c queryInterface method.
-  virtual StatusCode queryInterface( const InterfaceID& riid,
-                                     void** ppvIf );
 
 
 protected:

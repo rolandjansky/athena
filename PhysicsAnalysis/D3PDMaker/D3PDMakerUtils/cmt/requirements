@@ -15,6 +15,7 @@ use D3PDMakerInterfaces        D3PDMakerInterfaces-*   PhysicsAnalysis/D3PDMaker
 
 private
 use AtlasROOT                  AtlasROOT-*             External
+use AthContainersInterfaces    AthContainersInterfaces-* Control
 end_private
 
 library D3PDMakerUtils *.cxx

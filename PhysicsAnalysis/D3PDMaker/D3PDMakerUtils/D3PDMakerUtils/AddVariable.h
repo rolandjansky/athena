@@ -27,10 +27,10 @@ namespace D3PD {
  * @brief Common implementation of @c IAddVariable.
  *
  * This implements the @c IAddVariable interface for the common case
- * where we just need to add a prefix to the variable name and forward
+ * where we just need to add a prefix/suffix to the variable name and forward
  * to another @c IAddVariable.
  *
- * References to the prefix and block name are passed to the constructor
+ * References to the prefix/suffix and block name are passed to the constructor
  * (these will typically be tool properties) and the parent @c IAddVariable
  * is passed to @c configureD3PD.
  */

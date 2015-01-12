@@ -15,7 +15,7 @@
 #include "D3PDMakerUtils/TypeNameConversions.h"
 #include "SGTools/DataProxy.h"
 #include "AthenaKernel/errorcheck.h"
-
+#include "AthContainersInterfaces/IConstAuxStore.h"
 
 namespace D3PD {
 
@@ -76,6 +76,7 @@ const void* SGGetterImpl::getUntyped (bool allowMissing /*= false*/)
       REPORT_MESSAGE (MSG::FATAL) << "Can't find object in event store for "
                                   << m_typename << "(" << m_clid << ")/" 
                                   << key;
+      REPORT_MESSAGE (MSG::INFO) << m_sg->dump();
     }
     return 0;
   }
@@ -89,6 +90,9 @@ const void* SGGetterImpl::getUntyped (bool allowMissing /*= false*/)
     }
     return 0;
   }
+
+  // Try to retrieve a corresponding aux store as well.
+  m_sg->tryConstRetrieve<SG::IConstAuxStore> (key + "Aux.");
 
   return ptr;
 }

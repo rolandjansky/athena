@@ -27,7 +27,7 @@ namespace D3PD {
 BlockFillerToolImpl::BlockFillerToolImpl (const std::string& type,
                                           const std::string& name,
                                           const IInterface* parent)
-  : AthAlgTool (type, name, parent),
+  : base_class (type, name, parent),
     AddVariable (m_prefix, m_blockName, m_suffix)
 {
   declareProperty ("Prefix", m_prefix = "",
@@ -36,22 +36,6 @@ BlockFillerToolImpl::BlockFillerToolImpl (const std::string& type,
                    "Tuple variable suffix for this block.");
   declareProperty ("BlockName", m_blockName = this->name(),
                    "The name of this block.");
-}
-
-
-/**
- * @brief Standard Gaudi @c queryInterface method.
- */
-StatusCode
-BlockFillerToolImpl::queryInterface( const InterfaceID& riid, void** ppvIf )
-{
-  if ( riid == IBlockFillerTool::interfaceID() )  {
-    *ppvIf = static_cast<IBlockFillerTool*> (this);
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-
-  return AlgTool::queryInterface( riid, ppvIf );
 }
 
 

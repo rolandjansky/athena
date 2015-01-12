@@ -28,7 +28,7 @@ namespace D3PD {
 CollectionGetterToolImpl::CollectionGetterToolImpl (const std::string& type,
                                                     const std::string& name,
                                                     const IInterface* parent)
-  : ObjGetterToolImpl (type, name, parent)
+  : base_class (type, name, parent)
 {
   declareProperty ("Label", m_label,
                    "Label to assign to this getter, to be able to reference "
@@ -36,23 +36,6 @@ CollectionGetterToolImpl::CollectionGetterToolImpl (const std::string& type,
                    "is needed.");
   declareProperty ("CollectionGetterRegistry", m_registry,
                    "Collection getter registry tool");
-}
-
-
-/**
- * @brief Standard Gaudi @c queryInterface method.
- */
-StatusCode
-CollectionGetterToolImpl::queryInterface( const InterfaceID& riid,
-                                          void** ppvIf )
-{
-  if ( riid == D3PD::ICollectionGetterTool::interfaceID() )  {
-    *ppvIf = static_cast<D3PD::ICollectionGetterTool*> (this);
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-
-  return ObjGetterToolImpl::queryInterface( riid, ppvIf );
 }
 
 

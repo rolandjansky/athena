@@ -37,7 +37,7 @@ namespace D3PD {
  * @c ObjGetterTool.
  */       
 class ObjGetterToolImpl
-  : public AthAlgTool, virtual public IObjGetterTool
+  : public extends1<AthAlgTool, IObjGetterTool>
 {
 public:
   /**
@@ -49,11 +49,6 @@ public:
   ObjGetterToolImpl (const std::string& type,
                      const std::string& name,
                      const IInterface* parent);
-
-
-  /// Standard Gaudi @c queryInterface method.
-  virtual StatusCode queryInterface( const InterfaceID& riid,
-                                     void** ppvIf );
 
 
   /**

@@ -38,7 +38,7 @@ namespace D3PD {
  * the pieces that don't depend on the template argument.
  */
 class CollectionGetterToolImpl
-  : public ObjGetterToolImpl, virtual public ICollectionGetterTool
+  : public extends1<ObjGetterToolImpl, ICollectionGetterTool>
 {
 public:
   /**
@@ -50,11 +50,6 @@ public:
   CollectionGetterToolImpl (const std::string& type,
                             const std::string& name,
                             const IInterface* parent);
-
-
-  /// Standard Gaudi @c queryInterface method.
-  virtual StatusCode queryInterface( const InterfaceID& riid,
-                                     void** ppvIf );
 
 
   /// Standard Gaudi @c initialize method.

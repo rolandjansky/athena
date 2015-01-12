@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ObjectMetadata.cxx 530457 2012-12-13 18:24:29Z krasznaa $
+// $Id: ObjectMetadata.cxx 638778 2015-01-12 04:48:19Z ssnyder $
 
 // Boost include(s):
 #include <boost/tokenizer.hpp>
@@ -300,7 +300,7 @@ namespace D3PD {
       // Check that the metadata was saved using the same version of the
       // serializer code. Later on we might want to introduce backward
       // compatibility, but for now this simple check should be enough.
-      if( boost::lexical_cast< unsigned int >( *itr ) != SERIALIZER_VERSION ) {
+      if( atoi(itr->c_str()) != SERIALIZER_VERSION ) {
          REPORT_MESSAGE_WITH_CONTEXT( MSG::FATAL, "ObjectMetadata" )
             << "Version mismatch! The metadata was saved with a different "
             << "serialization version (" << *itr << ") than the code used ("

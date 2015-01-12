@@ -20,7 +20,7 @@
 #include "ObjectMetadata.h"
 #include "D3PDMakerInterfaces/IAddVariable.h"
 #include "D3PDMakerInterfaces/IBlockFillerTool.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include <vector>
 #include <list>
@@ -75,7 +75,7 @@ class IIteration;
  *                  Omitted if empty (default).
  */
 class VectorFillerToolBase
-  : public AlgTool,
+  : public AthAlgTool,
     public IAddVariable
 {
 public:

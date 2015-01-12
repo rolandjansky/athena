@@ -28,30 +28,13 @@ MultiAssociationToolImpl::MultiAssociationToolImpl
   (const std::string& type,
    const std::string& name,
    const IInterface* parent)
-  : AthAlgTool (type, name, parent),
+  : base_class (type, name, parent),
     AddVariable (m_prefix, m_blockName)
 {
   declareProperty ("Prefix", m_prefix = "",
                    "Tuple variable prefix for this block.");
   declareProperty ("BlockName", m_blockName = this->name(),
                    "The name of this block.");
-}
-
-
-/**
- * @brief Standard Gaudi @c queryInterface method.
- */
-StatusCode
-MultiAssociationToolImpl::queryInterface
-  ( const InterfaceID& riid, void** ppvIf )
-{
-  if ( riid == IMultiAssociationTool::interfaceID() )  {
-    *ppvIf = static_cast<IMultiAssociationTool*> (this);
-    addRef();
-    return StatusCode::SUCCESS;
-  }
-
-  return AlgTool::queryInterface( riid, ppvIf );
 }
 
 
