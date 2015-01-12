@@ -239,12 +239,11 @@ SectorLogic::~SectorLogic(void) {
 
 
 CMAword SectorLogic::outputToMuCTPI(ubit16 bunchID) {
-  ubit16 bxsafe=nBunMax/2;
-  //  if( 0 <= bunchID && bunchID <= nBunMax-1 ) {
+  ubit16 bxsafe=BCZERO;
   if( bunchID <= nBunMax-1 ) {
     bxsafe=bunchID;
   } else {
-    DISP << "warning : bunchID out of range, default value nBunMax/2 assigned\n";
+      DISP << "warning : bunchID out of range, set to default value" << bxsafe ;
     DISP_WARNING;
   }
   return output(bxsafe);
@@ -339,6 +338,11 @@ void SectorLogic::load(ubit16 padAdd, ubit16 BX, ubit16 RoIAdd, ubit16 pT,
 
   InFromTileCal[BX]=0xff;
 
+  /*
+  DISP << "input from pad : BC = " << BX << " padAdd = " << padAdd
+       << " pT = "<<  pT << " roi = " << RoIAdd << " bcid = " << BCIDcounter;
+  DISP_DEBUG;
+  */
 }
 //****************************************************************************//
 OutputFromSectorLogic SectorLogic::dbgoutput(ubit16 i){

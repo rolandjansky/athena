@@ -219,8 +219,9 @@ public:
 
   ubit16 numberOfBunches(){return nBunMax;};
   //    ubit16 sectorAddress(){return m_sector;};
-  CMAword outputToMuCTPI(){return output(nBunMax/2);};
-  CMAword outputToMuCTPI(ubit16 bunchID);
+
+  CMAword outputToMuCTPI(ubit16 bunchID=BCZERO);
+    
 
   // init and check
   void init(void);

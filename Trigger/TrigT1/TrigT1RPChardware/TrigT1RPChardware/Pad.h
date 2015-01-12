@@ -35,12 +35,20 @@ ubit16 getRoIAmbiguity(ubit16 bunch);
 ubit16 getBCIDCounter(ubit16 bunch);
 bool   isOldSimulation(); //M.C. 3/3/2010
 void   setOldSimulation(bool value); 
-    
+
+// M.Corradi Jan 9, 2015
+    void setFeetOn(bool feet) {m_feet_on = feet;};
+void setFeetThresholds(unsigned short int ith, unsigned short int th)
+        {m_feet_thresholds[ith]=th;};
         
 private:
 int m_run;
 int m_event;
 bool m_oldSimulation; //M.C. 3/3/2010
+bool m_feet_on;
+unsigned short int m_feet_thresholds[3];
+    
+    
 //
 // pad parameters
 //
@@ -160,5 +168,7 @@ void makeOutEta();
 void makeOutPhi();
 void makeOutEtaAndPhi();
 void makeOutEtaOrPhi();
+void makeFeet();
+    
 };//end-of-class Pad
 #endif

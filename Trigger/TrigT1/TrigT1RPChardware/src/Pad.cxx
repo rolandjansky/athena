@@ -35,6 +35,8 @@ padadd=padad;
 lowhigh=lowhig;
 //
 nBunMax = NOBXS;
+m_feet_on=false;
+m_feet_thresholds[0]=0;m_feet_thresholds[1]=1;m_feet_thresholds[2]=2;
 //
 if(padDebug&1<<df) {
  cout<<" ==================== "<<endl;
@@ -144,6 +146,7 @@ if(lowhigh) {
  threshold();
  overlap();
  makeOut();
+ if (m_feet_on) makeFeet();
 }//end-of-if(lowhigh
 }//end-of-Pad::execute
 //---------------------------------------------------------//
@@ -305,6 +308,13 @@ for(l=0; l<nBunMax; l++) {  //loop on Bunches
 }//end-of-for(l
 }//end-of-makeOuttaEOrPhi()
 //---------------------------------------------------------//
+void Pad::makeFeet(){
+    ubit16 l;
+    for(l=0; l<nBunMax; l++){
+        if (padOut[l][1]>0) padOut[l][1]=m_feet_thresholds[padOut[l][1]-1]+1;
+    }
+}
+//---------------------------------------------------------//
 void Pad::display(int flag) {
 //
 // first dump the padStep2 registers
@@ -332,6 +342,8 @@ if(flag) {
  cout<<"     PAD addr  "<<padadd<<endl;
  cout<<"     Low-High  "<<lowhigh<<endl;
  cout<<"m_oldSimulation:" << m_oldSimulation<<endl;
+ cout<<" feet_on:" << m_feet_on;
+ if (m_feet_on) cout<<" feet_thresholds:" << m_feet_thresholds[0]<<","<< m_feet_thresholds[1]<<","<< m_feet_thresholds[2]<<endl;
  cout<<endl;
 }
 if(flag-1){
