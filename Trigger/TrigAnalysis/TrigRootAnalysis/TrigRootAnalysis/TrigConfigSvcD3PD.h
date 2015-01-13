@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigConfigSvcD3PD.h 609577 2014-07-31 12:43:56Z tamartin $
+// $Id: TrigConfigSvcD3PD.h 624676 2014-10-28 18:02:35Z tamartin $
 #ifndef TRIGROOTANALYSIS_TRIGCONFIGSVCD3PD_H
 #define TRIGROOTANALYSIS_TRIGCONFIGSVCD3PD_H
 
@@ -39,8 +39,8 @@ namespace D3PD {
     *
     * @author Attila Krasznahrokay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 609577 $
-    * $Date: 2014-07-31 14:43:56 +0200 (Thu, 31 Jul 2014) $
+    * $Revision: 624676 $
+    * $Date: 2014-10-28 19:02:35 +0100 (Tue, 28 Oct 2014) $
     */
    class TrigConfigSvcD3PD : public ::TNamed,
                              public IITrigConfigSvcD3PD {
@@ -144,7 +144,10 @@ namespace D3PD {
       std::string GetAlgName(UInt_t _s, UInt_t _a) const;
       UInt_t      GetAlgTypeID(UInt_t _s, UInt_t _a) const;
       std::string GetAlgTypeName(UInt_t _s, UInt_t _a) const;
-      
+
+      UInt_t      GetMetaStringN() const;
+      std::string GetMetaStringKey(UInt_t _m) const;
+      std::string GetMetaStringVal(UInt_t _m) const;
       // End [TrigMonConf]
 
    private:
@@ -224,10 +227,10 @@ namespace D3PD {
       std::map< DBKeys_t, std::vector< std::string > >                m_chainLowerName;
       std::map< DBKeys_t, std::vector< uint16_t > >                   m_chainLowerCounter;
       std::map< DBKeys_t, std::vector< uint8_t > >                    m_chainLevel;
-      std::map< DBKeys_t, std::vector< float > >                     m_chainPrescale;
-      std::map< DBKeys_t, std::vector< float > >                     m_chainPassthrough;
+      std::map< DBKeys_t, std::vector< float > >                      m_chainPrescale;
+      std::map< DBKeys_t, std::vector< float > >                      m_chainPassthrough;
       std::map< DBKeys_t, std::vector< std::vector< std::string > > > m_chainStreamNames;
-      std::map< DBKeys_t, std::vector< std::vector< float > > >      m_chainStreamPrescales;
+      std::map< DBKeys_t, std::vector< std::vector< float > > >       m_chainStreamPrescales;
       std::map< DBKeys_t, std::vector< std::vector< std::string > > > m_chainGroupNames;
       std::map< DBKeys_t, std::vector< std::vector< std::string > > > m_chainEBHypoNames;
       // variables for CHAIN -> SIGNATURE
@@ -253,6 +256,9 @@ namespace D3PD {
       std::map< DBKeys_t, std::vector< std::vector< uint32_t > > >    m_seqAlgTypeID;
       std::map< DBKeys_t, std::vector< std::vector< std::string > > > m_seqAlgName;
       std::map< DBKeys_t, std::vector< std::vector< std::string > > > m_seqAlgTypeName;
+      // variables for META
+      std::map< DBKeys_t, std::vector< std::string > >                m_metaStringKey;
+      std::map< DBKeys_t, std::vector< std::string > >                m_metaStringVal;
       
       ClassDef( D3PD::TrigConfigSvcD3PD, 0 )
 

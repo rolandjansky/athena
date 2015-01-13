@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigConfigSvcAthD3PD.h 502294 2012-05-24 16:11:19Z krasznaa $
+// $Id: TrigConfigSvcAthD3PD.h 637174 2014-12-20 00:26:47Z ssnyder $
 #ifndef TRIGROOTANALYSIS_TRIGCONFIGSVCATHD3PD_H
 #define TRIGROOTANALYSIS_TRIGCONFIGSVCATHD3PD_H
 
@@ -15,7 +15,7 @@
 // Gaudi/Athena include(s):
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaBaseComps/AthService.h"
-#include "StoreGate/RVar.h"
+#include "StoreGate/ReadHandle.h"
 
 // Local include(s):
 #include "../TrigRootAnalysis/ITrigConfigSvcD3PD.h"
@@ -28,8 +28,8 @@ namespace D3PD {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 502294 $
-    * $Date: 2012-05-24 18:11:19 +0200 (Thu, 24 May 2012) $
+    * $Revision: 637174 $
+    * $Date: 2014-12-20 01:26:47 +0100 (Sat, 20 Dec 2014) $
     */
    class TrigConfigSvcAthD3PD : public virtual AthService,
                                 public virtual ITrigConfigSvcD3PD,
@@ -87,11 +87,11 @@ namespace D3PD {
       TrigConfigSvcD3PD m_svc;
 
       /// The current event's SMK
-      SG::RVar< unsigned int > m_smk;
+      SG::ReadHandle< unsigned int > m_smk;
       /// The current event's L1PSK
-      SG::RVar< unsigned int > m_l1psk;
+      SG::ReadHandle< unsigned int > m_l1psk;
       /// The current event's HLTPSK
-      SG::RVar< unsigned int > m_hltpsk;
+      SG::ReadHandle< unsigned int > m_hltpsk;
 
       /// Name of the event tree in the job
       std::string m_tupleName;

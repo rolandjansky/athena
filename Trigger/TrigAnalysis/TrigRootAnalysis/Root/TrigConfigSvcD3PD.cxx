@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigConfigSvcD3PD.cxx 609577 2014-07-31 12:43:56Z tamartin $
+// $Id: TrigConfigSvcD3PD.cxx 624676 2014-10-28 18:02:35Z tamartin $
 
 // ROOT include(s):
 #include <TTree.h>
@@ -825,6 +825,11 @@ namespace D3PD {
       seqAlgTypeID.ReadFrom( tree );
       seqAlgName.ReadFrom( tree );
       seqAlgTypeName.ReadFrom( tree );
+      // Variable for META
+      D3PDReaderPriv::VarHandle< std::vector< std::string >* >                metaStringKey( this, "config_miscStringKey", &entry );
+      D3PDReaderPriv::VarHandle< std::vector< std::string >* >                metaStringVal( this, "config_miscStringVal", &entry );
+      metaStringKey.ReadFrom( tree );
+      metaStringVal.ReadFrom( tree );
 
       //
       // Check whether the LVL1 branches exist:
@@ -943,7 +948,10 @@ namespace D3PD {
             m_seqAlgTypeID[ keys ] = *( seqAlgTypeID() );
             m_seqAlgName[ keys ] = *( seqAlgName() );
             m_seqAlgTypeName[ keys ] = *( seqAlgTypeName() );
-            
+            // variables for META
+            m_metaStringKey[ keys ] = *( metaStringKey() );
+            m_metaStringVal[ keys ] = *( metaStringVal() );
+
             // Initialise the memory for the helper maps.            
             m_chainCounterMap[ keys ] = std::map< unsigned int, unsigned int >();
             m_TEIndexMap[ keys ] = std::map< unsigned int, unsigned int >();
@@ -1725,6 +1733,56 @@ namespace D3PD {
      }
      
      return (_map->second.at(_s)).at(_a); 
+   }
+
+   /**
+    * [TrigMonConf] Returns the number of string->string metadata pairs stored along with this config
+    *
+    * @returns The number of meta data entries
+    */
+   UInt_t TrigConfigSvcD3PD::GetMetaStringN() const {
+     std::map< DBKeys_t, std::vector< std::string > >::const_iterator _map = m_metaStringKey.find( m_key );
+     
+     if( _map == m_metaStringKey.end() ) {
+       Warning( "TrigConfigSvcD3PD::GetMetaStringN", "The requested information is not available" );
+       return 0;
+     }
+     
+     return (UInt_t) _map->second.size();
+   }
+
+   /**
+    * [TrigMonConf] Returns the string key of metadata at location _m
+    *
+    * @param _m D3PD index of metadata.
+    * @returns The key of the metadata
+    */
+   std::string TrigConfigSvcD3PD::GetMetaStringKey(UInt_t _m) const {
+     std::map< DBKeys_t, std::vector< std::string > >::const_iterator _map = m_metaStringKey.find( m_key );
+     
+     if( _map == m_metaStringKey.end() ) {
+       Warning( "TrigConfigSvcD3PD::GetMetaStringKey", "The requested information is not available" );
+       return 0;
+     }
+     
+     return _map->second.at(_m);
+   }
+
+   /**
+    * [TrigMonConf] Returns the string value of metadata at location _m
+    *
+    * @param _m D3PD index of metadata.
+    * @returns The metadata payload
+    */
+   std::string TrigConfigSvcD3PD::GetMetaStringVal(UInt_t _m) const {
+     std::map< DBKeys_t, std::vector< std::string > >::const_iterator _map = m_metaStringVal.find( m_key );
+     
+     if( _map == m_metaStringVal.end() ) {
+       Warning( "TrigConfigSvcD3PD::GetMetaStringValue", "The requested information is not available" );
+       return 0;
+     }
+     
+     return _map->second.at(_m);
    }
    
    /**

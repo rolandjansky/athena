@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: LinkDef.h 581262 2014-02-03 17:23:31Z tamartin $
+// $Id: LinkDef.h 639091 2015-01-13 11:05:23Z tamartin $
 #ifndef TRIGROOTANALYSIS_LINKDEF_H
 #define TRIGROOTANALYSIS_LINKDEF_H
 
@@ -54,9 +54,9 @@
 // these in some test jobs...
 #pragma link C++ class map<string,string>+;
 #pragma link C++ class pair<string,string>+;
-#pragma link C++ class map<string,int>+;
+//#pragma link C++ class map<string,int>+;
 #pragma link C++ class map<string,float>+;
-#pragma link C++ class vector<short>+;
+//#pragma link C++ class vector<short>+;
 // [TrigMonConfig] addind some more dictionaries for additional structures used saving the full trig conf.
 // Will not run without these.
 #pragma link C++ class vector<vector<float> >+;

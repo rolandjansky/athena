@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AthDataAccess.h 502443 2012-05-25 10:43:25Z krasznaa $
+// $Id: AthDataAccess.h 637174 2014-12-20 00:26:47Z ssnyder $
 #ifndef TRIGROOTANALYSIS_ATHDATAACCESS_H
 #define TRIGROOTANALYSIS_ATHDATAACCESS_H
 
@@ -12,7 +12,7 @@
 #include <Rtypes.h>
 
 // Gaudi/Athena include(s):
-#include "StoreGate/RVar.h"
+#include "StoreGate/ReadHandle.h"
 
 // Local include(s):
 #include "../TrigRootAnalysis/IDataAccess.h"
@@ -27,8 +27,8 @@ namespace D3PD {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 502443 $
-    * $Date: 2012-05-25 12:43:25 +0200 (Fri, 25 May 2012) $
+    * $Revision: 637174 $
+    * $Date: 2014-12-20 01:26:47 +0100 (Sat, 20 Dec 2014) $
     */
    class AthDataAccess : public virtual D3PD::Trig::IDataAccess {
 
@@ -63,27 +63,27 @@ namespace D3PD {
       //
       // Variables coming from TrigDBKeysD3PDObject:
       //
-      SG::RVar< ::UInt_t > m_smk;
-      SG::RVar< ::UInt_t > m_l1psk;
-      SG::RVar< ::UInt_t > m_hltpsk;
+      SG::ReadHandle< ::UInt_t > m_smk;
+      SG::ReadHandle< ::UInt_t > m_l1psk;
+      SG::ReadHandle< ::UInt_t > m_hltpsk;
 
       //
       // Variables coming from TrigDecisionD3PDObject:
       //
-      SG::RVar< std::vector< unsigned int > > m_l1_tav;
-      SG::RVar< std::vector< short > >        m_l2_physics;
-      SG::RVar< std::vector< short > >        m_ef_physics;
+      SG::ReadHandle< std::vector< unsigned int > > m_l1_tav;
+      SG::ReadHandle< std::vector< short > >        m_l2_physics;
+      SG::ReadHandle< std::vector< short > >        m_ef_physics;
 
-      SG::RVar< std::vector< unsigned int > > m_l1_tbp;
-      SG::RVar< std::vector< unsigned int > > m_l1_tap;
-      SG::RVar< std::vector< short > >        m_l2_raw;
-      SG::RVar< std::vector< short > >        m_ef_raw;
+      SG::ReadHandle< std::vector< unsigned int > > m_l1_tbp;
+      SG::ReadHandle< std::vector< unsigned int > > m_l1_tap;
+      SG::ReadHandle< std::vector< short > >        m_l2_raw;
+      SG::ReadHandle< std::vector< short > >        m_ef_raw;
 
-      SG::RVar< std::vector< short > > m_l2_resurrected;
-      SG::RVar< std::vector< short > > m_ef_resurrected;
+      SG::ReadHandle< std::vector< short > > m_l2_resurrected;
+      SG::ReadHandle< std::vector< short > > m_ef_resurrected;
 
-      SG::RVar< std::vector< short > > m_l2_passedThrough;
-      SG::RVar< std::vector< short > > m_ef_passedThrough;
+      SG::ReadHandle< std::vector< short > > m_l2_passedThrough;
+      SG::ReadHandle< std::vector< short > > m_ef_passedThrough;
 
    }; // class AthDataAccess
 
