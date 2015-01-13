@@ -5,9 +5,7 @@
 #ifndef LARPHYSWAVEFROMSTDNTUPLE_H
 #define LARPHYSWAVEFROMSTDNTUPLE_H
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include <vector>
 #include <string>
@@ -20,7 +18,7 @@ Version for standard Ntuple, produced by LArCalibTools algos....
  */
 
 
-class LArPhysWaveFromStdNtuple : public Algorithm
+class LArPhysWaveFromStdNtuple : public AthAlgorithm
 {
  public:
   LArPhysWaveFromStdNtuple(const std::string & name, ISvcLocator * pSvcLocator);

@@ -42,7 +42,6 @@ StatusCode LArParams2Ntuple::initialize() {
 
   m_ntTitle=m_ntName;
   m_ntpath=std::string("/NTUPLES/FILE1/")+m_ntName;
-  return LArCond2NtupleBase::initialize();
 
   
   if ( m_classNames.size() != m_nClasses ) { // should never happen! but just to be sure...
@@ -407,8 +406,6 @@ StatusCode LArParams2Ntuple::stop() {
 	sc = scanReadoutChannels(m_completeOFCBin) ; 
 	break ;
       }
-      default:
-	break ;
       }  // end switch 
 
     } // end of the channels scan

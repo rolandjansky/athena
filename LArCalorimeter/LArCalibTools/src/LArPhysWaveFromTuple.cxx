@@ -20,7 +20,7 @@
 #include <string>
 
 
-LArPhysWaveFromTuple::LArPhysWaveFromTuple (const std::string& name, ISvcLocator* pSvcLocator) : Algorithm(name, pSvcLocator)
+LArPhysWaveFromTuple::LArPhysWaveFromTuple (const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator)
 {  
   declareProperty("NPoints", m_NPoints = 800);
   declareProperty("SkipPoints", m_skipPoints = 0);
@@ -43,24 +43,11 @@ StatusCode LArPhysWaveFromTuple::initialize()
 
 StatusCode LArPhysWaveFromTuple::stop()
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "... in finalize()" << endreq ;
+  ATH_MSG_INFO ( "... in finalize()" );
   
-  // Get access to the Detector Store
-  StoreGateSvc* detStore;  
-  StatusCode sc = service("DetectorStore",detStore);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Cannot get DetectorStore!" << endreq;
-    return sc;
-  }
-
   // get LArOnlineID helper
-  const LArOnlineID* onlineHelper;
-  sc = detStore->retrieve(onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID" << endreq;
-    return sc;
-  }
+  const LArOnlineID* onlineHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve(onlineHelper, "LArOnlineID") );
 
   TChain* outfit = new TChain("outfit");
   for ( std::vector<std::string>::const_iterator it = m_root_file_names.begin();
@@ -73,7 +60,7 @@ StatusCode LArPhysWaveFromTuple::stop()
   // remaining points are automatically initialized to 0.
   // Catch potential array index out of range error.
   if ( m_NPoints > 2000 ) {
-    log << MSG::ERROR << " Too many points specified vs the expected content of the ntuple ! " << endreq;
+    ATH_MSG_ERROR ( " Too many points specified vs the expected content of the ntuple ! " );
     return StatusCode::FAILURE;
   }
 
@@ -89,13 +76,13 @@ StatusCode LArPhysWaveFromTuple::stop()
   outfit->SetBranchAddress("Slot", &Slot);
   outfit->SetBranchAddress("FT", &FT);
   if(outfit->FindBranch("BarAC")){ // Handle changed naming scheme
-    log << MSG::INFO << "'Side' is prefered branch name to 'BarAC'." << endreq;
+    ATH_MSG_INFO ( "'Side' is prefered branch name to 'BarAC'." );
     outfit->SetBranchAddress("BarAC", &Side);
   } else {
     outfit->SetBranchAddress("Side", &Side);
   }
   if(!outfit->FindBranch("BarEC")){ // Handle 
-    log << MSG::INFO << "'BarEC' branch not found. Assuming barrel data." << endreq;
+    ATH_MSG_INFO ( "'BarEC' branch not found. Assuming barrel data." );
     BarEC = 0;
   } else {
     outfit->SetBranchAddress("BarEC", &BarEC);
@@ -105,7 +92,7 @@ StatusCode LArPhysWaveFromTuple::stop()
 
   // Create new LArPhysWaveContainer
   LArPhysWaveContainer* larPhysWaveContainerNew = new LArPhysWaveContainer();
-  larPhysWaveContainerNew->setGroupingType(m_groupingType, log);
+  larPhysWaveContainerNew->setGroupingType(m_groupingType, msg());
   larPhysWaveContainerNew->initialize();
 
   // loop over entries in the Tuple, one entry = one channel
@@ -113,9 +100,9 @@ StatusCode LArPhysWaveFromTuple::stop()
   for ( Long64_t i = 0; i < nentries; i++ )
   {
     outfit->GetEvent(i);
-    log << MSG::INFO << BarEC << " Side " << Side << " FT " << FT << " slot " << Slot << " Chan " << Channel << endreq;
+    ATH_MSG_INFO ( BarEC << " Side " << Side << " FT " << FT << " slot " << Slot << " Chan " << Channel );
     HWIdentifier id = onlineHelper->channel_Id(BarEC, Side, FT, Slot, Channel);
-    log << MSG::INFO << std::hex << id << std::dec << endreq;
+    ATH_MSG_INFO ( std::hex << id << std::dec );
 
     std::vector<double> wave(m_NPoints);
     for ( unsigned int i = 0; i < m_NPoints; i++ ) wave[i]=0.;
@@ -137,15 +124,7 @@ StatusCode LArPhysWaveFromTuple::stop()
     larPhysWaveContainerNew->setPdata(id, newLArPhysWave, (CaloGain::CaloGain)gain);
   }
 
-
-  // store 
-  sc=detStore->record(larPhysWaveContainerNew,m_store_key);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "Cannot record LArPhysWaveContainer to StoreGate with key = " << m_store_key << endreq;
-    return sc;
-  }
-
-  log << MSG::INFO << "LArPhysWaveFromTuple finalized!" << endreq;  
-
+  ATH_CHECK( detStore()->record(larPhysWaveContainerNew,m_store_key) );
+  ATH_MSG_INFO ( "LArPhysWaveFromTuple finalized!" );
   return StatusCode::SUCCESS;
 }

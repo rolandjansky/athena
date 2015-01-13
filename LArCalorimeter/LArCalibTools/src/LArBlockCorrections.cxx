@@ -6,14 +6,12 @@
 #include "LArRawConditions/LArConditionsContainerBase.h"
 
 LArBlockCorrections::LArBlockCorrections(const std::string& name, ISvcLocator* pSvcLocator) : 
-  Algorithm(name,pSvcLocator) {}
+  AthAlgorithm(name,pSvcLocator) {}
 
 StatusCode LArBlockCorrections::initialize() {
-  MsgStream log(msgSvc(),name());
-
   bool setFlag =   LArConditionsContainerBase::applyCorrectionsAtInit(true, false);
 
-  log << MSG::INFO << "LArConditionsContainerBase::applyCorrectionsAtInit set to " << setFlag << endreq;
+  ATH_MSG_INFO ( "LArConditionsContainerBase::applyCorrectionsAtInit set to " << setFlag );
 
   return StatusCode::SUCCESS;
 }

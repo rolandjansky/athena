@@ -58,6 +58,8 @@ class LArCond2NtupleBase : public AthAlgorithm {
   NTuple::Item<long> m_pos_neg, m_barrel_ec, m_FT, m_slot, m_channel;
   NTuple::Item<long> m_calibLine,m_badChanWord;
   NTuple::Item<long> m_isConnected;
+  NTuple::Item<long> m_chanHash, m_febHash;
+  
   NTuple::Item<float> m_FEBTemp1, m_FEBTemp2;
 
   MsgStream* m_log;
@@ -73,6 +75,7 @@ class LArCond2NtupleBase : public AthAlgorithm {
   bool m_isSC;
   bool m_isFlat;
   bool m_OffId;
+  bool m_addHash;
 
 };
 #endif

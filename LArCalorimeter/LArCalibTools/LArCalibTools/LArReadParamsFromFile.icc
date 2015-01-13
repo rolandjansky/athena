@@ -13,8 +13,7 @@
 
 template<class DATA>
 LArReadParamsFromFile<DATA>::LArReadParamsFromFile(const std::string& name, ISvcLocator* pSvcLocator): 
-  Algorithm(name, pSvcLocator),
-  m_detStore(0),
+  AthAlgorithm(name, pSvcLocator),
   m_onlineHelper(0),
   m_emId(0),
   m_hecId(0),
@@ -41,9 +40,7 @@ LArReadParamsFromFile<DATA>::~LArReadParamsFromFile()
 
 template <class DATA>
 StatusCode LArReadParamsFromFile<DATA>::initialize() {
-  MsgStream log(msgSvc(), name());
-
-  log << MSG::DEBUG << "in initialize" << endreq ;
+  ATH_MSG_DEBUG ( "in initialize" );
 
   if ( m_groupingName == "Unknown" ) {
     m_groupingType = LArConditionsContainerBase::Unknown ;
@@ -58,53 +55,31 @@ StatusCode LArReadParamsFromFile<DATA>::initialize() {
   } else if ( m_groupingName == "ExtendedSubDetGrouping" ) {
     m_groupingType = LArConditionsContainerBase::ExtendedSubDetGrouping ;
   } else {
-    log << MSG::ERROR << "Grouping type " << m_groupingName << " is not foreseen!" << endreq ;
-    log << MSG::ERROR << "Only \"Unknown\", \"SingleGroup\", \"SubDetectorGrouping\", \"FeedThroughGrouping\" are allowed" << endreq ;
+    ATH_MSG_ERROR ( "Grouping type " << m_groupingName << " is not foreseen!" );
+    ATH_MSG_ERROR ( "Only \"Unknown\", \"SingleGroup\", \"SubDetectorGrouping\", \"FeedThroughGrouping\" are allowed" );
     return StatusCode::FAILURE ;
   }
 
-  StatusCode sc=service("DetectorStore",m_detStore);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Cannot get DetectorStore!" << endreq;
-    return sc;
-  }
   const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
   m_emId   = caloIdMgr->getEM_ID();
   m_hecId  = caloIdMgr->getHEC_ID();
   m_fcalId = caloIdMgr->getFCAL_ID();
   if (!m_emId) {
-    log << MSG::ERROR << "Could not access lar EM ID helper" << endreq;
+    ATH_MSG_ERROR ( "Could not access lar EM ID helper" );
     return StatusCode::FAILURE;
   }
   if (!m_hecId) {
-    log << MSG::ERROR << "Could not access lar HEC ID helper" << endreq;
+    ATH_MSG_ERROR ( "Could not access lar HEC ID helper" );
     return StatusCode::FAILURE;
   }
   if (!m_fcalId) {
-    log << MSG::ERROR << "Could not access lar FCAL ID helper" << endreq;
+    ATH_MSG_ERROR ( "Could not access lar FCAL ID helper" );
     return StatusCode::FAILURE;
   }
 
-  sc = m_detStore->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID helper" << endreq;
-    return sc;
-  }  
+  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
 
-  // translate offline ID into online ID
-  ISvcLocator* svcLoc = Gaudi::svcLocator( );
-  IToolSvc* toolSvc;
-  sc = svcLoc->service( "ToolSvc",toolSvc  );
-  if(sc.isSuccess()) {
-    sc = toolSvc->retrieveTool("LArCablingService",m_larCablingSvc);
-    if(sc.isFailure()){
-      log << MSG::ERROR << "Could not retrieve LArCablingService Tool" << endreq;
-      return StatusCode::FAILURE;
-    }
-  } else {
-    log << MSG::ERROR << "Could not retrieve ToolSvc" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( toolSvc()->retrieveTool("LArCablingService",m_larCablingSvc) );
 
   if ( m_chIdType == std::string("UNKNOWN") ) {
     // use jO specification (default=false) for m_useOfflineIdentifier 
@@ -120,17 +95,17 @@ StatusCode LArReadParamsFromFile<DATA>::initialize() {
     m_useOfflineIdentifier = false ;
     m_useCalibLines        = true ;
   } else {
-    log << MSG::ERROR << "ChannelIdType=" << m_chIdType << " is not valid!" << endreq ;
-    log << MSG::ERROR << "Allowed options are: OfflineID, OnlineID, OnlineCalibID" << endreq ;
+    ATH_MSG_ERROR ( "ChannelIdType=" << m_chIdType << " is not valid!" );
+    ATH_MSG_ERROR ( "Allowed options are: OfflineID, OnlineID, OnlineCalibID" );
     return StatusCode::FAILURE ;
   }
 
   if( m_useOfflineIdentifier ) {
-    log << MSG::INFO << "Reading parameters using *** offline identifiers ***" << endreq ;
+    ATH_MSG_INFO ( "Reading parameters using *** offline identifiers ***" );
   } else if ( m_useCalibLines ) {
-    log << MSG::INFO << "Reading parameters for *** calibration lines ***" << endreq ;
+    ATH_MSG_INFO ( "Reading parameters for *** calibration lines ***" );
   } else {
-    log << MSG::INFO << "Reading parameters using *** online identifiers ***" << endreq ;
+    ATH_MSG_INFO ( "Reading parameters using *** online identifiers ***" );
   }
 
   return StatusCode::SUCCESS;
@@ -140,13 +115,10 @@ StatusCode LArReadParamsFromFile<DATA>::initialize() {
 template <class DATA>
 StatusCode LArReadParamsFromFile<DATA>::stop() 
 {
-  MsgStream log(msgSvc(), name());
-  StatusCode sc ;
-  	
-  log << MSG::DEBUG << "in stop" << endreq ;
+  ATH_MSG_DEBUG ( "in stop" );
 
   if ( m_file == std::string("") ) {
-    log << MSG::ERROR << "Input file name was not specified!" << endreq ;
+    ATH_MSG_ERROR ( "Input file name was not specified!" );
     return StatusCode::FAILURE ;
   }
 
@@ -154,35 +126,22 @@ StatusCode LArReadParamsFromFile<DATA>::stop()
   if ( m_groupingType != LArConditionsContainerBase::Unknown ) {
     m_dataclass->setGroupingType( static_cast<LArConditionsContainerBase::GroupingType>(m_groupingType) ) ;
   }
-  sc = m_dataclass->initialize() ;
-
-  if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Could not initialize data object - exit!" << endreq ;
-    return sc ;
-  }
+  ATH_CHECK( m_dataclass->initialize() );
 
   std::string classname = LArParamsProperties::getClassName(m_dataclass) ;
   std::string key       = LArParamsProperties::keyword( classname ) ;
   if ( m_customKey != "") key = m_customKey;
 
-  sc = readFile() ;
-  if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Could not upload " << classname << " from file" << m_file << endreq ;
-    return StatusCode::FAILURE ;
-  } else { 
-    log << MSG::INFO << "Object " << classname << " successfully uploaded from file " << m_file << endreq ;
-  }
-  sc = m_detStore->record(m_dataclass,key) ;
-  if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Could not record " << classname << " into detStore with key " << key << endreq ;
-    return StatusCode::FAILURE ;
-  } else { 
-    log << MSG::INFO << "Object " << classname << " recorded into detStore with key " << key << endreq ;
-  }
-  do_symLink(m_dataclass) ;
-  log << MSG::INFO << "Object " << classname << " symLinked to its abstract interface" << endreq ;
+  ATH_CHECK(  readFile() );
+  ATH_MSG_INFO ( "Object " << classname << " successfully uploaded from file " << m_file );
 
-  log << MSG::INFO << "finished!" << endreq;
+  ATH_CHECK( detStore()->record(m_dataclass,key) );
+  ATH_MSG_INFO ( "Object " << classname << " recorded into detStore with key " << key );
+
+  do_symLink(m_dataclass) ;
+  ATH_MSG_INFO ( "Object " << classname << " symLinked to its abstract interface" );
+
+  ATH_MSG_INFO ( "finished!" );
   return StatusCode::SUCCESS;
 }// end stop-method.
 
@@ -192,21 +151,20 @@ StatusCode LArReadParamsFromFile<DATA>::readFile() {
   // File format:
   // for online ID:    barrel_ec  posneg  FT  slot  channel              parameters...
   // for offline ID:   det  subdet  barrel_ec layer  region eta phi      parameters...
-  MsgStream log(msgSvc(), name());
   int det, subdet, barrel_ec, posneg, ft, slot, channel, region, layer, eta, phi ;
   std::vector<float> pRead ;
   HWIdentifier chID ;
 
   std::ifstream f(m_file.c_str()) ; // open input file
   if ( ! f.good() ) {
-    log << MSG::ERROR << "Could not open file " << m_file << ", are you sure it exists??" << endreq ;
+    ATH_MSG_ERROR ( "Could not open file " << m_file << ", are you sure it exists??" );
     return StatusCode::FAILURE ;
   }
-  log << MSG::DEBUG << "File " << m_file << " opened" << endreq ;
+  ATH_MSG_DEBUG ( "File " << m_file << " opened" );
 
   unsigned nrec = 0 ;
   unsigned npar = LArParamsProperties::numberOfParams(m_dataclass) ;
-  log << MSG::DEBUG << "The file should contain " << npar << " parameters per record" << endreq ;
+  ATH_MSG_DEBUG ( "The file should contain " << npar << " parameters per record" );
 
   while (1) { // read through the file records
 
@@ -214,7 +172,7 @@ StatusCode LArReadParamsFromFile<DATA>::readFile() {
     std::string s ;
     getline(f,s) ;
     std::istringstream buffer(s) ;
-    log << MSG::VERBOSE << "*** Record: '" << s << "'" << endreq ;
+    ATH_MSG_VERBOSE ( "*** Record: '" << s << "'" );
 
     if ( s == std::string("") ) continue ; // skip empty records
 
@@ -224,68 +182,68 @@ StatusCode LArReadParamsFromFile<DATA>::readFile() {
 
       buffer >> det ;
       if ( buffer.fail() ) {
-	log << MSG::WARNING << "Could not read 'det' field for offline identifier" << endreq ;
+	ATH_MSG_WARNING ( "Could not read 'det' field for offline identifier" );
 	continue ; // skip and go to next record
       }
       buffer >> subdet ;
       if ( buffer.fail() ) {
-	log << MSG::WARNING << "Could not read 'subdet' field for offline identifier" << endreq ;
+	ATH_MSG_WARNING ( "Could not read 'subdet' field for offline identifier" );
 	continue ; // skip and go to next record
       }
       buffer >> barrel_ec ;
       if ( buffer.fail() ) {
-	log << MSG::WARNING << "Could not read 'barrel_ec' field for offline identifier" << endreq ;
+	ATH_MSG_WARNING ( "Could not read 'barrel_ec' field for offline identifier" );
 	continue ; // skip and go to next record
       }
       buffer >> layer ;
       if ( buffer.fail() ) {
-	log << MSG::WARNING << "Could not read 'layer' field for offline identifier" << endreq ;
+	ATH_MSG_WARNING ( "Could not read 'layer' field for offline identifier" );
 	continue ; // skip and go to next record
       }
       buffer >> region ;
       if ( buffer.fail() ) {
-	log << MSG::WARNING << "Could not read 'region' field for offline identifier" << endreq ;
+	ATH_MSG_WARNING ( "Could not read 'region' field for offline identifier" );
 	continue ; // skip and go to next record
       }
       buffer >> eta ;
       if ( buffer.fail() ) {
-	log << MSG::WARNING << "Could not read 'eta' field for offline identifier" << endreq ;
+	ATH_MSG_WARNING ( "Could not read 'eta' field for offline identifier" );
 	continue ; // skip and go to next record
       }
       buffer >> phi ;
       if ( buffer.fail() ) {
-	log << MSG::WARNING << "Could not read 'phi' field for offline identifier" << endreq ;
+	ATH_MSG_WARNING ( "Could not read 'phi' field for offline identifier" );
 	continue ; // skip and go to next record
       }
-      log << MSG::VERBOSE << "Det=" << det << " SubDet=" << subdet << " BarrelEC=" << barrel_ec 
-	  << " Sampling=" << layer << " Region=" << region << " Eta=" << eta << " Phi=" << phi << endreq ;
+      ATH_MSG_VERBOSE ( "Det=" << det << " SubDet=" << subdet << " BarrelEC=" << barrel_ec 
+                        << " Sampling=" << layer << " Region=" << region << " Eta=" << eta << " Phi=" << phi );
       good_chID = true ;
       if ( det != 4 ) {
-	log << MSG::WARNING << "Det=" << det << " is not LArCalorimeter -- cannot handle it!" << endreq ;
+	ATH_MSG_WARNING ( "Det=" << det << " is not LArCalorimeter -- cannot handle it!" );
 	good_chID = false ;
       } else {
 	Identifier id ;
 	if ( subdet == 1 ) { // LArEM
 	  id = m_emId->channel_id(barrel_ec,layer,region,eta,phi) ;
-	  log << MSG::VERBOSE << "LAr EM Identifier=" << id << endreq ;
+	  ATH_MSG_VERBOSE ( "LAr EM Identifier=" << id );
 	} else if ( subdet == 2 ) { // LArHEC
 	  id = m_hecId->channel_id(barrel_ec,layer,region,eta,phi) ;
-	  log << MSG::VERBOSE << "LAr HEC Identifier=" << id << endreq ;
+	  ATH_MSG_VERBOSE ( "LAr HEC Identifier=" << id );
 	} else if ( subdet == 3 ) { // LArFCAL
 	  // id = m_fcalId->channel_id(det,layer,region,eta,phi) ;
 	  // log << MSG::VERBOSE << "LAr FCAL Identifier=" << id << endreq ;
-	  log << MSG::WARNING << "Subdet=" << subdet 
-	      << " is LArFCAL -- conversion to online channel not implemented yet!" << endreq ;
+	  ATH_MSG_WARNING ( "Subdet=" << subdet 
+                            << " is LArFCAL -- conversion to online channel not implemented yet!" );
 	  good_chID = false ;
 	} else {
-	  log << MSG::WARNING << "Subdet=" << subdet << " is unknown -- cannot handle it!" << endreq ;
+	  ATH_MSG_WARNING ( "Subdet=" << subdet << " is unknown -- cannot handle it!" );
 	  good_chID = false ;
 	}
 	if ( good_chID ) {
 	  try {
 	    chID = m_larCablingSvc->createSignalChannelID(id) ;
 	  } catch ( LArID_Exception & except ) {
-	    log << MSG::WARNING << "Could not get HWId for offline Id " << id << endreq ;
+	    ATH_MSG_WARNING ( "Could not get HWId for offline Id " << id );
 	    good_chID = false ;
 	  }
 	}
@@ -296,27 +254,27 @@ StatusCode LArReadParamsFromFile<DATA>::readFile() {
 
       buffer >> barrel_ec ;
       if ( buffer.fail() ) {
-	log << MSG::WARNING << "Could not read 'barrel_ec' field for online identifier" << endreq ;
+	ATH_MSG_WARNING ( "Could not read 'barrel_ec' field for online identifier" );
 	continue ; // skip and go to next record
       }
       buffer >> posneg ;
       if ( buffer.fail() ) {
-	log << MSG::WARNING << "Could not read 'posneg' field for online identifier" << endreq ;
+	ATH_MSG_WARNING ( "Could not read 'posneg' field for online identifier" );
 	continue ; // skip and go to next record
       }
       buffer >> ft ;
       if ( buffer.fail() ) {
-	log << MSG::WARNING << "Could not read 'feedthrough' field for online identifier" << endreq ;
+	ATH_MSG_WARNING ( "Could not read 'feedthrough' field for online identifier" );
 	continue ; // skip and go to next record
       }
       buffer >> slot ;
       if ( buffer.fail() ) {
-	log << MSG::WARNING << "Could not read 'slot' field for online identifier" << endreq ;
+	ATH_MSG_WARNING ( "Could not read 'slot' field for online identifier" );
 	continue ; // skip and go to next record
       }
       buffer >> channel ;
       if ( buffer.fail() ) {
-	log << MSG::WARNING << "Could not read 'channel' field for online identifier" << endreq ;
+	ATH_MSG_WARNING ( "Could not read 'channel' field for online identifier" );
 	continue ; // skip and go to next record
       }
       if ( m_useCalibLines ) {
@@ -342,22 +300,22 @@ StatusCode LArReadParamsFromFile<DATA>::readFile() {
       //}
       buffer >> pRead[i] ;
       if ( buffer.fail() ) {
-	log << MSG::WARNING << "failure when reading parameter " << i << " of channel " << chID.get_compact() << endreq ;
+	ATH_MSG_WARNING ( "failure when reading parameter " << i << " of channel " << chID.get_compact() );
 	break ;
       }
     }
     // store into parameters vector
-    log << MSG::VERBOSE << "read ch=" << chID.get_compact() ;
-    for ( unsigned i=0 ; i<npar ; i++ )  log << " par[" << i << "]=" << pRead[i] ;
-    log << endreq ;
+    msg() << MSG::VERBOSE << "read ch=" << chID.get_compact() ;
+    for ( unsigned i=0 ; i<npar ; i++ )  msg() << " par[" << i << "]=" << pRead[i] ;
+    msg() << endreq ;
     for ( unsigned gain=0 ; gain<3 ; gain++ ) {
       try {
 	StatusCode sc = set(m_dataclass,chID,gain,pRead) ;
 	if ( sc.isFailure() ) {
-	  log << MSG::WARNING << "Could not set parameters for ch=" << chID.get_compact() << " gain=" << gain << endreq ;
+	  ATH_MSG_WARNING ( "Could not set parameters for ch=" << chID.get_compact() << " gain=" << gain );
 	}
       } catch ( LArID_Exception & except ) {
-	log << MSG::WARNING << "Bad HWId " << chID << endreq ;
+	ATH_MSG_WARNING ( "Bad HWId " << chID );
 	good_chID = false ;
       }
     }
@@ -366,6 +324,6 @@ StatusCode LArReadParamsFromFile<DATA>::readFile() {
     
   }  // end of while(1) i.e. the loop through all file records
   
-  log << MSG::DEBUG << "end of file reached, read " << nrec << " records" << endreq ;
+  ATH_MSG_DEBUG ( "end of file reached, read " << nrec << " records" );
   return StatusCode::SUCCESS ;
 }

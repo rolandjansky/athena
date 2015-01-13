@@ -24,6 +24,7 @@ use CaloCondBlobObjs    CaloCondBlobObjs-*  Calorimeter
 use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
 use AtlasCORAL   AtlasCORAL-* External
 use LArCOOLConditions LArCOOLConditions-* LArCalorimeter
+use EventInfo           EventInfo-*          Event
 
 apply_tag ROOTMathLibs
 apply_tag  ROOTGraphicsLibs

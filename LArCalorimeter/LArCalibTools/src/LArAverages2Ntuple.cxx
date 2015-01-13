@@ -9,8 +9,8 @@
 #include "GaudiKernel/ToolHandle.h"
 
 LArAverages2Ntuple::LArAverages2Ntuple(const std::string& name, ISvcLocator* pSvcLocator): 
-  Algorithm(name, pSvcLocator),
-  m_storeGateSvc(NULL),m_detStore(NULL),m_emId(NULL), m_onlineHelper(NULL),
+  AthAlgorithm(name, pSvcLocator),
+  m_emId(NULL), m_onlineHelper(NULL),
   larCablingSvc ("LArCablingService")
   //  m_eventCounter(0)
 {
@@ -26,47 +26,23 @@ LArAverages2Ntuple::~LArAverages2Ntuple()
 
 StatusCode LArAverages2Ntuple::initialize()
 {
+  ATH_MSG_INFO ( "in initialize" );
 
-  MsgStream log(msgSvc(), name());
-  StatusCode sc;
-
-  log << MSG::INFO << "in initialize" << endreq; 
-
-  sc= service("StoreGateSvc",m_storeGateSvc);
-  if(sc.isFailure()) {
-    log << MSG::ERROR << "StoreGate service not found" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  sc=service("DetectorStore",m_detStore);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Cannot get DetectorStore!" << endreq;
-    return sc;
-  }
-  
   const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
   m_emId=caloIdMgr->getEM_ID();
   if (!m_emId) {
-    log << MSG::ERROR << "Could not access lar EM ID helper" << endreq;
+    ATH_MSG_ERROR ( "Could not access lar EM ID helper" );
     return StatusCode::FAILURE;
   }
   
-  sc = m_detStore->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
-    return sc;
-  }  
+  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
 
   // Retrieve LArCablingService
-  sc = larCablingSvc.retrieve();
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << " Can't get LArCablingSvc " << endreq;
-    return sc;
-  }
+  ATH_CHECK( larCablingSvc.retrieve() );
 
   NTupleFilePtr file1(ntupleSvc(),"/NTUPLES/FILE1");
   if (!file1) {
-    log << MSG::ERROR << "Booking of NTuple failed" << endreq;
+    ATH_MSG_ERROR ( "Booking of NTuple failed" );
     return StatusCode::FAILURE;
   }
 
@@ -78,149 +54,35 @@ StatusCode LArAverages2Ntuple::initialize()
   }
   
   if (!nt) {
-    log << MSG::ERROR << "Booking of NTuple failed" << endreq;
+    ATH_MSG_ERROR ( "Booking of NTuple failed" );
     return StatusCode::FAILURE;
   }
 
 
-  sc=nt->addItem("DAC",DAC,0,65535);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'DAC' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-
-  sc=nt->addItem("isPulsed",isPulsed,0,1);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'isPulsed' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-
-  sc=nt->addItem("delay",delay,0,240);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'delay' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-  
-
-  sc=nt->addItem("Ntrigger",Ntrigger,0,500);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Ntrigger' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-  
-
-  sc=nt->addItem("Nsamples",Nsamples,0,32);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Nsamples' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-  
-
-  sc=nt->addItem("Nsteps",Nsteps,0,50);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Nsteps' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-  
-
-  sc=nt->addItem("StepIndex",StepIndex,0,100);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'StepIndex' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK( nt->addItem("DAC",DAC,0,65535) );
+  ATH_CHECK( nt->addItem("isPulsed",isPulsed,0,1) );
+  ATH_CHECK( nt->addItem("delay",delay,0,240) );
+  ATH_CHECK( nt->addItem("Ntrigger",Ntrigger,0,500) );
+  ATH_CHECK( nt->addItem("Nsamples",Nsamples,0,32) );
+  ATH_CHECK( nt->addItem("Nsteps",Nsteps,0,50) );
+  ATH_CHECK( nt->addItem("StepIndex",StepIndex,0,100) );
 
   static const int maxSamples = m_Nsamples;
-  sc=nt->addItem("Sum",maxSamples,Sum);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Sum' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-
-  sc=nt->addItem("SumSq",maxSamples,SumSq);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'SumSq' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-
-  sc=nt->addItem("Mean",maxSamples,Mean);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Mean' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-
-  sc=nt->addItem("RMS",maxSamples,RMS);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'RMS' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-
-  sc=nt->addItem("Layer",layer,0,4);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Layer' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-  
-  sc=nt->addItem("Region",region,0,1);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Region' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-  
-  sc=nt->addItem("Eta",eta,0,510);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Eta' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-  
-  sc=nt->addItem("Phi",phi,0,1023);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Phi' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-  
-  sc=nt->addItem("Slot",slot,0,127);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Slot' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-  
- sc=nt->addItem("barrel_ec",barrel_ec,0,1);
- if (sc!=StatusCode::SUCCESS)
-   {log << MSG::ERROR << "addItem 'barrel_ec' failed" << endreq;
-    return StatusCode::FAILURE;
-   }
-
- sc=nt->addItem("pos_neg",pos_neg,0,1);
- if (sc!=StatusCode::SUCCESS)
-   {log << MSG::ERROR << "addItem 'pos_neg' failed" << endreq;
-    return StatusCode::FAILURE;
-   }
-
-  sc=nt->addItem("FT",FT,0,31);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'FT' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-  
-  sc=nt->addItem("calibLine",calibLine,0,127);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'calibLine' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-  
-  sc=nt->addItem("isConnected",m_isConnected,0,1);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "addItem 'isConnected' failed" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  sc=nt->addItem("Channel",channel,0,127);
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::ERROR << "addItem 'Channel' failed" << endreq;
-      return StatusCode::FAILURE;
-    }
-
-  //ipass = 0;
+  ATH_CHECK( nt->addItem("Sum",maxSamples,Sum) );
+  ATH_CHECK( nt->addItem("SumSq",maxSamples,SumSq) );
+  ATH_CHECK( nt->addItem("Mean",maxSamples,Mean) );
+  ATH_CHECK( nt->addItem("RMS",maxSamples,RMS) );
+  ATH_CHECK( nt->addItem("Layer",layer,0,4) );
+  ATH_CHECK( nt->addItem("Region",region,0,1) );
+  ATH_CHECK( nt->addItem("Eta",eta,0,510) );
+  ATH_CHECK( nt->addItem("Phi",phi,0,1023) );
+  ATH_CHECK( nt->addItem("Slot",slot,0,127) );
+  ATH_CHECK( nt->addItem("barrel_ec",barrel_ec,0,1) );
+  ATH_CHECK( nt->addItem("pos_neg",pos_neg,0,1) );
+  ATH_CHECK( nt->addItem("FT",FT,0,31) );
+  ATH_CHECK( nt->addItem("calibLine",calibLine,0,127) );
+  ATH_CHECK( nt->addItem("isConnected",m_isConnected,0,1) );
+  ATH_CHECK( nt->addItem("Channel",channel,0,127) );
 
   return StatusCode::SUCCESS;
 
@@ -228,19 +90,15 @@ StatusCode LArAverages2Ntuple::initialize()
 
 StatusCode LArAverages2Ntuple::execute()
 {
-
-  MsgStream log(msgSvc(), name());
-  StatusCode sc;
-  
-  log << MSG::DEBUG << "in execute" << endreq; 
+  ATH_MSG_DEBUG ( "in execute" );
   
   const LArAccumulatedCalibDigitContainer* m_accuDigitContainer = NULL;
-  sc=m_storeGateSvc->retrieve(m_accuDigitContainer,m_contKey);  
-  if (sc!=StatusCode::SUCCESS)
-    {log << MSG::WARNING << "Unable to retrieve LArAccumulatedCalibDigitContainer with key " << m_contKey << " from DetectorStore. " << endreq;
+  StatusCode sc=evtStore()->retrieve(m_accuDigitContainer,m_contKey);  
+  if (sc!=StatusCode::SUCCESS) {
+    ATH_MSG_WARNING ( "Unable to retrieve LArAccumulatedCalibDigitContainer with key " << m_contKey << " from DetectorStore. " );
     } 
   else
-    log << MSG::DEBUG << "Got LArAccumulatedCalibDigitContainer with key " << m_contKey << endreq;
+    ATH_MSG_DEBUG ( "Got LArAccumulatedCalibDigitContainer with key " << m_contKey );
   
  
  if (m_accuDigitContainer) { 
@@ -249,10 +107,10 @@ StatusCode LArAverages2Ntuple::execute()
    LArAccumulatedCalibDigitContainer::const_iterator it_e=m_accuDigitContainer->end();
 
     if(it == it_e) {
-      log << MSG::DEBUG << "LArAccumulatedCalibDigitContainer with key=" << m_contKey << " is empty " << endreq;
+      ATH_MSG_DEBUG ( "LArAccumulatedCalibDigitContainer with key=" << m_contKey << " is empty " );
       return StatusCode::SUCCESS;
     }else{
-      log << MSG::DEBUG << "LArAccumulatedCalibDigitContainer with key=" << m_contKey << " has " <<m_accuDigitContainer->size() << " entries" <<endreq;
+      ATH_MSG_DEBUG ( "LArAccumulatedCalibDigitContainer with key=" << m_contKey << " has " <<m_accuDigitContainer->size() << " entries" );
     }
 
    unsigned cellCounter=0;
@@ -273,7 +131,7 @@ StatusCode LArAverages2Ntuple::execute()
 
      if(trueMaxSample>m_Nsamples){
        if(!ipass){
-	 log << MSG::WARNING << "The number of samples in data is larger than the one specified by JO: " << trueMaxSample << " > " << m_Nsamples << " --> only " << m_Nsamples << " will be available in the ntuple " << endreq;
+	 ATH_MSG_WARNING ( "The number of samples in data is larger than the one specified by JO: " << trueMaxSample << " > " << m_Nsamples << " --> only " << m_Nsamples << " will be available in the ntuple " );
 	 ipass=1;
        }
        trueMaxSample = m_Nsamples;
@@ -321,14 +179,10 @@ StatusCode LArAverages2Ntuple::execute()
      }
      m_isConnected = (long)isConnected;
 
-     sc=ntupleSvc()->writeRecord(ntuplePath);
-     if (sc!=StatusCode::SUCCESS) {
-       log << MSG::ERROR << "writeRecord failed" << endreq;
-       return StatusCode::FAILURE;
-     }
+     ATH_CHECK( ntupleSvc()->writeRecord(ntuplePath) );
      cellCounter++;
    }//end loop over cells
  }//end if have accumulatedDigitContainer 
- log << MSG::DEBUG << "LArAverages2Ntuple has finished." << endreq;
+ ATH_MSG_DEBUG ( "LArAverages2Ntuple has finished." );
  return StatusCode::SUCCESS;
 }// end finalize-method.

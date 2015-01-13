@@ -20,7 +20,7 @@
 #include <string>
 
 
-LArParamsFromStdNtuple::LArParamsFromStdNtuple (const std::string& name, ISvcLocator* pSvcLocator) : Algorithm(name, pSvcLocator)
+LArParamsFromStdNtuple::LArParamsFromStdNtuple (const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator)
 {  
   declareProperty("FileNames", m_root_file_names);
   declareProperty("NtupleName", m_ntuple_name="PARAMS");
@@ -40,24 +40,11 @@ StatusCode LArParamsFromStdNtuple::initialize()
 
 StatusCode LArParamsFromStdNtuple::stop()
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "... in stop()" << endreq ;
+  ATH_MSG_INFO ( "... in stop()" );
   
-  // Get access to the Detector Store
-  StoreGateSvc* detStore;  
-  StatusCode sc = service("DetectorStore",detStore);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Cannot get DetectorStore!" << endreq;
-    return sc;
-  }
-
   // get LArOnlineID helper
-  const LArOnlineID* onlineHelper;
-  sc = detStore->retrieve(onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID" << endreq;
-    return sc;
-  }
+  const LArOnlineID* onlineHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve(onlineHelper, "LArOnlineID") );
 
   TChain* outfit = new TChain(m_ntuple_name.c_str());
   for ( std::vector<std::string>::const_iterator it = m_root_file_names.begin();
@@ -93,10 +80,10 @@ StatusCode LArParamsFromStdNtuple::stop()
 
   // Create new objects
   LArCaliPulseParamsComplete *larCaliPulseParams = new LArCaliPulseParamsComplete();
-  larCaliPulseParams->setGroupingType(m_groupingType, log);
+  larCaliPulseParams->setGroupingType(m_groupingType, msg());
   larCaliPulseParams->initialize();
   LArDetCellParamsComplete *larDetCellParams = new LArDetCellParamsComplete();
-  larDetCellParams->setGroupingType(m_groupingType, log);
+  larDetCellParams->setGroupingType(m_groupingType, msg());
   larDetCellParams->initialize();
 
 
@@ -107,15 +94,15 @@ StatusCode LArParamsFromStdNtuple::stop()
   for ( Long64_t i = 0; i < nentries; i++ )
   {
     outfit->GetEvent(i);
-    log << MSG::INFO << " Chan " <<  std::hex << channelId << std::dec << endreq;
+    ATH_MSG_INFO ( " Chan " <<  std::hex << channelId << std::dec );
     hwid = channelId;
     HWIdentifier id(hwid);
     if(FT != onlineHelper->feedthrough(id) || slot != onlineHelper->slot(id) || channel != onlineHelper->channel(id)) {
-       log << MSG::ERROR << "Inconsistency in decoding HWID !!!!" <<endreq;
-       log << MSG::ERROR << FT << " - " << onlineHelper->feedthrough(id) << endreq;
-       log << MSG::ERROR << slot << " - " << onlineHelper->slot(id) << endreq;
-       log << MSG::ERROR << channel << " - " << onlineHelper->channel(id) << endreq;
-       log << MSG::ERROR << "Not creating PhysWave !!!!" << endreq;
+       ATH_MSG_ERROR ( "Inconsistency in decoding HWID !!!!" );
+       ATH_MSG_ERROR ( FT << " - " << onlineHelper->feedthrough(id) );
+       ATH_MSG_ERROR ( slot << " - " << onlineHelper->slot(id) );
+       ATH_MSG_ERROR ( channel << " - " << onlineHelper->channel(id) );
+       ATH_MSG_ERROR ( "Not creating PhysWave !!!!" );
        continue;
     }
 	  
@@ -124,37 +111,16 @@ StatusCode LArParamsFromStdNtuple::stop()
     larDetCellParams->set(id,gain,Omega0,Taur);
   }
 
-
-  // store 
-  sc=detStore->record(larCaliPulseParams,m_store_key_cali);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "Cannot record larCaliPulseParams to StoreGate with key = " << m_store_key_cali << endreq;
-    return sc;
-  }
-
-  sc=detStore->record(larDetCellParams,m_store_key_det);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "Cannot record larDetCellParams to StoreGate with key = " << m_store_key_det << endreq;
-    return sc;
-  }
+  ATH_CHECK( detStore()->record(larCaliPulseParams,m_store_key_cali) );
+  ATH_CHECK( detStore()->record(larDetCellParams,m_store_key_det) );
 
   // and symlink
   ILArCaliPulseParams *ilarCaliPulse = NULL;
-  sc = detStore->symLink(larCaliPulseParams,ilarCaliPulse);
-  if (sc.isFailure()) {
-       log << MSG::FATAL << "Could not symlink ILArCaliPulseParams with LArCaliPulseParamsComplete." << endreq;
-       return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->symLink(larCaliPulseParams,ilarCaliPulse) );
 
   ILArDetCellParams *ilarDetCell = NULL;
-  sc = detStore->symLink(larDetCellParams,ilarDetCell);
-  if (sc.isFailure()) {
-     log << MSG::FATAL << "Could not symlink ILArDetCellParams with LArDetCellParamsComplete." << endreq;
-     return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->symLink(larDetCellParams,ilarDetCell) );
 
-
-  log << MSG::INFO << "LArParamsFromStdNtuple finalized!" << endreq;  
-
+  ATH_MSG_INFO ( "LArParamsFromStdNtuple finalized!" );
   return StatusCode::SUCCESS;
 }

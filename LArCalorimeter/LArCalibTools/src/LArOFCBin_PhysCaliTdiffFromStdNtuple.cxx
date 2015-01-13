@@ -20,7 +20,7 @@
 #include <string>
 
 
-LArOFCBin_PhysCaliTdiffFromStdNtuple::LArOFCBin_PhysCaliTdiffFromStdNtuple (const std::string& name, ISvcLocator* pSvcLocator) : Algorithm(name, pSvcLocator)
+LArOFCBin_PhysCaliTdiffFromStdNtuple::LArOFCBin_PhysCaliTdiffFromStdNtuple (const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator)
 {  
   declareProperty("FileNames", m_root_file_names);
   declareProperty("NtupleName", m_ntuple_name="PARAMS");
@@ -42,24 +42,10 @@ StatusCode LArOFCBin_PhysCaliTdiffFromStdNtuple::initialize()
 
 StatusCode LArOFCBin_PhysCaliTdiffFromStdNtuple::stop()
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "... in stop()" << endreq ;
+  ATH_MSG_INFO ( "... in stop()" );
   
-  // Get access to the Detector Store
-  StoreGateSvc* detStore;  
-  StatusCode sc = service("DetectorStore",detStore);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Cannot get DetectorStore!" << endreq;
-    return sc;
-  }
-
-  // get LArOnlineID helper
-  const LArOnlineID* onlineHelper;
-  sc = detStore->retrieve(onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID" << endreq;
-    return sc;
-  }
+  const LArOnlineID* onlineHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve(onlineHelper, "LArOnlineID") );
 
   TChain* outfit = new TChain(m_ntuple_name.c_str());
   for ( std::vector<std::string>::const_iterator it = m_root_file_names.begin();
@@ -89,10 +75,10 @@ StatusCode LArOFCBin_PhysCaliTdiffFromStdNtuple::stop()
 
   // Create new objects
   LArOFCBinComplete *larOFCParams = new LArOFCBinComplete();
-  larOFCParams->setGroupingType(m_groupingType, log);
+  larOFCParams->setGroupingType(m_groupingType, msg());
   larOFCParams->initialize();
   LArPhysCaliTdiffComplete *larTdiffParams = new LArPhysCaliTdiffComplete();
-  larTdiffParams->setGroupingType(m_groupingType, log);
+  larTdiffParams->setGroupingType(m_groupingType, msg());
   larTdiffParams->initialize();
 
 
@@ -103,17 +89,17 @@ StatusCode LArOFCBin_PhysCaliTdiffFromStdNtuple::stop()
   for ( Long64_t i = 0; i < nentries; i++ )
   {
     outfit->GetEvent(i);
-    log << MSG::INFO << " Chan " <<  std::hex << channelId << std::dec << endreq;
-    log << MSG::INFO << bin << " | " << tdiff << endreq;
+    ATH_MSG_INFO ( " Chan " <<  std::hex << channelId << std::dec );
+    ATH_MSG_INFO ( bin << " | " << tdiff );
     hwid = channelId;
     HWIdentifier id(hwid);
     if(FT != onlineHelper->feedthrough(id) || slot != onlineHelper->slot(id) || channel != onlineHelper->channel(id)) {
-       log << MSG::ERROR << "Inconsistency in decoding HWID !!!!" <<endreq;
-       log << MSG::ERROR << FT << " - " << onlineHelper->feedthrough(id) << endreq;
-       log << MSG::ERROR << slot << " - " << onlineHelper->slot(id) << endreq;
-       log << MSG::ERROR << channel << " - " << onlineHelper->channel(id) << endreq;
-       log << MSG::ERROR << "Not creating PhysWave !!!!" << endreq;
-       continue;
+      ATH_MSG_ERROR ( "Inconsistency in decoding HWID !!!!" );
+      ATH_MSG_ERROR ( FT << " - " << onlineHelper->feedthrough(id) );
+      ATH_MSG_ERROR ( slot << " - " << onlineHelper->slot(id) );
+      ATH_MSG_ERROR ( channel << " - " << onlineHelper->channel(id) );
+      ATH_MSG_ERROR ( "Not creating PhysWave !!!!" );
+      continue;
     }
 	  
     // Add to objects
@@ -124,34 +110,21 @@ StatusCode LArOFCBin_PhysCaliTdiffFromStdNtuple::stop()
 
   // store 
   if(m_fillofc) {
-    sc=detStore->record(larOFCParams,m_store_key_ofcbin);
-    if (sc.isFailure()) {
-      log << MSG::FATAL << "Cannot record larOFCParams to StoreGate with key = " << m_store_key_ofcbin << endreq;
-      return sc;
-    }
+    ATH_CHECK( detStore()->record(larOFCParams,m_store_key_ofcbin) );
   }
 
   if(m_filltdiff) {
-    sc=detStore->record(larTdiffParams,m_store_key_tdiff);
-    if (sc.isFailure()) {
-      log << MSG::FATAL << "Cannot record larTdiffParams to StoreGate with key = " << m_store_key_tdiff << endreq;
-      return sc;
-    }
+    ATH_CHECK( detStore()->record(larTdiffParams,m_store_key_tdiff) );
   }
 
   // and symlink
 
   if(m_filltdiff) {
      ILArPhysCaliTdiff *ilarTdiff = NULL;
-     sc = detStore->symLink(larTdiffParams,ilarTdiff);
-     if (sc.isFailure()) {
-        log << MSG::FATAL << "Could not symlink ILArPhysCaliTdiff with LArTdiffParamsComplete." << endreq;
-        return StatusCode::FAILURE;
-     }
+     ATH_CHECK( detStore()->symLink(larTdiffParams,ilarTdiff) );
   }
 
 
-  log << MSG::INFO << "LArOFCBin_PhysCaliTdiffFromStdNtuple finalized!" << endreq;  
-
+  ATH_MSG_INFO ( "LArOFCBin_PhysCaliTdiffFromStdNtuple finalized!" );
   return StatusCode::SUCCESS;
 }

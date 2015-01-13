@@ -55,6 +55,9 @@ LArCompleteToFlat::LArCompleteToFlat( const std::string& name,
   declareProperty("DSPThresholdsInput",m_DSPThresholdsInput);//="LArDSPThresholds");
 
   declareProperty("ForceStop",m_forceStop=true);
+
+  declareProperty("FakeEMBPSLowGain",m_fakeEMBPSLowGain=false);
+  
 }
 
 // Destructor
@@ -66,7 +69,6 @@ LArCompleteToFlat::~LArCompleteToFlat()
 ////////////////////////////
 StatusCode LArCompleteToFlat::initialize()
 {
-
   CHECK(m_cablingSvc.retrieve());
   return StatusCode::SUCCESS;
 }
@@ -75,6 +77,10 @@ StatusCode LArCompleteToFlat::initialize()
 
 CondAttrListCollection* LArCompleteToFlat::singleFloatFlat(const char* blobName, const LArConditionsContainer<LArSingleFloatP>* input, 
 							   const std::string& outputName, const unsigned nGain,const bool withFCAL) {
+
+  unsigned nChannels=0;
+  unsigned nCopiedEMPS=0;
+  unsigned nDefault=0;
 
   coral::AttributeListSpecification* spec = new coral::AttributeListSpecification();
   spec->extend(blobName, "blob");
@@ -88,16 +94,25 @@ CondAttrListCollection* LArCompleteToFlat::singleFloatFlat(const char* blobName,
     float* pblob=static_cast<float*>(blob.startingAddress());
     for (unsigned hs=0;hs<m_hashMax;++hs) {
       const HWIdentifier chid=m_onlineID->channel_Id(hs);
+      float value;
       if (!withFCAL && m_onlineID->isFCALchannel(chid)) {
-	pblob[hs]=1.0; //Fill fcal channels with 1.0. for MPhysOverMcal
+	value=1.0; //Fill fcal channels with 1.0. for MPhysOverMcal
       }
-      else {
-	pblob[hs]=input->get(chid,gain).m_data;
-      }
+      else
+	value=input->get(chid,gain).m_data;
 
-      if (pblob[hs] < 0) {
+      if (value<0 && gain==2 && m_fakeEMBPSLowGain) { 
+	//Fill medium gain for EMB PS low gain
+	value=input->get(chid,1).m_data;
+	++nCopiedEMPS;
+      }
+      if (value < 0) {
 	errIfConnected(chid,gain,blobName);
+	value=1.0; //Default vaue is 1.0, since these are multiplicative constants
+	++nDefault;
       } 
+      pblob[hs]=value;
+      ++nChannels;
     }
     unsigned coolChan=gain;
     //Special case: Store single-gain constant in channel 1 
@@ -108,6 +123,10 @@ CondAttrListCollection* LArCompleteToFlat::singleFloatFlat(const char* blobName,
     //delete attrList;//???
   }
 
+  msg(MSG::INFO) << "Converted " << blobName << " to inline storage. Total number of channels=" << nChannels << endreq;
+  msg(MSG::INFO) << "Number of channels filled with default value (1.0) " << nDefault << " (including disconnected)" << endreq;
+  if (nCopiedEMPS) 
+    msg(MSG::INFO) << "\t Number of low gain EMBPS channels copied from medium gain" <<  nCopiedEMPS << endreq;  
   StatusCode sc=detStore()->record(coll,outputName);
   if (sc.isFailure()) {
     msg(MSG::ERROR) << "Failed to record CondAttrListCollection with key" << outputName << endreq;
@@ -118,8 +137,11 @@ CondAttrListCollection* LArCompleteToFlat::singleFloatFlat(const char* blobName,
 
 
 
-CondAttrListCollection* LArCompleteToFlat::pedestalFlat(const ILArPedestal* input, const std::string& outputName) {    
+CondAttrListCollection* LArCompleteToFlat::pedestalFlat(const ILArPedestal* input, const std::string& outputName) { 
   msg(MSG::INFO)<<"LArCompleteToFlat::pedestalFlat, starting"<<endreq;
+
+  unsigned nChannels=0;
+  unsigned nCopiedEMPS=0;
 
   coral::AttributeListSpecification* spec = new coral::AttributeListSpecification();
   spec->extend("Pedestal", "blob");
@@ -140,8 +162,17 @@ CondAttrListCollection* LArCompleteToFlat::pedestalFlat(const ILArPedestal* inpu
 
     for (unsigned hs=0;hs<m_hashMax;++hs) {
       const HWIdentifier chid=m_onlineID->channel_Id(hs);
-      pblobPed[hs]=input->pedestal(chid,gain);
-      pblobRMS[hs]=input->pedestalRMS(chid,gain);
+      float ped=input->pedestal(chid,gain);
+      float pedRMS=input->pedestalRMS(chid,gain);
+      if (ped<0 && gain==2 && m_fakeEMBPSLowGain) {
+	ped=input->pedestal(chid,1);
+	pedRMS=input->pedestalRMS(chid,1);
+	++nCopiedEMPS;
+      }
+
+      pblobPed[hs]=ped;
+      pblobRMS[hs]=pedRMS;
+      ++nChannels; 
     }//end loop over hash ids
     collPed->add(gain,*attrList);
   }//end loop over gains
@@ -151,14 +182,21 @@ CondAttrListCollection* LArCompleteToFlat::pedestalFlat(const ILArPedestal* inpu
     msg(MSG::ERROR) << "Failed to record CondAttrListCollection for pedestal with key " << outputName << endreq;
     return NULL;
   }
-  msg(MSG::INFO)<<"LArCompleteToFlat::pedestalFlat, returning "<<collPed<<endreq;
+  msg(MSG::INFO) << "Converted Pedestal to inline storage. Total number of channels=" << nChannels << endreq;
+  if (nCopiedEMPS) 
+    msg(MSG::INFO) << "\t Number of low gain EMBPS channels copied from medium gain" <<  nCopiedEMPS << endreq;    
+
   return collPed;
 }
 
 
 CondAttrListCollection* LArCompleteToFlat::ofcFlat(const ILArOFC* input, const std::string& outputName) {
-  const unsigned nSamples=5;
- 
+
+  msg(MSG::INFO)<<"LArCompleteToFlat::ofcFlat, starting"<<endreq;
+  unsigned nChannels=0;
+  unsigned nCopiedEMPS=0;
+  unsigned nDefault=0;
+
   coral::AttributeListSpecification* spec = new coral::AttributeListSpecification();
   spec->extend("OFCa", "blob");
   spec->extend("OFCb", "blob");
@@ -168,6 +206,21 @@ CondAttrListCollection* LArCompleteToFlat::ofcFlat(const ILArOFC* input, const s
   CondAttrListCollection* collOFC=new CondAttrListCollection(true);
   
   for (unsigned gain=0;gain<3;++gain) {
+
+    //Auto-detect the number of samples (at least in theory, could be different for each gain)
+    unsigned nSamples=0;
+    for (unsigned hs=0;hs<m_hashMax && nSamples==0;++hs) {
+      const HWIdentifier chid=m_onlineID->channel_Id(hs);
+      LArOFCFlat::OFCRef_t ofca= input->OFC_a(chid,gain);
+      nSamples=ofca.size();
+    }
+    if (nSamples==0) {
+      msg(MSG::ERROR) << "All input OFCs for gain " << gain << " have 0 samples!" << endreq;
+      continue;//jump to the next gain
+    }
+    
+    msg(MSG::INFO) << "Gain " << gain <<": Found " << nSamples << " OFC samples in input data" << endreq;
+
     coral::AttributeList* attrList = new coral::AttributeList(*spec);
     (*attrList)["version"].setValue(0U);
     coral::Blob& ofcaBlob=(*attrList)["OFCa"].data<coral::Blob>();
@@ -184,31 +237,46 @@ CondAttrListCollection* LArCompleteToFlat::ofcFlat(const ILArOFC* input, const s
     float* pTimeOffset=static_cast<float*>(toBlob.startingAddress());
     for (unsigned hs=0;hs<m_hashMax;++hs) {
       const HWIdentifier chid=m_onlineID->channel_Id(hs);
-      
       LArOFCFlat::OFCRef_t ofca= input->OFC_a(chid,gain);
+      LArOFCFlat::OFCRef_t ofcb= input->OFC_b(chid,gain);
+      float timeOffset=input->timeOffset(chid,gain);
+      if (ofca.size()==0 && gain==2 && m_fakeEMBPSLowGain) {
+	ofca= input->OFC_a(chid,1);
+	ofcb= input->OFC_b(chid,1);
+	timeOffset=input->timeOffset(chid,1);
+	++nCopiedEMPS;
+      }
+
       if (ofca.size()==nSamples) {
 	for (unsigned i=0;i<nSamples;++i) {
 	  pOfca[hs*nSamples+i]=ofca[i];
 	}
       }
       else {
+	std::stringstream message;
+	message <<"Number of samples don't match. Expect " << nSamples << ", got " << ofca.size() << "."; 
+	errIfConnected(chid,gain,"OFCa", message.str().c_str());
 	for (unsigned i=0;i<nSamples;++i) {
-	  pOfca[hs*nSamples+i]=LArOFCFlat::ERRORCODE;
+	  pOfca[hs*nSamples+i]=1.0;
 	}
+	++nDefault;
       } 
      
-      LArOFCFlat::OFCRef_t ofcb= input->OFC_b(chid,gain);
       if (ofcb.size()==nSamples) {
 	for (unsigned i=0;i<nSamples;++i) {
 	  pOfcb[hs*nSamples+i]=ofcb[i];
 	}
       }
       else {
+	std::stringstream message;
+	message <<"Number of samples don't match. Expect " << nSamples << ", got " << ofcb.size() << "."; 
+	errIfConnected(chid,gain,"OFCb", message.str().c_str());
 	for (unsigned i=0;i<nSamples;++i) {
-	  pOfcb[hs*nSamples+i]=LArOFCFlat::ERRORCODE;
+	  pOfcb[hs*nSamples+i]=0.0;
 	}
       }
-      pTimeOffset[hs]=input->timeOffset(chid,gain);
+      pTimeOffset[hs]=timeOffset;
+      ++nChannels;
 
     }//end loop over hash ids
     collOFC->add(gain,*attrList);
@@ -219,13 +287,23 @@ CondAttrListCollection* LArCompleteToFlat::ofcFlat(const ILArOFC* input, const s
     msg(MSG::ERROR) << "Failed to record CondAttrListCollection OFC with key " << outputName << endreq;
     return NULL;
   }
+
+  msg(MSG::INFO) << "Converted OFCs to inline storage. Total number of channels=" << nChannels << endreq;
+  msg(MSG::INFO) << "Number of channels filled with default OFCs {1,1,1,1} " << nDefault << " (including disconnected)" << endreq;
+  if (nCopiedEMPS) 
+    msg(MSG::INFO) << "\t Number of low gain EMBPS channels copied from medium gain" <<  nCopiedEMPS << endreq;  
   return collOFC;
 }
 
-
-CondAttrListCollection* LArCompleteToFlat::shapeFlat(const LArShapeComplete* input, const std::string& outputName) {
-  const unsigned nSamples=5;
  
+CondAttrListCollection* LArCompleteToFlat::shapeFlat(const LArShapeComplete* input, const std::string& outputName) {
+ 
+  msg(MSG::INFO)<<"LArCompleteToFlat::shapeFlat, starting"<<endreq;
+
+  unsigned nChannels=0;
+  unsigned nCopiedEMPS=0;
+  unsigned nDefault=0;
+
   coral::AttributeListSpecification* spec = new coral::AttributeListSpecification();
   spec->extend("Shape", "blob");
   spec->extend("ShapeDer", "blob");
@@ -235,6 +313,20 @@ CondAttrListCollection* LArCompleteToFlat::shapeFlat(const LArShapeComplete* inp
   CondAttrListCollection* coll=new CondAttrListCollection(true);
   
   for (unsigned gain=0;gain<3;++gain) {
+
+    unsigned nSamples=0;
+    for (unsigned hs=0;hs<m_hashMax && nSamples==0;++hs) {
+      const HWIdentifier chid=m_onlineID->channel_Id(hs);
+      ILArShape::ShapeRef_t shape= input->Shape(chid,gain);
+      nSamples=shape.size();
+    }
+    if (nSamples==0) {
+      msg(MSG::ERROR) << "All input Shapes for gain " << gain << " have 0 samples!" << endreq;
+      continue;//jump to the next gain
+    }
+
+    msg(MSG::INFO) << "Gain " << gain <<": Found " << nSamples << " shape samples in input data" << endreq;
+
     coral::AttributeList* attrList = new coral::AttributeList(*spec);    
     (*attrList)["version"].setValue(0U);
     coral::Blob& shapeBlob=(*attrList)["Shape"].data<coral::Blob>();
@@ -253,29 +345,46 @@ CondAttrListCollection* LArCompleteToFlat::shapeFlat(const LArShapeComplete* inp
       const HWIdentifier chid=m_onlineID->channel_Id(hs);
       
       ILArShape::ShapeRef_t shape= input->Shape(chid,gain);
+      ILArShape::ShapeRef_t shapeDer= input->ShapeDer(chid,gain);
+      float timeOffset=input->timeOffset(chid,gain);
+      if (shape.size()==0 && gain==2 && m_fakeEMBPSLowGain) { 
+	 shape=input->Shape(chid,1);
+	 shapeDer=input->ShapeDer(chid,1);
+	 timeOffset=input->timeOffset(chid,1);
+	 ++nCopiedEMPS;
+      }
+   
       if (shape.size()==nSamples) {
 	for (unsigned i=0;i<nSamples;++i) {
 	  pShape[hs*nSamples+i]=shape[i];
 	}
       }
       else {
+	std::stringstream message;
+	message <<"Number of samples don't match. Expect " << nSamples << ", got " << shape.size() << "."; 
+	errIfConnected(chid,gain,"Shape", message.str().c_str());
 	for (unsigned i=0;i<nSamples;++i) {
-	  pShape[hs*nSamples+i]=LArShapeFlat::ERRORCODE;
+	  pShape[hs*nSamples+i]=0.0;
 	}
+	++nDefault;
       } 
      
-      ILArShape::ShapeRef_t shapeDer= input->ShapeDer(chid,gain);
+   
       if (shapeDer.size()==nSamples) {
 	for (unsigned i=0;i<nSamples;++i) {
 	  pShapeDer[hs*nSamples+i]=shapeDer[i];
 	}
       }
       else {
+	std::stringstream message;
+	message <<"Number of samples don't match. Expect " << nSamples << ", got " << shapeDer.size() << "."; 
+	errIfConnected(chid,gain,"ShapeDer", message.str().c_str());
 	for (unsigned i=0;i<nSamples;++i) {
-	  pShapeDer[hs*nSamples+i]=LArShapeFlat::ERRORCODE;
+	  pShapeDer[hs*nSamples+i]=0.0;
 	}
       }
-      pTimeOffset[hs]=input->timeOffset(chid,gain);
+      pTimeOffset[hs]=timeOffset;
+      ++nChannels;
 
     }//end loop over hash ids
     coll->add(gain,*attrList);
@@ -286,20 +395,49 @@ CondAttrListCollection* LArCompleteToFlat::shapeFlat(const LArShapeComplete* inp
     msg(MSG::ERROR) << "Failed to record CondAttrListCollection Shape with key " << outputName << endreq;
     return NULL;
   }
+
+  msg(MSG::INFO) << "Converted Shapes to inline storage. Total number of channels=" << nChannels << endreq;
+   msg(MSG::INFO) << "Number of channels filled with default shape {0,0,0,0} " << nDefault << " (including disconnected)" << endreq;
+  if (nCopiedEMPS) 
+    msg(MSG::INFO) << "\t Number of low gain EMBPS channels copied from medium gain" <<  nCopiedEMPS << endreq;  
+  
   return coll;
 }
 
 
 
 CondAttrListCollection* LArCompleteToFlat::rampFlat(const ILArRamp* input, const std::string& outputName) {
+
+  msg(MSG::INFO)<<"LArCompleteToFlat::rampFlat, starting"<<endreq;
+
+  unsigned nChannels=0;
+  unsigned nCopiedEMPS=0;
+  unsigned nDefault=0;
+
   coral::AttributeListSpecification* spec = new coral::AttributeListSpecification();
   spec->extend("RampVec", "blob");
   spec->extend<unsigned>("nPoints");
   spec->extend<unsigned>("version");
   CondAttrListCollection* coll=new CondAttrListCollection(true);
-  const unsigned nPoints=2;
+
+
+  std::vector<float> defaultRamp={0.0,1.0};
 
   for (unsigned gain=0;gain<3;++gain) {
+
+    unsigned nPoints=0;
+    for (unsigned hs=0;hs<m_hashMax && nPoints==0;++hs) {
+      const HWIdentifier chid=m_onlineID->channel_Id(hs);
+      const ILArRamp::RampRef_t ramp= input->ADC2DAC(chid,gain);
+      nPoints=ramp.size();
+    }
+    if (nPoints==0) {
+      msg(MSG::ERROR) << "All input Ramps for gain " << gain << " have 0 points!" << endreq;
+      continue;//jump to the next gain
+    }
+
+    defaultRamp.resize(nPoints,0.0); //fill remaining points if needed
+    msg(MSG::INFO) << "Gain " << gain << ": Found a ramp polynom of degree " << nPoints << " in input data" << endreq;
     coral::AttributeList* attrList = new coral::AttributeList(*spec);
     (*attrList)["version"].setValue(0U);
     coral::Blob& blobRamp=(*attrList)["RampVec"].data<coral::Blob>();
@@ -309,29 +447,44 @@ CondAttrListCollection* LArCompleteToFlat::rampFlat(const ILArRamp* input, const
 
     for (unsigned hs=0;hs<m_hashMax;++hs) {
       const HWIdentifier chid=m_onlineID->channel_Id(hs);
-      const ILArRamp::RampRef_t ramp=input->ADC2DAC(chid,gain);
-      if (ramp.size()>=nPoints) {
+      std::vector<float> rampVec(input->ADC2DAC(chid,gain).asVector());
+      if (rampVec.size()==0 && gain==2 && m_fakeEMBPSLowGain && m_cablingSvc->isOnlineConnected(chid)) { 
+	rampVec=input->ADC2DAC(chid,1).asVector();
+	rampVec[1]*=10.0;
+	++nCopiedEMPS;
+      }
+      
+      if (rampVec.size()>=nPoints) {
 	for (size_t i=0;i<nPoints;++i) {
-	  pblobRamp[nPoints*hs+i]=ramp[i];
+	  pblobRamp[nPoints*hs+i]=rampVec[i];
 	}
       }
       else {
-	errIfConnected(chid,gain,"Ramp");
-	//msg(MSG::ERROR) << "Found ramp polynom with degree " << ramp.size() << ". Need at least " 
-	//	<< nPoints << ". Filling with with ERRORCODE" << endreq;
+	std::stringstream message;
+	message <<"Polynom degree doesn't match. Expect " << nPoints << ", got " << rampVec.size() << "."; 
+	errIfConnected(chid,gain,"Ramp", message.str().c_str());
 	for (size_t i=0;i<nPoints;++i) {
-	  pblobRamp[nPoints*hs+i]=LArElecCalib::ERRORCODE;
+	  pblobRamp[nPoints*hs+i]=defaultRamp[i];
 	}
+	++nDefault;
       }
+      ++nChannels;
     }//end loop over hash ids
     coll->add(gain,*attrList);
   }//end loop over gains
-     
+  
   StatusCode sc=detStore()->record(coll,outputName);//"/LAR/ElecCalibFlat/Ramp");
   if (sc.isFailure()) {
     msg(MSG::ERROR) << "Failed to record CondAttrListCollection for ramp with key " << outputName << endreq;
     return NULL;
   }
+
+  msg(MSG::INFO) << "Converted Ramps to inline storage. Total number of channels " << nChannels << endreq;
+  msg(MSG::INFO) << "Number of channels filled with default ramp {0,1} " << nDefault << " (including disconnected)" << endreq;
+  if (nCopiedEMPS) 
+    msg(MSG::INFO) << "\t Number of low gain EMBPS channels copied from medium gain (applied factor 10)" <<  nCopiedEMPS << endreq;  
+  
+
   return coll;
 }
 
@@ -654,11 +807,14 @@ StatusCode LArCompleteToFlat::stop() {
 
 
 
-void LArCompleteToFlat::errIfConnected(const HWIdentifier chid, const int gain, const char* objName) const{
+void LArCompleteToFlat::errIfConnected(const HWIdentifier chid, const int gain, const char* objName, const char* message) const{
 
   if (m_cablingSvc->isOnlineConnected(chid)) {
-    msg(MSG::ERROR) << "No valid " << objName << " found for channel "  << m_onlineID->channel_name(chid) 
-  		    << ", gain " << gain << ". Filling with ERRORCODE." << endreq;
+    if (! (gain==2 && m_onlineID->isEMBPS(chid))) { //No LG Presampler calibration
+      msg(MSG::ERROR) << "No valid " << objName << " found for channel "  << m_onlineID->channel_name(chid) << ", gain " << gain << ". ";
+      if (message) msg(MSG::ERROR) << message;
+      msg(MSG::ERROR) << " Filling with default value." << endreq;
+    }
   }
   return;
 }

@@ -13,7 +13,7 @@
 
 #ifndef LARAVERAGES2NTUPLE_H
 #define LARAVERAGES2NTUPLE_H
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/INTupleSvc.h"
@@ -34,7 +34,7 @@
 #include <string>
 #include <map>
 
-class LArAverages2Ntuple : public Algorithm
+class LArAverages2Ntuple : public AthAlgorithm
 {
  public:
   LArAverages2Ntuple(const std::string & name, ISvcLocator * pSvcLocator);
@@ -45,8 +45,6 @@ class LArAverages2Ntuple : public Algorithm
   StatusCode execute() ;
   StatusCode finalize(){return StatusCode::SUCCESS;}
  private:
-  StoreGateSvc* m_storeGateSvc;
-  StoreGateSvc* m_detStore; 
   const LArEM_ID* m_emId;
   const LArOnlineID* m_onlineHelper;
 

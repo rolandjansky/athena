@@ -13,7 +13,7 @@
 LArCond2NtupleBase::LArCond2NtupleBase(const std::string& name, ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator), m_initialized(false), m_nt(NULL), m_log(NULL), 
   m_detStore(NULL), m_emId(NULL), m_hecId(NULL), m_fcalId(NULL),m_onlineId(NULL),
-  m_badChanTool("LArBadChanTool"),m_FEBTempTool("LArFEBTempTool"), m_isSC(false)
+  m_larCablingSvc(NULL), m_badChanTool("LArBadChanTool"),m_FEBTempTool("LArFEBTempTool"), m_isSC(false)
 {
   declareProperty("BadChannelTool",m_badChanTool);
   declareProperty("AddBadChannelInfo",m_addBC=true);
@@ -21,6 +21,7 @@ LArCond2NtupleBase::LArCond2NtupleBase(const std::string& name, ISvcLocator* pSv
   declareProperty("isSC",m_isSC);
   declareProperty("isFlat", m_isFlat=false);
   declareProperty("OffId", m_OffId=false);
+  declareProperty("AddHash",m_addHash=true);
 }
 
 LArCond2NtupleBase::~LArCond2NtupleBase() {
@@ -28,18 +29,18 @@ LArCond2NtupleBase::~LArCond2NtupleBase() {
 }
 
 StatusCode LArCond2NtupleBase::initialize() {
-  m_log=new MsgStream(msgSvc(), name());
+  m_log=new MsgStream(msgSvc(), name()); //backward compatiblity
   
-  *m_log << MSG::DEBUG << "Initializing LArCond2Ntuple base class" << endreq;
+  ATH_MSG_DEBUG("Initializing LArCond2Ntuple base class");
   
   if (m_ntpath.size()==0 || m_ntTitle.size()==0) {
-    *m_log << MSG::ERROR << "Need to set variable 'm_ntpath' and 'm_ntTitle' in constructor of deriving class!" << endreq;
+    msg(MSG::ERROR) << "Need to set variable 'm_ntpath' and 'm_ntTitle' in constructor of deriving class!" << endreq;
     return StatusCode::FAILURE;
   }
 
   size_t i=m_ntpath.rfind('/');
   if (i==std::string::npos) {
-    *m_log << MSG::ERROR << "Expected at least on '/' in path " << m_ntpath << endreq;
+    msg(MSG::ERROR) << "Expected at least on '/' in path " << m_ntpath << endreq;
     return StatusCode::FAILURE;
   }
   std::string basepath(m_ntpath.begin(),m_ntpath.begin()+i);
@@ -48,7 +49,7 @@ StatusCode LArCond2NtupleBase::initialize() {
 
   NTupleFilePtr file1(ntupleSvc(),basepath);
   if (!file1){
-    (*m_log)  << MSG::ERROR << "Could not get NTupleFilePtr with path " << basepath << " failed" << endreq;
+    msg(MSG::ERROR) << "Could not get NTupleFilePtr with path " << basepath << " failed" << endreq;
     return StatusCode::FAILURE;
   }
   NTuplePtr nt(ntupleSvc(),m_ntpath);
@@ -56,18 +57,20 @@ StatusCode LArCond2NtupleBase::initialize() {
     nt=ntupleSvc()->book(m_ntpath,CLID_ColumnWiseTuple,m_ntTitle);
   }
   if (!nt){
-    (*m_log)  << MSG::ERROR << "Booking of NTuple at "<< m_ntpath << " and name " << m_ntTitle << " failed" << endreq;
+    msg(MSG::ERROR) << "Booking of NTuple at "<< m_ntpath << " and name " << m_ntTitle << " failed" << endreq;
     return StatusCode::FAILURE; 
   }
 
   m_nt=nt;
   //std::cout << "Ntuple ptr:" << m_nt << std::endl;
 
-  StatusCode sc=service("DetectorStore",m_detStore);
-  if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "Cannot get DetectorStore!" << endreq;
-    return sc;
-  }
+  m_detStore= &(*detStore()); //for backward compatiblity 
+
+  //StatusCode sc=service("DetectorStore",m_detStore);
+  //if (sc!=StatusCode::SUCCESS) {
+  //  (*m_log) << MSG::ERROR << "Cannot get DetectorStore!" << endreq;
+  //  return sc;
+  //}
 
   const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
   if ( m_isSC ){
@@ -82,53 +85,55 @@ StatusCode LArCond2NtupleBase::initialize() {
   }
 
   if (!m_emId) {
-    (*m_log) << MSG::ERROR << "Could not access lar EM ID helper" << endreq;
+    msg(MSG::ERROR) << "Could not access lar EM ID helper" << endreq;
     return StatusCode::FAILURE;
   }
   if (!m_fcalId) {
-    (*m_log) << MSG::ERROR << "Could not access lar FCAL ID helper" << endreq;
+    msg(MSG::ERROR) << "Could not access lar FCAL ID helper" << endreq;
     return StatusCode::FAILURE;
   }
   if (!m_hecId) {
-    (*m_log) << MSG::ERROR << "Could not access lar HEC ID helper" << endreq;
+    msg(MSG::ERROR) << "Could not access lar HEC ID helper" << endreq;
     return StatusCode::FAILURE;
   }
 
+
+  StatusCode sc;
   if ( m_isSC ){
   const LArOnline_SuperCellID* ll;
-  sc = m_detStore->retrieve(ll, "LArOnline_SuperCellID");
+  sc = detStore()->retrieve(ll, "LArOnline_SuperCellID");
   if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
+    msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endreq;
     return StatusCode::FAILURE;
   }
     else {
       m_onlineId = (const LArOnlineID_Base*)ll;
-      (*m_log) << MSG::DEBUG << " Found the LArOnlineID helper. " << endreq;
+      ATH_MSG_DEBUG("Found the LArOnlineID helper");
     }
 
   ToolHandle<LArSuperCellCablingTool> tool("LArSuperCellCablingTool");
   sc = tool.retrieve();
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << " Can't get LArCablingSvc." << endreq;
+    msg(MSG::ERROR) << " Can't get LArCablingSvc." << endreq;
     return sc;
   } else m_larCablingSvc = (LArCablingBase*)&(*tool);
 
   } else { // m_isSC
   const LArOnlineID* ll;
-  sc = m_detStore->retrieve(ll, "LArOnlineID");
+  sc = detStore()->retrieve(ll, "LArOnlineID");
   if (sc.isFailure()) {
-    (*m_log) << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
+    msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endreq;
     return StatusCode::FAILURE;
   }
    else {
       m_onlineId = (const LArOnlineID_Base*)ll;
-      (*m_log) << MSG::DEBUG << " Found the LArOnlineID helper. " << endreq;
+      ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
     }
 
   ToolHandle<LArCablingService> tool("LArCablingService");
   sc = tool.retrieve();
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << " Can't get LArCablingSvc." << endreq;
+    msg(MSG::ERROR) << " Can't get LArCablingSvc." << endreq;
     return sc;
   } else m_larCablingSvc = (LArCablingBase*)&(*tool);
   } // end of m_isSC if
@@ -136,7 +141,7 @@ StatusCode LArCond2NtupleBase::initialize() {
   if (m_addBC) {
     sc = m_badChanTool.retrieve();
     if (sc!=StatusCode::SUCCESS) {
-      (*m_log) << MSG::ERROR << " Can't get BadChanTool." << endreq;
+      msg(MSG::ERROR) << " Can't get BadChanTool." << endreq;
       return sc;
     }
   }
@@ -144,7 +149,7 @@ StatusCode LArCond2NtupleBase::initialize() {
   if (m_addFEBTemp) {
     sc = m_FEBTempTool.retrieve();
     if (sc!=StatusCode::SUCCESS) {
-      (*m_log) << MSG::ERROR << " Can't get FEBTempTool." << endreq;
+      msg(MSG::ERROR) << " Can't get FEBTempTool." << endreq;
       return sc;
     }
   }
@@ -152,7 +157,7 @@ StatusCode LArCond2NtupleBase::initialize() {
   //Online-identifier variables
   sc=nt->addItem("channelId",m_onlChanId,0x38000000,0x3A000000);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "addItem 'channelId' failed" << endreq;
+    msg(MSG::ERROR) << "addItem 'channelId' failed" << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -160,86 +165,101 @@ StatusCode LArCond2NtupleBase::initialize() {
   if ( m_OffId ) {
   sc=nt->addItem("offlineId",m_oflChanId,0x20000000,0x40000000);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "addItem 'channelId' failed" << endreq;
+    msg(MSG::ERROR) << "addItem 'channelId' failed" << endreq;
     return StatusCode::FAILURE;
   }
   }
 
   sc=nt->addItem("barrel_ec",m_barrel_ec,0,1);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "addItem 'barrel_ec' failed" << endreq;
+    msg(MSG::ERROR) << "addItem 'barrel_ec' failed" << endreq;
     return StatusCode::FAILURE;
   }
 
   sc=nt->addItem("pos_neg",m_pos_neg,0,1);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "addItem 'pos_neg' failed" << endreq;
+    msg(MSG::ERROR) << "addItem 'pos_neg' failed" << endreq;
     return StatusCode::FAILURE;
    }
 
   sc=nt->addItem("FT",m_FT,0,32);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "addItem 'FT' failed" << endreq;
+    msg(MSG::ERROR) << "addItem 'FT' failed" << endreq;
     return StatusCode::FAILURE;
   }
 
   sc=nt->addItem("slot",m_slot,1,15);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "addItem 'slot' failed" << endreq;
+    msg(MSG::ERROR) << "addItem 'slot' failed" << endreq;
     return StatusCode::FAILURE;
    }
 
   sc=nt->addItem("channel",m_channel,0,127);
   if (sc!=StatusCode::SUCCESS){
-    (*m_log) << MSG::ERROR << "addItem 'channel' failed" << endreq;
+    msg(MSG::ERROR) << "addItem 'channel' failed" << endreq;
     return StatusCode::FAILURE;
   }
 
   if ( !m_isSC) {
-  sc=nt->addItem("calibLine",m_calibLine,0,127);
-  if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "addItem 'calibLine' failed" << endreq;
-    return StatusCode::FAILURE;
-  }
+    sc=nt->addItem("calibLine",m_calibLine,0,127);
+    if (sc!=StatusCode::SUCCESS) {
+      msg(MSG::ERROR) << "addItem 'calibLine' failed" << endreq;
+      return StatusCode::FAILURE;
+    }
   }
 
   sc=nt->addItem("isConnected",m_isConnected,0,1);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "addItem 'isConnected' failed" << endreq;
+    msg(MSG::ERROR) << "addItem 'isConnected' failed" << endreq;
     return StatusCode::FAILURE;
   }
+
+  if (m_addHash) {
+    sc=nt->addItem("channelHash",m_chanHash,0,200000);
+    if (sc!=StatusCode::SUCCESS) {
+      msg(MSG::ERROR) << "addItem 'channelHash' failed" << endreq;
+      return StatusCode::FAILURE;
+    }
+
+    sc=nt->addItem("febHash",m_febHash,0,2000);
+    if (sc!=StatusCode::SUCCESS) {
+      msg(MSG::ERROR) << "addItem 'febHash' failed" << endreq;
+      return StatusCode::FAILURE;
+    }
+  }
+
 
   //Offline-ID related variables
   sc=nt->addItem("layer",m_layer,0,4);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "addItem 'layer' failed" << endreq;
+    msg(MSG::ERROR) << "addItem 'layer' failed" << endreq;
     return StatusCode::FAILURE;
    }
   sc=nt->addItem("ieta",m_eta,0,510);
   if (sc!=StatusCode::SUCCESS) {
-   (*m_log) << MSG::ERROR << "addItem 'ieta' failed" << endreq;
+   msg(MSG::ERROR) << "addItem 'ieta' failed" << endreq;
    return StatusCode::FAILURE;
   }
   sc=nt->addItem("iphi",m_phi,0,1023);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "addItem 'iphi' failed" << endreq;
+    msg(MSG::ERROR) << "addItem 'iphi' failed" << endreq;
     return StatusCode::FAILURE;
   }
   sc=nt->addItem("region",m_region,0,5);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "addItem 'region' failed" << endreq;
+    msg(MSG::ERROR) << "addItem 'region' failed" << endreq;
     return StatusCode::FAILURE;
   }
   sc=nt->addItem("detector",m_detector,0,2);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "addItem 'detector' failed" << endreq;
+    msg(MSG::ERROR) << "addItem 'detector' failed" << endreq;
     return StatusCode::FAILURE;
   }
 
   if (m_addBC) {
     sc=nt->addItem("badChan",m_badChanWord);
     if (sc!=StatusCode::SUCCESS) {
-      (*m_log) << MSG::ERROR << "addItem 'badChan' failed" << endreq;
+      msg(MSG::ERROR) << "addItem 'badChan' failed" << endreq;
       return StatusCode::FAILURE;
     }
   }
@@ -247,12 +267,12 @@ StatusCode LArCond2NtupleBase::initialize() {
   if (m_addFEBTemp) {
     sc=nt->addItem("FEBTemp1",m_FEBTemp1);
     if (sc!=StatusCode::SUCCESS) {
-      (*m_log) << MSG::ERROR << "addItem 'FEBTemp1' failed" << endreq;
+      msg(MSG::ERROR) << "addItem 'FEBTemp1' failed" << endreq;
       return StatusCode::FAILURE;
     }
     sc=nt->addItem("FEBTemp2",m_FEBTemp2);
     if (sc!=StatusCode::SUCCESS) {
-      (*m_log) << MSG::ERROR << "addItem 'FEBTemp2' failed" << endreq;
+      msg(MSG::ERROR) << "addItem 'FEBTemp2' failed" << endreq;
       return StatusCode::FAILURE;
     }
   }
@@ -273,6 +293,11 @@ bool LArCond2NtupleBase::fillFromIdentifier(const HWIdentifier& hwid) {
  m_FT        = m_onlineId->feedthrough(hwid);
  m_slot      = m_onlineId->slot(hwid);
  m_channel   = m_onlineId->channel(hwid);
+
+ if (m_addHash) {
+   m_chanHash=m_onlineId->channel_Hash(hwid);
+   m_febHash=m_onlineId->feb_Hash(m_onlineId->feb_Id(hwid));
+ }
 
  if ( !m_isSC) {
  m_calibLine=NOT_VALID;

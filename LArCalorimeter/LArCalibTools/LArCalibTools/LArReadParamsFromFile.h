@@ -15,8 +15,7 @@
 
 #ifndef LARREADPARAMSFROMFILE_H
 #define LARREADPARAMSFROMFILE_H
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 //#include "GaudiKernel/SmartDataPtr.h"
 #include "CaloIdentifier/CaloIdManager.h"
 
@@ -24,7 +23,6 @@
 #include <stdio.h>
 #include <string>
 
-#include  "StoreGate/StoreGateSvc.h"
 #include "LArIdentifier/LArOnlineID.h"
 
 #include "GaudiKernel/Bootstrap.h"
@@ -40,7 +38,7 @@
 using namespace LArParamsProperties ;
 
 template <class DATA>
-class LArReadParamsFromFile : public Algorithm
+class LArReadParamsFromFile : public AthAlgorithm
 {
  public:
   LArReadParamsFromFile(const std::string & name, ISvcLocator * pSvcLocator);
@@ -53,7 +51,6 @@ class LArReadParamsFromFile : public Algorithm
   StatusCode stop();
 
  private:
-  StoreGateSvc* m_detStore; 
   const LArOnlineID* m_onlineHelper;
   const LArEM_ID*   m_emId;
   const LArHEC_ID*  m_hecId;
@@ -131,19 +128,19 @@ class LArReadParamsFromFile : public Algorithm
   // define symLink for all classes
   //--------------------------------
 
-  void do_symLink(const LArCaliPulseParamsComplete* data) { m_detStore->symLink(data,(ILArCaliPulseParams*)data) ; } ;
-  void do_symLink(const LArDetCellParamsComplete* data)   { m_detStore->symLink(data,(ILArDetCellParams*)data)   ; } ;
-  void do_symLink(const LArPhysCaliTdiffComplete* data)   { m_detStore->symLink(data,(ILArPhysCaliTdiff*)data)   ; } ;
-  void do_symLink(const LArTdriftComplete* data)          { m_detStore->symLink(data,(ILArTdrift*)data)          ; } ;
-  void do_symLink(const LArMphysOverMcalComplete* data)   { m_detStore->symLink(data,(ILArMphysOverMcal*)data)   ; } ;
-  void do_symLink(const LArRinjComplete* data)            { m_detStore->symLink(data,(ILArRinj*)data)            ; } ;
-  void do_symLink(const LArTshaperComplete* data)         { m_detStore->symLink(data,(ILArTshaper*)data)         ; } ;
-  void do_symLink(const LArEMEC_CphiComplete* data)       { m_detStore->symLink(data,(ILArEMEC_Cphi*)data)       ; } ;
-  void do_symLink(const LArEMEC_HValphaComplete* data)    { m_detStore->symLink(data,(ILArEMEC_HValpha*)data)    ; } ;
-  void do_symLink(const LArEMEC_HVbetaComplete* data)     { m_detStore->symLink(data,(ILArEMEC_HVbeta*)data)     ; } ;
-  void do_symLink(const LArCableLengthComplete* data)     { m_detStore->symLink(data,(ILArCableLength*)data)     ; } ;
-  void do_symLink(const LArCableAttenuationComplete* data){ m_detStore->symLink(data,(ILArCableAttenuation*)data); } ;
-  void do_symLink(const LArCaliPulseParamsVsCalib* data)  { m_detStore->symLink(data,(ILArCaliPulseParams*)data) ; } ;
+  void do_symLink(const LArCaliPulseParamsComplete* data) { detStore()->symLink(data,(ILArCaliPulseParams*)data) ; } ;
+  void do_symLink(const LArDetCellParamsComplete* data)   { detStore()->symLink(data,(ILArDetCellParams*)data)   ; } ;
+  void do_symLink(const LArPhysCaliTdiffComplete* data)   { detStore()->symLink(data,(ILArPhysCaliTdiff*)data)   ; } ;
+  void do_symLink(const LArTdriftComplete* data)          { detStore()->symLink(data,(ILArTdrift*)data)          ; } ;
+  void do_symLink(const LArMphysOverMcalComplete* data)   { detStore()->symLink(data,(ILArMphysOverMcal*)data)   ; } ;
+  void do_symLink(const LArRinjComplete* data)            { detStore()->symLink(data,(ILArRinj*)data)            ; } ;
+  void do_symLink(const LArTshaperComplete* data)         { detStore()->symLink(data,(ILArTshaper*)data)         ; } ;
+  void do_symLink(const LArEMEC_CphiComplete* data)       { detStore()->symLink(data,(ILArEMEC_Cphi*)data)       ; } ;
+  void do_symLink(const LArEMEC_HValphaComplete* data)    { detStore()->symLink(data,(ILArEMEC_HValpha*)data)    ; } ;
+  void do_symLink(const LArEMEC_HVbetaComplete* data)     { detStore()->symLink(data,(ILArEMEC_HVbeta*)data)     ; } ;
+  void do_symLink(const LArCableLengthComplete* data)     { detStore()->symLink(data,(ILArCableLength*)data)     ; } ;
+  void do_symLink(const LArCableAttenuationComplete* data){ detStore()->symLink(data,(ILArCableAttenuation*)data); } ;
+  void do_symLink(const LArCaliPulseParamsVsCalib* data)  { detStore()->symLink(data,(ILArCaliPulseParams*)data) ; } ;
 
 };
 

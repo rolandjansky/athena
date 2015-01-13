@@ -20,7 +20,7 @@
 #include <string>
 
 
-LArMphysOverMcalFromTuple::LArMphysOverMcalFromTuple (const std::string& name, ISvcLocator* pSvcLocator) : Algorithm(name, pSvcLocator)
+LArMphysOverMcalFromTuple::LArMphysOverMcalFromTuple (const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator)
 {  
   declareProperty("FileNames", m_root_file_names);
   declareProperty("StoreKey", m_store_key="FROMTUPLE");
@@ -37,24 +37,11 @@ StatusCode LArMphysOverMcalFromTuple::initialize()
 
 StatusCode LArMphysOverMcalFromTuple::stop()
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "... in finalize()" << endreq ;
+  ATH_MSG_INFO ( "... in finalize()" );
   
-  // Get access to the Detector Store
-  StoreGateSvc* detStore;  
-  StatusCode sc = service("DetectorStore",detStore);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Cannot get DetectorStore!" << endreq;
-    return sc;
-  }
-
   // get LArOnlineID helper
-  const LArOnlineID* onlineHelper;
-  sc = detStore->retrieve(onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID" << endreq;
-    return sc;
-  }
+  const LArOnlineID* onlineHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve(onlineHelper, "LArOnlineID") );
 
   TChain* outfit = new TChain("outfit");
   for ( std::vector<std::string>::const_iterator it = m_root_file_names.begin();
@@ -97,21 +84,12 @@ StatusCode LArMphysOverMcalFromTuple::stop()
 
 
   // store 
-  sc=detStore->record(container,m_store_key);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "Cannot record LArMphysOverMcalComplete to StoreGate with key = " << m_store_key << endreq;
-    return sc;
-  } 
+  ATH_CHECK( detStore()->record(container,m_store_key) );
   // Symlink LArMphysOverMcalComplete to ILArMphysOverMcal for further use
   ILArMphysOverMcal *larMphysOverMcal = NULL;
-  sc = detStore->symLink(container,larMphysOverMcal);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "Could not symlink ILArMphysOverMcal with LArMphysOverMcalComplete." << endreq;
-    return StatusCode::FAILURE;
-  } 
+  ATH_CHECK( detStore()->symLink(container,larMphysOverMcal) );
 
-
- log << MSG::INFO << "LArMphysOverMcalyFromTuple finalized!" << endreq;  
+  ATH_MSG_INFO ( "LArMphysOverMcalyFromTuple finalized!" );
   
   return StatusCode::SUCCESS;
 }

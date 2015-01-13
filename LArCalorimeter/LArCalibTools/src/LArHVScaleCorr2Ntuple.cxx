@@ -3,7 +3,8 @@
 */
 
 #include "LArCalibTools/LArHVScaleCorr2Ntuple.h"
-#include "LArRawConditions/LArHVScaleCorrComplete.h"
+//#include "LArRawConditions/LArHVScaleCorrComplete.h"
+#include "LArElecCalib/ILArHVScaleCorr.h"
 #include "CaloIdentifier/CaloGain.h"
 
 LArHVScaleCorr2Ntuple::LArHVScaleCorr2Ntuple(const std::string& name, ISvcLocator* pSvcLocator): 
@@ -21,10 +22,10 @@ LArHVScaleCorr2Ntuple::~LArHVScaleCorr2Ntuple()
 
 StatusCode LArHVScaleCorr2Ntuple::stop() {
  
-  const LArHVScaleCorrComplete* larHVScaleCorrComplete;
-  StatusCode sc=m_detStore->retrieve(larHVScaleCorrComplete,m_contKey);
+  const ILArHVScaleCorr* larHVScaleCorr;
+  StatusCode sc=m_detStore->retrieve(larHVScaleCorr,m_contKey);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log)  << MSG::ERROR << "Unable to retrieve LArHVScaleCorrComplete with key " 
+    (*m_log)  << MSG::ERROR << "Unable to retrieve ILArHVScaleCorr with key " 
 	      << m_contKey << " from DetectorStore" << endreq;
     return StatusCode::FAILURE;
     } 
@@ -44,11 +45,10 @@ StatusCode LArHVScaleCorr2Ntuple::stop() {
  for(; itOnId!=itOnIdEnd;++itOnId){
      const HWIdentifier hwid = *itOnId;
      if (m_larCablingSvc->isOnlineConnected(hwid)) {
-       const LArHVScaleCorrComplete::LArCondObj hvScale_obj=
-	 larHVScaleCorrComplete->get(hwid);
-       if (!hvScale_obj.isEmpty()) {
+       float value=larHVScaleCorr->HVScaleCorr(hwid);
+       if (value > ILArHVScaleCorr::ERRORCODE) { // check for ERRORCODE
 	 fillFromIdentifier(hwid);       
-	 corr=hvScale_obj.m_data;
+	 corr=value;
 	 sc=ntupleSvc()->writeRecord(m_nt);
 	 if (sc!=StatusCode::SUCCESS) {
 	   (*m_log)  << MSG::ERROR << "writeRecord failed" << endreq;

@@ -1,6 +1,7 @@
 #include "LArCalibTools/LArAutoCorr2Ntuple.h"
 #include "LArCalibTools/LArAverages2Ntuple.h"
 #include "LArCalibTools/LArAccumulatedDigits2Ntuple.h"
+#include "LArCalibTools/LArDigits2Ntuple.h"
 #include "LArCalibTools/LArOFC2Ntuple.h"
 #include "LArCalibTools/LArShape2Ntuple.h"
 #include "LArCalibTools/LArPedestals2Ntuple.h"
@@ -51,6 +52,7 @@ typedef LArReadParamsFromFile<LArCaliPulseParamsVsCalib>    LArReadCaliPulsePara
 DECLARE_ALGORITHM_FACTORY( LArAutoCorr2Ntuple )
 DECLARE_ALGORITHM_FACTORY( LArAverages2Ntuple )
 DECLARE_ALGORITHM_FACTORY( LArAccumulatedDigits2Ntuple )
+DECLARE_ALGORITHM_FACTORY( LArDigits2Ntuple )
 DECLARE_ALGORITHM_FACTORY( LArOFC2Ntuple )
 DECLARE_ALGORITHM_FACTORY( LArShape2Ntuple )
 DECLARE_ALGORITHM_FACTORY( LArPedestals2Ntuple )
@@ -99,6 +101,7 @@ DECLARE_FACTORY_ENTRIES( LArCalibTools ) {
   DECLARE_ALGORITHM( LArAutoCorr2Ntuple )
   DECLARE_ALGORITHM( LArAverages2Ntuple )
   DECLARE_ALGORITHM( LArAccumulatedDigits2Ntuple )
+  DECLARE_ALGORITHM( LArDigits2Ntuple )
   DECLARE_ALGORITHM( LArAutoCorr2Ntuple )
   DECLARE_ALGORITHM( LArOFC2Ntuple )
   DECLARE_ALGORITHM( LArShape2Ntuple )

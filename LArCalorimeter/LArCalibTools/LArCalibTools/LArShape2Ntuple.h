@@ -36,7 +36,7 @@ class LArShape2Ntuple : public LArCond2NtupleBase {
    std::string m_contKey;
    std::string m_ntName;
    std::string m_ntFile;
-   bool m_isMC;
+   bool m_isComplete;
    
 };
 

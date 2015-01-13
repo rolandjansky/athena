@@ -5,9 +5,7 @@
 #ifndef LARPHYSWAVEFROMTuple_H
 #define LARPHYSWAVEFROMTuple_H
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include <vector>
 #include <string>
@@ -28,7 +26,7 @@ be named "outfit" and contain the following branches :
  */
 
 
-class LArPhysWaveFromTuple : public Algorithm
+class LArPhysWaveFromTuple : public AthAlgorithm
 {
  public:
   LArPhysWaveFromTuple(const std::string & name, ISvcLocator * pSvcLocator);

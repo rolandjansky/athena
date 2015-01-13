@@ -5,9 +5,7 @@
 #ifndef LARMPHYSOVERMCALFROMTuple_H
 #define LARMPHYSOVERMCALFROMTuple_H
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 
 
@@ -28,7 +26,7 @@ The root tree should be named "outfit" and contain the following branches :
  */
 
 
-class LArMphysOverMcalFromTuple : public Algorithm
+class LArMphysOverMcalFromTuple : public AthAlgorithm
 {
  public:
   LArMphysOverMcalFromTuple(const std::string & name, ISvcLocator * pSvcLocator);

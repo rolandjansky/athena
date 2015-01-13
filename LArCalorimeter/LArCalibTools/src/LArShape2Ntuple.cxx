@@ -17,7 +17,8 @@ LArShape2Ntuple::LArShape2Ntuple(const std::string& name, ISvcLocator* pSvcLocat
   //declareProperty("Nphases",      m_nPhases  = 50);
   declareProperty("NtupleName",   m_ntName   = "SHAPE");
   declareProperty("NtupleFile",   m_ntFile   = "FILE1");
-  declareProperty("isMC",           m_isMC=false);
+  declareProperty("isComplete",   m_isComplete=false);
+  
 }
 
 LArShape2Ntuple::~LArShape2Ntuple() 
@@ -42,154 +43,100 @@ StatusCode LArShape2Ntuple::stop() {
   
   sc=m_nt->addItem("Gain",gain,-1,2);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) <<  MSG::ERROR << "addItem 'gain' failed" << endreq;
+    msg(MSG::ERROR) << "addItem 'gain' failed" << endreq;
     return StatusCode::FAILURE;
   }
 
   //Specific:
-  sc=m_nt->addItem("TimeOffset",timeOffset,0,100);
-  if (sc!=StatusCode::SUCCESS) {
-    (*m_log) <<  MSG::ERROR << "addItem 'TimeOffset' failed" << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc=m_nt->addItem("Phase",phase,0,49);
-  if (sc!=StatusCode::SUCCESS) {
-    (*m_log) <<  MSG::ERROR << "addItem 'phase' failed" << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc=m_nt->addItem("PhaseTime",phasetime,0,800);
-  if (sc!=StatusCode::SUCCESS) {
-    (*m_log) <<  MSG::ERROR << "addItem 'PhaseTime' failed" << endreq;
-    return StatusCode::FAILURE;
+  if (m_isComplete) {
+    sc=m_nt->addItem("TimeOffset",timeOffset,0,100);
+    if (sc!=StatusCode::SUCCESS) {
+      msg(MSG::ERROR) << "addItem 'TimeOffset' failed" << endreq;
+      return StatusCode::FAILURE;
+    }
+    sc=m_nt->addItem("Phase",phase,0,49);
+    if (sc!=StatusCode::SUCCESS) {
+      msg(MSG::ERROR) << "addItem 'phase' failed" << endreq;
+      return StatusCode::FAILURE;
+    }
+    sc=m_nt->addItem("PhaseTime",phasetime,0,800);
+    if (sc!=StatusCode::SUCCESS) {
+      msg(MSG::ERROR) << "addItem 'PhaseTime' failed" << endreq;
+      return StatusCode::FAILURE;
+    }
   }
   sc=m_nt->addItem("nSamples",nSamples,0,100);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) <<  MSG::ERROR << "addItem 'nSamples' failed" << endreq;
+    msg(MSG::ERROR) << "addItem 'nSamples' failed" << endreq;
     return StatusCode::FAILURE;
   }
   sc=m_nt->addItem("Shape",nSamples,Shape);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) <<  MSG::ERROR << "addItem 'Shape' failed" << endreq;
+    msg(MSG::ERROR) << "addItem 'Shape' failed" << endreq;
     return StatusCode::FAILURE;
   }
   sc=m_nt->addItem("ShapeDer",nSamples,ShapeDer);
   if (sc!=StatusCode::SUCCESS) {
-    (*m_log) <<  MSG::ERROR << "addItem 'ShapeDer' failed" << endreq;
+    msg(MSG::ERROR) << "addItem 'ShapeDer' failed" << endreq;
     return StatusCode::FAILURE;
   }
   
-  // retrieve Shape object 
-  //const ILArShape* IlarShape = NULL ;
-  const LArShapeComplete* larShape = NULL ;
-  const LArShape32MC* larShapeMC = NULL ;
-  const LArShapeSC* larShapeSC = NULL ;
-  const LArShapeFlat* larShapeFlat = NULL ;
-  if ( m_isMC  && !m_isSC) {
-  (*m_log) <<  MSG::DEBUG << "Retrieving LArShapeMC object" << endreq;
-  sc = m_detStore->retrieve(larShapeMC,m_contKey);
-  if (sc.isFailure()) {
-    (*m_log) <<  MSG::ERROR << "Can't retrieve LArShapeMC from Conditions Store" << endreq;
-    return StatusCode::FAILURE;
+  const ILArShape* larShape = NULL ;
+  const LArShapeComplete* larShapeComplete = NULL ;
+
+  if (m_isComplete) {
+    sc = detStore()->retrieve(larShapeComplete,m_contKey);
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Can't retrieve LArShapeComplete object with key " << m_contKey << endreq;
+      return StatusCode::FAILURE;
+    }
+    larShape=larShapeComplete; //Cast to base-class
   }
-  } else if (m_isSC) { 
-  (*m_log) <<  MSG::DEBUG << "Retrieving LArShapeSC object" << endreq;
-  sc = m_detStore->retrieve(larShapeSC,m_contKey);
-  if (sc.isFailure()) {
-    (*m_log) <<  MSG::ERROR << "Can't retrieve LArShapeSC from Conditions Store" << endreq;
-    return StatusCode::FAILURE;
-  }
-  } else if (m_isFlat) { 
-  (*m_log) <<  MSG::DEBUG << "Retrieving LArShapeFlat object" << endreq;
-  sc = m_detStore->retrieve(larShapeFlat,m_contKey);
-  if (sc.isFailure()) {
-    (*m_log) <<  MSG::ERROR << "Can't retrieve LArShapeFlat from Conditions Store" << endreq;
-    return StatusCode::FAILURE;
-  }
-  }else {
-  (*m_log) <<  MSG::DEBUG << "Retrieving LArShape object" << endreq;
-  sc = m_detStore->retrieve(larShape,m_contKey);
-  if (sc.isFailure()) {
-    (*m_log) <<  MSG::ERROR << "Can't retrieve LArShape from Conditions Store" << endreq;
-    return StatusCode::FAILURE;
-  }
+  else { //Use just the abstract interface (works also for LArShapeFlat and LArShapeMC)
+    sc = detStore()->retrieve(larShape,m_contKey);
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Can't retrieve ILArShape object with key " << m_contKey << endreq;
+      return StatusCode::FAILURE;
+    }
   }
 
-  (*m_log) <<  MSG::VERBOSE << " shape object retrieved" << endreq;
   unsigned cellCounter=0;  
   for ( unsigned igain=CaloGain::LARHIGHGAIN; 
 	igain<CaloGain::LARNGAIN ; ++igain ) {
     std::vector<HWIdentifier>::const_iterator it = m_onlineId->channel_begin();
     std::vector<HWIdentifier>::const_iterator it_e = m_onlineId->channel_end();
-    if ( m_isMC ) {
     for (;it!=it_e;it++) {
       const HWIdentifier chid = *it;
       if (!m_larCablingSvc->isOnlineConnected(chid)) continue;
-      (*m_log) <<  MSG::VERBOSE << "Dumping ShapeMC for channel 0x" << MSG::hex 
-	  << chid.get_compact() << MSG::dec << endreq;
-        ILArShape::ShapeRef_t shape;
-        if(m_isSC) shape=larShapeSC->Shape(chid,igain); else shape=larShapeMC->Shape(chid,igain);
-        ILArShape::ShapeRef_t shapeder;
-        if(m_isSC) shapeder=larShapeSC->ShapeDer(chid,igain); else shapeder=larShapeMC->ShapeDer(chid,igain);
+      unsigned nPhase=1;
+      if (larShapeComplete) nPhase=larShapeComplete->nTimeBins(chid,gain);
+      for (unsigned iphase=0;iphase<nPhase;iphase++) {
+	ATH_MSG_VERBOSE("Dumping Shape for channel " << m_onlineId->channel_name(chid) << ", gain " << gain << ", phase " << iphase);
+	ILArShape::ShapeRef_t shape=larShape->Shape(chid,igain);
+        ILArShape::ShapeRef_t shapeder =larShape->ShapeDer(chid,igain);
 	fillFromIdentifier(chid);
 	gain  = (long)igain ;
-	phase = (long)0 ;	  
 	nSamples=shape.size();
 	for (int k=0;k<nSamples;k++ ) {
 	  Shape[k] = shape[k] ;
 	  ShapeDer[k] = shapeder[k] ;
 	}
+	if (larShapeComplete) {
+	  timeOffset = larShapeComplete->timeOffset(chid,igain);
+	  phasetime  = phase*larShapeComplete->timeBinWidth(chid,igain);
+	  phase = (long)iphase ;
+	}
 
-	timeOffset = 0;	
-	phasetime  = 0;
-
-	
 	sc = ntupleSvc()->writeRecord(m_nt);
 	cellCounter++;
 	if (sc!=StatusCode::SUCCESS) {
-	  (*m_log) <<  MSG::ERROR << "writeRecord failed" << endreq;
+	  msg(MSG::ERROR) << "writeRecord failed" << endreq;
 	  return StatusCode::FAILURE;
 	}
-    }//loop over channels
-    } else { // MC / not MC
-    for (;it!=it_e;it++) {
-      const HWIdentifier chid = *it;
-      if (!m_larCablingSvc->isOnlineConnected(chid)) continue;
-      (*m_log) <<  MSG::VERBOSE << "Dumping Shape for channel 0x" << MSG::hex
-          << chid.get_compact() << MSG::dec << endreq;
-      for (unsigned iphase=0;iphase<larShape->nTimeBins(chid,igain);iphase++) {
-        ILArShape::ShapeRef_t shape;
-        if(m_isSC) shape=larShapeSC->Shape(chid,igain,iphase);
-        else if(m_isFlat) shape=larShapeFlat->Shape(chid,igain,iphase);
-        else  shape=larShape->Shape(chid,igain,iphase);
-        //Check if we have Shape for this channel and gain
-        //if (!shape.size()) break;//No more phases
-        ILArShape::ShapeRef_t shapeder;
-        if(m_isSC) shapeder=larShapeSC->ShapeDer(chid,igain,iphase);
-        else if(m_isFlat) shapeder=larShapeFlat->ShapeDer(chid,igain,iphase);
-        else  shapeder=larShape->ShapeDer(chid,igain,iphase);
-        fillFromIdentifier(chid);
-        gain  = (long)igain ;
-        phase = (long)iphase ;
-        nSamples=shape.size();
-        for (int k=0;k<nSamples;k++ ) {
-          Shape[k] = shape[k] ;
-          ShapeDer[k] = shapeder[k] ;
-        }
-
-        timeOffset = larShape->timeOffset(chid,igain);
-        phasetime  = phase*larShape->timeBinWidth(chid,igain);
-
-
-        sc = ntupleSvc()->writeRecord(m_nt);
-        cellCounter++;
-        if (sc!=StatusCode::SUCCESS) {
-          (*m_log) <<  MSG::ERROR << "writeRecord failed" << endreq;
-          return StatusCode::FAILURE;
-        }
       }//loop over phases
     }//loop over channels
-    }
   }//loop over gains
+     
   (*m_log) <<  MSG::INFO << "Total number of cells = " << cellCounter << endreq;
   (*m_log) <<  MSG::INFO << "LArShape2Ntuple has finished." << endreq;
   return StatusCode::SUCCESS;

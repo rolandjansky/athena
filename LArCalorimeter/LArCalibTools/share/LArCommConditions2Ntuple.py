@@ -16,7 +16,7 @@ topSequence = AlgSequence()
 # Objects: List of objects written to ntuple (PEDESTAL OFC, RAMP, 
 
 if not 'InputDB' in dir():
-  InputDB="COOLOFL_LAR/COMP200"
+  InputDB="COOLONL_LAR/CONDBR2"
 
 if not "OFCFolder" in dir():
   OFCFolder="5samples1phase"
@@ -38,7 +38,7 @@ if not "IsMC" in dir():
    IsMC=False
 
 if not "IsFlat" in dir():
-   IsFlat=False
+   IsFlat=True
 
 if not "OffIdDump" in dir():
    OffIdDump=False
@@ -47,7 +47,7 @@ if not "DBTag" in dir():
   if "OFLP" in InputDB:
      DBTag="OFLCOND-RUN1-SDR-06"
   else: 
-     DBTag="LARCALIB-000-02"
+     DBTag="LARCALIB-RUN2-00"
 
 if not "TagSuffix" in dir():
    if SuperCells: # no linking to global tag yet
@@ -73,7 +73,7 @@ if IsMC:
 else:
   globalflags.DataSource="data"
   globalflags.InputFormat="bytestream"
-  globalflags.DatabaseInstance="COMP200"
+  globalflags.DatabaseInstance="CONDBR2"
 
 from AthenaCommon.JobProperties import jobproperties
 jobproperties.Global.DetDescrVersion = "ATLAS-GEO-20-00-00"
@@ -105,15 +105,12 @@ theApp.EvtMax = 1
 svcMgr.EventSelector.RunNumber = RunNumber
 
 if SuperCells or IsFlat:
-   include ("LArRecUtils/LArFlatConditionsSvc.py")
-   #from LArRecUtils.LArRecUtilsConf import LArFlatConditionSvc
-   #theLArCondSvc=LArFlatConditionSvc(OutputLevel=DEBUG,DoSuperCells=SuperCells,DoRegularCells=IsFlat)
-   #svcMgr+=theLArCondSvc
-   #svcMgr.ProxyProviderSvc.ProviderNames += [ "LArFlatConditionSvc" ]
+   from LArRecUtils.LArRecUtilsConf import LArFlatConditionSvc
+   theLArCondSvc=LArFlatConditionSvc(DoSuperCells=SuperCells,DoRegularCells=IsFlat)
+   svcMgr+=theLArCondSvc
+   svcMgr.ProxyProviderSvc.ProviderNames += [ "LArFlatConditionSvc" ]
    #svcMgr.LArFlatConditionSvc.OutputLevel=DEBUG
-   svcMgr.LArFlatConditionSvc.DoSuperCells=SuperCells
-   svcMgr.LArFlatConditionSvc.DoRegularCells=IsFlat
-
+   
 
 if SuperCells:   
    conddb.addFolder("LAR_OFL","/LAR/IdentifierOfl/OnOffIdMap_SC<tag>LARIdentifierOflOnOffIdMap_SC-000</tag>")
@@ -147,6 +144,7 @@ if doObj("PEDESTAL"):
   elif IsFlat:    
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/Pedestal"))
     LArPedestals2Ntuple.ContainerKey="Pedestal"
+    svcMgr.LArFlatConditionSvc.PedestalInput="/LAR/ElecCalibFlat/Pedestal"
   else:   
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/Pedestals/Pedestal"))
     LArPedestals2Ntuple.ContainerKey="Pedestal"
@@ -201,6 +199,7 @@ if doObj("OFC"):
        LArOFC2Ntuple.OFCTool = theOFCTool
   elif IsFlat:
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/OFC"))     
+    svcMgr.LArFlatConditionSvc.OFCInput="/LAR/ElecCalibFlat/OFC"
   else:     
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+OFCFolder))
   LArOFC2Ntuple.ContainerKey = "LArOFC"
@@ -216,8 +215,10 @@ if (doObj("SHAPE")):
       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/Shape"))
   elif IsFlat: 
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/Shape"))
+    svcMgr.LArFlatConditionSvc.ShapeInput="/LAR/ElecCalibFlat/Shape"
   else:  
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/Shape/RTM/"+OFCFolder))
+    LArShape2Ntuple.isComplete=True
   pass  
   from LArCalibTools.LArCalibToolsConf import LArShape2Ntuple
   LArShape2Ntuple = LArShape2Ntuple("LArShape2Ntuple")
@@ -226,11 +227,9 @@ if (doObj("SHAPE")):
   else:   
      LArShape2Ntuple.ContainerKey = "LArShape"
   LArShape2Ntuple.AddFEBTempInfo=False
-  LArShape2Ntuple.isMC = IsMC
   LArShape2Ntuple.isSC = SuperCells
   LArShape2Ntuple.isFlat = IsFlat  
   LArShape2Ntuple.OffId=OffIdDump
-  LArShape2Ntuple.OutputLevel = VERBOSE  
   topSequence+=LArShape2Ntuple
 
 if doObj("RAMP"):
@@ -246,6 +245,7 @@ if doObj("RAMP"):
       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/Ramp"))
   elif IsFlat: 
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/Ramp"))
+    svcMgr.LArFlatConditionSvc.RampInput="/LAR/ElecCalibFlat/Ramp"
   else:  
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/Ramps/RampLinea"))
   LArRamps2Ntuple.RawRamp = False
@@ -265,6 +265,8 @@ if (doObj("UA2MEV")):
   elif IsFlat: 
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/DAC2uA"))
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/uA2MeV"))
+    svcMgr.LArFlatConditionSvc.DAC2uAInput="/LAR/ElecCalibFlat/DAC2uA"
+    svcMgr.LArFlatConditionSvc.uA2MeVInput="/LAR/ElecCalibFlat/uA2MeV"
   else:  
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/DAC2uA/Symmetry"))
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/uA2MeV/Symmetry"))
@@ -286,6 +288,7 @@ if (doObj("MPHYSOVERMCAL")):
       conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibMC/MphysOverMcal"))
   elif IsFlat: 
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/MphysOverMcal"))
+    svcMgr.LArFlatConditionSvc.MphysOverMcalInput="/LAR/ElecCalibFlat/MphysOverMcal"
   else:  
     conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/MphysOverMcal/RTM"))
   from LArCalibTools.LArCalibToolsConf import LArMphysOverMcal2Ntuple
@@ -380,6 +383,21 @@ if (doObj("FSAMPL")):
   LArfSampl2Ntuple.OffId=OffIdDump
   topSequence+=LArfSampl2Ntuple
 
+
+if doObj("HVSCALE"):
+  if IsFlat:
+    conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibFlat/HVScaleCorr"))
+    svcMgr.LArFlatConditionSvc.HVScaleCorrInput="/LAR/ElecCalibFlat/HVScaleCorr"
+  else:
+    conddb.addFolder("",getDBFolderAndTag("/LAR/ElecCalibOfl/HVScaleCorr"))
+
+
+  from LArCalibTools.LArCalibToolsConf import LArHVScaleCorr2Ntuple
+  theLArHVScaleCorr2Ntuple = LArHVScaleCorr2Ntuple("LArHVScaleCorr2Ntuple")
+  theLArHVScaleCorr2Ntuple.AddFEBTempInfo = False
+  theLArHVScaleCorr2Ntuple.isSC = SuperCells
+  topSequence += theLArHVScaleCorr2Ntuple
+    
 
 if loadCastorCat:
   svcMgr.PoolSvc.ReadCatalog += ['xmlcatalog_file:'+'/afs/cern.ch/atlas/conditions/poolcond/catalogue/poolcond/PoolCat_comcond_castor.xml']

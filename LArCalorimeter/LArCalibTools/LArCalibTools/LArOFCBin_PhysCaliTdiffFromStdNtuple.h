@@ -5,15 +5,13 @@
 #ifndef LAROFCBIN_PHYSCALITDIFFFROMSTDNTUPLE_H
 #define LAROFCBIN_PHYSCALITDIFFFROMSTDNTUPLE_H
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include <vector>
 #include <string>
 
 
-class LArOFCBin_PhysCaliTdiffFromStdNtuple : public Algorithm
+class LArOFCBin_PhysCaliTdiffFromStdNtuple : public AthAlgorithm
 {
  public:
   LArOFCBin_PhysCaliTdiffFromStdNtuple(const std::string & name, ISvcLocator * pSvcLocator);

@@ -20,7 +20,7 @@
 #include <string>
 
 
-LArPhysWaveFromStdNtuple::LArPhysWaveFromStdNtuple (const std::string& name, ISvcLocator* pSvcLocator) : Algorithm(name, pSvcLocator)
+LArPhysWaveFromStdNtuple::LArPhysWaveFromStdNtuple (const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator)
 {  
   declareProperty("SkipPoints", m_skipPoints = 0);
   declareProperty("PrefixPoints", m_prefixPoints = 0);
@@ -41,24 +41,11 @@ StatusCode LArPhysWaveFromStdNtuple::initialize()
 
 StatusCode LArPhysWaveFromStdNtuple::stop()
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "... in stop()" << endreq ;
+  ATH_MSG_INFO ( "... in stop()" );
   
-  // Get access to the Detector Store
-  StoreGateSvc* detStore;  
-  StatusCode sc = service("DetectorStore",detStore);
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Cannot get DetectorStore!" << endreq;
-    return sc;
-  }
-
   // get LArOnlineID helper
-  const LArOnlineID* onlineHelper;
-  sc = detStore->retrieve(onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID" << endreq;
-    return sc;
-  }
+  const LArOnlineID* onlineHelper = nullptr;
+  ATH_CHECK( detStore()->retrieve(onlineHelper, "LArOnlineID") );
 
   TChain* outfit = new TChain(m_ntuple_name.c_str());
   for ( std::vector<std::string>::const_iterator it = m_root_file_names.begin();
@@ -93,7 +80,7 @@ StatusCode LArPhysWaveFromStdNtuple::stop()
 
   // Create new LArPhysWaveContainer
   LArPhysWaveContainer* larPhysWaveContainerNew = new LArPhysWaveContainer();
-  larPhysWaveContainerNew->setGroupingType(m_groupingType, log);
+  larPhysWaveContainerNew->setGroupingType(m_groupingType, msg());
   larPhysWaveContainerNew->initialize();
 
   unsigned int hwid;
@@ -103,23 +90,24 @@ StatusCode LArPhysWaveFromStdNtuple::stop()
   for ( Long64_t i = 0; i < nentries; i++ )
   {
     outfit->GetEvent(i);
-    log << MSG::INFO << " Chan " <<  std::hex << channelId << std::dec << endreq;
+    ATH_MSG_INFO ( " Chan " <<  std::hex << channelId << std::dec );
+
     hwid = channelId;
     HWIdentifier id(hwid);
     if(FT != onlineHelper->feedthrough(id) || slot != onlineHelper->slot(id) || channel != onlineHelper->channel(id)) {
-       log << MSG::ERROR << "Inconsistency in decoding HWID !!!!" <<endreq;
-       log << MSG::ERROR << FT << " - " << onlineHelper->feedthrough(id) << endreq;
-       log << MSG::ERROR << slot << " - " << onlineHelper->slot(id) << endreq;
-       log << MSG::ERROR << channel << " - " << onlineHelper->channel(id) << endreq;
-       log << MSG::ERROR << "Not creating PhysWave !!!!" << endreq;
-       continue;
+      ATH_MSG_ERROR ( "Inconsistency in decoding HWID !!!!" );
+      ATH_MSG_ERROR ( FT << " - " << onlineHelper->feedthrough(id) );
+      ATH_MSG_ERROR ( slot << " - " << onlineHelper->slot(id) );
+      ATH_MSG_ERROR ( channel << " - " << onlineHelper->channel(id) );
+      ATH_MSG_ERROR ( "Not creating PhysWave !!!!" );
+      continue;
     }
 
     // Catch potential array index out of range error.
     if ( timeIndex >= 2000 ) {
-      log << MSG::ERROR << " Too many points specified vs the expected content of the ntuple ! " << endreq;
-       log << MSG::ERROR << "Not creating PhysWave !!!!" << endreq;
-       continue;
+      ATH_MSG_ERROR ( " Too many points specified vs the expected content of the ntuple ! " );
+      ATH_MSG_ERROR ( "Not creating PhysWave !!!!" );
+      continue;
     }
     std::vector<double> wave(timeIndex);
     std::vector<double> wave_err(timeIndex);
@@ -150,15 +138,7 @@ StatusCode LArPhysWaveFromStdNtuple::stop()
     larPhysWaveContainerNew->setPdata(id, newLArPhysWave, (CaloGain::CaloGain)gain);
   }
 
-
-  // store 
-  sc=detStore->record(larPhysWaveContainerNew,m_store_key);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "Cannot record LArPhysWaveContainer to StoreGate with key = " << m_store_key << endreq;
-    return sc;
-  }
-
-  log << MSG::INFO << "LArPhysWaveFromStdNtuple finalized!" << endreq;  
-
+  ATH_CHECK( detStore()->record(larPhysWaveContainerNew,m_store_key) );
+  ATH_MSG_INFO ( "LArPhysWaveFromStdNtuple finalized!" );
   return StatusCode::SUCCESS;
 }

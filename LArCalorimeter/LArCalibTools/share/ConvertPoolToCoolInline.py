@@ -125,7 +125,7 @@ types=[]
 for i in range(len(svcMgr.IOVRegistrationSvc.OverrideNames)):
     types.append("Blob16M");
 svcMgr.IOVRegistrationSvc.OverrideTypes += types;
-svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema=allConstantsSV_test.db;dbname=COMP200"
+svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema=allConstantsSV_test.db;dbname=CONDBR2"
 
 
 #svcMgr.DetectorStore.Dump=True

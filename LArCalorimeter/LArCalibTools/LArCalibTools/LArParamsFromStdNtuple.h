@@ -5,9 +5,7 @@
 #ifndef LARPARAMSFROMSTDNTUPLE_H
 #define LARPARAMSFROMSTDNTUPLE_H
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include <vector>
 #include <string>
@@ -20,7 +18,7 @@ Version for standard Ntuple, produced by LArCalibTools algos....
  */
 
 
-class LArParamsFromStdNtuple : public Algorithm
+class LArParamsFromStdNtuple : public AthAlgorithm
 {
  public:
   LArParamsFromStdNtuple(const std::string & name, ISvcLocator * pSvcLocator);

@@ -104,11 +104,23 @@ StatusCode LArRamps2Ntuple::stop() {
 
  LArConditionsContainer<LArRampP1>* myramp = NULL;
  if(m_applyCorr) {
-    if(dynamic_cast<const LArRampComplete*>(ramp)) myramp=(LArConditionsContainer<LArRampP1>*) ramp;
+    const LArRampComplete *rampComplete=NULL;
+    if(dynamic_cast<const LArRampComplete*>(ramp)) {
+        sc=m_detStore->retrieve(rampComplete,m_rampKey);
+        if (sc!=StatusCode::SUCCESS) {
+           (*m_log) << MSG::WARNING << "Unable to retrieve LArRampComplete with key: "<<m_rampKey << " from DetectorStore" << endreq;
+        }
+       
+       myramp=(LArConditionsContainer<LArRampP1>*) rampComplete;
+    }
     if( myramp) {
-      sc = myramp->applyCorrections();
-      if (sc!=StatusCode::SUCCESS) {
-        (*m_log) << MSG::ERROR << "Applying corrections failed" << endreq;
+      if(!myramp->correctionsApplied()) { 
+        sc = myramp->applyCorrections();
+        if (sc!=StatusCode::SUCCESS) {
+          (*m_log) << MSG::ERROR << "Applying corrections failed" << endreq;
+        }
+      } else {
+       (*m_log) << MSG::WARNING << "Corrections already applied. Can't apply twice!" << endreq;
       }
     }
  }

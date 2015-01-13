@@ -7,7 +7,7 @@
 
 // ForceLoadCondObj.h
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include <vector>
@@ -16,7 +16,7 @@
 class StoreGateSvc;
 class IClassIDSvc;
 
-class ForceLoadCondObj: public Algorithm 
+class ForceLoadCondObj: public AthAlgorithm 
 {
 public:
     ForceLoadCondObj(const std::string& name, ISvcLocator* pSvcLocator);
@@ -28,12 +28,9 @@ public:
     //StatusCode stop();
 
 private:
-
-  ServiceHandle<StoreGateSvc> p_detstore;
   ServiceHandle<IClassIDSvc> p_clidsvc;
 
   std::vector<std::string> m_objectList; 
-
 };
 
 #endif // REGISTRATIONSVC_OUTPUTCONDALG_H

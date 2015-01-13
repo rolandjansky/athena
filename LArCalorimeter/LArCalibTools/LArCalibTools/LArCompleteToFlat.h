@@ -61,7 +61,7 @@ class LArCompleteToFlat: public AthAlgorithm
   AthenaAttributeList* DSPThresholdsFlat(const LArDSPThresholdsComplete* input, const std::string& outputName);
 
 
-  void errIfConnected(const HWIdentifier chid, const int gain, const char* objName) const;
+  void errIfConnected(const HWIdentifier chid, const int gain, const char* objName, const char* message=0) const;
 
   unsigned m_hashMax;
   const LArOnlineID* m_onlineID;
@@ -81,7 +81,7 @@ class LArCompleteToFlat: public AthAlgorithm
   std::string m_DSPThresholdsInput;
 
   bool m_forceStop;
-
+  bool m_fakeEMBPSLowGain;
 }; 
 
 #endif //> !LARCALIBTOOLS_LARCOMPLETETOFLAT_H

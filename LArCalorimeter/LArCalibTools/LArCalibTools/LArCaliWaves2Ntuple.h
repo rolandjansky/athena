@@ -56,7 +56,7 @@ class LArCaliWaves2Ntuple : public  LArWaves2Ntuple
   NTuple::Item<long>    m_dac;
   NTuple::Item<long>    m_gain;
   NTuple::Item<long>    m_nPulsedCalibLines;
-  NTuple::Array<long>   m_pulsedCalibLines;
+  NTuple::Array<int>   m_pulsedCalibLines;
   NTuple::Item<double>  m_jitter;
   NTuple::Item<long>    m_corrUndo;
 
