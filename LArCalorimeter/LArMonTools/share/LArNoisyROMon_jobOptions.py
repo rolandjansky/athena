@@ -1,49 +1,4 @@
 
-# check if the reco algorithm can be found and pick the cut values (to be
-# added to histogram titles)
-def LArNoisyROCutHelper(property):
-    from AthenaCommon.AlgSequence import AlgSequence
-    job = AlgSequence()
-    if hasattr(job, 'LArNoisyROAlg'):
-        alg = getattr(job, 'LArNoisyROAlg')
-
-        Qcut = None
-        if hasattr(alg, 'CellQualityCut'):
-            Qcut = getattr(alg, 'CellQualityCut')
-        else:
-            Qcut = alg.getDefaultProperty('CellQualityCut')
-
-        if hasattr(alg, property):
-            return '(>'+str(getattr(alg, property))+' chan with Q>'+str(Qcut)+')'
-        else:
-            return '(>'+str(alg.getDefaultProperty(property))+' chan with Q>'+str(Qcut)+')'
-
-
-    else:
-        return ''
-
-# check if the reco algorithm can be found and pick the cut value to define bad events
-def LArNoisyROFEBCutHelper():
-    from AthenaCommon.AlgSequence import AlgSequence
-    job = AlgSequence()
-    print job
-    if hasattr(job, 'LArNoisyROAlg'):
-        alg = getattr(job, 'LArNoisyROAlg')
-
-        BadFEBCut = None
-        if hasattr(alg, 'BadFEBCut'):
-            BadFEBCut = getattr(alg,'BadFEBCut')
-        else:
-            BadFEBCut = alg.getDefaultProperty('BadFEBCut')
-
-        return BadFEBCut
-
-    else:
-        return 9999999
-
-
-
-
 # --- for athena online running --
 if 'EventBlockSize' not in dir():
     EventBlockSize=0
@@ -63,8 +18,8 @@ except NameError:
 theLArNoisyROMon = LArNoisyROMon(name="LArNoisyROMon")
 theLArNoisyROMon.IsOnline = OnlineMode
 theLArNoisyROMon.ProcessNEvents= EventBlockSize
-theLArNoisyROMon.NoisyFEBDefStr = LArNoisyROCutHelper('BadChanPerFEB')
-theLArNoisyROMon.BadFEBCut = LArNoisyROFEBCutHelper()
+theLArNoisyROMon.NoisyFEBDefStr =  '(>'+str(larNoisyROFlags.BadChanPerFEB())+' chan with Q>'+str(larNoisyROFlags.CellQualityCut())+')' #LArNoisyROCutHelper('BadChanPerFEB')
+theLArNoisyROMon.BadFEBCut = larNoisyROFlags.BadFEBCut() #LArNoisyROFEBCutHelper()
 
 from RecExConfig.RecFlags import rec
 if rec.doTrigger or LArNoisyROMonForceTrigger:

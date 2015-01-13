@@ -1,22 +1,4 @@
-#taken from LArNoisyRoMonTool to get the default cut to skip an event.
-def LArNoisyFEBHelper():
-    from AthenaCommon.AlgSequence import AlgSequence
-    job = AlgSequence()
-    print job
-    if hasattr(job, 'LArNoisyROAlg'):
-        alg = getattr(job, 'LArNoisyROAlg')
-
-        BadFEBCut = None
-        if hasattr(alg, 'BadFEBCut'):
-            BadFEBCut = getattr(alg,'BadFEBCut')
-        else:
-            BadFEBCut = alg.getDefaultProperty('BadFEBCut')
-
-        return BadFEBCut
-
-    else:
-        return 9999999
-
+from LArCellRec.LArNoisyROFlags import larNoisyROFlags
 
 # --- for athena online running ---
 if 'EventBlockSize' not in dir():
@@ -62,7 +44,7 @@ theLArDigitMon = LArDigitMon(name="LArDigitMon",
                              IgnoreBadChannels     = True,
                              LArBadChannelMask     = theLArBadChannelsMasker,
                              ProcessNEvents        = EventBlockSize,
-                             NumberBadFebs         = LArNoisyFEBHelper(),
+                             NumberBadFebs         = larNoisyROFlags.BadFEBCut(),
                              Streams = StreamsToMonitor
                              )
 

@@ -255,7 +255,7 @@ LArHVCorrectionMonTool::bookHistograms()
     SetTH1Style(m_hNDeviatingChannelsFCAL[1]);
     generalGroup.regHist(m_hNDeviatingChannelsFCAL[1]).ignore();
     
-    return StatusCode::SUCCESS;
+    //return StatusCode::SUCCESS;
     
     //  }// end isNewRun
   

@@ -50,6 +50,7 @@ LArCosmicsMonTool::LArCosmicsMonTool(const std::string& type,
 				     const std::string& name,
 				     const IInterface* parent)
   : ManagedMonitorToolBase(type, name, parent), 
+    m_rootStore(nullptr),
     m_larCablingService("LArCablingService"),
     m_badChannelMask("BadLArRawChannelMask"),
     m_newrun(true)
