@@ -7,27 +7,37 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "FastCaloSimHit/FastHitConvertTool.h"
+#include "GaudiKernel/AlgFactory.h"
+#include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/Property.h"
+#include "GaudiKernel/IDataProviderSvc.h"
+#include "GaudiKernel/IMessageSvc.h"
+#include "GaudiKernel/ISvcLocator.h"
+#include "StoreGate/StoreGateSvc.h"
+#include "PileUpTools/PileUpMergeSvc.h"
 
-#include "AthenaBaseComps/AthCheckMacros.h"
-#include "CaloEvent/CaloCellContainer.h"
+#include "EventInfo/PileUpEventInfo.h"
+#include "EventInfo/EventType.h"
+
+#include "LArSimEvent/LArHitFloat.h"
+#include "LArSimEvent/LArHitFloatContainer.h"
+#include "LArSimEvent/LArHit.h"
+#include "LArSimEvent/LArHitContainer.h"
+
+#include "TileSimEvent/TileHit.h"
+#include "TileSimEvent/TileHitVector.h"
+
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/TileID.h"
-#include "CxxUtils/make_unique.h"
-#include "EventInfo/PileUpEventInfo.h"
-#include "EventInfo/EventType.h"
-#include "LArSimEvent/LArHitFloat.h"
-#include "LArSimEvent/LArHitFloatContainer.h"
-#include "LArSimEvent/LArHit.h"
-#include "LArSimEvent/LArHitContainer.h"
-#include "PileUpTools/PileUpMergeSvc.h"
-#include "StoreGate/StoreGate.h"
 #include "TileConditions/TileInfo.h"
+
+#include "LArG4RunControl/LArG4GlobalOptions.h"
+
+#include "CaloEvent/CaloCellContainer.h"
 #include "TileEvent/TileCellContainer.h"
-#include "TileSimEvent/TileHit.h"
-#include "TileSimEvent/TileHitVector.h"
 
 //================ Constructor =================================================
 
@@ -36,30 +46,39 @@ FastHitConvertTool::FastHitConvertTool(const std::string& type,
                                        const IInterface*  parent )
   :
   AthAlgTool(type,name,parent),
-  m_fastHitContainer(nullptr),
-  m_fastTileHits(nullptr),
-  m_embHitContainer("LArHitEMB"),
-  m_emecHitContainer("LArHitEMEC"),
-  m_fcalHitContainer("LArHitFCAL"),
-  m_hecHitContainer("LArHitHEC"),
-  m_tileHitVector("TileHitVec"),
+  fastHitContainer(0),
+  fastTileHits(0),
+  embHitContainer(0),
+  emecHitContainer(0),
+  fcalHitContainer(0),
+  hecHitContainer(0),
+  m_tileHits(0),
+  m_caloCellsOutputName(""),
+  m_storeGate(0),
+  m_detStore(0),
   m_storeGateFastCalo("StoreGateSvc/FastCalo",name),
-  m_pMergeSvc(nullptr),
-  m_tileInfo(nullptr),
-  m_larEmID(nullptr),
-  m_larFcalID(nullptr),
-  m_larHecID(nullptr),
-  m_tileID(nullptr),
-  m_pileup(false)
+  m_pMergeSvc(0),
+  m_tileInfo(0),
+  m_larEmID(0),
+  m_larFcalID(0),
+  m_larHecID(0),
+  m_tileID(0)
 {
   declareInterface<ICaloCellMakerTool>(this);
+  m_pileup=false;
+  m_embHitContainerName="LArHitEMB";
+  m_emecHitContainerName="LArHitEMEC";
+  m_fcalHitContainerName="LArHitFCAL";
+  m_hecHitContainerName="LArHitHEC";
+  m_tileHitContainerName="TileHitVec";
 
   declareProperty("doPileup",m_pileup,"Pileup mode (default=false)");
-  declareProperty("embHitContainername",m_embHitContainer,"Name of output FastSim LAr EM Barrel Hit Container");
-  declareProperty("emecHitContainername",m_emecHitContainer,"Name of output FastSim LAr EM Endcap Hit Container");
-  declareProperty("fcalHitContainername",m_fcalHitContainer,"Name of output FastSim LAr FCAL Hit Container");
-  declareProperty("hecHitContainername",m_hecHitContainer,"Name of output FastSim LAr HEC Hit Container");
-  declareProperty("tileHitContainername",m_tileHitVector,"Name of output FastSim Tile Hit Container");
+  declareProperty("embHitContainername",m_embHitContainerName,"Name of output FastSim LAr EM Barrel Hit Container");
+  declareProperty("emecHitContainername",m_emecHitContainerName,"Name of output FastSim LAr EM Endcap Hit Container");
+  declareProperty("fcalHitContainername",m_fcalHitContainerName,"Name of output FastSim LAr FCAL Hit Container");
+  declareProperty("hecHitContainername",m_hecHitContainerName,"Name of output FastSim LAr HEC Hit Container");
+  declareProperty("tileHitContainername",m_tileHitContainerName,"Name of output FastSim Tile Hit Container");
+  declareProperty("CaloCellsInputName",m_caloCellsOutputName);
 
   //  template for property decalration
   //declareProperty("PropertyName", m_propertyName);
@@ -76,15 +95,46 @@ FastHitConvertTool::FastHitConvertTool(const std::string& type,
 StatusCode  FastHitConvertTool::initialize()
 {
 
+
+  StatusCode sc=service("StoreGateSvc",m_storeGate);
+  if (sc.isFailure())
+    {
+      ATH_MSG_FATAL("StoreGateSvc not found");
+      return StatusCode::FAILURE;
+    }
+
+  sc=service("DetectorStore",m_detStore);
+  if(sc.isFailure())
+    {
+      ATH_MSG_FATAL("Unable to get pointer to DetectorStore service");
+      return StatusCode::FAILURE;
+    }
+  else ATH_MSG_INFO("DetectorStore Svc initialized");
+  //  ATH_MSG_INFO("DetectorStore Svc structure at Initialisation:\n"<<m_detStore->dump());
+
   //Service for Pileup
   if(m_pileup)
     {
-      CHECK(service("PileUpMergeSvc", m_pMergeSvc));
-      CHECK(m_storeGateFastCalo.retrieve());
+      sc=service("PileUpMergeSvc",m_pMergeSvc);
+      if(sc.isFailure())
+        {
+          ATH_MSG_ERROR("initialize: Can not find PileUpMergeSvc");
+          return StatusCode::FAILURE;
+        }
+      sc=m_storeGateFastCalo.retrieve();
+      if(sc.isFailure())
+        {
+          ATH_MSG_FATAL("StoreGateFastCalo not found!");
+          return StatusCode::FAILURE;
+        }
     }
   ATH_MSG_DEBUG("StoreGateFastCalo Svc structure at Initialisation"<<(*m_storeGateFastCalo).dump());
   const DataHandle<CaloIdManager> caloIdManager;
-  CHECK(detStore()->retrieve(caloIdManager));
+  sc=m_detStore->retrieve(caloIdManager);
+  if(sc.isSuccess())
+    ATH_MSG_DEBUG("CaloIDManager retrieved.");
+  else
+    throw std::runtime_error("FastHitConvertTool: Unable to retrieve CaloIDManeger");
   m_larEmID=caloIdManager->getEM_ID();
   if(m_larEmID==0)
     throw std::runtime_error("FastHitConvertTool: Invalid LAr EM ID helper");
@@ -97,56 +147,113 @@ StatusCode  FastHitConvertTool::initialize()
   m_tileID=caloIdManager->getTileID();
   if(m_tileID==0)
     throw std::runtime_error("FastHitConvertTool: Invalid Tile ID helper");
+  sc=m_detStore->regHandle(m_dd_fSampl,"LArfSampl");
+  if(sc.isFailure())
+    {
+      ATH_MSG_ERROR("Unable to register handle for LArfSampl");
+      return StatusCode::FAILURE;
+    }
+  else ATH_MSG_DEBUG("Got the register handle for LArfSampl");
+  sc=m_detStore->retrieve(m_tileInfo,"TileInfo");
+  if(sc.isFailure())
+    {
+      ATH_MSG_ERROR("Unable to retrieve TileInfo from DetectorStore");
+      return StatusCode::FAILURE;
+    }
+  ATH_MSG_INFO ("initialize() successful in " << name());
 
-  // LAr and Tile Sampling Fractions
-  CHECK(detStore()->regHandle(m_dd_fSampl,"LArfSampl"));
-  CHECK(detStore()->retrieve(m_tileInfo, "TileInfo"));
+  sc = AlgTool::initialize();
+  if (sc.isFailure()) return StatusCode::FAILURE;
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode  FastHitConvertTool::process(CaloCellContainer *theCellContainer)
 {
-  CHECK(this->initEvent());
-  CHECK(this->hitConstruction(theCellContainer));
-  CHECK(this->finaliseEvent());
+  if(initEvent().isFailure())
+    {
+      ATH_MSG_FATAL("initEvent() Failed");
+      return StatusCode::FAILURE;
+    }
+  if(hitConstruction(theCellContainer).isFailure())
+    {
+      ATH_MSG_FATAL("hitConstruction() Failed");
+      return StatusCode::FAILURE;
+    }
+  if(finaliseEvent().isFailure())
+    {
+      ATH_MSG_FATAL("finaliseEvent() Failed");
+      return StatusCode::FAILURE;
+    }
   return StatusCode::SUCCESS;
 }
 
 StatusCode  FastHitConvertTool::initEvent()
 {
   ATH_MSG_DEBUG("initEvent()");
-  //  m_embHitContainer=new LArHitContainer();
-  //  m_emecHitContainer=new LArHitContainer();
-  //  m_fcalHitContainer=new LArHitContainer();
-  //  m_hecHitContainer=new LArHitContainer();
-  //  m_tileHitVector=new TileHitVector(m_tileHitContainerName);
+  //  embHitContainer=new LArHitContainer();
+  //  emecHitContainer=new LArHitContainer();
+  //  fcalHitContainer=new LArHitContainer();
+  //  hecHitContainer=new LArHitContainer();
+  //  m_tileHits=new TileHitVector(m_tileHitContainerName);
 
-  if(!m_embHitContainer.isValid() ) { m_embHitContainer  = CxxUtils::make_unique<LArHitContainer>(m_embHitContainer.name());}
-  if(!m_emecHitContainer.isValid()) { m_emecHitContainer = CxxUtils::make_unique<LArHitContainer>(m_emecHitContainer.name());}
-  if(!m_fcalHitContainer.isValid()) { m_fcalHitContainer = CxxUtils::make_unique<LArHitContainer>(m_fcalHitContainer.name());}
-  if(!m_hecHitContainer.isValid() ) { m_hecHitContainer  = CxxUtils::make_unique<LArHitContainer>(m_hecHitContainer.name());}
-  if(!m_tileHitVector.isValid()        ) { m_tileHitVector         = CxxUtils::make_unique<TileHitVector>(m_tileHitVector.name());}
+  if(!(m_storeGate->retrieve(embHitContainer,m_embHitContainerName)))
+    {
+      ATH_MSG_ERROR("Could not retrieve embHitContainer");
+    }
+  if(!(m_storeGate->retrieve(emecHitContainer,m_emecHitContainerName)))
+    {
+      ATH_MSG_ERROR("Could not retrieve emecHitContainer");
+    }
+  if(!(m_storeGate->retrieve(fcalHitContainer,m_fcalHitContainerName)))
+    {
+      ATH_MSG_ERROR("Could not retrieve fcalHitContainer");
+    }
+  if(!(m_storeGate->retrieve(hecHitContainer,m_hecHitContainerName)))
+    {
+      ATH_MSG_ERROR("Could not retrieve hecHitContainer");
+    }
+  if(!(m_storeGate->retrieve(m_tileHits,m_tileHitContainerName)))
+    {
+      ATH_MSG_ERROR("Could not retrieve tileHitContainer");
+    }
 
   return StatusCode::SUCCESS;
 }
 StatusCode  FastHitConvertTool::finaliseEvent()
 {
   ATH_MSG_DEBUG("finaliseEvent()");
-  ATH_MSG_DEBUG(m_embHitContainer.name()<<" : "<<m_embHitContainer->size()<<" hits ");
-  ATH_MSG_DEBUG(m_emecHitContainer.name()<<" : "<<m_emecHitContainer->size()<<" hits ");
-  ATH_MSG_DEBUG(m_fcalHitContainer.name()<<" : "<<m_fcalHitContainer->size()<<" hits ");
-  ATH_MSG_DEBUG(m_hecHitContainer.name()<<" : "<<m_hecHitContainer->size()<<" hits ");
-  ATH_MSG_DEBUG(m_tileHitVector.name()<<" : "<<m_tileHitVector->size()<<" hits ");
+  ATH_MSG_DEBUG(m_embHitContainerName<<" : "<<embHitContainer->size()<<" hits ");
+  ATH_MSG_DEBUG(m_emecHitContainerName<<" : "<<emecHitContainer->size()<<" hits ");
+  ATH_MSG_DEBUG(m_fcalHitContainerName<<" : "<<fcalHitContainer->size()<<" hits ");
+  ATH_MSG_DEBUG(m_hecHitContainerName<<" : "<<hecHitContainer->size()<<" hits ");
+  ATH_MSG_DEBUG(m_tileHitContainerName<<" : "<<m_tileHits->size()<<" hits ");
 
   if(m_pileup)
     {
-      CHECK((*m_storeGateFastCalo).clearStore(true));
-      const EventInfo *evt(nullptr);
-      CHECK(evtStore()->retrieve(evt,"MyEvent"));
+      if((*m_storeGateFastCalo).clearStore(true).isFailure())
+        {
+          ATH_MSG_ERROR("Clear of FastCalo data store failed");
+          return StatusCode::FAILURE;
+        }
+      const EventInfo *evt=0;
+      if(m_storeGate->retrieve(evt,"MyEvent").isFailure())
+        {
+          ATH_MSG_ERROR("Could not get event info");
+          return StatusCode::FAILURE;
+        }
+      else ATH_MSG_DEBUG("Got the event info");
       const EventInfo* newEvt=new EventInfo(*evt);
-      PileUpEventInfo *pOverEvent(nullptr);
-      CHECK(evtStore()->retrieve(pOverEvent,"OverlayEvent"));
+      PileUpEventInfo *pOverEvent(0);
+      if(m_storeGate->retrieve(pOverEvent,"OverlayEvent").isFailure())
+        {
+          ATH_MSG_ERROR("Could not get OverlayEvent");
+          return StatusCode::FAILURE;
+        }
+      else
+        {
+          ATH_MSG_DEBUG("Got the OverlayEvent");
+        }
       pOverEvent->addSubEvt(0,PileUpTimeEventIndex::Signal,newEvt,&(*m_storeGateFastCalo));
     }
   return StatusCode::SUCCESS;
@@ -196,12 +303,12 @@ StatusCode FastHitConvertTool::hitConstruction(CaloCellContainer *theCellCont)
               if(m_larEmID->is_em_barrel(cellid))
                 {
                   ATH_MSG_DEBUG("Storing em barrel hit");
-                  m_embHitContainer->push_back(new LArHit(cellid,energyConv,hitTime));
+                  embHitContainer->push_back(new LArHit(cellid,energyConv,hitTime));
                 }
               else if(m_larEmID->is_em_endcap(cellid))
                 {
                   ATH_MSG_DEBUG("Storing em endcap hit");
-                  m_emecHitContainer->push_back(new LArHit(cellid,energyConv,hitTime));
+                  emecHitContainer->push_back(new LArHit(cellid,energyConv,hitTime));
                 }
             }
         }
@@ -217,6 +324,7 @@ StatusCode FastHitConvertTool::hitConstruction(CaloCellContainer *theCellCont)
       ATH_MSG_DEBUG("FastCell LArHEC"<<countFastCell);
 
       cellid=(*it1)->ID();
+      //    ATH_MSG_INFO("cellid="<<cellid);
       energy=(*it1)->energy();
       SampFrac=m_dd_fSampl->FSAMPL(cellid);
       energyConv=energy*SampFrac;
@@ -231,11 +339,11 @@ StatusCode FastHitConvertTool::hitConstruction(CaloCellContainer *theCellCont)
           if(m_larHecID->is_lar_hec(cellid))
             {
               ATH_MSG_DEBUG("Storing hec hit");
-              m_hecHitContainer->push_back(new LArHit(cellid,energyConv,hitTime));
+              hecHitContainer->push_back(new LArHit(cellid,energyConv,hitTime));
             }
         }
-      countFastCell++;
     }
+  countFastCell++;
 
   it1=theCellCont->beginConstCalo(CaloCell_ID::LARFCAL);
   it2=theCellCont->endConstCalo(CaloCell_ID::LARFCAL);
@@ -257,7 +365,7 @@ StatusCode FastHitConvertTool::hitConstruction(CaloCellContainer *theCellCont)
           if(m_larFcalID->is_lar_fcal(cellid))
             {
               ATH_MSG_DEBUG("Storing fcal hit");
-              m_fcalHitContainer->push_back(new LArHit(cellid,energyConv,hitTime));
+              fcalHitContainer->push_back(new LArHit(cellid,energyConv,hitTime));
             }
         }
       countFastCell++;
@@ -293,12 +401,12 @@ StatusCode FastHitConvertTool::hitConstruction(CaloCellContainer *theCellCont)
               ATH_MSG_DEBUG("Storing tile hit");
               if(m_tileID->is_tile_gapscin(cellid))
                 {
-                  m_tileHitVector->push_back(TileHit(pmt_id0,energyConv,hitTime));
+                  m_tileHits->push_back(TileHit(pmt_id0,energyConv,hitTime));
                 }
               else
                 {
-                  m_tileHitVector->push_back(TileHit(pmt_id0,energyConv/2.0,hitTime));
-                  m_tileHitVector->push_back(TileHit(pmt_id1,energyConv/2.0,hitTime));
+                  m_tileHits->push_back(TileHit(pmt_id0,energyConv/2.0,hitTime));
+                  m_tileHits->push_back(TileHit(pmt_id1,energyConv/2.0,hitTime));
                 }
             }
         }
@@ -310,3 +418,12 @@ StatusCode FastHitConvertTool::hitConstruction(CaloCellContainer *theCellCont)
   ATH_MSG_DEBUG("eLArEMConv= "<<eLArEMConv<<" eLArHECConv= "<<eLArHECConv<<"eLArFCALConv"<<eLArFCALConv<<"eTileConv"<<eTileConv);
   return StatusCode::SUCCESS;
 }
+//================ Finalisation =================================================
+
+StatusCode  FastHitConvertTool::finalize()
+{
+  StatusCode sc = AlgTool::finalize();
+  return sc;
+}
+
+//============================================================================================
