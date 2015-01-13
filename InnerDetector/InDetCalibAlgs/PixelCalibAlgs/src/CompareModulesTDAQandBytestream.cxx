@@ -17,7 +17,9 @@ CompareModulesTDAQandBytestream::CompareModulesTDAQandBytestream(const std::stri
   AthAlgorithm(name, pSvcLocator),
   m_bsSvc("PixelByteStreamErrorsSvc", name),
   m_tdaqSvc("PixelTDAQSvc", name),
-  n_lumi_blocks(0){
+  n_lumi_blocks(0),
+  m_pixelID(0)
+{
 }
 
 CompareModulesTDAQandBytestream::~CompareModulesTDAQandBytestream(){

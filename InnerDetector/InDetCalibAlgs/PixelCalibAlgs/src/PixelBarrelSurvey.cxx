@@ -12,6 +12,7 @@
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "PixelCalibAlgs/PixelBarrelSurveyUtils.h"
+//#include "GeoPrimitives/CLHEPtoEigenConverter.h" 
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -152,7 +153,8 @@ StatusCode PixelBarrelSurvey::execute() {
 	  << " " << v1.x() << " " << v1.y() << " " << v1.z()
 	  << std::endl;
       HepGeom::Transform3D localTrans=idealTransform.inverse()*trans;
-      m_transforms->add(hashID,localTrans);
+//      m_transforms->add(hashID,Amg::CLHEPTransformToEigen(localTrans)); 
+	 m_transforms->add(hashID,localTrans); 
       // p_iddbtool->setTrans(hashID,3,trans);
       for (int j=0; j<m_distosize; j++) 
 	disto[j]=theStave->module[i].disto[j];
@@ -181,7 +183,8 @@ StatusCode PixelBarrelSurvey::finalize() {
   AlignableTransform::AlignTransMem_itr i=m_transforms->mbegin();
   AlignableTransform::AlignTransMem_itr end=m_transforms->mend();
   while (i!=end) {
-    HepGeom::Transform3D trans=i->transform();
+    HepGeom::Transform3D trans=i->transform(); 
+    //HepGeom::Transform3D trans=Amg::EigenTransformToCLHEP(i->transform()); 
     Identifier id=i->identify();    
     int det,bec,layer,ring,sector,side;
     float dx,dy,dz,phi,theta,psi;

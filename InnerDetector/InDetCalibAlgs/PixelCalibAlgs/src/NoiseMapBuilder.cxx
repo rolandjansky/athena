@@ -55,7 +55,9 @@ NoiseMapBuilder::NoiseMapBuilder(const std::string& name, ISvcLocator* pSvcLocat
   m_nBCReadout(2),
   m_lbMin(0),
   m_lbMax(-1),
-  m_calculateNoiseMaps(false)
+  m_calculateNoiseMaps(false),
+  m_nEventsHist(0),
+  m_disabledModules(0)
 {
   declareProperty("PixelRDOKey", m_pixelRDOKey, "StoreGate key of pixel RDOs");
   declareProperty("Disk1ACut", m_disk1ACut, "Occupancy cut for Disk1A pixels");

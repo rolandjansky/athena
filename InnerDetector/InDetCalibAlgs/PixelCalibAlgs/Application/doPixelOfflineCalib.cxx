@@ -74,10 +74,13 @@ std::cout << "ciao" << std::endl;
 	std::string reference_file = "";
 	long maxentries = 0;
 
-	if(argc == 7){
-		maxentries = atol(argv[6]);
-		reference_file = std::string(argv[5]);
-	}else if(argc == 6){
+	//if(argc == 7){
+	//	maxentries = atol(argv[6]);
+	//	reference_file = std::string(argv[5]);
+	//}
+	//this could never be reached because argc must be 5 or 6 by above condition... not sure what logic was here.
+
+	if(argc == 6){
 		maxentries = atol(argv[5]);
 		if(maxentries == 0) reference_file = std::string(argv[5]);
 	}

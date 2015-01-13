@@ -26,6 +26,7 @@ int nPixelsPerModule = 46080;
 double nModules = 1744.;
 double nPixels = nModules*nPixelsPerModule;
 
+using namespace std;
 
 int main(int argc, char* argv[]){
 

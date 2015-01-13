@@ -46,7 +46,7 @@ void PixelChargeInterpolationCalibration::Read(TDirectory *histofile){
 
 	TDirectory *current = gDirectory;
 	TDirectory *globaldir = gDirectory;
-	if(histofile == 0) globaldir = histofile;
+	if(histofile != 0) globaldir = histofile;
 
 	globaldir->cd("ChargeInterpolation");
 	DigitalCalibration->Read();
@@ -82,9 +82,12 @@ void PixelChargeInterpolationCalibration::Fill(Int_t DetType, Double_t GeVTrkPt,
 
 	// hack to uniform constants for all layers and for all disks
 	int modifier = 0;
-	if(DetType > 2) modifier = 3; 
-	// fill with the same values for three layers (or disks if modifier = 3)
-	for(int iLayer = 0; iLayer < 3; iLayer++){
+    int totlayers = 3;
+    if(DetType == 0) totlayers = 1;
+    else if(DetType < 4) modifier = 1; 
+    else modifier = 4; 
+	// fill with the same values for the relevant layers 
+	for(int iLayer = 0; iLayer < totlayers; iLayer++){
 		DetType = iLayer + modifier;
 		DigitalCalibration->Fill(DetType, GeVTrkPt,
 					TrkEta, DeltaCol, digreseta, OmegaEta,

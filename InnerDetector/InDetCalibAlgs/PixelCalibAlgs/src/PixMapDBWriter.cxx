@@ -378,14 +378,14 @@ StatusCode PixMapDBWriter::finalize(){
     
     msg().precision(1);
     msg().setf(std::ios::fixed);
-    
+ 
     ATH_MSG_INFO("");
     ATH_MSG_INFO( "Number of modules with masked pixels:" );
     ATH_MSG_INFO( "Common " << nCommonModulesWithMaskedPixels
 		  << ", New map " << nModulesWithMaskedPixels1 << " ("
-		  << static_cast<double>(nCommonModulesWithMaskedPixels) / static_cast<double>(nModulesWithMaskedPixels1) * 100.
+		  << static_cast<double>(nCommonModulesWithMaskedPixels) / static_cast<double>(nModulesWithMaskedPixels1 + 0.00001) * 100. //Add epsilon to avoid potential FPE
 		  << "% common), Reference map " << nModulesWithMaskedPixels2 << " ("
-		  << static_cast<double>(nCommonModulesWithMaskedPixels) / static_cast<double>(nModulesWithMaskedPixels2) * 100.
+		  << static_cast<double>(nCommonModulesWithMaskedPixels) / static_cast<double>(nModulesWithMaskedPixels2 + 0.00001) * 100.
 		  << "% common)" );
 
     ATH_MSG_INFO( "Changes: -" << nModulesWithMaskedPixels2 - nCommonModulesWithMaskedPixels 
@@ -402,11 +402,12 @@ StatusCode PixMapDBWriter::finalize(){
     ATH_MSG_INFO( "Number of masked pixels (ganged pixels enter twice):" );
     ATH_MSG_INFO( "Common " << nCommonMaskedPixels
 		  << ", New map " << nMaskedPixels1 << " ("
-		  << static_cast<double>(nCommonMaskedPixels) / static_cast<double>(nMaskedPixels1) * 100.
+		  << static_cast<double>(nCommonMaskedPixels) / static_cast<double>(nMaskedPixels1 + 0.00001) * 100. //Add epsilon to avoid potential FPE
 		  << "% common), Reference map " << nMaskedPixels2 << " ("
-		  << static_cast<double>(nCommonMaskedPixels) / static_cast<double>(nMaskedPixels2) * 100.
+		  << static_cast<double>(nCommonMaskedPixels) / static_cast<double>(nMaskedPixels2 + 0.00001) * 100.
 		  << "% common)" );
     
+
     ATH_MSG_INFO( "Changes: -" << nMaskedPixels2 - nCommonMaskedPixels << " (-"
 		  << static_cast<double>(nMaskedPixels2 - nCommonMaskedPixels) /
 		  static_cast<double>(nMaskedPixels2) * 100. << "%), +"
@@ -417,6 +418,7 @@ StatusCode PixMapDBWriter::finalize(){
 		  << static_cast<double>(nMaskedPixels1 - nMaskedPixels2) /
 		  static_cast<double>(nMaskedPixels2) * 100. << "%)" << std::noshowpos );
     
+
     ATH_MSG_INFO("");
     ATH_MSG_INFO( "Modules with largest differences:" );
     ATH_MSG_INFO("");

@@ -328,6 +328,9 @@ PixelChargeInterpolationValidation::PixelChargeInterpolationValidation(std::stri
 	ResPhiDig_vs_p = new TH2F("ResPhiDig_vs_p", "Local x residuals vs p_{T}",
 		       	100, ptbins_Layerpointer, 100, -400, 400);
 
+
+	delete layers;
+
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

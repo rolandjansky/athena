@@ -47,10 +47,12 @@ StaveStruct* ReadStave(istream &input) {
 }
 
 bool OutputDistorsion(ostream& out, ModuleStruct& module) {
+  ios_base::fmtflags original_flags = out.flags();
   out << module.offlineID << "\t" << module.hashID;
   out.precision(7);
   for (int i=0; i<3; i++) out << "\t" << module.disto[i];
   out << endl;
+  out.flags(original_flags);
   return out.good();
 }
 

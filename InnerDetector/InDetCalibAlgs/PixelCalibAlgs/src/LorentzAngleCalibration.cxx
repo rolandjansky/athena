@@ -29,6 +29,9 @@ LorentzAngleCalibration::LorentzAngleCalibration(int layer,std::string cosmicORb
 	double *etaBins, *phiBins;
 	int netaBins, nphiBins;
 		
+	EtaModule = 0;
+	PhiModule = 0;
+	
 	netaBins = EtaModuleBins(etaBins);
 	if(curLayer == 2){
 		layername = "Layer2";

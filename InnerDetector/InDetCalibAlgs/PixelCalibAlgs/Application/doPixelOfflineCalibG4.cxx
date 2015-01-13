@@ -70,12 +70,15 @@ int main(int argc, char *argv[]){
 	std::string reference_file = "";
 	long maxentries = 0;
 
-	if(argc == 6){
-		maxentries = atol(argv[5]);
-		reference_file = std::string(argv[4]);
-	}else if(argc == 5){
-		maxentries = atol(argv[4]);
-		if(maxentries == 0) reference_file = std::string(argv[4]);
+	//if(argc == 6){
+	//	maxentries = atol(argv[5]);
+	//	reference_file = std::string(argv[4]);
+	//}
+	//must be 4 or 5, this condition could not be fulfilled
+	
+	if(argc == 5){
+	  maxentries = atol(argv[4]);
+	  if(maxentries == 0) reference_file = std::string(argv[4]);
 	}
 
 	if(maxentries < 0){

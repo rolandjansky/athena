@@ -23,6 +23,8 @@ namespace PixelCalib{
 DepletionDepthCalibration::DepletionDepthCalibration(int layer,std::string cosmicORbeam):
 	curLayer(layer),curType(cosmicORbeam){
 	
+  EtaModule = 0;
+  PhiModule = 0;
 
 	if(curType != "cosmic") curType = "beam";
 

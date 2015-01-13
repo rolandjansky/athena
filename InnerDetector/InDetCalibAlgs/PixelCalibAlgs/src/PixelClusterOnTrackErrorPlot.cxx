@@ -85,7 +85,8 @@ void PixelClusterOnTrackErrorPlot::AddReference(
 	m_RefHistosX->push_back(*histoX);
 	m_RefHistosY->push_back(*histoY);
 	
-
+	delete histoX;
+	delete histoY;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////

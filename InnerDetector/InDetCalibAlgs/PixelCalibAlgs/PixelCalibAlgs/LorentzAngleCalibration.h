@@ -10,6 +10,8 @@ class TProfile;
 template <class ht> class MultiHisto;
 template <class type> class TVectorT;
 
+using namespace std;
+
 namespace PixelCalib{
 
 class LorentzAngleCalibration{

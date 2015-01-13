@@ -52,7 +52,6 @@ class NoiseMapBuilder: public AthAlgorithm{
   std::string m_pixelRDOKey;
   
   double m_nEvents;
-  double m_occupancyCut;
 
   TH1D* m_nEventsHist;
   std::vector<TH2D*> m_hitMaps;
@@ -77,8 +76,6 @@ class NoiseMapBuilder: public AthAlgorithm{
 
   double m_longPixelMultiplier;
   double m_gangedPixelMultiplier;
-
-  int m_maxLVL1A;
 
   bool m_occupancyPerBC;
 

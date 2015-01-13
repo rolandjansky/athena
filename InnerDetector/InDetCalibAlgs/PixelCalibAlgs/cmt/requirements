@@ -10,6 +10,7 @@ use AthenaBaseComps          AthenaBaseComps-*		Control
 use GaudiInterface           GaudiInterface-*        External
 use AtlasROOT                AtlasROOT-*		External
 use AtlasCLHEP               AtlasCLHEP-*            External 
+use InDetPrepRawData         InDetPrepRawData-*      InnerDetector/InDetRecEvent
 
 private
 
@@ -26,8 +27,12 @@ use PixelConditionsData      PixelConditionsData-*      InnerDetector/InDetCondi
 use InDetRawData             InDetRawData-*             InnerDetector/InDetRawEvent
 use EventInfo                EventInfo-*                Event
 use InDetConditionsSummaryService InDetConditionsSummaryService-* InnerDetector/InDetConditions
+use AtlasCLHEP               AtlasCLHEP-*               External
 
 public
+
+# Specify the required ROOT components to cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Matrix Gpad Graf)"
 
 library PixelCalibAlgs -x="PixelRIOs" -x="G4" -x="DepletionDepth" -x="LorentzAngle" -x="Offline" -x="Residual" -x="ChargeInterpolation" *.cxx -s=components *.cxx
 library PixelOfflineCalib -k="PixelRIOs" -k="G4" -k="DepletionDepth" -k="LorentzAngle" -k="Offline" -k="Residual" -k="ChargeInterpolation" -k="ClusterOnTrack" *.cxx
@@ -52,6 +57,14 @@ apply_pattern declare_runtime files="*.txt *.sh"
 #################################################
 
 private
+
+apply_tag ROOTCintexLibs
+apply_tag ROOTGenVectorLibs
+apply_tag ROOTMathLibs
+apply_tag ROOTGraphicsLibs
+apply_tag ROOTSTLDictLibs
+apply_tag ROOTBasicLibs
+
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"
 macro_append doPixelOfflineCaliblinkopts " -lPixelOfflineCalib"
@@ -60,7 +73,8 @@ macro_append PlotChargeSharingConstantslinkopts " -lPixelOfflineCalib"
 macro_append PlotPixelClusterOnTrackErrorslinkopts " -lPixelOfflineCalib"
 macro_append updateNoiseMapslinkopts " -lPixelCalibAlgs"
 macro_append updateDeadMapslinkopts " -lPixelCalibAlgs"
-macro_append ROOT_linkopts " -lMatrix -lGpad -lGraf -lCintex"
+#macro_append ROOT_linkopts " -lMatrix -lGpad -lGraf" # -lCintex"
+#macro_append ROOT_linkopts   $(rootCintexLibs)
 macro_append doPixelOfflineCalib_dependencies " PixelOfflineCalib"
 macro_append doPixelOfflineCalibG4_dependencies " PixelOfflineCalib"
 macro_append PlotChargeSharingConstants_dependencies " PixelOfflineCalib"

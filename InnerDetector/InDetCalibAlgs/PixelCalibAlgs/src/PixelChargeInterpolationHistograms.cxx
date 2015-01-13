@@ -116,6 +116,7 @@ PixelChargeInterpolationHistograms::PixelChargeInterpolationHistograms(std::stri
 	delete THmodel;
 	delete THmodel1;
 	delete[] bins;
+	delete layers;
 	Profmodel = 0;
 	THmodel = 0;
 	THmodel1 = 0;
@@ -230,7 +231,7 @@ int PixelChargeInterpolationHistograms::Write(){
 //////////////////////////////////////////////////////////////////////////////////////////
 
 PixelChargeInterpolationParameters *PixelChargeInterpolationHistograms::Analyze(
-		ofstream &logfile){
+		std::ofstream &logfile){
 
 	logfile << "Fitting!" << std::endl;
 
