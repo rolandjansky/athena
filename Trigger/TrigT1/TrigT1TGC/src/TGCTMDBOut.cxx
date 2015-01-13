@@ -42,8 +42,11 @@ TGCTMDBOut::TGCTMDBOut(int side, int module, int hit56, int hit6)
 ///////////////////////////////////////////////////////////////
 TGCTMDBOut::TGCTMDBOut(const TGCTMDBOut& right)
 /////////////////////////////////////////////////////////////
+    :sideID(right.sideID), 
+     moduleID(right.moduleID),
+     hit_56(right.hit_56),
+     hit_6(right.hit_6)
 {
-  *this= right;
 }
 
 

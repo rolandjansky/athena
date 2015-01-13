@@ -156,7 +156,7 @@ namespace LVL1TGCTrigger {
     g_USE_INNER           = m_USEINNER.value() && isAtlas;
     g_INNER_VETO          = m_INNERVETO.value() && g_USE_INNER;
     g_FULL_CW             = m_FULLCW.value();
-    g_TILE_MU             = m_TILEMU.value();
+    g_TILE_MU             = m_TILEMU.value() && g_USE_INNER;
     g_ISATLAS             = isAtlas;
 
     if ( m_SINGLEBEAM.value() ) {
@@ -292,7 +292,7 @@ namespace LVL1TGCTrigger {
       if (sc.isFailure()) {
 	m_log << MSG::WARNING 
 	      << "Cannot retrieve Tile Mu Data " << endreq;
-      return StatusCode::SUCCESS;
+	return sc;
       }
     }
  
@@ -1043,8 +1043,8 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 #ifdef TGCDEBUG
       //////////////HISAYA////////////
       m_log << MSG::INFO
-	    << "recordRdoSL  : reg=" 
-	    << (isEndcap ? "EC" : "FWD") 
+	    << "recordRdoSL  : side=" << (isAside  ? "A  " : "C  ")
+	    << " reg=" << (isEndcap ? "EC" : "FWD") 
 	    << " phi=" << phi
 	    << " cand=" << index 
 	    << " charge=" << (muplus ? "mu+" : "mu-")
@@ -1059,8 +1059,8 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 
       if (m_debuglevel) {
 	m_log << MSG::DEBUG
-	      << "recordRdoSL  : reg=" 
-	      << (isEndcap ? "EC" : "FWD") 
+	      << "recordRdoSL  : side=" << (isAside  ? "A  " : "C  ")
+	      << " reg=" << (isEndcap ? "EC" : "FWD") 
 	      << " phi=" << phi
 	      << " cand=" << index 
 	      << " charge=" << (muplus ? "mu+" : "mu-")
@@ -1345,7 +1345,7 @@ StatusCode LVL1TGCTrigger::getCabling()
     if (g_TILE_MU) {
       g_TILE_MU = (ver==setM);
     } 
-
+    
     // create DataBase and TGCElectronicsSystem
     db = new TGCDatabaseManager(m_VerCW, isAtlas);
     system = new TGCElectronicsSystem(db, isAtlas);
@@ -1353,43 +1353,57 @@ StatusCode LVL1TGCTrigger::getCabling()
     TimingManager = new TGCTimingManager;
     TimingManager->setBunchCounter(0);
     nEventInSector = 0;
-
-  return sc;
+    
+    return sc;
 }
 
 StatusCode LVL1TGCTrigger::fillTMDB()
 {
- StatusCode sc =  StatusCode::SUCCESS;
+  StatusCode sc =  StatusCode::SUCCESS;
   TGCTMDB* tmdb = system->getTMDB(); 
-
+  
   // clear TMDB
   tmdb->eraseOutput();
-
+  
   // retrive TileMuonReceiverContainer
   const DataHandle<TileMuonReceiverContainer> tileMuRecCont;
   sc = m_sgSvc->retrieve(tileMuRecCont, m_keyTileMu);
-
+  
   if (sc.isFailure()) {
     m_log << MSG::WARNING << " Cannot retrieve Tile Muon Receiver Container " << endreq;
     return sc;
   }
- 
+  
   // loop over all TileMuonReceiverObj in container 
   TileMuonReceiverContainer::const_iterator tmItr = tileMuRecCont->begin();
-  for ( ; tmItr != tileMuRecCont->end(); ++tmItr) {
 
+  TileMuonReceiverObj * tmObj_Thresholds = *tmItr;
+  if ( (tmObj_Thresholds->GetThresholds()).size() == 4) { 
+    float thresholds[4];
+    for (size_t ip=0;ip<4;ip++){
+      thresholds[ip] = (tmObj_Thresholds->GetThresholds()).at(ip);
+    }
+    if (m_debuglevel) {
+      m_log << MSG::DEBUG << "thresholds[] :" 
+	    << thresholds[0] << thresholds[1] << thresholds[2] << thresholds[3] << endreq;
+      m_log << MSG::DEBUG << "type of GetThreshold : " 
+	    << typeid((tmObj_Thresholds->GetThresholds())).name() 
+	    << "  ID of GetThreshold : " 
+	    << tmObj_Thresholds->GetID() << endreq;
+    }
+  }
+
+  
+  //clear tmobj_Threshols
+  tmObj_Thresholds = 0;
+  // m_id and decision , etc ... from
+  ++tmItr;
+  
+  for ( ; tmItr != tileMuRecCont->end(); ++tmItr) {
+    
     TileMuonReceiverObj * tmObj = *tmItr;
     // Tile Module
     int moduleID = tmObj-> GetID();
-    // side 0: a-side, 1: c-side,  3: NA
-    // mod 0~63
-    int side = 3;      
-    int mod = moduleID%100;  
-    if (moduleID/100 == 3) {
-      side = 0;
-    } else if (moduleID/100 == 4) {
-      side = 1;
-    }
     // TMDB decision
     bool tile2SL[4];
     //     [0]       [1]       [2]      [3]
@@ -1397,29 +1411,48 @@ StatusCode LVL1TGCTrigger::fillTMDB()
     for (size_t ip=0;ip<4;ip++){
       tile2SL[ip] = (tmObj->GetDecision()).at(ip);
     }
-    
-    // setOutput(side, mod, hit56, hit6) -> hit56, 6 -> 0: No Hit, 1: Low, 2: High, 3: NA
-    int hit56 = 3, hit6 = 3;
-    if (tile2SL[0] == true && tile2SL[1] == false) {
-      hit56 = 2;
-    } else if (tile2SL[0] == false && tile2SL[1] == true) {
-      hit56 = 1;
-    } else if (tile2SL[0] == false && tile2SL[1] == false) {
-      hit56 = 0;
-    }
+    if ( moduleID < 300 || (moduleID > 363 && moduleID < 400) || moduleID > 463 || 
+	 ((tmObj->GetDecision()).size() != 4) ) {
+      continue;
+    } else {
+      // side 0: a-side, 1: c-side,  3: NA
+      // mod 0~63
+      int side = 3;      
+      int mod = moduleID%100;  
+      if (moduleID/100 == 3) {
+	side = 0;
+      } else if (moduleID/100 == 4) {
+	side = 1;
+      }
+      // setOutput(side, mod, hit56, hit6) -> hit56, 6 -> 0: No Hit, 1: Low, 2: High, 3: NA
+      int hit56 = 3, hit6 = 3;
+      if (tile2SL[0] == true && tile2SL[1] == false) {
+	hit56 = 2;
+      } else if (tile2SL[0] == false && tile2SL[1] == true) {
+	hit56 = 1;
+      } else if (tile2SL[0] == false && tile2SL[1] == false) {
+	hit56 = 0;
+      }
+      
+      if (tile2SL[2] == true && tile2SL[3] == false) {
+	hit6 = 2;
+      } else if (tile2SL[2] == false && tile2SL[3] == true) {
+	hit6 = 1;
+      } else if (tile2SL[2] == false && tile2SL[3] == false) {
+	hit6 = 0;
+      }
 
-    if (tile2SL[2] == true && tile2SL[3] == false) {
-      hit6 = 2;
-    } else if (tile2SL[2] == false && tile2SL[3] == true) {
-      hit6 = 1;
-    } else if (tile2SL[2] == false && tile2SL[3] == false) {
-      hit6 = 0;
-    }
+      int prehit56=(tmdb->getOutput(side, mod))->GetHit56();
+      int prehit6=(tmdb->getOutput(side, mod))->GetHit6();
+      if(prehit56 != 3 && prehit56 > hit56) { hit56=prehit56; }
+      if(prehit6 != 3 && prehit6 > hit6) { hit6=prehit6; }
 
-    tmdb->setOutput(side, mod, hit56, hit6);
+      tmdb->setOutput(side, mod, hit56, hit6);
+    }
   }
-
+  
   return sc;
 }
-} //end of namespace bracket
   
+} //end of namespace bracket
+

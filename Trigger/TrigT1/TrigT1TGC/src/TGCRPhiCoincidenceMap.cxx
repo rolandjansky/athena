@@ -159,7 +159,7 @@ TGCRPhiCoincidenceMap::TGCRPhiCoincidenceMap(const TGCRPhiCoincidenceMap& right)
 }
 
 
-TGCRPhiCoincidenceMap TGCRPhiCoincidenceMap::operator=(const TGCRPhiCoincidenceMap& right)
+TGCRPhiCoincidenceMap& TGCRPhiCoincidenceMap::operator=(const TGCRPhiCoincidenceMap& right)
 {
    if (this != &right) {
     numberOfDR=right.numberOfDR;
@@ -207,7 +207,7 @@ bool TGCRPhiCoincidenceMap::readMap()
                       + ModuleName[iModule] + "." + m_verName;
     if (m_fullCW) {
       if ( (m_side>=0) && (m_side<NumberOfSide) && 
-	   (m_octant>=0) && (m_octant<NumberOfSide)) {
+	   (m_octant>=0) && (m_octant<NumberOfOctant)) {
 	fn = "RPhiCoincidenceMap." 
 	              + SideName[m_side] + OctantName[m_octant]  
                       + ".mod" + ModuleName[iModule] 

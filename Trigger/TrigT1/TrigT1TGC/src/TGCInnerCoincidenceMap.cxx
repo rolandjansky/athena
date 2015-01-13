@@ -139,7 +139,7 @@ TGCInnerCoincidenceMap::TGCInnerCoincidenceMap(const TGCInnerCoincidenceMap& rig
   m_fullCW=right.m_fullCW;
 }
 
-TGCInnerCoincidenceMap TGCInnerCoincidenceMap::operator=(const TGCInnerCoincidenceMap& right)
+TGCInnerCoincidenceMap& TGCInnerCoincidenceMap::operator=(const TGCInnerCoincidenceMap& right)
 {
   if (this != &right) {
     for (size_t sec=0; sec< N_EndcapSector; sec++){

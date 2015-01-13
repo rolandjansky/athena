@@ -30,8 +30,8 @@ TGCTMDB::TGCTMDB()
 //////////////////////
 {
   for (int side=0; side < 2; side++) {
-    for (int mod=0; mod < NumberOfTileModules(); mod++) {
-      buffer[side*NumberOfTileModules() + mod] = new TGCTMDBOut(side, mod); 
+    for (int mod=0; mod < NumberOfTileModule; mod++) {
+      buffer[side*NumberOfTileModule + mod] = new TGCTMDBOut(side, mod); 
     }
   }
 }
@@ -40,7 +40,7 @@ TGCTMDB::TGCTMDB()
 TGCTMDB::~TGCTMDB()
 //////////////////////
 {
-  for (int idx=0; idx<2*NumberOfTileModules(); idx++){
+  for (int idx=0; idx<2*NumberOfTileModule; idx++){
     delete buffer[idx]; 
   }
 }
@@ -49,6 +49,9 @@ TGCTMDB::~TGCTMDB()
 TGCTMDB::TGCTMDB(const TGCTMDB& right)
 /////////////////////////////////////////////////////////////
 {
+  for (int idx=0; idx<2*NumberOfTileModule; idx++){
+    buffer[idx] = 0; 
+  }
   *this= right;
 }
 
@@ -58,8 +61,9 @@ TGCTMDB& TGCTMDB::operator=(const TGCTMDB& right)
 /////////////////////////////////////////////////////////////
 {
   if (this != &right) {
-    for (int idx=0; idx<2*NumberOfTileModules(); idx++){
-      (*buffer[idx]) = *(right.buffer[idx]);
+    for (int idx=0; idx<2*NumberOfTileModule; idx++){
+      delete buffer[idx];
+      buffer[idx] = new TGCTMDBOut(*(right.buffer[idx]));
     }
   }
   return *this;
@@ -70,8 +74,8 @@ const TGCTMDBOut* TGCTMDB::getOutput(int side, int mod) const
 /////////////////////////////////////////////////////////////
 {
   if ( (side<0)||(side>1) ) return 0;
-  if ( (mod<0)||(mod>=NumberOfTileModules()) ) return 0;
-  return buffer[side*NumberOfTileModules() + mod] ;
+  if ( (mod<0)||(mod>=NumberOfTileModule) ) return 0;
+  return buffer[side*NumberOfTileModule + mod] ;
 }
 
 /////////////////////////////////////////////////////////////
@@ -85,14 +89,14 @@ const TGCTMDBOut* TGCTMDB::getOutput(int side, int sector, int mod) const
   int sec = sector % 6;
   int offset = 0;
   if      (sec==0) offset = -4;
-  else if (sec==1) offset = -3;
-  else if (sec==2) offset = -1;
-  else if (sec==3) offset =  0;
+  else if (sec==1) offset = -4; // same SL board as sec#0   
+  else if (sec==2) offset =  0;
+  else if (sec==3) offset =  0; // same SL board as sec#1
   else if (sec==4) offset =  2;
-  else if (sec==5) offset =  3;
-  int moduleID = (octant*(NumberOfTileModules()/8) + offset + NumberOfTileModules()) % NumberOfTileModules();;
-  moduleID = (moduleID + mod) % NumberOfTileModules();
-  return buffer[side*NumberOfTileModules() + moduleID];
+  else if (sec==5) offset =  2; // same SL board as sec#2
+  int moduleID = (octant*(NumberOfTileModule/8) + offset + NumberOfTileModule) % NumberOfTileModule;
+  moduleID = (moduleID + mod) % NumberOfTileModule;
+  return buffer[side*NumberOfTileModule + moduleID];
 }
 
 /////////////////////////////////////////////////////////////
@@ -100,16 +104,16 @@ void  TGCTMDB::setOutput(int side, int module, int hit56, int hit6)
 /////////////////////////////////////////////////////////////
 {
   if ( (side<0)||(side>1) ) return;
-  if ( (module<0)||(module>=NumberOfTileModules()) ) return;
-  buffer[side*NumberOfTileModules() +module]->SetHit56(hit56);
-  buffer[side*NumberOfTileModules() +module]->SetHit6(hit6);
+  if ( (module<0)||(module>=NumberOfTileModule) ) return;
+  buffer[side*NumberOfTileModule +module]->SetHit56(hit56);
+  buffer[side*NumberOfTileModule +module]->SetHit6(hit6);
 }
 
 /////////////////////////////////////////////////////////////
 void  TGCTMDB::eraseOutput()
 /////////////////////////////////////////////////////////////
 {
-  for (int idx=0; idx<2*NumberOfTileModules(); idx++){
+  for (int idx=0; idx<2*NumberOfTileModule; idx++){
     buffer[idx]->Clear(); 
   }
 }
@@ -118,7 +122,7 @@ void  TGCTMDB::eraseOutput()
 void TGCTMDB::Print() const
 /////////////////////////////
 {
-  for (int idx=0; idx<2*NumberOfTileModules(); idx++){
+  for (int idx=0; idx<2*NumberOfTileModule; idx++){
     buffer[idx]->Print(); 
   }
 }

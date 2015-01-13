@@ -550,52 +550,32 @@ void TGCHighPtBoard::showResult() const
 
 
 TGCHighPtBoard::TGCHighPtBoard(const TGCHighPtBoard& right)
+  :highPtChipOut(0), highPtBoardOut(0), lowPtBoardOut(0),
+   id(right.id),
+   bid(right.bid),
+   idSectorLogic(right.idSectorLogic),
+   type(right.type),
+   region(right.region),
+   priorSign(right.priorSign),
+   maxNumberOfHPBData(right.maxNumberOfHPBData),
+   maxDev(right.maxDev),
+   maxDevOred(right.maxDevOred),
+   nChOfTSBOut(0), nChOfDSBOut(0), nChOfDSBHit(0), nChOfTSBHit(0),
+   nChInTSBRegion(0)
 {
-  id = right.id;
-  bid = right.bid;
-  idSectorLogic = right.idSectorLogic;
-  type = right.type;
-  region = right.region;
-  priorSign = right.priorSign;
-  maxNumberOfHPBData = right.maxNumberOfHPBData;
-  maxDev = right.maxDev;
-  maxDevOred = right.maxDevOred;
-
-  if (right.highPtChipOut !=0) highPtChipOut = new TGCHighPtChipOut(*right.highPtChipOut);
-  if( right.highPtBoardOut !=0) highPtBoardOut = new TGCHighPtBoardOut(*right.highPtBoardOut);
-  if( right.lowPtBoardOut !=0) lowPtBoardOut = new TGCHighPtBoardOut(*right.lowPtBoardOut);
-
   for(int j=0; j<NumberOfChip; j+=1){
     for(int i=0; i<NumberOfDSBOut; i+=1){
       DSB[j][i] = right.DSB[j][i];
-      if(DSBOut[j][i]!=0){
-        delete DSBOut[j][i];
-        DSBOut[j][i]=0;
-      }
-      DSBOut[j][i] = new TGCSlaveBoardOut;
-      *DSBOut[j][i] = *right.DSBOut[j][i];
+      DSBOut[j][i]=0;
     }
- 
     for(int i=0; i<NumberOfTSBOut; i+=1){
       TSB[j][i] = right.TSB[j][i];
-      if(TSBOut[j][i]!=0){
-        delete TSBOut[j][i];
-        TSBOut[j][i]=0;
-      }
-      TSBOut[j][i] = new TGCSlaveBoardOut;
-      *TSBOut[j][i] = *right.TSBOut[j][i];
+      TSBOut[j][i]=0;
     }
   }
-
   for(int i=0; i<NumberOfAdjacentHPB; i+=1){
     adjacentHPB[i]=right.adjacentHPB[i];
   }
-
-  nChOfTSBOut = right.nChOfTSBOut;
-  nChOfDSBOut = right.nChOfDSBOut;
-  nChOfDSBHit = right.nChOfDSBHit;
-  nChOfTSBHit = right.nChOfTSBHit;
-  nChInTSBRegion = right.nChInTSBRegion;
 }
 
 TGCHighPtBoard& TGCHighPtBoard::operator=(const TGCHighPtBoard& right)
@@ -629,27 +609,20 @@ TGCHighPtBoard& TGCHighPtBoard::operator=(const TGCHighPtBoard& right)
         DSB[j][i] = right.DSB[j][i];
         if(DSBOut[j][i]!=0){
           delete DSBOut[j][i];
-          DSBOut[j][i]=0;
+          DSBOut[j][i]= new TGCSlaveBoardOut(*right.DSBOut[j][i]);
         }
-        DSBOut[j][i] = new TGCSlaveBoardOut;
-        *DSBOut[j][i] = *right.DSBOut[j][i];
       }
- 
       for(int i=0; i<NumberOfTSBOut; i+=1){
         TSB[j][i] = right.TSB[j][i];
         if(TSBOut[j][i]!=0){
           delete TSBOut[j][i];
-          TSBOut[j][i]=0;
+          TSBOut[j][i]= new TGCSlaveBoardOut(*right.TSBOut[j][i]);
         }
-        TSBOut[j][i] = new TGCSlaveBoardOut;
-        *TSBOut[j][i] = *right.TSBOut[j][i];
       }
     }
-
     for(int i=0; i<NumberOfAdjacentHPB; i+=1){
       adjacentHPB[i]=right.adjacentHPB[i];
     }
-
     nChOfTSBOut = right.nChOfTSBOut;
     nChOfDSBOut = right.nChOfDSBOut;
     nChOfDSBHit = right.nChOfDSBHit;

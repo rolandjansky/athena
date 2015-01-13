@@ -181,16 +181,33 @@ TGCRPhiCoincidenceMatrix::~TGCRPhiCoincidenceMatrix()
   map = 0;
 }
 
+TGCRPhiCoincidenceMatrix& TGCRPhiCoincidenceMatrix::operator=(const TGCRPhiCoincidenceMatrix& right)
+{
+  if (this != &right){
+    sectorLogic = right.sectorLogic;
+    delete matrixOut;
+    matrixOut =0;
+    delete map;
+    map = new TGCRPhiCoincidenceMap(*(right.map));
+    nPhiHit = 0;
+    SSCId   = 0;
+    r       = 0;
+    dR      = 0;
+    ptR     = 0;
+    for (int i=0; i<MaxNPhiHit; i++) {
+      phi[i]=0;
+      dPhi[i]=0;
+      ptPhi[i]=0;
+    }
+  }
+  return *this;
+}
+
 TGCRPhiCoincidenceMatrix::TGCRPhiCoincidenceMatrix(const TGCRPhiCoincidenceMatrix& right)
   : sectorLogic(0),
     matrixOut(0), map(0),
     nPhiHit(0), SSCId(0), r(0), dR(0), ptR(0)
 {
-  for (int i=0; i<MaxNPhiHit; i++) {
-    phi[i]=0;
-    dPhi[i]=0;
-    ptPhi[i]=0;
-  }
   *this = right;  
 }
 

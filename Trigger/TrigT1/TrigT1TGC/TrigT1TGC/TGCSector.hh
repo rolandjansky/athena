@@ -45,6 +45,12 @@ public:
 
   TGCSector();
 
+private:
+  // copy constructor and assignement operator are hidden
+  TGCSector( const TGCSector& right );
+  TGCSector& operator=( const TGCSector& right );
+
+public:
   virtual ~TGCSector();
 
   bool hasHit() const;
@@ -63,9 +69,6 @@ public:
   TGCRegionType getRegionType() const;
   int getId() const;
   void dumpModule();
-
-  //  TGCSector(const TGCSector& right);
-  //  const TGCSector& operator=(const TGCSector& right);
 
   int getSideId() const { return sideId; }
   int getOctantId() const { return octantId; }

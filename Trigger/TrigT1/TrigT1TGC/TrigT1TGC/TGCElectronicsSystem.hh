@@ -49,6 +49,9 @@ public:
   TGCElectronicsSystem(TGCDatabaseManager* database, bool isAtlas=true);
   ~TGCElectronicsSystem();
 
+private:
+  // hide default/copy constructor and assignment operator
+  TGCElectronicsSystem();
   TGCElectronicsSystem(const TGCElectronicsSystem& right);
   TGCElectronicsSystem& operator=(const TGCElectronicsSystem& right);
 

@@ -50,12 +50,17 @@ public:
   TGCSlaveBoardOut* getTSBOut(int chip, int port);
   void setAdjacentHPB(int side, TGCHighPtBoard* hpt){ adjacentHPB[side]=hpt;};
 
+  void showResult() const;
+
+protected:
+  TGCHighPtBoard();  // use derived class only
+
+public:
   TGCHighPtBoard(const TGCHighPtBoard& right);
   TGCHighPtBoard& operator=(const TGCHighPtBoard& right);
 
-  void showResult() const;
-
   virtual ~TGCHighPtBoard();
+
 protected:
   void collectInput();
   void createHighPtChipOut();
@@ -106,8 +111,6 @@ protected:
   int nChOfDSBHit;
   int nChOfTSBHit;
   int nChInTSBRegion;
-
-  TGCHighPtBoard();
 };
 
 inline

@@ -20,6 +20,8 @@ public:
   TGCHighPtChipOut(const TGCHighPtChipOut& );
   ~TGCHighPtChipOut();
 
+  TGCHighPtChipOut& operator=(const TGCHighPtChipOut&);
+
   int getPt(int chip, int iCandidate) const;
   int getPos(int chip, int iCandidate) const;
   int getHitID(int chip, int iCandidate) const;

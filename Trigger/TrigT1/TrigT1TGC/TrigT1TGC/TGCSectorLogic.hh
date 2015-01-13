@@ -79,7 +79,7 @@ protected:
   void doInnerCoincidence(int SSCId,  TGCRPhiCoincidenceOut* coincidenceOut);
 
 private:
-  const TGCSectorLogic& operator=(const TGCSectorLogic& right);
+  TGCSectorLogic& operator=(const TGCSectorLogic& right);
 
 private:
 

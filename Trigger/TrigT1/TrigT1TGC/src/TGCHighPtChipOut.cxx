@@ -33,6 +33,23 @@ TGCHighPtChipOut::TGCHighPtChipOut(const TGCHighPtChipOut& right )
   }
 }
 
+TGCHighPtChipOut& TGCHighPtChipOut::operator=(const TGCHighPtChipOut& right )
+{
+  if (this != &right){
+    origin = right.origin;
+    bid    = right.bid;
+    for(int i=0; i<NumberOfChip ; i+=1) {
+      for(int j=0; j<NHitInTrackSelector; j+=1){
+        pt[i][j]     = right.pt[i][j];
+        pos[i][j]    = right.pos[i][j];
+        hitID[i][j]  = right.hitID[i][j];
+        dev[i][j]    = right.dev[i][j];
+        select[i][j] = right.select[i][j];
+      }
+    }
+  }
+  return *this;
+}
 TGCHighPtChipOut::~TGCHighPtChipOut()
 {
   origin=0;

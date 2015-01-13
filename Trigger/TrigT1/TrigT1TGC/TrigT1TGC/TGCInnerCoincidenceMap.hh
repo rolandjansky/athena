@@ -19,7 +19,7 @@ public:
   virtual ~TGCInnerCoincidenceMap();
 
   TGCInnerCoincidenceMap(const TGCInnerCoincidenceMap& right);
-  TGCInnerCoincidenceMap operator=(const TGCInnerCoincidenceMap& right);
+  TGCInnerCoincidenceMap& operator=(const TGCInnerCoincidenceMap& right);
 
   const TGCInnerTrackletSlot* getInnerTrackletMask(const int input, 
 						   const int ssc, 

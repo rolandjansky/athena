@@ -281,36 +281,66 @@ void TGCSectorLogic::showResult(TGCSLSelectorOut* out)
 
 
 TGCSectorLogic::TGCSectorLogic(const TGCSectorLogic& right): 
+     bid(right.id), id(right.id),
+     sectorId(right.sectorId), moduleId(right.moduleId),
+     sideId(right.sideId), octantId(right.octantId),
+     region(right.region),
+     NumberOfWireHighPtBoard(right.NumberOfWireHighPtBoard),
      SSCController(this), 
-     matrix(this) 
+     matrix(this),
+     mapInner(right.mapInner),
+     mapTileMu(right.mapTileMu), pTMDB(right.pTMDB),
+     preSelector(this), selector(this),
+     selectorOut(0),
+     wordTileMuon(0), wordInnerStation(0),
+     stripHighPtBoard(right.stripHighPtBoard), 
+     stripHighPtChipOut(0),
+     useInner(right.useInner), useTileMu(right.useTileMu) 
 {
-  int i;
-  id = right.id;
-  *selectorOut = *right.selectorOut;
-  *stripHighPtBoard = *right.stripHighPtBoard;
-  *stripHighPtChipOut = *right.stripHighPtChipOut;
-  NumberOfWireHighPtBoard = right.NumberOfWireHighPtBoard;
+  for(int i=0; i<MaxNumberOfWireHighPtBoard; i++){
+      wireHighPtBoard[i] = 0;
+      wireHighPtChipOut[i] = 0;
+  }
 
-  for( i = 0; i < SSCController.getNumberOfWireHighPtBoard(); i += 1) {
-      *wireHighPtBoard[i] = *right.wireHighPtBoard[i];
-      *wireHighPtChipOut[i] = *right.wireHighPtChipOut[i];
+  for( int i = 0; i < SSCController.getNumberOfWireHighPtBoard(); i += 1) {
+    wireHighPtBoard[i]   = right.wireHighPtBoard[i];
+    wireHighPtChipOut[i] = right.wireHighPtChipOut[i];
+  }
+
+  for (unsigned int iSlot=0; iSlot<TGCInnerTrackletSlotHolder::NUMBER_OF_SLOTS_PER_TRIGGER_SECTOR; iSlot++) {
+    m_innerTrackletSlots[iSlot] = right.m_innerTrackletSlots[iSlot];
   }
 }
 
-const TGCSectorLogic&
+TGCSectorLogic&
 TGCSectorLogic::operator=(const TGCSectorLogic& right)
 {
   if ( this != &right ) {
-    id = right.id; 
-    *selectorOut = *right.selectorOut;
-    *stripHighPtBoard = *right.stripHighPtBoard;
-    *stripHighPtChipOut = *right.stripHighPtChipOut;
-    NumberOfWireHighPtBoard = right.NumberOfWireHighPtBoard;
-
-    int i;
-    for( i = 0; i < SSCController.getNumberOfWireHighPtBoard(); i += 1) {
-	*wireHighPtBoard[i] = *right.wireHighPtBoard[i];
-	*wireHighPtChipOut[i] = *right.wireHighPtChipOut[i];
+    bid =right.id;
+    id  =right.id;
+    sectorId=right.sectorId;
+    moduleId=right.moduleId;
+    sideId=right.sideId;
+    octantId=right.octantId;
+    region=right.region;
+    NumberOfWireHighPtBoard=right.NumberOfWireHighPtBoard;
+    mapInner=right.mapInner;
+    mapTileMu=right.mapTileMu;
+    pTMDB=right.pTMDB;
+    delete selectorOut;
+    selectorOut=0;
+    wordTileMuon=0;
+    wordInnerStation=0;
+    stripHighPtBoard=right.stripHighPtBoard;  
+    stripHighPtChipOut=0;
+    useInner=right.useInner;
+    useTileMu=right.useTileMu;
+    for( int i = 0; i < SSCController.getNumberOfWireHighPtBoard(); i += 1) {
+      wireHighPtBoard[i]   = right.wireHighPtBoard[i];
+      wireHighPtChipOut[i] = right.wireHighPtChipOut[i];
+    }
+    for (unsigned int iSlot=0; iSlot<TGCInnerTrackletSlotHolder::NUMBER_OF_SLOTS_PER_TRIGGER_SECTOR; iSlot++) {
+      m_innerTrackletSlots[iSlot] = right.m_innerTrackletSlots[iSlot];
     }
   }
   return *this;
@@ -353,8 +383,11 @@ void TGCSectorLogic::doInnerCoincidence(int ssc,
   int pos = 4*coincidenceOut->getR() +  coincidenceOut->getPhi();
   // check if inner is used for the roi 
   if (validInner) validInner = (mapInner->getFlagROI(pos, ssc, sectorId) == 1);
+ 
   // check if TileMu is used for the roi 
   if (validTileMu) validTileMu = (mapTileMu->getFlagROI(pos, ssc, sectorId, sideId) == 1);
+  // not use InnerStation if TileMu is used
+  if (validTileMu) validInner = false;
 
   // Check hits of inner tracklet
   bool isHitInner = false;
@@ -409,14 +442,23 @@ void TGCSectorLogic::doInnerCoincidence(int ssc,
       int  hit6      = tm->GetHit6();
       int  hit56     = tm->GetHit56();
       if          (maskTM == TGCTileMuCoincidenceMap::TM_D6_L) {
-	isHitTileMu = (hit6==TGCTMDBOut::TM_LOW) || (hit6==TGCTMDBOut::TM_HIGH) ;
+	isHitTileMu = isHitTileMu || (hit6==TGCTMDBOut::TM_LOW) || (hit6==TGCTMDBOut::TM_HIGH) ;
       } else  if  (maskTM == TGCTileMuCoincidenceMap::TM_D6_H) {
-	isHitTileMu = (hit6==TGCTMDBOut::TM_HIGH) ;
+	isHitTileMu = isHitTileMu || (hit6==TGCTMDBOut::TM_HIGH) ;
       } else  if  (maskTM == TGCTileMuCoincidenceMap::TM_D56_L) {
-	isHitTileMu = (hit56==TGCTMDBOut::TM_LOW) || (hit56==TGCTMDBOut::TM_HIGH) ;
+	isHitTileMu = isHitTileMu || (hit56==TGCTMDBOut::TM_LOW) || (hit56==TGCTMDBOut::TM_HIGH) ;
       } else  if  (maskTM == TGCTileMuCoincidenceMap::TM_D56_H) {
-	isHitTileMu = (hit56==TGCTMDBOut::TM_HIGH) ;
+	isHitTileMu = isHitTileMu || (hit56==TGCTMDBOut::TM_HIGH) ;
       } 
+#ifdef TGCDEBUG
+     std::cout<<"SL id=" << id 
+	       <<" sector="<<sectorId
+	       <<" TMDB mod=" << mod 
+	       <<"  mask:"<< maskTM
+	       <<"  hit56:"<< hit56
+	       <<"  hit6:"<< hit6
+	       << std::endl;
+#endif
     }
 
     // wordTIleMuon
@@ -437,10 +479,19 @@ void TGCSectorLogic::doInnerCoincidence(int ssc,
   // NO Trigger
   coincidenceOut->setInnerVeto(true);
 
-  // decrease pt level by 1
+  // decrease pt level to the highest pt without InnerrCoin
   if (g_INNER_VETO) {
     coincidenceOut->clearHit(pt);
-    if (pt >2) coincidenceOut->setHit(pt-1);
+  
+    while (validInner && (pt>1) ) {
+      pt = pt-1;
+      validInner = (mapInner->getFlagPT(pt, ssc, sectorId) == 1);
+    }
+    while (useTileMu && validTileMu && (pt>1) ){
+      pt = pt-1;
+      validTileMu = (mapTileMu->getFlagPT(pt, ssc, sectorId, sideId) == 1) ;
+    }
+    coincidenceOut->setHit(pt);
   }
  
 }

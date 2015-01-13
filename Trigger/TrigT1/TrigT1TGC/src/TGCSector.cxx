@@ -158,6 +158,33 @@ TGCSector::TGCSector(int idIn, TGCRegionType type,
   }
 }
 
+//  copy constructor is hided 
+TGCSector::TGCSector( const TGCSector& )
+     : id(0), regionType(FORWARD), numberOfHit(0), 
+       sideId(0), octantId(0), moduleId(0), 
+       forwardBackward(ForwardSector), 
+       SL(0), TMDB(0)  
+{
+  for(unsigned int iPatchPanelType=0; iPatchPanelType<NumberOfPatchPanelType; iPatchPanelType++) {
+    ASDToPP[iPatchPanelType] = 0;
+    numberOfPP[iPatchPanelType] = 0;
+    PP[iPatchPanelType] = 0;
+  }
+  for(unsigned int iSlaveBoardType=0; iSlaveBoardType<NumberOfSlaveBoardType; iSlaveBoardType++) {
+    numberOfSB[iSlaveBoardType] = 0;
+    SB[iSlaveBoardType] = 0;
+  }
+  for(unsigned int iHighPtBoardType=0; iHighPtBoardType<NumberOfHighPtBoardType; iHighPtBoardType++) {
+    numberOfHPB[iHighPtBoardType] = 0;
+    HPB[iHighPtBoardType] = 0;
+  }
+}
+
+// assignment operator is hided 
+TGCSector& TGCSector::operator=( const TGCSector& )
+{
+   return *this;
+}
 void TGCSector::setModule(const TGCConnectionPPToSL* connection)
 {
   int jpp, jsb, jhp;

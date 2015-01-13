@@ -22,8 +22,8 @@ TGCSLPreSelector::TGCSLPreSelector(const TGCSLPreSelector& right)
 
 TGCSLPreSelector& TGCSLPreSelector::operator=(const TGCSLPreSelector& right)
 {
-  sectorLogic = right.sectorLogic;
   if(this!=&right){
+    sectorLogic = right.sectorLogic;
     init();
     for( int i=0; i<sectorLogic->getNumberOfSubSectorCluster(); i+=1){
       coincidenceOut[i] = new TGCRPhiCoincidenceOut();

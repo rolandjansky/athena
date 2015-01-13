@@ -18,6 +18,7 @@ public:
   TGCConnectionPPToSL();
   TGCConnectionPPToSL(const TGCConnectionPPToSL& );
   virtual ~TGCConnectionPPToSL(){};
+  TGCConnectionPPToSL& operator =(const TGCConnectionPPToSL& );
 
   bool  readData(TGCRegionType type);
   const TGCConnectionPPToSB* getPPToSB() const { return &PPToSB; };

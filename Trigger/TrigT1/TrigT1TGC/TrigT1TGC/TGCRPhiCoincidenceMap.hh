@@ -31,7 +31,7 @@ public:
 
   // copy and assignment operator
   TGCRPhiCoincidenceMap(const TGCRPhiCoincidenceMap& right);
-  TGCRPhiCoincidenceMap operator=(const TGCRPhiCoincidenceMap& right);
+  TGCRPhiCoincidenceMap& operator=(const TGCRPhiCoincidenceMap& right);
 
 private: // hide default constructor
   TGCRPhiCoincidenceMap();

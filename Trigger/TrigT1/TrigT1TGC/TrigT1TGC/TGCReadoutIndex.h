@@ -45,7 +45,7 @@ public:
     *this= right;
   }
  
-  const TGCReadoutIndex& operator=(const TGCReadoutIndex& right)
+  TGCReadoutIndex& operator=(const TGCReadoutIndex& right)
   {
     if (this != &right) {
       zDirection= right.zDirection;

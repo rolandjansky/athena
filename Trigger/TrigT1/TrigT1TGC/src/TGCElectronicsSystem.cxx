@@ -33,22 +33,37 @@ void TGCElectronicsSystem::distributeSignal(LVL1TGCTrigger::TGCEvent* event)
   
 }
 
+TGCElectronicsSystem::TGCElectronicsSystem()
+  :DB(0),
+   tmdb(0),
+   fAtlas(true)
+{
+  for(int side=0; side < NumberOfSide; side++){
+    for(int oct=0; oct < NumberOfOctant; oct++){
+      for(int mod=0; mod < NumberOfModule; mod++){
+        sector[side][oct][mod]=0;
+      } // loop module
+    } // loop octant
+  } //loop side
+
+
+}
+
 TGCElectronicsSystem::TGCElectronicsSystem(TGCDatabaseManager* database,
 					   bool                isAtlas):
   DB(database),
   tmdb(0),
   fAtlas(isAtlas)
-{
+{ 
   // TileMu
   tmdb = new TGCTMDB();
 
-  int side,oct,mod,SectorId;
+  int SectorId;
   LVL1TGCTrigger::TGCRegionType RegionType;
   LVL1TGCTrigger::TGCForwardBackwardType forwardBackward;
-  for(side=0; side < NumberOfSide; side++){
-    for(oct=0; oct < NumberOfOctant; oct++){
-      for(mod=0; mod < NumberOfModule; mod++){
-        sector[side][oct][mod]=0;
+  for(int side=0; side < NumberOfSide; side++){
+    for(int oct=0; oct < NumberOfOctant; oct++){
+      for(int mod=0; mod < NumberOfModule; mod++){
         SectorId   = getSectorId(side,oct,mod);
         RegionType = getRegionType(mod);
         forwardBackward = getForwardBackward(side,oct,mod);
@@ -59,8 +74,6 @@ TGCElectronicsSystem::TGCElectronicsSystem(TGCDatabaseManager* database,
       } // loop module
     } // loop octant
   } //loop side
-
-
 }
 
 LVL1TGCTrigger::TGCRegionType TGCElectronicsSystem::getRegionType(int mod) const
@@ -180,52 +193,22 @@ TGCElectronicsSystem::~TGCElectronicsSystem()
   if (tmdb) delete tmdb;
 }
 
-TGCElectronicsSystem::TGCElectronicsSystem(const TGCElectronicsSystem& right)
+// hiddedn copy constructor
+TGCElectronicsSystem::TGCElectronicsSystem(const TGCElectronicsSystem& )
+  : DB(0), tmdb(0), fAtlas(true)
 {
-  fAtlas = right.fAtlas;
-  if(DB!=0) delete DB;
-  DB = new TGCDatabaseManager;
-  *DB = *right.DB;
-
-  int i,j,k;
-  for( i=0; i<NumberOfSide; i+=1){
-    for( j=0; j<NumberOfOctant; j+=1) {
-      for( k=0; k<NumberOfModule; k+=1){
-        if(sector[i][j][k]!=0) delete sector[i][j][k];
+  for( int i=0; i<NumberOfSide; i+=1){
+    for( int j=0; j<NumberOfOctant; j+=1) {
+      for( int k=0; k<NumberOfModule; k+=1){
         sector[i][j][k]=0;
-        sector[i][j][k] = new TGCSector;
-        if(right.sector[i][j][k]!=0)  {
-	  *sector[i][j][k]=*right.sector[i][j][k];
-	}
       } // loop module
     } // loop octant
   } // loop side
-
-  tmdb = right.tmdb;
 }
 
-TGCElectronicsSystem& TGCElectronicsSystem::operator=(const TGCElectronicsSystem& right)
+//hidden assignement operator
+TGCElectronicsSystem& TGCElectronicsSystem::operator=(const TGCElectronicsSystem& )
 {
-  if(this!=&right){
-    if(DB!=0) delete DB;
-    DB = new TGCDatabaseManager;
-    *DB = *right.DB;
-
-    int i,j,k;
-    for( i=0; i<NumberOfSide; i+=1) {
-      for( j=0; j<NumberOfOctant; j+=1) {
-	for( k=0; k<NumberOfModule; k+=1){
-	  if(sector[i][j][k]!=0) delete sector[i][j][k];
-	  sector[i][j][k]=0;
-	  sector[i][j][k] = new TGCSector;
-	  if(right.sector[i][j][k]!=0){
-	    *sector[i][j][k]=*right.sector[i][j][k];
-	  }
-	} // loop module
-      } // loop octant
-    } // loop side
-    tmdb = right.tmdb;  
-  }  
   return *this;
 }
   

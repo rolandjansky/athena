@@ -19,7 +19,7 @@ public:
   virtual ~TGCTileMuCoincidenceMap();
 
   TGCTileMuCoincidenceMap(const TGCTileMuCoincidenceMap& right);
-  TGCTileMuCoincidenceMap operator=(const TGCTileMuCoincidenceMap& right);
+  TGCTileMuCoincidenceMap& operator=(const TGCTileMuCoincidenceMap& right);
 
   enum TileMuMask {
     TM_NA    =  0,

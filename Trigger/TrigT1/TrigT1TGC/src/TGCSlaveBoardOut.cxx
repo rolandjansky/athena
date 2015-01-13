@@ -34,6 +34,44 @@ TGCSlaveBoardOut::TGCSlaveBoardOut(const TGCSlaveBoard* sb, int bidIn)
   }
 }
 
+TGCSlaveBoardOut& TGCSlaveBoardOut::operator=(const TGCSlaveBoardOut& right)
+{
+  if (this != &right){
+    for(int i=0; i<MaxNumberOfSBData; i++) {
+      delete bpos[i];
+      bpos[i]=0;
+      dev[i] =0;
+      pos[i] =0;
+      hit[i] = false;
+    }
+    for(int i=0; i<2; i++) { // 2=TotalNumberOfOutputData[1]
+      delete bdev[i];
+      bdev[i]=0;
+    } 
+
+    origin = right.origin;
+    bid    = right.bid;
+    orgBoardType = right.orgBoardType;
+    orgSBid      = right.orgSBid;
+    numberOfData = right.numberOfData;
+ 
+    if (orgBoardType >=0) {
+      for(int i=0; i < TotalNumberOfOutputData[orgBoardType]; i++) {
+        bpos[i] = new TGCHitPattern(*(right.bpos[i]));
+        dev[i]  = right.dev[i];
+        pos[i]  = right.pos[i];
+        hit[i]  = right.hit[i];
+      }
+      if ((orgBoardType == SDSB) || (orgBoardType == WDSB)){
+        for(int i=0; i<TotalNumberOfOutputData[1]; i++) {
+          bdev[i] = new TGCHitPattern(*(right.bdev[i]));
+        }  
+      }
+    }
+  }
+  return *this;
+}
+
 TGCSlaveBoardOut::TGCSlaveBoardOut(const TGCSlaveBoardOut& right)
   :origin(right.origin), bid(right.bid), 
    orgBoardType(-1), orgSBid(-1),

@@ -20,8 +20,6 @@ public:
   TGCDoubletSB();
   virtual ~TGCDoubletSB();
 
-  //  TGCDoubletSB(const TGCDoubletSB& right);
-  //  const TGCDoubletSB& operator=(const TGCDoubletSB& right);
 protected:
   virtual void doCoincidence();
   virtual void createSlaveBoardOut();

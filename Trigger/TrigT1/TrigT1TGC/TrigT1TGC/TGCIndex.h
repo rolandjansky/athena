@@ -44,7 +44,7 @@ public:
     *this= right;
   }
  
-  const TGCIndex& operator=(const TGCIndex& right)
+  TGCIndex& operator=(const TGCIndex& right)
   {
     if (this != &right) {
       zDirection= right.zDirection;

@@ -28,6 +28,7 @@ public:
   virtual ~TGCRPhiCoincidenceMatrix();
 
   TGCRPhiCoincidenceMatrix(const TGCRPhiCoincidenceMatrix& right);
+  TGCRPhiCoincidenceMatrix& operator=(const TGCRPhiCoincidenceMatrix& right);
 
 private:
 

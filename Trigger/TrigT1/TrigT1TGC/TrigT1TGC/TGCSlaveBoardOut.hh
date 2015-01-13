@@ -25,6 +25,7 @@ public:
   TGCSlaveBoardOut(const TGCSlaveBoardOut &);
   TGCSlaveBoardOut();
   ~TGCSlaveBoardOut();
+  TGCSlaveBoardOut& operator=(const TGCSlaveBoardOut &);
 
   int getDev(int iData) const;
   int getPos(int iData) const;

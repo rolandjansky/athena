@@ -89,6 +89,7 @@ TGCTileMuCoincidenceMap::~TGCTileMuCoincidenceMap()
 }
 
 TGCTileMuCoincidenceMap::TGCTileMuCoincidenceMap(const TGCTileMuCoincidenceMap& right)
+  :m_verName(right.m_verName)
 {
   for (size_t side=0; side< N_Side; side++){
     for (size_t sec=0; sec< N_EndcapSector; sec++){
@@ -108,10 +109,9 @@ TGCTileMuCoincidenceMap::TGCTileMuCoincidenceMap(const TGCTileMuCoincidenceMap& 
       }
     }
   }
-  m_verName = right.m_verName;
 }
 
-TGCTileMuCoincidenceMap TGCTileMuCoincidenceMap::operator=(const TGCTileMuCoincidenceMap& right)
+TGCTileMuCoincidenceMap& TGCTileMuCoincidenceMap::operator=(const TGCTileMuCoincidenceMap& right)
 {
   if (this != &right) {
     for (size_t side=0; side< N_Side; side++){
