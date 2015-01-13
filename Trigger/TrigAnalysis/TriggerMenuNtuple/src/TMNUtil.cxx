@@ -32,7 +32,14 @@ std::vector<FeatureIndex> featureIndexVec(const std::vector<int>& i,
   return x;
 }
 
-TMNUtil::TMNUtil() : mMenuTree(0) {
+TMNUtil::TMNUtil() : 
+  mSourceType(kD3PD),
+  mMenuTree(0),
+  trig_DB_SMK(0),
+  mStrChain_Id(""),
+  mStrChain_RoIType(""),
+  mStrChain_RoIIndex("")
+{
   setChainBranchNames(kTriggerNtuple);
 }
 
@@ -391,16 +398,16 @@ void TMNUtil::reconstructChainEntryRoILinks(std::vector<ChainEntry>& chains,
 	status_br = mBranchData_vvi[(*pf)+"Status"];
 
 
-	if (feature_br==0 && status_br==0) {
-// 	  cout << "Feature index for RoI type=" << (*p)
-// 	       << " feature=" << (*pf) << " null" << endl;
-// 	  cout << "  index_vec=" << feature_br 
-// 	       << " status_vec=" << status_br << endl;
-	} else {
+	if ( feature_br && status_br) {
 	  //	  cout << "adding feature: " << (*pf) << endl;
 	  tmp_links.addIndexVec(feature_name, 
 				featureIndexVec( (*feature_br)[i], 
 						 (*status_br)[i]));
+	} else {
+	  // 	  cout << "Feature index for RoI type=" << (*p)
+	  // 	       << " feature=" << (*pf) << " null" << endl;
+	  // 	  cout << "  index_vec=" << feature_br 
+	  // 	       << " status_vec=" << status_br << endl;
 	}
       }
       //      cout << "tmp links: " << tmp_links << endl;
@@ -419,10 +426,10 @@ int TMNUtil::readBranches(std::vector<TBranch*>& chain_branches,
   TIter next(branches);
   TObject* obj;
   
-  while ( (obj = next())) {
+  while ( (obj = next()) ) {
     //   for (int i=0; i<branches->GetEntries(); ++i) {
 //     obj = (*branches)[i];
-    if (!obj) continue;
+    // if (!obj) continue;
     const char* obj_name=obj->GetName();
     TBranch* b = dynamic_cast<TBranch*>(obj);
 //     cout << "b = " << b << endl;
@@ -526,6 +533,9 @@ void TMNUtil::readNavigation(){
   reconstructChainEntryRoILinks(mChainEntry, mRoILinks, mSourceType);
 }
 
+unsigned int TMNUtil::getSMK() {
+  return trig_DB_SMK;
+}
 
 const std::vector<CombLinks> TMNUtil::getCombLinks(ChainEntry::RoIType roitype, std::string& ChainName){
   std::vector<CombLinks> Combs;

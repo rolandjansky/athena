@@ -73,6 +73,8 @@ public:
 
   void GetEntry(int ientry);
   void readNavigation();
+  unsigned int getSMK();
+
 
   const std::vector<CombLinks> getCombLinks(ChainEntry::RoIType roitype, std::string& ChainName);
 

@@ -13,7 +13,6 @@ use TrigCaloEvent      TrigCaloEvent-*      Trigger/TrigEvent
 use TrigInDetEvent     TrigInDetEvent-*     Trigger/TrigEvent
 use TrigParticle       TrigParticle-*       Trigger/TrigEvent
 
-macro_append ROOT_linkopts " -lCintex"
 
 # apply_pattern dual_use_library files=*.cxx
 apply_pattern installed_library
