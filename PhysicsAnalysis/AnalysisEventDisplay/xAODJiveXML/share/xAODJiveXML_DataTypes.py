@@ -5,6 +5,7 @@ include.block("xAODJiveXML/xAODJiveXML_DataTypes.py")
 if not "theEventData2XML" in dir():
     include ("JiveXML/JiveXML_jobOptionBase.py")
 
+theEventData2XML.DataTypes += ["JiveXML::xAODCaloClusterRetriever/xAODCaloClusterRetriever"]
 theEventData2XML.DataTypes += ["JiveXML::xAODElectronRetriever/xAODElectronRetriever"]
 theEventData2XML.DataTypes += ["JiveXML::xAODMissingETRetriever/xAODMissingETRetriever"]
 theEventData2XML.DataTypes += ["JiveXML::xAODMuonRetriever/xAODMuonRetriever"]
@@ -19,7 +20,7 @@ theEventData2XML.DataTypes += ["JiveXML::xAODVertexRetriever/xAODVertexRetriever
 from xAODJiveXML.xAODJiveXMLConf import JiveXML__xAODElectronRetriever
 thexAODElectronRetriever = JiveXML__xAODElectronRetriever (name = "xAODElectronRetriever")
 #thexAODElectronRetriever.StoreGateKey = "ElectronCollection"
-thexAODElectronRetriever.OutputLevel = DEBUG
+##thexAODElectronRetriever.OutputLevel = DEBUG
 ToolSvc += thexAODElectronRetriever
 
 from xAODJiveXML.xAODJiveXMLConf import JiveXML__xAODMissingETRetriever
@@ -27,20 +28,21 @@ thexAODMissingETRetriever = JiveXML__xAODMissingETRetriever (name = "xAODMissing
 #thexAODMissingETRetriever.StoreGateKey = "MET_RefFinal"
 thexAODMissingETRetriever.FavouriteMETCollection="MET_RefFinal"
 ## If this list is not set, all other collections will be retrieved
-thexAODMissingETRetriever.OtherMETCollections=["MET_Track","MET_LocHadTopo"]
-thexAODMissingETRetriever.OutputLevel = DEBUG
+##thexAODMissingETRetriever.OtherMETCollections=["MET_Track","MET_LocHadTopo"]
+thexAODMissingETRetriever.OtherMETCollections=[]
+##thexAODMissingETRetriever.OutputLevel = DEBUG
 ToolSvc += thexAODMissingETRetriever
 
 from xAODJiveXML.xAODJiveXMLConf import JiveXML__xAODMuonRetriever
 thexAODMuonRetriever = JiveXML__xAODMuonRetriever (name = "xAODMuonRetriever")
 #thexAODMuonRetriever.StoreGateKey = "Muons"
-thexAODMuonRetriever.OutputLevel = DEBUG
+##thexAODMuonRetriever.OutputLevel = DEBUG
 ToolSvc += thexAODMuonRetriever
 
 from xAODJiveXML.xAODJiveXMLConf import JiveXML__xAODPhotonRetriever
 thexAODPhotonRetriever = JiveXML__xAODPhotonRetriever (name = "xAODPhotonRetriever")
 #thexAODPhotonRetriever.StoreGateKey = "PhotonCollection"
-thexAODPhotonRetriever.OutputLevel = DEBUG
+##thexAODPhotonRetriever.OutputLevel = DEBUG
 ToolSvc += thexAODPhotonRetriever
 
 from xAODJiveXML.xAODJiveXMLConf import JiveXML__xAODJetRetriever
@@ -48,13 +50,13 @@ thexAODJetRetriever = JiveXML__xAODJetRetriever (name = "xAODJetRetriever")
 thexAODJetRetriever.FavouriteJetCollection="AntiKt4EMTopoJets"
 ## If this list is not set, all other collections will be retrieved
 thexAODJetRetriever.OtherJetCollections=["AntiKt4LCTopoJets", "CamKt12LCTopoJets", "Kt4EMTopoJets", "Kt4LCTopoJets", "AntiKt4TruthJets", "AntiKt10LCTopoJets"]
-thexAODJetRetriever.OutputLevel = DEBUG
+##thexAODJetRetriever.OutputLevel = DEBUG
 ToolSvc += thexAODJetRetriever
 
 from xAODJiveXML.xAODJiveXMLConf import JiveXML__xAODTauRetriever
 thexAODTauRetriever = JiveXML__xAODTauRetriever (name = "xAODTauRetriever")
 #thexAODTauRetriever.StoreGateKey = "TauRecContainer"
-thexAODTauRetriever.OutputLevel = DEBUG
+##thexAODTauRetriever.OutputLevel = DEBUG
 ToolSvc += thexAODTauRetriever
 
 from xAODJiveXML.xAODJiveXMLConf import JiveXML__xAODTrackParticleRetriever
@@ -63,13 +65,18 @@ thexAODTrackParticleRetriever.StoreGateKey = "InDetTrackParticles"
 #thexAODTrackParticleRetriever.OtherTrackCollections = ["StacoTrackParticles","MooreTrackParticles"]
 ## To retriever any track collection (incl muons):
 thexAODTrackParticleRetriever.OtherTrackCollections = []
-thexAODTrackParticleRetriever.OutputLevel = DEBUG
+##thexAODTrackParticleRetriever.OutputLevel = DEBUG
 ToolSvc += thexAODTrackParticleRetriever
 
 from xAODJiveXML.xAODJiveXMLConf import JiveXML__xAODVertexRetriever
 thexAODVertexRetriever = JiveXML__xAODVertexRetriever (name = "xAODVertexRetriever")
 #thexAODVertexRetriever.StoreGateKey = "PrimaryVertices"
-thexAODVertexRetriever.OutputLevel = DEBUG
+##thexAODVertexRetriever.OutputLevel = DEBUG
 ToolSvc += thexAODVertexRetriever
 
+from xAODJiveXML.xAODJiveXMLConf import JiveXML__xAODCaloClusterRetriever
+thexAODCaloClusterRetriever = JiveXML__xAODCaloClusterRetriever (name = "xAODCaloClusterRetriever")
+#thexAODCaloClusterRetriever.StoreGateKey = "egClusterCollection"
+##thexAODCaloClusterRetriever.OutputLevel = DEBUG
+ToolSvc += thexAODCaloClusterRetriever
 

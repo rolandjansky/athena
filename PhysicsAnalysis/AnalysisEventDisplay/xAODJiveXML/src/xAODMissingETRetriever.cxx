@@ -28,7 +28,7 @@ namespace JiveXML {
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
 
-    m_sgKey = "MET_RefFinal"; // is xAOD name
+    m_sgKey = "MET_Reference_AntiKt4EMTopo"; // New xAOD SG key in rel.20
     declareProperty("StoreGateKey", m_sgKey, // backwards compatibility only !
         "Collection to be first in output, shown in Atlantis without switching");
     declareProperty("FavouriteMETCollection" ,m_sgKeyFavourite = "MET_RefFinal" ,

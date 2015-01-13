@@ -30,9 +30,11 @@ namespace JiveXML {
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
 
-    m_sgKey = "ElectronCollection"; // is xAOD name
+    m_sgKey = "Electrons"; // is xAOD name
     declareProperty("StoreGateKey", m_sgKey, 
         "Collection to be first in output, shown in Atlantis without switching");
+    declareProperty("OtherCollections" ,m_otherKeys,
+        "Other collections to be retrieved. If list left empty, all available retrieved");
   }
   
   /**
@@ -60,6 +62,42 @@ namespace JiveXML {
       }
     }
  
+    if ( m_otherKeys.empty() ) {
+      //obtain all other collections from StoreGate
+      if (( evtStore()->retrieve(iterator, end)).isFailure()){
+         if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << 
+	 "Unable to retrieve iterator for xAOD Electron collection" << endreq;
+//        return false;
+      }
+    
+      for (; iterator!=end; iterator++) {
+	  if (iterator.key()!=m_sgKey) {
+             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve all. Current collection: " << dataTypeName() << " (" << iterator.key() << ")" << endreq;
+             DataMap data = getData(iterator);
+             if ( FormatTool->AddToEvent(dataTypeName(), iterator.key()+"_xAOD", &data).isFailure()){
+	       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << iterator.key() << " not found in SG " << endreq;
+	    }else{
+	      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << iterator.key() << ") xAOD Electron retrieved" << endreq;
+	    }
+          }
+      }
+    }else {
+      //obtain all collections with the given keys
+      std::vector<std::string>::const_iterator keyIter,endIter;
+      for ( keyIter=m_otherKeys.begin(); keyIter!=m_otherKeys.end(); ++keyIter ){
+	StatusCode sc = evtStore()->retrieve( electrons, (*keyIter) );
+	if (!sc.isFailure()) {
+          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve selected " << dataTypeName() << " (" << (*keyIter) << ")" << endreq;
+          DataMap data = getData(electrons);
+          if ( FormatTool->AddToEvent(dataTypeName(), (*keyIter), &data).isFailure()){
+	    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << (*keyIter) << " not found in SG " << endreq;
+	  }else{
+	     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << (*keyIter) << ") retrieved" << endreq;
+	  }
+	}
+      }
+    }
+
     //All collections retrieved okay
     return StatusCode::SUCCESS;
   }
@@ -96,37 +134,45 @@ namespace JiveXML {
     std::string electronAuthor = "";
     std::string electronIsEMString = "none";
     std::string electronLabel = "";
+      phi.push_back(DataType((*elItr)->phi()));
+      eta.push_back(DataType((*elItr)->eta()));
+      pt.push_back(DataType((*elItr)->pt()/CLHEP::GeV));
+      mass.push_back(DataType((*elItr)->m()/CLHEP::GeV));
+      energy.push_back( DataType((*elItr)->e()/CLHEP::GeV ) );
+
+      if ((*elItr)->trackParticle()){ // ForwardElectrons have no track !
+         pdgId.push_back(DataType( -11.*(*elItr)->trackParticle()->charge() )); // pdgId not available anymore in xAOD
+      }else{
+         pdgId.push_back(DataType( 0. ) );
+      }
+
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "CHECKPOINT 1" << endreq;
+
 
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << "  Electron #" << counter++ << " : eta = "  << (*elItr)->eta() << ", phi = " 
           << (*elItr)->phi() 
 	// << ", ntrk = " << (*elItr)->getNumberOfTrackParticles() 
           << ", author = " << (*elItr)->author() 
+//////// those don't work for ForwardElectrons !
 //	  << ", isEM/Tight: " << (*elItr)->passSelection(passesTight, "Tight")
-		      << ", charge = " << (*elItr)->trackParticle()->charge() 
-		      << ", pdgId = " << -11.*(*elItr)->trackParticle()->charge()
+//		      << ", charge = " << (*elItr)->trackParticle()->charge() 
+//		      << ", pdgId = " << -11.*(*elItr)->trackParticle()->charge()
           << endreq;
     }
 
-      phi.push_back(DataType((*elItr)->phi()));
-      eta.push_back(DataType((*elItr)->eta()));
-      pt.push_back(DataType((*elItr)->pt()/CLHEP::GeV));
-
-      mass.push_back(DataType((*elItr)->m()/CLHEP::GeV));
-      energy.push_back( DataType((*elItr)->e()/CLHEP::GeV ) );
-      pdgId.push_back(DataType( -11.*(*elItr)->trackParticle()->charge() )); // pdgId not available anymore in xAOD
 
       bool passesTight(false);
       bool passesMedium(false);
       bool passesLoose(false);
       const bool tightSelectionExists = (*elItr)->passSelection(passesTight, "Tight");
-       msg(MSG::DEBUG) << "tight exists " << tightSelectionExists 
+       msg(MSG::VERBOSE) << "tight exists " << tightSelectionExists 
 	 << " and passes? " << passesTight << endreq;
       const bool mediumSelectionExists = (*elItr)->passSelection(passesMedium, "Medium");
-       msg(MSG::DEBUG) << "medium exists " << mediumSelectionExists 
+       msg(MSG::VERBOSE) << "medium exists " << mediumSelectionExists 
 	 << " and passes? " << passesMedium << endreq;
       const bool looseSelectionExists = (*elItr)->passSelection(passesLoose, "Loose");
-       msg(MSG::DEBUG) << "loose exists " << looseSelectionExists 
+       msg(MSG::VERBOSE) << "loose exists " << looseSelectionExists 
 	<< " and passes? " << passesLoose << endreq;
 
       electronAuthor = "author"+DataType( (*elItr)->author() ).toString(); // for odd ones eg FWD

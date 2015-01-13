@@ -30,9 +30,12 @@ namespace JiveXML {
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
 
-    m_sgKey = "PhotonCollection"; // is xAOD name
+    m_sgKey = "Photons"; // is xAOD name
     declareProperty("StoreGateKey", m_sgKey, 
         "Collection to be first in output, shown in Atlantis without switching");
+    declareProperty("OtherCollections" ,m_otherKeys,
+        "Other collections to be retrieved. If list left empty, all available retrieved");
+    declareProperty("DoWriteHLT"              , m_doWriteHLT = false, "Wether to write HLTAutoKey objects");
   }
   
   /**
@@ -44,15 +47,15 @@ namespace JiveXML {
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endreq;
     
     const DataHandle<xAOD::PhotonContainer> iterator, end;
-    const xAOD::PhotonContainer* Photons;
+    const xAOD::PhotonContainer* photons;
     
     //obtain the default collection first
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << m_sgKey << ")" << endreq;
-    StatusCode sc = evtStore()->retrieve(Photons, m_sgKey);
+    StatusCode sc = evtStore()->retrieve(photons, m_sgKey);
     if (sc.isFailure() ) {
       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endreq; 
     }else{
-      DataMap data = getData(Photons);
+      DataMap data = getData(photons);
       if ( FormatTool->AddToEvent(dataTypeName(), m_sgKey+"_xAOD", &data).isFailure()){ //suffix can be removed later
 	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endreq;
       }else{
@@ -60,6 +63,45 @@ namespace JiveXML {
       }
     }
  
+    if ( m_otherKeys.empty() ) {
+      //obtain all other collections from StoreGate
+      if (( evtStore()->retrieve(iterator, end)).isFailure()){
+         if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << 
+	 "Unable to retrieve iterator for xAOD Muon collection" << endreq;
+//        return false;
+      }
+      
+      for (; iterator!=end; iterator++) {
+	  if (iterator.key()!=m_sgKey) {
+       	     if ((iterator.key().find("HLT",0) != std::string::npos) && (!m_doWriteHLT)){
+	          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ignoring HLT-AutoKey collection " << iterator.key() << endreq;
+	         continue;  }
+             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve all. Current collection: " << dataTypeName() << " (" << iterator.key() << ")" << endreq;
+             DataMap data = getData(iterator);
+             if ( FormatTool->AddToEvent(dataTypeName(), iterator.key()+"_xAOD", &data).isFailure()){
+	       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << iterator.key() << " not found in SG " << endreq;
+	    }else{
+	      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << iterator.key() << ") xAOD Photon retrieved" << endreq;
+	    }
+          }
+      }
+    }else {
+      //obtain all collections with the given keys
+      std::vector<std::string>::const_iterator keyIter,endIter;
+      for ( keyIter=m_otherKeys.begin(); keyIter!=m_otherKeys.end(); ++keyIter ){
+	StatusCode sc = evtStore()->retrieve( photons, (*keyIter) );
+	if (!sc.isFailure()) {
+          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve selected " << dataTypeName() << " (" << (*keyIter) << ")" << endreq;
+          DataMap data = getData(photons);
+          if ( FormatTool->AddToEvent(dataTypeName(), (*keyIter), &data).isFailure()){
+	    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << (*keyIter) << " not found in SG " << endreq;
+	  }else{
+	     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << (*keyIter) << ") retrieved" << endreq;
+	  }
+	}
+      }
+    }
+
     //All collections retrieved okay
     return StatusCode::SUCCESS;
   }
@@ -109,13 +151,13 @@ namespace JiveXML {
       bool passesMedium(false);
       bool passesLoose(false);
       const bool tightSelectionExists = (*phItr)->passSelection(passesTight, "Tight");
-       msg(MSG::DEBUG) << "tight exists " << tightSelectionExists 
+       msg(MSG::VERBOSE) << "tight exists " << tightSelectionExists 
 	 << " and passes? " << passesTight << endreq;
       const bool mediumSelectionExists = (*phItr)->passSelection(passesMedium, "Medium");
-       msg(MSG::DEBUG) << "medium exists " << mediumSelectionExists 
+       msg(MSG::VERBOSE) << "medium exists " << mediumSelectionExists 
 	 << " and passes? " << passesMedium << endreq;
       const bool looseSelectionExists = (*phItr)->passSelection(passesLoose, "Loose");
-       msg(MSG::DEBUG) << "loose exists " << looseSelectionExists 
+       msg(MSG::VERBOSE) << "loose exists " << looseSelectionExists 
 	<< " and passes? " << passesLoose << endreq;
 
       photonAuthor = "author"+DataType( (*phItr)->author() ).toString(); // for odd ones eg FWD

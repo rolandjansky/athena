@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef JIVEXML_xAODMISSINGETRETRIEVER_H
-#define JIVEXML_xAODMiSSINGETRETRIEVER_H
+#ifndef XAODJIVEXML_xAODMISSINGETRETRIEVER_H
+#define XAODJIVEXML_xAODMISSINGETRETRIEVER_H
 
 #include <string>
 #include <vector>
@@ -53,4 +53,4 @@ namespace JiveXML{
       std::vector<std::string> m_otherKeys;
   };
 }
-#endif
+#endif // not XAODJIVEXML_xAODMISSINGETRETRIEVER_H

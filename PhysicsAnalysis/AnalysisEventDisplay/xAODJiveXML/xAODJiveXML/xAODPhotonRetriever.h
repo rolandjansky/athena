@@ -49,6 +49,9 @@ namespace JiveXML{
       const std::string typeName;
 
       std::string m_sgKey;
+      std::vector<std::string> m_otherKeys;
+      /// Whether to write HLTAutoKey objects
+      bool m_doWriteHLT;
   };
 }
 #endif

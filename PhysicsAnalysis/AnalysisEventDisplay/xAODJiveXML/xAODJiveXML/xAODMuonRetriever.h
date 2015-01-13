@@ -49,6 +49,7 @@ namespace JiveXML{
       const std::string typeName;
 
       std::string m_sgKey;
+      std::vector<std::string> m_otherKeys;
   };
 }
 #endif

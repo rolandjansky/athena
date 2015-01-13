@@ -7,6 +7,7 @@
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "xAODTracking/TrackParticleContainer.h" 
+//#include "TrkTrackSummary/TrackSummary.h"
 
 namespace JiveXML {
 
@@ -34,6 +35,7 @@ namespace JiveXML {
     declareProperty("PriorityTrackCollection", m_sgKey = "TrackParticleCandidate", 
         "Track collections to retrieve first, shown as default in Atlantis");
     declareProperty("OtherTrackCollections"   , m_otherKeys , "Track collections to retrieve, all if empty");
+    declareProperty("DoWriteHLT"              , m_doWriteHLT = false, "Wether to write HLTAutoKey objects");
   }
   
   /**
@@ -70,8 +72,12 @@ namespace JiveXML {
       
       for (; iterator!=end; iterator++) {
 	  if (iterator.key()!=m_sgKey) {
-             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve all " << dataTypeName() << " (" << iterator.key() << ")" << endreq;
+       	     if ((iterator.key().find("HLT",0) != std::string::npos) && (!m_doWriteHLT)){
+	          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ignoring HLT-AutoKey collection " << iterator.key() << endreq;
+	         continue;  }
+             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve all. Current collection: " << dataTypeName() << " (" << iterator.key() << ")" << endreq;
              DataMap data = getData(iterator);
+	     //Check if this is an HLT-AutoKey collection
              if ( FormatTool->AddToEvent(dataTypeName(), iterator.key()+"_xAOD", &data).isFailure()){
 	       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << iterator.key() << " not found in SG " << endreq;
 	    }else{
@@ -116,6 +122,11 @@ namespace JiveXML {
     DataVect pt; pt.reserve(TrackParticleCont->size());
     DataVect phi0; phi0.reserve(TrackParticleCont->size());
     DataVect cotTheta; cotTheta.reserve(TrackParticleCont->size());
+    DataVect label; label.reserve(TrackParticleCont->size());
+    DataVect nBLayerHits; nBLayerHits.reserve(TrackParticleCont->size());
+    DataVect nPixHits; nPixHits.reserve(TrackParticleCont->size());
+    DataVect nSCTHits; nSCTHits.reserve(TrackParticleCont->size());
+    DataVect nTRTHits; nTRTHits.reserve(TrackParticleCont->size());
 
     xAOD::TrackParticleContainer::const_iterator TrackParticleItr  = TrackParticleCont->begin();
     xAOD::TrackParticleContainer::const_iterator TrackParticleItrE = TrackParticleCont->end();
@@ -123,11 +134,13 @@ namespace JiveXML {
     int counter = 0;
     float charge = 0.;
     float myQOverP = 0.;
+    double countHits = 0.;
+    std::string labelStr = "unknownHits";
 
     for (; TrackParticleItr != TrackParticleItrE; ++TrackParticleItr) {
 
-    if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << "  TrackParticle #" << counter++ << " : d0 = "  << (*TrackParticleItr)->d0() << ", z0 = " 
+    if (msgLvl(MSG::VERBOSE)) {
+      msg(MSG::VERBOSE) << " TrackParticle #" << counter++ << " : d0 = "  << (*TrackParticleItr)->d0() << ", z0 = " 
           << (*TrackParticleItr)->z0() << ", pt[GeV] = "  << (*TrackParticleItr)->pt()/CLHEP::GeV  
           << ", phi = "  << (*TrackParticleItr)->phi() 
           << ", qOverP = "  << (*TrackParticleItr)->qOverP() 
@@ -135,6 +148,50 @@ namespace JiveXML {
 	  << endreq;
     }
 
+    // Event/xAOD/xAODTrackingCnv/trunk/src/TrackParticleCnvAlg.cxx#L190 Info from Nick Styles
+
+    uint8_t m_numberOfBLayerHits=0;
+    uint8_t numberOfBLayerHits=0;
+    if ( (*TrackParticleItr)->summaryValue(numberOfBLayerHits,xAOD::numberOfBLayerHits) ){
+      m_numberOfBLayerHits += numberOfBLayerHits;
+    }
+    uint8_t numberOfPixelHits = 0;
+    uint8_t m_numberOfPixelHits = 0;
+    if ( (*TrackParticleItr)->summaryValue(numberOfPixelHits,xAOD::numberOfPixelHits)){
+      m_numberOfPixelHits += numberOfPixelHits;
+    }
+    uint8_t numberOfTRTHits = 0;
+    uint8_t m_numberOfTRTHits = 0;
+    if ( (*TrackParticleItr)->summaryValue(numberOfTRTHits,xAOD::numberOfTRTHits)){
+      m_numberOfTRTHits += numberOfTRTHits;     
+    }
+    uint8_t numberOfSCTHits = 0;                                                       
+    uint8_t m_numberOfSCTHits = 0;
+    if ( (*TrackParticleItr)->summaryValue(numberOfSCTHits,xAOD::numberOfSCTHits)){ 
+      m_numberOfSCTHits += numberOfSCTHits;       
+    }
+    labelStr = "_PixelHits"+DataType( (double)m_numberOfPixelHits ).toString() 
+         + "_SCTHits"+DataType( (double)m_numberOfSCTHits ).toString() 
+         + "_BLayerHits"+DataType( (double)m_numberOfBLayerHits ).toString() 
+         + "_TRTHits"+DataType( (double)m_numberOfTRTHits ).toString() ;
+ 
+    countHits = (double)m_numberOfBLayerHits + (double)m_numberOfPixelHits
+      + (double)m_numberOfSCTHits + (double)m_numberOfTRTHits;
+
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " TrackParticle #" << counter 
+         << " BLayer hits: " << (double)m_numberOfBLayerHits
+         << ", Pixel hits: " << (double)m_numberOfPixelHits
+         << ", SCT hits: " << (double)m_numberOfSCTHits
+	 << ", TRT hits: " << (double)m_numberOfTRTHits 
+         << ", Total hits: " << countHits
+         << ";  Label: " << labelStr << endreq;
+
+      nBLayerHits.push_back( DataType( (double)m_numberOfBLayerHits ));
+      nPixHits.push_back( DataType( (double)m_numberOfPixelHits ));
+      nSCTHits.push_back( DataType( (double)m_numberOfSCTHits ));
+      nTRTHits.push_back( DataType( (double)m_numberOfTRTHits ));
+
+      label.push_back( DataType( labelStr ).toString() );
       d0.push_back(DataType((*TrackParticleItr)->d0()/CLHEP::cm));
       z0.push_back(DataType((*TrackParticleItr)->z0()/CLHEP::cm));
       phi0.push_back(DataType((*TrackParticleItr)->phi()));
@@ -161,6 +218,11 @@ namespace JiveXML {
     m_DataMap["pt"] = pt;
     m_DataMap["phi0"] = phi0;
     m_DataMap["cotTheta"] = cotTheta;
+    m_DataMap["label"] = label;
+    m_DataMap["nBLayerHits"] = nBLayerHits;
+    m_DataMap["nPixHits"] = nPixHits;
+    m_DataMap["nSCTHits"] = nSCTHits;
+    m_DataMap["nTRTHits"] = nTRTHits;
 
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << d0.size() << " entries"<< endreq;

@@ -54,7 +54,7 @@ namespace JiveXML{
       std::string m_sgKey;
       /// Track collections to retrieve in the sequence they are given, all if empty
       std::vector<std::string> m_otherKeys;
-      /// Wether to write HLTAutoKey objects
+      /// Whether to write HLTAutoKey objects
       bool m_doWriteHLT;
       //@}
   };

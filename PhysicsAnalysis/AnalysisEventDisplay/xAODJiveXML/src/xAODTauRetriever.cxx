@@ -33,7 +33,7 @@ namespace JiveXML {
     declareInterface<IDataRetriever>(this);
 
     //In xAOD: AntiKt6TopoEMTaus, AntiKt6LCTopoTaus,  AntiKt4TopoEMTaus, AntiKt4LCTopoTaus
-    m_sgKey = "TauRecContainer"; // 
+    m_sgKey = "TauJets"; // 
     declareProperty("StoreGateKey", m_sgKey, 
         "Collection to be first in output, shown in Atlantis without switching");
     declareProperty ( "TracksName",  m_tracksName = "InDetTrackParticles_xAOD" );

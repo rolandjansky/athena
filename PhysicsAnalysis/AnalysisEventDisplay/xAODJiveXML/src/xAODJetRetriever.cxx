@@ -9,7 +9,7 @@
 #include "xAODJet/JetContainer.h" 
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODTracking/TrackParticle.h"
-//#include "xAODBTagging/BTagging.h"
+#include "xAODBTagging/BTagging.h"
 
 namespace JiveXML {
 
@@ -145,6 +145,9 @@ namespace JiveXML {
     xAOD::JetContainer::const_iterator jetItrE = jetCont->end();
 
     int counter = 0;
+    double btag1 = 0.;
+    double btag2 = 0.;
+    double btag3 = 0.;
 
     for (; jetItr != jetItrE; ++jetItr) {
 
@@ -154,42 +157,14 @@ namespace JiveXML {
           << ", pt = " << (*jetItr)->pt() << endreq;
     }
 
-  // talks by J.Erdmann Mar14, also:
-  //egroups find: PhysicsAnalysis/JetTagging/JetTagTools
-
-    double emfrac_btag = -1111;
-    // taken out for 19.0.X., though does compile in 19.X.0, no output though. jpt 13May14
-    /*
-    	const xAOD::BTagging * myBTag = (*jetItr)->getBTagging();
-        double val = -1111.;
-        /// BTagging access not reliable, and anyway never non-zero
-        /// removed for 19.0.1   jpt 3Apr14
-
-	if (myBTag){ 
-	  // val = myBTag->sv0_significance3D(); 
-	  // emfrac_btag = myBTag->SV0_efracsvx(); // not the right access to emfrac
-	  if (msgLvl(MSG::DEBUG)) {
-             msg(MSG::DEBUG) << " BTag exists for jet " << counter << endreq;
-          }
-	}
-    */
-        /// second options from talk:
-	//double val;
-	//if (!myBTag->variable<double>("SV0","significance3D", val)) val=-2222.;
-    /*
-    if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << "  Jet #" << counter << " : btagvalSV0 = "  << val << endreq; 
-    }
-    */
-
     for( size_t j = 0; j < ( *jetItr )->numConstituents(); ++j ) {
         const xAOD::CaloCluster* cluster =
             dynamic_cast< const xAOD::CaloCluster* >(
                   ( *jetItr )->rawConstituent( j ) );
         if( ! cluster ) {
-               if (msgLvl(MSG::DEBUG)) { msg(MSG::DEBUG) << "  Associated cluster: n/a" << endreq; }
+               if (msgLvl(MSG::VERBOSE)) { msg(MSG::VERBOSE) << "  Associated cluster: n/a" << endreq; }
         } else {
-               if (msgLvl(MSG::DEBUG)) { msg(MSG::DEBUG) << "  Associated cluster: eta = "
+               if (msgLvl(MSG::VERBOSE)) { msg(MSG::VERBOSE) << "  Associated cluster: eta = "
                                 << cluster->eta() << ", phi = "
                                 << cluster->phi() << endreq; }
         }
@@ -209,6 +184,7 @@ namespace JiveXML {
         }
     }
 */   
+
       phi.push_back(DataType((*jetItr)->phi()));
       eta.push_back(DataType((*jetItr)->eta()));
       et.push_back(DataType((*jetItr)->pt()/CLHEP::GeV)); // hack ! no et in xAOD_Jet_v1 currently
@@ -221,16 +197,46 @@ namespace JiveXML {
       py.push_back(DataType((*jetItr)->py()/CLHEP::GeV));
       pz.push_back(DataType((*jetItr)->pz()/CLHEP::GeV));
 
-      bTagName.push_back(DataType( "default" )); 
-      //bTagValue.push_back(DataType((*jetItr)->flavourTagWeight() ));
-      bTagValue.push_back(DataType( 0. ));
-      //charge.push_back( DataType( 0. )); // charge not directly accessible. placeholder.
+   // bjet tagger values
+	const xAOD::BTagging *bTagJet = (*jetItr)->btagging();
+
+	bTagName.push_back( DataType( "default" ));
+	btag1 = (bTagJet) ? bTagJet->IP3D_loglikelihoodratio() : 0;
+	bTagValue.push_back( btag1 );
+	bTagName.push_back( DataType( "IP3D" ));
+	bTagValue.push_back( btag1 );
+	bTagName.push_back( DataType( "MV1" ));
+	btag2 = (bTagJet) ? bTagJet->MV1_discriminant() : 0;
+	bTagValue.push_back( btag2 );
+	bTagName.push_back( DataType( "SV1" ));
+	btag3 = (bTagJet) ? bTagJet->SV1_loglikelihoodratio() : 0;
+	bTagValue.push_back( btag3 );
+
+   if (msgLvl(MSG::VERBOSE)) { msg(MSG::VERBOSE) << " Jet #" << counter << "; BTagging: MV1: "
+      << btag1 << ", IP3D: " << btag2 << ", SV1: " << btag3 << endreq; }
+
+// from AnalysisJiveXML:
+//   bTagName.push_back( DataType( "JetFitterTagNN" ));
+//   bTagValue.push_back( DataType( (*itr)->getFlavourTagWeight("JetFitterTagNN") ));
+//
+// code from PaulT, 16Oct14
+/*
+    const xAOD::BTagging *btag = (*jetItr)->btagging();
+    std::cout << "btag " << btag << std::endl;
+    double mv1 = (btag) ? btag->MV1_discriminant() : 0;
+    std::cout <<"mv1 "<< mv1 << std::endl;
+    double ip3d = (btag) ? btag->IP3D_loglikelihoodratio() : 0;
+    std::cout <<"ip3d "<< ip3d << std::endl;
+    double sv1 = (btag) ? btag->SV1_loglikelihoodratio() : 0;
+    std::cout <<"sv1 "<< sv1 << std::endl;
+*/
+      //charge.push_back( DataType( (*jetItr)->charge() )); // charge not directly accessible. placeholder.
 
       jvf.push_back( DataType( 1. ));
       isGood.push_back( DataType( -1111. ));
       isBad.push_back( DataType( -1111. ));
       isUgly.push_back( DataType( -1111. ));
-      emfrac.push_back( DataType( emfrac_btag )); // SV1_efracsvx, SV0_efracsvx
+      emfrac.push_back( DataType( 0. )); // placeholder 
 
     } // end JetIterator 
 
@@ -240,8 +246,8 @@ namespace JiveXML {
     m_DataMap["et"] = et;
     m_DataMap["energy"] = energy;
     m_DataMap["mass"] = mass;
-    m_DataMap["bTagName"] = bTagName;
-    m_DataMap["bTagValue"] = bTagValue;
+    m_DataMap["bTagName multiple=\"4\""] = bTagName; // assigned by hand !
+    m_DataMap["bTagValue multiple=\"4\""] = bTagValue;
 //    m_DataMap["charge"] = charge;
     m_DataMap["id"] = idVec;
     m_DataMap["px"] = px;
