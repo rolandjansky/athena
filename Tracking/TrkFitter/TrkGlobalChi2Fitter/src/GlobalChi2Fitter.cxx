@@ -782,7 +782,7 @@ Track *GlobalChi2Fitter::mainCombinationStrategy(const Track&             intrk1
   }
 
   TransportJacobian *jac1=0,*jac2=0;
-  const TrackParameters *elosspar=0;
+  std::unique_ptr<const TrackParameters> elosspar;
   double firstscatphi=0,secondscatphi=0,firstscattheta=0,secondscattheta=0,muonscatphi=0,muonscattheta=0;
   const TrackParameters *idscatpar= !firstismuon ? firstscatpar : lastscatpar;
   const TrackParameters *muonscatpar= firstismuon ? firstscatpar : lastscatpar;
@@ -812,7 +812,6 @@ Track *GlobalChi2Fitter::mainCombinationStrategy(const Track&             intrk1
       delete tp_closestmuon;
       delete firstscatpar;
       delete lastscatpar;
-      delete elosspar;
       return 0;
     }
     const TrackParameters *tmppar1=muonscatpar->associatedSurface().createTrackParameters(params1[0],params1[1],params1[2],params1[3],params1[4],0);
@@ -829,15 +828,19 @@ Track *GlobalChi2Fitter::mainCombinationStrategy(const Track&             intrk1
       delete tp_closestmuon;
       delete firstscatpar;
       delete lastscatpar;
-      if (tmpelosspar!=elosspar) delete tmpelosspar;
-      delete elosspar;
+      if (tmpelosspar!=elosspar.get()) delete tmpelosspar;
+      // @TODO
+      // according to coverity elosspar cannot be non NULL here
+      // because elosspar is initially NULL and only set in the last loop iteration  (i==1)
+      // is this intended ? 
+      //delete elosspar;
       return 0;
     }
 
     const AmgVector(5)& newpars=tmpelosspar->parameters();
     //newpars[Trk::qOverP]= tp_closestmuon->parameters()[Trk::qOverP];
     const TrackParameters *elosspar2=tmpelosspar->associatedSurface().createTrackParameters(newpars[0],newpars[1],newpars[2],newpars[3],newqoverpid,0);
-    if (i==1) elosspar=tmpelosspar;
+    if (i==1) elosspar.reset(tmpelosspar);
 
     else delete tmpelosspar;
     const TrackParameters *scat2=m_propagator->propagateParameters(*elosspar2,!firstismuon ? calomeots[0].associatedSurface() : calomeots[2].associatedSurface(),propdir,false,*m_fieldprop,jac2,Trk::nonInteracting);
@@ -853,7 +856,6 @@ Track *GlobalChi2Fitter::mainCombinationStrategy(const Track&             intrk1
       delete tp_closestmuon;
       delete firstscatpar;
       delete lastscatpar;
-      delete elosspar;
       return 0;
     }
     double jac3[5][5];
@@ -928,7 +930,6 @@ Track *GlobalChi2Fitter::mainCombinationStrategy(const Track&             intrk1
         delete tp_closestmuon;
         delete firstscatpar;
         delete lastscatpar;
-        delete elosspar;
         return 0;
       }
 
@@ -991,7 +992,7 @@ Track *GlobalChi2Fitter::mainCombinationStrategy(const Track&             intrk1
 
   }
   trajectory.addMaterialState(new GXFTrackState(firstscatmeff,firstscatpar),-1,true);
-  trajectory.addMaterialState(new GXFTrackState(elossmeff,elosspar),-1,true);
+  trajectory.addMaterialState(new GXFTrackState(elossmeff,elosspar.release()),-1,true);
   trajectory.addMaterialState(new GXFTrackState(secondscatmeff,lastscatpar),-1,true);
 
   if (!firstismuon){
@@ -1105,18 +1106,20 @@ Track *GlobalChi2Fitter::backupCombinationStrategy(const Track&             intr
   //const TrackParameters *lastidpar=indettrack->trackParameters()->back();
   const TrackParameters *lastidpar=m_extrapolator->extrapolateToVolume(*firstidpar,*m_caloEntrance,alongMomentum,Trk::muon);
   if (!lastidpar) lastidpar=indettrack->trackParameters()->back()->clone();
-  const TrackParameters *firstscatpar=0,*lastscatpar=0,*elosspar=0;
+  std::unique_ptr<const TrackParameters> firstscatpar;
+  std::unique_ptr<const TrackParameters> lastscatpar;
+  std::unique_ptr<const TrackParameters> elosspar;
+  
   double charge = (lastidpar->parameters()[Trk::qOverP]<0) ? -1 : 1;
 
   Perigee startper(lastidpar->position(),lastidpar->momentum(),charge,lastidpar->position());
 
   if (!firstismuon){    
-    firstscatpar=m_propagator->propagateParameters(*lastidpar,calomeots[0].associatedSurface(),Trk::alongMomentum,false,*m_fieldprop,Trk::nonInteracting);
+    firstscatpar.reset( m_propagator->propagateParameters(*lastidpar,calomeots[0].associatedSurface(),Trk::alongMomentum,false,*m_fieldprop,Trk::nonInteracting) );
     delete lastidpar;
     if (!firstscatpar) return 0;
-    const TrackParameters *tmppar=m_propagator->propagateParameters(*firstscatpar,calomeots[1].associatedSurface(),Trk::alongMomentum,false,*m_fieldprop,Trk::nonInteracting);
+    std::unique_ptr<const TrackParameters> tmppar( m_propagator->propagateParameters(*firstscatpar,calomeots[1].associatedSurface(),Trk::alongMomentum,false,*m_fieldprop,Trk::nonInteracting) );
     if (!tmppar){
-      delete firstscatpar;
       return 0;
     }
     double sign = (tmppar->parameters()[Trk::qOverP]<0) ? -1 : 1;
@@ -1129,22 +1132,19 @@ Track *GlobalChi2Fitter::backupCombinationStrategy(const Track&             intr
     if (newp2<4.e6) newp2=4.e6;
     double newqoverp=sign/sqrt(newp2);
 
+    
     const AmgVector(5)& pars=tmppar->parameters();
-    elosspar=tmppar->associatedSurface().createTrackParameters(pars[0],pars[1],pars[2],pars[3],newqoverp,0);
-    delete tmppar;
-    lastscatpar=m_propagator->propagateParameters(*elosspar,calomeots[2].associatedSurface(),Trk::alongMomentum,false,*m_fieldprop,Trk::nonInteracting);    
+    elosspar.reset( tmppar->associatedSurface().createTrackParameters(pars[0],pars[1],pars[2],pars[3],newqoverp,0));
+    lastscatpar.reset( m_propagator->propagateParameters(*elosspar,calomeots[2].associatedSurface(),Trk::alongMomentum,false,*m_fieldprop,Trk::nonInteracting) );
     if (!lastscatpar){
-      delete firstscatpar;
-      delete elosspar;
       return 0;
     }
   }
   else {
-    lastscatpar=m_propagator->propagateParameters(*firstidpar,calomeots[2].associatedSurface(),Trk::oppositeMomentum,false,*m_fieldprop,Trk::nonInteracting);
+    lastscatpar.reset( m_propagator->propagateParameters(*firstidpar,calomeots[2].associatedSurface(),Trk::oppositeMomentum,false,*m_fieldprop,Trk::nonInteracting) );
     if (!lastscatpar) return 0;
-    elosspar=m_propagator->propagateParameters(*lastscatpar,calomeots[1].associatedSurface(),Trk::oppositeMomentum,false,*m_fieldprop,Trk::nonInteracting);
+    elosspar.reset( m_propagator->propagateParameters(*lastscatpar,calomeots[1].associatedSurface(),Trk::oppositeMomentum,false,*m_fieldprop,Trk::nonInteracting) );
     if (!elosspar){
-      delete lastscatpar;
       return 0;
     }
     double sign = (elosspar->parameters()[Trk::qOverP]<0) ? -1 : 1;
@@ -1153,12 +1153,9 @@ Track *GlobalChi2Fitter::backupCombinationStrategy(const Track&             intr
     
     const AmgVector(5)& pars=elosspar->parameters();
     
-    const TrackParameters *tmppar=elosspar->associatedSurface().createTrackParameters(pars[0],pars[1],pars[2],pars[3],newqoverp,0);
-    firstscatpar=m_propagator->propagateParameters(*tmppar,calomeots[0].associatedSurface(),Trk::oppositeMomentum,false,*m_fieldprop,Trk::nonInteracting);
-    delete tmppar;
+    std::unique_ptr<const TrackParameters> tmppar( elosspar->associatedSurface().createTrackParameters(pars[0],pars[1],pars[2],pars[3],newqoverp,0) );
+    firstscatpar.reset( m_propagator->propagateParameters(*tmppar,calomeots[0].associatedSurface(),Trk::oppositeMomentum,false,*m_fieldprop,Trk::nonInteracting) );
     if (!firstscatpar){
-      delete lastscatpar;
-      delete elosspar;
       return 0;
     }
   }
@@ -1175,9 +1172,9 @@ Track *GlobalChi2Fitter::backupCombinationStrategy(const Track&             intr
     if (firstismuon) makeProtoState(trajectory,*itStates);
   }
 
-  GXFMaterialEffects *firstscatmeff=new GXFMaterialEffects(&calomeots[0]);
-  GXFMaterialEffects *elossmeff=new GXFMaterialEffects(&calomeots[1]);
-  GXFMaterialEffects *secondscatmeff=new GXFMaterialEffects(&calomeots[2]);
+  std::unique_ptr<GXFMaterialEffects> firstscatmeff( new GXFMaterialEffects(&calomeots[0]) );
+  std::unique_ptr<GXFMaterialEffects> elossmeff( new GXFMaterialEffects(&calomeots[1]) );
+  std::unique_ptr<GXFMaterialEffects> secondscatmeff( new GXFMaterialEffects(&calomeots[2]) );
   //double oldsigmaphi1=firstscatmeff->sigmaDeltaPhi();
   //double oldsigmaphi2=secondscatmeff->sigmaDeltaPhi();
   //firstscatmeff->setScatteringSigmas(0.001,firstscatmeff->sigmaDeltaTheta());
@@ -1192,9 +1189,9 @@ Track *GlobalChi2Fitter::backupCombinationStrategy(const Track&             intr
     dp=1000*(lastscatpar->parameters()[Trk::qOverP]-firstscatpar->parameters()[Trk::qOverP]);
     elossmeff->setdelta_p(dp);
   }
-  trajectory.addMaterialState(new GXFTrackState(firstscatmeff,firstscatpar),-1,true);
-  trajectory.addMaterialState(new GXFTrackState(elossmeff,elosspar),-1,true);
-  trajectory.addMaterialState(new GXFTrackState(secondscatmeff,lastscatpar),-1,true);
+  trajectory.addMaterialState(new GXFTrackState(firstscatmeff.release(),firstscatpar.release() ),-1,true);
+  trajectory.addMaterialState(new GXFTrackState(elossmeff.release() ,elosspar.release() ),-1,true);
+  trajectory.addMaterialState(new GXFTrackState(secondscatmeff.release() ,lastscatpar.release() ),-1,true);
   GXFTrackState *secondscatstate=trajectory.trackStates().back();
     
   //const TrackParameters *pseudopar1=0,*pseudopar2=0,*firstmdtpar=0,*lastmdtpar=0,*firsttriggerpar=0,*lasttriggerpar=0;
@@ -2071,27 +2068,29 @@ void GlobalChi2Fitter::makeProtoStateFromMeasurement(GXFTrajectory &trajectory, 
     }
     else { // PseudoMeasurement, VertexOnTrack or Segment
       const Trk::LocalParameters &psmpar=measbase2->localParameters();
-      int index=0;
+      //@TODO coverity complains about index shadowing the method argument index
+      // this is solved by renaming index in this block by param_index
+      int param_index=0;
       if (psmpar.contains(Trk::locRPhi)){
         
 	errors[0]=sqrt(covmat(0,0));
-        index++;
+        param_index++;
       }
       if (psmpar.contains(Trk::locZ)){
-       	errors[1]=sqrt(covmat(index,index));
-        index++;
+       	errors[1]=sqrt(covmat(param_index,param_index));
+        param_index++;
       }
       if (psmpar.contains(Trk::phi)){
-	errors[2]=sqrt(covmat(index,index));
-        index++;
+	errors[2]=sqrt(covmat(param_index,param_index));
+        param_index++;
       }
       if (psmpar.contains(Trk::theta)){
-	errors[3]=sqrt(covmat(index,index));
-        index++;
+	errors[3]=sqrt(covmat(param_index,param_index));
+        param_index++;
       }
       if (psmpar.contains(Trk::qOverP)){
-	errors[4]=sqrt(covmat(index,index));
-        index++;
+	errors[4]=sqrt(covmat(param_index,param_index));
+        param_index++;
       }
       if (dynamic_cast<const PseudoMeasurementOnTrack*>(measbase2)) {
         hittype=TrackState::Pseudo;
@@ -2112,6 +2111,7 @@ void GlobalChi2Fitter::makeProtoStateFromMeasurement(GXFTrajectory &trajectory, 
       ptsos->setMeasurementType(hittype);
       ptsos->setMeasuresPhi(measphi);
       if (isoutlier && !m_reintoutl) ptsos->setTrackStateType(TrackState::GeneralOutlier);
+      //@TODO here index really is supposed to refer to the method argument index ? 
       bool ok=trajectory.addMeasurementState(ptsos,index);
       if (!ok) msg(MSG::WARNING) << "Duplicate hit on track" << endreq;
     }
@@ -2235,6 +2235,7 @@ class GXFlayersort : public std::binary_function<const std::pair<const Layer*,co
            
 	 }  
          //if (disc1 && cyl2) {
+         if (!disc1 || !cyl2) throw std::logic_error("Unhandled surface combination.");
 	 const DiscBounds *discbounds=(const DiscBounds*)&disc1->bounds();
 	   if (cyl2->bounds().r()>discbounds->rMax()-1) return true;
 	   if (cyl2->bounds().r()<discbounds->rMin()+1) return false;
@@ -2310,6 +2311,7 @@ void GlobalChi2Fitter::addIDMaterialFast(GXFTrajectory &trajectory,const TrackPa
       //lastsiindex=i;
     }
   }
+  if (!lastsistate) throw std::logic_error("No track state");
   if (!lastsistate->trackParameters()) {
     const TrackParameters *tmppar=m_propagator->propagateParameters(*refpar,*lastsistate->surface(),alongMomentum,false,*m_fieldprop,Trk::nonInteracting);
     if (!tmppar) return;
@@ -2423,6 +2425,7 @@ void GlobalChi2Fitter::addIDMaterialFast(GXFTrajectory &trajectory,const TrackPa
           if (fabs(rmeas-rlayer)<fabs(parforextrap->position().perp()-rlayer)) parforextrap=oldstates[i]->trackParameters();
         }
 	else {
+          if (!discsurf) throw std::logic_error("Unhandled surface.");
 	  double zlayer=discsurf->center().z();
           if (fabs(zmeas-zlayer)<fabs(parforextrap->position().z()-zlayer)) parforextrap=oldstates[i]->trackParameters();
 	}
@@ -2464,6 +2467,7 @@ void GlobalChi2Fitter::addIDMaterialFast(GXFTrajectory &trajectory,const TrackPa
 	costracksurf=fabs(costheta);
       }
       else { 
+        if (!cylsurf) throw std::logic_error("Unhandled surface.");
         double d=xc*xc+yc*yc;
 	double rcyl=cylsurf->bounds().r();
 	double mysqrt=((r+rcyl)*(r+rcyl)-d)*(d-(r-rcyl)*(r-rcyl));
@@ -3342,6 +3346,10 @@ Track* GlobalChi2Fitter::myfit(GXFTrajectory&           trajectory,
           scatstate=(*it);
 	}
       }
+      // @TODO coverity complains about a possible null pointer dereferencing in scatstate->... or scatstate2->...
+      // it seems to me that if (**it).materialEffects()->deltaE()==0 of the first scatterer 
+      // than scatstate will be NULL.
+      if (!scatstate || !scatstate2) throw std::logic_error("Invalid scatterer");
       vertex=.49*(scatstate->position()+scatstate2->position());
 
     }
@@ -3631,9 +3639,12 @@ Track* GlobalChi2Fitter::myfit(GXFTrajectory&           trajectory,
       delete m_fullcovmat;
       m_fullcovmat=new Amg::MatrixX(m_ainv.GetNcols(),m_ainv.GetNcols());
       m_fullcovmat->setZero();
-      for (int i=0;i<m_ainv.GetNcols();i++){
-        for (int j=i;j<m_ainv.GetNcols();j++){
-          m_fullcovmat->fillSymmetric(j,i,m_ainv[j][i]);
+      for (int col_i=0;col_i<m_ainv.GetNcols();col_i++){
+        for (int row_j=col_i;row_j<m_ainv.GetNcols();row_j++){
+          // Coverity does not like the parameters to be called j and i
+          // because in the method declaration the parameters are called i and j.
+          // Coverity assumes the arguments to be swapped ...
+          m_fullcovmat->fillSymmetric(row_j,col_i,m_ainv[row_j][col_i]);
         }
       }
     }
@@ -4654,7 +4665,12 @@ GXFTrajectory *GlobalChi2Fitter::runTrackCleanerSilicon(GXFTrajectory &trajector
   
   bool trackok=false;
   GXFTrajectory *oldtrajectory=&trajectory;  
+  std::unique_ptr<GXFTrajectory> cleanup_oldtrajectory;                   
   GXFTrajectory *newtrajectory=0;
+  std::unique_ptr<GXFTrajectory> cleanup_newtrajectory;
+  // the oldtracjectory will be returned, so in case newtrajectory==oldtrajectory
+  // the cleanup_newtrajectory == NULL and cleanup_oldtrajectory = oldtrajectory, otherwise
+  // cleanup_newtrajectory will destroy the object oldtrajectory is pointing to.
     
   while (!trackok && oldtrajectory->nDOF()>0){
     trackok=true;
@@ -4744,7 +4760,7 @@ GXFTrajectory *GlobalChi2Fitter::runTrackCleanerSilicon(GXFTrajectory &trajector
       const RIO_OnTrack *rot=dynamic_cast<const RIO_OnTrack*>(state_maxsipull->measurement());
         
       const PrepRawData *prd=rot ? rot->prepRawData() : 0;
-      const RIO_OnTrack *broadrot=0;
+      std::unique_ptr<const RIO_OnTrack> broadrot;
       double *olderror=state_maxsipull->measurementErrors();
       TrackState::MeasurementType hittype_maxsipull=state_maxsipull->measurementType();
       const TrackParameters *trackpar_maxsipull=state_maxsipull->trackParameters();
@@ -4753,7 +4769,7 @@ GXFTrajectory *GlobalChi2Fitter::runTrackCleanerSilicon(GXFTrajectory &trajector
       double newpull=-1,newpull1=-1,newpull2=-1,newres1=-1,newres2=-1;
       double newsinstereo=0;
         
-      if (prd && !state_maxsipull->isRecalibrated() && maxpull>2.5 && oldtrajectory->chi2()/trajectory.nDOF()>.3*m_chi2cut && m_sirecal) broadrot=m_broadROTcreator->correct(*prd,*state_maxsipull->trackParameters());
+      if (prd && !state_maxsipull->isRecalibrated() && maxpull>2.5 && oldtrajectory->chi2()/trajectory.nDOF()>.3*m_chi2cut && m_sirecal) broadrot.reset( m_broadROTcreator->correct(*prd,*state_maxsipull->trackParameters()) );
       if (broadrot) {  
         const Amg::MatrixX &covmat=broadrot->localCovariance();
         newerror[0]=sqrt(covmat(0,0));
@@ -4809,7 +4825,7 @@ GXFTrajectory *GlobalChi2Fitter::runTrackCleanerSilicon(GXFTrajectory &trajector
         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Recovering outlier, hitno=" << hitno_maxsipull << " measno=" << measno_maxsipull << " pull=" 
         << maxsipull << " olderror_0=" << olderror[0] << " newerror_0=" << newerror[0] << " olderror_1=" << olderror[1] <<  " newerror_1=" << newerror[1] << endreq; 
 	
-        state_maxsipull->setMeasurement(broadrot);
+        state_maxsipull->setMeasurement(broadrot.release());
         state_maxsipull->setSinStereo(newsinstereo);
         state_maxsipull->setMeasurementErrors(newerror);
       }
@@ -4817,13 +4833,13 @@ GXFTrajectory *GlobalChi2Fitter::runTrackCleanerSilicon(GXFTrajectory &trajector
       else if  (((((n3sigma<2 && maxsipull>cut2 && maxsipull<cut) || n3sigma>1) && (oldtrajectory->chi2()/oldtrajectory->nDOF()>.3*m_chi2cut 
 || noutl>1)) || maxsipull>cut) && (oldtrajectory->nDOF()>1 || hittype_maxsipull==TrackState::SCT) && runoutlier ) {
         trackok=false;
-        delete broadrot;
         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Removing outlier, hitno=" << hitno_maxsipull << ", measno=" << measno_maxsipull << " pull=" << maxsipull << endreq;	          
  	newa=a;
 	newb=b;
         newap=&newa;
         newbp=&newb;
-        newtrajectory=new GXFTrajectory(*oldtrajectory);
+        cleanup_newtrajectory.reset( new GXFTrajectory(*oldtrajectory) );
+        newtrajectory = cleanup_newtrajectory.get();
         double *myarray=newa.GetMatrixArray();      
         std::vector<double> &newres=newtrajectory->residuals();
         //std::vector<double> &newerr=newtrajectory->errors();
@@ -4856,9 +4872,7 @@ GXFTrajectory *GlobalChi2Fitter::runTrackCleanerSilicon(GXFTrajectory &trajector
         }
         newtrajectory->setOutlier(stateno_maxsipull);
       }
-	
-      else delete broadrot;
-      
+
     }
     if (!trackok){
       newtrajectory->setConverged(false);
@@ -4867,9 +4881,6 @@ GXFTrajectory *GlobalChi2Fitter::runTrackCleanerSilicon(GXFTrajectory &trajector
       m_fittercode=updateFitParameters(*newtrajectory,*newbp,newlu);
       if (m_fittercode!=FitterStatusCode::Success) {
         m_notenoughmeas++;
-	
-	if (oldtrajectory!=newtrajectory) delete newtrajectory;
-	if (oldtrajectory!=&trajectory) delete oldtrajectory;
         return 0;
       }
       
@@ -4879,8 +4890,6 @@ GXFTrajectory *GlobalChi2Fitter::runTrackCleanerSilicon(GXFTrajectory &trajector
           if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Fit did not converge" << endreq;
           m_fittercode=FitterStatusCode::NoConvergence;
           m_notconverge++;
-	  if (oldtrajectory!=newtrajectory) delete newtrajectory;
-          if (oldtrajectory!=&trajectory) delete oldtrajectory;
           return 0;
      
         }
@@ -4888,16 +4897,12 @@ GXFTrajectory *GlobalChi2Fitter::runTrackCleanerSilicon(GXFTrajectory &trajector
       
           m_fittercode=runIteration(*newtrajectory,it,*newap,*newbp,newlu,doderiv);
           if (m_fittercode!=FitterStatusCode::Success) {
-	  if (oldtrajectory!=newtrajectory) delete newtrajectory;
-	if (oldtrajectory!=&trajectory) delete oldtrajectory;
             m_notenoughmeas++; 
             return 0;
           }
           if (!newtrajectory->converged()){ 
             m_fittercode=updateFitParameters(*newtrajectory,*newbp,newlu);
             if (m_fittercode!=FitterStatusCode::Success) {
-	    if (oldtrajectory!=newtrajectory) delete newtrajectory;
-	if (oldtrajectory!=&trajectory) delete oldtrajectory;
               m_notenoughmeas++; 
               
               return 0;
@@ -4918,15 +4923,13 @@ GXFTrajectory *GlobalChi2Fitter::runTrackCleanerSilicon(GXFTrajectory &trajector
 	    if (oldchi2>m_chi2cut) {
               m_fittercode=FitterStatusCode::OutlierLogicFailure;
               m_notenoughmeas++;
-	      if (oldtrajectory!=newtrajectory) delete newtrajectory;
-	if (oldtrajectory!=&trajectory) delete oldtrajectory;
 	      return 0;
             } 
-            if (oldtrajectory!=newtrajectory) delete newtrajectory;
+            cleanup_oldtrajectory.release();
             return oldtrajectory;
           }
           if (oldtrajectory!=newtrajectory) {
-            if (oldtrajectory!=&trajectory) delete oldtrajectory;
+            cleanup_oldtrajectory = std::move( cleanup_newtrajectory);
             oldtrajectory=newtrajectory;
             a=newa;
             b=newb;
@@ -4957,12 +4960,11 @@ GXFTrajectory *GlobalChi2Fitter::runTrackCleanerSilicon(GXFTrajectory &trajector
     if (!trackok) calculateTrackErrors(*oldtrajectory,fullcov,true); 
   }
   if (oldtrajectory->nDOF()>0 && oldtrajectory->chi2()/oldtrajectory->nDOF()>m_chi2cut && runoutlier) {
-    if (oldtrajectory!=&trajectory) delete oldtrajectory;
     m_fittercode=FitterStatusCode::OutlierLogicFailure;
     m_notenoughmeas++;
     return 0;
   }
-  if(newtrajectory && oldtrajectory!=newtrajectory) delete newtrajectory;
+  cleanup_oldtrajectory.release();
   return oldtrajectory;
 }
 
@@ -5090,6 +5092,7 @@ Track *GlobalChi2Fitter::makeTrack(GXFTrajectory &oldtrajectory, ParticleHypothe
   } 
   if (m_straightline) info.setTrackProperties(TrackInfo::StraightTrack);
 
+  if (!firstmeasstate) throw std::logic_error("no first measurement.");
   const TrackParameters *per=0;
   if (m_acceleration && !m_matupdator.empty()){
     
@@ -5137,6 +5140,11 @@ Track *GlobalChi2Fitter::makeTrack(GXFTrajectory &oldtrajectory, ParticleHypothe
 	if (updatedpar && updatedpar!=firstmeasstate->trackParameters()) firstmeasstate->setTrackParameters(updatedpar);
       }
     }
+    //@TODO Coverity complains about a possible NULL pointer dereferencing in lastmeasstate->...
+    // Now an exception is thrown if there is no firstmeastate. Thus if the code here is 
+    // reached then there should be a firstmeasstate and a lastmeasstate
+
+    //    if (!lastmeasstate) throw std::logic_error("no last measurement.");
     const Layer *endlayer=lastmeasstate->trackParameters()->associatedSurface().associatedLayer();
     if (endlayer && endlayer->layerMaterialProperties()) {
       double endfactor=endlayer->layerMaterialProperties()->alongPreFactor(); 
@@ -5160,6 +5168,9 @@ Track *GlobalChi2Fitter::makeTrack(GXFTrajectory &oldtrajectory, ParticleHypothe
       return 0;
     }
   }
+  // @TODO Coverity complains about a possible NULL pointer dereferencing in firstmeasstate->...
+  // now an exception is thrown if firstmeasstate is null. But does the code allow for firstmeasstate to 
+  // be null ?
   else if (m_acceleration && firstmeasstate->trackParameters()) per=m_extrapolator->extrapolate(*firstmeasstate->trackParameters(),PerigeeSurface(Amg::Vector3D(0,0,0)),oppositeMomentum,false,matEffects);
 
   else per=oldtrajectory.referenceParameters(true);
