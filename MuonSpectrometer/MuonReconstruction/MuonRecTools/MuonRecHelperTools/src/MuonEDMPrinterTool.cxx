@@ -648,14 +648,18 @@ namespace Muon {
           }
 	}else if( m_idHelper->isTgc(id) ){
 	  const MuonGM::TgcReadoutElement* detEl = dynamic_cast<const MuonGM::TgcReadoutElement*>(prd->detectorElement());
-	  for( int i=1;i<=detEl->Ngasgaps();++i ) {
-	    nchannelsEta += detEl->getNGangs(i);
-	    nchannelsPhi += detEl->nStrips(i);
-	  }
+          if(detEl) {
+	    for( int i=1;i<=detEl->Ngasgaps();++i ) {
+	      nchannelsEta += detEl->getNGangs(i);
+	      nchannelsPhi += detEl->nStrips(i);
+	    }
+          }
 	}else if( m_idHelper->isRpc(id) ){
 	  const MuonGM::RpcReadoutElement* detEl = dynamic_cast<const MuonGM::RpcReadoutElement*>(prd->detectorElement());
-	  nchannelsPhi += detEl->Nphigasgaps()*detEl->NphiStripPanels()*detEl->NphiStrips();
-	  nchannelsEta += detEl->Nphigasgaps()*detEl->NetaStripPanels()*detEl->NetaStrips();
+          if(detEl) {
+	    nchannelsPhi += detEl->Nphigasgaps()*detEl->NphiStripPanels()*detEl->NphiStrips();
+	    nchannelsEta += detEl->Nphigasgaps()*detEl->NetaStripPanels()*detEl->NetaStrips();
+	  }
 	}
       }
     }
@@ -791,7 +795,7 @@ namespace Muon {
 	// add time for RPC
 	const RpcClusterOnTrack* rpc = dynamic_cast<const RpcClusterOnTrack*>(rot);
 	if ( rpc ) {
-	  const RpcPrepData* rpcPRD = rpc ? rpc->prepRawData() : 0;
+	  const RpcPrepData* rpcPRD = rpc->prepRawData();
 	  if( rpcPRD ) {
 	    sout << "  time " << std::fixed << std::setprecision(2) << std::setw(5) << rpcPRD->time();
 	  }

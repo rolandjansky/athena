@@ -95,6 +95,11 @@ namespace Muon {
       // stop at first none trigger hit
       if( !m_idHelper->isTrigger(id) ) break;
     }
+    
+    if( !chid.is_valid() ){
+      ATH_MSG_WARNING("Got segment without valide identifiers");
+    }
+
     return chid;
   }
 
