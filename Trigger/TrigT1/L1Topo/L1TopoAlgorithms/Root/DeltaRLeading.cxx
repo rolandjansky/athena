@@ -55,7 +55,7 @@ TCS::DeltaRLeading::process(const std::vector<TCS::TOBArray const *> & input,
          if(std::distance(input[0]->begin(), tob1) > parameter("NumberLeading1").value()-1) continue; // 0 >= 0;
       
          // test EtMin
-         if((*tob1)->Et() < ((int) parameter("EtMin").value())) continue;
+         if((*tob1)->Et() < parameter("EtMin").value() ) continue;
       
          // test EtaMax
          if((*tob1)->eta() > ((int) parameter("EtaMax").value())) continue;
@@ -70,7 +70,7 @@ TCS::DeltaRLeading::process(const std::vector<TCS::TOBArray const *> & input,
             if(std::distance(input[0]->begin(), tob2) > parameter("NumberLeading2").value()) continue;
 
             // test EtMin
-            if((*tob2)->Et() < ((int) parameter("EtMin").value())) continue;
+            if((*tob2)->Et() < parameter("EtMin").value() ) continue;
 	
             // test EtaMax
             if((*tob2)->eta() > ((int) parameter("EtaMax").value())) continue;
@@ -106,7 +106,7 @@ TCS::DeltaRLeading::process(const std::vector<TCS::TOBArray const *> & input,
          if(std::distance(input[0]->begin(), tob1) > parameter("NumberLeading1").value()-1) continue;
       
          // test EtMin
-         if((*tob1)->Et() < ((int) parameter("EtMin").value())) continue;
+         if((*tob1)->Et() < parameter("EtMin").value() ) continue;
       
          // test EtaMax
          if((*tob1)->eta() > ((int) parameter("EtaMax").value())) continue;
@@ -118,7 +118,7 @@ TCS::DeltaRLeading::process(const std::vector<TCS::TOBArray const *> & input,
             if(std::distance(input[1]->begin(), tob2) > parameter("NumberLeading2").value()-1) continue;
 	
             // test EtMin
-            if((*tob2)->Et() < ((int) parameter("EtMin").value())) continue;
+            if((*tob2)->Et() < parameter("EtMin").value() ) continue;
 	
             // test EtaMax
             if((*tob2)->eta() > ((int) parameter("EtaMax").value())) continue;

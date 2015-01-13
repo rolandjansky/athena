@@ -20,9 +20,6 @@ REGISTER_ALG_TCS(METCut)
 
 using namespace std;
 
-// not the best solution but we will move to athena where this comes for free
-#define LOG cout << "TCS::METCut:     "
-
 
 TCS::METCut::METCut(const std::string & name) : DecisionAlg(name)
 {
@@ -36,8 +33,8 @@ TCS::METCut::~METCut(){}
 TCS::StatusCode
 TCS::METCut::initialize() {
    p_XE = parameter("XE").value();
-   LOG << "XE             : " << p_XE << endl;
-   LOG << "nummber output : " << numberOutputBits() << endl;
+   TRG_MSG_INFO("XE             : " << p_XE);
+   TRG_MSG_INFO("nummber output : " << numberOutputBits());
    return StatusCode::SUCCESS;
 }
 
@@ -50,7 +47,7 @@ TCS::METCut::process( const std::vector<TCS::TOBArray const *> & input,
 {
 
    if(input.size()!=1) {
-      TCS_EXCEPTION("METCut alg must have either 1 input list (MET list), but got " << input.size());
+      TCS_EXCEPTION("METCut alg must have exactly one input list (MET list), but got " << input.size());
       return TCS::StatusCode::FAILURE;
    }
 
@@ -59,12 +56,12 @@ TCS::METCut::process( const std::vector<TCS::TOBArray const *> & input,
       return TCS::StatusCode::FAILURE;
    }
 
-   const TCS::MetTOB & met = dynamic_cast<const TCS::MetTOB&>( (*input[0])[0]);
+   const TCS::GenericTOB & met = (*input[0])[0];
 
-   // need to calculate MET ET properly
-   unsigned int metSq = met.Ex()*met.Ex() + met.Ey() * met.Ey();
+   TRG_MSG_DEBUG("Comparing MET " << met.Et() << " with cut " << p_XE << ". " << (met.Et() >= p_XE?"Pass":"Fail"));
 
-   decision.setBit(0, metSq >= p_XE * p_XE );
+
+   decision.setBit(0, met.Et() >= p_XE );
 
    return TCS::StatusCode::SUCCESS;
 }

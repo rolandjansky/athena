@@ -26,7 +26,8 @@ TCS::DeltaPhiLeading::DeltaPhiLeading(const std::string & name) : DecisionAlg(na
   setNumberOutputBits(1);
 }
 
-TCS::DeltaPhiLeading::~DeltaPhiLeading(){}
+TCS::DeltaPhiLeading::~DeltaPhiLeading()
+{}
 
 
 TCS::StatusCode
@@ -47,7 +48,7 @@ TCS::DeltaPhiLeading::process(const std::vector<TCS::TOBArray const *> & input,
 
          // test EtMin
          cout << "     Et1: " << (*tob1)->Et() << endl;
-         if((*tob1)->Et() < ((int) parameter("EtMin").value())) continue;
+         if( (*tob1)->Et() < parameter("EtMin").value() ) continue;
       
          TCS::TOBArray::const_iterator tob2 = tob1; ++tob2;      
          int count2 = 0;
@@ -60,7 +61,7 @@ TCS::DeltaPhiLeading::process(const std::vector<TCS::TOBArray const *> & input,
 
             // test EtMin
             cout << "     Et2: " << (*tob2)->Et() << endl;
-            if((*tob2)->Et() < ((int) parameter("EtMin").value())) continue;
+            if((*tob2)->Et() < parameter("EtMin").value() ) continue;
 	
             // test DeltaPhiMin, DeltaPhiMax
             cout << "     DeltaPhi: " << (*tob1)->phi()-(*tob2)->phi() << endl;
@@ -84,7 +85,7 @@ TCS::DeltaPhiLeading::process(const std::vector<TCS::TOBArray const *> & input,
 
          // test EtMin
          cout << "     Et1: " << (*tob1)->Et() << endl;
-         if((*tob1)->Et() < ((int) parameter("EtMin").value())) continue;
+         if( (*tob1)->Et() < parameter("EtMin").value() ) continue;
 
          TCS::TOBArray::const_iterator tob2 = input[1]->begin(); ++tob2;
          for(TCS::TOBArray::const_iterator tob2 = input[1]->begin(); tob2 != input[1]->end(); ++tob2) {
@@ -94,7 +95,7 @@ TCS::DeltaPhiLeading::process(const std::vector<TCS::TOBArray const *> & input,
 
             // test EtMin
             cout << "     Et2: " << (*tob2)->Et() << endl;
-            if((*tob2)->Et() < ((int) parameter("EtMin").value())) continue;
+            if( (*tob2)->Et() < parameter("EtMin").value() ) continue;
 
             // test DeltaPhiMin, DeltaPhiMax		
             cout << "DeltaPhi: " << (*tob1)->phi()-(*tob2)->phi() << endl;

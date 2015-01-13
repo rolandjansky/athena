@@ -24,6 +24,10 @@ namespace TCS {
       virtual ~GenericListGenerator();
 
       virtual TCS::StatusCode sort(const InputTOBArray & input, TOBArray & output);
+
+   protected:
+    
+      JetTOB::JetSize m_jetsize;
       
    };
 

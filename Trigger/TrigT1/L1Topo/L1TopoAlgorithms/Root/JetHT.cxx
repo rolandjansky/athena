@@ -3,7 +3,7 @@
  * Created by Joerg Stelzer on 11/16/12.
  * Copyright (c) 2012 Joerg Stelzer. All rights reserved.
  *
- * @brief algorithm calculates the phi-distance between one or two lists and applies delta-phi criteria
+ * @brief algorithm calculates the sum of jets ET, makes cut on HT criteria 
  *
  * @param NumberLeading
 **********************************/
@@ -14,30 +14,44 @@
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
 
-#include "L1TopoEvent/MetTOB.h"
 
 REGISTER_ALG_TCS(JetHT)
 
 using namespace std;
 
 // not the best solution but we will move to athena where this comes for free
-#define LOG cout << "TCS::JetHT:     "
+#define LOG cout << name() << ":     "
 
 
 TCS::JetHT::JetHT(const std::string & name) : DecisionAlg(name)
-{
-   defineParameter("MinET",0);
+{  
+   defineParameter("InputWidth", 0);
+   defineParameter("NumResultBits",1);
+   defineParameter("MinEt",0);
+   defineParameter("MinEta",0);
+   defineParameter("MaxEta",31);
+   defineParameter("MinHt",0,0);
    setNumberOutputBits(1);
 }
 
-TCS::JetHT::~JetHT(){}
+TCS::JetHT::~JetHT()
+{}
 
 
 TCS::StatusCode
 TCS::JetHT::initialize() {
-   p_MinET = parameter("MinET").value();
-   LOG << "MinET          : " << p_MinET << endl;
-   LOG << "nummber output : " << numberOutputBits() << endl;
+   p_NumberLeading1 = parameter("InputWidth").value();
+   p_MinET  = parameter("MinEt").value();
+   p_EtaMin = parameter("MinEta").value();
+   p_EtaMax = parameter("MaxEta").value();
+   TRG_MSG_INFO("MinET          : " << p_MinET);
+   TRG_MSG_INFO("EtaMin         : " << p_EtaMin);
+   TRG_MSG_INFO("EtaMax         : " << p_EtaMax);
+   for(int i=0; i<1; ++i) {
+      p_HT[i] = parameter("MinHt", i).value();
+      TRG_MSG_INFO("HT " << i << " : " << p_HT[i]);
+   }
+   TRG_MSG_INFO("number output : " << numberOutputBits());
    return StatusCode::SUCCESS;
 }
 
@@ -45,8 +59,8 @@ TCS::JetHT::initialize() {
 
 TCS::StatusCode
 TCS::JetHT::process( const std::vector<TCS::TOBArray const *> & input,
-                      const std::vector<TCS::TOBArray *> & output,
-                      Decision & decision )
+                     const std::vector<TCS::TOBArray *> & output,
+                     Decision & decision )
 {
 
    if(input.size()!=1) {
@@ -54,20 +68,34 @@ TCS::JetHT::process( const std::vector<TCS::TOBArray const *> & input,
       return TCS::StatusCode::FAILURE;
    }
 
-   bool accept{false};
+   unsigned int sumET = 0;
 
-   for( TCS::TOBArray::const_iterator tob = input[0]->begin(); tob != input[0]->end(); ++tob) {
+   // loop over all jets
+   unsigned int objC(0);
+   for( TCS::GenericTOB * tob : *input[0]) {
+      ++objC;
 
-      if( parType_t((*tob)->Et()) < p_MinET) continue; // ET cut
+      if( parType_t(fabs(tob->eta())) > p_EtaMax ) continue; // Eta cut
+      if( parType_t(fabs(tob->eta())) < p_EtaMin ) continue; // Eta cut
+      if( tob->Et() <= p_MinET ) continue; // E_T cut
 
-      accept = true;
+      TRG_MSG_DEBUG("Jet " << objC-1 << ": ET = " << tob->Et());
 
-      output[0]->push_back(TCS::CompositeTOB(*tob));
-
-      LOG << "      Jet " << distance(input[0]->begin(), tob) << " ET = " << (*tob)->Et() << endl;
+      sumET += tob->Et();
    }
 
-   decision.setBit( 0, accept );
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
+
+      bool accept = sumET > p_HT[i];
+
+      decision.setBit( i, accept );
+
+      if(accept)
+         output[i]->push_back( CompositeTOB( GenericTOB::createOnHeap( GenericTOB(sumET,0,0) ) ));
+
+      TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " HT = " << sumET);
+
+   }
 
    return TCS::StatusCode::SUCCESS;
 }

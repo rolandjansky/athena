@@ -1,4 +1,3 @@
-//  SumEtLeading.cpp
 //  TopoCore
 
 #include "L1TopoAlgorithms/SumEtLeading.h"
@@ -51,9 +50,9 @@ TCS::SumEtLeading::process( const std::vector<TCS::TOBArray const *> & input,
         tob != input[0]->end() && distance( input[0]->begin(), tob) < p_NumberLeading;
         ++tob ) {
 
-      if( (uint32_t)(*tob)->Et() < p_EtMin ) continue; // test ETMin
+      if( (parType_t)(*tob)->Et() < p_EtMin ) continue; // test ETMin
       
-      if( abs((*tob)->eta()) > p_EtaMax ) continue; // test EtaMax
+      if( (parType_t)abs((*tob)->eta()) > p_EtaMax ) continue; // test EtaMax
       
       // sum up Et of each TOB in TOBArray (event?)
       sumET += (*tob)->Et();

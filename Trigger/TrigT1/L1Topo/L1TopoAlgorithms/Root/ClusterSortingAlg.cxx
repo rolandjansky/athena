@@ -1,8 +1,9 @@
 //  ClusterSortingAlg.cxx
 //  TopoCore
-//  Created by Joerg Stelzer on 11/10/12.
+//  Created by V Sorin, Joerg Stelzer .
 //  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
-
+//  algorithm to make list of cluster, pt order applied
+//
 #include "L1TopoAlgorithms/ClusterSortingAlg.h"
 #include "L1TopoEvent/TOBArray.h"
 #include "L1TopoEvent/ClusterTOBArray.h"
@@ -26,7 +27,7 @@ TCS::ClusterSortingAlg::ClusterSortingAlg(const std::string & name) : SortingAlg
    defineParameter( "NumberOfClusters", 0 );
    defineParameter( "ReverseOrder", 0 );
    defineParameter( "MinIsolation", 0);
-   defineParameter( "MinEta", -49);
+   defineParameter( "MinEta", 0 );
    defineParameter( "MaxEta", 49);
 }
 
@@ -36,14 +37,18 @@ TCS::ClusterSortingAlg::~ClusterSortingAlg() {}
 
 TCS::StatusCode
 TCS::ClusterSortingAlg::sort(const InputTOBArray & input, TOBArray & output) {
+
    const ClusterTOBArray & clusters = dynamic_cast<const ClusterTOBArray&>(input);
 
    // fill output array with GenericTOB buildt from clusters
    for(ClusterTOBArray::const_iterator cl = clusters.begin(); cl!= clusters.end(); ++cl ) {
       const GenericTOB gtob(**cl);
 
+      if (parType_t(fabs((*cl)-> eta())) < parameter("MinEta").value()) continue; 
+      if (parType_t(fabs((*cl)-> eta())) > parameter("MaxEta").value()) continue;
+
       // isolation cut
-      if((*cl)->isolation() < parameter("minIsolation").value()) continue;
+      if(parType_t((*cl)->isolation()) < parameter("MinIsolation").value()) continue;
       
       output.push_back( gtob );
    }

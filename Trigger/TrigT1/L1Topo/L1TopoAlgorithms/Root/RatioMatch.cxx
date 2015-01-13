@@ -1,0 +1,132 @@
+/*********************************
+ * RatioMatch.cpp
+ * Created by Joerg Stelzer on 11/16/12.
+ * Copyright (c) 2012 Joerg Stelzer. All rights reserved.
+ *
+ * @brief algorithm calculates the phi-distance between one or two lists and applies delta-phi criteria
+ *
+ * @param NumberLeading
+**********************************/
+
+#include <cmath>
+
+#include "L1TopoAlgorithms/RatioMatch.h"
+#include "L1TopoCommon/Exception.h"
+#include "L1TopoInterfaces/Decision.h"
+
+
+REGISTER_ALG_TCS(RatioMatch)
+
+using namespace std;
+
+// not the best solution but we will move to athena where this comes for free
+#define LOG cout << name() << ":     "
+
+namespace {
+   unsigned int
+   calcDeltaR2(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+      double deta = ( tob1->etaDouble() - tob2->etaDouble() );
+      double dphi = fabs( tob1->phiDouble() - tob2->phiDouble() );
+      if(dphi>M_PI)
+         dphi = 2*M_PI - dphi;
+
+      return round ( 100 * ((dphi)*(dphi) + (deta)*(deta) )) ;
+
+   }
+}
+
+
+TCS::RatioMatch::RatioMatch(const std::string & name) : DecisionAlg(name)
+{ 
+   defineParameter("NumberLeading1", 3); 
+   defineParameter("NumberLeading2", 3);
+   defineParameter("NumResultBits", 2);
+   defineParameter("MinET1",0);
+   defineParameter("MinET2",0);
+   defineParameter("EtaMin",0);
+   defineParameter("EtaMax",49);
+   defineParameter("DeltaR",0);
+   defineParameter("Ratio",0,0);
+   defineParameter("Ratio",0,1);
+   setNumberOutputBits(2);
+}
+
+TCS::RatioMatch::~RatioMatch()
+{}
+
+
+TCS::StatusCode
+TCS::RatioMatch::initialize() {
+   p_NumberLeading1 = parameter("NumberLeading1").value();
+   p_NumberLeading2 = parameter("NumberLeading2").value(); 
+   p_MinET1  = parameter("MinET1").value();
+   p_MinET2  = parameter("MinET2").value();
+   p_EtaMin = parameter("EtaMin").value();
+   p_EtaMax = parameter("EtaMax").value();
+   p_DeltaR     = parameter("DeltaR").value();
+   TRG_MSG_INFO("MinET1          : " << p_MinET1);
+   TRG_MSG_INFO("MinET2          : " << p_MinET2);
+   TRG_MSG_INFO("EtaMin         : " << p_EtaMin);
+   TRG_MSG_INFO("EtaMax         : " << p_EtaMax);
+   TRG_MSG_INFO("DeltaR          : " << p_DeltaR);
+
+   for(int i=0; i<2; ++i) {
+      p_Ratio[i] = parameter("Ratio", i).value();
+      TRG_MSG_INFO("Ratio " << i << " : " << p_Ratio[i]);
+   }
+   TRG_MSG_INFO("number output : " << numberOutputBits());
+   return StatusCode::SUCCESS;
+}
+
+
+
+TCS::StatusCode
+TCS::RatioMatch::process( const std::vector<TCS::TOBArray const *> & input,
+                     const std::vector<TCS::TOBArray *> & output,
+                     Decision & decision )
+{
+
+   if(input.size()!=2) {
+      TCS_EXCEPTION("RatioMatch alg must have exactly 2 input lists, but got " << input.size());
+      return TCS::StatusCode::FAILURE;
+   }
+
+   unsigned int deltaR2 = 999;
+
+   for( TOBArray::const_iterator tob1 = input[0]->begin(); 
+           tob1 != input[0]->end() && distance(input[0]->begin(), tob1) < p_NumberLeading1;
+           ++tob1)
+         {
+
+            if( parType_t((*tob1)->Et()) <= p_MinET1) continue; // ET cut
+            deltaR2 = 999;
+
+            for( TCS::TOBArray::const_iterator tob2 = input[1]->begin(); 
+                 tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
+                 ++tob2) {
+
+               if( parType_t((*tob2)->Et()) <= p_MinET2) continue; // ET cut
+               if( parType_t(fabs((*tob2)->eta())) > p_EtaMax ) continue; // Eta cut
+               if( parType_t(fabs((*tob2)->eta())) < p_EtaMin ) continue; // Eta cut
+
+	       // test DeltaR2Min, DeltaR2Max
+               deltaR2 = calcDeltaR2( *tob1, *tob2 );
+               //
+               bool accept[3];
+               for(unsigned int i=0; i<numberOutputBits(); ++i) {
+                   accept[i] = deltaR2 <=  (p_DeltaR*p_DeltaR) && 10*parType_t((*tob1)->Et()) >= p_Ratio[i]*parType_t((*tob2)->Et());
+                   if( accept[i] ) {
+                       decision.setBit(i, true);
+                       output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
+                   }
+                   TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail") << " deltaR2 = " << deltaR2  );
+
+               }
+                                                                                                                                                                                                               }
+   }
+
+
+
+
+   return TCS::StatusCode::SUCCESS;
+}

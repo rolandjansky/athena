@@ -28,9 +28,9 @@ TCS::JetSortingAlg::JetSortingAlg(const std::string & name) :
    defineParameter( "NumberOfJets", 0 );
    defineParameter( "ReverseOrder", 0 );
    defineParameter( "JetSize", 0 );
-   defineParameter( "MinEta", -49);
+   defineParameter( "MinEta", 0 );
    defineParameter( "MaxEta", 49);
-   m_jetsize = JetTOB::JS1;
+//   m_jetsize = JetTOB::JS1;
 }
 
 
@@ -45,9 +45,13 @@ TCS::JetSortingAlg::~JetSortingAlg()
 TCS::StatusCode
 TCS::JetSortingAlg::sort(const InputTOBArray & input, TOBArray & output) {
    const JetTOBArray & jets = dynamic_cast<const JetTOBArray&>(input);
-
+   // because hw seems to be using different notation, for now 2 means 8x8 or JS1, and 1 JS2 a 4x4
+   m_jetsize = parameter("JetSize").value()==2?JetTOB::JS1:JetTOB::JS2; 
+   
    // fill output array with GenericTOBs builds from jets
    for(JetTOBArray::const_iterator cl = jets.begin(); cl!= jets.end(); ++cl ) {
+     if (parType_t(fabs((*cl)-> eta())) < parameter("MinEta").value()) continue; 
+     if (parType_t(fabs((*cl)-> eta())) > parameter("MaxEta").value()) continue;
      output.push_back( GenericTOB(**cl, m_jetsize)  );
    }
 

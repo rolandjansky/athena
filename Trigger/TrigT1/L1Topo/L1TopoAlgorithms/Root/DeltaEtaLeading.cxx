@@ -50,10 +50,10 @@ TCS::DeltaEtaLeading::process( const std::vector<TCS::TOBArray const *> & input,
          if(std::distance(input[0]->begin(), tob1) > parameter("NumberLeading1").value()-1) continue; // 0 >= 0;
       
          // test EtMin
-         if((*tob1)->Et() < ((int) parameter("EtMin").value())) continue;
+         if( (*tob1)->Et() < parameter("EtMin").value() ) continue;
       
          // test EtaMax
-         if((*tob1)->eta() > ((int) parameter("EtaMax").value())) continue;
+         if( (*tob1)->eta() > (int) parameter("EtaMax").value() ) continue; // this can be a negativ parameter
       
          TCS::TOBArray::const_iterator tob2 = tob1; ++tob2;      
          int count2 = 0;
@@ -65,10 +65,10 @@ TCS::DeltaEtaLeading::process( const std::vector<TCS::TOBArray const *> & input,
             if(std::distance(input[0]->begin(), tob2) > parameter("NumberLeading2").value()) continue;
 
             // test EtMin
-            if((*tob2)->Et() < ((int) parameter("EtMin").value())) continue;
+            if( (*tob2)->Et() < parameter("EtMin").value() ) continue;
 	
             // test EtaMax
-            if((*tob2)->eta() > ((int) parameter("EtaMax").value())) continue;
+            if( (*tob2)->eta() > (int) parameter("EtaMax").value() ) continue;
 	
             bool accept1 = deltaEta((*tob1)->eta(), (*tob2)->eta(), parameter("DeltaEtaMin").value());
             //cout << "Combining " << (*tob1)->eta() << " with " << (*tob2)->eta() << " cut " << accept1 << endl;
@@ -91,7 +91,7 @@ TCS::DeltaEtaLeading::process( const std::vector<TCS::TOBArray const *> & input,
          if(std::distance(input[0]->begin(), tob1) > parameter("NumberLeading1").value()-1) continue;
       
          // test EtMin
-         if((*tob1)->Et() < ((int) parameter("EtMin").value())) continue;
+         if((*tob1)->Et() < parameter("EtMin").value() ) continue;
       
          // test EtaMax
          if((*tob1)->eta() > ((int) parameter("EtaMax").value())) continue;
@@ -103,7 +103,7 @@ TCS::DeltaEtaLeading::process( const std::vector<TCS::TOBArray const *> & input,
             if(std::distance(input[1]->begin(), tob2) > parameter("NumberLeading2").value()-1) continue;
 	
             // test EtMin
-            if((*tob2)->Et() < ((int) parameter("EtMin").value())) continue;
+            if((*tob2)->Et() < parameter("EtMin").value() ) continue;
 	
             // test EtaMax
             if((*tob2)->eta() > ((int) parameter("EtaMax").value())) continue;

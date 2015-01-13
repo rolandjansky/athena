@@ -1,9 +1,10 @@
 /*********************************
  * DeltaPhiIncl1.cpp
  * Created by Joerg Stelzer on 11/16/12.
+ * Modified by V SOrin 2014
  * Copyright (c) 2012 Joerg Stelzer. All rights reserved.
  *
- * @brief algorithm calculates the phi-distance between one or two lists and applies delta-phi criteria
+ * @brief algorithm calculates the phi-distance between one  lists and applies delta-phi criteria
  *
  * @param NumberLeading
 **********************************/
@@ -17,12 +18,6 @@
 REGISTER_ALG_TCS(DeltaPhiIncl1)
 
 using namespace std;
-
-// not the best solution but we will move to athena where this comes for free
-#define LOG cout << "TCS::DeltaPhiIncl1:     "
-
-
-
 
 namespace {
    unsigned int
@@ -38,16 +33,13 @@ namespace {
 
 TCS::DeltaPhiIncl1::DeltaPhiIncl1(const std::string & name) : DecisionAlg(name)
 {
-   defineParameter("NumberLeading1", 3);
-   defineParameter("NumberLeading2", 3); 
-   defineParameter("DeltaPhiMin",  0, 0);
-   defineParameter("DeltaPhiMax", 63, 0);
-   defineParameter("DeltaPhiMin",  0, 1);
-   defineParameter("DeltaPhiMax",  5, 1);
-   defineParameter("DeltaPhiMin", 25, 2);
-   defineParameter("DeltaPhiMax", 32, 2);
-   defineParameter("MinET",1);
-   setNumberOutputBits(3);
+   defineParameter("InputWidth", 0);
+   defineParameter("NumResultBits", 1);
+   defineParameter("MinEt1",0);
+   defineParameter("MinEt2",0);
+   defineParameter("MinDeltaPhi",  0, 0);
+   defineParameter("MaxDeltaPhi", 31, 0);
+   setNumberOutputBits(1);
 }
 
 TCS::DeltaPhiIncl1::~DeltaPhiIncl1(){}
@@ -55,24 +47,22 @@ TCS::DeltaPhiIncl1::~DeltaPhiIncl1(){}
 
 TCS::StatusCode
 TCS::DeltaPhiIncl1::initialize() {
-   p_NumberLeading1 = parameter("NumberLeading1").value();
-   p_NumberLeading2 = parameter("NumberLeading2").value();
-   for(int i=0; i<3; ++i) {
-      p_DeltaPhiMin[i] = parameter("DeltaPhiMin", i).value();
-      p_DeltaPhiMax[i] = parameter("DeltaPhiMax", i).value();
+   p_NumberLeading1 = parameter("InputWidth").value();
+   p_NumberLeading2 = parameter("InputWidth").value();
+   for(int i=0; i<1; ++i) {
+      p_DeltaPhiMin[i] = parameter("MinDeltaPhi", i).value();
+      p_DeltaPhiMax[i] = parameter("MaxDeltaPhi", i).value();
    }
-   p_MinET = parameter("MinET").value();
+   p_MinET1 = parameter("MinEt1").value();
+   p_MinET2 = parameter("MinEt2").value();
 
-   LOG << "NumberLeading1 : " << p_NumberLeading1 << endl;  // note that the reading of generic parameters doesn't work yet
-   LOG << "NumberLeading2 : " << p_NumberLeading2 << endl;
-   LOG << "DeltaPhiMin0   : " << p_DeltaPhiMin[0] << endl;
-   LOG << "DeltaPhiMax0   : " << p_DeltaPhiMax[0] << endl;
-   LOG << "DeltaPhiMin1   : " << p_DeltaPhiMin[1] << endl;
-   LOG << "DeltaPhiMax1   : " << p_DeltaPhiMax[1] << endl;
-   LOG << "DeltaPhiMin2   : " << p_DeltaPhiMin[2] << endl;
-   LOG << "DeltaPhiMax2   : " << p_DeltaPhiMax[2] << endl;
-   LOG << "MinET          : " << p_MinET << endl;
-   LOG << "nummber output : " << numberOutputBits() << endl;
+   TRG_MSG_INFO("NumberLeading1 : " << p_NumberLeading1);  // note that the reading of generic parameters doesn't work yet
+   TRG_MSG_INFO("NumberLeading2 : " << p_NumberLeading2);
+   TRG_MSG_INFO("DeltaPhiMin0   : " << p_DeltaPhiMin[0]);
+   TRG_MSG_INFO("DeltaPhiMax0   : " << p_DeltaPhiMax[0]);
+   TRG_MSG_INFO("MinET1          : " << p_MinET1);
+   TRG_MSG_INFO("MinET2          : " << p_MinET2);
+   TRG_MSG_INFO("number output : " << numberOutputBits());
    
    return StatusCode::SUCCESS;
 }
@@ -87,79 +77,50 @@ TCS::DeltaPhiIncl1::process( const std::vector<TCS::TOBArray const *> & input,
 
    if(input.size() == 1) {
 
-      LOG << "input size     : " << input[0]->size() << endl;
+      TRG_MSG_DEBUG("input size     : " << input[0]->size());
 
       unsigned int nLeading = p_NumberLeading1;
+      unsigned int nLeading2 = p_NumberLeading2;
 
       for( TOBArray::const_iterator tob1 = input[0]->begin(); 
            tob1 != input[0]->end() && distance( input[0]->begin(), tob1) < nLeading;
            ++tob1) 
          {
             
-            if( parType_t((*tob1)->Et()) < p_MinET ) continue; // ET cut
+            if( parType_t((*tob1)->Et()) <= p_MinET1 ) continue; // ET cut
             
             TCS::TOBArray::const_iterator tob2 = tob1; ++tob2;      
             for( ;
-                 tob2 != input[0]->end() && distance( input[0]->begin(), tob2) < nLeading;
+                 tob2 != input[0]->end() && distance( input[0]->begin(), tob2) < nLeading2;
                  ++tob2) {
 
-               if( parType_t((*tob2)->Et()) < p_MinET) continue; // ET cut
+               if( parType_t((*tob2)->Et()) <= p_MinET2) continue; // ET cut
 
                // DeltaPhi cuts
                unsigned int deltaPhi = calcDeltaPhi( *tob1, *tob2 );
 
-               LOG << "    Combination : " << distance( input[0]->begin(), tob1) << " x " << distance( input[0]->begin(), tob2) << "  phi1=" << (*tob1)->phi() << " , phi2=" << (*tob2)->phi()
-                   << ", DeltaPhi = " << deltaPhi << " -> ";
+               std::stringstream msgss;
+               msgss << "    Combination : " << distance( input[0]->begin(), tob1) << " x " << distance( input[0]->begin(), tob2) << "  phi1=" << (*tob1)->phi() << " , phi2=" << (*tob2)->phi()
+                     << ", DeltaPhi = " << deltaPhi << " -> ";
 
                bool accept[3];
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
-                  accept[i] = deltaPhi > p_DeltaPhiMin[i] && deltaPhi <= p_DeltaPhiMax[i];
+                  accept[i] = deltaPhi >= p_DeltaPhiMin[i] && deltaPhi <= p_DeltaPhiMax[i];
                   if( accept[i] ) {
                      decison.setBit(i, true);  
                      output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
                   }
-                  cout << (accept[i]?"pass":"fail") << "|";
+                  msgss << (accept[i]?"pass":"fail") << "|";
                }
-               cout << endl;
+               TRG_MSG_DEBUG(msgss.str());
             }
          }
       
-   } else if( input.size() == 2) {
       
-      for( TOBArray::const_iterator tob1 = input[0]->begin(); 
-           tob1 != input[0]->end() && distance(input[0]->begin(), tob1) <= p_NumberLeading1;
-           ++tob1)
-         {
-
-            if( parType_t((*tob1)->Et()) < p_MinET) continue; // ET cut
-
-            for( TCS::TOBArray::const_iterator tob2 = input[1]->begin(); 
-                 tob2 != input[1]->end() && distance(input[1]->begin(), tob2) <= p_NumberLeading2;
-                 ++tob2) {
-
-               if( parType_t((*tob2)->Et()) < p_MinET) continue; // ET cut
-
-               // test DeltaPhiMin, DeltaPhiMax
-               unsigned int deltaPhi = calcDeltaPhi( *tob1, *tob2 );
-
-               bool accept[3];
-               for(unsigned int i=0; i<3; ++i) {
-                  accept[i] = deltaPhi > p_DeltaPhiMin[i] && deltaPhi <= p_DeltaPhiMax[i];
-                  if( accept[i] ) {
-                     decison.setBit(i, true);
-                     output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
-                  }
-               }
-               LOG << "      DeltaPhi = " << deltaPhi << " -> " 
-                   << (accept[0]?"pass":"fail") << "|"
-                   << (accept[1]?"pass":"fail") << "|"
-                   << (accept[2]?"pass":"fail") << endl;
-            }
-         }
 
    } else {
 
-      TCS_EXCEPTION("DeltaPhiIncl1 alg must have either 1 or 2 inputs, but got " << input.size());
+      TCS_EXCEPTION("DeltaPhiIncl1 alg must have  1 input, but got " << input.size());
 
    }
    return TCS::StatusCode::SUCCESS;

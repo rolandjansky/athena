@@ -1,6 +1,8 @@
 //  GenericListGenerator.cxx
 //  TopoCore
 //  Created by Joerg Stelzer on 11/10/12.
+//  Modified by V Sorin 2014
+//  algorithm to generate the all lists from TOBs
 //  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 
 #include "L1TopoAlgorithms/GenericListGenerator.h"
@@ -13,7 +15,10 @@ REGISTER_ALG_TCS(GenericListGenerator)
 
 // constructor
 TCS::GenericListGenerator::GenericListGenerator(const std::string & name) : SortingAlg(name)
-{}
+{
+   defineParameter( "JetSize", 0 );
+
+}
 
 
 // destructor
@@ -22,6 +27,10 @@ TCS::GenericListGenerator::~GenericListGenerator()
 
 TCS::StatusCode
 TCS::GenericListGenerator::sort(const InputTOBArray & input, TOBArray & output) {
+   // because fw seems to have differnt notation, 2 means for now JS1 8x8
+   m_jetsize = parameter("JetSize").value()==2?JetTOB::JS1:JetTOB::JS2; 
+ 
+
    try {
       const ClusterTOBArray & clusters = dynamic_cast<const ClusterTOBArray&>(input);
       for(ClusterTOBArray::const_iterator cl = clusters.begin(); cl!= clusters.end(); ++cl ) {
@@ -34,7 +43,7 @@ TCS::GenericListGenerator::sort(const InputTOBArray & input, TOBArray & output) 
    try {
       const JetTOBArray & jets = dynamic_cast<const JetTOBArray&>(input);
       for(JetTOBArray::const_iterator jet = jets.begin(); jet!= jets.end(); ++jet ) {
-         output.push_back( GenericTOB(**jet, JetTOB::JS1) );
+         output.push_back( GenericTOB(**jet, m_jetsize) );
       }
       return TCS::StatusCode::SUCCESS;
    }

@@ -20,9 +20,6 @@ REGISTER_ALG_TCS(EtCut)
 
 using namespace std;
 
-// not the best solution but we will move to athena where this comes for free
-#define LOG cout << "TCS::EtCut:     "
-
 
 TCS::EtCut::EtCut(const std::string & name) : DecisionAlg(name)
 {
@@ -36,8 +33,8 @@ TCS::EtCut::~EtCut(){}
 TCS::StatusCode
 TCS::EtCut::initialize() {
    p_MinET = parameter("MinET").value();
-   LOG << "MinET          : " << p_MinET << endl;
-   LOG << "nummber output : " << numberOutputBits() << endl;
+   TRG_MSG_INFO("MinET          : " << p_MinET);
+   TRG_MSG_INFO("number output : " << numberOutputBits());
    return StatusCode::SUCCESS;
 }
 
@@ -45,8 +42,8 @@ TCS::EtCut::initialize() {
 
 TCS::StatusCode
 TCS::EtCut::process( const std::vector<TCS::TOBArray const *> & input,
-                      const std::vector<TCS::TOBArray *> & output,
-                      Decision & decision )
+                     const std::vector<TCS::TOBArray *> & output,
+                     Decision & decision )
 {
 
    if(input.size()!=1) {
@@ -64,7 +61,7 @@ TCS::EtCut::process( const std::vector<TCS::TOBArray const *> & input,
 
       output[0]->push_back(TCS::CompositeTOB(*tob));
 
-      LOG << "      Jet " << distance(input[0]->begin(), tob) << " ET = " << (*tob)->Et() << endl;
+      TRG_MSG_DEBUG("Jet " << distance(input[0]->begin(), tob) << " ET = " << (*tob)->Et());
    }
 
    decision.setBit( 0, accept );
