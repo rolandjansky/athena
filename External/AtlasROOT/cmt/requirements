@@ -56,6 +56,9 @@ macro rootTMVALibs "" \
 macro rootNetLibs "" \
           ROOTNetLibs "-L$(ROOT_home)/lib -lNet"
 
+macro rootEGLibs "" \
+          ROOTEGLibs "-L$(ROOT_home)/lib -lEG"
+
 ## prevent people from messing around with CINT dictionaries:
 ##  ATLAS is using Reflex dictionaries, they don't mix well...
 macro rootSTLDictLibs "" \
@@ -64,7 +67,7 @@ macro rootSTLDictLibs "" \
 # default tag:
 apply_tag ROOTBasicLibs
 
-macro ROOT_linkopts " $(rootRooFitLibs) $(rootMathLibs) $(rootGenVectorLibs) $(rootBasicLibs) $(rootRFIOLibs) $(rootGraphicsLibs) $(rootTableLibs) $(rootSTLDictLibs) $(rootCintexLibs) $(rootTMVALibs) $(rootNetLibs) "
+macro ROOT_linkopts " $(rootRooFitLibs) $(rootMathLibs) $(rootGenVectorLibs) $(rootBasicLibs) $(rootRFIOLibs) $(rootGraphicsLibs) $(rootTableLibs) $(rootSTLDictLibs) $(rootCintexLibs) $(rootTMVALibs) $(rootNetLibs) $(rootEGLibs) "
 
 # Define pattern for packages with root files which need root cint to
 # be run.
@@ -103,14 +106,28 @@ macro ROOT_linkopts " $(rootRooFitLibs) $(rootMathLibs) $(rootGenVectorLibs) $(r
 pattern have_root_headers \
   macro root_headers       " -s=$(<package>_root)/<package> <root_headers> " ; \
   macro dict               "$(bin)dict/" ; \
+  macro libname            "$(library_prefix)<headers_lib>.$(shlibsuffix)" ; \
   macro extra_root_cint_includes <extra_includes> ; \
   macro_append extra_root_cint_includes "" Darwin " -I${ROOTSYS}/cint/cint/include -I${ROOTSYS}/cint/cint/lib -I${ROOTSYS}/cint/cint/stl " ; \
   macro root_cint_includes "-I.. -I${ROOTSYS}/include ${extra_root_cint_includes} " ; \
   macro PCM_make_target ""  ROOT_GE_6_00 <headers_lib>Dict.pcm ; \
+  macro rootmap_opts "" ROOT_GE_6_00 " -rmf $(bin)<headers_lib>.rootmap -rml $(libname) " ; \
   document root_cint <headers_lib>Dict ${root_headers} ; \
   include_dirs "." ; \
   library <headers_lib> $(dict)<headers_lib>Dict.cxx ; \
-  macro_append <headers_lib>_dependencies " <headers_lib>Dict " ;
+  macro_append <headers_lib>_dependencies " <headers_lib>Dict " ; \
+  macro merge_rootmap_tag "do" do_merge_rootmap "do" no_merge_rootmap "dont" ; \
+  macro root6_merge_only "dont"  ROOT_GE_6_00 $(merge_rootmap_tag) ; \
+  apply_pattern root_headers_$(root6_merge_only)_merge_rootmap headers_lib=<headers_lib> fulllibname=$(bin)$(libname)
+
+pattern root_headers_do_merge_rootmap \
+  document merge_rootmap <headers_lib>_MergeMap library=<headers_lib> \
+           merge_rootmap_switch="--do-merge" <fulllibname> ; \
+  macro_append <headers_lib>_MergeMap_dependencies " <headers_lib> "
+
+pattern root_headers_dont_merge_rootmap \
+  macro dummy "<headers_lib> <fulllibname>" ;
+
 
 # Declaration of makefile fragments for building cint dictionary
 make_fragment root_cint -suffix=h -header=root_cint_header -trailer=root_cint_trailer 
