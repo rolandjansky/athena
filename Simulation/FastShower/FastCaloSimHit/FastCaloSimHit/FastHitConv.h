@@ -9,7 +9,7 @@
 #ifndef FASTHITCONV_H
 #define FASTHITCONV_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 #include "SimHelpers/AthenaHitsCollectionHelper.h"
@@ -37,7 +37,7 @@ class LArFCAL_ID;
 class LArHEC_ID;
 class TileID;
 
-class FastHitConv: public Algorithm {
+class FastHitConv: public AthAlgorithm {
 
 public:
 
@@ -84,8 +84,8 @@ private:
 
     IMessageSvc* m_msgSvc;
 
-    StoreGateSvc* m_storeGate;
-    StoreGateSvc* m_detStore;
+    //StoreGateSvc* m_storeGate;
+    //StoreGateSvc* m_detStore;
 
     ServiceHandle<StoreGateSvc> m_storeGateFastCalo;
 
