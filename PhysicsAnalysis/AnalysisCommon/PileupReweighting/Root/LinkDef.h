@@ -6,6 +6,7 @@
 #include <string>
 #include "TString.h"
 #include <PileupReweighting/TPileupReweighting.h>
+#include "PathResolver/PathResolver.h"
 
 #ifdef __CINT__
 
@@ -43,6 +44,7 @@
 #pragma link C++ class map<TString,map<int,map<int,bool> > >+;
 #pragma link C++ class map<int,map<int,bool> >+;
 #pragma link C++ class map<int,bool>+;
+#pragma link C++ class map<TString,TString>+;
 
 #pragma link C++ class pair<int,map<int,pair<unsigned int,unsigned int > > >+ ;
 #pragma link C++ class pair<int,pair<unsigned int,unsigned int > >+ ;

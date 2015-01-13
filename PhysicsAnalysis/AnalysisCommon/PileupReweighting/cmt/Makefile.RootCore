@@ -2,5 +2,7 @@ PACKAGE          = PileupReweighting
 PACKAGE_CXXFLAGS = 
 PACKAGE_LDFLAGS  = 
 PACKAGE_PRELOAD  = Hist
+PACKAGE_DEP = AsgTools xAODEventInfo PathResolver xAODCore
+PACKAGE_REFLEX = 1
 
 include $(ROOTCOREDIR)/Makefile-common

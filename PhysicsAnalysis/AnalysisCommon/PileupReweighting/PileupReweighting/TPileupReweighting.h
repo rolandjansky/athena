@@ -7,6 +7,8 @@
 #ifndef __TPILEUPREWEIGHTING__
 #define __TPILEUPREWEIGHTING__
 
+#define PILEUPREWEIGHTINGVERSION 3 //useful maybe for other packages to detect with. Each release I'll try to remember to increment this
+
 /**
    @class TPileupReweighting
    @brief Tool to get the calculated MC pileup weight. Also does custom weights and other useful stuff.
@@ -35,6 +37,8 @@
 #include <iostream>
 #include <stdexcept>
 
+
+
 class TH1;
 class TH1D;
 class TH2D;
@@ -51,6 +55,7 @@ namespace Root {
 
       /** Standard destructor */
       ~TPileupReweighting();
+
 
   public:
       /** Initialize this class once before the event loop starts 
@@ -69,18 +74,8 @@ namespace Root {
       //-------------------------------------------------------------
       std::vector<Double_t> getIntegratedLumiVector();
 
-      /** total luminosity loaded and accepted by the tool */
-      inline Double_t GetIntegratedLumi() { 
-         if(!m_isInitialized) {
-            Error("GetIntegratedLumi", "Please initialize the tool before retrieving the total lumi");
-            throw std::runtime_error("Throwing 1");
-         }
-         if(!m_lumiVectorIsLoaded) {
-            Error("GetIntegratedLumi","No Lumicalc file loaded, so cannot get integrated lumi, returning 0");
-            return 0;
-         }
-         return globalTotals["pileup"][-1]/1E6; 
-      }
+      /** total luminosity loaded and accepted by the tool (in inverse pb) */
+      Double_t GetIntegratedLumi(TString trigger="");
       /** totalMC maps should also hold the total number of entries for each channel */
       inline Double_t GetNumberOfEvents(Int_t channel) {
          std::map<Int_t, Double_t>& tMap = globalNumberOfEntries["pileup"];
@@ -117,6 +112,9 @@ namespace Root {
       inline void EnableDebugging(Bool_t in) { m_debugging = in;}
       /** Set which channel should be used as a default when specific mc channel distributions cannot be found */
       inline void SetDefaultChannel(Int_t channel) { m_defaultChannel=channel;}
+      /** default channels can now be assigned for each mc run number */
+      inline void SetDefaultChannelByMCRunNumber(Int_t channel, Int_t mcRunNumber) { m_defaultChannelsByMCRunNumber[mcRunNumber]=channel; }
+      Int_t GetDefaultChannel(Int_t mcRunNumber=0);
       /** Set how to handle configurations where some of your data has no corresponding mc to describe it 
           0=Default (Throw exception), 1=Subtract lumi from normalizations (i.e. discard data), 2=keep lumi and continue*/
       inline void SetUnrepresentedDataAction(Int_t action, Double_t tolerance=0.05) {
@@ -134,6 +132,8 @@ namespace Root {
       Int_t AddPeriod(Int_t runNumber, UInt_t start, UInt_t end);
       /** Get the PeriodNumber of the given runNumber,start and end. If not found, returns -1 */
       Int_t GetPeriodNumber(Int_t runNumber, UInt_t start, UInt_t end);
+      /** Get the first period number with the data run number contained - assume all periods are disconnected for this to be useful */
+      Int_t GetFirstFoundPeriodNumber(UInt_t runNumber);
       /** Alternative method where you give it the mcRunNumber and the 'data' runNumber */
       Int_t GetPeriodNumber(Int_t mcRunNumber, UInt_t runNumber);
       /** use a hardcoded period configuration */
@@ -154,7 +154,7 @@ namespace Root {
       //Methods to load config files or histograms
       //-----------------------------------------------------
       Int_t AddConfigFile(const TString fileName);
-      Int_t AddLumiCalcFile(const TString fileName);
+      Int_t AddLumiCalcFile(const TString fileName, const TString trigger="None");
       Int_t AddMetaDataFile(const TString fileName,const TString channelBranchName="mc_channel_number");
 
       Int_t AddDistribution(TH1* hist, const TString weightName, Int_t runNumber, Int_t channelNumber);
@@ -227,10 +227,14 @@ namespace Root {
       int GetRandomSeed() {return m_random3->GetSeed();}
       /** Gets a random data run number according to the integrated lumi distribution associated to this mcRunNumber */
       UInt_t GetRandomRunNumber(Int_t mcRunNumber);
+      /** Similar to above method, but allows use of custom reweighting config files .. using weightName='pileup' has same behaviour as above */
+      UInt_t GetRandomRunNumber(Int_t mcRunNumber, TString weightName);
       /** Get random run number according to integrated lumi distribution for the given mu value (uses the binning of the mu histogram) */
       UInt_t GetRandomRunNumber(Int_t mcRunNumber, Double_t mu);
       /** Get random period number from the sub-periods assigned to this run number */
       Int_t GetRandomPeriodNumber(Int_t mcRunNumber);
+      /** Get a random lumi block from the run number given. Use GetRandomRunNumber to choose the run number */
+      UInt_t GetRandomLumiBlockNumber(UInt_t runNumber);
 
 
       //-----------------------------------------------------
@@ -270,6 +274,21 @@ namespace Root {
          return secondaryDistributions[weightName][channelNumber][periodNumber];
       }
 
+      TH1D* GetPrimaryTriggerDistribution(const TString trigger, Int_t periodNumber) {
+         if(m_triggerPrimaryDistributions.find(trigger)==m_triggerPrimaryDistributions.end()||
+            m_triggerPrimaryDistributions[trigger].find(periodNumber)==m_triggerPrimaryDistributions[trigger].end()) {
+            return 0;
+         }
+         return m_triggerPrimaryDistributions[trigger][periodNumber];
+      }
+
+      /** Method for weighting data to account for prescales and mu bias. Use by giving the tool multiple lumicalc files, one for each trigger */
+      Double_t GetDataWeight(Int_t runNumber, TString trigger, Double_t x);
+      Double_t GetDataWeight(Int_t runNumber, TString trigger); //version without mu dependence
+
+
+      // other methods 
+      Bool_t IsInitialized() { return m_isInitialized; }
 
       //-----------------------------------------------------
       //Depricated methods
@@ -292,6 +311,7 @@ namespace Root {
       void AddDistributionTree(TTree *tree, TFile *file);
       Int_t FactorizeDistribution(TH1* hist, const TString weightName, Int_t channelNumber, Int_t periodNumber,bool includeInMCRun,bool includeInGlobal);
 
+      void CalculatePrescaledLuminosityHistograms(const TString trigger);
 
       //********** Private members*************************
       Bool_t m_SetWarnings;
@@ -307,6 +327,7 @@ namespace Root {
       Bool_t m_ignoreFilePeriods;
       TTree *m_metadatatree;
       Double_t m_unrepDataTolerance;
+      Bool_t m_doGlobalDataWeight; //used in GetDataWeight to flag mu-independent version
 
       //-----------------------------------------------------
       //Bonus method members
@@ -344,6 +365,11 @@ namespace Root {
       //data is stored in channel=-1
       std::map<TString, std::map<Int_t,std::map<Int_t, TH1*> > > m_inputHistograms;
 
+      //[trigger,runNumber] -> lumicalc derived histograms used to weight data to account for prescaling, based on mu
+      std::map<TString, std::map<Int_t, TH1*> > m_triggerInputHistograms;
+      //[trigger,periodNumber] -> assembled into the individual periods
+      std::map<TString, std::map<Int_t, TH1D*> > m_triggerPrimaryDistributions;
+
       /** channel metadata map */
       std::map<TString, std::map<Int_t, Double_t> > m_metadata; 
 
@@ -360,6 +386,41 @@ namespace Root {
 #endif
       /** [weightName,datarunnum,binnum] -> badbin flag */
       std::map<TString, std::map<Int_t, std::map<Int_t, Bool_t> > > m_badbins;
+
+      /** mapping for default channels by mc run number - introduced for mc12a/b combined functionality */
+      std::map<Int_t,Int_t> m_defaultChannelsByMCRunNumber;
+
+      /** lumi in each lumiblock in each run loaded. used for GetRandomLumiBlockNumber */
+      std::map<UInt_t, std::map<UInt_t, Double_t> > m_lumiByRunAndLbn;
+
+      /** map storing the lumicalc file locations - used when building DataPileupWeights */
+      std::map<TString,TString> m_lumicalcFiles;
+
+      struct CompositeTrigger {
+         int op;
+         CompositeTrigger* trig1;
+         CompositeTrigger* trig2;
+         TString val;
+         CompositeTrigger() : op(0),trig1(0),trig2(0),val("") { }
+         ~CompositeTrigger() { if(trig1) delete trig1; if(trig2) delete trig2; }
+         double eval(std::map<TString, std::map<Int_t, std::map<Int_t, Float_t> > >& m, int run, int lbn) {
+            switch(op) {
+               case 0: if(m[val][run].find(lbn)==m[val][run].end()) return 0; /*trigger disabled, so cannot contribute*/   return 1./m[val][run][lbn];
+               case 1: return 1. - (1. - trig1->eval(m,run,lbn))*(1.-trig2->eval(m,run,lbn)); //OR
+               case 2: return trig1->eval(m,run,lbn)*trig2->eval(m,run,lbn);
+               default: return 1;
+            }
+         }
+         void getTriggers(std::vector<TString>& s) {
+            if(trig1==0&&trig2==0&&val.Length()>0) s.push_back(val);
+            else { trig1->getTriggers(s); trig2->getTriggers(s); }
+         }
+      };
+
+
+      
+
+      CompositeTrigger* makeTrigger(TString s);
 
       ClassDef(TPileupReweighting,1)
 

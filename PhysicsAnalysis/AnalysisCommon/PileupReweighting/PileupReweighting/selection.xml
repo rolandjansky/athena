@@ -1,0 +1,4 @@
+ <lcgdict>      
+        <class name="CP::PileupReweightingTool" />
+        <class name="CP::IPileupReweightingTool" />
+</lcgdict> 

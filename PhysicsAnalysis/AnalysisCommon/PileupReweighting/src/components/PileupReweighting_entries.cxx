@@ -1,20 +1,17 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
-#include "PileupReweighting/PileupReweightingAlg.h"
-#include "PileupReweighting/PileupReweightingUnitTest.h"
 
-//#include "PileupReweighting/FastLumiSvc.h"
+#include "PileupReweighting/PileupReweightingTool.h"
 
-DECLARE_ALGORITHM_FACTORY( PileupReweightingAlg )
-DECLARE_ALGORITHM_FACTORY( PileupReweightingUnitTest )
+#include "../PileupReweightingProvider.h"
 
-//DECLARE_SERVICE_FACTORY(FastLumiSvc)
+DECLARE_NAMESPACE_TOOL_FACTORY( CP, PileupReweightingTool )
+DECLARE_NAMESPACE_ALGORITHM_FACTORY( CP, PileupReweightingProvider )
 
 DECLARE_FACTORY_ENTRIES( PileupReweighting ) 
 {
-  DECLARE_ALGORITHM( PileupReweightingAlg );
-  DECLARE_ALGORITHM( PileupReweightingUnitTest );
-  //DECLARE_SERVICE(FastLumiSvc);
+   DECLARE_NAMESPACE_TOOL( CP, PileupReweightingTool )
+    DECLARE_NAMESPACE_ALGORITHM( CP, PileupReweightingProvider )
 }
 
 
