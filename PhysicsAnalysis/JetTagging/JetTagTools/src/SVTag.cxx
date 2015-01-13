@@ -307,6 +307,7 @@ namespace Analysis
       else if (m_xAODBaseName == "SV1")
 	{
 	  BTag->setTaggerInfo(distnrm, xAOD::BTagInfo::SV1_normdist);
+	  BTag->setVariable<float>(m_xAODBaseName, "significance3d", distnrm);
 	}
       else{
 	BTag->setVariable<float>(m_xAODBaseName, "normdist", distnrm);
