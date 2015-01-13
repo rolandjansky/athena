@@ -59,9 +59,16 @@ namespace Trk {
 				  const Trk::ParticleHypothesis partHyp = Trk::pion) const =0;
                   
       virtual void updateSharedHitCount(const Trk::Track&, TrackSummary&) const {};
+
+       virtual void  updateExpectedHitInfo(const Trk::Track&, TrackSummary&) const {};
+
+       virtual void updateAdditionalInfo(TrackSummary&, std::vector<float>&, float&,int&, int&) const {};
                   
 
     virtual void addDetailedTrackSummary(const Track& track, TrackSummary& summary ) const = 0;
+
+    
+
   };
 
   inline const InterfaceID& Trk::ITrackSummaryHelperTool::interfaceID()

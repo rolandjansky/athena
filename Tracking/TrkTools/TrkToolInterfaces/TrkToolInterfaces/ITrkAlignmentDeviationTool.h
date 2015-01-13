@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #ifndef ITRKALIGNMENTDEVIATIONTOOL_H
 #define ITRKALIGNMENTDEVIATIONTOOL_H
 
@@ -12,12 +11,11 @@
 
 static const InterfaceID IID_ITrkAlignmentDeviationTool("Trk::ITrkAlignmentDeviationTool", 1, 0);
 
-//class HepMatrix;
-
 namespace Trk {
 
   class Track; 
   class MeasurementBase;
+  class AlignmentDeviation;
 
 /** @brief Interface for tool to add alignmenties to a global chi2 fit
 
@@ -28,12 +26,10 @@ namespace Trk {
 
       static const InterfaceID& interfaceID( ) ;
 
-      /** calculate the number of degrees of freedom, covariance matrix and the required Jacobians needed to add the alignment uncertainties 
-	  in a global chi2 fit and  based on a given trajectory */
-      virtual bool initTrajectory( const Trk::Track& track, int& dim, HepMatrix& cov, std::vector<const HepMatrix*>& jacobians ) const = 0;
-
-      /** update the list of rots based on a set of fitted alignment deviations */
-      virtual bool updateROTs( std::vector< const MeasurementBase* >& mbs, std::vector<double>& alignmentDeviations ) const = 0;
+      /**
+       * Compute alignment deviations, given a track as input
+       */
+      virtual void makeAlignmentDeviations (const Trk::Track& track, std::vector<Trk::AlignmentDeviation*>& deviations) const = 0;
   };
 
 }

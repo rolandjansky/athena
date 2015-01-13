@@ -22,6 +22,9 @@
 
 namespace HepMC { class GenParticle; }
 
+#include "xAODTruth/TruthParticle.h"
+//namespace xAOD { class TruthParticle; }
+
 namespace Trk {
 
   /**
@@ -49,6 +52,7 @@ namespace Trk {
      *  convenient way to make sure the memory is freed.)
      */
     virtual const Trk::TrackParameters* makeProdVertexParameters(const HepMC::GenParticle* part) const = 0;
+    virtual const Trk::TrackParameters* makeProdVertexParameters(const xAOD::TruthParticle* part) const = 0;
 
     /** This function extrapolates track to the perigee, and returns
      * perigee parameters.
@@ -58,6 +62,7 @@ namespace Trk {
      * object.
      */
     virtual const Trk::TrackParameters* makePerigeeParameters(const HepMC::GenParticle* part) const = 0;
+    virtual const Trk::TrackParameters* makePerigeeParameters(const xAOD::TruthParticle* part) const = 0;
 
   };
   

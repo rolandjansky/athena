@@ -16,6 +16,7 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "EventPrimitives/EventPrimitives.h"
+class Identifier;
 
 namespace Trk {
   class CovarianceMatrix;
@@ -63,7 +64,7 @@ namespace Trk {
      */
     virtual Amg::MatrixX* 
       createScaledPixelCovariance(const Amg::MatrixX&,
-                                  bool is_endcap) const=0;
+                                  const Identifier& id) const=0;
     /** Scale SCT Amg::MatrixX by returning a new Amg::MatrixX
         object with scaled values. Measurement errors in the
         strip-transverse plane are scaled, involving a rotation by

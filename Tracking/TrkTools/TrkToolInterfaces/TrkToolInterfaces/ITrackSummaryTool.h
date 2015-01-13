@@ -40,6 +40,9 @@ class ITrackSummaryTool : virtual public IAlgTool {
   
   /** method to update the shared hit content only, this is optimised for track collection merging. */
   virtual void updateSharedHitCount(Track& track) const = 0;
+
+
+  virtual void updateAdditionalInfo(Track& track) const = 0;
   
 };
 
