@@ -8,7 +8,7 @@ doReadBS        = True
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 if not doReadBS:
-  athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/atlascerngroupdisk/perf-idtracking/InDetRecExample/mc09_7TeV.105200.T1_McAtNlo_Jimmy.digit.RDO.e510_s624_s633_d287_tid112426_00/RDO.112426._000007.pool.root.1"] 
+  athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/atlascerngroupdisk/phys-rig/pileupSamples/LS1Samples/valid1.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.recon.RDO.e1565_s1499_s1504_r4242_tid01185596_00/RDO.01185596._000001.pool.root.1"] 
 
 if doReadBS:
   import os
@@ -25,6 +25,7 @@ if doReadBS:
   if len(globalflags.ConditionsTag())!=0:
     from IOVDbSvc.CondDB import conddb
     conddb.setGlobalTag(globalflags.ConditionsTag())
+    conddb.addOverride('/GLOBAL/TrackingGeo/LayerMaterialV2','AtlasLayerMat_v19s0_ATLAS-R1-2010-01')
 
 theApp.EvtMax = 5
   
@@ -117,9 +118,9 @@ InDetFlags.doiPatRec              = False
 #InDetFlags.doSlimming = False
 
 # --- possibility to run tracking on subdetectors separately (and independent from each other)
-InDetFlags.doTrackSegmentsPixel = True
-InDetFlags.doTrackSegmentsSCT   = True
-InDetFlags.doTrackSegmentsTRT   = True
+#InDetFlags.doTrackSegmentsPixel = True
+#InDetFlags.doTrackSegmentsSCT   = True
+#InDetFlags.doTrackSegmentsTRT   = True
 
 # --- possibility to change the trackfitter
 #InDetFlags.trackFitterType = 'KalmanFitter'
