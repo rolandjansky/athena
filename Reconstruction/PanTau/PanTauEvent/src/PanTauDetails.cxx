@@ -62,7 +62,9 @@ PanTau::PanTauDetails::PanTauDetails()
 PanTau::PanTauDetails::PanTauDetails(PanTau::PanTauSeed* inputSeed) 
     :
     Analysis::TauDetails(),
-    m_PanTauSeed(inputSeed)
+    m_PanTauSeed(inputSeed),
+    m_features(nullptr),
+    m_seed(nullptr)
 {
     if(inputSeed->getIsValidSeed() == true) {
         bool        isValid         = false;
@@ -104,7 +106,42 @@ PanTau::PanTauDetails::PanTauDetails(
     Analysis::TauDetails(),
     m_PanTauSeed(0),
     m_features(features),
-    m_seed(seed)
+    m_seed(seed),
+    m_RecoMode_SubAlg(-5),
+    m_RecoMode_PanTau(-5),
+    m_BDTValue_1p0n_vs_1p1n(-5),
+    m_BDTValue_1p1n_vs_1pXn(-5),
+    m_BDTValue_3p0n_vs_3pXn(-5),
+    m_pantau_proto_pt(-1111),
+    m_pantau_proto_eta(-11),
+    m_pantau_proto_phi(-11),
+    m_pantau_proto_m(-1111),
+    m_pantau_final_pt(-1111),
+    m_pantau_final_eta(-11),
+    m_pantau_final_phi(-11),
+    m_pantau_final_m(-1111),
+    
+    m_eflowRec_Basic_NPi0NeutConsts(-5),
+    m_eflowRec_Basic_NNeutralConsts(-5),
+    m_eflowRec_Charged_HLV_SumPt(-1111),
+    m_eflowRec_Charged_Ratio_EtOverEtAllConsts(-5),
+    m_eflowRec_Neutral_HLV_SumM(-1111),
+    m_eflowRec_Neutral_PID_BDTValues_EtSort_1(-5),
+    m_eflowRec_Neutral_PID_BDTValues_BDTSort_2(-5),
+    m_eflowRec_Neutral_Ratio_EtOverEtAllConsts(-5),
+    m_eflowRec_Neutral_Mean_DRToLeading_WrtEtAllConsts(-5),
+    m_eflowRec_Combined_DeltaR1stNeutralTo1stCharged(-5),
+
+    m_CellBased_Basic_NNeutralConsts(-5),
+    m_CellBased_Charged_JetMoment_EtDRxTotalEt(-1111),
+    m_CellBased_Charged_StdDev_Et_WrtEtAllConsts(-1111),
+    m_CellBased_Neutral_HLV_SumM(-1111),
+    m_CellBased_Neutral_PID_BDTValues_BDTSort_1(-5),
+    m_CellBased_Neutral_PID_BDTValues_BDTSort_2(-5),
+    m_CellBased_Neutral_Ratio_1stBDTEtOverEtAllConsts(-5),
+    m_CellBased_Neutral_Ratio_EtOverEtAllConsts(-5),
+    m_CellBased_Neutral_Shots_NPhotonsInSeed(-5),
+    m_CellBased_Combined_DeltaR1stNeutralTo1stCharged(-5)
 {
 }
 
@@ -115,7 +152,42 @@ PanTau::PanTauDetails::PanTauDetails(
     Analysis::TauDetails(),
     m_PanTauSeed(rhs.m_PanTauSeed),
     m_features(rhs.m_features ? new PanTau::TauFeature(*rhs.m_features) : 0),
-    m_seed(rhs.m_seed)
+    m_seed(rhs.m_seed),
+    m_RecoMode_SubAlg(rhs.m_RecoMode_SubAlg),
+    m_RecoMode_PanTau(rhs.m_RecoMode_PanTau),
+    m_BDTValue_1p0n_vs_1p1n(rhs.m_BDTValue_1p0n_vs_1p1n),
+    m_BDTValue_1p1n_vs_1pXn(rhs.m_BDTValue_1p1n_vs_1pXn),
+    m_BDTValue_3p0n_vs_3pXn(rhs.m_BDTValue_3p0n_vs_3pXn),
+    m_pantau_proto_pt(rhs.m_pantau_proto_pt),
+    m_pantau_proto_eta(rhs.m_pantau_proto_eta),
+    m_pantau_proto_phi(rhs.m_pantau_proto_phi),
+    m_pantau_proto_m(rhs.m_pantau_proto_m),
+    m_pantau_final_pt(rhs.m_pantau_final_pt),
+    m_pantau_final_eta(rhs.m_pantau_final_eta),
+    m_pantau_final_phi(rhs.m_pantau_final_phi),
+    m_pantau_final_m(rhs.m_pantau_final_m),
+    
+    m_eflowRec_Basic_NPi0NeutConsts(rhs.m_eflowRec_Basic_NPi0NeutConsts),
+    m_eflowRec_Basic_NNeutralConsts(rhs.m_eflowRec_Basic_NNeutralConsts),
+    m_eflowRec_Charged_HLV_SumPt(rhs.m_eflowRec_Charged_HLV_SumPt),
+    m_eflowRec_Charged_Ratio_EtOverEtAllConsts(rhs.m_eflowRec_Charged_Ratio_EtOverEtAllConsts),
+    m_eflowRec_Neutral_HLV_SumM(rhs.m_eflowRec_Neutral_HLV_SumM),
+    m_eflowRec_Neutral_PID_BDTValues_EtSort_1(rhs.m_eflowRec_Neutral_PID_BDTValues_EtSort_1),
+    m_eflowRec_Neutral_PID_BDTValues_BDTSort_2(rhs.m_eflowRec_Neutral_PID_BDTValues_BDTSort_2),
+    m_eflowRec_Neutral_Ratio_EtOverEtAllConsts(rhs.m_eflowRec_Neutral_Ratio_EtOverEtAllConsts),
+    m_eflowRec_Neutral_Mean_DRToLeading_WrtEtAllConsts(rhs.m_eflowRec_Neutral_Mean_DRToLeading_WrtEtAllConsts),
+    m_eflowRec_Combined_DeltaR1stNeutralTo1stCharged(rhs.m_eflowRec_Combined_DeltaR1stNeutralTo1stCharged),
+
+    m_CellBased_Basic_NNeutralConsts(rhs.m_CellBased_Basic_NNeutralConsts),
+    m_CellBased_Charged_JetMoment_EtDRxTotalEt(rhs.m_CellBased_Charged_JetMoment_EtDRxTotalEt),
+    m_CellBased_Charged_StdDev_Et_WrtEtAllConsts(rhs.m_CellBased_Charged_StdDev_Et_WrtEtAllConsts),
+    m_CellBased_Neutral_HLV_SumM(rhs.m_CellBased_Neutral_HLV_SumM),
+    m_CellBased_Neutral_PID_BDTValues_BDTSort_1(rhs.m_CellBased_Neutral_PID_BDTValues_BDTSort_1),
+    m_CellBased_Neutral_PID_BDTValues_BDTSort_2(rhs.m_CellBased_Neutral_PID_BDTValues_BDTSort_2),
+    m_CellBased_Neutral_Ratio_1stBDTEtOverEtAllConsts(rhs.m_CellBased_Neutral_Ratio_1stBDTEtOverEtAllConsts),
+    m_CellBased_Neutral_Ratio_EtOverEtAllConsts(rhs.m_CellBased_Neutral_Ratio_EtOverEtAllConsts),
+    m_CellBased_Neutral_Shots_NPhotonsInSeed(rhs.m_CellBased_Neutral_Shots_NPhotonsInSeed),
+    m_CellBased_Combined_DeltaR1stNeutralTo1stCharged(rhs.m_CellBased_Combined_DeltaR1stNeutralTo1stCharged)
 {
 }
 
@@ -132,6 +204,42 @@ PanTau::PanTauDetails& PanTau::PanTauDetails::operator=(const PanTau::PanTauDeta
         m_features = (rhs.m_features ? new PanTau::TauFeature(*rhs.m_features) : 0);
         m_seed = rhs.m_seed;
         m_PanTauSeed = rhs.m_PanTauSeed;
+
+        m_RecoMode_SubAlg = rhs.m_RecoMode_SubAlg;
+        m_RecoMode_PanTau = rhs.m_RecoMode_PanTau;
+        m_BDTValue_1p0n_vs_1p1n = rhs.m_BDTValue_1p0n_vs_1p1n;
+        m_BDTValue_1p1n_vs_1pXn = rhs.m_BDTValue_1p1n_vs_1pXn;
+        m_BDTValue_3p0n_vs_3pXn = rhs.m_BDTValue_3p0n_vs_3pXn;
+        m_pantau_proto_pt = rhs.m_pantau_proto_pt;
+        m_pantau_proto_eta = rhs.m_pantau_proto_eta;
+        m_pantau_proto_phi = rhs.m_pantau_proto_phi;
+        m_pantau_proto_m = rhs.m_pantau_proto_m;
+        m_pantau_final_pt = rhs.m_pantau_final_pt;
+        m_pantau_final_eta = rhs.m_pantau_final_eta;
+        m_pantau_final_phi = rhs.m_pantau_final_phi;
+        m_pantau_final_m = rhs.m_pantau_final_m;
+    
+        m_eflowRec_Basic_NPi0NeutConsts = rhs.m_eflowRec_Basic_NPi0NeutConsts;
+        m_eflowRec_Basic_NNeutralConsts = rhs.m_eflowRec_Basic_NNeutralConsts;
+        m_eflowRec_Charged_HLV_SumPt = rhs.m_eflowRec_Charged_HLV_SumPt;
+        m_eflowRec_Charged_Ratio_EtOverEtAllConsts = rhs.m_eflowRec_Charged_Ratio_EtOverEtAllConsts;
+        m_eflowRec_Neutral_HLV_SumM = rhs.m_eflowRec_Neutral_HLV_SumM;
+        m_eflowRec_Neutral_PID_BDTValues_EtSort_1 = rhs.m_eflowRec_Neutral_PID_BDTValues_EtSort_1;
+        m_eflowRec_Neutral_PID_BDTValues_BDTSort_2 = rhs.m_eflowRec_Neutral_PID_BDTValues_BDTSort_2;
+        m_eflowRec_Neutral_Ratio_EtOverEtAllConsts = rhs.m_eflowRec_Neutral_Ratio_EtOverEtAllConsts;
+        m_eflowRec_Neutral_Mean_DRToLeading_WrtEtAllConsts = rhs.m_eflowRec_Neutral_Mean_DRToLeading_WrtEtAllConsts;
+        m_eflowRec_Combined_DeltaR1stNeutralTo1stCharged = rhs.m_eflowRec_Combined_DeltaR1stNeutralTo1stCharged;
+        
+        m_CellBased_Basic_NNeutralConsts = rhs.m_CellBased_Basic_NNeutralConsts;
+        m_CellBased_Charged_JetMoment_EtDRxTotalEt = rhs.m_CellBased_Charged_JetMoment_EtDRxTotalEt;
+        m_CellBased_Charged_StdDev_Et_WrtEtAllConsts = rhs.m_CellBased_Charged_StdDev_Et_WrtEtAllConsts;
+        m_CellBased_Neutral_HLV_SumM = rhs.m_CellBased_Neutral_HLV_SumM;
+        m_CellBased_Neutral_PID_BDTValues_BDTSort_1 = rhs.m_CellBased_Neutral_PID_BDTValues_BDTSort_1;
+        m_CellBased_Neutral_PID_BDTValues_BDTSort_2 = rhs.m_CellBased_Neutral_PID_BDTValues_BDTSort_2;
+        m_CellBased_Neutral_Ratio_1stBDTEtOverEtAllConsts = rhs.m_CellBased_Neutral_Ratio_1stBDTEtOverEtAllConsts;
+        m_CellBased_Neutral_Ratio_EtOverEtAllConsts = rhs.m_CellBased_Neutral_Ratio_EtOverEtAllConsts;
+        m_CellBased_Neutral_Shots_NPhotonsInSeed = rhs.m_CellBased_Neutral_Shots_NPhotonsInSeed;
+        m_CellBased_Combined_DeltaR1stNeutralTo1stCharged = rhs.m_CellBased_Combined_DeltaR1stNeutralTo1stCharged;
     }
     return *this;
 }

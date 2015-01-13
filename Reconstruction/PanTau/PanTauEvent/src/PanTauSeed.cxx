@@ -25,6 +25,8 @@ PanTau::PanTauSeed::PanTauSeed()
     m_ConstituentsList_Wide(),
     m_ConstituentsList_AllSelected(),
     m_ConstituentsList_All(),
+    m_DecayMode_BySubAlg(0),
+    m_DecayMode_ByPanTau(0),
     m_decayModeHack_CellBasedShots(false),
     m_Features(0)
 {
@@ -75,6 +77,8 @@ PanTau::PanTauSeed::PanTauSeed(const PanTau::PanTauSeed& rhs)
     m_ConstituentsList_Wide(rhs.m_ConstituentsList_Wide),
     m_ConstituentsList_AllSelected(rhs.m_ConstituentsList_AllSelected),
     m_ConstituentsList_All(rhs.m_ConstituentsList_All),
+    m_DecayMode_BySubAlg(rhs.m_DecayMode_BySubAlg),
+    m_DecayMode_ByPanTau(rhs.m_DecayMode_ByPanTau),
     m_decayModeHack_CellBasedShots(rhs.m_decayModeHack_CellBasedShots),
     m_Features( (rhs.m_Features ? new PanTau::TauFeature(*rhs.m_Features) : 0) )
 {
@@ -181,7 +185,7 @@ PanTau::PanTauSeed::PanTauSeed( std::string                             nameInpu
         
         //add all charged and neutral constituents (i.e. from core region) to core proto momentum
         if(curConst->isOfType(PanTau::TauConstituent::t_Charged)) {hlv_SumConstituents_Core += curConst->hlv(); continue;}
-        if(curConst->isOfType(PanTau::TauConstituent::t_Neutral)) {hlv_SumConstituents_Core += curConst->hlv(); continue;}
+        if(curConst->isOfType(PanTau::TauConstituent::t_Pi0Neut)) {hlv_SumConstituents_Core += curConst->hlv(); continue;}
         
     }//end loop over constituents
     
@@ -190,7 +194,11 @@ PanTau::PanTauSeed::PanTauSeed( std::string                             nameInpu
     
     //set mode as obtained from subalg
     m_DecayMode_BySubAlg = PanTau::PanTauSeed::getDecayMode(nCharged, nPi0Neut);
-    m_DecayMode_ByPanTau = PanTau::PanTauSeed::t_Mode_NotSet;
+    m_DecayMode_ByPanTau = PanTau::PanTauSeed::Mode_Error;
+    
+    if(isOfTechnicalQuality(PanTau::PanTauSeed::t_NoValidInputTau) == true) {
+        m_DecayMode_ByPanTau = PanTau::PanTauSeed::Mode_NotSet;
+    }
     
 //     std::cout << "PanTau::PanTauSeed\tWARNING\tProtoMomentumCore: " << m_ProtoMomentum_Core.perp() << ", " << m_ProtoMomentum_Core.eta() << ", " << m_ProtoMomentum_Core.phi() << ", " << m_ProtoMomentum_Core.m() << std::endl;
 }
@@ -208,6 +216,8 @@ PanTau::PanTauSeed::PanTauSeed( std::string                          nameInputAl
     m_TypeHLVs(),
     m_ConstituentsList_AllSelected(),
     m_ConstituentsList_All(),
+    m_DecayMode_BySubAlg(0),
+    m_DecayMode_ByPanTau(0),
     m_decayModeHack_CellBasedShots(false)
 {
     m_IsValidSeed           = false;
@@ -223,16 +233,23 @@ int PanTau::PanTauSeed::getDecayMode(int nCharged, int nNeutral) {
     
     int decayMode;
     // 1 Prong modes
-    if(nCharged == 1 && nNeutral == 0) decayMode = (int)PanTau::PanTauSeed::t_Mode_1p0n;
-    else if(nCharged == 1 && nNeutral == 1) decayMode = (int)PanTau::PanTauSeed::t_Mode_1p1n;
-    else if(nCharged == 1 && nNeutral >  1) decayMode = (int)PanTau::PanTauSeed::t_Mode_1pXn;
+    if(nCharged == 1 && nNeutral == 0) decayMode = (int)PanTau::PanTauSeed::Mode_1p0n;
+    else if(nCharged == 1 && nNeutral == 1) decayMode = (int)PanTau::PanTauSeed::Mode_1p1n;
+    else if(nCharged == 1 && nNeutral >  1) decayMode = (int)PanTau::PanTauSeed::Mode_1pXn;
     
     // 3 prong modes
-    else if(nCharged == 3 && nNeutral == 0) decayMode = (int)PanTau::PanTauSeed::t_Mode_3p0n;
-    else if(nCharged == 3 && nNeutral >  0) decayMode = (int)PanTau::PanTauSeed::t_Mode_3pXn;
+    else if(nCharged == 3 && nNeutral == 0) decayMode = (int)PanTau::PanTauSeed::Mode_3p0n;
+    else if(nCharged == 3 && nNeutral >  0) decayMode = (int)PanTau::PanTauSeed::Mode_3pXn;
     
     // other mode
-    else decayMode = (int)PanTau::PanTauSeed::t_Mode_Other;
+    else if(nCharged == 2) decayMode = (int)PanTau::PanTauSeed::Mode_Other;
+    else if(nCharged == 4) decayMode = (int)PanTau::PanTauSeed::Mode_Other;
+    else if(nCharged == 5) decayMode = (int)PanTau::PanTauSeed::Mode_Other;
+    
+    else if(nCharged == 0) decayMode = (int)PanTau::PanTauSeed::Mode_NotSet;
+    else if(nCharged >= 6) decayMode = (int)PanTau::PanTauSeed::Mode_NotSet;
+    
+    else decayMode = (int)PanTau::PanTauSeed::Mode_Error;
     
     return decayMode;
 }
@@ -242,12 +259,15 @@ std::string PanTau::PanTauSeed::getDecayModeName(int decayMode) {
     
     PanTau::PanTauSeed::DecayMode mode = (PanTau::PanTauSeed::DecayMode)decayMode;
     
-    if(mode == PanTau::PanTauSeed::t_Mode_1p0n) return "1p0n";
-    if(mode == PanTau::PanTauSeed::t_Mode_1p1n) return "1p1n";
-    if(mode == PanTau::PanTauSeed::t_Mode_1pXn) return "1pXn";
-    if(mode == PanTau::PanTauSeed::t_Mode_3p0n) return "3p0n";
-    if(mode == PanTau::PanTauSeed::t_Mode_3pXn) return "3pXn";
-    return "Other";
+    if(mode == PanTau::PanTauSeed::Mode_1p0n) return "1p0n";
+    if(mode == PanTau::PanTauSeed::Mode_1p1n) return "1p1n";
+    if(mode == PanTau::PanTauSeed::Mode_1pXn) return "1pXn";
+    if(mode == PanTau::PanTauSeed::Mode_3p0n) return "3p0n";
+    if(mode == PanTau::PanTauSeed::Mode_3pXn) return "3pXn";
+    if(mode == PanTau::PanTauSeed::Mode_Other) return "Other";
+    if(mode == PanTau::PanTauSeed::Mode_Error) return "Error";
+    if(mode == PanTau::PanTauSeed::Mode_NotSet) return "NotSet";
+    return "InvalidMode!!!";
 }
 
 

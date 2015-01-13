@@ -43,7 +43,7 @@ public:
     /** Default constructor */
     TauFeature();
     /** Copy Constructor */
-    TauFeature(const TauFeature& feature);
+    //TauFeature(const TauFeature& feature);
 //    /** Assignment operator */
 //    TauFeature& operator=(const TauFeature& seed);
 

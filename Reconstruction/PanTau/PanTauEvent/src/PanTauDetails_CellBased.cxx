@@ -50,6 +50,18 @@ PanTau::PanTauDetails_CellBased::PanTauDetails_CellBased(PanTau::PanTauSeed* inp
         m_CellBased_Combined_DeltaR1stNeutralTo1stCharged   = curFeatures->value(m_Name_InputAlg + "Combined_DeltaR1stNeutralTo1stCharged", isValid);
         
     }
+    else {
+      m_CellBased_Basic_NNeutralConsts = -5;
+      m_CellBased_Charged_JetMoment_EtDRxTotalEt = -1111;
+      m_CellBased_Charged_StdDev_Et_WrtEtAllConsts = -1111;
+      m_CellBased_Neutral_HLV_SumM = -1111;
+      m_CellBased_Neutral_PID_BDTValues_BDTSort_1 = -5;
+      m_CellBased_Neutral_PID_BDTValues_BDTSort_2 = -5;
+      m_CellBased_Neutral_Ratio_1stBDTEtOverEtAllConsts = -5;
+      m_CellBased_Neutral_Ratio_EtOverEtAllConsts = -5;
+      m_CellBased_Neutral_Shots_NPhotonsInSeed = -5;
+      m_CellBased_Combined_DeltaR1stNeutralTo1stCharged = -5;
+    }
 }
 
 
@@ -84,16 +96,16 @@ PanTau::PanTauDetails_CellBased::~PanTauDetails_CellBased()
 PanTau::PanTauDetails_CellBased& PanTau::PanTauDetails_CellBased::operator=(const PanTau::PanTauDetails_CellBased& rhs)
 {
     if (this!=&rhs){
-        m_CellBased_Basic_NNeutralConsts = m_CellBased_Basic_NNeutralConsts;
-        m_CellBased_Charged_JetMoment_EtDRxTotalEt = m_CellBased_Charged_JetMoment_EtDRxTotalEt;
-        m_CellBased_Charged_StdDev_Et_WrtEtAllConsts = m_CellBased_Charged_StdDev_Et_WrtEtAllConsts;
-        m_CellBased_Neutral_HLV_SumM = m_CellBased_Neutral_HLV_SumM;
-        m_CellBased_Neutral_PID_BDTValues_BDTSort_1 = m_CellBased_Neutral_PID_BDTValues_BDTSort_1;
-        m_CellBased_Neutral_PID_BDTValues_BDTSort_2 = m_CellBased_Neutral_PID_BDTValues_BDTSort_2;
-        m_CellBased_Neutral_Ratio_1stBDTEtOverEtAllConsts = m_CellBased_Neutral_Ratio_1stBDTEtOverEtAllConsts;
-        m_CellBased_Neutral_Ratio_EtOverEtAllConsts = m_CellBased_Neutral_Ratio_EtOverEtAllConsts;
-        m_CellBased_Neutral_Shots_NPhotonsInSeed = m_CellBased_Neutral_Shots_NPhotonsInSeed;
-        m_CellBased_Combined_DeltaR1stNeutralTo1stCharged = m_CellBased_Combined_DeltaR1stNeutralTo1stCharged;
+        m_CellBased_Basic_NNeutralConsts = rhs.m_CellBased_Basic_NNeutralConsts;
+        m_CellBased_Charged_JetMoment_EtDRxTotalEt = rhs.m_CellBased_Charged_JetMoment_EtDRxTotalEt;
+        m_CellBased_Charged_StdDev_Et_WrtEtAllConsts = rhs.m_CellBased_Charged_StdDev_Et_WrtEtAllConsts;
+        m_CellBased_Neutral_HLV_SumM = rhs.m_CellBased_Neutral_HLV_SumM;
+        m_CellBased_Neutral_PID_BDTValues_BDTSort_1 = rhs.m_CellBased_Neutral_PID_BDTValues_BDTSort_1;
+        m_CellBased_Neutral_PID_BDTValues_BDTSort_2 = rhs.m_CellBased_Neutral_PID_BDTValues_BDTSort_2;
+        m_CellBased_Neutral_Ratio_1stBDTEtOverEtAllConsts = rhs.m_CellBased_Neutral_Ratio_1stBDTEtOverEtAllConsts;
+        m_CellBased_Neutral_Ratio_EtOverEtAllConsts = rhs.m_CellBased_Neutral_Ratio_EtOverEtAllConsts;
+        m_CellBased_Neutral_Shots_NPhotonsInSeed = rhs.m_CellBased_Neutral_Shots_NPhotonsInSeed;
+        m_CellBased_Combined_DeltaR1stNeutralTo1stCharged = rhs.m_CellBased_Combined_DeltaR1stNeutralTo1stCharged;
     }
     return *this;
 }

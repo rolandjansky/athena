@@ -23,16 +23,6 @@ PanTau::TauFeature::TauFeature()
 
 
 
-PanTau::TauFeature::TauFeature(
-    const PanTau::TauFeature& feature
-    )
-    :
-    m_log(0),
-    m_featureMap(feature.m_featureMap),
-    m_vecFeatureMap(feature.m_vecFeatureMap)
-{
-}
-
 PanTau::TauFeature::~TauFeature()
 {
 }

@@ -77,6 +77,4 @@ std::string PanTau::CorrectedEflowMomentum::typeName(CorrectedEflowMomentumType 
         default:                                            return "BadType";
         
     }
-    
-    return "";
 }

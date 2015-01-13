@@ -41,13 +41,14 @@ namespace PanTau {
         };
         
         enum DecayMode {
-            t_Mode_1p0n,
-            t_Mode_1p1n,
-            t_Mode_1pXn,
-            t_Mode_3p0n,
-            t_Mode_3pXn,
-            t_Mode_Other,
-            t_Mode_NotSet
+            Mode_1p0n,
+            Mode_1p1n,
+            Mode_1pXn,
+            Mode_3p0n,
+            Mode_3pXn,
+            Mode_Other,   // for 2p, 4p, 5p taus
+            Mode_NotSet,  // for 0p, >= 6p
+            Mode_Error    // use this as initialisation
         };
         
         static int          getDecayMode(int nCharged, int nNeutral);

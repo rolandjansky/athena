@@ -24,8 +24,13 @@ PanTau::TauSeed::TauSeed()
     P4EEtaPhiM(0., 0., 0., 0.),
     m_jet(0),
     m_TauJet(0),
+    m_RecoModeLoose(),
+    m_RecoModeMedium(),
+    m_RecoModeTight(),
     m_features(0),
-    m_correctedEflowMomenta(0)
+    m_correctedEflowMomenta(0),
+    m_chargedEflowMomenta(nullptr),
+    m_emNeutralEflowMomenta(nullptr)
 {
 }
 
@@ -45,8 +50,13 @@ PanTau::TauSeed::TauSeed(
                         P4EEtaPhiM(fourMom_core),
                         m_jet(tauJet_Jet),
                         m_TauJet(tauJet),
+                        m_RecoModeLoose(),
+                        m_RecoModeMedium(),
+                        m_RecoModeTight(),
                         m_features(features),
-                        m_correctedEflowMomenta(corEfoMomenta)
+                        m_correctedEflowMomenta(corEfoMomenta),
+                        m_chargedEflowMomenta(nullptr),
+                        m_emNeutralEflowMomenta(nullptr)
 {
 }
     
@@ -65,8 +75,13 @@ PanTau::TauSeed::TauSeed(
                         P4EEtaPhiM(fourMom_core),
                         m_jet(eflowJet),
                         m_TauJet(0),
+                        m_RecoModeLoose(),
+                        m_RecoModeMedium(),
+                        m_RecoModeTight(),
                         m_features(features),
-                        m_correctedEflowMomenta(corEfoMomenta)
+                        m_correctedEflowMomenta(corEfoMomenta),
+                        m_chargedEflowMomenta(nullptr),
+                        m_emNeutralEflowMomenta(nullptr)
 {
 }
 
@@ -83,11 +98,16 @@ PanTau::TauSeed::TauSeed(
     P4EEtaPhiM(rhs),
     m_jet(rhs.m_jet),
     m_TauJet(rhs.m_TauJet),
+    m_RecoModeLoose(rhs.m_RecoModeLoose),
+    m_RecoModeMedium(rhs.m_RecoModeMedium),
+    m_RecoModeTight(rhs.m_RecoModeTight),
     m_features(rhs.m_features ? new PanTau::TauFeature(*rhs.m_features) : 0),
-    m_correctedEflowMomenta(rhs.m_correctedEflowMomenta ? new DataVector<CorrectedEflowMomentum>(*rhs.m_correctedEflowMomenta) : 0)
+    m_correctedEflowMomenta(rhs.m_correctedEflowMomenta ? new DataVector<CorrectedEflowMomentum>(*rhs.m_correctedEflowMomenta) : 0),
     // FIXME: Check again that this works: The copy constructor of DataVector is a `shallow' copy; the new container
     // does not own its elements. Do we get problems here, if the copied TauSeed is deleted? Maybe! We have to clone
     // all the CorrectedEflowMomentum for those DataVectors which own their elements
+    m_chargedEflowMomenta(rhs.m_chargedEflowMomenta ? new ConstDataVector<DataVector<CorrectedEflowMomentum> >(*rhs.m_chargedEflowMomenta) : 0),
+    m_emNeutralEflowMomenta(rhs.m_emNeutralEflowMomenta ? new ConstDataVector<DataVector<CorrectedEflowMomentum> >(*rhs.m_emNeutralEflowMomenta) : 0)
 {
 }
 
@@ -101,7 +121,8 @@ PanTau::TauSeed::~TauSeed()
     delete m_jet;
     delete m_features;
     delete m_correctedEflowMomenta;
-    
+    delete m_chargedEflowMomenta;
+    delete m_emNeutralEflowMomenta;
 }
 
 
@@ -121,6 +142,8 @@ PanTau::TauSeed& PanTau::TauSeed::operator=(const PanTau::TauSeed& seed)
         m_correctedEflowMomenta = (seed.m_correctedEflowMomenta ? new DataVector<CorrectedEflowMomentum>(*seed.m_correctedEflowMomenta) : 0);
         // FIXME: Check again that this works: The copy constructor of DataVector is a `shallow' copy; the new container
         // does not own its elements. Do we get problems here, if the assigned TauSeed is deleted?
+        m_chargedEflowMomenta = (seed.m_chargedEflowMomenta ? new ConstDataVector<DataVector<CorrectedEflowMomentum> >(*seed.m_chargedEflowMomenta) : 0);
+        m_emNeutralEflowMomenta = (seed.m_emNeutralEflowMomenta ? new ConstDataVector<DataVector<CorrectedEflowMomentum> >(*seed.m_emNeutralEflowMomenta) : 0);
 
     }
     return *this;

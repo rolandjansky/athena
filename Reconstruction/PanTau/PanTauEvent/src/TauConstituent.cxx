@@ -102,7 +102,6 @@ std::string      PanTau::TauConstituent::getTypeName(PanTau::TauConstituent::Typ
         case PanTau::TauConstituent::t_NoType: return "All";
         default: return "UnkownType";
     }
-    return "UnkownType"; 
 }
 
 

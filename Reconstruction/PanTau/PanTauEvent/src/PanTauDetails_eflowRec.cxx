@@ -50,6 +50,18 @@ PanTau::PanTauDetails_eflowRec::PanTauDetails_eflowRec(PanTau::PanTauSeed* input
         m_eflowRec_Combined_DeltaR1stNeutralTo1stCharged    = curFeatures->value(m_Name_InputAlg + "_Combined_DeltaR1stNeutralTo1stCharged", isValid);
         
     }
+    else {
+      m_eflowRec_Basic_NPi0NeutConsts = -5;
+      m_eflowRec_Basic_NNeutralConsts = -5;
+      m_eflowRec_Charged_HLV_SumPt = -1111;
+      m_eflowRec_Charged_Ratio_EtOverEtAllConsts = -5;
+      m_eflowRec_Neutral_HLV_SumM = -1111;
+      m_eflowRec_Neutral_PID_BDTValues_EtSort_1 = -5;
+      m_eflowRec_Neutral_PID_BDTValues_BDTSort_2 = -5;
+      m_eflowRec_Neutral_Ratio_EtOverEtAllConsts = -5;
+      m_eflowRec_Neutral_Mean_DRToLeading_WrtEtAllConsts = -5;
+      m_eflowRec_Combined_DeltaR1stNeutralTo1stCharged = -5;
+    }
 }
 
 
