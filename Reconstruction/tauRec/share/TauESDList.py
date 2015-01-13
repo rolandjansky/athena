@@ -13,80 +13,99 @@ TauESDList = []
 #------------------------------------------------------------------------------
 # Tau1P3P cell cluster
 #------------------------------------------------------------------------------
-TauESDList += [ "CaloClusterContainer#Tau1P3PCellCluster" ]
-TauESDList += [ "CaloCellLinkContainer#Tau1P3PCellCluster_Link" ]
-TauESDList += [ "CaloShowerContainer#Tau1P3PCellCluster_Data" ]
+#TauESDList += [ "CaloClusterContainer#Tau1P3PCellCluster" ]
+#TauESDList += [ "CaloCellLinkContainer#Tau1P3PCellCluster_Link" ]
+#TauESDList += [ "CaloShowerContainer#Tau1P3PCellCluster_Data" ]
 
 #------------------------------------------------------------------------------
 # TauRec cell cluster
 #------------------------------------------------------------------------------
-TauESDList += [ "CaloClusterContainer#TauRecCellCluster" ]
-TauESDList += [ "CaloCellLinkContainer#TauRecCellCluster_Link" ]
-TauESDList += [ "CaloShowerContainer#TauRecCellCluster_Data" ]
+#TauESDList += [ "CaloClusterContainer#TauRecCellCluster" ]
+#TauESDList += [ "CaloCellLinkContainer#TauRecCellCluster_Link" ]
+#TauESDList += [ "CaloShowerContainer#TauRecCellCluster_Data" ]
 
 #------------------------------------------------------------------------------
 # Tau1P3P Pi0 cluster
 #------------------------------------------------------------------------------
-TauESDList += [ "CaloClusterContainer#TauPi0ClusterContainer" ]
-TauESDList += [ "CaloCellLinkContainer#TauPi0ClusterContainer_Link" ]
-TauESDList += [ "CaloShowerContainer#TauPi0ClusterContainer_Data" ]
+#TauESDList += [ "CaloClusterContainer#TauPi0ClusterContainer" ]
+#TauESDList += [ "CaloCellLinkContainer#TauPi0ClusterContainer_Link" ]
+#TauESDList += [ "CaloShowerContainer#TauPi0ClusterContainer_Data" ]
 #TauESDList += [ "CaloCellContainer#TauCommonPi0CellContainer" ]  # for studies of the cell-based algorithm
 
 #------------------------------------------------------------------------------
-# Tau shot clusters
+# Tau Pi0 cluster
 #------------------------------------------------------------------------------
-TauESDList += [ "CaloClusterContainer#TauShotClusterContainer" ]
-TauESDList += [ "CaloCellLinkContainer#TauShotClusterContainer_Link" ]
-TauESDList += [ "CaloShowerContainer#TauShotClusterContainer_Data" ]
+TauESDList += [ "xAOD::CaloClusterContainer#TauPi0Clusters" ]
+TauESDList += [ "xAOD::CaloClusterAuxContainer#TauPi0ClustersAux." ]
+
 
 #------------------------------------------------------------------------------
-# Shot PFOs
+# Tau Pi0 cluster cell container and links
 #------------------------------------------------------------------------------
-TauESDList += [ "xAOD::PFOContainer_v1#TauShotPFOContainer" ]
-TauESDList += [ "xAOD::PFOAuxContainer_v1#TauShotPFOContainerAux." ]
+TauESDList += [ "CaloClusterCellLinkContainer#TauPi0ClusterLinks" ]
+TauESDList += [ "CaloCellContainer#TauCommonPi0Cells" ]
 
 #------------------------------------------------------------------------------
-# Cell-based charged PFOs
+# TauRec main xAOD containers
 #------------------------------------------------------------------------------
-TauESDList += [ "xAOD::PFOContainer_v1#TauPi0ChargedPFOContainer" ]
-TauESDList += [ "xAOD::PFOAuxContainer_v1#TauPi0ChargedPFOContainerAux." ]
-
-#------------------------------------------------------------------------------
-# Cell-based neutral PFOs
-#------------------------------------------------------------------------------
-TauESDList += [ "xAOD::PFOContainer_v1#TauPi0NeutralPFOContainer" ]
-TauESDList += [ "xAOD::PFOAuxContainer_v1#TauPi0NeutralPFOContainerAux." ]
+TauESDList += [ "xAOD::TauJetContainer#TauJets" ]
+TauESDList += [ "xAOD::TauJetAuxContainer#TauJetsAux." ]
 
 #------------------------------------------------------------------------------
 # Secondary Vertex for Tau Decay
 #------------------------------------------------------------------------------
-TauESDList += [ "xAOD::VertexContainer_v1#TauSecondaryVertexContainer" ]
-TauESDList += [ "xAOD::VertexAuxContainer_v1#TauSecondaryVertexContainerAux.-vxTrackAtVertex" ]
-                                     
-#------------------------------------------------------------------------------
-# Tau1P3P cell EM012 cluster
-#------------------------------------------------------------------------------
-TauESDList += [ "CaloClusterContainer#Tau1P3PCellEM012ClusterContainer" ]
-TauESDList += [ "CaloCellLinkContainer#Tau1P3PCellEM012ClusterContainer_Link" ]
-TauESDList += [ "CaloShowerContainer#Tau1P3PCellEM012ClusterContainer_Data" ]
-                                     
+TauESDList += [ "xAOD::VertexContainer#TauSecondaryVertices" ]
+TauESDList += [ "xAOD::VertexAuxContainer#TauSecondaryVerticesAux.-vxTrackAtVertex" ]
+
+
+##------------------------------------------------------------------------------
+## Tau shot clusters
+##------------------------------------------------------------------------------
+#TauESDList += [ "CaloClusterContainer#TauShotClusters" ]
+#TauESDList += [ "CaloCellLinkContainer#TauShotClusters_Link" ]
+#TauESDList += [ "CaloShowerContainer#TauShotClusters_Data" ]
 
 #------------------------------------------------------------------------------
-# Tau1P3P main containers
+# Shot ParticleFlowObjects
 #------------------------------------------------------------------------------
-TauESDList += [ "Analysis::TauJetContainer#Tau1P3PContainer" ]
-TauESDList += [ "Analysis::TauDetailsContainer#Tau1P3PDetailsContainer" ]
-TauESDList += [ "Analysis::TauDetailsContainer#Tau1P3PExtraDetailsContainer" ]
+TauESDList += [ "xAOD::PFOContainer#TauShotParticleFlowObjects" ]
+TauESDList += [ "xAOD::PFOAuxContainer#TauShotParticleFlowObjectsAux." ]
 
 #------------------------------------------------------------------------------
-# TauRec main containers
+# Cell-based charged ParticleFlowObjects
 #------------------------------------------------------------------------------
-TauESDList += [ "Analysis::TauJetContainer#TauRecContainer" ]
-TauESDList += [ "Analysis::TauDetailsContainer#TauRecDetailsContainer" ]
-TauESDList += [ "Analysis::TauDetailsContainer#TauRecExtraDetailsContainer" ]
-TauESDList += [ "Analysis::TauDetailsContainer#TauPi0CandidateDetailsContainer" ]
+TauESDList += [ "xAOD::PFOContainer#TauChargedParticleFlowObjects" ]
+TauESDList += [ "xAOD::PFOAuxContainer#TauChargedParticleFlowObjectsAux." ]
+
+#------------------------------------------------------------------------------
+# Cell-based neutral ParticleFlowObjects
+#------------------------------------------------------------------------------
+TauESDList += [ "xAOD::PFOContainer#TauNeutralParticleFlowObjects" ]
+TauESDList += [ "xAOD::PFOAuxContainer#TauNeutralParticleFlowObjectsAux." ]
+
+#------------------------------------------------------------------------------
+# Cell-based hadronic cluster ParticleFlowObjects
+#------------------------------------------------------------------------------
+TauESDList += [ "xAOD::PFOContainer#TauHadronicParticleFlowObjects" ]
+TauESDList += [ "xAOD::PFOAuxContainer#TauHadronicParticleFlowObjectsAux." ]
+                    
 
 #-------------------------------------------------------------------------
 # eflowObjects for tau
 #--------------------------------------------------------------------------
-TauESDList += [ "eflowObjectContainer#eflowObjects_tauMode" ]
+#TauESDList += [ "eflowObjectContainer#eflowObjects_tauMode" ]
+#TauESDList += [ "xAOD::PFOContainer#neutralTauPFO_eflowRec" ]
+#TauESDList += [ "xAOD::PFOAuxContainer#neutralTauPFO_eflowRecAux." ]
+#TauESDList += [ "xAOD::PFOContainer#chargedTauPFO_eflowRec" ]
+#TauESDList += [ "xAOD::PFOAuxContainer#chargedTauPFO_eflowRecAux." ]
+
+
+        
+##------------------------------------------------------------------------------
+## Tau1P3P cell EM012 cluster
+##------------------------------------------------------------------------------
+#TauESDList += [ "CaloClusterContainer#Tau1P3PCellEM012ClusterContainer" ]
+#TauESDList += [ "CaloCellLinkContainer#Tau1P3PCellEM012ClusterContainer_Link" ]
+#TauESDList += [ "CaloShowerContainer#Tau1P3PCellEM012ClusterContainer_Data" ]
+                                     
+

@@ -30,7 +30,7 @@ m_doCellCorrection(false)
 {
     declareInterface<TauToolBase > (this);
     declareProperty("ClusterCone", m_clusterCone);
-    declareProperty("tauContainerKey", tauContainerKey = "TauRecContainer");
+    declareProperty("tauContainerKey", tauContainerKey = "TauJets");
     declareProperty("CellCorrection", m_doCellCorrection);
 }
 

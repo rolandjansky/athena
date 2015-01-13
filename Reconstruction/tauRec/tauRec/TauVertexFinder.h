@@ -3,7 +3,7 @@
 */
 
 #ifndef TAUREC_TAUVERTEXFINDER_H
-#define TAUREC_TAUVERTEXFNIDER_H
+#define TAUREC_TAUVERTEXFINDER_H
 
 #include "tauRec/TauToolBase.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -67,4 +67,4 @@ private:
     std::string m_trackVertexAssocName;    
 };
 
-#endif
+#endif // not TAUREC_TAUVERTEXFINDER_H

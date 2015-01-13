@@ -38,12 +38,13 @@ if jobproperties.tauRecFlags.doTauRec() and ( rec.readESD() or  ( DetFlags.haveR
         treatException("Could not set up merged tauRec. Switched off !")
          
     if not _tauFail:  
+        # commenting out for now, so we can reactivate possibly later
         # call eflowRec in tau mode now
-        if recAlgs.doEFlow():        
-            try:
-                include("eflowRec/eflowRec_config_DC14_Tau.py")
-            except Exception:
-                treatException("could not setup eflowRec")
+        #if recAlgs.doEFlow():        
+        #    try:
+        #        include("eflowRec/eflowRec_config_DC14_Tau.py")
+        #    except Exception:
+        #        treatException("could not setup eflowRec")
         
         #jobproperties.tauRecFlags.doPanTau=False
         # call PanTau now
@@ -73,7 +74,7 @@ else:
 #    from AthenaCommon.AlgSequence import AlgSequence
 #    sequence = AlgSequence()
 #    # Add the tau converter algorithm:
-#    outkey = "TauRecContainer"
+#    outkey = "TauJets"
 #    from xAODTauCnv.xAODTauCnvConf import xAODMaker__TauJetCnvAlg
 #    tauAlg = xAODMaker__TauJetCnvAlg()
 #    #tauAlg.OutputLevel = 1

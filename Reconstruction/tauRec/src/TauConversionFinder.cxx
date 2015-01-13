@@ -56,7 +56,8 @@ StatusCode TauConversionFinder::eventFinalize(TauCandidateData *data) {
 
     StatusCode sc;
 
-    const Rec::TrackParticleContainer *trackContainer;
+//    const Rec::TrackParticleContainer *trackContainer;
+    const xAOD::TrackParticleContainer* trackContainer = 0;
 
     //TODO: trigger uses getObject
     sc = evtStore()->retrieve(trackContainer, m_trackContainerName);
@@ -89,6 +90,7 @@ StatusCode TauConversionFinder::eventFinalize(TauCandidateData *data) {
     // running in eventFinalize
     // therefore need to loop over all tau candidates 
     xAOD::TauJetContainer *pTauJetCont = data->xAODTauContainer;
+
     for (xAOD::TauJetContainer::iterator tjcItr = pTauJetCont->begin(); tjcItr != pTauJetCont->end(); ++tjcItr) {
         
         xAOD::TauJet *pTau = *tjcItr;
@@ -107,6 +109,7 @@ StatusCode TauConversionFinder::eventFinalize(TauCandidateData *data) {
         // Loop over Conversion Container placed by TauPhotonConversionFinder
         xAOD::VertexContainer::const_iterator itr = ConvContainer->begin();
         xAOD::VertexContainer::const_iterator itrE = ConvContainer->end();
+
         for (; itr != itrE; ++itr) {
 
             const xAOD::Vertex* vxcand = (*itr);
@@ -114,6 +117,7 @@ StatusCode TauConversionFinder::eventFinalize(TauCandidateData *data) {
             for (unsigned int i = 0; i < vxcand->nTrackParticles(); ++i) {
 
                 const Trk::Track* conv_trk = vxcand->trackParticle(i)->track();
+
                 // just check if the track is reconstructed only by TRT
                 //--------------------------------------------
                 // Find conversion in normal tau tracks
@@ -123,14 +127,15 @@ StatusCode TauConversionFinder::eventFinalize(TauCandidateData *data) {
                         const Trk::Track* tau_trk_def = pTauTrack->track();
 
                         if (conv_trk == tau_trk_def) {
+
                             if (conv_trk->trackSummary()->getPID(Trk::eProbabilityComb) > m_eProb_cut) {
-                                bool isConversionTrack = false;
-                                for (unsigned int k = 0; k < pTau->nConversionTracks(); k++) {
-                                    if (pTau->conversionTrack(k)->track() == pTau->track(j)->track())
-                                        isConversionTrack = true;
-                                }
-                                if (isConversionTrack) {
-                                    pTau->addConversionTrackLink(pTau->conversionTrackLinks().at(j));
+                              if (!pTau->trackFlag(pTauTrack, xAOD::TauJetParameters::isConversion)) {
+                                  ElementLink<xAOD::TrackParticleContainer> phoConvLink ;
+                                  phoConvLink.setElement(pTauTrack) ;
+                                  phoConvLink.setStorableObject( *trackContainer ) ;
+                                  phoConvLink.index();
+                                  pTau->addTrackLink( phoConvLink ) ;
+                                  pTau->setTrackFlag(pTauTrack, xAOD::TauJetParameters::isConversion, true);
                                     if (m_adjust_tau_charge)
                                         pTau->setCharge(pTau->charge() - pTau->track(j)->charge());
 
@@ -140,8 +145,10 @@ StatusCode TauConversionFinder::eventFinalize(TauCandidateData *data) {
                         }
                     }
                 }
+
             }//end of loop over Tracks at vertex
         }// end of loop over VxContainer
+
 
         if (m_do_normal)
             ATH_MSG_VERBOSE("Number of tau tracks after ConversionFinder (TauJet): " << m_numProng);

@@ -20,8 +20,6 @@
 #include "CLHEP/Vector/LorentzVector.h"
 #include "Particle/TrackParticle.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
 #include "TrkParameters/TrackParameters.h"
 
 #include "tauRec/TauCandidateData.h"
@@ -167,8 +165,8 @@ StatusCode TauConversionTagger::execute(TauCandidateData *data) {
     }
 
     ATH_MSG_VERBOSE("Is tau track a conversion? : " << m_TrkIsConv);
-    if (m_TrkIsConv)
-      pTau->addConversionTrackLink((&pTau->trackLinks())->at(j));
+    if (m_TrkIsConv && !pTau->trackFlag(TauJetTrack, xAOD::TauJetParameters::isConversion))
+      pTau->setTrackFlag(TauJetTrack, xAOD::TauJetParameters::isConversion, true);
 
     delete perigee; //cleanup necessary to prevent mem leak
 	

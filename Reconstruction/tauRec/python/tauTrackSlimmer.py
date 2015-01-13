@@ -36,7 +36,7 @@ class tauTrackSlimmer ( Configured ) :
             from tauRec.tauRecConf import TauTrackSlimmer
             theTauTrackSlimmer = TauTrackSlimmer(
                 "tauTrackSlimmer",
-                TauContainer="TauRecContainer",
+                TauContainer="TauJets",
                 FilterTaus=True,
                 maxNTrack = 4,
                 maxCharge = 2,

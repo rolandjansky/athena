@@ -75,24 +75,25 @@ StatusCode TauVertexVariables::initialize() {
 
 StatusCode TauVertexVariables::eventInitialize(TauCandidateData * data) {
 
-	StatusCode sc;
-	bool inTrigger = false;
-	if (data->hasObject("InTrigger?"))
-		sc = data->getObject("InTrigger?", inTrigger);
+  StatusCode sc = StatusCode::FAILURE;
+  bool inTrigger = false;
+  if (data->hasObject("InTrigger?"))
+    sc = data->getObject("InTrigger?", inTrigger);
+  
+  // Only store the vertex containers if we are offline?
+  if(!sc.isSuccess() || !inTrigger)
+    {
+      // Secondary Vertex Container for tau decay vertex
+      m_pSecVtxContainer = new xAOD::VertexContainer();
+      m_pSecVtxAuxContainer = new xAOD::VertexAuxContainer();
+      m_pSecVtxContainer->setStore( m_pSecVtxAuxContainer );
+      
+      CHECK( evtStore()->record( m_pSecVtxContainer, "TauSecondaryVertices" ) );
+      CHECK( evtStore()->record( m_pSecVtxAuxContainer, "TauSecondaryVerticesAux." ) );
+    }
+  
+  return StatusCode::SUCCESS;
 
-	// Only store the vertex containers if we are offline?
-	if(!sc.isSuccess() || !inTrigger)
-	{
-		// Secondary Vertex Container for tau decay vertex
-		m_pSecVtxContainer = new xAOD::VertexContainer();
-		m_pSecVtxAuxContainer = new xAOD::VertexAuxContainer();
-		m_pSecVtxContainer->setStore( m_pSecVtxAuxContainer );
-
-		CHECK( evtStore()->record( m_pSecVtxContainer, "TauSecondaryVertexContainer" ) );
-		CHECK( evtStore()->record( m_pSecVtxAuxContainer, "TauSecondaryVertexContainerAux." ) );
-	}
-
-	return StatusCode::SUCCESS;
 }
 
 
@@ -119,28 +120,58 @@ StatusCode TauVertexVariables::execute(TauCandidateData *data) {
 		return StatusCode::FAILURE;
 	}
 
+	// for tau trigger
+	StatusCode sc = StatusCode::FAILURE;
+	bool inTrigger = false;
+	if (data->hasObject("InTrigger?")) sc = data->getObject("InTrigger?", inTrigger);
+	if (sc.isSuccess() && inTrigger) ATH_MSG_DEBUG("We're in the Trigger");
+	
 	// impact parameter variables for standard tracks
 	if (pTau->nTracks() > 0) {
-		const Trk::ImpactParametersAndSigma * myIPandSigma(0);
 
-		if (pTau->vertexLink()) {
-			const xAOD::Vertex* vxcand = *(pTau->vertexLink()) ;
-			//check if vertex has a valid type (skip if vertex has type NoVtx)
-			if (vxcand->vertexType() > 0) {
-				myIPandSigma = m_trackToVertexIPEstimator->estimate(pTau->track(0), *pTau->vertexLink());
-			}
-		}
+	  const Trk::ImpactParametersAndSigma* myIPandSigma(0);
+	  const xAOD::Vertex* vxcand = nullptr;
+	  
+	  if (sc.isSuccess() && inTrigger) {
+	  
+	    StatusCode scBeam = StatusCode::FAILURE;
+	  
+	    if (data->hasObject("Beamspot")) scBeam = data->getObject("Beamspot", vxcand);
 
-		if (myIPandSigma != 0) {
-			pTau->setDetail(xAOD::TauJetParameters::ipSigLeadTrk, (float)( myIPandSigma->IPd0 / myIPandSigma->sigmad0 ));
-			pTau->setDetail(xAOD::TauJetParameters::ipZ0SinThetaSigLeadTrk, (float)( myIPandSigma->IPz0SinTheta / myIPandSigma->sigmaz0SinTheta ));
-		} else {
-			ATH_MSG_DEBUG("trackToVertexIPestimator failed for a standard track!");
-			pTau->setDetail(xAOD::TauJetParameters::ipSigLeadTrk, (float)(-999.));
-			pTau->setDetail(xAOD::TauJetParameters::ipZ0SinThetaSigLeadTrk, (float)(-999.));
-		}
-		delete myIPandSigma;
+	    if(scBeam){
+	      myIPandSigma = m_trackToVertexIPEstimator->estimate(pTau->track(0), vxcand);
+	    } else {
+	      ATH_MSG_DEBUG("No Beamspot object in tau candidate");
+	    }
+	  
+	  }  else if (pTau->vertexLink()) {
+
+	    vxcand = *(pTau->vertexLink()) ;
+
+	    //check if vertex has a valid type (skip if vertex has type NoVtx)
+	    if (vxcand->vertexType() > 0){
+	      myIPandSigma = m_trackToVertexIPEstimator->estimate(pTau->track(0), vxcand);
+	    }
+
+	  }
+	  
+	  if (myIPandSigma != 0) {
+	    pTau->setDetail(xAOD::TauJetParameters::ipSigLeadTrk, (float)( myIPandSigma->IPd0 / myIPandSigma->sigmad0 ));
+	    pTau->setDetail(xAOD::TauJetParameters::ipZ0SinThetaSigLeadTrk, (float)( myIPandSigma->IPz0SinTheta / myIPandSigma->sigmaz0SinTheta ));
+	  } else {
+	    ATH_MSG_DEBUG("trackToVertexIPestimator failed for a standard track!");
+	    pTau->setDetail(xAOD::TauJetParameters::ipSigLeadTrk, (float)(-999.));
+	    pTau->setDetail(xAOD::TauJetParameters::ipZ0SinThetaSigLeadTrk, (float)(-999.));
+	  }
+	  
+	  delete myIPandSigma;
+
+	} else {
+
+	  ATH_MSG_DEBUG("Tau has no tracks");
+
 	}
+
 
 	float ipSigLeadTrk;
 	float ipZ0SinThetaSigLeadTrk;
@@ -157,10 +188,10 @@ StatusCode TauVertexVariables::execute(TauCandidateData *data) {
 		return StatusCode::SUCCESS;
 	}
 
-	// for tau trigger
-	bool inTrigger = false;
-	StatusCode sc;
-	if (data->hasObject("InTrigger?")) sc = data->getObject("InTrigger?", inTrigger);
+	// // for tau trigger
+	// bool inTrigger = false;
+	// StatusCode sc;
+	// if (data->hasObject("InTrigger?")) sc = data->getObject("InTrigger?", inTrigger);
 
 	const xAOD::VertexContainer* vxContainer = 0;
 	if (sc.isSuccess() && inTrigger)   sc = data->getObject("VxPrimaryCandidate", vxContainer);

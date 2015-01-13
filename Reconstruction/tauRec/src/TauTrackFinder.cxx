@@ -2,8 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "RecoToolInterfaces/IExtrapolateToCaloTool.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
+#include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 
 #include "xAODTau/TauJet.h"
 #include "xAODTau/TauJetContainer.h"
@@ -17,23 +18,25 @@ TauTrackFinder::TauTrackFinder(const std::string& type,
 		const std::string& name,
 		const IInterface* parent) :
 		TauToolBase(type, name, parent),
-		m_trackToCalo(""),
+                m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
 		m_trackSelectorTool_tau(""),
 		m_trackToVertexTool("Reco::TrackToVertex"),
 		m_z0maxDelta(1000),
 		m_applyZ0cut(false),
-		m_storeInOtherTrks(true)
+		m_storeInOtherTrks(true),
+		m_bypassSelector(false)
 {
 	declareInterface<TauToolBase > (this);
 	declareProperty("MaxJetDrTau", m_maxJetDr_tau = 0.2);
 	declareProperty("MaxJetDrWide", m_maxJetDr_wide = 0.4);
 	declareProperty("TrackSelectorToolTau", m_trackSelectorTool_tau);
 	declareProperty("TrackParticleContainer", m_inputTrackParticleContainerName = "InDetTrackParticles");
-	declareProperty("TTCExtrapolator", m_trackToCalo, "public track extrapolator tool to match track with caloseed");
-    declareProperty("TrackToVertexTool",m_trackToVertexTool);
+        declareProperty("ParticleCaloExtensionTool",   m_caloExtensionTool );
+        declareProperty("TrackToVertexTool",m_trackToVertexTool);
 	declareProperty("maxDeltaZ0wrtLeadTrk", m_z0maxDelta);
 	declareProperty("removeTracksOutsideZ0wrtLeadTrk", m_applyZ0cut);
-    declareProperty("StoreRemovedCoreWideTracksInOtherTracks", m_storeInOtherTrks = true);
+        declareProperty("StoreRemovedCoreWideTracksInOtherTracks", m_storeInOtherTrks = true);
+	declareProperty("BypassSelector", m_bypassSelector = false);
 }
 
 TauTrackFinder::~TauTrackFinder() {
@@ -47,7 +50,7 @@ StatusCode TauTrackFinder::initialize() {
 
 	// Get the TJVA
 	if (!retrieveTool(m_trackToVertexTool)) return StatusCode::FAILURE;
-	if (!retrieveTool(m_trackToCalo)) return StatusCode::FAILURE;
+	if (!retrieveTool(m_caloExtensionTool)) return StatusCode::FAILURE;
 
 	return StatusCode::SUCCESS;
 }
@@ -226,13 +229,17 @@ TauTrackFinder::TauTrackType TauTrackFinder::tauTrackType( const xAOD::TauJet* p
 
 	if (dR > m_maxJetDr_wide) return NotTauTrack;
 
-	if (m_trackSelectorTool_tau->decision(*trackParticle, primaryVertex)) {
-		if (dR > m_maxJetDr_tau)
-			return TauTrackWide;
-		else
-			return TauTrackCore;
+	bool goodTrack = true;
+	if(!m_bypassSelector)
+	  goodTrack = m_trackSelectorTool_tau->decision(*trackParticle, primaryVertex);
+	
+	if (goodTrack) {
+	  if (dR > m_maxJetDr_tau)
+	    return TauTrackWide;
+	  else
+	    return TauTrackCore;
 	} else
-		return TauTrackOther;
+	  return TauTrackOther;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -272,60 +279,82 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(TauCandidateData *data) {
 		return StatusCode::FAILURE;
 	}
 
-	const int numOfsampEM = 4;
+	//apparently unused: const int numOfsampEM = 4;
+
+        Trk::TrackParametersIdHelper parsIdHelper;
 
 	for (unsigned int itr = 0; itr < 10 && itr < pTau->nTracks(); ++itr) {
 
 		const xAOD::TrackParticle *orgTrack = pTau->track(itr);
+                
+                if( !orgTrack ) continue;
 
-		//---------------------------------------------------------------------
-		// Extrapolate to all layers
-		//---------------------------------------------------------------------
-		const DataVector< const Trk::TrackParameters >* pTrk = m_trackToCalo->getParametersInCalo(*orgTrack, Trk::pion, Trk::alongMomentum); //FIXME
+                // get the extrapolation into the calo
+                const Trk::CaloExtension* caloExtension = 0;
+                if( !m_caloExtensionTool->caloExtension(*orgTrack,caloExtension) || caloExtension->caloLayerIntersections().empty() ) continue;
 
-		//---------------------------------------------------------------------
-		// Calculate eta, phi impact point at calorimeter layers EM 0,1,2,3
-		//---------------------------------------------------------------------
-		double eta_extrapol[4];
-		double phi_extrapol[4];
+                // loop over calo layers
+                for( auto cur = caloExtension->caloLayerIntersections().begin(); cur != caloExtension->caloLayerIntersections().end() ; ++cur ){
+                  
+                  // only use entry layer
+                  if( !parsIdHelper.isEntryToVolume((*cur)->cIdentifier()) ) continue;
 
-		for (int i = 0; i < numOfsampEM; ++i) {
-			eta_extrapol[i] = -11111.;
-			phi_extrapol[i] = -11111.;
-		}
+                  CaloSampling::CaloSample sample = parsIdHelper.caloSample((*cur)->cIdentifier());
+                  
+                  if( sample == CaloSampling::EME1 || sample == CaloSampling::EMB1 ){
+                    pTau->setTrackEtaStrip( itr,  (*cur)->position().eta() );
+                    pTau->setTrackPhiStrip( itr,  (*cur)->position().phi() );
+                    break;
+                  }
+                }
+		// //---------------------------------------------------------------------
+		// // Extrapolate to all layers
+		// //---------------------------------------------------------------------
+		// const DataVector< const Trk::TrackParameters >* pTrk = m_trackToCalo->getParametersInCalo(*orgTrack, Trk::pion, Trk::alongMomentum); //FIXME
 
-		// XXX commenting this out as long as it's not clear whether these variables will be stored in xAOD::TauJet
-		// if (pTrk && (*pTrk)[IExtrapolateToCaloTool::PreSampler]) {
-		// 	eta_extrapol[0] = (*pTrk)[IExtrapolateToCaloTool::PreSampler]->position().eta();
-		// 	phi_extrapol[0] = (*pTrk)[IExtrapolateToCaloTool::PreSampler]->position().phi();
+		// //---------------------------------------------------------------------
+		// // Calculate eta, phi impact point at calorimeter layers EM 0,1,2,3
+		// //---------------------------------------------------------------------
+		// double eta_extrapol[4];
+		// double phi_extrapol[4];
+
+		// for (int i = 0; i < numOfsampEM; ++i) {
+		// 	eta_extrapol[i] = -11111.;
+		// 	phi_extrapol[i] = -11111.;
 		// }
 
-		if (pTrk && (*pTrk)[IExtrapolateToCaloTool::Strips]) {
-			eta_extrapol[1] = (*pTrk)[IExtrapolateToCaloTool::Strips]->position().eta();
-			phi_extrapol[1] = (*pTrk)[IExtrapolateToCaloTool::Strips]->position().phi();
+		// // XXX commenting this out as long as it's not clear whether these variables will be stored in xAOD::TauJet
+		// // if (pTrk && (*pTrk)[IExtrapolateToCaloTool::PreSampler]) {
+		// // 	eta_extrapol[0] = (*pTrk)[IExtrapolateToCaloTool::PreSampler]->position().eta();
+		// // 	phi_extrapol[0] = (*pTrk)[IExtrapolateToCaloTool::PreSampler]->position().phi();
+		// // }
 
-		if (msgLvl(MSG::VERBOSE)) 
-		  { //only if desired msg level is requested
-		    ATH_MSG_VERBOSE(name() << " extrapolation in strip layer : "  
-				    << " track nr " << itr
-				    << " impact point eta " << eta_extrapol[1]
-				    << " impact point phi " << phi_extrapol[1]
-				    );
-		  }
+		// if (pTrk && (*pTrk)[IExtrapolateToCaloTool::Strips]) {
+		// 	eta_extrapol[1] = (*pTrk)[IExtrapolateToCaloTool::Strips]->position().eta();
+		// 	phi_extrapol[1] = (*pTrk)[IExtrapolateToCaloTool::Strips]->position().phi();
+
+		// if (msgLvl(MSG::VERBOSE)) 
+		//   { //only if desired msg level is requested
+		//     ATH_MSG_VERBOSE(name() << " extrapolation in strip layer : "  
+		// 		    << " track nr " << itr
+		// 		    << " impact point eta " << eta_extrapol[1]
+		// 		    << " impact point phi " << phi_extrapol[1]
+		// 		    );
+		//   }
 	
-		pTau->setTrackEtaStrip( itr,  (*pTrk)[IExtrapolateToCaloTool::Strips]->position().eta() );
-		pTau->setTrackPhiStrip( itr,  (*pTrk)[IExtrapolateToCaloTool::Strips]->position().phi() );
+		// pTau->setTrackEtaStrip( itr,  (*pTrk)[IExtrapolateToCaloTool::Strips]->position().eta() );
+		// pTau->setTrackPhiStrip( itr,  (*pTrk)[IExtrapolateToCaloTool::Strips]->position().phi() );
 		
-		if (msgLvl(MSG::VERBOSE)) 
-		  { //only if desired msg level is requested
-		    ATH_MSG_VERBOSE(name() << " extrapolation in strip layer stored in tau : "  
-				    << " track nr " << itr
-				    << " impact point eta " << pTau->trackEtaStrip(itr)
-				    << " impact point phi " << pTau->trackPhiStrip(itr)
-				    );
-		  }
+		// if (msgLvl(MSG::VERBOSE)) 
+		//   { //only if desired msg level is requested
+		//     ATH_MSG_VERBOSE(name() << " extrapolation in strip layer stored in tau : "  
+		// 		    << " track nr " << itr
+		// 		    << " impact point eta " << pTau->trackEtaStrip(itr)
+		// 		    << " impact point phi " << pTau->trackPhiStrip(itr)
+		// 		    );
+		//   }
 	
-		}
+		// }
 
 		// XXX commenting this out as long as it's not clear whether these variables will be stored in xAOD::TauJet
 		// if (pTrk && (*pTrk)[IExtrapolateToCaloTool::Middle]) {
@@ -350,7 +379,7 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(TauCandidateData *data) {
 		//     pExtraDetails->phiTrkCaloSamp()[itr][i] = phi_extrapol[i];
 		// }
 
-		if (pTrk) delete pTrk;
+		//if (pTrk) delete pTrk;
 
 		// XXX commenting this out as long as it's not clear whether these variables will be stored in xAOD::TauJet
 		// if (msgLvl(MSG::VERBOSE)) { //only if desired msg level is requested

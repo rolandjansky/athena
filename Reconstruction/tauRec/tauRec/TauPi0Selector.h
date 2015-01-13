@@ -2,33 +2,26 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUPI0BONNSELECTOR_H
-#define	TAUREC_TAUPI0BONNSELECTOR_H
+#ifndef TAUREC_TAUPI0SELECTOR_H
+#define	TAUREC_TAUPI0SELECTOR_H
 
 #include <string>
 #include "tauRec/TauToolBase.h"
-#include "GaudiKernel/ToolHandle.h"
-
-class CaloCluster;
-namespace Analysis {
-    class TauCommonDetails;
-    class TauPi0Details;
-}
 
 /**
- * @brief Selectes pi0Candidates ("Bonn" Pi0 Finder).
+ * @brief Selects pi0s
  * 
- * @author Veit Scharf
  * @author Will Davey <will.davey@cern.ch> 
  * @author Benedict Winter <benedict.tobias.winter@cern.ch> 
+ * @author Stephanie Yuen <stephanie.yuen@cern.ch>
  */
 
-class TauPi0BonnSelector : public TauToolBase {
+class TauPi0Selector : public TauToolBase {
 public:
-    TauPi0BonnSelector(const std::string& type,
+    TauPi0Selector(const std::string& type,
             const std::string& name,
             const IInterface *parent);
-    virtual ~TauPi0BonnSelector();
+    virtual ~TauPi0Selector();
     virtual StatusCode initialize();
     virtual StatusCode execute(TauCandidateData *data);
 
@@ -43,4 +36,4 @@ private:
     TLorentzVector getP4(xAOD::TauJet* tauJet);
 };
 
-#endif	/* TAUPI0BONNSELECTOR_H */
+#endif	/* TAUPI0SELECTOR_H */

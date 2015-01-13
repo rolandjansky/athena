@@ -23,10 +23,10 @@ import traceback
 from RecExConfig.Configured import Configured
 
 # global tauRec config keys
-_outputType = "xAOD::TauJetContainer_v1"
-_outputKey = "TauRecContainer"
-_outputAuxType = "xAOD::TauJetAuxContainer_v1"
-_outputAuxKey = "TauRecContainerAux."
+_outputType = "xAOD::TauJetContainer"
+_outputKey = "TauJets"
+_outputAuxType = "xAOD::TauJetAuxContainer"
+_outputAuxKey = "TauJetsAux."
 _track_collection = "InDetTrackParticles"
 _jet_collection = "AntiKt4LCTopoJets"
 
@@ -43,9 +43,9 @@ class TauRecCoreBuilder ( Configured ) :
   
     _output     = { _outputType:_outputKey , _outputAuxType:_outputAuxKey }
     
-    def __init__(self, name = "TauCoreBuilder",doBonnPi0Clus=False, doTJVA=False, msglevel=3, ignoreExistingDataObject=True):
+    def __init__(self, name = "TauCoreBuilder",doPi0Clus=False, doTJVA=False, msglevel=3, ignoreExistingDataObject=True):
         self.name = name
-        self.doBonnPi0Clus = doBonnPi0Clus
+        self.doPi0Clus = doPi0Clus
         self.do_TJVA = doTJVA
         self.msglevel = msglevel
         Configured.__init__(self, ignoreExistingDataObject=ignoreExistingDataObject)
@@ -85,12 +85,22 @@ class TauRecCoreBuilder ( Configured ) :
             mlog.error("could not get handle to TauBuilder")
             print traceback.format_exc()
             return False
+
+
+        #switch off TJVA if jet reco don't use tracks.
+        from JetRec.JetRecFlags import jetFlags
+        if not jetFlags.useTracks():
+            self.do_TJVA = False  # switch off TJVA
         
         
         tools = []
         try:
             tools.append(taualgs.getJetSeedBuilder(_jet_collection))
-            tools.append(taualgs.getTauVertexFinder(doUseTJVA=self.do_TJVA)) 
+
+            # run vertex finder only in case vertexing is available. This check can also be done in TauAlgorithmsHolder instead doing it here. 
+            from InDetRecExample.InDetJobProperties import InDetFlags
+            if InDetFlags.doVertexFinding():
+                tools.append(taualgs.getTauVertexFinder(doUseTJVA=self.do_TJVA)) 
             tools.append(taualgs.getTauAxis())
             tools.append(taualgs.getTauTrackFinder())
             tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix='_onlyEnergy'))
@@ -102,8 +112,8 @@ class TauRecCoreBuilder ( Configured ) :
             #
             #tools.append(taualgs.getPi0EflowCreateROI())
             tools.append(taualgs.getTauShotFinder()) 
-            if self.doBonnPi0Clus:
-                tools.append(taualgs.getBonnPi0ClusterFinder())
+            if self.doPi0Clus:
+                tools.append(taualgs.getPi0ClusterFinder())
 
             #####################################################################
             ## Tau Conversation Finder (found no one talking here...)
@@ -154,9 +164,9 @@ class TauRecPi0EflowProcessor ( Configured ) :
     This needs to be done in a separate step, because first special cluster and cell container have to be build.
     """
        
-    def __init__(self, name = "TauProcessorPi0EflowTools",doBonnPi0Clus=False, msglevel=3, ignoreExistingDataObject=True):
+    def __init__(self, name = "TauProcessorPi0EflowTools",doPi0Clus=False, msglevel=3, ignoreExistingDataObject=True):
         self.name = name
-        self.doBonnPi0Clus = doBonnPi0Clus
+        self.doPi0Clus = doPi0Clus
         self.msglevel = msglevel
         Configured.__init__(self,ignoreExistingDataObject=ignoreExistingDataObject)
     
@@ -191,7 +201,7 @@ class TauRecPi0EflowProcessor ( Configured ) :
             #tools.append(taualgs.getTauEflowAddCaloInfo())  
             #tools.append(taualgs.getTauEflowVariables())     
       
-            if self.doBonnPi0Clus: tools.append(taualgs.getBonnPi0ClusterCreator())
+            if self.doPi0Clus: tools.append(taualgs.getPi0ClusterCreator())
             
             self.TauProcessorHandle().Tools = tools
             
@@ -218,9 +228,9 @@ class TauRecVariablesProcessor ( Configured ) :
     Use informations available also in AODs, so no cell level is needed.
     """
     
-    def __init__(self, name = "TauRecVariablesProcessor", inAODmode=False, doBonnPi0Clus=False, msglevel=3, ignoreExistingDataObject=True):
+    def __init__(self, name = "TauRecVariablesProcessor", inAODmode=False, doPi0Clus=False, msglevel=3, ignoreExistingDataObject=True):
         self.name = name
-        self.doBonnPi0Clus = doBonnPi0Clus
+        self.doPi0Clus = doPi0Clus
         self.msglevel = msglevel
         self.AODmode = inAODmode 
         Configured.__init__(self, ignoreExistingDataObject=ignoreExistingDataObject)
@@ -255,15 +265,19 @@ class TauRecVariablesProcessor ( Configured ) :
         tools = []
         try:
             #tools.append(taualgs.getEnergyCalibrationEM())
-            # don't run 2nd vertex finder in case of cosmics
-            if not jobproperties.Beam.beamType()=="cosmics":
+            # run vertex finder only in case vertexing is available. This check can also be done in TauAlgorithmsHolder instead doing it here. 
+            from InDetRecExample.InDetJobProperties import InDetFlags
+            if InDetFlags.doVertexFinding():
                 tools.append(taualgs.getTauVertexVariables())
             tools.append(taualgs.getTauCommonCalcVars())
             tools.append(taualgs.getTauSubstructure())
-            if self.doBonnPi0Clus: 
-                tools.append(taualgs.getPi0BonnScoreCalculator())
-                tools.append(taualgs.getPi0BonnSelector())
+            if self.doPi0Clus: 
+                tools.append(taualgs.getPi0ClusterScaler())
+                tools.append(taualgs.getPi0ScoreCalculator())
+                # SWITCHED OFF SELECTOR< SINCE NO CHARGED PFOS AVAILABLE ATM
+                tools.append(taualgs.getPi0Selector())
             tools.append(taualgs.getEnergyCalibrationLC(correctEnergy=False, correctAxis=True, postfix='_onlyAxis'))
+            tools.append(taualgs.getIDPileUpCorrection())
             #
             ## for testing purpose
             #tools.append(taualgs.getTauTestDump())

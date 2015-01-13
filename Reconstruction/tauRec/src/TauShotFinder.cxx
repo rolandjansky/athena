@@ -26,8 +26,8 @@
 #include "FourMomUtils/P4Helpers.h"
 #include "tauRec/TauShotFinder.h"
 #include "tauRec/TauShotVariableHelpers.h"
-#include "TMVA/Reader.h"
-#include "PathResolver/PathResolver.h"
+//#include "TMVA/Reader.h"
+//#include "PathResolver/PathResolver.h"
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODPFlow/PFOAuxContainer.h"
 #include "xAODPFlow/PFO.h"
@@ -46,8 +46,8 @@ TauShotFinder::TauShotFinder(   const string& type,
     , m_caloWeightTool("H1WeightToolCSC12Generic")
     , m_caloCellContainerName("AllCalo")
     , m_shotClusterContainer(NULL)
-    , m_shotClusterContainerName("TauShotClusterContainer")
-    , m_shotPFOContainerName("TauShotPFOContainer")
+    , m_shotClusterContainerName("TauShotClusters")
+    , m_shotPFOContainerName("TauShotParticleFlowObjects")
     , m_calo_dd_man(NULL)
     , m_calo_id(NULL)
 {
@@ -56,10 +56,10 @@ TauShotFinder::TauShotFinder(   const string& type,
     declareProperty("CaloCellContainerName", m_caloCellContainerName); 
     declareProperty("ShotClusterContainerName", m_shotClusterContainerName);
     declareProperty("ShotPFOContainerName",  m_shotPFOContainerName);
-    declareProperty("ReaderOption",          m_readerOption);
-    declareProperty("BDTWeightFile_barrel",  m_weightfile_barrel);
-    declareProperty("BDTWeightFile_endcap1", m_weightfile_endcap1);
-    declareProperty("BDTWeightFile_endcap2", m_weightfile_endcap2);
+//    declareProperty("ReaderOption",          m_readerOption);
+//    declareProperty("BDTWeightFile_barrel",  m_weightfile_barrel);
+//    declareProperty("BDTWeightFile_endcap1", m_weightfile_endcap1);
+//    declareProperty("BDTWeightFile_endcap2", m_weightfile_endcap2);
     declareProperty("NCellsInEta",           m_nCellsInEta);
     declareProperty("MinPtCut",              m_minPtCut);
     declareProperty("AutoDoubleShotCut",     m_autoDoubleShotCut);
@@ -83,6 +83,7 @@ StatusCode TauShotFinder::initialize() {
     m_calo_dd_man  = CaloDetDescrManager::instance();
     m_calo_id      = m_calo_dd_man->getCaloCell_ID();
 
+    /*
     //---------------------------------------------------------------------
     // Create TMVA readers
     //---------------------------------------------------------------------
@@ -108,6 +109,7 @@ StatusCode TauShotFinder::initialize() {
     m_tmvaReader_endcap2->AddVariable("shot_deltapt_min"             ,&G_DELTAPT_MIN );
 
     if (bookMethod(m_tmvaReader_barrel, m_tmvaReader_endcap1, m_tmvaReader_endcap2, "BDT method").isFailure()) return StatusCode::FAILURE;
+    */
 
     // setupCuts();
 
@@ -117,9 +119,11 @@ StatusCode TauShotFinder::initialize() {
 StatusCode TauShotFinder::finalize()
 {
   StatusCode sc = AlgTool::finalize();
+  /*
   delete m_tmvaReader_barrel;
   delete m_tmvaReader_endcap1;
   delete m_tmvaReader_endcap2;
+  */
   return sc;
 }
 
@@ -148,6 +152,10 @@ StatusCode TauShotFinder::eventInitialize(TauCandidateData * /*data*/) {
 StatusCode TauShotFinder::execute(TauCandidateData *data) {
 
     xAOD::TauJet *pTau = data->xAODTau;
+
+    // Any tau needs to have shot PFO vectors. Set empty vectors before nTrack cut
+    vector<ElementLink<xAOD::PFOContainer> > empty;
+    pTau->setShotPFOLinks(empty);
     
     //---------------------------------------------------------------------
     // only run shower subtraction on 1-5 prong taus 
@@ -281,7 +289,7 @@ StatusCode TauShotFinder::execute(TauCandidateData *data) {
         // Create element link from tau to shot
         ElementLink<xAOD::PFOContainer> PFOElementLink;
         PFOElementLink.toContainedElement( *m_PFOShotContainer, shot );
-        pTau->addShot_PFOLink( PFOElementLink );
+        pTau->addShotPFOLink( PFOElementLink );
        
         if( mergePhi ){
             // interpolate position
@@ -324,11 +332,15 @@ StatusCode TauShotFinder::execute(TauCandidateData *data) {
             }
           }
         }
+        // Get eta bin
+        int etaBin = getEtaBin(cell->eta());
 
         // set variables used for photon counting
         m_pt1=TauShotVariableHelpers::ptWindow(cellBlock,1,m_caloWeightTool);
         m_pt3=TauShotVariableHelpers::ptWindow(cellBlock,3,m_caloWeightTool);
         m_pt5=TauShotVariableHelpers::ptWindow(cellBlock,5,m_caloWeightTool);
+        // The folliwing variables are not needed atm
+        /*
         m_ws5=TauShotVariableHelpers::ws5(cellBlock,m_caloWeightTool);
         m_sdevEta5_WRTmean=TauShotVariableHelpers::sdevEta_WRTmean(cellBlock,m_caloWeightTool);
         m_sdevEta5_WRTmode=TauShotVariableHelpers::sdevEta_WRTmode(cellBlock,m_caloWeightTool);
@@ -342,6 +354,7 @@ StatusCode TauShotFinder::execute(TauCandidateData *data) {
         m_fracSide_5not3=TauShotVariableHelpers::fracSide(cellBlock,5,3,m_caloWeightTool);
         m_pt1OverPt3=TauShotVariableHelpers::ptWindowFrac(cellBlock,3,1,m_caloWeightTool);
         m_pt3OverPt5=TauShotVariableHelpers::ptWindowFrac(cellBlock,5,3,m_caloWeightTool);
+        
 
         // Same variable names as in Stephanie's private code
         G_PTFRAC=m_fracSide_3not1;
@@ -350,13 +363,14 @@ StatusCode TauShotFinder::execute(TauCandidateData *data) {
         G_DELTAPT_MIN=fmax(-1000.,fmin(m_deltaPt12_min,2000));
 
         // Calculate BDT scores
-        int etaBin = getEtaBin(cell->eta());
         float mergedBDTScore=getMergedBDTScore(etaBin);
+        */
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         // Calculate number of photons in shot
         ////////////////////////////////////////////////////////////////////////////////////////////
-        int nPhotons = getNPhotons(etaBin, mergedBDTScore, m_pt1);
+        //int nPhotons = getNPhotons(etaBin, mergedBDTScore, m_pt1);
+        int nPhotons = getNPhotons(etaBin, 1, m_pt1);
 
         ////////////////////////////////////////////////////////////////////////////////////////////
         // Set variables in shot PFO
@@ -364,6 +378,8 @@ StatusCode TauShotFinder::execute(TauCandidateData *data) {
         shot->setAttribute<float>(xAOD::PFODetails::PFOAttributes::tauShots_pt1, m_pt1);
         shot->setAttribute<float>(xAOD::PFODetails::PFOAttributes::tauShots_pt3, m_pt3);
         shot->setAttribute<float>(xAOD::PFODetails::PFOAttributes::tauShots_pt5, m_pt5);
+        // The folliwing variables are not needed atm
+        /*
         shot->setAttribute<float>(xAOD::PFODetails::PFOAttributes::tauShots_ws5, m_ws5);
         shot->setAttribute<float>(xAOD::PFODetails::PFOAttributes::tauShots_sdevEta5_WRTmean, m_sdevEta5_WRTmean);
         shot->setAttribute<float>(xAOD::PFODetails::PFOAttributes::tauShots_sdevEta5_WRTmode, m_sdevEta5_WRTmode);
@@ -379,6 +395,7 @@ StatusCode TauShotFinder::execute(TauCandidateData *data) {
         shot->setAttribute<float>(xAOD::PFODetails::PFOAttributes::tauShots_pt3OverPt5, m_pt3OverPt5);
         shot->setAttribute<float>(xAOD::PFODetails::PFOAttributes::tauShots_mergedScore, mergedBDTScore);
         shot->setAttribute<float>(xAOD::PFODetails::PFOAttributes::tauShots_signalScore, -1.);
+        */
         shot->setAttribute<int>(xAOD::PFODetails::PFOAttributes::tauShots_nPhotons, nPhotons);
 
         // remove shot(s) from list
@@ -475,6 +492,7 @@ float TauShotFinder::getEtaBin(float seedEta){
     else return 4;                           // endcap, coarse granularity
 }
 
+/*
 float TauShotFinder::getMergedBDTScore(int etaBin){
     float BDTScore = -1;
     if(etaBin==0)      BDTScore = m_tmvaReader_barrel->EvaluateMVA( "BDT method" );  // barrel1
@@ -484,11 +502,12 @@ float TauShotFinder::getMergedBDTScore(int etaBin){
     else if(etaBin==4) BDTScore = m_tmvaReader_endcap2->EvaluateMVA( "BDT method" ); // endcap2
     return BDTScore;
 }
+*/
 
 float TauShotFinder::getNPhotons(int etaBin, float mergedBDTScore, float seedEnergy){
     if(etaBin==2) return 0; // no photon counting in crack atm
-    ATH_MSG_DEBUG("etaBin = " << etaBin  << ", seedEnergy = " << seedEnergy << ", m_minPtCut.at(etaBin) = " << m_minPtCut.at(etaBin) << "m_autoDoubleShotCut.at(etaBin) = " 
-      << m_autoDoubleShotCut.at(etaBin) << ", mergedBDTScore = " << mergedBDTScore << ", m_mergedBDTScoreCut.at(etaBin) = " << m_mergedBDTScoreCut.at(etaBin) );
+    ATH_MSG_DEBUG("etaBin = " << etaBin  << ", seedEnergy = " << seedEnergy << ", m_minPtCut.at(etaBin) = " << m_minPtCut.at(etaBin) << ", m_autoDoubleShotCut.at(etaBin) = " 
+       << m_autoDoubleShotCut.at(etaBin) << ", mergedBDTScore = " << mergedBDTScore << ", m_mergedBDTScoreCut.at(etaBin) = " << m_mergedBDTScoreCut.at(etaBin) );
     if( seedEnergy < m_minPtCut.at(etaBin) ) return 0;
     if( seedEnergy > m_autoDoubleShotCut.at(etaBin) ) return 2;
     if( mergedBDTScore < m_mergedBDTScoreCut.at(etaBin) ) return 2;
@@ -502,6 +521,7 @@ bool TauShotFinder::ptSort::operator()( const CaloCell* c1, const CaloCell* c2 )
      return  c1->pt()*m_info.m_caloWeightTool->wtCell(c1) > c2->pt()*m_info.m_caloWeightTool->wtCell(c2);  
 }
 
+/*
 StatusCode TauShotFinder::bookMethod(TMVA::Reader *reader_barrel, 
                                      TMVA::Reader *reader_endcap1, 
                                      TMVA::Reader *reader_endcap2, 
@@ -550,5 +570,5 @@ StatusCode TauShotFinder::bookMethod(TMVA::Reader *reader_barrel,
     reader_endcap2->BookMVA( methodName, resolvedFileName);
     return StatusCode::SUCCESS;
 }
-
+*/
 // EOF

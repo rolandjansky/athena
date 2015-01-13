@@ -17,7 +17,7 @@ namespace Analysis {
 /**
  * @brief Tool to select the correct Pi0 Finder.
  * 
- *  Part of the "Bonn" Pi0 Finder algorithm.
+ *  Part of the Pi0 Finder algorithm.
  *
  * @author  Veit Scharf
  */

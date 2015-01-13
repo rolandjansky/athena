@@ -13,9 +13,9 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
-class IExtrapolateToCaloTool;
 namespace Trk {
-	class ITrackSelectorTool;
+  class ITrackSelectorTool;
+  class IParticleCaloExtensionTool;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -109,7 +109,7 @@ private:
     //-------------------------------------------------------------
     //! tools
     //-------------------------------------------------------------
-    ToolHandle<IExtrapolateToCaloTool> m_trackToCalo;
+    ToolHandle< Trk::IParticleCaloExtensionTool >  m_caloExtensionTool;
     ToolHandle<Trk::ITrackSelectorTool> m_trackSelectorTool_tau;
     ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool;
     
@@ -127,6 +127,12 @@ private:
     bool m_storeInOtherTrks;
     std::vector<float> m_vDeltaZ0coreTrks;
     std::vector<float> m_vDeltaZ0wideTrks;
+
+    //-------------------------------------------------------------
+    // Bypass TrackSelectorTool
+    //-------------------------------------------------------------
+
+    bool m_bypassSelector;
 
     //-------------------------------------------------------------
     //! Convenience functions to handle storegate objects

@@ -35,7 +35,6 @@ use  AtlasAIDA                  AtlasAIDA-*                     External
 use  AtlasCLHEP                 AtlasCLHEP-*                    External
 use  AtlasDetDescr              AtlasDetDescr-*                 DetectorDescription
 use  CaloIdentifier             CaloIdentifier-*                Calorimeter
-use  EventInfo                  EventInfo-*                     Event
 use  FourMom                    FourMom-*                       Event
 use  FourMomUtils               FourMomUtils-*                  Event
 use  NavFourMom                 NavFourMom-*                    Event
@@ -52,13 +51,17 @@ use  TrkToolInterfaces          TrkToolInterfaces-*             Tracking/TrkTool
 use TrkVxEdmCnv                 TrkVxEdmCnv-*           Tracking/TrkVertexFitter
 use TrkLinks                    TrkLinks-*              Tracking/TrkEvent
 use  VxVertex                   VxVertex-*                      Tracking/TrkEvent
+use TrkParametersIdentificationHelpers TrkParametersIdentificationHelpers-* Tracking/TrkEvent
 end_private
 
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS TMVA)"
 
+ 
 public
 
 #macro_append tauRec_shlibflags "-L$(ROOTSYS)/lib -lCore -lCint -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lm -ldl -lpthread -rdynamic"
-macro_append ROOT_linkopts " -lTMVA"
+#macro_append ROOT_linkopts " -lTMVA"
 
 apply_pattern dual_use_library files="*.cxx *.c"
 
@@ -67,3 +70,5 @@ apply_pattern declare_joboptions files="*.txt *.py"
 apply_pattern declare_runtime files="*.root *.dat *.xml" 
 
 apply_pattern declare_python_modules files="*.py"
+
+apply_tag ROOTTMVALibs 

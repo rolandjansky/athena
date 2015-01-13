@@ -3,23 +3,20 @@
 */
 
 //-----------------------------------------------------------------------------
-// file:        TauPi0BonnClusterCreator.cxx
+// file:        TauPi0ClusterCreator.cxx
 // package:     Reconstruction/tauEvent
-// authors:     Benedict Winter, Will Davey
+// authors:     Benedict Winter, Will Davey, Stephanie Yuen
 // date:        2012-10-09
 //
 //-----------------------------------------------------------------------------
 
-#include <vector>
-
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "CaloGeoHelpers/CaloSampling.h"
-#include "AnalysisUtils/AnalysisMisc.h"
 #include "FourMomUtils/P4Helpers.h"
+#include "xAODJet/Jet.h"
 
-#include "tauRec/TauPi0BonnClusterCreator.h"
+#include "tauRec/TauPi0ClusterCreator.h"
 
-#include "RecoToolInterfaces/IExtrapolateToCaloTool.h"
 
 using std::vector;
 using std::string;
@@ -28,26 +25,24 @@ using std::string;
 // Constructor
 //-------------------------------------------------------------------------
 
-TauPi0BonnClusterCreator::TauPi0BonnClusterCreator( 
+TauPi0ClusterCreator::TauPi0ClusterCreator( 
     const string& type,
     const string& name,
     const IInterface *parent) 
 
     : TauToolBase(type, name, parent)
-    , m_trackToCaloTool("")
-    , m_cellContainerName("TauCommonPi0CellContainer") 
-    , m_inputPi0ClusterContainerName("TauPi0BonnSubtractedClusterContainer")
-    , m_outputPi0ClusterContainerName("TauPi0BonnClusterContainer")
-    , m_neutralPFOContainerName("TauPi0BonnNeutralPFOContainer")
+    , m_inputPi0ClusterContainerName("TauPi0SubtractedClusters")
+    , m_outputPi0ClusterContainerName("TauPi0Clusters")
+    , m_neutralPFOContainerName("TauNeutralParticleFlowObjects")
+    , m_hadronicClusterPFOContainerName("TauHadronicParticleFlowObjects")
     , m_clusterEtCut(500.)
 {
     declareInterface<TauToolBase > (this);
 
-    declareProperty("ExtrapolateToCaloTool",         m_trackToCaloTool);
-    declareProperty("CellContainerName",             m_cellContainerName);
     declareProperty("InputPi0ClusterContainerName",  m_inputPi0ClusterContainerName);
     declareProperty("OutputPi0ClusterContainerName", m_outputPi0ClusterContainerName);
     declareProperty("NeutralPFOContainerName",       m_neutralPFOContainerName);
+    declareProperty("HadronicClusterPFOContainerName", m_hadronicClusterPFOContainerName);
     declareProperty("ClusterEtCut",                  m_clusterEtCut);
 }
 
@@ -55,18 +50,17 @@ TauPi0BonnClusterCreator::TauPi0BonnClusterCreator(
 // Destructor
 //-------------------------------------------------------------------------
 
-TauPi0BonnClusterCreator::~TauPi0BonnClusterCreator() 
+TauPi0ClusterCreator::~TauPi0ClusterCreator() 
 {
 }
 
 
-StatusCode TauPi0BonnClusterCreator::initialize() 
+StatusCode TauPi0ClusterCreator::initialize() 
 {
-    CHECK( m_trackToCaloTool.retrieve() );
     return StatusCode::SUCCESS;
 }
 
-StatusCode TauPi0BonnClusterCreator::eventInitialize(TauCandidateData * /*data*/) 
+StatusCode TauPi0ClusterCreator::eventInitialize(TauCandidateData * /*data*/) 
 {
     // create new CaloClusterContainer 
     // this container will later persistified
@@ -90,12 +84,31 @@ StatusCode TauPi0BonnClusterCreator::eventInitialize(TauCandidateData * /*data*/
     CHECK( evtStore()->record( m_neutralPFOAuxStore, m_neutralPFOContainerName + "Aux." ) );
     m_neutralPFOContainer->setStore(m_neutralPFOAuxStore);
 
+    //---------------------------------------------------------------------
+    // Create hadronic cluster PFO container
+    //---------------------------------------------------------------------
+    m_hadronicClusterPFOContainer = new xAOD::PFOContainer();
+    CHECK( evtStore()->record(m_hadronicClusterPFOContainer, m_hadronicClusterPFOContainerName ) );
+    m_hadronicClusterPFOAuxStore = new xAOD::PFOAuxContainer();
+    CHECK( evtStore()->record( m_hadronicClusterPFOAuxStore, m_hadronicClusterPFOContainerName + "Aux." ) );
+    m_hadronicClusterPFOContainer->setStore(m_hadronicClusterPFOAuxStore);
+
     return StatusCode::SUCCESS;
 }
 
-StatusCode TauPi0BonnClusterCreator::execute(TauCandidateData *data) 
+StatusCode TauPi0ClusterCreator::execute(TauCandidateData *data) 
 {
     xAOD::TauJet *pTau = data->xAODTau;
+
+    // Any tau needs to have PFO vectors. Set empty vectors before nTrack cut
+    vector<ElementLink<xAOD::PFOContainer> > empty;
+    pTau->setProtoChargedPFOLinks(empty);
+    pTau->setProtoNeutralPFOLinks(empty);
+    pTau->setProtoPi0PFOLinks(empty);
+    pTau->setHadronicPFOLinks(empty);
+
+    // Any tau needs to have PanTauCellBasedProto 4mom. Set it to 0 before nTrack cut
+    pTau->setP4(xAOD::TauJetParameters::PanTauCellBasedProto, 0.0, 0.0, 0.0, 0.0);
 
     //---------------------------------------------------------------------
     // only run shower subtraction on 1-5 prong taus 
@@ -106,33 +119,10 @@ StatusCode TauPi0BonnClusterCreator::execute(TauCandidateData *data)
     ATH_MSG_DEBUG("ClusterCreator: new tau. \tpt = " << pTau->pt() << "\teta = " << pTau->eta() << "\tphi = " << pTau->phi() << "\tnprongs = " << pTau->nTracks());
 
     //---------------------------------------------------------------------
-    // get tau tracks
-    //---------------------------------------------------------------------
-    vector<const xAOD::TrackParticle*> tracks;
-    for(unsigned iTrack = 0; iTrack<pTau->nTracks();++iTrack){
-      const xAOD::TrackParticle* track = pTau->track(iTrack);
-      tracks.push_back(track);
-    }
-
-    //---------------------------------------------------------------------
     // retrieve the CaloClusterContainer created by the CaloClusterMaker
     //---------------------------------------------------------------------
     const xAOD::CaloClusterContainer *pPi0ClusterContainer;
     CHECK( evtStore()->retrieve(pPi0ClusterContainer, m_inputPi0ClusterContainerName) );
-
-    //---------------------------------------------------------------------
-    // extrapolate track to calo layers 
-    //---------------------------------------------------------------------
-    vector<vector<float> > tracksEtaAtSampling;
-    vector<vector<float> > tracksPhiAtSampling;
-    for(unsigned iTrack = 0; iTrack<pTau->nTracks();++iTrack){
-      const xAOD::TrackParticle* track = pTau->track(iTrack);
-      vector<float> trackEtaAtSampling;
-      vector<float> trackPhiAtSampling;
-      this->getExtrapolatedPositions(track,trackEtaAtSampling,trackPhiAtSampling);
-      tracksEtaAtSampling.push_back(trackEtaAtSampling);
-      tracksPhiAtSampling.push_back(trackPhiAtSampling);
-    }
 
     //---------------------------------------------------------------------
     // TODO: May want to use tau vertex in the future to calculate some cluster moments (DELTA_THETA, etc.).
@@ -143,9 +133,9 @@ StatusCode TauPi0BonnClusterCreator::execute(TauCandidateData *data)
     // Retrieve Ecal1 shots and match them to clusters
     //---------------------------------------------------------------------
     std::vector<const xAOD::PFO*> shotVector;
-    unsigned nShots = pTau->nShot_PFOs();
+    unsigned nShots = pTau->nShotPFOs();
     for(unsigned iShot=0;iShot<nShots;++iShot){
-        const xAOD::PFO* thisShot = pTau->shot_PFO(iShot);
+        const xAOD::PFO* thisShot = pTau->shotPFO(iShot);
         shotVector.push_back( thisShot );
     }
     std::map<unsigned, xAOD::CaloCluster*> clusterToShotMap = getClusterToShotMap(shotVector, pPi0ClusterContainer, pTau);
@@ -175,7 +165,6 @@ StatusCode TauPi0BonnClusterCreator::execute(TauCandidateData *data)
         // since the position of the cluster in the 
         // calorimeter is required.
         float EM1CoreFrac = getEM1CoreFrac(pPi0Cluster);
-        float asymmetryInEM1WRTTrk = getAsymmetryInEM1WRTTrk(pPi0Cluster, tracksEtaAtSampling, tracksPhiAtSampling);
         int NHitsInEM1 = getNPhotons(shotVector, shotsInCluster);
         vector<int> NPosECellsInLayer = getNPosECells(pPi0Cluster);
         vector<float> firstEtaWRTClusterPositionInLayer = get1stEtaMomWRTCluster(pPi0Cluster);
@@ -217,14 +206,14 @@ StatusCode TauPi0BonnClusterCreator::execute(TauCandidateData *data)
        	float E_EM1 = pPi0Cluster->eSample(CaloSampling::EMB1) + pPi0Cluster->eSample(CaloSampling::EME1);
 	      float E_EM2 = pPi0Cluster->eSample(CaloSampling::EMB2) + pPi0Cluster->eSample(CaloSampling::EME2);
         
-        // create neutral PFO. Set BDTScore to dummy value <-1. The BDT score is calculated within TauPi0BonnSelector.cxx.
+        // create neutral PFO. Set BDTScore to dummy value <-1. The BDT score is calculated within TauPi0Selector.cxx.
         xAOD::PFO* neutralPFO = new xAOD::PFO();
         m_neutralPFOContainer->push_back( neutralPFO );
 
         // Create element link from tau to neutral PFO
         ElementLink<xAOD::PFOContainer> PFOElementLink;
         PFOElementLink.toContainedElement( *m_neutralPFOContainer, neutralPFO );
-        pTau->addCellBased_Neutral_PFOLink( PFOElementLink );
+        pTau->addProtoNeutralPFOLink( PFOElementLink );
 
         // Set PFO variables
         ElementLink<xAOD::CaloClusterContainer> clusElementLink;
@@ -234,10 +223,7 @@ StatusCode TauPi0BonnClusterCreator::execute(TauCandidateData *data)
         neutralPFO->setP4( (float) pPi0Cluster->pt(), (float) pPi0Cluster->eta(), (float) pPi0Cluster->phi(), (float) pPi0Cluster->m());
         neutralPFO->setBDTPi0Score( (float) -9999. );
         neutralPFO->setCharge( 0. );
-
         neutralPFO->setCenterMag( (float) CENTER_MAG);
-
-        neutralPFO->setAttribute<int>(xAOD::PFODetails::PFOAttributes::nPi0, -1);
         neutralPFO->setAttribute<int>(xAOD::PFODetails::PFOAttributes::nPi0Proto, -1);
 
         neutralPFO->setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_FIRST_ETA,       (float) FIRST_ETA);
@@ -257,7 +243,6 @@ StatusCode TauPi0BonnClusterCreator::execute(TauCandidateData *data)
 
 
         neutralPFO->setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_EM1CoreFrac, EM1CoreFrac);
-        neutralPFO->setAttribute<float>(xAOD::PFODetails::PFOAttributes::cellBased_asymmetryInEM1WRTTrk, asymmetryInEM1WRTTrk);
         neutralPFO->setAttribute<int>(xAOD::PFODetails::PFOAttributes::cellBased_NHitsInEM1, NHitsInEM1);
         neutralPFO->setAttribute<int>(xAOD::PFODetails::PFOAttributes::cellBased_NPosECells_PS,  NPosECellsInLayer.at(0));
         neutralPFO->setAttribute<int>(xAOD::PFODetails::PFOAttributes::cellBased_NPosECells_EM1, NPosECellsInLayer.at(1));
@@ -270,21 +255,28 @@ StatusCode TauPi0BonnClusterCreator::execute(TauCandidateData *data)
         // Store shot element links in neutral PFO
         std::vector<ElementLink<xAOD::IParticleContainer> > shotlinks;
         for(unsigned iShot = 0;iShot<shotsInCluster.size();++iShot){
-            ElementLink<xAOD::PFOContainer> shotPFOElementLink = pTau->shot_PFOLinks().at(shotsInCluster.at(iShot));
+            ElementLink<xAOD::PFOContainer> shotPFOElementLink = pTau->shotPFOLinks().at(shotsInCluster.at(iShot));
             ElementLink<xAOD::IParticleContainer> shotElementLink;
             shotPFOElementLink.toPersistent();
             shotElementLink.resetWithKeyAndIndex( shotPFOElementLink.persKey(), shotPFOElementLink.persIndex() ); 
-            if (!shotElementLink.isValid()) ATH_MSG_WARNING("Created an invalid element link to xAOD track particle");
+            if (!shotElementLink.isValid()) ATH_MSG_WARNING("Created an invalid element link to xAOD::PFO");
             shotlinks.push_back(shotElementLink);
         }
         if(!neutralPFO->setAssociatedParticleLinks( xAOD::PFODetails::TauShot,shotlinks)) 
             ATH_MSG_WARNING("Couldn't add shot links to neutral PFO!");
     }
+
+    // Create hadronic PFOs, put them in output container and store links to tau
+    if(!setHadronicClusterPFOs(pTau)){
+        ATH_MSG_ERROR("Could not set hadronic PFOs");
+        return StatusCode::FAILURE;
+    }
+
     return StatusCode::SUCCESS;
 }
 
 
-StatusCode TauPi0BonnClusterCreator::eventFinalize(TauCandidateData *) 
+StatusCode TauPi0ClusterCreator::eventFinalize(TauCandidateData *) 
 {
     // pt sort container at the end of the event
     // if(m_pOutputPi0CaloClusterContainer->size()) AnalysisUtils::Sort::pT(m_pOutputPi0CaloClusterContainer);
@@ -301,7 +293,7 @@ StatusCode TauPi0BonnClusterCreator::eventFinalize(TauCandidateData *)
 }
 
 // Functions used to calculate BDT variables other than those provided by the CaloClusterMomentsMaker
-float TauPi0BonnClusterCreator::getEM1CoreFrac(
+float TauPi0ClusterCreator::getEM1CoreFrac(
     const xAOD::CaloCluster* pi0Candidate)
 {
     float coreEnergy=0.;
@@ -326,62 +318,9 @@ float TauPi0BonnClusterCreator::getEM1CoreFrac(
     return coreEnergy/sumEPosCellsEM1;
 }
 
-// Function to determine asymmetry with respect to track. For > 1 track give smallest asymmetry.
-float TauPi0BonnClusterCreator::getAsymmetryInEM1WRTTrk(
-    const xAOD::CaloCluster* pi0Candidate, 
-    const vector<vector<float> > tracksEtaAtSampling,
-    const vector<vector<float> > tracksPhiAtSampling)
-{
-    float minAsymmetryInEM1WRTTrk=2.;  // minimum asymmetryWRT tracks
-    vector<vector<float> > asymmetriesInEM1WRTTrks;
-    vector<float> asymmetryInEM1WRTTrk;
-    asymmetryInEM1WRTTrk.push_back(0.); // here the energy in negative eta direction WRT the track will be stored
-    asymmetryInEM1WRTTrk.push_back(0.); // here the energy in positive eta direction WRT the track will be stored
-    asymmetryInEM1WRTTrk.push_back(0.); // here the energy in negative phi direction WRT the track will be stored
-    asymmetryInEM1WRTTrk.push_back(0.); // here the energy in positive phi direction WRT the track will be stored
-    for(unsigned iTrack = 0; iTrack<tracksEtaAtSampling.size();++iTrack){
-      asymmetriesInEM1WRTTrks.push_back(asymmetryInEM1WRTTrk);
-    }
-
-    float sumEPosCellsEM1=0.;
-    const CaloClusterCellLink* theCellLink = pi0Candidate->getCellLinks();
-    CaloClusterCellLink::const_iterator cellInClusterItr  = theCellLink->begin();
-    CaloClusterCellLink::const_iterator cellInClusterItrE = theCellLink->end();
-    for(;cellInClusterItr!=cellInClusterItrE;++cellInClusterItr){
-        CaloCell* cellInCluster = (CaloCell*) *cellInClusterItr;
-        int sampling = cellInCluster->caloDDE()->getSampling();
-        if(sampling!=1 && sampling!=5) continue;
-        float cellE = cellInCluster->e() * cellInClusterItr.weight();
-        if(cellE<=0) continue;
-        sumEPosCellsEM1 += cellE;
-        for(unsigned iTrack = 0; iTrack<tracksEtaAtSampling.size();++iTrack){
-            float cellEtaWRTTrack = cellInCluster->eta() - tracksEtaAtSampling.at(iTrack).at(sampling);
-            float cellPhiWRTTrack = P4Helpers::deltaPhi(cellInCluster->phi(), tracksPhiAtSampling.at(iTrack).at(sampling));
-
-            if(cellEtaWRTTrack<0) asymmetriesInEM1WRTTrks.at(iTrack).at(0)+=cellE;
-            else asymmetriesInEM1WRTTrks.at(iTrack).at(1)+=cellE;
-            if(cellPhiWRTTrack<0) asymmetriesInEM1WRTTrks.at(iTrack).at(2)+=cellE;
-            else asymmetriesInEM1WRTTrks.at(iTrack).at(3)+=cellE;
-        }
-    }
-    if(sumEPosCellsEM1<=0.) return 0.; // default value for clusters with no energy in EM1
-    // calculate asymmetry WRT the tracks and determine minimum asymmetry
-    for(unsigned iTrack = 0; iTrack<tracksEtaAtSampling.size();++iTrack){
-        for(unsigned int iEntry=0;iEntry<asymmetriesInEM1WRTTrks.at(iTrack).size();++iEntry){
-            asymmetriesInEM1WRTTrks.at(iTrack).at(iEntry)/=sumEPosCellsEM1;
-            if(asymmetriesInEM1WRTTrks.at(iTrack).at(iEntry)>=1.) asymmetriesInEM1WRTTrks.at(iTrack).at(iEntry)=0.999;
-        }
-        float asymmetryToThisTrack = fabs((asymmetriesInEM1WRTTrks.at(iTrack).at(1)-asymmetriesInEM1WRTTrks.at(iTrack).at(0))*
-                                          (asymmetriesInEM1WRTTrks.at(iTrack).at(3)-asymmetriesInEM1WRTTrks.at(iTrack).at(2)));
-        if(asymmetryToThisTrack<minAsymmetryInEM1WRTTrk) minAsymmetryInEM1WRTTrk = asymmetryToThisTrack;
-    }
-    return minAsymmetryInEM1WRTTrk;
-}
-
-
 // Do cluster to shot matching. 
 // A cluster is matched to a shot if the seed cell of the shot is in the cluster
-std::map<unsigned, xAOD::CaloCluster*> TauPi0BonnClusterCreator::getClusterToShotMap(
+std::map<unsigned, xAOD::CaloCluster*> TauPi0ClusterCreator::getClusterToShotMap(
     const std::vector<const xAOD::PFO*> shotVector, 
     const xAOD::CaloClusterContainer* pPi0ClusterContainer,
     xAOD::TauJet *pTau)
@@ -438,7 +377,7 @@ std::map<unsigned, xAOD::CaloCluster*> TauPi0BonnClusterCreator::getClusterToSho
     return clusterToShotMap;
 }
 
-std::vector<unsigned> TauPi0BonnClusterCreator::getShotsMatchedToCluster(
+std::vector<unsigned> TauPi0ClusterCreator::getShotsMatchedToCluster(
     const std::vector<const xAOD::PFO*> shotVector,
     std::map<unsigned, xAOD::CaloCluster*> clusterToShotMap, 
     xAOD::CaloCluster* pPi0Cluster)
@@ -453,7 +392,7 @@ std::vector<unsigned> TauPi0BonnClusterCreator::getShotsMatchedToCluster(
     return shotsMatchedToCluster;
 }
 
-int TauPi0BonnClusterCreator::getNPhotons(
+int TauPi0ClusterCreator::getNPhotons(
     const std::vector<const xAOD::PFO*> shotVector,
     std::vector<unsigned> shotsInCluster
     )
@@ -468,7 +407,7 @@ int TauPi0BonnClusterCreator::getNPhotons(
     return nPhotons;
 }
 
-vector<int> TauPi0BonnClusterCreator::getNPosECells(
+vector<int> TauPi0ClusterCreator::getNPosECells(
     const xAOD::CaloCluster* pi0Candidate)
 {
     vector<int> nPosECellsInLayer(3,0); // 3 layers initialised with 0 +ve cells
@@ -482,16 +421,14 @@ vector<int> TauPi0BonnClusterCreator::getNPosECells(
         int sampling = cellInCluster->caloDDE()->getSampling();
         // Get cell layer: PSB and PSE belong to layer 0,  
         // EMB1 and EME1 to layer 1, EMB2 and EME2 to layer 2. 
-        // Cells in EMB3 and EME3 have already been removed 
-        // during subtraction.
         int cellLayer = sampling%4;  
-        if(cellInCluster->e() > 0) nPosECellsInLayer[cellLayer]++;
+        if(cellLayer < 3 && cellInCluster->e() > 0) nPosECellsInLayer[cellLayer]++;
     }
     return nPosECellsInLayer;
 }
 
 
-vector<float> TauPi0BonnClusterCreator::get1stEtaMomWRTCluster(
+vector<float> TauPi0ClusterCreator::get1stEtaMomWRTCluster(
     const xAOD::CaloCluster* pi0Candidate)
 {
     vector<float> firstEtaWRTClusterPositionInLayer (4, 0.);  //init with 0. for 0-3 layers
@@ -506,13 +443,11 @@ vector<float> TauPi0BonnClusterCreator::get1stEtaMomWRTCluster(
         int sampling = cellInCluster->caloDDE()->getSampling();
         // Get cell layer: PSB and PSE belong to layer 0,  
         // EMB1 and EME1 to layer 1, EMB2 and EME2 to layer 2. 
-        // Cells in EMB3 and EME3 (layer 3) have already been removed 
-        // during subtraction.
         int cellLayer = sampling%4;
         
         float cellEtaWRTClusterPos=cellInCluster->eta()-pi0Candidate->eta();
         float cellE=cellInCluster->e();
-        if(cellE<=0) continue;
+        if(cellE<=0  || cellLayer>=3) continue;
         firstEtaWRTClusterPositionInLayer[cellLayer]+=cellEtaWRTClusterPos*cellE;
         sumEInLayer[cellLayer]+=cellE;
     }
@@ -525,7 +460,7 @@ vector<float> TauPi0BonnClusterCreator::get1stEtaMomWRTCluster(
     return firstEtaWRTClusterPositionInLayer;
 }
 
-vector<float> TauPi0BonnClusterCreator::get2ndEtaMomWRTCluster(
+vector<float> TauPi0ClusterCreator::get2ndEtaMomWRTCluster(
     const xAOD::CaloCluster* pi0Candidate)
 {
       vector<float> secondEtaWRTClusterPositionInLayer (4, 0.); //init with 0. for 0-3 layers
@@ -540,13 +475,11 @@ vector<float> TauPi0BonnClusterCreator::get2ndEtaMomWRTCluster(
             int sampling = cellInCluster->caloDDE()->getSampling();
             // Get cell layer: PSB and PSE belong to layer 0,  
             // EMB1 and EME1 to layer 1, EMB2 and EME2 to layer 2. 
-            // Cells in EMB3 and EME3 (layer 3) have already been removed 
-            // during subtraction.
             int cellLayer = sampling%4;
 
             float cellEtaWRTClusterPos=cellInCluster->eta()-pi0Candidate->eta();
             float cellE=cellInCluster->e();
-            if(cellE<=0) continue;
+            if(cellE<=0  || cellLayer>=3) continue;
             secondEtaWRTClusterPositionInLayer[cellLayer]+=cellEtaWRTClusterPos*cellEtaWRTClusterPos*cellE;
             sumEInLayer[cellLayer]+=cellE;
       }
@@ -559,44 +492,67 @@ vector<float> TauPi0BonnClusterCreator::get2ndEtaMomWRTCluster(
       return secondEtaWRTClusterPositionInLayer;
 }
 
-void TauPi0BonnClusterCreator::getExtrapolatedPositions(
-    const xAOD::TrackParticle * track,
-    vector<float> &trackToCaloEta,
-    vector<float> &trackToCaloPhi)
+bool TauPi0ClusterCreator::setHadronicClusterPFOs(
+    xAOD::TauJet* pTau)
 {
-    for (int layer = 0 ; layer != CaloCell_ID::MINIFCAL0; ++layer) {
-        // Only need to extrapolate to Ecal1 (samplings 1 and 5)
-        if(layer!=1 && layer!=5){
-          trackToCaloEta.push_back(-99999.);
-          trackToCaloPhi.push_back(-99999.);
-          continue;
-        }
-        ATH_MSG_DEBUG( "Try extrapolation of track with pt = " << track->pt() << ", eta " << track->eta() << ", phi" << track->phi() << " to layer " << layer);
-        // extrapolate track to layer 
-        const Trk::TrackParameters* param_at_calo = 0;
-        param_at_calo = m_trackToCaloTool->extrapolate(
-                *track,
-                (CaloCell_ID::CaloSample) layer,
-                0.0, Trk::alongMomentum, Trk::pion);
-
-        // store if track extrapolation successful, else use dummy values 
-        if(param_at_calo){
-            ATH_MSG_DEBUG( "Extrapolated track with eta=" << track->eta()
-                            << " phi="<<track->phi()
-                            << " to eta=" << param_at_calo->position().eta()
-                            << " phi="<<param_at_calo->position().phi() 
-                            );
-            trackToCaloEta.push_back(param_at_calo->position().eta());
-            trackToCaloPhi.push_back(param_at_calo->position().phi());
-            delete param_at_calo;
-        }
-        else {
-            ATH_MSG_DEBUG( "Could not extrapolate track with eta = " << track->eta()
-                            << " phi=" << track->phi() 
-                            );
-            trackToCaloEta.push_back(-99999.); //Use something huge to flag the
-            trackToCaloPhi.push_back(-99999.); //track as useless
-        }
+    const xAOD::Jet* tauJetSeed = (*pTau->jetLink());
+    if (!tauJetSeed) {
+        ATH_MSG_ERROR("Could not retrieve tau jet seed");
+        return false;
     }
+    xAOD::JetConstituentVector::const_iterator clusterItr   = tauJetSeed->getConstituents().begin();
+    xAOD::JetConstituentVector::const_iterator clusterItrE  = tauJetSeed->getConstituents().end();
+    for (; clusterItr != clusterItrE; ++clusterItr){
+        // Procedure: 
+        // - Calculate cluster energy in Hcal. This is to treat -ve energy cells correctly
+        // - Then set 4momentum via setP4(E/cosh(eta), eta, phi, m). This forces the PFO to have the correct energy and mass
+        // - Ignore clusters outside 0.2 cone and those with overall negative energy or negative energy in Hcal
+
+        // Get xAOD::CaloClusters from jet constituent
+        const xAOD::CaloCluster* cluster = dynamic_cast<const xAOD::CaloCluster*>( (*clusterItr)->rawConstituent() );
+
+        // Don't create PFOs for clusters with overall (Ecal+Hcal) negative energy (noise)
+        if(cluster->e()<=0.) continue;
+
+        // Only need clusters in core cone. Others are not needed for subtraction
+        if(pTau->p4().DeltaR(cluster->p4()) > 0.2) continue;
+
+        // Loop over cells to calculate cluster energy in Hcal
+        double clusterE_Hcal=0.;
+        const CaloClusterCellLink* theCellLink = cluster->getCellLinks();
+        CaloClusterCellLink::const_iterator cellInClusterItr  = theCellLink->begin();
+        CaloClusterCellLink::const_iterator cellInClusterItrE = theCellLink->end();
+        for(;cellInClusterItr!=cellInClusterItrE;++cellInClusterItr){
+            CaloCell* cellInCluster = (CaloCell*) *cellInClusterItr;
+
+            //Get only HCAL cells
+            int sampling = cellInCluster->caloDDE()->getSampling();
+            if (sampling < 8) continue;
+
+            double cellE = cellInCluster->e()*cellInClusterItr.weight();
+            clusterE_Hcal+=cellE;
+        }
+        // Don't save PFOs for clusters with negative energy in Hcal 
+        if(clusterE_Hcal<=0.) continue;
+
+        // Create hadronic PFO
+        xAOD::PFO* hadronicPFO = new xAOD::PFO();
+        m_hadronicClusterPFOContainer->push_back( hadronicPFO );
+
+        // Set 4mom. Eta and phi are taken from cluster
+        double cluster_Pt_Hcal = clusterE_Hcal/std::cosh(cluster->eta());
+        hadronicPFO->setP4( (float) cluster_Pt_Hcal, (float) cluster->eta(), (float) cluster->phi(), (float) 0.);
+
+        // TODO: May want to set element link to the cluster the PFO is originating from
+        // ElementLink<xAOD::CaloClusterContainer> clusElementLink;
+        // clusElementLink.toContainedElement( CLUSTERCONTAINER, cluster );
+        // hadronicPFO->setClusterLink( clusElementLink );
+
+        // Create element link from tau to hadronic PFO
+        ElementLink<xAOD::PFOContainer> PFOElementLink;
+        PFOElementLink.toContainedElement( *m_hadronicClusterPFOContainer, hadronicPFO );
+        pTau->addHadronicPFOLink( PFOElementLink );
+    }
+    return true;
 }
 

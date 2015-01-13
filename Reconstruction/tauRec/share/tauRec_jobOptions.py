@@ -19,23 +19,23 @@ from tauRec.tauRecFlags import jobproperties as taujp
 # and the tracks are selected accroding to this vertex
 _doTJVA = True
 
-# Bonn Pi0-finding algorithm
-_doBonnPi0Clus = taujp.tauRecFlags.doBonnPi0() #False by default
-_doBonnPi0Clus = True 
+# Pi0-finding algorithm
+_doPi0Clus = taujp.tauRecFlags.doPi0() #False by default
+_doPi0Clus = True 
 
 # the TauCoreBuilder
 from tauRec.TauRecBuilder import TauRecCoreBuilder
-TauRecCoreBuilder(doBonnPi0Clus=_doBonnPi0Clus, doTJVA=_doTJVA)
+TauRecCoreBuilder(doPi0Clus=_doPi0Clus, doTJVA=_doTJVA)
 
 
 #include("tauRec/Pi0ClusterMaker_Crakow_jobOptions.py")
-if _doBonnPi0Clus:
-    include("tauRec/Pi0ClusterMaker_Bonn_jobOptions.py")
+if _doPi0Clus:
+    include("tauRec/Pi0ClusterMaker_jobOptions.py")
 
 from tauRec.TauRecBuilder import TauRecPi0EflowProcessor
-TauRecPi0EflowProcessor(doBonnPi0Clus=_doBonnPi0Clus)
+TauRecPi0EflowProcessor(doPi0Clus=_doPi0Clus)
 
 from tauRec.TauRecBuilder import TauRecVariablesProcessor
-TauRecVariablesProcessor(doBonnPi0Clus=_doBonnPi0Clus)
+TauRecVariablesProcessor(doPi0Clus=_doPi0Clus)
 
 

@@ -6,8 +6,11 @@
 #define TAUREC_TAU1P3PELEVETO_H
 
 #include "tauRec/TauToolBase.h"
+#include "GaudiKernel/ToolHandle.h"
 
-class IExtrapolateToCaloTool;
+namespace Trk {
+  class IParticleCaloExtensionTool;
+}
 
 /**
  * @brief Calculate variables sensitive on electrons.
@@ -30,7 +33,7 @@ public:
     virtual StatusCode eventInitialize(TauCandidateData *data);
     
     bool m_doCellCorrection; //!< enable cell origin correction
-    ToolHandle<IExtrapolateToCaloTool> m_trackToCalo;
+    ToolHandle< Trk::IParticleCaloExtensionTool >  m_caloExtensionTool;
 };
 
 #endif

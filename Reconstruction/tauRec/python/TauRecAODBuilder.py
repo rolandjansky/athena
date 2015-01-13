@@ -34,14 +34,14 @@ from RecExConfig.Configured import Configured
 class TauRecAODProcessor ( Configured ) :
     """Calculate remaining Tau variables and properties. Use informations available also in AODs, so no cell level is needed."""
     
-    _outputType = "Analysis::TauJetContainer"
-    _outputKey = "TauRecContainer"
-    _outputDetailsType = "Analysis::TauDetailsContainer"
-    _outputDetailsKey = "TauRecDetailsContainer"
+    _outputType = "xAOD::TauJetContainer"
+    _outputKey = "TauJets"
+    _outputDetailsType = "xAOD::TauJetAuxContainer"
+    _outputDetailsKey = "TauJetsAux."
     
-    def __init__(self, name = "TauProcessorAODTools", inAODmode=True, doBonnPi0Clus=False, msglevel=3, ignoreExistingDataObject=True, sequence = None):
+    def __init__(self, name = "TauProcessorAODTools", inAODmode=True, doPi0Clus=False, msglevel=3, ignoreExistingDataObject=True, sequence = None):
         self.name = name
-        self.doBonnPi0Clus = doBonnPi0Clus
+        self.doPi0Clus = doPi0Clus
         self.msglevel = msglevel
         self.AODmode = inAODmode
         self.sequence = sequence

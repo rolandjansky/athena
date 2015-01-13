@@ -14,8 +14,8 @@
 TauProcessor::TauProcessor(const std::string &name,
     ISvcLocator * pSvcLocator) :
 AthAlgorithm(name, pSvcLocator),
-m_tauContainerName("TauRecContainer"),
-m_tauAuxContainerName("TauRecContainerAux."),
+m_tauContainerName("TauJets"),
+m_tauAuxContainerName("TauJetsAux."),
 m_AODmode(false),
 m_tools(this) //make tools private
 {

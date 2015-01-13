@@ -35,8 +35,8 @@
 TauBuilder::TauBuilder(const std::string &name,
     ISvcLocator * pSvcLocator) :
 AthAlgorithm(name, pSvcLocator),
-m_tauContainerName("TauRecContainer"),
-m_tauAuxContainerName("TauRecContainerAux."),
+m_tauContainerName("TauJets"),
+m_tauAuxContainerName("TauJetsAux."),
 m_seedContainerName(""),
 m_maxEta(2.5),
 m_minPt(10000),
@@ -156,23 +156,6 @@ StatusCode TauBuilder::execute() {
       ATH_MSG_DEBUG( "Recorded xAOD tau jets with key: "
                       << m_tauAuxContainerName );
 
-      // pExtraDetailsContainer = new Analysis::TauDetailsContainer();
-        // sc = evtStore()->record(pExtraDetailsContainer, m_tauExtraDetailsContainerName);
-        // if (sc.isFailure()) {
-        //     ATH_MSG_ERROR("Unable to record TauDetailsContainer in TDS");
-        //     delete pExtraDetailsContainer;
-        //     return StatusCode::FAILURE;
-        // }
-
-	// pPi0CandidateDetailsContainer = new Analysis::TauDetailsContainer();
-	// sc = evtStore()->record(pPi0CandidateDetailsContainer, "TauPi0CandidateDetailsContainer");
-        // if (sc.isFailure()) {
-        //     ATH_MSG_ERROR("Unable to record TauPi0CandidateDetailsContainer in TDS");
-        //     delete pPi0CandidateDetailsContainer;
-        //     return StatusCode::FAILURE;
-        // }
-
-
     } else {
         //-------------------------------------------------------------------------
         // retrieve Tau Containers from StoreGate
@@ -189,17 +172,6 @@ StatusCode TauBuilder::execute() {
             return StatusCode::FAILURE;
         }
 
-	// sc = evtStore()->retrieve(pExtraDetailsContainer, m_tauExtraDetailsContainerName);
-        // if (sc.isFailure()) {
-        //     ATH_MSG_FATAL("Failed to retrieve " << m_tauExtraDetailsContainerName);
-        //     return StatusCode::FAILURE;
-        // }
-
-        // sc = evtStore()->retrieve(pPi0CandidateDetailsContainer, "TauPi0CandidateDetailsContainer");
-        // if (sc.isFailure()) {
-        //     ATH_MSG_FATAL("Failed to retrieve " << "TauPi0CandidateDetailsContainer");
-        //     return StatusCode::FAILURE;
-        // }
     }
 
     // set TauCandidate properties
@@ -208,17 +180,6 @@ StatusCode TauBuilder::execute() {
     rTauData.tauAuxContainer = pAuxContainer;
     
 
-    //XXX leave this here for now until xAOD migration is completed
-    /*
-    rTauData.tauContainer = 0;
-    rTauData.detailsContainer = 0;
-    rTauData.extraDetailsContainer = 0;
-    rTauData.pi0DetailsContainer = 0;
-    rTauData.tau = 0;
-    rTauData.details = 0;
-    rTauData.extraDetails = 0;
-    rTauData.pi0Details = 0;
-    */
     rTauData.seed = 0;
     rTauData.seedContainer = 0;
 

@@ -28,7 +28,7 @@ PhotonConversionVertex::PhotonConversionVertex(const std::string& type,
 TauToolBase(type, name, parent),
 m_vertexFinderTool("InDet::InDetConversionFinderTools") {
     declareInterface<TauToolBase > (this);
-    declareProperty("TauRecContainer", m_inputTauJetContainerName = "TauRecContainer");
+    declareProperty("TauRecContainer", m_inputTauJetContainerName = "TauJets");
     declareProperty("TrackParticleContainer", m_inputTrackParticleContainerName = "InDetTrackParticles");
     declareProperty("OutputConversionVertexContainerName", m_outputConversionVertexContainerName = "ConversionsVertex_Container");
     declareProperty("MaxTauJetDr", m_maxTauJetDr = 0.5);
@@ -68,6 +68,8 @@ StatusCode PhotonConversionVertex::eventFinalize(TauCandidateData *data) {
     // Define container to store
     xAOD::VertexContainer* conversionCandidatesVxCont = 0;
     xAOD::VertexAuxContainer* conversionCandidatesVxContAux = 0;
+    conversionCandidatesVxCont = new xAOD::VertexContainer(); // No need to run conversion finding if no tracks are found!
+    conversionCandidatesVxContAux = new xAOD::VertexAuxContainer(); // No need to run conversion finding if no tracks are found!
     std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> convContPair;
 
     // Redo conversion over the tau seed cones, or over entire region
@@ -89,10 +91,13 @@ StatusCode PhotonConversionVertex::eventFinalize(TauCandidateData *data) {
             convContPair = m_vertexFinderTool->findVertex(tempCont.asDataVector());
             conversionCandidatesVxCont = convContPair.first;
             conversionCandidatesVxContAux = convContPair.second;
-        } else
+        } 
+/**
+        else {
             conversionCandidatesVxCont = new xAOD::VertexContainer(); // No need to run conversion finding if no tracks are found!
-        	conversionCandidatesVxContAux = new xAOD::VertexAuxContainer(); // No need to run conversion finding if no tracks are found!
-
+            conversionCandidatesVxContAux = new xAOD::VertexAuxContainer(); // No need to run conversion finding if no tracks are found!
+        }
+**/
     } else {
         ATH_MSG_VERBOSE("Running over entire region! Number of tracks: " << trackParticleCont->size());
 
@@ -105,6 +110,7 @@ StatusCode PhotonConversionVertex::eventFinalize(TauCandidateData *data) {
     // Perform the storing
     ATH_MSG_VERBOSE("Number of conversion vertices found: " << conversionCandidatesVxCont->size());
     conversionCandidatesVxCont->setStore( conversionCandidatesVxContAux );
+
     if (!saveContainer(conversionCandidatesVxCont, m_outputConversionVertexContainerName)) return StatusCode::FAILURE;
     if (!saveContainer(conversionCandidatesVxContAux, m_outputConversionVertexContainerName+"Aux")) return StatusCode::FAILURE;
 

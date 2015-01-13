@@ -2,12 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUPI0BONNSCORECALCULATOR_H
-#define	TAUREC_TAUPI0BONNSCORECALCULATOR_H
+#ifndef TAUREC_TAUPI0SCORECALCULATOR_H
+#define	TAUREC_TAUPI0SCORECALCULATOR_H
 
 #include <string>
 #include "tauRec/TauToolBase.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "xAODPFlow/PFO.h"
 
 namespace TMVA{
@@ -15,19 +14,20 @@ namespace TMVA{
 }
 
 /**
- * @brief Selectes pi0Candidates ("Bonn" Pi0 Finder).
+ * @brief Selectes pi0Candidates (Pi0 Finder).
  * 
  * @author Veit Scharf
  * @author Will Davey <will.davey@cern.ch> 
  * @author Benedict Winter <benedict.tobias.winter@cern.ch> 
+ * @author Stephanie Yuen <stephanie.yuen@cern.ch>
  */
 
-class TauPi0BonnScoreCalculator : public TauToolBase {
+class TauPi0ScoreCalculator : public TauToolBase {
 public:
-    TauPi0BonnScoreCalculator(const std::string& type,
+    TauPi0ScoreCalculator(const std::string& type,
             const std::string& name,
             const IInterface *parent);
-    virtual ~TauPi0BonnScoreCalculator();
+    virtual ~TauPi0ScoreCalculator();
 
     virtual StatusCode initialize();
     virtual StatusCode finalize();
@@ -40,7 +40,7 @@ private:
 
     std::string m_weightfile;
 
-    float m_FIRST_ETA;
+    float m_Abs_FIRST_ETA;
     float m_SECOND_R;
     float m_SECOND_LAMBDA;
     float m_Abs_DELTA_PHI;
@@ -53,7 +53,6 @@ private:
     float m_ENG_FRAC_CORE;
     float m_log_SECOND_ENG_DENS;
     float m_EcoreOverEEM1;
-    float m_AsymmetryWRTTrack;
     float m_NHitsInEM1;
     float m_NPosCells_PS;
     float m_NPosCells_EM1;
@@ -73,5 +72,5 @@ private:
 
 };
 
-#endif	/* TAUPI0BONNSCORECALCULATOR_H */
+#endif	/* TAUPI0SCORECALCULATOR_H */
 

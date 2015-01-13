@@ -47,7 +47,8 @@
 #include "xAODJet/Jet.h"
 #include "tauRec/KineUtils.h"
 
-#include "RecoToolInterfaces/IExtrapolateToCaloTool.h"
+#include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
+#include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
 #include "tauRec/TauElectronVetoVariables.h"
 
 using CLHEP::GeV;
@@ -60,12 +61,12 @@ TauElectronVetoVariables::TauElectronVetoVariables(const std::string &type,
         const IInterface *parent):
 TauToolBase(type, name, parent),
 m_doCellCorrection(false), //FF: don't do cell correction by default
-m_trackToCalo("")
+m_caloExtensionTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool")
 {
     declareInterface<TauToolBase > (this);
 
     declareProperty("CellCorrection", m_doCellCorrection);
-    declareProperty("TTCExtrapolator", m_trackToCalo, "public track extrapolator tool to match track with caloseed");
+    declareProperty("ParticleCaloExtensionTool",   m_caloExtensionTool );
 }
 
 //-------------------------------------------------------------------------
@@ -78,8 +79,8 @@ TauElectronVetoVariables::~TauElectronVetoVariables() { }
 //-------------------------------------------------------------------------
 StatusCode TauElectronVetoVariables::initialize()
 {
-    if (m_trackToCalo.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Cannot find tool named <" << m_trackToCalo << ">");
+    if (m_caloExtensionTool.retrieve().isFailure()) {
+      ATH_MSG_ERROR("Cannot find tool named <" << m_caloExtensionTool << ">");
       return StatusCode::FAILURE;
     }
     return StatusCode::SUCCESS;
@@ -156,8 +157,8 @@ StatusCode TauElectronVetoVariables::execute(TauCandidateData *data)
     //---------------------------------------------------------------------
     // Calculate eta, phi impact point of leading track at calorimeter layers EM 0,1,2,3
     //---------------------------------------------------------------------
-    const DataVector< const Trk::TrackParameters >* pTrk = m_trackToCalo->getParametersInCalo( ( *pTau->track(0) ) , Trk::pion, Trk::alongMomentum); //FIXME
-  
+    Trk::TrackParametersIdHelper parsIdHelper;
+        
     const int numOfsampEM = 4;
     double eta_extrapol[4];
     double phi_extrapol[4];
@@ -167,29 +168,29 @@ StatusCode TauElectronVetoVariables::execute(TauCandidateData *data)
       phi_extrapol[i] = -11111.;
     }
 
+    // get the extrapolation into the calo
+    const Trk::CaloExtension* caloExtension = 0;
+    if( !m_caloExtensionTool->caloExtension(*pTau->track(0),caloExtension) || caloExtension->caloLayerIntersections().empty() ){
+      ATH_MSG_WARNING("extrapolation of leading track to calo surfaces failed  " );
+      return StatusCode::SUCCESS;
+    }
 
-    if (pTrk && (*pTrk)[IExtrapolateToCaloTool::PreSampler]) {
-      eta_extrapol[0] = (*pTrk)[IExtrapolateToCaloTool::PreSampler]->position().eta();
-      phi_extrapol[0] = (*pTrk)[IExtrapolateToCaloTool::PreSampler]->position().phi();
+    // loop over calo layers
+    for( auto cur = caloExtension->caloLayerIntersections().begin(); cur != caloExtension->caloLayerIntersections().end() ; ++cur ){
+      
+      // only use entry layer
+      if( !parsIdHelper.isEntryToVolume((*cur)->cIdentifier()) ) continue;
+      
+      CaloSampling::CaloSample sample = parsIdHelper.caloSample((*cur)->cIdentifier());
+      int index = -1;
+      if( sample == CaloSampling::PreSamplerE || sample == CaloSampling::PreSamplerB ) index = 0;
+      else if( sample == CaloSampling::EME1 || sample == CaloSampling::EMB1 )          index = 1;
+      else if( sample == CaloSampling::EME2 || sample == CaloSampling::EMB2 )          index = 2;
+      else if( sample == CaloSampling::EME3 || sample == CaloSampling::EMB3 )          index = 3;
+      if( index < 0 ) continue;
+      eta_extrapol[index] = (*cur)->position().eta();
+      phi_extrapol[index] = (*cur)->position().phi();
     }
-    
-    if (pTrk && (*pTrk)[IExtrapolateToCaloTool::Strips]) {
-      eta_extrapol[1] = (*pTrk)[IExtrapolateToCaloTool::Strips]->position().eta();
-      phi_extrapol[1] = (*pTrk)[IExtrapolateToCaloTool::Strips]->position().phi();
-    }
-	
-    if (pTrk && (*pTrk)[IExtrapolateToCaloTool::Middle]) {
-      eta_extrapol[2] = (*pTrk)[IExtrapolateToCaloTool::Middle]->position().eta();
-      phi_extrapol[2] = (*pTrk)[IExtrapolateToCaloTool::Middle]->position().phi();
-    }
-    
-    if (pTrk && (*pTrk)[IExtrapolateToCaloTool::Back]) {
-      eta_extrapol[3] = (*pTrk)[IExtrapolateToCaloTool::Back]->position().eta();
-      phi_extrapol[3] = (*pTrk)[IExtrapolateToCaloTool::Back]->position().phi();
-    }
-    
-
-
 
     for (int i = 0; i < numOfsampEM; ++i) {
       if ( eta_extrapol[i] < -11110. || phi_extrapol[i] < -11110. )
@@ -378,9 +379,6 @@ StatusCode TauElectronVetoVariables::execute(TauCandidateData *data)
     pTau->setDetail(xAOD::TauJetParameters::hadLeakEt , static_cast<float>( sumETCellsHad1 / ( pTau->track(0)->pt() ) ) );
     pTau->setDetail(xAOD::TauJetParameters::sumEMCellEtOverLeadTrkPt , static_cast<float>( ( sumETCellsLAr / ( pTau->track(0)->pt() ) ) ) );
 
-    //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //delete the trackparemeters returned by tracktocalo
-    if (pTrk) delete pTrk;
 
     return StatusCode::SUCCESS;
 }

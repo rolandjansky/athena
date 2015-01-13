@@ -91,29 +91,22 @@ StatusCode TauTestDump::execute(TauCandidateData *data) {
     return StatusCode::SUCCESS;
     
     if (pTau->nTracks() != 1) {
-      // Bonn Pi0 calculated only for 1p taus --> leave test case
-      ATH_MSG_INFO("Bonn Pi0 calculated only for 1p taus --> leave test case");
+      // Pi0 calculated only for 1p taus --> leave test case
+      ATH_MSG_INFO("Pi0 calculated only for 1p taus --> leave test case");
       return StatusCode::SUCCESS;
     }
 
     // Default PFO pi0
     ATH_MSG_INFO("dumping pi0 standard");
-    if (pTau->nPi0_PFOs()>0) {
-	    for (unsigned int i=0; i<pTau->nPi0_PFOs();++i) ATH_MSG_INFO(pTau->pi0_PFO(i)->e()<< " ");
+    if (pTau->nPi0PFOs()>0) {
+	    for (unsigned int i=0; i<pTau->nPi0PFOs();++i) ATH_MSG_INFO(pTau->pi0PFO(i)->e()<< " ");
     }
     else ATH_MSG_INFO("no pi0 cand");
 
     // Cell-based PFO pi0
     ATH_MSG_INFO("dumping pi0 cell-based");
-    if (pTau->nCellBased_Pi0_PFOs()>0) {
-	    for (unsigned int i=0; i<pTau->nCellBased_Pi0_PFOs();++i) ATH_MSG_INFO(pTau->cellBased_Pi0_PFO(i)->e()<< " ");
-    }
-    else ATH_MSG_INFO("no pi0 cand");
-
-    // EFlow PF0 pi0
-    ATH_MSG_INFO("dumping pi0 eflow");
-    if (pTau->nEflowRec_Pi0_PFOs()>0) {
-	    for (unsigned int i=0; i<pTau->nEflowRec_Pi0_PFOs();++i) ATH_MSG_INFO(pTau->eflowRec_Pi0_PFO(i)->e()<< " ");
+    if (pTau->nProtoPi0PFOs()>0) {
+	    for (unsigned int i=0; i<pTau->nProtoPi0PFOs();++i) ATH_MSG_INFO(pTau->protoPi0PFO(i)->e()<< " ");
     }
     else ATH_MSG_INFO("no pi0 cand");
 

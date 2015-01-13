@@ -3,7 +3,7 @@
 */
 
 //-----------------------------------------------------------------------------
-// file:        TauPi0BonnScoreCalculator.cxx
+// file:        TauPi0ScoreCalculator.cxx
 // package:     Reconstruction/tauRec
 // authors:     Benedict Winter, Will Davey
 // date:        2012-10-09
@@ -12,7 +12,7 @@
 
 #include <vector>
 
-#include "tauRec/TauPi0BonnScoreCalculator.h"
+#include "tauRec/TauPi0ScoreCalculator.h"
 #include "xAODPFlow/PFO.h"
 
 #include "TMVA/Reader.h"
@@ -26,7 +26,7 @@ using std::string;
 // Constructor
 //-------------------------------------------------------------------------
 
-TauPi0BonnScoreCalculator::TauPi0BonnScoreCalculator( 
+TauPi0ScoreCalculator::TauPi0ScoreCalculator( 
     const string& type,
     const string& name,
     const IInterface *parent) 
@@ -44,12 +44,12 @@ TauPi0BonnScoreCalculator::TauPi0BonnScoreCalculator(
 // Destructor
 //-------------------------------------------------------------------------
 
-TauPi0BonnScoreCalculator::~TauPi0BonnScoreCalculator() 
+TauPi0ScoreCalculator::~TauPi0ScoreCalculator() 
 {
 }
 
 
-StatusCode TauPi0BonnScoreCalculator::initialize() 
+StatusCode TauPi0ScoreCalculator::initialize() 
 {
   //---------------------------------------------------------------------
   // Create TMVA reader
@@ -64,27 +64,26 @@ StatusCode TauPi0BonnScoreCalculator::initialize()
   m_tmvaReader->AddSpectator( "Sample"                          ,&spectator);
   m_tmvaReader->AddSpectator( "Pi0Cluster_type"                 ,&spectator);
   m_tmvaReader->AddSpectator( "Pi0Cluster_BDTScore_old"         ,&spectator);
-  m_tmvaReader->AddVariable( "Pi0Cluster_Abs_FIRST_ETA"         ,&m_FIRST_ETA);
+  m_tmvaReader->AddVariable( "Pi0Cluster_Abs_FIRST_ETA"         ,&m_Abs_FIRST_ETA);
   m_tmvaReader->AddVariable( "Pi0Cluster_SECOND_R"              ,&m_SECOND_R);
 //  m_tmvaReader->AddVariable( "Pi0Cluster_SECOND_LAMBDA"         ,&m_SECOND_LAMBDA);
 //  m_tmvaReader->AddVariable( "Pi0Cluster_Abs_DELTA_PHI"         ,&m_Abs_DELTA_PHI);
-//  m_tmvaReader->AddVariable( "Pi0Cluster_Abs_DELTA_THETA"       ,&m_Abs_DELTA_THETA);
+  m_tmvaReader->AddVariable( "Pi0Cluster_Abs_DELTA_THETA"       ,&m_Abs_DELTA_THETA);
   m_tmvaReader->AddVariable( "Pi0Cluster_CENTER_LAMBDA_helped"  ,&m_CENTER_LAMBDA_helped);
 //  m_tmvaReader->AddVariable( "Pi0Cluster_LATERAL"               ,&m_LATERAL);
-//  m_tmvaReader->AddVariable( "Pi0Cluster_LONGITUDINAL"          ,&m_LONGITUDINAL);
+  m_tmvaReader->AddVariable( "Pi0Cluster_LONGITUDINAL"          ,&m_LONGITUDINAL);
   m_tmvaReader->AddVariable( "Pi0Cluster_ENG_FRAC_EM"           ,&m_ENG_FRAC_EM);
 //  m_tmvaReader->AddVariable( "Pi0Cluster_ENG_FRAC_MAX"          ,&m_ENG_FRAC_MAX);
   m_tmvaReader->AddVariable( "Pi0Cluster_ENG_FRAC_CORE"         ,&m_ENG_FRAC_CORE);
   m_tmvaReader->AddVariable( "Pi0Cluster_log_SECOND_ENG_DENS"   ,&m_log_SECOND_ENG_DENS);
   m_tmvaReader->AddVariable( "Pi0Cluster_EcoreOverEEM1"         ,&m_EcoreOverEEM1);
-  m_tmvaReader->AddVariable( "Pi0Cluster_AsymmetryWRTTrack"     ,&m_AsymmetryWRTTrack);
 // m_tmvaReader->AddVariable( "Pi0Cluster_NHitsInEM1"             ,&m_NHitsInEM1);
 // m_tmvaReader->AddVariable( "Pi0Cluster_NPosECells_PS"          ,&m_NPosCells_PS);
   m_tmvaReader->AddVariable( "Pi0Cluster_NPosECells_EM1"        ,&m_NPosCells_EM1);
   m_tmvaReader->AddVariable( "Pi0Cluster_NPosECells_EM2"        ,&m_NPosCells_EM2);
-//  m_tmvaReader->AddVariable( "Pi0Cluster_AbsFirstEtaWRTClusterPosition_EM1" ,&m_firstEtaWRTCluster_EM1);
+  m_tmvaReader->AddVariable( "Pi0Cluster_AbsFirstEtaWRTClusterPosition_EM1" ,&m_firstEtaWRTCluster_EM1);
 //  m_tmvaReader->AddVariable( "Pi0Cluster_AbsFirstEtaWRTClusterPosition_EM2" ,&m_firstEtaWRTCluster_EM2);
-  m_tmvaReader->AddVariable( "Pi0Cluster_secondEtaWRTClusterPosition_EM1" ,&m_secondEtaWRTCluster_EM1);
+//  m_tmvaReader->AddVariable( "Pi0Cluster_secondEtaWRTClusterPosition_EM1" ,&m_secondEtaWRTCluster_EM1);
   m_tmvaReader->AddVariable( "Pi0Cluster_secondEtaWRTClusterPosition_EM2" ,&m_secondEtaWRTCluster_EM2);
 //  m_tmvaReader->AddVariable( "Pi0Cluster_energy_EM1"            ,&m_energy_EM1);
 //  m_tmvaReader->AddVariable( "Pi0Cluster_energy_EM2"            ,&m_energy_EM2);
@@ -94,7 +93,7 @@ StatusCode TauPi0BonnScoreCalculator::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode TauPi0BonnScoreCalculator::finalize()
+StatusCode TauPi0ScoreCalculator::finalize()
 {
   StatusCode sc = AlgTool::finalize();
   delete m_tmvaReader;
@@ -102,7 +101,7 @@ StatusCode TauPi0BonnScoreCalculator::finalize()
 }
 
 
-StatusCode TauPi0BonnScoreCalculator::execute(TauCandidateData *data) 
+StatusCode TauPi0ScoreCalculator::execute(TauCandidateData *data) 
 {
     xAOD::TauJet *tauJet = data->xAODTau;
     //---------------------------------------------------------------------
@@ -116,23 +115,23 @@ StatusCode TauPi0BonnScoreCalculator::execute(TauCandidateData *data)
     //---------------------------------------------------------------------
     // retrieve neutral PFOs from tau, calculate BDT scores and store them in PFO
     //---------------------------------------------------------------------
-    unsigned nNeutPFO = tauJet->nCellBased_Neutral_PFOs();
+    unsigned nNeutPFO = tauJet->nProtoNeutralPFOs();
     for(unsigned int iNeutPFO=0; iNeutPFO<nNeutPFO; iNeutPFO++) {
-        const xAOD::PFO* curNeutPFO_const = tauJet->cellBased_Neutral_PFO( iNeutPFO );
+        const xAOD::PFO* curNeutPFO_const = tauJet->protoNeutralPFO( iNeutPFO );
         float BDTScore = calculateScore(curNeutPFO_const);
         xAOD::PFO* curNeutPFO = const_cast<xAOD::PFO*>(curNeutPFO_const);
         curNeutPFO->setBDTPi0Score((float) BDTScore);
     }
 
-    ATH_MSG_DEBUG("End of TauPi0BonnScoreCalculator::execute");
+    ATH_MSG_DEBUG("End of TauPi0ScoreCalculator::execute");
 
     return StatusCode::SUCCESS;
 }
 
 
-float TauPi0BonnScoreCalculator::calculateScore(const xAOD::PFO* neutralPFO)
+float TauPi0ScoreCalculator::calculateScore(const xAOD::PFO* neutralPFO)
 {
-    m_FIRST_ETA=0.;
+    m_Abs_FIRST_ETA=0.;
     m_SECOND_R=0.;
     m_SECOND_LAMBDA=0.;
     m_Abs_DELTA_PHI=0.;
@@ -145,7 +144,6 @@ float TauPi0BonnScoreCalculator::calculateScore(const xAOD::PFO* neutralPFO)
     m_ENG_FRAC_CORE=0.;
     m_log_SECOND_ENG_DENS=0.;
     m_EcoreOverEEM1=0.;
-    m_AsymmetryWRTTrack=0.;
     // Need to convert int variables to floats after retrieving them
     int NHitsInEM1=0;
     int NPosCells_PS=0;
@@ -158,7 +156,7 @@ float TauPi0BonnScoreCalculator::calculateScore(const xAOD::PFO* neutralPFO)
     m_energy_EM1=0.;
     m_energy_EM2=0.;
 
-    if(neutralPFO->attribute(xAOD::PFODetails::PFOAttributes::cellBased_FIRST_ETA,m_FIRST_ETA) == false)
+    if(neutralPFO->attribute(xAOD::PFODetails::PFOAttributes::cellBased_FIRST_ETA,m_Abs_FIRST_ETA) == false)
         ATH_MSG_WARNING("Can't find FIRST_ETA. Set it to 0.");
     if(neutralPFO->attribute(xAOD::PFODetails::PFOAttributes::cellBased_SECOND_R,m_SECOND_R) == false)
         ATH_MSG_WARNING("Can't find SECOND_R. Set it to 0.");
@@ -184,8 +182,6 @@ float TauPi0BonnScoreCalculator::calculateScore(const xAOD::PFO* neutralPFO)
         ATH_MSG_WARNING("Can't find SECOND_ENG_DENS. Set it to 0.");
     if(neutralPFO->attribute(xAOD::PFODetails::PFOAttributes::cellBased_EM1CoreFrac,m_EcoreOverEEM1) == false) 
         ATH_MSG_WARNING("Can't find EM1CoreFrac. Set it to 0.");
-    if(neutralPFO->attribute(xAOD::PFODetails::PFOAttributes::cellBased_asymmetryInEM1WRTTrk,m_AsymmetryWRTTrack) == false) 
-        ATH_MSG_WARNING("Can't find asymmetryInEM1WRTTrk. Set it to 0.");
     if(neutralPFO->attribute(xAOD::PFODetails::PFOAttributes::cellBased_NHitsInEM1,NHitsInEM1) == false) 
         ATH_MSG_WARNING("Can't find NHitsInEM1. Set it to 0.");
     if(neutralPFO->attribute(xAOD::PFODetails::PFOAttributes::cellBased_NPosECells_PS,NPosCells_PS) == false) 
@@ -207,6 +203,7 @@ float TauPi0BonnScoreCalculator::calculateScore(const xAOD::PFO* neutralPFO)
     if(neutralPFO->attribute(xAOD::PFODetails::PFOAttributes::cellBased_energy_EM2,m_energy_EM2) == false) 
         ATH_MSG_WARNING("Can't find energy_EM2. Set it to 0.");
     // Apply variable transformations
+    m_Abs_FIRST_ETA   = fabs(m_Abs_FIRST_ETA);
     m_Abs_DELTA_PHI   = fabs(m_Abs_DELTA_PHI);
     m_Abs_DELTA_THETA = fabs(m_Abs_DELTA_THETA);
     m_CENTER_LAMBDA_helped = fmin(m_CENTER_LAMBDA_helped, 1000.);
@@ -217,6 +214,8 @@ float TauPi0BonnScoreCalculator::calculateScore(const xAOD::PFO* neutralPFO)
     m_NPosCells_PS = (float) NPosCells_PS;
     m_NPosCells_EM1 = (float) NPosCells_EM1;
     m_NPosCells_EM2 = (float) NPosCells_EM2;
+    m_firstEtaWRTCluster_EM1 = fabs(m_firstEtaWRTCluster_EM1);
+    m_firstEtaWRTCluster_EM2 = fabs(m_firstEtaWRTCluster_EM2);
 
     // Calculate BDT score
     float BDTScore = m_tmvaReader->EvaluateMVA( "BDT method" );
@@ -224,7 +223,7 @@ float TauPi0BonnScoreCalculator::calculateScore(const xAOD::PFO* neutralPFO)
     return BDTScore;
 }
 
-StatusCode TauPi0BonnScoreCalculator::bookMethod(TMVA::Reader *reader, const std::string &methodName) const 
+StatusCode TauPi0ScoreCalculator::bookMethod(TMVA::Reader *reader, const std::string &methodName) const 
 {
     if (m_weightfile == ""){
         ATH_MSG_ERROR("No weight file given");

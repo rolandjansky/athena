@@ -1,13 +1,19 @@
 ################################################################################
 ##
-#@file Pi0ClusterMaker_Bonn_jobOptions.py
+#@file Pi0ClusterMaker_jobOptions.py
 #
-#@brief jobOption to create clusters for the "Bonn" Pi0 Finder.
+#@brief jobOption to create clusters for the Pi0 Finder.
 #
 # Use cell container created by TauRecCoreBuilder as an input.
 # Most settings copied from /Calorimeter/CaloRec/python/CaloClusterTopoGetter.py
 ################################################################################
+from AthenaCommon.Logging import logging
+from RecExConfig.Configured import Configured
+from RecExConfig.ObjKeyStore import objKeyStore
+from AthenaCommon.JobProperties import jobproperties as jp
+import traceback
 
+#from CaloUtils.CaloUtilsConf import H1ClusterCellWeightTool, EMFracClusterClassificationTool, OutOfClusterCorrectionTool, DeadMaterialCorrectionTool2
 from CaloUtils.CaloUtilsConf import CaloLCClassificationTool, CaloLCWeightTool, CaloLCOutOfClusterTool, CaloLCDeadMaterialTool
 
 from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterLocalCalib
@@ -15,14 +21,18 @@ from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterLocalCali
 from CaloClusterCorrection.CaloClusterCorrectionConf import CaloClusterCellWeightCalib
 #<<
 
-from CaloRec.CaloRecConf import CaloTopoClusterMaker, CaloTopoClusterSplitter, CaloClusterMomentsMaker, CaloClusterMaker
+from CaloRec.CaloRecConf import CaloTopoClusterMaker, CaloTopoClusterSplitter, CaloClusterMomentsMaker, CaloClusterMaker #, CaloClusterLockVars, CaloClusterPrinter
+from CaloRec import CaloRecFlags
 from CaloRec.CaloTopoClusterFlags import jobproperties
 from AthenaCommon.SystemOfUnits import deg, GeV, MeV
+from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.GlobalFlags import globalflags
-
+from RecExConfig.RecFlags import rec
 
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theCaloNoiseTool = CaloNoiseToolDefault()
+from AthenaCommon.AppMgr import ToolSvc
+ToolSvc += theCaloNoiseTool
 
 # configure cell weight calibration
 if jobproperties.CaloTopoClusterFlags.doCellWeightCalib():
@@ -69,6 +79,7 @@ if jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib():
     LCClassify.ClassificationKey   = "EMFracClassify"
     LCClassify.UseSpread = False
     LCClassify.MaxProbability = 0.5
+    # add the moments EM_PROBABILITY, HAD_WEIGHT, OOC_WEIGHT, DM_WEIGHT to the AOD:
     LCClassify.StoreClassificationProbabilityInAOD = True
 
     LCWeight = CaloLCWeightTool("LCWeight")
@@ -132,83 +143,53 @@ if jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib():
 
     DMCalib += LCDeadMaterial
 
-TopoClusterForTaus = CaloTopoClusterMaker("TauPi0TopoClusterMaker")
-
-TopoClusterForTaus.CellsName = "TauCommonPi0CellContainer"
-TopoClusterForTaus.CalorimeterNames=["LAREM"]
-TopoClusterForTaus.SeedSamplingNames = [
-    "PreSamplerB", "EMB1", "EMB2",
-    "PreSamplerE", "EME1", "EME2"
-    ]
-TopoClusterForTaus.CaloNoiseTool                     = theCaloNoiseTool
-TopoClusterForTaus.UseCaloNoiseTool                  = True
-TopoClusterForTaus.UsePileUpNoise                    = True
-TopoClusterForTaus.NeighborOption                    = "super3D"
-TopoClusterForTaus.RestrictHECIWandFCalNeighbors     = False
-TopoClusterForTaus.CellThresholdOnEorAbsEinSigma     = 0.0
-TopoClusterForTaus.NeighborThresholdOnEorAbsEinSigma = 2.0
-TopoClusterForTaus.SeedThresholdOnEorAbsEinSigma     = 4.0
-TopoClusterForTaus.SeedCutsInAbsE                    = True
-TopoClusterForTaus.ClusterEtorAbsEtCut               = 0.5*GeV
-TopoClusterForTaus.TwoGaussianNoise                  = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
-
-
-TopoSplitterForTaus = CaloTopoClusterSplitter("TauPi0TopoSplitter")
-# cells from the following samplings will be able to form local
-# maxima. The excluded samplings are PreSamplerB, EMB1,
-# PreSamplerE, EME1, all Tile samplings, all HEC samplings and the
-# two rear FCal samplings.
-TopoSplitterForTaus.SamplingNames = ["EMB2","EME2"]
-# cells from the following samplings will also be able to form
-# local maxima but only if they are not overlapping in eta and phi
-# with local maxima in previous samplings from the primary list.
-TopoSplitterForTaus.SecondarySamplingNames = ["EMB1","EME1"]
-TopoSplitterForTaus.ShareBorderCells = True
-TopoSplitterForTaus.RestrictHECIWandFCalNeighbors  = False
-
+# correction tools not using tools
 TopoMomentsForTaus = CaloClusterMomentsMaker ("TauPi0TopoMoments")
-TopoMomentsForTaus.MaxAxisAngle = 30*deg
-TopoMomentsForTaus.OutputLevel = INFO
-TopoMomentsForTaus.MomentsNames = [
-    "FIRST_PHI" 
-    ,"FIRST_ETA"
-    ,"SECOND_R" 
-    ,"SECOND_LAMBDA"
-    ,"DELTA_PHI"
-    ,"DELTA_THETA"
-    ,"DELTA_ALPHA" 
-    ,"CENTER_X"
-    ,"CENTER_Y"
-    ,"CENTER_Z"
-    ,"CENTER_MAG"
-    ,"CENTER_LAMBDA"
-    ,"LATERAL"
-    ,"LONGITUDINAL"
-    ,"ENG_FRAC_EM" 
-    ,"ENG_FRAC_MAX" 
-    ,"ENG_FRAC_CORE" 
-    ,"FIRST_ENG_DENS" 
-    ,"SECOND_ENG_DENS"
-    ,"ISOLATION"
-    ]
-
-#TopoMomentsForTaus.AODMomentsNames = [ 
-#    "FIRST_ETA"
-#    ,"SECOND_R"
-#    ,"SECOND_LAMBDA"
-#    ,"DELTA_PHI"
-#    ,"DELTA_THETA"
-#    ,"CENTER_MAG"
-#    ,"CENTER_LAMBDA"
-#    ,"LATERAL"
-#    ,"LONGITUDINAL"
-#    ,"ENG_FRAC_EM"
-#    ,"ENG_FRAC_MAX"
-#    ,"ENG_FRAC_CORE"
-#    ,"FIRST_ENG_DENS"
-#    ,"SECOND_ENG_DENS"
-#    ,"ISOLATION"
-#    ]
+TopoMomentsForTaus.MaxAxisAngle = 20*deg
+TopoMomentsForTaus.CaloNoiseTool = theCaloNoiseTool
+TopoMomentsForTaus.UsePileUpNoise = True
+TopoMomentsForTaus.TwoGaussianNoise = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
+TopoMomentsForTaus.MinBadLArQuality = 4000
+TopoMomentsForTaus.MomentsNames = ["FIRST_PHI"
+                            ,"FIRST_ETA"
+                            ,"SECOND_R" 
+                            ,"SECOND_LAMBDA"
+                            ,"DELTA_PHI"
+                            ,"DELTA_THETA"
+                            ,"DELTA_ALPHA" 
+                            ,"CENTER_X"
+                            ,"CENTER_Y"
+                            ,"CENTER_Z"
+                            ,"CENTER_MAG"
+                            ,"CENTER_LAMBDA"
+                            ,"LATERAL"
+                            ,"LONGITUDINAL"
+                            ,"ENG_FRAC_EM" 
+                            ,"ENG_FRAC_MAX" 
+                            ,"ENG_FRAC_CORE" 
+                            ,"FIRST_ENG_DENS" 
+                            ,"SECOND_ENG_DENS" 
+                            ,"ISOLATION"
+                            ]
+#TopoMomentsForTaus.AODMomentsNames = ["LATERAL"
+#                                ,"LONGITUDINAL"
+#                                ,"SECOND_R" 
+#                                ,"SECOND_LAMBDA"
+#                                ,"CENTER_MAG"
+#                                ,"CENTER_LAMBDA"
+#                                ,"FIRST_ENG_DENS"
+#                                ,"ENG_FRAC_MAX" 
+#                                ,"ISOLATION"
+#                                ,"ENG_BAD_CELLS"
+#                                ,"N_BAD_CELLS"
+#                                ,"BADLARQ_FRAC"
+#                                ,"ENG_POS"
+#                                ,"SIGNIFICANCE"
+#                                ,"CELL_SIGNIFICANCE"
+#                                ,"CELL_SIG_SAMPLING"
+#                                ,"AVG_LAR_Q"
+#                                ,"AVG_TILE_Q"
+#                                ] 
 
 #if jobproperties.CaloTopoClusterFlags.lockTopoClusterSamplingEnergies() or jobproperties.CaloTopoClusterFlags.lockTopoClusterSamplingVariables():
 #    LockVariables = CaloClusterLockVars("LockVariables")
@@ -222,25 +203,71 @@ TopoMomentsForTaus.MomentsNames = [
 #            "Eta", "Phi", "Delta_Eta",
 #            "Delta_Phi", "Max_Eta", "Max_Phi"
 #            ]
-#                
+                
 #if jobproperties.CaloTopoClusterFlags.printTopoClusters():
 #    PrintCaloCluster = CaloClusterPrinter("PrintCaloCluster")
 #    PrintCaloCluster.PrintFirstOnly = True
 #    PrintCaloCluster.PrintFrequency = 1
 #    PrintCaloCluster.EnergyUnit     = 1.0*GeV
 
-cluster_container = 'TauPi0SubtractedClusterContainer'
-CaloTopoForTausMaker = CaloClusterMaker ("TauPi0BonnSubtractedClusterMaker")
+    
+# maker tools
+TopoClusterForTaus = CaloTopoClusterMaker("TauPi0TopoClusterMaker")
+
+TopoClusterForTaus.CellsName = "TauCommonPi0Cells"
+TopoClusterForTaus.CalorimeterNames=["LAREM"]
+TopoClusterForTaus.SeedSamplingNames = [
+    "PreSamplerB", "EMB1", "EMB2", # Do we want to use EMB3?
+    "PreSamplerE", "EME1", "EME2"  # Do we want to use EME3?
+    ]
+TopoClusterForTaus.CaloNoiseTool                     = theCaloNoiseTool
+TopoClusterForTaus.UseCaloNoiseTool                  = True
+TopoClusterForTaus.UsePileUpNoise                    = True
+TopoClusterForTaus.NeighborOption                    = "super3D"
+TopoClusterForTaus.RestrictHECIWandFCalNeighbors     = False
+TopoClusterForTaus.RestrictPSNeighbors               = True
+TopoClusterForTaus.CellThresholdOnEorAbsEinSigma     = 0.0
+TopoClusterForTaus.NeighborThresholdOnEorAbsEinSigma = 2.0
+TopoClusterForTaus.SeedThresholdOnEorAbsEinSigma     = 4.0
+TopoClusterForTaus.SeedCutsInAbsE                    = True
+TopoClusterForTaus.ClusterEtorAbsEtCut               = 0.5*GeV # 0.0*MeV in standard CaloCalTopoCluster JobOptions!
+TopoClusterForTaus.TwoGaussianNoise                  = jobproperties.CaloTopoClusterFlags.doTwoGaussianNoise()
+
+
+TopoSplitterForTaus = CaloTopoClusterSplitter("TauPi0TopoSplitter")
+# cells from the following samplings will be able to form local
+# maxima. The excluded samplings are PreSamplerB, EMB1,
+# PreSamplerE, EME1, all Tile samplings, all HEC samplings and the
+# two rear FCal samplings.
+TopoSplitterForTaus.SamplingNames = ["EMB2","EME2"] # Do we want to use EMB3 and EME3?
+# cells from the following samplings will also be able to form
+# local maxima but only if they are not overlapping in eta and phi
+# with local maxima in previous samplings from the primary list.
+TopoSplitterForTaus.SecondarySamplingNames = ["EMB1","EME1"]
+TopoSplitterForTaus.ShareBorderCells = True
+TopoSplitterForTaus.RestrictHECIWandFCalNeighbors  = False
+
+# cluster maker
+cluster_container = 'TauPi0SubtractedClusters'
+CaloTopoForTausMaker = CaloClusterMaker ("TauPi0SubtractedClusterMaker")
 CaloTopoForTausMaker.ClustersOutputName=cluster_container
 CaloTopoForTausMaker.ClusterMakerTools=[
     TopoClusterForTaus.getFullName(),
     TopoSplitterForTaus.getFullName()]
-CaloTopoForTausMaker.ClusterCorrectionTools = [
-    TopoMomentsForTaus.getFullName()]
+
+from CaloClusterCorrection.CaloClusterBadChannelListCorr import CaloClusterBadChannelListCorr
+BadChannelListCorrForTaus = CaloClusterBadChannelListCorr()
+CaloTopoForTausMaker.ClusterCorrectionTools += [BadChannelListCorrForTaus.getFullName()]
+
+CaloTopoForTausMaker.ClusterCorrectionTools += [TopoMomentsForTaus.getFullName()]
 
 CaloTopoForTausMaker += TopoClusterForTaus
 CaloTopoForTausMaker += TopoSplitterForTaus
+CaloTopoForTausMaker += BadChannelListCorrForTaus
 CaloTopoForTausMaker += TopoMomentsForTaus
+
+# Don't add CaloClusterVertexFractionMaker for now
+# Don't add CaloCalibClusterMomentsMaker2 for now
 
 #if jobproperties.CaloTopoClusterFlags.lockTopoClusterSamplingEnergies() or jobproperties.CaloTopoClusterFlags.lockTopoClusterSamplingVariables():
 #    CaloTopoForTausMaker.ClusterCorrectionTools += [
@@ -266,10 +293,6 @@ if jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib():
     CaloTopoForTausMaker += OOCPi0Calib
     CaloTopoForTausMaker += DMCalib
                                     
-#if jobproperties.CaloTopoClusterFlags.printTopoClusters():
-#    CaloTopoForTausMaker.ClusterCorrectionTools += [
-#        PrintCaloCluster.getFullName()]
-#    CaloTopoForTausMaker += PrintCaloCluster
     
 #
 # pool/cool part
@@ -283,10 +306,4 @@ if jobproperties.CaloTopoClusterFlags.doTopoClusterLocalCalib():
         CaloTopoForTausMaker.LocalCalibForTaus.LCClassify.MaxProbability = 0.50
         CaloTopoForTausMaker.LocalCalibForTaus.LCClassify.UseNormalizedEnergyDensity = True
 
-#CaloCell2TopoClusterForTausMapper =   CaloCell2ClusterMapper("CaloCell2Pi0ClusterForTausMapper")
-#CaloCell2TopoClusterForTausMapper.ClustersName = cluster_container 
-#CaloCell2TopoClusterForTausMapper.MapOutputName = "CaloCell2Pi0ClusterForTaus"
-
 topSequence += CaloTopoForTausMaker
-#topSequence += CaloCell2TopoClusterForTausMapper
-

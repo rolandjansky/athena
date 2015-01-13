@@ -4,6 +4,7 @@
 #include "tauRec/TauAxisSetter.h"
 #include "tauRec/TauCalibrateEM.h"
 #include "tauRec/TauCalibrateLC.h"
+#include "tauRec/TauIDPileupCorrection.h"
 #include "tauRec/TauCellVariables.h"
 //#include "tauRec/TauOriginCorrectionTool.h"
 #include "tauRec/TauProcessor.h"
@@ -16,10 +17,11 @@
 //#include "tauRec/TauEflowTrackMatchCells.h"
 //#include "tauRec/TauEflowVariables.h"
 #include "tauRec/TauShotFinder.h"
-#include "tauRec/TauPi0BonnClusterCreator.h"
-#include "tauRec/TauPi0BonnCreateROI.h"
-#include "tauRec/TauPi0BonnScoreCalculator.h"
-#include "tauRec/TauPi0BonnSelector.h"
+#include "tauRec/TauPi0ClusterCreator.h"
+#include "tauRec/TauPi0CreateROI.h"
+#include "tauRec/TauPi0ClusterScaler.h"
+#include "tauRec/TauPi0ScoreCalculator.h"
+#include "tauRec/TauPi0Selector.h"
 //#include "tauRec/TauPi0CrakowClusterCreator.h"
 //#include "tauRec/TauPi0CreatorChooser.h"
 #include "tauRec/TauSubstructureVariables.h"
@@ -45,6 +47,7 @@ DECLARE_TOOL_FACTORY( LockTauContainers          )
 DECLARE_TOOL_FACTORY( TauAxisSetter         )
 DECLARE_TOOL_FACTORY( TauCalibrateEM             )
 DECLARE_TOOL_FACTORY( TauCalibrateLC             )
+DECLARE_TOOL_FACTORY( TauIDPileupCorrection             )
 DECLARE_TOOL_FACTORY( TauCellVariables           )
 //DECLARE_TOOL_FACTORY( TauOriginCorrectionTool    )
 DECLARE_TOOL_FACTORY( TauTrackFinder             )
@@ -56,10 +59,11 @@ DECLARE_TOOL_FACTORY( TauCommonCalcVars          )
 //DECLARE_TOOL_FACTORY( TauEflowTrackMatchCells    )
 //DECLARE_TOOL_FACTORY( TauEflowVariables          )
 DECLARE_TOOL_FACTORY( TauShotFinder              )
-DECLARE_TOOL_FACTORY( TauPi0BonnClusterCreator   )
-DECLARE_TOOL_FACTORY( TauPi0BonnCreateROI        )
-DECLARE_TOOL_FACTORY( TauPi0BonnScoreCalculator  )
-DECLARE_TOOL_FACTORY( TauPi0BonnSelector        )
+DECLARE_TOOL_FACTORY( TauPi0ClusterCreator   )
+DECLARE_TOOL_FACTORY( TauPi0CreateROI        )
+DECLARE_TOOL_FACTORY( TauPi0ClusterScaler  )
+DECLARE_TOOL_FACTORY( TauPi0ScoreCalculator  )
+DECLARE_TOOL_FACTORY( TauPi0Selector        )
 //DECLARE_TOOL_FACTORY( TauPi0CrakowClusterCreator )
 //DECLARE_TOOL_FACTORY( TauPi0CreatorChooser       )
 DECLARE_TOOL_FACTORY( TauSubstructureVariables     )
@@ -83,6 +87,7 @@ DECLARE_FACTORY_ENTRIES(tauRec) {
     DECLARE_TOOL(TauAxisSetter)
     DECLARE_TOOL(TauCalibrateEM)
     DECLARE_TOOL(TauCalibrateLC)
+    DECLARE_TOOL(TauIDPileupCorrection)
     DECLARE_TOOL(TauCellVariables)
     //DECLARE_TOOL(TauOriginCorrectionTool)
     DECLARE_TOOL(TauTrackFinder)
@@ -94,10 +99,11 @@ DECLARE_FACTORY_ENTRIES(tauRec) {
     //DECLARE_TOOL( TauEflowTrackMatchCells    )
     //DECLARE_TOOL( TauEflowVariables          )
     DECLARE_TOOL( TauShotFinder              )
-    DECLARE_TOOL( TauPi0BonnClusterCreator   )
-    DECLARE_TOOL( TauPi0BonnCreateROI        )
-    DECLARE_TOOL( TauPi0BonnScoreCalculator  )
-    DECLARE_TOOL( TauPi0BonnSelector         )
+    DECLARE_TOOL( TauPi0ClusterCreator   )
+    DECLARE_TOOL( TauPi0CreateROI        )
+    DECLARE_TOOL( TauPi0ClusterScaler  )
+    DECLARE_TOOL( TauPi0ScoreCalculator  )
+    DECLARE_TOOL( TauPi0Selector         )
     //DECLARE_TOOL( TauPi0CrakowClusterCreator )
     //DECLARE_TOOL( TauPi0CreatorChooser       )
     DECLARE_TOOL( TauSubstructureVariables     )

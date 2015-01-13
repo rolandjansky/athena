@@ -173,6 +173,12 @@ StatusCode TauSubstructureVariables::execute(TauCandidateData *data) {
 	const xAOD::CaloCluster* incluster;
 	std::vector<const xAOD::CaloCluster*> vClusters;
 
+	TLorentzVector leadClusVec;
+	TLorentzVector subLeadClusVec;
+	TLorentzVector approxSubstructure4Vec;
+	double clusELead = -1111.0;
+	double clusESubLead = -1111.0;
+
 	// loop over all clusters of the jet seed
 	xAOD::JetConstituentVector jcv = taujetseed->getConstituents();
 	xAOD::JetConstituentVector::const_iterator nav_it   = jcv.begin();
@@ -197,11 +203,42 @@ StatusCode TauSubstructureVariables::execute(TauCandidateData *data) {
 			tempclusvec = xAOD::CaloVertexedCluster(*incluster).p4();
 
 		dr = Tau1P3PKineUtils::deltaR(pTau->eta(),pTau->phi(), tempclusvec.Eta(), tempclusvec.Phi());
-		if (0.2 <= dr && dr < 0.4) {
-			calo_iso += tempclusvec.Et();
-		}
+		if (0.2 <= dr && dr < 0.4) 
+		  {
+		    calo_iso += tempclusvec.Et();
+		  }
+		else if (dr < 0.2)
+		  {
+		    double clusEnergyBE = ( incluster->energyBE(0) + incluster->energyBE(1) + incluster->energyBE(2) );
+		    
+		    if (clusEnergyBE > clusELead) 
+		      {
+			//change current leading cluster to subleading
+			clusESubLead = clusELead;
+			subLeadClusVec = leadClusVec;
+
+			//set energy and 4-vector of leading cluster
+			clusELead = clusEnergyBE;
+			leadClusVec.SetPtEtaPhiM(clusELead/cosh(tempclusvec.Eta()), tempclusvec.Eta(), tempclusvec.Phi(), 0);
+		      }
+		    else if (clusEnergyBE > clusESubLead) 
+		      {
+			//set energy and 4-vector of subleading cluster only
+			clusESubLead = clusEnergyBE;
+			subLeadClusVec.SetPtEtaPhiM(clusESubLead/cosh(tempclusvec.Eta()), tempclusvec.Eta(), tempclusvec.Phi(), 0);
+		      }
+
+		  }
+		
 	}
 
+	if (clusELead > 0.) {
+	  approxSubstructure4Vec += leadClusVec;
+	}
+	if (clusESubLead > 0.) {
+	  approxSubstructure4Vec += subLeadClusVec;
+	  }
+	
 	// now sort cluster by energy
 	AnalysisUtils::Sort::e(&vClusters);
 
@@ -259,7 +296,15 @@ StatusCode TauSubstructureVariables::execute(TauCandidateData *data) {
 	float trkSysMomentum(0.);
 	for (unsigned int i(0); i < pTau->nTracks(); ++i) {
 		trkSysMomentum += pTau->track(i)->pt()	* cosh(pTau->track(i)->eta());
+
+		//adding the core tracks to the approximate substructure 4 vector
+		approxSubstructure4Vec += pTau->track(i)->p4();
 	}
+
+	// set new approximate energy flow variables for tau ID
+	pTau->setDetail(xAOD::TauJetParameters::ptRatioEflowApprox, static_cast<float>(approxSubstructure4Vec.Pt()/ pTau->detail<float>(xAOD::TauJetParameters::LC_TES_precalib)) );
+	pTau->setDetail(xAOD::TauJetParameters::mEflowApprox, static_cast<float>(approxSubstructure4Vec.M()) );
+
 
 	float fPSSFraction 			= (totalEnergy != 0) ? PSSEnergy / totalEnergy : DEFAULT;
 	float fChPIEMEOverCaloEME 	= (EMEnergy != 0) ? (trkSysMomentum - HADEnergy) / EMEnergy : DEFAULT;

@@ -12,6 +12,7 @@
 #=======================================================================
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties
+import AthenaCommon.SystemOfUnits as Units
 
 
 class Enabled(JobProperty):
@@ -60,12 +61,47 @@ class doPanTau(JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
-class doBonnPi0(JobProperty):
-    """ switch on new (Bonn) Pi0 Finder
+class doPi0(JobProperty):
+    """ switch on Pi0 Finder
     """
     statusOn=True
     allowedTypes=['bool']
     StoredValue=False
+
+class pi0EtCuts(JobProperty):
+    """ Set |eta| dependent Et requirement for pi0 tag
+    """ 
+    statusOn=True
+    allowedTypes=['list']
+    StoredValue=[2800.*Units.MeV,2700.*Units.MeV,2500.*Units.MeV,2900.*Units.MeV,2700.*Units.MeV]
+
+class pi0MVACuts_1prong(JobProperty):
+    """ Set |eta| dependent MVA requirement for pi0 tag for 1-prong taus
+    """
+    statusOn=True
+    allowedTypes=['list']
+    StoredValue=[0.45,0.37,0.39,0.40,0.38]
+
+class pi0MVACuts_mprong(JobProperty):
+    """ Set |eta| dependent MVA requirement for pi0 tag for multi-prong taus
+    """
+    statusOn=True
+    allowedTypes=['list']
+    StoredValue=[0.73,0.69,0.58,0.69,0.67]
+
+class shotPtCut_1Photon(JobProperty):
+    """ Set |eta| dependent pt requirement for counting one photon in a shot
+    """
+    statusOn=True
+    allowedTypes=['list']
+    StoredValue=[430.*Units.MeV,300.*Units.MeV,9999999.*Units.MeV,330.*Units.MeV,350.*Units.MeV]
+
+class shotPtCut_2Photons(JobProperty):
+    """ Set |eta| dependent pt requirement for counting two photons in a shot
+    """
+    statusOn=True
+    allowedTypes=['list']
+    StoredValue=[10000.*Units.MeV,10000.*Units.MeV,9999999.*Units.MeV,10000.*Units.MeV,10000.*Units.MeV]
 
 class useOldVertexFitterAPI(JobProperty):
     """ use the old (AOD-style) API of the AdaptiveVertexFitter.
@@ -84,7 +120,7 @@ class tauRecFlags(JobPropertyContainer):
 jobproperties.add_Container(tauRecFlags)
 
 # I want always the following flags in the Rec container  
-_list_tau=[Enabled,doTauRec,doRunTauDiscriminant,useVertexBasedConvFinder,useNewPIDBasedConvFinder,doPanTau,doBonnPi0,useOldVertexFitterAPI]
+_list_tau=[Enabled,doTauRec,doRunTauDiscriminant,useVertexBasedConvFinder,useNewPIDBasedConvFinder,doPanTau,doPi0,pi0EtCuts,pi0MVACuts_1prong,pi0MVACuts_mprong,shotPtCut_1Photon,shotPtCut_2Photons,useOldVertexFitterAPI]
 for j in _list_tau: 
     jobproperties.tauRecFlags.add_JobProperty(j)
 del _list_tau

@@ -179,7 +179,9 @@ StatusCode TauCommonCalcVars::execute(TauCandidateData *data) {
     if ((pTau->nWideTracks() + pTau->nTracks()) > 0) {
 
         double ptSum = 0;
+        double innerPtSum = 0;
         double sumWeightedDR = 0;
+        double innerSumWeightedDR = 0;
         double sumWeightedDR2 = 0;
 
         for (unsigned int i = 0; i != pTau->nTracks(); ++i) {
@@ -189,6 +191,10 @@ StatusCode TauCommonCalcVars::execute(TauCandidateData *data) {
 	  ptSum += pTau->track(i)->pt();
 	  sumWeightedDR += deltaR * (pTau->track(i)->pt());
 	  sumWeightedDR2 += deltaR * deltaR * (pTau->track(i)->pt());
+
+	  //add calculation of innerTrkAvgDist
+	  innerPtSum += pTau->track(i)->pt();
+	  innerSumWeightedDR += deltaR * (pTau->track(i)->pt());
         }
 
         for (unsigned int i = 0; i != pTau->nWideTracks(); ++i) {
@@ -218,6 +224,25 @@ StatusCode TauCommonCalcVars::execute(TauCandidateData *data) {
 	  if ( pTau->detail( xAOD::TauJetParameters::trkRmsDist, tempfloat ) )
 	    ATH_MSG_VERBOSE("set seedCalo_trkRmsDist " << tempfloat );
         }
+
+        if (ptSum > 0.0001) {
+	  // InnerTrkAvgDist
+	  pTau->setDetail( xAOD::TauJetParameters::innerTrkAvgDist, static_cast<float>( innerSumWeightedDR / innerPtSum ) );
+	  // FIXME!!! put pileup correction here once availabe
+	  // FIXME!!! for now set corrected version same as uncorrected
+	  pTau->setDetail( xAOD::TauJetParameters::innerTrkAvgDistCorrected, static_cast<float>( innerSumWeightedDR / innerPtSum ) );
+
+	  // SumPtTrkFrac
+	  pTau->setDetail( xAOD::TauJetParameters::SumPtTrkFrac, static_cast<float>( 1. - innerPtSum/ptSum ) );
+	  // FIXME!!! put pileup correction here once availabe
+	  // FIXME!!! for now set corrected version same as uncorrected
+	  pTau->setDetail( xAOD::TauJetParameters::SumPtTrkFracCorrected, static_cast<float>( 1. - innerPtSum/ptSum ) );
+      
+       
+
+	}
+
+
     }
 
     return StatusCode::SUCCESS;

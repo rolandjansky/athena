@@ -101,10 +101,10 @@ StatusCode TauTrackFilter::execute(TauCandidateData *data) {
     }
 
     TLorentzVector tau;
-    tau.SetPtEtaPhiE(pTau->pt(),
+    tau.SetPtEtaPhiE(pTau->pt()/1000, //GeV
                      pTau->eta(),
                      pTau->phi(),
-                     pTau->e());
+                     pTau->e()/1000); //GeV
 
     std::vector<TLorentzVector>* inputtracks20 = new std::vector<TLorentzVector>;
     std::vector<TLorentzVector>* inputtracks40 = new std::vector<TLorentzVector>;
@@ -125,11 +125,10 @@ StatusCode TauTrackFilter::execute(TauCandidateData *data) {
     for(unsigned int j=0; j<pTau->nTracks(); j++ ) {
         const xAOD::TrackParticle *TauJetTrack = pTau->track(j);
         TLorentzVector inputTrack;
-        inputTrack.SetPtEtaPhiE(TauJetTrack->pt(),
+        inputTrack.SetPtEtaPhiE(TauJetTrack->pt()/1000, //GeV
                                 TauJetTrack->eta(),
                                 TauJetTrack->phi(),
-                                TauJetTrack->e()); // TODO Assume track has charged pion mass?
-        //TODO dR cut to put only correct tracks in inputtracks20 and inputtracks40
+                                TauJetTrack->e()/1000); //GeV
         float dR = tau.DeltaR(inputTrack);
         if (dR < 0.2) {
             inputtracks20->push_back(inputTrack);
@@ -187,7 +186,7 @@ StatusCode TauTrackFilter::execute(TauCandidateData *data) {
 
     // Set values in EDM
     for (unsigned int numTrack=0; numTrack<m_TrkPass.size(); numTrack++) {
-      pTau->setTrackFilterPass(numTrack, m_TrkPass.at(numTrack));
+      pTau->setTrackFlag(pTau->track(numTrack), xAOD::TauJetParameters::failTrackFilter, !m_TrkPass.at(numTrack));
     }
     pTau->setTrackFilterProngs(m_nProng);
     pTau->setTrackFilterQuality(m_flag);

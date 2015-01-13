@@ -79,10 +79,10 @@ StatusCode TauGenericPi0Cone::execute(TauCandidateData *data) {
     xAOD::TauJet *pTau = data->xAODTau;
 
     TLorentzVector tau;
-    tau.SetPtEtaPhiE(pTau->pt(),
+    tau.SetPtEtaPhiE(pTau->pt()/1000, //GeV
                      pTau->eta(),
                      pTau->phi(),
-                     pTau->e());
+                     pTau->e()/1000); //GeV
 
     int nProng = pTau->trackFilterProngs();
     int flag = pTau->trackFilterQuality();

@@ -29,7 +29,7 @@ m_printMissingContainerINFO(true),
 m_clusterCone(0.2)  //not used
 {
     declareInterface<TauToolBase > (this);
-    declareProperty("tauContainerKey", tauContainerKey = "TauRecContainer");
+    declareProperty("tauContainerKey", tauContainerKey = "TauJets");
     declareProperty("calibrationFile", calibrationFile = "EnergyCalibrationLC2012.root");
     declareProperty("vertexContainerKey", vertexContainerKey = "PrimaryVertices");
     declareProperty("doEnergyCorrection", m_doEnergyCorr);
@@ -154,31 +154,45 @@ StatusCode TauCalibrateLC::execute(TauCandidateData *data)
         // for tau trigger
         bool inTrigger = false;
         if (data->hasObject("InTrigger?")) sc = data->getObject("InTrigger?", inTrigger);
-        // FF: March, 2014
-        // this is for later purpose. At the moment no offset correction is used in case of tau trigger (see below)
-        if (sc.isSuccess() && inTrigger)   sc = data->getObject("VxPrimaryCandidate", vxContainer);
-        
-        if (!inTrigger || !vxContainer || sc.isFailure() ) {
-            // try standard 
-            if (evtStore()->retrieve(vxContainer, vertexContainerKey).isFailure() || !vxContainer) {
-              if (m_printMissingContainerINFO) {
-                ATH_MSG_WARNING(vertexContainerKey << " container not found --> skip TauEnergyCalibrationLC (no further info) ");
-                m_printMissingContainerINFO=false;
-              }
-                return StatusCode::SUCCESS;
-            }
-        }
-    
-        xAOD::VertexContainer::const_iterator vx_iter = vxContainer->begin();
-        xAOD::VertexContainer::const_iterator vx_end = vxContainer->end();
-        int nVertex = 0;
-        for (; vx_iter != vx_end; ++vx_iter) {
-            if ((*vx_iter)->nTrackParticles() >= m_minNTrackAtVertex)
-                ++nVertex;
-        }
-                
-	ATH_MSG_DEBUG("calculated nVertex " << nVertex );           
 
+	int nVertex = 0;
+        
+	// Only retrieve the container if we are not in trigger
+        if (sc.isFailure() || !inTrigger ) {
+	  // try standard 
+	  if (evtStore()->retrieve(vxContainer, vertexContainerKey).isFailure() || !vxContainer) {
+	    if (m_printMissingContainerINFO) {
+	      ATH_MSG_WARNING(vertexContainerKey << " container not found --> skip TauEnergyCalibrationLC (no further info) ");
+	      m_printMissingContainerINFO=false;
+	    }
+	    return StatusCode::SUCCESS;
+	  }
+	  
+	  // Calculate nVertex
+	  xAOD::VertexContainer::const_iterator vx_iter = vxContainer->begin();
+	  xAOD::VertexContainer::const_iterator vx_end = vxContainer->end();
+	  
+	  for (; vx_iter != vx_end; ++vx_iter) {
+            if ((*vx_iter)->nTrackParticles() >= m_minNTrackAtVertex)
+	      ++nVertex;
+	  }
+	  
+	  ATH_MSG_DEBUG("calculated nVertex " << nVertex );           
+
+	} else {
+
+	  StatusCode scMu = StatusCode::FAILURE;
+	  double muTemp = 0.0;
+
+	    if (data->hasObject("AvgInteractions")) scMu = data->getObject("AvgInteractions", muTemp);
+	    
+	    if(scMu.isSuccess()){
+	      ATH_MSG_DEBUG("AvgInteractions object in tau candidate = " << muTemp);
+	    } else {
+	      ATH_MSG_DEBUG("No AvgInteractions object in tau candidate");
+	    }
+
+	}
 
         // get detector axis energy
         // was saved by TauAxisSetter
