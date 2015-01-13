@@ -12,131 +12,68 @@
 // Trk
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/SurfaceBounds.h"
-#include "TrkParameters/TrackParameters.h"
 
-#include "GeoPrimitives/GeoPrimitives.h"
 
-int InDet::TRT_OverlapDescriptor::s_overlapCounter = 0;
-
-const Trk::OverlapCell InDet::TRT_OverlapDescriptor::overlapSurface(const Trk::TrackParameters& tp,
-                                                                    const Trk::Surface* sfreq,
-                                                                    Trk::PropDirection dir) const
+/** get the compatible surfaces */
+bool InDet::TRT_OverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceIntersection>& cSurfaces, 
+                                                       const Trk::Surface& tsf,
+                                                       const Amg::Vector3D& position,
+                                                       const Amg::Vector3D& momentum) const
+                                                            
 {
-  // unique break condition
-  if (!sfreq) return Trk::OverlapCell(0,dir);
-  
-  const Trk::Surface& parameterSurface = tp.associatedSurface();
-  
-  // don't try to find a next straw if the first one is hit ! 
-  if (fabs(tp.parameters()[Trk::driftRadius]) < parameterSurface.bounds().r()) return Trk::OverlapCell(0,dir);
 
-  const InDetDD::TRT_BaseElement* trtBaseElement = dynamic_cast<const InDetDD::TRT_BaseElement*>(parameterSurface.associatedDetectorElement());
+    // there are empty straw bins in the TRT surface array 
+   if (!(&tsf)) return 0;
 
-  // only search for Barrel section   
-  if (trtBaseElement){
-    
-    Identifier strawID = parameterSurface.associatedDetectorElementIdentifier();
-    
-    int strawMax = trtBaseElement->nStraws()-1;
-    int strawInt = m_trtIdHelper->straw(strawID);
-    
-    if (strawInt != 0 && strawInt < strawMax && strawMax != -999){
-       const Trk::Surface* overlapStraw  = 0;
-       // get the straw to the left ...
-       Identifier          leftID       =   m_trtIdHelper->straw_id(trtBaseElement->identify(), strawInt-1);
-       const Trk::Surface* leftStraw    = (strawInt > 1 ) ? (&(trtBaseElement->surface(leftID))) : 0;
-       // get the straw to the right ...
-       Identifier          rightID      =   m_trtIdHelper->straw_id(trtBaseElement->identify(), strawInt+1);
-       const Trk::Surface* rightStraw   = (strawInt < strawMax ) ? (&(trtBaseElement->surface(rightID))) : 0;
+   const Amg::Vector3D dir = momentum.unit();        
+   // first add the target surface - if it fits
+   int nextInt = checkAndFill(cSurfaces, tsf, position, dir);
+   if (!nextInt) return true;
+            
+   const InDetDD::TRT_BaseElement* trtBaseElement = dynamic_cast<const InDetDD::TRT_BaseElement*>(tsf.associatedDetectorElement());
+   // we have a trt base element 
    
-       if (leftStraw && rightStraw){
+   if (trtBaseElement){
+     
+     Identifier strawID = tsf.associatedDetectorElementIdentifier();
+     
+     // straw Max 
+     int strawMax = trtBaseElement->nStraws()-1;
+     int strawInt = m_trtIdHelper->straw(strawID);
+     
+     if (strawInt != 0 && strawInt < strawMax && strawMax != -999){
+        // get the next straw
+        Identifier          nextID       =   m_trtIdHelper->straw_id(trtBaseElement->identify(), strawInt+nextInt);
+        const Trk::Surface* nextStraw    = (strawInt > 1  && strawInt < strawMax) ? (&(trtBaseElement->surface(nextID))) : 0;
+        if (nextStraw)
+            nextInt = checkAndFill(cSurfaces, *nextStraw, position, dir);
+    } 
+  }
+  
+  return true;
+}  
 
-         const Amg::Vector3D& hitPosition = tp.position();
-         // get the phi values of all players
-         double hitPhi                          = hitPosition.phi();
-         double parameterSurfacePhi             = parameterSurface.center().phi();
-         double leftSurfacePhi                  = leftStraw->center().phi();
-         double rightSurfacePhi                 = rightStraw->center().phi();
-         // rescale the phi
-         hitPhi              += M_PI;
-         parameterSurfacePhi += M_PI;
-         leftSurfacePhi      += M_PI;
-         rightSurfacePhi     += M_PI;
-         // decide in the [0,2Pi) range
-         int sign = hitPhi > parameterSurfacePhi ? 1 : -1;
-         
-         overlapStraw = sign*leftSurfacePhi > sign*rightSurfacePhi ? leftStraw : rightStraw;
-
-       return Trk::OverlapCell(overlapStraw,Trk::alongMomentum);          
- 
-      }
-   } 
- }
- return Trk::OverlapCell(0,dir);
-}
-
-const std::vector<Trk::OverlapCellCondition>& InDet::TRT_OverlapDescriptor::overlapCells(const Trk::TrackParameters& tp,
-                                                                                         Trk::PropDirection,
-                                                                                         const Trk::Surface*,
-                                                                                         const Trk::Surface*) const
+int InDet::TRT_OverlapDescriptor::checkAndFill(std::vector<Trk::SurfaceIntersection>& cSurfaces, 
+                                               const Trk::Surface& sf,
+                                               const Amg::Vector3D& pos,
+                                               const Amg::Vector3D& dir) const
 {
-  // clear the vector from last call
-  m_overlapCells.clear();
-  
-  const Trk::Surface& parameterSurface = tp.associatedSurface();  
-  
-  // don't try to find a next straw if the first one is hit ! 
-  if (fabs(tp.parameters()[Trk::driftRadius]) < parameterSurface.bounds().r()) return m_overlapCells;
-
-  const InDetDD::TRT_BaseElement* trtBaseElement = dynamic_cast<const InDetDD::TRT_BaseElement*>(parameterSurface.associatedDetectorElement());
-
-  // only search for Barrel section   
-  if (trtBaseElement){
-    
-    Identifier strawID = parameterSurface.associatedDetectorElementIdentifier();
-    
-    int strawMax = trtBaseElement->nStraws()-1;
-    int strawInt = m_trtIdHelper->straw(strawID);
-    
-    if (strawInt != 0 && strawInt < strawMax && strawMax != -999){
-       // get the straw to the left ...
-       Identifier          leftID       =   m_trtIdHelper->straw_id(trtBaseElement->identify(), strawInt-1);
-       const Trk::Surface* leftStraw    = (strawInt > 1 ) ? (&(trtBaseElement->surface(leftID))) : 0;
-       // get the straw to the right ...
-       Identifier          rightID      =   m_trtIdHelper->straw_id(trtBaseElement->identify(), strawInt+1);
-       const Trk::Surface* rightStraw   = (strawInt < strawMax ) ? (&(trtBaseElement->surface(rightID))) : 0;
-   
-       if (leftStraw && rightStraw){
-
-         const Amg::Vector3D& hitPosition = tp.position();
-         // get the phi values of all players
-         double hitPhi                          = hitPosition.phi();
-         double parameterSurfacePhi             = parameterSurface.center().phi();
-         double leftSurfacePhi                  = leftStraw->center().phi();
-         double rightSurfacePhi                 = rightStraw->center().phi();
-         // rescale the phi
-         hitPhi              += M_PI;
-         parameterSurfacePhi += M_PI;
-         leftSurfacePhi      += M_PI;
-         rightSurfacePhi     += M_PI;
-         // decide in the [0,2Pi) range
-         int sign = hitPhi > parameterSurfacePhi ? 1 : -1;
-         
-         // left first
-         if (sign*leftSurfacePhi > sign*rightSurfacePhi){
-            m_overlapCells.push_back(std::make_pair(Trk::OverlapCell(leftStraw,Trk::alongMomentum),0));
-            m_overlapCells.push_back(std::make_pair(Trk::OverlapCell(rightStraw,Trk::alongMomentum),0));
-         } else {
-            m_overlapCells.push_back(std::make_pair(Trk::OverlapCell(rightStraw,Trk::alongMomentum),0));         
-            m_overlapCells.push_back(std::make_pair(Trk::OverlapCell(leftStraw,Trk::alongMomentum),0));
-        }             
-      } else if (leftStraw)
-          m_overlapCells.push_back(std::make_pair(Trk::OverlapCell(leftStraw,Trk::alongMomentum),0));
-      else if (rightStraw)
-          m_overlapCells.push_back(std::make_pair(Trk::OverlapCell(rightStraw,Trk::alongMomentum),0));
-   } 
- }
-  
- return m_overlapCells;
+    Trk::Intersection sfIntersection = sf.straightLineIntersection(pos,dir,false,false);
+    // we have a valid intersection - is it within tolerance ?
+    if (sfIntersection.valid){
+        // this is the boundary cylinder of the straw surface
+        double rSurface2 = sf.bounds().r()*sf.bounds().r();
+        // what's the distance - hess' normal form
+        const Amg::Vector3D& sCenter    =  sf.center();
+        const Amg::Vector3D  sDirection =  sf.transform().rotation().col(2);
+        // d^2 = | (dir) x 
+        double d2 = (sDirection.cross((sfIntersection.position-sCenter))).squaredNorm();
+        // check it 
+        bool acceptSurface = d2 < (m_outsideTolerance*m_outsideTolerance*rSurface2);
+        if (acceptSurface) cSurfaces.push_back( Trk::SurfaceIntersection(sfIntersection, &sf) );
+        // give the break signal if it's really inside
+        return ( d2 < (m_breakTolerance*m_breakTolerance*rSurface2) ? 0 : (sfIntersection.position.phi() > sf.center().phi() ? 1 : -1) );
+    }
+    // base the decision on the position phi value
+    return (pos.phi() > sf.center().phi() ? 1 : -1);                                            
 }
-

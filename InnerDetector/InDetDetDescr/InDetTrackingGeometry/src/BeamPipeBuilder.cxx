@@ -121,7 +121,7 @@ const std::vector< const Trk::CylinderLayer* >* InDet::BeamPipeBuilder::cylindri
             if (beamPipeTube)
                 beamPipeRadius = beamPipeTube->getRMax()-m_beamPipeEnvelope;
         }
-        ATH_MSG_VERBOSE("BeamPipe constructed from Database: translation (yes) - radius "<< ( beamPipeTube ? "(yes)" : "(no)") );        
+        ATH_MSG_VERBOSE("BeamPipe constructed from Database: translation (yes) - radius "<< ( beamPipeTube ? "(yes)" : "(no)") << " - r = " << beamPipeRadius );        
   } else 
       (*beamPipeTransform) = Amg::Translation3D(m_beamPipeOffsetX, m_beamPipeOffsetY, 0.);
 

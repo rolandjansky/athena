@@ -11,13 +11,11 @@
 
 // Trk
 #include "TrkGeometry/OverlapDescriptor.h"
-#include "TrkParameters/TrackParameters.h"
 // ID
 #include "InDetIdentifier/TRT_ID.h"
 
 namespace Trk {
   class Surface;
-  //class TrackParameters;
 }
 
 namespace InDet {
@@ -33,34 +31,41 @@ namespace InDet {
      class TRT_OverlapDescriptor : public Trk::OverlapDescriptor {
        public:
          /** Constructor */
-         TRT_OverlapDescriptor(const TRT_ID* helper) : 
-          m_trtIdHelper(helper)
+         TRT_OverlapDescriptor(const TRT_ID* helper, double bTolerance = 0.9, double oTolerance = 1.1) : 
+          m_trtIdHelper(helper),
+          m_breakTolerance(bTolerance),
+          m_outsideTolerance(oTolerance)
          {}
          /** Copy Constructor */
          TRT_OverlapDescriptor(const TRT_OverlapDescriptor& od) :
           Trk::OverlapDescriptor(),
-          m_trtIdHelper(od.m_trtIdHelper)
+          m_trtIdHelper(od.m_trtIdHelper),
+          m_breakTolerance(od.m_breakTolerance),
+          m_outsideTolerance(od.m_outsideTolerance)
          {}
+             
          /** Destructor */
          virtual ~TRT_OverlapDescriptor(){}
+         
          /**Pseudo-Constructor*/
          TRT_OverlapDescriptor* clone() const;
-     
-         /**Single interface method*/
-         const Trk::OverlapCell overlapSurface(const Trk::TrackParameters& tp,
-                                               const Trk::Surface* sfreq = 0,
-                                               Trk::PropDirection dir = Trk::alongMomentum) const;
 
-         /** Interface method for RISC logic */
-         const std::vector<Trk::OverlapCellCondition>& overlapCells(const Trk::TrackParameters& tp,
-                                                                    Trk::PropDirection dir = Trk::anyDirection,
-                                                                    const Trk::Surface* startSf = 0,
-                                                                    const Trk::Surface* endSf = 0) const;
-                                                                                                    
+         /** get the compatible surfaces */
+         bool reachableSurfaces(std::vector<Trk::SurfaceIntersection>& cSurfaces,
+                                const Trk::Surface& sf,
+                                const Amg::Vector3D& pos,
+                                const Amg::Vector3D& dir) const;
+                                  
        private:
+         // this checks if the surface intersection is within bounds, if it returns 0 break, otherwise +/- for checking in +/- of index
+         int checkAndFill(std::vector<Trk::SurfaceIntersection>& cSurfaces, 
+                          const Trk::Surface& sf,
+                          const Amg::Vector3D& pos,
+                          const Amg::Vector3D& dir) const;
+           
          mutable const TRT_ID* m_trtIdHelper;     //!< the Id helper
-         static  int           s_overlapCounter;  //!< static overlap counter
-         mutable std::vector<Trk::OverlapCellCondition> m_overlapCells;  //!< return object to be cleared                                             
+         double                m_breakTolerance;  //!< if the straight line intersection is within this fraction of the bounds - don't look for neighbours
+         double                m_outsideTolerance; //!< accept even if it outside the bounds by this tolerance
               
      };
 

@@ -10,22 +10,30 @@
 #define INDETTRACKINGGEOMETRY_PIXELOVERLAPDESCRIPTOR_H
 
 
+// Amg
+#include "GeoPrimitives/GeoPrimitives.h"
 // Trk
 #include "TrkGeometry/OverlapDescriptor.h"
-#include "TrkEventPrimitives/PropDirection.h"
-#include "TrkDetDescrUtils/BinnedArray.h"
-#include "TrkParameters/TrackParameters.h"
+#include "TrkDetDescrUtils/Intersection.h"
+
+#ifndef TRKDETDESCR_SIDETADDNEXTPHIETA
+#define TRKDETDESCR_SIDETADDNEXTPHIETA
+#define addSurface(cur,surfaces) if (cur) surfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(Amg::Vector3D(0.,0.,0.),0.,true),&(cur->surface(cur->identify()))))
+#define addOtherSide(cur, surfaces) if (cur && cur->otherSide()) surfaces.push_back(Trk::SurfaceIntersection(Trk::Intersection(Amg::Vector3D(0.,0.,0.),0.,true),&(cur->otherSide()->surface(cur->otherSide()->identify()))))
+#define addNextInPhi(cur, surfaces) addSurface(cur->nextInPhi(), surfaces); addOtherSide(cur->nextInPhi(),surfaces)
+#define addPrevInPhi(cur, surfaces) addSurface(cur->prevInPhi(), surfaces); addOtherSide(cur->prevInPhi(),surfaces)
+#define addNextInEta(cur, surfaces) addSurface(cur->nextInEta(), surfaces); addOtherSide(cur->nextInEta(),surfaces)
+#define addPrevInEta(cur, surfaces) addSurface(cur->prevInEta(), surfaces); addOtherSide(cur->prevInEta(),surfaces)
+#endif
+
 
 namespace Trk {
   class Surface;
 }
 
-namespace InDetDD {   
-     class SiDetectorElement;
-     class SiDetectorManager;
+namespace InDetDD {
+    class SiDetectorElement;
 }
-
-class PixelID;
 
 namespace InDet {
     
@@ -44,48 +52,32 @@ namespace InDet {
        public:
          
          /** Constructor (area restriction, LC check) */
-         PixelOverlapDescriptor(double loc1area=0.1, 
-                                double loc2area=0.1, 
-                                bool checkLC = true, 
-                                const Trk::BinnedArray<Trk::Surface>* ba = 0, 
-                                const PixelID* pixIdHelper = 0,
-                                const InDetDD::SiDetectorManager* pixMgr = 0, 
-                                int robustOverlaps=1);
-         
+         PixelOverlapDescriptor();
+
          /** Destructor */
          virtual ~PixelOverlapDescriptor(){}
          
          /**Pseudo-Constructor*/
          PixelOverlapDescriptor* clone() const;
-     
-         /**Single interface method*/
-        const Trk::OverlapCell overlapSurface(const Trk::TrackParameters& tp,
-                                              const Trk::Surface* sfreq=0,
-                                              Trk::PropDirection dir = Trk::alongMomentum) const;
-                                                 
-        /** Interface method for RISC logic */
-        const std::vector<Trk::OverlapCellCondition>& overlapCells(const Trk::TrackParameters& tp,
-                                                                   Trk::PropDirection dir = Trk::anyDirection,
-                                                                   const Trk::Surface* startSf = 0,
-                                                                   const Trk::Surface* endSf = 0) const;
-        
-      private:
 
-        mutable std::vector<Trk::OverlapCellCondition> m_overlapCells;  //!< return object to be cleared                                          
-        bool                                           m_checkLocalCoords; //!< check on local coordinates
-        double                                         m_loc1fraction;  //!< define outside fraction in 1st local coordinate
-        double                                         m_loc2fraction;  //!< define outside fraction in 2nd local coordinate
-   
-        const Trk::BinnedArray<Trk::Surface>*          m_binnedSurfaceArray; //!< never delete this
-        const InDetDD::SiDetectorManager*              m_pixMgr;
-        const PixelID*                                 m_pixIdHelper;  
+         /** get the compatible surfaces */
+         bool reachableSurfaces(std::vector<Trk::SurfaceIntersection>& cSurfaces, 
+                                const Trk::Surface& sf,
+                                const Amg::Vector3D& pos,
+                                const Amg::Vector3D& dir) const;
+                                  
 
-        int                                            m_robustOverlapMode; //!< check for overlap modules in a more robust way
+      private :                                  
+         void addPhiNeighbours(std::vector<Trk::SurfaceIntersection>& cSurfaces, 
+                               InDetDD::SiDetectorElement& sElement) const;
+
                                                       
      };
 
      
-inline PixelOverlapDescriptor* PixelOverlapDescriptor::clone() const { return new PixelOverlapDescriptor(); }     
+  inline PixelOverlapDescriptor* PixelOverlapDescriptor::clone() const { return new PixelOverlapDescriptor(); }     
+
+
 
 }
 

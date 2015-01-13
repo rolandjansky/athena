@@ -21,6 +21,14 @@
 #include <vector>
 #include <string>
 
+#ifndef TRKDETDESCR_TAKESMALLERBIGGER
+#define TRKDETDESCR_TAKESMALLERBIGGER
+#define takeSmaller(current,test) current = current < test ? current : test
+#define takeBigger(current,test)  current = current > test ? current : test
+#define takeSmallerBigger(cSmallest, cBiggest, test) takeSamller(cSmallest, cBiggest, test); takeBigger(cSmallest, cBiggest,test)
+#endif
+
+
 namespace Trk {
  class TrackingGeometry;
  class ILayerBuilder;
@@ -73,6 +81,7 @@ namespace InDet {
       Trk::GeometrySignature geometrySignature() const { return Trk::ID; }
       
     private:
+        
       /** Private method, creates and packs a triple containing of NegEndcap-Barrel-PosEndcap layers */
       const Trk::TrackingVolume* packVolumeTriple(const std::vector<const Trk::Layer*>& negLayers,
                                                   const std::vector<const Trk::Layer*>& centralLayers,
@@ -81,8 +90,6 @@ namespace InDet {
                                                   double zMin, double zPosCentral,
                                                   const std::string& baseName="UndefinedVolume",
                                                   int colorCode = 21,
-                                                  int barrelEntryLayerConfig = 0,
-                                                  int endcapEntryLayerConfig = 0,
                                                   Trk::BinningType bintype=Trk::arbitrary) const;      
       
       /** Private method, creates and packs a triple containing of NegEndcap-Barrel-PosEndcap volumes */
@@ -99,13 +106,7 @@ namespace InDet {
 
       // configurations for the layer builders
       std::vector<int>                               m_layerBinningType;         //!< binning type for the provided layers      
-      std::vector<int>                               m_barrelEntryLayerConfig;   //!< Barrel Entry Layer Config : (0 - no , 1 - cyl , 2 - disc)
-      std::vector<int>                               m_endcapEntryLayerConfig;   //!< Endcap Entry Layer Config : (0 - no , 1 - cyl , 2 - disc)
       std::vector<int>                               m_colorCodesConfig;         //!< Color codes    
-
-      // additional layers
-      std::vector<double>                            m_additionalEndcapCylinder; //!< fill gaps if needed
-      std::vector<double>                            m_additionalBarrelCylinder; //!< fill gaps if needed
 
       // enclosing endcap/cylinder layer 
       ServiceHandle<IEnvelopeDefSvc>                 m_enclosingEnvelopeSvc;                //!< the service to provide the ID envelope size
@@ -114,14 +115,15 @@ namespace InDet {
       int                                            m_enclosingEndcapEntryLayerConfig;     //!< the entry layer config for the enclosing volume
       std::vector<double>                            m_enclosingDiscPositionZ;              //!< the disc position inside the enclosing volume
       
+      double                                         m_layerEnvelopeCover;       //!< innermost - outermost 
+      bool                                           m_buildBoundaryLayers;      //!< create boundary layers 
+      bool                                           m_replaceJointBoundaries;   //!< run with replacement of all joint boundaries 
       
       // magnetic & material field configuration
       mutable Trk::Material*                         m_materialProperties;       //!< overal material properties of the ID
       mutable Trk::MagneticFieldProperties*          m_magneticFieldProperties;  //!< overal mag field properties of the ID
       // outer envelope        
-      double                                         m_outwardsFraction;         //!< defines how much you orient yourself in an outwards way (see above)                                                  
-      double                                         m_innerEnvelope;            //!< inner evnelop cover
-      double                                         m_outerEnvelope;            //!< outer envelope cover
+      double                                         m_outwardsFraction;         //!< defines how much you orient yourself in an outwards way (see above)                                    
       // robust layer indexing                                                   
       bool                                           m_indexStaticLayers;        //!< forces robust indexing for layers
       // naming schema                                                           

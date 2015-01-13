@@ -19,6 +19,13 @@
 // STL
 #include <vector>
 
+#ifndef TRKDETDESCR_TAKESMALLERBIGGER
+#define TRKDETDESCR_TAKESMALLERBIGGER
+#define takeSmaller(current,test) current = current < test ? current : test
+#define takeBigger(current,test)  current = current > test ? current : test
+#define takeSmallerBigger(cSmallest, cBiggest, test) takeSmaller(cSmallest, test); takeBigger(cBiggest, test)
+#endif
+
 namespace InDetDD {
   class TRT_DetectorManager;
 }
@@ -69,23 +76,25 @@ namespace InDet {
       const std::string& identification() const;      
       
     private:
-      const InDetDD::TRT_DetectorManager*           m_trtMgr;             //!< the TRT Manager
-      std::string                                   m_trtMgrLocation;     //!< the location of the TRT Manager     
+      const InDetDD::TRT_DetectorManager*           m_trtMgr;                   //!< the TRT Manager
+      std::string                                   m_trtMgrLocation;           //!< the location of the TRT Manager     
+                   
+      double                                        m_layerStrawRadius;         //!< straw radius                                                                            
+      double                                        m_layerThickness;           //!< modelled layer thickness
+      bool                                          m_modelGeometry;            //!< Build the geometry with model layers      
+      unsigned int                                  m_modelBarrelLayers;        //!< model barrel layers with material
+      unsigned int                                  m_modelEndcapLayers;        //!< model endcap layers with material
+                                                                                
+      unsigned int                                  m_barrelLayerBinsZ;         //!< Bins for the Barrel material - in z
+      unsigned int                                  m_barrelLayerBinsPhi;       //!< Bins for the Barrel material - in phi
+      unsigned int                                  m_endcapLayerBinsR;         //!< Bins for the Endcap material - in r
+      unsigned int                                  m_endcapLayerBinsPhi;       //!< Bins for the Endcap material - in phi
+      bool                                          m_endcapConly;              //!< Only build the endcapC
+                                                                                
+      bool                                          m_registerStraws;           //!< register the straws
+      int                                           m_barrelSectorAtPiBoundary; //!< this is the barrel Sector where +pi/-pi is within
       
-      double                                        m_layerThickness;     //!< modelled layer thickness
-      bool                                          m_modelGeometry;      //!< Build the geometry with model layers      
-      unsigned int                                  m_modelBarrelLayers;  //!< model barrel layers with material
-      unsigned int                                  m_modelEndcapLayers;  //!< model endcap layers with material
- 
-      unsigned int                                  m_barrelLayerBinsZ;    //!< Bins for the Barrel material - in z
-      unsigned int                                  m_barrelLayerBinsPhi;  //!< Bins for the Barrel material - in phi
-      unsigned int                                  m_endcapLayerBinsR;    //!< Bins for the Endcap material - in r
-      unsigned int                                  m_endcapLayerBinsPhi;  //!< Bins for the Endcap material - in phi
-      bool                                          m_endcapConly;         //!< Only build the endcapC
-      
-      bool                                          m_registerStraws;      //!< register the straws
-      
-      std::string                                   m_identification;      //!< string identification                        
+      std::string                                   m_identification;           //!< string identification                        
       
       
   };

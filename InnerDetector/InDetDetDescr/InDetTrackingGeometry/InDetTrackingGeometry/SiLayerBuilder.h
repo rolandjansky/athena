@@ -22,6 +22,12 @@
 class PixelID;
 class SCT_ID;
 
+#ifndef TRKDETDESCR_TAKESMALLERBIGGER
+#define TRKDETDESCR_TAKESMALLERBIGGER
+#define takeSmaller(current,test) current = current < test ? current : test
+#define takeBigger(current,test)  current = current > test ? current : test
+#define takeSmallerBigger(cSmallest, cBiggest, test) takeSmaller(cSmallest, test); takeBigger(cBiggest, test)
+#endif
 
 namespace InDetDD {
   class SiDetectorManager;
@@ -83,6 +89,11 @@ namespace InDet {
       const std::string& identification() const;      
         
     private:
+      std::vector< const Trk::CylinderLayer* >* dressCylinderLayers(const std::vector< const Trk::CylinderLayer* >& dLayers) const;
+      
+      /** create the disc layers, if no vector is given, then it's the first pass, else it's the DBM for the Pixels */
+      std::vector< const Trk::DiscLayer* >* createDiscLayers(std::vector<const Trk::DiscLayer* >* dLayers = NULL) const;
+        
       const Trk::LayerMaterialProperties* barrelLayerMaterial(double r, double hz) const;  //!< helper method to construct barrel material
       const Trk::LayerMaterialProperties* endcapLayerMaterial(double rMin, double rMax) const; //!< helper method to construct endcap material
         
@@ -99,25 +110,19 @@ namespace InDet {
                                                      
       // barrel layer section                        
       std::vector<double>                            m_barrelAdditionalLayerR;         //!< Create an additional layer at these radii
+      std::vector<int>                               m_barrelAdditionalLayerType;      //!< material layer 1 - navigation layer 0 
       size_t                                         m_barrelLayerBinsZ;               //!< Barrel bins for the material in z 
       size_t                                         m_barrelLayerBinsPhi;             //!< Barrel bins for the material in phi
-    
-      bool                                           m_barrelOverlapLocCheck;          //!< check the overlap in the barrel on local parameters 
-      double                                         m_barrelOverlapFractionLoc1;      //!< overlap fraction in local coordinate for the barrel (loc1)   
-      double                                         m_barrelOverlapFractionLoc2;      //!< overlap fraction in local coordinate for the barrel (loc2)
-
+      double                                         m_barrelEnvelope;                 //!< envelope around rMin/rMax
       double                                         m_barrelEdbTolerance;             //!< tolerance in percent how much the bin sizes can change
-
+                                                                                       //   to still allow for equidistant binning  
                                                      
       std::vector<double>                            m_endcapAdditionalLayerPosZ;      //!< Create additional endcaps at these z positions
+      std::vector<int>                               m_endcapAdditionalLayerType;      //!< material layer 1 - navigation layer 0 ( for volume adjustment )
       size_t                                         m_endcapLayerBinsR;               //!< Barrel bins for the material in r
       size_t                                         m_endcapLayerBinsPhi;             //!< Barrel bins for the material in phi
+      double                                         m_endcapEnvelope;                 //!< envelope around rMin/rMax
       bool                                           m_endcapComplexRingBinning;       //!< make std::vector<R> rings, could be different for layers
-      
-      bool                                           m_endcapOverlapLocCheck;          //!< check the overlap in the barrel on local parameters 
-      double                                         m_endcapOverlapFractionLoc1;      //!< overlap fraction in local coordinate for the barrel (loc1)   
-      double                                         m_endcapOverlapFractionLoc2;      //!< overlap fraction in local coordinate for the barrel (loc2)                                             
-                                                     
                                                      
       std::string                                    m_identification;                  //!< string identification  
       
@@ -127,17 +132,8 @@ namespace InDet {
            
       static std::vector<const Trk::CylinderLayer*>  s_splitCylinderLayers;             //!< cached SLHC/split cylinder layers for projective layout
       static std::vector<const Trk::DiscLayer*>      s_splitDiscLayers;                 //!< cached SLHC/split disc layers for projective layout
-
-      bool                                           m_customMaterial;                  //!< is there custom material assigned ?
-      double                                         m_customMaterialThickness;         //!< give a custom material : thickness
-      double                                         m_customMaterialX0;                //!< give a custom material : radiation length
-      double                                         m_customMaterialL0;                //!< give a custom material : interaction length
-      double                                         m_customMaterialA;                 //!< give a custom material : average A
-      double                                         m_customMaterialZ;                 //!< give a custom material : average Z
-      double                                         m_customMaterialRho;               //!< give a custom material : average density
                                                      
       bool                                           m_runGeometryValidation;           //!< run the validation of the geometry ( no empty bins)
-      bool                                           m_robustOverlaps;                 //!< check for possible overlap modules in a more robust way
             
                       
   };

@@ -8,8 +8,6 @@ use AthenaBaseComps        AthenaBaseComps-*       Control
 use GaudiInterface         GaudiInterface-*        External
 use GeoPrimitives          GeoPrimitives-*         DetectorDescription
 use InDetIdentifier        InDetIdentifier-*       InnerDetector/InDetDetDescr
-use TrkEventPrimitives     TrkEventPrimitives-*    Tracking/TrkEvent
-use TrkParameters          TrkParameters-*         Tracking/TrkEvent
 use TrkDetDescrInterfaces  TrkDetDescrInterfaces-* Tracking/TrkDetDescr
 use TrkDetDescrUtils       TrkDetDescrUtils-*      Tracking/TrkDetDescr
 use TrkGeometry            TrkGeometry-*           Tracking/TrkDetDescr
