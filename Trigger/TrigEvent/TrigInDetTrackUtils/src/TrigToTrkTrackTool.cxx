@@ -35,7 +35,7 @@
 
 TrigToTrkTrackTool::TrigToTrkTrackTool(const std::string& t, 
 		       const std::string& n,
-		       const IInterface*  p ): AlgTool(t,n,p)
+		       const IInterface*  p ): AthAlgTool(t,n,p)
 {
   declareInterface< TrigToTrkTrackTool >( this );
   declareProperty( "createRIO", m_createRIO = false );
@@ -54,15 +54,14 @@ const InterfaceID& TrigToTrkTrackTool::interfaceID()
 StatusCode TrigToTrkTrackTool::initialize()
 {
   StatusCode sc = AlgTool::initialize();
-  MsgStream athenaLog(msgSvc(), name());
-
-  athenaLog << MSG::INFO << "TrigToTrkTrackTool constructed "                      << endreq;
-  athenaLog << MSG::INFO << "Create RIO on track is set to " << m_createRIO   << endreq;
+  
+  msg(MSG::INFO) << "TrigToTrkTrackTool constructed " << endreq;
+  msg(MSG::INFO) << "Create RIO on track is set to " << m_createRIO   << endreq;
 
   ITrigTimerSvc* timerSvc;
   StatusCode  scTime = service( "TrigTimerSvc", timerSvc);
   if( scTime.isFailure() ) {
-    athenaLog << MSG::INFO<< "TrigTrackConvertor: Unable to locate Service TrigTimerSvc " << endreq;
+    msg(MSG::INFO) << "TrigTrackConvertor: Unable to locate Service TrigTimerSvc " << endreq;
     m_timers = false;
   } 
   else{
@@ -84,24 +83,24 @@ StatusCode TrigToTrkTrackTool::initialize()
   sc = service( "DetectorStore", detStore); 
   if( sc.isFailure() ) 
     {
-      athenaLog << MSG::ERROR << "  TrigToTrkTrackTool unable to locate DetectorStore" << endreq;
+      msg(MSG::ERROR) << "  TrigToTrkTrackTool unable to locate DetectorStore" << endreq;
       return sc;
     } 
 
   // Get SCT & pixel Identifier helpers                                                                                                        
                                                                                                                                               
   if (detStore->retrieve(m_pixelId, "PixelID").isFailure()) {
-     athenaLog << MSG::FATAL << "Could not get Pixel ID helper" << endreq;
-     return StatusCode::FAILURE;                                                                                                              
+    msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
+    return StatusCode::FAILURE;                                                                                                              
   }                                                                                                                                           
   if (detStore->retrieve(m_sctId, "SCT_ID").isFailure()) {
-     athenaLog << MSG::FATAL << "Could not get SCT ID helper" << endreq;                                                                      
-     return StatusCode::FAILURE;                                                                                                              
+    msg(MSG::FATAL) << "Could not get SCT ID helper" << endreq;                                                                      
+    return StatusCode::FAILURE;                                                                                                              
   }   
 
   IToolSvc* toolSvc;
   if(StatusCode::SUCCESS != service("ToolSvc",toolSvc)){
-    athenaLog << MSG::ERROR << " Can't get ToolSvc " << endreq;
+    msg(MSG::ERROR) << " Can't get ToolSvc " << endreq;
     return StatusCode::FAILURE;
   }
 
@@ -110,13 +109,13 @@ StatusCode TrigToTrkTrackTool::initialize()
       StatusCode scFit = toolSvc->retrieveTool(m_FitterName, m_FitterInstance, m_ITrkFitter);
       if (scFit.isFailure()) 
 	{
-	  athenaLog<<MSG::ERROR<<"Could not find refit tool of type "<<m_FitterName<<". Exiting."
+	  msg(MSG::ERROR)<<"Could not find refit tool of type "<<m_FitterName<<". Exiting."
 		   << endreq;
 	  return scFit;
 	} 
       else 
 	{
-	  athenaLog << MSG::INFO << "Refit tool \""<<m_FitterName<<" "
+	  msg(MSG::INFO) << "Refit tool \""<<m_FitterName<<" "
 		    <<m_FitterInstance<<"\" booked."
 		    << endreq;
 	}
@@ -146,8 +145,6 @@ void TrigToTrkTrackTool::execute(const TrigInDetTrackCollection* oldTracks,
   double Gk[5][5];
   double phi0,theta,a,b,c;
   int nTracks=0;
-
-  MsgStream log(msgSvc(), name());
 
   TrackCollection* newTracks=new TrackCollection;
   
@@ -359,8 +356,8 @@ void TrigToTrkTrackTool::execute(const TrigInDetTrackCollection* oldTracks,
      
       for(TrackCollection::const_iterator itr=(*newTracks).begin();itr<(*newTracks).end();itr++)
 	{
-	  if(log.level() <= MSG::VERBOSE)
-	    log << MSG::VERBOSE << "input track:" << **itr << endreq;
+
+	  ATH_MSG_VERBOSE( "input track:" << **itr );
 	  Trk::Track* newtrack;
 	  if ( m_timers ) m_timer[3]->resume();
 	  newtrack = m_ITrkFitter->fit(**itr,false, Trk::nonInteracting);
@@ -370,22 +367,22 @@ void TrigToTrkTrackTool::execute(const TrigInDetTrackCollection* oldTracks,
 	      fittedTracks->push_back(newtrack);
 	      const Trk::Perigee *aMeasPer=	newtrack->perigeeParameters();
 	      if (aMeasPer==0){
-		log << MSG::ERROR << "Could not get Trk::MeasuredPerigee" << endreq;
+		msg(MSG::ERROR) << "Could not get Trk::MeasuredPerigee" << endreq;
 		continue;
 	      }
 				if (aMeasPer->covariance()==nullptr) {
-					log << MSG::ERROR << "Could not get Trk::MeasuredPerigee" << endreq;
+				  msg(MSG::ERROR) << "Could not get Trk::MeasuredPerigee" << endreq;
 				}
 	      double d0 = aMeasPer->parameters()[Trk::d0];
 	      double z0 = aMeasPer->parameters()[Trk::z0];
 	      double phi0 = aMeasPer->parameters()[Trk::phi0];
 	      double theta = aMeasPer->parameters()[Trk::theta];
 	      double qOverP = aMeasPer->parameters()[Trk::qOverP];
-	      log << MSG::DEBUG << "Refitted parameters " << d0  << " " << z0  << " " << phi0 << " " << theta << " " << qOverP <<  endreq;
+	      msg(MSG::DEBUG) << "Refitted parameters " << d0  << " " << z0  << " " << phi0 << " " << theta << " " << qOverP <<  endreq;
 	    }
 	  else
 	    {
-	      log << MSG::INFO << "Offline fitter failed - TrkTrack will not be created" << endreq;
+	      msg(MSG::INFO) << "Offline fitter failed - TrkTrack will not be created" << endreq;
 	    }
 	}
       if ( m_timers ) m_timer[3]->propVal(nTracks);

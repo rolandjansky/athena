@@ -9,6 +9,7 @@ use TrkTrack TrkTrack-* Tracking/TrkEvent
 use TrigInDetEvent		TrigInDetEvent-*	Trigger/TrigEvent
 use TrkFitterUtils      TrkFitterUtils-*  Tracking/TrkFitter
 use TrkFitterInterfaces      TrkFitterInterfaces-*  Tracking/TrkFitter
+use AthenaBaseComps	     AthenaBaseComps-*	    Control
 
 use GaudiInterface GaudiInterface-* External
 

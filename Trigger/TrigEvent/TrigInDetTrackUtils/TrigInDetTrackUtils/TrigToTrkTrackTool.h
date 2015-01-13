@@ -20,8 +20,7 @@
 #ifndef TRIGTOTRKTRACKTOOL_H 
 #define TRIGTOTRKTRACKTOOL_H
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "TrkTrack/TrackCollection.h"
@@ -32,7 +31,7 @@
 
 class TrigTimer;
 
-class TrigToTrkTrackTool: public AlgTool
+class TrigToTrkTrackTool: public AthAlgTool
 {
  public:
   
