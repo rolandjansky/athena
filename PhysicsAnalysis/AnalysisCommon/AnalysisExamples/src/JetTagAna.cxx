@@ -83,15 +83,187 @@
 #include "HepMC/GenVertex.h"
 #include "HepMC/GenParticle.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include <map>
 #include <algorithm>
 
 JetTagAna::JetTagAna(const std::string& name,
-		     ISvcLocator* pSvcLocator) : Algorithm(name, pSvcLocator),
-						 m_trackTES(0) {
+		     ISvcLocator* pSvcLocator)
+  : AthAlgorithm(name, pSvcLocator),
+    m_irun(0),
+    m_ievt(0),
+    m_trackTES(nullptr),
+    m_mcpartTES(nullptr),
+    m_histos(nullptr),
+    m_h_global_counters(nullptr),
+    m_h_global_nprimvtx(nullptr),
+    m_h_global_xprimvtx(nullptr),
+    m_h_global_yprimvtx(nullptr),
+    m_h_global_zprimvtx(nullptr),
+    m_h_global_primvtxresx(nullptr),
+    m_h_global_primvtxresy(nullptr),
+    m_h_global_primvtxresz(nullptr),
+    m_h_global_nmcpart(nullptr),
+    m_h_global_ntrkpart(nullptr),
+    m_h_global_BLayerHits(nullptr),
+    m_h_global_BLayerSharedHits(nullptr),
+    m_h_global_PixelHits(nullptr),
+    m_h_global_PixelLayers(nullptr),
+    m_h_global_SiHits(nullptr),
+    m_h_global_TRTHits(nullptr),
+    m_h_global_nmuon(nullptr),
+    m_h_global_nelectron(nullptr),
+    m_h_global_njettag(nullptr),
+    m_h_truth_bquark_nb(nullptr),
+    m_h_truth_bquark_pt(nullptr),
+    m_h_truth_bquark_eta(nullptr),
+    m_h_truth_cquark_nb(nullptr),
+    m_h_truth_cquark_pt(nullptr),
+    m_h_truth_cquark_eta(nullptr),
+    m_h_truth_bhadr_nb(nullptr),
+    m_h_truth_bhadr_pt(nullptr),
+    m_h_truth_bhadr_eta(nullptr),
+    m_h_truth_chadr_nb(nullptr),
+    m_h_truth_chadr_pt(nullptr),
+    m_h_truth_chadr_eta(nullptr),
+    m_h_jet_ntotal(nullptr),
+    m_h_jet_label(nullptr),
+    m_h_jet_nlabelb(nullptr),
+    m_h_jet_nlabelc(nullptr),
+    m_h_jet_nlabelt(nullptr),
+    m_h_jet_ntag(nullptr),
+    m_h_jet_eta(nullptr),
+    m_h_jet_phi(nullptr),
+    m_h_jet_et(nullptr),
+    m_h_jet_ntracks(nullptr),
+    m_h_jet_tracks_pt(nullptr),
+    m_h_jet_tracks_BLayerHits(nullptr),
+    m_h_jet_tracks_PixelHits(nullptr),
+    m_h_jet_tracks_SCTHits(nullptr),
+    m_h_jet_nmuons(nullptr),
+    m_h_jet_muons_pt(nullptr),
+    m_h_jet_nelectrons(nullptr),
+    m_h_jet_electrons_pt(nullptr),
+    m_h_tag_jetprob_w(nullptr),
+    m_h_tag_i2d_w(nullptr),
+    m_h_tag_i2d_n(nullptr),
+    m_h_tag_i2d_b(nullptr),
+    m_h_tag_i2d_u(nullptr),
+    m_h_tag_i2d_sig(nullptr),
+    m_h_tag_i3d_w(nullptr),
+    m_h_tag_i3d_n(nullptr),
+    m_h_tag_i3d_b(nullptr),
+    m_h_tag_i3d_u(nullptr),
+    m_h_tag_i3d_sig(nullptr),
+    m_h_tag_sv1_w(nullptr),
+    m_h_tag_sv1_b(nullptr),
+    m_h_tag_sv1_u(nullptr),
+    m_h_tag_sv2_w(nullptr),
+    m_h_tag_sv2_b(nullptr),
+    m_h_tag_sv2_u(nullptr),
+    m_h_tag_sv_n(nullptr),
+    m_h_tag_sv_n2t(nullptr),
+    m_h_tag_sv_frc(nullptr),
+    m_h_tag_sv_m(nullptr),
+    m_h_tag_cmb_w(nullptr),
+    m_h_tag_lf2d_w(nullptr),
+    m_h_tag_svbu_w(nullptr),
+    m_h_tag_lhsig_w(nullptr),
+    m_h_tag_softm_w(nullptr),
+    m_h_tag_softe_w(nullptr),
+    m_h_tag_jetfitter_w(nullptr),
+    m_h_tag_jetfitcomb_w(nullptr),
+    m_h_tag_jetfitternn_w(nullptr),
+    m_h_tag_jetfitcombnn_w(nullptr),
+    m_h_tag_i2d_l2_w(nullptr),
+    m_h_tag_i3d_l2_w(nullptr),
+    m_h_tag_i2d_ef_w(nullptr),
+    m_h_tag_i3d_ef_w(nullptr),
+    m_h_tag_i2d_of_w(nullptr),
+    m_h_tag_i3d_of_w(nullptr),
+    m_h_tag_IPinfo_ntrk(),
+    m_h_tag_IPinfo_trkPt(),
+    m_h_tag_IPinfo_d0val(),
+    m_h_tag_IPinfo_z0val(),
+    m_h_tag_IPinfo_d0sig(),
+    m_h_tag_IPinfo_z0sig(),
+    m_h_tag_IPinfo_weight2D(),
+    m_h_tag_IPinfo_weight3D(),
+    m_h_tag_IPinfo_piJP(),
+    m_h_tag_IPinfo_fromV0(),
+    m_h_tag_IPinfo_grade(),
+    m_h_perf_b(),
+    m_h_perf_u(),
+    m_h_perf_upur(),
+    m_h_perf_vxeff_den_b(nullptr),
+    m_h_perf_vxeff_num_b(nullptr),
+    m_h_perf_vxeff_den_u(nullptr),
+    m_h_perf_vxeff_num_u(nullptr),
+    m_h_perf_vxeff_den_upur(nullptr),
+    m_h_perf_vxeff_num_upur(nullptr),
+    m_h_perf_rej10(nullptr),
+    m_h_perf_rej50(nullptr),
+    m_h_perf_rej60(nullptr),
+    m_h_perf_rejpur10(nullptr),
+    m_h_perf_rejpur50(nullptr),
+    m_h_perf_rejpur60(nullptr),
+    m_h_perfWt_10(nullptr),
+    m_h_perfWt_50(nullptr),
+    m_h_perfWt_60(nullptr),
+    m_h_perfWt_pur10(nullptr),
+    m_h_perfWt_pur50(nullptr),
+    m_h_perfWt_pur60(nullptr),
+    m_h_perf_b_ET(),
+    m_h_perf_b_eta(),
+    m_h_perf_b_phi(),
+    m_h_perf_u_ET(),
+    m_h_perf_u_eta(),
+    m_h_perf_u_phi(),
+    m_h_perf_upur_ET(),
+    m_h_perf_upur_eta(),
+    m_h_perf_upur_phi(),
+    m_h_eff_b_ET(),
+    m_h_eff_b_eta(),
+    m_h_eff_b_phi(),
+    m_h_rej_u_ET(),
+    m_h_rej_u_eta(),
+    m_h_rej_u_phi(),
+    m_h_rej_upur_ET(),
+    m_h_rej_upur_eta(),
+    m_h_rej_upur_phi(),
+    m_eventNumber(0),
+    m_runNumber(0),
+    m_njet(0),
+    m_jet_phi(),
+    m_jet_eta(),
+    m_jet_et(),
+    m_jet_flav(),
+    m_jet_isol(),
+    m_jet_ne(),
+    m_jet_eTrueEle(),
+    m_jet_eAnyEle(),
+    m_jet_eptr(),
+    m_jet_ept(),
+    m_jet_ea0(),
+    m_jet_ew(),
+    m_jet_elh(),
+    m_jet_epb(),
+    m_jet_epu(),
+    m_jet_tag_pid(),
+    m_jet_tag_mothpid(),
+    m_jet_NtrackEle(),
+    m_jet_trackElept(),
+    m_jet_trackEle(),
+    m_jet_Ntrack(),
+    m_jet_sumptTrack(),
+    m_nelej(),
+    m_ntrackj(),
+    m_nmuonj(),
+    p_nt1(nullptr),
+    m_UseTupleSET(false),
+    m_particleTable(nullptr)
+{
   declareProperty("JetContainer", m_particleJetContainerName = "Cone4H1TowerJets");
   declareProperty("MCParticleContainer", m_truthParticleContainerName = "SpclMC");
   declareProperty("TrackParticleContainer", m_trackParticleContainerName = "TrackParticleCandidate");
@@ -148,22 +320,8 @@ JetTagAna::JetTagAna(const std::string& name,
 JetTagAna::~JetTagAna() {}
 
 StatusCode JetTagAna::initialize() {
-  MsgStream mlog( messageService(), name() );
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) {
-    mlog << MSG::ERROR
-	 << "Unable to retrieve pointer to StoreGateSvc"
-	 << endreq;
-    return sc;
-  }
+  ATH_CHECK( service("THistSvc", m_histos, true) );
 
-  // THistSvc init:
-  sc = service("THistSvc", m_histos, true);
-  if ( sc.isFailure() ) {
-      mlog << MSG::WARNING << ">>> Unable to locate the Histogram service" << endreq;
-  }
-
-  // histograms:
   this->bookHistograms();
   return StatusCode::SUCCESS;
 }		 
@@ -176,13 +334,12 @@ double phiCorr(double phi){
 }
 
 StatusCode JetTagAna::finalize() {
-  MsgStream mlog( messageService(), name() );
   int nj  = (int)(m_h_jet_ntotal->GetMean()*m_h_jet_ntotal->Integral());
   int njb = (int)(m_h_jet_nlabelb->GetMean()*m_h_jet_nlabelb->Integral());
   int njc = (int)(m_h_jet_nlabelc->GetMean()*m_h_jet_nlabelc->Integral());
   int njt = (int)(m_h_jet_nlabelt->GetMean()*m_h_jet_nlabelt->Integral());
-  mlog << MSG::INFO << "##### APPROX. NB JETS LABELLED AS B: " << njb << " C: " << njc
-       << " TAU: " << njt << " TOTAL: " << nj << endreq;
+  ATH_MSG_INFO ( "##### APPROX. NB JETS LABELLED AS B: " << njb << " C: " << njc
+                 << " TAU: " << njt << " TOTAL: " << nj );
   this->computeRejections();
   return StatusCode::SUCCESS;
 }
@@ -190,26 +347,22 @@ StatusCode JetTagAna::finalize() {
 
 StatusCode JetTagAna::execute() {
 
-  MsgStream mlog( messageService(), name() );
-  mlog << MSG::DEBUG << "JetTagAna::execute()" << endreq;
+  ATH_MSG_DEBUG ( "JetTagAna::execute()" );
   StatusCode sc = StatusCode::SUCCESS;
   m_h_global_counters->Fill(1.);
 
   /** Retrieve Event header: */
-  const EventInfo* eventInfo;
-  sc = m_storeGate->retrieve(eventInfo);
+  const xAOD::EventInfo* eventInfo;
+  sc = evtStore()->retrieve(eventInfo);
   m_irun = 0;
   m_ievt = 0;
   if (sc.isFailure()) {
-    mlog << MSG::ERROR << "Could not retrieve event info" << endreq;
+    ATH_MSG_ERROR ( "Could not retrieve event info" );
   } else {
-    EventID* myEventID = eventInfo->event_ID();
-    if(myEventID) {
-      m_irun = myEventID->run_number();
-      m_ievt = myEventID->event_number();
-    }
+    m_irun = eventInfo->runNumber();
+    m_ievt = eventInfo->eventNumber();
   }
-  mlog << MSG::DEBUG << "--- Run " << m_irun << " Event " << m_ievt <<endreq;
+  ATH_MSG_DEBUG ( "--- Run " << m_irun << " Event " << m_ievt );
 
   /** Primary vertex: */
   double pvx = 0.;
@@ -217,12 +370,12 @@ StatusCode JetTagAna::execute() {
   double pvz = 0.;
   const VxContainer* vxContainer(0);
   int npvx = 0;
-  sc = m_storeGate->retrieve(vxContainer, m_primaryVertexContainerName);
+  sc = evtStore()->retrieve(vxContainer, m_primaryVertexContainerName);
   if (sc.isFailure()) {
-    mlog << MSG::ERROR << "Could not retrieve primary vertex info: " << m_primaryVertexContainerName << endreq;
+    ATH_MSG_ERROR ( "Could not retrieve primary vertex info: " << m_primaryVertexContainerName );
     return StatusCode::SUCCESS;
   } else {
-    mlog << MSG::VERBOSE << "Found primary vertex info: " << m_primaryVertexContainerName << endreq;
+    ATH_MSG_VERBOSE ( "Found primary vertex info: " << m_primaryVertexContainerName );
     m_h_global_counters->Fill(2.);
     if(vxContainer) {
       npvx = vxContainer->size();
@@ -237,10 +390,10 @@ StatusCode JetTagAna::execute() {
   m_h_global_xprimvtx->Fill(pvx);
   m_h_global_yprimvtx->Fill(pvy);
   m_h_global_zprimvtx->Fill(pvz);
-  mlog << MSG::VERBOSE << "--- Primary vertex: " << pvx << " " << pvy << " " << pvz << endreq;
+  ATH_MSG_VERBOSE ( "--- Primary vertex: " << pvx << " " << pvy << " " << pvz );
   // Check for undefined PV (when no PV is reconstructed, a dummy one is stored):
   if( pvx == 0 && pvy == 0 && pvz == 0 ) {
-    mlog << MSG::WARNING << "Primary Vertex is (0,0,0): skipping event." << endreq;
+    ATH_MSG_WARNING ( "Primary Vertex is (0,0,0): skipping event." );
     return StatusCode::SUCCESS;
   } else {
     m_h_global_counters->Fill(3.);
@@ -250,11 +403,11 @@ StatusCode JetTagAna::execute() {
   double ypvxt = 0.;
   double zpvxt = 0.;
   const McEventCollection* gen(0);
-  sc = m_storeGate->retrieve(gen, m_mcEventContainerName);
+  sc = evtStore()->retrieve(gen, m_mcEventContainerName);
   if( sc.isFailure() ) {
-    mlog << MSG::WARNING << "MC Event " << m_mcEventContainerName << " not found." << endreq; 
+    ATH_MSG_WARNING ( "MC Event " << m_mcEventContainerName << " not found." );
   } else {
-    mlog << MSG::VERBOSE << "MC Event " << m_mcEventContainerName << " found with " << gen->size() << " entries." << endreq; 
+    ATH_MSG_VERBOSE ( "MC Event " << m_mcEventContainerName << " found with " << gen->size() << " entries." );
     const HepMC::GenEvent* genEvent = *(gen->begin());
     if(genEvent) {
       HepMC::GenEvent::vertex_const_iterator vitr = genEvent->vertices_begin();
@@ -268,15 +421,15 @@ StatusCode JetTagAna::execute() {
   }
 
   /** MC Truth container: */
-  sc=m_storeGate->retrieve( m_mcpartTES, m_truthParticleContainerName);
+  sc=evtStore()->retrieve( m_mcpartTES, m_truthParticleContainerName);
   int nmcp = 0;
   if( sc.isFailure() ) {
-    mlog << MSG::WARNING << "TruthParticleContainer " << m_truthParticleContainerName 
-         << " not found." << endreq;
+    ATH_MSG_WARNING ( "TruthParticleContainer " << m_truthParticleContainerName 
+                      << " not found." );
   } else {
     nmcp = (*m_mcpartTES).size();
-    mlog << MSG::VERBOSE << "TruthParticleContainer " << m_truthParticleContainerName 
-         << " found with " << nmcp << " entries." << endreq;
+    ATH_MSG_VERBOSE ( "TruthParticleContainer " << m_truthParticleContainerName 
+                      << " found with " << nmcp << " entries." );
     m_h_global_counters->Fill(5.);
   }
   m_h_global_nmcpart->Fill((float)nmcp);
@@ -322,26 +475,25 @@ StatusCode JetTagAna::execute() {
 
   /** TrackParticleTruth container: */
   const TrackParticleTruthCollection* tpTruthColl(0);
-  sc = m_storeGate->retrieve(tpTruthColl,m_TPTruthContainer);
+  sc = evtStore()->retrieve(tpTruthColl,m_TPTruthContainer);
   if (!sc.isFailure() ) {
-    mlog << MSG::VERBOSE << "Number of TruthTrackParticles in event: " 
-	 << tpTruthColl->size() << endreq;
+    ATH_MSG_VERBOSE ( "Number of TruthTrackParticles in event: " 
+                      << tpTruthColl->size() );
   } else {
-    mlog << MSG::DEBUG << "Unable to retrieve TrackParticleTruthCollection" 
-	 << endreq;
+    ATH_MSG_DEBUG ( "Unable to retrieve TrackParticleTruthCollection" );
   }
 
   /** TrackParticle container: */
   int ntrkp = 0;
-  sc=m_storeGate->retrieve( m_trackTES, m_trackParticleContainerName);
+  sc=evtStore()->retrieve( m_trackTES, m_trackParticleContainerName);
   if( sc.isFailure() ) {
-    mlog << MSG::WARNING << "TrackParticleContainer " << m_trackParticleContainerName 
-         << " not found." << endreq;
+    ATH_MSG_WARNING ( "TrackParticleContainer " << m_trackParticleContainerName 
+                      << " not found." );
   } else {
     m_h_global_counters->Fill(6.);
     ntrkp = (*m_trackTES).size();
-    mlog << MSG::VERBOSE << "TrackParticleContainer " << m_trackParticleContainerName 
-         << " found with " << ntrkp << " entries." << endreq;
+    ATH_MSG_VERBOSE ( "TrackParticleContainer " << m_trackParticleContainerName 
+                      << " found with " << ntrkp << " entries." );
 
     /// iterators over the container 
     Rec::TrackParticleContainer::const_iterator trackItr  = m_trackTES->begin();
@@ -369,15 +521,13 @@ StatusCode JetTagAna::execute() {
   /** Muon Container: */
   const Analysis::MuonContainer* muonTDS=0;
   int nmuon=0;
-  sc=m_storeGate->retrieve( muonTDS, m_muonContainerName);
+  sc=evtStore()->retrieve( muonTDS, m_muonContainerName);
   if( sc.isFailure()  ||  !muonTDS ) {
-     mlog << MSG::WARNING
-          << "No AOD muon container of muons found in TDS"
-          << endreq; 
+    ATH_MSG_WARNING ( "No AOD muon container of muons found in TDS");
   }  
   else {
     nmuon = (*muonTDS).size();
-    mlog << MSG::DEBUG << "MuonContainer successfully retrieved, size = " << nmuon << endreq;
+    ATH_MSG_DEBUG ( "MuonContainer successfully retrieved, size = " << nmuon );
   } 
   m_h_global_nmuon->Fill((float) nmuon);  
 
@@ -385,30 +535,28 @@ StatusCode JetTagAna::execute() {
 
   const ElectronContainer* electronTDS=0;
   int nelectron=0;
-  sc=m_storeGate->retrieve( electronTDS, m_electronContainerName);
+  sc=evtStore()->retrieve( electronTDS, m_electronContainerName);
   if( sc.isFailure()  ||  !electronTDS ) {
-     mlog << MSG::WARNING
-          << "No AOD electron container of electrons found in TDS"
-          << endreq; 
+    ATH_MSG_WARNING ( "No AOD electron container of electrons found in TDS" );
   }  
   else {
     nelectron = (*electronTDS).size();
-    mlog << MSG::DEBUG << "ElectronContainer successfully retrieved, size = " << nelectron <<endreq;
+    ATH_MSG_DEBUG ( "ElectronContainer successfully retrieved, size = " << nelectron );
   } 
   m_h_global_nelectron->Fill((float) nelectron);  
 
   /** Jet container: */
   int njtag = 0;
   const JetCollection* jetTES;
-  sc=m_storeGate->retrieve( jetTES, m_particleJetContainerName);
+  sc=evtStore()->retrieve( jetTES, m_particleJetContainerName);
   if( sc.isFailure() ) {
-    mlog << MSG::ERROR << "JetContainer " << m_particleJetContainerName 
-         << " not found." << endreq;
+    ATH_MSG_ERROR ( "JetContainer " << m_particleJetContainerName 
+                    << " not found." );
     return StatusCode::SUCCESS;
   } else {  
     njtag = (*jetTES).size();
-    mlog << MSG::VERBOSE << "JetContainer " << m_particleJetContainerName 
-         << " found with " << njtag << " entries." << endreq;
+    ATH_MSG_VERBOSE ( "JetContainer " << m_particleJetContainerName 
+                      << " found with " << njtag << " entries." );
     m_h_global_counters->Fill(7.);
   }
   m_h_global_njettag->Fill((float)njtag);
@@ -436,7 +584,7 @@ StatusCode JetTagAna::execute() {
     if(mcinfo) {
       label = mcinfo->jetTruthLabel();
     } else {
-      mlog << MSG::VERBOSE << "could not find TruthInfo for matching jet" << endreq;
+      ATH_MSG_VERBOSE ( "could not find TruthInfo for matching jet" );
     }
     int iflav(0);
     if(label=="B") {
@@ -458,10 +606,9 @@ StatusCode JetTagAna::execute() {
     double dRminToT = mcinfo->deltaRMinTo("T");
 
     // --- get jet basic kinematics:
-    mlog << MSG::VERBOSE << "BJet # " << icount << " Eta= " << p4.pseudoRapidity()
-	 << " Phi= " << p4.phi() << " pT= " << p4.perp()
-	 << "  #Tags= " << ntag << " MCLabel= " << label 
-	 << endreq;
+    ATH_MSG_VERBOSE ( "BJet # " << icount << " Eta= " << p4.pseudoRapidity()
+                      << " Phi= " << p4.phi() << " pT= " << p4.perp()
+                      << "  #Tags= " << ntag << " MCLabel= " << label  );
     icount++;
     m_h_jet_eta->Fill(p4.pseudoRapidity());
     m_h_jet_phi->Fill(p4.phi());
@@ -533,26 +680,26 @@ StatusCode JetTagAna::execute() {
     double w_jetfitnn = (*jetItr)->getFlavourTagWeight("JetFitterTagNN");
     double w_jetfitcombnn = (*jetItr)->getFlavourTagWeight("JetFitterCOMBNN");
     double w_jetprob = (*jetItr)->getFlavourTagWeight("JetProb");
-    mlog << MSG::VERBOSE << "-> weights: "
-	 << " JetProb: " << w_jetprob
-	 << " IP2D: " << w_ip2d
-	 << " IP3D: " << w_ip3d
-	 << " SV1 : " << w_sv1
-	 << " SV2 : " << w_sv2
-	 << " SV1+IP3D : " << w_cmb
-	 << " | " 
-	 << " Lifetime2D : " << w_lf2d
-	 << " SecVtxTagBU : " << w_svbu
-	 << " lhSig : " << w_lhsig
-	 << " | " 
-	 << " SoftMuonTag : " << w_softm
-	 << " SoftElectronTag : " << w_softe
-	 << " | " 
-         << " JetFitterTag : "<< w_jetfit
-         << " JetFitterCOMB : "<< w_jetfitcomb
-         << " JetFitterTagNN : "<< w_jetfitnn
-         << " JetFitterCOMBNN : "<< w_jetfitcombnn
-	 << endreq;
+    ATH_MSG_VERBOSE ( "-> weights: "
+                      << " JetProb: " << w_jetprob
+                      << " IP2D: " << w_ip2d
+                      << " IP3D: " << w_ip3d
+                      << " SV1 : " << w_sv1
+                      << " SV2 : " << w_sv2
+                      << " SV1+IP3D : " << w_cmb
+                      << " | " 
+                      << " Lifetime2D : " << w_lf2d
+                      << " SecVtxTagBU : " << w_svbu
+                      << " lhSig : " << w_lhsig
+                      << " | " 
+                      << " SoftMuonTag : " << w_softm
+                      << " SoftElectronTag : " << w_softe
+                      << " | " 
+                      << " JetFitterTag : "<< w_jetfit
+                      << " JetFitterCOMB : "<< w_jetfitcomb
+                      << " JetFitterTagNN : "<< w_jetfitnn
+                      << " JetFitterCOMBNN : "<< w_jetfitcombnn
+                      );
     m_h_tag_jetprob_w->Fill(w_jetprob);
     m_h_tag_i2d_w->Fill(w_ip2d);
     m_h_tag_i3d_w->Fill(w_ip3d);
@@ -609,8 +756,8 @@ StatusCode JetTagAna::execute() {
 	  m_h_tag_i2d_n->Fill((float)ntrk);
 	  m_h_tag_i2d_b->Fill(pb);
 	  m_h_tag_i2d_u->Fill(pu);
-          mlog << MSG::VERBOSE << "-> InfoBase for IP2D:  #tracks= " << ntrk
-	       << " Pb= " << pb << " Pu= " << pu << endreq;
+          ATH_MSG_VERBOSE ( "-> InfoBase for IP2D:  #tracks= " << ntrk
+                            << " Pb= " << pb << " Pu= " << pu );
 	}
       }
       if(is3D) { // impact parameter 3D
@@ -623,8 +770,8 @@ StatusCode JetTagAna::execute() {
 	  m_h_tag_i3d_n->Fill((float)ntrk);
 	  m_h_tag_i3d_b->Fill(pb);
 	  m_h_tag_i3d_u->Fill(pu);
-          mlog << MSG::VERBOSE << "-> InfoBase for IP3D:  #tracks= " << ntrk
-	       << " Pb= " << pb << " Pu= " << pu << endreq;
+          ATH_MSG_VERBOSE ( "-> InfoBase for IP3D:  #tracks= " << ntrk
+                            << " Pb= " << pb << " Pu= " << pu );
 	}
       }
       if(isIPlus) {
@@ -632,8 +779,8 @@ StatusCode JetTagAna::execute() {
 	const Analysis::IPInfoPlus* infop = dynamic_cast<const Analysis::IPInfoPlus*>(infoVector[iInfo]);
 	if(infop) {
 	  int ntrk = infop->numTrackInfo();
-          mlog << MSG::VERBOSE << "-> InfoPlus for each track in IP2D/IP3D/JetProb:  #tracks= " 
-	       << ntrk << endreq;
+          ATH_MSG_VERBOSE ( "-> InfoPlus for each track in IP2D/IP3D/JetProb:  #tracks= " 
+                            << ntrk );
           int ibin;
           ibin = (int) ((p4.et())/1000.)/100;
           if(ibin>5) ibin=5;
@@ -671,19 +818,18 @@ StatusCode JetTagAna::execute() {
             m_h_tag_IPinfo_grade[ibin]->Fill((float) grd);
 
 	    // dump:
-	    mlog << MSG::VERBOSE << "    --> track " << itinf
+	    ATH_MSG_VERBOSE ( "    --> track " << itinf
 	         << " d0= " << d0val << " Signif(d0)= " << d0sig
 	         << " z0= " << z0val << " Signif(z0)= " << z0sig
 		 << " weight2D= " << wi2D
 		 << " weight3D= " << wi3D
 		 << " probJetProb= " << piJP
 		 << " grade= " << (std::string)grd
-		 << (vzero ? " fromV0 " : "");
+                              << (vzero ? " fromV0 " : "") );
 	    if(trk) {
-	      mlog << MSG::VERBOSE << " track pT= " << trk->pt()
-	  	   << " eta= " << trk->eta()
-		   << " phi= " << trk->phi()
-		   << endreq;
+	      ATH_MSG_VERBOSE ( " track pT= " << trk->pt()
+                                << " eta= " << trk->eta()
+                                << " phi= " << trk->phi() );
 	    }
 	  }
 	}
@@ -697,8 +843,8 @@ StatusCode JetTagAna::execute() {
 	  double pu = info->tagLikelihood()[1];
 	  m_h_tag_sv1_b->Fill(pb);
 	  m_h_tag_sv1_u->Fill(pu);
-          mlog << MSG::VERBOSE << "-> InfoBase for SV1: " 
-	       << " Pb= " << pb << " Pu= " << pu << endreq;
+          ATH_MSG_VERBOSE ( "-> InfoBase for SV1: " 
+                            << " Pb= " << pb << " Pu= " << pu );
 	}
       }
       if(isS2) {
@@ -709,8 +855,8 @@ StatusCode JetTagAna::execute() {
 	  double pu = info->tagLikelihood()[1];
 	  m_h_tag_sv2_b->Fill(pb);
 	  m_h_tag_sv2_u->Fill(pu);
-          mlog << MSG::VERBOSE << "-> InfoBase for SV2: " 
-	       << " Pb= " << pb << " Pu= " << pu << endreq;
+          ATH_MSG_VERBOSE ( "-> InfoBase for SV2: " 
+                            << " Pb= " << pb << " Pu= " << pu );
 	}
       }
       if(isSPlus) {
@@ -726,12 +872,12 @@ StatusCode JetTagAna::execute() {
 	  m_h_tag_sv_n2t->Fill((float)n2t);
 	  m_h_tag_sv_frc->Fill(efrc);
 	  m_h_tag_sv_m->Fill(mass);
-          mlog << MSG::VERBOSE << "-> InfoPlus for SV1/SV2: " 
-	       << " #tracks= " << ntrk
-	       << " mass= " << mass
-	       << " #n2t= " << n2t
-	       << " efrac= " << efrc
-	       << " tagOK= " << svok << endreq;
+          ATH_MSG_VERBOSE ( "-> InfoPlus for SV1/SV2: " 
+                            << " #tracks= " << ntrk
+                            << " mass= " << mass
+                            << " #n2t= " << n2t
+                            << " efrac= " << efrc
+                            << " tagOK= " << svok );
 	}
       }
      // soft electron b-tagging
@@ -746,8 +892,8 @@ StatusCode JetTagAna::execute() {
 	  double pu = info->tagLikelihood()[1];
 	  //m_h_tag_softe_b->Fill(pb);
 	  //m_h_tag_softe_u->Fill(pu);
-          mlog << MSG::VERBOSE << "-> InfoBase for SET: " 
-	       << " Pb= " << pb << " Pu= " << pu << endreq;
+          ATH_MSG_VERBOSE ( "-> InfoBase for SET: " 
+                            << " Pb= " << pb << " Pu= " << pu );
 	}
       }
     } // loop on tags
@@ -771,13 +917,13 @@ StatusCode JetTagAna::execute() {
     const DataHandle<TrigL2BjetContainer> trigL2Bjet;
     const DataHandle<TrigL2BjetContainer> lastTrigL2Bjet;
   
-    sc = m_storeGate->retrieve(trigL2Bjet,lastTrigL2Bjet);
+    sc = evtStore()->retrieve(trigL2Bjet,lastTrigL2Bjet);
     if (sc.isSuccess()) {
 
       //* Loop on TrigL2BjetContainer *//
       for (int j=1; trigL2Bjet != lastTrigL2Bjet; ++trigL2Bjet, ++j) {
       
-	mlog << MSG::VERBOSE << "Looking at TrigL2BjetContainer " << j << endreq;
+	ATH_MSG_VERBOSE ( "Looking at TrigL2BjetContainer " << j );
     
 	TrigL2BjetContainer::const_iterator pL2BjetItr    = trigL2Bjet->begin();
 	TrigL2BjetContainer::const_iterator lastL2BjetItr = trigL2Bjet->end();
@@ -785,14 +931,14 @@ StatusCode JetTagAna::execute() {
 	//* Loop on TrigL2Bjet (expected one per collection) *//
 	for (int k=1; pL2BjetItr != lastL2BjetItr; ++pL2BjetItr, ++k ) {
 	
-	  mlog << MSG::VERBOSE << "Looking at TrigL2Bjet " << k << "/" << trigL2Bjet->size() << endreq;
+	  ATH_MSG_VERBOSE ( "Looking at TrigL2Bjet " << k << "/" << trigL2Bjet->size() );
 	
-	  mlog << MSG::VERBOSE
-	       << "TrigL2Bjet->xIP1D() = " << (*pL2BjetItr)->xIP1D()
+	  ATH_MSG_VERBOSE
+            ( "TrigL2Bjet->xIP1D() = " << (*pL2BjetItr)->xIP1D()
 	       << "; TrigL2Bjet->xIP2D() = " << (*pL2BjetItr)->xIP2D()
 	       << "; TrigL2Bjet->xIP3D() = " << (*pL2BjetItr)->xIP3D() 
 	       << "; TrigL2Bjet->xCHI2() = " << (*pL2BjetItr)->xCHI2() 
-	       << endreq;
+              );
 	
 	  //* eta/phi matching w.r.t. offline b-jet *//
 	  double dR = sqrt(pow((*jetItr)->eta() - (*pL2BjetItr)->eta(),2) + pow(phiCorr(phiCorr((*jetItr)->phi()) - phiCorr((*pL2BjetItr)->phi())),2));
@@ -811,19 +957,19 @@ StatusCode JetTagAna::execute() {
 	}
       }
     
-      mlog << MSG::DEBUG << "deltaR L2 = " << m_deltaR << endreq;
+      ATH_MSG_DEBUG ( "deltaR L2 = " << m_deltaR );
 
     } else {
 
       isFoundL2 = false;
-      mlog << MSG::DEBUG << "No TrigL2BjetContainer found" << endreq;
+      ATH_MSG_DEBUG ( "No TrigL2BjetContainer found" );
 
     }
 
     if (m_deltaR > 0.1) {
       isFoundL2 = false;
       w_ip2d_l2 = -1; w_ip3d_l2 = -1;
-      mlog << MSG::DEBUG << "TrigL2BjetContainer not matched with offline" << endreq;
+      ATH_MSG_DEBUG ( "TrigL2BjetContainer not matched with offline" );
     }
   
     if (isFoundL2) {
@@ -838,13 +984,13 @@ StatusCode JetTagAna::execute() {
       const DataHandle<TrigEFBjetContainer> trigEFBjet;
       const DataHandle<TrigEFBjetContainer> lastTrigEFBjet;
     
-      sc = m_storeGate->retrieve(trigEFBjet,lastTrigEFBjet);
+      sc = evtStore()->retrieve(trigEFBjet,lastTrigEFBjet);
       if (sc.isSuccess()) {
 
 	//* Loop on TrigEFBjetContainer *//
 	for (int i=0; trigEFBjet != lastTrigEFBjet; ++trigEFBjet, ++i) {
 	  
-	  mlog << MSG::VERBOSE << "Looking at TrigEFBjetContainer " << i << endreq;
+	  ATH_MSG_VERBOSE ( "Looking at TrigEFBjetContainer " << i );
 	  
 	  TrigEFBjetContainer::const_iterator pEFBjetItr    = trigEFBjet->begin();
 	  TrigEFBjetContainer::const_iterator lastEFBjetItr = trigEFBjet->end();
@@ -852,17 +998,17 @@ StatusCode JetTagAna::execute() {
 	  //* Loop on TrigEFBjet (expected one per collection) *//    	
 	  for (int j=0; pEFBjetItr != lastEFBjetItr; ++pEFBjetItr, ++j ) {
 	    
-	    mlog << MSG::VERBOSE << "Looking at TrigEFBjet " << j << endreq;
+	    ATH_MSG_VERBOSE ( "Looking at TrigEFBjet " << j );
 	    
-	    mlog << MSG::VERBOSE
-		 << "TrigEFBjet->xIP1D() = " << (*pEFBjetItr)->xIP1D()
+	    ATH_MSG_VERBOSE
+              ( "TrigEFBjet->xIP1D() = " << (*pEFBjetItr)->xIP1D()
 		 << "; TrigEFBjet->xIP2D() = " << (*pEFBjetItr)->xIP2D()
 		 << "; TrigEFBjet->xIP3D() = " << (*pEFBjetItr)->xIP3D() 
 		 << "; TrigEFBjet->xCHI2() = " << (*pEFBjetItr)->xCHI2() 
 		 << "; TrigEFBjet->xMVtx() = " << (*pEFBjetItr)->xMVtx()
 		 << "; TrigEFBjet->xEVtx() = " << (*pEFBjetItr)->xEVtx()
 		 << "; TrigEFBjet->xNVtx() = " << (*pEFBjetItr)->xNVtx() 
-		 << endreq;
+                );
 	    
 	    //* eta/phi matching w.r.t. LVL2 b-jet *//	  
 	    double dR = sqrt(pow(m_etaRoI - (*pEFBjetItr)->eta(),2) + pow(phiCorr(phiCorr(m_phiRoI) - phiCorr((*pEFBjetItr)->phi())),2));
@@ -882,41 +1028,41 @@ StatusCode JetTagAna::execute() {
 	  }
 	}
   
-	mlog << MSG::DEBUG << "deltaR EF = " << m_deltaR << " " << w_ip3d_l2 << endreq;
+	ATH_MSG_DEBUG ( "deltaR EF = " << m_deltaR << " " << w_ip3d_l2 );
       
 	if (m_deltaR > 0.001) {
 	  w_ip2d_ef = -1; w_ip3d_ef = -1;
 	  w_jetProb_ef = -1;
 	  w_mVtx_ef = -1, w_eVtx_ef = -1, w_nVtx_ef = -1;
-	  mlog << MSG::DEBUG << "TrigEFBjetContainer found but not matched with offline (should never happen)" << endreq;      
+	  ATH_MSG_DEBUG ( "TrigEFBjetContainer found but not matched with offline (should never happen)" );
 	}
       } else {
-	mlog << MSG::INFO << "TrigEFBjetContainer not found" << endreq;      
+	ATH_MSG_INFO ( "TrigEFBjetContainer not found" );
       }
    
       m_deltaR = 9999;
 
       //* Retrieve from StoreGate LVL1 RoIs *//
       const LVL1_ROI* lvl1RoI = 0; 
-      sc = m_storeGate->retrieve(lvl1RoI);
+      sc = evtStore()->retrieve(lvl1RoI);
       
       LVL1_ROI::jets_type::const_iterator itrL1;
       
       if (sc.isFailure() || !lvl1RoI) {
-	mlog << MSG::WARNING << "No L1RoI found in TDS" << endreq;
+	ATH_MSG_WARNING ( "No L1RoI found in TDS" );
 	return StatusCode::SUCCESS;
       } else {
-	mlog << MSG::DEBUG << "L1RoI successfully retrieved in TDS" << endreq;
+	ATH_MSG_DEBUG ( "L1RoI successfully retrieved in TDS" );
 	
 	LVL1_ROI::jets_type::const_iterator pL1Jet    = (lvl1RoI->getJetROIs()).begin();
 	LVL1_ROI::jets_type::const_iterator lastL1Jet = (lvl1RoI->getJetROIs()).end();
 	
-	mlog << MSG::VERBOSE << "get L1 Jet size : " << (lvl1RoI->getJetROIs()).size() << endreq;
+	ATH_MSG_VERBOSE ( "get L1 Jet size : " << (lvl1RoI->getJetROIs()).size() );
 	
 	for (int i=1; pL1Jet != lastL1Jet; ++pL1Jet, ++i) {
 	  
-	  mlog << MSG::VERBOSE << "Looking at LVL1 RoI " << i << "/" << (lvl1RoI->getJetROIs()).size() << endreq;
-	  mlog << MSG::VERBOSE << "L1 ET8x8 : " << (*pL1Jet).getET8x8() << endreq;
+	  ATH_MSG_VERBOSE ( "Looking at LVL1 RoI " << i << "/" << (lvl1RoI->getJetROIs()).size() );
+	  ATH_MSG_VERBOSE ( "L1 ET8x8 : " << (*pL1Jet).getET8x8() );
 	  
 	  if ((*pL1Jet).getET8x8() <= 18000) continue;
 	  
@@ -928,8 +1074,7 @@ StatusCode JetTagAna::execute() {
 	  }
 	}
 	
-	mlog << MSG::DEBUG << "deltaR L1 = " << m_deltaR << endreq;
-
+	ATH_MSG_DEBUG ( "deltaR L1 = " << m_deltaR );
       }
     }
 
@@ -1105,15 +1250,14 @@ JetTagAna::checkSoftElectron(const std::vector<const JetTagInfoBase*> infoVector
   // add information in a tuple
   //
   
-  MsgStream mlog( messageService(), name() );
   const Analysis::SoftElectronInfo* info = dynamic_cast<const Analysis::SoftElectronInfo*>(infoVector[iInfo]);
   
   if (!info) return;
   if (!electronTDS) return;
 
-  mlog << MSG::DEBUG << name() << " SoftElectronTag info ! " 
-       << iInfo << " "  << infoVector[iInfo] 
-       << " " << infoVector[iInfo]->infoType() << " " << ntotal << endreq;
+  ATH_MSG_DEBUG ( name() << " SoftElectronTag info ! " 
+                  << iInfo << " "  << infoVector[iInfo] 
+                  << " " << infoVector[iInfo]->infoType() << " " << ntotal );
   
   // ntuple variables initialisation 
   m_jet_eptr[ntotal-1]        = 0;
@@ -1170,13 +1314,13 @@ JetTagAna::checkSoftElectron(const std::vector<const JetTagInfoBase*> infoVector
     m_jet_epu[ntotal-1] = info->tagLikelihood()[1];//bkg part of J-B LH
     m_jet_elh[ntotal-1]=getTotWeight(m_jet_epb[ntotal-1],m_jet_epu[ntotal-1]);
   }
-  mlog << MSG::VERBOSE << "Elec xcheck " << m_jet_ew[ntotal-1] 
-       << " " << m_jet_elh[ntotal-1]<<endreq; 
+  ATH_MSG_VERBOSE ( "Elec xcheck " << m_jet_ew[ntotal-1] 
+                    << " " << m_jet_elh[ntotal-1]);
 
   // Flag the jet as containing ELECTRON if DR <= 0.4
   // and e mother pid is between 400 and 600 or 4000 and 6000 	      
-  mlog << MSG::VERBOSE << " in container you have electrons : " 
-       << electronTDS->size() << endreq;
+  ATH_MSG_VERBOSE ( " in container you have electrons : " 
+                    << electronTDS->size() );
   // loop on electron container
   ElectronContainer::const_iterator elecItr  = electronTDS->begin();
   ElectronContainer::const_iterator elecItrE = electronTDS->end();
@@ -1368,7 +1512,6 @@ StatusCode JetTagAna::checkTrackqualforSET(Rec::TrackParticleContainer::const_it
   // Beware that requirements could be slightly different 
   // than for other taggers (in particular for TRT)
   //
-  MsgStream mlog( messageService(), name() );
 
   // good quality track cuts
   double cutA0       = 1;
@@ -1438,14 +1581,14 @@ void JetTagAna::computeRejections() {
   double r10, e10, w10, r50, e50, w50, r60, e60, w60;
   int nbj = (int)m_h_perf_b[0]->Integral();
   int nbu = (int)m_h_perf_u[0]->Integral();
-  mlog << MSG::INFO << "##### STANDARD REJECTIONS #####  #B-JETS: " << nbj << " #U-JETS: " << nbu << endreq;
+  ATH_MSG_INFO ( "##### STANDARD REJECTIONS #####  #B-JETS: " << nbj << " #U-JETS: " << nbu );
   for(int i=0;i<MAX_numTaggers;i++) {
     if(i>4&&i<8) continue;
     this->getRej(m_h_perf_u[i], m_h_perf_b[i], r10, e10, w10, r50, e50, w50, r60, e60, w60);
-    mlog << MSG::INFO << "- Tag " << m_tagger[i] << ": light-jet rejection" << endreq;
+    ATH_MSG_INFO ( "- Tag " << m_tagger[i] << ": light-jet rejection" );
     if(i<8 || i>9) { 
-	mlog << MSG::INFO << "   for a 50% b-tag efficiency (w>" << w50 << "): " << r50 << "+-" << e50 << endreq;
-	mlog << MSG::INFO << "   for a 60% b-tag efficiency (w>" << w60 << "): " << r60 << "+-" << e60 << endreq;
+        ATH_MSG_INFO ( "   for a 50% b-tag efficiency (w>" << w50 << "): " << r50 << "+-" << e50 );
+        ATH_MSG_INFO ( "   for a 60% b-tag efficiency (w>" << w60 << "): " << r60 << "+-" << e60 );
 
 	// fill some plots here - VJ Apr. 2007
 	//
@@ -1571,7 +1714,7 @@ void JetTagAna::computeRejections() {
       }
     else
       {
-	mlog << MSG::INFO << "   for a 10% b-tag efficiency (w>" << w10 << "): " << r10 << "+-" << e10 << endreq;
+	ATH_MSG_INFO ( "   for a 10% b-tag efficiency (w>" << w10 << "): " << r10 << "+-" << e10 );
 
         m_h_perfWt_10->SetBinContent(i-7,w10);// start with bin 1
         if(r10<100000) {
@@ -1583,14 +1726,14 @@ void JetTagAna::computeRejections() {
     //
   }
   int nbupur = (int)m_h_perf_upur[0]->Integral();
-  mlog << MSG::INFO << "##### REJECTIONS AFTER PURIFICATION #####  #B-JETS: " << nbj << " #U-JETS: " << nbupur << endreq;
+  ATH_MSG_INFO ( "##### REJECTIONS AFTER PURIFICATION #####  #B-JETS: " << nbj << " #U-JETS: " << nbupur );
   for(int i=0;i<MAX_numTaggers;i++) {
     if(i>4&&i<8) continue;
     this->getRej(m_h_perf_upur[i], m_h_perf_b[i], r10, e10, w10, r50, e50, w50, r60, e60, w60);
-    mlog << MSG::INFO << "- Tag " << m_tagger[i] << ": light-jet rejection" << endreq;
+    ATH_MSG_INFO ( "- Tag " << m_tagger[i] << ": light-jet rejection" );
     if(i<8 || i>9) { 
-	mlog << MSG::INFO << "   for a 50% b-tag efficiency (w>" << w50 << "): " << r50 << "+-" << e50 << endreq;
-	mlog << MSG::INFO << "   for a 60% b-tag efficiency (w>" << w60 << "): " << r60 << "+-" << e60 << endreq;
+        ATH_MSG_INFO ( "   for a 50% b-tag efficiency (w>" << w50 << "): " << r50 << "+-" << e50 );
+        ATH_MSG_INFO ( "   for a 60% b-tag efficiency (w>" << w60 << "): " << r60 << "+-" << e60 );
 	// fill some plots - VJ Apr. 2007
 	m_h_perfWt_pur50->SetBinContent(i+1,w50);
 	if(r50<100000) {
@@ -1605,7 +1748,7 @@ void JetTagAna::computeRejections() {
       }
     else
       {
-	mlog << MSG::INFO << "   for a 10% b-tag efficiency (w>" << w10 << "): " << r10 << "+-" << e10 << endreq;
+	ATH_MSG_INFO ( "   for a 10% b-tag efficiency (w>" << w10 << "): " << r10 << "+-" << e10 );
         m_h_perfWt_pur10->SetBinContent(i-7,w10);// start with bin 1
         if(r10<100000) {
 	  m_h_perf_rejpur10->SetBinContent(i-7,r10); // start with bin 1
@@ -1647,17 +1790,38 @@ void JetTagAna::getRej(TH1F* uw, TH1F* bw,
     }
   }
 
-  w10 = uw->GetBinCenter(bi10);
-  ru10  = (ru[bi10]*(efb[bi10-1]-0.1)+ru[bi10-1]*(0.1-efb[bi10]))/(efb[bi10-1]-efb[bi10]);
-  eru10 = (eru[bi10]*(efb[bi10-1]-0.1)+eru[bi10-1]*(0.1-efb[bi10]))/(efb[bi10-1]-efb[bi10]);
+  if (bi10 > 0) {
+    w10 = uw->GetBinCenter(bi10);
+    ru10  = (ru[bi10]*(efb[bi10-1]-0.1)+ru[bi10-1]*(0.1-efb[bi10]))/(efb[bi10-1]-efb[bi10]);
+    eru10 = (eru[bi10]*(efb[bi10-1]-0.1)+eru[bi10-1]*(0.1-efb[bi10]))/(efb[bi10-1]-efb[bi10]);
+  }
+  else {
+    w10 = 0;
+    ru10 = 0;
+    eru10 = 0;
+  }
 
-  w50 = uw->GetBinCenter(bi50);
-  ru50  = (ru[bi50]*(efb[bi50-1]-0.5)+ru[bi50-1]*(0.5-efb[bi50]))/(efb[bi50-1]-efb[bi50]);
-  eru50 = (eru[bi50]*(efb[bi50-1]-0.5)+eru[bi50-1]*(0.5-efb[bi50]))/(efb[bi50-1]-efb[bi50]);
+  if (bi50 > 0) {
+    w50 = uw->GetBinCenter(bi50);
+    ru50  = (ru[bi50]*(efb[bi50-1]-0.5)+ru[bi50-1]*(0.5-efb[bi50]))/(efb[bi50-1]-efb[bi50]);
+    eru50 = (eru[bi50]*(efb[bi50-1]-0.5)+eru[bi50-1]*(0.5-efb[bi50]))/(efb[bi50-1]-efb[bi50]);
+  }
+  else {
+    w50 = 0;
+    ru50 = 0;
+    eru50 = 0;
+  }
 
-  w60 = uw->GetBinCenter(bi60);
-  ru60  = (ru[bi60]*(efb[bi60-1]-0.6)+ru[bi60-1]*(0.6-efb[bi60]))/(efb[bi60-1]-efb[bi60]);
-  eru60 = (eru[bi60]*(efb[bi60-1]-0.6)+eru[bi60-1]*(0.6-efb[bi60]))/(efb[bi60-1]-efb[bi60]);
+  if (bi60 > 0) {
+    w60 = uw->GetBinCenter(bi60);
+    ru60  = (ru[bi60]*(efb[bi60-1]-0.6)+ru[bi60-1]*(0.6-efb[bi60]))/(efb[bi60-1]-efb[bi60]);
+    eru60 = (eru[bi60]*(efb[bi60-1]-0.6)+eru[bi60-1]*(0.6-efb[bi60]))/(efb[bi60-1]-efb[bi60]);
+  }
+  else {
+    w60 = 0;
+    ru60 = 0;
+    eru60 = 0;
+  }
 }
 
 void JetTagAna::bookHistograms() {
@@ -2128,17 +2292,16 @@ bool JetTagAna::isLightJetIsolated(const CLHEP::HepLorentzVector& p) {
 }
 
 bool JetTagAna::isJetFarFromHPTLepton(const Jet* jet) {
-  MsgStream mlog( messageService(), name() );
   const Analysis::SoftLeptonTruthInfo* sltinfo = jet->tagInfo<Analysis::SoftLeptonTruthInfo>("SoftLeptonTruthInfo");
   if (sltinfo) {
     int nslt = sltinfo->numSLTrueInfo();
-    mlog << MSG::VERBOSE << "SoftLeptonTruthInfo exists. Found " << nslt << " true leptons in jet" << endreq; 
+    ATH_MSG_VERBOSE ( "SoftLeptonTruthInfo exists. Found " << nslt << " true leptons in jet" );
     for (int islt = 0; islt < nslt; islt++) {
       const Analysis::SLTrueInfo slt = sltinfo->getSLTrueInfo(islt);
-      mlog << MSG::VERBOSE << "SLT info " << slt.pdgId() 
-           << " " << slt.momentum().perp() 
-           << " " << slt.FromB() << " " << slt.FromD() << " " << slt.FromGH()
-           << endreq; 
+      ATH_MSG_VERBOSE ( "SLT info " << slt.pdgId() 
+                        << " " << slt.momentum().perp() 
+                        << " " << slt.FromB() << " " << slt.FromD() << " " << slt.FromGH()
+                        );
       if ( (abs(slt.pdgId()) == 13 || abs(slt.pdgId()) == 11 || abs(slt.pdgId()) == 15 ) && // Electron Or Muon from direct decay of W/Z/H
            !(slt.FromB()) &&
            !(slt.FromD()) &&
@@ -2155,7 +2318,7 @@ bool JetTagAna::isJetFarFromHPTLepton(const Jet* jet) {
     }
   }
   else {
-    mlog << MSG::DEBUG<<"Could not find SoftLeptonTruthInfo: no lepton purification can be done." << endreq;
+    ATH_MSG_DEBUG("Could not find SoftLeptonTruthInfo: no lepton purification can be done." );
   } 
   return true;
 }

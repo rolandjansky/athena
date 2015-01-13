@@ -18,7 +18,7 @@ use SGTools             SGTools-*               Control
 
 use xAODTracking     xAODTracking-*          Event/xAOD
 
-use IsolationTool		IsolationTool-*			Reconstruction/RecoTools	
+use RecoToolInterfaces		RecoToolInterfaces-*		Reconstruction/RecoTools	
 use AnalysisUtils		AnalysisUtils-*			PhysicsAnalysis/AnalysisCommon
 use AnalysisTools		AnalysisTools-*			PhysicsAnalysis/AnalysisCommon
 #use UserAnalysisUtils	UserAnalysisUtils-*		PhysicsAnalysis/AnalysisCommon
@@ -26,7 +26,7 @@ use AnalysisTools		AnalysisTools-*			PhysicsAnalysis/AnalysisCommon
 
 #use EventKernel			EventKernel-*			Event
 use NavFourMom   		NavFourMom-*  			Event
-use EventInfo			EventInfo-*			    Event
+use xAODEventInfo               xAODEventInfo-*         Event/xAOD
 
 use GeneratorObjects 	GeneratorObjects-* 		Generators
 use TruthHelper 		TruthHelper-* 			Generators/GenAnalysisTools

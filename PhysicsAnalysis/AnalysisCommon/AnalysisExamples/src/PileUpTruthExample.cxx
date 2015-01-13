@@ -9,7 +9,6 @@
 
 #include "GeneratorObjects/McEventCollection.h"
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/DataSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 
@@ -21,45 +20,27 @@
 using namespace TruthHelper;
 
 PileUpTruthExample::PileUpTruthExample(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator)
+  AthAlgorithm(name, pSvcLocator)
 {
   declareProperty("McEventKey",     m_key="TruthEvent");
 }
 
 PileUpTruthExample::~PileUpTruthExample() {}
 
-StatusCode PileUpTruthExample::initialize(){
-
-  MsgStream log(messageService(), name());
-  log << MSG::INFO << "in initialize" << endreq;
-
-  StatusCode sc = service("StoreGateSvc", m_sgSvc);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not find StoreGateSvc" << endreq;
-    return sc;
-  }
-  // Initialization terminated
+StatusCode PileUpTruthExample::initialize()
+{
   return StatusCode::SUCCESS;
 }
 
-StatusCode PileUpTruthExample::finalize(){
-
-  MsgStream log(messageService(), name());
-  log << MSG::INFO << "in finalize" << endreq;
-
+StatusCode PileUpTruthExample::finalize()
+{
   return StatusCode::SUCCESS;
 }
 
 StatusCode PileUpTruthExample::execute() {
 
-  MsgStream log(messageService(), name());
-
-  const McEventCollection* mcCollptr;
-  if ( m_sgSvc->retrieve(mcCollptr, m_key).isFailure() ) {
-    log << MSG::ERROR << "Could not retrieve McEventCollection"
-	<< endreq;
-    return StatusCode::FAILURE;
-  }
+  const McEventCollection* mcCollptr = 0;
+  ATH_CHECK (evtStore()->retrieve(mcCollptr, m_key));
 
   /** initialize a pileup type helper object */ 
   PileUpType pileupType( mcCollptr );
@@ -72,9 +53,9 @@ StatusCode PileUpTruthExample::execute() {
      float yi = (prodVtx->position()).y();
      float zi = (prodVtx->position()).z();
 
-     log << MSG::INFO << "signal vertex is " << xi << " " << yi << " " << zi
-         << " process ID = " << signal->signal_process_id()
-         << " McEvent index = " << signal->event_number() << endreq;
+     ATH_MSG_INFO ("signal vertex is " << xi << " " << yi << " " << zi
+                   << " process ID = " << signal->signal_process_id()
+                   << " McEvent index = " << signal->event_number());
   }
 
   // in-time minbias
@@ -87,9 +68,9 @@ StatusCode PileUpTruthExample::execute() {
        float xi = (prodVtx->position()).x();
        float yi = (prodVtx->position()).y();
        float zi = (prodVtx->position()).z();
-       log << MSG::INFO << "pileup vertex is " << xi << " " << yi << " " << zi
-           << " process ID = " << (*ibeg)->signal_process_id()
-           << " McEvent index = " << (*ibeg)->event_number() << endreq;
+       ATH_MSG_INFO ("pileup vertex is " << xi << " " << yi << " " << zi
+                     << " process ID = " << (*ibeg)->signal_process_id()
+                     << " McEvent index = " << (*ibeg)->event_number());
     }
   }
 
@@ -100,8 +81,7 @@ StatusCode PileUpTruthExample::execute() {
   pileupType.in_time_particles( particleList, isStable );
 
   /** now do something with the list */
-  std::cout << " " << std::endl;
-  log << MSG::INFO << "Number of stable in-time pileup particles = " << particleList.size();
+  ATH_MSG_INFO ("Number of stable in-time pileup particles = " << particleList.size());
 
   /** As another example, retrieve the in-time McEvents and print their contents 
       note that no selection is made in this case */

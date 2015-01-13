@@ -17,13 +17,13 @@
 // HepMC / CLHEP includes
 
 // FrameWork includes
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
 // Forward declaration
 class ITruthParticleCnvTool;
 
-class WriteTruthParticles : public Algorithm
+class WriteTruthParticles : public AthAlgorithm
 { 
 
   /////////////////////////////////////////////////////////////////// 

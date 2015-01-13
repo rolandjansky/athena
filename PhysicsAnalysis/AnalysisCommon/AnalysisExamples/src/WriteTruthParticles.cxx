@@ -30,7 +30,7 @@
 ////////////////
 WriteTruthParticles::WriteTruthParticles( const std::string& name, 
 					  ISvcLocator* pSvcLocator ) : 
-  Algorithm( name, pSvcLocator ),
+  AthAlgorithm( name, pSvcLocator ),
   m_cnvTool( "TruthParticleCnvTool/CnvTool", this )
 {
   //
@@ -49,25 +49,18 @@ WriteTruthParticles::WriteTruthParticles( const std::string& name,
 ///////////////
 WriteTruthParticles::~WriteTruthParticles()
 { 
-  MsgStream msg( msgSvc(), name() );
-  msg << MSG::DEBUG << "Calling destructor" << endreq;
+  ATH_MSG_DEBUG ( "Calling destructor" );
 }
 
 // Athena Algorithm's Hooks
 ////////////////////////////
 StatusCode WriteTruthParticles::initialize()
 {
-  MsgStream msg( msgSvc(), name() );
-
-  msg << MSG::INFO 
-      << "Initializing " << name() << "..." 
-      << endreq;
+  ATH_MSG_INFO ( "Initializing " << name() << "..."  );
 
   /// retrieve the converter tool
   if ( !m_cnvTool.retrieve().isSuccess() ) {
-    msg << MSG::ERROR
-	<< "Could not retrieve the truth particle converter tool !!"
-	<< endreq;
+    ATH_MSG_ERROR ( "Could not retrieve the truth particle converter tool !!" );
     return StatusCode::FAILURE;
   }
 
@@ -76,28 +69,20 @@ StatusCode WriteTruthParticles::initialize()
 
 StatusCode WriteTruthParticles::finalize()
 {
-  MsgStream msg( msgSvc(), name() );
-  msg << MSG::INFO 
-      << "Finalizing " << name() << "..." 
-      << endreq;
-
+  ATH_MSG_INFO ( "Finalizing " << name() << "..." );
   return StatusCode::SUCCESS;
 }
 
 StatusCode WriteTruthParticles::execute()
 {  
-  MsgStream msg( msgSvc(), name() );
-
-  msg << MSG::DEBUG << "Executing " << name() << "..." 
-      << endreq;
+  ATH_MSG_DEBUG ( "Executing " << name() << "..."  );
 
   // create a TruthParticleContainer from a McEventCollection
   if ( 0 == m_cnvTool || 
        !m_cnvTool->execute().isSuccess() ) {
-    msg << MSG::WARNING 
-	<< "Could not convert a McEventCollection into "
-	<< "a TruthParticleContainer !"
-	<< endreq;
+    ATH_MSG_WARNING 
+      ( "Could not convert a McEventCollection into "
+	<< "a TruthParticleContainer !"	);
     return StatusCode::RECOVERABLE;
   }
 

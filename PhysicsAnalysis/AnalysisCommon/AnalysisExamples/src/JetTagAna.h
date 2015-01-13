@@ -11,7 +11,7 @@
    Created: 2005/10/11
  */
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "CLHEP/Vector/LorentzVector.h"
 #include <string>
@@ -43,7 +43,7 @@ class Jet;
 static const int MAX_numTaggers = 28;
 static const int MAX_numHLTTaggers = 13;
 
-class JetTagAna : public Algorithm {
+class JetTagAna : public AthAlgorithm {
 
  public:
 
@@ -75,7 +75,6 @@ class JetTagAna : public Algorithm {
 
   std::string m_tagger[MAX_numTaggers]; // number of taggers. Many histograms (below) have same size
   std::string m_jetET[6];
-  StoreGateSvc* m_storeGate;
 
   std::string m_particleJetContainerName;
   std::string m_truthParticleContainerName;

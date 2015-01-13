@@ -40,11 +40,7 @@
 #include "AnalysisUtils/AnalysisCombination.h"
 
 // Event Info
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventType.h"
-#include "EventInfo/TriggerInfo.h"
-
+#include "xAODEventInfo/EventInfo.h"
 
 // the header file
 #include "VFitZmmOnAOD.h"
@@ -68,7 +64,54 @@ using namespace Analysis;
 VFitZmmOnAOD::VFitZmmOnAOD(const std::string& name,ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator),
   m_analysisTools( "AnalysisTools", this ),
-  m_VKVrtFitter("Trk::TrkVKalVrtFitter", this)
+  m_thistSvc(nullptr),
+  m_VKVrtFitter("Trk::TrkVKalVrtFitter", this),
+  m_tree_Zll(nullptr),
+  m_v0_x(0),
+  m_v0_y(0),
+  m_v0_z(0),
+  m_nZ(0),
+  m_Zmode(nullptr),
+  m_Zm_vkfit(nullptr),
+  m_Zchi2_vkfit(nullptr),
+  m_Zdxy_vkfit(nullptr),
+  m_Zdz_vkfit(nullptr),
+  m_Zm(nullptr),
+  m_Zpt(nullptr),
+  m_Zpx(nullptr),
+  m_Zpy(nullptr),
+  m_Zpz(nullptr),
+  m_Zp(nullptr),
+  m_Ze(nullptr),
+  m_Zeta(nullptr),
+  m_L1pt_vkfit(nullptr),
+  m_L1pt(nullptr),
+  m_L1px(nullptr),
+  m_L1py(nullptr),
+  m_L1pz(nullptr),
+  m_L1p(nullptr),
+  m_L1e(nullptr),
+  m_L1eta(nullptr),
+  m_L2pt_vkfit(nullptr),
+  m_L2pt(nullptr),
+  m_L2px(nullptr),
+  m_L2py(nullptr),
+  m_L2pz(nullptr),
+  m_L2p(nullptr),
+  m_L2e(nullptr),
+  m_L2eta(nullptr),
+  m_runNumber(0),
+  m_eventNumber(0),
+  m_eventTime(0),
+  m_lumiBlock(0),
+  m_bCID(0),
+  m_lVL1ID(0),
+  m_eventWeight(0),
+  m_aod_muon_pt(nullptr),
+  m_aod_muon_eta(nullptr),
+  m_aod_muon_chi2(nullptr),
+  m_aod_zmm_mass_hist(nullptr),
+  m_aod_muon_charge(nullptr)
 {
   // switches to control the analysis through job options :: these are the default
   // to changed in the job options
@@ -587,7 +630,7 @@ StatusCode VFitZmmOnAOD::addEventInfo() {
 
   //get EventInfo for run and event number
 
-  const EventInfo* eventInfo;
+  const xAOD::EventInfo* eventInfo;
   StatusCode sc = evtStore()->retrieve(eventInfo);
   
   if (sc.isFailure())
@@ -596,21 +639,13 @@ StatusCode VFitZmmOnAOD::addEventInfo() {
       return sc;
     }
   
-  const EventID* myEventID=eventInfo->event_ID();
   //
-  m_runNumber=myEventID->run_number();
-  m_eventNumber=myEventID->event_number();
-  m_eventTime= myEventID->time_stamp() ; 
-  m_lumiBlock=myEventID->lumi_block() ;
-  m_bCID=myEventID->bunch_crossing_id() ;
-
-  const EventType* myEventType=eventInfo->event_type();
-  if (myEventType!=0) {
-    m_eventWeight=myEventType->mc_event_weight();
-  }else
-    {
-      m_eventWeight=-999;
-    }
+  m_runNumber=eventInfo->runNumber();
+  m_eventNumber=eventInfo->eventNumber();
+  m_eventTime=eventInfo->timeStamp() ; 
+  m_lumiBlock=eventInfo->lumiBlock() ;
+  m_bCID=eventInfo->bcid();
+  m_eventWeight=eventInfo->mcEventWeight();
 
   /* Remove this information from the ntuple. This is non-optimal. VJ Mar 29, 2012
   // Got this impression by talking to Attila K.

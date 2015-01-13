@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrackExample.cxx 604985 2014-07-04 15:20:52Z krasznaa $
+// $Id: TrackExample.cxx 637956 2015-01-07 05:11:27Z ssnyder $
 
 // ROOT include(s):
 #include <TH1.h>
@@ -17,7 +17,21 @@ TrackExample::TrackExample( const std::string& name,
                             ISvcLocator* pSvcLocator)
    : AthHistogramAlgorithm( name, pSvcLocator ), 
      m_analysisTools( "AnalysisTools", this ),  
-     m_isolationTool( "xAOD::TrackIsolationTool/TrackIsolationTool", this ) {
+     m_isolationTool( "xAOD::TrackIsolationTool/TrackIsolationTool", this ),
+     m_histNumberOfTrackParticles(0),
+     m_histQoverP(0),
+     m_histP(0),
+     m_histQ(0),
+     m_histEta(0),
+     m_histPhi(0),
+     m_histIsolationP(0),
+     m_histOriginType(0),
+     m_histVertexX(0),
+     m_histVertexY(0),
+     m_histVertexZ(0),
+     m_histd0wrtPrimVtx(0),
+     m_histz0wrtPrimVtx(0)
+{
 
    /// switches to control the analysis through job options
    declareProperty( "AnalysisTools", m_analysisTools );
@@ -133,11 +147,12 @@ StatusCode TrackExample::execute() {
       const std::vector< xAOD::Iso::IsolationType > isoType = {
          static_cast< xAOD::Iso::IsolationType >( m_isolationCone )
       };
+      xAOD::TrackCorrection corrlist;
+      corrlist.trackbitset.set(static_cast<unsigned int>(xAOD::Iso::IsolationTrackCorrection::coreTrackPtr));
       xAOD::TrackIsolation isol;
-      if( ! m_isolationTool->trackIsolation( isol, *trackParticle, isoType ) ) {
+      if( ! m_isolationTool->trackIsolation( isol, *trackParticle, isoType, corrlist ) ) {
          ATH_MSG_WARNING( "Unable to execute track isolation calculation" );
          isol.ptcones.push_back( 0.0 );
-         isol.nucones.push_back( 0 );
       }
 
       m_histIsolationP->Fill( isol.ptcones[ 0 ], m_eventWeight );

@@ -38,7 +38,16 @@ using namespace Analysis;
 /// Constructor
 
 ZeeOnESD::ZeeOnESD(const std::string& name,
-  ISvcLocator* pSvcLocator) : AthAlgorithm(name, pSvcLocator)
+  ISvcLocator* pSvcLocator)
+  : AthAlgorithm(name, pSvcLocator),
+    m_thistSvc(nullptr),
+    m_esd_egamma_pt(nullptr),
+    m_esd_egamma_eta(nullptr),
+    m_esd_egamma_overp(nullptr),
+    m_esd_egamma_isEM(nullptr),
+    m_esd_zee_mass_hist(nullptr),
+    m_histEgammaTrackP(nullptr),
+    m_histEgammaClusterE(nullptr)
 {
   /// switches to control the analysis through job options :: these are the default
   /// to changed in the job options

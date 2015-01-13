@@ -19,11 +19,11 @@
 // Date: February 2008                                                    *
 //*************************************************************************
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 class StoreGateSvc;
 
-class PileUpTruthExample : public Algorithm {
+class PileUpTruthExample : public AthAlgorithm {
 public:
         PileUpTruthExample(const std::string& name, ISvcLocator* pSvcLocator);
         ~PileUpTruthExample(); 
@@ -32,8 +32,6 @@ public:
         StatusCode finalize();
 
 private:
-  StoreGateSvc* m_sgSvc;
-
   // McEventCollection key 
   std::string m_key; 
 

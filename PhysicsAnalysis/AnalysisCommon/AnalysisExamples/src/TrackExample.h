@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrackExample.h 604985 2014-07-04 15:20:52Z krasznaa $
+// $Id: TrackExample.h 626373 2014-11-05 17:13:41Z neldik $
 #ifndef ANALYSISEXAMPLES_TRACKEXAMPLE_H
 #define ANALYSISEXAMPLES_TRACKEXAMPLE_H
 
@@ -17,7 +17,7 @@
 
 // Tool include(s):
 #include "AnalysisTools/AnalysisTools.h"
-#include "IsolationTool/ITrackIsolationTool.h"
+#include "RecoToolInterfaces/ITrackIsolationTool.h"
 
 // Forward declaration(s):
 class TH1;
@@ -33,8 +33,8 @@ class TH1;
  * @author Ketevi A. Assamagan: February, 2005
  * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
  *
- * $Revision: 604985 $
- * $Date: 2014-07-04 17:20:52 +0200 (Fri, 04 Jul 2014) $
+ * $Revision: 626373 $
+ * $Date: 2014-11-05 18:13:41 +0100 (Wed, 05 Nov 2014) $
  */
 class TrackExample : public AthHistogramAlgorithm {
 

@@ -29,7 +29,7 @@
 #include "ParticleEvent/ParticleBaseContainer.h"
 #include "JetEvent/JetCollection.h"
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ObjectVector.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "CLHEP/Units/SystemOfUnits.h"
@@ -44,7 +44,7 @@
 typedef std::vector<const JetCollection::base_value_type*> JetVect;
 typedef std::vector<const IParticleContainer::base_value_type*> ParticleVect;
 
-class MiscellaneousExamples : public Algorithm {
+class MiscellaneousExamples : public AthAlgorithm {
 
  public:
 
@@ -72,9 +72,6 @@ class MiscellaneousExamples : public Algorithm {
 
    /// get a handle to the tool helper
    ToolHandle<AnalysisTools> m_analysisTools;
-
-   /// a handle on Store Gate 
-   StoreGateSvc* m_storeGate;
 
    /// a handle on the Hist/TTree registration service
    ITHistSvc * m_thistSvc;
