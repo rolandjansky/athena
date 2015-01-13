@@ -4,7 +4,10 @@ use AtlasPolicy         AtlasPolicy-*
 use PyCmt               PyCmt-*         Tools -no_auto_imports
 
 include_path none
-apply_pattern include_path extras=$(CMTINSTALLAREA)/$(CMTCONFIG)/include
+macro AtlasEigen_include $(AtlasEigen_cmtpath)/InstallArea/$(CMTCONFIG)/include
+apply_pattern include_path extras=$(AtlasEigen_include)
+
+apply_pattern set_root_include_path
 
 private
 
