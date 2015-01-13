@@ -306,6 +306,11 @@ namespace LVL1 {
 	    m_strawNumber = BarrelStrawNumber(m_straw, m_straw_layer, m_layer_or_wheel);
             m_chip = mat_chip_barrel[m_phi_module][m_strawNumber];
             m_board = BarrelChipToBoard(m_chip);
+            if (m_board < 0) { 
+              if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Failure in BarrelChipToBoard" << endreq;
+              return StatusCode::FAILURE;
+            }
+
 	    
 	    if ((p_lolum)->trailingEdge() - (p_lolum)->driftTimeBin() > 4 ) {
               m_barrel_trigger_board[m_side][m_phi_module][m_board]++;
