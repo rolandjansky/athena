@@ -18,6 +18,8 @@ namespace D3PD{
       m_hfor_tool("HforTool/hforTool")
   {
     declareProperty("hforTool", m_hfor_tool);
+
+    book().ignore(); // Avoid coverity warnings.
   }
 
 

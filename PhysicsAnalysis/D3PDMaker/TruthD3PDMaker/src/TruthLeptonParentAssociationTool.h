@@ -16,8 +16,9 @@
 #define EVENTCOMMOND3PDMAKER_TRUTHLEPTONPARENTASSOCIATIONTOOL_H
 
 #include "D3PDMakerUtils/MultiAssociationTool.h"
+#include "McParticleEvent/TruthParticle.h"
 
-class TruthParticle;
+
 namespace HepMC {
   class GenParticle;
 }

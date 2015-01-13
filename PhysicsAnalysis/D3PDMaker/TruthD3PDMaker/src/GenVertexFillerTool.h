@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: GenVertexFillerTool.h 586037 2014-03-03 23:23:18Z zmarshal $
+// $Id: GenVertexFillerTool.h 639305 2015-01-13 20:08:46Z ssnyder $
 /**
  * @file EventCommonD3PDMaker/src/GenVertexFillerTool.h
  * @author scott snyder <snyder@bnl.gov>
@@ -18,9 +18,7 @@
 
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
-namespace HepMC {
-  class GenVertex;
-}
+#include "HepMC/GenVertex.h"
 
 
 namespace D3PD {

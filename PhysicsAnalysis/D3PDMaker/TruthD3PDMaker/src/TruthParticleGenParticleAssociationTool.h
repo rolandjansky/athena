@@ -18,11 +18,8 @@
 
 
 #include "D3PDMakerUtils/SingleAssociationTool.h"
-class TruthParticle;
-namespace HepMC
-{
-  class GenParticle;
-} // namespace HepMC
+#include "McParticleEvent/TruthParticle.h"
+#include "HepMC/GenParticle.h"
 
 
 namespace D3PD {

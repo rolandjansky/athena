@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: GenParticleTruthParticleAssociationTool.h 348274 2011-02-28 16:25:06Z krasznaa $
+// $Id: GenParticleTruthParticleAssociationTool.h 639305 2015-01-13 20:08:46Z ssnyder $
 /**
  * @file EventCommonD3PDMaker/GenParticleTruthParticleAssociationTool.h
  * @author scott snyder <snyder@bnl.gov>
@@ -18,16 +18,14 @@
 
 
 #include "D3PDMakerUtils/SingleAssociationTool.h"
+#include "McParticleEvent/TruthParticle.h"
+#include "HepMC/GenParticle.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include <string>
 class TruthParticle;
 class TruthParticleContainer;
-namespace HepMC
-{
-  class GenParticle;
-} // namespace HepMC
 class Incident;
 class IIncidentSvc;
 

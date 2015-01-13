@@ -13,9 +13,9 @@
 #define TRUTHD3PDMAKER_TRUTHLEPTONNEARBYASSOCIATIONTOOL_H
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
+#include "McParticleEvent/TruthParticle.h"
 #include <vector>
 
-class TruthParticle;
 
 namespace HepMC {
   class GenParticle;

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: GenEventGenParticleAssociationTool.h 348274 2011-02-28 16:25:06Z krasznaa $
+// $Id: GenEventGenParticleAssociationTool.h 639305 2015-01-13 20:08:46Z ssnyder $
 /**
  * @file EventCommonD3PDMaker/src/GenEventGenParticleAssociationTool.h
  * @author scott snyder <snyder@bnl.gov>
@@ -19,10 +19,7 @@
 
 #include "D3PDMakerUtils/MultiAssociationTool.h"
 #include "HepMC/GenEvent.h"
-namespace HepMC
-{
-  class GenParticle;
-} // namespace HepMC
+#include "HepMC/GenParticle.h"
 
 
 namespace D3PD {

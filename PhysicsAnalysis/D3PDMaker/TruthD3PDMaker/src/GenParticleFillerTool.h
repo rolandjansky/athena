@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: GenParticleFillerTool.h 564204 2013-10-04 14:17:24Z dhayden $
+// $Id: GenParticleFillerTool.h 639305 2015-01-13 20:08:46Z ssnyder $
 /**
  * @file EventCommonD3PDMaker/src/GenParticleFillerTool.h
  * @author scott snyder <snyder@bnl.gov>
@@ -17,9 +17,7 @@
 
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
-namespace HepMC {
-  class GenParticle;
-}
+#include "HepMC/GenParticle.h"
 
 
 namespace D3PD {

@@ -15,9 +15,9 @@
 
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
+#include "JetEvent/Jet.h"
 #include <vector>
 
-class Jet;
 
 namespace D3PD {
 

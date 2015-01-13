@@ -17,12 +17,9 @@ from AthenaCommon.Constants          import ERROR
 
 mckey = resolveSGKey ('DataVector<xAOD::TruthParticle_v1>', D3PDMakerFlags.TruthSGKey())
 
-from MCTruthClassifier.MCTruthClassifierBase import exToCalo
-
 
 from TruthD3PDAnalysis import D3PDMCTruthClassifier
 D3PDMCTruthClassifier = D3PDMCTruthClassifier (name = 'D3PDMCTruthClassifier',
-                                               ExtrapolateToCaloTool = exToCalo,
                                                xAODTruthParticleContainerName = mckey,
                                                pTNeutralPartCut = 1e-3,
                                                OutputLevel = ERROR,

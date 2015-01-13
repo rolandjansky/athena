@@ -28,6 +28,8 @@ use TrkToolInterfaces          TrkToolInterfaces-*     Tracking/TrkTools
 
 use JetEvent                   JetEvent-*              Reconstruction/Jet
 use HepPDT                     *                       LCG_Interfaces
+
+use TruthUtils                 TruthUtils-*            Generators
 end_private
 
 

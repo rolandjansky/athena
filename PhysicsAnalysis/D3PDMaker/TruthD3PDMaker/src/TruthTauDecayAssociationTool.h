@@ -12,15 +12,14 @@
  * @brief Associate from a tau to its hadronic decay products.
  */
 
-#ifndef EVENTCOMMOND3PDMAKER_TRUTHTAUDECAYASSOCIATIONTOOL_H
-#define EVENTCOMMOND3PDMAKER_TRUTHTAUDECAYASSOCIATIONTOOL_H
+#ifndef TRUTHD3PDMAKER_TRUTHTAUDECAYASSOCIATIONTOOL_H
+#define TRUTHD3PDMAKER_TRUTHTAUDECAYASSOCIATIONTOOL_H
 
 #include "D3PDMakerUtils/MultiAssociationTool.h"
+#include "McParticleEvent/TruthParticle.h"
+#include "HepMC/GenParticle.h"
 
-class TruthParticle;
-namespace HepMC {
-  class GenParticle;
-}
+
 namespace D3PD {
 
 /**
@@ -78,5 +77,5 @@ private:
 
 } // namespace D3PD
 
-#endif // not EVENTCOMMOND3PDMAKER_TRUTHTAUDECAYASSOCIATIONTOOL_H
+#endif // not TRUTHD3PDMAKER_TRUTHTAUDECAYASSOCIATIONTOOL_H
 

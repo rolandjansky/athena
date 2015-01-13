@@ -14,6 +14,7 @@
 #include "GeneratorObjects/McEventCollection.h"
 #include "HepMC/GenParticle.h"
 #include "McParticleEvent/TruthParticle.h"
+#include "TruthUtils/PIDUtils.h"
 
 #include <iostream>
 #include <cmath>
@@ -77,9 +78,11 @@ StatusCode TruthLeptonNearbyAssociationTool::fill (const TruthParticle& p)
 
         if (dR2>=0.09) continue; // Save a little time
 
-        // Isolation section
-        *m_iso03 = (*m_iso03)+(*currentGenParticleIter)->momentum().perp();
-        if (dR2<0.04) *m_iso02 = (*m_iso02)+(*currentGenParticleIter)->momentum().perp();
+        // Isolation section - exclude neutrinos
+        if (!MC::PID::isNeutrino( (*currentGenParticleIter)->pdg_id() ) ){
+          *m_iso03 = (*m_iso03)+(*currentGenParticleIter)->momentum().perp();
+          if (dR2<0.04) *m_iso02 = (*m_iso02)+(*currentGenParticleIter)->momentum().perp();
+        }
 
         // Dressing section
         if ((*currentGenParticleIter)->pdg_id()!=22) continue; // Only photons

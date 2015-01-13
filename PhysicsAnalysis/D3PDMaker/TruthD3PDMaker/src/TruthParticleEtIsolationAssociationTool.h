@@ -19,8 +19,8 @@
 
 #include "D3PDMakerUtils/SingleAssociationTool.h"
 #include "McParticleEvent/TruthParticleParamDefs.h"
+#include "McParticleEvent/TruthParticle.h"
 #include "GaudiKernel/ToolHandle.h"
-class TruthParticle;
 
 
 namespace D3PD {

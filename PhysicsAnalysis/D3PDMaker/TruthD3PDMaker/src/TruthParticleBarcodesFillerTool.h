@@ -14,8 +14,9 @@
 
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
+#include "McParticleEvent/TruthParticle.h"
 #include <vector>
-class TruthParticle;
+
 
 namespace D3PD {
 

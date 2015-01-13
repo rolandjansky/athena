@@ -15,12 +15,12 @@
 
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
+#include "HepMC/GenParticle.h"
 #include <vector>
-namespace HepMC {
-  class GenParticle;
-}
+
 
 namespace D3PD {
+
 
 class TruthParticleFakerTool : public BlockFillerTool<HepMC::GenParticle>
 {

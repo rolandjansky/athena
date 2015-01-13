@@ -16,9 +16,9 @@
 
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
+#include "McParticleEvent/TruthParticle.h"
 #include "xAODTruth/TruthParticle.h"
 #include "GaudiKernel/ServiceHandle.h"
-class TruthParticle;
 class IPartPropSvc;
 
 

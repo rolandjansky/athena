@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: GenEventGetterFilterTool.h 348274 2011-02-28 16:25:06Z krasznaa $
+// $Id: GenEventGetterFilterTool.h 639305 2015-01-13 20:08:46Z ssnyder $
 /**
  * @file EventCommonD3PDMaker/src/GenEventGetterFilterTool.h
  * @author scott snyder <snyder@bnl.gov>
@@ -14,10 +14,7 @@
 
 
 #include "D3PDMakerUtils/CollectionGetterFilterTool.h"
-namespace HepMC
-{
-  class GenEvent;
-}
+#include "HepMC/GenEvent.h"
 
 
 #ifndef EVENTCOMMOND3PDMAKER_GENEVENTGETTERFILTERTOOL_H
