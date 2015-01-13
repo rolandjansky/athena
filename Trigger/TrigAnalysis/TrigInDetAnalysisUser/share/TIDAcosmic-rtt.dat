@@ -41,7 +41,9 @@ testChains = {
     //"Offline",
     //"Muons",
     //"Electrons",
-    "HLT_id_cosmic:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID"
+    "HLT_id_cosmic:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID",
+    "HLT_id_cosmic_ds:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID",
+    "HLT_id_cosmic_trtxk:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID"
 }; 
 
 InitialiseFirstEvent = 1;

@@ -190,6 +190,7 @@ extern BinConfig electronBinConfig;
 extern BinConfig muonBinConfig;
 extern BinConfig tauBinConfig;
 extern BinConfig bjetBinConfig;
+extern BinConfig cosmicBinConfig;
 
 
 // #define DATA
@@ -502,41 +503,14 @@ int main(int argc, char** argv)
 
   if ( binningConfigFile!="" ) binningConfig = new ReadCards( binningConfigFile );
     
-  binningConfig->Set( "ptNScale",  binConfig.pt_NScale );
-  binningConfig->Set( "etaNScale", binConfig.eta_NScale );
-  binningConfig->Set( "phiNScale", binConfig.phi_NScale );
-  binningConfig->Set( "d0NScale",  binConfig.d0_NScale );
-  binningConfig->Set( "a0NScale",  binConfig.a0_NScale );
-  binningConfig->Set( "z0NScale",  binConfig.z0_NScale );
+  /// set the tags in front of the histogram stuff 
+  binConfig.set(         *binningConfig, "" );
+  electronBinConfig.set( *binningConfig, "e_" );
+  muonBinConfig.set(     *binningConfig, "mu_" );
+  tauBinConfig.set(      *binningConfig, "tau_" );
+  bjetBinConfig.set(     *binningConfig, "bjet_" );
+  cosmicBinConfig.set(   *binningConfig, "cosmic_" );
 
-
-  binningConfig->Set( "e_ptNScale",  electronBinConfig.pt_NScale );
-  binningConfig->Set( "e_etaNScale", electronBinConfig.eta_NScale );
-  binningConfig->Set( "e_phiNScale", electronBinConfig.phi_NScale );
-  binningConfig->Set( "e_d0NScale",  electronBinConfig.d0_NScale );
-  binningConfig->Set( "e_a0NScale",  electronBinConfig.a0_NScale );
-  binningConfig->Set( "e_z0NScale",  electronBinConfig.z0_NScale );
-
-  binningConfig->Set( "mu_ptNScale",  muonBinConfig.pt_NScale );
-  binningConfig->Set( "mu_etaNScale", muonBinConfig.eta_NScale );
-  binningConfig->Set( "mu_phiNScale", muonBinConfig.phi_NScale );
-  binningConfig->Set( "mu_d0NScale",  muonBinConfig.d0_NScale );
-  binningConfig->Set( "mu_a0NScale",  muonBinConfig.a0_NScale );
-  binningConfig->Set( "mu_z0NScale",  muonBinConfig.z0_NScale );
-
-  binningConfig->Set( "tau_ptNScale",  tauBinConfig.pt_NScale );
-  binningConfig->Set( "tau_etaNScale", tauBinConfig.eta_NScale );
-  binningConfig->Set( "tau_phiNScale", tauBinConfig.phi_NScale );
-  binningConfig->Set( "tau_d0NScale",  tauBinConfig.d0_NScale );
-  binningConfig->Set( "tau_a0NScale",  tauBinConfig.a0_NScale );
-  binningConfig->Set( "tau_z0NScale",  tauBinConfig.z0_NScale );
-
-  binningConfig->Set( "bjet_ptNScale",  bjetBinConfig.pt_NScale );
-  binningConfig->Set( "bjet_etaNScale", bjetBinConfig.eta_NScale );
-  binningConfig->Set( "bjet_phiNScale", bjetBinConfig.phi_NScale );
-  binningConfig->Set( "bjet_d0NScale",  bjetBinConfig.d0_NScale );
-  binningConfig->Set( "bjet_a0NScale",  bjetBinConfig.a0_NScale );
-  binningConfig->Set( "bjet_z0NScale",  bjetBinConfig.z0_NScale );
 
   /// clean up
   if ( binningConfig!=&inputdata ) delete binningConfig;

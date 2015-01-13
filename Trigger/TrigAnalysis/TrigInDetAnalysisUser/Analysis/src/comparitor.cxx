@@ -619,6 +619,8 @@ int main(int argc, char** argv) {
       if ( c.find("_IDTrkNoCut")!=std::string::npos ) c.erase( c.find("_IDTrkNoCut"), 11 );
       if ( c.find("_idperf")!=std::string::npos )     c.erase( c.find("_idperf"), 7 );
       if ( c.find("_bperf")!=std::string::npos )      c.erase( c.find("_bperf"), 6 );
+      if ( c.find("xAODCnv")!=std::string::npos )     c.erase( c.find("xAODCnv"), 7 );
+      if ( c.find("Tracking")!=std::string::npos ) c.replace( c.find("Tracking"), 8, "Trk" );    
 
       //      if ( c.find("_EFID")!=std::string::npos )     c.erase( c.find("_EFID"), 5 );
 
@@ -635,7 +637,22 @@ int main(int argc, char** argv) {
 	
 	if ( htestnum && hrefnum ) { 
 	  Efficiency e( htestnum, hrefnum, "" );
-	  
+
+	  TH1* h = e.Hist();
+
+	  double range = h->GetMaximum()-h->GetMinimum();
+
+	  if ( range<20 ) { 
+	    double _max = int( (h->GetMaximum() + 20)*0.1 )*10.0;
+	    double _min = int( (h->GetMinimum() - 10)*0.1 )*10.0;
+	    
+	    if ( _max>100 ) _max = 102;
+	    if ( _min<0 )   _min = 0;
+	    
+	    h->SetMinimum(_min);
+	    h->SetMaximum(_max);
+	  }
+
 	  plots_eff.push_back( Plotter( e.Hist(), 0, c ) );
 	  
 	}     

@@ -6,7 +6,7 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: ConfAnalysis.cxx 633751 2014-12-04 16:27:10Z openc $
+//   $Id: ConfAnalysis.cxx 639317 2015-01-13 21:17:13Z sutt $
 
 
 #include "ConfAnalysis.h"
@@ -57,13 +57,13 @@ void Normalise(TH1* h) {
 
 
 
-
 BinConfig binConfig("standard");
 
 BinConfig electronBinConfig("electron");
 BinConfig muonBinConfig("muon");
 BinConfig tauBinConfig("tau");
 BinConfig bjetBinConfig("bjet");
+BinConfig cosmicBinConfig("cosmic");
 
 
 /// book all the histograms
@@ -81,10 +81,11 @@ void ConfAnalysis::initialiseInternal() {
 
   BinConfig& _binConfig = binConfig;
  
-  if       ( name().find("_e")!=std::string::npos   ) _binConfig = electronBinConfig;
-  else if  ( name().find("_mu")!=std::string::npos  ) _binConfig =     muonBinConfig;
-  else if  ( name().find("_tau")!=std::string::npos ) _binConfig =      tauBinConfig;
-  else if  ( name().find("_b")!=std::string::npos   ) _binConfig =     bjetBinConfig;
+  if       ( name().find("_e")!=std::string::npos   )   _binConfig = electronBinConfig;
+  else if  ( name().find("_mu")!=std::string::npos  )   _binConfig =     muonBinConfig;
+  else if  ( name().find("_tau")!=std::string::npos )   _binConfig =      tauBinConfig;
+  else if  ( name().find("_b")!=std::string::npos   )   _binConfig =     bjetBinConfig;
+  else if  ( name().find("cosmic")!=std::string::npos ) _binConfig =   cosmicBinConfig;
 
   
   //+++ pT ranges
@@ -259,7 +260,7 @@ void ConfAnalysis::initialiseInternal() {
   addHistogram(  new TH1F(  "pT",   "pT",     ptnbins,   ptbinlims ) );
   addHistogram(  new TH1F( "eta",  "eta",     etaBins,  -tmp_maxEta, tmp_maxEta ) );
   addHistogram(  new TH1F( "phi",  "phi",     phiBins,  -tmp_maxPhi, tmp_maxPhi ) );
-  addHistogram(  new TH1F(  "z0",   "z0",       zBins,        -zMax,       zMax ) );
+  addHistogram(  new TH1F(  "z0",   "z0",       zBins,      -8*zMax,     8*zMax ) );
   addHistogram(  new TH1F(  "d0",   "d0",      d0Bins,       -d0Max,      d0Max ) );
   addHistogram(  new TH1F(  "a0",   "a0",      a0Bins,       -a0Max,      a0Max ) );
 
@@ -599,6 +600,8 @@ void ConfAnalysis::initialiseInternal() {
 
   addHistogram( new TH1F( "nsi",     "nsi",     NHits, -0.5, float(NHits-0.5) ) );
   addHistogram( new TH1F( "nsi_rec", "nsi_rec", NHits, -0.5, float(NHits-0.5) ) );
+  addHistogram( new TH1F( "nsi_matched", "nsi_matched", NHits, -0.5, float(NHits-0.5) ) );
+
 
   addHistogram( new TH1F( "ntrt",     "ntrt",     NHits, -0.5, float(NHits-0.5) ) );
   addHistogram( new TH1F( "ntrt_rec", "ntrt_rec", NHits, -0.5, float(NHits-0.5) ) );
@@ -1057,9 +1060,9 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
 
     double nsctt = reftracks[i]->sctHits(); 
     double npixt = reftracks[i]->pixelHits(); 
-    double nsit = reftracks[i]->pixelHits() + reftracks[i]->sctHits(); 
+    double nsit = reftracks[i]->pixelHits() * 0.5 + reftracks[i]->sctHits(); 
 
-    double ntrtt   = reftracks[i]->trHits(); 
+    //    double ntrtt   = reftracks[i]->trHits(); 
     double nstrawt = reftracks[i]->strawHits(); 
 
     //    double ts_scale = (ts-1260400000)*3000.0/(1260700000-1260400000); 
@@ -1138,6 +1141,7 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
 
       double nsctr = matchedreco->sctHits(); 
       double npixr = matchedreco->pixelHits(); 
+      double nsir = matchedreco->pixelHits() * 0.5 + matchedreco->sctHits(); 
 
       //double ntrtr   = matchedreco->trHits(); 
       double nstrawr = matchedreco->strawHits(); 
@@ -1188,7 +1192,7 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
 
       }
 	
-
+        
 
 	rDz0res[0]->Fill( std::fabs(pTt), dz0r-dz0t );  
 	rDz0res[1]->Fill( etat, dz0r-dz0t );  
@@ -1438,6 +1442,7 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
 
       //       eff_vs_lb->Fill( rmap[r]+lb );
 
+      if ( TH1F* hptr = find("nsi_matched"))  hptr->Fill(nsir);
 
       /// matched track distributions
 
@@ -1545,7 +1550,7 @@ void ConfAnalysis::execute(const std::vector<TrigInDetAnalysis::Track*>& reftrac
 
     double nsctr = testtracks[i]->sctHits(); 
     double npixr = testtracks[i]->pixelHits(); 
-    double nsir = testtracks[i]->pixelHits() + testtracks[i]->sctHits(); 
+    double nsir = testtracks[i]->pixelHits() * 0.5 + testtracks[i]->sctHits(); 
 
     double ntrtr   = testtracks[i]->trHits(); 
     double nstrawr = testtracks[i]->strawHits(); 
