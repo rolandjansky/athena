@@ -22,12 +22,16 @@
 #include "LArTools/LArCablingService.h"
 #include "LArByteStream/Hid2RESrcID.h"
 #include "Identifier/HWIdentifier.h"
+#include "CaloInterface/ICaloLumiBCIDTool.h"
 #include <vector>
 
 class EventInfo;
 class StoreGateSvc;
 class ILArBadChannelMasker;
 class ILArBadChanTool;
+class LArCablingService;
+static std::vector<float> m_corrBCIDref_example;
+
 /** Class which contains statically allocated LArCellCollections */
 class LArCellCont : public std::vector<LArCellCollection*>
 {
@@ -56,16 +60,27 @@ class LArCellCont : public std::vector<LArCellCollection*>
   *   @return for each collection the ID of the second FEB.
   */
   HWIdentifier findsec(const unsigned int& id) const ;
+  /** method to apply correction based on the luminosity
+  *  to the energy
+  */
+  void applyBCIDCorrection(const unsigned int& rodid);
 
   /** destructor */
   virtual ~LArCellCont() { };
 
   /** initialize method. Builds all cells and collections. */
-  StatusCode initialize( void ) ;
+  StatusCode initialize( bool applyOffsetCorrection ) ;
   /** finalize method. Destroys all cells and collections. */
   StatusCode finalize( void ) ;
   /** sets Event Number */
   void eventNumber ( const unsigned int eN ) { m_event=eN; };
+  /** sets LumiBlock and BCID */
+  void lumiBlock_BCID(const unsigned int lumi_block, const unsigned int BCID);
+  /** has to retrieve the pointer before in TrigDataAccess */
+  void setCaloLumiBCIDPointer( ICaloLumiBCIDTool* caloLumiBCIDTool ) {
+    m_caloLumiBCIDTool = caloLumiBCIDTool;
+  }
+  
   /** List of Missing ROBs */
   const std::vector<uint32_t>& MissingROBs( void ) {
 	return m_MissingROBs;
@@ -95,6 +110,22 @@ private:
 	ILArBadChanTool* m_badChanTool;		
 	/** List of Missing ROBs to be disabled at the RS */
 	std::vector<uint32_t> m_MissingROBs;
+	/** hash references to BCID */
+	std::vector< std::vector<int> > m_hashSym;
+	/** correction per BCID for each sym cell */
+	std::vector< std::vector<float> > m_corrBCID;
+	/** reference to the corrections for a given BCID */
+	std::vector<float>& m_corrBCIDref;
+	/** update BCID dependent correction table */
+	void updateBCID();
+	/** CaloLumiBCIDTool pointer */
+	ICaloLumiBCIDTool* m_caloLumiBCIDTool;
+	/** index table */
+	std::map<HWIdentifier,int> m_indexset;
+        /** current lumi_block */
+        float m_lumi_block;
+	/** Needs also the LArCablingSvc */
+	LArCablingService* m_larCablingSvc;  
 };
 
 #endif

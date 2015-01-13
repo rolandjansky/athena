@@ -9,6 +9,11 @@ ToolSvc+=TrigDataAccess()
 ToolSvc.TrigDataAccess.loadFullCollections = ( TriggerFlags.doEF() or TriggerFlags.doHLT() )
 ToolSvc.TrigDataAccess.loadAllSamplings    = ( TriggerFlags.doLVL2() or TriggerFlags.doHLT() )
 
+#from CaloTools.CaloLumiBCIDToolDefault import CaloLumiBCIDToolDefault
+#theCaloLumiBCIDTool = CaloLumiBCIDToolDefault()
+#ToolSvc+=theCaloLumiBCIDTool
+#ToolSvc.TrigDataAccess.CaloLumiBCIDTool = theCaloLumiBCIDTool
+
 transientBS = (rec.readRDO() and not globalflags.InputFormat()=='bytestream')
 if ( transientBS or TriggerFlags.writeBS() ):
   if ( not hasattr(svcMgr.ToolSvc,'LArRawDataContByteStreamTool') ):

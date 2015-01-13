@@ -23,7 +23,6 @@
 #include "TrigT1Interfaces/RecEmTauRoI.h"
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"                               
-#include "TrigSteeringEvent/TrigSuperRoi.h"                               
 
 #include "CaloEvent/CaloCluster.h"
 #include "CaloEvent/CaloClusterContainer.h"
@@ -142,16 +141,10 @@ T2CaloBase::prepareRobRequests(const HLT::TriggerElement* inputTE)
   const IRoiDescriptor* roi = 0;
   HLT::ErrorCode hltStatus;
 
-  if ( m_useCompositeRoi ) {  
-    const TrigSuperRoi* roiDescriptor = 0;
-    hltStatus = getFeature(inputTE, roiDescriptor);
-    roi = roiDescriptor;
-  }
-  else {
-    const TrigRoiDescriptor* roiDescriptor = 0;
-    hltStatus = getFeature(inputTE, roiDescriptor);
-    roi = roiDescriptor;
-  } 
+  const TrigRoiDescriptor* roiDescriptor = 0;
+  hltStatus = getFeature(inputTE, roiDescriptor);
+  roi = roiDescriptor;
+ 
 
   if ( hltStatus != HLT::OK ) {
     std::cout <<  MSG::WARNING << " Failed to find RoiDescriptor " << std::endl;
