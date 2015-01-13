@@ -12,7 +12,6 @@ use GaudiInterface		GaudiInterface-*     External
 use TrigInterfaces              TrigInterfaces-*	 Trigger/TrigSteer
 use TrigInDetEvent		TrigInDetEvent-*	 Trigger/TrigEvent
 use TrigSteeringEvent           TrigSteeringEvent-*      Trigger/TrigEvent
-use TrigInDetPattRecoEvent	TrigInDetPattRecoEvent-*   Trigger/TrigEvent
 use TrigInDetPattRecoTools      TrigInDetPattRecoTools-*   Trigger/TrigTools
 
 use TrkEventPrimitives   TrkEventPrimitives-*   Tracking/TrkEvent
@@ -30,10 +29,10 @@ private
 # Tracking
 
 use     AtlasTBB                        AtlasTBB-*                      External
+use TrigInDetPattRecoEvent	TrigInDetPattRecoEvent-*   Trigger/TrigEvent
 use 	TrkRIO_OnTrack			TrkRIO_OnTrack-*		Tracking/TrkEvent 
 use     InDetRIO_OnTrack                InDetRIO_OnTrack-*              InnerDetector/InDetRecEvent 
 use	TrkParameters			TrkParameters-*			Tracking/TrkEvent 
-use     EventPrimitives                 EventPrimitives-*               Event
 use TrkToolInterfaces           TrkToolInterfaces-*           Tracking/TrkTools
 
 use	InDetRecToolInterfaces		InDetRecToolInterfaces-* 	InnerDetector/InDetRecTools 
@@ -43,11 +42,9 @@ use     InDetIdentifier                 InDetIdentifier-*               InnerDet
 use TrigInDetToolInterfaces     TrigInDetToolInterfaces-*  Trigger/TrigTools
 use TrkTrack		        TrkTrack-* 		   Tracking/TrkEvent
 use TrigTimeAlgs		TrigTimeAlgs-*		   Trigger/TrigTools
-use StoreGate			StoreGate-*		   Control
 use InDetBeamSpotService        InDetBeamSpotService-*     InnerDetector/InDetConditions
 
 use AthenaBaseComps              AthenaBaseComps-*	   Control
 use InDetPrepRawData     	 InDetPrepRawData-*	   InnerDetector/InDetRecEvent 
 use SiSpacePointsSeed            SiSpacePointsSeed-*       InnerDetector/InDetRecEvent 
-use TrigInDetRecoTools           TrigInDetRecoTools-*      Trigger/TrigTools
 use MagFieldInterfaces           MagFieldInterfaces-*      MagneticField 

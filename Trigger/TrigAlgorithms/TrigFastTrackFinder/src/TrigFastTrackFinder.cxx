@@ -20,11 +20,6 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/PhiHelper.h"
 
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IssueSeverity.h"
-#include "StoreGate/StoreGateSvc.h"
-
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
 #include "TrigInDetEvent/TrigVertex.h"
@@ -41,8 +36,6 @@
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h" 
 
 #include "TrkParameters/TrackParameters.h" 
-#include "EventPrimitives/EventPrimitivesHelpers.h"
-#include "EventPrimitives/SymmetricMatrixHelpers.h"
 #include "TrkTrack/Track.h" 
 #include "TrkTrack/TrackInfo.h" 
 
@@ -65,14 +58,11 @@
 
 #include "InDetRecToolInterfaces/ISiTrackMaker.h" 
 #include "TrigInDetPattRecoTools/TrigCombinatorialSettings.h"
-#include "TrigInDetPattRecoTools/TrigCombinatorialTrackFinding.h"
 #include "TrigInDetPattRecoTools/TrigTrackSeedGenerator.h"
 
 #include "TrigInDetToolInterfaces/ITrigL2LayerNumberTool.h"
 #include "TrigInDetToolInterfaces/ITrigSpacePointConversionTool.h"
-#include "TrigInDetToolInterfaces/ITrigInDetRoadMakerTool.h"
 #include "TrigInDetToolInterfaces/ITrigL2SpacePointTruthTool.h"
-#include "TrigInDetRecoTools/ITrigL2LayerSetPredictorTool.h"
 
 #include "TrigInDetToolInterfaces/ITrigInDetTrackFitter.h"
 
@@ -91,14 +81,11 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
 
   HLT::FexAlgo(name, pSvcLocator), 
   m_numberingTool("TrigL2LayerNumberTool"), 
-  m_predictorTool("TrigL2LayerSetPredictorTool"),
   m_spacePointTool("TrigSpacePointConversionTool"),
-  m_roadMakerTool("TrigInDetRoadMakerTool",this),
   m_TrigL2SpacePointTruthTool("TrigL2SpacePointTruthTool"),
   m_trackMaker("InDet::SiTrackMaker_xk/InDetTrigSiTrackMaker"),
   m_trigInDetTrackFitter("TrigInDetTrackFitter"),
   m_trackSummaryTool("Trk::ITrackSummaryTool/ITrackSummaryTool"),
-  m_regionSelector("RegSelSvc", name),
   m_MagFieldSvc("AtlasFieldSvc",this->name()),
   m_shift_x(0.0),
   m_shift_y(0.0),
@@ -120,31 +107,16 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
 
   /** Doublet finding properties. */
 
-  declareProperty("Doublet_D0Max",            m_tcs.m_doubletD0Max         = 5.0);
-  declareProperty("Doublet_DphiOverDrMax",    m_tcs.m_doubletDphiOverDrMax = 0.001);
   declareProperty("Doublet_Z0Max",            m_tcs.m_doubletZ0Max         = 230.0);
 
   /** Triplet finding properties. */
 
-  declareProperty("Triplet_CutRoiEta",        m_tcs.m_tripletCutRoiEta  = false);
-  declareProperty("Triplet_CutRoiPhi",        m_tcs.m_tripletCutRoiPhi  = false);
-  declareProperty("Triplet_RZMax",            m_tcs.m_tripletRZMax      = 5.0);
-  declareProperty("Triplet_RZMaxPixel",       m_tcs.m_tripletRZMaxPixel = 1.0);
-  declareProperty("Triplet_RPhiMax",          m_tcs.m_tripletRPhiMax    = 0.0035);
   declareProperty("Triplet_D0Max",            m_tcs.m_tripletD0Max      = 4.0);
-  declareProperty("Triplet_Chi2Max",          m_tcs.m_tripletChi2Max    = 100.0);
-  declareProperty("Triplet_DoFilter",         m_tcs.m_tripletFilter     = true);
-  declareProperty("Triplet_FilterPhiScale",   m_tcs.m_tripletFilterPhiScale = 0.0006);
-  declareProperty("Triplet_FilterEtaScale",   m_tcs.m_tripletFilterEtaScale = 0.0022);
-  declareProperty("Triplet_FilterDRMax",      m_tcs.m_tripletFilterDRMax    = 9.0);
-  declareProperty("Triplet_NBest",            m_tcs.m_tripletNBest      = 2);//retain only N  best triplets per cluster
-  declareProperty("Triplet_UseLikelihood",    m_tcs.m_useLikelihood      = false);
-  declareProperty("Triplet_MinLLR",           m_tcs.m_tripletMinLLR      = -20.0);
-  declareProperty("Triplet_CloneRemoveThreshold",   m_tcs.m_tripletCloneRemoveThreshold= 0.6);
-  declareProperty("Triplet_MaxLayers",        m_tcs.m_tripletMaxLayers = 100);
-  declareProperty("Triplet_DoMaxLayers",      m_tcs.m_tripletDoMaxLayers = false);
-  declareProperty("Triplet_MinTriplets",      m_tcs.m_minTriplets        = 1);
-  declareProperty("Triplet_ClusterPrefit",    m_tcs.m_prefitTripletClusters = false);
+  declareProperty("Triplet_D0_PPS_Max",       m_tcs.m_tripletD0_PPS_Max = 1.7);
+  declareProperty("Triplet_nMaxPhiSlice",     m_tcs.m_nMaxPhiSlice = 53);
+  declareProperty("Triplet_MaxBufferLength",     m_tcs.m_maxTripletBufferLength = 3);
+  declareProperty("TripletDoPSS",            m_tcs.m_tripletDoPSS = false);
+
 
   m_tcs.m_magFieldZ = 2.0;//switched to configured value in getMagField()
 
@@ -152,6 +124,7 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
 
   declareProperty("Triplet_MinPtFrac",        m_tripletMinPtFrac = 0.3);
   declareProperty("pTmin",                    m_pTmin = 1000.0);
+  declareProperty("TrackInitialD0Max",            m_initialD0Max      = 10.0);
 
   declareProperty("doSeedRedundancyCheck",            m_checkSeedRedundancy = false);
 
@@ -164,15 +137,8 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   declareProperty( "SpacePointProviderTool", m_spacePointTool  );
   declareProperty( "LayerNumberTool", m_numberingTool  );
 
-  declareProperty( "RoadMakerTool", m_roadMakerTool );
-
   declareProperty( "offlineTrackMaker", m_trackMaker);
   declareProperty( "TrigInDetTrackFitter",   m_trigInDetTrackFitter );
-
-  declareProperty("doCloneMerge",   m_doCloneMerge = false);
-  declareProperty("doCloneRemove",  m_doCloneRemove = true);
-
-  declareProperty("numSeedsToTry", m_numSeedsToTry = 1);
 
   declareProperty("TrackSummaryTool", m_trackSummaryTool);
   declareProperty( "TrigL2SpacePointTruthTool", m_TrigL2SpacePointTruthTool);
@@ -180,7 +146,6 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   declareProperty( "SignalBarCodes", m_vSignalBarCodes);
   declareProperty( "MinSignalSPs", m_minSignalSPs = 3);
 
-  m_countTotalEvents=0;
   m_countTotalRoI=0;
   m_countRoIwithEnoughHits=0;
   m_countRoIwithTracks=0;
@@ -237,11 +202,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
   if ( timerSvc() ) {
     m_SpacePointConversionTimer = addTimer("SpacePointConversion"); 
     m_PatternRecoTimer          = addTimer("PattReco","PattReco_nSP");
-    m_SpacePointSortingTimer    = addTimer("SpacePointSorting"); 
-    m_DoubletFindingTimer       = addTimer("DoubletFinding");
-    m_TripletFindingTimer       = addTimer("TripletFinding");
     m_TripletMakingTimer        = addTimer("Triplets","Triplets_nSP");
-    m_TripletClusterTimer       = addTimer("TripletClusters");
     m_CombTrackingTimer         = addTimer("CmbTrack","CmbTrack_nTr");
     m_TrackFitterTimer          = addTimer("TrackFitter","TrackFitter_nTracks");
   }
@@ -258,12 +219,6 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
 
   ATH_MSG_DEBUG(" TrigFastTrackFinder : MinHits set to " << m_minHits);
 
-  sc = service("DetectorStore", m_detectorStore);
-  if(sc.isFailure()) {
-    ATH_MSG_ERROR("unable to locate Detector Store");
-    return HLT::BAD_JOB_SETUP;
-  }
-  
   if (m_useBeamSpot) {
     StatusCode scBS = service("BeamCondSvc", m_iBeamCondSvc);
     if (scBS.isFailure() || m_iBeamCondSvc == 0) {
@@ -278,27 +233,9 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
     return HLT::BAD_JOB_SETUP;
    } 
 
-  sc=m_predictorTool.retrieve(); 
-  if(sc.isFailure()) { 
-    ATH_MSG_ERROR("Could not retrieve "<<m_predictorTool); 
-    return HLT::BAD_JOB_SETUP;
-   } 
-
   sc = m_spacePointTool.retrieve();
   if(sc.isFailure()) { 
     ATH_MSG_ERROR("Could not retrieve "<<m_spacePointTool); 
-    return HLT::BAD_JOB_SETUP;
-  }
-
-  sc = m_regionSelector.retrieve();
-  if ( sc.isFailure() ) {
-    ATH_MSG_ERROR("Unable to retrieve RegionSelector tool " << m_regionSelector.type());
-    return HLT::BAD_JOB_SETUP;
-  }
-
-  sc = m_roadMakerTool.retrieve();
-  if(sc.isFailure()) {
-    ATH_MSG_ERROR("Could not retrieve "<<m_roadMakerTool); 
     return HLT::BAD_JOB_SETUP;
   }
 
@@ -321,17 +258,17 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
   }
 
   //Get ID helper
-  if (m_detectorStore->retrieve(m_idHelper, "AtlasID").isFailure()) {
+  if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
     ATH_MSG_ERROR("Could not get AtlasDetectorID helper AtlasID");
     return HLT::BAD_JOB_SETUP;
   }
   
-  if (m_detectorStore->retrieve(m_pixelId, "PixelID").isFailure()) {
+  if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) {
     ATH_MSG_ERROR("Could not get Pixel ID helper");
     return HLT::BAD_JOB_SETUP;
   }
   
-  if (m_detectorStore->retrieve(m_sctId, "SCT_ID").isFailure()) { 
+  if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) { 
     ATH_MSG_ERROR("Could not get Pixel ID helper");
     return StatusCode::FAILURE;
   }
@@ -349,7 +286,6 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
     m_nSignalPresent=0;
     m_nSignalDetected=0;
     m_nSignalTracked=0;
-    m_nGoodDoublets=0;
     m_nSignalClones=0;
     sc = m_TrigL2SpacePointTruthTool.retrieve();
     if ( sc.isFailure() ) {
@@ -371,25 +307,6 @@ HLT::ErrorCode TrigFastTrackFinder::hltBeginRun()
 {
   ATH_MSG_DEBUG("At BeginRun of " << name());
 
-  // Road making - only needs to be done during hltInitialize()
-  // Needs to follow regionSelector call, since roads should only be within regionSelector regions
-  
-  if (!m_roads.empty()) {
-    ATH_MSG_DEBUG("REGTEST / calling TrigInDetRoadMaker again, m_roads.size() " << m_roads.size());
-    m_roads.clear();
-  }
-  StatusCode sc = m_roadMakerTool->makeRoads(m_roads, nullptr);
-  if(sc.isFailure()) { 
-    ATH_MSG_ERROR("Could not make roads!"<<m_roadMakerTool); 
-    return HLT::BAD_JOB_SETUP;
-  }
-
-  sc = m_predictorTool->createLUT();
-  if(sc.isFailure()) { 
-    ATH_MSG_ERROR("Could not create LayerSetLUT "<<m_predictorTool); 
-    return HLT::BAD_JOB_SETUP;
-  }
-
   //getting magic numbers from the layer numbering tool
 
   m_tcs.m_maxBarrelPix    = m_numberingTool->offsetBarrelSCT();
@@ -400,24 +317,9 @@ HLT::ErrorCode TrigFastTrackFinder::hltBeginRun()
   return HLT::OK;
 }
 
-StatusCode TrigFastTrackFinder::storeSpacePoints(const std::vector<TrigSiSpacePointBase>& convertedSpacePoints, TrigSpacePointStorage& spacePointStorage) {
-  ATH_MSG_DEBUG("Storing spacepoints");
-  std::vector< std::vector<const TrigSiSpacePointBase*> > tempSpacePointLayerVector;
-  tempSpacePointLayerVector.resize(m_numberingTool->maxSiliconLayerNum());
-  for (auto spacePointIter = convertedSpacePoints.begin(); spacePointIter != convertedSpacePoints.end(); ++spacePointIter) {
-    tempSpacePointLayerVector[spacePointIter->layer()].push_back(&(*spacePointIter));
-  }
-  TrigL2SpacePointStorageFiller spacePointStorageFiller;
-  spacePointStorageFiller.fillSpacePointStorage(spacePointStorage, tempSpacePointLayerVector, m_roads, TrigInDetRoad::firstRoadLayer);
-  spacePointStorageFiller.fillSpacePointStorage(spacePointStorage, tempSpacePointLayerVector, m_roads, TrigInDetRoad::secondRoadLayer);
-  spacePointStorageFiller.fillSpacePointStorage(spacePointStorage, tempSpacePointLayerVector, m_roads, TrigInDetRoad::thirdRoadLayer);
-  return StatusCode::SUCCESS;
-}
-
-
 //-------------------------------------------------------------------------
 
-HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* inputTE,
+HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* /*inputTE*/,
 					       HLT::TriggerElement* outputTE) {
 
   StatusCode sc(StatusCode::SUCCESS);
@@ -463,7 +365,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* inputT
   
   // 4. RoI preparation/update 
   const IRoiDescriptor* internalRoI;
-  HLT::ErrorCode ec = getRoI(inputTE, internalRoI);
+  HLT::ErrorCode ec = getRoI(outputTE, internalRoI);
   if (ec!=HLT::OK) {
     return ec;
   }
@@ -528,16 +430,6 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* inputT
 
   if ( timerSvc() ) m_PatternRecoTimer->start();
 
-  TrackCollection* offlineTracks = new TrackCollection;
-  std::vector<std::tuple<bool, double,Trk::Track*>> qualityTracks; //bool used for later filtering
-
-  std::map<int, int> nGoodDoublets;
-  if (m_retrieveBarCodes) {
-    for(auto barCode : m_vSignalBarCodes) {
-      nGoodDoublets.insert(std::pair<int, int>(barCode,0));
-    }
-  }
-
   std::map<int, int> nGoodRejected;
   std::map<int, int> nGoodAccepted;
   std::map<int, int> nGoodTotal;
@@ -551,259 +443,121 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* inputT
 
   int iSeed=0;
 
-  if(!m_useNewSeeding) {
-    
-    TrigCombinatorialTrackFinding combinatorial(m_tcs);//inject settings here
-    combinatorial.setSpacePointsUnused(convertedSpacePoints);
-   
-    if ( timerSvc() ) m_SpacePointSortingTimer->start();
 
-    // 6. spacepoint sorting 
-    
-    TrigSpacePointStorage spacePointStorage;
+  if ( timerSvc() ) m_TripletMakingTimer->start();
 
-    sc = storeSpacePoints(convertedSpacePoints, spacePointStorage);
-    
-    if ( timerSvc() ) m_SpacePointSortingTimer->stop();
+  TRIG_TRACK_SEED_GENERATOR seedGen(m_tcs);
+  seedGen.loadSpacePoints(convertedSpacePoints);
+  seedGen.createSeeds();
+  std::vector<TrigInDetTriplet*> triplets;
+  seedGen.getSeeds(triplets);
 
-    if(sc.isFailure()) {
-      ATH_MSG_ERROR("Failed spacepoint sorting !");
-      delete offlineTracks;
-      return HLT::TOOL_FAILURE;
-    }
-  
-    m_currentStage = 2;
+  ATH_MSG_DEBUG("number of triplets: " << triplets.size());
 
-    // 7. combinatorial triplet making
-  
-    if ( timerSvc() ) m_TripletMakingTimer->start();
-
-    const TrigL2LayerSetLUT* pLUT = NULL;
-
-    if(m_tcs.m_useLikelihood) {
-      pLUT = m_predictorTool->getLUT();
-      if(pLUT==NULL) {
-	ATH_MSG_DEBUG("LayerSetLUT is NULL !");
-      }
-    }
-    
-    if ( timerSvc() ) {
-      m_DoubletFindingTimer->start();
-      m_DoubletFindingTimer->pause();
-      m_TripletFindingTimer->start();
-      m_TripletFindingTimer->pause();
-    }
-    std::vector<TrigInDetTripletCluster*> tripletClusters;
-    tripletClusters.clear();
-    ec = makeTripletClusters(spacePointStorage, combinatorial, tripletClusters, pLUT, nGoodDoublets, convertedSpacePoints);
-    if (ec!=HLT::OK) {
-      return ec;
-    }
-  
-    if ( timerSvc() ) m_DoubletFindingTimer->stop();
-    if ( timerSvc() ) m_TripletFindingTimer->stop();
-  
-    ATH_MSG_DEBUG("number of triplet clusters found: " << tripletClusters.size());
-  
-    if ( timerSvc() ) m_TripletClusterTimer->start();
-    if (m_doCloneRemove) {
-      combinatorial.processClusters(tripletClusters);
-    }
-    if (m_doCloneMerge) {
-      std::vector<TrigInDetTripletCluster*> resolvedClusters;
-      combinatorial.mergeClones(tripletClusters, resolvedClusters);
-      for(auto trc : tripletClusters) delete trc;
-      tripletClusters.clear();
-      std::copy(resolvedClusters.begin(), resolvedClusters.end(), std::back_inserter(tripletClusters));
-    }
-
-    if ( timerSvc() ) m_TripletClusterTimer->stop();
-
-    ATH_MSG_DEBUG("number of triplet clusters after clone removal: " << tripletClusters.size());
-
-    if ( timerSvc() ) {
-      m_TripletMakingTimer->stop();
-      m_TripletMakingTimer->propVal(m_roi_nSPs);
-    }
-
-    m_currentStage = 3;
-
-    if ( timerSvc() ) m_CombTrackingTimer->start();
-
-    // 8. Combinatorial tracking
-    
-    bool PIX = true;
-    bool SCT = true;
-    
-    m_trackMaker->newTrigEvent(PIX,SCT);
-    
-    qualityTracks.reserve(3*tripletClusters.size());
-
-    m_nSeeds  = 0;
-    
-    long int trackIndex=0;
-    if(m_checkSeedRedundancy) m_siClusterMap.clear();
-
-    for(auto cluster : tripletClusters) {
-      std::vector<std::shared_ptr<TrigInDetTriplet>> triplets;
-      combinatorial.collectBestTriplets(cluster, triplets);
-      std::vector<InDet::SiSpacePointsSeed> vSeeds;
-      createOfflineSeeds(triplets, vSeeds);
-      if(vSeeds.empty()) continue;
-      bool trackFound=false;
-      for(auto seed : vSeeds) {
-	++m_nSeeds;
-	const std::list<Trk::Track*>& T = m_trackMaker->getTracks(seed.spacePoints());
-	for(std::list<Trk::Track*>::const_iterator t=T.begin(); t!=T.end(); ++t) {
-	  if((*t)) {
-	    if(m_checkSeedRedundancy) {
-	      //update clusterMap 
-	      updateClusterMap(trackIndex++, (*t), m_siClusterMap);
-	    }
-	    qualityTracks.push_back(std::make_tuple(true,-trackQuality((*t)),(*t)));
-	  }
-	}  
-	iSeed++;
-	ATH_MSG_VERBOSE("Found "<<T.size()<<" tracks using triplet");
-	if(!T.empty()) {
-	  trackFound = true;
-	  if(iSeed>=m_numSeedsToTry) break;
-	}
-      }
-      
-      if(m_retrieveBarCodes) {
-	bool goodTriplet=false;
-	int foundBarCode=-1;
-	std::vector<int> vTBarCodes(triplets.size(),-1);
-	assignTripletBarCodes(triplets, vTBarCodes);
-	for(auto barCode : m_vSignalBarCodes) {
-	  for(auto tbc : vTBarCodes) {
-	    if (tbc==barCode) {
-	      foundBarCode=barCode;
-	      goodTriplet=true;break;
-	    }
-	  }
-	  if(goodTriplet) break;
-	}
-
-	if(goodTriplet) {
-	  (*nGoodTotal.find(foundBarCode)).second++;
-	  if(trackFound) (*nGoodAccepted.find(foundBarCode)).second++;
-	  else (*nGoodRejected.find(foundBarCode)).second++;
-	}
-      }
-    }
-    m_trackMaker->endEvent();
-    for(auto cluster : tripletClusters) delete cluster;
+  if ( timerSvc() ) {
+    m_TripletMakingTimer->stop();
+    m_TripletMakingTimer->propVal(m_roi_nSPs);
   }
-  else {//alternatively use the new seed generator
 
-    if ( timerSvc() ) m_TripletMakingTimer->start();
-  
-    TRIG_TRACK_SEED_GENERATOR seedGen(m_tcs);
-    seedGen.loadSpacePoints(convertedSpacePoints);
-    seedGen.createSeeds();
-    std::vector<TrigInDetTriplet*> triplets;
-    seedGen.getSeeds(triplets);
+  if ( timerSvc() ) m_CombTrackingTimer->start();
 
-    ATH_MSG_DEBUG("number of triplets: " << triplets.size());
+  // 8. Combinatorial tracking
 
-    if ( timerSvc() ) {
-      m_TripletMakingTimer->stop();
-      m_TripletMakingTimer->propVal(m_roi_nSPs);
+  std::vector<int> vTBarCodes(triplets.size(),-1);
+
+  if(m_retrieveBarCodes) {
+    assignTripletBarCodes(triplets, vTBarCodes);
+  }
+
+  std::vector<std::tuple<bool, double,Trk::Track*>> qualityTracks; //bool used for later filtering
+  qualityTracks.reserve(triplets.size());
+
+  m_nSeeds  = 0;
+  iSeed=0;
+
+  long int trackIndex=0;
+
+  if(m_checkSeedRedundancy) m_siClusterMap.clear();
+
+  bool PIX = true;
+  bool SCT = true;
+
+  m_trackMaker->newTrigEvent(PIX,SCT);
+
+  for(unsigned int tripletIdx=0;tripletIdx!=triplets.size();tripletIdx++) {
+
+    TrigInDetTriplet* seed = triplets[tripletIdx];
+
+    const Trk::SpacePoint* osp1 = seed->s1().offlineSpacePoint();
+    const Trk::SpacePoint* osp2 = seed->s2().offlineSpacePoint();
+    const Trk::SpacePoint* osp3 = seed->s3().offlineSpacePoint();
+
+    if(m_checkSeedRedundancy) {
+      //check if clusters do not belong to any track
+      std::vector<Identifier> clusterIds;
+      extractClusterIds(osp1, clusterIds);
+      extractClusterIds(osp2, clusterIds);
+      extractClusterIds(osp3, clusterIds);
+      if(usedByAnyTrack(clusterIds, m_siClusterMap)) {
+        continue;
+      }
     }
 
-    if ( timerSvc() ) m_CombTrackingTimer->start();
+    InDet::SiSpacePointsSeed offlineSeed(osp1, osp2, osp3, (double)seed->z0());
 
-    // 8. Combinatorial tracking
-  
-    bool PIX = true;
-    bool SCT = true;
+    bool trackFound=false;
 
-    m_trackMaker->newTrigEvent(PIX,SCT);
+    ++m_nSeeds;
 
-    std::vector<int> vTBarCodes(triplets.size(),-1);
+    const std::list<Trk::Track*>& tracks = m_trackMaker->getTracks(offlineSeed.spacePoints());
+
+    for(std::list<Trk::Track*>::const_iterator t=tracks.begin(); t!=tracks.end(); ++t) {
+      if((*t)) {
+        float d0 = (*t)->perigeeParameters()->parameters()[Trk::d0]; 
+        if (fabs(d0) > m_initialD0Max) {
+          ATH_MSG_DEBUG("REGTEST / Reject track with d0 = " << d0 << " > " << m_initialD0Max);
+          qualityTracks.push_back(std::make_tuple(false,0,(*t)));//Flag track as bad, but keep in vector for later deletion
+          continue;
+        }
+        if(m_checkSeedRedundancy) {
+          //update clusterMap 
+          updateClusterMap(trackIndex++, (*t), m_siClusterMap);
+        }
+        qualityTracks.push_back(std::make_tuple(true,-trackQuality((*t)),(*t)));
+      }
+    }  
+    iSeed++;
+    ATH_MSG_DEBUG("Found "<<tracks.size()<<" tracks using triplet");
+    if(!tracks.empty()) {
+      trackFound = true;
+    }
 
     if(m_retrieveBarCodes) {
-      assignTripletBarCodes(triplets, vTBarCodes);
-    }
+      bool goodTriplet=false;
+      int foundBarCode=-1;
 
-    qualityTracks.reserve(triplets.size());
-
-    m_nSeeds  = 0;
-    iSeed=0;
-
-    long int trackIndex=0;
-
-    if(m_checkSeedRedundancy) m_siClusterMap.clear();
-
-    for(unsigned int tripletIdx=0;tripletIdx!=triplets.size();tripletIdx++) {
-
-      TrigInDetTriplet* seed = triplets[tripletIdx];
-    
-      const Trk::SpacePoint* osp1 = seed->s1().offlineSpacePoint();
-      const Trk::SpacePoint* osp2 = seed->s2().offlineSpacePoint();
-      const Trk::SpacePoint* osp3 = seed->s3().offlineSpacePoint();
-
-      if(m_checkSeedRedundancy) {
-	//check if clusters do not belong to any track
-	std::vector<Identifier> clusterIds;
-	extractClusterIds(osp1, clusterIds);
-	extractClusterIds(osp2, clusterIds);
-	extractClusterIds(osp3, clusterIds);
-	if(usedByAnyTrack(clusterIds, m_siClusterMap)) {
-	  continue;
-	}
+      for(auto barCode : m_vSignalBarCodes) {
+        if (vTBarCodes[tripletIdx] == barCode) {
+          foundBarCode=barCode;
+          goodTriplet=true;break;
+        }
       }
-    
-      InDet::SiSpacePointsSeed offlineSeed(osp1, osp2, osp3, (double)seed->z0());
-  
-      bool trackFound=false;
-    
-      ++m_nSeeds;
 
-      const std::list<Trk::Track*>& T = m_trackMaker->getTracks(offlineSeed.spacePoints());
-      for(std::list<Trk::Track*>::const_iterator t=T.begin(); t!=T.end(); ++t) {
-	if((*t)) {
-	  if(m_checkSeedRedundancy) {
-	    //update clusterMap 
-	    updateClusterMap(trackIndex++, (*t), m_siClusterMap);
-	  }
-	  qualityTracks.push_back(std::make_tuple(true,-trackQuality((*t)),(*t)));
-	}
-      }  
-      iSeed++;
-      ATH_MSG_VERBOSE("Found "<<T.size()<<" tracks using triplet");
-      if(!T.empty()) {
-	trackFound = true;
-      }
-    
-      if(m_retrieveBarCodes) {
-	bool goodTriplet=false;
-	int foundBarCode=-1;
-	
-	for(auto barCode : m_vSignalBarCodes) {
-          if (vTBarCodes[tripletIdx] == barCode) {
-            foundBarCode=barCode;
-            goodTriplet=true;break;
-          }
-	}
-	
-	if(goodTriplet) {
-	  (*nGoodTotal.find(foundBarCode)).second++;
-	  if(trackFound) (*nGoodAccepted.find(foundBarCode)).second++;
-	  else (*nGoodRejected.find(foundBarCode)).second++;
-	}
+      if(goodTriplet) {
+        (*nGoodTotal.find(foundBarCode)).second++;
+        if(trackFound) (*nGoodAccepted.find(foundBarCode)).second++;
+        else (*nGoodRejected.find(foundBarCode)).second++;
       }
     }
-
-    m_trackMaker->endEvent();
-    for(auto seed : triplets) delete seed;
   }
+
+  m_trackMaker->endEvent();
+  for(auto seed : triplets) delete seed;
 
   //clone removal
   filterSharedTracks(qualityTracks);
 
+  TrackCollection* offlineTracks = new TrackCollection;
   offlineTracks->reserve(qualityTracks.size());
   for(const auto& q : qualityTracks) {
     if (std::get<0>(q)==true) {
@@ -814,9 +568,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* inputT
     }
   }
   qualityTracks.clear();
-  //qualityTracks.erase(std::remove_if(qualityTracks.begin(), qualityTracks.end(), 
-  //                     [](const std::tuple<bool, double, Trk::Track*>& el) {return std::get<0>(el)==false;}),
-  //                        qualityTracks.end());
+
   m_nTracksNew=offlineTracks->size();
   ATH_MSG_DEBUG("After clone removal "<<m_nTracksNew<<" tracks left");
   
@@ -833,7 +585,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* inputT
 
   if (m_retrieveBarCodes) {
     //reco. efficiency analysis
-    calculateRecoEfficiency(convertedSpacePoints, nGoodDoublets, nGoodTotal, nGoodAccepted);
+    calculateRecoEfficiency(convertedSpacePoints, nGoodTotal, nGoodAccepted);
   }
 
   if ( timerSvc() ) m_TrackFitterTimer->start();
@@ -907,7 +659,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* inputT
 	(*track)->chi2());
     }
   }
-  HLT::ErrorCode code1 = attachFeature(outputTE, m_recoTracks, m_attachedFeatureName1);
+  HLT::ErrorCode code1 = attachFeature(outputTE, new TrigInDetTrackCollection, m_attachedFeatureName1);//Do not attach TrigInDetTrack
 
   if ( code1 != HLT::OK ) {
     ATH_MSG_ERROR("REGTEST/ Write into outputTE failed");
@@ -931,29 +683,10 @@ HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement* inputT
     }
     return code2;
   }
+  delete m_recoTracks;
+  m_recoTracks=nullptr;
   
   return HLT::OK;
-}
-
-void TrigFastTrackFinder::createOfflineSeeds(const std::vector<std::shared_ptr<TrigInDetTriplet>>& input, std::vector<InDet::SiSpacePointsSeed>& output) {
-  
-  output.reserve(input.size());
-  for (const auto triplet : input) {
-    const Trk::SpacePoint* osp1 = triplet->s1().offlineSpacePoint();
-    const Trk::SpacePoint* osp2 = triplet->s2().offlineSpacePoint();
-    const Trk::SpacePoint* osp3 = triplet->s3().offlineSpacePoint();
-
-    if(m_checkSeedRedundancy) {
-      //check if clusters do not belong to any track
-      std::vector<Identifier> clusterIds;
-      extractClusterIds(osp1, clusterIds);
-      extractClusterIds(osp2, clusterIds);
-      extractClusterIds(osp3, clusterIds);
-      if(usedByAnyTrack(clusterIds, m_siClusterMap)) continue;
-    }
-
-    output.push_back(InDet::SiSpacePointsSeed(osp1, osp2, osp3, (double)triplet->z0()));
-  }
 }
 
 double TrigFastTrackFinder::trackQuality(const Trk::Track* Tr) {
@@ -963,7 +696,7 @@ double TrigFastTrackFinder::trackQuality(const Trk::Track* Tr) {
     me = Tr->trackStateOnSurfaces()->end  ();
   
   double quality = 0. ;
-  double W       = 17.;
+  const double W       = 17.;
 
   for(; m!=me; ++m) {
     const Trk::FitQualityOnSurface* fq =  (*m)->fitQualityOnSurface();
@@ -1028,7 +761,6 @@ void TrigFastTrackFinder::convertToTrigInDetTrack(const TrackCollection& offline
     float z0 = trackPars->parameters()[Trk::z0]; 
     float phi0 = trackPars->parameters()[Trk::phi0]; 
     float theta = trackPars->parameters()[Trk::theta]; 
-    TrigCombinatorialTrackFinding::correct_phi(phi0);
     float eta = -log(tan(0.5*theta)); 
     
     float qOverP = trackPars->parameters()[Trk::qOverP]; 
@@ -1146,7 +878,6 @@ HLT::ErrorCode TrigFastTrackFinder::hltFinalize()
 
   ATH_MSG_INFO("=========================================================");
   ATH_MSG_INFO("TrigFastTrackFinder::finalize() - TrigFastTrackFinder Statistics: ");
-  ATH_MSG_INFO("Events processed: " <<  m_countTotalEvents);
   ATH_MSG_INFO("RoI processed: " <<  m_countTotalRoI);
   ATH_MSG_INFO("RoI with enough SPs : " <<  m_countRoIwithEnoughHits);
   ATH_MSG_INFO("RoI with Track(s)  Total/goodZvertex/badZvertex: " << m_countRoIwithTracks);
@@ -1155,7 +886,6 @@ HLT::ErrorCode TrigFastTrackFinder::hltFinalize()
     ATH_MSG_INFO("Number of signal seeds  found   " << m_nSignalDetected);
     ATH_MSG_INFO("Number of signal tracks found   " << m_nSignalTracked);
     if(m_nSignalPresent!=0) {
-      ATH_MSG_INFO("Doublet making efficiency      " << (100.0*m_nGoodDoublets/m_nSignalPresent) <<" % ");
       ATH_MSG_INFO("Track seeding  efficiency      " << (100.0*m_nSignalDetected/m_nSignalPresent) <<" % ");
       ATH_MSG_INFO("Track seeding  redundancy      " << (100.0*m_nSignalClones/m_nSignalPresent) << " %");
       ATH_MSG_INFO("Track finding efficiency       " << (100.0*m_nSignalTracked/m_nSignalPresent) << " %");
@@ -1308,18 +1038,11 @@ void TrigFastTrackFinder::getMagField() {
 }
 
 
-HLT::ErrorCode TrigFastTrackFinder::getRoI(const HLT::TriggerElement* inputTE, const IRoiDescriptor*& roi)
+HLT::ErrorCode TrigFastTrackFinder::getRoI(const HLT::TriggerElement* outputTE, const IRoiDescriptor*& roi)
 {
   
   const TrigRoiDescriptor* externalRoI = nullptr;
-  HLT::ErrorCode ec = getFeature(inputTE, externalRoI, "forID");
-  if(ec != HLT::OK || externalRoI==nullptr ) {
-    ec = getFeature(inputTE, externalRoI);
-    if (!m_roiForIDWarning) {
-      ATH_MSG_INFO("REGTEST / using ordinary RoI ( no forID RoI found ) ");
-      m_roiForIDWarning = true;
-    }
-  }
+  HLT::ErrorCode ec = getFeature(outputTE, externalRoI);
   if(ec != HLT::OK) {
     ATH_MSG_ERROR("REGTEST / Failed to find RoiDescriptor");
     return HLT::NAV_ERROR;
@@ -1375,7 +1098,6 @@ void TrigFastTrackFinder::clearMembers() {
 }
 
 void TrigFastTrackFinder::calculateRecoEfficiency(const std::vector<TrigSiSpacePointBase>& convertedSpacePoints,
-                                                  const std::map<int,int>& nGoodDoublets,
 						  const std::map<int,int>& nGoodTotal, 
 						  const std::map<int,int>& nGoodAccepted) {
 
@@ -1384,9 +1106,6 @@ void TrigFastTrackFinder::calculateRecoEfficiency(const std::vector<TrigSiSpaceP
     int nSignalSPs = findBarCodeInData(barCode, convertedSpacePoints);
     if(nSignalSPs<m_minSignalSPs) continue;
     m_nSignalPresent+=1;
-    if((*nGoodDoublets.find(barCode)).second!=0) {
-      m_nGoodDoublets+=1;
-    }
     int nSignalTracks = (*nGoodTotal.find(barCode)).second;
     if(nSignalTracks==0) {
       continue;
@@ -1405,92 +1124,9 @@ void TrigFastTrackFinder::fill_a0() {
     float a0 = (*trackIt)->param()->a0();
     float phi0 = (*trackIt)->param()->phi0();
     m_a0beam.push_back(a0+m_shift_x*sin(phi0)-m_shift_y*cos(phi0));
-    float dPhi0 = phi0 - m_roiPhi;
-    TrigCombinatorialTrackFinding::correct_phi(phi0);
+    float dPhi0 = HLT::wrapPhi(phi0 - m_roiPhi);
     m_trkdPhi0.push_back(dPhi0);
     m_trkdEta.push_back((*trackIt)->param()->eta() - m_roiEta);
-    //zVTX = m_zPosition; // precise calculation using vertex z, not the beamspot cond service - not needed
   }
-}
-
-/*
-struct SimpleFunctor {
-public:
-  void operator()(int x) const {
-    std::cout << "Job Id [" << x << "]\n";
-  }
-};
-//tbb::parallel_for(0, m_roads.size(), 1, SimpleFunctor());
-*/
-HLT::ErrorCode TrigFastTrackFinder::makeTripletClusters(const TrigSpacePointStorage& spacePointStorage, 
-                                                        TrigCombinatorialTrackFinding& combinatorial, 
-                                                        std::vector<TrigInDetTripletCluster*>& tripletClusters,  
-                                                        const TrigL2LayerSetLUT* pLUT,
-                                                        std::map<int,int>& nGoodDoublets,
-                                                        const std::vector<TrigSiSpacePointBase>& convertedSpacePoints) { 
-  for(const auto road : m_roads) {
-    unsigned int roadId = road.roadId();
-    unsigned int roadSubId = road.roadSubId();
-    const auto& firstLayerSpacePointVector = spacePointStorage.firstLayerSpacePointVector(roadId, roadSubId);
-    const auto& secondLayerSpacePointVector = spacePointStorage.secondLayerSpacePointVector(roadId, roadSubId);
-
-    // Create doublets
-    std::vector<TrigInDetDoublet*> doublets;
-    if ( timerSvc() ) m_DoubletFindingTimer->resume();
-    StatusCode sc = combinatorial.findDoublets(firstLayerSpacePointVector, secondLayerSpacePointVector, doublets);
-    if ( timerSvc() ) m_DoubletFindingTimer->pause();
-    if(sc.isFailure()) {
-      ATH_MSG_ERROR("Failed producing doublets!");
-      return HLT::TOOL_FAILURE;
-    }
-		if (doublets.size() == 0) {
-			continue;
-		}
-
-    ATH_MSG_VERBOSE("processing road with roadId/roadSubId: " << roadId << "/" << roadSubId);
-    ATH_MSG_VERBOSE("number of doublets found: " << doublets.size());
-    if(msgLvl() <= MSG::VERBOSE) {
-      for(const auto doublet : doublets) {
-        ATH_MSG_VERBOSE("doublet found with z0: " << doublet->z0());
-      }
-    }
-
-    if (m_retrieveBarCodes) {
-      for(auto barCode : m_vSignalBarCodes) {
-        int nSignalSPs = findBarCodeInData(barCode, convertedSpacePoints);
-        if(nSignalSPs<m_minSignalSPs) continue;
-        int nSignalDoublets = findBarCodeInDoublets(barCode, doublets);
-        if(nSignalDoublets==0) continue;
-        (*nGoodDoublets.find(barCode)).second+=1;
-      }
-    }
-
-    // Create triplet clusters
-
-    if ( timerSvc() ) m_TripletFindingTimer->resume();
-    const auto& thirdLayerSpacePointVector = spacePointStorage.thirdLayerSpacePointVector(roadId, roadSubId);
-    sc = combinatorial.findTripletClusters(doublets, thirdLayerSpacePointVector, tripletClusters, pLUT);
-    if ( timerSvc() ) m_TripletFindingTimer->pause();
-    if(sc.isFailure()) {
-      ATH_MSG_ERROR("Failed producing triplets!");
-      for(auto doublet : doublets) delete doublet;
-      return HLT::TOOL_FAILURE;
-    }
-
-    ATH_MSG_VERBOSE("number of triplet clusters found: " << tripletClusters.size());
-    if(msgLvl() <= MSG::VERBOSE) {
-      for(auto cluster : tripletClusters) {
-        for(auto triplet : cluster->triplets()) {
-          ATH_MSG_VERBOSE("triplet found with eta/phi/z0/d0/pt: " << triplet->eta() << " " << triplet->phi() << " " << triplet->z0() << " " << triplet->d0() << " " << triplet->pt());	  
-          if (m_retrieveBarCodes) {
-            ATH_MSG_VERBOSE("spacepoint bar Codes ...");
-            ATH_MSG_VERBOSE(triplet->s1().barCode()<<" "<<triplet->s2().barCode()<<" "<<triplet->s3().barCode());
-          }
-        }
-      }
-    }
-    for(auto doublet : doublets) delete doublet;
-  }
-  return HLT::OK;
 }
 

@@ -28,14 +28,12 @@
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
-#include "TrigInDetPattRecoEvent/TrigInDetPattRecoEvent/TrigInDetRoad.h"
 #include "TrigInDetPattRecoTools/TrigCombinatorialSettings.h"
 
 class IFTK_DataProviderTool;
 class ITrigL2LayerNumberTool;
 class ITrigL2LayerSetPredictorTool;
 class ITrigSpacePointConversionTool;
-class ITrigInDetRoadMakerTool;
 class ITrigL2SpacePointTruthTool;
 class ITrigInDetTrackFitter;
 class IRegSelSvc;
@@ -79,12 +77,9 @@ class TrigFastTrackFinder : public HLT::FexAlgo {
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE,
 			    HLT::TriggerElement* outputTE);
 
-  bool isInRoad(const TrigSiSpacePointBase*, const TrigInDetRoad*);
-
   void convertToTrigInDetTrack(const TrackCollection& offlineTracks, TrigInDetTrackCollection& trigInDetTracks);
   double trackQuality(const Trk::Track* Tr);
   void filterSharedTracks(std::vector<std::tuple<bool, double, Trk::Track*>>& QT);
-  void createOfflineSeeds(const std::vector<std::shared_ptr<TrigInDetTriplet>>& input, std::vector<InDet::SiSpacePointsSeed>& output);
 
 protected: 
 
@@ -104,18 +99,14 @@ protected:
   // AlgTools and Services
 
   ToolHandle<ITrigL2LayerNumberTool> m_numberingTool;
-  ToolHandle<ITrigL2LayerSetPredictorTool> m_predictorTool;
   ToolHandle<ITrigSpacePointConversionTool> m_spacePointTool;
-  ToolHandle<ITrigInDetRoadMakerTool> m_roadMakerTool;
   ToolHandle<ITrigL2SpacePointTruthTool> m_TrigL2SpacePointTruthTool;
   ToolHandle<InDet::ISiTrackMaker> m_trackMaker;   // Track maker 
-  ToolHandle<ITrigInDetTrackFitter> m_trigInDetTrackFitter;   // Track maker 
+  ToolHandle<ITrigInDetTrackFitter> m_trigInDetTrackFitter;
   ToolHandle< Trk::ITrackSummaryTool > m_trackSummaryTool;
 
   // ToolHandle<IFTK_DataProviderTool> m_ftkReader;
  
-  ServiceHandle<IRegSelSvc>     m_regionSelector;      //!< region selector service
-
   ServiceHandle<MagField::IMagFieldSvc> m_MagFieldSvc;
 
   double m_shift_x, m_shift_y;
@@ -127,13 +118,6 @@ protected:
   bool m_ftkMode;
   bool m_useBeamSpot; 
   bool m_vertexSeededMode;
-
-  HLT::ErrorCode makeTripletClusters(const TrigSpacePointStorage& spacePointStorage, 
-                                     TrigCombinatorialTrackFinding& combinatorial, 
-                                     std::vector<TrigInDetTripletCluster*>& tripletClusters,  
-                                     const TrigL2LayerSetLUT* pLUT,
-                                     std::map<int,int>& nGoodDoublets,
-                                     const std::vector<TrigSiSpacePointBase>& convertedSpacePoints);
 
   // Cuts and settings
   TrigCombinatorialSettings m_tcs;
@@ -150,12 +134,9 @@ protected:
 
   float m_tripletMinPtFrac;
   float m_pTmin;
+  float m_initialD0Max;
 
   bool m_checkSeedRedundancy;
-
-  // Roads
-
-  std::vector<TrigInDetRoad> m_roads;
 
   // Names of IDCs with input data 
   //
@@ -217,7 +198,6 @@ protected:
 
   void calculateRecoEfficiency(const std::vector<TrigSiSpacePointBase>&,
 			       const std::map<int,int>&,
-			       const std::map<int,int>&,
 			       const std::map<int,int>&);
 
 
@@ -231,17 +211,9 @@ protected:
 
   TrigTimer* m_SpacePointConversionTimer;
   TrigTimer* m_PatternRecoTimer; 
-  TrigTimer* m_SpacePointSortingTimer;
-  TrigTimer* m_DoubletFindingTimer; 
-  TrigTimer* m_TripletFindingTimer; 
-  TrigTimer* m_TripletClusterTimer; 
   TrigTimer* m_TripletMakingTimer; 
   TrigTimer* m_CombTrackingTimer; 
   TrigTimer* m_TrackFitterTimer; 
-
-  // Other member functions
-
-  StatusCode storeSpacePoints(const std::vector<TrigSiSpacePointBase>& convertedSpacePoints, TrigSpacePointStorage& spacePointStorage);
 
   // Internal bookkeeping
 
@@ -249,7 +221,6 @@ protected:
     m_outputCollectionSuffix;
 
   unsigned int m_l1Id;
-  unsigned int m_countTotalEvents;
   unsigned int m_countTotalRoI;
   unsigned int m_countRoIwithEnoughHits;
   unsigned int m_countRoIwithTracks;
@@ -265,15 +236,10 @@ protected:
   const PixelID* m_pixelId;
   const SCT_ID* m_sctId;
   const AtlasDetectorID* m_idHelper;
-  StoreGateSvc*  m_detectorStore;
 
   //Merge clone triplet clusters?
-  bool m_doCloneMerge;
-  bool m_doCloneRemove;
   int m_numSeedsToTry;
   int m_minSignalSPs;
-
-	bool m_roiForIDWarning=false;
 
   Trk::ParticleHypothesis m_particleHypothesis = Trk::pion;//particle hypothesis to attach to each track - usually pion, can be set to other values
 

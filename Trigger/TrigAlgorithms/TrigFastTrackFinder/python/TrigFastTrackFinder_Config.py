@@ -19,7 +19,7 @@ from AthenaCommon.SystemOfUnits import *
 class CommonSettings() :
     def __init__(self):
         self.allowedInstanceNames = ['Muon', 'eGamma', 'muonIso', 'Tau', 'TauCore', 'TauIso',
-                                     'Jet', 'Bphysics', 'FullScan', 'BeamSpot', 'Tile', 'FullScan_ZF_Only']
+                                     'Jet', 'Bphysics', 'FullScan', 'BeamSpot', 'Tile', 'FullScan_ZF_Only', 'Cosmic']
         self.db = {}
    
     def __getitem__(self, (quantity, slice)):
@@ -50,239 +50,130 @@ class ConfigurationFactory() :
        
         width = {}
         usezvtool = {}
-        nclustersmin = {}
-        nholesmax = {}
-        nholesgapmax = {}
         seedsfilterlevel = {}
-        freeclusterscut = {}
         tripletminptfrac = {}
-        tripletcutroieta = {}
-        tripletcutroiphi = {}
-        tripletdofilter = {} 
-        usenewseeding   = {}
-        tripletrzmax = {}
-        tripletchi2max = {}
-        tripletphiscale = {}
-        tripletnbest = {}
-        uselikelihood = {}
-        tripletminllr = {}
-        tripletmintriplets = {}
-        tripletsmaxlayers = {}
-        tripletsdomaxlayers = {}
-        tripletcloneremovethr = {}
-        doclonemerge = {}
-        docloneremove = {}
+        tripletnmaxphislice = {}
+        tripletmaxbufferlength = {}
         doredundantseeds = {}
-        numseedstotry = {}
-        clusterprefit = {}
-        layeronedepth = {}
-        layertwodepth = {}
         ptmin = {}
         dospacepointphifiltering = {}
+        doubletz0max = {}
+        tripletd0max = {}
+        tripletd0_pps_max = {}
+        triplet_do_pss = {}
+        trackinitiald0max = {}
 
         for i in self.settings.allowedInstanceNames :
             width[i] = 10.0
             usezvtool[i] = True
-            nclustersmin[i] = 7
-            nholesmax[i] = 2
-            nholesgapmax[i] = 2
             seedsfilterlevel[i] = 0
-            freeclusterscut[i] = 5
             tripletminptfrac[i] = 1.0
-            tripletcutroieta[i] = False
-            tripletcutroiphi[i] = False
-            tripletdofilter[i] = True
-            usenewseeding[i]   = True
-            tripletrzmax[i] = 8.0
-            tripletchi2max[i] = 25.0
-            tripletphiscale[i] = 0.0006
-            tripletnbest[i] = 2
-            uselikelihood[i] = False
-            tripletminllr[i] = -200.0
-            tripletmintriplets[i] = 2
-            tripletsmaxlayers[i] = 5
-            tripletsdomaxlayers[i] = False
-            tripletcloneremovethr[i] = 0.6
-            doclonemerge[i] = False
-            docloneremove[i] = False
-            doredundantseeds[i] = False
-            numseedstotry[i] = 2
-            clusterprefit[i] = False
-            layeronedepth[i] = 2
-            layertwodepth[i] = 2
+            tripletnmaxphislice[i] = 53
+            tripletmaxbufferlength[i] = 3
+            doredundantseeds[i] = True
             ptmin[i] = 1.0*GeV
             dospacepointphifiltering[i] = True
+            doubletz0max[i] = 230.0
+            tripletd0max[i] = 4.0
+            tripletd0_pps_max[i] = 1.7
+            trackinitiald0max[i] = 20
+            triplet_do_pss[i] = False
        
-        # customize setting here: for example width['Tau'] = 20.
-        tripletdofilter['eGamma'] = True
-        #tripletphiscale['eGamma'] =  0.005 # to account for brem
-        clusterprefit['eGamma'] = True
-        numseedstotry['eGamma'] = 1
-        doredundantseeds['eGamma'] = True
-        tripletcutroieta['eGamma'] = True
-        tripletcutroiphi['eGamma'] = True
-
-        tripletdofilter['Muon'] = True
-        clusterprefit['Muon'] = True
-        numseedstotry['Muon'] = 1
-        doredundantseeds['Muon'] = True
-        tripletcutroieta['Muon'] = True
-        tripletcutroiphi['Muon'] = True
-        
-        tripletchi2max['Tau'] = 12.0
-        clusterprefit['Tau'] = False
-        tripletnbest['Tau'] = 2
-        numseedstotry['Tau'] = 1
         doredundantseeds['Tau'] = False
-        tripletdofilter['Tau'] = True
-        tripletcutroieta['Tau'] = True
-        tripletcutroiphi['Tau'] = True
-
-        clusterprefit['Jet'] = False
-        tripletnbest['Jet'] = 2
-        numseedstotry['Jet'] = 1
         doredundantseeds['Jet'] = False
-        tripletcutroieta['Jet'] = True
-        tripletcutroiphi['Jet'] = True
+
+        doredundantseeds['Cosmic'] = False
+        tripletnmaxphislice['Cosmic'] = 2
+        doubletz0max['Cosmic'] = 1000.0
+        tripletd0max['Cosmic'] = 1000.0
+        tripletd0_pps_max['Cosmic'] = 1000.0
+        trackinitiald0max['Cosmic'] = 1000.0
+
 
 
         # extend settings database
         self.settings.db['RoadWidth']=width
         self.settings.db['useZvertexTool'] = usezvtool
-        self.settings.db['nClustersMin'] = nclustersmin
-        self.settings.db['nHolesMax'] = nholesmax
-        self.settings.db['nHolesGapMax'] = nholesgapmax
         self.settings.db['SeedsFilterLevel'] = seedsfilterlevel
-        self.settings.db['FreeClustersCut'] = freeclusterscut
-        self.settings.db['Triplet_DoFilter'] = tripletdofilter
         self.settings.db['Triplet_MinPtFrac'] = tripletminptfrac
-        self.settings.db['Triplet_CutRoiEta'] = tripletcutroieta
-        self.settings.db['Triplet_CutRoiPhi'] = tripletcutroiphi
-        self.settings.db['UseNewSeeding'] = usenewseeding
-        self.settings.db['Triplet_RZMax'] = tripletrzmax
-        self.settings.db['Triplet_Chi2Max'] = tripletchi2max
-        self.settings.db['Triplet_FilterPhiScale'] = tripletphiscale
-        self.settings.db['Triplet_NBest'] = tripletnbest
-        self.settings.db['UseLikelihood'] = uselikelihood
-        self.settings.db['Triplet_MinLLR'] = tripletminllr
-        self.settings.db['Triplet_MinTriplets'] = tripletmintriplets
-        self.settings.db['Triplet_MaxLayers'] = tripletsmaxlayers
-        self.settings.db['Triplet_DoMaxLayers'] = tripletsdomaxlayers
-        self.settings.db['Triplet_CloneRemoveThreshold'] = tripletcloneremovethr
-        self.settings.db['doCloneMerge'] = doclonemerge
-        self.settings.db['doCloneRemove'] = docloneremove
+        self.settings.db['Triplet_nMaxPhiSlice'] = tripletnmaxphislice
+        self.settings.db['Triplet_MaxBufferLength'] = tripletmaxbufferlength
         self.settings.db['doSeedRedundancyCheck'] = doredundantseeds
-        self.settings.db['numSeedsToTry'] = numseedstotry
-        self.settings.db['Triplet_ClusterPrefit'] = clusterprefit
-        self.settings.db['layerOneDepth'] = layeronedepth
-        self.settings.db['layerTwoDepth'] = layertwodepth
         self.settings.db['pTmin'] = ptmin
         self.settings.db['doSpacePointPhiFiltering'] = dospacepointphifiltering 
-        
+        self.settings.db["Doublet_Z0Max"] = doubletz0max
+        self.settings.db["Triplet_D0Max"] = tripletd0max
+        self.settings.db["Triplet_D0_PPS_Max"] = tripletd0_pps_max
+        self.settings.db["TrackInitialD0Max"] = trackinitiald0max
+        self.settings.db["TripletDoPSS"] = triplet_do_pss
+
     def configureInstance(self, ftfInstance, instName) :
         if instName in self.settings.allowedInstanceNames :
-            from AthenaCommon.DetFlags import DetFlags
             from AthenaCommon.AppMgr import ToolSvc
-            from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 
-            ## SCT and Pixel detector elements road builder
-            from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPixelConditionsSummarySvc, InDetTrigSCTConditionsSummarySvc
-            from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiDetElementsRoadMaker
-            InDetTrigSiDetElementsRoadMaker_FTF = InDetTrigSiDetElementsRoadMaker.clone('InDetTrigSiDetElementsRoadMaker_FTF')
-            InDetTrigSiDetElementsRoadMaker_FTF.RoadWidth = self.settings[('RoadWidth',instName)]
-            ToolSvc += InDetTrigSiDetElementsRoadMaker_FTF
-
-            if DetFlags.haveRIO.pixel_on():
-                from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummarySvc
-                from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
-                InDetTrigPixelConditionsSummarySvc = PixelConditionsSummarySvc(PixelConditionsSetup.instanceName('PixelConditionsSummarySvc'))
-            else:
-                InDetTrigPixelConditionsSummarySvc = None
-           
-            if DetFlags.haveRIO.SCT_on():
-                from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ConditionsSummarySvc
-                from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
-                InDetTrigSCTConditionsSummarySvc = SCT_ConditionsSummarySvc(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummarySvc'))
-            else:
-                InDetTrigSCTConditionsSummarySvc = None
-
+            #Spacepoint conversion
             from TrigOnlineSpacePointTool.TrigOnlineSpacePointToolConf import TrigSpacePointConversionTool
             spTool = TrigSpacePointConversionTool()
             spTool.DoPhiFiltering = self.settings[('doSpacePointPhiFiltering',instName)]
             ToolSvc += spTool
             ftfInstance.SpacePointProviderTool=spTool
 
-           
-            from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiCombinatorialTrackFinder_xk
-            from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPrdAssociationTool, InDetTrigPatternPropagator
-            from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPatternUpdator, InDetTrigRotCreator
+            ## SCT and Pixel detector elements road builder
+            from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiDetElementsRoadMaker
+            InDetTrigSiDetElementsRoadMaker_FTF = InDetTrigSiDetElementsRoadMaker.clone('InDetTrigSiDetElementsRoadMaker_FTF')
+            InDetTrigSiDetElementsRoadMaker_FTF.RoadWidth = self.settings[('RoadWidth',instName)]
+            if instName=="Cosmic": 
+              from InDetTrigRecExample.InDetTrigConfigRecLoadToolsCosmics import InDetTrigSiDetElementsRoadMakerCosmics
+              InDetTrigSiDetElementsRoadMaker_FTF = InDetTrigSiDetElementsRoadMakerCosmics.clone('InDetTrigSiDetElementsRoadMaker_FTF')
+            ToolSvc += InDetTrigSiDetElementsRoadMaker_FTF
+
+
+            from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiComTrackFinder
+            InDetTrigSiComTrackFinder_FTF = InDetTrigSiComTrackFinder.clone("InDetTrigSiComTrackFinder_FTF")
+            ToolSvc += InDetTrigSiComTrackFinder_FTF
             
-            CombinatorialTrackFinder_FTF = InDet__SiCombinatorialTrackFinder_xk(name = 'InDetTrigSiComTrackFinder_FTF_'+instName,
-                                                                                PropagatorTool = InDetTrigPatternPropagator,
-                                                                                UpdatorTool    = InDetTrigPatternUpdator,
-                                                                                RIOonTrackTool   = InDetTrigRotCreator,
-                                                                                AssosiationTool  = InDetTrigPrdAssociationTool,
-                                                                                usePixel         = DetFlags.haveRIO.pixel_on(),
-                                                                                useSCT           = DetFlags.haveRIO.SCT_on(),
-                                                                                PixelClusterContainer = 'PixelTrigClusters',
-                                                                                SCT_ClusterContainer = 'SCT_TrigClusters',
-                                                                                PixelSummarySvc = InDetTrigPixelConditionsSummarySvc,
-                                                                                SctSummarySvc = InDetTrigSCTConditionsSummarySvc)
-            ToolSvc += CombinatorialTrackFinder_FTF
+            
+            from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
+            TrackingCuts = EFIDTrackingCuts
+            if instName=="Cosmic":
+              from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutsCosmics
+              TrackingCuts = EFIDTrackingCutsCosmics
 
             from SiTrackMakerTool_xk.SiTrackMakerTool_xkConf import InDet__SiTrackMaker_xk
 
-            from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
             TrackMaker_FTF = InDet__SiTrackMaker_xk(name = 'InDetTrigSiTrackMaker_FTF_'+instName,
                                                     RoadTool       = InDetTrigSiDetElementsRoadMaker_FTF,
-                                                    CombinatorialTrackFinder = CombinatorialTrackFinder_FTF,
+                                                    CombinatorialTrackFinder = InDetTrigSiComTrackFinder_FTF,
                                                     pTmin          = self.settings[('pTmin',instName)],
-                                                    nClustersMin   = EFIDTrackingCuts.minClusters(),
-                                                    nHolesMax      = EFIDTrackingCuts.nHolesMax(),
-                                                    nHolesGapMax   = EFIDTrackingCuts.nHolesGapMax(),
+                                                    nClustersMin   = TrackingCuts.minClusters(),
+                                                    nHolesMax      = TrackingCuts.nHolesMax(),
+                                                    nHolesGapMax   = TrackingCuts.nHolesGapMax(),
                                                     SeedsFilterLevel = self.settings[('SeedsFilterLevel',instName)],
-                                                    Xi2max         = EFIDTrackingCuts.Xi2max(),
-                                                    Xi2maxNoAdd    = EFIDTrackingCuts.Xi2maxNoAdd(),
-                                                    nWeightedClustersMin= EFIDTrackingCuts.nWeightedClustersMin(),
-                                                    Xi2maxMultiTracks         = EFIDTrackingCuts.Xi2max(),
+                                                    Xi2max         = TrackingCuts.Xi2max(),
+                                                    Xi2maxNoAdd    = TrackingCuts.Xi2maxNoAdd(),
+                                                    nWeightedClustersMin= TrackingCuts.nWeightedClustersMin(),
+                                                    Xi2maxMultiTracks         = TrackingCuts.Xi2max(),
                                                     UseAssociationTool       = False)
 
+            if instName=="Cosmic":
+              TrackMaker_FTF.RoadTool.CosmicTrack=True
             ToolSvc += TrackMaker_FTF
             ftfInstance.offlineTrackMaker = TrackMaker_FTF
-            #print TrackMaker_FTF
+            print TrackMaker_FTF
+            print InDetTrigSiDetElementsRoadMaker_FTF
 
-            from TrigInDetRecoTools.TrigInDetRecoToolsConf import TrigInDetRoadMakerTool
-            roadMakingTool = TrigInDetRoadMakerTool(name = 'TrigInDetRoadMakerTool_FTF_' + instName,
-                                                    EtaBin = False, EtaBinWidth = 5.0, 
-                                                    LayerOneDepth=self.settings[('layerOneDepth',instName)],
-                                                    LayerTwoDepth=self.settings[('layerTwoDepth',instName)]) 
-
-
-            print roadMakingTool
-            ToolSvc += roadMakingTool
-            ftfInstance.RoadMakerTool = roadMakingTool
-            ftfInstance.FreeClustersCut = self.settings[('FreeClustersCut',instName)]
-            ftfInstance.Triplet_DoFilter = self.settings[('Triplet_DoFilter',instName)]
             ftfInstance.Triplet_MinPtFrac = self.settings[('Triplet_MinPtFrac',instName)]
-            ftfInstance.Triplet_CutRoiEta = self.settings[('Triplet_CutRoiEta',instName)]
-            ftfInstance.Triplet_CutRoiPhi = self.settings[('Triplet_CutRoiPhi',instName)]
-            ftfInstance.UseNewSeeding     = self.settings[('UseNewSeeding',instName)]
-            ftfInstance.Triplet_RZMax = self.settings[('Triplet_RZMax',instName)]
-            ftfInstance.Triplet_Chi2Max = self.settings[('Triplet_Chi2Max',instName)]
-            ftfInstance.Triplet_FilterPhiScale = self.settings[('Triplet_FilterPhiScale',instName)]
-            ftfInstance.Triplet_NBest = self.settings[('Triplet_NBest',instName)]
-            ftfInstance.Triplet_UseLikelihood = self.settings[('UseLikelihood',instName)]
-            ftfInstance.Triplet_MinLLR = self.settings[('Triplet_MinLLR',instName)]
-            ftfInstance.Triplet_MinTriplets = self.settings[('Triplet_MinTriplets',instName)]
-            ftfInstance.Triplet_MaxLayers = self.settings[('Triplet_MaxLayers',instName)]
-            ftfInstance.Triplet_DoMaxLayers = self.settings[('Triplet_DoMaxLayers',instName)]
-            ftfInstance.Triplet_CloneRemoveThreshold = self.settings[('Triplet_CloneRemoveThreshold',instName)]
-            ftfInstance.doCloneMerge = self.settings[('doCloneMerge',instName)]
-            ftfInstance.doCloneRemove = self.settings[('doCloneRemove',instName)]
+            ftfInstance.Triplet_nMaxPhiSlice = self.settings[('Triplet_nMaxPhiSlice',instName)]
+            ftfInstance.Triplet_MaxBufferLength = self.settings[('Triplet_MaxBufferLength',instName)]
             ftfInstance.doSeedRedundancyCheck = self.settings[('doSeedRedundancyCheck',instName)]
-            ftfInstance.numSeedsToTry = self.settings[('numSeedsToTry',instName)]
-            ftfInstance.Triplet_ClusterPrefit = self.settings[('Triplet_ClusterPrefit',instName)]
+            ftfInstance.Doublet_Z0Max        = self.settings[('Doublet_Z0Max',instName)]
+            ftfInstance.Triplet_D0Max        = self.settings[('Triplet_D0Max',instName)]
+            ftfInstance.Triplet_D0_PPS_Max   = self.settings[('Triplet_D0_PPS_Max',instName)]
+            ftfInstance.TrackInitialD0Max   = self.settings[('TrackInitialD0Max',instName)]
+            ftfInstance.TripletDoPSS   = self.settings[('TripletDoPSS',instName)]
+
             ftfInstance.pTmin = self.settings[('pTmin',instName)]
+
         else :
             print "Instance "+instName+" of TrigFastTrackFinder is not supported!"
             ftfInstance.offlineTrackMaker = None
@@ -473,16 +364,9 @@ class TrigFastTrackFinder_Cosmic_Monitoring(TrigFastTrackFinder_CommonMonitoring
 
 class TrigFastTrackFinderBase(TrigFastTrackFinder):
     __slots__ = []
-    def __init__(self, instName, seqName, etaHalfWidth = 0.1, phiHalfWidth = 0.1, doRefit = True):
+    def __init__(self, instName, seqName):
         TrigFastTrackFinder.__init__(self,instName)
         self.LayerNumberTool=numberingTool
-        self.doRefit       = doRefit
-        #self.doRefit       = False
-        #print instName
-        #print seqName
-       
-        self.phiHalfWidth = phiHalfWidth
-        self.etaHalfWidth = etaHalfWidth
         self.MinHits = 5
         
         self.retrieveBarCodes = False
@@ -537,3 +421,7 @@ class TrigFastTrackFinder_TauIso(TrigFastTrackFinderBase):
 class TrigFastTrackFinder_Jet(TrigFastTrackFinderBase):
   def __init__(self, name = "TrigFastTrackFinder_Jet"):
     TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_Jet","Jet")
+
+class TrigFastTrackFinder_Cosmic(TrigFastTrackFinderBase):
+  def __init__(self, name = "TrigFastTrackFinder_Cosmic"):
+    TrigFastTrackFinderBase.__init__(self, "TrigFastTrackFinder_Cosmic","Cosmic")
