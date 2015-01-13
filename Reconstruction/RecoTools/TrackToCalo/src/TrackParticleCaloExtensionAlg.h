@@ -20,6 +20,8 @@
 namespace Trk {
   class ITrackSelectorTool;
   class IParticleCaloExtensionTool;
+}
+namespace Rec {
   class IParticleCaloCellAssociationTool;
 }
 
@@ -37,7 +39,7 @@ public:
 
 private:
   ToolHandle <Trk::IParticleCaloExtensionTool>       m_caloExtensionTool; //!< Tool to make the step-wise extrapolation
-  ToolHandle <Trk::IParticleCaloCellAssociationTool> m_caloCellAssociationTool; //!< Tool to make the step-wise extrapolation
+  ToolHandle <Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool; //!< Tool to make the step-wise extrapolation
   ToolHandle <Trk::ITrackSelectorTool>               m_trackSelector; //!< Tool to select tracks
 
   std::string m_trackParicleContainerName;

@@ -61,28 +61,28 @@ StatusCode TrackParticleCaloExtensionAlg::execute() {
     if( !m_trackSelector.empty() && !m_trackSelector->decision(*tp) ) continue;
     ++m_processedTracks;
 
-    // call calo Extension
-    if( !m_caloExtensionTool.empty() ){
-      const xAOD::ParticleCaloExtension* extension = m_caloExtensionTool->caloExtension(const_cast<xAOD::TrackParticle&>(*tp));
-      if( extension ) ++m_extensions;
+    // // call calo Extension
+    // if( !m_caloExtensionTool.empty() ){
+    //   const Trk::CaloExtension* extension = m_caloExtensionTool->caloExtension(const_cast<xAOD::TrackParticle&>(*tp));
+    //   if( extension ) ++m_extensions;
 
-      if( msgLvl(MSG::DEBUG) && extension && extension->numberOfParameters() != 0 ){
-        ATH_MSG_DEBUG("Got calo extension " << extension->numberOfParameters() << " cells " << extension->caloCells().size() );
-        for( unsigned int i=0;i<extension->numberOfParameters();++i){
-          xAOD::CurvilinearParameters_t pars = extension->trackParameters(i);
-          unsigned int id = extension->parameterIdentifier(i);
-          ATH_MSG_DEBUG( " id " << id << " pos: r " << sqrt(pars[0]*pars[0]+pars[1]*pars[1]) << " z " << pars[2]
-                         << " momentum " << sqrt(pars[3]*pars[3]+pars[4]*pars[4]+pars[5]*pars[5]) );
-        }
-      }
-    }
-    // call calo cell association
-    if( !m_caloCellAssociationTool.empty() ){
-      const xAOD::ParticleCaloExtension* extension = m_caloCellAssociationTool->caloAssociation(const_cast<xAOD::TrackParticle&>(*tp));
-      if( msgLvl(MSG::DEBUG) && extension && extension->numberOfParameters() != 0 ){
-        ATH_MSG_DEBUG("Got calo cell extension " << extension->numberOfParameters() << " cells " << extension->caloCells().size() );
-      }
-    }
+    //   if( msgLvl(MSG::DEBUG) && extension && extension->numberOfParameters() != 0 ){
+    //     ATH_MSG_DEBUG("Got calo extension " << extension->numberOfParameters() << " cells " << extension->caloCells().size() );
+    //     for( unsigned int i=0;i<extension->numberOfParameters();++i){
+    //       xAOD::CurvilinearParameters_t pars = extension->trackParameters(i);
+    //       unsigned int id = extension->parameterIdentifier(i);
+    //       ATH_MSG_DEBUG( " id " << id << " pos: r " << sqrt(pars[0]*pars[0]+pars[1]*pars[1]) << " z " << pars[2]
+    //                      << " momentum " << sqrt(pars[3]*pars[3]+pars[4]*pars[4]+pars[5]*pars[5]) );
+    //     }
+    //   }
+    // }
+    // // call calo cell association
+    // if( !m_caloCellAssociationTool.empty() ){
+    //   const xAOD::ParticleCaloExtension* extension = m_caloCellAssociationTool->caloAssociation(const_cast<xAOD::TrackParticle&>(*tp));
+    //   if( msgLvl(MSG::DEBUG) && extension && extension->numberOfParameters() != 0 ){
+    //     ATH_MSG_DEBUG("Got calo cell extension " << extension->numberOfParameters() << " cells " << extension->caloCells().size() );
+    //   }
+    // }
   }
 
   return StatusCode::SUCCESS;

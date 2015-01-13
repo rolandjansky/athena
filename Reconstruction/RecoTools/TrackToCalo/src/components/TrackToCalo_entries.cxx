@@ -1,24 +1,25 @@
 //====================================================================
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
-#include "TrackToCalo/ExtrapolateToCaloTool.h"
 #include "../ParticleCaloExtensionTool.h"
 #include "../ParticleCaloCellAssociationTool.h"
+#include "../ParticleCaloClusterAssociationTool.h"
 #include "../TrackParticleCaloExtensionAlg.h"
-#include "TrackToCalo/ImpactInCaloAlg.h"
+#include "../MuonCaloEnergyTool.h"
 
 using namespace Trk;
-DECLARE_TOOL_FACTORY( ExtrapolateToCaloTool )
+using namespace Rec;
 DECLARE_TOOL_FACTORY( ParticleCaloExtensionTool )
 DECLARE_TOOL_FACTORY( ParticleCaloCellAssociationTool )
-DECLARE_ALGORITHM_FACTORY( ImpactInCaloAlg )
+DECLARE_TOOL_FACTORY( ParticleCaloClusterAssociationTool )
+DECLARE_TOOL_FACTORY( MuonCaloEnergyTool )
 DECLARE_ALGORITHM_FACTORY( TrackParticleCaloExtensionAlg )
 
 DECLARE_FACTORY_ENTRIES	( TrackToCalo ) {
-    DECLARE_TOOL( ExtrapolateToCaloTool );
     DECLARE_TOOL( ParticleCaloExtensionTool );
     DECLARE_TOOL( ParticleCaloCellAssociationTool );
-    DECLARE_ALGORITHM( ImpactInCaloAlg );
+    DECLARE_TOOL( ParticleCaloClusterAssociationTool );
+    DECLARE_TOOL( MuonCaloEnergyTool );
     DECLARE_ALGORITHM( TrackParticleCaloExtensionAlg );
 }
 
