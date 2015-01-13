@@ -277,7 +277,7 @@ int pool::RootKeyIOHandler::write(TClass* cl,
               << " is not writable." << std::endl;
   }
   std::cout << "File is not open. "
-            << " Cannot write object:" << knam << std::endl;
+            << " Cannot write object:" << (knam?knam:"(null)") << std::endl;
   return nbytes;
 }
 

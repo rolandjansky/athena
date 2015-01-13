@@ -16,11 +16,31 @@
 #include "AthContainers/tools/error.h"
 #include "TClass.h"
 #include "TVirtualCollectionProxy.h"
+#include "TROOT.h"
 #include <iostream>
 #include <stdexcept>
 
 
 namespace pool {
+
+
+/**
+ * @brief Find the vector type associated with @c CL by looking
+ *        up the @c vector_type typedef.
+ * @param cl The class for which to find the associated vector type.
+ *
+ * Given type CL, looks for a typedef CL::vector_type and returns the TClass
+ * for that if found.  Works for, eg, SG::PackedContainer.
+ */
+TClass* lookupVectorType (TClass *cl)
+{
+  std::string tname = cl->GetName();
+  tname += "::vector_type";
+  TDataType* typ = gROOT->GetType (tname.c_str());
+  if (typ)
+    return TClass::GetClass (typ->GetFullTypeName());
+  return nullptr;
+}
 
 
 /**
@@ -35,7 +55,8 @@ RootAuxVector::RootAuxVector (const RootAuxVectorFactory* factory,
 {
   TClass* vecClass = factory->vecClass();
   m_proxy = vecClass->GetCollectionProxy();
-  m_vec = vecClass->New ();
+  m_obj = factory->objClass()->New ();
+  m_vec = reinterpret_cast<char*> (m_obj) + factory->offset();
   this->resize (size);
 }
 
@@ -48,8 +69,8 @@ RootAuxVector::RootAuxVector (const RootAuxVector& other)
   : m_factory (other.m_factory),
     m_proxy (other.m_proxy)
 {
-  TClass* vecClass = m_factory->vecClass();
-  m_vec = vecClass->New();
+  m_obj = m_factory->objClass()->New ();
+  m_vec = reinterpret_cast<char*> (m_obj) + m_factory->offset();
   size_t sz = other.size();
   this->resize (sz);
 
@@ -74,7 +95,7 @@ RootAuxVector::RootAuxVector (const RootAuxVector& other)
  */
 RootAuxVector::~RootAuxVector()
 {
-  m_proxy->Destructor (m_vec);
+  m_factory->objClass()->Destructor (m_obj);
 }
 
 
@@ -100,11 +121,11 @@ void* RootAuxVector::toPtr ()
 
 
 /**
- * @brief Return a pointer to the STL vector itself.
+ * @brief Return a pointer to the overall object.
  */
 void* RootAuxVector::toVector ()
 {
-  return m_vec;
+  return m_obj;
 }
 
 
@@ -187,27 +208,64 @@ void RootAuxVector::shift (size_t pos, ptrdiff_t offs)
 }
 
 
+/**
+ * @brief Return the type of the complete object to be saved.
+ *
+ * For example, if the object is a @c std::vector, then we return
+ * the @c type_info of the vector.  But if we're holding
+ * a @c PackedContainer, then we return the @c type_info of the
+ * @c PackedContainer.
+ *
+ * Can return null if the operation is not supported.  In that case,
+ * I/O will use the type found from the variable registry.
+ */
+const std::type_info* RootAuxVector::objType() const
+{
+  return m_factory->objClass()->GetTypeInfo();
+}
+
+
 //==================================================================
 
 
 /**
  * @brief Constructor.
- * @param vecClass The @c TClass for the @c std::vector.
+ * @param vecClass The @c TClass for the vector object.
  */
-RootAuxVectorFactory::RootAuxVectorFactory (TClass* vecClass)
-  : m_vecClass (vecClass)
+RootAuxVectorFactory::RootAuxVectorFactory (TClass* objClass)
+  : m_objClass (objClass),
+    m_vecClass (objClass),
+    m_offset (0)
 {
-  TVirtualCollectionProxy* proxy = vecClass->GetCollectionProxy();
+  TVirtualCollectionProxy* proxy = m_vecClass->GetCollectionProxy();
+
+  if (!proxy) {
+    TClass* vecClass = lookupVectorType (objClass);
+    if (vecClass) {
+      m_vecClass = vecClass;
+      Int_t offs = objClass->GetBaseClassOffset (vecClass);
+      if (offs >= 0) {
+        m_offset = offs;
+        proxy = vecClass->GetCollectionProxy();
+      }
+      else {
+        ATHCONTAINERS_ERROR("RootAuxVectorFactory::RootAuxVectorFactory",
+                            std::string("Can't find vector base class in ") +
+                            objClass->GetName());
+      }
+    }
+  }
+
   if (!proxy) {
     std::string err = "Can't find collection proxy for ";
-    err += vecClass->GetName();
+    err += m_vecClass->GetName();
     throw std::runtime_error (err.c_str());
   }
 
-  if (vecClass->GetTypeInfo() == 0) {
+  if (m_vecClass->GetTypeInfo() == 0) {
     ATHCONTAINERS_ERROR("RootAuxVectorFactory::RootAuxVectorFactory",
                         std::string("No type_info available for class ") +
-                        vecClass->GetName() +
+                        m_vecClass->GetName() +
                         std::string(".  There is probably a missing dictionary.  We will likely crash further on."));
   }
 
@@ -292,11 +350,11 @@ size_t RootAuxVectorFactory::getEltSize() const
 
 
 /**
- * @brief Return the @c type_info of the vector.
+ * @brief Return the @c type_info of the overall object.
  */
 const std::type_info* RootAuxVectorFactory::tiVec() const
 {
-  return m_vecClass->GetTypeInfo();
+  return m_objClass->GetTypeInfo();
 }
 
 

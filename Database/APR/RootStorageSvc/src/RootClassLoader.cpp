@@ -29,6 +29,10 @@ using namespace pool;
 #include <utility>
 #include <vector>
 
+#ifdef XAOD_ANALYSIS
+#include "TError.h"
+#endif
+
 
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
 #include "Cintex/Cintex.h"
@@ -67,10 +71,17 @@ RootClassLoader::RootClassLoader()
     m_ignoreLoad = true;
     // Need to preload STL dlls into ROOT to avoid mismatches in the 
     // Collection proxies.
+#ifdef XAOD_ANALYSIS
+long tmpError = gErrorIgnoreLevel;
+gErrorIgnoreLevel=kError; //silences those ever-occuring but incredibly annoying warnings from vector.dll and vector-bool.dll
+#endif
     gROOT->ProcessLine("#include <vector>");
     gROOT->ProcessLine("#include <list>");
     gROOT->ProcessLine("#include <map>");
     gROOT->ProcessLine("#include <set>");
+#ifdef XAOD_ANALYSIS
+gErrorIgnoreLevel=tmpError;
+#endif
     m_ignoreLoad = false;
   }
   ROOT::GetROOT()->AddClassGenerator(this);

@@ -8,10 +8,13 @@
 
 #include "AthContainers/AuxTypeRegistry.h"
 #include "AthContainers/exceptions.h"
+#include "AthContainersInterfaces/AuxDataOption.h"
+#include "RootUtils/Type.h"
 
 #include "TBranch.h"
 #include "TLeaf.h"
 #include "TClass.h"
+#include "TClassEdit.h"
 #include "TVirtualCollectionProxy.h"
 
 #include <iostream>
@@ -25,33 +28,9 @@ namespace {
 
 const std::type_info* dataTypeToTypeInfo (EDataType type, std::string& typeName)
 {
-#define TYPE(CODE, TYP) case CODE: typeName=#TYP; return &typeid(TYP)
-  switch (type) {
-    TYPE(kChar_t,     char);               // 1 
-    TYPE(kShort_t,    short);              // 2 
-    TYPE(kInt_t,      int);                // 3 
-    TYPE(kLong_t,     long);               // 4 
-    TYPE(kFloat_t,    float);              // 5 
-    TYPE(kCounter,    int);                // 6 
-    TYPE(kCharStar,   char*);              // 7 
-    TYPE(kDouble_t,   double);             // 8 
-    TYPE(kDouble32_t, Double32_t);         // 9 
-    TYPE(kchar,       char);               // 10
-    TYPE(kUChar_t,    unsigned char);      // 11
-    TYPE(kUShort_t,   unsigned short);     // 12
-    TYPE(kUInt_t,     unsigned int);       // 13
-    TYPE(kULong_t,    unsigned long);      // 14
-    TYPE(kBits,       unsigned int);       // 15
-    TYPE(kLong64_t,   long long);          // 16
-    TYPE(kULong64_t,  unsigned long long); // 17
-    TYPE(kBool_t,     bool);               // 18
-    TYPE(kFloat16_t,  Float16_t);          // 19
-    TYPE(kVoid_t,     void);               // 20
-    TYPE(kDataTypeAliasUnsigned_t, unsigned int); // 21
-  default: break;
-  }
-#undef TYPE
-  return 0;
+  RootUtils::Type typ (type);
+  typeName = typ.getTypeName();
+  return typ.getTypeInfo();
 }
 
 
@@ -96,14 +75,24 @@ const std::type_info* getElementType (TBranch* br,
   if (!expectedClass) return 0;
 
   branchTypeName = expectedClass->GetName();
-  if (strncmp (expectedClass->GetName(), "vector<", 7) != 0) return 0;
-  TVirtualCollectionProxy* prox = expectedClass->GetCollectionProxy();
-  if (!prox) return 0;
-  if (prox->GetValueClass()) {
-    elementTypeName = prox->GetValueClass()->GetName();
-    return prox->GetValueClass()->GetTypeInfo();
+  if (strncmp (expectedClass->GetName(), "vector<", 7) == 0) {
+    TVirtualCollectionProxy* prox = expectedClass->GetCollectionProxy();
+    if (!prox) return 0;
+    if (prox->GetValueClass()) {
+      elementTypeName = prox->GetValueClass()->GetName();
+      return prox->GetValueClass()->GetTypeInfo();
+    }
+    return dataTypeToTypeInfo (prox->GetType(), elementTypeName);
   }
-  return dataTypeToTypeInfo (prox->GetType(), elementTypeName);
+  else if (strncmp (expectedClass->GetName(), "SG::PackedContainer<", 20) == 0){
+    TClassEdit::TSplitType split (expectedClass->GetName());
+    if (split.fElements.size() > 1) {
+      elementTypeName = split.fElements[1];
+      RootUtils::Type typ (elementTypeName);
+      return typ.getTypeInfo();
+    }
+  }
+  return 0;
 }
 
 
@@ -136,9 +125,17 @@ AuxStoreAPR::AuxStoreAPR(RootTreeContainer &container, long long entry, bool sta
             fac_class_name += ' ';
           fac_class_name += '>';
           TClass* fac_class = TClass::GetClass (fac_class_name.c_str());
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
           if (fac_class) {
+#else
+          if (fac_class && fac_class->HasDictionary()) {
+#endif
             TClass* base_class = TClass::GetClass ("SG::IAuxTypeVectorFactory");
+#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
             if (base_class) {
+#else
+            if (base_class && base_class->HasDictionary()) {
+#endif
               int offs = fac_class->GetBaseClassOffset (base_class);
               if (offs >= 0) {
                 void* fac_vp = fac_class->New();
@@ -153,7 +150,14 @@ AuxStoreAPR::AuxStoreAPR(RootTreeContainer &container, long long entry, bool sta
         }
 
         if (auxid == SG::null_auxid) {
-          TClass* vec_class = TClass::GetClass (branch_type_name.c_str());
+          std::string vec_name = branch_type_name;
+          if (standalone) {
+            vec_name = "std::vector<" + branch_type_name;
+            if (vec_name[vec_name.size()-1] == '>')
+              vec_name += " ";
+            vec_name += ">";
+          }
+          TClass* vec_class = TClass::GetClass (vec_name.c_str());
 
           if (vec_class) {
             SG::IAuxTypeVectorFactory* fac = new RootAuxVectorFactory (vec_class);
@@ -163,8 +167,11 @@ AuxStoreAPR::AuxStoreAPR(RootTreeContainer &container, long long entry, bool sta
         }
 
       }
+
       // add AuxID to the list
-      addAuxID (auxid);
+      // May still be null if we don't have a dictionary for the branch.
+      if (auxid != SG::null_auxid)
+        addAuxID (auxid);
    }
 
    lock();
@@ -229,6 +236,12 @@ bool AuxStoreAPR::readData(SG::auxid_t auxid)
 
    // Make a 1-element vector.
    SG::AuxStoreInternal::getDataInternal(auxid, 1, 1, true);
+   if (!standalone()) {
+     EDataType typ;
+     branch->GetExpectedType(cl, typ);
+     if (cl && strncmp (cl->GetName(), "SG::PackedContainer<", 20) == 0)
+       setOption (auxid, SG::AuxDataOption ("nbits", 32));
+   }
    vector = const_cast<void*>(SG::AuxStoreInternal::getIOData (auxid)); // xxx
 
    if (standalone() && !cl)

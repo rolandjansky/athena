@@ -39,15 +39,90 @@
 #include "TFile.h"
 #include "TLeaf.h"
 #include "TBranch.h"
+#include "TBranchElement.h"
 #include "TTreeFormula.h"
 
 #include "AthContainersInterfaces/IAuxStoreIO.h"
 #include "AthContainersInterfaces/IAuxTypeVector.h"
 #include "AthContainersInterfaces/IAuxStoreHolder.h"
 #include "AthContainers/AuxTypeRegistry.h"
+#include "AthContainers/normalizedTypeinfoName.h"
 #include "AuxStoreAPR.h"
 
 using namespace pool;
+
+
+namespace {
+
+
+class TBranchAccess : public TBranch
+{
+public:
+  static int doNotUseBufferMap() { return kDoNotUseBufferMap; }
+};
+
+
+/**
+ * @brief Fix up branch status bits after possible schema evolution
+ *        from std::vector to SG::PackedContainer.
+ * @param br The branch to process.
+ *
+ * Some background is needed here.
+ *
+ * ROOT can keep a map associated with a buffer giving the location of objects
+ * in the root file.  This is used to handle C pointer resolution on I/O.
+ * The use of this is controlled by two flags in fBits.
+ * If kDoNotUseBufferMap is _clear_, then the map get cleared on each
+ * event (when reading); otherwise, it is not.  This bit is set by default
+ * when a branch is created.  When Fill() is called, then it is cleared
+ * if the map is empty.  The bit is then saved and restored along
+ * with the TBranch.
+ *
+ * But a branch also has the kBranchAny bit.  If this is set, then ROOT
+ * will actually try to make entries in the map.  This is set when
+ * a branch is initialized and also when SetAddress is called.  The bit
+ * is set if the class _might_ contain pointers.  Specifically, the bit
+ * is clear for branches with fundamental types, set::string, and std::vector
+ * of any of these.  It is turned on for anything else, in particular
+ * for any user types.
+ *
+ * This logic causes a problem when we schema evolve from std::vector
+ * to SG::PackedContainer.  When the branch is written, the map is not
+ * used.  So kDoNotUseBufferMap is set, and kBranchAny is clear.
+ * The branch is saved, and read back in with the same flag settings.
+ * But then when we go to do the SetAddress, ROOT sees that the type
+ * we have is SG::PackedContainer --- a user type.  So kBranchAny
+ * is turned on.  This means that the map gets filled when we read.
+ * But because kDoNotUseBufferMap is set, the map is not cleared
+ * when we go to a new event.  This results in errors from TExMap
+ * about duplicate keys.
+ *
+ * The easiest thing to do to resolve this seems to be to turn off
+ * the kDoNotUseBufferMap so that the map will in fact get cleared.
+ * (The arguably more consistent scheme of turning off kBranchAny
+ * is not preferred since we'd have to do that every time after
+ * SetAddress is called.)  Ideally, we'd like to be able to tell
+ * ROOT that a given class does not use pointers, but there's no way
+ * to do that at the moment.
+ */
+void fixupPackedConversion (TBranch* br)
+{
+  TIter next( br->GetListOfBranches() );
+  while ( TBranch* b = (TBranch*)next() ) {
+    fixupPackedConversion (b);
+  }
+
+  TBranchElement* belt = dynamic_cast<TBranchElement*> (br);
+  if (belt) {
+    TClass* cl = belt->GetCurrentClass();
+    if (cl && strncmp (cl->GetName(), "SG::PackedContainer<", 20) == 0) {
+      br->ResetBit (TBranchAccess::doNotUseBufferMap());
+    }
+  }
+}
+
+
+} // anonymous namespace
 
 namespace SG {
    /// Common post-fix for the names of auxiliary containers in StoreGate
@@ -112,7 +187,7 @@ DbStatus RootTreeContainer::writeObject(TransactionStack::value_type& ent) {
    const void* ptr = ent.objH ? ent.objH : ent.call->object();
    RootDataPtr context(ptr);
    DbStatus status = ent.call->start(DataCallBack::PUT, context.ptr, &user.ptr);
-   if ( status.isSuccess() && ent.call ) {
+   if ( status.isSuccess() ) {
       //clear aux branches write marker
       for( auto &descMapElem: m_auxBranchMap ) {
          descMapElem.second.written = false;
@@ -168,6 +243,7 @@ DbStatus RootTreeContainer::writeObject(TransactionStack::value_type& ent) {
                          num_bytes += bytes_out;
                       }
                    }
+                   store->selectAux( std::set<string>() );
                 }
                 dsc.rows_written++;
                 break;
@@ -282,7 +358,7 @@ DbStatus RootTreeContainer::fetch(DbSelect& sel)  {
     sel.link().second++;
     return DbContainerImp::fetch(sel.link(), sel.link());
   }
-  DbSelect::Ptr<TTreeFormula>* stmt = 0;
+  DbSelect::Ptr<TTreeFormula>* stmt = 
     dynamic_cast<DbSelect::Ptr<TTreeFormula>* >(sel.statement());
   if ( stmt ) {
     TTreeFormula* selStmt = stmt->m_ptr;
@@ -459,7 +535,7 @@ RootTreeContainer::readAuxBranch(const SG::auxid_t& auxid, void* data,  long lon
       string attr_name = SG::AuxTypeRegistry::instance().getName(auxid);
       DbPrint log(m_name);
       log << DbPrintLvl::Error << "Branch " << auxBranchName(attr_name) << " for attribute: "
-          << attr_name << " wiht ID=" << auxid << " not found" << DbPrint::endmsg;
+          << attr_name << " with ID=" << auxid << " not found" << DbPrint::endmsg;
       return Error;
    }
    return readAuxBranch(*branch, data, entry);
@@ -543,8 +619,9 @@ DbStatus RootTreeContainer::open( const DbDatabase& dbH,
     }
     IDbDatabase* idb = dbH.info();
     m_rootDb = dynamic_cast<RootDatabase*>(idb);
-    TDirectory::TContext dirCtxt(m_rootDb->file());
-    m_tree = (TTree*)m_rootDb->file()->Get(treeName.c_str());
+    TDirectory::TContext dirCtxt(m_rootDb ? m_rootDb->file() : gDirectory);
+    if (m_rootDb)
+      m_tree = (TTree*)m_rootDb->file()->Get(treeName.c_str());
 
     bool hasBeenCreated = (m_branchName.empty() 
                              ? m_tree != 0 
@@ -562,17 +639,19 @@ DbStatus RootTreeContainer::open( const DbDatabase& dbH,
       }
       m_branches.resize(cols.size());
       for(i = cols.begin(), count = 0; i != cols.end(); ++i, ++count )   {
-        std::string nam  = (m_branchName.empty() ? (*i)->name() : m_branchName);
-        const char* col_nam  = nam.c_str();
+        std::string cnam  = (m_branchName.empty() ? (*i)->name() : m_branchName);
+        const char* col_nam  = cnam.c_str();
         TBranch* pBranch = m_tree->GetBranch(col_nam);
         if (!pBranch && m_branchName.empty()) {
-          for ( std::string::iterator j = nam.begin(); j != nam.end(); ++j ) {
+          for ( std::string::iterator j = cnam.begin(); j != cnam.end(); ++j ) {
             if ( !::isalnum(*j) ) *j = '_';
           }
-          col_nam  = nam.c_str();
+          col_nam  = cnam.c_str();
           pBranch = m_tree->GetBranch(col_nam);
         }
         if ( pBranch )    {
+          fixupPackedConversion (pBranch);
+
           const DbColumn* c = *i;
           BranchDesc& dsc = m_branches[count];
           TClass* cl = 0;
@@ -593,7 +672,8 @@ DbStatus RootTreeContainer::open( const DbDatabase& dbH,
               return Error;
             }
             dsc = BranchDesc(cl,pBranch,leaf,cl->New(),c,hnd);
-            {
+            if ( (m_name.size() >= 5 && m_name.substr(m_name.size()-5, 4) == SG::AUX_POSTFIX)
+	            || info->clazz().Properties().HasProperty("IAuxStore") ) {
                TClass *storeTC = cl->GetBaseClass("SG::IAuxStoreHolder");
                if( storeTC ) {
                   dsc.aux_storehdl_IFoffset = cl->GetBaseClassOffset( storeTC );
@@ -806,8 +886,8 @@ DbStatus  RootTreeContainer::addObject(const DbColumn* col,
           std::string nam  = (m_branchName.empty() ? col->name() : m_branchName);
           int split = defSplitLevel;
 //FIXME: PvG temporary hack because of broken direct ROOT readability
-          if( nam.substr(nam.size()-4) == SG::AUX_POSTFIX ) split = 1;
-          if( !dsc.clazz->CanSplit() ) split = 0;
+          if ( (nam.size() >= 4 && nam.substr(nam.size()-4) == SG::AUX_POSTFIX)
+	          && dsc.clazz->CanSplit() ) split = 1;
           if (m_branchName.empty()) {
             for ( std::string::iterator j = nam.begin(); j != nam.end(); ++j )    {
               if ( !::isalnum(*j) ) *j = '_';
@@ -828,10 +908,13 @@ DbStatus  RootTreeContainer::addObject(const DbColumn* col,
             setBranchOffsetTabLen( dsc.branch, branchOffsetTabLen );
 
             // AUX STORE specifics
-            TClass *storeTClass = dsc.clazz->GetBaseClass("SG::IAuxStoreIO");
-            if( storeTClass ) {
-               // This is a class implementing SG::IAuxStoreIO
-               dsc.aux_iostore_IFoffset = dsc.clazz->GetBaseClassOffset( storeTClass );               
+            if ( (nam.size() >= 4 && nam.substr(nam.size()-4) == SG::AUX_POSTFIX)
+	            || RootType(dsc.clazz->GetName()).Properties().HasProperty("IAuxStore") ) {
+              TClass *storeTClass = dsc.clazz->GetBaseClass("SG::IAuxStoreIO");
+              if( storeTClass ) {
+                 // This is a class implementing SG::IAuxStoreIO
+                 dsc.aux_iostore_IFoffset = dsc.clazz->GetBaseClassOffset( storeTClass );               
+              }
             }
             return Success;
           }
@@ -881,7 +964,7 @@ DbStatus  RootTreeContainer::addAuxBranch(const std::string& attribute,
                                           const type_info* typeinfo,
                                           BranchDesc& dsc)
 {
-   string typenam = DbReflex::forTypeInfo(*typeinfo).Name();
+   string typenam = SG::normalizedTypeinfoName(*typeinfo);
    string branch_name = auxBranchName(attribute);
    dsc.branch = 0;
    try {
@@ -917,12 +1000,12 @@ DbStatus  RootTreeContainer::addAuxBranch(const std::string& attribute,
             dsc.clazz = (TClass*)hnd->nativeClass();
             if( dsc.clazz )  {
                if( dsc.clazz->GetStreamerInfo() )  {
-                  int split = dsc.clazz->CanSplit() ? 1 : 0;
+                  //int split = dsc.clazz->CanSplit() ? 1 : 0;
                   dsc.branch  = m_tree->Branch(branch_name.c_str(),   // Branch name
                                                dsc.clazz->GetName(),  // Object class
                                                (void*)&dsc.buffer,    // Object address
                                                8192,                  // Buffer size
-                                               split);                // Split Mode (Levels) 
+                                               0 /* split */);                // Split Mode (Levels) 
                }
             }
          }

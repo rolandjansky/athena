@@ -93,8 +93,8 @@ TClass* CINT::Typedefs::applyType(const std::string& type_name, bool silent)  {
 #else
 #include <iostream>
 using namespace std;
-TClass* CINT::Typedefs::applyType(const std::string& type_name, bool )  {
-   cout << "RootStorageSvc::CINT::Typedefs::applyType(" << type_name << ") not implemented in ROOT6" << endl;
+TClass* CINT::Typedefs::applyType(const std::string& /*type_name*/, bool )  {
+   // cout << "RootStorageSvc::CINT::Typedefs::applyType(" << type_name << ") not implemented in ROOT6" << endl;
    return 0;
 }
 #endif

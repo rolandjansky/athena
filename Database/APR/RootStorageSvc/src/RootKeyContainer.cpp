@@ -330,6 +330,12 @@ DbStatus RootKeyContainer::writeObject(TransactionStack::value_type& ent)   {
           const DbColumn* col = *(typ->columns().begin());
           const std::string& typ_nam = col->typeName();
           IClassHandler* hnd = loader()->handler(typ_nam, true);
+          if (!hnd) {
+            DbPrint log(  m_name);
+            log << DbPrintLvl::Error << "No handler for " << typ_nam
+                << DbPrint::endmsg;
+            return Error;
+          }
           TClass*  cl  = (TClass*)hnd->nativeClass();
           status = call->bind(DataCallBack::PUT,col,0,context.ptr,&p.ptr);
           int nbyte = m_ioHandler->write(cl, knam, p.ptr, m_policy);
@@ -375,6 +381,10 @@ DbStatus RootKeyContainer::open(const DbDatabase&     dbH,
     TDirectory::TContext dirCtxt(0);
     IDbDatabase* idb = dbH.info();
     m_rootDb = dynamic_cast<RootDatabase*>(idb);
+    if (!m_rootDb) {
+      m_dir = 0;
+      return Error;
+    }
     m_dir  = m_rootDb->file();
     do  {
       std::string s = nam.substr(idx1+1, idx2-idx1-1); 
@@ -401,7 +411,8 @@ DbStatus RootKeyContainer::open(const DbDatabase&     dbH,
         idx2  = nam.find('/', idx1+1);
       }
     } while ( m_dir && idx1 != std::string::npos );
-    m_dir->cd();
+    if (m_dir)
+      m_dir->cd();
     DbOption opt1("DEFAULT_WRITEPOLICY","");
     dbH.getOption(opt1);
     opt1._getValue(m_policy);
