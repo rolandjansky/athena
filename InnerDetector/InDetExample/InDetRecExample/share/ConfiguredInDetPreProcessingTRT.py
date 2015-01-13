@@ -64,13 +64,19 @@ class ConfiguredInDetPreProcessingTRT:
          # for now, no values for argon. This is OK (?) for 50 ns. What about 25ns?
          MinTrailingEdge = 17.0*ns
          MaxDriftTime    = 66.0*ns
-         LowGate         = 19.0*ns
-         HighGate        = 44.0*ns
+         LowGate         = 26.0*ns
+         HighGate        = 54.125*ns
+         if InDetFlags.doCosmics():
+            LowGate         = 19.0*ns
+            HighGate        = 44.0*ns
          if globalflags.DataSource == 'data':
             MinTrailingEdge = 11.0*ns
             MaxDriftTime    = 60.0*ns
-            LowGate         = 19.0*ns
-            HighGate        = 44.0*ns
+            LowGate         = 18.0*ns
+            HighGate        = 46.125*ns
+            if InDetFlags.doCosmics():
+               LowGate         = 19.0*ns
+               HighGate        = 44.0*ns
 
          InDetTRT_DriftCircleTool = InDet__TRT_DriftCircleTool(name                            = prefix+"DriftCircleTool",
                                                                TRTDriftFunctionTool            = InDetTRT_DriftFunctionTool,
@@ -79,11 +85,11 @@ class ConfiguredInDetPreProcessingTRT:
                                                                #used to be InDetTRTConditionsSummaryService,
                                                                UseConditionsStatus             = True,
                                                                UseConditionsHTStatus           = True,
-                                                               SimpleOutOfTimePileupSupression = True,
+                                                               SimpleOutOfTimePileupSupression = InDetFlags.doCosmics(),
                                                                RejectIfFirstBit                = False, # fixes 50 nsec issue 
                                                                MinTrailingEdge                 = MinTrailingEdge,
                                                                MaxDriftTime                    = MaxDriftTime,
-                                                               ValidityGateSuppression         = False,
+                                                               ValidityGateSuppression         = not InDetFlags.doCosmics(),
                                                                LowGate                         = LowGate,
                                                                HighGate                        = HighGate,
                                                                MaskFirstHTBit                  = False,

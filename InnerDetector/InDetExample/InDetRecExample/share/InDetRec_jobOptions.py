@@ -121,7 +121,16 @@ else:
     # ------------------------------------------------------------
     if InDetFlags.doBremRecovery() and InDetFlags.doCaloSeededBrem() and DetFlags.detdescr.Calo_allOn():
       include ("InDetRecExample/InDetRecCaloSeededROISelection.py")
-    
+
+    # ------------------------------------------------------------
+    # 
+    # -----------ROI seeding for SSS seeds
+    #
+    # ------------------------------------------------------------
+    #
+    if InDetFlags.doHadCaloSeededSSS() and DetFlags.detdescr.Calo_allOn():
+      include ("InDetRecExample/InDetRecHadCaloSeededROISelection.py")
+
     # ------------------------------------------------------------
     # 
     # ----------- Configuring the conditions access
@@ -163,7 +172,48 @@ else:
 
     # NewTracking collection keys
     InputCombinedInDetTracks = []
-    
+ 
+    # ------------------------------------------------------------
+    #
+    # ----------- Subdetector pattern from New Tracking
+    #
+    # ------------------------------------------------------------
+    #
+    # --- Pixel track segment finding
+    #
+    if InDetFlags.doTrackSegmentsPixel():
+      # --- load cuts for pixel segment finding
+      if (not 'InDetNewTrackingCutsPixel' in dir()):
+        print "InDetRec_jobOptions: InDetNewTrackingCutsPixel not set before - import them now"
+        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
+        InDetNewTrackingCutsPixel = ConfiguredNewTrackingCuts("Pixel")
+      InDetNewTrackingCutsPixel.printInfo()
+      # --- configure pixel segment finding
+      include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
+      InDetNewTrackingSiPattern = ConfiguredNewTrackingSiPattern([],InDetKeys.PixelTracks(),
+                                                                 InDetKeys.SiSpSeededPixelTracks(),
+                                                                 InDetNewTrackingCutsPixel,
+                                                                 TrackCollectionKeys,
+                                                                 TrackCollectionTruthKeys)
+    #
+    # --- SCT track segment finding
+    #
+    if InDetFlags.doTrackSegmentsSCT():
+      # --- load cuts for SCT segment finding
+      if (not 'InDetNewTrackingCutsSCT' in dir()):
+        print "InDetRec_jobOptions: InDetNewTrackingCutsSCT not set before - import them now"
+        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
+        InDetNewTrackingCutsSCT = ConfiguredNewTrackingCuts("SCT")
+      InDetNewTrackingCutsSCT.printInfo()
+      # --- configure pixel segment finding
+      include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
+      InDetNewTrackingSiPattern = ConfiguredNewTrackingSiPattern([],InDetKeys.SCTTracks(),
+                                                                 InDetKeys.SiSpSeededSCTTracks(),
+                                                                 InDetNewTrackingCutsSCT,
+                                                                 TrackCollectionKeys,
+                                                                 TrackCollectionTruthKeys)
+
+   
     # ------------------------------------------------------------
     #
     # ----------- Cosmics Si pattern before we do the TRT phase
@@ -269,45 +319,6 @@ else:
     if InDetFlags.doxKalman() or InDetFlags.doiPatRec():
       include ("InDetRecExample/InDetRecXKalIPat.py")
     
-    # ------------------------------------------------------------
-    #
-    # ----------- Subdetector pattern from New Tracking
-    #
-    # ------------------------------------------------------------
-    #
-    # --- Pixel track segment finding
-    #
-    if InDetFlags.doTrackSegmentsPixel():
-      # --- load cuts for pixel segment finding
-      if (not 'InDetNewTrackingCutsPixel' in dir()):
-        print "InDetRec_jobOptions: InDetNewTrackingCutsPixel not set before - import them now"
-        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
-        InDetNewTrackingCutsPixel = ConfiguredNewTrackingCuts("Pixel")
-      InDetNewTrackingCutsPixel.printInfo()
-      # --- configure pixel segment finding
-      include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
-      InDetNewTrackingSiPattern = ConfiguredNewTrackingSiPattern([],InDetKeys.PixelTracks(),
-                                                                 InDetKeys.SiSpSeededPixelTracks(),
-                                                                 InDetNewTrackingCutsPixel,
-                                                                 TrackCollectionKeys,
-                                                                 TrackCollectionTruthKeys)
-    #
-    # --- SCT track segment finding
-    #
-    if InDetFlags.doTrackSegmentsSCT():
-      # --- load cuts for SCT segment finding
-      if (not 'InDetNewTrackingCutsSCT' in dir()):
-        print "InDetRec_jobOptions: InDetNewTrackingCutsSCT not set before - import them now"
-        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
-        InDetNewTrackingCutsSCT = ConfiguredNewTrackingCuts("SCT")
-      InDetNewTrackingCutsSCT.printInfo()
-      # --- configure pixel segment finding
-      include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
-      InDetNewTrackingSiPattern = ConfiguredNewTrackingSiPattern([],InDetKeys.SCTTracks(),
-                                                                 InDetKeys.SiSpSeededSCTTracks(),
-                                                                 InDetNewTrackingCutsSCT,
-                                                                 TrackCollectionKeys,
-                                                                 TrackCollectionTruthKeys)
     #
     # --- TRT track segment finding
     #
@@ -531,6 +542,32 @@ else:
                                                                    TrackCollectionTruthKeys)  
       # --- do not add into list for combination YET
       # InputCombinedInDetTracks += [ InDetVeryLowPtSiPattern.SiTrackCollection() ]
+    
+
+    # ------------------------------------------------------------
+    #
+    # --- Pixel Tracklets on unassociated PRDs (after standard reconstruction + forward tracking)
+    #
+    # ------------------------------------------------------------
+    
+    if InDetFlags.doTrackSegmentsPixelPrdAssociation():
+      InputPixelInDetTracks = []
+      InputPixelInDetTracks += InputCombinedInDetTracks
+      if InDetFlags.doForwardTracks(): 
+        InputPixelInDetTracks +=[ InDetForwardTracksSiPattern.SiTrackCollection()]
+      # --- load cuts for pixel segment finding
+      if (not 'InDetNewTrackingCutsPixelPrdAssociation' in dir()):
+        print "InDetRec_jobOptions: InDetNewTrackingCutsPixelPrdAssociation not set before - import them now"
+        from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
+        InDetNewTrackingCutsPixelPrdAssociation = ConfiguredNewTrackingCuts("PixelPrdAssociation")
+      InDetNewTrackingCutsPixelPrdAssociation.printInfo()
+      # --- configure pixel segment finding
+      include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
+      InDetPixelTrackingSiPattern = ConfiguredNewTrackingSiPattern(InputPixelInDetTracks,InDetKeys.PixelPrdAssociationTracks(),
+                                                                 InDetKeys.SiSpSeededPixelTracks(),
+                                                                 InDetNewTrackingCutsPixelPrdAssociation,
+                                                                 TrackCollectionKeys,
+                                                                 TrackCollectionTruthKeys)
       
     # ------------------------------------------------------------
     #
@@ -642,6 +679,11 @@ else:
         ToolSvc += InDetTruthTrajectoryManipulator
 #        InDetTruthTrajectoryManipulator.OutputLevel = VERBOSE
 
+        # --- the trajectory shared cluster hits fixer
+#        from InDetTruthTools.InDetTruthToolsConf import InDet__PRD_TruthTrajectorySharedFixerID
+#        InDetTruthTrajectorySharedFixer = InDet__PRD_TruthTrajectorySharedFixerID(name = 'InDetTruthTrajectorySharedFixer' )                       
+#        ToolSvc += InDetTruthTrajectorySharedFixer
+
         # --- the truth PRD trajectory builder
         
         # 
@@ -661,6 +703,7 @@ else:
                                          MinimumPt                       =  InDetNewTrackingCuts.minPT(),
                                  #        Geantinos                       =  True,
                                          PRD_TruthTrajectoryManipulators = [ InDetTruthTrajectorySorter, InDetTruthTrajectoryManipulator  ])
+#                                        PRD_TruthTrajectoryManipulators = [ InDetTruthTrajectorySorter, InDetTruthTrajectorySharedFixer  ])
         ToolSvc+=InDetPRD_TruthTrajectoryBuilder
 #        InDetPRD_TruthTrajectoryBuilder.OutputLevel = VERBOSE
 
@@ -726,6 +769,8 @@ else:
                                                             TracksLocation          = InputCombinedInDetTracks,
                                                             OutputTracksLocation    = InDetKeys.UnslimmedTracks(),
                                                             AssoTool                = InDetPrdAssociationTool,
+                                                            UpdateSharedHitsOnly    = False,
+                                                            UpdateAdditionalInfo    = True,
                                                             SummaryTool             = InDetTrackSummaryToolSharedHits)
       topSequence += TrkTrackCollectionMerger
       if (InDetFlags.doPrintConfigurables()):
@@ -929,7 +974,7 @@ else:
       InDetValidation = ConfiguredInDetValidation("",True,InDetFlags.doTruth(),cuts,TrackCollectionKeys,TrackCollectionTruthKeys)
 
     # ntuple creation for validation purposes    
-    if (InDetFlags.doNtupleCreation() or InDetFlags.doStandardPlots()):
+    if (InDetFlags.doNtupleCreation() or InDetFlags.doStandardPlots()) or InDetFlags.doPhysValMon():
       include("InDetRecExample/InDetRecNtupleCreation.py")
 
     # D3PD Creation

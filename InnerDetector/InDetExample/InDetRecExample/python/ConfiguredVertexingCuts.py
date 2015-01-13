@@ -41,6 +41,9 @@ class ConfiguredVertexingCuts :
 # of tracks for the vertex reconstruction.
 #
 
+# Cut level for the track selection tool.
+   self.__TrackCutLevel             = "NoCut"
+
 # this is cutLevel = 1
    self.__minPT                     = 400. * Units.MeV
    self.__IPd0Max                   = 10.
@@ -54,10 +57,9 @@ class ConfiguredVertexingCuts :
    
 #cluster and track quality cuts   
    self.__useTrackSummaryInfo       = True
-   self.__nHitBLayer		    = 0
+   self.__nHitInnermostLayer	    = 0
    self.__nHitPix		    = 1
    self.__nHolesPix                 = 1
-   self.__nHitBLayerPlusPix	    = 0
    self.__nHitSct		    = 4
    self.__nHitSi		    = 6
    self.__nHitTrt		    = 0
@@ -131,6 +133,13 @@ class ConfiguredVertexingCuts :
      self.__nHolesPix  = 0
 
 
+#-------------- RUN2 TightPrimary Options---------------------
+#  Additional TrackSelectionTool options for RUN2
+#
+   if self.__indetflags.priVtxCutLevel() == 3 :
+     self.__TrackCutLevel = "TightPrimary"
+
+
 #-------------"MinBias running mode"-----------------------------------
 # Looser pT cut on input tracks; tighter cut on sigma IP d0
    if mode == "LowPt":
@@ -195,6 +204,9 @@ class ConfiguredVertexingCuts :
   def extension( self ) :
     return self.__extension
 
+  def TrackCutLevel( self ) :
+    return self.__TrackCutLevel
+
   def minPT( self ) :
     return self.__minPT
     
@@ -225,14 +237,11 @@ class ConfiguredVertexingCuts :
   def  useTrackSummaryInfo( self ) :  
    return self.__useTrackSummaryInfo
    
-  def  nHitBLayer( self ) :  
-   return self.__nHitBLayer
+  def  nHitInnermostLayer( self ) :  
+   return self.__nHitInnermostLayer
    
   def  nHitPix( self ):
    return self.__nHitPix
-   
-  def  nHitBLayerPlusPix( self ): 
-   return self.__nHitBLayerPlusPix
    
   def  nHitSct( self ):
    return self.__nHitSct
@@ -281,7 +290,9 @@ class ConfiguredVertexingCuts :
     print '****** Inner Detector Primary Vertex Reconstruction Cuts ****************************'
     print '*'
     print '* mode is                                           : ', self.__mode
-    print '* cut level for primary vertexig is                 : ', self.__indetflags.priVtxCutLevel()
+    print '* cut level for primary vertexing is                : ', self.__indetflags.priVtxCutLevel()
+    print '*'
+    print '* Track Cut Level                                   : ', self.__TrackCutLevel
     print '*'
     print '* min pT                                            : ', self.__minPT, ' MeV'
     print '* Max IP d0                                         : ', self.__IPd0Max
@@ -295,10 +306,9 @@ class ConfiguredVertexingCuts :
    
 #cluster and track quality cuts  
     print '* Use TrackSummary                                  : ', self.__useTrackSummaryInfo
-    print '* Min N B Layer Hits                                : ', self.__nHitBLayer
+    print '* Min N Innermost Layer Hits                        : ', self.__nHitInnermostLayer
     print '* Min N Pix Hit                                     : ', self.__nHitPix
     print '* Max N Pix Holes                                   : ', self.__nHolesPix
-    print '* Min N B Layer + Pix                               : ', self.__nHitBLayerPlusPix
     print '* Min N SCT Hits                                    : ', self.__nHitSct
     print '* Min N Si Hits                                     : ', self.__nHitSi
     print '* Min N TRT Hits                                    : ', self.__nHitTrt

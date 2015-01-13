@@ -36,14 +36,34 @@ InDetAODList = []
 #   InDetAODList+=['TRT_BSIdErrContainer#'+InDetKeys.TRT_ByteStreamIdErrs()]
 
 if InDetFlags.doxAOD():
-  InDetAODList+=['xAOD::TrackParticleContainer_v1#'+InDetKeys.xAODTrackParticleContainer()]
-  InDetAODList+=['xAOD::TrackParticleAuxContainer_v1#'+InDetKeys.xAODTrackParticleContainer()+'Aux.']
-  InDetAODList+=['xAOD::TrackParticleAuxContainer_v1#'+InDetKeys.xAODTrackParticleContainer()+'Aux.-caloExtension']
-  InDetAODList+=['xAOD::TrackParticleContainer_v1#'+InDetKeys.xAODForwardTrackParticleContainer()]
-  InDetAODList+=['xAOD::TrackParticleAuxContainer_v1#'+InDetKeys.xAODForwardTrackParticleContainer()+'Aux.']
-  InDetAODList+=['xAOD::TrackParticleAuxContainer_v1#'+InDetKeys.xAODForwardTrackParticleContainer()+'Aux.-caloExtension']
-  InDetAODList+=['xAOD::VertexContainer_v1#'+InDetKeys.xAODVertexContainer()]
-  InDetAODList+=['xAOD::VertexAuxContainer_v1#'+InDetKeys.xAODVertexContainer()+'Aux.-vxTrackAtVertex']
+  excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
+  InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODTrackParticleContainer()]
+  InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODTrackParticleContainer()+'Aux.' + excludedAuxData]
+  InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODForwardTrackParticleContainer()]
+  InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODForwardTrackParticleContainer()+'Aux.' + excludedAuxData]
+  InDetAODList+=['xAOD::VertexContainer#'+InDetKeys.xAODVertexContainer()]
+  InDetAODList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODVertexContainer()+'Aux.-vxTrackAtVertex']
+  InDetAODList+=['xAOD::VertexContainer#'+InDetKeys.xAODV0VertexContainer()]
+  InDetAODList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODV0VertexContainer()+'Aux.-vxTrackAtVertex']
+  InDetAODList+=['xAOD::VertexContainer#'+InDetKeys.xAODKshortVertexContainer()]
+  InDetAODList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODKshortVertexContainer()+'Aux.-vxTrackAtVertex']
+  InDetAODList+=['xAOD::VertexContainer#'+InDetKeys.xAODLambdaVertexContainer()]
+  InDetAODList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODLambdaVertexContainer()+'Aux.-vxTrackAtVertex']
+  InDetAODList+=['xAOD::VertexContainer#'+InDetKeys.xAODLambdabarVertexContainer()]
+  InDetAODList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODLambdabarVertexContainer()+'Aux.-vxTrackAtVertex']
+  if InDetFlags.doTrackSegmentsPixel():
+    InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPixelTrackParticleContainer()]
+    InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPixelTrackParticleContainer()+'Aux.' + excludedAuxData]
+  if InDetFlags.doTrackSegmentsPixelPrdAssociation():
+    InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPixelPrdAssociationTrackParticleContainer()]
+    InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPixelPrdAssociationTrackParticleContainer()+'Aux.' + excludedAuxData]
+  if InDetFlags.doTrackSegmentsSCT():
+    InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODSCTTrackParticleContainer()]
+    InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODSCTTrackParticleContainer()+'Aux.' + excludedAuxData]
+  if InDetFlags.doTrackSegmentsTRT():
+    InDetAODList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODTRTTrackParticleContainer()]
+    InDetAODList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODTRTTrackParticleContainer()+'Aux.' + excludedAuxData]
+
 
 # next is only for InDetRecExample stand alone! RecExCommon uses InDetAODList directly
 StreamAOD.ItemList += InDetAODList 

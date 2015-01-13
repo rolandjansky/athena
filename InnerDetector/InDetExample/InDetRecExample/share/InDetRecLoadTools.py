@@ -4,8 +4,20 @@
 #
 # ------------------------------------------------------------
 
+use_broad_cluster_any = InDetFlags.useBroadClusterErrors()
+use_broad_cluster_pix = InDetFlags.useBroadPixClusterErrors()
+use_broad_cluster_sct = InDetFlags.useBroadSCTClusterErrors()
+if use_broad_cluster_pix == None :
+    use_broad_cluster_pix = use_broad_cluster_any
+if use_broad_cluster_sct == None :
+    use_broad_cluster_sct = use_broad_cluster_any
+
+# detector specific settings will override the global setting:
+use_broad_cluster_any = use_broad_cluster_pix or use_broad_cluster_sct
+
 #load common NN tools for clustering and ROT creation
 if InDetFlags.doPixelClusterSplitting():
+
     #
     # --- Neutral Network version ?
     #
@@ -65,6 +77,7 @@ if InDetFlags.doPixelClusterSplitting():
                                                                       LoadWithTrackNetwork = True)
                
         ToolSvc += NnClusterizationFactory
+        print NnClusterizationFactory  
         if (InDetFlags.doPrintConfigurables()):
             print NnClusterizationFactory
 
@@ -101,10 +114,16 @@ if InDetFlags.loadRotCreator():
                                                                                        InDetFlags.pixelClusterSplittingType() == 'NeuralNet'),
                                                                  NNIBLcorrection = ( InDetFlags.doPixelClusterSplitting() and
                                                                                        InDetFlags.pixelClusterSplittingType() == 'NeuralNet'),
-                                                                 SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap())
+                                                                 SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap(),
+                                                                 RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi()
+                                                                 )
 
         if InDetFlags.doPixelClusterSplitting() and InDetFlags.pixelClusterSplittingType() == 'NeuralNet':
             PixelClusterOnTrackTool.NnClusterizationFactory  = NnClusterizationFactory
+
+        if InDetFlags.doCosmics():
+          PixelClusterOnTrackTool.ErrorStrategy = 0   
+          PixelClusterOnTrackTool.PositionStrategy = 0 
 
         ToolSvc += PixelClusterOnTrackTool
         if (InDetFlags.doPrintConfigurables()):
@@ -148,7 +167,9 @@ if InDetFlags.loadRotCreator():
                                                                                             InDetFlags.pixelClusterSplittingType() == 'NeuralNet'),
                                                                       NNIBLcorrection = ( InDetFlags.doPixelClusterSplitting() and
                                                                                        InDetFlags.pixelClusterSplittingType() == 'NeuralNet'),
-                                                                      SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap())
+                                                                      SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap(),
+                                                                      RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi()
+                                                                     )
 
         if InDetFlags.doPixelClusterSplitting() and InDetFlags.pixelClusterSplittingType() == 'NeuralNet':
             BroadPixelClusterOnTrackTool.NnClusterizationFactory  = NnClusterizationFactory
@@ -197,8 +218,10 @@ if InDetFlags.loadRotCreator():
     #
     # use broad clusters everywhere ?
     #
-    if InDetFlags.useBroadClusterErrors():
+    if use_broad_cluster_pix == True :
       InDetRotCreator.ToolPixelCluster = BroadPixelClusterOnTrackTool
+
+    if use_broad_cluster_sct == True :
       InDetRotCreator.ToolSCT_Cluster  = BroadSCT_ClusterOnTrackTool
 
     if (InDetFlags.doPrintConfigurables()):
@@ -240,8 +263,9 @@ if InDetFlags.loadRotCreator():
                                                        ToolSCT_Cluster     = SCT_ClusterOnTrackTool,
                                                        ToolTRT_DriftCircle = TRT_RefitRotCreator,
                                                        Mode                = 'indet')
-        if InDetFlags.useBroadClusterErrors():
+        if use_broad_cluster_pix == True :
             InDetRefitRotCreator.ToolPixelCluster=BroadPixelClusterOnTrackTool
+        if use_broad_cluster_sct == True :
             InDetRefitRotCreator.ToolSCT_Cluster=BroadSCT_ClusterOnTrackTool
 
         ToolSvc += InDetRefitRotCreator
@@ -535,7 +559,7 @@ if InDetFlags.loadFitter():
                                                  RecalculateDerivatives= InDetFlags.doCosmics() or InDetFlags.doBeamHalo(),
                                                  TRTExtensionCuts      = True,
                                                  TrackChi2PerNDFCut    = 7)
-        if InDetFlags.doRefit() or InDetFlags.useBroadClusterErrors():
+        if InDetFlags.doRefit() or use_broad_cluster_any == True: 
             InDetTrackFitter.RecalibrateSilicon = False
         if InDetFlags.doRefit():
             InDetTrackFitter.BroadRotCreatorTool = None
@@ -726,12 +750,19 @@ if InDetFlags.loadSummaryTool():
     InDetTRT_ElectronPidTool = None
     if DetFlags.haveRIO.TRT_on() and not InDetFlags.doSLHC() and not InDetFlags.doHighPileup() :
 
-        from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidTool
-        InDetTRT_ElectronPidTool = InDet__TRT_ElectronPidTool(name   = "InDetTRT_ElectronPidTool",
-                                                              isData = (globalflags.DataSource == 'data') )
+        from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_LocalOccupancy
+        InDetTRT_LocalOccupancy = InDet__TRT_LocalOccupancy(name ="InDet_TRT_LocalOccupancy")
+        ToolSvc += InDetTRT_LocalOccupancy
+        print InDetTRT_LocalOccupancy
+
+        from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2
+        InDetTRT_ElectronPidTool = InDet__TRT_ElectronPidToolRun2(name   = "InDetTRT_ElectronPidTool",
+                                                                   TRT_LocalOccupancyTool = InDetTRT_LocalOccupancy,
+                                                                   isData = (globalflags.DataSource == 'data') )
+
         ToolSvc += InDetTRT_ElectronPidTool
         if (InDetFlags.doPrintConfigurables()):
-            print InDetTRT_ElectronPidTool
+         print InDetTRT_ElectronPidTool
 
     #
     # Configurable version of PixelToTPIDTOol
@@ -763,6 +794,7 @@ if InDetFlags.loadSummaryTool():
                                                                          TestBLayerTool  = None,         # we don't want to use those tools during pattern
                                                                          #PixelToTPIDTool = InDetPixelToTPIDTool,
                                                                          #TestBLayerTool  = InDetRecTestBLayerTool,
+                                                                         RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi(),
                                                                          DoSharedHits    = False,
                                                                          HoleSearch      = InDetHoleSearchTool,
                                                                          usePixel        = DetFlags.haveRIO.pixel_on(),
@@ -775,6 +807,7 @@ if InDetFlags.loadSummaryTool():
                                                                          TestBLayerTool  = None,         # we don't want to use those tools during pattern
                                                                          #PixelToTPIDTool = InDetPixelToTPIDTool,
                                                                          #TestBLayerTool  = InDetRecTestBLayerTool,
+                                                                         RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi(),
                                                                          DoSharedHits    = False,
                                                                          HoleSearch      = InDetHoleSearchTool,
                                                                          usePixel        = DetFlags.haveRIO.pixel_on(),
@@ -814,6 +847,7 @@ if InDetFlags.loadSummaryTool():
                                                                                    PixelToTPIDTool = InDetPixelToTPIDTool,
                                                                                    TestBLayerTool  = InDetRecTestBLayerTool,
                                                                                    DoSharedHits    = InDetFlags.doSharedHits(),
+                                                                                   RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi(),
                                                                                    HoleSearch      = InDetHoleSearchTool,
                                                                                    usePixel        = DetFlags.haveRIO.pixel_on(),
                                                                                    useSCT          = DetFlags.haveRIO.SCT_on(),
@@ -824,6 +858,7 @@ if InDetFlags.loadSummaryTool():
                                                                                    PixelToTPIDTool = InDetPixelToTPIDTool,
                                                                                    TestBLayerTool  = InDetRecTestBLayerTool,
                                                                                    DoSharedHits    = InDetFlags.doSharedHits(),
+                                                                                   RunningTIDE_Ambi = InDetFlags.doTIDE_Ambi(),
                                                                                    HoleSearch      = InDetHoleSearchTool,
                                                                                    usePixel        = DetFlags.haveRIO.pixel_on(),
                                                                                    useSCT          = DetFlags.haveRIO.SCT_on(),
@@ -1074,7 +1109,7 @@ if InDetFlags.doPattern() and InDetFlags.doCosmics():
 # ------------------------------------------------------------
 
 # id rec stat processing and trk+pixel ntuple creation need this tool if truth is on
-if InDetFlags.doTruth() and (InDetFlags.doStatistics() or InDetFlags.doStandardPlots() or InDetFlags.doNtupleCreation()):
+if InDetFlags.doTruth() and (InDetFlags.doStatistics() or InDetFlags.doStandardPlots() or InDetFlags.doPhysValMon() or InDetFlags.doNtupleCreation()):
     #
     # --- load truth to track tool
     #
@@ -1101,40 +1136,26 @@ if InDetFlags.doTruth() and (InDetFlags.doStatistics() or InDetFlags.doStandardP
 # ------ load track selector for vertexing, needs to be done here because is also needed for vertex ntuple creation
 #
 if InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring() or InDetFlags.doSplitVertexFindingForMonitoring() or InDetFlags.doVtxNtuple():
+    from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
+    InDetTrackSelectorTool = InDet__InDetTrackSelectionTool(name = "InDetDetailedTrackSelectionTool",
+                                                            CutLevel = InDetPrimaryVertexingCuts.TrackCutLevel(),
+                                                            minPt = InDetPrimaryVertexingCuts.minPT(),
+                                                            maxD0 = InDetPrimaryVertexingCuts.IPd0Max(),
+                                                            maxZ0 = InDetPrimaryVertexingCuts.z0Max(),
+                                                            maxZ0SinTheta = InDetPrimaryVertexingCuts.IPz0Max(),
+                                                            maxSigmaD0 = InDetPrimaryVertexingCuts.sigIPd0Max(),
+                                                            maxSigmaZ0SinTheta = InDetPrimaryVertexingCuts.sigIPz0Max(),
+                                                            # maxChiSqperNdf = InDetPrimaryVertexingCuts.fitChi2OnNdfMax(), # Seems not to be implemented?
+                                                            maxAbsEta = InDetPrimaryVertexingCuts.etaMax(),
+                                                            minNInnermostLayerHits = InDetPrimaryVertexingCuts.nHitInnermostLayer(),
+                                                            minNPixelHits = InDetPrimaryVertexingCuts.nHitPix(),
+                                                            maxNPixelHoles = InDetPrimaryVertexingCuts.nHolesPix(),
+                                                            minNSctHits = InDetPrimaryVertexingCuts.nHitSct(),
+                                                            minNTrtHits = InDetPrimaryVertexingCuts.nHitTrt(),
+                                                            minNSiHits = InDetPrimaryVertexingCuts.nHitSi(),
+                                                            TrackSummaryTool = InDetTrackSummaryTool,
+                                                            Extrapolator = InDetExtrapolator)
 
-    #
-    # ------ load new track selector (common for all vertexing algorithms, except for the moment VKalVrt)
-    #
-    from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
-    InDetTrackSelectorTool = InDet__InDetDetailedTrackSelectorTool(name                                = "InDetDetailedTrackSelectorTool",
-                                                                   pTMin                               = InDetPrimaryVertexingCuts.minPT(),
-                                                                   IPd0Max                             = InDetPrimaryVertexingCuts.IPd0Max(),
-                                                                   IPz0Max                             = InDetPrimaryVertexingCuts.IPz0Max(),
-                                                                   z0Max                               = InDetPrimaryVertexingCuts.z0Max(),
-                                                                   sigIPd0Max                          = InDetPrimaryVertexingCuts.sigIPd0Max(),
-                                                                   sigIPz0Max                          = InDetPrimaryVertexingCuts.sigIPz0Max(),
-                                                                   d0significanceMax                   = InDetPrimaryVertexingCuts.d0significanceMax(),
-                                                                   z0significanceMax                   = InDetPrimaryVertexingCuts.z0significanceMax(),
-                                                                   etaMax                              = InDetPrimaryVertexingCuts.etaMax(),
-                                                                   useTrackSummaryInfo                 = InDetPrimaryVertexingCuts.useTrackSummaryInfo(),
-                                                                   nHitBLayer                          = InDetPrimaryVertexingCuts.nHitBLayer(),
-                                                                   nHitPix                             = InDetPrimaryVertexingCuts.nHitPix(),
-                                                                   nHolesPixel                         = InDetPrimaryVertexingCuts.nHolesPix(),
-                                                                   nHitBLayerPlusPix                   = InDetPrimaryVertexingCuts.nHitBLayerPlusPix(),
-                                                                   nHitSct                             = InDetPrimaryVertexingCuts.nHitSct(),
-                                                                   nHitSi                              = InDetPrimaryVertexingCuts.nHitSi(),
-                                                                   nHitTrt                             = InDetPrimaryVertexingCuts.nHitTrt(),
-                                                                   nHitTrtHighEFractionMax             = InDetPrimaryVertexingCuts.nHitTrtHighEFractionMax(),
-                                                                   nHitTrtHighEFractionWithOutliersMax = InDetPrimaryVertexingCuts.nHitTrtHighEFractionWithOutliersMax(),
-                                                                   useSharedHitInfo                    = InDetPrimaryVertexingCuts.useSharedHitInfo(),
-                                                                   useTrackQualityInfo                 = InDetPrimaryVertexingCuts.useTrackQualityInfo(),
-                                                                   fitChi2OnNdfMax                     = InDetPrimaryVertexingCuts.fitChi2OnNdfMax(),
-                                                                   TrtMaxEtaAcceptance                 = InDetPrimaryVertexingCuts.TrtMaxEtaAcceptance(),
-                                                                   # InDetTestBLayerTool                 = InDetRecTestBLayerTool,
-                                                                   TrackSummaryTool                    = InDetTrackSummaryTool,
-                                                                   Extrapolator                        = InDetExtrapolator)
-    
-            
     ToolSvc += InDetTrackSelectorTool
     if (InDetFlags.doPrintConfigurables()):
         print InDetTrackSelectorTool

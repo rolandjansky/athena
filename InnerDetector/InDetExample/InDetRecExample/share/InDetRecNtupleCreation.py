@@ -453,3 +453,42 @@ if InDetFlags.doStandardPlots():
         print    InDetStandardPerformanceGoodIPatRec
     
       InDetTrackPerfMonManager.AthenaMonTools += [ InDetStandardPerformanceGoodIPatRec ]
+
+
+
+
+# --------------------------------------------
+#
+# --- Physics Validation Monitoring
+#
+# --------------------------------------------
+
+if InDetFlags.doPhysValMon():
+
+  from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
+  InDetPhysValMonManager = AthenaMonManager (name                = "InDetPhysValMonManager",
+                                             FileKey             = "PhysValMon",
+                                             ManualDataTypeSetup = True,
+                                             DataType            = "userDefined", # use this for collision data for now
+                                             Environment         = "user",
+                                             ManualRunLBSetup    = True,
+                                             Run                 = 1,
+                                             LumiBlock           = 1)
+  topSequence += InDetPhysValMonManager
+  if (InDetFlags.doPrintConfigurables()):
+    print InDetPhysValMonManager
+
+  from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValMonitoringTool
+  InDetPhysValMonTool = InDetPhysValMonitoringTool (useTrackSelection   = True,
+                                                    TrackSelectorTool   = InDetTrackSelectorTool)
+  ToolSvc += InDetPhysValMonTool
+  InDetPhysValMonManager.AthenaMonTools += [InDetPhysValMonTool]
+  if (InDetFlags.doPrintConfigurables()):
+    print InDetPhysValMonTool
+
+  # --- Setup the output histogram file(s)
+  if not hasattr(ServiceMgr, 'THistSvc'):
+    from GaudiSvc.GaudiSvcConf import THistSvc
+    ServiceMgr += THistSvc()
+  THistSvc = Service( "THistSvc" )
+  THistSvc.Output += ["PhysValMon DATAFILE='"+InDetKeys.PhysValMonHistName()+"' OPT='RECREATE'"]

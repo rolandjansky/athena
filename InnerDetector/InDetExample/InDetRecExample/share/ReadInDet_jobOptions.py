@@ -132,6 +132,7 @@ DetFlags.Print()
 #--------------------------------------------------------------
 # Load InDet configuration
 #--------------------------------------------------------------
+import MagFieldServices.SetupField
 
 from AthenaCommon.GlobalFlags import globalflags
 

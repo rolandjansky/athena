@@ -105,7 +105,6 @@ rec.doJetMissingETTag.set_Value_and_Lock (False)
 
 # --- turn of calo stuff we don't need anyway
 from CaloRec.CaloRecFlags import jobproperties
-jobproperties.CaloRecFlags.doCaloTopoCluster.set_Value_and_Lock  (False)
 jobproperties.CaloRecFlags.doCaloEMTopoCluster.set_Value_and_Lock(False)
 jobproperties.CaloRecFlags.doCaloTopoTower.set_Value_and_Lock    (False)
 
@@ -133,6 +132,8 @@ recAlgs.doCaloTrkMuId.set_Value_and_Lock     (False)
 recAlgs.doTileMuID.set_Value_and_Lock        (False)
 # --- trigger
 recAlgs.doTrigger.set_Value_and_Lock         (False)
+
+recAlgs.doTrackParticleCellAssociation.set_Value_and_Lock(False)
 
 #--------------------------------------------------------------
 # Printout config
@@ -162,7 +163,7 @@ InDetFlags.doTruth.set_Value_and_Lock (globalflags.DataSource == 'geant4' and gl
 # InDetFlags.doCaloSeededBrem.set_Value_and_Lock                     (doCaloSeededBrem)
 
 # --- cut level
-#InDetFlags.priVtxCutLevel.set_Value_and_Lock                       (2)
+#InDetFlags.priVtxCutLevel.set_Value_and_Lock                       (3)
 
 # --- enable forward tracks
 # InDetFlags.doForwardTracks.set_Value_and_Lock                      (True)
@@ -180,6 +181,9 @@ InDetFlags.doMonitoringAlignment.set_Value_and_Lock                (False)
 
 # activate the print InDetXYZAlgorithm statements
 InDetFlags.doPrintConfigurables.set_Value_and_Lock                 (True)
+
+# Activate TIDE Ambi
+#InDetFlags.doTIDE_Ambi.set_Value_and_Lock                          (True)
 
 # --- test new cut level
 # InDetFlags.cutLevel.set_Value_and_Lock                             (11)

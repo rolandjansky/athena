@@ -28,6 +28,18 @@ if DetFlags.detdescr.pixel_on() and not 'PixelCabling' in dir():
 # --- SCT cabling
 #
 if DetFlags.detdescr.SCT_on() and not 'SCT_CablingSvc' in dir():
+  SCTCablingDataSource='CORACOOL'
+  SCTConfigurationFolderPath='/SCT/DAQ/Configuration/'
+  #if its CONDBR2, use new folders...
+  if (conddb.dbdata == "CONDBR2"):
+      SCTConfigurationFolderPath='/SCT/DAQ/Config/'
+  #...but now check if we want to override that decision with explicit flag (if there is one)
+  try:
+      if InDetFlags.ForceCoraCool():
+          SCTConfigurationFolderPath='/SCT/DAQ/Configuration/'
+  except:
+      pass
+        
   #to read SCT cabling from db 
   from SCT_Cabling.SCT_CablingConf import SCT_CablingSvc
   SCT_CablingSvc = SCT_CablingSvc(DataSource = "CORACOOL") 
@@ -35,15 +47,19 @@ if DetFlags.detdescr.SCT_on() and not 'SCT_CablingSvc' in dir():
   ServiceMgr += SCT_CablingSvc
   if (InDetFlags.doPrintConfigurables()):
     print  SCT_CablingSvc
-
-  if not conddb.folderRequested('/SCT/DAQ/Configuration/ROD'):
-    conddb.addFolderSplitMC("SCT","/SCT/DAQ/Configuration/ROD","/SCT/DAQ/Configuration/ROD")
-  if not conddb.folderRequested('/SCT/DAQ/Configuration/MUR'):
-    conddb.addFolderSplitMC("SCT","/SCT/DAQ/Configuration/MUR","/SCT/DAQ/Configuration/MUR")
-  if not conddb.folderRequested('/SCT/DAQ/Configuration/RODMUR'):
-    conddb.addFolderSplitMC("SCT","/SCT/DAQ/Configuration/RODMUR","/SCT/DAQ/Configuration/RODMUR")
-  if not conddb.folderRequested('/SCT/DAQ/Configuration/Geog'):
-    conddb.addFolderSplitMC("SCT","/SCT/DAQ/Configuration/Geog","/SCT/DAQ/Configuration/Geog")
+  SCTRodConfigPath=SCTConfigurationFolderPath+'ROD'
+  SCTMurConfigPath=SCTConfigurationFolderPath+'MUR'
+  SCTRodMurConfigPath=SCTConfigurationFolderPath+'RODMUR'
+  SCTGeogConfigPath=SCTConfigurationFolderPath+'Geog'
+  #
+  if not conddb.folderRequested(SCTRodConfigPath):
+    conddb.addFolderSplitMC("SCT",SCTRodConfigPath,SCTRodConfigPath)
+  if not conddb.folderRequested(SCTMurConfigPath):
+    conddb.addFolderSplitMC("SCT",SCTMurConfigPath,SCTMurConfigPath)
+  if not conddb.folderRequested(SCTRodMurConfigPath):
+    conddb.addFolderSplitMC("SCT",SCTRodMurConfigPath,SCTRodMurConfigPath)
+  if not conddb.folderRequested(SCTGeogConfigPath):
+    conddb.addFolderSplitMC("SCT",SCTGeogConfigPath,SCTGeogConfigPath)
   
 #
 # --- TRT cabling

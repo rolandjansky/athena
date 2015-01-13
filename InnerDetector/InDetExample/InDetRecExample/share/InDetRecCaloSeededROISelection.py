@@ -5,18 +5,10 @@
 # ------------------------------------------------------------
 
 #
-# --- load the CaloNoiseTool
-#
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-InDetCaloNoiseTool = CaloNoiseToolDefault()
-ToolSvc += InDetCaloNoiseTool
-
-#
 # --- load the isolation tool
 #
 from egammaCaloTools.egammaCaloToolsConf import egammaIso
-InDetROIegammaIsoTool = egammaIso(name          = "InDetROIegammaIso",
-                                  CaloNoiseTool = InDetCaloNoiseTool)
+InDetROIegammaIsoTool = egammaIso(name          = "InDetROIegammaIso")
 
 ToolSvc+=InDetROIegammaIsoTool
 if (InDetFlags.doPrintConfigurables()):

@@ -266,7 +266,13 @@ class doCaloSeededBrem(InDetFlagsJobProperty):
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = True
-                  
+
+class doHadCaloSeededSSS(InDetFlagsJobProperty):
+    """Use Recover SSS to Calo ROIs"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 class doBeamGas(InDetFlagsJobProperty):
     """Turn running of BeamGas second pass on and off"""
     statusOn     = True
@@ -521,8 +527,8 @@ class priVtxCutLevel(InDetFlagsJobProperty):
     """
     statusOn     = True
     allowedTypes = ['int']
-    allowedValues= [1,2]
-    StoredValue  = 2 
+    allowedValues= [1,2,3]
+    StoredValue  = 3 
 
 class vertexSeedFinder(InDetFlagsJobProperty):
     """ string to store the type of seed finder, possible types: 'SlidingWindowMultiSeedFinder', 'HistogrammingMultiSeedFinder', 'DivisiveMultiSeedFinder' """
@@ -614,6 +620,12 @@ class doStatistics(InDetFlagsJobProperty):
 
 class doStandardPlots(InDetFlagsJobProperty):
     """ Use to turn on creating the Standard Plots of tracking performance """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+    
+class doPhysValMon(InDetFlagsJobProperty):
+    """ Use to turn on Physics Validation Monitoring """
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -842,12 +854,42 @@ class pixelClusterSplittingType(InDetFlagsJobProperty):
    allowedTypes = ['str']
    allowedValues= ['NeuralNet','AnalogClus']
    StoredValue  = 'NeuralNet'
-	    
+
+class pixelClusterSplitProb1 (InDetFlagsJobProperty):
+   """ Cut value for splitting clusters into two parts """
+   statusOn = True
+   allowedTypes = ['float']
+   StoredValue = 0.35
+
+class pixelClusterSplitProb2 (InDetFlagsJobProperty):
+   """ Cut value for splitting clusters into three parts """
+   statusOn = True
+   allowedTypes = ['float']
+   StoredValue = 0.4
+
+class pixelClusterSplitMinPt (InDetFlagsJobProperty):
+   """ Min pt for tracks to try and split hits """
+   statusOn = True
+   allowedTypes = ['float']
+   StoredValue = 1000
+
 class useBroadClusterErrors(InDetFlagsJobProperty):
     """ Use broad cluster errors for Pixel/SCT """
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
+
+class useBroadPixClusterErrors(InDetFlagsJobProperty):
+    """ Use broad cluster errors for Pixel"""
+    statusOn     = True
+    allowedTypes = ['NoneType','bool']
+    StoredValue  = None
+
+class useBroadSCTClusterErrors(InDetFlagsJobProperty):
+    """ Use broad cluster errors for SCT"""
+    statusOn     = True
+    allowedTypes = ['NoneType','bool']
+    StoredValue  = None
 
 class writeRDOs(InDetFlagsJobProperty):
     """ Write RDOs into ESD """
@@ -909,6 +951,42 @@ class doCaloSeededTRTSegments(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
+class doInnerDetectorCommissioning(InDetFlagsJobProperty):
+  """ Switch for running looser settings in ID for commissioning """
+  statusOn     = True
+  allowedTypes = ['bool']
+  StoredValue  = False
+
+class doTIDE_Ambi(InDetFlagsJobProperty):
+  """ Switch for running TIDE Ambi """
+  statusOn     = True
+  allowedTypes = ['bool']
+  StoredValue  = True
+
+class doSSSfilter(InDetFlagsJobProperty):
+  """ Switch for running SSS filter"""
+  statusOn     = True
+  allowedTypes = ['bool']
+  StoredValue  = True
+
+class pT_SSScut(InDetFlagsJobProperty):
+  """ Pt cut for SSS filter [GeV]"""
+  statusOn     = True
+  allowedTypes = ['float']
+  StoredValue  = -1
+
+class ForceCoraCool(InDetFlagsJobProperty):
+  """ Use old (non CoolVectorPayload) SCT Conditions """
+  statusOn     = True
+  allowedTypes = ['bool']
+  StoredValue  = False
+
+class doTrackSegmentsPixelPrdAssociation(InDetFlagsJobProperty):
+    """Turn running of track segment creation in pixel after NewTracking, and with PRD association, on and off"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the InDet flag container
@@ -945,7 +1023,7 @@ class InDetJobProperties(JobPropertyContainer):
     from AthenaCommon.BeamFlags import jobproperties
     print "InDetJobProperties::setupDefaults():  jobproperties.Beam.beamType() is "+jobproperties.Beam.beamType()+" bunch spacing is "+str(jobproperties.Beam.bunchSpacing()) 
 
-    if (jobproperties.Beam.beamType()=="collisions" and jobproperties.Beam.bunchSpacing()==25): 
+    if ( jobproperties.Beam.beamType()=="collisions" and not rec.Commissioning() ): 
        self.checkThenSet(self.InDet25nsec            , True)     
 
     if (jobproperties.Beam.beamType()=="singlebeam"):
@@ -990,9 +1068,9 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doSimpleV0Finder       , False)
        self.checkThenSet(self.doSecVertexFinder      , False )
        self.checkThenSet(self.doConversions          , False )
-       self.checkThenSet(self.doTrackSegmentsPixel   , False)
-       self.checkThenSet(self.doTrackSegmentsSCT     , False)
-       self.checkThenSet(self.doTrackSegmentsTRT     , False)
+       #self.checkThenSet(self.doTrackSegmentsPixel   , False)
+       #self.checkThenSet(self.doTrackSegmentsSCT     , False)
+       #self.checkThenSet(self.doTrackSegmentsTRT     , False)
        self.checkThenSet(self.doLowBetaFinder        , False)
        self.checkThenSet(self.doCosmics              , True )
        self.checkThenSet(self.preProcessing          , True )
@@ -1063,6 +1141,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doSGDeletion           , True )
        # TEMPORARY FIX TO STOP SEG FAULT
        self.checkThenSet(self.doPixelClusterSplitting, False)
+       self.checkThenSet(self.doTIDE_Ambi, False)
 
     elif (self.doIBL()):
        print "----> InDetJobProperties for IBL"
@@ -1149,6 +1228,7 @@ class InDetJobProperties(JobPropertyContainer):
        # --- turn off brem
        self.checkThenSet(self.doBremRecovery         , False)
        self.checkThenSet(self.doCaloSeededBrem       , False)
+       self.checkThenSet(self.doHadCaloSeededSSS     , False)
        # --- turn off TRT
        DetFlags.makeRIO.TRT_setOff()
        DetFlags.TRT_setOff()
@@ -1192,6 +1272,8 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doMonitoringAlignment  , False )
        self.checkThenSet(self.doBremRecovery         , False)
        self.checkThenSet(self.doCaloSeededBrem       , False)
+       self.checkThenSet(self.doHadCaloSeededSSS     , False)
+
 
     # --- collisions, this is the main one !
     elif (jobproperties.Beam.beamType()=="collisions"):
@@ -1215,6 +1297,8 @@ class InDetJobProperties(JobPropertyContainer):
           # --- turn off brem
           self.checkThenSet(self.doBremRecovery  , False)
           self.checkThenSet(self.doCaloSeededBrem, False)
+          self.checkThenSet(self.doHadCaloSeededSSS     , False)
+
           # --- primary vertex setup
           self.checkThenSet(self.primaryVertexSetup      , "IterativeFinding")
           self.checkThenSet(self.primaryVertexCutSetup   , "Offline")          
@@ -1236,6 +1320,8 @@ class InDetJobProperties(JobPropertyContainer):
           # --- turn off brem
           self.checkThenSet(self.doBremRecovery  , False)
           self.checkThenSet(self.doCaloSeededBrem, False)
+          self.checkThenSet(self.doHadCaloSeededSSS     , False)
+
           # --- primary vertex setup
           self.checkThenSet(self.primaryVertexSetup   , "IterativeFinding")
           self.checkThenSet(self.primaryVertexCutSetup, "LowPt")
@@ -1254,12 +1340,20 @@ class InDetJobProperties(JobPropertyContainer):
     if not jobproperties.Beam.beamType()=="collisions":
        self.checkThenSet(self.doBremRecovery  , False)
        self.checkThenSet(self.doCaloSeededBrem, False)
+       self.checkThenSet(self.doHadCaloSeededSSS     , False)
 
-    # --- omissioning steering independent of cosmics/collisions/...
-    # if (rec.Commissioning()):
-       # self.checkThenSet(self.useBroadClusterErrors  , True)
-       # self.checkThenSet(self.doSlimming             , False)
+    # --- comissioning steering independent of cosmics/collisions/...
+    #if (rec.Commissioning()):
+    #    self.checkThenSet(self.doInnerDetectorCommissioning, True)
 
+    if (self.doInnerDetectorCommissioning()):
+        self.checkThenSet(self.useBroadClusterErrors  , True)
+        self.checkThenSet(self.doSlimming             , False)
+        self.checkThenSet(self.doTrackSegmentsPixel, True )
+        self.checkThenSet(self.doTrackSegmentsSCT  , True )
+        self.checkThenSet(self.doTrackSegmentsTRT  , True )
+        self.checkThenSet(self.doPixelClusterSplitting, False)
+        self.checkThenSet(self.doTIDE_Ambi, False)
 
   def init(self):
     #Method to do the final setup of the flags according to user input before.
@@ -1397,6 +1491,8 @@ class InDetJobProperties(JobPropertyContainer):
       self.doStatistics            = self.postProcessing() and self.doStatistics()
       # control to run Standard Plots
       self.doStandardPlots         = self.postProcessing() and self.doStandardPlots()
+      # control to run Standard Plots
+      self.doPhysValMon            = self.postProcessing() and self.doPhysValMon()
       #
       # --------------------------------------------------------------------
       # ---- ntuple creation
@@ -1598,6 +1694,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.doLowPt                   = False  
        self.doVeryLowPt               = False  
        self.doForwardTracks           = False 
+       self.doHadCaloSeededSSS        = False
 
        self.doxKalman                 = False
        self.doiPatRec                 = False
@@ -1617,6 +1714,7 @@ class InDetJobProperties(JobPropertyContainer):
     if self.disableInDetReco():
        self.doCaloSeededBrem          = False # disables ROI creation
        self.preProcessing             = False
+       self.doHadCaloSeededSSS        = False
        #self.doPRDFormation            = False
        #self.doSpacePointFormation     = False
        self.disableTracking           = True
@@ -1701,6 +1799,11 @@ class InDetJobProperties(JobPropertyContainer):
        print '*'
        print '* --------------------> Single collision vertex reco'
        print '*'   
+    if self.doInnerDetectorCommissioning:
+       print '*'
+       print '* --------------------> Loose setting for Commissioning'
+       print '*'   
+
     
     # -----------------------------------------
     print '*'
@@ -1715,8 +1818,15 @@ class InDetJobProperties(JobPropertyContainer):
     if self.doPRDFormation() :
        print '* run PrepRawDataFormation'
        if self.doPixelClusterSplitting():
-          print '* - run new Pixel clustering with splitting using analog information'
-          print '*   splitting technique: ', self.pixelClusterSplittingType()   
+          if self.doTIDE_Ambi(): 
+            print '* - run TIDE ambi with pixel cluster splitting' 
+            print '*   splitting technique: ', self.pixelClusterSplittingType()
+            print '*   split prob1 cut:     ', self.pixelClusterSplitProb1()
+            print '*   split prob2 cut:     ', self.pixelClusterSplitProb2()
+            print '*   Min split   pt: [MeV]', self.pixelClusterSplitMinPt() 
+          else:
+            print '* - run new Pixel clustering with splitting using analog information'
+            print '*   splitting technique: ', self.pixelClusterSplittingType()   
        if self.selectSCTIntimeHits():
            if self.InDet25nsec(): 
                print '* - use 01X masking for SCT readout in reconstruction' 
@@ -1873,6 +1983,8 @@ class InDetJobProperties(JobPropertyContainer):
        print '* run statistics packages'
     if self.doStandardPlots() :
        print '* run Standard Plots package'
+    if self.doPhysValMon() :
+       print '* run Physics Validation Monitoring'
     if self.doNtupleCreation():
        ntupleString = '* Ntuple cluster/drift circle trees activated:'
        if self.doPixelClusterNtuple():
@@ -2058,8 +2170,8 @@ jobproperties.add_Container(InDetJobProperties)
 _list_InDetJobProperties = [Enabled,
                             doPrintConfigurables,
                             doNewTracking,
-							doPseudoTracking,
-							doSplitReco,
+                            doPseudoTracking,
+                            doSplitReco,
                             doxKalman,
                             doiPatRec,
                             preProcessing,
@@ -2084,6 +2196,7 @@ _list_InDetJobProperties = [Enabled,
                             priVtxCutLevel,
                             doBremRecovery,
                             doCaloSeededBrem,
+                            doHadCaloSeededSSS,
                             doBeamGas,
                             doBeamHalo,
                             doVtxLumi,
@@ -2140,6 +2253,7 @@ _list_InDetJobProperties = [Enabled,
                             doConversions,
                             doStatistics,
                             doStandardPlots,
+                            doPhysValMon,
                             materialInteractions,
                             materialInteractionsType,
                             doPixelClusterNtuple,
@@ -2176,17 +2290,28 @@ _list_InDetJobProperties = [Enabled,
                             disableInDetReco,
                             doPixelClusterSplitting,
                             pixelClusterSplittingType,
+                            pixelClusterSplitProb1,
+                            pixelClusterSplitProb2,
+                            pixelClusterSplitMinPt,
                             useBroadClusterErrors,
+                            useBroadPixClusterErrors,
+                            useBroadSCTClusterErrors,
                             writeRDOs,
                             writePRDs,
                             doMinBias,
                             doLowMuRunSetup,
                             doRobustReco,
-			                doSingleCollisionVertexReco,
+                            doSingleCollisionVertexReco,
                             useMBTSTimeDiff,
                             useNewSiSPSeededTF,
                             doxAOD,
-                            doCaloSeededTRTSegments
+                            doCaloSeededTRTSegments,
+                            doInnerDetectorCommissioning,
+                            doTIDE_Ambi,
+                            doSSSfilter,
+                            pT_SSScut,
+                            ForceCoraCool,
+                            doTrackSegmentsPixelPrdAssociation
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)

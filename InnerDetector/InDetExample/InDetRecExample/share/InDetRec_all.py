@@ -18,6 +18,7 @@ topSequence = AlgSequence()
 #
 from AthenaCommon.AppMgr import ToolSvc
 
+import MagFieldServices.SetupField
 #--------------------------------------------------------------
 # Abort on ERROR if set by RecFlags
 #--------------------------------------------------------------

@@ -121,9 +121,8 @@ if InDetFlags.doPRDFormation():
                                                       MinimalSplitProbability = 0,
                                                       SplitClusterAmbiguityMap= InDetKeys.SplitClusterAmbiguityMap())
       # assign the tools if there are any                                                
-      if clusterSplitProbTool is not None : InDetMergedPixelsTool.SplitProbTool   = clusterSplitProbTool
-      if clusterSplitterTool is not None  : InDetMergedPixelsTool.ClusterSplitter = clusterSplitterTool
-
+      if not InDetFlags.doTIDE_Ambi() and clusterSplitProbTool is not None : InDetMergedPixelsTool.SplitProbTool   = clusterSplitProbTool
+      if not InDetFlags.doTIDE_Ambi() and clusterSplitterTool is not None  : InDetMergedPixelsTool.ClusterSplitter = clusterSplitterTool
 
       
       ToolSvc += InDetMergedPixelsTool

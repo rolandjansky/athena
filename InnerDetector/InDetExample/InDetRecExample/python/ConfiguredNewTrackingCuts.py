@@ -78,6 +78,7 @@ class ConfiguredNewTrackingCuts :
     self.__phiWidthBrem            = 0.3 # default is 0.3
     self.__etaWidthBrem            = 0.2 # default is 0.3
 
+
     # --- Z Boundary Seeding
     self.__doZBoundary             = False
     
@@ -228,6 +229,13 @@ class ConfiguredNewTrackingCuts :
       self.__maxSecondaryPixelHoles  = 5
       self.__maxSecondarySCTHoles    = 5
       self.__maxSecondaryDoubleHoles = 2
+
+    if self.__indetflags.doInnerDetectorCommissioning():
+      self.__minClusters             = 6
+      self.__nWeightedClustersMin    = 6
+      self.__minSiNotShared   = 5
+      self.__rejectShortExtensions = False
+
 
 #    if rec.Commissioning():
 #      self.__minClusters             = 7                # Igor 6, was 7
@@ -405,6 +413,7 @@ class ConfiguredNewTrackingCuts :
       self.__maxPrimaryImpact = 1000. * Units.mm 
       self.__maxZImpact       = 10000. * Units.mm 
       self.__minClusters      = 4
+      self.__minSiNotShared   = 4
       self.__maxHoles         = 3
       self.__maxPixelHoles    = 3
       self.__maxSctHoles      = 3
@@ -496,6 +505,25 @@ class ConfiguredNewTrackingCuts :
         self.__Xi2maxNoAdd      = 100.0
         self.__nWeightedClustersMin = 6
 
+
+    if mode == "PixelPrdAssociation":
+      self.__extension        = "PixelPrdAssociation" # this runs after NewTracking
+      self.__minPT            = 5.0 * Units.GeV
+      self.__minClusters      = 4
+      self.__maxHoles         = 0
+      self.__maxPixelHoles    = 0
+      self.__maxSctHoles      = 0
+      self.__maxDoubleHoles   = 0
+      self.__minSiNotShared   = 3
+      self.__maxShared        = 0
+      self.__seedFilterLevel  = 2
+      self.__nHolesMax        = self.__maxHoles
+      self.__nHolesGapMax     = self.__maxHoles      
+      self.__useSCT           = False
+      self.__useTRT           = False 
+      self.__maxEta           = 2.2
+
+
     # --- changes for SCT segments
     if mode == "SCT":
       self.__extension        = "SCT" # this runs parallel to NewTracking
@@ -531,7 +559,12 @@ class ConfiguredNewTrackingCuts :
         self.__Xi2max           = 60.0
         self.__Xi2maxNoAdd      = 100.0
         self.__nWeightedClustersMin = 6
-        
+
+        if self.__indetflags.doInnerDetectorCommissioning():
+          self.__minClusters      = 4
+          self.__minSiNotShared   = 4
+          self.__nWeightedClustersMin = 4
+
     # --- TRT subdetector tracklet cuts
     if mode == "TRT":
       self.__minPT                   = 0.4 * Units.GeV
@@ -570,8 +603,14 @@ class ConfiguredNewTrackingCuts :
         self.__Xi2max           = 60.0
         self.__Xi2maxNoAdd      = 100.0
         self.__nWeightedClustersMin = 6
+
+        if self.__indetflags.doInnerDetectorCommissioning():
+          self.__minClusters      = 4
+          self.__nWeightedClustersMin = 4
+          self.__minSiNotShared   = 4
+          self.__rejectShortExtensions     = False
         
-#      elif rec.Commissioning():
+#        elif rec.Commissioning():
 #        self.__minClusters             = 7               # Igor 6, was 7
 #        self.__maxHoles                = 5               # was 5
 #        self.__maxSctHoles             = 5               # was 5

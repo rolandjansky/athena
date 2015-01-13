@@ -98,15 +98,25 @@ if globalflags.InputFormat()=='bytestream':
    InDetESDList+=['TRT_BSIdErrContainer#'+InDetKeys.TRT_ByteStreamIdErrs()]
 
 if InDetFlags.doxAOD():
-  InDetESDList+=['xAOD::TrackParticleContainer_v1#'+InDetKeys.xAODTrackParticleContainer()]
-  InDetESDList+=['xAOD::TrackParticleAuxContainer_v1#'+InDetKeys.xAODTrackParticleContainer()+'Aux.']
-  InDetESDList+=['xAOD::TrackParticleAuxContainer_v1#'+InDetKeys.xAODTrackParticleContainer()+'Aux.-caloExtension']
-  InDetESDList+=['xAOD::TrackParticleContainer_v1#'+InDetKeys.xAODForwardTrackParticleContainer()]
-  InDetESDList+=['xAOD::TrackParticleAuxContainer_v1#'+InDetKeys.xAODForwardTrackParticleContainer()+'Aux.']
-  InDetESDList+=['xAOD::TrackParticleAuxContainer_v1#'+InDetKeys.xAODForwardTrackParticleContainer()+'Aux.-caloExtension']
-  InDetESDList+=['xAOD::VertexContainer_v1#'+InDetKeys.xAODVertexContainer()]
-  InDetESDList+=['xAOD::VertexAuxContainer_v1#'+InDetKeys.xAODVertexContainer()+'Aux.-vxTrackAtVertex']
-
+  excludedAuxData = "-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
+  InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODTrackParticleContainer()]
+  InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODTrackParticleContainer()+'Aux.' + excludedAuxData]
+  InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODForwardTrackParticleContainer()]
+  InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODForwardTrackParticleContainer()+'Aux.' + excludedAuxData ]
+  InDetESDList+=['xAOD::VertexContainer#'+InDetKeys.xAODVertexContainer()]
+  InDetESDList+=['xAOD::VertexAuxContainer#'+InDetKeys.xAODVertexContainer()+'Aux.-vxTrackAtVertex']
+  if InDetFlags.doTrackSegmentsPixel():
+    InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPixelTrackParticleContainer()]
+    InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPixelTrackParticleContainer()+'Aux.' + excludedAuxData]
+  if InDetFlags.doTrackSegmentsPixelPrdAssociation():
+    InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODPixelPrdAssociationTrackParticleContainer()]
+    InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODPixelPrdAssociationTrackParticleContainer()+'Aux.' + excludedAuxData]
+  if InDetFlags.doTrackSegmentsSCT():
+    InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODSCTTrackParticleContainer()]
+    InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODSCTTrackParticleContainer()+'Aux.' + excludedAuxData]
+  if InDetFlags.doTrackSegmentsTRT():
+    InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODTRTTrackParticleContainer()]
+    InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODTRTTrackParticleContainer()+'Aux.' + excludedAuxData]
 # next is only for InDetRecExample stand alone! RecExCommon uses InDetESDList directly
 # added to InDetRec_all.py after include WriteInDetESD!
 #StreamESD.ItemList += InDetESDList

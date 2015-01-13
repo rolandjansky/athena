@@ -27,6 +27,14 @@ if doReadBS:
     from IOVDbSvc.CondDB import conddb
     conddb.setGlobalTag(globalflags.ConditionsTag())
 
+# request TrackingGeo tag  AtlasLayerMat_v18_ATLAS-GEO-16
+# but there are only   AtlasLayerMat_v16_ATLAS-GEO-16
+#                   or AtlasLayerMat_v18_ATLAS-R1-2010-01
+# @TODO switch to more recent data file ?
+conddb.addOverride('/GLOBAL/TrackingGeo/LayerMaterialV2','AtlasLayerMat_v19s0_ATLAS-R1-2010-01')
+#conddb.addOverride('/GLOBAL/TrackingGeo/LayerMaterialV2','AtlasLayerMat_v16_ATLAS-GEO-16')
+import MagFieldServices.SetupField
+
 theApp.EvtMax = 50
 
 #--------------------------------------------------------------

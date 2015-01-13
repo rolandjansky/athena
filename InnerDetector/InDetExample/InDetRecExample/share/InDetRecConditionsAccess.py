@@ -144,15 +144,27 @@ if DetFlags.haveRIO.pixel_on():
 # --- Load SCT Conditions Services
 #
 if DetFlags.haveRIO.SCT_on():
-    
+    SCTConfigurationFolderPath='/SCT/DAQ/Configuration/'
+    #if its CONDBR2, use new folders...
+    if (conddb.dbdata == "CONDBR2"):
+        SCTConfigurationFolderPath='/SCT/DAQ/Config/'
+    #...but now check if we want to override that decision with explicit flag (if there is one)
+    try:
+        if InDetFlags.ForceCoraCool():
+            SCTConfigurationFolderPath='/SCT/DAQ/Configuration/'
+    except:
+        pass
     # Load folders that have to exist for both MC and Data
-    if not conddb.folderRequested('/SCT/DAQ/Configuration/Chip'):
-        conddb.addFolderSplitMC("SCT","/SCT/DAQ/Configuration/Chip","/SCT/DAQ/Configuration/Chip")
-    if not conddb.folderRequested('/SCT/DAQ/Configuration/Module'):
-        conddb.addFolderSplitMC("SCT","/SCT/DAQ/Configuration/Module","/SCT/DAQ/Configuration/Module")
+    SCTChipConfigurationPath=SCTConfigurationFolderPath+'Chip'
+    SCTModuleConfigurationPath=SCTConfigurationFolderPath+'Module'
+    SCTMurConfigurationPath=SCTConfigurationFolderPath+'MUR'
+    if not conddb.folderRequested(SCTChipConfigurationPath):
+        conddb.addFolderSplitMC("SCT",SCTChipConfigurationPath,SCTChipConfigurationPath)
+    if not conddb.folderRequested(SCTModuleConfigurationPath):
+        conddb.addFolderSplitMC("SCT",SCTModuleConfigurationPath,SCTModuleConfigurationPath)
 
-    if not conddb.folderRequested('/SCT/DAQ/Configuration/MUR'):
-        conddb.addFolderSplitMC("SCT","/SCT/DAQ/Configuration/MUR","/SCT/DAQ/Configuration/MUR")
+    if not conddb.folderRequested(SCTMurConfigurationPath):
+        conddb.addFolderSplitMC("SCT",SCTMurConfigurationPath,SCTMurConfigurationPath)
 
     if not conddb.folderRequested('/SCT/DAQ/Calibration/NPtGainDefects'):
         conddb.addFolderSplitMC("SCT","/SCT/DAQ/Calibration/NPtGainDefects","/SCT/DAQ/Calibration/NPtGainDefects")
@@ -345,8 +357,11 @@ if DetFlags.haveRIO.TRT_on():
     #
     InDetTRT_DAQ_ConditionsSvc = None
     if (InDetFlags.doMonitoringTRT() and globalflags.DataSource() == 'data'):
+        tdaqFolder = '/TDAQ/EnabledResources/ATLAS/TRT/Robins'
+        if (conddb.dbdata == "CONDBR2"):
+            tdaqFolder = '/TDAQ/Resources/ATLAS/TRT/Robins'
         # TDAQ Enabled Service (only for monitoring on data)
-        conddb.addFolder('TDAQ_ONL',"/TDAQ/EnabledResources/ATLAS/TRT/Robins")
+        conddb.addFolder('TDAQ_ONL',tdaqFolder)
         from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_DAQ_ConditionsSvc
         InDetTRT_DAQ_ConditionsSvc = TRT_DAQ_ConditionsSvc( name = "InDetTRT_DAQ_ConditionsSvc" )
         ServiceMgr += InDetTRT_DAQ_ConditionsSvc

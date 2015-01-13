@@ -170,6 +170,8 @@ InDetFlags.doMonitoringAlignment = False
 #InDetFlags.doPerfMon        = True
 # --- activate creation of standard plots
 #InDetFlags.doStandardPlots  = True
+# --- activate physics validation monitoring
+#InDetFlags.doPhysValMon  = True
 # --- active storegate delection
 #InDetFlags.doSGDeletion  = True
 

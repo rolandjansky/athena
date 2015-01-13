@@ -369,6 +369,12 @@ class SiSpSeededPixelTracks(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'SiSPSeededPixelTracks'
 
+class SiSpSeededPixelPrdAssociationTracks(JobProperty):
+    """StoreGate key for SP seeded pixel tracks run after new tracking on remaining PRDs"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'SiSPSeededPixelPrdAssociationTracks'
+
 class SiSpSeededSCTTracks(JobProperty):
     """StoreGate key for SP seeded SCT standalone tracks """
     statusOn     = True
@@ -380,6 +386,12 @@ class PixelTracks(JobProperty):
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'ResolvedPixelTracks'
+
+class PixelPrdAssociationTracks(JobProperty):
+    """StoreGate key for resolved pixel tracks run after New Tracking on remaining PRDs"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'ResolvedPixelPrdAssociationTracks'
 
 class SCTTracks(JobProperty):
     """StoreGate key for resolved SCT standalone tracks """
@@ -682,6 +694,12 @@ class StandardPlotHistName(JobProperty):
     allowedTypes = ['str']
     StoredValue  = "InDetStandardPlots.root"
 
+class PhysValMonHistName(JobProperty):
+    """Name of Histogram file for the Physics Validation Monitoring"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = "InDetPhysValMonitoringPlots.root"
+
 class OutputRDOFileName(JobProperty):
     """Name of output RDO file"""
     statusOn     = True
@@ -725,6 +743,24 @@ class CaloClusterROIContainer(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'InDetCaloClusterROIs'
 
+class HadCaloClusterContainer(JobProperty):
+    """Brem Reco: Container of EM clusters"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'CaloCalTopoCluster'
+
+class HadCaloCellContainer(JobProperty):
+    """Brem Reco: Container of calo cell"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'AllCalo'
+
+class HadCaloClusterROIContainer(JobProperty):
+    """Brem Reco: Container of calo cluster ROIs"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'InDetHadCaloClusterROIs'
+
 class xAODTrackParticleContainer(JobProperty):
     """xAOD TrackParticle"""
     statusOn = True
@@ -737,17 +773,71 @@ class xAODVertexContainer(JobProperty):
     allowedTypes = ['str']
     StoredValue = "PrimaryVertices"
 
+class xAODV0VertexContainer(JobProperty):
+    """xAOD Vertex V0"""
+    statusOn = True
+    allowedTypes = ['str']
+    StoredValue = "V0UnconstrVertices"
+
+class xAODKshortVertexContainer(JobProperty):
+    """xAOD Vertex Kshort"""
+    statusOn = True
+    allowedTypes = ['str']
+    StoredValue = "V0KshortVertices"
+
+class xAODLambdaVertexContainer(JobProperty):
+    """xAOD Vertex Lambda"""
+    statusOn = True
+    allowedTypes = ['str']
+    StoredValue = "V0LambdaVertices"
+
+class xAODLambdabarVertexContainer(JobProperty):
+    """xAOD Vertex Lambdabar"""
+    statusOn = True
+    allowedTypes = ['str']
+    StoredValue = "V0LambdabarVertices"
+
 class xAODForwardTrackParticleContainer(JobProperty):
     """xAOD TrackParticle from Forward Tracking"""
     statusOn = True
     allowedTypes = ['str']
-    StoredValue = "InDetTrackParticlesForward"
+    StoredValue = "InDetForwardTrackParticles"
 
 class xAODLowBetaTrackParticleContainer(JobProperty):
     """xAOD TrackParticle from Low Beta Finder"""
     statusOn = True
     allowedTypes = ['str']
-    StoredValue = "InDetTrackParticlesLowBeta"
+    StoredValue = "InDetLowBetaTrackParticles"
+
+class xAODPseudoTrackParticleContainer(JobProperty):
+    """xAOD Pseduo TrackParticle"""
+    statusOn = True
+    allowedTypes = ['str']
+    StoredValue = "InDetPseudoTrackParticles"
+
+class xAODPixelTrackParticleContainer(JobProperty):
+    """xAOD PixelTrackParticle"""
+    statusOn = True
+    allowedTypes = ['str']
+    StoredValue = "InDetPixelTrackParticles"
+
+class xAODSCTTrackParticleContainer(JobProperty):
+    """xAOD SCTTrackParticle"""
+    statusOn = True
+    allowedTypes = ['str']
+    StoredValue = "InDetSCTTrackParticles"
+
+class xAODTRTTrackParticleContainer(JobProperty):
+    """xAOD TRTTrackParticle"""
+    statusOn = True
+    allowedTypes = ['str']
+    StoredValue = "InDetTRTTrackParticles"
+
+class xAODPixelPrdAssociationTrackParticleContainer(JobProperty):
+    """xAOD PixelTrackParticle with PRD association"""
+    statusOn = True
+    allowedTypes = ['str']
+    StoredValue = "InDetPixelPrdAssociationTrackParticles"
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
@@ -833,8 +923,10 @@ jobproperties.InDetContainerKeys.add_JobProperty(PseudoTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(PseudoDetailedTracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(PseudoTracksTruth)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededPixelTracks)
+jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededPixelPrdAssociationTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededSCTTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(PixelTracks)
+jobproperties.InDetContainerKeys.add_JobProperty(PixelPrdAssociationTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(SCTTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(TRTTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(TRTTracks_NewT)
@@ -858,6 +950,10 @@ jobproperties.InDetContainerKeys.add_JobProperty(ExtendedHaloTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(ResolvedSiCosmicTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(CombinedCosmicTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(PrimaryVertices)
+jobproperties.InDetContainerKeys.add_JobProperty(xAODV0VertexContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(xAODKshortVertexContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(xAODLambdaVertexContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(xAODLambdabarVertexContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(PrimaryVerticesWithoutBeamConstraint)
 jobproperties.InDetContainerKeys.add_JobProperty(PrimaryVerticesSplitStream)
 jobproperties.InDetContainerKeys.add_JobProperty(TrackParticles)
@@ -882,6 +978,7 @@ jobproperties.InDetContainerKeys.add_JobProperty(LowBetaCandidates)
 jobproperties.InDetContainerKeys.add_JobProperty(trkValidationNtupleName)
 jobproperties.InDetContainerKeys.add_JobProperty(trkD3PDFileName)
 jobproperties.InDetContainerKeys.add_JobProperty(StandardPlotHistName)
+jobproperties.InDetContainerKeys.add_JobProperty(PhysValMonHistName)
 jobproperties.InDetContainerKeys.add_JobProperty(OutputRDOFileName)
 jobproperties.InDetContainerKeys.add_JobProperty(OutputESDFileName)
 jobproperties.InDetContainerKeys.add_JobProperty(OutputAODFileName)
@@ -889,10 +986,22 @@ jobproperties.InDetContainerKeys.add_JobProperty(McEventCollection)
 jobproperties.InDetContainerKeys.add_JobProperty(CaloClusterContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(CaloCellContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(CaloClusterROIContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(HadCaloClusterContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(HadCaloCellContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(HadCaloClusterROIContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODVertexContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(xAODV0VertexContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(xAODKshortVertexContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(xAODLambdaVertexContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(xAODLambdabarVertexContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODForwardTrackParticleContainer)
 jobproperties.InDetContainerKeys.add_JobProperty(xAODLowBetaTrackParticleContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(xAODPseudoTrackParticleContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(xAODPixelTrackParticleContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(xAODSCTTrackParticleContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(xAODTRTTrackParticleContainer)
+jobproperties.InDetContainerKeys.add_JobProperty(xAODPixelPrdAssociationTrackParticleContainer)
 ##-----------------------------------------------------------------------------
 ## 5th step
 ## short-cut for lazy people
