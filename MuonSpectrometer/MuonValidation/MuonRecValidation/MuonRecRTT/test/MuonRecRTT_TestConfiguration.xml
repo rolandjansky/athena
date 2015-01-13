@@ -5,478 +5,72 @@
 <atn/>
 <kv/>
 <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
-   <rttContactPerson>Stephane Willocq (Stephane.Willocq@cern.ch)</rttContactPerson>
-   <mailto>Stephane.Willocq@NOSPAMcern.ch</mailto>
-   <refRelease>12.0.6</refRelease>
-   
-   <jobList>       
-      <classification>
-         <displayClass>OfflineValidation</displayClass>
-         <displayProcess>Reco</displayProcess>
-         <displayComponent>Det-Muon</displayComponent>
-      </classification>
-
-      <chain>
+  <rttContactPerson>Massimiliano Bellomo (Massimiliano.Bellomo@cern.ch)</rttContactPerson>
+  <mailto>Massimiliano.Bellomo@NOSPAMcern.ch</mailto>
+  <refRelease>19.3.0</refRelease>   
+  <jobList>       
+    <classification>
+      <displayClass>OfflineValidation</displayClass>
+      <displayProcess>Reco</displayProcess>
+      <displayComponent>Det-Muon</displayComponent>
+    </classification>      
+    <chain>
       <chainName>MuonRecRTTjobs</chainName>
+      <parallel>
 
-         <parallel>
+	<chainElement>
+	  <jobTransform userJobId="MuonRecRTT_valid1_zmm_with_pileup">
+	    <jobTransformJobName>MuonRecRTT_JobTransforms</jobTransformJobName>
+	    <jobTransformCmd>Reco_tf.py --maxEvents=500 --inputRDOFile=root://eosatlas//eos/atlas/atlasdatadisk/rucio/valid1/ec/8d/RDO.01572824._000020.pool.root.1 --outputAODFile=valid1_zmm.AOD.pool.root --outputNTUP_PHYSVALFile valid1_zmm.PHYSVAL.root --validationFlags noExample doMuon --preExec 'from RecExConfig.RecFlags  import rec; rec.doTrigger=False; import MuonCombinedRecExample.MuonCombinedRecOnlySetup'</jobTransformCmd>	      
+	    <group>MuonDataRecTrf</group>	    	    
+	    <queue>long</queue>
+	  </jobTransform>
+  </chainElement>
 
-            <chainElement>
-               <athena userJobId="Zmumu_Short_NoReco" doMonitoring="True">
-               <doc>Muon Spectrometer no reco test with Z->mumu GEO-18-01-01 events</doc>
-               <displayName>MuonSimRec_Zmumu_Short_NoReco</displayName>
-               <commandLineFlags>EvtMax=100;doMoore=False;doMuonboy=False;doStandalone=False</commandLineFlags>
-               <options>MuonRecRTT_sim_standalone.py</options>
-               <package>MuonSpectrometer/MuonValidation/MuonRecValidation/MuonRecRTT</package>
-               <group>MuonSimRec</group>
-               <queue>short</queue>
-               <dataset>/eos/atlas/atlascerngroupdisk/det-muon/valid/mc11_Zmumu/RDO.533482._000001.pool.root.1</dataset>
-	       <alwaysRunPostProc />
-               </athena>
-	    </chainElement>
-
-            <chainElement>
-               <athena userJobId="Zmumu_Short" doMonitoring="True">
-               <doc>Muon Spectrometer test with Z->mumu GEO-18-01-01 events</doc>
-               <displayName>MuonSimRec_Zmumu_Short</displayName>
-               <commandLineFlags>EvtMax=100</commandLineFlags>
-               <options>MuonRecRTT_sim_standalone.py</options>
-               <package>MuonSpectrometer/MuonValidation/MuonRecValidation/MuonRecRTT</package>
-               <group>MuonSimRec</group>
-               <queue>short</queue>
-               <dataset>/eos/atlas/atlascerngroupdisk/det-muon/valid/mc11_Zmumu/RDO.533482._000001.pool.root.1</dataset>
-	       <alwaysRunPostProc />
-               </athena>
-	    </chainElement>
-
-            <chainElement>
-               <athena userJobId="Zmumu_Long" doMonitoring="True">
-               <doc>Muon Spectrometer reco test with Z->mumu GEO-18-01-01 events</doc>
-               <displayName>MuonSimRec_Zmumu_Long</displayName>
-               <commandLineFlags>EvtMax=1000</commandLineFlags>
-               <options>MuonRecRTT_sim_standalone.py</options>
-               <package>MuonSpectrometer/MuonValidation/MuonRecValidation/MuonRecRTT</package>
-               <group>MuonSimRec</group>
-               <queue>medium</queue>
-               <dataset>/eos/atlas/atlascerngroupdisk/det-muon/valid/mc11_Zmumu/RDO.533482._000001.pool.root.1</dataset>
-               <action position="z"  runInAtlasEnv="y">
-                   <modulename>MuonSummaryRTTDozerApp</modulename>
-                   <testname>MuonSummaryRTTDozerApp</testname>
-                   <arg>
-                       <argname>DryRun</argname> <!-- for chosing PROD(=False) or TEST(=True) db-->
-                       <argvalue>False</argvalue>
-                   </arg>
-                   <arg>
-                       <argname>LastNDays</argname> <!--how many days to monitor, default = 30-->
-                       <argvalue>30</argvalue>
-                   </arg>
-                   <arg>
-                       <argname>Fit</argname> <!-- flag for fitting trend plots -->
-                       <argvalue>True</argvalue>
-                   </arg>
-                   <arg>
-                       <argname>Histos</argname> <!-- flag for plotting histograms as well, won't work now -->
-                       <argvalue>False</argvalue>
-                   </arg>
-                   <arg>
-                       <argname>Style</argname> <!-- CoolDozer + CSS style, one of Dozer (default), Dolphin, Orca, Seagull or Seal -->
-                       <argvalue>Seagull</argvalue>
-                   </arg>
-               </action>
-               <keepFilePattern>*.log</keepFilePattern>
-               <keepFilePattern>*.png</keepFilePattern>
-               <keepFilePattern>*.html</keepFilePattern>
-               <alwaysRunPostProc />
-               </athena>
-	    </chainElement>
-
-            <chainElement>
-               <athena userJobId="Zmumu_Combined" doMonitoring="True">
-               <doc>Muon reco test with Z->mumu GEO-18-01-01 events</doc>
-               <displayName>MuonSimRec_Zmumu_Combined</displayName>
-               <commandLineFlags>EvtMax=500</commandLineFlags>
-               <options>MuonRecRTT_sim_combinedreco.py</options>
-               <package>MuonSpectrometer/MuonValidation/MuonRecValidation/MuonRecRTT</package>
-               <group>MuonSimRec</group>
-               <queue>long</queue>
-               <dataset_info>
-                  <dc2 />
-                  <datasetName>/eos/atlas/atlascerngroupdisk/det-muon/valid/mc11_Zmumu/RDO.533482._000001.pool.root.1</datasetName>
-               </dataset_info>
-               <athenaCommonFlags/>
-	       <alwaysRunPostProc/>
-               </athena>
-	    </chainElement>
-
-            <chainElement>
-               <athena  userJobId="ttbar_Combined" doMonitoring="True">
-               <doc>Muon reco test with t t-bar (T1 sample) GEO-18-01-01 events</doc>
-               <displayName>MuonSimRec_T1_Combined</displayName>
-               <commandLineFlags>EvtMax=500</commandLineFlags>
-               <options>MuonRecRTT_sim_combinedreco.py</options>
-               <package>MuonSpectrometer/MuonValidation/MuonRecValidation/MuonRecRTT</package>
-               <group>MuonSimRec</group>
-               <queue>long</queue>
-               <dataset_info>
-                  <dc2 />
-                  <datasetName>/eos/atlas/atlascerngroupdisk/det-muon/valid/mc11_T1/RDO.533483._000001.pool.root.1</datasetName>
-               </dataset_info>
-               <athenaCommonFlags/>
-	       <alwaysRunPostProc/>
-               </athena>
-	    </chainElement>
-
-            <chainElement>
-               <athena  userJobId="athenaRecoFromBS" doMonitoring="True">  	  
-	       <doc>MuonRecRTT, data : standard job, reco from BS</doc>
-	       <displayName>MuonDataRec_fromBS</displayName>
-  	       <options>MuonRecRTT.py</options>
-	       <group>MuonDataRec</group>	 
-	       <queue>medium</queue>
-               <action position="z"  runInAtlasEnv="y">
-                   <modulename>MuonSummaryRTTDozerApp</modulename>
-                   <testname>MuonSummaryRTTDozerApp</testname>
-                   <arg>
-                       <argname>DryRun</argname> <!-- for chosing PROD(=False) or TEST(=True) db-->
-                       <argvalue>False</argvalue>
-                   </arg>
-                   <arg>
-                       <argname>LastNDays</argname> <!--how many days to monitor, default = 30-->
-                       <argvalue>30</argvalue>
-                   </arg>
-                   <arg>
-                       <argname>Fit</argname> <!-- flag for fitting trend plots -->
-                       <argvalue>True</argvalue>
-                   </arg>
-                   <arg>
-                       <argname>Histos</argname> <!-- flag for plotting histograms as well, won't work now -->
-                       <argvalue>False</argvalue>
-                   </arg>
-                   <arg>
-                       <argname>Style</argname> <!-- CoolDozer + CSS style, one of Dozer (default), Dolphin, Orca, Seagull or Seal -->
-                       <argvalue>Seagull</argvalue>
-                   </arg>
-               </action>
-               <keepFilePattern>*.log</keepFilePattern>
-               <keepFilePattern>*.png</keepFilePattern>
-               <keepFilePattern>*.html</keepFilePattern>
-      	       <alwaysRunPostProc />
-               </athena>
-	    </chainElement>
-
-            <chainElement>
-               <athena  userJobId="athenaRecoFromESD" doMonitoring="True">  	  
-	       <doc>MuonRecRTT, data : standard job, reco from ESD</doc>
-	       <displayName>MuonDataRec_fromESD</displayName>
-	       <commandLineFlags>readESD=True</commandLineFlags>
-  	       <options>MuonRecRTT.py</options>
-	       <group>MuonDataRec</group>	 
-	       <queue>medium</queue>
-	       <alwaysRunPostProc />
-               </athena>
-	    </chainElement>
-
-            <chainElement>
-               <jobTransform userJobId="standardRecoFromBS" doMonitoring="True">
-	       <doc>MuonRecRTT, data : standard job, reco from BS</doc>
-	       <displayName>TrfMuonDataRec_fromBS</displayName>
-               <jobTransformJobName>TrfMuonDataRec_fromBS</jobTransformJobName>
-               <jobTransformCmd>
-                  Reco_trf.py inputBSFile=root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/valid/RawZmumuSkim/data12_8TeV.00214160.physics_Muons.merge.DRAW_ZMUMU.f486_m1246._0010.1,root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/valid/RawZmumuSkim/data12_8TeV.00214160.physics_Muons.merge.DRAW_ZMUMU.f486_m1246._0011.1,root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/valid/RawZmumuSkim/data12_8TeV.00214160.physics_Muons.merge.DRAW_ZMUMU.f486_m1246._0012.1 maxEvents=2000 autoConfiguration=everything preExec='muonRecFlags.doTrkD3PD.set_Value_and_Lock(True)',,'rec.doCalo=False',,'rec.doInDet=False',,'rec.doTrigger=False',,'rec.doMuonCombined=False',,'rec.doPerfMon = True',,'rec.doDetailedPerfMon = False',,'rec.doDetailedAuditor = False',,'rec.doMonitoring = False',,'rec.doDumpProperties.set_Value_and_Lock(True)' postInclude='MuonRecRTT/MuonRecRTT_postinclude.py' outputESDFile=myESD.pool.root outputAODFile=myAOD.pool.root --ignoreerrors=True
-               </jobTransformCmd>
-               <group>MuonDataRecTrf</group>
-	       <dataset_info>
-	         <bytestream />
-	         <datasetName>/eos/atlas/atlascerngroupdisk/det-muon/valid/RawZmumuSkim/data12_8TeV.00214160.physics_Muons.merge.DRAW_ZMUMU.f486_m1246._0010.1,/eos/atlas/atlascerngroupdisk/det-muon/valid/RawZmumuSkim/data12_8TeV.00214160.physics_Muons.merge.DRAW_ZMUMU.f486_m1246._0011.1,/eos/atlas/atlascerngroupdisk/det-muon/valid/RawZmumuSkim/data12_8TeV.00214160.physics_Muons.merge.DRAW_ZMUMU.f486_m1246._0012.1</datasetName>
-	       </dataset_info>
-               <queue>medium</queue>
-	       <alwaysRunPostProc />
-               </jobTransform>
-	    </chainElement>
-
-            <chainElement>
-               <jobTransform userJobId="standardRecoFromESD" doMonitoring="True">
-	       <doc>MuonRecRTT, data : standard job, reco from ESD</doc>
-	       <displayName>TrfMuonDataRec_fromESD</displayName>
-               <jobTransformJobName>TrfMuonDataRec_fromESD</jobTransformJobName>
-               <jobTransformCmd>
-                  Reco_trf.py inputESDFile=root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/valid/ESDZmumuSkim/data12_8TeV.00214160.physics_Muons.recon.DESD_ZMUMU.f486_m1246_f486._0010.1,root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/valid/ESDZmumuSkim/data12_8TeV.00214160.physics_Muons.recon.DESD_ZMUMU.f486_m1246_f486._0011.1,root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/valid/ESDZmumuSkim/data12_8TeV.00214160.physics_Muons.recon.DESD_ZMUMU.f486_m1246_f486._0012.1 maxEvents=2000 preExec='rec.doESD.unlock()',,'rec.doESD.set_Value_and_Lock(True)',,'muonRecFlags.Enabled.set_Value_and_Lock(True)',,'muonRecFlags.doTrkD3PD.set_Value_and_Lock(True)',,'rec.doTrigger=False',,'rec.doPerfMon=False',,'rec.doDetailedPerfMon=False',,'rec.doDetailedAuditor=False',,'rec.doMonitoring=False',,'rec.doDumpProperties.set_Value_and_Lock(True)' postInclude='MuonRecRTT/MuonRecRTT_postinclude.py' outputESDFile=myESD.pool.root fastPoolMerge='False' --ignoreerrors=True 
-               </jobTransformCmd>
-               <group>MuonDataRecTrf</group>
-	       <dataset_info>
-	         <bytestream />
-	         <datasetName>/eos/atlas/atlascerngroupdisk/det-muon/valid/ESDZmumuSkim/data12_8TeV.00214160.physics_Muons.recon.DESD_ZMUMU.f486_m1246_f486._0010.1,/eos/atlas/atlascerngroupdisk/det-muon/valid/ESDZmumuSkim/data12_8TeV.00214160.physics_Muons.recon.DESD_ZMUMU.f486_m1246_f486._0011.1","/eos/atlas/atlascerngroupdisk/det-muon/valid/ESDZmumuSkim/data12_8TeV.00214160.physics_Muons.recon.DESD_ZMUMU.f486_m1246_f486._0012.1</datasetName>
-	       </dataset_info>
-               <queue>long</queue>
-	       <alwaysRunPostProc />
-               </jobTransform>
-	    </chainElement>
-
-            <chainElement>
-               <jobTransform userJobId="standardRecoFromBS_noreco" doMonitoring="True">
-	       <doc>MuonRecRTT, data : standard job, reco from BS, no reconstruction</doc>
-	       <displayName>TrfMuonDataRec_fromBS_NoReco</displayName>
-               <jobTransformJobName>TrfMuonDataRec_fromBS_noreco</jobTransformJobName>
-               <jobTransformCmd>
-                  Reco_trf.py inputBSFile=root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/valid/RawZmumuSkim/data12_8TeV.00214160.physics_Muons.merge.DRAW_ZMUMU.f486_m1246._0010.1,root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/valid/RawZmumuSkim/data12_8TeV.00214160.physics_Muons.merge.DRAW_ZMUMU.f486_m1246._0011.1,root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/valid/RawZmumuSkim/data12_8TeV.00214160.physics_Muons.merge.DRAW_ZMUMU.f486_m1246._0012.1 maxEvents=2000 autoConfiguration=everything preExec='muonRecFlags.doStandalone.set_Value_and_Lock(False)',,'muonRecFlags.doTrkD3PD.set_Value_and_Lock(True)',,'rec.doCalo=False',,'rec.doInDet=False',,'rec.doTrigger=False',,'rec.doMuonCombined=False',,'rec.doPerfMon = True',,'rec.doDetailedPerfMon = True',,'rec.doDetailedAuditor = False',,'rec.doMonitoring = False',,'muonRecFlags.doMuonboy=False',,'muonRecFlags.doMoore=False',,'rec.doDumpProperties.set_Value_and_Lock(True)' postInclude='MuonRecRTT/MuonRecRTT_postinclude.py' outputESDFile=myESD.pool.root --ignoreerrors=True 
-               </jobTransformCmd>
-               <group>MuonDataRecTrf</group>
-	       <dataset_info>
-	         <bytestream />
-	         <datasetName>/eos/atlas/atlascerngroupdisk/det-muon/valid/RawZmumuSkim/data12_8TeV.00214160.physics_Muons.merge.DRAW_ZMUMU.f486_m1246._0010.1,/eos/atlas/atlascerngroupdisk/det-muon/valid/RawZmumuSkim/data12_8TeV.00214160.physics_Muons.merge.DRAW_ZMUMU.f486_m1246._0011.1,/eos/atlas/atlascerngroupdisk/det-muon/valid/RawZmumuSkim/data12_8TeV.00214160.physics_Muons.merge.DRAW_ZMUMU.f486_m1246._0012.1</datasetName>
-	       </dataset_info>
-               <queue>medium</queue>
-	       <alwaysRunPostProc />
-               </jobTransform>
-	    </chainElement>
-
-            <chainElement>
-               <jobTransform userJobId="standardRecoFromBS_Combined" doMonitoring="True">
-	       <doc>MuonRecRTT, data : standard job, combined reco from BS</doc>
-	       <displayName>TrfMuonDataRec_fromBS_Combined</displayName>
-               <jobTransformJobName>TrfMuonDataRec_fromBS_Combined</jobTransformJobName>
-               <jobTransformCmd>
-                  Reco_trf.py inputBSFile=root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/valid/RawZmumuSkim/data12_8TeV.00214160.physics_Muons.merge.DRAW_ZMUMU.f486_m1246._0010.1,root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/valid/RawZmumuSkim/data12_8TeV.00214160.physics_Muons.merge.DRAW_ZMUMU.f486_m1246._0011.1,root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/valid/RawZmumuSkim/data12_8TeV.00214160.physics_Muons.merge.DRAW_ZMUMU.f486_m1246._0012.1 maxEvents=1000 autoConfiguration=everything preExec='muonRecFlags.doTrkD3PD.set_Value_and_Lock(True)',,'rec.doCalo=True',,'rec.doInDet=True',,'rec.doTrigger=False',,'rec.doMuonCombined=True',,'rec.doPerfMon = True',,'rec.doDetailedPerfMon = False',,'rec.doDetailedAuditor = False',,'rec.doMonitoring = False',,'rec.doDumpProperties.set_Value_and_Lock(True)' postInclude='MuonRecRTT/MuonRecRTT_postinclude.py' outputESDFile=myESD.pool.root --ignoreerrors=True 
-               </jobTransformCmd>
-               <group>MuonDataRecTrf</group>
-	       <dataset_info>
-	         <bytestream />
-	         <datasetName>/eos/atlas/atlascerngroupdisk/det-muon/valid/RawZmumuSkim/data12_8TeV.00214160.physics_Muons.merge.DRAW_ZMUMU.f486_m1246._0010.1,/eos/atlas/atlascerngroupdisk/det-muon/valid/RawZmumuSkim/data12_8TeV.00214160.physics_Muons.merge.DRAW_ZMUMU.f486_m1246._0011.1,/eos/atlas/atlascerngroupdisk/det-muon/valid/RawZmumuSkim/data12_8TeV.00214160.physics_Muons.merge.DRAW_ZMUMU.f486_m1246._0012.1</datasetName>
-	       </dataset_info>
-               <queue>medium</queue>
-	       <alwaysRunPostProc />
-               </jobTransform>
-	    </chainElement>
-
-            <chainElement>
-               <jobTransform userJobId="cosmicsRecoFromBS" doMonitoring="True">
-	       <doc>MuonRecRTT, cosmics data : standard job, reco from BS</doc>
-	       <displayName>TrfMuonDataRec_Cosmics_fromBS</displayName>
-               <jobTransformJobName>TrfMuonDataRec_Cosmics_fromBS</jobTransformJobName>
-               <jobTransformCmd>
-                  Reco_trf.py inputBSFile=root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/willocq/data09_cos/data09_cos.00121080.physics_RPCwBeam.daq.RAW._lb0000._SFO-5._0605.data maxEvents=2000 trigStream=RPCwBeam autoConfiguration=FieldAndGeo,BeamType,ConditionsTag preExec='muonRecFlags.doTrkD3PD.set_Value_and_Lock(True)',,'rec.doCalo=False',,'rec.doInDet=False',,'rec.doTrigger=False',,'rec.doMuonCombined=False',,'rec.doPerfMon = True',,'rec.doDetailedPerfMon = True',,'rec.doDetailedAuditor = False',,'rec.Commissioning = True',,'rec.doMonitoring = False',,'rec.doDumpProperties.set_Value_and_Lock(True)' postInclude='MuonRecRTT/MuonRecRTT_postinclude.py' outputESDFile=myESD.pool.root outputAODFile=myAOD.pool.root --ignoreerrors=True
-               </jobTransformCmd>
-               <group>MuonDataRecTrf</group>
-	       <dataset_info>
-	         <bytestream />
-	         <datasetName>/eos/atlas/atlascerngroupdisk/proj-sit/willocq/data09_cos/data09_cos.00121080.physics_RPCwBeam.daq.RAW._lb0000._SFO-5._0605.data</datasetName>
-	       </dataset_info>
-               <queue>medium</queue>
-	       <alwaysRunPostProc />
-               </jobTransform>
-	    </chainElement>
-
-            <chainElement>
-               <jobTransform userJobId="cosmicsRecoFromESD" doMonitoring="True">
-	       <doc>MuonRecRTT, cosmics data : standard job, reco from ESD</doc>
-	       <displayName>TrfMuonDataRec_Cosmics_fromESD</displayName>
-               <jobTransformJobName>TrfMuonDataRec_Cosmics_fromESD</jobTransformJobName>
-               <jobTransformCmd>
-                  Reco_trf.py inputESDFile=root://eosatlas//eos/atlas/atlascerngroupdisk/det-muon/valid/data09_cos/data09_cos_00121080.ESD.pool.root maxEvents=2000 trigStream=RPCwBeam autoConfiguration=FieldAndGeo,BeamType,ConditionsTag preExec='rec.doESD.unlock()',,'rec.doESD.set_Value_and_Lock(True)',,'muonRecFlags.doTrkD3PD.set_Value_and_Lock(True)',,'rec.doMuon.set_Value_and_Lock(True)',,'rec.doCalo=False',,'rec.doInDet=False',,'rec.doTrigger=False',,'rec.doMuonCombined=False',,'rec.doPerfMon = True',,'rec.doDetailedPerfMon = True',,'rec.doDetailedAuditor = False',,'rec.Commissioning = True',,'rec.doMonitoring = False',,'rec.doEgamma=False',,'jetFlags.Enabled=False',,'rec.doDumpProperties.set_Value_and_Lock(True)' postInclude='MuonRecRTT/MuonRecRTT_postinclude.py' outputESDFile=myESD.pool.root fastPoolMerge='False' --ignoreerrors=True 
-               </jobTransformCmd>
-               <group>MuonDataRecTrf</group>
-	       <dataset_info>
-	         <bytestream />
-	         <datasetName>/eos/atlas/atlascerngroupdisk/det-muon/valid/data09_cos/data09_cos_00121080.ESD.pool.root</datasetName>
-	       </dataset_info>
-               <queue>medium</queue>
-	       <alwaysRunPostProc />
-               </jobTransform>
-	    </chainElement>
-	 </parallel>
-      </chain>
-   </jobList>
-
-   <jobGroups> 
-      <jobGroup name="AthenaMuonSimRec" parent="Athena">
-          <keepFilePattern>*.root</keepFilePattern>
-          <keepFilePattern>*.txt</keepFilePattern>
-          <keepFilePattern>*.ps</keepFilePattern>
-          <keepFilePattern>*.gif</keepFilePattern>
-	  <keepFilePattern>*.png</keepFilePattern>
-          <keepFilePattern>*.log</keepFilePattern>
-          <keepFilePattern>*.C</keepFilePattern>
-          <keepFilePattern>*.html </keepFilePattern>
-          <auxFilePattern>CpuMem_Plots.C</auxFilePattern>
-          <auxFilePattern>TrkD3PDsPlotsMaker.C</auxFilePattern>
-          <auxFilePattern>ALL_MuonRecRTT_*.html</auxFilePattern>
-          <action position="a">
-            <modulename>RttLibraryTools</modulename>
-            <testname>FileGrepper</testname>
-            <arg>
-              <argname>inputFile</argname>
-              <argvalue>*_log</argvalue>
-            </arg>
-            <arg>
-              <argname>outputFile</argname>
-              <argvalue>logExtract.log</argvalue>
-            </arg>
-            <arg>
-              <argname>searchList</argname>
-              <argvalue>leaving with code 0</argvalue>
-            </arg>
-            <arg>
-              <argname>vetoList</argname>
-              <argvalue>FATAL,segmentation violation,bus error,Floating point exception</argvalue>
-            </arg>
-          </action>
-          <action position="b">
-            <modulename>RttLibraryTools</modulename>
-            <testname>FileGrepper</testname>
-            <arg>
-              <argname>inputFile</argname>
-              <argvalue>*_log</argvalue>
-            </arg>
-            <arg>
-              <argname>outputFile</argname>
-              <argvalue>libraries.txt</argvalue>
-            </arg>
-            <arg>
-              <argname>searchList</argname>
-              <argvalue>AthDsoLogger</argvalue>
-            </arg>
-          </action>
-	  <action position="c">
-             <modulename>RttLibraryTools</modulename>
-              <testname>ROOTMacroRunner</testname>
-              <arg>
-                 <argname>macro</argname>
-                 <argvalue>TrkD3PDsPlotsMaker.C</argvalue>
-              </arg>
-          </action>
-          <action position="d">
-               <modulename>MuonRecRTT_dynamic_pagemaker</modulename>
-               <testname>MuonRecRTT_dynamic_pagemaker</testname>
-          </action>
-      </jobGroup> 
-
-      <jobGroup name="AthenaMuonDataRec" parent="Athena">
-          <keepFilePattern> *pmon* </keepFilePattern>
-          <keepFilePattern> *.root</keepFilePattern>
-          <keepFilePattern> *.gif </keepFilePattern>
-          <keepFilePattern> *.png </keepFilePattern>
-          <keepFilePattern> *.html </keepFilePattern>
-          <keepFilePattern> *.txt </keepFilePattern>
-          <keepFilePattern> *log </keepFilePattern>
-          <keepFilePattern> *.root </keepFilePattern>
-          <keepFilePattern> *.C</keepFilePattern>
-          <auxFilePattern> TrkD3PD*.C </auxFilePattern>
-          <auxFilePattern> ALL_MuonRecRTT_*.html</auxFilePattern>
-          <auxFilePattern> MuonRecRTT_*.py</auxFilePattern>
-          <action position="a">
-               <modulename>RttLibraryTools</modulename>
-               <testname>ROOTMacroRunner</testname>
-               <arg>
-                   <argname>macro</argname>
-                   <argvalue>TrkD3PDsPlotsMaker.C</argvalue>
-               </arg>
-          </action>
-          <action position="b">
-               <modulename>MuonRecRTT_dynamic_pagemaker</modulename>
-               <testname>MuonRecRTT_dynamic_pagemaker</testname>
-          </action>
-          <action position="c">
-            <modulename>RttLibraryTools</modulename>
-            <testname>FileGrepper</testname>
-            <arg>
-              <argname>inputFile</argname>
-              <argvalue>*_log</argvalue>
-            </arg>
-            <arg>
-              <argname>outputFile</argname>
-              <argvalue>libraries.txt</argvalue>
-            </arg>
-            <arg>
-              <argname>searchList</argname>
-              <argvalue>AthDsoLogger</argvalue>
-            </arg>
-          </action>
-          <action position="d">
-            <modulename>RttLibraryTools</modulename>
-            <testname>FileGrepper</testname>
-            <arg>
-              <argname>inputFile</argname>
-              <argvalue>*_log</argvalue>
-            </arg>
-            <arg>
-              <argname>outputFile</argname>
-              <argvalue>logExtract.log</argvalue>
-            </arg>
-            <arg>
-              <argname>searchList</argname>
-              <argvalue>leaving with code 0</argvalue>
-            </arg>
-            <arg>
-              <argname>vetoList</argname>
-              <argvalue>FATAL,segmentation violation,bus error,Floating point exception</argvalue>
-            </arg>
-          </action>
-      </jobGroup>
-
-      <jobGroup name="MuonDataRecTrf" parent="Transform">
-          <keepFilePattern> *pmon* </keepFilePattern>
-          <keepFilePattern> *.C </keepFilePattern>
-          <keepFilePattern> *.gif </keepFilePattern>
-          <keepFilePattern> *.png </keepFilePattern>
-          <keepFilePattern> *.html </keepFilePattern>
-          <keepFilePattern> *.txt </keepFilePattern>
-          <keepFilePattern> *log </keepFilePattern>
-          <keepFilePattern> *.root </keepFilePattern>
-          <auxFilePattern> TrkD3PD*.C </auxFilePattern>
-          <auxFilePattern> ALL_MuonRecRTT_*.html</auxFilePattern>
-          <auxFilePattern> MuonRecRTT_*.py</auxFilePattern>
-          <action position="a">
-               <modulename>RttLibraryTools</modulename>
-               <testname>ROOTMacroRunner</testname>
-               <arg>
-                   <argname>macro</argname>
-                   <argvalue>TrkD3PDsPlotsMaker.C</argvalue>
-               </arg>
-          </action>
-          <action position="b">
-               <modulename>MuonRecRTT_dynamic_pagemaker</modulename>
-               <testname>MuonRecRTT_dynamic_pagemaker</testname>
-          </action>
-          <action position="c">
-            <modulename>RttLibraryTools</modulename>
-            <testname>FileGrepper</testname>
-            <arg>
-              <argname>inputFile</argname>
-              <argvalue>*_log</argvalue>
-            </arg>
-            <arg>
-              <argname>outputFile</argname>
-              <argvalue>libraries.txt</argvalue>
-            </arg>
-            <arg>
-              <argname>searchList</argname>
-              <argvalue>AthDsoLogger</argvalue>
-            </arg>
-          </action>
-          <action position="d">
-            <modulename>RttLibraryTools</modulename>
-            <testname>FileGrepper</testname>
-            <arg>
-              <argname>inputFile</argname>
-              <argvalue>*_log</argvalue>
-            </arg>
-            <arg>
-              <argname>outputFile</argname>
-              <argvalue>logExtract.log</argvalue>
-            </arg>
-            <arg>
-              <argname>searchList</argname>
-              <argvalue>leaving with code 0</argvalue>
-            </arg>
-            <arg>
-              <argname>vetoList</argname>
-              <argvalue>FATAL,segmentation violation,bus error,Floating point exception</argvalue>
-            </arg>
-          </action>
-      </jobGroup>
-
-   </jobGroups>
-
+      </parallel>
+    </chain>
+  </jobList>
+  
+  <jobGroups>
+    <jobGroup name="MuonDataRecTrf" parent="Transform">
+      <keepFilePattern>web/*</keepFilePattern>
+      <keepFilePattern>web/*/*</keepFilePattern>
+      <keepFilePattern>web/*/*/*</keepFilePattern>
+      <keepFilePattern>web/*/*/*/*</keepFilePattern>
+      <keepFilePattern>web/*/*/*/*/*</keepFilePattern>
+      <keepFilePattern>*.root</keepFilePattern>
+      <keepFilePattern>*.txt</keepFilePattern>
+      <keepFilePattern>*.log</keepFilePattern>
+      <keepFilePattern>log.*</keepFilePattern>
+      <test position="1" runInAtlasEnv="yes">
+	<modulename>RttLibraryTools</modulename>
+	<testname>ExeRunner</testname>
+	<arg>
+	  <argname>exeName</argname>
+	  <argvalue>runPostProcessMacros.sh</argvalue> 
+	</arg>
+	<arg>
+	  <argname>exeParamString</argname>
+	  <argvalue>valid1_zmm.PHYSVAL.root</argvalue>
+	</arg>
+      </test>
+      <test position="2" runInAtlasEnv="yes">
+	<modulename>RttLibraryTools</modulename>
+	<testname>ExeRunner</testname>
+	<arg>
+	  <argname>exeName</argname>
+	  <argvalue>physval_make_web_display.py</argvalue>
+	</arg>
+	<arg>
+	  <argname>exeParamString</argname>
+	  <argvalue>--reffile Nightly:valid1_zmm.PHYSVAL.root.temp.root --outdir=web --title Nightly --refdrawopt=HIST valid1_zmm.PHYSVAL.root.temp.root</argvalue>
+	</arg>
+      </test>
+    </jobGroup>
+  </jobGroups>  
+  
 </rtt>
 </unifiedTestConfiguration>
+
+
 
