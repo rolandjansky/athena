@@ -407,8 +407,10 @@ protected:
   bool m_doHitQuality;
   bool m_extendedPlots;
   float m_d0Range;
+  float m_pTRange;
   float m_z0Range;
-  
+  int   m_NTracksRange;
+
   bool m_doIP;
 
   ToolHandle< InDetAlignMon::TrackSelectionTool > m_trackSelection; 

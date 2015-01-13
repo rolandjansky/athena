@@ -29,6 +29,8 @@ struct IDAlignMonTrackSegments::UpperLowerHistograms{
 
   TH1F_LW* nhitstrt;
   TH1F_LW* nhitsSi;
+  TH1F_LW* nhitsPix;
+  TH1F_LW* nhitsSct;
   TH1F_LW* phi0;
   TH1F_LW* eta0;
   TH1F_LW* qOverPt;
@@ -36,7 +38,7 @@ struct IDAlignMonTrackSegments::UpperLowerHistograms{
   TH1F_LW* d0;
   TH1F_LW* z0;
   TH1F_LW* pt;
-  UpperLowerHistograms() : nhitstrt(0), nhitsSi(0), phi0(0), eta0(0), qOverPt(0), charge(0), d0(0), z0(0), pt(0) {};
+  UpperLowerHistograms() : nhitstrt(0), nhitsSi(0), nhitsPix(0), nhitsSct(0), phi0(0), eta0(0), qOverPt(0), charge(0), d0(0), z0(0), pt(0) {};
 
 };
 
@@ -183,10 +185,14 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
     if(m_histosBooked!=0 && AthenaMonManager::environment()==AthenaMonManager::user) return StatusCode::SUCCESS;
 
     //Upper Tracks 
-    m_upper_hist->nhitstrt = TH1F_LW::create("nhits_trtUp","Number of TRT hits for every track in Upper Track Collection",100,0,100);
+    m_upper_hist->nhitstrt = TH1F_LW::create("nhits_trtUp","Number of TRT hits for every track in Upper Track Collection",101,-0.5,100.5);
     RegisterHisto(al_mon,m_upper_hist->nhitstrt);  
-    m_upper_hist->nhitsSi = TH1F_LW::create("nhits_siUp","Number of SI hits for every track in Upper Track Collection",100,0,100);
+    m_upper_hist->nhitsSi = TH1F_LW::create("nhits_siUp","Number of SI hits for every track in Upper Track Collection",26,-0.5,25.5);
     RegisterHisto(al_mon,m_upper_hist->nhitsSi);  
+    m_upper_hist->nhitsPix = TH1F_LW::create("nhits_pixUp","Number of PIX hits for every track in Upper Track Collection",11,-0.5,10.5);
+    RegisterHisto(al_mon,m_upper_hist->nhitsPix);  
+    m_upper_hist->nhitsSct = TH1F_LW::create("nhits_sctUp","Number of SCT hits for every track in Upper Track Collection",21,-0.5,20.5);
+    RegisterHisto(al_mon,m_upper_hist->nhitsSct);  
     m_upper_hist->phi0 = TH1F_LW::create("Upper_phi0","#phi_{0}^{Upper}",100,-3.14,m_upperPhi);
     RegisterHisto(al_mon,m_upper_hist->phi0);  
     m_upper_hist->eta0 = TH1F_LW::create("Upper_eta0","#eta_{0}^{Upper}",100,-2.1,2.1);
@@ -201,10 +207,14 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
     RegisterHisto(al_mon,m_upper_hist->pt);  
 
     //Lower Tracks 
-    m_lower_hist->nhitstrt = TH1F_LW::create("nhits_trtLow","Number of TRT hits for every track in Lower Track Collection",100,0,100);
+    m_lower_hist->nhitstrt = TH1F_LW::create("nhits_trtLow","Number of TRT hits for every track in Lower Track Collection",101,-0.5,100.5);
     RegisterHisto(al_mon,m_lower_hist->nhitstrt);  
-    m_lower_hist->nhitsSi = TH1F_LW::create("nhits_siLow","Number of SI hits for every track in Lower Track Collection",100,0,100);
+    m_lower_hist->nhitsSi = TH1F_LW::create("nhits_siLow","Number of SI hits for every track in Lower Track Collection",26,-0.5,25.5);
     RegisterHisto(al_mon,m_lower_hist->nhitsSi);  
+    m_lower_hist->nhitsPix = TH1F_LW::create("nhits_pixLow","Number of PIX hits for every track in Lower Track Collection",11,-0.5,10.5);
+    RegisterHisto(al_mon,m_lower_hist->nhitsPix);  
+    m_lower_hist->nhitsSct = TH1F_LW::create("nhits_sctLow","Number of SCT hits for every track in Lower Track Collection",21,-0.5,20.5);
+    RegisterHisto(al_mon,m_lower_hist->nhitsSct);  
     m_lower_hist->phi0 = TH1F_LW::create("Lower_phi0","#phi_{0}^{Low} ",100,-3.14,m_upperPhi);
     RegisterHisto(al_mon,m_lower_hist->phi0);  
     m_lower_hist->eta0 = TH1F_LW::create("Lower_eta0","#eta_{0}^{Low} ",100,-2.1,2.1);
@@ -222,80 +232,80 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
     
     //  differences in track parameters
     //==================================
-    std::string chargeNames[3] = {"","Positive Tracks","Negative Tracks"};
+    std::string chargeNames[3] = {""," (Positive Tracks)"," (Negative Tracks)"};
     std::string histNames[3] = {"","_p","_n"};
     
     for(unsigned int charge=0; charge<3; ++charge){
       //======== d0 =========
       m_delta_d0->dTp[charge] = MakeHist("delta_d0"+histNames[charge]
-					 ,"d_{0}^{Low} - d_{0}^{Upper}"+chargeNames[charge]
+					 ,"d_{0}^{Low} - d_{0}^{Upper}"+chargeNames[charge]+"; #Delta d_{0} [mm]"
 					 ,100,-1*m_deltaD0Range,m_deltaD0Range);
       RegisterHisto(al_mon,m_delta_d0->dTp[charge]);  
 
       m_delta_d0->dTpPull[charge] = MakeHist("delta_d0_Pull"+histNames[charge]
-					     ,"d_{0}^{Low} - d_{0}^{Upper} / #sigma_{d_{0}}"+chargeNames[charge]
+					     ,"d_{0}^{Low} - d_{0}^{Upper} / #sigma_{d_{0}}"+chargeNames[charge]+"; #Delta d_{0} pull"
 					     ,100,-3,3);
       RegisterHisto(al_mon,m_delta_d0->dTpPull[charge]);  
       
       m_delta_d0->VsD0[charge] = MakeHist("delta_d0VsD0"+histNames[charge]
-					  ,"d_{0}^{Low} - d_{0}^{Upper} Vs d_{0}^{Upper}"+chargeNames[charge]
+					  ,"d_{0}^{Low} - d_{0}^{Upper} Vs d_{0}^{Upper}"+chargeNames[charge]+"; d_{0}^{Upper} [mm]; #Delta d_{0} [mm]"
 					  ,8,-1*m_d0Range,m_d0Range,50,-1*m_deltaD0Range2D,m_deltaD0Range2D);
       RegisterHisto(al_mon,m_delta_d0->VsD0[charge]);  
 
       m_delta_d0->VsPhi0[charge] = MakeHist("delta_d0VsPhi0"+histNames[charge]
-					    ,"d_{0}^{Low} - d_{0}^{Upper} Vs #phi_{0}^{Upper}"+chargeNames[charge]
+					    ,"d_{0}^{Low} - d_{0}^{Upper} Vs #phi_{0}^{Upper}"+chargeNames[charge]+"; #phi_{0}^{Upper} [mm]; #Delta d_{0} [mm]" 
 					    ,8,-3.14,m_upperPhi,50,-1*m_deltaD0Range2D,m_deltaD0Range2D);
       RegisterHisto(al_mon,m_delta_d0->VsPhi0[charge]);  
 
       m_delta_d0->VsPt[charge] = MakeHist("delta_d0VsPt"+histNames[charge]
-					  ,"d_{0}^{Low} - d_{0}^{Upper} Vs p_{T}^{Upper}"+chargeNames[charge]
+					  ,"d_{0}^{Low} - d_{0}^{Upper} Vs p_{T}^{Upper}"+chargeNames[charge]+"; p_{T}^{Upper} [GeV]; #Delta d_{0} [mm]" 
 					  ,10,0,100,50,-1*m_deltaD0Range2D,m_deltaD0Range2D);
       RegisterHisto(al_mon,m_delta_d0->VsPt[charge]);  
 
       m_delta_d0->VsEta[charge] = MakeHist("delta_d0VsEta"+histNames[charge]
-					   ,"d_{0}^{Low} - d_{0}^{Upper} Vs #eta^{Upper}"+chargeNames[charge]
+					   ,"d_{0}^{Low} - d_{0}^{Upper} Vs #eta^{Upper}"+chargeNames[charge]+"; #eta^{Upper}; #Delta d_{0} [mm]" 
 					   ,50,-2.1,2.1,50,-1*m_deltaD0Range2D,m_deltaD0Range2D);
       RegisterHisto(al_mon,m_delta_d0->VsEta[charge]);  
 
       m_delta_d0->VsZ0[charge] = MakeHist("delta_d0VsZ0"+histNames[charge]
-					  ,"d_{0}^{Low} - d_{0}^{Upper} Vs z_{0}^{Upper}"+chargeNames[charge]
+					  ,"d_{0}^{Low} - d_{0}^{Upper} Vs z_{0}^{Upper}"+chargeNames[charge]+"; #z_{0}^{Upper} [mm]; #Delta d_{0} [mm]" 
 					  ,50,-1000,1000,50,-1*m_deltaD0Range2D,m_deltaD0Range2D);
       RegisterHisto(al_mon,m_delta_d0->VsZ0[charge]);  
       
       //========= z0
       m_delta_z0->dTp[charge] = MakeHist("delta_z0"+histNames[charge]
-					 ,"z_{0}^{Low} - z_{0}^{Upper}"+chargeNames[charge]
-					 ,100,-3,3);
+					 ,"z_{0}^{Low} - z_{0}^{Upper}"+chargeNames[charge]+"; #Delta z_{0} [mm]"
+					 ,100,-1,1);
       RegisterHisto(al_mon,m_delta_z0->dTp[charge]);  
 
       m_delta_z0->dTpPull[charge] = MakeHist("delta_z0_Pull"+histNames[charge]
-					     ,"z_{0}^{Low} - z_{0}^{Upper} / #sigma_{z_{0}}"+chargeNames[charge]
-					     ,100,-3,3);
+					     ,"z_{0}^{Low} - z_{0}^{Upper} / #sigma_{z_{0}}"+chargeNames[charge]+"; #Delta z_{0} pull"
+					     ,100,-1,1);
       RegisterHisto(al_mon,m_delta_z0->dTpPull[charge]);  
 
       m_delta_z0->VsD0[charge] = MakeHist("delta_z0VsD0"+histNames[charge]
-					  ,"z_{0}^{Low} - z_{0}^{Upper} Vs d_{0}^{Upper}"+chargeNames[charge]
-					  ,8,-1*m_d0Range,m_d0Range,50,-5,5);
+					  ,"z_{0}^{Low} - z_{0}^{Upper} Vs d_{0}^{Upper}"+chargeNames[charge]+"; z_{0}^{Upper} [mm]; #Delta z_{0} [mm]"
+					  ,8,-1*m_d0Range,m_d0Range,50,-1,1);
       RegisterHisto(al_mon,m_delta_z0->VsD0[charge]);  
 
       m_delta_z0->VsPhi0[charge] = MakeHist("delta_z0VsPhi0"+histNames[charge]
 					    ,"z_{0}^{Low} - z_{0}^{Upper} Vs #phi_{0}^{Upper}"+chargeNames[charge]
-					    ,8,-3.14,m_upperPhi,50,-5,5);
+					    ,8,-3.14,m_upperPhi,50,-1,1);
       RegisterHisto(al_mon,m_delta_z0->VsPhi0[charge]);  
       
       m_delta_z0->VsPt[charge] = MakeHist("delta_z0VsPt"+histNames[charge]
 					  ,"z_{0}^{Low} - z_{0}^{Upper} Vs p_{T}^{Upper}"+chargeNames[charge]
-					  ,10,0,100,50,-5,5);
+					  ,10,0,100,50,-3,3);
       RegisterHisto(al_mon,m_delta_z0->VsPt[charge]);  
 
       m_delta_z0->VsEta[charge] = MakeHist("delta_z0VsEta"+histNames[charge]
 					   ,"z_{0}^{Low} - z_{0}^{Upper} Vs #eta^{Upper}"+chargeNames[charge]
-					   ,50,-2.1,2.1,50,-5,5);
+					   ,50,-2.1,2.1,50,-1,1);
       RegisterHisto(al_mon,m_delta_z0->VsEta[charge]);  
       
       m_delta_z0->VsZ0[charge] = MakeHist("delta_z0VsZ0"+histNames[charge]
 					  ,"z_{0}^{Low} - z_{0}^{Upper} Vs z_{0}^{Upper}"+chargeNames[charge]
-					  ,50,-1000,1000,50,-5,5);
+					  ,50,-1000,1000,50,-1,1);
       RegisterHisto(al_mon,m_delta_z0->VsZ0[charge]);  
       
       //====== phi0 ========
@@ -338,37 +348,37 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
       //======= eta0 =======
       m_delta_eta0->dTp[charge] = MakeHist("delta_eta0"+histNames[charge]
 					   ,"#eta_{0}^{Low} - #eta_{0}^{Upper}"+chargeNames[charge]
-					   ,100,-0.1,0.1);
+					   ,100, -0.02, 0.02);
       RegisterHisto(al_mon,m_delta_eta0->dTp[charge]);  
       
       m_delta_eta0->dTpPull[charge] = MakeHist("delta_eta0_Pull"+histNames[charge]
 					     ,"eta_{0}^{Low} - eta_{0}^{Upper} / #sigma_{eta_{0}}"+chargeNames[charge]
-					     ,100,-3,3);
+					     ,100,-4,4);
       RegisterHisto(al_mon,m_delta_eta0->dTpPull[charge]);  
 
       m_delta_eta0->VsD0[charge] = MakeHist("delta_eta0VsD0"+histNames[charge]
 					    ,"#eta_{0}^{Low} - #eta_{0}^{Upper} Vs D0^{Upper}"+chargeNames[charge]
-					    ,8,-1*m_d0Range,m_d0Range,50,-0.2,0.2);
+					    ,8,-1*m_d0Range,m_d0Range,50,-0.02, 0.02);
       RegisterHisto(al_mon,m_delta_eta0->VsD0[charge]);  
 
       m_delta_eta0->VsPhi0[charge] = MakeHist("delta_eta0VsPhi0"+histNames[charge]
 					      ,"#eta_{0}^{Low} - #eta_{0}^{Upper} Vs Phi0^{Upper}"+chargeNames[charge]
-					      ,8,-3.14,m_upperPhi,50,-0.2,0.2);
+					      ,8,-3.14,m_upperPhi,50, -0.02, 0.02);
       RegisterHisto(al_mon,m_delta_eta0->VsPhi0[charge]);  
 
       m_delta_eta0->VsPt[charge] = MakeHist("delta_eta0VsPt"+histNames[charge]
 					    ,"#eta_{0}^{Low} - #eta_{0}^{Upper} Vs p_{T}^{Upper}"+chargeNames[charge]
-					    ,10,0,100,50,-0.2,0.2);
+					    ,10,0,100,50, -0.02, 0.02);
       RegisterHisto(al_mon,m_delta_eta0->VsPt[charge]);  
 
       m_delta_eta0->VsEta[charge] = MakeHist("delta_eta0VsEta"+histNames[charge]
 					     ,"#eta_{0}^{Low} - #eta_{0}^{Upper} Vs #eta_{0}^{Upper}"+chargeNames[charge]
-					     ,50,-2.1,2.1,50,-0.2,0.2);
+					     ,50,-2.1,2.1,50, -0.02, 0.02);
       RegisterHisto(al_mon,m_delta_eta0->VsEta[charge]);  
 
       m_delta_eta0->VsZ0[charge] = MakeHist("delta_eta0VsZ0"+histNames[charge]
 					    ,"#eta_{0}^{Low} - #eta_{0}^{Upper} Vs Z0^{Upper}"+chargeNames[charge]
-					    ,50,-1000,1000,50,-0.2,0.2);
+					    ,50,-1000,1000,50, -0.02, 0.02);
       RegisterHisto(al_mon,m_delta_eta0->VsZ0[charge]);  
 
       //======= qOverPt    
@@ -446,33 +456,32 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
      
       //========== nHits
       m_delta_nHits->dTp[charge] = MakeHist("delta_nHits"+histNames[charge]
-					    ,"NHits^{upper} - NHits^{lower}"+chargeNames[charge]
-					    ,50,-25,25);
+					    ,"NHits^{upper} - NHits^{lower}"+chargeNames[charge], 61, -30.5, 30.5);
       RegisterHisto(al_mon,m_delta_nHits->dTp[charge]);  
 
       m_delta_nHits->VsD0[charge] = MakeHist("delta_nHitsVsD0"+histNames[charge]
 					     ,"NHits^{upper} - NHits^{lower} Vs d_{0}^{Upper}"+chargeNames[charge]
-					     ,8,-1*m_d0Range,m_d0Range,50,-25,25);
+					     ,8,-1*m_d0Range,m_d0Range, 61, -30.5, 30.5);
       RegisterHisto(al_mon,m_delta_nHits->VsD0[charge]);  
 
       m_delta_nHits->VsPhi0[charge] = MakeHist("delta_nHitsVsPhi0"+histNames[charge]
 					       ,"NHits^{upper} - NHits^{lower} Vs #phi_{0}^{Upper}"+chargeNames[charge]
-					       ,8,-3.14,m_upperPhi,50,-25,25);
+					       ,8,-3.14,m_upperPhi, 61, -30.5, 30.5);
       RegisterHisto(al_mon,m_delta_nHits->VsPhi0[charge]);  
 
       m_delta_nHits->VsZ0[charge] = MakeHist("delta_nHitsVsZ0"+histNames[charge]
 					     ,"NHits^{upper} - NHits^{lower} Vs z_{0}^{Upper}"+chargeNames[charge]
-					     ,50,-1000,1000,50,-25,25);
+					     ,50,-1000,1000, 61, -30.5, 30.5);
       RegisterHisto(al_mon,m_delta_nHits->VsZ0[charge]);  
 
       m_delta_nHits->VsPt[charge] = MakeHist("delta_nHitsVsPt"+histNames[charge]
 					     ,"NHits^{upper} - NHits^{lower} Vs p_{T}^{Upper}"+chargeNames[charge]
-					     ,10,0,100,50,-25,25);
+					     ,10,0,100, 61, -30.5, 30.5);
       RegisterHisto(al_mon,m_delta_nHits->VsPt[charge]);  
 
       m_delta_nHits->VsEta[charge] = MakeHist("delta_nHitsVsEta"+histNames[charge]
 					      ,"NHits^{upper} - NHits^{lower} Vs #eta^{Upper}"+chargeNames[charge]
-					      ,50,-2.1,2.1,50,-25,25);
+					      ,50,-2.1,2.1, 61, -30.5, 30.5);
       RegisterHisto(al_mon,m_delta_nHits->VsEta[charge]);  
       
     }
@@ -480,32 +489,32 @@ StatusCode IDAlignMonTrackSegments::bookHistograms()
     //========== charge
     m_delta_charge->dTp[0] = MakeHist("delta_charge"
 				      ,"Charge^{upper} - Charge^{lower}"
-				      ,6,-3,3);
+				      ,5, -2.5, 2.5);
     RegisterHisto(al_mon,m_delta_charge->dTp[0]);  
     
     m_delta_charge->VsD0[0] = MakeHist("delta_chargeVsD0"
 				       ,"Charge^{upper} - Charge^{lower} Vs d_{0}^{Upper}"
-				       ,8,-1*m_d0Range,m_d0Range,6,-3,3);
+				       ,8,-1*m_d0Range,m_d0Range, 5, -2.5, 2.5);
     RegisterHisto(al_mon,m_delta_charge->VsD0[0]);  
 
     m_delta_charge->VsPhi0[0] = MakeHist("delta_chargeVsPhi0"
 					 ,"Charge^{upper} - Charge^{lower} Vs #phi_{0}^{Upper}"
-					 ,8,-3.14,m_upperPhi,6,-3,3);
+					 ,8,-3.14,m_upperPhi, 5, -2.5, 2.5);
     RegisterHisto(al_mon,m_delta_charge->VsPhi0[0]);  
 
     m_delta_charge->VsZ0[0] = MakeHist("delta_chargeVsZ0"
 				       ,"Charge^{upper} - Charge^{lower} Vs z_{0}^{Upper}"
-				       ,50,-1000,1000,6,-3,3);
+				       ,50,-1000,1000, 5, -2.5, 2.5);
     RegisterHisto(al_mon,m_delta_charge->VsZ0[0]);  
 
     m_delta_charge->VsPt[0] = MakeHist("delta_chargeVsPt"
 				       ,"Charge^{upper} - Charge^{lower} Vs p_{T}^{Upper}"
-				       ,10,0,100,6,-3,3);
+				       ,10,0,100, 5, -2.5, 2.5);
     RegisterHisto(al_mon,m_delta_charge->VsPt[0]);  
 
     m_delta_charge->VsEta[0] = MakeHist("delta_chargeVsEta"
 					,"Charge^{upper} - Charge^{lower} Vs #eta^{Upper}"
-					,50,-2.1,2.1,6,-3,3);
+					,50,-2.1,2.1, 5,-2.5, 2.5);
     RegisterHisto(al_mon,m_delta_charge->VsEta[0]);  
     
     //========== Debugging
@@ -559,7 +568,12 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
   //Get the track collections
   const TrackCollection* tracksUpper(0);
   const TrackCollection* tracksLower(0);
-  
+
+  if (false) {
+  std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms -- upper= "<< m_upperTracksName << "   lower: "<< m_lowerTracksName << " START " 
+	    << std::endl;
+  }
+
   if(m_useCTBSplitTracks){
     
     if(!evtStore()->contains<TrackCollection>(m_upperTracksName)){
@@ -601,8 +615,10 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
     StatusCode sc = evtStore()->retrieve(tracksIn, m_inputTracksName);
     if (sc.isFailure()) {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TrackCollection with name "<<m_inputTracksName<<" found in StoreGate" << endreq;
+      if (false) std::cout << " -- SALVA -- No TrackCollection with name "<<m_inputTracksName<<" found in StoreGate" << std::endl;
     }else{
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved "<< tracksIn->size() <<" Input Tracks from StoreGate" << endreq;
+      if (false) std::cout << " -- SALVA -- Retrieved "<< tracksIn->size() <<" Input Tracks from StoreGate" << std::endl;
     }
     //This records the upper and lower track collections to storeGate 
     m_trackSplitter->splitTracks(tracksIn);
@@ -611,12 +627,14 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
     tracksUpper = m_trackSelectionUpper->selectTracks(m_upperTracksName);
     if (!tracksUpper) {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_upperTracksName<<" is NULL" << endreq;
+      std::cout << "TrackCollection with name "<<m_upperTracksName<<" is NULL" << std::endl;
     }
 
     //Get the Lower Tracks
     tracksLower = m_trackSelectionLower->selectTracks(m_lowerTracksName);
     if (!tracksLower) {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TrackCollection with name "<<m_lowerTracksName<<" is NULL" << endreq;
+      if (false) std::cout << " -- SALVA -- TrackCollection with name "<<m_lowerTracksName<<" is NULL" << endreq;
     }
 
   }
@@ -705,10 +723,18 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
 	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Measured Upper Perigee not retrieved" << endreq;
       }
 
-
+    if (false) {
+      std::cout << " -- SALVA -- IDAlignMonTrackSegments::fillHistograms() -- upper hits: Pix << " << nHitsPixUp 
+		<< "  SCT " <<  nHitsSCTUp
+		<< "  TRT " << nHitsTRTUp
+		<< "  FILLING " 
+		<< std::endl;
+    }
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Filling Upper info" << endreq;
     m_upper_hist->nhitstrt->Fill(nHitsTRTUp);
     m_upper_hist->nhitsSi->Fill(nHitsSCTUp + nHitsPixUp);
+    m_upper_hist->nhitsPix->Fill(nHitsPixUp);
+    m_upper_hist->nhitsSct->Fill(nHitsSCTUp);
     m_upper_hist->phi0->Fill(phi0Up);
     m_upper_hist->z0->Fill(z0Up);
     m_upper_hist->d0->Fill(d0Up);
@@ -812,6 +838,8 @@ StatusCode IDAlignMonTrackSegments::fillHistograms()
 	
 	m_lower_hist->nhitstrt->Fill(nHitsTRTLow);
 	m_lower_hist->nhitsSi->Fill(nHitsSCTLow + nHitsPixLow);
+	m_lower_hist->nhitsPix->Fill(nHitsPixLow);
+	m_lower_hist->nhitsSct->Fill(nHitsSCTLow);
 	
 	m_lower_hist->phi0->Fill(phi0Low);
 	m_lower_hist->z0->Fill(z0Low);

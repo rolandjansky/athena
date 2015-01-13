@@ -7,7 +7,7 @@
 
 // **********************************************************************
 // IDAlignMonResiduals.cxx
-// AUTHORS: Beate Heinemann, Tobias Golling, Ben Cooper, John Alison
+// AUTHORS: Beate Heinemann, Tobias Golling, Ben Cooper, John Alison, Pierfrancesco Butti
 // **********************************************************************
 
 #include <vector>
@@ -71,10 +71,12 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   virtual StatusCode bookHistograms();
   virtual StatusCode fillHistograms();
   virtual StatusCode procHistograms();
+
   void MakePIXBarrelHistograms (MonGroup& al_mon);
   void MakePIXEndCapsHistograms (MonGroup& al_mon);
   void MakeSCTEndcapsHistograms (MonGroup& al_mon);
   void MakeSCTBarrelHistograms (MonGroup& al_mon);
+
   void MakeTRTHistograms(MonGroup& al_mon);
   void MakeTRTBarrelHistograms(MonGroup& al_mon);
   void MakeTRTEndcapHistograms(MonGroup& al_mon);
@@ -133,6 +135,11 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   std::string m_Pixel_Manager;
   std::string m_SCT_Manager;
   std::string m_TRT_Manager;
+  
+  //Layer/Disk/Ring Gap for modified module histograms
+  int m_gap_pix;
+  int m_gap_sct;
+
   float m_minTRTResWindow;
   float m_maxTRTResWindow;
   float m_minSiResMeanWindow;
@@ -151,22 +158,27 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   float m_minPIXResYFillRange;  
   float m_RangeOfPullHistos;
   float m_PtRange;
-  std::vector<TString> m_siliconBarrelLayersLabels; 
-  std::vector<TString> m_siliconEndcapLayersLabels;
-  int m_nBinsPtRange;
-  int m_histosBooked;
-  int m_checkrate;
-  int m_events;
-  bool m_doPulls;
-  bool m_doHitQuality;
-  bool m_do3DOverlapHistos;
-  bool m_extendedPlots;
-  int m_mapSplit;
-
+  float m_ClusterSizeRange;
   float PixelBarrelXSize;
   float PixelBarrelYSize;
   float SCTBarrelXSize;
   float SCTBarrelYSize;
+  float m_IncidentThetaRange;
+  float m_IncidentPhiRange;
+  int m_nBinsPtRange;
+  int m_histosBooked;
+  int m_checkrate;
+  int m_events;
+  int m_mapSplit;
+  int m_NPixLayers;
+  bool m_doPulls;
+  bool m_doHitQuality;
+  bool m_do3DOverlapHistos;
+  bool m_doClusterSizeHistos;
+  bool m_extendedPlots;
+  int m_FinerBinningFactor;
+  std::vector<TString> m_siliconBarrelLayersLabels; 
+  std::vector<TString> m_siliconEndcapLayersLabels;
   
   //tools
   const AtlasDetectorID*                m_idHelper;
@@ -183,9 +195,9 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   ToolHandle<IInDetAlignHitQualSelTool>  m_hitQualityTool;
 
   //histograms
-
+  
+  TH1F* m_totalEvents;
   TH1F* m_sirescalcfailure;
-
   std::vector<TH3F*> m_sct_b_Oxresxvsmodetaphi_3ds;
   std::vector<TH3F*> m_sct_b_Oyresxvsmodetaphi_3ds;
   std::vector<TH3F*> m_sct_b_xresvsmodetaphi_3ds;
@@ -232,6 +244,154 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   std::vector<TH2F*> m_pix_b_residualsy_incitheta;
   std::vector<TH2F*> m_pix_b_residualsy_inciphi;
   
+  //Pix Eca unbiased residuals maps
+
+  TH3F* m_pix_eca_xresvsmodphidisk_3d;
+  TH3F* m_pix_ecc_xresvsmodphidisk_3d;
+  TH3F* m_pix_eca_yresvsmodphidisk_3d;
+  TH3F* m_pix_ecc_yresvsmodphidisk_3d;
+
+
+  //PixCluster Size
+  std::vector<TH1F*> m_pix_b_clustersize;
+  std::vector<TH1F*> m_pix_eca_clustersize;
+  std::vector<TH1F*> m_pix_ecc_clustersize;
+  
+  std::vector<TH1F*> m_pix_b_clustersizePhi;
+  std::vector<TH1F*> m_pix_b_clustersizeZ;
+  std::vector<TH1F*> m_pix_eca_clustersizePhi;
+  std::vector<TH1F*> m_pix_eca_clustersizeZ;
+  std::vector<TH1F*> m_pix_ecc_clustersizePhi;
+  std::vector<TH1F*> m_pix_ecc_clustersizeZ;
+
+  std::vector<TH2F*> m_pix_b_residualsx_clustersize;
+  std::vector<TH2F*> m_pix_b_residualsy_clustersize;
+  std::vector<TH2F*> m_pix_b_residualsx_clustersizePhi;
+  std::vector<TH2F*> m_pix_b_residualsy_clustersizePhi;
+  std::vector<TH2F*> m_pix_b_residualsx_clustersizeZ;
+  std::vector<TH2F*> m_pix_b_residualsy_clustersizeZ;
+
+  std::vector<TProfile*> m_pix_b_residualsx_clustersizeP;
+  std::vector<TProfile*> m_pix_b_residualsy_clustersizeP;
+  std::vector<TProfile*> m_pix_b_residualsx_clustersizePhiP;
+  std::vector<TProfile*> m_pix_b_residualsy_clustersizePhiP;
+  std::vector<TProfile*> m_pix_b_residualsx_clustersizeZP;
+  std::vector<TProfile*> m_pix_b_residualsy_clustersizeZP;
+ 
+  std::vector<TH2F*> m_pix_eca_residualsx_clustersize;
+  std::vector<TH2F*> m_pix_eca_residualsy_clustersize;
+  std::vector<TH2F*> m_pix_eca_residualsx_clustersizePhi;
+  std::vector<TH2F*> m_pix_eca_residualsy_clustersizePhi;
+  std::vector<TH2F*> m_pix_eca_residualsx_clustersizeZ;
+  std::vector<TH2F*> m_pix_eca_residualsy_clustersizeZ;
+
+  std::vector<TH2F*> m_pix_ecc_residualsx_clustersize;
+  std::vector<TH2F*> m_pix_ecc_residualsy_clustersize;
+  std::vector<TH2F*> m_pix_ecc_residualsx_clustersizePhi;
+  std::vector<TH2F*> m_pix_ecc_residualsy_clustersizePhi;
+  std::vector<TH2F*> m_pix_ecc_residualsx_clustersizeZ;
+  std::vector<TH2F*> m_pix_ecc_residualsy_clustersizeZ;
+  
+  std::vector<TProfile*> m_pix_eca_residualsx_clustersizeP;
+  std::vector<TProfile*> m_pix_eca_residualsy_clustersizeP;
+  std::vector<TProfile*> m_pix_eca_residualsx_clustersizePhiP;
+  std::vector<TProfile*> m_pix_eca_residualsy_clustersizePhiP;
+  std::vector<TProfile*> m_pix_eca_residualsx_clustersizeZP;
+  std::vector<TProfile*> m_pix_eca_residualsy_clustersizeZP;
+
+  std::vector<TProfile*> m_pix_ecc_residualsx_clustersizeP;
+  std::vector<TProfile*> m_pix_ecc_residualsy_clustersizeP;
+  std::vector<TProfile*> m_pix_ecc_residualsx_clustersizePhiP;
+  std::vector<TProfile*> m_pix_ecc_residualsy_clustersizePhiP;
+  std::vector<TProfile*> m_pix_ecc_residualsx_clustersizeZP;
+  std::vector<TProfile*> m_pix_ecc_residualsy_clustersizeZP;
+
+
+  //DBM plots
+
+  std::vector<TH1F*> m_dbm_residualsx;
+  std::vector<TH1F*> m_dbm_pullsx;
+  std::vector<TH2F*> m_dbm_residualsx_incitheta;
+  std::vector<TH2F*> m_dbm_residualsx_inciphi;
+  std::vector<TH2F*> m_dbm_residualsx_pt;
+  std::vector<TH2F*> m_dbm_residualsx_qoverp2;
+  std::vector<TH1F*> m_dbm_biased_residualsx;
+  std::vector<TH2F*> m_dbm_biased_residualsx_pt;
+  std::vector<TH2F*> m_dbm_biased_residualsx_qoverp2;
+  std::vector<TH2F*> m_dbm_pullsx_pt;
+  std::vector<TH1F*> m_dbm_xoverlapresidualsx;
+  
+  TH2F* m_dbm_xresvsmodphi_2d;
+  
+  //SctCluster Size 
+
+  std::vector<TH1F*> m_sct_b_clustersizePhi;
+  std::vector<TH1F*> m_sct_eca_clustersizePhi;
+  std::vector<TH1F*> m_sct_ecc_clustersizePhi;
+
+  std::vector<TH2F*> m_sct_b_residualsx_clustersizePhi;
+  std::vector<TH2F*> m_sct_eca_residualsx_clustersizePhi;
+  std::vector<TH2F*> m_sct_ecc_residualsx_clustersizePhi;
+  
+  
+ 
+  std::vector<TProfile*> m_sct_b_residualsx_clustersizePhiP;
+  std::vector<TProfile*> m_sct_eca_residualsx_clustersizePhiP;
+  std::vector<TProfile*> m_sct_ecc_residualsx_clustersizePhiP;
+
+
+
+
+
+
+  //Cluster Size vs Incident Angle
+  
+  std::vector<TProfile*> m_pix_b_clustersizePhi_incidentAngle;
+  std::vector<TProfile*> m_pix_b_clustersizeZ_incidentAngle;
+  std::vector<TProfile*> m_pix_b_clustersize_incidentAngle;
+
+  std::vector<TProfile*> m_pix_eca_clustersizePhi_incidentAngle;
+  std::vector<TProfile*> m_pix_eca_clustersizeZ_incidentAngle;
+  std::vector<TProfile*> m_pix_eca_clustersize_incidentAngle;
+
+  std::vector<TProfile*> m_pix_ecc_clustersizePhi_incidentAngle;
+  std::vector<TProfile*> m_pix_ecc_clustersizeZ_incidentAngle;
+  std::vector<TProfile*> m_pix_ecc_clustersize_incidentAngle;
+
+  std::vector<TProfile*> m_sct_b_clustersizePhi_incidentAngle;
+  std::vector<TProfile*> m_sct_eca_clustersizePhi_incidentAngle;
+  std::vector<TProfile*> m_sct_ecc_clustersizePhi_incidentAngle;
+  
+
+
+
+  std::vector<TProfile*> m_pix_b_clustersizePhi_incidentAnglePhi;
+  std::vector<TProfile*> m_pix_b_clustersizeZ_incidentAnglePhi;
+  std::vector<TProfile*> m_pix_b_clustersize_incidentAnglePhi;
+
+  std::vector<TProfile*> m_pix_eca_clustersizePhi_incidentAnglePhi;
+  std::vector<TProfile*> m_pix_eca_clustersizeZ_incidentAnglePhi;
+  std::vector<TProfile*> m_pix_eca_clustersize_incidentAnglePhi;
+
+  std::vector<TProfile*> m_pix_ecc_clustersizePhi_incidentAnglePhi;
+  std::vector<TProfile*> m_pix_ecc_clustersizeZ_incidentAnglePhi;
+  std::vector<TProfile*> m_pix_ecc_clustersize_incidentAnglePhi;
+
+  std::vector<TProfile*> m_sct_b_clustersizePhi_incidentAnglePhi;
+  std::vector<TProfile*> m_sct_eca_clustersizePhi_incidentAnglePhi;
+  std::vector<TProfile*> m_sct_ecc_clustersizePhi_incidentAnglePhi;
+
+
+
+
+
+
+
+
+
+
+
+
   // SCT
   TH2F* m_sct_b_pullx_pt;
   std::vector<TH2F*> m_sct_b_pullsx_pt;
@@ -990,10 +1150,28 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   
   TH1F* m_hiterror_sct_b;
   TH1F* m_hiterror_sct_ec;
+  TH1F* m_hiterror_sct_b_WideRange;
+  TH1F* m_hiterror_sct_ec_WideRange;
+
   TH1F* m_hiterror_x_pix_b;
   TH1F* m_hiterror_x_pix_ec;
   TH1F* m_hiterror_y_pix_b;
   TH1F* m_hiterror_y_pix_ec;
+
+  TH1F* m_hiterror_x_pix_b_WideRange;
+  TH1F* m_hiterror_x_pix_ec_WideRange;
+  TH1F* m_hiterror_y_pix_b_WideRange;
+  TH1F* m_hiterror_y_pix_ec_WideRange;
+
+  TH1F* m_hiterror_x_ibl_b;
+  TH1F* m_hiterror_x_ibl_ec;
+  TH1F* m_hiterror_y_ibl_b;
+  TH1F* m_hiterror_y_ibl_ec;
+
+  TH1F* m_hiterror_x_ibl_b_WideRange;
+  TH1F* m_hiterror_x_ibl_ec_WideRange;
+  TH1F* m_hiterror_y_ibl_b_WideRange;
+  TH1F* m_hiterror_y_ibl_ec_WideRange;
 
   // Pulls vs pt
   // Pixel

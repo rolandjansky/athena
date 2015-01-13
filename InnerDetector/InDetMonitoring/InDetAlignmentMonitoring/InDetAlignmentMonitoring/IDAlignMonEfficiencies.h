@@ -18,10 +18,12 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "EventPrimitives/EventPrimitives.h"
+#include "TH3F.h"
 
 //forward declaration
 class TH1F;
 class TH2F;
+class TH3F;
 class TProfile;
 class TProfile2D;
 class AtlasDetectorID;
@@ -82,6 +84,8 @@ class IDAlignMonEfficiencies : public ManagedMonitorToolBase
   void makeEffHisto(TH1F_LW* h_num, TH1F_LW* h_denom, TProfile* h_eff);
   void makeOverlapFracHisto(TH1F* h_num, TH1F* h_denom, TProfile* h_eff);
   void makeEffHisto(TH2F* h_num, TH2F* h_denom, TProfile2D* h_eff);
+  void makeEffHisto(TH2F* h_num, TH2F* h_denom, TH2F* h_eff);
+
   void makeTRTHistograms(MonGroup& al_monitoring);
   void makeTRTBarrelHistograms(MonGroup& al_mon);
   void makeTRTEndcapHistograms(MonGroup& al_mon);
@@ -175,6 +179,10 @@ class IDAlignMonEfficiencies : public ManagedMonitorToolBase
   TProfile2D* m_measurements_eff_vs_Eta_Phi_sct_ecc;
   TH2F* m_measurements_vs_Eta_Phi_sct_eca;
   TH2F* m_measurements_vs_Eta_Phi_sct_ecc;
+  TH3F* m_measurements_vs_Eta_Phi_sct_eca_3d_s0;
+  TH3F* m_measurements_vs_Eta_Phi_sct_eca_3d_s1;
+  TH3F* m_measurements_vs_Eta_Phi_sct_ecc_3d_s0;
+  TH3F* m_measurements_vs_Eta_Phi_sct_ecc_3d_s1;
   TH2F* m_hits_vs_Eta_Phi_sct_eca;
   TH2F* m_hits_vs_Eta_Phi_sct_ecc;
   TH2F* m_outliers_vs_Eta_Phi_sct_eca;
@@ -238,10 +246,17 @@ class IDAlignMonEfficiencies : public ManagedMonitorToolBase
   
   std::vector<TH2F*> m_hits_vs_Eta_Phi_pix_b;
   std::vector<TH2F*> m_hits_vs_Eta_Phi_sct_b;
+  std::vector<TH2F*> m_hits_vs_Eta_Phi_sct_s0_b;
+  std::vector<TH2F*> m_hits_vs_Eta_Phi_sct_s1_b;
   
   std::vector<TH2F*> m_measurements_vs_Eta_Phi_pix_b;
   std::vector<TH2F*> m_measurements_vs_Eta_Phi_sct_b;
-  
+  std::vector<TH2F*> m_measurements_vs_Eta_Phi_sct_s0_b;  
+  std::vector<TH2F*> m_measurements_vs_Eta_Phi_sct_s1_b;  
+
+  std::vector<TProfile2D*> m_measurements_eff_vs_Eta_Phi_sct_s0_b;  
+  std::vector<TProfile2D*> m_measurements_eff_vs_Eta_Phi_sct_s1_b;  
+
   std::vector<TH2F*> m_outliers_vs_Eta_Phi_pix_b;
   std::vector<TH2F*> m_outliers_vs_Eta_Phi_sct_b;
   
@@ -384,6 +399,7 @@ class IDAlignMonEfficiencies : public ManagedMonitorToolBase
   std::string m_SCT_Manager;
   std::string m_TRT_Manager;
   int m_checkrate;
+  int m_NPixLayers;
   int m_events;
   int m_histosBooked;
   bool m_doHitQuality;

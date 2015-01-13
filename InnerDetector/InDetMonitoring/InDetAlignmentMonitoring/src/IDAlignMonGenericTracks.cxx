@@ -64,6 +64,9 @@ IDAlignMonGenericTracks::IDAlignMonGenericTracks( const std::string & type, cons
         m_tracksName("ExtendedTracks"),
         m_triggerChainName("NoTriggerSelection"),
         m_barrelEta(0.8),
+	m_d0Range(2.0),
+	m_z0Range(250.0),
+	m_NTracksRange(200),
         m_beamCondSvc("BeamCondSvc",name),
         m_trackToVertexIPEstimator("Trk::TrackToVertexIPEstimator"), 
         m_etapTWeight(0)
@@ -71,8 +74,7 @@ IDAlignMonGenericTracks::IDAlignMonGenericTracks( const std::string & type, cons
   m_trackSelection = ToolHandle< InDetAlignMon::TrackSelectionTool >("InDetAlignMon::TrackSelectionTool");
   m_hitQualityTool = ToolHandle<IInDetAlignHitQualSelTool>("");
  
-  m_d0Range = 2.0;
-  m_z0Range = 250.0;
+  m_pTRange = 100.0;
   
   declareProperty("tracksName"           , m_tracksName);
   declareProperty("CheckRate"            , m_checkrate=1000);
@@ -86,6 +88,8 @@ IDAlignMonGenericTracks::IDAlignMonGenericTracks( const std::string & type, cons
   declareProperty("useExtendedPlots"     , m_extendedPlots = false);
   declareProperty("d0Range"              , m_d0Range);
   declareProperty("z0Range"              , m_z0Range);
+  declareProperty("pTRange"              , m_pTRange);
+  declareProperty("NTracksRange"         , m_NTracksRange);
   declareProperty("beamCondSvc"          , m_beamCondSvc);
   declareProperty("applyHistWeight"      , m_applyHistWeight = false);
   declareProperty("hWeightInFileName"    , m_hWeightInFileName  = "hWeight.root" ); 
@@ -296,15 +300,15 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
     m_trk_d0_ecc_zoomin = new TH1F("trk_d0_ecc_zoomin","Impact parameter: all tracks (Endcap C)",100,-5,5);
     m_trk_z0_ecc_zoomin = new TH1F("trk_z0_ecc_zoomin","Track z0: all tracks (Endcap C)",100,-300,300);
 
-    m_trk_d0_barrel  = new TH1F("trk_d0_barrel","Impact parameter: all tracks (Barrel)",100,-1100,1100);
-    m_trk_d0c_barrel = new TH1F("trk_d0c_barrel","Impact parameter (corrected for vertex): all tracks (Barrel)",100,-5,5);  
-    m_trk_z0_barrel  = new TH1F("trk_z0_barrel","Track z0: all tracks (Barrel)",100,-3500,3500);
-    m_trk_d0_eca     = new TH1F("trk_d0_eca","Impact parameter: all tracks (Endcap A)",100,-1100,1100);
-    m_trk_d0c_eca    = new TH1F("trk_d0c_eca","Impact parameter (corrected for vertex): all tracks  (Endcap A)",100,-5,5);  
-    m_trk_z0_eca     = new TH1F("trk_z0_eca","Track z0: all tracks (Endcap A)",100,-3500,3500);
-    m_trk_d0_ecc     = new TH1F("trk_d0_ecc","Impact parameter: all tracks (Endcap C)",100,-1100,1100);
-    m_trk_d0c_ecc    = new TH1F("trk_d0c_ecc","Impact parameter (corrected for vertex): all tracks  (Endcap C)",100,-5,5);  
-    m_trk_z0_ecc     = new TH1F("trk_z0_ecc","Track z0: all tracks (Endcap C)",100,-3500,3500);
+    m_trk_d0_barrel  = new TH1F("trk_d0_barrel","Impact parameter: all tracks (Barrel); d_{0} [mm]",100, -m_d0Range, m_d0Range);
+    m_trk_d0c_barrel = new TH1F("trk_d0c_barrel","Impact parameter (corrected for vertex): all tracks (Barrel)",100, -5, 5);  
+    m_trk_z0_barrel  = new TH1F("trk_z0_barrel","Track z0: all tracks (Barrel)",100, -m_z0Range, m_z0Range);
+    m_trk_d0_eca     = new TH1F("trk_d0_eca","Impact parameter: all tracks (Endcap A)",100, -m_d0Range, m_d0Range);
+    m_trk_d0c_eca    = new TH1F("trk_d0c_eca","Impact parameter (corrected for vertex): all tracks  (Endcap A)",100, -m_d0Range, m_d0Range);  
+    m_trk_z0_eca     = new TH1F("trk_z0_eca","Track z0: all tracks (Endcap A)",100, -m_z0Range, m_z0Range);
+    m_trk_d0_ecc     = new TH1F("trk_d0_ecc","Impact parameter: all tracks (Endcap C)",100, -m_d0Range, m_d0Range);
+    m_trk_d0c_ecc    = new TH1F("trk_d0c_ecc","Impact parameter (corrected for vertex): all tracks  (Endcap C)",100, -m_d0Range, m_d0Range);  
+    m_trk_z0_ecc     = new TH1F("trk_z0_ecc","Track z0: all tracks (Endcap C)",100, -m_z0Range, m_z0Range);
     //############### 
     double z0cRange=5;
     double d0cRange=0.1;
@@ -455,11 +459,11 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
     RegisterHisto(al_mon,m_nhits_per_event) ;  
     m_nhits_per_event->GetXaxis()->SetTitle("Number of Hits on Tracks per Event"); 
     m_nhits_per_event->GetYaxis()->SetTitle("Number of Events"); 
-    m_ntrk = new TH1F("ntracks","Number of Tracks",200,0,200);
+    m_ntrk = new TH1F("ntracks","Number of Tracks",m_NTracksRange+1, -0.5, m_NTracksRange+0.5);
     RegisterHisto(al_mon,m_ntrk);
-    m_ngtrk = new TH1F("ngtracks","Number of Good Tracks",200,0,200);
+    m_ngtrk = new TH1F("ngtracks","Number of Good Tracks",m_NTracksRange+1, -0.5, m_NTracksRange+0.5);
     RegisterHisto(al_mon,m_ngtrk);
-    m_nhits_per_track = new TH1F("Nhits_per_track","Number of hits per track",100,-0.5,99.5);  
+    m_nhits_per_track = new TH1F("Nhits_per_track","Number of hits per track",101,-0.5, 100.5);  
     RegisterHisto(al_mon,m_nhits_per_track) ; 
     m_nhits_per_track->GetXaxis()->SetTitle("Number of Hits per Track"); 
     m_nhits_per_track->GetYaxis()->SetTitle("Number of Tracks"); 
@@ -1054,7 +1058,7 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
     m_phi_ecc->GetXaxis()->SetTitle("Track in ECC #phi"); 
     m_phi_ecc->GetYaxis()->SetTitle("Number of Tracks");   
 
-    m_pT = new TH1F("pT","pT",200,-50.,50.);  
+    m_pT = new TH1F("pT","pT",200,-m_pTRange,m_pTRange);  
     RegisterHisto(al_mon,m_pT) ;   
     m_pT->GetXaxis()->SetTitle("Signed Track pT [GeV]"); 
     m_pT->GetYaxis()->SetTitle("Number of Tracks");   
@@ -1063,7 +1067,7 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
     m_pTResOverP = new TH1F("pTResOverP","Momentum resolution / Momentum",100,0,0.05);  
     RegisterHisto(al_mon,m_pTResOverP) ;  
 
-    m_P = new TH1F("P","Track Momentum P",200,-50.,50.);  
+    m_P = new TH1F("P","Track Momentum P",200,-m_pTRange,m_pTRange);  
     RegisterHisto(al_mon,m_P) ;   
     m_P->GetXaxis()->SetTitle("Signed Track P [GeV]"); 
     m_P->GetYaxis()->SetTitle("Number of Tracks");   

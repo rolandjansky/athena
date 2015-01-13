@@ -12,7 +12,7 @@ atlasStyle.SetStatColor(icol)
 #atlasStyle.SetFillColor(icol)
 
 # set the paper & margin sizes
-atlasStyle.SetPaperSize(20,26)
+atlasStyle.SetPaperSize(20,26) 
 atlasStyle.SetPadTopMargin(0.05)
 atlasStyle.SetPadRightMargin(0.05)
 atlasStyle.SetPadBottomMargin(0.16)
@@ -22,6 +22,7 @@ atlasStyle.SetPadLeftMargin(0.12)
 #font=72
 font=42
 tsize=0.05
+tzsize = 0.035
 atlasStyle.SetTextFont(font)
 
 
@@ -37,8 +38,8 @@ atlasStyle.SetLabelSize(tsize,"x")
 atlasStyle.SetTitleSize(tsize,"x")
 atlasStyle.SetLabelSize(tsize,"y")
 atlasStyle.SetTitleSize(tsize,"y")
-atlasStyle.SetLabelSize(tsize,"z")
-atlasStyle.SetTitleSize(tsize,"z")
+atlasStyle.SetLabelSize(tzsize,"z")
+atlasStyle.SetTitleSize(tzsize,"z")
 
 
 #use bold lines and markers
@@ -58,7 +59,7 @@ atlasStyle.SetOptStat(0)
 atlasStyle.SetOptFit(0)
 
 # put tick marks on top and RHS of plots
-atlasStyle.SetPadTickX(1)
+atlasStyle.SetPadTickX(1) 
 atlasStyle.SetPadTickY(1)
 
 gROOT.SetStyle("Plain")
@@ -70,11 +71,12 @@ gROOT.ForceStyle()
 gStyle.SetOptTitle(0)
 gStyle.SetOptStat(0) 
 gStyle.SetOptFit(0) 
-# overwrite atlas styles
 
-atlasStyle.SetMarkerSize(1.0)
-atlasStyle.SetPadLeftMargin(0.14)  
-atlasStyle.SetPadRightMargin(0.03)    
-atlasStyle.SetPadBottomMargin(0.12)     
-atlasStyle.SetPadTopMargin(0.02)  
+
+# overwrite atlas styles
+atlasStyle.SetMarkerSize(0.9)
+atlasStyle.SetPadLeftMargin(0.11)
+atlasStyle.SetPadRightMargin(0.06)    
+atlasStyle.SetPadBottomMargin(0.11)     
+atlasStyle.SetPadTopMargin(0.05) 
 atlasStyle.SetFrameFillColor(0)
