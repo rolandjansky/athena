@@ -7,28 +7,9 @@
            <group>TrigInDetValidation</group>
            <queue>long</queue>
 
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000022.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000024.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000034.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000072.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000083.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000096.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000102.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000111.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000116.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000119.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000124.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000141.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000144.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000177.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000214.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000216.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000217.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000218.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000232.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.161606.PowHegPythia8_AU2CT10_VBFH125_tautaulh.recon.RDO.e1517_s1682_s1691_r4710_tid01304919_00/RDO.01304919._000254.pool.root.1</dataset>
+#          include "samples/TrigInDetValidation_tau_sample0.xml"
            
-           <action position="a">
+           <action position="1">
              <modulename>RttLibraryTools</modulename>
              <testname>ExeRunner</testname>
              <arg>
@@ -108,6 +89,7 @@
 	   
            <auxFilePattern>TIDAdata*.dat</auxFilePattern>
            <auxFilePattern>data-tau-IBL-pu46-run2-reference-newchains.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-tau_IBL_pu46_run2-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 	   <auxFilePattern>Test_bin.dat</auxFilePattern>
 

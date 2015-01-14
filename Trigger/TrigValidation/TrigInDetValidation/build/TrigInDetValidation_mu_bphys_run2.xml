@@ -6,13 +6,9 @@
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
-            <dataset>/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc10_7TeV.108411.PythiaB_bb_Jpsimu4mu4X.digit.RDO.e574_s933_s946_d369_tid197158_00/RDO.197158._000001.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc10_7TeV.108411.PythiaB_bb_Jpsimu4mu4X.digit.RDO.e574_s933_s946_d369_tid197158_00/RDO.197158._000002.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc10_7TeV.108411.PythiaB_bb_Jpsimu4mu4X.digit.RDO.e574_s933_s946_d369_tid197158_00/RDO.197158._000003.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc10_7TeV.108411.PythiaB_bb_Jpsimu4mu4X.digit.RDO.e574_s933_s946_d369_tid197158_00/RDO.197158._000004.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc10_7TeV.108411.PythiaB_bb_Jpsimu4mu4X.digit.RDO.e574_s933_s946_d369_tid197158_00/RDO.197158._000005.pool.root.1</dataset>
+#          include "samples/TrigInDetValidation_mu_sample1.xml"
 
-            <action position="a">
+            <action position="1">
                 <modulename>RttLibraryTools</modulename>
                 <testname>ExeRunner</testname>
                 <arg>
@@ -77,6 +73,7 @@
 
             <auxFilePattern>TIDAdata*.dat</auxFilePattern>
 	    <auxFilePattern>data-muon-Bphys-reference-newchains.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-mu_bphys_run2-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 	    <auxFilePattern>Test_bin.dat</auxFilePattern>
 

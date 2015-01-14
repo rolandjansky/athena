@@ -7,93 +7,9 @@
            <group>TrigInDetValidation</group>
            <queue>long</queue>
 
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000001.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000002.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000003.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000004.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000005.pool.root.2</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000006.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000007.pool.root.3</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000008.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000009.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000010.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000011.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000012.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000013.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000014.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000015.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000016.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000017.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000018.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000019.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000020.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000021.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000022.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000023.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000024.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000025.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000026.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000027.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000028.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000029.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000030.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000031.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000032.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000033.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000034.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000035.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000036.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000037.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000038.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000039.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000040.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000041.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000042.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000043.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000044.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000045.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000046.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000047.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000048.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000049.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000050.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000051.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000052.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000053.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000054.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000055.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000056.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000057.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000058.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000059.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000060.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000061.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000062.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000063.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000064.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000065.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000066.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000067.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000068.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000069.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459/RDO.285214._000070.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000073.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000078.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000083.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000099.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000102.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000116.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000125.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000137.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000149.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000166.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000167.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000176.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000196.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000198.pool.root.1</dataset>
-	   <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/vchavda/TrigInDetValidation_taus/mc10_14TeV.105334.HerwigVBFH120tautaulh.digit.RDO.e662_s1107_d459_tid285214_00/RDO.285214._000199.pool.root.1</dataset>
+#          include "samples/TrigInDetValidation_tau_sample2.xml"
            
-           <action position="a">
+           <action position="1">
              <modulename>RttLibraryTools</modulename>
              <testname>ExeRunner</testname>
              <arg>
@@ -175,6 +91,7 @@
            <auxFilePattern>TIDAdata*.dat</auxFilePattern>
            <auxFilePattern>data-tau-merge-reference.root</auxFilePattern>
            <auxFilePattern>data-tau-pu46-run2-reference-newchains.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-tau_pu46_run2-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 	   <auxFilePattern>Test_bin.dat</auxFilePattern>
 

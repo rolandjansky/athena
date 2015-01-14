@@ -7,16 +7,7 @@
            <group>TrigInDetValidation</group>
            <queue>long</queue>
 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000133.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000149.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000448.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000484.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000522.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000545.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000553.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000590.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000782.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147806.PowhegPythia8_AU2CT10_Zee.recon.RDO.e1564_s1682_s1691_r4710_tid01288183_00/RDO.01288183._000791.pool.root.1</dataset>
+#          include "samples/TrigInDetValidation_el_sample4.xml"
 
 	   
            <action position="1">   
@@ -114,6 +105,7 @@
            <auxFilePattern>TIDAdata*.dat</auxFilePattern>
            <auxFilePattern>data-electron-merge-reference.root</auxFilePattern>
            <auxFilePattern>data-electron-Zee-IBL-pu40-reference-newchains.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-el_Zee_IBL_pu40_run2-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
            <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
 	   <auxFilePattern>Test_bin.dat</auxFilePattern>

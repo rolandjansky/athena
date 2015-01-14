@@ -6,16 +6,11 @@
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e873_s1310_s1300_d580_tid541907_00/RDO.541907._000037.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e873_s1310_s1300_d580_tid541907_00/RDO.541907._000069.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e873_s1310_s1300_d580_tid541907_00/RDO.541907._000084.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e873_s1310_s1300_d580_tid541907_00/RDO.541907._000112.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e873_s1310_s1300_d580_tid541907_00/RDO.541907._000167.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e873_s1310_s1300_d580_tid541907_00/RDO.541907._000184.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e873_s1310_s1300_d580_tid541907_00/RDO.541907._000212.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e873_s1310_s1300_d580_tid541907_00/RDO.541907._000259.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e873_s1310_s1300_d580_tid541907_00/RDO.541907._000263.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e873_s1310_s1300_d580_tid541907_00/RDO.541907._000291.pool.root.1</dataset>
+
+<!-- #          include "samples/TrigInDetValidation_all_ttbar_sample0.xml" -->
+<!-- #          include "samples/TrigInDetValidation_bjet_sample0.xml" -->
+#          include "samples/TrigInDetValidation_ttbar_mc14.xml"
+
 	   
             <action position="1">
                 <modulename>RttLibraryTools</modulename>
@@ -179,6 +174,7 @@
             <auxFilePattern>TIDAdata*.dat</auxFilePattern>
             <auxFilePattern>data-all.root</auxFilePattern>
             <auxFilePattern>data-all.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-all_ttbar_pu46_run2-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 	    <auxFilePattern>Test_bin.dat</auxFilePattern>
    

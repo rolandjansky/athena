@@ -7,10 +7,7 @@
             <group>TrigInDetValidation</group>
             <queue>long</queue>
 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.159010.ParticleGenerator_e_Et7to80.recon.RDO.e1948_s1682_s1691_r4708_tid01392866_00/RDO.01392866._000005.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.159010.ParticleGenerator_e_Et7to80.recon.RDO.e1948_s1682_s1691_r4708_tid01392866_00/RDO.01392866._000020.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.159010.ParticleGenerator_e_Et7to80.recon.RDO.e1948_s1682_s1691_r4708_tid01392866_00/RDO.01392866._000040.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.159010.ParticleGenerator_e_Et7to80.recon.RDO.e1948_s1682_s1691_r4708_tid01392866_00/RDO.01392866._000041.pool.root.1</dataset>
+#          include "samples/TrigInDetValidation_el_sample2.xml"
 
             <action position="1">    
               <modulename>RttLibraryTools</modulename> 
@@ -108,6 +105,7 @@
             <auxFilePattern>TIDAdata*.dat</auxFilePattern>
 	    <auxFilePattern>data-electron-reference.root</auxFilePattern>
 	    <auxFilePattern>data-electron-IBL-reference-newchains.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-el_single_e_7-80_IBL_run2-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 	    <auxFilePattern>TIDAindex-lowpt.html</auxFilePattern>
 	    <auxFilePattern>Test_bin.dat</auxFilePattern>

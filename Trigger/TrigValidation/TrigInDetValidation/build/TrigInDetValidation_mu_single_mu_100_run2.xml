@@ -6,26 +6,7 @@
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
-            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000005.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000012.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000013.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000016.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000034.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000040.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000047.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000050.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000071.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000076.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000130.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000134.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000148.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000172.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000197.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000198.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000207.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000216.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000224.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369/RDO.197117._000238.pool.root.1</dataset>
+#          include "samples/TrigInDetValidation_mu_sample2.xml"
            <action position="1">
               <modulename>RttLibraryTools</modulename>
               <testname>ExeRunner</testname>
@@ -105,6 +86,7 @@
             <auxFilePattern>TIDAdata*.dat</auxFilePattern>
 	    <auxFilePattern>data-muon-reference.root</auxFilePattern>
 	    <auxFilePattern>data-muon-reference-newchains.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-mu_single_mu_100_run2-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 	    <auxFilePattern>Test_bin.dat</auxFilePattern>
 

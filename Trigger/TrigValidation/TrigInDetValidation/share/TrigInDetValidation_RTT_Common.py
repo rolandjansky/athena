@@ -1,8 +1,3 @@
-# Set flags for the ntuple Content
-#doCBNT=True
-#CBNTAthenaAware=True
-
-
 if not ('EventMax' in dir()):
   EventMax=-1
 athenaCommonFlags.EvtMax=EventMax
@@ -110,9 +105,12 @@ jobproperties.CaloRecFlags.doEmCluster.set_Value_and_Lock(False)
 jobproperties.CaloRecFlags.doCaloTopoCluster.set_Value_and_Lock(False)
 jobproperties.CaloRecFlags.doCaloEMTopoCluster.set_Value_and_Lock(False)
 
+
+
 #switch off some InDet reco
 from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.doNewTracking=doIDNewTracking
+InDetFlags.doPixelClusterSplitting.set_Value_and_Lock(False)
 InDetFlags.doBackTracking=False
 InDetFlags.doTRTStandalone=False
 InDetFlags.doiPatRec=False
@@ -124,6 +122,8 @@ InDetFlags.doSecVertexFinder=False
 InDetFlags.doV0Finder=False
 InDetFlags.preProcessing=doIDNewTracking
 InDetFlags.postProcessing=doIDNewTracking
+
+
 
 doAODLVL1=False
 
@@ -172,6 +172,7 @@ GenerateMenu.overwriteSignaturesWith(resetSigs)
 # End of setting flags
 #-------------------------------------------------------------
 
+
 include( "RecExCommon/RecExCommon_topOptions.py" )
 
 TriggerFlags.abortOnConfigurationError=True
@@ -183,7 +184,19 @@ if 'disablePixelLayer' in dir() and disablePixelLayer == True:
   import TrigInDetValidation.InDetModules as IDM
   pixel_barrel_layer1_hashes = IDM.getHashes(IDM.getLayer(IDM.getBarrel(IDM.Pixel),1))
   RegSelSvcDefault.DeletePixelHashList= pixel_barrel_layer1_hashes
-  
+  #a new svc
+  from TrigIDUtils.TrigIDUtilsConf import TestPixelModuleDisablingSvc
+  tpmdsvc = TestPixelModuleDisablingSvc(name="TestPixelModuleDisablingSvc")
+  tpmdsvc.ModuleHashes = pixel_barrel_layer1_hashes
+  from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+  svcMgr += tpmdsvc
+
+  from PixelConditionsServices.PixelConditionsServicesConf import PixelConditionsSummarySvc
+  from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
+  InDetTrigPixelConditionsSummarySvc = PixelConditionsSummarySvc(PixelConditionsSetup.instanceName('PixelConditionsSummarySvc'))
+  InDetTrigPixelConditionsSummarySvc.UseTDAQ = True
+  InDetTrigPixelConditionsSummarySvc.TDAQSvcName = "TestPixelModuleDisablingSvc/TestPixelModuleDisablingSvc"
+
 
 MessageSvc.Format = "% F%48W%S%7W%R%T %0W%M"
 Service ("StoreGateSvc" ).ActivateHistory=False
@@ -292,5 +305,4 @@ else:
   print "Don't report this error, check for an configuration ERROR earlier in the log file"
   import sys
   sys.exit(1)
-
 

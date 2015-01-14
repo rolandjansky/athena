@@ -14,21 +14,16 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 if athenaCommonFlags.FilesInput()==[]:
   athenaCommonFlags.FilesInput=[
-      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_muon/mc09_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e478_s616_d284_tid107022_00/RDO.107022._000076.pool.root.1",       
-      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_muon/mc09_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e478_s616_d284_tid107022_00/RDO.107022._000423.pool.root.1",
-      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_muon/mc09_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e478_s616_d284_tid107022_00/RDO.107022._000476.pool.root.1",
-      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_muon/mc09_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e478_s616_d284_tid107022_00/RDO.107022._000642.pool.root.1",
-      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_muon/mc09_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e478_s616_d284_tid107022_00/RDO.107022._000683.pool.root.1",
-      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_muon/mc09_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e478_s616_d284_tid107022_00/RDO.107022._000713.pool.root.1",
-      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_muon/mc09_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e478_s616_d284_tid107022_00/RDO.107022._000718.pool.root.1",
-      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_muon/mc09_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e478_s616_d284_tid107022_00/RDO.107022._000767.pool.root.1",
-      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_muon/mc09_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e478_s616_d284_tid107022_00/RDO.107022._000845.pool.root.1",
-      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_muon/mc09_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e478_s616_d284_tid107022_00/RDO.107022._000857.pool.root.1",
-      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_muon/mc09_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e478_s616_d284_tid107022_00/RDO.107022._000983.pool.root.1",
-      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_muon/mc09_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e478_s616_d284_tid107022_00/RDO.107022._001004.pool.root.1",
-      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_muon/mc09_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e478_s616_d284_tid107022_00/RDO.107022._001105.pool.root.1",
-      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_muon/mc09_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e478_s616_d284_tid107022_00/RDO.107022._001768.pool.root.2",
-      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_muon/mc09_14TeV.106047.PythiaZmumu_no_filter.digit.RDO.e478_s616_d284_tid107022_00/RDO.107022._001988.pool.root.1"
+      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147807.PowhegPythia8_AU2CT10_Zmumu.recon.RDO.e1564_s1499_s1504_r4033_tid01012184_00/RDO.01012184._000001.pool.root.1",
+      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147807.PowhegPythia8_AU2CT10_Zmumu.recon.RDO.e1564_s1499_s1504_r4033_tid01012184_00/RDO.01012184._000002.pool.root.1",
+      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147807.PowhegPythia8_AU2CT10_Zmumu.recon.RDO.e1564_s1499_s1504_r4033_tid01012184_00/RDO.01012184._000003.pool.root.1",
+      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147807.PowhegPythia8_AU2CT10_Zmumu.recon.RDO.e1564_s1499_s1504_r4033_tid01012184_00/RDO.01012184._000004.pool.root.2",
+      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147807.PowhegPythia8_AU2CT10_Zmumu.recon.RDO.e1564_s1499_s1504_r4033_tid01012184_00/RDO.01012184._000005.pool.root.1",
+      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147807.PowhegPythia8_AU2CT10_Zmumu.recon.RDO.e1564_s1499_s1504_r4033_tid01012184_00/RDO.01012184._000006.pool.root.1",
+      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147807.PowhegPythia8_AU2CT10_Zmumu.recon.RDO.e1564_s1499_s1504_r4033_tid01012184_00/RDO.01012184._000007.pool.root.1",
+      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147807.PowhegPythia8_AU2CT10_Zmumu.recon.RDO.e1564_s1499_s1504_r4033_tid01012184_00/RDO.01012184._000008.pool.root.1",
+      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147807.PowhegPythia8_AU2CT10_Zmumu.recon.RDO.e1564_s1499_s1504_r4033_tid01012184_00/RDO.01012184._000009.pool.root.1",
+      "root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_14TeV.147807.PowhegPythia8_AU2CT10_Zmumu.recon.RDO.e1564_s1499_s1504_r4033_tid01012184_00/RDO.01012184._000010.pool.root.1",
     ]
 
 ###XMLDataSet='TrigInDetValidation_mu_single_mu_100_run2' # <-- RTT jobID

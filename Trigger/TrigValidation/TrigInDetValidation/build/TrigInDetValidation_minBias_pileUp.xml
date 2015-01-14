@@ -8,16 +8,9 @@
             <queue>long</queue>
 
            
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_minBias/mc10_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e686_s933_s946_d513_tid310765_00/RDO.310765._000001.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_minBias/mc10_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e686_s933_s946_d513_tid310765_00/RDO.310765._000004.pool.root.2</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_minBias/mc10_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e686_s933_s946_d513_tid310765_00/RDO.310765._000005.pool.root.2</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_minBias/mc10_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e686_s933_s946_d513_tid310765_00/RDO.310765._000012.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_minBias/mc10_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e686_s933_s946_d513_tid310765_00/RDO.310765._000013.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_minBias/mc10_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e686_s933_s946_d513_tid310765_00/RDO.310765._000014.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_minBias/mc10_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e686_s933_s946_d513_tid310765_00/RDO.310765._000017.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_minBias/mc10_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e686_s933_s946_d513_tid310765_00/RDO.310765._000018.pool.root.1</dataset>
+#          include "samples/TrigInDetValidation_minBias_sample1.xml"
            
-	    <action position="a">
+	    <action position="1">
                 <modulename>RttLibraryTools</modulename>
                 <testname>ExeRunner</testname>
                 <arg>
@@ -35,6 +28,7 @@
               <testidentifier>CheckFileRunner0</testidentifier>
             </testToRemove>
 
+            <auxFilePattern>expert-monitoring-minBias_pileUp-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"	    
             <auxFilePattern>TIDAdata*.dat</auxFilePattern>
 

@@ -19,38 +19,34 @@ JOBS =  \
         TrigInDetValidation_el_single_e_7-80_pu40_run2.xml              \
         TrigInDetValidation_el_single_e_7-80_pu40_run2_robustness.xml   \
         TrigInDetValidation_el_single_e_7-80_IBL_run2.xml               \
-        TrigInDetValidation_el_single_e_7-80_IBL_run2_oldSeeding.xml    \
         TrigInDetValidation_el_single_e_7-80_IBL_pu40_run2.xml          \
         TrigInDetValidation_el_single_e_7-80_IBL_pu40_run2_robustness.xml  \
         TrigInDetValidation_el_Zee_pu46_run2.xml                        \
         TrigInDetValidation_el_Zee_IBL_pu40_run2.xml                    \
-        TrigInDetValidation_el_Zee_IBL_pu40_run2_oldSeeding.xml         \
         TrigInDetValidation_el_single_e_5_run2.xml                      \
         TrigInDetValidation_el_Zee_pu46.xml                             \
+        TrigInDetValidation_el_ttbar_pu46_run2.xml                      \
+        TrigInDetValidation_el_ttbar_pu69_run2.xml                      \
+        TrigInDetValidation_el_ttbar_pu138_run2.xml                     \
                                                                         \
         TrigInDetValidation_cosmic.xml                                  \
-        TrigInDetValidation_cosmic_v0.xml                               \
                                                                         \
         TrigInDetValidation_bjet_run2.xml                               \
         TrigInDetValidation_bjet_pileUp.xml                             \
         TrigInDetValidation_bjet_pu46_run2.xml                          \
         TrigInDetValidation_bjet_IBL_pu40_run2.xml                      \
-        TrigInDetValidation_bjet_IBL_pu40_run2_oldSeeding.xml           \
                                                                         \
         TrigInDetValidation_tau_pu46.xml                                \
         TrigInDetValidation_tau_pu46_run2.xml                           \
         TrigInDetValidation_tau_IBL_pu46_run2.xml                       \
-        TrigInDetValidation_tau_IBL_pu46_run2_oldSeeding.xml            \
         TrigInDetValidation_tau_pileup.xml                              \
                                                                         \
         TrigInDetValidation_mu_Zmumu_pu40.xml                           \
         TrigInDetValidation_mu_Zmumu_pu40_run2.xml                      \
         TrigInDetValidation_mu_Zmumu_IBL_pu40_run2.xml                  \
-        TrigInDetValidation_mu_Zmumu_IBL_pu40_run2_oldSeeding.xml       \
                                                                         \
         TrigInDetValidation_mu_bphys_run2.xml                           \
         TrigInDetValidation_mu_bphys_IBL_run2.xml                       \
-        TrigInDetValidation_mu_bphys_IBL_run2_oldSeeding.xml            \
         TrigInDetValidation_mu_single_mu_100_run2.xml                   \
                                                                         \
         TrigInDetValidation_minBias.xml                                 \

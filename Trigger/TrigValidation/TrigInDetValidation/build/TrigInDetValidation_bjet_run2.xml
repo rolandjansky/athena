@@ -7,30 +7,11 @@
             <group>TrigInDetValidation</group>
             <queue>long</queue>
 
-	    <!-- <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_8TeV.117050.PowhegPythia_P2011C_ttbar.digit.RDO.e1728_d780_tid01324527_01/RDO.01324527._010416.pool.root.1</dataset> -->
-	    <!-- <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_8TeV.117050.PowhegPythia_P2011C_ttbar.digit.RDO.e1728_d780_tid01324527_01/RDO.01324527._010536.pool.root.1</dataset> -->
-	    <!-- <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_8TeV.117050.PowhegPythia_P2011C_ttbar.digit.RDO.e1728_d780_tid01324527_01/RDO.01324527._011908.pool.root.1</dataset> -->
-	    <!-- <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_8TeV.117050.PowhegPythia_P2011C_ttbar.digit.RDO.e1728_d780_tid01324527_01/RDO.01324527._012738.pool.root.1</dataset> -->
-	    <!-- <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_8TeV.117050.PowhegPythia_P2011C_ttbar.digit.RDO.e1728_d780_tid01324527_01/RDO.01324527._013184.pool.root.1</dataset> -->
-	    <!-- <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_8TeV.117050.PowhegPythia_P2011C_ttbar.digit.RDO.e1728_d780_tid01324527_01/RDO.01324527._014458.pool.root.1</dataset> -->
-	    <!-- <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_8TeV.117050.PowhegPythia_P2011C_ttbar.digit.RDO.e1728_d780_tid01324527_01/RDO.01324527._014578.pool.root.1</dataset> -->
-	    <!-- <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_8TeV.117050.PowhegPythia_P2011C_ttbar.digit.RDO.e1728_d780_tid01324527_01/RDO.01324527._015727.pool.root.1</dataset> -->
-	    <!-- <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_8TeV.117050.PowhegPythia_P2011C_ttbar.digit.RDO.e1728_d780_tid01324527_01/RDO.01324527._016956.pool.root.1</dataset> -->
-	    <!-- <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc12_8TeV.117050.PowhegPythia_P2011C_ttbar.digit.RDO.e1728_d780_tid01324527_01/RDO.01324527._019480.pool.root.1</dataset> -->
-
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e873_s1310_s1300_d580_tid541907_00/RDO.541907._000037.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e873_s1310_s1300_d580_tid541907_00/RDO.541907._000069.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e873_s1310_s1300_d580_tid541907_00/RDO.541907._000084.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e873_s1310_s1300_d580_tid541907_00/RDO.541907._000112.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e873_s1310_s1300_d580_tid541907_00/RDO.541907._000167.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e873_s1310_s1300_d580_tid541907_00/RDO.541907._000184.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e873_s1310_s1300_d580_tid541907_00/RDO.541907._000212.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e873_s1310_s1300_d580_tid541907_00/RDO.541907._000259.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e873_s1310_s1300_d580_tid541907_00/RDO.541907._000263.pool.root.1</dataset>
-	    <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/trigindet/mc11_7TeV.105861.TTbar_PowHeg_Pythia.digit.RDO.e873_s1310_s1300_d580_tid541907_00/RDO.541907._000291.pool.root.1</dataset>
+#          include "samples/TrigInDetValidation_bjet_sample2.xml"
 
 
-            <action position="a">
+
+            <action position="1">
                 <modulename>RttLibraryTools</modulename>
                 <testname>ExeRunner</testname>
                 <arg>
@@ -99,6 +80,7 @@
             <auxFilePattern>TIDAdata*.dat</auxFilePattern>
             <auxFilePattern>data-bjet-5200-reference.root</auxFilePattern>
             <auxFilePattern>data-bjet-reference-newchains.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-bjet_run2-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 	    <auxFilePattern>Test_bin.dat</auxFilePattern>
          <athenaCommonFlags /> 

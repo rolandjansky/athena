@@ -65,13 +65,20 @@ if 'runMergedChain' in dir() and runMergedChain==True:
 
 
 
-print "*********************************"
+# print "*********************************"
+# print "*********************************"
+# print " ***         WARNING          ***"
+# print "    Temporarily removing MDT"
+# print "     (Savannah bug #104846) "
+# print "*********************************"
+# print "*********************************"
+# disable the muons due to MDT error
+RegSelSvcDefault.enableMDT=False
+
 print "*********************************"
 print " ***         WARNING          ***"
-print "    Temporarily removing MDT"
-print "     (Savannah bug #104846) "
+print "      NO LONGER removing MDT"
+print "      (Savannah bug #104846) "
 print "*********************************"
-print "*********************************"
-RegSelSvcDefault.enableMDT=False
 
 

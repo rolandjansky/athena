@@ -9,11 +9,13 @@ endif
 
 set files = ""
 
-foreach arg ( $argv ) 
-  set dir = $1
-  set base = `basename $dir .xml`
-  set basetail = ${dir:t}
-   
+
+
+foreach arg ( $argv )
+  set   dir = $1
+  set   base = `basename $dir .xml`
+  set   basetail = ${dir:t}
+
   if ( "$base" != "$basetail" ) then 
      set files = "$files $1"
   else
@@ -27,10 +29,14 @@ end
 
 echo "files: $files"
 
+
 foreach xmlfile ( $files ) 
 
    set _file = `basename $xmlfile .xml`
-    
+      
+#  echo "xmlfile $xmlfile  $_file"
+
+ 
 #   if ( "$_file" != "TrigInDetValidation_TestConfiguration_main.xml" ) then 
     if ( -e $_file.sh ) then 
       echo "file $_file.sh already exists"
@@ -63,28 +69,34 @@ foreach xmlfile ( $files )
 
 
 
-      ${0:h}/mkdatasets /tmp/$_file.xml
+#       ${0:h}/mkdatasets /tmp/$_file.xml
 
-      set pyfile = `basename $files .xml`.py
+# #     echo "files $file - looking for basename"
 
+        set jobid = `basename $xmlfile .xml`
 
-      echo "joboption $joboptions    cmdlineflags $cmdlineflags"
+#       set pyfile = {$jobid}.py
+
+# #     echo "pyfile $pyfile"
+      
+# #     echo "joboption $joboptions    cmdlineflags $cmdlineflags"
 
       if ( "$joboptions" != "" ) then 
          echo "\nget_files -jo $joboptions.py" >> $_file.sh
-         echo  "athena.py  -c 'include("\"$pyfile\"");$cmdlineflags' $joboptions.py \n\n" >> $_file.sh
+#        echo  "athena.py  -c 'include("\"$pyfile\"";$cmdlineflags' $joboptions.py \n\n" >> $_file.sh
+         echo  "athena.py  -c 'XMLDataSet="\"$jobid\"";$cmdlineflags' $joboptions.py \n\n" >> $_file.sh
       endif
   
 #     cat /tmp/_args
 
       set N = `cat /tmp/_args | wc -l`
 
-      echo "file: $_file   $N" 
+      echo "file: $_file.sh" 
 
       if ( $N > 0 ) then 
 
         set command = ""
- 
+
         while ( $N > 0 )
   
            set arg = `tail -$N /tmp/_args | head -1`
@@ -95,12 +107,19 @@ foreach xmlfile ( $files )
               endif
               set command = "$arg"
             else 
+
+	      if ( "$command" == "TIDAcpucost.exe" ) then 
+                 set auxfile = `grep auxFile /tmp/$_file.xml | grep expert | sed 's|.*<auxFilePattern>||g' | sed 's|</auxFilePattern>||g'`
+                 set arg = `echo "$arg" | sed "s| \S*\*\S* | $auxfile |g"`
+              endif
+
 	      foreach ffile ( $arg )
-#                echo "   checking $ffile"
                  set ext = `echo $ffile | cut -d . -f2` 
-                 set ref = `echo $ffile | grep ".*reference.*.root"`
+                 set ref = `echo $ffile | grep ".*ref.*.root"`
+#                echo "ffile: $ffile" 
+#		 echo "ref: $ref     : ext: $ext"
                  if ( "$ext" == "dat" || "$ref" != "" )  then 
-#                    echo "   getting file $ffile"   
+#                   echo "   getting file $ffile"   
 		    echo "get_files -data $ffile" >> $_file.sh 
                  endif
               end

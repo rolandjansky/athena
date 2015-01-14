@@ -7,11 +7,9 @@
             <group>TrigInDetValidation</group>
             <queue>long</queue>
 
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_minBias/mc10_7TeV.105012.J3_pythia_jetjet.digit.RDO.e574_s1023_d421_tid212390_00/RDO.212390._000284.pool.root.1</dataset>
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_minBias/mc10_7TeV.105012.J3_pythia_jetjet.digit.RDO.e574_s1023_d421_tid212390_00/RDO.212390._000280.pool.root.1</dataset>	    
-            <dataset>/eos/atlas/atlascerngroupdisk/proj-sit/igrabows/TrigInDetValidation_minBias/mc10_7TeV.105012.J3_pythia_jetjet.digit.RDO.e574_s1023_d421_tid212390_00/RDO.212390._000182.pool.root.1</dataset>
+#          include "samples/TrigInDetValidation_minBias_sample0.xml"
 	    
-            <action position="a">
+            <action position="1">
                 <modulename>RttLibraryTools</modulename>
                 <testname>ExeRunner</testname>
                 <arg>
@@ -63,6 +61,7 @@
 
             <auxFilePattern>TIDAdata*.dat</auxFilePattern>
 	    <auxFilePattern>data-monitor-merge-reference.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-minBias_mergeDataPrep-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 	    <auxFilePattern>Test_bin.dat</auxFilePattern>
 
