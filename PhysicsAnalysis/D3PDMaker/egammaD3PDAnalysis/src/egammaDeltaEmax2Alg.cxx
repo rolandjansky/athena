@@ -69,7 +69,7 @@ StatusCode egammaDeltaEmax2Alg::execute()
         eta2   = std::fabs(cluster->eta());
       double et     = cluster->e()/std::cosh(eta2);
       float emax2 = 0;
-      g->showerShapeValue (emax2, xAOD::EgammaParameters::e2tsts1);
+      emax2 = g->showerShapeValue (xAOD::EgammaParameters::e2tsts1);
 
       if (m_highLum)
         deltaemax2(*g) = emax2/(1000.+0.0049*et);
