@@ -12,7 +12,7 @@
 
 // Gaudi includes
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -28,7 +28,7 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "TTree.h"
 
-  class CaloCellNoiseAlg : public Algorithm {
+  class CaloCellNoiseAlg : public AthAlgorithm {
   public:
     //Gaudi style constructor and execution methods
     /** Standard Athena-Algorithm Constructor */
@@ -55,10 +55,6 @@
   //---------------------------------------------------
   // Member variables
   //---------------------------------------------------
-  /** The StoreGate Service */
-  StoreGateSvc* m_sgSvc;
-  StoreGateSvc* m_detStore;
-
   ITHistSvc* m_thistSvc;
 
   const DataHandle<CaloIdManager> m_caloIdMgr;

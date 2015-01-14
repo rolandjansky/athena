@@ -15,7 +15,7 @@
 
 //Constructor
 CaloFillCellPositionShift::CaloFillCellPositionShift(const std::string& name, ISvcLocator* pSvcLocator):
-Algorithm(name,pSvcLocator),detStore(NULL),m_calo_id(NULL),m_cellPos(NULL),m_key("LArCellPositionShift")
+AthAlgorithm(name,pSvcLocator),m_calo_id(NULL),m_cellPos(NULL),m_key("LArCellPositionShift")
 {
   declareProperty("outputKey",m_key,"Key for output CaloCellPositionShift");
 }
@@ -30,62 +30,38 @@ CaloFillCellPositionShift::~CaloFillCellPositionShift()
 //__________________________________________________________________________
 StatusCode CaloFillCellPositionShift::initialize()
 {
+  ATH_MSG_DEBUG ("CaloFillCellPositionShift initialize()" );
 
-  MsgStream log( messageService(), name() );
-  log << MSG::DEBUG <<"CaloFillCellPositionShift initialize()" << endreq;
-
-  StatusCode sc = service ( "DetectorStore" , detStore ) ;
-  //retrieve ID helpers 
-  sc = detStore->retrieve( m_caloIdMgr );
-  if (sc.isFailure()) {
-   log << MSG::ERROR << "Unable to retrieve CaloIdMgr in CaloFillCellPositionShift " << endreq;
-   return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
   m_calo_id      = m_caloIdMgr->getCaloCell_ID();
 
-//  retrieve CaloDetDescrMgr
-    sc = detStore->retrieve(m_calodetdescrmgr);
-    if (sc.isFailure()) {
-       log << MSG::ERROR << "Unable to retrieve CaloDetDescrMgr in LArHitEMap " << endreq;
-       return StatusCode::FAILURE;
-    }
-
-  log << MSG::INFO << " end of CaloFillCellPositionShift::initialize " << endreq;
+  ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
+  ATH_MSG_INFO ( " end of CaloFillCellPositionShift::initialize " );
   return StatusCode::SUCCESS; 
 
 }
 //__________________________________________________________________________
 StatusCode CaloFillCellPositionShift::execute()
 {
-  MsgStream log( messageService(), name() );
-  log << MSG::DEBUG <<"CaloFillCellPositionShift execute()" << endreq;
+  ATH_MSG_DEBUG ("CaloFillCellPositionShift execute()" );
   return StatusCode::SUCCESS; 
 }
 
 //__________________________________________________________________________
 StatusCode CaloFillCellPositionShift::stop()
 {
-//.............................................
-
-  MsgStream log( messageService(), name() );
-
   //int ncell=m_calo_id->calo_cell_hash_max();
   IdentifierHash emmin,emmax,fcalmin,fcalmax;
   m_calo_id->calo_cell_hash_range(CaloCell_ID::LAREM,emmin,emmax);
   m_calo_id->calo_cell_hash_range(CaloCell_ID::LARFCAL,fcalmin,fcalmax);
   int ncell=fcalmax-emmin;
-  log << MSG::INFO << " Number of cells in LAr calo " << emmin << " " << fcalmax << " " << ncell << endreq;
+  ATH_MSG_INFO ( " Number of cells in LAr calo " << emmin << " " << fcalmax << " " << ncell );
 
   m_cellPos = new CaloRec::CaloCellPositionShift(ncell);
 
-  StatusCode sc = detStore->record(m_cellPos,m_key);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << " cannot record CaloCellPositionShift in storegate " << endreq;
-    delete m_cellPos;
-    return sc;
-  }
+  ATH_CHECK( detStore()->record(m_cellPos,m_key) );
 
-  log << MSG::INFO << " start loop over Calo cells " << ncell << endreq;
+  ATH_MSG_INFO ( " start loop over Calo cells " << ncell );
   for (int i=0;i<ncell;i++) {
       IdentifierHash idHash=i+emmin;
       Identifier id=m_calo_id->cell_id(idHash);

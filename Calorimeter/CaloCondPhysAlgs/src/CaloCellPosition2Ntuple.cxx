@@ -18,8 +18,7 @@
 
 //Constructor
 CaloCellPosition2Ntuple::CaloCellPosition2Ntuple(const std::string& name, ISvcLocator* pSvcLocator):
-  Algorithm(name,pSvcLocator),
-  m_detStore(NULL),
+  AthAlgorithm(name,pSvcLocator),
   m_thistSvc(NULL),
   m_calo_id(NULL),
   m_key("LArCellPositionShift"),
@@ -46,41 +45,14 @@ CaloCellPosition2Ntuple::~CaloCellPosition2Ntuple()
 //__________________________________________________________________________
 StatusCode CaloCellPosition2Ntuple::initialize()
 {
+  ATH_MSG_DEBUG ("CaloCellPosition2Ntuple initialize()" );
+  ATH_CHECK( service("THistSvc",m_thistSvc) );
 
-  MsgStream log( messageService(), name() );
-  log << MSG::DEBUG <<"CaloCellPosition2Ntuple initialize()" << endreq;
-
-// get THistSvc
-  if (service("THistSvc",m_thistSvc).isFailure()) {
-    log << MSG::ERROR << " cannot find THistSvc " << endreq;
-    return StatusCode::FAILURE;
-  }
-
-
-  StatusCode sc = service ( "DetectorStore" , m_detStore ) ;
-  //retrieve ID helpers 
-  sc = m_detStore->retrieve( m_caloIdMgr );
-  if (sc.isFailure()) {
-   log << MSG::ERROR << "Unable to retrieve CaloIdMgr in LArHitEMap " << endreq;
-   return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
   m_calo_id      = m_caloIdMgr->getCaloCell_ID();
 
-//  retrieve CaloDetDescrMgr
-  sc = m_detStore->retrieve(m_calodetdescrmgr);
-  if (sc.isFailure()) {
-       log << MSG::ERROR << "Unable to retrieve CaloDetDescrMgr in LArHitEMap " << endreq;
-       return StatusCode::FAILURE;
-  }
-
-
-
-  sc=m_detStore->regHandle(m_cellPos,m_key);
-  if (sc.isFailure()) {
-     log  << MSG::ERROR << " Unable to retrieve handle to CaloCellPosition " << endreq;
-     return sc;
-  }
-
+  ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
+  ATH_CHECK( detStore()->regHandle(m_cellPos,m_key) );
 
   m_tree = new TTree("mytree","Calo Noise ntuple");
   m_tree->Branch("iHash",&m_Hash,"iHash/I");
@@ -92,13 +64,9 @@ StatusCode CaloCellPosition2Ntuple::initialize()
   m_tree->Branch("dy",&m_dy,"DeltaY/F");
   m_tree->Branch("dz",&m_dz,"DeltaZ/F");
 
-  if( m_thistSvc->regTree("/file1/cellpos/mytree",m_tree).isFailure()) {
-       log << MSG::ERROR << " cannot register ntuple " << endreq; 
-       return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_thistSvc->regTree("/file1/cellpos/mytree",m_tree) );
 
-
-  log << MSG::INFO << " end of CaloCellPosition2Ntuple::initialize " << endreq;
+  ATH_MSG_INFO ( " end of CaloCellPosition2Ntuple::initialize " );
   return StatusCode::SUCCESS; 
 
 }
@@ -106,18 +74,13 @@ StatusCode CaloCellPosition2Ntuple::initialize()
 //__________________________________________________________________________
 StatusCode CaloCellPosition2Ntuple::execute()
 {
-  MsgStream log( messageService(), name() );
-  log << MSG::DEBUG <<"CaloCellPosition2Ntuple execute()" << endreq;
+  ATH_MSG_DEBUG ("CaloCellPosition2Ntuple execute()" );
   return StatusCode::SUCCESS; 
 }
 
 //__________________________________________________________________________
 StatusCode CaloCellPosition2Ntuple::stop()
 {
-//.............................................
-
-  MsgStream log( messageService(), name() );
-
   IdentifierHash emmin,emmax,fcalmin,fcalmax;
   m_calo_id->calo_cell_hash_range(CaloCell_ID::LAREM,emmin,emmax);
   m_calo_id->calo_cell_hash_range(CaloCell_ID::LARFCAL,fcalmin,fcalmax);
@@ -126,10 +89,10 @@ StatusCode CaloCellPosition2Ntuple::stop()
   int nread = (int)(m_cellPos->size());
 
   if (nread != ncell) {
-    log << MSG::WARNING << " CaloCellPosition size different from max lar hash " << m_cellPos->size() << " " << ncell << endreq;
+    ATH_MSG_WARNING ( " CaloCellPosition size different from max lar hash " << m_cellPos->size() << " " << ncell );
     return StatusCode::SUCCESS;
   }
-  log << MSG::INFO << " start loop over Calo cells " << ncell << endreq;
+  ATH_MSG_INFO ( " start loop over Calo cells " << ncell );
   for (int i=0;i<ncell;i++) {
        IdentifierHash idHash=i;
        Identifier id=m_calo_id->cell_id(idHash);

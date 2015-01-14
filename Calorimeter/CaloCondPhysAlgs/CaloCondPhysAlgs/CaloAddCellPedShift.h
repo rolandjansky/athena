@@ -12,9 +12,8 @@
 
 // Gaudi includes
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -31,7 +30,7 @@ class CondAttrListCollection;
 class LArCablingService ;
 
 
-class CaloAddCellPedShift : public Algorithm {
+class CaloAddCellPedShift : public AthAlgorithm {
 
   public:
     //Gaudi style constructor and execution methods
@@ -54,10 +53,6 @@ class CaloAddCellPedShift : public Algorithm {
   //---------------------------------------------------
   // Member variables
   //---------------------------------------------------
-  /** The StoreGate Service */
-  StoreGateSvc* m_sgSvc;
-  StoreGateSvc* m_detStore;
-
   std::string m_fname;
   std::string m_folderName;
 

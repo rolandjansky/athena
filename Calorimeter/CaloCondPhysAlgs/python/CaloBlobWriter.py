@@ -1,19 +1,23 @@
 #!/bin/env python
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+import ROOT
 import PyCintex
 from PyCool import cool
 import os
 #from CaloCondBlobAlgs import CaloCondTools, CaloCondLogger
 
 def CaloCondBlobWriter(spec,valuePairs,defaultValue):
-   g = PyCintex.gbl
-   PyCintex.makeClass('std::vector<float>')
+
+   vec=getattr(ROOT,'vector<float>')
+   vecvec=getattr(ROOT,'vector<vector<float> >')
+   #g = PyCintex.gbl
+   #PyCintex.makeClass('std::vector<float>')
 
    #Build the defintion vector (1 value per gain)
-   gainDefVec = g.std.vector('float')()
+   gainDefVec = vec()#g.std.vector('float')()
    gainDefVec.push_back(defaultValue)
-   defVec = g.std.vector('std::vector<float>')()
+   defVec = vecvec()
    defVec.push_back(gainDefVec)
 
    nLArChannels=182468 # Connected LAr cells
@@ -29,18 +33,20 @@ def CaloCondBlobWriter(spec,valuePairs,defaultValue):
    print "Build CaloCondBlob object"
    data = cool.Record( spec )
    blob = data['CaloCondBlob16M']
-   flt = g.CaloCondBlobFlt.getInstance(blob)
+   #flt = g.CaloCondBlobFlt.getInstance(blob)
+   fltClass=getattr(ROOT,'CaloCondBlobFlt')
+   flt=fltClass.getInstance(blob)
    flt.init(defVec,nChannels,1)
    
    print "Filling CaloCondBlob object"
-   dvec=g.std.vector('float')()
+   dvec=vec()
    dvec.push_back(defaultValue)
 
    foundChans=set()
 
 
    for (hashid,value) in valuePairs:
-      if hashid>=nChanels:
+      if hashid>=nChannels:
          print "ERROR: Invalid hash id",hashid
          continue
       
@@ -96,10 +102,10 @@ def createSqlite(sqliteName,folderName,foldertag,iovMin=cool.ValidityKeyMin,iovM
 
    if os.access(sqliteName,os.R_OK):
       print "UPDATING existing sqlite file",sqliteName
-      db=dbSvc.openDatabase("sqlite://;schema="+sqliteName+";dbname=COMP200",False)
+      db=dbSvc.openDatabase("sqlite://;schema="+sqliteName+";dbname=CONDBR2",False)
    else:
       print "Creating new sqlite file",sqliteName
-      db=dbSvc.createDatabase("sqlite://;schema="+sqliteName+";dbname=COMP200")
+      db=dbSvc.createDatabase("sqlite://;schema="+sqliteName+";dbname=CONDBR2")
       
    
    spec = cool.RecordSpecification()
@@ -111,7 +117,9 @@ def createSqlite(sqliteName,folderName,foldertag,iovMin=cool.ValidityKeyMin,iovM
       folder=db.getFolder(folderName)
    else:
       print "Creating COOL folder/tag  %s/%s" % (folderName,foldertag)
-      folder = db.createFolder(folderName, spec, desc, cool.FolderVersioning.MULTI_VERSION, True)
+      #folder = db.createFolder(folderName, spec, desc, cool.FolderVersioning.MULTI_VERSION, True)
+      folderSpec = cool.FolderSpecification(cool.FolderVersioning.MULTI_VERSION, spec)
+      folder = db.createFolder(folderName, folderSpec, desc, True)
       pass
 
    if inputFileName is None or len(inputFileName)==0:
@@ -121,6 +129,6 @@ def createSqlite(sqliteName,folderName,foldertag,iovMin=cool.ValidityKeyMin,iovM
       data=CaloCondBlobWriterFromFile(spec,inputFileName,0.0)
 
    print "Storing CaloCondBlob object"
-   folder.storeObject(iovMin, iovMax, data, 0, foldertag,True)
+   folder.storeObject(iovMin, iovMax, data, cool.ChannelId(0), foldertag,True)
    
    db.closeDatabase()

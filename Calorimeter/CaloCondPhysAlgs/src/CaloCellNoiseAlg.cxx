@@ -26,9 +26,7 @@ using CLHEP::HepVector;
 
 //Constructor
 CaloCellNoiseAlg::CaloCellNoiseAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  Algorithm(name,pSvcLocator),
-  m_sgSvc(NULL),
-  m_detStore(NULL),
+  AthAlgorithm(name,pSvcLocator),
   m_thistSvc(NULL),
   m_calo_id(NULL),
   m_adc2mevTool("LArADC2MeVTool"),
@@ -104,114 +102,68 @@ CaloCellNoiseAlg::CaloCellNoiseAlg(const std::string& name, ISvcLocator* pSvcLoc
 //Destructor
 CaloCellNoiseAlg::~CaloCellNoiseAlg()
 {
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::DEBUG << "CaloCellNoiseAlg destructor called" << endreq;
+  ATH_MSG_DEBUG ( "CaloCellNoiseAlg destructor called" );
 }
 //__________________________________________________________________________
 StatusCode CaloCellNoiseAlg::initialize()
 {
+  ATH_MSG_DEBUG ("CaloCellNoiseAlg initialize()" );
 
-  MsgStream log( messageService(), name() );
-  log << MSG::DEBUG <<"CaloCellNoiseAlg initialize()" << endreq;
-
-// Get the StoreGateSvc
-  if (service("StoreGateSvc", m_sgSvc).isFailure()) {
-    log << MSG::ALWAYS << "No StoreGate!!!!!!!" << endreq;
-  }
-
-  StatusCode sc = service ( "DetectorStore" , m_detStore ) ;
-  //retrieve ID helpers 
-  sc = m_detStore->retrieve( m_caloIdMgr );
-  if (sc.isFailure()) {
-   log << MSG::ERROR << "Unable to retrieve CaloIdMgr in LArHitEMap " << endreq;
-   return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
   m_calo_id      = m_caloIdMgr->getCaloCell_ID();
 
-//  retrieve CaloDetDescrMgr 
-  sc = m_detStore->retrieve(m_calodetdescrmgr);
-  if (sc.isFailure()) {
-       log << MSG::ERROR << "Unable to retrieve CaloDetDescrMgr " << endreq;
-       return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
 
   if (m_doMC) {
-     if (m_detStore->regHandle(m_dd_noise,"").isFailure()) {
-       log << MSG::ERROR << " cannot register handle to LAr Noise " << endreq;
-       return StatusCode::FAILURE;
-     } 
+    ATH_CHECK( detStore()->regHandle(m_dd_noise,"") );
   }
   else {
-     if (m_detStore->regHandle(m_dd_pedestal,"").isFailure()) {
-        log << MSG::ERROR << " cannot register handle to LAr pedestal " << endreq;
-        return StatusCode::FAILURE;
-     }
+    ATH_CHECK( detStore()->regHandle(m_dd_pedestal,"") );
   }
 
-  if (m_adc2mevTool.retrieve().isFailure())  {
-      log << MSG::ERROR << "Unable to find tool for LArADC2MeVTool" << endreq; 
-      return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK( m_adc2mevTool.retrieve() );
 
   m_first = true;
   m_lumiblock = 0;
   m_luminosity = 0.;
   m_lumiblockOld = 0;
 
-  if (service("THistSvc",m_thistSvc).isFailure()) {
-    log << MSG::ERROR << " cannot find THistSvc " << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( service("THistSvc",m_thistSvc) );
 
   if( !m_trigDecTool.empty() ) {
-    sc = m_trigDecTool.retrieve();
-    if( !sc.isSuccess() ) {
-      log << MSG::ERROR << "!! Unable to retrieve the TrigDecisionTool !!" << endreq;
-      return sc;
-    }
-    log << MSG::INFO << "  --> Found AlgTool TrigDecisionTool" << endreq;    
+    ATH_CHECK( m_trigDecTool.retrieve() );
+    ATH_MSG_INFO ( "  --> Found AlgTool TrigDecisionTool" );
   }
 
-  if (!m_noiseToolDB.empty() ) {
-    if (m_noiseToolDB.retrieve().isFailure()) {
-     log << MSG::ERROR << "Unable to find tool for calonoisetoolDB " << endreq;
-     return StatusCode::FAILURE;
-    }
-  }
+  ATH_CHECK( m_noiseToolDB.retrieve() );
 
-
-  log << MSG::INFO << " end of CaloCellNoiseAlg::initialize " << std::endl;
+  ATH_MSG_INFO ( " end of CaloCellNoiseAlg::initialize " );
   return StatusCode::SUCCESS; 
-
 }
 //__________________________________________________________________________
 StatusCode CaloCellNoiseAlg::stop()
 {
-  MsgStream log( messageService(), name() );
-  log << MSG::INFO <<"CaloCellNoiseAlg stop()" << endreq;
+  ATH_MSG_INFO ("CaloCellNoiseAlg stop()" );
 
   if (!m_readNtuple) {
     if (this->fillNtuple().isFailure()) {
-       log << MSG::WARNING << " failed to fill ntuple " << endreq;
-       return StatusCode::SUCCESS;
+      ATH_MSG_WARNING ( " failed to fill ntuple " );
+      return StatusCode::SUCCESS;
     }
   }
   else {
     if (this->readNtuple().isFailure()) {
-       log << MSG::WARNING << " failed to read ntuple " << endreq;
-       return StatusCode::SUCCESS;
+      ATH_MSG_WARNING ( " failed to read ntuple " );
+      return StatusCode::SUCCESS;
     }
   }
 
   if (m_doFit) {
     if (this->fitNoise().isFailure()) {
-       log << MSG::WARNING << " failed to perform fit " << endreq;
+      ATH_MSG_WARNING ( " failed to perform fit " );
        return StatusCode::SUCCESS;
     }
   }
-
 
   return StatusCode::SUCCESS; 
 }
@@ -219,48 +171,44 @@ StatusCode CaloCellNoiseAlg::stop()
 //__________________________________________________________________________
 StatusCode CaloCellNoiseAlg::execute()
 {
-//.............................................
-
-  MsgStream log( messageService(), name() );
-
   if (m_readNtuple) return StatusCode::SUCCESS;
 
 // check trigger
   if ( (m_triggerChainProp != "")  && (!m_trigDecTool.empty()) ) {
 
     if (m_first) {
-     log << MSG::INFO << " L1 items : " << m_trigDecTool->getChainGroup("L1_.*")->getListOfTriggers() << endreq;
+      ATH_MSG_INFO ( " L1 items : " << m_trigDecTool->getChainGroup("L1_.*")->getListOfTriggers() );
     }
     bool passTrig = false;
     if (m_triggerChainProp != "") passTrig = m_trigDecTool->isPassed(m_triggerChainProp);
 
     if (!passTrig) {
-     log << MSG::DEBUG << " Failed trigger selection " << endreq;
+      ATH_MSG_DEBUG ( " Failed trigger selection " );
      return StatusCode::SUCCESS;
     }
     else {
-     log << MSG::DEBUG << " Pass trigger selection " << endreq;
+      ATH_MSG_DEBUG ( " Pass trigger selection " );
     }
 
   }
 
-  const xAOD::EventInfo* eventInfo;
-  if (m_sgSvc->retrieve(eventInfo).isFailure()) {
-    log << MSG::WARNING << " Cannot access to event info " << endreq;
+  const xAOD::EventInfo* eventInfo = nullptr;
+  if (evtStore()->retrieve(eventInfo).isFailure()) {
+    ATH_MSG_WARNING ( " Cannot access to event info " );
     return StatusCode::SUCCESS;
   }
   unsigned int lumiblock = eventInfo->lumiBlock();
 
-  log << MSG::DEBUG << " lumiblock " << lumiblock << endreq;
+  ATH_MSG_DEBUG ( " lumiblock " << lumiblock );
 
   if ( lumiblock != m_lumiblockOld) {
     float luminosity =  this->getLuminosity();
-    log << MSG::INFO << " New lumiblock seen " << lumiblock << " " << m_lumiblock << " " << luminosity << " " << m_luminosity <<  " m_first " << m_first << endreq;
+    ATH_MSG_INFO ( " New lumiblock seen " << lumiblock << " " << m_lumiblock << " " << luminosity << " " << m_luminosity <<  " m_first " << m_first );
     if ( ( abs(lumiblock-m_lumiblock)>=m_addlumiblock || std::fabs(luminosity-m_luminosity)>(m_luminosity*m_deltaLumi) || m_first ) && m_doLumiFit) {
       if (!m_first) {
-         log << MSG::INFO << " filling ntuple for lumiblock " << m_lumiblock << " until  " << lumiblock << " (excluded) " << endreq;
+        ATH_MSG_INFO ( " filling ntuple for lumiblock " << m_lumiblock << " until  " << lumiblock << " (excluded) " );
          if (this->fillNtuple().isFailure()) {
-           log << MSG::WARNING << " failed to fill ntuple " << endreq;
+           ATH_MSG_WARNING ( " failed to fill ntuple " );
            return StatusCode::SUCCESS;
          }
       }
@@ -272,10 +220,10 @@ StatusCode CaloCellNoiseAlg::execute()
 
   if (m_first) {
     m_ncell = m_calo_id->calo_cell_hash_max();
-    log << MSG::DEBUG << " number of cells " << m_ncell << endreq;
+    ATH_MSG_DEBUG ( " number of cells " << m_ncell );
     if (m_ncell>200000) {
-       log << MSG::WARNING << " too many celly " << m_ncell << endreq;
-       return StatusCode::SUCCESS;
+      ATH_MSG_WARNING ( " too many celly " << m_ncell );
+      return StatusCode::SUCCESS;
     }
     CellList.reserve(m_ncell);
 
@@ -324,25 +272,23 @@ StatusCode CaloCellNoiseAlg::execute()
     m_tree->Branch("reference",m_reference,"reference[ncell]/F");
 
     if( m_thistSvc->regTree("/file1/calonoise/mytree",m_tree).isFailure()) {
-       log << MSG::WARNING << " cannot register ntuple " << endreq;
-       return StatusCode::SUCCESS;
-     }
+      ATH_MSG_WARNING ( " cannot register ntuple " );
+      return StatusCode::SUCCESS;
+    }
 
     m_first = false;
   } 
 
 
   const CaloCellContainer* cell_container;
-  if(m_sgSvc->retrieve(cell_container,"AllCalo").isFailure()) {
-      log << MSG::WARNING
-          << " Could not get pointer to Cell Container "
-          << endreq;
-      return StatusCode::SUCCESS;
-   }
+  if(evtStore()->retrieve(cell_container,"AllCalo").isFailure()) {
+    ATH_MSG_WARNING( " Could not get pointer to Cell Container " );
+    return StatusCode::SUCCESS;
+  }
 
    CaloCellContainer::const_iterator first_cell = cell_container->begin();
    CaloCellContainer::const_iterator end_cell   = cell_container->end();
-   log << MSG::DEBUG << "*** Start loop over CaloCells " << endreq;
+   ATH_MSG_DEBUG ( "*** Start loop over CaloCells " );
    for (; first_cell != end_cell; ++first_cell)
    {
 
@@ -386,15 +332,14 @@ StatusCode CaloCellNoiseAlg::execute()
 //---------------------------------------------
 float  CaloCellNoiseAlg::getLuminosity()
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << " in getLuminosity() " << endreq;
+  ATH_MSG_INFO ( " in getLuminosity() " );
 
   float luminosity = 0.;
   const CondAttrListCollection* attrListColl = 0;
-  StatusCode sc = m_detStore->retrieve(attrListColl, m_lumiFolderName);
+  StatusCode sc = evtStore()->retrieve(attrListColl, m_lumiFolderName);
   if (sc.isFailure() || !attrListColl) {
-     log << MSG::WARNING  << "attrrListColl not found for " << m_lumiFolderName << endreq;
-     return luminosity;
+    ATH_MSG_WARNING  ( "attrrListColl not found for " << m_lumiFolderName );
+    return luminosity;
   }
   // Loop over collection
   CondAttrListCollection::const_iterator first = attrListColl->begin();
@@ -403,14 +348,14 @@ float  CaloCellNoiseAlg::getLuminosity()
    if ((*first).first == 0) {
       std::ostringstream attrStr1;
       (*first).second.toOutputStream( attrStr1 );
-      log << MSG::DEBUG << "ChanNum " << (*first).first <<
-          " Attribute list " << attrStr1.str() << endreq;
+      ATH_MSG_DEBUG ( "ChanNum " << (*first).first <<
+                      " Attribute list " << attrStr1.str() );
       const coral::AttributeList& attrList = (*first).second;
       luminosity = attrList["LBAvInstLumi"].data<float>() *1e-3;  // luminosity (from 10**30 units in db to 10*33 units)
       break;
    }
   }
-  log << MSG::INFO << " Luminosity (10**33 units) " << luminosity <<  "   (10**27 units) " << 1e+6*luminosity << endreq;
+  ATH_MSG_INFO ( " Luminosity (10**33 units) " << luminosity <<  "   (10**27 units) " << 1e+6*luminosity );
   return luminosity;
 
 }
@@ -418,12 +363,7 @@ float  CaloCellNoiseAlg::getLuminosity()
 //____________________________________________
 StatusCode CaloCellNoiseAlg::fillNtuple()
 {
-
- MsgStream log( messageService(), name() );
-
- log << MSG::INFO << "  in fillNtuple " << endreq;
- bool dump=false;
- if (log.level()<=MSG::DEBUG) dump=true;
+  ATH_MSG_INFO ( "  in fillNtuple " );
 
  for (int i=0;i<m_ncell;i++) {
    m_identifier[i] = CellList[i].identifier;
@@ -435,7 +375,7 @@ StatusCode CaloCellNoiseAlg::fillNtuple()
    m_average[i] = (float) (CellList[i].average);
    m_rms[i] = (float) (sqrt(CellList[i].rms));
    m_reference[i] = (float) (CellList[i].reference);
-   if(dump) log << MSG::DEBUG << " hash,Nevt,Average,RMS " << i << " " << m_nevt[i] << " " << m_average[i] << " " << m_rms[i] << endreq;
+   ATH_MSG_DEBUG ( " hash,Nevt,Average,RMS " << i << " " << m_nevt[i] << " " << m_average[i] << " " << m_rms[i] );
  }
  m_tree->Fill();
 
@@ -459,15 +399,9 @@ StatusCode CaloCellNoiseAlg::readNtuple()
 //_________________________________________________
 StatusCode CaloCellNoiseAlg::fitNoise()
 {
- MsgStream log( messageService(), name() );
-
- log << MSG::INFO << " in  CaloCellNoiseAlg::fitNoise() " << endreq;
+ ATH_MSG_INFO ( " in  CaloCellNoiseAlg::fitNoise() " );
 
  FILE* fp = fopen("calonoise.txt","w");
-
- bool dump=false;
- if (log.level()<=MSG::DEBUG) dump=true;
-
 
  TBranch* b1 = m_tree->GetBranch("luminosity");
  TBranch* b2 = m_tree->GetBranch("nevt");
@@ -480,7 +414,7 @@ StatusCode CaloCellNoiseAlg::fitNoise()
  b4->SetAddress(&m_rms);
  b5->SetAddress(&m_nevt_good);
  int nentries = m_tree->GetEntries();
- if(dump) log << MSG::DEBUG << " Number of entries in ntuple " << nentries << endreq;
+ ATH_MSG_DEBUG ( " Number of entries in ntuple " << nentries );
 
  std::vector<float> anoise;
  std::vector<float> bnoise;
@@ -530,13 +464,13 @@ StatusCode CaloCellNoiseAlg::fitNoise()
      bnoise[icell] = comp[1];
 
    }
-   if (dump) {
-     log << MSG::DEBUG  << " cell " << icell << "  lumi/noise ";
+   if (msgLvl(MSG::DEBUG)) {
+     msg() << MSG::DEBUG  << " cell " << icell << "  lumi/noise ";
      for (unsigned int i=0;i<x.size();i++) {
-       log << MSG::DEBUG  << x[i] << " " << y[i] << " / ";
+       msg() << MSG::DEBUG  << x[i] << " " << y[i] << " / ";
      }
-     log << MSG::DEBUG  << " " << endreq;
-     log << MSG::DEBUG  << "     fitted a,b  " << anoise[icell] << " " << bnoise[icell] << endreq;
+     msg() << MSG::DEBUG  << " " << endreq;
+     ATH_MSG_DEBUG  ( "     fitted a,b  " << anoise[icell] << " " << bnoise[icell] );
    }   
  }   // end first loop over cells to store anoise and bnoise
 
@@ -547,22 +481,24 @@ StatusCode CaloCellNoiseAlg::fitNoise()
        IdentifierHash idHash = icell;
        Identifier id=m_calo_id->cell_id(idHash);
        if (m_calo_id->is_lar(id)) {
-          if(dump) log << MSG::DEBUG << " cell with no noise found in LAr " << m_calo_id->show_to_string(id) << endreq;
+          ATH_MSG_DEBUG ( " cell with no noise found in LAr " << m_calo_id->show_to_string(id) );
           Identifier regionId = m_calo_id->region_id(id);
           int eta=m_calo_id->eta(id); 
           int phimin = m_calo_id->phi_min(regionId);
           int phimax = m_calo_id->phi_max(regionId);
           int nring=0;
           float sum=0.;
-          if(dump) log << MSG::DEBUG << " regionId,eta,phimin,phimax " << regionId << " " << eta << " " << phimin << " " << phimax << endreq;
+          ATH_MSG_DEBUG ( " regionId,eta,phimin,phimax " << regionId << " " << eta << " " << phimin << " " << phimax );
           for (int phi=phimin;phi<=phimax;phi++) {
             Identifier id2 = m_calo_id->cell_id(regionId,eta,phi);
             if (id2.is_valid()) {
-               if(dump)log << MSG::DEBUG << "     cell in ring " << m_calo_id->show_to_string(id2) ;
+              if(msgLvl(MSG::DEBUG))
+                msg() << MSG::DEBUG << "     cell in ring " << m_calo_id->show_to_string(id2) ;
                IdentifierHash idHash2 = m_calo_id->calo_cell_hash(id2);
                int index = (int)(idHash2);
                if (index>=0 && index<m_ncell) {
-                 if(dump) log << MSG::DEBUG << " noise " << anoise[index] << endreq;
+                 if(msgLvl(MSG::DEBUG))
+                   msg() << MSG::DEBUG << " noise " << anoise[index] << endreq;
                  if (anoise[index]>3. && m_nevt_good[index]>0) {
                     nring+=1;
                     sum+=anoise[index];
@@ -574,7 +510,8 @@ StatusCode CaloCellNoiseAlg::fitNoise()
              float patched_noise = sum/((float)(nring));
              if (patched_noise>anoise[icell]) anoise[icell] = patched_noise;
           }
-          if(dump) log <<MSG::DEBUG << " corrected noise nring, anoise[icell] " << nring << " " << anoise[icell] << endreq;
+          if(msgLvl(MSG::DEBUG))
+            msg() <<MSG::DEBUG << " corrected noise nring, anoise[icell] " << nring << " " << anoise[icell] << endreq;
        }
     }
  }
@@ -675,12 +612,13 @@ StatusCode CaloCellNoiseAlg::fitNoise()
           // if no correct noise, use reference instead
           if (anoise_corr<1. && adb>1e-6) { 
             anoise_corr = adb;
-            log << MSG::WARNING << " No noise found for cell: " <<m_calo_id->show_to_string(id) << " gain: " << gain << " Use reference value: " << adb << endreq;
+            ATH_MSG_WARNING ( " No noise found for cell: " <<m_calo_id->show_to_string(id) << " gain: " << gain << " Use reference value: " << adb );
           }
           if (adb>1e-6) {
             float delta = std::fabs((anoise_corr-adb)/adb);
-            if (delta>0.30 && gain==CaloGain::LARHIGHGAIN)  log << MSG::WARNING << " Noise difference cell " << m_calo_id->show_to_string(id) << " gain: " << gain
-              << " computed " << anoise_corr  << " reference " << adb << endreq;
+            if (delta>0.30 && gain==CaloGain::LARHIGHGAIN)
+              ATH_MSG_WARNING ( " Noise difference cell " << m_calo_id->show_to_string(id) << " gain: " << gain
+                                << " computed " << anoise_corr  << " reference " << adb );
           }
         }
          

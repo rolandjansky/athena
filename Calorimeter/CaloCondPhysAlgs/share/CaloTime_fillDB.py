@@ -85,7 +85,8 @@ try:
     except Exception, e:
         log.warning("Folder %s not found, creating it..." % folderPath)
         print "Folder ", folderPath, " not found, creating it... " 
-        folder = db.createFolder(folderPath, spec, desc, cool.FolderVersioning.MULTI_VERSION, True)
+        folderSpec = cool.FolderSpecification(cool.FolderVersioning.SINGLE_VERSION, spec)
+        folder = db.createFolder(folderPath, folderSpec, desc, True)
         
     #==================================================
     #=== Create the CaloCondBlobFlt objects
