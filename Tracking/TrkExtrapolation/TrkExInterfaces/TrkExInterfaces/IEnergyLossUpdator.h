@@ -64,6 +64,16 @@ namespace Trk {
 				                     ParticleHypothesis particle=pion,
 				                     bool mpv = false) const = 0;  
 
+    /** Method to recalculate Eloss values for the fit setting an elossFlag using as an input
+          the detailed Eloss information Calorimeter energy, error momentum and momentum error */
+
+     virtual EnergyLoss* updateEnergyLoss(EnergyLoss* eLoss, double caloEnergy, double caloEnergyError,
+                          double pCaloEntry, double momentumError, int & elossFlag) const = 0;
+
+     /** Routine to calculate X0 and Eloss scale factors for the Calorimeter and Muon System */
+     virtual void getX0ElossScales(int icalo, double eta, double phi, double & X0Scale, double & ElossScale ) const = 0;
+
+
      /**
       Calculate dg/dlambda, for non-electrons (g=dEdX and lambda=q/p).
       This is used by the analytical error propagation in STEP
