@@ -11,6 +11,7 @@
 #include "../ROBRequestAlgo.h"
 #include "../TimeBurner.h"
 #include "../AcceptAnyInput.h"
+#include "../TrigRoiUpdater.h"
 
 
 using namespace PESA;
@@ -26,6 +27,7 @@ DECLARE_ALGORITHM_FACTORY( ROBRequestAlgo )
 DECLARE_ALGORITHM_FACTORY( TimeBurner )
 DECLARE_ALGORITHM_FACTORY( AcceptAnyInput )
 DECLARE_ALGORITHM_FACTORY( SeededSuperRoiAllTEAlgo )
+DECLARE_ALGORITHM_FACTORY( TrigRoiUpdater )
 
 
 DECLARE_FACTORY_ENTRIES(TrigGenericAlgs) {
@@ -40,4 +42,5 @@ DECLARE_FACTORY_ENTRIES(TrigGenericAlgs) {
     DECLARE_ALGORITHM( TimeBurner )      
     DECLARE_ALGORITHM( AcceptAnyInput )      
     DECLARE_ALGORITHM( SeededSuperRoiAllTEAlgo )      
+    DECLARE_ALGORITHM( TrigRoiUpdater )
 }

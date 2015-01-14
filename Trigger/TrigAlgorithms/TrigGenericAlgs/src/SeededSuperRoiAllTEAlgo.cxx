@@ -8,7 +8,6 @@
 #include "IRegionSelector/IRegSelSvc.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/TrigSuperRoi.h"
 #include "TrigSteeringEvent/PhiHelper.h"
 
 using namespace PESA;
@@ -74,12 +73,13 @@ HLT::ErrorCode SeededSuperRoiAllTEAlgo::hltExecute(std::vector<std::vector<HLT::
     // roiDescriptor position:
     HLT::TriggerElement* te;
 
-    TrigSuperRoi* superRoi = 0;
+    TrigRoiDescriptor* superRoi = new TrigRoiDescriptor(true); /// create a fullscan roi - don't need to specify eta and phi any longer
+    
+    superRoi->setComposite(true);
+    superRoi->clear();
 
     if ( m_createRoIDescriptors ) {
-      /// create a fullscan roi - don;t need to specify eta and phi any longer
-      superRoi = new TrigSuperRoi(true); 
-      superRoi->clear();
+
       /// if we want to create our own RoiDescriptors, we need to ensure 
       /// they are deleted at the end
       if ( !m_useRoiSizes ) superRoi->manageConstituents(true);
