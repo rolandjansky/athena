@@ -22,7 +22,7 @@ HLT::ErrorCode newDummyAlgoAllTEs::hltExecute(std::vector<std::vector<HLT::Trigg
   beforeExecMonitors().ignore();
 
   if ( msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Executing this newDummyAlgoAllTEs " << name() << endmsg;
+    msg() << MSG::DEBUG << "Executing this newDummyAlgoAllTEs " << name() << endreq;
   }
 
 
@@ -35,7 +35,7 @@ HLT::ErrorCode newDummyAlgoAllTEs::hltExecute(std::vector<std::vector<HLT::Trigg
 	 inner_it != (*it).end(); ++inner_it) {
       if ( msgLvl() <= MSG::DEBUG) {
 	msg() << MSG::DEBUG << "Executing this newDummyAlgoAllTEs " << name() << " for TE type "
-	      << (*inner_it)->getId() << endmsg;
+	      << (*inner_it)->getId() << endreq;
       }
       allTEs.push_back(*inner_it);
     }
