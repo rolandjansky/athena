@@ -1,0 +1,87 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+// ********************************************************************
+//
+// NAME:     TrigHLTJetRec.h
+// PACKAGE:  Trigger/TrigAlgorithms/TrigHLTJetRec
+//
+// AUTHOR:   Valentinos Christodoulou
+//
+// Description: FexAlgo for jet reconstruction
+//
+// ********************************************************************
+
+#ifndef TRIGHLTJETREC_TRIGHLTJETRECBASE_H
+#define TRIGHLTJETREC_TRIGHLTJETRECBASE_H
+
+#include "GaudiKernel/ToolHandle.h"
+#include "TrigInterfaces/FexAlgo.h"
+#include "xAODJet/JetContainer.h"
+#include "JetEDM/PseudoJetVector.h"
+#include "TrigHLTJetRec/TrigHLTJetRecFunctions.h"
+#include "TrigHLTJetRec/IParticleVector.h"
+
+class IJetBuildTool;
+// class JetRecTool;
+class ITriggerPseudoJetGetter;
+class IIParticleSelector;
+
+namespace jet {
+  class LabelIndex;
+}
+
+using jet::LabelIndex;
+using jet::PseudoJetVector;
+
+template <typename InputContainer>
+class TrigHLTJetRecBase: public HLT::FexAlgo {
+
+ public:
+  TrigHLTJetRecBase(const std::string & name, ISvcLocator* pSvcLocator);
+  ~TrigHLTJetRecBase();
+  
+  HLT::ErrorCode hltInitialize();
+  HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE,
+                            HLT::TriggerElement* outputTE);
+  HLT::ErrorCode hltFinalize();
+  
+  
+ private:
+  std::string m_clusterCalib;
+
+ HLT::ErrorCode getInputContainer(const HLT::TriggerElement*,
+                                  const InputContainer*&);
+
+ HLT::ErrorCode getPseudoJets(const IParticleVector&,
+                              LabelIndex* indexMap,
+                              PseudoJetVector& pjv);
+  
+
+ // IJetBuildTool - offline code to transform pseudojets to xAOD jets
+ ToolHandle<IJetBuildTool> m_jetbuildTool;
+ // ToolHandle<JetRecTool> m_jetbuildTool;
+ 
+ /* A PseudojetGetter shared by this algorithm and the IJetBuildTool
+    The algorithm loads the psg, the ijbt processes them. */
+ ToolHandle<ITriggerPseudoJetGetter>  m_pseudoJetGetter;
+ 
+ /* A tool to select the pseudojets to be converted to jets */
+ ToolHandle<IIParticleSelector>  m_IParticleSelector;
+ 
+ /* label saying which cluster calibration was configured.
+    Used to label tools.*/
+
+ std::string m_outputCollectionLabel;
+ std::string m_pseudoJetLabelIndexArg;
+
+ 
+  HLT::ErrorCode attachJetCollection(HLT::TriggerElement*,
+                                     const xAOD::JetContainer*);
+
+};
+
+#include "TrigHLTJetRec/TrigHLTJetRecBase_tpl.h"
+
+#endif

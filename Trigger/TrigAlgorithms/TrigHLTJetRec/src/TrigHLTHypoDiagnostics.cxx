@@ -17,6 +17,7 @@
 #include "TrigSteeringEvent/TrigPassBits.h"
 #include "xAODJet/JetContainer.h"
 #include "TFile.h"
+#include "TDirectory.h"
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TString.h"
@@ -36,6 +37,9 @@ HLT::ErrorCode TrigHLTHypoDiagnostics::hltInitialize() {
   // Open output root file
   std::string fileName = "hypo_"+m_chainName+"_.root";
   fOut = TFile::Open(fileName.c_str(), "RECREATE");
+  std::string directory = "hypo_"+m_chainName;
+  TDirectory* dir = fOut->mkdir(directory.c_str());
+  dir->cd();  
   // Add histograms to map
   addHist(hMap1D,"nJets",    20,   0.0,   20.0);	  
   addHist(hMap1D,"Eta",      100,  -5.0,  5.0);	

@@ -16,6 +16,7 @@
 #include "TrigHLTJetRec/TrigHLTClusterDiagnostics.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "TFile.h"
+#include "TDirectory.h"
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TString.h"
@@ -35,6 +36,9 @@ HLT::ErrorCode TrigHLTClusterDiagnostics::hltInitialize() {
   // Open output root file
   std::string fileName = "clusters_"+m_chainName+"_.root";
   fOut = TFile::Open(fileName.c_str(), "RECREATE");
+  std::string directory = "clusters_"+m_chainName;
+  TDirectory* dir = fOut->mkdir(directory.c_str());
+  dir->cd();  
   // Add histograms to map
   addHist(hMap1D,"nClusters",  200,   0.0,  2000.0);	 
   addHist(hMap1D,"Eta",        100,  -5.0,  5.0);	

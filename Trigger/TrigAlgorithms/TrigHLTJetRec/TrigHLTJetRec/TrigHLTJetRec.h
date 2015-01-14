@@ -48,6 +48,7 @@ private:
   /* label saying which cluster calibration was configured.
      Used to label tools.*/
   std::string m_clusterCalib;
+  std::string m_outputCollectionLabel;
 
   HLT::ErrorCode attachJetCollection(HLT::TriggerElement*,
                                      const xAOD::JetContainer*);

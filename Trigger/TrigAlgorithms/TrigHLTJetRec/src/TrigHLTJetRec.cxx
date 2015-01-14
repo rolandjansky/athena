@@ -20,7 +20,7 @@
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetTrigAuxContainer.h"
 #include "JetEDM/LabelIndex.h"
-# include "./ClusterToPseudoJet.h"
+#include "./ClusterToPseudoJet.h"
 
 using jet::LabelIndex;
 
@@ -32,11 +32,12 @@ const xAOD::JetContainer*  make_empty_jetcontainer(){
 
 
 TrigHLTJetRec::TrigHLTJetRec(const std::string& name, 
-                           ISvcLocator* pSvcLocator ):
+                             ISvcLocator* pSvcLocator ):
   HLT::FexAlgo( name, pSvcLocator ) {
   declareProperty( "jetBuildTool", m_jetbuildTool);
   declareProperty( "pseudoJetGetter", m_pseudoJetGetter);
   declareProperty( "cluster_calib", m_clusterCalib);
+  declareProperty( "output_collection_label", m_outputCollectionLabel);
 }
 
 
@@ -160,11 +161,16 @@ TrigHLTJetRec::attachJetCollection(HLT::TriggerElement* outputTE,
 
   // We have to explicitly delete the aux store, so get a pointer to it.
   auto auxStore = j_container->getStore();
-  std::string label = "TrigHLTJetRec";
   std::string key = "";
-  
+
+  // label the jet collection according to the sequence.
+  // This results in a container name like:
+  // xAOD::JetContainer_v1#HLT_a4tcemFS
   HLT::ErrorCode hltStatus = 
-    recordAndAttachFeature(outputTE, j_container, key, label);
+    recordAndAttachFeature(outputTE,
+                           j_container,
+                           key,
+                           m_outputCollectionLabel);
   
   // cleanup
   if (hltStatus != HLT::OK) {

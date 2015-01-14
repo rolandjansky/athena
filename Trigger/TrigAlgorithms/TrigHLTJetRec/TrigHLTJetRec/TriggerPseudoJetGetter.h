@@ -48,6 +48,10 @@ class TriggerPseudoJetGetter: public PseudoJetGetter,
  private: 
 
   bool m_primed;  // Indicates if prime has been called before get()
+
+  // conform to the offline jets. This attribute is used by other offline tools
+  std::string m_label;
+                
   const PseudoJetVector*  m_pseudoJetVector;
 
 };

@@ -2,6 +2,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// ********************************************************************
+//
+// NAME:     TrigHLTClusterDiagnostics.cxx
+// PACKAGE:  Trigger/TrigAlgorithms/TrigHLTJetRec
+//
+// AUTHOR:   Ademar Delgado
+//
+// Description: Hypo for plotting Partial Scan vs Full Scan histograms
+//
+// ********************************************************************
+
 #include "TrigHLTJetRec/TrigHLTPSvsFSDiagnostics.h"
 #include "TFile.h"
 #include "TH1F.h"
@@ -560,12 +571,12 @@ void TrigHLTPSvsFSDiagnostics::jetsCheck(){
   std::string FS_tag = "FS no lead jet";
   for(unsigned int i=0; i<m_superRoi->size();++i){
     //focal is leading jet?
-    PS_tag = ( PS_tag == "PS lead is focal" ||
+    PS_tag = ( PS_tag == "PS lead is focal" || (
         PS_focalJets->at(i)->eta() == PS_leadingJet->eta() &&
-        PS_focalJets->at(i)->phi() == PS_leadingJet->phi())?"PS lead is focal":"PS lead isn't focal";
-    FS_tag = ( FS_tag == "FS lead is focal" ||
+        PS_focalJets->at(i)->phi() == PS_leadingJet->phi()))?"PS lead is focal":"PS lead isn't focal";
+    FS_tag = ( FS_tag == "FS lead is focal" || (
         FS_focalJets->at(i)->eta() == FS_leadingJet->eta() &&
-        FS_focalJets->at(i)->phi() == FS_leadingJet->phi())?"FS lead is focal":"FS lead isn't focal";
+        FS_focalJets->at(i)->phi() == FS_leadingJet->phi()))?"FS lead is focal":"FS lead isn't focal";
 
     //end focal is leading jet?
     ATH_MSG_DEBUG("TEST::Focal PS jets - eta - " <<PS_focalJets->at(i)->eta()<<" | phi - "<<PS_focalJets->at(i)->phi());

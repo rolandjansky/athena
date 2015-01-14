@@ -24,6 +24,7 @@ TriggerPseudoJetGetter::TriggerPseudoJetGetter(const std::string& s,
 }
 
 StatusCode TriggerPseudoJetGetter::initialize() {
+  declareProperty("Label", m_label);
   return StatusCode::SUCCESS;
 }
 

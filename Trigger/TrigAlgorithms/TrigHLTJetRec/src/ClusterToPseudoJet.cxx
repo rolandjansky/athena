@@ -23,7 +23,7 @@ PseudoJet ClusterToPseudoJet::operator() (const CaloCluster* cluster){
   
   PseudoJet psj(cluster->p4());
   IConstituentUserInfo* pcui = new IndexedConstituentUserInfo(*cluster,
-                                                              0,
+                                                              1,
                                                               m_indexMap);
   psj.set_user_info(pcui);
   return psj;
