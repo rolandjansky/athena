@@ -91,13 +91,11 @@ double e1hg_systematics::getAlpha(int particle_type, double energy, double eta, 
    if( !interpolate ) {
      if (particle_type==0) return scale*helec[ieta]->GetBinContent(ibinEt+1);
      else if (particle_type==1) return scale*hphot[ieta]->GetBinContent(ibinEt+1);
-     else if (particle_type==2) return scale*hphot2[ieta]->GetBinContent(ibinEt+1);
-     else return -1; // not possibile because of first return
+     else  return scale*hphot2[ieta]->GetBinContent(ibinEt+1); //This is 2, since if particle_type is not 0,1,2 we have returned 0 above
    } else {
      if (particle_type==0) return scale*helec[ieta]->Interpolate(et);
      else if (particle_type==1) return scale*hphot[ieta]->Interpolate(et);
-     else if (particle_type==2) return scale*hphot2[ieta]->Interpolate(et);
-     else return -1; // not possibile because of first return
+     else  return scale*hphot2[ieta]->Interpolate(et); //This is 2, since if particle_type is not 0,1,2 we have returned 0
    }
 
 }
