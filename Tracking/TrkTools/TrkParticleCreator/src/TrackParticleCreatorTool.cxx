@@ -17,6 +17,7 @@
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "ITrackToVertex/ITrackToVertex.h" 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
+#include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrkTrack/Track.h"
 #include "Particle/TrackParticle.h"
 #include "VxVertex/VxCandidate.h"
@@ -47,13 +48,15 @@ namespace Trk
     m_trackSummaryTool    ("Trk::TrackSummaryTool/AtlasTrackSummaryTool"),
     m_extrapolator        ("Trk::Extrapolator/AtlasExtrapolator"),
     m_trackToVertex       ("Reco::TrackToVertex/TrackToVertex"),
+    m_hitSummaryTool      ("Muon::MuonHitSummaryTool/MuonHitSummaryTool"),
     m_magFieldSvc         ("AtlasFieldSvc", n),
+    m_beamConditionsService("BeamCondSvc", n),
     m_useTrackSummaryTool (true),
     m_forceTrackSummaryUpdate (false),
     m_keepParameters      (false),
     m_keepAllPerigee      (false),
-    m_expressPerigeeToVertex(false),
-    m_expressPerigeeToBeamSpot(true)
+    m_expressPerigeeToBeamSpot(true),
+    m_perigeeExpression("BeamLine")
   {
     declareInterface<ITrackParticleCreatorTool>(this);
     declareProperty("TrackSummaryTool",       m_trackSummaryTool );
@@ -64,11 +67,11 @@ namespace Trk
     declareProperty("UseTrackSummaryTool" , m_useTrackSummaryTool);
     declareProperty("KeepParameters",   m_keepParameters);
     declareProperty("KeepAllPerigee",   m_keepAllPerigee);
-    declareProperty("ExpressPerigeeToVertex", m_expressPerigeeToVertex);
     declareProperty("ExpressPerigeeToBeamSpot", m_expressPerigeeToBeamSpot);
     declareProperty("CheckConversion",    m_checkConversion=true);
     declareProperty("MinSiHitsForCaloExtrap",   m_minSiHits = 4 );
     declareProperty("MinPtForCaloExtrap",       m_minPt = 1000. );
+    declareProperty("PerigeeExpression",     m_perigeeExpression);
   }
   
   TrackParticleCreatorTool::~TrackParticleCreatorTool() {}
@@ -76,11 +79,17 @@ namespace Trk
   StatusCode TrackParticleCreatorTool::initialize()
   {
 
-    if(m_expressPerigeeToVertex && m_expressPerigeeToBeamSpot){ 
-      ATH_MSG_ERROR("Configuration Error : can't express perigee at both BeamSpot and Vertex"); 
+    ATH_MSG_DEBUG("initialize TrackParticleCreatorTool");
+
+    if(std::find(std::begin(m_perigeeOptions), std::end(m_perigeeOptions),  m_perigeeExpression) == std::end(m_perigeeOptions)){ 
+      ATH_MSG_ERROR("Unknown Configuration for Perigee Expression - please use one of " << m_perigeeOptions);      
       return StatusCode::FAILURE; 
     }     
     
+    if(!m_expressPerigeeToBeamSpot){
+      ATH_MSG_WARNING("Using old configuration option! please use one of " << m_perigeeOptions << ". Assuming Origin." );
+      m_perigeeExpression = "Origin";
+    }
 
     /* Retrieve track summary tool */
     if (m_useTrackSummaryTool)
@@ -114,12 +123,24 @@ namespace Trk
       msg(MSG::DEBUG) << "Retrieved tool " << m_trackToVertex << endreq; 
     } 
 
+    /* Retrieve hit summary tool from ToolService */
+    if ( m_hitSummaryTool.retrieve().isFailure() ) {
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_hitSummaryTool << endreq;
+      return StatusCode::FAILURE;
+    } else {
+      msg(MSG::DEBUG) << "Retrieved tool " << m_hitSummaryTool << endreq;
+    }
 
     /* MagneticFieldSvc handles updates itself */
     if (m_magFieldSvc.retrieve().isFailure()){
       ATH_MSG_FATAL( "Could not retrieve MagneticFieldSvc." );
       return StatusCode::FAILURE;
     }   
+  
+    if ( m_beamConditionsService.retrieve().isFailure() ){
+      ATH_MSG_WARNING( "Failed to retrieve service " << m_beamConditionsService << " - Tilts will not be filled!" );
+    }	
+  
     msg(MSG::VERBOSE)  << name() <<" initialize successful." << endreq;
     return StatusCode::SUCCESS;
   }
@@ -134,11 +155,12 @@ namespace Trk
                                                                const Trk::VxCandidate*  vxCandidate,
                                                                Trk::TrackParticleOrigin prtOrigin)
   {
+    
     if (track == 0) return 0;
     const Trk::Perigee* aPer(0);
     
     // the default way; I left it as it was because it is working fine!!
-    if (!m_expressPerigeeToVertex && !m_expressPerigeeToBeamSpot )
+    if ( m_perigeeExpression == "Origin")
     {
       if ( (castPerigeeAndCheck(track, aPer) ) )
       {
@@ -153,50 +175,63 @@ namespace Trk
         }
       } else
       {
-	const Amg::Vector3D persf(0,0,0); 
-	const Trk::Perigee* result = m_trackToVertex->perigeeAtVertex( *track, persf ); 
-	if (result != 0) { 
-	  aPer =  result; 
-	}else{ 
-	  ATH_MSG_DEBUG ("Could not extrapolate to 0,0,0. No TrackParticle created."); 
+        const Amg::Vector3D persf(0,0,0); 
+        const Trk::Perigee* result = m_trackToVertex->perigeeAtVertex( *track, persf ); 
+        if (result != 0) { 
+          aPer =  result; 
+        }else{ 
+          ATH_MSG_DEBUG ("Could not extrapolate to 0,0,0. No TrackParticle created."); 
           return 0;
         }
       }
     } 
 
-    else if (m_expressPerigeeToBeamSpot){ //Express parameters at beamspot 
+    else if  (m_perigeeExpression == "BeamSpot"){ //Express parameters at beamspot 
       const Trk::Perigee* result = m_trackToVertex->perigeeAtBeamspot( *track ); 
       if(!result){ 
 	
-	ATH_MSG_WARNING("Failed to extrapolate to first Beamspot"); 
-	if( !track->perigeeParameters() ){ 
-	  return 0;       
-	} 
-	aPer = track->perigeeParameters()->clone();   
+        ATH_MSG_WARNING("Failed to extrapolate to first Beamspot"); 
+        if( !track->perigeeParameters() ){ 
+          return 0;       
+        } 
+        aPer = track->perigeeParameters()->clone();   
       } else { 
-	aPer = result; 
+        aPer = result; 
       } 
-    }     else // the non default way, express the perigee wrt. the vertex position
-    {
+    }     
+    else if (m_perigeeExpression == "Vertex"){
       if (vxCandidate != 0)
-	{
-	  const Trk::Perigee* result =  m_trackToVertex->perigeeAtVertex( *track, vxCandidate->recVertex().position()); 
-	  if (result != 0) { 
-	    aPer = result ; 
-	  } else{
-	    ATH_MSG_DEBUG ("Could not extrapolate track to vertex region! No TrackParticle created.");
-	    return 0;
+      {
+        const Trk::Perigee* result =  m_trackToVertex->perigeeAtVertex( *track, vxCandidate->recVertex().position()); 
+        if (result != 0) { 
+          aPer = result ; 
+        } else{
+          ATH_MSG_DEBUG ("Could not extrapolate track to vertex region! No TrackParticle created.");
+          return 0;
         }
-	} else {
+      } else {
         if ( (castPerigeeAndCheck(track, aPer) ) )
-	  {
-	    aPer = aPer->clone();
+        {
+          aPer = aPer->clone();
         } else
-	  {
-	    ATH_MSG_DEBUG ("No vertex given and track has no perigee either! No TrackParticle created.");
+        {
+          ATH_MSG_DEBUG ("No vertex given and track has no perigee either! No TrackParticle created.");
 	    return 0;
 	  }
       }
+    }
+    else if (m_perigeeExpression == "BeamLine"){
+      const Trk::Perigee* result = m_trackToVertex->perigeeAtBeamline( *track ); 
+      if(!result){ 
+	
+        ATH_MSG_WARNING("Failed to extrapolate to Beamline"); 
+        if( !track->perigeeParameters() ){ 
+          return 0;       
+        } 
+        aPer = track->perigeeParameters()->clone();   
+      } else { 
+        aPer = result; 
+      }  
     }
     
     const Trk::TrackSummary* summary;
@@ -313,42 +348,43 @@ namespace Trk
                                                                 const xAOD::Vertex* vxCandidate,
                                                                 xAOD::ParticleHypothesis prtOrigin) const {
     
+
     const Trk::Perigee* aPer(0);
     const Trk::TrackParameters* parsToBeDeleted = 0;
     // the default way; I left it as it was because it is working fine!!
-    if (!m_expressPerigeeToVertex && !m_expressPerigeeToBeamSpot) {
+    if ( m_perigeeExpression == "Origin") {
       if ( (castPerigeeAndCheck(&track, aPer) ) )  {
         // aMeasPer clone will be created later if all perigee option selected
         if (m_keepAllPerigee) aPer  = 0;
       }else{
-	const Amg::Vector3D persf(0,0,0); 
-	const Trk::Perigee* result = m_trackToVertex->perigeeAtVertex(track, persf); 
-	if (result != 0) { 
-	  aPer =  result; 
-	  parsToBeDeleted = result; 
-	}
-	else{
+        const Amg::Vector3D persf(0,0,0); 
+        const Trk::Perigee* result = m_trackToVertex->perigeeAtVertex(track, persf); 
+        if (result != 0) { 
+          aPer =  result; 
+          parsToBeDeleted = result; 
+        }
+        else{
           ATH_MSG_DEBUG ("Could not extrapolate to 0,0,0. No TrackParticle created.");
           return 0;
         }
       }
-    }else if (m_expressPerigeeToBeamSpot){ //Express parameters at beamspot 
-    const Trk::Perigee* result = m_trackToVertex->perigeeAtBeamspot(track); 
-    if(!result){ 
-      ATH_MSG_WARNING("Failed to extrapolate to first Beamspot"); 
-      if( !track.perigeeParameters() ){ 
-	return 0;       
-      } 
-      aPer = track.perigeeParameters();   
-    }else{ 
-      parsToBeDeleted = result; 
-      aPer = result; 
-    }
-    } else {  // the non default way, express the perigee wrt. the vertex position
+    }else if (m_perigeeExpression == "BeamSpot"){ //Express parameters at beamspot 
+      const Trk::Perigee* result = m_trackToVertex->perigeeAtBeamspot(track); 
+      if(!result){ 
+        ATH_MSG_WARNING("Failed to extrapolate to first Beamspot"); 
+        if( !track.perigeeParameters() ){ 
+          return 0;       
+        } 
+        aPer = track.perigeeParameters();   
+      }else{ 
+        parsToBeDeleted = result; 
+        aPer = result; 
+      }
+    } else if(m_perigeeExpression == "Vertex"){  // the non default way, express the perigee wrt. the vertex position
       if (vxCandidate != 0 ) {
-	const Trk::Perigee* result =  m_trackToVertex->perigeeAtVertex(track, vxCandidate->position());
+        const Trk::Perigee* result =  m_trackToVertex->perigeeAtVertex(track, vxCandidate->position());
         if (result != 0) {
-	  parsToBeDeleted = result;
+          parsToBeDeleted = result;
           aPer = result ;
         }else{
           ATH_MSG_DEBUG ("Could not extrapolate track to vertex region! No TrackParticle created.");
@@ -360,8 +396,21 @@ namespace Trk
           return 0;
         }
       }
-    }
-    
+      }
+     else if (m_perigeeExpression == "BeamLine"){
+       const Trk::Perigee* result = m_trackToVertex->perigeeAtBeamline(track); 
+       if(!result){ 
+	 ATH_MSG_WARNING("Failed to extrapolate to Beamline"); 
+	 if( !track.perigeeParameters() ){ 
+	   return 0;       
+	 } 
+	 aPer = track.perigeeParameters();   
+       }else{ 
+	 parsToBeDeleted = result; 
+	 aPer = result; 
+       }
+     } 
+
     const Trk::TrackSummary* summary;
     if (m_trackSummaryTool!=0 && m_useTrackSummaryTool) {
       if(m_forceTrackSummaryUpdate){
@@ -460,9 +509,10 @@ namespace Trk
   }
   
   xAOD::TrackParticle* TrackParticleCreatorTool::createParticle( const Rec::TrackParticle& trackParticle, xAOD::TrackParticleContainer* container ) const {
+    
     // Attempt to fill the position enums - will necessarily be a bit of a hack, since we don't have all the information.
     std::vector< xAOD::ParameterPosition> positions;
-    bool firstMeasurement;
+    bool firstMeasurement = false;
     for (auto parameter : trackParticle.trackParameters()){
       if (!firstMeasurement && parameter && !parameter->associatedSurface().isFree()){
         // if the surface isn't free, it must belong to a detector element => measurement
@@ -479,8 +529,14 @@ namespace Trk
     xAOD::TrackParticle* trackparticle = createParticle(trackParticle.measuredPerigee(),trackParticle.fitQuality(),
                                                         &trackParticle.info(),trackParticle.trackSummary(),trackParticle.trackParameters(),positions,
                                                         static_cast<xAOD::ParticleHypothesis>(trackParticle.info().particleHypothesis()),container);
+     
+    if(!trackparticle){
+      ATH_MSG_WARNING( "WARNING: Problem creating TrackParticle - Returning 0");
+      return 0;
+    }
+
     trackparticle->setTrackLink( *(trackParticle.trackElementLink()) );
-    
+
     if( m_checkConversion ) compare(trackParticle,*trackparticle);
     
     return trackparticle;
@@ -490,8 +546,16 @@ namespace Trk
                                                                 xAOD::TrackParticleContainer* container,
                                                                 const xAOD::Vertex* vxCandidate,
                                                                 xAOD::ParticleHypothesis prtOrigin) const {
+   
     xAOD::TrackParticle* trackparticle = createParticle( **trackLink, container, vxCandidate, prtOrigin );
+ 
+     if(!trackparticle){
+      ATH_MSG_WARNING( "WARNING: Problem creating TrackParticle - Returning 0");
+      return 0;
+    }
+   
     trackparticle->setTrackLink( trackLink );
+    
     return trackparticle;
   }
   
@@ -501,11 +565,19 @@ namespace Trk
                                                                 const std::vector< xAOD::ParameterPosition>& positions,
                                                                 xAOD::ParticleHypothesis prtOrigin,
                                                                 xAOD::TrackParticleContainer* container ) const {
+
     
     xAOD::TrackParticle* trackparticle = new xAOD::TrackParticle();
+   
+
+     if(!trackparticle){
+      ATH_MSG_WARNING( "WARNING: Problem creating TrackParticle - Returning 0");
+      return 0;
+     }
+
     if( container ) container->push_back( trackparticle );
     else trackparticle->makePrivateStore();
-    
+
     // Fit quality
     if( fq ) setFitQuality(*trackparticle,*fq);
     
@@ -513,13 +585,20 @@ namespace Trk
     if( trackInfo ) setTrackInfo(*trackparticle,*trackInfo,prtOrigin);
     
     // track summary
-    if (summary) setTrackSummary(*trackparticle,*summary);
+    if (summary){
+      setTrackSummary(*trackparticle,*summary);
+      setHitPattern(*trackparticle,summary->getHitPattern());
+      setNumberOfUsedHits(*trackparticle,summary->numberOfUsedHitsdEdx());
+      setNumberOfOverflowHits(*trackparticle,summary->numberOfOverflowHitsdEdx());
+    }
+    
+    if (!m_beamConditionsService.empty()) setTilt(*trackparticle,m_beamConditionsService->beamTilt(0),m_beamConditionsService->beamTilt(1));
     
     // Parameters
     if (perigee) setDefiningParameters(*trackparticle,*perigee);
     else      ATH_MSG_WARNING( "Track without perigee parameters? Not setting any defining parameters!");
     setParameters(*trackparticle,parameters, positions);
-    
+
     return trackparticle;
   }
   
@@ -617,6 +696,30 @@ namespace Trk
     unsigned int i=0;
     for (;i<positions.size();++i) {
       tp.setParameterPosition(i,positions[i]);
+      if (positions[i]==xAOD::FirstMeasurement){
+        float x_position = tp.parameterX(i);
+        float y_position = tp.parameterY(i);
+        tp.setRadiusOfFirstHit(std::sqrt(x_position*x_position + y_position*y_position));
+        tp.setIdentifierOfFirstHit(parameters[i]->associatedSurface().associatedDetectorElementIdentifier().get_compact());
+      }
     }
   }
+
+  void TrackParticleCreatorTool::setTilt( xAOD::TrackParticle& tp, float tiltx, float tilty ) const {
+    tp.setBeamlineTiltX(tiltx);
+    tp.setBeamlineTiltX(tilty);
+  }  
+
+ void TrackParticleCreatorTool::setHitPattern( xAOD::TrackParticle& tp, unsigned long hitpattern ) const {
+    tp.setHitPattern(hitpattern);
+  }  
+
+  void TrackParticleCreatorTool::setNumberOfUsedHits( xAOD::TrackParticle& tp, int hits ) const {
+    tp.setNumberOfUsedHitsdEdx(hits);
+  }
+
+  void TrackParticleCreatorTool::setNumberOfOverflowHits( xAOD::TrackParticle& tp, int overflows ) const {
+    tp.setNumberOfIBLOverflowsdEdx(overflows);
+  }
+
 } // end of namespace Trk

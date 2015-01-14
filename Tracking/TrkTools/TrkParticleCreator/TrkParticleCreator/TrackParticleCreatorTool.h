@@ -22,6 +22,8 @@ changes : 11.02.04 added docu
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrack/TrackInfo.h"
 #include "TrkEventPrimitives/FitQuality.h"
+#include "MuonRecToolInterfaces/IMuonHitSummaryTool.h"
+#include "TrkTrackSummary/MuonTrackSummary.h"
 
 #include "xAODTracking/VertexFwd.h"
 #include "xAODTracking/TrackParticle.h"
@@ -30,6 +32,7 @@ changes : 11.02.04 added docu
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 class AtlasDetectorID;
+class IBeamCondSvc;
 
 namespace Rec
 {
@@ -131,7 +134,14 @@ namespace Trk {
     /** Method to set parameters of a xAOD::TrackParticle */
   void setParameters( xAOD::TrackParticle& tp, const std::vector<const Trk::TrackParameters*>& parameters, const std::vector< xAOD::ParameterPosition>& positions  ) const;
 
+  void setTilt(xAOD::TrackParticle& tp, float tiltx, float tilty) const;
 
+  void setHitPattern(xAOD::TrackParticle& tp, unsigned long hitpattern) const;
+
+  void setNumberOfUsedHits(xAOD::TrackParticle& tp, int hits) const;
+
+  void setNumberOfOverflowHits(xAOD::TrackParticle& tp, int overflows) const;
+  
 private:
   void compare( const Rec::TrackParticle& tp, const xAOD::TrackParticle& tpx ) const;      
   void compare( const TrackParameters& tp1, const TrackParameters& tp2 ) const;
@@ -140,9 +150,11 @@ private:
   
   ToolHandle< ITrackSummaryTool > m_trackSummaryTool;
   ToolHandle< IExtrapolator >  m_extrapolator;
-  ToolHandle< Reco::ITrackToVertex > m_trackToVertex; 
+  ToolHandle< Reco::ITrackToVertex > m_trackToVertex;
+  ToolHandle<Muon::IMuonHitSummaryTool> m_hitSummaryTool;
   /** to query magnetic field configuration */
   ServiceHandle<MagField::IMagFieldSvc>  m_magFieldSvc;
+  ServiceHandle<IBeamCondSvc> m_beamConditionsService;
   bool m_useTrackSummaryTool;
   bool m_forceTrackSummaryUpdate; /** use to force an update of the track summary
   rather than using the cached summary */
@@ -150,8 +162,11 @@ private:
   bool m_keepParameters;  /** keep all TrackParameters */
   bool m_keepAllPerigee;  /** keep all MeasuredPerigee parameters
   (e.g. adding those that may exist at Volume boundaries) */
-  bool m_expressPerigeeToVertex;
   bool m_expressPerigeeToBeamSpot;
+ 
+  std::string m_perigeeExpression;
+  std::vector<std::string> m_perigeeOptions{"BeamLine", "BeamSpot", "Vertex", "Origin"}; 
+
   bool m_checkConversion;
   int m_minSiHits;
   double m_minPt;
@@ -185,21 +200,46 @@ inline void TrackParticleCreatorTool::setTrackInfo( xAOD::TrackParticle& tp, con
 
 inline void TrackParticleCreatorTool::setTrackSummary( xAOD::TrackParticle& tp, const TrackSummary& summary ) const {
     // int types
+  unsigned int offset = 47;// where the floats start in xAOD::SummaryType
+  
   for (unsigned int i =0 ; i<Trk::numberOfTrackSummaryTypes ; i++){
       // Only add values which are +ve (i.e., which were created)
     if( i >= Trk::numberOfMdtHits && i <= Trk::numberOfRpcEtaHits ) continue;  
     if( i == Trk::numberOfCscUnspoiltEtaHits ) continue;
     if( i >= Trk::numberOfCscEtaHoles && i <= Trk::numberOfTgcPhiHoles ) continue;
+    if ( i >= offset && i < offset+Trk::numberOfeProbabilityTypes+1){
+      continue;
+    }
     int value = summary.get(static_cast<Trk::SummaryType>(i));
     uint8_t uvalue = static_cast<uint8_t>(value);
     if (value>0) tp.setSummaryValue(uvalue, static_cast<xAOD::SummaryType>(i));
   }
     // float types
-  unsigned int offset = 47;// where the floats start in xAOD::SummaryType
   for (unsigned int i =0 ; i<Trk::numberOfeProbabilityTypes ; i++){
     float fvalue = summary.getPID(static_cast<Trk::eProbabilityType>(i));
     tp.setSummaryValue(fvalue, static_cast<xAOD::SummaryType>(i+offset));
   }
+
+  //this one is "special" so gets a different treatment...
+  float fvalue = summary.getPixeldEdx();
+  tp.setSummaryValue(fvalue, static_cast<xAOD::SummaryType>(51));
+
+  //muon hit info
+  ATH_MSG_DEBUG("now do muon hit info");
+  Muon::IMuonHitSummaryTool::CompactSummary msSummary = m_hitSummaryTool->summary(summary);
+  uint8_t numberOfPrecisionLayers = msSummary.nprecisionLayers;
+  ATH_MSG_DEBUG("# of prec layers: "<<numberOfPrecisionLayers);
+  uint8_t numberOfPrecisionHoleLayers = msSummary.nprecisionHoleLayers;
+  uint8_t numberOfPhiLayers = msSummary.nphiLayers;
+  uint8_t numberOfPhiHoleLayers = msSummary.nphiHoleLayers;
+  uint8_t numberOfTriggerEtaLayers = msSummary.ntrigEtaLayers;
+  uint8_t numberOfTriggerEtaHoleLayers = msSummary.ntrigEtaHoleLayers;
+  tp.setSummaryValue(numberOfPrecisionLayers,xAOD::numberOfPrecisionLayers);
+  tp.setSummaryValue(numberOfPrecisionHoleLayers,xAOD::numberOfPrecisionHoleLayers);
+  tp.setSummaryValue(numberOfPhiLayers,xAOD::numberOfPhiLayers);
+  tp.setSummaryValue(numberOfPhiHoleLayers,xAOD::numberOfPhiHoleLayers);
+  tp.setSummaryValue(numberOfTriggerEtaLayers,xAOD::numberOfTriggerEtaLayers);
+  tp.setSummaryValue(numberOfTriggerEtaHoleLayers,xAOD::numberOfTriggerEtaHoleLayers);
 }
 
 inline void TrackParticleCreatorTool::setDefiningParameters( xAOD::TrackParticle& tp, const Perigee& perigee ) const {

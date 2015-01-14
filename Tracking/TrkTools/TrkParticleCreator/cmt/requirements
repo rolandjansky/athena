@@ -15,6 +15,7 @@ use Particle             Particle-*              Reconstruction
 use AtlasDetDescr        AtlasDetDescr-*         DetectorDescription
 use MagFieldInterfaces   MagFieldInterfaces-*    MagneticField
 use ITrackToVertex       ITrackToVertex-*        Reconstruction/RecoTools 
+use InDetBeamSpotService  InDetBeamSpotService-*  InnerDetector/InDetConditions
 
 public
 use AtlasPolicy          AtlasPolicy-*
@@ -28,6 +29,7 @@ use TrkParameters        TrkParameters-*         Tracking/TrkEvent
 use TrkToolInterfaces    TrkToolInterfaces-*     Tracking/TrkTools
 use xAODTracking         xAODTracking-*          Event/xAOD
 use EventPrimitives      EventPrimitives-*       Event
+use MuonRecToolInterfaces       MuonRecToolInterfaces-*       MuonSpectrometer/MuonReconstruction/MuonRecTools
 library TrkParticleCreator *.cxx components/*.cxx
 apply_pattern component_library
 
