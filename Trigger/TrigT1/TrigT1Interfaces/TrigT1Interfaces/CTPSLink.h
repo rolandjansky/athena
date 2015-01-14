@@ -9,6 +9,10 @@
 #include <vector>
 #include <string>
 
+
+// tdaq-common includes for CTP format definition
+#include "L1CommonCore/CTPdataformatVersion.h"
+
 namespace LVL1CTP {
 
    /**
@@ -30,8 +34,8 @@ namespace LVL1CTP {
     *  @author Thomas Schoerner-Sadenius <thomas.schoerner@cern.ch>
     *  @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 187728 $
-    * $Date: 2009-05-27 18:18:06 +0200 (Wed, 27 May 2009) $
+    * $Revision: 621285 $
+    * $Date: 2014-10-11 16:51:48 +0200 (Sat, 11 Oct 2014) $
     */
    class CTPSLink {
 
@@ -40,7 +44,7 @@ namespace LVL1CTP {
       /* constructor, destructor */
 
       //! constructor initializing data content from given vector
-      CTPSLink( const std::vector<uint32_t>& roiVec );
+      CTPSLink( const std::vector<uint32_t>& roiVec, unsigned int ctpVersionNumber );
       //! empty default destructor
       ~CTPSLink();
 
@@ -55,6 +59,9 @@ namespace LVL1CTP {
       //! toal number of words in object
       unsigned int getSize() const;
 
+      //! retrieve CTP version number
+     unsigned int getCTPVersionNumber() const { return m_ctpVersionNumber;}
+     
       /* access data content */
 
       //! get raw header content
@@ -91,16 +98,21 @@ namespace LVL1CTP {
       const std::string print(const bool longFormat = false) const;
 
       /* data format constants */
-      static const unsigned int wordsPerCTPSLink;
+      //static const unsigned int wordsPerCTPSLink;
+     unsigned int getNumWordsPerCTPSLink() const { return m_wordsPerCTPSLink; }
 
    private:
 
       /** this vector contains the header, data elements and trailer */
       const std::vector<uint32_t> m_CTPSLinkVector;  //!< vector of words
 
+      unsigned int m_ctpVersionNumber;
+      CTPdataformatVersion *  m_ctpVersion;
+      
       mutable unsigned int m_wordsPerHeader;         //!< number of words per header
       mutable unsigned int m_wordsPerDataElement;    //!< number of words per data element
       mutable unsigned int m_wordsPerTrailer;        //!< number of words per trailer
+      mutable unsigned int m_wordsPerCTPSLink;       //!< number of words per CTPSLink
 
       //! convert data contetn into string (used by dump and print)
       const std::string convert(std::vector<uint32_t> data,

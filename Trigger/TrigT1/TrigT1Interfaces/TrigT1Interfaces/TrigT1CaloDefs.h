@@ -1,5 +1,5 @@
 //==============================================================================
-// $Id: TrigT1CaloDefs.h 613729 2014-08-27 21:22:16Z watsona $
+// $Id: TrigT1CaloDefs.h 632038 2014-11-28 19:27:49Z amazurov $
 //==============================================================================
 
 #ifndef TRIGT1CALODEFS_H
@@ -30,6 +30,7 @@ public:
   static const std::string CaloCellContainerLocation;
   
   static const std::string TriggerTowerLocation;
+  static const std::string xAODTriggerTowerLocation;
   static const std::string CPMTowerLocation;
   static const std::string JetElementLocation;
   
@@ -77,6 +78,7 @@ public:
 
   static const std::string EmTauTopoTobLocation;
   static const std::string JetTopoTobLocation;
+  static const std::string EnergyTopoDataLocation;
   
   static const std::string CTPCaloConfigLocation;
   static const std::string CTPJetEnergyConfigLocation;

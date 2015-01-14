@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: RecEmTauRoI.h 607322 2014-07-18 12:44:23Z watsona $
+// $Id: RecEmTauRoI.h 615360 2014-09-05 19:34:47Z watsona $
 /***************************************************************************
                          RecEmTauRoI.h  -  description
                             -------------------

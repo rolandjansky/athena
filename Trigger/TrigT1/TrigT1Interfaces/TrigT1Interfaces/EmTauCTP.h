@@ -32,39 +32,32 @@ namespace LVL1 {
     *
     * @author E. Moyse
     *
-    * $Revision: 187728 $
-    * $Date: 2009-05-27 18:18:06 +0200 (Wed, 27 May 2009) $
+    * $Revision: 615360 $
+    * $Date: 2014-09-05 21:34:47 +0200 (Fri, 05 Sep 2014) $
     */
    class EmTauCTP : public DataObject {
 
    public:
-      EmTauCTP( unsigned int cableword0 = 0, unsigned int cableword1 = 0 );
+      EmTauCTP( unsigned int cableword0 = 0, unsigned int cableword1 = 0,
+                unsigned int cableword2 = 0, unsigned int cableword3 = 0 );
       ~EmTauCTP();
 
-      /** return the data that is sent on cable 0.
-       *  i.e.
+      /** return the data that are sent on cables
        *
-       *  <code>|P|thr8|thr7|thr6|thr5|thr4|thr3|thr2|thr1|0|</code>
+       *  <code>|P|thr8|thr7|thr6|thr5|thr4|thr3|thr2|thr1|</code>
        *
-       *  (e algorithm only)
+       *  For Run 2 Words 0 and 1 are EM results, 2 and 3 are TAU
        */
       unsigned int cableWord0() const;
-      /** return the data sent on cable 1
-       *  i.e.
-       *
-       *  <code>|P|thr8|thr7|thr6|thr5|thr4|thr3|thr2|thr1|0|</code>
-       *
-       *  (e or tau algorithms, as set in TriggerMenu) where each threshold count
-       *  (thr8 etc) is 3 bits long, and represents the number of e or tau candidates
-       *  passing that threshold. and where |0| represents a bit set to zero ...
-       *  and P is an odd parity bit, so if the other bits mod 2=0, then P=1. i.e.
-       *  if bits=0, P=1 and where |0| represents a bit set to zero
-       */
       unsigned int cableWord1() const;
+      unsigned int cableWord2() const;
+      unsigned int cableWord3() const;
 
    private:
       const unsigned int m_cableWord0;
       const unsigned int m_cableWord1;
+      const unsigned int m_cableWord2;
+      const unsigned int m_cableWord3;
 
   }; // class EmTauCTP
 

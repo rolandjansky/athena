@@ -19,8 +19,11 @@
 
 namespace LVL1 {
 
-  EmTauCTP::EmTauCTP( unsigned int cableword0, unsigned int cableword1 )
-    : m_cableWord0( cableword0 ), m_cableWord1( cableword1 ) {
+  EmTauCTP::EmTauCTP( unsigned int cableword0, unsigned int cableword1,
+                      unsigned int cableword2, unsigned int cableword3)
+    : m_cableWord0( cableword0 ), m_cableWord1( cableword1 ),
+      m_cableWord2( cableword2 ), m_cableWord3( cableword3 )
+  {
 
   }
 
@@ -34,6 +37,14 @@ namespace LVL1 {
 
   unsigned int EmTauCTP::cableWord1() const {
     return m_cableWord1;
+  }
+  
+  unsigned int EmTauCTP::cableWord2() const {
+    return m_cableWord2;
+  }
+
+  unsigned int EmTauCTP::cableWord3() const {
+    return m_cableWord3;
   }
 
 } // namespace LVL1

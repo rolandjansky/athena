@@ -32,23 +32,30 @@ namespace LVL1 {
     *
     * @author E. Moyse
     *
-    * $Revision: 187728 $
-    * $Date: 2009-05-27 18:18:06 +0200 (Wed, 27 May 2009) $
+    * $Revision: 615360 $
+    * $Date: 2014-09-05 21:34:47 +0200 (Fri, 05 Sep 2014) $
     */
    class EnergyCTP : public DataObject {
 
    public:
-      EnergyCTP( unsigned int cableword0 = 0 );
+      EnergyCTP( unsigned int cableword0 = 0, unsigned int cableword1 = 0 );
       ~EnergyCTP();
 
-      /** return the data
+      /** return the data for the full-range triggers
        *
-       * <code>|P|4b Et Sum Map|8b EtMiss Hit Map|0|</code>
+       * <code>|P|8b METSig Map|8b EtMiss Hit Map|8b Et Sum Map|</code>
        */
       unsigned int cableWord0() const;
 
+      /** return the data for the restricted eta triggers
+       *
+       * <code>|P|8b EtMiss Hit Map|8b Et Sum Map|</code>
+       */
+      unsigned int cableWord1() const;
+
    private:
       const unsigned int m_cableWord0;
+      const unsigned int m_cableWord1;
 
    }; // class EnergyCTP
 

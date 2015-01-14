@@ -10,17 +10,21 @@
 #include "TrigT1Interfaces/TrigT1CTPDefs.h"
 
 // tdaq-common includes for CTP format definition
-#include "CTPfragment/CTPdataformat.h"
+//#include "CTPfragment/CTPdataformat.h"
+
 
 namespace LVL1CTP {
 
   // CTPSLink contains only information of triggered bunch!
-  const unsigned int CTPSLink::wordsPerCTPSLink = CTPdataformat::NumberTimeWords+CTPdataformat::DAQwordsPerBunch;
+  //const unsigned int CTPSLink::wordsPerCTPSLink = CTPdataformat::NumberTimeWords+CTPdataformat::DAQwordsPerBunch;
 
-  CTPSLink::CTPSLink( const std::vector<uint32_t>& roiVec )
-    : m_CTPSLinkVector( roiVec ), 
+  CTPSLink::CTPSLink( const std::vector<uint32_t>& roiVec, unsigned int ctpVersionNumber )
+    : m_CTPSLinkVector( roiVec ), m_ctpVersionNumber(ctpVersionNumber),
       m_wordsPerHeader(0), m_wordsPerDataElement(0), m_wordsPerTrailer(0)
   {
+    m_ctpVersion = new CTPdataformatVersion(m_ctpVersionNumber);
+    m_wordsPerCTPSLink = m_ctpVersion->getNumberTimeWords() + m_ctpVersion->getDAQwordsPerBunch();
+    
     m_wordsPerHeader = m_CTPSLinkVector.empty() ? 0 : m_CTPSLinkVector[1];
     if (m_CTPSLinkVector.size() > (m_wordsPerHeader+3)) {
       m_wordsPerDataElement = m_CTPSLinkVector[m_CTPSLinkVector.size()-2];
@@ -35,7 +39,9 @@ namespace LVL1CTP {
   }
 
   CTPSLink::~CTPSLink() {
-
+    if(m_ctpVersion) delete m_ctpVersion;
+    m_ctpVersion = NULL;
+    
   }
 
   unsigned int CTPSLink::getSize() const 
@@ -111,8 +117,8 @@ namespace LVL1CTP {
   {
     std::vector<uint32_t> result;
 
-    unsigned int start(getHeaderSize()+CTPdataformat::TBPpos);
-    unsigned int end(start+CTPdataformat::TBPwords);
+    unsigned int start(getHeaderSize()+m_ctpVersion->getTBPpos());
+    unsigned int end(start+m_ctpVersion->getTBPwords());
 
     for (size_t i(start); i < end; ++i) {
       result.push_back(m_CTPSLinkVector[i]);
@@ -125,8 +131,8 @@ namespace LVL1CTP {
   {
     std::vector<uint32_t> result;
 
-    unsigned int start(getHeaderSize()+CTPdataformat::TAPpos);
-    unsigned int end(start+CTPdataformat::TAPwords);
+    unsigned int start(getHeaderSize()+m_ctpVersion->getTAPpos());
+    unsigned int end(start+m_ctpVersion->getTAPwords());
 
     for (size_t i(start); i < end; ++i) {
       result.push_back(m_CTPSLinkVector[i]);
@@ -139,8 +145,8 @@ namespace LVL1CTP {
   {
     std::vector<uint32_t> result;
 
-    unsigned int start(getHeaderSize()+CTPdataformat::TAVpos);
-    unsigned int end(start+CTPdataformat::TAVwords);
+    unsigned int start(getHeaderSize()+m_ctpVersion->getTAVpos());
+    unsigned int end(start+m_ctpVersion->getTAVwords());
 
     for (size_t i(start); i < end; ++i) {
       result.push_back(m_CTPSLinkVector[i]);
@@ -211,26 +217,36 @@ namespace LVL1CTP {
     std::ostringstream s;
 
     // time
-    for (size_t i(0); (i < CTPdataformat::NumberTimeWords) && (i < data.size()); ++i) {
+    for (size_t i(0); (i < m_ctpVersion->getNumberTimeWords()) && (i < data.size()); ++i) {
       if (i == 0 || longFormat) s << "\nTime";
       if (longFormat) s << std::setw(1) << i;
       s << " " << std::setw(8) << data[i];
       if (longFormat) s << std::endl;
     }
 
-    // PIT
-    for (size_t i(0), p(CTPdataformat::PITpos);
-	 (i < CTPdataformat::PITwords) && (p < data.size()); 
+    // TIP
+    for (size_t i(0), p(m_ctpVersion->getTIPpos());
+	 (i < m_ctpVersion->getTIPwords()) && (p < data.size()); 
 	 ++i, ++p) {
-      if (i == 0 || longFormat) s << "\nPIT";
+      if (i == 0 || longFormat) s << "\nTIP";
       if (longFormat) s << std::setw(1) << i;
       s << " 0x" << std::hex << std::setw(8) << std::setfill( '0' ) << data[p] << std::dec << std::setfill(' ');
       if (longFormat) s << std::endl;
     }
+    
+    // FPI
+    //for (size_t i(0), p(m_ctpVersion->getFPIpos());
+//         (i < m_ctpVersion->getFPIwords()) && (p < data.size()); 
+//         ++i, ++p) {
+//      if (i == 0 || longFormat) s << "\nFPI";
+//      if (longFormat) s << std::setw(1) << i;
+//      s << " 0x" << std::hex << std::setw(8) << std::setfill( '0' ) << data[p] << std::dec << std::setfill(' ');
+//      if (longFormat) s << std::endl;
+//    }
 
     // TBP
-    for (size_t i(0), p(CTPdataformat::TBPpos);
-	 (i < CTPdataformat::TBPwords) && (p < data.size()); 
+    for (size_t i(0), p(m_ctpVersion->getTBPpos());
+	 (i < m_ctpVersion->getTBPwords()) && (p < data.size()); 
 	 ++i, ++p) {
       if (i == 0 || longFormat) s << "\nTBP";
       if (longFormat) s << std::setw(1) << i;
@@ -239,8 +255,8 @@ namespace LVL1CTP {
     }
 
     // TAP
-    for (size_t i(0), p(CTPdataformat::TAPpos);
-	 (i < CTPdataformat::TAPwords) && (p < data.size()); 
+    for (size_t i(0), p(m_ctpVersion->getTAPpos());
+	 (i < m_ctpVersion->getTAPwords()) && (p < data.size()); 
 	 ++i, ++p) {
       if (i == 0 || longFormat) s << "\nTAP";
       if (longFormat) s << std::setw(1) << i;
@@ -249,8 +265,8 @@ namespace LVL1CTP {
     }
 
     // TAV
-    for (size_t i(0), p(CTPdataformat::TAVpos);
-	 (i < CTPdataformat::TAVwords) && (p < data.size()); 
+    for (size_t i(0), p(m_ctpVersion->getTAVpos());
+	 (i < m_ctpVersion->getTAVwords()) && (p < data.size()); 
 	 ++i, ++p) {
       if (i == 0 || longFormat) s << "\nTAV";
       if (longFormat) s << std::setw(1) << i;

@@ -32,8 +32,8 @@ namespace LVL1 {
     * @author E. Moyse
     * @todo this should probably be a static class.
     *
-    * $Revision: 607322 $
-    * $Date: 2014-07-18 14:44:23 +0200 (Fri, 18 Jul 2014) $
+    * $Revision: 615360 $
+    * $Date: 2014-09-05 21:34:47 +0200 (Fri, 05 Sep 2014) $
     */
    class CPRoIDecoder : public RoIDecoder {
 

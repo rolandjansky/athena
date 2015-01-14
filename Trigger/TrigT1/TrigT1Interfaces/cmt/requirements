@@ -8,13 +8,14 @@ use AtlasXercesC   AtlasXercesC-*    External
 use CLIDSvc        CLIDSvc-*         Control
 use DataModel      DataModel-*       Control
 
+use L1CommonCore   L1CommonCore-*    Trigger/TrigT1
+
 library TrigT1Interfaces *.cxx
 apply_pattern installed_library
 
 private 
 use AtlasReflex      AtlasReflex-*       External -no_auto_imports
 use TrigConfL1Data TrigConfL1Data-*  Trigger/TrigConfiguration
-use CTPfragment    v*
 
 
 apply_pattern lcgdict dict=TrigT1Interfaces selectionfile=selection.xml \

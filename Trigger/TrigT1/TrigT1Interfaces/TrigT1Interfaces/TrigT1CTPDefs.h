@@ -22,7 +22,7 @@ namespace LVL1CTP {
    *
    *  @author Wolfgang Ehrenfeld (wolfgang.ehrenfeld@desy.de)
    *
-   * @version \$Id: TrigT1CTPDefs.h 187728 2009-05-27 16:18:06Z krasznaa $
+   * @version \$Id: TrigT1CTPDefs.h 621285 2014-10-11 14:51:48Z stelzer $
    *
    */
 
@@ -73,7 +73,7 @@ namespace LVL1CTP {
   }
 
   //! helper function to dump raw CTP content
-  const std::string convertRawCTPData(const std::vector<uint32_t>& data, const bool longFormat = false);
+  const std::string convertRawCTPData(const std::vector<uint32_t>& data, const bool longFormat = false, int ctpVersionNumber = 4);
 
 } // namespace LVL1CTP
 

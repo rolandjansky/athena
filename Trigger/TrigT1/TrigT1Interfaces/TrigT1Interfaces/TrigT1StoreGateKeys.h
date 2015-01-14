@@ -8,8 +8,8 @@
 /**
  * @short Namespace of the LVL1 MuCTPI simulation
  *
- * $Revision: 450383 $
- * $Date: 2011-07-25 15:49:48 +0200 (Mon, 25 Jul 2011) $
+ * $Revision: 621285 $
+ * $Date: 2014-10-11 16:51:48 +0200 (Sat, 11 Oct 2014) $
  */
 namespace LVL1MUCTPI {
 
@@ -38,6 +38,10 @@ namespace LVL1 {
     static const std::string DEFAULT_BptxCTPLocation = "/Run/L1BPTXtoCTPLocation";
   //! default StoreGate location for NIM to CTP input
   static const std::string DEFAULT_NimCTPLocation = "/Run/L1NIMtoCTPLocation";
+  //! XXX default StoreGate location for Front Panel CTP inputs
+  //static const std::string DEFAULT_FrontPanelCTPLocation = "/Run/FrontPanelCTPLocation";
+  //! default StoreGate location for Front Panel CTP inputs
+  static const std::string DEFAULT_L1TopoCTPLocation = "/Run/L1TopoToCTPLocation";
 
 } // namespace LVL1
 
@@ -57,8 +61,8 @@ namespace LVL1CTP {
 /**
  * @short Namespace of the LVL1 RoIB simulation
  *
- * $Revision: 450383 $
- * $Date: 2011-07-25 15:49:48 +0200 (Mon, 25 Jul 2011) $
+ * $Revision: 621285 $
+ * $Date: 2014-10-11 16:51:48 +0200 (Sat, 11 Oct 2014) $
  */
 namespace ROIB {
 

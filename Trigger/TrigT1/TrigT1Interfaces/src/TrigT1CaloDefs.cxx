@@ -34,6 +34,7 @@ const std::string TrigT1CaloDefs::CaloCellContainerLocation="AllCalo";
 const std::string TrigT1CaloDefs::AtlfastCellContainerLocation="/Event/AtlfastCells";
 
 const std::string TrigT1CaloDefs::TriggerTowerLocation="TriggerTowers";
+const std::string TrigT1CaloDefs::xAODTriggerTowerLocation="xAODTriggerTowers";
 const std::string TrigT1CaloDefs::JetElementLocation="JetElements";
 const std::string TrigT1CaloDefs::CPMTowerLocation="CPMTowers";
 
@@ -79,6 +80,7 @@ const std::string TrigT1CaloDefs::energySlinkLocation="CaloTriggerDataLocation/J
 
 const std::string TrigT1CaloDefs::EmTauTopoTobLocation="EmTauTopoTOBs";
 const std::string TrigT1CaloDefs::JetTopoTobLocation="JetTopoTOBs";
+const std::string TrigT1CaloDefs::EnergyTopoDataLocation="EnergyTopoData";
 
 const std::string TrigT1CaloDefs::CTPCaloConfigLocation="/Run/CaloTrigConfig";
 const std::string TrigT1CaloDefs::CTPJetEnergyConfigLocation="/Run/JetEnergyTrigConfig";

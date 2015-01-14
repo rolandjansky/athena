@@ -1,4 +1,4 @@
-// $Id: RecJetRoI.cxx 613813 2014-08-28 13:05:22Z watsona $
+// $Id: RecJetRoI.cxx 639615 2015-01-15 00:45:58Z watsona $
 /***************************************************************************
                          RecJetRoI.cxx  -  description
                             -------------------
@@ -88,8 +88,10 @@ namespace LVL1 {
         ( this->isForwardJet() ? m_decoder->fwdThresholdsPassed( m_roiWord ) :
                                  m_decoder->thresholdsPassed( m_roiWord ) );
 
-      int ieta = int( (m_coordRange.etaRange().min()+0.025) / 0.1 ) + ( ( m_coordRange.etaRange().min()+0.025 > 0 ) ? 1 : -1 );
       int iphi = int( (m_coordRange.phiRange().min()+0.025) * 32 / M_PI );
+      int ieta = int( (this->eta() + ((this->eta() > 0.01) ? 0.025 : -0.025)) / 0.1 ) - 1;
+      // Adjustment due to irregular geometries
+      if (ieta > 24) ieta += 2;
 
       for( vector< unsigned int >::const_iterator itp = passed_thresholds.begin();
            itp != passed_thresholds.end(); ++itp ) {
@@ -116,9 +118,10 @@ namespace LVL1 {
       m_triggerThresholdValue.clear();
       m_windowSize.clear();
 
-      int ieta = int( (m_coordRange.etaRange().min()+0.025) / 0.1 ) + ( ( m_coordRange.etaRange().min()+0.025 > 0 ) ? 1 : -1 );
+      int ieta = int( (this->eta() + ((this->eta() > 0.01) ? 0.025 : -0.025)) / 0.1 ) - 1; 
+      // Adjustment due to irregular geometries
+      if (ieta > 24) ieta += 2;
       int iphi = int( (m_coordRange.phiRange().min()+0.025) * 32 / M_PI );
-
       //
       // Iterate through vector of thresholds and see which ones this RoI satisfies
       //
