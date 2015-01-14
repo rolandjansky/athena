@@ -6,7 +6,7 @@
 #define LArNoiseBursts_H
 
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ObjectVector.h"
 #include "GaudiKernel/AlgTool.h"
 
@@ -28,9 +28,10 @@
 #include "LArTools/LArHVCablingTool.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArElectrodeID.h"
-//#include "CaloDetDescr/CaloDetDescrManager.h"
-#include "LArCondUtils/LArHVToolDB.h"
-#include "LArElecCalib/ILArHVTool.h"
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "CaloIdentifier/CaloIdManager.h"
+//#include "LArCondUtils/LArHVToolDB.h"
+//#include "LArElecCalib/ILArHVTool.h"
 
 // Trigger
 #include "TrigDecisionTool/TrigDecisionTool.h"
@@ -55,8 +56,8 @@ class LArCablingService;
 class LArEM_ID;
 class LArHEC_ID;
 class LArFCAL_ID;
-class CaloIdManager;
-class CaloDetDescrManager;
+//class CaloIdManager;
+//class CaloDetDescrManager;
 
 class TileTBID;
 class TgcIdHelper;
@@ -65,7 +66,7 @@ class TTree;
 
 class LArHVLineID;
 
-class LArNoiseBursts : public Algorithm  {
+class LArNoiseBursts : public AthAlgorithm  {
 
  public:
 
@@ -83,7 +84,6 @@ class LArNoiseBursts : public Algorithm  {
    /** methods called by execute() */
    StatusCode doTrigger();
    StatusCode doEventProperties();
-   StatusCode doMBTSTimming();    
    StatusCode doLArNoiseBursts();  
    StatusCode doPhysicsObjects();
 
@@ -94,9 +94,7 @@ class LArNoiseBursts : public Algorithm  {
 
  private:
 
-   StoreGateSvc* m_detectorStore;
    ITHistSvc * m_thistSvc;
-   StoreGateSvc* m_storeGate;
     
    TTree* m_tree;
 
@@ -123,7 +121,6 @@ class LArNoiseBursts : public Algorithm  {
 
    /*event cuts */
    double m_sigmacut;
-   double m_MBTSThreshold;  
    bool m_CosmicCaloStream;
    int m_frontbunches;
    bool m_keepOnlyCellID;
@@ -160,22 +157,22 @@ class LArNoiseBursts : public Algorithm  {
    short  m_nt_larnoisyro_satTwo;
 
    //event info veto variables
-   short  m_nt_veto_mbts;
-   //short  m_nt_veto_indet;
-   short  m_nt_veto_bcm;
-   short  m_nt_veto_lucid;
-   short  m_nt_veto_pixel;
-   short  m_nt_veto_sct;
-   short  m_nt_veto_mbtstdHalo;
-   short  m_nt_veto_mbtstdCol;
-   short  m_nt_veto_lartdHalo;
-   short  m_nt_veto_lartdCol;
-   short  m_nt_veto_csctdHalo;
-   short  m_nt_veto_csctdCol;
-   short  m_nt_veto_bcmtHalo;
-   short  m_nt_veto_bcmtCol;
-   short  m_nt_veto_muontCol;
-   short  m_nt_veto_muontCosmic;
+//   short  m_nt_veto_mbts;
+//   //short  m_nt_veto_indet;
+//   short  m_nt_veto_bcm;
+//   short  m_nt_veto_lucid;
+//   short  m_nt_veto_pixel;
+//   short  m_nt_veto_sct;
+//   short  m_nt_veto_mbtstdHalo;
+//   short  m_nt_veto_mbtstdCol;
+//   short  m_nt_veto_lartdHalo;
+//   short  m_nt_veto_lartdCol;
+//   short  m_nt_veto_csctdHalo;
+//   short  m_nt_veto_csctdCol;
+//   short  m_nt_veto_bcmtHalo;
+//   short  m_nt_veto_bcmtCol;
+//   short  m_nt_veto_muontCol;
+//   short  m_nt_veto_muontCosmic;
 
    // LAr event bit info
    bool m_nt_larflag_badFEBs;
@@ -231,11 +228,6 @@ class LArNoiseBursts : public Algorithm  {
    int  m_nt_nCellA;
    int  m_nt_nCellC;
 
-   //MBTS Time variables   
-   float  m_nt_mbtstimediff; 
-   int    m_nt_nmbtscellA;
-   int    m_nt_nmbtscellC;
-   float  m_nt_mbtstimeavrg;
 
    //Quantites for noisy cells
    std::vector<float> m_nt_energycell;

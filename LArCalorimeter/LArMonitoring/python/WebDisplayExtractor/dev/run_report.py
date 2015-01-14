@@ -70,7 +70,7 @@ class queryatlasready(Thread):
     import subprocess as sp
     cmd="export AtlasSetup=/afs/cern.ch/atlas/software/dist/AtlasSetup;"
     cmd+="source $AtlasSetup/scripts/asetup.sh %s,32,here;"%(athena_version)
-    cmd+="python /afs/cern.ch/user/l/larmon/public/LArCalorimeter/LArMonitoring/python/WebDisplayExtractor/GetATLASReadyLBs.py %s"%(self.run_spec['low_run'])
+    cmd+="python /afs/cern.ch/user/l/larmon/public/LArCalorimeter/LArMonitoring/python/WebDisplayExtractor/aux/GetATLASReadyLBs.py %s"%(self.run_spec['low_run'])
     P = sp.Popen(cmd,shell=True,stdout=sp.PIPE,stderr=sp.PIPE)
     tmp =  str(P.communicate()[0]).split('\n')[:-1]
     self.List=eval(tmp[-1])
@@ -94,7 +94,7 @@ class queryeventsperlb(Thread):
     cmd="export AtlasSetup=/afs/cern.ch/atlas/software/dist/AtlasSetup;"
     #cmd+="source $AtlasSetup/scripts/asetup.sh 16.6.5,32,here,builds;"
     cmd+="source $AtlasSetup/scripts/asetup.sh %s,32,here;"%(athena_version)
-    cmd+="python /afs/cern.ch/user/l/larmon/public/LArCalorimeter/LArMonitoring/python/WebDisplayExtractor/GetNEventsLB.py --run %s --stream %s;"%(self.run_spec['low_run'],stream)
+    cmd+="python /afs/cern.ch/user/l/larmon/public/LArCalorimeter/LArMonitoring/python/WebDisplayExtractor/aux/GetNEventsLB.py --run %s --stream %s;"%(self.run_spec['low_run'],stream)
 
     P = sp.Popen(cmd,shell=True,stdout=sp.PIPE,stderr=sp.PIPE)
     tmp = eval(P.communicate()[0])

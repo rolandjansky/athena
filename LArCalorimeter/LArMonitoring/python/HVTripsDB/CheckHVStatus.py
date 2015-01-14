@@ -21,7 +21,11 @@ def PrintHVInfo(hvline,tmstmp,folderName):
     outputList["time"] = []
     #from time import asctime,localtime
     dbSvc = cool.DatabaseSvcFactory.databaseService()
-    db=dbSvc.openDatabase("oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_DCS;dbname=COMP200")
+    year = args[1][:4]
+    if int(year) < 2014:
+        db=dbSvc.openDatabase("oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_DCS;dbname=COMP200")
+    else:
+        db=dbSvc.openDatabase("oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_DCS;dbname=CONDBR2")
     folder=db.getFolder(folderName)
     range=3*60*60*1e9 # 1 day in ns
     t1=long(tmstmp-range)

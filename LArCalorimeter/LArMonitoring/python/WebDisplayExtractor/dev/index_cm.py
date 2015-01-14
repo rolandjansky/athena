@@ -114,7 +114,7 @@ print '''
 </head>
 <body>
 <div class="wrapper"><br />
-<a href="https://atlasop.cern.ch/atlas-point1/twiki/bin/view/Main/LArWebDisplayExtractor" style="color:#000000;font-size:20pt;font-weight:bold" title="click to access the twiki">LAr WebDisplay Extractor <font color=red>Version 3.12</font>  </a>'''
+<a href="https://atlasop.cern.ch/atlas-point1/twiki/bin/view/Main/LArWebDisplayExtractor" style="color:#000000;font-size:20pt;font-weight:bold" title="click to access the twiki">LAr WebDisplay Extractor <font color=red>Dev Version</font>  </a>'''
 #print '<font style="color:#FF0000">WARNING: Stuff might break unexpectedly... Development and tests in progress</font><br>'
 #<img src="twiki.gif" style="width:50px" alt="twiki"/></a><br />
 

@@ -10,10 +10,11 @@ function putHelper() {
            + "<li>Set ranges using , (e.g. for CH: 15,19 means 15<=CH<=19)</li>"
            + "<li>Alternatively, fill by hand the top input bar with a sql selection (use =,and,or,like,between,in) and press Enter</li>"
            + "<li>Double-click on a channel to get the standard format of it printed at the bottom:<br />"+FMT+"</li>"
-           + "<li>DB file generated with tags ATLAS-GEO-16-00-00, COMCOND-ES1PST-004-01 (UPD1) and COMCOND-BLKPST-004-01 (UPD4) for run 0x7fffffff, i.e. IOV to infinity</li>"
+           + "<li>DB file generated with tags ATLAS-GEO-20-00-00, COMCOND-ES1PA-006-05 (UPD1) and COMCOND-BLKPA-RUN1-05 (UPD4) for run 0x7fffffff, i.e. IOV to infinity</li>"
            + "<li>Double-click on the title <LArID translator browser> at the top to perform an extraction of webdisplay info</li>"
            + "<li>Code available on svn <a href='https://svnweb.cern.ch/trac/atlasusr/browser/mplamond/projects/LArIdtranslator/trunk'>here</a></li>"
-           + "<li>Contact <a href='http://cern.ch/mplamond'>Mathieu.Plamondon@cern.ch</a> for bugs and suggestions</li>"
+           + "<li>Contact <a href='http://cern.ch/pavol'>Pavol.Strizenec@cern.ch</a> for bugs and suggestions</li>"
+           + "<li>Based on original implementation by Mathieu Plamondon</li>"
            + "</ul>";
     document.getElementById("help").innerHTML = help;
     //document.getElementById("help").innerHTML += '<img width="300" src="/afs/cern.ch/user/l/larmon/public/ATLAS_schema.png">';

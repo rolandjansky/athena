@@ -4,7 +4,7 @@
 import sqlite3
 import datetime
 
-conn = sqlite3.connect('/afs/cern.ch/user/l/larmon/public/HVTripsDB/trips.db')
+conn = sqlite3.connect('/afs/cern.ch/user/l/larmon/public/LArCalorimeter/LArMonitoring/python/HVTripsDB/trips.db')
 #conn = sqlite3.connect('trips.db')
 
 c = conn.cursor()

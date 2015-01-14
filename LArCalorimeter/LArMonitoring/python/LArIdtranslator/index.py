@@ -1,10 +1,10 @@
-#!/usr/bin/env python2.5
+#!/usr/bin/env python
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 print 'Content-type: text/html;charset=utf-8\n'
 
 ########################################################################
-cols = ['OFF_ID','ONL_ID','TT_COOL_ID','DET','AC','FT','SL','CH','SAM','ETA','PHI','HVLINES','HVCORR','CL','IETA','IPHI','R','Z','FTNAME','P1_ID','FEB','DSP','PU','ROL','ROS_ROL','ROD','FEB_ID']
+cols = ['OFF_ID','ONL_ID','TT_COOL_ID','SC_OFFL_ID','SC_ONL_ID','DET','AC','FT','SL','CH','SAM','ETA','PHI','HVLINES','HVCORR','CL','IETA','IPHI','R','Z','FTNAME','P1_ID','FEB','DSP','PU','ROL','ROS_ROL','ROD','FEB_ID']
 DETlist = ['EMB','EMEC','HEC','FCAL']
 ACmap = {1:'A+','1':'A+','A+':'A+',-1:'C-','-1':'C-','C-':'C-'}
 BadChannels = ['deadReadout','deadCalib','deadPhys','almostDead','short','unstable','distorted','lowNoiseHG','highNoiseHG','unstableNoiseHG','lowNoiseMG','highNoiseMG','unstableNoiseMG','lowNoiseLG','highNoiseLG','unstableNoiseLG','missingFEB','peculiarCL','problematicFor?','sporadicBurstNoise']
@@ -18,7 +18,7 @@ def PrintFields():
 
 ########################################################################
 def PrintTopRow():
-  colsWidths = {'OFF_ID':12,'ONL_ID':12,'TT_COOL_ID':12,'DET':1,'AC':1,'FT':1,'SL':1,'CH':1,'SAM':1,'ETA':4,'PHI':4,'HVLINES':10,'HVCORR':5,'CL':4,'IETA':3,'IPHI':3,'R':5,'Z':5,'FTNAME':5,'P1_ID':5,'FEB':16,'DSP':18,'PU':14,'ROL':23,'ROS_ROL':22,'ROD':12,'FEB_ID':9}
+  colsWidths = {'OFF_ID':12,'ONL_ID':12,'TT_COOL_ID':12,'SC_OFFL_ID':12,'SC_ONL_ID':12,'DET':1,'AC':1,'FT':1,'SL':1,'CH':1,'SAM':1,'ETA':4,'PHI':4,'HVLINES':10,'HVCORR':5,'CL':4,'IETA':3,'IPHI':3,'R':5,'Z':5,'FTNAME':5,'P1_ID':5,'FEB':16,'DSP':18,'PU':14,'ROL':23,'ROS_ROL':22,'ROD':12,'FEB_ID':9}
   out = '<tr>\n'
 
   for i in cols[:expert]:
@@ -105,42 +105,42 @@ def PrintRows(Cmds):
         if len(theBad)>0: cmd += status_cmd+','.join(theBad)+')'
 
   # connect to LArId and get the channels
-  conn = sqlite3.connect('/afs/cern.ch/user/l/larmon/public/LArCalorimeter/LArMonitoring/python/LArIdtranslator/LArId.db')
+  conn = sqlite3.connect('LArId.db')
   #conn = sqlite3.connect('/afs/cern.ch/user/l/larmon/public/LArIdtranslator/LArId_new.db')
   cursor = conn.cursor()
   cursor.execute(cmd+' limit 1000')
   r = cursor.fetchall()
   if len(r)==1000: print '<tr><td colspan="%d">**** more than 1000 results for this query ****</td></tr>\n' % (expert+2)
   global SortedChannels
-  SortedChannels = sorted(r,key=operator.itemgetter(3,5,6,7))
+  SortedChannels = sorted(r,key=operator.itemgetter(5,7,8,9))
 
   nRows = 0
-  scan = [1,2,3,4,5,6,7,8,11,13]  
+  scan = [1,2,3,4,5,6,7,8,9,10,13,15]  
   T = []
   for j in scan: T.append(set())
 
   for i in SortedChannels:
     bec = 0
-    if i[3]>0: bec = 1
+    if i[5]>0: bec = 1
     side = 0  
-    if i[4]>0: side = 1
-    fmt = "'%d %d %2d %2d %3d 0 %s # %s'" % (bec,side,i[5],i[6],i[7],'ProposedFlag',str(hex(i[1])))
+    if i[6]>0: side = 1
+    fmt = "'%d %d %2d %2d %3d 0 %s # %s'" % (bec,side,i[7],i[8],i[9],'ProposedFlag',str(hex(i[1])))
     out = '<tr class="out'+str(nRows%2)+'" ondblclick="PrintFormat('+fmt+')" onclick="ChangeColor(this)" >\n'
-    out += '<td>'+str(hex(i[0]))+'</td><td>'+str(hex(i[1]))+'</td><td>'+str(hex(i[2]))+'</td>\n'
-    out += '<td align="right">'+DETlist[i[3]]+'</td><td align="left">'+ACmap[i[4]]+'</td>\n'
-    for j in i[5:9]: out += '<td>'+str(j)+'</td>\n'
-    for j in i[9:11]: out += '<td>%.4f</td>\n' % (j)
-    for j,J in enumerate(scan[:8]): T[j].add(i[J])
-    if expert>11:
-      out += '<td>%s</td>\n' % (i[11])
-      out += '<td>%.4f</td>\n' % (i[12])
+    out += '<td>'+str(hex(i[0]))+'</td><td>'+str(hex(i[1]))+'</td><td>'+str(hex(i[2]))+'</td><td>'+str(hex(i[3]))+'</td><td>'+str(hex(i[4]))+'</td>\n'
+    out += '<td align="right">'+DETlist[i[5]]+'</td><td align="left">'+ACmap[i[6]]+'</td>\n'
+    for j in i[7:11]: out += '<td>'+str(j)+'</td>\n'
+    for j in i[11:13]: out += '<td>%.4f</td>\n' % (j)
+    for j,J in enumerate(scan[:10]): T[j].add(i[J])
+    if expert>13:
       out += '<td>%s</td>\n' % (i[13])
-      for j in i[14:16]: out += '<td>%d</td>\n' % (j)
-      for j in i[16:18]: out += '<td>%.2f</td>\n' % (j)
-      for j in range(8): out += '<td>%s</td>\n' % (i[j+18])
-      out += '<td>'+str(hex(i[26])).rstrip('L')+'</td>\n'
-      for k in i[11].split(): T[8].add(k)
-      for k in i[13].split(): T[9].add(k)
+      out += '<td>%.4f</td>\n' % (i[14])
+      out += '<td>%s</td>\n' % (i[15])
+      for j in i[16:18]: out += '<td>%d</td>\n' % (j)
+      for j in i[18:20]: out += '<td>%.2f</td>\n' % (j)
+      for j in range(8): out += '<td>%s</td>\n' % (i[j+20])
+      out += '<td>'+str(hex(i[28])).rstrip('L')+'</td>\n'
+      for k in i[13].split(): T[8].add(k)
+      for k in i[15].split(): T[9].add(k)
     for k in range(2):
       status = ''
       if B[2*k].has_key(i[1]): 
@@ -289,7 +289,7 @@ def ProcessQuery():
 import os,time,cgi
 #import cgitb; cgitb.enable()
 
-dbfile = '/afs/cern.ch/user/l/larmon/public/LArCalorimeter/LArMonitoring/python/LArIdtranslator/LArBad.db'
+dbfile = 'LArBad.db'
 f0 = os.stat(dbfile)
 f1 = os.stat('index.py')
 from datetime import datetime
@@ -301,14 +301,14 @@ print '''
 <head>
 <title>LArIdtranslator</title>
 <meta name="author" content="Mathieu Plamondon [Mathieu.Plamondon@cern.ch]"/>
-<link rel="icon" type="image/vnd.microsoft.icon" href="favicon.ico" />
+<meta name="author" content="Pavol Strizenec [Pavol.Strizenec@cern.ch]"/>
 <link rel="Stylesheet" href="styles.css" type="text/css" />
 <script type="text/javascript" src="scripts.js"></script>
 <base target="_self">
 </head>
 <body>
 <div class="wrapper"><br />
-<a href="https://atlas-larmon.cern.ch/LArIdtranslator" style="color:#000000;font-size:20pt;font-weight:bold" target="_self">LArID translator browser</a>'''
+<a href="https://atlas-larmon-dev.cern.ch/dev/LArIdtranslator" style="color:#000000;font-size:20pt;font-weight:bold" target="_self">LArID translator browser</a>'''
 #<br><font style="color:#FF0000">Is using a new db file (new ROS_ROL mapping, new FCAL2 hv mapping, hospital hv lines): please report any problem</font><br>
 #td = (datetime.today()-datetime.fromtimestamp(f0.st_ctime))
 #if (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6 > 12*3600:
@@ -326,28 +326,28 @@ global opts
 query = {}
 opts = {'run':999999}
 c = cgi.FieldStorage()
-expert = 11
+expert = 13
 for i in c.keys():
   a = c.getvalue(i)
   if type(a)==type([]): a = a[0]
   if i in ['deta','dphi','run']: opts[i] = float(a)
-  elif i=='expert': expert=28
-  elif i=='expert1': expert=28
+  elif i=='expert': expert=29
+  elif i=='expert1': expert=29
   elif i=='sql_query': query[i] = a
   else: query[i.upper()] = a
-the_url='https://atlas-larmon.cern.ch/LArIdtranslator/index.py'
+the_url='https://atlas-larmon-dev.web.cern.ch/dev/LArIdtranslator/index.py'
 
-if expert>11: print '<input type="hidden" name="expert1" value="1" />'
+if expert>13: print '<input type="hidden" name="expert1" value="1" />'
 if len(query)>0:
   the_url += '?'
   for k in query.keys(): the_url += k+'='+query[k]+'&'
-  if expert>11: the_url += 'expert=1&'
+  if expert>13: the_url += 'expert=1&'
   the_url += 'run=%d'%(opts['run'])
   the_url = the_url.rstrip('&').replace(' ','%20')
-  if query.has_key('expert'): expert=27
+  if query.has_key('expert'): expert=29
 
   if c.has_key('info'):
-    the_url = 'https://atlas-larmon.cern.ch/WebDisplayExtractor/LArWebDisplayExtractor?'
+    the_url = '../WebDisplayExtractor/LArWebDisplayExtractor?'
     for k in query.keys(): the_url += k+'='+query[k]+'&'
     the_url = the_url.rstrip('&').replace(' ','%20')
     info = int(c.getvalue('info'))
@@ -372,7 +372,7 @@ else:
 
 out = 'run:<input type="text" size="6" name="run" value="%d"/>' % (opts['run'])
 out += '&nbsp;expert:<input type="checkbox" name="expert" '
-if expert>11: out += 'checked="checked"'
+if expert>13: out += 'checked="checked"'
 out += ' />&nbsp;'
 out += '<input type="submit" value="Submit"/>\n'
 out += '<input type="reset" value="Reset" onclick="ResetForm(1)" />\n'
@@ -390,14 +390,14 @@ print '''
 <div id="help">'''
 if len(query)>0:
   from operator import itemgetter
-  print 'eta-phi range: [%.4f,%.4f] x [%.4f,%.4f]<br />' %(min(SortedChannels,key=itemgetter(9))[9],max(SortedChannels,key=itemgetter(9))[9],min(SortedChannels,key=itemgetter(10))[10],max(SortedChannels,key=itemgetter(10))[10])
+  print 'eta-phi range: [%.4f,%.4f] x [%.4f,%.4f]<br />' %(min(SortedChannels,key=itemgetter(11))[11],max(SortedChannels,key=itemgetter(11))[11],min(SortedChannels,key=itemgetter(12))[12],max(SortedChannels,key=itemgetter(12))[12])
   #print '&#951;-&#966; range: [%.4f,%.4f] x [%.4f,%.4f]<br />' %(min(SortedChannels,key=itemgetter(9))[9],max(SortedChannels,key=itemgetter(9))[9],min(SortedChannels,key=itemgetter(10))[10],max(SortedChannels,key=itemgetter(10))[10])
   print '<a href="%s" target="_blank">Link to this query</a><br />'%(the_url)
 
 
 tag_upd1 = ""
 tag_upd4 = ""
-ftag = open("/afs/cern.ch/user/l/larmon/public/LArCalorimeter/LArMonitoring/python/LArIdtranslator/usedTags.txt")
+ftag = open("usedTags.txt")
 for line in ftag:
 #    print line
     if 'LArBad.db UPD1' in line : tag_upd1 = line.split(" = ")[1]
@@ -408,7 +408,7 @@ print '''
 <div class="push"></div>
 </div>
 <div class="footer">
-Developer: <a href="mailto:???">???</a><br />
+Developer: <a href="mailto:pavol@mail.cern.ch">pavol</a><br />
 Last updates:&nbsp &nbsp
 LArBad.db file (%s)
 &nbsp &nbsp &nbsp &nbsp Tags : UPD1=%s,  UPD4=%s

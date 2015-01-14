@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.5
+#!/usr/bin/env python
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
@@ -260,7 +260,7 @@ for i in range(len(r)):
             if r[i][10]=='Y':
                 picPath = picsDirName+'/trip_%s.png' % (j)
                 if os.path.isfile(picPath):
-                    print '<td><a href="https://atlas-larmon.cern.ch/HVTripsDB/%s" target="_blank">%s</a></td>' % (picPath,j)
+                    print '<td><a href="%s" target="_blank">%s</a></td>' % (picPath,j)
                 else:
                     print'<td>%s</td>' % (j)
             else:

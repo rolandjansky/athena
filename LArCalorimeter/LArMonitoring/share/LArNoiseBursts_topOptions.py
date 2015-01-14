@@ -17,11 +17,7 @@ AthenaEventLoopMgr.OutputLevel = WARNING
 from PyJobTransformsCore.runargs import RunArguments
 runArgs = RunArguments()
 runArgs.inputESDFile = [
-"rfio:/castor/cern.ch/grid/atlas/tzero/prod1/perm/data11_7TeV/physics_CosmicCalo/00177929/data11_7TeV.00177929.physics_CosmicCalo.recon.ESD.x100/data11_7TeV.00177929.physics_CosmicCalo.recon.ESD.x100._lb0098._SFO-ALL._0001.1"
-#"rfio:/castor/cern.ch/grid/atlas/tzero/prod1/perm/data11_7TeV/physics_CosmicCalo/00177964/data11_7TeV.00177964.physics_CosmicCalo.recon.ESD.x100/data11_7TeV.00177964.physics_CosmicCalo.recon.ESD.x100._lb0003._SFO-ALL._0001.1"
-#"rfio:/castor/cern.ch/grid/atlas/tzero/prod1/perm/data11_7TeV/physics_CosmicCalo/00178109/data11_7TeV.00178109.physics_CosmicCalo.recon.ESD.x103/data11_7TeV.00178109.physics_CosmicCalo.recon.ESD.x103._lb0864._SFO-ALL._0001.1"
-#"rfio:/castor/cern.ch/grid/atlas/tzero/prod1/perm/data10_7TeV/physics_CosmicCalo/0168143/data10_7TeV.00168143.physics_CosmicCalo.recon.ESD.f301/data10_7TeV.00168143.physics_CosmicCalo.recon.ESD.f301._lb0098._SFO-ALL._0001.1"
-#"rfio:/castor/cern.ch/grid/atlas/tzero/prod1/perm/data10_7TeV/physics_CosmicCalo/0167627/data10_7TeV.00167627.physics_CosmicCalo.recon.ESD.x49/data10_7TeV.00167627.physics_CosmicCalo.recon.ESD.x49._lb0002._SFO-ALL._0001.1"
+"rfio:/castor/cern.ch/grid/atlas/tzero/prod1/perm/data14_cos/physics_CosmicCalo/00247390/data14_cos.00247390.physics_CosmicCalo.recon.ESD.x289/data14_cos.00247390.physics_CosmicCalo.recon.ESD.x289._lb0084._SFO-ALL._0001.1"
 ]
 
 athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputESDFile )
@@ -45,9 +41,13 @@ rec.doDPD.set_Value_and_Lock(False)
 
 include ("RecExCommon/RecExCommon_topOptions.py")
 
-from LArCellRec.LArNoisyROSummaryGetter import LArNoisyROSummaryGetter
-LArNoisyROSummaryGetter.ignoreExistingDataObject = lambda x: True
-LArNoisyROSummaryGetter()
+# 11/2014 : 3 lines below commented by B.Trocme to avoid crash with 19.1.3.7 
+# ("duplicated object"). Not sure if LArNoisyRO_Std/SatTight are properly 
+# computed in a different place. 
+#from LArCellRec.LArNoisyROSummaryGetter import LArNoisyROSummaryGetter
+#LArNoisyROSummaryGetter.ignoreExistingDataObject = lambda x: True
+#LArNoisyROSummaryGetter()
+# End of B.Trocme 11/2014 modification
 #topSequence.LArNoisyROAlg.BadFEBCut = 2000
 #topSequence.LArNoisyROAlg.SaturatedCellQualityCut = 111165535
 
@@ -82,12 +82,6 @@ from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
 theBCTool = BunchCrossingTool()
 ToolSvc += theBCTool
 
-# --- SCTClusteringTool configuration ---
-from SiClusterizationTool.SiClusterizationToolConf import InDet__SCT_ClusteringTool
-InDetSCT_ClusteringTool = InDet__SCT_ClusteringTool()
-ToolSvc += InDetSCT_ClusteringTool
-
-
 include ( "ParticleBuilderOptions/ESD_PoolCnv_jobOptions.py" )
 include ( "ParticleBuilderOptions/AOD_PoolCnv_jobOptions.py" )
 include ( "ParticleBuilderOptions/McAOD_PoolCnv_jobOptions.py" )
@@ -118,35 +112,28 @@ topSequence.LArCollisionTimeAlg.OutputLevel = INFO
 if not 'IS_SIMULATION' in inputFileSummary['evt_type']:
    
    from IOVDbSvc.CondDB import conddb
-   
-   if not conddb.folderRequested('/TDAQ/RunCtrl/DataTakingMode'):
-      conddb.addFolder('TDAQ', '/TDAQ/RunCtrl/DataTakingMode')
-   if not conddb.folderRequested('/TDAQ/OLC/LHC/FILLPARAMS'):
-      conddb.addFolder('TDAQ', '/TDAQ/OLC/LHC/FILLPARAMS')
-   if not conddb.folderRequested('/LHC/DCS/FILLSTATE'):
-      conddb.addFolder('DCS_OFL', '/LHC/DCS/FILLSTATE')
 
-
-from SiSpacePointTool.SiSpacePointToolConf import InDet__SiSpacePointMakerTool
-InDetSiSpacePointMakerTool = InDet__SiSpacePointMakerTool(name = "InDetSiSpacePointMakerTool")
-ToolSvc+=InDetSiSpacePointMakerTool
-
-from SiSpacePointFormation.SiSpacePointFormationConf import InDet__SiTrackerSpacePointFinder
-InDetSiTrackerSpacePointFinder = InDet__SiTrackerSpacePointFinder(name = "InDetSiTrackerSpacePointFinder")
-topSequence += InDetSiTrackerSpacePointFinder
+# 11/2014 : 6 lines below commented by B.Trocme to avoid crash when 
+# running on cosmic (w/o LHC beam). One should implement a more clever
+# way to test if LHC parameters are available of not.
+#   if not conddb.folderRequested('/TDAQ/RunCtrl/DataTakingMode'):
+#      conddb.addFolder('TDAQ', '/TDAQ/RunCtrl/DataTakingMode')
+#   if not conddb.folderRequested('/TDAQ/OLC/LHC/FILLPARAMS'):
+#      conddb.addFolder('TDAQ', '/TDAQ/OLC/LHC/FILLPARAMS')
+#   if not conddb.folderRequested('/LHC/DCS/FILLSTATE'):
+#      conddb.addFolder('DCS_OFL', '/LHC/DCS/FILLSTATE')
+# End of B.Trocme 11/2014 modification
 
 
 from LArMonitoring.LArMonitoringConf import LArNoiseBursts
 topSequence += LArNoiseBursts( "LArNoiseBursts" )
 topSequence.LArNoiseBursts.ICaloNoiseTool = theCaloNoiseTool
 topSequence.LArNoiseBursts.BCTool = theBCTool
-topSequence.LArNoiseBursts.SCTClusteringTool = InDetSCT_ClusteringTool
 topSequence.LArNoiseBursts.SigmaCut = 3.0
-topSequence.LArNoiseBursts.MBTSCellChargeThreshold = 44./222.
 topSequence.LArNoiseBursts.NumberOfBunchesInFront = 30
-topSequence.LArNoiseBursts.OutputLevel = DEBUG
+topSequence.LArNoiseBursts.OutputLevel = INFO
 
 from GaudiSvc.GaudiSvcConf import THistSvc
 svcMgr += THistSvc()
-svcMgr.THistSvc.Output = ["TTREE DATAFILE='LArNoiseBursts_ESD.root' OPT='RECREATE'"]
+svcMgr.THistSvc.Output = ["TTREE DATAFILE='LArNoiseBursts_TTree.root' OPT='RECREATE'"]
 

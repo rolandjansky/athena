@@ -119,10 +119,8 @@ using xAOD::EventInfo;
 
 LArNoiseBursts::LArNoiseBursts(const std::string& name,
 			 ISvcLocator* pSvcLocator) 
-  : Algorithm(name, pSvcLocator),
-    m_detectorStore(0),
+  : AthAlgorithm(name, pSvcLocator),
     m_thistSvc(0),
-    m_storeGate(0),
     m_tree(0),
     m_LArCablingService("LArCablingService"),
     m_LArHVCablingTool("LArHVCablingTool"),
@@ -167,30 +165,26 @@ LArNoiseBursts::LArNoiseBursts(const std::string& name,
     m_nt_larnoisyro(0),
     m_nt_larnoisyro_satOne(0),
     m_nt_larnoisyro_satTwo(0),
-    m_nt_veto_mbts(0),
-    //m_nt_veto_indet(0),
-    m_nt_veto_bcm(0),
-    m_nt_veto_lucid(0),
-    m_nt_veto_pixel(0),
-    m_nt_veto_sct(0),
-    m_nt_veto_mbtstdHalo(0),
-    m_nt_veto_mbtstdCol(0),
-    m_nt_veto_lartdHalo(0),
-    m_nt_veto_lartdCol(0),
-    m_nt_veto_csctdHalo(0),
-    m_nt_veto_csctdCol(0),
-    m_nt_veto_bcmtHalo(0),
-    m_nt_veto_bcmtCol(0),
-    m_nt_veto_muontCol(0),
-    m_nt_veto_muontCosmic(0),
+//    m_nt_veto_mbts(0),
+//    //m_nt_veto_indet(0),
+//    m_nt_veto_bcm(0),
+//    m_nt_veto_lucid(0),
+//    m_nt_veto_pixel(0),
+//    m_nt_veto_sct(0),
+//    m_nt_veto_mbtstdHalo(0),
+//    m_nt_veto_mbtstdCol(0),
+//    m_nt_veto_lartdHalo(0),
+//    m_nt_veto_lartdCol(0),
+//    m_nt_veto_csctdHalo(0),
+//    m_nt_veto_csctdCol(0),
+//    m_nt_veto_bcmtHalo(0),
+//    m_nt_veto_bcmtCol(0),
+//    m_nt_veto_muontCol(0),
+//    m_nt_veto_muontCosmic(0),
     m_nt_ECTimeDiff(0),
     m_nt_ECTimeAvg(0),
     m_nt_nCellA(0),
     m_nt_nCellC(0),
-    m_nt_mbtstimediff(0),
-    m_nt_nmbtscellA(0),
-    m_nt_nmbtscellC(0),
-    m_nt_mbtstimeavrg(0),
     m_nt_energycell(0),
     m_nt_qfactorcell(0),
     m_nt_phicell(0),
@@ -252,7 +246,6 @@ LArNoiseBursts::LArNoiseBursts(const std::string& name,
    
    //event cuts
    declareProperty("SigmaCut", m_sigmacut = 3.0);
-   declareProperty("MBTSCellChargeThreshold", m_MBTSThreshold= 40./222);
    declareProperty("NumberOfBunchesInFront",m_frontbunches = 36);
    
    // Keep cell properties
@@ -278,7 +271,7 @@ LArNoiseBursts::~LArNoiseBursts() {}
 StatusCode LArNoiseBursts::initializeBeforeEventLoop() {
   MsgStream mLog( messageService(), name() );
 
-  mLog << MSG::DEBUG << "Initializing LArNoiseBursts (before eventloop)" << endreq;
+  ATH_MSG_DEBUG ( "Initializing LArNoiseBursts (before eventloop)" );
   
   // NEW
   
@@ -296,133 +289,73 @@ StatusCode LArNoiseBursts::initializeBeforeEventLoop() {
 
 StatusCode LArNoiseBursts::initialize() {
 
-  MsgStream mLog( messageService(), name() );
-
-  mLog << MSG::DEBUG << "Initializing LArNoiseBursts" << endreq;
+  ATH_MSG_DEBUG ( "Initializing LArNoiseBursts" );
  
-
-  /** get a handle of StoreGate for access to the Event Store */
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) {
-     mLog << MSG::ERROR
-          << "Unable to retrieve pointer to StoreGateSvc"
-          << endreq;
-     return sc;
-  }
- 
-  // Retrieve detector service
-  sc = service("DetectorStore", m_detectorStore);
-  if (sc.isFailure()) {
-    mLog << MSG::FATAL << "Unable to locate Service DetectorStore" << endreq;
-    return sc;
-  }
-
   // Trigger Decision Tool
   if(m_trigDec.retrieve().isFailure()){
-    mLog << MSG::WARNING << "Failed to retrieve trigger decision tool " << m_trigDec << endreq; 
+    ATH_MSG_WARNING ( "Failed to retrieve trigger decision tool " << m_trigDec );
   }else{
-    mLog << MSG::INFO << "Retrieved tool " << m_trigDec << endreq; 
+    ATH_MSG_INFO ( "Retrieved tool " << m_trigDec );
   }
   
-  // Retrieve LArCabling Service
-  sc=m_LArCablingService.retrieve();
-  if (sc.isFailure()) {
-    mLog << MSG::ERROR << "Could not retrieve LArCabling Service " << m_LArCablingService << endreq;
-    return sc;
-  }
-
+  ATH_CHECK( m_LArCablingService.retrieve() );
 
   // Retrieve online ID helper
   const DataHandle<LArOnlineID> LArOnlineIDHelper;
-  sc = m_detectorStore->retrieve(LArOnlineIDHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    mLog<< MSG::FATAL << "Could not get LArOnlineIDHelper" << endreq;
-    return sc;
-  }else{
-    m_LArOnlineIDHelper = LArOnlineIDHelper;
-    mLog<<MSG::DEBUG<< " Found LArOnline Helper"<<endreq;
-  }
+  ATH_CHECK( detStore()->retrieve(LArOnlineIDHelper, "LArOnlineID") );
+  m_LArOnlineIDHelper = LArOnlineIDHelper;
+  ATH_MSG_DEBUG( " Found LArOnline Helper");
 
   // Retrieve HV line ID helper
   const DataHandle<LArHVLineID> LArHVLineIDHelper;
-  sc = m_detectorStore->retrieve(LArHVLineIDHelper, "LArHVLineID");
-  if (sc.isFailure()) {
-    mLog<< MSG::FATAL << "Could not get LArOnlineIDHelper" << endreq;
-    return sc;
-  }else{
-    m_LArHVLineIDHelper = LArHVLineIDHelper;
-    mLog<<MSG::DEBUG<< " Found LArOnlineIDHelper Helper"<<endreq;
-  }
+  ATH_CHECK( detStore()->retrieve(LArHVLineIDHelper, "LArHVLineID") );
+  m_LArHVLineIDHelper = LArHVLineIDHelper;
+  ATH_MSG_DEBUG( " Found LArOnlineIDHelper Helper");
+
   // Retrieve HV electrode ID helper
   const DataHandle<LArElectrodeID> LArElectrodeIDHelper;
-  sc = m_detectorStore->retrieve(LArElectrodeIDHelper, "LArElectrodeID");
-  if (sc.isFailure()) {
-    mLog<< MSG::FATAL << "Could not get LArElectrodeIDHelper" << endreq;
-    return sc;
-  }else{
-    m_LArElectrodeIDHelper = LArElectrodeIDHelper;
-    mLog<<MSG::DEBUG<< " Found LArElectrodeIDHelper Helper"<<endreq;
-  }
+  ATH_CHECK( detStore()->retrieve(LArElectrodeIDHelper, "LArElectrodeID") );
+  m_LArElectrodeIDHelper = LArElectrodeIDHelper;
+  ATH_MSG_DEBUG( " Found LArElectrodeIDHelper Helper");
 
   // Retrieve ID helpers
-  sc =  m_detectorStore->retrieve(m_caloIdMgr);
-  if (sc.isFailure()) {
-    mLog << MSG::FATAL << "Could not get CaloIdMgr" << endreq;
-    return sc;
-  }
+  ATH_CHECK( detStore()->retrieve(m_caloIdMgr) );
   m_LArEM_IDHelper   = m_caloIdMgr->getEM_ID();
   m_LArHEC_IDHelper  = m_caloIdMgr->getHEC_ID();
   m_LArFCAL_IDHelper = m_caloIdMgr->getFCAL_ID();
   
   if ( m_calo_noise_tool.retrieve().isFailure() ) {
-      mLog << MSG::WARNING << "Failed to retrieve tool " << m_calo_noise_tool << endreq; 
+    ATH_MSG_WARNING ( "Failed to retrieve tool " << m_calo_noise_tool );
   }else{
-       mLog << MSG::INFO << "Retrieved tool " << m_calo_noise_tool << endreq;
+    ATH_MSG_INFO ( "Retrieved tool " << m_calo_noise_tool );
   }
  
   if(m_bc_tool.retrieve().isFailure()){
-     mLog << MSG::WARNING << "Failed to retrieve tool " << m_bc_tool << endreq; 
+    ATH_MSG_WARNING ( "Failed to retrieve tool " << m_bc_tool );
   }else{
-     mLog << MSG::INFO << "Retrieved tool " << m_bc_tool << endreq;
+    ATH_MSG_INFO ( "Retrieved tool " << m_bc_tool );
   }
 
   /** get a handle on the NTuple and histogramming service */
-  sc = service("THistSvc", m_thistSvc);
-  if (sc.isFailure()) {
-     mLog << MSG::ERROR
-          << "Unable to retrieve pointer to THistSvc"
-          << endreq;
-     return sc;
-  }
+  ATH_CHECK( service("THistSvc", m_thistSvc) );
  
   /*const AthenaAttributeList* fillparams(0);
-  sc =  m_storeGate->retrieve(fillparams, "/TDAQ/OLC/LHC/FILLPARAMS");
+  sc =  evtStore()->retrieve(fillparams, "/TDAQ/OLC/LHC/FILLPARAMS");
   if (sc.isFailure()) {
-     mLog << MSG::WARNING <<"Unable to retrieve fillparams information; falling back to" << endreq;
+     ATH_MSG_WARNING ("Unable to retrieve fillparams information; falling back to" );
      return StatusCode::SUCCESS;
    }
  
   if (fillparams != 0) {
-     mLog << MSG::DEBUG <<"beam 1 #bunches are: " << (*fillparams)["Beam1Bunches"].data<uint32_t>()
-		   <<endreq;
-     mLog << MSG::DEBUG <<"beam 2 #bunches are: " << (*fillparams)["Beam2Bunches"].data<uint32_t>()
-		   <<endreq;
+     ATH_MSG_DEBUG ("beam 1 #bunches are: " << (*fillparams)["Beam1Bunches"].data<uint32_t>() );
+     ATH_MSG_DEBUG ("beam 2 #bunches are: " << (*fillparams)["Beam2Bunches"].data<uint32_t>() );
   }
 */
 
   /** Prepare TTree **/
   m_tree = new TTree( "CollectionTree", "CollectionTree" );
   std::string treeName =  "/TTREE/CollectionTree" ;
-  sc = m_thistSvc->regTree(treeName, m_tree);
-  if(sc.isFailure()){
-    mLog << MSG::ERROR << "Unable to register TTree : " << treeName << endreq;
-    return sc;
-  }
-
-  /**number of events*/
-// QUESTION by BT : I do not understand this variable : is it really alls cells partition?
-// answer by Josu: yes, i added this variable to calculate #noisy cell/cell per partition (offline).it's Better doing that in this code to minimize the size of the ntuple (i comment it).
-  //addBranch("CellPartition",m_nt_cellpartition); 
+  ATH_CHECK( m_thistSvc->regTree(treeName, m_tree) );
 
   // General properties of events
   m_tree->Branch("EventId",&m_nt_evtId,"EventId/I");// Event ID
@@ -446,21 +379,21 @@ StatusCode LArNoiseBursts::initialize() {
   m_tree->Branch("nTracks",&m_nt_ntracks,"nTracks/I"); //Number of reconstructed tracks
 
   // Background bits in EventInfo
-  m_tree->Branch("vetoMBTS",&m_nt_veto_mbts,"vetoMBST/S"); //Beam/collision veto based on mbts
-  m_tree->Branch("vetoPixel",&m_nt_veto_pixel,"vetoPixel/S"); //Beam/collision veto based on indet
-  m_tree->Branch("vetoSCT",&m_nt_veto_sct,"vetoSCT/S"); //Beam/collision veto based on indet
-  m_tree->Branch("vetoBcm",&m_nt_veto_bcm,"vetoBcm/S"); //Beam/collision veto based on bcm
-  m_tree->Branch("vetoLucid",&m_nt_veto_lucid,"vetoLucid/S"); //Beam/collision veto based on lucid
-  m_tree->Branch("vetoMBTSDtHalo",&m_nt_veto_mbtstdHalo,"vetoMBTSDtHalo/S");
-  m_tree->Branch("vetoMBTSDtCol",&m_nt_veto_mbtstdCol,"vetoMBTSDtCol/S");
-  m_tree->Branch("vetoLArDtHalo",&m_nt_veto_lartdHalo,"vetoLArDtHalo/S");
-  m_tree->Branch("vetoLArDtCol",&m_nt_veto_lartdCol,"vetoLArDtCol/S");
-  m_tree->Branch("vetoCSCDtHalo",&m_nt_veto_csctdHalo,"vetoCSCDtHalo/S");
-  m_tree->Branch("vetoCSCDtCol",&m_nt_veto_csctdCol,"vetoCSCDtCol/S");
-  m_tree->Branch("vetoBCMDtHalo",&m_nt_veto_bcmtHalo,"vetoBCMDtHalo/S");
-  m_tree->Branch("vetoBCMDtCol",&m_nt_veto_bcmtCol,"vetoBCMDtCol/S");
-  m_tree->Branch("vetoMuonTimmingCol", &m_nt_veto_muontCol,"vetoMuonTimmingCol/S");
-  m_tree->Branch("vetoMuonTimmingCosmic",&m_nt_veto_muontCosmic,"vetoMuonTimmingCosmic/S");
+//  m_tree->Branch("vetoMBTS",&m_nt_veto_mbts,"vetoMBST/S"); //Beam/collision veto based on mbts
+//  m_tree->Branch("vetoPixel",&m_nt_veto_pixel,"vetoPixel/S"); //Beam/collision veto based on indet
+//  m_tree->Branch("vetoSCT",&m_nt_veto_sct,"vetoSCT/S"); //Beam/collision veto based on indet
+//  m_tree->Branch("vetoBcm",&m_nt_veto_bcm,"vetoBcm/S"); //Beam/collision veto based on bcm
+//  m_tree->Branch("vetoLucid",&m_nt_veto_lucid,"vetoLucid/S"); //Beam/collision veto based on lucid
+//  m_tree->Branch("vetoMBTSDtHalo",&m_nt_veto_mbtstdHalo,"vetoMBTSDtHalo/S");
+//  m_tree->Branch("vetoMBTSDtCol",&m_nt_veto_mbtstdCol,"vetoMBTSDtCol/S");
+//  m_tree->Branch("vetoLArDtHalo",&m_nt_veto_lartdHalo,"vetoLArDtHalo/S");
+//  m_tree->Branch("vetoLArDtCol",&m_nt_veto_lartdCol,"vetoLArDtCol/S");
+//  m_tree->Branch("vetoCSCDtHalo",&m_nt_veto_csctdHalo,"vetoCSCDtHalo/S");
+//  m_tree->Branch("vetoCSCDtCol",&m_nt_veto_csctdCol,"vetoCSCDtCol/S");
+//  m_tree->Branch("vetoBCMDtHalo",&m_nt_veto_bcmtHalo,"vetoBCMDtHalo/S");
+//  m_tree->Branch("vetoBCMDtCol",&m_nt_veto_bcmtCol,"vetoBCMDtCol/S");
+//  m_tree->Branch("vetoMuonTimmingCol", &m_nt_veto_muontCol,"vetoMuonTimmingCol/S");
+//  m_tree->Branch("vetoMuonTimmingCosmic",&m_nt_veto_muontCosmic,"vetoMuonTimmingCosmic/S");
 
   // LAr event bit info
   m_tree->Branch("larflag_badFEBs",&m_nt_larflag_badFEBs,"larflag_badFEBs/O");
@@ -566,12 +499,7 @@ StatusCode LArNoiseBursts::initialize() {
   m_tree->Branch("el_mediumPP",&m_nt_el_mediumPP);
   m_tree->Branch("el_tightPP",&m_nt_el_tightPP);
 
-  if (sc.isFailure()) { 
-     mLog << MSG::ERROR << "ROOT Hist registration failed" << endreq; 
-     return sc; 
-  }
-
-  mLog << MSG::DEBUG << "End of Initializing LArNoiseBursts" << endreq;
+  ATH_MSG_DEBUG ( "End of Initializing LArNoiseBursts" );
  
   return StatusCode::SUCCESS;
 }
@@ -580,11 +508,8 @@ StatusCode LArNoiseBursts::initialize() {
 /// Finalize - delete any memory allocation from the heap
 
 StatusCode LArNoiseBursts::finalize() {
-  MsgStream mLog( messageService(), name() );
-
-  mLog << MSG::DEBUG << "in finalize()" << endreq;
+  ATH_MSG_DEBUG ( "in finalize()" );
   return StatusCode::SUCCESS;
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -592,9 +517,7 @@ StatusCode LArNoiseBursts::finalize() {
 StatusCode LArNoiseBursts::clear() {
   /// For Athena-Aware NTuple
 
-  MsgStream mLog( messageService(), name() );
-
-  mLog << MSG::DEBUG << "start clearing variables " << endreq;
+  ATH_MSG_DEBUG ( "start clearing variables " );
   
   m_nb_sat     = 0;
   n_noisycell  = 0;
@@ -625,26 +548,28 @@ StatusCode LArNoiseBursts::clear() {
   m_nt_larnoisyro_satOne= -1;
   m_nt_larnoisyro_satTwo= -1;
 
-  mLog << MSG::DEBUG << "clearing event info veto variables " << endreq;
+  ATH_MSG_DEBUG ( "clearing event info veto variables " );
 
   //clearing event info veto variables
-  m_nt_veto_mbts        = -1;
-  m_nt_veto_pixel       = -1;
-  m_nt_veto_sct         = -1;
-  m_nt_veto_bcm         = -1;
-  m_nt_veto_lucid       = -1;
-  m_nt_veto_mbtstdHalo  = -1;
-  m_nt_veto_mbtstdCol   = -1;
-  m_nt_veto_lartdHalo   = -1;
-  m_nt_veto_lartdCol    = -1;
-  m_nt_veto_csctdHalo   = -1;
-  m_nt_veto_csctdCol    = -1;
-  m_nt_veto_bcmtHalo    = -1;
-  m_nt_veto_bcmtCol     = -1;
-  m_nt_veto_muontCol    = -1;
-  m_nt_veto_muontCosmic = -1;
+//  m_nt_veto_mbts        = -1;
+//  m_nt_veto_pixel       = -1;
+//  m_nt_veto_sct         = -1;
+//  m_nt_veto_bcm         = -1;
+//  m_nt_veto_lucid       = -1;
+//  m_nt_veto_mbtstdHalo  = -1;
+//  m_nt_veto_mbtstdCol   = -1;
+//  m_nt_veto_lartdHalo   = -1;
+//  m_nt_veto_lartdCol    = -1;
+//  m_nt_veto_csctdHalo   = -1;
+//  m_nt_veto_csctdCol    = -1;
+//  m_nt_veto_bcmtHalo    = -1;
+//  m_nt_veto_bcmtCol     = -1;
+//  m_nt_veto_muontCol    = -1;
+//  m_nt_veto_muontCosmic = -1;
+//
+//  mLog << MSG::DEBUG << "clearing LAr event flags " << endreq;
 
-  mLog << MSG::DEBUG << "clearing LAr event flags " << endreq;
+  ATH_MSG_DEBUG ( "clearing LAr event flags " );
 
   // lar bit event info
   m_nt_larflag_badFEBs = false;
@@ -654,7 +579,7 @@ StatusCode LArNoiseBursts::clear() {
   m_nt_larflag_dataCorrupted = false;
   m_nt_larflag_dataCorruptedVeto = false;
 
-  mLog << MSG::DEBUG << "clearing Pixel variables " << endreq;
+  ATH_MSG_DEBUG ( "clearing Pixel variables " );
 
   // Trigger flags
   m_nt_L1_J75 = true; // turned on for tests
@@ -681,9 +606,9 @@ StatusCode LArNoiseBursts::clear() {
   m_nt_EF_j35_u0uchad_firstempty_LArNoiseBurst = false;
   m_nt_EF_j80_u0uchad_LArNoiseBurstT = false;
    
-  mLog << MSG::DEBUG << "clearing trigger flags " << endreq;
+  ATH_MSG_DEBUG ( "clearing trigger flags " );
 
-  mLog << MSG::DEBUG << "clearing noisy cells variables " << endreq;
+  ATH_MSG_DEBUG ( "clearing noisy cells variables " );
 
   //Quantities for noisy cells
   m_nt_energycell.clear();
@@ -712,7 +637,7 @@ StatusCode LArNoiseBursts::clear() {
   m_nt_noisycellHVphi.clear();
   m_nt_noisycellHVeta.clear();
 
-  mLog << MSG::DEBUG << "clearing saturated cell variables " << endreq;
+  ATH_MSG_DEBUG ( "clearing saturated cell variables " );
 
   //clearing quantities for sat cells
   m_nt_barrelec_sat.clear();
@@ -728,7 +653,7 @@ StatusCode LArNoiseBursts::clear() {
   m_nt_cellIdentifier_sat.clear();
   m_nt_isbadcell_sat.clear();
 
-  mLog << MSG::DEBUG << "clearing LArTimeDiff variables " << endreq;
+  ATH_MSG_DEBUG ( "clearing LArTimeDiff variables " );
   
   //DiffTime computed with LAR
   m_nt_ECTimeDiff  = 9999;
@@ -736,7 +661,7 @@ StatusCode LArNoiseBursts::clear() {
   m_nt_nCellA      = -1;
   m_nt_nCellC      = -1;
 
-  mLog << MSG::DEBUG << "clearing electron variables " << endreq;
+  ATH_MSG_DEBUG ( "clearing electron variables " );
   
   // Electrons
   m_nt_el_n = 0;
@@ -749,51 +674,44 @@ StatusCode LArNoiseBursts::clear() {
   m_nt_el_mediumPP.clear();
   m_nt_el_tightPP.clear(); 
   
-  mLog << MSG::DEBUG << "end of clearing" << endreq;
+  ATH_MSG_DEBUG ( "end of clearing" );
 
   return StatusCode::SUCCESS;
-
-
- 
 }
 
 //////////////////////////////////////////////////////////////////////////////////
 /// Execute - on event by event
 
 StatusCode LArNoiseBursts::execute() {
-  MsgStream mLog( messageService(), name() );
-  
-  mLog << MSG::DEBUG << "in execute()" << endreq;
-  StatusCode sc;
-
-  sc = clear();
+  ATH_MSG_DEBUG ( "in execute()" );
+  StatusCode sc = clear();
   if(sc.isFailure()) {
-    mLog << MSG::WARNING << "The method clear() failed" << endreq;
+    ATH_MSG_WARNING ( "The method clear() failed" );
     return StatusCode::SUCCESS;
   }
   
   sc = doTrigger();
   if(sc.isFailure()) {
-     mLog << MSG::WARNING << "The method doTrigger() failed" << endreq;
+    ATH_MSG_WARNING ( "The method doTrigger() failed" );
     return StatusCode::SUCCESS;
   }
 
   sc = doEventProperties();
   if(sc.isFailure()) {
-     mLog << MSG::WARNING << "The method doEventProperties() failed" << endreq;
+    ATH_MSG_WARNING ( "The method doEventProperties() failed" );
     return StatusCode::SUCCESS;
   }
 
   sc = doLArNoiseBursts();
   if (sc.isFailure()) {
-      mLog << MSG::WARNING << "The method doLArNoiseBursts() failed" << endreq;
-      return StatusCode::SUCCESS;
+    ATH_MSG_WARNING ( "The method doLArNoiseBursts() failed" );
+    return StatusCode::SUCCESS;
   }
 
   sc = doPhysicsObjects();
   if (sc.isFailure()) {
-      mLog << MSG::WARNING << "The method doPhysicsObjects() failed" << endreq;
-      return StatusCode::SUCCESS;
+    ATH_MSG_WARNING ( "The method doPhysicsObjects() failed" );
+    return StatusCode::SUCCESS;
   }
   
   m_tree->Fill();
@@ -805,8 +723,7 @@ StatusCode LArNoiseBursts::execute() {
 ///////////////////          doTrigger        ////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
 StatusCode LArNoiseBursts::doTrigger(){
-  MsgStream mLog(messageService(), name()); 
-  mLog<< MSG::DEBUG <<"in doTrigger "<<endreq;
+  ATH_MSG_DEBUG ("in doTrigger ");
   
   std::string mychain( "L1_J75" );
   if( ! m_trigDec->getListOfTriggers(mychain).empty() ){
@@ -900,25 +817,19 @@ StatusCode LArNoiseBursts::doTrigger(){
   }
  
   return StatusCode::SUCCESS;
-
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
 ///////////////////          doEventProperties        //////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
 StatusCode LArNoiseBursts::doEventProperties(){
-  MsgStream mLog(messageService(), name()); 
-  mLog<< MSG::DEBUG <<"in doEventProperties "<<endreq;
+  ATH_MSG_DEBUG ("in doEventProperties ");
 
 
   //////////////////////////////// EventInfo variables /////////////////////////////////////////////////
   // Retrieve event info
-  const EventInfo* eventInfo;
-  StatusCode sc = m_storeGate->retrieve(eventInfo);
-  if (sc.isFailure()) {
-    mLog << MSG::WARNING << "Event info not found !" << endreq;
-    return StatusCode::SUCCESS;
-  }
+  const EventInfo* eventInfo = nullptr;
+  ATH_CHECK( evtStore()->retrieve(eventInfo) );
 
   int run = eventInfo->runNumber();
   m_nt_evtId      = eventInfo->eventNumber();
@@ -927,27 +838,27 @@ StatusCode LArNoiseBursts::doEventProperties(){
   m_nt_lb         = eventInfo->lumiBlock();
   m_nt_bcid       = eventInfo->bcid();
 
-  mLog<<MSG::DEBUG<<"Run Number: "<<run<<", event Id "<<m_nt_evtId<<", bcid = "<<m_nt_bcid<<endreq;
+  ATH_MSG_DEBUG("Run Number: "<<run<<", event Id "<<m_nt_evtId<<", bcid = "<<m_nt_bcid);
   
 
   m_nt_isbcidFilled = m_bc_tool->isFilled(m_nt_bcid);
   m_nt_isbcidInTrain = m_bc_tool->isInTrain(m_nt_bcid);
   m_nt_bunchtype = m_bc_tool->bcType(m_nt_bcid);
-  mLog<<MSG::DEBUG<<"BCID is Filled: "<<m_nt_isbcidFilled<<endreq;
-  mLog<<MSG::DEBUG<<"BCID is in Train: "<<m_nt_isbcidInTrain<<endreq;
-  mLog<<MSG::DEBUG<<"bunch type "<<m_nt_bunchtype<<endreq;
+  ATH_MSG_DEBUG("BCID is Filled: "<<m_nt_isbcidFilled);
+  ATH_MSG_DEBUG("BCID is in Train: "<<m_nt_isbcidInTrain);
+  ATH_MSG_DEBUG("bunch type "<<m_nt_bunchtype);
 
   std::vector<bool> isBunchesInFront = m_bc_tool->bunchesInFront(m_nt_bcid,m_frontbunches);
   bool checkfirstbunch = true;
   for(unsigned int i=0;i<isBunchesInFront.size();i++){
-     mLog<<MSG::DEBUG<<"bunch "<<i<<" is Filled "<<isBunchesInFront[i]<<endreq;
+     ATH_MSG_DEBUG("bunch "<<i<<" is Filled "<<isBunchesInFront[i]);
      m_nt_isBunchesInFront.push_back(isBunchesInFront[i]);
        if(isBunchesInFront[i]==1){
          if(i!=0){
            if(checkfirstbunch){
              float time = 25.0*i;
              m_nt_bunchtime = time;
-             mLog<<MSG::DEBUG<<"next bunch time: "<<time<<" ns "<<endreq;
+             ATH_MSG_DEBUG("next bunch time: "<<time<<" ns ");
              checkfirstbunch = false;
 	   }
 	 }
@@ -963,15 +874,15 @@ StatusCode LArNoiseBursts::doEventProperties(){
     const std::string& stream_type = streamInfo.type();
     m_nt_streamTagName.push_back(stream_name);
     m_nt_streamTagType.push_back(stream_type);
-    mLog<<MSG::DEBUG<<"event stream tag name "<<streamInfo.name()<<endreq;
-    mLog<<MSG::DEBUG<<"event stream tag type "<<streamInfo.type()<<endreq;
+    ATH_MSG_DEBUG("event stream tag name "<<streamInfo.name());
+    ATH_MSG_DEBUG("event stream tag type "<<streamInfo.type());
     if(streamInfo.name()=="CosmicCalo" && streamInfo.type()=="physics"){
       m_CosmicCaloStream = true;
     }
   }
   
 
-  mLog<<MSG::DEBUG<<"CosmicCalo stream value: "<<m_CosmicCaloStream<<endreq;
+  ATH_MSG_DEBUG("CosmicCalo stream value: "<<m_CosmicCaloStream);
 
   // Retrieve output of LArNoisyRO
   bool larnoisyro = eventInfo->isEventFlagBitSet(EventInfo::LAr,0);
@@ -981,46 +892,46 @@ StatusCode LArNoiseBursts::doEventProperties(){
   m_nt_larnoisyro_satOne = larnoisyro_satOne ? 1 : 0;
   m_nt_larnoisyro_satTwo = larnoisyro_satTwo ? 1 : 0;
   
- // Retrieve output of EventInfo veto
-  mLog << MSG::DEBUG <<"Background: MBTSBeamVeto "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSBeamVeto)<<endreq;
-  mLog << MSG::DEBUG <<"Background: PixSPNonEmpty "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::PixSPNonEmpty)<<endreq;
-  mLog << MSG::DEBUG <<"Background: SCTSPNonEmpty "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::SCTSPNonEmpty)<<endreq;
-  mLog << MSG::DEBUG <<"Background: BCMBeamVeto "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMBeamVeto)<<endreq;
-  mLog << MSG::DEBUG <<"Background: LUCIDBeamVeto "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::LUCIDBeamVeto)<<endreq;
-  mLog << MSG::DEBUG <<"Background: MBTSTimeDiffHalo "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSTimeDiffHalo)<<endreq; 
-  mLog << MSG::DEBUG <<"Background: MBTSTimeDiffCol "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSTimeDiffCol)<<endreq;
-  mLog << MSG::DEBUG <<"Background: LArECTimeDiffHalo "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::LArECTimeDiffHalo)<<endreq;
-  mLog << MSG::DEBUG <<"Background: LArECTimeDiffCol "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::LArECTimeDiffCol)<<endreq;  
-  mLog << MSG::DEBUG <<"Background: CSCTimeDiffHalo "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::CSCTimeDiffHalo)<<endreq;
-  mLog << MSG::DEBUG <<"Background: CSCTimeDiffCol "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::CSCTimeDiffCol)<<endreq;
-  mLog << MSG::DEBUG <<"Background: BCMTimeDiffHalo "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMTimeDiffHalo)<<endreq;
-  mLog << MSG::DEBUG <<"Background: BCMTimeDiffCol "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMTimeDiffCol)<<endreq;
-  mLog << MSG::DEBUG <<"Background: MuonTimmingCol "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MuonTimingCol)<<endreq;
-  mLog << MSG::DEBUG <<"Background: MuonTimmingCosmic "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MuonTimingCosmic)<<endreq;
-
-  m_nt_veto_mbts      = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSBeamVeto);
-  m_nt_veto_pixel     = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::PixSPNonEmpty);
-  m_nt_veto_sct       = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::SCTSPNonEmpty);
-  m_nt_veto_bcm       = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMBeamVeto);
-  m_nt_veto_lucid     = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::LUCIDBeamVeto);
-
-  //more variables
-  m_nt_veto_mbtstdHalo = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSTimeDiffHalo); 
-  m_nt_veto_mbtstdCol  = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSTimeDiffCol);
-  m_nt_veto_lartdHalo  = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::LArECTimeDiffHalo);
-  m_nt_veto_lartdCol   = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::LArECTimeDiffCol);  
-  m_nt_veto_csctdHalo  = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::CSCTimeDiffHalo);
-  m_nt_veto_csctdCol   = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::CSCTimeDiffCol);
-  m_nt_veto_bcmtHalo   = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMTimeDiffHalo);
-  m_nt_veto_bcmtCol    = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMTimeDiffCol);
-  m_nt_veto_muontCol   = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MuonTimingCol);
-  m_nt_veto_muontCosmic= eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MuonTimingCosmic);
+ // Retrieve output of EventInfo veto - COMMENTED NOW TO MAKE IT COMPLIANT WITH xAOD::EventInfo
+//  mLog << MSG::DEBUG <<"Background: MBTSBeamVeto "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSBeamVeto)<<endreq;
+//  mLog << MSG::DEBUG <<"Background: PixSPNonEmpty "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::PixSPNonEmpty)<<endreq;
+//  mLog << MSG::DEBUG <<"Background: SCTSPNonEmpty "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::SCTSPNonEmpty)<<endreq;
+//  mLog << MSG::DEBUG <<"Background: BCMBeamVeto "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMBeamVeto)<<endreq;
+//  mLog << MSG::DEBUG <<"Background: LUCIDBeamVeto "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::LUCIDBeamVeto)<<endreq;
+//  mLog << MSG::DEBUG <<"Background: MBTSTimeDiffHalo "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSTimeDiffHalo)<<endreq; 
+//  mLog << MSG::DEBUG <<"Background: MBTSTimeDiffCol "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSTimeDiffCol)<<endreq;
+//  mLog << MSG::DEBUG <<"Background: LArECTimeDiffHalo "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::LArECTimeDiffHalo)<<endreq;
+//  mLog << MSG::DEBUG <<"Background: LArECTimeDiffCol "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::LArECTimeDiffCol)<<endreq;  
+//  mLog << MSG::DEBUG <<"Background: CSCTimeDiffHalo "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::CSCTimeDiffHalo)<<endreq;
+//  mLog << MSG::DEBUG <<"Background: CSCTimeDiffCol "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::CSCTimeDiffCol)<<endreq;
+//  mLog << MSG::DEBUG <<"Background: BCMTimeDiffHalo "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMTimeDiffHalo)<<endreq;
+//  mLog << MSG::DEBUG <<"Background: BCMTimeDiffCol "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMTimeDiffCol)<<endreq;
+//  mLog << MSG::DEBUG <<"Background: MuonTimmingCol "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MuonTimingCol)<<endreq;
+//  mLog << MSG::DEBUG <<"Background: MuonTimmingCosmic "<<eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MuonTimingCosmic)<<endreq;
+//
+//  m_nt_veto_mbts      = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSBeamVeto);
+//  m_nt_veto_pixel     = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::PixSPNonEmpty);
+//  m_nt_veto_sct       = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::SCTSPNonEmpty);
+//  m_nt_veto_bcm       = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMBeamVeto);
+//  m_nt_veto_lucid     = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::LUCIDBeamVeto);
+//
+//  //more variables
+//  m_nt_veto_mbtstdHalo = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSTimeDiffHalo); 
+//  m_nt_veto_mbtstdCol  = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MBTSTimeDiffCol);
+//  m_nt_veto_lartdHalo  = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::LArECTimeDiffHalo);
+//  m_nt_veto_lartdCol   = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::LArECTimeDiffCol);  
+//  m_nt_veto_csctdHalo  = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::CSCTimeDiffHalo);
+//  m_nt_veto_csctdCol   = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::CSCTimeDiffCol);
+//  m_nt_veto_bcmtHalo   = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMTimeDiffHalo);
+//  m_nt_veto_bcmtCol    = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::BCMTimeDiffCol);
+//  m_nt_veto_muontCol   = eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MuonTimingCol);
+//  m_nt_veto_muontCosmic= eventInfo->isEventFlagBitSet(EventInfo::Background,EventInfo::MuonTimingCosmic);
  
    // LArEventInfo
 
-  mLog << MSG::DEBUG <<"NOISEBURSTVETO bit " << eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::NOISEBURSTVETO) << endreq;
-  mLog << MSG::DEBUG <<"BADFEBS bit " << eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::BADFEBS)<< endreq;
-  mLog << MSG::DEBUG <<"TIGHTSATURATEDQ bit " << eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::TIGHTSATURATEDQ)<< endreq;
+  ATH_MSG_DEBUG ("NOISEBURSTVETO bit " << eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::NOISEBURSTVETO) );
+  ATH_MSG_DEBUG ("BADFEBS bit " << eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::BADFEBS));
+  ATH_MSG_DEBUG ("TIGHTSATURATEDQ bit " << eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::TIGHTSATURATEDQ));
 
   m_nt_larflag_badFEBs = eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::BADFEBS);
   m_nt_larflag_mediumSaturatedDQ = eventInfo->isEventFlagBitSet(EventInfo::LAr,LArEventBitInfo::MEDIUMSATURATEDQ);
@@ -1032,60 +943,55 @@ StatusCode LArNoiseBursts::doEventProperties(){
   ///////////////////////////////////////end EventInfo variables/////////////////////////////////////////////////////////////////////////
 
   const AthenaAttributeList* attrList(0);
-  sc =  m_storeGate->retrieve(attrList, "/TDAQ/RunCtrl/DataTakingMode");
-  if (sc.isFailure()) {
-     mLog << MSG::WARNING <<"Unable to retrieve DataTakingMode information; falling back to" << endreq;
-     return StatusCode::SUCCESS;
-   }
-   if (attrList != 0) {
-     mLog << MSG::DEBUG <<"ReadyForPhysics is: " << (*attrList)["ReadyForPhysics"].data<uint32_t>()<<endreq;
+  ATH_CHECK( evtStore()->retrieve(attrList, "/TDAQ/RunCtrl/DataTakingMode") );
+  if (attrList != 0) {
+    ATH_MSG_DEBUG ("ReadyForPhysics is: " << (*attrList)["ReadyForPhysics"].data<uint32_t>());
      //m_valueCache = ((*attrList)["ReadyForPhysics"].data<uint32_t>() != 0);
      m_nt_atlasready = (*attrList)["ReadyForPhysics"].data<uint32_t>();
    }
 
    /*const AthenaAttributeList* fillstate(0);
-  sc =  m_storeGate->retrieve(fillstate, "/LHC/DCS/FILLSTATE");
+  sc =  evtStore()->retrieve(fillstate, "/LHC/DCS/FILLSTATE");
   if (sc.isFailure()) {
-     mLog << MSG::WARNING <<"Unable to retrieve fillstate information; falling back to" << endreq;
+     ATH_MSG_WARNING ("Unable to retrieve fillstate information; falling back to" );
      return StatusCode::SUCCESS;
    }
    if (fillstate != 0) {
-     mLog << MSG::DEBUG <<"Stable beams is: " << (*fillstate)["StableBeams"].data<uint32_t>()<<endreq;
+     ATH_MSG_DEBUG ("Stable beams is: " << (*fillstate)["StableBeams"].data<uint32_t>());
      //m_valueCache = ((*attrList)["ReadyForPhysics"].data<uint32_t>() != 0);
      m_nt_stablebeams.push_back((*fillstate)["StableBeams"].data<uint32_t>());
      }*/
 
    //retrieve primary vertex information
    const VxContainer* vxContainer = NULL;
-  sc = m_storeGate->retrieve(vxContainer,"VxPrimaryCandidate" );
-  if (sc.isFailure()) {
-     mLog << MSG::WARNING << "Could not retrieve primary vertex info: "<<endreq;
+   StatusCode sc = evtStore()->retrieve(vxContainer,"VxPrimaryCandidate" );
+   if (sc.isFailure()) {
+     ATH_MSG_WARNING ( "Could not retrieve primary vertex info: ");
      //return StatusCode::SUCCESS;
-  }
+   }
 
-   mLog << MSG::DEBUG << "Found primary vertex info: " << endreq;
-
+   ATH_MSG_DEBUG ( "Found primary vertex info: " );
 
   if(vxContainer) {
     m_nt_npv = vxContainer->size();
     if(m_nt_npv>0){
-    mLog<< MSG::DEBUG<< "vxContainer size = "<<m_nt_npv<<endreq;
+      ATH_MSG_DEBUG( "vxContainer size = "<<m_nt_npv);
     VxContainer::const_iterator fz = vxContainer->begin();
     const Trk::VxCandidate* vxcand = (*fz);
     const std::vector<Trk::VxTrackAtVertex*>* trklist = vxcand->vxTrackAtVertex();
-    mLog<< MSG::DEBUG<< "--- Number of tracks asociated to P.V: "<<trklist->size()<<endreq;
+    ATH_MSG_DEBUG( "--- Number of tracks asociated to P.V: "<<trklist->size());
     m_nt_npvtracks = trklist->size();
     }
   }
 
   //retrieve track particle container information
    const Rec::TrackParticleContainer* trackTES=0;
-   sc=m_storeGate->retrieve( trackTES, "TrackParticleCandidate");
+   sc=evtStore()->retrieve( trackTES, "TrackParticleCandidate");
    if( sc.isFailure()) {
-     mLog << MSG::WARNING<< "No InDet container found in TDS  "<<endreq;
+     ATH_MSG_WARNING( "No InDet container found in TDS  ");
    }
    if(trackTES){
-     mLog << MSG::DEBUG <<"number of reconstructed tracks = "<<trackTES->size()<<endreq;
+     ATH_MSG_DEBUG ("number of reconstructed tracks = "<<trackTES->size());
      m_nt_ntracks = trackTES->size();
    }
   
@@ -1100,12 +1006,12 @@ StatusCode LArNoiseBursts::doEventProperties(){
 
   // Retrieve LArCollision Timing information
   const LArCollisionTime *  larTime;
-  sc =  m_storeGate->retrieve(larTime,"LArCollisionTime");
+  sc =  evtStore()->retrieve(larTime,"LArCollisionTime");
   if( sc.isFailure()){
-    mLog << MSG::WARNING  << "Unable to retrieve LArCollisionTime event store" << endreq;
+    ATH_MSG_WARNING  ( "Unable to retrieve LArCollisionTime event store" );
     //return StatusCode::SUCCESS; // Check if failure shd be returned. VB
   }else {
-    mLog << MSG::DEBUG  << "LArCollisionTime successfully retrieved from event store" << endreq;
+    ATH_MSG_DEBUG  ( "LArCollisionTime successfully retrieved from event store" );
   }
   
   if (larTime) {
@@ -1115,7 +1021,7 @@ StatusCode LArNoiseBursts::doEventProperties(){
       // Calculate the time diff between ECC and ECA
       m_nt_ECTimeDiff = larTime->timeC() - larTime->timeA();
       m_nt_ECTimeAvg  = (larTime->timeC() + larTime->timeA()) / 2.0;
-      mLog << MSG::DEBUG  << "LAr: Calculated time difference of " << m_nt_ECTimeDiff << " ns" << endreq;
+      ATH_MSG_DEBUG  ( "LAr: Calculated time difference of " << m_nt_ECTimeDiff << " ns" );
     }
   }
 
@@ -1126,15 +1032,14 @@ StatusCode LArNoiseBursts::doEventProperties(){
 ///////////////////          doLArNoiseBursts        ///////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
 StatusCode LArNoiseBursts::doLArNoiseBursts(){
- MsgStream mLog( messageService(), name() );
- mLog << MSG::DEBUG << "in doLarCellInfo " << endreq;
+  ATH_MSG_DEBUG ( "in doLarCellInfo " );
 
 
  // Retrieve LAr calocells container
   const CaloCellContainer* caloTES;
-  StatusCode sc = m_storeGate->retrieve( caloTES, "AllCalo");
+  StatusCode sc = evtStore()->retrieve( caloTES, "AllCalo");
   if (sc.isFailure()) {
-    mLog << MSG::WARNING << "CaloCell Container not found!" << endreq;
+    ATH_MSG_WARNING ( "CaloCell Container not found!" );
     return StatusCode::SUCCESS;
   }
 
@@ -1168,10 +1073,10 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
     HWIdentifier onlID;
     try {onlID = m_LArCablingService->createSignalChannelID((*caloItr)->ID());}
     catch(LArID_Exception& except) {
-	    mLog << MSG::ERROR  << "LArID_Exception " << m_LArEM_IDHelper->show_to_string((*caloItr)->ID()) << " " << (std::string) except << endreq ;
-	    mLog << MSG::ERROR  << "LArID_Exception " << m_LArHEC_IDHelper->show_to_string((*caloItr)->ID()) << endreq;
-	    mLog << MSG::ERROR  << "LArID_Exception " << m_LArFCAL_IDHelper->show_to_string((*caloItr)->ID()) << endreq;
-            continue;
+      ATH_MSG_ERROR  ( "LArID_Exception " << m_LArEM_IDHelper->show_to_string((*caloItr)->ID()) << " " << (std::string) except );
+      ATH_MSG_ERROR  ( "LArID_Exception " << m_LArHEC_IDHelper->show_to_string((*caloItr)->ID()) );
+      ATH_MSG_ERROR  ( "LArID_Exception " << m_LArFCAL_IDHelper->show_to_string((*caloItr)->ID()) );
+      continue;
     }
     bool connected = m_LArCablingService->isOnlineConnected(onlID);
     if(!connected) continue;
@@ -1230,7 +1135,7 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
     if(qfactor>=1000 && qfactor<10000) {m_medqfactor++;}
     if(qfactor>=10000 && qfactor<65535){m_hiqfactor++;}
     if(qfactor==65535){
-      mLog << MSG::DEBUG <<"Satured cell at eta: "<<eta<<", phi: "<<phi<<", partition: "<<partition<<endreq;
+      ATH_MSG_DEBUG ("Satured cell at eta: "<<eta<<", phi: "<<phi<<", partition: "<<partition);
        m_nb_sat = m_nb_sat +1;
        m_nt_partition_sat.push_back(partition);
        m_nt_energy_sat.push_back(eCalo);
@@ -1304,8 +1209,8 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
   
   m_nt_larcellsize = nlarcell;
   m_nt_cellsize    = caloTES->size();
-  mLog << MSG::DEBUG <<"lar cell size = "<<int(nlarcell)<<endreq;
-  mLog << MSG::DEBUG <<"all cell size = "<<int(caloTES->size())<<endreq;
+  ATH_MSG_DEBUG ("lar cell size = "<<int(nlarcell));
+  ATH_MSG_DEBUG ("all cell size = "<<int(caloTES->size()));
 
   m_nt_noisycellpercent = 100.0*double(n_noisycell)/double(nlarcell);
  
@@ -1316,14 +1221,14 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
     m_nt_noisycellpart.push_back(noise);
     if(noise> 1.0){
       checknoise = true;
-      mLog << MSG::DEBUG <<"noise burst in this  event "<<endreq;
+      ATH_MSG_DEBUG ("noise burst in this  event ");
     }   
   }
 
   const LArDigitContainer* LArDigitCont;
-  sc = m_storeGate->retrieve(LArDigitCont, "LArDigitContainer_Thinned");
+  sc = evtStore()->retrieve(LArDigitCont, "LArDigitContainer_Thinned");
   if (sc.isFailure()) {
-    mLog << MSG::WARNING << "LArDigitContainer Container not found!" << endreq;
+    ATH_MSG_WARNING ( "LArDigitContainer Container not found!" );
     return StatusCode::SUCCESS;
   }    
 
@@ -1359,7 +1264,7 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
          IdentifierHash hashid2 = m_LArOnlineIDHelper->channel_Hash(id2);
           for(unsigned int j=0;j<m_IdHash.size();j++){
             if (hashid2 == m_IdHash[j] ){
-              mLog<<MSG::DEBUG << "find a IdentifierHash of the noisy cell in LArDigit container " << endreq;
+              ATH_MSG_DEBUG ( "find a IdentifierHash of the noisy cell in LArDigit container " );
               samples = pLArDigit->samples();
               int gain=-1;
               if (pLArDigit->gain() == CaloGain::LARHIGHGAIN)   gain = 0;
@@ -1367,7 +1272,7 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
               if (pLArDigit->gain() == CaloGain::LARLOWGAIN)    gain = 2;
               m_nt_gain.at(j)= gain;
               m_nt_samples.at(j) = samples;
-              mLog << MSG::DEBUG << "I got the samples!" << endreq;
+              ATH_MSG_DEBUG ( "I got the samples!" );
               break;
 	    }  
 	 }
@@ -1399,7 +1304,7 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
         m_nt_cellpartlayerindex.push_back(m_cellpartlayerindex[i]);
       }
     }		  
-    mLog << MSG::DEBUG <<"leaving if checknoise and larnoisyro"<<endreq;
+    ATH_MSG_DEBUG ("leaving if checknoise and larnoisyro");
 
   }//if(checknoisy==true ..)
 
@@ -1411,16 +1316,15 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
 ///////////////////          doPhysicsObjects        ////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
 StatusCode LArNoiseBursts::doPhysicsObjects(){
-  MsgStream mLog(messageService(), name()); 
-  mLog<< MSG::DEBUG <<"in doPhysicsObjects "<<endreq;
+  ATH_MSG_DEBUG ("in doPhysicsObjects ");
 
   const ElectronContainer* elecTES = 0;
-  StatusCode sc=m_storeGate->retrieve( elecTES, m_elecContainerName);
+  StatusCode sc=evtStore()->retrieve( elecTES, m_elecContainerName);
   if( sc.isFailure()  ||  !elecTES ) {
-    mLog << MSG::WARNING << "No ESD electron container found in StoreGate" << endreq;
+    ATH_MSG_WARNING ( "No ESD electron container found in StoreGate" );
     return StatusCode::SUCCESS;
   }
-  mLog << MSG::DEBUG << "ElectronContainer successfully retrieved. Size = " << elecTES->size();
+  ATH_MSG_DEBUG ( "ElectronContainer successfully retrieved. Size = " << elecTES->size() );
 
   ElectronContainer::const_iterator elecItr  = elecTES->begin();
   ElectronContainer::const_iterator elecItrE = elecTES->end();
@@ -1488,9 +1392,7 @@ int LArNoiseBursts::GetPartitionLayerIndex(const Identifier& id)
 
 std::vector<int>* LArNoiseBursts::GetHVLines(const Identifier& id)
 {
-
-  MsgStream mLog( messageService(), name() );
-  mLog << MSG::DEBUG << "in GetHVLines function " << endreq;
+  ATH_MSG_DEBUG ( "in GetHVLines function " );
 
   std::vector<int>  tmplines;
   unsigned int nelec = 0;
@@ -1501,7 +1403,7 @@ std::vector<int>* LArNoiseBursts::GetHVLines(const Identifier& id)
 
   // LAr EMB
   if(m_LArEM_IDHelper->is_lar_em(id) && m_LArEM_IDHelper->sampling(id)>0){
-  mLog << MSG::DEBUG << "LAr EMB"<< endreq;
+    ATH_MSG_DEBUG ( "LAr EMB");
     if(abs(m_LArEM_IDHelper->barrel_ec(id))==1) {
       const EMBDetectorElement* embElement = dynamic_cast<const EMBDetectorElement*>(m_calodetdescrmgr->get_element(id));
       if (!embElement)
@@ -1514,7 +1416,7 @@ std::vector<int>* LArNoiseBursts::GetHVLines(const Identifier& id)
 	      for(igap=0;igap<2;igap++) tmplines.push_back(electrode->hvLineNo(igap));
       }        
     } else { // LAr EMEC
-      mLog << MSG::DEBUG << "LAr EMEC"<< endreq;
+      ATH_MSG_DEBUG ( "LAr EMEC");
       const EMECDetectorElement* emecElement = dynamic_cast<const EMECDetectorElement*>(m_calodetdescrmgr->get_element(id));
       if (!emecElement)
         return 0;
@@ -1527,7 +1429,7 @@ std::vector<int>* LArNoiseBursts::GetHVLines(const Identifier& id)
       }      
     }
   } else if(m_LArHEC_IDHelper->is_lar_hec(id)) { // LAr HEC
-    mLog << MSG::DEBUG << "LAr HEC"<< endreq;
+    ATH_MSG_DEBUG ( "LAr HEC");
     const HECDetectorElement* hecElement = dynamic_cast<const HECDetectorElement*>(m_calodetdescrmgr->get_element(id));
     if (!hecElement)
       return 0;
@@ -1538,7 +1440,7 @@ std::vector<int>* LArNoiseBursts::GetHVLines(const Identifier& id)
       tmplines.push_back(subgap->hvLineNo());
     }
   } else if(m_LArFCAL_IDHelper->is_lar_fcal(id)) { // LAr FCAL
-    mLog << MSG::DEBUG << "LAr HEC"<< endreq;
+    ATH_MSG_DEBUG ( "LAr HEC");
     const FCALDetectorElement* fcalElement = dynamic_cast<const FCALDetectorElement*>(m_calodetdescrmgr->get_element(id));
     if (!fcalElement)
       return 0;
@@ -1549,7 +1451,7 @@ std::vector<int>* LArNoiseBursts::GetHVLines(const Identifier& id)
       if(line) tmplines.push_back(line->hvLineNo());
     }   
   } else if(m_LArEM_IDHelper->is_lar_em(id) && m_LArEM_IDHelper->sampling(id)==0) { // Presamplers
-    mLog << MSG::DEBUG << "LAr PRESAMPLES"<< endreq;
+    ATH_MSG_DEBUG ( "LAr PRESAMPLES");
     
     if(abs(m_LArEM_IDHelper->barrel_ec(id))==1){
       
@@ -1572,7 +1474,7 @@ std::vector<int>* LArNoiseBursts::GetHVLines(const Identifier& id)
 
     }
   } else {
-    mLog << MSG::WARNING << " cell neither in EM nor HEC nor FCAL !!!!!  return empty HV " << endreq;
+    ATH_MSG_WARNING ( " cell neither in EM nor HEC nor FCAL !!!!!  return empty HV " );
     return (vector<int>*)0;
   }
 

@@ -58,11 +58,12 @@ def isStableZero(stat,v,i):
 def findLArHVTrips(folderName,t1,t2,lbtimes=None):
 
     dbSvc = cool.DatabaseSvcFactory.databaseService()
-    db=dbSvc.openDatabase("oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_DCS;dbname=COMP200")
+    db=dbSvc.openDatabase("oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_DCS;dbname=CONDBR2")
     
     allTrips={}
 
     tripCount = int(0)
+    nullCount = int(0)
 
     if not db.existsFolder(folderName):
         print "ERROR: Folder",folderName,"does not exist"
@@ -96,6 +97,10 @@ def findLArHVTrips(folderName,t1,t2,lbtimes=None):
 
         #if chid==286013:
         #    print obj.payload(),prev.payload()
+
+        if stat is None:
+            nullCount += 1
+            continue
 
         if not offMap.has_key(chid):
             offMap[chid]=isOff(stat)
@@ -155,6 +160,9 @@ def findLArHVTrips(folderName,t1,t2,lbtimes=None):
 
 
         prev=obj
+
+    if not nullCount==0:
+        print "Found",nullCount,"null modules (COOL database issue, please investigate)"
 
     print "Found",tripCount,"hv trips"
     itr.close()
@@ -253,7 +261,7 @@ if __name__=='__main__':
 
 ##    allTrips = {154009L: [['2011-06-08:07:14:36', '2011-06-08:07:15:54', 'none', '2011-06-08:07:14:45']], 40015L: [['2011-06-07:08:25:46', '2011-06-07:08:27:24', 'none', '2011-06-07:08:25:53']], 75009L: [['2011-06-08:01:37:32', 'none', '2011-06-08:01:40:27', '2011-06-08:01:37:41']]}
 
-    FILE = open("/afs/cern.ch/user/l/larmon/public/HVTripsDB/dailyFiles/HVTrips_"+args[0]+".dat","w")
+    FILE = open("/afs/cern.ch/user/l/larmon/public/WebTools-scratch/HVTripsDB/dailyFiles/HVTrips_"+args[0]+".dat","w")
 
     #print " HV line    TRIP Date/Time [Run,LB]          Stable Zero   Ramp Up     RECOVERY Date/Time [Run,LB]       StableBeams  Fill  #CollBunches  Solenoid  Toroid"
 
@@ -266,24 +274,24 @@ if __name__=='__main__':
         for itrip in tripList:
 
             ts = int(timegm(ConvertToUTC(itrip[0])))*1000000000L
-            tripDict = GetCOOLInfo("/TRIGGER/LUMI/LBTIME","oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=COMP200",0,ts,["Run","LumiBlock"])
+            tripDict = GetCOOLInfo("/TRIGGER/LUMI/LBTIME","oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=CONDBR2",0,ts,["Run","LumiBlock"])
 
             if itrip[1] != "none":
                 recots = int(timegm(ConvertToUTC(itrip[1])))*1000000000L
-                recoDict = GetCOOLInfo("/TRIGGER/LUMI/LBTIME","oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=COMP200",0,recots,["Run","LumiBlock"])
+                recoDict = GetCOOLInfo("/TRIGGER/LUMI/LBTIME","oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=CONDBR2",0,recots,["Run","LumiBlock"])
 
             if itrip[2] != "none":
                 stableZerots = int(timegm(ConvertToUTC(itrip[2])))*1000000000L
-                stableZeroLB = GetCOOLInfo("/TRIGGER/LUMI/LBTIME","oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=COMP200",0,stableZerots,["Run","LumiBlock"])["LumiBlock0"]
+                stableZeroLB = GetCOOLInfo("/TRIGGER/LUMI/LBTIME","oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=CONDBR2",0,stableZerots,["Run","LumiBlock"])["LumiBlock0"]
                 #print "stable zero",stableZeroLB
 
             if itrip[3] != "none":
                 rampStartts = int(timegm(ConvertToUTC(itrip[3])))*1000000000L
-                rampStartLB = GetCOOLInfo("/TRIGGER/LUMI/LBTIME","oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=COMP200",0,rampStartts,["Run","LumiBlock"])["LumiBlock0"]
+                rampStartLB = GetCOOLInfo("/TRIGGER/LUMI/LBTIME","oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TRIGGER;dbname=CONDBR2",0,rampStartts,["Run","LumiBlock"])["LumiBlock0"]
                 #print "ramp start",rampStartLB
 
             fillDict = GetCOOLInfo("/LHC/DCS/FILLSTATE","oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_DCS;dbname=COMP200",1,ts,["StableBeams","FillNumber","NumBunchColl"])
-            magnetDict = GetCOOLInfo("/EXT/DCS/MAGNETS/SENSORDATA","oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_DCS;dbname=COMP200",[1,3],ts,["value"])
+            magnetDict = GetCOOLInfo("/EXT/DCS/MAGNETS/SENSORDATA","oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_DCS;dbname=CONDBR2",[1,3],ts,["value"])
 
             if abs(magnetDict["value1"]-7730.) < 10:
                 magnetDict["value1"] = "ON"
