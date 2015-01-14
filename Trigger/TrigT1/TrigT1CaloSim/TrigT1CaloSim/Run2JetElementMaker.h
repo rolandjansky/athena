@@ -3,13 +3,13 @@
 */
 
 // ================================================
-// CPMTowerMaker class descriptionn
+// Run2JetElementMaker class descriptionn
 // ================================================
 
 
 
-#ifndef CPMTOWERMAKER_H
-#define CPMTOWERMAKER_H
+#ifndef RUN2JETELEMENTMAKER_H
+#define RUN2JETELEMENTMAKER_H
 
 // STL
 #include <string>
@@ -21,10 +21,11 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "DataModel/DataVector.h"
 #include "GaudiKernel/ToolHandle.h"
+
 #include "StoreGate/StoreGateSvc.h"
 
-#include "TrigT1CaloToolInterfaces/IL1CPMTowerTools.h"
-
+//LVL1 Calo trigger includes
+#include "TrigT1CaloToolInterfaces/IL1JetElementTools.h"
 
 
 //********************************************
@@ -37,7 +38,7 @@ namespace LVL1 {
 
 //class StoreGateSvc;
 
-//                 CPMTowerMaker class declaration
+//                 Run2JetElementMaker class declaration
 /*
  An "Athena algorithm" is something which gets scheduled and controlled
  by the framework In its simplest definition it is something which
@@ -47,14 +48,13 @@ namespace LVL1 {
  It must inherit from the  Algorithm base class
  */
 /**
-The CPMTowerMaker class takes Trigger Towers from the TES and
-forms CPMTowers, which it then places back into the TES.
-The CPMTowers so formed are used for the bytestream simulation.
+The Run2JetElementMaker class takes Trigger Towers from the TES and
+forms JetElements, which it then places back into the TES.
 */
-class CPMTowerMaker : public Algorithm
+class Run2JetElementMaker : public Algorithm
 {
-  typedef DataVector<CPMTower> CPMTCollection;
-  typedef DataVector<TriggerTower> TTCollection ;
+  typedef DataVector<JetElement> JECollection;
+  
  public:
 
   //-------------------------
@@ -64,9 +64,9 @@ class CPMTowerMaker : public Algorithm
   // (and passes them directly to the constructor of the base class)
   //-------------------------
 
-  CPMTowerMaker( const std::string& name, ISvcLocator* pSvcLocator ) ;
+  Run2JetElementMaker( const std::string& name, ISvcLocator* pSvcLocator ) ;
 
-  virtual ~CPMTowerMaker();
+  virtual ~Run2JetElementMaker();
 
 
   //------------------------------------------------------
@@ -78,17 +78,16 @@ class CPMTowerMaker : public Algorithm
   StatusCode finalize() ;
 
 
-
  private:
 
    ServiceHandle<StoreGateSvc> m_storeGate;
-   ToolHandle<LVL1::IL1CPMTowerTools> m_CPMTowerTool;
+   ToolHandle<LVL1::IL1JetElementTools> m_JetElementTool;
 
   /** location of TriggerTowers in TES */
   std::string m_triggerTowerLocation;
   /** locations within the TES to store collections of JEs*/
-  std::string   m_cpmTowerLocation ;
-
+  std::string   m_jetElementLocation ;
+  
 };
 
 } // end of namespace bracket

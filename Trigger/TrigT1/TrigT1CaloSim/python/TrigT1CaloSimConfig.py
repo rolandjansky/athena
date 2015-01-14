@@ -127,7 +127,8 @@ def configureTriggerTowerMaker(useAutoCorr,
                                usePedestalCorrectionProviderROOT,
                                inputFileRoot = 'l1calofir-mu60.root',
                                inputFileTxtEM = 'DynamicPedestalCorrectionEM.txt',
-                               inputFileTxtHAD = 'DynamicPedestalCorrectionHAD.txt'):
+                               inputFileTxtHAD = 'DynamicPedestalCorrectionHAD.txt',
+                               useNoiseCuts2012 = False):
     """ This function configures the TriggerTowerMaker Algorithm.
 
 useAutoCorr: True = use autocorrelation filters; False = use matched filters
@@ -136,6 +137,7 @@ useNoiseCuts: ...
 usePedestalCorrectionProviderROOT: obtain pedestal correction data from ROOT file (True)
                                    or text file (False)
 inputFile*: name of the input files for the pedestal correction provider
+useNoiseCuts2012: use 2012 values of noise cuts (only available for matched filters)
 """
     from AthenaCommon.Logging import logging  # loads logger
     log = logging.getLogger( "TrigT1CaloSimConfig.py" )
@@ -150,6 +152,11 @@ inputFile*: name of the input files for the pedestal correction provider
         else:
             log.info("EM input file = %s" % inputFileTxtEM)
             log.info("HAD input file = %s" % inputFileTxtHAD)
+    log.info("NoiseCuts2012 = %s" % useNoiseCuts2012)
+    if useAutoCorr and useNoiseCuts2012:
+        log.warning("useNoiseCuts2012: 2012 NoiseCuts only available for matched filters - setting will have not effect")
+    if (not useAutoCorr) and useNoiseCuts and useNoiseCuts2012:
+        log.warning("both useNoiseCuts and useNoiseCuts2012 set - the latter will override the former")
 
     from AthenaCommon.AlgSequence import AlgSequence
     from AthenaCommon.AppMgr import ToolSvc
@@ -322,6 +329,16 @@ inputFile*: name of the input files for the pedestal correction provider
             job.TriggerTowerMaker.HadReg2Thresh=[6601,6960,6610]
             job.TriggerTowerMaker.HadReg3Thresh=[2688]
             job.TriggerTowerMaker.FCAL23Thresh=[5467,22738,2760,9010]
+        
+        if useNoiseCuts2012: # only available for matched filters
+            job.TriggerTowerMaker.EmReg1Thresh=[4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000] 
+            job.TriggerTowerMaker.EmReg2Thresh=[11400,11700,10800] 
+            job.TriggerTowerMaker.EmReg3Thresh=[6100]
+            job.TriggerTowerMaker.FCAL1Thresh=[4500,13500,36500,44600]
+            job.TriggerTowerMaker.HadReg1Thresh=[4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000,4000]
+            job.TriggerTowerMaker.HadReg2Thresh=[4000,4000,4000]
+            job.TriggerTowerMaker.HadReg3Thresh=[4000]
+            job.TriggerTowerMaker.FCAL23Thresh=[10900,28700,4100,6600]
 
     if usePedestalCorrection:
         if not hasattr(ToolSvc, 'L1TriggerTowerTool'):

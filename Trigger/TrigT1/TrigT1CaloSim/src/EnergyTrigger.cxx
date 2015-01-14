@@ -254,9 +254,9 @@ void LVL1::EnergyTrigger::formJEMEtSums() {
     std::vector<unsigned int> ExVec; // JEMEtSums store vectors, to allow for multi-slice readout
     std::vector<unsigned int> EyVec;
     std::vector<unsigned int> EtVec;
-    ExVec.push_back((*it)->exCompressed()); // Crate sums are quad-linear
-    EyVec.push_back((*it)->eyCompressed());
-    EtVec.push_back((*it)->etCompressed());
+    ExVec.push_back((*it)->ex()); // Crate sums no longer quad-linear in Run 2
+    EyVec.push_back((*it)->ey());
+    EtVec.push_back((*it)->et());
     jemEtSums->addEx(ExVec);
     jemEtSums->addEy(EyVec);
     jemEtSums->addEt(EtVec);

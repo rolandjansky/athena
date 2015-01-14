@@ -1,14 +1,10 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 
  /***************************************************************************
-                           EmTauTrigger.h  -  description
+                           JEMJetSim.h  -  description
                               -------------------
-     begin                : Wed Dec 13 2000
-     copyright            : (C) 2000 by moyse
-     email                : moyse@heppch.ph.qmw.ac.uk
+     begin                : Wed Mar 12 2014
+     copyright            : (C) 2014 Alan Watson
+     email                : Alan.Watson@CERN.CH
   ***************************************************************************/
 
  /***************************************************************************
@@ -19,8 +15,8 @@
   *   (at your option) any later version.                                   *
   *                                                                         *
   ***************************************************************************/
- #ifndef EmTauTrigger_H
- #define EmTauTrigger_H
+ #ifndef JEMJetSim_H
+ #define JEMJetSim_H
 
  // STL
  #include <string>
@@ -37,33 +33,27 @@
  #include "StoreGate/StoreGateSvc.h"
 
 // Include for the configuration service:
-#include "TrigConfInterfaces/ITrigConfigSvc.h"
-#include "TrigConfL1Data/CTPConfig.h"
-#include "TrigConfL1Data/Menu.h"
-#include "TrigConfL1Data/TriggerThreshold.h"
-#include "TrigConfL1Data/TriggerThresholdValue.h"
-#include "TrigConfL1Data/ClusterThresholdValue.h"
+ #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
  // LVL1 Calo Trigger
- #include "TrigT1CaloEvent/EmTauROI.h"
- #include "TrigT1CaloEvent/CPMHits.h"
- #include "TrigT1CaloUtils/CPAlgorithm.h"
- #include "TrigT1CaloUtils/ClusterProcessorModuleKey.h"
- #include "TrigT1CaloToolInterfaces/IL1EmTauTools.h"
+ #include "TrigT1CaloToolInterfaces/IL1JEMJetTools.h"
 
  namespace LVL1 {
 
  using namespace TrigConf;
+ 
+ class JetCMXData;
+ class JEMTobRoI;
+
 
    //Doxygen Class definition below:
    /**
-  The algorithm responsible for simulating the Em/tau calo trigger.
+  The algorithm responsible for simulating the Jet trigger.
    */
- class EmTauTrigger : public Algorithm
+ class JEMJetSim : public Algorithm
  {
 
   public:
-  typedef DataVector<CPMHits>                 CPMHitsCollection;
 
    //-------------------------
    // Constructors/Destructors
@@ -72,9 +62,9 @@
    // (and passes them directly to the constructor of the base class)
    //-------------------------
 
-   EmTauTrigger( const std::string& name, ISvcLocator* pSvcLocator ) ;
+   JEMJetSim( const std::string& name, ISvcLocator* pSvcLocator ) ;
 
-   virtual ~EmTauTrigger();
+   virtual ~JEMJetSim();
 
 
    //------------------------------------------------------
@@ -87,39 +77,32 @@
    StatusCode finalize() ;
 
  private: // Private methods
-   /** create final ROI objects and place them in the TES. */
-   void saveExternalROIs();
-   /** Store CPM hit counts in CPMHits */
-   void formCPMHits();
-   /** put CPM summary objects into SG */
-   void saveCPMHits();
-  /** increment CPM hit word */
-  unsigned int addHits(unsigned int hitMult, unsigned int hitVec);
+   /** Store TOB RoI objects in the TES. */
+   void storeModuleRoIs();
+   /** Store module outputs in TES as inputs to CMX simulation */
+   void storeBackplaneTOBs();
 
-  /** retrieves the Calo config put into detectorstore by TrigT1CTP and set up trigger menu */
-  void setupTriggerMenuFromCTP();
+  /** Debug routine: dump trigger menu at start of run */
+  void printTriggerMenu();
+  
  private: // Private attributes
 
-   /** These are our main output data */
-   DataVector<EmTauROI>* m_vectorOfEmTauROIs;
+   /** TOB RoIs for RoIB input and DAQ output simulation */
+   DataVector<JEMTobRoI>* m_allTOBs;
 
-   /** Where to find the CPMTowers */
-   std::string   m_CPMTowerLocation ;
+   /** Backplane data objects: CPM outputs to CMX */
+   DataVector<JetCMXData>* m_JetCMXData;
+
+   /** Where to find the JetElements */
+   std::string   m_JetElementLocation;
    /** Locations of outputs in StoreGate */
-   std::string   m_emTauOutputLocation ;
-   std::string    m_cpmHitsLocation ;
-
-  /** These objects emulate the actual CP FPGA */
-  DataVector<CPAlgorithm>* m_intROIContainer;
+   std::string   m_JEMTobRoILocation;
+   std::string   m_JetCMXDataLocation;
    
-  /** This map holds the CPMHits objects - because a map
-  provides a convenient way of finding a CPMHits if we need to update it */
-  std::map<int, CPMHits *> * m_cpmHitsContainer;
-  
    /** The essentials - data access, configuration, tools */
    ServiceHandle<StoreGateSvc> m_storeGate;
    ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
-   ToolHandle<LVL1::IL1EmTauTools> m_EmTauTool;
+   ToolHandle<LVL1::IL1JEMJetTools> m_JetTool;
 
 };
 

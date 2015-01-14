@@ -135,6 +135,19 @@ private: // Private attributes
         std::string   m_JetElementLocation ;
 	std::string   m_jemHitsLocation ;
 	std::string   m_jemEtSumsLocation ;
+	std::string   m_CPMTobRoILocation ;
+	std::string   m_emCMXDataLocation ;
+	std::string   m_tauCMXDataLocation ;
+	std::string   m_JEMTobRoILocation ;
+	std::string   m_JetCMXDataLocation ;
+        std::string   m_CPMCMXDataLocation ;
+        std::string   m_CPCMXTopoDataLocation ; 
+        std::string   m_JetCMXTopoDataLocation ; 
+        std::string   m_EnergyTopoDataLocation ; 
+        std::string   m_EmTauCTPLocation ; 
+        std::string   m_JetCTPLocation ; 
+        std::string   m_EnergyCTPLocation ;
+
   /** contains the external ROIs that will be saved
   to the TES */
   DataVector<EmTauROI>* m_VectorOfEmTauROIs;

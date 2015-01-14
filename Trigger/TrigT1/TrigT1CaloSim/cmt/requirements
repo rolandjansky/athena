@@ -3,6 +3,7 @@ author Alan Watson <Alan.Watson@cern.ch>
 
 use     AtlasPolicy     AtlasPolicy-*
 use     AtlasCLHEP      AtlasCLHEP-*     External
+use     AthenaBaseComps AthenaBaseComps-* Control
 use     DataModel       DataModel-*      Control
 use     CaloEvent       CaloEvent-*      Calorimeter
 use     CaloDetDescr    CaloDetDescr-*   Calorimeter
@@ -35,6 +36,9 @@ use TrigT1CaloCalibConditions TrigT1CaloCalibConditions-* Trigger/TrigT1
 #Interfaces between the different parts of level1
 use TrigT1Interfaces TrigT1Interfaces-* Trigger/TrigT1
 
+# xAOD EDM
+use     xAODTrigL1Calo  xAODTrigL1Calo-* Event/xAOD
+
 #this is needed to get access to PDGTABLE
 #use GeneratorModules    GeneratorModules-* Generators
 
@@ -45,9 +49,12 @@ apply_pattern dual_use_library files=*.cxx
 private
 use     AthenaKernel    AthenaKernel-*   Control
 use     AtlasReflex     AtlasReflex-* External -no_auto_imports
+use 	CaloTriggerTool CaloTriggerTool-* Calorimeter
 #use     AtlasROOT       AtlasROOT-*      External
 use AtlasCLHEP_RandomGenerators AtlasCLHEP_RandomGenerators-* Simulation/Tools
 use     EventInfo       EventInfo-*      Event
+use     LumiBlockComps  LumiBlockComps-* LumiBlock
 use     PathResolver    PathResolver-*   Tools
+use     xAODEventInfo   xAODEventInfo-*  Event/xAOD
 end_private
 

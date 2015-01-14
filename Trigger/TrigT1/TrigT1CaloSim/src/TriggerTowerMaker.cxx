@@ -15,7 +15,7 @@
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include <fstream>
 #include <cmath>
-#include "CaloEvent/CaloSampling.h"
+// #include "CaloEvent/CaloSampling.h"
 
 // For the Athena-based random numbers.
 #include "AthenaKernel/IAtRndmGenSvc.h"
@@ -25,8 +25,9 @@
 #include "TrigConfL1Data/ThresholdConfig.h"
 //#include "TrigT1CaloByteStream/IL1CaloMappingTool.h"
 #include "TrigT1CaloUtils/InternalTriggerTower_ClassDEF.h"
-
 #include "TrigT1CaloCalibConditions/L1CaloModuleType.h"
+
+#include "LumiBlockComps/ILumiBlockMuTool.h"
 
 // Utilities
 #include "PathResolver/PathResolver.h"
@@ -57,7 +58,8 @@ TriggerTowerMaker::TriggerTowerMaker( const std::string& name, ISvcLocator* pSvc
     m_rndGenSvc("AtRndmGenSvc", name),
     m_rndmPeds(0),m_rndmADCs(0),
     m_TTtool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
-    m_mappingTool("LVL1::PpmMappingTool/PpmMappingTool"), 
+    m_mappingTool("LVL1::PpmMappingTool/PpmMappingTool"),
+    m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),
     m_cablingSvc(0),
     m_mergeSvc(0),
     m_caloMgr(0), 
@@ -389,6 +391,7 @@ TriggerTowerMaker::TriggerTowerMaker( const std::string& name, ISvcLocator* pSvc
   // they can be over-written via the job options file
   declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
   declareProperty("PpmMappingTool", m_mappingTool); 
+  declareProperty( "LumiBlockMuTool", m_lumiBlockMuTool );
   
   declareProperty( "CaloCellLocation", m_CaloCellLocation ) ;
   declareProperty( "inputTTLocation", m_inputTTLocation ) ;
@@ -720,6 +723,14 @@ StatusCode TriggerTowerMaker::initialize()
   if (sc.isFailure()) {
     log << MSG::ERROR << "Problem retrieving L1TriggerTowerTool. Abort execution" << endreq;
     return StatusCode::SUCCESS;
+  }
+
+  if(m_correctFir && m_elementFir) {
+    sc = m_lumiBlockMuTool.retrieve();
+    if(sc.isFailure()) {
+      log << MSG::ERROR << "Problem retrieving LumiBlockMuTool. Abort execution" << endreq;
+      return StatusCode::FAILURE;
+    }
   }
     
   /// Set TT thresholds to global defaults, if not specified by region
@@ -2955,10 +2966,10 @@ void LVL1::TriggerTowerMaker::preProcess()
   // Pedestal Correction: Get the BCID number
   const EventInfo* evt;
   unsigned int m_eventBCID=0;
-  unsigned int m_eventNumber=0;
+  // unsigned int m_eventNumber=0;
   if (StatusCode::SUCCESS == m_storeGate->retrieve(evt)){
     m_eventBCID = evt->event_ID()->bunch_crossing_id();
-    m_eventNumber = evt->event_ID()->event_number();
+    // m_eventNumber = evt->event_ID()->event_number();
   }else{
     log << MSG::ERROR<< " Unable to retrieve EventInfo from StoreGate "<< endreq;
   }
@@ -3051,10 +3062,11 @@ void LVL1::TriggerTowerMaker::preProcess()
     }
                
     /// process channel
-    if (m_correctFir && m_elementFir) {
-      m_TTtool->fir(emDigits, m_FIRCoeff[towerType], firPedEm, element, m_eventBCID, 0, fir);
-    } else {
-      m_TTtool->fir(emDigits, m_FIRCoeff[towerType], fir);
+    m_TTtool->fir(emDigits, m_FIRCoeff[towerType], fir);
+    if(m_correctFir && m_elementFir) {
+      std::vector<int_least16_t> correction;
+      m_TTtool->pedestalCorrection(fir, firPedEm, element, 0, m_eventBCID,
+                                   m_lumiBlockMuTool->actualInteractionsPerCrossing(), correction);
     }
     m_TTtool->dropBits(fir, m_nDrop[towerType], lutIn);
     m_TTtool->lut(lutIn, slope, pedsub, thresh, int(m_pedVal), m_LUTStrategy, disabled, lutOut);
@@ -3153,10 +3165,12 @@ void LVL1::TriggerTowerMaker::preProcess()
     }
                    
     /// process tower
-    if (m_correctFir && m_elementFir) {
-      m_TTtool->fir(hadDigits, m_FIRCoeff[towerType], firPedHad, element, m_eventBCID, 1, fir);
+    m_TTtool->fir(hadDigits, m_FIRCoeff[towerType], fir);
+    if(m_correctFir && m_elementFir) {
+      std::vector<int_least16_t> correction;
+      m_TTtool->pedestalCorrection(fir, firPedHad, element, 1, m_eventBCID,
+                                   m_lumiBlockMuTool->actualInteractionsPerCrossing(), correction);
     } else {
-      m_TTtool->fir(hadDigits, m_FIRCoeff[towerType], fir);
     }
     m_TTtool->dropBits(fir, m_nDrop[towerType], lutIn);
     m_TTtool->lut(lutIn, slope, pedsub, thresh, int(m_pedVal), m_LUTStrategy, disabled, lutOut);
@@ -3729,7 +3743,7 @@ void LVL1::TriggerTowerMaker::initLUTsPrepare(const std::vector< std::vector< st
   MsgStream log( messageService(), name() ) ;
 
   // How to handle pedestal when truncating to 10 bit LUT range
-  float round = ( m_RoundPed ? 0.5 : 0. );
+  // float round = ( m_RoundPed ? 0.5 : 0. );
 
   // Loop over layers (em, had) and elements (eta bins) and compute parameters
   for (int layer = 0; layer < m_nLayer; layer++) {

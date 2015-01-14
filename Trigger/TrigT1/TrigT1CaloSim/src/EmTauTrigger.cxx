@@ -31,7 +31,7 @@
 #include "TrigConfL1Data/L1DataDef.h"
 
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
-#include "TrigT1CaloEvent/TriggerTowerCollection.h"
+#include "TrigT1CaloEvent/CPMTowerCollection.h"
 #include "TrigT1CaloEvent/EmTauROI_ClassDEF.h"
 #include "TrigT1CaloEvent/CPMHits_ClassDEF.h"
 
@@ -57,7 +57,7 @@ EmTauTrigger::EmTauTrigger
 {
     m_emTauOutputLocation        = TrigT1CaloDefs::EmTauROILocation;
     m_cpmHitsLocation            = TrigT1CaloDefs::CPMHitsLocation ;
-    m_TriggerTowerLocation       = TrigT1CaloDefs::TriggerTowerLocation;
+    m_CPMTowerLocation           = TrigT1CaloDefs::CPMTowerLocation;
 
     // This is how you declare the paramembers to Gaudi so that
     // they can be over-written via the job options file
@@ -66,7 +66,7 @@ EmTauTrigger::EmTauTrigger
     declareProperty(  "EmTauROILocation",       m_emTauOutputLocation );
     declareProperty( "CPMHitsLocation",         m_cpmHitsLocation );
     declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
-    declareProperty( "TriggerTowerLocation", m_TriggerTowerLocation ) ;
+    declareProperty( "CPMTowerLocation", m_CPMTowerLocation ) ;
 
 }
 
@@ -172,14 +172,14 @@ StatusCode EmTauTrigger::execute( )
   m_vectorOfEmTauROIs =new DataVector<EmTauROI>;          //Container to hold EmTauRois in TES.
   m_cpmHitsContainer = new std::map<int, CPMHits *>;      // Map to hold CPM Hits
 
-  // Retrieve the TriggerTowerContainer
-  if (m_storeGate->contains<TriggerTowerCollection>(m_TriggerTowerLocation)) {
-    const DataVector<TriggerTower>* storedTTs;
-    StatusCode sc = m_storeGate->retrieve(storedTTs, m_TriggerTowerLocation);  
+  // Retrieve the CPMTowerContainer
+  if (m_storeGate->contains<CPMTowerCollection>(m_CPMTowerLocation)) {
+    const DataVector<CPMTower>* storedTTs;
+    StatusCode sc = m_storeGate->retrieve(storedTTs, m_CPMTowerLocation);  
     if ( sc==StatusCode::SUCCESS ) {
-       // Check size of TriggerTowerCollection - zero would indicate a problem
+       // Check size of CPMTowerCollection - zero would indicate a problem
       if (storedTTs->size() == 0)
-         log << MSG::WARNING << "Empty TriggerTowerContainer - looks like a problem" << endreq;
+         log << MSG::WARNING << "Empty CPMTowerContainer - looks like a problem" << endreq;
   
       // Use L1EmTauTools to produce DataVector of RoIs passing trigger conditions
       m_EmTauTool->findRoIs(storedTTs, m_intROIContainer);
@@ -194,9 +194,9 @@ StatusCode EmTauTrigger::execute( )
         m_vectorOfEmTauROIs->push_back( test );
       }//end for loop
     }
-    else log << MSG::WARNING << "Error retrieving TriggerTowers" << endreq;
+    else log << MSG::WARNING << "Error retrieving CPMTowers" << endreq;
   }
-  else log << MSG::WARNING << "No TriggerTowerContainer at " << m_TriggerTowerLocation << endreq;
+  else log << MSG::WARNING << "No CPMTowerContainer at " << m_CPMTowerLocation << endreq;
   
   // Save external RoIs in TES
   saveExternalROIs();

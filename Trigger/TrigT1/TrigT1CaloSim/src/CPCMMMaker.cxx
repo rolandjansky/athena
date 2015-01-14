@@ -14,7 +14,7 @@
 #include "TrigT1CaloEvent/CPMRoI.h"
 #include "TrigT1CaloEvent/EmTauROI.h"
 #include "TrigT1CaloEvent/EmTauROI_ClassDEF.h"
-#include "TrigT1CaloEvent/CPBSCollection.h"
+#include "TrigT1CaloEvent/CPBSCollectionV1.h"
 #include "TrigT1CaloSim/CPCMMMaker.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
@@ -249,7 +249,7 @@ StatusCode CPCMMMaker::makeCpBsCollection()
 
   // Create CP container
 
-  CPBSCollection* cp = new CPBSCollection(ttCollection, hitCollection,
+  CPBSCollectionV1* cp = new CPBSCollectionV1(ttCollection, hitCollection,
                                                         cmmHitCollection);
   sc = m_storeGate->overwrite(cp, m_cpBsCollectionLocation,true,false,false);
   if (sc != StatusCode::SUCCESS) {

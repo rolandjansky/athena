@@ -14,8 +14,8 @@
 #include "TrigT1CaloEvent/JEMEtSums.h"
 #include "TrigT1CaloEvent/JEMHits.h"
 #include "TrigT1CaloEvent/JEMRoI.h"
-#include "TrigT1CaloEvent/JEPBSCollection.h"
-#include "TrigT1CaloEvent/JEPRoIBSCollection.h"
+#include "TrigT1CaloEvent/JEPBSCollectionV1.h"
+#include "TrigT1CaloEvent/JEPRoIBSCollectionV1.h"
 #include "TrigT1CaloEvent/JetElement.h"
 #include "TrigT1CaloEvent/JetROI.h"
 #include "TrigT1CaloEvent/JetROI_ClassDEF.h"
@@ -417,7 +417,7 @@ StatusCode JEPCMMMaker::makeJepBsCollection()
 
   // Create JEP container
 
-  JEPBSCollection* jep = new JEPBSCollection(jeCollection, hitCollection,
+  JEPBSCollectionV1* jep = new JEPBSCollectionV1(jeCollection, hitCollection,
                                              etCollection, cmmHitCollection,
 				                           cmmEtCollection);
   sc = m_storeGate->overwrite(jep, m_jepBsCollectionLocation,true,false,false);
@@ -482,7 +482,7 @@ StatusCode JEPCMMMaker::makeJepRoiBsCollection()
 
   // Create JEP RoI container
 
-  JEPRoIBSCollection* jep = new JEPRoIBSCollection(jeCollection, cr,
+  JEPRoIBSCollectionV1* jep = new JEPRoIBSCollectionV1(jeCollection, cr,
                                         cmmHitCollection, cmmEtCollection);
   sc = m_storeGate->overwrite(jep, m_jepRoiBsCollectionLocation,true,false,false);
   if (sc != StatusCode::SUCCESS) {

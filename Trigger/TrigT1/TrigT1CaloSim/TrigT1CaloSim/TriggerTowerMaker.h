@@ -85,6 +85,7 @@
 //********************************************
 
 class IAtRndmGenSvc;
+class ILumiBlockMuTool;
 
 // Pedestal Correction
 #include "TProfile.h"
@@ -148,6 +149,7 @@ class TriggerTowerMaker : public Algorithm,
     CLHEP::HepRandomEngine* m_rndmADCs;
     ToolHandle<IL1TriggerTowerTool> m_TTtool;
     ToolHandle<IL1CaloMappingTool> m_mappingTool; 
+    ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool;
     LArCablingService* m_cablingSvc;
     PileUpMergeSvc* m_mergeSvc;
 

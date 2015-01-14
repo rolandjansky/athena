@@ -1,14 +1,10 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
-
 
  /***************************************************************************
-                           EmTauTrigger.h  -  description
+                           CPMSim.h  -  description
                               -------------------
-     begin                : Wed Dec 13 2000
-     copyright            : (C) 2000 by moyse
-     email                : moyse@heppch.ph.qmw.ac.uk
+     begin                : Wed Mar 05 2014
+     copyright            : (C) 2014 Alan Watson
+     email                : Alan.Watson@CERN.CH
   ***************************************************************************/
 
  /***************************************************************************
@@ -19,8 +15,8 @@
   *   (at your option) any later version.                                   *
   *                                                                         *
   ***************************************************************************/
- #ifndef EmTauTrigger_H
- #define EmTauTrigger_H
+ #ifndef CPMSim_H
+ #define CPMSim_H
 
  // STL
  #include <string>
@@ -35,35 +31,35 @@
  #include "DataModel/DataVector.h"
  #include "GaudiKernel/DataSvc.h"
  #include "StoreGate/StoreGateSvc.h"
+ 
+ #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
 // Include for the configuration service:
-#include "TrigConfInterfaces/ITrigConfigSvc.h"
-#include "TrigConfL1Data/CTPConfig.h"
-#include "TrigConfL1Data/Menu.h"
-#include "TrigConfL1Data/TriggerThreshold.h"
-#include "TrigConfL1Data/TriggerThresholdValue.h"
-#include "TrigConfL1Data/ClusterThresholdValue.h"
+ #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
  // LVL1 Calo Trigger
- #include "TrigT1CaloEvent/EmTauROI.h"
- #include "TrigT1CaloEvent/CPMHits.h"
- #include "TrigT1CaloUtils/CPAlgorithm.h"
- #include "TrigT1CaloUtils/ClusterProcessorModuleKey.h"
- #include "TrigT1CaloToolInterfaces/IL1EmTauTools.h"
+ #include "TrigT1CaloToolInterfaces/IL1CPMTools.h"
+
+ // For RoI output 
+ #include "TrigT1Interfaces/SlinkWord.h"
+
 
  namespace LVL1 {
 
  using namespace TrigConf;
 
+ class CPMTower;
+ class CPMTobRoI;
+ class CPMCMXData;
+
    //Doxygen Class definition below:
    /**
   The algorithm responsible for simulating the Em/tau calo trigger.
    */
- class EmTauTrigger : public Algorithm
+ class CPMSim : public Algorithm
  {
 
   public:
-  typedef DataVector<CPMHits>                 CPMHitsCollection;
 
    //-------------------------
    // Constructors/Destructors
@@ -72,9 +68,9 @@
    // (and passes them directly to the constructor of the base class)
    //-------------------------
 
-   EmTauTrigger( const std::string& name, ISvcLocator* pSvcLocator ) ;
+   CPMSim( const std::string& name, ISvcLocator* pSvcLocator ) ;
 
-   virtual ~EmTauTrigger();
+   virtual ~CPMSim();
 
 
    //------------------------------------------------------
@@ -87,39 +83,52 @@
    StatusCode finalize() ;
 
  private: // Private methods
-   /** create final ROI objects and place them in the TES. */
-   void saveExternalROIs();
-   /** Store CPM hit counts in CPMHits */
-   void formCPMHits();
-   /** put CPM summary objects into SG */
-   void saveCPMHits();
-  /** increment CPM hit word */
-  unsigned int addHits(unsigned int hitMult, unsigned int hitVec);
+   /** Store TOB RoI objects in the TES. */
+   void storeModuleRoIs();
+   /** Store module outputs in TES as inputs to CMX simulation */
+   void storeBackplaneTOBs();
+   /** Simulate Slink data for RoIB input */
+  void storeSlinkObjects();
+  
+  /** adds slink header */
+  void addHeader( DataVector<LVL1CTP::SlinkWord>* slink, unsigned int subDetID, unsigned int moduleId);
+  /** add Slink tail */
+  void addTail( DataVector<LVL1CTP::SlinkWord>* slink, unsigned int numberOfDataWords);
+  /** creates a new SlinkWord object with the passed word, and returns a pointer.*/
+  LVL1CTP::SlinkWord* getWord(unsigned int tword);
 
-  /** retrieves the Calo config put into detectorstore by TrigT1CTP and set up trigger menu */
-  void setupTriggerMenuFromCTP();
+  /** Debug routine: dump trigger menu at start of run */
+  void printTriggerMenu();
+  
  private: // Private attributes
 
-   /** These are our main output data */
-   DataVector<EmTauROI>* m_vectorOfEmTauROIs;
-
-   /** Where to find the CPMTowers */
-   std::string   m_CPMTowerLocation ;
-   /** Locations of outputs in StoreGate */
-   std::string   m_emTauOutputLocation ;
-   std::string    m_cpmHitsLocation ;
-
-  /** These objects emulate the actual CP FPGA */
-  DataVector<CPAlgorithm>* m_intROIContainer;
+   /** CPM Towers (input to algorithm, output to BS simulation) */
+   DataVector<CPMTower>* m_cpmTowers;
    
-  /** This map holds the CPMHits objects - because a map
-  provides a convenient way of finding a CPMHits if we need to update it */
-  std::map<int, CPMHits *> * m_cpmHitsContainer;
-  
+   /** TOB RoIs for RoIB input and DAQ output simulation */
+   DataVector<CPMTobRoI>* m_allTOBs;
+
+   /** Backplane data objects: CPM outputs to CMX */
+   DataVector<CPMCMXData>* m_CMXData;
+   
+   /** there are 4 CP RoI RODs which have a Slink cable connected to the RoIB.
+    This array holds pointers to 4 DataVectors containing the Slink words  */
+   DataVector<LVL1CTP::SlinkWord>* m_CPRoIROD[TrigT1CaloDefs::numOfCPRoIRODs];
+
+   /** Where to store the CPMTowers */
+   std::string   m_CPMTowerLocation;
+   /** Locations of outputs in StoreGate */
+   std::string   m_CPMTobRoILocation;
+   std::string   m_CPMCMXDataLocation;
+   std::string   m_emTauSlinkLocation ;
+   
    /** The essentials - data access, configuration, tools */
    ServiceHandle<StoreGateSvc> m_storeGate;
    ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
-   ToolHandle<LVL1::IL1EmTauTools> m_EmTauTool;
+   ToolHandle<LVL1::IL1CPMTools> m_CPMTool;
+   
+   unsigned int m_eventNumber;
+
 
 };
 

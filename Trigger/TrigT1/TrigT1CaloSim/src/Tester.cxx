@@ -27,7 +27,7 @@
 #include "TrigT1CaloSim/Tester.h"
 #include <fstream>
 #include <algorithm>
-#include "CaloEvent/CaloSampling.h"
+// #include "CaloGeoHelpers/CaloSampling.h"
 #include "TrigT1CaloEvent/TriggerTower_ClassDEF.h"
 #include "TrigT1CaloEvent/CPMTower_ClassDEF.h"
 #include "TrigT1CaloEvent/JetElement_ClassDEF.h"
@@ -42,10 +42,22 @@
 #include "TrigT1CaloEvent/CMMCPHits_ClassDEF.h"
 #include "TrigT1CaloEvent/CMMJetHits_ClassDEF.h"
 #include "TrigT1CaloEvent/CMMEtSums_ClassDEF.h"
+#include "TrigT1CaloEvent/CPMTobRoI_ClassDEF.h"
+#include "TrigT1CaloEvent/CPMCMXData_ClassDEF.h"
+#include "TrigT1CaloEvent/JEMTobRoI_ClassDEF.h"
+#include "TrigT1CaloEvent/JetCMXData_ClassDEF.h"
 #include "TrigT1CaloEvent/CMMRoI.h"
+#include "TrigT1CaloEvent/CPCMXTopoData.h"
+#include "TrigT1CaloEvent/JetCMXTopoData.h"
+#include "TrigT1CaloEvent/CPTopoTOB.h"
+#include "TrigT1CaloEvent/JetTopoTOB.h"
+#include "TrigT1CaloEvent/EnergyTopoData.h"
 #include "TrigT1CaloUtils/ModuleEnergy.h"
 #include "TrigT1CaloUtils/CrateEnergy.h"
 #include "TrigT1CaloUtils/SystemEnergy.h"
+#include "TrigT1Interfaces/EmTauCTP.h"
+#include "TrigT1Interfaces/JetCTP.h"
+#include "TrigT1Interfaces/EnergyCTP.h"
 
 namespace LVL1{
 
@@ -76,7 +88,17 @@ Tester::Tester
   m_actualROIWordLocation  = DEFAULT_actualROIWordLocation ;
   m_jemHitsLocation        = LVL1::TrigT1CaloDefs::JEMHitsLocation ;
   m_jemEtSumsLocation      = LVL1::TrigT1CaloDefs::JEMEtSumsLocation ;
-  
+  m_CPMTobRoILocation      = TrigT1CaloDefs::CPMTobRoILocation;
+  m_CPMCMXDataLocation     = TrigT1CaloDefs::CPMCMXDataLocation ;
+  m_JEMTobRoILocation      = TrigT1CaloDefs::JEMTobRoILocation;
+  m_JetCMXDataLocation     = TrigT1CaloDefs::JetCMXDataLocation;
+  m_CPCMXTopoDataLocation  = TrigT1CaloDefs::EmTauTopoTobLocation;
+  m_JetCMXTopoDataLocation  = TrigT1CaloDefs::JetTopoTobLocation;
+  m_EnergyTopoDataLocation  = TrigT1CaloDefs::EnergyTopoDataLocation;
+  m_EmTauCTPLocation        = TrigT1CaloDefs::EmTauCTPLocation;
+  m_JetCTPLocation          = TrigT1CaloDefs::JetCTPLocation;
+  m_EnergyCTPLocation       = TrigT1CaloDefs::EnergyCTPLocation;
+
   declareProperty("EventStore",m_storeGate,"StoreGate Service");
   declareProperty( "L1EmTauTools", m_EmTauTool, "Tool for EM/Tau trigger simulation");
   declareProperty( "L1JetTools", m_JetTool, "Tool for Jet trigger simulation");
@@ -704,6 +726,251 @@ void LVL1::Tester::dumpEDM(){
   }
 
     
+  // Now do the same for CPMTobRoI
+  const DataVector<CPMTobRoI>* cpmtobrois;
+
+  if( m_storeGate->retrieve(cpmtobrois, m_CPMTobRoILocation).isFailure() ){
+    log << MSG::INFO << "No CPMTobRoI found in TES at "
+        << m_CPMTobRoILocation << endreq ;
+  }
+  else {
+  
+    log << MSG::INFO << "Got " << cpmtobrois->size() << " CPMTobRoI from TES" << endreq ;
+
+    // print values...
+    DataVector<LVL1::CPMTobRoI>::const_iterator itcp ;
+    for( itcp = cpmtobrois->begin(); itcp < cpmtobrois->end(); ++itcp ) {
+        log << MSG::INFO << std::hex
+                   << "RoI Word " << (*itcp)->roiWord()
+                   << std::dec << " Crate = "
+		   << (*itcp)->crate() << ", Module = " << (*itcp)->cpm()
+		   << ", Chip = " << (*itcp)->chip() 
+		   << ", Coordinate = " << (*itcp)->location()
+		   << endreq;
+        log << MSG::INFO << " ET " << (*itcp)->energy()
+                   << " Isolation " << std::hex << (*itcp)->isolation() << std::dec
+                   << " Type = " << (*itcp)->type()
+                   <<endreq;
+    }
+    
+  }
+  
+    
+  // CPM->CMX Data
+  const DataVector<CPMCMXData>* emcmx;
+
+  if( m_storeGate->retrieve(emcmx, m_CPMCMXDataLocation).isFailure() ){
+    log << MSG::INFO << "No CPMCMXData found in TES at "
+        << m_CPMCMXDataLocation << endreq ;
+  }
+  else {
+  
+    log << MSG::INFO << "Got " << emcmx->size() << " CPMCMXData from TES" << endreq ;
+
+    // print values...
+    DataVector<LVL1::CPMCMXData>::const_iterator item ;
+    for( item = emcmx->begin(); item < emcmx->end(); ++item ) {
+        log << MSG::INFO
+                   << " Crate = " << (*item)->crate() << ", Module = " << (*item)->module()
+		   << ", Type = " << (*item)->type() 
+		   << endreq;
+	std::vector<unsigned int> data = (*item)->DataWords();
+        log << MSG::INFO << " Map " << std::hex << (*item)->presenceMap() << std::dec << endreq;
+	log << MSG::INFO << " Data : " << std::hex << data[0] << "  " << data[1]
+	                 << "  " << data[2] << "  " << data[3] << std::dec << endreq;
+    }
+    
+  }
+ 
+    
+    
+  // Now do the same for JEMTobRoI
+  const DataVector<JEMTobRoI>* jemtobrois;
+
+  if( m_storeGate->retrieve(jemtobrois, m_JEMTobRoILocation).isFailure() ){
+    log << MSG::INFO << "No JEMTobRoI found in TES at "
+        << m_JEMTobRoILocation << endreq ;
+  }
+  else {
+  
+    log << MSG::INFO << "Got " << jemtobrois->size() << " JEMTobRoI from TES" << endreq ;
+
+    // print values...
+    DataVector<LVL1::JEMTobRoI>::const_iterator itje ;
+    for( itje = jemtobrois->begin(); itje < jemtobrois->end(); ++itje ) {
+        log << MSG::INFO << std::hex
+                   << "RoI Word " << (*itje)->roiWord()
+                   << std::dec << " Crate = "
+		   << (*itje)->crate() << ", Module = " << (*itje)->jem()
+		   << ", Frame = " << (*itje)->frame() 
+		   << ", Coordinate = " << (*itje)->location()
+		   << endreq;
+        log << MSG::INFO << " ETLarge = " << (*itje)->energyLarge()
+                   << " ETSmall = " << (*itje)->energySmall()
+                   <<endreq;
+    }
+    
+  }
+   
+   
+  // Jet JEM->CMX Data
+  const DataVector<JetCMXData>* jetcmx;
+
+  if( m_storeGate->retrieve(jetcmx, m_JetCMXDataLocation).isFailure() ){
+    log << MSG::INFO << "No JetCMXData found in TES at "
+        << m_JetCMXDataLocation << endreq ;
+  }
+  else {
+  
+    log << MSG::INFO << "Got " << jetcmx->size() << " JetCMXData from TES" << endreq ;
+
+    // print values...
+    DataVector<LVL1::JetCMXData>::const_iterator itjetcmx ;
+    for( itjetcmx = jetcmx->begin(); itjetcmx < jetcmx->end(); ++itjetcmx ) {
+        log << MSG::INFO
+                   << " Crate = " << (*itjetcmx)->crate() << ", Module = " << (*itjetcmx)->module()
+		   << endreq;
+	std::vector<unsigned int> data = (*itjetcmx)->DataWords();
+        log << MSG::INFO << " Map " << std::hex << (*itjetcmx)->presenceMap() << std::dec << endreq;
+	log << MSG::INFO << " Data : " << std::hex << data[0] << "  " << data[1]
+	                 << "  " << data[2] << "  " << data[3] << std::dec << endreq;
+    }
+    
+  }
+  
+  // CPCMXTopoData
+  const DataVector<CPCMXTopoData>* cpcmxtopo;
+
+  if( m_storeGate->retrieve(cpcmxtopo, m_CPCMXTopoDataLocation).isFailure() ){
+    log << MSG::INFO << "No CPCMXTopoData found in TES at "
+        << m_CPCMXTopoDataLocation << endreq ;
+  }
+  else {
+  
+    log << MSG::INFO << "Got " << cpcmxtopo->size() << " CPCMXTopoData from TES" << endreq ;
+
+    // print values...
+    DataVector<LVL1::CPCMXTopoData>::const_iterator itcpcmxtopo ;
+    for( itcpcmxtopo = cpcmxtopo->begin(); itcpcmxtopo < cpcmxtopo->end(); ++itcpcmxtopo ) {
+        log << MSG::INFO
+                   << " Crate = " << (*itcpcmxtopo)->crate() << ", CMX = " << (*itcpcmxtopo)->cmx()
+		   << ", Overflow = " << (*itcpcmxtopo)->overflow() << endreq;
+	std::vector<unsigned int> data = (*itcpcmxtopo)->tobWords();
+	std::vector<CPTopoTOB> tobs;
+	(*itcpcmxtopo)->tobs(tobs);
+	if (tobs.size() == data.size()) {
+	   for (unsigned int i = 0; i < data.size(); ++i) {
+              log << MSG::INFO << " TOB word " << std::hex << data[i] << std::dec << 
+	                          " ET " << tobs[i].et() << ", isolation = 0x" << std::hex << tobs[i].isolation() << std::dec << endreq <<
+				  " Coordinate (" << tobs[i].eta() << ", " << tobs[i].phi() << ") => (" <<
+				  tobs[i].ieta() << ", " << tobs[i].iphi() << ")" << endreq;
+	   }
+	}
+	else log << MSG::INFO << "MisMatch: " << data.size() << " words but " << tobs.size() << " TOBs" << endreq;
+    }
+    
+  }
+
+  
+  // JetCMXTopoData
+  const DataVector<JetCMXTopoData>* jetcmxtopo;
+
+  if( m_storeGate->retrieve(jetcmxtopo, m_JetCMXTopoDataLocation).isFailure() ){
+    log << MSG::INFO << "No JetCMXTopoData found in TES at "
+        << m_JetCMXTopoDataLocation << endreq ;
+  }
+  else {
+  
+    log << MSG::INFO << "Got " << jetcmxtopo->size() << " JetCMXTopoData from TES" << endreq ;
+
+    // print values...
+    DataVector<LVL1::JetCMXTopoData>::const_iterator itjetcmxtopo ;
+    for( itjetcmxtopo = jetcmxtopo->begin(); itjetcmxtopo < jetcmxtopo->end(); ++itjetcmxtopo ) {
+        log << MSG::INFO
+                   << " Crate = " << (*itjetcmxtopo)->crate() 
+		   << ", Overflow = " << (*itjetcmxtopo)->overflow() << endreq;
+	std::vector<unsigned int> data = (*itjetcmxtopo)->tobWords();
+	std::vector<JetTopoTOB> tobs;
+	(*itjetcmxtopo)->tobs(tobs);
+	if (tobs.size() == data.size()) {
+	   for (unsigned int i = 0; i < data.size(); ++i) {
+              log << MSG::INFO << " TOB word " << std::hex << data[i] << std::dec << 
+	                          " ETLarge " << tobs[i].etLarge() << ", ETSmall " << tobs[i].etSmall() << endreq <<
+				  " Coordinate (" << tobs[i].eta() << ", " << tobs[i].phi() << ") => (" <<
+				  tobs[i].ieta() << ", " << tobs[i].iphi() << ")" << endreq;
+	   }
+	}
+	else log << MSG::INFO << "MisMatch: " << data.size() << " words but " << tobs.size() << " TOBs" << endreq;
+    }
+    
+  }
+
+  
+  // EnergyTopoData
+  const EnergyTopoData* energytopo;
+
+  if( m_storeGate->retrieve(energytopo, m_EnergyTopoDataLocation).isFailure() ){
+    log << MSG::INFO << "No EnergyTopoData found in TES at "
+        << m_EnergyTopoDataLocation << endreq ;
+  }
+  else {
+  
+    // print values...
+    log << MSG::INFO << " EnergyTopoData:" << endreq
+                     << "Word 0: " << MSG::hex << energytopo->word0() << ", Word 1:  " << energytopo->word1()
+		     << ", Word 2: " << energytopo->word2() << MSG::dec << endreq
+		     << "Ex: Full " << energytopo->Ex(LVL1::EnergyTopoData::Normal)
+		     << ", Restricted " << energytopo->Ex(LVL1::EnergyTopoData::Restricted) 
+		     << ", Overflows " << energytopo->ExOverflow(LVL1::EnergyTopoData::Normal) << ", " << energytopo->ExOverflow(LVL1::EnergyTopoData::Restricted)
+		     << endreq
+		     << "Ey: Full " << energytopo->Ey(LVL1::EnergyTopoData::Normal)
+		     << ", Restricted " << energytopo->Ey(LVL1::EnergyTopoData::Restricted) 
+		     << ", Overflows " << energytopo->ExOverflow(LVL1::EnergyTopoData::Normal) << ", " << energytopo->ExOverflow(LVL1::EnergyTopoData::Restricted)
+		     << endreq
+		     << "ET: Full " << energytopo->Et(LVL1::EnergyTopoData::Normal)
+		     << ", Restricted " << energytopo->Et(LVL1::EnergyTopoData::Restricted) 
+		     << ", Overflows " << energytopo->ExOverflow(LVL1::EnergyTopoData::Normal) << ", " << energytopo->ExOverflow(LVL1::EnergyTopoData::Restricted)
+		     << endreq;
+    
+  }
+
+  
+  // CTP Data
+  const EmTauCTP* emtauctp;
+  if( m_storeGate->retrieve(emtauctp, m_EmTauCTPLocation).isFailure() ){
+    log << MSG::INFO << "No EmTauCTP found in TES at "
+        << m_EmTauCTPLocation << endreq ;
+  }
+  else {
+    // print values...
+    log << MSG::INFO << " EmTauCTP:" << MSG::hex << endreq
+                     << "Word 0: " << emtauctp->cableWord0() << ", Word 1:  " << emtauctp->cableWord1()
+		     << ", Word 2: " << emtauctp->cableWord2() << ", Word 3: " << emtauctp->cableWord3() << MSG::dec << endreq;   
+  }
+   
+  const JetCTP* jetctp;
+  if( m_storeGate->retrieve(jetctp, m_JetCTPLocation).isFailure() ){
+    log << MSG::INFO << "No JetCTP found in TES at "
+        << m_JetCTPLocation << endreq ;
+  }
+  else {
+    // print values...
+    log << MSG::INFO << " JetCTP:" << MSG::hex << endreq
+                     << "Word 0: " << jetctp->cableWord0() << ", Word 1:  " << jetctp->cableWord1() << MSG::dec << endreq;   
+  }
+ 
+  const EnergyCTP* energyctp;
+  if( m_storeGate->retrieve(energyctp, m_EnergyCTPLocation).isFailure() ){
+    log << MSG::INFO << "No EnergyCTP found in TES at "
+        << m_EnergyCTPLocation << endreq ;
+  }
+  else {
+    // print values...
+    log << MSG::INFO << " EnergyCTP:" << MSG::hex << endreq
+                     << "Word 0: " << energyctp->cableWord0() << ", Word 1:  " << energyctp->cableWord1() << MSG::dec << endreq;   
+  }
+
+
   // Now do the same for CMMRoI
   const CMMRoI* cmmroi;
 
@@ -726,6 +993,7 @@ void LVL1::Tester::dumpEDM(){
                    << " Ey: " << cmmroi->ey()
                    <<endreq;
   }
+
         
 }//end of dumpEDM
 

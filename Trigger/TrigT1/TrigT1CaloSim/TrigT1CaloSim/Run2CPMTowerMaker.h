@@ -3,13 +3,13 @@
 */
 
 // ================================================
-// CPMTowerMaker class descriptionn
+// Run2CPMTowerMaker class descriptionn
 // ================================================
 
 
 
-#ifndef CPMTOWERMAKER_H
-#define CPMTOWERMAKER_H
+#ifndef RUN2CPMTOWERMAKER_H
+#define RUN2CPMTOWERMAKER_H
 
 // STL
 #include <string>
@@ -37,7 +37,7 @@ namespace LVL1 {
 
 //class StoreGateSvc;
 
-//                 CPMTowerMaker class declaration
+//                 Run2CPMTowerMaker class declaration
 /*
  An "Athena algorithm" is something which gets scheduled and controlled
  by the framework In its simplest definition it is something which
@@ -47,14 +47,14 @@ namespace LVL1 {
  It must inherit from the  Algorithm base class
  */
 /**
-The CPMTowerMaker class takes Trigger Towers from the TES and
+The Run2CPMTowerMaker class takes Trigger Towers from the TES and
 forms CPMTowers, which it then places back into the TES.
 The CPMTowers so formed are used for the bytestream simulation.
 */
-class CPMTowerMaker : public Algorithm
+class Run2CPMTowerMaker : public Algorithm
 {
   typedef DataVector<CPMTower> CPMTCollection;
-  typedef DataVector<TriggerTower> TTCollection ;
+  typedef DataVector<xAOD::TriggerTower> TTCollection ;
  public:
 
   //-------------------------
@@ -64,9 +64,9 @@ class CPMTowerMaker : public Algorithm
   // (and passes them directly to the constructor of the base class)
   //-------------------------
 
-  CPMTowerMaker( const std::string& name, ISvcLocator* pSvcLocator ) ;
+  Run2CPMTowerMaker( const std::string& name, ISvcLocator* pSvcLocator ) ;
 
-  virtual ~CPMTowerMaker();
+  virtual ~Run2CPMTowerMaker();
 
 
   //------------------------------------------------------

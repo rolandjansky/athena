@@ -3,7 +3,7 @@
 */
 
 // ================================================
-// CPMTowerMaker class Implementation
+// Run2CPMTowerMaker class Implementation
 // ================================================
 //
 //
@@ -12,9 +12,9 @@
 #include <cmath>
 
 // This algorithm includes
-#include "TrigT1CaloSim/CPMTowerMaker.h"
+#include "TrigT1CaloSim/Run2CPMTowerMaker.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
-#include "TrigT1CaloEvent/TriggerTowerCollection.h"
+#include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "TrigT1CaloEvent/CPMTower_ClassDEF.h"
 
 
@@ -30,12 +30,12 @@ namespace LVL1 {
   Alter the values of these in jobOptions.txt
 */
   
-CPMTowerMaker::CPMTowerMaker( const std::string& name, ISvcLocator* pSvcLocator ) 
+Run2CPMTowerMaker::Run2CPMTowerMaker( const std::string& name, ISvcLocator* pSvcLocator ) 
   : Algorithm( name, pSvcLocator ), 
     m_storeGate("StoreGateSvc", name),
     m_CPMTowerTool("LVL1::L1CPMTowerTools/L1CPMTowerTools")
 {
-  m_triggerTowerLocation     = TrigT1CaloDefs::TriggerTowerLocation ;
+  m_triggerTowerLocation     = "xAODTriggerTowers" ;
   m_cpmTowerLocation         = TrigT1CaloDefs::CPMTowerLocation;
 
   // This is how you declare the parameters to Gaudi so that
@@ -46,7 +46,7 @@ CPMTowerMaker::CPMTowerMaker( const std::string& name, ISvcLocator* pSvcLocator 
   declareProperty( "CPMTowerLocation", m_cpmTowerLocation ) ;
 }
   
-CPMTowerMaker::~CPMTowerMaker() {
+Run2CPMTowerMaker::~Run2CPMTowerMaker() {
   MsgStream log( messageService(), name() ) ;
   log << MSG::INFO << "Destructor called" << endreq;
 } 
@@ -54,7 +54,7 @@ CPMTowerMaker::~CPMTowerMaker() {
 
   /** the initialise() method is called at the start of processing, so we set up any histograms
       etc. here*/
-StatusCode CPMTowerMaker::initialize()
+StatusCode Run2CPMTowerMaker::initialize()
 {
   // We must here instantiate items which can only be made after
   // any job options have been set
@@ -84,7 +84,7 @@ StatusCode CPMTowerMaker::initialize()
 
 /** the finalise() method is called at the end of processing, so it is used
 for deleting histograms and general tidying up*/
-StatusCode CPMTowerMaker::finalize()
+StatusCode Run2CPMTowerMaker::finalize()
 {
   MsgStream log( messageService(), name() ) ;
   log << MSG::INFO << "Finalizing" << endreq;
@@ -103,7 +103,7 @@ There is so little to do that this routine does it all itself:
 */
 
 
-StatusCode CPMTowerMaker::execute( )
+StatusCode Run2CPMTowerMaker::execute( )
 {
 
   //................................
@@ -123,8 +123,8 @@ StatusCode CPMTowerMaker::execute( )
   CPMTCollection* vectorOfCPMTs = new  CPMTCollection;
   
   // Retrieve TriggerTowers from StoreGate 
-  if (m_storeGate->contains<TriggerTowerCollection>(m_triggerTowerLocation)) {
-    const DataVector<TriggerTower>* vectorOfTTs;
+  if (m_storeGate->contains<xAOD::TriggerTowerContainer>(m_triggerTowerLocation)) {
+    const DataVector<xAOD::TriggerTower>* vectorOfTTs;
     StatusCode sc = m_storeGate->retrieve(vectorOfTTs, m_triggerTowerLocation);
     if (sc.isSuccess()) {
       // Fill a DataVector of CPMTowers using L1CPMTowerTools
