@@ -422,7 +422,7 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
 									Trk::PropDirection dir,
 									Trk::ParticleHypothesis particle) const
 {   
-  double pathCorrection                =  0.; 
+  //double pathCorrection                =  0.; 
 
   //std::cout << "update on layer: processing isp:position within layer: "<<isp <<","<< isp->generation() <<","<< particle <<std::endl;
   //std::cout << "position: global, within layer:"<<parm->position()<<","<< matFraction<< std::endl;
@@ -431,8 +431,9 @@ const Trk::TrackParameters* iFatras::McMaterialEffectsUpdator::updateInLay(const
 
   // recalculate if missing
   m_matProp = m_matProp ? m_matProp : m_layer->fullUpdateMaterialProperties(*parm);
-  pathCorrection = pathCorrection > 0. ? pathCorrection : m_layer->pathCorrection(*parm); 
-    
+  //double pathCorrection = fabs(m_layer->surfaceRepresentation().pathCorrection(parm->position(),parm->momentum())); 
+  double pathCorrection = m_layer->pathCorrection(*parm);   
+
   // check if a bending correction has to be applied
   if (m_bendingCorrection) {
     ATH_MSG_WARNING("BendingCorrection not implemented!! (McMaterialEffectsUpdator.cxx)");
@@ -1539,6 +1540,7 @@ void iFatras::McMaterialEffectsUpdator::recordBremPhotonLay(const ISF::ISFPartic
 
     // decide if photon leaves the layer
     // amount of material to traverse      
+    //double  pathCorrection = m_layer->surfaceRepresentation().pathCorrection(cparm->position(),cparm->momentum());
     double  pathCorrection = m_layer->pathCorrection(*cparm);
     double mTot = m_matProp->thicknessInX0()*pathCorrection*(1.-remMat); 
 
