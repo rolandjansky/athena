@@ -10,6 +10,8 @@
 #include "TrigSteeringTest/dummyMonitoredFex.h"
 #include "TrigSteeringTest/DummyFexWithAcceptInput.h"
 #include "TrigSteeringTest/dummyFexWithRobReqPrep.h"
+#include "TrigSteeringTest/DummyFexUsingTopo.h"
+#include "TrigSteeringTest/DummyComboUsingTopo.h"
 
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( PESA, dummyAlgo )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( PESA, dummyAlgoHLTErrorCode )
@@ -22,6 +24,8 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY( PESA, dummyMonitoredFex )
 DECLARE_NAMESPACE_ALGORITHM_FACTORY( PESA, dummyAlgoForCalibration )
 DECLARE_ALGORITHM_FACTORY( DummyFexWithAcceptInput )
 DECLARE_ALGORITHM_FACTORY( dummyFexWithRobReqPrep )
+DECLARE_ALGORITHM_FACTORY( DummyFexUsingTopo )
+DECLARE_ALGORITHM_FACTORY( DummyComboUsingTopo )
 
 DECLARE_FACTORY_ENTRIES(TrigSteeringTest) {
     DECLARE_NAMESPACE_ALGORITHM( PESA, dummyAlgo )
@@ -35,4 +39,6 @@ DECLARE_FACTORY_ENTRIES(TrigSteeringTest) {
     DECLARE_NAMESPACE_ALGORITHM( PESA, dummyAlgoForCalibration )
     DECLARE_ALGORITHM( DummyFexWithAcceptInput )
     DECLARE_ALGORITHM( dummyFexWithRobReqPrep )
+    DECLARE_ALGORITHM( DummyFexUsingTopo )
+    DECLARE_ALGORITHM( DummyComboUsingTopo )
 }

@@ -52,7 +52,8 @@ namespace PESA {
 			      HLT::TriggerElement* output);
 
   private:
-
+    unsigned m_rejectRate;
+    unsigned m_rejectCounter; 
 
   };
 } // end namespace

@@ -7,6 +7,7 @@
 #include "TrigNavigation/Navigation.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
+#include "DataModel/ConstDataVector.h"
 
 #include "TrigSteeringTest/dummyAlgo.h"
 
@@ -118,7 +119,25 @@ HLT::ErrorCode dummyAlgo::hltExecute(const HLT::TriggerElement* te_in,
   if ( getFeature(te_in, roisCollection0) != HLT::OK  ) {
     msg() << MSG::DEBUG << " no feature but this may actually be OK " << endreq;    
   }
-  
+
+
+  if ( roisCollection0 ) {
+    ConstDataVector<TrigRoiDescriptorCollection>* cdv = new ConstDataVector<TrigRoiDescriptorCollection>(SG::VIEW_ELEMENTS);
+    // make const collection and add to it few of the Rois
+    cdv->push_back(roisCollection0->front());
+    cdv->push_back(roisCollection0->back());    
+
+  if ( attachFeature(te_out, cdv, "AttachedAsCONSTCollection1"+name()) != HLT::OK ) {
+    msg() << MSG::ERROR << " the attach feature went wrong  (with attachFeature - const collection)" << endreq;
+    return HLT::ERROR;  
+  }
+    
+    
+  }
+
+    
+
+
   TrigRoiDescriptorCollection *roisCollection1 = new TrigRoiDescriptorCollection();
   roisCollection1->push_back(new TrigRoiDescriptor(*last));
   roisCollection1->push_back(new TrigRoiDescriptor(*last));

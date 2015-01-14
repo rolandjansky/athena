@@ -9,9 +9,10 @@ using namespace PESA;
 
 
 newDummyAlgo2To1::newDummyAlgo2To1(const std::string& name, ISvcLocator* pSvcLocator)
-  : HLT::ComboAlgo(name, pSvcLocator)
+  : HLT::ComboAlgo(name, pSvcLocator),
+    m_rejectCounter(0)
 {
-
+  declareProperty("rejectRate", m_rejectRate=0, "Factor defining how frequently this algo should make output TE inactive");
 }
 
 
@@ -25,6 +26,12 @@ HLT::ErrorCode newDummyAlgo2To1::hltExecute(std::vector<const HLT::TriggerElemen
     msg() << MSG::INFO << "Executing this newDummyAlgo2To1 " << name() << " for types "
 	  << (*it)->getId() << " -> " << te_out->getId() << endreq;
   }
-
+  if ( m_rejectRate != 0 )  {
+    m_rejectCounter ++;
+    if ( m_rejectCounter == m_rejectRate ) {
+      te_out->setActiveState(false);
+      m_rejectCounter = 0;
+    }
+  }
   return HLT::OK;
 }
