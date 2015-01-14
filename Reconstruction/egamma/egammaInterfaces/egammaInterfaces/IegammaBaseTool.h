@@ -19,11 +19,8 @@
 
 // INCLUDE HEADER FILES:
 #include "GaudiKernel/IAlgTool.h"
-
 // Forward declarations
 #include "xAODEgamma/EgammaFwd.h"
-#include "xAODTracking/TrackParticleContainerFwd.h" 
-class egammaRec;
 
 static const InterfaceID IID_IegammaBaseTool("IegammaBaseTool", 1, 0);
 
@@ -44,10 +41,6 @@ class IegammaBaseTool : virtual public IAlgTool
   virtual StatusCode finalize() = 0;
   /** @brief execute method*/
   virtual StatusCode execute(xAOD::Egamma* eg) = 0; 
-  /** @brief execute method*/
-  virtual StatusCode executeRec(egammaRec* eg) = 0; 
-  /** @brief execute method for TrackParticles*/
-  virtual StatusCode trackExecute(egammaRec* eg,  const xAOD::TrackParticleContainer * trackPC) = 0;
   /** @brief execute method for tools that operate on containers*/
   virtual StatusCode contExecute() = 0; 
 
