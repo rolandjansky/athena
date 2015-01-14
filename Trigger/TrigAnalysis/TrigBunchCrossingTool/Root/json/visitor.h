@@ -1,5 +1,5 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: visitor.h 630796 2014-11-25 04:05:57Z ssnyder $
+// $Id: visitor.h 630795 2014-11-25 04:05:50Z ssnyder $
 /**********************************************
 
 License: BSD
