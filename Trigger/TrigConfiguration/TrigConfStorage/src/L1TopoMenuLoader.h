@@ -7,6 +7,7 @@
 
 #include "TrigConfStorage/IL1TopoMenuLoader.h"
 #include "TrigConfStorage/DBLoader.h"
+#include "L1TopoConfig/L1TopoMenu.h"
 
 #include <set>
 
@@ -21,13 +22,21 @@ namespace TrigConf {
        * @param sm reference to storage manager
        * @param session reference to the database session
        */
-      L1TopoMenuLoader( StorageMgr& sm,  coral::ISession& session) :
-         IL1TopoMenuLoader(), DBLoader(sm, session) {}
+      L1TopoMenuLoader( StorageMgr& sm,  coral::ISessionProxy& session) :
+         IL1TopoMenuLoader(), DBLoader("L1TopoMenuLoader", sm, session) {}
       
       /**@brief destructor*/       
       virtual ~L1TopoMenuLoader(){};
 
       virtual bool load( TXC::L1TopoMenu& );
+
+      bool loadTopoAlgos( TXC::L1TopoMenu& tcaTarget);
+      bool loadAlgInput( TXC::L1TopoConfigAlg& tcaTarget, const int& );
+      bool loadAlgOutput( TXC::L1TopoConfigAlg& tcaTarget, const int& ta_id, const int& );
+      bool loadAlgRegister( TXC::L1TopoConfigAlg& tcaTarget, const int& ta_id );
+      bool loadAlgFixed( TXC::L1TopoConfigAlg& tcaTarget, const int& ta_id );
+      bool loadOutputList( TXC::L1TopoMenu& tcaTarget, const int& ctplinkid);
+      bool loadTopoConfig( TXC::L1TopoMenu& tcaTarget);
 
    };
 }

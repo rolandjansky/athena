@@ -36,20 +36,21 @@
 #include "TrigConfL1Data/MuonThresholdValue.h"
 #include "TrigConfL1Data/TriggerThresholdValue.h"
 #include "TrigConfL1Data/L1DataDef.h"
+#include "TrigConfL1Data/HelperFunctions.h"
 
 #include <iostream>
 #include <stdexcept>
 #include <typeinfo>
 
+using namespace std;
   
 bool
 TrigConf::TriggerThresholdValueLoader::load( TriggerThresholdValue& ttvTarget ) {
-   if(verbose()>=2)
-      msg() << "TriggerThresholdValueLoader loading thresholdvalue with ID = " << ttvTarget.id() << ":  ";
+   TRG_MSG_DEBUG("TriggerThresholdValueLoader loading thresholdvalue with ID = " << ttvTarget.id());
    L1DataDef def;
 
-   std::string name = "";
-   std::string type = "";
+   string name = "";
+   string type = "";
    int version = 0;
    float ptcut = 0;
    float priority=0;
@@ -57,13 +58,13 @@ TrigConf::TriggerThresholdValueLoader::load( TriggerThresholdValue& ttvTarget ) 
    int phimax = 0;
    int etamin = 0;
    int etamax = 0;
-   float emisolation = 0;
-   float hadisolation = 0;
-   float hadveto = 0;
+   string emisolation = "";
+   string hadisolation = "";
+   string hadveto = "";
    int window = 0;
       
    try {
-      unsigned int schema = triggerDBSchemaVersion();
+      //unsigned int schema = triggerDBSchemaVersion();
 
       startSession();
 
@@ -122,21 +123,17 @@ TrigConf::TriggerThresholdValueLoader::load( TriggerThresholdValue& ttvTarget ) 
       name = row["L1TTV_NAME"].data<std::string>();
       version = row["L1TTV_VERSION"].data<int>();
       type = row["L1TTV_TYPE"].data<std::string>();
-      if(schema <= 6) ptcut = row["L1TTV_PT_CUT"].data<float>();
-      else ptcut = boost::lexical_cast<float,std::string>(row["L1TTV_PT_CUT"].data<std::string>());
+      ptcut = boost::lexical_cast<float,std::string>(row["L1TTV_PT_CUT"].data<std::string>());
       etamin = row["L1TTV_ETA_MIN"].data<int>();
       etamax = row["L1TTV_ETA_MAX"].data<int>();
       phimin = row["L1TTV_PHI_MIN"].data<int>();
       phimax = row["L1TTV_PHI_MAX"].data<int>();
-      if(schema <= 6) emisolation = row["L1TTV_EM_ISOLATION"].data<float>();
-      else emisolation = boost::lexical_cast<float,std::string>(row["L1TTV_EM_ISOLATION"].data<std::string>());
-      if(schema <= 6) hadisolation = row["L1TTV_HAD_ISOLATION"].data<float>();
-      else hadisolation = boost::lexical_cast<float,std::string>(row["L1TTV_HAD_ISOLATION"].data<std::string>());
-      if(schema <= 6) hadveto = row["L1TTV_HAD_VETO"].data<float>();
-      else hadveto = boost::lexical_cast<float,std::string>(row["L1TTV_HAD_VETO"].data<std::string>());
       window = row["L1TTV_WINDOW"].data<int>();
-      if(schema <= 6) priority = row["L1TTV_PRIORITY"].data<float>();
-      else priority = boost::lexical_cast<float,std::string>(row["L1TTV_PRIORITY"].data<std::string>());
+      priority = boost::lexical_cast<float,std::string>(row["L1TTV_PRIORITY"].data<std::string>());
+      emisolation = row["L1TTV_EM_ISOLATION"].data<std::string>();
+      hadisolation = row["L1TTV_HAD_ISOLATION"].data<std::string>();
+      hadveto = row["L1TTV_HAD_VETO"].data<std::string>();
+
 
       if (cursor.next()) {
          msg() << "TriggerThresholdValueLoader >> More than one TriggerThresholdValue exists " 
@@ -156,32 +153,15 @@ TrigConf::TriggerThresholdValueLoader::load( TriggerThresholdValue& ttvTarget ) 
       commitSession();
       //msg() << name << std::endl;
 
-   } catch( const coral::SchemaException& e ) {
-      msg() << "TriggerThresholdValueLoader >> SchemaException: " 
-            << e.what() << std::endl;
-      m_session.transaction().rollback();
-      throw;
-      return false;
-   } catch( const std::exception& e ) {
-      msg() << "TriggerThresholdValueLoader >> Standard C++ exception: " << e.what() << std::endl;
-      m_session.transaction().rollback();
-      throw;
-      return false; 
-   } catch(...) {
-      msg() << "TriggerThresholdValueLoader >> unknown C++ exception" << std::endl;
-      m_session.transaction().rollback();
-      throw;
-      return false; 
-
    }
-    
-   //is it a cluster_threshold_value?
-   //std::cout << "PJB this is type "   << type << std::endl;
-   //std::cout << "PJB print the ttv1 " <<  ttvTarget.name() << std::endl;
-   //std::cout << "PJB print the ttv2 " <<  ttvTarget.version() << std::endl;
-   //std::cout << "PJB print the ttv3 " <<  ttvTarget.type() << std::endl;
-   //std::cout << "PJB print the ttv4 " <<  ttvTarget.ptcut() << std::endl;
-   //std::cout << "PJB print the ttv5 " <<  ttvTarget.priority() << std::endl;
+   catch( const coral::Exception& e ) {
+      TRG_MSG_ERROR("Caught coral exception: " << e.what() );
+      throw; 
+   }
+   catch( const std::exception& e ) {
+      TRG_MSG_ERROR("Caught standard exception: " << e.what() );
+      throw; 
+   }
 
    try {
       ClusterThresholdValue& ctvTarget = dynamic_cast<ClusterThresholdValue&>(ttvTarget);
@@ -190,9 +170,20 @@ TrigConf::TriggerThresholdValueLoader::load( TriggerThresholdValue& ttvTarget ) 
                << ctvTarget.id() << " " << type << std::endl;
          throw std::runtime_error( "TriggerThresholdValueLoader >> ClusterThresholdValue not available" );
       }
-      ctvTarget.setEmIsolation( emisolation );
-      ctvTarget.setHadIsolation( hadisolation );
-      ctvTarget.setHadVeto( hadveto );
+
+      cout << "ISO " << emisolation << "   " << hadisolation << "   " << hadveto << endl;
+
+      if(hadveto=="USEISOBITS" || boost::lexical_cast<int,std::string>(hadveto)==99 ) {
+         ctvTarget.setIsolationMask( TrigConf::bin2uint(emisolation) );
+         ctvTarget.setUseIsolationMask();
+      } else {
+         ctvTarget.setEmIsolation( boost::lexical_cast<float,std::string>(emisolation) );
+         ctvTarget.setHadIsolation( boost::lexical_cast<float,std::string>(hadisolation) );
+         ctvTarget.setHadVeto( boost::lexical_cast<float,std::string>(hadveto) );
+         ctvTarget.setUseIsolationMask( false );
+      }
+
+
       ctvTarget.setPhiMin( phimin);
       ctvTarget.setPhiMax( phimax);
       ctvTarget.setEtaMin( etamin );

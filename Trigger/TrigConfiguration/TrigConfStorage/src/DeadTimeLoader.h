@@ -33,7 +33,7 @@ namespace TrigConf {
        *
        * @param session reference to the database session
        */
-      DeadTimeLoader( StorageMgr& sm,  coral::ISession& session)
+      DeadTimeLoader( StorageMgr& sm,  coral::ISessionProxy& session)
          : ILoader(), DBLoader(sm, session) {}
 
       /**@brief destructor*/       

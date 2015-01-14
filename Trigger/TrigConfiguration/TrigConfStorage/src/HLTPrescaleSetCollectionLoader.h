@@ -29,7 +29,7 @@ namespace TrigConf {
    class HLTPrescaleSetCollectionLoader : virtual public IHLTPrescaleSetCollectionLoader, public DBLoader {
    public:
 
-      HLTPrescaleSetCollectionLoader( StorageMgr& sm,  coral::ISession& session) : DBLoader(sm, session) {}
+      HLTPrescaleSetCollectionLoader( StorageMgr& sm,  coral::ISessionProxy& session) : DBLoader("HLTPrescaleSetCollectionLoader", sm, session) {}
       virtual ~HLTPrescaleSetCollectionLoader(){};
 
       virtual bool load( HLTPrescaleSetCollection& psc );

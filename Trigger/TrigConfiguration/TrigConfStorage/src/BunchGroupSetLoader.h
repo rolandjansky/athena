@@ -28,8 +28,8 @@ namespace TrigConf {
    class BunchGroupSetLoader : public DBLoader, virtual public IBunchGroupSetLoader {
    public:
 
-      BunchGroupSetLoader( StorageMgr& sm,  coral::ISession& session) :
-         DBLoader(sm, session) {}
+      BunchGroupSetLoader( StorageMgr& sm,  coral::ISessionProxy& session) :
+         DBLoader("BunchGroupSetLoader", sm, session) {}
 
       virtual ~BunchGroupSetLoader(){};
 

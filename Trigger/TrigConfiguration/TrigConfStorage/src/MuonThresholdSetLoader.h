@@ -35,7 +35,7 @@ namespace TrigConf {
        *
        * @param session reference to the database session
        */
-      MuonThresholdSetLoader( StorageMgr& sm,  coral::ISession& session)
+      MuonThresholdSetLoader( StorageMgr& sm,  coral::ISessionProxy& session)
          : ILoader(), DBLoader(sm, session) {}
       
       /**@brief destructor*/           

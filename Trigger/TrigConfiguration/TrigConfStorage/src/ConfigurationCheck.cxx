@@ -103,10 +103,10 @@ public:
      m_itemsNumber = m_ctp->menu().itemVector().size();
      for ( int i = 0; i < m_itemsNumber; i++ )
         m_highestCTPNumber = std::max<int>(m_ctp->menu().itemVector()[i]->ctpId(), m_highestCTPNumber);
-     if( m_itemsNumber > 256 ) 
-        m_error += "More than 256 items in Lvl1 menu. ";
-     if( m_highestCTPNumber >= 256 ) 
-        m_error += "Some items have CTP ID>=256.";
+     if( m_itemsNumber > 512 ) 
+        m_error += "More than 512 items in Lvl1 menu. ";
+     if( m_highestCTPNumber >= 512 ) 
+        m_error += "Some items have CTP ID>=512.";
   }
   
 private:
@@ -179,8 +179,8 @@ private:
    std::string m_offending;
 };
 
-//fp////////////// CHECK WHETHER ALL SIGNATURES IN A GROUP ARE CONNECTED BY COMMON TEs //////////////////
-////// ALL OUTPUT TEs OF A SIGNATURE ARE THE FINAL TE OF THE CHAIN OR THE INPUT OF ANOTHER SINATURE   ///
+/////////////// CHECK WHETHER ALL SIGNATURES IN A GROUP ARE CONNECTED BY COMMON TEs //////////////////
+////// ALL OUTPUT TEs OF A SIGNATURE ARE THE FINAL TE OF THE CHAIN OR THE INPTUT OF ANOTHER SIGNATURE   ///
 ////// CHECK ALSO CHANGE OF MULTIPLICITY BETWEEN SIGNATURES
 
 struct multi_sign{
@@ -355,7 +355,7 @@ private:
 class ChainsCounterRangeTest : public TrigConfTest {
 public:
    ChainsCounterRangeTest() 
-      : TrigConfTest("ChainsCounterRange", "Chain counter within [1..8191]"),
+      : TrigConfTest("ChainsCounterRange", "Chain counter within [1..8095]"),
         m_offending("")
    {}
 
@@ -367,57 +367,12 @@ public:
             m_offending += ch->chain_name()+ "[" + boost::lexical_cast<std::string,int>(ch->chain_counter()) + "], ";
       }
       if(m_offending.size()>0)
-         m_error = "Chains with counter outside [1..8191]: " + m_offending;
+         m_error = "Chains with counter outside [1..8095]: " + m_offending;
    }
    
 private:
   std::string m_offending;
 };
-
-
-///////////////////////// PHYSICS CHAIN COUNTER RANGE   /////////////////////////
-class PhysChainsCounterRangeTest : public TrigConfTest {
-public:
-   PhysChainsCounterRangeTest() 
-      : TrigConfTest("PhysChainsCounterRange", "Chain counter within [1..1023]", WARNING),
-        m_offending("")
-   {}
-
-   virtual void execute(const Exc_t& exceptions) {
-      if ( ! m_hlt ) return;
-      
-      std::vector<boost::regex> exc_regex = buildExcRec(exceptions);
-
-      foreach(TrigConf::HLTChain* ch, m_hlt->getHLTChainList() ) {
-         if( matches_any(exc_regex, ch->chain_name()) ) continue; // excempt
-
-         // check if streams match
-         bool allStreamsExcempt = true;
-         foreach(const TrigConf::HLTStreamTag* strtag, ch->streams()) {
-            if( strtag->stream() == "express" ) continue;
-            bool streamIsExcempt=false;
-            foreach(string exc, exceptions) {
-               if(("str:"+strtag->stream())==exc) { streamIsExcempt=true; break; }
-               if(("str:type:"+strtag->type())==exc) { streamIsExcempt=true; break; }
-            }
-            if(!streamIsExcempt) { allStreamsExcempt = false; break; }
-         }
-         if(allStreamsExcempt) continue;
-
-         //if(exceptions.find(ch->chain_name()) != exceptions.end() ) continue;
-
-         if ( ch->chain_counter() > 0x3ff  || ch->chain_counter() < 1 ) 
-            m_offending += ch->chain_name()+ "[" + boost::lexical_cast<std::string,int>(ch->chain_counter()) + "], ";
-      }
-      if(m_offending.size()>0)
-         m_error = "Physics chains with counter outside [1..1023]: " + m_offending;
-
-   }
-
-private:
-   std::string m_offending;
-};
-
 
 
 //////////////////////// AT LEAST ONE TRIGGER TYPE AND ONE STREAM TAG FOR EACH CHAIN   /////////////////////////
@@ -1731,7 +1686,6 @@ ConfigurationCheck::ConfigurationCheck(TrigConf::CTPConfig* ctp, TrigConf::HLTFr
   m_tests.push_back(new ChainsNamingUniqueTest());
   m_tests.push_back(new ChainsCountersUniqueTest());
   m_tests.push_back(new ChainsCounterRangeTest());
-  m_tests.push_back(new PhysChainsCounterRangeTest());
   m_tests.push_back(new StreamTagPresentTest());
   m_tests.push_back(new GroupPresentTest());
   m_tests.push_back(new BWGroupPresentTest());

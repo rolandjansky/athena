@@ -33,8 +33,7 @@ bool
 TrigConf::HLTPrescaleSetCollectionLoader::load( HLTPrescaleSetCollection& pscoll,
                                                 unsigned int requestcounter,
                                                 const std::string& partition ) {
-
-   TRG_MSG_INFO("HLTPrescaleSetCollectionLoader: started loading data");
+   TRG_MSG_INFO("started loading data");
 
    vector< pair<unsigned int, unsigned int> > lb_psk;
 
@@ -81,7 +80,7 @@ TrigConf::HLTPrescaleSetCollectionLoader::load( HLTPrescaleSetCollection& pscoll
          lb_psk.push_back( make_pair(lb, psk) );
       }
 
-      TRG_MSG_INFO("HLTPrescaleSetCollectionLoader: LB_PSK map for partition " << partition);
+      TRG_MSG_INFO("LB_PSK map for partition " << partition);
       for(uint i=0; i< lb_psk.size(); i++) {
          TRG_MSG_INFO("For LB " << lb_psk[i].first << " onwards load psk " << lb_psk[i].second);
       }
@@ -117,7 +116,7 @@ TrigConf::HLTPrescaleSetCollectionLoader::load( HLTPrescaleSetCollection& psc ) 
       bool loadpss = pssloader.load(*psinfo.pss);
 
       if(!loadpss) {
-         msg() << "WARNING: HLTPrescaleSetCollectionLoader::load(): Could not load HLT Prescales for key " << psinfo.psk << endl;
+         TRG_MSG_ERROR("HLTPrescaleSetCollectionLoader::load(): Could not load HLT Prescales for key " << psinfo.psk);
          loadsuccess = false;
       }
    }

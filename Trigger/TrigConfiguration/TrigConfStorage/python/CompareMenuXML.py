@@ -55,12 +55,14 @@ class CompareMenuXML(object):
 
 
     def diff(self, doc1, doc2):
-        return self.comp(doc1, doc2)
+        return self.comp(doc1, doc2, "")
 
 
-    def comp(self, node1, node2):
+    def comp(self, node1, node2, context):
 
         if self.isOneMissing(node1, node2): return False
+
+        self.context = context + "." + node1.nodeName
 
         equal = True
         if self.verboseLevel>0:
@@ -81,32 +83,44 @@ class CompareMenuXML(object):
             
         pairedElems = self.orderChildren(node1.childNodes, node2.childNodes, childrenType)
         for (l,r) in pairedElems:
-            equal &= self.comp(l,r)
+            equal &= self.comp( l, r, self.context )
         return equal
 
 
 
-    def cmpNode(self,node1,node2,reqUniq=False):
+    def cmpNode(self, node1, node2, reqUniq=False):
+
         res = cmp(node1.nodeName,node2.nodeName)
         if res!=0: return res
 
         if node1.nodeType==minidom.Node.TEXT_NODE:
             return cmp(node1.data,node2.data)
 
-        if not node1.nodeName in self.uniqID:
-            print >>self, "Don't know how to compare two items of type %s , will abort" % node1.nodeName
+        # will check for comparison rule (the field to be used) in uniqID
+        compField = None
+
+        lookfor = self.context + "." + node1.nodeName
+        for k,f in self.uniqID.items():
+            if lookfor.endswith(k):
+                compField = f
+                break
+
+
+        if not compField:
+            print >>self, "Don't know how to compare two items of type %s in context %s, will abort" % ( node1.nodeName, self.context )
             sys.exit(0)
 
-        key = self.uniqID[node1.nodeName]
-        if key=='single': return 0
-        val1 = node1.attributes[key].value
-        val2 = node2.attributes[key].value
+        if compField=='single': return 0
+        val1 = node1.attributes[compField].value
+        val2 = node2.attributes[compField].value
         if val1<val2: return -1
         if val1>val2: return 1
         if reqUniq:
-            raise RuntimeError, "Two equal nodes %s found with %s = %s" % (node1.nodeName, key, val1)
+            raise RuntimeError, "Two equal nodes %s found with %s = %s" % (node1.nodeName, compField, val1)
         else:
             return 0
+
+
     
     def isOneMissing(self, node1, node2):
         if not (node1 and node2):

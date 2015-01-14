@@ -21,7 +21,7 @@ using namespace TrigConf;
 // Size of BLOB used for ItemToBunchGroup map; BLOBs are cheap, in case
 // we want to add information later on like more complicated logic /
 // also OR's, we can easily increase the size here
-long TrigConf::TrigConfCoolFolderSpec::mBGDescBlobSize = 256;
+long TrigConf::TrigConfCoolFolderSpec::mBGDescBlobSize = 512;
 
 // BLOB size of BG content is the number of LHC bunches
 long TrigConf::TrigConfCoolFolderSpec::mBGContentBlobSize = 3564;
@@ -361,19 +361,26 @@ TrigConfCoolFolderSpec::HltPrescaleKeyFolderDefinition() {
 // ------------------------------------------------------------
 RecordSpecification
 TrigConfCoolFolderSpec::createLvl1MonMapFolderSpecification() {
-   RecordSpecification spec;
-   spec.extend( "CounterType",       StorageType::String255 );
-   spec.extend( "BunchGroupId",      StorageType::UChar );
-   spec.extend( "ThresholdName",     StorageType::String255 );
-   spec.extend( "CtpinSlot",         StorageType::String255 );
-   spec.extend( "CtpinConnector",    StorageType::String255 );
-   spec.extend( "Multiplicity",      StorageType::String255 );
-   spec.extend( "ThresholdBitStart", StorageType::String255 );
-   spec.extend( "ThresholdBitEnd",   StorageType::String255 );
-   spec.extend( "ThresholdActive",   StorageType::String255 );
-   spec.extend( "CounterName",       StorageType::String255 );
-   spec.extend( "CounterLogic",      StorageType::String255 );  
-   return spec;
+   return Lvl1MonMapFolderSpecification().rspec();
+}
+
+FolderDefinition
+TrigConfCoolFolderSpec::Lvl1MonMapFolderSpecification() {
+   RecordSpecification rspec;
+   rspec.extend( "CounterType",       StorageType::String255 );
+   rspec.extend( "BunchGroupId",      StorageType::UChar );
+   rspec.extend( "ThresholdName",     StorageType::String255 );
+   rspec.extend( "CtpinSlot",         StorageType::String255 );
+   rspec.extend( "CtpinConnector",    StorageType::String255 );
+   rspec.extend( "Multiplicity",      StorageType::String255 );
+   rspec.extend( "ThresholdBitStart", StorageType::String255 );
+   rspec.extend( "ThresholdBitEnd",   StorageType::String255 );
+   rspec.extend( "ThresholdActive",   StorageType::String255 );
+   rspec.extend( "CounterName",       StorageType::String255 );
+   rspec.extend( "CounterLogic",      StorageType::String255 );  
+   FolderDefinition fd("/TRIGGER/LVL1/CTPInMonitoringMapping", 
+                       FolderVersioning::SINGLE_VERSION, rspec);
+   return fd;
 }
 
 
@@ -480,23 +487,14 @@ TrigConfCoolFolderSpec::createFolderStructure(IDatabasePtr db, int schemaVersion
 IFolderSetPtr
 TrigConfCoolFolderSpec::createMonFolderStructure(IDatabasePtr db, int /*schemaVersion*/) {
 
-   std::string singleChannelDesc = "<timeStamp>run-lumi</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"40774348\" /></addrHeader><typeName>AthenaAttributeList</typeName>";
-   std::string multiChannelDesc  = "<timeStamp>run-lumi</timeStamp><addrHeader><address_header service_type=\"71\" clid=\"1238547719\" /></addrHeader><typeName>CondAttrListCollection</typeName>";
+   bool multiChannel(true);
 
-   IFolderSetPtr topFolder;
-   if( !db->existsFolder( "/TRIGGER/LVL1/CTPInMonitoringMapping" )) {
-      if( !db->existsFolderSet( "/TRIGGER" ) )
-         topFolder = db->createFolderSet( "/TRIGGER" );
-      if( !db->existsFolderSet( "/TRIGGER/LVL1" ) )
-         db->createFolderSet( "/TRIGGER/LVL1" );
 
-      IFolderPtr ptr = db->createFolder( "/TRIGGER/LVL1/CTPInMonitoringMapping", 
-                                         createLvl1MonMapFolderSpecification(), 
-                                         multiChannelDesc);
-
+   bool newFolder = CreateFolderIfNotExist(db, Lvl1MonMapFolderSpecification(), multiChannel);
+   if(newFolder)
       printFolderStructure(db, cout);
-   }
-   return topFolder;
+
+   return db->getFolderSet( "/TRIGGER" );
 }
 
 

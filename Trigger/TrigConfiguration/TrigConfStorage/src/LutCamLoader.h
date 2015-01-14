@@ -17,7 +17,7 @@ namespace TrigConf {
    class LutCamLoader : virtual public ILutCamLoader, public DBLoader {
    public:
 
-      LutCamLoader( StorageMgr& sm,  coral::ISession& session) : DBLoader(sm, session) {}
+      LutCamLoader( StorageMgr& sm,  coral::ISessionProxy& session) : DBLoader(sm, session) {}
       virtual ~LutCamLoader(){};
 
       virtual bool load( LutCam& data);

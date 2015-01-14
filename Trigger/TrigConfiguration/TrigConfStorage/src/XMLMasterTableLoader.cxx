@@ -14,6 +14,7 @@
 #include "TrigConfL1Data/ThresholdConfig.h"
 #include "TrigConfL1Data/CTPConfig.h"
 #include "TrigConfL1Data/Muctpi.h"
+#include "L1TopoConfig/L1TopoMenu.h"
 
 using namespace std;
 
@@ -38,4 +39,10 @@ bool TrigConf::XMLMasterTableLoader::load(Muctpi& m) {
    IMuctpiLoader& muctpiLoader = m_storageMgr.muctpiLoader();
    muctpiLoader.setLevel(outputLevel());
    return muctpiLoader.load(m);
+}
+
+bool TrigConf::XMLMasterTableLoader::load(TXC::L1TopoMenu& l1topo) {
+   IL1TopoMenuLoader& l1topoLoader = m_storageMgr.l1topoMenuLoader();
+   l1topoLoader.setLevel(outputLevel());
+   return l1topoLoader.load(l1topo);
 }

@@ -4,17 +4,8 @@
 
 #include "./TriggerThresholdValueLoader.h"
 #include "./TriggerThresholdLoader.h"
+#include "./DBHelper.h"
 #include "TrigConfStorage/StorageMgr.h"
-
-#include <CoralBase/Attribute.h>
-#include <CoralBase/AttributeList.h>
-
-#include "RelationalAccess/SchemaException.h"
-#include "RelationalAccess/ITransaction.h"
-#include "RelationalAccess/ITable.h"
-#include "RelationalAccess/ISchema.h"
-#include "RelationalAccess/ICursor.h"
-#include "RelationalAccess/IQuery.h"
 
 #include "TrigConfL1Data/ClusterThresholdValue.h"
 #include "TrigConfL1Data/JetThresholdValue.h"
@@ -40,17 +31,16 @@ TrigConf::TriggerThresholdLoader::load( TriggerThreshold& ttTarget ) {
 
    const unsigned int schema_version_with_zb_fields = 9;
 
-   if(verbose()>=2)
-      msg() << "TriggerThresholdLoader loading threshold with ID = " 
-            << ttTarget.id() << " for MenuId = " 
-            << m_MenuId << ": ";
+   TRG_MSG_DEBUG("TriggerThresholdLoader loading threshold with ID = " 
+                 << ttTarget.id() << " for MenuId = " 
+                 << m_MenuId << ": ")
    unsigned int schema_version = triggerDBSchemaVersion();
+
    try {
       startSession();
 
       {
-         coral::ITable& table = m_session.nominalSchema().tableHandle( "L1_TRIGGER_THRESHOLD");
-         coral::IQuery* query = table.newQuery();
+         unique_ptr<coral::IQuery> query(m_session.nominalSchema().tableHandle( "L1_TRIGGER_THRESHOLD").newQuery());
          query->setRowCacheSize( 5 );
 
          //Bind list
@@ -67,28 +57,17 @@ TrigConf::TriggerThresholdLoader::load( TriggerThreshold& ttTarget ) {
          attList.extend<std::string>( "L1TT_TYPE" );
          attList.extend<int>( "L1TT_ACTIVE" );
          attList.extend<int>( "L1TT_MAPPING" );
-         if( schema_version >= schema_version_with_zb_fields) {
+         if( (isRun1() && schema_version >= schema_version_with_zb_fields) || isRun2() ) {
             attList.extend<int>( "L1TT_BCDELAY" );
             attList.extend<std::string>( "L1TT_SEED" );
             attList.extend<int>( "L1TT_SEED_MULTI" );
          }
-         query->defineOutput(attList);
-         query->addToOutputList( "L1TT_NAME" );
-         query->addToOutputList( "L1TT_VERSION" );
-         query->addToOutputList( "L1TT_TYPE" );
-         query->addToOutputList( "L1TT_ACTIVE" );
-         query->addToOutputList( "L1TT_MAPPING" );
-         if( schema_version >= schema_version_with_zb_fields) {
-            query->addToOutputList( "L1TT_BCDELAY" );
-            query->addToOutputList( "L1TT_SEED" );
-            query->addToOutputList( "L1TT_SEED_MULTI" );
-         }
+         fillQuery(query.get(),attList);
+
          coral::ICursor& cursor = query->execute();
         
          if ( ! cursor.next() ) {
-            msg() << "TriggerThresholdLoader >> No such TriggerThreshold exists " 
-                  << ttTarget.id() << std::endl;
-            delete query;
+            TRG_MSG_ERROR("No TriggerThreshold exists with ID " << ttTarget.id());
             commitSession();
             throw std::runtime_error( "TriggerThresholdLoader >> TriggerThreshold not available" );
          }
@@ -104,27 +83,19 @@ TrigConf::TriggerThresholdLoader::load( TriggerThreshold& ttTarget ) {
          // zero bias related
          int         bcdelay(-1), seed_multi(-1);
          std::string seed("");
-         if(schema_version >= schema_version_with_zb_fields) {
+         if( (isRun1() && schema_version >= schema_version_with_zb_fields) || isRun2() ) {
             bcdelay    = row["L1TT_BCDELAY"].data<int>();
             seed       = row["L1TT_SEED"].data<std::string>();
             seed_multi = row["L1TT_SEED_MULTI"].data<int>();
          }
 
-         if ( cursor.next() ) {	
-            msg() << "TriggerThresholdLoader >> More than one TriggerThreshold exists " 
-                  << ttTarget.id() << std::endl;
-            delete query;
-            commitSession();
-            throw std::runtime_error( "TriggerThresholdLoader >> TriggerThreshold not available" );
-         }
-
-         if(verbose()>=2)
-            msg() << name << " " << version << " " << type << " " << active << " " << mapping << std::endl;
+         TRG_MSG_DEBUG(name << " " << version << " " << type << " " << active << " " << mapping);
 	
          // Fill the object with data
          ttTarget.setName   ( name );
          ttTarget.setVersion( version );
          ttTarget.setType   ( type );
+         ttTarget.setInput  ( (type=="TOPO" || type=="ALFA") ? "ctpcore" : "ctpin" );
          ttTarget.setActive ( active );
 
          ttTarget.setZBSeedingThresholdName(seed);
@@ -136,17 +107,14 @@ TrigConf::TriggerThresholdLoader::load( TriggerThreshold& ttTarget ) {
             mapping = boost::lexical_cast<int,string>(name.substr(pos));
          }
          ttTarget.setMapping( mapping );
-         delete query;
       }
 
 
       //==================================================
       // now get the cable info from TM_TT
       if(loadCableInfo()) {
-         coral::ITable& table = 
-            m_session.nominalSchema().tableHandle( "L1_TM_TO_TT");
           
-         coral::IQuery* query = table.newQuery();
+         unique_ptr<coral::IQuery> query(m_session.nominalSchema().tableHandle( "L1_TM_TO_TT").newQuery());
          query->setRowCacheSize( 5 );
           
          //Bind list
@@ -166,19 +134,12 @@ TrigConf::TriggerThresholdLoader::load( TriggerThreshold& ttTarget ) {
          attList.extend<std::string>( "L1TM2TT_CABLE_CONNECTOR" );
          attList.extend<int>( "L1TM2TT_CABLE_START" );
          attList.extend<int>( "L1TM2TT_CABLE_END" );
-         query->defineOutput(attList);
-         query->addToOutputList( "L1TM2TT_CABLE_NAME" );
-         query->addToOutputList( "L1TM2TT_CABLE_CTPIN" );
-         query->addToOutputList( "L1TM2TT_CABLE_CONNECTOR" );
-         query->addToOutputList( "L1TM2TT_CABLE_START" );
-         query->addToOutputList( "L1TM2TT_CABLE_END" );
+         fillQuery(query.get(),attList);
 
          coral::ICursor& cursor = query->execute();
           
          if ( ! cursor.next() ) {
-            msg() << "TriggerThresholdLoader >> No such cobination in L1_TM_TO_TT:" 
-                  << " TT id: "<< ttTarget.id() << ", menu id: " << m_MenuId << std::endl;
-            delete query;
+            TRG_MSG_ERROR("No such combination in L1_TM_TO_TT: TT ID "<< ttTarget.id() << ", menu ID " << m_MenuId);
             commitSession();
             throw std::runtime_error( "TriggerThresholdLoader >> "
                                       "TMTI combination not availbale in TM_TT" );
@@ -197,7 +158,6 @@ TrigConf::TriggerThresholdLoader::load( TriggerThreshold& ttTarget ) {
          ttTarget.setCableStart(cable_start);
          ttTarget.setCableEnd(cable_end);
           
-         delete query;
       }
 
       if( ! ttTarget.isInternal() ) { // no trigger threshold values exist for internal triggers

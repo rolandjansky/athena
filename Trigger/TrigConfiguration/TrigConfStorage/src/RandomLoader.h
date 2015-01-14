@@ -27,7 +27,7 @@ namespace TrigConf {
    class RandomLoader : virtual public IRandomLoader, public DBLoader {
    public:
 
-      RandomLoader( StorageMgr& sm, coral::ISession& session) : DBLoader(sm, session) {}
+      RandomLoader( StorageMgr& sm, coral::ISessionProxy& session) : DBLoader("RandomLoader", sm, session) {}
       virtual ~RandomLoader(){};
 
       virtual bool load( Random& data);

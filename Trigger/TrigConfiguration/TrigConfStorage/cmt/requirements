@@ -22,6 +22,7 @@ use TrigConfL1Data      TrigConfL1Data-*     Trigger/TrigConfiguration
 use TrigConfHLTData     TrigConfHLTData-*    Trigger/TrigConfiguration
 
 private
+use  L1CommonCore       L1CommonCore-*       Trigger/TrigT1
 use TrigConfJobOptData  TrigConfJobOptData-* Trigger/TrigConfiguration
 use L1TopoConfig        L1TopoConfig-*       Trigger/TrigT1/L1Topo
 end_private
@@ -45,9 +46,10 @@ apply_pattern detcommon_ignores
 #
 apply_pattern detcommon_header_installer
 
-macro_append Boost_linkopts " $(Boost_linkopts_regex) "
-macro_append Boost_linkopts " -lboost_unit_test_framework-$(Boost_compiler_version)-mt-$(Boost_file_version) "
+private
 
+macro_append TrigConfStorage_linkopts " $(Boost_linkopts_regex) \
+-lboost_unit_test_framework-$(Boost_compiler_version)-mt-$(Boost_debug)$(Boost_file_version) "
 
 #============================================================================
 # Build applications

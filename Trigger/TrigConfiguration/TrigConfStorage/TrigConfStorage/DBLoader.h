@@ -7,7 +7,7 @@
 
 #include "TrigConfStorage/StorageMgr.h"
 #include "TrigConfStorage/ILoader.h"
-#include "RelationalAccess/ISession.h"
+#include "RelationalAccess/ISessionProxy.h"
 #include "TrigConfBase/TrigConfMessaging.h"
 
 namespace TrigConf {
@@ -24,9 +24,9 @@ namespace TrigConf {
        *
        * @param session reference to the database session
        */
-      explicit DBLoader( StorageMgr& sm, coral::ISession& session );
+      explicit DBLoader( StorageMgr& sm, coral::ISessionProxy& session );
 
-      explicit DBLoader( const std::string& name, StorageMgr& sm, coral::ISession& session );
+      explicit DBLoader( const std::string& name, StorageMgr& sm, coral::ISessionProxy& session );
 
       /**@brief destructor*/
       virtual ~DBLoader(){};
@@ -35,6 +35,7 @@ namespace TrigConf {
       //std::ostream & msg() { return m_storageMgr.msg(); }
 
       virtual void setLevel(MSGTC::Level lvl);
+      virtual MSGTC::Level outputLevel() const { return msg().level(); }
 
 
       /** @brief start session if not already active */
@@ -54,6 +55,9 @@ namespace TrigConf {
       virtual int verbose() const { return m_verbose; }
       virtual void setVerbose(int v) { m_verbose=v; }
 
+      bool isRun1() const { return ! isRun2(); }
+      bool isRun2() const;
+
    private:
       int m_verbose;
 
@@ -64,9 +68,12 @@ namespace TrigConf {
 
    protected:
       StorageMgr&                    m_storageMgr; ///< reference to the storage manager
-      coral::ISession&               m_session;    ///< CORAL interface to database session
+      coral::ISessionProxy&          m_session;    ///< CORAL interface to database session
       bool                           m_sessionOwner; ///< remember if the loader started the session in the first place
       static unsigned int            s_triggerDBSchemaVersion; ///< the version of the TriggerDB schema
+      static unsigned int            s_run; ///< database schema for run s_run
+      static unsigned int            s_ctpVersion;
+      static unsigned int            s_l1Version;
 
    private:
       void loadSchemaVersion();

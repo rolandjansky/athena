@@ -66,20 +66,24 @@ XMLStorageMgr::XMLStorageMgr( const std::vector<std::string>& files ) :
 {
    string menutype("");
 
-   for(string filename: files) {
+   for(const string & filename: files) {
+      string menutype = "";
       ptree* menu = GetTreeAndType(filename, menutype);
       if(menutype=="TOPO_MENU") {
          TRG_MSG_INFO("Using " << filename << " as L1Topo menu");
+         delete m_l1topomenu;
          m_l1topomenu = menu;
          m_xmlL1TopoFile = filename;
          m_runL1Topo = true;
       } else if(menutype=="LVL1Config") {
          TRG_MSG_INFO("Using " << filename << " as L1 menu");
+         delete m_l1menu;
          m_l1menu = menu;
          m_xmlL1File = filename;
          m_runLVL1 = true;
       } else if(menutype=="HLT_MENU") {
          TRG_MSG_INFO("Using " << filename << " as HLT menu");
+         delete m_hltmenu;
          m_hltmenu = menu;
          m_xmlHLTFile = filename;
          m_runHLT = true;
@@ -147,6 +151,8 @@ IMenuLoader& XMLStorageMgr::menuLoader() {
 
    return CreateLoader<IMenuLoader, XMLMenuLoader> ( m_menuLoader, this, m_l1menu, "LVL1Config.TriggerMenu" );
 
+   //    XMLMenuLoader & xmlml = dynamic_cast<XMLMenuLoader &>(ml);
+   //    xmlml.setMonitoringPtree(m_l1menu, "LVL1Config.TriggerMenu");
 }
 
 IMuctpiLoader& XMLStorageMgr::muctpiLoader() {

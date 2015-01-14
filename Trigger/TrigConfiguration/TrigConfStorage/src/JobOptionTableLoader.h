@@ -45,7 +45,7 @@ namespace TrigConf {
        *
        * @param session reference to the database session
        */
-      JobOptionTableLoader( StorageMgr& sm,  coral::ISession& session)
+      JobOptionTableLoader( StorageMgr& sm,  coral::ISessionProxy& session)
          : DBLoader("JobOptionTableLoader", sm, session)
       {}
 

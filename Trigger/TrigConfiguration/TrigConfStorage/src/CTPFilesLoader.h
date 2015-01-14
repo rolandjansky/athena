@@ -39,8 +39,8 @@ namespace TrigConf {
        *
        * @param session reference to the database session
        */
-      CTPFilesLoader( StorageMgr& sm,  coral::ISession& session)
-         : ILoader(), DBLoader(sm, session) {}
+      CTPFilesLoader( StorageMgr& sm,  coral::ISessionProxy& session)
+         : DBLoader("CTPFilesLoader", sm, session) {}
 
       /**@brief destructor*/       
       virtual ~CTPFilesLoader(){};
@@ -56,7 +56,7 @@ namespace TrigConf {
       int getMenuIdFromMaster(int mid);
       long getFilesIdFromMenu(int mid);
       long getSmxIdFromMenu(int mid);
-      void parseHexString(std::vector<u_int>& vec, const std::string& str);
+      void parseHexString(std::vector<u_int>& vec, const std::string& str, bool verbose=false);
 
       // template function to convert strings to integral data types
       template <class T>

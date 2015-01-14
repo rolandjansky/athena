@@ -5,7 +5,6 @@
 #include "TrigConfStorage/SessionMgr.h"
 
 #include "RelationalAccess/AccessMode.h"
-#include "RelationalAccess/IConnection.h"
 #include "RelationalAccess/IDatabaseServiceDescription.h"
 #include "RelationalAccess/IDatabaseServiceSet.h"
 #include "RelationalAccess/ILookupService.h"
@@ -16,6 +15,9 @@
 #include "RelationalAccess/ConnectionService.h"
 #include "RelationalAccess/IConnectionService.h"
 #include "RelationalAccess/IConnectionServiceConfiguration.h"
+
+#include "RelationalAccess/ISessionProxy.h"
+
 
 #include "CoralKernel/Context.h"
 #include "CoralBase/Exception.h"
@@ -30,90 +32,157 @@
 using namespace std;
 using namespace TrigConf;
 
-SessionMgr::SessionMgr( const std::string& cs,
-                        const std::string& user,
-                        const std::string& pass,
-                        std::ostream & o)
-   : m_session( 0 )
-   , m_connection( 0 )
-   , m_cs( cs )
-   , m_dbtype( "" )
-   , m_dbserver( "" )
-   , m_dbname( "" )
-   , m_user( user)
-   , m_password( pass )
-   , m_ostream( o )
+SessionMgr::SessionMgr() :
+   TrigConfMessaging("SessionMgr")
 {}
 
-SessionMgr::SessionMgr( const std::string& type,
-                        const std::string& server,
-                        const std::string& name,
-                        const std::string& user,
-                        const std::string& pass,
-                        std::ostream & o)
-   : m_session( 0 )
-   , m_connection( 0 )
-   , m_cs( "" )
-   , m_dbtype( boost::to_lower_copy(type) )
-   , m_dbserver( server )
-   , m_dbname( name )
-   , m_user( user)
-   , m_password( pass )
-   , m_ostream( o )
-{
-   if(m_dbserver=="") { 
-      m_cs = m_dbname; 
-   } else if(m_dbtype == "dblookup") { 
-      m_cs = m_dbserver; 
-   } else { 
-      m_cs = m_dbtype + "://" + m_dbserver + "/" + m_dbname;     
-   }
-}
+// SessionMgr::SessionMgr( const std::string& connectionString,
+//                         const std::string& user,
+//                         const std::string& pass) :
+//    TrigConfMessaging("SessionMgr"),
+//    m_connectionString( connectionString ),
+//    m_user( user),
+//    m_password( pass )
+// {}
+
+// SessionMgr::SessionMgr( const std::string& type,
+//                         const std::string& server,
+//                         const std::string& name,
+//                         const std::string& user,
+//                         const std::string& pass) :
+//    TrigConfMessaging("SessionMgr"),
+//    m_dbtype( boost::to_lower_copy(type) ),
+//    m_dbserver( server ),
+//    m_dbname( name ),
+//    m_user( user ),
+//    m_password( pass )
+// {
+//    if(m_dbserver=="") { 
+//       m_connectionString = m_dbname; 
+//    } else if(m_dbtype == "dblookup") { 
+//       m_connectionString = m_dbserver; 
+//    } else { 
+//       m_connectionString = m_dbtype + "://" + m_dbserver + "/" + m_dbname;     
+//    }
+// }
 
 SessionMgr::~SessionMgr() {
    closeSession();
 }
 
-void 
-SessionMgr::setUseFrontier(bool useFrontier) { 
-   m_useFrontier = useFrontier; 
-} 
-
 void
 SessionMgr::closeSession() {
-   if( m_session ) {
-      try {
-         if( m_session->isUserSessionActive() )
-            m_session->endUserSession();
-         delete m_session;
-         m_session=0;
 
-         if ( m_connection->isConnected( true ) ) {
-            m_connection->disconnect();
-            m_ostream << "<TriggerDB SessionMgr> Closing connection " << m_cs << std::endl;
-         }
-
-         delete m_connection;
-         m_connection=0;
+   if(m_sessionproxy) {
+      try{
+         delete m_sessionproxy;
+         m_sessionproxy = nullptr;
+         TRG_MSG_INFO("Closing session " << m_connectionString);
       }
       catch ( coral::Exception& e ) {
-         m_ostream << "CORAL exception " << e.what() << std::endl;
-         throw;
-      }
-      catch ( std::exception& e ) {
-         m_ostream << "Standard C++ exception " << e.what() << std::endl;
-         throw;
-      }
-      catch( ... ) {
-         m_ostream << "Unknown exception ..." << std::endl;
+         TRG_MSG_WARNING("CORAL exception " << e.what());
          throw;
       }
    }
+
+//    if( m_session ) {
+//       try {
+//          if( m_session->isUserSessionActive() )
+//             m_session->endUserSession();
+//          delete m_session;
+//          m_session=0;
+
+//          if ( m_connection->isConnected( true ) ) {
+//             m_connection->disconnect();
+//             TRG_MSG_INFO("Closing connection " << m_connectionString);
+//          }
+
+//          delete m_connection;
+//          m_connection=0;
+//       }
+//       catch ( coral::Exception& e ) {
+//          TRG_MSG_WARNING("CORAL exception " << e.what());
+//          throw;
+//       }
+//       catch ( std::exception& e ) {
+//          TRG_MSG_WARNING("Standard C++ exception " << e.what());
+//          throw;
+//       }
+//       catch( ... ) {
+//          TRG_MSG_WARNING("Unknown exception ...");
+//          throw;
+//       }
+//    }
 }
 
-  
+void
+TrigConf::SessionMgr::setDbType(const std::string & s) {
+   m_dbtype = boost::to_lower_copy(s);
+   m_connectionString = "";
+}
+
+void
+TrigConf::SessionMgr::setDbServer(const std::string & s) {
+   m_dbserver = s;
+   m_connectionString = "";
+}
+
+void
+TrigConf::SessionMgr::setDbName(const std::string & s) { 
+   m_dbname = s;
+   m_connectionString = "";
+}
+
+void
+TrigConf::SessionMgr::setDbUser(const std::string & s) {
+   m_user = s;
+   m_connectionString = "";
+}
+
+void
+TrigConf::SessionMgr::setDbPassword(const std::string & s) {
+   m_password = s;
+   m_connectionString = "";
+}
+
+
+void
+TrigConf::SessionMgr::buildConnectionString() {
+
+   if(m_connectionString!="")
+      return;
+
+   if(m_dbserver=="") { 
+      m_connectionString = m_dbname; 
+   } else if(m_dbtype == "dblookup") { 
+      m_connectionString = m_dbserver; 
+   } else { 
+      m_connectionString = m_dbtype + "://" + m_dbserver + "/" + m_dbname;     
+   }
+}
+
+
+coral::ISessionProxy&
+TrigConf::SessionMgr::createSession() {
+
+   if( m_sessionproxy ) return *m_sessionproxy;
+
+   coral::ConnectionService connSvc;
+   coral::IConnectionServiceConfiguration& csc = connSvc.configuration();
+   csc.setConnectionRetrialPeriod( m_retrialPeriod );
+   csc.setConnectionRetrialTimeOut( m_retrialTimeout );
+   csc.setConnectionTimeOut( m_connectionTimeout );
+
+   buildConnectionString();
+   m_sessionproxy = connSvc.connect(m_connectionString, coral::AccessMode::ReadOnly);
+   TRG_MSG_INFO("Opening session " << m_connectionString);
+
+   return *m_sessionproxy;   
+}
+
+/*
 coral::ISession&
-TrigConf::SessionMgr::createSession(int retrialPeriod, int retrialTimeout, int connectionTimeout) {
+TrigConf::SessionMgr::createSessionOld(int retrialPeriod, int retrialTimeout, int connectionTimeout) {
 
    if( m_session ) return *m_session;
 
@@ -147,11 +216,11 @@ TrigConf::SessionMgr::createSession(int retrialPeriod, int retrialTimeout, int c
    // user-less login
    // =================================
 
-   if(m_user == "" && m_cs.find("sqlite", 0) == std::string::npos  ) { // no user and not explicit sqlite
+   if(m_user == "" && m_connectionString.find("sqlite", 0) == std::string::npos  ) { // no user and not explicit sqlite
 
       bool useAuth = true;
 
-      if( m_cs.find(':') == std::string::npos ) { // no ':' is found, the connection string is an ALIAS
+      if( m_connectionString.find(':') == std::string::npos ) { // no ':' is found, the connection string is an ALIAS
          
          useAuth = false;
 
@@ -167,19 +236,19 @@ TrigConf::SessionMgr::createSession(int retrialPeriod, int retrialTimeout, int c
          if (!lookupsvc.isValid())
             throw std::runtime_error( "Could not locate any lookup service" );
        
-         const coral::IDatabaseServiceSet * svcSet = lookupsvc->lookup( m_cs, coral::ReadOnly);
+         const coral::IDatabaseServiceSet * svcSet = lookupsvc->lookup( m_connectionString, coral::ReadOnly);
          if(svcSet->numberOfReplicas()==0)
-            throw std::runtime_error( std::string("Alias '") + m_cs + "' has no entries in dblookup.xml" );
+            throw std::runtime_error( std::string("Alias '") + m_connectionString + "' has no entries in dblookup.xml" );
 
          
 
          // check if FRONTIER_SERVER is set, if so, allow generic replicas
          const char* cUseFrontier = getenv("TRIGGER_USE_FRONTIER");
          bool triggerUseFrontierEnv = (cUseFrontier && strcmp(cUseFrontier,"")!=0);
-         m_ostream << "SessionMgr                                           INFO Checking if trigger should use frontier" << endl 
-                   << "SessionMgr                                           INFO environment TRIGGER_USE_FRONTIER : " << (triggerUseFrontierEnv?"YES":"NO") << endl 
-                   << "SessionMgr                                           INFO SessionMgr::useFrontier flag     : " << (m_useFrontier?"YES":"NO") << endl 
-                   << "SessionMgr                                           INFO ==> " << ((triggerUseFrontierEnv || m_useFrontier)?"":"not ") << "going to use Frontier" << endl; 
+         TRG_MSG_INFO("Checking if trigger should use frontier");
+         TRG_MSG_INFO("environment TRIGGER_USE_FRONTIER : " << (triggerUseFrontierEnv?"YES":"NO"));
+         TRG_MSG_INFO("SessionMgr::useFrontier flag     : " << (m_useFrontier?"YES":"NO"));
+         TRG_MSG_INFO("==> " << ((triggerUseFrontierEnv || m_useFrontier)?"":"not ") << "going to use Frontier");
          
          bool triggerUseFrontier = (triggerUseFrontierEnv || m_useFrontier); 
          	 
@@ -188,13 +257,13 @@ TrigConf::SessionMgr::createSession(int retrialPeriod, int retrialTimeout, int c
          if(triggerUseFrontier) { 
             cfrontier=getenv("FRONTIER_SERVER"); 
             frontierDefined = (cfrontier && strcmp(cfrontier,"")!=0); 
-            m_ostream << "SessionMgr                                           INFO Checking for environment FRONTIER_SERVER : " << (frontierDefined?"YES":"NO") << std::endl; 
+            TRG_MSG_INFO("Checking for environment FRONTIER_SERVER : " << (frontierDefined?"YES":"NO")); 
          } 
          triggerUseFrontier = triggerUseFrontier && frontierDefined; 
 
          bool foundFrontier = false;
          if (triggerUseFrontier) {
-            m_ostream << "Frontier server at " << cfrontier << " will be considered for Trigger DB connection" << std::endl;
+            TRG_MSG_INFO("Frontier server at " << cfrontier << " will be considered for Trigger DB connection");
 
             for(int i = 0; i < svcSet->numberOfReplicas(); i++) {
                const std::string& conn = svcSet->replica( i ).connectionString();
@@ -207,21 +276,21 @@ TrigConf::SessionMgr::createSession(int retrialPeriod, int retrialTimeout, int c
                m_connection = domain.newConnection( cs.first );
                //try to connect to the database
                try{
-                  m_ostream << "Trying frontier for TriggerDB with connection string: " << conn << std::endl;
+                  TRG_MSG_INFO("Trying frontier for TriggerDB with connection string: " << conn);
                   m_connection->connect();
                   coral::AccessMode mode = coral::ReadOnly; // possible options: coral::Update, coral::ReadOnly
                   m_session = m_connection->newSession( cs.second, mode );
-                  m_cs = conn;
+                  m_connectionString = conn;
                   foundFrontier = true;
                   break;
                } catch (std::exception& exc){
-                  m_ostream << "Failed to connect to alias " << i << " (" << exc.what() << ")" << std::endl;
+                  TRG_MSG_WARNING("Failed to connect to alias " << i << " (" << exc.what() << ")");
                }
 
             }
 
             if(!foundFrontier)
-               m_ostream << "frontier:// not specified in dblookup, fall back to ORACLE." << std::endl;
+               TRG_MSG_INFO("frontier:// not specified in dblookup, fall back to ORACLE.");
          }
 
          if(!foundFrontier) {
@@ -238,24 +307,24 @@ TrigConf::SessionMgr::createSession(int retrialPeriod, int retrialTimeout, int c
                m_connection = domain.newConnection( cs.first );
                //try to connect to the database
                try{
-                  m_ostream << "Trying alias number " << i << " for TriggerDB with connection string: " << test_connectionString << std::endl;
+                  TRG_MSG_INFO("Trying alias number " << i << " for TriggerDB with connection string: " << test_connectionString);
                   m_connection->connect();
                   coral::AccessMode mode = coral::ReadOnly; // possible options: coral::Update, coral::ReadOnly
                   m_session = m_connection->newSession( cs.second, mode );
-                  m_cs = test_connectionString;
+                  m_connectionString = test_connectionString;
                   canopen = true;
                   if(domain.flavorName()=="Oracle") {
                      useAuth = true;
                   }
                   break;
                } catch (std::exception& exc){
-                  m_ostream << "Failed to connect to alias " << i << " (" << exc.what() << ")" << std::endl;
+                  TRG_MSG_WARNING("Failed to connect to alias " << i << " (" << exc.what() << ")");
                }
             }
             if(!canopen){
                throw std::runtime_error( "Connection can not be established to any of the TriggerDB aliases" );
             } else {
-               m_ostream << "<TriggerDB SessionMgr> Established a connection to TriggerDB with connection string " << m_cs << std::endl;
+               TRG_MSG_INFO("Established a connection to TriggerDB with connection string " << m_connectionString);
             }
          }
 
@@ -276,7 +345,7 @@ TrigConf::SessionMgr::createSession(int retrialPeriod, int retrialTimeout, int c
             }
             if (!authsvc.isValid())
                throw std::runtime_error( "Could not locate any authentication service" );
-            const coral::IAuthenticationCredentials& crds = authsvc->credentials( m_cs );
+            const coral::IAuthenticationCredentials& crds = authsvc->credentials( m_connectionString );
             m_user     = crds.valueForItem("user");
             m_password = crds.valueForItem("password");
          }
@@ -287,16 +356,16 @@ TrigConf::SessionMgr::createSession(int retrialPeriod, int retrialTimeout, int c
 
    } else {
 
-      coral::IRelationalDomain& domain = relsvc->domainForConnection( m_cs );
+      coral::IRelationalDomain& domain = relsvc->domainForConnection( m_connectionString );
       // Sanity check for TNS_ADMIN
       if(domain.flavorName()=="Oracle" && getenv("TNS_ADMIN")==0) 
          throw std::runtime_error("TNS_ADMIN undefined: Oracle connections will not work!");   
       // (DB, schemaName)
-      cs = domain.decodeUserConnectionString( m_cs );
+      cs = domain.decodeUserConnectionString( m_connectionString );
       // connect to the database
       m_connection = domain.newConnection( cs.first );
       m_connection->connect();
-      m_ostream << "<TriggerDB SessionMgr> Established a connection to TriggerDB with specified connection string " << m_cs << std::endl;
+      TRG_MSG_INFO("Established a connection to TriggerDB with specified connection string " << m_connectionString);
       coral::AccessMode mode = coral::ReadOnly; // possible options: coral::Update, coral::ReadOnly
       m_session = m_connection->newSession( cs.second, mode );
    }
@@ -310,4 +379,5 @@ TrigConf::SessionMgr::createSession(int retrialPeriod, int retrialTimeout, int c
    
    return *m_session; 
    
-}
+}*/
+

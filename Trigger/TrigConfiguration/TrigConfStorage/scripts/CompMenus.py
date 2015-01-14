@@ -6,9 +6,6 @@ import user, sys
 from optparse import OptionParser
 from xml.dom import expatbuilder
 
-from TrigConfStorage.CompL1Menu import CompareL1XML
-from TrigConfStorage.CompHLTMenu import CompareHLTXML
-from TrigConfStorage.CompSetup import CompareSetupXML
 
 
 def getFileLvl(filename):
@@ -17,6 +14,8 @@ def getFileLvl(filename):
     buff = fp.read().replace('&','&amp;')
     doc = builder.parseString(buff)
     for x in doc.childNodes:
+        if x.nodeName == u'TOPO_MENU':
+            return 'L1Topo'
         if x.nodeName == u'LVL1Config':
             return 'L1'
         if x.nodeName == u'HLT_MENU':
@@ -66,11 +65,17 @@ if __name__ == '__main__':
         print "  Second file:",filetype[1]
         sys.exit(0)
 
-    if filetype[0] == 'L1':
+    if filetype[0] == 'L1Topo':
+        from TrigConfStorage.CompL1TopoMenu import CompareL1TopoXML
+        compator = CompareL1TopoXML (tuple(args), excl=options.excl, verbose=options.verbose)
+    elif filetype[0] == 'L1':
+        from TrigConfStorage.CompL1Menu import CompareL1XML
         compator = CompareL1XML (tuple(args), excl=options.excl, verbose=options.verbose)
     elif filetype[0] == 'HLT':
+        from TrigConfStorage.CompHLTMenu import CompareHLTXML
         compator = CompareHLTXML(tuple(args), excl=options.excl, verbose=options.verbose)
     else:
+        from TrigConfStorage.CompSetup import CompareSetupXML
         compator = CompareSetupXML(tuple(args), excl=options.excl, verbose=options.verbose)
         
     print compator.diff()

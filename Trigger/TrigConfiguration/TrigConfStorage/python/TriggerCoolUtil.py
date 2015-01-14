@@ -75,6 +75,8 @@ class TriggerCoolUtil:
             connection = 'COOLONL_TRIGGER/COMP200'
         elif dbconn=="OFLP":
             connection = 'COOLONL_TRIGGER/OFLP200'
+        elif dbconn=="CONDBR2":
+            connection = 'COOLONL_TRIGGER/CONDBR2'
         elif m:
             dbname=m.group(1).upper()
             connection = "sqlite://;schema=%s;dbname=%s;" % (dbconn,dbname)

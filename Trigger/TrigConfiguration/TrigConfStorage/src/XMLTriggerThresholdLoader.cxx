@@ -54,6 +54,7 @@ TrigConf::XMLTriggerThresholdLoader::load(TriggerThreshold& thr) {
    if (cable != pt().not_found()) {
       if(readAttribute(cable->second, "name",      sval)) thr.setCableName(sval);
       if(readAttribute(cable->second, "ctpin",     sval)) thr.setCableCtpin(sval);
+      if(readAttribute(cable->second, "input",     sval)) thr.setCableCtpin(sval);
       if(readAttribute(cable->second, "connector", sval)) thr.setCableConnector(sval);
       // <Signal>
       ptree::const_assoc_iterator signal = cable->second.find("Signal");

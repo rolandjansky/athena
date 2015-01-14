@@ -39,9 +39,7 @@ TrigConf::HLTSequenceLoader::load( HLTFrame& frame ) {
 void
 TrigConf::HLTSequenceLoader::loadSequences( HLTSequenceList& seqlist ) {
 
-   if(verbose())
-      msg() << "HLTSequenceLoader:                Start loading sequences with SMK "
-            << m_smk << endl;
+   TRG_MSG_INFO("Start loading sequences with SMK " << m_smk);
 
    unique_ptr< coral::IQuery > q( m_session.nominalSchema().newQuery() );
 
@@ -82,7 +80,7 @@ TrigConf::HLTSequenceLoader::loadSequences( HLTSequenceList& seqlist ) {
    attList.extend<int>   ( "TE2CP.HTE2CP_ALGORITHM_COUNTER" );
    attList.extend<string>( "TE2TE.HTE2TE_TE_INP_ID" );
    attList.extend<string>( "TE2TE.HTE2TE_TE_INP_TYPE" );
-   attList.extend<int>   ( "TE2TE.HTE2TE_TE_COUNTER" );
+   attList.extend<int>   ( "TE2TE.HTE2TE_TE_COUNTER" );    
    fillQuery(q.get(),attList);
 
    // the ordering
@@ -91,6 +89,13 @@ TrigConf::HLTSequenceLoader::loadSequences( HLTSequenceList& seqlist ) {
    // process the query
    q->setDistinct();
    coral::ICursor& cursor = q->execute();
+
+   TRG_MSG_DEBUG("Query SELECT "
+                << "TE.HTE_ID, TE.HTE_NAME, CP.HCP_NAME, CP.HCP_ALIAS, TE2CP.HTE2CP_ALGORITHM_COUNTER, TE2TE.HTE2TE_TE_INP_ID, TE2TE.HTE2TE_TE_INP_TYPE, TE2TE.HTE2TE_TE_COUNTER"
+                << " FROM "
+                << "SUPER_MASTER_TABLE SM, HLT_MASTER_TABLE HM, HLT_TM_TO_TC M2C, HLT_TC_TO_TS TC2TS,HLT_TS_TO_TE S2TE, HLT_TRIGGER_ELEMENT TE, HLT_TE_TO_CP TE2CP, HLT_TE_TO_TE TE2TE, HLT_COMPONENT CP"
+                << " WHERE "
+                << theCondition << ";");
 
    while ( cursor.next() ) {
       const coral::AttributeList& row = cursor.currentRow();
@@ -135,6 +140,8 @@ TrigConf::HLTSequenceLoader::loadSequences( HLTSequenceList& seqlist ) {
       }
    }
    cursor.close();
+
+   TRG_MSG_INFO("Loading " << seqlist.size() << " sequences");
 }
 
 

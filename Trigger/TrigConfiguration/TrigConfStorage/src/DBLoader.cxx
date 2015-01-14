@@ -21,8 +21,11 @@ using namespace std;
 using namespace TrigConf;
 
 unsigned int TrigConf::DBLoader::s_triggerDBSchemaVersion = 0;
+unsigned int TrigConf::DBLoader::s_run = 0;
+unsigned int TrigConf::DBLoader::s_ctpVersion = 0;
+unsigned int TrigConf::DBLoader::s_l1Version = 0;
 
-DBLoader::DBLoader( const std::string& name, StorageMgr& sm, coral::ISession& session ) : 
+DBLoader::DBLoader( const std::string& name, StorageMgr& sm, coral::ISessionProxy& session ) : 
    TrigConfMessaging(name),
    m_verbose(1),
    m_storageMgr( sm ),
@@ -31,7 +34,7 @@ DBLoader::DBLoader( const std::string& name, StorageMgr& sm, coral::ISession& se
 {}
 
 
-DBLoader::DBLoader( StorageMgr& sm, coral::ISession& session ) : 
+DBLoader::DBLoader( StorageMgr& sm, coral::ISessionProxy& session ) : 
    DBLoader("DBLoader", sm, session)
 {}
 
@@ -55,6 +58,14 @@ void TrigConf::DBLoader::commitSession()
    }
 }
 
+
+bool
+DBLoader::isRun2() const {
+   if(s_run==0) {
+      throw std::runtime_error( "DBLoader::isRun2() schema has not been checked yet" );
+   }
+   return s_run == 2;
+}
 
 void
 DBLoader::setLevel(MSGTC::Level lvl) {
@@ -97,7 +108,7 @@ DBLoader::loadSchemaVersion()
    coral::ICursor& cursor = query->execute();
 
    if ( ! cursor.next() ) {
-      msg() << "Table TRIGGER_SCHEMA is not filled" << std::endl;
+      TRG_MSG_ERROR("Table TRIGGER_SCHEMA is not filled");
       delete query;
       commitSession();
       throw std::runtime_error( "DBLoader::loadSchemaVersion() >> Table TRIGGER_SCHEMA is not filled" );
@@ -106,11 +117,19 @@ DBLoader::loadSchemaVersion()
    const coral::AttributeList& row = cursor.currentRow();
    s_triggerDBSchemaVersion = row["TS_ID"].data<int>();
 
-   msg() << "DBLoader:                         TriggerDB schema version: " 
-         << s_triggerDBSchemaVersion << std::endl;
+   TRG_MSG_INFO("TriggerDB schema version: " << s_triggerDBSchemaVersion);
 
 
    delete query;
+
+   s_run = m_session.nominalSchema().existsTable( "ACTIVE_MASTERS" ) ? 2 : 1;
+
+//    for( const std::string & s : m_session.nominalSchema().listTables() ) {
+//       cout << " Existing table " << s << endl;
+//    }
+   TRG_MSG_INFO("Database has Run " << s_run << " schema");
+   TRG_MSG_INFO("Total number of tables : " <<  m_session.nominalSchema().listTables().size());
+
    //commitSession();
    if ( mySession ) m_session.transaction().commit();
 }

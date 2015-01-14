@@ -55,6 +55,12 @@ TrigConf::XMLCTPConfigLoader::load( CTPConfig& ctpc ) {
       IMenuLoader& menuldr = m_storageMgr.menuLoader();
       menuldr.setLevel(outputLevel());
       menuldr.load( ctpc.menu() );
+
+      if(ctpc.l1Version()==0) {
+         ctpc.menu().thresholdConfig().attributeThresholdNumbers();
+      }
+
+
    } // ENV
 
    // prescales

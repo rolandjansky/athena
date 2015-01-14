@@ -76,6 +76,7 @@ TrigConf::XMLHLTFrameLoader::buildHLTChainList( HLTFrame& frame ) {
       if( readAttribute(i->second, "prescale", fval) )                   aChain->set_prescale( fval );
       if( readAttribute(i->second, "pass_through", fval) )               aChain->set_pass_through( fval );
       if( readAttribute(i->second, "rerun_prescale", fval) && fval>0 )   aChain->set_rerun_prescale( fval );
+      if( readAttribute(i->second, "EBstep", ival) )                     aChain->set_EB_after_step( ival );
 
 
       ptree prescales = i->second.get_child("PRESCALES", ptree());

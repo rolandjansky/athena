@@ -7,6 +7,7 @@
 
 #include "TrigConfL1Data/ClusterThresholdValue.h"
 #include "TrigConfL1Data/L1DataDef.h"
+#include "TrigConfL1Data/HelperFunctions.h"
 
 #include <iostream>
 
@@ -38,6 +39,11 @@ TrigConf::XMLTriggerThresholdValueLoader::load(TriggerThresholdValue& thrv) {
       if( readAttribute(pt(), "em_isolation", fval) )  cluthrval.setEmIsolation(fval);   
       if( readAttribute(pt(), "had_isolation", fval) ) cluthrval.setHadIsolation(fval); 
       if( readAttribute(pt(), "had_veto", fval) )      cluthrval.setHadVeto(fval);           
+
+      if( readAttribute(pt(), "isobits", sval ) ) {
+         cluthrval.setIsolationMask( TrigConf::bin2uint(sval) );
+         cluthrval.setUseIsolationMask();
+      }
    }
 
    return true;

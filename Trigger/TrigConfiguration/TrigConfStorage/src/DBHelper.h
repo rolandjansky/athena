@@ -2,6 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef TrigConf_DBHelper
+#define TrigConf_DBHelper
+
 #include <CoralBase/Attribute.h>
 #include <CoralBase/AttributeList.h>
 
@@ -25,3 +28,5 @@ namespace TrigConf {
 
 
 }
+
+#endif

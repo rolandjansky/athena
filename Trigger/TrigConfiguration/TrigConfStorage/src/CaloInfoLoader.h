@@ -21,26 +21,35 @@
 #include "TrigConfStorage/ILoader.h"
 #include "TrigConfStorage/DBLoader.h"
 
+#include <vector>
+
 namespace TrigConf {
   
-  /**@brief TriggerDB loader of the LVL1 calorimeter trigger configuration*/
-  class CaloInfoLoader : virtual public ICaloInfoLoader, public DBLoader {
-  public:
+   /**@brief TriggerDB loader of the LVL1 calorimeter trigger configuration*/
+   class CaloInfoLoader : virtual public ICaloInfoLoader, public DBLoader {
+   public:
 
-    /**@brief constructor
-     *
-     * @param sm reference to storage manager
-     *
-     * @param session reference to the database session
-     */
-    CaloInfoLoader( StorageMgr& sm,  coral::ISession& session)
-      : ILoader(), DBLoader(sm, session) {}    
+      /**@brief constructor
+       *
+       * @param sm reference to storage manager
+       *
+       * @param session reference to the database session
+       */
+      CaloInfoLoader( StorageMgr& sm,  coral::ISessionProxy& session)
+         : ILoader(), DBLoader("CaloInfoLoader", sm, session) {}    
 
-    /**@brief destructor*/       
-    virtual ~CaloInfoLoader(){};
+      /**@brief destructor*/       
+      virtual ~CaloInfoLoader(){};
 
-    virtual bool load( CaloInfo& data);
-  };
+      virtual bool load( CaloInfo& data);
+
+   private:
+
+      void loadMinTobInfo( CaloInfo& data, const std::vector<int> & mintobIDs );
+
+      void loadIsolationInfo( CaloInfo& data, const std::vector<int> & isoparIDs );
+
+   };
 }
 
 #endif

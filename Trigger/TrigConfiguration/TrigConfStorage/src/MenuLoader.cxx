@@ -8,17 +8,8 @@
 #include "./ThresholdConfigLoader.h"
 #include "./ThresholdMonitorLoader.h"
 #include "./LogicExpression.h"
+
 #include "TrigConfStorage/StorageMgr.h"
-
-#include <CoralBase/Attribute.h>
-#include <CoralBase/AttributeList.h>
-
-#include "RelationalAccess/SchemaException.h"
-#include "RelationalAccess/ITransaction.h"
-#include "RelationalAccess/ITable.h"
-#include "RelationalAccess/ISchema.h"
-#include "RelationalAccess/ICursor.h"
-#include "RelationalAccess/IQuery.h"
 
 #include "TrigConfL1Data/Menu.h"
 #include "TrigConfL1Data/TriggerItem.h"
@@ -29,8 +20,6 @@
 #include "TrigConfL1Data/L1DataDef.h"
 
 #include "boost/lexical_cast.hpp"
-#include "boost/foreach.hpp"
-#define foreach BOOST_FOREACH
 
 #include <iostream>
 #include <sstream>
@@ -59,8 +48,13 @@ TrigConf::MenuLoader::load( Menu& menu ) {
    
       commitSession();
    }
+   catch( const coral::Exception& e ) {
+      TRG_MSG_ERROR("Caught coral exception: " << e.what());
+      commitSession();
+      throw;
+   }
    catch( const std::exception& e ) {
-      msg() << "MenuLoader:                      catching and re-throwing exception: " << e.what() << std::endl;
+      TRG_MSG_ERROR("Caught std exception: " << e.what());
       commitSession();
       throw;
    }
@@ -70,8 +64,7 @@ TrigConf::MenuLoader::load( Menu& menu ) {
 
 void
 TrigConf::MenuLoader::loadItems(TrigConf::Menu& menu) {
-   if(verbose()>1)
-      msg() << "MenuLoader:                       Loading items" << endl;
+   TRG_MSG_INFO("Loading items");
 
    // to later load internal triggers
    TriggerThresholdLoader& ttldr = dynamic_cast<TriggerThresholdLoader&>( (dynamic_cast<StorageMgr&>(m_storageMgr))
@@ -105,6 +98,9 @@ TrigConf::MenuLoader::loadItems(TrigConf::Menu& menu) {
    attList.extend<int>        ( "TI.L1TI_ID"                         );
    attList.extend<std::string>( "TI.L1TI_NAME"                       );
    attList.extend<int>        ( "TI.L1TI_VERSION"                    );
+   if(isRun2()) {
+      attList.extend<int>     ( "TI.L1TI_PARTITION"                  );
+   }
    attList.extend<int>        ( "TI.L1TI_CTP_ID"                     );
    attList.extend<std::string>( "TI.L1TI_PRIORITY"                   );
    attList.extend<std::string>( "TI.L1TI_DEFINITION"                 );
@@ -145,6 +141,9 @@ TrigConf::MenuLoader::loadItems(TrigConf::Menu& menu) {
          item->setId         (row["TI.L1TI_ID"].data<int>());
          item->setName       (row["TI.L1TI_NAME"].data<string>());
          item->setVersion    (row["TI.L1TI_VERSION"].data<int>());
+         if(isRun2()) {
+            item->setPartition  (row["TI.L1TI_PARTITION"].data<int>());
+         }
 
          string priority = row["TI.L1TI_PRIORITY"].data<string>();
          if(priority=="0" || priority=="HIGH") {
@@ -180,7 +179,7 @@ TrigConf::MenuLoader::loadItems(TrigConf::Menu& menu) {
    }
 
    // build the item node tree
-   foreach(int ctpid, ctpIDs) {
+   for(int ctpid : ctpIDs) {
       TriggerItem* titem = menu.findTriggerItem( ctpid );
       if(verbose()>2) {
          msg() << "MenuLoader:                       Number of thresholds for item " << titem->name()
@@ -225,7 +224,7 @@ TrigConf::MenuLoader::constructTree(const LogicExpression& def, const std::vecto
       top_node = new TriggerItemNode(TriggerItemNode::OBJ);
       unsigned int pos = boost::lexical_cast<unsigned int,std::string>(def.element());
       // find all related information
-      foreach(ThrInfo ti, thr_infos) {
+      for(ThrInfo ti : thr_infos) {
          if(ti.thrPos==pos) {
             top_node->setPosition( pos );
             top_node->setMultiplicity( ti.thrMult );
@@ -238,24 +237,24 @@ TrigConf::MenuLoader::constructTree(const LogicExpression& def, const std::vecto
    case LogicExpression::kAND: 
    case LogicExpression::kOPEN:
       top_node = new TriggerItemNode(TriggerItemNode::AND);
-      foreach(LogicExpression* sl, sub_logics)
+      for(LogicExpression* sl : sub_logics)
          top_node->addChild( constructTree(*sl, thr_infos) );
       break;
    case LogicExpression::kOR:
       if(sub_logics.size()>0) {
          top_node = new TriggerItemNode(TriggerItemNode::OR);
-         foreach(LogicExpression* sl, sub_logics)
+         for(LogicExpression* sl : sub_logics)
             top_node->addChild( constructTree(*sl, thr_infos) );
       }
       break;
    case LogicExpression::kNOT:
       top_node = new TriggerItemNode(TriggerItemNode::NOT);
-      foreach(LogicExpression* sl, sub_logics)
+      for(LogicExpression* sl : sub_logics)
          top_node->addChild( constructTree(*sl, thr_infos) );
       break;
    }
 
-   foreach(LogicExpression *sl, sub_logics) delete sl;
+   for(LogicExpression *sl : sub_logics) delete sl;
    sub_logics.clear();
 
    return top_node;
@@ -272,8 +271,7 @@ TrigConf::MenuLoader::loadMonitoring(TrigConf::Menu& menu) {
           DBLoader::getEnv() == DBLoader::CTPOnl ||
           DBLoader::getEnv() == DBLoader::COOLL1) ) return;
 
-   if(verbose())
-      msg() << "MenuLoader:                       Load monitoring counter mapping " << endl;
+   TRG_MSG_DEBUG("Load monitoring counter mapping ");
 
    unique_ptr< coral::IQuery > q(m_session.nominalSchema().newQuery());
    q->addToTableList ( "L1_TM_TO_TT_MON",      "TM2TTM" );
@@ -299,7 +297,7 @@ TrigConf::MenuLoader::loadMonitoring(TrigConf::Menu& menu) {
    output.extend<int>        ( "TM2TTM.L1TM2TTM_TRIGGER_THRESHOLD_ID"        );
    output.extend<int>        ( "TM2TTM.L1TM2TTM_INTERNAL_COUNTER"            );
    output.extend<int>        ( "TM2TTM.L1TM2TTM_MULTIPLICITY"                );
-   output.extend<long>       ( "TM2TTM.L1TM2TTM_BUNCH_GROUP_ID"                );
+   output.extend<long>       ( "TM2TTM.L1TM2TTM_BUNCH_GROUP_ID"              );
    output.extend<std::string>( "TM2TTM.L1TM2TTM_COUNTER_TYPE"                );
    output.extend<std::string>( "TT.L1TT_NAME"                                );
    output.extend<int>        ( "TT.L1TT_ACTIVE"                              );
@@ -330,7 +328,7 @@ TrigConf::MenuLoader::loadMonitoring(TrigConf::Menu& menu) {
       string slotString = row["TM2TT.L1TM2TT_CABLE_CTPIN"].data<std::string>();
       uint16_t slot = slotString[4]-'0'; // "SLOT7" -> 7
       if(slot<7 || slot>9) {
-         msg() << "MenuLoader:                       Unknown CTPIN string '" << slotString << "'" << endl;
+         TRG_MSG_ERROR("Unknown CTPIN string '" << slotString << "'");
          throw runtime_error( "MenuLoader (ThresholdMonitor): Error loading Monitoring counters " );
       }
       tm->setCtpinSlot(slot);
@@ -338,7 +336,7 @@ TrigConf::MenuLoader::loadMonitoring(TrigConf::Menu& menu) {
       string conString = row["TM2TT.L1TM2TT_CABLE_CONNECTOR"].data<std::string>();
       uint16_t con = conString[3]-'0'; // "CON2" -> 2
       if(con>3) {
-         msg() << "MenuLoader:                       Unknown CTPIN connector string '" << conString << "'" << endl;
+         TRG_MSG_ERROR("Unknown CTPIN connector string '" << conString << "'");
          throw runtime_error( "MenuLoader (ThresholdMonitor): Error loading Monitoring counters " );
       }
       tm->setCtpinConnector(con);
@@ -461,9 +459,7 @@ TrigConf::MenuLoader::loadCaloInfo(TrigConf::Menu& menu) {
 void
 TrigConf::MenuLoader::loadMenuAttributes(TrigConf::Menu& menu) {
 
-   if(verbose())
-      msg() << "MenuLoader:                       Started loading menu data for SMK " << menu.smk() << std::endl;
-
+   TRG_MSG_DEBUG("Loading menu data for SMK " << menu.smk());
 
    unique_ptr< coral::IQuery > q( m_session.nominalSchema().newQuery() );
    q->addToTableList ( "SUPER_MASTER_TABLE", "SM"    );

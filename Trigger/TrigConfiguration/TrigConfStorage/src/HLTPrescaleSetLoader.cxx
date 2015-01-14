@@ -51,11 +51,12 @@ TrigConf::HLTPrescaleSetLoader::load( HLTPrescaleSet& hltpss ) {
 
    using std::string;
    
-   if(verbose()>=1)
-      msg() << "HLTPrescaleSetLoader:             started loading data with HLT PSK: " << hltpss.id() << std::endl;
+   TRG_MSG_INFO("Started loading data with HLT PSK: " << hltpss.id());
 
    //Find if old or new schema is being used:
    try {
+
+      triggerDBSchemaVersion();
 
       startSession();
 
@@ -79,15 +80,25 @@ TrigConf::HLTPrescaleSetLoader::load( HLTPrescaleSet& hltpss ) {
       coral::AttributeList attList;
       attList.extend<string>( "PS.HPS_NAME"              );
       attList.extend<int>   ( "PS.HPS_VERSION"           );
-      attList.extend<string>( "PR.HPR_L2_OR_EF"          );
-      attList.extend<int>   ( "PR.HPR_CHAIN_COUNTER"     );
-      attList.extend<string>( "PR.HPR_PASS_THROUGH_RATE" );
-      attList.extend<string>( "PR.HPR_PRESCALE"          );
+      if(isRun1()) { 
+         attList.extend<string>( "PR.HPR_L2_OR_EF"       ); 
+         attList.extend<string>( "PR.HPR_PASS_THROUGH_RATE" ); 
+         attList.extend<string>( "PR.HPR_PRESCALE"          ); 
+      } else { 
+         attList.extend<float>   ( "PR.HPR_VALUE" ); 
+         attList.extend<string>  ( "PR.HPR_TYPE" ); 
+      } 
+      attList.extend<int>   ( "PR.HPR_CHAIN_COUNTER" ); 
+
       fillQuery(q.get(),attList);
 
       // the ordering
-      string theOrder = "  PR.HPR_L2_OR_EF DESC";
-      theOrder += ", PR.HPR_CHAIN_COUNTER ASC";
+      string theOrder = ""; 
+      if(isRun1()) { 
+         theOrder = " PR.HPR_L2_OR_EF DESC, PR.HPR_CHAIN_COUNTER ASC"; 
+      } else { 
+         theOrder += "PR.HPR_CHAIN_COUNTER ASC"; 
+      } 
       q->addToOrderList( theOrder );
 
 
@@ -113,25 +124,38 @@ TrigConf::HLTPrescaleSetLoader::load( HLTPrescaleSet& hltpss ) {
             pssnameset=true;
          }
 
-         string level   = row["PR.HPR_L2_OR_EF"].data<string>();
-         int    counter = row["PR.HPR_CHAIN_COUNTER"].data<int>();
+         string level = isRun1() ? row["PR.HPR_L2_OR_EF"].data<string>() : "HLT";  
+         int counter = row["PR.HPR_CHAIN_COUNTER"].data<int>(); 
 
          // this is faster than boost::lexical_cast string->float:
-         std::string prescaleStr = row["PR.HPR_PRESCALE"].data<string>();
-         if(prescaleStr=="-0" || prescaleStr=="na" ) prescaleStr = "-1";
          float  ps(-999);
-         if (!convert(prescaleStr, ps)) {
-           msg() << "Could not convert prescale string '" << prescaleStr << "' of chain "
-                 << counter << " to float" << std::endl;
+         float  pt(-999); 
+         if(isRun1()) {
+            std::string prescaleStr = row["PR.HPR_PRESCALE"].data<string>(); 
+            if(prescaleStr=="-0" || prescaleStr=="na" ) prescaleStr = "-1"; 
+            if (!convert(prescaleStr, ps)) { 
+               msg() << "Could not convert prescale string '" << prescaleStr << "' of chain " 
+                     << counter << " to float" << std::endl; 
+            } 
+	 
+            std::string passThroughStr = row["PR.HPR_PASS_THROUGH_RATE"].data<string>(); 
+            if (!convert(passThroughStr, pt)) { 
+               msg() << "Could not convert passthrough string '" << passThroughStr << "' of chain " 
+                     << counter << " to float" << std::endl; 
+            } 
+         } else {
+            // RUN 2 
+            float value = row["PR.HPR_VALUE"].data<float>(); 
+            string pstype = row["PR.HPR_TYPE"].data<string>(); 
+            if(pstype=="Prescale") { 
+               ps = value; 
+            } else if (pstype=="Pass_Through") { 
+               pt = value; 
+            } else if (pstype=="Rerun") { 
+               //float psrr = value; // TODO 
+            }          
          }
 
-         std::string passThroughStr = row["PR.HPR_PASS_THROUGH_RATE"].data<string>();
-         float  pt(-999);
-         if (!convert(passThroughStr, pt)) {
-           msg() << "Could not convert passthrough string '" << passThroughStr << "' of chain "
-                 << counter << " to float" << std::endl;
-         }
-         
          if(level=="L2" || level=="l2" || level=="EF" || level=="ef" || level=="hlt" || level=="HLT" || level=="") {
             hltpss.thePrescale( counter, str2lvl(level) )
                .setPrescale(ps)
@@ -144,22 +168,21 @@ TrigConf::HLTPrescaleSetLoader::load( HLTPrescaleSet& hltpss ) {
          }
       }
 
-      if(verbose()>=1)
-         msg() << "HLTPrescaleSetLoader:             loaded " << hltpss.size(L2) << " L2 prescales and " << hltpss.size(EF) << " EF prescales." << std::endl;
+      TRG_MSG_INFO("Loaded " << hltpss.size(L2) << " L2 prescales and " << hltpss.size(EF) << " EF prescales.");
       commitSession();
    }
    catch (const coral::SchemaException& e) {
-      msg() << "HLTPrescaleSetLoader >> IRelationalException: " << e.what() << std::endl;
+      TRG_MSG_ERROR("HLTPrescaleSetLoader >> IRelationalException: " << e.what()); 
       m_session.transaction().rollback();
       return false;
    }
    catch (const std::exception& e) {
-      msg() << "HLTPrescaleSetLoader >> Standard C++ exception: " << e.what() << std::endl;
+      TRG_MSG_ERROR("HLTPrescaleSetLoader >> Standard C++ exception: " << e.what()); 
       m_session.transaction().rollback();
       return false;
    }
    catch (...) {
-      msg() << "HLTPrescaleSetLoader >> unknown C++ exception" << std::endl;
+      TRG_MSG_ERROR("HLTPrescaleSetLoader >> unknown C++ exception");
       m_session.transaction().rollback();
       return false;
    }

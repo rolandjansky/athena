@@ -173,6 +173,7 @@ namespace TrigConf {
       static FolderDefinition HltConfigKeysFolderDefinition();
       static FolderDefinition HltPrescalesFolderDefinition();
       static FolderDefinition HltPrescaleKeyFolderDefinition();
+      static FolderDefinition Lvl1MonMapFolderSpecification();
 
 
       static cool::RecordSpecification createLvl1MenuFolderSpecification();       ///< defines the folder structure for the LVL1 menu

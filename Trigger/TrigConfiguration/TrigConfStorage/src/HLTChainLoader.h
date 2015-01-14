@@ -22,8 +22,8 @@ namespace TrigConf {
        * @param sm reference to storage manager
        * @param session reference to the database session
        */
-      HLTChainLoader( StorageMgr& sm,  coral::ISession& session) :
-         DBLoader(sm, session) {}
+      HLTChainLoader( StorageMgr& sm,  coral::ISessionProxy& session) :
+         DBLoader("HLTChainLoader", sm, session) {}
 
       /**@brief destructor*/       
       virtual ~HLTChainLoader(){};

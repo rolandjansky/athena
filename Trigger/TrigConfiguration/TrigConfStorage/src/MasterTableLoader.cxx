@@ -13,6 +13,7 @@
 #include "./CTPConfigLoader.h"
 #include "./CTPConfigOnlineLoader.h"
 #include "./MuctpiLoader.h"
+#include "L1TopoMenuLoader.h"
 
 using namespace std;
 
@@ -157,6 +158,17 @@ TrigConf::MasterTableLoader::load(Muctpi& m) {
    }
 }
 
+bool TrigConf::MasterTableLoader::load(TXC::L1TopoMenu& l1topo){
+   try {
+      L1TopoMenuLoader& l1topoLoader = dynamic_cast<L1TopoMenuLoader&>(m_storageMgr.l1topoMenuLoader());
+      l1topoLoader.setVerbose(DBLoader::verbose());
+      return l1topoLoader.load(l1topo);
+   } catch (std::exception& ex) {
+      msg() << "Caught exception in MasterTableLoader : "
+            << ex.what() << std::endl;
+      return false;
+   }
+}
 
   
 int

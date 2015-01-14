@@ -26,8 +26,8 @@ namespace TrigConf {
        * @param sm reference to storage manager
        * @param session reference to the database session
        */
-      MenuLoader( StorageMgr& sm, coral::ISession& session) : 
-         IMenuLoader(), DBLoader(sm, session) {}
+      MenuLoader( StorageMgr& sm, coral::ISessionProxy& session) : 
+         IMenuLoader(), DBLoader("MenuLoader", sm, session) {}
 
       /**@brief destructor*/       
       virtual ~MenuLoader(){};

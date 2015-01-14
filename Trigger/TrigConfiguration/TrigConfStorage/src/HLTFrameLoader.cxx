@@ -21,13 +21,8 @@
 #include "RelationalAccess/ICursor.h"
 #include "RelationalAccess/IQuery.h"
 
-
-
-
-#include "boost/foreach.hpp"
-#define foreach BOOST_FOREACH
-
 #include <iostream>
+#include <sstream>
 using namespace std;
 
 bool
@@ -51,11 +46,11 @@ TrigConf::HLTFrameLoader::load( HLTFrame& frame ) {
       loadSMT(frame);
 
       HLTSequenceLoader seqldr(m_storageMgr, m_session);
-      seqldr.setVerbose(verbose());
+      seqldr.setLevel(outputLevel());
       seqldr.load(frame);
 
       HLTChainLoader chldr(m_storageMgr, m_session);
-      chldr.setVerbose(verbose());
+      chldr.setLevel(outputLevel());
       chldr.load(frame);
 
       // prescale set collection
@@ -96,12 +91,12 @@ TrigConf::HLTFrameLoader::load( HLTFrame& frame ) {
          }
 
       } else {
-         msg() << "HLTFrameLoader:                   ERROR not all requested HLT prescale keys are connected to the SMK" << endl;
-         msg() << "HLTFrameLoader:                   INFO these HLT PSK are connected to SMK " << smk << ": ";
+         TRG_MSG_ERROR("Not all requested HLT prescale keys are connected to the SMK");
+         stringstream s;
          for(int psk: connected_psk) {
-            msg() << psk << ", ";
+            s << psk << ", ";
          }
-         msg() << endl;
+         TRG_MSG_INFO("these HLT PSK are connected to SMK " << smk << ": " << s.str());
          throw runtime_error("HLTFrameLoader: not all requested HLT prescale keys are connected to the SMK");
       }
 
@@ -122,7 +117,7 @@ TrigConf::HLTFrameLoader::load( HLTFrame& frame ) {
       frame.print();
    }
    catch (const std::exception& e) {
-      msg() << "HLTFrameLoader:                   caught and re-throw exception: " << e.what() << endl;
+      TRG_MSG_ERROR("exception " << e.what());
       throw;
    }
 

@@ -43,11 +43,6 @@ XMLLoader::setLevel(MSGTC::Level lvl) {
    }
 }
 
-MSGTC::Level
-XMLLoader::outputLevel() const {
-   return msg().level();
-}
-
 bool
 XMLLoader::is_a(const string& elementtag) const {
    if(m_data == 0) {

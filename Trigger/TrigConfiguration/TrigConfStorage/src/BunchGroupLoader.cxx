@@ -3,16 +3,7 @@
 */
 
 #include "./BunchGroupLoader.h"
-
-#include <CoralBase/Attribute.h>
-#include <CoralBase/AttributeList.h>
-
-#include "RelationalAccess/SchemaException.h"
-#include "RelationalAccess/ITransaction.h"
-#include "RelationalAccess/ITable.h"
-#include "RelationalAccess/ISchema.h"
-#include "RelationalAccess/ICursor.h"
-#include "RelationalAccess/IQuery.h"
+#include "./DBHelper.h"
 
 #include "TrigConfL1Data/BunchGroup.h"
 
@@ -20,102 +11,83 @@
 #include <stdexcept>
 #include <typeinfo>
 
+using namespace std;
+
 bool TrigConf::BunchGroupLoader::load(BunchGroup& bgTarget) {
-   msg() << "BunchGroupLoader:                 Loading BunchGroup with ID = " << bgTarget.id() << std::endl;
+
+   TRG_MSG_DEBUG("Loading BunchGroup with ID = " << bgTarget.id());
+
    try {
       startSession();
-      coral::ITable& table = m_session.nominalSchema().tableHandle( "L1_BUNCH_GROUP");
-      coral::IQuery* query = table.newQuery();
-      query->setRowCacheSize( 5 );
+      if(isRun1()) {
+         unique_ptr<coral::IQuery> query( m_session.nominalSchema().tableHandle( "L1_BUNCH_GROUP").newQuery() );
+         query->setRowCacheSize( 5 );
 
-      //Bind list
-      coral::AttributeList bindList;
-      bindList.extend<long>("bgId");
-      std::string cond = "L1BG_ID = :bgId";
-      bindList[0].data<long>() = bgTarget.id();
-      query->setCondition( cond, bindList );
+         //Bind list
+         coral::AttributeList bindList;
+         bindList.extend<long>("bgId");
+         std::string cond = "L1BG_ID = :bgId";
+         bindList[0].data<long>() = bgTarget.id();
+         query->setCondition( cond, bindList );
 
-      //Output data and types
-      coral::AttributeList attList;
-      attList.extend<std::string>( "L1BG_NAME" );
-      attList.extend<int>( "L1BG_VERSION" );
-      query->defineOutput(attList);
+         //Output data and types
+         coral::AttributeList attList;
+         attList.extend<std::string>( "L1BG_NAME" );
+         attList.extend<int>( "L1BG_VERSION" );
+         fillQuery(query.get(),attList);
  
-      query->addToOutputList( "L1BG_NAME" );
-      query->addToOutputList( "L1BG_VERSION" );
-
-      coral::ICursor& cursor = query->execute();
+         coral::ICursor& cursor = query->execute();
       
-      if ( ! cursor.next() ) {
-         msg() << "BunchGroupLoader >> No such deadtime exists " << bgTarget.id() << std::endl;
-         delete query;
-         commitSession();
-         throw std::runtime_error( "BunchGroupLoader >> BunchGroup not available" );
+         if ( ! cursor.next() ) {
+            TRG_MSG_ERROR("No bunchgroup exists with ID " << bgTarget.id());
+            commitSession();
+            throw std::runtime_error( "BunchGroupLoader >> BunchGroup not available" );
+         }
+
+         const coral::AttributeList& row = cursor.currentRow();
+         std::string name    = row["L1BG_NAME"].data<std::string>();
+         int         version = row["L1BG_VERSION"].data<int>();
+
+         // fill the object with data
+         bgTarget.setName( name );
+         bgTarget.setVersion( version );
       }
 
-      const coral::AttributeList& row = cursor.currentRow();
-      std::string name    = row["L1BG_NAME"].data<std::string>();
-      int         version = row["L1BG_VERSION"].data<int>();
 
-      if ( cursor.next() ) {
-         msg() << "BunchGroupLoader >> More than one BunchGroup exists " 
-               << bgTarget.id() << std::endl;
-         delete query;
-         commitSession();
-         throw std::runtime_error( "BunchGroupLoader >>  BunchGroup not available" );
-      }
+      {
+         // now touch the l1_bg_to_b table to get the bunches.
+         unique_ptr<coral::IQuery> q( m_session.nominalSchema().tableHandle( "L1_BG_TO_B").newQuery() );
+         q->setRowCacheSize( 5 );
 
-      // fill the object with data
-      bgTarget.setName( name );
-      bgTarget.setVersion( version );
+         //binding
+         coral::AttributeList bindList;
+         bindList.extend<long>("bgId");
+         bindList[0].data<long>() = bgTarget.id();
+         q->setCondition( "L1BG2B_BUNCH_GROUP_ID = :bgId", bindList );
 
-      // now touch the l1_bg_to_b table to get the bunches.
-      coral::ITable& table2 = m_session.nominalSchema().tableHandle( "L1_BG_TO_B");
-      coral::IQuery* query2 = table2.newQuery();
-      query2->setRowCacheSize( 5 );
+         //Output data and types
+         coral::AttributeList attList;
+         attList.extend<int>( "L1BG2B_BUNCH_NUMBER" );
+         fillQuery(q.get(),attList);
 
-      //binding
-      coral::AttributeList bindList2;
-      bindList2.extend<long>("bgId");
-      std::string cond2 = "L1BG2B_BUNCH_GROUP_ID = :bgId";
-      bindList2[0].data<long>() = bgTarget.id();
-      query2->setCondition( cond2, bindList2 );
+         coral::ICursor& cursor = q->execute();
 
-      //Output data and types
-      coral::AttributeList attList2;
-      attList2.extend<long>( "L1BG2B_BUNCH_NUMBER" );
-      query2->defineOutput(attList2);
-      query2->addToOutputList( "L1BG2B_BUNCH_NUMBER" );
-
-      coral::ICursor& cursor2 = query2->execute();
-
-      short bunch_number = 0;
-      while( cursor2.next() ) {
-         const coral::AttributeList& row2 = cursor2.currentRow();
-         bunch_number = row2["L1BG2B_BUNCH_NUMBER"].data<long>();
-         // fill the bunch numbers to the bgTarget
-         bgTarget.addBunch(bunch_number);
-      }
+         while( cursor.next() ) {
+            const coral::AttributeList& row = cursor.currentRow();
+            bgTarget.addBunch( row["L1BG2B_BUNCH_NUMBER"].data<int>() );
+         }
       
-      delete query;
-      delete query2;
-      
+      }
       commitSession();
-      return true;
-   } catch( const coral::SchemaException& e ) {
-      msg() << "BunchGroupLoader >> SchemaException: " 
-            << e.what() << std::endl;
+   }
+   catch( const coral::Exception& e ) {
+      TRG_MSG_ERROR("Coral::Exception: " << e.what());
       m_session.transaction().rollback();
-      return false;
-   } catch( const std::exception& e ) {
-      msg() << "BunchGroupLoader >> Standard C++ exception: " << e.what() << std::endl;
-      m_session.transaction().rollback();
-      return false; 
-   } catch( ... ) {
-      msg() << "BunchGroupLoader >> Unknown C++ exception" << std::endl;
-      m_session.transaction().rollback();
-      return false; 
-   }   
+      throw;
+   }
+   
+   return true;
+
 } 
 
 

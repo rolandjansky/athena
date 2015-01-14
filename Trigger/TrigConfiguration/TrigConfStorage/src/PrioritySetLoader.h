@@ -14,7 +14,7 @@ namespace TrigConf {
    class PrioritySetLoader : virtual public IPrioritySetLoader, public DBLoader {
    public:
 
-      PrioritySetLoader( StorageMgr& sm,  coral::ISession& session) : DBLoader(sm, session) {}
+      PrioritySetLoader( StorageMgr& sm,  coral::ISessionProxy& session) : DBLoader(sm, session) {}
       virtual ~PrioritySetLoader(){};
 
       virtual bool load( PrioritySet& data);

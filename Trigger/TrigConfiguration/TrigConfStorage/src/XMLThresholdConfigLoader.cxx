@@ -39,8 +39,6 @@ XMLThresholdConfigLoader::load( ThresholdConfig& thrcfg ) {
       }
    }
    delete thr_ldr;
-   thrcfg.attributeThresholdNumbers();
-
 
    // Read CaloInfo
    ICaloInfoLoader& ci_loader = m_storageMgr.caloInfoLoader();

@@ -19,17 +19,20 @@ class CompareHLTXML(CompareMenuXML):
             'STREAMTAG_LIST' : 'single',
             'TRIGGERTYPE_LIST' : 'single',
             'CHAIN' : 'chain_name',
-            'BLAH' : 'single',
             'GROUP' : 'name',
             'SIGNATURE' : 'signature_counter',
             'TRIGGERELEMENT' : 'te_name',
             'TRIGGERTYPE' : 'bit',
             'STREAMTAG' : 'stream',
             'SEQUENCE' : 'output',
+            'PRESCALES' : 'single',
             }
 
         # elements that need to print information about the parent when printed
         self.needParentInfo = ['GROUP', 'GROUP_LIST', 'TRIGGERTYPE', 'TRIGGERTYPE_LIST']
+
+        self.exclFromCmpList = []
+        self.ignoreAttr = {}
 
         # elements for which the information is stored as #PCDATA content
         self.checkText = []
@@ -38,8 +41,8 @@ class CompareHLTXML(CompareMenuXML):
 
         # depending on the the environment exclude elements from the comparison
         if self.exlusionset=='default':
-            self.exclFromCmpList = []
-            self.ignoreAttr = {}
+            self.exclFromCmpList = ['PRESCALES']
+            self.ignoreAttr = {'CHAIN' : ['EBstep', 'rerun_prescale','pass_through']}
 
         elif self.exlusionset=='cool':
             # these things are not stored in COOL

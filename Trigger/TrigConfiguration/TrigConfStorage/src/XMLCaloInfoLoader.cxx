@@ -27,9 +27,11 @@ TrigConf::XMLCaloInfoLoader::load(CaloInfo& caloinfo) {
    float fval=0;
    string strval="";
 
-   if(  readAttribute(pt(), "name", strval) )       caloinfo.setName(strval);
-   if(  readAttribute(pt(), "version", ival) )      caloinfo.setVersion(ival);
-   if(  readAttribute(pt(), "global_scale", fval) ) caloinfo.setGlobalScale(fval);
+   if(  readAttribute(pt(), "name", strval) )           caloinfo.setName(strval);
+   if(  readAttribute(pt(), "version", ival) )          caloinfo.setVersion(ival);
+   if(  readAttribute(pt(), "global_scale", fval) )     caloinfo.setGlobalScale(fval);
+   if(  readAttribute(pt(), "global_em_scale", fval) )  caloinfo.setGlobalEmScale(fval);
+   if(  readAttribute(pt(), "global_jet_scale", fval) ) caloinfo.setGlobalJetScale(fval);
 
 
    // jet weights
@@ -139,7 +141,7 @@ TrigConf::XMLCaloInfoLoader::load(CaloInfo& caloinfo) {
       }
                 
    }
-
+   //caloinfo.print();
 
 
    // read the CaloSinCos parameters

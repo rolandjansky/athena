@@ -16,64 +16,51 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "./PrescaleSetLoader.h"
 
+#include "L1CommonCore/CTPdataformatVersion.h"
+
+#include "./PrescaleSetLoader.h"
 #include "./DBHelper.h"
+
+#include "boost/lexical_cast.hpp"
 
 using namespace std;
 
 bool
 TrigConf::PrescaleSetLoader::load( PrescaleSet& psTarget ) {
 
-   if(verbose())
-      msg() << "PrescaleSetLoader:                started loading data via ID. ID = " << psTarget.id() << std::endl;
+   TRG_MSG_INFO("loading data with ID = " << psTarget.id());
 
-   psTarget.resize(256); // TODO: adapt to new style and new CTP
+   CTPdataformatVersion ctpformat(s_ctpVersion);
 
+   psTarget.resize(ctpformat.getMaxTrigItems());
 
    try {
       startSession();
-      coral::ITable& table = m_session.nominalSchema().tableHandle( "L1_PRESCALE_SET");
-      unique_ptr< coral::IQuery > query( table.newQuery() );
-      query->setRowCacheSize( 5 );
+      unique_ptr< coral::IQuery > q( m_session.nominalSchema().tableHandle( "L1_PRESCALE_SET").newQuery() );
+      q->setRowCacheSize( 5 );
 
       //Bind list
       coral::AttributeList bindList;
       bindList.extend<int>("psId");
       std::string cond = "L1PS_ID = :psId";
       bindList[0].data<int>() = psTarget.id();
-      query->setCondition( cond, bindList );
+      q->setCondition( cond, bindList );
 
       //Output data and types
       coral::AttributeList attList;
       attList.extend<std::string>( "L1PS_NAME" );
       attList.extend<int>( "L1PS_VERSION" );
       attList.extend<std::string>( "L1PS_COMMENT" );
-      query->addToOutputList( "L1PS_NAME" );
-      query->addToOutputList( "L1PS_VERSION" );
-      query->addToOutputList( "L1PS_COMMENT" );
-      //char buffer0[50];
-      for (unsigned int ij = 0; ij < PrescaleSet::N_PRESCALES; ++ij) {
-         std::ostringstream formatedoutput;
-         formatedoutput << "L1PS_VAL" << ij+1;
-
-         //             std::string os= "L1PS_VAL";
-         //             sprintf (buffer0, "%d", ij+1);
-         //             os+=buffer0;
-         //            attList.extend<int>( os );
-         // TODO: check coral documentation. Tiago.
-         // AttributeList.extend<Type>("NAME")
-         attList.extend<int64_t>( formatedoutput.str() );
-         query->addToOutputList( formatedoutput.str() );
+      for (unsigned int ctpid = 0; ctpid < ctpformat.getMaxTrigItems(); ++ctpid) {
+         attList.extend<int64_t>( "L1PS_VAL" + boost::lexical_cast<string,int>(ctpid+1) );
       }
-      query->defineOutput(attList);
+      fillQuery(q.get(),attList);
 
-
-      coral::ICursor& cursor = query->execute();
+      coral::ICursor& cursor = q->execute();
       
-
       if ( ! cursor.next() ) {
-         msg() << "PrescaleSetLoader >> No such prescaleset exists " << psTarget.id() << std::endl;
+         TRG_MSG_ERROR("No such prescaleset exists " << psTarget.id());
          throw std::runtime_error( "PrescaleSetLoader >> PrescaleSet not available" );
       }
 
@@ -86,39 +73,22 @@ TrigConf::PrescaleSetLoader::load( PrescaleSet& psTarget ) {
       psTarget.setName( name );
       psTarget.setVersion( version );
       psTarget.setComment( comment );
-      char buffer [50];
-      for (unsigned int ij=0; ij < PrescaleSet::N_PRESCALES; ++ij) {
-         std::string os= "L1PS_VAL";
-         sprintf (buffer, "%d", ij+1);
-         os+=buffer;
-         psTarget.setPrescale(ij,row[os].data<int64_t>());
-      }
-
-      if ( cursor.next() ) {
-         msg() << "PrescaleSetLoader >> More than one PrescaleSet exists " 
-               << psTarget.id() << std::endl;
-         throw std::runtime_error( "PrescaleSetLoader >>  PrescaleSet not available" );
+      for (unsigned int ctpid=0; ctpid < ctpformat.getMaxTrigItems(); ++ctpid) {
+         int64_t val = row["L1PS_VAL" + boost::lexical_cast<string,unsigned int>(ctpid+1)].data<int64_t>();
+         if(isRun1()) {
+            psTarget.setPrescale(ctpid,val);
+         } else {
+            psTarget.setCut(ctpid,val);
+         }
       }
 
       commitSession();
       return true;
-   } catch( const coral::Exception& e ) {
-      msg() << "PrescaleSetLoader >> SchemaException: " 
-
-            << e.what() << std::endl;
-      m_session.transaction().rollback();
-      return false;
-
-   } catch( const std::exception& e ) {
-      msg() << "PrescaleSetLoader >> Standard C++ exception: " << e.what() << std::endl;
-
-      m_session.transaction().rollback();
-      return false; 
-
-   } catch( ... ) {
-      msg() << "PrescaleSetTimeLoader >> Unknown C++ exception" << std::endl;
-
-      m_session.transaction().rollback();
-      return false; 
    }
+   catch( const coral::Exception& e ) {
+      TRG_MSG_ERROR("Coral::Exception: " << e.what());
+      throw;
+   }
+
+   return true;
 }

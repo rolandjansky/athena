@@ -58,8 +58,12 @@ TrigConf::JobOptionTableLoader::loadHLTMasterTable(int SuperMasterKey,
    coral::AttributeList attList;
    attList.extend<int> ( "HM.HMT_ID" );
    attList.extend<int> ( "HM.HMT_TRIGGER_MENU_ID" );
-   attList.extend<int> ( "HM.HMT_L2_SETUP_ID" );
-   attList.extend<int> ( "HM.HMT_EF_SETUP_ID" );
+   if(isRun1()) {
+      attList.extend<int> ( "HM.HMT_L2_SETUP_ID" );
+      attList.extend<int> ( "HM.HMT_EF_SETUP_ID" );
+   } else {
+      attList.extend<int> ( "HM.HMT_SETUP_ID" );
+   }
    fillQuery(q.get(),attList);
 
    // query
@@ -73,9 +77,12 @@ TrigConf::JobOptionTableLoader::loadHLTMasterTable(int SuperMasterKey,
 
    masterTableID = row["HM.HMT_ID"].data<int>();
    triggerMenuID = row["HM.HMT_TRIGGER_MENU_ID"].data<int>();
-   l2SetupID     = row["HM.HMT_L2_SETUP_ID"].data<int>();
-   efSetupID     = row["HM.HMT_EF_SETUP_ID"].data<int>();
-
+   if(isRun1()) {
+      l2SetupID     = row["HM.HMT_L2_SETUP_ID"].data<int>();
+      efSetupID     = row["HM.HMT_EF_SETUP_ID"].data<int>();
+   } else {
+      l2SetupID = efSetupID = row["HM.HMT_SETUP_ID"].data<int>();
+   }
    return true;
 }
 
@@ -516,6 +523,8 @@ TrigConf::JobOptionTableLoader::load( JobOptionTable& jot ) {
       TRG_MSG_ERROR("requested SMK is 0");
       return false;
    }
+
+   triggerDBSchemaVersion();
 
    if(verbose())
       TRG_MSG_INFO("Start loading job options with smk " << jot.smk());

@@ -35,6 +35,7 @@
 
 #include "TrigConfL1Data/CaloInfo.h"
 #include "TrigConfL1Data/CTPConfig.h"
+#include "L1TopoConfig/L1TopoMenu.h"
 #include "TrigConfL1Data/Muctpi.h"
 #include "TrigConfHLTData/HLTFrame.h"
 #include "TrigConfHLTData/HLTPrescaleSet.h"
@@ -76,6 +77,7 @@ void printhelp(std::ostream & o, std::ostream& (*lineend) ( std::ostream& os )) 
   o << "  -v|--loglevel     <string>                    ... log level [NIL, VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL, ALWAYS]\n";
   o << "  -l|--log          <string>                    ... name of a log file\n";
   o << "  --jo                                          ... read and write job options where possible\n";
+  o << "  --fw                                          ... read ctp firmware\n";
   o << "  -p|--print        <int>                       ... print configuration with detail 0...5 (default 1)\n";
   o << "  -h|--help                                     ... this output\n";
   o << "  --nomerge                                     ... internally don't merge L2 and EF (by default merge is enabled)\n";
@@ -117,6 +119,7 @@ public:
    vector<unsigned int> keys, keys2; // smk[,l1key[,hltkey[,bgkey]]]
    string       outBase {""};
    string       l1xmlOutFile { "LVL1Config.xml" };
+   string       l1topoOutFile { "L1TopoConfig.xml" };
    string       hltxmlOutFile { "HLTConfig.xml" };
    string       coolOutFile { "trig_cool.db" };
    string       coolDbname { "COMP200" };
@@ -126,6 +129,7 @@ public:
    int          printlevel {-1};
    MSGTC::Level outputlevel {MSGTC::WARNING};
    bool         jo {false};
+   bool         fw {false};
    string       logFileName {""};
    bool         merge = { true };
    vector<string> error;
@@ -176,6 +180,7 @@ JobConfig::parseProgramOptions(int argc, char* argv[]) {
                 stripped == "l" || stripped == "log" ||
                 stripped == "p" || stripped == "print" ||
                 stripped == "jo" ||
+                stripped == "fw" ||
                 stripped == "nomerge" ||
                 stripped == "v" || stripped == "loglevel") ) {
             listofUnknownParameters += " " + currInput;
@@ -185,6 +190,8 @@ JobConfig::parseProgramOptions(int argc, char* argv[]) {
       if(isParam) {
          currentPar = "";
          if(stripped == "h" || stripped == "help" )        { help = true; continue; }
+         if(stripped == "jo")                              { jo = true; continue; }
+         if(stripped == "fw")                              { fw = true; continue; }
          if(stripped == "nomerge") { merge = false; continue; }
          currentPar = stripped;
       } else {
@@ -262,8 +269,9 @@ JobConfig::parseProgramOptions(int argc, char* argv[]) {
             coolOutFile="trig_cool_" + out + ".db";
          }
       } else {
-         l1xmlOutFile  = "LVL1Config_" + outBase + ".xml";
-         hltxmlOutFile = "HLTConfig_" + outBase + ".xml";
+         l1xmlOutFile  = "LVL1config_" + outBase + ".xml";
+         l1topoOutFile = "L1TopoConfig_" + outBase + ".xml";
+         hltxmlOutFile = "HLTconfig_" + outBase + ".xml";
       }
    }
 
@@ -305,7 +313,7 @@ JobConfig::PrintSetup(std::ostream & log, std::ostream& (*lineend) ( std::ostrea
    }
    if( output != UNDEF ) {
       log << "   Output              : ";
-      if( output&XML )  log << l1xmlOutFile << ", " << hltxmlOutFile;
+      if( output&XML )  log << l1xmlOutFile << ", " << l1topoOutFile << ", " << hltxmlOutFile;
       if( output&COOL ) log << coolOutFile << "; " << coolDbname;
       log << lineend;
    }
@@ -365,18 +373,27 @@ int main( int argc, char* argv[] ) {
     ***************************************/
    CTPConfig* ctpc(0);
    HLTFrame* hltFrame(0);
+   TXC::L1TopoMenu* l1tm = nullptr;
 
    /*------------------
     * from DB
     *-----------------*/
    if (gConfig.input == JobConfig::DB) {
       unique_ptr<StorageMgr> sm(new StorageMgr(gConfig.db, "", "", log));
+
+      // Loadign L1 topo 
+      log << "Retrieving Lvl1 Topo configuration" << lineend;
+      l1tm  = new TXC::L1TopoMenu();
+      l1tm->setSMK(gConfig.getKey(0));
+      sm->masterTableLoader().load(*l1tm);
+
       log << "Retrieving Lvl1 CTP configuration" << lineend;
       ctpc = new TrigConf::CTPConfig();
       ctpc->setSMK( gConfig.getKey(0) );
       ctpc->setPrescaleSetId( gConfig.getKey(1) );
       ctpc->setBunchGroupSetId( gConfig.getKey(3) );
-      DBLoader::setEnv(DBLoader::CTP);
+      DBLoader::setEnv(DBLoader::CTPOnl);
+      ctpc->setLoadCtpFiles(gConfig.fw); // load CTP files ?
       sm->masterTableLoader().setLevel(gConfig.outputlevel);
       sm->masterTableLoader().load(*ctpc);
       ctpc->muCTPi().setSMK( gConfig.getKey(0) );
@@ -387,6 +404,7 @@ int main( int argc, char* argv[] ) {
       hltFrame->setSMK( gConfig.getKey(0) );
       if( gConfig.getKey(2)>0 )
          hltFrame->thePrescaleSetCollection().set_prescale_key_to_load( gConfig.getKey(2) );
+      sm->hltFrameLoader().setLevel( gConfig.outputlevel );
       sm->hltFrameLoader().load( *hltFrame );
    }
    /*------------------
@@ -547,6 +565,12 @@ int main( int argc, char* argv[] ) {
          hltFrame->writeXML(xmlfile);
          xmlfile.close();
       }
+
+      if(l1tm) {
+         log << "TrigConfReadWrite:                Writing L1 TopoMenu " << gConfig.l1topoOutFile << lineend;
+         l1tm->writeXML(gConfig.l1topoOutFile);
+      }
+
    }
    if ( (gConfig.output & JobConfig::COOL) != 0 ) {
       /*------------------
@@ -566,24 +590,23 @@ int main( int argc, char* argv[] ) {
       }
    }
 
+   delete ctpc;
+   delete hltFrame;
+   if(l1tm!=nullptr)
+      delete l1tm;
     
    if( gConfig.jo ) {
-      JobOptionTable jotl2,jotef;
+
+      JobOptionTable jot;
       unique_ptr<IStorageMgr> sm( new StorageMgr(gConfig.db,"","",log) );
       
-      log << "TrigConf2XMLApp:                  Retrieving L2 JO from the TriggerDB" << lineend;
-      jotl2.setSuperMasterTableId( gConfig.getKey(0) );
-      jotl2.setTriggerLevel(0); // L2
-      sm->jobOptionTableLoader().load( jotl2 );
-      if(gConfig.printlevel>0) jotl2.print();
-      jotl2.writeToFile( string("L2JO_"+gConfig.outBase+".xml").c_str() );
+      log << "TrigConfReadWrite:                  Retrieving JO from the TriggerDB" << lineend;
+      jot.setSMK( gConfig.getKey(0) );
+      jot.setTriggerLevel(0); // L2
+      sm->jobOptionTableLoader().load( jot );
+      if(gConfig.printlevel>0) jot.print();
+      jot.writeToFile( string("HLTSetup_"+gConfig.outBase+".xml").c_str() );
       
-      log << "TrigConf2XMLApp:                  Retrieving EF JO from the TriggerDB" << lineend;
-      jotef.setSuperMasterTableId( gConfig.getKey(0) );
-      jotef.setTriggerLevel(1); // EF
-      sm->jobOptionTableLoader().load( jotef );
-      if(gConfig.printlevel>0) jotef.print();
-      jotef.writeToFile( string("EFJO_"+gConfig.outBase+".xml").c_str() );
 
    }
 

@@ -12,10 +12,10 @@ namespace TrigConf {
   
   class CTPConfigLoader : virtual public ICTPConfigLoader, public DBLoader {
   public:
-    CTPConfigLoader( StorageMgr& sm,  coral::ISession& session ) : DBLoader(sm, session) {}
-    virtual ~CTPConfigLoader(){};
+     CTPConfigLoader( StorageMgr& sm,  coral::ISessionProxy& session ) : DBLoader("CTPConfigLoader", sm, session) {}
+     virtual ~CTPConfigLoader(){};
 
-    virtual bool load( CTPConfig& data);
+     virtual bool load( CTPConfig& data);
   };
 
 }

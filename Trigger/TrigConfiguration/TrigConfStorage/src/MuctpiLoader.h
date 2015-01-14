@@ -26,7 +26,7 @@ namespace TrigConf {
    class MuctpiLoader : public DBLoader, virtual public IMuctpiLoader {
    public:
 
-      MuctpiLoader( StorageMgr& sm,  coral::ISession& session) : DBLoader(sm, session) {}
+      MuctpiLoader( StorageMgr& sm,  coral::ISessionProxy& session) : DBLoader(sm, session) {}
       virtual ~MuctpiLoader(){};
 
       virtual bool load( Muctpi& data);

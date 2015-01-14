@@ -33,8 +33,8 @@ namespace TrigConf {
      *
      * @param session reference to the database session
      */
-    TriggerThresholdLoader( StorageMgr& sm,  coral::ISession& session)
-      : DBLoader(sm, session), m_MenuId(0), m_LoadCableInfo(true) {}
+    TriggerThresholdLoader( StorageMgr& sm,  coral::ISessionProxy& session) :
+       DBLoader("TriggerThresholdLoader", sm, session), m_MenuId(0), m_LoadCableInfo(true) {}
 
     /**@brief destructor*/       
     virtual ~TriggerThresholdLoader(){};

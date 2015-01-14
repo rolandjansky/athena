@@ -6,53 +6,34 @@ import sys
 
 from TrigConfStorage.CompareMenuXML import CompareMenuXML
 
-class CompareL1XML(CompareMenuXML):
+class CompareL1TopoXML(CompareMenuXML):
     def __init__(self, files, **args):
-        super(CompareL1XML,self).__init__(**args)
+        super(CompareL1TopoXML,self).__init__(**args)
 
         self.uniqID = {
-            'LVL1Config' : 'single',
-            'PrescaleSet' : 'single',
-            'BunchGroupSet' : 'single',
-            'BunchGroup' : 'internalNumber',
-            'Bunch' : 'bunchNumber',
-            'CaloInfo' : 'single',
-            'Isolation' : 'single',
-            'Parametrization' : 'single',
-            'MinimumTOBPt' : 'single',
-            'METSignificance' : 'single',
-            'TriggerCounter' : 'single',
-            'MuctpiInfo' : 'single',
-            'PrescaledClock' : 'single',
-            'Random' : 'single',
-            'Cable' : 'single',
-            'Signal' : 'single',
-            'TriggerMenu' : 'single',
-            'TriggerThresholdList' : 'single',
-            'TriggerItem' : 'name',
-            'InternalTrigger' : 'name',
-            'TriggerCondition' : 'name',
-            'TriggerThreshold' : 'name',
-            'TriggerThresholdValue' : 'name',
-            'TriggerCounterList' : 'single',
-            'Prescale' : 'ctpid',
-            'NOT' : 'single',
-            'OR' : 'single',
-            'AND' : 'single',
+            'TOPO_MENU' : 'single',
+            'OutputList' : 'single',
+            'OutputList.Output' : 'algname',
+            'TopoConfig' : 'single',
+            'SortAlgo' : 'algoId',
+            'DecisionAlgo' : 'algoId',
+            'Fixed' : 'single',
+            'Variable' : 'single',
+            'Generic' : 'name',
+            'Input' : 'single',
+            'Fixed.Output' : 'single',
+            'Bit' : 'single',
+            'Parameter' : 'pos',
             }
-        self.needParentInfo = ['NOT', 'OR', 'AND', 'InternalTrigger','Bunch']
-        self.checkText = ['Prescale']
-        self.ignoreAttr = {}
-
         self.needParentInfo = []
         self.checkText = []
+
         # configure comparison
         self.exclFromCmpList = []
+        self.ignoreAttr = {}
 
         if self.exlusionset=='default':
-            self.exclFromCmpList = ['BunchGroupSet','CaloInfo', 'Deadtime', 'MuctpiInfo', 'PrescaledClock', 'Random', 'Cable']
-            self.ignoreAttr['TriggerItem'] = ['definition']
-            self.ignoreAttr['TriggerThreshold'] = ['id','version']
+            pass
 
         elif self.exlusionset=='cool':
             # these things are not stored in COOL
@@ -96,6 +77,6 @@ class CompareL1XML(CompareMenuXML):
 
 
     def diff(self):
-        equal = super(CompareL1XML,self).diff(self.doc1, self.doc2)
-        print >> self, "LVL1 menus are%s equal" % ('' if equal else ' not')
+        equal = super(CompareL1TopoXML,self).diff(self.doc1, self.doc2)
+        print >> self, "L1 topo menus are%s equal" % ('' if equal else ' not')
         return ""

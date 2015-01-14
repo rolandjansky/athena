@@ -21,9 +21,7 @@ TrigConf::HLTChainLoader::load( HLTFrame& frame ) {
    m_smk=frame.smk();
 
    m_schemaversion = triggerDBSchemaVersion();
-   if(verbose())
-      msg() << "HLTChainLoader:                   TriggerDB Schema version:  " 
-            << m_schemaversion << endl;
+   TRG_MSG_INFO("TriggerDB Schema version:  " << m_schemaversion);
 
    HLTChainList& chains = frame.theHLTChainList();
 
@@ -36,8 +34,9 @@ TrigConf::HLTChainLoader::load( HLTFrame& frame ) {
       loadSignatures( chains );
       commitSession();
    }
-   catch (const std::exception& e) {
-      msg() << "HLTChainLoader:                   exception: " << e.what() << endl;
+   catch( const coral::Exception& e ) {
+      TRG_MSG_ERROR("Coral::Exception: " << e.what());
+      m_session.transaction().rollback();
       throw;
    }
 
@@ -50,8 +49,7 @@ TrigConf::HLTChainLoader::load( HLTFrame& frame ) {
 void
 TrigConf::HLTChainLoader::loadChains( HLTChainList& chainlist ) {
 
-   if(verbose())
-      msg() << "HLTChainLoader:                   Start loading chains with SMK " << m_smk << endl;
+   TRG_MSG_INFO("Start loading chains with SMK " << m_smk);
 
    std::unique_ptr< coral::IQuery > q( m_session.nominalSchema().newQuery() );
 
@@ -81,16 +79,20 @@ TrigConf::HLTChainLoader::loadChains( HLTChainList& chainlist ) {
    attList.extend<long>  ( "TC.HTC_ID"               );
    attList.extend<string>( "TC.HTC_NAME"             );
    attList.extend<string>( "TC.HTC_LOWER_CHAIN_NAME" );
-   attList.extend<string>( "TC.HTC_L2_OR_EF"         );
-   attList.extend<string>( "TC.HTC_RERUN_PRESCALE"   );
+   if(isRun1()) {
+      attList.extend<string>( "TC.HTC_L2_OR_EF"         );
+      attList.extend<string>( "TC.HTC_RERUN_PRESCALE"   );
+   }
    attList.extend<int>   ( "TC.HTC_CHAIN_COUNTER"    );
    attList.extend<int>   ( "TC.HTC_VERSION"          );
    fillQuery(q.get(),attList);
 
    // the ordering
    string theOrder = "";
-   theOrder += "  TC.HTC_L2_OR_EF DESC";
-   theOrder += ", TC.HTC_CHAIN_COUNTER ASC";
+   if(isRun1()) {
+      theOrder += "  TC.HTC_L2_OR_EF DESC, ";
+   }
+   theOrder += " TC.HTC_CHAIN_COUNTER ASC";
    q->addToOrderList( theOrder );
 
    // process the query
@@ -103,19 +105,26 @@ TrigConf::HLTChainLoader::loadChains( HLTChainList& chainlist ) {
       long chainId                         = row["TC.HTC_ID"].data<long>();
       int counter                          = row["TC.HTC_CHAIN_COUNTER"].data<int>();  
       int version                          = row["TC.HTC_VERSION"].data<int>();  
-      string rerunps_s                     = rmtilde(row["TC.HTC_RERUN_PRESCALE"].data<string>());
       string name                          = rmtilde(row["TC.HTC_NAME"].data<string>());
       string lower_chain_name              = rmtilde(row["TC.HTC_LOWER_CHAIN_NAME"].data<string>());
-      string level                         = rmtilde(row["TC.HTC_L2_OR_EF"].data<string>());
-      if (level == "HL") level = "HLT";
+      string level = "HLT";
+      float rerunps = 0;
+      if(isRun1()) {
+         level                             = rmtilde(row["TC.HTC_L2_OR_EF"].data<string>());
+         if(level=="HL") level="HLT";
+         string rerunps_s                     = rmtilde(row["TC.HTC_RERUN_PRESCALE"].data<string>());
+         rerunps = boost::lexical_cast<float,string>(rerunps_s);
+      }
       HLTChain* ch = new HLTChain( name, counter, version, level, lower_chain_name, 0, std::vector<HLTSignature*>() );
-      float rerunps = boost::lexical_cast<float,string>(rerunps_s);
       if(rerunps>=0)
          ch->set_rerun_prescale(rerunps);
       ch->setId(chainId);
       chainlist.addHLTChain(ch);
    }
    cursor.close();
+
+   TRG_MSG_INFO("Loaded " << chainlist.size() << " chains");
+
 }
 
 
@@ -164,13 +173,17 @@ TrigConf::HLTChainLoader::loadGroups( HLTChainList& chainlist ) {
    q->setDistinct();
    coral::ICursor& cursor = q->execute();
 
+   uint count(0);
    while ( cursor.next() ) {
+      ++count;
       const coral::AttributeList& row = cursor.currentRow();
       string name                          = rmtilde(row["TC.HTC_NAME"].data<string>());
       string grname                        = rmtilde(row["GR.HTG_NAME"].data<string>());
       chainlist.chain(name)->addGroup(grname);
    }
    cursor.close();
+
+   TRG_MSG_INFO("Loaded " << count << " groups");
    
 }
 
@@ -199,13 +212,17 @@ TrigConf::HLTChainLoader::loadTypes( HLTChainList& chainlist ) {
    q->setDistinct();
    coral::ICursor& cursor = q->execute();
 
+   uint count(0);
    while ( cursor.next() ) {
+      ++count;
       const coral::AttributeList& row = cursor.currentRow();
       string name                          = rmtilde(row["TC.HTC_NAME"].data<string>());
       int    triggertype                   = row["TT.HTT_TYPEBIT"].data<int>();
       chainlist.chain(name)->triggerTypeList().push_back(new HLTTriggerType(triggertype));
    }
    cursor.close();
+
+   TRG_MSG_INFO("Loaded " << count << " trigger types");
 }
 
 
@@ -238,7 +255,9 @@ TrigConf::HLTChainLoader::loadStreams( HLTChainList& chainlist ) {
    q->setDistinct();
    coral::ICursor& cursor = q->execute();
 
+   uint count(0);
    while ( cursor.next() ) {
+      ++count;
       const coral::AttributeList& row = cursor.currentRow();
       string chainname    = rmtilde(row["TC.HTC_NAME"].data<string>());
       string prescale_str = rmtilde(row["TC2TR.HTC2TR_TRIGGER_STREAM_PRESCALE"].data<string>());
@@ -249,6 +268,8 @@ TrigConf::HLTChainLoader::loadStreams( HLTChainList& chainlist ) {
       chainlist.chain(chainname)->addStream( new HLTStreamTag(streamname, type, obeyLB, prescale) );
    }
    cursor.close();
+
+   TRG_MSG_INFO("Loaded " << count << " streams");
 }
 
 
@@ -290,7 +311,9 @@ TrigConf::HLTChainLoader::loadSignatures( HLTChainList& chainlist ) {
 
    coral::ICursor& cursor = q->execute();
 
+   uint count(0);
    while ( cursor.next() ) {
+      ++count;
       
       const coral::AttributeList& row = cursor.currentRow();
       
@@ -323,10 +346,12 @@ TrigConf::HLTChainLoader::loadSignatures( HLTChainList& chainlist ) {
    }
    cursor.close();
 
+   TRG_MSG_INFO("Loaded " << count << " signatures");
+
    // remove 0 pointers from signature list of each chain to keep old
    // behavior, would be nicer if 0's were kept and step could be
    // accessed by index (to be seen)
-   BOOST_FOREACH(HLTChain* ch, chainlist) {
+   for(HLTChain* ch : chainlist) {
       vector<HLTSignature*>& s = ch->signatureList();
       s.erase(remove(s.begin(), s.end(), (HLTSignature*)0), s.end());
    }

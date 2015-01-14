@@ -8,11 +8,16 @@
 #include "TrigConfStorage/ILoader.h"
 
 
+namespace TXC{
+   class L1TopoMenu;
+}
+
 namespace TrigConf {
 
    class ThresholdConfig;
    class CTPConfig;
    class Muctpi;
+   class L1TopoConfig;
 
    /**
     * @brief Interface for loaders of the LVL1 trigger configuration
@@ -54,6 +59,16 @@ namespace TrigConf {
        * @returns @c true if the loading was successful, @c false otherwise
        */
       virtual bool load(Muctpi& muctpi) = 0;
+
+      /**
+       * @brief Load the LVL1 topo hardware configuration from the
+       * configuration source
+       *
+       * @param l1topomenu reference to the L1Topo object to be filled
+       * 
+       * @returns @c true if the loading was successful, @c false otherwise
+       */
+      virtual bool load(TXC::L1TopoMenu& l1topo) = 0;
 
    };
 

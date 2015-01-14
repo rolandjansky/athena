@@ -22,8 +22,8 @@ namespace TrigConf {
        *
        * @param session reference to the database session
        */
-      HLTFrameLoader( StorageMgr& sm,  coral::ISession& session) :
-         IHLTFrameLoader(), DBLoader(sm, session) {}
+      HLTFrameLoader( StorageMgr& sm,  coral::ISessionProxy& session) :
+         IHLTFrameLoader(), DBLoader("HLTFrameLoader", sm, session) {}
 
       /**@brief destructor*/       
       virtual ~HLTFrameLoader(){};

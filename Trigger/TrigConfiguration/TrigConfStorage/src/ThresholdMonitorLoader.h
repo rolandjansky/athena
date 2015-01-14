@@ -26,7 +26,7 @@ namespace TrigConf {
    class ThresholdMonitorLoader : virtual public IThresholdMonitorLoader, public DBLoader {
    public:
 
-      ThresholdMonitorLoader( StorageMgr& sm,  coral::ISession& session) : DBLoader(sm, session), m_MenuId(0) {}
+      ThresholdMonitorLoader( StorageMgr& sm,  coral::ISessionProxy& session) : DBLoader(sm, session), m_MenuId(0) {}
       virtual ~ThresholdMonitorLoader(){};
 
       virtual bool load( ThresholdMonitor& data);

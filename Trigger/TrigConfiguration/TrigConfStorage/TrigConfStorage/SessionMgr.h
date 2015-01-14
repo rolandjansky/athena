@@ -11,74 +11,111 @@
 #include <memory>
 #include "RelationalAccess/IRelationalService.h"
 #include "RelationalAccess/IRelationalDomain.h"
-#include "RelationalAccess/ISession.h"
-#include "RelationalAccess/IConnection.h"
+#include "TrigConfBase/TrigConfMessaging.h"
 
-namespace TrigConf
-{
+namespace coral {
+   class ISessionProxy;
+}
+
+namespace TrigConf {
   
-  /**@brief Manager of the database session
-   * 
-   * it uses CORAL to connect to the different DB technologies
-   */
-  class SessionMgr
-  {
-  public:
-    /**@brief constructor
-     *
-     * @param cs connection string
-     * @param user user name, if not specified the XML authentication will be used
-     * @param password password string (only used in connection with a user name)
-     * @param o output stream for all messages
-     */
-    SessionMgr( const std::string& cs, const std::string& user = "",const std::string& password = "", std::ostream & o = std::cout);
+   /**@brief Manager of the database session
+    * 
+    * it uses CORAL to connect to the different DB technologies
+    */
+   class SessionMgr : public TrigConfMessaging
+   {
+   public:
 
-    /**@brief constructor
-     *
-     * @param type Server technology 
-     * @param server Server name
-     * @param name Database name, or schema name, or, if server and type are not specified, alias name for lookup
-     * @param user user name, if not specified the XML authentication will be used
-     * @param password password string (only used in connection with a user name)
-     * @param o output stream for all messages
-     */
-    SessionMgr( const std::string& type, const std::string& server, 
-                const std::string& name, const std::string& user , 
-                const std::string& password , std::ostream & o = std::cout);
+      /**@brief constructor */
+      SessionMgr();
 
-    /**@brief destructor*/
-    ~SessionMgr();
+//       /**@brief constructor
+//        *
+//        * @param cs connection string
+//        * @param user user name, if not specified the XML authentication will be used
+//        * @param password password string (only used in connection with a user name)
+//        * @param o output stream for all messages
+//        */
+//       SessionMgr( const std::string& cs,
+//                   const std::string& user = "",
+//                   const std::string& password = "");
 
-    /**@brief close open sessions*/
-    void closeSession();
+//       /**@brief constructor
+//        *
+//        * @param type Server technology 
+//        * @param server Server name
+//        * @param name Database name, or schema name, or, if server and type are not specified, alias name for lookup
+//        * @param user user name, if not specified the XML authentication will be used
+//        * @param password password string (only used in connection with a user name)
+//        * @param o output stream for all messages
+//        */
+//       SessionMgr( const std::string& type,
+//                   const std::string& server, 
+//                   const std::string& name,
+//                   const std::string& user,
+//                   const std::string& password);
+
+      /**@brief destructor*/
+      ~SessionMgr();
+
+      /**@brief close open sessions*/
+      void closeSession();
     
-    /**@brief instantiates the session*/
-    coral::ISession& createSession(int retrialPeriod=30, int retrialTimeout=300, int connectionTimeout=5);
+      /**@brief instantiates the session*/
+      coral::ISessionProxy& createSession();
+//       coral::ISession& createSessionOld(int retrialPeriod=30, int retrialTimeout=300, int connectionTimeout=5);
 
-    /**@brief SQL -> C++ type conversion mapping for Oracle database to match MySQL*/
-    void setTypeConversionRules();
+      /**@brief SQL -> C++ type conversion mapping for Oracle database to match MySQL*/
+      void setTypeConversionRules();
 
-    const std::string& connection() const { return m_cs; }
+      // setters
+      void setConnectionString(const std::string & connStr) { m_connectionString = connStr; }
+      void setUseFrontier(bool useFrontier) { m_useFrontier = useFrontier; }
+      void setRetrialPeriod(int retrialPeriod) { m_retrialPeriod = retrialPeriod; }
+      void setRetrialTimeout(int retrialTimeout) { m_retrialTimeout = retrialTimeout; }
+      void setConnectionTimeout(int connectionTimeout) { m_connectionTimeout = connectionTimeout; }
 
-     void setUseFrontier(bool useFrontier);
-     bool useFrontier() const { return m_useFrontier; }
+      void setDbType(const std::string & s);
+      void setDbServer(const std::string & s);
+      void setDbName(const std::string & s);
+      void setDbUser(const std::string & s);
+      void setDbPassword(const std::string & s);
 
-  private:
-    /**@brief SQL -> C++ type conversion interface to CORAL*/
-    void setCppTypeForSqlType(const std::string& cpp_type, 
-                              const std::string& sql_type);
+      // accessors
+      const std::string& connection() const { return m_connectionString; }
+      bool useFrontier() const { return m_useFrontier; }
+      int retrialPeriod() const { return m_retrialPeriod; }
+      int retrialTimeout() const { return m_retrialTimeout; }
+      int connectionTimeout() const { return m_connectionTimeout; }
+      const std::string & dbType() const { return m_dbtype; }
+      const std::string & dbServer() const { return m_dbserver; }
+      const std::string & dbName() const { return m_dbname; }
+      const std::string & dbUser() const { return m_user; }
+      const std::string & dbPassword() const { return m_password; }
 
-    coral::ISession *    m_session;     ///< the coral database session
-    coral::IConnection * m_connection;  ///< the coral connection
-    std::string          m_cs;          ///< connection string
-    std::string          m_dbtype;      ///< db type
-    std::string          m_dbserver;    ///< db server
-    std::string          m_dbname;      ///< db name
-    std::string          m_user;        ///< user name
-    std::string          m_password;    ///< password
-    bool                 m_useFrontier; ///< uses frontier instead of oracle
-    std::ostream &       m_ostream;     ///< output stream
-  };
+
+   private:
+
+      void buildConnectionString();
+
+      /**@brief SQL -> C++ type conversion interface to CORAL*/
+      void setCppTypeForSqlType(const std::string& cpp_type, 
+                                const std::string& sql_type);
+
+      coral::ISessionProxy * m_sessionproxy { nullptr };     ///< the coral database session
+
+      std::string            m_connectionString { "" };   ///< connection string
+      std::string            m_dbtype { "" };      ///< db type
+      std::string            m_dbserver { "" };    ///< db server
+      std::string            m_dbname { "" };      ///< db name
+      std::string            m_user { "" };        ///< user name
+      std::string            m_password { "" };    ///< password
+      bool                   m_useFrontier { false }; ///< uses frontier instead of oracle
+      int                    m_retrialPeriod {0};
+      int                    m_retrialTimeout {0};
+      int                    m_connectionTimeout {0};
+   };
 }
 
 #endif

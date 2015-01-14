@@ -23,7 +23,7 @@ namespace TrigConf {
        *
        * @param session reference to the database session
        */
-      MasterTableLoader(StorageMgr& sm, coral::ISession& session) :
+      MasterTableLoader(StorageMgr& sm, coral::ISessionProxy& session) :
          IMasterTableLoader(), DBLoader(sm, session) {}
 
       /**@brief destructor*/       
@@ -33,6 +33,7 @@ namespace TrigConf {
       bool load(ThresholdConfig& thrcfg);
       bool load(CTPConfig& ctpc);
       bool load(Muctpi& muctpi);
+      bool load(TXC::L1TopoMenu& l1topo);
       bool loadMasterKeys(int SuperMasterKey, int& Lvl1MasterKey); 
 
       /**@brief next run configuration key (depreciated)*/

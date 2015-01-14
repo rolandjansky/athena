@@ -35,7 +35,7 @@ namespace TrigConf {
      *
      * @param session reference to the database session
      */
-    CaloSinCosLoader( StorageMgr& sm, coral::ISession& session) : 
+    CaloSinCosLoader( StorageMgr& sm, coral::ISessionProxy& session) : 
        DBLoader(sm, session) {}
 
     /**@brief destructor*/       

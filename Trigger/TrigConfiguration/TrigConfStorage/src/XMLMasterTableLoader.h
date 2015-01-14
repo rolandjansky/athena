@@ -27,6 +27,7 @@ namespace TrigConf {
       bool load(ThresholdConfig& thrcfg);
       bool load(CTPConfig& ctpc);
       bool load(Muctpi& muctpi);
+      bool load(TXC::L1TopoMenu& l1topo);
    };
 
 }

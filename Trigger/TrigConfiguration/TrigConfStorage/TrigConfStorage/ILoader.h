@@ -31,6 +31,7 @@ namespace TrigConf {
       
       // setting log level
       virtual void setLevel(MSGTC::Level lvl) = 0;
+      virtual MSGTC::Level outputLevel() const = 0;
 
       virtual int verbose() const = 0;
 

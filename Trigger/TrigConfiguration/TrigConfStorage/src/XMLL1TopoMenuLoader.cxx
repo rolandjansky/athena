@@ -10,7 +10,6 @@
 using namespace std;
 using namespace TrigConf;
 
-
 bool
 XMLL1TopoMenuLoader::load( TXC::L1TopoMenu& menu ) {
    
@@ -24,6 +23,8 @@ XMLL1TopoMenuLoader::load( TXC::L1TopoMenu& menu ) {
       parser.parseConfiguration();
 
       menu = parser.takeMenu();
+
+      
    }
    catch(std::exception & e) {
       TRG_MSG_ERROR("Caught exception from the topo menu parser, no topo menu will be available! Exception message: " << e.what());

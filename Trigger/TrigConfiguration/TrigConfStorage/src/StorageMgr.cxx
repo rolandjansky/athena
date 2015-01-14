@@ -89,14 +89,19 @@ StorageMgr::closeSession() {
 SessionMgr&
 StorageMgr::sessionMgr() {
    if( m_sessionMgr == 0 ) {
+      m_sessionMgr = new SessionMgr();
       if( m_cs != "" ) {
-         m_sessionMgr = new SessionMgr( m_cs, m_user, m_password, m_ostream );
+         m_sessionMgr->setConnectionString(m_cs);
       } else {
-         m_sessionMgr = new SessionMgr( m_dbtype, m_dbserver, m_dbname, m_user, m_password, m_ostream );
+         m_sessionMgr->setDbType(m_dbtype);
+         m_sessionMgr->setDbServer(m_dbserver);
+         m_sessionMgr->setDbName(m_dbname);
+         m_sessionMgr->setDbUser(m_user);
+         m_sessionMgr->setDbPassword(m_password);
       }
       m_sessionMgr->setUseFrontier(useFrontier()); 
    }
-   return *this->m_sessionMgr;
+   return * m_sessionMgr;
 }
 
 

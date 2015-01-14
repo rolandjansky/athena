@@ -10,14 +10,14 @@
 
 namespace TrigConf {
   
-  class TriggerThresholdValueLoader : virtual public ITriggerThresholdValueLoader, public DBLoader {
-  public:
+   class TriggerThresholdValueLoader : virtual public ITriggerThresholdValueLoader, public DBLoader {
+   public:
 
-    TriggerThresholdValueLoader( StorageMgr& sm,  coral::ISession& session) : DBLoader(sm, session) {}
-    virtual ~TriggerThresholdValueLoader(){};
+      TriggerThresholdValueLoader( StorageMgr& sm,  coral::ISessionProxy& session) : DBLoader("TriggerThresholdValueLoader", sm, session) {}
+      virtual ~TriggerThresholdValueLoader(){};
 
-    virtual bool load( TriggerThresholdValue& data);
-  };
+      virtual bool load( TriggerThresholdValue& data);
+   };
 }
 
 #endif

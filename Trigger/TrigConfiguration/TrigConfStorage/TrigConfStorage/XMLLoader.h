@@ -38,7 +38,7 @@ namespace TrigConf {
       void setPtree(const value_type* data) { m_data = data; }
 
       virtual void setLevel(MSGTC::Level lvl);
-      MSGTC::Level outputLevel() const;
+      MSGTC::Level outputLevel() const { return msg().level(); }
 
       virtual int verbose() const { return m_verbose; }
       virtual void setVerbose(int v) { m_verbose=v; }

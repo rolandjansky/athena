@@ -26,6 +26,7 @@
 #include "TrigConfL1Data/CaloSinCos.h"
 #include "TrigConfL1Data/ClusterThresholdValue.h"
 #include "TrigConfL1Data/JetThresholdValue.h"
+#include "TrigConfL1Data/HelperFunctions.h"
 
 
 #include "TrigConfL1Data/NimThresholdValue.h"
@@ -129,6 +130,7 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& tcTarget ) {
       attList.extend<std::string>( "TT.L1TT_TYPE"                  );
       attList.extend<int>        ( "TT.L1TT_ACTIVE"                );
       attList.extend<int>        ( "TT.L1TT_MAPPING"               );
+      attList.extend<int>        ( "TT.L1TT_BITNUM"                );
       attList.extend<int>        ( "TTV.L1TTV_ID"                  );
       attList.extend<std::string>( "TTV.L1TTV_NAME"                );
       attList.extend<int>        ( "TTV.L1TTV_VERSION"             );
@@ -160,9 +162,9 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& tcTarget ) {
       unsigned int schema_version = triggerDBSchemaVersion();
       unsigned int numberofvalues = 0;
       float ptcut        = 0;
-      float emisolation  = 0;
-      float hadisolation = 0;
-      float hadveto      = 0;
+      string emisolation  = "";
+      string hadisolation = "";
+      string hadveto      = "";
       float priority     = 0;
       TriggerThreshold*       tt = 0;
       TriggerThresholdValue* ttv = 0;
@@ -201,14 +203,14 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& tcTarget ) {
             tt->setId     (row["TT.L1TT_ID"].data<int>());
             tt->setName   (row["TT.L1TT_NAME"].data<std::string>());
             tt->setVersion(row["TT.L1TT_VERSION"].data<int>());
-            tt->setType   (row["TT.L1TT_TYPE"].data<std::string>());
+            string thrtype(row["TT.L1TT_TYPE"].data<std::string>());
+            tt->setType   (thrtype);
             tt->setActive (row["TT.L1TT_ACTIVE"].data<int>());
             tt->setMapping(row["TT.L1TT_MAPPING"].data<int>());
+            tt->setBitnum(row["TT.L1TT_BITNUM"].data<int>());
+            tt->setInput  ( (thrtype=="TOPO" || thrtype=="ALFA") ? "ctpcore" : "ctpin" );
 
-            if(verbose()>=2)
-               msg() << "ThresholdConfigLoader loading threshold with ID = " 
-                     << tt->id() << " for MenuId = " 
-                     << menuid << ": ";
+            TRG_MSG_DEBUG("ThresholdConfigLoader loading threshold with ID = " << tt->id() << " for MenuId = " << menuid << ": ");
          }
   
          if(tt->type() == L1DataDef::rndmType() ||
@@ -224,16 +226,11 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& tcTarget ) {
             ttv->setName     (row["TTV.L1TTV_NAME"].data<std::string>());
             ttv->setVersion  (row["TTV.L1TTV_VERSION"].data<int>());
             ttv->setType     (row["TTV.L1TTV_TYPE"].data<std::string>());
-            if(schema_version <= 6) ptcut = row["TTV.L1TTV_PT_CUT"].data<float>();
-            else ptcut = boost::lexical_cast<float,std::string>(row["TTV.L1TTV_PT_CUT"].data<std::string>());
-            if(schema_version <= 6) emisolation = row["TTV.L1TTV_EM_ISOLATION"].data<float>();
-            else emisolation = boost::lexical_cast<float,std::string>(row["TTV.L1TTV_EM_ISOLATION"].data<std::string>());
-            if(schema_version <= 6) hadisolation = row["L1TTV_HAD_ISOLATION"].data<float>();
-            else hadisolation = boost::lexical_cast<float,std::string>(row["TTV.L1TTV_HAD_ISOLATION"].data<std::string>());
-            if(schema_version <= 6) hadveto = row["TTV.L1TTV_HAD_VETO"].data<float>();
-            else hadveto = boost::lexical_cast<float,std::string>(row["TTV.L1TTV_HAD_VETO"].data<std::string>());
-            if(schema_version <= 6) priority = row["TTV.L1TTV_PRIORITY"].data<float>();
-            else priority = boost::lexical_cast<float,std::string>(row["TTV.L1TTV_PRIORITY"].data<std::string>());
+            ptcut = boost::lexical_cast<float,std::string>(row["TTV.L1TTV_PT_CUT"].data<std::string>());
+            emisolation = row["TTV.L1TTV_EM_ISOLATION"].data<std::string>();
+            hadisolation = row["TTV.L1TTV_HAD_ISOLATION"].data<std::string>();
+            hadveto = row["TTV.L1TTV_HAD_VETO"].data<std::string>();
+            priority = boost::lexical_cast<float,std::string>(row["TTV.L1TTV_PRIORITY"].data<std::string>());
             ttv->setPtcut    (ptcut);
             ttv->setPriority (priority);
 
@@ -246,13 +243,20 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& tcTarget ) {
                         << ctv.id() << " " << ttv->type() << std::endl;
                   throw std::runtime_error( "ThresholdConfigLoader >> ClusterThresholdValue not available" );
                }
-               ctv.setEmIsolation( emisolation );
-               ctv.setHadIsolation( hadisolation );
-               ctv.setHadVeto( hadveto );
-               //             ctv.setPhiMin(row["TTV.L1TTV_PHI_MIN"].data<int>());
-               //             ctv.setPhiMax(row["TTV.L1TTV_PHI_MAX"].data<int>());
-               //             ctv.setEtaMin(row["TTV.L1TTV_ETA_MIN"].data<int>());
-               //             ctv.setEtaMax(row["TTV.L1TTV_ETA_MAX"].data<int>());
+
+               if(hadveto=="USEISOBITS" || boost::lexical_cast<int,std::string>(hadveto)==99 ) {
+                  ctv.setEmIsolation( 63 );
+                  ctv.setHadIsolation( 63 );
+                  ctv.setHadVeto( 99 );
+                  ctv.setIsolationMask( TrigConf::bin2uint(emisolation) );
+                  ctv.setUseIsolationMask();
+               } else {
+                  ctv.setEmIsolation( boost::lexical_cast<float,std::string>(emisolation) );
+                  ctv.setHadIsolation( boost::lexical_cast<float,std::string>(hadisolation) );
+                  ctv.setHadVeto( boost::lexical_cast<float,std::string>(hadveto) );
+                  ctv.setUseIsolationMask( false );
+               }
+
             } catch (std::bad_cast& ex) { }
 
             //is it a jet_threshold_value?
@@ -261,8 +265,7 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& tcTarget ) {
                if (ttv->type() != L1DataDef::jetType() &&
                    ttv->type() != L1DataDef::jbType() &&
                    ttv->type() != L1DataDef::jfType()) {
-                  msg() << "ThresholdConfigLoader >> No type match for ttv_id = "
-                        << jtv.id() << ttv->type() << std::endl;
+                  TRG_MSG_ERROR("No type match for ttv_id = " << jtv.id() << ttv->type());
                   throw std::runtime_error( "ThresholdConfigLoader >> TriggerThresholdValue not available" );
                }
                //             jtv.setPhiMin(row["TTV.L1TTV_PHI_MIN"].data<int>());
@@ -288,7 +291,6 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& tcTarget ) {
       }
       // trigger thresholds sorted by type
       tcTarget.addTriggerThreshold(tt);
-      tcTarget.attributeThresholdNumbers();
       //std::cout << "ThresholdConfigLoader: Total thresholds found:" << tcTarget.thresholdVector().size() << std::endl; 
 
       //===========================================
@@ -325,7 +327,7 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& tcTarget ) {
       attList1.extend<std::string>( "TT.L1TT_TYPE"                  );
       attList1.extend<int>        ( "TT.L1TT_ACTIVE"                );
       attList1.extend<int>        ( "TT.L1TT_MAPPING"               );
-      if( schema_version >= schema_version_with_zb_fields) {
+      if( isRun2() || (schema_version >= schema_version_with_zb_fields) ) {
          attList1.extend<int>        ( "TT.L1TT_BCDELAY" );
          attList1.extend<std::string>( "TT.L1TT_SEED" );
          attList1.extend<int>        ( "TT.L1TT_SEED_MULTI" );
@@ -381,13 +383,17 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& tcTarget ) {
             tt->setId     (row["TT.L1TT_ID"].data<int>());
             tt->setName   (row["TT.L1TT_NAME"].data<std::string>());
             tt->setVersion(row["TT.L1TT_VERSION"].data<int>());
-            tt->setType   (row["TT.L1TT_TYPE"].data<std::string>());
+            string thrtype(row["TT.L1TT_TYPE"].data<std::string>());
+            tt->setType   (thrtype);
             tt->setActive (row["TT.L1TT_ACTIVE"].data<int>());
             tt->setMapping(row["TT.L1TT_MAPPING"].data<int>());
+            tt->setInput  ( (thrtype=="TOPO" || thrtype=="ALFA") ? "ctpcore" : "ctpin" );
+
+
             // zero bias related
             int   bcdelay(-1), seed_multi(-1);
             std::string seed("");
-            if(schema_version >= schema_version_with_zb_fields) {
+            if( isRun2() || (schema_version >= schema_version_with_zb_fields) ) {
                bcdelay    = row["TT.L1TT_BCDELAY"].data<int>();
                seed       = row["TT.L1TT_SEED"].data<std::string>();
                seed_multi = row["TT.L1TT_SEED_MULTI"].data<int>();
@@ -396,10 +402,8 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& tcTarget ) {
             tt->setZBSeedingThresholdName (seed);
             tt->setZBSeedingThresholdMulti(seed_multi);
 
-            if(verbose()>=2)
-               msg() << "ThresholdConfigLoader loading threshold with ID = "
-                     << tt->id() << " for MenuId = "
-                     << menuid << ": ";
+            TRG_MSG_DEBUG("ThresholdConfigLoader loading threshold with ID = "
+                          << tt->id() << " for MenuId = " << menuid << ": ");
             //tt->setNumberofValues(numberofvalues);
             // trigger thresholds sorted by type
             tcTarget.addTriggerThreshold(tt);
@@ -418,8 +422,7 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& tcTarget ) {
       CaloInfo ci;
       ci.setId(caloinfoid);
       if ( !cildr.load( ci )) {
-         msg() << "ThresholdConfigLoader: Error loading CaloInfo "
-               << ci.id() << std::endl;
+         TRG_MSG_ERROR("loading CaloInfo " << ci.id());
          throw runtime_error( "ThresholdConfigLoader: Error loading CaloInfo" );
       }
       tcTarget.setCaloInfo(ci);
@@ -427,10 +430,13 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& tcTarget ) {
       commitSession();
       return true;    
    }
+   catch( const coral::Exception& e ) {
+      TRG_MSG_ERROR("Caught coral exception: " << e.what() );
+      throw; 
+   }
    catch( const std::exception& e ) {
-      msg() << "ThresholdConfigLoader (TriggerThreshold) >> Standard C++ exception: " << e.what() << std::endl;
-      commitSession();
-      return false; 
+      TRG_MSG_ERROR("Caught standard exception: " << e.what() );
+      throw; 
    }
 
 }

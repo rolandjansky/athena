@@ -2,122 +2,90 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/////////////////////////////////////////////////////////////////////
-//                                                     
-//NAME:     RandomLoader.cpp 
-//PACKAGE:  TrigConfStorage
-//                                                     
-//AUTHOR:   J.Haller (CERN)	Johannes.Haller@cern.ch 
-//CREATED:  31. Oct. 2005   
-//                                                     
-//PURPOSE:
-//UPDATED:  8 Dec 2008 Paul Bell for sqlite access 
-//          (use of defineOutput method to set dat
-//
-//////////////////////////////////////////////////////////////////////
-
 #include "./RandomLoader.h"
-
-#include <CoralBase/Attribute.h>
-#include <CoralBase/AttributeList.h>
-
-#include "RelationalAccess/SchemaException.h"
-#include "RelationalAccess/ITransaction.h"
-#include "RelationalAccess/ITable.h"
-#include "RelationalAccess/ISchema.h"
-#include "RelationalAccess/ICursor.h"
-#include "RelationalAccess/IQuery.h"
-
+#include "./DBHelper.h"
 #include "TrigConfL1Data/Random.h"
 
 #include <iostream>
 #include <stdexcept>
 #include <typeinfo>
 
+using namespace std;
+
 bool TrigConf::RandomLoader::load( Random& rdTarget ) {
 
-   if(verbose())
-      msg() << "RandomLoader:                     Start loading data via ID. ID = " << rdTarget.id() << std::endl;
+   TRG_MSG_INFO("Start loading data with ID = " << rdTarget.id());
       
    try {
       startSession();
       
-      coral::ITable& table = m_session.nominalSchema().tableHandle( "L1_RANDOM");
-      coral::IQuery* query = table.newQuery();
-      query->setRowCacheSize( 5 );
+      unique_ptr<coral::IQuery> q(m_session.nominalSchema().tableHandle( "L1_RANDOM").newQuery());
+      q->setRowCacheSize( 5 );
 	
-      //Bind list
       coral::AttributeList bindList;
       bindList.extend<long>("rdId");
-      std::string cond = "L1R_ID = :rdId";
       bindList[0].data<long>() = rdTarget.id();
-      query->setCondition( cond, bindList );
+      
+      q->setCondition( "L1R_ID = :rdId", bindList );
 
       //Output data and types
       coral::AttributeList attList;
-      attList.extend<std::string>( "L1R_NAME" ); 
-      attList.extend<int>( "L1R_VERSION" ); 
-      attList.extend<long>( "L1R_RATE1" ); 
-      attList.extend<long>( "L1R_RATE2" ); 
-      query->defineOutput(attList);
+      if(isRun1()) {
+         attList.extend<std::string>( "L1R_NAME" ); 
+         attList.extend<int>( "L1R_VERSION" ); 
+         attList.extend<long>( "L1R_RATE1" ); 
+         attList.extend<long>( "L1R_RATE2" ); 
+      } else {
+         attList.extend<int>( "L1R_CUT0" );
+         attList.extend<int>( "L1R_CUT1" );
+         attList.extend<int>( "L1R_CUT2" );
+         attList.extend<int>( "L1R_CUT3" );
+      }
+      fillQuery(q.get(), attList);
 
-      query->addToOutputList( "L1R_NAME" );
-      query->addToOutputList( "L1R_VERSION" );
-      query->addToOutputList( "L1R_RATE1" );
-      query->addToOutputList( "L1R_RATE2" );
-
-      coral::ICursor& cursor = query->execute();
+      coral::ICursor& cursor = q->execute();
       
       if ( ! cursor.next() ) {
-         msg() << "RandomLoader >> No such random exists " << rdTarget.id() << std::endl;
-         delete query;
+         TRG_MSG_ERROR("No such random exists " << rdTarget.id());
          commitSession();
          throw std::runtime_error( "RandomLoader >> Random not available" );
       }
 
       const coral::AttributeList& row = cursor.currentRow();
-      std::string name ="";
-      name = row["L1R_NAME"].data<std::string>();
-      int version = 0;
-      version = row["L1R_VERSION"].data<int>();
-      long rate1 = 0;
-      rate1 = row["L1R_RATE1"].data<long>();
-      long rate2 = 0;
-      rate2 = row["L1R_RATE2"].data<long>();
+      if(isRun1()) {
+         std::string name = row["L1R_NAME"].data<std::string>();
+         int version      = row["L1R_VERSION"].data<int>();
+         long rate1       = row["L1R_RATE1"].data<long>();
+         long rate2       = row["L1R_RATE2"].data<long>();
+         // Fill the object with data
+         rdTarget.setName( name );
+         rdTarget.setVersion( version );
+         rdTarget.setRate1( rate1 );
+         rdTarget.setRate2( rate2 );
+      } else {
+         int cut0        = row["L1R_CUT0"].data<int>();
+         int cut1        = row["L1R_CUT1"].data<int>();
+         int cut2        = row["L1R_CUT2"].data<int>();
+         int cut3        = row["L1R_CUT3"].data<int>();
+         // Fill the object with data
+         rdTarget.setCut( 0, (uint32_t) cut0 );
+         rdTarget.setCut( 1, (uint32_t) cut1 );
+         rdTarget.setCut( 2, (uint32_t) cut2 );
+         rdTarget.setCut( 3, (uint32_t) cut3 );
+      }
 
       if ( cursor.next() ) {
-         msg() << "RandomLoader >> More than one Random exists " 
-               << rdTarget.id() << std::endl;
+         TRG_MSG_ERROR("More than one Random exists " << rdTarget.id());
          commitSession();
          throw std::runtime_error( "RandomLoader >>  Random not available" );
       }
 
-      // Fill the object with data
-      rdTarget.setName( name );
-      rdTarget.setVersion( version );
-      rdTarget.setRate1( rate1 );
-      rdTarget.setRate2( rate2 );
-
-      delete query;
       commitSession();
       return true;
-   } catch( const coral::SchemaException& e ) {
-      msg() << "RandomLoader >> SchemaException: " 
-
-            << e.what() << std::endl;
+   }
+   catch( const coral::Exception& e ) {
+      TRG_MSG_ERROR("Coral::Exception: " << e.what());
       m_session.transaction().rollback();
-      return false;
-
-   } catch( const std::exception& e ) {
-      msg() << "RandomLoader >> Standard C++ exception: " << e.what() << std::endl;
-
-      m_session.transaction().rollback();
-      return false;
-
-   } catch( ... ) {
-      msg() << "RandomLoader >> Uknown C++ exception" << std::endl;
-
-      m_session.transaction().rollback();
-      return false;
+      throw;
    }
 }
