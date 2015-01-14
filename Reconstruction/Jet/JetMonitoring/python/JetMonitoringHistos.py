@@ -3,14 +3,15 @@
 from JetMonitoring.JetHistoTools import jhm, selectionAndHistos
 from JetMonitoring.JetMonitoringConf import JetAttributeHisto, HistoDefinitionTool, JetMonitoringTool, JetKinematicHistos, JetContainerHistoFiller
 from AthenaCommon.AppMgr import ToolSvc
+from JetRec.JetRecFlags import jetFlags
 
 def commonMonitoringTool(container, refcontainer=""):
     filler = JetContainerHistoFiller(container+"HistoFiller",JetContainer = container)
 
     # Give a list of predefined tools from jhm or a combination of such tools
     filler.HistoTools = [
-        # build a special tool without 2D hists :
-        JetKinematicHistos("kinematics",PlotOccupancy=True, PlotAveragePt=True, PlotNJet=True) ,
+        # build a special kinematics histo tool plotting 2D hists :
+        JetKinematicHistos("kinematics",PlotOccupancy=True, PlotAveragePt=True, PlotAverageE=True, PlotNJet=True) ,
 
         
         # Draw a set of histo for a particular jet selection :
@@ -30,10 +31,6 @@ def commonMonitoringTool(container, refcontainer=""):
             jhm.basickinematics_emscale,
             jhm.basickinematics_constscale,
 
-            # track variables
-            jhm.tool("JVF[0]"),
-            jhm.SumPtTrkPt1000,
-            jhm.GhostTrackCount,
 
             # calo variables
             jhm.NegativeE,
@@ -56,6 +53,13 @@ def commonMonitoringTool(container, refcontainer=""):
             jhm.TileExt1,
             
             ]
+        if jetFlags.useTracks:
+            filler.HistoTools += [
+                # track variables
+                jhm.tool("JVF[0]"),
+                jhm.SumPtTrkPt1000,
+                jhm.GhostTrackCount, ]
+            
         
         if refcontainer:
             # efficiency
@@ -67,16 +71,25 @@ def commonMonitoringTool(container, refcontainer=""):
 
 
 
-athenaMonTool = JetMonitoringTool(HistoTools = [
+if jetFlags.useTracks == False:
+    athenaMonTool = JetMonitoringTool(HistoTools = [
+        
+        commonMonitoringTool( "AntiKt4LCTopoJets" ), # if truth is present, we could add : , "AntiKt4TruthJets" ,
+        commonMonitoringTool( "AntiKt4EMTopoJets" ),
+        commonMonitoringTool( "AntiKt10LCTopoJets" ),   
+        #commonMonitoringTool( "AntiKt3PV0TrackJets" ),
+        ],
+                                      IntervalType = 6,) # 6 is 'Interval_t::run' interval
+else:
+     athenaMonTool = JetMonitoringTool(HistoTools = [
+         
+         commonMonitoringTool( "AntiKt4LCTopoJets" ), # if truth is present, we could add : , "AntiKt4TruthJets" ,
+         commonMonitoringTool( "AntiKt4EMTopoJets" ),
+         commonMonitoringTool( "AntiKt10LCTopoJets" ),   
+         commonMonitoringTool( "AntiKt3PV0TrackJets" ),
+         ],
+                                       IntervalType = 6,) # 6 is 'Interval_t::run' interval
 
-    commonMonitoringTool( "AntiKt4LCTopoJets" ), # if truth is present, we could add : , "AntiKt4TruthJets" ,
-    commonMonitoringTool( "AntiKt4EMTopoJets" ),
-    commonMonitoringTool( "AntiKt10LCTopoJets" ),   
-    commonMonitoringTool( "AntiKt3PV0TrackJets" ),
-    
-     # == 'run'
-    ],
-                                  IntervalType = 6,) # 6 is 'Interval_t::run' interval
 
 ToolSvc += athenaMonTool
 

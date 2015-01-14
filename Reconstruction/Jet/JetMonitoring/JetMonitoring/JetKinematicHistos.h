@@ -15,6 +15,7 @@
 
 #include "JetMonitoring/JetHistoBase.h"
 #include "TH1.h"
+#include "TH2.h"
 #include "TProfile2D.h"
 
 class JetKinematicHistos : public JetHistoBase {
@@ -43,6 +44,7 @@ protected:
 
   TH2F* m_occupancyEtaPhi;
   TProfile2D* m_averagePtEtaPhi;
+  TProfile2D* m_averageE_EtaPhi;
   
   int m_jetScale;
 
@@ -51,6 +53,7 @@ protected:
   bool m_doE;
   bool m_doOccupancy;
   bool m_doAveragePt;
+  bool m_doAverageE;
   bool m_doNConstit;
 };
 #endif
