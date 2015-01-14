@@ -36,7 +36,11 @@ int JetContainerHistoFiller::fillHistos(){
   ATH_MSG_DEBUG ("Filling hists " << name() << "..." << m_jetContainerName);
 
   const xAOD::JetContainer* jCont = 0;
-  CHECK(  evtStore()->retrieve(jCont, m_jetContainerName) );
+  StatusCode sc=  evtStore()->retrieve(jCont, m_jetContainerName) ;
+  if( sc.isFailure() ) {
+    ATH_MSG_DEBUG (" No container  " << m_jetContainerName<< " in Evt store. Returning.");
+    return 0;
+  }
 
 
   /// simply call fillHistosFromContainer() for each tool...
