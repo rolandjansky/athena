@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: D3PDBunchCrossingTool.h 620838 2014-10-09 11:38:00Z krasznaa $
+// $Id: D3PDBunchCrossingTool.h 639543 2015-01-14 17:51:02Z krasznaa $
 #ifndef TRIGBUNCHCROSSINGTOOL_D3PDBUNCHCROSSINGTOOL_H
 #define TRIGBUNCHCROSSINGTOOL_D3PDBUNCHCROSSINGTOOL_H
 
@@ -43,8 +43,8 @@ namespace Trig {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 620838 $
-    * $Date: 2014-10-09 13:38:00 +0200 (Thu, 09 Oct 2014) $
+    * $Revision: 639543 $
+    * $Date: 2015-01-14 18:51:02 +0100 (Wed, 14 Jan 2015) $
     */
    class D3PDBunchCrossingTool : public BunchCrossingToolBase {
 
@@ -123,7 +123,9 @@ namespace Trig {
       StatusCode cacheConfigV2( ::TTree* metaTree, bool clearCache );
 
       /// Cached configurations
-      std::map< UInt_t, BunchConfig > m_cache;
+      /// We need to be explicit about the namespace of Trig::BunchConfig,
+      /// otherwise the dictionary generator fails in ROOT 5.
+      std::map< UInt_t, Trig::BunchConfig > m_cache;
 
       /// Flag specifying if any configuration is loaded already
       bool m_configLoaded;

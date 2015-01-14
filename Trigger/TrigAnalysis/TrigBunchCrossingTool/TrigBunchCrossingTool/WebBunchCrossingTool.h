@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: WebBunchCrossingTool.h 625731 2014-11-03 12:41:18Z krasznaa $
+// $Id: WebBunchCrossingTool.h 639543 2015-01-14 17:51:02Z krasznaa $
 #ifndef TRIGBUNCHCROSSINGTOOL_WEBBUNCHCROSSINGTOOL_H
 #define TRIGBUNCHCROSSINGTOOL_WEBBUNCHCROSSINGTOOL_H
 
@@ -33,8 +33,8 @@ namespace Trig {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 625731 $
-    * $Date: 2014-11-03 13:41:18 +0100 (Mon, 03 Nov 2014) $
+    * $Revision: 639543 $
+    * $Date: 2015-01-14 18:51:02 +0100 (Wed, 14 Jan 2015) $
     */
    class WebBunchCrossingTool : public BunchCrossingToolBase {
 
@@ -62,8 +62,8 @@ namespace Trig {
        *
        * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
        *
-       * $Revision: 625731 $
-       * $Date: 2014-11-03 13:41:18 +0100 (Mon, 03 Nov 2014) $
+       * $Revision: 639543 $
+       * $Date: 2015-01-14 18:51:02 +0100 (Wed, 14 Jan 2015) $
        */
       class IOV {
       public:
@@ -105,7 +105,11 @@ namespace Trig {
       std::map< int, std::pair< std::vector< int >,
                                 std::vector< int > > > m_knownConfigs;
       /// Map assigning configurations to IOVs
-      std::map< std::pair< IOV, IOV >, int > m_configMap;
+      /// The explicit scope for the IOV class is for ROOT 5's benefit.
+      /// Rootcint has issues understanding the code without the explicit
+      /// scope declaration in the old ROOT release.
+      std::map< std::pair< Trig::WebBunchCrossingTool::IOV,
+                           Trig::WebBunchCrossingTool::IOV >, int > m_configMap;
 
    }; // class WebBunchCrossingTool
 
