@@ -3,7 +3,7 @@
 */
 
 #include <sstream>
-//#include <iostream>
+#include <iostream>
 #include <algorithm>
 #include <iterator> // need it for advance
 
@@ -336,24 +336,18 @@ bool TrigNavStructure::serializeHolders( std::vector<uint32_t>& output ) const {
 
 
 bool TrigNavStructure::deserializeHolders( const std::vector<uint32_t>& input, std::vector<uint32_t>::const_iterator& start ) {  
-  //  using namespace std;
+  using namespace std;
   do {
-    //    cerr << "deseraializing holders " << input.size() << " from " << start - input.begin() << endl;
     if ( start == input.end() ) // no holders at all
       break;
-
+    
     const size_t holderPayloadSize = *start;    
     ++start;
-    //    cerr << "deseraializing holders payload size " << holderPayloadSize << endl;
     class_id_type clid;
     std::string label;
     sub_index_type sub;   
     std::vector<uint32_t>::const_iterator oneBlobIt = start;
     bool couldRead = BaseHolder::enquireSerialized( input, oneBlobIt, clid, label, sub);
-    //    cerr << "deseraializing holders " << couldRead 
-    //	 << " clid " << clid 
-    //	 << " label " << label 
-    //	 << " sub " << sub << endl;
     
     if ( couldRead == false ) // to few data words essentially
       break;
@@ -437,7 +431,6 @@ void TrigNavStructure::getAllOfType ( const te_id_type id,
 				      std::vector< TriggerElement* >& output,
 				      const bool activeOnly) const {
   if ( not m_factory.listOfProduced(id).empty() ) {
-
     std::back_insert_iterator<std::vector<TriggerElement*> > outputIt( output );
 
     // 2 cases: only active ones, and all
@@ -819,10 +812,16 @@ unsigned int TrigNavStructure::copyAllFeatures( const TriggerElement* sourceTE, 
  *
  *****************************************************************************/
 void TrigNavStructure::reset() {
+  //  std::cerr << "resetting" << std::endl;
   m_factory.reset();
-  for ( auto h: m_holders)
+  //  std::cerr << "factory cleaned" << m_holders.size() << std::endl;
+  for ( auto h: m_holders) {
+    //    std::cerr << "deleting holder" << h << " " << h->label() << std::endl;
     delete h;
+  }
+
   m_holders.clear();
+  //  std::cerr << "Reset fully done" << std::endl;
 }
 
 
@@ -832,8 +831,9 @@ void TrigNavStructure::reset() {
 
 
 TriggerElement::FeatureAccessHelper TrigNavStructure::getFeature(const TriggerElement* te,                                           
-							     class_id_type clid, sub_index_type sub ) const {  
+							     class_id_type clid, sub_index_type sub ) const {
   auto& thisTEFeatures = te->getFeatureAccessHelpers();
+
   for ( auto it = thisTEFeatures.rbegin(); it != thisTEFeatures.rend(); ++it  ) {
     if ( it->getCLID() == clid and 
 	 ( sub == invalid_sub_index or it->getIndex().subTypeIndex() == sub ) ) { // we have found the object
@@ -886,8 +886,17 @@ TriggerElement::FeatureAccessHelper TrigNavStructure::getFeatureRecursively(cons
   //loop over the holders to find the one matching the type or label or both
   for (auto holder: m_holders) {    
     if ( clid == holder->typeClid() and (label.empty() or  holder->label().find(label) != std::string::npos)  ) {
-      return getFeatureRecursively(startTE, clid, holder->subTypeIndex(), sourceTE);
+      auto feat =  getFeatureRecursively(startTE, clid, holder->subTypeIndex(), sourceTE);
+      if(feat.valid()) return feat;
     }
   }
   return TriggerElement::FeatureAccessHelper();
+}
+
+const BaseHolder* TrigNavStructure::getHolder(const TriggerElement::FeatureAccessHelper& fea) const { 
+  for (auto holder: m_holders) {    
+    if ( fea.getCLID() == holder->typeClid() and  fea.getIndex().subTypeIndex() == holder->subTypeIndex() )   
+      return holder;
+  }
+  return nullptr;
 }

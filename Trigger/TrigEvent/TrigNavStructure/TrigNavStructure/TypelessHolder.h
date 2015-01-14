@@ -6,7 +6,6 @@
 
 #ifndef TRIGNAVSTRUCTURE_TYPELESSSHOLDER_H
 #define TRIGNAVSTRUCTURE_TYPELESSSHOLDER_H
-#include "TrigNavStructure/Types.h"
 #include "TrigNavStructure/BaseHolder.h"
 namespace HLT {
   class TypelessHolder : public BaseHolder {

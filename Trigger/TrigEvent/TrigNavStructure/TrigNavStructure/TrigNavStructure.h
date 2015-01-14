@@ -9,7 +9,7 @@
 #define TRIGNAVSTRUCTURE_TRIGNAVSTRUCTURE_H
 
 #include <vector>
-#include <boost/multi_index_container.hpp>
+
 #include "TrigNavStructure/TriggerElement.h"
 #include "TrigNavStructure/TriggerElementFactory.h"
 #include "TrigNavStructure/BaseHolder.h"
@@ -327,7 +327,7 @@ namespace HLT {
 
     unsigned int copyAllFeatures( const TriggerElement* sourceTE, TriggerElement* destTE);
 
-
+    const BaseHolder* getHolder(const TriggerElement::FeatureAccessHelper& fea) const;
 
   protected:
     /**

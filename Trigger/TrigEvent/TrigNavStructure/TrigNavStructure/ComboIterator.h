@@ -6,7 +6,8 @@
 #define TRIGNAVSTRUCTURE_ComboIterator_H
 
 #include <vector>
-
+#include <set>
+#include "TrigNavStructure/Types.h"
 
 namespace HLT {
   class TriggerElement;
@@ -80,7 +81,7 @@ namespace HLT {
      *            in the case of identical input particle types.
      * @param nav pointer to the navigation service.
      */
-    ComboIterator(std::vector<TEVec> tes, const TrigNavStructure* nav);
+    ComboIterator(const std::vector<TEVec>& tes, const TrigNavStructure* nav);
 
     /** @brief Rewind method, resetting the iterator to the first element. */
     bool rewind();
@@ -102,14 +103,14 @@ namespace HLT {
     /** @brief Pre increment operator. */
     ComboIterator& operator++();
    
-  private:
+  protected:
 
     /** @brief Method used to test overlaps between two TEs.
      *  @return result of the overlap test; returns true if the two TEs correspond to the same RoI, false otherwise.
      *  @param t1 first TE to check.
      *  @param t2 second TE to check.
      */
-    bool overlaps(const TriggerElement* t1, const TriggerElement* t2) const;
+    virtual bool overlaps(const TriggerElement* t1, const TriggerElement* t2) const;
 
     /** @brief Method used to test overlaps between a TE and a vector of TEs.
      *  @return result of the overlap test; returns true if the TE corresponds to the same RoI as one of the TEs in the vector, false otherwise.
@@ -152,72 +153,39 @@ namespace HLT {
   };
 
 
+
+
   /**
-   * @brief Iterator used to loop over multi-particle combinations already used to seed a set
-   * topological TEs
+   * @class Combo iterator respecting the topological seeding constraint
+   * its use and  implementation is based on the @see ComboIterator. 
+   * This class reimplements only the overlaps method.
+   * The meaning of the overlaps method is though slightly twisted here.
+   * In ComboIterator the combinations comming from the overlapping RoIs 
+   * (the same RoI in most of the cases) are avoided. 
+   * In here the the overlap is overloaded to:
+   * a) skip combinations from the same RoI (overlapping in the usual sense)
+   * b) skip combination which never formed topological combination.
    *
-   * @author Carlo Schiavi  <Carlo.Schiavi@ge.infn.it>  -  INFN Genova
-   *
-   * This iterator class is used by HLT algorithms to iterate over multi-particle combinations.
-   * Given a set of topological TEs, passed in the constructor, the iterator can be used to move
-   * over all the combinations of TEs originating from those already used to seed them. These
-   * combinations are built taking the predecessors of the topological objects and then navigating
-   * from each of them, reaching the TE types specified in the constructor.
+   * In case complex structures of TEs (i.e. the topological overlap between sets of seeding 
+   * TEs is qualifying a TE as matching one)   
    */
 
-  class ComboIteratorTopological : public ComboIteratorBase {
-
+  class ComboIteratorTopo : public ComboIterator {
   public:
-    /**
-     * @brief Constructor; gets a vector of topological TEs to start from, a vector of types with
-     * which combinations must be formed and a pointer to Navigation as arguments.
-     * @param topologicalTEs vector of topological TEs to start from.
-     * @param teTypes vector of TE types by which combinations must be formed.
-     * @param nav pointer to the navigation service.
-     */
-    ComboIteratorTopological(TEVec topologicalTEs, std::vector<unsigned int> teTypes, const TrigNavStructure* nav, bool onlyActive=true);
+    ComboIteratorTopo(const std::vector<TEVec>& tes, const TrigNavStructure* nav, HLT::te_id_type topoSpan);
 
-    /** @brief Rewind method, resetting the iterator to the first element. */
-    bool rewind();
-
-    /** @brief Unary * operator, used to recover the current combination. */
-    TEVec& operator*() { return combination(); }
-
-    /** @brief Validity check for the iterator.
-     *  @return result of the validity check; returns false if iterator is at end, true otherwise.
-     */
-    bool isValid() const { return m_valid; }
-
-    /** @brief Accessor method for the current combination. */
-    TEVec& combination() { return (*(m_combination)); }
-
-    /** @brief Post increment operator. */
-    ComboIteratorTopological& operator++(int) { return operator++(); }
-
-    /** @brief Pre increment operator. */
-    ComboIteratorTopological& operator++();
-   
+  protected:
+    // on top of same RoI adds check if TEs are span by the topological TE of give id
+    // think ... is not combination which was ever (sucesfullly) considered by topo algorithm
+    virtual bool overlaps(const TriggerElement* t1, const TriggerElement* t2) const;
   private:
-
-    /** @brief Method used to invalidate the current combination. */
-    void invalidate() { m_valid=false; }
-
-    /** @brief Debug dump to std::cout. */
-    void print() const {/**/};
-
-    /** @brief Iterator pointing to the current combination. */
-    std::vector<TEVec>::iterator m_combination;
-
-    /** @brief Vector of vectors corresponding to the available combinations. */
-    std::vector<TEVec> m_combinations;
-
-    /** @brief Validity status variable. */
-    bool m_valid;
-
-    /** @brief Pointer to the navigation service. */
-    const TrigNavStructure* m_nav;
+    void traverseUntilSeedsTopo(const TriggerElement* start, std::set<const TriggerElement*>& topos) const;
+    HLT::te_id_type m_spanId;
+    
   };
 
 } // eof namespace
 
 #endif //#ifndef
+
+

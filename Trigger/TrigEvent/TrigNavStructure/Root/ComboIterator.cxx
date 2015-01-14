@@ -2,16 +2,18 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigNavStructure/ComboIterator.h"
-
 #include <iostream>
-#include "TrigNavStructure/TrigNavStructure.h"
-#include "TrigNavStructure/TriggerElement.h"
 
+#include <algorithm>
+
+#include "TrigNavStructure/TriggerElement.h"
+#include "TrigNavStructure/TrigNavStructure.h"
+
+#include "TrigNavStructure/ComboIterator.h"
 using namespace std;
 
-HLT::ComboIterator::ComboIterator(std::vector<TEVec> tes, const HLT::TrigNavStructure* nav)
-  : m_valid(1),
+HLT::ComboIterator::ComboIterator(const std::vector<TEVec>& tes, const HLT::TrigNavStructure* nav)
+  : m_valid(true),
     m_nav(nav)
 
 {
@@ -189,59 +191,69 @@ void  HLT::ComboIterator::invalidate()
   //  cout << "-------------------------------" << endl;
   //  cout << "Invalidate!" << endl;
   //  cout << "-------------------------------" << endl;
-  m_valid = 0; 
+  m_valid = false; 
   m_comb.clear(); 
 }
 
 
-
-
-
-HLT::ComboIteratorTopological::ComboIteratorTopological(TEVec topologicalTEs, std::vector<unsigned int> teTypes, const TrigNavStructure* nav, bool onlyActive)
-  : m_valid(true),
-    m_nav(nav) {
-
-  // Get all the available combinations: children of all topological TEs
-  std::vector<TriggerElement*>::iterator topological, topologicalEnd=topologicalTEs.end();
-  for(topological=topologicalTEs.begin(); topological!=topologicalEnd; topological++) {
-    TEVec topologicalChildren;
-    if(m_nav) {
-      ((TrigNavStructure*)m_nav)->getTopologicallySpannedBy(const_cast<const TriggerElement*>(*topological),
-						     const_cast<const std::vector<unsigned int>&>(teTypes),
-						     topologicalChildren, onlyActive);
-    }
-    if(topologicalChildren.size()) m_combinations.push_back(topologicalChildren);
-  }
-
-  // Set combination iterator to the first one
+HLT::ComboIteratorTopo::ComboIteratorTopo(const std::vector<TEVec>& tes, const TrigNavStructure* nav, 
+				     HLT::te_id_type topoSpan) 
+  : ComboIterator(tes, nav),
+    m_spanId(topoSpan) {
   rewind();
 }
 
+void HLT::ComboIteratorTopo::traverseUntilSeedsTopo(const HLT::TriggerElement* start, std::set<const TriggerElement*>& topos) const {
 
-bool HLT::ComboIteratorTopological::rewind() {
-  
-  // Check size of the combinations
-  if(m_combinations.size()==0) {
-    invalidate();
-    return 0;
+  auto & successors = HLT::TrigNavStructure::getDirectSuccessors(start);
+  for ( auto successor : successors ) {
+    if ( successor->getActiveState() == true and successor->getId() == m_spanId ) {
+      topos.insert(successor);
+    }
   }
+  if ( not topos.empty() ) 
+    return;
 
-  // Set iterator on the first combination
-  m_combination = m_combinations.begin();
-
-  return isValid();
+  // we need to digg deeper
+  auto & predecessors = HLT::TrigNavStructure::getDirectPredecessors(start);
+  for ( auto predecessor : predecessors ) {
+    // this next line is disabled because the predecessors of the L1Topo simulation output TE are exactly of type RoI-node (after discussion with Tomasz)
+    // if ( HLT::TrigNavStructure::isRoINode(predecessor) ) continue;
+    traverseUntilSeedsTopo(predecessor, topos);
+    if ( not topos.empty() ) 
+      return;
+  }
 }
 
+bool HLT::ComboIteratorTopo::overlaps(const TriggerElement* t1, const TriggerElement* t2) const {
+  if ( HLT::ComboIterator::overlaps(t1, t2) == true ) return true;
 
-HLT::ComboIteratorTopological& HLT::ComboIteratorTopological::operator++() { 
+  // if above returned true it means TEs are from the same RoI, combiation is uninteresting
+  // if false it may still be uninteresting because it is joined by topo TE
+  
+  std::set<const TriggerElement*> te1span;
+  traverseUntilSeedsTopo(t1, te1span);
+  if ( te1span.empty() )  // empty set can not be from the same combination
+    return true;
 
-  // Increment iterator on combinations
-  m_combination++;
-  if(m_combination==m_combinations.end()) {
-    invalidate();
-    return *this; 
-  }
+  std::set<const TriggerElement*> te2span;
+  traverseUntilSeedsTopo(t2, te2span);
+  if ( te2span.empty() ) 
+    return true;
+  /*
+  for ( auto te : te1span )
+    cout << " t1 span TES " << te << " "  << te->getId() << endl;
+  cout << endl;
+  for ( auto te : te2span )
+    cout << " t2 span TES " << te << " "  << te->getId() << endl;
+  */
+  std::vector<const TriggerElement*> intersection;
+  std::set_intersection(te1span.begin(), te1span.end(),  te2span.begin(), te2span.end(),
+		       std::back_inserter(intersection));
 
-  return *this; 
+  if ( not intersection.empty() ) 
+    return false; // there is genuine topo join, the pair is interesting
+  return true;
+  
 }
 

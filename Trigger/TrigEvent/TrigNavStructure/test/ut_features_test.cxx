@@ -153,22 +153,35 @@ bool getFromExplicitTE() {
   if ( not isGoodFeature(fea, cluster_clid, 3, 0, 1) )
     REPORT_AND_STOP("Valid request to get clusters fails");
   PROGRESS;
+
+  auto holder = tns.getHolder(fea);
+  if ( holder == nullptr ) 
+    REPORT_AND_STOP("Could not get the holder");
+  PROGRESS;
+
+  if ( holder->label() != "L2ElectronClusters" ) 
+    REPORT_AND_STOP("Holder has wrong label");  
+  PROGRESS;
+
   // get from valid TE neglecting the sub index
   fea = tns.getFeature(getById(12), track_clid, invalid_sub_index);
   if ( not isGoodFeature(fea, track_clid, 0, 0, 10) )
     REPORT_AND_STOP("Valid request (neglecting sub index) to get tracks fails");
   PROGRESS;
+
   // requests below shuld be failing
   // wrong subType
   fea = tns.getFeature(getById(10), cluster_clid, 1);
   if ( fea.valid() )
     REPORT_AND_STOP("Got feature while should obtain nothing using this sub type ID");
   PROGRESS;
+
   // earlier TE
   fea = tns.getFeature(getById(10), cluster_clid, 3);
   if ( fea.valid() )
     REPORT_AND_STOP("Got feature while should obtain nothing from this TE");
   PROGRESS;
+
   // latter TE
   fea = tns.getFeature(getById(12), cluster_clid, 3);
   if ( fea.valid() )

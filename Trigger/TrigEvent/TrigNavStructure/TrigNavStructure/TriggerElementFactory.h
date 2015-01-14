@@ -36,15 +36,18 @@ namespace HLT {
     const std::vector< TriggerElement* >& listOfProduced() const { return m_list; }
     std::vector< TriggerElement* >& listOfProduced() { return m_list; }
     const std::vector< TriggerElement* >& listOfProduced(unsigned int id) const { 
-      return m_groupedById.find(id)->second; 
+      auto found = m_groupedById.find(id);
+      return (found!=m_groupedById.end()) ? found->second : m_notfound;      
     }
     std::vector< TriggerElement* >& listOfProduced(unsigned int id) { 
-      return m_groupedById.find(id)->second; 
+      auto found = m_groupedById.find(id);
+      return (found!=m_groupedById.end()) ? found->second : m_notfound;      
     }
 
   private:
     std::vector< TriggerElement* > m_list;
     std::map<te_id_type, std::vector<TriggerElement*> > m_groupedById; //!< this is to speed up queries
+    std::vector< TriggerElement* > m_notfound;
   };
 } // eof namespace HLT
 #endif //
