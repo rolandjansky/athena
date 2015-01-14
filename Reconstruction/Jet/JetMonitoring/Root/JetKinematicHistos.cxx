@@ -24,6 +24,7 @@ JetKinematicHistos::JetKinematicHistos(const std::string &t) : JetHistoBase(t)
   declareProperty("PlotE", m_doE = false);
   declareProperty("PlotOccupancy", m_doOccupancy = false);
   declareProperty("PlotAveragePt", m_doAveragePt = false);
+  declareProperty("PlotAverageE", m_doAverageE = false);
 
   declareProperty("PlotNConstit", m_doNConstit = true);
 
@@ -55,6 +56,7 @@ int JetKinematicHistos::buildHistos(){
   if(m_doN) m_njet  = bookHisto( new TH1F(prefixn+"num"  ,  "Jet number;Number of jets;Entries", 40,0,40) );  
   if(m_doOccupancy) m_occupancyEtaPhi = bookHisto( new TH2F(prefixn+"OccupancyEtaPhi", "Occupancy;#eta;#phi;Entries", 50,-5,5,50,-3.1416,3.1416) );
   if(m_doAveragePt) m_averagePtEtaPhi = bookHisto( new TProfile2D(prefixn+"AveragePtEtaPhi", "Average P_{T};#eta;#phi;Entries", 50,-5,5,50,-3.1416,3.1416) );
+  if(m_doAverageE) m_averageE_EtaPhi = bookHisto( new TProfile2D(prefixn+"AverageE_EtaPhi", "Average E;#eta;#phi;Entries", 50,-5,5,50,-3.1416,3.1416) );
 
   if(m_doNConstit) m_nConstit = bookHisto( new TH1F(prefixn+"numconstit", "Number of constituents;N;",100,0,100) );
 
@@ -99,6 +101,7 @@ int JetKinematicHistos::fillHistosFromJet(const xAOD::Jet &j){
   
   if(m_doOccupancy) m_occupancyEtaPhi->Fill( p4.Eta(), p4.Phi() );
   if(m_doAveragePt) m_averagePtEtaPhi->Fill( p4.Eta(), p4.Phi() , p4.Pt()*toGeV);
+  if(m_doAverageE) m_averageE_EtaPhi->Fill( p4.Eta(), p4.Phi() , p4.E()*toGeV);
 
   if(m_doNConstit) m_nConstit->Fill( j.numConstituents() );
   return 0;
