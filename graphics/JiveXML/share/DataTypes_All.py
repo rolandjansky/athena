@@ -10,5 +10,6 @@ include ("RecJiveXML/RecJiveXML_DataTypes.py")
 include ("TrigJiveXML/TrigJiveXML_DataTypes.py")
 include ("AnalysisJiveXML/AnalysisJiveXML_DataTypes.py")
 include ("TruthJiveXML/TruthJiveXML_DataTypes.py")
+include ("xAODJiveXML/xAODJiveXML_DataTypes.py")
 
 print theEventData2XML

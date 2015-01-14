@@ -15,6 +15,9 @@ private
 use EventInfo             EventInfo-*             Event
 use StoreGate             StoreGate-*             Control
 
+# xAOD package(s):
+use xAODEventInfo         xAODEventInfo-*         Event/xAOD
+
 use GaudiKernel	          v* -no_auto_imports
 
 macro_append JiveXMLLib_shlibflags "" Darwin " -lrpcsvc" 

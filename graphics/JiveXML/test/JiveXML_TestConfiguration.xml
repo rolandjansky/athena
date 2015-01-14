@@ -301,7 +301,7 @@
   </athena>
 
   <jobTransform userJobId="jivexml_raw_recotrf"> 
-     <doc> Produce JiveXML using transform Reco_Trf with type outputTXT_JIVEXMLTGZFile</doc> 
+     <doc> Produce JiveXML using transform Reco_Tf with type outputTXT_JIVEXMLTGZFile</doc> 
      <classification> 
          <displayClass>OfflineValidation</displayClass> 
          <displayProcess>Reco</displayProcess> 
@@ -309,7 +309,7 @@
      </classification> 
      <jobTransformJobName>jivexml_raw_recotrf</jobTransformJobName>  
          <jobTransformCmd> 
-             Reco_trf.py inputBSFile="/afs/cern.ch/atlas/project/Atlantis/rttInputs/RAW_data11_RTT_trf.pool.root" outputTXT_JIVEXMLTGZFile=outputJiveXML.tgz maxEvents=15 
+             Reco_tf.py --inputBSFile="/afs/cern.ch/atlas/project/Atlantis/rttInputs/RAW_data11_RTT_trf.pool.root" --outputTXT_JIVEXMLTGZFile=outputJiveXML.tgz --maxEvents=15 
          </jobTransformCmd> 
          <group>JiveXMLTrf</group> 
          <dataset_info> 

@@ -12,6 +12,7 @@
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventType.h"
 #include "EventInfo/PileUpEventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -188,6 +189,26 @@ namespace JiveXML{
       if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) <<"Could not find EventInfo" << endreq;
       return StatusCode::FAILURE;
     }
+    const xAOD::EventInfo* eventInfo2;
+    if (evtStore()->retrieve(eventInfo2).isFailure()){
+      if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) <<"Could not find xAODEventInfo" << endreq;
+      return StatusCode::FAILURE;
+    }else{
+    //Get run and event numbers - Test only ! Still using old EventInfo for xml output
+    //    Event/xAOD/xAODEventInfo/trunk/xAODEventInfo/versions/EventInfo_v1.h
+     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " xAODEventInfo: " 
+          << ", runNumber: "  << eventInfo2->runNumber()  // is '222222' for mc events ?
+          << ", eventNumber: " << eventInfo2->eventNumber() 
+          << ", mcChannelNumber: "  << eventInfo2->mcChannelNumber()
+          << ", mcEventNumber: "  << eventInfo2->mcEventNumber() // MC: use this instead of runNumber
+          << ", lumiBlock: "  << eventInfo2->lumiBlock()
+          << ", timeStamp: "  << eventInfo2->timeStamp()
+          << ", bcid: "  << eventInfo2->bcid()
+          << ", eventTypeBitmask: "  << eventInfo2->eventTypeBitmask()
+          << ", actualInteractionsPerCrossing: "  << eventInfo2->actualInteractionsPerCrossing()
+          << ", averageInteractionsPerCrossing: "  << eventInfo2->averageInteractionsPerCrossing()
+          << endreq; 
+    }
 
     // new treatment of mc_channel_number for mc12
     // from: https://twiki.cern.ch/twiki/bin/viewauth/Atlas/PileupDigitization#Contents_of_Pileup_RDO
@@ -212,11 +233,11 @@ namespace JiveXML{
 	  if (firstEv){ 
 	    m_mcChannelNo =  sevt->event_type()->mc_channel_number(); // the 'real' mc-channel 
 	    if (msgLvl(MSG::INFO)) msg(MSG::INFO)
-	      << "  mc_channel from PileUpEventInfo   : " << sevt->event_type()->mc_channel_number() << endreq;
+	      << " mc_channel from PileUpEventInfo   : " << sevt->event_type()->mc_channel_number() << endreq;
             firstEv = false;
           }       
-	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Sub Event Info:" << endreq;
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)
+	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Sub Event Info:" << endreq;
+          if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)
 	       << "  Time         : " << (*it).time()                             << endreq
 	       << "  Index        : " << (*it).index()                            << endreq
 	       << "  Provenance   : " << (*it).type()                        << endreq // This is the provenance stuff: signal, minbias, cavern, etc
@@ -229,7 +250,7 @@ namespace JiveXML{
                << "  Geo version  : " << m_geometryVersionIn                      << endreq
 	       << "  User Type    : " << sevt->event_type()->user_type()          << endreq;
 	}
-	else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Subevent is null ptr " << endreq;
+	else if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Subevent is null ptr " << endreq;
       }
     }
 
@@ -238,7 +259,8 @@ namespace JiveXML{
     m_eventNo = eventInfo->event_ID()->event_number(); 
 
     if ( m_mcChannelNo != 0 ){ m_runNo = m_mcChannelNo + 140000000; } // indicating 'mc14'
-    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << " runNumber for filename: " << m_runNo << endreq;
+    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << " runNumber for filename: " << m_runNo 
+        << ", eventNumber: " << m_eventNo << endreq;
 
     if ( eventInfo->event_ID()->lumi_block() ){ 
       m_lumiBlock = eventInfo->event_ID()->lumi_block(); 

@@ -6,7 +6,7 @@ os.system('rm -rf sqlite200')
 ## Use AutoConfiguration
 #from RecExConfig.RecFlags  import rec #obsolete
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-athenaCommonFlags.FilesInput=["/afs/cern.ch/atlas/project/Atlantis/rttInputs/ESD_23Mar12.pool.root"]
+athenaCommonFlags.FilesInput=["/afs/cern.ch/atlas/project/Atlantis/rttInputs/ESD_7Jan15.pool.root"]
 jp.Rec.doJiveXML.set_Value_and_Lock(True)
 athenaCommonFlags.EvtMax.set_Value_and_Lock(10)
 jp.Rec.doWriteTAG=False
