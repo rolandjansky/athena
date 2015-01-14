@@ -101,7 +101,7 @@ StatusCode testAthenaEgammaCalibTool::execute()
 	if(!syst_name.BeginsWith("EL") && !syst_name.BeginsWith("EG")) continue;
 	//std::cout << "SYSTEMATIC: " << syst_name << std::endl;
            
-	if(!m_EgammaCalibrationAndSmearingTool->applyCorrection(*el, event_info)){ 
+	if(m_EgammaCalibrationAndSmearingTool->applyCorrection(*el, event_info) != CP::CorrectionCode::Ok){ 
 	  ATH_MSG_WARNING("Cannot calibrate electron"); 
 	}
 	std::cout << "Calibrated pt with systematic " << syst_name << " = " << el->pt() << std::endl;
@@ -113,7 +113,7 @@ StatusCode testAthenaEgammaCalibTool::execute()
   unsigned int j = 0; 
   for (; el_it != el_it_last; ++el_it, ++j) { 
     xAOD::Egamma *copy_el = NULL; // new object 
-    if (m_EgammaCalibrationAndSmearingTool->correctedCopy( **el_it, copy_el, event_info) == CP::CorrectionCode::Error){ 
+    if (m_EgammaCalibrationAndSmearingTool->correctedCopy( **el_it, copy_el, event_info) != CP::CorrectionCode::Ok){ 
       ATH_MSG_WARNING("Could not apply correction to new electron object"); 
       continue; 
     }
