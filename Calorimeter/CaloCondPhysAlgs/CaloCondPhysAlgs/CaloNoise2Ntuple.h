@@ -12,9 +12,8 @@
 
 // Gaudi includes
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
@@ -25,7 +24,7 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "TTree.h"
 
-class CaloNoise2Ntuple : public Algorithm {
+class CaloNoise2Ntuple : public AthAlgorithm {
 
   public:
     //Gaudi style constructor and execution methods
@@ -48,10 +47,6 @@ class CaloNoise2Ntuple : public Algorithm {
   //---------------------------------------------------
   // Member variables
   //---------------------------------------------------
-  /** The StoreGate Service */
-  StoreGateSvc* m_sgSvc;
-  StoreGateSvc* m_detStore;
-
   ITHistSvc* m_thistSvc;
 
   const DataHandle<CaloIdManager> m_caloIdMgr;

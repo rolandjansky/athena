@@ -29,7 +29,7 @@ if "RunNumberOld" in dir():
 
 if "RunNumberOld" not in dir():
     from LArCalibProcessing.TimeStampToRunLumi import TimeStampToRunLumi
-    rlb=TimeStampToRunLumi(TimeStamp)
+    rlb=TimeStampToRunLumi(TimeStamp,dbInstance="CONDBR2")
     if rlb is None:
         print "WARNING: Failed to convert time",TimeStamp,"into a run/lumi number" 
         RunNumberOld = 999999
@@ -40,10 +40,10 @@ if "RunNumberOld" not in dir():
 
 
 if "GlobalTag" not in dir():
-    GlobalTag =  'COMCOND-BLKPST-004-05'
+    GlobalTag =  'COMCOND-BLKPA-2014-02'
 
 if "Geometry" not in dir():
-    Geometry = 'ATLAS-GEO-16-00-00'
+    Geometry = 'ATLAS-R2-2015-02-00-00'
 
 from RecExConfig.RecFlags import rec
 rec.RunNumber.set_Value_and_Lock(int(RunNumberOld))
@@ -63,6 +63,7 @@ DetFlags.digitize.all_setOff()
 from AthenaCommon.GlobalFlags  import globalflags
 globalflags.DetGeo.set_Value_and_Lock('atlas')
 globalflags.DataSource.set_Value_and_Lock('data')
+globalflags.DatabaseInstance.set_Value_and_Lock("CONDBR2")
 
 # this setting is just to get directly pileup noise as b and write back the same in the database...
 from CaloTools.CaloNoiseFlags import jobproperties
@@ -101,8 +102,7 @@ include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 svcMgr.IOVDbSvc.GlobalTag = GlobalTag
 
 from IOVDbSvc.CondDB import conddb
-#conddb.addOverride("/CALO/Ofl/Noise/CellNoise","CaloOflNoiseCellnoise-UPD1-00")
-conddb.addOverride("/LAR/NoiseOfl/CellNoise","LARNoiseOflCellNoise-UPD1-00")
+conddb.addOverride("/LAR/NoiseOfl/CellNoise","LARNoiseOflCellNoise-RUN2-UPD1-00")
 
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theCaloNoiseTool = CaloNoiseToolDefault()

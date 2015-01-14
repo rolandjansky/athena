@@ -13,7 +13,7 @@
 
 // Gaudi includes
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "CaloIdentifier/CaloIdManager.h"
@@ -27,7 +27,7 @@ namespace CaloRec {
   class CaloCellPositionShift;
 }
 
-class CaloFillCellPositionShift : public Algorithm {
+class CaloFillCellPositionShift : public AthAlgorithm {
 
   public:
     //Gaudi style constructor and execution methods
@@ -50,9 +50,6 @@ class CaloFillCellPositionShift : public Algorithm {
   //---------------------------------------------------
   // Member variables
   //---------------------------------------------------
-  /** The StoreGate Service */
-  StoreGateSvc* detStore;
-
   const DataHandle<CaloIdManager> m_caloIdMgr;
   const DataHandle<CaloDetDescrManager> m_calodetdescrmgr;
   const CaloCell_ID*       m_calo_id;

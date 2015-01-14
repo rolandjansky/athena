@@ -63,12 +63,12 @@ PyCintex.makeClass('std::vector<float>')
 log = CaloCondLogger.getLogger("CaloNoiseWriter")
 
 #=== (re-)create the database
-#db = CaloCondTools.openDb('SQLITE', 'COMP200', 'UPDATE')
+#db = CaloCondTools.openDb('SQLITE', 'CONDBR2', 'UPDATE')
 dbSvc = cool.DatabaseSvcFactory.databaseService()
 try:
-   db=dbSvc.openDatabase("sqlite://;schema="+filename+";dbname=COMP200")
+   db=dbSvc.openDatabase("sqlite://;schema="+filename+";dbname=CONDBR2")
 except:
-   db=dbSvc.createDatabase("sqlite://;schema="+filename+";dbname=COMP200")
+   db=dbSvc.createDatabase("sqlite://;schema="+filename+";dbname=CONDBR2")
    
 try:
     #=== creating folder specifications

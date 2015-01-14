@@ -15,9 +15,7 @@
 
 //Constructor
 CaloRescaleNoise::CaloRescaleNoise(const std::string& name, ISvcLocator* pSvcLocator):
-  Algorithm(name,pSvcLocator),
-  m_sgSvc(0),
-  m_detStore(0),
+  AthAlgorithm(name,pSvcLocator),
   m_thistSvc(0),
   m_calo_id(0),
   m_noiseTool("CaloNoiseToolDB/calonoisetooldb"),
@@ -46,65 +44,21 @@ CaloRescaleNoise::CaloRescaleNoise(const std::string& name, ISvcLocator* pSvcLoc
 //Destructor
 CaloRescaleNoise::~CaloRescaleNoise()
 {
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::DEBUG << "CaloRescaleNoise destructor called" << endreq;
+  ATH_MSG_DEBUG ( "CaloRescaleNoise destructor called" );
 }
 //__________________________________________________________________________
 StatusCode CaloRescaleNoise::initialize()
 {
+  ATH_MSG_DEBUG ("CaloRescaleNoise initialize()" );
+  ATH_CHECK(service("THistSvc",m_thistSvc) );
 
-  MsgStream log( messageService(), name() );
-  log << MSG::DEBUG <<"CaloRescaleNoise initialize()" << endreq;
-
-// Get the StoreGateSvc
-  if (service("StoreGateSvc", m_sgSvc).isFailure()) {
-    log << MSG::ERROR << "No StoreGate!!!!!!!" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-// get THistSvc
-  if (service("THistSvc",m_thistSvc).isFailure()) {
-    log << MSG::ERROR << " cannot find THistSvc " << endreq;
-    return StatusCode::FAILURE;
-  }
-
-
-  StatusCode sc = service ( "DetectorStore" , m_detStore ) ;
-  //retrieve ID helpers 
-  sc = m_detStore->retrieve( m_caloIdMgr );
-  if (sc.isFailure()) {
-   log << MSG::ERROR << "Unable to retrieve CaloIdMgr in LArHitEMap " << endreq;
-   return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
   m_calo_id      = m_caloIdMgr->getCaloCell_ID();
 
-//  retrieve CaloDetDescrMgr
-    sc = m_detStore->retrieve(m_calodetdescrmgr);
-    if (sc.isFailure()) {
-       log << MSG::ERROR << "Unable to retrieve CaloDetDescrMgr in LArHitEMap " << endreq;
-       return StatusCode::FAILURE;
-    }
-
-
-  if (m_noiseTool.retrieve().isFailure()) {
-    log << MSG::ERROR << "Unable to find tool for calonoisetool "  << endreq;
-   return StatusCode::FAILURE;
-  }
-
-  sc = m_hvCorrTool.retrieve();
-  if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to find tool for LArHVCorrTool" << endreq; 
-      return StatusCode::FAILURE;
-  }
-
-
-  sc = m_detStore->regHandle(m_dd_HVScaleCorr,m_keyHVScaleCorr);
-  if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to register handle to HVScaleCorr " << endreq;
-      return StatusCode::FAILURE;
-  }
-
-
+  ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
+  ATH_CHECK( m_noiseTool.retrieve() );
+  ATH_CHECK( m_hvCorrTool.retrieve() );
+  ATH_CHECK( detStore()->regHandle(m_dd_HVScaleCorr,m_keyHVScaleCorr) );
 
   m_tree = new TTree("mytree","Calo Noise ntuple");
   m_tree->Branch("iCool",&m_iCool,"iCool/I");
@@ -120,36 +74,24 @@ StatusCode CaloRescaleNoise::initialize()
   m_tree->Branch("PileupNoise",&m_pileupNoise,"PileupNoise/F");
   m_tree->Branch("ElecNoiseRescaled",&m_elecNoiseRescaled,"ElecNoiseRescaled/F");
 
-  if( m_thistSvc->regTree("/file1/calonoise/mytree",m_tree).isFailure()) {
-       log << MSG::ERROR << " cannot register ntuple " << endreq; 
-       return StatusCode::FAILURE;
-  }
-
-
-  log << MSG::INFO << " end of CaloRescaleNoise::initialize " << endreq;
+  ATH_CHECK( m_thistSvc->regTree("/file1/calonoise/mytree",m_tree) );
+  ATH_MSG_INFO ( " end of CaloRescaleNoise::initialize " );
   return StatusCode::SUCCESS; 
-
 }
 //__________________________________________________________________________
 StatusCode CaloRescaleNoise::execute()
 {
-  MsgStream log( messageService(), name() );
-  log << MSG::DEBUG <<"CaloRescaleNoise execute()" << endreq;
-  
+  ATH_MSG_DEBUG ("CaloRescaleNoise execute()" );
   return StatusCode::SUCCESS; 
 }
 
 //__________________________________________________________________________
 StatusCode CaloRescaleNoise::stop()
 {
-//.............................................
-
-  MsgStream log( messageService(), name() );
-
    FILE* fp = fopen("calonoise.txt","w");
 
   int ncell=m_calo_id->calo_cell_hash_max();
-  log << MSG::INFO << " start loop over Calo cells " << ncell << endreq;
+  ATH_MSG_INFO ( " start loop over Calo cells " << ncell );
   for (int i=0;i<ncell;i++) {
        IdentifierHash idHash=i;
        Identifier id=m_calo_id->cell_id(idHash);
@@ -232,9 +174,9 @@ StatusCode CaloRescaleNoise::stop()
           if (iCool<48) fprintf(fp,"%5d %5d %5d %8.3f %8.3f\n",iCool,ii,gain,m_elecNoiseRescaled,m_pileupNoise);
 
           if (iCool<48 && m_elecNoise>0. && std::fabs(m_elecNoiseRescaled/m_elecNoise-1.)>0.05) {
-              log << MSG::WARNING << " DifferentNoise  cell " << m_calo_id->show_to_string(id) <<
-                 " layer/eta/phi " << m_layer << " " << m_eta << " " << m_phi << " OldNoise,NewNoise " <<
-                m_elecNoise << " " << m_elecNoiseRescaled << endreq;
+            ATH_MSG_WARNING ( " DifferentNoise  cell " << m_calo_id->show_to_string(id) <<
+                              " layer/eta/phi " << m_layer << " " << m_eta << " " << m_phi << " OldNoise,NewNoise " <<
+                              m_elecNoise << " " << m_elecNoiseRescaled );
           }
           m_tree->Fill();
 

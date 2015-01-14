@@ -16,9 +16,7 @@
 
 //Constructor
 CaloNoise2Ntuple::CaloNoise2Ntuple(const std::string& name, ISvcLocator* pSvcLocator):
-  Algorithm(name,pSvcLocator),
-  m_sgSvc(NULL),
-  m_detStore(NULL),
+  AthAlgorithm(name,pSvcLocator),
   m_thistSvc(NULL),
   m_calo_id(NULL),
   m_noiseTool("CaloNoiseToolDB/calonoisetooldb"),
@@ -47,58 +45,24 @@ CaloNoise2Ntuple::CaloNoise2Ntuple(const std::string& name, ISvcLocator* pSvcLoc
 //Destructor
 CaloNoise2Ntuple::~CaloNoise2Ntuple()
 {
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::DEBUG << "CaloNoise2Ntuple destructor called" << endreq;
+  ATH_MSG_DEBUG ( "CaloNoise2Ntuple destructor called" );
 }
 //__________________________________________________________________________
 StatusCode CaloNoise2Ntuple::initialize()
 {
+  ATH_MSG_DEBUG ("CaloNoise2Ntuple initialize()" );
 
-  MsgStream log( messageService(), name() );
-  log << MSG::DEBUG <<"CaloNoise2Ntuple initialize()" << endreq;
+  ATH_CHECK( service("THistSvc",m_thistSvc) );
 
-// Get the StoreGateSvc
-  if (service("StoreGateSvc", m_sgSvc).isFailure()) {
-    log << MSG::ERROR << "No StoreGate!!!!!!!" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-// get THistSvc
-  if (service("THistSvc",m_thistSvc).isFailure()) {
-    log << MSG::ERROR << " cannot find THistSvc " << endreq;
-    return StatusCode::FAILURE;
-  }
-
-
-  StatusCode sc = service ( "DetectorStore" , m_detStore ) ;
-  //retrieve ID helpers 
-  sc = m_detStore->retrieve( m_caloIdMgr );
-  if (sc.isFailure()) {
-   log << MSG::ERROR << "Unable to retrieve CaloIdMgr in LArHitEMap " << endreq;
-   return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
   m_calo_id      = m_caloIdMgr->getCaloCell_ID();
 
-//  retrieve CaloDetDescrMgr
-    sc = m_detStore->retrieve(m_calodetdescrmgr);
-    if (sc.isFailure()) {
-       log << MSG::ERROR << "Unable to retrieve CaloDetDescrMgr in LArHitEMap " << endreq;
-       return StatusCode::FAILURE;
-    }
+  ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
 
+  ATH_CHECK( m_noiseTool.retrieve() );
 
-  if (m_noiseTool.retrieve().isFailure()) {
-    log << MSG::ERROR << "Unable to find tool for calonoisetool "  << endreq;
-   return StatusCode::FAILURE;
-  }
-
-  if (!m_averageTool.empty()) {
-    if (m_averageTool.retrieve().isFailure()) {
-      log << MSG::ERROR << "Unable to find tool for average " << endreq;
-      return StatusCode::FAILURE;
-    }
-  }
-
+  if (!m_averageTool.empty())
+    ATH_CHECK( m_averageTool.retrieve() );
 
   m_tree = new TTree("mytree","Calo Noise ntuple");
   m_tree->Branch("iCool",&m_iCool,"iCool/I");
@@ -113,26 +77,20 @@ StatusCode CaloNoise2Ntuple::initialize()
   m_tree->Branch("ElecNoise",&m_elecNoise,"ElecNoise/F");
   m_tree->Branch("PileupNoise",&m_pileupNoise,"PileupNoise/F");
   m_tree->Branch("Average",&m_average,"Average/F");
+  ATH_CHECK( m_thistSvc->regTree("/file1/calonoise/mytree",m_tree) );
 
-  if( m_thistSvc->regTree("/file1/calonoise/mytree",m_tree).isFailure()) {
-       log << MSG::ERROR << " cannot register ntuple " << endreq; 
-       return StatusCode::FAILURE;
-  }
-
-
-  log << MSG::INFO << " end of CaloNoise2Ntuple::initialize " << endreq;
+  ATH_MSG_INFO ( " end of CaloNoise2Ntuple::initialize " );
   return StatusCode::SUCCESS; 
 
 }
 //__________________________________________________________________________
 StatusCode CaloNoise2Ntuple::execute()
 {
-  MsgStream log( messageService(), name() );
-  log << MSG::DEBUG <<"CaloNoise2Ntuple execute()" << endreq;
+  ATH_MSG_DEBUG ("CaloNoise2Ntuple execute()" );
   
-  const xAOD::EventInfo* eventInfo;
-  if (m_sgSvc->retrieve(eventInfo).isFailure()) {
-    log << MSG::WARNING << " Cannot access to event info " << endreq;
+  const xAOD::EventInfo* eventInfo = nullptr;
+  if (evtStore()->retrieve(eventInfo).isFailure()) {
+    ATH_MSG_WARNING ( " Cannot access to event info " );
     return StatusCode::SUCCESS;
   }
   m_lumiBlock = eventInfo->lumiBlock();
@@ -144,14 +102,10 @@ StatusCode CaloNoise2Ntuple::execute()
 //__________________________________________________________________________
 StatusCode CaloNoise2Ntuple::stop()
 {
-//.............................................
-
-  MsgStream log( messageService(), name() );
-
-  log << MSG::INFO << "  Run Number, lumiblock " << m_runNumber << " " << m_lumiBlock << endreq;
+  ATH_MSG_INFO ( "  Run Number, lumiblock " << m_runNumber << " " << m_lumiBlock );
 
   int ncell=m_calo_id->calo_cell_hash_max();
-  log << MSG::INFO << " start loop over Calo cells " << ncell << endreq;
+  ATH_MSG_INFO ( " start loop over Calo cells " << ncell );
   for (int i=0;i<ncell;i++) {
        IdentifierHash idHash=i;
        Identifier id=m_calo_id->cell_id(idHash);

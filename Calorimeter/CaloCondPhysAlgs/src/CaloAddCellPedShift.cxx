@@ -23,9 +23,7 @@
 
 //Constructor
 CaloAddCellPedShift::CaloAddCellPedShift(const std::string& name, ISvcLocator* pSvcLocator):
-  Algorithm(name,pSvcLocator),
-  m_sgSvc(0),
-  m_detStore(0),
+  AthAlgorithm(name,pSvcLocator),
   m_thistSvc(0),
   m_cablingService("LArCablingService"),
   m_calo_id(0),
@@ -63,64 +61,20 @@ CaloAddCellPedShift::~CaloAddCellPedShift()
 //__________________________________________________________________________
 StatusCode CaloAddCellPedShift::initialize()
 {
+  ATH_MSG_DEBUG ("CaloAddCellPedShift initialize()" );
 
-  MsgStream log( messageService(), name() );
-  log << MSG::DEBUG <<"CaloAddCellPedShift initialize()" << endreq;
-
-// Get the StoreGateSvc
-  if (service("StoreGateSvc", m_sgSvc).isFailure()) {
-    log << MSG::ERROR << "No StoreGate!!!!!!!" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  StatusCode sc = service ( "DetectorStore" , m_detStore ) ;
-  //retrieve ID helpers 
-  sc = m_detStore->retrieve( m_caloIdMgr );
-  if (sc.isFailure()) {
-   log << MSG::ERROR << "Unable to retrieve CaloIdMgr in LArHitEMap " << endreq;
-   return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
   m_calo_id      = m_caloIdMgr->getCaloCell_ID();
 
-//  retrieve CaloDetDescrMgr
-  sc = m_detStore->retrieve(m_calodetdescrmgr);
-  if (sc.isFailure()) {
-       log << MSG::ERROR << "Unable to retrieve CaloDetDescrMgr in LArHitEMap " << endreq;
-       return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
 
-  sc=m_detStore->regFcn(&CaloAddCellPedShift::updateMap, this, m_noiseAttrListColl, m_folderName);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << " cannot register callback " << endreq;
-    return StatusCode::FAILURE;
-  }
-  log << MSG::INFO << " registered a callback for " << m_folderName << " folder " << endreq;
+  ATH_CHECK( detStore()->regFcn(&CaloAddCellPedShift::updateMap, this, m_noiseAttrListColl, m_folderName) );
+  ATH_MSG_INFO ( " registered a callback for " << m_folderName << " folder " );
 
-  sc = m_caloCoolIdTool.retrieve();
-  if (sc.isFailure()) {
-     log << MSG::ERROR << " cannot retrieve CaloCoolIdTool" << endreq;
-     return StatusCode::FAILURE;
-  }
-
-  sc=m_cablingService.retrieve();
-  if (sc.isFailure()) {
-       log << MSG::ERROR << "Unable to get CablingService " << endreq;
-       return StatusCode::FAILURE;
-  }
-
-  sc = m_detStore->retrieve(m_onlineID,"LArOnlineID");
-  if (sc.isFailure()) {
-     log  << MSG::ERROR << "Unable to retrieve  LArOnlineID from DetectorStore" 
-          << endreq;
-     return StatusCode::FAILURE;
-  }
-
-
-// get THistSvc
-  if (service("THistSvc",m_thistSvc).isFailure()) {
-    log << MSG::ERROR << " cannot find THistSvc " << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_caloCoolIdTool.retrieve() );
+  ATH_CHECK( m_cablingService.retrieve() );
+  ATH_CHECK( detStore()->retrieve(m_onlineID,"LArOnlineID") );
+  ATH_CHECK( service("THistSvc",m_thistSvc) );
 
   m_tree = new TTree("mytree","Calo Ped ntuple");
   m_tree->Branch("iCool",&m_iCool,"iCool/I");
@@ -140,31 +94,22 @@ StatusCode CaloAddCellPedShift::initialize()
   m_tree->Branch("PedestalCorr",&m_ped1corr,"PedestalCorr/F");
   m_tree->Branch("PedLumi",&m_ped2,"PedLumi/F");
 
-  if( m_thistSvc->regTree("/file1/calonoise/mytree",m_tree).isFailure()) {
-       log << MSG::ERROR << " cannot register ntuple " << endreq; 
-       return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_thistSvc->regTree("/file1/calonoise/mytree",m_tree) );
 
-
-
-  log << MSG::INFO << " end of CaloAddCellPedShift::initialize " << endreq;
+  ATH_MSG_INFO ( " end of CaloAddCellPedShift::initialize " );
   return StatusCode::SUCCESS; 
-
 }
 
 // ===============================================================================
 
 StatusCode CaloAddCellPedShift::updateMap(IOVSVC_CALLBACK_ARGS_K(keys) )
 {
-
-  MsgStream  log(msgSvc(),name());
-
-  log << MSG::INFO << " in updateMap ";
+  msg() << MSG::INFO << " in updateMap ";
   std::list<std::string>::const_iterator itr;
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
-    log << *itr << " ";
+    msg() << *itr << " ";
   }
-  log << endreq;
+  msg() << endreq;
 
   //=== loop over collection (all cool channels)
   CondAttrListCollection::const_iterator iColl = m_noiseAttrListColl->begin();
@@ -195,27 +140,20 @@ StatusCode CaloAddCellPedShift::updateMap(IOVSVC_CALLBACK_ARGS_K(keys) )
 //__________________________________________________________________________
 StatusCode CaloAddCellPedShift::execute()
 {
-  MsgStream log( messageService(), name() );
-  log << MSG::DEBUG <<"CaloAddCellPedShift execute()" << endreq;
-  
+  ATH_MSG_DEBUG ("CaloAddCellPedShift execute()" );
   return StatusCode::SUCCESS; 
 }
 
 //__________________________________________________________________________
 StatusCode CaloAddCellPedShift::stop()
 {
-//.............................................
-
-  MsgStream log( messageService(), name() );
-
-
   int ncell=m_calo_id->calo_cell_hash_max();
 
   std::vector<float> pedShiftValue;
   pedShiftValue.resize(ncell,0.);
 
   FILE* finput = fopen(m_fname.c_str(),"r");
-  log << MSG::INFO << " opened file " << m_fname << endreq;
+  ATH_MSG_INFO ( " opened file " << m_fname );
   int bec;
   int pos_neg;
   int FT;
@@ -223,7 +161,7 @@ StatusCode CaloAddCellPedShift::stop()
   int channel;
   float pedShift;
   while( fscanf(finput,"%d %d %d %d %d %f",&bec,&pos_neg,&FT,&slot,&channel,&pedShift) != EOF  ) {
-    log << MSG::INFO << " read linbe " << bec << " " << pos_neg << " " << FT << " " << slot << " " << channel << " " << pedShift << endreq;
+    ATH_MSG_INFO ( " read linbe " << bec << " " << pos_neg << " " << FT << " " << slot << " " << channel << " " << pedShift );
     HWIdentifier hwid = m_onlineID->channel_Id(bec,pos_neg,FT,slot,channel);
     Identifier id     = m_cablingService->cnvToIdentifier( hwid);
     IdentifierHash idHash = m_calo_id->calo_cell_hash(id);
@@ -231,11 +169,11 @@ StatusCode CaloAddCellPedShift::stop()
     pedShiftValue[ii] = pedShift;
   }
   fclose(finput);
-  log << MSG::INFO << " end of reading file" << endreq;
+  ATH_MSG_INFO ( " end of reading file" );
   
 
   FILE* fp = fopen("calopedestal.txt","w");
-  log << MSG::INFO << " start loop over Calo cells " << ncell << endreq;
+  ATH_MSG_INFO ( " start loop over Calo cells " << ncell );
   for (int i=0;i<ncell;i++) {
        IdentifierHash idHash=i;
        Identifier id=m_calo_id->cell_id(idHash);
@@ -329,7 +267,8 @@ StatusCode CaloAddCellPedShift::stop()
           m_ped2 = ped2;
           m_tree->Fill();
 
-         if (std::fabs(ped1-ped1_old)>1.)  log <<MSG::WARNING << "  Pedestal shift found for cell " << m_OffId << " HWID: " << m_bec << " " << m_posneg << " " << m_FT << " " << m_slot << " " << m_channel << " New/Old pedestals "  << ped1 << " " << ped1_old << endreq;
+         if (std::fabs(ped1-ped1_old)>1.)
+           ATH_MSG_WARNING ( "  Pedestal shift found for cell " << m_OffId << " HWID: " << m_bec << " " << m_posneg << " " << m_FT << " " << m_slot << " " << m_channel << " New/Old pedestals "  << ped1 << " " << ped1_old );
 
        }   // loop over gains
 
