@@ -324,6 +324,7 @@ StoreGateSvc*& Algo::store()
 bool Algo::reset() {
   m_returnErrorCode   = HLT::OK;
   m_unmappedErrorCode = HLT::OK;
+  if ( hltEndEvent() != HLT::OK ) return false;
   return true;
 }
 

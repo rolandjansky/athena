@@ -27,19 +27,21 @@ StatusCode TECreateAlgo::initialize()
   return StatusCode::SUCCESS;
 }
 
+void harvestTEsForCombinations(const HLT::Navigation* nav, const std::vector<unsigned int>& inputs,  
+			       bool onlyActive, std::vector<TEVec>& result) {
+  for (std::vector<unsigned int>::const_iterator input = inputs.begin();
+       input != inputs.end(); input++) {
+    result.emplace_back(TEVec());
+    nav->getAllOfType(*input, result.back(), onlyActive);
+  }
+}
+
 
 ComboIteratorBase* TECreateAlgo::newComboIterator(std::vector<unsigned int>& inputs,
 						  bool onlyActive)
 {
   std::vector<TEVec> tes;
-  
-  for (std::vector<unsigned int>::const_iterator input = inputs.begin();
-       input != inputs.end(); input++) {
-    std::vector<HLT::TriggerElement*> newTEs;
-    config()->getNavigation()->getAllOfType(*input, newTEs, onlyActive);
-    tes.push_back(newTEs);
-  }
-
+  harvestTEsForCombinations(config()->getNavigation(), inputs, onlyActive, tes);
   return new ComboIterator(tes, config()->getNavigation());
 }
 
@@ -47,19 +49,19 @@ ComboIteratorBase* TECreateAlgo::newComboIterator(std::vector<unsigned int>& inp
 ComboIteratorBase* TECreateAlgo::newComboIterator(std::vector<unsigned int>& inputs,
 						  const std::vector<unsigned int>& topologicalStartFrom,
 						  bool onlyActive)
-{
-  // Check if the vector of topological types has the correct size (one)
-  if(topologicalStartFrom.size()==0) {
-    ATH_MSG_WARNING ("A ComboIteratorTopological starting from zero topological types has been requested, continuing anyway") ;
-  } else if(topologicalStartFrom.size()>1) {
-    ATH_MSG_WARNING ( "A ComboIteratorTopological starting from more than one (" << topologicalStartFrom.size()
-		      << ") topological types has been requested, continuing anyway" );
+{  
+  // Check if the vector of topological types has the correct size (one, if 0 fals back to normal iterator)
+  if(topologicalStartFrom.size() > 1) {
+    ATH_MSG_WARNING ("A ComboIteratorTopological starting from  topological types of size > 1 " << topologicalStartFrom.size() << " has been requested, do not know how to continue") ;
+    return 0;
   }
+  
+  if ( topologicalStartFrom.size() == 0 ) 
+    return newComboIterator(inputs, onlyActive);
 
-  // Get topological TEs to start from and create the iterator
-  TEVec topologicalTEs;
-  if(topologicalStartFrom.size()) config()->getNavigation()->getAllOfType(topologicalStartFrom[0], topologicalTEs, onlyActive);
-  return new ComboIteratorTopological(topologicalTEs, inputs, config()->getNavigation(), onlyActive);
+  std::vector<TEVec> tes;
+  harvestTEsForCombinations(config()->getNavigation(), inputs, onlyActive, tes);
+  return new ComboIteratorTopo(tes, config()->getNavigation(), topologicalStartFrom[0]);
 }
 
 /*

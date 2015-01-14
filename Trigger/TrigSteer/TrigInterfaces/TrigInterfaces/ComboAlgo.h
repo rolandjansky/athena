@@ -119,6 +119,20 @@ namespace HLT
      */
     virtual bool reset();
 
+
+    /**
+     * @brief provide access to the TriggerElement that a combination is based on
+     */
+    TriggerElement * getTopoTE() const;
+
+    /**
+     * @brief for the framework to set the TriggerElement that a combination is based on
+     */
+    void setTopoTE(TriggerElement *);
+
+
+
+
   private:
     
     /**
@@ -170,7 +184,8 @@ namespace HLT
     unsigned int m_successfulCombinationsLimit;
     unsigned int m_combinationsCount;
     unsigned int m_successfulCombinationsCount;
-
+     
+    TriggerElement * m_topoTE { 0 }; // TriggerElement that the current combination is based on, in case we use the topo filter
     
   };
 

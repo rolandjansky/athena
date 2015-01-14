@@ -94,6 +94,41 @@ namespace HLT { namespace Incidents {
   };
 
 
+  /**
+   * @class  UpdateAfterFork
+   * @brief  Incident to signal that a new worker was forked
+   *
+   * This incident is fired by the PSC to signal that a new worker
+   * was forked and parameters can be updated before event processing starts. 
+   * It carries the "worker" ID and the worker process ID which can be used to
+   * to create individualized names/parameters
+   */
+  class UpdateAfterFork: public Incident {
+  public:    
+    /**
+     * Constructor
+     * @param worker ID          the number which is assigned to the worker by the processing unit
+     * @param worker process ID  the process ID of the worker from the OS
+     * @param source             sender of the incident
+     */
+    UpdateAfterFork(int workerID, int workerProcessID,
+		    const std::string& source) :
+      Incident(source, type()), m_workerID(workerID), m_workerProcessID(workerProcessID) {};
+
+    /// Incident type
+    static const std::string& type();
+
+    /// assigned worker ID from processing unit
+    int workerID() const { return m_workerID; }
+    /// process ID of this worker from OS
+    int workerProcessID() const { return m_workerProcessID; }
+
+  private:
+    int m_workerID;             //!< the assigned worker ID
+    int m_workerProcessID;      //!< the assigned worker process ID from the OS
+  };
+
+
   
   //<<<<<<<<<<< INLINE MEMBER FUNCTIONS
 
@@ -108,6 +143,13 @@ namespace HLT { namespace Incidents {
   const std::string& UpdateHLTPrescales::type()
   {
     static const std::string _type("UpdateHLTPrescales");
+    return _type;
+  }
+
+  inline
+  const std::string& UpdateAfterFork::type()
+  {
+    static const std::string _type("UpdateAfterFork");
     return _type;
   }
 

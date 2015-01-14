@@ -172,6 +172,8 @@ namespace HLT
      */
     virtual HLT::ErrorCode hltStop() { return HLT::OK; }
 
+
+
     
     /**
      * @brief Method to be redefined by the user to implement the actions performed
@@ -181,6 +183,8 @@ namespace HLT
      * This method is called from within finalize() in the base class.
      */
     virtual HLT::ErrorCode hltFinalize() = 0;
+
+
 
     /**
      * @brief Method processing a single input/output combination of TEs.
@@ -202,6 +206,12 @@ namespace HLT
      * @return flag corresponding to the enable/disable of timing measurements for this algorithm.
      */
     inline bool doTiming() const { return m_doTiming; }
+
+
+    /**
+     * @brief Method called at the end of the event.
+     */
+    virtual HLT::ErrorCode hltEndEvent() { return HLT::OK; };
 
     /**
      * @brief Method performing algorithm reset.
