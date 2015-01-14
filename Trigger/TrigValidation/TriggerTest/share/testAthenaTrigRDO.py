@@ -5,7 +5,11 @@
 # flags doFastCaloAccess and memFreeze are used TriggerTestCommon.py
 #
 
-from RecExConfig.RecFlags import rec
+#still needed usage in TriggerTestCommon.py
+from RecExConfig.RecFlags import rec 
+#transition to:  jp.Rec.doWriteESD=1/0
+from AthenaCommon.JobProperties import jobproperties as jp
+
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
 
 if not acf.EvtMax.is_locked():
@@ -39,16 +43,16 @@ else:
 
 # flags for RecExCommon 
 doTrigger=True
-rec.doESD.set_Value_and_Lock(False)
+jp.Rec.doESD=False
 TriggerModernConfig=True
-rec.doWriteAOD=False
-rec.doWriteESD=False
-rec.doWriteTAG=False
-rec.doAOD=False
-rec.doESD.set_Value_and_Lock(False)
+jp.Rec.doWriteAOD=False
+jp.Rec.doWriteESD=False
+jp.Rec.doWriteTAG=False
+jp.Rec.doAOD=False
+jp.Rec.doESD.set_Value_and_Lock(False)
 doTAG=False
-rec.doCBNT=False
-rec.doTruth=True
+jp.Rec.doCBNT=False
+jp.Rec.doTruth=True
 
 #-----------------------------------------------------------
 include("RecExCond/RecExCommon_flags.py")
@@ -70,7 +74,9 @@ if  ('menu' in dir()):
 TriggerFlags.L1PrescaleSet='' 
 TriggerFlags.HLTPrescaleSet='' 
 TriggerFlags.doHLT=True
-
+if  ('runL1Topo' in dir()):
+    TriggerFlags.doL1Topo=True
+    TriggerFlags.readL1TopoConfigFromXML=False
 
 # pre set up trigger monitoring
 if 'enableCostMonitoring' in dir() and bool(enableCostMonitoring) == True:

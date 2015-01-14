@@ -57,6 +57,7 @@ if  ('menu' in dir()):
 TriggerFlags.L1PrescaleSet='' 
 TriggerFlags.HLTPrescaleSet='' 
 TriggerFlags.doHLT=True
+#TriggerFlags.doL1Topo=True 
 # NB menu should be the same as in testAthenaXMLConfigRDO.py since they are compared.
 
 

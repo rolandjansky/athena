@@ -43,7 +43,7 @@ TriggerFlags.readLVL1configFromXML=False
 
 TriggerFlags.enableMonitoring = [ 'Validation', 'Time', 'Log' ]
 TriggerFlags.doHLT=True
-
+#TriggerFlags.doL1Topo=True 
 
 #Enable tau slice
 # PJB I can't configure this such that it runs EF ID only, and not

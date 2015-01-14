@@ -52,6 +52,8 @@ TriggerFlags.readHLTconfigFromXML=False
 TriggerFlags.readLVL1configFromXML=False
 #TriggerFlags.useL1CaloCalibration = False
 TriggerFlags.doHLT=True
+#TriggerFlags.doL1Topo=True 
+
 
 # set up trigger monitoring                                                                                                                                                        
 if not ('RunningRTT' in dir()):

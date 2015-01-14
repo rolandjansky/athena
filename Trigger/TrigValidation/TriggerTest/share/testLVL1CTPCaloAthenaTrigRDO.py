@@ -50,6 +50,7 @@ TriggerFlags.doLucid.set_Off()
 
 #------------ run only LVL1 -------------------------- 
 TriggerFlags.doHLT=False
+#TriggerFlags.doL1Topo=True 
 
 def L1Only():
     TriggerFlags.Slices_all_setOff()

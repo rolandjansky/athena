@@ -8,6 +8,7 @@ package TriggerTest
 
 author John Baines <j.baines@rl.ac.uk>
 author Simon george <S.George@rhul.ac.uk>
+#contact Patrick Czodrowski <czodrows@cern>
 
 use AtlasPolicy 	    AtlasPolicy-*
 use AtlasTriggerRunTime AtlasTriggerRunTime-*
@@ -30,6 +31,7 @@ apply_pattern declare_runtime extras="../test/TriggerTest_TestConfiguration.xml 
                                       ../python/CheckLog_TriggerTest.py \
                                       ../python/LogTail_TriggerTest.py \
                                       ../python/CheckForTrigCostD3PD_TriggerTest.py \
+                                      ../python/CreateIgprofReport_TriggerTest.py \
                                       ../python/TruncateLog_TriggerTest.py \
                                       ../Testing/*.conf" 
 private

@@ -43,6 +43,7 @@ TriggerFlags.triggerMenuSetup = 'Physics_pp_v5'
 
 #------------ run only LVL1 -------------------------- 
 TriggerFlags.doHLT=False
+#TriggerFlags.doL1Topo=True 
 
 
 def L1Only():

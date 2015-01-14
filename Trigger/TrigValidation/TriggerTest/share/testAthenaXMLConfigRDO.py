@@ -52,6 +52,7 @@ if  ('menu' in dir()):
 TriggerFlags.L1PrescaleSet='' 
 TriggerFlags.HLTPrescaleSet='' 
 TriggerFlags.doHLT=True
+#TriggerFlags.doL1Topo=True 
 
 TriggerFlags.enableMonitoring = [ 'Validation', 'Time', 'Log' ]
 

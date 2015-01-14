@@ -25,7 +25,10 @@ SkipEvents=0
 setPrescale="None"
 doValidation=False
 chainOrderedDown=True
+#try adding: ATLAS-R1-2012-02-00-00
+#setDetDescr="ATLAS-R2-2015-01-01-00"
 BSRDOInput='root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/data12_8TeV.00212967.physics_EnhancedBias.merge_eb_zee_zmumu_cc.RAW._lb0291._SFO-5._0001.data'
+
 #####################################
 # configure the menu
 #####################################
@@ -56,10 +59,13 @@ include("TrigROBDataProviderSvc/TrigROBDataProviderSvc_RTT.py")
 include("TriggerTest/rob-ros-map.py")
 #########################################
 
+#when did this come in - check in SVN Trac
+#TriggerFlags.triggerMenuSetup="Physics_pp_v5"
 
 #####################################################
 include('TriggerRelease/runHLT_standalone.py')
 #####################################################
+
 
 
 ####################################

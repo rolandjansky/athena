@@ -44,7 +44,7 @@ TriggerFlags.readLVL1configFromXML=False
 TriggerFlags.triggerMenuSetup = 'Physics_pp_v5' 
 #TriggerFlags.triggerMenuSetup = 'MC_pp_v5' 
 TriggerFlags.doHLT=True
-
+#TriggerFlags.doL1Topo=True 
 
 # enable my slice only
 def mineOnly():

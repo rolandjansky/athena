@@ -7,8 +7,8 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
 ### usually ATN tests runs with following RDO input:
 #PoolRDOInput=["/afs/cern.ch/atlas/offline/ReleaseData/v3/testfile/valid1.005200.T1_McAtNlo_Jimmy.digit.RDO.e322_s488_d151_tid039414_RDO.039414._00001_extract_10evt.pool.root"]
 #set add your own here: 
-#from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-#athenaCommonFlags.FilesInput=["/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/validation-data/mc10_7TeV.105001.pythia_minbias.digit.RDO.e574_s932_s946_d369/RDO.197112._000001.pool.root.1"]
+#from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
+#acf.FilesInput=["/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/validation-data/mc10_7TeV.105001.pythia_minbias.digit.RDO.e574_s932_s946_d369/RDO.197112._000001.pool.root.1"]
 
 if not acf.EvtMax.is_locked():
     acf.EvtMax=10
@@ -62,6 +62,7 @@ if  ('menu' in dir()):
     TriggerFlags.triggerMenuSetup=menu 
 
 TriggerFlags.doHLT=True
+#TriggerFlags.doL1Topo=True 
 
 def egammaOnly():
     TriggerFlags.Slices_all_setOff()
@@ -83,14 +84,6 @@ def bphysicsOnly():
     TriggerFlags.Slices_all_setOff()
     TriggerFlags.BphysicsSlice.setAll()
 
-#def bphysicskstarOnly():
-#    TriggerFlags.Slices_all_setOff()
-#    TriggerFlags.BphysicsSlice.setAll()
-#TriggerFlags.BphysicsSlice.signatures = [
-#                                         ['mu24',                816, 'L1_MU20', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'],   1],
-#                                         ['2mu6',                722, 'L1_2MU6', [], ['Muon'], ['RATE:MultiMuon' ,'BW:Muon'],   1]
-#                                         ]
-
 def metOnly():
     TriggerFlags.Slices_all_setOff()
     TriggerFlags.METSlice.setAll()
@@ -103,44 +96,33 @@ def minbiasOnly():
     TriggerFlags.Slices_all_setOff()
     TriggerFlags.MinBiasSlice.setAll() 
 
-def minbiasManualAddition():
+def minbiasEnhanced():
     TriggerFlags.Slices_all_setOff()
     TriggerFlags.MinBiasSlice.setAll()
-    # 2014-06-26 - removing unused L1_ZDC sim
-    mbL1Items = ['L1_BCM_Wide', 'L1_LUCID', 'L1_MBTS_2', 'L1_MBTS_1_1', 'L1_TE20', 'L1_RD0_FILLED', 'L1_MBTS_2_UNPAIRED_ISO', 'L1_MBTS_4_4',]
+    mbL1Items = ['L1_BCM_Wide', 'L1_LUCID', 'L1_MBTS_2', 'L1_MBTS_1_1', 'L1_TE20', 'L1_TE30', 'L1_TE40', 'L1_RD0_FILLED', 'L1_MBTS_2_UNPAIRED_ISO', 'L1_MBTS_4_4',]
     for L1item in mbL1Items:        
         if not L1item in TriggerFlags.Lvl1.items():
             TriggerFlags.Lvl1.items = TriggerFlags.Lvl1.items() + [L1item]
-    
-    TriggerFlags.MinBiasSlice.signatures = [
-                                            #MBTS at L2
-                                            ['mb_mbts_L1MBTS_2', 821, 'L1_MBTS_2', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
-                                            #['mb_mbts_L1MBTS_2_UNPAIRED_ISO', 822, 'L1_MBTS_2_UNPAIRED_ISO', [], ['MinBias'],["BW:Unpaired_Minbias", "RATE:MinBias"], 1],
-                                            #['mb_mbts_L1MBTS_4_4', 823, 'L1_MBTS_4_4', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_perf_L1LUCID',         824, 'L1_LUCID',        [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_perf_L1MBTS_1', 825, 'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            #['mb_noalg_L1MBTS_2',         826, 'L1_MBTS_2',        [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sptrk', 827, 'L1_RD0_FILLED', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sptrk_noisesup', 828, 'L1_RD0_FILLED', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sp2000_trk70_hmt', 829, 'L1_TE20', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sptrk_L1MBTS_1', 830, 'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sptrk_noisesup_L1MBTS_1', 831, 'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sp2000_trk70_hmt_L1MBTS_1', 832, 'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],                  
-                                            ['mb_sptrk_L1MBTS_2', 833, 'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sptrk_noisesup_L1MBTS_2', 834, 'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sp2000_trk70_hmt_L1MBTS_2', 835, 'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sp2000_pusup600_trk70_hmt', 836, 'L1_TE20', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sp2000_pusup600_trk70_hmt_L1TE30', 837, 'L1_TE30', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sp2000_pusup600_trk70_hmt_L1TE40', 838, 'L1_TE40', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sp2000_pusup700_trk70_hmt_L1TE30', 839, 'L1_TE30', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sp2000_pusup700_trk70_hmt_L1TE40', 840, 'L1_TE40', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sp2000_pusup600_trk70_hmt_L1MBTS_1', 841, 'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sptrk_costr_L1MBTS_1', 842, 'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            #['noalg_mb_L1TE20', 843, 'L1_TE20', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            #['noalg_mb_L1TE30', 844, 'L1_TE30', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            #['noalg_mb_L1TE40', 845, 'L1_TE40', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ]
-
+    mbHLTItems = [
+                  # MBTS at L2
+                  #['mb_mbts_L1MBTS_2', 821, 'L1_MBTS_2', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
+                  #['mb_mbts_L1MBTS_2_UNPAIRED_ISO', 822, 'L1_MBTS_2_UNPAIRED_ISO', [], ['MinBias'],["BW:Unpaired_Minbias", "RATE:MinBias"], 1],
+                  #['mb_mbts_L1MBTS_4_4', 823, 'L1_MBTS_4_4', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1], 	
+                  # Other spTrk
+                  #['mb_sptrk_noisesup', 828, 'L1_RD0_FILLED', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
+                  ['mb_sptrk_L1MBTS_1', 830, 'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+                  ['mb_sptrk_L1MBTS_2', 833, 'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+                  ['mb_sptrk_noisesup_L1MBTS_1', 831, 'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+                  ['mb_sptrk_noisesup_L1MBTS_2', 834, 'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+                  ['mb_sp2000_trk70_hmt_L1MBTS_1', 832, 'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],                  
+                  ['mb_sp2000_trk70_hmt_L1MBTS_2', 835, 'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+                  ['mb_sp2000_pusup600_trk70_hmt_L1MBTS_1', 841, 'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+                  ['mb_sptrk_costr_L1MBTS_1', 842, 'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+                  ]
+    TriggerFlags.MinBiasSlice.signatures = mbHLTItems
+    for HLTitem in mbHLTItems:        
+        if not HLTitem in TriggerFlags.MinBiasSlice.signatures():
+            TriggerFlags.MinBiasSlice.signatures = TriggerFlags.MinBiasSlice.signatures() + [HLTitem]
 
 def combinedOnly():
     TriggerFlags.Slices_all_setOff()
@@ -181,8 +163,8 @@ if  ('sliceName' in dir()):
         GenerateMenu.overwriteSignaturesWith(tauOnly)
     elif sliceName == 'minbias':
         GenerateMenu.overwriteSignaturesWith(minbiasOnly)    
-    elif sliceName == 'minbiasManual':
-        GenerateMenu.overwriteSignaturesWith(minbiasManualAddition)    
+    elif sliceName == 'minbiasEnhanced':
+        GenerateMenu.overwriteSignaturesWith(minbiasEnhanced)    
     elif sliceName == 'combined':
         GenerateMenu.overwriteSignaturesWith(combinedOnly)
     else:
@@ -216,6 +198,11 @@ if 'enableCostMonitoring' in dir() and bool(enableCostMonitoring) == True:
 #-----------------------------------------------------------
 include("TriggerTest/TriggerTestCommon.py")
 #-----------------------------------------------------------
+
+#L1 DEBUG for Minbias jobs 
+if hasattr(topSequence, "LVL1::TrigT1MBTS"):
+    alg = getattr(topSequence, "LVL1::TrigT1MBTS")
+    alg.OutputLevel = DEBUG
 
 #from TrigSteerMonitor.TrigSteerMonitorConf import TrigChainMoni
 #chainMoni = TrigChainMoni()
