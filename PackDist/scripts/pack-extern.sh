@@ -137,7 +137,7 @@ _chk_links ()
 [ -d "$1" ] || return 0
 local tmperr=$(mktemp -t tmp.XXXXXXXXXX) || return 1
 
-#    /^other_fs|^dangling/ { print >tmperr; next }
+type symlinks >/dev/null || { warn "type" $FUNCNAME; return 0; }
 symlinks -rv $1 |
     awk -v tmperr=$tmperr '
     /^absolute|^other_fs|^dangling|^messy/ { print >tmperr; next }
@@ -402,13 +402,13 @@ else unset reqpatch
 fi
 
 # Check if there are external packages required
-for pkg in `cmt -q -tag=ATLAS show macro_value ${package}_requires`; do
+for pkg in `cmt -q -tag_add=ATLAS show macro_value ${package}_requires`; do
     [ -f "${tmpreq:-}" ] || tmpreq=$(mktemp -t tmp.XXXXXXXXXX) || { error "mktemp" $FUNCNAME; exit 1; }
     echo "$pkg" >>$tmpreq || { error "echo" $FUNCNAME; exit 1; }
 done
 
 # Check if there is external software to pack
-export_paths=`cmt -q -tag=ATLAS show macro_value ${package}_export_paths`
+export_paths=`cmt -q -tag_add=ATLAS show macro_value ${package}_export_paths`
 # Remove leading and trailing whitespace (to make the value empty if it was whitespace)
 src=(${export_paths})
 
@@ -419,7 +419,7 @@ export_paths=${src[*]}
 
 if [ -n "$export_paths" ]; then
 
-dst=($(cmt -q -tag=ATLAS,STANDALONE show macro_value ${package}_export_paths))
+dst=($(cmt -q -tag_add=ATLAS,STANDALONE show macro_value ${package}_export_paths))
 dst=(${dst[*]#${SITEROOT}/})
 
 info "source:\n'${src[*]}'" $FUNCNAME
@@ -442,18 +442,27 @@ info "requires:\n'$(<$tmpreq)'" $FUNCNAME
 fi
 
 native_version=`cmt -q -tag_add=PACK show macro_value ${package}_native_version`
-#native_version=`cmt -q show macro_value ${package}_native_version`
+if [ -n "$native_version" ]; then
+    if [ LCG_Interfaces = "$(cmt -q show macro_value ${package}_offset)" ] || \
+	cmt -q show uses|grep -q -F -w LCG_Interfaces; then
+	LCG_config_version=$(cmt -q show macro_value LCG_config_version)
+	_LCG_config_version=$(echo ${LCG_config_version}|sed -n 's/^\([[:digit:]]\{1,\}\).*/\1/p')
+	if [ -n "${_LCG_config_version}" ] && [ ${_LCG_config_version} -ge 68 ] && \
+	    [ -n "$export_paths" ] && echo "${dst[*]}"|grep -q -F "/LCG_${LCG_config_version}/" && \
+	    ! echo "$native_version"|grep -q -F "_lcgcmt${LCG_config_version}"; then
+	    version=${native_version}_lcgcmt${LCG_config_version}
+	fi
+    fi
+    [ -z ${version+t} ] && version=$native_version
+else
 version=`cmt show macro_value version`
 [ "${version}" = "v*" ] &&
 { warn "Invalid CMT package version: $version: $project $release $package" $FUNCNAME;
 version=v1; }
-if [ -n "$native_version" ]; then
-    version=$native_version
-else
     warn "Macro ${package}_native_version unspecified: $project $release $package $version" $FUNCNAME
 fi
 
-platform=`cmt -q -tag=PACK show macro_value ${package}_platform`
+platform=`cmt -q -tag_add=PACK show macro_value ${package}_platform`
 
 #
 # Need to handle dbg mode
@@ -487,7 +496,7 @@ if [ -n "$export_paths" ] && [[ ${CMTCONFIG} == *dbg* ]] && [ -z ${platform} ]; 
     dst=(${dst[*]})
 fi
 
-follow_symlinks=`cmt -q -tag=PACK show macro_value ${package}_follow_symlinks`
+follow_symlinks=`cmt -q -tag_add=PACK show macro_value ${package}_follow_symlinks`
 
 # if [ -f ${externcache}/kits/$name.tar.gz -a "${overwrite}" != yes ]; then
 #     info "Existing ${externcache}/kits/$name.tar.gz will not be overwritten" $FUNCNAME
@@ -510,8 +519,8 @@ if [ -f $fpath -a "${overwrite}" != yes ]; then
 
 else
 
-#follow_symlinks=`cmt -tag=PACK show macro_value ${package}_follow_symlinks`
-include_objfiles=`cmt -q -tag=PACK show macro_value ${package}_include_objfiles`
+#follow_symlinks=`cmt -tag_add=PACK show macro_value ${package}_follow_symlinks`
+include_objfiles=`cmt -q -tag_add=PACK show macro_value ${package}_include_objfiles`
 if [ -n "$include_objfiles" ]; then
     unset exclude_objfiles
 else

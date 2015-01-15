@@ -6,8 +6,8 @@
 Developed against Python 2.2
 """
 
-__version__ = '0.6.0'
-__date__ = 'Thu Oct 27 2011'
+__version__ = '0.7.0'
+__date__ = 'Fri Sep 26 2014'
 __author__  = 'Grigori Rybkine <Grigori.Rybkine@cern.ch>'
 
 import os, sys
@@ -169,9 +169,7 @@ def relink(path, Arg = (None, False)):
                             if v: print 'symlinked', `hatpath`, '->', `src`
                     else:
                         print >> sys.stderr, 'not_exported:', srcpath
-                        #print >> sys.stderr, 'not_exported:', hatpath, '->', s
                         os.remove(path);
-                        #if v: print >> sys.stderr, 'removed', `hatpath`
                         if v: print >> sys.stderr, 'removed', `hatpath`, '->', `s`
                 else:
                     print >> sys.stderr, 'external:', hatpath, '->', s
@@ -221,25 +219,47 @@ class ExportPaths(object):
             for l in f:
                 i = l.split()
                 assert len(i) == 2, '%s: %s: Wrong line format' % (path, `l`)
-                #i = [os.path.normpath(p) for p in i]
-                i[0] = os.path.realpath(i[0])
-                i[1] = os.path.normpath(i[1])
-                if i[0] in self.paths:
-                    if i[1] == self.paths[i[0]]:
-                        print >>sys.stderr, '%s %s: Duplicate export path' % \
-                              (i[0], i[1])
-                    else:
-                        print >>sys.stderr, '%s %s, %s: Redundant export paths' % \
-                              (i[0], self.paths[i[0]], i[1])
-                self.paths[i[0]] = i[1]
+                r = os.path.realpath(i[0])
+                i = [os.path.normpath(p) for p in i]
+                assert os.path.realpath(i[0]) == r, '%s (%s): Ambiguous export path' % (i[0], i[1])
+                # i[0] = os.path.realpath(i[0])
+                # i[1] = os.path.normpath(i[1])
+
+                for (_r, s), d in self.paths.iteritems():
+                    if r == _r:
+                        if i[0] == s and i[1] == d:
+                            print >>sys.stderr, '%s (%s): Duplicate export path' % (i[0], i[1])
+                        else:
+                            print >>sys.stderr, '%s (%s), %s (%s): Redundant export paths' % \
+                              (i[0], i[1], s, d)
+                self.paths[(r, i[0])] = i[1]
+                # if i[0] in self.paths:
+                #     if i[1] == self.paths[i[0]]:
+                #         print >>sys.stderr, '%s %s: Duplicate export path' % \
+                #               (i[0], i[1])
+                #     else:
+                #         print >>sys.stderr, '%s %s, %s: Redundant export paths' % \
+                #               (i[0], self.paths[i[0]], i[1])
+                # self.paths[i[0]] = i[1]
             f.close()
 
     def destination(self, path):
-#        pathl = path.lstrip(os.sep).split(os.sep)
-        pathl = os.path.realpath(path).lstrip(os.sep).split(os.sep)
-        for s, d in self.paths.iteritems():
+        rpathl = os.path.realpath(path).lstrip(os.sep).split(os.sep)
+        pathl = os.path.normpath(path).lstrip(os.sep).split(os.sep)
+        for (r, s), d in self.paths.iteritems():
+            # first try with real paths
+            rl = r.lstrip(os.sep).split(os.sep)
+            head = commonhead(rl, rpathl)
+#            print >>sys.stderr, 'destination: %s %s: %s' % \
+#                  (str(rl), str(rpathl), str(head))
+            if len(rl) == len(head):
+                return os.path.join(*(d.split(os.sep) + rpathl[len(rl):]))
+            elif len(rpathl) == len(head):
+                dl = d.lstrip(os.sep).split(os.sep)
+                if len(dl) + len(rpathl) - len(rl) > 0:
+                    return os.path.join(*dl[:len(dl) + len(rpathl) - len(rl)])
+            # then try with normalized paths
             sl = s.lstrip(os.sep).split(os.sep)
-#            sl = os.path.realpath(s).lstrip(os.sep).split(os.sep)
             head = commonhead(sl, pathl)
 #            print >>sys.stderr, 'destination: %s %s: %s' % \
 #                  (str(sl), str(pathl), str(head))
@@ -248,7 +268,7 @@ class ExportPaths(object):
             elif len(pathl) == len(head):
                 dl = d.lstrip(os.sep).split(os.sep)
                 if len(dl) + len(pathl) - len(sl) > 0:
-                    return os.path.join(*(dl[:len(dl) + len(pathl) - len(sl)]))
+                    return os.path.join(*dl[:len(dl) + len(pathl) - len(sl)])
         return None
 
 def main(argv=[__name__]):

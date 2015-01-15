@@ -369,7 +369,7 @@ unset CMTPATH CMTPROJECTPATH
 unset CMTROOT CMTSITE
 if [ $project == AtlasRelease ]; then
     [ "$PROJRUNDBG" ] && set +x
-    . ${cmthome}/setup.sh -tag=${release},${mode},noTest${tags:+,${tags}} || exit 1
+    . ${cmthome}/setup.sh -tag_add=${release},${mode},noTest${tags:+,${tags}} || exit 1
     [ "$PROJRUNDBG" ] && set -x
     if [ -z ${projbase} ]; then
 	projbase=`cmt -q show macro_value ATLAS_DIST_AREA`
@@ -382,7 +382,7 @@ if [ $project == AtlasRelease ]; then
 
 elif [ $project == LCGCMT -o $project == Gaudi ]; then
     [ "$PROJRUNDBG" ] && set +x
-    . ${cmthome}/setup.sh -tag=${mode},noTest${tags:+,${tags}} || exit 1
+    . ${cmthome}/setup.sh -tag_add=${mode},noTest${tags:+,${tags}} || exit 1
     [ "$PROJRUNDBG" ] && set -x
     if [ -z ${projbase} ]; then
 	projbase=`cmt -q show macro_value EXTERNAL_PROJECT_AREA`
@@ -399,7 +399,7 @@ elif [ $project == LCGCMT -o $project == Gaudi ]; then
 
 elif [ $project == CMT ]; then
     [ "$PROJRUNDBG" ] && set +x
-    . ${cmthome}/setup.sh -tag=${mode},noTest${tags:+,${tags}} || exit 1
+    . ${cmthome}/setup.sh -tag_add=${mode},noTest${tags:+,${tags}} || exit 1
     [ "$PROJRUNDBG" ] && set -x
     cmtinfo=(`cmt show uses | awk '
 $1 == "use" && $2 == "CMT" { gsub(/[()]/, "", $4); print $4, $3; exit }
@@ -418,7 +418,7 @@ $1 == "use" && $2 == "CMT" { gsub(/[()]/, "", $4); print $4, $3; exit }
 
 else
     [ "$PROJRUNDBG" ] && set +x
-    . ${cmthome}/setup.sh -tag=${project},${release},${mode},noTest,builds${tags:+,${tags}} || exit 1
+    . ${cmthome}/setup.sh -tag_add=${project},${release},${mode},noTest,builds${tags:+,${tags}} || exit 1
     [ "$PROJRUNDBG" ] && set -x
     if [ -z ${projbase} ]; then
 	projbase=`echo $CMTPROJECTPATH | sed 's#^:\+##' | cut -d: -f1`
