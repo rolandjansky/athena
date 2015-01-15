@@ -159,6 +159,9 @@ PP="$PP"'|Histograms saving not required'
 PP="$PP"'|RootDbase: all good'
 PP="$PP"'|[[][?]1034h'
 
+#root 6
+PP="$PP"'|^Warning in .* class .* found in .* is already in'
+
 test=$1
 if [ -z "$testStatus" ]; then
     echo "post.sh> Warning: athena exit status is not available "
