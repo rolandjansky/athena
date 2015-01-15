@@ -328,7 +328,7 @@ import token
 import copy
 import exceptions
 import ROOT
-import PyCintex
+import cppyy
 from StringIO import StringIO
 from PyAnalysisUtils.draw_obj import draw_obj, get_canvas
 
