@@ -54,7 +54,9 @@ namespace LVL1CTP {
     // Some additional helper functions:
     static unsigned int alignBits( int value, int startbit, int endbit );            //!< align bits
     static unsigned int createMask( int startbit, int endbit );                      //!< create mask
+    static std::bitset<512> convertToLargeBitset(const std::vector<uint32_t>& words);     //!< convert list of words into bitset
     static std::bitset<256> convertToBitset(const std::vector<uint32_t>& words);     //!< convert list of words into bitset
+    static std::bitset<512> convertToLargeBitset(const std::vector<ROIB::CTPRoI>& words); //!< convert list of CTPRoIs into bitset
     static std::bitset<256> convertToBitset(const std::vector<ROIB::CTPRoI>& words); //!< convert list of CTPRoIs into bitset
 
     // helper for output

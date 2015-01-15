@@ -67,7 +67,7 @@ namespace LVL1CTP {
     CTPTriggerItem* getItem( const TrigConf::TriggerItem* item ) const;
 
     //! update prescales (either by one or randomly if randEngine is given)
-    void updatePrescales( const ThresholdMap* decisionMap, const InternalTriggerMap* internalTrigger, CLHEP::HepRandomEngine* randEngine = 0 );
+    void updatePrescaleCounters( const ThresholdMap* decisionMap, const InternalTriggerMap* internalTrigger, CLHEP::HepRandomEngine* randEngine = 0 );
 
   private:
 

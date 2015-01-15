@@ -12,7 +12,11 @@
 
 #include <stdint.h>
 
+// For handling different CTP versions:
+#include "L1CommonCore/CTPdataformatVersion.h"
+
 // Forward declaration(s):
+//class CTPdataformatVersion;
 namespace TrigConf {
   class CTPConfig;
 }
@@ -48,7 +52,7 @@ namespace LVL1CTP {
   public:
     
     //! constructor setting configuration, decision, items and internal triggers
-    ResultBuilder( const TrigConf::CTPConfig* ctpConfig, const ThresholdMap* decisionMap, const ItemMap* itemMap, const InternalTriggerMap* internalTrigger, const uint32_t readoutWindow = 1);
+    ResultBuilder( unsigned int ctpVersionNumber, const TrigConf::CTPConfig* ctpConfig, const ThresholdMap* decisionMap, const ItemMap* itemMap, const InternalTriggerMap* internalTrigger, const uint32_t readoutWindow = 1);
     //! default destructor
     ~ResultBuilder();
 
@@ -60,8 +64,8 @@ namespace LVL1CTP {
     //! get extendedLevel1ID
     uint32_t extendedLevel1ID() const;
 
-    //! get PIT words
-    std::vector<uint32_t> pit() const;
+    //! get TIP words
+    std::vector<uint32_t> tip() const;
 
     //! get full trigger result before prescale
     std::vector<uint32_t> triggerResult() const { return tav(); };
@@ -145,24 +149,26 @@ namespace LVL1CTP {
      */
     void  changeRDOResult(CTP_RDO*& result) const;     
 
-    //! build thresholds bits on PIT bus
-    uint32_t constructPITWord( int wrd_num ) const;
+    //! build thresholds bits of trigger inputs
+    uint32_t constructTIPWord( unsigned int wrd_num ) const;
     //! set fired items in result word
-    uint32_t constructResultWord( int wrd_num, WrdType type ) const;
+    uint32_t constructResultWord( unsigned int wrd_num, WrdType type ) const;
 
     //! build LVL1 trigger type for result word
     uint32_t constructTriggerType(const std::vector<uint32_t>& triggerWords) const;
     //! build list of fired items and dump to string
     std::vector<std::string> firedItems(const std::vector<uint32_t>& triggerWords) const;
-
+ 
     const TrigConf::CTPConfig* m_ctpConfig;
     const ThresholdMap*        m_decisionMap;
     const ItemMap*             m_itemMap;
     const InternalTriggerMap*  m_internalTrigger;
+    unsigned int               m_ctpVersionNumber;
+    CTPdataformatVersion*      m_ctpDataFormat; 
 
     MsgLogger                  m_logger;     //!< instance of private message logger
 
-    std::vector<uint32_t> m_pit;             //!< PIT words
+    std::vector<uint32_t> m_tip;             //!< TIP words
     std::vector<uint32_t> m_tbp;             //!< result words for trigger before prescale
     std::vector<uint32_t> m_tap;             //!< result words for trigger after prescale
     std::vector<uint32_t> m_tav;             //!< result words for trigger after veto
@@ -186,13 +192,13 @@ namespace LVL1CTP {
 
   // typedefs
 
-  // generic typedef for easy access to PIT/TBP/TAP/TAV information
+  // generic typedef for easy access to TIP/TBP/TAP/TAV information
   typedef std::vector<uint32_t> (ResultBuilder::*Result)() const;
 
 
   // inline functions
 
-  inline std::vector<uint32_t> ResultBuilder::pit() const { return m_pit; }
+  inline std::vector<uint32_t> ResultBuilder::tip() const { return m_tip; }
   inline std::vector<uint32_t> ResultBuilder::tbp() const { return m_tbp; }
   inline std::vector<uint32_t> ResultBuilder::tap() const { return m_tap; }
   inline std::vector<uint32_t> ResultBuilder::tav() const { return m_tav; }

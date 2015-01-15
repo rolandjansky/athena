@@ -14,8 +14,8 @@
 LVL1CTP::BunchGroupTrigger::BunchGroupTrigger() : SpecialTrigger() 
 {}
 
-LVL1CTP::BunchGroupTrigger::BunchGroupTrigger(unsigned int bgrp_number, const std::vector<int>& bunches) :
-   SpecialTrigger(TrigConf::L1DataDef::BGRP, bgrp_number),
+LVL1CTP::BunchGroupTrigger::BunchGroupTrigger(unsigned int bgrp_number, const std::vector<int>& bunches, unsigned int ctpVersionNumber) :
+   SpecialTrigger(TrigConf::L1DataDef::BGRP, bgrp_number, ctpVersionNumber),
    m_bunches(bunches)
 {}
 

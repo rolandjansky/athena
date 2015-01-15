@@ -36,7 +36,7 @@ namespace LVL1CTP {
     //! default constructor    
     BunchGroupTrigger();
     //! constructor setting the internal trigger type and rate
-    BunchGroupTrigger(unsigned int bgrp_number, const std::vector<int>&);
+    BunchGroupTrigger(unsigned int bgrp_number, const std::vector<int>&,unsigned int ctpVersionNumber);
     
     //! virtual empty destructor
     virtual ~BunchGroupTrigger() {}
@@ -52,8 +52,8 @@ namespace LVL1CTP {
     //! list of bunch IDs
     std::vector<int> m_bunches;
 
-  }; // class BunchClockTrigger
+  }; // class BunchGroupTrigger
 
 } // namespace LVL1CTP
 
-#endif // TRIGT1CTP_BUNCH_CLOCK_TRIGGER_H
+#endif // TRIGT1CTP_BUNCH_GROUP_TRIGGER_H

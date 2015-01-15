@@ -58,7 +58,7 @@ namespace LVL1CTP {
     const Result m_func;                    //!< pointer to data access function
 
     mutable const ResultBuilder* m_resultBuilder;   //!< cache for pointer to current ResultBuilder object
-    mutable std::bitset<256> m_result;              //!< cache for result bitset
+    mutable std::bitset<512> m_result;              //!< cache for result bitset
 
   };
 

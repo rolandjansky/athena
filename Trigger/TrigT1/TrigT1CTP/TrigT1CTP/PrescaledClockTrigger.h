@@ -32,7 +32,7 @@ namespace LVL1CTP {
     //! default constructor
     PrescaledClockTrigger();
     //! constructor setting the internal trigger type and rate
-    PrescaledClockTrigger(unsigned int clock_number, const unsigned int);
+    PrescaledClockTrigger(unsigned int clock_number, const unsigned int, unsigned int ctpVersionNumber);
     
     virtual StatusCode execute(int /*bcid*/);         //!< @copydoc LVL1CTP::ISpecialTrigger::execute
     virtual bool evaluate() const;        //!< @copydoc LVL1CTP::ISpecialTrigger::evaluate

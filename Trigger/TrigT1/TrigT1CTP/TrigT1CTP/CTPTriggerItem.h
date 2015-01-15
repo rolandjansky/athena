@@ -51,14 +51,14 @@ namespace LVL1CTP {
     int prescaleCounter() const;               //!< get counter for prescale
     void setPrescaleCounter( int counter );    //!< set counter for prescale
 
-    int itemPos() const;                       //!< get item position as in CTP hardware
-    void setItemPos( int position );           //!< set item position as in CTP hardware
+    unsigned int itemPos() const;              //!< get item position as in CTP hardware
+    void setItemPos( unsigned int position );           //!< set item position as in CTP hardware
 
   private:
     const TrigConf::TriggerItem* m_parent;     //!< pointer to associated TrigConf::TriggerItem object
     const int m_prescale;                      //!< prescale value
     int m_counter;                             //!< counter for prescale
-    int m_position;                            //!< item position in CTP hardware
+    unsigned int m_position;                   //!< item position in CTP hardware
 
   }; // class CTPTriggerItem
 

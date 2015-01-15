@@ -17,6 +17,7 @@
 namespace TrigConf {
   class TriggerThreshold;
   class PIT;
+	class TIP;
 }
 
 namespace LVL1CTP {
@@ -48,8 +49,10 @@ namespace LVL1CTP {
   public:
     //assign default pit mapping to threshold objects
     ThresholdMap( const std::vector< TrigConf::TriggerThreshold* >& threshold_vector);
-    //assign correct pit mapping to threshold objects
-    ThresholdMap( const std::vector< TrigConf::TriggerThreshold* >& threshold_vector, const std::vector< TrigConf::PIT* >& pit_vector );
+    //assign correct pit mapping to threshold objects (for versions of run-I only)
+    ThresholdMap( const std::vector< TrigConf::TriggerThreshold* >& threshold_vector, const std::vector< TrigConf::PIT* >& pit_vector);
+		//assign correct tip mapping to threshold objects (for newer version direct inputs have to be dealt with, too)
+    ThresholdMap( const std::vector< TrigConf::TriggerThreshold* >& threshold_vector, const std::vector< TrigConf::TIP* >& pit_vector );
     /// default destructor
     ~ThresholdMap();
 

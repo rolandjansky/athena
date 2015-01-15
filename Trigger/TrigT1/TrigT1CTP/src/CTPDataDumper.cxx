@@ -25,8 +25,7 @@
 #include "TrigT1Result/Header.h"
 #include "TrigT1Result/Trailer.h"
 
-// Local includes:
-#include "TrigT1CTP/CTPConstants.h"
+
 
 namespace LVL1CTP {
 

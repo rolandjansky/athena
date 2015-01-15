@@ -78,6 +78,33 @@ namespace LVL1CTP {
 
     return bitset;
   }
+    
+    
+    std::bitset<512> CTPUtil::convertToLargeBitset(const std::vector<ROIB::CTPRoI>& words) {
+        
+        std::bitset<512> bitset;
+        
+        for (size_t i(0); i < words.size(); ++i) {
+            std::bitset<512> bs = words[i].roIWord();
+            bs <<= (i * 32);
+            bitset |= bs;
+        }
+        
+        return bitset;
+    }
+    
+  std::bitset<512> CTPUtil::convertToLargeBitset(const std::vector<uint32_t>& words) {
+        
+      std::bitset<512> bitset;
+        
+        for (size_t i(0); i < words.size(); ++i) {
+          std::bitset<512> bs = words[i];
+          bs <<= (i * 32);
+          bitset |= bs;
+      }
+        
+      return bitset;
+  }
 
   std::bitset<256> CTPUtil::convertToBitset(const std::vector<ROIB::CTPRoI>& words) {
     

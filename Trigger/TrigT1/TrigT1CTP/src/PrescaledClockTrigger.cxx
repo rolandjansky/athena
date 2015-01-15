@@ -12,8 +12,8 @@ LVL1CTP::PrescaledClockTrigger::PrescaledClockTrigger() :
    SpecialTrigger() 
 {}
 
-LVL1CTP::PrescaledClockTrigger::PrescaledClockTrigger(unsigned int clock_number, const unsigned int aRate) :
-   SpecialTrigger(TrigConf::L1DataDef::PCLK, clock_number, aRate)
+LVL1CTP::PrescaledClockTrigger::PrescaledClockTrigger(unsigned int clock_number, const unsigned int aRate, unsigned int ctpVersionNumber) :
+   SpecialTrigger(TrigConf::L1DataDef::PCLK, clock_number,ctpVersionNumber, aRate)
 {}
 
 StatusCode

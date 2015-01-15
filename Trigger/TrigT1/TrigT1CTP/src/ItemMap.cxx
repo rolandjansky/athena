@@ -6,6 +6,7 @@
 // std includes
 #include <sstream>
 #include <iomanip>
+#include <math.h>
 
 // TrigT1 configuration includes
 #include "TrigConfL1Data/TriggerItem.h"
@@ -36,7 +37,7 @@ LVL1CTP::ItemMap::ItemMap( const TrigConf::ItemContainer& item_vector,
       // get postion from ctp id
       unsigned int position = (*it)->ctpId();
 
-      m_map[ *it ] = new CTPTriggerItem( *it, prescales.prescales()[ position ] );
+      m_map[ *it ] = new CTPTriggerItem( *it, prescales.prescales_float()[ position ] );
       m_map[ *it ]->setItemPos( position );
 
       if (randEngine != 0) { // change prescale offset randomly if requested
@@ -79,7 +80,7 @@ LVL1CTP::ItemMap::getItem( const TrigConf::TriggerItem* item ) const {
 
 
 void
-LVL1CTP::ItemMap::updatePrescales( const ThresholdMap* decisionMap, const InternalTriggerMap* internalTrigger, CLHEP::HepRandomEngine* randEngine ) {
+LVL1CTP::ItemMap::updatePrescaleCounters( const ThresholdMap* decisionMap, const InternalTriggerMap* internalTrigger, CLHEP::HepRandomEngine* randEngine ) {
 
    m_logger.send( MSG::VERBOSE, "Updating prescale counters" );
 
@@ -89,17 +90,19 @@ LVL1CTP::ItemMap::updatePrescales( const ThresholdMap* decisionMap, const Intern
 
       if ( decision ) {
          if (randEngine != 0) {      // random prescale update
-            long random = CLHEP::RandFlat::shootInt(randEngine, it->second->prescale());
+           //long random = CLHEP::RandFlat::shootInt(randEngine, it->second->prescale());
+            //randommly create a cut value
+            long random = CLHEP::RandFlat::shootInt(randEngine, pow(2,24) );
             it->second->setPrescaleCounter( random );
 
             std::ostringstream message;
             message << "REGTEST - random prescale for "  << std::setw( 30 ) << it->first->name() 
                     << " (" << std::setw(3) << it->second->itemPos() << "): " 
-                    << std::setw( 8 ) << it->second->prescaleCounter() << "/" << std::setw( 8 ) << it->second->prescale();
+           << std::setw( 8 ) << /*TrigConf::PrescaleSet::getPrescaleFromCut*/( it->second->prescaleCounter()) << "/" << std::setw( 8 ) << it->second->prescale();
             m_logger.send( MSG::DEBUG, message.str() );
+         }else{
+           it->second->setPrescaleCounter( it->second->prescaleCounter() + 1 );
          }
-
-         it->second->setPrescaleCounter( it->second->prescaleCounter() + 1 );
       }
 
    }

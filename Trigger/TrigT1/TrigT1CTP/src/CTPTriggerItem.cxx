@@ -9,55 +9,50 @@
 
 namespace LVL1CTP {
 
-  CTPTriggerItem::CTPTriggerItem( const TrigConf::TriggerItem* parent, int prescale )
-    : m_parent( parent ), m_prescale( prescale ) {
+   CTPTriggerItem::CTPTriggerItem( const TrigConf::TriggerItem* parent, int prescale )
+      : m_parent( parent ), m_prescale( prescale ) {
 
-    m_counter = 0;
-    m_position = -1;
+      m_counter = 0;
+      m_position = -1;
 
-  }
+   }
 
-  CTPTriggerItem::~CTPTriggerItem() {
+   CTPTriggerItem::~CTPTriggerItem() {
 
-  }
+   }
 
-  const TrigConf::TriggerItem* CTPTriggerItem::item() const {
+   const TrigConf::TriggerItem* CTPTriggerItem::item() const {
 
-    return m_parent;
+      return m_parent;
 
-  }
+   }
 
-  int CTPTriggerItem::prescale() const {
+   int CTPTriggerItem::prescale() const {
 
-    return m_prescale;
+      return m_prescale;
 
-  }
+   }
 
-  int CTPTriggerItem::prescaleCounter() const {
+   int CTPTriggerItem::prescaleCounter() const {
 
-    return m_counter;
+      return m_counter;
 
-  }
+   }
 
-  void CTPTriggerItem::setPrescaleCounter( int counter ) {
+   void CTPTriggerItem::setPrescaleCounter( int counter ) {
 
-    if( counter > m_prescale ) m_counter = 1;
-    else m_counter = counter;
-    return;
+      if( counter > m_prescale ) m_counter = 1;
+      else m_counter = counter;
+      return;
 
-  }
+   }
 
-  int CTPTriggerItem::itemPos() const {
+   unsigned int CTPTriggerItem::itemPos() const {
+      return m_position;
+   }
 
-    return m_position;
-
-  }
-
-  void CTPTriggerItem::setItemPos( int position ) {
-
-    m_position = position;
-    return;
-
-  }
+   void CTPTriggerItem::setItemPos( unsigned int position ) {
+      m_position = position;
+   }
 
 } // namespace LVL1CTP

@@ -38,7 +38,7 @@ namespace LVL1CTP {
     //! default constructor
     RandomTrigger();
     //! constructor setting the internal trigger type and random number engine
-    RandomTrigger(unsigned int rand_number, const unsigned int, CLHEP::HepRandomEngine* randEng = 0);
+    RandomTrigger(unsigned int rand_number, const unsigned int,unsigned int ctpVersionNumber, CLHEP::HepRandomEngine* randEng = 0);
 
     //! destructor
     virtual ~RandomTrigger();

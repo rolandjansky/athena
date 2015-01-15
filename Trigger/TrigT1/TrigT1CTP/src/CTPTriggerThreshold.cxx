@@ -9,59 +9,83 @@
 
 namespace LVL1CTP {
 
-  CTPTriggerThreshold::CTPTriggerThreshold( const TrigConf::TriggerThreshold* parent ) {
+   CTPTriggerThreshold::CTPTriggerThreshold( const TrigConf::TriggerThreshold* parent ) {
 
-    m_parent = parent;
-    m_value = -1;
-    m_pit_start = -1;
-    m_pit_end = -1;
+      m_parent = parent;
+      m_value = -1;
+      m_start_bit = -1;
+      m_end_bit = -1;
+      // m_pit_start = -1;
+      //    m_pit_end = -1;
 
-  }
+   }
 
-  CTPTriggerThreshold::~CTPTriggerThreshold() {
+   CTPTriggerThreshold::~CTPTriggerThreshold() {
 
-  }
+   }
 
-  const TrigConf::TriggerThreshold* CTPTriggerThreshold::threshold() const {
+   const TrigConf::TriggerThreshold* CTPTriggerThreshold::threshold() const {
 
-    return m_parent;
+      return m_parent;
 
-  }
+   }
 
-  int CTPTriggerThreshold::value() const {
+   int CTPTriggerThreshold::value() const {
 
-    return m_value;
+      return m_value;
 
-  }
+   }
 
-  void CTPTriggerThreshold::setValue( int value ) {
+   void CTPTriggerThreshold::setValue( int value ) {
 
-    m_value = value;
+      m_value = value;
 
-  }
+   }
 
-  int CTPTriggerThreshold::pitStart() const {
+   unsigned int CTPTriggerThreshold::startBit() const {
+      return m_start_bit;
+   }
 
-    return m_pit_start;
+   void CTPTriggerThreshold::setStartBit( unsigned int start ) {
 
-  }
+      m_start_bit = start;
 
-  void CTPTriggerThreshold::setPitStart( int pit_start ) {
+   }
 
-    m_pit_start = pit_start;
+   unsigned int CTPTriggerThreshold::endBit() const {
 
-  }
+      return m_end_bit;
 
-  int CTPTriggerThreshold::pitEnd() const {
+   }
 
-    return m_pit_end;
+   void CTPTriggerThreshold::setEndBit( unsigned int end ) {
 
-  }
+      m_end_bit = end;
 
-  void CTPTriggerThreshold::setPitEnd( int pit_end ) {
-
-    m_pit_end = pit_end;
-
-  }
+   }
+  
+   //  int CTPTriggerThreshold::pitStart() const {
+   //    
+   //    return m_pit_start;
+   //    
+   //  }
+   //  
+   //  void CTPTriggerThreshold::setPitStart( int pit_start ) {
+   //    
+   //    m_pit_start = pit_start;
+   //    
+   //  }
+   //  
+   //  int CTPTriggerThreshold::pitEnd() const {
+   //    
+   //    return m_pit_end;
+   //    
+   //  }
+   //  
+   //  void CTPTriggerThreshold::setPitEnd( int pit_end ) {
+   //    
+   //    m_pit_end = pit_end;
+   //    
+   //  }
 
 } // namespace LVL1CTP

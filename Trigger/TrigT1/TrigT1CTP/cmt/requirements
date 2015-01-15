@@ -17,9 +17,12 @@ use TrigInterfaces         TrigInterfaces-*         Trigger/TrigSteer
 
 # public trigger configuration packages:
 use TrigConfL1Data         TrigConfL1Data-*         Trigger/TrigConfiguration
-use TrigConfigSvc          TrigConfigSvc-*          Trigger/TrigConfiguration
+use TrigConfInterfaces     TrigConfInterfaces-*     Trigger/TrigConfiguration
 
-public
+
+use L1CommonCore		   L1CommonCore-*			Trigger/TrigT1
+
+private
 
 library TrigT1CTP *.cxx components/*.cxx
 apply_pattern component_library
@@ -35,8 +38,9 @@ use AthenaKernel           AthenaKernel-*           Control
 use AthenaMonitoring       AthenaMonitoring-*       Control
 use AtlasCLHEP             AtlasCLHEP-*             External
 use EventInfo              EventInfo-*              Event
-use CTPfragment            v* 
 use AtlasBoost             AtlasBoost-*             External
+use  AtlasROOT                  AtlasROOT-*                     External
+use  L1TopoConfig               L1TopoConfig-*                  Trigger/TrigT1/L1Topo
 use PathResolver           PathResolver-*           Tools
 use AthenaPoolUtilities    AthenaPoolUtilities-*    Database/AthenaPOOL
 
@@ -46,4 +50,3 @@ use TrigConfStorage        TrigConfStorage-*        Trigger/TrigConfiguration
 # private LVL1 EDM packages:
 use TrigT1Interfaces       TrigT1Interfaces-*       Trigger/TrigT1
 use TrigT1Result           TrigT1Result-*           Trigger/TrigT1
-

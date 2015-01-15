@@ -140,7 +140,7 @@ class CTPSimulationInDigi(DefaultCTPSimulation):
         handle.DoNIM=True
         handle.DoRNDM=True
         handle.DoPSCL=True
-        handle.TrigConfigSvc="TrigConf::LVL1ConfigSvc/LVL1ConfigSvc"
+        #handle.TrigConfigSvc="TrigConf::LVL1ConfigSvc/LVL1ConfigSvc"
         
 class CTPSimulationInOverlay(DefaultCTPSimulation):
     __slots__ = []
@@ -164,4 +164,4 @@ class CTPSimulationInOverlay(DefaultCTPSimulation):
 
     def setDefaults(self, handle):
         DefaultCTPSimulation.setDefaults(handle)
-        handle.TrigConfigSvc="TrigConf::LVL1ConfigSvc/LVL1ConfigSvc"
+        #handle.TrigConfigSvc="TrigConf::LVL1ConfigSvc/LVL1ConfigSvc"

@@ -10,7 +10,7 @@ class TrigT1CTPValidationMonitoring(TrigGenericMonitoringToolConfig):
 
         self.defineTarget("Validation")
 
-        self.Histograms += [ defineHistogram('PIT', type='TH1F', title='CTP PIT', xbins=192, xmin=0., xmax=192.) ]
-        self.Histograms += [ defineHistogram('TBP', type='TH1F', title='CTP TBP', xbins=256, xmin=0., xmax=256.) ]
-        self.Histograms += [ defineHistogram('TAP', type='TH1F', title='CTP TAP', xbins=256, xmin=0., xmax=256.) ]
-        self.Histograms += [ defineHistogram('TAV', type='TH1F', title='CTP TAV', xbins=256, xmin=0., xmax=256.) ]
+        self.Histograms += [ defineHistogram('TIP', type='TH1F', title='CTP TIP', xbins=352, xmin=0., xmax=352.) ]
+        #self.Histograms += [ defineHistogram('TBP', type='TH1F', title='CTP TBP', xbins=512, xmin=0., xmax=512.) ]
+        #self.Histograms += [ defineHistogram('TAP', type='TH1F', title='CTP TAP', xbins=512, xmin=0., xmax=512.) ]
+        #self.Histograms += [ defineHistogram('TAV', type='TH1F', title='CTP TAV', xbins=512, xmin=0., xmax=512.) ]

@@ -10,6 +10,8 @@
 
 // LVL1 include(s):
 #include "TrigConfL1Data/L1DataDef.h"
+#include "L1CommonCore/CTPdataformatVersion.h"
+
 
 namespace LVL1CTP {
 
@@ -30,10 +32,10 @@ namespace LVL1CTP {
       SpecialTrigger();
 
       //! constructors setting the internal trigger type
-      SpecialTrigger(TrigConf::L1DataDef::TriggerType tt, unsigned int thrnumber);
+      SpecialTrigger(TrigConf::L1DataDef::TriggerType tt, unsigned int thrnumber, unsigned int ctpVersionNumber);
 
       //! constructors setting the internal trigger type and rate
-      SpecialTrigger(TrigConf::L1DataDef::TriggerType tt, unsigned int thrnumber, const unsigned int);
+      SpecialTrigger(TrigConf::L1DataDef::TriggerType tt, unsigned int thrnumber,  unsigned int ctpVersionNumber, const unsigned int);
     
       //! destructor
       virtual ~SpecialTrigger();
@@ -54,7 +56,11 @@ namespace LVL1CTP {
       double                               m_counter;     //!< counter for rate
     
       TrigConf::L1DataDef::TriggerType     m_type;        //!< trigger type
-      unsigned int                         m_thrNumber;   //!< threshold number
+      unsigned int                         m_thrNumber;   //!< threshold number (e.g. 0 or 1 for the PSCK triggers)
+     
+      unsigned int                         m_ctpVersionNumber;
+      CTPdataformatVersion *               m_ctpVersion;
+     
 
    }; // class SpecialTrigger
 
