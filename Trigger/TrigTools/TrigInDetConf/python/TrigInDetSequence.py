@@ -11,7 +11,7 @@ include.block("InDetTrigRecExample/EFInDetConfig.py")
 include("InDetTrigRecExample/InDetTrigRec_jobOptions.py") # this is needed to get InDetTrigFlags
 
 from AthenaCommon.Logging import logging 
-log = logging.getLogger("EFInDetConfig.py")
+log = logging.getLogger("TrigInDetSequence.py")
 
 from InDetTrigRecExample.InDetTrigConfigRecPreProcessing import *
 
@@ -29,10 +29,15 @@ from InDetTrigRecExample.InDetTrigRecLowPtTracking \
      import SiTrigSpacePointFinderLowPt_EF, SiTrigTrackFinderLowPt_EF, \
      TrigAmbiguitySolverLowPt_EF
 
+from TrigInDetConf.RoiManipulators import IDTrigRoiUpdater
+from TrigInDetConf.TrackingAlgCfgble import TrigFastTrackFinder
+
 from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 
 
 class TrigInDetSequenceBase:
+  """
+  """
   def __init__(self):
     self.__sequence__ = list()
   def getSequence(self):
@@ -48,65 +53,61 @@ class TrigInDetSequence(TrigInDetSequenceBase):
   
   """
 
-  def _item_line(self, algName, instance, seqName="Tau", type="tau", seqType="InsideOut"):
+  def _get_class_name(self, algname):
+    efidclasses = [ "PixelClustering","SCTClustering", "TRTDriftCircleMaker",
+                    "InDetTrigPRD_MultiTruthMaker", 
+                    "SiTrigSpacePointFinder", "SiTrigTrackFinder", "TrigAmbiguitySolver",
+                    "TRTTrackExtAlg", "TrigExtProcessor",
+                    "InDetTrigTrackSlimmer",  "InDetTrigTrackingxAODCnv",
+                    "InDetTrigDetailedTrackTruthMaker",
+                    "TrigVxPrimary",
+                    "InDetTrigParticleCreation",
+                    "InDetTrigTrackParticleTruthMaker",
+                    "InDetTrigVertexxAODCnv"
+                    ]
+
+    clname = algname
+    if algname in efidclasses:
+      clname =  "%s_EF" % algname
+
+    return clname
+
+
+
+  def _item_line(self, algName, instance):
+    seqType = self.__sequenceType__
+    seqName = self.__signatureName__
     if instance=="":
       if "Fast" in seqType:
         _inst = algName+'_%s_FTF'
       elif "L2Star" in seqType:
         _inst = algName+'_%s_L2ID'
+      elif "IDTrig" in seqType:
+        _inst = algName+'_%s_IDTrig'
       else:
         _inst = algName+'_%s_EFID'
     else:
       _inst = instance
 
-    seqinstance = _inst % seqName
+    if '%s' in  _inst:
+      seqinstance = _inst % seqName
+    else:
+      seqinstance = _inst
 
-    #this should be not be done here
-    #_line = algName+"_EF(\""+seqinstance+"\","+type")"
-    #the TRTOnly sequence needs to instantiate a dedaicated set of cuts
-    if seqType is "TRTOnly" and (algName.startswith("TRT_TrigTrackSegmentsFinder") or algName.startswith("TRT_TrigStandaloneTrackFinder")):
-      _line = "%s_EF(\"%s\",\"%s\",\"%s\")" % (algName,seqinstance,type,seqType)
-    else:  
-      _line = "%s_EF(\"%s\",\"%s\")" % (algName,seqinstance,type)
-      
-    return _line
+    pyline = _line = "%s(\"%s\",\"%s\")" % (self._get_class_name(algName),seqinstance,self.__signature__)
+    return pyline
 
-  def __init__(self, seqName="Tau", type="tau", seqType="InsideOut"):
-    """
-    @param[in] seqName  which enters into the sequence name inbetween
-    algorithmName_seqName_EFID can be freely modified
-    
-    @param[in] type     which is a slice name and is used to set up slice
-    specific variables
-    
-    @param[in] seqType  the type of sequence - it can be one of InsideOut,
-    OutsideIn, TRTOnly, Combined,....
-    """
-    #print "TrigEFIDSequence  seqName=%s type=%s seqType=%s" % (seqName,type,seqType)
-    algos = []
-             
-    if seqType=="Fast":
-      pass
-    elif seqType=="FastxAOD":
-      algos = [("InDetTrigTrackingxAODCnv",""),
-               ]
-    elif seqType=="L2StarxAOD":
-      algos = [("InDetTrigTrackingxAODCnv",""),
-               ]
-      
 
-    #remove truth algorithms
-    if not InDetTrigFlags.doTruth():
-      import re
-      for i in algos:
-        if re.search('Truth', i[0]):
-          algos.remove((i[0],i[1]))
 
+  def removeTruth(self):
+    pass
+
+  def generatePyCode(self, algos):
     #create python code to be executed
     alglist = "algseq = ["
     for i in algos:
       #self.__algos__.append(i)
-      algline = self._item_line(i[0], i[1], seqName, type, seqType)
+      algline = self._item_line(i[0], i[1])
       alglist += algline+',' 
     alglist += "]"
 
@@ -132,5 +133,111 @@ class TrigInDetSequence(TrigInDetSequenceBase):
 
       #raise Exception
 
-    self.__sequence__ = algseq
+    print 'algseq from generate ', algseq  
+
+    self.__sequence__.append(algseq)
+    pass
+
+
+  def __init__(self,
+               signatureName="Electron",
+               signature="electron", 
+               sequenceType="IDTrig",
+               sequenceFlavour="Fast"):
+
+    TrigInDetSequenceBase.__init__(self)
+    self.__signatureName__ = signatureName
+    self.__signature__     = signature
+    self.__sequenceType__  = sequenceType
+    self.__sequenceFlavour__  = sequenceFlavour
+    self.__step__ = [signature]
+
+    if self.__sequenceFlavour__ =="2step":
+      if self.__signature__ == "tau":
+        self.__step__ = ["tauCore","tauIso","tau"]; 
+      elif self.__signature__ == "muon":
+        self.__step__ = ["muonCore","muonIso","muon"]; 
+      self.__step__.reverse()
+
+    fullseq = list()
+
+    log.info("TrigInDetSequence  sigName=%s seqFlav=%s sig=%s sequenceType=%s" % (signatureName, sequenceFlavour, signature, sequenceType))
+
+    dataprep = [
+      ("PixelClustering", "PixelClustering_IDTrig"),
+      ("SCTClustering",   "SCTClustering_IDTrig"),
+      ("SiTrigSpacePointFinder","SiTrigSpacePointFinder_IDTrig"),
+      ]
+
+    ftfname = ""
+    roiupdater = ""
+    if sequenceFlavour=="2step":
+      ftfname = "TrigFastTrackFinder_%sCore"
+      roiupdater = "IDTrigRoiUpdater_%sCore_IDTrig"
+
+
+
+    if sequenceType=="IDTrig":
+
+      algos = list()
+
+      if sequenceFlavour != "FTF":
+        algos += [("IDTrigRoiUpdater", roiupdater)]
+
+      algos += dataprep
+      algos += [("TrigFastTrackFinder",ftfname),
+                ("InDetTrigTrackingxAODCnv","InDetTrigTrackingxAODCnv_%s_FTF"),
+                ]
+      fullseq.append(algos)
+ 
+
+      if sequenceFlavour=="2step":
+        algos = [("IDTrigRoiUpdater", "IDTrigRoiUpdater_%sIso_IDTrig")]
+        algos += dataprep
+        algos += [("TrigFastTrackFinder","TrigFastTrackFinder_%sIso"),
+                  ("InDetTrigTrackingxAODCnv","InDetTrigTrackingxAODCnv_%s_FTF"),
+                  ]
+        fullseq.append(algos)
+
+
+      if sequenceFlavour != "FTF":
+        algos = [("TrigAmbiguitySolver",""),
+                 ("TRTDriftCircleMaker",""),
+                 ("InDetTrigPRD_MultiTruthMaker",""), 
+                 ("TRTTrackExtAlg",""),
+                 ("TrigExtProcessor",""),
+                 ("InDetTrigTrackSlimmer",""),
+                 ("InDetTrigTrackingxAODCnv",""),
+                 ("InDetTrigDetailedTrackTruthMaker",""),
+                 ("TrigVxPrimary",""),
+                 #("InDetTrigParticleCreation",""),
+                 #("InDetTrigTrackParticleTruthMaker",""),
+                 ("InDetTrigVertexxAODCnv","")
+                 ]
+        fullseq.append(algos)
+
       
+    elif sequenceType=="FastxAOD":
+      algos = [("InDetTrigTrackingxAODCnv",""),
+               ]
+      fullseq.append(algos)
+    elif sequenceType=="L2StarxAOD":
+      algos = [("InDetTrigTrackingxAODCnv",""),
+               ]
+      fullseq.append(algos)
+    else:
+      pass
+
+    log.info("Full sequence has %d items" % len(fullseq) )
+    print fullseq
+    log.info("generate python now")
+
+    for i in fullseq:
+      #print i
+      print 'next item ', i
+      if self.__step__:
+        self.__signature__ = self.__step__.pop()
+      self.generatePyCode(i)
+      print self.__sequence__
+
+
