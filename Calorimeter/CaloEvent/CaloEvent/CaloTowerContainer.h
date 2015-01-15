@@ -52,8 +52,12 @@ UPDATE:   MAY-11-01
 // If CALOTOWERCONTAINER_USES_DATAPOOL is set, then CaloTowers
 //  will be allocated from a DataPool.
 // Otherwise, they will be allocated in an internal vector.
+//
+// This needs to be disabled for Hive
 
+#ifndef ATHENAHIVE
 #define CALOTOWERCONTAINER_USES_DATAPOOL
+#endif
 
 // INCLUDE HEADER FILES:
 #include "DataModel/DataVector.h"
