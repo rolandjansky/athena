@@ -177,8 +177,11 @@ else:
                 Year = 2012            
             elif RunNumber < 224305:
                 Year = 2013            
-            else:
+            elif RunNumber < 248584:
                 Year = 2014
+            else:
+                Year = 2015
+
             if 'RunStream' in dir():
                 if RunStream == 'l1calo' or RunStream == 'L1Calo':
                     InputDirectory = ( "/castor/cern.ch/grid/atlas/DAQ/l1calo/00%(run)s" % { 'run': RunNumber })
@@ -1032,6 +1035,9 @@ if doTileNtuple:
     if ReadPool:
         TileNtuple.TileBeamElemContainer = ""
         TileNtuple.BSInput = False
+
+    if TileLasRun:
+        TileNtuple.SkipEvents = 4
 
     TileNtuple.PMTOrder = doTileCable
 
