@@ -158,18 +158,22 @@ TriggerItem::setCondition(const string& logic,
 
 void
 TriggerItem::print(const std::string& indent, unsigned int detail) const {
-   if(detail>=3) {
+   if(detail<3) {
+      cout << indent << "TriggerItem:"; 
+      printNameIdV(indent);
+   } else {
       cout << indent << "==================================" << endl; 
-      cout << indent << "TriggerItem:  "; 
+      cout << indent << "TriggerItem:"; 
       printNameIdV(indent);
       cout << indent << "Complex Deadtime: " << m_ComplexDeadtime << endl;
       cout << indent << "Definition:       " << m_Definition << endl;
       cout << indent << "CTP_id  :         " << m_CtpId << endl;
       cout << indent << "TriggerType(hex): 0x" << std::hex << m_TriggerType << std::dec << endl;
       cout << indent << "Bunchgroup mask : 0x" << uint2bin(bunchgroupMask(), 16) << endl;
-      if (m_TopNode) m_TopNode->print(indent);
-      else cout << indent << "TopNode is NULL pointer" << endl;
-      cout << indent << "==================================" << endl; 
+      if(detail>=4) {
+         if (m_TopNode) m_TopNode->print(indent,detail);
+         else cout << indent << "TopNode is NULL pointer" << endl;
+      }
    }
 }
 

@@ -141,18 +141,32 @@ TrigConf::Menu::clear() {
    m_PITs.clear();
 }
 
+namespace {
+   
+   bool compTIP(TIP *x, TIP *y) { // strict weak ordering: x and y are equivalent if compMon(x,y) and compMon(y,x) are false
+      if(x->tipNumber() != y->tipNumber())
+         return x->tipNumber() < y->tipNumber();
+      return x->thresholdBit()<y->thresholdBit();
+   }
+
+}
+
+
+
 void
 TrigConf::Menu::print(const std::string& indent, unsigned int detail) const {
    if(detail>=1) {
       cout << indent << "Trigger menu "; printNameIdV();
-      cout << indent << "        number of items       : " << m_TriggerItemVector.size() << endl;
+      cout << indent << "        number of pits        : " << pitVector().size() << endl;
+      cout << indent << "        number of tips        : " << tipVector().size() << endl;
       cout << indent << "        number of thresholds  : " << m_ThresholdConfig.size() << endl;
+      cout << indent << "        number of items       : " << m_TriggerItemVector.size() << endl;
       cout << indent << "        number of thr monitors: " << m_ThresholdMonitorVector.size() << endl;
 
       if(detail>=2) {
 
          cout << indent << "==================================" << endl;
-         cout << indent << "Trigger Items:" << endl;
+         cout << indent << "Trigger Items : " << m_TriggerItemVector.size() << endl;
          cout << indent << "==================================" << endl;
          for(TriggerItem* item : m_TriggerItemVector)
             item->print(indent + "  ", detail);
@@ -169,26 +183,39 @@ TrigConf::Menu::print(const std::string& indent, unsigned int detail) const {
          cout << indent << "==================================" << endl;
          for(ThresholdMonitor* thrm : m_ThresholdMonitorVector)
             thrm->print(indent + "  ");
-         if(detail>=4) {
-            cout << indent << "==================================" << endl;
-            cout << indent << " TriggerType summary:" << endl;
-            cout << indent << "==================================" << endl;
-            for (int i=0; i<8; ++i) {
-               cout << indent << "TriggerType bit " << i << endl;
-               for(TriggerItem* item : m_TriggerItemVector)
-                  if (item->isTriggerTypeBitOn(i))
-                     cout << indent << "  " << item->name() << endl;
-            }
-         }
-         if(detail>=4) {
-            cout << indent << "==================================" << endl;
-            cout << indent << " BunchGroup mask summary:" << endl;
-            cout << indent << "==================================" << endl;
-            unsigned int i=0;
-            for ( uint16_t m : bunchgroupMask() )
-               cout << indent << "  ctpid=" << i++ << ": bgmask=" << uint2bin(m, 16) << endl;
+      }
+
+      if(detail>=3) {
+         cout << indent << "==================================" << endl;
+         cout << indent << " TIPs:" << endl;
+         cout << indent << "==================================" << endl;
+         auto sortedTIPs = m_TIPs;
+         sort(sortedTIPs.begin(),sortedTIPs.end(),compTIP);
+
+         for(TIP* tip : sortedTIPs)
+            tip->print(indent + "  ");
+      }
+
+      if(detail>=4) {
+         cout << indent << "==================================" << endl;
+         cout << indent << " TriggerType summary:" << endl;
+         cout << indent << "==================================" << endl;
+         for (int i=0; i<8; ++i) {
+            cout << indent << "TriggerType bit " << i << endl;
+            for(TriggerItem* item : m_TriggerItemVector)
+               if (item->isTriggerTypeBitOn(i))
+                  cout << indent << "  " << item->name() << endl;
          }
       }
+      if(detail>=4) {
+         cout << indent << "==================================" << endl;
+         cout << indent << " BunchGroup mask summary:" << endl;
+         cout << indent << "==================================" << endl;
+         unsigned int i=0;
+         for ( uint16_t m : bunchgroupMask() )
+            cout << indent << "  ctpid=" << i++ << ": bgmask=" << uint2bin(m, 16) << endl;
+      }
+
    }
 }
 

@@ -30,7 +30,7 @@ TrigConf::PrioritySet::setPriorities(const std::vector<std::string>& vec) {
 
 void
 TrigConf::PrioritySet::print(const std::string& indent, unsigned int detail) const {
-   if(detail>=3) {
+   if(detail>=5) {
       cout << indent << "PrioritySet " << name() << endl;
       cout << indent << "lvl1MasterTableId:      " << lvl1MasterTableId() << endl; 
       unsigned int ctpid(0);
