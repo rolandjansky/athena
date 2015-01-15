@@ -10,6 +10,7 @@ use GaudiInterface          GaudiInterface-*        External
 use AtlasBoost              AtlasBoost-*            External
 use AthenaKernel            AthenaKernel-*          Control
 use StoreGate               StoreGate-*             Control
+use AthenaBaseComps         AthenaBaseComps-*       Control
 use EventKernel             EventKernel-*           Event
 use FourMomUtils            FourMomUtils-*          Event
 use TrigDecisionTool        TrigDecisionTool-*      Trigger/TrigAnalysis

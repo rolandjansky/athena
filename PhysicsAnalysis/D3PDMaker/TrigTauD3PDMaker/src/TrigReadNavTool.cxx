@@ -15,8 +15,7 @@ TrigTauTool::TrigReadNavTool::TrigReadNavTool(const std::string& t,
 			  const std::string& n,
 			  const IInterface*  p )
   :
-  AlgTool(t,n,p),
-  m_log(msgSvc(),n),
+  AthAlgTool(t,n,p),
   m_incSvc ("IncidentSvc", n),
   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool")
 {
@@ -41,12 +40,10 @@ TrigTauTool::TrigReadNavTool::TrigReadNavTool(const std::string& t,
 
 StatusCode TrigTauTool::TrigReadNavTool::initialize()
 {
-  
-  StatusCode sc = AlgTool::initialize();
-  m_log.setLevel(outputLevel());
-  if (sc.isFailure()) return sc;
+  CHECK( AthAlgTool::initialize() );
+  msg().setLevel(outputLevel());
 
-  m_log << MSG::INFO << "initialize() successful in " << name() << endreq;
+  ATH_MSG_INFO ( "initialize() successful in " << name() );
 
   CHECK( m_trigDec.retrieve() );
   CHECK( m_incSvc.retrieve() );
