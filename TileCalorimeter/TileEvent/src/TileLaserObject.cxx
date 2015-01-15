@@ -23,6 +23,7 @@ m_pmtsLG(nbPmts,TileLaserPmt()),
 m_pmtsHG(nbPmts,TileLaserPmt()),
 m_lascalib(nbDiodes+nbPmts,TileLasCalib()),
 m_plc(),
+m_daqtype(0),
 m_BCID(0),
 m_version(0)
 {
