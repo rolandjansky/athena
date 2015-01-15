@@ -22,9 +22,9 @@
 #ifndef TRIGSTEERING_Lvl1ResultAccessTool_H
 #define TRIGSTEERING_Lvl1ResultAccessTool_H
 
-#include "GaudiKernel/AlgTool.h"
-
-#include "GaudiKernel/ServiceHandle.h"
+//#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+//#include "GaudiKernel/ServiceHandle.h"
 
 #include "StoreGate/StoreGateSvc.h"
 
@@ -132,7 +132,7 @@ namespace HLT {
       @author Till Eifert     <Till.Eifert@cern.ch>
       @author Nicolas Berger  <Nicolas.Berger@cern.ch>
    */
-   class Lvl1ResultAccessTool : public AlgTool, public virtual ILvl1ResultAccessTool
+   class Lvl1ResultAccessTool : public AthAlgTool, public virtual ILvl1ResultAccessTool
    {
    public:
 

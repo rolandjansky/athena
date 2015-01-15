@@ -2,7 +2,8 @@ from TriggerMenuPython.TriggerPythonConfig import *
 
 menu = TriggerPythonConfig('pureSteering_menu.xml', 'l1.xml' )
 
-
+print("INGRID WAS HERE: INSIDE pureTopoSteering_menu.py")
+print("TOMASZ was also here. (Wonder who else will come over :-), party yeah");
 # L1 necessary
 
 # menu.addEMThreshold("TM10", value="10", emiso='10', hadiso='11' )
@@ -11,16 +12,29 @@ thr_te10 = menu.registerLvl1Threshold('TE10', 'TE', mapping=0, slot='SLOT8', con
            .addEnergyThresholdValue(10, -49, 49, 0, 64)
 
 
+print("Type thr_te10: ", type(thr_te10), " testing menu.allThresholds: ", menu.allThresholds)
+
+#INGRID: Trying to add a Topo threshold
+thr_topo0 = menu.registerLvl1Threshold(name='TOPO0',type='EM',mapping=3,slot='SLOT7',connector='CON1')\
+    .addEMThresholdValue(13,-49, 49, 0, 64, 4, 3, 2)
+
+item_topo0 = LVL1MenuItem('L1_TOPO0', ctpid=0x4).setLogic(thr_topo0.condition(1))
+
 # menu.addItem('EM15i', prescale='1', ctpid='2')
 # menu.addEMThreshold('EM15i', value='15', emiso='10', hadiso='11' )
+
+
 
 thr_em15i = menu.registerLvl1Threshold(name='EM15i', type='EM', mapping=3, slot='SLOT7', connector='CON1')\
             .addEMThresholdValue(13, -49, 49, 0, 64, 4, 3, 2)
 
 item_em15i = LVL1MenuItem('L1_EM15i', ctpid=0x3).setLogic(thr_em15i.condition(1))
+
 # item = LVL1MenuItem('2EM15i', prescale='1', ctpid='2')
 # item.addAndedCondition(name='EM15i', multi='2')
 # menu.addLVL1Item(item)
+
+
 item_2em15i = LVL1MenuItem('2EM15i', ctpid=0xc).setLogic(thr_em15i.condition(2))
 
 
@@ -154,8 +168,33 @@ Egamma = PESA__dummyAlgo('Egamma_L2')                                     # crea
 Egamma2 = PESA__dummyAlgo('Egamma2_L2')                                   # create configurable another instance
 EgammaAdv3 = PESA__dummyAlgo("EgammaAdv3")
 EgammaAdv_L2 = PESA__dummyAlgo("EgammaAdv_L2")
+
+
+
+
 menu.addSequence("EM15i" , [ Egamma, Egamma2, EgammaAdv3 ] , "em15i" )  # use bot here, mixing with old fassioned way
 menu.addSequence("em15i" , EgammaAdv_L2, "em15i'" )    # create configurable on the fly
+Topo1 = PESA__dummyAlgo('L2_Topo1')
+menu.addSequence("TOPO0",[Topo1],"topo0")
+
+
+
+
+
+# topo with seeding constraints
+roughDiElectronMass = PESA__newDummyAlgo2To1("RoughEMassCutOnL1Objects") 
+killSomeCombinations = PESA__dummyHypo('KillSomeCombinations', PreScale=2)
+fineDiElectronMass = PESA__newDummyAlgo2To1("FineEMassCutOnHLTObjects")
+perfectDiElectronMass = PESA__newDummyAlgo2To1("PerfectEMassCutOnHLTObjects")
+
+
+menu.addSequence("EM15i EM15i", [roughDiElectronMass, killSomeCombinations], "RoughECut")
+menu.addSequence("em15i em15i", fineDiElectronMass, "FineECut", topo_starts_from="RoughECut")
+menu.addSequence("em15i' em15i", perfectDiElectronMass, "GoodDielectron", topo_starts_from="RoughECut") # notice that one arm is using refined em15i (one with') another is still em15i
+
+menu.addSequence("em15i' em15i'", perfectDiElectronMass, "PerfectDielectron", topo_starts_from="FineECut") # this topo sequence is based on final TEs
+
+
 
 defalgo = PESA__dummyAlgo('Em25')                                               # no arg given ...default name
 
@@ -488,7 +527,7 @@ menu.addHLTChain(chain)
 
 
 chain = HLTChain( chain_name="MissingET_L2", chain_counter="12", lower_chain_name="2MU06", level="L2", prescale="1", pass_through="0")
-chain.addHLTSignature( "met10_L2", sigcounter=2 )
+chain.addHLTSignature( "topo0" )
 chain.addTriggerTypeBit('36')
 chain.addStreamTag('missingET', prescale='1')
 chain.addGroup("MET")
@@ -546,6 +585,25 @@ chain.addStreamTag('aStreamTag', prescale='1')
 chain.addGroup("RobTest")
 menu.addHLTChain(chain)
 
+
+chain = HLTChain( chain_name="topoSeqSeedingTest1_L2", chain_counter="20", lower_chain_name="L1_EM15i", level="L2", prescale="1", pass_through="0")
+chain.addHLTSignature("RoughECut")
+chain.addHLTSignature("FineECut")
+chain.addHLTSignature("GoodDielectron")
+chain.addTriggerTypeBit('4')
+chain.addStreamTag('aStreamTag', prescale='1')
+chain.addGroup("electrons")
+menu.addHLTChain(chain)
+
+
+chain = HLTChain( chain_name="topoSeqSeedingTest2_L2", chain_counter="21", lower_chain_name="L1_EM15i", level="L2", prescale="1", pass_through="0")
+chain.addHLTSignature("RoughECut")
+chain.addHLTSignature("FineECut")
+chain.addHLTSignature("PerfectDielectron")
+chain.addTriggerTypeBit('4')
+chain.addStreamTag('aStreamTag', prescale='1')
+chain.addGroup("electrons")
+menu.addHLTChain(chain)
 
 
 # EF
@@ -692,6 +750,10 @@ chain.addGroup("RobTest")
 menu.addHLTChain(chain)
 
 
+
+
+
+print("testing again menu.allThresholds: ", menu.allThresholds)
 
 menu.writeConfigFiles();
 menu.dot(algs=True)

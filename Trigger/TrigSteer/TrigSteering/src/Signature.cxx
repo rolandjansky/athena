@@ -31,15 +31,19 @@
 #include <iostream>
 
 using namespace HLT;
+using namespace std;
 
 
 Signature::Signature(HLT::AlgoConfig* config)
   : m_config(config), m_configSig(0), m_foundOverlap(false)
 {}
 
-Signature::Signature(const TrigConf::HLTSignature* configSig,
-                     HLT::ISequenceProvider* seqs, HLT::AlgoConfig* config)
-  : m_config(config), m_configSig(configSig), m_foundOverlap(false)
+Signature::Signature( const TrigConf::HLTSignature* configSig,
+                      HLT::ISequenceProvider* seqs,
+                      HLT::AlgoConfig* config ) :
+   m_config(config),
+   m_configSig(configSig),
+   m_foundOverlap(false)
 {
 
    if ( !m_config ) 
@@ -51,42 +55,42 @@ Signature::Signature(const TrigConf::HLTSignature* configSig,
                                << configSig->label() << ": constructor" << endreq;
    }
 
-
    // Copy the TE information over from the configSig; transform the "vector of TEs"
    // format to the "vector of (TE type, TE count, sequence for this type) used here
-   const std::vector<TrigConf::HLTTriggerElement*>& configTEs = configSig->outputTEs();
-   std::map<unsigned int, unsigned int> indices;
 
-   for (unsigned int i = 0; i < configTEs.size(); ++i) {
-      unsigned int id = configTEs[i]->id();
-      indices[id]++;
-   }
+
+   // multiplicity of each output TE
+   std::map<unsigned int, unsigned int> multiplicity;
+   for ( TrigConf::HLTTriggerElement* te : configSig->outputTEs() ) multiplicity[ te->id() ]++;
+
+
    std::set<unsigned int> already_configured;
 
 
+   for ( TrigConf::HLTTriggerElement* configTE : configSig->outputTEs() ) {
 
-   for (unsigned int i = 0; i < configTEs.size(); ++i) {
-      const unsigned int id = configTEs[i]->id();
+      const unsigned int id = configTE->id();
       if ( already_configured.find(id) != already_configured.end() )
          continue;
       already_configured.insert(id);
 
       Sequence* seq = seqs->findSeqForOutputTeType( id );
       if (!seq) {
-         m_config->getMsgStream() << MSG::FATAL << "Signature: (TE = " << configTEs[i]->name()
+         m_config->getMsgStream() << MSG::FATAL << "Signature: (TE = " << configTE->name()
                                   << ") : Could not find matching sequence for output TE."
                                   << endreq;
          m_requiredTEs.clear();
          return;
       } else {
-         addItem(indices[id], seq);
+         addItem(multiplicity[id], seq);
          if (m_config->getMsgLvl() <=MSG::DEBUG) {
-            m_config->getMsgStream() << MSG::DEBUG << "Made part of signature: " << configSig->label() << " TE = " << configTEs[i]->id()
-                                     << " (" << configTEs[i]->name() << ") x " << indices[id] << endreq;
+            m_config->getMsgStream() << MSG::DEBUG << "Made part of signature: " << configSig->label() << " TE = " << id
+                                     << " (" << configTE->name() << ") x " << multiplicity[id] << endreq;
          }
       }
    }
-}
+
+} // end constructor
 
 
 void Signature::addItem(unsigned int mult, HLT::Sequence* seq ) {
@@ -134,6 +138,7 @@ HLT::ErrorCode Signature::execute( bool& pass )
 
   // loop over all Sequences
   for (unsigned int i = 0; i < m_requiredTEs.size(); ++i) {
+
     ec = m_requiredTEs[i].sequence->execute();
 
     if (ec.action() > HLT::Action::CONTINUE ) {
@@ -187,43 +192,43 @@ HLT::ErrorCode Signature::execute( bool& pass )
 
 HLT::ErrorCode Signature::prepareRobRequests()
 {
-  // Debug output
-  if (m_config->getMsgLvl() <= MSG::DEBUG) {
-    m_config->getMsgStream() << MSG::DEBUG << "Signature "
-                             << m_configSig->label()
-                             << ": preparing ROB requests for first sequence of each final output TE" << endreq;
-  }
+   // Debug output
+   if (m_config->getMsgLvl() <= MSG::DEBUG) {
+      m_config->getMsgStream() << MSG::DEBUG << "Signature "
+                               << m_configSig->label()
+                               << ": preparing ROB requests for first sequence of each final output TE" << endreq;
+   }
 
-  HLT::ErrorCode retCode = HLT::OK; // largest error code
-  HLT::ErrorCode ec = HLT::OK;
+   HLT::ErrorCode retCode = HLT::OK; // largest error code
+   HLT::ErrorCode ec = HLT::OK;
 
-  // loop over all Sequences
-  if (m_config->getMsgLvl() <= MSG::DEBUG) {
-    m_config->getMsgStream() << MSG::DEBUG << "Signature "
-                             << m_configSig->label()
-                             << " has " << m_requiredTEs.size() << " sequence(s):" << endreq;
+   // loop over all Sequences
+   if (m_config->getMsgLvl() <= MSG::DEBUG) {
+      m_config->getMsgStream() << MSG::DEBUG << "Signature "
+                               << m_configSig->label()
+                               << " has " << m_requiredTEs.size() << " sequence(s):" << endreq;
 
-    std::string telabel;
-    for (unsigned int i = 0; i < m_requiredTEs.size(); ++i) {
-       TrigConf::HLTTriggerElement::getLabel(m_requiredTEs[i].sequence->outputTEType(), telabel);
-       m_config->getMsgStream() << MSG::DEBUG << "    " << telabel << endreq;
-    }
-  }
-  for (unsigned int i = 0; i < m_requiredTEs.size(); ++i) {
-    ec = m_requiredTEs[i].sequence->prepareRobRequests();
+      std::string telabel;
+      for (unsigned int i = 0; i < m_requiredTEs.size(); ++i) {
+         TrigConf::HLTTriggerElement::getLabel(m_requiredTEs[i].sequence->outputTEType(), telabel);
+         m_config->getMsgStream() << MSG::DEBUG << "    " << telabel << endreq;
+      }
+   }
+   for (unsigned int i = 0; i < m_requiredTEs.size(); ++i) {
+      ec = m_requiredTEs[i].sequence->prepareRobRequests();
 
-    if (ec.action() > HLT::Action::CONTINUE )
-      return ec;
+      if (ec.action() > HLT::Action::CONTINUE )
+         return ec;
 
-    // Debug output
-    if (m_config->getMsgLvl() <= MSG::DEBUG) 
-      m_config->getMsgStream() << MSG::DEBUG << "In signature " << m_configSig->label()
-                               << ": EC from sequence prepareRobRequests =  " << HLT::strErrorCode(ec) << endreq;
+      // Debug output
+      if (m_config->getMsgLvl() <= MSG::DEBUG) 
+         m_config->getMsgStream() << MSG::DEBUG << "In signature " << m_configSig->label()
+                                  << ": EC from sequence prepareRobRequests =  " << HLT::strErrorCode(ec) << endreq;
 
-    retCode = retCode > ec ? retCode : ec;
-  }
+      retCode = retCode > ec ? retCode : ec;
+   }
 
-  return retCode;
+   return retCode;
 }
 
 

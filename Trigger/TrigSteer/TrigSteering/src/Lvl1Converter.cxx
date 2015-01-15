@@ -17,8 +17,6 @@
  * $Id: Lvl1Converter.cxx,v 1.49 2009-03-24 20:41:45 tbold Exp $
  **********************************************************************************/
 
-#include "boost/foreach.hpp"
-
 #include "TrigSteering/Lvl1Converter.h"
 #include "TrigSteering/SteeringChain.h"
 #include "TrigNavigation/Navigation.h"
@@ -178,420 +176,424 @@ ErrorCode Lvl1Converter::hltFinalize()
 
 ErrorCode Lvl1Converter::hltExecute(std::vector<HLT::SteeringChain*>& chainsToRun)
 {
-  
-  std::vector<HLT::SteeringChain*> chains;
-  if(m_doTiming) m_totalTime->start();
-  // =============================================================
-  // Step 1: Retrieve the LVL1 results, containing all RoIs and
-  //         the CTP result
-  // =============================================================
-  if(m_doTiming) m_sgTime->start();
+   m_RoI2TE.clear();
+   std::vector<HLT::SteeringChain*> chains;
+   if(m_doTiming) m_totalTime->start();
+   // =============================================================
+   // Step 1: Retrieve the LVL1 results, containing all RoIs and
+   //         the CTP result
+   // =============================================================
+   if(m_doTiming) m_sgTime->start();
 
-  const ROIB::RoIBResult* result;
-  StatusCode sc = m_storeGate->retrieve(result);
+   const ROIB::RoIBResult* result;
+   StatusCode sc = m_storeGate->retrieve(result);
 
-  if(sc.isFailure()){
-    if(m_logLvl <= MSG::WARNING) {
-      (*m_log) << MSG::WARNING
-               << "Unable to retrieve RoIBResult from storeGate!"
-               << endreq;
-    }
-    return HLT::NO_LVL1_RESULT;
-  }
-
-  if ( !result->cTPResult().isComplete() ) {
-    if(m_logLvl <= MSG::WARNING) {
-      (*m_log) << MSG::WARNING << "Incomplete CTP result" << endreq;  
-      return HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::USERDEF_1, HLT::SteeringInternalReason::NO_LVL1_RESULT);
-    } 
-  }
-
-  //  m_lvl1Tool->updateResult(*result, m_updateCaloRoIs);// is done in each step ..
-  unsigned int l1Id = m_config->getLvl1Id();
-
-  if(m_doTiming) m_sgTime->stop();
-
-
-
-  // =============================================================
-  // Step 2: Activate HLT chains that have a matching LVL1 item
-  //         - First, get and decode the CTP result for this event
-  //         - Then, compare with HLT chains
-  // =============================================================
-
-  if(m_doTiming) m_lvl1ItemsTime->start();
-  const std::vector<const LVL1CTP::Lvl1Item*>& items = m_lvl1Tool->createL1Items(*result, true);
-
-  ATH_MSG_DEBUG("Lvl1 provides: " <<  items.size()  << " items");
-
-  if  ( items.size() == 0 ) {
-    if (m_logLvl <= MSG::WARNING) {
-      (*m_log) << MSG::WARNING << "Lvl1 delivered 0 items, Lvl2 can not continue"
-	       << endreq;
-    }
-    return HLT::NO_LVL1_ITEMS;
-  }
-
-  for (std::vector<const LVL1CTP::Lvl1Item*>::const_iterator item = items.begin(); item != items.end(); ++item) {
-
-    const LVL1CTP::Lvl1Item* it = *item;
-    
-
-    bool l1BeforePrescale = it->isPassedBeforePrescale();
-    bool l1Passed         = it->isPassedAfterVeto(); // that looks like bug bit it isn't 
-
-    if ( m_ignoreL1Prescales ) // undo L1 prescaling (only when JO says so)
-      l1Passed = l1BeforePrescale;
-
-    // search for corresponding configured HLT chain(s):
-    BOOST_FOREACH(HLT::SteeringChain* chain, m_chainIdMap[ (*item)->hashId() ]) {
-      // activate and push into vector of active chains
-      if (chain) {
-	addChain(chains, chain, l1Passed, l1BeforePrescale);
-      } else {
-        // print out warning
-        if (m_logLvl <= MSG::WARNING) {
-          (*m_log) << MSG::WARNING << "No configured chain found,  that would match LVL1 item from previous level, this should not happen at thsi stage "
-                   << (*item)->name() << endreq;
-        }
-      }
-    }
-    // some debug output
-    ATH_MSG_DEBUG("Used LVL1 item " << (*item)->name() << " ("
-                  << (*item)->hashId() << ") TBP: "  <<  it->isPassedBeforePrescale() << " TAP: " << it->isPassedAfterPrescale()  << " TAV: " << it->isPassedAfterVeto());
-  }
-
-
-  // =============================================================
-  // Step 3: Activate unseeded chains
-  //         This which have no specified lvl1 seeding item
-  // =============================================================
-
-  // loop over chains and activate (in addition) all those that have no lower_chain specified !
-  if( ! m_lvl1Tool->isCalibrationEvent(*result) ) {
-    for ( std::vector<HLT::SteeringChain*>::const_iterator chain = m_chainsAlwaysActive.begin();
-	  chain != m_chainsAlwaysActive.end(); ++chain) {
-	addChain(chains, *chain, true, true);
-    }
-  }
-
-  // make chains list unique
-  std::set<HLT::SteeringChain*> temp;
-  for ( std::vector<HLT::SteeringChain*>::const_iterator chain = chains.begin();
-	chain != chains.end(); ++chain) {    
-    unsigned int ss = temp.size(); 
-    temp.insert(*chain);
-    if ( ss != temp.size() ) 
-      chainsToRun.push_back(*chain);
-  }
-
-  // -----------------------------------------------------------------
-
-  // do we need to go on, if there is no active LVL1 item ? => stop here
-  if ( chains.size() == 0 ) {
-    ATH_MSG_DEBUG("None of configured HLT chains matched Lvl1 items");
-    return HLT::OK;
-  }
-
-  if(m_doTiming) m_lvl1ItemsTime->stop();
-
-  // =============================================================
-  // Step 4: Create TriggerElements from level 1 RoIs, but only
-  //         those which are needed in at least one HLT sequence
-  // =============================================================
-
-  // create initial leaf in Navigation:
-  HLT::TriggerElement* initialTE = m_config->getNavigation()->getInitialNode();
-  ATH_MSG_DEBUG("initial Navigation node created");
-
-  unsigned int roiId = 0;
-  unsigned muonRoIsCount=0;
-  unsigned emtauRoIsCount=0;
-  unsigned jetRoIsCount=0;
-  // ------------------------------
-  //            Muon RoIs
-  // ------------------------------
-  if(m_doTiming) m_muonTime->start();
-  if (m_useL1Muon) {
-    
-   // Get configuration
-   std::vector<TrigConf::TriggerThreshold*> muonConfig;
-   if (m_gotL1Config) {
-     const std::vector<TrigConf::TriggerThreshold*>& thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
-     for (std::vector<TrigConf::TriggerThreshold*>::const_iterator it = thresholds.begin();
-          it != thresholds.end(); ++it) {
-        if ( (*it)->type() == TrigConf::L1DataDef::muonType() ) muonConfig.push_back(*it);
-     }
+   if(sc.isFailure()){
+      ATH_MSG_WARNING("Unable to retrieve RoIBResult from storeGate!");
+      return HLT::NO_LVL1_RESULT;
    }
+
+   if ( !result->cTPResult().isComplete() ) {
+      ATH_MSG_WARNING("Incomplete CTP result");
+      return HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::USERDEF_1, HLT::SteeringInternalReason::NO_LVL1_RESULT);
+   }
+
+   //  m_lvl1Tool->updateResult(*result, m_updateCaloRoIs);// is done in each step ..
+   unsigned int l1Id = m_config->getLvl1Id();
+
+   if(m_doTiming) m_sgTime->stop();
+
+
+
+   // =============================================================
+   // Step 2: Activate HLT chains that have a matching LVL1 item
+   //         - First, get and decode the CTP result for this event
+   //         - Then, compare with HLT chains
+   // =============================================================
+
+   if(m_doTiming) m_lvl1ItemsTime->start();
+   const std::vector<const LVL1CTP::Lvl1Item*>& items = m_lvl1Tool->createL1Items(*result, true);
+
+   ATH_MSG_DEBUG("Lvl1 provides: " <<  items.size()  << " items");
+
+   if  ( items.size() == 0 ) {
+      ATH_MSG_WARNING("Lvl1 delivered 0 items, Lvl2 can not continue");
+      return HLT::NO_LVL1_ITEMS;
+   }
+
+   for (const LVL1CTP::Lvl1Item* item : items) {
+
+      bool l1BeforePrescale = item->isPassedBeforePrescale();
+      bool l1Passed         = item->isPassedAfterVeto(); // that looks like bug bit it isn't 
+
+      if ( m_ignoreL1Prescales ) // undo L1 prescaling (only when JO says so)
+         l1Passed = l1BeforePrescale;
+
+      // search for corresponding configured HLT chain(s):
+      for(HLT::SteeringChain* chain : m_chainIdMap[ item->hashId() ]) {
+         // activate and push into vector of active chains
+         if (chain) {
+            addChain(chains, chain, l1Passed, l1BeforePrescale);
+         } else {
+            ATH_MSG_WARNING("No configured chain found,  that would match LVL1 item from previous level, this should not happen at thsi stage " << item->name());
+         }
+      }
+      // some debug output
+      ATH_MSG_DEBUG( "Used LVL1 item " << item->name() << " (" << item->hashId() << ") "
+                     << "TBP: "  <<  item->isPassedBeforePrescale() << " TAP: " << item->isPassedAfterPrescale()  << " TAV: " << item->isPassedAfterVeto());
+   }
+
+
+   // =============================================================
+   // Step 3: Activate unseeded chains
+   //         This which have no specified lvl1 seeding item
+   // =============================================================
+
+   // loop over chains and activate (in addition) all those that have no lower_chain specified !
+   if( ! m_lvl1Tool->isCalibrationEvent(*result) ) {
+      for ( std::vector<HLT::SteeringChain*>::const_iterator chain = m_chainsAlwaysActive.begin();
+            chain != m_chainsAlwaysActive.end(); ++chain) {
+         addChain(chains, *chain, true, true);
+      }
+   }
+
+   // make chains list unique
+   std::set<HLT::SteeringChain*> temp;
+   for ( std::vector<HLT::SteeringChain*>::const_iterator chain = chains.begin();
+         chain != chains.end(); ++chain) {    
+      unsigned int ss = temp.size(); 
+      temp.insert(*chain);
+      if ( ss != temp.size() ) 
+         chainsToRun.push_back(*chain);
+   }
+
+   // -----------------------------------------------------------------
+
+   // do we need to go on, if there is no active LVL1 item ? => stop here
+   if ( chains.size() == 0 ) {
+      ATH_MSG_DEBUG("None of configured HLT chains matched Lvl1 items");
+      return HLT::OK;
+   }
+
+   if(m_doTiming) m_lvl1ItemsTime->stop();
+
+   // =============================================================
+   // Step 4: Create TriggerElements from level 1 RoIs, but only
+   //         those which are needed in at least one HLT sequence
+   // =============================================================
+
+   // create initial leaf in Navigation:
+   HLT::TriggerElement* initialTE = m_config->getNavigation()->getInitialNode();
+   ATH_MSG_DEBUG("initial Navigation node created");
+
+   unsigned int roiId = 0;
+   unsigned muonRoIsCount=0;
+   unsigned emtauRoIsCount=0;
+   unsigned jetRoIsCount=0;
+   // ------------------------------
+   //            Muon RoIs
+   // ------------------------------
+   if(m_doTiming) m_muonTime->start();
+   if (m_useL1Muon) {
+    
+      // Get configuration
+      std::vector<TrigConf::TriggerThreshold*> muonConfig;
+      if (m_gotL1Config) {
+         const std::vector<TrigConf::TriggerThreshold*>& thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
+         for (TrigConf::TriggerThreshold * thr : thresholds) {
+            if ( thr->type() == TrigConf::L1DataDef::muonType() ) muonConfig.push_back(thr);
+         }
+      }
   
-   // reconstruct RoIs
-   ATH_MSG_DEBUG("Muon RoIs");
+      // reconstruct RoIs
+      ATH_MSG_DEBUG("Muon RoIs");
 
-   const std::vector< HLT::MuonRoI >& muonRoIs = m_lvl1Tool->createMuonThresholds(*result);
-    for (std::vector<  HLT::MuonRoI >::const_iterator muonRoI = muonRoIs.begin();
-	 muonRoI != muonRoIs.end(); ++muonRoI) {
+      const std::vector< HLT::MuonRoI >& muonRoIs = m_lvl1Tool->createMuonThresholds(*result);
 
-      // First create the RoI TE
-      TriggerElement* roiTE = 0;
-      TrigRoiDescriptor* roID = 0;
+      for (const HLT::MuonRoI & muonRoI : muonRoIs) {
 
-      for (std::vector<const ConfigThreshold*>::const_iterator threshold = muonRoI->begin();
-	   threshold != muonRoI->end(); ++threshold) {
+         // First create the RoI TE
+         TriggerElement* roiTE = 0;
+         TrigRoiDescriptor* roID = 0;
 
-        if (!m_recRPCRoiSvc || !m_recTGCRoiSvc) {
-          (*m_log) << MSG::WARNING << "Unable to create muon TriggerElements, because RPC RoI Scv or TGC RoI Svc were not found!"
-                   << endreq;
-          continue;
-        }
+         for (const ConfigThreshold * threshold : muonRoI) {
 
-        // check whether this LVL1 threshold is used by HLT:
-        //        if ( !(*threshold)->activeHLT ) continue;
+            if (!m_recRPCRoiSvc || !m_recTGCRoiSvc) {
+               ATH_MSG_WARNING("Unable to create muon TriggerElements, because RPC RoI Scv or TGC RoI Svc were not found!");
+               continue;
+            }
 
-        if (!roID) {
-          roiTE = m_config->getNavigation()->addRoINode( initialTE );
-          LVL1::RecMuonRoI* recRoI = new LVL1::RecMuonRoI(muonRoI->lvl1RoI().roIWord(), m_recRPCRoiSvc, m_recTGCRoiSvc, &muonConfig);
-	  float fixedphi = fixphi(recRoI->phi());
-	  roID = new TrigRoiDescriptor(recRoI->roiWord(),l1Id, roiId++,
-	   			       recRoI->eta(), recRoI->eta()-0.1, recRoI->eta()+0.1,
-	   			       fixedphi, fixedphi-0.1, fixedphi+0.1);
+            // check whether this LVL1 threshold is used by HLT:
+            //        if ( ! threshold->activeHLT ) continue;
 
-          std::string key;
-          m_config->getNavigation()->attachFeature( roiTE, roID,   HLT::Navigation::ObjectCreatedByNew, key,  "initialRoI" );
-          m_config->getNavigation()->attachFeature( roiTE, recRoI, HLT::Navigation::ObjectCreatedByNew, key, "RecMuonRoI" );
+            if (!roID) {
+               roiTE = m_config->getNavigation()->addRoINode( initialTE );
+               LVL1::RecMuonRoI* recRoI = new LVL1::RecMuonRoI(muonRoI.lvl1RoI().roIWord(), m_recRPCRoiSvc, m_recTGCRoiSvc, &muonConfig);
+               float fixedphi = fixphi(recRoI->phi());
+               roID = new TrigRoiDescriptor(recRoI->roiWord(),l1Id, roiId++,
+                                            recRoI->eta(), recRoI->eta()-0.1, recRoI->eta()+0.1,
+                                            fixedphi, fixedphi-0.1, fixedphi+0.1);
 
-          ATH_MSG_DEBUG("creating RoINode with attached RoIDescriptor with id: " << (roiId - 1));
-        }
+               std::string key;
+               m_config->getNavigation()->attachFeature( roiTE, roID,   HLT::Navigation::ObjectCreatedByNew, key,  "initialRoI" );
+               m_config->getNavigation()->attachFeature( roiTE, recRoI, HLT::Navigation::ObjectCreatedByNew, key, "RecMuonRoI" );
 
-        ATH_MSG_DEBUG("creating TriggerElement with name: " << (*threshold)->name << " and hashID: " <<  (*threshold)->hashId);
+               ATH_MSG_DEBUG("creating RoINode with attached RoIDescriptor with id: " << (roiId - 1));
+            }
+
+            ATH_MSG_DEBUG("creating TriggerElement for Muon ROI with name: " << threshold->name << " and hashID: " <<  threshold->hashId);
     
-        m_config->getNavigation()->addNode( roiTE, (*threshold)->hashId );
-      }
-    }
-    // put the limit on the number of muon RoIs
-    muonRoIsCount = muonRoIs.size();
-  }
-  if(m_doTiming) m_muonTime->stop();
+            m_config->getNavigation()->addNode( roiTE, threshold->hashId );
+         }
 
-  // ------------------------------
-  //          EMTau RoIs
-  // ------------------------------
-  if(m_doTiming) m_caloTime->start();
-  if (m_useL1Calo) {
+         if(roiTE) {
+            insertRoITEinMap(muonRoI.lvl1RoI().roIWord(), roiTE);
+         }
 
-    // Get configuration
-    std::vector<TrigConf::TriggerThreshold*> caloConfig;
-    if (m_gotL1Config) {
-      const std::vector<TrigConf::TriggerThreshold*>& thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
-      for (std::vector<TrigConf::TriggerThreshold*>::const_iterator it = thresholds.begin();
-           it != thresholds.end(); ++it) {
-        if ( (*it)->type() == TrigConf::L1DataDef::emType() ||
-             (*it)->type() == TrigConf::L1DataDef::tauType() ) caloConfig.push_back(*it);
-      }
-    }
-
-    // reconstruct RoIs
-    ATH_MSG_DEBUG("EmTau RoIs");
-
-    const std::vector< HLT::EMTauRoI >& emTauRoIs = m_lvl1Tool->createEMTauThresholds(*result, m_updateCaloRoIs);
-
-    for (std::vector<  HLT::EMTauRoI >::const_iterator emTauRoI = emTauRoIs.begin();
-         emTauRoI != emTauRoIs.end(); ++emTauRoI) {
-
-      ATH_MSG_DEBUG("RoI word: 0x" << MSG::hex
-                    << std::setw(8) << emTauRoI->lvl1RoI().roIWord() << MSG::dec);
-
-      // First create the RoI TE
-      TriggerElement* roiTE = 0;
-      TrigRoiDescriptor* roID = 0;
-
-      for (std::vector<const ConfigThreshold*>::const_iterator threshold = emTauRoI->begin();
-           threshold != emTauRoI->end(); ++threshold) {
-
-        // check whether this LVL1 threshold is used by HLT:
-        //if ( !(*threshold)->activeHLT ) continue;
-
-        if (!roID) {
-
-          roiTE = m_config->getNavigation()->addRoINode( initialTE );
-          LVL1::RecEmTauRoI* recRoI = new LVL1::RecEmTauRoI(emTauRoI->lvl1RoI().roIWord(), &caloConfig);
-	  float fixedphi = fixphi(recRoI->phi());
-	  roID = new TrigRoiDescriptor(recRoI->roiWord(), l1Id, roiId++,
-				       recRoI->eta(),recRoI->eta()-0.1,recRoI->eta()+0.1,
-				       fixedphi, fixedphi-0.1, fixedphi+0.1
-				       );
-
-          std::string key;
-          m_config->getNavigation()->attachFeature( roiTE, roID,   HLT::Navigation::ObjectCreatedByNew, key, "initialRoI" );
-          m_config->getNavigation()->attachFeature( roiTE, recRoI, HLT::Navigation::ObjectCreatedByNew, key, "RecEmTauRoI" );
-
-          ATH_MSG_DEBUG("creating RoINode with attached RoIDescriptor with id: "
-                        << (roiId-1) << " roiWord: " << roID->roiWord());
-        }
-
-        ATH_MSG_DEBUG("creating Calo TriggerElement with name: "
-                      << (*threshold)->name << " and hashID: " <<  (*threshold)->hashId);
-
-        m_config->getNavigation()->addNode( roiTE, (*threshold)->hashId );
 
       }
-    }
+      // put the limit on the number of muon RoIs
+      muonRoIsCount = muonRoIs.size();
+   }
+   if(m_doTiming) m_muonTime->stop();
 
-    // put the limit on the number of emtau RoIs
-    emtauRoIsCount = emTauRoIs.size();
-  }
-  if(m_doTiming) m_caloTime->stop();
-  // ------------------------------
-  //         JetEnergy RoIs
-  // ------------------------------
+   // ------------------------------
+   //          EMTau RoIs
+   // ------------------------------
+   if(m_doTiming) m_caloTime->start();
+   if (m_useL1Calo) {
 
-  if(m_doTiming) m_jetTime->start();
-  if (m_useL1JetEnergy) {
-    // Get configuration
-    std::vector<TrigConf::TriggerThreshold*> jetConfig;
-    std::vector<TrigConf::TriggerThreshold*> energyConfig;
-    if (m_gotL1Config) {
-      const std::vector<TrigConf::TriggerThreshold*>& thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
-      for (std::vector<TrigConf::TriggerThreshold*>::const_iterator it = thresholds.begin();
-           it != thresholds.end(); ++it) {
-         if ( (*it)->type() == TrigConf::L1DataDef::jetType() ||
-              (*it)->type() == TrigConf::L1DataDef::jfType()  ||
-              (*it)->type() == TrigConf::L1DataDef::jbType()       ) jetConfig.push_back(*it);
-     
-         else if ( (*it)->type() == TrigConf::L1DataDef::xeType() ||
-                   (*it)->type() == TrigConf::L1DataDef::teType() )  energyConfig.push_back(*it);
+      // Get configuration
+      std::vector<TrigConf::TriggerThreshold*> caloConfig;
+      if (m_gotL1Config) {
+         const std::vector<TrigConf::TriggerThreshold*>& thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
+         for (TrigConf::TriggerThreshold * thr : thresholds) {
+            if ( thr->type() == TrigConf::L1DataDef::emType() ||
+                 thr->type() == TrigConf::L1DataDef::tauType() ) caloConfig.push_back(thr);
+         }
       }
-    }
 
-    // reconstruct RoIs
-    ATH_MSG_DEBUG("JetEnergy RoIs");
+      // reconstruct RoIs
+      ATH_MSG_DEBUG("EmTau RoIs");
 
-    const std::vector< HLT::JetEnergyRoI >& jetERoIs = m_lvl1Tool->createJetEnergyThresholds(*result, m_updateCaloRoIs);
-    unsigned jetRoIsCount = 0;
+      const std::vector< HLT::EMTauRoI >& emTauRoIs = m_lvl1Tool->createEMTauThresholds(*result, m_updateCaloRoIs);
 
-    for (std::vector<  HLT::JetEnergyRoI >::const_iterator jetERoI = jetERoIs.begin();
-         jetERoI != jetERoIs.end(); ++jetERoI) {
+      for (std::vector<  HLT::EMTauRoI >::const_iterator emTauRoI = emTauRoIs.begin();
+           emTauRoI != emTauRoIs.end(); ++emTauRoI) {
+
+         ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw(8) << emTauRoI->lvl1RoI().roIWord() << MSG::dec);
+
+         // First create the RoI TE
+         TriggerElement* roiTE = 0;
+         TrigRoiDescriptor* roID = 0;
+
+         for (std::vector<const ConfigThreshold*>::const_iterator threshold = emTauRoI->begin();
+              threshold != emTauRoI->end(); ++threshold) {
+
+            // check whether this LVL1 threshold is used by HLT:
+            //if ( !(*threshold)->activeHLT ) continue;
+
+            if (!roID) {
+
+               roiTE = m_config->getNavigation()->addRoINode( initialTE );
+               LVL1::RecEmTauRoI* recRoI = new LVL1::RecEmTauRoI(emTauRoI->lvl1RoI().roIWord(), &caloConfig);
+               float fixedphi = fixphi(recRoI->phi());
+               roID = new TrigRoiDescriptor(recRoI->roiWord(), l1Id, roiId++,
+                                            recRoI->eta(),recRoI->eta()-0.1,recRoI->eta()+0.1,
+                                            fixedphi, fixedphi-0.1, fixedphi+0.1
+                                            );
+
+               std::string key;
+               m_config->getNavigation()->attachFeature( roiTE, roID,   HLT::Navigation::ObjectCreatedByNew, key, "initialRoI" );
+               m_config->getNavigation()->attachFeature( roiTE, recRoI, HLT::Navigation::ObjectCreatedByNew, key, "RecEmTauRoI" );
+
+               ATH_MSG_DEBUG("creating RoINode with attached RoIDescriptor with id: "
+                             << (roiId-1) << " roiWord: " << roID->roiWord());
+            }
+
+            ATH_MSG_DEBUG("creating TriggerElement for Calo ROI with name: "
+                          << (*threshold)->name << " and hashID: " <<  (*threshold)->hashId);
+
+            m_config->getNavigation()->addNode( roiTE, (*threshold)->hashId );
+
+         }
+
+         if(roiTE) {
+            insertRoITEinMap(emTauRoI->lvl1RoI().roIWord(), roiTE);
+         }
+
+      }
+
+      // put the limit on the number of emtau RoIs
+      emtauRoIsCount = emTauRoIs.size();
+   }
+   if(m_doTiming) m_caloTime->stop();
+
+
+   // ------------------------------
+   //         JetEnergy RoIs
+   // ------------------------------
+   if(m_doTiming) m_jetTime->start();
+   if (m_useL1JetEnergy) {
+      // Get configuration
+      std::vector<TrigConf::TriggerThreshold*> jetConfig;
+      std::vector<TrigConf::TriggerThreshold*> energyConfig;
+      if (m_gotL1Config) {
+         for (TrigConf::TriggerThreshold * thr : m_configSvc->ctpConfig()->menu().thresholdVector() ) {
+            if ( thr->type() == TrigConf::L1DataDef::jetType() ||
+                 thr->type() == TrigConf::L1DataDef::jfType()  ||
+                 thr->type() == TrigConf::L1DataDef::jbType()
+                 )
+               {
+                  jetConfig.push_back(thr);
+               } else if ( thr->type() == TrigConf::L1DataDef::xeType() ||
+                           thr->type() == TrigConf::L1DataDef::teType() )
+               {
+                  energyConfig.push_back(thr);
+               }
+         }
+      }
+
+      // reconstruct RoIs
+      ATH_MSG_DEBUG("JetEnergy RoIs");
+
+      const std::vector< HLT::JetEnergyRoI >& jetERoIs = m_lvl1Tool->createJetEnergyThresholds(*result, m_updateCaloRoIs);
+      unsigned jetRoIsCount = 0;
+
+      for ( std::vector<  HLT::JetEnergyRoI >::const_iterator jetERoI = jetERoIs.begin();
+            jetERoI != jetERoIs.end(); ++jetERoI) {
       
-      ATH_MSG_DEBUG("RoI word: 0x" << MSG::hex
-                    << std::setw(8) << jetERoI->lvl1RoI().roIWord() << MSG::dec);
+         ATH_MSG_DEBUG("RoI word: 0x" << MSG::hex
+                       << std::setw(8) << jetERoI->lvl1RoI().roIWord() << MSG::dec);
 
-      // First create the RoI TE
-      TriggerElement* roiTE = 0;
-      TriggerElement* metRoITE = 0;
-      TriggerElement* jetEtRoITE     = 0;
-      std::string key;
+         // First create the RoI TE
+         TriggerElement* roiTE = 0;
+         TriggerElement* metRoITE = 0;
+         TriggerElement* jetEtRoITE     = 0;
+         std::string key;
 
 
-      // always create jetEtRoI + objects attached to it 
-      if (jetERoI->type() == JetEtRoI ) {
-        jetEtRoITE = m_config->getNavigation()->addRoINode( initialTE );
-        LVL1::RecJetEtRoI* recRoI = new LVL1::RecJetEtRoI(jetERoI->lvl1RoI().roIWord());
-        m_config->getNavigation()->attachFeature( jetEtRoITE, recRoI, HLT::Navigation::ObjectCreatedByNew, key, "RecJetRoI" );
-        ATH_MSG_DEBUG("creating RoINode with attached LVL1::RecJetEtRoI ");
-      }
+         // always create jetEtRoI + objects attached to it 
+         if (jetERoI->type() == JetEtRoI ) {
+            jetEtRoITE = m_config->getNavigation()->addRoINode( initialTE );
+            LVL1::RecJetEtRoI* recRoI = new LVL1::RecJetEtRoI(jetERoI->lvl1RoI().roIWord());
+            m_config->getNavigation()->attachFeature( jetEtRoITE, recRoI, HLT::Navigation::ObjectCreatedByNew, key, "RecJetRoI" );
+            ATH_MSG_DEBUG("creating RoINode with attached LVL1::RecJetEtRoI ");
+         }
 
-      // always create MetEt&TotEt RoI  + objects attached to it 
-      if ( jetERoI->type() == MissingOrTotalEtRoI ) {
-        metRoITE = m_config->getNavigation()->addRoINode( initialTE );
-        LVL1::RecEnergyRoI* recRoI = new LVL1::RecEnergyRoI(jetERoI->lvl1RoI().roIWord(),
-                                                            jetERoI->word1(), jetERoI->word2(), &energyConfig); 
-        m_config->getNavigation()->attachFeature( metRoITE, recRoI, HLT::Navigation::ObjectCreatedByNew, key, "RecJetRoI" ); 
-        ATH_MSG_DEBUG("creating RoINode with attached LVL1::RecEnergyRoI");
-      }
-      roiTE=0;	
+         // always create MetEt&TotEt RoI  + objects attached to it 
+         if ( jetERoI->type() == MissingOrTotalEtRoI ) {
+            metRoITE = m_config->getNavigation()->addRoINode( initialTE );
+            LVL1::RecEnergyRoI* recRoI = new LVL1::RecEnergyRoI(jetERoI->lvl1RoI().roIWord(),
+                                                                jetERoI->word1(), jetERoI->word2(), &energyConfig); 
+            m_config->getNavigation()->attachFeature( metRoITE, recRoI, HLT::Navigation::ObjectCreatedByNew, key, "RecJetRoI" ); 
+            ATH_MSG_DEBUG("creating RoINode with attached LVL1::RecEnergyRoI");
+         }
+         roiTE=0;	
 
-      for (std::vector<const ConfigThreshold*>::const_iterator threshold = jetERoI->begin();
-	   threshold != jetERoI->end(); ++threshold) {
+         for (std::vector<const ConfigThreshold*>::const_iterator threshold = jetERoI->begin();
+              threshold != jetERoI->end(); ++threshold) {
 
-	TrigRoiDescriptor* roID = 0;
+            TrigRoiDescriptor* roID = 0;
 
-        // check whether this LVL1 threshold is used by HLT:
-        //	if ( !(*threshold)->activeHLT ) continue;
+            // check whether this LVL1 threshold is used by HLT:
+            //	if ( !(*threshold)->activeHLT ) continue;
 
-        if (!roiTE) {
+            if (!roiTE) {
 
-          if (jetERoI->type() == JetRoI || jetERoI->type() == ForwardJetRoI) {
-            roiTE = m_config->getNavigation()->addRoINode( initialTE );
-            LVL1::RecJetRoI* recRoI = new LVL1::RecJetRoI(jetERoI->lvl1RoI().roIWord(), &jetConfig);
-	    float fixedphi = fixphi(recRoI->phi());
-	    roID =
-	      new TrigRoiDescriptor(recRoI->roiWord(), l1Id, roiId++,
-				    recRoI->eta(), recRoI->eta()-0.4, recRoI->eta()+0.4,
-				    fixedphi, fixedphi-0.4, fixedphi+0.4
-				    );
+               if (jetERoI->type() == JetRoI || jetERoI->type() == ForwardJetRoI) {
+                  roiTE = m_config->getNavigation()->addRoINode( initialTE );
 
-            m_config->getNavigation()->attachFeature( roiTE, recRoI, HLT::Navigation::ObjectCreatedByNew, key, "RecJetRoI" );
-            m_config->getNavigation()->attachFeature( roiTE, roID, HLT::Navigation::ObjectCreatedByNew, key, "initialRoI" );
+                  if(roiTE) {
+                     insertRoITEinMap( jetERoI->lvl1RoI().roIWord(), roiTE );
+                  }
 
-            ATH_MSG_DEBUG("creating RoINode with attached RoIDescriptor with id: " << (roiId-1));
+                  LVL1::RecJetRoI* recRoI = new LVL1::RecJetRoI(jetERoI->lvl1RoI().roIWord(), &jetConfig);
+                  float fixedphi = fixphi(recRoI->phi());
+                  roID = new TrigRoiDescriptor( recRoI->roiWord(), l1Id, roiId++,
+                                                recRoI->eta(), recRoI->eta()-0.4, recRoI->eta()+0.4,
+                                                fixedphi, fixedphi-0.4, fixedphi+0.4
+                                                );
 
-            jetRoIsCount++;
-          }
-          else if (jetERoI->type() == JetEtRoI) {
-            roiTE = jetEtRoITE;
-          }
-          else if (jetERoI->type() == MissingOrTotalEtRoI) {
-            roiTE = metRoITE;
-          }
-        }
-        if ( !roiTE ) {
-          (*m_log) << MSG::ERROR << "creating threshold Node with id: " << (*threshold)->hashId 
-                   << " name: " << (*threshold)->name << endreq; 
-        }
-        m_config->getNavigation()->addNode( roiTE, (*threshold)->hashId );
-        ATH_MSG_DEBUG("created threshold node: " 
-                      <<  (*threshold)->name << " and id: " <<  (*threshold)->hashId);
+                  m_config->getNavigation()->attachFeature( roiTE, recRoI, HLT::Navigation::ObjectCreatedByNew, key, "RecJetRoI" );
+                  m_config->getNavigation()->attachFeature( roiTE, roID, HLT::Navigation::ObjectCreatedByNew, key, "initialRoI" );
+
+                  ATH_MSG_DEBUG("creating RoINode with attached RoIDescriptor with id: " << (roiId-1));
+
+                  jetRoIsCount++;
+               }
+               else if (jetERoI->type() == JetEtRoI) {
+                  roiTE = jetEtRoITE;
+               }
+               else if (jetERoI->type() == MissingOrTotalEtRoI) {
+                  roiTE = metRoITE;
+               }
+
+            }
+            if ( !roiTE ) {
+               ATH_MSG_ERROR( "creating threshold Node with id: " << (*threshold)->hashId 
+                              << " name: " << (*threshold)->name); 
+            }
+            m_config->getNavigation()->addNode( roiTE, (*threshold)->hashId );
+            ATH_MSG_DEBUG("created threshold node: " 
+                          <<  (*threshold)->name << " and id: " <<  (*threshold)->hashId);
 	
+         }
       }
-    }
-  } // end of m_useL1JetEnergy
-  if(m_doTiming) m_jetTime->stop();    
+   } // end of m_useL1JetEnergy
+   if(m_doTiming) m_jetTime->stop();    
 
-  if(m_doTiming) m_totalTime->stop();
 
-  HLT::ErrorCode ecl1 = m_lvl1ConsistencyTool->check(items, m_config->getNavigation());
-  if ( ecl1  != HLT::OK ) {
-    (*m_log) << MSG::WARNING << "Lvl1 decision inconsistent: " << endreq; 
-    return ecl1;
-  }
+   if(m_doTiming) m_totalTime->stop();
 
-  // if this is calibration event we do not apply RoI count cuts (meansy any busy event is just OK)
-  if ( ! m_lvl1Tool->isCalibrationEvent(*result) ) {
+   HLT::ErrorCode ecl1 = m_lvl1ConsistencyTool->check(items, m_config->getNavigation());
+   if ( ecl1  != HLT::OK ) {
+      (*m_log) << MSG::WARNING << "Lvl1 decision inconsistent: " << endreq; 
+      return ecl1;
+   }
 
-    // check the limits    
-    bool isAboveLimit = false;
-    if ( m_muonRoIsLimit && muonRoIsCount        > m_muonRoIsLimit) {
-      isAboveLimit = isAboveLimit || true;
-      ATH_MSG_DEBUG("Busy event, passes limits of the MUON rois counts per event: "
-                    << muonRoIsCount << " > " << m_muonRoIsLimit);
-    }
+   // if this is calibration event we do not apply RoI count cuts (meansy any busy event is just OK)
+   if ( ! m_lvl1Tool->isCalibrationEvent(*result) ) {
+
+      // check the limits    
+      bool isAboveLimit = false;
+      if ( m_muonRoIsLimit && muonRoIsCount        > m_muonRoIsLimit) {
+         isAboveLimit = isAboveLimit || true;
+         ATH_MSG_DEBUG("Busy event, passes limits of the MUON rois counts per event: "
+                       << muonRoIsCount << " > " << m_muonRoIsLimit);
+      }
     
-    if ( m_emtauRoIsLimit && emtauRoIsCount      > m_emtauRoIsLimit) {
-      isAboveLimit = isAboveLimit || true;
-      ATH_MSG_DEBUG("Busy event, passes limits of the EMTAU rois counts per event: "
-                    << emtauRoIsCount << " > " << m_emtauRoIsLimit);
-    }
-    if (m_jetRoIsLimit && jetRoIsCount          > m_jetRoIsLimit) {
-      isAboveLimit = isAboveLimit || true;
-      ATH_MSG_DEBUG("Busy event, passes limits of the JET rois counts per event: "
-                    << jetRoIsCount << " > " << m_jetRoIsLimit);
-    }
+      if ( m_emtauRoIsLimit && emtauRoIsCount      > m_emtauRoIsLimit) {
+         isAboveLimit = isAboveLimit || true;
+         ATH_MSG_DEBUG("Busy event, passes limits of the EMTAU rois counts per event: "
+                       << emtauRoIsCount << " > " << m_emtauRoIsLimit);
+      }
+      if (m_jetRoIsLimit && jetRoIsCount          > m_jetRoIsLimit) {
+         isAboveLimit = isAboveLimit || true;
+         ATH_MSG_DEBUG("Busy event, passes limits of the JET rois counts per event: "
+                       << jetRoIsCount << " > " << m_jetRoIsLimit);
+      }
 
-    unsigned overallRoIsCount= muonRoIsCount + emtauRoIsCount + jetRoIsCount;
-    if ( m_overallRoIsLimit && overallRoIsCount > m_overallRoIsLimit ) {
-      isAboveLimit = isAboveLimit || true;
-      ATH_MSG_DEBUG("Busy event, passes limits of the all types rois counts per event: "
-                    << overallRoIsCount << " > " << m_overallRoIsLimit);
-    }
+      unsigned overallRoIsCount= muonRoIsCount + emtauRoIsCount + jetRoIsCount;
+      if ( m_overallRoIsLimit && overallRoIsCount > m_overallRoIsLimit ) {
+         isAboveLimit = isAboveLimit || true;
+         ATH_MSG_DEBUG("Busy event, passes limits of the all types rois counts per event: "
+                       << overallRoIsCount << " > " << m_overallRoIsLimit);
+      }
     
-    if ( isAboveLimit ) {
-      chains.clear(); // we do not want chains returned because PT chains will bias streaming
-      return HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::UNKNOWN, HLT::SteeringInternalReason::BUSY );
-    }
-  }
+      if ( isAboveLimit ) {
+         chains.clear(); // we do not want chains returned because PT chains will bias streaming
+         return HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::UNKNOWN, HLT::SteeringInternalReason::BUSY );
+      }
+   }
 
-  return HLT::OK;
+   return HLT::OK;
 }
 
+void
+Lvl1Converter::insertRoITEinMap(uint32_t roiWord, TriggerElement* te) {
+   m_RoI2TE[roiWord] = te;
+}
 
 
 /*

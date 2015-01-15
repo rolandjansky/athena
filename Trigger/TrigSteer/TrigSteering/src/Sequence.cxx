@@ -47,98 +47,105 @@ using namespace HLT;
 
 Sequence::Sequence(std::vector<unsigned int> inputTypes,
 		   unsigned int outputType, HLT::Algo* firstAlgo,
-		   std::vector<HLT::Algo*>& algos, HLT::AlgoConfig* config,
-		   const std::vector<unsigned int>& topoTypes)
-  : m_alreadyExecuted(false),
-    m_prepRobReqAlreadyExecuted(false),
-    m_execErrorCode(OK),
-    m_firstAlgo(firstAlgo),
-    m_nextAlgos(algos),
-    m_inputTeTypes(inputTypes),
-    m_outputTeType(outputType),
-    m_config(config),
-    m_topoStartFrom(topoTypes),
-    m_timer(0)
+		   const std::vector<HLT::Algo*>& algos, HLT::AlgoConfig* config,
+		   const std::vector<unsigned int>& topoTypes) :
+   m_alreadyExecuted(false),
+   m_execErrorCode(OK),
+   m_firstAlgo(firstAlgo),
+   m_nextAlgos(algos),
+   m_inputTeTypes(inputTypes),
+   m_outputTeType(outputType),
+   m_config(config),
+   m_topoStartFrom(topoTypes),
+   m_prepRobReqAlreadyExecuted(false),
+   m_prepRobReqErrorCode(HLT::OK),
+   m_topoStartFromSequence(0),
+   m_timer(0)
 {
-
-  
-
-  // add the timer
-  if ( config->getDoTiming() ) {
-    ServiceHandle<ITrigTimerSvc> timerSvc("TrigTimerSvc/TrigTimerSvc", "tr");
-    if ( timerSvc.retrieve().isFailure() ) {
-      m_config->getMsgStream() << MSG::WARNING << "Requested timing measurements but can't retrieve TrigTimerSvc for sequence" << endreq;
-    }
-    std::string telabel;
-    if ( TrigConf::HLTTriggerElement::getLabel(outputType, telabel) ) {
-
-      const AlgTool *ntool = dynamic_cast<AlgTool*>(m_config->getNavigation());
-      if ( !ntool ) {
-	 m_config->getMsgStream() << MSG::WARNING << "Navigation tool not available" << endreq;
-	 return;
+   // add the timer
+   if ( config->getDoTiming() ) {
+      ServiceHandle<ITrigTimerSvc> timerSvc("TrigTimerSvc/TrigTimerSvc", "tr");
+      if ( timerSvc.retrieve().isFailure() ) {
+         m_config->getMsgStream() << MSG::WARNING << "Requested timing measurements but can't retrieve TrigTimerSvc for sequence" << endreq;
       }
+      std::string telabel;
+      if ( TrigConf::HLTTriggerElement::getLabel(outputType, telabel) ) {
+
+         const AlgTool *ntool = dynamic_cast<AlgTool*>(m_config->getNavigation());
+         if ( !ntool ) {
+            m_config->getMsgStream() << MSG::WARNING << "Navigation tool not available" << endreq;
+            return;
+         }
       
-      const Algorithm* parentAlg = dynamic_cast<const Algorithm*>(ntool->parent()); // this is the way to get parent alg name (TrigSteer_L2/EF) ugh we need better way.
-      if ( !parentAlg ) {
-	 m_config->getMsgStream() << MSG::WARNING << "No parent algorithm for the sequence" << endreq;
-	 return;
+         const Algorithm* parentAlg = dynamic_cast<const Algorithm*>(ntool->parent()); // this is the way to get parent alg name (TrigSteer_L2/EF) ugh we need better way.
+         if ( !parentAlg ) {
+            m_config->getMsgStream() << MSG::WARNING << "No parent algorithm for the sequence" << endreq;
+            return;
+         }
+
+         std::string name( parentAlg->name()+":sequence_" + telabel );
+         m_timer = timerSvc->addItem(name); // TrigSteer is hardcoded but we can find it via alg->parentAlg()->name() which should be steering instance name;
+         m_config->getMsgStream() << MSG::DEBUG << "Booked timer: " << name << endreq;
+
       }
+      else
+         m_config->getMsgStream() << MSG::WARNING << "Can not find TE label for id: " << outputType << endreq;
+   }
 
-      std::string name( parentAlg->name()+":sequence_" + telabel );
-      m_timer = timerSvc->addItem(name); // TrigSteer is hardcoded but we can find it via alg->parentAlg()->name() which should be steering instance name;
-      m_config->getMsgStream() << MSG::DEBUG << "Booked timer: " << name << endreq;
-
-    }
-    else
-      m_config->getMsgStream() << MSG::WARNING << "Can not find TE label for id: " << outputType << endreq;
-  }
-
-  // Get TrigROBDataProvider_RTT for data pre-fetch test 
-  ServiceHandle<IROBDataProviderSvc>   m_robDataProvider("ROBDataProviderSvc/ROBDataProviderSvc","TrigSteer_HLT");
-  if( m_robDataProvider.retrieve().isFailure() ) {
-    m_config->getMsgStream() << MSG::ERROR << "can't get ROBDataProviderSvc" << endreq;
-  } else{
-    m_trigROBDataProvider = SmartIF<ITrigROBDataProviderSvc_RTT>( &*m_robDataProvider );
-    if (m_trigROBDataProvider.isValid()) {
-      m_config->getMsgStream() << MSG::DEBUG << "A ROBDataProviderSvc implementing the trig interface ITrigROBDataProviderSvc_RTT was found."<< endreq;
-    }
-  }
-  return;
+   // Get TrigROBDataProvider_RTT for data pre-fetch test 
+   ServiceHandle<IROBDataProviderSvc>   m_robDataProvider("ROBDataProviderSvc/ROBDataProviderSvc","TrigSteer_HLT");
+   if( m_robDataProvider.retrieve().isFailure() ) {
+      m_config->getMsgStream() << MSG::ERROR << "can't get ROBDataProviderSvc" << endreq;
+   } else{
+      m_trigROBDataProvider = SmartIF<ITrigROBDataProviderSvc_RTT>( &*m_robDataProvider );
+      if (m_trigROBDataProvider.isValid()) {
+         if (m_config && m_config->getMsgLvl() <= MSG::DEBUG)
+            m_config->getMsgStream() << MSG::DEBUG << "A ROBDataProviderSvc implementing the trig interface ITrigROBDataProviderSvc_RTT was found."<< endreq;
+      }
+   }
+   return;
 }
 
 
-bool Sequence::reset()
-{
-  m_alreadyExecuted = false;
-  m_outputTEs.clear();
-  m_execErrorCode = HLT::OK;
-  if ( m_timer) m_timer->reset();
+bool Sequence::reset() {
 
-  if ( m_firstAlgo ) {
-    if (m_config->getMsgLvl() <= MSG::VERBOSE)
-      m_config->getMsgStream() << MSG::VERBOSE << "Sequence about to do reset() of 1st algo: " << m_firstAlgo->name()<< endreq;
-    if ( !m_firstAlgo->reset() ) return false;
-  }
+   m_alreadyExecuted = false;
+   m_outputTEs.clear();
+   m_execErrorCode = HLT::OK;
+   if ( m_timer) m_timer->reset();
 
-  for (unsigned int i = 0; i < m_nextAlgos.size(); i++) {
-    if (m_config->getMsgLvl() <=MSG::VERBOSE)
-      m_config->getMsgStream() << MSG::VERBOSE << "Sequence about to do reset() of next algo: " << m_nextAlgos[i]->name() << endreq;
-    if ( !m_nextAlgos[i]->reset() ) return false;
-  }
+   if ( m_firstAlgo ) {
+      if (m_config->getMsgLvl() <= MSG::VERBOSE)
+         m_config->getMsgStream() << MSG::VERBOSE << "Sequence about to do reset() of 1st algo: " << m_firstAlgo->name()<< endreq;
+      if ( !m_firstAlgo->reset() ) return false;
+   }
 
-  // check previous Sequences:
-  // in some situations, no other chain uses the recursively executed sequences,
-  // so we need to make sure they are reset !!!
-  bool recursiveResetStatus = true;
-  for ( std::vector< HLT::Sequence* >::const_iterator seq = m_previousSequences.begin();
-	seq != m_previousSequences.end(); ++seq) {
-    // if in "already executed" state, reset it !
-    if ( (*seq)->m_alreadyExecuted ) {
-      recursiveResetStatus = recursiveResetStatus && (*seq)->reset();
-    }
-  }
-  return recursiveResetStatus;
+   for (unsigned int i = 0; i < m_nextAlgos.size(); i++) {
+      if (m_config->getMsgLvl() <=MSG::VERBOSE)
+         m_config->getMsgStream() << MSG::VERBOSE << "Sequence about to do reset() of next algo: " << m_nextAlgos[i]->name() << endreq;
+      if ( !m_nextAlgos[i]->reset() ) return false;
+   }
+
+   // check previous Sequences:
+   // in some situations, no other chain uses the recursively executed sequences,
+   // so we need to make sure they are reset !!!
+   bool recursiveResetStatus = true;
+
+   for ( std::vector< HLT::Sequence* >::const_iterator seq = m_previousSequences.begin();
+         seq != m_previousSequences.end(); ++seq) {
+      // if in "already executed" state, reset it !
+      if ( (*seq)->m_alreadyExecuted ) {
+         recursiveResetStatus = recursiveResetStatus && (*seq)->reset();
+      }
+   }
+   
+   if(m_topoStartFromSequence!=0  &&  m_topoStartFromSequence->m_alreadyExecuted) {
+      recursiveResetStatus = recursiveResetStatus && m_topoStartFromSequence->reset();
+   }
+
+   return recursiveResetStatus;
 }
+
 
 bool Sequence::resetROBRequestPreparation()
 {
@@ -198,140 +205,148 @@ private:
 
 HLT::ErrorCode Sequence::execute()
 {
-  // in case this sequence was executed before, just return the result:
+   // in case this sequence was executed before, just return the result:
 
-  // collect operational information: create new TrigOperationalInfo
-  std::string te_label;
-  TrigOperationalInfo *steer_opi = 0;
-  if(m_config -> getSteeringOPILevel() > 0 && m_config -> getSteeringOPI()) {
-    steer_opi = m_config -> getSteeringOPI();
-    TrigConf::HLTTriggerElement::getLabel(m_outputTeType, te_label);
-    steer_opi -> set("SEQUENCE:"+te_label, (m_alreadyExecuted ? 1. : 0. ));
-  }
+   // collect operational information: create new TrigOperationalInfo
+   std::string te_label;
+   TrigOperationalInfo *steer_opi = 0;
+   if(m_config -> getSteeringOPILevel() > 0 && m_config -> getSteeringOPI()) {
+      steer_opi = m_config -> getSteeringOPI();
+      TrigConf::HLTTriggerElement::getLabel(m_outputTeType, te_label);
+      steer_opi -> set("SEQUENCE:"+te_label, (m_alreadyExecuted ? 1. : 0. ));
+   }
 
-  if (m_alreadyExecuted) {
-    if (m_config->getMsgLvl() <=MSG::DEBUG) {
-      m_config->getMsgStream() << MSG::DEBUG << "Sequence already executed! -> doing nothing"
-			       << endreq;
-      m_config->getMsgStream() << MSG::DEBUG << "Sequence: inputTEs = ";
-      for (std::vector< unsigned int >::const_iterator it = m_inputTeTypes.begin();
-	   it != m_inputTeTypes.end(); ++it) {
-	m_config->getMsgStream() << MSG::DEBUG << (*it) << ", ";
+   if (m_alreadyExecuted) {
+      if (m_config->getMsgLvl() <=MSG::DEBUG) {
+         m_config->getMsgStream() << MSG::DEBUG << "Sequence already executed! -> doing nothing"
+                                  << endreq;
+         m_config->getMsgStream() << MSG::DEBUG << "Sequence: inputTEs = ";
+         for (std::vector< unsigned int >::const_iterator it = m_inputTeTypes.begin();
+              it != m_inputTeTypes.end(); ++it) {
+            m_config->getMsgStream() << MSG::DEBUG << (*it) << ", ";
+         }
+         m_config->getMsgStream() << MSG::DEBUG << " outputTE = " << m_outputTeType << " firstAlgo = " << m_firstAlgo->name() << endreq;
       }
-      m_config->getMsgStream() << MSG::DEBUG << " outputTE = " << m_outputTeType << " firstAlgo = " << m_firstAlgo->name() << endreq;
-    }
-    return m_execErrorCode;
-  }
+      return m_execErrorCode;
+   }
 
-  // Whether the execution fails or not we don't want to re-run, so set in the beginning
-  m_alreadyExecuted = true;
-  m_execErrorCode = OK;
+   // Whether the execution fails or not we don't want to re-run, so set in the beginning
+   m_alreadyExecuted = true;
+   m_execErrorCode = OK;
 
-  // check previous Sequences:
-  for ( std::vector< HLT::Sequence* >::const_iterator seq = m_previousSequences.begin();
-	seq != m_previousSequences.end(); ++seq) {
-    // if not executed already, do it now!
-    // TB we need to care about errors here
-    if ( ! (*seq)->m_alreadyExecuted ) {
-      if(steer_opi) {
-	std::string rte_label;
-	TrigConf::HLTTriggerElement::getLabel((*seq)->outputTEType(), rte_label);
-	steer_opi -> set("SEQUENCE:"+rte_label+":Previous", 1.0);
-      }
-      ErrorCode ec = (*seq)->execute();
+   // if it exists, EXECUTE SEQUENCE TOPO_START_FROM if not already done so
+   if(m_topoStartFromSequence!=0  &&  ! m_topoStartFromSequence->m_alreadyExecuted) {
+      ErrorCode ec = m_topoStartFromSequence->execute();
       m_execErrorCode = m_execErrorCode > ec ? m_execErrorCode : ec;
       if ( m_execErrorCode.action() > HLT::Action::CONTINUE ) return m_execErrorCode;
-    }
-  }
-
-  //ScopeTimer scopetimer(m_timer); // that is all what we need for timing, it will be stoped on first return or at end
-  OPITimerHelper scopetimer(m_timer, steer_opi, "SEQUENCE:"+te_label);
-
-  if (m_config->getMsgLvl() <=MSG::DEBUG)
-    m_config->getMsgStream() << MSG::DEBUG << "Sequence executing, producing output type = "
-			     << m_outputTeType << endreq;
+   }
 
 
-  // Execute the algorithms.
-  m_outputTEs.clear();
-
-  // The first one creates the TEs:
-  try {
-    if (m_config->getMsgLvl() <=MSG::DEBUG)
-      m_config->getMsgStream() << MSG::DEBUG << "Executing first algo "
-			       <<  m_firstAlgo->name() << endreq;
-
-    ErrorCode ec =  m_firstAlgo->createAndProcessTEs(m_inputTeTypes,  m_outputTeType,
-						     m_outputTEs, m_topoStartFrom);
-    m_execErrorCode = m_execErrorCode > ec ? m_execErrorCode : ec;
-
-    if (m_config->getMsgLvl() <=MSG::DEBUG)
-       m_config->getMsgStream() << MSG::DEBUG << "Sequence '" << te_label
-			       << "': EC from firstalgo->createAndProcessTEs(..) =  " << HLT::strErrorCode( m_execErrorCode ) <<  endreq;
-
-    if ( m_execErrorCode.action() > HLT::Action::CONTINUE ) {
-      m_config->getMsgStream() << MSG::WARNING 
-                               << "Sequence '" << te_label << "' got error back while executing first algorithm '"
-                               << m_firstAlgo->name() << "':" 
-                               << HLT::strErrorCode( m_execErrorCode ) <<  endreq;
-    }
-
-    // Check if event timeout was reached
-    if ( Athena::Timeout::instance().reached() ) {
-      if (m_config->getMsgLvl() <= MSG::DEBUG)
-	m_config->getMsgStream() << MSG::DEBUG << "Timeout reached executing algo " << m_firstAlgo->name() << endreq;
-      
-      return m_execErrorCode = HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::TIMEOUT);
-    }
-
-    if (m_execErrorCode.action() > HLT::Action::CONTINUE || m_outputTEs.size() == 0) return m_execErrorCode;
-        
-
-    // execute following Algorithms of this Sequence, as long as there is at least
-    // 1 active output TE AND the previous Algorithm's status was < STOP_THIS_CHAIN EC
-    for (unsigned int j = 0; j <  m_nextAlgos.size(); ++j) {
-
-      if (activeOutputTEsInternal() == 0) {
-	if (m_config->getMsgLvl() <=MSG::DEBUG)
-	  m_config->getMsgStream() << MSG::DEBUG << "No more valid TEs ==> exiting sequence before "
-				   <<  m_nextAlgos[j]->name() << endreq;
-	return m_execErrorCode;
+   // execute input sequences if not already done so
+   for ( HLT::Sequence* seq : m_previousSequences) {
+      // if not executed already, do it now!
+      // TB we need to care about errors here
+      if ( ! seq->m_alreadyExecuted ) {
+         if(steer_opi) {
+            std::string rte_label;
+            TrigConf::HLTTriggerElement::getLabel( seq->outputTEType(), rte_label);
+            steer_opi -> set("SEQUENCE:"+rte_label+":Previous", 1.0);
+         }
+         ErrorCode ec = seq->execute();
+         m_execErrorCode = m_execErrorCode > ec ? m_execErrorCode : ec;
+         if ( m_execErrorCode.action() > HLT::Action::CONTINUE ) return m_execErrorCode;
       }
+   }
 
-      if (m_config->getMsgLvl() <= MSG::DEBUG)
-	m_config->getMsgStream() << MSG::DEBUG << "Executing next algo "
-				 << m_nextAlgos[j]->name() << endreq;
-     
-      ErrorCode ec = m_nextAlgos[j]->processTEs(m_outputTEs);
+
+   //ScopeTimer scopetimer(m_timer); // that is all what we need for timing, it will be stoped on first return or at end
+   OPITimerHelper scopetimer(m_timer, steer_opi, "SEQUENCE:"+te_label);
+
+   if (m_config->getMsgLvl() <=MSG::DEBUG)
+      m_config->getMsgStream() << MSG::DEBUG << "Sequence executing, producing output type = "
+                               << m_outputTeType << endreq;
+
+
+   // Execute the algorithms.
+   m_outputTEs.clear();
+
+   // The first one creates the TEs:
+   try {
+      if (m_config->getMsgLvl() <=MSG::DEBUG)
+         m_config->getMsgStream() << MSG::DEBUG << "Executing first algo "
+                                  <<  m_firstAlgo->name() << endreq;
+
+      ErrorCode ec =  m_firstAlgo->createAndProcessTEs( m_inputTeTypes,  m_outputTeType,
+                                                        m_outputTEs, m_topoStartFrom);
       m_execErrorCode = m_execErrorCode > ec ? m_execErrorCode : ec;
 
       if (m_config->getMsgLvl() <=MSG::DEBUG)
-         m_config->getMsgStream() << MSG::DEBUG << "Sequence "
-				 << " EC from algo->processTEs(..) =  " << HLT::strErrorCode( m_execErrorCode ) <<  endreq;
+         m_config->getMsgStream() << MSG::DEBUG << "Sequence '" << te_label
+                                  << "': EC from firstalgo->createAndProcessTEs(..) =  " << HLT::strErrorCode( m_execErrorCode ) <<  endreq;
 
-      if ( ec.action() > HLT::Action::CONTINUE ) {
+      if ( m_execErrorCode.action() > HLT::Action::CONTINUE ) {
          m_config->getMsgStream() << MSG::WARNING 
-                                  << "Sequence got error back while executing algorithm: " 
-                                  << m_firstAlgo->name() << " " << HLT::strErrorCode( m_execErrorCode ) <<  endreq;
+                                  << "Sequence '" << te_label << "' got error back while executing first algorithm '"
+                                  << m_firstAlgo->name() << "':" 
+                                  << HLT::strErrorCode( m_execErrorCode ) <<  endreq;
       }
 
       // Check if event timeout was reached
       if ( Athena::Timeout::instance().reached() ) {
-	if (m_config->getMsgLvl() <= MSG::DEBUG)
-	  m_config->getMsgStream() << MSG::DEBUG << "Timeout reached executing algo " << m_nextAlgos[j]->name() << endreq;
-	
-	return m_execErrorCode = HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::TIMEOUT);
+         if (m_config->getMsgLvl() <= MSG::DEBUG)
+            m_config->getMsgStream() << MSG::DEBUG << "Timeout reached executing algo " << m_firstAlgo->name() << endreq;
+      
+         return m_execErrorCode = HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::TIMEOUT);
       }
 
-      if ( m_execErrorCode.action() > HLT::Action::CONTINUE )
-	return m_execErrorCode;
+      if (m_execErrorCode.action() > HLT::Action::CONTINUE || m_outputTEs.size() == 0) return m_execErrorCode;
+        
 
-    }
-  } catch (...) {
-    m_execErrorCode = trigExceptionHandler(&m_config->getMsgStream());
-  }    
+      // execute following Algorithms of this Sequence, as long as there is at least
+      // 1 active output TE AND the previous Algorithm's status was < STOP_THIS_CHAIN EC
+      for (unsigned int j = 0; j <  m_nextAlgos.size(); ++j) {
 
-  return m_execErrorCode;
+         if (activeOutputTEsInternal() == 0) {
+            if (m_config->getMsgLvl() <=MSG::DEBUG)
+               m_config->getMsgStream() << MSG::DEBUG << "No more valid TEs ==> exiting sequence before "
+                                        <<  m_nextAlgos[j]->name() << endreq;
+            return m_execErrorCode;
+         }
+
+         if (m_config->getMsgLvl() <= MSG::DEBUG)
+            m_config->getMsgStream() << MSG::DEBUG << "Executing next algo "
+                                     << m_nextAlgos[j]->name() << endreq;
+     
+         ErrorCode ec = m_nextAlgos[j]->processTEs(m_outputTEs);
+         m_execErrorCode = m_execErrorCode > ec ? m_execErrorCode : ec;
+
+         if (m_config->getMsgLvl() <=MSG::DEBUG)
+            m_config->getMsgStream() << MSG::DEBUG << "Sequence "
+                                     << " EC from algo->processTEs(..) =  " << HLT::strErrorCode( m_execErrorCode ) <<  endreq;
+
+         if ( ec.action() > HLT::Action::CONTINUE ) {
+            m_config->getMsgStream() << MSG::WARNING 
+                                     << "Sequence got error back while executing algorithm: " 
+                                     << m_firstAlgo->name() << " " << HLT::strErrorCode( m_execErrorCode ) <<  endreq;
+         }
+
+         // Check if event timeout was reached
+         if ( Athena::Timeout::instance().reached() ) {
+            if (m_config->getMsgLvl() <= MSG::DEBUG)
+               m_config->getMsgStream() << MSG::DEBUG << "Timeout reached executing algo " << m_nextAlgos[j]->name() << endreq;
+	
+            return m_execErrorCode = HLT::ErrorCode(HLT::Action::ABORT_EVENT, HLT::Reason::TIMEOUT);
+         }
+
+         if ( m_execErrorCode.action() > HLT::Action::CONTINUE )
+            return m_execErrorCode;
+
+      }
+   } catch (...) {
+      m_execErrorCode = trigExceptionHandler(&m_config->getMsgStream());
+   }    
+
+   return m_execErrorCode;
 }
 
 

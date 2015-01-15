@@ -15,7 +15,6 @@
  * File and Version Information:
  * $Id: LvlConverter.cxx,v 1.34 2009-03-24 20:41:45 tbold Exp $
  **********************************************************************************/
-#include "boost/foreach.hpp"
 #include "TrigSteering/LvlConverter.h"
 #include "TrigMonitorBase/TrigMonitorToolBase.h"
 #include "TrigSteering/SteeringChain.h"
@@ -30,7 +29,7 @@ using namespace HLT;
 
 LvlConverter::LvlConverter(const std::string& name, const std::string& type,
 			   const IInterface* parent)
-  : AlgTool(name, type, parent),
+  : AthAlgTool(name, type, parent),
     m_config(0),
     m_log(0),
     m_logLvl(0),
@@ -147,36 +146,35 @@ ErrorCode LvlConverter::deserializeNavigation(HLT::Navigation& nav, const HLTRes
 ErrorCode LvlConverter::activateChains(std::vector<SteeringChain*>& chains,
 				       const std::vector<Chain>& previousChains, bool /*stickyPassThrough*/)
 {
-  // Step 1: activate all chains which have a lower chain with state chainPassed()
-  // Step 2: activate all chains without lower chain
+   // Step 1: activate all chains which have a lower chain with state chainPassed()
+   // Step 2: activate all chains without lower chain
 
-  //========= Step 1 ========================
-  // loop over chains from previous level
-  for (std::vector<Chain>::const_iterator preChain = previousChains.begin();
-       preChain != previousChains.end(); ++preChain) {
+   //========= Step 1 ========================
+   // loop over chains from previous level
+   for (std::vector<Chain>::const_iterator preChain = previousChains.begin();
+        preChain != previousChains.end(); ++preChain) {
 
-    // Include chains into this level, only if previous chain passed. This might be because the chain
-    // was normally [A]ccepted, or passedThrough. Note, passThrough overwrites preScaled!
-    bool l2AfterPrescale = (preChain->chainPassedRaw() && !preChain->isResurrected()) || preChain->isPassedThrough();
-    bool l2BeforePrescale = preChain->chainPassedRaw() && preChain->isResurrected();
+      // Include chains into this level, only if previous chain passed. This might be because the chain
+      // was normally [A]ccepted, or passedThrough. Note, passThrough overwrites preScaled!
+      bool l2AfterPrescale = (preChain->chainPassedRaw() && !preChain->isResurrected()) || preChain->isPassedThrough();
+      bool l2BeforePrescale = preChain->chainPassedRaw() && preChain->isResurrected();
     
-    //std::vector<HLT::SteeringChain*>::iterator chainBegin = m_chainCounterMap[ (*preChain).getChainCounter() ].begin();
-    //    std::vector<HLT::SteeringChain*>::iterator chainEnd   = m_chainCounterMap[ (*preChain).getChainCounter() ].end();
-    //    for(std::vector<HLT::SteeringChain*>::iterator chain = chainBegin;
-    //	chain != chainEnd; ++chain) {
-    BOOST_FOREACH(HLT::SteeringChain* chain, m_chainCounterMap[ (*preChain).getChainCounter() ] ) {
-      addChain(chains, chain, l2AfterPrescale, l2BeforePrescale, preChain->isPassedThrough());
-    }
-  }
+      //std::vector<HLT::SteeringChain*>::iterator chainBegin = m_chainCounterMap[ (*preChain).getChainCounter() ].begin();
+      //    std::vector<HLT::SteeringChain*>::iterator chainEnd   = m_chainCounterMap[ (*preChain).getChainCounter() ].end();
+      //    for(std::vector<HLT::SteeringChain*>::iterator chain = chainBegin;
+      //	chain != chainEnd; ++chain) {
+      for(HLT::SteeringChain* chain : m_chainCounterMap[ (*preChain).getChainCounter() ] ) {
+         addChain(chains, chain, l2AfterPrescale, l2BeforePrescale, preChain->isPassedThrough());
+      }
+   }
 
-  //========= Step 2 ========================
-  // loop over chains and activate (in addition) all those that have no lower_chain specified !
-  for ( std::vector<HLT::SteeringChain*>::const_iterator chain = m_chainsAlwaysActive.begin();
-        chain != m_chainsAlwaysActive.end(); ++chain) {
-     ATH_MSG_DEBUG("Activating chain: " << (*chain)->getChainCounter());
-     addChain(chains, *chain, true, true);
-  }
-  return HLT::OK;
+   //========= Step 2 ========================
+   // loop over chains and activate (in addition) all those that have no lower_chain specified !
+   for ( HLT::SteeringChain* chain : m_chainsAlwaysActive) {
+      ATH_MSG_DEBUG("Activating chain: " << chain->getChainCounter());
+      addChain(chains, chain, true, true);
+   }
+   return HLT::OK;
 }
 
 
@@ -187,53 +185,53 @@ ErrorCode LvlConverter::activateChains(std::vector<SteeringChain*>& chains,
 
 
 bool LvlConverter::addChain(std::vector<HLT::SteeringChain*>& chains, HLT::SteeringChain* ch,
-			    bool isAfterPrescale, bool isBeforePrescale, bool stickyPassThrough ) {
-  // at this point we have the same info as usually get from L1
-  bool added=false;
-  
-  // do not add chains which have negative prescale
-  if (ch->prescaleFactor() < -0.1) {
-    return added;
-  }
+                            bool isAfterPrescale, bool isBeforePrescale, bool stickyPassThrough ) {
+   // at this point we have the same info as usually get from L1
+   bool added=false;
+   
+   // do not add chains which have negative prescale
+   if (ch->prescaleFactor() < -0.1) {
+      return added;
+   }
 
-  if ( isAfterPrescale ) {
-    // chains passed by previous level
-    ch->setActive();
-    // we apply prescales if ignore is not set
-    // we always apply prescales if PS factor indicates it is spacial one (0 - infinte, -1 - chain off)
-    if ( ! m_ignorePrescales || ch->prescaleFactor() < 0.9 )
-      ch->setPrescaleState();
+   if ( isAfterPrescale ) {
+      // chains passed by previous level
+      ch->setActive();
+      // we apply prescales if ignore is not set
+      // we always apply prescales if PS factor indicates it is spacial one (0 - infinte, -1 - chain off)
+      if ( ! m_ignorePrescales || ch->prescaleFactor() < 0.9 )
+         ch->setPrescaleState();
 
-    // set PT given this chain factors
-    ch->setPassThroughState();
+      // set PT given this chain factors
+      ch->setPassThroughState();
 
-    // but set it always when it comes from previous level
-    if ( stickyPassThrough ) 
-      ch->setPassThrough();
+      // but set it always when it comes from previous level
+      if ( stickyPassThrough ) 
+         ch->setPassThrough();
 
 
 
-    // check if chain is to be rerun
-    if ( m_includePrescaledChains && (ch->isPrescaled() && !ch->isPassedThrough() ) ) 
-      ch->setResurrectedState();
+      // check if chain is to be rerun
+      if ( m_includePrescaledChains && (ch->isPrescaled() && !ch->isPassedThrough() ) ) 
+         ch->setResurrectedState();
     
-    if ( ch->runInFirstPass() || ch->runInSecondPass() || ch->isPrescaled()) {
-      chains.push_back(ch);
-      added=true;
-    }
-  } 
+      if ( ch->runInFirstPass() || ch->runInSecondPass() || ch->isPrescaled()) {
+         chains.push_back(ch);
+         added=true;
+      }
+   } 
   
-  if ( ! added && isBeforePrescale) {    
-    ch->setActive();
-    if ( m_includePrescaledChains )
-      ch->setResurrectedState();
-    if ( ch->runInSecondPass() ) {
-      added=true;
-      chains.push_back(ch);
-    }
-  }
+   if ( ! added && isBeforePrescale) {    
+      ch->setActive();
+      if ( m_includePrescaledChains )
+         ch->setResurrectedState();
+      if ( ch->runInSecondPass() ) {
+         added=true;
+         chains.push_back(ch);
+      }
+   }
 
-  ATH_MSG_DEBUG("Previous level:" << " BP: " << isBeforePrescale << " AP: " << isAfterPrescale 
-                << " added: " << added << " 1st: " << ch->runInFirstPass() <<  " 2nd: " << ch->runInSecondPass() << " " << *ch);             
-  return added;
+   ATH_MSG_DEBUG("Previous level:" << " BP: " << isBeforePrescale << " AP: " << isAfterPrescale 
+                 << " added: " << added << " 1st: " << ch->runInFirstPass() <<  " 2nd: " << ch->runInSecondPass() << " " << *ch);             
+   return added;
 }

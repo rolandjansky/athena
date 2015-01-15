@@ -29,8 +29,8 @@ job = AlgSequence()
 
   
 MessageSvc.Format = "% F%52W%S%7W%R%T %0W%M"
-MessageSvc.OutputLevel = VERBOSE
-MessageSvc.defaultLimit=100000
+MessageSvc.OutputLevel = DEBUG
+MessageSvc.defaultLimit=10000
 ### Some more debug from StoreGate ###
 StoreGateSvc = Service( "StoreGateSvc" )
 StoreGateSvc.Dump = True  #true will dump data store contents
@@ -55,109 +55,110 @@ job = AlgSequence()
 
 ### Create the Menu ###
 #######################
-if "useTopoMenu" in dir() and useTopoMenu == True:
-    include("TrigSteering/pureTopoSteering_menu.py")
-else:
-    include("TrigSteering/pureSteering_menu.py")
 
+#INGRID WAS HERE.... Testing L1Topo
+
+#include("/afs/cern.ch/work/i/ideigaar/TriggerHLTSim/Trigger/TrigSteer/TrigSteering/share/pureTopoSteering_menu.py")
+
+#include("TrigSteering/pureSteering_menu.py")
 #include("./pureSteering_menu.py")
 # generate default L1 file
 
-RoIs = """EM15i,EM25i;  EM15i,EM25i;  MU6,MU20; MU6; MU6; J50
-EM15i,EM25i;  EM15i,EM25i;  MU6,MU20; MU6,MU20; J50,J65,J90,J200
-EM15i,EM25i;  EM15i,EM25i;  EM15i,EM25i;  EM15i,EM25i;
-MU06; MU06;  MU06; MU06; TM10; EM15i, EM25i; EM25i; EM15i; J50
-TAU25; xE30, xE60; J50,J65,J90,J200
-J50,J65,J90; J50,J65,J90,J200; J50,J65,J90
-MU6, MU6
-J50,J65,J90; J50,J65,J90,J200; J50,J65,J90
-MU6
-"""
-if "usePrescaleMenu" not in dir():
-    usePrescaleMenu=False
-if (usePrescaleMenu):
-    include("TrigSteering/pureSteering_menu_with_prescales.py")
+#RoIs = """EM15i,EM25i;  EM15i,EM25i;  MU6,MU20; MU6; MU6; J50
+#EM15i,EM25i;  EM15i,EM25i;  MU6,MU20; MU6,MU20; J50,J65,J90,J200
+#EM15i,EM25i;  EM15i,EM25i;  EM15i,EM25i;  EM15i,EM25i;
+#MU06; MU06;  MU06; MU06; TM10; EM15i, EM25i; EM25i; EM15i; J50
+#TAU25; xE30, xE60; J50,J65,J90,J200
+#J50,J65,J90; J50,J65,J90,J200; J50,J65,J90
+#MU6, MU6
+#J50,J65,J90; J50,J65,J90,J200; J50,J65,J90
+#MU6
+#"""
+#if "usePrescaleMenu" not in dir():
+#    usePrescaleMenu=False
+#if (usePrescaleMenu):
+#    include("TrigSteering/pureSteering_menu_with_prescales.py")
     # generate input file
     
-    RoIs = """EM15i,EM25i; EM15i
-EM15i,EM25i; EM15i
-EM15i,EM25i; EM15i
-EM15i,EM25i; EM15i
-EM15i,EM25i; EM15i
-EM15i,EM25i; EM15i
-EM15i,EM25i; EM15i
-"""
+#    RoIs = """EM15i,EM25i; EM15i
+#EM15i,EM25i; EM15i
+#EM15i,EM25i; EM15i
+#EM15i,EM25i; EM15i
+#EM15i,EM25i; EM15i
+#EM15i,EM25i; EM15i
+#EM15i,EM25i; EM15i
+#"""
 
 
-if "useErrorHandlingMenu" not in dir():
-    useErrorHandlingMenu=False
-if (useErrorHandlingMenu):
-    include("TrigSteering/pureSteering_menu_with_errors.py")
+#if "useErrorHandlingMenu" not in dir():
+#    useErrorHandlingMenu=False
+#if (useErrorHandlingMenu):
+#    include("TrigSteering/pureSteering_menu_with_errors.py")
+#    # generate input file
+    
+#    RoIs = """EM25i,EM25i;
+#EM15i,EM15i;
+#EM15i,EM25i;
+#EM15i,EM25i;
+#EM25i,EM25i;
+#EM15i,EM25i;
+#EM12i,EM3;
+#"""
+
+
+#if "useRerunMenu" not in dir():
+#    useRerunMenu=False
+#if useRerunMenu:
+#    include("TrigSteering/pureSteering_menu_with_rerun.py")
+    
+#    RoIs ="""EM15i,EM25i;*L1_EM15i;L1_EM25i;L1_EM3
+#EM15i,EM25i;*L1_EM15i!;L1_EM25i;L1_EM3
+#EM15i,EM25i;*L1_EM15i;L1_EM3
+#EM15i,EM25i;*L1_EM15i!;L1_EM3
+#EM15i,EM25i;*L1_EM15i;L1_EM25i!;L1_EM3
+#EM15i,EM25i;*L1_EM15i!;L1_EM25i;L1_EM3
+#EM15i,EM25i;*L1_EM25i!;L1_EM3
+#"""
+
+#if "useMultiSeedingMenu" not in dir():
+#    useMultiSeedingMenu=False
+#if useMultiSeedingMenu:
+#    include("TrigSteering/pureSteering_menu_with_multi_seeding.py")
+    
+#    RoIs ="""EM15i,EM25i;*L1_EM15i;L1_EM25i;L1_MU6
+#EM15i,EM25i;*L1_EM15i!;L1_EM25i!;L1_MU6
+#EM15i,EM25i;*L1_EM15i!;L1_EM25i;L1_MU6
+#EM15i,EM25i;*L1_MU6
+#EM15i,EM25i;*L1_EM15i
+#EM15i,EM25i;*L1_EM25i!;L1_MU6!
+#EM15i,EM25i;*L1_MU6!
+#"""
+
+#if "useMenuWithAcceptInput" not in dir():
+#    useMenuWithAcceptInput=False
+#if (useMenuWithAcceptInput):
+#    include("TrigSteering/pureSteering_menu_with_acceptInput.py")
     # generate input file
     
-    RoIs = """EM25i,EM25i;
-EM15i,EM15i;
-EM15i,EM25i;
-EM15i,EM25i;
-EM25i,EM25i;
-EM15i,EM25i;
-EM12i,EM3;
-"""
-
-
-if "useRerunMenu" not in dir():
-    useRerunMenu=False
-if useRerunMenu:
-    include("TrigSteering/pureSteering_menu_with_rerun.py")
-    
-    RoIs ="""EM15i,EM25i;*L1_EM15i;L1_EM25i;L1_EM3
-EM15i,EM25i;*L1_EM15i!;L1_EM25i;L1_EM3
-EM15i,EM25i;*L1_EM15i;L1_EM3
-EM15i,EM25i;*L1_EM15i!;L1_EM3
-EM15i,EM25i;*L1_EM15i;L1_EM25i!;L1_EM3
-EM15i,EM25i;*L1_EM15i!;L1_EM25i;L1_EM3
-EM15i,EM25i;*L1_EM25i!;L1_EM3
-"""
-
-if "useMultiSeedingMenu" not in dir():
-    useMultiSeedingMenu=False
-if useMultiSeedingMenu:
-    include("TrigSteering/pureSteering_menu_with_multi_seeding.py")
-    
-    RoIs ="""EM15i,EM25i;*L1_EM15i;L1_EM25i;L1_MU6
-EM15i,EM25i;*L1_EM15i!;L1_EM25i!;L1_MU6
-EM15i,EM25i;*L1_EM15i!;L1_EM25i;L1_MU6
-EM15i,EM25i;*L1_MU6
-EM15i,EM25i;*L1_EM15i
-EM15i,EM25i;*L1_EM25i!;L1_MU6!
-EM15i,EM25i;*L1_MU6!
-"""
-
-if "useMenuWithAcceptInput" not in dir():
-    useMenuWithAcceptInput=False
-if (useMenuWithAcceptInput):
-    include("TrigSteering/pureSteering_menu_with_acceptInput.py")
-    # generate input file
-    
-    RoIs = """EM15i,EM25i
-EM15i,EM25i
-EM15i,EM25i
-EM15i,EM25i
-EM15i,EM25i
-EM15i,EM25i
-EM15i,EM25i
-"""
+#    RoIs = """EM15i,EM25i
+#EM15i,EM25i
+#EM15i,EM25i
+#EM15i,EM25i
+#EM15i,EM25i
+#EM15i,EM25i
+#EM15i,EM25i
+#"""
 
     
-roifile=open("Lvl1Results.txt", "w")
-for i in xrange(0,repeat):
-    roifile.write(RoIs)
-roifile.write("\n")
-roifile.close()
+#roifile=open("Lvl1Results.txt", "w")
+#for i in xrange(0,repeat):
+#    roifile.write(RoIs)
+#roifile.write("\n")
+#roifile.close()
 
 
-if "useBusyEventSetup" not in dir():
-    useBusyEventSetup=False
+#if "useBusyEventSetup" not in dir():
+#    useBusyEventSetup=False
 
 
 ###    Setup  TrigConfigSvc      ###
@@ -165,8 +166,9 @@ if "useBusyEventSetup" not in dir():
 from TrigConfigSvc.TrigConfigSvcConfig import SetupTrigConfigSvc
 log.info("setting up TrigConfigSvc:")
 svc = SetupTrigConfigSvc()
-svc.hltXmlFile = 'pureSteering_menu.xml'
-svc.l1XmlFile  = 'l1.xml'
+svc.hltXmlFile = 'hlttest.xml'
+svc.l1topoXmlFile = 'TopoTestMenu.xml'
+svc.l1XmlFile  = 'l1test.xml'
 
 try:
     svc.SetStates( 'xml' )
@@ -216,20 +218,19 @@ else:
     log.info("setting up TestingTrigSteer_L2 configurable:")
     hltSteer_L2= TestingTrigSteer_L2('TrigSteer_L2')
     hltSteer_L2.calculatePrescaledChains=False
-    hltSteer_L2.doOperationalInfo=4
+    hltSteer_L2.doOperationalInfo=DEBUG
     hltSteer_L2.enableCoherentPrescaling=True
     hltSteer_L2.enableRobRequestPreparation=True
     hltSteer_L2.ExecutionOrderStrategy.OutputLevel=VERBOSE
-    hltSteer_L2.OutputLevel=VERBOSE
     hltSteer_L2.ExecutionOrderStrategy.order=['th:J50', 'th:J90', 'th:J200', 'name:.*mu.*', 'name:RobRequest.*']
 
 
-    if useRerunMenu:
-        hltSteer_L2.calculatePrescaledChains=True
+#    if useRerunMenu:
+#        hltSteer_L2.calculatePrescaledChains=True
 
-    if useBusyEventSetup:
-        hltSteer_L2.LvlConverterTool.overallRoIsLimit=1
-        hltSteer_L2.ResultBuilder.ErrorStreamTags = ["ABORT_EVENT BUSY UNKNOWN: hltbusy physics"]
+#    if useBusyEventSetup:
+#        hltSteer_L2.LvlConverterTool.overallRoIsLimit=1
+#        hltSteer_L2.ResultBuilder.ErrorStreamTags = ["ABORT_EVENT BUSY UNKNOWN: hltbusy physics"]
 
     #from TrigSteerMonitor.TrigSteerMonitorConf import TrigTEMoni
     #teMoni = TrigTEMoni()
@@ -248,9 +249,9 @@ else:
         ord=0
     hltSteer_L2.sortChains=ord
 
-    if (useErrorHandlingMenu):
-        hltSteer_L2.ResultBuilder.ErrorStreamTags = ["ABORT_CHAIN ALGO_ERROR GAUDI_EXCEPTION: hltexceptions physics", "ABORT_EVENT ALGO_ERROR TIMEOUT: hlttimeout debug"]
-        hltSteer_L2.softEventTimeout = 1 * Units.s
+#    if (useErrorHandlingMenu):
+#        hltSteer_L2.ResultBuilder.ErrorStreamTags = ["ABORT_CHAIN ALGO_ERROR GAUDI_EXCEPTION: hltexceptions physics", "ABORT_EVENT ALGO_ERROR TIMEOUT: hlttimeout debug"]
+#        hltSteer_L2.softEventTimeout = 1 * Units.s
 
     job += hltSteer_L2
 
@@ -261,8 +262,8 @@ else:
     log.info("setting up TestingTrigSteer_EF configurable:")
     hltSteer_EF = TestingTrigSteer_EF('TrigSteer_EF')
     hltSteer_EF.Navigation.OutputLevel=WARNING
-    if (useErrorHandlingMenu):
-        hltSteer_EF.softEventTimeout = 400 * Units.ms
+#    if (useErrorHandlingMenu):
+#        hltSteer_EF.softEventTimeout = 400 * Units.ms
 
     #from TrigSteering.TrigSteeringConfig import TrigSteer_EF
     #log.info("setting up TestingTrigSteer_EF configurable:")
@@ -275,14 +276,19 @@ else:
 
     hltSteer_EF.Navigation.OutputLevel=WARNING
     hltSteer_EF.calculatePrescaledChains=False
-    if useRerunMenu:
-        pass
+#    if useRerunMenu:
+#        pass
     hltSteer_EF.OutputLevel=INFO
     #hltSteer_EF.ResultBuilder.DefaultStreamTagForErrors = ""
 
     hltSteer_EF.doL1TopoSimulation=False
 
+    #from TrigSteering.TrigSteeringConf import HLT__HeavyIonStreamingStrategy
+    #hltSteer_EF.ResultBuilder.StreamingStrategy = HLT__HeavyIonStreamingStrategy( LowPriority='express', Override='exp70')
+
     job += hltSteer_EF
+
+
 
 
 ########################

@@ -21,27 +21,27 @@
 using namespace HLT;
 
 ResultBuilder::ResultBuilder(const std::string& name, const std::string& type,
-    const IInterface* parent)
-: AlgTool(name, type, parent),
-  m_config(0),
-  m_log(0),
-  m_logLvl(0),
-  m_storeGate("StoreGateSvc", name),
-  m_streamingStrategy("HLT__DefaultStreamingStrategy", this),
-  m_highestTriggerTypeBit(0),
-  m_infoSize(0)
+                             const IInterface* parent) :
+   AlgTool(name, type, parent),
+   m_config(0),
+   m_log(0),
+   m_logLvl(0),
+   m_storeGate("StoreGateSvc", name),
+   m_streamingStrategy("HLT__DefaultStreamingStrategy", this),
+   m_highestTriggerTypeBit(0),
+   m_infoSize(0)
 {
-  declareInterface<HLT::ResultBuilder>( this );
+   declareInterface<HLT::ResultBuilder>( this );
 
-  //declareProperty("doStreamTags", m_doStreamTags=true,
-  //                  "Should the ResultBuilder extract the StreamTags from the HLT Chains and put them into the HLTResult object.");
+   //declareProperty("doStreamTags", m_doStreamTags=true,
+   //                  "Should the ResultBuilder extract the StreamTags from the HLT Chains and put them into the HLTResult object.");
 
-  //  declareProperty("doTriggerTypes", m_doTriggerTypes=true,
-  //                  "Should the ResultBuilder extract the TriggerTypes from the HLT Chains and put them into the HLTResult object.");
-  declareProperty("ErrorStreamTags", m_errorStreamTagsProperty, "Mapping between errors and stream tags assigned to errorus event.");
-  declareProperty("DefaultStreamTagForErrors", m_defaultStreamTagForErrors="hlterror", "Default stream name for all errors, it can be redefined for certain case by ErrorStreamTags");
-  declareProperty("StreamingStrategy", m_streamingStrategy, "Streaming strategy");
-  declareProperty("buildAlways", m_buildAlways=false, "Build events always, also for rejected events. This option is good for MC and lethal for online.");
+   //  declareProperty("doTriggerTypes", m_doTriggerTypes=true,
+   //                  "Should the ResultBuilder extract the TriggerTypes from the HLT Chains and put them into the HLTResult object.");
+   declareProperty("ErrorStreamTags", m_errorStreamTagsProperty, "Mapping between errors and stream tags assigned to errorus event.");
+   declareProperty("DefaultStreamTagForErrors", m_defaultStreamTagForErrors="hlterror", "Default stream name for all errors, it can be redefined for certain case by ErrorStreamTags");
+   declareProperty("StreamingStrategy", m_streamingStrategy, "Streaming strategy");
+   declareProperty("buildAlways", m_buildAlways=false, "Build events always, also for rejected events. This option is good for MC and lethal for online.");
 }
 
 
@@ -110,206 +110,195 @@ bool equal_StreamTag(const TriggerInfo::StreamTag& a, const TriggerInfo::StreamT
 
 ErrorCode ResultBuilder::hltExecute(const std::vector<HLT::SteeringChain*>& activeChains)
 {
-  ErrorCode retCode = HLT::OK;
+   ErrorCode retCode = HLT::OK;
 
-  // find out whether HLTresult is already present in SG. If so, then take it
-  // otherwise, create new and register it
-  const HLTResult* constHltResult(0);
-  HLTResult* hltResult(0);
-  std::string resultKey = "HLTResult"+m_config->getInstance();
-  if (m_storeGate->transientContains<HLTResult>(resultKey) ) {
-    if ( m_storeGate->retrieve(constHltResult, resultKey).isFailure() ) {
-      (*m_log) << MSG::FATAL << "Retrieval of precreated HLTResult failed" << endreq;
-      retCode = HLT::FATAL;
-    }
-    hltResult = const_cast<HLTResult*>(constHltResult);
-
-  } else {
-    hltResult = new HLTResult();
-    StatusCode sc = m_storeGate->overwrite(hltResult,resultKey, true, false);
-    if(sc.isFailure()){
-      (*m_log) << MSG::FATAL << "Store of HLTResult failed" << endreq;
-      retCode = HLT::FATAL;
-    }
-  }
-
-  // if there is no config -> we write
-  if (!m_config) {
-    // Debug output
-    (*m_log) << MSG::ERROR << "AlgoConfig pointers not set !!!"
-        << " Creating dummy HLTResult only."<< endreq;
-
-    hltResult->setHLTStatus( HLT::FATAL );
-    hltResult->setAccepted( false );
-    hltResult->setPassThrough( false );
-    //    hltResult->setCalibEvent( false ); // TODO
-    //    hltResult->setCalibStatus( HLT::OK ); //TODO
-    hltResult->setHLTLevel( HLT::UNKNOWN );
-
-  } else {
-
-    // init default flags
-    bool eventPassed = false;
-    bool eventPassedRaw = false; // w/o pass-through
-    bool eventPT = false; // event passed-through, i.e. event not normally accepted but only because of a chain that was passThrough
-
-    unsigned int satisfiedChainsCount = 0;
-    unsigned int mostSevereChainCounter = 0;
-    HLT::ErrorCode mostSevereChainCode = HLT::OK;
-
-    for (std::vector<HLT::SteeringChain*>::const_iterator iterChain = activeChains.begin();
-        iterChain != activeChains.end(); ++iterChain) {
-      eventPT = eventPT || (*iterChain)->isPassedThrough();
-      eventPassed = eventPassed || (*iterChain)->chainPassed();
-      eventPassedRaw = eventPassedRaw || ( (*iterChain)->chainPassedRaw() && !(*iterChain)->isPrescaled() );
-      satisfiedChainsCount += ( (*iterChain)->chainPassed() ? 1 : 0);
-      if (  mostSevereChainCode < (*iterChain)->getErrorCode()   ) {
-        mostSevereChainCode = (*iterChain)->getErrorCode();
-        mostSevereChainCounter = (*iterChain)->getChainCounter();
+   // find out whether HLTresult is already present in SG. If so, then take it
+   // otherwise, create new and register it
+   const HLTResult* constHltResult(0);
+   HLTResult* hltResult(0);
+   std::string resultKey = "HLTResult"+m_config->getInstance();
+   if (m_storeGate->transientContains<HLTResult>(resultKey) ) {
+      if ( m_storeGate->retrieve(constHltResult, resultKey).isFailure() ) {
+         (*m_log) << MSG::FATAL << "Retrieval of precreated HLTResult failed" << endreq;
+         retCode = HLT::FATAL;
       }
-    }
-    // Debug output
-    if (m_logLvl <= MSG::DEBUG) {
-      if (eventPassed)
-        (*m_log) << MSG::DEBUG << "Event passed."<< endreq;
-      else
-        (*m_log) << MSG::DEBUG << "Event not passed."<< endreq;
-    }
-
-    // generic stats
-    // fixed fields in HLTResult
-    hltResult->setLvl1Id( m_config->getLvl1Id() );
-    hltResult->setAccepted( eventPassed );
-    hltResult->setPassThrough( eventPT && !eventPassedRaw );
-    hltResult->setHLTStatus( m_config->getHltStatus() );
-    hltResult->setHLTLevel( m_config->getHLTLevel() );
-    hltResult->setNumOfSatisfiedSigs( satisfiedChainsCount );
-    hltResult->setLvlConverterStatus( m_config->getLvlConverterStatus() );
-    hltResult->setCreatedOutsideHLT( false );
-    hltResult->setErrorCoordinates( mostSevereChainCounter );
-
-    hltResult->setConfigSuperMasterKey(m_superMasterKey);
-    hltResult->setConfigPrescalesKey(m_prescalesKey);
-
-    // TriggerType bits
-    // moved up to the TrigSteer to be able to insert the Cost tools calls in between
-    // ---------------------------------
-    //bool eventToBeRecorded = false;
-    //    retCode = fillTriggerInfo(activeChains, eventToBeRecorded);
-    //    if ( retCode != HLT::OK ) {
-    //      return retCode;
-    //    }
-
-
-
-    // if the event is rejected we have collected sufficient information for DF
-    //if (hltResult->isAccepted()) {
-    if ( m_uniqueStreams.empty() && hltResult->isAccepted()  ){
-      if (m_logLvl <= MSG::WARNING) {
-        (*m_log) << MSG::WARNING << "overall decision for event is positive while set of streams is empty"  << endreq;
+      hltResult = const_cast<HLTResult*>(constHltResult);
+   } else {
+      hltResult = new HLTResult();
+      StatusCode sc = m_storeGate->overwrite(hltResult,resultKey, true, false);
+      if(sc.isFailure()){
+         (*m_log) << MSG::FATAL << "Store of HLTResult failed" << endreq;
+         retCode = HLT::FATAL;
       }
-    }
+   }
 
-    if (!m_uniqueStreams.empty() || hltResult->isAccepted() || m_buildAlways ) { // this is redundant
+   // if there is no config -> we write
+   if (!m_config) {
+      // Debug output
+     (*m_log) << MSG::ERROR << "AlgoConfig pointers not set !!!"
+              << " Creating dummy HLTResult only."<< endreq;
 
-      // first deal with the chains
-      // --------------------------
-      std::vector<uint32_t>& chainData = hltResult->getChainResult();
-      // start with an empty std::vector<uint23_t>
-      chainData.clear();
-      // reserve first entry for number of chains:
-      chainData.push_back(0);
-      // used to copy results from each chain to main result vector
-      std::back_insert_iterator< std::vector<uint32_t> > appendIterator(chainData);
-      unsigned int nChains=0;
+      hltResult->setHLTStatus( HLT::FATAL );
+      hltResult->setAccepted( false );
+      hltResult->setPassThrough( false );
+      //    hltResult->setCalibEvent( false ); // TODO
+      //    hltResult->setCalibStatus( HLT::OK ); //TODO
+      hltResult->setHLTLevel( HLT::UNKNOWN );
 
-      // Include all chains from this level that were activated by the LvlConverter at the beginning of this event
+   } else {
+
+      // init default flags
+      bool eventPassed = false;
+      bool eventPassedRaw = false; // w/o pass-through
+      bool eventPT = false; // event passed-through, i.e. event not normally accepted but only because of a chain that was passThrough
+
+      unsigned int satisfiedChainsCount = 0;
+      unsigned int mostSevereChainCounter = 0;
+      HLT::ErrorCode mostSevereChainCode = HLT::OK;
+
       for (std::vector<HLT::SteeringChain*>::const_iterator iterChain = activeChains.begin();
-          iterChain != activeChains.end(); ++iterChain) {
-
-        std::vector<uint32_t> thisChainData;
-        // each chain has size == 1 !
-        //	thisChainData.push_back(0); // reserve for size of this chainData
-        (*iterChain)->serialize(thisChainData); // get serialized chain
-        //	thisChainData[0] = thisChainData.size(); // insert its size
-        copy ( thisChainData.begin(), thisChainData.end(), appendIterator ); // copy to main result vector
-        nChains++;
+           iterChain != activeChains.end(); ++iterChain) {
+         eventPT = eventPT || (*iterChain)->isPassedThrough();
+         eventPassed = eventPassed || (*iterChain)->chainPassed();      
+         eventPassedRaw = eventPassedRaw || ( (*iterChain)->chainPassedRaw() && !(*iterChain)->isPrescaled() );
+         satisfiedChainsCount += ( (*iterChain)->chainPassed() ? 1 : 0);
+         if (  mostSevereChainCode < (*iterChain)->getErrorCode()   ) {
+            mostSevereChainCode = (*iterChain)->getErrorCode();
+            mostSevereChainCounter = (*iterChain)->getChainCounter();
+         }
       }
-      chainData.at(0) = nChains;
-
-
-      // some debug output:
+      // Debug output
       if (m_logLvl <= MSG::DEBUG) {
-        (*m_log) << MSG::DEBUG << nChains << " Chains that go into the HLTResult of " << m_config->getInstance().substr(1,3) << endreq;
-        (*m_log) << MSG::DEBUG << "REGTEST New Event ---------------" << endreq;
-        for (std::vector<SteeringChain*>::const_iterator it = activeChains.begin();
-            it != activeChains.end(); ++it) {
-          (*m_log) << MSG::DEBUG << "REGTEST " <<  (**it) << endreq;
-          //          (*m_log) << MSG::DEBUG << "EXTREG  " << (**it) << " error code: " <<  strErrorCode((*it)->getErrorCode()) << " resurrected: " << (*it)->isResurrected() << endreq;
-        }
+         if (eventPassed)
+            (*m_log) << MSG::DEBUG << "Event passed."<< endreq;
+         else
+            (*m_log) << MSG::DEBUG << "Event not passed."<< endreq;
       }
 
+      // generic stats
+      // fixed fields in HLTResult
+      hltResult->setLvl1Id( m_config->getLvl1Id() );
+      hltResult->setAccepted( eventPassed );
+      hltResult->setPassThrough( eventPT && !eventPassedRaw );
+      hltResult->setHLTStatus( m_config->getHltStatus() );
+      hltResult->setHLTLevel( m_config->getHLTLevel() );
+      hltResult->setNumOfSatisfiedSigs( satisfiedChainsCount );
+      hltResult->setLvlConverterStatus( m_config->getLvlConverterStatus() );
+      hltResult->setCreatedOutsideHLT( false );
+      hltResult->setErrorCoordinates( mostSevereChainCounter );
 
+      hltResult->setConfigSuperMasterKey(m_superMasterKey);
+      hltResult->setConfigPrescalesKey(m_prescalesKey);
 
-
-      // third, navigation incl. features
+      // TriggerType bits
+      // moved up to the TrigSteer to be able to insert the Cost tools calls in between
       // ---------------------------------
-      if (m_config->getNavigation()) {
-        std::vector<uint32_t>& navData  = hltResult->getNavigationResult();
-        std::vector<unsigned int>& cuts = hltResult->getNavigationResultCuts();
-        std::vector<std::pair<CLID, std::string> >& clid_name = hltResult->getNavigationResultIDName();
-
-        std::vector<uint32_t>& navData_DSonly  = hltResult->getNavigationResult_DSonly();
-        std::vector<unsigned int>& cuts_DSonly = hltResult->getNavigationResultCuts_DSonly();
-        std::vector<std::pair<CLID, std::string> >& clid_name_DSonly = hltResult->getNavigationResultIDName_DSonly();
-
-        // start with an empty std::vector<uint23_t>
-        navData.clear();
-        cuts.clear();
-        clid_name.clear();
-
-        navData_DSonly.clear();
-        cuts_DSonly.clear();
-        clid_name_DSonly.clear();
-
-        m_config->getNavigation()->serialize( navData, cuts, clid_name);
-        m_config->getNavigation()->serialize_DSonly( navData_DSonly, cuts_DSonly, clid_name_DSonly);
-
-        hltResult->setScoutingMap(m_modId_clid_name); //The map is filled into fillTriggerInfo. Now it is needed to copy it into the ScoutingInfo map in HLTResult.
-
-        // some navigation debug output:
-        if (m_logLvl <= MSG::DEBUG) {
-          (*m_log) << MSG::DEBUG << "\n" << *(m_config->getNavigation()) << endreq;
-        }
-
-      } else retCode =  HLT::FATAL;
-    }
-
-    // Partial Event building info
-    // ---------------------------------
-    /*
-        retCode = getPEBInfo();
-        if( retCode != HLT::OK ) {
-        if (m_logLvl <= MSG::DEBUG) {
-        (*m_log) << MSG::DEBUG << "Previous level does not provide PartialEventBuildingInfo" << endreq;
-        }
-        }
-     */
+      //bool eventToBeRecorded = false;
+      //    retCode = fillTriggerInfo(activeChains, eventToBeRecorded);
+      //    if ( retCode != HLT::OK ) {
+      //      return retCode;
+      //    }
 
 
 
-  }
-  return retCode;
+      // if the event is rejected we have collected sufficient information for DF
+      //if (hltResult->isAccepted()) {
+      if ( m_uniqueStreams.empty() && hltResult->isAccepted()  ){
+         if (m_logLvl <= MSG::WARNING) {
+            (*m_log) << MSG::WARNING << "overall decision for event is positive while set of streams is empty"  << endreq;
+         }
+      }
+
+      if (!m_uniqueStreams.empty() || hltResult->isAccepted() || m_buildAlways ) { // this is redundant
+
+         // first deal with the chains
+         // --------------------------
+         std::vector<uint32_t>& chainData = hltResult->getChainResult();
+         // start with an empty std::vector<uint23_t>
+         chainData.clear();
+         // reserve first entry for number of chains:
+         chainData.push_back(0);
+         // used to copy results from each chain to main result vector
+         std::back_insert_iterator< std::vector<uint32_t> > appendIterator(chainData);
+         unsigned int nChains=0;
+
+         // Include all chains from this level that were activated by the LvlConverter at the beginning of this event
+         for (std::vector<HLT::SteeringChain*>::const_iterator iterChain = activeChains.begin();
+              iterChain != activeChains.end(); ++iterChain) {
+            std::vector<uint32_t> thisChainData;
+            // each chain has size == 1 !
+            //	thisChainData.push_back(0); // reserve for size of this chainData
+            (*iterChain)->serialize(thisChainData); // get serialized chain
+            //	thisChainData[0] = thisChainData.size(); // insert its size
+            copy ( thisChainData.begin(), thisChainData.end(), appendIterator ); // copy to main result vector
+            nChains++;
+         }
+         chainData.at(0) = nChains;
+
+         // some debug output:
+         if (m_logLvl <= MSG::DEBUG) {
+            (*m_log) << MSG::DEBUG << nChains << " Chains that go into the HLTResult of " << m_config->getInstance().substr(1,3) << endreq;
+            (*m_log) << MSG::DEBUG << "REGTEST New Event ---------------" << endreq;
+            for (std::vector<SteeringChain*>::const_iterator it = activeChains.begin();
+                 it != activeChains.end(); ++it) {
+               (*m_log) << MSG::DEBUG << "REGTEST " <<  (**it) << endreq;
+               //          (*m_log) << MSG::DEBUG << "EXTREG  " << (**it) << " error code: " <<  strErrorCode((*it)->getErrorCode()) << " resurrected: " << (*it)->isResurrected() << endreq;
+            }
+         }
+
+
+
+         // third, navigation incl. features
+         // ---------------------------------
+         if (m_config->getNavigation()) {
+            std::vector<uint32_t>& navData  = hltResult->getNavigationResult();
+            std::vector<unsigned int>& cuts = hltResult->getNavigationResultCuts();
+            std::vector<std::pair<CLID, std::string> >& clid_name = hltResult->getNavigationResultIDName();
+
+
+
+            std::vector<uint32_t>& navData_DSonly  = hltResult->getNavigationResult_DSonly();
+            std::vector<unsigned int>& cuts_DSonly = hltResult->getNavigationResultCuts_DSonly();
+            std::vector<std::pair<CLID, std::string> >& clid_name_DSonly = hltResult->getNavigationResultIDName_DSonly();
+
+            // start with an empty std::vector<uint23_t>
+            navData.clear();
+
+
+            cuts.clear();
+            clid_name.clear();
+
+            navData_DSonly.clear();
+            cuts_DSonly.clear();
+            clid_name_DSonly.clear();
+
+
+
+            m_config->getNavigation()->serialize( navData, cuts, clid_name);
+            m_config->getNavigation()->serialize_DSonly( navData_DSonly, cuts_DSonly, clid_name_DSonly);
+
+            hltResult->setScoutingMap(m_modId_clid_name); //The map is filled into fillTriggerInfo. Now it is needed to copy it into the ScoutingInfo map in HLTResult.
+
+            // some navigation debug output:
+            if (m_logLvl <= MSG::DEBUG) {
+               (*m_log) << MSG::DEBUG << "\n" << *(m_config->getNavigation()) << endreq;
+            }
+
+        
+         } else retCode =  HLT::FATAL;
+      }
+   }
+   return retCode;
 }
 
 
 void ResultBuilder::setTriggerTypeBit(unsigned int bit, std::vector<uint32_t>& bitarray ) {
-  // find if bit is still in the range of already allocated trigger info if no allocate more
-  const unsigned word_size_in_bits = sizeof(uint32_t)*8;
-  // find a word to set the bit
-  unsigned word = bit/word_size_in_bits;
-  unsigned shift = bit%word_size_in_bits;
-  bitarray[word] |= 0x1 << shift;
+   // find if bit is still in the range of already allocated trigger info if no allocate more
+   const unsigned word_size_in_bits = sizeof(uint32_t)*8;
+   // find a word to set the bit
+   unsigned word = bit/word_size_in_bits;
+   unsigned shift = bit%word_size_in_bits;
+   bitarray[word] |= 0x1 << shift;
 
 }
 
@@ -326,244 +315,239 @@ struct StreamTagCollectionHelper {
 
 
 ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& activeChains) {
-  // record express stream PS decisions in new TrigOperationalInfo object
-  TrigOperationalInfo* streamOPI = 0;
-  if(m_config->getHLTLevel() == HLT::EF || m_config->getHLTLevel() == HLT::HLT) {
-    streamOPI = new TrigOperationalInfo();
-    std::string key;
-    m_config->getNavigation()->attachFeature(m_config->getNavigation()->getInitialNode(),
-        streamOPI, HLT::Navigation::ObjectCreatedByNew, key,
-        "EXPRESS_OPI"+m_config->getInstance() );
-  }
+   // record express stream PS decisions in new TrigOperationalInfo object
+   TrigOperationalInfo* streamOPI = 0;
+   if(m_config->getHLTLevel() == HLT::EF || m_config->getHLTLevel() == HLT::HLT) {
+      streamOPI = new TrigOperationalInfo();
+      std::string key;
+      m_config->getNavigation()->attachFeature(m_config->getNavigation()->getInitialNode(), 
+                                               streamOPI, HLT::Navigation::ObjectCreatedByNew, key, 
+                                               "EXPRESS_OPI"+m_config->getInstance() );
+   }
 
-  // the Chain's StreamTags
-  // ---------------------------------
+   // the Chain's StreamTags
+   // ---------------------------------
 
-  // Collect all StreamTags for this event,
-  // i.e. take all StreamTags that are _not_ prescaled from all chains that passed.
-  // Then, make a unique list of these StreamTags and add it to the HLTResult.
-  m_uniqueStreams.clear();
-  m_modId_clid_name.clear();
+   // Collect all StreamTags for this event,
+   // i.e. take all StreamTags that are _not_ prescaled from all chains that passed.
+   // Then, make a unique list of these StreamTags and add it to the HLTResult.
+   m_uniqueStreams.clear();
+   m_modId_clid_name.clear();
 
-  // special streams for errorous events
-  if ( m_config->getHltStatus().action() >= HLT::Action::ABORT_CHAIN ) {
-    std::map<HLT::ErrorCode, TriggerInfo::StreamTag>::const_iterator errorStreamIt = m_errorStreamTags.find(m_config->getHltStatus());
-    if ( errorStreamIt != m_errorStreamTags.end() ) { // custom stream name for this error
-      if ( errorStreamIt->second.name() != "" ) { // potential masking of the specific HLT::ErrorCode
-        m_uniqueStreams.push_back(errorStreamIt->second);  // just copy it
+   // special streams for errorous events  
+   if ( m_config->getHltStatus().action() >= HLT::Action::ABORT_CHAIN ) {
+      std::map<HLT::ErrorCode, TriggerInfo::StreamTag>::const_iterator errorStreamIt = m_errorStreamTags.find(m_config->getHltStatus());
+      if ( errorStreamIt != m_errorStreamTags.end() ) { // custom stream name for this error      
+         if ( errorStreamIt->second.name() != "" ) { // potential masking of the specific HLT::ErrorCode
+            m_uniqueStreams.push_back(errorStreamIt->second);  // just copy it
+         } 
+      } else {
+         if ( m_defaultStreamTagForErrors != "" ) { // another potential of total masking of debug stream comes here
+            m_uniqueStreams.push_back(TriggerInfo::StreamTag( m_defaultStreamTagForErrors,"debug", false));	
+         }
       }
-    } else {
-      if ( m_defaultStreamTagForErrors != "" ) { // another potential of total masking of debug stream comes here
-        m_uniqueStreams.push_back(TriggerInfo::StreamTag( m_defaultStreamTagForErrors,"debug", false));
-      }
-    }
+      // we have a debug stream tag, so put module ID 0 into m_modId_clid_name
+      m_modId_clid_name[0]; // (the default value is what we want for this key)
+   }
 
-    // we have a debug stream tag, so put module ID 0 into m_modId_clid_name
-    m_modId_clid_name[0]; // (the default value is what we want for this key)
-  }
+   {
+      typedef std::map<std::string, StreamTagCollectionHelper> StreamTagCollectionHelperMap;
+      StreamTagCollectionHelperMap collectionHelper;
+      StreamTagCollectionHelperMap::iterator strIt;
 
-  {
-    typedef std::map<std::string, StreamTagCollectionHelper> StreamTagCollectionHelperMap;
-    StreamTagCollectionHelperMap collectionHelper;
-    StreamTagCollectionHelperMap::iterator strIt;
+      if ( m_uniqueStreams.size() == 0 ) { // it means no debug stream
+         // list of all StreamTags
 
-    if ( m_uniqueStreams.size() == 0 ) { // it means no debug stream
-      // list of all StreamTags
+         std::map<std::string, StreamTagCollectionHelper>::iterator strIt;
 
-      std::map<std::string, StreamTagCollectionHelper>::iterator strIt;
-
-      // loop over all active chains:
-      //for (std::vector<HLT::SteeringChain*>::const_iterator chain = activeChains.begin();
-      BOOST_FOREACH( const HLT::SteeringChain* chain, activeChains ) {
-        // take only those that passed:
-        if ( chain->chainPassed() ) {
-          // and get all streams from the chain
-          BOOST_FOREACH ( const HLT::StreamTag& chain_stream, chain->getStreamTags() ) {
-            //	for (std::vector<HLT::StreamTag>::const_iterator chain_stream = (*chain)->getStreamTags().begin();
-            //	     chain_stream !=  (*chain)->getStreamTags().end(); ++chain_stream ) {
-            // if stream is not prescaled!
-            if ( ! chain_stream.isPrescaled() ) {
-
-              strIt = collectionHelper.find(chain_stream.getStream());
-              if ( strIt == collectionHelper.end() ) {
-                collectionHelper[chain_stream.getStream()] = StreamTagCollectionHelper( chain_stream.getStream(), chain_stream.getType(), chain_stream.getObeyLB());
-                strIt = collectionHelper.find(chain_stream.getStream()); // make the iterator valid
-              }
-
-              // merge PEBI sets
-              if ( chain_stream.getType() == "calibration" ) {
-                const PartialEventBuildingInfo* chain_pebi = chain->getPEBInfo();
-                if ( chain_pebi ) {
-                  strIt->second.pebi.merge(*chain_pebi);
-                }
-                // merge ScoutingInfo sets
-                if (chain_stream.getStream().find("DataScouting_") == 0){
-                  const ScoutingInfo* chain_SI = chain->getScoutingInfo();
-                  if ( chain_SI ){
-                    strIt->second.Scoutinfo.merge(*chain_SI);
+         // loop over all active chains:
+         //for (std::vector<HLT::SteeringChain*>::const_iterator chain = activeChains.begin();
+         BOOST_FOREACH( const HLT::SteeringChain* chain, activeChains ) {
+            // take only those that passed:
+            if ( chain->chainPassed() ) {
+               // and get all streams from the chain
+               BOOST_FOREACH ( const HLT::StreamTag& chain_stream, chain->getStreamTags() ) {
+                  //	for (std::vector<HLT::StreamTag>::const_iterator chain_stream = (*chain)->getStreamTags().begin();
+                  //	     chain_stream !=  (*chain)->getStreamTags().end(); ++chain_stream ) {
+                  // if stream is not prescaled!
+                  if ( ! chain_stream.isPrescaled() ) {
+                     
+                     strIt = collectionHelper.find(chain_stream.getStream());
+                     if ( strIt == collectionHelper.end() ) {
+                        collectionHelper[chain_stream.getStream()] = StreamTagCollectionHelper( chain_stream.getStream(), chain_stream.getType(), chain_stream.getObeyLB());
+                        strIt = collectionHelper.find(chain_stream.getStream()); // make the iterator valid
+                     }
+                     
+                     // merge PEBI sets
+		     if (( chain_stream.getType() == "calibration" ) || ( chain_stream.getType() == "monitoring" ))  {
+                        const PartialEventBuildingInfo* chain_pebi = chain->getPEBInfo();
+                        if ( chain_pebi ) {
+                           strIt->second.pebi.merge(*chain_pebi);
+                        }
+                        // merge ScoutingInfo sets
+                        if (chain_stream.getStream().find("DataScouting_") == 0){
+                           const ScoutingInfo* chain_SI = chain->getScoutingInfo();
+                           if ( chain_SI ){
+                              strIt->second.Scoutinfo.merge(*chain_SI);
+                           }
+                        }
+                     }
+                     
+                     if(streamOPI && chain_stream.getType() == "express") {
+                        streamOPI->set(chain->getChainName(), chain_stream.prescaleFactor());
+                        
+                        if(m_logLvl <= MSG::VERBOSE)
+                           (*m_log) << MSG::VERBOSE << "Set expressOPI to 1 for: " << chain->getChainName() << endreq;
+                     }
                   }
-                }
-              }
-
-              if(streamOPI && chain_stream.getType() == "express") {
-                streamOPI->set(chain->getChainName(), chain_stream.prescaleFactor());
-
-                if(m_logLvl <= MSG::VERBOSE)
-                  (*m_log) << MSG::VERBOSE << "Set expressOPI to 1 for: " << chain->getChainName() << endreq;
-              }
+               }
             }
-          }
-        }
+         }
       }
-    }
-
-    for(auto& helper : collectionHelper)
-    {
-      if ( helper.first.find("DataScouting_") == 0){
-        std::size_t found_first = helper.first.find_first_of('_');
-        std::size_t found_last = helper.first.find_first_of('_', found_first+1);
-        std::string rob_str = helper.first.substr(found_first+1,found_last-found_first+1);
-        auto mod_id = static_cast<uint16_t>(atoi(rob_str.c_str())); // The module ID is taken from the stream tag
-
-        // add the ROB ID to the stream tag
-        auto id = eformat::helper::SourceIdentifier{eformat::TDAQ_HLT, mod_id};
-        helper.second.pebi.add(id.code());
-
-        std::set<std::pair<CLID, std::string> > clid_name= helper.second.Scoutinfo.get();
-
-        auto it_map = m_modId_clid_name.find(mod_id);
-        if ( it_map == m_modId_clid_name.end() ) // If the module ID is not in the map yet fill the map with the Mod ID -> set<CLID, collectionName>
-          m_modId_clid_name.insert(std::pair<unsigned int, std::set<std::pair<CLID, std::string> > >(mod_id, clid_name));
-        else
-        {  // If the module ID is already in the map add the set<CLID, collectionName> to the already existing set
-          for (std::set<std::pair<CLID, std::string> >::iterator it_set = clid_name.begin(); it_set != clid_name.end(); ++it_set )
-            (it_map->second).insert(*it_set);
-        }
+      
+      for(auto& helper : collectionHelper) {
+         if ( helper.first.find("DataScouting_") == 0){
+            std::size_t found_first = helper.first.find_first_of('_');
+            std::size_t found_last = helper.first.find_first_of('_', found_first+1);
+            std::string rob_str = helper.first.substr(found_first+1,found_last-found_first+1);
+            auto mod_id = static_cast<uint16_t>(atoi(rob_str.c_str())); // The module ID is taken from the stream tag
+            
+            // add the ROB ID to the stream tag
+            auto id = eformat::helper::SourceIdentifier{eformat::TDAQ_HLT, mod_id};
+            helper.second.pebi.add(id.code());
+            
+            std::set<std::pair<CLID, std::string> > clid_name= helper.second.Scoutinfo.get();
+            
+            auto it_map = m_modId_clid_name.find(mod_id);
+            if ( it_map == m_modId_clid_name.end() ) // If the module ID is not in the map yet fill the map with the Mod ID -> set<CLID, collectionName>
+               m_modId_clid_name.insert(std::pair<unsigned int, std::set<std::pair<CLID, std::string> > >(mod_id, clid_name));
+            else
+               {  // If the module ID is already in the map add the set<CLID, collectionName> to the already existing set
+                  for (std::set<std::pair<CLID, std::string> >::iterator it_set = clid_name.begin(); it_set != clid_name.end(); ++it_set )
+                     (it_map->second).insert(*it_set);
+               }
+         }
+         else{ // If there is at least 1 passed chain without "DataScouting_" in the name add 0 to the map. Only one 0 is needed. (This is used to force accept).
+            m_modId_clid_name[0]; // (the default value is what we want for this key)
+         }
+         
+         m_uniqueStreams.emplace_back(helper.second.name,
+                                      helper.second.type,
+                                      helper.second.obey_lb,
+                                      helper.second.pebi.getROBs(),
+                                      helper.second.pebi.getSubDetectors());
       }
-      else{ // If there is at least 1 passed chain without "DataScouting_" in the name add 0 to the map. Only one 0 is needed. (This is used to force accept).
-        m_modId_clid_name[0]; // (the default value is what we want for this key)
+
+      //    // make a unique list of all streams
+      //    std::vector<TriggerInfo::StreamTag>::iterator new_end = std::unique(allStreams.begin(), allStreams.end(), equal_StreamTag);
+      //    m_uniqueStreams.insert(m_uniqueStreams.end(), allStreams.begin(), new_end);
+   }
+
+
+   // modify streams according to the policy
+   m_streamingStrategy->apply(m_uniqueStreams);
+
+
+   // Debug output: print streams
+   if (m_logLvl <= MSG::DEBUG) {
+      (*m_log) << MSG::DEBUG << m_uniqueStreams.size() << " StreamTags of this event: "
+               << m_config->getInstance().substr(1,3) << endreq;
+      BOOST_FOREACH(const TriggerInfo::StreamTag& st, m_uniqueStreams ) {
+
+         if(m_logLvl <= MSG::DEBUG) {
+            (*m_log) << MSG::DEBUG << "REGTEST " << "Stream name = " << st.name() << " type = " << st.type() << " obeyLB = "
+                     << st.obeysLumiblock() << endreq;
+
+            if (!st.robs().empty()) {
+               std::set<unsigned int> robs(st.robs());
+               (*m_log) << MSG::DEBUG << "PEB ROBs " << std::vector<unsigned int>(robs.begin(), robs.end()) << endreq; // uff, MsgStream supprts vector but not set
+            }
+
+
+            if (!st.dets().empty()) {
+               std::set<unsigned int> dets(st.dets());
+               (*m_log) << MSG::DEBUG << "PEB Dets " << std::vector<unsigned int>(dets.begin(), dets.end()) << endreq;
+            }
+
+         }
       }
-
-      m_uniqueStreams.emplace_back(helper.second.name,
-                                   helper.second.type,
-                                   helper.second.obey_lb,
-                                   helper.second.pebi.getROBs(),
-                                   helper.second.pebi.getSubDetectors());
-    }
-
-    //    // make a unique list of all streams
-    //    std::vector<TriggerInfo::StreamTag>::iterator new_end = std::unique(allStreams.begin(), allStreams.end(), equal_StreamTag);
-    //    m_uniqueStreams.insert(m_uniqueStreams.end(), allStreams.begin(), new_end);
-  }
+   }
 
 
-  // modify streams according to the policy
-  m_streamingStrategy->apply(m_uniqueStreams);
+   // the Chain's TriggerTypes
+   // ---------------------------------
+   std::vector<uint32_t> triggerTypeBits;
+   triggerTypeBits.resize( m_infoSize );
+
+   if(m_logLvl <= MSG::VERBOSE)
+      (*m_log) << MSG::VERBOSE << "Bit array to hold TriggerInfo bits resized to: " << triggerTypeBits.size()
+               << " words, highest chain_counter: " <<  m_highestTriggerTypeBit << endreq;
 
 
-  // Debug output: print streams
-  if (m_logLvl <= MSG::DEBUG) {
-    (*m_log) << MSG::DEBUG << m_uniqueStreams.size() << " StreamTags of this event: "
-        << m_config->getInstance().substr(1,3) << endreq;
-    BOOST_FOREACH(const TriggerInfo::StreamTag& st, m_uniqueStreams ) {
-
-      if(m_logLvl <= MSG::DEBUG) {
-        (*m_log) << MSG::DEBUG << "REGTEST " << "Stream name = " << st.name() << " type = " << st.type() << " obeyLB = "
-            << st.obeysLumiblock() << endreq;
-
-        if (!st.robs().empty()) {
-          std::set<unsigned int> robs(st.robs());
-          (*m_log) << MSG::DEBUG << "PEB ROBs " << std::vector<unsigned int>(robs.begin(), robs.end()) << endreq; // uff, MsgStream supprts vector but not set
-        }
-
-        if (!st.dets().empty()) {
-          std::set<unsigned int> dets(st.dets());
-          (*m_log) << MSG::DEBUG << "PEB Dets " << std::vector<unsigned int>(dets.begin(), dets.end()) << endreq;
-        }
-
+   // Collect all TriggerTypes for this event,
+   // i.e. take all TriggerTypes that from all chains that passed.
+   // Then, make combine these TriggerTypes with the logical OR operator and add it to the HLTResult.
+   // loop over all active chains:
+   for (std::vector<HLT::SteeringChain*>::const_iterator chain = activeChains.begin();
+        chain != activeChains.end(); ++chain) {
+      // take only those that passed:
+      if ( (*chain)->chainPassed() ) {
+         if(m_logLvl <= MSG::VERBOSE)
+            (*m_log) << MSG::VERBOSE << "setting bit: " << (*chain)->getChainCounter() << " in TriggerInfo"  << endreq;
+         setTriggerTypeBit((*chain)->getChainCounter(), triggerTypeBits);
       }
-    }
-  }
+   }
+
+   //  hltResult->setTriggerTypeBits(triggerTypeBits);
+
+   // Debug output: print streams
+   if (m_logLvl <= MSG::DEBUG) {
+      (*m_log) << MSG::DEBUG << "TriggerType bits of " << m_config->getInstance().substr(1,3 ) << " words: " << triggerTypeBits.size() << " content" ;
+      for (  std::vector<uint32_t>::const_iterator it = triggerTypeBits.begin();
+             it != triggerTypeBits.end(); ++it ) {
+         (*m_log) << MSG::DEBUG << " 0x" << MSG::hex  << *it;
+      }
+      (*m_log) << MSG::DEBUG << MSG::dec << endreq;
+   }
 
 
 
-  // the Chain's TriggerTypes
-  // ---------------------------------
-  std::vector<uint32_t> triggerTypeBits;
-  triggerTypeBits.resize( m_infoSize );
-
-  if(m_logLvl <= MSG::VERBOSE)
-    (*m_log) << MSG::VERBOSE << "Bit array to hold TriggerInfo bits resized to: " << triggerTypeBits.size()
-    << " words, highest chain_counter: " <<  m_highestTriggerTypeBit << endreq;
+   ////////////////////////////////////////////////////////////////////
+   // recording
+   ////////////////////////////////////////////////////////////////////
 
 
-  // Collect all TriggerTypes for this event,
-  // i.e. take all TriggerTypes that from all chains that passed.
-  // Then, make combine these TriggerTypes with the logical OR operator and add it to the HLTResult.
-  // loop over all active chains:
-  for (std::vector<HLT::SteeringChain*>::const_iterator chain = activeChains.begin();
-      chain != activeChains.end(); ++chain) {
-    // take only those that passed:
-    if ( (*chain)->chainPassed() ) {
-      if(m_logLvl <= MSG::VERBOSE)
-        (*m_log) << MSG::VERBOSE << "setting bit: " << (*chain)->getChainCounter() << " in TriggerInfo"  << endreq;
-      setTriggerTypeBit((*chain)->getChainCounter(), triggerTypeBits);
-    }
-  }
+   // put it all to SG EventInfo object
+   // get EventInfo
+   const EventInfo* constEventInfo(0);
+   StatusCode sc = m_storeGate->retrieve(constEventInfo);
+   if(sc.isFailure()){
+      if(m_logLvl <= MSG::FATAL)
+         (*m_log) << MSG::FATAL << "Can't get EventInfo object for update of the StreamTag and TriggerInfo" << endreq;
+      return HLT::FATAL;
+   }
 
-  //  hltResult->setTriggerTypeBits(triggerTypeBits);
+   if(m_logLvl <= MSG::VERBOSE)
+      (*m_log) << MSG::VERBOSE << "Updating TriggerInfo" << endreq;
 
-  // Debug output: print streams
-  if (m_logLvl <= MSG::DEBUG) {
-    (*m_log) << MSG::DEBUG << "TriggerType bits of " << m_config->getInstance().substr(1,3 ) << " words: " << triggerTypeBits.size() << " content" ;
-    for (  std::vector<uint32_t>::const_iterator it = triggerTypeBits.begin();
-        it != triggerTypeBits.end(); ++it ) {
-      (*m_log) << MSG::DEBUG << " 0x" << MSG::hex  << *it;
-    }
-    (*m_log) << MSG::DEBUG << MSG::dec << endreq;
-  }
+   EventInfo* eventInfo = const_cast<EventInfo*>(constEventInfo);
+   TriggerInfo* oldtriggerInfo = eventInfo->trigger_info();
+   TriggerInfo* triggerInfo;
+   if (oldtriggerInfo!= 0){
+      triggerInfo = new TriggerInfo(*oldtriggerInfo);
+   } else {
+      triggerInfo = new TriggerInfo();
+   }
 
-
-
-
-
-  ////////////////////////////////////////////////////////////////////
-  // recording
-  ////////////////////////////////////////////////////////////////////
-
-
-
-  // put it all to SG EventInfo object
-  // get EventInfo
-  const EventInfo* constEventInfo(0);
-  StatusCode sc = m_storeGate->retrieve(constEventInfo);
-  if(sc.isFailure()){
-    if(m_logLvl <= MSG::FATAL)
-      (*m_log) << MSG::FATAL << "Can't get EventInfo object for update of the StreamTag and TriggerInfo" << endreq;
-    return HLT::FATAL;
-  }
-
-  if(m_logLvl <= MSG::VERBOSE)
-    (*m_log) << MSG::VERBOSE << "Updating TriggerInfo" << endreq;
-
-  EventInfo* eventInfo = const_cast<EventInfo*>(constEventInfo);
-  TriggerInfo* oldtriggerInfo = eventInfo->trigger_info();
-  TriggerInfo* triggerInfo;
-  if (oldtriggerInfo!= 0){
-    triggerInfo = new TriggerInfo(*oldtriggerInfo);
-  } else {
-    triggerInfo = new TriggerInfo();
-  }
-
-  // update the TriggerInfo
-  /*  uint32_t lvl1Id = 0;
+   // update the TriggerInfo
+   /*  uint32_t lvl1Id = 0;
        uint32_t lvl1Info = 0;
        uint32_t status = 0;
        std::vector<uint32_t> lvl2Info;
        std::vector<uint32_t> efInfo;
    */
 
-  /*
+   /*
      if ( triggerInfo != 0 ) {
      lvl1Id   = triggerInfo->extendedLevel1ID();
      lvl1Info = triggerInfo->level1TriggerType();
@@ -576,60 +560,60 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
      }
    */
 
-  // replace trigger Type bits depending on the level (L2 or EF)
-  if ( m_config->getHLTLevel() == HLT::L2 ) {
-    //lvl2Info = triggerTypeBits; // lvl2 stuff is replaced
-    triggerInfo->setLevel2TriggerInfo(triggerTypeBits);
-    if(m_logLvl <= MSG::VERBOSE)
-      (*m_log) << MSG::VERBOSE << "Updated TriggerInfo for L2" << endreq;
-  }
-
-  else if ( m_config->getHLTLevel() == HLT::EF ){
-    //efInfo   = triggerTypeBits; // ef stuff is replaced
-    triggerInfo->setEventFilterInfo(triggerTypeBits);
-    if(m_logLvl <= MSG::VERBOSE)
-      (*m_log) << MSG::VERBOSE << "Updated TriggerInfo for EF" << endreq;
-
-    if(oldtriggerInfo!= 0){
+   // replace trigger Type bits depending on the level (L2 or EF)
+   if ( m_config->getHLTLevel() == HLT::L2 ) {
+      //lvl2Info = triggerTypeBits; // lvl2 stuff is replaced
+      triggerInfo->setLevel2TriggerInfo(triggerTypeBits);
       if(m_logLvl <= MSG::VERBOSE)
-        (*m_log) << MSG::VERBOSE << "Saving previous level calibration Stream Tags" << endreq;
+         (*m_log) << MSG::VERBOSE << "Updated TriggerInfo for L2" << endreq;
+   } 
+   else if ( m_config->getHLTLevel() == HLT::EF ){   
+      //efInfo   = triggerTypeBits; // ef stuff is replaced
+      triggerInfo->setEventFilterInfo(triggerTypeBits);
+      if(m_logLvl <= MSG::VERBOSE)
+         (*m_log) << MSG::VERBOSE << "Updated TriggerInfo for EF" << endreq;
 
-      std::vector<TriggerInfo::StreamTag> oldstream = oldtriggerInfo->streamTags();
-      std::vector<TriggerInfo::StreamTag>::const_iterator oldstreamI = oldstream.begin();
-      std::vector<TriggerInfo::StreamTag>::const_iterator oldstreamE = oldstream.end();
-      for(;oldstreamI!=oldstreamE; ++oldstreamI){
-        if(oldstreamI->type()=="calibration"){
-          if(m_logLvl <= MSG::DEBUG)
-            (*m_log) << MSG::DEBUG << "Keeping calibration Stream Tag: " << oldstreamI->name()  << endreq;
-          m_uniqueStreams.push_back(*oldstreamI);
-        }
+
+      if(oldtriggerInfo!= 0){
+         if(m_logLvl <= MSG::VERBOSE)
+            (*m_log) << MSG::VERBOSE << "Saving previous level calibration Stream Tags" << endreq;
+         
+         std::vector<TriggerInfo::StreamTag> oldstream = oldtriggerInfo->streamTags();
+         std::vector<TriggerInfo::StreamTag>::const_iterator oldstreamI = oldstream.begin();
+         std::vector<TriggerInfo::StreamTag>::const_iterator oldstreamE = oldstream.end();
+         for(;oldstreamI!=oldstreamE; ++oldstreamI){
+            if(oldstreamI->type()=="calibration"){
+               if(m_logLvl <= MSG::DEBUG)
+                  (*m_log) << MSG::DEBUG << "Keeping calibration Stream Tag: " << oldstreamI->name()  << endreq;
+               m_uniqueStreams.push_back(*oldstreamI);
+            }
+         }
+         std::sort(m_uniqueStreams.begin(), m_uniqueStreams.end(), lessThan_StreamTag);
+	     
+         // make a unique list of all streams
+         std::vector<TriggerInfo::StreamTag>::iterator new_end = std::unique(m_uniqueStreams.begin(), m_uniqueStreams.end(), equal_StreamTag);
+         m_uniqueStreams.erase(new_end,  m_uniqueStreams.end());   
       }
-      std::sort(m_uniqueStreams.begin(), m_uniqueStreams.end(), lessThan_StreamTag);
+   }
+   else if ( m_config->getHLTLevel() == HLT::HLT){
+      std::vector<unsigned int> zeroL2(1); zeroL2[0]=0x0;
+      triggerInfo->setLevel2TriggerInfo(zeroL2); // set L2 result to 0
+      triggerInfo->setEventFilterInfo(triggerTypeBits);
+      if(m_logLvl <= MSG::VERBOSE)
+         (*m_log) << MSG::VERBOSE << "Updated TriggerInfo for HLT" << endreq;
+   }
+  
+ 
+   //triggerInfo = new TriggerInfo( status, lvl1Id, lvl1Info, lvl2Info, efInfo, uniqueStreams );
+   triggerInfo->setStreamTags(m_uniqueStreams);
+   eventInfo->setTriggerInfo(triggerInfo);
+   if(m_logLvl <= MSG::VERBOSE){
+      (*m_log) << MSG::VERBOSE << "Updated TriggerInfo attached to EventInfo:" << endreq;
+      (*m_log) << MSG::VERBOSE << (*triggerInfo) << endreq;
+   }
 
-      // make a unique list of all streams
-      std::vector<TriggerInfo::StreamTag>::iterator new_end = std::unique(m_uniqueStreams.begin(), m_uniqueStreams.end(), equal_StreamTag);
-      m_uniqueStreams.erase(new_end,  m_uniqueStreams.end());
-    }
-  }
 
-  else if ( m_config->getHLTLevel() == HLT::HLT){
-    std::vector<unsigned int> zeroL2(1); zeroL2[0]=0x0;
-    triggerInfo->setLevel2TriggerInfo(zeroL2); // set L2 result to 0
-    triggerInfo->setEventFilterInfo(triggerTypeBits);
-    if(m_logLvl <= MSG::VERBOSE)
-      (*m_log) << MSG::VERBOSE << "Updated TriggerInfo for HLT" << endreq;
-  }
-
-
-  //triggerInfo = new TriggerInfo( status, lvl1Id, lvl1Info, lvl2Info, efInfo, uniqueStreams );
-  triggerInfo->setStreamTags(m_uniqueStreams);
-  eventInfo->setTriggerInfo(triggerInfo);
-  if(m_logLvl <= MSG::VERBOSE){
-    (*m_log) << MSG::VERBOSE << "Updated TriggerInfo attached to EventInfo:" << endreq;
-    (*m_log) << MSG::VERBOSE << (*triggerInfo) << endreq;
-  }
-
-  return HLT::OK;
+   return HLT::OK;
 }
 
 /*
@@ -679,47 +663,47 @@ ErrorCode ResultBuilder::getPEBInfo() {
  */
 
 StatusCode ResultBuilder::decodeErrorStreamaTagsProperty() {
-  std::stringstream ss;
-  std::vector<std::string>::const_iterator it;
-  for ( it = m_errorStreamTagsProperty.begin(); it != m_errorStreamTagsProperty.end(); ++it ){
-    ss.clear();
-    ss.str(*it);
-    // read it now
-    std::string errorName;
-    getline(ss, errorName, ':');
+   std::stringstream ss;
+   std::vector<std::string>::const_iterator it;
+   for ( it = m_errorStreamTagsProperty.begin(); it != m_errorStreamTagsProperty.end(); ++it ){
+      ss.clear();
+      ss.str(*it);
+      // read it now
+      std::string errorName;
+      getline(ss, errorName, ':');
 
 
-    int code = getErrorCodePosFromStr(errorName);
-    if ( code < 0 ) {
-      (*m_log) << MSG::FATAL << "While setting streams for errorus events: ErrorCode: "
-          << errorName << " unrecognized"  << endreq;
-      return StatusCode::FAILURE;
-    } else {
-      ErrorCode ec = static_cast<HLT::ErrorCode>(code);
-      // read further stream name
-      //
-      std::string streamName;
-      std::string streamType;
-      //getline(ss, errorName,'\0');
-      ss >> streamName;
-      ss >> streamType;
-      if ( streamName != "" ) {
-        if (streamType == "")
-          streamType = "debug";
-        m_errorStreamTags[ec] = TriggerInfo::StreamTag (streamName, streamType, false);
-
-        if(m_logLvl <= MSG::DEBUG)
-          (*m_log) << MSG::DEBUG << "StreamTag for erroneous events with error code: "
-          << errorName << " is " << streamType << ":" << streamName << endreq;
+      int code = getErrorCodePosFromStr(errorName);
+      if ( code < 0 ) {
+         (*m_log) << MSG::FATAL << "While setting streams for errorus events: ErrorCode: "
+                  << errorName << " unrecognized"  << endreq;
+         return StatusCode::FAILURE;
       } else {
-        m_errorStreamTags[ec] = TriggerInfo::StreamTag ("", "debug", false);
-        if(m_logLvl <= MSG::DEBUG)
-          (*m_log) << MSG::DEBUG << "StreamTag for erroneous events with error code: "
-          << errorName << " is disabled" << endreq;
+         ErrorCode ec = static_cast<HLT::ErrorCode>(code);
+         // read further stream name
+         //
+         std::string streamName;
+         std::string streamType;
+         //getline(ss, errorName,'\0');
+         ss >> streamName;
+         ss >> streamType;
+         if ( streamName != "" ) {
+            if (streamType == "")
+               streamType = "debug";
+            m_errorStreamTags[ec] = TriggerInfo::StreamTag (streamName, streamType, false);
+
+            if(m_logLvl <= MSG::DEBUG)
+               (*m_log) << MSG::DEBUG << "StreamTag for erroneous events with error code: "
+                        << errorName << " is " << streamType << ":" << streamName << endreq;
+         } else {
+            m_errorStreamTags[ec] = TriggerInfo::StreamTag ("", "debug", false);
+            if(m_logLvl <= MSG::DEBUG)
+               (*m_log) << MSG::DEBUG << "StreamTag for erroneous events with error code: "
+                        << errorName << " is disabled" << endreq;
+         }
+
       }
+   }
 
-    }
-  }
-
-  return StatusCode::SUCCESS;
+   return StatusCode::SUCCESS;
 }

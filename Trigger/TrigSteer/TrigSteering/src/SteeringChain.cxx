@@ -31,10 +31,10 @@
 
 #include "TrigSteering/SteeringChain.h"
 
-
+#include <iostream>
 
 using namespace HLT;
-
+using namespace std;
 
 // normal constructor:
 SteeringChain::SteeringChain( const TrigConf::HLTChain* configChain, ISequenceProvider* seqs,
@@ -56,10 +56,12 @@ SteeringChain::SteeringChain( const TrigConf::HLTChain* configChain, ISequencePr
     std::cerr << "Chain::Chain AlgoConfig is 0!" << std::endl;
     return;
   }
+
   if (!configChain) {
     m_config->getMsgStream() << MSG::ERROR << "Chain::Chain HLTChain is 0!" << endreq;
     return;
   }
+
   if (!seqs) {
     m_config->getMsgStream() << MSG::ERROR << "Chain::Chain ISequenceProvider is 0!" << endreq;
     return;
@@ -152,182 +154,186 @@ SteeringChain::~SteeringChain() {
 
 
 
-bool SteeringChain::fillFromConfigChain( ISequenceProvider* seqs,
-					 IScalerSvc* scalerSvc ) {
+bool
+SteeringChain::fillFromConfigChain( ISequenceProvider* seqs,
+                                    IScalerSvc* scalerSvc ) {
 
-  // get all configured TrigConf::HLTSignature
-  const std::vector<TrigConf::HLTSignature*>& sigs = getConfigChain()->signatureList();
+   // we need at least one signature, otherwise we can not call the first signatures execute()
+   // in case there is no signature, we must never activate this Chain! -> see setActive()
+   if (m_config && getConfigChain()->signatureList().size() == 0) {
+      m_config->getMsgStream() << MSG::DEBUG << "Chain: no signatures found for this chain!! "
+                               << endreq;
+   }
 
-  // we need at least one signature, otherwise we can not call the first sigs[step].execute()
-  // in case there is no signature, we must never activate this Chain! -> see setActive()
-  if (m_config && sigs.size() == 0) {
-    m_config->getMsgStream() << MSG::DEBUG << "Chain: no signatures found for this chain!! "
-                             << endreq;
-  }
+   // We assume here that the HLTSignatures have reasonable signature_counters (e.g. not all the same)!
+   // otherwise, we will print an ERROR message (in addSignature)
 
-  // We assume here that the HLTSignatures have reasonable signature_counters (e.g. not all the same)!
-  // otherwise, we will print an ERROR message (in addSignature)
+   // create our own HLT::Signature from the TrigConf::HLTSignature for all the configured signatures
+   for(TrigConf::HLTSignature* sig : getConfigChain()->signatureList()) {
 
-  // create our own HLT::Signatures
-  for (unsigned int i = 0; i < sigs.size(); ++i) {
-
-    if (m_config && m_config->getMsgLvl() <=MSG::DEBUG) {
-      m_config->getMsgStream() << MSG::DEBUG << "Chain: creating new Signature: "
-                               << sigs[i]->label() << endreq;
-    }
-
-    unsigned int pos = sigs[i]->signature_counter() - 1; // - 1 : signature_counters start with 1, vector pos with 0 !!
-    if (canAddSignature(pos) ) {
-      m_signatures[pos] =
-	new Signature(const_cast<const TrigConf::HLTSignature*>(sigs[i]), seqs, m_config);
-    }
-  }
-
-  // if we don't have the ScalerSvc (because this Chain is created from a TrigConf::HLTChain
-  if ( !scalerSvc ) {
-    if (m_config && m_config->getMsgLvl() <=MSG::DEBUG) {
-      m_config->getMsgStream() << MSG::DEBUG << "ScalerSvc is NULL!" << endreq;
-    }
-  }
-
-  // For now use default -- at some point Chain should get "ScalerType" attributes.
-  if (scalerSvc) m_preScaler  = scalerSvc->get("");
-  if (scalerSvc) m_passScaler = scalerSvc->get("");
-
-  // look for StreamTags ..
-  const std::vector<TrigConf::HLTStreamTag*>& streams = getConfigChain()->streams();
-
-  for ( std::vector<TrigConf::HLTStreamTag*>::const_iterator it = streams.begin();
-        it != streams.end(); ++it) {
-    // make sure the TrigConf streamTag pointer is not NULL:
-    if ( !(*it) ) {
-      if (m_config) {
-	m_config->getMsgStream() << MSG::ERROR << "Chain: TrigConf::HLTStreamTag pointer NULL!" << endreq;
+      if (m_config && m_config->getMsgLvl() <=MSG::DEBUG) {
+         m_config->getMsgStream() << MSG::DEBUG << "Chain: creating new Signature: "
+                                  << sig->label() << endreq;
       }
-      return false;
-    }
-    m_streamTags.push_back( StreamTag( *it, scalerSvc ) );
 
-    // if the stream type is "calibration" prepare ROBs storage
-    if ((*it)->type() == "calibration" ) {
-      m_calibrationROBs = new PartialEventBuildingInfo();
-      m_scouting = new ScoutingInfo();
-      m_config->getMsgStream() << MSG::VERBOSE << "Chain " << getChainName() << " has the storage for the ROBs for PEB" << endreq;
-    }
-  }
+      unsigned int pos = sig->signature_counter() - 1; // - 1 : signature_counters start with 1, vector pos with 0 !!
+      //unsigned int pos = sig->signature_counter(); // if we want to use step 0 for topo emulation
 
-  // find out prescale master
-  // assuming only one per chain (conf checkers must catch it otherwise)
-  const std::set<std::string>& groups = m_configChain->groups();
-  for ( std::set<std::string>::const_iterator git = groups.begin(); git != groups.end(); ++git ) {
-    if ( git->find("CPS:") != std::string::npos ) {
-      m_prescaleGroup = *git;
-      break;
-    }
-  }
+      if (canAddSignature(pos) )
+         m_signatures[pos] = new Signature(const_cast<const TrigConf::HLTSignature*>(sig), seqs, m_config);
 
-  return true;
+   }
+
+   // if we don't have the ScalerSvc (because this Chain is created from a TrigConf::HLTChain
+   if ( !scalerSvc ) {
+      if (m_config && m_config->getMsgLvl() <=MSG::DEBUG) {
+         m_config->getMsgStream() << MSG::DEBUG << "ScalerSvc is NULL!" << endreq;
+      }
+   }
+
+   // For now use default -- at some point Chain should get "ScalerType" attributes.
+   if (scalerSvc) m_preScaler  = scalerSvc->get("");
+   if (scalerSvc) m_passScaler = scalerSvc->get("");
+
+   // look for StreamTags ..
+   const std::vector<TrigConf::HLTStreamTag*>& streams = getConfigChain()->streams();
+
+   for ( std::vector<TrigConf::HLTStreamTag*>::const_iterator it = streams.begin();
+         it != streams.end(); ++it) {
+      // make sure the TrigConf streamTag pointer is not NULL:
+      if ( !(*it) ) {
+         if (m_config) {
+            m_config->getMsgStream() << MSG::ERROR << "Chain: TrigConf::HLTStreamTag pointer NULL!" << endreq;
+         }
+         return false;
+      }
+      m_streamTags.push_back( StreamTag( *it, scalerSvc ) );
+
+      // if the stream type is "calibration" prepare ROBs storage
+      if ((*it)->type() == "calibration" ) {
+         m_calibrationROBs = new PartialEventBuildingInfo();
+         m_scouting = new ScoutingInfo();
+	 m_config->getMsgStream() << MSG::VERBOSE << "Chain " << getChainName() << " has the storage for the ROBs for PEB and data scouting" << endreq;
+      }
+
+      // if the stream type is "monitoring" prepare ROBs storage
+      if ((*it)->type() == "monitoring" ) {
+	m_calibrationROBs = new PartialEventBuildingInfo();
+	m_config->getMsgStream() << MSG::VERBOSE << "Chain " << getChainName() << " has the storage for the ROBs for PEB" << endreq;
+      }
+   }
+
+   // find out prescale master
+   // assuming only one per chain (conf checkers must catch it otherwise)
+   const std::set<std::string>& groups = m_configChain->groups();
+   for ( std::set<std::string>::const_iterator git = groups.begin(); git != groups.end(); ++git ) {
+      if ( git->find("CPS:") != std::string::npos ) {
+         m_prescaleGroup = *git;
+         break;
+      }
+   }
+
+   return true;
 }
 
 
 
 HLT::ErrorCode SteeringChain::executeStep() {
-  // if chain already inactive, stop
-  if (!m_active) return HLT::OK;
 
+   // if chain already inactive, stop
+   if (!m_active) return HLT::OK;
 
-  ScopeResumePauseTimer scopeTimer(m_timer, m_currentStep+1 >= int(m_signatures.size()));
-  //ScopeResumePauseTimer scopeTimer(m_timer);
-  // Debug output
-  if (m_config && m_config->getMsgLvl() <=MSG::DEBUG) {
-    m_config->getMsgStream() << MSG::DEBUG  << "Executing chain #"
-                             << getChainCounter() << " (id "
-                             << m_configChain->chain_name() << ") "
-                             << " step " << m_currentStep << " out of " << m_signatures.size()
-                             << endreq;
-  }
+   ScopeResumePauseTimer scopeTimer(m_timer, m_currentStep+1 >= int(m_signatures.size()));
+   //ScopeResumePauseTimer scopeTimer(m_timer);
+   // Debug output
+   if (m_config && m_config->getMsgLvl() <=MSG::DEBUG) {
+      m_config->getMsgStream() << MSG::DEBUG  << "Executing chain #"
+                               << getChainCounter() << " (id "
+                               << m_configChain->chain_name() << ") "
+                               << " step " << m_currentStep << " out of " << m_signatures.size()
+                               << endreq;
+   }
    
 
-  // collect operational information: create new TrigOperationalInfo
-  if(m_config -> getSteeringOPILevel() > 0) {
-    TrigOperationalInfo *steer_opi = new TrigOperationalInfo();
-    steer_opi -> set("CHAIN:"+getChainName(), m_currentStep);
-    std::string key;
-    m_config -> getNavigation() -> attachFeature(m_config -> getNavigation() -> getInitialNode(),
-						 steer_opi, HLT::Navigation::ObjectCreatedByNew, key, 
-						 "OPI_extended"+m_config->getInstance());
-    m_config -> setSteeringOPI(steer_opi);
-  }
+   // collect operational information: create new TrigOperationalInfo
+   if(m_config -> getSteeringOPILevel() > 0) {
+      TrigOperationalInfo *steer_opi = new TrigOperationalInfo();
+      steer_opi -> set("CHAIN:"+getChainName(), m_currentStep);
+      std::string key;
+      m_config -> getNavigation() -> attachFeature(m_config -> getNavigation() -> getInitialNode(),
+                                                   steer_opi, HLT::Navigation::ObjectCreatedByNew, key, 
+                                                   "OPI_extended"+m_config->getInstance());
+      m_config -> setSteeringOPI(steer_opi);
+   }
+  
+   m_config->setPEBI(m_calibrationROBs); // this sets the context of PEB (i.e. al algs executing within this chain will insert their ROB demends into this object) 
+   m_config->setScoutingInfo(m_scouting); // this sets the context of PEB (i.e. al algs executing within this chain will insert their ROB demends into this object) 
 
-  m_config->setPEBI(m_calibrationROBs); // this sets the context of PEB (i.e. al algs executing within this chain will insert their ROB demends into this object) 
-  m_config->setScoutingInfo(m_scouting); // this sets the context of PEB (i.e. al algs executing within this chain will insert their ROB demends into this object) 
 
-  // check if there is anything to do at this step
-  if ( m_signatures.size() > unsigned(m_currentStep) ) {
-    if ( m_signatures[m_currentStep] == 0) {
-      if (m_config && m_config->getMsgLvl() <=MSG::DEBUG) {
-	m_config->getMsgStream()  << MSG::DEBUG  << "skipping this step (no signature to satisfy)"
-				  << endreq;
-      }
-    } else {
-      // execute the current step; deactivate the chain if it fails
-      HLT::ErrorCode ec = m_signatures[m_currentStep]->execute( m_active );
-      
-      //     m_config->getMsgStream() << MSG::DEBUG << "Chain " << m_configChain->chain_name()
-      // 			     << " EC from signature execution =  " << HLT::strErrorCode(ec) << " at step "
-      // 			     << m_currentStep << endreq;
-      
-      m_errorCode = m_errorCode > ec ? m_errorCode : ec;
-      // If some error occurred, end here:
-      if (ec.action() > HLT::Action::CONTINUE ) {
-	// some debug output
-	if (m_config && m_config->getMsgLvl() <= MSG::WARNING) {
-	  m_config->getMsgStream() << MSG::WARNING << "Chain " << getChainName()
-				   << " aborting with error code " << strErrorCode(ec) << " at step "
-				   << m_currentStep << endreq;
-	}
-	//m_errorCode = m_errorCode > ec ? m_errorCode : ec;
-	
-	m_active = false;
-	return m_errorCode;
+   // check if there is anything to do at this step
+   if ( m_signatures.size() > unsigned(m_currentStep) ) {
+      if ( m_signatures[m_currentStep] == 0) {
+         if (m_config && m_config->getMsgLvl() <=MSG::DEBUG) {
+            m_config->getMsgStream() << MSG::DEBUG << "skipping this step (no signature to satisfy)"
+                                     << endreq;
+         }
       } else {
-	if (m_config && m_config->getMsgLvl() <= MSG::DEBUG) {
-	  m_config->getMsgStream() << MSG::DEBUG << "Chain " << getChainName()
-				   << " continues with error code " << strErrorCode(ec) << " at step "
-				   << m_currentStep << endreq;
-	}
+        
+         // execute the current step; deactivate the chain if it fails
+        
+         HLT::ErrorCode ec = m_signatures[m_currentStep]->execute( m_active );
+
+         //     m_config->getMsgStream() << MSG::DEBUG << "Chain " << m_configChain->chain_name()
+         // 			     << " EC from signature execution =  " << HLT::strErrorCode(ec) << " at step "
+         // 			     << m_currentStep << endreq;
+         m_errorCode = m_errorCode > ec ? m_errorCode : ec;
+         // If some error occurred, end here:
+         if (ec.action() > HLT::Action::CONTINUE ) {
+            // some debug output
+            if (m_config && m_config->getMsgLvl() <= MSG::WARNING) {
+               m_config->getMsgStream() << MSG::WARNING << "Chain " << getChainName()
+                                        << " aborting with error code " << strErrorCode(ec) << " at step "
+                                        << m_currentStep << endreq;
+            }
+            //m_errorCode = m_errorCode > ec ? m_errorCode : ec;
+           
+            m_active = false;
+            return m_errorCode;
+         } else {
+            if (m_config && m_config->getMsgLvl() <= MSG::DEBUG) {
+               m_config->getMsgStream() << MSG::DEBUG << "Chain " << getChainName()
+                                        << " continues with error code " << strErrorCode(ec) << " at step "
+                                        << m_currentStep << endreq;
+            }
+         }
+        
+         // Chain failed without error: also stop
+         if ( !m_active ) {
+            if (m_config && m_config->getMsgLvl() <= MSG::DEBUG)
+               m_config->getMsgStream() << MSG::DEBUG << "Chain " << getChainName()
+                                        << " failed at step " << m_currentStep << endreq;
+            return m_errorCode;
+         }
+      }       
+      // We passed: go on to the next step
+      m_currentStep++;
+   }
+
+   // If there are no more steps, we passed (see chainPassed()). Nothing left to
+   // do => de-activate the chain and wait for the others to finish.
+   if (m_currentStep >= static_cast<int>(m_signatures.size()) ) {
+      setPassedRaw();
+      m_active = false;
+        
+      // some debug output
+      if (m_config && m_config->getMsgLvl() <= MSG::DEBUG) {
+         m_config->getMsgStream()   << MSG::DEBUG << "Chain " << getChainName()
+                                    << " finished successfully" << endreq;
       }
-      
-      // Chain failed without error: also stop
-      if ( !m_active ) {
-        if (m_config && m_config->getMsgLvl() <= MSG::DEBUG)
-	  m_config->getMsgStream() << MSG::DEBUG << "Chain " << getChainName()
-				   << " failed at step " << m_currentStep << endreq;
-	return m_errorCode;
-      }
-    }
-
-    // We passed: go on to the next step
-    m_currentStep++;
-  }
-
-  // If there are no more steps, we passed (see chainPassed()). Nothing left to
-  // do => de-activate the chain and wait for the others to finish.
-  if (m_currentStep >= static_cast<int>(m_signatures.size()) ) {
-    setPassedRaw();
-    m_active = false;
-
-    // some debug output
-    if (m_config && m_config->getMsgLvl() <= MSG::DEBUG) {
-      m_config->getMsgStream()   << MSG::DEBUG << "Chain " << getChainName()
-				 << " finished successfully" << endreq;
-    }
-    return m_errorCode;
-  }
-  return m_errorCode;
+      return m_errorCode;
+   }
+   return m_errorCode;
 }
-
-
 
 HLT::ErrorCode SteeringChain::prepareStepRobRequests() {
   // if chain already inactive, stop

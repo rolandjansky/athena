@@ -1,5 +1,6 @@
 #include "TrigSteering/TrigSteer.h"
 #include "TrigSteering/Lvl1Converter.h"
+#include "TrigSteering/LvlTopoConverter.h"
 #include "TrigSteering/Lvl1FromFile.h"
 #include "TrigSteering/Lvl2Converter.h"
 #include "TrigSteering/LoopbackConverterFromPersistency.h"
@@ -29,6 +30,7 @@ DECLARE_NAMESPACE_TOOL_FACTORY( HLT, RandomScaler )
 DECLARE_NAMESPACE_TOOL_FACTORY( HLT, Lvl1ResultAccessTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( HLT, HLTResultAccessTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( HLT, Lvl1Converter )
+DECLARE_NAMESPACE_TOOL_FACTORY( HLT, LvlTopoConverter )
 DECLARE_NAMESPACE_TOOL_FACTORY( HLT, Lvl1FromFile )
 DECLARE_NAMESPACE_TOOL_FACTORY( HLT, Lvl2Converter )
 DECLARE_NAMESPACE_TOOL_FACTORY( HLT, LoopbackConverterFromPersistency )
@@ -45,6 +47,7 @@ DECLARE_FACTORY_ENTRIES(TrigSteering) {
 
     DECLARE_NAMESPACE_TOOL( HLT, ResultBuilder )
     DECLARE_NAMESPACE_TOOL( HLT, Lvl1Converter )
+    DECLARE_NAMESPACE_TOOL( HLT, LvlTopoConverter )
     DECLARE_NAMESPACE_TOOL( HLT, Lvl2Converter )
     DECLARE_NAMESPACE_TOOL( HLT, Lvl1FromFile )
     DECLARE_NAMESPACE_TOOL( HLT, LoopbackConverterFromPersistency )

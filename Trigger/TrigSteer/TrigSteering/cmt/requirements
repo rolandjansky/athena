@@ -22,7 +22,16 @@ use  TrigConfInterfaces         TrigConfInterfaces-*            Trigger/TrigConf
 use  TrigSteeringEvent          TrigSteeringEvent-*             Trigger/TrigEvent
 use  TrigT1Result               TrigT1Result-*                  Trigger/TrigT1
 use  TrigTimeAlgs               TrigTimeAlgs-*                  Trigger/TrigTools
+use  DataModel                  DataModel-*                     Control
+use  TrigT1CaloEvent            TrigT1CaloEvent-*               Trigger/TrigT1
+use  TrigT1CaloToolInterfaces   TrigT1CaloToolInterfaces-*      Trigger/TrigT1
 use  TrigROBDataProviderSvc     TrigROBDataProviderSvc-*        Trigger/TrigDataAccess
+use  L1TopoCoreSim              L1TopoCoreSim-*                 Trigger/TrigT1/L1Topo
+use  L1TopoEvent                L1TopoEvent-*                   Trigger/TrigT1/L1Topo
+use  L1TopoAlgorithms           L1TopoAlgorithms-*              Trigger/TrigT1/L1Topo
+use  L1TopoSimulation           L1TopoSimulation-*              Trigger/TrigT1/L1Topo
+use  TrigConfBase               TrigConfBase-*                  Trigger/TrigConfiguration
+
 private
 use  AtlasBoost                 AtlasBoost-*                    External
 use  AtlasCLHEP                 AtlasCLHEP-*                    External
@@ -38,6 +47,10 @@ use  TrigMonitorBase            TrigMonitorBase-*               Trigger/TrigMoni
 use  TrigNavigation             TrigNavigation-*                Trigger/TrigEvent
 use  TrigSerializeResult        TrigSerializeResult-*           Trigger/TrigDataAccess
 use  TrigT1Interfaces           TrigT1Interfaces-*              Trigger/TrigT1
+use  L1TopoCommon               L1TopoCommon-*                  Trigger/TrigT1/L1Topo
+use  L1TopoConfig               L1TopoConfig-*                  Trigger/TrigT1/L1Topo
+use  TrigStorageDefinitions     TrigStorageDefinitions-*        Trigger/TrigEvent
+use  xAODTrigger                xAODTrigger-*                   Event/xAOD
 end_private
 
 

@@ -5,7 +5,8 @@
 #ifndef TrigSteering_Lvl1ConsistencyChecker_h
 #define TrigSteering_Lvl1ConsistencyChecker_h
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+//#include "GaudiKernel/AlgTool.h"
 //#include "GaudiKernel/StatusCode.h"
 
 class TH1I;
@@ -35,7 +36,7 @@ static const InterfaceID IID_Lvl1ConsistencyChecker("Lvl1ConsistencyChecker", 1,
  * @author Tomasz Bold
  **/
 
-class Lvl1ConsistencyChecker : public AlgTool {
+class Lvl1ConsistencyChecker : public AthAlgTool {
 public:
 
 

@@ -27,6 +27,7 @@
 #include "TrigT1Interfaces/RecEmTauRoI.h"
 #include "TrigT1Interfaces/RecJetRoI.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
+//#include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigConfL1Data/CTPConfig.h"
@@ -48,7 +49,7 @@ using namespace TrigConf;
 
 Lvl1ResultAccessTool::Lvl1ResultAccessTool(const std::string& name, const std::string& type,
                                            const IInterface* parent) :
-   AlgTool(name, type, parent),
+   AthAlgTool(name, type, parent),
    m_typeConverter { new LVL1::JEPRoIDecoder() },
    m_lvl1ConfigSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
    m_store("StoreGateSvc", name)
@@ -148,7 +149,7 @@ StatusCode Lvl1ResultAccessTool::updateItemsConfigOnly() {
    }
 
    // some debug output
-   (*m_log) << MSG::DEBUG << "CTP -> Configured LVL1 items:" << endreq;
+   ATH_MSG_DEBUG("CTP -> Configured LVL1 items:");
 
    //std::cout << "m_decisionItems.size() = " << m_decisionItems.size() << " m_lvl1ItemConfig.size() = " << m_lvl1ItemConfig.size() << std::endl;
 
@@ -171,8 +172,7 @@ StatusCode Lvl1ResultAccessTool::updateItemsConfigOnly() {
          m_decisionItems[i]->setPrescaleFactor(m_lvl1ItemConfig[i]->prescaleFactor());
       }
 
-      (*m_log) << MSG::DEBUG << "name " << m_lvl1ItemConfig[i]->name()
-               << " (and hashID " << m_lvl1ItemConfig[i]->hashId() << ") position " << i << endreq;
+      ATH_MSG_DEBUG("name " << m_lvl1ItemConfig[i]->name() << " (and hashID " << m_lvl1ItemConfig[i]->hashId() << ") position " << i);
    }
 
    return StatusCode::SUCCESS;
@@ -201,7 +201,7 @@ StatusCode Lvl1ResultAccessTool::updateConfig( bool useL1Muon, bool useL1Calo,
   // ------------------------------
 
   if (useL1Muon) {
-     (*m_log) << MSG::DEBUG << "Going through configured LVL1 MUON thresholds ... " << endreq;
+     ATH_MSG_DEBUG("Going through configured LVL1 MUON thresholds ... ");
      const std::vector<TrigConf::TriggerThreshold*>& muonThresholdConfig = thresholdConfig->getThresholdVector(L1DataDef::MUON);
 
      m_muonCfg.clear();
@@ -234,7 +234,7 @@ StatusCode Lvl1ResultAccessTool::updateConfig( bool useL1Muon, bool useL1Calo,
            (*m_log) << MSG::WARNING << "this LVL1 threshold bit position (" << tn << ") is greater 6"
                     << ", go on w/o this threshold!" <<endreq;
         } else{
-           (*m_log) << MSG::DEBUG << "thresholdNumber = " << tn << endreq;
+           ATH_MSG_DEBUG("thresholdNumber = " << tn);
            m_muonCfg.at(tn) =  ConfigThreshold((*muonTT)->name(), teId, activeHLT) ;
            m_useL1Muon = true;
         }
@@ -248,7 +248,7 @@ StatusCode Lvl1ResultAccessTool::updateConfig( bool useL1Muon, bool useL1Calo,
   // ------------------------------
   if (useL1Calo) {
 
-     (*m_log) << MSG::DEBUG << "Going through configured LVL1 CALO thresholds ... " << endreq;
+     ATH_MSG_DEBUG("Going through configured LVL1 CALO thresholds ... ");
 
      m_useL1Calo = false; // care about calo RoIs in execute only if at least one calo TriggerElement is used in HLT !
      m_emCfg.clear();
@@ -308,10 +308,10 @@ StatusCode Lvl1ResultAccessTool::updateConfig( bool useL1Muon, bool useL1Calo,
      m_useL1JetEnergy = false;// care about jetEnergy RoIs in execute only if at least one jetEnergy TriggerElement is used in HLT !
      m_jetCfg.clear();
      
-     // In case we need to calculate thresholds passed: copy jet thresholds into vector RecJetRoI can use
-     m_jetThresholds = thresholdConfig->getJetThresholdVector();
-     std::vector<TrigConf::TriggerThreshold*> fwdJetThresholds = thresholdConfig->getFJetThresholdVector();
-     for (std::vector<TrigConf::TriggerThreshold*>::iterator it = fwdJetThresholds.begin(); it != fwdJetThresholds.end(); ++it) m_jetThresholds.push_back((*it));
+     // In case we need to calculate thresholds passed: copy jet thresholds into vector RecJetRoI can use 
+     m_jetThresholds = thresholdConfig->getJetThresholdVector(); 
+     for (TrigConf::TriggerThreshold* fwdThr : thresholdConfig->getFJetThresholdVector() ) 
+        m_jetThresholds.push_back(fwdThr); 
 
      // Jet threholds:
      for(const TrigConf::TriggerThreshold * thr : thresholdConfig->getJetThresholdVector() ) {
@@ -539,12 +539,17 @@ StatusCode Lvl1ResultAccessTool::updateResult(const LVL1CTP::Lvl1Result& result)
 // get the calibration triggers, 253, 254 and 255 ie, bits 
 // 29, 30 and 31 from word 7				  
 bool Lvl1ResultAccessTool::isCalibrationEvent(const ROIB::RoIBResult& result) {
+
+   return false; // in the RUN 2 menu there is currently no such restriction and all kinds of items are on these ctp IDs
+
   std::vector<ROIB::CTPRoI> ctpRoIVec(result.cTPResult().TAV());
   if ( ctpRoIVec.size() >= 8 && (ctpRoIVec[7].roIWord() &  0xE0000000) )
     return true;
   else
     return false;
 }
+
+
 
 bool getBit(const std::vector<ROIB::CTPRoI>& words, unsigned position) {
   unsigned w  = position/32;  
@@ -575,8 +580,8 @@ const std::vector< const LVL1CTP::Lvl1Item* >& Lvl1ResultAccessTool::createL1Ite
   
   
   
-  // loop over all configured items if no calibration, else only 3 last
-  unsigned first_item = calib_flag ? 253: 0;  
+  // loop over all configured items if no calibration, else only 3 last // Needs fixing
+  unsigned first_item = calib_flag ? 253: 0;
   
   for ( unsigned i = first_item; i < m_lvl1ItemConfig.size(); i++ ) {
     if ( !m_lvl1ItemConfig[ i ] ) continue; // empty slot
@@ -671,7 +676,7 @@ const std::vector< MuonRoI>& Lvl1ResultAccessTool::createMuonThresholds(const RO
          uint32_t roIWord = itMuon->roIWord();
 
          if(m_logLvl <= MSG::DEBUG) {
-            (*m_log) << MSG::DEBUG << "RoI word: 0x" << MSG::hex
+            (*m_log) << MSG::DEBUG << "Muon RoI word: 0x" << MSG::hex
                      << std::setw(8) << roIWord  << MSG::dec << endreq;
          }
 
@@ -771,9 +776,7 @@ const std::vector< MuonRoI>& Lvl1ResultAccessTool::createMuonThresholds(const RO
 	
             roi.addThreshold( & m_muonCfg[*th] );
 	
-            if(m_logLvl <= MSG::DEBUG)
-               (*m_log) << MSG::DEBUG << "found Muon Threshold " << m_muonCfg[*th].name
-                        << " threshold number: " << *th << endreq;
+            ATH_MSG_DEBUG("found Muon Threshold " << m_muonCfg[*th].name << " threshold number: " << *th);
          }
       
          m_muonRoIs.push_back(roi);
@@ -797,66 +800,62 @@ const std::vector< EMTauRoI >& Lvl1ResultAccessTool::createEMTauThresholds(const
     if(m_logLvl <= MSG::DEBUG) {
       (*m_log) << MSG::DEBUG << "Looking for EMTau RoIs" << endreq;
       (*m_log) << MSG::DEBUG << "----------------------"
-	       << endreq;
+              << endreq;
     }
 
-    const std::vector<ROIB::EMTauResult>& emTauResult = result.eMTauResult();
-    std::vector<ROIB::EMTauRoI> emTauRoIVec;
+      const std::vector<ROIB::EMTauResult>& emTauResult = result.eMTauResult();
+      std::vector<ROIB::EMTauRoI> emTauRoIVec;
 
-    for (std::vector<ROIB::EMTauResult>::const_iterator itResult  = emTauResult.begin();
-	 itResult != emTauResult.end(); ++itResult) {
+      for (std::vector<ROIB::EMTauResult>::const_iterator itResult  = emTauResult.begin();
+           itResult != emTauResult.end(); ++itResult) {
 
-      const std::vector<ROIB::EMTauRoI>& roIVec = itResult->roIVec();
+         const std::vector<ROIB::EMTauRoI>& roIVec = itResult->roIVec();
 
-      for (std::vector<ROIB::EMTauRoI>::const_iterator itEMTau  = roIVec.begin();
-	   itEMTau != roIVec.end(); ++itEMTau) {
+         for (std::vector<ROIB::EMTauRoI>::const_iterator itEMTau  = roIVec.begin();
+              itEMTau != roIVec.end(); ++itEMTau) {
 
-	uint32_t roIWord = itEMTau->roIWord();
+            uint32_t roIWord = itEMTau->roIWord();
 
-	// Fix for change of RoI format
-	if (updateCaloRoIs) roIWord = LVL1::RoIFormatUpdater::UpdateEMTauRoI(roIWord);
-	HLT::EMTauRoI roi = HLT::EMTauRoI( ROIB::EMTauRoI(roIWord) );
+            // Fix for change of RoI format
+            if (updateCaloRoIs) roIWord = LVL1::RoIFormatUpdater::UpdateEMTauRoI(roIWord);
+            HLT::EMTauRoI roi = HLT::EMTauRoI( ROIB::EMTauRoI(roIWord) );
         
-        // Set threshold bits in a way that work for Run 1 or Run 2
-        LVL1::RecEmTauRoI recRoI( roIWord, &m_emtauThresholds );
-        roi.setThresholdMask(recRoI.thresholdPattern());
+            // Set threshold bits in a way that work for Run 1 or Run 2
+            
+            LVL1::RecEmTauRoI recRoI( roIWord, &m_emtauThresholds );
+            roi.setThresholdMask(recRoI.thresholdPattern());
 
-	if(m_logLvl <= MSG::DEBUG) {
-	  (*m_log) << MSG::DEBUG << "RoI word: 0x" << MSG::hex
-		   << std::setw(8) << roIWord << ", threshold pattern " << roi.thresholdMask() << MSG::dec <<  endreq;
-	}
+            ATH_MSG_DEBUG("RoI word: 0x" << MSG::hex << std::setw(8) << roIWord << ", threshold pattern " << roi.thresholdMask() << MSG::dec);
 
-        if (recRoI.roiType() == LVL1::TrigT1CaloDefs::EMRoIWordType || recRoI.roiType() == LVL1::TrigT1CaloDefs::CpRoIWordType) {
-            for ( std::vector< ConfigThreshold >::const_iterator threshold = m_emCfg.begin();
-                  threshold != m_emCfg.end(); ++threshold) {
+            if (recRoI.roiType() == LVL1::TrigT1CaloDefs::EMRoIWordType || recRoI.roiType() == LVL1::TrigT1CaloDefs::CpRoIWordType) {
+               for ( std::vector< ConfigThreshold >::const_iterator threshold = m_emCfg.begin();
+                     threshold != m_emCfg.end(); ++threshold) {
 
-               // check whether this LVL1 threshold is used by HLT:
-               if ( !(threshold->mask & roi.thresholdMask()) ) continue;
+                  // check whether this LVL1 threshold is used by HLT:
+                  if ( !(threshold->mask & roi.thresholdMask()) ) continue;
 
-               roi.addThreshold( &(*threshold) );
+                  roi.addThreshold( &(*threshold) );
 
-               if (m_logLvl <= MSG::DEBUG)
-                  (*m_log) << MSG::DEBUG << "creating EM Theshold: "  << threshold->name << endreq;
+                  ATH_MSG_DEBUG("creating EM Theshold: "  << threshold->name);
+               }
             }
-        }
-        if (recRoI.roiType() == LVL1::TrigT1CaloDefs::TauRoIWordType || recRoI.roiType() == LVL1::TrigT1CaloDefs::CpRoIWordType) {
-            for ( std::vector< ConfigThreshold >::const_iterator threshold = m_tauCfg.begin();
-                  threshold != m_tauCfg.end(); ++threshold) {
+            if (recRoI.roiType() == LVL1::TrigT1CaloDefs::TauRoIWordType || recRoI.roiType() == LVL1::TrigT1CaloDefs::CpRoIWordType) {
+               for ( std::vector< ConfigThreshold >::const_iterator threshold = m_tauCfg.begin();
+                     threshold != m_tauCfg.end(); ++threshold) {
 
-               // check whether this LVL1 threshold is used by HLT:
-               if ( !(threshold->mask & roi.thresholdMask()) ) continue;
+                  // check whether this LVL1 threshold is used by HLT:
+                  if ( !(threshold->mask & roi.thresholdMask()) ) continue;
 
-               roi.addThreshold( &(*threshold) );
+                  roi.addThreshold( &(*threshold) );
 
-               if (m_logLvl <= MSG::DEBUG)
-                  (*m_log) << MSG::DEBUG << "creating TAU Theshold: "  << threshold->name << endreq;
+                  ATH_MSG_DEBUG("creating TAU Theshold: "  << threshold->name);
+               }
             }
-        }
-	m_emTauRoIs.push_back(roi);
+            m_emTauRoIs.push_back(roi);
+         }
       }
-    }
-  }
-  return m_emTauRoIs;
+   }
+   return m_emTauRoIs;
 }
 
 
@@ -865,206 +864,186 @@ const std::vector< EMTauRoI >& Lvl1ResultAccessTool::createEMTauThresholds(const
 //         JetEnergy RoIs
 // ==============================
 
-const std::vector< JetEnergyRoI >& Lvl1ResultAccessTool::createJetEnergyThresholds(const ROIB::RoIBResult& result, bool updateCaloRoIs)
+const std::vector< JetEnergyRoI >& Lvl1ResultAccessTool::createJetEnergyThresholds(const ROIB::RoIBResult& result, bool /*updateCaloRoIs*/)
 {
-  m_jetRoIs.clear();
+   m_jetRoIs.clear();
 
-  if (m_useL1JetEnergy) {
+   if (m_useL1JetEnergy) {
 
-    // reconstruct RoIs
-    if(m_logLvl <= MSG::DEBUG) {
-      (*m_log) << MSG::DEBUG << "Looking for JetEnergy RoIs" << endreq;
-      (*m_log) << MSG::DEBUG << "--------------------------" << endreq;
-    }
+      ATH_MSG_DEBUG("Looking for JetEnergy RoIs");
+      ATH_MSG_DEBUG("--------------------------");
 
+      const std::vector<ROIB::JetEnergyResult>& jetEnergyResult = result.jetEnergyResult();
 
-    const std::vector<ROIB::JetEnergyResult>& jetEnergyResult = result.jetEnergyResult();
+      ATH_MSG_DEBUG("# Jet Energy results " << jetEnergyResult.size());
 
-    for (std::vector<ROIB::JetEnergyResult>::const_iterator itResult  = jetEnergyResult.begin();
-	 itResult != jetEnergyResult.end(); ++itResult) {
+      for (const ROIB::JetEnergyResult & JEResult : jetEnergyResult) {
       
-      const std::vector<ROIB::JetEnergyRoI>& roIVec = itResult->roIVec();
-      if (m_logLvl <= MSG::DEBUG) {
-	(*m_log) << MSG::DEBUG << "#RoI words " << roIVec.size() << endreq;
-      }
-      for (std::vector<ROIB::JetEnergyRoI>::const_iterator itJetEn = roIVec.begin();
-	   itJetEn != roIVec.end(); ++itJetEn) {
+         const std::vector<ROIB::JetEnergyRoI>& roIVec = JEResult.roIVec();
 
-	uint32_t roIWord = itJetEn->roIWord();
-	// Fix for change of RoI format - long obsolete
-	//if (updateCaloRoIs) roIWord = LVL1::RoIFormatUpdater::UpdateJetEnergyRoI( roIWord );
+         ATH_MSG_DEBUG("# Jet Energy RoIs " << roIVec.size());
+
+         for ( std::vector<ROIB::JetEnergyRoI>::const_iterator itJetEn = roIVec.begin();
+               itJetEn != roIVec.end(); ++itJetEn) {
+
+            uint32_t roIWord = itJetEn->roIWord();
+            // Fix for change of RoI format - long obsolete
+            //if (updateCaloRoIs) roIWord = LVL1::RoIFormatUpdater::UpdateJetEnergyRoI( roIWord );
         
-        /// RoI Type
-	LVL1::TrigT1CaloDefs::RoIType roiType = m_typeConverter->roiType(roIWord);
+            // Create RoI
+            HLT::JetEnergyRoI roi = HLT::JetEnergyRoI( ROIB::JetEnergyRoI(roIWord) );
 
-        /// Create RoI
-	HLT::JetEnergyRoI roi = HLT::JetEnergyRoI( ROIB::JetEnergyRoI(roIWord) );
+            // create a second roi container, since the 3 roiWords contain all SumET & all MissingET thresholds!
+            // use roi for SumET  and  roi2 for MissingET
+            HLT::JetEnergyRoI roiET = HLT::JetEnergyRoI( ROIB::JetEnergyRoI(roIWord) );
 
-	// create a second roi container, since the 3 roiWords contain all SumET & all MissingET thresholds!
-	// use roi for SumET  and  roi2 for MissingET
-	HLT::JetEnergyRoI roiET   = HLT::JetEnergyRoI( ROIB::JetEnergyRoI(roIWord) );
+            ATH_MSG_DEBUG("RoI word: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' ) << roIWord << std::dec);
+
+            // RoI Type
+            LVL1::TrigT1CaloDefs::RoIType roiType = m_typeConverter->roiType(roIWord);
+            
+//             std::cout << "RoI Type = " << roiType << " where JetRoIWordType="
+//                       <<  LVL1::TrigT1CaloDefs::JetRoIWordType << ", JetEtRoIWordType="
+//                       <<  LVL1::TrigT1CaloDefs::JetEtRoIWordType << ", EnergyRoIWordType0="
+//                       <<  LVL1::TrigT1CaloDefs::EnergyRoIWordType0 << std::endl;
+//             std::cout << "itJetEn->etSumType() : " << itJetEn->etSumType() << std::endl;
+            
+            //if ( roiType == LVL1::TrigT1CaloDefs::EnergyRoIWordType0  && itJetEn->etSumType() == 0) { /* Only use full-range RoI */
+            if ( roiType == LVL1::TrigT1CaloDefs::EnergyRoIWordType0) {
+
+               // this roIWord is of type Energy RoI (Energy RoI consists of 3 RoI words!) => get the next two words as well
+               ++itJetEn;
+               if (itJetEn == roIVec.end()) break; 
+
+               uint32_t roIWord1 = itJetEn->roIWord();
+               // Fix for change of RoI format
+               //if (updateCaloRoIs) roIWord1 = LVL1::RoIFormatUpdater::UpdateJetEnergyRoI( roIWord1 );
+
+               ++itJetEn;
+               if (itJetEn == roIVec.end()) break; 
+
+               uint32_t roIWord2 = itJetEn->roIWord();
+
+               // Fix for change of RoI format
+               //if (updateCaloRoIs) roIWord2 = LVL1::RoIFormatUpdater::UpdateJetEnergyRoI( roIWord2 );
+
+               if ( !roiET.setExtraWords(roIWord, roIWord1, roIWord2)) {
+                  ATH_MSG_ERROR("Error setting Total/Missing ET RoI extra words");
+                  return m_jetRoIs;
+               }
+
+               ATH_MSG_DEBUG( "RoI triplet = 0x" <<  std::hex << std::setw( 8 ) << std::setfill( '0' )
+                              << roIWord << " 0x" << roIWord1 << " 0x" << roIWord2 << std::dec);
 
 
-	if(m_logLvl <= MSG::DEBUG) {
-	  (*m_log) << MSG::DEBUG << "RoI word: 0x" << std::hex << std::setw( 8 ) << std::setfill( '0' )
-		   << roIWord << std::dec << endreq;
-	}
+            } else if ( roiType == LVL1::TrigT1CaloDefs::JetRoIWordType ) {        
 
-	// roiWords 2 and 3 for the SumET & MissingET RoIs
-	uint32_t roIWord1 = 0, roIWord2 = 0;
+               // For Jet RoIs, fill thresholdMask word, used later for setting Configured Thresholds
+               // Do it here so that it only needs to be done once/RoI
 
-	/*
-	std::cout << "RoI Type = " << roiType << " where JetRoIWordType="
-		  <<  LVL1::TrigT1CaloDefs::JetRoIWordType << ", JetEtRoIWordType="
-		  <<  LVL1::TrigT1CaloDefs::JetEtRoIWordType << ", EnergyRoIWordType0="
-		  <<  LVL1::TrigT1CaloDefs::EnergyRoIWordType0 << std::endl;
-	*/
+               LVL1::RecJetRoI recRoI( roIWord, &m_jetThresholds );
+               roi.setThresholdMask(recRoI.thresholdPattern());
 
-	// check whether this roIWord is of type Energy RoI => get the next two words as well
-	if ( roiType == LVL1::TrigT1CaloDefs::EnergyRoIWordType0  && itJetEn->etSumType() == 0) {
-	//if ( roiType == LVL1::TrigT1CaloDefs::EnergyRoIWordType0 ) {
-          // Energy RoI consists of 3 RoI words !
-          ++itJetEn;
-	  if (itJetEn == roIVec.end()) break; 
+               ATH_MSG_DEBUG("Jet RoI threshold pattern: 0x" << std::hex << recRoI.thresholdPattern() << std::dec);
 
-	  roIWord1 = itJetEn->roIWord();
-          // Fix for change of RoI format
-          //if (updateCaloRoIs) roIWord1 = LVL1::RoIFormatUpdater::UpdateJetEnergyRoI( roIWord1 );
-
-          ++itJetEn;
- 	  if (itJetEn == roIVec.end()) break; 
-
-	  roIWord2 = itJetEn->roIWord();
-
-          // Fix for change of RoI format
-          //if (updateCaloRoIs) roIWord2 = LVL1::RoIFormatUpdater::UpdateJetEnergyRoI( roIWord2 );
-
-	  if ( !roiET.setExtraWords(roIWord, roIWord1, roIWord2)) {
-	    (*m_log) << MSG::ERROR << "Error setting Total/Missing ET RoI extra words" << endreq;
-	    return m_jetRoIs;
-	  }
-
-	  if(m_logLvl <= MSG::DEBUG) {
-            (*m_log) << MSG::DEBUG << "RoI triplet = 0x" <<  std::hex << std::setw( 8 ) << std::setfill( '0' )
-		     << roIWord << " 0x" << roIWord1 << " 0x" << roIWord2 << std::dec << endreq;
-          }
-	}
-
-        // For Jet RoIs, fill thresholdMask word, used later for setting Configured Thresholds
-        // Do it here so that it only needs to be done once/RoI
-
-        else if ( roiType == LVL1::TrigT1CaloDefs::JetRoIWordType ) {        
-           LVL1::RecJetRoI recRoI( roIWord, &m_jetThresholds );
-           roi.setThresholdMask(recRoI.thresholdPattern());
-        }
+            }
  
-	// Loop over possible Jet thresholds
-	for (std::vector< ConfigJetEThreshold >::const_iterator threshold = m_jetCfg.begin();
-	     threshold != m_jetCfg.end(); ++threshold) {
 
-	  if ( roiType == LVL1::TrigT1CaloDefs::JetRoIWordType &&
-	       (threshold->type == JetRoI || threshold->type == ForwardJetRoI) ) {
-	    if(m_logLvl <= MSG::DEBUG) 
-	      (*m_log) << MSG::DEBUG << threshold->name << " is of type JetRoI or ForwardJetRoI" << endreq;
+            // Loop over possible Jet thresholds
+            for (std::vector< ConfigJetEThreshold >::const_iterator threshold = m_jetCfg.begin();
+                 threshold != m_jetCfg.end(); ++threshold) {
 
-	    // plain Jet & ForwardJet RoI
-	    //---------------------
-	    if ( ! addJetThreshold(roi, &*threshold) ) {
-	      if(m_logLvl <= MSG::WARNING) {
-		(*m_log) << MSG::WARNING << "Problem while adding threshold: " << threshold->name << " returning prematurely" << endreq;
-	      }
-	      return  m_jetRoIs;
-	    }
-	  } else if ( roiType == LVL1::TrigT1CaloDefs::JetEtRoIWordType &&
-		      threshold->type == JetEtRoI ) {
-	    if(m_logLvl <= MSG::DEBUG) 
-	      (*m_log) << MSG::DEBUG << threshold->name << " is of type JetEtRoI " << endreq;
+               if ( roiType == LVL1::TrigT1CaloDefs::JetRoIWordType && (threshold->type == JetRoI || threshold->type == ForwardJetRoI) ) {
 
-	    // JetEt ET RoI (total transv. energy from jets)
-	    //----------------------------------------------
-	    if ( ! addJetThreshold(roi, &*threshold) ) {
-	      if(m_logLvl <= MSG::WARNING) {
-		(*m_log) << MSG::WARNING << "Problem while adding threshold: " << threshold->name << " returning prematurely" << endreq;
-	      }
-	      return m_jetRoIs;
-	    }
+                  ATH_MSG_DEBUG(threshold->name << " is of type JetRoI or ForwardJetRoI");
+
+                  // plain Jet & ForwardJet RoI
+                  //---------------------
+                  if ( ! addJetThreshold(roi, &*threshold) ) {
+                     ATH_MSG_WARNING("Problem while adding threshold: " << threshold->name << " returning prematurely");
+                     return  m_jetRoIs;
+                  }
+
+               } else if ( roiType == LVL1::TrigT1CaloDefs::JetEtRoIWordType && threshold->type == JetEtRoI ) {
+
+                  ATH_MSG_DEBUG(threshold->name << " is of type JetEtRoI");
+
+                  // JetEt ET RoI (total transv. energy from jets)
+                  //----------------------------------------------
+                  if ( ! addJetThreshold(roi, &*threshold) ) {
+                     ATH_MSG_WARNING("Problem while adding threshold: " << threshold->name << " returning prematurely");
+                     return m_jetRoIs;
+                  }
 	    
-	  } else if ( roiType == LVL1::TrigT1CaloDefs::EnergyRoIWordType0 &&
-		      (threshold->type == TotalEtRoI || threshold->type == MissingEtRoI || threshold->type == METSignificanceRoI)) {
-	    if(m_logLvl <= MSG::DEBUG) 
-	      (*m_log) << MSG::DEBUG << threshold->name << " is of type TotalEtRoI or MissingEtRoI or METSignificanceRoI" << endreq;
-	    // EnergySum (totEt, missEt) RoI
-	    // -----------------------------
-	    //std::cout << " in EnergySum RoI ... " << std::endl;
-	    roiET.setType(MissingOrTotalEtRoI);
-	    if ( ! addMetThreshold(roiET, &*threshold) ) {
-	      if(m_logLvl <= MSG::WARNING) {
-		(*m_log) << MSG::WARNING << "Problem while adding threshold: " << threshold->name << " returning prematurely" << endreq;
-	      }
-	      return m_jetRoIs;
-	    }
-	  } // end of Energy part (totEt, missEt)
+               } else if ( roiType == LVL1::TrigT1CaloDefs::EnergyRoIWordType0 && ( threshold->type == TotalEtRoI ||
+                                                                                    threshold->type == MissingEtRoI ||
+                                                                                    threshold->type == METSignificanceRoI)) {
+                  ATH_MSG_DEBUG(threshold->name << " is of type TotalEtRoI or MissingEtRoI or METSignificanceRoI");
+                  // EnergySum (totEt, missEt) RoI
+                  // -----------------------------
+                  //std::cout << " in EnergySum RoI ... " << std::endl;
+                  roiET.setType(MissingOrTotalEtRoI);
+                  if ( ! addMetThreshold(roiET, &*threshold) ) {
+                     ATH_MSG_WARNING("Problem while adding threshold: " << threshold->name << " returning prematurely");
+                     return m_jetRoIs;
+                  }
+               } // end of Energy part (totEt, missEt)
 	  
-	  if (itJetEn == roIVec.end()) break;
-	} // end of loop over possible thresholds
+               if (itJetEn == roIVec.end()) break;
+            } // end of loop over possible thresholds
 	
-	if (roi.size()!=0 ) m_jetRoIs.push_back(roi);
+            if (roi.size()!=0 ) m_jetRoIs.push_back(roi);
 	
-	//this rois have type set to unknown in all normal jet RoIs
-	// add TotalEt and MissingEt rois even if no threshold has fired
-	if (roiET.type() != Unknown) {
-	  if (m_logLvl <= MSG::DEBUG)
-	    (*m_log) << MSG::DEBUG << "adding MissingOrTotalET RoI with: " <<  roiET.size() << " threshods" << endreq;	
-	  m_jetRoIs.push_back(roiET);
-	}
-      } // end of loop over RoIs
-    } // end of jetEnergy Result
-  }// enf of m_useL1JetEnergy
-  if (m_logLvl <= MSG::DEBUG)
-    (*m_log) << MSG::DEBUG << "done with jet thresholds" << endreq;	
-  return m_jetRoIs;
+            //this rois have type set to unknown in all normal jet RoIs
+            // add TotalEt and MissingEt rois even if no threshold has fired
+            if (roiET.type() != Unknown) {
+               ATH_MSG_DEBUG("adding MissingOrTotalET RoI with: " <<  roiET.size() << " threshods");
+               m_jetRoIs.push_back(roiET);
+            }
+         } // end of loop over RoIs
+      } // end of jetEnergy Result
+   }// enf of m_useL1JetEnergy
+   ATH_MSG_DEBUG("done with jet thresholds");
+   return m_jetRoIs;
 }
 
 
 bool Lvl1ResultAccessTool::addJetThreshold(HLT::JetEnergyRoI & roi, const ConfigJetEThreshold* threshold ) {
 
-
-  if ( !(threshold->mask & roi.thresholdMask()) ) return true;
+   if ( !(threshold->mask & roi.thresholdMask()) ) return true;
   
-  if (!roi.setType(threshold->type)) {
-    (*m_log) << MSG::ERROR << "Inconsistent threshold types " << roi.type()
-	     << " " << threshold->type << endreq;
-    return false;
-  }
-  roi.addThreshold( threshold );
-  if (m_logLvl <= MSG::DEBUG)
-    (*m_log) << MSG::DEBUG << "creating Jet  threshold: " << threshold->name << endreq;
-  return true;
-  
+   if (!roi.setType(threshold->type)) {
+      ATH_MSG_ERROR("Inconsistent threshold types " << roi.type() << " " << threshold->type);
+      return false;
+   }
+   roi.addThreshold( threshold );
+   ATH_MSG_DEBUG("Creating Jet  threshold: " << threshold->name);
+   return true;
 }
 
 
 // this is made separate function as it usesses different word for threhold bits (namely word1/2)
 bool Lvl1ResultAccessTool::addMetThreshold( HLT::JetEnergyRoI & roi, const ConfigJetEThreshold* threshold ) {
 
-  if ( threshold->type == METSignificanceRoI )
-    if ( !(threshold->mask & roi.word0()) ) return true;
+   if ( threshold->type == METSignificanceRoI )
+      if ( !(threshold->mask & roi.word0()) ) return true;
 
-  if ( threshold->type == TotalEtRoI )
-    if ( !(threshold->mask & roi.word1()) ) return true;
+   if ( threshold->type == TotalEtRoI )
+      if ( !(threshold->mask & roi.word1()) ) return true;
 
-  if ( threshold->type == MissingEtRoI )
-    if ( !(threshold->mask & roi.word2()) ) return true;
+   if ( threshold->type == MissingEtRoI )
+      if ( !(threshold->mask & roi.word2()) ) return true;
 
-  if (!roi.setType(threshold->type)) {
-    (*m_log) << MSG::ERROR << "Inconsistent threshold types " << roi.type()
-             << " " << threshold->type << endreq;
-    return false;
-  }
-  roi.addThreshold( threshold );
-  if (m_logLvl <= MSG::DEBUG)
-    (*m_log) << MSG::DEBUG << "creating Met threshold: " << threshold->name << endreq;
-  return true;
+   if (!roi.setType(threshold->type)) {
+      (*m_log) << MSG::ERROR << "Inconsistent threshold types " << roi.type()
+               << " " << threshold->type << endreq;
+      return false;
+   }
+
+   roi.addThreshold( threshold );
+   ATH_MSG_DEBUG("creating Met threshold: " << threshold->name);
+
+   return true;
 }
 
 StatusCode Lvl1ResultAccessTool::queryInterface( const InterfaceID& riid,

@@ -414,6 +414,7 @@ class TrigSteer_HLT( TrigSteer_baseClass ):
         l2algs,efalgs = ServiceMgr.HLTConfigSvc.getAlgorithmsByLevel()
         log.info( "will add HLT algorithms to: "+name)
 
+
         hltalgs=l2algs+efalgs
         from AthenaCommon.Configurable import Configurable
         for alg in hltalgs:
@@ -425,6 +426,7 @@ class TrigSteer_HLT( TrigSteer_baseClass ):
                     self += instance
                     log.info( "added algorithm to the configuration: "+alg)
        
+
 
         try:
             from TrigSteerMonitor.TrigSteerMonitorConfig import TrigSteerMonitorToolList,  TrigRateMoniConfig20s
@@ -441,14 +443,13 @@ class TrigSteer_HLT( TrigSteer_baseClass ):
         except Exception as e:
             log.info("Exception while adding cost monitoring tools ('%s'). Will continue without them." % e)            
 
-
-            
+           
         time = SteeringTimingTool("HLTSteeringTime")
         time.NumberOfHistBins = 500
         time.TimerHistLimits = [0,5000]
         time.GroupedTimers={"TrigSteer_HLT_Chains": "TrigSteer_HLT_Chain_.+"}
         self.MonTools += [time, SteeringTimingTool_short("HLTSteeringTime_short")]
-
+       
 
         # setup exeption svc and prepare it for the RECOVERABLE returned by steering
 #         if not hasattr( ServiceMgr, 'ExceptionSvc' ):
@@ -471,7 +472,6 @@ class TrigSteer_HLT( TrigSteer_baseClass ):
             handle.Navigation = HLTNavigationOffline()
         if not hasattr( handle, 'ResultBuilder' ):
             handle.ResultBuilder= ResultBuilder()
-
 
             
 #specific instcenes of the configuration
