@@ -24,6 +24,7 @@
 #include "CoralBase/Attribute.h"
 
 #include "TInterpreter.h"
+#include "TClass.h"
 #if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
 #include "Cintex/Cintex.h"
 #endif
@@ -258,6 +259,7 @@ int main( int argc, char ** )
   ROOT::Cintex::Cintex::Enable();
 #endif
   gInterpreter->EnableAutoLoading();
+  TClass::GetClass("map<string,string>");
 
    try {
       std::cout << "Update test starting..." << std::endl;

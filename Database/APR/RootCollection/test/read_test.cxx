@@ -24,6 +24,7 @@
 #include "CoralBase/Attribute.h"
 
 #include "TInterpreter.h"
+#include "TClass.h"
 #if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
 #include "Cintex/Cintex.h"
 #endif
@@ -424,6 +425,7 @@ int main()
   ROOT::Cintex::Cintex::Enable();
 #endif
   gInterpreter->EnableAutoLoading();
+  TClass::GetClass("map<string,string>");
 
    (void)remove("test_collection.root");
    try {
