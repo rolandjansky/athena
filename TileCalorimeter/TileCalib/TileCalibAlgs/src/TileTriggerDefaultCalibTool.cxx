@@ -37,12 +37,52 @@
 #include <iostream>
 
 
+namespace {
+template <class T>
+inline
+T square(T x) { return x*x; }
+}
+
+
 TileTriggerDefaultCalibTool::TileTriggerDefaultCalibTool(const std::string& type, const std::string& name,const IInterface* pParent):
-  AlgTool(type, name, pParent)
+  AthAlgTool(type, name, pParent)
+  , m_maxNTT(0)
+  , m_nevpmt(0)
+  , m_beamPrv(nullptr)
+  , m_TT_ID(nullptr)
+  , m_tileHWID(nullptr)
+  , m_tileID(nullptr)
+  , m_tileCablingService(nullptr)
+  , m_meanTile()
+  , m_rmsTile()
+  , m_meanTileDAC()
+  , m_rmsTileDAC()
+  , m_ietaTile()
+  , m_iphiTile()
+  , m_ipmtTile()
+  , m_nEvtTile()
+  , m_meanL1Calo()
+  , m_rmsL1Calo()
+  , m_meanL1CaloDAC()
+  , m_rmsL1CaloDAC()
+  , m_ietaL1Calo()
+  , m_iphiL1Calo()
+  , m_ipmtL1Calo()
+  , m_nEvtL1Calo()
+  , m_meanTileL1Calo()
+  , m_rmsTileL1Calo()
+  , m_DACvalue(0)
+  , m_charge(0)
+  , m_ipmt(0)
+  , m_ipmtCount(0)
+  , m_ipmtOld(0)
+  , m_nEvtGlobal()
   , m_TileTriggerContainerID("")
-  , m_storeGate("StoreGateSvc",name)
   , m_l1CaloTTIdTools("LVL1::L1CaloTTIdTools/L1CaloTTIdTools")
   //, m_ttTool("LVL1::L1TriggerTowerTool/LVL1::L1TriggerTowerTool")
+  , m_BCID(0)
+  , m_trigType(0)
+  , m_beamElemCnt(nullptr)
 {
   declareInterface<ITileCalibTool>( this );
   declareProperty("TriggerTowerLocation", m_triggerTowerLocation="TriggerTowers");
@@ -50,7 +90,6 @@ TileTriggerDefaultCalibTool::TileTriggerDefaultCalibTool(const std::string& type
   declareProperty("rawChannelContainer", m_rawChannelContainerName="TileRawChannelFit");
   declareProperty("NtupleID", m_ntupleID="h3000");
   declareProperty("NumEventPerPMT", m_nevpmt=200);
-  declareProperty("EventStore",m_storeGate,"StoreGate Service"); // for extended CISpar
   declareProperty("TileBeamElemContainer",m_TileBeamContainerID);
   //  declareProperty("L1TriggerTowerTool", m_ttTool);
 }
@@ -60,96 +99,24 @@ TileTriggerDefaultCalibTool::~TileTriggerDefaultCalibTool()
 
 StatusCode TileTriggerDefaultCalibTool::initialize()
 {
-  MsgStream log(msgSvc(),name());
-  log << MSG::INFO << "initialize()" << endreq;
+  ATH_MSG_INFO ( "initialize()" );
 
   // Initialize arrays for results
-  memset(meanTile, 0, sizeof(meanTile));
-  memset(rmsTile, 0, sizeof(rmsTile));
-  memset(meanTileDAC, 0, sizeof(meanTileDAC));
-  memset(rmsTileDAC, 0, sizeof(rmsTileDAC));
-  memset(ietaTile, 0, sizeof(ietaTile));
-  memset(iphiTile, 0, sizeof(iphiTile));
-  memset(ipmtTile, 0, sizeof(ipmtTile));
-  memset(nEvtTile, 0, sizeof(nEvtTile));
-  memset(meanL1Calo, 0, sizeof(meanL1Calo));
-  memset(rmsL1Calo, 0, sizeof(rmsL1Calo));
-  memset(meanL1CaloDAC, 0, sizeof(meanL1CaloDAC));
-  memset(rmsL1CaloDAC, 0, sizeof(rmsL1CaloDAC));
-  memset(ietaL1Calo, 0, sizeof(ietaL1Calo));
-  memset(iphiL1Calo, 0, sizeof(iphiL1Calo));
-  memset(ipmtL1Calo, 0, sizeof(ipmtL1Calo));
-  memset(nEvtL1Calo, 0, sizeof(nEvtL1Calo));
-  memset(nEvtGlobal, 0, sizeof(nEvtGlobal));
-  memset(meanTileL1Calo, 0, sizeof(meanTileL1Calo));
-  memset(rmsTileL1Calo, 0, sizeof(rmsTileL1Calo));
-  charge = 0;
-  ipmt = 0;
-  itower = 0;
-  idrawer = 0;
-  ipmtOld = 0;
-  ipmtCount = 0;
-  DACvalue = 0;
+  m_charge = 0;
+  m_ipmt = 0;
+  m_ipmtOld = 0;
+  m_ipmtCount = 0;
 
-  // Find necessary services
-  if(service("StoreGateSvc", m_evtStore).isFailure()){
-    log<<MSG::ERROR<<"Unable to get pointer to eventStore Service"<<endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_l1CaloTTIdTools.retrieve() );
+  ATH_MSG_DEBUG("L1CaloTTIdTools retrieved");
 
-  if(service("DetectorStore", m_detStore).isFailure()){
-    log << MSG::ERROR
-        << "Unable to get pointer to DetectorStore Service" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( toolSvc()->retrieveTool("TileBeamInfoProvider",m_beamPrv) );
+  ATH_CHECK( m_beamPrv->setProperty("TileRawChannelContainer","TileRawChannelCnt") );
 
-  IToolSvc* toolSvc;
-  if (service("ToolSvc",toolSvc).isFailure()) {
-    log << MSG::ERROR <<" Can't get ToolSvc " << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve(m_TT_ID) );
+  ATH_CHECK( detStore()->retrieve(m_tileHWID) );
+  ATH_CHECK( detStore()->retrieve(m_tileID) );
 
-  StatusCode sc = m_l1CaloTTIdTools.retrieve();
-  log<<MSG::DEBUG<<"L1CaloTTIdTools retrieved"<<endreq;
-  if (sc!=StatusCode::SUCCESS) {
-    log << MSG::WARNING << " Cannot get L1CaloTTIdTools !" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  // get beam info tool
-  if(toolSvc->retrieveTool("TileBeamInfoProvider",m_beamPrv).isFailure()) {
-    log << MSG::ERROR << "Unable to get tool 'TileBeamInfoProvider'" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  if( m_beamPrv->setProperty("TileRawChannelContainer","TileRawChannelCnt").isFailure())
-    {
-      log << MSG::ERROR <<" Can't set property 'TileRawChannelContainer' for TileBeamInfoProvider " << endreq;
-      return StatusCode::FAILURE;
-    }
-
-  // retrieve CaloLVL1_ID from det store
-  sc = m_detStore->retrieve(m_TT_ID);
-  if (sc.isFailure()) {
-    log << MSG::ERROR
-	<< "Unable to retrieve CaloLVL1_ID helper from DetectorStore" << endreq;
-    return sc;
-  }
-
-  // get TileHWID helper
-  if(m_detStore->retrieve(m_tileHWID).isFailure()){
-    log << MSG::ERROR << "Unable to retrieve TileHWID helper from DetectorStore" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  // get TileID helper
-  if (m_detStore->retrieve(m_tileID).isFailure()) {
-    log << MSG::ERROR
-	<< "Unable to retrieve TileID helper from DetectorStore" << endreq;
-    return sc;
-  }
-
-  // get TileCabling Service
   m_tileCablingService = TileCablingService::getInstance();
 
   return StatusCode::SUCCESS;  
@@ -157,24 +124,19 @@ StatusCode TileTriggerDefaultCalibTool::initialize()
 
 StatusCode TileTriggerDefaultCalibTool::initNtuple(int runNumber, int runType, TFile * rootFile )
 {
-  MsgStream log(msgSvc(),name());
-  log << MSG::INFO << "initialize(" << runNumber << "," << runType << "," << rootFile << ")" << endreq;
+  ATH_MSG_INFO ( "initialize(" << runNumber << "," << runType << "," << rootFile << ")" );
   return StatusCode::SUCCESS;  
 }
 
 StatusCode TileTriggerDefaultCalibTool::execute()
 {
-  MsgStream log(msgSvc(),name());
-  log << MSG::DEBUG << "executeTrigger()" << endreq;
+  ATH_MSG_DEBUG ( "executeTrigger()" );
 
   // Get TileRawChannelContainer
   const TileRawChannelContainer *container;
-  if(m_evtStore->retrieve(container, m_rawChannelContainerName).isFailure()){
-    log<<MSG::ERROR<<"Error getting TileRawChannelCnt '"<<m_rawChannelContainerName<<endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( evtStore()->retrieve(container, m_rawChannelContainerName) );
 
-  log << MSG::DEBUG << "second executeTrigger()" << endreq;
+  ATH_MSG_DEBUG ( "second executeTrigger()" );
   // declare an array of pmt id for the trigger tower loop
   HWIdentifier chanIds[2][16][64][6];
   memset(chanIds, 0, sizeof(chanIds));
@@ -200,28 +162,28 @@ StatusCode TileTriggerDefaultCalibTool::execute()
 		      20,21,30,35,-1,-1 ,
 		      31,32,39,36,41,40 };
 
-  log << MSG::DEBUG << "cispar[16] " << cispar[16] << ", cispas[17] " << cispar[17] << ", cispar[18] " << cispar[18] << endreq;
+  ATH_MSG_DEBUG ( "cispar[16] " << cispar[16] << ", cispas[17] " << cispar[17] << ", cispar[18] " << cispar[18] );
   if (cispar[16] == 0x07){
-  	charge = cispar[17];
-  	ipmt = cispar[18];
-  	itower = cispar[19];
-	idrawer = cispar[20];
+  	m_charge = cispar[17];
+  	m_ipmt = cispar[18];
+  	//m_itower = cispar[19];
+	//m_idrawer = cispar[20];
   }
   else
      return StatusCode::SUCCESS;
   
-  log << MSG::DEBUG << "Pattern/ipmt/charge: " << cispar[16] << " " << ipmt << " " << charge << endreq;	
-  if (ipmtOld != ipmt){
-	if (ipmt < ipmtOld) return StatusCode::SUCCESS;
-	ipmtCount = 1;
-	ipmtOld = ipmt;
+  ATH_MSG_DEBUG ( "Pattern/ipmt/charge: " << cispar[16] << " " << m_ipmt << " " << m_charge );
+  if (m_ipmtOld != m_ipmt){
+	if (m_ipmt < m_ipmtOld) return StatusCode::SUCCESS;
+	m_ipmtCount = 1;
+	m_ipmtOld = m_ipmt;
   }
   else
-	ipmtCount += 1;
+	m_ipmtCount += 1;
 		   
-  if (ipmtCount > 200) return StatusCode::SUCCESS;  //takes into account only the first 200 events for each pmt
+  if (m_ipmtCount > 200) return StatusCode::SUCCESS;  //takes into account only the first 200 events for each pmt
 
-  DACvalue = charge;
+  m_DACvalue = m_charge;
   
   // Create iterator over RawChannelContainer for Tile
   TileRawChannelContainer::const_iterator itColl = (*container).begin();
@@ -256,10 +218,10 @@ StatusCode TileTriggerDefaultCalibTool::execute()
       if((ieta < 0) || (ieta > 14)) continue;
 
       if((ros==1) || (ros==2)){ 
-	if (chan != chan_bar[(ieta*6)-1 + ipmt+1]) continue;   	// check if the chan is firing
+	if (chan != chan_bar[(ieta*6)-1 + m_ipmt+1]) continue;   	// check if the chan is firing
       }
       else if ((ros==3) || (ros==4)){
-	if ((chan != chan_ext[((ieta-9)*6)-1 + ipmt+1]) || (chan == 0)) continue;	// check if the chan is firing
+	if ((chan != chan_ext[((ieta-9)*6)-1 + m_ipmt+1]) || (chan == 0)) continue;	// check if the chan is firing
       }
       else
 	continue;
@@ -267,27 +229,27 @@ StatusCode TileTriggerDefaultCalibTool::execute()
       float amp = (*it)->amplitude();
       //log << MSG::DEBUG << "ros " << ros << ", pos_neg_z " << pos_neg_z << ", drawer " << drawer <<" ieta " << ieta <<  ", chan " << chan << ", aplitude " << amp << endreq;
 
-      meanTile[ros][drawer][chan] += amp;
-      rmsTile[ros][drawer][chan]  += amp*amp;
-      meanTileDAC[ros][drawer][chan] += amp-(charge);
-      rmsTileDAC[ros][drawer][chan]  += (amp-(charge))*(amp-(charge));
-      ietaTile[ros][drawer][chan]  = ieta;
-      iphiTile[ros][drawer][chan]  = iphi;
-      ipmtTile[ros][drawer][chan]  = ipmt;
-      ++nEvtTile[ros][drawer][chan];
+      m_meanTile[ros][drawer][chan] += amp;
+      m_rmsTile[ros][drawer][chan]  += square(amp);
+      m_meanTileDAC[ros][drawer][chan] += amp-m_charge;
+      m_rmsTileDAC[ros][drawer][chan]  += square(amp-m_charge);
+      m_ietaTile[ros][drawer][chan]  = ieta;
+      m_iphiTile[ros][drawer][chan]  = iphi;
+      m_ipmtTile[ros][drawer][chan]  = m_ipmt;
+      ++m_nEvtTile[ros][drawer][chan];
 
       if (pos_neg_z < 0) pos_neg_z = 0;
-      chanIds[pos_neg_z][ieta][iphi][ipmt] = hwid;
+      chanIds[pos_neg_z][ieta][iphi][m_ipmt] = hwid;
     }
 
   } // end of loop over raw channels for Tile
   
   // loop over all L1Calo trigger channels, calculate the average and RMS
   const TriggerTowerCollection* ttCollection = 0;
-  if (m_evtStore->retrieve(ttCollection, m_triggerTowerLocation).isFailure()) {
-    log << MSG::WARNING << "No TriggerTowerCollectiton found with key: "<< m_triggerTowerLocation << endreq;
+  if (evtStore()->retrieve(ttCollection, m_triggerTowerLocation).isFailure()) {
+    ATH_MSG_WARNING ( "No TriggerTowerCollectiton found with key: "<< m_triggerTowerLocation );
     return StatusCode::FAILURE;
-  } else log << MSG::DEBUG <<"TriggerTowerCollection retrieved from StoreGate with size: "<< ttCollection->size()<<endreq;
+  } else ATH_MSG_DEBUG ("TriggerTowerCollection retrieved from StoreGate with size: "<< ttCollection->size());
 
   int ntt = 0;
  
@@ -330,39 +292,40 @@ StatusCode TileTriggerDefaultCalibTool::execute()
     if ((ieta < 0) || (ieta > 14)) continue;
 
     if (pos_neg_z < 0) pos_neg_z = 0;
-    HWIdentifier hwid = chanIds[pos_neg_z][ieta][iphi][ipmt];
+    HWIdentifier hwid = chanIds[pos_neg_z][ieta][iphi][m_ipmt];
     int ros    = m_tileHWID->ros(hwid);    // LBA=1  LBC=2  EBA=3  EBC=4 
     int drawer = m_tileHWID->drawer(hwid); // 0 to 63
     int chan = m_tileHWID->channel(hwid);  // 0 to 47 channel not PMT
 
     //comparing results from ptt->hadEnergy() and energy computed from ADC (default method)
-    if (ptt->hadEnergy()==0) log << MSG::DEBUG << "Tower partition "<< ros << ", drawer "<< drawer << ", chan: " << chan << ", eta "<< eta << ", phi: " << phi << ", amplitude : "  << tt_ene << ", old " << ptt->hadEnergy() << ", ratio old/new " << ptt->hadEnergy()/tt_ene << endreq;
+    if (ptt->hadEnergy()==0) ATH_MSG_DEBUG ( "Tower partition "<< ros << ", drawer "<< drawer << ", chan: " << chan << ", eta "<< eta << ", phi: " << phi << ", amplitude : "  << tt_ene << ", old " << ptt->hadEnergy() << ", ratio old/new " << ptt->hadEnergy()/tt_ene );
 
     if ((ros==1) || (ros==2)){ 
-      if (chan != chan_bar[(ieta*6)-1 + ipmt+1]) continue;   		// check if the chan is firing    
+      if (chan != chan_bar[(ieta*6)-1 + m_ipmt+1]) continue;   		// check if the chan is firing    
     }
     else if ((ros==3) || (ros==4)) {
-      if ((chan != chan_ext[((ieta-9)*6)-1 + ipmt+1]) || (chan == 0)) continue;	// check if the chan is firing
+      if ((chan != chan_ext[((ieta-9)*6)-1 + m_ipmt+1]) || (chan == 0)) continue;	// check if the chan is firing
     }
     else continue;
 
-    meanL1Calo[ros][drawer][chan] += tt_ene;
-    rmsL1Calo[ros][drawer][chan]  += tt_ene*tt_ene;
-    meanL1CaloDAC[ros][drawer][chan] += tt_ene-(charge);
-    rmsL1CaloDAC[ros][drawer][chan]  += (tt_ene-(charge))*(tt_ene-(charge));
-    ietaL1Calo[ros][drawer][chan]  = ieta;
-    iphiL1Calo[ros][drawer][chan]  = iphi;
-    ipmtL1Calo[ros][drawer][chan]  = ipmt;
-    ++nEvtL1Calo[ros][drawer][chan];
+    m_meanL1Calo[ros][drawer][chan] += tt_ene;
+    m_rmsL1Calo[ros][drawer][chan]  += square(tt_ene);
+    m_meanL1CaloDAC[ros][drawer][chan] += tt_ene - m_charge;
+    m_rmsL1CaloDAC[ros][drawer][chan]  += square(tt_ene - m_charge);
+    m_ietaL1Calo[ros][drawer][chan]  = ieta;
+    m_iphiL1Calo[ros][drawer][chan]  = iphi;
+    m_ipmtL1Calo[ros][drawer][chan]  = m_ipmt;
+    ++m_nEvtL1Calo[ros][drawer][chan];
     
   }// end of trigger tower loop for L1Calo
 
-  ++nEvtGlobal[0]; // Number of MaxEvt from Athena
+  ++m_nEvtGlobal[0]; // Number of MaxEvt from Athena
 
   for (int ros=0;ros<5;ros++) {
     for (int drawer=0;drawer<64;drawer++) {
       for (int chan=0;chan<48;chan++) {
-	rmsTileL1Calo[ros][drawer][chan] += meanTile[ros][drawer][chan]*meanL1Calo[ros][drawer][chan];
+        // ???
+	m_rmsTileL1Calo[ros][drawer][chan] += m_meanTile[ros][drawer][chan]*m_meanL1Calo[ros][drawer][chan];
       }
     }
   }
@@ -373,51 +336,50 @@ StatusCode TileTriggerDefaultCalibTool::execute()
 
 StatusCode TileTriggerDefaultCalibTool::finalizeCalculations()
 {
-  MsgStream log(msgSvc(),name());
-  log << MSG::INFO << "finalizeCalculations()" << endreq;
+  ATH_MSG_INFO ( "finalizeCalculations()" );
   
   for (int ros=0;ros<5;ros++) {
     for (int drawer=0;drawer<64;drawer++) {
       for (int chan=0;chan<48;chan++) {
-	if (nEvtTile[ros][drawer][chan] > 0){
-	  meanTile[ros][drawer][chan] = (meanTile[ros][drawer][chan])/(nEvtTile[ros][drawer][chan]);
-	  rmsTile[ros][drawer][chan]  = (rmsTile[ros][drawer][chan])/(nEvtTile[ros][drawer][chan]);
-	  meanTileDAC[ros][drawer][chan] = (meanTileDAC[ros][drawer][chan])/(nEvtTile[ros][drawer][chan]);
-	  rmsTileDAC[ros][drawer][chan]  = (rmsTileDAC[ros][drawer][chan])/(nEvtTile[ros][drawer][chan]);
+	if (m_nEvtTile[ros][drawer][chan] > 0){
+	  m_meanTile[ros][drawer][chan] /= m_nEvtTile[ros][drawer][chan];
+	  m_rmsTile[ros][drawer][chan]  /= m_nEvtTile[ros][drawer][chan];
+	  m_meanTileDAC[ros][drawer][chan] /= m_nEvtTile[ros][drawer][chan];
+	  m_rmsTileDAC[ros][drawer][chan]  /= m_nEvtTile[ros][drawer][chan];
 	}
 	
-	if(rmsTile[ros][drawer][chan] <= (meanTile[ros][drawer][chan]*meanTile[ros][drawer][chan]))
-	  rmsTile[ros][drawer][chan] = 0;
+	if(m_rmsTile[ros][drawer][chan] <= square(m_meanTile[ros][drawer][chan]))
+	  m_rmsTile[ros][drawer][chan] = 0;
 	else 
-	  rmsTile[ros][drawer][chan] = sqrt(rmsTile[ros][drawer][chan] - (meanTile[ros][drawer][chan]*meanTile[ros][drawer][chan]));
+	  m_rmsTile[ros][drawer][chan] = sqrt(m_rmsTile[ros][drawer][chan] - square(m_meanTile[ros][drawer][chan]));
 	
-	if(rmsTileDAC[ros][drawer][chan] <= (meanTileDAC[ros][drawer][chan]*meanTileDAC[ros][drawer][chan]))
-	  rmsTileDAC[ros][drawer][chan] = 0;
+	if(m_rmsTileDAC[ros][drawer][chan] <= square(m_meanTileDAC[ros][drawer][chan]))
+	  m_rmsTileDAC[ros][drawer][chan] = 0;
 	else 
-	  rmsTileDAC[ros][drawer][chan] = sqrt(rmsTileDAC[ros][drawer][chan] - (meanTileDAC[ros][drawer][chan]*meanTileDAC[ros][drawer][chan]));
+	  m_rmsTileDAC[ros][drawer][chan] = sqrt(m_rmsTileDAC[ros][drawer][chan] - square(m_meanTileDAC[ros][drawer][chan]));
 
-	if (nEvtL1Calo[ros][drawer][chan] > 0){ 
-	  meanL1Calo[ros][drawer][chan] = (meanL1Calo[ros][drawer][chan])/(nEvtL1Calo[ros][drawer][chan]);
-	  rmsL1Calo[ros][drawer][chan]  = (rmsL1Calo[ros][drawer][chan])/(nEvtL1Calo[ros][drawer][chan]);
- 	  meanL1CaloDAC[ros][drawer][chan] = (meanL1CaloDAC[ros][drawer][chan])/(nEvtL1Calo[ros][drawer][chan]);
-	  rmsL1CaloDAC[ros][drawer][chan]  = (rmsL1CaloDAC[ros][drawer][chan])/(nEvtL1Calo[ros][drawer][chan]);
+	if (m_nEvtL1Calo[ros][drawer][chan] > 0){ 
+	  m_meanL1Calo[ros][drawer][chan] /= m_nEvtL1Calo[ros][drawer][chan];
+	  m_rmsL1Calo[ros][drawer][chan]  /= m_nEvtL1Calo[ros][drawer][chan];
+ 	  m_meanL1CaloDAC[ros][drawer][chan] /= m_nEvtL1Calo[ros][drawer][chan];
+	  m_rmsL1CaloDAC[ros][drawer][chan]  /= m_nEvtL1Calo[ros][drawer][chan];
 	}
 	
-	if(rmsL1Calo[ros][drawer][chan] <= (meanL1Calo[ros][drawer][chan]*meanL1Calo[ros][drawer][chan]))
-	  rmsL1Calo[ros][drawer][chan] = 0;
+	if(m_rmsL1Calo[ros][drawer][chan] <= square(m_meanL1Calo[ros][drawer][chan]))
+	  m_rmsL1Calo[ros][drawer][chan] = 0;
 	else 
-	  rmsL1Calo[ros][drawer][chan] = sqrt(rmsL1Calo[ros][drawer][chan] - (meanL1Calo[ros][drawer][chan]*meanL1Calo[ros][drawer][chan]));
+	  m_rmsL1Calo[ros][drawer][chan] = sqrt(m_rmsL1Calo[ros][drawer][chan] - square(m_meanL1Calo[ros][drawer][chan]));
 
-	if(rmsL1CaloDAC[ros][drawer][chan] <= (meanL1CaloDAC[ros][drawer][chan]*meanL1CaloDAC[ros][drawer][chan]))
-	  rmsL1CaloDAC[ros][drawer][chan] = 0;
+	if(m_rmsL1CaloDAC[ros][drawer][chan] <= square(m_meanL1CaloDAC[ros][drawer][chan]))
+	  m_rmsL1CaloDAC[ros][drawer][chan] = 0;
 	else 
-	  rmsL1CaloDAC[ros][drawer][chan] = sqrt(rmsL1CaloDAC[ros][drawer][chan] - (meanL1CaloDAC[ros][drawer][chan]*meanL1CaloDAC[ros][drawer][chan]));
+	  m_rmsL1CaloDAC[ros][drawer][chan] = sqrt(m_rmsL1CaloDAC[ros][drawer][chan] - square(m_meanL1CaloDAC[ros][drawer][chan]));
 
-	meanTileL1Calo[ros][drawer][chan] = meanTile[ros][drawer][chan] - meanL1Calo[ros][drawer][chan];
-        if(rmsTileL1Calo[ros][drawer][chan] <= (meanTileL1Calo[ros][drawer][chan]*meanTileL1Calo[ros][drawer][chan]))
-	  rmsTileL1Calo[ros][drawer][chan] = 0;
+	m_meanTileL1Calo[ros][drawer][chan] = m_meanTile[ros][drawer][chan] - m_meanL1Calo[ros][drawer][chan];
+        if(m_rmsTileL1Calo[ros][drawer][chan] <= square(m_meanTileL1Calo[ros][drawer][chan]))
+	  m_rmsTileL1Calo[ros][drawer][chan] = 0;
 	else 
-	  rmsTileL1Calo[ros][drawer][chan] = sqrt(rmsTileL1Calo[ros][drawer][chan] - (meanTileL1Calo[ros][drawer][chan]*meanTileL1Calo[ros][drawer][chan]));
+	  m_rmsTileL1Calo[ros][drawer][chan] = sqrt(m_rmsTileL1Calo[ros][drawer][chan] - square(m_meanTileL1Calo[ros][drawer][chan]));
       }
     }
   }
@@ -427,30 +389,29 @@ StatusCode TileTriggerDefaultCalibTool::finalizeCalculations()
 
 StatusCode TileTriggerDefaultCalibTool::writeNtuple(int runNumber, int runType, TFile * rootFile)
 {
-  MsgStream log(msgSvc(),name());
-  log << MSG::INFO << "writeNtuple(" << runNumber << "," << runType << "," << rootFile << ")" << endreq;
+  ATH_MSG_INFO ( "writeNtuple(" << runNumber << "," << runType << "," << rootFile << ")" );
 
   TTree *t = new TTree(m_ntupleID.c_str(), "TileCalib-Ntuple");
-  t->Branch("meanTile",&meanTile,"meanTile[5][64][48]/F");
-  t->Branch("rmsTile",&rmsTile,"rmsTile[5][64][48]/F");
-  t->Branch("meanTileDAC",&meanTileDAC,"meanTileDAC[5][64][48]/F");
-  t->Branch("rmsTileDAC",&rmsTileDAC,"rmsTileDAC[5][64][48]/F");
-  t->Branch("ietaTile",&ietaTile,"ietaTile[5][64][48]/I");
-  t->Branch("iphiTile",&iphiTile,"iphiTile[5][64][48]/I");
-  t->Branch("ipmtTile",&ipmtTile,"ipmtTile[5][64][48]/I");
-  t->Branch("nEvtTile",&nEvtTile,"nEvtTile[5][64][48]/I");
-  t->Branch("meanL1Calo",&meanL1Calo,"meanL1Calo[5][64][48]/F");
-  t->Branch("rmsL1Calo",&rmsL1Calo,"rmsL1Calo[5][64][48]/F");
-  t->Branch("meanL1CaloDAC",&meanL1CaloDAC,"meanL1CaloDAC[5][64][48]/F");
-  t->Branch("rmsL1CaloDAC",&rmsL1CaloDAC,"rmsL1CaloDAC[5][64][48]/F");
-  t->Branch("ietaL1Calo",&ietaL1Calo,"ietaL1Calo[5][64][48]/I");
-  t->Branch("iphiL1Calo",&iphiL1Calo,"iphiL1Calo[5][64][48]/I");
-  t->Branch("ipmtL1Calo",&ipmtL1Calo,"ipmtL1Calo[5][64][48]/I");
-  t->Branch("nEvtL1Calo",&nEvtL1Calo,"nEvtL1Calo[5][64][48]/I");
-  t->Branch("nEvtGlobal",&nEvtGlobal,"nEvtGlobal[1]/I");
-  t->Branch("meanTileL1Calo",&meanTileL1Calo,"meanTileL1Calo[5][64][48]/F");
-  t->Branch("rmsTileL1Calo",&rmsTileL1Calo,"rmsTileL1Calo[5][64][48]/F");
-  t->Branch("DACvalue",&DACvalue,"DACvalue/F");
+  t->Branch("meanTile",&m_meanTile,"meanTile[5][64][48]/F");
+  t->Branch("rmsTile",&m_rmsTile,"rmsTile[5][64][48]/F");
+  t->Branch("meanTileDAC",&m_meanTileDAC,"meanTileDAC[5][64][48]/F");
+  t->Branch("rmsTileDAC",&m_rmsTileDAC,"rmsTileDAC[5][64][48]/F");
+  t->Branch("ietaTile",&m_ietaTile,"ietaTile[5][64][48]/I");
+  t->Branch("iphiTile",&m_iphiTile,"iphiTile[5][64][48]/I");
+  t->Branch("ipmtTile",&m_ipmtTile,"ipmtTile[5][64][48]/I");
+  t->Branch("nEvtTile",&m_nEvtTile,"nEvtTile[5][64][48]/I");
+  t->Branch("meanL1Calo",&m_meanL1Calo,"meanL1Calo[5][64][48]/F");
+  t->Branch("rmsL1Calo",&m_rmsL1Calo,"rmsL1Calo[5][64][48]/F");
+  t->Branch("meanL1CaloDAC",&m_meanL1CaloDAC,"meanL1CaloDAC[5][64][48]/F");
+  t->Branch("rmsL1CaloDAC",&m_rmsL1CaloDAC,"rmsL1CaloDAC[5][64][48]/F");
+  t->Branch("ietaL1Calo",&m_ietaL1Calo,"ietaL1Calo[5][64][48]/I");
+  t->Branch("iphiL1Calo",&m_iphiL1Calo,"iphiL1Calo[5][64][48]/I");
+  t->Branch("ipmtL1Calo",&m_ipmtL1Calo,"ipmtL1Calo[5][64][48]/I");
+  t->Branch("nEvtL1Calo",&m_nEvtL1Calo,"nEvtL1Calo[5][64][48]/I");
+  t->Branch("nEvtGlobal",&m_nEvtGlobal,"nEvtGlobal[1]/I");
+  t->Branch("meanTileL1Calo",&m_meanTileL1Calo,"meanTileL1Calo[5][64][48]/F");
+  t->Branch("rmsTileL1Calo",&m_rmsTileL1Calo,"rmsTileL1Calo[5][64][48]/F");
+  t->Branch("DACvalue",&m_DACvalue,"DACvalue/F");
 
   // Fill with current values (i.e. tree will have only one entry for this whole run)
   t->Fill();
@@ -461,7 +422,6 @@ StatusCode TileTriggerDefaultCalibTool::writeNtuple(int runNumber, int runType, 
 
 StatusCode TileTriggerDefaultCalibTool::finalize()
 {
-  MsgStream log(msgSvc(),name());
-  log << MSG::DEBUG << "finalizeTrigger()" << endreq;
+  ATH_MSG_DEBUG ( "finalizeTrigger()" );
   return StatusCode::SUCCESS;  
 }

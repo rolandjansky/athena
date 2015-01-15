@@ -5,7 +5,7 @@
 #ifndef TILECALIBALG_TILELASERLINEARITYCALIBTOOL_H
 #define TILECALIBALG_TILELASERLINEARITYCALIBTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "TileCalibAlgs/ITileCalibTool.h"
 #include <string> 
@@ -15,14 +15,13 @@
 #include "TileConditions/TileCondToolEmscale.h"
 #include "TileCalibAlgs/TileLaserDefaultCalibTool.h"
 
-class StoreGateSvc;
 class TileRawChannelContainer;
 class TileBeamInfoProvider;
 class TileLaserObject;
 class TileHWID;
 class TFile;
 
-class TileLaserLinearityCalibTool : public AlgTool, virtual public ITileCalibTool
+class TileLaserLinearityCalibTool : public AthAlgTool, virtual public ITileCalibTool
 {
 
  public:
@@ -43,10 +42,6 @@ class TileLaserLinearityCalibTool : public AlgTool, virtual public ITileCalibToo
 
   std::string m_rawChannelContainerName;
   std::string m_laserContainerName;
-
-  // Tools / storegate info
-  StoreGateSvc* m_detStore;
-  StoreGateSvc* m_evtStore;
 
   const TileHWID* m_tileHWID;    
   const TileCablingService* m_cabling;
@@ -96,22 +91,22 @@ class TileLaserLinearityCalibTool : public AlgTool, virtual public ITileCalibToo
   int m_PMT1_ADC_prev[2];
   int m_PMT2_ADC_prev[2];
 
-  int first_filter;      // Value of the first filter position
+  int m_first_filter;      // Value of the first filter position
 
-  int last_evt_filter;   // Filter position of the previous event
-  int n_same_filt_evts;  // How many events in a row with the same filter setting
+  int m_last_evt_filter;   // Filter position of the previous event
+  int m_n_same_filt_evts;  // How many events in a row with the same filter setting
 
   bool m_complete_turn;
 
-  RunningStat* HG_diode_signal[8][10];
-  RunningStat* HG_PMT_signal[8][2];
-  RunningStat* LG_diode_signal[8][10];
-  RunningStat* LG_PMT_signal[8][2];
-  RunningStat* signal[8][4][64][48][2];
-  RunningStat* LG_ratio[8][4][64][48][2];
-  RunningStat* LG_ratio2[8][4][64][48][2];
-  RunningStat* HG_ratio[8][4][64][48][2];
-  RunningStat* HG_ratio2[8][4][64][48][2];
+  RunningStat* m_HG_diode_signal[8][10];
+  RunningStat* m_HG_PMT_signal[8][2];
+  RunningStat* m_LG_diode_signal[8][10];
+  RunningStat* m_LG_PMT_signal[8][2];
+  RunningStat* m_signal[8][4][64][48][2];
+  RunningStat* m_LG_ratio_stat[8][4][64][48][2];
+  RunningStat* m_LG_ratio2_stat[8][4][64][48][2];
+  RunningStat* m_HG_ratio_stat[8][4][64][48][2];
+  RunningStat* m_HG_ratio2_stat[8][4][64][48][2];
 
   // Functions
   inline int chanIsConnected(int ros, int chan) {

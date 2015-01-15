@@ -32,7 +32,52 @@
 /**********************************************************/
 
 TileLaserLinearityCalibTool::TileLaserLinearityCalibTool(const std::string& type, const std::string& name,const IInterface* pParent):
-  AlgTool(type, name, pParent)
+  AthAlgTool(type, name, pParent),
+  m_tileHWID (nullptr),
+  m_cabling (nullptr),
+  m_beamInfo (nullptr),
+  m_toolRunNo(0),
+  m_ADC_problem(0),
+  m_las_filter(0),
+  m_las_requ_amp(0),
+  m_hrate(0),
+  m_flow(0),
+  m_head_temp(0),
+  m_las_time(0),
+  m_LG_PMT(),
+  m_LG_PMT_S(),
+  m_LG_diode(),
+  m_LG_diode_S(),
+  m_HG_PMT(),
+  m_HG_PMT_S(),
+  m_HG_diode(),
+  m_HG_diode_S(),
+  m_mean(),
+  m_mean_S(),
+  m_LG_ratio(),
+  m_LG_ratio_S(),
+  m_LG_ratio2(),
+  m_LG_ratio2_S(),
+  m_HG_ratio(),
+  m_HG_ratio_S(),
+  m_HG_ratio2(),
+  m_HG_ratio2_S(),
+  m_entries(),
+  m_PMT1_ADC_prev(),
+  m_PMT2_ADC_prev(),
+  m_first_filter(0),
+  m_last_evt_filter(0),
+  m_n_same_filt_evts(0),
+  m_complete_turn(0),
+  m_HG_diode_signal(),
+  m_HG_PMT_signal(),
+  m_LG_diode_signal(),
+  m_LG_PMT_signal(),
+  m_signal(),
+  m_LG_ratio_stat(),
+  m_LG_ratio2_stat(),
+  m_HG_ratio_stat(),
+  m_HG_ratio2_stat()
 {
   declareInterface<ITileCalibTool>( this );
   declareProperty("toolNtuple", m_toolNtuple="h3000");
@@ -55,8 +100,7 @@ TileLaserLinearityCalibTool::~TileLaserLinearityCalibTool()
 StatusCode TileLaserLinearityCalibTool::initialize()
 {
   
-  MsgStream log(msgSvc(),name());
-  log << MSG::INFO << "initialize()" << endreq;
+  ATH_MSG_INFO ( "initialize()" );
 
   // Reset local parameters
   // For parameter definition, see the header file
@@ -77,8 +121,8 @@ StatusCode TileLaserLinearityCalibTool::initialize()
   m_PMT1_ADC_prev[1]= 0;
   m_PMT2_ADC_prev[1]= 0;
 
-  last_evt_filter  = 0; 
-  n_same_filt_evts = 0; 
+  m_last_evt_filter  = 0; 
+  m_n_same_filt_evts = 0; 
 
   for(int f=0; f<8; ++f) 
   {
@@ -86,10 +130,10 @@ StatusCode TileLaserLinearityCalibTool::initialize()
     {
       m_LG_PMT[f][d]      = 0;
       m_LG_PMT_S[f][d]    = 0;
-      LG_PMT_signal[f][d] = new RunningStat();
+      m_LG_PMT_signal[f][d] = new RunningStat();
       m_HG_PMT[f][d]      = 0;
       m_HG_PMT_S[f][d]    = 0;
-      HG_PMT_signal[f][d] = new RunningStat();
+      m_HG_PMT_signal[f][d] = new RunningStat();
     }
   }
 
@@ -99,11 +143,11 @@ StatusCode TileLaserLinearityCalibTool::initialize()
     {
       m_LG_diode[f][d]       = 0;    
       m_LG_diode_S[f][d]     = 0;  
-      LG_diode_signal[f][d]  = new RunningStat();
+      m_LG_diode_signal[f][d]  = new RunningStat();
 
       m_HG_diode[f][d]       = 0;    
       m_HG_diode_S[f][d]     = 0;  
-      HG_diode_signal[f][d]  = new RunningStat();
+      m_HG_diode_signal[f][d]  = new RunningStat();
     }
   }
 
@@ -117,21 +161,21 @@ StatusCode TileLaserLinearityCalibTool::initialize()
 	{ 
 	  for(int l=0; l<2; ++l) // Gain
 	  { 
-	    signal[f][i][j][k][l]    = new RunningStat();
+	    m_signal[f][i][j][k][l]    = new RunningStat();
 	    m_mean[f][i][j][k][l]    = 0;
 	    m_mean_S[f][i][j][k][l]  = 0;
 	    
-	    HG_ratio[f][i][j][k][l]     = new RunningStat();
+	    m_HG_ratio_stat[f][i][j][k][l]     = new RunningStat();
 	    m_HG_ratio[f][i][j][k][l]   = 0;
 	    m_HG_ratio_S[f][i][j][k][l] = 0;
-	    HG_ratio2[f][i][j][k][l]    = new RunningStat();
+	    m_HG_ratio2_stat[f][i][j][k][l]    = new RunningStat();
 	    m_HG_ratio2[f][i][j][k][l]  = 0;
 	    m_HG_ratio2_S[f][i][j][k][l]= 0;
 
-	    LG_ratio[f][i][j][k][l]     = new RunningStat();
+	    m_LG_ratio_stat[f][i][j][k][l]     = new RunningStat();
 	    m_LG_ratio[f][i][j][k][l]   = 0;
 	    m_LG_ratio_S[f][i][j][k][l] = 0;
-	    LG_ratio2[f][i][j][k][l]    = new RunningStat();
+	    m_LG_ratio2_stat[f][i][j][k][l]    = new RunningStat();
 	    m_LG_ratio2[f][i][j][k][l]  = 0;
 	    m_LG_ratio2_S[f][i][j][k][l]= 0;
 
@@ -143,53 +187,18 @@ StatusCode TileLaserLinearityCalibTool::initialize()
   } 
 
 
-  // Find necessary services
-  if(service("StoreGateSvc", m_evtStore).isFailure()){
-    log<<MSG::ERROR<<"Unable to get pointer to eventStore Service"<<endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve(m_tileHWID) );
+  ATH_CHECK( m_tileToolEmscale.retrieve() );
 
-  if(service("DetectorStore", m_detStore).isFailure()){
-    log << MSG::ERROR<<"Unable to get pointer to DetectorStore Service" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-
-  IToolSvc* toolSvc;
-  if (service("ToolSvc",toolSvc).isFailure()) {
-    log << MSG::ERROR <<" Can't get ToolSvc " << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  // get TileHWID helper
-  if(m_detStore->retrieve(m_tileHWID).isFailure()){
-    log << MSG::ERROR << "Unable to retrieve TileHWID helper from DetectorStore" << endreq;
-    return StatusCode::FAILURE;
-  }
-
- 
-  if(m_tileToolEmscale.retrieve().isFailure()){
-    log << MSG::ERROR << "Unable to retrieve " << m_tileToolEmscale << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  // get TileCabling Service
   m_cabling = TileCablingService::getInstance();
 
-  // get beam info tool
-  if(toolSvc->retrieveTool("TileBeamInfoProvider",m_beamInfo).isFailure()) {
-    log << MSG::ERROR << "Unable to get tool 'TileBeamInfoProvider'" << endreq;
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK( toolSvc()->retrieveTool("TileBeamInfoProvider",m_beamInfo) );
   return StatusCode::SUCCESS;  
 }       
 
 StatusCode TileLaserLinearityCalibTool::initNtuple(int runNumber, int runType, TFile * rootFile)
 {
-  MsgStream log(msgSvc(),name());
-  log << MSG::INFO << "initialize(" << runNumber << "," << runType << "," << rootFile << ")" << endreq;
-
+  ATH_MSG_INFO ( "initialize(" << runNumber << "," << runType << "," << rootFile << ")" );
   return StatusCode::SUCCESS;  
 }
 
@@ -207,9 +216,7 @@ StatusCode TileLaserLinearityCalibTool::initNtuple(int runNumber, int runType, T
 
 StatusCode TileLaserLinearityCalibTool::execute()
 {
-  
-  MsgStream log(msgSvc(),name());
-  log << MSG::INFO << "execute()" << endreq;
+  ATH_MSG_INFO ( "execute()" );
 
   //
   // Here we analyze a run with filter wheel moving
@@ -218,21 +225,17 @@ StatusCode TileLaserLinearityCalibTool::execute()
 
   if (m_complete_turn)
   {
-    log << MSG::INFO << "Filter wheel turn completed: stop here" << endreq;
+    ATH_MSG_INFO ( "Filter wheel turn completed: stop here" );
     return StatusCode::SUCCESS;
   }
 
-  log << MSG::DEBUG << "Retrieving the LASER object and RawChannel" << endreq;
+  ATH_MSG_DEBUG ( "Retrieving the LASER object and RawChannel" );
 
   const TileRawChannelContainer * rawCnt = 0;
   const TileLaserObject* laserObj;
 
-  if ((m_evtStore->retrieve(rawCnt, m_rawChannelContainerName)).isFailure() ||
-      (m_evtStore->retrieve(laserObj, m_laserContainerName)).isFailure())
-  {
-    log << MSG::ERROR << "There is a problem opening TileRawChannelContainer or the LASER object" << endreq;
-    return StatusCode::FAILURE; 
-  } 
+  ATH_CHECK( evtStore()->retrieve(rawCnt, m_rawChannelContainerName) );
+  ATH_CHECK( evtStore()->retrieve(laserObj, m_laserContainerName) );
 
   // First we got event time (From 1/1/70)
 
@@ -247,7 +250,7 @@ StatusCode TileLaserLinearityCalibTool::execute()
 
   if (laserObj->getDiodeCurrOrd() == 0 || laserObj->getFiltNumber() == 0)   // Sanity check
   {
-    log << MSG::VERBOSE << "Filter wheel moving: skip event !!" << endreq;
+    ATH_MSG_VERBOSE ( "Filter wheel moving: skip event !!" );
     return StatusCode::SUCCESS; // This is expected for some events 
   }
 
@@ -259,16 +262,16 @@ StatusCode TileLaserLinearityCalibTool::execute()
 
   m_las_filter = laserObj->getFiltNumber()-1; // Corrected filter position
 
-  if (last_evt_filter == m_las_filter)  // If the position the same as before??
+  if (m_last_evt_filter == m_las_filter)  // If the position the same as before??
   {
-    n_same_filt_evts +=1;
+    m_n_same_filt_evts +=1;
   }
   else
   {
-    n_same_filt_evts = 0;
+    m_n_same_filt_evts = 0;
   }
   
-  last_evt_filter = m_las_filter;
+  m_last_evt_filter = m_las_filter;
 
 
   //
@@ -277,9 +280,9 @@ StatusCode TileLaserLinearityCalibTool::execute()
   // we reject the entire event
   //
 
-  if (n_same_filt_evts < 200)   // Sanity check
+  if (m_n_same_filt_evts < 200)   // Sanity check
   {
-    log << MSG::WARNING << "Still in a non stable area, wait a bit !!" << endreq;
+    ATH_MSG_WARNING ( "Still in a non stable area, wait a bit !!" );
     return StatusCode::SUCCESS; // This is expected for some events 
   }
 
@@ -297,13 +300,13 @@ StatusCode TileLaserLinearityCalibTool::execute()
   } // FOR
 
   for(int i=0; i<10; ++i){ 
-    LG_diode_signal[m_las_filter][i]->Push(LG_diode[i]);
-    HG_diode_signal[m_las_filter][i]->Push(HG_diode[i]);
+    m_LG_diode_signal[m_las_filter][i]->Push(LG_diode[i]);
+    m_HG_diode_signal[m_las_filter][i]->Push(HG_diode[i]);
   } // FOR
 
   for(int i=0; i<2; ++i){
-    LG_PMT_signal[m_las_filter][i]->Push(laserObj->getPMADC(i,0)-laserObj->getPMPedestal(i,0));
-    HG_PMT_signal[m_las_filter][i]->Push(laserObj->getPMADC(i,1)-laserObj->getPMPedestal(i,1));
+    m_LG_PMT_signal[m_las_filter][i]->Push(laserObj->getPMADC(i,0)-laserObj->getPMPedestal(i,0));
+    m_HG_PMT_signal[m_las_filter][i]->Push(laserObj->getPMADC(i,1)-laserObj->getPMPedestal(i,1));
   } // FOR
 
   // Check that the ADC has really sent a new information 
@@ -312,13 +315,13 @@ StatusCode TileLaserLinearityCalibTool::execute()
       laserObj->getPMADC(1,0) == m_PMT2_ADC_prev[0])
   {
     m_ADC_problem = 1;
-    log << MSG::WARNING << "There is perhaps an ADC problem with this event" << endreq;
+    ATH_MSG_WARNING ( "There is perhaps an ADC problem with this event" );
   }
   if (laserObj->getPMADC(0,1) == m_PMT1_ADC_prev[1] && 
       laserObj->getPMADC(1,1) == m_PMT2_ADC_prev[1])
   {
     m_ADC_problem = 1;
-    log << MSG::WARNING << "There is perhaps an ADC problem with this event" << endreq;
+    ATH_MSG_WARNING ( "There is perhaps an ADC problem with this event" );
   }
 
   m_PMT1_ADC_prev[0] = laserObj->getPMADC(0,0);
@@ -330,7 +333,7 @@ StatusCode TileLaserLinearityCalibTool::execute()
 
   if (m_hrate == 0) 
   {
-    first_filter   = laserObj->getFiltNumber()-1; // The first filter position
+    m_first_filter   = laserObj->getFiltNumber()-1; // The first filter position
     m_hrate        = laserObj->getHumidity(); 
     m_flow         = laserObj->getGasFlux(); 
     m_head_temp    = laserObj->getPumpDiodeTemp();
@@ -343,13 +346,13 @@ StatusCode TileLaserLinearityCalibTool::execute()
   // we have systematic shifts with filter wheel position
   //
 
-  if (m_las_filter==first_filter) 
+  if (m_las_filter==m_first_filter) 
   {
-    int previous_filter = (first_filter+7)%8;
-    if (HG_PMT_signal[previous_filter][0]->NumDataValues()>400 || LG_PMT_signal[previous_filter][0]->NumDataValues()>400) 
+    int previous_filter = (m_first_filter+7)%8;
+    if (m_HG_PMT_signal[previous_filter][0]->NumDataValues()>400 || m_LG_PMT_signal[previous_filter][0]->NumDataValues()>400) 
     {
       m_complete_turn=true; // Yes, stop here 
-      log << MSG::INFO << "Filter wheel turn completed: stop here" << endreq;
+      ATH_MSG_INFO ( "Filter wheel turn completed: stop here" );
       return StatusCode::SUCCESS;
     }
   }
@@ -401,29 +404,29 @@ StatusCode TileLaserLinearityCalibTool::execute()
       // Useful when the filter wheel is moving again (the signal could become bad again)
       //
 
-      if (signal[m_las_filter][ros][drawer][chan][gain]->NumDataValues()>400) 
+      if (m_signal[m_las_filter][ros][drawer][chan][gain]->NumDataValues()>400) 
       {                                                                 
-	double current_mean = signal[m_las_filter][ros][drawer][chan][gain]->Mean();
- 	double current_RMS  = signal[m_las_filter][ros][drawer][chan][gain]->StandardDeviation();
+	double current_mean = m_signal[m_las_filter][ros][drawer][chan][gain]->Mean();
+ 	double current_RMS  = m_signal[m_las_filter][ros][drawer][chan][gain]->StandardDeviation();
 
 	if (fabs(ampInPicoCoulombs-current_mean)>5*current_RMS) // 5 sigmas away, not normal
 	{
-	  log << MSG::VERBOSE << "Rejecting an outlier. If there are a lot this means filter wheel will soon move again!" << endreq;
+	  ATH_MSG_VERBOSE ( "Rejecting an outlier. If there are a lot this means filter wheel will soon move again!" );
 	}
 	else
 	{
-	  signal[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs);
+	  m_signal[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs);
 	  
 	  if (HG_diode[0] != 0)
 	  {
-	    HG_ratio[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/HG_diode[0]);
-	    HG_ratio2[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/(laserObj->getPMADC(0,1)-laserObj->getPMPedestal(0,1)));
+	    m_HG_ratio_stat[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/HG_diode[0]);
+	    m_HG_ratio2_stat[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/(laserObj->getPMADC(0,1)-laserObj->getPMPedestal(0,1)));
 	  }
 
 	  if (LG_diode[0] != 0)
 	  {
-	    LG_ratio[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/LG_diode[0]);
-	    LG_ratio2[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/(laserObj->getPMADC(0,0)-laserObj->getPMPedestal(0,0)));
+	    m_LG_ratio_stat[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/LG_diode[0]);
+	    m_LG_ratio2_stat[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/(laserObj->getPMADC(0,0)-laserObj->getPMPedestal(0,0)));
 	  }
 
 	}
@@ -431,23 +434,22 @@ StatusCode TileLaserLinearityCalibTool::execute()
       else
       {
 	if (ros == 2 && drawer == 0 && chan == 1)	
-	  log << MSG::VERBOSE << m_las_filter+1 <<" / " << gain <<" / " << ampInPicoCoulombs <<" / " 
-	      << signal[m_las_filter][ros][drawer][chan][gain]->Mean() 
-	      << " / " << signal[m_las_filter][ros][drawer][chan][gain]->StandardDeviation()
-	      << endreq;
+	  ATH_MSG_VERBOSE ( m_las_filter+1 <<" / " << gain <<" / " << ampInPicoCoulombs <<" / " 
+                            << m_signal[m_las_filter][ros][drawer][chan][gain]->Mean() 
+                            << " / " << m_signal[m_las_filter][ros][drawer][chan][gain]->StandardDeviation() );
 
-	signal[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs);
+	m_signal[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs);
 
 	if (HG_diode[0] != 0)
 	{
-	  HG_ratio[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/HG_diode[0]);
-	  HG_ratio2[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/(laserObj->getPMADC(0,1)-laserObj->getPMPedestal(0,1)));
+	  m_HG_ratio_stat[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/HG_diode[0]);
+	  m_HG_ratio2_stat[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/(laserObj->getPMADC(0,1)-laserObj->getPMPedestal(0,1)));
 	}
 
 	if (LG_diode[0] != 0)
 	{
-	  LG_ratio[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/LG_diode[0]);
-	  LG_ratio2[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/(laserObj->getPMADC(0,0)-laserObj->getPMPedestal(0,0)));
+	  m_LG_ratio_stat[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/LG_diode[0]);
+	  m_LG_ratio2_stat[m_las_filter][ros][drawer][chan][gain]->Push(ampInPicoCoulombs/(laserObj->getPMADC(0,0)-laserObj->getPMPedestal(0,0)));
 	}
 
       }		
@@ -466,19 +468,17 @@ StatusCode TileLaserLinearityCalibTool::execute()
 
 StatusCode TileLaserLinearityCalibTool::finalizeCalculations()
 {
-  
-  MsgStream log(msgSvc(),name());
-  log << MSG::INFO << "execute()" << endreq;
+  ATH_MSG_INFO ( "execute()" );
 
   for(int f=0; f<8; ++f) 
   {
     for(int d=0; d<2; ++d) 
     {
-      m_LG_PMT[f][d]      = LG_PMT_signal[f][d]->Mean();    
-      m_LG_PMT_S[f][d]    = LG_PMT_signal[f][d]->StandardDeviation();  
+      m_LG_PMT[f][d]      = m_LG_PMT_signal[f][d]->Mean();    
+      m_LG_PMT_S[f][d]    = m_LG_PMT_signal[f][d]->StandardDeviation();  
 
-      m_HG_PMT[f][d]      = HG_PMT_signal[f][d]->Mean();    
-      m_HG_PMT_S[f][d]    = HG_PMT_signal[f][d]->StandardDeviation();  
+      m_HG_PMT[f][d]      = m_HG_PMT_signal[f][d]->Mean();    
+      m_HG_PMT_S[f][d]    = m_HG_PMT_signal[f][d]->StandardDeviation();  
     }
   }
 
@@ -486,11 +486,11 @@ StatusCode TileLaserLinearityCalibTool::finalizeCalculations()
   {
     for(int d=0; d<4; ++d) 
     {
-      m_LG_diode[f][d]       = LG_diode_signal[f][d]->Mean();    
-      m_LG_diode_S[f][d]     = LG_diode_signal[f][d]->StandardDeviation();    
+      m_LG_diode[f][d]       = m_LG_diode_signal[f][d]->Mean();    
+      m_LG_diode_S[f][d]     = m_LG_diode_signal[f][d]->StandardDeviation();    
 
-      m_HG_diode[f][d]       = HG_diode_signal[f][d]->Mean();    
-      m_HG_diode_S[f][d]     = HG_diode_signal[f][d]->StandardDeviation();    
+      m_HG_diode[f][d]       = m_HG_diode_signal[f][d]->Mean();    
+      m_HG_diode_S[f][d]     = m_HG_diode_signal[f][d]->StandardDeviation();    
     }
   }
 
@@ -504,18 +504,18 @@ StatusCode TileLaserLinearityCalibTool::finalizeCalculations()
 	{ 
 	  for(int l=0; l<2; ++l) 
 	  { 
-	    m_mean[f][i][j][k][l]    = signal[f][i][j][k][l]->Mean();
-	    m_mean_S[f][i][j][k][l]  = signal[f][i][j][k][l]->StandardDeviation();
+	    m_mean[f][i][j][k][l]    = m_signal[f][i][j][k][l]->Mean();
+	    m_mean_S[f][i][j][k][l]  = m_signal[f][i][j][k][l]->StandardDeviation();
 	    
-	    m_LG_ratio[f][i][j][k][l]   = LG_ratio[f][i][j][k][l]->Mean();
-	    m_LG_ratio_S[f][i][j][k][l] = LG_ratio[f][i][j][k][l]->StandardDeviation();
-	    m_LG_ratio2[f][i][j][k][l]   = LG_ratio2[f][i][j][k][l]->Mean();
-	    m_LG_ratio2_S[f][i][j][k][l] = LG_ratio2[f][i][j][k][l]->StandardDeviation();
-	    m_HG_ratio[f][i][j][k][l]   = HG_ratio[f][i][j][k][l]->Mean();
-	    m_HG_ratio_S[f][i][j][k][l] = HG_ratio[f][i][j][k][l]->StandardDeviation();
-	    m_HG_ratio2[f][i][j][k][l]   = HG_ratio2[f][i][j][k][l]->Mean();
-	    m_HG_ratio2_S[f][i][j][k][l] = HG_ratio2[f][i][j][k][l]->StandardDeviation();
-	    m_entries[f][i][j][k][l] = signal[f][i][j][k][l]->NumDataValues();
+	    m_LG_ratio[f][i][j][k][l]   = m_LG_ratio_stat[f][i][j][k][l]->Mean();
+	    m_LG_ratio_S[f][i][j][k][l] = m_LG_ratio_stat[f][i][j][k][l]->StandardDeviation();
+	    m_LG_ratio2[f][i][j][k][l]   = m_LG_ratio2_stat[f][i][j][k][l]->Mean();
+	    m_LG_ratio2_S[f][i][j][k][l] = m_LG_ratio2_stat[f][i][j][k][l]->StandardDeviation();
+	    m_HG_ratio[f][i][j][k][l]   = m_HG_ratio_stat[f][i][j][k][l]->Mean();
+	    m_HG_ratio_S[f][i][j][k][l] = m_HG_ratio_stat[f][i][j][k][l]->StandardDeviation();
+	    m_HG_ratio2[f][i][j][k][l]   = m_HG_ratio2_stat[f][i][j][k][l]->Mean();
+	    m_HG_ratio2_S[f][i][j][k][l] = m_HG_ratio2_stat[f][i][j][k][l]->StandardDeviation();
+	    m_entries[f][i][j][k][l] = m_signal[f][i][j][k][l]->NumDataValues();
 	  }
 	}
       }
@@ -538,9 +538,7 @@ StatusCode TileLaserLinearityCalibTool::finalizeCalculations()
 
 StatusCode TileLaserLinearityCalibTool::writeNtuple(int runNumber, int runType, TFile * rootFile)
 {
-  
-  MsgStream log(msgSvc(),name());
-  log << MSG::INFO << "finalize(" << runNumber << "," << runType << "," << rootFile << ")" << endreq;
+  ATH_MSG_INFO ( "finalize(" << runNumber << "," << runType << "," << rootFile << ")" );
 
   // Create output tree
 
@@ -586,19 +584,8 @@ StatusCode TileLaserLinearityCalibTool::writeNtuple(int runNumber, int runType, 
 
 StatusCode TileLaserLinearityCalibTool::finalize()
 {
-
-  MsgStream log(msgSvc(),name());
-  log << MSG::INFO << "finalize()" << endreq;
-
-  StatusCode sc = TileLaserLinearityCalibTool::finalizeCalculations(); // Perform the analysis
-
-  if (sc.isFailure()) {
-    log << MSG::ERROR
-	<< "Failure in LinearityLaserTool finalization!"
-	<< endreq;
-    return StatusCode::FAILURE;
-  } 
-
+  ATH_MSG_INFO ( "finalize()" );
+  ATH_CHECK( TileLaserLinearityCalibTool::finalizeCalculations() );
   return StatusCode::SUCCESS;  
 }  
 

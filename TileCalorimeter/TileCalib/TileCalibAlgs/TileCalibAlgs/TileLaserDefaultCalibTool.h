@@ -5,7 +5,7 @@
 #ifndef TILECALIBALG_TILELASERDEFAULTCALIBTOOL_H
 #define TILECALIBALG_TILELASERDEFAULTCALIBTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "TileCalibAlgs/ITileCalibTool.h"
 #include <string> 
@@ -20,7 +20,6 @@
 #define NCHANNELS 32
 #define NPMTS
 
-class StoreGateSvc;
 class TileRawChannelContainer;
 class TileBeamInfoProvider;
 class TileLaserObject;
@@ -29,7 +28,7 @@ class TFile;
 class RunningStat;
 class TileDCSSvc;
 
-class TileLaserDefaultCalibTool : public AlgTool, virtual public ITileCalibTool
+class TileLaserDefaultCalibTool : public AthAlgTool, virtual public ITileCalibTool
 {
 
  public:
@@ -53,10 +52,6 @@ class TileLaserDefaultCalibTool : public AlgTool, virtual public ITileCalibTool
 	
   bool m_pisaMethod2;
   
-  // Tools / storegate info
-  StoreGateSvc* m_detStore;
-  StoreGateSvc* m_evtStore;
-
   const TileHWID* m_tileHWID;    
   const TileCablingService* m_cabling;
   ToolHandle<TileCondToolEmscale>  m_tileToolEmscale;
@@ -86,13 +81,13 @@ class TileLaserDefaultCalibTool : public AlgTool, virtual public ITileCalibTool
   float m_ratio_LASERII[32][4][64][48][2];       // Calib coefficients computed for this run (for all diodes, PMTs, phocal, CIS)
   float m_ratio_S_LASERII[32][4][64][48][2];     // Corresponding RMS
 
-  RunningStat* rs_chan_Laser[32];
-  RunningStat* rs_chan_Pedestal[32];
-  RunningStat* rs_chan_LED[32];
-  RunningStat* rs_chan_Alpha[32];
-  RunningStat* rs_chan_Linearity[32];
+  RunningStat* m_rs_chan_Laser[32];
+  RunningStat* m_rs_chan_Pedestal[32];
+  RunningStat* m_rs_chan_LED[32];
+  RunningStat* m_rs_chan_Alpha[32];
+  RunningStat* m_rs_chan_Linearity[32];
 
-  RunningStat* rs_ratio_LASERII[32][4][64][48][2];
+  RunningStat* m_rs_ratio_LASERII[32][4][64][48][2];
 
   // FIRST PART OF DATA FRAGMENT
   float m_chan_LAS[32];                 // Mean value for monitoring diodes, PMTs, phocal, CIS in Laser runs
@@ -127,9 +122,9 @@ class TileLaserDefaultCalibTool : public AlgTool, virtual public ITileCalibTool
   float m_diode_SAlpha[4];              // RMS of alpha spectra
   float m_ratio[4][4][64][48][2];       // Calib coefficients computed for this run (for all diodes)
   float m_ratio_S[4][4][64][48][2];     // Corresponding RMS
-  RunningStat* rs_diode_signal[4];
-  RunningStat* rs_PMT_signal[2];
-  RunningStat* rs_ratio[4][4][64][48][2];
+  RunningStat* m_rs_diode_signal[4];
+  RunningStat* m_rs_PMT_signal[2];
+  RunningStat* m_rs_ratio[4][4][64][48][2];
 
   float m_meantime[4];                  // Mean time computed for this run per partition (to remove 25ns jitter) 
   float m_time[4][64][48][2];           // Mean time computed for this run
@@ -153,11 +148,11 @@ class TileLaserDefaultCalibTool : public AlgTool, virtual public ITileCalibTool
   bool m_LASERII;
   long long m_evtNr;
 
-  RunningStat* rs_meantime[4];
-  RunningStat* rs_time[4][64][48][2];
-  RunningStat* rs_signal[4][64][48][2];
-  RunningStat* rs_raw_signal[4][64][48][2];
-  RunningStat* rs_reducedKappa[4][64][22][2];
+  RunningStat* m_rs_meantime[4];
+  RunningStat* m_rs_time[4][64][48][2];
+  RunningStat* m_rs_signal[4][64][48][2];
+  RunningStat* m_rs_raw_signal[4][64][48][2];
+  RunningStat* m_rs_reducedKappa[4][64][22][2];
 
   // Functions
   std::pair<unsigned int, unsigned int> getCoupleOfChan(int ros, int couple);
