@@ -163,13 +163,17 @@ ProxyProviderSvc::addAddress(IProxyRegistry& store,
     const SG::BaseInfoBase* bi = SG::BaseInfoBase::find (tAddr->clID());
     if (bi) {
       BOOST_FOREACH(CLID clid, bi->get_bases()) {
-	if (tClid.find (clid) == tClid.end())
+	if (tClid.find (clid) == tClid.end()) {
 	  store.addToStore (clid, dp).ignore();
+          tAddr->setTransientID (clid);
+        }
       }
 
       BOOST_FOREACH(CLID clid, bi->get_copy_conversions()) {
-	if (tClid.find (clid) == tClid.end())
+	if (tClid.find (clid) == tClid.end()) {
 	  store.addToStore (clid, dp).ignore();
+          tAddr->setTransientID (clid);
+        }
       }
     }
   } else {
@@ -195,7 +199,7 @@ ProxyProviderSvc::retrieveProxy(const CLID& id, const std::string& key,
       if ( ((*iProvider)->updateAddress(store.storeID(),pTAd)).isSuccess() ) 
 	{
 	  pTAd->setProvider(*iProvider, store.storeID());
-	  return addAddress(store,pTAd);
+	  return this->addAddress(store,pTAd);
 	}
     }  
     delete pTAd; pTAd=0;
