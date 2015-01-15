@@ -22,11 +22,23 @@
 #include <stdlib.h>
 #include "CoralBase/AttributeSpecification.h"
 
+#include "TInterpreter.h"
+#include "TClass.h"
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+#include "Cintex/Cintex.h"
+#endif
+
 using namespace std;
 using namespace pool;
 
 int main(int argc, char** )
 {
+#if ROOT_VERSION_CODE < ROOT_VERSION(6,0,0)
+  ROOT::Cintex::Cintex::Enable();
+#endif
+  gInterpreter->EnableAutoLoading();
+  TClass::GetClass("map<string,string>");
+
   bool crude = argc>1;
 
   remove ("CollectionCatalog0.xml");
