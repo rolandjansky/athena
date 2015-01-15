@@ -9,7 +9,7 @@
 #ifndef TRIGTAUTRIGREADNAVTOOL_H
 #define TRIGTAUTRIGREADNAVTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -49,7 +49,7 @@ namespace TrigTauTool
       @author  E. Ptacek <eptacek@uoregon.edu>
   */  
 
-  class TrigReadNavTool : public AlgTool, virtual public IIncidentListener
+  class TrigReadNavTool : public AthAlgTool, virtual public IIncidentListener
     {
     public:
       TrigReadNavTool(const std::string&,const std::string&,const IInterface*);
@@ -119,9 +119,6 @@ namespace TrigTauTool
         std::vector<const O*> getRelations(const C* p, std::string& fromlabel, std::string& tolabel);
       
     protected:
-      /** class member version of retrieving MsgStream */
-      mutable MsgStream                 m_log;
-
       /** member variables for algorithm properties: */
       /// Property: Incident service.
       ServiceHandle<IIncidentSvc> m_incSvc;
