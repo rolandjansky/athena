@@ -1,0 +1,145 @@
+(outdated)
+
+Simulate LAr/Tile MET ROBs in L2
+--------------------------------
+
+When running with the athenaMT plugin "MET_L2.py" the FEB summary information
+stored in LAr and Tile ROBs is extracted and packed into special MET ROBs
+for L2.
+The sub-detector Id for these ROBs is 0x7d for LAr and 0x7e for Tile. Typically
+in P1 for every ROS in the LAr and Tile readout such a L2 MET ROB is generated.
+
+Using the MET plugin:
+---------------------
+
+With the command 
+
+athenaMT -Z 'plugins.MET_L2' -f <data-file> <Job-options>
+
+the MET plugin is loaded and adds to the event read in from the file the additional MET ROBs
+if the event does not already contain MET ROBs. In the case a MET ROB is found in the
+input event no additional MET ROBs are generated but the number of retrieved MET ROBs
+is checked against the expected number in the configuration. In case of a mismatch an
+error message is printed.
+
+By default the plugin will generate for every sub-detector id in LAr and Tile one
+MET ROB with the FEB information of all ROBs in the specific sub-detector.
+This will result for LAr in 8 MET ROBs with the source identifiers 0x7d0001 to 0x7d0008 and for
+Tile in 4 MET ROBs with the identifiers 0x7e0001 to 0x7e0004.
+This should work transparently for any bytestream input file. 
+
+If one wants to simulate the association of MET ROBs to ROSes like in P1 an external python file
+"rob_ros_list.py" has to be provided in the PYTHONPATH. The file "rob_ros_list.py" can be 
+generated directly form the ATLAS OKS partition file with the command 
+
+l2met-partition-ros-rob-config.py <atlas partition file>.data.xml
+
+The chosen partition file should correspond to the LAr and Tile readout configuration used for the
+events in the data file.
+
+Alternatively, one can use
+
+l2met-rob-config-from-data.py <bytestream file>
+
+to extract the list of MET ROBs from an existing data file. However, this will not reproduce the ROB/ROS
+configuration used online and therefor should not be considered as a fully valid test.
+
+Warning 1: 
+----------
+The plugin sets automatically in a precommand the following joboptions
+
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr;
+from AthenaCommon import CfgMgr;svcMgr+=CfgMgr.Lvl2ROBDataProviderSvc(\"ROBDataProviderSvc\")
+svcMgr.ROBDataProviderSvc.LArMetROBs=[list of LAr MET ROBids]
+svcMgr.ROBDataProviderSvc.TileMetROBs=[list of Tile MET ROBids]
+
+These MET ROB lists are automatically deduced from the chosen ROS-ROB configuration or from the default
+configuration. These joboptions should therefore be not overwritten by a private joboptions file.
+
+Warning 2: 
+----------
+In the case an external python file "rob_ros_list.py" is provided, it is not guaranteed that the MET
+ROB which is associated with a given ROS receives the same module id as it got in P1. The module id
+depends on the sequence the ROS configuration is read in by the L2PU or the l2met-partition-ros-rob-config.py
+script. However every MET ROB will contain the information of the same LAr/Tile ROBs/FEBs as they were configured 
+and grouped together in P1 for a given LAr/Tile ROS.
+
+Status bits in MET ROBs
+-----------------------
+
+If athenaMT is running without a ROB-ROS configuration file "rob_ros_list.py", i.e with the default
+configuration,  the first status word is always set to 0. No error checking can be done in this case,
+since athenaMT can not check for missing data.
+
+In the case a ROB-ROS configuration is provided and a required ROB is not found in the event the
+following is done:
+1) for the missing FEBs all data are set to 0 in the MET ROB
+2) In the first status word the 
+      generic field is set to 0x08 (=data corruption), and in the
+      specific field bit 29 (lost ROBIN) is set.
+
+How to obtain an ATLAS partition file (example)
+-----------------------------------------------
+
+0) Goto OKS archive WEB page
+   http://atlas-project-tdaq-cc.web.cern.ch/atlas-project-tdaq-cc/cgi/oks-archive.pl
+   (see also https://twiki.cern.ch/twiki/bin/view/Atlas/TDAQPoint1RemoteMonitoring for information)
+
+1) Page 1: ATLAS OKS Archive
+    Select database: [--> choose Point-1 (offline)]
+    [Submit Query]
+
+2) Page 2: ATLAS OKS Archive for "Point-1 (offline)" database
+   Show configurations archived between now and  [--> choose e.g. 2 days] ago
+ 
+   Select release name: [--> choose tdaq-02-00-03] 
+   [Submit Query]
+
+
+3) Page 3: ATLAS OKS Archive for "Point-1 (offline)" database
+
+   Select release name: [tdaq-02-00-03]
+
+   Show configurations archived from till CERN local time
+      (leave empty to be ignored or use ISO 8601 date-time format to provide a value)
+
+   Show user [  ] host [  ] partition [ATLAS]   <--- fill in ATLAS
+      (leave a field empty to be ignored, or put exact name, or use expression with wildcards)
+
+   User preferences
+
+   Select timezone: [CERN]
+
+   Show: [x] incremental versions [x] usage
+
+   Select optional table columns: [ ] release [ ] user [ ] host [x] size [x] description
+
+   Sort result by [partition name (desc)]
+
+   [Submit Query]
+
+4) after pressing [Submit Query] in 3) in the same web page a table shows up
+   with the different partition versions
+
+Archived Versions
+Version	Date (CERN local time)	Size	Description
+222.82.1	2010-Aug-24 12:20:19 CEST	519:209:4785	oks2coral: partition ATLAS (tdaq-02-00-03)
+	2010-Aug-24 12:20:25 CEST		partition: ATLAS run: 162620
+	2010-Aug-24 20:13:04 CEST		partition: ATLAS run: 162623
+222.78.1	2010-Aug-23 19:55:03 CEST	518:207:4784	oks2coral: partition ATLAS (tdaq-02-00-03)
+.......
+
+Choose a version which corresponds to the run which you would like to use.
+Click e.g. on 222.78.1 and after some time a download dialog should show up which
+asks where to save a file
+
+      222.78.1.tar.gz
+
+After the file was saved unpack it with
+
+   tar -zxvf 222.78.1.tar.gz
+
+You should get 3 files
+  - a log file: out.log
+  - a schema file of the form: 222.schema.xml
+  - the partition file of the form: ATLAS.222.78.data.xml

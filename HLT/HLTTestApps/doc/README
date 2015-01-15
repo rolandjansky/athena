@@ -1,0 +1,1 @@
+To get doxygen documentation, use "cmt make doxygen" and open .../InstallArea/doc/HLTTestApps/html/index.html in a browser
