@@ -5,7 +5,7 @@
 #ifndef TILECALIBALG_TILETOFTOOL_H
 #define TILECALIBALG_TILETOFTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ObjectVector.h"
 #include "GaudiKernel/IHistogramSvc.h"
@@ -16,7 +16,7 @@
 class StoreGateSvc;
 class TileID;
 
-class TileTOFTool : public AlgTool, virtual public ITileCalibTool 
+class TileTOFTool : public AthAlgTool, virtual public ITileCalibTool 
 {
  public:
 
@@ -31,38 +31,28 @@ class TileTOFTool : public AlgTool, virtual public ITileCalibTool
   virtual StatusCode finalize();
 
  protected:
-
-  StoreGateSvc* m_gatStore;
-
-  StoreGateSvc* m_detStore;
-
   const TileID* m_tileID;
 
  private:
-
-  int n,i,j;
-  double x[20];
-  double y[20];
-  double z[20];
-  double t[20];
-  int part[20];
-  int mod[20];
-
-  float TimeCor[4][64];
-
-  float LBA_LBC[4]; int Nlbc[4];
-  float LBA_EBA[4]; int Neba[4]; 
-  float LBC_EBC[4]; int Nebc[4];
-
-  float LA_EA;
-  float LA_LC;
-  float LA_EC;
-
   float timeCor(int mod_ref1, int mod_ref2, int part_ref1, int part_ref2);
-  int section;
-  int side;
-  float tcor[4][32][32];
-  int Npair[4][32][32];
+
+  float m_TimeCor[4][64];
+
+  float m_LBA_LBC[4];
+  float m_LBA_EBA[4];
+  float m_LBC_EBC[4];
+  int m_Nlbc[4];
+  int m_Neba[4]; 
+  int m_Nebc[4];
+
+  float m_LA_EA;
+  float m_LA_LC;
+  float m_LA_EC;
+
+  int m_section;
+  int m_side;
+  float m_tcor[4][32][32];
+  int m_Npair[4][32][32];
 };
 
 #endif

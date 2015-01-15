@@ -14,7 +14,7 @@
  */
 
 TileTopCalibAlg::TileTopCalibAlg(const std::string& name, ISvcLocator* pSvcLocator)
-  : Algorithm(name, pSvcLocator)
+  : AthAlgorithm(name, pSvcLocator)
   , m_runNumber(0)
   , m_runType(0)
   , m_fileName("TileCalibNtuple.root")
@@ -39,20 +39,14 @@ TileTopCalibAlg::~TileTopCalibAlg()
  */
 StatusCode TileTopCalibAlg::initialize()
 {
-  MsgStream  log(msgSvc(),name());
-  log << MSG::DEBUG << "in initialize()" << endreq;
+  ATH_MSG_DEBUG ( "in initialize()" );
  
-  log << MSG::DEBUG << "Run number set to " << m_runNumber << endreq;
-  log << MSG::DEBUG << "Run type set to " << m_runType << endreq;
-  log << MSG::DEBUG << "Output file set to " << m_fileName << endreq;
-  log << MSG::DEBUG <<  "starting to retrive list " << m_tileCalibToolList << endreq;
-  StatusCode sc = m_tileCalibToolList.retrieve();
-  if( sc.isFailure() ) {
-    log << MSG::ERROR << "Unable to retieve " << m_tileCalibToolList << endreq;
-    return sc;
-  }else{
-    log << MSG::DEBUG <<  m_tileCalibToolList << "retrieved"<< endreq;
-  }
+  ATH_MSG_DEBUG ( "Run number set to " << m_runNumber );
+  ATH_MSG_DEBUG ( "Run type set to " << m_runType );
+  ATH_MSG_DEBUG ( "Output file set to " << m_fileName );
+  ATH_MSG_DEBUG (  "starting to retrive list " << m_tileCalibToolList );
+  ATH_CHECK( m_tileCalibToolList.retrieve() );
+  ATH_MSG_DEBUG (  m_tileCalibToolList << "retrieved");
   
   // Create output root file, one file for all tools
   m_rootFile = new TFile(m_fileName.c_str(), "recreate");
@@ -61,13 +55,10 @@ StatusCode TileTopCalibAlg::initialize()
   ToolHandleArray< ITileCalibTool >::const_iterator  itToolEnd = m_tileCalibToolList.end();
 
   for ( ; itTool != itToolEnd; ++itTool ) {
-    sc = (*itTool)->initNtuple(m_runNumber,m_runType,m_rootFile);
-    if( sc.isFailure() ) {
-      return sc;
-    }
+    ATH_CHECK( (*itTool)->initNtuple(m_runNumber,m_runType,m_rootFile) );
   }
 
-  log << MSG::INFO << "initialization completed successfully" << endreq;
+  ATH_MSG_INFO ( "initialization completed successfully" );
   return StatusCode::SUCCESS;
 }
 
@@ -76,20 +67,16 @@ StatusCode TileTopCalibAlg::initialize()
  */
 StatusCode TileTopCalibAlg::execute()
 {
-  MsgStream  log(msgSvc(),name());
-  log << MSG::DEBUG << "in execute()" << endreq;
+  ATH_MSG_DEBUG ( "in execute()" );
 
   ToolHandleArray< ITileCalibTool >::const_iterator itTool = m_tileCalibToolList.begin();
   ToolHandleArray< ITileCalibTool >::const_iterator itToolEnd = m_tileCalibToolList.end();
 
   for ( ; itTool != itToolEnd; ++itTool ) {
-    StatusCode sc = (*itTool)->execute();
-    if( sc.isFailure() ) {
-      return sc;
-    }
+    ATH_CHECK( (*itTool)->execute() );
   }
   
-  log << MSG::INFO << "execute completed successfully" << endreq;
+  ATH_MSG_INFO ( "execute completed successfully" );
   return StatusCode::SUCCESS;
 }
 
@@ -99,26 +86,18 @@ StatusCode TileTopCalibAlg::execute()
 StatusCode 
 TileTopCalibAlg::finalize()
 {
-  MsgStream  log(msgSvc(),name());    
-  log << MSG::INFO << "in finalize()" << endreq;
+  ATH_MSG_INFO ( "in finalize()" );
 
   ToolHandleArray< ITileCalibTool >::const_iterator itTool = m_tileCalibToolList.begin();
   ToolHandleArray< ITileCalibTool >::const_iterator  itToolEnd = m_tileCalibToolList.end();
 
   for ( ; itTool != itToolEnd; ++itTool ) {
-    StatusCode sc = (*itTool)->finalizeCalculations();
-    if( sc.isFailure() ) {
-      return sc;
-    }
-
-    sc = (*itTool)->writeNtuple(m_runNumber,m_runType,m_rootFile);
-    if( sc.isFailure() ) {
-      return sc;
-    }
+    ATH_CHECK( (*itTool)->finalizeCalculations() );
+    ATH_CHECK((*itTool)->writeNtuple(m_runNumber,m_runType,m_rootFile) );
   }
 
   m_rootFile->Close();
 
-  log << MSG::INFO << "finalize completed successfully" << endreq;
+  ATH_MSG_INFO ( "finalize completed successfully" );
   return StatusCode::SUCCESS;
 }

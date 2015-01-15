@@ -32,8 +32,7 @@ using namespace std;
 
 
 TileMuId2DBAlg::TileMuId2DBAlg(const std::string& name, ISvcLocator* pSvcLocator) : 
-  Algorithm(name,pSvcLocator), 
-  m_detStore(0),
+  AthAlgorithm(name,pSvcLocator), 
   m_calo_id(0),
   m_noiseTool("CaloNoiseToolDB/calonoisetooldb"),
   m_noise(0.0),
@@ -52,46 +51,11 @@ TileMuId2DBAlg::~TileMuId2DBAlg()
 
 StatusCode TileMuId2DBAlg::initialize()
 {
-  MsgStream log(msgSvc(), name());
-  StatusCode sc;
-
-  // DetectorStore
-  sc = service("DetectorStore", m_detStore);
-  if (!sc.isSuccess() || 0 == m_detStore)  {
-    log << MSG::ERROR << "Could not find DetStore" << endreq;
-    return StatusCode::FAILURE;
-  }
-  
-  // Get ToolSvc 
-  // NGO update this to the "configurable" way
-  IToolSvc* toolSvc = 0;
-  sc = service("ToolSvc", toolSvc);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << " Tool Service not found " << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  // Retrieve CaloIdManager
-  sc = m_detStore->retrieve( m_caloIdMgr );
-  if (sc.isFailure()) {
-   log << MSG::ERROR << "Unable to retrieve CaloIdMgr in LArHitEMap " << endreq;
-   return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve( m_caloIdMgr ) );
   m_calo_id = m_caloIdMgr->getCaloCell_ID();
 
-  // Retrieve CaloDetDescrManager
-  sc = m_detStore->retrieve(m_calodetdescrmgr);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to retrieve CaloDetDescrMgr in LArHitEMap " << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  // Retrieve ICaloNoiseTool
-  if (m_noiseTool.retrieve().isFailure()) {
-    log << MSG::ERROR << "Unable to find tool for calonoisetool " << endreq;
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK( detStore()->retrieve(m_calodetdescrmgr) );
+  ATH_CHECK( m_noiseTool.retrieve() );
   return StatusCode::SUCCESS;
 }
 
@@ -99,15 +63,13 @@ StatusCode TileMuId2DBAlg::initialize()
 
 StatusCode TileMuId2DBAlg::execute()
 {
-  MsgStream log(msgSvc(), name());
-
   // Open ASCII file
   string m_TileMuIdFile = "TileMuId_thresholds.dat";
   fstream *fl = new fstream(m_TileMuIdFile.c_str(), fstream::app| fstream::out);
   if (fl->is_open())
-    log << MSG::INFO << " TileMuId file open" << endreq;
+    ATH_MSG_INFO ( " TileMuId file open" );
   else
-    log << MSG::INFO << " TileMuId file didn't open succesfully" << endreq;
+    ATH_MSG_INFO ( " TileMuId file didn't open succesfully" );
 
   float noise[4][64][24]; memset(noise,0,sizeof(noise));
   int DSP[4][64][40];     memset(DSP,0,sizeof(DSP));
@@ -127,9 +89,9 @@ StatusCode TileMuId2DBAlg::execute()
   IdentifierHash caloCellMax=0;
   m_calo_id->calo_cell_hash_range(3, caloCellMin, caloCellMax);
 
-  log << MSG::INFO << "caloCellMin: " << caloCellMin << endreq;
-  log << MSG::INFO << "caloCellMax: " << caloCellMax << endreq;
-  log << MSG::INFO << "Start loop over TileCal cells " << caloCellMax-caloCellMin << endreq;
+  ATH_MSG_INFO ( "caloCellMin: " << caloCellMin );
+  ATH_MSG_INFO ( "caloCellMax: " << caloCellMax );
+  ATH_MSG_INFO ( "Start loop over TileCal cells " << caloCellMax-caloCellMin );
 
   for (unsigned int i=caloCellMin;i<caloCellMax;i++) {
 
@@ -247,20 +209,19 @@ StatusCode TileMuId2DBAlg::execute()
 
     for(int j=0;j<64;j++) {
 
-      log << MSG::INFO
+      msg(MSG::INFO)
 	  << "TileMuId  0x" << std::hex << (i+1)*0x100+j << std::dec << "  0";
       *fl << "TileMuId  0x" << std::hex << (i+1)*0x100+j << std::dec << "  0";
 
       for(int k=0;k<40;k++) {
 
-	log << MSG::INFO
+	msg(MSG::INFO)
 	    << "  " << Thr[i][j][k];
 	*fl << "  " << Thr[i][j][k];
 
       }
 
-      log << MSG::INFO
-	  << endreq;
+      msg(MSG::INFO) << endreq;
       *fl << endl;
 
     }
@@ -277,9 +238,6 @@ StatusCode TileMuId2DBAlg::execute()
 
 StatusCode TileMuId2DBAlg::finalize()
 {
-  MsgStream log(msgSvc(), name());
-
-  log << MSG::INFO << "in finalize()" << endreq;
-
+  ATH_MSG_INFO ( "in finalize()" );
   return StatusCode::SUCCESS;
 }

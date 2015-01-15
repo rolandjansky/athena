@@ -15,14 +15,14 @@
 // May 2008
 // ********************************************************************
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "TileCalibAlgs/ITileCalibTool.h"
 
 class TFile;
 
-class TileTopCalibAlg : public Algorithm
+class TileTopCalibAlg : public AthAlgorithm
 {
  public:
 

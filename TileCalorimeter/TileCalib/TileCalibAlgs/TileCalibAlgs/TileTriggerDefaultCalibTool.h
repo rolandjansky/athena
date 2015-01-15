@@ -5,9 +5,8 @@
 #ifndef TILECALIBALG_TILETRIGGERDEFAULTCALIBTOOL_H
 #define TILECALIBALG_TILETRIGGERDEFAULTCALIBTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 
 #include "TileCalibAlgs/ITileCalibTool.h"
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloTTIdTools.h" 
@@ -27,7 +26,7 @@ class Identifier;
 class HWIdentifier;
 
 
-class TileTriggerDefaultCalibTool : public AlgTool, virtual public ITileCalibTool
+class TileTriggerDefaultCalibTool : public AthAlgTool, virtual public ITileCalibTool
 {
 
  public:
@@ -51,8 +50,6 @@ class TileTriggerDefaultCalibTool : public AlgTool, virtual public ITileCalibToo
   int m_nevpmt;
 
   // Tools / storegate info
-  StoreGateSvc* m_evtStore;
-  StoreGateSvc* m_detStore;
   TileBeamInfoProvider *m_beamPrv;
   const CaloLVL1_ID* m_TT_ID;
   const TileHWID* m_tileHWID;
@@ -60,47 +57,44 @@ class TileTriggerDefaultCalibTool : public AlgTool, virtual public ITileCalibToo
   const TileCablingService* m_tileCablingService;
  
   // Results Tile
-  float meanTile[5][64][48];
-  float rmsTile[5][64][48];
-  float meanTileDAC[5][64][48];
-  float rmsTileDAC[5][64][48];
-  int   ietaTile[5][64][48];
-  int   iphiTile[5][64][48];
-  int   ipmtTile[5][64][48];
-  int   nEvtTile[5][64][48];
+  float m_meanTile[5][64][48];
+  float m_rmsTile[5][64][48];
+  float m_meanTileDAC[5][64][48];
+  float m_rmsTileDAC[5][64][48];
+  int   m_ietaTile[5][64][48];
+  int   m_iphiTile[5][64][48];
+  int   m_ipmtTile[5][64][48];
+  int   m_nEvtTile[5][64][48];
 
   // Results L1Calo
-  float meanL1Calo[5][64][48];
-  float rmsL1Calo[5][64][48];
-  float meanL1CaloDAC[5][64][48];
-  float rmsL1CaloDAC[5][64][48];
-  int   ietaL1Calo[5][64][48];
-  int   iphiL1Calo[5][64][48];
-  int   ipmtL1Calo[5][64][48];
-  int   nEvtL1Calo[5][64][48];
+  float m_meanL1Calo[5][64][48];
+  float m_rmsL1Calo[5][64][48];
+  float m_meanL1CaloDAC[5][64][48];
+  float m_rmsL1CaloDAC[5][64][48];
+  int   m_ietaL1Calo[5][64][48];
+  int   m_iphiL1Calo[5][64][48];
+  int   m_ipmtL1Calo[5][64][48];
+  int   m_nEvtL1Calo[5][64][48];
 
-  float meanTileL1Calo[5][64][48];
-  float rmsTileL1Calo[5][64][48];
+  float m_meanTileL1Calo[5][64][48];
+  float m_rmsTileL1Calo[5][64][48];
 
-  float DACvalue;
+  float m_DACvalue;
 
   // CISpar parameters
-  float 	charge;
-  unsigned int	ipmt;
-  unsigned int	idrawer;
-  unsigned int	itower;
-  unsigned int	ipmtCount;
-  unsigned int	ipmtOld;
+  float 	m_charge;
+  unsigned int	m_ipmt;
+  unsigned int	m_ipmtCount;
+  unsigned int	m_ipmtOld;
   
   // Events
-  int   nEvtGlobal[1];
+  int   m_nEvtGlobal[1];
 
   // for extended CISpar
   protected:
 
   std::string m_TileBeamContainerID;    //!< Name of the TileBeamElemContainer
   std::string m_TileTriggerContainerID; //!< Name of the TileTriggerContainer
-  ServiceHandle<StoreGateSvc> m_storeGate; //!< StoreGate pointer
   ToolHandle<LVL1::IL1CaloTTIdTools > m_l1CaloTTIdTools;
   //  ToolHandle<LVL1::IL1TriggerTowerTool> m_ttTool; 
 

@@ -19,16 +19,15 @@
 #ifndef TileCalibAlgs_TileMuId2DBAlg_h
 #define TileCalibAlgs_TileMuId2DBAlg_h
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_ID.h"
 #include "CaloInterface/ICaloNoiseTool.h"
 #include "TileConditions/TileCellNoiseTool.h"
 
-class TileMuId2DBAlg: public Algorithm {
+class TileMuId2DBAlg: public AthAlgorithm {
 
  public:
 
@@ -41,8 +40,6 @@ class TileMuId2DBAlg: public Algorithm {
   StatusCode finalize();
 
  private:
-
-  StoreGateSvc* m_detStore;
 
   const CaloCell_ID* m_calo_id;
 
