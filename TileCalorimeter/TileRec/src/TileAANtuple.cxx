@@ -104,6 +104,7 @@ TileAANtuple::TileAANtuple(std::string name, ISvcLocator* pSvcLocator)
 , m_las_ReqAmp(0)
 , m_las_MeasAmp(0)
 , m_las_Temperature(0)
+, m_daqtype(0)
 , m_sampleFlt()
 , m_gainFlt()
 , m_sample()
@@ -201,7 +202,7 @@ TileAANtuple::TileAANtuple(std::string name, ISvcLocator* pSvcLocator)
 , m_bad()
 {
   declareProperty("TileCondToolEmscale", m_tileToolEmscale);
-  declareProperty("TileDCSSvc",m_tileDCSSvc);
+  declareProperty("TileDCSSvc", m_tileDCSSvc);
   declareProperty("TileDigitsContainer", m_digitsContainer = "TileDigitsCnt");
   declareProperty("TileDigitsContainerFlt", m_fltDigitsContainer = "" /* "TileDigitsFlt" */);
   declareProperty("TileBeamElemContainer", m_beamElemContainer = "TileBeamElemCnt");
@@ -228,10 +229,10 @@ TileAANtuple::TileAANtuple(std::string name, ISvcLocator* pSvcLocator)
   declareProperty("CheckDCS",m_checkDCS = false);
   declareProperty("DCSBranches",m_DCSBranches = 111111111);
 
-  declareProperty("SkipEvents", m_skipEvents = 5);
+  declareProperty("SkipEvents", m_skipEvents = 0);
   
-  m_evtNr=-1;
-  m_DCScounter=0;
+  m_evtNr = -1;
+  m_DCScounter = 0;
   
   // LASERII
   memset(m_chan, 0, sizeof(m_chan));
