@@ -28,6 +28,8 @@ else
 	grep -v "using release " |\
 	grep -v "running on " |\
 	grep -v "Skipping" |\
+	# Locally this produces strange characters
+	grep -v "ApplicationMgr       INFO Updating Gaudi::PluginService::SetDebug(level) to level=0" |\
 	# Py:Athena will be Athena
 	sed -e 's/^Py:Athena/Athena   /g' |\
 	# Pointer addresses (mark 0)

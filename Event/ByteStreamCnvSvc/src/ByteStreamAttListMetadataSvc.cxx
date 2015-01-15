@@ -161,6 +161,7 @@ StatusCode ByteStreamAttListMetadataSvc::toBSMetadata(const std::vector<std::str
         }
         else {
            msg() << MSG::WARNING << "Could not find store " << m_outputStoreName.toString() << endreq;
+           delete metacont; 
            return StatusCode::FAILURE;
         }
      }

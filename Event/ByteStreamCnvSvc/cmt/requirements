@@ -28,6 +28,7 @@ use AthenaKernel          AthenaKernel-*          Control
 use SGTools               SGTools-*               Control
 use StoreGate             StoreGate-*             Control
 use EventInfo             EventInfo-*             Event
+#use xAODEventInfo         xAODEventInfo-*         Event/xAOD
 use PersistentDataModel   PersistentDataModel-*   Database
 use AthenaPoolUtilities   AthenaPoolUtilities-*   Database/AthenaPOOL
 use AthenaPoolKernel      AthenaPoolKernel-*      Database/AthenaPOOL
@@ -88,6 +89,8 @@ apply_pattern appl_test_run appl=AtlFindBSEvent run=4 appl_test_args="-e 14382 t
 
 apply_pattern appl_test_run appl=AtlCopyBSEvent run=5 appl_test_args="-e 14350,14356,14382 -o test_infl.data test_defl.data"
 
+apply_pattern appl_test_run appl=AtlCopyBSEvent run=6 appl_test_args="-e all -o empty.data /afs/cern.ch/atlas/maxidisk/d108/cranshaw/nightlies/RAW.01524408._005549.data.1"
+
 private
 macro_append BSEventSelector_redux_utest_dependencies BSEventSelector_test
 macro_append BSEventSelectorMP_utest_dependencies BSEventSelector_redux_test
@@ -96,3 +99,4 @@ macro_append AtlFindBSEvent2_utest_dependencies AtlCopyBSEvent1_utest
 macro_append AtlCopyBSEvent3_utest_dependencies AtlCopyBSEvent1_utest
 macro_append AtlFindBSEvent4_utest_dependencies AtlCopyBSEvent3_utest
 macro_append AtlCopyBSEvent5_utest_dependencies AtlFindBSEvent4_utest
+macro_append AtlCopyBSEvent6_utest_dependencies AtlFindBSEvent4_utest

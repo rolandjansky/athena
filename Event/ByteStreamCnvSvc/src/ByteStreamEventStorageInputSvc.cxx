@@ -7,6 +7,7 @@
 #include "DumpFrags.h"
 #include "ByteStreamData/ByteStreamMetadata.h"
 #include "ByteStreamData/ByteStreamUserMetadata.h"
+#include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
 #include "EventStorage/pickDataReader.h"
 
 #include "GaudiKernel/IIncidentSvc.h"
@@ -17,6 +18,9 @@
 #include "PersistentDataModel/DataHeader.h"
 #include "PersistentDataModel/Token.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "EventInfo/EventInfo.h"
+//#include "xAODEventInfo/EventInfo.h"
+//#include "xAODEventInfo/EventAuxInfo.h"
 
 #include "eformat/HeaderMarker.h"
 #include "eformat/SourceIdentifier.h"
@@ -492,6 +496,17 @@ StatusCode ByteStreamEventStorageInputSvc::generateDataHeader()
     Dh->setStatus(DataHeader::Primary);
     //add the Dhe self reference to the object vector
     Dh->insert(Dhe);
+    // Now add ref to EventInfo objects
+    IOpaqueAddress* iop = new ByteStreamAddress(ClassID_traits<EventInfo>::ID(), "ByteStreamEventInfo", "");
+    StatusCode ioc = m_sgSvc->recordAddress("ByteStreamEventInfo",iop);
+    if (ioc.isSuccess()) {
+      const SG::DataProxy* ptmp = m_sgSvc->transientProxy(ClassID_traits<EventInfo>::ID(), "ByteStreamEventInfo");
+      if (ptmp !=0) {
+        DataHeaderElement DheEI(ptmp->transientAddress(),"ByteStreamEventInfo");
+        Dh->insert(DheEI);
+      }
+      //else ATH_MSG_ERROR("Failed to create EventInfo proxy " << ptmp);
+    }
     // Record new data header.Boolean flags will allow it's deletionin case
     // of skipped events.
     return m_sgSvc->record<DataHeader>(Dh, "ByteStreamDataHeader", true, false, true);

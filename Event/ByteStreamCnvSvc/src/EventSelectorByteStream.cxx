@@ -27,6 +27,7 @@
 // EventInfoAttributeList includes
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "EventInfo/TriggerInfo.h"
+#include "PersistentDataModel/DataHeader.h"
 #include "eformat/StreamTag.h"
 
 #include <vector>
@@ -212,8 +213,8 @@ StatusCode EventSelectorByteStream::initialize() {
    }
    typedef std::vector<const Property*> Properties_t;
    const Properties_t* esProps = joSvc->getProperties("ByteStreamInputSvc");
-   std::vector<const Property*>::const_iterator ii = esProps->begin();
    if (esProps != 0) {
+      std::vector<const Property*>::const_iterator ii = esProps->begin();
       while (ii != esProps->end()) {
          IntegerProperty temp;
          if ((*ii)->name() == "MaxBadEvents") {     // find it
@@ -498,6 +499,9 @@ StatusCode EventSelectorByteStream::next(IEvtSelector::Context& it) const {
 	 }
          ATH_MSG_WARNING("Continue with bad event");
       }
+      // Set RE for rob data provider svc
+      m_robProvider->setNextEvent(pre);
+      m_robProvider->setEventStatus(m_eventSource->currentEventStatus());
 
       // Check whether properties or tools reject this event
       if ( m_NumEvents > m_SkipEvents && 
@@ -927,10 +931,12 @@ StatusCode EventSelectorByteStream::createAddress(const IEvtSelector::Context& /
    const RawEvent* pre = m_eventSource->currentEvent();
    m_robProvider->setNextEvent(pre);
    m_robProvider->setEventStatus(m_eventSource->currentEventStatus());
-   iop = new ByteStreamAddress(ClassID_traits<EventInfo>::ID(), "ByteStreamEventInfo", "");
-   if (iop != 0) {
+   SG::DataProxy* proxy = m_evtStore->proxy(ClassID_traits<DataHeader>::ID(),"ByteStreamDataHeader");
+   if (proxy !=0) {
+     iop = proxy->address();
      return(StatusCode::SUCCESS);
    } else {
+     iop = 0;
      return(StatusCode::FAILURE);
    }
 }

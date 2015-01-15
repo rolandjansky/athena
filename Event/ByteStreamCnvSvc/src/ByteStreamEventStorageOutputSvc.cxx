@@ -165,9 +165,10 @@ bool ByteStreamEventStorageOutputSvc::initDataWriterContents(const EventInfo* ev
                                                              const ByteStreamMetadata* metaData)
 {
    // Initialize parameters
-   EventStorage::run_parameters_record runPara = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+   EventStorage::run_parameters_record runPara = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
    EventStorage::freeMetaDataStrings freeMetaDataStrings;
-   runPara.detector_mask=0xFFFFFFFFFFFFFFFFULL;
+   runPara.detector_mask_LS=0xFFFFFFFFFFFFFFFFULL;
+   runPara.detector_mask_MS=0xFFFFFFFFFFFFFFFFULL;
    int run = 0;
    int lumiNum = 0;
    // The heirarchy of run/lumiblock number, GNARR
@@ -193,10 +194,19 @@ bool ByteStreamEventStorageOutputSvc::initDataWriterContents(const EventInfo* ev
    }
 
    if (evtInfo != 0) {   
-      runPara.detector_mask = evtInfo->event_ID()->detector_mask();
+      uint64_t result = evtInfo->event_ID()->detector_mask1();
+      result = result << 32;
+      result |= evtInfo->event_ID()->detector_mask0();
+      runPara.detector_mask_LS = result;
+      result = evtInfo->event_ID()->detector_mask3();
+      result = result << 32;
+      result |= evtInfo->event_ID()->detector_mask2();
+      runPara.detector_mask_MS = result;
+      
       freeMetaDataStrings.push_back(evtInfo->event_type()->EventType::typeToString());
    } else {
-      runPara.detector_mask=0xFFFFFFFFFFFFFFFFULL;
+      runPara.detector_mask_LS=0xFFFFFFFFFFFFFFFFULL;
+      runPara.detector_mask_MS=0xFFFFFFFFFFFFFFFFULL;
    }
    if (metaData != 0) {
       runPara.max_events   = metaData->getMaxEvents();

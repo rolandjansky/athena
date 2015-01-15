@@ -5,8 +5,8 @@
 /**
  * @file findEvent.cxx
  * $Author: cranshaw $
- * $Revision: 551753 $
- * $Date: 2013-06-19 17:28:08 +0200 (Wed, 19 Jun 2013) $
+ * $Revision: 633182 $
+ * $Date: 2014-12-02 22:26:23 +0100 (Tue, 02 Dec 2014) $
  *
  */
  
@@ -246,13 +246,16 @@ int main (int argc, char *argv[])
       
       const unsigned s=totalSizePerSubdet[sd];
       sum+=s;
-      const double sPerEv=s/(1024.0*eventCounter); //In kB
+      double sPerEv=0;
+      if (eventCounter>0) sPerEv=s/(1024.0*eventCounter); //In kB
 
-      const double fraction=s/double(totalSize);
+      double fraction=0;
+      if (totalSize>0) fraction=s/double(totalSize);
       std::cout << name << " :" << sPerEv << " kB/event (" << 100*fraction << "%)" << std::endl;
     }
     const unsigned overhead=totalSize-sum;
-    const double ohPerEv=overhead/(double)eventCounter;
+    double ohPerEv=0;
+    if (eventCounter>0) ohPerEv=overhead/(double)eventCounter;
     std::cout << "Overhead: " << overhead/1024.0 <<" kB or " << ohPerEv << " Bytes/event" << std::endl;
   }
 

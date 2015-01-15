@@ -289,15 +289,11 @@ int main (int argc, char *argv[]) {
       std::cout << "Problem opening or reading this file!\n";
       return -1;
     }
-    if (!pDR->good()) {
-      std::cerr << "Problem reading file "<< fName << std::endl;
-      return -1;
-    }
 
     if (!pDW) { //Create data writer when reading the first file
       //Create DataWriter
       //Copy run_parameters_pattern from first file:
-      EventStorage::run_parameters_record runPara = {0, 0, 0, 0, 0, 0, 0, 0, 0};
+      EventStorage::run_parameters_record runPara = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
       runPara.run_number=pDR->runNumber();  
       runPara.max_events=pDR->maxEvents(); 
       runPara.rec_enable=pDR-> recEnable();    
@@ -308,8 +304,8 @@ int main (int argc, char *argv[]) {
          word1[i] = pDR->detectorMask()[i];
          word2[i] = pDR->detectorMask()[i+64];
       }
-      //runPara.detector_mask=pDR->detectorMask();
-      runPara.detector_mask=word1.to_ulong();
+      runPara.detector_mask_LS=word1.to_ulong();
+      runPara.detector_mask_MS=word2.to_ulong();
       runPara.beam_type=pDR->beamType();
       runPara.beam_energy=pDR->beamEnergy();
 
@@ -343,6 +339,10 @@ int main (int argc, char *argv[]) {
 	return -1;
       }    
       std::cout << "Created DataWriter for file " << shortFileNameOut << " in directory " << dirNameOut << std::endl;
+    }
+    if (!pDR->good() || pDR->endOfFile()) {
+      std::cerr << "No events in file "<< fName << std::endl;
+      continue;
     }
     // Check if using collection or not
     if (searchEventByPFN.count(fName) > 0) {

@@ -22,6 +22,10 @@ if not hasattr (svcMgr, 'EventSelector'):
     svcMgr += CfgMgr.EventSelectorByteStream ("EventSelector")
 theApp.EvtSel = "EventSelector"
 
+from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoSelectorTool 
+xconv = xAODMaker__EventInfoSelectorTool()
+svcMgr.EventSelector.HelperTools += [xconv]
+
 # Load ByteStreamCnvSvc
 if not hasattr (svcMgr, 'ByteStreamCnvSvc'):
     svcMgr += CfgMgr.ByteStreamCnvSvc ("ByteStreamCnvSvc")
