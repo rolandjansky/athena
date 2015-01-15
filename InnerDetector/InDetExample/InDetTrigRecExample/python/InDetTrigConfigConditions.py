@@ -78,17 +78,22 @@ class PixelConditionsServicesSetup:
 
       if self._print: print PixelCalibSvc
 
-      if not conddb.folderRequested("/PIXEL/PixReco"):
-        conddb.addFolder("PIXEL_OFL","/PIXEL/PixReco")
+      #only when inputsource=1
+      #if not conddb.folderRequested("/PIXEL/PixReco"):
+      #  conddb.addFolder("PIXEL_OFL","/PIXEL/PixReco")
+
+    if not conddb.folderRequested("/PIXEL/PixReco"):
+      conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixReco","/PIXEL/PixReco") 
 
     #Configure PixelRecoDbTool
     from PixelConditionsTools.PixelConditionsToolsConf import PixelRecoDbTool
     PixelRecoDbTool = PixelRecoDbTool(name=self.instanceName('PixelRecoDbTool'))
     ToolSvc += PixelRecoDbTool
-    if self.onlineMode:
-      PixelRecoDbTool.InputSource = 1
-    else:
-      PixelRecoDbTool.InputSource = 2
+    PixelRecoDbTool.InputSource = 2
+    # if self.onlineMode:
+    #   PixelRecoDbTool.InputSource = 1      #after change of run1 conditions
+    # else:
+    #   PixelRecoDbTool.InputSource = 2
 
     if self._print:  print PixelRecoDbTool
 
@@ -297,18 +302,39 @@ class SCT_ConditionsServicesSetup:
 
     self.summarySvc.ConditionsServices+=[instanceName]
 
-    if not self.condDB.folderRequested('/SCT/DAQ/Configuration/Chip'):
+    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+    from IOVDbSvc.CondDB import conddb
+    if conddb.dbdata != "CONDBR2" or InDetTrigFlags.ForceCoraCool():
+      sctdaqpath='/SCT/DAQ/Configuration'
+    else:
+      sctdaqpath='/SCT/DAQ/Config'
+
+    if not self.condDB.folderRequested(sctdaqpath+'/Chip'):
       self.condDB.addFolderSplitMC("SCT",
-                                   "/SCT/DAQ/Configuration/Chip",
-                                   "/SCT/DAQ/Configuration/Chip")
-    if not self.condDB.folderRequested('/SCT/DAQ/Configuration/Module'):
+                                   sctdaqpath+'/Chip',
+                                   sctdaqpath+'/Chip')
+    if not self.condDB.folderRequested(sctdaqpath+'/Module'):
       self.condDB.addFolderSplitMC("SCT",
-                                   "/SCT/DAQ/Configuration/Module",
-                                   "/SCT/DAQ/Configuration/Module")
-    if not self.condDB.folderRequested('/SCT/DAQ/Configuration/MUR'):
+                                   sctdaqpath+'/Module',
+                                   sctdaqpath+'/Module')
+    if not self.condDB.folderRequested(sctdaqpath+'/MUR'):
       self.condDB.addFolderSplitMC("SCT",
-                                   "/SCT/DAQ/Configuration/MUR",
-                                   "/SCT/DAQ/Configuration/MUR")
+                                   sctdaqpath+'/MUR',
+                                   sctdaqpath+'/MUR')
+
+    if not self.condDB.folderRequested(sctdaqpath+'/ROD'):
+      self.condDB.addFolderSplitMC("SCT",
+                                   sctdaqpath+'/ROD',
+                                   sctdaqpath+'/ROD')
+    if not self.condDB.folderRequested(sctdaqpath+'/RODMUR'):
+      self.condDB.addFolderSplitMC("SCT",
+                                   sctdaqpath+'/RODMUR',
+                                   sctdaqpath+'/RODMUR')
+    if not self.condDB.folderRequested(sctdaqpath+'/Geog'):
+      self.condDB.addFolderSplitMC("SCT",
+                                   sctdaqpath+'/Geog',
+                                   sctdaqpath+'/Geog')
+
     if self._print:  print self.condDB
     return configSvc
 

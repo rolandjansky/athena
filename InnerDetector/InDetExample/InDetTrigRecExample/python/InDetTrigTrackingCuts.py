@@ -35,7 +35,7 @@ class InDetTrigTrackingCuts :
 
     # --- cluster cuts
     self.__minClusters             = 7                # Igor 6, was 7
-    self.__minSiNotShared          = 6
+    self.__minSiNotShared          = 5
     self.__maxShared               = 2
     self.__minPixel                = 0                
     self.__maxHoles                = 3                # was 5

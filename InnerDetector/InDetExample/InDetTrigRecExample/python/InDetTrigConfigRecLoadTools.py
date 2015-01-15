@@ -874,35 +874,28 @@ if InDetTrigFlags.doNewTracking():
   #
   from InDetTrigRecExample.ConfiguredVertexingTrigCuts import EFIDVertexingCuts
   
-  from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
+  from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
   InDetTrigTrackSelectorTool = \
-      InDet__InDetDetailedTrackSelectorTool(name = "InDetTrigDetailedTrackSelectorTool",
-                                            pTMin			=    EFIDVertexingCuts.minPT(),
-                                            IPd0Max			=    EFIDVertexingCuts.IPd0Max(),
-                                            IPz0Max			=    EFIDVertexingCuts.IPz0Max(),
-                                            z0Max			=    EFIDVertexingCuts.z0Max(),
-                                            sigIPd0Max			=    EFIDVertexingCuts.sigIPd0Max(),
-                                            sigIPz0Max			=    EFIDVertexingCuts.sigIPz0Max(),
-                                            d0significanceMax		=    EFIDVertexingCuts.d0significanceMax(),
-                                            z0significanceMax		=    EFIDVertexingCuts.z0significanceMax(),
-                                            etaMax			=    EFIDVertexingCuts.etaMax(),
-                                            useTrackSummaryInfo 	=    EFIDVertexingCuts.useTrackSummaryInfo(),
-                                            nHitBLayer			=    EFIDVertexingCuts.nHitBLayer(),
-                                            nHitPix			=    EFIDVertexingCuts.nHitPix(),
-                                            nHitBLayerPlusPix		=    EFIDVertexingCuts.nHitBLayerPlusPix(),
-                                            nHitSct			=    EFIDVertexingCuts.nHitSct(),
-                                            nHitSi			=    EFIDVertexingCuts.nHitSi(),
-                                            nHitTrt			=    EFIDVertexingCuts.nHitTrt(),
-                                            nHitTrtHighEFractionMax	=    EFIDVertexingCuts.nHitTrtHighEFractionMax(),
-                                            nHitTrtHighEFractionWithOutliersMax =  EFIDVertexingCuts.nHitTrtHighEFractionWithOutliersMax(),
-                                            useSharedHitInfo		=    EFIDVertexingCuts.useSharedHitInfo(),
-                                            useTrackQualityInfo 		=    EFIDVertexingCuts.useTrackQualityInfo(),
-                                            fitChi2OnNdfMax		=    EFIDVertexingCuts.fitChi2OnNdfMax(),
-                                            TrtMaxEtaAcceptance 		=    EFIDVertexingCuts.TrtMaxEtaAcceptance(),
-                                            TrackSummaryTool =  InDetTrigTrackSummaryTool,
-                                            Extrapolator     = InDetTrigExtrapolator,
-                                            TrtDCCutTool     = InDetTrigTRTDriftCircleCut,
-                                            )
+      InDet__InDetTrackSelectionTool(name = "InDetTrigDetailedTrackSelectorTool",
+                                     CutLevel                   =  EFIDVertexingCuts.TrackCutLevel(),
+                                     minPt                      =  EFIDVertexingCuts.minPT(),
+                                     maxD0			=  EFIDVertexingCuts.IPd0Max(),
+                                     maxZ0			=  EFIDVertexingCuts.z0Max(),
+                                     maxZ0SinTheta              =  EFIDVertexingCuts.IPz0Max(),
+                                     maxSigmaD0 = EFIDVertexingCuts.sigIPd0Max(),
+                                     maxSigmaZ0SinTheta = EFIDVertexingCuts.sigIPz0Max(),
+                                     # maxChiSqperNdf = EFIDVertexingCuts.fitChi2OnNdfMax(), # Seems not to be implemented?
+                                     maxAbsEta = EFIDVertexingCuts.etaMax(),
+                                     minNInnermostLayerHits = EFIDVertexingCuts.nHitInnermostLayer(),
+                                     minNPixelHits = EFIDVertexingCuts.nHitPix(),
+                                     maxNPixelHoles = EFIDVertexingCuts.nHolesPix(),
+                                     minNSctHits = EFIDVertexingCuts.nHitSct(),
+                                     minNTrtHits = EFIDVertexingCuts.nHitTrt(),
+                                     minNSiHits = EFIDVertexingCuts.nHitSi(),
+                                     TrackSummaryTool =  InDetTrigTrackSummaryTool,
+                                     Extrapolator     = InDetTrigExtrapolator,
+                                     #TrtDCCutTool     = InDetTrigTRTDriftCircleCut,
+                                     )
   
   
   

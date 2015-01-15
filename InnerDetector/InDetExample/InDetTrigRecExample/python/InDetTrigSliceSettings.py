@@ -30,7 +30,10 @@ class InDetTrigSliceSettingsDB:
                'minBias2',            #two pass (low-pt tracking)
                'heavyIon', 'heavyIonFS',   #RoI and FS instances for the heavy ion
                'minBias400',          #another minBias with 400MeV threshold
+               'tauCore', 'tauIso',
+               'beamSpot',
                ]
+
     self.db = {}
     
     ptmin =   {}
@@ -77,6 +80,9 @@ class InDetTrigSliceSettingsDB:
       'heavyIonFS': 3.0,
       'heavyIon'  : 0.1,
       'minBias400': 3.0,
+      'tauCore'   : 0.1,
+      'tauIso'    : 0.4,
+      'beamSpot'  : 3.0,
       }
     self.db['etaHalfWidth']=etahalf
 
@@ -100,6 +106,9 @@ class InDetTrigSliceSettingsDB:
       'heavyIonFS': 3.14159,
       'heavyIon'  : 0.1,
       'minBias400': 3.14159,
+      'tauCore'   : 0.1,
+      'tauIso'    : 0.4,
+      'beamSpot'  : 3.14159,
       }
     self.db['phiHalfWidth']=phihalf
 
@@ -115,6 +124,7 @@ class InDetTrigSliceSettingsDB:
     fullscan['lowPt']    = True
     fullscan['heavyIonFS']=True
     fullscan['minBias400']=True
+    fullscan['beamSpot']  =True
 
     self.db['doFullScan']=fullscan
 
