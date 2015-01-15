@@ -31,6 +31,7 @@ Trk::ProtoTrackStateOnSurface::ProtoTrackStateOnSurface()
   m_fitQuality(0),
   m_dnaMaterialEffects(0),
   m_protoMaterialEffects(0),
+  m_stateID(0),
   m_identifier(),
   m_mType(Trk::TrackState::unidentified),
   m_calib(Trk::TrackState::CalibrationNotKnown),
@@ -40,6 +41,7 @@ Trk::ProtoTrackStateOnSurface::ProtoTrackStateOnSurface()
   m_transportJacobian ( 0 ),
   m_iOwnJacobian ( true ),
   m_referenceParameters ( 0 ),
+  m_iOwnRefPars( false ),
   m_parametersDifference ( 0 ),
   m_iOwnParametersDifference ( true ),
   m_parametersCovariance(0),
@@ -73,6 +75,7 @@ Trk::ProtoTrackStateOnSurface::ProtoTrackStateOnSurface
   m_transportJacobian ( rhs.m_iOwnJacobian ? ( ( rhs.m_transportJacobian?  new Trk::TransportJacobian ( *rhs.m_transportJacobian ) :0 ) ) : rhs.m_transportJacobian ),
   m_iOwnJacobian ( rhs.m_iOwnJacobian ),
   m_referenceParameters ( rhs.m_referenceParameters ? rhs.m_referenceParameters->clone() : 0 ),
+  m_iOwnRefPars ( rhs.m_iOwnRefPars ),
   m_parametersDifference ( rhs.m_iOwnParametersDifference?
     ( rhs.m_parametersDifference? new AmgVector(5) ( *rhs.m_parametersDifference ) : 0 ) : rhs.m_parametersDifference),
   m_iOwnParametersDifference ( rhs.m_iOwnParametersDifference ),

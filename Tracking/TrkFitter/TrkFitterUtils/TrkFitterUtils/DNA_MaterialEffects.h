@@ -45,6 +45,8 @@ namespace Trk{
     //! default desctructor
     ~DNA_MaterialEffects();
 
+    DNA_MaterialEffects &operator=(const DNA_MaterialEffects &rhs);
+
     //! returns the inverse retained energy fraction @f$ xmin=1./z @f$
     double xmin()           const;
     //! returns the uncertainty on the retained inv. E fraction @f$ \Delta z @f$

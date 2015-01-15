@@ -48,7 +48,12 @@ Trk::FitterStatusCode& Trk::FitterStatusCode::operator=(unsigned long value)   {
 }
 
 Trk::FitterStatusCode& Trk::FitterStatusCode::operator=(const FitterStatusCode& rhs) {
+    // coverity complains about a missing self assigmment protection.
+    // But self assignment of integers is not problematic and
+    // adding a comparison just for this rare case does not seem useful.
+    //if (&rhs != this ) {
     m_code = rhs.m_code;
+    //}
     return *this;
 }
 
@@ -98,7 +103,6 @@ std::string Trk::FitterStatusCode::getString() const {
     default :
        return "unknown";
     };
-    return "unknown";
 }
 
 MsgStream& operator<<(MsgStream& out, const Trk::FitterStatusCode& fitStatCode){

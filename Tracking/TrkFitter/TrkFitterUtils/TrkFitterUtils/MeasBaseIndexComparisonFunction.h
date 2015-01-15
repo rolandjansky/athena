@@ -84,6 +84,18 @@ namespace Trk {
       delete m_point;
       delete m_direction;
     }
+
+    MeasBaseIndexComparisonFunction &operator=(const MeasBaseIndexComparisonFunction& MCF) {
+      if (&MCF != this ) {
+        delete m_point;
+        delete m_direction;
+        m_point = (MCF.m_point ? new Amg::Vector3D(*MCF.m_point) : 0);
+        m_direction = (MCF.m_direction  ? new Amg::Vector3D(*MCF.m_direction) : 0);
+        m_radius = (MCF.m_radius);
+      }
+      return *this;
+    }
+    
                
     /** @brief The comparison function defining in what case one hit
         is 'smaller' than a second one */
