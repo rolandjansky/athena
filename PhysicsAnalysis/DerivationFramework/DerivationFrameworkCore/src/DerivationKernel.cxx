@@ -109,7 +109,51 @@ StatusCode DerivationFramework::DerivationKernel::execute() {
     
     // Increment the event counter
     m_eventCounter++;
-   
+  
+    //=============================================================================
+    // AUGMENTATION ===============================================================
+    //=============================================================================
+
+    ToolHandleArray<IAugmentationTool>::iterator augmentationTool(m_augmentationTools.begin());
+    ToolHandleArray<IAugmentationTool>::iterator endOfAugmentationTools(m_augmentationTools.end());
+    while (augmentationTool != endOfAugmentationTools) {
+        if ( (**augmentationTool).addBranches().isFailure() ) {
+                ATH_MSG_ERROR("Augmentation failed!");
+                return StatusCode::FAILURE;
+        }
+        ++augmentationTool;
+    }
+
+ 
+    //=============================================================================
+    //SKIMMING ===================================================================
+    //=============================================================================
+
+    // Set master flag to true
+    bool acceptEvent(true);
+
+    // Loop over the filters
+    ToolHandleArray<ISkimmingTool>::iterator skimmingTool(m_skimmingTools.begin());
+    ToolHandleArray<ISkimmingTool>::iterator endOfSkimmingTools(m_skimmingTools.end());
+    while (skimmingTool != endOfSkimmingTools) {
+        if (!((**skimmingTool).eventPassesFilter())) {
+            acceptEvent=false;
+            ATH_MSG_DEBUG("This event failed the " << (**skimmingTool).name() << " filter. Therefore it will not be recorded.");
+            break;
+        }
+        ++skimmingTool;
+    }
+
+    // Increment local counters if event to be accepted
+    if (acceptEvent) ++m_acceptCntr;
+    
+    // Set the setFilterPassed flag 
+    setFilterPassed(acceptEvent);
+
+    // Return if event didn't pass
+    if (!acceptEvent) return StatusCode::SUCCESS;
+    
+
     //=============================================================================
     // THINNING ===================================================================
     //=============================================================================
@@ -124,49 +168,9 @@ StatusCode DerivationFramework::DerivationKernel::execute() {
 	++thinningTool;
     }
 
-    //=============================================================================
-    // AUGMENTATION ===============================================================
-    //=============================================================================
-    
-    ToolHandleArray<IAugmentationTool>::iterator augmentationTool(m_augmentationTools.begin());
-    ToolHandleArray<IAugmentationTool>::iterator endOfAugmentationTools(m_augmentationTools.end());
-    while (augmentationTool != endOfAugmentationTools) {
-    	if ( (**augmentationTool).addBranches().isFailure() ) {
-		ATH_MSG_ERROR("Augmentation failed!");
-		return StatusCode::FAILURE;
-	}
-        ++augmentationTool;
-    }
-    
- 
-    //=============================================================================
-    // SKIMMING ===================================================================
-    //=============================================================================
-    
-    // Set master flag to true
-    bool acceptEvent(true);
-    
-    // Loop over the filters
-    ToolHandleArray<ISkimmingTool>::iterator skimmingTool(m_skimmingTools.begin());
-    ToolHandleArray<ISkimmingTool>::iterator endOfSkimmingTools(m_skimmingTools.end());
-    while (skimmingTool != endOfSkimmingTools) {
-        if (!((**skimmingTool).eventPassesFilter())) {
-            acceptEvent=false;
-            ATH_MSG_DEBUG("This event failed the " << (**skimmingTool).name() << " filter. Therefore it will not be recorded.");
-            break;
-        }
-	++skimmingTool;
-    }
-    
-    // Increment local counters if event to be accepted
-    if (acceptEvent) ++m_acceptCntr;
-    
-    // Set the setFilterPassed flag and return
-    setFilterPassed(acceptEvent);
-    
+
     return StatusCode::SUCCESS;
     
-        
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *

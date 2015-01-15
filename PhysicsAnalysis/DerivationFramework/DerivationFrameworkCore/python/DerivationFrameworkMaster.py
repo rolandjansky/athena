@@ -15,9 +15,10 @@ from DerivationFrameworkCore.DerivationFrameworkProdFlags import derivationFlags
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 from AthenaCommon.JobProperties import jobproperties
 from AthenaCommon import CfgMgr 
+from AthenaCommon.AlgSequence import AlgSequence 
 
 # DerivationJob is COMMON TO ALL DERIVATIONS
-DerivationFrameworkJob = CfgMgr.AthSequencer("AthAlgSeq")
+DerivationFrameworkJob = AlgSequence()
 
 # Set up stream auditor
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
