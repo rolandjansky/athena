@@ -8,12 +8,12 @@
 #include "TrigInterfaces/AllTEAlgo.h"
 #include "TrigT2CaloCommon/TrigDataAccess.h"
 #include "ZdcEvent/ZdcRawChannelCollection.h"
+#include "xAODTrigMinBias/TrigT2ZdcSignals.h"
 #include <vector>
 
 //#define  MY_DEBUG
 
 class ZdcID;
-class TrigT2ZdcSignals;
 
 /*
   
@@ -46,14 +46,7 @@ class T2ZdcFex: public HLT::AllTEAlgo {
    *
    * This is used to reset the internal caching mechanism of this algorithm
    */
-  virtual bool reset() {
-    HLT::AllTEAlgo::reset();
-    m_useCachedResult = false;
-    m_zdcSignals = 0;
-    m_cachedTE=0;
-    return true; 
-  }
-
+  HLT::ErrorCode hltEndEvent();
   
 
  private:
@@ -91,7 +84,7 @@ class T2ZdcFex: public HLT::AllTEAlgo {
   std::vector<int> m_triggerEntries;
 
   bool m_useCachedResult;          //!< internal caching: true when the hltExecute will run in cached mode.
-  TrigT2ZdcSignals *m_zdcSignals;    //!< internal caching: ZDC feature from the first execution.
+  xAOD::TrigT2ZdcSignals *m_zdcSignals;    //!< internal caching: ZDC feature from the first execution.
   HLT::TriggerElement* m_cachedTE; //!< internal caching: output TE from the first exectution.
   int m_ZdcEnRecoOpt; // ZDC Reconstruction options  (Energies)
   int m_ZdcTimeRecoOpt; // ZDC Reconstruction options (Time)

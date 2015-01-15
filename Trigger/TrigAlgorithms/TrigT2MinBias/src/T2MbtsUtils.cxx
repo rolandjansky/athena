@@ -11,6 +11,8 @@
 T2MbtsUtils::T2MbtsUtils(): m_threshold(0.),
 			    m_timeCut(0.),
 			    m_globalTimeOffset(0.),
+			    m_timeMean_A(0.),
+			    m_timeMean_C(0.),
 			    m_timeDiff_A_C(0.),
 			    m_mult(std::make_pair(0,0)) {
   for(int i=0;i<32;i++) m_timeOffsets[i] = 0.;

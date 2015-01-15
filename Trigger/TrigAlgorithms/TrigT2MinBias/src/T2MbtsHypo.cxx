@@ -128,7 +128,7 @@ HLT::ErrorCode T2MbtsHypo::hltExecute(const HLT::TriggerElement* outputTE,
   
   // Print the contents of the object if debug is on.
   if(msgLvl() <= MSG::DEBUG) {
-    m_t2MbtsBits->print(m_log);
+//    m_t2MbtsBits->print(m_log);
   }
 
   // Calculate MBTS counter multiplicities after energy and an optional time cut.

@@ -875,3 +875,11 @@ HLT::ErrorCode TrigCountSpacePoints::hltFinalize() {
   m_log << MSG::DEBUG << " finalizing TrigCountSpacePoints : "<< name() << endreq; 
   return HLT::OK;  
 }
+
+//---------------------------------------------------------------------------------------------------------------------------------------------
+HLT::ErrorCode TrigCountSpacePoints::hltEndEvent() {
+    m_useCachedResult = false;
+    m_spacePointCounts = 0;   
+    m_cachedTE=0;
+    return HLT::OK;
+}

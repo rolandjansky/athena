@@ -3,7 +3,7 @@
 */
 
 #include "TrigT2MinBias/T2ZdcHypo.h"
-#include "TrigCaloEvent/TrigT2ZdcSignals.h"
+#include "xAODTrigMinBias/TrigT2ZdcSignals.h"
 
 #include <bitset>
 #include <cmath>
@@ -105,10 +105,10 @@ HLT::ErrorCode T2ZdcHypo::hltExecute(const HLT::TriggerElement* outputTE,
     return HLT::OK;
   }
   
-  // Print the contents of the object if debug is on.
-  if(msgLvl() <= MSG::DEBUG) {
-    m_t2ZdcSignals->print(m_log);
-  }
+//   // Print the contents of the object if debug is on.
+//   if(msgLvl() <= MSG::DEBUG) {
+//     m_t2ZdcSignals->print(m_log);
+//   }
 
   // Calculate ZDC counter multiplicities, time mean and energy sums after energy and an optional time cut.
   if(!calculateSumMean()) { 

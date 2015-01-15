@@ -361,3 +361,11 @@ HLT::ErrorCode TrigCountTrtHits::hltFinalize() {
   return HLT::OK;  
 }
 
+//---------------------------------------------------------------------------------
+
+HLT::ErrorCode TrigCountTrtHits::hltEndEvent() {
+    m_useCachedResult = false;
+    m_trtHitCounts = 0;
+    m_cachedTE=0;
+    return HLT::OK;
+}

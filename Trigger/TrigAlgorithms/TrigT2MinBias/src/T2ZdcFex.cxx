@@ -3,13 +3,12 @@
 */
 
 #include "TrigT2MinBias/T2ZdcFex.h"
-#include "TrigCaloEvent/TrigT2ZdcSignals.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 #include "TrigT2CaloCommon/ITrigDataAccess.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "ZdcIdentifier/ZdcID.h"
 #include "ZdcConditions/ZdcCablingService.h"
-
+#include "xAODTrigMinBias/TrigT2ZdcSignals.h"
 
 
 T2ZdcFex::T2ZdcFex(const std::string &name, ISvcLocator* pSvcLocator): 
@@ -17,9 +16,9 @@ T2ZdcFex::T2ZdcFex(const std::string &name, ISvcLocator* pSvcLocator):
   m_log(msgSvc(), name),
   m_timerLoadColl(0), m_timerAlg(0), m_timerSave(0),
   m_data("TrigDataAccess/TrigDataAccess"),
-  m_triggerEnergies(TrigT2ZdcSignals::NUM_ZDC,0.),
-  m_triggerTimes(TrigT2ZdcSignals::NUM_ZDC,0.),
-  m_triggerEntries(TrigT2ZdcSignals::NUM_ZDC,0.),
+  m_triggerEnergies(xAOD::TrigT2ZdcSignals::NUM_ZDC,0.),
+  m_triggerTimes(xAOD::TrigT2ZdcSignals::NUM_ZDC,0.),
+  m_triggerEntries(xAOD::TrigT2ZdcSignals::NUM_ZDC,0.),
   m_useCachedResult(false),
   m_zdcSignals(0),
   m_cachedTE(0) {
@@ -90,11 +89,11 @@ HLT::ErrorCode T2ZdcFex::hltExecute(std::vector<std::vector<HLT::TriggerElement*
 
   // Clear the variables which hold the processed signals.
   m_triggerEnergies.clear();
-  m_triggerEnergies.resize(TrigT2ZdcSignals::NUM_ZDC,0);
+  m_triggerEnergies.resize(xAOD::TrigT2ZdcSignals::NUM_ZDC,0);
   m_triggerTimes.clear();
-  m_triggerTimes.resize(TrigT2ZdcSignals::NUM_ZDC,0);
+  m_triggerTimes.resize(xAOD::TrigT2ZdcSignals::NUM_ZDC,0);
   m_triggerEntries.clear();
-  m_triggerEntries.resize(TrigT2ZdcSignals::NUM_ZDC,0.);
+  m_triggerEntries.resize(xAOD::TrigT2ZdcSignals::NUM_ZDC,0.);
 
   for( m_zt = m_zBegin; m_zt!=m_zEnd; ++m_zt){ // loop on ZdcRawChannelCollection iterators
     ZdcRawChannel* zdc = (*m_zt);
@@ -148,8 +147,10 @@ HLT::ErrorCode T2ZdcFex::hltExecute(std::vector<std::vector<HLT::TriggerElement*
   
 
   // Create the T2ZdcSignals output object.
-  m_zdcSignals = new TrigT2ZdcSignals(m_triggerEnergies, m_triggerTimes);
-
+  m_zdcSignals = new xAOD::TrigT2ZdcSignals;
+  m_zdcSignals->makePrivateStore();
+  m_zdcSignals->setTriggerEnergies(m_triggerEnergies);
+  m_zdcSignals->setTriggerTimes(m_triggerTimes);
 
   // A vector of trigger elements is passed into this function, where
   // for each trigger element type provided there is a vector of
@@ -239,4 +240,12 @@ HLT::ErrorCode T2ZdcFex::hltInitialize() {
 
 HLT::ErrorCode T2ZdcFex::hltFinalize() {
   return HLT::OK;
+}
+
+//--------------------------------------------------------------------------------------
+HLT::ErrorCode T2ZdcFex::hltEndEvent() {
+    m_useCachedResult = false;
+    m_zdcSignals = 0;
+    m_cachedTE=0;
+    return HLT::OK;
 }

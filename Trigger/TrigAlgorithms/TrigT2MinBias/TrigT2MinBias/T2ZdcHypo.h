@@ -6,13 +6,12 @@
 #define T2ZDCHYPO_H
 
 #include "TrigInterfaces/HypoAlgo.h"
+#include "xAODTrigMinBias/TrigT2ZdcSignals.h"
+
 #include <map>
 
 #define ZDC_MOD 4
 //#define MY_DEBUG
-
-class TrigT2ZdcSignals;
-
 /** @class T2ZdcHypo
  
 @author Antonio Sidoti <antonio.sidoti@roma1.infn.it> 
@@ -54,7 +53,7 @@ class T2ZdcHypo: public HLT::HypoAlgo {
   float m_seltimeDiff_A_C;
 
    /** A pointer to the TrigT2ZdcSignals object. */
-   const TrigT2ZdcSignals *m_t2ZdcSignals; 
+   const xAOD::TrigT2ZdcSignals *m_t2ZdcSignals; 
 
 
    /** Energy threshold in pC */

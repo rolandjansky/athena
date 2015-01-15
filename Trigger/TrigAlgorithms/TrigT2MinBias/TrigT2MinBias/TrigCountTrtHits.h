@@ -39,13 +39,7 @@ class TrigCountTrtHits: public HLT::AllTEAlgo {
    *
    * This is used to reset the internal caching mechanism of this algorithm
    */
-  virtual bool reset() {
-    HLT::AllTEAlgo::reset();
-    m_useCachedResult = false;
-    m_trtHitCounts = 0;
-    m_cachedTE=0;
-    return true; 
-  }
+  HLT::ErrorCode hltEndEvent();
   
  private:
 

@@ -340,3 +340,11 @@ HLT::ErrorCode T2MbtsFex::hltInitialize() {
 HLT::ErrorCode T2MbtsFex::hltFinalize() {
   return HLT::OK;
 }
+
+//--------------------------------------------------------------------------------------
+HLT::ErrorCode T2MbtsFex::hltEndEvent() {
+     m_useCachedResult = false;
+     m_t2MbtsBits = 0;
+     m_cachedTE=0;
+     return HLT::OK;
+}

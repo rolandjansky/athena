@@ -11,7 +11,7 @@
 #include "eformat/SourceIdentifier.h"
 
 #include "xAODTrigMinBias/TrigSpacePointCounts.h"
-#include "xAODTrigMinBias/TrigHisto2D.h"
+
 
 TrigCountSpacePointsHypo::TrigCountSpacePointsHypo(const std::string& name, 
 						   ISvcLocator* pSvcLocator): HLT::HypoAlgo(name, pSvcLocator),
@@ -258,42 +258,6 @@ HLT::ErrorCode TrigCountSpacePointsHypo::hltExecute(const HLT::TriggerElement* o
     return HLT::OK;
   }
 
-  xAOD::TrigHisto2D *th2dPixelClusEndcapC = new xAOD::TrigHisto2D;
-  xAOD::TrigHisto2D *th2dPixelClusBarrel = new xAOD::TrigHisto2D;
-  xAOD::TrigHisto2D *th2dPixelClusEndcapA = new xAOD::TrigHisto2D;
-  
-  //make private stores'
-  th2dPixelClusEndcapC->makePrivateStore();
-  th2dPixelClusBarrel->makePrivateStore();
-  th2dPixelClusEndcapA->makePrivateStore();
-  
-  th2dPixelClusEndcapC->initialize(trigSpacePointCounts->pixelClusTotBins(),
-				   trigSpacePointCounts->pixelClusTotMin(),
-				   trigSpacePointCounts->pixelClusTotMax(),
-				   trigSpacePointCounts->pixelClusSizeBins(),
-				   trigSpacePointCounts->pixelClusSizeMin(),
-				   trigSpacePointCounts->pixelClusSizeMax());
-  
-  th2dPixelClusEndcapC->setContents(trigSpacePointCounts->contentsPixelClusEndcapC());
-  
-  th2dPixelClusBarrel->initialize(trigSpacePointCounts->pixelClusTotBins(),
-				   trigSpacePointCounts->pixelClusTotMin(),
-				   trigSpacePointCounts->pixelClusTotMax(),
-				   trigSpacePointCounts->pixelClusSizeBins(),
-				   trigSpacePointCounts->pixelClusSizeMin(),
-				   trigSpacePointCounts->pixelClusSizeMax());
-  
-  th2dPixelClusBarrel->setContents(trigSpacePointCounts->contentsPixelClusBarrel());
-  
-  th2dPixelClusEndcapA->initialize(trigSpacePointCounts->pixelClusTotBins(),
-				   trigSpacePointCounts->pixelClusTotMin(),
-				   trigSpacePointCounts->pixelClusTotMax(),
-				   trigSpacePointCounts->pixelClusSizeBins(),
-				   trigSpacePointCounts->pixelClusSizeMin(),
-				   trigSpacePointCounts->pixelClusSizeMax());
-  
-  th2dPixelClusEndcapA->setContents(trigSpacePointCounts->contentsPixelClusEndcapA());
-
   for(int i=0;i<9;i++) m_multiplicity[i] = 0.;
    
   // Retrieve the Pixel cluster multiplicities after a time over, if needed
@@ -316,9 +280,9 @@ HLT::ErrorCode TrigCountSpacePointsHypo::hltExecute(const HLT::TriggerElement* o
   if( usePIX ){
     
     // threshold cut and with no cut on the pixel cluster size.
-    m_multiplicity[PIXEL_CLUS_EC] = th2dPixelClusEndcapC->sumEntries(m_timeOverThreshold_cut, 0., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
-    m_multiplicity[PIXEL_CLUS_EA] = th2dPixelClusEndcapA->sumEntries(m_timeOverThreshold_cut, 0., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
-    m_multiplicity[PIXEL_CLUS_BL] = th2dPixelClusBarrel->sumEntries(m_timeOverThreshold_cut, 0., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
+    m_multiplicity[PIXEL_CLUS_EC] = trigSpacePointCounts->pixelClusEndcapCSumEntries(m_timeOverThreshold_cut, 0., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
+    m_multiplicity[PIXEL_CLUS_EA] = trigSpacePointCounts->pixelClusEndcapASumEntries(m_timeOverThreshold_cut, 0., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
+    m_multiplicity[PIXEL_CLUS_BL] = trigSpacePointCounts->pixelClusBarrelSumEntries(m_timeOverThreshold_cut, 0., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
     m_totNumPixSP = m_multiplicity[PIXEL_CLUS_EC] + m_multiplicity[PIXEL_CLUS_EA] + m_multiplicity[PIXEL_CLUS_BL];
 
     if( m_multiplicity[PIXEL_CLUS_EA] > m_multiplicity[PIXEL_CLUS_EC] )
@@ -331,14 +295,14 @@ HLT::ErrorCode TrigCountSpacePointsHypo::hltExecute(const HLT::TriggerElement* o
     
       // Retrieve the Pixel cluster multiplicities after a time over
       // threshold cut for 3+ pixel cluster size.
-      m_multiplicity[PIXEL_CLUS_SZ_3] = th2dPixelClusEndcapC->sumEntries(m_timeOverThreshold_cut, 3., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
-      m_multiplicity[PIXEL_CLUS_SZ_3] += th2dPixelClusBarrel->sumEntries(m_timeOverThreshold_cut, 3., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
-      m_multiplicity[PIXEL_CLUS_SZ_3] += th2dPixelClusEndcapA->sumEntries(m_timeOverThreshold_cut, 3., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
+      m_multiplicity[PIXEL_CLUS_SZ_3] = trigSpacePointCounts->pixelClusEndcapCSumEntries(m_timeOverThreshold_cut, 3., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
+      m_multiplicity[PIXEL_CLUS_SZ_3] += trigSpacePointCounts->pixelClusBarrelSumEntries(m_timeOverThreshold_cut, 3., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
+      m_multiplicity[PIXEL_CLUS_SZ_3] += trigSpacePointCounts->pixelClusEndcapASumEntries(m_timeOverThreshold_cut, 3., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
       
       // Retrieve the Pixel cluster multiplicities after a time over threshold cut for 2+ pixel cluster size.
-      m_multiplicity[PIXEL_CLUS_SZ_2] = th2dPixelClusEndcapC->sumEntries(m_timeOverThreshold_cut, 2., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
-      m_multiplicity[PIXEL_CLUS_SZ_2] += th2dPixelClusBarrel->sumEntries(m_timeOverThreshold_cut, 2., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
-      m_multiplicity[PIXEL_CLUS_SZ_2] += th2dPixelClusEndcapA->sumEntries(m_timeOverThreshold_cut, 2., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
+      m_multiplicity[PIXEL_CLUS_SZ_2] = trigSpacePointCounts->pixelClusEndcapCSumEntries(m_timeOverThreshold_cut, 2., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
+      m_multiplicity[PIXEL_CLUS_SZ_2] += trigSpacePointCounts->pixelClusBarrelSumEntries(m_timeOverThreshold_cut, 2., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
+      m_multiplicity[PIXEL_CLUS_SZ_2] += trigSpacePointCounts->pixelClusEndcapASumEntries(m_timeOverThreshold_cut, 2., xAOD::TrigHistoCutType::ABOVE_X_ABOVE_Y);
       m_multiplicity[PIXEL_CLUS_SZ_2] -= m_multiplicity[PIXEL_CLUS_SZ_3]; // Remove the 3+ clusters to leave size 2 only.
       
       // Calculate the number of size 1 clusters.
@@ -608,7 +572,7 @@ HLT::ErrorCode TrigCountSpacePointsHypo::hltExecute(const HLT::TriggerElement* o
     m_totSelNumPixSP = m_totNumPixSP;
     m_totSelNumSctSP = m_totNumSctSP;
   }
-
+  trigSpacePointCounts = 0;
   return HLT::OK;  
 }
 
@@ -616,5 +580,6 @@ HLT::ErrorCode TrigCountSpacePointsHypo::hltExecute(const HLT::TriggerElement* o
 
 HLT::ErrorCode TrigCountSpacePointsHypo::hltFinalize() {
   m_log << MSG::DEBUG << " finalizing this TrigCountSpacePointsHypo : " << name() << endreq; 
+
   return HLT::OK;  
 }

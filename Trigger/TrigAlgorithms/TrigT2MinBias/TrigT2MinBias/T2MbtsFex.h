@@ -46,13 +46,7 @@ class T2MbtsFex: public HLT::AllTEAlgo, public T2MbtsUtils {
     *
     * This is used to reset the internal caching mechanism of this algorithm
     */
-   virtual bool reset() {
-     HLT::AllTEAlgo::reset();
-     m_useCachedResult = false;
-     m_t2MbtsBits = 0;
-     m_cachedTE=0;
-     return true; 
-   }
+   HLT::ErrorCode hltEndEvent();
 
   private:
 
