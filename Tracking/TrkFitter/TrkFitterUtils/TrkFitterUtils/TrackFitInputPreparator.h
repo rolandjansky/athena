@@ -36,6 +36,9 @@ namespace Trk {
     */
 
   class TrackFitInputPreparator {
+    // forbid copying    
+    TrackFitInputPreparator(const TrackFitInputPreparator &a) = delete ;
+    TrackFitInputPreparator &operator=(const TrackFitInputPreparator &a) = delete ;
       
   public:
     //! Default constructor

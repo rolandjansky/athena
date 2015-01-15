@@ -71,6 +71,33 @@ Trk::DNA_MaterialEffects::~DNA_MaterialEffects()
     delete m_associatedSurface;
 }
 
+Trk::DNA_MaterialEffects &Trk::DNA_MaterialEffects::operator=(const Trk::DNA_MaterialEffects &dme) {
+
+  if (&dme != this ) {
+    m_xmin = dme.m_xmin;
+    m_dxmin = dme.m_dxmin;
+    m_chi2min = dme.m_chi2min;
+    m_thickness = dme.m_thickness;
+    m_sigmaDNA = dme.m_sigmaDNA;
+    m_addSigmaQoverP = dme.m_addSigmaQoverP ;
+    m_foundByForwardFilter = dme.m_foundByForwardFilter;
+    m_deltaP = dme.m_deltaP;
+    m_sigmaDeltaP = dme.m_sigmaDeltaP;
+
+    if (m_associatedSurface && !m_associatedSurface->associatedDetectorElement()) {
+      delete m_associatedSurface;
+    }
+
+    m_associatedSurface = (dme.m_associatedSurface?
+                           ( dme.m_associatedSurface->associatedDetectorElement()?
+                             dme.m_associatedSurface :
+                             dme.m_associatedSurface->clone() ) :
+                           0 );
+  }
+  return *this;
+}
+
+
 const Trk::Surface& Trk::DNA_MaterialEffects::associatedSurface() const
 { return *m_associatedSurface; }
 
