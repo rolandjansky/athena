@@ -27,6 +27,7 @@ namespace Trk {
     , m_measType(measType)
     , m_measDir(Trk::x)
     , m_alphaStrip(0)
+    , m_derivativesVtx(0)  
   {
     if(!module)
       m_isvalid = false;
@@ -52,6 +53,7 @@ namespace Trk {
     , m_measType(measType)
     , m_measDir(Trk::x)
     , m_alphaStrip(0)
+    , m_derivativesVtx(0) 
   {
     if(!module)
       m_isvalid = false;
@@ -75,6 +77,7 @@ namespace Trk {
     , m_measType(measType)
     , m_measDir(Trk::x)
     , m_alphaStrip(0)
+    , m_derivativesVtx(0)  
   {
     m_detelements.push_back(0);
   }
@@ -100,6 +103,7 @@ namespace Trk {
     , m_measType(atsos.m_measType)
     , m_measDir(atsos.m_measDir)
     , m_alphaStrip(atsos.m_alphaStrip)
+    , m_derivativesVtx(0)
   {
   }
 
@@ -177,6 +181,7 @@ namespace Trk {
            << std::setw(11)     << std::showpos << std::scientific
            << itRes->residual() <<"  res/err="<<resnorm
            << ", dchi2="<<std::noshowpos<<resnorm*resnorm;
+	sl.unsetf( std::ios::floatfield );
         sl.flags(f);  
       }
     }

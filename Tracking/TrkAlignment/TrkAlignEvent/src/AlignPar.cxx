@@ -5,7 +5,7 @@
 #include "TrkAlignEvent/AlignPar.h"
 
 namespace Trk {
-  
+ 
   //________________________________________________________________________
   MsgStream& operator << (MsgStream& sl, const AlignPar& ap) 
   {
@@ -24,6 +24,7 @@ namespace Trk {
        << std::noshowpos << endreq;
     sl << "  secnd drv: "<< std::showpos << ap.secndDeriv()
        << std::noshowpos << endreq;
+    sl.unsetf( std::ios::floatfield );
     return sl; 
   } 
   
