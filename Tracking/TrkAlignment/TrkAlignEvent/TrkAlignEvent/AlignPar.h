@@ -122,9 +122,9 @@ namespace Trk {
   /** overload of << operator for MsgStream for debug output */
   MsgStream& operator << (MsgStream& sl, const AlignPar& alignPar);
 
-  inline AlignPar::AlignPar(const AlignModule* alignModule, AlignModule::TransformParameters paramType) : m_alignModule(alignModule), m_detElement(0), m_paramType(paramType), m_initPar(0.), m_initErr(0.), m_par(0.), m_err(0.), m_finalPar(0.), m_finalErr(0.), m_sigma(1.), m_softCut(1.), m_firstDeriv(0.), m_secndDeriv(0.) {}
+  inline AlignPar::AlignPar(const AlignModule* alignModule, AlignModule::TransformParameters paramType) : m_alignModule(alignModule), m_detElement(0), m_paramType(paramType), m_initPar(0.), m_initErr(0.), m_par(0.), m_err(0.), m_finalPar(0.), m_finalErr(0.), m_sigma(1.), m_softCut(1.), m_firstDeriv(0.), m_secndDeriv(0.), m_index(-1) {}
 
-  inline AlignPar::AlignPar(const TrkDetElementBase* detElement, AlignModule::TransformParameters paramType) : m_alignModule(0), m_detElement(detElement), m_paramType(paramType), m_initPar(0.), m_initErr(0.), m_par(0.), m_err(0.), m_finalPar(0.), m_finalErr(0.), m_sigma(1.), m_softCut(1.), m_firstDeriv(0.), m_secndDeriv(0.) {}
+  inline AlignPar::AlignPar(const TrkDetElementBase* detElement, AlignModule::TransformParameters paramType) : m_alignModule(0), m_detElement(detElement), m_paramType(paramType), m_initPar(0.), m_initErr(0.), m_par(0.), m_err(0.), m_finalPar(0.), m_finalErr(0.), m_sigma(1.), m_softCut(1.), m_firstDeriv(0.), m_secndDeriv(0.), m_index(-1) {}
 
 }
 

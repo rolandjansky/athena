@@ -68,6 +68,7 @@ namespace Trk {
     
     *m_log<<MSG::INFO<<"done with c'tor"<<endreq;
   }
+
   
   //________________________________________________________________________
   AlignModule::~AlignModule()
@@ -123,7 +124,10 @@ namespace Trk {
       }
       n += detelements->size();
     }
-    return Amg::Vector3D( sumx/n, sumy/n, sumz/n);
+    
+    if (n!=0) return Amg::Vector3D( sumx/n, sumy/n, sumz/n);
+    else return Amg::Vector3D(0.0,0.0,0.0);
+    
   }
 
   //________________________________________________________________________

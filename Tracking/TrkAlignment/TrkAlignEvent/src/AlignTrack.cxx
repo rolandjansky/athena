@@ -102,6 +102,8 @@ namespace Trk {
         new Amg::SymMatrixX(*(atrack.m_weights)) : 0)
     , m_weightsFirstDeriv(atrack.m_weightsFirstDeriv ?
         new Amg::SymMatrixX(*(atrack.m_weightsFirstDeriv)) : 0)
+    , m_chi2(atrack.m_chi2)
+    , m_chi2dof(atrack.m_chi2dof)
     , m_trackAlignParamQuality(new double[6])
     , m_trackWithoutScattering(atrack.m_trackWithoutScattering ?
   new Trk::Track(*(atrack.m_trackWithoutScattering)) : 0)
