@@ -20,6 +20,7 @@ namespace TrigL2MuonSA {
     int MeasuresPhi;
     int Strip;
     int Chamber;
+    uint32_t StripId;
     //
     double eta;
     double phi;

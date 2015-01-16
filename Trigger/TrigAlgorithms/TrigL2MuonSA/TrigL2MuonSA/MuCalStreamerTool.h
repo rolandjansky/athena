@@ -5,7 +5,7 @@
 #ifndef  TRIGL2MUONSA_MUCALSTREAMERTOOL_H
 #define  TRIGL2MUONSA_MUCALSTREAMERTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IMessageSvc.h"
 
@@ -14,17 +14,12 @@
 #include "TrigL2MuonSA/TgcData.h"
 #include "TrigL2MuonSA/TrackData.h"
 
-////////////// tmp cabling - to be removed //////////////////
-#include "MuonRPC_Cabling/MuonRPC_CablingSvc.h"
-#include "RPCgeometry/IRPCgeometrySvc.h"
-#include "RPCcablingInterface/RpcPadIdHash.h" 
-#include "RPCcablingInterface/IRPCcablingServerSvc.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 /////////////////////////////////////////////////////////////
 
-
 #include <fstream>
 #include <string>
+#include <vector>
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -47,7 +42,7 @@ class ROBDataProviderSvc;
 
 namespace TrigL2MuonSA {
   
-  class MuCalStreamerTool: public AlgTool
+  class MuCalStreamerTool: public AthAlgTool
   {
   public:
     
@@ -76,6 +71,11 @@ namespace TrigL2MuonSA {
     void setBufferName(std::string buffName) {m_calBufferName=buffName;}
     void setBufferSize(int buffSize) {m_calBufferSize=buffSize;}
 
+    bool doDataScouting() {return m_doDataScouting;} 
+    void setDoDataScouting(bool doDataScouting) {m_doDataScouting = doDataScouting;}
+
+    std::vector<int>* getLocalBuffer()   {return m_localBuffer;}
+
     //
     // initialize the stream
     StatusCode openStream();
@@ -89,11 +89,13 @@ namespace TrigL2MuonSA {
     StatusCode createRoiFragment(const LVL1::RecMuonRoI* roi,
 				 TrigL2MuonSA::TrackPattern& trackPattern,
 				 TrigL2MuonSA::MdtHits& mdtHits,
-				 TrigL2MuonSA::RpcHits& rpcHits);
+				 TrigL2MuonSA::RpcHits& rpcHits,
+                                 bool& updateTriggerElement);                                                              
 
   private:
 
     BooleanProperty m_writeToFile;
+    BooleanProperty m_doDataScouting;
 
     // name of the calibration buffer or of the 
     // output file
@@ -115,21 +117,10 @@ namespace TrigL2MuonSA {
     int m_cid;
     int m_calibEvent;
 
-    ///////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////
-    /// TMP RPC cabling ( to be moved to the new one ) 
-
-    ///////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////
-    // Tools for the Raw data conversion
-    ToolHandle<Muon::IMuonRawDataProviderTool>  m_rpcRawDataProvider;
-    
-    // L2-specific Geometry Svc
-    ServiceHandle<IRPCgeometrySvc>  m_rpcGeometrySvc;
-    
-    // RPC cablings
-    const IRPCcablingSvc*   m_iRpcCablingSvc;
-    const CablingRPCBase*   m_rpcCabling;
+    // local buffer for the TrigComposite object
+    int m_localBufferSize;
+    int m_maxLocalBufferSize;
+    std::vector<int>* m_localBuffer;
 
     // pointer to the muon roi
     const LVL1::RecMuonRoI* m_roi;
@@ -148,10 +139,10 @@ namespace TrigL2MuonSA {
     // create the TGC fragment
 //    StatusCode createTgcFragment(TrigL2MuonSA::TgcHits& tgcHits,  
 //				 LVL2_MUON_CALIBRATION::TgcCalibFragment& tgcFragment);
-
-    StatusCode getRpcPad(unsigned int robId, unsigned short int subsystemID, 
-			 unsigned short int sectorID, unsigned short int roiNumber, 
-			 const RpcPad* rpcPad );
+//
+//    StatusCode getRpcPad(unsigned int robId, unsigned short int subsystemID, 
+//			 unsigned short int sectorID, unsigned short int roiNumber, 
+//			 const RpcPad*& rpcPad );
 
   };
   

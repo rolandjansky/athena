@@ -3,6 +3,8 @@
 */
 
 #include "TrigL2MuonSA/MuFastTrackExtrapolator.h"
+#include "xAODTrigMuon/L2StandAloneMuonAuxContainer.h"
+#include "xAODTrigMuon/TrigMuonDefs.h"
 
 #include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/MsgStream.h"
@@ -23,7 +25,7 @@ const InterfaceID& TrigL2MuonSA::MuFastTrackExtrapolator::interfaceID() { return
 TrigL2MuonSA::MuFastTrackExtrapolator::MuFastTrackExtrapolator(const std::string& type, 
 							       const std::string& name,
 							       const IInterface*  parent): 
-  AlgTool(type,name,parent),
+  AthAlgTool(type,name,parent),
   m_msg(0),
   m_storeGateSvc( "StoreGateSvc", name )
 {
@@ -54,9 +56,9 @@ StatusCode TrigL2MuonSA::MuFastTrackExtrapolator::initialize()
    msg() << MSG::DEBUG << "Initializing MuFastTrackExtrapolator - package version " << PACKAGE_VERSION << endreq ;
    
    StatusCode sc;
-   sc = AlgTool::initialize();
+   sc = AthAlgTool::initialize();
    if (!sc.isSuccess()) {
-      msg() << MSG::ERROR << "Could not initialize the AlgTool base class." << endreq;
+      msg() << MSG::ERROR << "Could not initialize the AthAlgTool base class." << endreq;
       return sc;
    }
    
@@ -92,24 +94,26 @@ StatusCode TrigL2MuonSA::MuFastTrackExtrapolator::extrapolateTrack(std::vector<T
   std::vector<TrigL2MuonSA::TrackPattern>::iterator itTrack;
   for (itTrack=v_trackPatterns.begin(); itTrack!=v_trackPatterns.end(); itTrack++) {
 
-    MuonFeature* feature = new MuonFeature(itTrack->s_address,
-					   (itTrack->pt)*(itTrack->charge),
-					   itTrack->superPoints[0].R,
-					   itTrack->etaMap,
-					   itTrack->phiMS,
-					   itTrack->phiMSDir,
-					   itTrack->superPoints[0].Z,
-					   itTrack->superPoints[0].Alin,
-					   1.0);
-    
+    int inner = (itTrack->s_address==-1)? xAOD::L2MuonParameters::Chamber::EndcapInner:
+      xAOD::L2MuonParameters::Chamber::BarrelInner;
+
+    xAOD::L2StandAloneMuon* muonSA = new xAOD::L2StandAloneMuon();
+    muonSA->makePrivateStore();
+    muonSA->setSAddress(itTrack->s_address);
+    muonSA->setPt((itTrack->pt)*(itTrack->charge));
+    muonSA->setEtaMS(itTrack->etaMap);
+    muonSA->setPhiMS(itTrack->phiMS);
+    muonSA->setRMS(itTrack->superPoints[inner].R);
+    muonSA->setZMS(itTrack->superPoints[inner].Z);
+
     double etaVtx = 0.;
     double phiVtx = 0.;
     double sigEta = 0.;
     double sigPhi = 0.;
-    
+
     double eptinv = getMuFastRes(m_muFastRes_barrel, (itTrack->pt)*(itTrack->charge), itTrack->s_address, itTrack->etaMap, itTrack->phiMS);
 
-    sc = (*m_backExtrapolatorTool)->give_eta_phi_at_vertex(feature, etaVtx, sigEta, phiVtx, sigPhi, winPt);
+    sc = (*m_backExtrapolatorTool)->give_eta_phi_at_vertex(muonSA, etaVtx, sigEta, phiVtx, sigPhi, winPt);
     
     if (sc.isFailure()) {
       msg() << MSG::DEBUG  << "BackExtrapolator problem: "
@@ -127,11 +131,10 @@ StatusCode TrigL2MuonSA::MuFastTrackExtrapolator::extrapolateTrack(std::vector<T
     itTrack->deltaEtaVtx = sigEta;
     itTrack->deltaPhiVtx = sigPhi;
 
-    if (feature) delete feature;
+    if (muonSA) delete muonSA;
   }
-  
-   return sc; 
- }
+  return sc; 
+}
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -143,7 +146,7 @@ StatusCode TrigL2MuonSA::MuFastTrackExtrapolator::finalize()
   // delete message stream
   if ( m_msg ) delete m_msg;
   
-  StatusCode sc = AlgTool::finalize(); 
+  StatusCode sc = AthAlgTool::finalize(); 
   return sc;
 }
 

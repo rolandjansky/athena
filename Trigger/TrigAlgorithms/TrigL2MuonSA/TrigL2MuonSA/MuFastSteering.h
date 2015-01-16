@@ -7,7 +7,7 @@
 
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrigInterfaces/FexAlgo.h"
@@ -22,20 +22,21 @@
 #include "TrigL2MuonSA/MuFastTrackExtrapolator.h"
 #include "TrigL2MuonSA/RecMuonRoIUtils.h"
 #include "TrigL2MuonSA/MuCalStreamerTool.h"
-
-#include "TrigMuonEvent/MuonFeature.h"
-#include "TrigMuonEvent/MuonFeatureDetails.h"
+#include "GaudiKernel/IIncidentListener.h"
 
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
+#include "xAODTrigger/TrigCompositeContainer.h"
 
 using namespace TrigL2MuonSA;
 
 class IRegSelSvc;
 class IJobOptionsSvc;
+class Incident;
 
 enum ECRegions{ Bulk, WeakBFieldA, WeakBFieldB };
 
-class MuFastSteering : public HLT::FexAlgo
+class MuFastSteering : public HLT::FexAlgo,
+  virtual public IIncidentListener
 {
  public:
   enum {
@@ -67,11 +68,13 @@ class MuFastSteering : public HLT::FexAlgo
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE, 
 			    HLT::TriggerElement* outputTE);
   
-  MuonFeatureDetails::AlgoId AlgoMap(const std::string& name);
   int L2MuonAlgoMap(const std::string& name);
   
   /** A function which clears internal data for a new event */
   void clearEvent();
+
+  // handler for "UpdateAfterFork" actions
+  void handle(const Incident& incident);
   
  protected:
   
@@ -144,9 +147,10 @@ class MuFastSteering : public HLT::FexAlgo
   
   BooleanProperty  m_use_timer;
   BooleanProperty  m_use_mcLUT;
-  BooleanProperty  m_use_new_geometry;
+  BooleanProperty  m_use_new_segmentfit;
   BooleanProperty  m_use_rpc;
   BooleanProperty  m_doCalStream;
+  BooleanProperty  m_calDataScouting;
   
   IntegerProperty m_esd_ext_size;
   IntegerProperty m_esd_rob_size;
@@ -181,14 +185,15 @@ class MuFastSteering : public HLT::FexAlgo
   std::vector<float> m_failed_phi;
 
   ECRegions whichECRegion(const float eta, const float phi) const;
-  float getRoiSizeForID(bool isEta, MuonFeature* muon_feature);
+  float getRoiSizeForID(bool isEta, const xAOD::L2StandAloneMuon* muonSA);
 
   // calibration streamer properties
   IJobOptionsSvc*       m_jobOptionsSvc;
   BooleanProperty m_allowOksConfig; 
   StringProperty  m_calBufferName;
   int m_calBufferSize;
-
+  xAOD::TrigCompositeContainer* m_trigCompositeContainer;
+ 
 };
 
 #endif // MUFASTSTEERING_H

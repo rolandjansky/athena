@@ -3,6 +3,8 @@
 */
 
 #include "TrigL2MuonSA/TgcRoadDefiner.h"
+#include "xAODTrigMuon/L2StandAloneMuonAuxContainer.h"
+#include "xAODTrigMuon/TrigMuonDefs.h"
 #include "CLHEP/Units/PhysicalConstants.h"
 #include "TrigL2MuonSA/MdtRegion.h"
 
@@ -15,8 +17,7 @@
 TrigL2MuonSA::TgcRoadDefiner::TgcRoadDefiner(MsgStream* msg)
    : m_msg(msg), 
      m_tgcFit(msg,10), // chi2 value 10 given by hand for now
-     m_rWidth_TGC_Failed(0),
-     m_use_new_geometry(1)
+     m_rWidth_TGC_Failed(0)
 {
 }
 
@@ -30,18 +31,8 @@ TrigL2MuonSA::TgcRoadDefiner::~TgcRoadDefiner(void)
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-void TrigL2MuonSA::TgcRoadDefiner::setMdtGeometry(const MDTGeometry* mdtGeometry)
-{
-  m_use_new_geometry = false;
-  m_mdtGeometry = mdtGeometry;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
 void TrigL2MuonSA::TgcRoadDefiner::setMdtGeometry(IRegSelSvc* regionSelector, const MdtIdHelper* mdtIdHelper)
 {
-  m_use_new_geometry = true;
   m_regionSelector = regionSelector;
   m_mdtIdHelper = mdtIdHelper;
 }
@@ -97,6 +88,12 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*    p_roi,
   double roiEta;
   double theta;
   double aw;
+  int endcap_inner = xAOD::L2MuonParameters::Chamber::EndcapInner; 
+  int endcap_middle = xAOD::L2MuonParameters::Chamber::EndcapMiddle; 
+  int endcap_outer = xAOD::L2MuonParameters::Chamber::EndcapOuter;
+  int endcap_extra = xAOD::L2MuonParameters::Chamber::EndcapExtra;
+  int barrel_inner = xAOD::L2MuonParameters::Chamber::BarrelInner;
+  int csc = xAOD::L2MuonParameters::Chamber::CSC;
  
   if (tgcHits.size()>0) {
     // TGC data is properly read
@@ -193,42 +190,45 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*    p_roi,
     float X2 = tgcFitResult.tgcMid2[3] * cos(tgcFitResult.tgcMid2[1]);
     float Y2 = tgcFitResult.tgcMid2[3] * sin(tgcFitResult.tgcMid2[1]);
     tgcFitResult.phiDir = (Y1/X1 + Y2/X2)/2.;
+
     
     if( ! isMiddleFailure ) {
-      muonRoad.aw[4][0]     = tgcFitResult.slope;
-      muonRoad.bw[4][0]     = tgcFitResult.intercept;
-      muonRoad.aw[5][0]     = tgcFitResult.slope;
-      muonRoad.bw[5][0]     = tgcFitResult.intercept;
-      muonRoad.aw[6][0]     = tgcFitResult.slope;
-      muonRoad.bw[6][0]     = tgcFitResult.intercept;
+      muonRoad.aw[endcap_middle][0]     = tgcFitResult.slope;
+      muonRoad.bw[endcap_middle][0]     = tgcFitResult.intercept;
+      muonRoad.aw[endcap_outer][0]     = tgcFitResult.slope;
+      muonRoad.bw[endcap_outer][0]     = tgcFitResult.intercept;
+      muonRoad.aw[endcap_extra][0]     = tgcFitResult.slope;
+      muonRoad.bw[endcap_extra][0]     = tgcFitResult.intercept;
       for (int i_layer=0; i_layer<8; i_layer++) {
-	muonRoad.rWidth[4][i_layer] = R_WIDTH_DEFAULT;
-	muonRoad.rWidth[5][i_layer] = R_WIDTH_DEFAULT;
-	muonRoad.rWidth[6][i_layer] = R_WIDTH_DEFAULT;
+	muonRoad.rWidth[endcap_middle][i_layer] = R_WIDTH_DEFAULT;
+	muonRoad.rWidth[endcap_outer][i_layer] = R_WIDTH_DEFAULT;
+	muonRoad.rWidth[endcap_extra][i_layer] = R_WIDTH_DEFAULT;
       }
     } else {
       roiEta = p_roi->eta();
       theta  = atan(exp(-fabs(roiEta)))*2.;
       aw     = (fabs(roiEta) > ZERO_LIMIT)? tan(theta)*(fabs(roiEta)/roiEta): 0.;
-      muonRoad.aw[4][0]     = aw;
-      muonRoad.bw[4][0]     = 0;
-      muonRoad.aw[5][0]     = aw;
-      muonRoad.bw[5][0]     = 0;
-      muonRoad.aw[6][0]     = aw;
-      muonRoad.bw[6][0]     = 0;
+      muonRoad.aw[endcap_middle][0]     = aw;
+      muonRoad.bw[endcap_middle][0]     = 0;
+      muonRoad.aw[endcap_outer][0]     = aw;
+      muonRoad.bw[endcap_outer][0]     = 0;
+      muonRoad.aw[endcap_extra][0]     = aw;
+      muonRoad.bw[endcap_extra][0]     = 0;
       for (int i_layer=0; i_layer<8; i_layer++) {
-	muonRoad.rWidth[4][i_layer] = R_WIDTH_MIDDLE_NO_HIT;
-	muonRoad.rWidth[5][i_layer] = R_WIDTH_MIDDLE_NO_HIT;
-	muonRoad.rWidth[6][i_layer] = R_WIDTH_MIDDLE_NO_HIT;
+	muonRoad.rWidth[endcap_middle][i_layer] = R_WIDTH_MIDDLE_NO_HIT;
+	muonRoad.rWidth[endcap_outer][i_layer] = R_WIDTH_MIDDLE_NO_HIT;
+	muonRoad.rWidth[endcap_extra][i_layer] = R_WIDTH_MIDDLE_NO_HIT;
       }
     }
     
     
     if( fabs(tgcFitResult.tgcInn[3]) > ZERO_LIMIT ) {
-      muonRoad.aw[3][0]  = tgcFitResult.tgcInn[2]/tgcFitResult.tgcInn[3];
-      muonRoad.aw[0][0]  = tgcFitResult.tgcInn[2]/tgcFitResult.tgcInn[3];
-      for (int i_layer=0; i_layer<8; i_layer++) muonRoad.rWidth[3][i_layer] = R_WIDTH_DEFAULT;
-      for (int i_layer=0; i_layer<8; i_layer++) muonRoad.rWidth[0][i_layer] = R_WIDTH_DEFAULT;
+      muonRoad.aw[endcap_inner][0]  = tgcFitResult.tgcInn[2]/tgcFitResult.tgcInn[3];
+      muonRoad.aw[barrel_inner][0]  = tgcFitResult.tgcInn[2]/tgcFitResult.tgcInn[3];
+      muonRoad.aw[csc][0]           = tgcFitResult.tgcInn[2]/tgcFitResult.tgcInn[3];
+      for (int i_layer=0; i_layer<8; i_layer++) muonRoad.rWidth[endcap_inner][i_layer] = R_WIDTH_DEFAULT;
+      for (int i_layer=0; i_layer<8; i_layer++) muonRoad.rWidth[barrel_inner][i_layer] = R_WIDTH_DEFAULT;
+      for (int i_layer=0; i_layer<8; i_layer++) muonRoad.rWidth[csc][i_layer]          = R_WIDTH_DEFAULT;
     } else {
       // use the back extrapolator to retrieve the Etain the Innermost
       
@@ -238,37 +238,48 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*    p_roi,
       double sigma_eta;
       double extrInnerEta = 0;
       
-      MuonFeature* feature =  new MuonFeature(-1,tgcFitResult.tgcPT,0.,etaMiddle,phiMiddle,0.,0.,0.,1.0);
-      
+      xAOD::L2StandAloneMuon* muonSA = new xAOD::L2StandAloneMuon();
+      muonSA->makePrivateStore();
+      muonSA->setSAddress(-1);
+      muonSA->setPt(tgcFitResult.tgcPT);
+      muonSA->setEtaMS(etaMiddle);
+      muonSA->setPhiMS(phiMiddle);
+      muonSA->setRMS(0.);
+      muonSA->setZMS(0.);
+
       double phi;
       double sigma_phi;
       StatusCode sc
-	= (*m_backExtrapolatorTool)->give_eta_phi_at_vertex(feature, eta,sigma_eta,phi,sigma_phi,0.);
+	= (*m_backExtrapolatorTool)->give_eta_phi_at_vertex(muonSA, eta,sigma_eta,phi,sigma_phi,0.);
       if (sc.isSuccess() ){
 	extrInnerEta = eta;
       } else {
 	extrInnerEta = etaMiddle;
       }
 
-      if (feature) delete feature;
+      if (muonSA) delete muonSA;
       
       double theta = 0.;
       if (extrInnerEta != 0.) {
 	theta = atan(exp(-fabs(extrInnerEta)))*2.;
-	muonRoad.aw[3][0] = tan(theta)*(fabs(extrInnerEta)/extrInnerEta);
-	muonRoad.aw[0][0] = tan(theta)*(fabs(extrInnerEta)/extrInnerEta);
+	muonRoad.aw[endcap_inner][0] = tan(theta)*(fabs(extrInnerEta)/extrInnerEta);
+	muonRoad.aw[barrel_inner][0] = tan(theta)*(fabs(extrInnerEta)/extrInnerEta);
+	muonRoad.aw[csc][0]          = tan(theta)*(fabs(extrInnerEta)/extrInnerEta);
       } else {
-	muonRoad.aw[3][0] = 0;
-	muonRoad.aw[0][0] = 0;
+	muonRoad.aw[endcap_inner][0] = 0;
+	muonRoad.aw[barrel_inner][0] = 0;
+	muonRoad.aw[csc][0]          = 0;
       }
       
-      for (int i_layer=0; i_layer<8; i_layer++) muonRoad.rWidth[3][i_layer] = R_WIDTH_INNER_NO_HIT;
-      for (int i_layer=0; i_layer<8; i_layer++) muonRoad.rWidth[0][i_layer] = R_WIDTH_INNER_NO_HIT;
+      for (int i_layer=0; i_layer<8; i_layer++) muonRoad.rWidth[endcap_inner][i_layer] = R_WIDTH_INNER_NO_HIT;
+      for (int i_layer=0; i_layer<8; i_layer++) muonRoad.rWidth[barrel_inner][i_layer] = R_WIDTH_INNER_NO_HIT;
+      for (int i_layer=0; i_layer<8; i_layer++) muonRoad.rWidth[csc][i_layer]          = R_WIDTH_INNER_NO_HIT;
       
     }
     
-    muonRoad.bw[3][0] = 0.;
-    muonRoad.bw[0][0] = 0.;
+    muonRoad.bw[endcap_inner][0] = 0.;
+    muonRoad.bw[barrel_inner][0] = 0.;
+    muonRoad.bw[csc][0]          = 0.;
     
   } else {
     // If no TGC hit are available, estimate the road from RoI
@@ -277,22 +288,25 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*    p_roi,
     theta  = atan(exp(-fabs(roiEta)))*2.;
     aw     = (fabs(roiEta) > ZERO_LIMIT)? tan(theta)*(fabs(roiEta)/roiEta): 0.;
     
-    muonRoad.aw[3][0]     = aw;
-    muonRoad.bw[3][0]     = 0;
-    muonRoad.aw[4][0]     = aw;
-    muonRoad.bw[4][0]     = 0;
-    muonRoad.aw[5][0]     = aw;
-    muonRoad.bw[5][0]     = 0;
-    muonRoad.aw[6][0]     = aw;
-    muonRoad.bw[6][0]     = 0;
-    muonRoad.aw[0][0]     = aw;
-    muonRoad.bw[0][0]     = 0;
+    muonRoad.aw[endcap_inner][0]     = aw;
+    muonRoad.bw[endcap_inner][0]     = 0;
+    muonRoad.aw[endcap_middle][0]     = aw;
+    muonRoad.bw[endcap_middle][0]     = 0;
+    muonRoad.aw[endcap_outer][0]     = aw;
+    muonRoad.bw[endcap_outer][0]     = 0;
+    muonRoad.aw[endcap_extra][0]     = aw;
+    muonRoad.bw[endcap_extra][0]     = 0;
+    muonRoad.aw[barrel_inner][0]     = aw;
+    muonRoad.bw[barrel_inner][0]     = 0;
+    muonRoad.aw[csc][0]     = aw;
+    muonRoad.bw[csc][0]     = 0;
     for (int i_layer=0; i_layer<8; i_layer++) {
-      muonRoad.rWidth[3][i_layer] = m_rWidth_TGC_Failed;
-      muonRoad.rWidth[4][i_layer] = m_rWidth_TGC_Failed;
-      muonRoad.rWidth[5][i_layer] = m_rWidth_TGC_Failed;
-      muonRoad.rWidth[6][i_layer] = m_rWidth_TGC_Failed;
-      muonRoad.rWidth[0][i_layer] = m_rWidth_TGC_Failed;
+      muonRoad.rWidth[endcap_inner][i_layer] = m_rWidth_TGC_Failed;
+      muonRoad.rWidth[endcap_middle][i_layer] = m_rWidth_TGC_Failed;
+      muonRoad.rWidth[endcap_outer][i_layer] = m_rWidth_TGC_Failed;
+      muonRoad.rWidth[endcap_extra][i_layer] = m_rWidth_TGC_Failed;
+      muonRoad.rWidth[barrel_inner][i_layer] = m_rWidth_TGC_Failed;
+      muonRoad.rWidth[csc][i_layer] = m_rWidth_TGC_Failed;
     }
   }
  
@@ -314,72 +328,66 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*    p_roi,
   muonRoad.side      = side;
   muonRoad.phiMiddle = phiMiddle;
   muonRoad.phiRoI    = p_roi->phi();
-  if(m_use_new_geometry){
   
-    int sector_trigger = 99;
-    int sector_overlap = 99;
-    int temp_sector=99;
-    float deltaPhi=99;
-    float tempDeltaPhi=99;
-    std::vector<Identifier> stationList;
-    std::vector<IdentifierHash> mdtHashList;
+  int sector_trigger = 99;
+  int sector_overlap = 99;
+  int temp_sector=99;
+  float deltaPhi=99;
+  float tempDeltaPhi=99;
+  std::vector<Identifier> stationList;
+  std::vector<IdentifierHash> mdtHashList;
+  
+  // get sector_trigger and sector_overlap by using the region selector
+  IdContext context = m_mdtIdHelper->module_context();
+  
+  double etaMin =  p_roi->eta()-.02;
+  double etaMax =  p_roi->eta()+.02;
+  double phiMin = muonRoad.phiMiddle-.01;
+  double phiMax = muonRoad.phiMiddle+.01;
+  if(phiMax > CLHEP::pi) phiMax -= CLHEP::pi*2.;
+  if(phiMin < CLHEP::pi*-1) phiMin += CLHEP::pi*2.;
+  TrigRoiDescriptor* roi = new TrigRoiDescriptor( p_roi->eta(), etaMin, etaMax, p_roi->phi(), phiMin, phiMax ); 
+  const IRoiDescriptor* iroi = (IRoiDescriptor*) roi;
+  m_regionSelector->DetHashIDList(MDT, *iroi, mdtHashList);
+  if(roi) delete roi;
+  
+  for(int i_hash=0; i_hash<(int)mdtHashList.size(); i_hash++){
+    Identifier id;
+    int convert = m_mdtIdHelper->get_id(mdtHashList[i_hash], id, &context);
+    if(convert!=0)
+      msg() << MSG::ERROR << "problem converting hash list to id" << endreq;
+    muonRoad.stationList.push_back(id);
+    std::string name = m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(id));
+    int stationPhi = m_mdtIdHelper->stationPhi(id);
+    float floatPhi = (stationPhi-1)*CLHEP::pi/4;
+    if (name[2]=='S') floatPhi = floatPhi + CLHEP::pi/8;
+    tempDeltaPhi = fabs(floatPhi-muonRoad.phiMiddle);
+    if (phiMiddle<0) tempDeltaPhi = fabs(floatPhi-muonRoad.phiMiddle-2*CLHEP::pi);
+    if(tempDeltaPhi > CLHEP::pi) tempDeltaPhi = fabs(tempDeltaPhi - 2*CLHEP::pi);
     
-    // get sector_trigger and sector_overlap by using the region selector
-    IdContext context = m_mdtIdHelper->module_context();
-
-    double etaMin =  p_roi->eta()-.02;
-    double etaMax =  p_roi->eta()+.02;
-    double phiMin = muonRoad.phiMiddle-.01;
-    double phiMax = muonRoad.phiMiddle+.01;
-    if(phiMax > CLHEP::pi) phiMax -= CLHEP::pi*2.;
-    if(phiMin < CLHEP::pi*-1) phiMin += CLHEP::pi*2.;
-    TrigRoiDescriptor* roi = new TrigRoiDescriptor( p_roi->eta(), etaMin, etaMax, p_roi->phi(), phiMin, phiMax ); 
-    const IRoiDescriptor* iroi = (IRoiDescriptor*) roi;
-      m_regionSelector->DetHashIDList(MDT, *iroi, mdtHashList);
-
-
-    for(int i_hash=0; i_hash<(int)mdtHashList.size(); i_hash++){
-      Identifier id;
-      int convert = m_mdtIdHelper->get_id(mdtHashList[i_hash], id, &context);
-      if(convert!=0)
-	msg() << MSG::ERROR << "problem converting hash list to id" << endreq;
-      muonRoad.stationList.push_back(id);
-      int stationPhi = m_mdtIdHelper->stationPhi(id);
-      tempDeltaPhi = fabs(stationPhi-muonRoad.phiMiddle);
-      if(tempDeltaPhi > CLHEP::pi) tempDeltaPhi = tempDeltaPhi - 2*CLHEP::pi;
-      
-      std::string name = m_mdtIdHelper->stationNameString(m_mdtIdHelper->stationName(id));
-      
-      int LargeSmall = 0;
-      if(name[2]=='S') LargeSmall = 1;
-      int sector = (stationPhi-1)*2 + LargeSmall;
-      if(sector_trigger == 99)
-	sector_trigger = sector;
-      else if(sector_trigger != sector)
-	sector_overlap = sector;
-      
-      if(tempDeltaPhi < deltaPhi){
-	deltaPhi = tempDeltaPhi;
-	temp_sector = sector;
-      }
-      
-    }
-    if(temp_sector != sector_trigger){
-      sector_overlap = sector_trigger;
-      sector_trigger = temp_sector;  
+    int LargeSmall = 0;
+    if(name[2]=='S') LargeSmall = 1;
+    int sector = (stationPhi-1)*2 + LargeSmall;
+    if(sector_trigger == 99)
+      sector_trigger = sector;
+    else if(sector_trigger != sector)
+      sector_overlap = sector;
+    
+    if(tempDeltaPhi < deltaPhi){
+      deltaPhi = tempDeltaPhi;
+      temp_sector = sector;
+      muonRoad.LargeSmall=LargeSmall;
     }
     
-    muonRoad.MDT_sector_trigger = sector_trigger;
-    muonRoad.MDT_sector_overlap = sector_overlap;
-
-  } else { // old geometry
-    int sector_trigger = 0;
-    int sector_overlap = 0;
-    m_mdtGeometry->getEsects(1, muonRoad.side, muonRoad.phiMiddle, sector_trigger, sector_overlap);
-    
-    muonRoad.MDT_sector_trigger = sector_trigger;
-    muonRoad.MDT_sector_overlap = sector_overlap;
   }
+  if(temp_sector != sector_trigger){
+    sector_overlap = sector_trigger;
+    sector_trigger = temp_sector;  
+  }
+  
+  muonRoad.MDT_sector_trigger = sector_trigger;
+  muonRoad.MDT_sector_overlap = sector_overlap;
+  
   //
   return true;
 }

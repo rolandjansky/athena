@@ -5,15 +5,13 @@
 #ifndef  TRIGL2MUONSA_MDTDATAPREPARATOR_H
 #define  TRIGL2MUONSA_MDTDATAPREPARATOR_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IMessageSvc.h"
 
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
-#include "TGCgeometry/TGCgeometrySvc.h" // necessary to avoid compiler warning
 #include "TrigT1Interfaces/RecMuonRoI.h"
-#include "MDTcabling/IMDTcablingSvc.h"
 #include "RegionSelector/IRegSelSvc.h"
 #include "Identifier/IdentifierHash.h"
 #include "MuonRDO/MdtCsmContainer.h"
@@ -41,7 +39,7 @@ namespace MuonGM{
 
 namespace TrigL2MuonSA {
   
-  class MdtDataPreparator: public AlgTool
+  class MdtDataPreparator: public AthAlgTool
   {
   public:
     
@@ -74,7 +72,6 @@ namespace TrigL2MuonSA {
 			   TrigL2MuonSA::MdtHits&            mdtHits_normal,
 			   TrigL2MuonSA::MdtHits&            mdtHits_overlap);
 
-    void setGeometry(bool use_new_geometry);
     void setRpcGeometry(bool use_rpc);
 
   private:
@@ -117,8 +114,6 @@ namespace TrigL2MuonSA {
     ToolHandle<Muon::IMuonRawDataProviderTool>  m_mdtRawDataProvider;
     
     // Cabling
-    ServiceHandle<IMDTcablingSvc>  m_mdtCablingSvcOld;
-    // Cabling (new)
     MuonMDT_CablingSvc* m_mdtCabling;
     
     // Geometry Services
@@ -137,8 +132,6 @@ namespace TrigL2MuonSA {
     // Utils
     TrigL2MuonSA::RecMuonRoIUtils m_recMuonRoIUtils;
    
-    BooleanProperty m_use_new_geometry;
-
     //
     TrigL2MuonSA::MdtRegionDefiner*  m_mdtRegionDefiner;
   };

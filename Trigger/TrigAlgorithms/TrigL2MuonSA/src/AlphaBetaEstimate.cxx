@@ -32,7 +32,8 @@ TrigL2MuonSA::AlphaBetaEstimate::~AlphaBetaEstimate()
 
 StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*   p_roi,
 							 TrigL2MuonSA::TgcFitResult& tgcFitResult,
-							 TrigL2MuonSA::TrackPattern& trackPattern)
+							 TrigL2MuonSA::TrackPattern& trackPattern,
+                                                         const TrigL2MuonSA::MuonRoad& muonRoad)
 {
   const int MAX_STATION = 5;
   const double PHI_RANGE = 12./(CLHEP::pi/8.);
@@ -159,22 +160,20 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     trackPattern.phiBin = static_cast<int>(PhiInOctant * PHI_RANGE);
     trackPattern.etaBin = static_cast<int>((fabs(tgcFitResult.tgcMid1[0])-1.)/0.05);
     
-    //Small phi bin
-    if ( ClassifySL(tgcFitResult.tgcMid1[1])==0 ){
+    if ( muonRoad.LargeSmall==1 ){//Small
       int OctantSmall = Octant;
       double PhiInOctantSmall = PhiInOctant;
       if(tgcFitResult.tgcMid1[1]<0) PhiInOctantSmall = fabs(tgcFitResult.tgcMid1[1] - (OctantSmall-1)*(CLHEP::pi/4.));
       trackPattern.phiBin24 = PhiInOctantSmall * PHI_RANGE;
-      trackPattern.smallLarge = 0;
-    }
-    //Large phi bin
-    else if ( ClassifySL(tgcFitResult.tgcMid1[1]==1)) {
+      trackPattern.smallLarge = 1;
+    } 
+    else {//Large
       double tgcPhi = tgcFitResult.tgcMid1[1] + CLHEP::pi/8;
       int OctantLarge = (int)(tgcPhi / (CLHEP::pi/4.));
       double PhiInOctantLarge = fabs(tgcPhi - OctantLarge * (CLHEP::pi/4));
       if (tgcPhi<0) PhiInOctantLarge = fabs(tgcPhi - (OctantLarge-1)*(CLHEP::pi/4.));
       trackPattern.phiBin24 = PhiInOctantLarge * PHI_RANGE;
-      trackPattern.smallLarge = 1;
+      trackPattern.smallLarge = 0;
     }
 
   } else {
@@ -199,22 +198,20 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     trackPattern.phiBin = static_cast<int>(PhiInOctant * PHI_RANGE);
     trackPattern.etaBin = static_cast<int>((fabs(p_roi->eta())-1.)/0.05);
     
-    //Small phi bin
-    if ( ClassifySL(tgcFitResult.tgcMid1[1])==0 ){
+    if ( muonRoad.LargeSmall==1){//Small
       int OctantSmall = Octant;
       double PhiInOctantSmall = PhiInOctant;
       if(tgcFitResult.tgcMid1[1]<0) PhiInOctantSmall = fabs(tgcFitResult.tgcMid1[1] - (OctantSmall-1)*(CLHEP::pi/4.));
       trackPattern.phiBin24 = PhiInOctantSmall * PHI_RANGE;
-      trackPattern.smallLarge = 0;
+      trackPattern.smallLarge = 1;
     }
-    //Large phi bin
-    else if ( ClassifySL(tgcFitResult.tgcMid1[1]==1)) {
+    else {//Large
       double tgcPhi = tgcFitResult.tgcMid1[1] + CLHEP::pi/8;
       int OctantLarge = (int)(tgcPhi / (CLHEP::pi/4.));
       double PhiInOctantLarge = fabs(tgcPhi - OctantLarge * (CLHEP::pi/4));
       if (tgcPhi<0) PhiInOctantLarge = fabs(tgcPhi - (OctantLarge-1)*(CLHEP::pi/4.));
       trackPattern.phiBin24 = PhiInOctantLarge * PHI_RANGE;
-      trackPattern.smallLarge = 1;
+      trackPattern.smallLarge = 0;
     }
   }
 
@@ -263,7 +260,7 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
     trackPattern.endcapRadius3P = computeRadius3Points(EBIZ, EBIR, EEZ, EER, MiddleZ, MiddleR);
   }
 
-  msg() << MSG::DEBUG << "... trackPattern.alpha/beta/endcapRadius/charge/s_address="
+  msg() << MSG::DEBUG << "... alpha/beta/endcapRadius/charge/s_address="
 	<< trackPattern.endcapAlpha << "/" << trackPattern.endcapBeta << "/" << trackPattern.endcapRadius3P << "/" 
 	<< trackPattern.charge << "/" << trackPattern.s_address << endreq;
   // 
@@ -347,21 +344,6 @@ double TrigL2MuonSA::AlphaBetaEstimate::computeRadius3Points(double InnerZ, doub
   radius_EE = sqrt(x0*x0 + y0*y0);
   return radius_EE;
 }
-
-int TrigL2MuonSA::AlphaBetaEstimate::ClassifySL(double tgcPhi){//Small:0, Large:1
-  int SL;
-  if (fabs(tgcPhi)>0.24 && fabs(tgcPhi)<0.56) SL=0; 
-  if (fabs(tgcPhi)>1.04 && fabs(tgcPhi)<1.36) SL=0; 
-  if (fabs(tgcPhi)>1.84 && fabs(tgcPhi)<2.16) SL=0; 
-  if (fabs(tgcPhi)>2.64 && fabs(tgcPhi)<2.96) SL=0; 
-  if (fabs(tgcPhi)<0.25) SL=1; 
-  if (fabs(tgcPhi)>0.55 && fabs(tgcPhi)<1.05) SL=1; 
-  if (fabs(tgcPhi)>1.35 && fabs(tgcPhi)<1.85) SL=1; 
-  if (fabs(tgcPhi)>2.15 && fabs(tgcPhi)<2.65) SL=1; 
-  if (fabs(tgcPhi)>2.95) SL=1; 
-  return SL;
-}
-
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------

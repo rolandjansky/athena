@@ -5,21 +5,20 @@
 #ifndef  TRIGL2MUONSA_MUFASTTRACKEXTRAPOLATOR_H
 #define  TRIGL2MUONSA_MUFASTTRACKEXTRAPOLATOR_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "TrigL2MuonSA/TrackData.h"
 
-#include "TrigMuonEvent/MuonFeature.h"
 #include "TrigMuonBackExtrapolator/ITrigMuonBackExtrapolator.h"
 
 class StoreGateSvc;
 
 namespace TrigL2MuonSA {
   
-  class MuFastTrackExtrapolator: public AlgTool
+  class MuFastTrackExtrapolator: public AthAlgTool
   {
   public:
     

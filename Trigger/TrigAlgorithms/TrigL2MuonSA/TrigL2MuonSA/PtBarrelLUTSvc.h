@@ -6,7 +6,7 @@
 #define TRIGL2MUONSA_PTBARRELLUTSVC_H
 
 #include <string>
-#include "GaudiKernel/Service.h"
+#include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
@@ -15,7 +15,7 @@
 
 namespace TrigL2MuonSA {
   
-  class PtBarrelLUTSvc : public Service, virtual public IInterface
+  class PtBarrelLUTSvc : public AthService, virtual public IInterface
   {
   public:
     static const InterfaceID& interfaceID() { 

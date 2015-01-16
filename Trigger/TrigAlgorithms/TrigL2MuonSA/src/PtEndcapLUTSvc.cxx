@@ -8,7 +8,7 @@
 #include "PathResolver/PathResolver.h"
 
 TrigL2MuonSA::PtEndcapLUTSvc::PtEndcapLUTSvc(const std::string& name, ISvcLocator* sl) :
-  Service(name,sl),
+  AthService(name,sl),
   m_msg(0),
   m_ptEndcapLUT(0)
 {
@@ -27,7 +27,7 @@ StatusCode TrigL2MuonSA::PtEndcapLUTSvc::queryInterface(const InterfaceID& riid,
   } else {
     log << MSG::DEBUG << name() << " cannot find the interface!"
 	<< " Query the interface of the base class." << endreq;
-    return Service::queryInterface(riid, ppvIF);
+    return AthService::queryInterface(riid, ppvIF);
   }
 }
 
@@ -41,7 +41,7 @@ StatusCode TrigL2MuonSA::PtEndcapLUTSvc::initialize()
 
   StatusCode sc;
   
-  sc = Service::initialize();
+  sc = AthService::initialize();
   if ( sc.isFailure() ) return sc;
  
   // implement the search of LUT trought the pathresolver Tool.

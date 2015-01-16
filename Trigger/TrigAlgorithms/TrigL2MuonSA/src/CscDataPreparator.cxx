@@ -31,7 +31,7 @@ const InterfaceID& TrigL2MuonSA::CscDataPreparator::interfaceID() { return IID_C
 TrigL2MuonSA::CscDataPreparator::CscDataPreparator(const std::string& type, 
 						   const std::string& name,
 						   const IInterface*  parent): 
-   AlgTool(type,name,parent),
+   AthAlgTool(type,name,parent),
    m_msg(0),
    m_storeGateSvc( "StoreGateSvc", name ),
    p_ActiveStore(0),
@@ -63,9 +63,9 @@ StatusCode TrigL2MuonSA::CscDataPreparator::initialize()
    msg() << MSG::DEBUG << "Initializing CscDataPreparator - package version " << PACKAGE_VERSION << endreq ;
    
    StatusCode sc;
-   sc = AlgTool::initialize();
+   sc = AthAlgTool::initialize();
    if (!sc.isSuccess()) {
-      msg() << MSG::ERROR << "Could not initialize the AlgTool base class." << endreq;
+      msg() << MSG::ERROR << "Could not initialize the AthAlgTool base class." << endreq;
       return sc;
    }
    
@@ -139,8 +139,7 @@ StatusCode TrigL2MuonSA::CscDataPreparator::initialize()
 // --------------------------------------------------------------------------------
 
 StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const LVL1::RecMuonRoI* p_roi,
-							//TrigL2MuonSA::MuonRoad& muonRoad,
-							double aw, double bw, double rWidth,
+							TrigL2MuonSA::MuonRoad& muonRoad,
 							TrigL2MuonSA::CscHits&  cscHits)
 {
   StatusCode sc;
@@ -149,8 +148,7 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const LVL1::RecMuonRoI* 
   // Region definer, like mdtRegion, is not used for now.
   //
 
-  //sc = getCscHits(p_roi, muonRoad, cscHits);
-  sc = getCscHits(p_roi, aw, bw, rWidth, cscHits);
+  sc = getCscHits(p_roi, muonRoad, cscHits);
   if( sc!= StatusCode::SUCCESS ) {
     msg() << MSG::ERROR << "Error in getting CSC hits" << endreq;
     return sc;
@@ -163,28 +161,26 @@ StatusCode TrigL2MuonSA::CscDataPreparator::prepareData(const LVL1::RecMuonRoI* 
 // --------------------------------------------------------------------------------
 
 StatusCode TrigL2MuonSA::CscDataPreparator::getCscHits(const LVL1::RecMuonRoI* p_roi,
-						       //TrigL2MuonSA::MuonRoad& muonRoad,
-						       double aw, double bw, double rWidth,
+						       TrigL2MuonSA::MuonRoad& muonRoad,
 						       TrigL2MuonSA::CscHits&  cscHits)
 {
-  // Prepare new RoI
-  float roi_eta = p_roi->eta();
-  float roi_phi = p_roi->phi();
-  if (roi_phi < 0) roi_phi += 2.0 * CLHEP::pi;
-  double etaMin = p_roi->eta() - 0.2;
-  double etaMax = p_roi->eta() + 0.2;
-  double phiMin = p_roi->phi() - 0.1;
-  double phiMax = p_roi->phi() + 0.1;
+  // Prepare new RoI object
+  double eta     = p_roi->eta();
+  double etaMin  = p_roi->eta() - 0.2;
+  double etaMax  = p_roi->eta() + 0.2;
+  double phi     = p_roi->phi();
+  double phiMin  = p_roi->phi() - 0.1;
+  double phiMax  = p_roi->phi() + 0.1;
+  if( phi < 0 )    phi += 2*CLHEP::pi;
   if( phiMin < 0 ) phiMin += 2*CLHEP::pi;
   if( phiMax < 0 ) phiMax += 2*CLHEP::pi;
 
-  TrigRoiDescriptor* newRoI = 0;
-  newRoI = new TrigRoiDescriptor(roi_eta, etaMin, etaMax, roi_phi, phiMin, phiMax);
+  TrigRoiDescriptor newRoI( eta, etaMin, etaMax, phi, phiMin, phiMax );
 
   // Select RoI hits
   std::vector<IdentifierHash> cscHashIDs;
   cscHashIDs.clear();
-  m_regionSelector->DetHashIDList( CSC, *newRoI, cscHashIDs );
+  m_regionSelector->DetHashIDList( CSC, newRoI, cscHashIDs );
 
   // Decode
   std::vector<IdentifierHash> cscHashIDs_decode;
@@ -238,53 +234,56 @@ StatusCode TrigL2MuonSA::CscDataPreparator::getCscHits(const LVL1::RecMuonRoI* p
 	const Muon::CscPrepData& prepData = **cit;
 
 	// Road info
-	/*
-	double aw = muonRoad.aw[0][0];
-	double bw = muonRoad.bw[0][0];
-	double rWidth = muonRoad.rWidth[0][0];
-	*/
+	int chamber = xAOD::L2MuonParameters::Chamber::CSC;
+	double aw = muonRoad.aw[chamber][0];
+	double bw = muonRoad.bw[chamber][0];
+	double rWidth = muonRoad.rWidth[chamber][0];
 
 	// Create new digit
-	TrigL2MuonSA::CscHitData lutDigit;
-	lutDigit.StationName  = m_cscIdHelper->stationName( prepData.identify() );
-	lutDigit.StationEta   = m_cscIdHelper->stationEta( prepData.identify() );
-	lutDigit.StationPhi   = m_cscIdHelper->stationPhi( prepData.identify() );
-	lutDigit.ChamberLayer = m_cscIdHelper->chamberLayer( prepData.identify() );
-	lutDigit.WireLayer    = m_cscIdHelper->wireLayer( prepData.identify() );
-	lutDigit.MeasuresPhi  = m_cscIdHelper->measuresPhi( prepData.identify() );
-	lutDigit.Strip        = m_cscIdHelper->strip( prepData.identify() );
-	lutDigit.Chamber      = xAOD::L2MuonParameters::Chamber::CSC;
-	lutDigit.eta = prepData.globalPosition().eta();
-	lutDigit.phi = prepData.globalPosition().phi();
-	lutDigit.r   = prepData.globalPosition().perp();
-	lutDigit.z   = prepData.globalPosition().z();
-	lutDigit.charge = prepData.charge();
-	lutDigit.time   = prepData.time();
-	lutDigit.Residual = calc_residual( aw, bw, lutDigit.z, lutDigit.r );
-	lutDigit.isOutlier = 0;
-	if( fabs(lutDigit.Residual) > rWidth ) {
-	  lutDigit.isOutlier = 2;
+	TrigL2MuonSA::CscHitData cscHit;
+	cscHit.StationName  = m_cscIdHelper->stationName( prepData.identify() );
+	cscHit.StationEta   = m_cscIdHelper->stationEta( prepData.identify() );
+	cscHit.StationPhi   = m_cscIdHelper->stationPhi( prepData.identify() );
+	cscHit.ChamberLayer = m_cscIdHelper->chamberLayer( prepData.identify() );
+	cscHit.WireLayer    = m_cscIdHelper->wireLayer( prepData.identify() );
+	cscHit.MeasuresPhi  = m_cscIdHelper->measuresPhi( prepData.identify() );
+	cscHit.Strip        = m_cscIdHelper->strip( prepData.identify() );
+	cscHit.Chamber      = chamber;
+	cscHit.StripId = (cscHit.StationName << 18)
+	  | ((cscHit.StationEta + 2) << 16) | (cscHit.StationPhi << 12)
+	  | (cscHit.WireLayer << 9) | (cscHit.MeasuresPhi << 8) | (cscHit.Strip);
+	cscHit.eta = prepData.globalPosition().eta();
+	cscHit.phi = prepData.globalPosition().phi();
+	cscHit.r   = prepData.globalPosition().perp();
+	cscHit.z   = prepData.globalPosition().z();
+	cscHit.charge = prepData.charge();
+	cscHit.time   = prepData.time();
+	cscHit.Residual = calc_residual( aw, bw, cscHit.z, cscHit.r );
+	cscHit.isOutlier = 0;
+	if( fabs(cscHit.Residual) > rWidth ) {
+	  cscHit.isOutlier = 2;
 	}
 
-	cscHits.push_back( lutDigit );
+	cscHits.push_back( cscHit );
 
 	// Debug print
        	msg() << MSG::DEBUG << "CSC Hits: "
-	      << "SN=" << lutDigit.StationName << ","
-	      << "SE=" << lutDigit.StationEta << ","
-	      << "SP=" << lutDigit.StationPhi << ","
-	      << "CL=" << lutDigit.ChamberLayer << ","
-	      << "WL=" << lutDigit.WireLayer << ","
-	      << "MP=" << lutDigit.MeasuresPhi << ","
-	      << "St=" << lutDigit.Strip << ","
-	      << "eta=" << lutDigit.eta << ","
-	      << "phi=" << lutDigit.phi << ","
-	      << "r=" << lutDigit.r << ","
-	      << "z=" << lutDigit.z << ","
-	      << "q=" << lutDigit.charge << ","
-	      << "t=" << lutDigit.time << ","
-	      << "Rs=" << lutDigit.Residual << ","
-	      << "OL=" << lutDigit.isOutlier << endreq;
+	      << "SN="  << cscHit.StationName << ","
+	      << "SE="  << cscHit.StationEta << ","
+	      << "SP="  << cscHit.StationPhi << ","
+	      << "CL="  << cscHit.ChamberLayer << ","
+	      << "WL="  << cscHit.WireLayer << ","
+	      << "MP="  << cscHit.MeasuresPhi << ","
+	      << "St="  << cscHit.Strip << ","
+	      << "ID="  << cscHit.StripId << ","
+	      << "eta=" << cscHit.eta << ","
+	      << "phi=" << cscHit.phi << ","
+	      << "r="   << cscHit.r << ","
+	      << "z="   << cscHit.z << ","
+	      << "q="   << cscHit.charge << ","
+	      << "t="   << cscHit.time << ","
+	      << "Rs="  << cscHit.Residual << ","
+	      << "OL="  << cscHit.isOutlier << endreq;
       }
     }
   }
@@ -316,7 +315,7 @@ StatusCode TrigL2MuonSA::CscDataPreparator::finalize()
    // delete message stream
    if ( m_msg ) delete m_msg;
    
-   StatusCode sc = AlgTool::finalize(); 
+   StatusCode sc = AthAlgTool::finalize(); 
    return sc;
 }
 

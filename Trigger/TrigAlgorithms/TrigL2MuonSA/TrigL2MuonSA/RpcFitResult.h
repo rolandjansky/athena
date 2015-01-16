@@ -31,6 +31,10 @@ namespace TrigL2MuonSA {
       isPhiDir   = false;
       phi        = 0;
       dPhidZ     = 0;
+      ZoverR_middle = 0;
+      ZoverR_outer  = 0;
+      phi_middle    = 0;
+      phi_outer     = 0;
       for(int i=0; i<4; i++) { rpc1[i]=0; rpc2[i]=0; rpc3[i]=0; }
     };
     
@@ -51,6 +55,11 @@ namespace TrigL2MuonSA {
     bool   isPhiDir;
     double phi;
     double dPhidZ;
+    
+    double ZoverR_middle;
+    double ZoverR_outer;
+    double phi_middle;
+    double phi_outer;
   };
 }
 

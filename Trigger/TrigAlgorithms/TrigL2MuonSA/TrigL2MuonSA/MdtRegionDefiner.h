@@ -11,8 +11,6 @@
 
 #include "MdtCalibSvc/MdtCalibrationSvc.h"
 
-#include "MDTcabling/IMDTcablingSvc.h"
-
 #include "TrigT1Interfaces/RecMuonRoI.h"
 
 #include "TrigL2MuonSA/TgcFit.h"
@@ -41,15 +39,11 @@ namespace TrigL2MuonSA {
   {
   public:
     MdtRegionDefiner(MsgStream* msg);
-    MdtRegionDefiner(MsgStream* msg, const MDTGeometry* mdtGeometry);
     ~MdtRegionDefiner(void);
     
-    // function using the old cabling/geometry
-    void setMdtGeometry(const MDTGeometry* mdtGeometry);
 
     // function using the new cabling/geometry
     void setMdtGeometry(const MdtIdHelper* mdtIdHelper, const MuonGM::MuonDetectorManager* muonMgr);
-    void setGeometry(bool use_new_geometry);
     void setRpcGeometry(bool use_rpc);
     
   public:
@@ -77,7 +71,7 @@ namespace TrigL2MuonSA {
 			  float& etaMin, float& etaMax);
     void find_phi_min_max(float phiMiddle, float& phiMin, float& phiMax);
         
-    void find_station_sector(std::string name, int phi, bool& endcap, int& station, int& sector);   
+    void find_station_sector(std::string name, int phi, bool& endcap, int& chamber, int& sector);   
 
 
     StatusCode computePhi(const LVL1::RecMuonRoI*    p_roi,
@@ -93,17 +87,11 @@ namespace TrigL2MuonSA {
   private:
     MsgStream* m_msg;
 
-    // old geometry and cabling: to be removed
-    const MDTGeometry*     m_mdtGeometry;
-    const IMDTcablingSvc*  m_mdtCablingSvc;
-
-    // new geometry
     const MdtIdHelper* m_mdtIdHelper;
     const MuonGM::MuonDetectorManager* m_muonMgr;
     const MuonGM::MdtReadoutElement* m_mdtReadout;
     const MuonGM::MuonStation* m_muonStation;
     
-    bool m_use_new_geometry;
     bool m_use_rpc;
 
     TrigL2MuonSA::TgcFit::PointArray m_tgcStripMidPoints;  // List of TGC strip middle station points.

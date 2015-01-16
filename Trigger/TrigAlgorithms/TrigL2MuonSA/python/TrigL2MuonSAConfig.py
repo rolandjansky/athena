@@ -6,7 +6,6 @@ from AthenaCommon.AppMgr import *
 from AthenaCommon.AppMgr import ServiceMgr
 from TrigTimeMonitor.TrigTimeHistToolConfig import *
 from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
-from TGCgeometry.TGCgeometryConfig import TGCgeometryConfig
 from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConfig import *
 
 theDataPreparator    = TrigL2MuonSA__MuFastDataPreparator()
@@ -78,7 +77,9 @@ class TrigL2MuonSAConfig(MuFastSteering):
         self.TrackExtrapolator = theTrackExtrapolator
 
         self.R_WIDTH_TGC_FAILED = 200
-        self.R_WIDTH_RPC_FAILED = 30
+        self.R_WIDTH_RPC_FAILED = 400
+
+        self.DoCalibrationStream = False
 
         if ( args[0]== '900GeV' ):
             self.WinPt = 4.0
@@ -94,15 +95,18 @@ class TrigL2MuonSAConfig(MuFastSteering):
         if ( args[0]== 'MuonCalib' ):
             self.DoCalibrationStream = True
 
+        if ( args[0]== 'MuonCalibDataScouting' ):
+            self.DoCalibrationStream = True
+            self.MuonCalDataScouting = True
+            self.MuonCalBufferSize   = 1024*1024
+
+        self.Timing = False
+
         # Default backextrapolator is for MC Misaligned Detector
         self.BackExtrapolator = MuonBackExtrapolatorForMisalignedDet()
 
         # adding Geometry Services
         from AthenaCommon.AppMgr import ServiceMgr
-        
-        tgc_geo = TGCgeometryConfig()
-        self.TGC_GeometrySvc = tgc_geo
-        if tgc_geo not in ServiceMgr:  ServiceMgr += tgc_geo
         
         # Histograms for monitored variables
         validation = TrigL2MuonSAValidationMonitoring()

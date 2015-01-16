@@ -142,7 +142,7 @@ double TrigL2MuonSA::AlignmentBarrelLUT::GetDeltaZ(int&    saddress,
 std::pair<int, int> TrigL2MuonSA::AlignmentBarrelLUT::GetBinNumber(int saddress, int innerR, double etaMap, double phiMap) const
 {
 
-  if(saddress > 5 || saddress < 0 || innerR < 0 || innerR > 1)  return std::make_pair(-5,-5);
+  if(saddress > 3 || saddress < 0 || innerR < 0 || innerR > 1)  return std::make_pair(-5,-5);
 
   int etaBin = (int)((etaMap - EtaMin[saddress][innerR])/EtaStep[saddress][innerR]);
   int phiBin = (int)((phiMap - PhiMin[saddress][innerR])/PhiStep[saddress][innerR]);

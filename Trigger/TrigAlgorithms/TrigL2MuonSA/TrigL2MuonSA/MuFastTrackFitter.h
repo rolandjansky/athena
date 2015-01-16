@@ -5,7 +5,7 @@
 #ifndef  TRIGL2MUONSA_MUFASTTRACKFITTER_H
 #define  TRIGL2MUONSA_MUFASTTRACKFITTER_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IMessageSvc.h"
 
@@ -28,7 +28,7 @@ class StoreGateSvc;
 
 namespace TrigL2MuonSA {
 
-  class MuFastTrackFitter: public AlgTool
+  class MuFastTrackFitter: public AthAlgTool
   {
   public:
     
@@ -53,7 +53,8 @@ namespace TrigL2MuonSA {
     
     StatusCode findTracks(const LVL1::RecMuonRoI*     p_roi,
 			  TrigL2MuonSA::TgcFitResult& tgcFitResult,
-			  std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns);
+			  std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns,
+                          const TrigL2MuonSA::MuonRoad muonRoad);
     
     StatusCode setMCFlag(BooleanProperty  use_mcLUT);
 

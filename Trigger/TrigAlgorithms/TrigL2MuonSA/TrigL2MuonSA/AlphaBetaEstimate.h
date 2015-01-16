@@ -11,6 +11,7 @@
 #include "TrigT1Interfaces/RecMuonRoI.h"
 
 #include "TrigL2MuonSA/TgcFitResult.h"
+#include "TrigL2MuonSA/MuonRoad.h"
 #include "TrigL2MuonSA/TrackData.h"
 
 #include "TrigL2MuonSA/PtEndcapLUTSvc.h"
@@ -30,7 +31,8 @@ namespace TrigL2MuonSA {
     
     StatusCode setAlphaBeta(const LVL1::RecMuonRoI*     p_roi,
 			    TrigL2MuonSA::TgcFitResult& tgcFitResult,
-			    TrigL2MuonSA::TrackPattern& trackPattern);
+			    TrigL2MuonSA::TrackPattern& trackPattern,
+                            const TrigL2MuonSA::MuonRoad&     muonRoad);
     
   private:
     
@@ -40,7 +42,6 @@ namespace TrigL2MuonSA {
     
     double     computeRadius3Points(double InnerZ, double InnerR, double EEZ, double EER,double MiddleZ, double MiddleR );
     
-    int        ClassifySL(double tgcPhi);
     /** @brief Pointer to MsgStream.*/
     MsgStream* m_msg;
     

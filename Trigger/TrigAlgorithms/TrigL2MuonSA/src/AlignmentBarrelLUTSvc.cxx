@@ -10,7 +10,7 @@
 using namespace std;
 
 TrigL2MuonSA::AlignmentBarrelLUTSvc::AlignmentBarrelLUTSvc(const std::string& name,ISvcLocator* sl) :
-  Service(name,sl),
+  AthService(name,sl),
   m_msg(0),
   m_alignmentBarrelLUT(0)
 {
@@ -29,7 +29,7 @@ StatusCode TrigL2MuonSA::AlignmentBarrelLUTSvc::queryInterface(const InterfaceID
   } else {
     log << MSG::DEBUG << name() << " cannot find the interface!"
       	<< " Query the interface of the base class." << endreq;
-    return Service::queryInterface(riid, ppvIF);
+    return AthService::queryInterface(riid, ppvIF);
   }
 } 
 
@@ -43,7 +43,7 @@ StatusCode TrigL2MuonSA::AlignmentBarrelLUTSvc::initialize()
   
   StatusCode sc;
   
-  sc = Service::initialize();
+  sc = AthService::initialize();
   if ( sc.isFailure() ) return sc;
   
   // implement the search of LUT trought the pathresolver Tool.

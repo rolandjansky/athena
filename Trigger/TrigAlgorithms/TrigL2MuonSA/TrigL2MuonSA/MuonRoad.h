@@ -44,6 +44,7 @@ namespace TrigL2MuonSA {
 	  phi[i][j]  = 0;
 	}
       }
+      stationList.clear();
     };
     
     double MaxWidth(int i_station)

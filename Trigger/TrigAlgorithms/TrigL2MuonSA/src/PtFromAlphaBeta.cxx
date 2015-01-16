@@ -75,12 +75,12 @@ StatusCode TrigL2MuonSA::PtFromAlphaBeta::setPt(TrigL2MuonSA::TrackPattern& trac
     msg() << MSG::DEBUG << "calculate pt from invR" << endreq;
     float invR = 1. / trackPattern.endcapRadius3P;
 
-    if (trackPattern.smallLarge==0) 
+    if (trackPattern.smallLarge==1)//Small 
       trackPattern.ptEndcapRadius =  m_ptEndcapLUT->lookup(side, charge, PtEndcapLUT::INVRADIUSPOL2, 0, trackPattern.etaBin, 
-							   trackPattern.phiBin24, invR) / 1000;//sector=0 small
-    if (trackPattern.smallLarge==1) 
+							   trackPattern.phiBin24, invR) / 1000;
+    if (trackPattern.smallLarge==0)//Large 
       trackPattern.ptEndcapRadius =  m_ptEndcapLUT->lookup(side, charge, PtEndcapLUT::INVRADIUSPOL2, 1, trackPattern.etaBin, 
-							   trackPattern.phiBin24, invR) / 1000;//sector=1 large
+							   trackPattern.phiBin24, invR) / 1000;
   }
 
   if(mdtPt!=0.0) {

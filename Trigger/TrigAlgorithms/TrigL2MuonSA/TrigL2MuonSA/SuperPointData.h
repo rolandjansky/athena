@@ -8,7 +8,7 @@
 #define NMEAMX 50
 #define MNLINE 14
 #define NLAYER 8
-
+#define NCAND  6  //segment candidate
 namespace TrigL2MuonSA {
 
 class PBFitResult
@@ -22,23 +22,28 @@ class PBFitResult
     ALIN(0),
     BLIN(0)
       {
-	for (int i=0; i<NMEAMX; i++) {
-	  IDMEA[i] = 0;
-	  XILIN[i] = 0;
-	  YILIN[i] = 0;
-	  IGLIN[i] = 0;
-	  RILIN[i] = 0;
-	  WILIN[i] = 0;
-	  DISTJ[i] = 0;
-	  JLINE[i] = 0;
-	}
-
-	for (int i=0; i<MNLINE; i++) NLINE[i] = 0;
-
-	for (int i=0; i<2; i++)
-	  for (int j=0; j<2; j++)
-	    DABLIN[i][j] = 0;
-      };
+      	for (int i=0; i<NMEAMX; i++) {
+          IDMEA[i] = 0;
+          XILIN[i] = 0;
+          YILIN[i] = 0;
+          IGLIN[i] = 0;
+          RILIN[i] = 0;
+          WILIN[i] = 0;
+          DISTJ[i] = 0;
+          JLINE[i] = 0;
+          RESI[i]  = 0;
+        }
+      	//////segment candidate
+      	for (int i=0; i<NCAND; i++){
+          SlopeCand[i]     = 0;
+          InterceptCand[i] = 0;
+          Chi2Cand[i]      = 0;
+        }
+      	for (int i=0; i<MNLINE; i++) NLINE[i] = 0;
+      	for (int i=0; i<2; i++)
+          for (int j=0; j<2; j++)
+            DABLIN[i][j] = 0;
+     };
   ~PBFitResult() {};
 
  public:
@@ -59,6 +64,10 @@ class PBFitResult
   float ALIN;
   float BLIN;
   float DABLIN[2][2];
+  float SlopeCand[NCAND];     //segment candidate
+  float InterceptCand[NCAND]; //
+  float Chi2Cand[NCAND];      //
+
 }; // See description at the bottom
 
 
@@ -77,10 +86,17 @@ class SuperPoint
     Yor(0),
     Chi2(0),
     PChi2(0)
-    {
-      for (int i=0; i<NLAYER; i++) Residual[i]=0;
-    };
-    
+  {
+    for (int i=0; i<NLAYER; i++) Residual[i]=0;
+    //////
+    for (int i=0; i<NCAND; i++){
+      SlopeCand[i]     = 0;
+      InterceptCand[i] = 0;
+      Chi2Cand[i]      = 0;
+    }
+   //////
+  };
+
   ~SuperPoint() {};
     
  public:
@@ -96,6 +112,10 @@ class SuperPoint
   float Chi2;
   float PChi2;
   float Residual[NLAYER];
+  float SlopeCand[NCAND];     //
+  float InterceptCand[NCAND]; //
+  float Chi2Cand[NCAND];      //
+
 };
 
 // --------------------------------------------------------------------------------

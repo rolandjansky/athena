@@ -50,7 +50,7 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
   double x0 = 0., y0 = 0., x1 = 0., y1 = 0., x2 = 0., y2 = 0., x3 = 0., y3 = 0.;
   double tm = 0.;
   double xn = 0.;
-  double eps = 0.0005;
+  double eps = 0.005;
   
   TrigL2MuonSA::SuperPoint* superPoints[3];
 
@@ -69,7 +69,7 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
   }
   
   if ( count==2 ) {
-    y0  = 423.;    // radius of calorimeter.
+    y0  = 4230.;    // radius of calorimeter.
     
     if (superPoints[0]->R < ZERO_LIMIT) {
       x2 = superPoints[1]->Z;
@@ -121,7 +121,8 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
         
     trackPattern.etaMap = (-log(tan(theta/2.)))*signZ;
     if (rpcFitResult.isSuccess ) {
-      one = (fabs(rpcFitResult.rpc1[0]) > 0.)? 1. * rpcFitResult.rpc1[0] / fabs(rpcFitResult.rpc1[0]): 1.;
+      //      one = (fabs(rpcFitResult.rpc1[0]) > 0.)? 1. * rpcFitResult.rpc1[0] / fabs(rpcFitResult.rpc1[0]): 1.;
+      one = (cos(rpcFitResult.phi)>0)? 1: -1;
     } else {
       one = (cos(p_roi->phi())>0)? 1: -1;
     }
@@ -161,7 +162,8 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
     trackPattern.etaMap = (-log(tan(theta/2.)))*signZ;
 
     if (rpcFitResult.isSuccess ) {
-      one = (fabs(rpcFitResult.rpc1[0]) > 0.)? 1. * rpcFitResult.rpc1[0] / fabs(rpcFitResult.rpc1[0]): 1;
+      //      one = (fabs(rpcFitResult.rpc1[0]) > 0.)? 1. * rpcFitResult.rpc1[0] / fabs(rpcFitResult.rpc1[0]): 1;
+      one = (cos(rpcFitResult.phi)>0)? 1: -1;
     } else {
       one = (cos(p_roi->phi())>0)? 1: -1;
     }

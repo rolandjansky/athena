@@ -13,13 +13,11 @@
 #include "TrigL2MuonSA/PtBarrelLUTSvc.h"
 #include "TrigL2MuonSA/PtEndcapLUTSvc.h"
 #include "TrigL2MuonSA/AlignmentBarrelLUTSvc.h"
-#include "TrigL2MuonSA/MuCalStreamer.h"
 #include "TrigL2MuonSA/MuCalStreamerTool.h"
 
 using namespace TrigL2MuonSA;
 
 DECLARE_ALGORITHM_FACTORY(MuFastSteering)
-DECLARE_ALGORITHM_FACTORY(MuCalStreamer)
 DECLARE_TOOL_FACTORY(MuCalStreamerTool)
 DECLARE_TOOL_FACTORY(MuFastDataPreparator)
 DECLARE_TOOL_FACTORY(TgcDataPreparator)
@@ -38,7 +36,6 @@ DECLARE_SERVICE_FACTORY(AlignmentBarrelLUTSvc)
 DECLARE_FACTORY_ENTRIES(TrigL2MuonSA)
 {
   DECLARE_ALGORITHM(MuFastSteering);
-  DECLARE_ALGORITHM(MuCalStreamer);
   DECLARE_TOOL(MuCalStreamerTool)
   DECLARE_TOOL(MuFastDataPreparator);
   DECLARE_TOOL(TgcDataPreparator);

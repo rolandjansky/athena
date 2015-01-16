@@ -5,26 +5,25 @@
 #ifndef  TRIGL2MUONSA_MUFASTDATAPREPARATOR_H
 #define  TRIGL2MUONSA_MUFASTDATAPREPARATOR_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IMessageSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 
-#include "RPCgeometry/IRPCgeometrySvc.h"
-#include "TGCgeometry/TGCgeometrySvc.h"
-
-#include "MDTcabling/IMDTcablingSvc.h"
-
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 #include "RegionSelector/IRegSelSvc.h"
 
 #include "TrigT1Interfaces/RecMuonRoI.h"
+#include "TrigT1Interfaces/RecMuonRoiSvc.h"
+#include "TrigT1RPCRecRoiSvc/RPCRecRoiSvc.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "TrigL2MuonSA/MuFastDataPreparatorOptions.h"
 #include "TrigL2MuonSA/RpcDataPreparator.h"
 #include "TrigL2MuonSA/RpcRoadDefiner.h"
+#include "TrigL2MuonSA/RpcPatFinder.h"
 #include "TrigL2MuonSA/TgcDataPreparator.h"
 #include "TrigL2MuonSA/TgcRoadDefiner.h"
 #include "TrigL2MuonSA/MdtDataPreparator.h"
@@ -43,7 +42,7 @@ class StoreGateSvc;
 
 namespace TrigL2MuonSA {
 
-class MuFastDataPreparator: public AlgTool
+class MuFastDataPreparator: public AthAlgTool
 {
  public:
   
@@ -61,6 +60,7 @@ class MuFastDataPreparator: public AlgTool
  public:
   
   StatusCode prepareData(const LVL1::RecMuonRoI*     p_roi,
+			 const TrigRoiDescriptor*    p_roids,
 			 TrigL2MuonSA::RpcHits&      rpcHits,
 			 TrigL2MuonSA::MuonRoad&     muonRoad,
 			 TrigL2MuonSA::MdtRegion&    mdtRegion,
@@ -105,11 +105,17 @@ class MuFastDataPreparator: public AlgTool
 
   void setExtrapolatorTool(ToolHandle<ITrigMuonBackExtrapolator>* backExtrapolator);
 
+
+ protected:
+  
+  // Services
+  ServiceHandle<LVL1RPC::RPCRecRoiSvc> m_recRPCRoiSvc;
+
  private:
   
   TrigL2MuonSA::MuFastDataPreparatorOptions m_options;
 
-  IRegSelSvc*          m_regionSelector;
+  IRegSelSvc*        m_regionSelector;
   const MdtIdHelper* m_mdtIdHelper;
   
  private:
@@ -124,12 +130,10 @@ class MuFastDataPreparator: public AlgTool
   
   TrigL2MuonSA::RpcRoadDefiner*  m_rpcRoadDefiner;
   TrigL2MuonSA::TgcRoadDefiner*  m_tgcRoadDefiner;
+  TrigL2MuonSA::RpcPatFinder*    m_rpcPatFinder;
   
   ToolHandle<ITrigMuonBackExtrapolator>* m_backExtrapolatorTool;
 
-  // Cabling
-  ServiceHandle<IMDTcablingSvc>  m_mdtCablingSvc;
-  BooleanProperty m_use_new_geometry;
   BooleanProperty m_use_rpc;
 
 };

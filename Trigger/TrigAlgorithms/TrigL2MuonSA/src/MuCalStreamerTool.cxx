@@ -35,16 +35,12 @@ const InterfaceID& TrigL2MuonSA::MuCalStreamerTool::interfaceID() { return IID_M
 TrigL2MuonSA::MuCalStreamerTool::MuCalStreamerTool(const std::string& type, 
 						   const std::string& name,
 						   const IInterface*  parent): 
-   AlgTool(type,name,parent),
+   AthAlgTool(type,name,parent),
    m_msg(0),
    m_storeGate( "StoreGateSvc", name ),
    m_robDataProvider(0),
    m_cid(-1),
    m_calibEvent(0),
-   m_rpcRawDataProvider("Muon__RPC_RawDataProviderTool"),
-   m_rpcGeometrySvc("RPCgeometrySvc",""),
-   m_iRpcCablingSvc(0),
-   m_rpcCabling(0),
    m_roi(NULL)
 {
    declareInterface<TrigL2MuonSA::MuCalStreamerTool>(this);
@@ -69,9 +65,9 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::initialize()
    msg() << MSG::DEBUG << "Initializing MuCalStreamerTool - package version " << PACKAGE_VERSION << endreq ;
    
    StatusCode sc;
-   sc = AlgTool::initialize();
+   sc = AthAlgTool::initialize();
    if (!sc.isSuccess()) {
-      msg() << MSG::ERROR << "Could not initialize the AlgTool base class." << endreq;
+      msg() << MSG::ERROR << "Could not initialize the AthAlgTool base class." << endreq;
       return sc;
    }
 
@@ -90,20 +86,8 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::initialize()
    }
    msg() << MSG::DEBUG << "Retrieved service " << serviceName << endreq;
 
-   // RPC cabling
-   const IRPCcablingServerSvc* pRpcCabGet = 0;
-   sc = service("RPCcablingServerSvc",pRpcCabGet,true);
-   if( sc.isFailure() ) {
-      msg() << MSG::ERROR << "Unable to retrieve the RPC cabling Server Service" << endreq;
-      return sc;
-   }
-   sc = pRpcCabGet->giveCabling(m_iRpcCablingSvc);
-   if( sc.isFailure() ) {
-      msg() << MSG::ERROR << "Unable to retrieve the RPC cabling Service from Server" << endreq;
-      return sc;
-    }
-   m_rpcCabling = m_iRpcCablingSvc->getRPCCabling();
-   // 
+   // initialize the local vector buffer
+   m_localBuffer = new std::vector<int>();
 
    return StatusCode::SUCCESS; 
 
@@ -116,8 +100,11 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::finalize()
    
    // delete message stream
    if ( m_msg ) delete m_msg;
-   
-   StatusCode sc = AlgTool::finalize(); 
+
+   // delete the calibration buffer
+   if ( m_localBuffer ) delete m_localBuffer; 
+
+   StatusCode sc = AthAlgTool::finalize(); 
    return sc;
 }
 
@@ -136,7 +123,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::openStream()
       m_cid = 1;
       if ( !m_outputFile ) {
 	msg() << MSG::WARNING << "Could not open muon calibration output file, name: "
-	      << m_calBufferName << endreq;
+	      << name << endreq;
       } 
       
     } 
@@ -145,7 +132,11 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::openStream()
       m_cid = CircOpenCircConnection(0, (char*)name.c_str(), m_calBufferSize);
       if( m_cid == -1 ) {
 	msg() << MSG::WARNING << "Could not open muon calibration buffer: name="
-	      << m_calBufferName << " buffer size=" << m_calBufferSize << endreq;
+	      << name << " buffer size=" << m_calBufferSize << endreq;
+      }
+      else {
+	msg() << MSG::INFO << "Opening muon calibration stream. Buffer name: " 
+	      << name << " buffer size: " << m_calBufferSize << endreq;
       }
       
     }
@@ -164,20 +155,14 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::openStream()
 StatusCode TrigL2MuonSA::MuCalStreamerTool::closeStream()
 {
 
-  //  std::cout << "AAAAA >> In the closeStream function of the tool m_cid = " << m_cid << std::endl;
   std::string name = m_calBufferName+"_"+m_algInstanceName; 
 
   if (m_writeToFile && m_outputFile) {
-    //    std::cout << "AAAAA >> in the case of write file= " << m_cid << std::endl;
     m_outputFile->close();
     delete m_outputFile;
     m_outputFile = NULL;
   }
   else if (!m_writeToFile && m_cid>-1) {
-
-    //    std::cout << "AAAAA >> not in the case of writefile= " << m_cid << std::endl;
-    //    std::cout << "AAAAA >> Now closing the circular buffer, m_cid== " << m_cid << std::endl;
-
     if (CircCloseCircConnection (0,(char*)name.c_str(),m_cid) != 0 ) {
       msg() << MSG::WARNING << "Could not close the muon calibration stream. Stream name: " 
 	    << m_calBufferName << endreq;
@@ -200,7 +185,8 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::closeStream()
 StatusCode TrigL2MuonSA::MuCalStreamerTool::createRoiFragment(const LVL1::RecMuonRoI* roi,
 							      TrigL2MuonSA::TrackPattern& track,
 							      TrigL2MuonSA::MdtHits& mdtHits,
-							      TrigL2MuonSA::RpcHits& rpcHits)
+							      TrigL2MuonSA::RpcHits& rpcHits,
+							      bool& updateTriggerElement)
 {
 
   // create the fragment
@@ -271,33 +257,74 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRoiFragment(const LVL1::RecMuo
   }
 
 
-  if (m_writeToFile && m_outputFile) {
-    if ( m_algInstanceName=="MuFastSteering_900GeV" ) { 
-      uint16_t size = event.size();
-      uint8_t* buff = new uint8_t[size];
-      event.dumpWords(buff,size);
-      m_outputFile->write( (char*) buff, event.size() );
-      // CID 22892: DELETE_ARRAY
-      // delete buff;
-      delete [] buff;
-    }
-  }
-  else if(m_cid != -1) {
-    uint16_t size = event.size();
-    char* p;
-    if ((p = CircReserve (m_cid, m_calibEvent, event.size())) != (char *) -1) {
-      uint8_t* buff = reinterpret_cast<uint8_t*>(p);
-      event.dumpWords(buff,size);
-      CircValidate (m_cid, m_calibEvent, p, event.size() );
-      m_calibEvent++;
-    }
-    else {
-      msg() << MSG::ERROR << "Could not dump the event in the calibration stream" << endreq;
-    
-    }
-    
-  }
+  if (m_writeToFile && m_outputFile) {                  
+    if ( m_algInstanceName=="MuFastSteering_900GeV" ) {     
+      uint16_t eventSize = event.size();       
+      uint8_t* buff = new uint8_t[eventSize];                                                                              
+      event.dumpWords(buff,eventSize); 
+      m_outputFile->write( (char*) buff, event.size() );                                                                   
+      // CID 22892: DELETE_ARRAY 
+      // delete buff; 
+      delete [] buff; 
+    }                                                                                                                      
+  }                                                                                                                        
+  else if ( !m_doDataScouting && m_cid != -1) {  
+    uint16_t eventSize = event.size();
+    char* p = NULL;  
+    if ((p = CircReserve (m_cid, m_calibEvent, event.size())) != (char *) -1) { 
+      uint8_t* buff = reinterpret_cast<uint8_t*>(p); 
+      // encode the event 
+      event.dumpWords(buff,eventSize); 
+      // dump the words to the circular buffer                                                                             
+      CircValidate (m_cid, m_calibEvent, p, event.size() ); 
+    }                                                                                                                      
+    else {  
+      msg() << MSG::ERROR << "Could not dump the event in the calibration stream circular buffer" << endreq;
+    }  
+  }                                                                                                                        
+  else if ( m_doDataScouting ) { 
 
+    uint16_t eventSize_ds = event.size();  
+    uint8_t* buff_ds = new uint8_t[eventSize_ds]; 
+    // encode the event                                                                                                    
+    uint16_t evSize = eventSize_ds; 
+    event.dumpWords(buff_ds,evSize);                                                                                       
+    // fill the local buffer 
+    // dump the words also in the local buffer 
+    if ( m_localBufferSize+eventSize_ds < m_maxLocalBufferSize ) { 
+      msg() << MSG::DEBUG << "Updating the muon calibration buffer" << endreq; 
+      updateTriggerElement = false; 
+
+      for (int i=0 ; i<eventSize_ds ; ++i ) { 
+        m_localBuffer->push_back(buff_ds[i]); 
+      }                                                                                                                    
+      m_localBufferSize += eventSize_ds; 
+      msg() << MSG::INFO << "Updated size of the buffer: " << m_localBufferSize << endreq; 
+    }                                                                                                                      
+    // close the trigger object to be passed to the trigger element  
+    else {  
+      
+      // if it's the first event fill the buffer 
+      if (m_localBufferSize == 0) {  
+        msg() << MSG::INFO << "Updating the muon calibration buffer" << endreq;  
+        for (int i=0 ; i<eventSize_ds ; ++i ) {   
+          m_localBuffer->push_back(buff_ds[i]); 
+        }  
+        m_localBufferSize += eventSize_ds; 
+        msg() << MSG::INFO << "Updated size of the buffer: " << m_localBufferSize << endreq; 
+	
+      }                                                                                                                    
+                                                                                                                 
+      updateTriggerElement = true;
+
+      m_localBufferSize = 0;  
+    }                                                                                                                      
+    
+    delete [] buff_ds;
+  }                  
+                                                                                                      
+  m_calibEvent++;
+  
   return StatusCode::SUCCESS;
 }
 
@@ -347,19 +374,19 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(LVL2_MUON_CALIBRAT
   
   // access the pad ( to be replaced by the usage of RpcDataPreparator
   unsigned short int subsystemID =  m_roi->subsysID();
-  unsigned short int sectorID    =  m_roi->sectorID();
-  unsigned short int roiNumber   =  m_roi->getRoINumber();
+  //  unsigned short int sectorID    =  m_roi->sectorID();
+  //  unsigned short int roiNumber   =  m_roi->getRoINumber();
   
   const RpcPad* rpcPad = 0;
-  unsigned int subsys_id = (subsystemID==1)? 0x65 : 0x66;
-  unsigned int robId     = (subsys_id << 16) | (sectorID/2);
+  //unsigned int subsys_id = (subsystemID==1)? 0x65 : 0x66;
+  //  unsigned int robId     = (subsys_id << 16) | (sectorID/2);
   
   // now retrieve the rpc pad correspondig to the RoI
-  StatusCode sc = getRpcPad(robId,subsystemID,sectorID,roiNumber,rpcPad);
-  if( sc != StatusCode::SUCCESS ) {
-    msg() << MSG::ERROR << "getRpcPad failed: sc=" << sc << endreq;
-    return sc;
-  }
+  //  StatusCode sc = getRpcPad(robId,subsystemID,sectorID,roiNumber,rpcPad);
+  //  if( sc != StatusCode::SUCCESS ) {
+  //    msg() << MSG::ERROR << "getRpcPad failed: sc=" << sc << endreq;
+  //    return sc;
+  //  }
   
   if(rpcPad) {
     uint16_t sector = rpcPad->sector();
@@ -427,72 +454,57 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(LVL2_MUON_CALIBRAT
 //
 // retrieve the rpc pad ( to be replaced by the direct usage of the RpcDataPreparator
 //
-StatusCode TrigL2MuonSA::MuCalStreamerTool::getRpcPad(unsigned int robId, unsigned short int subsystemID,
-						      unsigned short int sectorID, unsigned short int roiNumber,
-						      const RpcPad* rpcPad)
-{
-   std::vector<uint32_t> v_robIds;
-   v_robIds.push_back(robId);
-   
-   m_robDataProvider->addROBData(v_robIds);
-
-   //   rpcPad = 0;
-
-   //   std::cout << ">>>>> RPC debug " << std::endl;
-   //   std::cout << "robId: 0x" << std::hex << robId << std::dec << std::endl;
-   //   std::cout << "subsystemId: " << subsystemID << std::endl;
-   //   std::cout << "sectodID: " << sectorID << std::endl;
-   //   std::cout << "roiNumber: " << roiNumber << std::endl;
-
-   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> v_robFragments;
-   
-   const RpcPadContainer* pRpcPadContainer = Muon::MuonRdoContainerAccess::retrieveRpcPad("RPCPAD");
-   if(pRpcPadContainer==0) {
-      msg() << MSG::ERROR << "Rpc PAD container not registered by MuonRdoContainerManager" << endreq;
-      msg() << MSG::ERROR << "-> Retrieving it from the StoreGate" << endreq;
-      StatusCode sc = m_storeGate->retrieve(pRpcPadContainer, "RPCPAD");
-      if( sc.isFailure() ) {
-	 msg() << MSG::ERROR << "Retrieval of RpcPadContainer failed" << endreq;
-	 return sc;
-      }
-   }
-
-   m_robDataProvider->getROBData(std::vector<uint32_t>(1,robId),v_robFragments);
-
-   Identifier rpc_pad_id;       // identifier for accessing the RPC PAD
-   unsigned int logic_sector = 0;
-   unsigned short int PADId  = 0;
-   bool success = m_rpcCabling->give_PAD_address(subsystemID,sectorID,roiNumber,logic_sector,PADId,rpc_pad_id);
-   //   std::cout << "The logic sector is: " << logic_sector << std::endl;
-   //   std::cout << "The PADid is: " << PADId << std::endl;
- 
-   if(!success) {
-      msg() << MSG::ERROR << "error in give_PAD_address" << endreq;
-      return StatusCode::FAILURE;
-   }
-
-   RpcPadIdHash padHashFunction = *(m_iRpcCablingSvc->padHashFunction());
-   IdentifierHash pad_id = padHashFunction(rpc_pad_id);
-
-   if( m_rpcRawDataProvider->convert(v_robFragments,std::vector<IdentifierHash>(1,pad_id)).isFailure()) {
-      msg() << MSG::ERROR << "Failed to convert RPC PAD ID=" << pad_id << endreq;
-      return StatusCode::FAILURE;
-   }
-
-   RpcPadContainer::const_iterator itPad = pRpcPadContainer->indexFind(pad_id);
-   if( itPad==pRpcPadContainer->end() ) {
-      msg() << MSG::ERROR << "Failed to retrieve PAD hash Id " << pad_id << endreq;
-      return StatusCode::FAILURE;
-   }
-
-   rpcPad = *itPad;
-
-   if (!rpcPad) {
-      msg() << MSG::ERROR << "Could not find the rpcPad" << pad_id << endreq;
-      return StatusCode::FAILURE;     
-   }
-   
-   return StatusCode::SUCCESS;
-}
+//StatusCode TrigL2MuonSA::MuCalStreamerTool::getRpcPad(unsigned int robId, unsigned short int subsystemID,
+//						      unsigned short int sectorID, unsigned short int roiNumber,
+//						      const RpcPad*& rpcPad)
+//{
+//   std::vector<uint32_t> v_robIds;
+//   v_robIds.push_back(robId);
+//   
+//   m_robDataProvider->addROBData(v_robIds);
+//
+//   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> v_robFragments;
+//   
+//   const RpcPadContainer* pRpcPadContainer = Muon::MuonRdoContainerAccess::retrieveRpcPad("RPCPAD");
+//   if(pRpcPadContainer==0) {
+//      msg() << MSG::ERROR << "Rpc PAD container not registered by MuonRdoContainerManager" << endreq;
+//      msg() << MSG::ERROR << "-> Retrieving it from the StoreGate" << endreq;
+//      StatusCode sc = m_storeGate->retrieve(pRpcPadContainer, "RPCPAD");
+//      if( sc.isFailure() ) {
+//	 msg() << MSG::ERROR << "Retrieval of RpcPadContainer failed" << endreq;
+//	 return sc;
+//      }
+//   }
+//
+//   m_robDataProvider->getROBData(std::vector<uint32_t>(1,robId),v_robFragments);
+//
+//   Identifier rpc_pad_id;       // identifier for accessing the RPC PAD
+//   unsigned int logic_sector = 0;
+//   unsigned short int PADId  = 0;
+//
+//   // here use the new cabling service to retrieve the padid
+//
+//   //   IdentifierHash pad_id = padHashFunction(rpc_pad_id);
+//   //
+//   //   if( m_rpcRawDataProvider->convert(v_robFragments,std::vector<IdentifierHash>(1,pad_id)).isFailure()) {
+//   //      msg() << MSG::ERROR << "Failed to convert RPC PAD ID=" << pad_id << endreq;
+//   //      return StatusCode::FAILURE;
+//   //   }
+//   //
+//   //   RpcPadContainer::const_iterator itPad = pRpcPadContainer->indexFind(pad_id);
+//   //   if( itPad==pRpcPadContainer->end() ) {
+//   //      msg() << MSG::ERROR << "Failed to retrieve PAD hash Id " << pad_id << endreq;
+//   //      return StatusCode::FAILURE;
+//   //   }
+//   //
+//   //   rpcPad = *itPad;
+//   //
+//   //   if (!rpcPad) {
+//   //      msg() << MSG::ERROR << "Could not find the rpcPad" << pad_id << endreq;
+//   //      return StatusCode::FAILURE;     
+//   //   }
+//   
+//   return StatusCode::SUCCESS;
+//}
 
 

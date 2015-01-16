@@ -5,7 +5,7 @@
 #ifndef  TRIGL2MUONSA_MUFASTPATTERNFINDER_H
 #define  TRIGL2MUONSA_MUFASTPATTERNFINDER_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IMessageSvc.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -37,7 +37,7 @@ struct MdtLayerHits
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-class MuFastPatternFinder: public AlgTool
+class MuFastPatternFinder: public AthAlgTool
 {
    public:
       
@@ -89,8 +89,6 @@ class MuFastPatternFinder: public AlgTool
 
       // Id helper
       const MdtIdHelper* m_mdtIdHelper;
-
-      BooleanProperty m_use_new_geometry;
 
 };
 

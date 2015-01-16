@@ -44,6 +44,8 @@ StatusCode TrigL2MuonSA::PtFromRadius::setPt(TrigL2MuonSA::TrackPattern& trackPa
   int etabin,phibin,neweta,newphi,ch,add;
   float phistep,etastep,pstep,dist,distp,disteta,distphi;
   float A0[6]={0.,0.,0.,0.,0.,0.},A1[6]={0.,0.,0.,0.,0.,0.};
+
+  float scale = 0.1;
   
   if(trackPattern.barrelRadius > 0.) {
     add = trackPattern.s_address;
@@ -82,7 +84,7 @@ StatusCode TrigL2MuonSA::PtFromRadius::setPt(TrigL2MuonSA::TrackPattern& trackPa
 	A0[0] = lutSP.table_LargeSP[iR][ch][etabin][phibin][0];
 	A1[0] = lutSP.table_LargeSP[iR][ch][etabin][phibin][1];
 
-	trackPattern.pt = trackPattern.barrelRadius*A0[0] + A1[0];
+	trackPattern.pt = trackPattern.barrelRadius*scale*A0[0] + A1[0];
 
       } else {
 
@@ -90,19 +92,19 @@ StatusCode TrigL2MuonSA::PtFromRadius::setPt(TrigL2MuonSA::TrackPattern& trackPa
 	A1[0] = lut.table[add][ch][etabin][phibin][1];
 	if((neweta<0||neweta>=lut.NbinEta[add])&&
 	   (newphi<0||newphi>=lut.NbinPhi[add])) {
-	  trackPattern.pt = trackPattern.barrelRadius*A0[0] + A1[0];
+	  trackPattern.pt = trackPattern.barrelRadius*scale*A0[0] + A1[0];
 	} else if (neweta<0||neweta>=lut.NbinEta[add]) {
 	  A0[1] = lut.table[add][ch][etabin][newphi][0];
 	  A1[1] = lut.table[add][ch][etabin][newphi][1];
 	  A0[2] = A0[0] + ((A0[1] - A0[0])/phistep)*distphi;
 	  A1[2] = A1[0] + ((A1[1] - A1[0])/phistep)*distphi;
-	  trackPattern.pt = trackPattern.barrelRadius*A0[2] + A1[2];
+	  trackPattern.pt = trackPattern.barrelRadius*scale*A0[2] + A1[2];
 	} else if (newphi<0||newphi>=lut.NbinPhi[add]) {
 	  A0[1] = lut.table[add][ch][neweta][phibin][0];
 	  A1[1] = lut.table[add][ch][neweta][phibin][1];
 	  A0[2] = A0[0] + ((A0[1] - A0[0])/etastep)*disteta;
 	  A1[2] = A1[0] + ((A1[1] - A1[0])/etastep)*disteta;
-	  trackPattern.pt = trackPattern.barrelRadius*A0[2] + A1[2];
+	  trackPattern.pt = trackPattern.barrelRadius*scale*A0[2] + A1[2];
 	} else {
 	  if(disteta >= distphi*lut.EtaStep[add]/lut.PhiStep[add]) {
 	    A0[1] = lut.table[add][ch][neweta][phibin][0];
@@ -118,7 +120,7 @@ StatusCode TrigL2MuonSA::PtFromRadius::setPt(TrigL2MuonSA::TrackPattern& trackPa
 	    pstep = (phistep/dist)*distp;
 	    A0[5] = A0[3] + ((A0[4] - A0[3])/pstep)*distphi;
 	    A1[5] = A1[3] + ((A1[4] - A1[3])/pstep)*distphi;
-	    trackPattern.pt = trackPattern.barrelRadius*A0[5] + A1[5];
+	    trackPattern.pt = trackPattern.barrelRadius*scale*A0[5] + A1[5];
 	  } else {
 	    A0[1] = lut.table[add][ch][etabin][newphi][0];
 	    A1[1] = lut.table[add][ch][etabin][newphi][1];
@@ -133,7 +135,7 @@ StatusCode TrigL2MuonSA::PtFromRadius::setPt(TrigL2MuonSA::TrackPattern& trackPa
 	    pstep = (etastep/dist)*distp;
 	    A0[5] = A0[3] + ((A0[4] - A0[3])/pstep)*disteta;
 	    A1[5] = A1[3] + ((A1[4] - A1[3])/pstep)*disteta;
-	    trackPattern.pt = trackPattern.barrelRadius*A0[5] + A1[5];
+	    trackPattern.pt = trackPattern.barrelRadius*scale*A0[5] + A1[5];
 	  }
 	}
       }

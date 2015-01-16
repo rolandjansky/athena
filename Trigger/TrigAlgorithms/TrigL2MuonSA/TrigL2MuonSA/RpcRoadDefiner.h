@@ -13,16 +13,16 @@
 
 #include "TrigMuonBackExtrapolator/ITrigMuonBackExtrapolator.h"
 
-#include "MDTcabling/IMDTcablingSvc.h"
+#include "MuonIdHelpers/MdtIdHelper.h"
 
 #include "TrigL2MuonSA/RpcData.h"
+#include "TrigL2MuonSA/RpcPatFinder.h"
 #include "TrigL2MuonSA/MuonRoad.h"
 #include "TrigL2MuonSA/MdtRegion.h"
 #include "TrigL2MuonSA/RpcFitResult.h"
 #include "TrigL2MuonSA/BarrelRoadData.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 
-#include "TrigMuonEvent/MuonFeature.h"
 #include "RegionSelector/IRegSelSvc.h"
 
 class StoreGateSvc;
@@ -43,10 +43,15 @@ class RpcRoadDefiner
 
   StatusCode defineRoad(const LVL1::RecMuonRoI*      p_roi,
 			TrigL2MuonSA::MuonRoad&      muonRoad,
-			TrigL2MuonSA::RpcFitResult&  rpcFitResult);
+			TrigL2MuonSA::RpcHits&       rpcHits,
+			TrigL2MuonSA::RpcPatFinder*  rpcPatFinder,
+			TrigL2MuonSA::RpcFitResult&  rpcFitResult,
+			double                       roiEtaMinLow,
+			double                       roiEtaMaxLow,
+			double                       roiEtaMinHigh,
+			double                       roiEtaMaxHigh);
 
   void setMsgStream(MsgStream* msg) { m_msg = msg; };
-  void setMdtGeometry(const MDTGeometry* mdtGeometry);
   void setMdtGeometry(IRegSelSvc* regionSelector, const MdtIdHelper* mdtIdHelper);
   void setRoadWidthForFailure(double rWidth_RPC_Failed);
   void setRpcGeometry(bool use_rpc);
@@ -60,11 +65,9 @@ class RpcRoadDefiner
 
  private:
   MsgStream* m_msg;
-  const MDTGeometry*     m_mdtGeometry;
   const BarrelRoadData*  m_roadData;
 
   double m_rWidth_RPC_Failed;
-  bool m_use_new_geometry;
   bool m_use_rpc;
 
   IRegSelSvc* m_regionSelector;

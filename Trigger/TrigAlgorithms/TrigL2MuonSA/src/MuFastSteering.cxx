@@ -18,6 +18,10 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "GaudiKernel/IJobOptionsSvc.h"
+#include "GaudiKernel/Incident.h"
+#include "GaudiKernel/IIncidentSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
+
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -46,15 +50,15 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
   declareProperty("TrackExtrapolator", m_trackExtrapolator, "track extrapolator");
 
   declareProperty("BackExtrapolator", m_backExtrapolatorTool, "public tool for back extrapolating the muon tracks to the IV");
-
-  declareProperty("Timing", m_use_timer=true);
+  declareProperty("Timing", m_use_timer=false);
   declareProperty("UseLUTForMC", m_use_mcLUT=true);
 
   // options for the calibration stream
-  declareProperty("DoCalibrationStream", m_doCalStream=true);
+  declareProperty("DoCalibrationStream", m_doCalStream=false);
   declareProperty("AllowOksConfig", m_allowOksConfig=true);
   declareProperty("MuonCalBufferName", m_calBufferName="/tmp/testOutput");
   declareProperty("MuonCalBufferSize", m_calBufferSize=1024*1024);
+  declareProperty("MuonCalDataScouting",m_calDataScouting=false);
 
   declareProperty("ESD_EXT_size",m_esd_ext_size=100);
   declareProperty("ESD_ROB_size",m_esd_rob_size=10);
@@ -64,11 +68,12 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
   declareProperty("ESD_TGC_size",m_esd_tgc_size=50);
   declareProperty("ESD_MDT_size",m_esd_mdt_size=100);
 
-  declareProperty("R_WIDTH_RPC_FAILED",m_rWidth_RPC_Failed=30);
+  declareProperty("R_WIDTH_RPC_FAILED",m_rWidth_RPC_Failed=400);
   declareProperty("R_WIDTH_TGC_FAILED",m_rWidth_TGC_Failed=200);
 
-  declareProperty("USE_NEW_GEOMETRY", m_use_new_geometry = true);
-  declareProperty("USE_RPC", m_use_rpc = false);
+  declareProperty("USE_RPC", m_use_rpc = true);
+
+  declareProperty("USE_NEW_SEGMENTFIT", m_use_new_segmentfit = true);
 
   declareProperty("Scale_Road_BarrelInner",m_scaleRoadBarrelInner=1);
   declareProperty("Scale_Road_BarrelMiddle",m_scaleRoadBarrelMiddle=1);
@@ -112,6 +117,8 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
     msg() << MSG::ERROR << "Cannot retrieve service StoreGateSvc" << endreq;
     return HLT::BAD_JOB_SETUP;
   }
+  
+  StatusCode sc;
 
   m_timerSvc = 0;
   if (m_use_timer) {
@@ -121,26 +128,13 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
     }
   
     if(m_timerSvc) {
-      m_timers.push_back(m_timerSvc->addItem("MuFastSteering_DataPreparator"));
-      m_timers[ITIMER_DATA_PREPARATOR]->propName("DataPreparator_Time");
-            
-      m_timers.push_back(m_timerSvc->addItem("MuFastSteering_PatternFinder"));
-      m_timers[ITIMER_PATTERN_FINDER]->propName("PatternFinder_Time");
-      
-      m_timers.push_back(m_timerSvc->addItem("MuFastSteering_StationFitter"));
-      m_timers[ITIMER_STATION_FITTER]->propName("StationFitter_Time");
-      
-      m_timers.push_back(m_timerSvc->addItem("MuFastSteering_TrackFitter"));
-      m_timers[ITIMER_TRACK_FITTER]->propName("TrackFitter_Time");
-    
-      m_timers.push_back(m_timerSvc->addItem("MuFastSteering_TrackExtrapolator"));
-      m_timers[ITIMER_TRACK_EXTRAPOLATOR]->propName("TrackExtrapolator_Time");
-    
-      m_timers.push_back(m_timerSvc->addItem("MuFastSteering_CalibrationStreamer"));
-      m_timers[ITIMER_CALIBRATION_STREAMER]->propName("CalibrationStreamer_Time");
-    
-      m_timers.push_back(m_timerSvc->addItem("MuFastSteering_TotalProcessing"));
-      m_timers[ITIMER_TOTAL_PROCESSING]->propName("TotalProcessing_Time");
+      m_timers.push_back(m_timerSvc->addItem(name()+":DataPreparator"));
+      m_timers.push_back(m_timerSvc->addItem(name()+":PatternFinder"));
+      m_timers.push_back(m_timerSvc->addItem(name()+":StationFitter"));
+      m_timers.push_back(m_timerSvc->addItem(name()+":TrackFitter"));
+      m_timers.push_back(m_timerSvc->addItem(name()+":TrackExtrapolator"));
+      m_timers.push_back(m_timerSvc->addItem(name()+":CalibrationStreamer"));    
+      m_timers.push_back(m_timerSvc->addItem(name()+":TotalProcessing"));
     }
   }
 
@@ -180,19 +174,6 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
     return HLT::BAD_JOB_SETUP;
   } 
 
-  // retrieve the calibration streamer
-  if ( m_doCalStream ) { 
-    if (m_calStreamer.retrieve().isFailure()) {
-      msg() << MSG::ERROR << "Cannot retrieve Tool CalStreamer" << endreq;
-      return HLT::BAD_JOB_SETUP;
-    }
-    // set properties
-    m_calStreamer->setBufferName(m_calBufferName);
-    m_calStreamer->setBufferSize(m_calBufferSize);
-    msg() << MSG::INFO << "Initialized the Muon Calibration Streamer. Buffer name: " << m_calBufferName 
-	  << ", buffer size: " << m_calBufferSize << endreq;
-    
-  }                                                                                                                                                     
   // Set service tools
   m_trackExtrapolator->setExtrapolatorTool(&m_backExtrapolatorTool);
   m_dataPreparator->setExtrapolatorTool(&m_backExtrapolatorTool);
@@ -200,22 +181,21 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
   // set road width in case TGC/RPC readout failure 
   m_dataPreparator->setRoadWidthForFailure(m_rWidth_RPC_Failed, m_rWidth_TGC_Failed);
 
-  StatusCode sc;
+  //StatusCode sc;
 
-  //set geometry
-  sc = m_dataPreparator->setGeometry(m_use_new_geometry);
-  if (!sc.isSuccess()) {
-    msg() << MSG::ERROR << "Failed to set geometry flag to DataPreparator" << endreq;
-    return HLT::ERROR;
-  }
-
-  m_patternFinder->setGeometry(m_use_new_geometry);
   m_dataPreparator->setRpcGeometry(m_use_rpc);
 
   // set data or MC flag
   sc = m_dataPreparator->setMCFlag(m_use_mcLUT);
   if (!sc.isSuccess()) {
     msg() << MSG::ERROR << "Failed to set MC flag to DataPreparator" << endreq;
+    return HLT::ERROR;
+	}
+  
+  ////stationfit mc flag
+  sc = m_stationFitter->setMCFlag(m_use_mcLUT);
+  if (!sc.isSuccess()) {
+    msg() << MSG::ERROR << "Failed to set MC flag to StationFitter" << endreq;
     return HLT::ERROR;
   }
 
@@ -225,51 +205,52 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
     return HLT::ERROR;
   }
 
-
-  std::string applicationName="not_found";
-  if ( m_allowOksConfig ) {
-    sc = service("JobOptionsSvc", m_jobOptionsSvc);
-    if (sc.isFailure()) {
-      msg() << MSG::ERROR << "Could not find JobOptionsSvc" << endreq;
-      return HLT::ERROR;
-    } else {
- 
-      IService* svc = dynamic_cast<IService*>(m_jobOptionsSvc);
-      if(svc != 0 ) {
-	msg() << MSG::INFO << " Algorithm = " << name() << " is connected to JobOptionsSvc Service = "
-	      << svc->name() << endreq;
-	// Find the Data Flow application name
-	//bool df_found = false;
-	const std::vector<const Property*>* dataFlowProps = m_jobOptionsSvc->getProperties("DataFlowConfig");
-	if ( dataFlowProps ) {
-	  msg() << MSG::INFO << " Properties available for 'DataFlowConfig': number = " << dataFlowProps->size() << endreq;
-	  msg() << MSG::INFO << " --------------------------------------------------- " << endreq;
-	  for ( std::vector<const Property*>::const_iterator cur = dataFlowProps->begin();
-		cur != dataFlowProps->end(); cur++) {
-	    //	    msg() << MSG::INFO << (*cur)->name() << " = " << (*cur)->toString() << endreq;
-	    // the application name is found
-	    if ( (*cur)->name() == "DF_ApplicationName" ) {
-	      //df_found = true;
-	      applicationName = (*cur)->toString();
-	    }
-	  }
-	} 
-
-      }
-    }
+  // initialize the joboptions service
+  sc = service("JobOptionsSvc", m_jobOptionsSvc);
+  if (sc.isFailure()) {
+    msg() << MSG::ERROR << "Could not find JobOptionsSvc" << endreq;
+    return HLT::ERROR;
+  } else {
+    IService* svc = dynamic_cast<IService*>(m_jobOptionsSvc);
+    if(svc != 0 ) {
+      msg() << MSG::INFO << " Algorithm = " << name() << " is connected to JobOptionsSvc Service = "
+	  << svc->name() << endreq;
+    }  
   }
 
   //
-  // Create the calibration stream
+  // Initialize the calibration streamer and the incident 
+  // service for its initialization
+  //
   if (m_doCalStream) {
+    // retrieve the calibration streamer
+    if (m_calStreamer.retrieve().isFailure()) {
+      msg() << MSG::ERROR << "Cannot retrieve Tool CalStreamer" << endreq;
+      return HLT::BAD_JOB_SETUP;
+    }
+    // set properties
     m_calStreamer->setBufferName(m_calBufferName);
-    m_calStreamer->setInstanceName(applicationName); 
-    StatusCode sc = m_calStreamer->openStream();
-    if ( sc != StatusCode::SUCCESS ) {  
-      msg() << MSG::ERROR << "Failed to open the calibration stream" << endreq;
+    m_calStreamer->setBufferSize(m_calBufferSize);
+    m_calStreamer->setDoDataScouting(m_calDataScouting);
+    msg() << MSG::INFO << "Initialized the Muon Calibration Streamer. Buffer name: " << m_calBufferName 
+	  << ", buffer size: " << m_calBufferSize 
+	  << " doDataScouting: "  << m_calDataScouting << endreq;
+    
+    // create the TrigCompositeContainer to store the calibration buffer
+    m_trigCompositeContainer = new xAOD::TrigCompositeContainer();
+
+    ServiceHandle<IIncidentSvc> p_incidentSvc("IncidentSvc",name());
+    sc =  p_incidentSvc.retrieve();
+    if (!sc.isSuccess()) {
+      msg() << MSG::ERROR << "Could not find IncidentSvc" << endreq;
+      return HLT::ERROR;
+    } else {
+      long int pri=100;
+      p_incidentSvc->addListener(this,"UpdateAfterFork",pri);
+      p_incidentSvc.release().ignore();
     }
   }
-
+  
   msg() << MSG::DEBUG << "initialize success" << endreq;
   
   return HLT::OK;
@@ -279,17 +260,12 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
 // --------------------------------------------------------------------------------
 
 HLT::ErrorCode MuFastSteering::hltBeginRun() {
-
   msg() << MSG::DEBUG << "hltBeginRun"<<  endreq;
-
-
   return HLT::OK;
 }
 
 HLT::ErrorCode MuFastSteering::hltEndRun() {
-   msg() << MSG::DEBUG << "hltEndRun"<<  endreq;
-
-   //
+  msg() << MSG::DEBUG << "hltEndRun"<<  endreq;
    // close the calibration stream 
    if (m_doCalStream) { 
      StatusCode sc = m_calStreamer->closeStream();
@@ -313,7 +289,6 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
                                           HLT::TriggerElement* outputTE)
 {
   StatusCode sc = StatusCode::SUCCESS;
-  
   // Initialize monitored variables;
   m_inner_mdt_hits  = -1;
   m_middle_mdt_hits = -1;
@@ -395,6 +370,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
       // Data preparation
       m_rpcHits.clear();
       sc = m_dataPreparator->prepareData(*p_roi,
+					 *p_roids,
                                          m_rpcHits,
                                          m_muonRoad,
                                          m_mdtRegion,
@@ -440,6 +416,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
       sc = m_trackFitter->findTracks(*p_roi,
                                      m_rpcFitResult,
                                      m_trackPatterns);
+                                     
       if (!sc.isSuccess()) {
          msg() << MSG::WARNING << "Track fitter failed" << endreq;
          updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion,
@@ -450,7 +427,7 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
 
     } else { // Endcap
       msg() << MSG::DEBUG << "Endcap" << endreq;
-      
+
       // Data preparation
       m_tgcHits.clear();     
       sc = m_dataPreparator->prepareData(*p_roi,
@@ -484,10 +461,17 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
       if (m_timerSvc) m_timers[ITIMER_PATTERN_FINDER]->pause();
       
       // Superpoint fit
-      if (m_timerSvc) m_timers[ITIMER_STATION_FITTER]->resume();      
-      sc = m_stationFitter->findSuperPoints(*p_roi,
-                                             m_tgcFitResult,
-                                             m_trackPatterns);
+      if (m_timerSvc) m_timers[ITIMER_STATION_FITTER]->resume();
+      if(!m_use_new_segmentfit){
+        sc = m_stationFitter->findSuperPoints(*p_roi,
+                                              m_tgcFitResult,
+                                              m_trackPatterns);
+      }else{
+        sc = m_stationFitter->findSuperPoints(*p_roi,
+                                              m_muonRoad,
+                                              m_tgcFitResult,
+                                              m_trackPatterns);
+      }
 
       if (!sc.isSuccess()) {
          msg() << MSG::WARNING << "Super point fitter failed" << endreq;
@@ -501,7 +485,8 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
       if (m_timerSvc) m_timers[ITIMER_TRACK_FITTER]->resume();     
       sc = m_trackFitter->findTracks(*p_roi,
                                      m_tgcFitResult,
-                                     m_trackPatterns);
+                                     m_trackPatterns,
+                                     m_muonRoad);
 
       if (!sc.isSuccess()) {
          msg() << MSG::WARNING << "Track fitter failed" << endreq;
@@ -557,11 +542,25 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
       TrigL2MuonSA::TrackPattern tp = m_trackPatterns[0];
       if (m_timerSvc) m_timers[ITIMER_CALIBRATION_STREAMER]->resume();                                                    
       //      m_calStreamer->setInstanceName(this->name());
-      sc = m_calStreamer->createRoiFragment(*p_roi,tp,m_mdtHits_normal,m_rpcHits); 
+      
+      bool updateTriggerElement = false;
+      sc = m_calStreamer->createRoiFragment(*p_roi,tp,m_mdtHits_normal,m_rpcHits,updateTriggerElement); 
       if (sc != StatusCode::SUCCESS ) {  
         msg() << MSG::WARNING << "Calibration streamer: create Roi Fragment failed" << endreq;
       }
       if (m_timerSvc) m_timers[ITIMER_CALIBRATION_STREAMER]->pause(); 
+
+      // if it's a data scouting chain check the buffer length
+      if ( m_calDataScouting ) {
+	
+	if ( updateTriggerElement ) {
+	  xAOD::TrigComposite* tc = new xAOD::TrigComposite();
+	  tc->setDetail("MuonCalStream", *(m_calStreamer->getLocalBuffer()) );
+
+	} 
+	
+      } 
+
     }
 
        
@@ -606,6 +605,8 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
                                     const TrigL2MuonSA::CscHits&             cscHits,
                                     std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns)
 {
+  const float ZERO_LIMIT = 1.e-5;
+
   const int currentRoIId = roids->roiId();
 
   const double scalePhiWidthForFailure = 2;
@@ -634,202 +635,16 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
   int middle = 1;
   int outer  = 2;
 
-  MuonFeature* muon_feature;
-
   std::string muonCollKey = "MuonL2SAInfo";
   
   xAOD::L2StandAloneMuonContainer *muonColl = new xAOD::L2StandAloneMuonContainer();
   xAOD::L2StandAloneMuonAuxContainer aux;
   muonColl->setStore( &aux );
 
-  if ( trackPatterns.size() > 0 ) {
-    
-    const TrigL2MuonSA::TrackPattern& pattern = trackPatterns[0]; 
-    
-    if (pattern.s_address==-1) {
-      inner  = xAOD::L2MuonParameters::Chamber::EndcapInner;
-      middle = xAOD::L2MuonParameters::Chamber::EndcapMiddle;
-      outer  = xAOD::L2MuonParameters::Chamber::EndcapOuter;
-    } else {
-      inner  = xAOD::L2MuonParameters::Chamber::BarrelInner;
-      middle = xAOD::L2MuonParameters::Chamber::BarrelMiddle;
-      outer  = xAOD::L2MuonParameters::Chamber::BarrelOuter;
-    }
-
-    muon_feature = new MuonFeature(pattern.s_address,
-                                   pattern.pt*pattern.charge,
-                                   pattern.superPoints[inner].R,
-                                   pattern.etaMap,
-                                   pattern.phiMS,
-                                   pattern.phiMSDir,
-                                   pattern.superPoints[inner].Z,
-                                   pattern.superPoints[inner].Alin,
-                                   1.0);
-    
-    // add superpoints
-    muon_feature->set_sp1(pattern.superPoints[inner].R, pattern.superPoints[inner].Z, pattern.superPoints[inner].Alin);
-    muon_feature->set_sp2(pattern.superPoints[middle].R, pattern.superPoints[middle].Z, pattern.superPoints[middle].Alin);
-    muon_feature->set_sp3(pattern.superPoints[outer].R, pattern.superPoints[outer].Z, pattern.superPoints[outer].Alin);
-
-    // add pt variables
-    muon_feature->set_br(pattern.barrelRadius, pattern.barrelSagitta);    
-    muon_feature->set_ec(pattern.endcapAlpha, pattern.endcapBeta);
-    
-    // store eta and phi in dq_flag1
-    double flag1 = double(int(fabs(pattern.etaMap)*1e3))*1e3 + double(pattern.etaBin);
-    flag1 += double(int(fabs(pattern.phiMap)*1e3))*1e-4 + double(pattern.phiBin)*1e-7;
-    if( pattern.etaMap < 0 ) flag1 += 1e9;
-    if( pattern.phiMap < 0 ) flag1 += 1e8;
-
-    // store TGC/RPC readout failure flags in dq_flag1
-    // -1: TGC or RPC data normaly read
-    //  1: TGC readout failure => recovered using RoI
-    //  2: RPC readout failure => recovered using RoI
-    double flag2 = -1;
-    if (pattern.isTgcFailure) flag2 = 1;
-    if (pattern.isRpcFailure) flag2 = 2;
-    
-    muon_feature->set_dq(flag1,flag2);
-
-  } else {
-    
-    muon_feature = new MuonFeature(0,0.,0.,0.,0.,0.,0.,0.,1.0);
-    
-  }
-  
-  uint32_t muondetmask = 0;
-  
-  MuonFeatureDetails* muon_details =
-    new MuonFeatureDetails(AlgoMap(name()),
-                           inputTE->getId(),
-                           pTriggerInfo->extendedLevel1ID(),
-                           pEventId->lumi_block(),
-                           muondetmask,
-                           currentRoIId,
-                           roi->sysID(),
-                           roi->subsysID(),
-                           roi->sectorID(),
-                           roi->getRoINumber(),
-                           roi->getThresholdNumber(),
-                           roi->eta(),
-                           roi->phi(),
-                           m_esd_ext_size,
-                           m_esd_rob_size,
-                           m_esd_csm_size,
-                           m_esd_lv1_size,
-                           m_esd_rpc_size,
-                           m_esd_tgc_size,
-                           m_esd_mdt_size );
-  
-  msg() << MSG::DEBUG << "size of trackPattern=" << trackPatterns.size() << endreq;
   
   if( trackPatterns.size() > 0 ) {
     
     const TrigL2MuonSA::TrackPattern& pattern = trackPatterns[0]; 
-    msg() << MSG::DEBUG << "pattern#0: # of hits at inner  =" << pattern.mdtSegments[inner].size() << endreq;
-    msg() << MSG::DEBUG << "pattern#0: # of hits at middle =" << pattern.mdtSegments[middle].size() << endreq;
-    msg() << MSG::DEBUG << "pattern#0: # of hits at outer  =" << pattern.mdtSegments[outer].size() << endreq;
-    msg() << MSG::DEBUG << "pt=" << pattern.pt << endreq;
-
-    muon_details->setCharge(pattern.charge);
-    muon_details->setPt(pattern.pt*pattern.charge);
-
-    muon_details->setAddress(pattern.s_address);
-
-    muon_details->setAlpha(pattern.endcapAlpha);
-    muon_details->setBeta(pattern.endcapBeta);
-
-    muon_details->setSagitta(pattern.barrelSagitta);
-    muon_details->setRadius(pattern.barrelRadius);
-
-    muon_details->setSlope(pattern.superPoints[inner].Alin);
-    muon_details->setIntercept(pattern.superPoints[inner].Z);
-    muon_details->setDeltaR(pattern.deltaR);
-
-    muon_details->setEta(pattern.etaMap);
-    muon_details->setPhiMap(pattern.phiMap);
-    muon_details->setPhi(pattern.phiMS);
-    muon_details->setPhiDir(pattern.phiMSDir);
-
-    muon_details->setSP1(pattern.superPoints[inner].Alin,
-                         pattern.superPoints[inner].Blin,
-                         pattern.superPoints[inner].Z,
-                         pattern.superPoints[inner].R,
-                         pattern.superPoints[inner].Chi2);
-    muon_details->setSP2(pattern.superPoints[middle].Alin,
-                         pattern.superPoints[middle].Blin,
-                         pattern.superPoints[middle].Z,
-                         pattern.superPoints[middle].R,
-                         pattern.superPoints[middle].Chi2);
-    muon_details->setSP3(pattern.superPoints[outer].Alin,
-                         pattern.superPoints[outer].Blin,
-                         pattern.superPoints[outer].Z,
-                         pattern.superPoints[outer].R,
-                         pattern.superPoints[outer].Chi2);
-
-    for(unsigned int i_hit=0; i_hit<mdtHits.size(); i_hit++) {
-      if ( mdtHits[i_hit].isOutlier==0 || mdtHits[i_hit].isOutlier==1 ) {
-        muon_details->setMdtHit(mdtHits[i_hit].OnlineId, (uint32_t)mdtHits[i_hit].isOutlier,
-                                mdtHits[i_hit].R, mdtHits[i_hit].Z, mdtHits[i_hit].Residual, 
-                                mdtHits[i_hit].DriftTime, mdtHits[i_hit].DriftSpace, mdtHits[i_hit].DriftSigma);  
-      }
-    }
-
-    for(unsigned int i_hit=0; i_hit<cscHits.size(); i_hit++) {
-      if ( cscHits[i_hit].MeasuresPhi==0 ){
-        if ( cscHits[i_hit].isOutlier==0 || cscHits[i_hit].isOutlier==1 ) {
-          // store CSC hits into the MDT region for the moment.
-          muon_details->setMdtHit(0, (uint32_t)cscHits[i_hit].isOutlier,
-                                  cscHits[i_hit].r, cscHits[i_hit].z, cscHits[i_hit].Residual, 
-                                  0., 0., 0.);
-          msg() << MSG::DEBUG << "Stored CSC Hits: "
-                << "OL=" << cscHits[i_hit].isOutlier << ","
-                << "r="  << cscHits[i_hit].r << ","
-                << "z="  << cscHits[i_hit].z << ","
-                << "Rs=" << cscHits[i_hit].Residual << endreq;
-        }
-      }
-    }
-
-    for (int i_station=0; i_station<3; i_station++) {
-      for (int i_sector=0; i_sector<2; i_sector++) {
-        muon_details->setAw(i_sector, i_station, muonRoad.aw[i_station][i_sector]);
-        muon_details->setBw(i_sector, i_station, muonRoad.bw[i_station][i_sector]);
-
-        muon_details->setZetaMin(i_sector, i_station, mdtRegion.zMin[i_station][i_sector]);
-        muon_details->setZetaMax(i_sector, i_station, mdtRegion.zMax[i_station][i_sector]);
-
-        muon_details->setRadMin(i_sector, i_station, mdtRegion.rMin[i_station][i_sector]);
-        muon_details->setRadMax(i_sector, i_station, mdtRegion.rMax[i_station][i_sector]);
-
-        muon_details->setEtaMin(i_sector, i_station, mdtRegion.etaMin[i_station][i_sector]);
-        muon_details->setEtaMax(i_sector, i_station, mdtRegion.etaMax[i_station][i_sector]);
-
-        muon_details->setChamber_type_1(i_sector, i_station, mdtRegion.chamberType[i_station][i_sector][0]);
-        muon_details->setChamber_type_2(i_sector, i_station, mdtRegion.chamberType[i_station][i_sector][1]);
-      }
-    }
-
-    if ( muonRoad.isEndcap ) {
-      muon_details->setTgcPt(tgcFitResult.tgcPT);
-
-      muon_details->setTgcInn(tgcFitResult.tgcInn[0], tgcFitResult.tgcInn[1],
-                              tgcFitResult.tgcInn[2], tgcFitResult.tgcInn[3]);
-      muon_details->setTgcInnF(tgcFitResult.tgcInnRhoStd, tgcFitResult.tgcInnRhoNin,
-                               tgcFitResult.tgcInnPhiStd, tgcFitResult.tgcInnPhiNin);
-
-      muon_details->setTgcMid1(tgcFitResult.tgcMid1[0], tgcFitResult.tgcMid1[1],
-                               tgcFitResult.tgcMid1[2], tgcFitResult.tgcMid1[3]);
-      muon_details->setTgcMid2(tgcFitResult.tgcMid2[0], tgcFitResult.tgcMid2[1],
-                               tgcFitResult.tgcMid2[2], tgcFitResult.tgcMid2[3]);
-      muon_details->setTgcMidF(tgcFitResult.tgcMidRhoChi2, tgcFitResult.tgcMidRhoNin,
-                               tgcFitResult.tgcMidPhiChi2, tgcFitResult.tgcMidPhiNin);
-
-    } else {
-      muon_details->setRpc1(rpcFitResult.rpc1[0], rpcFitResult.rpc1[1], rpcFitResult.rpc1[2]);
-      muon_details->setRpc2(rpcFitResult.rpc2[0], rpcFitResult.rpc2[1], rpcFitResult.rpc2[2]);
-      muon_details->setRpc3(rpcFitResult.rpc3[0], rpcFitResult.rpc3[1], rpcFitResult.rpc3[2]);
-    }
 
     // define inner, middle, outer
     if (pattern.s_address==-1) {
@@ -841,6 +656,11 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
       middle = xAOD::L2MuonParameters::Chamber::BarrelMiddle;
       outer  = xAOD::L2MuonParameters::Chamber::BarrelOuter;
     }
+
+    msg() << MSG::DEBUG << "pattern#0: # of hits at inner  =" << pattern.mdtSegments[inner].size() << endreq;
+    msg() << MSG::DEBUG << "pattern#0: # of hits at middle =" << pattern.mdtSegments[middle].size() << endreq;
+    msg() << MSG::DEBUG << "pattern#0: # of hits at outer  =" << pattern.mdtSegments[outer].size() << endreq;
+    msg() << MSG::DEBUG << "pt=" << pattern.pt << endreq;
 
     // ---------
     // store xAOD
@@ -856,7 +676,7 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
 
     muonSA->setEta(pattern.etaVtx);
     muonSA->setPhi(pattern.phiVtx);
-    //    muonSA->setDeltaPt(pattern.deltaPt);
+    muonSA->setDeltaPt(pattern.deltaPt);
     muonSA->setDeltaEta(pattern.deltaEtaVtx);
     muonSA->setDeltaPhi(pattern.deltaPhiVtx);
 
@@ -905,6 +725,8 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
 
     ///////////////////////////////
     // Below are detailed information
+
+    uint32_t muondetmask = 0;
 
     /// Set L2 muon algorithm ID
     muonSA->setAlgoId( L2MuonAlgoMap(name()) );
@@ -956,15 +778,17 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
       if ( cscHits[i_hit].MeasuresPhi==0 ){
         if ( cscHits[i_hit].isOutlier==0 || cscHits[i_hit].isOutlier==1 ) {
           // store CSC hits into the MDT region for the moment.
-          muonSA->setMdtHit(0, (uint32_t)cscHits[i_hit].isOutlier, cscHits[i_hit].Chamber,
+          muonSA->setMdtHit(cscHits[i_hit].StripId, (uint32_t)cscHits[i_hit].isOutlier, cscHits[i_hit].Chamber,
                             cscHits[i_hit].r, cscHits[i_hit].z, cscHits[i_hit].Residual,
-                            0., 0., 0.);
-			    msg() << MSG::DEBUG << "CSC Hits stored in xAOD: "
-			    << "OL=" << cscHits[i_hit].isOutlier << ","
-			    << "Ch=" << cscHits[i_hit].Chamber << ","
-			    << "r="  << cscHits[i_hit].r << ","
-			    << "z="  << cscHits[i_hit].z << ","
-			    << "Rs=" << cscHits[i_hit].Residual << endreq;
+                            cscHits[i_hit].time, 0., 0.);
+          msg() << MSG::DEBUG << "CSC Hits stored in xAOD: "
+                << "ID=" << cscHits[i_hit].StripId << ","
+                << "OL=" << cscHits[i_hit].isOutlier << ","
+                << "Ch=" << cscHits[i_hit].Chamber << ","
+                << "r="  << cscHits[i_hit].r << ","
+                << "z="  << cscHits[i_hit].z << ","
+                << "Rs=" << cscHits[i_hit].Residual << ","
+                << "t="  << cscHits[i_hit].time << endreq;
         }
       }
     }
@@ -1004,12 +828,93 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
       muonSA->setRpc3(rpcFitResult.rpc3[0], rpcFitResult.rpc3[1], rpcFitResult.rpc3[2]);
     }
 
+    // Store track positions if set of (R, Z, eta, phi) are all available
+    if (pattern.s_address==-1) { // endcap
+
+      // Inner
+      if ( fabs(pattern.superPoints[inner].R) > ZERO_LIMIT && fabs(pattern.superPoints[inner].Z) > ZERO_LIMIT ) { // if R and Z exist   
+        if ( tgcFitResult.isSuccess && fabs(tgcFitResult.tgcInn[3]) > ZERO_LIMIT ) { // if phi exist
+          float theta = atan(pattern.superPoints[inner].R/fabsf(pattern.superPoints[inner].Z));
+          float eta = (tan(theta/2.)!=0.)? -log(tan(theta/2.))*pattern.superPoints[inner].Z/fabsf(pattern.superPoints[inner].Z): 0.;
+          muonSA->setTrackPosition( pattern.superPoints[inner].R, pattern.superPoints[inner].Z, eta, tgcFitResult.tgcInn[1] );
+        }
+      }
+
+      // Middle
+      if ( fabs(pattern.superPoints[middle].R) > ZERO_LIMIT && fabs(pattern.superPoints[middle].Z) > ZERO_LIMIT ) { // if R and Z exist 
+        float phi = 0;
+        if (tgcFitResult.isSuccess && ( fabs(tgcFitResult.tgcMid1[3]) > ZERO_LIMIT || fabs(tgcFitResult.tgcMid2[3]) > ZERO_LIMIT )) { // if phi exist
+          double phi1 = tgcFitResult.tgcMid1[1];
+          double phi2 = tgcFitResult.tgcMid2[1];
+          if ( tgcFitResult.tgcMid1[3]==0. || tgcFitResult.tgcMid2[3]==0. ) {
+            if ( fabs(tgcFitResult.tgcMid1[3]) > ZERO_LIMIT ) phi = phi1;
+            if ( fabs(tgcFitResult.tgcMid2[3]) > ZERO_LIMIT ) phi = phi2;
+          } else if( phi1*phi2 < 0 && fabsf(phi1)>(CLHEP::pi/2.) ) {
+            double tmp1 = (phi1>0)? phi1 - CLHEP::pi : phi1 + CLHEP::pi;
+            double tmp2 = (phi2>0)? phi2 - CLHEP::pi : phi2 + CLHEP::pi;
+            double tmp  = (tmp1+tmp2)/2.;
+            phi  = (tmp>0.)? tmp - CLHEP::pi : tmp + CLHEP::pi;
+          } else {      
+            phi  = (phi2+phi1)/2.;     
+          }
+        } else {
+          phi = roi->phi();
+        }
+        float theta = atan(pattern.superPoints[middle].R/fabsf(pattern.superPoints[middle].Z));
+        float eta = (tan(theta/2.)!=0.)? -log(tan(theta/2.))*pattern.superPoints[middle].Z/fabsf(pattern.superPoints[middle].Z): 0.;
+        muonSA->setTrackPosition( pattern.superPoints[middle].R, pattern.superPoints[middle].Z, eta, phi );
+      }
+
+    } else { // barrel
+
+      // Middle
+      if ( fabs(pattern.superPoints[middle].R) > ZERO_LIMIT && fabs(pattern.superPoints[middle].Z) > ZERO_LIMIT ) { // if R and Z exist 
+        float phi = 0;
+	/*
+        if ( rpcFitResult.isSuccess && ( fabs(rpcFitResult.rpc1[2]) > ZERO_LIMIT || fabs(rpcFitResult.rpc2[2]) > ZERO_LIMIT ) ) { // if phi exists
+          float phi1 = atan2(rpcFitResult.rpc1[1],rpcFitResult.rpc1[0]);
+          float phi2 = atan2(rpcFitResult.rpc2[1],rpcFitResult.rpc2[0]);
+          if ( rpcFitResult.rpc1[2]==0. || rpcFitResult.rpc2[2]==0. ) {
+            if ( fabs(rpcFitResult.rpc1[2]) > ZERO_LIMIT ) phi = phi1;
+            if ( fabs(rpcFitResult.rpc2[2]) > ZERO_LIMIT ) phi = phi2;
+          } else if ( phi1*phi2 < 0 && fabsf(phi1)>CLHEP::pi/2. ) {
+            double tmp1 = (phi1>0)? phi1 - CLHEP::pi : phi1 + CLHEP::pi;
+            double tmp2 = (phi2>0)? phi2 - CLHEP::pi : phi2 + CLHEP::pi;
+            double tmp  = (tmp1+tmp2)/2.;
+            phi = (tmp>0.)? tmp - CLHEP::pi : tmp + CLHEP::pi;
+          } else {
+            phi = (phi1+phi2)/2.;
+          }
+	*/
+        if (rpcFitResult.isSuccess) {
+          phi = rpcFitResult.phi;
+        } else {
+          phi = roi->phi();
+        }
+        float theta = atan(pattern.superPoints[middle].R/fabsf(pattern.superPoints[middle].Z));
+        float eta = (tan(theta/2.)!=0.)? -log(tan(theta/2.))*pattern.superPoints[middle].Z/fabsf(pattern.superPoints[middle].Z): 0.;
+        muonSA->setTrackPosition( pattern.superPoints[middle].R, pattern.superPoints[middle].Z, eta, phi );
+      }
+
+      // Outer
+      if ( fabs(pattern.superPoints[outer].R) > ZERO_LIMIT && fabs(pattern.superPoints[outer].Z) > ZERO_LIMIT ) { // if R and Z exist   
+	/*
+        if ( rpcFitResult.isSuccess && rpcFitResult.rpc3[2] != 0. ) { // if phi exists
+          float phi = atan2(rpcFitResult.rpc3[1],rpcFitResult.rpc3[0]);
+          float theta = atan(pattern.superPoints[outer].R/fabsf(pattern.superPoints[outer].Z));
+          float eta = (tan(theta/2.)!=0.)? -log(tan(theta/2.))*pattern.superPoints[outer].Z/fabsf(pattern.superPoints[outer].Z): 0.;
+          muonSA->setTrackPosition( pattern.superPoints[outer].R, pattern.superPoints[outer].Z, eta, phi );
+        }
+	*/
+      } 
+
+    }
+  
     muonColl->push_back(muonSA);
 
     // -------
     // store TrigRoiDescriptor
-    const float ZERO_LIMIT = 1.e-5;
-    if (fabs(muon_feature->pt()) > ZERO_LIMIT ) {
+    if (fabs(muonSA->pt()) > ZERO_LIMIT ) {
       TrigRoiDescriptor* MSroiDescriptor = new TrigRoiDescriptor(roids->l1Id(),
                                                                  roids->roiId(),
                                                                  pattern.etaMap,
@@ -1036,8 +941,8 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
       //      }
       
       // 2011a tuning
-      phiHalfWidth = getRoiSizeForID(false,muon_feature);
-      etaHalfWidth = getRoiSizeForID(true, muon_feature);
+      phiHalfWidth = getRoiSizeForID(false,muonSA);
+      etaHalfWidth = getRoiSizeForID(true, muonSA);
 
       if (pattern.isTgcFailure || pattern.isRpcFailure) 
         phiHalfWidth *= scalePhiWidthForFailure;
@@ -1127,16 +1032,9 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
 
   }
 
-  HLT::ErrorCode status = attachFeature( outputTE, muon_feature );
-  if( status != HLT::OK ) {
-    msg() << MSG::ERROR << "Record of Muon Feature in TriggerElement failed" << endreq;
-    outputTE->setActiveState(false);
-    return false;
-  }
-  
   if (muonColl != 0 && muonColl->size() > 0) {
     outputTE->setActiveState(true);
-    status = attachFeature( outputTE, muonColl, muonCollKey );
+    HLT::ErrorCode status = attachFeature( outputTE, muonColl, muonCollKey );
     if( status != HLT::OK ) {
       msg() << MSG::ERROR << "Record of L2StandAloneMuon in TriggerElement failed" << endreq;
       outputTE->setActiveState(false);
@@ -1147,29 +1045,7 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
 
   outputTE->setActiveState(true);
   
-  if (muon_details) {
-    status = attachFeature( outputTE, muon_details);
-    if(status!=HLT::OK){
-      msg() << MSG::ERROR 
-            << "Record of Muon Feature Details failed" << endreq;
-      return status;
-    } 
-  }  
-    
   return true;
-}
-
-// --------------------------------------------------------------------------------
-// --------------------------------------------------------------------------------
-
-MuonFeatureDetails::AlgoId MuFastSteering::AlgoMap(const std::string& name)
-{
-  if (name == "MuFastSteering_Muon")  {
-    return MuonFeatureDetails::MUONID;
-  }
-
-  return MuonFeatureDetails::NULLID;
-
 }
 
 // --------------------------------------------------------------------------------
@@ -1180,9 +1056,9 @@ int MuFastSteering::L2MuonAlgoMap(const std::string& name)
   int algoId = 0;
   if (name == "MuFastSteering_Muon")  {
     algoId = xAOD::L2MuonParameters::L2MuonAlgoId::MUONID;
+  } else {
+    algoId = xAOD::L2MuonParameters::L2MuonAlgoId::NULLID;
   }
-
-  algoId = xAOD::L2MuonParameters::L2MuonAlgoId::NULLID;
 
   return algoId;
 }
@@ -1190,12 +1066,12 @@ int MuFastSteering::L2MuonAlgoMap(const std::string& name)
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-float MuFastSteering::getRoiSizeForID(bool isEta, MuonFeature* muon_feature)
+float MuFastSteering::getRoiSizeForID(bool isEta, const xAOD::L2StandAloneMuon* muonSA)
 {
-   bool  isBarrel = (muon_feature->saddress()==-1) ? true : false;
-   float eta = muon_feature->eta();
-   float phi = muon_feature->phi();
-   float pt  = muon_feature->pt();
+   bool  isBarrel = (muonSA->sAddress()==-1) ? true : false;
+   float eta = muonSA->etaMS();
+   float phi = muonSA->phiMS();
+   float pt  = muonSA->pt();
 
    //
    const int N_PARAMS = 2;
@@ -1441,3 +1317,64 @@ StatusCode MuFastSteering::updateMonitor(const LVL1::RecMuonRoI*                
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
+// handler for "UpdateAfterFork")
+void MuFastSteering::handle(const Incident& incident) {
+  
+  if (incident.type()!="UpdateAfterFork") return;
+  msg() << MSG::INFO << "+-----------------------------------+" << endreq;
+  msg() << MSG::INFO << "| handle for UpdateAfterFork called |" << endreq;
+  msg() << MSG::INFO << "+-----------------------------------+" << endreq;
+  
+  // Find the Worker ID and create an individual muon buffer name for each worker
+  StringProperty worker_id;
+  std::string worker_name;
+
+  worker_id.setName("worker_id");
+  worker_id = std::string("");
+  const std::vector<const Property*>* dataFlowProps = m_jobOptionsSvc->getProperties("DataFlowConfig");
+  if ( dataFlowProps ) {
+    msg() << MSG::INFO << " Properties available for 'DataFlowConfig': number = " << dataFlowProps->size() << endreq;
+    msg() << MSG::INFO << " --------------------------------------------------- " << endreq;
+    for ( std::vector<const Property*>::const_iterator cur = dataFlowProps->begin();
+	  cur != dataFlowProps->end(); cur++) {
+      msg() << MSG::INFO << (*cur)->name() << " = " << (*cur)->toString() << endreq;
+      // the application name is found
+      if ( (*cur)->name() == "DF_WorkerId" ) {
+	if (worker_id.assign(**cur)) {
+	  msg() << MSG::INFO << " ---> got worker ID = " << worker_id.value() << endreq;
+	  worker_name = worker_id.value() ;
+	} else {
+	  msg() << MSG::WARNING << " ---> set property failed." << endreq;
+	}
+      }
+    }
+    
+    if ( worker_id.value() == "" ) {
+      msg() << MSG::INFO << " Property for DF_WorkerId not found." << endreq;
+    }
+  } else {
+    msg() << MSG::INFO << " No Properties for 'DataFlowConfig' found." << endreq;
+  }
+
+  msg() << MSG::INFO << " MuonCalBufferSize     = " << m_calBufferSize << endreq;
+  msg() << MSG::INFO << "=================================================" << endreq;
+  
+  // release JobOptionsSvc
+  unsigned long mjcounter = m_jobOptionsSvc->release();
+  msg() << MSG::INFO << " --> Release JobOptionsSvc Service, Counter = " << mjcounter << endreq;
+
+  
+  //
+  // Create the calibration stream
+  if (m_doCalStream) {
+    // set a fixed name for the buffer
+    m_calBufferName = "/tmp/muonCalStreamOutput";
+    m_calStreamer->setBufferName(m_calBufferName);
+    m_calStreamer->setInstanceName(worker_name); 
+    StatusCode sc = m_calStreamer->openStream();
+    if ( sc != StatusCode::SUCCESS ) {  
+     msg() << MSG::ERROR << "Failed to open the calibration stream" << endreq;
+    }
+  }
+
+}

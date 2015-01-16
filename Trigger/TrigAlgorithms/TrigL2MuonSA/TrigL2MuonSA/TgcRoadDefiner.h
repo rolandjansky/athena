@@ -11,11 +11,10 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "MuonIdHelpers/MdtIdHelper.h"
 #include "TrigMuonBackExtrapolator/ITrigMuonBackExtrapolator.h"
 #include "TrigL2MuonSA/PtEndcapLUTSvc.h"
 #include "TrigL2MuonSA/PtEndcapLUT.h"
-
-#include "MDTcabling/IMDTcablingSvc.h"
 
 #include "TrigL2MuonSA/TgcFit.h"
 #include "TrigL2MuonSA/TgcData.h"
@@ -23,9 +22,6 @@
 #include "TrigL2MuonSA/MdtRegion.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 
-#include "TrigMuonEvent/MuonFeature.h"
-
-#include "TrigMuonEvent/MuonFeature.h"
 #include "RegionSelector/IRegSelSvc.h"
 
 class StoreGateSvc;
@@ -49,7 +45,6 @@ class TgcRoadDefiner
 		  TrigL2MuonSA::TgcFitResult&  tgcFitResult);
 
   void setMsgStream(MsgStream* msg) { m_msg = msg; };
-  void setMdtGeometry(const MDTGeometry* mdtGeometry);
   void setMdtGeometry(IRegSelSvc* regionSelector, const MdtIdHelper* mdtIdHelper);
   void setPtLUT(const TrigL2MuonSA::PtEndcapLUTSvc* ptEndcapLUTSvc);
   void setRoadWidthForFailure(double rWidth_TGC_Failed);
@@ -60,7 +55,6 @@ class TgcRoadDefiner
   
  private:
   MsgStream* m_msg;
-  const MDTGeometry*     m_mdtGeometry;
   ToolHandle<ITrigMuonBackExtrapolator>* m_backExtrapolatorTool;
   const TrigL2MuonSA::PtEndcapLUT*       m_ptEndcapLUT;
 
@@ -72,8 +66,6 @@ class TgcRoadDefiner
   TrigL2MuonSA::TgcFit::PointArray m_tgcWireInnPoints;   // List of TGC wire inner station points.
 
   double m_rWidth_TGC_Failed;
-
-  bool m_use_new_geometry;
 
   IRegSelSvc* m_regionSelector;
   const MdtIdHelper* m_mdtIdHelper;

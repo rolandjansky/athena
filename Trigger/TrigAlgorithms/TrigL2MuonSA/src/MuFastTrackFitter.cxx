@@ -23,7 +23,7 @@ const InterfaceID& TrigL2MuonSA::MuFastTrackFitter::interfaceID() { return IID_M
 TrigL2MuonSA::MuFastTrackFitter::MuFastTrackFitter(const std::string& type, 
 						   const std::string& name,
 						   const IInterface*  parent): 
-  AlgTool(type,name,parent),
+  AthAlgTool(type,name,parent),
   m_msg(0),
   m_storeGateSvc( "StoreGateSvc", name ),
   m_use_mcLUT(true),
@@ -55,9 +55,9 @@ StatusCode TrigL2MuonSA::MuFastTrackFitter::initialize()
    msg() << MSG::DEBUG << "Initializing MuFastTrackFitter - package version " << PACKAGE_VERSION << endreq ;
    
    StatusCode sc;
-   sc = AlgTool::initialize();
+   sc = AthAlgTool::initialize();
    if (!sc.isSuccess()) {
-      msg() << MSG::ERROR << "Could not initialize the AlgTool base class." << endreq;
+      msg() << MSG::ERROR << "Could not initialize the AthAlgTool base class." << endreq;
       return sc;
    }
    
@@ -152,14 +152,15 @@ StatusCode TrigL2MuonSA::MuFastTrackFitter::findTracks(const LVL1::RecMuonRoI*  
 
 StatusCode TrigL2MuonSA::MuFastTrackFitter::findTracks(const LVL1::RecMuonRoI*     p_roi,
 						       TrigL2MuonSA::TgcFitResult& tgcFitResult,
-						       std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns)
+						       std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns,
+                                                       const TrigL2MuonSA::MuonRoad muonRoad)
 {
    StatusCode sc = StatusCode::SUCCESS;
 
    std::vector<TrigL2MuonSA::TrackPattern>::iterator itTrack;
    for (itTrack=v_trackPatterns.begin(); itTrack!=v_trackPatterns.end(); itTrack++) {
 
-     sc = m_alphaBetaEstimate->setAlphaBeta(p_roi, tgcFitResult, *itTrack);
+     sc = m_alphaBetaEstimate->setAlphaBeta(p_roi, tgcFitResult, *itTrack, muonRoad);
      if (!sc.isSuccess()) {
        msg() << MSG::WARNING << "Endcap alpha and beta estimation failed" << endreq;
        return sc;
@@ -191,7 +192,7 @@ StatusCode TrigL2MuonSA::MuFastTrackFitter::finalize()
    if ( m_ptFromRadius ) delete m_ptFromRadius;
    if ( m_ptFromAlphaBeta ) delete m_ptFromAlphaBeta;
    
-   StatusCode sc = AlgTool::finalize(); 
+   StatusCode sc = AthAlgTool::finalize(); 
    return sc;
 }
 

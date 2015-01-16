@@ -14,29 +14,30 @@ namespace TrigL2MuonSA {
   {
   public:
     RpcHitData() :
-      eta(0),
-      phi(0),
-      r(0),
+      x(0),
+      y(0),
       z(0),
-      width(0),
-      sta(0),
-      isStrip(false),
-      bcTag(0),
-      inRoad(false)
+      gasGap(0),
+      doubletR(0),
+      doubletPhi(0),
+      doubletZ(0),
+      layer(0),
+      measuresPhi(false),
+      stationName("")
 	{};
       ~RpcHitData() {};
       
   public:
-      double eta;
-      double phi;
-      double r;
+      double x;
+      double y;
       double z;
-      double width;
-      int    sta;
-      bool   isStrip;
-      int    bcTag;
-      bool   inRoad;
-      
+      int gasGap;
+      int doubletR;
+      int doubletPhi;
+      int doubletZ;
+      int layer;
+      bool measuresPhi;
+      std::string stationName;
   };
   
   // --------------------------------------------------------------------------------

@@ -10,15 +10,9 @@
 
 #include "CLHEP/Units/PhysicalConstants.h"
 
-#include "RPCcablingInterface/IRPCcablingServerSvc.h"
 #include "MuonContainerManager/MuonRdoContainerAccess.h"
-#include "TrigT1RPClogic/RPCrawData.h"
-#include "TrigT1RPClogic/CMAdata.h"
-
-#include "TrigMuonEvent/MuonFeatureDetails.h"
 
 #include "Identifier/IdentifierHash.h"
-#include "RPCcablingInterface/RpcPadIdHash.h" 
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonIdHelpers/MdtIdHelper.h"
 
@@ -37,8 +31,9 @@ const InterfaceID& TrigL2MuonSA::MuFastDataPreparator::interfaceID() { return II
 TrigL2MuonSA::MuFastDataPreparator::MuFastDataPreparator(const std::string& type, 
 							 const std::string& name,
 							 const IInterface*  parent): 
-  AlgTool(type,name,parent),
+  AthAlgTool(type,name,parent),
   m_msg(0),
+  m_recRPCRoiSvc("LVL1RPC::RPCRecRoiSvc",""),
   m_options(),
   m_rpcDataPreparator("TrigL2MuonSA::RpcDataPreparator"),
   m_tgcDataPreparator("TrigL2MuonSA::TgcDataPreparator"),
@@ -46,10 +41,10 @@ TrigL2MuonSA::MuFastDataPreparator::MuFastDataPreparator(const std::string& type
   m_cscDataPreparator("TrigL2MuonSA::CscDataPreparator"),
   m_rpcRoadDefiner(0),
   m_tgcRoadDefiner(0),
-  m_mdtCablingSvc("MDTcablingSvc","")
+  m_rpcPatFinder(0)
 {
    declareInterface<TrigL2MuonSA::MuFastDataPreparator>(this);
-   declareProperty("MDT_CablingSvc",   m_mdtCablingSvc);
+   declareProperty("RPCRecRoiSvc",      m_recRPCRoiSvc,      "Reconstruction of RPC RoI");
 }
 
 // --------------------------------------------------------------------------------
@@ -69,13 +64,21 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::initialize()
    msg() << MSG::DEBUG << "Initializing MuFastDataPreparator - package version " << PACKAGE_VERSION << endreq ;
    
    StatusCode sc;
-   sc = AlgTool::initialize();
+   sc = AthAlgTool::initialize();
    if (!sc.isSuccess()) {
-      msg() << MSG::ERROR << "Could not initialize the AlgTool base class." << endreq;
+      msg() << MSG::ERROR << "Could not initialize the AthAlgTool base class." << endreq;
       return sc;
    }
 
-   // retrieve the ID helper and the region selector
+  sc = m_recRPCRoiSvc.retrieve();
+  if ( sc.isFailure() ) {
+    msg() << MSG::ERROR << "Couldn't connect to " << m_recRPCRoiSvc << endreq;
+    return sc;
+  } else {
+    msg() << MSG::INFO << "Retrieved Service " << m_recRPCRoiSvc << endreq;
+  }
+  
+  // retrieve the ID helper and the region selector
    StoreGateSvc* detStore(0);
    const MuonGM::MuonDetectorManager* muonMgr;
    sc = serviceLocator()->service("DetectorStore", detStore);
@@ -97,13 +100,15 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::initialize()
       return sc;
    }
    msg() << MSG::DEBUG << "Retrieved the RegionSelector service " << endreq;
-   
-   sc = m_rpcDataPreparator.retrieve();
-   if ( sc.isFailure() ) {
-      msg() << MSG::ERROR << "Could not retrieve " << m_rpcDataPreparator << endreq;
-      return sc;
+
+   if (m_use_rpc) {
+     sc = m_rpcDataPreparator.retrieve();
+     if ( sc.isFailure() ) {
+       msg() << MSG::ERROR << "Could not retrieve " << m_rpcDataPreparator << endreq;
+       return sc;
+     }
+     msg() << MSG::DEBUG << "Retrieved service " << m_rpcDataPreparator << endreq;
    }
-   msg() << MSG::DEBUG << "Retrieved service " << m_rpcDataPreparator << endreq;
 
    sc = m_tgcDataPreparator.retrieve();
    if ( sc.isFailure() ) {
@@ -129,11 +134,11 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::initialize()
    // Set MsgStream for utils
    m_rpcRoadDefiner = new TrigL2MuonSA::RpcRoadDefiner(m_msg);
    m_tgcRoadDefiner = new TrigL2MuonSA::TgcRoadDefiner(m_msg);
+   m_rpcPatFinder   = new TrigL2MuonSA::RpcPatFinder(m_msg);
 
    // set the geometry tools
    m_rpcRoadDefiner->setMdtGeometry(m_regionSelector,m_mdtIdHelper);
    m_tgcRoadDefiner->setMdtGeometry(m_regionSelector,m_mdtIdHelper);
-
 
    // 
    return StatusCode::SUCCESS; 
@@ -184,6 +189,9 @@ void TrigL2MuonSA::MuFastDataPreparator::setRoadWidthForFailure(double rWidth_RP
   return;
 }
 
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
 void TrigL2MuonSA::MuFastDataPreparator::setRpcGeometry(bool use_rpc)
 {
   m_rpcRoadDefiner->setRpcGeometry(use_rpc);
@@ -191,25 +199,6 @@ void TrigL2MuonSA::MuFastDataPreparator::setRpcGeometry(bool use_rpc)
 
   m_use_rpc = use_rpc;
   return;
-}
-
-StatusCode TrigL2MuonSA::MuFastDataPreparator::setGeometry(bool use_new_geometry)
-{
-   m_use_new_geometry = use_new_geometry;
-
-   // Locate MDT CablingSvc - ONLY FOR OLD GEOMETRY / CABLING 
-   if (!m_use_new_geometry) {
-     StatusCode sc = m_mdtCablingSvc.retrieve();
-     if ( sc.isFailure() ) {
-       msg() << MSG::ERROR << "Could not retrieve " << m_mdtCablingSvc << endreq;
-       return sc;
-     }
-     msg() << MSG::DEBUG << "Retrieved service " << m_mdtCablingSvc << endreq;
-   }
-
-  m_mdtDataPreparator->setGeometry(use_new_geometry);
-
-  return StatusCode::SUCCESS;
 }
 
 // --------------------------------------------------------------------------------
@@ -226,6 +215,7 @@ void TrigL2MuonSA::MuFastDataPreparator::setExtrapolatorTool(ToolHandle<ITrigMuo
 // --------------------------------------------------------------------------------
 
 StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRoI*     p_roi,
+							   const TrigRoiDescriptor*    p_roids,
 							   TrigL2MuonSA::RpcHits&      rpcHits,
 							   TrigL2MuonSA::MuonRoad&     muonRoad,
 							   TrigL2MuonSA::MdtRegion&    mdtRegion,
@@ -234,26 +224,43 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
 							   TrigL2MuonSA::MdtHits&      mdtHits_overlap)
 {
 
-  msg() << MSG::DEBUG << "RoI eta/phi=" << p_roi->eta() << "/" << p_roi->phi() << endreq;
+  msg() << MSG::DEBUG << "RoI eta/phi=" << p_roi->eta() << "/" << p_roi->phi() << endreq;  
   
   StatusCode sc = StatusCode::SUCCESS;
   
   if(!m_use_rpc){
-  }
-  else{
-    sc = m_rpcDataPreparator->prepareData(p_roi,
+
+  } else{
+    
+    m_rpcPatFinder->clear();
+
+    sc = m_rpcDataPreparator->prepareData(p_roids,
 					  rpcHits,
-					  rpcFitResult);
+					  m_rpcPatFinder);
     if (!sc.isSuccess()) {
       msg() << MSG::DEBUG << "Error in RPC data prepapration. Continue using RoI" << endreq;
     }
   }
-  
+ 
+  //m_recRPCRoiSvc->reconstruct((*p_roi)->roiWord());
+  double roiEtaMinLow = 0.;
+  double roiEtaMaxLow = 0.;
+  double roiEtaMinHigh = 0.;
+  double roiEtaMaxHigh = 0.;
+  m_recRPCRoiSvc->etaDimLow(roiEtaMinLow, roiEtaMaxLow);
+  m_recRPCRoiSvc->etaDimHigh(roiEtaMinHigh, roiEtaMaxHigh);
+
   sc = m_rpcRoadDefiner->defineRoad(p_roi,
 				    muonRoad,
-				    rpcFitResult);
+				    rpcHits,
+				    m_rpcPatFinder,
+				    rpcFitResult,
+                                    roiEtaMinLow,
+                                    roiEtaMaxLow,
+                                    roiEtaMinHigh,
+                                    roiEtaMaxHigh);
   if (!sc.isSuccess()) {
-    msg() << MSG::ERROR << "Error in road definition." << endreq;
+    msg() << MSG::WARNING << "Error in road definition." << endreq;
     return sc;
   }
   
@@ -266,7 +273,7 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
   
   
   if (!sc.isSuccess()) {
-    msg() << MSG::ERROR << "Error in MDT data preparation." << endreq;
+    msg() << MSG::WARNING << "Error in MDT data preparation." << endreq;
     return sc;
   }
   msg() << MSG::DEBUG << "nr of MDT (normal)  hits=" << mdtHits_normal.size() << endreq;
@@ -302,7 +309,7 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
 				    muonRoad,
 				    tgcFitResult);
   if (!sc.isSuccess()) {
-    msg() << MSG::ERROR << "Error in road definition." << endreq;
+    msg() << MSG::WARNING << "Error in road definition." << endreq;
     return sc;
   }
   
@@ -314,18 +321,18 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
 					mdtHits_overlap);
 
   if (!sc.isSuccess()) {
-    msg() << MSG::ERROR << "Error in MDT data preparation." << endreq;
+    msg() << MSG::WARNING << "Error in MDT data preparation." << endreq;
     return sc;
   }
   msg() << MSG::DEBUG << "nr of MDT (normal)  hits=" << mdtHits_normal.size() << endreq;
   msg() << MSG::DEBUG << "nr of MDT (overlap) hits=" << mdtHits_overlap.size() << endreq;
   
   sc = m_cscDataPreparator->prepareData(p_roi,
-					//muonRoad,
-					muonRoad.aw[0][0], muonRoad.bw[0][0], muonRoad.rWidth[0][0],
+					muonRoad,
+					//muonRoad.aw[0][0], muonRoad.bw[0][0], muonRoad.rWidth[0][0],
 					cscHits);
   if (!sc.isSuccess()) {
-    msg() << MSG::ERROR << "Error in CSC data preparation." << endreq;
+    msg() << MSG::WARNING << "Error in CSC data preparation." << endreq;
     return sc;
   }
   msg() << MSG::DEBUG << "nr of CSC hits=" << cscHits.size() << endreq;
@@ -345,10 +352,11 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::finalize()
 
    if ( m_rpcRoadDefiner ) delete m_rpcRoadDefiner;
    if ( m_tgcRoadDefiner ) delete m_tgcRoadDefiner;
+   if ( m_rpcPatFinder ) delete m_rpcPatFinder;
 
-   StatusCode sc = AlgTool::finalize(); 
+   StatusCode sc = AthAlgTool::finalize(); 
    if (!sc.isSuccess()) {
-      msg() << MSG::ERROR << "Could not finalize the AlgTool base class." << endreq;
+      msg() << MSG::ERROR << "Could not finalize the AthAlgTool base class." << endreq;
       return sc;
    }
    return sc;

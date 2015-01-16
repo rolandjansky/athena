@@ -30,7 +30,7 @@ const InterfaceID& TrigL2MuonSA::MuFastPatternFinder::interfaceID() { return IID
 TrigL2MuonSA::MuFastPatternFinder::MuFastPatternFinder(const std::string& type, 
 						     const std::string& name,
 						     const IInterface*  parent): 
-   AlgTool(type,name,parent),
+   AthAlgTool(type,name,parent),
    m_msg(0),
    m_mdtCalibrationSvc(0)
 {
@@ -54,9 +54,9 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::initialize()
    msg() << MSG::DEBUG << "Initializing MuFastPatternFinder - package version " << PACKAGE_VERSION << endreq ;
    
    StatusCode sc;
-   sc = AlgTool::initialize();
+   sc = AthAlgTool::initialize();
    if (!sc.isSuccess()) {
-      msg() << MSG::ERROR << "Could not initialize the AlgTool base class." << endreq;
+      msg() << MSG::ERROR << "Could not initialize the AthAlgTool base class." << endreq;
       return sc;
    }
    
@@ -84,12 +84,6 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::initialize()
    return StatusCode::SUCCESS; 
 }
 
-void TrigL2MuonSA::MuFastPatternFinder::setGeometry(bool use_new_geometry)
-{
-  m_use_new_geometry = use_new_geometry;
-  return;
-}
-
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
@@ -97,8 +91,6 @@ void TrigL2MuonSA::MuFastPatternFinder::doMdtCalibration(TrigL2MuonSA::MdtHitDat
 {
    // if was error in getting servce,
    if( ! m_mdtCalibrationSvc ) return;
-
-   float Scale = (isEndcap)? 1.: 10.;
 
    // 
    int StationName  = mdtHit.name;
@@ -121,9 +113,9 @@ void TrigL2MuonSA::MuFastPatternFinder::doMdtCalibration(TrigL2MuonSA::MdtHitDat
    double R    = mdtHit.R;
    //   double InCo = mdtHit.cInCo;
    double InCo = (track_phi - cos(fabsf(phi0))!=0)? 1./(cos(fabsf(track_phi - phi0))): 0; 
-   double X    = (isEndcap)? R*cos(track_phi)*Scale: R*InCo*cos(track_phi)*Scale;
-   double Y    = (isEndcap)? R*sin(track_phi)*Scale: R*InCo*sin(track_phi)*Scale;
-   double Z    = mdtHit.Z*Scale;
+   double X    = (isEndcap)? R*cos(track_phi): R*InCo*cos(track_phi);
+   double Y    = (isEndcap)? R*sin(track_phi): R*InCo*sin(track_phi);
+   double Z    = mdtHit.Z;
    const Amg::Vector3D point(X,Y,Z);
    const Amg::Vector3D point0(0.,0.,0.);
 
@@ -157,8 +149,8 @@ void TrigL2MuonSA::MuFastPatternFinder::doMdtCalibration(TrigL2MuonSA::MdtHitDat
    const double ZERO_LIMIT = 1e-4;
    
    if( fabs(driftSpace) > ZERO_LIMIT ) {
-      mdtHit.DriftSpace = driftSpace/Scale;
-      mdtHit.DriftSigma = driftSigma/Scale;
+      mdtHit.DriftSpace = driftSpace;
+      mdtHit.DriftSigma = driftSigma;
    }
    else {
       mdtHit.DriftSpace = 0;
@@ -372,7 +364,7 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::finalize()
    // delete message stream
    if ( m_msg ) delete m_msg;
    
-   StatusCode sc = AlgTool::finalize(); 
+   StatusCode sc = AthAlgTool::finalize(); 
    return sc;
 }
 

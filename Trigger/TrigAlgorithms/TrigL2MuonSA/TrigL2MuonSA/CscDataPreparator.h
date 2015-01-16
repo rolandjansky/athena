@@ -5,7 +5,7 @@
 #ifndef  TRIGL2MUONSA_CSCDATAPREPARATOR_H
 #define  TRIGL2MUONSA_CSCDATAPREPARATOR_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IMessageSvc.h"
@@ -19,7 +19,7 @@
 #include "TrigL2MuonSA/TgcData.h"
 #include "TrigL2MuonSA/CscData.h"
 #include "TrigL2MuonSA/RecMuonRoIUtils.h"
-//#include "TrigL2MuonSA/MuonRoad.h"
+#include "TrigL2MuonSA/MuonRoad.h"
 
 #include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
@@ -46,7 +46,7 @@ namespace MuonGM {
 
 namespace TrigL2MuonSA {
   
-  class CscDataPreparator: public AlgTool
+  class CscDataPreparator: public AthAlgTool
   {
   public:
     
@@ -66,8 +66,7 @@ namespace TrigL2MuonSA {
   public:
     
     StatusCode prepareData(const LVL1::RecMuonRoI*  p_roi,
-			   //TrigL2MuonSA::MuonRoad&  muonRoad,
-			   double aw, double bw, double rWidth,
+			   TrigL2MuonSA::MuonRoad&  muonRoad,
 			   TrigL2MuonSA::CscHits&   cscHits);
 
   private:
@@ -76,8 +75,7 @@ namespace TrigL2MuonSA {
     inline MsgStream& msg() const { return *m_msg; }
 
     StatusCode getCscHits(const LVL1::RecMuonRoI*  p_roi,
-			  //TrigL2MuonSA::MuonRoad&  muonRoad,
-			  double aw, double bw, double rWidth,
+			  TrigL2MuonSA::MuonRoad&  muonRoad,
 			  TrigL2MuonSA::CscHits&   cscHits);
 
     double calc_residual(double aw,
