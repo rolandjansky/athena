@@ -1,3 +1,9 @@
+12   nu(e)  0.0 (MeV/c) lepton nu(e) 0
+-12   nu(e)bar  0.0 (MeV/c) lepton nu(e) 0
+14   nu(mu)   0.0 (MeV/c) lepton nu(mu) 0
+-14   nu(mu)bar  0.0 (MeV/c) lepton nu(mu) 0
+16   nu(tau)  0.0 (MeV/c) lepton nu(tau) 0
+-16   nu(tau)bar  0.0 (MeV/c) lepton nu(tau) 0
 11   e-  0.510999 (MeV/c) lepton e 0
 22   gamma  0 (MeV/c) gamma photon 0
 -11   e+  0.510999 (MeV/c) lepton e 0
