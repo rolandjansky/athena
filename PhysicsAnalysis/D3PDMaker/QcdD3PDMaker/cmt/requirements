@@ -3,6 +3,7 @@ package QcdD3PDMaker
 use AtlasPolicy                AtlasPolicy-*
 use GaudiInterface             GaudiInterface-*        External
 use StoreGate                  StoreGate-*             Control
+use AthenaBaseComps            AthenaBaseComps-*       Control
 use D3PDMakerUtils             D3PDMakerUtils-*        PhysicsAnalysis/D3PDMaker
 
 
