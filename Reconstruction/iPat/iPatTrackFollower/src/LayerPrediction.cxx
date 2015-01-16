@@ -28,6 +28,7 @@ LayerPrediction::LayerPrediction(const SiliconDetector*		detector,
 				 DetectorIntersect*    		intersect,
 				 const Trk::TrackParameters*	parameters)
     :   m_association           (0),
+	m_cluster		(0),
 	m_detector              (detector),
 	m_hit                   (0),
 	m_intersect		(intersect),

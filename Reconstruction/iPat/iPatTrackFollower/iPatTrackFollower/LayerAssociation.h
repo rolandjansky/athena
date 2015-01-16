@@ -20,11 +20,6 @@
 #include "InDetPrepRawData/SiWidth.h"
 #include "iPatTrackFollower/LayerPrediction.h"
 
-//<<<<<< PUBLIC DEFINES                                                 >>>>>>
-//<<<<<< PUBLIC CONSTANTS                                               >>>>>>
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
-//<<<<<< PUBLIC VARIABLES                                               >>>>>>
-//<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 class LayerAssociation
@@ -75,7 +70,6 @@ private:
     
     // copy, assignment: no semantics, no implementation
     LayerAssociation (const LayerAssociation&);
-
     LayerAssociation &operator= (const LayerAssociation&);
     
 };
@@ -90,6 +84,7 @@ LayerAssociation::LayerAssociation(const InDet::SiCluster*	cluster,
 				   LayerPrediction*      	prediction)
     :	m_cluster		(cluster),
 	m_eta_offset		(eta_offset),
+	m_eta_scale		(1.0),
 	m_is_pixel		(is_pixel),
 	m_phi_offset		(phi_offset),
 	m_prediction		(prediction),
@@ -107,6 +102,10 @@ LayerAssociation::LayerAssociation(const InDet::SiCluster*	cluster,
   	m_eta_scale =  etaClusterSize*m_cluster->width().phiR() /
 		       (phiClusterSize*m_cluster->width().z());
     }
+    else
+    {
+	m_eta_scale		= 1.0;
+    }
 }
 
 inline
@@ -115,6 +114,7 @@ LayerAssociation::LayerAssociation(const InDet::SiCluster*	cluster,
 				   LayerPrediction*      	prediction)
     :	m_cluster		(cluster),
 	m_eta_offset		(0),
+	m_eta_scale		(1.0),
 	m_is_pixel		(false),
 	m_phi_offset		(phi_offset),
 	m_prediction		(prediction),

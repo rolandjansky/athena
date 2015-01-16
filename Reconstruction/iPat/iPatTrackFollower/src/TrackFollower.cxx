@@ -169,6 +169,9 @@ TrackFollower::associate_trt (const Track& track)
 	}
     }
 
+    // should never happen !
+    if (!lastCluster)				return (new Track);
+    
     // create Trk::TrackParameters at the cluster surface
     const Trk::TrackSurfaceIntersection*	intersection	= lastCluster->intersection();
     Amg::Vector3D				position	= intersection->position();
@@ -178,7 +181,7 @@ TrackFollower::associate_trt (const Track& track)
     // TODO:: investigate why one in a million tracks need correcting to surface !!!
     position += surface->normal()*(surface->center() - position).dot(surface->normal());
     const Trk::AtaPlane trkParameters(position,
-				      intersection->direction()/fabs(params.qOverP()),
+				      intersection->direction()/std::abs(params.qOverP()),
 				      params.charge(),
 				      dynamic_cast<const Trk::PlaneSurface&>(*surface));
 
@@ -373,6 +376,7 @@ TrackFollower::extrapolate_inwards (const Track& track) const
 		break;	
 	    default:
 		ATH_MSG_WARNING( " unexpected Track::extrapolate_inwards " );
+		delete layers;
 		return 0;
 	    };
 	}
@@ -719,7 +723,7 @@ TrackFollower::layer_iterator
 TrackFollower::begin_layer (layer_vector* layers, const HitOnTrack& hit) const
 {
     double		r	= hit.position().perp();
-    double		z	= fabs(hit.position().z());
+    double		z	= std::abs(hit.position().z());
     layer_iterator	begin	= layers->begin();
     layer_iterator	end	= layers->end();
     if (hit.isBarrel())
@@ -754,7 +758,7 @@ TrackFollower::end_layer (layer_iterator begin,
     }
     else
     {
-	double z = fabs(hit.position().z());
+	double z = std::abs(hit.position().z());
 	while (--end != begin
 	       && ((**end).zMin() > z
 		   || ((**end).isBarrel() && (**end).zMax() > z))) ;
