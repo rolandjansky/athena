@@ -19,6 +19,7 @@
 #include "JetTagInfo/TrackGradesDefinition.h"
 #include "JetTagTools/ITrackGradeFactory.h"
 #include "xAODTracking/TrackParticle.h"
+#include "xAODTracking/TrackParticleContainer.h"
 #include "Navigation/NavigationToken.h"
 #include "ITrackToVertex/ITrackToVertex.h"
 #include "TrkVertexFitterInterfaces/ITrackToVertexIPEstimator.h"
@@ -316,28 +317,6 @@ namespace Analysis {
     if (m_doForcedCalib) author = m_ForcedCalibName;
     ATH_MSG_VERBOSE("#BTAG# Using jet type " << author << " for calibrations.");
 
-    // FF: presumably this is not relevant anymore?
-    // /* do not keep the InfoPlus for all jet collection */
-    // bool keepInfoPlus = false;
-    // if(std::find( m_jetWithInfoPlus.begin(), 
-	          // m_jetWithInfoPlus.end(), 
-		  // author ) != m_jetWithInfoPlus.end()) keepInfoPlus = true;
-    // if(keepInfoPlus && !m_writeInfoPlus) keepInfoPlus = false;
-    // if(keepInfoPlus) ATH_MSG_VERBOSE("#BTAG# Writing infoPlus for this tagger and this jet type.");
-
-    /** retrieve the original TP collection for persistence: */
-    // if(m_runModus == "analysis" && keepInfoPlus) {
-    if (m_runModus == "analysis") {
-      StatusCode sc;
-      sc = evtStore()->retrieve(m_originalTPCollection, m_originalTPCollectionName);
-      if (sc.isFailure()) {
-	ATH_MSG_ERROR("#BTAG# TrackParticleContainer " << m_originalTPCollectionName << " not found.");
-	return StatusCode::SUCCESS;
-      } else {
-	ATH_MSG_VERBOSE("#BTAG# TrackParticleContainer " << m_originalTPCollectionName << " found.");
-      }
-    }
-
     /** for the reference mode we need the true label: */
     int label = -1;
     //std::string label = "N/A";
@@ -386,7 +365,6 @@ namespace Analysis {
     m_tracksInJet.clear();
     int nbPart = m_trackGradePartitionsDefinition.size();
 
-    // FF: comment out V0-related items
     std::vector<const xAOD::TrackParticle*> TrkFromV0;
     Amg::Vector3D SvxDirection;
     bool canUseSvxDirection=false;

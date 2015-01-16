@@ -70,7 +70,31 @@ namespace Analysis {
     const xAOD::Vertex* m_priVtx;
 
     /** reader to define the TMVA algorithms */
-    
+
+    // addeed by VD (new training from Kazuya)
+    //more ip2 variables
+    float m_ip2;
+    float m_ip2_c;
+    float m_ip2_cu;
+    //more ip3 variables
+    float m_ip3;
+    float m_ip3_c;
+    float m_ip3_cu;
+    //more sv1 variables
+    float m_sv1;
+    float m_sv1_c;
+    float m_sv1_cu;
+    float m_sv1_ntkv; 
+    float m_sv1_mass; 
+    float m_sv1_efrc; 
+    float m_sv1_n2t; 
+    float m_sv1_Lxy;
+    float m_sv1_L3d;
+    float m_sv1_sig3;
+    //more jf variables
+    float m_jf_dR;
+
+    /////////////////////////////////////////////////////////////////////
     float m_ip2_pu; 
     float m_ip2_pb; 
     float m_ip2_pc; 
@@ -89,7 +113,7 @@ namespace Analysis {
     //SV0 informations
     float m_sv0; 
     float m_sv0_ntkv; 
-    float m_sv0mass; 
+    float m_sv0_mass; 
     float m_sv0_efrc; 
     float m_sv0_n2t; 
     float m_sv0_radius; 
@@ -117,7 +141,10 @@ namespace Analysis {
     std::string m_jftNN_infosource;
     std::string m_jfprob_infosource;
 
+    std::string m_trainingConfig;
+    void ClearInputs();
   }; // End class
+
 
   inline void MV2Tag::setOrigin(const xAOD::Vertex* priVtx) { m_priVtx=priVtx; }
 
