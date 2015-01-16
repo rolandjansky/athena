@@ -41,7 +41,7 @@ Trk::EnergyLossUpdator::EnergyLossUpdator(const std::string& t, const std::strin
   m_stragglingErrorScale(1.),
   m_mpvScale(0.98),
   m_mpvSigmaParametric(false),
-  m_detailedEloss(false)
+  m_detailedEloss(true)
 {
    declareInterface<Trk::IEnergyLossUpdator>(this);
    // scale from outside
@@ -128,7 +128,7 @@ Trk::EnergyLoss* Trk::EnergyLossUpdator::energyLoss(const MaterialProperties& ma
   m_transTmax = 0.;
 
   // preparation 
-  double sign = (dir==Trk::oppositeMomentum) ? 1. : -1.;
+  double sign = (dir==Trk::oppositeMomentum) ? -1. : 1.;
 
   double pathLength = pathcorrection * mat.thicknessInX0()*mat.x0();  
 
@@ -138,8 +138,8 @@ Trk::EnergyLoss* Trk::EnergyLossUpdator::energyLoss(const MaterialProperties& ma
   double meanIoni  = m_matInt.dEdl_ionization(p, &(mat.material()), particle, sigIoni, kazL);
   double meanRad  = m_matInt.dEdl_radiation(p, &(mat.material()), particle, sigRad);
 
-  meanIoni = pathLength*meanIoni;  
-  meanRad = pathLength*meanRad;  
+  meanIoni = sign*pathLength*meanIoni;  
+  meanRad = sign*pathLength*meanRad;  
   sigIoni = pathLength*sigIoni;  
   sigRad  = pathLength*sigRad;  
   kazL    = pathLength*kazL;
@@ -150,11 +150,10 @@ Trk::EnergyLoss* Trk::EnergyLossUpdator::energyLoss(const MaterialProperties& ma
 
   deltaE = meanIoni + meanRad;
   sigmaDeltaE = sqrt(sigIoni*sigIoni+sigRad*sigRad);
-  ATH_MSG_DEBUG( " Energy loss updator deltaE " << deltaE << " meanIoni " << meanIoni << " meanRad " << meanRad << " sigIoni " << sigIoni << " sigRad " << sigRad );   
+  ATH_MSG_DEBUG( " Energy loss updator deltaE " << deltaE << " meanIoni " << meanIoni << " meanRad " << meanRad << " sigIoni " << sigIoni << " sigRad " << sigRad << " sign " << sign  << " pathLength " << pathLength );   
 
   Trk::EnergyLoss* eloss = !m_detailedEloss ? new Trk::EnergyLoss(deltaE,sigmaDeltaE):
-     new Trk::EnergyLoss(deltaE, sigmaDeltaE, meanIoni, sigIoni, meanRad, sigRad );
-
+     new Trk::EnergyLoss(deltaE, sigmaDeltaE, sigmaDeltaE, sigmaDeltaE, meanIoni, sigIoni, meanRad, sigRad, pathLength );
   if(m_useTrkUtils) return eloss;
 
 // Code below will not be used if the parameterization of TrkUtils is used
@@ -260,9 +259,9 @@ Trk::EnergyLoss* Trk::EnergyLossUpdator::energyLoss(const MaterialProperties& ma
 
   sigmaDeltaE = sqrt( sigmaDeltaE_rad*sigmaDeltaE_rad + sigmaDeltaE_ioni*sigmaDeltaE_ioni);
 
-  return ( m_detailedEloss ? new EnergyLoss(deltaE, sigmaDeltaE, 
+  return ( m_detailedEloss ? new EnergyLoss(deltaE, sigmaDeltaE, sigmaDeltaE, sigmaDeltaE,
 					    (mpvSwitch? deltaE_ioni :0.9*deltaE_ioni), sigmaDeltaE_ioni,
-					    deltaE_rad, sigmaDeltaE_rad ):
+					    deltaE_rad, sigmaDeltaE_rad, pathLength ):
 	                     new EnergyLoss(deltaE, sigmaDeltaE) );
 
 }
@@ -343,19 +342,28 @@ double Trk::EnergyLossUpdator::dEdXBetheHeitler(const MaterialProperties& mat,
   return initialE/mat.x0()*mfrac;
 }
 
-Trk::EnergyLoss* Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss, double caloEnergy, double caloEnergyError, double momentumError) const {
+// public interface method
+Trk::EnergyLoss* Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss, double caloEnergy, double caloEnergyError, double pCaloEntry, double momentumError, int & elossFlag) const {
 
 //
-// Input the detailed EnergyLoss object that contains the different Eloss terms and their uncertainties
-//        and the momentumError (all in MeV)
+// Input: the detailed EnergyLoss object in the Calorimeter that contains the different Eloss terms 
+// and their uncertainties; caloEnergy and error; and the muon momentumError (all in MeV)
+//
+// For use in the MuonSystem
+// Input: caloEnergy = 0. caloEnergyError = 0. and pCaloEntry = pMuonEntry momentum at MuonEntry
 //
 // Output: an updated Energy loss values deltaE() 
-//  that can be used in the track fit and corresponds to the Most Probable EnergyLoss value
-//  taking into account the ionization, radiation and 
-//  smearing due to the errors including the momentumError (in MeV)
+//         that can be used in the track fit and corresponds to the Most Probable EnergyLoss value
+//         taking into account the ionization, radiation and 
+//         smearing due to the errors including the momentumError (in MeV)
+//
+//         elossFlag = false if Calorimeter Energy is NOT stored (and later fitted) on the Eloss object
+//                   = true  Calorimeter Energy is stored and will be fitted  
 //
 //  deltaE is used in the final fit
 //
+
+  elossFlag = 0;
 
   int isign = 1;
   if(eLoss->deltaE()<0) isign = -1;
@@ -364,22 +372,26 @@ Trk::EnergyLoss* Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss
   double sigmaDeltaE = eLoss->sigmaDeltaE();
 // Detailed Eloss
   double deltaE_ioni = eLoss->meanIoni(); 
-  double sigmaDeltaE_ioni = eLoss->sigmaIoni(); // sigma Landau
-//  double deltaE_rad = eLoss->meanRad();  
+  double sigmaDeltaE_ioni = 0.45*eLoss->sigmaIoni(); // sigma Landau
+  double deltaE_rad = eLoss->meanRad();  
   double sigmaDeltaE_rad = eLoss->sigmaRad(); // rms and mean of steep exponential
+  double depth = eLoss->length();
 
   double sigmaPlusDeltaE = eLoss->sigmaPlusDeltaE();
   double sigmaMinusDeltaE = eLoss->sigmaMinusDeltaE();
 
   double MOP = deltaE_ioni - isign*3.59524*sigmaDeltaE_ioni;
+
+//  std::cout << " update Energyloss old deltaE " << deltaE << " sigmaPlusDeltaE " << sigmaPlusDeltaE << " sigmaMinusDeltaE " << sigmaMinusDeltaE << std::endl;
 //
 // MOP shift due to ionization and radiation
 //   
-  double MOPshift = isign*0.05*sqrt(sigmaDeltaE_ioni*sigmaDeltaE_rad);
+  double MOPshift = isign*50*10000./pCaloEntry + isign*0.75*sqrt(sigmaDeltaE_ioni*sigmaDeltaE_rad);
 //
 // define sigmas for Landau convoluted with exponential
 //
-  double sigmaL = sigmaDeltaE_ioni + sigmaDeltaE_rad/3.59524;
+  double fracErad = sigmaDeltaE_rad + fabs(deltaE_rad)*pCaloEntry/(800000.+pCaloEntry);
+  double sigmaL = sigmaDeltaE_ioni + fracErad/3.59524;
   double sigmaMinus = 1.02*sigmaDeltaE_ioni + 0.08*sigmaDeltaE_rad; 
   double sigmaPlus = 4.65*sigmaDeltaE_ioni + 1.16*sigmaDeltaE_rad;
 
@@ -391,7 +403,8 @@ Trk::EnergyLoss* Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss
 //
 // Shift of MOP due to momentum resolution 
 //
-    double xc = 0.87388*momentumError/(3.59524*sigmaL);
+    double scale_xc = 2.3;
+    double xc = scale_xc*0.87388*momentumError/(3.59524*sigmaL);
     double correction = (1.747*xc*xc + 0.97*0.938*xc*xc*xc)/(1+4.346*xc+5.371*xc*xc+0.938*xc*xc*xc); // correction ranges from 0 to 0.97
     double MOPreso = isign*3.59524*sigmaL*correction;
 
@@ -412,10 +425,11 @@ Trk::EnergyLoss* Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss
       sigmaMinusDeltaE = caloEnergyError;  
       sigmaPlusDeltaE = caloEnergyError;
       sigmaDeltaE = caloEnergyError;
+      elossFlag = 1;
 
     } else {
 
-// Use MOp after corrections
+// Use MOP after corrections
 
 //
 // MOPCalo is correction to MOP for Calorimeter energy cut
@@ -441,8 +455,89 @@ Trk::EnergyLoss* Trk::EnergyLossUpdator::updateEnergyLoss(Trk::EnergyLoss* eLoss
 
   }
 
+//  std::cout << " update Energyloss new deltaE " << deltaE << " sigmaPlusDeltaE " << sigmaPlusDeltaE << " sigmaMinusDeltaE " << sigmaMinusDeltaE << std::endl;
+ 
+  return new EnergyLoss(deltaE, sigmaDeltaE, sigmaMinusDeltaE, sigmaPlusDeltaE, deltaE_ioni, sigmaDeltaE_ioni, deltaE_rad, sigmaDeltaE_rad, depth );
 
-  return new EnergyLoss(deltaE, sigmaDeltaE, sigmaPlusDeltaE, sigmaMinusDeltaE);
+}  
 
+// public interface method
+  void Trk::EnergyLossUpdator::getX0ElossScales(int icalo, double eta, double phi, double & X0Scale, double & ElossScale ) const {
+
+ //
+ // for Calorimeter icalo = 1 
+ //     Muon System icalo = 0
+ // convention eta, phi is at Calorimeter Exit (or Muon Entry)
+ //            eta and phi are from the position (not direction)
+ //
+ // input   X0 and ElossScale = 1
+ // output  updated X0Scale and ElossScale
+ //
+
+  double X0CaloGirder[4] = {-1.02877e-01, -2.74322e-02, 8.12989e-02,9.73551e-01};
+
+  double X0CaloScale[60] = {1.03178 ,1.03178 ,1.03178 ,1.03178 ,1.01512 ,1.01456 ,1.01266 ,1.02299 ,1.01437 ,1.01561 ,1.01731 ,1.02502 ,1.01171 ,0.987469 ,0.979134 ,1.01018 ,1.01813 ,0.986147 ,0.973686 ,0.983771 ,0.960334 ,0.967629 ,0.982935 ,0.993162 ,1.00241 ,1.00012 ,0.9814 ,0.937632 ,0.927918 ,0.93491 ,0.934184 ,0.921438 ,0.933788 ,0.954208 ,0.973684 ,0.977765 ,1.00697 ,1.01779 ,1.02017 ,1.01604 ,1.02121 ,1.02344 ,1.02888 ,1.02278 ,1.03096 ,1.02409 ,1.03149 ,1.03797 ,1.04254 ,1.04943 ,1.02433 ,1.02379 ,1.02177 ,1.02271 ,1.02011 ,1.02414 ,1.03649 ,1.03739 ,1.03739 ,1.03739};
+
+  double ElossCaloScale[30] = { 1.03504 ,1.03504 ,1.03504 ,1.02631 ,1.04258 ,1.03506 ,1.05307 ,1.02399 ,1.04237 ,1.04368 ,1.04043 ,1.05899 ,1.07933 ,1.08604 ,1.08984 ,1.03564 ,1.04158 ,1.05983 ,1.06291 ,1.06853 ,1.0674 ,1.05427 ,1.06466 ,1.06274 ,1.06141 ,1.06314 ,1.06868 ,1.07242 ,1.07242 ,1.07242};
   
+  double X0MuonScale[60] = {-0.0320612 ,-0.0320612 ,-0.0320612 ,-0.0320612 ,-0.0693796 ,-0.0389677 ,-0.0860891 ,-0.124606 ,-0.0882329 ,-0.100014 ,-0.0790912 ,-0.0745538 ,-0.099088 ,-0.0933711 ,-0.0618782 ,-0.0619762 ,-0.0658361 ,-0.109704 ,-0.129547 ,-0.143364 ,-0.0774768 ,-0.0739859 ,-0.0417835 ,-0.022119 ,0.00308797 ,0.0197657 ,-0.0137871 ,-0.036848 ,-0.0643794 ,-0.0514949 ,-0.0317105 ,0.016539 ,0.0308435 ,-0.00056883 ,-0.00756813 ,-0.00760612 ,-0.0234571 ,-0.0980915 ,-0.101175 ,-0.102354 ,-0.0920337 ,-0.100337 ,-0.0887628 ,0.0660931 ,0.228999 ,0.260675 ,0.266301 ,0.267907 ,0.281668 ,0.194433 ,0.132954 ,0.20707 ,0.220466 ,0.20936 ,0.191441 ,0.191441 ,0.191441 ,0.191441 ,0.191441 ,0.191441};
+
+
+  int i60 = fabs(eta)*20.;
+  if(i60<0)  i60 = 0;
+  if(i60>59) i60 = 59; 
+
+  if(icalo==1) {
+//
+// Girder parametrization
+//
+    double x = phi+ 3.1416-3.1416/32.*int((3.1416+phi)/(3.1416/32.));
+    double scale = 0.;
+    double pi = acos(-1.);
+    if(x>pi/64.) x = pi/32.-x;
+
+     if(x<0.005) {
+       scale = X0CaloGirder[0]*(1-x/0.005)+X0CaloGirder[1] + X0CaloGirder[3];
+     } else if(x<0.017) {
+       scale = X0CaloGirder[1] + X0CaloGirder[3];
+     } else if(x<0.028) {
+       scale = X0CaloGirder[2] + X0CaloGirder[3];
+     } else {
+       scale = X0CaloGirder[3];
+     }
+
+     if(fabs(eta)>1.3) scale = 1.;
+//
+// eta dependence of X0 
+//
+    scale *= X0CaloScale[i60];
+    X0Scale = scale;
+//
+// eta dependence of Eloss
+//    
+    int i30 = fabs(eta)*10.;
+    if(i30<0)   i30 = 0;
+    if(i30>29)  i30 = 29;
+
+    double nfactor = 0.987363/1.05471;
+
+    ElossScale = nfactor*ElossCaloScale[i30]*scale;
+
+  } else {
+//
+// Muon system 
+//
+// eta dependence of X0 
+//
+    double scale = 1. + X0MuonScale[i60];
+//
+// Muon scale is now 1 with MuonTrackingGeometry and TrkDetDescrGeoModelCnv fixes
+//
+    scale = 1.0;
+    X0Scale = scale;
+    ElossScale = 0.93*scale;
   }
+
+}
+
+

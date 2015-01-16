@@ -628,7 +628,11 @@ const Trk::TrackParameters*  Trk::Extrapolator::extrapolate(const IPropagator& p
                  }
                  // start from the nextParameter (which are at volume boundary)
                 if (nextParameters) {
-                       resultParameters = extrapolateWithinDetachedVolumes(*currentPropagator,
+		  if (!m_stepPropagator) {
+                    ATH_MSG_ERROR("extrapolation in Calo/MS called without configured STEP propagator, aborting");
+                    return 0; 
+		  } 
+		  resultParameters = extrapolateWithinDetachedVolumes(*m_stepPropagator,
                                                                        *nextParameters,
                                                                        sf,
                                                                        *nextVolume,
@@ -636,7 +640,7 @@ const Trk::TrackParameters*  Trk::Extrapolator::extrapolate(const IPropagator& p
                                                                        bcheck,
                                                                        particle,
                                                                        matupmode);
-                  }
+		}
                if (resultParameters){   
                   // destination reached : indicated through result parameters
                   // set the model action of the material effects updators

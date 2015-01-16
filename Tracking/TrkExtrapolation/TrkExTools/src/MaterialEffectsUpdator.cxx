@@ -397,7 +397,7 @@ const Trk::TrackParameters*  Trk::MaterialEffectsUpdator::postUpdate(const Track
 {    
   
   // no material properties - pass the parameters back
-  if (particle==Trk::geantino || particle==Trk::nonInteractingMuon || (!m_doMs && !m_doEloss) || !lay.isOnLayer(parm.position()) ) return 0;
+  if (particle==Trk::geantino || particle==Trk::nonInteractingMuon || (!m_doMs && !m_doEloss) || !lay.isOnLayer(parm.position()) ) return(&parm);
   
   // get the quantities
   const Trk::MaterialProperties* mprop  = 0;
@@ -405,7 +405,7 @@ const Trk::TrackParameters*  Trk::MaterialEffectsUpdator::postUpdate(const Track
   double pathCorrection                 = 0.;  
 
   // no material properties - pass them back
-  if (postFactor < 0.01 ) return 0;
+  if (postFactor < 0.01 ) return(&parm);
 
   // set the output if restricted to the validation direction 
   bool outputFlag = m_msgOutputValidationDirection ?  dir == int(m_validationDirection) : true;
@@ -415,7 +415,7 @@ const Trk::TrackParameters*  Trk::MaterialEffectsUpdator::postUpdate(const Track
   pathCorrection *= postFactor;
   
   // exit if no material properties
-  if (!mprop) return 0;
+  if (!mprop) return(&parm);
 
   //--------------------------------------------------------------------------------------------------  
   if (outputFlag){
