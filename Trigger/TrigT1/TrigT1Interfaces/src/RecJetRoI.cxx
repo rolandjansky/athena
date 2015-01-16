@@ -1,4 +1,4 @@
-// $Id: RecJetRoI.cxx 639615 2015-01-15 00:45:58Z watsona $
+// $Id: RecJetRoI.cxx 639958 2015-01-16 14:30:44Z watsona $
 /***************************************************************************
                          RecJetRoI.cxx  -  description
                             -------------------
@@ -24,6 +24,7 @@
 #include "TrigConfL1Data/TriggerThreshold.h"
 #include "TrigConfL1Data/TriggerThresholdValue.h"
 #include "TrigConfL1Data/JetThresholdValue.h"
+#include "TrigConfL1Data/CaloInfo.h"
 
 // Local include(s):
 #include "TrigT1Interfaces/RecJetRoI.h"
@@ -133,10 +134,12 @@ namespace LVL1 {
             TriggerThresholdValue* ttv = (*it)->triggerThresholdValue( ieta,iphi );
             JetThresholdValue* jtv = dynamic_cast< JetThresholdValue* >( ttv );
 	    if (jtv) {
-               unsigned int etCut  = jtv->thresholdValueCount();
+               float scale = jtv->caloInfo().globalJetScale();
+               unsigned int etCut     = jtv->ptcut();
+               unsigned int threshold = etCut*scale;
                JetWindowSize::Size window = jtv->windowSize();
                unsigned int roiET = ( window == JetWindowSize::LARGE ? etLarge() : etSmall()); 
-               if ( roiET > etCut ) { 
+               if ( roiET > threshold ) { 
                  int num = ( *it )->thresholdNumber();
                  m_triggerThresholdValue.insert(std::map<int, unsigned int>::value_type(num,etCut));
                  m_windowSize.insert(std::map<int, unsigned int>::value_type(num,window)); 
