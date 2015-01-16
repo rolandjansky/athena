@@ -15,15 +15,12 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "JetTagTools/ITagTool.h"
 
-#include "xAODTracking/TrackParticle.h"
-#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/TrackParticleContainerFwd.h"
 
 #include <vector>
 
-//namespace xAOD  { class TrackParticle; class TrackParticleContainer; }
 namespace Reco { class ITrackToVertex; }
 namespace Trk  { class ITrackToVertexIPEstimator; }
-//class Jet;
 
 namespace Analysis { 
 

@@ -114,7 +114,7 @@ namespace Analysis {
       ATH_MSG_DEBUG(" No secondary vertex found for getting the V0s from the secondary vertex finder info");
     } else {
       
-      BTag->variable<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(m_secVxFinderName, "badTracksTP", TrkFromV0_ELs);
+      BTag->variable<std::vector<ElementLink<xAOD::TrackParticleContainer> > >(m_secVxFinderName, "badTracksIP", TrkFromV0_ELs);
       /* // not yet implemented in BTagging/BTagSecVertexing
 	 else
 	 {
