@@ -13,6 +13,7 @@ use SGTools               SGTools-*               Control
 use InDetBeamSpotService  InDetBeamSpotService-*  InnerDetector/InDetConditions
 use VxVertex              VxVertex-*              Tracking/TrkEvent
 use muonEvent             muonEvent-*             Reconstruction/MuonIdentification
+use EventShapeInterface   EventShapeInterface-*   Reconstruction/EventShapes
 end_private
 
 
