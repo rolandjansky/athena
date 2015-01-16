@@ -11,7 +11,7 @@
 
 #include "DerivationFrameworkExamples/ThinningToolExample.h"
 #include "AthenaKernel/IThinningSvc.h"
-#include "egammaEvent/PhotonContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
 #include <vector>
 #include <string>
 
@@ -23,13 +23,11 @@ DerivationFramework::ThinningToolExample::ThinningToolExample( 	const std::strin
   m_thinningSvc("ThinningSvc",n),
   m_ntot(0),
   m_npass(0),
-  m_photonSGKey("PhotonAODCollection"),
-  m_photonPtCut(20.0)
+  m_trackPtCut(20.0)
   {
     declareInterface<DerivationFramework::IThinningTool>(this);
     declareProperty("ThinningService", m_thinningSvc);
-    declareProperty("PhotonContainerKey", m_photonSGKey);
-    declareProperty("PhotonPtCut", m_photonPtCut);	
+    declareProperty("TrackPtCut", m_trackPtCut);	
   }
   
 // Destructor
@@ -53,23 +51,20 @@ StatusCode DerivationFramework::ThinningToolExample::finalize()
 StatusCode DerivationFramework::ThinningToolExample::doThinning() const
 {
 
-     // Retrieve track container	
-     const PhotonContainer* importedPhotons(0);
-     if (evtStore()->retrieve(importedPhotons,m_photonSGKey).isFailure()) {
-         ATH_MSG_ERROR("No photon collection with name " << m_photonSGKey << " found in StoreGate!");
+      // Get the track container
+       const xAOD::TrackParticleContainer* tracks = evtStore()->retrieve< const xAOD::TrackParticleContainer >("InDetTrackParticles");
+      if(!tracks) {
+         ATH_MSG_ERROR ("Couldn't retrieve TrackParticleContainer with key InDetTrackParticles");
          return StatusCode::FAILURE;
-     } 
-     
-     m_ntot+=importedPhotons->size();
-
-     // Loop over muons, count up and set decision
-     std::vector<bool> mask;
-     PhotonContainer::const_iterator phoItr;
-     for (phoItr=importedPhotons->begin(); phoItr!=importedPhotons->end(); ++phoItr) {  
-         if ( (*phoItr)->pt() > m_photonPtCut ) {++m_npass; mask.push_back(true);}
+      }
+      m_ntot+=tracks->size();	
+      // Loop over tracks, see if they pass, set mask
+      std::vector<bool> mask;
+      for (xAOD::TrackParticleContainer::const_iterator trackIt=tracks->begin(); trackIt!=tracks->end(); ++trackIt) {
+         if ( (*trackIt)->pt() > m_trackPtCut ) {++m_npass; mask.push_back(true);}
          else { mask.push_back(false); }
      }
-     if (m_thinningSvc->filter(*importedPhotons, mask, IThinningSvc::Operator::Or).isFailure()) {
+     if (m_thinningSvc->filter(*tracks, mask, IThinningSvc::Operator::Or).isFailure()) {
          ATH_MSG_ERROR("Application of thinning service failed! ");
          return StatusCode::FAILURE;
      }

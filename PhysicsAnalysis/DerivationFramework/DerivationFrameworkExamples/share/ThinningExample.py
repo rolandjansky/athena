@@ -1,9 +1,8 @@
 #====================================================================
-# DerivationExampleLoose.py
-# This an example job options script showing how to set up a 
-# derivation of the data using the derivation framework. It is one 
-# of two such examples and is the looser of the two.  
-# It requires the reductionConf flag TEST1 in Reco_tf.py   
+# ThinningExample.py
+# This an example job options script showing how to run thinning in 
+# the derivation framework. 
+# It requires the reductionConf flag TEST8 in Reco_tf.py   
 #====================================================================
 
 # Set up common services and job object. 
@@ -11,71 +10,45 @@
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
 
 #====================================================================
-# SKIMMING TOOLS 
+# THINNING TOOLS 
 #====================================================================
 
-# Set up your skimming tools (you can have as many as you need). 
-# The tools must use the DerivationFrameworkInterfaces as in this example.
-from DerivationFrameworkExamples.DerivationFrameworkExamplesConf import DerivationFramework__SkimmingToolExample
-SkimmingTool1 = DerivationFramework__SkimmingToolExample(       name                    = "SkimmingTool1",
-                                                                MuonContainerKey        = "Muons",
-                                                                NumberOfMuons           = 1,
-                                                                MuonPtCut               = 1000.0)
-ToolSvc += SkimmingTool1
-
-#====================================================================
-# THINNING TOOLS
-#====================================================================
-
-# Set up your thinning tools (you can have as many as you need).
-# The tools must use the DerivationFrameworkInterfaces as in this example.
+# Set up your thinning tools (you can have as many as you need). 
 from DerivationFrameworkExamples.DerivationFrameworkExamplesConf import DerivationFramework__ThinningToolExample
-ThinningTool1 = DerivationFramework__ThinningToolExample(       name                    = "ThinningTool1",
-                                                                ThinningService         = "DerivationFrameworkStreamThinning",
-                                                                PhotonContainerKey      = "PhotonAODCollection",
-                                                                PhotonPtCut             = 5000.0)
-ToolSvc += ThinningTool1
+TEST8ThinningTool = DerivationFramework__ThinningToolExample( name                    = "TEST8ThinningTool",
+								ThinningService		= "TEST8ThinningSvc",
+								TrackPtCut              = 20000.0)
+ToolSvc += TEST8ThinningTool
 
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS  
 #====================================================================
 
-# The name of the kernel (LooseSkimKernel in this case) must be unique to this derivation
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("LooseSkimKernel",
-                                                                        SkimmingTools = [SkimmingTool1],
-									ThinningTools = [ThinningTool1]
+DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("TEST8Kernel",
+									ThinningTools = [TEST8ThinningTool]
                                                                       )
 
 #====================================================================
 # SET UP STREAM   
 #====================================================================
+streamName = derivationFlags.WriteDAOD_TEST8Stream.StreamName
+fileName   = buildFileName( derivationFlags.WriteDAOD_TEST8Stream )
+TEST8Stream = MSMgr.NewPoolRootStream( streamName, fileName )
+TEST8Stream.AcceptAlgs(["TEST8Kernel"])
 
-# SKIMMING
-# The base name (DAOD_RED_TEST1 here) must match the string in PrimaryDPDFlags
-# Fix me - these should be brought inside the framework
-streamName = primDPD.WriteDAOD_RED_TEST1Stream.StreamName
-fileName   = buildFileName( primDPD.WriteDAOD_RED_TEST1Stream )
-DerivationFrameworkStream = MSMgr.NewPoolStream( streamName, fileName )
-# Only events that pass the filters listed below are written out.
-# Name must match that of the kernel above
-# AcceptAlgs  = logical OR of filters
-# RequireAlgs = logical AND of filters
-DerivationFrameworkStream.AcceptAlgs(["LooseSkimKernel"])
-
-# THINNING
+# SPECIAL LINES FOR THINNING
 # Thinning service name must match the one passed to the thinning tools 
 from AthenaServices.Configurables import ThinningSvc, createThinningSvc
 augStream = MSMgr.GetStream( streamName )
 evtStream = augStream.GetEventStream()
-svcMgr += createThinningSvc( svcName="DerivationFrameworkStreamThinning", outStreams=[evtStream] )
-
+svcMgr += createThinningSvc( svcName="TEST8ThinningSvc", outStreams=[evtStream] )
 #====================================================================
-# SLIMMING IF ANY (NONE DONE HERE) 
+# SLIMMING  
 #====================================================================
-from PrimaryDPDMaker import PrimaryDPD_OutputDefinitions as dpdOutput
-excludeList = ['CaloClusterContainer#CaloCalTopoCluster']
-excludeList = list(set(excludeList)) # This removes dublicates from the list
-dpdOutput.addAllItemsFromInputExceptExcludeList( streamName, excludeList )
-
-
+TEST8Stream.AddItem("xAOD::EventInfo#*")
+TEST8Stream.AddItem("xAOD::EventAuxInfo#*")
+TEST8Stream.AddItem("xAOD::TrackParticleContainer#*")
+TEST8Stream.AddItem("xAOD::TrackParticleAuxContainer#*")
+TEST8Stream.AddItem("xAOD::VertexContainer#*")
+TEST8Stream.AddItem("xAOD::VertexAuxContainer#*")

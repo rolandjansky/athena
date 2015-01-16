@@ -46,8 +46,7 @@ namespace DerivationFramework {
     ServiceHandle<IThinningSvc> m_thinningSvc;
     mutable unsigned int m_ntot;
     mutable unsigned int m_npass;
-    std::string m_photonSGKey;
-    double m_photonPtCut;
+    double m_trackPtCut;
   }; 
   
 }

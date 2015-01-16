@@ -9,27 +9,15 @@
 # Set up common services and job object. 
 # This should appear in ALL derivation job options
 from DerivationFrameworkCore.DerivationFrameworkMaster import *
-
-#====================================================================
-# AUGMENTATION TOOLS 
-#====================================================================
-from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGammaPassSelectionWrapper
-TEST3ElectronPassSelection = DerivationFramework__EGammaPassSelectionWrapper( name = "TEST3ElectronPassSelection",
-                                                                         SelectionVariables = ["Loose","Medium","Tight"],
-                                                                         CollectionName = "ElectronCollection",
-									 SGPrefix = "TEST3Electrons"
-                                                                      )
-ToolSvc += TEST3ElectronPassSelection
-print TEST3ElectronPassSelection
+from DerivationFrameworkMuons.MuonsCommon import *
 
 #====================================================================
 # SKIMMING TOOLS 
 #====================================================================
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-expression = 'count((TEST3ElectronsLoose) && (ElectronCollection.pt > 10*GeV)) >= 1'
+expression = 'count((Muons.DFCommonGoodMuon) && (Muons.pt > 15*GeV)) >= 2'
 TEST3StringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "TEST3StringSkimmingTool",
                                                                  expression = expression)
-                                                                 #expression = "EventInfo.eventNumber")
 
 ToolSvc += TEST3StringSkimmingTool
 print TEST3StringSkimmingTool
@@ -40,10 +28,7 @@ print TEST3StringSkimmingTool
 
 # The name of the kernel (LooseSkimKernel in this case) must be unique to this derivation
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
-DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("TEST3Kernel",
-                                                                        SkimmingTools = [TEST3StringSkimmingTool],
-									AugmentationTools = [TEST3ElectronPassSelection]
-                                                                      )
+DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("TEST3Kernel", SkimmingTools = [TEST3StringSkimmingTool])
 
 
 #====================================================================

@@ -9,7 +9,7 @@ use DerivationFrameworkInterfaces   DerivationFrameworkInterfaces-*    PhysicsAn
 use xAODMuon     xAODMuon-*     Event/xAOD
 use GaudiInterface              GaudiInterface-*        External
 private
-use egammaEvent   egammaEvent-*  Reconstruction/egamma
+use xAODTracking     xAODTracking-*     Event/xAOD
 use AthenaKernel  AthenaKernel-* Control
 
 
