@@ -12,6 +12,8 @@
 #include "xAODBase/IParticleContainer.h"
 #include "ExpressionEvaluation/ExpressionParser.h"
 #include "ExpressionEvaluation/SGxAODProxyLoader.h"
+#include "ExpressionEvaluation/MultipleProxyLoader.h"
+#include "ExpressionEvaluation/SGNTUPProxyLoader.h"
 #include <vector>
 #include <string>
 
@@ -40,8 +42,13 @@ namespace DerivationFramework {
       ATH_MSG_ERROR("No SG name provided for the output of invariant mass tool!");
       return StatusCode::FAILURE;
     }
-    m_parser = new ExpressionParsing::ExpressionParser(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
+
+    ExpressionParsing::MultipleProxyLoader *proxyLoaders = new ExpressionParsing::MultipleProxyLoader();
+    proxyLoaders->push_back(new ExpressionParsing::SGxAODProxyLoader(evtStore()));
+    proxyLoaders->push_back(new ExpressionParsing::SGNTUPProxyLoader(evtStore()));
+    m_parser = new ExpressionParsing::ExpressionParser(proxyLoaders);
     m_parser->loadExpression(m_expression);
+
     return StatusCode::SUCCESS;
   }
 
@@ -56,13 +63,13 @@ namespace DerivationFramework {
 
   StatusCode InvariantMassTool::addBranches() const
   {
-    std::vector<float> *masses = new std::vector<float>();
-    CHECK(getInvariantMasses(masses));
     // Write masses to SG for access by downstream algs     
     if (evtStore()->contains<std::vector<float> >(m_sgName)) {
       ATH_MSG_ERROR("Tool is attempting to write a StoreGate key " << m_sgName << " which already exists. Please use a different key");
       return StatusCode::FAILURE;
     }
+    std::vector<float> *masses = new std::vector<float>();
+    CHECK(getInvariantMasses(masses));
     CHECK(evtStore()->record(masses, m_sgName));      
     return StatusCode::SUCCESS;
   }  

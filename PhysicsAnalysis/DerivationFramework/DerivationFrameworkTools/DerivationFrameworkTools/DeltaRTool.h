@@ -14,6 +14,10 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 
+namespace ExpressionParsing {
+  class ExpressionParser;
+}
+
 namespace DerivationFramework {
 
   class DeltaRTool : public AthAlgTool, public IAugmentationTool {
@@ -25,10 +29,15 @@ namespace DerivationFramework {
       virtual StatusCode addBranches() const;
 
     private:
+      std::string m_expression;
+      std::string m_2ndExpression;
+      ExpressionParsing::ExpressionParser *m_parser;
+      ExpressionParsing::ExpressionParser *m_parser2;
       std::string m_sgName;
-      std::string m_phi1BranchName,m_phi2BranchName,m_eta1BranchName,m_eta2BranchName;
+      std::string m_containerName;
+      std::string m_2ndContainerName;
       StatusCode getDeltaRs(std::vector<float>*&) const;
-      float calculateDeltaR(float,float,float,float) const;		
+      float calculateDeltaR(float,float,float,float) const;
   }; 
 }
 
