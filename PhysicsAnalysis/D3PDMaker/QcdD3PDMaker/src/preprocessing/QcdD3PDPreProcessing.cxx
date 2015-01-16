@@ -16,8 +16,7 @@
 namespace QcdD3PD {
 
 QcdD3PDPreProcessing::QcdD3PDPreProcessing(const std::string& name, ISvcLocator* pSvcLocator) : 
-  Algorithm(name, pSvcLocator),
-  m_storeGate (0),
+  AthAlgorithm(name, pSvcLocator),
   m_iBeamCondSvc (0)
 {
   declareProperty("BeamCondSvcName", m_beamCondSvcName = "BeamCondSvc" );
@@ -34,28 +33,12 @@ StatusCode QcdD3PDPreProcessing::initialize(){
     REPORT_MESSAGE (MSG::WARNING) << "Could not find BeamCondSvc: " <<  m_beamCondSvcName;
     REPORT_MESSAGE (MSG::WARNING) << "Will use nominal beamspot at (0,0,0)";
   }
-
-  // Retrieve a pointer to StoreGate
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if(sc.isFailure()) {
-    REPORT_MESSAGE (MSG::ERROR) << "Could not retrieve service StoreGate";
-    return StatusCode::FAILURE;
-  }
-
   return StatusCode::SUCCESS;
-
 }
 
 StatusCode QcdD3PDPreProcessing::execute(){
 
-  StatusCode sc;
-
-  sc = fillBeamSpot();
-  if(sc.isFailure()){
-    REPORT_MESSAGE (MSG::ERROR) << "Failed to fill beam spot information";
-    return StatusCode::FAILURE;
-  }
-
+  ATH_CHECK( fillBeamSpot() );
   return StatusCode::SUCCESS;
 }
 
@@ -91,10 +74,7 @@ StatusCode QcdD3PDPreProcessing::fillBeamSpot(){
   vxContainer->push_back(vx);
 
   // register new object in StoreGate
-  StatusCode sc = m_storeGate->record(vxContainer, "QcdD3PD::BeamSpotRecVertex");
-  if(sc.isFailure()){
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( evtStore()->record(vxContainer, "QcdD3PD::BeamSpotRecVertex") );
 
 //   // Create a VxVertex object with beam spot information and store it in StoreGate
 //   std::vector<Trk::VxTrackAtVertex*> tracksEmpty;
