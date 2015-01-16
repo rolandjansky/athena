@@ -28,8 +28,6 @@
 
 #include "TrigConfHLTData/HLTTriggerElement.h"
 #include <boost/algorithm/string.hpp>
-#include <boost/foreach.hpp>
-#define foreach BOOST_FOREACH
 
 using namespace std;
 using namespace HLT;
@@ -131,7 +129,7 @@ StatusCode TrigErrorMon::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNew
   // store chainnames and binnumber in maps
   std::vector<std::string> chainname(totalNChains);
   int binnr=0;
-  foreach(const HLT::SteeringChain* chain, cc) {
+  for (const HLT::SteeringChain* chain : cc) {
     unsigned int chaincounter = chain->getChainCounter();
     // fill a map for consecutive numbering, this avoids empty bins, m_binmap starts at 0 !
     // fill array with ChainNames  - chainname starts at 0 !

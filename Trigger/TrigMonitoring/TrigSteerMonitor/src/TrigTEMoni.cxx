@@ -26,9 +26,6 @@
 #include <TH1I.h>
 #include <TH2I.h>
 
-#include "boost/foreach.hpp"
-#define foreach BOOST_FOREACH
-
 TrigTEMoni::TrigTEMoni(const std::string & type, const std::string & name,
 		       const IInterface* parent)
   :  TrigMonitorToolBase(type, name, parent),
@@ -248,15 +245,15 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
   std::map<std::string, unsigned int> foundTETypes;
 
   //loop over configured chains
-  foreach ( const HLT::SteeringChain* chain, configuredChains ) {
+  for ( const HLT::SteeringChain* chain : configuredChains ) {
 
      // loop over all signatures of this chain
-     foreach ( const HLT::Signature* sign, chain->getSignatures() ) {
+     for ( const HLT::Signature* sign : chain->getSignatures() ) {
 
         if ( sign == 0 ) continue;
 
         // loop over all sequences of this signature
-        foreach ( const HLT::Sequence* seq, sign->getSequences() ) {
+        for ( const HLT::Sequence* seq : sign->getSequences() ) {
 
            //add output TEs to map
            unsigned int outputTeType = seq->outputTEType();
@@ -265,7 +262,7 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
            foundTETypes[tmpstring] = outputTeType;
 
            //loop over input teTypes of this sequence
-           foreach ( unsigned int tetype, seq->inputTETypes() ) {
+           for ( unsigned int tetype : seq->inputTETypes() ) {
               TrigConf::HLTTriggerElement::getLabel( tetype, tmpstring );
               foundTETypes[tmpstring] = tetype;
            }

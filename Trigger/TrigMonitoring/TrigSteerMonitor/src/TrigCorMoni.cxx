@@ -39,8 +39,6 @@
 
 #include "TrigSteerMonitor/TrigCorMoni.h"
 
-#include "boost/foreach.hpp"
-
 //------------------------------------------------------------------------------------------
 TrigCorMoni::TrigCorMoni(const std::string & type,
 					 const std::string & name,
@@ -129,7 +127,7 @@ StatusCode TrigCorMoni::bookHists()
   std::set<std::string> streams;
   std::map<std::string, TrigConf::HLTChain *> chains;
 
-  BOOST_FOREACH(TrigConf::HLTChain *hchn, *chn_confg) {
+  for(TrigConf::HLTChain *hchn : *chn_confg) {
     if(!hchn) {
       log() << MSG::WARNING << "Null HLTChain pointer" << endreq;
       continue;
@@ -144,7 +142,7 @@ StatusCode TrigCorMoni::bookHists()
     chains[ hchn->chain_name() ] = hchn;
 
     // Save all stream tags
-    BOOST_FOREACH(TrigConf::HLTStreamTag* htag, hchn->streams()) {
+    for(TrigConf::HLTStreamTag* htag : hchn->streams()) {
       if(htag)
          streams.insert(htag->stream());
     }
@@ -155,15 +153,15 @@ StatusCode TrigCorMoni::bookHists()
 
   m_rejectL1 = new TH1I("Corr_NumberOfAcceptL1_and_rejectHLT", 
 			"Number of HLT rejected events for L1 accepts by CTP id",
-			256, 0, 256);
+			512, 0, 512);
 
   m_streamL1 = new TH2I("Corr_NumberOfacceptL1_and_streamHLT",
 			"Number of events per stream for L1 accepts by CTP id",
-			256, 0, 256, streams.size(), 0, streams.size());
+			512, 0, 512, streams.size(), 0, streams.size());
 
   m_acceptL1 = new TH2I("Corr_NumberOfacceptL1_and_acceptHLT",
 			"Number of events per HLT chain for L1 accepts by CTP id",
-			256, 0, 256, chains.size(), 0, chains.size());
+			512, 0, 512, chains.size(), 0, chains.size());
 
   if(expertHistograms.regHist(m_rejectL1).isFailure()){
     log() << MSG::WARNING << "Can't book " << m_rejectL1->GetName() << endreq;
@@ -206,7 +204,7 @@ StatusCode TrigCorMoni::bookHists()
   //
   // Get L1 items (CTP ids and names) and set bin labels
   //
-  BOOST_FOREACH(TrigConf::TriggerItem *item, ctp_confg->menu().items()) {
+  for(TrigConf::TriggerItem *item : ctp_confg->menu().items()) {
     if(!item) {
       log() << MSG::WARNING << "Null TriggerItem pointer" << endreq;
       continue;
@@ -447,7 +445,7 @@ std::vector<const TrigConf::TriggerItem *> TrigCorMoni::FindL1Items(const TrigCo
       if(chain.hasMultipleLowerChains()) {
          const std::vector<unsigned int> hashes = chain.lower_chain_hash_ids();
          
-         BOOST_FOREACH(const TrigConf::TriggerItem* item, m_configSvc->ctpConfig()->menu().items()) {
+         for(const TrigConf::TriggerItem* item : m_configSvc->ctpConfig()->menu().items()) {
             if(!item) {
                log() << MSG::WARNING << "Null TriggerItem pointer" << endreq;
                continue;
@@ -461,7 +459,7 @@ std::vector<const TrigConf::TriggerItem *> TrigCorMoni::FindL1Items(const TrigCo
       }
       else if(chain.lower_chain_name() != "") {
 
-         BOOST_FOREACH(const TrigConf::TriggerItem* item, m_configSvc->ctpConfig()->menu().items()) {
+         for(const TrigConf::TriggerItem* item : m_configSvc->ctpConfig()->menu().items()) {
             if(!item) {
                log() << MSG::WARNING << "Null TriggerItem pointer" << endreq;
                continue;
@@ -478,7 +476,7 @@ std::vector<const TrigConf::TriggerItem *> TrigCorMoni::FindL1Items(const TrigCo
       if(chain.hasMultipleLowerChains()) {
          const std::vector<unsigned int> hashes = chain.lower_chain_hash_ids();
 
-         BOOST_FOREACH(TrigConf::HLTChain *config, *m_configSvc->chainList()) {
+         for(TrigConf::HLTChain *config : *m_configSvc->chainList()) {
             if(!config) {
                log() << MSG::WARNING << "Null HLTChain pointer" << endreq;
                continue;
@@ -491,7 +489,7 @@ std::vector<const TrigConf::TriggerItem *> TrigCorMoni::FindL1Items(const TrigCo
          }
       }
       else if(chain.lower_chain_name() != "") {
-         BOOST_FOREACH(TrigConf::HLTChain *config, *m_configSvc->chainList()) {
+         for(TrigConf::HLTChain *config : *m_configSvc->chainList()) {
             if(!config) {
                log() << MSG::WARNING << "Null HLTChain pointer" << endreq;
                continue;

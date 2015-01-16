@@ -22,9 +22,6 @@
 #include <TH1I.h>
 #include <TAxis.h>
 
-#include "boost/foreach.hpp"
-#define foreach BOOST_FOREACH
-
 
 TrigChainMoni::TrigChainMoni(const std::string & type, const std::string & name,
 			     const IInterface* parent)
@@ -138,7 +135,7 @@ StatusCode TrigChainMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNe
     on key (alphabetically since no comparator is explicitly defined).
   */
 
-  foreach(const HLT::SteeringChain* chain, cc) {
+  for (const HLT::SteeringChain* chain : cc) {
     chainname[chain->getChainName()] = chain->getChainCounter();
   }
   

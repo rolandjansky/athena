@@ -13,9 +13,6 @@
 #include "TrigSteering/SteeringChain.h"
 #include "TrigInterfaces/AlgoConfig.h"
 
-#include "boost/foreach.hpp"
-#define foreach BOOST_FOREACH
-
 #include <vector>
 #include <algorithm>
 #include <TH1F.h>
@@ -83,7 +80,7 @@ StatusCode TrigSteerMoni::bookHists()
   unsigned int totalNChains = configuredChains.size();
 
   unsigned int maxSteps = 0;
-  foreach (const HLT::SteeringChain* chain, configuredChains ) {
+  for (const HLT::SteeringChain* chain : configuredChains ) {
      maxSteps = chain->getSignatures().size() > maxSteps ? chain->getSignatures().size() : maxSteps;
   }
 

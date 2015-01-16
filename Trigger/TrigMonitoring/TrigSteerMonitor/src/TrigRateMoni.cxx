@@ -9,9 +9,7 @@
 #include <TString.h>
 
 #include <boost/bind.hpp>
-#include <boost/foreach.hpp>
 #include <boost/thread.hpp>
-#define foreach BOOST_FOREACH
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
@@ -218,7 +216,7 @@ StatusCode TrigRateMoni::bookHists() {
   std::set<std::string> streams;
 
 
-  foreach( const HLT::SteeringChain* chain, configuredChains ) {
+  for ( const HLT::SteeringChain* chain : configuredChains ) {
     // get groups it belongs to
     const std::set<std::string>& chainGroupList = chain->getConfigChain()->groups();
 
@@ -226,13 +224,13 @@ StatusCode TrigRateMoni::bookHists() {
       (*m_log) << MSG::WARNING << "Chain " << chain->getChainName() << " has not group configured, it's rate wil sneak out from groups rate monitoring " << endreq;
     }
 
-    foreach(const std::string& gr, chainGroupList) {
+    for (const std::string& gr : chainGroupList) {
       if ( gr.find("RATE") == 0 ) // name starts from string RATE
         groups.insert(gr);
     }
 
     std::vector<HLT::StreamTag>::const_iterator streamsIt;
-    foreach(HLT::StreamTag stream, chain->getStreamTags()) {
+    for(HLT::StreamTag stream : chain->getStreamTags()) {
       streams.insert("str_" + stream.getStream() + "_" + stream.getType());
     }
   }
@@ -373,7 +371,7 @@ StatusCode TrigRateMoni::bookHists() {
 
   // a bin for each chain
   if ( m_doChains || m_doGroups ) {
-    foreach( const HLT::SteeringChain* chain, configuredChains ) {
+     for( const HLT::SteeringChain* chain : configuredChains ) {
       if ( m_doChains ) {
         m_published->GetXaxis()->SetBinLabel(bin, chain->getChainName().c_str());
         m_chains_map[chain] = bin;
@@ -382,7 +380,7 @@ StatusCode TrigRateMoni::bookHists() {
       if ( m_doGroups ) {
         // preserve chain -> group bin map
         const std::set<std::string> chainGroupList = chain->getConfigChain()->groups();
-        foreach ( std::string group, chainGroupList ) { // !!!!!!!!!!
+        for ( std::string group : chainGroupList ) { // !!!!!!!!!!
           m_groups_map[chain].insert(m_published->GetXaxis()->FindBin(  grp_bin_name(group).c_str() ));
         }
       }
@@ -605,7 +603,7 @@ void TrigRateMoni::fillChainAndGroupBins() {
   
   
   if ( m_doGroups ) {
-    BOOST_FOREACH(GroupHelper::value_type& gh, m_group_helper) 
+     for(GroupHelper::value_type& gh : m_group_helper) 
       gh.second.clear();
   }
 
@@ -669,7 +667,7 @@ void TrigRateMoni::fillChainAndGroupBins() {
   } // OF loop over chains
 
   if ( m_doGroups ) {
-    BOOST_FOREACH(GroupHelper::value_type& gh, m_group_helper) {
+     for(GroupHelper::value_type& gh : m_group_helper) {
       if (gh.second.input) {
 	float x = gh.first - 0.5;  
 	m_buffer->Fill(x,input);

@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "boost/foreach.hpp"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/AlgTool.h"
@@ -39,8 +38,6 @@
 #include <TH2I.h>
 #include <map>
 #include <typeinfo>
-
-#define foreach BOOST_FOREACH
 
 
 TrigSignatureMoni::TrigSignatureMoni(const std::string & type, const std::string & name,
@@ -384,8 +381,8 @@ void findChainsInStreams(std::map<std::string, TH1I*>& histograms,   const std::
   std::map<std::string, std::vector<std::string> > stream_to_chains; 
 
   
-  BOOST_FOREACH( const HLT::SteeringChain* chain, config ) {
-    BOOST_FOREACH( const HLT::StreamTag& stream,  chain->getStreamTags()) {
+  for ( const HLT::SteeringChain* chain : config ) {
+     for ( const HLT::StreamTag& stream :  chain->getStreamTags()) {
       stream_to_chains[stream.getStream()].push_back(chain->getChainName());
     }
   }  
@@ -394,7 +391,7 @@ void findChainsInStreams(std::map<std::string, TH1I*>& histograms,   const std::
 
     TH1I* h = histograms[p->first] = new TH1I(("ChainsInStream_"+p->first).c_str(), ("Chains in " +level + "stream "+p->first).c_str(), p->second.size(), 0, p->second.size());
     int bin = 1;
-    BOOST_FOREACH(const std::string& label, p->second) {
+    for ( const std::string& label : p->second) {
       h->GetXaxis()->SetBinLabel(bin, label.c_str());
       ++bin;
     }
@@ -403,15 +400,15 @@ void findChainsInStreams(std::map<std::string, TH1I*>& histograms,   const std::
 }
 
 void fillChainsInStreams(std::map<std::string, TH1I*>& histograms, const std::vector<const HLT::SteeringChain*>& result) {
-  BOOST_FOREACH( const HLT::SteeringChain* chain, result ) {
-    if (chain->chainPassed()){
-      BOOST_FOREACH( const HLT::StreamTag& stream,  chain->getStreamTags() ){
-	if ( ! stream.isPrescaled() ) {//fill
-	  histograms[stream.getStream()]->Fill(chain->getChainName().c_str(), 1.);
-	}
+   for( const HLT::SteeringChain* chain : result ) {
+      if (chain->chainPassed()){
+         for( const HLT::StreamTag& stream :  chain->getStreamTags() ){
+            if ( ! stream.isPrescaled() ) {//fill
+               histograms[stream.getStream()]->Fill(chain->getChainName().c_str(), 1.);
+            }
+         }
       }
-    }
-  }
+   }
 }
   
 
@@ -533,7 +530,7 @@ StatusCode TrigSignatureMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*
   
   // Step For EventBuilding histogram  
  if(m_trigLvl == "HLT") {
-   m_stepForEBHist = new TH1I("StepForEB", "Step at which EB is called  ", 30, 0., 30.);
+   m_stepForEBHist = new TH1I("StepForEB", "Step at which EB is called  ", 60, -30., 30.);
    if ( expertHistograms.regHist(m_stepForEBHist).isFailure()){
      if (m_logLvl <= MSG::WARNING) (*m_log) << MSG::WARNING << "Can't book "
 					    << m_histoPathexpert+ m_stepForEBHist->GetName() << endreq;
@@ -673,7 +670,7 @@ StatusCode TrigSignatureMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*
 #endif
 
   // chain length histo: fill 1d histogram with the length of each chain
-  foreach ( const HLT::SteeringChain* chain, configuredChains ) {
+  for ( const HLT::SteeringChain* chain : configuredChains ) {
     unsigned int chainCounter = chain->getChainCounter();
     int length = chain->getSignatures().size();
     m_chainlengthHist->Fill( m_chainBlock->GetSigHistValue(chainCounter), length);
@@ -682,7 +679,7 @@ StatusCode TrigSignatureMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*
     int binNum = 0;
     int stepNum = 0;
     std::vector<std::string> stepNames = BinBlock::GetStepNames();
-    foreach ( std::string step, stepNames) {
+    for ( std::string step : stepNames) {
       if( step.substr(0,4) == "step") {
 
         if(stepNum >= length) {
@@ -984,8 +981,8 @@ StatusCode TrigSignatureMoni::fillHists()
   
   fillChainsInStreams(m_chainsInStream, activeChains);
 
-  // Temporarily disable filling until TrigSteer tag is updated in devval
-  //m_stepForEBHist->Fill(m_parentAlg->stepForEB());
+  if(m_trigLvl == "HLT") 
+    m_stepForEBHist->Fill(m_parentAlg->stepForEB());
 
   return StatusCode::SUCCESS;
 }
@@ -1105,8 +1102,8 @@ GroupBlock::GroupBlock(const std::vector<const HLT::SteeringChain*>& configuredC
   // First populate groupBinMap with the group names
   // Done this way to ensure that groups are in alphabetical order in histo
 
-  foreach ( const HLT::SteeringChain * chain, configuredChains ) {
-     foreach ( std::string group, chain->getConfigChain()->groups() )
+  for ( const HLT::SteeringChain * chain : configuredChains ) {
+     for ( std::string group : chain->getConfigChain()->groups() )
         groupBinMap[group] = 0;
   }
 
@@ -1114,15 +1111,15 @@ GroupBlock::GroupBlock(const std::vector<const HLT::SteeringChain*>& configuredC
   //  for(std::map<std::string, int>::iterator grit = groupBinMap.begin();
   //      grit != groupBinMap.end(); grit++) {
   typedef std::pair<std::string, int> groupBin_t;
-  foreach ( groupBin_t group_bin, groupBinMap) {
+  for ( groupBin_t group_bin : groupBinMap) {
       m_XLabels[m_NBins] = "grp_" + group_bin.first;
       group_bin.second = GetFirstSigHistBin() + m_firstBin + m_NBins++;
   }
 
   // Now set the bin maps for each chain
-  foreach ( const HLT::SteeringChain * chain, configuredChains ) {
+  for ( const HLT::SteeringChain * chain : configuredChains ) {
     std::set<int> binNums;
-    foreach ( std::string group, chain->getConfigChain()->groups() )
+    for ( std::string group : chain->getConfigChain()->groups() )
        binNums.insert(groupBinMap[group]);
     
     m_ch_bin_map[ chain->getChainCounter() ] = binNums;      
