@@ -5,7 +5,9 @@ author  Alexander Richards <richards@hep.ucl.ac.uk>
 use AtlasExternalArea AtlasExternalArea-00-* External
 use AtlasFortranPolicy AtlasFortranPolicy-*
 use fastjet * LCG_Interfaces
-macro AtlasFastJet_home $(fastjet_home)
+
+macro fastjet_native_version 3.1.1
+macro AtlasFastJet_home ${SITEROOT}/sw/lcg/releases/LCG_72a/fastjet/$(fastjet_native_version)/$(LCG_system)
 macro AtlasFastJet_native_version $(fastjet_native_version) 
 
 macro AtlasFastJet_system "$(LCG_ext_system)" \
