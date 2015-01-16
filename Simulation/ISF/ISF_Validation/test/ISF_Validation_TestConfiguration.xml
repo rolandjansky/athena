@@ -575,7 +575,7 @@
                   <argname>DCubeMon</argname>
                   <argvalue>truth.root</argvalue>
                 </arg>
-                <keepFilePattern>DCube-18.X.0/WriteCalHitsTest.truth.root/truth.root.dcube.xml.php</keepFilePattern>
+                <keepFilePattern>DCube-18.X.0/ISF_G4_WriteCalHitsTest.truth.root/truth.root.dcube.xml.php</keepFilePattern>
               </test>
             </jobTransform>
           </chainElement>
