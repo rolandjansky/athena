@@ -91,6 +91,8 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
         self.L2InputTE = getInputTEfromL1Item(self.L2InputL1Item)
       else:
         self.L2InputTE = ''
+
+
 	
 
       #if len(self.L2InputTE)>0:
@@ -107,6 +109,9 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
       elif 'l1calocalib' in self.chainPart['purpose']:
          self.L2InputTE = self.L2InputL1Item
          self.setupL1CaloCalibrationChains()
+      elif 'alfacalib' in self.chainPart['purpose']:
+        self.setupL1ALFACalibrationChains()
+
       #elif '
       else:
          mlog.error('Chain %s could not be assembled' % (self.chainPartName))
@@ -215,3 +220,23 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
         }
 
 
+
+   ###########################################################################
+   # ALFA Calibration chains
+   ###########################################################################
+   def setupL1ALFACalibrationChains(self):
+     
+     from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter
+     
+     l2_ALFASubDetListWriter = TrigSubDetListWriter("ALFASubDetListWriter")
+     l2_ALFASubDetListWriter.SubdetId = ['TDAQ_CTP','FORWARD_ALPHA']
+     l2_ALFASubDetListWriter.MaxRoIsPerEvent=1
+     
+     self.robWriter = [l2_ALFASubDetListWriter]            
+     self.L2sequenceList += [['', self.robWriter, 'L2_']]
+     
+     self.L2signatureList += [[['L2_']]]
+     self.TErenamingDict = {
+       'L2_':     'L2_l1ALFAcalib',
+       }
+     

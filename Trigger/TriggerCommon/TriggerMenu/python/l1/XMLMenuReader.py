@@ -73,7 +73,7 @@ def readMenuFromXML(l1menu, filename):
         si = ca.Signal
         thr.cableinfo.bitnum      = int(x['bitnum'])
         thr.cableinfo.name        = ca['name']
-        thr.cableinfo.slot        = ca['ctpin']
+        thr.cableinfo.slot        = ca['input'] if 'input' in ca else ca['ctpin']
         thr.cableinfo.connector   = ca['connector']
         thr.cableinfo.range_begin = int( si['range_begin'] )
         thr.cableinfo.range_end   = int( si['range_end'] )
@@ -87,8 +87,18 @@ def readMenuFromXML(l1menu, filename):
 
                 thrVal = ThresholdValue(thrtype = xV['type'], value = value,
                                         etamin = int(xV['etamin']), etamax = int(xV['etamax']), phimin = int(xV['phimin']), phimax = int(xV['phimax']),
-                                        em_isolation = int(xV['em_isolation']), had_isolation = int(xV['had_isolation']), had_veto = int(xV['had_veto']),
                                         window = int(xV['window']), priority = int(xV['priority']), name = xV['name'])
+
+                if xV['type']=='EM' or xV['type']=='TAU':
+                    em_isolation = int(xV['em_isolation'])
+                    had_isolation = int(xV['had_isolation'])
+                    had_veto = int(xV['had_veto'])
+                    isobits = xV['isobits'] if 'isobits' in xV else '00000'
+                    use_relIso = xV['use_relIso'] if 'use_relIso' in xV else False
+                    thrVal.setIsolation(em_isolation, had_isolation, had_veto, isobits, use_relIso)
+
+
+                
                 thr.thresholdValues.append(thrVal)
 
 
@@ -131,7 +141,11 @@ def readMenuFromXML(l1menu, filename):
     # CaloInfo
     ci = reader.LVL1Config.CaloInfo
     l1menu.CaloInfo.name = ci['name']
-    l1menu.CaloInfo.setGlobalScale(float(ci['global_scale']))
+    try:
+        l1menu.CaloInfo.setGlobalEmScale(float(ci['global_em_scale']))
+        l1menu.CaloInfo.setGlobalJetScale(float(ci['global_jet_scale']))
+    except:
+        pass # will resolve itself once we have the em and jet scales in all XML
 
     if hasattr(reader.LVL1Config.CaloInfo,"JetWeights"): # new CaloInfo have no more JetWeights
         # jet weights

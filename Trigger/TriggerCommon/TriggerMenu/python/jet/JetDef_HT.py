@@ -95,18 +95,24 @@ class L2EFChain_HT(L2EFChainDef):
         
         #TrigCaloClusterMaker/TrigCaloClusterMaker_topo_fullscan
         from TrigCaloRec.TrigCaloRecConfig import TrigCaloClusterMaker_topo
-        theTrigCaloClusterMaker_topo = TrigCaloClusterMaker_topo('TrigCaloClusterMaker_topo_fullscan', doMoments=True, doLC=True)
+        theTrigCaloClusterMaker_topo = TrigCaloClusterMaker_topo('TrigCaloClusterMaker_topo_fullscan', doMoments=True, doLC=False)
                 
-        #TrigHLTJetRec/TrigHLTJetRec_AntiKt04
+        #TrigHLTJetRec/TrigHLTEnergyDensity
+        #from TrigHLTJetRec.TrigHLTJetRecConfig import TrigHLTEnergyDensity
+        #theTrigHLTEnergyDensity = TrigHLTEnergyDensity(cluster_calib='EM', ed_merge_param=0.4, name="TrigHLTEnergyDensity_04tcemFS")
+
+        #TrigHLTJetRec/TrigHLTJetRecFromCluster
         antiktsize = 0
         if ('a4' in self.chainPart['recoAlg']):
             antiktsize = 4
-            from TrigHLTJetRec.TrigHLTJetRecConfig import TrigHLTJetRec_AntiKt04
-            theTrigHLTJetRec_AntiKt = TrigHLTJetRec_AntiKt04()
+            from TrigHLTJetRec.TrigHLTJetRecConfig import TrigHLTJetRecFromCluster
+            theTrigHLTJetRec_AntiKt = TrigHLTJetRecFromCluster(cluster_calib='EM', jet_calib='subjes', merge_param='04', name="TrigHLTJetRecFromCluster_a4subjestcemFS", output_collection_label='a4subjestcemFS')
+
         elif ('a10' in self.chainPart['recoAlg'] ):
             antiktsize = 10
-            from TrigHLTJetRec.TrigHLTJetRecConfig import TrigHLTJetRec_AntiKt10
-            theTrigHLTJetRec_AntiKt = TrigHLTJetRec_AntiKt10()
+            from TrigHLTJetRec.TrigHLTJetRecConfig import TrigHLTJetRecFromCluster
+            theTrigHLTJetRec_AntiKt = TrigHLTJetRecFromCluster(cluster_calib='EM', jet_calib='sub', merge_param='10', name="TrigHLTJetRecFromCluster_a10subtcemFS", output_collection_label='a10subtcemFS')
+
         else:
             logJetHTDef.error("NO HLT JET REC ALG GIVEN")
             theTrigHLTJetRec_AntiKt = None
@@ -117,15 +123,16 @@ class L2EFChain_HT(L2EFChainDef):
         theEFHThypo_ht =  EFHT_HAD("EFHT_HAD_ht%s"%efht_thresh,HT_cut=int(efht_thresh)*GeV)
         
         # Adding sequences
-        self.L2sequenceList += [['', [theDummyRoiCreator], 'EF_full']]
-        self.L2sequenceList += [[['EF_full'], [theTrigCaloCellMaker_jet_fullcalo, theTrigCaloClusterMaker_topo ], 'EF_full_cluster']]
-        self.L2sequenceList += [[['EF_full_cluster'], [theTrigHLTJetRec_AntiKt], 'AntiKt']]
+        self.L2sequenceList += [['', [theDummyRoiCreator], 'EF_fullroi']]
+        #self.L2sequenceList += [[['EF_fullroi'], [theTrigCaloCellMaker_jet_fullcalo, theTrigCaloClusterMaker_topo, theTrigHLTEnergyDensity], 'EF_full_cluster_tcemFS']]
+        self.L2sequenceList += [[['EF_fullroi'], [theTrigCaloCellMaker_jet_fullcalo, theTrigCaloClusterMaker_topo], 'EF_full_cluster_tcemFS']]
+        self.L2sequenceList += [[['EF_full_cluster_tcemFS'], [theTrigHLTJetRec_AntiKt], 'AntiKt']]
 
         self.L2sequenceList += [[['AntiKt'],[theEFHThypo_ht], 'jet_hypo']]
 
         # Adding signatures
-        self.L2signatureList += [ [['EF_full']] ]
-        self.EFsignatureList += [ [['EF_full_cluster']] ]
+        self.L2signatureList += [ [['EF_fullroi']] ]
+        self.EFsignatureList += [ [['EF_full_cluster_tcemFS']] ]
         self.EFsignatureList += [ [['AntiKt']] ]
         self.EFsignatureList += [ [['jet_hypo']] ]
         

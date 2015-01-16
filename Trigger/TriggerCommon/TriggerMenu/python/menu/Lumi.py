@@ -18,7 +18,7 @@ def lumi(triggerPythonConfig):
 
     L1Prescales = {}
     HLTPrescales = {}
-    streamConfig = {}
+    #streamConfig = {}
     
     menu_name = TriggerFlags.triggerMenuSetup()
     ## Do some aliasing here
@@ -33,7 +33,7 @@ def lumi(triggerPythonConfig):
 
     if menu_name.startswith('Physics_pp_v4') :
         log.info('MEOW in physics pp v4 menu setup')
-        from TriggerMenu.menu.Physics_pp_v4 import setupMenu, Prescales, StreamConfig
+        from TriggerMenu.menu.Physics_pp_v4 import setupMenu, Prescales#, StreamConfig
         setupMenu()
         if 'cosmics_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_cosmics
@@ -41,12 +41,12 @@ def lumi(triggerPythonConfig):
         else:
             L1Prescales = Prescales.L1Prescales
             HLTPrescales = Prescales.HLTPrescales
-        streamConfig = StreamConfig
+        #streamConfig = StreamConfig
 
     elif  menu_name.startswith('MC_pp_v4'):
-        from TriggerMenu.menu.MC_pp_v4 import setupMenu, Prescales, StreamConfig
+        from TriggerMenu.menu.MC_pp_v4 import setupMenu, Prescales#, StreamConfig
         setupMenu()
-        streamConfig = StreamConfig
+        #streamConfig = StreamConfig
         if 'tight_mc_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_tight_mc_prescale
             HLTPrescales = Prescales.HLTPrescales_tight_mc_prescale
@@ -64,7 +64,7 @@ def lumi(triggerPythonConfig):
 
     elif menu_name.startswith('Physics_pp_v5') :
         log.info('MEOW in physics pp v5 menu setup')
-        from TriggerMenu.menu.Physics_pp_v5 import setupMenu, Prescales, StreamConfig
+        from TriggerMenu.menu.Physics_pp_v5 import setupMenu, Prescales#, StreamConfig
         setupMenu()
         if 'cosmics_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_cosmics
@@ -72,12 +72,12 @@ def lumi(triggerPythonConfig):
         else:
             L1Prescales = Prescales.L1Prescales
             HLTPrescales = Prescales.HLTPrescales
-        streamConfig = StreamConfig
+        #streamConfig = StreamConfig
 
 
     elif menu_name.startswith('DC14') :
         log.info('MEOW in DC14 menu setup')
-        from TriggerMenu.menu.DC14 import setupMenu, Prescales, StreamConfig
+        from TriggerMenu.menu.DC14 import setupMenu, Prescales#, StreamConfig
         setupMenu()
         if 'tight_mc_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_tight_mc_prescale
@@ -88,11 +88,11 @@ def lumi(triggerPythonConfig):
         else:
             L1Prescales = Prescales.L1Prescales
             HLTPrescales = Prescales.HLTPrescales
-        streamConfig = StreamConfig
+        #streamConfig = StreamConfig
 
     elif menu_name.startswith('LS1_v1') :
         log.info('MEOW in LS1_v1 menu setup')
-        from TriggerMenu.menu.LS1_v1 import setupMenu, Prescales, StreamConfig
+        from TriggerMenu.menu.LS1_v1 import setupMenu, Prescales#, StreamConfig
         setupMenu()
         if 'cosmics_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_cosmics
@@ -100,18 +100,26 @@ def lumi(triggerPythonConfig):
         else:
             L1Prescales = Prescales.L1Prescales
             HLTPrescales = Prescales.HLTPrescales
-        streamConfig = StreamConfig
+        #streamConfig = StreamConfig
 
     elif  menu_name.startswith('MC_pp_v5'):
-        from TriggerMenu.menu.MC_pp_v5 import setupMenu, Prescales, StreamConfig
+        from TriggerMenu.menu.MC_pp_v5 import setupMenu, Prescales#, StreamConfig
         setupMenu()
-        streamConfig = StreamConfig
+        #streamConfig = StreamConfig
         if 'tight_mc_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_tight_mc_prescale
             HLTPrescales = Prescales.HLTPrescales_tight_mc_prescale
         elif 'loose_mc_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_loose_mc_prescale
             HLTPrescales = Prescales.HLTPrescales_loose_mc_prescale
+            log.info(" HLTPrescales %s" % HLTPrescales)
+        elif 'special_mc_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_special_mc_prescale
+            HLTPrescales = Prescales.HLTPrescales_special_mc_prescale
+            log.info(" HLTPrescales %s" % HLTPrescales)
+        elif 'no_prescale' in menu_name:
+            L1Prescales = Prescales.L1Prescales_no_prescale
+            HLTPrescales = Prescales.HLTPrescales_no_prescale
             log.info(" HLTPrescales %s" % HLTPrescales)
         elif 'upgrade_mc_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_upgrade_mc_prescale
@@ -123,9 +131,9 @@ def lumi(triggerPythonConfig):
 
     elif menu_name.startswith('Physics_HI_v3') :
         log.info('Physics_HI_v3 menu setup')
-        from TriggerMenu.menu.Physics_HI_v3 import setupMenu, Prescales, StreamConfig
+        from TriggerMenu.menu.Physics_HI_v3 import setupMenu, Prescales#, StreamConfig
         setupMenu()
-        streamConfig = StreamConfig            
+        #streamConfig = StreamConfig            
         if 'cosmics_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_cosmics
             HLTPrescales = Prescales.HLTPrescales_cosmics
@@ -137,7 +145,8 @@ def lumi(triggerPythonConfig):
         log.fatal ('Menu with name %s is not known in this version of TriggerMenu! ', menu_name)
         return
     #
-    return (L1Prescales, HLTPrescales, streamConfig)
+    #return (L1Prescales, HLTPrescales, streamConfig)
+    return (L1Prescales, HLTPrescales)#, streamConfig)
 
 
 
@@ -150,7 +159,8 @@ def applyPrescales(triggerPythonConfig, HLTPrescales):
        TriggerFlags.triggerMenuSetup() == 'default': no_prescale = True
     #now also the loose and tight prescales in mc
     if 'loose_mc_prescale' in TriggerFlags.triggerMenuSetup() or \
-       'tight_mc_prescale' in TriggerFlags.triggerMenuSetup(): mc_loose_tight_prescale = True
+       'tight_mc_prescale' in TriggerFlags.triggerMenuSetup() or \
+       'special_mc_prescale' in TriggerFlags.triggerMenuSetup(): mc_loose_tight_prescale = True
         
     if 'no_Bphysics' in TriggerFlags.triggerMenuSetup(): no_Bphysics = True
 

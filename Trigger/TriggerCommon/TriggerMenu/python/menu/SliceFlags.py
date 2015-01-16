@@ -14,5 +14,7 @@ import TriggerMenu.calibcosmicmon.CalibSliceFlags
 import TriggerMenu.calibcosmicmon.StreamingSliceFlags
 import TriggerMenu.calibcosmicmon.MonitorSliceFlags
 import TriggerMenu.calibcosmicmon.BeamspotSliceFlags
+import TriggerMenu.calibcosmicmon.EnhancedBiasSliceFlags
+import TriggerMenu.test.TestSliceFlags
 
 

@@ -40,7 +40,8 @@ class BunchGroupSet:
             self.bunches        = bunches
 
         def xml(self, ind=1, step=2):
-            s  = ind * step * ' ' + '<BunchGroup menuPartition="%i" internalNumber="%i" name="%s"' % (self.menuPartition, self.internalNumber, self.name)
+            #s  = ind * step * ' ' + '<BunchGroup menuPartition="%i" internalNumber="%i" name="%s"' % (self.menuPartition, self.internalNumber, self.name)
+            s  = ind * step * ' ' + '<BunchGroup internalNumber="%i" name="%s"' % (self.internalNumber, self.name)
             if not self.bunches:
                 s += '/>\n'
             else:

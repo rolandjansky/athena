@@ -20,6 +20,8 @@ class TriggerConfigL1Topo:
             TriggerFlags.triggerMenuSetup = menuName
         self.menuName = TriggerFlags.triggerMenuSetup()
 
+        print self.menuName
+        
         self.inputFile     = inputFile
         self.outputFile    = outputFile
         
@@ -37,7 +39,7 @@ class TriggerConfigL1Topo:
 
             # defines the menu (algo only for now)
             self.defineMenu(self.menuName)
-        
+
             # registers all items ever defined
             self.registerMenu()
 
@@ -45,38 +47,42 @@ class TriggerConfigL1Topo:
     def registerAlgo(self, algo):
         """ Add a L1Topo algo to the set of algos which are registered for further use"""
 
-        name = algo.name
-        
-        if name in self.registeredAlgos:
-            raise RuntimeError('L1Topo algo %s is already registered' % name)
+        if algo.name in self.registeredAlgos:
+            raise RuntimeError('L1Topo algo %s is already registered' % algo.name)
             
-        self.registeredAlgos[name] = algo
-        log.debug("Added %s in the algo list: " % name)
+        self.registeredAlgos[algo.name] = algo
+        log.debug("Added %s in the algo list: " % algo.name)
         return algo
 
-    def getRegisteredAlgo(self, name):
 
+
+    def getRegisteredAlgo(self, name):
         if name in self.registeredAlgos:
             return self.registeredAlgos[name]
         return None
 
-    def findRegisteredSortingAlgoByOutput(self, requiredOutput):
+
+    def findRegisteredSortingAlgoByOutput(self, algo):
         """returns a list of all sorting algorithms that are needed to
         produce the required output. Even one missing will raise a runtime exception"""
         sortingAlgs = []
         missingOutput = []
-        for output in requiredOutput:
+        for requiredInput in algo.inputs:
             foundOutput = False
             for name, alg in self.registeredAlgos.items():
-                if output in alg.outputs:
+                if type(alg.outputs)==list:
+                    foundOutput = (requiredInput in alg.outputs)
+                else:
+                    foundOutput = (requiredInput == alg.outputs)
+                if foundOutput:
                     sortingAlgs += [alg]
-                    foundOutput = True
                     break
             if not foundOutput:
-                missingOutput += [output]
+                missingOutput += [(algo.name, requiredInput)]
         if missingOutput:
-            raise RuntimeError("Not for all required sorted lists a sorting algorithm could be found: missing lists are %r" % missingOutput)
+            raise RuntimeError("For some algorithms not all inputs could be found. Missing are: %r" % ["%s <- %s" % (algname, inputname) for (algname, inputname) in missingOutput] )
         return sortingAlgs
+
 
     def writeXML(self):
         """ Writes L1Topo XML file"""
@@ -88,6 +94,7 @@ class TriggerConfigL1Topo:
         FH.close()
         log.info("Wrote %s " % self.outputFile)
 
+
     @staticmethod
     def defineMenu(menuName = None ):
         """
@@ -97,11 +104,17 @@ class TriggerConfigL1Topo:
 
         Menu.defineMenu() defines the menu via L1TopoFlags
         """
+        #from TriggerConfigLVL1 import TriggerConfigLVL1
+        #tcl1 = TriggerConfigLVL1()
+        #menuName = tcl1.getMenuBaseName(menuName)
+
         from TriggerJobOpts.TriggerFlags import TriggerFlags
-        menumodule = __import__('l1topomenu.Menu_%s' % menuName, globals(), locals(), ['defineMenu'], -1)
+        menumodule = __import__('l1topomenu.Menu_%s' % menuName.replace('_tight_mc_prescale','').replace('_loose_mc_prescale','').replace('_special_mc_prescale','').replace('_no_prescale',''), globals(), locals(), ['defineMenu'], -1) 
+        #menumodule = __import__('l1topomenu.Menu_%s' % menuName, globals(), locals(), ['defineMenu'], -1)
         menumodule.defineMenu()
         log.info("%s menu contains %i algos." % ( menuName, len(L1TopoFlags.algos()) )) 
         
+
     def registerMenu(self):
         """
         Calls registerTopoAlgos() of the correct module 'TopoalgoDef.py'
@@ -109,7 +122,6 @@ class TriggerConfigL1Topo:
         Has to run AFTER defineMenu
         """
         algodefmodule = __import__('l1topomenu.TopoAlgoDef', globals(), locals(), ['TopoAlgoDef'], -1)
-
         algodefmodule.TopoAlgoDef.registerTopoAlgos(self)
         log.info("Registered %i algos." % ( len(self.registeredAlgos) ) )
 
@@ -131,6 +143,14 @@ class TriggerConfigL1Topo:
             if topooutput.algo is None:
                 raise RuntimeError("L1Topo algo of name '%s' is not defined in L1Topo algo definition file TopoAlgoDef.py." % topooutput.algoname )
 
-            topooutput.sortingAlgos = self.findRegisteredSortingAlgoByOutput(topooutput.algo.inputs)
+            topooutput.sortingAlgos = self.findRegisteredSortingAlgoByOutput(topooutput.algo)
+
+            #print "For decision alg %s with inputs %r found the following sorting algs %r" % (topooutput.algo.name, topooutput.algo.inputs, [x.name for x in topooutput.sortingAlgos])
 
             self.menu += topooutput
+
+        if not self.menu.check():
+            raise RuntimeError("Menu check failed")
+
+
+        

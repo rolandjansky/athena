@@ -32,20 +32,24 @@ class JetFex(object):
             'TT': 'l15',
             'tc': 'jr'}[level]
 
-        self._check_args(merge_param, calib, fex_input)
+        self._check_args(merge_param, fex_input)
+        self.merge_param = merge_param
         self.fex_input = fex_input
+        self.do_jes = calib['do_jes']
+
+        # jes_label = 'jes' if self.do_jes else 'nojes'
         # make key for the alg dispatcher table
-        self.fex_key = '%s_%s%s_%s_%s' % (level,
-                                          self.fex_type,
-                                          str(merge_param),
-                                          fex_input,
-                                          calib)
+        # self.fex_key = '%s_%s%s_%s_%s' % (level,
+        #                                  self.fex_type,
+        #                                  str(merge_param),
+        #                                  fex_input,
+        #                                  jes_label)
 
     def __str__(self):
         s = ['%s: %s\n' % (k, str(v)) for k, v in self.__dict__.items()]
         return '\n'.join(s)
 
-    def _check_args(self, merge_param, calib, fex_input):
+    def _check_args(self, merge_param, fex_input):
         """check the constructor args"""
 
         try:
@@ -66,12 +70,6 @@ class JetFex(object):
             m = '%s._check_args: unsupported fex input value %s' % (
                 self.__class__.__name__,
                 str(fex_input))
-            raise RuntimeError(m)
-
-        if not calib in ('em', 'had'):
-            m = '%s._check_args: unsupported calibration value %s' % (
-                self.__class__.__name__,
-                str(calib))
             raise RuntimeError(m)
 
 

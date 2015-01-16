@@ -39,6 +39,8 @@ class L2EFChain_Monitoring(L2EFChainDef):
             self.setupIdmonTrkFS()
         elif ('costmonitor' in self.monType):
             self.setupCostMonChain()
+        elif ('cscmon' in self.monType):
+            self.setupCSCMonChain()
         else:
             log.error("No suitable configuration for chain %s found!" % self.chainName)
 
@@ -69,8 +71,20 @@ class L2EFChain_Monitoring(L2EFChainDef):
         ROBRequester = ROBRequestAlgo("DummyROBRequest")
         self.L2sequenceList += [[ '' , [ROBRequester],  'L2_DummyROBRequest']]
         self.L2signatureList += [ [['L2_DummyROBRequest']] ]
-        
 
+
+    ####################################
+    ####################################
+    def setupCSCMonChain(self):
+        from TrigDetCalib.TrigDetCalibConfig import CSCSubDetListWriter        
+        CSC_PEB = CSCSubDetListWriter('CSCSubDetListWriter_' + self.chainName)
+
+        outputTE='L2_CSCSubDetListWriter_'+self.chainName
+
+        self.L2sequenceList +=  [ [ '', [CSC_PEB], outputTE ] ]        
+
+        self.L2signatureList += [ [[outputTE]] ]
+        
 
     ####################################
     ####################################

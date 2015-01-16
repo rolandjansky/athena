@@ -21,11 +21,11 @@ class Access(type):
         if cls.ctpDataFormat == None:
             return "None"
 
-        s = "CTP DataFormat\n"
+        s = "CTP DataFormat version %i\n" % cls.CTPVersion
         varnames = ['MaxTrigItems', 'NumBunchgroups', 'NumRndmTriggers']
         for varname in varnames:
             s += "     %s = %r\n" % (varname, getattr( cls.ctpDataFormat, varname)) 
-        s += "L1Common\n"
+        s += "L1Common version %i\n" % cls.L1CommonVersion
         varnames = ['MUON_bitnum','EM_bitnum', 'TAU_bitnum', 'JET_bitnum', 'JE_bitnum', 'JB_bitnum', 'JF_bitnum', 'TE_bitnum', 'XE_bitnum', 'XS_bitnum',
                     'MBTS_bitnum', 'MBTSSI_bitnum', 'NIM_bitnum', 'ZDC_bitnum', 'TRT_bitnum', 'BCM_bitnum', 'BCMCMB_bitnum', 'LUCID_bitnum', 'CALREQ_bitnum',
                     'MUON_cable', 'EM_cable', 'TAU_cable', 'JET_cable', 'JE_cable', 'JB_cable', 'JF_cable', 'TE_cable', 'XE_cable', 'XS_cable', 'MBTS_cable', 
@@ -33,6 +33,8 @@ class Access(type):
         for varname in varnames:
             s += "     %s = %r\n" % (varname, getattr( cls.l1common, varname)) 
         return s
+
+
 
 
 class Limits:
@@ -58,13 +60,14 @@ class Limits:
         return L1Common
 
     @staticmethod
-    def setLimits(CTPVersion):
+    def setLimits(CTPVersion, verbose = False):
         Limits.CTPVersion = CTPVersion
         Limits.L1CommonVersion = 0 if CTPVersion <= 3 else 1
         #print "Setting limits for CTP version %i and L1Common Version %i" % (Limits.CTPVersion, Limits.L1CommonVersion)
         Limits.ctpDataFormat = Limits.getCTPdataformat( Limits.CTPVersion )
         Limits.l1common = Limits.getL1Common( Limits.L1CommonVersion )
-        #print Limits
+        if verbose:
+            print Limits
 
     
 

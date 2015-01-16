@@ -86,6 +86,8 @@ class DictFromChainName(object):
         
 
         # ---- check for L1Topo in chain name ----
+        # This is not necessary, as CTP item names with L1Topo are extracted in the same way as the normal CTP items. (ATR-9264)
+        '''
         L1topoitemFromChainName = ''; L1topoitem = ''; L1topoindex   = -5
         L1topoindex = [n for n in xrange(len(chainName)) if chainName.find('L1', n) == n]
         if (L1topoindex): 
@@ -104,7 +106,7 @@ class DictFromChainName(object):
                     genchainDict['L1item'] = L1topoitem
             else: 
                 logDict.debug('L1 item in name is not a L1Topo item')
-
+        '''
 
         # ---- specific chain part information ----
         allChainProperties=[]
@@ -116,7 +118,8 @@ class DictFromChainName(object):
         from SignatureDicts import AllowedTopos
         topo = '';topos=[];toposIndexed={}; topoindex = -5
         for cindex, cpart in enumerate(cparts):
-            if ('-' in cpart) | (':' in cpart) or cpart in AllowedTopos:
+            #if ('-' in cpart) | (':' in cpart) or cpart in AllowedTopos:
+            if  cpart in AllowedTopos:
                 logDict.debug('"- or : or %s" is in this part of the name %s -> topo alg' % (str(AllowedTopos), str(cpart)))
                 topo = cpart
                 topoindex = cindex
@@ -147,10 +150,11 @@ class DictFromChainName(object):
         # ---- obtain dictionary parts for signature defining patterns ----
         from SignatureDicts import getSignatureNameFromToken, AllowedCosmicChainIdentifiers, \
             AllowedCalibChainIdentifiers, AllowedStreamingChainIdentifiers, \
-            AllowedMonitorChainIdentifiers, AllowedBeamspotChainIdentifiers
+            AllowedMonitorChainIdentifiers, AllowedBeamspotChainIdentifiers, AllowedEBChainIdentifiers
 
         logDict.debug("cparts: "+ str(cparts))
         for cpart in cparts:
+
             logDict.debug("Looping over cpart: "+ str(cpart))
             m = pattern.match(cpart)
             
@@ -232,6 +236,15 @@ class DictFromChainName(object):
                 mdicts.append(m_groupdict)
 
 
+            elif cpart=='eb': 
+                logDict.debug('Doing EnhancedBias')
+                multichainindex.append(chainName.index(cpart)) 
+                m_groupdict = {'signature': 'EnhancedBias', 'threshold': '', 'multiplicity': '', 
+                               'trigType': 'eb', 'extra': ''}
+                if 'EnhancedBias' not in signatureNames:  signatureNames.append('EnhancedBias')
+                mdicts.append(m_groupdict)
+
+           
         # ---- If multiple parts exist, split the string and analyse each  ----
         # ---- part depending on the signature it belongs to ----
         # ----  ----
@@ -313,7 +326,9 @@ class DictFromChainName(object):
             chainProperties['multiplicity'] = multiplicity
             chainProperties['threshold']=mdicts[chainindex]['threshold']
             chainProperties['signature']=mdicts[chainindex]['signature']
-            chainProperties['chainPartName'] = chainparts #"_".join(filter(None,parts))
+
+            chainProperties['chainPartName'] = chainparts
+
             logDict.debug('Chainparts: '+ str(chainparts))
             if (chainProperties['signature'] != 'Cosmic') \
                     & (chainProperties['signature'] != 'Calibration')\
@@ -402,6 +417,8 @@ class DictFromChainName(object):
         logDict.debug('genchainDict that is passed as Final dict'+ str(genchainDict))
         #for cprop in allChainProperties: del cprop['signature']
              
+
+
         return genchainDict
 
 

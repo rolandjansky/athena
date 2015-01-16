@@ -6,6 +6,7 @@ In some cases instantiation is done by a remote module.
 In thsi case the factory function imports that module and retrieves the
 instance."""
 
+from exc2string import exc2string2
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
@@ -27,11 +28,13 @@ from TrigCaloRec.TrigCaloRecConfig import (TrigCaloCellMaker_jet_fullcalo,
 from TrigHLTJetRec.TrigHLTJetRecConf import TrigHLTRoIDiagnostics
 
 from TrigHLTJetRec.TrigHLTJetRecConfig import (TrigHLTJetDiagnostics_named,
+                                               TrigHLTJetRecFromCluster,
+                                               TrigHLTJetRecFromJet,
                                                TrigHLTClusterDiagnostics_named,
                                                TrigHLTCellDiagnostics_named,
                                                TrigHLTHypoDiagnostics_named,
-                                               TrigHLTJetRec_AntiKt04,
-                                               TrigHLTJetRec_AntiKt10)
+                                               TrigHLTJetRec_param,
+                                               TrigHLTEnergyDensity)
 
 from TrigJetHypo.TrigJetHypoConfig import (EFJetHypo,
                                            # EFCentJetHypo,
@@ -42,27 +45,9 @@ from TrigJetHypo.TrigJetHypoConfig import (EFJetHypo,
                                            EFJetHypoNoiseConfig,
                                            EFJetHypo_doBasicCleaning)
 
-# from TrigJetHypo.TrigEFJetMassDEtaConfig import (EFJetMassDEta,
-#                                                  EFJetMassDEta2J7,
-#                                                  EFJetMassDEta2J10,
-#                                                  EFJetMassDEta2J25,
-#                                                  EFJetMassDEta2J30,
-#                                                  EFJetMassDEta2J35,
-#                                                  EFJetMassDEta2J40)
+# from TrigT2CaloJet.TrigT2CaloJetConfig import T2L1Unpacking_TT
 
-# from TrigSiTrack.TrigSiTrack_Config import TrigSiTrack_Jet
-
-# from TrigEFLongLivedParticles.TrigEFLongLivedParticlesConfig import \
-#     TrigLoFRemovalConfig
-
-
-
-# from TrigJetHypo.TrigEFHTHypoConfig import EFHT_HAD
-# from TrigJetHypo.TrigEFJetMassYConfig import EFJetMassY
-
-# from TrigJetHypo.TrigJetDEtaFexConfig import EFDEtaFex
-
-# from TrigJetHypo.TrigJetDEtaHypoConfig import EFDEtaHypo
+from TrigDetCalib.TrigDetCalibConf import ScoutingStreamWriter
 
 abomination_to_keep_config_weakvalue_dict_intact = []
 
@@ -71,6 +56,7 @@ class Instantiator(object):
 
     def __init__(self):
         self.cache = {}
+        self.err_hdr = '%s()' % self.__class__.__name__
 
     def __call__(self, a):
         """__call__ takes the string returned by alg.asString for
@@ -84,9 +70,31 @@ class Instantiator(object):
         try:
             alg = eval(s)
         except Exception, e:
-            m = '%s() Error instantiating  Algorithm: eval(%s) %s'
-            m = m % (self.__class__.__name__, s, str(e))
+            tb = exc2string2()
+            m = '%s() Error instantiating  Algorithm: eval(%s) '\
+                '%s\nTraceback: \n%s'
+            m = m % (self.__class__.__name__, s, str(e), tb)
+
             raise RuntimeError(m)
+
+        def manual_attr_add(k, v):
+
+            try:
+                val = eval(v)
+            except Exception, e:
+                m = '%s() Error running  eval: '\
+                    'name %s value: eval(%s) \n%s' % (err_hdr, k, v, str(e))
+                raise RuntimeError(m)
+
+            try:
+                alg.__setattr__(k, val)
+            except Exception, e:
+                m = '%s() Error inserting a new Algorithm attribute: '\
+                    'name %s value: eval(%s) \n%s' % (err_hdr, k, v, str(e))
+                raise RuntimeError(m)
+
+        err_hdr = self.err_hdr
+        [manual_attr_add(k, v) for k, v in a.manual_attrs.items()]
 
         self.cache[s] = alg
         # in 2012 it was required to maintain a reference to the

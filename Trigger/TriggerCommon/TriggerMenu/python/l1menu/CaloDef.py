@@ -19,7 +19,8 @@ class CaloDef:
         caloInfo = tc.menu.CaloInfo
 
         # global scale
-        caloInfo.setGlobalScale(1.0)
+        caloInfo.setGlobalEmScale(2)
+        caloInfo.setGlobalJetScale(1)
 
         # XS parameterization
         caloInfo.setXsParams( xsSigmaScale=1150, xsSigmaOffset=1640, xeMin=11, xeMax=63, teSqrtMin=4, teSqrtMax=63 )
@@ -35,16 +36,22 @@ class CaloDef:
         E.g: with offset=-52 slope=35 means isolation <= ET/3.5 - 5.2
         """
 
-        caloInfo.isolation["EMIsoForEMthr"] .addIsolation( isobit=1, slope=0, offset=2 )\
-                                            .addIsolation( isobit=2, slope=3.5, offset=-5.2 )
+        caloInfo.isolation["EMIsoForEMthr"] .addIsolation( isobit=2, slope=0, offset=20, upperlimit=50)\
+                                            .addIsolation( isobit=3, slope=0, offset=20, upperlimit=50)\
+                                            .addIsolation( isobit=4, slope=80, offset=-18, mincut=10, upperlimit=50)
+                                            
+        caloInfo.isolation["HAIsoForEMthr"] .addIsolation( isobit=1, slope=0,   offset=10, upperlimit=50)\
+                                            .addIsolation( isobit=3, slope=0,   offset=10, upperlimit=50)\
+                                            .addIsolation( isobit=4, slope=230, offset=-2, mincut=10, upperlimit=50)\
 
-        caloInfo.isolation["HAIsoForEMthr"] .addIsolation( isobit=1, slope=0, offset=1 )
-
-        caloInfo.isolation["EMIsoForTAUthr"].addIsolation( isobit=1, slope=0, offset=1 )
+        caloInfo.isolation["EMIsoForTAUthr"] .addIsolation( isobit=1, slope=100, offset=30, upperlimit=60 )\
+	                                     .addIsolation( isobit=2, slope=100, offset=20, upperlimit=60 )\
+	                                     .addIsolation( isobit=3, slope=100, offset=15, upperlimit=60 )\
+	                                     .addIsolation( isobit=4, slope=0, offset=40)
 
 
         # min PT for TOBs
-        caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="EM", ptmin=4) ]
+        caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="EM", ptmin=3) ]
         caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="TAU", ptmin=4) ]
         caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="JETS", ptmin=8, window=4) ]
         caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="JETL", ptmin=12, window=8) ]

@@ -39,15 +39,23 @@ class L1TopoMenu:
 
     def getTriggerLines(self):
         from collections import namedtuple
-        TriggerLine = namedtuple("TriggerLine","trigger cable bit clock ordinal")
+        TriggerLine = namedtuple("TriggerLine","trigger cable bit clock fpga ordinal firstbit")
         outputLines = {}
         #print "Topo trigger defines %i output algorithms" % len(self.topoOutput)
         for output in self.topoOutput:
 
             for (idx,line) in enumerate(output.algo.outputs):
+                
                 ordinal = 64*output.module + 32*output.clock + 16*output.fpga + output.firstbit+idx
-                outputLines[ordinal] = TriggerLine(trigger = line, cable = output.module, bit = output.firstbit+idx+16*output.fpga, clock = output.clock, ordinal = ordinal)
 
+                outputLines[ordinal] = TriggerLine( trigger = line,
+                                                    cable = output.module,
+                                                    bit = output.firstbit+idx+16*output.fpga,
+                                                    clock = output.clock,
+                                                    fpga = output.fpga,
+                                                    ordinal = ordinal,
+                                                    firstbit = output.firstbit
+                                                    )
         return [x[1] for x in sorted(outputLines.items())] # return the TriggerLines, sorted by the ordinal
 
 
@@ -62,11 +70,14 @@ class L1TopoMenu:
             s += output.xml(ind+1,step)
         s += '  </OutputList>\n\n'
         s += '  <TopoConfig>\n'
-
+        
+        self.addGlobalConfig("global_em_scale", 2)
+        self.addGlobalConfig("global_jet_scale", 1)
+        
         for gPar in sorted(self.globalConfig.keys()):
             s += '    <Entry name="%s" value="%s"/>\n' % (gPar, self.globalConfig[gPar])
         s += '  </TopoConfig>\n\n'
-
+        
         allSortAlgs = set()
         for output in self.topoOutput:
             allSortAlgs.update(output.sortingAlgos)
@@ -85,13 +96,27 @@ class L1TopoMenu:
     def readMenuFromXML(self,inputFile):
         from XMLMenuReader import readMenuFromXML
         readMenuFromXML(self, inputFile)
-        
-    def checkL1Topo(self):
-        """
 
+        
+    def check(self):
+        """
         All other checks should be implemented in TrigConfStorage/src/CheckConsistency.cxx
 
         This method is only for quick solutions but should be intermediate
         """
+
+        idlist = [x.algo.algoId for x in self.topoOutput]
+        if len(idlist)>0 and len(idlist) != max(idlist):
+            idlist.sort()
+            from itertools import groupby
+            partition = [list(g) for k,g in groupby(enumerate(idlist), lambda (x,y) : y-x)]
+            print "Algorithm IDs must start at 1 and be consecutive, but algorithm IDs are %s" % ','.join(["%i-%i" % (x[0][1],x[-1][1]) for x in partition])
+            
+            return False
+        #sortedOutput = sorted(self.topoOutput,lambda x,y: cmp(x.algo.algoId,y.algo.algoId))
+        #for trigger in sortedOutput:
+        #    print trigger
+
+
         return True
 

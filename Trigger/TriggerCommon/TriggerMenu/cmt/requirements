@@ -29,6 +29,7 @@ apply_pattern declare_python_submodule files="*.py" submodule=tau
 apply_pattern declare_python_submodule files="*.py" submodule=minbias
 apply_pattern declare_python_submodule files="*.py" submodule=bphysics
 apply_pattern declare_python_submodule files="*.py" submodule=calibcosmicmon
+apply_pattern declare_python_submodule files="*.py" submodule=test
 apply_pattern declare_python_submodule files="*.py" submodule=combined
 
 

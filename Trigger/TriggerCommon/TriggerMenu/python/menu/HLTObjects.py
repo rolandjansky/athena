@@ -46,7 +46,6 @@ class HLTChain:
                 xlist.appendChild(xSignature)
                 xSignature.setAttribute('logic','1')
                 xSignature.setAttribute('signature_counter', str(self.sigcounter))
-
                 for te in self.tes:
                     if type(te) != type(''): # check if this is a string
                         raise Exception("The trigger element: " + str(te) + " in the signature: " + self.sigcaounter + "is not a plain string" )
@@ -55,7 +54,7 @@ class HLTChain:
                     xSignature.appendChild(xTriggerElement)
     # construction
     def __init__(self, chain_name, chain_counter,
-                 lower_chain_name, level, prescale='1', pass_through='0', rerun_prescale='-1',stream_tag=[], groups=[]):
+                 lower_chain_name, level, prescale='1', pass_through='0', rerun_prescale='-1',stream_tag=[], groups=[], EBstep="-1"):
         self.chain_name       = chain_name
         self.chain_counter  = chain_counter
         self.level          = level
@@ -71,6 +70,7 @@ class HLTChain:
         self.chains_to_merge   = []
         self.sigs_n_before_merge   = 0
         self.addGroup(groups)
+        self.EBstep = EBstep
 
 
 
@@ -293,6 +293,8 @@ class HLTChain:
         xChain.setAttribute('prescale', str(self.prescale))
         xChain.setAttribute('pass_through', str(self.pass_through))
         xChain.setAttribute('rerun_prescale', str(self.rerun_prescale))
+        xChain.setAttribute('EBstep', str(self.EBstep))
+
 
         xTriggerTypeList = xml.dom.minidom.Document().createElement('TRIGGERTYPE_LIST')
         xChain.appendChild(xTriggerTypeList)

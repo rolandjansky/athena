@@ -64,7 +64,8 @@ def checkTriggerGroupAssignment(triggerPythonConfig):
                 #if chain in triggerPythonConfig.theL2HLTChains : triggerPythonConfig.theL2HLTChains.remove(chain)
                 #if chain in triggerPythonConfig.theEFHLTChains: triggerPythonConfig.theEFHLTChains.remove(chain)
 
-def checkStreamConsistency(triggerPythonConfig,streamConfig):
+#def checkStreamConsistency(triggerPythonConfig,streamConfig):
+def checkStreamConsistency(triggerPythonConfig):
     """ Checks streamer consistency
     Checks that all chains are assigned to existing streams
     """
@@ -112,7 +113,7 @@ def checkStreamConsistency(triggerPythonConfig,streamConfig):
                 'L1CaloCalib',     
                 ]
 
-    allStreams.extend(streamConfig)
+    #allStreams.extend(streamConfig)
 
     for chain in triggerPythonConfig.theL2HLTChains + triggerPythonConfig.theEFHLTChains:
         if len(chain.stream_tag) == 0:
@@ -243,22 +244,23 @@ def allSignatures():
         if a.signatures.statusOn: sigs += a.signatures()
     return sigs
 
-def overwriteStreamTags(triggerPythonConfig, streamConfig):
-    log.info('MenuUtil: OverwriteStreamTags')
-    if len(streamConfig) > 0:
-        log.info('MenuUtil: OverwriteStreamTags: len(streamConfig) >0')
-        for (name, chains) in triggerPythonConfig.allChains.iteritems():
-            try:
-                for c in chains:
-                    log.info('MenuUtil: OverwriteStreamTags: calling overwriteStreamTagsInChain function!')
-                    overwriteStreamTagsInChain(c, streamConfig)
-            except:
-                log.warning( 'Exception in len(chains) for logical name: ' \
-                          +name+', stream, '+ c.stream_tag)
-    log.info('MenuUtil: OverwriteStreamTags END')
+# def overwriteStreamTags(triggerPythonConfig, streamConfig):
+#     log.info('MenuUtil: OverwriteStreamTags')
+#     if len(streamConfig) > 0:
+#         log.info('MenuUtil: OverwriteStreamTags: len(streamConfig) >0')
+#         for (name, chains) in triggerPythonConfig.allChains.iteritems():
+#             try:
+#                 for c in chains:
+#                     log.info('MenuUtil: OverwriteStreamTags: calling overwriteStreamTagsInChain function!')
+#                     overwriteStreamTagsInChain(c, streamConfig)
+#             except:
+#                 log.warning( 'Exception in len(chains) for logical name: ' \
+#                           +name+', stream, '+ c.stream_tag)
+#     log.info('MenuUtil: OverwriteStreamTags END')
 
 
-def overwriteStreamTagsInChain(chain, streamConfig): # needed ? Might just add a check that the stream name is correct...
+#def overwriteStreamTagsInChain(chain, streamConfig): # needed ? Might just add a check that the stream name is correct...
+def overwriteStreamTagsInChain(chain): # needed ? Might just add a check that the stream name is correct...
     """streamConfig: map between final stream tag for this configuration
     and all stream names belonging to this stream.
     {
@@ -285,10 +287,11 @@ def overwriteStreamTagsInChain(chain, streamConfig): # needed ? Might just add a
     for s in stream_physics:
         # print 'check phys stream: ', s
         tmp = []
-        for (name, ss) in streamConfig.iteritems():
-            if s[0] in ss:
-                tmp.append(name)
+        #CAT#for (name, ss) in streamConfig.iteritems():
+        #CAT#    if s[0] in ss:
+        #CAT#        tmp.append(name)
         # print 'New stream for ', s, ' is ', tmp
+
         if s[0].lower().find('cosmic')>=0:
             tmp.append(s[0])
         if len(tmp)==0:

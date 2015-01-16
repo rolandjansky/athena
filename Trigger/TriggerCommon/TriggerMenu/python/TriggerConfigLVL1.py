@@ -42,7 +42,6 @@ class TriggerConfigLVL1:
 
         # menu
         self.menu = Lvl1Menu(self.menuName)
-
         
         if self.inputFile != None:
             """Read menu from XML"""
@@ -58,6 +57,19 @@ class TriggerConfigLVL1:
             # registers all items ever defined
             self.registerMenu()
 
+    # remove prescale suffixes
+    def getMenuBaseName(self, menuName):
+        #import re 
+        #pattern = re.compile('_v\d+|DC14')
+        #patternPos = pattern.search(menuName)
+        #if m:
+        #    menuName=menuName[:patternPos.end()]
+        #else:
+        #    log.info('Can\'t find pattern to shorten menu name, either non-existent in name or not implemented.')
+        #return menuName 
+        
+        return menuName.replace("_tight_mc_prescale","").replace("_loose_mc_prescale","").replace("_special_mc_prescale","").replace("_no_prescale","")
+
 
     ## L1 Topo connection
     def getL1TopoTriggerLines(self, menu):
@@ -70,9 +82,11 @@ class TriggerConfigLVL1:
         else:
             triggerLines = None
             try:
-                tpcl1 = TriggerConfigL1Topo( menuName = menu )
+                tpcl1 = TriggerConfigL1Topo( menuName = self.getMenuBaseName(menu) )
                 tpcl1.generateMenu()
                 triggerLines = tpcl1.menu.getTriggerLines()
+                #for tr in triggerLines:
+                #    print "        ",tr
             except Exception, ex:
                 print "Topo menu generation inside L1 menu failed, but will be ignored for the time being",ex 
                 
@@ -105,8 +119,7 @@ class TriggerConfigLVL1:
                              mapping = mapping, active = active,
                              seed_type = seed_ttype, seed = seed, seed_multi = seed_multi, bcdelay = bcdelay
                              )
-        thr.setCableInput()
-        
+
         self.registeredThresholds[name] = thr
         return thr
 
@@ -117,13 +130,12 @@ class TriggerConfigLVL1:
         """
         if not self.topotriggers:
             return
-        from l1.Lvl1Thresholds import LVL1Threshold
-        for topotrigger in self.topotriggers:
-            thr = LVL1Threshold( topotrigger.trigger, 'TOPO', mapping = topotrigger.ordinal)
-            thr.setCableInput()        
-            self.registeredThresholds[topotrigger.trigger] = thr
-        
-
+        from l1.Lvl1Thresholds import LVL1Threshold, LVL1TopoInput
+        for triggerline in self.topotriggers:
+            thr = LVL1TopoInput( triggerline )
+            thr.setCableInput()
+            self.registeredThresholds[thr.name] = thr
+            
     def getRegisteredThreshold(self, name):
         if name in self.registeredThresholds:
             return self.registeredThresholds[name]
@@ -182,11 +194,13 @@ class TriggerConfigLVL1:
         Menu.defineMenu() defines the menu via Lvl1Flags
         """
 
+        from TriggerJobOpts.TriggerFlags import TriggerFlags
         if not menuName:
             menuName = TriggerFlags.triggerMenuSetup()
 
-        from TriggerJobOpts.TriggerFlags import TriggerFlags
-        menumodule = __import__('l1menu.Menu_%s' % menuName.replace("_tight_mc_prescale","").replace("_loose_mc_prescale",""), globals(), locals(), ['defineMenu'], -1)
+        #menuName=self.getMenuBaseName(menuName)
+        #menumodule = __import__('l1menu.Menu_%s' % menuName, globals(), locals(), ['defineMenu'], -1)
+        menumodule = __import__('l1menu.Menu_%s' % menuName.replace("_tight_mc_prescale","").replace("_loose_mc_prescale","").replace("_special_mc_prescale","").replace("_no_prescale",""), globals(), locals(), ['defineMenu'], -1) 
         menumodule.defineMenu()
         log = logging.getLogger('TriggerConfigLVL1.defineMenu')
         log.info("menu %s contains %i items and %i thresholds" % ( menuName, len(Lvl1Flags.items()), len(Lvl1Flags.thresholds()) ) )
@@ -252,24 +266,22 @@ class TriggerConfigLVL1:
         available_ctpids = sorted( list( set(range(Limits.MaxTrigItems)) - set(assigned_ctpids) ) )
         available_ctpids.reverse()
 
+
+        # add the items to the menu
         from TriggerMenu.l1.TriggerTypeDef import TT
         for item in itemsForMenu:
-
             # set the physics bit
-            if not item.name.startswith('L1_CALREQ') and not item.name=='L1_MU0_LOW':
+            if not item.name.startswith('L1_CALREQ'):
                 item.setTriggerType( item.trigger_type | TT.phys )
-
             # assign ctp IDs to items that don't have one
             if item.ctpid == -1:
                 item.setCtpid( available_ctpids.pop() )
-
             # add the items into the menu
             self.menu.addItem( item )
 
         for item in self.menu.items:
             if item.verbose:
                 log.info(str(item))
-
 
         # add the thresholds to the menu
         undefined_thr = False
@@ -285,9 +297,11 @@ class TriggerConfigLVL1:
         if undefined_thr:
             raise RuntimeError("Found undefined threshold in menu %s, must be fixed" % self.menu.menuName )
                 
-
         # threshold mapping
-        self.remapThresholds()
+        self.mapThresholds()
+
+        # add the counters to the menu
+        self.menu.addCounters()
 
         # update the prescales that are not 1
         self.updateItemPrescales()
@@ -301,7 +315,7 @@ class TriggerConfigLVL1:
 
 
 
-    def remapThresholds(self):
+    def mapThresholds(self):
         """
         Set the correct mapping of thresholds according to the
         order it was given in Lvl1Flags.thresholds list. That list
@@ -309,20 +323,26 @@ class TriggerConfigLVL1:
 
         NIM and CALREQ types are not remapped !!
         """
-        from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
-        if not Lvl1Flags.RemapThresholdsAsListed():
-            return
-        
-        from collections import defaultdict
-        mappingCounter = defaultdict(int)
+        existingMappings = {}
+        for thr in self.menu.thresholds():
+            if not thr.ttype in existingMappings:
+                existingMappings[thr.ttype] = set()
+            if thr.mapping<0: continue
+            existingMappings[thr.ttype].add(thr.mapping)
+                
+        nextFreeMapping = {}
+        for k in  existingMappings:
+            nextFreeMapping[k] = 0
 
         for thr in self.menu.thresholds():
-            if thr.ttype=='NIM' or thr.ttype=='CALREQ' or thr.ttype=='TOPO':
-                continue
-            log.debug('Setting mapping of threshold %s as %i' % (thr, mappingCounter[thr.ttype]))
-            thr.mapping = mappingCounter[thr.ttype]
-            mappingCounter[thr.ttype] += 1
+            if thr.mapping < 0:
+                while nextFreeMapping[thr.ttype] in existingMappings[thr.ttype]:
+                    nextFreeMapping[thr.ttype] += 1
+                log.debug('Setting mapping of threshold %s as %i' % (thr, nextFreeMapping[thr.ttype]) )
+                thr.mapping = nextFreeMapping[thr.ttype]
+                nextFreeMapping[thr.ttype] += 1
 
+            #print thr, thr.ttype, thr.mapping
             thr.setCableInput()
 
 

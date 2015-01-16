@@ -79,9 +79,10 @@ class CaloInfo:
     AverageOfThr = 1
     LowerThr = 2
     HigherThr = 3
-    def __init__(self, name='standard', globalScale=1, jetWeights=[0]*12):
+    def __init__(self, name='standard', globalEmScale=2, globalJetScale=1, jetWeights=[0]*12):
         self.name        = name
-        self.globalScale = globalScale
+        self.globalEmScale  = globalEmScale
+        self.globalJetScale = globalJetScale
         self.jetWeights  = jetWeights
         self.xsParams    = { 'xsSigmaScale' : 0,
                              'xsSigmaOffset': 0,
@@ -95,8 +96,11 @@ class CaloInfo:
     def setName(self, name):
         self.name = name
 
-    def setGlobalScale(self, x):
-        self.globalScale = x
+    def setGlobalEmScale(self, x):
+        self.globalEmScale = x
+
+    def setGlobalJetScale(self, x):
+        self.globalJetScale = x
 
     def setJetWeights(self, weights):
         self.jetWeights = weights
@@ -108,7 +112,7 @@ class CaloInfo:
             self.xsParams[k]  = args[k]
 
     def xml(self, ind=1, step=2):
-        s = ind * step * ' ' + '<CaloInfo name="CaloInfo" global_scale="%g">\n' % float(self.globalScale)
+        s = ind * step * ' ' + '<CaloInfo name="CaloInfo" global_em_scale="%g" global_jet_scale="%g">\n' % (self.globalEmScale, self.globalJetScale)
         if oldStyle():
             for i, jw in enumerate(self.jetWeights):
                 s += (ind+1) * step * ' ' + '<JetWeight num="%i" weight="%i">%i</JetWeight>\n' % (i+1, jw, jw)

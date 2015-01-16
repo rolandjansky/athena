@@ -232,9 +232,9 @@ class L2EFChain_CosmicTemplate(L2EFChainDef):
 
             from TrigL2CosmicMuonHypo.TrigL2CosmicMuonHypo_Config import CosmicTrtHypo_Cosmic
             theTrthypoCosmics = CosmicTrtHypo_Cosmic("Cosmic"+newchainName+"TrtHypo") 
-            theTrthypoCosmics.NTrthitsCut = 15
-            thetrtsegm.SegmentsMakerTool.MinimalNumberOfTRTHits = 15
-            thetrtsegm.pTmin = 100.0
+            theTrthypoCosmics.NTrthitsCut = 35
+            thetrtsegm.SegmentsMakerTool.MinimalNumberOfTRTHits = 20
+            thetrtsegm.pTmin = 2000.0
             if ('central' in self.chainPart['addInfo']):
                 theTrthypoCosmics.TrtSegD0Cut=250.0
                 
@@ -269,7 +269,11 @@ class L2EFChain_CosmicTemplate(L2EFChainDef):
                 from TrigDetCalib.TrigDetCalibConf import ScoutingStreamWriter
                 dsAlg  = ScoutingStreamWriter("MuonCosmicDataScouting")
                 # this should go to a dedicated place for datascouting configuration
-                dsAlg.CollectionTypeName = ['xAOD::MuonContainer_v1#HLT_MuonEFInfo']                
+                dsAlg.CollectionTypeName = ['xAOD::TrackParticleContainer_v1#InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID',
+                                            'xAOD::TrackParticleAuxContainer_v1#InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFIDAux',
+                                            'xAOD::VertexContainer_v1#xPrimVx',
+                                            'xAOD::VertexAuxContainer_v1#xPrimVxAux'
+                                            ] 
                 inputTE = 'EF_efid'
                 outputTE = "EF_efid_ds"                
                 self.EFsequenceList += [[ [inputTE], [dsAlg], outputTE ] ]

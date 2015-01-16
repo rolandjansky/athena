@@ -41,7 +41,7 @@ class Variable(object):
         self.name = name
         self.selection = int(selection)
         self.value = int(value)
-
+            
 class Generic(object):
     def __init__(self, name, value):
         self.name = name
@@ -58,25 +58,26 @@ class SortingAlgo(TopoAlgo):
         super(SortingAlgo, self).__init__(classtype=classtype, name=name, algoId=algoId)
         self.inputs = inputs
         self.outputs = outputs
-
-
-        
+        self.inputvalue=  self.inputs
+        if self.inputs.find("Cluster")>=0: # to extract inputvalue (for FW) from output name
+            if self.outputs.find("TAU")>=0: self.inputvalue= self.inputvalue.replace("Cluster","Tau")            
+            if self.outputs.find("EM")>=0:  self.inputvalue= self.inputvalue.replace("Cluster","Em")
+            
     def xml(self): 
         s='  <SortAlgo type="%s" name="%s" output="%s" algoId="%i">\n' % (self.classtype, self.name, self.outputs, self.algoId)
         s+='    <Fixed>\n'
-        s+='      <Input name="InputArr" value="%s"/>\n' % (self.inputs) # values will be extracted by output names?
-        s+='      <Output name="OutputArr" value="%s"/>\n' % (self.outputs)
+        s+='      <Input name="%s" value="%s"/>\n' % (self.inputs, self.inputvalue) 
+        s+='      <Output name="TobArrayOut" value="%s"/>\n' % (self.outputs)
         for gene in self.generics:
             s += '      <Generic name="%s" value="%s"/>\n' % (gene.name, gene.value)
         s+='    </Fixed>\n'            
         s+='    <Variable>\n'
-        for variable in self.variables:
-            s+='      <Parameter name="%s" value="%i"/>\n' % ( variable.name, variable.value )
+
+        for (pos, variable) in enumerate(self.variables):
+            s+='      <Parameter pos="%i" name="%s" value="%i"/>\n' % ( pos, variable.name, variable.value )
         s+='    </Variable>\n'    
         s+='  </SortAlgo>\n'
         return s
-
-
         
 class DecisionAlgo(TopoAlgo):
 
@@ -106,7 +107,6 @@ class DecisionAlgo(TopoAlgo):
         s+='      </Output>\n'
         for gene in self.generics:
             s += '      <Generic name="%s" value="%s"/>\n' % (gene.name, gene.value)
-        s+='      <Generic name="OutputBits" value="'+str(len(self.outputs))+'"/>\n'   
         s+='    </Fixed>\n'     
         s+='    <Variable>\n'
         

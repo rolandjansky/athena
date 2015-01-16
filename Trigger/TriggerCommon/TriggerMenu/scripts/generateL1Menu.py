@@ -11,8 +11,7 @@ from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
 def generateL1Menu(menu, useTopoMenu="MATCH"):
 
     from AthenaCommon.Logging import logging
-    log = logging.getLogger("TriggerConfigLVL1")
-    log.setLevel(logging.INFO)
+    logging.getLogger("TriggerConfigLVL1").setLevel(logging.INFO)
 
     # what menu to build
     TF.triggerMenuSetup = menu
@@ -26,7 +25,7 @@ def generateL1Menu(menu, useTopoMenu="MATCH"):
     # write xml file
     tpcl1.writeXML()
 
-
+    return tpcl1.menu
 
 def readL1MenuFromXML(menu="LVL1config_Physics_pp_v5.xml"):
 
@@ -50,13 +49,16 @@ def readL1MenuFromXML(menu="LVL1config_Physics_pp_v5.xml"):
     if fullname:
         tpcl1 = TriggerConfigLVL1( inputFile = fullname, outputFile = "test.xml" )
         tpcl1.writeXML()
+        return tpcl1.menu
     else:
         print "Did not find file %s" % menu
+        return None
+
 
 
 def findUnneededRun2():
     from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
-    from TriggerMenuPython.Lvl1Flags import Lvl1Flags
+    from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
     
     menus = ['Physics_pp_v5']
 
@@ -69,11 +71,11 @@ def findUnneededRun2():
 
 def findRequiredItemsFromXML():
     from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
-    from TriggerMenuPython.Lvl1Flags import Lvl1Flags
+    from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
     
-    menus = ['Physics_pp_v4','MC_pp_v4_18.1.0.2','Physics_HI_v2','MC_HI_v2_18.1.0.2','MC_HI_v2_pPb_mc_prescale_18.1.0.2','L1_alfa_v2']
+    menus = ['Physics_pp_v5','MC_pp_v5']
 
-    from TriggerMenuPython.XMLReader import L1MenuXMLReader
+    from TriggerMenu.l1.XMLReader import L1MenuXMLReader
 
     allItems = set()
     allThrs = set()
@@ -132,18 +134,27 @@ def main():
         generateL1Menu(menu="MC_pp_v5")
         generateL1Menu(menu="LS1_v1" )
         generateL1Menu(menu="DC14")
-        #generateL1Menu(menu="Physics_HI_v3")  # currently disabled since not defined in JobProp
+        generateL1Menu(menu="MC_pp_v5_no_prescale")
+        generateL1Menu(menu="MC_pp_v5_loose_mc_prescale")
+        generateL1Menu(menu="MC_pp_v5_tight_mc_prescale")
+        generateL1Menu(menu="Physics_HI_v3")  # currently disabled since not defined in JobProp
         return 0
+
+    printCabling = False
+    for arg in sys.argv:
+        if arg.lower().startswith("cab"):
+            printCabling = True
+
 
     if sys.argv[1].endswith(".xml"):
         readL1MenuFromXML(sys.argv[1])
         return 0
     
     if sys.argv[1].lower().startswith("phy"):
-        generateL1Menu(menu="Physics_pp_v5")
+        menu = generateL1Menu(menu="Physics_pp_v5")
+        if printCabling:
+            menu.printCabling()
         return 0
-
-    print "============================="
 
     if sys.argv[1].lower().startswith("mc4"):
         generateL1Menu(menu="MC_pp_v4")
@@ -153,8 +164,15 @@ def main():
         generateL1Menu(menu="MC_pp_v5")
         return 0
 
+    if sys.argv[1].lower().startswith("mcp"):
+        generateL1Menu(menu="MC_pp_v5_no_prescale")
+        generateL1Menu(menu="MC_pp_v5_loose_mc_prescale")
+        generateL1Menu(menu="MC_pp_v5_tight_mc_prescale")
+        return 0
+
     if sys.argv[1].lower().startswith("ls"):
-        generateL1Menu(menu="LS1_v1")
+        menu = generateL1Menu(menu="LS1_v1")
+        menu.printCabling()
         return 0
 
     if sys.argv[1].lower().startswith("dc14"):
@@ -164,16 +182,6 @@ def main():
     if sys.argv[1].lower().startswith("hi"):
         generateL1Menu(menu="Physics_HI_v3")
         return 0
-    
-    #readL1MenuFromXML()
-
-    #findRequiredItems()
-
-    #findUnneededRun1("items")
-    #findUnneededRun1("thresholds")
-    #findUnneededRun2()
-
-    #findFreeCTPIDs(menu="Physics_pp_v5")
 
 
 if __name__=="__main__":

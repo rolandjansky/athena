@@ -24,20 +24,20 @@ class ChainConfig(object):
     JetFinding and hypothesis."""
 
     def __init__(self,
-                 name,
+                 chain_name,
                  seed,
                  run_hypo,
                  test,
-                 tt_menudata,
-                 jr_menudata):
+                 data_scouting,
+                 menu_data,):
 
-        self.name = name
+        self.chain_name = chain_name
         self.seed = seed
         self.run_hypo = run_hypo
+        self.data_scouting = data_scouting
 
-        # the following flags will guide sequence construction
-        self.tt_menudata = tt_menudata
-        self.jr_menudata = jr_menudata
+        # menu_data: data acquired from chainParts of menu dict
+        self.menu_data = menu_data  
         self.test = test
 
     def __str__(self):

@@ -64,8 +64,8 @@ theTrigEFIDInsideOut_Electron           = TrigEFIDSequence("Electron","electron"
 theTrigEFIDDataPrep_Electron            = TrigEFIDSequence("Electron","electron","DataPrep").getSequence()
 theTrigEFIDInsideOutMerged_Electron     = TrigEFIDSequence("Electron","electron","InsideOutMerged").getSequence()
 from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-theFastTrackFinderxAOD                  = TrigInDetSequence("Electron","electron","FastxAOD").getSequence()
-theL2StarxAOD                           = TrigInDetSequence("Electron","electron","L2StarxAOD").getSequence()
+[theFastTrackFinderxAOD]                  = TrigInDetSequence("Electron","electron","FastxAOD").getSequence()
+[theL2StarxAOD]                           = TrigInDetSequence("Electron","electron","L2StarxAOD").getSequence()
 
 #theTrigEFIDOutsideInTRTOnly_Electron    = TrigEFIDSequence("Electron","electron","TRTOnly").getSequence()
 #theTrigEFIDCombined_Electron            = TrigEFIDCombined("Electron","photon", "Combined").getSequence()

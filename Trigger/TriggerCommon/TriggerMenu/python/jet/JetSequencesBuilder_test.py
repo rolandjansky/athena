@@ -3,8 +3,8 @@
 import unittest
 from mock import MagicMock, Mock
 
-from JetSequenceRouter import (AlgList,
-                               JetSequenceRouter)
+from JetSequencesBuilder import (AlgList,
+                                 JetSequencesBuilder)
 
 
 class Alg(object):
@@ -16,10 +16,26 @@ class Instantiator(object):
         return 'instantiated_alg'
 
 
-class TestJetSequenceRouter(unittest.TestCase):
+class TestJetSequencesBuilder(unittest.TestCase):
 
     def setUp(self):
-        self.router = JetSequenceRouter()
+
+        class AntiKt:
+            def __init__(self):
+                pass
+
+        jr_menudata = MagicMock()
+        jr_menudata.fex = AntiKt()
+        jr_menudata.fex.fex_key = ''
+        
+        jr_menudata.scantype = 'FS'
+        chain_config = MagicMock()
+        chain_config.jr_menudata = jr_menudata
+        chain_config.jr_menudata.scan_type = ''
+        chain_config.tt_menudata = None
+        
+        alg_factory = MagicMock()
+        self.router = JetSequencesBuilder(alg_factory, chain_config)
 
         # legal combinations of trigger tower and jet rec
         # menu data objects
@@ -57,20 +73,7 @@ class TestJetSequenceRouter(unittest.TestCase):
                          
     def _test_2(self):
         'test that legal MenuData objects combinatations'
-        class AntiKt:
-            def __init__(self):
-                pass
 
-        jr_menudata = MagicMock()
-        jr_menudata.fex = AntiKt()
-        jr_menudata.fex.fex_key = ''
-        
-        jr_menudata.scantype = 'FS'
-        chain_config = MagicMock()
-        chain_config.jr_menudata = jr_menudata
-        chain_config.jr_menudata.scan_type = ''
-        chain_config.tt_menudata = None
-        
         self.router.make_alglists(chain_config)
 
 if __name__ == '__main__':

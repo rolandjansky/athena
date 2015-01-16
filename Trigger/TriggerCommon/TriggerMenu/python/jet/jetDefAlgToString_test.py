@@ -2,7 +2,7 @@
 
 import unittest
 from mock import MagicMock, Mock
-from algFactories import Alg
+from AlgFactory import Alg
 from jetDefAlgToString import JetDefAlgToStringInstantiator
 
 

@@ -25,6 +25,39 @@ def generateL1TopoMenu(menu):
     # write xml file
     tpcl1.writeXML()
 
+def main():
+
+    if len(sys.argv)==1:
+        generateL1TopoMenu(menu="Physics_pp_v5")
+        generateL1TopoMenu(menu="MC_pp_v5")
+        generateL1TopoMenu(menu="LS1_v1" )
+        generateL1TopoMenu(menu="DC14")
+        return 0
+
+    if sys.argv[1] in ["Physics_pp_v5", "MC_pp_v5", "LS1_v1", "DC14"]: # explicit names for TMXML nightly
+        generateL1TopoMenu(menu=sys.argv[1])
+        return 0
+
+    if sys.argv[1].lower().startswith("ph"): # for interactive production
+        generateL1TopoMenu(menu="Physics_pp_v5")
+        return 0
+
+    if sys.argv[1].lower().startswith("mc"):
+        generateL1TopoMenu(menu="MC_pp_v5")
+        return 0
+
+    if sys.argv[1].lower().startswith("ls"):
+        generateL1TopoMenu(menu="LS1_v1")
+        return 0
+
+    if sys.argv[1].lower().startswith("dc"):
+        generateL1TopoMenu(menu="DC14")
+        return 0
+
+    generateL1TopoMenu(menu=sys.argv[1])
+
+
 if __name__=="__main__":
-    generateL1TopoMenu(menu="Physics_pp_v5")
+    import sys
+    sys.exit( main() )
 

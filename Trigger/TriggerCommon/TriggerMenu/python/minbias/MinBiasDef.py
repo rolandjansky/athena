@@ -98,6 +98,8 @@ class L2EFChain_MB(L2EFChainDef):
             self.setup_mb_idperf()
         elif "hmt" in self.chainPart['recoAlg']:
             self.setup_mb_hmt()
+        elif "hmtperf" in self.chainPart['recoAlg']:
+            self.setup_mb_hmtperf()
         elif "noalg" in self.chainPart['recoAlg']:
             self.setup_mb_noalg()
 
@@ -158,13 +160,9 @@ class L2EFChain_MB(L2EFChainDef):
         ########### Sequence List ##############
 
         self.L2sequenceList += [["",
-                                 [dummyRoI],
-                                 'L2_mb_step0']] 
+                                 [dummyRoI]+efiddataprep,
+                                 'L2_mb_iddataprep']] 
 
-        self.L2sequenceList += [[['L2_mb_step0'],
-                                 efiddataprep,
-                                 'L2_mb_iddataprep']]
-        
         self.L2sequenceList += [[['L2_mb_iddataprep'],
                                  [theL2Fex, theL2Hypo],
                                  'L2_mb_step1']]
@@ -174,10 +172,12 @@ class L2EFChain_MB(L2EFChainDef):
                                  'EF_mb_step1']]
 
         ########### Signatures ###########
+        self.L2signatureList += [ [['L2_mb_iddataprep']] ]
         self.L2signatureList += [ [['L2_mb_step1']] ]
         self.EFsignatureList += [ [['EF_mb_step1']] ]
 
         self.TErenamingDict = {
+            'L2_mb_iddataprep': mergeRemovingOverlap('L2_iddataprep_', chainSuffix),
             'L2_mb_step1': mergeRemovingOverlap('L2_', chainSuffix),
             'EF_mb_step1': mergeRemovingOverlap('EF_', chainSuffix),
                 }
@@ -223,12 +223,8 @@ class L2EFChain_MB(L2EFChainDef):
         ########### Sequence List ##############
 
         self.L2sequenceList += [["",
-                                 [dummyRoI],
-                                 'L2_mb_step0']] 
-
-        self.L2sequenceList += [[['L2_mb_step0'],
-                                 efiddataprep,
-                                 'L2_mb_iddataprep']]
+                                 [dummyRoI]+ efiddataprep,
+                                 'L2_mb_iddataprep']] 
         
         self.L2sequenceList += [[['L2_mb_iddataprep'],
                                  [theL2Fex1, theL2Hypo1],
@@ -239,11 +235,13 @@ class L2EFChain_MB(L2EFChainDef):
                                  'L2_mb_step2']]
 
         ########### Signatures ###########
+        self.L2signatureList += [ [['L2_mb_iddataprep']] ]
         self.L2signatureList += [ [['L2_mb_step1']] ]
         self.L2signatureList += [ [['L2_mb_step2']] ]
 
 
         self.TErenamingDict = {
+            'L2_mb_step1': mergeRemovingOverlap('L2_', 'sp_iddataprep_'+chainSuffix),
             'L2_mb_step1': mergeRemovingOverlap('L2_', 'sp_'+chainSuffix),
             'L2_mb_step2': mergeRemovingOverlap('L2_', 'mbts_'+chainSuffix),
             }
@@ -254,6 +252,7 @@ class L2EFChain_MB(L2EFChainDef):
         if "mbts" in self.chainPart['recoAlg']:
             l2hypo = self.chainName
             l2HypoCut_temp=l2hypo.lstrip('mb_mbts_L1MBTS')
+            #print 'igb:', l2HypoCut_temp
             if  len(l2HypoCut_temp) > 3:
                 if len(l2HypoCut_temp.replace('_UNPAIRED_ISO','')) < 4:
                     l2HypoCut=l2HypoCut_temp.replace('_UNPAIRED_ISO','')
@@ -297,6 +296,7 @@ class L2EFChain_MB(L2EFChainDef):
                                  'L2_mb_step1']]
 
         ########### Signatures ###########
+        self.L2signatureList += [ [['L2_mb_step0']] ]
         self.L2signatureList += [ [['L2_mb_step1']] ]
 
         self.TErenamingDict = {
@@ -307,71 +307,182 @@ class L2EFChain_MB(L2EFChainDef):
     def setup_mb_hmt(self):
         l2hypo1 = self.chainPart['hypoL2Info']
         l2hypo2 = self.chainPart['pileupInfo']
-        efhypo = self.chainPart['hypoEFInfo']
+        efhypo1 = self.chainPart['hypoEFsumEtInfo']
+        efhypo2 = self.chainPart['hypoEFInfo']
         l2th1=l2hypo1.lstrip('sp')
         l2th2=l2hypo2.lstrip('pusup')
-        efth1=efhypo.lstrip('trk')
+        efth1=efhypo1.lstrip('sumet')
+        efth2=efhypo2.lstrip('trk')
+        
+        # no pileup nor sumEt cuts by default
+        doPusup=False
+        doSumEt=False
 
-        #print 'igb:', l2hypo1
-        #print 'igb:', l2hypo2
+        #print 'igb - l2th1:', l2th1
+        #print 'igb - l2th2:', l2th2
+        #print 'igb - efth1:', efth1
+        #print 'igb - efth2:', efth2
         
         ########## L2 algos ##################
         if "hmt" in self.chainPart['recoAlg']:
             chainSuffix = "hmt"
-            chainSuffix1 = "hmt"
+            chainSuffixL2 = "hmt"
+            chainSuffixEF = "hmt"
             theL2Fex1  = L2MbSpFex_noPix
-            theL2Hypo1 = L2MbSpMhNoPixHypo_hip("L2MbSpMhNoPixHypo_hip_"+l2th1, l2th1)
+            theL2Hypo1 = L2MbSpMhNoPixHypo_hip("L2MbSpMhNoPixHypo_hip_"+l2th1, float(l2th1))
             if "pusup" in self.chainPart['pileupInfo']:
-                chainSuffix1=chainSuffix1+'_'+l2hypo2
+                doPusup=True
+                chainSuffixL2=l2hypo2+'_'+chainSuffixL2
                 theL2Fex2  = theL2PileupSup
-                theL2Hypo2 = HIL2VtxMultHypo("HIL2VtxMultHyp_"+l2th2, l2th2)
+                theL2Hypo2 = HIL2VtxMultHypo("HIL2VtxMultHyp_"+l2th2, int(l2th2))
         ########## EF algos ##################
+            if "sumet" in self.chainPart['hypoEFsumEtInfo']:
+                doSumEt=True
+                chainSuffixEF=efhypo1+'_'+chainSuffixEF
+                #sum Et fex
+                from TrigEFMissingET.TrigEFMissingETConfig import EFMissingET_Fex_2sidednoiseSupp
+                theEFMETFex = EFMissingET_Fex_2sidednoiseSupp()
+                # sum Et hypo
+                from TrigMissingETHypo.TrigMissingETHypoConfig import EFMetHypoTE
+                threshold=float(efth1)
+                theEFMETHypo = EFMetHypoTE('EFMetHypo_te%d'% threshold,ef_thr=threshold*GeV)
+                
             theEFFex1 =  efid
             theEFFex2 =  EFMbTrkFex
             theEFFex3 =  EFMbVxFex
 
-            theEFHypo =  MbVxHypo("EFMbVxHypoMh_hip_"+efth1)
+            theEFHypo =  MbVxHypo("EFMbVxHypoMh_hip_"+efth2)
             theEFHypo.AcceptAll_EF = False
             theEFHypo.RejectPileup = False
-            theEFHypo.Required_ntrks = int(efth1)
+            theEFHypo.Required_ntrks = int(efth2)
 
         ########### Sequence List ##############
 
         self.L2sequenceList += [["",
-                                 [dummyRoI],
-                                 'L2_mb_step0']] 
+                                 [dummyRoI]+efiddataprep,
+                                 'L2_mb_iddataprep']] 
 
-        self.L2sequenceList += [[['L2_mb_step0'],
-                                 efiddataprep,
-                                 'L2_mb_iddataprep']]
-        
         self.L2sequenceList += [[['L2_mb_iddataprep'],
                                  [theL2Fex1, theL2Hypo1],
                                  'L2_mb_step1']]
         
-        if "pusup" in self.chainPart['pileupInfo']:
+        if doPusup:
             self.L2sequenceList += [[['L2_mb_step1'],
                                      [theL2Fex2, theL2Hypo2],
                                      'L2_mb_step2']]
             
-            self.EFsequenceList += [[['L2_mb_step2'],
-                                     theEFFex1+[theEFFex2, theEFFex3, theEFHypo],
-                                     'EF_mb_step1']]
+            if doSumEt:
+                self.EFsequenceList += [[['L2_mb_step2'],
+                                         [theEFMETFex, theEFMETHypo],
+                                         'EF_mb_step1']]
+                self.EFsequenceList += [[['EF_mb_step1'],
+                                         theEFFex1+[theEFFex2, theEFFex3, theEFHypo],
+                                         'EF_mb_step2']]
+            else:
+                self.EFsequenceList += [[['L2_mb_step2'],
+                                         theEFFex1+[theEFFex2, theEFFex3, theEFHypo],
+                                         'EF_mb_step1']]
         else:
-            self.EFsequenceList += [[['L2_mb_step1'],
-                                     theEFFex1+[theEFFex2, theEFFex3, theEFHypo],
-                                     'EF_mb_step1']]
+             if doSumEt:
+                 self.EFsequenceList += [[['L2_mb_step1'],
+                                         [theEFMETFex, theEFMETHypo],
+                                         'EF_mb_step1']]
+                 self.EFsequenceList += [[['EF_mb_step1'],
+                                         theEFFex1+[theEFFex2, theEFFex3, theEFHypo],
+                                         'EF_mb_step2']]
+             else:
+                 self.EFsequenceList += [[['L2_mb_step1'],
+                                         theEFFex1+[theEFFex2, theEFFex3, theEFHypo],
+                                         'EF_mb_step1']]
 
         ########### Signatures ###########
+        self.L2signatureList += [ [['L2_mb_iddataprep']] ]
         self.L2signatureList += [ [['L2_mb_step1']] ]
-        if "pusup" in self.chainPart['pileupInfo']:
+        if doPusup:
             self.L2signatureList += [ [['L2_mb_step2']] ]
         self.EFsignatureList += [ [['EF_mb_step1']] ]
-
+        if doSumEt:
+            self.EFsignatureList += [ [['EF_mb_step2']] ]
+            
+        if not doSumEt:
+            chainSuffixL2=efhypo2+'_'+chainSuffixL2
+        
         self.TErenamingDict = {
+            'L2_mb_iddataprep': mergeRemovingOverlap('L2_iddataprep_', l2hypo1+'_'+chainSuffix),
             'L2_mb_step1': mergeRemovingOverlap('L2_', l2hypo1+'_'+chainSuffix),
             'L2_mb_step2': mergeRemovingOverlap('L2_', l2hypo2+'_'+chainSuffix),
-            'EF_mb_step1': mergeRemovingOverlap('EF_', efhypo+'_'+chainSuffix1),
+            'EF_mb_step1': mergeRemovingOverlap('EF_', efhypo1+'_'+chainSuffixL2),
+            'EF_mb_step2': mergeRemovingOverlap('EF_', efhypo2+'_'+chainSuffixEF),
+            }
+
+########################### supporting triggers for high multiplicity triggers
+    def setup_mb_hmtperf(self):
+        l2hypo1 = self.chainPart['hypoL2Info']
+        l2th1=l2hypo1.lstrip('sp')
+
+        #print 'igb - l2th1:', l2th1
+        ########## L2 algos ##################
+        if "hmtperf" in self.chainPart['recoAlg']:
+            chainSuffix = "hmtperf"
+
+            theL2Fex1  = L2MbSpFex_noPix
+            theL2Hypo1 = L2MbSpMhNoPixHypo_hip("L2MbSpMhNoPixHypo_hip_"+l2th1, float(l2th1))
+
+            theL2Fex2  = theL2PileupSup
+            theL2Hypo2 = HIL2VtxMultHypo("HIL2VtxMultHyp_PT")
+            theL2Hypo2.AcceptAll = True
+
+        ########## EF algos ##################
+            #sum Et fex
+            from TrigEFMissingET.TrigEFMissingETConfig import EFMissingET_Fex_2sidednoiseSupp
+            theEFMETFex = EFMissingET_Fex_2sidednoiseSupp()
+            # sum Et hypo
+            from TrigMissingETHypo.TrigMissingETHypoConfig import EFMetHypoTE
+            theEFMETHypo = EFMetHypoTE('EFMetHypo_PT')
+            theEFMETHypo.forceAccept=True
+            
+            #tracking and vertexing fexes
+            theEFFex1 =  efid
+            theEFFex2 =  EFMbTrkFex
+            theEFFex3 =  EFMbVxFex
+
+            theEFHypo =  MbVxHypo("EFMbVxHypoMh_hip_PT")
+            theEFHypo.AcceptAll_EF = True
+
+        ########### Sequence List ##############
+
+        self.L2sequenceList += [["",
+                                 [dummyRoI]+efiddataprep,
+                                 'L2_mb_iddataprep']] 
+
+        self.L2sequenceList += [[['L2_mb_iddataprep'],
+                                 [theL2Fex1, theL2Hypo1],
+                                 'L2_mb_step1']]
+        
+        self.L2sequenceList += [[['L2_mb_step1'],
+                                 [theL2Fex2, theL2Hypo2],
+                                 'L2_mb_step2']]
+            
+        self.EFsequenceList += [[['L2_mb_step2'],
+                                 [theEFMETFex, theEFMETHypo],
+                                 'EF_mb_step1']]
+        self.EFsequenceList += [[['EF_mb_step1'],
+                                 theEFFex1+[theEFFex2, theEFFex3, theEFHypo],
+                                 'EF_mb_step2']]
+
+        ########### Signatures ###########
+        self.L2signatureList += [ [['L2_mb_iddataprep']] ]
+        self.L2signatureList += [ [['L2_mb_step1']] ]
+        self.L2signatureList += [ [['L2_mb_step2']] ]
+        self.EFsignatureList += [ [['EF_mb_step1']] ]
+        self.EFsignatureList += [ [['EF_mb_step2']] ]
+                
+        self.TErenamingDict = {
+            'L2_mb_iddataprep': mergeRemovingOverlap('L2_iddataprep_', l2hypo1+'_'+chainSuffix),
+            'L2_mb_step1': mergeRemovingOverlap('L2_', l2hypo1+'_'+chainSuffix),
+            'L2_mb_step2': mergeRemovingOverlap('L2_pusup0','_'+chainSuffix),
+            'EF_mb_step1': mergeRemovingOverlap('EF_sumet0','_'+chainSuffix),
+            'EF_mb_step2': mergeRemovingOverlap('EF_trk0','_'+chainSuffix),
             }
 
     def setup_mb_noalg(self):

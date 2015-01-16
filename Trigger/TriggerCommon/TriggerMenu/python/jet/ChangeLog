@@ -1,3 +1,91 @@
+2015-01-14   Peter Sherwood  <peter@localhost>
+
+	* added config changes for JetDefFromJets (jet reclustering)
+
+	* JetDef_test.py (TestJetDef._test_3): remove _test2
+	- depended on 'bad' dictionaries, but tests are noq
+	done on real menu files
+
+2014-11-22   Peter Sherwood  <peter@peter-8.fritz.box>
+
+	* SequenceTree.py (SequenceTree._make_sequences): add the
+	intput te name to the output te name.
+
+	* JetSequenceRouter.py (_make_cmfs): added Energy density
+	alg to Cell and Cluster sequence.
+	(_make_cm): as for _make_cmfs.
+
+	* algFactories.py: increase modularity by adding '_' to 
+	ffactory function names (provents them from being importable),
+	updated the dispatch table accordingly. Added support for 
+	EnergyDensity algs.
+
+	* jetDefInstantiator.py: remove dead imports. Add imports for
+	EnergyDensity algs. Improve error reporting.
+
+	* algFactories_test.py (make_menu_data): add support for
+	testing EnergyDensity algo creation.
+
+	* JetDef.py (usage): add help message for 'python JetDef.py -h'
+
+	* JetDef_test.py (TestJetDef.test_0): add to print out
+	what is a real error rather than an intentionally test
+	triggered error.
+
+2014-11-21   Peter Sherwood  <peter@peter-8.fritz.box>
+
+	* algFactories.py (_dataScoutingAlg1, _dataScoutingAlg1):
+	supplied missing argument to Algorithm
+
+	* add support for data scouting. Fixed bug in algFactories that
+	prevented diagnostics from running.
+
+2014-10-24   Peter Sherwood  <peter@peter-8.local>
+
+	* JetSequenceRouter.py (_make_cmfs): mods to handle
+	TrigClusterMaker parameters.
+	(_make_cm)  mods to handle TrigClusterMaker parameters.
+	(_make_jr): switch to using a single config class which
+	takes parameters rather tahn many parameter free classes.
+	(_make_jh): adjust for changes of variable names in MenuData.
+
+	* algFactories.py: route TrigJetRec requests to a single
+	funtion that takes arguments rather than many functions
+	that take no arguments.
+
+	* JetDef.py: convert 'calib' input to bool flags for
+	controlling TrigHLTJetRec and TrigClusterMaker.
+	Setup debug flags with envoronment variables. update
+	test dictionaries in run_strawman_test(). Write
+	error minders to log.
+
+	* jetDefInstantiator.py: use new  TrigHLTJetRec config classes.
+
+	* MenuData.py: rename variables for increased clarity.
+	add cluster_params to configure TrigClusterMaker
+
+	* SequenceTree.py: Add new class SequenceLinear.
+	This checks that a tree is of the simple form
+	of being a sequence of sequences. Sets the last te_out
+	name to 'EF_jets_'<chain_name>.
+
+	* fex_factory.py: remove the calculation of the fex_key.
+	This was used to identify the python configuration class
+	for JetRec. With the proliferation of parameters, having
+	a configuration class for each parameter class became
+	inwildy. Now a single parameter-accepting class is used.
+
+	* ChainConfig.py (ChainConfig): add comments.rename variable
+	"name" to "chain_name" for clarity.
+
+	* ChainConfigMaker.py: remove the use of chain_part name
+	and replace with chain_name. This is used to biuld final TE
+	element names. Use cluster_maker to handle cluster making
+	arguments
+
+	* cluster_factory.py: new module for handling cluster maling
+	arguments
+
 2014-09-02   Peter Sherwood  <peter@pb-d-128-141-165-197.cern.ch>
 
 	* The presence of the string 'perf' in the chain parts dictionaries
@@ -13,10 +101,10 @@
 	off running the jet hypo (hypo is not run if 'perf'
 	occurs in the 'addInfi' list of the chain part dictionary.
 
-	* JetDef.py (_check_input): ensure all cghain parts have an
+	* JetDef.py (_check_input): ensure all chain parts have an
 	'addInfo' key.
 	(_check_chainpart_consistency.remove_hypodata): check that
-	the presence or absence of 'addInfo' is consitent across all
+	the presence or absence of 'addInfo' is consistant across all
 	chain_parts
 
 2014-07-31   Peter Sherwood  <peter@pb-d-128-141-165-159.cern.ch>

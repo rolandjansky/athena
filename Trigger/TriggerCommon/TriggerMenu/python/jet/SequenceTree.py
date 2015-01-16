@@ -17,24 +17,29 @@ class SequenceTree(object):
         root = alglists[0]
         self.alias_table = defaultdict(list)
         self.sequences = []
+
         self.chain_name = chain_name
-        self.teout_namechecker = defaultdict(set)
 
         # set up a parent-child label of Alglist objects
         for a in alglists:
             self.alias_table[a.attach_to].append(a)
 
         self._make_sequences(root, start_te)
-        self._check_for_duplicate_teouts()
+        self._check()
 
     def _make_sequences(self, alglist, te_in):
         """Convert alglist objects to sequence objects"""
 
-        # ensure te_out names do not upset people
+        # use te_in and the seuquence alias to form te_out.
+        # the formeer defines the input, the latter defines
+        # the sequence state (alg parameters).Both are needed to
+        # specify what the sequence calculates. 
         if te_in:
             te_out = te_in + '__' + alglist.alias
         else:
             te_out = alglist.alias
+
+        # te_out = alglist.alias
 
         #if not te_out.startswith('HLT_'):
         #    te_out = 'HLT_' + te_out
@@ -42,27 +47,91 @@ class SequenceTree(object):
             te_out = 'EF_' + te_out
         self.sequences.append(Sequence(te_in, alglist.alg_list, te_out))
 
+        # having appended the new sequence to the sequence list,
+        # the sequence to which it is connected is attached. This
+        # will be found elsewhere in the alias table.
+        # Note that this code is not protected against cycles - that
+        # is if the inputs do not form a tree, this procedure could go
+        # into an infinite loop.
         for c in self.alias_table[alglist.alias]:
             self._make_sequences(c, te_out)
         
         
-    def _check_for_duplicate_teouts(self):
+    def _check_for_duplicates(self, l):
         """check no te out label is used for more than sequence"""
+        return len(l) != len(set(l))
 
-        def _make_identifier(seq):
-            s_id = [seq.te_in]
-            s_id.extend([a.asString() for a in seq.alg_list])
+        
+    def _check(self):
+        te_outs = [s.te_out for s in self.sequences]
+        if self._check_for_duplicates(te_outs):
 
-        [self.teout_namechecker[seq.te_out].add(_make_identifier(seq)) for
-         seq in self.sequences]
+            msg = '%s._check  chain: %s,te_out  duplicates found %s' % (
+                self.__class__.__name__,
+                self.chain_name,
+                str(te_outs))
+            raise RuntimeError(msg)
 
-        for a, s in self.teout_namechecker.items():
-            if len(s) > 1:
-                msg = '%s._make_sequences, te_out: %s collision %s'\
-                    'chain: %s'
-                msg = msg % (self.__class__.__name__,
-                             te_out, ' '.join(s),
-                             self.chain_name)
-                raise RuntimeError(msg)
 
+class SequenceLinear(SequenceTree):
+    """Construct a linear sequence of sequnces, such occurs in most
+    chains (in 2012 trees occured). A sequence of sequences is a tree
+    of sequences with the extra condition that a te_out of one sequence
+    can be used at most once as a te_in for another sequence.
+
+    For linear sequences of sequences, the last sequence is well defined.
+    Its TE takes the chain name as its name."""
+
+    def __init__(self, start_te, alglists, chain_name):
+        SequenceTree.__init__(self, start_te, alglists, chain_name)
+
+    def _make_sequences(self, alglist, te_in):
+        SequenceTree._make_sequences(self, alglist, te_in)
+        self._rename_last_te()
+
+    def _check(self):
+        SequenceTree._check(self)
+
+        te_ins = [s.te_in for s in self.sequences]
+
+        if self._check_for_duplicates(te_ins):
+            msg = '%s._check  chain: %s, te_in duplicates found %s' % (
+                self.__class__.__name__,
+                self.chain_name,
+                str(te_ins))
+            raise RuntimeError(msg)
+
+    def _rename_last_te(self):
+        """identify the last TE of a linear chain, and rename
+        it to 'EF_<chainname>' """
+
+        te_ins = [s.te_in for s in self.sequences]
+        last_te = [s.te_out for s in self.sequences if s.te_out not in te_ins]
+        if len (last_te) == 0:
+            msg = '%s._check  chain: %s, no last te' % (
+                self.__class__.__name__,
+                self.chain_name)
+            raise RuntimeError(msg)
+        
+        if len (last_te) > 1:
+            msg = '%s._check  chain: %s, > 1 unconected te+out %s' % (
+                self.__class__.__name__,
+                self.chain_name,
+                str(last_te))
+            raise RuntimeError(msg)
+
+        # last_te is now a single element list
+        last_te = last_te[0]
+
+        # only rename the output te to the chain name if the name
+        # of the sequence alias is marked as being a hypo sequence.
+        if '__hypo_' not in last_te:
+            return
+
+        last_sequence = [s for s in self.sequences if s.te_out == last_te][0]
+
+        if self.chain_name.startswith('EF_'):
+            last_sequence.te_out = self.chain_name
+        else:
+            last_sequence.te_out = 'EF_jets_' + self.chain_name
         

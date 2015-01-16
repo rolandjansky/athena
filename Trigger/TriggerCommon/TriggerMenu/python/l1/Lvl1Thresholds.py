@@ -13,7 +13,7 @@ class ThresholdValue:
     @staticmethod
     def setDefaults(ttype, dic):
         ThresholdValue.defaultThresholdValues[ttype] = dic
-
+        
     @staticmethod
     def getDefaults(ttype):
         defaults = {
@@ -23,11 +23,13 @@ class ThresholdValue:
             'phimax'  :  64,
             'priority':   0,
             }
-        if ttype == 'EM':
+        if ttype == 'EM' or ttype == 'TAU':
             defaults.update({'priority':   1,
                              'em_isolation' : IsolationOff,
                              'had_isolation' : IsolationOff,
                              'had_veto' : IsolationOff,
+                             'isobits' : '00000',
+                             'use_relIso' : False,
                              })
         if ttype == 'JET':
             defaults.update({'window': 8})
@@ -37,9 +39,7 @@ class ThresholdValue:
 
         return defaults
 
-    def __init__(self, thrtype, value, etamin, etamax, phimin, phimax,
-                 em_isolation = IsolationOff, had_isolation = IsolationOff, had_veto = IsolationOff,
-                 window=0, priority=1, name=''):
+    def __init__(self, thrtype, value, etamin, etamax, phimin, phimax, window=0, priority=1, name=''):
         self.name   = name
         self.type   = thrtype
         self.value  = value
@@ -47,16 +47,39 @@ class ThresholdValue:
         self.etamax = etamax
         self.phimin = phimin
         self.phimax = phimax
-        self.em_isolation = em_isolation
-        self.had_isolation = had_isolation
-        self.had_veto = had_veto
+        self.em_isolation = IsolationOff
+        self.had_isolation = IsolationOff
+        self.had_veto = IsolationOff
         self.window = window
         self.priority = priority
 
+
+    def setIsolation(self, em_isolation, had_isolation, had_veto, isobits, use_relIso):
+        self.em_isolation = em_isolation
+        self.had_isolation = had_isolation
+        self.had_veto = had_veto
+        self.isobits = isobits
+        self.use_relIso = use_relIso
+        if self.use_relIso:
+            self.had_veto=99
+            
     def xml(self, ind=1, step=2):
         s  = ind * step * ' ' + '<TriggerThresholdValue em_isolation="%i" etamin="%i" etamax="%i" had_isolation="%i" had_veto="%i" ' % (self.em_isolation, self.etamin, self.etamax, self.had_isolation, self.had_veto)
-        s += 'name="%s" phimin="%i" phimax="%i" priority="%i" thresholdval="%g" type="%s" window="%i"/>\n' % (self.name, self.phimin, self.phimax, self.priority, self.value, self.type, self.window)
+        if (self.type=='EM' or self.type=='TAU') and self.use_relIso:
+            s += 'isobits="%s" ' % self.isobits
+        s += 'name="%s" phimin="%i" phimax="%i" priority="%i" thresholdval="%g" type="%s" window="%i"' % (self.name, self.phimin, self.phimax, self.priority, self.value, self.type, self.window)
+        if self.type=='JET':
+            s += ' windowSize="%s"' % 'LARGE' # FIX
+        s += '/>\n'
         return s
+
+    def __cmp__(self, o):
+        if(self.priority!=o.priority):
+            return cmp(self.priority,o.priority)
+        if(self.etamin!=o.etamin):
+            return cmp(self.etamin,o.etamin)
+        return cmp(self.name,o.name)
+
 
     def __str__(self):
         return "name=%s, value=%s, eta=(%s-%s)" % (self.name, self.value, self.etamin, self.etamax)
@@ -80,6 +103,9 @@ class LVL1Threshold(object):
     def __str__(self):
         return self.name
 
+    def getVarName(self):
+        """returns a string that can be used as a varname"""
+        return self.name.replace('.','')
 
     def setCableInput(self):
         from Cabling import Cabling
@@ -117,18 +143,24 @@ class LVL1Threshold(object):
 
 
     def addEMThresholdValue(self, value, *args, **kwargs):
-        defargs = ThresholdValue.getDefaults('EM')
-        posargs = dict(zip(['etamin', 'etamax', 'phimin', 'phimax', 'em_isolation', 'had_isolation', 'had_veto', 'priority'], args))
+        # supporting both EM and TAU
+        defargs = ThresholdValue.getDefaults(self.ttype) 
+        
+        posargs = dict(zip(['etamin', 'etamax', 'phimin', 'phimax', 'em_isolation', 'had_isolation', 'had_veto', 'priority', 'isobits', 'use_relIso'], args))
         
         # then we evaluate the arguments: first defaults, then positional arguments, then named arguments
         p = deepcopy(defargs)
         p.update(posargs)
         p.update(kwargs)
+
         thrv = ThresholdValue(self.ttype, value,
                               etamin = p['etamin'], etamax=p['etamax'], phimin=p['phimin'], phimax=p['phimax'],
-                              em_isolation = p['em_isolation'], had_isolation = p['had_isolation'], had_veto = p['had_veto'],
                               priority = p['priority'], name = self.name+'full')
+
+        thrv.setIsolation(em_isolation = p['em_isolation'], had_isolation = p['had_isolation'], had_veto = p['had_veto'], isobits = p['isobits'], use_relIso = p['use_relIso'])
+        
         self.thresholdValues.append(thrv)
+            
         return self
 
 
@@ -175,19 +207,37 @@ class LVL1Threshold(object):
         inputboard = "ctpcore" if self.cableinfo.isDirectIn else "ctpin"
         s = ind * step * ' ' + '<TriggerThreshold active="%i" bitnum="%i" id="%i" mapping="%i" name="%s" type="%s" input="%s"%s%s%s version="1">\n' % \
             (self.active, self.cableinfo.bitnum, int(idgen.get('TriggerThreshold')), self.mapping, self.name, self.ttype, inputboard, seed, seed_multi, bcdelay)
-        for thrv in self.thresholdValues:
+        for thrv in sorted(self.thresholdValues):
             s += thrv.xml(ind+1,step)
         if self.cableinfo.isDirectIn:
             s += (ind+1) * step * ' ' + '<Cable connector="%s" input="CTPCORE" name="%s">\n' % (self.cableinfo.connector, self.cableinfo.name)
             s += (ind+2) * step * ' ' + '<Signal range_begin="%i" range_end="%i" clock="%i"/>\n' % (self.cableinfo.range_begin, self.cableinfo.range_end, self.cableinfo.clock)
         else:
-            s += (ind+1) * step * ' ' + '<Cable connector="%s" input="%s" ctpin="%s" name="%s">\n' % (self.cableinfo.connector, self.cableinfo.slot, self.cableinfo.slot, self.cableinfo.name)
+            s += (ind+1) * step * ' ' + '<Cable connector="%s" input="%s" name="%s">\n' % (self.cableinfo.connector, self.cableinfo.slot, self.cableinfo.name)
             s += (ind+2) * step * ' ' + '<Signal range_begin="%i" range_end="%i"/>\n' % (self.cableinfo.range_begin, self.cableinfo.range_end)
         s += (ind+1) * step * ' ' + '</Cable>\n'
         s += ind * step * ' ' + '</TriggerThreshold>\n'
         return s
 
 
+
+class LVL1TopoInput(LVL1Threshold):
+    """Class representing a direct input cable to the CTPCORE
+    
+    In the menu it is treated like a threshold, only the naming
+    convention is less strict (allows"-" and can start with a number)
+    """
+    def __init__(self, triggerline):
+        super(LVL1TopoInput,self).__init__(name=triggerline.trigger, ttype='TOPO', mapping=triggerline.ordinal)
+        self.cable = triggerline.cable      # 0 .. 1
+        self.bitOnCable = triggerline.bit   # 0 .. 31
+        self.fpga  = triggerline.fpga       # 0 .. 1
+        self.bitOnFpga = triggerline.firstbit # 0 .. 15
+        self.clock = triggerline.clock
+
+    def getVarName(self):
+        """returns a string that can be used as a varname"""
+        return ("TOPO_" + self.name).replace('.','').replace('-','_') # we can not have '.' or '-' in the variable name
 
 
 

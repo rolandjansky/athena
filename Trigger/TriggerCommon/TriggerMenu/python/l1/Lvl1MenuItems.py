@@ -73,6 +73,12 @@ class LVL1MenuItem(object):
         else:
             return []
 
+    def conditions(self, include_internal=False):
+        if self.logic!=None:
+            return self.logic.conditions(include_internal)
+        else:
+            return []
+
     def setTriggerType(self, ttype):
         self.trigger_type = int(ttype) & 0xff
         return self
@@ -84,7 +90,7 @@ class LVL1MenuItem(object):
 
 
     def xml(self, ind, step=2):
-        s = ind * step * ' ' + '<TriggerItem ctpid="%i" partition="%i" name="%s" complex_deadtime="%i" definition="%s" trigger_type="%s" version="1">\n' % \
+        s = ind * step * ' ' + '<TriggerItem ctpid="%i" partition="%i" name="%s" complex_deadtime="%i" definition="(%s)" trigger_type="%s">\n' % \
             (self.ctpid, self.partition, self.name, self.complex_deadtime, str(self.logic).replace('&','&amp;'), self.binary_trigger_type(8 if self.partition==1 else 4))
         if self.logic:
             self.logic.normalize()
@@ -130,7 +136,7 @@ class LVL1MenuItems:
 
         self.items.sort( lambda x,y: cmp(x.ctpid,y.ctpid) )
 
-        s = ind * step * ' ' + '<TriggerMenu id="1" name="%s" phase="lumi" version="1">\n' % self.menuName
+        s = ind * step * ' ' + '<TriggerMenu name="%s" phase="lumi">\n' % self.menuName
         for i in self.items:
             s += i.xml(ind+1,step)+"\n"
         s += ind * step * ' '+'</TriggerMenu>\n'
@@ -165,7 +171,7 @@ class PrescaleHandler(object):
     def xml(self, ind=1, step=2):
         # write prescales (only prescales for which an item is defined)
         # write one set per defined partition
-        s = ind * step * ' ' + '<PrescaleSet name="%s" type="%s" menuPartition="0" version="0">\n' % (self.name, self.psType)
+        s = ind * step * ' ' + '<PrescaleSet name="%s" type="%s" menuPartition="0">\n' % (self.name, self.psType)
 
         from Limits import Limits
         cuts = [ getCutFromPrescale(-1) ] * Limits.MaxTrigItems

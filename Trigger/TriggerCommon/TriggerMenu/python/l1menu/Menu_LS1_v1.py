@@ -36,7 +36,7 @@ def defineMenu():
         'MU4', 'MU6', 'MU10', 'MU11', 'MU15', 'MU20',
 
         # 9 x EM
-        'EM3', 'EM6', 'EM10VH', 'EM12', 'EM14VH', 'EM16V', 'EM16VH', 'EM18VH', 'EM30',
+        'EM3', 'EM6', 'EM10VH', 'EM12', 'EM14VH', 'EM16V', 'EM16VH', 'EM18VH', #'EM30',
 
         # 8 x TAU
         'HA8', 'HA11', 'HA11I', 'HA15','HA15I', 'HA20', 'HA40',
@@ -111,7 +111,7 @@ def defineMenu():
     Lvl1Flags.items = [
 
         # EM
-        "L1_EM3", "L1_EM6", "L1_EM10VH", "L1_EM12", "L1_EM14VH", "L1_EM16V", "L1_EM16VH", "L1_EM18VH", "L1_EM30", "L1_EM30_BGRP7", 
+        "L1_EM3", "L1_EM6", "L1_EM10VH", "L1_EM12", "L1_EM14VH", "L1_EM16V", "L1_EM16VH", "L1_EM18VH", #"L1_EM30", "L1_EM30_BGRP7", 
         "L1_2EM3", "L1_2EM6", "L1_2EM12", "L1_2EM10VH", "L1_2EM12_EM16V", "L1_3EM6", "L1_2EM3_EM6", "L1_2EM3_EM12", "L1_2EM6_EM16VH", "L1_3EM6_EM14VH",         
         "L1_EM3_EMPTY", "L1_EM6_EMPTY", "L1_EM3_UNPAIRED_ISO", "L1_EM3_UNPAIRED_NONISO", "L1_EM3_FIRSTEMPTY",
 
@@ -298,9 +298,9 @@ def defineMenu():
         'L1_2EM12_EM16V'               : 80, # was TAU11_XS35
         'L1_2TAU8_TAU11I_EM10VH_J15CF' : 81, # was L1_XS35
         'L1_LUCID_COMM_EMPTY'          : 82,
-        'L1_EM30_BGRP7'                : 83,
+        #'L1_EM30_BGRP7'                : 83,
         'L1_MU4_J20_XE20'              : 84,
-        'L1_EM30'                      : 85,
+        #'L1_EM30'                      : 85,
         'L1_6J10'                      : 86,
         'L1_MU4_J10'                   : 87, 
         'L1_MU15'                      : 88,

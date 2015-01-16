@@ -64,7 +64,7 @@ class TauHypoProvider:
                 currentHypoKey = 'ef'+part+'_tau'+threshold+'_'+criteria+'_r1'
 
                 if part == '':
-                    if criteria== 'perf': 
+                    if criteria== 'perf' or criteria== 'cosmic': 
                         from TrigTauHypo.TrigTauHypoConfig2012 import EFTauMVHypo_tauNoCut
                         currentHypo = EFTauMVHypo_tauNoCut(currentHypoKey.replace(threshold, ''))
                     else:
@@ -73,7 +73,7 @@ class TauHypoProvider:
                         theThresh = self.thresholdsEF[(criteria, int(threshold))]
                         currentHypo = EFTauMVHypo(currentHypoKey, theVars, theThresh)
 
-        if strategy == 'calo' or strategy =='ptonly' or strategy == 'mvonly' or strategy == 'caloonly' or strategy == 'track' or strategy == 'trackonly':
+        if strategy == 'calo' or strategy =='ptonly' or strategy == 'mvonly' or strategy == 'caloonly' or strategy == 'track' or strategy == 'trackonly' or strategy == 'tracktwo':
 
             # Simple implementation of 2015 pre-selection
             currentHypoKey = 'l2'+part+'_tau'+threshold+'_'+criteria+'_'+strategy
@@ -83,7 +83,7 @@ class TauHypoProvider:
                 theVars = ['LowerPtCut', 'UseCellCut', 'CoreFractionCut', 'HadRadiusCut']
                 if strategy == 'calo' or strategy == 'caloonly':
                     theThresh = [int(threshold)*self.GeV, 1, 0.63, 0.8]
-                if strategy == 'ptonly' or strategy == 'trackonly' or strategy == 'track':
+                if strategy == 'ptonly' or strategy == 'trackonly' or strategy == 'track' or strategy == 'tracktwo':
                     theThresh = [int(threshold)*self.GeV, 0, 0.0, 0.8]
                 if strategy == 'mvonly':
                     theThresh = [0, 0, 0.0, 0.8]
@@ -91,10 +91,14 @@ class TauHypoProvider:
 
             if part == 'id':
                 from TrigTauHypo.TrigTauHypoBase import HLTTrackTauHypo
-                theVars = ['LowerPtCut'] 
-                theThresh = [int(threshold)*self.GeV]
-                currentHypo = HLTTrackTauHypo(currentHypoKey, theVars, theThresh)
-
+                if criteria != 'cosmic':
+                    theVars = ['LowerPtCut'] 
+                    theThresh = [int(threshold)*self.GeV]
+                    currentHypo = HLTTrackTauHypo(currentHypoKey, theVars, theThresh)
+                else:
+                    theVars = ['LowerPtCut', 'TracksInCoreCut', 'TracksInIsoCut', 'DeltaZ0Cut']
+                    theThresh = [int(threshold)*self.GeV, 9999, 9999, 9999.]
+                    currentHypo = HLTTrackTauHypo(currentHypoKey, theVars, theThresh)
 
         assert currentHypo, 'unable to find hypothesis algorithm: '+currentHypoKey
             

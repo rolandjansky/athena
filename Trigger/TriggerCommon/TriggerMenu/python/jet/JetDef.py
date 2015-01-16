@@ -6,15 +6,24 @@ code."""
 import os
 import re
 import copy
+import sys
+import getopt
+import shelve
 
-from JetSequenceRouter import JetSequenceRouter
+from JetSequencesBuilder import JetSequencesBuilder
 from TriggerMenu.menu.ChainDef import (ChainDef,
                                        ErrorChainDef)
 from exc2string import exc2string2
 from InstantiatorFactory import instantiatorFactory
-from SequenceTree import SequenceTree
+from SequenceTree import SequenceLinear
 from ChainConfigMaker import ChainConfigMaker
+from AlgFactory import AlgFactory
 
+try:
+    from AthenaCommon.Logging import logging
+    logger = logging.getLogger("TriggerMenu.jet.generateJetChainDefs")
+except:
+    logger = None
 
 def _check_input(in_data):
     """Sanity checks on the data passed in from the central menu code."""
@@ -26,8 +35,10 @@ def _check_input(in_data):
     for k in must_have:
         missing = [k for k in must_have if k not in in_data]
         if missing:
-            msg = '%s missing chainPart keys: %s' % (err_hdr,
-                                                     ', '.join(missing))
+            msg = '%s missing chainPart keys: %s not in %s' % (
+                err_hdr,
+                ', '.join(missing),
+                in_data.keys())
             raise RuntimeError(msg)
 
     # expect two chain parts for bjets: these sepecify different
@@ -44,7 +55,13 @@ def _check_input(in_data):
     # only refer to the jet hypo. If this is not the case, we do
     # not know what is going on
     _check_chainpart_consistency(chain_parts)
-    
+    _check_values(chain_parts)
+
+
+def _check_values(chain_parts):
+
+    err_hdr = '_check_values: '
+
     bad = [p['signature'] for p in chain_parts if p['signature'] != 'Jet']
     if bad:
         msg = '%s unknown chain part(s): %s' % (err_hdr, ' '.join(bad))
@@ -53,7 +70,7 @@ def _check_input(in_data):
 
     # input data check
     must_have = ('etaRange', 'threshold', 'recoAlg', 'dataType', 'calib',
-                 'addInfo')
+                 'addInfo', 'jetCalib')
 
     for cp in chain_parts:
         missing = [k for k in must_have if k not in cp]
@@ -69,16 +86,13 @@ def _check_input(in_data):
         msg = '%s unknown dataType(s): %s' % (err_hdr, ' '.join(bad))
         raise RuntimeError(msg)
 
-    if 'tc' not in dataTypes:
-        msg = '%s "tc" not in dataTypes: %s' % (err_hdr, ' '.join(dataTypes))
-        raise RuntimeError(msg)
 
 
 def _check_chainpart_consistency(chain_parts):
     check_chain_parts = [copy.deepcopy(c) for c in chain_parts]
     def remove_hypodata(d):
         to_remove = ['multiplicity', 'etaRange', 'threshold', 'chainPartName',
-                     'addInfo']
+                     'addInfo', 'bTag', 'bTracking', 'bConfig', ] 
         for tr in to_remove: 
             try:
                 del d[tr]
@@ -95,9 +109,9 @@ def _check_chainpart_consistency(chain_parts):
 
 
 def _make_sequences(alg_lists, start_te, chain_name):
-    """Use a SequenceTree to set up a DAG of sequences"""
+    """Use a SequenceLinear to set up a sequence of sequences"""
 
-    st = SequenceTree(start_te, alg_lists, chain_name)
+    st = SequenceLinear(start_te, alg_lists, chain_name)
     return st.sequences
 
 def _make_chaindef(from_central, instantiator):
@@ -113,13 +127,14 @@ def _make_chaindef(from_central, instantiator):
     ccm = ChainConfigMaker(from_central)
     chain_config = ccm()
 
-    chain_name = chain_config.name
-    
-    router = JetSequenceRouter()
+    chain_name = chain_config.chain_name
+
+    alg_factory = AlgFactory(chain_config)
+    seq_builder = JetSequencesBuilder(alg_factory, chain_config)
 
     # get the alg_lists (which will combine with trigger element names
     # to formsequences) for the chain
-    alg_lists = router.make_alglists(chain_config)
+    alg_lists = seq_builder.make_alglists()
 
     # ... but chain names start with HLT_
     #header = 'HLT_'
@@ -138,7 +153,9 @@ def _make_chaindef(from_central, instantiator):
     start_te = _make_start_te(chain_name=chain_name,
                               chain_config=chain_config)
 
-    sequences = _make_sequences(alg_lists, start_te, chain_name)
+    sequences = _make_sequences(alg_lists,
+                                start_te,
+                                chain_name=chain_config.chain_name)
 
     # convert the algorithms according to the instantiator type
     [s.instantiateAlgs(instantiator) for s in sequences]
@@ -170,11 +187,7 @@ def _make_chaindef(from_central, instantiator):
 
 
 def _is_full_scan(chain_config):
-    menu_data = chain_config.jr_menudata
-    if menu_data:
-        if menu_data.scan_type == 'FS':
-            return True
-    return False
+    return chain_config.menu_data.scan_type == 'FS'
 
 
 def _make_start_te(chain_name, chain_config):
@@ -190,53 +203,57 @@ def _make_start_te(chain_name, chain_config):
         raise RuntimeError(msg)
     return start_te[1]
 
-def generateHLTChainDef(caller_data, use_atlas_config=True, debug=False):
+def generateHLTChainDef(caller_data):
     """Entrance point to the jet slice configuration code.
     Arguments:
     caller_data [type - dictionary]: data from the caller and returns
                 either a ChainDef or an ErrorChainDef object.
 
-    use_atlas_config [type - boolean]: True - instantiate ATLAS configuration
-                     objects, which requires the succesful imports of the
-                     python classes.
-                     False - Use JetDef proxies of the ATLAS configuration
-                     objects. These have natural types as attributes,
-                     and are suitable for development work."""
+    Debug and testing actions are controlled by environment variables.
+    See commnets in usage()."""
 
-    caller_data['test'] = ''
-    # debug = True
-    # caller_data['test'] = 'test0'
-    # use_atlas_config = False
+    # maintain a copy of the incoming dictionary - to be used
+    # for debugging, will not be overwritten.
+
+    caller_data_copy = copy.deepcopy(caller_data)
+    
+    caller_data_copy['test'] = 'JETDEF_TEST' in os.environ
+    debug = 'JETDEF_DEBUG' in os.environ
+    no_instantiation_flag = 'JETDEF_NO_INSTANTIATION' in os.environ
+    use_atlas_config = not no_instantiation_flag
 
     try:
         # instantiator instantiation can fail if there are
-        # ATLAS impoirt errors
+        # ATLAS import errors
         instantiator = instantiatorFactory(use_atlas_config)
     except Exception, e:
         tb = exc2string2()
         msg = 'JetDef Instantiator error: error: %s\n%s' % (str(e), tb)
-        chain_name = caller_data['chainName']
+        chain_name = caller_data_copy['chainName']
 
         cd = ErrorChainDef(msg, chain_name)
         if debug:
-            _debug(caller_data, cd)
+            # for debugging, output the original incoming dictionary
+            _debug(caller_data, cd, no_instantiation_flag)
 
         return cd
             
-
     try:
-        cd = _make_chaindef(caller_data, instantiator)
+        cd = _make_chaindef(caller_data_copy, instantiator)
     except Exception, e:
         tb = exc2string2()
-        chain_name = caller_data['chainName']
+        chain_name = caller_data_copy['chainName']
         msg = 'JetDef error: error: %s\n%s' % (str(e), tb)
         cd = ErrorChainDef(msg, chain_name)
+        if logger:
+            logger.warning(str(cd))
 
     if debug:
-        _debug(caller_data, cd)
+        # for debugging, output the original incoming dictionary
+        _debug(caller_data, cd, no_instantiation_flag)
     return cd
 
-def _debug(caller_data, cd):
+def _debug(caller_data, cd, no_instantiation_flag):
     """Dump incoming dictionaly and outfgoing(Error)ChainDef to a file."""
 
     chain_name = caller_data['chainName']
@@ -249,107 +266,70 @@ def _debug(caller_data, cd):
     with open(fn, 'w') as off:
         off.write(txt)
 
+    # If instantiation is off, ChainDef instances
+    # hold only string data, and
+    # can be stored for later investigation.
+
+    if no_instantiation_flag:
+        db =  shelve.open(os.path.join(ddir,
+                                       'chain_defs.db'))
+        db[chain_name] = cd
+        db.close()
+
     print 'Debug output written to ', fn
 
 
-def inclusive_jetdata_good_test():
-    inclusive_jet_data ={'EBstep': 1,
-                         'signatures': '',
-                         'stream': 'Jet',
-                         'chainParts': [{'dataType': 'tc',
-                                         'trigType': 'j',
-                                         'extra': '',
-                                         'multiplicity': '1',
-                                         'FSinfo': '',
-                                         'etaRange': ['0eta320'],
-                                         'topo': [],
-                                         'calib': 'had',
-                                         'L1item': '',
-                                         'threshold': '30',
-                                         'addInfo': [],
-                                         'signature': 'Jet',
-                                         'chainPartName': 'j30_had',
-                                         'recoAlg': 'a4'}],
-                         'topo': '',
-                         'chainCounter': 890,
-                         'signature': 'Jet',
-                         'L1item': 'L1_J20',
-                         'chainName': 'j30_had'}
+def usage():
+    print """\
+    python JetDef.py
 
-    return inclusive_jet_data
+    Run the jet slice configuration code in stand alone node.
+    Input dictionaries have been hardwired into the test code.
+    These are used as the input to JetDef. ChainDef objects are
+    returned.
 
+    Debug output is controlled by the following environment variables
+    $JETDEF_DEBUG 1 -            ChainDef and ErrorChainDef objects are
+                                 written to /tmp/<username>
 
-def inclusive_jetdata_set(chain_part_update, jetdata_update={}):
-    incl_jet_data = inclusive_jetdata_good_test()
-    incl_jet_data['chainParts'][0].update(chain_part_update)
-    incl_jet_data.update(jetdata_update)
-    return incl_jet_data
-
-
-def inclusive_jetdata_setthreshold(threshold):
-    return inclusive_jetdata_set({'threshold': str(threshold)})
-
-
-def inclusive_jetdata_bad_test():
-    return inclusive_jetdata_setthreshold(-999)
-    
+    $JETDEF_NO_INSTANTIATION 1 - No instantiation of the ATLAS
+                                 configuration objects is done.
+                                 A string representation of the Algorithms
+                                 is presented. The arguments to the
+                                 Algoruthms are visble.
         
-def run_test():
+    $JETDEF_TEST           - Diagnosis Algorithms are added to the
+                             production chains.
 
-    from_central = [inclusive_jetdata_good_test(),
-                    inclusive_jetdata_bad_test()]
-                    
-    return [generateHLTChainDef(fc, debug=True) for fc in from_central]
+    Performing
+    export JETDEF_DEBUG=1;export JETDEF_NO_INSTANTIATION=1
 
-def run_strawman_test(use_atlas_config=True, debug=True):
-    """run JetDef from dictionaries produced by menu code 16/5/2014 ~19:00"""
-
-    from_central = [
-        {'EBstep': 1, 'signatures': '', 'stream': ['Jet'], 'chainParts': [{'trigType': 'j', 'scan': 'FS', 'dataType': 'tc', 'multiplicity': '3', 'extra': '', 'etaRange': '0eta320', 'topo': [], 'calib': 'had', 'L1item': '', 'signature': 'Jet', 'threshold': '175', 'addInfo': [], 'chainPartName': '3j175', 'recoAlg': 'a4'}], 'topo': [], 'chainCounter': 110, 'groups': ['RATE:MultiJet', 'BW:Jets'], 'signature': 'Jet', 'L1item': 'L1_J100', 'chainName': '3j175'},
-
-        {'EBstep': 1, 'signatures': '', 'stream': ['Jet'], 'chainParts': [{'trigType': 'j', 'scan': 'FS', 'dataType': 'tc', 'multiplicity': '4', 'extra': '', 'etaRange': '0eta320', 'topo': [], 'calib': 'had', 'L1item': '', 'signature': 'Jet', 'threshold': '100', 'addInfo': [], 'chainPartName': '4j100', 'recoAlg': 'a4'}], 'topo': [], 'chainCounter': 111, 'groups': ['RATE:MultiJet', 'BW:Jets'], 'signature': 'Jet', 'L1item': 'L1_3J50', 'chainName': '4j100'},
-
-        {'EBstep': 1, 'signatures': '', 'stream': ['Jet'], 'chainParts': [{'trigType': 'j', 'scan': 'FS', 'dataType': 'tc', 'multiplicity': '5', 'extra': '', 'etaRange': '0eta320', 'topo': [], 'calib': 'had', 'L1item': '', 'signature': 'Jet', 'threshold': '85', 'addInfo': [], 'chainPartName': '5j85', 'recoAlg': 'a4'}], 'topo': [], 'chainCounter': 112, 'groups': ['RATE:MultiJet', 'BW:Jets'], 'signature': 'Jet', 'L1item': 'L1_4J20', 'chainName': '5j85'},
-
-        {'EBstep': 1, 'signatures': '', 'stream': ['Jet'], 'chainParts': [{'trigType': 'j', 'scan': 'FS', 'dataType': 'tc', 'multiplicity': '1', 'extra': '', 'etaRange': '0eta320', 'topo': [], 'calib': 'had', 'L1item': '', 'signature': 'Jet', 'threshold': '110', 'addInfo': [], 'chainPartName': 'j110', 'recoAlg': 'a4'}], 'topo': [], 'chainCounter': 105, 'groups': ['RATE:SingleJet', 'BW:Jets'], 'signature': 'Jet', 'L1item': 'L1_J50', 'chainName': 'j110'},
-
-        {'EBstep': 1, 'signatures': '', 'stream': ['Jet'], 'chainParts': [{'trigType': 'j', 'scan': 'FS', 'dataType': 'tc', 'multiplicity': '1', 'extra': '', 'etaRange': '0eta320', 'topo': [], 'calib': 'had', 'L1item': '', 'signature': 'Jet', 'threshold': '150', 'addInfo': [], 'chainPartName': 'j150', 'recoAlg': 'a4'}], 'topo': [], 'chainCounter': 106, 'groups': ['RATE:SingleJet', 'BW:Jets'], 'signature': 'Jet', 'L1item': 'L1_J75', 'chainName': 'j150'},
-
-        {'EBstep': 1, 'signatures': '', 'stream': ['Jet'], 'chainParts': [{'trigType': 'j', 'scan': 'FS', 'dataType': 'tc', 'multiplicity': '1', 'extra': '', 'etaRange': '0eta320', 'topo': [], 'calib': 'had', 'L1item': '', 'signature': 'Jet', 'threshold': '200', 'addInfo': [], 'chainPartName': 'j200', 'recoAlg': 'a4'}], 'topo': [], 'chainCounter': 107, 'groups': ['RATE:SingleJet', 'BW:Jets'], 'signature': 'Jet', 'L1item': 'L1_J100', 'chainName': 'j200'},
-
-        {'EBstep': 1, 'signatures': '', 'stream': ['Jet'], 'chainParts': [{'trigType': 'j', 'scan': 'FS', 'dataType': 'tc', 'multiplicity': '1', 'extra': '', 'etaRange': '0eta320', 'topo': [], 'calib': 'had', 'L1item': '', 'signature': 'Jet', 'threshold': '260', 'addInfo': [], 'chainPartName': 'j260', 'recoAlg': 'a4'}], 'topo': [], 'chainCounter': 108, 'groups': ['RATE:SingleJet', 'BW:Jets'], 'signature': 'Jet', 'L1item': 'L1_J100', 'chainName': 'j260'},
-
-        {'EBstep': 1, 'signatures': '', 'stream': ['Jet'], 'chainParts': [{'trigType': 'j', 'scan': 'FS', 'dataType': 'tc', 'multiplicity': '1', 'extra': '', 'etaRange': '0eta320', 'topo': [], 'calib': 'had', 'L1item': '', 'signature': 'Jet', 'threshold': '330', 'addInfo': [], 'chainPartName': 'j330', 'recoAlg': 'a4'}], 'topo': [], 'chainCounter': 109, 'groups': ['RATE:SingleJet', 'BW:Jets'], 'signature': 'Jet', 'L1item': 'L1_J100', 'chainName': 'j330'},
-
-        {'EBstep': 1, 'signatures': '', 'stream': ['Jet'], 'chainParts': [{'trigType': 'j', 'scan': 'FS', 'dataType': 'tc', 'multiplicity': '1', 'extra': '', 'etaRange': '0eta320', 'topo': [], 'calib': 'had', 'L1item': '', 'signature': 'Jet', 'threshold': '400', 'addInfo': [], 'chainPartName': 'j400', 'recoAlg': 'a4'}], 'topo': [], 'chainCounter': 100, 'groups': ['RATE:SingleJet', 'BW:Jets'], 'signature': 'Jet', 'L1item': 'L1_J100', 'chainName': 'j400'},
-
-        {'EBstep': 1, 'signatures': '', 'stream': ['Jet'], 'chainParts': [{'trigType': 'j', 'scan': 'FS', 'dataType': 'tc', 'multiplicity': '1', 'extra': '', 'etaRange': '0eta320', 'topo': [], 'calib': 'had', 'L1item': '', 'signature': 'Jet', 'threshold': '460', 'addInfo': [], 'chainPartName': 'j460_a10_L1J100', 'recoAlg': 'a10'}], 'topo': [], 'chainCounter': 101, 'groups': ['RATE:SingleJet', 'BW:Jets'], 'signature': 'Jet', 'L1item': 'L1_J100', 'chainName': 'j460_a10_L1J100'},
-
-        {'EBstep': 1, 'signatures': '', 'stream': ['Jet'], 'chainParts': [{'trigType': 'j', 'scan': 'FS', 'dataType': 'tc', 'multiplicity': '1', 'extra': '', 'etaRange': '0eta320', 'topo': [], 'calib': 'had', 'L1item': '', 'signature': 'Jet', 'threshold': '60', 'addInfo': [], 'chainPartName': 'j60', 'recoAlg': 'a4'}], 'topo': [], 'chainCounter': 103, 'groups': ['RATE:SingleJet', 'BW:Jets'], 'signature': 'Jet', 'L1item': 'L1_J20', 'chainName': 'j60'},
-
-        {'EBstep': 1, 'signatures': '', 'stream': ['Jet'], 'chainParts': [{'trigType': 'j', 'scan': 'FS', 'dataType': 'tc', 'multiplicity': '1', 'extra': '', 'etaRange': '320eta490', 'topo': [], 'calib': 'had', 'L1item': '', 'signature': 'Jet', 'threshold': '200', 'addInfo': [], 'chainPartName': 'j200_320eta490', 'recoAlg': 'a4'}], 'topo': [], 'chainCounter': 102, 'groups': ['RATE:SingleJet', 'BW:Jets'], 'signature': 'Jet', 'L1item': 'L1_FJ100', 'chainName': 'j200_320eta490'},
-        {'EBstep': 1, 'signatures': '', 'stream': ['Jet'], 'chainParts': [{'trigType': 'j', 'scan': 'PS', 'dataType': 'tc', 'multiplicity': '1', 'extra': '', 'etaRange': '0eta320', 'topo': [], 'calib': 'had', 'L1item': '', 'signature': 'Jet', 'threshold': '110', 'addInfo': [], 'chainPartName': 'j110', 'recoAlg': 'a4'}], 'topo': [], 'chainCounter': 105, 'groups': ['RATE:SingleJet', 'BW:Jets'], 'signature': 'Jet', 'L1item': 'L1_J50', 'chainName': 'j110'},
-
-        {'EBstep': 1, 'signatures': '', 'stream': ['Jet'], 'chainParts': [{'bTag': 'bmedium', 'trigType': 'j', 'scan': 'FS', 'dataType': 'tc', 'multiplicity': '1', 'extra': '', 'etaRange': '0eta320', 'topo': [], 'calib': 'had', 'L1item': '', 'signature': 'Jet', 'threshold': '175', 'addInfo': [], 'chainPartName': 'j175_bmedium', 'recoAlg': 'a4'}, {'bTag': 'bmedium', 'trigType': 'j', 'scan': 'FS', 'dataType': 'tc', 'multiplicity': '1', 'extra': '', 'etaRange': '0eta320', 'topo': [], 'calib': 'had', 'L1item': '', 'signature': 'Jet', 'threshold': '60', 'addInfo': [], 'chainPartName': 'j60_bmedium', 'recoAlg': 'a4'}], 'topo': [], 'chainCounter': 14, 'groups': ['RATE:MultiJet', 'BW:Jets'], 'signature': 'Jet', 'test': '', 'L1item': 'L1_J100', 'chainName': 'j175_bmedium_j60_bmedium'}
-        ]
-    return [generateHLTChainDef(fc,
-                                use_atlas_config=use_atlas_config,
-                                debug=debug) for fc in from_central]
-
-
-def run_from_dict_file(fn):
-    """Function to run jetdef from a text file containing a single dict"""
-    
-    d = eval(open(fn).read())
-    print d
-    return generateHLTChainDef(d, debug=True)
-
+    will produce useful debug information in /tmp/<usename>.
+ """
 
 if __name__ == '__main__':
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "h", ["help"])
+    except getopt.GetoptError as err:
+        # print help information and exit:
+        print str(err) # will print something like "option -a not recognized"
+        usage()
+        sys.exit(2)
+
+    verbose = False
+    for o, a in opts:
+        if o in ("-h", "--help"):
+            usage()
+            sys.exit()
+        else:
+            assert False, "unhandled option"
+
     # chain_defs = run_test()
+    from test_functions import run_strawman_test
     chain_defs = run_strawman_test()
     for c in chain_defs:
         print '\n-----------------------\n'
         print c
 
     print 'done'
+    
