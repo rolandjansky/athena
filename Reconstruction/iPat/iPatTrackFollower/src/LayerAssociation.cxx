@@ -13,26 +13,11 @@
 
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include <assert.h>
-#ifdef HAVE_NEW_IOSTREAMS
-  #include <iomanip>
-  #include <iostream>
-#else
-  #include <iomanip.h>
-  #include <iostream.h>
-#endif
-#include <math.h>
+#include <cmath>
+#include <iomanip>
+#include <iostream>
 #include "iPatTrackFollower/LayerAssociation.h"
 
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< PRIVATE MEMBER FUNCTION DEFINITIONS                            >>>>>>
 //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
 double
@@ -42,10 +27,10 @@ LayerAssociation::closest_approach (LayerAssociation* reference_hit) const
     double closest_approach;
     if (reference_hit == 0)
     {
-	closest_approach = fabs(m_phi_offset) - m_tolerance - 0.5*m_cluster->width().phiR();
+	closest_approach = std::abs(m_phi_offset) - m_tolerance - 0.5*m_cluster->width().phiR();
 	if (m_is_pixel)
 	{
-	    double eta_approach	= m_eta_scale*(fabs(m_eta_offset) - m_tolerance -
+	    double eta_approach	= m_eta_scale*(std::abs(m_eta_offset) - m_tolerance -
 					       0.5*m_cluster->width().z());
 	    // add components when same side of perimeter, otherwise take outside component
 	    if (closest_approach*eta_approach > 0.)
@@ -64,16 +49,16 @@ LayerAssociation::closest_approach (LayerAssociation* reference_hit) const
 	double offset = m_phi_offset - reference_hit->m_phi_offset;
 	if (!m_is_pixel && reference_hit->m_eta_offset != 0.)
 	    offset += reference_hit->m_phi_offset *
-		      fabs(m_eta_offset - reference_hit->m_eta_offset);
+		      std::abs(m_eta_offset - reference_hit->m_eta_offset);
 
 	// demand cluster overlap within some tolerance
-	closest_approach = fabs(offset) - m_tolerance - 0.5*m_cluster->width().phiR() -
+	closest_approach = std::abs(offset) - m_tolerance - 0.5*m_cluster->width().phiR() -
 			   0.5*reference_hit->m_cluster->width().phiR();
 	if (closest_approach > 0.) closest_approach = 99999.;
 	if (m_is_pixel)
 	{
 	    double eta_approach = m_eta_scale *
-				  (fabs(m_eta_offset - reference_hit->m_eta_offset) -
+				  (std::abs(m_eta_offset - reference_hit->m_eta_offset) -
 				   m_tolerance - 0.5*m_cluster->width().z() -
 				   0.5*reference_hit->m_cluster->width().z());
 	    if (eta_approach > 0.)

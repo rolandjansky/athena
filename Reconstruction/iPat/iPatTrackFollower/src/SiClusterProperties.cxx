@@ -22,9 +22,7 @@
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h"
 #include "InDetRIO_OnTrack/SCT_ClusterOnTrack.h"
 #include "StoreGate/StoreGateSvc.h"
-// #include "TrkEventPrimitives/ErrorMatrix.h"
 #include "TrkEventPrimitives/LocalParameters.h"
-// #include "TrkEventPrimitives/LocalPosition.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/PlaneSurface.h"
 #include "TrkSurfaces/Surface.h"
@@ -323,7 +321,7 @@ SiClusterProperties::endcapSCT_Properties (void)
     m_status	       	= broad_strip;
     double	error	= m_cluster->width().phiR()/m_sqrt12 *
 			  m_trackRadius/m_globalPosition.perp();
-    m_broadPhiError	= sqrt(error*error + 0.012*0.012);	//CLHEP::mm
+    m_broadPhiError	= std::sqrt(error*error + 0.012*0.012);	//CLHEP::mm
 } 
 
 void
@@ -371,7 +369,7 @@ SiClusterProperties::setProperties (const SiliconDetector*	detector,
     {
 	if (element.isPixel())
 	{
-	    m_trackCotTheta	= fabs(trackDirection.z()/trackDirection.perp());
+	    m_trackCotTheta	= std::abs(trackDirection.z()/trackDirection.perp());
 	    barrelPixelProperties();
 	    barrelPixelErrors();
 	}
