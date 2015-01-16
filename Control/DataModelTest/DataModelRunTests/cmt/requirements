@@ -123,11 +123,11 @@ apply_pattern athenarun_test \
    post_script="../test/post_check.sh xAODTestRead3"
 macro_append xAODTestRead3_test_dependencies " xAODTestTypelessRead_test "
 
-#document athenarun_launcher xAODTestReadARA_t -group=check \
-#    athenarun_exe="python" \
-#    athenarun_pre="'source ../cmt/setup.sh'" \
-#    athenarun_opt="../share/xAODTestReadARA_t.py" \
-#    athenarun_out="' >& xAODTestReadARA_t.log'" \
-#    athenarun_post="'../test/post_check.sh xAODTestReadARA_t '"
-#macro_append xAODTestReadARA_t_dependencies " xAODTestRead3_test "
+document athenarun_launcher xAODTestReadARA_t -group=check \
+    athenarun_exe="python" \
+    athenarun_pre="'source ../cmt/setup.sh'" \
+    athenarun_opt="../share/xAODTestReadARA_t.py" \
+    athenarun_out="' >& xAODTestReadARA_t.log'" \
+    athenarun_post="'../test/post_check.sh xAODTestReadARA_t '"
+macro_append xAODTestReadARA_t_dependencies " xAODTestRead3_test "
 
