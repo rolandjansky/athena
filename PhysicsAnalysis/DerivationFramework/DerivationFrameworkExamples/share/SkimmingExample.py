@@ -42,7 +42,6 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("TEST1Ker
 streamName = derivationFlags.WriteDAOD_TEST1Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_TEST1Stream )
 TEST1Stream = MSMgr.NewPoolRootStream( streamName, fileName )
-TEST1Stream.AcceptAlgs(["TEST1Kernel"])
 # Only events that pass the filters listed below are written out.
 # Name must match that of the kernel above
 # AcceptAlgs  = logical OR of filters

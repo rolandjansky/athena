@@ -1,4 +1,0 @@
-from DerivationFrameworkExamples.AugmentationTools import NTUPAugmentationToolExample
-augmentationTool = NTUPAugmentationToolExample()
-ToolSvc += augmentationTool
-topSequence.DerivationFramework__DerivationKernel.AugmentationTools = [augmentationTool]

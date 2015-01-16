@@ -32,18 +32,19 @@ TEST4Stream.AcceptAlgs(["TEST4Kernel"])
 #====================================================================
 # CONTENT LIST  
 #====================================================================
-# This might be the kind of set-up one would have for a muon/track based analysis
-TEST4Stream.AddItem("xAOD::EventInfo_v1#*")
-TEST4Stream.AddItem("xAOD::EventAuxInfo_v1#*")
-TEST4Stream.AddItem("xAOD::ElectronContainer_v1#*")
-TEST4Stream.AddItem("xAOD::ElectronAuxContainer_v1#ElectronCollectionAux.-")
-TEST4Stream.AddItem("xAOD::MuonContainer_v1#*")
-TEST4Stream.AddItem("xAOD::MuonAuxContainer_v1#*")
-TEST4Stream.AddItem("xAOD::PhotonContainer_v1#*")
-TEST4Stream.AddItem("xAOD::PhotonAuxContainer_v1#PhotonCollectionAux.-")
-TEST4Stream.AddItem("xAOD::JetContainer_v1#AntiKt4LCTopoJets")
-TEST4Stream.AddItem("xAOD::JetAuxContainer_v1#AntiKt4LCTopoJetsAux.-")
-TEST4Stream.AddItem("xAOD::TrackParticleContainer_v1#*")
-TEST4Stream.AddItem("xAOD::TrackParticleAuxContainer_v1#*")
-TEST4Stream.AddItem("xAOD::VertexContainer_v1#PrimaryVerticesAux")
-TEST4Stream.AddItem("xAOD::VertexAuxContainer_v1#PrimaryVerticesAux")
+# This might be the kind of set-up one would have for a muon based analysis
+from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
+TEST4SlimmingHelper = SlimmingHelper("TEST4SlimmingHelper")
+TEST4SlimmingHelper.SmartCollections = ["ElectronCollection",
+					"PhotonCollection",
+					"Muons",
+					"TauRecContainer",
+					"MET_RefFinal",
+					"AntiKt4LCTopoJets",
+					"BTagging_AntiKt4LCTopo",
+					"InDetTrackParticles",
+					"PrimaryVertices" ]
+#TEST4SlimmingHelper.ExtraVariables = ["PhotonCollection.weta2.f1.phi.weta1.emaxs1"]
+#TEST4SlimmingHelper.AllVariables = ["Muons"]
+#TEST4SlimmingHelper.AppendToDictionary = {'SomeNewMuons': 'xAOD::MuonContainer_v1'} 
+TEST4SlimmingHelper.AppendContentToStream(TEST4Stream)

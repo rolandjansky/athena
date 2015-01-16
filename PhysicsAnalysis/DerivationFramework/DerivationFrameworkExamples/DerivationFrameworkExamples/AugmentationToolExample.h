@@ -3,11 +3,11 @@
 */
 
 ///////////////////////////////////////////////////////////////////
-// NTUPAugmentationExample.h, (c) ATLAS Detector software
+// AugmentationExample.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#ifndef DERIVATIONFRAMEWORK_NTUPAUGMENTATIONTOOLEXAMPLE_H
-#define DERIVATIONFRAMEWORK_NTUPAUGMENTATIONTOOLEXAMPLE_H
+#ifndef DERIVATIONFRAMEWORK_AUGMENTATIONTOOLEXAMPLE_H
+#define DERIVATIONFRAMEWORK_AUGMENTATIONTOOLEXAMPLE_H
 
 #include <string>
 
@@ -16,11 +16,11 @@
 
 namespace DerivationFramework {
 
-  class NTUPAugmentationToolExample : public AthAlgTool, public IAugmentationTool {
+  class AugmentationToolExample : public AthAlgTool, public IAugmentationTool {
     public: 
-      NTUPAugmentationToolExample(const std::string& t, const std::string& n, const IInterface* p);
+      AugmentationToolExample(const std::string& t, const std::string& n, const IInterface* p);
       virtual StatusCode addBranches() const;
   }; 
 }
 
-#endif // DERIVATIONFRAMEWORK_NTUPAUGMENTATIONTOOLEXAMPLE_H
+#endif // DERIVATIONFRAMEWORK_AUGMENTATIONTOOLEXAMPLE_H
