@@ -1,4 +1,4 @@
-// $Id: RecEmTauRoI.cxx 636108 2014-12-15 21:46:22Z watsona $
+// $Id: RecEmTauRoI.cxx 639958 2015-01-16 14:30:44Z watsona $
 /***************************************************************************
                         RecEmTauRoI.cxx  -  description
                            -------------------
@@ -24,6 +24,7 @@
 #include "TrigConfL1Data/TriggerThreshold.h"
 #include "TrigConfL1Data/TriggerThresholdValue.h"
 #include "TrigConfL1Data/ClusterThresholdValue.h"
+#include "TrigConfL1Data/CaloInfo.h"
 
 // Local include(s):
 #include "TrigT1Interfaces/RecEmTauRoI.h"
@@ -158,14 +159,16 @@ namespace LVL1 {
             TriggerThresholdValue* ttv = (*it)->triggerThresholdValue( ieta,iphi );
             ClusterThresholdValue* ctv = dynamic_cast< ClusterThresholdValue* >( ttv );
 	    if (ctv) {
-               unsigned int etCut  = ctv->thresholdValueCount();
-               unsigned int isolMask = ctv->isolationMask();
+               float scale = ctv->caloInfo().globalEmScale();
+               unsigned int etCut     = ctv->ptcut();
+               unsigned int threshold = etCut*scale;
+               unsigned int isolMask  = ctv->isolationMask();
                
                bool isolationPassed = true;
                for (unsigned int bit = 0; bit < TrigT1CaloDefs::numOfIsolationBits; ++bit) 
                   if ( (isolMask & (1<<bit)) && !(isolWord & (1<<bit)) ) isolationPassed = false;
                
-               if ( et() > etCut && isolationPassed) { 
+               if ( et() > threshold && isolationPassed ) { 
                  int num = ( *it )->thresholdNumber();
                  m_triggerThresholdValue.insert(std::map<int, unsigned int>::value_type(num,etCut));
                  m_isolationMask.insert(std::map<int, unsigned int>::value_type(num,isolMask)); 
