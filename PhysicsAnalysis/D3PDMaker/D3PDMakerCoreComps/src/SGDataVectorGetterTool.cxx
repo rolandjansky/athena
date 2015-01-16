@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: SGDataVectorGetterTool.cxx 628034 2014-11-12 22:18:35Z ssnyder $
+// $Id: SGDataVectorGetterTool.cxx 640104 2015-01-16 19:37:05Z ssnyder $
 /**
  * @file D3PDMakerCoreComps/src/SGDataVectorGetterTool.h
  * @author scott snyder <snyder@bnl.gov>
@@ -123,7 +123,7 @@ StatusCode SGDataVectorGetterTool::reset (bool allowMissing /*= false*/)
   if (p) {
     SG::AuxVectorBase* auxbase =
       m_info->base (const_cast<void*> (p));
-    if (auxbase && !auxbase->getConstStore()) {
+    if (auxbase && auxbase->trackIndices() && !auxbase->getConstStore()) {
       // Try to retrieve a corresponding aux store.
       const SG::IConstAuxStore* store =
         evtStore()->tryConstRetrieve<SG::IConstAuxStore> (m_resolver.key() + "Aux.");
