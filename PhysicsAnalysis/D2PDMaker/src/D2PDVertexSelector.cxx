@@ -59,7 +59,11 @@ D2PDVertexSelector::D2PDVertexSelector(const std::string& name,
   AthFilterAlgorithm ( name,     pSvcLocator ),
   m_kinSelectorTool( "KinematicSelector/VertexKinematicSelectorForVertexSelector", this ),
   m_vxcand(0),
-  m_trackAtVertex(0)
+  m_trackAtVertex(0),
+  m_Passed(false),
+  m_Ntrk(0),
+  m_NtrkPassed(0),
+  m_NtrkNotPassed(0)
 {
   declareProperty("kinematicSelectorTool",  m_kinSelectorTool, "Kinematic selection tool for the tracks" );
 

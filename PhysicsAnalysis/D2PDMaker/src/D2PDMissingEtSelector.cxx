@@ -62,7 +62,8 @@ using CLHEP::HepLorentzVector;
 D2PDMissingEtSelector::D2PDMissingEtSelector(const std::string& name,
                                              ISvcLocator* pSvcLocator) :
   AthFilterAlgorithm ( name,     pSvcLocator ),
-  m_kinSelectorTool( "KinematicSelector/MissingEtKinematicSelectorForMissingEtSelector", this )
+  m_kinSelectorTool( "KinematicSelector/MissingEtKinematicSelectorForMissingEtSelector", this ),
+  m_filterTool(nullptr)
 {
   declareProperty("kinematicSelectorTool",    m_kinSelectorTool, "Kinematic selection tool" );
 
