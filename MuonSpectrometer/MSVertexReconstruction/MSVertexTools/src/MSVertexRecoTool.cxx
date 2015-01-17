@@ -225,13 +225,15 @@ namespace Muon {
     for(unsigned int i=0; i<BarrelClusters.size(); ++i) {
       if(BarrelClusters[i].ntrks < 3) continue;
       ATH_MSG_DEBUG( "Attempting to build vertex from " << BarrelClusters[i].ntrks << " tracklets in the barrel" );
-      MSVertex* barvertex = MSVxFinder(BarrelClusters[i].tracks);
+      MSVertex* barvertex=0;
+      MSVxFinder(BarrelClusters[i].tracks, barvertex);
       if(!barvertex) continue;
       if(barvertex->getChi2Probability() > 0.05) {
 	HitCounter(barvertex);
 	if(barvertex->getNMDT() > 250 && (barvertex->getNRPC()+barvertex->getNTGC()) > 200) {
-	  ATH_MSG_DEBUG( "Vertex found in the barrel with n_trk = " << barvertex->getNTracks() << " located at (eta,phi) = (" 
-			 << barvertex->getPosition().eta() << ", " << barvertex->getPosition().phi() << ")" );	  
+	  ATH_MSG_DEBUG( "Vertex found in the barrel with n_trk = " << barvertex->getNTracks() 
+			 << " located at (eta,phi) = (" << barvertex->getPosition().eta() 
+			 << ", " << barvertex->getPosition().phi() << ")" );	  
 	  if(BarrelClusters[i].isSystematic) barvertex->setAuthor(3);
 	  vertices.push_back(barvertex);
 	}//end minimum good vertex criteria
@@ -447,7 +449,7 @@ namespace Muon {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-  MSVertex* MSVertexRecoTool::MSVxFinder(std::vector<Tracklet>& tracklets) { 
+  void MSVertexRecoTool::MSVxFinder(std::vector<Tracklet>& tracklets, MSVertex*& vtx) {
 
     int nTrkToVertex(0);
     float NominalAngle(m_TrackPhiAngle),MaxOpenAngle(0.20+m_TrackPhiAngle);
@@ -580,8 +582,8 @@ namespace Muon {
     }//end loop on tracks
 
     //return if there are not enough tracklets
-    if(nTrkToVertex < 3) return NULL;
-      
+    if(nTrkToVertex < 3) return;
+    
     //calculate the tracklet positions on each surface
     bool boundaryCheck = true;
     std::vector<float> ExtrapZ[MAXPLANES], dlength[MAXPLANES];//extrapolated position & uncertainty
@@ -775,7 +777,7 @@ namespace Muon {
 
     //return an empty vertex in case none were reconstructed
     if(m_vertices.size() == 0) {
-      return NULL;
+      return;
     }
 
     //loop on the vertex candidates and select the best based on max n(tracks) and max chi^2 probability
@@ -786,7 +788,7 @@ namespace Muon {
       if(m_vertices[k]->getNTracks() == m_vertices[bestVx]->getNTracks() && m_vertices[k]->getChi2Probability() < m_vertices[bestVx]->getChi2Probability()) continue;
       bestVx = k;
     }
-    MSVertex* myVertex = m_vertices[bestVx]->clone();
+    vtx = m_vertices[bestVx]->clone();
     //cleanup
     for(std::vector<MSVertex*>::iterator it=m_vertices.begin(); it!=m_vertices.end(); ++it) {
       delete (*it);
@@ -794,7 +796,7 @@ namespace Muon {
     }
     m_vertices.clear();
 
-    return myVertex;
+    return;
   }
 
 

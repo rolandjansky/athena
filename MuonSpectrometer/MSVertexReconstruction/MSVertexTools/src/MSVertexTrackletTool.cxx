@@ -112,14 +112,7 @@ namespace Muon {
     std::vector<std::vector<Muon::MdtPrepData*> > SortedMdt;
     nMDT = SortMDThits(SortedMdt);   
 
-    // SortMDThits returns -1 if sorting fails
-    if(nMDT < 0)
-      return StatusCode::FAILURE;
-    
-    if (msgLvl(MSG::DEBUG)) 
-      msg(MSG::DEBUG) << nMDT << " MDT hits are selected and sorted" << endreq;
-
-    if (!nMDT) {
+    if (nMDT<=0) {
 
       //record TrackParticle container in StoreGate
       xAOD::TrackParticleContainer* container = new xAOD::TrackParticleContainer();
@@ -138,6 +131,9 @@ namespace Muon {
       return StatusCode::SUCCESS;
     }
 
+    if (msgLvl(MSG::DEBUG)) 
+      msg(MSG::DEBUG) << nMDT << " MDT hits are selected and sorted" << endreq;
+
     //loop over the MDT hits and find segments
     //select the tube combinations to be fit
     /*Select hits in at least 2 layers and require hits be ordered by increasing tube number (see diagrams below).      
@@ -147,7 +143,7 @@ namespace Muon {
      Barrel selection criteria: |z_mdt1 - z_mdt2| < 100 mm, |z_mdt1 - z_mdt3| < 160 mm
      Endcap selection criteria: |r_mdt1 - r_mdt2| < 100 mm, |r_mdt1 - r_mdt3| < 160 mm
     */
-
+    static double errorCutOff = 0.001;
     std::vector<TrackletSegment> segs[6][2][16];//single ML segment array (indicies [station type][ML][sector])
     std::vector<std::vector<Muon::MdtPrepData*> >::const_iterator ChamberItr = SortedMdt.begin();
     for(; ChamberItr != SortedMdt.end(); ++ChamberItr) {      
@@ -166,10 +162,22 @@ namespace Muon {
       int maxLayer = m_mdtIdHelper->tubeLayerMax((*mdt1)->identify());
       int ML = m_mdtIdHelper->multilayer((*mdt1)->identify()); 
       for(; mdt1 != mdtEnd; ++mdt1) {
+        if( Amg::error( (*mdt1)->localCovariance(),Trk::locR) < errorCutOff ){
+          ATH_MSG_WARNING("  " << m_mdtIdHelper->print_to_string((*mdt1)->identify()) << " with too small error " 
+                          << Amg::error( (*mdt1)->localCovariance(),Trk::locR) );
+          continue;
+        }
 	int tl1 = m_mdtIdHelper->tubeLayer((*mdt1)->identify());
 	if(tl1 == maxLayer) break;//require hits in at least 2 layers
 	std::vector<Muon::MdtPrepData*>::const_iterator mdt2 = (mdt1+1);
 	for(; mdt2 != mdtEnd; ++mdt2) {
+
+          if( Amg::error( (*mdt2)->localCovariance(),Trk::locR) < errorCutOff ){
+            ATH_MSG_WARNING("  " << m_mdtIdHelper->print_to_string((*mdt2)->identify()) << " with too small error " 
+                            << Amg::error( (*mdt2)->localCovariance(),Trk::locR) );
+            continue;
+          }
+
 	  //select the correct combinations
 	  int tl2 = m_mdtIdHelper->tubeLayer((*mdt2)->identify());	  
 	  if(mdt1 == mdt2 || (tl2 - tl1) > 1 || (tl2 - tl1) < 0 ) continue; 
@@ -184,6 +192,13 @@ namespace Muon {
 	  //find the third hit
 	  std::vector<Muon::MdtPrepData*>::const_iterator mdt3 = (mdt2+1);
 	  for(; mdt3 != mdtEnd; ++mdt3) {
+
+            if( Amg::error( (*mdt3)->localCovariance(),Trk::locR) < errorCutOff ){
+              ATH_MSG_WARNING("  " << m_mdtIdHelper->print_to_string((*mdt3)->identify()) << " with too small error " 
+                              << Amg::error( (*mdt3)->localCovariance(),Trk::locR) );
+              continue;
+            }
+
 	    //reject the bad tube combinations
 	    int tl3 = m_mdtIdHelper->tubeLayer((*mdt3)->identify());	    
 	    if(mdt1 == mdt3 || mdt2 == mdt3) continue;
@@ -482,7 +497,8 @@ namespace Muon {
         Identifier id2 = SortedMdt.at(j).front()->identify();
         
         if(SortMDT(id1, id2)) {
-          ATH_MSG_ERROR("Failed to correctly sort MDT hits.");
+          //ATH_MSG_ERROR("Failed to correctly sort MDT hits.");
+	  ATH_MSG_DEBUG("Failed to correctly sort MDT hits.");
           return -1;
         }
       }
@@ -873,7 +889,7 @@ namespace Muon {
 		  break;
 		}
 	      }
-	      if(isNewHit) mdts.push_back( *mit );
+	      if(isNewHit && Amg::error( (*mit)->localCovariance(),Trk::locR) > 0.001 ) mdts.push_back( *mit );
 	    }
 	  }//end segsToCombine loop
 
