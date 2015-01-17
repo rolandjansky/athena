@@ -39,10 +39,8 @@
 #include <math.h>
 #include <functional>
 
-#include "AthenaKernel/Units.h"
-
 using namespace Analysis;
-using Athena::Units::GeV;
+using CLHEP::GeV;
 
 
 //===========================================================================
@@ -115,17 +113,20 @@ CheckD2PD::~CheckD2PD() {}
 
 StatusCode CheckD2PD::initialize() 
 {
-  msg() << MSG::INFO
+
+  MsgStream mLog( messageService(), name() );
+
+  mLog << MSG::INFO
        << "Initializing CheckD2PD"
-       << endmsg;
+       << endreq;
 
   // StoreGate for EventStore
   StatusCode sc = service("StoreGateSvc", m_storeGate);
   if (sc.isFailure()) 
     {
-      msg() << MSG::ERROR
+      mLog << MSG::ERROR
            << "Unable to retrieve pointer to StoreGateSvc"
-           << endmsg;
+           << endreq;
       return sc;
     }
 
@@ -133,9 +134,9 @@ StatusCode CheckD2PD::initialize()
   sc = service("THistSvc", m_thistSvc);
   if (sc.isFailure())
     {
-      msg() << MSG::ERROR
+      mLog << MSG::ERROR
            << "Unable to retrieve pointer to THistSvc"
-           << endmsg;
+           << endreq;
       return sc;
     }
 
@@ -149,7 +150,7 @@ StatusCode CheckD2PD::initialize()
   sc = m_thistSvc->regHist("/AANT/d2pd/dpd_composite1_number", m_dpd_composite1_number);
   if (sc.isFailure())
     {
-      msg() << MSG::ERROR << "ROOT Hist m_dpd_composite1_number registration failed" << endmsg;
+      mLog << MSG::ERROR << "ROOT Hist m_dpd_composite1_number registration failed" << endreq;
       return sc;
     }
   
@@ -157,7 +158,7 @@ StatusCode CheckD2PD::initialize()
   sc = m_thistSvc->regHist("/AANT/d2pd/dpd_composite1_mass", m_dpd_composite1_mass);
   if (sc.isFailure())
     {
-      msg() << MSG::ERROR << "ROOT Hist m_dpd_composite1_mass registration failed" << endmsg;
+      mLog << MSG::ERROR << "ROOT Hist m_dpd_composite1_mass registration failed" << endreq;
       return sc;
     }
   
@@ -165,7 +166,7 @@ StatusCode CheckD2PD::initialize()
   sc = m_thistSvc->regHist("/AANT/d2pd/dpd_composite1_pt", m_dpd_composite1_pt);
   if (sc.isFailure())
     {
-      msg() << MSG::ERROR << "ROOT Hist m_dpd_composite1_pt registration failed" << endmsg;
+      mLog << MSG::ERROR << "ROOT Hist m_dpd_composite1_pt registration failed" << endreq;
       return sc;
     }
   
@@ -173,7 +174,7 @@ StatusCode CheckD2PD::initialize()
   sc = m_thistSvc->regHist("/AANT/d2pd/dpd_composite1_eta", m_dpd_composite1_eta);
   if (sc.isFailure())
     {
-      msg() << MSG::ERROR << "ROOT Hist m_dpd_composite1_eta registration failed" << endmsg;
+      mLog << MSG::ERROR << "ROOT Hist m_dpd_composite1_eta registration failed" << endreq;
       return sc;
     }
 
@@ -182,7 +183,7 @@ StatusCode CheckD2PD::initialize()
   sc = m_thistSvc->regHist("/AANT/d2pd/dpd_composite1_nDaughter", m_dpd_composite1_nDaughter);
   if (sc.isFailure())
     {
-      msg() << MSG::ERROR << "ROOT Hist m_dpd_composite1_nDaughter registration failed" << endmsg;
+      mLog << MSG::ERROR << "ROOT Hist m_dpd_composite1_nDaughter registration failed" << endreq;
       return sc;
     }
   
@@ -190,7 +191,7 @@ StatusCode CheckD2PD::initialize()
   sc = m_thistSvc->regHist("/AANT/d2pd/dpd_composite1_daughters_pt", m_dpd_composite1_daughters_pt);
   if (sc.isFailure())
     {
-      msg() << MSG::ERROR << "ROOT Hist m_dpd_composite1_daughters_pt registration failed" << endmsg;
+      mLog << MSG::ERROR << "ROOT Hist m_dpd_composite1_daughters_pt registration failed" << endreq;
       return sc;
     }
   
@@ -198,7 +199,7 @@ StatusCode CheckD2PD::initialize()
   sc = m_thistSvc->regHist("/AANT/d2pd/dpd_composite1_daughters_eta", m_dpd_composite1_daughters_eta);
   if (sc.isFailure())
     {
-      msg() << MSG::ERROR << "ROOT Hist m_dpd_composite1_daughters_eta registration failed" << endmsg;
+      mLog << MSG::ERROR << "ROOT Hist m_dpd_composite1_daughters_eta registration failed" << endreq;
       return sc;
     }
   
@@ -209,7 +210,7 @@ StatusCode CheckD2PD::initialize()
   sc = m_thistSvc->regHist("/AANT/d2pd/dpd_composite2_number", m_dpd_composite2_number);
   if (sc.isFailure())
     {
-      msg() << MSG::ERROR << "ROOT Hist m_dpd_composite2_number registration failed" << endmsg;
+      mLog << MSG::ERROR << "ROOT Hist m_dpd_composite2_number registration failed" << endreq;
       return sc;
     }
   
@@ -217,7 +218,7 @@ StatusCode CheckD2PD::initialize()
   sc = m_thistSvc->regHist("/AANT/d2pd/dpd_composite2_mass", m_dpd_composite2_mass);
   if (sc.isFailure())
     {
-      msg() << MSG::ERROR << "ROOT Hist m_dpd_composite2_mass registration failed" << endmsg;
+      mLog << MSG::ERROR << "ROOT Hist m_dpd_composite2_mass registration failed" << endreq;
       return sc;
     }
   
@@ -225,7 +226,7 @@ StatusCode CheckD2PD::initialize()
   sc = m_thistSvc->regHist("/AANT/d2pd/dpd_composite2_pt", m_dpd_composite2_pt);
   if (sc.isFailure())
     {
-      msg() << MSG::ERROR << "ROOT Hist m_dpd_composite2_pt registration failed" << endmsg;
+      mLog << MSG::ERROR << "ROOT Hist m_dpd_composite2_pt registration failed" << endreq;
       return sc;
     }
   
@@ -233,7 +234,7 @@ StatusCode CheckD2PD::initialize()
   sc = m_thistSvc->regHist("/AANT/d2pd/dpd_composite2_eta", m_dpd_composite2_eta);
   if (sc.isFailure())
     {
-      msg() << MSG::ERROR << "ROOT Hist m_dpd_composite2_eta registration failed" << endmsg;
+      mLog << MSG::ERROR << "ROOT Hist m_dpd_composite2_eta registration failed" << endreq;
       return sc;
     }
   
@@ -244,7 +245,7 @@ StatusCode CheckD2PD::initialize()
   sc = m_thistSvc->regHist("/AANT/d2pd/dpd_composite3_number", m_dpd_composite3_number);
   if (sc.isFailure())
     {
-      msg() << MSG::ERROR << "ROOT Hist m_dpd_composite3_number registration failed" << endmsg;
+      mLog << MSG::ERROR << "ROOT Hist m_dpd_composite3_number registration failed" << endreq;
       return sc;
     }
   
@@ -252,7 +253,7 @@ StatusCode CheckD2PD::initialize()
   sc = m_thistSvc->regHist("/AANT/d2pd/dpd_composite3_mass", m_dpd_composite3_mass);
   if (sc.isFailure())
     {
-      msg() << MSG::ERROR << "ROOT Hist m_dpd_composite3_mass registration failed" << endmsg;
+      mLog << MSG::ERROR << "ROOT Hist m_dpd_composite3_mass registration failed" << endreq;
       return sc;
     }
   
@@ -260,7 +261,7 @@ StatusCode CheckD2PD::initialize()
   sc = m_thistSvc->regHist("/AANT/d2pd/dpd_composite3_pt", m_dpd_composite3_pt);
   if (sc.isFailure())
     {
-      msg() << MSG::ERROR << "ROOT Hist m_dpd_composite3_pt registration failed" << endmsg;
+      mLog << MSG::ERROR << "ROOT Hist m_dpd_composite3_pt registration failed" << endreq;
       return sc;
     }
   
@@ -268,7 +269,7 @@ StatusCode CheckD2PD::initialize()
   sc = m_thistSvc->regHist("/AANT/d2pd/dpd_composite3_eta", m_dpd_composite3_eta);
   if (sc.isFailure())
     {
-      msg() << MSG::ERROR << "ROOT Hist m_dpd_composite3_eta registration failed" << endmsg;
+      mLog << MSG::ERROR << "ROOT Hist m_dpd_composite3_eta registration failed" << endreq;
       return sc;
     }
   
@@ -279,7 +280,7 @@ StatusCode CheckD2PD::initialize()
   sc = m_thistSvc->regHist("/AANT/d2pd/dpd_composite4_number", m_dpd_composite4_number);
   if (sc.isFailure())
     {
-      msg() << MSG::ERROR << "ROOT Hist m_dpd_composite4_number registration failed" << endmsg;
+      mLog << MSG::ERROR << "ROOT Hist m_dpd_composite4_number registration failed" << endreq;
       return sc;
     }
   
@@ -287,7 +288,7 @@ StatusCode CheckD2PD::initialize()
   sc = m_thistSvc->regHist("/AANT/d2pd/dpd_composite4_mass", m_dpd_composite4_mass);
   if (sc.isFailure())
     {
-      msg() << MSG::ERROR << "ROOT Hist m_dpd_composite4_mass registration failed" << endmsg;
+      mLog << MSG::ERROR << "ROOT Hist m_dpd_composite4_mass registration failed" << endreq;
       return sc;
     }
   
@@ -295,7 +296,7 @@ StatusCode CheckD2PD::initialize()
   sc = m_thistSvc->regHist("/AANT/d2pd/dpd_composite4_pt", m_dpd_composite4_pt);
   if (sc.isFailure())
     {
-      msg() << MSG::ERROR << "ROOT Hist m_dpd_composite4_pt registration failed" << endmsg;
+      mLog << MSG::ERROR << "ROOT Hist m_dpd_composite4_pt registration failed" << endreq;
       return sc;
     }
   
@@ -303,7 +304,7 @@ StatusCode CheckD2PD::initialize()
   sc = m_thistSvc->regHist("/AANT/d2pd/dpd_composite4_eta", m_dpd_composite4_eta);
   if (sc.isFailure())
     {
-      msg() << MSG::ERROR << "ROOT Hist m_dpd_composite4_eta registration failed" << endmsg;
+      mLog << MSG::ERROR << "ROOT Hist m_dpd_composite4_eta registration failed" << endreq;
       return sc;
     }
   
@@ -314,7 +315,7 @@ StatusCode CheckD2PD::initialize()
   sc = m_thistSvc->regHist("/AANT/d2pd/dpd_composite5_number", m_dpd_composite5_number);
   if (sc.isFailure())
     {
-      msg() << MSG::ERROR << "ROOT Hist m_dpd_composite5_number registration failed" << endmsg;
+      mLog << MSG::ERROR << "ROOT Hist m_dpd_composite5_number registration failed" << endreq;
       return sc;
     }
   
@@ -322,7 +323,7 @@ StatusCode CheckD2PD::initialize()
   sc = m_thistSvc->regHist("/AANT/d2pd/dpd_composite5_mass", m_dpd_composite5_mass);
   if (sc.isFailure())
     {
-      msg() << MSG::ERROR << "ROOT Hist m_dpd_composite5_mass registration failed" << endmsg;
+      mLog << MSG::ERROR << "ROOT Hist m_dpd_composite5_mass registration failed" << endreq;
       return sc;
     }
   
@@ -330,7 +331,7 @@ StatusCode CheckD2PD::initialize()
   sc = m_thistSvc->regHist("/AANT/d2pd/dpd_composite5_pt", m_dpd_composite5_pt);
   if (sc.isFailure())
     {
-      msg() << MSG::ERROR << "ROOT Hist m_dpd_composite5_pt registration failed" << endmsg;
+      mLog << MSG::ERROR << "ROOT Hist m_dpd_composite5_pt registration failed" << endreq;
       return sc;
     }
   
@@ -338,7 +339,7 @@ StatusCode CheckD2PD::initialize()
   sc = m_thistSvc->regHist("/AANT/d2pd/dpd_composite5_eta", m_dpd_composite5_eta);
   if (sc.isFailure())
     {
-      msg() << MSG::ERROR << "ROOT Hist m_dpd_composite5_eta registration failed" << endmsg;
+      mLog << MSG::ERROR << "ROOT Hist m_dpd_composite5_eta registration failed" << endreq;
       return sc;
     }
   
@@ -361,6 +362,8 @@ StatusCode CheckD2PD::finalize()
   // Declare the simple StatusCode
   //-----------------------------------------
   StatusCode sc = StatusCode::SUCCESS ;
+
+  MsgStream mLog( messageService(), name() );
   
   return sc;
   
@@ -375,7 +378,9 @@ StatusCode CheckD2PD::finalize()
 
 StatusCode CheckD2PD::execute()
 {
-  msg() << MSG::DEBUG << "execute()" << endmsg;
+  MsgStream mLog( messageService(), name() );
+
+  mLog << MSG::DEBUG << "execute()" << endreq;
 
   StatusCode sc = StatusCode::SUCCESS;
 
@@ -383,7 +388,7 @@ StatusCode CheckD2PD::execute()
   sc = checkD2PD();
   if ( sc.isFailure() )
     {
-      msg() << MSG::ERROR << "The check of the D2PD failed" << endmsg;
+      mLog << MSG::ERROR << "The check of the D2PD failed" << endreq;
       sc = StatusCode::SUCCESS;
     }
 
@@ -400,7 +405,9 @@ StatusCode CheckD2PD::execute()
 
 StatusCode CheckD2PD::checkD2PD()
 {
-  msg() << MSG::DEBUG << "checkD2PD()" << endmsg;
+  MsgStream mLog( messageService(), name() );
+
+  mLog << MSG::DEBUG << "checkD2PD()" << endreq;
 
   StatusCode sc = StatusCode::SUCCESS;
 
@@ -413,24 +420,24 @@ StatusCode CheckD2PD::checkD2PD()
   sc=m_storeGate->retrieve( compPartCont1, m_compPartCollName1 );
   if( sc.isFailure()  ||  !compPartCont1 )
     {
-      msg() << MSG::WARNING
+      mLog << MSG::WARNING
            << "No DPD Composite Particle Container 1 found"
-           << endmsg;
+           << endreq; 
       return sc;
     }  
-  msg() << MSG::DEBUG << "CompositeParticleContainer1 successfully retrieved! It has " << compPartCont1->size() << " entries." << endmsg;
+  mLog << MSG::DEBUG << "CompositeParticleContainer1 successfully retrieved! It has " << compPartCont1->size() << " entries." << endreq;
   
   if ( m_compPartCollName2 != "" )
     {
       sc=m_storeGate->retrieve( compPartCont2, m_compPartCollName2 );
       if( sc.isFailure()  ||  !compPartCont2 )
         {
-          msg() << MSG::WARNING
+          mLog << MSG::WARNING
                << "No DPD Composite Particle Container 2 found"
-               << endmsg;
+               << endreq; 
           return sc;
         }  
-      msg() << MSG::DEBUG << "CompositeParticleContainer2 successfully retrieved! It has " << compPartCont2->size() << " entries." << endmsg;
+      mLog << MSG::DEBUG << "CompositeParticleContainer2 successfully retrieved! It has " << compPartCont2->size() << " entries." << endreq;
     }
 
   if ( m_compPartCollName3 != "" )
@@ -438,12 +445,12 @@ StatusCode CheckD2PD::checkD2PD()
       sc=m_storeGate->retrieve( compPartCont3, m_compPartCollName3 );
       if( sc.isFailure()  ||  !compPartCont3 )
         {
-          msg() << MSG::WARNING
+          mLog << MSG::WARNING
                << "No DPD Composite Particle Container 3 found"
-               << endmsg;
+               << endreq; 
           return sc;
         }  
-      msg() << MSG::DEBUG << "CompositeParticleContainer3 successfully retrieved! It has " << compPartCont3->size() << " entries." << endmsg;
+      mLog << MSG::DEBUG << "CompositeParticleContainer3 successfully retrieved! It has " << compPartCont3->size() << " entries." << endreq;
     }
 
   if ( m_compPartCollName4 != "" )
@@ -451,12 +458,12 @@ StatusCode CheckD2PD::checkD2PD()
       sc=m_storeGate->retrieve( compPartCont4, m_compPartCollName4 );
       if( sc.isFailure()  ||  !compPartCont4 )
         {
-          msg() << MSG::WARNING
+          mLog << MSG::WARNING
                << "No DPD Composite Particle Container 4 found"
-               << endmsg;
+               << endreq; 
           return sc;
         }  
-      msg() << MSG::DEBUG << "CompositeParticleContainer4 successfully retrieved! It has " << compPartCont4->size() << " entries." << endmsg;
+      mLog << MSG::DEBUG << "CompositeParticleContainer4 successfully retrieved! It has " << compPartCont4->size() << " entries." << endreq;
     }
 
   if ( m_compPartCollName5 != "" )
@@ -464,12 +471,12 @@ StatusCode CheckD2PD::checkD2PD()
       sc=m_storeGate->retrieve( compPartCont5, m_compPartCollName5 );
       if( sc.isFailure()  ||  !compPartCont5 ) 
         {
-          msg() << MSG::WARNING
+          mLog << MSG::WARNING
                << "No DPD Composite Particle Container 5 found"
-               << endmsg;
+               << endreq; 
           return sc;
         }  
-      msg() << MSG::DEBUG << "CompositeParticleContainer5 successfully retrieved! It has " << compPartCont5->size() << " entries." << endmsg;
+      mLog << MSG::DEBUG << "CompositeParticleContainer5 successfully retrieved! It has " << compPartCont5->size() << " entries." << endreq;
     }
 
 

@@ -934,7 +934,7 @@ StatusCode D2PDPhotonSelector::processObject( const Analysis::Photon* photon,
       // Identification selection
       if ( isPassed && m_doPassID && m_passID >= 0 )
         {
-          isPassed = photon->passID( ((egammaPIDObs::egammaIDQuality)m_passID.value()) );
+          isPassed = photon->passID( ((egammaPID::egammaIDQuality)m_passID.value()) );
           if ( isPassed && m_printInternalCutflow ) { m_objCutFlow[m_idxPassID] += 1; }
         }
 
@@ -1304,10 +1304,9 @@ StatusCode D2PDPhotonSelector::processObject( const Analysis::Photon* photon,
                     {
                       if ( cluster && trackParticle->et() != 0.0 )
                         {
-                          const double clusEt = cluster->et();
-                          const double relcone = conePt / clusEt;
-                          isPassed = ( ( relcone <= m_relTrackPtIsoMax ) 
-                                       && ( m_relTrackPtIsoMin  <= relcone ) ); 
+                          double clusEt = cluster->et();
+                          isPassed = ( ( conePt/clusEt <= m_relTrackPtIsoMax ) 
+                                       && ( m_relTrackPtIsoMin  <= conePt/clusEt ) ); 
                         }
                       if ( isPassed && m_printInternalCutflow ) { m_objCutFlow[m_idxTrackPtIso] += 1; }
                     }
