@@ -18,6 +18,11 @@ const ISF::ISFParticle* VTrackInformation::GetISFParticle() const
   return 0;
 }
 
+bool VTrackInformation::GetReturnedToISF() const
+{
+  return false;
+}
+
 void VTrackInformation::SetParticle(const HepMC::GenParticle* /*p*/)
 {
   // you should not call this, perhaps throw an exception?
@@ -30,4 +35,9 @@ void VTrackInformation::SetISFParticle(const ISF::ISFParticle* /*p*/)
   // you should not call this, perhaps throw an exception?
   std::cerr<<"ERROR  VTrackInformation::SetISFParticle() not supported  "<<std::endl;
  
+}
+
+void VTrackInformation::SetReturnedToISF(bool)
+{
+  std::cerr<<"ERROR  VTrackInformation::SetReturnedToISF() not supported  "<<std::endl;
 }

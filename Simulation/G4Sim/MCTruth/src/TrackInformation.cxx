@@ -5,11 +5,11 @@
 #include "MCTruth/TrackInformation.h"
 #include "HepMC/GenEvent.h"
 
-TrackInformation::TrackInformation():regenerationNr(0),theParticle(0),theISFParticle(0)
+TrackInformation::TrackInformation():regenerationNr(0),theParticle(0),theISFParticle(0),returnedToISF(false)
 {
 }
 
-TrackInformation::TrackInformation(const HepMC::GenParticle *p,const ISF::ISFParticle* isp):regenerationNr(0),theParticle(p),theISFParticle(isp)
+TrackInformation::TrackInformation(const HepMC::GenParticle *p,const ISF::ISFParticle* isp):regenerationNr(0),theParticle(p),theISFParticle(isp),returnedToISF(false)
 {
 }
 
