@@ -56,6 +56,8 @@
 // Neutrino helper tools
 #include "SpecialUtils/NeutrinoUtils.h"
 
+#include "CxxUtils/make_unique.h"
+
 
 using CLHEP::HepLorentzVector;
 
@@ -68,7 +70,9 @@ D2PDLeptonNeutrinoCombiner::D2PDLeptonNeutrinoCombiner(const std::string& name,
   AthFilterAlgorithm ( name,     pSvcLocator ),
   m_kinSelectorTool( "KinematicSelector/KinematicSelectorForLeptonNeutrinoCombiner", this ),
   m_neutrinoKinSelectorTool( "KinematicSelector/NeutrinoKinematicSelectorForLeptonNeutrinoCombiner", this ),
-  m_missingEtKinSelectorTool( "KinematicSelector/MissingEtKinematicSelectorForLeptonNeutrinoCombiner", this )
+  m_missingEtKinSelectorTool( "KinematicSelector/MissingEtKinematicSelectorForLeptonNeutrinoCombiner", this ),
+  m_filterTool(nullptr),
+  m_tmpNeutrino(nullptr)
 {
   declareProperty("printSetup",              m_printSetup   = false, "Printing the setup if true" );
   declareProperty("printSummary",            m_printSummary = false, "Printing the summary if true" );
@@ -502,12 +506,11 @@ StatusCode D2PDLeptonNeutrinoCombiner::execute()
   // Create link container for the lepton input
   // if no link container was retreived
   //-----------------------------------------
-  bool mustDeleteLepLinkCont(false);
+  std::unique_ptr<INav4MomLinkContainer> tmpLinkContainer;
   if ( inLepContainer && !inLepLinkContainer )
     {
       // Create a new link container
-      INav4MomLinkContainer* tmpLinkContainer = new INav4MomLinkContainer;
-      mustDeleteLepLinkCont = true;
+      tmpLinkContainer = CxxUtils::make_unique<INav4MomLinkContainer>();
 
       // Loop over the lepton input container
       for ( unsigned int i=0; i < inLepContainer->size(); ++i )
@@ -515,7 +518,7 @@ StatusCode D2PDLeptonNeutrinoCombiner::execute()
           INav4MomLink iNav4MomLink( *inLepContainer, i );
           tmpLinkContainer->push_back( iNav4MomLink );
         } // End: for loop over input lepton container
-      inLepLinkContainer = tmpLinkContainer ;
+      inLepLinkContainer = tmpLinkContainer.get() ;
       tmpLinkContainer = 0;
     } // End: if ( inLepContainer && !inLepLinkContainer )
 
@@ -706,24 +709,18 @@ StatusCode D2PDLeptonNeutrinoCombiner::execute()
                                       const INav4MomLink neutrinoLink( *outNeutrinoContainer, (outNeutrinoContainer->size()-1) );
                                       compPart->add( leptonLink, neutrinoLink );
                                       // Set the charge
-                                      const INavigable4Momentum* tmpLep =  dynamic_cast< const INavigable4Momentum* >( lep );
+                                      const INavigable4Momentum* tmpLep =  lep ;
                                       int charge(0);
-                                      if ( tmpLep )
+                                      const IParticle* aParticle = dynamic_cast< const IParticle* >(tmpLep);
+                                      if ( aParticle )
+                                      {
+                                        if ( aParticle->hasCharge() )
                                         {
-                                          const IParticle* aParticle = dynamic_cast< const IParticle* >(tmpLep);
-                                          if ( aParticle )
-                                            {
-                                              if ( aParticle->hasCharge() )
-                                                {
-                                                  charge = (int)aParticle->charge();
-                                                }
-                                              compPart->set_dataType( aParticle->dataType() );
-                                            }
+                                          charge = (int)aParticle->charge();
                                         }
-                                      else
-                                        {
-                                          ATH_MSG_WARNING ( "Couldn't cast to INavigable4Momentum!" );
-                                        }
+                                        compPart->set_dataType( aParticle->dataType() );
+                                      }
+
                                       compPart->set_charge( charge );
                                       // Change the PDG_ID depending on the found charge
                                       int pdgId = m_pdgId;
@@ -842,15 +839,11 @@ StatusCode D2PDLeptonNeutrinoCombiner::execute()
         } // End: if ( inLepLinkContainer )
       else
         {
-          delete inLepLinkContainer;
+          //inLepLinkContainer must be null here
+          //delete inLepLinkContainer;
         }
     } // End: if passAll
 
-  // If inLepLinkContainer is NOT managed by StoreGate, we must delete it here
-  if ( mustDeleteLepLinkCont )
-    {
-      delete inLepLinkContainer;
-    }
 
 
   // Some debug statements for the log file

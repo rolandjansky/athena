@@ -68,6 +68,7 @@ D2PDParticleCombiner::D2PDParticleCombiner(const std::string& name,
   m_mcEventColl(0),
   m_userDataSvc( "UserDataSvc", name ),
   m_kinSelectorTool( "KinematicSelector/KinematicSelectorForD2PDParticleCombiner", this ),
+  m_filterTool(nullptr),
   m_selectionTools(this),
   m_associationTools(this),
   m_userDataCalcTools(this),
@@ -1305,7 +1306,7 @@ bool D2PDParticleCombiner::shareSameConstituents( const CompositeParticle* compP
           const CompositeParticle* constitCP2 = 
             dynamic_cast<const CompositeParticle*> (part2) ;
 
-          if ( !constitCP1 && !constitCP1 )
+          if ( !constitCP1 && !constitCP2 )
             {
               isConstituent = part1->hasSameAthenaBarCodeExceptVersion(*part2);
             }

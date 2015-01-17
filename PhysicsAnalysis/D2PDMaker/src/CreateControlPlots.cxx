@@ -56,8 +56,10 @@ CreateControlPlots::CreateControlPlots(const std::string& name,
                                        ISvcLocator* pSvcLocator) : 
   AthAlgorithm(name, pSvcLocator),
   m_thistSvc( "THistSvc", name ),
+  m_nEventsProcessed(0),
   m_vxcand(0),
-  m_trackAtVertex(0)
+  m_trackAtVertex(0),
+  m_vtx_number(nullptr)
 {
   // The container name & selection cuts
   declareProperty("inputVertexCollection",  m_vtxCollName = "", "The name (key) of the vertex collection" );

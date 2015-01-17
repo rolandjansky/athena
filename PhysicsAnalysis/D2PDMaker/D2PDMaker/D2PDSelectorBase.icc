@@ -19,6 +19,7 @@ D2PDSelectorBase< T, CT >::D2PDSelectorBase( const std::string& name,
   m_selectorTools(this),
   m_associationTools(this),
   m_userDataCalcTools(this),
+  m_inputIsLinkColl(false),
   m_doPt(false),
   m_idxPt(0),
   m_doP(false),
@@ -47,7 +48,10 @@ D2PDSelectorBase< T, CT >::D2PDSelectorBase( const std::string& name,
   m_idxAssociationTools(0),
   m_doUserDataTools(false),
   m_idxUserDataTools(0),
-  m_idxFinal(0)
+  m_idxFinal(0),
+  m_nEventsProcessed(0),
+  m_nObjectsProcessed(0),
+  m_nObjectsPassed(0)
 {
   // Properties go here
   declareProperty("printSetup",              m_printSetup   = false, "Printing the setup if true" );

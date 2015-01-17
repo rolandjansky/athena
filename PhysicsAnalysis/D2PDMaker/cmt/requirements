@@ -47,6 +47,7 @@ use PATCore                     PATCore-*               PhysicsAnalysis/Analysis
 
 private
 use  AtlasBoost                 AtlasBoost-*                    External
+use  CxxUtils                   CxxUtils-*                      Control
 use  GeoPrimitives              GeoPrimitives-*                 DetectorDescription
 use  MissingETPerformance       MissingETPerformance-*          Reconstruction
 use  SpecialUtils               SpecialUtils-*                  PhysicsAnalysis/AnalysisCommon
