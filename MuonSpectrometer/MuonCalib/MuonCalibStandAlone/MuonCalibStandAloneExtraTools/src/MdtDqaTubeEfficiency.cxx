@@ -352,6 +352,7 @@ MdtDqaTubeEfficiency::handleEvent( const MuonCalibEvent & event,
        heffiCounts = (TH1F*) expertRootDir->FindObjectAny(histoName.c_str());
        if (!heffiEntries || !heffiCounts ) {
          cout << "MdtDqa Efficiency histogram :" << histoName<<" NOT FOUND " << endl ;
+         delete GTFitter; GTFitter=0;
          return StatusCode::FAILURE ;
        }
 
