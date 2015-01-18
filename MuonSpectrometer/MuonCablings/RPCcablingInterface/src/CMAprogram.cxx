@@ -522,92 +522,93 @@ CMAprogram::~CMAprogram()
 CMAprogram
 CMAprogram::operator=(const CMAprogram& program)
 {
-    m_status = program.check();
-    m_overlap1 = program.overlap1();
-    m_overlap2 = program.overlap2();
-    m_trig_local_direc_i = program.local_direc_i();
-    m_trig_local_direc_j = program.local_direc_j();
-    m_trig_k_readout     = program.k_readout();
-    
-    m_main_control = program.main_control();
-    m_main_count   = program.main_count();
-    m_main_status  = program.main_status();
-        
-    m_pipe_i0_mask0_in      = program.pipe_i0_mask0_in();
-    m_pipe_i0_edge          = program.pipe_i0_edge(); 
-    m_pipe_i0_ipb_regdepth  = program.pipe_i0_ipb_regdepth();
-    m_pipe_i0_shape         = program.pipe_i0_shape();
-    m_pipe_i0_mask0_readout = program.pipe_i0_mask0_readout();
-    m_pipe_i0_mask0_trig    = program.pipe_i0_mask0_trig();
-    
-    m_pipe_i1_mask0_in      = program.pipe_i1_mask0_in();
-    m_pipe_i1_edge          = program.pipe_i1_edge();
-    m_pipe_i1_ipb_regdepth  = program.pipe_i1_ipb_regdepth();
-    m_pipe_i1_shape         = program.pipe_i1_shape();
-    m_pipe_i1_mask0_readout = program.pipe_i1_mask0_readout();
-    m_pipe_i1_mask0_trig    = program.pipe_i1_mask0_trig();
-    
-    m_pipe_j0_mask0_in      = program.pipe_j0_mask0_in();
-    m_pipe_j0_edge          = program.pipe_j0_edge();
-    m_pipe_j0_ipb_regdepth  = program.pipe_j0_ipb_regdepth();
-    m_pipe_j0_shape         = program.pipe_j0_shape();
-    m_pipe_j0_mask0_readout = program.pipe_j0_mask0_readout();
-    m_pipe_j0_mask0_trig    = program.pipe_j0_mask0_trig();
-    
-    m_pipe_j1_mask0_in      = program.pipe_j1_mask0_in();
-    m_pipe_j1_edge          = program.pipe_j1_edge();
-    m_pipe_j1_ipb_regdepth  = program.pipe_j1_ipb_regdepth();
-    m_pipe_j1_shape         = program.pipe_j1_shape();
-    m_pipe_j1_mask0_readout = program.pipe_j1_mask0_readout();
-    m_pipe_j1_mask0_trig    = program.pipe_j1_mask0_trig();
+    if (this!=&program) {
+      m_status = program.check();
+      m_overlap1 = program.overlap1();
+      m_overlap2 = program.overlap2();
+      m_trig_local_direc_i = program.local_direc_i();
+      m_trig_local_direc_j = program.local_direc_j();
+      m_trig_k_readout     = program.k_readout();
 
-    m_trig_thr0_maj_reg          = program.trig_thr0_maj_reg();
-    m_trig_thr0_mask_1_i_ge1_reg = program.trig_thr0_mask_1_i_ge1_reg();
-    m_trig_thr0_mask_1_i_eq2_reg = program.trig_thr0_mask_1_i_eq2_reg();
-    m_trig_thr0_mask_1_j_ge1_reg = program.trig_thr0_mask_1_j_ge1_reg();
-    m_trig_thr0_mask_1_j_eq2_reg = program.trig_thr0_mask_1_j_eq2_reg();
+      m_main_control = program.main_control();
+      m_main_count   = program.main_count();
+      m_main_status  = program.main_status();
+    
+      m_pipe_i0_mask0_in      = program.pipe_i0_mask0_in();
+      m_pipe_i0_edge          = program.pipe_i0_edge(); 
+      m_pipe_i0_ipb_regdepth  = program.pipe_i0_ipb_regdepth();
+      m_pipe_i0_shape         = program.pipe_i0_shape();
+      m_pipe_i0_mask0_readout = program.pipe_i0_mask0_readout();
+      m_pipe_i0_mask0_trig    = program.pipe_i0_mask0_trig();
 
-    m_trig_thr1_maj_reg          = program.trig_thr1_maj_reg();
-    m_trig_thr1_mask_1_i_ge1_reg = program.trig_thr1_mask_1_i_ge1_reg();
-    m_trig_thr1_mask_1_i_eq2_reg = program.trig_thr1_mask_1_i_eq2_reg();
-    m_trig_thr1_mask_1_j_ge1_reg = program.trig_thr1_mask_1_j_ge1_reg();
-    m_trig_thr1_mask_1_j_eq2_reg = program.trig_thr1_mask_1_j_eq2_reg();
+      m_pipe_i1_mask0_in      = program.pipe_i1_mask0_in();
+      m_pipe_i1_edge          = program.pipe_i1_edge();
+      m_pipe_i1_ipb_regdepth  = program.pipe_i1_ipb_regdepth();
+      m_pipe_i1_shape         = program.pipe_i1_shape();
+      m_pipe_i1_mask0_readout = program.pipe_i1_mask0_readout();
+      m_pipe_i1_mask0_trig    = program.pipe_i1_mask0_trig();
 
-    m_trig_thr2_maj_reg          = program.trig_thr2_maj_reg();
-    m_trig_thr2_mask_1_i_ge1_reg = program.trig_thr2_mask_1_i_ge1_reg();
-    m_trig_thr2_mask_1_i_eq2_reg = program.trig_thr2_mask_1_i_eq2_reg();
-    m_trig_thr2_mask_1_j_ge1_reg = program.trig_thr2_mask_1_j_ge1_reg();
-    m_trig_thr2_mask_1_j_eq2_reg = program.trig_thr2_mask_1_j_eq2_reg();
+      m_pipe_j0_mask0_in      = program.pipe_j0_mask0_in();
+      m_pipe_j0_edge          = program.pipe_j0_edge();
+      m_pipe_j0_ipb_regdepth  = program.pipe_j0_ipb_regdepth();
+      m_pipe_j0_shape         = program.pipe_j0_shape();
+      m_pipe_j0_mask0_readout = program.pipe_j0_mask0_readout();
+      m_pipe_j0_mask0_trig    = program.pipe_j0_mask0_trig();
     
-    m_trig_declu_i0_clsize = program.trig_declu_i0_clsize();
-    m_trig_declu_i1_clsize = program.trig_declu_i1_clsize();
-    m_trig_declu_j0_clsize = program.trig_declu_j0_clsize();
-    m_trig_declu_j1_clsize = program.trig_declu_j1_clsize();
-    
-    m_trig_prp_i_eta_reg = program.trig_prp_i_eta_reg();
-    m_trig_prp_j_eta_reg = program.trig_prp_j_eta_reg();
-    
-    m_trig_shape_k_reg = program.trig_shape_k_reg();
-    m_trig_ovl_sx_reg  = program.trig_ovl_sx_reg();
-    m_trig_ovl_dx_reg  = program.trig_ovl_dx_reg();
-    m_trig_edge_reg    = program.trig_edge_reg();
-    
-    m_readout_buffer_empty        = program.readout_buffer_empty();
-    m_readout_buffer_almost_empty = program.readout_buffer_almost_empty();
-    m_readout_buffer_half_full    = program.readout_buffer_half_full();
-    m_readout_buffer_almost_full  = program.readout_buffer_almost_full();
-    m_readout_buffer_full         = program.readout_buffer_full();
-    m_readout_buffer_latreg       = program.readout_buffer_latreg();
-    m_readout_buffer_hireg        = program.readout_buffer_hireg();
-    m_readout_buffer_lowreg       = program.readout_buffer_lowreg();
-    m_readout_serializer_dslink   = program.readout_serializer_dslink(); 
-    
-    m_l1c_pre = program.l1c_pre();
-    m_bcc_pre = program.bcc_pre();
-    
-    copy_threshold(program.registers());
-    copy_program(program.bytes());
+      m_pipe_j1_mask0_in      = program.pipe_j1_mask0_in();
+      m_pipe_j1_edge          = program.pipe_j1_edge();
+      m_pipe_j1_ipb_regdepth  = program.pipe_j1_ipb_regdepth();
+      m_pipe_j1_shape         = program.pipe_j1_shape();
+      m_pipe_j1_mask0_readout = program.pipe_j1_mask0_readout();
+      m_pipe_j1_mask0_trig    = program.pipe_j1_mask0_trig();
 
+      m_trig_thr0_maj_reg          = program.trig_thr0_maj_reg();
+      m_trig_thr0_mask_1_i_ge1_reg = program.trig_thr0_mask_1_i_ge1_reg();
+      m_trig_thr0_mask_1_i_eq2_reg = program.trig_thr0_mask_1_i_eq2_reg();
+      m_trig_thr0_mask_1_j_ge1_reg = program.trig_thr0_mask_1_j_ge1_reg();
+      m_trig_thr0_mask_1_j_eq2_reg = program.trig_thr0_mask_1_j_eq2_reg();
+
+      m_trig_thr1_maj_reg          = program.trig_thr1_maj_reg();
+      m_trig_thr1_mask_1_i_ge1_reg = program.trig_thr1_mask_1_i_ge1_reg();
+      m_trig_thr1_mask_1_i_eq2_reg = program.trig_thr1_mask_1_i_eq2_reg();
+      m_trig_thr1_mask_1_j_ge1_reg = program.trig_thr1_mask_1_j_ge1_reg();
+      m_trig_thr1_mask_1_j_eq2_reg = program.trig_thr1_mask_1_j_eq2_reg();
+
+      m_trig_thr2_maj_reg          = program.trig_thr2_maj_reg();
+      m_trig_thr2_mask_1_i_ge1_reg = program.trig_thr2_mask_1_i_ge1_reg();
+      m_trig_thr2_mask_1_i_eq2_reg = program.trig_thr2_mask_1_i_eq2_reg();
+      m_trig_thr2_mask_1_j_ge1_reg = program.trig_thr2_mask_1_j_ge1_reg();
+      m_trig_thr2_mask_1_j_eq2_reg = program.trig_thr2_mask_1_j_eq2_reg();
+
+      m_trig_declu_i0_clsize = program.trig_declu_i0_clsize();
+      m_trig_declu_i1_clsize = program.trig_declu_i1_clsize();
+      m_trig_declu_j0_clsize = program.trig_declu_j0_clsize();
+      m_trig_declu_j1_clsize = program.trig_declu_j1_clsize();
+
+      m_trig_prp_i_eta_reg = program.trig_prp_i_eta_reg();
+      m_trig_prp_j_eta_reg = program.trig_prp_j_eta_reg();
+
+      m_trig_shape_k_reg = program.trig_shape_k_reg();
+      m_trig_ovl_sx_reg  = program.trig_ovl_sx_reg();
+      m_trig_ovl_dx_reg  = program.trig_ovl_dx_reg();
+      m_trig_edge_reg    = program.trig_edge_reg();
+
+      m_readout_buffer_empty        = program.readout_buffer_empty();
+      m_readout_buffer_almost_empty = program.readout_buffer_almost_empty();
+      m_readout_buffer_half_full    = program.readout_buffer_half_full();
+      m_readout_buffer_almost_full  = program.readout_buffer_almost_full();
+      m_readout_buffer_full         = program.readout_buffer_full();
+      m_readout_buffer_latreg       = program.readout_buffer_latreg();
+      m_readout_buffer_hireg        = program.readout_buffer_hireg();
+      m_readout_buffer_lowreg       = program.readout_buffer_lowreg();
+      m_readout_serializer_dslink   = program.readout_serializer_dslink(); 
+
+      m_l1c_pre = program.l1c_pre();
+      m_bcc_pre = program.bcc_pre();
+
+      copy_threshold(program.registers());
+      copy_program(program.bytes());
+    }
     return *this;
 }
 

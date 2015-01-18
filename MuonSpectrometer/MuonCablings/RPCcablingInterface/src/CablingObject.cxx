@@ -24,9 +24,11 @@ CablingObject::CablingObject(const CablingObject& obj) :
 CablingObject
 CablingObject::operator=(const CablingObject& obj)
 {
-    m_number = obj.number();
-    m_station = obj.station();
-    m_sector_type = obj.sector_type();
+    if (this!=&obj) {
+      m_number = obj.number();
+      m_station = obj.station();
+      m_sector_type = obj.sector_type();
+    }
     return*this;
 }
 
