@@ -78,7 +78,7 @@ public :
 
 #ifdef SimsegAccessor_cxx
 SimsegAccessor::SimsegAccessor(TTree *tree) :
-  b_run(NULL), b_evt(NULL), b_nentry(NULL), b_y(NULL), b_z(NULL), b_dydx(NULL), b_dzdx(NULL),
+  fChain(NULL), b_run(NULL), b_evt(NULL), b_nentry(NULL), b_y(NULL), b_z(NULL), b_dydx(NULL), b_dzdx(NULL),
   b_axy(NULL), b_axz(NULL), b_chsqy(NULL), b_chsqz(NULL), b_time(NULL), b_gid(NULL), b_pdgid(NULL),
   b_eta(NULL), b_pt(NULL), b_istation(NULL), b_phisec(NULL), b_zsec(NULL)
 {

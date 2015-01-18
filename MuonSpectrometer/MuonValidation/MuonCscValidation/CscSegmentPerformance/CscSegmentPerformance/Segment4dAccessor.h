@@ -144,7 +144,7 @@ public :
 
 #ifdef Segment4dAccessor_cxx
 Segment4dAccessor::Segment4dAccessor(TTree *tree) :
-   b_run(NULL), b_evt(NULL), b_nentry(NULL), b_nchamber(NULL), b_nseg(NULL),
+   fChain(NULL), b_run(NULL), b_evt(NULL), b_nentry(NULL), b_nchamber(NULL), b_nseg(NULL),
    b_nhit(NULL), b_gx(NULL), b_gy(NULL), b_gz(NULL), b_y(NULL), b_x(NULL),
    b_ay(NULL), b_ax(NULL), b_dy(NULL), b_dx(NULL), b_day(NULL), b_dax(NULL),
    b_eyx(NULL), b_eyay(NULL), b_eyax(NULL), b_exay(NULL), b_exax(NULL), b_eayax(NULL),

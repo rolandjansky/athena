@@ -139,7 +139,7 @@ public :
 
 #ifdef SegmentAccessor_cxx
 SegmentAccessor::SegmentAccessor(TTree *tree) :
-   b_run(NULL), b_evt(NULL), b_nentry(NULL), b_nchamber(NULL), b_nseg(NULL), b_iseg(NULL),
+   fChain(NULL), b_run(NULL), b_evt(NULL), b_nentry(NULL), b_nchamber(NULL), b_nseg(NULL), b_iseg(NULL),
    b_nspoil(NULL), b_nunspoil(NULL), b_x(NULL), b_y(NULL), b_z(NULL), b_s0(NULL), b_s1(NULL),
    b_sa(NULL), b_d0(NULL), b_d1(NULL), b_da(NULL), b_d01(NULL), b_d0a(NULL), b_chsq(NULL),
    b_phase(NULL), b_str0(NULL), b_nstr(NULL), b_pstr(NULL), b_qsum(NULL), b_tstr(NULL),

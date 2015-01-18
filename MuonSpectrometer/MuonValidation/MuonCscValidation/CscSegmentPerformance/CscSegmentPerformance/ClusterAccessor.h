@@ -122,7 +122,7 @@ public :
 
 #ifdef ClusterAccessor_cxx
 ClusterAccessor::ClusterAccessor(TTree *tree) :
-   b_run(NULL), b_evt(NULL), b_nentry(NULL), b_pos(NULL), b_error(NULL), b_x(NULL),
+   fChain(NULL), b_run(NULL), b_evt(NULL), b_nentry(NULL), b_pos(NULL), b_error(NULL), b_x(NULL),
    b_y(NULL), b_z(NULL), b_nstrip(NULL), b_qstrip(NULL), b_tstrip(NULL), b_qpeak(NULL),
    b_speak(NULL), b_qsum(NULL), b_qleft(NULL), b_sleft(NULL), b_qright(NULL), b_sright(NULL),
    b_tpeak(NULL), b_sfit(NULL), b_measphi(NULL), b_wlay(NULL), b_istation(NULL), b_zsec(NULL),
