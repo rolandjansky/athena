@@ -76,7 +76,7 @@ public :
 
 #ifdef CalibAccessor_cxx
 CalibAccessor::CalibAccessor(TTree *tree) :
-   b_measphi(NULL), b_wlay(NULL), b_istation(NULL), b_zsec(NULL), b_phisec(NULL),
+   fChain(NULL), b_measphi(NULL), b_wlay(NULL), b_istation(NULL), b_zsec(NULL), b_phisec(NULL),
    b_sector(NULL), b_nchan(NULL), b_ped(NULL), b_pedADC(NULL), b_sigma(NULL),
    b_rms(NULL), b_sigmaADC(NULL), b_rmsADC(NULL), b_f001(NULL), b_f001ADC(NULL),
    b_thr(NULL), b_stat(NULL), b_address(NULL)
