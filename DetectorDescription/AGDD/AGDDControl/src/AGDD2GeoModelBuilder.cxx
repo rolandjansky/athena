@@ -663,12 +663,12 @@ void AGDD2GeoModelBuilder::BuildFromSection(std::string s)
                 GeoPhysVol *vvv=(GeoPhysVol*)(vol->GetVolume());
                 if (vvv)
                 {
-				   GeoTransform *gtrf=new GeoTransform(trf);
-				   if (!mother) 
-				   {
-				   		std::cout<<"AGDDController: mother not set!!"<<std::endl;
-						return;
-				   }
+		   if (!mother) 
+		   {
+		 	std::cout<<"AGDDController: mother not set!!"<<std::endl;
+			return;
+		   }
+		   GeoTransform *gtrf=new GeoTransform(trf);
                    mother->add(gtrf);
                    mother->add(vvv);
                 }
