@@ -96,13 +96,15 @@ CMAidentity::CMAidentity(const CMAidentity& id)
 CMAidentity&
 CMAidentity::operator=(const CMAidentity& id)
 {
-    m_type = id.type();
-    m_coverage = id.coverage();
-    m_number = id.number();
-    m_eta_index = id.eta_index();
-    m_phi_index = id.phi_index();
-    m_PAD_index = id.PAD_index();
-    m_Ixx_index = id.Ixx_index();
+    if (this!=&id) {
+      m_type = id.type();
+      m_coverage = id.coverage();
+      m_number = id.number();
+      m_eta_index = id.eta_index();
+      m_phi_index = id.phi_index();
+      m_PAD_index = id.PAD_index();
+      m_Ixx_index = id.Ixx_index();
+    }
     return *this;
 }
 

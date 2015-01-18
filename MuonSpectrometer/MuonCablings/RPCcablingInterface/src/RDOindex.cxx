@@ -109,25 +109,26 @@ RDOindex::operator !()
 RDOindex
 RDOindex::operator=(const RDOindex& index)
 {
-    m_ROBid     = index.ROBid();
-    m_RODid     = index.RODid();
-    m_side      = index.side();
-    m_SLid      = index.SLid();
-    m_RXid      = index.RXid();
-    m_PADid     = index.PADid();
-    m_lvl1_code = index.lvl1_code();
-    
-    m_stationName = index.stationName();
-    m_stationEta  = index.stationEta();
-    m_stationPhi  = index.stationPhi();
-    m_doubletR    = index.doubletR();
-    m_doubletZ    = index.doubletZ();
-    m_doubletPhi  = index.doubletPhi();
-    
-    m_hash = index.hash();
-    
-    m_status    = index.status();
+    if (this!=&index) {
+      m_ROBid     = index.ROBid();
+      m_RODid     = index.RODid();
+      m_side      = index.side();
+      m_SLid      = index.SLid();
+      m_RXid      = index.RXid();
+      m_PADid     = index.PADid();
+      m_lvl1_code = index.lvl1_code();
 
+      m_stationName = index.stationName();
+      m_stationEta  = index.stationEta();
+      m_stationPhi  = index.stationPhi();
+      m_doubletR    = index.doubletR();
+      m_doubletZ    = index.doubletZ();
+      m_doubletPhi  = index.doubletPhi();
+
+      m_hash = index.hash();
+
+      m_status    = index.status();
+    }
     return *this;
 }
 
@@ -227,7 +228,7 @@ RDOindex::pad_identifier(Identifier& id ) const
 
 ostream& operator<<(ostream& stream,const RDOindex& rdo)
 {
-
+    std::stringstream tmp_stream;
 #ifndef LVL1_STANDALONE
 
     int name; 
@@ -243,20 +244,21 @@ ostream& operator<<(ostream& stream,const RDOindex& rdo)
     rdo.offline_indexes(name,eta,phi,doublet_r,doublet_z,doublet_phi,
                         gas_gap,measures_phi,strip);   
     
-    stream << "RPC PAD /" << hex << showbase << rdo.side() << "/"
-           << rdo.SLid() << "/" << rdo.PADid() << "   mapped on offline Id /"
-	   << dec << name << "/" << eta << "/" << phi << "/" << doublet_r
-	   << "/" << doublet_z << "/" << doublet_phi << "/" << gas_gap
-	   << "/" << measures_phi << "/" << strip 
-	   << " .... hashId = " << rdo.hash() << endl;
+    tmp_stream << "RPC PAD /" << hex << showbase << rdo.side() << "/"
+               << rdo.SLid() << "/" << rdo.PADid() << "   mapped on offline Id /"
+	       << dec << name << "/" << eta << "/" << phi << "/" << doublet_r
+	       << "/" << doublet_z << "/" << doublet_phi << "/" << gas_gap
+	       << "/" << measures_phi << "/" << strip 
+	       << " .... hashId = " << rdo.hash() << endl;
 
 #else    
     std::string side = (rdo.side() == 0x66)? "Negative" : "Positive";
-    stream << "/side=" << side << "/ROB=ROD=" << setw(2) << rdo.ROBid() 
-           << "/SL=RX=" << setw(2) << rdo.SLid()
-           << "/PAD="  << setw(2) << rdo.PADid() << "/" << endl;
+    tmp_stream << "/side=" << side << "/ROB=ROD=" << setw(2) << rdo.ROBid() 
+               << "/SL=RX=" << setw(2) << rdo.SLid()
+               << "/PAD="  << setw(2) << rdo.PADid() << "/" << endl;
 #endif
 
+    stream << tmp_stream.str();
 
     return stream;
 }

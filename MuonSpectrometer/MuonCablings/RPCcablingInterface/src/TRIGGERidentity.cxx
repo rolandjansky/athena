@@ -39,9 +39,11 @@ TRIGGERidentity::TRIGGERidentity(const TRIGGERidentity& id) :
 TRIGGERidentity
 TRIGGERidentity::operator=(const TRIGGERidentity& id)
 {
-    m_type = id.type();
-    m_threshold = id.threshold();
-    m_overlap = id.overlap();
+    if (this!=&id) { 
+      m_type = id.type();
+      m_threshold = id.threshold();
+      m_overlap = id.overlap();
+    }
     return *this;
 }
 

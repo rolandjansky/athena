@@ -220,64 +220,66 @@ CMAparameters::~CMAparameters()
 CMAparameters&
 CMAparameters::operator=(const CMAparameters& cma)
 {   
-    m_pivot_start_ch    = cma.pivot_start_ch();
-    m_pivot_start_st    = cma.pivot_start_st();
-    m_pivot_stop_ch     = cma.pivot_stop_ch();
-    m_pivot_stop_st     = cma.pivot_stop_st();
-    delete m_id;
-    m_id                = new CMAidentity(cma.id());
+    if (this!=&cma) { 
+      m_pivot_start_ch    = cma.pivot_start_ch();
+      m_pivot_start_st    = cma.pivot_start_st();
+      m_pivot_stop_ch     = cma.pivot_stop_ch();
+      m_pivot_stop_st     = cma.pivot_stop_st();
+      delete m_id;
+      m_id                = new CMAidentity(cma.id());
 
-    if(m_lowPt_program)  delete m_lowPt_program;
-    if(m_highPt_program) delete m_highPt_program;    
-    const CMAprogram* proglow  = cma.lowPt_program();
-    const CMAprogram* proghigh = cma.highPt_program();
-    m_lowPt_program  = (proglow)?  new CMAprogram(*proglow)  : 0;
-    m_highPt_program = (proghigh)? new CMAprogram(*proghigh) : 0;
+      if(m_lowPt_program)  delete m_lowPt_program;
+      if(m_highPt_program) delete m_highPt_program;    
+      const CMAprogram* proglow  = cma.lowPt_program();
+      const CMAprogram* proghigh = cma.highPt_program();
+      m_lowPt_program  = (proglow)?  new CMAprogram(*proglow)  : 0;
+      m_highPt_program = (proghigh)? new CMAprogram(*proghigh) : 0;
 
-    m_lowPt_start_co    = cma.lowPt_start_co();
-    m_lowPt_stop_co     = cma.lowPt_stop_co();
-    m_lowPt_number_co   = cma.lowPt_number_co();
+      m_lowPt_start_co    = cma.lowPt_start_co();
+      m_lowPt_stop_co     = cma.lowPt_stop_co();
+      m_lowPt_number_co   = cma.lowPt_number_co();
 
-    m_highPt_start_co   = cma.highPt_start_co();
-    m_highPt_stop_co    = cma.highPt_stop_co();
-    m_highPt_number_co  = cma.highPt_number_co();
+      m_highPt_start_co   = cma.highPt_start_co();
+      m_highPt_stop_co    = cma.highPt_stop_co();
+      m_highPt_number_co  = cma.highPt_number_co();
 
-    m_lowPt_start_st    = cma.lowPt_start_st();
-    m_lowPt_start_ch    = cma.lowPt_start_ch();
-    m_lowPt_stop_st     = cma.lowPt_stop_st();
-    m_lowPt_stop_ch     = cma.lowPt_stop_ch();
+      m_lowPt_start_st    = cma.lowPt_start_st();
+      m_lowPt_start_ch    = cma.lowPt_start_ch();
+      m_lowPt_stop_st     = cma.lowPt_stop_st();
+      m_lowPt_stop_ch     = cma.lowPt_stop_ch();
 
-    m_highPt_start_st   = cma.highPt_start_st();
-    m_highPt_start_ch   = cma.highPt_start_ch();
-    m_highPt_stop_st    = cma.highPt_stop_st();
-    m_highPt_stop_ch    = cma.highPt_stop_ch();
+      m_highPt_start_st   = cma.highPt_start_st();
+      m_highPt_start_ch   = cma.highPt_start_ch();
+      m_highPt_stop_st    = cma.highPt_stop_st();
+      m_highPt_stop_ch    = cma.highPt_stop_ch();
 
-    m_active_pivot_chs  = cma.active_pivot_chs();
-    m_active_lowPt_chs  = cma.active_lowPt_chs();
-    m_active_highPt_chs = cma.active_highPt_chs();
+      m_active_pivot_chs  = cma.active_pivot_chs();
+      m_active_lowPt_chs  = cma.active_lowPt_chs();
+      m_active_highPt_chs = cma.active_highPt_chs();
 
-    m_pivot_station     = cma.pivot_station();
-    m_lowPt_station     = cma.lowPt_station();
-    m_highPt_station    = cma.highPt_station();
+      m_pivot_station     = cma.pivot_station();
+      m_lowPt_station     = cma.lowPt_station();
+      m_highPt_station    = cma.highPt_station();
 
-    reset_pivot_cabling();
-    reset_lowPt_cabling();
-    reset_highPt_cabling();    
+      reset_pivot_cabling();
+      reset_lowPt_cabling();
+      reset_highPt_cabling();    
 
-    copy_cabling(*this,cma);
+      copy_cabling(*this,cma);
 
-    m_pivot_rpc_read    = cma.pivot_rpc_read();
-    m_lowPt_rpc_read    = cma.lowPt_rpc_read();
-    m_highPt_rpc_read   = cma.highPt_rpc_read();
+      m_pivot_rpc_read    = cma.pivot_rpc_read();
+      m_lowPt_rpc_read    = cma.lowPt_rpc_read();
+      m_highPt_rpc_read   = cma.highPt_rpc_read();
     
-    m_first_pivot_code  = cma.first_pivot_code();
-    m_last_pivot_code   = cma.last_pivot_code();
-    m_first_lowPt_code  = cma.first_lowPt_code();
-    m_last_lowPt_code   = cma.last_lowPt_code();
-    m_first_highPt_code = cma.first_highPt_code();
-    m_last_highPt_code  = cma.last_highPt_code();
+      m_first_pivot_code  = cma.first_pivot_code();
+      m_last_pivot_code   = cma.last_pivot_code();
+      m_first_lowPt_code  = cma.first_lowPt_code();
+      m_last_lowPt_code   = cma.last_lowPt_code();
+      m_first_highPt_code = cma.first_highPt_code();
+      m_last_highPt_code  = cma.last_highPt_code();
 
-    m_conf_type = cma.conf_type();
+      m_conf_type = cma.conf_type();
+    }
 
     return *this;
 }

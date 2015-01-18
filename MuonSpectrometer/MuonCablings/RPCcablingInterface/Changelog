@@ -1,3 +1,7 @@
+2015-01-18 Jochen Meyer <jomeyer@mail.cern.ch>
+	* tagged as  RPCcablingInterface-00-00-39
+	* addressing coverity defects 11823, 11784-5, 11792, 11796, 11798-9
+
 2015-01-08 Massimo Corradi <massimo.corradi@bo.infn.it>
 	* tagged as  RPCcablingInterface-00-00-38
 	* added give_Pad_Parameters method added to interface
