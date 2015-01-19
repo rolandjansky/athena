@@ -8,12 +8,15 @@
 # ------------------------
 include( "JpsiUpsilonTools/configureServices.py" )
 
+print "JWW: apply temp fix TrkVKalVrtFitter.firstMeasuredPoint = False"
+TrkVKalVrtFitter.FirstMeasuredPoint = False
+
 # ----------------------------------
 # User's analysis requirements here:
 # ----------------------------------
 from JpsiUpsilonTools.JpsiUpsilonToolsConf import Analysis__JpsiFinder
 ExampleJpsiFinder = Analysis__JpsiFinder(name                        = "BPhysJpsiFinder",
-                                         OutputLevel                 = INFO,
+                                         OutputLevel                 = DEBUG,
                                          muAndMu                     = True,
                                          muAndTrack                  = False,
                                          TrackAndTrack               = False,
@@ -42,5 +45,6 @@ print      ExampleJpsiFinder
 from JpsiUpsilonTools.JpsiUpsilonToolsConf import JpsiAlg
 
 topSequence += JpsiAlg(JpsiCandidatesOutputName = "JpsiCandidates",
-                       JpsiFinderName           = ExampleJpsiFinder)
+                       JpsiFinderName           = ExampleJpsiFinder,
+                       OutputLevel  = DEBUG)
  

@@ -2,16 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/**    @file HLTXAODBphysMonTool.h
- *   Class declaration for HLTXAODBphysMonTool
- *
- *
- *
- *    @author name (uid@cern.ch)
- *
- *
- */
-
 #ifndef HLTXAODBPHYSMONTOOL_H
 #define HLTXAODBPHYSMONTOOL_H
 
@@ -34,110 +24,79 @@ class HLTXAODBphysMonTool : public IHLTMonTool
     
 public:
     HLTXAODBphysMonTool(   const std::string & type,
-                    const std::string & name,
-                    const IInterface* parent);
+                        const std::string & name,
+                        const IInterface* parent);
     virtual ~HLTXAODBphysMonTool();
+    
     // Standard monitoring methods
-    StatusCode init() ;
-    StatusCode book() ;
-    StatusCode fill() ;
-    
-    // xAOD migrated methods
-    StatusCode test(const std::string& containerItem) ;
-    StatusCode testTrig(const std::string& trigItem, const std::string& monGroup);
-    StatusCode testTrigEff();
-    
-    // Offline Di-muon finder
-    StatusCode JpsiFinder() ;
-    
-    // Old Methods - yet to be implemeted
-    StatusCode Triggers() ;
-    StatusCode L2Tracks() ;
-    StatusCode EFTracks() ;
-    StatusCode L2DsPhiPiMon() ;
-    StatusCode L2TopoDiMuMon() ;
-    StatusCode L2TopoDiMuXMon() ;
-    StatusCode L2DiMuMon() ;
-    StatusCode L2DiMuXMon() ;
-    StatusCode L2BJpsieeMon() ;
-    StatusCode L2BJpsimumu();
-    StatusCode EFDsPhiPiMon() ;
-    StatusCode EFTopoDiMuMon() ;
-    StatusCode EFDiMuMon() ;
-    StatusCode EFBJpsimumu();
-    StatusCode CompareDiMuL2EF();
-    StatusCode CompareTopoDiMuL2EF();
-    
-    StatusCode proc(); // called by procHistograms
+    StatusCode init() override;
+    StatusCode book() override;
+    StatusCode fill() override;
+    StatusCode proc() override;
     
 private:
-    //James'
-    void buildHist( const std::string & trigname,const std::string & prefix);
-    void fillHist(const xAOD::TrigBphys *bphysItem, const std::string & trigItem,const std::string & prefix);
-    void fillHistEff(const xAOD::TrigBphys *bphysItem, const std::string & trigItem,const std::string & prefix, int DenomOrNum, const std::string & trigEffHistName);
+    
+    // booking and filling methods; helper methods for booking
+    StatusCode bookTriggers(); //! book the general trigger hists
+    StatusCode fillTriggers(); //! fill the general trigger hists
+
+    StatusCode bookJpsiFinder(); //! book the hists with offline comparisons
+    StatusCode fillJpsiFinder(); //! fill the hists with offline comparisons
+
+    StatusCode bookContainers(); //! book the hists for containers
+    StatusCode fillContainers(); //! fill the hists for containers
+
+    StatusCode bookTriggerGroups(); //! book the hists for the triggered groups
+    StatusCode fillTriggerGroups(); //! fill the hists for the triggered groups
+    StatusCode fillTriggerGroup(const std::string & groupName, const std::string & chainName); //! helper method for dedicated trigger chains
+
+    StatusCode bookEfficiencyGroups(); //! book the hists for the efficiency groups
+    StatusCode bookEfficiencyGroup(const std::string & groupName); //! book the hists for the efficiency groups
+    StatusCode fillEfficiencyGroups(); //! fill the hists for the efficiency groups
+    StatusCode fillEfficiencyGroup(const std::string & groupName, const std::string & chainName); //! helper method for dedicated Efficiency chains
+
+    StatusCode divideEfficiencyGroups(); //! fill the hists for the efficiency groups
+    StatusCode divideEfficiencyGroup(const std::string & denomGroupName, const std::string & numeratorGroupName,
+                                     const std::string & denominatorChainName, const std::string & numeratorChainName); //! helper method for dedicated Efficiency chains
 
     
-    ToolHandle<Trig::TrigDecisionTool> m_trigDec;
+    void bookTrigBphysHists(const std::string & trigname,const std::string & prefix, const std::string & path, const std::string & chainName);
+    void fillTrigBphysHists(const xAOD::TrigBphys *bphysItem, const std::string & trigItem,
+                            const std::string & prefix, const std::string & path, const std::string & chainName);
+
     
-    // The following methods will eventually be implemented in new "V0Tools". For now,
-    // we will keep them here.
-    TVector3       trackMomentum(const xAOD::Vertex * vxCandidate, uint trkIndex) const;
-    TLorentzVector track4Momentum(const xAOD::Vertex * vxCandidate, int trkIndex, double mass) const;
-    TVector3       origTrackMomentum(const xAOD::Vertex * vxCandidate, int trkIndex) const;
-    TLorentzVector origTrack4Momentum(const xAOD::Vertex * vxCandidate, int trkIndex, double mass) const;
-    double         invariantMassError(const xAOD::Vertex* vxCandidate, std::vector<double> masses) const;
-    double         massErrorVKalVrt(const xAOD::Vertex * vxCandidate, std::vector<double> masses) const;
-    double         trackCharge(const xAOD::Vertex * vxCandidate, int i) const;
-    Amg::MatrixX*  convertVKalCovMatrix(int NTrk, const std::vector<float> & Matrix) const;
-    float          cosMethod(TLorentzVector Mu1, TLorentzVector Mu2, int Mu1_q) const;
-    float          phiMethod(TLorentzVector Mu1, TLorentzVector Mu2, int Mu1_q) const;
-    float          deltaR( float eta_1, float phi_1, float eta_2, float phi_2 ) const;
-    
-    
-    double m_muonMass;
-    
-    
-    std::vector<std::string> m_TrigNames;
-    std::vector<bool> m_TrigNames1D;
-    std::vector<std::string> m_bphysItems; //! Bphysics chains to test
-    std::vector<std::string> m_monGroup; //! Monitoring groups for trigger
-    std::vector<std::string> m_containerList; //! Container list
-    std::vector<std::string> m_effNum;
-    std::vector<std::string> m_effDenom;
-    std::vector<std::string> m_effNumGroup;
-    std::vector<std::string> m_effDenomGroup;
-    
-    std::string m_JpsiCandidatesKey;
-    
-    int L1passed;
-    int L2passed;
-    int EFpassed;
-    
-    int L1DiMu;
-    int L2DiMu;
-    int EFDiMu;
-	
-    //std::vector<std::string> TrigName;
-    //std::vector<bool> TrigName1D;
-    
-    std::vector<std::string> EffNum;
-    std::vector<std::string> EffDenom;
-    std::map<std::string, TH1F*> EffHistMap;
-    
+    // member variables
     const Trig::ChainGroup *m_all;
-    const Trig::ChainGroup *m_allL1;
-    const Trig::ChainGroup *m_allL2; // presumed obsolete
-    const Trig::ChainGroup *m_allEF; // presumed obsolete
-    const Trig::ChainGroup *m_allHLT;
-    
-    
-    // Method for managing the histogram divisions
-    void divide(TH1 *num, TH1 *den, TH1 *quo);
-    void divide2(TH2 *num, TH2 *den, TH2 *quo);
-    
 
-    //Job Option configurable parameters
     
+    
+    // property variables
+    double m_muonMass; //! mass of muon
+    std::string m_base_path_shifter; //!Base path to the shifter Bphys monitoring hists
+    std::string m_base_path_expert;  //!Base path to the expert  Bphys monitoring hists
+    std::string m_prefix;            //!Bphys histogram prefix name
+
+    typedef std::map<std::string, std::string> Table_t;
+    //typedef std::vector<std::pair<std::string, std::string> > Table_t;
+    Table_t m_dedicated_chains;  //! menu-independent labels with matching menu-aware chain names for dedicated monitoring
+    Table_t m_efficiency_chains; //! menu-independent labels with matching menu-aware chain names for numerator efficiencies
+
+    std::vector<std::string> m_containerList; //! Container list
+    
+    std::vector<std::string> m_monitored_chains; //! chaingroups for general monitoring
+
+    std::string m_JpsiCandidatesKey; //! offline di-muon container name
+    
+    
+    std::string m_trigchain_denomID; //! denominator trigger for ID efficiencies
+    std::string m_trigchain_denomMS;
+    std::string m_trigchain_denomL1;
+    std::string m_trigchain_denomL2;
+    std::string m_trigchain_denomEF;
+    std::string m_trigchain_denomnoVtxOS;
+    std::string m_trigchain_denomL1Topo;
+    
+    //property variables for histograms, etc.
     double m_mw_jpsi_forward_min;
     double m_mw_jpsi_forward_max ;
     double m_mw_upsi_forward_min;
@@ -166,11 +125,36 @@ private:
     double m_oniamass_max;
     double m_oniapt_min;
     double m_oniapt_max ;
+
     
     
+    // Method for managing the histogram divisions
+    void divide(TH1 *num, TH1 *den, TH1 *quo);
+    void divide2(TH2 *num, TH2 *den, TH2 *quo);
+
+    void divide2WithRow(TH2 *num, TH2 *quo,int denom_row=1); // use one row as the denominator hist
+
     
+    // The following methods will eventually be implemented in new "V0Tools". For now,
+    // we will keep them here.
+    TVector3       trackMomentum(const xAOD::Vertex * vxCandidate, uint trkIndex) const;
+    TLorentzVector track4Momentum(const xAOD::Vertex * vxCandidate, int trkIndex, double mass) const;
+    TVector3       origTrackMomentum(const xAOD::Vertex * vxCandidate, int trkIndex) const;
+    TLorentzVector origTrack4Momentum(const xAOD::Vertex * vxCandidate, int trkIndex, double mass) const;
+    double         invariantMassError(const xAOD::Vertex* vxCandidate, std::vector<double> masses) const;
+    double         massErrorVKalVrt(const xAOD::Vertex * vxCandidate, std::vector<double> masses) const;
+    double         trackCharge(const xAOD::Vertex * vxCandidate, int i) const;
+    Amg::MatrixX*  convertVKalCovMatrix(int NTrk, const std::vector<float> & Matrix) const;
+    float          cosMethod(const TLorentzVector & Mu1, const TLorentzVector & Mu2, int Mu1_q) const;
+    float          phiMethod(const TLorentzVector & Mu1, const TLorentzVector & Mu2, int Mu1_q) const;
+    float          deltaR( float eta_1, float phi_1, float eta_2, float phi_2 ) const;
+
+    float          absDeltaPhi(float phi_1, float phi_2 ) const;
+    float          absDeltaEta(float eta_1, float eta_2 ) const;
     
+    std::string    stripHLT(const std::string& chain) {return chain.substr(4);} // remove "HLT_" from the name
     
 };
 
 #endif
+

@@ -25,6 +25,19 @@ import re
 re_dimuon  = re.compile("HLT_(2mu\d+|mu\d+_?mu\d+)_(b.*)")
 re_trimuon = re.compile("HLT_(3mu\d+)_(b.*)")
 
+
+#Code to determine the form of the trigger
+def getForm(trigger_name):
+    """Get the class of trigger type from the name. Output warning if not found."""
+    allowed_values = {"BMuMu"  :[re.compile("HLT_(2mu\d+|mu\d+_?mu\d+)_(b.*)")],
+                      "BMuMuX" :[re.compile("HLT_(2mu\d+|mu\d+_?mu\d+)_(b.*)")],
+                      "MultiMu":[re.compile("HLT_(3mu\d+)_(b.*)")],
+                      "TrkMass":[re.compile("HLT_(\d?mu\d+)_(b")],
+                     }
+    pass
+
+
+
 for trig in bphysTriggers:
     res_dimuon  = re_dimuon.search(trig)
     res_trimuon = re_trimuon.search(trig)
@@ -40,16 +53,22 @@ from AthenaCommon.AppMgr import ToolSvc
 def TrigBphysMonitoringTool():
     from TrigBphysMonitoring.TrigBphysMonitoringConf import HLTXAODBphysMonTool
     HLTBphysMon = HLTXAODBphysMonTool(name       = 'HLTBphysMon',
-                                  histoPathBase      = "/Trigger/HLT",
-                                  TrigNames          = ["2mu6_DiMu"],
-                                  TrigNames1D        = [True],
-                                  BphysicsItems      = bphysTriggers,
-                                  MonGroup           = monGroups,
-                                  ContainerList      = containers,
-                                  EffNum             = ["HLT_2mu6_bDimu"            ,"HLT_2mu10_bDimu"],
-                                  EffNumGroup        = ["HLT_2mu6_Dimuon"           ,"HLT_2mu10_Dimuon"],
-                                  EffDenom           = ["HLT_2mu6_bDimu_novtx_noos" ,"HLT_2mu6_bDimu"],
-                                  EffDenomGroup      = ["HLT_2mu6_Dimuon"           ,"HLT_2mu6_Dimuon"],
+                                  JpsiCandidates = "JpsiCandidates",
+                                  BphysShifterPath='HLT/BphysMon/shifter',
+                                  BphysExpertPath ='HLT/BphysMon/expert',
+                                  BphysHistPrefix ='TrigBphys',
+                                  MonitoredChains =bphysTriggers, # carfeful here
+                                  ContainerList   =containers,
+                                  DetailedChains = {"BMuMu"  : "HLT_2mu6_bJpsimumu",
+                                                    "BMuMuX" : "HLT_2mu6_bBmumuxv2",
+                                                    "MuTrack": "HLT_mu6_bJpsi_Trkloose"
+                                                   },
+                                  EfficiencyChains = {"BMuMu"  : "HLT_2mu6_bJpsimumu",
+                                                      "BMuMuX" : "HLT_2mu6_bBmumuxv2",
+                                                      "MuTrack": "HLT_mu6_bJpsi_Trkloose"
+                                                     },
+                                  EffTrigDenom_noVtxOS = "HLT_2mu6_bDimu_novtx_noos",
+
                                   MW_jpsi_forward_min =  2800,
                                   MW_jpsi_forward_max =  3400,
                                   MW_upsi_forward_min =  8000,
@@ -77,13 +96,10 @@ def TrigBphysMonitoringTool():
                                   OniaMass_min        =  2000,
                                   OniaMass_max        =  12000,
                                   OniaPt_min          =  8,
-                                  OniaPt_max          =  100
-                                      
+                                  OniaPt_max          =  100,
                                   )
     from AthenaCommon.AppMgr import ToolSvc
-    ToolSvc += HLTBphysMon;
-    items = [ "HLTXAODBphysMonTool/HLTBphysMon" ];
+    ToolSvc += HLTBphysMon
+    items = [ "HLTXAODBphysMonTool/HLTBphysMon" ]
     return items
-
-
 
