@@ -10,7 +10,7 @@
 #define MUONTGRECTOOLS_MUONHOLESONTRACKTOOL_H
 
 // Base class
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -46,7 +46,7 @@ namespace Muon{
      @author Sarka.Todorova@cern.ch
      */
  
-class MuonHolesOnTrackTool : public AlgTool,
+class MuonHolesOnTrackTool : public AthAlgTool,
                              virtual public Trk::ITrackHoleSearchTool {  
 
 public:

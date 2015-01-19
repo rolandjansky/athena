@@ -12,7 +12,7 @@
 // Base class
 #include "MuonTGRecTools/IMuonTGMeasTool.h"
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "TrkTrack/Track.h"
@@ -48,7 +48,7 @@ namespace Muon{
      @author Sarka.Todorova@cern.ch
      */
  
-class MuonTGMeasurementTool : public AlgTool,
+class MuonTGMeasurementTool : public AthAlgTool,
                               virtual public IMuonTGMeasTool  {
 
 public:

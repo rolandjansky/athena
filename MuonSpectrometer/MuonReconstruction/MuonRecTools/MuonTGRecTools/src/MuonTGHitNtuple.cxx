@@ -5,8 +5,6 @@
 #include "MuonTGRecTools/MuonTGHitNtuple.h"
 
 // Gaudi
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/AlgTool.h"
 #include "TTree.h"
 #include "TFile.h"
 
@@ -44,7 +42,7 @@
 #include "HepPDT/ParticleData.hh"
 
 Muon::MuonTGHitNtuple::MuonTGHitNtuple(const std::string &name, ISvcLocator *pSvcLocator) :
-  Algorithm(name,pSvcLocator),
+  AthAlgorithm(name,pSvcLocator),
   m_mdtIdHelper(0),
   m_rpcIdHelper(0),
   m_tgcIdHelper(0),
@@ -101,8 +99,7 @@ Muon::MuonTGHitNtuple::MuonTGHitNtuple(const std::string &name, ISvcLocator *pSv
 
 StatusCode Muon::MuonTGHitNtuple::initialize() 
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "MuonTGHitNtuple::initialize()" << endreq;
+  ATH_MSG_INFO("MuonTGHitNtuple::initialize()");
  
   StatusCode sc;
 
@@ -175,7 +172,7 @@ StatusCode Muon::MuonTGHitNtuple::initialize()
 
   sc = service( "THistSvc", m_THistSvc, true );
   if( !sc.isSuccess() ) {
-    log << MSG::ERROR << "!! Unable to locate the THistSvc service !!" << endreq;
+    ATH_MSG_ERROR("!! Unable to locate the THistSvc service !!");
      return sc;
   }
  
@@ -184,7 +181,7 @@ StatusCode Muon::MuonTGHitNtuple::initialize()
   // Store Gate active store
   sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
   if (sc != StatusCode::SUCCESS ) {
-    log << MSG::ERROR << " Cannot get ActiveStoreSvc " << endreq;
+    ATH_MSG_ERROR(" Cannot get ActiveStoreSvc ");
     return sc ;
   }
 
@@ -192,13 +189,13 @@ StatusCode Muon::MuonTGHitNtuple::initialize()
   //StoreGateSvc* detStore = 0;
   sc = service("DetectorStore", m_detStore);
   if (sc.isFailure())   {
-    log << MSG::ERROR << "Can't locate the DetectorStore" << endreq; 
+    ATH_MSG_ERROR("Can't locate the DetectorStore"); 
     return sc;
   }
 
   sc=service("StoreGateSvc",m_StoreGate);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "StoreGate service not found !" << endreq;
+    ATH_MSG_FATAL("StoreGate service not found !");
     return StatusCode::FAILURE;
   } 
 
@@ -206,7 +203,7 @@ StatusCode Muon::MuonTGHitNtuple::initialize()
   sc = m_detStore->retrieve(m_mdtIdHelper,"MDTIDHELPER");
   if (sc.isFailure())
     {
-      log << MSG::ERROR << "Cannot retrieve MdtIdHelper" << endreq;
+      ATH_MSG_ERROR("Cannot retrieve MdtIdHelper");
       return sc;
     }
   //simulation identifier helper
@@ -216,7 +213,7 @@ StatusCode Muon::MuonTGHitNtuple::initialize()
   sc = m_detStore->retrieve(m_rpcIdHelper,"RPCIDHELPER");
   if (sc.isFailure())
     {
-      log << MSG::ERROR << "Cannot retrieve RpcIdHelper" << endreq;
+      ATH_MSG_ERROR("Cannot retrieve RpcIdHelper");
       return sc;
     }
   //simulation identifier helper
@@ -228,7 +225,7 @@ StatusCode Muon::MuonTGHitNtuple::initialize()
   sc = m_detStore->retrieve(m_tgcIdHelper,"TGCIDHELPER");
   if (sc.isFailure())
     {
-      log << MSG::ERROR << "Cannot retrieve TgcIdHelper" << endreq;
+      ATH_MSG_ERROR("Cannot retrieve TgcIdHelper");
       return sc;
     }
 
@@ -236,14 +233,14 @@ StatusCode Muon::MuonTGHitNtuple::initialize()
   sc = m_detStore->retrieve(m_cscIdHelper,"CSCIDHELPER");
   if (sc.isFailure())
     {
-      log << MSG::ERROR << "Cannot retrieve CscIdHelper" << endreq;
+      ATH_MSG_ERROR("Cannot retrieve CscIdHelper");
       return sc;
     }
 
   sc = m_detStore->retrieve(m_muonMgr);
   if (sc.isFailure())
     {
-      log << MSG::ERROR << "Cannot retrieve MuonDetectorManager..." << endreq;
+      ATH_MSG_ERROR("Cannot retrieve MuonDetectorManager...");
       return sc;
     }
 
@@ -251,41 +248,40 @@ StatusCode Muon::MuonTGHitNtuple::initialize()
   if (m_processHoles) {
     sc = m_holesTool.retrieve();
     if (sc.isFailure()) {
-      log<<MSG::ERROR<<"Could not find holes-on-track tool " << endreq;
+      ATH_MSG_ERROR("Could not find holes-on-track tool ");
     } else {
-      log << MSG::INFO << "holes-on-track tool booked "<< endreq;
+      ATH_MSG_INFO("holes-on-track tool booked ");
     }
   }
 
   // get measurement tool
   sc = m_measTool.retrieve();
   if (sc.isFailure()) {
-    log<<MSG::ERROR<<"Could not find TG measurement tool " << endreq;
+    ATH_MSG_ERROR("Could not find TG measurement tool ");
   } else {
-    log << MSG::INFO << "TG measurement tool booked "<< endreq;
+    ATH_MSG_INFO("TG measurement tool booked ");
   }
 
   // get extrapolator
   sc = m_extrapolator.retrieve();
   if (sc.isFailure()) {
-    log<<MSG::FATAL<<"Could not find extrapolator tool. Exiting."
-       << endreq;
+    ATH_MSG_FATAL("Could not find extrapolator tool. Exiting.");
     return 0;
   } else {
-    log << MSG::INFO << "Extrapolator tool booked " << endreq;
+    ATH_MSG_INFO("Extrapolator tool booked ");
   }
 
   //  get the ParticleProperties 
   if (m_particlePropSvc.retrieve().isFailure())
     {
-      log << MSG::FATAL << "Can not retrieve " << m_particlePropSvc << endreq;
+      ATH_MSG_FATAL("Can not retrieve " << m_particlePropSvc );
       return StatusCode::FAILURE;
     }
   // and the particle data table 
   m_particleDataTable = m_particlePropSvc->PDT();
   if( !m_particleDataTable )   {
-    log << MSG::ERROR << "Could not get ParticleDataTable!"
-	<< " Cannot associate pdg code with charge!" << endreq;
+    ATH_MSG_ERROR("Could not get ParticleDataTable!"
+	<< " Cannot associate pdg code with charge!");
     return StatusCode::FAILURE;
   }
   
@@ -294,8 +290,7 @@ StatusCode Muon::MuonTGHitNtuple::initialize()
 
 StatusCode Muon::MuonTGHitNtuple::execute()
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "filling ntuple" << endreq;
+  ATH_MSG_INFO("filling ntuple");
   
   fillSimNtuple();
 
@@ -304,11 +299,11 @@ StatusCode Muon::MuonTGHitNtuple::execute()
     if ( m_inputFatrasTrackCollection != "") {
       StatusCode sc = m_StoreGate->retrieve(m_inputFatrasTracks, m_inputFatrasTrackCollection);
       if (sc.isFailure()){
-	log << MSG::ERROR <<"Track collection named " << m_inputFatrasTrackCollection << " not found " << endreq;
+	ATH_MSG_ERROR("Track collection named " << m_inputFatrasTrackCollection << " not found ");
       }
     }
     else {
-      log << MSG::ERROR <<"m_inputFatrasTrackCollection not set" << endreq;
+      ATH_MSG_ERROR("m_inputFatrasTrackCollection not set");
       m_inputFatrasTracks = 0;
     }
 
@@ -320,11 +315,11 @@ StatusCode Muon::MuonTGHitNtuple::execute()
   if (m_inputTrackCollection != "") {
     StatusCode sc = m_StoreGate->retrieve(m_inputTracks, m_inputTrackCollection);
     if (sc.isFailure()){
-	log << MSG::ERROR <<"Track collection named " << m_inputTrackCollection << " not found " << endreq;
+	ATH_MSG_ERROR("Track collection named " << m_inputTrackCollection << " not found ");
     }
   }
   else {
-    log << MSG::ERROR <<"m_inputTrackCollection not set" << endreq;
+    ATH_MSG_ERROR("m_inputTrackCollection not set");
       m_inputTracks = 0;
   }
   
@@ -345,9 +340,9 @@ StatusCode Muon::MuonTGHitNtuple::execute()
       // record the new track collection
       StatusCode sc = m_StoreGate->record(m_inputTracks,"HolesFromSim");
       if (sc.isFailure()){
-	log << MSG::ERROR << "New Track Container could not be recorded in StoreGate !" << endreq;   
+	ATH_MSG_ERROR("New Track Container could not be recorded in StoreGate !");   
       } else {
-	log << MSG::INFO << "HolesFromSim recorded in StoreGate" << endreq;   
+	ATH_MSG_INFO("HolesFromSim recorded in StoreGate");   
       }
     }
   }
@@ -359,8 +354,7 @@ StatusCode Muon::MuonTGHitNtuple::execute()
 
 StatusCode Muon::MuonTGHitNtuple::finalize() 
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "MuonTGHitNtuple::finalize()" << endreq;
+  ATH_MSG_INFO("MuonTGHitNtuple::finalize()");
 
   // write output and close file
   // m_outFile->Write();
@@ -393,7 +387,7 @@ void Muon::MuonTGHitNtuple::fillFatras() const
   if ((*m_activeStore)->retrieve(mdt_hit, key)) {
     MDTSimHitCollection::const_iterator ci =mdt_hit->begin();
     MDTSimHitCollection::const_iterator ce =mdt_hit->end();
-    log << MSG::INFO << "MDT Fatras Hits Container retrieved " << ce-ci<< endreq;
+    ATH_MSG_INFO("MDT Fatras Hits Container retrieved " << ce-ci );
     for (; ci != ce; ci++) {
       const int id = ci->MDTid();
       std::string stationName = mdtHelper->GetStationName(id);
@@ -445,7 +439,7 @@ void Muon::MuonTGHitNtuple::fillFatras() const
   if ((*m_activeStore)->retrieve(rpc_hit, key)) {
     RPCSimHitCollection::const_iterator ci =rpc_hit->begin();
     RPCSimHitCollection::const_iterator ce =rpc_hit->end();
-    log << MSG::INFO << key << " container retrieved " << ce-ci << endreq;
+    ATH_MSG_INFO( key << " container retrieved " << ce-ci );
     for (; ci != ce; ci++) {
 
       Identifier iRpc = getRpcId(&(*ci));
@@ -489,7 +483,7 @@ void Muon::MuonTGHitNtuple::fillFatras() const
   if ((*m_activeStore)->retrieve(csc_hit, key)) {
     CSCSimHitCollection::const_iterator ci =csc_hit->begin();
     CSCSimHitCollection::const_iterator ce =csc_hit->end();
-    log << MSG::INFO << key << " container retrieved " << ce-ci << endreq;
+    ATH_MSG_INFO( key << " container retrieved " << ce-ci );
     for (; ci != ce; ci++) {
       int barcode = ci->trackNumber()+1;   // just an index
 
@@ -516,7 +510,7 @@ void Muon::MuonTGHitNtuple::fillFatras() const
   if ((*m_activeStore)->retrieve(tgc_hit, key)) {
     TGCSimHitCollection::const_iterator ci =tgc_hit->begin();
     TGCSimHitCollection::const_iterator ce =tgc_hit->end();
-    log << MSG::INFO << key << " container retrieved " << ce-ci << endreq;
+    ATH_MSG_INFO( key << " container retrieved " << ce-ci );
     for (; ci != ce; ci++) {
       int barcode = ci->trackNumber()+1;   // just an index
 
@@ -719,7 +713,7 @@ void Muon::MuonTGHitNtuple::fillRecNtuple(const TrackCollection* tracks ) const
 	  }
           m_nHole++;
 	} else {
-          log << MSG::DEBUG << "missing hole parameters?" << endreq;
+          ATH_MSG_DEBUG("missing hole parameters?");
 	}
       }
     }
@@ -737,23 +731,21 @@ void Muon::MuonTGHitNtuple::fillRecNtuple(const TrackCollection* tracks ) const
 
   int unmatched_sim = 0;
   for (int is=0;is<m_nSimHit;is++) if (m_sim_hole_match[is]<0) unmatched_sim++; 
-  log << MSG::DEBUG << "number of simHit, recHits, holes, in this event:" << m_nSimHit <<"," << m_nHit <<","<< m_nHole << endreq;
-  log << MSG::DEBUG << "number of unmatched simHit, recHits, holes, in this event:" << unmatched_sim <<","<< unmatched_hit<<"," << unmatched_hole << endreq;
+  ATH_MSG_DEBUG("number of simHit, recHits, holes, in this event:" << m_nSimHit <<"," << m_nHit <<","<< m_nHole );
+  ATH_MSG_DEBUG("number of unmatched simHit, recHits, holes, in this event:" << unmatched_sim <<","<< unmatched_hit<<"," << unmatched_hole );
 }
 
 void Muon::MuonTGHitNtuple::fillSimNtuple() const
 {      
-  MsgStream log(msgSvc(), name());
-
   m_nSim = 0;
   const McEventCollection* McEventCollection = 0;
   StatusCode sc = m_StoreGate->retrieve(McEventCollection, m_mcEventCollection);
  
   if (StatusCode::SUCCESS == sc ) {
-    log<<MSG::DEBUG << " McEventCollection collection retrieved " <<endreq;
+    ATH_MSG_DEBUG(" McEventCollection collection retrieved ");
     
   } else {
-    log<<MSG::WARNING <<  " McEventCollection collection NOT retrieved "<<endreq;
+    ATH_MSG_WARNING(" McEventCollection collection NOT retrieved ");
     return;
   }
   const HepMC::GenEvent*    myGenEvent = *(McEventCollection -> begin());
@@ -811,7 +803,7 @@ void Muon::MuonTGHitNtuple::fillSimNtuple() const
   if ((*m_activeStore)->retrieve(mdt_hit, key)) {
     MDTSimHitCollection::const_iterator ci =mdt_hit->begin();
     MDTSimHitCollection::const_iterator ce =mdt_hit->end();
-    log << MSG::INFO << " MDT Hits Container retrieved " << ce-ci<<"," << muon_map.size()<< endreq;
+    ATH_MSG_INFO(" MDT Hits Container retrieved " << ce-ci<<"," << muon_map.size() );
     for (; ci != ce; ci++) {
       const int id = ci->MDTid();
       std::string stationName = mdtHelper->GetStationName(id);
@@ -866,7 +858,7 @@ void Muon::MuonTGHitNtuple::fillSimNtuple() const
   if ((*m_activeStore)->retrieve(rpc_hit, key)) {
     RPCSimHitCollection::const_iterator ci =rpc_hit->begin();
     RPCSimHitCollection::const_iterator ce =rpc_hit->end();
-    log << MSG::INFO << key << " container retrieved " << ce-ci << endreq;
+    ATH_MSG_INFO( key << " container retrieved " << ce-ci );
     for (; ci != ce; ci++) {
       
       Identifier iRpc = getRpcId(&(*ci));
@@ -908,7 +900,7 @@ void Muon::MuonTGHitNtuple::fillSimNtuple() const
   if ((*m_activeStore)->retrieve(tgc_hit, key)) {
     TGCSimHitCollection::const_iterator ci =tgc_hit->begin();
     TGCSimHitCollection::const_iterator ce =tgc_hit->end();
-    log << MSG::INFO << key << " container retrieved " << ce-ci << endreq;
+    ATH_MSG_INFO( key << " container retrieved " << ce-ci );
     for (; ci != ce; ci++) {
       //Identifier iTgc = getTgcId(&(*ci));
 
@@ -937,7 +929,7 @@ void Muon::MuonTGHitNtuple::fillSimNtuple() const
   if ((*m_activeStore)->retrieve(csc_hit, key)) {
     CSCSimHitCollection::const_iterator ci =csc_hit->begin();
     CSCSimHitCollection::const_iterator ce =csc_hit->end();
-    log << MSG::INFO << key << " container retrieved " << ce-ci << endreq;
+    ATH_MSG_INFO( key << " container retrieved " << ce-ci );
     for (; ci != ce; ci++) {
       Identifier iCsc = getCscId(&(*ci));
       //std::cout << "csc global time:"<< ci->globalTime() << std::endl;
@@ -964,7 +956,7 @@ void Muon::MuonTGHitNtuple::fillSimNtuple() const
   const DataHandle<MuonSimDataCollection> mdt_sdo;
   StatusCode sc_read = (*m_activeStore)->retrieve(mdt_sdo, key);
   if (sc_read.isFailure()) {
-    log << MSG::ERROR << " Cannot retrieve MDT SDO Container " << endreq;
+    ATH_MSG_ERROR(" Cannot retrieve MDT SDO Container ");
   } else {
     MuonSimDataCollection::const_iterator ci =mdt_sdo->begin();
     MuonSimDataCollection::const_iterator ce =mdt_sdo->end();
@@ -997,7 +989,7 @@ void Muon::MuonTGHitNtuple::fillSimNtuple() const
   const DataHandle<MuonSimDataCollection> rpc_sdo;
   sc_read = (*m_activeStore)->retrieve(rpc_sdo, key);
   if (sc_read.isFailure()) {
-    log << MSG::ERROR << " Cannot retrieve RPC SDO Container " << endreq;
+    ATH_MSG_ERROR(" Cannot retrieve RPC SDO Container ");
   } else {
     MuonSimDataCollection::const_iterator ci =rpc_sdo->begin();
     MuonSimDataCollection::const_iterator ce =rpc_sdo->end();
@@ -1030,7 +1022,7 @@ void Muon::MuonTGHitNtuple::fillSimNtuple() const
   const DataHandle<MuonSimDataCollection> tgc_sdo;
   sc_read = (*m_activeStore)->retrieve(tgc_sdo, key);
   if (sc_read.isFailure()) {
-    log << MSG::ERROR << " Cannot retrieve TGC SDO Container " << endreq;
+    ATH_MSG_ERROR(" Cannot retrieve TGC SDO Container ");
   } else {
     MuonSimDataCollection::const_iterator ci =tgc_sdo->begin();
     MuonSimDataCollection::const_iterator ce =tgc_sdo->end();
@@ -1122,15 +1114,15 @@ void Muon::MuonTGHitNtuple::fillHoles(const TrackCollection* tracks) const
     }
   }
 
-  log << MSG::DEBUG << "fillHoles: number of simHit, holes, in this event:" << m_nSimHit <<"," << m_nHole << endreq;
-  log << MSG::DEBUG << "fillHoles: number of unmatched holes, in this event:" << unmatched_hole << endreq;
+  ATH_MSG_DEBUG("fillHoles: number of simHit, holes, in this event:" << m_nSimHit <<"," << m_nHole );
+  ATH_MSG_DEBUG("fillHoles: number of unmatched holes, in this event:" << unmatched_hole );
 
   // record the new track collection
   StatusCode sc = m_StoreGate->record(m_looseEnds,"LooseEnds");
   if (sc.isFailure()){
-    log << MSG::ERROR << "New Track Container could not be recorded in StoreGate !" << endreq;   
+    ATH_MSG_ERROR("New Track Container could not be recorded in StoreGate !");   
   } else {
-    log << MSG::INFO << "LooseEnds recorded in StoreGate" << endreq;   
+    ATH_MSG_INFO("LooseEnds recorded in StoreGate");   
   }
 
   // alternative way of generating holes : create new track with holes
@@ -1144,9 +1136,9 @@ void Muon::MuonTGHitNtuple::fillHoles(const TrackCollection* tracks) const
   // record the new track collection
   sc = m_StoreGate->record(m_newTracks,"TracksWithHoles");
   if (sc.isFailure()){
-    log << MSG::ERROR << "New Track Container could not be recorded in StoreGate !" << endreq;   
+    ATH_MSG_ERROR("New Track Container could not be recorded in StoreGate !");   
   } else {
-    log << MSG::INFO << "TracksWithHoles recorded in StoreGate" << endreq;   
+    ATH_MSG_INFO("TracksWithHoles recorded in StoreGate");   
   }
 
   // loop over the collection to check hole parameters
@@ -1155,8 +1147,8 @@ void Muon::MuonTGHitNtuple::fillHoles(const TrackCollection* tracks) const
     DataVector<const Trk::TrackStateOnSurface>::const_iterator iter = recTSOS->begin(); 
     for ( ;iter!= recTSOS->end(); iter++) {
       if ( (*iter)->type(Trk::TrackStateOnSurface::Hole) ) {
-        if (!(*iter)->trackParameters()) log << MSG::ERROR << "hole without parameters!" << endreq;
-        else log << MSG::DEBUG << "hole at position: " << (*iter)->trackParameters()->position() << endreq;
+        if (!(*iter)->trackParameters()) ATH_MSG_ERROR("hole without parameters!");
+        else ATH_MSG_DEBUG("hole at position: " << (*iter)->trackParameters()->position() );
       }
     }
   }
@@ -1173,12 +1165,10 @@ const TrackCollection* Muon::MuonTGHitNtuple::holesFromSim() const
   if ( !m_trackingGeometry ) {
     StatusCode sc = m_detStore->retrieve(m_trackingGeometry, m_trackingGeometryName);
     if (sc.isFailure()) {
-      log<<MSG::FATAL<<"Could not find geometry "<< m_trackingGeometryName<<". Exiting."
-	 << endreq;
+      ATH_MSG_FATAL("Could not find geometry "<< m_trackingGeometryName<<". Exiting.");
       return 0;
     } else {
-      log << MSG::DEBUG << "  geometry Svc \""<<m_trackingGeometryName<<"\" booked "
-	  << endreq;
+      ATH_MSG_DEBUG("  geometry Svc \""<<m_trackingGeometryName<<"\" booked ");
     }
   }
 
@@ -1212,11 +1202,11 @@ const TrackCollection* Muon::MuonTGHitNtuple::holesFromSim() const
 	// we are interested in muon layers only !
 	if (layer) {
 	  const Trk::DetachedTrackingVolume* detVol = layer->enclosingDetachedTrackingVolume();
-	  if (!detVol) log << MSG::ERROR << "MuonHolesOnTrackTool::getHolesOnTrack: no enclosing detached volume?!" << endreq;
+	  if (!detVol) ATH_MSG_ERROR("MuonHolesOnTrackTool::getHolesOnTrack: no enclosing detached volume?!");
 	  if (!detVol) layer=0;
 	}
 	if (!layer) {
-	  log << MSG::ERROR << "MuonTGHitNtuple::holesFromSim: no associated layer?!" << endreq;
+	  ATH_MSG_ERROR("MuonTGHitNtuple::holesFromSim: no associated layer?!");
 	} else {
           // compare with expected
           if ( layer != (*sIter).first && sIter+1 != simLayers->end() ) {
@@ -1224,8 +1214,8 @@ const TrackCollection* Muon::MuonTGHitNtuple::holesFromSim() const
             else {
               Trk::DistanceSolution distSol = (*(sIter+1)).first->surfaceRepresentation().straightLineDistanceEstimate(nextPar->position(),nextPar->momentum().unit()); 
 	      if ( distSol.numberOfSolutions() && distSol.first()<0.) {
-		log << MSG::DEBUG << "missed simLayer:current active:" << (*(sIter+1)).first->surfaceRepresentation().center() <<","
-			  << nextPar->position() << "," << distSol.first()<< endreq;  
+		ATH_MSG_DEBUG("missed simLayer:current active:" << (*(sIter+1)).first->surfaceRepresentation().center() <<","
+			  << nextPar->position() << "," << distSol.first() );
 		const Trk::TrackParameters* repPar = m_extrapolator->extrapolate(*currPar,(*(sIter+1)).first->surfaceRepresentation(),
 										 Trk::alongMomentum,false,Trk::muon) ;
 		if (repPar) {
