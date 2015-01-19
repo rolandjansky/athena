@@ -3,7 +3,6 @@
 */
 
 #include "GaudiKernel/ToolFactory.h"
-#include "GaudiKernel/MsgStream.h"
 
 #include "StoreGate/StoreGateSvc.h"
 
@@ -25,7 +24,7 @@ using namespace std;
 MM_Response_DigitTool::MM_Response_DigitTool( const std::string& type,
                                               const std::string& name,
                                               const IInterface* parent )
-  : AlgTool(type,name,parent)
+  : AthAlgTool(type,name,parent)
   , m_rndmEngine(0)
   , m_rndmEngineName("MuonDigitization")
   , m_rndmSvc("AtRndmGenSvc", name )
@@ -45,8 +44,6 @@ MmDigitToolOutput MM_Response_DigitTool::digitize( /*const MmDigitToolInput& inp
 /*******************************************************************************/ 
 StatusCode MM_Response_DigitTool::initialize()
 {
-  MsgStream log(msgSvc(),name());
-
   StoreGateSvc* detStore=0;
   StatusCode status = serviceLocator()->service("DetectorStore", detStore);
 
@@ -54,14 +51,14 @@ StatusCode MM_Response_DigitTool::initialize()
     if(detStore->contains<MuonDetectorManager>( "Muon" )){
       status = detStore->retrieve(m_muonGeoMgr);
       if (status.isFailure()) {
-        if (log.level()<=MSG::FATAL) log << MSG::FATAL << "Could not retrieve MuonGeoModelDetectorManager!" << endreq;
+        ATH_MSG_FATAL("Could not retrieve MuonGeoModelDetectorManager!");
         return status;
       }
       else {
-        if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "MuonGeoModelDetectorManager retrieved from StoreGate."<< endreq;
+        ATH_MSG_DEBUG("MuonGeoModelDetectorManager retrieved from StoreGate.");
         //initialize the MdtIdHelper
         m_idHelper = m_muonGeoMgr->mmIdHelper();
-        if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "MdtIdHelper: " << m_idHelper << endreq;
+        ATH_MSG_DEBUG("MdtIdHelper: " << m_idHelper );
         if(!m_idHelper) return status;
       }
     }
@@ -69,15 +66,15 @@ StatusCode MM_Response_DigitTool::initialize()
 
   if (!m_rndmSvc.retrieve().isSuccess())
     {
-      if (log.level()<=MSG::FATAL) log << MSG::FATAL << " Could not initialize Random Number Service" << endreq;
+      ATH_MSG_FATAL(" Could not initialize Random Number Service");
       return StatusCode::FAILURE;
     }     
 	   
   // getting our random numbers stream
-  if (log.level()<=MSG::DEBUG) log << MSG::DEBUG << "Getting random number engine : <" << m_rndmEngineName << ">" << endreq;
+  ATH_MSG_DEBUG("Getting random number engine : <" << m_rndmEngineName << ">");
   m_rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
   if (m_rndmEngine==0) {
-    if (log.level()<=MSG::FATAL) log << MSG::FATAL << "Could not find RndmEngine : " << m_rndmEngineName << endreq;
+    ATH_MSG_FATAL("Could not find RndmEngine : " << m_rndmEngineName );
     return StatusCode::FAILURE;
   }
 	
