@@ -8,7 +8,7 @@
 # Dependency on ${OBJS} - the full list of $(dict)${NAME}.h, is needed
 # for parallel build
 $(dict)${CONSTITUENT}.cxx :: ${OBJS} #$(dict)${CONSTITUENT}.stamp 
-	cd $(src); $(rootcint) -f $(dict)${CONSTITUENT}.cxx ${rootmap_opts} -c ${root_cint_includes} `cat ${OBJS}`  
+	cd $(bin); $(rootcint) -f $(dict)${CONSTITUENT}.cxx ${rootmap_opts} -c ${root_cint_includes} `cat ${OBJS}`  
 
 
 
