@@ -18,6 +18,9 @@ namespace MuonCombined {
 
   MuGirlLowBetaTag::~MuGirlLowBetaTag() {
     delete m_combinedTrack;
+    delete m_stauSummary;
+    delete m_stauExtras;
+    delete m_rhExtras;
     for( auto x : m_segments ) delete x;
   }
 
