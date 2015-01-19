@@ -162,7 +162,7 @@ namespace CaloExtensionHelpers {
                       const Trk::CurvilinearParameters& entry,const Trk::CurvilinearParameters& exit ){
         auto& val = vec[parsIdHelper.caloSample(entry.cIdentifier())];
         val.first  = true;
-        val.second = 0.5*( exit.position() - entry.position() );
+        val.second = 0.5*( exit.position() + entry.position() );
         //std::cout << "  adding mid point, sampling " << parsIdHelper.caloSample(entry.cIdentifier()) << std::endl;
       }
     } extract;
@@ -249,7 +249,7 @@ namespace CaloExtensionHelpers {
       Trk::TrackParametersIdHelper  parsIdHelper;
       void operator()(EtaPhiHashLookupVector& vec, const Trk::CurvilinearParameters& entry,const Trk::CurvilinearParameters& exit ){
         auto& val = vec[parsIdHelper.caloSample(entry.cIdentifier())];
-        Amg::Vector3D pos = 0.5*( exit.position() - entry.position() );
+        Amg::Vector3D pos = 0.5*( exit.position() + entry.position() );
         std::get<0>(val) = true;
         std::get<1>(val) = pos.eta();
         std::get<2>(val) = pos.phi();
@@ -265,7 +265,7 @@ namespace CaloExtensionHelpers {
     struct Extractor {
       Trk::TrackParametersIdHelper  parsIdHelper;
       void operator()(EtaPhiPerLayerVector& vec, const Trk::CurvilinearParameters& entry,const Trk::CurvilinearParameters& exit ){
-        Amg::Vector3D pos = 0.5*( exit.position() - entry.position() );
+        Amg::Vector3D pos = 0.5*( exit.position() + entry.position() );
         vec.push_back( std::make_tuple(parsIdHelper.caloSample(entry.cIdentifier()),pos.eta(),pos.phi()) );
       }
     } extract;
