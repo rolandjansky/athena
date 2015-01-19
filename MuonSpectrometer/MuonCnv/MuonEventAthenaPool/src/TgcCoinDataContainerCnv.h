@@ -17,6 +17,7 @@
 
 #include "MuonEventTPCnv/TgcCoinDataContainerCnv_tlp1.h"
 #include "MuonEventTPCnv/TgcCoinDataContainerCnv_tlp2.h"
+#include "MuonEventTPCnv/TgcCoinDataContainerCnv_tlp3.h"
 
 class StoreGateSvc;
 class TgcIdHelper;
@@ -26,7 +27,7 @@ namespace MuonGM {
 }
 
 // the latest persistent representation type of DataCollection:
-typedef  Muon::TgcCoinDataContainer_tlp2  TgcCoinDataContainer_PERS;
+typedef  Muon::TgcCoinDataContainer_tlp3  TgcCoinDataContainer_PERS;
 typedef  T_AthenaPoolCustomCnv<Muon::TgcCoinDataContainer, TgcCoinDataContainer_PERS >  TgcCoinDataContainerCnvBase;
 
 /**
@@ -48,7 +49,7 @@ public:
 
     // Must initialize ID helpers
     virtual StatusCode initialize();
-    virtual AthenaPoolTopLevelTPCnvBase*  getTopLevelTPCnv() { return &m_TPConverter_tlp2; }
+    virtual AthenaPoolTopLevelTPCnvBase*  getTopLevelTPCnv() { return &m_TPConverter_tlp3; }
         
 private:
     //TgcCoinDataCollVec              m_prdCollVec;
@@ -58,6 +59,7 @@ private:
     //TgcCoinDataContainerCnv_p1   m_converter_p1;
     TgcCoinDataContainerCnv_tlp1    m_TPConverter_tlp1;
     TgcCoinDataContainerCnv_tlp2    m_TPConverter_tlp2;
+    TgcCoinDataContainerCnv_tlp3    m_TPConverter_tlp3;
     
     //const TgcIdHelper*   m_cscId;
     //const MuonGM::MuonDetectorManager* m_muonMgr; //!< Muon Detector Manager
