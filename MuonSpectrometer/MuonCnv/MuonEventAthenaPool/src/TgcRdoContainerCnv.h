@@ -15,12 +15,14 @@
 #include "MuonRdoContainerTPCnv.h"
 #include "TgcRdoContainerCnv_p1.h"
 #include "TgcRdoContainerCnv_p2.h"
+#include "TgcRdoContainerCnv_p3.h"
 #include "MuonEventAthenaPool/TgcRdoContainer_p1.h"
 #include "MuonEventAthenaPool/TgcRdoContainer_p2.h"
+#include "MuonEventAthenaPool/TgcRdoContainer_p3.h"
 #include "MuonRDO/TgcRdoContainer.h"
 
 
-typedef MuonRdoContainerTPCnv<TgcRdoContainer, TgcRdoContainer_p2, TgcRdoContainerCnv_p2 >
+typedef MuonRdoContainerTPCnv<TgcRdoContainer, TgcRdoContainer_p3, TgcRdoContainerCnv_p3 >
 TgcRdoContainerCnv;
 
 
@@ -37,13 +39,19 @@ TgcRdoContainerCnv::createTransient()
    // using the correct persistent type pointer
 
    TgcRdoContainer *trans_cont = 0;
+   static pool::Guid	p3_guid("E7D45D90-CB92-4A7D-B5FE-2791CE34FFEE");
    static pool::Guid	p2_guid("3DA250DA-321C-4DD3-996A-BB0E67A6034D");
    static pool::Guid	p1_guid("BF9D17EA-AC87-4243-9126-8FC86DDCDAA3");
    static pool::Guid	p0_guid("FBF8D72D-A6B9-4689-8E02-BB0F435BF2F7");
 
-   if( compareClassGuid(p2_guid) ) {
-      std::auto_ptr< TgcRdoContainer_p2 >  col_vect( this->poolReadObject<TgcRdoContainer_p2>() );
+   if( compareClassGuid(p3_guid) ) {
+      std::auto_ptr< TgcRdoContainer_p3 >  col_vect( this->poolReadObject<TgcRdoContainer_p3>() );
       trans_cont =  m_TPconverter.createTransient( col_vect.get(), log );
+   }
+   else if( compareClassGuid(p2_guid) ) {
+      std::auto_ptr< TgcRdoContainer_p2 >  col_vect( this->poolReadObject<TgcRdoContainer_p2>() );
+      TgcRdoContainerCnv_p2 cnv;
+      trans_cont =  cnv.createTransient( col_vect.get(), log );
    }
    else if( compareClassGuid(p1_guid) ) {
       std::auto_ptr< TgcRdoContainer_p1 >  col_vect( this->poolReadObject<TgcRdoContainer_p1>() );
