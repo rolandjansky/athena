@@ -376,63 +376,67 @@
 !     enddo
 
 
-!JFL Wed Jun 22 12:09:40 CEST 2011
-!Formula from Stefania 
-! Prefered because Christophe and Stefania checked that they agreed     
-!    Stef_s0mdt = S 
-     Stef_t0mdt = T
-     Stef_z0mdt = Z
+!!JFL Wed Jun 22 12:09:40 CEST 2011
+!!Formula from Stefania 
+!! Prefered because Christophe and Stefania checked that they agreed     
+!!    Stef_s0mdt = S 
+     !Stef_t0mdt = T
+     !Stef_z0mdt = Z
      
-!AO 12 sept 2011
-!     Stef_phiEP   =  0.5d0 * ( chfb_ep + chfb_en ) &
-!                   + 0.5d0 * ( chfb_ep - chfb_en )    
-!     Stef_phiEN   =  0.5d0 * ( chfb_ep + chfb_en ) &
-!                   - 0.5d0 * ( chfb_ep - chfb_en )
-     Stef_phiEP = chfb_ep
-     Stef_phiEN = chfb_en
-!A0
+!!AO 12 sept 2011
+!!     Stef_phiEP   =  0.5d0 * ( chfb_ep + chfb_en ) &
+!!                   + 0.5d0 * ( chfb_ep - chfb_en )    
+!!     Stef_phiEN   =  0.5d0 * ( chfb_ep + chfb_en ) &
+!!                   - 0.5d0 * ( chfb_ep - chfb_en )
+     !Stef_phiEP = chfb_ep
+     !Stef_phiEN = chfb_en
+!!A0
      
-!AO 20 dec 2011
-!    Stef_deltaEP =  ( chfb_ep + chfb_en ) / 6.d0  &
-!         + 0.25d0 * ( chfb_ep - chfb_en )
-!    Stef_deltaEN = -( chfb_ep + chfb_en ) / 6.d0  &
-!         + 0.25d0 * ( chfb_ep - chfb_en )
-!
-!    Stef_sEP =  0.5d0 * chfb_width &
-!              + 0.5d0 * Stef_deltaEP * chfb_width
-!AO
-     Stef_tEP = Stef_t0mdt * ( 1.d0 + Stef_phiEP ) &
-               - 0.5d0 * Stef_phiEP * chfb_height
-     Stef_zEP = Stef_z0mdt * ( 1.d0 + Stef_phiEP ) &
-               - 0.5d0 * Stef_phiEP * chfb_length 
+!!AO 20 dec 2011
+!!    Stef_deltaEP =  ( chfb_ep + chfb_en ) / 6.d0  &
+!!         + 0.25d0 * ( chfb_ep - chfb_en )
+!!    Stef_deltaEN = -( chfb_ep + chfb_en ) / 6.d0  &
+!!         + 0.25d0 * ( chfb_ep - chfb_en )
+!!
+!!    Stef_sEP =  0.5d0 * chfb_width &
+!!              + 0.5d0 * Stef_deltaEP * chfb_width
+!!AO
+     !Stef_tEP = Stef_t0mdt * ( 1.d0 + Stef_phiEP ) &
+               !- 0.5d0 * Stef_phiEP * chfb_height
+     !Stef_zEP = Stef_z0mdt * ( 1.d0 + Stef_phiEP ) &
+               !- 0.5d0 * Stef_phiEP * chfb_length 
      
-!    Stef_sEN = -0.5d0 * chfb_width &
-!              + 0.5d0 * Stef_deltaEN * chfb_width 
-     Stef_tEN = Stef_t0mdt * ( 1.d0 + Stef_phiEN ) &
-               - 0.5d0 * Stef_phiEN * chfb_height
-     Stef_zEN = Stef_z0mdt * ( 1.d0 + Stef_phiEN ) &
-              - 0.5d0 * Stef_phiEN * chfb_length
+!!    Stef_sEN = -0.5d0 * chfb_width &
+!!              + 0.5d0 * Stef_deltaEN * chfb_width 
+     !Stef_tEN = Stef_t0mdt * ( 1.d0 + Stef_phiEN ) &
+               !- 0.5d0 * Stef_phiEN * chfb_height
+     !Stef_zEN = Stef_z0mdt * ( 1.d0 + Stef_phiEN ) &
+              !- 0.5d0 * Stef_phiEN * chfb_length
 
-!     Stef_delta = Srel*Srel*Srel *( chfb_ep + chfb_en ) / 6.d0  &
-!                + Srel*Srel      * 0.25d0 * ( chfb_ep - chfb_en )
-!     
-!     Stef_sNew = Stef_s0mdt &
-!               + 0.5d0 * Stef_delta * chfb_width - Stef_sEN
+!!     Stef_delta = Srel*Srel*Srel *( chfb_ep + chfb_en ) / 6.d0  &
+!!                + Srel*Srel      * 0.25d0 * ( chfb_ep - chfb_en )
+!!     
+!!     Stef_sNew = Stef_s0mdt &
+!!               + 0.5d0 * Stef_delta * chfb_width - Stef_sEN
 
-!AO  12 sept 2011
-!     Stef_sNew = ( Srel + 1.d0 )*( Stef_sEP - Stef_sEN )/2.d0 
-!     Stef_expanded_srel = Stef_sNew/(Stef_sEP-Stef_sEN)
-     Stef_expanded_srel = ( Srel + 1.d0 ) * 0.5d0
-!AO
+!!AO  12 sept 2011
+!!     Stef_sNew = ( Srel + 1.d0 )*( Stef_sEP - Stef_sEN )/2.d0 
+!!     Stef_expanded_srel = Stef_sNew/(Stef_sEP-Stef_sEN)
+     !Stef_expanded_srel = ( Srel + 1.d0 ) * 0.5d0
+!!AO
      
-     Stef_localT = Stef_tEN + Stef_expanded_srel*(Stef_tEP-Stef_tEN)
-     Stef_localZ = Stef_zEN + Stef_expanded_srel*(Stef_zEP-Stef_zEN)
+     !Stef_localT = Stef_tEN + Stef_expanded_srel*(Stef_tEP-Stef_tEN)
+     !Stef_localZ = Stef_zEN + Stef_expanded_srel*(Stef_zEP-Stef_zEN)
      
-     Stef_localDt = Stef_localT - Stef_t0mdt 
-     Stef_localDz = Stef_localZ - Stef_z0mdt
+     !Stef_localDt = Stef_localT - Stef_t0mdt 
+     !Stef_localDz = Stef_localZ - Stef_z0mdt
      
-     dT = dT + Stef_localDt 
-     dZ = dZ + Stef_localDz 
+     !dT = dT + Stef_localDt 
+     !dZ = dZ + Stef_localDz 
+! PFG 2015-01-16
+      PhiCor = 0.5*(chfb_ep+chfb_en)*Srel*Srel + 0.5*(chfb_ep-chfb_en)*Srel;
+      dT = dT + PhiCor * (T - 0.5*chfb_height);
+      dZ = dZ + PhiCor * (Z - 0.5*chfb_length);
 !
  END SUBROUTINE getDeformationCHFBBase
 !
