@@ -12,7 +12,6 @@
 #include "MuonTGRecTools/MuonHolesOnTrackTool.h"
 
 // Gaudi includes
-#include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGate.h"
 #include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/ToolFactory.h"
@@ -50,7 +49,7 @@
 
 // Constructor with parameters:
 Muon::MuonHolesOnTrackTool::MuonHolesOnTrackTool(const std::string &type, const std::string &name, const IInterface* parent ) :
-  AlgTool(type,name,parent),
+  AthAlgTool(type,name,parent),
   m_trackingGeometryName("MuonTest"),
   m_outlierLim(50.),
   m_identifyHoles(true),
@@ -87,82 +86,80 @@ StatusCode Muon::MuonHolesOnTrackTool::initialize()
 {
 
   // Get the messaging service, print where you are
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "MuonHolesOnTrackTool::initialize()" << endreq;
+  ATH_MSG_INFO("MuonHolesOnTrackTool::initialize()");
 
   StatusCode sc;
 
   sc = service("DetectorStore", m_detStore);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "Detector service not found !" << endreq;
+    ATH_MSG_FATAL("Detector service not found !");
     return StatusCode::FAILURE;
   } 
 
   sc=service("StoreGateSvc",m_StoreGate);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "StoreGate service not found !" << endreq;
+    ATH_MSG_FATAL("StoreGate service not found !");
     return StatusCode::FAILURE;
   } 
  
   sc = m_detStore->retrieve(m_mdtIdHelper,"MDTIDHELPER");
   if (sc.isFailure())
   {
-	  log << MSG::ERROR << "Cannot retrieve MdtIdHelper" << endreq;
+	  ATH_MSG_ERROR("Cannot retrieve MdtIdHelper");
 	  return sc;
   }
 
   sc = m_detStore->retrieve(m_rpcIdHelper,"RPCIDHELPER");
   if (sc.isFailure())
   {
-	  log << MSG::ERROR << "Cannot retrieve RpcIdHelper" << endreq;
+	  ATH_MSG_ERROR("Cannot retrieve RpcIdHelper");
 	  return sc;
   }
 
   sc = m_detStore->retrieve(m_cscIdHelper,"CSCIDHELPER");
   if (sc.isFailure())
   {
-	  log << MSG::ERROR << "Cannot retrieve CscIdHelper" << endreq;
+	  ATH_MSG_ERROR("Cannot retrieve CscIdHelper");
 	  return sc;
   }
 
   sc = m_detStore->retrieve(m_tgcIdHelper,"TGCIDHELPER");
   if (sc.isFailure())
   {
-	  log << MSG::ERROR << "Cannot retrieve TgcIdHelper" << endreq;
+	  ATH_MSG_ERROR("Cannot retrieve TgcIdHelper");
 	  return sc;
   }
   
   sc = m_detStore->retrieve(m_muonMgr);
   if (sc.isFailure())
   {
-	  log << MSG::ERROR << "Cannot retrieve MuonDetectorManager..." << endreq;
+	  ATH_MSG_ERROR("Cannot retrieve MuonDetectorManager...");
 	  return sc;
   }
 
   // get measurement tool
   sc = m_measTool.retrieve();
   if (sc.isFailure()) {
-    log<<MSG::ERROR<<"Could not find TG measurement tool " << endreq;
+    ATH_MSG_ERROR("Could not find TG measurement tool ");
   } else {
-    log << MSG::INFO << "TG measurement tool booked "<< endreq;
+    ATH_MSG_INFO("TG measurement tool booked ");
   }
 
   // get extrapolator
   sc = m_extrapolator.retrieve();
   if (sc.isFailure()) {
-    log<<MSG::FATAL<<"Could not find extrapolator tool. Exiting."
-       << endreq;
+    ATH_MSG_FATAL("Could not find extrapolator tool. Exiting.");
     return 0;
   } else {
-    log << MSG::INFO << "Extrapolator tool booked " << endreq;
+    ATH_MSG_INFO("Extrapolator tool booked ");
   }
 
   // get rotCreator tool
   sc = m_rotCreator.retrieve();
   if (sc.isFailure()) {
-    log<<MSG::ERROR<<"Could not find RIO_OnTrackCreator tool " << endreq;
+    ATH_MSG_ERROR("Could not find RIO_OnTrackCreator tool ");
   } else {
-    log << MSG::INFO << " RIO_OnTrackCreator tool booked "<< endreq;
+    ATH_MSG_INFO(" RIO_OnTrackCreator tool booked ");
   }
 
   return StatusCode::SUCCESS;
@@ -172,8 +169,7 @@ StatusCode Muon::MuonHolesOnTrackTool::initialize()
 DataVector<const Trk::TrackStateOnSurface>* Muon::MuonHolesOnTrackTool::getHolesOnTrack(const Trk::Track& input_track, const Trk::ParticleHypothesis particle)  const
 {
   // Get the messaging service, print where you are
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "MuonHolesOnTrackTool::getHolesOnTrack" << endreq;
+  ATH_MSG_DEBUG("MuonHolesOnTrackTool::getHolesOnTrack");
 
   // get MSEntry and ordered TSoS 
   DataVector<const Trk::TrackStateOnSurface>* tSoS=0;   
@@ -200,8 +196,8 @@ DataVector<const Trk::TrackStateOnSurface>* Muon::MuonHolesOnTrackTool::getHoles
   
   //Discard soft tracks that fool the extrapolator - difficult to follow
   if (isSoft == true){
-    log << MSG::DEBUG << " Track has Momentum lower than " << m_softLowerCut << " MeV/c:  " 
-	<< " abandoning the hole search " << endreq;
+    ATH_MSG_DEBUG(" Track has Momentum lower than " << m_softLowerCut << " MeV/c:  " 
+	<< " abandoning the hole search ");
     delete msEntry; delete tSoS;
     return 0;
   }
@@ -249,8 +245,8 @@ DataVector<const Trk::TrackStateOnSurface>* Muon::MuonHolesOnTrackTool::getHoles
     else nAttempts++;
     
     if(nAttempts > 30){
-      log << MSG::INFO << "getHolesOnTrack: too many attempts extrapolating; aborting extrapolation " 
-	  << " and returning NO holes !!" << endreq;
+      ATH_MSG_INFO("getHolesOnTrack: too many attempts extrapolating; aborting extrapolation " 
+	  << " and returning NO holes !!");
       //break;
       delete currPar; delete nextPar;
       for (unsigned int ih=0; ih < temp_holes->size(); ih++) delete ((*temp_holes)[ih]);   
@@ -297,7 +293,7 @@ DataVector<const Trk::TrackStateOnSurface>* Muon::MuonHolesOnTrackTool::getHoles
       }
     }   
     if ( failedExtr ) {
-      log << MSG::WARNING << "MuonHolesOnTrackTool::getHolesOnTrack: lost in extrapolation, abort" << endreq;
+      ATH_MSG_WARNING("MuonHolesOnTrackTool::getHolesOnTrack: lost in extrapolation, abort");
       for (unsigned int ih=0; ih < temp_holes->size(); ih++) delete ((*temp_holes)[ih]);
       temp_holes->clear();
       delete temp_holes; temp_holes=0;
@@ -313,11 +309,11 @@ DataVector<const Trk::TrackStateOnSurface>* Muon::MuonHolesOnTrackTool::getHoles
     // we are interested in muon layers only !
     if (layer) {
       const Trk::DetachedTrackingVolume* detVol = layer->enclosingDetachedTrackingVolume();
-      if (!detVol) log << MSG::ERROR << "MuonHolesOnTrackTool::getHolesOnTrack: no enclosing detached volume?!" << endreq;
+      if (!detVol) ATH_MSG_ERROR("MuonHolesOnTrackTool::getHolesOnTrack: no enclosing detached volume?!");
       if (!detVol) layer=0;
     }
     if (!layer) {
-      log << MSG::WARNING << "MuonHolesOnTrackTool::getHolesOnTrack: no associated layer?!" << endreq;
+      ATH_MSG_WARNING("MuonHolesOnTrackTool::getHolesOnTrack: no associated layer?!");
     } else {
       int assocMeas = 0;
       double res = -1.;
@@ -363,7 +359,7 @@ DataVector<const Trk::TrackStateOnSurface>* Muon::MuonHolesOnTrackTool::getHoles
   // collect remaining holes
   for (unsigned int ih=0; ih < temp_holes->size(); ih++) holes->push_back((*temp_holes)[ih]);  
 
-  log << MSG::DEBUG << "MuonHolesOnTrackTool::getHolesOnTrack: number of holes on this track:"<< holes->size()<< endreq;
+  ATH_MSG_DEBUG("MuonHolesOnTrackTool::getHolesOnTrack: number of holes on this track:"<< holes->size() );
   delete currPar;
   delete tSoS;
   delete temp_holes; temp_holes = 0;
@@ -374,8 +370,7 @@ DataVector<const Trk::TrackStateOnSurface>* Muon::MuonHolesOnTrackTool::getHoles
 const Trk::Track* Muon::MuonHolesOnTrackTool::getTrackWithHoles(const Trk::Track& input_track , const Trk::ParticleHypothesis particle) const 
 {
   // Get the messaging service, print where you are
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "MuonHolesOnTrackTool::getTrackWithHoles" << endreq;
+  ATH_MSG_DEBUG("MuonHolesOnTrackTool::getTrackWithHoles");
   
   //
   DataVector<const Trk::TrackStateOnSurface>*  holes= getHolesOnTrack(input_track, particle);
@@ -398,8 +393,7 @@ const Trk::Track* Muon::MuonHolesOnTrackTool::getTrackWithHoles(const Trk::Track
 const Trk::Track* Muon::MuonHolesOnTrackTool::getTrackWithHolesAndOutliers(const Trk::Track& input_track , const Trk::ParticleHypothesis particle ) const 
 {
   // Get the messaging service, print where you are
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "MuonHolesOnTrackTool::getTrackWithHolesAndOutliers" << endreq;
+  ATH_MSG_DEBUG("MuonHolesOnTrackTool::getTrackWithHolesAndOutliers");
   
   // get MSEntry and ordered TSoS 
   DataVector<const Trk::TrackStateOnSurface>* tSoS;   
@@ -442,8 +436,8 @@ const Trk::Track* Muon::MuonHolesOnTrackTool::getTrackWithHolesAndOutliers(const
     else nAttempts++;
 
     if(nAttempts > 30){
-      log << MSG::INFO << "getHolesOnTrack: too many attempts extrapolating; aborting extrapolation " 
-	  << " and returning NO holes !!" << endreq;
+      ATH_MSG_INFO("getHolesOnTrack: too many attempts extrapolating; aborting extrapolation " 
+	  << " and returning NO holes !!");
       break;
       return 0;
     }
@@ -488,7 +482,8 @@ const Trk::Track* Muon::MuonHolesOnTrackTool::getTrackWithHolesAndOutliers(const
       }
     }   
     if ( failedExtr ) {
-      log << MSG::WARNING << name() << "lost in extrapolation, abort" << endreq;
+      ATH_MSG_WARNING( name() << "lost in extrapolation, abort");
+      delete temp_holes;
       return 0;
     }
     if (!nextPar) break;
@@ -496,11 +491,11 @@ const Trk::Track* Muon::MuonHolesOnTrackTool::getTrackWithHolesAndOutliers(const
     // we are interested in muon layers only !
     if (layer) {
       const Trk::DetachedTrackingVolume* detVol = layer->enclosingDetachedTrackingVolume();
-      if (!detVol) log << MSG::ERROR << name() << "no enclosing detached volume?!" << endreq;
+      if (!detVol) ATH_MSG_ERROR( name() << "no enclosing detached volume?!");
       if (!detVol) layer=0;
     }
     if (!layer) {
-      log << MSG::WARNING << name() << " no associated layer?!" << endreq;
+      ATH_MSG_WARNING( name() << " no associated layer?!");
     } else {
       int assocMeas = 0;
       double res = -1.;
@@ -569,8 +564,7 @@ const Trk::Track* Muon::MuonHolesOnTrackTool::getTrackWithHolesAndOutliers(const
 StatusCode Muon::MuonHolesOnTrackTool::finalize() 
 {
   // Get the messaging service, print where you are
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "MuonHolesOnTrackTool::finalize()" << endreq;
+  ATH_MSG_INFO("MuonHolesOnTrackTool::finalize()");
   //delete m_tpMinFinder;
   // clean up - crashing
   //for (unsigned int i=0;i<m_garbage.size();i++) delete m_garbage[i]; 
@@ -581,8 +575,7 @@ StatusCode Muon::MuonHolesOnTrackTool::finalize()
 const Trk::TrackParameters* Muon::MuonHolesOnTrackTool::getMSEntry(const Track* input_track, DataVector<const Trk::TrackStateOnSurface>*& orderedTSoS) const
 {
   // Get the messaging service, print where you are
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << name() << "entering search for intersection with MuonSpectrometerEntrance" << endreq;
+  ATH_MSG_DEBUG( name() << "entering search for intersection with MuonSpectrometerEntrance" );
 
   const Trk::TrackParameters* msEntry = 0;
 
@@ -648,7 +641,7 @@ const Trk::TrackParameters* Muon::MuonHolesOnTrackTool::getMSEntry(const Track* 
    }
 
   if (!m_msEntrance) {
-    log << MSG::WARNING << "MuonSpectrometerEntrance not found, return 0" << std::endl;
+    ATH_MSG_WARNING("MuonSpectrometerEntrance not found, return 0");
     return msEntry;
   } 
 
@@ -679,8 +672,6 @@ const Trk::TrackParameters* Muon::MuonHolesOnTrackTool::findAssociatedMeasuremen
 										  const DataVector<const Trk::TrackStateOnSurface>* tSoS,
 										  int& assocMeas, double& res) const
 {
-  MsgStream log(msgSvc(), name());
-
   const Trk::TrackParameters* updatePar = 0;
   assocMeas = 0;
 
@@ -735,11 +726,11 @@ const Trk::TrackParameters* Muon::MuonHolesOnTrackTool::findAssociatedMeasuremen
 	      //if (updatePar) std::cout << "projected parameters for update:" << updatePar->position() << std::endl;
 	    }
 	  } else {
-	    log << MSG::WARNING << name() <<"track parameters in track record not compatible with hit surface " << std::endl;          
+	    ATH_MSG_WARNING( name() <<"track parameters in track record not compatible with hit surface ");          
 	  }
 	}
 	else {
-	  log << MSG::WARNING << name() <<"no associated surface (NULL pointer)" << std::endl;
+	  ATH_MSG_WARNING( name() <<"no associated surface (NULL pointer)");
 	}
        
 	const Trk::RIO_OnTrack* rio = dynamic_cast<const Trk::RIO_OnTrack*> ((*tit)->measurementOnTrack());
@@ -776,8 +767,7 @@ const Trk::TrackStateOnSurface* Muon::MuonHolesOnTrackTool::createHole(const Trk
 								       bool measPhi) const
 {
   // Get the messaging service, print where you are
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "MuonHolesOnTrackTool::createHole()" << endreq;
+  ATH_MSG_DEBUG("MuonHolesOnTrackTool::createHole()");
 
   const Trk::TrackStateOnSurface* hole = 0;
   const Trk::MaterialEffectsBase* dummy_sa=0;  
@@ -814,8 +804,7 @@ const Trk::TrackStateOnSurface* Muon::MuonHolesOnTrackTool::createOutlier(const 
 									  bool measPhi) const
 {
   // Get the messaging service, print where you are
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "MuonHolesOnTrackTool::createOutlier()" << endreq;
+  ATH_MSG_DEBUG("MuonHolesOnTrackTool::createOutlier()");
 
   if (!m_measTool) return 0;
 
@@ -832,7 +821,7 @@ const Trk::TrackStateOnSurface* Muon::MuonHolesOnTrackTool::createOutlier(const 
       }
       if ( (!measPhi && !rioMeasPhi) || (measPhi && rioMeasPhi) ) {
 	if ( rio && m_measTool->residual(layer,nextPar,rio) < m_outlierLim ) {
-	  log << MSG::DEBUG << "getHolesOnTrack: creating outlier:" <<m_measTool->residual(layer,nextPar,rio)<< endreq;
+	  ATH_MSG_DEBUG("getHolesOnTrack: creating outlier:" <<m_measTool->residual(layer,nextPar,rio) );
 	  const Trk::MaterialEffectsBase* dummy_sa=0;
 	  const Trk::FitQualityOnSurface* dummy_fitQuality=0;
 	  std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;  
@@ -840,6 +829,7 @@ const Trk::TrackStateOnSurface* Muon::MuonHolesOnTrackTool::createOutlier(const 
 	  typePattern.set(Trk::TrackStateOnSurface::Outlier);       		
 	  const Trk::TrackStateOnSurface* outlier = new Trk::TrackStateOnSurface(rio,nextPar->clone(),dummy_fitQuality,
 										       dummy_sa,typePattern);
+	  delete measOnLayer;
 	  return outlier; 
 	} 
       }
@@ -853,8 +843,6 @@ const Trk::TrackStateOnSurface* Muon::MuonHolesOnTrackTool::createOutlier(const 
 const Trk::Layer* Muon::MuonHolesOnTrackTool::nextExpectedLayer(const Trk::TrackParameters* currPar,
 							    const DataVector<const Trk::TrackStateOnSurface>* tSoS) const
 {
-  MsgStream log(msgSvc(), name());
-
   const Trk::Layer* nextLayer = 0;
   double tol = 0.001;
   // current layer 
@@ -872,7 +860,7 @@ const Trk::Layer* Muon::MuonHolesOnTrackTool::nextExpectedLayer(const Trk::Track
 	// associated layer
 	const Trk::Layer* next = m_extrapolator->trackingGeometry()->associatedLayer((*tit)->measurementOnTrack()->associatedSurface().center());
 	if (!next) {
-	  log << MSG::WARNING << name() << " no associated layer found for next measurement at position " << (*tit)->measurementOnTrack()->associatedSurface().center() << endreq;
+	  ATH_MSG_WARNING( name() << " no associated layer found for next measurement at position " << (*tit)->measurementOnTrack()->associatedSurface().center() );
 	} else if ( next!=currLayer) { 
 	  Trk::DistanceSolution distEst = next->surfaceRepresentation().straightLineDistanceEstimate(currPar->position(), currPar->momentum().unit());
 	  //std::cout << "estimating distance to meas.:" << tit-tbeg <<"," << distEst.numberOfSolutions() <<"," <<
@@ -891,8 +879,7 @@ const Trk::Layer* Muon::MuonHolesOnTrackTool::nextExpectedLayer(const Trk::Track
 void Muon::MuonHolesOnTrackTool::countHoles( const Trk::Track& input_track,  std::vector<int>& information , const Trk::ParticleHypothesis particle) const 
 {
   // Get the messaging service, print where you are
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "MuonHolesOnTrackTool::countHoles" << endreq;
+  ATH_MSG_DEBUG("MuonHolesOnTrackTool::countHoles");
   
   //
   DataVector<const Trk::TrackStateOnSurface>*  holes= getHolesOnTrack(input_track, particle);

@@ -4,9 +4,8 @@
 
 #ifndef MUONTGRECTOOLS_MUONTGHITNTUPLE_H
 #define MUONTGRECTOOLS_MUONTGHITNTUPLE_H
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/NTuple.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IPartPropSvc.h"
 #include "GaudiKernel/StatusCode.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -52,7 +51,7 @@ namespace Muon{
 #define maxRec 100
 
 
-class MuonTGHitNtuple : public Algorithm
+class MuonTGHitNtuple : public AthAlgorithm
 {
  public:
 
