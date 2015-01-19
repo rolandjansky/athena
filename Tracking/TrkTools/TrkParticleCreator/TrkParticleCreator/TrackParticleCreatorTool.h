@@ -156,6 +156,7 @@ private:
   ServiceHandle<MagField::IMagFieldSvc>  m_magFieldSvc;
   ServiceHandle<IBeamCondSvc> m_beamConditionsService;
   bool m_useTrackSummaryTool;
+  bool m_useMuonSummaryTool;
   bool m_forceTrackSummaryUpdate; /** use to force an update of the track summary
   rather than using the cached summary */
     /** the following keep options are mutually exclusive **/
@@ -225,6 +226,7 @@ inline void TrackParticleCreatorTool::setTrackSummary( xAOD::TrackParticle& tp, 
   tp.setSummaryValue(fvalue, static_cast<xAOD::SummaryType>(51));
 
   //muon hit info
+  if(m_useMuonSummaryTool){
   ATH_MSG_DEBUG("now do muon hit info");
   Muon::IMuonHitSummaryTool::CompactSummary msSummary = m_hitSummaryTool->summary(summary);
   uint8_t numberOfPrecisionLayers = msSummary.nprecisionLayers;
@@ -240,6 +242,7 @@ inline void TrackParticleCreatorTool::setTrackSummary( xAOD::TrackParticle& tp, 
   tp.setSummaryValue(numberOfPhiHoleLayers,xAOD::numberOfPhiHoleLayers);
   tp.setSummaryValue(numberOfTriggerEtaLayers,xAOD::numberOfTriggerEtaLayers);
   tp.setSummaryValue(numberOfTriggerEtaHoleLayers,xAOD::numberOfTriggerEtaHoleLayers);
+  }
 }
 
 inline void TrackParticleCreatorTool::setDefiningParameters( xAOD::TrackParticle& tp, const Perigee& perigee ) const {
