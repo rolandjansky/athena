@@ -5,7 +5,7 @@
 #ifndef MM_DIGITIZATION_MM_RESPONSE_DIGITTOOL_H
 #define MM_DIGITIZATION_MM_RESPONSE_DIGITTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "MM_Digitization/MmDigitToolOutput.h"
 #include "MM_Digitization/IMM_DigitizationTool.h"
 	
@@ -29,7 +29,7 @@ namespace MuonGM{
 class MmIdHelper;
 class IAtRndmGenSvc;
 	
-class MM_Response_DigitTool : public AlgTool, virtual public IMM_DigitizationTool {
+class MM_Response_DigitTool : public AthAlgTool, virtual public IMM_DigitizationTool {
  public:
   MM_Response_DigitTool( const std::string& type, 
 			const std::string& name, 
