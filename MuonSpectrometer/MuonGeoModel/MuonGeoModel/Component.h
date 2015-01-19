@@ -12,6 +12,7 @@ class Component {
 public:
     Component();
     Component(const Component& c);
+    Component& operator=(const Component& c);
     virtual ~Component() {};
     double GetThickness() const;
     std::string name;

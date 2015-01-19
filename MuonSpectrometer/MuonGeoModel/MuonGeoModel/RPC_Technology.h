@@ -104,15 +104,23 @@ public:
 
 
 
-    RPC(std::string s):Technology(s), foamSpacerThickness(0.), xx(0.),
-      lowerHoneycombLayerThickness(0.), yy(0.), totalThickness(0.),
-      pitchs(0.), pitchz(0.), deadSeparation(0.), gazGapThickness(0.),
-      stripsSupportThickness(0.), stripsThickness(0.), internalMidchamberDeadRegion(0.),
-      firstStripsOffset(0.), secondStripsOffset(0.), numberOfStripsReadouts(0.),
-      centralalThickness(0.), petUpperThickness(0.), petLowerThickness(0.),
-      sInternalMidchamberDeadRegion(0.), zInternalMidchamberDeadRegion(0.),
-      sStripsOffset(0.), zFirstStripsOffset(0.), zSecondStripsOffset(0.),
-      sNumberOfStripsReadouts(0.), zNumberOfStripsReadouts(0.), sGasGapsNumber(0.) {}
+    RPC(std::string s):Technology(s), externalSupPanelThickness(0.), externalAlSupPanelThickness(0.),
+      lowerSupPanelThickness(0.),  lowerAlSupPanelThickness(0.), upperSupPanelThickness(0.),
+      upperAlSupPanelThickness(0.), centralSupPanelThickness(0.), centralAlSupPanelThickness(0.),
+      rpcLayerThickness(0.), TotalThickness(0.), NGasGaps_in_s(0), NGasGaps_in_z(0), GasGapThickness(0.),
+      bakeliteThickness(0.), bakeliteframesize(0.), bakelitePetThickness(0.), gasThickness(0.),
+      totalAirThickness(0.), spacerDiameter(0.), spacerPitch(0.), petFoilThickness(0.), NstripPanels_in_s(0),
+      NstripPanels_in_z(0), MidChamberDeadRegion_in_s(0.), MidChamberDeadRegion_in_z(0.), stripPitchS(0.),
+      stripPitchZ(0.), stripSeparation(0.), stripPanelThickness(0.), stripPanelFoamThickness(0.),
+      stripPanelCopperSkinThickness(0.), stripPanelStripSidePetThickness(0.), stripPanelGroundSidePetThickness(0.),
+      frontendBoardWidth(0.), backendBoardWidth(0.), maxThickness(0.), supportThickness(0.), supportThicknessWidth(0.),
+      upperHoneycombLayerThickness(0.), alThickness(0.), RPCLayerThickness(0.), foamSpacerThickness(0.), xx(0.),
+      lowerHoneycombLayerThickness(0.), yy(0.), totalThickness(0.), pitchs(0.), pitchz(0.), deadSeparation(0.),
+      gazGapThickness(0.), stripsSupportThickness(0.), stripsThickness(0.), internalMidchamberDeadRegion(0.),
+      firstStripsOffset(0.), secondStripsOffset(0.), numberOfStripsReadouts(0.), centralalThickness(0.),
+      petUpperThickness(0.), petLowerThickness(0.), sInternalMidchamberDeadRegion(0.), zInternalMidchamberDeadRegion(0.),
+      sStripsOffset(0.), zFirstStripsOffset(0.), zSecondStripsOffset(0.), sNumberOfStripsReadouts(0.),
+      zNumberOfStripsReadouts(0.), sGasGapsNumber(0.) {}
     
 
     double GetCentralalThickness(){return centralalThickness;};
