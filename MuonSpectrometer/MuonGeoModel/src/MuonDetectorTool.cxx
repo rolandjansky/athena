@@ -312,6 +312,7 @@ MuonDetectorTool::create( StoreGateSvc* detStore )
                             << " **** SelectedStJzz    size =" << m_selectedStations.size()<<endreq
                             << " **** SelectedStJff    size =" << m_selectedStations.size()<<endreq
                             << " **** while StationSelection = 1"<< endreq;
+            if( altAsciiDBMap != NULL ) { delete altAsciiDBMap; altAsciiDBMap = NULL; }
             return( StatusCode::FAILURE );
         }
         for (unsigned int i=0; i<m_selectedStations.size() ; i++){

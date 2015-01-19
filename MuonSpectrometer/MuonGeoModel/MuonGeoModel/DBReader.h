@@ -1592,7 +1592,7 @@ namespace MuonGM {
             //if (cartec == "CRO") std::cerr<<"at the end --- station "<<name<<" comp. CRO "
             //<< c->dx1<<" "<<c->dx2<<" "<<c->dy<<std::endl;
             if (known_comp && stat != NULL) stat->SetComponent(c);
-            else { if( c != NULL ) { delete c; c=NULL; } }
+            else { delete c; c=NULL; }
             if (cartec=="MDT" && stat != NULL) stat->setHasMdts(true);
             // here is the end - define the previous stuff
             previous_jtyp = almn[icomp].jtyp;
@@ -1712,7 +1712,7 @@ template <class TYPEdnacut, class TYPEacut, class TYPEdnalin, class TYPEalin,
 		    }
 		  else
 		    {
-		      if( c!= NULL ) delete c; c = NULL;
+		      delete c; c = NULL;
 		      log<<MSG::ERROR
 			 <<" ProcessCutouts station-name not well defined "
 			 <<atyp[type_ind].type<<endreq;
