@@ -27,7 +27,8 @@
 #                Note that <constituent>.cxx should be added to the
 #		 "library" statement.
 
-${CONSTITUENT}_output = $(dict)
+dict_dir  = $(dict)${CONSTITUENT}
+${CONSTITUENT}_output = $(dict_dir)/
 
 # Basic dependency that forces cint to be run in root_cint_trailer
 # PCM_make_target is defined for ROOT6 as ${CONSTITUENT}.pcm in root_cint_trailer and should trigger PCM installation
@@ -40,7 +41,7 @@ ${OBJS} :: build_dir
 
 # Make the generation directory 
 build_dir :: 
-	test -d $(dict) || mkdir -p ${dict}; 
+	test -d ${dict_dir} || mkdir -p ${dict_dir}; 
 
 
 # MN:  prepare place for ROOT PCM installation
