@@ -763,6 +763,10 @@ namespace Trk {
           *symBigMatrix += newMatrix;
       }
       else {
+        if (!spaBigMatrix) {
+          throw std::logic_error("Unhandled matrix type");
+        }
+
         AlSpaMat newMatrix(nDoF);
         sc = newMatrix.Read(m_inputMatrixFiles[imat],nDoF,triang,dummyVersion);
 
@@ -1515,6 +1519,26 @@ namespace Trk {
     delete cov;
   }
 
+  namespace {
+    class RestoreIOSFlags 
+    {
+    public:
+      RestoreIOSFlags (std::ostream &os) 
+        : m_os(&os), 
+          m_flags(m_os->flags()),
+          m_precision(m_os->precision())
+      {}
+      ~RestoreIOSFlags() {
+        m_os->flags(m_flags);
+        m_os->precision(m_precision);
+      }
+    private:
+      std::ostream *m_os;
+      std::ios_base::fmtflags m_flags;
+      std::streamsize  m_precision;
+    };
+  }
+
   //________________________________________________________________________
   void MatrixTool::printModuleSolution(std::ostream & os, const AlignModule * module, const CLHEP::HepSymMatrix * cov) const
   {
@@ -1539,6 +1563,8 @@ namespace Trk {
       os << "No active parameters" << std::endl;
     else
     {
+      RestoreIOSFlags restore_flags(os);
+
       os.unsetf(std::ios_base::floatfield);
       os << std::setiosflags(std::ios_base::left) << std::setprecision(5);
 

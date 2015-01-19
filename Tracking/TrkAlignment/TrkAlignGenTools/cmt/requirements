@@ -59,7 +59,9 @@ apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Graf Gpad)
 #macro_remove componentshr_linkopts "-Wl,-s"
 
 private
-macro_append ROOT_linkopts " -lMinuit -lMatrix"
+# macro_append ROOT_linkopts " -lMinuit -lMatrix"
+apply_tag ROOTMathLibs
+apply_tag ROOTMinuitLibs
 
 public
 #library TrkAlignGenTools *.cxx -s=components *.cxx
