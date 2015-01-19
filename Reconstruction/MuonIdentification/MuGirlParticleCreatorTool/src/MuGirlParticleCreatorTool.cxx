@@ -627,7 +627,6 @@ void MuGirlParticleCreatorTool::removeRedundantCandidates(CandidateSummaryList* 
 
 	ATH_MSG_DEBUG("MuGirlParticleCreatorTool removeRedundant "<<pSummary->muonSegmentList.size());
 
-	if (pSummary->muonSegmentList.size()>10) continue; 
         for (size_t iSeg = 0; iSeg < pSummary->muonSegmentList.size(); iSeg++)
         {
             const Muon::MuonSegment* pSeg = pSummary->muonSegmentList[iSeg];
