@@ -29,6 +29,7 @@ void TgcRawData::clear(uint16_t bcTag,
     m_index = 0;
     m_pos = 0;
     m_delta = 0;
+    m_tile = 0;
     m_segment = 0;
     m_subMatrix = 0;
     m_sector = 0;
@@ -41,6 +42,7 @@ void TgcRawData::clear(uint16_t bcTag,
     m_muplus = false;
     m_threshold = 0;
     m_overlap = false;
+    m_veto = false;
     m_roi = 0;
 }
 
@@ -137,7 +139,9 @@ TgcRawData::TgcRawData(uint16_t bcTag,
                        bool hipt,
                        uint16_t hitId,
                        uint16_t sub,
-                       int16_t delta)
+                       int16_t delta,
+                       uint16_t tile
+                       )
 {
     clear(bcTag, subDetectorId, rodId, 0, 0, l1Id, bcId);
     m_type = TYPE_HIPT;
@@ -150,7 +154,7 @@ TgcRawData::TgcRawData(uint16_t bcTag,
     m_hitId = hitId;
     m_hsub = sub;
     m_delta = delta;
-
+    m_tile = tile;
 }
 
 // Sector logic
@@ -166,6 +170,7 @@ TgcRawData::TgcRawData(uint16_t bcTag,
                        bool muplus,
                        uint16_t threshold,
                        bool overlap,
+                       bool veto,
                        uint16_t roi)
 {
     clear(bcTag, subDetectorId, rodId, 0, 0, l1Id, bcId);
@@ -177,6 +182,7 @@ TgcRawData::TgcRawData(uint16_t bcTag,
     m_muplus = muplus;
     m_threshold = threshold;
     m_overlap = overlap;
+    m_veto = veto;
     m_roi = roi;
 }
 
@@ -196,11 +202,11 @@ std::string TgcRawData::typeName(TgcRawData::DataType type)
 {
     switch (type)
     {
-    case TYPE_HIT:      return "Hit";          break;
-    case TYPE_TRACKLET: return "Tracklet";     break;
-    case TYPE_HIPT:     return "High pT";      break;
-    case TYPE_SL:       return "Sector Logic"; break;
-    default:            return "";
+    case TYPE_HIT:       return "Hit";          break;
+    case TYPE_TRACKLET:  return "Tracklet";     break;
+    case TYPE_HIPT:      return "High pT";      break;
+    case TYPE_SL:        return "Sector Logic"; break;
+    default:             return "";
     }
 }
 std::string TgcRawData::slbTypeName(TgcRawData::SlbType type)
@@ -252,7 +258,8 @@ stream& dump(stream& sl, const TgcRawData& data)
         << ", hipt=" << data.isHipt()
         << ", hitId=" << data.hitId()
         << ", hsub=" << data.hsub()
-        << ", delta=" << data.delta();
+        << ", delta=" << data.delta()
+        << ", tile=" << data.tile();
         break;
     case TgcRawData::TYPE_SL:
         sl << ", cand3plus=" << data.cand3plus()
@@ -262,6 +269,7 @@ stream& dump(stream& sl, const TgcRawData& data)
         << ", sign=" << data.isMuplus()
         << ", threshold=" << data.threshold()
         << ", overlap=" << data.isOverlap()
+        << ", veto=" << data.isVeto()
         << ", roi=" << data.roi();
         break;
     default:

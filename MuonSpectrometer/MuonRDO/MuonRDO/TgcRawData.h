@@ -114,7 +114,8 @@ public:
                bool hipt,
                uint16_t hitId,
                uint16_t sub,
-               int16_t delta);
+               int16_t delta,
+               uint16_t tile);
 
     // Sector logic
     TgcRawData(uint16_t bcTag,
@@ -129,6 +130,7 @@ public:
                bool muplus,
                uint16_t threshold,
                bool overlap,
+               bool veto,
                uint16_t roi);
 
     // Destructor
@@ -220,6 +222,10 @@ public:
     {
         return m_delta;
     }
+    uint16_t tile() const
+    {
+        return m_tile;
+    }
     uint16_t segment() const
     {
         return m_segment;
@@ -267,6 +273,10 @@ public:
     bool isOverlap() const
     {
         return m_overlap;
+    }
+    bool isVeto() const
+    {
+        return m_veto;
     }
     uint16_t roi() const
     {
@@ -348,12 +358,14 @@ private:
     uint16_t m_hitId;
     uint16_t m_hsub;
     bool m_strip;
+    uint16_t m_tile;
 
     // Sector Logic
     bool m_cand3plus;
     bool m_muplus;
     uint16_t m_threshold;
     bool m_overlap;
+    bool m_veto;
     uint16_t m_roi;
 
 };
