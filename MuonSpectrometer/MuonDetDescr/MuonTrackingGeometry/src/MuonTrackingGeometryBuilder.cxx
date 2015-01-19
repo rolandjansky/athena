@@ -478,7 +478,7 @@ const Trk::TrackingGeometry* Muon::MuonTrackingGeometryBuilder::trackingGeometry
    //checkVolume(negativeMuonSmallWheel);
    //
    Amg::Vector3D posSmallWheelShift(0.,0.,2*(m_ectZ-smallWheelZHalfSize));
-   Trk::Volume posSWVol(negSWVol,*(new Amg::Transform3D(Amg::Translation3D(posSmallWheelShift))));
+   Trk::Volume posSWVol(negSWVol,Amg::Transform3D(Amg::Translation3D(posSmallWheelShift)));
    if (m_adjustStatic && m_static3d) positiveMuonSmallWheel = processVolume( &posSWVol,1,"Muon::Detectors::PositiveSmallWheel" ); 
    else if (m_adjustStatic) positiveMuonSmallWheel = processVolume( &posSWVol,-1,"Muon::Detectors::PositiveSmallWheel" ); 
    else positiveMuonSmallWheel = processVolume( &posSWVol,m_innerEndcapEtaPartition,m_phiPartition,
@@ -499,7 +499,7 @@ const Trk::TrackingGeometry* Muon::MuonTrackingGeometryBuilder::trackingGeometry
    //checkVolume(negativeECT);
    //
    Amg::Vector3D posECTShift(0.,0.,2*(m_ectZ+ectZHalfSize));
-   Trk::Volume posECTVol(negECTVol,*(new Amg::Transform3D(Amg::Translation3D(posECTShift))));
+   Trk::Volume posECTVol(negECTVol,Amg::Transform3D(Amg::Translation3D(posECTShift)));
    if (m_adjustStatic && m_static3d) positiveECT = processVolume( &posECTVol,2,"Muon::Detectors::PositiveECT" ); 
    else if (m_adjustStatic) positiveECT = processVolume( &posECTVol,-1,"Muon::Detectors::PositiveECT" ); 
    else positiveECT = processVolume( &posECTVol,m_innerEndcapEtaPartition,m_phiPartition,
@@ -547,7 +547,7 @@ const Trk::TrackingGeometry* Muon::MuonTrackingGeometryBuilder::trackingGeometry
 						"Muon::Detectors::NegativeOuterWheel" ); 
    //
    Amg::Vector3D posOuterWheelShift(0.,0.,2*(m_outerEndcapZ-outerWheelZHalfSize));
-   Trk::Volume posOWVol(negOWVol,*(new Amg::Transform3D(Amg::Translation3D(posOuterWheelShift))));
+   Trk::Volume posOWVol(negOWVol,Amg::Transform3D(Amg::Translation3D(posOuterWheelShift)));
    if (m_adjustStatic && m_static3d) positiveMuonOuterWheel = processVolume( &posOWVol,3,"Muon::Detectors::PositiveOuterWheel" ); 
    else if (m_adjustStatic) positiveMuonOuterWheel = processVolume( &posOWVol,-1,"Muon::Detectors::PositiveOuterWheel" ); 
    else positiveMuonOuterWheel = processVolume( &posOWVol,m_outerEndcapEtaPartition,m_phiPartition,
