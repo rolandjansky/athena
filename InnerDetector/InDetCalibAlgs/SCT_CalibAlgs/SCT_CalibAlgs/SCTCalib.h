@@ -177,7 +177,7 @@ const;
   Identifier m_waferId;
   int tq[100];
   UnsignedIntegerProperty curr_time;
-  bool newbin;
+  //bool newbin;
   std::ofstream ofile, gofile;
 
   UnsignedIntegerProperty m_phvtripFirstTime;

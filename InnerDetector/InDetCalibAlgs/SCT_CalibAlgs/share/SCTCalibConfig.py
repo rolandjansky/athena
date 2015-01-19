@@ -27,13 +27,13 @@ beamType   = 'collisions' # 'cosmics', 'singlebeam' or 'collisions'
 # - TrkVal/BS : NoisyStrips, HV, DeadChip, DeadStrip
 # - HIST      : NoiseOccupancy, RawOccupancy, Efficiency, BSErrorDB, LorentzAngle 
 #------------------------------------------------------------
-ReadBS         = False
+ReadBS         = True
 #------------------------------------------------------------
 # Algorithm turned on
 # - Set only one flag to True and others to False
 #------------------------------------------------------------
 #--- Algs using TrkVal or BS
-DoNoisyStrip     = False 
+DoNoisyStrip     = True 
 DoNoisyLB        = False 
 DoHV             = False
 DoDeadStrip      = False
@@ -43,7 +43,7 @@ DoNoiseOccupancy = False
 DoRawOccupancy   = False
 DoEfficiency     = False
 DoBSErrorDB      = False 
-DoLorentzAngle   = True 
+DoLorentzAngle   = False 
 
 #------------------------------------------------------------
 # Default setup for specific flags in SCTCalib
@@ -130,11 +130,18 @@ TagID4LorentzAngle   = 'SctDerivedLorentzAngle-001-01'
 # A list of GeometryTags
 # - One tag is chosen in topOptions from magnet current info
 #--------------------------------------------------------------
-GeometryTagSTF = 'ATLAS-GEO-20-00-01'    # Solenoide=ON,  BarrelTroid=ON
-GeometryTagNTF = 'ATLAS-GEO-20-00-01'    # Solenoide=ON,  BarrelTroid=OFF
-GeometryTagNSF = 'ATLAS-GEO-20-00-01'    # Solenoide=OFF, BarrelTroid=ON
-GeometryTagNF  = 'ATLAS-GEO-20-00-01'    # Solenoide=OFF, BarrelTroid=OFF
-GeometryTagMC  = 'ATLAS-GEO-20-00-01'    # MC
+# commented, A.N., 2014-11-28
+# GeometryTagSTF = 'ATLAS-GEO-20-00-01'    # Solenoide=ON,  BarrelTroid=ON
+# GeometryTagNTF = 'ATLAS-GEO-20-00-01'    # Solenoide=ON,  BarrelTroid=OFF
+# GeometryTagNSF = 'ATLAS-GEO-20-00-01'    # Solenoide=OFF, BarrelTroid=ON
+# GeometryTagNF  = 'ATLAS-GEO-20-00-01'    # Solenoide=OFF, BarrelTroid=OFF
+# GeometryTagMC  = 'ATLAS-GEO-20-00-01'    # MC
+# added, A.N., 2014-11-28 
+GeometryTagSTF = 'ATLAS-R2-2015-02-00-00'    # Solenoid=ON,  BarrelToroid=ON
+GeometryTagNTF = 'ATLAS-R2-2015-02-00-00'    # Solenoid=ON,  BarrelToroid=OFF
+GeometryTagNSF = 'ATLAS-R2-2015-02-00-00'    # Solenoid=OFF, BarrelToroid=ON
+GeometryTagNF  = 'ATLAS-R2-2015-02-00-00'    # Solenoid=OFF, BarrelToroid=OFF
+GeometryTagMC  = 'ATLAS-R2-2015-02-00-00'    # MC
 
 #--------------------------------------------------------------
 # A list of ConditionsTags
@@ -147,16 +154,22 @@ ConditionsTagMC  = 'OFLCOND-DR-BS7T-ANom-00' # digi+rec for MC09 - Nominal
 #ConditionsTagNTF = 'COMCOND-BLKPS-004-02'    # Solenoide=ON,  BarrelTroid=OFF
 #ConditionsTagNSF = 'COMCOND-BLKPT-004-02'    # Solenoide=OFF, BarrelTroid=ON
 #ConditionsTagNF  = 'COMCOND-BLKP-004-02'     # Solenoide=OFF, BarrelTroid=OFF
-ConditionsTagSTF = 'COMCOND-BLKPA-006-03'     # Solenoide=ON,  BarrelTroid=ON
-ConditionsTagNTF = 'COMCOND-BLKPA-006-03'     # Solenoide=ON,  BarrelTroid=OFF
-ConditionsTagNSF = 'COMCOND-BLKPA-006-03'     # Solenoide=OFF, BarrelTroid=ON
-ConditionsTagNF  = 'COMCOND-BLKPA-006-03'     # Solenoide=OFF, BarrelTroid=OFF
+# commented, A.N., 2014-11-28
+# ConditionsTagSTF = 'COMCOND-BLKPA-006-03'     # Solenoide=ON,  BarrelTroid=ON
+# ConditionsTagNTF = 'COMCOND-BLKPA-006-03'     # Solenoide=ON,  BarrelTroid=OFF
+# ConditionsTagNSF = 'COMCOND-BLKPA-006-03'     # Solenoide=OFF, BarrelTroid=ON
+# ConditionsTagNF  = 'COMCOND-BLKPA-006-03'     # Solenoide=OFF, BarrelTroid=OFF
 #--- ES1 : prompt reconstruction
 # agrohsje not properly done, check for the current one !!!
 #ConditionsTagSTF = 'COMCOND-ES1PA-006-02'   # Solenoide=ON,  BarrelTroid=ON
 #ConditionsTagNTF = 'COMCOND-ES1PA-006-02'    # Solenoide=ON,  BarrelTroid=OFF
 #ConditionsTagNSF = 'COMCOND-ES1PA-006-02'    # Solenoide=OFF, BarrelTroid=ON
 #ConditionsTagNF  = 'COMCOND-ES1PA-006-02'     # Solenoide=OFF, BarrelTroid=OFF
+# added, A.N., 2014-11-28 
+ConditionsTagSTF = 'CONDBR2-ES1PA-2014-01'    # Solenoid=ON,  BarrelToroid=ON
+ConditionsTagNTF = 'CONDBR2-ES1PA-2014-01'    # Solenoid=ON,  BarrelToroid=OFF
+ConditionsTagNSF = 'CONDBR2-ES1PA-2014-01'    # Solenoid=OFF, BarrelToroid=ON
+ConditionsTagNF  = 'CONDBR2-ES1PA-2014-01'    # Solenoid=OFF, BarrelToroid=OFF
 #--- REP : reporcessing
 #ConditionsTagSTF = 'COMCOND-REPPST-006-00'   # Solenoide=ON,  BarrelTroid=ON
 #ConditionsTagNTF = 'COMCOND-REPPS-006-00'    # Solenoide=ON,  BarrelTroid=OFF

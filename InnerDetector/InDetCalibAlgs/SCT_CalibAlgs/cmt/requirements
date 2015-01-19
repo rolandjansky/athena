@@ -17,9 +17,6 @@ use  InDetIdentifier            InDetIdentifier-*               InnerDetector/In
 use  InDetRawData               InDetRawData-*                  InnerDetector/InDetRawEvent
 use  SCT_Cabling                SCT_Cabling-*                   InnerDetector/InDetDetDescr
 use  SCT_ConditionsServices     SCT_ConditionsServices-*        InnerDetector/InDetConditions
-# DRQ: Please do not comment out the dependency against SCT_ConditionsData. This avoids a problem 
-# with the cmake builds which (correctly) don't propagate dependencies of component libraries to clients.
-use  SCT_ConditionsData         SCT_ConditionsData-*            InnerDetector/InDetConditions
 use  StoreGate                  StoreGate-*                     Control
 private
 use  AtlasBoost                 AtlasBoost-*                    External
@@ -29,6 +26,11 @@ use  RegistrationServices       RegistrationServices-*          Database
 #Added for consistency with earlier hand-written(?) version
 use PyJobTransformsCore         PyJobTransformsCore-*           Tools
 end_private
+
+# Add explicit dependency against SCT_ConditionsData to avoid indirect dependency from SCT_ConditionsServices
+# which creates a component library and cmake (correctly) does not propagate such dependencies. This is 
+# transparent to CMT and checkreq.
+apply_pattern cmake_add_dependency package=InnerDetector/InDetConditions/SCT_ConditionsData
 
 # Specify required ROOT components to cmake (transparent to CMT)
 apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS MathCore)"

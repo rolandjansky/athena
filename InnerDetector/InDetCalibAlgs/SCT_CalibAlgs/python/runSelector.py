@@ -6,19 +6,21 @@ import os
 import sys
 import time
 
+import PyJobTransforms.trfArgClasses as trfArgClasses
+
 def main( runNum = None, procType = None, forceSkipQueue = 0 ):
     #===== Run number =====
     if runNum == None:
         print 'ERROR no run number given'
         return False
     Run0 = runNum
-
     #===== procType =====
     if procType == None:
+        #    if procType == trfArgClasses.argList():
         print 'ERROR no process type given'
         return False
     for iType in procType:
-        if not iType in ['doNoisyStrip','doNoiseOccupancy','doDeadChip','doDeadStrip','doHV','doBSErrorDB','doRawOccupancy','doEfficiency']:
+        if not iType in ['doNoisyStrip','doNoiseOccupancy','doDeadChip','doDeadStrip','doHV','doBSErrorDB','doRawOccupancy','doEfficiency','doLorentzAngle']:
             print 'ERROR process type does not match any possible candidates'
             return False
         else :
@@ -32,7 +34,6 @@ def main( runNum = None, procType = None, forceSkipQueue = 0 ):
     runQuery += '--partition \"ATLAS\" '
     runQuery += '--detmaskin \"240A\" '
     runQuery += '--projecttag \"data*_*eV\" '
-
     if pType == 'doNoisyStrip':
         runQuery += '--streams \"*SCTNoise 10000+\" '
         runQuery += '--show \"streams *SCTNoise\" '
@@ -44,7 +45,8 @@ def main( runNum = None, procType = None, forceSkipQueue = 0 ):
     runQuery += '--noroot --nohtml --verbose'
     print runQuery
     os.system(runQuery)
-
+    
+    print Run0
     #--- Check stable beam flag
     StableBeam = False
     if os.path.exists('./data/MyLBCollection.xml'):
@@ -58,7 +60,7 @@ def main( runNum = None, procType = None, forceSkipQueue = 0 ):
         f.close()
 
     if not StableBeam:
-        print "Run %s : run selection didn't pass --- job will be finished" %(Run0)
+        print "Run %s : run selection didn't pass Stable Beam check--- job will be finished" %(Run0)
         return False
     
     #===== Read last run uploaded : only for NoisyStrip =====
@@ -80,7 +82,7 @@ def main( runNum = None, procType = None, forceSkipQueue = 0 ):
             f.close()
             print "Run %s : the last run uploaded" %(RunLast)[:-1]
 
-        #--- Check last run is before Run0
+#        --- Check last run is before Run0
         if int(RunLast) > int(Run0) :
             print "Run %s : taken later than the current run ---> job will not be run" %(RunLast)[:-1]
             return False
