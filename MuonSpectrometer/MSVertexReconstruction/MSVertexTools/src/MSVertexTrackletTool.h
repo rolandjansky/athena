@@ -80,6 +80,7 @@ namespace Muon {
     void convertToTrackParticles(std::vector<Tracklet>& tracklets);
     float sq(float x) { return (x)*(x); }
     static bool mdtComp(const Muon::MdtPrepData* mprd1, const Muon::MdtPrepData* mprd2);
+    void addMDTHits( std::vector<Muon::MdtPrepData*>& hits, std::vector<std::vector<Muon::MdtPrepData*> >& SortedMdt ) const;
 
   };
   
