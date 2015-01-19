@@ -54,23 +54,8 @@
 // TrigBphysMonitoring
 #include "TrigBphysMonitoring/HLTXAODBphysMonTool.h"
 
-//// TrigBphysContainers
-//#include "TrigParticle/TrigL2BphysContainer.h"
-//#include "TrigParticle/TrigL2Bphys.h"
-//#include "TrigParticle/TrigEFBphysContainer.h"
-//#include "TrigParticle/TrigEFBphys.h"
-
 #include "xAODTrigBphys/TrigBphysContainer.h"
 #include "xAODTrigBphys/TrigBphys.h"
-
-//// Muon Containers
-//#include "TrigMuonEvent/TrigMuonEF.h"
-//#include "TrigMuonEvent/TrigMuonEFInfo.h"
-//#include "TrigMuonEvent/TrigMuonEFInfoContainer.h"
-//#include "TrigMuonEvent/TrigMuonEFInfoTrack.h"
-//#include "TrigMuonEvent/TrigMuonEFInfoTrackContainer.h"
-//#include "TrigMuonEvent/TrigMuonEFCbTrack.h"
-//#include "TrigMuonEvent/TrigMuonEFTrack.h"
 
 // Vertex
 #include "VxVertex/VxContainer.h"
@@ -86,11 +71,8 @@
 #include "TrigDecisionTool/Feature.h"
 #include "TrigDecisionTool/FeatureContainer.h"
 
-// For JpsiFinder
-//#include "TrigBphysMonitoring/BCompositeParticleBuilder.h"
-//#include "JpsiUpsilonTools/PrimaryVertexRefitter.h"
-
 using namespace std;
+
 
 /** Constructor, calls base class constructor with parameters
  *
@@ -102,23 +84,38 @@ HLTXAODBphysMonTool::HLTXAODBphysMonTool(const std::string & type,
                                          const std::string & name,
                                          const IInterface* parent)
 :IHLTMonTool(type, name, parent),
-m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
 m_muonMass(105.66)
 {
-    
-    // m_bphysItems.push_back("HLT_2mu6_bDimu");
     declareProperty("muonMass"          , m_muonMass);
-    declareProperty("TrigNames"         , m_TrigNames);
-    declareProperty("TrigNames1D"       , m_TrigNames1D);
-    declareProperty("TrigDecisionTool"  , m_trigDec, "The tool to access TrigDecision");
-    declareProperty("BphysicsItems"     , m_bphysItems, "Bphysics triggers to test");
-    declareProperty("MonGroup"          , m_monGroup, "Monitoring groups");
-    declareProperty("ContainerList"     , m_containerList, "Container list");
     declareProperty("JpsiCandidates"    , m_JpsiCandidatesKey = "JpsiCandidates","Offline di-muon candidates");
-    declareProperty("EffNum"            , m_effNum, "Required triggers for numerators of efficiency histograms");
-    declareProperty("EffDenom"          , m_effDenom, "Required triggers for denominators of efficiency histograms");
-    declareProperty("EffNumGroup"       , m_effNumGroup, "Group for numerator");
-    declareProperty("EffDenomGroup"     , m_effDenomGroup, "Group for denominator");
+
+    declareProperty("BphysShifterPath"  , m_base_path_shifter="HLT/BphysMon/shifter","Shifter hist path");
+    declareProperty("BphysExpertPath"   , m_base_path_expert ="HLT/BphysMon/expert" ,"Expert hist path");
+    declareProperty("BphysHistPrefix"   , m_prefix ="TrigBphys" ,"Histogram prefix");
+
+    
+    declareProperty("MonitoredChains"   , m_monitored_chains, "Monitoring chain groups");
+    declareProperty("ContainerList"     , m_containerList, "Container list");
+
+    declareProperty("DetailedChains"    ,m_dedicated_chains , "table<string,string> of menu-idep/aware labels/chainnames");
+    declareProperty("EfficiencyChains"  ,m_efficiency_chains, "table<string,string> of menu-idep/aware labels/eff. names");
+    
+    // ID Tracking efficiency
+    // MS efficieny
+    // L1 & L2 efficieny
+    // EF efficieny
+    // noVtx_noOs efficiency
+    // L1Topo efficiencies
+
+    // efficiency triggers
+    declareProperty("EffTrigDenom_ID"      , m_trigchain_denomID , "Trigger for ID denominator efficiencies");
+    declareProperty("EffTrigDenom_MS"      , m_trigchain_denomMS , "Trigger for MS denominator efficiencies");
+    declareProperty("EffTrigDenom_L1"      , m_trigchain_denomL1 , "Trigger for L1 denominator efficiencies");
+    declareProperty("EffTrigDenom_L2"      , m_trigchain_denomL2 , "Trigger for L2 denominator efficiencies");
+    declareProperty("EffTrigDenom_EF"      , m_trigchain_denomEF , "Trigger for EF denominator efficiencies");
+    declareProperty("EffTrigDenom_noVtxOS" , m_trigchain_denomnoVtxOS , "Trigger for noVtxOS denominator efficiencies");
+    declareProperty("EffTrigDenom_L1Topo"  , m_trigchain_denomL1Topo , "Trigger for L1Topo denominator efficiencies");
+
     
     // parameters such as cuts, mass windows and hist binnings
     declareProperty("MW_jpsi_forward_min"          , m_mw_jpsi_forward_min  , "Jpsi mass forward window low");
@@ -129,6 +126,7 @@ m_muonMass(105.66)
     declareProperty("MW_jpsi_central_max"          , m_mw_jpsi_central_max  , "Jpsi mass central window high");
     declareProperty("MW_upsi_central_min"          , m_mw_upsi_central_min  , "Upsilon mass central window low");
     declareProperty("MW_upsi_central_max"          , m_mw_upsi_central_max  , "Upsilon mass central window high");
+    
     declareProperty("Eta_min"                      , m_eta_min              , "Minimum Eta");
     declareProperty("Eta_max"                      , m_eta_max              , "Maximum Eta");
     declareProperty("Mu_pt_min"                    , m_mu_pt_min            , "Minimum muon pT");
@@ -149,17 +147,16 @@ m_muonMass(105.66)
     declareProperty("OniaMass_max"                 , m_oniamass_max         , "Maximum onia mass");
     declareProperty("OniaPt_min"                   , m_oniapt_min           , "Minimum onia pt");
     declareProperty("OniaPt_max"                   , m_oniapt_max           , "Maximum onia pt");
-}
 
-
+    
+} //HLTXAODBphysMonTool
 
 //-----------------------------------------------------------
 HLTXAODBphysMonTool::~HLTXAODBphysMonTool()
 //-----------------------------------------------------------
 {
-}
-
-
+    ATH_MSG_DEBUG ("~HLTXAODBphysMonTool ... ");
+} // ~HLTXAODBphysMonTool
 
 //-----------------------------------------------------------
 StatusCode HLTXAODBphysMonTool::init()
@@ -168,919 +165,299 @@ StatusCode HLTXAODBphysMonTool::init()
     
     ATH_MSG_INFO ("Initializing... ");
     
-    *m_log << MSG::INFO << "init being called" << endreq;
-    
     m_all   = getTDT()->getChainGroup(".*");
-    
-    
-    
     return StatusCode::SUCCESS;
 }
 
 //-----------------------------------------------------------
-StatusCode HLTXAODBphysMonTool::book() // suppress 'unused' compiler warning
+StatusCode HLTXAODBphysMonTool::book()
 //-----------------------------------------------------------
 {
-    
     ATH_MSG_INFO ("Booking... ");
-    
-    
-    
-    
-    // Build Trigger Monitoring histograms
-    for (int iTrigName = 0; iTrigName < (int)m_bphysItems.size(); ++iTrigName){
-        addMonGroup(new MonGroup(this,"HLT/BphysMon/Trigger/"+m_monGroup[iTrigName]+"/"+m_bphysItems[iTrigName],run));
-        buildHist(m_bphysItems[iTrigName],"TrigBphys");
+
+    if (!newRun) {
+        ATH_MSG_INFO ("Booking... not a new run, continuing");
+        return StatusCode::SUCCESS;
     }
     
+    // book the offline di-muon hists
+    ATH_MSG_INFO ("Booking... JpsiFinder");
+    if (bookJpsiFinder().isFailure()) {ATH_MSG_ERROR("Problems booking JpsiFinder method"); return StatusCode::FAILURE;}
     
+    // book the general monitoring hists
+    ATH_MSG_INFO ("Booking... Triggers");
+    if (bookTriggers().isFailure())   {ATH_MSG_ERROR("Problems booking Triggers method"); return StatusCode::FAILURE;}
     
-    //Build monitoring histograms for feature containers
-    for (auto containerItem : m_containerList){
-        addMonGroup(new MonGroup(this,"HLT/BphysMon/Container/"+containerItem,run));
-        buildHist(containerItem,"TrigBphys");
-    }
+    // book the container hists
+    ATH_MSG_INFO ("Booking... TriggerGroups");
+    if (bookTriggerGroups().isFailure())   {ATH_MSG_ERROR("Problems booking Containers method"); return StatusCode::FAILURE;}
     
+    // book the chain specific hists
+    ATH_MSG_INFO ("Booking... Containers");
+    if (bookContainers().isFailure())   {ATH_MSG_ERROR("Problems booking Containers method"); return StatusCode::FAILURE;}
+
+    // book the efficiency hists
+    ATH_MSG_INFO ("Booking... Efficiency");
+    if (bookEfficiencyGroups().isFailure())   {ATH_MSG_ERROR("Problems booking Efficiency method"); return StatusCode::FAILURE;}
     
-    
-    //Build monitoring histograms for offline reconstructed vertices
-    
-    addMonGroup(new MonGroup(this,"HLT/BphysMon/JpsiFinder",run));
-    
-    addHistogram( new TH1F(Form("offline_mumu_mass") ,   Form("offline_mumu_mass;mass(#mu#mu)[GeV];Candidates") ,    100, 2e3,5000.0) );
-    addHistogram( new TH1F(Form("offline_mumu_mass_diff") ,   Form("offline_mumu_mass_diff;mass(#mu#mu)[GeV];Candidates") ,    50, -150.,150.) );
-    
-    
-    // 2D Histograms for all triggers
-    int TrigSize = (int)m_bphysItems.size();
-    
-    // central eta < |1.05| -- forward eta > |1.05|
-    addHistogram( new TH2F("TrigBphys_Jpsi_mass_central",         "Bphys Jpsi Mass Central"             ,100, 2950,3250, TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("TrigBphys_Jpsi_high_pT_central",      "Bphys Jpsi Highest pT Muon Central"  ,50, 0.,50., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("TrigBphys_Jpsi_low_pT_central",       "Bphys Jpsi Lowest pT Muon Central"   ,50, 0.,50., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("TrigBphys_Jpsi_dphi_central",         "Bphys Jpsi DeltaPhi Central"         , 64, 0.,3.2, TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("TrigBphys_Jpsi_deta_central",         "Bphys Jpsi DeltaEta Central"         , 60, 0.,3., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("TrigBphys_Jpsi_cosThetaStar_central", "Bphys Jpsi CosThetaStar Central"     ,50, -1.,1., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("TrigBphys_Jpsi_phiStar_central",      "Bphys Jpsi PhiStar Central"          , 70, -3.5,3.5, TrigSize, 0., (double)TrigSize) );
-    
-    addHistogram( new TH2F("TrigBphys_Jpsi_mass_forward",         "Bphys Jpsi Mass Forward"             ,100, 2800,3400, TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("TrigBphys_Jpsi_high_pT_forward",      "Bphys Jpsi Highest pT Muon Forward"  ,50, 0.,50., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("TrigBphys_Jpsi_low_pT_forward",       "Bphys Jpsi Lowest pT Muon Forward"   ,50, 0.,50., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("TrigBphys_Jpsi_dphi_forward",         "Bphys Jpsi DeltaPhi Forward"         , 64, 0.,3.2, TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("TrigBphys_Jpsi_deta_forward",         "Bphys Jpsi DeltaEta Forward"         , 60, 0.,3., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("TrigBphys_Jpsi_cosThetaStar_forward", "Bphys Jpsi CosThetaStar Forward"     ,50, -1.,1., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("TrigBphys_Jpsi_phiStar_forward",      "Bphys Jpsi PhiStar Forward"          , 70, -3.5,3.5, TrigSize, 0., (double)TrigSize) );
-    
-    addHistogram( new TH2F("TrigBphys_Upsi_mass_central",         "Bphys Upsi Mass Central"             ,100, 9000,11500, TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("TrigBphys_Upsi_high_pT_central",      "Bphys Upsi Highest pT Muon Central"  ,50, 0.,50., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("TrigBphys_Upsi_low_pT_central",       "Bphys Upsi Lowest pT Muon Central"   ,50, 0.,50., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("TrigBphys_Upsi_dphi_central",         "Bphys Upsi DeltaPhi Central"         , 64, 0.,3.2, TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("TrigBphys_Upsi_deta_central",         "Bphys Upsi DeltaEta Central"         , 60, 0.,3., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("TrigBphys_Upsi_cosThetaStar_central", "Bphys Upsi CosThetaStar Central"     ,50, -1.,1., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("TrigBphys_Upsi_phiStar_central",      "Bphys Upsi PhiStar Central"          , 70, -3.5,3.5, TrigSize, 0., (double)TrigSize) );
-    
-    addHistogram( new TH2F("TrigBphys_Upsi_mass_forward",         "Bphys Upsi Mass Forward"             ,100, 8000,12000, TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("TrigBphys_Upsi_high_pT_forward",      "Bphys Upsi Highest pT Muon Forward"  ,50, 0.,50., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("TrigBphys_Upsi_low_pT_forward",       "Bphys Upsi Lowest pT Muon Forward"   ,50, 0.,50., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("TrigBphys_Upsi_dphi_forward",         "Bphys Upsi DeltaPhi Forward"         , 64, 0.,3.2, TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("TrigBphys_Upsi_deta_forward",         "Bphys Upsi DeltaEta Forward"         , 60, 0.,3., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("TrigBphys_Upsi_cosThetaStar_forward", "Bphys Upsi CosThetaStar Forward"     ,50, -1.,1., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("TrigBphys_Upsi_phiStar_forward",      "Bphys Upsi PhiStar Forward"          , 70, -3.5,3.5, TrigSize, 0., (double)TrigSize) );
-    
-    
-    addHistogram( new TH2F("denom_TrigBphys_Jpsi_mass_central",         "Bphys Jpsi Mass Central"             ,100, 2950,3250, TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("denom_TrigBphys_Jpsi_high_pT_central",      "Bphys Jpsi Highest pT Muon Central"  ,50, 0.,50., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("denom_TrigBphys_Jpsi_low_pT_central",       "Bphys Jpsi Lowest pT Muon Central"   ,50, 0.,50., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("denom_TrigBphys_Jpsi_dphi_central",         "Bphys Jpsi DeltaPhi Central"         , 64, 0.,3.2, TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("denom_TrigBphys_Jpsi_deta_central",         "Bphys Jpsi DeltaEta Central"         , 60, 0.,3., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("denom_TrigBphys_Jpsi_cosThetaStar_central", "Bphys Jpsi CosThetaStar Central"     ,50, -1.,1., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("denom_TrigBphys_Jpsi_phiStar_central",      "Bphys Jpsi PhiStar Central"          , 70, -3.5,3.5, TrigSize, 0., (double)TrigSize) );
-    
-    addHistogram( new TH2F("denom_TrigBphys_Jpsi_mass_forward",         "Bphys Jpsi Mass Forward"             ,100, 2800,3400, TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("denom_TrigBphys_Jpsi_high_pT_forward",      "Bphys Jpsi Highest pT Muon Forward"  ,50, 0.,50., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("denom_TrigBphys_Jpsi_low_pT_forward",       "Bphys Jpsi Lowest pT Muon Forward"   ,50, 0.,50., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("denom_TrigBphys_Jpsi_dphi_forward",         "Bphys Jpsi DeltaPhi Forward"         , 64, 0.,3.2, TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("denom_TrigBphys_Jpsi_deta_forward",         "Bphys Jpsi DeltaEta Forward"         , 60, 0.,3., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("denom_TrigBphys_Jpsi_cosThetaStar_forward", "Bphys Jpsi CosThetaStar Forward"     ,50, -1.,1., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("denom_TrigBphys_Jpsi_phiStar_forward",      "Bphys Jpsi PhiStar Forward"          , 70, -3.5,3.5, TrigSize, 0., (double)TrigSize) );
-    
-    addHistogram( new TH2F("denom_TrigBphys_Upsi_mass_central",         "Bphys Upsi Mass Central"             ,100, 9000,11500, TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("denom_TrigBphys_Upsi_high_pT_central",      "Bphys Upsi Highest pT Muon Central"  ,50, 0.,50., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("denom_TrigBphys_Upsi_low_pT_central",       "Bphys Upsi Lowest pT Muon Central"   ,50, 0.,50., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("denom_TrigBphys_Upsi_dphi_central",         "Bphys Upsi DeltaPhi Central"         , 64, 0.,3.2, TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("denom_TrigBphys_Upsi_deta_central",         "Bphys Upsi DeltaEta Central"         , 60, 0.,3., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("denom_TrigBphys_Upsi_cosThetaStar_central", "Bphys Upsi CosThetaStar Central"     ,50, -1.,1., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("denom_TrigBphys_Upsi_phiStar_central",      "Bphys Upsi PhiStar Central"          , 70, -3.5,3.5, TrigSize, 0., (double)TrigSize) );
-    
-    addHistogram( new TH2F("denom_TrigBphys_Upsi_mass_forward",         "Bphys Upsi Mass Forward"             ,100, 8000,12000, TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("denom_TrigBphys_Upsi_high_pT_forward",      "Bphys Upsi Highest pT Muon Forward"  ,50, 0.,50., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("denom_TrigBphys_Upsi_low_pT_forward",       "Bphys Upsi Lowest pT Muon Forward"   ,50, 0.,50., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("denom_TrigBphys_Upsi_dphi_forward",         "Bphys Upsi DeltaPhi Forward"         , 64, 0.,3.2, TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("denom_TrigBphys_Upsi_deta_forward",         "Bphys Upsi DeltaEta Forward"         , 60, 0.,3., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("denom_TrigBphys_Upsi_cosThetaStar_forward", "Bphys Upsi CosThetaStar Forward"     ,50, -1.,1., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("denom_TrigBphys_Upsi_phiStar_forward",      "Bphys Upsi PhiStar Forward"          , 70, -3.5,3.5, TrigSize, 0., (double)TrigSize) );
-    
-    
-    addHistogram( new TH2F("eff_TrigBphys_Jpsi_mass_central",         "Bphys Jpsi Mass Central"             ,100, 2950,3250, TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("eff_TrigBphys_Jpsi_high_pT_central",      "Bphys Jpsi Highest pT Muon Central"  ,50, 0.,50., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("eff_TrigBphys_Jpsi_low_pT_central",       "Bphys Jpsi Lowest pT Muon Central"   ,50, 0.,50., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("eff_TrigBphys_Jpsi_dphi_central",         "Bphys Jpsi DeltaPhi Central"         , 64, 0.,3.2, TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("eff_TrigBphys_Jpsi_deta_central",         "Bphys Jpsi DeltaEta Central"         , 60, 0.,3., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("eff_TrigBphys_Jpsi_cosThetaStar_central", "Bphys Jpsi CosThetaStar Central"     ,50, -1.,1., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("eff_TrigBphys_Jpsi_phiStar_central",      "Bphys Jpsi PhiStar Central"          , 70, -3.5,3.5, TrigSize, 0., (double)TrigSize) );
-    
-    addHistogram( new TH2F("eff_TrigBphys_Jpsi_mass_forward",         "Bphys Jpsi Mass Forward"             ,100, 2800,3400, TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("eff_TrigBphys_Jpsi_high_pT_forward",      "Bphys Jpsi Highest pT Muon Forward"  ,50, 0.,50., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("eff_TrigBphys_Jpsi_low_pT_forward",       "Bphys Jpsi Lowest pT Muon Forward"   ,50, 0.,50., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("eff_TrigBphys_Jpsi_dphi_forward",         "Bphys Jpsi DeltaPhi Forward"         , 64, 0.,3.2, TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("eff_TrigBphys_Jpsi_deta_forward",         "Bphys Jpsi DeltaEta Forward"         , 60, 0.,3., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("eff_TrigBphys_Jpsi_cosThetaStar_forward", "Bphys Jpsi CosThetaStar Forward"     ,50, -1.,1., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("eff_TrigBphys_Jpsi_phiStar_forward",      "Bphys Jpsi PhiStar Forward"          , 70, -3.5,3.5, TrigSize, 0., (double)TrigSize) );
-    
-    addHistogram( new TH2F("eff_TrigBphys_Upsi_mass_central",         "Bphys Upsi Mass Central"             ,100, 9000,11500, TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("eff_TrigBphys_Upsi_high_pT_central",      "Bphys Upsi Highest pT Muon Central"  ,50, 0.,50., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("eff_TrigBphys_Upsi_low_pT_central",       "Bphys Upsi Lowest pT Muon Central"   ,50, 0.,50., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("eff_TrigBphys_Upsi_dphi_central",         "Bphys Upsi DeltaPhi Central"         , 64, 0.,3.2, TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("eff_TrigBphys_Upsi_deta_central",         "Bphys Upsi DeltaEta Central"         , 60, 0.,3., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("eff_TrigBphys_Upsi_cosThetaStar_central", "Bphys Upsi CosThetaStar Central"     ,50, -1.,1., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("eff_TrigBphys_Upsi_phiStar_central",      "Bphys Upsi PhiStar Central"          , 70, -3.5,3.5, TrigSize, 0., (double)TrigSize) );
-    
-    addHistogram( new TH2F("eff_TrigBphys_Upsi_mass_forward",         "Bphys Upsi Mass Forward"             ,100, 8000,12000, TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("eff_TrigBphys_Upsi_high_pT_forward",      "Bphys Upsi Highest pT Muon Forward"  ,50, 0.,50., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("eff_TrigBphys_Upsi_low_pT_forward",       "Bphys Upsi Lowest pT Muon Forward"   ,50, 0.,50., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("eff_TrigBphys_Upsi_dphi_forward",         "Bphys Upsi DeltaPhi Forward"         , 64, 0.,3.2, TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("eff_TrigBphys_Upsi_deta_forward",         "Bphys Upsi DeltaEta Forward"         , 60, 0.,3., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("eff_TrigBphys_Upsi_cosThetaStar_forward", "Bphys Upsi CosThetaStar Forward"     ,50, -1.,1., TrigSize, 0., (double)TrigSize) );
-    addHistogram( new TH2F("eff_TrigBphys_Upsi_phiStar_forward",      "Bphys Upsi PhiStar Forward"          , 70, -3.5,3.5, TrigSize, 0., (double)TrigSize) );
-    
-    for (int iTrigName = 1; iTrigName <= (int)m_bphysItems.size(); ++iTrigName){
-        
-        TString label = m_bphysItems[iTrigName-1];
-        hist2("TrigBphys_Jpsi_mass_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("TrigBphys_Jpsi_high_pT_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("TrigBphys_Jpsi_low_pT_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("TrigBphys_Jpsi_dphi_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("TrigBphys_Jpsi_deta_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("TrigBphys_Jpsi_cosThetaStar_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("TrigBphys_Jpsi_phiStar_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        
-        hist2("TrigBphys_Jpsi_mass_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("TrigBphys_Jpsi_high_pT_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("TrigBphys_Jpsi_low_pT_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("TrigBphys_Jpsi_dphi_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("TrigBphys_Jpsi_deta_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("TrigBphys_Jpsi_cosThetaStar_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("TrigBphys_Jpsi_phiStar_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        
-        hist2("TrigBphys_Upsi_mass_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("TrigBphys_Upsi_high_pT_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("TrigBphys_Upsi_low_pT_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("TrigBphys_Upsi_dphi_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("TrigBphys_Upsi_deta_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("TrigBphys_Upsi_cosThetaStar_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("TrigBphys_Upsi_phiStar_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        
-        hist2("TrigBphys_Upsi_mass_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("TrigBphys_Upsi_high_pT_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("TrigBphys_Upsi_low_pT_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("TrigBphys_Upsi_dphi_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("TrigBphys_Upsi_deta_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("TrigBphys_Upsi_cosThetaStar_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("TrigBphys_Upsi_phiStar_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        
-        
-        
-        hist2("denom_TrigBphys_Jpsi_mass_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("denom_TrigBphys_Jpsi_high_pT_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("denom_TrigBphys_Jpsi_low_pT_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("denom_TrigBphys_Jpsi_dphi_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("denom_TrigBphys_Jpsi_deta_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("denom_TrigBphys_Jpsi_cosThetaStar_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("denom_TrigBphys_Jpsi_phiStar_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        
-        hist2("denom_TrigBphys_Jpsi_mass_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("denom_TrigBphys_Jpsi_high_pT_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("denom_TrigBphys_Jpsi_low_pT_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("denom_TrigBphys_Jpsi_dphi_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("denom_TrigBphys_Jpsi_deta_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("denom_TrigBphys_Jpsi_cosThetaStar_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("denom_TrigBphys_Jpsi_phiStar_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        
-        hist2("denom_TrigBphys_Upsi_mass_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("denom_TrigBphys_Upsi_high_pT_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("denom_TrigBphys_Upsi_low_pT_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("denom_TrigBphys_Upsi_dphi_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("denom_TrigBphys_Upsi_deta_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("denom_TrigBphys_Upsi_cosThetaStar_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("denom_TrigBphys_Upsi_phiStar_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        
-        hist2("denom_TrigBphys_Upsi_mass_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("denom_TrigBphys_Upsi_high_pT_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("denom_TrigBphys_Upsi_low_pT_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("denom_TrigBphys_Upsi_dphi_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("denom_TrigBphys_Upsi_deta_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("denom_TrigBphys_Upsi_cosThetaStar_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("denom_TrigBphys_Upsi_phiStar_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        
-        
-        
-        hist2("eff_TrigBphys_Jpsi_mass_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("eff_TrigBphys_Jpsi_high_pT_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("eff_TrigBphys_Jpsi_low_pT_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("eff_TrigBphys_Jpsi_dphi_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("eff_TrigBphys_Jpsi_deta_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("eff_TrigBphys_Jpsi_cosThetaStar_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("eff_TrigBphys_Jpsi_phiStar_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        
-        hist2("eff_TrigBphys_Jpsi_mass_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("eff_TrigBphys_Jpsi_high_pT_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("eff_TrigBphys_Jpsi_low_pT_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("eff_TrigBphys_Jpsi_dphi_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("eff_TrigBphys_Jpsi_deta_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("eff_TrigBphys_Jpsi_cosThetaStar_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("eff_TrigBphys_Jpsi_phiStar_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        
-        hist2("eff_TrigBphys_Upsi_mass_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("eff_TrigBphys_Upsi_high_pT_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("eff_TrigBphys_Upsi_low_pT_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("eff_TrigBphys_Upsi_dphi_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("eff_TrigBphys_Upsi_deta_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("eff_TrigBphys_Upsi_cosThetaStar_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("eff_TrigBphys_Upsi_phiStar_central")->GetYaxis()->SetBinLabel(iTrigName,label);
-        
-        hist2("eff_TrigBphys_Upsi_mass_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("eff_TrigBphys_Upsi_high_pT_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("eff_TrigBphys_Upsi_low_pT_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("eff_TrigBphys_Upsi_dphi_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("eff_TrigBphys_Upsi_deta_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("eff_TrigBphys_Upsi_cosThetaStar_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        hist2("eff_TrigBphys_Upsi_phiStar_forward")->GetYaxis()->SetBinLabel(iTrigName,label);
-        
-        
-    }
-    
-    
-    
-    
-    
-    
-    // Trigger Efficiency
-    addMonGroup(new MonGroup(this,"HLT/BphysMon/TriggerEfficiency",run));
-    
-    
-    // Creating histograms for denominator of efficiency
-    int EffSize(0);
-    
-    for (int DenomOrNum = 0; DenomOrNum < 2; ++DenomOrNum){
-        
-        
-        EffSize = (int)m_effDenom.size();
-        
-        for (int iTrigEff = 0; iTrigEff < EffSize; ++iTrigEff){
-            
-            string EffDenomNum_etaHist1;
-            string EffDenomNum_etaHist2;
-            string EffDenomNum_phiHist1;
-            string EffDenomNum_phiHist2;
-            string EffDenomNum_pTHist1;
-            string EffDenomNum_pTHist2;
-            
-            if ( DenomOrNum == 0){
-                EffDenomNum_etaHist1 = "EffDenom_" + m_effDenom[iTrigEff] + "_eta1";
-                EffDenomNum_etaHist2 = "EffDenom_" + m_effDenom[iTrigEff] + "_eta2";
-                EffDenomNum_phiHist1 = "EffDenom_" + m_effDenom[iTrigEff] + "_phi1";
-                EffDenomNum_phiHist2 = "EffDenom_" + m_effDenom[iTrigEff] + "_phi2";
-                EffDenomNum_pTHist1 = "EffDenom_" + m_effDenom[iTrigEff] + "_pT1";
-                EffDenomNum_pTHist2 = "EffDenom_" + m_effDenom[iTrigEff] + "_pT2";
-            } else {
-                EffDenomNum_etaHist1 = "EffNum_" + m_effNum[iTrigEff] + "_eta1";
-                EffDenomNum_etaHist2 = "EffNum_" + m_effNum[iTrigEff] + "_eta2";
-                EffDenomNum_phiHist1 = "EffNum_" + m_effNum[iTrigEff] + "_phi1";
-                EffDenomNum_phiHist2 = "EffNum_" + m_effNum[iTrigEff] + "_phi2";
-                EffDenomNum_pTHist1 = "EffNum_" + m_effNum[iTrigEff] + "_pT1";
-                EffDenomNum_pTHist2 = "EffNum_" + m_effNum[iTrigEff] + "_pT2";
-            }
-            
-            
-            addHistogram(EffHistMap[EffDenomNum_etaHist1] = new TH1F(EffDenomNum_etaHist1.c_str()    , EffDenomNum_etaHist1.c_str()    , 60, -3.,3.));
-            addHistogram(EffHistMap[EffDenomNum_etaHist2] = new TH1F(EffDenomNum_etaHist2.c_str()    , EffDenomNum_etaHist2.c_str()    , 60, -3.,3.));
-            addHistogram(EffHistMap[EffDenomNum_phiHist1] = new TH1F(EffDenomNum_phiHist1.c_str()    , EffDenomNum_phiHist1.c_str()    , 70, -3.5,3.5));
-            addHistogram(EffHistMap[EffDenomNum_phiHist2] = new TH1F(EffDenomNum_phiHist2.c_str()    , EffDenomNum_phiHist2.c_str()    , 70, -3.5,3.5));
-            addHistogram(EffHistMap[EffDenomNum_pTHist1] = new TH1F(EffDenomNum_pTHist1.c_str()    , EffDenomNum_pTHist1.c_str()    , 50, 0.,50.));
-            addHistogram(EffHistMap[EffDenomNum_pTHist2] = new TH1F(EffDenomNum_pTHist2.c_str()    , EffDenomNum_pTHist2.c_str()   , 50, 0.,50.));
-            
-        }
-    }
-    
-    
-    // Creating histograms for efficiency
-    for (int iEff = 0; iEff < (int)m_effDenom.size(); ++iEff){
-        
-        TString Eff_etaHist1 = "Eff_" + m_effNum[iEff] + "__" + m_effDenom[iEff] + "_eta1";
-        TString Eff_etaHist2 = "Eff_" + m_effNum[iEff] + "__" + m_effDenom[iEff] + "_eta2";
-        TString Eff_phiHist1 = "Eff_" + m_effNum[iEff] + "__" + m_effDenom[iEff] + "_phi1";
-        TString Eff_phiHist2 = "Eff_" + m_effNum[iEff] + "__" + m_effDenom[iEff] + "_phi2";
-        TString Eff_pTHist1 = "Eff_" + m_effNum[iEff] + "__" + m_effDenom[iEff] + "_pT1";
-        TString Eff_pTHist2 = "Eff_" + m_effNum[iEff] + "__" + m_effDenom[iEff] + "_pT2";
-        
-        addHistogram( new TH1F(Eff_etaHist1     , Eff_etaHist1    ,  60, -3.,3.) );
-        addHistogram( new TH1F(Eff_etaHist2     , Eff_etaHist2    ,  60, -3.,3.) );
-        addHistogram( new TH1F(Eff_phiHist1     , Eff_phiHist1    ,  70, -3.5,3.5) );
-        addHistogram( new TH1F(Eff_phiHist2     , Eff_phiHist2    ,  70, -3.5,3.5) );
-        addHistogram( new TH1F(Eff_pTHist1      , Eff_pTHist1     , 50, 0.,50.) );
-        addHistogram( new TH1F(Eff_pTHist2      , Eff_pTHist2     , 50, 0.,50.) );
-        
-        
-        //TString Eff_etaHistPre1 = "Eff_" + EffNum[nEffNum] + "__" + EffDenom[iEff] + "_eta1_Prescale";
-        //TString Eff_etaHistPre2 = "Eff_" + EffNum[nEffNum] + "__" + EffDenom[iEff] + "_eta2_Prescale";
-        //TString Eff_phiHistPre1 = "Eff_" + EffNum[nEffNum] + "__" + EffDenom[iEff] + "_phi1_Prescale";
-        //TString Eff_phiHistPre2 = "Eff_" + EffNum[nEffNum] + "__" + EffDenom[iEff] + "_phi2_Prescale";
-        //TString Eff_pTHistPre1 = "Eff_" + EffNum[nEffNum] + "__" + EffDenom[iEff] + "_pT1_Prescale";
-        //TString Eff_pTHistPre2 = "Eff_" + EffNum[nEffNum] + "__" + EffDenom[iEff] + "_pT2_Prescale";
-        
-        //addHistogram( new TH1F(Eff_etaHistPre1     , Eff_etaHistPre1    ,  60, -3.,3.) );
-        //addHistogram( new TH1F(Eff_etaHistPre2     , Eff_etaHistPre2    ,  60, -3.,3.) );
-        //addHistogram( new TH1F(Eff_phiHistPre1     , Eff_phiHistPre1    ,  70, -3.5,3.5) );
-        //addHistogram( new TH1F(Eff_phiHistPre2     , Eff_phiHistPre2    ,  70, -3.5,3.5) );
-        //addHistogram( new TH1F(Eff_pTHistPre1      , Eff_pTHistPre1     , 100, 0.,50.) );
-        //addHistogram( new TH1F(Eff_pTHistPre2      , Eff_pTHistPre2     , 100, 0.,50.) );
-    }
     
     return StatusCode::SUCCESS;
-}
-
-
-
-//-----------------------------------------------------------
-void HLTXAODBphysMonTool::buildHist( const std::string & trigname,const std::string & prefix) // suppress 'unused' compiler warning
-//-----------------------------------------------------------
-{
-    
-    
-    
-    
-    if(prefix == "Offline"){
-        
-        addHistogram( new TH1F(Form("%s_%s_mass_diff",prefix.c_str(),trigname.c_str()) ,  Form("%s_%s_mass_diff;#Delta(#mu#mu)[MeV];Candidates",prefix.c_str(),trigname.c_str()) ,    50, -150.,150.) );
-        
-    }
-    
-    if(prefix == "TrigBphys"){
-        // build...(bphysItem.c_str(), "TrigBphys");
-        addHistogram( new TH1F(Form("%s_%s_eta",prefix.c_str(),trigname.c_str()) ,      Form("%s_%s_eta;#eta(#mu#mu);Candidates",prefix.c_str(),trigname.c_str()) ,     60, m_eta_min,m_eta_max) );
-        addHistogram( new TH1F(Form("%s_%s_phi",prefix.c_str(),trigname.c_str()) ,      Form("%s_%s_phi;#phi(#mu#mu);Candidates",prefix.c_str(),trigname.c_str()) ,     70, -3.5,3.5) );
-        addHistogram( new TH1F(Form("%s_%s_pTmu1",prefix.c_str(),trigname.c_str()) ,    Form("%s_%s_pTmu1;p_{T}(#mu_{1})[GeV];Candidates",prefix.c_str(),trigname.c_str()) ,    50, m_mu_pt_min,m_mu_pt_max) );
-        addHistogram( new TH1F(Form("%s_%s_pTmu2",prefix.c_str(),trigname.c_str()) ,    Form("%s_%s_pTmu2;p_{T}(#mu_{2})[GeV];Candidates",prefix.c_str(),trigname.c_str()) ,    50, m_mu_pt_min,m_mu_pt_max) );
-        addHistogram( new TH1F(Form("%s_%s_z0mu1",prefix.c_str(),trigname.c_str()) ,    Form("%s_%s_z0mu1;z_{0}(#mu_{1})[mm];Candidates",prefix.c_str(),trigname.c_str()) ,    150, m_z0_min,m_z0_max) );
-        addHistogram( new TH1F(Form("%s_%s_z0mu2",prefix.c_str(),trigname.c_str()) ,    Form("%s_%s_z0mu2;z_{0}(#mu_{1})[mm];Candidates",prefix.c_str(),trigname.c_str()) ,    150, m_z0_min,m_z0_max) );
-        addHistogram( new TH1F(Form("%s_%s_d0mu1",prefix.c_str(),trigname.c_str()) ,    Form("%s_%s_d0mu1;d_{0}(#mu_{1})[mm];Candidates",prefix.c_str(),trigname.c_str()) ,    100, m_d0_min,m_d0_max) );
-        addHistogram( new TH1F(Form("%s_%s_d0mu2",prefix.c_str(),trigname.c_str()) ,    Form("%s_%s_d0mu2;d_{0}(#mu_{1})[mm];Candidates",prefix.c_str(),trigname.c_str()) ,    100, m_d0_min,m_d0_max) );
-        addHistogram( new TH1F(Form("%s_%s_mass",prefix.c_str(),trigname.c_str()) ,     Form("%s_%s_mass;mass(#mu#mu)[GeV];Candidates",prefix.c_str(),trigname.c_str()) ,    100, m_oniamass_min,m_oniamass_max) );
-        addHistogram( new TH1F(Form("%s_%s_dphi",prefix.c_str(),trigname.c_str()) ,     Form("%s_%s_dphi;d#phi(#mu_{1,2});Candidates",prefix.c_str(),trigname.c_str()) ,     64, m_dphi_min,m_dphi_max) );
-        addHistogram( new TH1F(Form("%s_%s_deta",prefix.c_str(),trigname.c_str()) ,     Form("%s_%s_deta;d#eta(#mu_{1,2});Candidates",prefix.c_str(),trigname.c_str()) ,     60, m_deta_min,m_deta_max) );
-        addHistogram( new TH1F(Form("%s_%s_dR",prefix.c_str(),trigname.c_str()) ,       Form("%s_%s_dR;dR(#mu_{1,2});Candidates",prefix.c_str(),trigname.c_str()) ,     60, m_dr_min,m_dr_max) );
-        addHistogram( new TH1F(Form("%s_%s_pTsum",prefix.c_str(),trigname.c_str()) ,    Form("%s_%s_pTsum;#Sigmap_{T}(#mu_{1,2})[GeV];Candidates",prefix.c_str(),trigname.c_str()) ,    100, m_ptsum_min,m_ptsum_max) );
-        addHistogram( new TH1F(Form("%s_%s_phiStar",prefix.c_str(),trigname.c_str()) ,  Form("%s_%s_phiStar;#phi*;Candidates",prefix.c_str(),trigname.c_str()) ,     50, -TMath::Pi(), TMath::Pi()) );
-        addHistogram( new TH1F(Form("%s_%s_cosThetaStar",prefix.c_str(),trigname.c_str()) , Form("%s_%s_cosThetaStar;cos#theta*;Candidates",prefix.c_str(),trigname.c_str()) ,     50, -1., 1.) );
-        addHistogram( new TH2F(Form("%s_%s_phiStarcosThetaStar",prefix.c_str(),trigname.c_str()) , Form("%s_%s_phiStarcosThetaStar;cos#theta*;#phi*",prefix.c_str(),trigname.c_str()) ,  50, -1., 1., 50, -TMath::Pi(), TMath::Pi()));
-        addHistogram( new TH1F(Form("%s_%s_fitmass",prefix.c_str(),trigname.c_str()) ,  Form("%s_%s_fitmass;fitmass(#mu#mu)[GeV];Candidates",prefix.c_str(),trigname.c_str()) ,    100, m_oniamass_min,m_oniamass_max) );
-        addHistogram( new TH1F(Form("%s_%s_fitchi2",prefix.c_str(),trigname.c_str()) ,  Form("%s_%s_fitchi2;#chi^{2}(#mu#mu);Candidates",prefix.c_str(),trigname.c_str()) ,    50, 0.,10.) );
-        addHistogram( new TH1F(Form("%s_%s_numBLayerHitsmu1",prefix.c_str(),trigname.c_str()) ,      Form("%s_%s_numBLayerHitsmu1;B Layer Hits(#mu_{1});Candidates",prefix.c_str(),trigname.c_str()) ,     11, -1.,10.) );
-        addHistogram( new TH1F(Form("%s_%s_numBLayerHitsmu2",prefix.c_str(),trigname.c_str()) ,      Form("%s_%s_numBLayerHitsmu2;B Layer Hits(#mu_{2});Candidates",prefix.c_str(),trigname.c_str()) ,     11, -1.,10.) );
-        addHistogram( new TH1F(Form("%s_%s_numSCTHitsmu1",prefix.c_str(),trigname.c_str()) ,      Form("%s_%s_numSCTHitsmu1;SCT Hits(#mu_{1});Candidates",prefix.c_str(),trigname.c_str()) ,     11, -1.,10.) );
-        addHistogram( new TH1F(Form("%s_%s_numSCTHitsmu2",prefix.c_str(),trigname.c_str()) ,      Form("%s_%s_numSCTHitsmu2;SCT Hits(#mu_{2});Candidates",prefix.c_str(),trigname.c_str()) ,     11, -1.,10.) );
-        addHistogram( new TH1F(Form("%s_%s_numPixelHitsmu1",prefix.c_str(),trigname.c_str()) ,      Form("%s_%s_numPixelHitsmu1;Pixel Hits(#mu_{1});Candidates",prefix.c_str(),trigname.c_str()) ,     11, -1.,10.) );
-        addHistogram( new TH1F(Form("%s_%s_numPixelHitsmu2",prefix.c_str(),trigname.c_str()) ,      Form("%s_%s_numPixelHitsmu2;Pixel Hits(#mu_{2});Candidates",prefix.c_str(),trigname.c_str()) ,     11, -1.,10.) );
-        addHistogram( new TH1F(Form("%s_%s_numTRTHitsmu1",prefix.c_str(),trigname.c_str()) ,      Form("%s_%s_numTRTHitsmu1;TRT Hits(#mu_{1});Candidates",prefix.c_str(),trigname.c_str()) ,     11, -1.,10.) );
-        addHistogram( new TH1F(Form("%s_%s_numTRTHitsmu2",prefix.c_str(),trigname.c_str()) ,      Form("%s_%s_numTRTHitsmu2;TRT Hits(#mu_{2});Candidates",prefix.c_str(),trigname.c_str()) ,     11, -1.,10.) );
-        
-    }
-    
-    // return StatusCode::SUCCESS;
-}
-
-
-void HLTXAODBphysMonTool::fillHist(const xAOD::TrigBphys *bphysItem, const std::string & trigItem,const std::string & prefix) // suppress 'unused' compiler warning
-//-----------------------------------------------------------
-{
-    
-    ATH_MSG_DEBUG(":: FillHist() Test 1 :: ");
-    
-    float eta = bphysItem->eta();
-    float phi = bphysItem->phi();
-    float mass = bphysItem->mass();
-    float fitmass = bphysItem->fitmass();
-    float fitchi2 = bphysItem->fitchi2();
-    
-    ATH_MSG_DEBUG("mass :: "<< mass);
-    // Dimu
-    hist(Form("%s_%s_eta",prefix.c_str(),trigItem.c_str()))->Fill(eta);
-    hist(Form("%s_%s_phi",prefix.c_str(),trigItem.c_str()))->Fill(phi);
-    hist(Form("%s_%s_mass",prefix.c_str(),trigItem.c_str()))->Fill(mass);
-    hist(Form("%s_%s_fitmass",prefix.c_str(),trigItem.c_str()))->Fill(fitmass);
-    if (fitchi2 != -99) hist(Form("%s_%s_fitchi2",prefix.c_str(),trigItem.c_str()))->Fill(fitchi2);
-    
-    ATH_MSG_DEBUG(":: FillHist() Test 1 :: ");
-    
-    const std::vector<ElementLink<xAOD::TrackParticleContainer> > trackVector = bphysItem->trackParticleLinks();
-    if (trackVector.size() != 0) {
-        ATH_MSG_DEBUG(" REGTEST got track vector size: " << trackVector.size() );
-    } else {
-        ATH_MSG_DEBUG(" REGTEST no track vector!!! " );
-    }
-    
-    
-    std::vector<ElementLink<xAOD::TrackParticleContainer> >::const_iterator trkIt=trackVector.begin();
-    for (int itrk=0 ; trkIt!= trackVector.end(); ++itrk, ++trkIt) {
-        if (!(trkIt->isValid())) {
-            ATH_MSG_WARNING("TrackParticleContainer::Invalid ElementLink to track ");
-            continue;
-        }
-        //const Trk::Perigee* trackPerigee=(*(*trkIt))->measuredPerigee();
-        
-        //      msg() << MSG::VERBOSE << "track, iterator, pointer " << itrk << " " << *trkIt << " " << *(*trkIt) << endreq;
-        //const Trk::Perigee* track1Perigee=&((*(*trkIt))->perigeeParameters());
-        //        float phiTrk1 = track1Perigee->parameters()[Trk::phi];
-        //        float thetaTrk1 = track1Perigee->parameters()[Trk::theta];
-        //        float z0Trk1 = track1Perigee->parameters()[Trk::z0];
-        //        float d0Trk1 = track1Perigee->parameters()[Trk::d0];
-        //        float qOverPTrk1 = track1Perigee->parameters()[Trk::qOverP];
-        //        float pxTrk1 = track1Perigee->momentum()[Trk::px]/1000.;
-        //        float pyTrk1 = track1Perigee->momentum()[Trk::py]/1000.;
-        //        float ptTrk1 = sqrt(pxTrk1*pxTrk1 + pyTrk1*pyTrk1);
-        //        float etaTrk1 = -std::log(tan(thetaTrk1/2));
-        //
-        //        int bLayerHitsTrk1 = track1Perigee->parameters()[Trk::numberOfBLayerHits];
-        //        int sctHitsTrk1 = track1Perigee->parameters()[Trk::numberOfSCTHits];
-        //        int pixHitsTrk1 = track1Perigee->parameters()[Trk::numberOfPixelHits];
-        //        int trtHitsTrk1 = track1Perigee->parameters()[Trk::numberOfTRTHits];
-        const xAOD::TrackParticle * ptl1 = **trkIt;
-        if (!ptl1) {
-            msg() << MSG::WARNING << "TrackParticle with nullptr but valid elementlink" << endreq;
-        }
-        
-        float phiTrk1    = ptl1->phi();
-        //float thetaTrk1  = ptl1->p4().Theta();
-        float z0Trk1     = ptl1->z0();
-        float d0Trk1     = ptl1->d0();
-        float qOverPTrk1 = ptl1->qOverP();
-        //        float pxTrk1     = ptl1->p4().Px();
-        //        float pyTrk1     = ptl1->p4().Py();
-        float ptTrk1     = ptl1->pt();
-        float etaTrk1    = ptl1->eta();
-        
-        uint8_t tmpValue(0);
-        int bLayerHitsTrk1 = ptl1->summaryValue(tmpValue,xAOD::numberOfBLayerHits) ?  tmpValue : -99;
-        int sctHitsTrk1    = ptl1->summaryValue(tmpValue,xAOD::numberOfSCTHits)    ?  tmpValue : -99;
-        int pixHitsTrk1    = ptl1->summaryValue(tmpValue,xAOD::numberOfPixelHits)  ?  tmpValue : -99;
-        int trtHitsTrk1    = ptl1->summaryValue(tmpValue,xAOD::numberOfTRTHits)    ?  tmpValue : -99;
-        
-        
-        ATH_MSG_DEBUG("track " << itrk << " pt phi eta " << ptTrk1 << " " <<
-                      phiTrk1 << " " << etaTrk1 << "SCT hits: " << sctHitsTrk1);
-        
-        
-        itrk++; trkIt++;
-        
-        if (!(trkIt->isValid())) {
-            ATH_MSG_WARNING("TrackParticleContainer::Invalid ElementLink to track ");
-            continue;
-        }
-        
-        const xAOD::TrackParticle * ptl2 = **trkIt;
-        if (!ptl2) {
-            msg() << MSG::WARNING << "TrackParticle with nullptr but valid elementlink" << endreq;
-        }
-        
-        float phiTrk2    = ptl2->phi();
-        //        float thetaTrk2  = ptl2->p4().Theta();
-        float z0Trk2     = ptl2->z0();
-        float d0Trk2     = ptl2->d0();
-        //float qOverPTrk2 = ptl2->qOverP();
-        //        float pxTrk2     = ptl2->p4().Px();
-        //        float pyTrk2     = ptl2->p4().Py();
-        float ptTrk2     = ptl2->pt();
-        float etaTrk2    = ptl2->eta();
-        
-        tmpValue = 0;
-        int bLayerHitsTrk2 = ptl2->summaryValue(tmpValue,xAOD::numberOfBLayerHits) ?  tmpValue : -99;
-        int sctHitsTrk2    = ptl2->summaryValue(tmpValue,xAOD::numberOfSCTHits)    ?  tmpValue : -99;
-        int pixHitsTrk2    = ptl2->summaryValue(tmpValue,xAOD::numberOfPixelHits)  ?  tmpValue : -99;
-        int trtHitsTrk2    = ptl2->summaryValue(tmpValue,xAOD::numberOfTRTHits)    ?  tmpValue : -99;
-        
-        
-        //        const Trk::Perigee* track2Perigee=&((*(*trkIt))->perigeeParameters());
-        //
-        //        //      msg() << MSG::VERBOSE << "track, iterator, pointer " << itrk << " " << *trkIt << " " << *(*trkIt) << endreq;
-        //        float phiTrk2 = track2Perigee->parameters()[Trk::phi];
-        //        float thetaTrk2 = track2Perigee->parameters()[Trk::theta];
-        //        float z0Trk2 = track2Perigee->parameters()[Trk::z0];
-        //        float d0Trk2 = track2Perigee->parameters()[Trk::d0];
-        //        float qOverPTrk2 = track2Perigee->parameters()[Trk::qOverP];
-        //        float pxTrk2 = track2Perigee->momentum()[Trk::px]/1000.;
-        //        float pyTrk2 = track2Perigee->momentum()[Trk::py]/1000.;
-        //        float ptTrk2 = sqrt(pxTrk2*pxTrk2 + pyTrk2*pyTrk2);
-        //        float etaTrk2 = -std::log(tan(thetaTrk2/2));
-        //
-        //        int bLayerHitsTrk2 = track2Perigee->parameters()[Trk::numberOfBLayerHits];
-        //        int sctHitsTrk2 = track2Perigee->parameters()[Trk::numberOfSCTHits];
-        //        int pixHitsTrk2 = track2Perigee->parameters()[Trk::numberOfPixelHits];
-        //        int trtHitsTrk2 = track2Perigee->parameters()[Trk::numberOfTRTHits];
-        
-        float dphi = phiTrk1 - phiTrk2;
-        
-        
-        float absdphi = fabs(dphi);
-        
-        if( 2.* TMath::Pi() -absdphi < absdphi )
-        {
-            if( dphi > 0 )
-            {
-                dphi = dphi - 2.* TMath::Pi();
-            }
-            else
-            {
-                dphi = 2* TMath::Pi() - absdphi;
-            }
-        }
-        
-        dphi=fabs(dphi);
-        
-        float pTsum = ptTrk1 + ptTrk2;
-        float deta = etaTrk1 - etaTrk2;
-        float dR = deltaR(etaTrk1, phiTrk1, etaTrk2, phiTrk2);
-        
-        
-        TLorentzVector trk1_tl, trk2_tl;
-        trk1_tl.SetPtEtaPhiM(ptTrk1, etaTrk1, phiTrk1, m_muonMass*0.001);
-        trk2_tl.SetPtEtaPhiM(ptTrk2, etaTrk2, phiTrk2, m_muonMass*0.001);
-        
-        
-        int qTrk1(1);//, qTrk2(-1);
-        
-        if(qOverPTrk1 < 0.){
-            qTrk1 = -1;
-            //qTrk2 = 1;
-        }
-        
-        float phiStar = phiMethod(trk1_tl, trk2_tl, qTrk1);
-        float cosThetaStar = cosMethod(trk1_tl, trk2_tl, qTrk1);
-        
-        hist(Form("%s_%s_pTmu1",prefix.c_str(),trigItem.c_str()))->Fill(ptTrk1);
-        hist(Form("%s_%s_pTmu2",prefix.c_str(),trigItem.c_str()))->Fill(ptTrk2);
-        hist(Form("%s_%s_d0mu1",prefix.c_str(),trigItem.c_str()))->Fill(d0Trk1);
-        hist(Form("%s_%s_d0mu2",prefix.c_str(),trigItem.c_str()))->Fill(d0Trk2);
-        hist(Form("%s_%s_z0mu1",prefix.c_str(),trigItem.c_str()))->Fill(z0Trk1);
-        hist(Form("%s_%s_z0mu2",prefix.c_str(),trigItem.c_str()))->Fill(z0Trk2);
-        hist(Form("%s_%s_dphi",prefix.c_str(),trigItem.c_str()))->Fill(dphi);
-        hist(Form("%s_%s_deta",prefix.c_str(),trigItem.c_str()))->Fill(deta);
-        hist(Form("%s_%s_dR",prefix.c_str(),trigItem.c_str()))->Fill(dR);
-        hist(Form("%s_%s_pTsum",prefix.c_str(),trigItem.c_str()))->Fill(pTsum);
-        hist(Form("%s_%s_phiStar",prefix.c_str(),trigItem.c_str()))->Fill(phiStar);
-        hist(Form("%s_%s_cosThetaStar",prefix.c_str(),trigItem.c_str()))->Fill(cosThetaStar);
-        
-        hist(Form("%s_%s_numBLayerHitsmu1",prefix.c_str(),trigItem.c_str()))->Fill(bLayerHitsTrk1);
-        hist(Form("%s_%s_numBLayerHitsmu2",prefix.c_str(),trigItem.c_str()))->Fill(bLayerHitsTrk2);
-        hist(Form("%s_%s_numSCTHitsmu1",prefix.c_str(),trigItem.c_str()))->Fill(sctHitsTrk1);
-        hist(Form("%s_%s_numSCTHitsmu2",prefix.c_str(),trigItem.c_str()))->Fill(sctHitsTrk2);
-        hist(Form("%s_%s_numPixelHitsmu1",prefix.c_str(),trigItem.c_str()))->Fill(pixHitsTrk1);
-        hist(Form("%s_%s_numPixelHitsmu2",prefix.c_str(),trigItem.c_str()))->Fill(pixHitsTrk2);
-        hist(Form("%s_%s_numTRTHitsmu1",prefix.c_str(),trigItem.c_str()))->Fill(trtHitsTrk1);
-        hist(Form("%s_%s_numTRTHitsmu2",prefix.c_str(),trigItem.c_str()))->Fill(trtHitsTrk2);
-        
-        
-        hist2(Form("%s_%s_phiStarcosThetaStar",prefix.c_str(),trigItem.c_str()))->Fill(cosThetaStar, phiStar,1);
-        
-        //ATH_MSG_DEBUG("track " << itrk << " pt phi eta " << ptTrk2 << " " << phiTrk2 << " " << etaTrk2);
-        
-    }
-    
-    
-    
-    
-}
-
-
-void HLTXAODBphysMonTool::fillHistEff(const xAOD::TrigBphys *bphysItem, const std::string & /*trigItem*/,const std::string & /*prefix*/, int /*DenomOrNum*/, const std::string & trigEffHistName) // suppress 'unused' compiler warning
-//-----------------------------------------------------------
-{
-    
-    ATH_MSG_DEBUG(":: FillHistEff() Test 1 :: ");
-    
-        //float eta = bphysItem->eta();
-        //float phi = bphysItem->phi();
-    float mass = bphysItem->mass();
-        //float fitmass = bphysItem->fitmass();
-        //float fitchi2 = bphysItem->fitchi2();
-    
-    ATH_MSG_DEBUG("mass :: "<< mass);
-    
-    
-    const std::vector<ElementLink<xAOD::TrackParticleContainer> > trackVector = bphysItem->trackParticleLinks();
-    if (trackVector.size() != 0) {
-        ATH_MSG_DEBUG(" REGTEST got track vector size: " << trackVector.size() );
-    } else {
-        ATH_MSG_DEBUG(" REGTEST no track vector!!! " );
-    }
-    
-    
-    std::vector<ElementLink<xAOD::TrackParticleContainer> >::const_iterator trkIt=trackVector.begin();
-    for (int itrk=0 ; trkIt!= trackVector.end(); ++itrk, ++trkIt) {
-        if (!(trkIt->isValid())) {
-            ATH_MSG_WARNING("TrackParticleContainer::Invalid ElementLink to track ");
-            continue;
-        }
-        
-        const xAOD::TrackParticle * ptl1 = **trkIt;
-        if (!ptl1) {
-            msg() << MSG::WARNING << "TrackParticle with nullptr but valid elementlink" << endreq;
-        }
-        
-        float phiTrk1    = ptl1->phi();
-        //        float thetaTrk1  = ptl1->p4().Theta();
-        //        float z0Trk1     = ptl1->z0();
-        //        float d0Trk1     = ptl1->d0();
-        //float qOverPTrk1 = ptl1->qOverP();
-        //        float pxTrk1     = ptl1->p4().Px();
-        //        float pyTrk1     = ptl1->p4().Py();
-        float ptTrk1     = ptl1->pt();
-        float etaTrk1    = ptl1->eta();
-        
-        uint8_t tmpValue(0);
-        //        int bLayerHitsTrk1 = ptl1->summaryValue(tmpValue,xAOD::numberOfBLayerHits) ?  tmpValue : -99;
-        int sctHitsTrk1    = ptl1->summaryValue(tmpValue,xAOD::numberOfSCTHits)    ?  tmpValue : -99;
-        //        int pixHitsTrk1    = ptl1->summaryValue(tmpValue,xAOD::numberOfPixelHits)  ?  tmpValue : -99;
-        //        int trtHitsTrk1    = ptl1->summaryValue(tmpValue,xAOD::numberOfTRTHits)    ?  tmpValue : -99;
-        
-        
-        ATH_MSG_DEBUG("track " << itrk << " pt phi eta " << ptTrk1 << " " <<
-                      phiTrk1 << " " << etaTrk1 << "SCT hits: " << sctHitsTrk1);
-        
-        
-        itrk++; trkIt++;
-        
-        if (!(trkIt->isValid())) {
-            ATH_MSG_WARNING("TrackParticleContainer::Invalid ElementLink to track ");
-            continue;
-        }
-        
-        const xAOD::TrackParticle * ptl2 = **trkIt;
-        if (!ptl2) {
-            msg() << MSG::WARNING << "TrackParticle with nullptr but valid elementlink" << endreq;
-        }
-        
-        float phiTrk2    = ptl2->phi();
-        //float thetaTrk2  = ptl2->p4().Theta();
-        //float z0Trk2     = ptl2->z0();
-        //float d0Trk2     = ptl2->d0();
-        //float qOverPTrk2 = ptl2->qOverP();
-        //float pxTrk2     = ptl2->p4().Px();
-        //float pyTrk2     = ptl2->p4().Py();
-        float ptTrk2     = ptl2->pt();
-        float etaTrk2    = ptl2->eta();
-        
-        //tmpValue = 0;
-        //        int bLayerHitsTrk2 = ptl2->summaryValue(tmpValue,xAOD::numberOfBLayerHits) ?  tmpValue : -99;
-        //        int sctHitsTrk2    = ptl2->summaryValue(tmpValue,xAOD::numberOfSCTHits)    ?  tmpValue : -99;
-        //        int pixHitsTrk2    = ptl2->summaryValue(tmpValue,xAOD::numberOfPixelHits)  ?  tmpValue : -99;
-        //        int trtHitsTrk2    = ptl2->summaryValue(tmpValue,xAOD::numberOfTRTHits)    ?  tmpValue : -99;
-        
-        float dphi = phiTrk1 - phiTrk2;
-        
-        float absdphi = fabs(dphi);
-        
-        if( 2.* TMath::Pi() -absdphi < absdphi )
-        {
-            if( dphi > 0 )
-            {
-                dphi = dphi - 2.* TMath::Pi();
-            }
-            else
-            {
-                dphi = 2* TMath::Pi() - absdphi;
-            }
-        }
-        
-        dphi=fabs(dphi);
-        
-        //float pTsum = ptTrk1 + ptTrk2;
-        //float deta = etaTrk1 - etaTrk2;
-        //float dR = deltaR(etaTrk1, phiTrk1, etaTrk2, phiTrk2);
-        
-        TLorentzVector trk1_tl, trk2_tl;
-        trk1_tl.SetPtEtaPhiM(ptTrk1, etaTrk1, phiTrk1, m_muonMass*0.001);
-        trk2_tl.SetPtEtaPhiM(ptTrk2, etaTrk2, phiTrk2, m_muonMass*0.001);
-        
-        //int qTrk1(1);, qTrk2(-1);
-        
-        //        if(qOverPTrk1 < 0.){
-        //            qTrk1 = -1;
-        //            qTrk2 = 1;
-        //        }
-        
-            //float phiStar = phiMethod(trk1_tl, trk2_tl, qTrk1);
-            //float cosThetaStar = cosMethod(trk1_tl, trk2_tl, qTrk1);
-        
-        
-        string Eff_etaName1 = trigEffHistName + "_eta1";
-        string Eff_etaName2 = trigEffHistName + "_eta2";
-        string Eff_phiName1 = trigEffHistName + "_phi1";
-        string Eff_phiName2 = trigEffHistName + "_phi2";
-        string Eff_pTName1 = trigEffHistName + "_pT1";
-        string Eff_pTName2 = trigEffHistName + "_pT2";
-        
-        hist(Eff_etaName1)->Fill(etaTrk1);
-        hist(Eff_etaName2)->Fill(etaTrk2);
-        hist(Eff_phiName1)->Fill(phiTrk1);
-        hist(Eff_phiName2)->Fill(phiTrk2);
-        hist(Eff_pTName1)->Fill(ptTrk1);
-        hist(Eff_pTName2)->Fill(ptTrk1);
-        
-        
-        //ATH_MSG_DEBUG("track " << itrk << " pt phi eta " << ptTrk2 << " " << phiTrk2 << " " << etaTrk2);
-        
-    }
-    
-    
-    
-    
-}
-
+} // book
 
 //-----------------------------------------------------------
 StatusCode HLTXAODBphysMonTool::fill()
 //-----------------------------------------------------------
 {
-    ATH_MSG_DEBUG ("Filling... ");
+    ATH_MSG_INFO ("fill... ");
+
+    // fill the offline di-muon hists
+    ATH_MSG_INFO ("fill... JpsiFinder");
+    if (fillJpsiFinder().isFailure()) {ATH_MSG_WARNING("Problems filling JpsiFinder method");}
     
-    *m_log << MSG::DEBUG << " ====== Begin fillHists() ====== " << endreq;
+    // fill the general monitoring hists
+    ATH_MSG_INFO ("fill... Triggers");
+    if (fillTriggers().isFailure())   {ATH_MSG_WARNING("Problems filling Triggers method");}
     
-    // Loop over a vector of B-physics trigger containers and dump to histograms
-    for (auto containerItem : m_containerList){
-        if( test(containerItem).isFailure() ) *m_log << MSG::ERROR << "Method test failed " << endreq;
+    // fill the container hists
+    ATH_MSG_INFO ("fill... Containers");
+    if (fillContainers().isFailure())   {ATH_MSG_WARNING("Problems filling Containers method");}
+
+    // fill the chain specific hists
+    ATH_MSG_INFO ("fill... TriggerGroups");
+    if (fillTriggerGroups().isFailure())   {ATH_MSG_WARNING("Problems filling Containers method");}
+
+    // fill the efficiency hists
+    ATH_MSG_INFO ("fill... Efficiency");
+    if (fillEfficiencyGroups().isFailure())   {ATH_MSG_WARNING("Problems filling Efficiency method");}
+
+    return StatusCode::SUCCESS;
+} // fill
+
+
+StatusCode HLTXAODBphysMonTool::proc() {
+    ATH_MSG_INFO ("proc... ");
+    
+    if (!endOfRun)
+    {
+        ATH_MSG_DEBUG ("proc... Not end-of-run, returning");
+        return StatusCode::SUCCESS;
     }
     
-    
-    // Loop over the given trigger names and perform test and hist filling
-    for (int iTrigName = 0; iTrigName < (int)m_bphysItems.size(); ++iTrigName){
-        if ( testTrig(m_bphysItems[iTrigName], m_monGroup[iTrigName]).isFailure() ) {
-            ATH_MSG_WARNING ("Could not finish testTrig test for chain " << m_bphysItems[iTrigName]);
-        }
-    }
-    
-    
-    
-    if( JpsiFinder().isFailure() )  ATH_MSG_WARNING ("Method JpsiFinder failed ");
-    
-    if( testTrigEff().isFailure() )  ATH_MSG_WARNING ("Method testTrigEff failed ");
-    
-    
+    if (divideEfficiencyGroups().isFailure()){ATH_MSG_WARNING("Problems in divideEfficiencyGroups");}
     
     return StatusCode::SUCCESS;
-}
+} // proc
 
 
-//-----------------------------------------------------------
-StatusCode HLTXAODBphysMonTool::test(const std::string& containerItem)
-//-----------------------------------------------------------
-{
-    ATH_MSG_DEBUG ("Testing... ");
+StatusCode HLTXAODBphysMonTool::bookTriggers() {
+    //Booking of histograms releated to overall trigger information
     
+    // number of chains to monitor
+    //    size_t nTriggers = m_monitored_chains.size();
     
-    setCurrentMonGroup("HLT/BphysMon/Container/"+containerItem);
-    
-    const xAOD::TrigBphysContainer*  trigEFBphys;
-    StatusCode sc = m_storeGate->retrieve(trigEFBphys,containerItem); //"HLT_xAOD__TrigBphysContainer_EFBMuMuFex"
-    
-    if (sc.isFailure()) {
-        ATH_MSG_DEBUG ("  No TrigEFBphysContainer found with tag: "<< containerItem);
+    // *************** SHIFTER ****************** //
+    addMonGroup(new MonGroup(this,m_base_path_shifter+"/Triggers",run));
+
+    // *************** EXPERT ****************** //
+    addMonGroup(new MonGroup(this,m_base_path_expert+"/Triggers",run));
+
+    return StatusCode::SUCCESS;
+} //bookTriggers
+
+
+StatusCode HLTXAODBphysMonTool::fillTriggers(){
+    //Booking of histograms releated to overall trigger information
+
+//    setCurrentMonGroup(m_base_path_shifter+"/Triggers");
+//    setCurrentMonGroup(m_base_path_expert+"/Triggers");
+
+    for (const auto& chainName : m_monitored_chains) {
+        std::string basename(stripHLT(chainName));
         
-    } else{
-        for ( auto bphys:  (*trigEFBphys))  {
-            fillHist(bphys,containerItem,"TrigBphys");
+        const auto cg   = getTDT()->getChainGroup(chainName);
+        const auto cgL2 = getTDT()->getChainGroup("L2_"+basename);
+        const auto cgEF = getTDT()->getChainGroup("EF_"+basename);
+        
+        bool isPassed   (cg-> isPassed(TrigDefs::Physics));
+        bool isPassedL2(cgL2->isPassed(TrigDefs::Physics));
+        bool isPassedEF(cgEF->isPassed(TrigDefs::Physics));
+        
+        ATH_MSG_DEBUG("Triger passed(HLT/EF/L2): " << isPassed << isPassedL2 << isPassedEF << " " << chainName);
+
+        // get variables and fill
+    
+    } // for loop over chain names
+    
+    return StatusCode::SUCCESS;
+} // fillTriggers
+
+
+StatusCode HLTXAODBphysMonTool::bookEfficiencyGroups(){
+    // book the hists for the efficiency groups
+    ATH_MSG_DEBUG("bookEfficiencyGroups");
+    // ID Tracking efficiency
+    // MS efficieny
+    // L1 & L2 efficieny
+    // EF efficieny
+    // noVtx_noOs efficiency
+    if (bookEfficiencyGroup("noVtx_noOS").isFailure()) {ATH_MSG_ERROR("Problems in Eff. booking"); return StatusCode::FAILURE;}
+    for (const auto& effpair: m_efficiency_chains) {
+        if (bookEfficiencyGroup(Form("noVtx_noOS_%s",effpair.first.c_str())).isFailure()) {
+            ATH_MSG_ERROR("Problems in Eff. booking " << effpair.first << " " << effpair.second);
+            return StatusCode::FAILURE;
         }
-    }
+        if (bookEfficiencyGroup(Form("noVtx_noOS_%s_eff",effpair.first.c_str())).isFailure()) {
+            ATH_MSG_ERROR("Problems in Eff. booking Eff " << effpair.first << " " << effpair.second);
+            return StatusCode::FAILURE;
+        }
+
+    } // for
+    
+    // L1Topo efficiencies
     
     return StatusCode::SUCCESS;
 }
+StatusCode HLTXAODBphysMonTool::bookEfficiencyGroup(const std::string & groupName) {
+    //book the hists for the efficiency groups
+    ATH_MSG_DEBUG("bookEfficiencyGroup: " << groupName);
+    
+    TString prefix = m_prefix + "_" + groupName; // convert from std::string to TString
 
+    
+    // *************** SHIFTER ****************** //
+    addMonGroup(new MonGroup(this,m_base_path_shifter+"/Efficiency/"+groupName,run));
+    ATH_MSG_DEBUG("bookEfficiencyGroup: Example hist name: " << prefix+"_eta");
 
-//-----------------------------------------------------------
-StatusCode HLTXAODBphysMonTool::testTrig(const std::string& trigItem, const std::string& monGroup)
-//-----------------------------------------------------------
-{
-    msg(MSG::DEBUG) << "REGTEST ==========START of Bphysics EDM/Navigation check for chain " << trigItem << " ===========" << endreq;
+    addHistogram( new TH1F(prefix+"_eta", prefix+"_eta", 60, -3.,3.) );
+    addHistogram( new TH1F(prefix+"_phi", prefix+"_phi", 60, -TMath::Pi(), TMath::Pi()) );
+    addHistogram( new TH1F(prefix+"_pt",  prefix+"_pt", 60, 0,50) );
     
-    //setCurrentMonGroup("HLT/BphysMon/Trigger");
-    setCurrentMonGroup("HLT/BphysMon/Trigger/"+monGroup+"/"+trigItem);
+    addHistogram( new TH1F(prefix+"_eta1", prefix+"_eta1", 60, -3.,3.) );
+    addHistogram( new TH1F(prefix+"_phi1", prefix+"_phi1", 60, -TMath::Pi(), TMath::Pi()) );
+    addHistogram( new TH1F(prefix+"_pt1",  prefix+"_pt1", 60, 0,50) );
+    addHistogram( new TH1F(prefix+"_eta2", prefix+"_eta2", 60, -3.,3.) );
+    addHistogram( new TH1F(prefix+"_phi2", prefix+"_phi2", 60, -TMath::Pi(), TMath::Pi()) );
+    addHistogram( new TH1F(prefix+"_pt2",  prefix+"_pt2", 60, 0,50) );
+
     
-    ATH_MSG_DEBUG("Chain passed = " << m_trigDec->isPassed(trigItem));
+    // *************** EXPERT ****************** //
+    addMonGroup(new MonGroup(this,m_base_path_expert+"/Efficiency/"+groupName,run));
+
+    return StatusCode::SUCCESS;
+}
+
+StatusCode HLTXAODBphysMonTool::fillEfficiencyGroups() {
+    // fill the hists for the efficiency groups
+    ATH_MSG_DEBUG("fillEfficiencyGroups");
+
+    // ID Tracking efficiency
+    // MS efficieny
+    // L1 & L2 efficieny
+    // EF efficieny
+    // noVtx_noOs efficiency
+    if (fillEfficiencyGroup("noVtx_noOS",m_trigchain_denomnoVtxOS).isFailure()) {ATH_MSG_ERROR("Problems in Eff. filling");}
+    for (const auto& effpair: m_efficiency_chains) {
+        if (fillEfficiencyGroup(Form("noVtx_noOS_%s",effpair.first.c_str()),effpair.second).isFailure()) {
+            ATH_MSG_ERROR("Problems in Eff. booking noVtx_noOS " << effpair.first << " " << effpair.second); continue;
+        } // if
+    } // for
+
+    // L1Topo efficiencies
+
+    return StatusCode::SUCCESS;
+}
+StatusCode HLTXAODBphysMonTool::fillEfficiencyGroup(const std::string & groupName, const std::string & chainName){
+    // helper method for dedicated Efficiency chains
+    ATH_MSG_DEBUG("fillEfficiencyGroup: " << groupName << " " << chainName);
+    TString prefix = m_prefix + "_" + groupName; // convert from std::string to TString
     
-    Trig::FeatureContainer fc = m_trigDec->features(trigItem);
+
+    const auto cg   = getTDT()->getChainGroup(chainName);
+    bool isPassed   (cg-> isPassed(TrigDefs::Physics));
+
+    if (!isPassed) return StatusCode::SUCCESS;
     
-    const std::vector< Trig::Feature<xAOD::TrigBphysContainer> > fc_bphys = fc.get<xAOD::TrigBphysContainer>();
+
+    
+    const auto& fc       = getTDT()->features(chainName);
+    const auto& fc_bphys   = fc.get<xAOD::TrigBphysContainer>();
+    
+
     ATH_MSG_DEBUG("Size of vector< Trig::Feature<xAOD::TrigBphysContainer> > = " << fc_bphys.size());
     
     for( auto cont_bphys : fc_bphys ) {
         ATH_MSG_DEBUG("REGTEST Got Bphysics container, size = " << cont_bphys.cptr()->size());
         for ( auto bphys:  *(cont_bphys.cptr()) )  {
+            ATH_MSG_DEBUG("REGTEST Level = " << bphys->level());
             
-            // When L2 containers are migrated to xAOD; need to be able to differentiate based ont pType method
+            // ignore l2 objects
+            if ((bphys->level() != xAOD::TrigBphys::EF) &&  (bphys->level() != xAOD::TrigBphys::HLT)) continue;
             
-            fillHist(bphys,trigItem,"TrigBphys");
+            const std::vector<ElementLink<xAOD::TrackParticleContainer> > trackVector = bphys->trackParticleLinks();
+            if (trackVector.size() <2) {
+                ATH_MSG_DEBUG("REGTEST Unexpected number of tracks " << trackVector.size());
+                continue;
+            }
+            const xAOD::TrackParticle *trk1(nullptr),*trk2(nullptr);
+            if (!trackVector.at(0).isValid() || (*trackVector.at(0) == nullptr)) {
+                ATH_MSG_DEBUG("REGTEST Track 1 is invalid");
+                continue;
+            }
+            if (!trackVector.at(1).isValid() || (*trackVector.at(1) == nullptr)) {
+                ATH_MSG_DEBUG("REGTEST Track 2 is invalid");
+                continue;
+            }
+            trk1 = *trackVector.at(0);
+            trk2 = *trackVector.at(1);
             
+            // refitted track parameters
+            TLorentzVector origTrk1 = trk1->p4();
+            TLorentzVector origTrk2 = trk2->p4();
             
+            TLorentzVector orig_onia = origTrk1 + origTrk2;
             
-        }
-    }
+            //double mass      = orig_onia.M();
+            double eta     = orig_onia.Eta();  // mass from refitted tracks
+            double pt      = orig_onia.Pt();                        // pt from refitted tracks
+            double phi     = orig_onia.Phi();                        // pt from refitted tracks
+            //double rapidity  = orig_onia.Rapidity();
+            //double abs_rapidity = fabs(rapidity);
+            
+            double phiTrk1 = origTrk1.Phi();
+            double etaTrk1 = origTrk1.Eta();
+            double ptTrk1  = origTrk1.Pt();
+            
+            double phiTrk2 = origTrk2.Phi();
+            double etaTrk2 = origTrk2.Eta();
+            double ptTrk2  = origTrk2.Pt();
+            
+
+            // ******** SHIFTER ********* //
+            ATH_MSG_VERBOSE("Efficiency shifter hists " << m_base_path_shifter << " " << groupName);
+            setCurrentMonGroup(m_base_path_shifter+"/Efficiency/"+groupName);
+            hist(Form("%s_eta",prefix.Data()))->Fill(eta);
+            ATH_MSG_VERBOSE("Efficiency eta ");
+            hist(Form("%s_phi",prefix.Data()))->Fill(phi);
+            hist(Form("%s_pt", prefix.Data()))->Fill(pt*0.001);
+            
+            hist(Form("%s_eta1",prefix.Data()))->Fill(etaTrk1);
+            hist(Form("%s_phi1",prefix.Data()))->Fill(phiTrk1);
+            hist(Form("%s_pt1", prefix.Data()))->Fill(ptTrk1*0.001);
+            hist(Form("%s_eta2",prefix.Data()))->Fill(etaTrk2);
+            hist(Form("%s_phi2",prefix.Data()))->Fill(phiTrk2);
+            hist(Form("%s_pt2", prefix.Data()))->Fill(ptTrk2*0.001);
+            
+
+            
+            // ******** EXPERT ********* //
+            setCurrentMonGroup(m_base_path_expert+"/Efficiency/"+groupName);
+            ATH_MSG_VERBOSE("Efficiency expert hists " << m_base_path_expert << " " << groupName);
+
+        } // loop over bphys objects
+    } // loop over containers
     
-    
-    msg(MSG::DEBUG) << "REGTEST ==========END of Bphysics EDM/Navigation check for chain " << trigItem << " ===========" << endreq;
-    
-    
-    
-    
-    
-    return StatusCode::SUCCESS;
-}
 
 
-//-----------------------------------------------------------
-StatusCode HLTXAODBphysMonTool::testTrigEff()
-//-----------------------------------------------------------
-{
-    //  msg(MSG::DEBUG) << "REGTEST ==========START of Bphysics EDM/Navigation check for chain " << trigItem << " ===========" << endreq;
-    
-    //setCurrentMonGroup("HLT/BphysMon/Trigger");
-    setCurrentMonGroup("HLT/BphysMon/TriggerEfficiency");
-    
-    int EffSize(0);
-    string TrigEffHistName;
-    string TrigEffName;
-    
-    for (int DenomOrNum = 0; DenomOrNum < 2; ++DenomOrNum){
-        EffSize = (int)m_effDenom.size();
-        
-        ATH_MSG_DEBUG("line 910");
-        
-        for (int iTrigEff = 0; iTrigEff < EffSize; ++iTrigEff){
-            if (DenomOrNum == 0) {
-                TrigEffHistName = "EffDenom_" + m_effDenom[iTrigEff];
-                TrigEffName = m_effDenom[iTrigEff];
-            } else {
-                TrigEffHistName = "EffNum_" + m_effNum[iTrigEff];
-                TrigEffName = m_effNum[iTrigEff];
-            }
-            
-            ATH_MSG_DEBUG("Chain passed = " << m_trigDec->isPassed(TrigEffName));
-            
-            //ensure the denominator trigger is passed before filling numerator
-            if(DenomOrNum==1){
-                bool passDenom = false;
-                passDenom = m_trigDec->isPassed(m_effDenom[iTrigEff]);
-                if(passDenom != true) continue;
-                
-            }
-            
-            
-            Trig::FeatureContainer fc = m_trigDec->features(TrigEffName);
-            
-            const std::vector< Trig::Feature<xAOD::TrigBphysContainer> > fc_bphys = fc.get<xAOD::TrigBphysContainer>();
-            ATH_MSG_DEBUG("Size of vector< Trig::Feature<xAOD::TrigBphysContainer> > = " << fc_bphys.size());
-            
-            for( auto cont_bphys : fc_bphys ) {
-                ATH_MSG_DEBUG("REGTEST Got Bphysics container, size = " << cont_bphys.cptr()->size());
-                for ( auto bphys:  *(cont_bphys.cptr()) )  {
-                    
-                    // When L2 containers are migrated to xAOD; need to be able to differentiate based ont pType method
-                    ATH_MSG_DEBUG("line 935");
-                    fillHistEff(bphys,TrigEffName,"TrigBphys", DenomOrNum, TrigEffHistName);
-                    
-                    /*
-                     string Eff_etaName1 = TrigEffHistName + "_eta1";
-                     string Eff_etaName2 = TrigEffHistName + "_eta2";
-                     string Eff_phiName1 = TrigEffHistName + "_phi1";
-                     string Eff_phiName2 = TrigEffHistName + "_phi2";
-                     string Eff_pTName1 = TrigEffHistName + "_pT1";
-                     string Eff_pTName2 = TrigEffHistName + "_pT2";
-                     
-                     
-                     hist(Eff_etaName1)->Fill(0.1);
-                     hist(Eff_etaName2)->Fill(0.2);
-                     hist(Eff_phiName1)->Fill(0.3);
-                     hist(Eff_phiName2)->Fill(0.4);
-                     hist(Eff_pTName1)->Fill(5.);
-                     hist(Eff_pTName2)->Fill(6.);
-                     */
-                    
-                }
-            }
-        }
-    }
-    // msg(MSG::DEBUG) << "REGTEST ==========END of Bphysics EDM/Navigation check for chain " << trigItem << " ===========" << endreq;
-    
-    
-    
     
     
     return StatusCode::SUCCESS;
@@ -1088,147 +465,269 @@ StatusCode HLTXAODBphysMonTool::testTrigEff()
 
 
 
+StatusCode HLTXAODBphysMonTool::divideEfficiencyGroups() {
+    //! fill the hists for the efficiency groups
+    ATH_MSG_DEBUG("divideEfficiencyGroups: ");
 
+    // ID Tracking efficiency
+    // MS efficieny
+    // L1 & L2 efficieny
+    // EF efficieny
+    // noVtx_noOs efficiency
+    for (const auto& effpair: m_efficiency_chains) {
+        if (divideEfficiencyGroup("noVtx_noOS",Form("noVtx_noOS_%s",effpair.first.c_str()),
+                                  "noVtx_noOS",effpair.second).isFailure()) {
+            ATH_MSG_ERROR("Problems in Eff. divide noVtx_noOS " << effpair.first << " " << effpair.second);
+            continue;
+        } // if
+    } // for
+    
+    // L1Topo efficiencies
 
+    return StatusCode::SUCCESS;
+}
 
+StatusCode HLTXAODBphysMonTool::divideEfficiencyGroup(const std::string & denomGroupName, const std::string & numeratorGroupName,
+                                 const std::string & denominatorChainName, const std::string & numeratorChainName){
+    //! helper method for dedicated Efficiency chains
+    // The chain names aren't really needed, but here for debugging / future useage. 
+    
+    ATH_MSG_DEBUG("divideEfficiencyGroup: " << denomGroupName << "  " << numeratorGroupName
+                  << " denom: " << denominatorChainName << " num: " << numeratorChainName);
 
-//-----------------------------------------------------------
-StatusCode HLTXAODBphysMonTool::proc()
-//-----------------------------------------------------------
-{
+    const std::string denomName = (m_prefix + "_" + denomGroupName);
+    const std::string numerName = (m_prefix + "_" + numeratorGroupName);
+    const std::string efficName = (m_prefix + "_" + numeratorGroupName+"_eff");
+
+    const std::string denomPathShifter = m_base_path_shifter+"/Efficiency/"+denomGroupName;
+    const std::string numerPathShifter = m_base_path_shifter+"/Efficiency/"+numeratorGroupName;
+    const std::string efficPathShifter = m_base_path_shifter+"/Efficiency/"+numeratorGroupName+"_eff";
     
     
-    setCurrentMonGroup("HLT/BphysMon/JpsiFinder");
-    
-    divide2(hist2("TrigBphys_Jpsi_mass_central"),hist2("denom_TrigBphys_Jpsi_mass_central"),hist2("eff_TrigBphys_Jpsi_mass_central") );
-    divide2(hist2("TrigBphys_Jpsi_high_pT_central"),hist2("denom_TrigBphys_Jpsi_high_pT_central"),hist2("eff_TrigBphys_Jpsi_high_pT_central") );
-    divide2(hist2("TrigBphys_Jpsi_low_pT_central"),hist2("denom_TrigBphys_Jpsi_low_pT_central"),hist2("eff_TrigBphys_Jpsi_low_pT_central") );
-    divide2(hist2("TrigBphys_Jpsi_dphi_central"),hist2("denom_TrigBphys_Jpsi_dphi_central"),hist2("eff_TrigBphys_Jpsi_dphi_central") );
-    divide2(hist2("TrigBphys_Jpsi_deta_central"),hist2("denom_TrigBphys_Jpsi_deta_central"),hist2("eff_TrigBphys_Jpsi_deta_central") );
-    divide2(hist2("TrigBphys_Jpsi_cosThetaStar_central"),hist2("denom_TrigBphys_Jpsi_cosThetaStar_central"),hist2("eff_TrigBphys_Jpsi_cosThetaStar_central") );
-    divide2(hist2("TrigBphys_Jpsi_phiStar_central"),hist2("denom_TrigBphys_Jpsi_phiStar_central"),hist2("eff_TrigBphys_Jpsi_phiStar_central") );
-    
-    divide2(hist2("TrigBphys_Jpsi_mass_forward"),hist2("denom_TrigBphys_Jpsi_mass_forward"),hist2("eff_TrigBphys_Jpsi_mass_forward") );
-    divide2(hist2("TrigBphys_Jpsi_high_pT_forward"),hist2("denom_TrigBphys_Jpsi_high_pT_forward"),hist2("eff_TrigBphys_Jpsi_high_pT_forward") );
-    divide2(hist2("TrigBphys_Jpsi_low_pT_forward"),hist2("denom_TrigBphys_Jpsi_low_pT_forward"),hist2("eff_TrigBphys_Jpsi_low_pT_forward") );
-    divide2(hist2("TrigBphys_Jpsi_dphi_forward"),hist2("denom_TrigBphys_Jpsi_dphi_forward"),hist2("eff_TrigBphys_Jpsi_dphi_forward") );
-    divide2(hist2("TrigBphys_Jpsi_deta_forward"),hist2("denom_TrigBphys_Jpsi_deta_forward"),hist2("eff_TrigBphys_Jpsi_deta_forward") );
-    divide2(hist2("TrigBphys_Jpsi_cosThetaStar_forward"),hist2("denom_TrigBphys_Jpsi_cosThetaStar_forward"),hist2("eff_TrigBphys_Jpsi_cosThetaStar_forward") );
-    divide2(hist2("TrigBphys_Jpsi_phiStar_forward"),hist2("denom_TrigBphys_Jpsi_phiStar_forward"),hist2("eff_TrigBphys_Jpsi_phiStar_forward") );
-    
-    divide2(hist2("TrigBphys_Upsi_mass_central"),hist2("denom_TrigBphys_Upsi_mass_central"),hist2("eff_TrigBphys_Upsi_mass_central") );
-    divide2(hist2("TrigBphys_Upsi_high_pT_central"),hist2("denom_TrigBphys_Upsi_high_pT_central"),hist2("eff_TrigBphys_Upsi_high_pT_central") );
-    divide2(hist2("TrigBphys_Upsi_low_pT_central"),hist2("denom_TrigBphys_Upsi_low_pT_central"),hist2("eff_TrigBphys_Upsi_low_pT_central") );
-    divide2(hist2("TrigBphys_Upsi_dphi_central"),hist2("denom_TrigBphys_Upsi_dphi_central"),hist2("eff_TrigBphys_Upsi_dphi_central") );
-    divide2(hist2("TrigBphys_Upsi_deta_central"),hist2("denom_TrigBphys_Upsi_deta_central"),hist2("eff_TrigBphys_Upsi_deta_central") );
-    divide2(hist2("TrigBphys_Upsi_cosThetaStar_central"),hist2("denom_TrigBphys_Upsi_cosThetaStar_central"),hist2("eff_TrigBphys_Upsi_cosThetaStar_central") );
-    divide2(hist2("TrigBphys_Upsi_phiStar_central"),hist2("denom_TrigBphys_Upsi_phiStar_central"),hist2("eff_TrigBphys_Upsi_phiStar_central") );
-    
-    divide2(hist2("TrigBphys_Upsi_mass_forward"),hist2("denom_TrigBphys_Upsi_mass_forward"),hist2("eff_TrigBphys_Upsi_mass_forward") );
-    divide2(hist2("TrigBphys_Upsi_high_pT_forward"),hist2("denom_TrigBphys_Upsi_high_pT_forward"),hist2("eff_TrigBphys_Upsi_high_pT_forward") );
-    divide2(hist2("TrigBphys_Upsi_low_pT_forward"),hist2("denom_TrigBphys_Upsi_low_pT_forward"),hist2("eff_TrigBphys_Upsi_low_pT_forward") );
-    divide2(hist2("TrigBphys_Upsi_dphi_forward"),hist2("denom_TrigBphys_Upsi_dphi_forward"),hist2("eff_TrigBphys_Upsi_dphi_forward") );
-    divide2(hist2("TrigBphys_Upsi_deta_forward"),hist2("denom_TrigBphys_Upsi_deta_forward"),hist2("eff_TrigBphys_Upsi_deta_forward") );
-    divide2(hist2("TrigBphys_Upsi_cosThetaStar_forward"),hist2("denom_TrigBphys_Upsi_cosThetaStar_forward"),hist2("eff_TrigBphys_Upsi_cosThetaStar_forward") );
-    divide2(hist2("TrigBphys_Upsi_phiStar_forward"),hist2("denom_TrigBphys_Upsi_phiStar_forward"),hist2("eff_TrigBphys_Upsi_phiStar_forward") );
+    ATH_MSG_DEBUG("divideEfficiencyGroup: denom: " << denomName);
+    ATH_MSG_DEBUG("divideEfficiencyGroup: numer: " << numerName);
+    ATH_MSG_DEBUG("divideEfficiencyGroup: effic: " << efficName);
     
     
-    
-    setCurrentMonGroup("HLT/BphysMon/TriggerEfficiency");
-    
-    // Creating histograms for efficiency
-    for (int iEff = 0; iEff < (int)m_effDenom.size(); ++iEff){
-        
-        string EffDenom_etaHist1 = "EffDenom_" + m_effDenom[iEff] + "_eta1";
-        string EffDenom_etaHist2 = "EffDenom_" + m_effDenom[iEff] + "_eta2";
-        string EffDenom_phiHist1 = "EffDenom_" + m_effDenom[iEff] + "_phi1";
-        string EffDenom_phiHist2 = "EffDenom_" + m_effDenom[iEff] + "_phi2";
-        string EffDenom_pTHist1 = "EffDenom_" + m_effDenom[iEff] + "_pT1";
-        string EffDenom_pTHist2 = "EffDenom_" + m_effDenom[iEff] + "_pT2";
-        
-        string EffNum_etaHist1 = "EffNum_" + m_effNum[iEff] + "_eta1";
-        string EffNum_etaHist2 = "EffNum_" + m_effNum[iEff] + "_eta2";
-        string EffNum_phiHist1 = "EffNum_" + m_effNum[iEff] + "_phi1";
-        string EffNum_phiHist2 = "EffNum_" + m_effNum[iEff] + "_phi2";
-        string EffNum_pTHist1 = "EffNum_" + m_effNum[iEff] + "_pT1";
-        string EffNum_pTHist2 = "EffNum_" + m_effNum[iEff] + "_pT2";
-        
-        string Eff_etaHist1 = "Eff_" + m_effNum[iEff] + "__" + m_effDenom[iEff] + "_eta1";
-        string Eff_etaHist2 = "Eff_" + m_effNum[iEff] + "__" + m_effDenom[iEff] + "_eta2";
-        string Eff_phiHist1 = "Eff_" + m_effNum[iEff] + "__" + m_effDenom[iEff] + "_phi1";
-        string Eff_phiHist2 = "Eff_" + m_effNum[iEff] + "__" + m_effDenom[iEff] + "_phi2";
-        string Eff_pTHist1 = "Eff_" + m_effNum[iEff] + "__" + m_effDenom[iEff] + "_pT1";
-        string Eff_pTHist2 = "Eff_" + m_effNum[iEff] + "__" + m_effDenom[iEff] + "_pT2";
-        
-        
-        ATH_MSG_DEBUG("line ::: "<< __LINE__);
-        divide(hist(EffNum_etaHist1), hist(EffDenom_etaHist1), hist(Eff_etaHist1));
-        divide(hist(EffNum_etaHist2), hist(EffDenom_etaHist2), hist(Eff_etaHist2));
-        divide(hist(EffNum_phiHist1), hist(EffDenom_phiHist1), hist(Eff_phiHist1));
-        divide(hist(EffNum_phiHist2), hist(EffDenom_phiHist2), hist(Eff_phiHist2));
-        divide(hist(EffNum_pTHist1), hist(EffDenom_pTHist1), hist(Eff_pTHist1));
-        divide(hist(EffNum_pTHist2), hist(EffDenom_pTHist2), hist(Eff_pTHist2));
-        
-        
-        
+    // do a test retrival
+    //    setCurrentMonGroup(m_base_path_shifter+"/Efficiency/"+numeratorGroupName);
+    //    TH1* hn_test  = hist(Form("%s_eta",numerName.c_str()));
+    TH1* hn_test  = hist(Form("%s_eta",numerName.c_str()), m_base_path_shifter+"/Efficiency/"+numeratorGroupName );
+    if (!hn_test) {
+        ATH_MSG_ERROR("Hist not found: " << Form("%s_eta",numerName.c_str()));
+    } else {
+        ATH_MSG_DEBUG("Hist found: " << Form("%s_eta",numerName.c_str()) << " " << hn_test);
     }
     
-    EffHistMap.clear();
+    TH1* hd_test  = hist(Form("%s_eta",denomName.c_str()), m_base_path_shifter+"/Efficiency/"+denomGroupName);
+    if (!hd_test) {
+        ATH_MSG_ERROR("Hist not found: " << Form("%s_eta",denomName.c_str()));
+    } else {
+        ATH_MSG_DEBUG("Hist found: " << Form("%s_eta",denomName.c_str()) << " " << hd_test);
+    }
+    
+    TH1* hr_test  = hist(Form("%s_eta",efficName.c_str()), m_base_path_shifter+"/Efficiency/"+numeratorGroupName+"_eff");
+    if (!hr_test) {
+        ATH_MSG_ERROR("Hist not found: " << Form("%s_eta",efficName.c_str()));
+    } else {
+        ATH_MSG_DEBUG("Hist found: " << Form("%s_eta",efficName.c_str()) << " " << hr_test);
+    }
+ 
     
     
+
+    // get the denominator histograms
+
+    // ******** SHIFTER ********* //
+    setCurrentMonGroup(m_base_path_shifter+"/Efficiency/"+denomGroupName);
     
-    //    JW not sure this would work as intended.
-    //    const int effNumSize = m_effNum.size();
-    //    const int effDenomSize = m_effDenom.size();
-    //    //    TH1F *h_Eff_num[effNumSize];
-    //    //    TH1F *h_Eff_denom[effDenomSize];
-    //    std::vector<TH1F*> h_Eff_num  (m_effNum.size()  ,nullptr);
-    //    std::vector<TH1F*> h_Eff_denom(m_effDenom.size(),nullptr);
-    //
-    //    if (m_effNum.size() != m_effDenom.size()) {
-    //        ATH_MSG_DEBUG("ERROR: mismatched vector sizes - what were you trying to do?")
-    //        StatusCode::FAILURE;
-    //    }
-    //
-    //    for (int iTrigName = 0; iTrigName < (int)m_effNum.size(); ++iTrigName){
-    //        setCurrentMonGroup("HLT/BphysMon/Trigger/"+m_effNumGroup[iTrigName]+"/"+m_effNum[iTrigName]);
-    //        h_Eff_num[iTrigName]=(TH1F*)hist(Form("TrigBphys_%s_mass",m_effNum[iTrigName].c_str()))->Clone();
-    //
-    //        setCurrentMonGroup("HLT/BphysMon/Trigger/"+m_effDenomGroup[iTrigName]+"/"+m_effDenom[iTrigName]);
-    //        h_Eff_denom[iTrigName]=(TH1F*)hist(Form("TrigBphys_%s_mass",m_effDenom[iTrigName].c_str()))->Clone();
-    //
-    //    }
-    //
-    //    setCurrentMonGroup("HLT/BphysMon/TriggerEfficiency");
-    //
-    //    for (int iTrigName = 0; iTrigName < (int)m_effNum.size(); ++iTrigName){
-    //
-    //        divide(hist(Form("TrigBphys_%s_eta",m_effNum[iTrigName].c_str())),hist(Form("TrigBphys_%s_eta",m_effDenom[iTrigName].c_str())),hist(Form("Eff_%s_%s_eta",m_effNum[iTrigName].c_str(),m_effDenom[iTrigName].c_str() ) ));
-    //
-    //        divide(h_Eff_num[iTrigName],h_Eff_denom[iTrigName],hist(Form("Eff_%s_%s_mass",m_effNum[iTrigName].c_str(),m_effDenom[iTrigName].c_str() ) ));
-    //    }
+    TH1* hd_eta  = hist(Form("%s_eta",denomName.c_str()),denomPathShifter);
+    TH1* hd_phi  = hist(Form("%s_phi",denomName.c_str()),denomPathShifter);
+    TH1* hd_pt   = hist(Form("%s_pt", denomName.c_str()),denomPathShifter);
+    
+    TH1* hd_eta1 = hist(Form("%s_eta1",denomName.c_str()),denomPathShifter);
+    TH1* hd_phi1 = hist(Form("%s_phi1",denomName.c_str()),denomPathShifter);
+    TH1* hd_pt1  = hist(Form("%s_pt1", denomName.c_str()),denomPathShifter);
+    TH1* hd_eta2 = hist(Form("%s_eta2",denomName.c_str()),denomPathShifter);
+    TH1* hd_phi2 = hist(Form("%s_phi2",denomName.c_str()),denomPathShifter);
+    TH1* hd_pt2  = hist(Form("%s_pt2", denomName.c_str()),denomPathShifter);
+    
+
+    // ******** EXPERT ********* //
+    setCurrentMonGroup(m_base_path_expert+"/Efficiency/"+denomGroupName);
+
     
     
+
+    // ******** SHIFTER ********* //
+    setCurrentMonGroup(m_base_path_shifter+"/Efficiency/"+numeratorGroupName);
+    TH1* hn_eta  = hist(Form("%s_eta",numerName.c_str()),numerPathShifter);
+    TH1* hn_phi  = hist(Form("%s_phi",numerName.c_str()),numerPathShifter);
+    TH1* hn_pt   = hist(Form("%s_pt", numerName.c_str()),numerPathShifter);
+    
+    TH1* hn_eta1 = hist(Form("%s_eta1",numerName.c_str()),numerPathShifter);
+    TH1* hn_phi1 = hist(Form("%s_phi1",numerName.c_str()),numerPathShifter);
+    TH1* hn_pt1  = hist(Form("%s_pt1", numerName.c_str()),numerPathShifter);
+    TH1* hn_eta2 = hist(Form("%s_eta2",numerName.c_str()),numerPathShifter);
+    TH1* hn_phi2 = hist(Form("%s_phi2",numerName.c_str()),numerPathShifter);
+    TH1* hn_pt2  = hist(Form("%s_pt2", numerName.c_str()),numerPathShifter);
+    
+
+    // ******** EXPERT ********* //
+    setCurrentMonGroup(m_base_path_expert+"/Efficiency/"+numeratorGroupName);
+
+    
+
+    
+    // ******** SHIFTER ********* //
+    setCurrentMonGroup(m_base_path_shifter+"/Efficiency/"+numeratorGroupName+"_eff");
+    TH1* hq_eta  = hist(Form("%s_eta",efficName.c_str()),efficPathShifter);
+    TH1* hq_phi  = hist(Form("%s_phi",efficName.c_str()),efficPathShifter);
+    TH1* hq_pt   = hist(Form("%s_pt", efficName.c_str()),efficPathShifter);
+    
+    TH1* hq_eta1 = hist(Form("%s_eta1",efficName.c_str()),efficPathShifter);
+    TH1* hq_phi1 = hist(Form("%s_phi1",efficName.c_str()),efficPathShifter);
+    TH1* hq_pt1  = hist(Form("%s_pt1", efficName.c_str()),efficPathShifter);
+    TH1* hq_eta2 = hist(Form("%s_eta2",efficName.c_str()),efficPathShifter);
+    TH1* hq_phi2 = hist(Form("%s_phi2",efficName.c_str()),efficPathShifter);
+    TH1* hq_pt2  = hist(Form("%s_pt2", efficName.c_str()),efficPathShifter);
+    
+    // ******** EXPERT ********* //
+    setCurrentMonGroup(m_base_path_expert+"/Efficiency/"+numeratorGroupName+"_eff");
+    
+
+    
+    // divisions
+    divide(hn_eta,hd_eta,hq_eta);
+    divide(hn_phi,hd_phi,hq_phi);
+    divide(hn_pt ,hd_pt ,hq_pt );
+    
+    divide(hn_eta1,hd_eta1,hq_eta1);
+    divide(hn_phi1,hd_phi1,hq_phi1);
+    divide(hn_pt1 ,hd_pt1 ,hq_pt1 );
+    divide(hn_eta2,hd_eta2,hq_eta2);
+    divide(hn_phi2,hd_phi2,hq_phi2);
+    divide(hn_pt2 ,hd_pt2 ,hq_pt2 );
+
     
     return StatusCode::SUCCESS;
 }
 
-//---------------------------------------------------------
-StatusCode HLTXAODBphysMonTool::JpsiFinder()
-//---------------------------------------------------------
-{
-    setCurrentMonGroup("HLT/BphysMon/JpsiFinder");
+
+StatusCode HLTXAODBphysMonTool::bookJpsiFinder() {
+    // book the hists with offline comparisons
+    
+    int nTrigSize = (int) m_monitored_chains.size() +1; // plus one for the no-trigger offline entry
+    float nTrigSizeF = (float)nTrigSize;
+    
+    addMonGroup(new MonGroup(this,m_base_path_shifter+"/JpsiFinder",run));
+    // central eta < |1.05| -- forward eta > |1.05|
+    TString prefix = m_prefix; // convert from std::string to TString
+    
+    addHistogram( new TH2F(prefix+"_Jpsi_mass_central",         "Bphys Jpsi Mass Central"             ,100, 2950,3250, nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_high_pT_central",      "Bphys Jpsi Highest pT Muon Central"  ,50, 0.,50.,     nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_low_pT_central",       "Bphys Jpsi Lowest pT Muon Central"   ,50, 0.,50.,     nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_dphi_central",         "Bphys Jpsi DeltaPhi Central"         , 64, 0.,3.2,    nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_deta_central",         "Bphys Jpsi DeltaEta Central"         , 60, 0.,3.,     nTrigSize, 0., nTrigSizeF) );
+    
+    addHistogram( new TH2F(prefix+"_Jpsi_mass_forward",         "Bphys Jpsi Mass Forward"             ,100, 2800,3400, nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_high_pT_forward",      "Bphys Jpsi Highest pT Muon Forward"  ,50, 0.,50.,     nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_low_pT_forward",       "Bphys Jpsi Lowest pT Muon Forward"   ,50, 0.,50.,     nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_dphi_forward",         "Bphys Jpsi DeltaPhi Forward"         , 64, 0.,3.2,    nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_deta_forward",         "Bphys Jpsi DeltaEta Forward"         , 60, 0.,3.,     nTrigSize, 0., nTrigSizeF) );
+    
+    addHistogram( new TH2F(prefix+"_Upsi_mass_central",         "Bphys Upsi Mass Central"             ,100, 9000,11500,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_high_pT_central",      "Bphys Upsi Highest pT Muon Central"  ,50, 0.,50.,     nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_low_pT_central",       "Bphys Upsi Lowest pT Muon Central"   ,50, 0.,50.,     nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_dphi_central",         "Bphys Upsi DeltaPhi Central"         , 64, 0.,3.2,    nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_deta_central",         "Bphys Upsi DeltaEta Central"         , 60, 0.,3.,     nTrigSize, 0., nTrigSizeF) );
+    
+    addHistogram( new TH2F(prefix+"_Upsi_mass_forward",         "Bphys Upsi Mass Forward"             ,100, 8000,12000,nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_high_pT_forward",      "Bphys Upsi Highest pT Muon Forward"  ,50, 0.,50.,     nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_low_pT_forward",       "Bphys Upsi Lowest pT Muon Forward"   ,50, 0.,50.,     nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_dphi_forward",         "Bphys Upsi DeltaPhi Forward"         , 64, 0.,3.2,    nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_deta_forward",         "Bphys Upsi DeltaEta Forward"         , 60, 0.,3.,     nTrigSize, 0., nTrigSizeF) );
+    
+    // *************** EXPERT ****************** //
+    addMonGroup(new MonGroup(this,m_base_path_expert+"/JpsiFinder",run));
+    addHistogram( new TH2F(prefix+"_Jpsi_cosThetaStar_central", "Bphys Jpsi CosThetaStar Central"     ,50, -1.,1.,    nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_phiStar_central",      "Bphys Jpsi PhiStar Central"          , 70, -3.5,3.5, nTrigSize, 0., nTrigSizeF) );
+    
+    addHistogram( new TH2F(prefix+"_Jpsi_cosThetaStar_forward", "Bphys Jpsi CosThetaStar Forward"     ,50, -1.,1.,    nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Jpsi_phiStar_forward",      "Bphys Jpsi PhiStar Forward"          , 70, -3.5,3.5, nTrigSize, 0., nTrigSizeF) );
+    
+    addHistogram( new TH2F(prefix+"_Upsi_cosThetaStar_central", "Bphys Upsi CosThetaStar Central"     ,50, -1.,1.,    nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_phiStar_central",      "Bphys Upsi PhiStar Central"          , 70, -3.5,3.5, nTrigSize, 0., nTrigSizeF) );
+    
+    addHistogram( new TH2F(prefix+"_Upsi_cosThetaStar_forward", "Bphys Upsi CosThetaStar Forward"     ,50, -1.,1.,    nTrigSize, 0., nTrigSizeF) );
+    addHistogram( new TH2F(prefix+"_Upsi_phiStar_forward",      "Bphys Upsi PhiStar Forward"          , 70, -3.5,3.5, nTrigSize, 0., nTrigSizeF) );
+    
+    //addHistogram( new TH2I(prefix+"_TriggerCounts",         "Trigger Counts"             ,100, 2950,3250, nTrigSize, 0., nTrigSizeF) );
+
+    for (int iTrigName = 0; iTrigName != nTrigSize; ++iTrigName){
+        // set the axis labels, define 0 to be the offline values
+        TString label("");
+        if (iTrigName == 0)
+            label = "Offline";
+        else
+            label = m_monitored_chains.at(iTrigName-1);
+        // ******** SHIFTER ********* //
+        setCurrentMonGroup(m_base_path_shifter+"/JpsiFinder");
+        hist2(m_prefix+"_Jpsi_mass_central")->GetYaxis()   ->SetBinLabel(iTrigName+1,label); //+1 for hist offset
+        hist2(m_prefix+"_Jpsi_high_pT_central")->GetYaxis()->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_low_pT_central")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_dphi_central")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_deta_central")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
+        
+        hist2(m_prefix+"_Jpsi_mass_forward")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_high_pT_forward")->GetYaxis()->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_low_pT_forward")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_dphi_forward")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_deta_forward")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
+        
+        hist2(m_prefix+"_Upsi_mass_central")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_high_pT_central")->GetYaxis()->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_low_pT_central")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_dphi_central")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_deta_central")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
+        
+        hist2(m_prefix+"_Upsi_mass_forward")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_high_pT_forward")->GetYaxis()->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_low_pT_forward")->GetYaxis() ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_dphi_forward")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_deta_forward")->GetYaxis()   ->SetBinLabel(iTrigName+1,label);
+        
+        // ******** EXPERT ********* //
+        setCurrentMonGroup(m_base_path_expert+"/JpsiFinder");
+        hist2(m_prefix+"_Jpsi_cosThetaStar_central")->GetYaxis()->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_phiStar_central")->GetYaxis()     ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_cosThetaStar_forward")->GetYaxis()->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Jpsi_phiStar_forward")->GetYaxis()     ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_cosThetaStar_central")->GetYaxis()->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_phiStar_central")->GetYaxis()     ->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_cosThetaStar_forward")->GetYaxis()->SetBinLabel(iTrigName+1,label);
+        hist2(m_prefix+"_Upsi_phiStar_forward")->GetYaxis()     ->SetBinLabel(iTrigName+1,label);
+
+        
+    } // for loop over trigger names
+
+    
+    return StatusCode::SUCCESS;
+} //bookJpsiFinder
+
+StatusCode HLTXAODBphysMonTool::fillJpsiFinder(){
+    // fill the hists with offline comparisons
     ATH_MSG_DEBUG("in JpsiFinder()");
-    const xAOD::VertexContainer*    jpsiContainer(nullptr);
     
+    const xAOD::VertexContainer*    jpsiContainer(nullptr);
     if (evtStore()->retrieve(jpsiContainer   , m_JpsiCandidatesKey).isFailure() || !jpsiContainer) {
         ATH_MSG_WARNING("No Jpsi Container Found, skipping jpsiFinder method");
-        return StatusCode::RECOVERABLE;
+        return StatusCode::SUCCESS;
     }
     ATH_MSG_DEBUG("number of jpsi candidates " << jpsiContainer->size());
-    
+
     // Extract information from the Jpsi candidates
-    for ( xAOD::VertexContainer::const_iterator vxcItr = jpsiContainer->begin() ; vxcItr != jpsiContainer->end() ; vxcItr++ ) {
+    for ( xAOD::VertexContainer::const_iterator vxcItr = jpsiContainer->begin() ; vxcItr != jpsiContainer->end() ; ++vxcItr ) {
         const xAOD::Vertex* jpsiCandidate = (*vxcItr);
         if (!jpsiCandidate) continue;
         // to see how to access variables; refer to:
@@ -1246,347 +745,482 @@ StatusCode HLTXAODBphysMonTool::JpsiFinder()
         TLorentzVector orig_onia = origTrk1 + origTrk2;
         
         // Calculate the invariant masses and their errors
-        double orig_mass = orig_onia.M();                      // mass from original tracks
+        //double orig_mass = orig_onia.M();                      // mass from original tracks
         double mass      = ref_onia.M();                        // mass from refitted tracks
-            // double pt      = ref_onia.Pt();                        // pt from refitted tracks
-        double error     = invariantMassError(jpsiCandidate, std::vector<double>(2, m_muonMass));  // invariant mass error
+        // double pt      = ref_onia.Pt();                        // pt from refitted tracks
+        //double error     = invariantMassError(jpsiCandidate, std::vector<double>(2, m_muonMass));  // invariant mass error
         double rapidity  = ref_onia.Rapidity();
-        
+        double abs_rapidity = fabs(rapidity);
+
         float phiTrk1 = refTrk1.Phi();
-        float thetaTrk1 = refTrk1.Theta();
-        //float z0Trk1 = 0.;
-        //float d0Trk1 = 0.;
-        //float qOverPTrk1 = 0.;
-        float pxTrk1 = refTrk1.Px();
-        float pyTrk1 = refTrk1.Py();
-        float ptTrk1 = sqrt(pxTrk1*pxTrk1 + pyTrk1*pyTrk1);
-        float etaTrk1 = -std::log(tan(thetaTrk1/2));
-        
-        
-        //      msg() << MSG::VERBOSE << "track, iterator, pointer " << itrk << " " << *trkIt << " " << *(*trkIt) << endreq;
+        float etaTrk1 = refTrk1.Eta();
+        float ptTrk1  = refTrk1.Pt();
+
         float phiTrk2 = refTrk2.Phi();
-        float thetaTrk2 = refTrk2.Theta();
-        //float z0Trk2 = 0.;
-        //float d0Trk2 = 0.;
-        //float qOverPTrk2 = 0.;
-        float pxTrk2 = refTrk2.Px();
-        float pyTrk2 = refTrk2.Py();
-        float ptTrk2 = sqrt(pxTrk2*pxTrk2 + pyTrk2*pyTrk2);
-        float etaTrk2 = -std::log(tan(thetaTrk2/2));
-        
-        float dphi = phiTrk1 - phiTrk2;
-        
-        
-        float absdphi = fabs(dphi);
-        
-        if( 2.* TMath::Pi() -absdphi < absdphi )
-        {
-            if( dphi > 0 )
-            {
-                dphi = dphi - 2.* TMath::Pi();
-            }
-            else
-            {
-                dphi = 2* TMath::Pi() - absdphi;
-            }
-        }
-        
-        dphi=fabs(dphi);
-        
-        //float pTsum = ptTrk1 + ptTrk2;
-        float deta = etaTrk1 - etaTrk2;
-        //float dR = deltaR(etaTrk1, phiTrk1, etaTrk2, phiTrk2);
-        
+        float etaTrk2 = refTrk2.Eta();
+        float ptTrk2  = refTrk2.Pt();
+
+        float absDphi = absDeltaPhi(phiTrk1,phiTrk2);
+        float absDeta = absDeltaEta(etaTrk1,etaTrk2);
+
         int m_trkOrigCharge1=trackCharge(jpsiCandidate, 0);
         //int m_trkOrigCharge2=trackCharge(jpsiCandidate, 1);
         
         int qTrk1(m_trkOrigCharge1);//, qTrk2(m_trkOrigCharge2);
         
-        
-        
         float phiStar = phiMethod(refTrk1, refTrk2, qTrk1);
         float cosThetaStar = cosMethod(refTrk1, refTrk2, qTrk1);
+
+        bool isCentral = abs_rapidity < 1.05;
+        bool isForward = abs_rapidity > 1.05;
+
+        bool isJpsiCentral = isCentral && (mass > m_mw_jpsi_central_min && mass < m_mw_jpsi_central_max);
+        bool isJpsiForward = isForward && (mass > m_mw_jpsi_forward_min && mass < m_mw_jpsi_forward_max);
         
+        bool isUpsiCentral = isCentral && (mass > m_mw_upsi_central_min && mass < m_mw_upsi_central_max);
+        bool isUpsiForward = isForward && (mass > m_mw_upsi_forward_min && mass < m_mw_upsi_forward_max);
+
         
-        
-        
-        
-        ATH_MSG_DEBUG("JpsiFinder: Original mass: " << orig_mass << ", refitted mass: " << mass << ", error: " <<
-                      error);
-        
-        hist(Form("offline_mumu_mass"))->Fill(mass);
-        hist(Form("offline_mumu_mass_diff"))->Fill(orig_mass - mass);
-        
-        
-        
-        for (int iTrigName = 0; iTrigName < (int)m_bphysItems.size(); ++iTrigName){
-            ATH_MSG_DEBUG("JpsiFinder in trigger loop!!");
-            const string chainEF = m_bphysItems[iTrigName];
-            bool passEF = getTDT()->isPassed(chainEF);
-            
-            ///First fill denominator histograms for efficiencies (no trigger requirements)
-            // Central region
-            if (fabs(rapidity) < 1.05){
-                
-                if(mass > m_mw_jpsi_central_min && mass < m_mw_jpsi_central_max){
-                    hist2("denom_TrigBphys_Jpsi_mass_central")->Fill(mass, chainEF.c_str(), 1);
-                    hist2("denom_TrigBphys_Jpsi_high_pT_central")->Fill(ptTrk1/1000., chainEF.c_str(), 1);
-                    hist2("denom_TrigBphys_Jpsi_low_pT_central")->Fill(ptTrk2/1000., chainEF.c_str(), 1);
-                    hist2("denom_TrigBphys_Jpsi_dphi_central")->Fill(dphi, chainEF.c_str(), 1);
-                    hist2("denom_TrigBphys_Jpsi_deta_central")->Fill(deta, chainEF.c_str(), 1);
-                    hist2("denom_TrigBphys_Jpsi_cosThetaStar_central")->Fill(cosThetaStar, chainEF.c_str(), 1);
-                    hist2("denom_TrigBphys_Jpsi_phiStar_central")->Fill(phiStar, chainEF.c_str(), 1);
-                    
-                }
-                if(mass > m_mw_upsi_central_min && mass < m_mw_upsi_central_max){
-                    hist2("denom_TrigBphys_Upsi_mass_central")->Fill(mass, chainEF.c_str(), 1);
-                    hist2("denom_TrigBphys_Upsi_high_pT_central")->Fill(ptTrk1/1000., chainEF.c_str(), 1);
-                    hist2("denom_TrigBphys_Upsi_low_pT_central")->Fill(ptTrk2/1000., chainEF.c_str(), 1);
-                    hist2("denom_TrigBphys_Upsi_dphi_central")->Fill(dphi, chainEF.c_str(), 1);
-                    hist2("denom_TrigBphys_Upsi_deta_central")->Fill(deta, chainEF.c_str(), 1);
-                    hist2("denom_TrigBphys_Upsi_cosThetaStar_central")->Fill(cosThetaStar, chainEF.c_str(), 1);
-                    hist2("denom_TrigBphys_Upsi_phiStar_central")->Fill(phiStar, chainEF.c_str(), 1);
-                    
-                }
-            }
-            
-            
-            // Forward region
-            if (fabs(rapidity) > 1.05){
-                
-                if(mass > m_mw_jpsi_forward_min && mass < m_mw_jpsi_forward_max){
-                    hist2("denom_TrigBphys_Jpsi_mass_forward")->Fill(mass, chainEF.c_str(), 1);
-                    hist2("denom_TrigBphys_Jpsi_high_pT_forward")->Fill(ptTrk1/1000., chainEF.c_str(), 1);
-                    hist2("denom_TrigBphys_Jpsi_low_pT_forward")->Fill(ptTrk2/1000., chainEF.c_str(), 1);
-                    hist2("denom_TrigBphys_Jpsi_dphi_forward")->Fill(dphi, chainEF.c_str(), 1);
-                    hist2("denom_TrigBphys_Jpsi_deta_forward")->Fill(deta, chainEF.c_str(), 1);
-                    hist2("denom_TrigBphys_Jpsi_cosThetaStar_forward")->Fill(cosThetaStar, chainEF.c_str(), 1);
-                    hist2("denom_TrigBphys_Jpsi_phiStar_forward")->Fill(phiStar, chainEF.c_str(), 1);
-                    
-                }
-                if(mass > m_mw_upsi_forward_min && mass < m_mw_upsi_forward_max){
-                    hist2("denom_TrigBphys_Upsi_mass_forward")->Fill(mass, chainEF.c_str(), 1);
-                    hist2("denom_TrigBphys_Upsi_high_pT_forward")->Fill(ptTrk1/1000., chainEF.c_str(), 1);
-                    hist2("denom_TrigBphys_Upsi_low_pT_forward")->Fill(ptTrk2/1000., chainEF.c_str(), 1);
-                    hist2("denom_TrigBphys_Upsi_dphi_forward")->Fill(dphi, chainEF.c_str(), 1);
-                    hist2("denom_TrigBphys_Upsi_deta_forward")->Fill(deta, chainEF.c_str(), 1);
-                    hist2("denom_TrigBphys_Upsi_cosThetaStar_forward")->Fill(cosThetaStar, chainEF.c_str(), 1);
-                    hist2("denom_TrigBphys_Upsi_phiStar_forward")->Fill(phiStar, chainEF.c_str(), 1);
-                }
-            }
-            
-            
-            
-            if (passEF) {
-                // Central region
-                if (fabs(rapidity) < 1.05){
-                    
-                    if(mass > m_mw_jpsi_central_min && mass < m_mw_jpsi_central_max){
-                        hist2("TrigBphys_Jpsi_mass_central")->Fill(mass, chainEF.c_str(), 1);
-                        hist2("TrigBphys_Jpsi_high_pT_central")->Fill(ptTrk1/1000., chainEF.c_str(), 1);
-                        hist2("TrigBphys_Jpsi_low_pT_central")->Fill(ptTrk2/1000., chainEF.c_str(), 1);
-                        hist2("TrigBphys_Jpsi_dphi_central")->Fill(dphi, chainEF.c_str(), 1);
-                        hist2("TrigBphys_Jpsi_deta_central")->Fill(deta, chainEF.c_str(), 1);
-                        hist2("TrigBphys_Jpsi_cosThetaStar_central")->Fill(cosThetaStar, chainEF.c_str(), 1);
-                        hist2("TrigBphys_Jpsi_phiStar_central")->Fill(phiStar, chainEF.c_str(), 1);
-                        
-                        
-                    }
-                    if(mass > m_mw_upsi_central_min && mass < m_mw_upsi_central_max){
-                        hist2("TrigBphys_Upsi_mass_central")->Fill(mass, chainEF.c_str(), 1);
-                        hist2("TrigBphys_Upsi_high_pT_central")->Fill(ptTrk1/1000., chainEF.c_str(), 1);
-                        hist2("TrigBphys_Upsi_low_pT_central")->Fill(ptTrk2/1000., chainEF.c_str(), 1);
-                        hist2("TrigBphys_Upsi_dphi_central")->Fill(dphi, chainEF.c_str(), 1);
-                        hist2("TrigBphys_Upsi_deta_central")->Fill(deta, chainEF.c_str(), 1);
-                        hist2("TrigBphys_Upsi_cosThetaStar_central")->Fill(cosThetaStar, chainEF.c_str(), 1);
-                        hist2("TrigBphys_Upsi_phiStar_central")->Fill(phiStar, chainEF.c_str(), 1);
-                        
-                    }
-                }
-                
-                
-                // Forward region
-                if (fabs(rapidity) > 1.05){
-                    
-                    if(mass > m_mw_jpsi_forward_min && mass < m_mw_jpsi_forward_max){
-                        hist2("TrigBphys_Jpsi_mass_forward")->Fill(mass, chainEF.c_str(), 1);
-                        hist2("TrigBphys_Jpsi_high_pT_forward")->Fill(ptTrk1/1000., chainEF.c_str(), 1);
-                        hist2("TrigBphys_Jpsi_low_pT_forward")->Fill(ptTrk2/1000., chainEF.c_str(), 1);
-                        hist2("TrigBphys_Jpsi_dphi_forward")->Fill(dphi, chainEF.c_str(), 1);
-                        hist2("TrigBphys_Jpsi_deta_forward")->Fill(deta, chainEF.c_str(), 1);
-                        hist2("TrigBphys_Jpsi_cosThetaStar_forward")->Fill(cosThetaStar, chainEF.c_str(), 1);
-                        hist2("TrigBphys_Jpsi_phiStar_forward")->Fill(phiStar, chainEF.c_str(), 1);
-                        
-                    }
-                    if(mass > m_mw_upsi_forward_min && mass < m_mw_upsi_forward_max){
-                        hist2("TrigBphys_Upsi_mass_forward")->Fill(mass, chainEF.c_str(), 1);
-                        hist2("TrigBphys_Upsi_high_pT_forward")->Fill(ptTrk1/1000., chainEF.c_str(), 1);
-                        hist2("TrigBphys_Upsi_low_pT_forward")->Fill(ptTrk2/1000., chainEF.c_str(), 1);
-                        hist2("TrigBphys_Upsi_dphi_forward")->Fill(dphi, chainEF.c_str(), 1);
-                        hist2("TrigBphys_Upsi_deta_forward")->Fill(deta, chainEF.c_str(), 1);
-                        hist2("TrigBphys_Upsi_cosThetaStar_forward")->Fill(cosThetaStar, chainEF.c_str(), 1);
-                        hist2("TrigBphys_Upsi_phiStar_forward")->Fill(phiStar, chainEF.c_str(), 1);
-                        
-                    }
-                }
-                
-                ATH_MSG_DEBUG("JpsiFinder passed EF for chain: " << m_bphysItems[iTrigName] << "!!");
-            }
+        // **** fill the offline entries **** //
+        // ******** SHIFTER ********* //
+        setCurrentMonGroup(m_base_path_shifter+"/JpsiFinder");
+        if (isJpsiCentral) {
+            hist2(m_prefix+"_Jpsi_mass_central")->   Fill(mass, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_high_pT_central")->Fill(ptTrk1/1000., "Offline", 1);
+            hist2(m_prefix+"_Jpsi_low_pT_central")-> Fill(ptTrk2/1000., "Offline", 1);
+            hist2(m_prefix+"_Jpsi_dphi_central")->   Fill(absDphi, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_deta_central")->   Fill(absDeta, "Offline", 1);
+        }
+        if (isJpsiForward) {
+            hist2(m_prefix+"_Jpsi_mass_forward")->   Fill(mass, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_high_pT_forward")->Fill(ptTrk1/1000., "Offline", 1);
+            hist2(m_prefix+"_Jpsi_low_pT_forward")-> Fill(ptTrk2/1000., "Offline", 1);
+            hist2(m_prefix+"_Jpsi_dphi_forward")->   Fill(absDphi, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_deta_forward")->   Fill(absDeta, "Offline", 1);
+        }
+        if (isUpsiCentral) {
+            hist2(m_prefix+"_Upsi_mass_central")->   Fill(mass, "Offline", 1);
+            hist2(m_prefix+"_Upsi_high_pT_central")->Fill(ptTrk1/1000., "Offline", 1);
+            hist2(m_prefix+"_Upsi_low_pT_central")-> Fill(ptTrk2/1000., "Offline", 1);
+            hist2(m_prefix+"_Upsi_dphi_central")->   Fill(absDphi, "Offline", 1);
+            hist2(m_prefix+"_Upsi_deta_central")->   Fill(absDeta, "Offline", 1);
+        }
+        if (isUpsiForward) {
+            hist2(m_prefix+"_Upsi_mass_forward")->   Fill(mass, "Offline", 1);
+            hist2(m_prefix+"_Upsi_high_pT_forward")->Fill(ptTrk1/1000., "Offline", 1);
+            hist2(m_prefix+"_Upsi_low_pT_forward")-> Fill(ptTrk2/1000., "Offline", 1);
+            hist2(m_prefix+"_Upsi_dphi_forward")->   Fill(absDphi, "Offline", 1);
+            hist2(m_prefix+"_Upsi_deta_forward")->   Fill(absDeta, "Offline", 1);
         }
         
         
+        // ******** EXPERT ********* //
+        setCurrentMonGroup(m_base_path_expert+"/JpsiFinder");
+        if (isJpsiCentral) {
+            hist2(m_prefix+"_Jpsi_cosThetaStar_central")->Fill(cosThetaStar, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_phiStar_central")->     Fill(phiStar,      "Offline", 1);
+        }
+        if (isJpsiForward) {
+            hist2(m_prefix+"_Jpsi_cosThetaStar_forward")->Fill(cosThetaStar, "Offline", 1);
+            hist2(m_prefix+"_Jpsi_phiStar_forward")->     Fill(phiStar,      "Offline", 1);
+        }
+        if (isUpsiCentral) {
+            hist2(m_prefix+"_Upsi_cosThetaStar_central")->Fill(cosThetaStar, "Offline", 1);
+            hist2(m_prefix+"_Upsi_phiStar_central")->     Fill(phiStar,      "Offline", 1);
+        }
+        if (isUpsiForward) {
+            hist2(m_prefix+"_Upsi_cosThetaStar_forward")->Fill(cosThetaStar, "Offline", 1);
+            hist2(m_prefix+"_Upsi_phiStar_forward")->     Fill(phiStar,      "Offline", 1);
+        }
+
+        
+        // **** loop over trigger items **** //
+        for (const auto& chainName : m_monitored_chains) {
+            const auto cg   = getTDT()->getChainGroup(chainName);
+            bool isPassed   (cg-> isPassed(TrigDefs::Physics));
+            
+            
+            if (!isPassed) continue; // only passed chains from here on
+            ATH_MSG_DEBUG("JpsiFinder passed chain: " << chainName << "!!");
+
+            // ******** SHIFTER ********* //
+            setCurrentMonGroup(m_base_path_shifter+"/JpsiFinder");
+            if (isJpsiCentral) {
+                hist2(m_prefix+"_Jpsi_mass_central")->   Fill(mass, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_high_pT_central")->Fill(ptTrk1/1000., chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_low_pT_central")-> Fill(ptTrk2/1000., chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_dphi_central")->   Fill(absDphi, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_deta_central")->   Fill(absDeta, chainName.c_str(), 1);
+            }
+            if (isJpsiForward) {
+                hist2(m_prefix+"_Jpsi_mass_forward")->   Fill(mass, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_high_pT_forward")->Fill(ptTrk1/1000., chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_low_pT_forward")-> Fill(ptTrk2/1000., chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_dphi_forward")->   Fill(absDphi, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_deta_forward")->   Fill(absDeta, chainName.c_str(), 1);
+            }
+            if (isUpsiCentral) {
+                hist2(m_prefix+"_Upsi_mass_central")->   Fill(mass, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_high_pT_central")->Fill(ptTrk1/1000., chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_low_pT_central")-> Fill(ptTrk2/1000., chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_dphi_central")->   Fill(absDphi, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_deta_central")->   Fill(absDeta, chainName.c_str(), 1);
+            }
+            if (isUpsiForward) {
+                hist2(m_prefix+"_Upsi_mass_forward")->   Fill(mass, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_high_pT_forward")->Fill(ptTrk1/1000., chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_low_pT_forward")-> Fill(ptTrk2/1000., chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_dphi_forward")->   Fill(absDphi, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_deta_forward")->   Fill(absDeta, chainName.c_str(), 1);
+            }
+
+            
+            // ******** EXPERT ********* //
+            setCurrentMonGroup(m_base_path_expert+"/JpsiFinder");
+            if (isJpsiCentral) {
+                hist2(m_prefix+"_Jpsi_cosThetaStar_central")->Fill(cosThetaStar, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_phiStar_central")->     Fill(phiStar,      chainName.c_str(), 1);
+            }
+            if (isJpsiForward) {
+                hist2(m_prefix+"_Jpsi_cosThetaStar_forward")->Fill(cosThetaStar, chainName.c_str(), 1);
+                hist2(m_prefix+"_Jpsi_phiStar_forward")->     Fill(phiStar,      chainName.c_str(), 1);
+            }
+            if (isUpsiCentral) {
+                hist2(m_prefix+"_Upsi_cosThetaStar_central")->Fill(cosThetaStar, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_phiStar_central")->     Fill(phiStar,      chainName.c_str(), 1);
+            }
+            if (isUpsiForward) {
+                hist2(m_prefix+"_Upsi_cosThetaStar_forward")->Fill(cosThetaStar, chainName.c_str(), 1);
+                hist2(m_prefix+"_Upsi_phiStar_forward")->     Fill(phiStar,      chainName.c_str(), 1);
+            }
+
+        } // loop over trigger names
         
         
-    } // loop over candidates
+    } // loop over jpsi candidates
+    return StatusCode::SUCCESS;
+} // fillJpsiFinder
+
+
+StatusCode HLTXAODBphysMonTool::bookTriggerGroups() {
+    // book the hists for the triggered groups
     
-    //
+    // each group is allowed one or more triggers
+    // the 'trigger name' (first argument) must be indep of the trigger chain name itself,
+    // inorder to remain trigger menu-aware
+    
+    for (const auto& trigpair : m_dedicated_chains) {
+        ATH_MSG_DEBUG("Building Dedicated chain monitoring for: " << trigpair.first<< " " <<trigpair.second );
+        // groupName, prefix, pathInRoot, chainName
+        bookTrigBphysHists(trigpair.first,  m_prefix, trigpair.first, trigpair.second);
+    } // for
     return StatusCode::SUCCESS;
+} // bookTriggerGroups
+
+StatusCode HLTXAODBphysMonTool::fillTriggerGroups() {
+    // fill the hists for the triggered groups
+    for (const auto& trigpair : m_dedicated_chains) {
+        ATH_MSG_DEBUG("Filling Dedicated chain monitoring for: " << trigpair.first<< " " <<trigpair.second );
+        if (!fillTriggerGroup(trigpair.first,trigpair.second).isSuccess()) {
+            ATH_MSG_WARNING("Problems filling group/chain: " << trigpair.first<< " " <<trigpair.second);
+            continue;
+        }
+    } // for
+return StatusCode::SUCCESS;
+} // fillTriggerGroups
+
+StatusCode HLTXAODBphysMonTool::fillTriggerGroup(const std::string & groupName, const std::string & chainName) {
+    // helper method for filling individual groups
+    
+    std::string baseName = stripHLT(chainName); // remove "HLT_" from the name
+    
+    const auto cg   = getTDT()->getChainGroup(chainName);
+    const auto cgL2 = getTDT()->getChainGroup("L2_"+baseName);
+    const auto cgEF = getTDT()->getChainGroup("EF_"+baseName);
+    
+    bool isPassed   (cg-> isPassed(TrigDefs::Physics));
+    bool isPassedL2(cgL2->isPassed(TrigDefs::Physics));
+    bool isPassedEF(cgEF->isPassed(TrigDefs::Physics));
+    
+    ATH_MSG_DEBUG("Trigger passed(HLT/EF/L2): " << isPassed << isPassedL2 << isPassedEF << " " << chainName << " group: " << groupName);
+    
+    // get HLT items
+    const auto& fc       = getTDT()->features(chainName);
+    const auto& fc_bphys   = fc.get<xAOD::TrigBphysContainer>();
+    const auto& fc_bphysEF = fc.get<xAOD::TrigBphysContainer>("EF_"+baseName);
+    const auto& fc_bphysL2 = fc.get<xAOD::TrigBphysContainer>("L2_"+baseName);
+    
+    ATH_MSG_DEBUG("Features: HLT: " << fc_bphys.size());
+    ATH_MSG_DEBUG("Features:  EF: " << fc_bphysEF.size());
+    ATH_MSG_DEBUG("Features:  L2: " << fc_bphysL2.size());
+
+    
+    ATH_MSG_DEBUG("Size of vector< Trig::Feature<xAOD::TrigBphysContainer> > = " << fc_bphys.size());
+    
+    for( auto cont_bphys : fc_bphys ) {
+        ATH_MSG_DEBUG("REGTEST Got Bphysics container, size = " << cont_bphys.cptr()->size());
+        for ( auto bphys:  *(cont_bphys.cptr()) )  {
+            ATH_MSG_DEBUG("REGTEST Level = " << bphys->level());
+
+            // ignore l2 objects
+            if ((bphys->level() != xAOD::TrigBphys::EF) &&  (bphys->level() != xAOD::TrigBphys::HLT)) continue;
+            
+            fillTrigBphysHists(bphys,groupName,  m_prefix,groupName,chainName);
+            // to be added with more complete informations
+            
+        } // loop over bphys objects
+    } // loop over containers
     
     
+    return StatusCode::SUCCESS;
+} //fillTriggerGroup
+
+StatusCode HLTXAODBphysMonTool::bookContainers(){
+    // book the hists for containers
+
+    //************ SHIFTER ************* //
+    addMonGroup(new MonGroup(this,m_base_path_shifter+"/Containers",run));
+    addHistogram( new TH2I((m_prefix+"_Containers_size").c_str(),"Container sizes",(int)m_containerList.size(),0,(int) m_containerList.size(),20,-0.5,19.5));
+
+    for (const auto& containerItem: m_containerList) {
+        bookTrigBphysHists(containerItem, m_prefix,"Containers/"+containerItem, containerItem);
+    } // loop over container names
+    
+    return StatusCode::SUCCESS;
 }
+StatusCode HLTXAODBphysMonTool::fillContainers(){
+    // fill the hists for containers
+    
+    for (const auto& containerItem: m_containerList) {
+        
+        const xAOD::TrigBphysContainer*  trigBphysContainer(nullptr);
+        StatusCode sc = m_storeGate->retrieve(trigBphysContainer,containerItem); //"HLT_xAOD__TrigBphysContainer_EFBMuMuFex"
+        if (sc.isFailure() || ! trigBphysContainer) {
+            ATH_MSG_WARNING("No TrigBphysContainer found with tag: "<< containerItem);
+            continue;
+        }
+        //************ SHIFTER ************* //
+        setCurrentMonGroup(m_base_path_shifter+"/Containers");
+        hist2((m_prefix+"_Containers_size").c_str())->Fill(containerItem.c_str(), trigBphysContainer->size(),1);
 
-
-
-//---------------------------------------------------------
-StatusCode HLTXAODBphysMonTool::Triggers()
-//---------------------------------------------------------
-{
+        for ( auto bphys:  (*trigBphysContainer))  {
+            fillTrigBphysHists(bphys,containerItem, m_prefix,"Containers/"+containerItem,containerItem);
+        } // loop over items in the container
+    } // loop over container names
     return StatusCode::SUCCESS;
 }
 
 
+void HLTXAODBphysMonTool::bookTrigBphysHists(const std::string & groupName ,const std::string & prefix,
+                                             const std::string & path, const std::string & chainName) {
+    ATH_MSG_DEBUG("bookTrigBphysHists: " << groupName << " " << prefix << " " << " " << path << " " << chainName);
 
-//-----------------------------------------------------------
-StatusCode HLTXAODBphysMonTool::L2DsPhiPiMon()
-//-----------------------------------------------------------
-{
-    return StatusCode::SUCCESS;
+    auto pref = prefix.c_str(); // conversion
+    auto name = groupName.c_str(); // conversion
+
+    //************ SHIFTER ************* //
+    addMonGroup(new MonGroup(this,m_base_path_shifter+"/"+path,run));
+    addHistogram( new TH1F(Form("%s_%s_eta",pref,name) ,      Form("%s_%s_eta;#eta(#mu#mu);Candidates",pref,name) ,     60, m_eta_min,m_eta_max) );
+    addHistogram( new TH1F(Form("%s_%s_phi",pref,name) ,      Form("%s_%s_phi;#phi(#mu#mu);Candidates",pref,name) ,     70, -3.5,3.5) );
+    addHistogram( new TH1F(Form("%s_%s_pTmu1",pref,name) ,    Form("%s_%s_pTmu1;p_{T}(#mu_{1})[GeV];Candidates",pref,name) ,    50, m_mu_pt_min,m_mu_pt_max) );
+    addHistogram( new TH1F(Form("%s_%s_pTmu2",pref,name) ,    Form("%s_%s_pTmu2;p_{T}(#mu_{2})[GeV];Candidates",pref,name) ,    50, m_mu_pt_min,m_mu_pt_max) );
+    addHistogram( new TH1F(Form("%s_%s_z0mu1",pref,name) ,    Form("%s_%s_z0mu1;z_{0}(#mu_{1})[mm];Candidates",pref,name) ,    150, m_z0_min,m_z0_max) );
+    addHistogram( new TH1F(Form("%s_%s_z0mu2",pref,name) ,    Form("%s_%s_z0mu2;z_{0}(#mu_{1})[mm];Candidates",pref,name) ,    150, m_z0_min,m_z0_max) );
+    addHistogram( new TH1F(Form("%s_%s_d0mu1",pref,name) ,    Form("%s_%s_d0mu1;d_{0}(#mu_{1})[mm];Candidates",pref,name) ,    100, m_d0_min,m_d0_max) );
+    addHistogram( new TH1F(Form("%s_%s_d0mu2",pref,name) ,    Form("%s_%s_d0mu2;d_{0}(#mu_{1})[mm];Candidates",pref,name) ,    100, m_d0_min,m_d0_max) );
+    addHistogram( new TH1F(Form("%s_%s_mass",pref,name) ,     Form("%s_%s_mass;mass(#mu#mu)[GeV];Candidates",pref,name) ,    100, m_oniamass_min,m_oniamass_max) );
+    addHistogram( new TH1F(Form("%s_%s_dphi",pref,name) ,     Form("%s_%s_dphi;d#phi(#mu_{1,2});Candidates",pref,name) ,     64, m_dphi_min,m_dphi_max) );
+    addHistogram( new TH1F(Form("%s_%s_deta",pref,name) ,     Form("%s_%s_deta;d#eta(#mu_{1,2});Candidates",pref,name) ,     60, m_deta_min,m_deta_max) );
+    addHistogram( new TH1F(Form("%s_%s_dR",pref,name) ,       Form("%s_%s_dR;dR(#mu_{1,2});Candidates",pref,name) ,     60, m_dr_min,m_dr_max) );
+    addHistogram( new TH1F(Form("%s_%s_pTsum",pref,name) ,    Form("%s_%s_pTsum;#Sigmap_{T}(#mu_{1,2})[GeV];Candidates",pref,name) ,    100, m_ptsum_min,m_ptsum_max) );
+    addHistogram( new TH1F(Form("%s_%s_fitmass",pref,name) ,  Form("%s_%s_fitmass;fitmass(#mu#mu)[GeV];Candidates",pref,name) ,    100, m_oniamass_min,m_oniamass_max) );
+    addHistogram( new TH1F(Form("%s_%s_fitchi2",pref,name) ,  Form("%s_%s_fitchi2;#chi^{2}(#mu#mu);Candidates",pref,name) ,    50, 0.,20.) );
+
+    //************ EXPERT ************* //
+    addMonGroup(new MonGroup(this,m_base_path_expert+"/"+path,run));
+    addHistogram( new TH1F(Form("%s_%s_phiStar",pref,name) ,  Form("%s_%s_phiStar;#phi*;Candidates",pref,name) ,     50, -TMath::Pi(), TMath::Pi()) );
+    addHistogram( new TH1F(Form("%s_%s_cosThetaStar",pref,name) , Form("%s_%s_cosThetaStar;cos#theta*;Candidates",pref,name) ,     50, -1., 1.) );
+    addHistogram( new TH1F(Form("%s_%s_numBLayerHitsmu1",pref,name) ,      Form("%s_%s_numBLayerHitsmu1;B Layer Hits(#mu_{1});Candidates",pref,name) ,  11, -1.,10.) );
+    addHistogram( new TH1F(Form("%s_%s_numBLayerHitsmu2",pref,name) ,      Form("%s_%s_numBLayerHitsmu2;B Layer Hits(#mu_{2});Candidates",pref,name) ,  11, -1.,10.) );
+    addHistogram( new TH1F(Form("%s_%s_numSCTHitsmu1",pref,name) ,      Form("%s_%s_numSCTHitsmu1;SCT Hits(#mu_{1});Candidates",pref,name) ,            21, -1.,20.) );
+    addHistogram( new TH1F(Form("%s_%s_numSCTHitsmu2",pref,name) ,      Form("%s_%s_numSCTHitsmu2;SCT Hits(#mu_{2});Candidates",pref,name) ,            21, -1.,20.) );
+    addHistogram( new TH1F(Form("%s_%s_numPixelHitsmu1",pref,name) ,      Form("%s_%s_numPixelHitsmu1;Pixel Hits(#mu_{1});Candidates",pref,name) ,      11, -1.,10.) );
+    addHistogram( new TH1F(Form("%s_%s_numPixelHitsmu2",pref,name) ,      Form("%s_%s_numPixelHitsmu2;Pixel Hits(#mu_{2});Candidates",pref,name) ,      11, -1.,10.) );
+    addHistogram( new TH1F(Form("%s_%s_numTRTHitsmu1",pref,name) ,      Form("%s_%s_numTRTHitsmu1;TRT Hits(#mu_{1});Candidates",pref,name) ,            31, -1.,30.) );
+    addHistogram( new TH1F(Form("%s_%s_numTRTHitsmu2",pref,name) ,      Form("%s_%s_numTRTHitsmu2;TRT Hits(#mu_{2});Candidates",pref,name) ,            31, -1.,30.) );
+
+    addHistogram( new TH2F(Form("%s_%s_phiStarcosThetaStar",pref,name) , Form("%s_%s_phiStarcosThetaStar;cos#theta*;#phi*",pref,name) ,  50, -1., 1., 50, -TMath::Pi(), TMath::Pi()));
+
+
+
+} // bookTrigBphysHists
+
+
+void HLTXAODBphysMonTool::fillTrigBphysHists(const xAOD::TrigBphys *bphysItem, const std::string & groupName,
+                                             const std::string & prefix,const std::string & path, const std::string & chainName) {
+    if (!bphysItem) {
+        ATH_MSG_WARNING("fillTrigBphysHists null pointer provided");
+    }
+    ATH_MSG_DEBUG("fillTrigBphysHists for: " <<  bphysItem << " " <<  groupName << " "
+                  << prefix << " " <<path << " " <<chainName );
+
+    
+    auto pref = prefix.c_str(); // conversion
+    auto name = groupName.c_str(); // conversion
+    
+    float eta = bphysItem->eta();
+    float phi = bphysItem->phi();
+    float mass = bphysItem->mass();
+    float fitmass = bphysItem->fitmass();
+    float fitchi2 = bphysItem->fitchi2();
+    
+    const std::vector<ElementLink<xAOD::TrackParticleContainer> > trackVector = bphysItem->trackParticleLinks();
+    if (trackVector.size() != 0) {
+        ATH_MSG_DEBUG(" REGTEST got track vector size: " << trackVector.size() );
+    } else {
+        ATH_MSG_DEBUG(" REGTEST no track vector!!! " );
+    }
+
+    if (trackVector.size() %2 != 0) {
+        ATH_MSG_DEBUG(" REGTEST uneven number of tracks " );
+    }
+
+    
+    
+    
+    //************ SHIFTER ************* //
+    setCurrentMonGroup(m_base_path_shifter+"/"+path);
+    hist(Form("%s_%s_eta",pref,name))->Fill(eta);
+    hist(Form("%s_%s_phi",pref,name))->Fill(phi);
+    hist(Form("%s_%s_mass",pref,name))->Fill(mass);
+    hist(Form("%s_%s_fitmass",pref,name))->Fill(fitmass);
+    hist(Form("%s_%s_fitchi2",pref,name))->Fill(fitchi2);
+
+
+
+    
+    
+    std::vector<ElementLink<xAOD::TrackParticleContainer> >::const_iterator trkIt1=trackVector.begin();
+    std::vector<ElementLink<xAOD::TrackParticleContainer> >::const_iterator trkIt2=trackVector.begin();
+    for (; trkIt1!= trackVector.end(); ++trkIt1) {
+        trkIt2 = trkIt1 +1; // for track two
+        
+        if (!(trkIt1->isValid())) {
+            ATH_MSG_WARNING("TrackParticleContainer::Invalid ElementLink to track ");
+            continue;
+        }
+        const xAOD::TrackParticle * ptl1 = **trkIt1;
+        if (!ptl1) {
+            msg() << MSG::WARNING << "TrackParticle with nullptr but valid elementlink" << endreq;
+            continue;
+        }
+
+        float phiTrk1    = ptl1->phi();
+        float z0Trk1     = ptl1->z0();
+        float d0Trk1     = ptl1->d0();
+        float qOverPTrk1 = ptl1->qOverP();
+        float ptTrk1     = ptl1->pt();
+        float etaTrk1    = ptl1->eta();
+        
+        uint8_t tmpValue(0);
+        int bLayerHitsTrk1 = ptl1->summaryValue(tmpValue,xAOD::numberOfBLayerHits) ?  tmpValue : -99;
+        int sctHitsTrk1    = ptl1->summaryValue(tmpValue,xAOD::numberOfSCTHits)    ?  tmpValue : -99;
+        int pixHitsTrk1    = ptl1->summaryValue(tmpValue,xAOD::numberOfPixelHits)  ?  tmpValue : -99;
+        int trtHitsTrk1    = ptl1->summaryValue(tmpValue,xAOD::numberOfTRTHits)    ?  tmpValue : -99;
+        
+        
+        ATH_MSG_DEBUG("track1 "  << " pt phi eta " << ptTrk1 << " " <<
+                      phiTrk1 << " " << etaTrk1 << "SCT hits: " << sctHitsTrk1);
+
+        if (trkIt2 != trackVector.end()) {
+            if (!(trkIt2->isValid())) {
+                ATH_MSG_WARNING("TrackParticleContainer::Invalid ElementLink to track ");
+                continue;
+            }
+            
+            const xAOD::TrackParticle * ptl2 = **trkIt2;
+            if (!ptl2) {
+                msg() << MSG::WARNING << "TrackParticle with nullptr but valid elementlink" << endreq;
+            }
+
+            if (ptl2) {
+                
+                float phiTrk2    = ptl2->phi();
+                float z0Trk2     = ptl2->z0();
+                float d0Trk2     = ptl2->d0();
+                float ptTrk2     = ptl2->pt();
+                float etaTrk2    = ptl2->eta();
+                
+                tmpValue = 0;
+                int bLayerHitsTrk2 = ptl2->summaryValue(tmpValue,xAOD::numberOfBLayerHits) ?  tmpValue : -99;
+                int sctHitsTrk2    = ptl2->summaryValue(tmpValue,xAOD::numberOfSCTHits)    ?  tmpValue : -99;
+                int pixHitsTrk2    = ptl2->summaryValue(tmpValue,xAOD::numberOfPixelHits)  ?  tmpValue : -99;
+                int trtHitsTrk2    = ptl2->summaryValue(tmpValue,xAOD::numberOfTRTHits)    ?  tmpValue : -99;
+
+                ATH_MSG_DEBUG("track2 "  << " pt phi eta " << ptTrk2 << " " <<
+                              phiTrk2 << " " << etaTrk2 << "SCT hits: " << sctHitsTrk2);
+
+                
+                float dphi = absDeltaPhi(phiTrk1,phiTrk2);
+                float deta = absDeltaEta(etaTrk1,etaTrk2);
+                
+                float pTsum = ptTrk1 + ptTrk2;
+                float dR = deltaR(etaTrk1, phiTrk1, etaTrk2, phiTrk2);
+
+                TLorentzVector trk1_tl, trk2_tl;
+                trk1_tl.SetPtEtaPhiM(ptTrk1, etaTrk1, phiTrk1, m_muonMass);
+                trk2_tl.SetPtEtaPhiM(ptTrk2, etaTrk2, phiTrk2, m_muonMass);
+                
+                
+                int qTrk1(1);//, qTrk2(-1);
+                if(qOverPTrk1 < 0.){
+                    qTrk1 = -1;
+                    //qTrk2 = 1;
+                }
+                
+                float phiStar      = phiMethod(trk1_tl, trk2_tl, qTrk1);
+                float cosThetaStar = cosMethod(trk1_tl, trk2_tl, qTrk1);
+
+                //************ SHIFTER ************* //
+                setCurrentMonGroup(m_base_path_shifter+"/"+path);
+                hist(Form("%s_%s_pTmu1",pref,name))->Fill(ptTrk1);
+                hist(Form("%s_%s_pTmu2",pref,name))->Fill(ptTrk2);
+                hist(Form("%s_%s_d0mu1",pref,name))->Fill(d0Trk1);
+                hist(Form("%s_%s_d0mu2",pref,name))->Fill(d0Trk2);
+                hist(Form("%s_%s_z0mu1",pref,name))->Fill(z0Trk1);
+                hist(Form("%s_%s_z0mu2",pref,name))->Fill(z0Trk2);
+                hist(Form("%s_%s_dphi",pref,name))->Fill(dphi);
+                hist(Form("%s_%s_deta",pref,name))->Fill(deta);
+                hist(Form("%s_%s_dR",pref,name))->Fill(dR);
+                hist(Form("%s_%s_pTsum",pref,name))->Fill(pTsum);
+                
+                
+                //************ EXPERT ************* //
+                setCurrentMonGroup(m_base_path_expert+"/"+path);
+                hist(Form("%s_%s_phiStar",pref,name))->Fill(phiStar);
+                hist(Form("%s_%s_cosThetaStar",pref,name))->Fill(cosThetaStar);
+                
+                hist(Form("%s_%s_numBLayerHitsmu1",pref,name))->Fill(bLayerHitsTrk1);
+                hist(Form("%s_%s_numBLayerHitsmu2",pref,name))->Fill(bLayerHitsTrk2);
+                hist(Form("%s_%s_numSCTHitsmu1",pref,name))->Fill(sctHitsTrk1);
+                hist(Form("%s_%s_numSCTHitsmu2",pref,name))->Fill(sctHitsTrk2);
+                hist(Form("%s_%s_numPixelHitsmu1",pref,name))->Fill(pixHitsTrk1);
+                hist(Form("%s_%s_numPixelHitsmu2",pref,name))->Fill(pixHitsTrk2);
+                hist(Form("%s_%s_numTRTHitsmu1",pref,name))->Fill(trtHitsTrk1);
+                hist(Form("%s_%s_numTRTHitsmu2",pref,name))->Fill(trtHitsTrk2);
+                
+                
+                hist2(Form("%s_%s_phiStarcosThetaStar",pref,name))->Fill(cosThetaStar, phiStar,1);
+
+                
+            } // valid second track
+        } // if a second track
+        
+
+    } // loop over the track vector
+    
 }
 
-
-
-//-----------------------------------------------------------
-StatusCode HLTXAODBphysMonTool::L2TopoDiMuMon()
-//-----------------------------------------------------------
-{
-    return StatusCode::SUCCESS;
-}
-
-
-
-//-----------------------------------------------------------
-StatusCode HLTXAODBphysMonTool::L2TopoDiMuXMon()
-//-----------------------------------------------------------
-{
-    return StatusCode::SUCCESS;
-}
-
-
-
-//-----------------------------------------------------------
-StatusCode HLTXAODBphysMonTool::L2DiMuMon()
-//-----------------------------------------------------------
-{
-    return StatusCode::SUCCESS;
-}
-
-
-
-//-----------------------------------------------------------
-StatusCode HLTXAODBphysMonTool::L2DiMuXMon()
-//-----------------------------------------------------------
-{
-    return StatusCode::SUCCESS;
-}
-
-
-
-//-----------------------------------------------------------
-StatusCode HLTXAODBphysMonTool::L2BJpsieeMon()
-//-----------------------------------------------------------
-{
-    return StatusCode::SUCCESS;
-}
-
-
-
-//-----------------------------------------------------------
-StatusCode HLTXAODBphysMonTool::EFDsPhiPiMon()
-//-----------------------------------------------------------
-{
-    return StatusCode::SUCCESS;
-}
-
-
-
-//-----------------------------------------------------------
-StatusCode HLTXAODBphysMonTool::EFTopoDiMuMon()
-//-----------------------------------------------------------
-{
-    return StatusCode::SUCCESS;
-}
-
-
-
-//-----------------------------------------------------------
-StatusCode HLTXAODBphysMonTool::EFDiMuMon()
-//-----------------------------------------------------------
-{
-    return StatusCode::SUCCESS;
-}
-
-
-
-//-----------------------------------------------------------
-StatusCode HLTXAODBphysMonTool::L2Tracks()
-//-----------------------------------------------------------
-{
-    return StatusCode::SUCCESS;
-}
-
-
-
-//-----------------------------------------------------------
-StatusCode HLTXAODBphysMonTool::EFTracks()
-//-----------------------------------------------------------
-{
-    return StatusCode::SUCCESS;
-}
-
-
-
-//-----------------------------------------------------------
-StatusCode HLTXAODBphysMonTool::L2BJpsimumu()
-//-----------------------------------------------------------
-{
-    return StatusCode::SUCCESS;
-}
-
-
-
-//-----------------------------------------------------------
-StatusCode HLTXAODBphysMonTool::EFBJpsimumu()
-//-----------------------------------------------------------
-{
-    return StatusCode::SUCCESS;
-}
-
-
-
-//-----------------------------------------------------------
-StatusCode HLTXAODBphysMonTool::CompareDiMuL2EF()
-//-----------------------------------------------------------
-{
-    return StatusCode::SUCCESS;
-}
-
-
-//-----------------------------------------------------------
-StatusCode HLTXAODBphysMonTool::CompareTopoDiMuL2EF()
-//-----------------------------------------------------------
-{
-    return StatusCode::SUCCESS;
-}
 
 void HLTXAODBphysMonTool::divide(TH1 *num, TH1 *den, TH1 *quo) {
     
@@ -1598,7 +1232,34 @@ void HLTXAODBphysMonTool::divide2(TH2 *num, TH2 *den, TH2 *quo) {
     quo->Divide(num, den, 1., 1., "B");
 }
 
-
+void HLTXAODBphysMonTool::divide2WithRow(TH2 *num, TH2 *quo,int denom_row ) {
+    // use one row as the denominator hist.
+    // used for 2-d histograms where one row is the denominator
+    
+    int nBinsX = num->GetNbinsX();
+    int nBinsY = num->GetNbinsY();
+    if (denom_row > nBinsY) {
+        ATH_MSG_WARNING("divide2WithRow Denominator bin is out of range");
+        return;
+    }
+    
+    TH2* tmp = (TH2*)num->Clone("tmphist");
+    
+    // @todo #FIXME - add under/overflow bins, do fully correct error estimates
+    for (int jy = 1; jy <= nBinsY;++jy) {
+        if (jy == denom_row) continue;
+        for (int ix = 1; ix <= nBinsX;++ix) {
+            double numval = num->GetBinContent(ix,denom_row);
+            double numerr = num->GetBinError(ix,denom_row);
+            tmp->SetBinContent(ix,jy,numval);
+            tmp->SetBinError(ix,jy,numerr);
+        } // ix
+    }//iy
+    tmp->Sumw2();
+    
+    quo->Divide(num,tmp,1.,1.,"B");
+    delete tmp; tmp = nullptr;
+} //divide2WithRow
 
 // *********************************************************************************
 // ---------------------------------------------------------------------------------
@@ -1607,16 +1268,7 @@ void HLTXAODBphysMonTool::divide2(TH2 *num, TH2 *den, TH2 *quo) {
 
 TVector3 HLTXAODBphysMonTool::trackMomentum(const xAOD::Vertex * vxCandidate, uint trkIndex) const
 {
-    float px = 0., py = 0., pz = 0.;
-    //  assert(vxCandidate!=0);
-    //  assert(i<vxCandidate->vxTrackAtVertex().size());
-    
-    //  if (0 != vxCandidate) {
-    //    const Trk::TrackParameters* aPerigee = vxCandidate->vxTrackAtVertex()[trkIndex].perigeeAtVertex();
-    //    px = aPerigee->momentum()[Trk::px];
-    //    py = aPerigee->momentum()[Trk::py];
-    //    pz = aPerigee->momentum()[Trk::pz];
-    //  }
+    float px(0.), py(0.), pz(0.);
     
     static SG::AuxElement::Accessor< std::vector<float> > refTrackPxAcc("RefTrackPx");
     static SG::AuxElement::Accessor< std::vector<float> > refTrackPyAcc("RefTrackPy");
@@ -1625,10 +1277,12 @@ TVector3 HLTXAODBphysMonTool::trackMomentum(const xAOD::Vertex * vxCandidate, ui
     const std::vector<float>& refTrackPy = refTrackPyAcc(*vxCandidate);
     const std::vector<float>& refTrackPz = refTrackPzAcc(*vxCandidate);
     
-    if(trkIndex < refTrackPx.size() && refTrackPx.size() == refTrackPy.size() && refTrackPz.size()) {
+    if(trkIndex < refTrackPx.size() && refTrackPx.size() == refTrackPy.size() && refTrackPx.size() == refTrackPz.size()) {
         px = refTrackPx[trkIndex];
         py = refTrackPy[trkIndex];
         pz = refTrackPz[trkIndex];
+    } else {
+        ATH_MSG_WARNING("Size inconsistencies in trackMomentum");
     }
     
     TVector3 mom(px,py,pz);
@@ -1657,6 +1311,7 @@ TVector3 HLTXAODBphysMonTool::origTrackMomentum(const xAOD::Vertex * vxCandidate
     TVector3 mom;
     const xAOD::TrackParticle* origTrack = vxCandidate->trackParticle(trkIndex);
     if(origTrack==NULL) {
+        ATH_MSG_DEBUG("origTrackMomentum unable to get original track " << vxCandidate << " " << trkIndex);
         return mom;
     }
     
@@ -1806,25 +1461,11 @@ Amg::MatrixX * HLTXAODBphysMonTool::convertVKalCovMatrix(int NTrk, const std::ve
     return mtx;
 }
 
-float HLTXAODBphysMonTool::phiMethod(TLorentzVector Mu1, TLorentzVector Mu2, int Mu1_q) const
+float HLTXAODBphysMonTool::phiMethod(const TLorentzVector & Mu1, const TLorentzVector & Mu2, int Mu1_q) const
 {
     
-    TLorentzVector MuPlus;
-    TLorentzVector MuMinus;
-    
-    if(Mu1_q > 0){
-        
-        MuPlus = Mu1;
-        MuMinus = Mu2;
-        
-    }
-    else{
-        
-        MuPlus = Mu2;
-        MuMinus = Mu1;
-        
-    }
-    
+    TLorentzVector MuPlus  = ( Mu1_q > 0 ? Mu1 : Mu2);
+    TLorentzVector MuMinus = ( Mu1_q > 0 ? Mu2 : Mu1);
     
     TLorentzVector MuMu = MuPlus + MuMinus;
     
@@ -1838,27 +1479,10 @@ float HLTXAODBphysMonTool::phiMethod(TLorentzVector Mu1, TLorentzVector Mu2, int
 }
 
 
-float HLTXAODBphysMonTool::cosMethod(TLorentzVector Mu1, TLorentzVector Mu2, int Mu1_q) const
+float HLTXAODBphysMonTool::cosMethod(const TLorentzVector & Mu1, const TLorentzVector & Mu2, int Mu1_q) const
 {
-    
-    
-    
-    TLorentzVector MuPlus;
-    TLorentzVector MuMinus;
-    
-    if(Mu1_q > 0){
-        
-        MuPlus = Mu1;
-        MuMinus = Mu2;
-        
-    }
-    else{
-        
-        MuPlus = Mu2;
-        MuMinus = Mu1;
-        
-    }
-    
+    TLorentzVector MuPlus  = ( Mu1_q > 0 ? Mu1 : Mu2);
+    TLorentzVector MuMinus = ( Mu1_q > 0 ? Mu2 : Mu1);
     
     TLorentzVector MuMu = MuPlus + MuMinus;
     
@@ -1886,11 +1510,27 @@ float HLTXAODBphysMonTool::deltaR( float eta_1, float phi_1, float eta_2, float 
 {
     float dEta = fabs( eta_1 - eta_2 );
     float dPhi = fabs( phi_1 - phi_2 );
-    if ( dPhi > TMath::Pi() ){ dPhi = 2*TMath::Pi() - dPhi ;}
+    if ( dPhi > M_PI ){ dPhi = 2*TMath::Pi() - dPhi ;}
     return sqrt( dEta*dEta + dPhi*dPhi ) ;
 }
 
 
+float HLTXAODBphysMonTool::absDeltaPhi(float phi_1, float phi_2 ) const {
+    // @todo FIXME - condense if possible
+    float dphi = fabs(phi_1 - phi_2);
+    
+    if( 2.* M_PI -dphi < dphi )
+    {
+        if( dphi > 0. )
+            dphi = dphi - 2.* M_PI;
+        else
+            dphi = 2* M_PI - dphi;
+    }
+    return fabs(dphi);
+}
 
+float HLTXAODBphysMonTool::absDeltaEta(float eta_1, float eta_2 ) const {
+    return fabs(eta_1 - eta_2);
+}
 
 
