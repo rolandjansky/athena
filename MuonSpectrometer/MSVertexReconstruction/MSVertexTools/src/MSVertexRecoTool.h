@@ -91,7 +91,8 @@ namespace Muon {
     StatusCode findMSvertices(std::vector<Tracklet>& traklets, std::vector<MSVertex*>& vertices);
     
   private:
-    MSVertex* MSVxFinder(std::vector<Tracklet>& tracklets);//barrel vertex reco algorithm
+    //barrel vertex reco algorithm
+    void MSVxFinder(std::vector<Tracklet>& tracklets, MSVertex*& vtx);
     //endcap vertex reco algorithm
     void MSStraightLineVx(std::vector<Tracklet> trks, MSVertex*& vtx);
     void MSStraightLineVx_oldMethod(std::vector<Tracklet> trks, MSVertex*& vtx);
