@@ -87,7 +87,9 @@ struct CandidateSummary
 
     CandidateSummary()
         : rpcHitsLists(NULL)
-    {}
+    {
+    }
+
     ~CandidateSummary()
     {
         if (rpcHitsLists != NULL)
