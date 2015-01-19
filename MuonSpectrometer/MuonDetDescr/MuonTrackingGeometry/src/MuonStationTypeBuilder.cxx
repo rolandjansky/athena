@@ -1447,7 +1447,7 @@ const Trk::TrackingVolume* Muon::MuonStationTypeBuilder::processSpacer(Trk::Volu
   }
 
   std::vector<const Trk::Layer*>::iterator lIt = layers.begin();
-  for ( ; lIt!=layers.end();lIt++) if ((*lIt)->thickness()<0.) layers.erase(lIt); 
+  for ( ; lIt!=layers.end();lIt++) if ((*lIt)->thickness()<0.) lIt=layers.erase(lIt); 
 
   std::vector<const Trk::Layer*>* spacerLayers = new std::vector<const Trk::Layer*>(layers); 
   std::string name="Spacer";
