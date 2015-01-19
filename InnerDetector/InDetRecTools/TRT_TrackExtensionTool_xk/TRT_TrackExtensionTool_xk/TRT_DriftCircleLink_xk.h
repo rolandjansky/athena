@@ -80,6 +80,14 @@ namespace InDet{
 
   inline TRT_DriftCircleLink_xk::TRT_DriftCircleLink_xk()
     {
+      m_cluster   = 0 ;
+      m_number    = 0 ;
+      m_distance  = 0.;
+      m_impact    = 0.;
+      m_zlocal    = 0.;
+      m_way       = 0.;
+      m_sdistance = 0.;
+      m_szlocal   = 0.;
     }
 
   inline TRT_DriftCircleLink_xk::TRT_DriftCircleLink_xk(const TRT_DriftCircleLink_xk& L)
