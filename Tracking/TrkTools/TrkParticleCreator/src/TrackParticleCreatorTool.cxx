@@ -52,6 +52,7 @@ namespace Trk
     m_magFieldSvc         ("AtlasFieldSvc", n),
     m_beamConditionsService("BeamCondSvc", n),
     m_useTrackSummaryTool (true),
+    m_useMuonSummaryTool  (false),
     m_forceTrackSummaryUpdate (false),
     m_keepParameters      (false),
     m_keepAllPerigee      (false),
@@ -60,11 +61,13 @@ namespace Trk
   {
     declareInterface<ITrackParticleCreatorTool>(this);
     declareProperty("TrackSummaryTool",       m_trackSummaryTool );
+    declareProperty("MuonSummaryTool",       m_hitSummaryTool );
     declareProperty("ForceTrackSummaryUpdate",  m_forceTrackSummaryUpdate );
     declareProperty("Extrapolator",   m_extrapolator );
     declareProperty("TrackToVertex",            m_trackToVertex );
     declareProperty("MagFieldSvc",              m_magFieldSvc);
     declareProperty("UseTrackSummaryTool" , m_useTrackSummaryTool);
+    declareProperty("UseMuonSummaryTool" , m_useMuonSummaryTool);
     declareProperty("KeepParameters",   m_keepParameters);
     declareProperty("KeepAllPerigee",   m_keepAllPerigee);
     declareProperty("ExpressPerigeeToBeamSpot", m_expressPerigeeToBeamSpot);
@@ -102,6 +105,7 @@ namespace Trk
       }
     }
     
+
     /* Retrieve track extrapolator from ToolService */
     if ( m_extrapolator.retrieve().isFailure() ) {
       msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endreq;
@@ -123,13 +127,15 @@ namespace Trk
       msg(MSG::DEBUG) << "Retrieved tool " << m_trackToVertex << endreq; 
     } 
 
-    /* Retrieve hit summary tool from ToolService */
-    if ( m_hitSummaryTool.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_hitSummaryTool << endreq;
-      return StatusCode::FAILURE;
-    } else {
-      msg(MSG::DEBUG) << "Retrieved tool " << m_hitSummaryTool << endreq;
-    }
+    if (m_useMuonSummaryTool){
+	/* Retrieve hit summary tool from ToolService */
+	if ( m_hitSummaryTool.retrieve().isFailure() ) {
+	  msg(MSG::FATAL) << "Failed to retrieve tool " << m_hitSummaryTool << endreq;
+	  return StatusCode::FAILURE;
+	} else {
+	  msg(MSG::DEBUG) << "Retrieved tool " << m_hitSummaryTool << endreq;
+	}
+      }
 
     /* MagneticFieldSvc handles updates itself */
     if (m_magFieldSvc.retrieve().isFailure()){
