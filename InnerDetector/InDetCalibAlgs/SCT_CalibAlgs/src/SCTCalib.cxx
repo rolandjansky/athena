@@ -267,6 +267,7 @@ SCTCalib::SCTCalib( const std::string& name, ISvcLocator* pSvcLocator ) :
   //--- for HV trip
   m_phvtripFirstTime = 2000000000;
   m_phvtripPrevTime  = 0;
+  m_readHIST = m_doNoiseOccupancy || m_doRawOccupancy || m_doEfficiency || m_doBSErrorDB || m_doLorentzAngle;
 }
 
 

@@ -39,8 +39,13 @@ for part in `echo $DATASET| tr "." "\n"`; do
     [ $i == 5 ] &&  INPUTTAG=$part
     i=$(( $i+1 ))
 done
+
+#strip year value from projectTag
+YEAR="20"${PROJ:4:2}
+
 if [ $STREAM == "calibration_SCTNoise" -o $STREAM == "calibration_IDTracks" ]; then
-    CASTOR="/castor/cern.ch/grid/atlas/DAQ/2012"
+    CASTOR="/castor/cern.ch/grid/atlas/DAQ/"${YEAR}
+#    CASTOR="/castor/cern.ch/grid/atlas/DAQ/2012"
     LOC=$CASTOR/0$RUN/$STREAM
 else
     CASTOR="/castor/cern.ch/grid/atlas/tzero/prod1/perm"
@@ -90,7 +95,7 @@ else
     if [ $MISS == 0 ]; then
         if [ $FORCE != 0 ]; then
             echo "Execute the following command to run without these files:"
-            echo "./trfOnCAF.sh $TAG $DATASET $PART $CONFIG force"
+            echo "./tfOnCAF.sh $TAG $DATASET $PART $CONFIG force"
             exit -1
         else
             echo "WARNING: run transformation on incomplete dataset"
@@ -128,6 +133,8 @@ elif [ $PART == "doDeadStrip" ]; then
     OUTFILES="${PREFIX}.SCTHitMaps.root,${PREFIX}.SCTBSErrors.root,${PREFIX}.DeadStripsFile.xml,${PREFIX}.DeadSummaryFile.xml,${PREFIX}.mycool.db,${PREFIX}.log"
 elif [ $PART == "doNoiseOccupancy" ]; then
     OUTFILES="${PREFIX}.NoiseOccupancyFile.xml,${PREFIX}.NoiseOccupancySummaryFile.xml,${PREFIX}.mycool.db,${PREFIX}.log"
+elif [ $PART == "doLorentzAngle" ]; then
+    OUTFILES="${PREFIX}.LorentzAngleFile.xml,${PREFIX}.LorentzAngleSummaryFile.xml,${PREFIX}.mycool.db,${PREFIX}.log"
 elif [ $PART == "doRawOccupancy" ]; then
     OUTFILES="${PREFIX}.RawOccupancySummaryFile.xml,${PREFIX}.mycool.db,${PREFIX}.log"
 elif [ $PART == "doEfficiency" ]; then
@@ -152,7 +159,7 @@ fi
 OUTDIR=/afs/cern.ch/user/s/sctcalib/scratch0/tmp/results/$PROJ/$STREAM/0$RUN/$TASKNAME
 
 #--- Set package info
-WORKDIR=/afs/cern.ch/user/s/sctcalib/testarea/latest
+WORKDIR=/afs/cern.ch/user/s/sctcalib/testarea/AtlasProduction-19.2.0
 MYPATH=$WORKDIR/InnerDetector/InDetCalibAlgs/SCT_CalibAlgs/scripts
 
 #--- Set path to CONFIG

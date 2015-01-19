@@ -71,6 +71,7 @@ if hasattr( runArgs, 'prefix' ) and runArgs.prefix is not '' :
 else :
     prefix=''
     
+
 if hasattr( runArgs, 'InputType' ) and runArgs.InputType is 'RAW' :
     ReadBS = True
 else :
@@ -339,12 +340,21 @@ DetFlags.detdescr.SCT_on()
 #--- printout
 DetFlags.Print()
 
+#set variable projectName
+#we need it to extract the year from the run
+#else execution fails
+from RecExConfig.RecFlags import rec
+filelist=runArgs.inputNames
+n=filelist[0].count('/')
+filename=filelist[0].split('/')[n]
+projectName=str(filename.split('.')[0])
+rec.__dict__.get('projectName').set_Value(projectName)
 #--------------------------------------------------------------
 # GeoModel & MagneticFieldSvc
 #--------------------------------------------------------------
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
-include( "BFieldAth/BFieldAth_jobOptions.py" )
+import MagFieldServices.SetupField
 
 #--------------------------------------------------------------
 # Configuring the cabling
@@ -364,11 +374,19 @@ if ReadBS :
 #--------------------------------------------------------------
 # Configuring the conditions access
 #--------------------------------------------------------------
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 InDetFlags.useDCS = UseDCS #True if run HVTrip search
 include( "InDetRecExample/InDetRecConditionsAccess.py" )
 
 #--- for MajorityConditionsSvc
-conddb.addFolder('',"<db>COOLOFL_DCS/COMP200</db> /SCT/DCS/MAJ")
+# use new CONDBR2?, A.N., 2014-11-30
+# add access to both folders, since we don't know beforehand which DB we'll be used? A.G, 2014-12-03
+year=int(projectName[4:6])
+if (year > 13):
+    conddb.addFolder('',"<db>COOLOFL_DCS/CONDBR2</db> /SCT/DCS/MAJ")
+else:
+    conddb.addFolder('',"<db>COOLOFL_DCS/COMP200</db> /SCT/DCS/MAJ")
+
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_MajorityConditionsSvc
 InDetSCT_MajorityConditionsSvc = SCT_MajorityConditionsSvc( name = "InDetSCT_MajorityConditionsSvc" )
@@ -461,11 +479,11 @@ SCTCalib.ReadBS         = ReadBS
 #--- Input files
 if hasattr( runArgs, 'InputType' ) :
     if runArgs.InputType is 'RAW' :
-        ServiceMgr.ByteStreamInputSvc.FullFileName = runArgs.input
+        ServiceMgr.ByteStreamInputSvc.FullFileName = runArgs.inputNames
     elif runArgs.InputType is 'NTUP_TRKVALID' :
-        SCTCalib.InputTrkVal                       = runArgs.input
+        SCTCalib.InputTrkVal                       = runArgs.inputNames
     elif runArgs.InputType is 'HIST' :
-        SCTCalib.InputHist                         = runArgs.input
+        SCTCalib.InputHist                         = runArgs.inputNames
 else :
     if DoNoisyStrip or DoHV or DoDeadStrip or DoDeadChip :
         if ReadBS :

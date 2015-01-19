@@ -8,16 +8,29 @@ from PyCool import cool, coral
 
 from CoolRunQuery.utils.AtlRunQueryLookup import InitDetectorMaskDecoder
 
-def main( runNum=None ):
+def main( runNum=None, projectName='' ):
     if runNum == None:
         print 'ERROR no runNumber given'
         sys.exit(-1)
+
+    if projectName == '':
+        print 'ERROR no projectName given'
+        sys.exit(-1)
+
+    year=int(projectName[4:6])
 
     print 'runInfo from python folder'
     since = ( runNum << 32 )
     until = ( (runNum+1) << 32 )-1
     dbSvc = cool.DatabaseSvcFactory.databaseService()
-    RunCtrlDB = 'oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TDAQ;dbname=COMP200;user=ATLAS_COOL_READER;password=COOLRED4PRO'
+
+    #load COMP200 or CONDBR2 depending on date A.Gascon 2014-12-08
+    if (year > 13):
+        RunCtrlDB = 'oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TDAQ;dbname=CONDBR2;user=ATLAS_COOL_READER;password=COOLRED4PRO'
+    else:
+        RunCtrlDB = 'oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TDAQ;dbname=COMP200;user=ATLAS_COOL_READER;password=COOLRED4PRO'
+    # use new CONDBR2, A.N., 2014-11-28
+    # RunCtrlDB = 'oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_TDAQ;dbname=CONDBR2;user=ATLAS_COOL_READER;password=COOLRED4PRO'
     RunCtrlDb = dbSvc.openDatabase( RunCtrlDB )
     try:
         RunCtrlDb = dbSvc.openDatabase( RunCtrlDB )
@@ -53,7 +66,13 @@ def main( runNum=None ):
     #--- Detector mask
     mask=DetectorMask
 
-    dName, NotInAll, vetoedbits = InitDetectorMaskDecoder()
+    if (year > 13):
+        dName, NotInAll, vetoedbits = InitDetectorMaskDecoder( True )
+    else:
+        dName, NotInAll, vetoedbits = InitDetectorMaskDecoder( False )
+
+    #InitDetectorMaskDecoder() receives now a False(True) argument for runI(runII)
+    #dName, NotInAll, vetoedbits = InitDetectorMaskDecoder()
 
     res=''
     found = False
