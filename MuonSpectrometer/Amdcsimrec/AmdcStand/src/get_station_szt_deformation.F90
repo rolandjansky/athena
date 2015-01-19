@@ -117,7 +117,7 @@
       INTEGER      :: TheHardSector,TheHARDENTRIES
 !
       INTEGER :: ipt,JSTA,JZZP,NtubeZ,NTUTU
-      REAL(8) :: RTUTU,Y0,YL
+      REAL(8) :: RTUTU,Y0,YL,SIGOO,OFFSETOO
 !
       INTEGER :: AdjustToTubeInZ
       INTEGER :: AdjustToTubeInS
@@ -295,17 +295,24 @@
           ENDIF
 !
           if (AdjustToTubeInZ.ne.0) then
-            Zii_c_cor =  staoo(jtec,jsta,    1) 
-            if ( Zii_c_cor.ge.staoo(jtec,jsta,2) )   &
-            Zii_c_cor =             staoo(jtec,jsta,2)
-            Zii_c_cor = Zii_c_cor - RTUTU 
+            SIGOO = 1.
+            OFFSETOO = 0.
+            IF ((IBAREL(Jtyp,Jff,Jzz) > 0) .AND. (Jzz<0)) THEN
+              SIGOO = -1.
+              OFFSETOO = STAPP(jtec,jsta)
+            ENDIF
+
+            Zii_c_cor =  SIGOO*staoo(jtec,jsta,    1) 
+            if ( Zii_c_cor.ge.(SIGOO*staoo(jtec,jsta,2)) )   &
+            Zii_c_cor = SIGOO*staoo(jtec,jsta,2)
+            Zii_c_cor = Zii_c_cor - RTUTU + OFFSETOO
             Zii_c = Zii_c         + Zii_c_cor
 !
             NtubeZ = nint(Geo_Le(Jtyp,Jgeo,Job)/STAPP(jtec,jsta))
-            Zaa_c_cor =  staoo(jtec,jsta,1) 
-            if ( Zaa_c_cor.le.staoo(jtec,jsta,2) )       &
-            Zaa_c_cor =             staoo(jtec,jsta,2)
-            Zaa_c_cor = Zaa_c_cor + RTUTU 
+            Zaa_c_cor =  SIGOO*staoo(jtec,jsta,1) 
+            if ( Zaa_c_cor.le.(SIGOO*staoo(jtec,jsta,2)) )       &
+            Zaa_c_cor = SIGOO*staoo(jtec,jsta,2)
+            Zaa_c_cor = Zaa_c_cor + RTUTU + OFFSETOO 
             Zaa_c_cor = Zaa_c_cor + (NtubeZ-1.d0)*STAPP(jtec,jsta)
             Zaa_c_cor = Zaa_c_cor - Geo_Le(Jtyp,Jgeo,Job)
             Zaa_c     = Zaa_c     + Zaa_c_cor
