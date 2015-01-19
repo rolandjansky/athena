@@ -105,7 +105,7 @@ StatusCode TauIDPileupCorrection::initialize() {
   m_conversion.push_back(TauConversion("tau_SumPtTrkFrac_fit", xAOD::TauJetParameters::SumPtTrkFrac, xAOD::TauJetParameters::SumPtTrkFracCorrected));
   m_conversion.push_back(TauConversion("tau_etOverPtLeadTrk_fit", xAOD::TauJetParameters::etOverPtLeadTrk, xAOD::TauJetParameters::etOverPtLeadTrkCorrected));
   m_conversion.push_back(TauConversion("tau_approx_ptRatio_fit", xAOD::TauJetParameters::ptRatioEflowApprox, xAOD::TauJetParameters::ptRatioEflowApprox));
-  m_conversion.push_back(TauConversion("tau_approx_vistau_fit", xAOD::TauJetParameters::mEflowApprox, xAOD::TauJetParameters::mEflowApprox));
+  m_conversion.push_back(TauConversion("tau_approx_vistau_m_fit", xAOD::TauJetParameters::mEflowApprox, xAOD::TauJetParameters::mEflowApprox));
   m_conversion.push_back(TauConversion("tau_ChPiEMEOverCaloEME_fit", xAOD::TauJetParameters::ChPiEMEOverCaloEME, xAOD::TauJetParameters::ChPiEMEOverCaloEMECorrected));
   m_conversion.push_back(TauConversion("tau_trFlightPathSig_fit", xAOD::TauJetParameters::trFlightPathSig, xAOD::TauJetParameters::trFlightPathSigCorrected));
   m_conversion.push_back(TauConversion("tau_dRmax_fit", xAOD::TauJetParameters::dRmax, xAOD::TauJetParameters::dRmaxCorrected));
