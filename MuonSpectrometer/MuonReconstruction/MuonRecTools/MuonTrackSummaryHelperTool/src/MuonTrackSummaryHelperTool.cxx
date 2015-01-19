@@ -535,6 +535,9 @@ void Muon::MuonTrackSummaryHelperTool::updateHoleContent( Trk::MuonTrackSummary:
     neta = detEl->Ngasgaps();
   }
   
+  // code to recalculate the hole counts as they are not correct.
+  // This is due to the fact that the identification of the layers goes via the readout element identifier 
+  // so it is not possible to separate eta and phi holes
   int nMisEta = neta - chamberHitSummary.etaProjection().nhits - chamberHitSummary.etaProjection().noutliers;
   int nMisPhi = nphi - chamberHitSummary.phiProjection().nhits - chamberHitSummary.phiProjection().noutliers;
   int nholes  = chamberHitSummary.etaProjection().nholes + chamberHitSummary.phiProjection().nholes;
@@ -545,7 +548,14 @@ void Muon::MuonTrackSummaryHelperTool::updateHoleContent( Trk::MuonTrackSummary:
   if( nMisPhi > 0 && nholes > 0 ){
     chamberHitSummary.second.nholes = nholes;
     if( nholes != nMisPhi ) {
-      ATH_MSG_WARNING("Inconsistent hole count ");
+      ATH_MSG_WARNING("Inconsistent hole count: expected hits eta " << neta << " phi " << nphi 
+                      << " hits eta " << chamberHitSummary.etaProjection().nhits + chamberHitSummary.etaProjection().noutliers 
+                      << " phi " << chamberHitSummary.phiProjection().nhits + chamberHitSummary.phiProjection().noutliers 
+                      << " missed eta " << nMisEta 
+                      << " phi " << nMisPhi
+                      << " holes eta " << chamberHitSummary.etaProjection().nholes 
+                      << " phi " << chamberHitSummary.phiProjection().nholes 
+                      << " recalculated phi holes " << nholes );
     }
   }
 }
