@@ -5,7 +5,6 @@
 #include "InDetRecToolInterfaces/ISiZvertexMaker.h" 
 #include "InDetRecToolInterfaces/ISiTrackMaker.h" 
 #include "IRegionSelector/IRegSelSvc.h"
-#include "TrigInDetTrackUtils/TrigToTrkTrackTool.h"
 
 using namespace InDet;
 

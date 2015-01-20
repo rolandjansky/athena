@@ -35,7 +35,6 @@
 //forward declarations
 class TrigTimer;
 class IRegSelSvc;
-class TrigToTrkTrackTool;
 
 namespace InDet {
   class ISiSpacePointsSeedMaker;
@@ -112,7 +111,6 @@ namespace InDet {
     ToolHandle< ISiSpacePointsSeedMaker > m_seedsmaker;   // Space poins seed     maker
     ToolHandle< ISiZvertexMaker         > m_zvertexmaker; // Space poins z-vertex maker
     ToolHandle< ISiTrackMaker           > m_trackmaker;   // Track                maker
-    ToolHandle< TrigToTrkTrackTool >      m_trkcnv;       // for TrigInDetTrack TrkTrack conversion
     
     //!< Trigger part
     ServiceHandle<IRegSelSvc>     m_regionSelector;      //!< region selector service
