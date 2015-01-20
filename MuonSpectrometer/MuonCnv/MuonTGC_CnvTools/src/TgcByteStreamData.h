@@ -144,6 +144,23 @@ struct TGC_BYTESTREAM_HIPT
   TGC_BYTESTREAM_HIPT() { memset(this, 0, sizeof(*this)); }
 };
 
+/** The struct for TileCal in ByteStream. */
+struct TGC_BYTESTREAM_HIPT_TILE
+{
+  signed   tile:     8;
+  unsigned fill1:    1;
+  unsigned hipt:     1;
+  unsigned cand:     1;
+  unsigned chip:     2;
+  unsigned sector:   3;
+  unsigned fwd:      1;
+  unsigned strip:    1;
+  unsigned bcBitmap: 3;
+  unsigned fill2:   11;
+
+  TGC_BYTESTREAM_HIPT_TILE() { memset(this, 0, sizeof(*this)); }
+};
+
 /** The struct for SL in ByteStream. */
 struct TGC_BYTESTREAM_SL
 {
@@ -158,7 +175,8 @@ struct TGC_BYTESTREAM_SL
   unsigned fwd:       1;
   unsigned bcBitmap:  3;
   unsigned cand2plus: 1;
-  unsigned fill2:     6;
+  unsigned veto:      1;
+  unsigned fill2:     5;
 
   TGC_BYTESTREAM_SL() { memset(this, 0, sizeof(*this)); }
 };
