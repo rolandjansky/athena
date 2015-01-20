@@ -14,19 +14,18 @@ Purpose : build the Electron Tag objects - ElectronTagCollection.h.
 	  The Electron Tag fragment is built here
 *****************************************************************************/
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "TagEvent/TagFragmentCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 
 #include <map>
 
-class StoreGateSvc;
 class ElectronTagCollection;
 
 /** Interface ID for ElectronTagTool*/  
 static const InterfaceID IID_ElectronTagTool("ElectronTagTool", 1, 0);
 
-class ElectronTagTool : public AlgTool {
+class ElectronTagTool : public AthAlgTool {
 
 public:
   
@@ -62,10 +61,6 @@ private:
   std::vector<std::string> m_tightStr;
   std::vector<std::string> m_fwdStr;
   std::vector<std::string> m_isoStr;
-
-  /** Event Store */
-  StoreGateSvc* m_storeGate;
-
  };
 
 #endif // ELECTRONTAGTOOL_H

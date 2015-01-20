@@ -46,10 +46,18 @@ public:
   virtual StatusCode initialize();
   virtual StatusCode attributeSpecification(std::map<std::string,AthenaAttributeType>& attrMap, const int& max);
   virtual StatusCode execute(TagFragmentCollection& egammaTagCol, const int& max);
-  virtual bool ZeeSelection();
-  virtual bool WenuSelection();
-  virtual void dumpEventDetails(const xAOD::Electron*);
   virtual StatusCode finalize();
+
+
+private:
+  bool ZeeSelection (const xAOD::ElectronContainer* eleColl,
+                     const DataHandle<EventInfo>& eventInfo);
+  bool WenuSelection (const xAOD::ElectronContainer* eleColl,
+                      const xAOD::MissingETContainer* metTopo,
+                      const DataHandle<EventInfo>& eventInfo);
+  void dumpEventDetails(const xAOD::Electron*,
+                        const DataHandle<EventInfo>& eventInfo);
+
 
 protected:
 
@@ -57,15 +65,11 @@ protected:
    virtual ~EgammaTagTool( );
 
 private:
-  const DataHandle<EventInfo> eventInfo;
   /** Properties */
   std::string m_electronContainer;
   std::string m_photonContainer;
   std::string m_missingEtObject;
   std::string m_missingEtTerm;
-
-  const xAOD::ElectronContainer  * eleColl; //old electron container
-  const xAOD::MissingETContainer * metTopo;
 
   double m_electronPtCut;
   double m_photonPtCut;
@@ -79,10 +83,6 @@ private:
   double m_welectronPtCut; 
   
   double m_invMass;
-  /** Event Store */
-  StoreGateSvc* m_storeGate;
-  StatusCode sc;
-
  };
 
 #endif // ELECTRONTAGTOOL_H

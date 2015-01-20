@@ -11,7 +11,6 @@ Purpose : create a collection of ElectronTag
 
 *****************************************************************************/
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 
 #include "StoreGate/StoreGateSvc.h"
@@ -33,7 +32,7 @@ Purpose : create a collection of ElectronTag
 /** the constructor */
 ElectronTagTool::ElectronTagTool (const std::string& type, const std::string& name, 
     const IInterface* parent) : 
-    AlgTool( type, name, parent ) {
+  AthAlgTool( type, name, parent ) {
 
   /** Electron AOD Container Name */
   declareProperty("Container",     m_containerNames);
@@ -52,16 +51,7 @@ ElectronTagTool::ElectronTagTool (const std::string& type, const std::string& na
 
 /** initialization - called once at the begginning */
 StatusCode  ElectronTagTool::initialize() {
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in intialize()" << endreq;
-
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) {
-    mLog << MSG::ERROR << "Unable to retrieve pointer to StoreGateSvc"
-         << endreq;
-    return sc;
-  }
-
+  ATH_MSG_DEBUG( "in intialize()" );
   return StatusCode::SUCCESS;
 }
 
@@ -69,8 +59,7 @@ StatusCode  ElectronTagTool::initialize() {
 StatusCode ElectronTagTool::attributeSpecification(std::map<std::string,AthenaAttributeType>& attrMap,
                                                const int& max) {
 
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in attributeSpecification()" << endreq;
+  ATH_MSG_DEBUG( "in attributeSpecification()" );
 
   /** Electron Attributes */
   attrMap[ ElectronAttributeNames[ElectronID::NElectron] ]  = AthenaAttributeType("unsigned int",ElectronAttributeUnitNames[ElectronID::NElectron], ElectronAttributeGroupNames[ElectronID::NElectron]) ;
@@ -124,8 +113,7 @@ StatusCode ElectronTagTool::attributeSpecification(std::map<std::string,AthenaAt
 /** execute - called on every event */
 StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& max) {
 
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in execute()" << endreq;
+  ATH_MSG_DEBUG( "in execute()" );
  
   std::vector<const xAOD::Electron*> unique_electrons;
 
@@ -133,12 +121,12 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
     
     /** retrieve the xAOD electron container */
     const xAOD::ElectronContainer *electronContainer=0;
-    StatusCode sc = m_storeGate->retrieve( electronContainer, m_containerNames[cont]);
+    StatusCode sc = evtStore()->retrieve( electronContainer, m_containerNames[cont]);
     if (sc.isFailure()) {
-      mLog << MSG::WARNING << "No AOD Electron container found in SG" << endreq;
+      ATH_MSG_WARNING( "No AOD Electron container found in SG" );
       return StatusCode::SUCCESS;
     }
-    mLog << MSG::INFO << "AOD Electron container successfully retrieved = " << m_containerNames[cont] << endreq;
+    ATH_MSG_INFO( "AOD Electron container successfully retrieved = " << m_containerNames[cont] );
     
     xAOD::ElectronContainer userContainer( SG::VIEW_ELEMENTS );
     userContainer = *electronContainer;
@@ -154,13 +142,13 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
     
     for (; elecItr != elecItrE; ++elecItr) { 
       
-      mLog<< MSG::INFO<< "Electron " << k << ", pt = " << (*elecItr)->pt() << endreq;
+      ATH_MSG_INFO( "Electron " << k << ", pt = " << (*elecItr)->pt() );
       k++;  
       
       bool value_loose=0;
       
       if(!((*elecItr)->passSelection(value_loose,"Loose"))){
-	mLog << MSG::INFO << "No loose selection exits" << endreq;
+	ATH_MSG_INFO( "No loose selection exits" );
 	// ATH_MSG_ERROR( "No loose selection exits" );
       }
       
@@ -179,7 +167,7 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
   }
   
   if ( unique_electrons.size() > 1) {
-    mLog<< MSG::INFO << "sorting electron file" << endreq;
+    ATH_MSG_INFO( "sorting electron file" );
     AnalysisUtils::Sort::pT( &unique_electrons );
   }      
   
@@ -187,7 +175,7 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
   std::vector<const xAOD::Electron*>::const_iterator EleItr  = unique_electrons.begin();
   for (; EleItr != unique_electrons.end() && i < max; ++EleItr, ++i) {
     
-    mLog<< MSG::INFO<< "Electron " << i << ", pt = " << (*EleItr)->pt() << endreq;
+    ATH_MSG_INFO( "Electron " << i << ", pt = " << (*EleItr)->pt() );
    
     /** pt */
     if ( (*EleItr)->charge() < 0 ) eTagColl.insert( m_ptStr[i], (*EleItr)->pt() * (*EleItr)->charge() );
@@ -205,17 +193,17 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
     bool val_tight=0;
     
     if(!((*EleItr)->passSelection(val_loose,"Loose"))){
-      mLog << MSG::INFO << "No loose selection exits" << endreq;
+      ATH_MSG_INFO( "No loose selection exits" );
       // ATH_MSG_ERROR( "No loose selection exits" );
     }
 
     if(!((*EleItr)->passSelection(val_medium,"Medium"))){
-      mLog << MSG::INFO << "No medium selection exits" << endreq;	   
+      ATH_MSG_INFO( "No medium selection exits" );
       // ATH_MSG_ERROR( "No medium selection exits" );
     }
     
     if(!((*EleItr)->passSelection(val_tight,"Tight"))){
-      mLog << MSG::INFO << "No tight selection exits" << endreq;
+      ATH_MSG_INFO( "No tight selection exits" );
       // ATH_MSG_ERROR( "No tightse lection exits" );
     }
     
@@ -248,7 +236,7 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
     
     // bool iso_20_ptcorr = 
     if(!((*EleItr)->isolationValue(etcone,xAOD::Iso::etcone20))){
-      mLog << MSG::INFO << "No isolation etcone20pt defined" << endreq;	  
+      ATH_MSG_INFO( "No isolation etcone20pt defined" );
     }
     else{
       for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
@@ -264,7 +252,7 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
     }
     //            etcone = shower->parameter(xAOD::EgammaParameters::topoetcone20);
     if(!((*EleItr)->isolationValue(etcone,xAOD::Iso::IsolationType::topoetcone20))){
-      mLog << MSG::INFO << "No isolation topoetcone20 defined" << endreq;	  
+      ATH_MSG_INFO( "No isolation topoetcone20 defined" );
     }
     else{
       for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
@@ -279,7 +267,7 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
 	}
     }
     if(!((*EleItr)->isolationValue(etcone,xAOD::Iso::IsolationType::topoetcone40))){	
-      mLog << MSG::INFO << "No isolation topoetcone40 defined" << endreq;	  
+      ATH_MSG_INFO( "No isolation topoetcone40 defined" );
     }
     else{
       for (unsigned int j=0; j<m_caloisocutvalues.size(); j++)
@@ -296,7 +284,7 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
     /* Track Isolation in bits from 16 to 31 */ 
     float ptcone = 0;
     if(!((*EleItr)->isolationValue(ptcone,xAOD::Iso::IsolationType::ptcone20))){
-      mLog << MSG::INFO << "No isolation ptcone20 defined" << endreq;	  
+      ATH_MSG_INFO( "No isolation ptcone20 defined" );
     }
     else{
       for (unsigned int j=0; j<m_trackisocutvalues.size(); j++)
@@ -323,7 +311,7 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
     /** insert the number of loose electrons */
 // mLog << MSG::INFO << "Number of Loose Electron for Container " << m_containerNames[cont] << " = " << i << endreq;  
 //}
-  mLog << MSG::INFO << "Number of Total Loose Electron " << i << endreq;
+  ATH_MSG_INFO( "Number of Total Loose Electron " << i );
   eTagColl.insert(ElectronAttributeNames[ElectronID::NElectron], i);
   
   return StatusCode::SUCCESS;
@@ -331,8 +319,7 @@ StatusCode ElectronTagTool::execute(TagFragmentCollection& eTagColl, const int& 
 
 /** finialize - called once at the end */
 StatusCode  ElectronTagTool::finalize() {
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in finalize()" << endreq;
+  ATH_MSG_DEBUG( "in finalize()" );
   return StatusCode::SUCCESS;
 }
 

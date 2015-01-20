@@ -50,15 +50,7 @@ EgammaTagTool::EgammaTagTool (const std::string& type, const std::string& name,
 /** initialization - called once at the begginning */
 StatusCode  EgammaTagTool::initialize() 
 {
-
   ATH_MSG_DEBUG("in initialize()");
-
-  sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) {
-     ATH_MSG_ERROR("Unable to retrieve pointer to StoreGateSvc");
-     return sc;
-  }
-
   return StatusCode::SUCCESS;
 }
 
@@ -82,25 +74,14 @@ StatusCode EgammaTagTool::execute(TagFragmentCollection& egammaTagCol, const int
 {
   ATH_MSG_DEBUG("in execute()");
   
-  eleColl = 0;
-  sc=m_storeGate->retrieve( eleColl, m_electronContainer);
-  if( sc.isFailure()  ||  !eleColl ) {
-    ATH_MSG_WARNING("No xAOD electron container found");
-    return sc;
-  } 
+  const xAOD::ElectronContainer* eleColl = nullptr;
+  ATH_CHECK( evtStore()->retrieve( eleColl, m_electronContainer) );
 
-  metTopo = 0;
-  sc = m_storeGate->retrieve(metTopo, m_missingEtObject);
-  if ( sc.isFailure() || !metTopo) {
-    ATH_MSG_WARNING("No Topo MissingET found");
-    return sc;
-  } 
+  const xAOD::MissingETContainer* metTopo = nullptr;
+  ATH_CHECK( evtStore()->retrieve(metTopo, m_missingEtObject) );
 
-  sc = m_storeGate->retrieve(eventInfo);
-  if (sc.isFailure()) {
-      ATH_MSG_ERROR("Cannot get event info.");
-      return StatusCode::SUCCESS;
-  }
+  const DataHandle<EventInfo> eventInfo;
+  ATH_CHECK( evtStore()->retrieve(eventInfo) );
 
   /** Flags for Z and W events */ 
   m_flagZeeEvent = false;
@@ -109,12 +90,12 @@ StatusCode EgammaTagTool::execute(TagFragmentCollection& egammaTagCol, const int
   //===================================================
   // Zee event reconstruction
   //===================================================
-  m_flagZeeEvent = ZeeSelection(); 
+  m_flagZeeEvent = ZeeSelection (eleColl, eventInfo);
 
   //===================================================
   // Wenu event reconstruction
   //===================================================
-  m_flagWenuEvent = WenuSelection(); 
+  m_flagWenuEvent = WenuSelection (eleColl, metTopo, eventInfo);
 
   
   //===================================================
@@ -141,7 +122,9 @@ StatusCode  EgammaTagTool::finalize() {
 EgammaTagTool::~EgammaTagTool() {}
 
 
-bool EgammaTagTool::ZeeSelection() {
+bool EgammaTagTool::ZeeSelection (const xAOD::ElectronContainer* eleColl,
+                                  const DataHandle<EventInfo>& eventInfo)
+{
 
   ATH_MSG_DEBUG("in ZeeSelection()");
 
@@ -193,9 +176,11 @@ bool EgammaTagTool::ZeeSelection() {
 	
 	/** Print the details of Zee Candidate if outputLevel=DEBUG */      
 	if (m_flagZeeEvent) { 
-              ATH_MSG_DEBUG("***** First electron candidate of Zee  *****" ); dumpEventDetails(electrons_positive[i]);
-              ATH_MSG_DEBUG("***** Second electron candidate of Zee  *****" ); dumpEventDetails(electrons_negative[j]);
-           }
+          ATH_MSG_DEBUG("***** First electron candidate of Zee  *****" );
+          dumpEventDetails(electrons_positive[i], eventInfo);
+          ATH_MSG_DEBUG("***** Second electron candidate of Zee  *****" );
+          dumpEventDetails(electrons_negative[j], eventInfo);
+        }
        }
     }
   }
@@ -205,8 +190,10 @@ bool EgammaTagTool::ZeeSelection() {
 }
 
 
-bool EgammaTagTool::WenuSelection() {
-
+bool EgammaTagTool::WenuSelection (const xAOD::ElectronContainer* eleColl,
+                                   const xAOD::MissingETContainer* metTopo,
+                                   const DataHandle<EventInfo>& eventInfo)
+{
   ATH_MSG_DEBUG("in WenuSelection()");
   
   if  ((*metTopo)[m_missingEtTerm]->met() < m_missingEtCut ) {
@@ -228,7 +215,8 @@ bool EgammaTagTool::WenuSelection() {
     if (select) m_flagWenuEvent = true;
 
     if (m_flagWenuEvent) {
-       ATH_MSG_DEBUG("***** Electron Candidate in Wenu *****" ); dumpEventDetails(*eleItr);
+       ATH_MSG_DEBUG("***** Electron Candidate in Wenu *****" );
+       dumpEventDetails(*eleItr, eventInfo);
     } 
   }
 
@@ -236,7 +224,9 @@ bool EgammaTagTool::WenuSelection() {
 
 }
 
-void EgammaTagTool::dumpEventDetails(const xAOD::Electron* eleItr) {
+void EgammaTagTool::dumpEventDetails(const xAOD::Electron* eleItr,
+                                     const DataHandle<EventInfo>& eventInfo)
+{
 
   ATH_MSG_DEBUG("Event info : "
              << " runNumber = " << eventInfo->event_ID()->run_number() 
