@@ -14,11 +14,14 @@
 
 #include "PathResolver/PathResolver.h"
 
+namespace{
+const float GeV(1000);
+}
+
 namespace CP { 
 
   IsolationCorrection::IsolationCorrection()
-    : GeV(1000),
-      m_tool_ver(REL18), 
+    : m_tool_ver(REL18), 
       m_nBinsEtaFine(10), 
       m_nBinsEtaCoarse(5), 
       m_corr_file(""),
