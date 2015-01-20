@@ -87,4 +87,13 @@ static FADS::PhysicsListEntryT<Shielding> physlist_Shielding("Shielding");
 
 #include "FadsPhysics/FactoryMadeList.h"
 static FADS::FactoryMadeList physlist_FTFP_BERT_EMY("FTFP_BERT_EMY");
+static FADS::FactoryMadeList physlist_FTFP_BERT_EMZ("FTFP_BERT_EMZ");
+
+// Physics lists for hadronic variations - requires geant4.9.6.patch03.atlas06
+static FADS::FactoryMadeList physlist_FTFP_BERT_BIC("FTFP_BERT_BIC");
+static FADS::FactoryMadeList physlist_FTFP_BERT_rescattering("FTFP_BERT_rescattering");
+static FADS::FactoryMadeList physlist_FTFP_BERT_chipsXS("FTFP_BERT_chipsXS");
+static FADS::FactoryMadeList physlist_FTFP_BERT_lowEneutrons("FTFP_BERT_lowEneutrons");
+static FADS::FactoryMadeList physlist_FTFP_BERT_noDiffraction("FTFP_BERT_noDiffraction");
+static FADS::FactoryMadeList physlist_FTFP_BERT_newElastic("FTFP_BERT_newElastic");
 
