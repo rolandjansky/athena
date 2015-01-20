@@ -14,18 +14,16 @@ Purpose : build the TauJet Tag objects - TauJetTagCollection.h.
 	  The TauJet Tag fragment is built here
 *****************************************************************************/
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "TagEvent/TagFragmentCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 
 #include <map>
 
-class StoreGateSvc;
-
 /** Interface ID for TauJetTagTool*/  
 static const InterfaceID IID_TauJetTagTool("TauJetTagTool", 1, 0);
 
-class TauJetTagTool : public AlgTool {
+class TauJetTagTool : public AthAlgTool {
 
 public:
   
@@ -60,10 +58,6 @@ private:
   std::vector<std::string> m_phiStr; 
   std::vector<std::string> m_ntrkStr; 
   std::vector<std::string> m_pidStr; 
-
-  /** Event Store */
-  StoreGateSvc* m_storeGate;
-
  };
 
 #endif // TAUJETTAGTOOL_H

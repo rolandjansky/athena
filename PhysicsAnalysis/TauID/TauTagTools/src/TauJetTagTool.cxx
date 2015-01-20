@@ -11,16 +11,11 @@ Purpose : create a collection of TauJetTag
 
 *****************************************************************************/
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 
 #include "StoreGate/StoreGateSvc.h"
 
-//#include "tauEvent/TauJetContainer.h"
 #include "xAODTau/TauJetContainer.h"
-
-#include "tauEvent/TauCommonDetails.h"
-#include "tauEvent/TauJetParameters.h"
 
 #include "TauTagTools/TauJetTagTool.h"
 #include "TagEvent/TauJetAttributeNames.h"
@@ -34,7 +29,7 @@ Purpose : create a collection of TauJetTag
 /** the constructor */
 TauJetTagTool::TauJetTagTool (const std::string& type, const std::string& name, 
     const IInterface* parent) : 
-    AlgTool( type, name, parent ) {
+  AthAlgTool( type, name, parent ) {
 
   /** TauJet AOD Container Name */
   declareProperty("Container",     m_containerName = "TauJetCollection");
@@ -48,24 +43,13 @@ TauJetTagTool::TauJetTagTool (const std::string& type, const std::string& name,
 
 /** initialization - called once at the begginning */
 StatusCode  TauJetTagTool::initialize() {
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in intialize()" << endreq;
-  
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) {
-    mLog << MSG::ERROR << "Unable to retrieve pointer to StoreGateSvc"
-         << endreq;
-    return sc;
-  }
-  
-
+  ATH_MSG_DEBUG( "in intialize()" );
   return StatusCode::SUCCESS;
 }
 
 /** finalize - called once at the end */
 StatusCode TauJetTagTool::finalize() {
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in finalize()" << endreq;
+  ATH_MSG_DEBUG( "in finalize()" );
   return StatusCode::SUCCESS;
 }
 
@@ -73,8 +57,7 @@ StatusCode TauJetTagTool::finalize() {
 StatusCode TauJetTagTool::attributeSpecification(std::map<std::string,AthenaAttributeType>& attrMap,
                                                  const int max) {
 
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in attributeSpecification()" << endreq;
+  ATH_MSG_DEBUG( "in attributeSpecification()" );
 
   
   /** specifiy the TauJet the attributes */
@@ -121,18 +104,17 @@ StatusCode TauJetTagTool::attributeSpecification(std::map<std::string,AthenaAttr
 /** execute - called on every event */
 StatusCode TauJetTagTool::execute(TagFragmentCollection& tauJetTagColl, const int max) {
 
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in execute()" << endreq;
+  ATH_MSG_DEBUG( "in execute()" );
 
  
   /** retrieve the AOD tauJet container */
   const xAOD::TauJetContainer *tauJetContainer;
-  StatusCode sc = m_storeGate->retrieve( tauJetContainer, m_containerName);
+  StatusCode sc = evtStore()->retrieve( tauJetContainer, m_containerName);
   if (sc.isFailure()) {
-    mLog << MSG::WARNING << "No AOD TauJet container found in SG" << endreq;
+    ATH_MSG_WARNING( "No AOD TauJet container found in SG" );
     return StatusCode::SUCCESS;
   }
-  mLog << MSG::DEBUG << "AOD TauJet container successfully retrieved" << endreq;
+  ATH_MSG_DEBUG( "AOD TauJet container successfully retrieved" );
 
   xAOD::TauJetContainer userContainer(  SG::VIEW_ELEMENTS );
 				      //tauJetContainer->begin(),tauJetContainer->end(),
@@ -154,7 +136,7 @@ StatusCode TauJetTagTool::execute(TagFragmentCollection& tauJetTagColl, const in
  
     //    if ( !theDetails ) continue; 
     
-    mLog << MSG::INFO << "Before the tau selection" << endreq;
+    ATH_MSG_INFO( "Before the tau selection" );
 
     bool select =  ( (*tauJetItr)->pt() > m_tauJetPtCut ) && 
       //      ( (*tauJetItr)->numTrack()==1 ||  (*tauJetItr)->numTrack()==3 ) &&
@@ -167,7 +149,7 @@ StatusCode TauJetTagTool::execute(TagFragmentCollection& tauJetTagColl, const in
   
        if ( i<max ) {
 	 
-	 mLog << MSG::INFO << "While doing the tau selection" << endreq;
+	 ATH_MSG_INFO( "While doing the tau selection" );
     
           /** pt */
           tauJetTagColl.insert( m_ptStr[i], (*tauJetItr)->pt() * (*tauJetItr)->charge() );

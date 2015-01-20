@@ -3,19 +3,17 @@ package TauTagTools
 author Ketevi A. Assamagan <ketevi@bnl.gov>
 
 use AtlasPolicy         AtlasPolicy-*
-use AthenaPoolUtilities  AthenaPoolUtilities-*       Database/AthenaPOOL
 use GaudiInterface      GaudiInterface-*       External
-
-
-use TagEvent		TagEvent-*		  PhysicsAnalysis/EventTag
+use AthenaBaseComps     AthenaBaseComps-*      Control
+use AthenaPoolUtilities AthenaPoolUtilities-*  Database/AthenaPOOL
+use TagEvent		TagEvent-*	       PhysicsAnalysis/EventTag
 
 
 private
-use AnalysisUtils		AnalysisUtils-*			PhysicsAnalysis/AnalysisCommon
+use AtlasCLHEP          AtlasCLHEP-*           External
+use AnalysisUtils       AnalysisUtils-*	       PhysicsAnalysis/AnalysisCommon
 use StoreGate           StoreGate-*            Control
-use xAODTau		xAODTau-*		  Event/xAOD
-
-use tauEvent		tauEvent-*		  Reconstruction
+use xAODTau		xAODTau-*	       Event/xAOD
 
 public
 
