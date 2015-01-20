@@ -33,6 +33,7 @@ namespace InDet {
     SiSpacePointsProSeed(SiSpacePointForSeed*&,SiSpacePointForSeed*&,SiSpacePointForSeed*&,float);
     SiSpacePointsProSeed(const SiSpacePointsProSeed&);
     virtual ~SiSpacePointsProSeed();
+    SiSpacePointsProSeed& operator  = (const SiSpacePointsProSeed&);
 
     SiSpacePointForSeed* spacepoint0() {return m_s0;}
     SiSpacePointForSeed* spacepoint1() {return m_s1;}
@@ -67,6 +68,20 @@ namespace InDet {
       m_z  = 0.;
       m_q  = 0.;
     }
+
+  inline SiSpacePointsProSeed& SiSpacePointsProSeed::operator = 
+    (const SiSpacePointsProSeed& sp) 
+    {
+      if(&sp!=this) {
+
+	m_z   = sp.m_z ;
+	m_q   = sp.m_q ;
+	m_s0  = sp.m_s0;
+	m_s1  = sp.m_s1;
+	m_s2  = sp.m_s2;
+      }
+      return(*this);
+    }
  
   inline SiSpacePointsProSeed::SiSpacePointsProSeed
     (SiSpacePointForSeed*& s0,SiSpacePointForSeed*& s1,SiSpacePointForSeed*& s2,float z)
@@ -80,11 +95,7 @@ namespace InDet {
 
   inline SiSpacePointsProSeed::SiSpacePointsProSeed (const SiSpacePointsProSeed& sp)
     {
-      m_z   = sp.m_z ;
-      m_q   = sp.m_q ;
-      m_s0  = sp.m_s0;
-      m_s1  = sp.m_s1;
-      m_s2  = sp.m_s2;
+      *this = sp;
     }
 
   /////////////////////////////////////////////////////////////////////////////////

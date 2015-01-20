@@ -34,6 +34,8 @@ namespace InDet {
     SiSpacePointForSeed(Trk::SpacePoint*const&,const float*,const float*);
     SiSpacePointForSeed(const SiSpacePointForSeed&);
     virtual ~SiSpacePointForSeed()                 ;
+    SiSpacePointForSeed& operator  = (const SiSpacePointForSeed&);
+
     void set(Trk::SpacePoint*const&,const float*)  ;
     void set(Trk::SpacePoint*const&,const float*,const float*);
     void setQuality(float);
@@ -85,6 +87,24 @@ namespace InDet {
       m_su    = 0 ;
       m_sn    = 0 ;
    }
+
+  inline SiSpacePointForSeed& SiSpacePointForSeed::operator = 
+    (const SiSpacePointForSeed& sp) 
+    {
+      if(&sp!=this) {
+	spacepoint  = sp.spacepoint;
+	m_x         = sp.m_x       ;
+	m_y         = sp.m_y       ;
+	m_z         = sp.m_z       ;
+	m_r         = sp.m_r       ;
+	m_covr      = sp.m_covr    ;
+	m_covz      = sp.m_covz    ;
+	m_q         = sp.m_q       ;
+	m_su        = sp.m_su      ;
+	m_sn        = sp.m_sn      ;        
+      }
+      return(*this);
+    }
  
   inline SiSpacePointForSeed::SiSpacePointForSeed
     (Trk::SpacePoint*const& sp,const float* r) 
@@ -104,16 +124,7 @@ namespace InDet {
 
   inline SiSpacePointForSeed::SiSpacePointForSeed (const SiSpacePointForSeed& sp)
     {
-      spacepoint  = sp.spacepoint;
-      m_x         = sp.m_x       ;
-      m_y         = sp.m_y       ;
-      m_z         = sp.m_z       ;
-      m_r         = sp.m_r       ;
-      m_covr      = sp.m_covr    ;
-      m_covz      = sp.m_covz    ;
-      m_q         = sp.m_q       ;
-      m_su        = sp.m_su      ;
-      m_sn        = sp.m_sn      ;        
+      *this = sp;
     }
 
   /////////////////////////////////////////////////////////////////////////////////
