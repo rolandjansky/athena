@@ -47,8 +47,6 @@ class IsolationCorrection{
 	
     std::vector<float> m_eta_bins_fine;
     std::vector<float> m_eta_bins_coarse;
-    
-    const float GeV;
     const unsigned int m_nBinsEtaFine;
     const unsigned int m_nBinsEtaCoarse;
     std::string m_corr_file;
