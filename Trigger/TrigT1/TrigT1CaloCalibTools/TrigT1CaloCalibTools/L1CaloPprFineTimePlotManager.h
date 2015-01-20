@@ -28,6 +28,9 @@
 
 #include "TrigT1CaloCalibTools/L1CaloPprPlotManager.h"
 
+#include "xAODTrigL1Calo/xAODTrigL1Calo/TriggerTower.h"
+#include "xAODTrigL1Calo/xAODTrigL1Calo/TriggerTowerContainer.h"
+
 
 class ITHistSvc;
 class ManagedMonitorToolBase;
@@ -60,15 +63,17 @@ class L1CaloPprFineTimePlotManager : public L1CaloPprPlotManager
 	inline void SetPpmAdcMaxValue(unsigned int ppmAdcMaxValue) {m_ppmAdcMaxValue = ppmAdcMaxValue;}
 	//	StatusCode MakeSummary();
 	// method for setting the em and had reference values
+	inline void SetReferenceValue(double refValue){m_RefValue = refValue;};
 	inline void SetEmReferenceValue(double refValue){m_emRefValue = refValue;};
 	inline void SetHadReferenceValue(double refValue){m_hadRefValue = refValue;};
 	// method for setting the calibration factor
-	inline void SetEmCalibrationFactor(double calFactor){m_emCalFactor = calFactor;};
+	inline void SetCalibrationFactor(double calFactor){m_CalFactor = calFactor;};
 	inline void SetHadCalibrationFactor(double calFactor){m_hadCalFactor = calFactor;};
+	inline void SetEmCalibrationFactor(double calFactor){m_emCalFactor = calFactor;};
 	
 	// load calo cells
 	StatusCode getCaloCells();
-	float LArQuality(const LVL1::TriggerTower* trigTower, int layer);
+	float LArQuality(const xAOD::TriggerTower* trigTower, int layer);
 	bool  badLArQuality(float qual);
 	bool  badHecQuality(float qual);
 	
@@ -81,7 +86,7 @@ class L1CaloPprFineTimePlotManager : public L1CaloPprPlotManager
 	ToolHandle<LVL1::IL1CaloMonitoringCaloTool> m_caloTool;
 	
 	// Providing fine time for histograms
-	double getMonitoringValue(const LVL1::TriggerTower* trigTower, CalLayerEnum theLayer);
+	double getMonitoringValue(const xAOD::TriggerTower* trigTower, CalLayerEnum theLayer);
 	
 	// decide whether the given value that is supposed to be monitored
 	// is acctually plotted
@@ -90,9 +95,13 @@ class L1CaloPprFineTimePlotManager : public L1CaloPprPlotManager
 	double m_fineTimeCut;  // plot fine time only for smaller absolut value
 	int m_ppmAdcMaxValue;  // ADC saturation cut
 
-	double m_emRefValue, m_hadRefValue; // reference value per TT (read from db by the L1CaloPPrMonitoring)
+	double m_RefValue;//, m_hadRefValue; // reference value per TT (read from db by the L1CaloPPrMonitoring)
+	double m_emRefValue;
+	double m_hadRefValue;
 	
-	double m_emCalFactor, m_hadCalFactor;  // calibration factor per TT (read from db by the L1CaloPPrMonitoring)
+	double m_CalFactor;//, m_hadCalFactor;  // calibration factor per TT (read from db by the L1CaloPPrMonitoring)
+	double m_emCalFactor;
+	double m_hadCalFactor;
 	
 	void loadTools();
 	

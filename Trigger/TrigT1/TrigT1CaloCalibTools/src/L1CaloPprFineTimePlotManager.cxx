@@ -36,10 +36,8 @@ L1CaloPprFineTimePlotManager::L1CaloPprFineTimePlotManager(ITHistSvc* histoSvc,
       m_caloTool("LVL1::L1CaloMonitoringCaloTool/L1CaloMonitoringCaloTool"),
       m_fineTimeCut(0),
       m_ppmAdcMaxValue(1023),     
-      m_emRefValue(0),
-      m_hadRefValue(0),
-      m_emCalFactor(0),
-      m_hadCalFactor(0),
+      m_RefValue(0),
+      m_CalFactor(0),
       m_doCaloQualCut(true)
 {
     this->loadTools();
@@ -65,10 +63,8 @@ L1CaloPprFineTimePlotManager::L1CaloPprFineTimePlotManager(ManagedMonitorToolBas
       m_caloTool("LVL1::L1CaloMonitoringCaloTool/L1CaloMonitoringCaloTool"),
       m_fineTimeCut(0),
       m_ppmAdcMaxValue(1023),     
-      m_emRefValue(0),
-      m_hadRefValue(0),
-      m_emCalFactor(0),
-      m_hadCalFactor(0),
+      m_RefValue(0),
+      m_CalFactor(0),
       m_doCaloQualCut(true)
 {
     this->loadTools();
@@ -93,7 +89,7 @@ StatusCode L1CaloPprFineTimePlotManager::getCaloCells()
 // --------------------------------------------------------------------------
 
 
-float L1CaloPprFineTimePlotManager::LArQuality(const LVL1::TriggerTower* trigTower, int layer){//layer: 0 is for the EMLayer, 1 is for HAD
+float L1CaloPprFineTimePlotManager::LArQuality(const xAOD::TriggerTower* trigTower, int layer){//layer: 0 is for the EMLayer, 1 is for HAD
   
     Identifier id(0);
 
@@ -131,32 +127,32 @@ bool  L1CaloPprFineTimePlotManager::badHecQuality(float qual){
 }
 // --------------------------------------------------------------------------
 
-double L1CaloPprFineTimePlotManager::getMonitoringValue(const LVL1::TriggerTower* trigTower, CalLayerEnum theLayer)
+double L1CaloPprFineTimePlotManager::getMonitoringValue(const xAOD::TriggerTower* trigTower, CalLayerEnum theLayer)
 {
     double fineTime = -1000.; // default value not supposed to be filled in histograms
-
+    
     // Use reference rather than copying ADC vector
-    const std::vector<int>& ADCslices((theLayer == Emlayer) ? trigTower->emADC() : trigTower->hadADC());
-    unsigned int ADCPeakIndex = (theLayer == Emlayer) ? trigTower->emADCPeak() : trigTower->hadADCPeak();
+    const std::vector<short unsigned int>& ADCslices = trigTower->adc();
+    unsigned int ADCPeakIndex = trigTower->adcPeak();
     if (ADCslices[ADCPeakIndex] <= m_ppmAdcMinValue) return fineTime;
-
+    
     bool isSaturatedTT = true;
     bool badCaloQuality = false;
     double refValue = 0;
-    double calFactor = 0;
+    double calFactor = 0;    
 
     if ( theLayer == Emlayer )
     {
-	refValue = m_emRefValue;
-	calFactor = m_emCalFactor;
-	isSaturatedTT = trigTower->isEMSaturated();
+	refValue = m_RefValue;
+	calFactor = m_CalFactor;
+	isSaturatedTT = trigTower->isCpSaturated();
 	if(m_doCaloQualCut) badCaloQuality = this->badLArQuality(this->LArQuality(trigTower,0)); 
     }
     else //had Layer
     {
-	refValue = m_hadRefValue;
-	calFactor = m_hadCalFactor;
-	isSaturatedTT = trigTower->isHadSaturated();
+	refValue = m_RefValue;
+	calFactor = m_CalFactor;
+	isSaturatedTT = trigTower->isCpSaturated();
 	if(m_doCaloQualCut){
 	  if(fabs(trigTower->eta()) >= 3.2){
 	    badCaloQuality = this->badLArQuality(this->LArQuality(trigTower,1)); 
@@ -167,7 +163,6 @@ double L1CaloPprFineTimePlotManager::getMonitoringValue(const LVL1::TriggerTower
 	  }
 	}
     }
-    
     //Cut on saturated Towers
     if(isSaturatedTT) return fineTime;
     

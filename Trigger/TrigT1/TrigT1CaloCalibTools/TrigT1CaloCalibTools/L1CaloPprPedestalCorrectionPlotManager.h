@@ -3,17 +3,17 @@
 */
 
 //*************************************************************
-// Name: L1CaloPprPedestalPlotManager.h
+// Name: L1CaloPprPedestalCorrectionPlotManager.h
 //
 // Author: Patrick Rieck - rieck@physik.hu-berlin.de
 //
-// Special plotter for pedestal monitoring
+// Special plotter for pedestal correction monitoring
 // 
 // This class is derived from L1CaloPprPlotManager and implements
-// the monitoring of non-signal trigger tower behaviour (pedestals).
+// the monitoring of the pedestal correction.
 
-#ifndef TRIGT1CALOCALIBTOOLS_L1CALOPPRPEDESTALPLOTMANAGER
-#define TRIGT1CALOCALIBTOOLS_L1CALOPPRPEDESTALPLOTMANAGER
+#ifndef TRIGT1CALOCALIBTOOLS_L1CALOPPRPEDESTALCORRECTIONPLOTMANAGER
+#define TRIGT1CALOCALIBTOOLS_L1CALOPPRPEDESTALCORRECTIONPLOTMANAGER
 
 #include <string>
 
@@ -30,33 +30,35 @@ class ITHistSvc;
 class ManagedMonitorToolBase;
 class L1CaloPprConditionsContainer;
 
+class TrigT1CaloLWHistogramTool;
+
 namespace LVL1 {
     class IL1CaloOfflineTriggerTowerTools;
     class IL1TriggerTowerTool;
     class TriggerTower;
 }
 
-class L1CaloPprPedestalPlotManager : public L1CaloPprPlotManager
+class L1CaloPprPedestalCorrectionPlotManager : public L1CaloPprPlotManager
 {
     public:
         // constructor for handling offline monitoring
-        L1CaloPprPedestalPlotManager(ITHistSvc* histoSvc, 
+        L1CaloPprPedestalCorrectionPlotManager(ITHistSvc* histoSvc, 
 				     ToolHandle<LVL1::IL1CaloOfflineTriggerTowerTools>&offlineTT_tool,
 				     const unsigned int lumimax,
 				     const std::string& pathInRootFile);
         // constructor for online monitoring
-	L1CaloPprPedestalPlotManager(ManagedMonitorToolBase* aMonObj,
+	L1CaloPprPedestalCorrectionPlotManager(ManagedMonitorToolBase* aMonObj,
 				     ToolHandle<LVL1::IL1TriggerTowerTool>&onlineTT_tool,
 				     const unsigned int lumimax,
 				     const std::string& pathInRootFile);
-	inline ~L1CaloPprPedestalPlotManager() {};
-	inline void SetPedestalMaxWidth(double &width) { m_pedestalMaxWidth = width; };
-	
+	inline ~L1CaloPprPedestalCorrectionPlotManager() {};
+// 	inline void SetPedestalMaxWidth(double &width) { m_pedestalMaxWidth = width; };
+
     private:
 		
 	// Providing pedestal for histograms
-	double getMonitoringValue(const xAOD::TriggerTower* trigTower, CalLayerEnum theLayer);	
-	// decide whether the pedestal
+	double getMonitoringValue(const xAOD::TriggerTower* trigTower, CalLayerEnum theLayer);
+	// decide whether the pedestal correction
 	// is actually plotted
 	bool doMonitoring(double &value);
 	
@@ -64,13 +66,7 @@ class L1CaloPprPedestalPlotManager : public L1CaloPprPlotManager
 	void fillGlobalOnlineHistos(const xAOD::TriggerTower* trigTower, CalLayerEnum layer, double &value);
 	
 	ServiceHandle<L1CaloCondSvc> m_l1CondSvc;
-	L1CaloPprConditionsContainer* m_conditionsContainer;
-	
-	void loadConditionsContainer();
 
-	double m_pedestalMaxWidth; // plotting pedestal only if for every slice
-	                           // the deviation from the mean pedestal
-	                           // value is less
         bool m_firstCall;
 
 };
