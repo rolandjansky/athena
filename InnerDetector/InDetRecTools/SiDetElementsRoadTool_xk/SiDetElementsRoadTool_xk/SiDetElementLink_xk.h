@@ -28,6 +28,7 @@ namespace InDet{
       
     public:
       
+      SiDetElementLink_xk();
       SiDetElementLink_xk(InDetDD::SiDetectorElement*&,const double*);
       SiDetElementLink_xk(const SiDetElementLink_xk&);
       ~SiDetElementLink_xk();
@@ -69,6 +70,14 @@ namespace InDet{
   /////////////////////////////////////////////////////////////////////////////////
   // Inline methods
   /////////////////////////////////////////////////////////////////////////////////
+
+  inline SiDetElementLink_xk::SiDetElementLink_xk()
+    {
+      m_detelement = 0    ;
+      m_phi        = 0.   ;
+      m_way        = 0.   ;
+      m_used       = false;
+    }
 
   inline SiDetElementLink_xk::SiDetElementLink_xk(const SiDetElementLink_xk& L)
     {
