@@ -168,14 +168,24 @@ dEdxID::dEdxID(const dEdxID& dedx){
       m_par[i][j] = dedx.m_par[i][j];
   }
   m_mydEdx = dedx.m_mydEdx;
+  m_posneg=dedx.m_posneg;
+  m_pi=dedx.m_pi;
+  m_k=dedx.m_k;
+  m_p=dedx.m_p;
 }
 
 dEdxID& dEdxID::operator=(const dEdxID& dedx){
-  for (int i=0;i<2*NCLASS;i++){
-    for (int j=0;j<NPAR;j++)
-      m_par[i][j] = dedx.m_par[i][j];
+  if (this!=&dedx){
+    for (int i=0;i<2*NCLASS;i++){
+      for (int j=0;j<NPAR;j++)
+        m_par[i][j] = dedx.m_par[i][j];
+    }
+    m_mydEdx = dedx.m_mydEdx;
+    m_posneg=dedx.m_posneg;
+    m_pi=dedx.m_pi;
+    m_k=dedx.m_k;
+    m_p=dedx.m_p;
   }
-  m_mydEdx = dedx.m_mydEdx;
   return *this;
 }
 
