@@ -28,6 +28,7 @@ namespace InDet {
       
     public:
       
+      TRT_DetElementLink_xk();
       TRT_DetElementLink_xk(const InDetDD::TRT_BaseElement*&,const double*);
       TRT_DetElementLink_xk(const TRT_DetElementLink_xk&);
       ~TRT_DetElementLink_xk();
@@ -70,6 +71,17 @@ namespace InDet {
   /////////////////////////////////////////////////////////////////////////////////
   // Inline methods
   /////////////////////////////////////////////////////////////////////////////////
+
+  inline TRT_DetElementLink_xk::TRT_DetElementLink_xk()
+    {
+      m_detelement = 0    ;
+      m_phi        = 0.   ;
+      m_sin        = 0.   ;
+      m_cos        = 0.   ;
+      m_centerf    = 0.   ;
+      m_way        = 0.   ;
+      m_used       = false;
+    }
 
   inline TRT_DetElementLink_xk::TRT_DetElementLink_xk(const TRT_DetElementLink_xk& L)
     {
