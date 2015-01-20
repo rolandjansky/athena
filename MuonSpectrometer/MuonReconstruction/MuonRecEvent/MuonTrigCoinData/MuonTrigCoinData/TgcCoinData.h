@@ -70,6 +70,7 @@ namespace Muon
 		 const CoinDataType type,
 		 const bool isAside,
 		 const int phi,
+		 const bool isInner,
 		 const bool isForward,
 		 const bool isStrip,
 		 const int trackletId,
@@ -78,7 +79,8 @@ namespace Muon
 		 const double widthIn,
 		 const double widthOut,
 		 const int delta, 
-		 const int sub);
+		 const int sub,
+                 const int tile);
 
     //for TYPE_TRACKLET_EIFI 
     TgcCoinData( const Identifier& channelIdIn,
@@ -107,6 +109,7 @@ namespace Muon
 		 const Amg::MatrixX *errMat,
 		 const int roi,
 		 const int pt, 
+                 const bool veto,
 		 const bool isPositiveDeltaR);
 
     /// Destructor:
@@ -139,6 +142,9 @@ namespace Muon
 
       /** return phi number of trigger sector */
       int phi() const;
+
+      /** Inner layers or BW */
+      bool isInner() const;
 
       /** Forward region or Endcap region */
       bool isForward() const;
@@ -176,8 +182,14 @@ namespace Muon
       /** return pt threshold value */
       int pt() const;
 
+      /** return veto bit */
+      bool veto() const;
+
       /** return subMatrix of Tracklet or hsub of HiPt */
       int sub() const;
+
+      /** return tile hit bits */
+      int tile() const;
       
       /** return isPositiveDeltaR (isMuplus) of SL */
       bool isPositiveDeltaR() const;
@@ -208,6 +220,7 @@ namespace Muon
       CoinDataType m_type;
       bool m_isAside;
       int m_phi;
+      bool m_isInner;
       bool m_isForward;
       bool m_isStrip;
       int m_trackletId;
@@ -221,8 +234,10 @@ namespace Muon
       int m_delta;
       int m_roi;
       int m_pt;
+      bool m_veto;
 
       int m_sub;
+      int m_tile;
       bool m_isPositiveDeltaR;
 
       mutable const Amg::Vector3D* m_globalposIn;
@@ -265,6 +280,8 @@ namespace Muon
 
   inline int TgcCoinData::phi() const{ return m_phi; }
 
+  inline bool TgcCoinData::isInner() const{ return m_isInner; }
+
   inline bool TgcCoinData::isForward() const{ return m_isForward; }
 
   inline bool TgcCoinData::isStrip() const{ return m_isStrip; }
@@ -289,7 +306,11 @@ namespace Muon
 
   inline int TgcCoinData::pt() const{ return m_pt; }
 
+  inline bool TgcCoinData::veto() const{ return m_veto; }
+
   inline int TgcCoinData::sub() const{ return m_sub; }
+
+  inline int TgcCoinData::tile() const{ return m_tile; }
 
   inline bool TgcCoinData::isPositiveDeltaR() const{ return m_isPositiveDeltaR; }
 
