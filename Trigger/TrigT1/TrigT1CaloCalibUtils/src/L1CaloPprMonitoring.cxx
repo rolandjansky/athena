@@ -9,6 +9,8 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "TH1.h"
 
+#include "TrigT1CaloEvent/TriggerTowerCollection.h"
+
 L1CaloPprMonitoring::L1CaloPprMonitoring(const std::string& name, ISvcLocator* pSvcLocator) : AthAlgorithm(name,pSvcLocator),
     m_eventInfo(0),
     m_dbPpmDeadChannels(0),
@@ -28,18 +30,20 @@ L1CaloPprMonitoring::L1CaloPprMonitoring(const std::string& name, ISvcLocator* p
     m_lumiBlockMax(0),
     m_doFineTimePlots(0),
     m_doPedestalPlots(0),
+    m_doPedestalCorrectionPlots(0),
     m_doEtCorrelationPlots(0),
     m_fineTimeCut(0),
     m_pedestalMaxWidth(0),
     m_caloCellContainerName(""),
     m_EtMinForEtCorrelation(0)									      
 {
-    declareProperty("TriggerTowersLocation",m_triggerTowersLocation="TriggerTowers");
+    declareProperty("TriggerTowersLocation",m_triggerTowersLocation="xAODTriggerTowers");
     declareProperty("ppmADCMinValue",m_PpmAdcMinValue=60);
     declareProperty("ppmADCMaxValue",m_PpmAdcMaxValue=1023); 
     declareProperty("lumiBlockMax",m_lumiBlockMax=2000);
     declareProperty("doFineTimePlots",m_doFineTimePlots=true);
     declareProperty("doPedestalPlots",m_doPedestalPlots=true);
+    declareProperty("doPedestalCorrectionPlots",m_doPedestalCorrectionPlots=true);
     declareProperty("doEtCorrelationPlots",m_doEtCorrelationPlots=true);
     declareProperty("fineTimeCut",m_fineTimeCut=20);
     declareProperty("pedestalMaxWidth",m_pedestalMaxWidth=10);
@@ -55,7 +59,6 @@ L1CaloPprMonitoring::~L1CaloPprMonitoring()
 StatusCode L1CaloPprMonitoring::initialize()
 {
     StatusCode sc;
-    
     sc = this->loadInTools();
     if(sc.isFailure()){return sc;}
 
@@ -78,6 +81,13 @@ StatusCode L1CaloPprMonitoring::initialize()
 								 "L1Calo/PPM");
 	m_pedestalPlotManager->SetPedestalMaxWidth(m_pedestalMaxWidth);
     }
+    if (m_doPedestalCorrectionPlots)
+    {
+        m_pedestalCorrectionPlotManager = new L1CaloPprPedestalCorrectionPlotManager(m_histoSvc,
+								 m_towerTools,
+								 m_lumiBlockMax,
+								 "L1Calo/PPM");
+    }
     if (m_doEtCorrelationPlots){
         m_etCorrelationPlotManager = new L1CaloPprEtCorrelationPlotManager(m_histoSvc,
 									   m_towerTools,
@@ -91,76 +101,65 @@ StatusCode L1CaloPprMonitoring::initialize()
 
 StatusCode L1CaloPprMonitoring::execute()
 {
-  
+
     StatusCode sc;
 
     sc = this->loadContainers();
     if(sc.isFailure()){return sc;}
     
-    TriggerTowerCollection::const_iterator TT_itr;
+    xAOD::TriggerTowerContainer::const_iterator TT_itr;
 
     for(TT_itr = m_triggerTowers->begin(); TT_itr != m_triggerTowers->end(); ++TT_itr)
     {       
         //Dead Channel DB folder used for 2010 data
         //Disabled tower DB folder used for 2011/12 data
         
-        const coral::AttributeList* emDbDead = 0;
-        const coral::AttributeList* hadDbDead = 0;
+	const coral::AttributeList* DbDead = 0;
 
-        bool EmIsDisabled(false),HadIsDisabled(false);
+	bool ChanIsDisabled(false);
         if(m_eventInfo->event_ID()->run_number() < 175000)
         {
-            emDbDead    = m_towerTools->emDbAttributes(*TT_itr,m_dbPpmDeadChannels);
-            hadDbDead   = m_towerTools->hadDbAttributes(*TT_itr,m_dbPpmDeadChannels);
+	    DbDead      = m_towerTools->DbAttributes(*TT_itr,m_dbPpmDeadChannels);
 
-            if(emDbDead !=0){EmIsDisabled =  true;}
-            if(hadDbDead!=0){HadIsDisabled = true;}
+            if(DbDead!=0){ChanIsDisabled = true;}
         }
         else //2011/12 data 
         {
-            emDbDead    = m_towerTools->emDbAttributes(*TT_itr,m_dbPpmDisabledTowers);
-            hadDbDead   = m_towerTools->hadDbAttributes(*TT_itr,m_dbPpmDisabledTowers);
-
-            if(m_towerTools->DisabledTower(emDbDead)){EmIsDisabled= true; }
-            if(m_towerTools->DisabledTower(hadDbDead)){HadIsDisabled= true; }
-	    
+	    DbDead      = m_towerTools->DbAttributes(*TT_itr,m_dbPpmDisabledTowers);
+            
+	    if(m_towerTools->DisabledTower(DbDead)){ChanIsDisabled= true; }
         }
 	if (m_doFineTimePlots)
 	{
 	    //Set the reference and calibration values for the fine time, they are stored per cool ID in a data base
-	    double emReference = 0;
-	    double emCalFactor = 0;
-	    double hadReference = 0;
-	    double hadCalFactor = 0;
-	    unsigned int emCoolId = m_towerTools->emCoolChannelId(*TT_itr);
-	    unsigned int hadCoolId = m_towerTools->hadCoolChannelId(*TT_itr);
-	    CondAttrListCollection::const_iterator emItr = m_dbFineTimeRefsTowers->chanAttrListPair(emCoolId);
-	    if (emItr != m_dbFineTimeRefsTowers->end()) {
-	       const AthenaAttributeList& emAttrList(emItr->second); 
-	       emReference = emAttrList["referenceValue"].data<double>();
-	       emCalFactor = emAttrList["calibrationFactor"].data<double>();
+	    double Reference = 0;
+	    double CalFactor = 0;
+	  
+	    unsigned int CoolId = m_towerTools->CoolChannelId(*TT_itr);
+
+	    CondAttrListCollection::const_iterator Itr = m_dbFineTimeRefsTowers->chanAttrListPair(CoolId);
+	    if (Itr != m_dbFineTimeRefsTowers->end()) {
+	       const AthenaAttributeList& AttrList(Itr->second); 
+	       Reference = AttrList["referenceValue"].data<double>();
+	       CalFactor = AttrList["calibrationFactor"].data<double>();
 	    }
-	    m_fineTimePlotManager->SetEmReferenceValue(emReference);
-	    m_fineTimePlotManager->SetEmCalibrationFactor(emCalFactor);
 	    
-	    CondAttrListCollection::const_iterator hadItr = m_dbFineTimeRefsTowers->chanAttrListPair(hadCoolId);
-	    if (hadItr != m_dbFineTimeRefsTowers->end()) {
-	       const AthenaAttributeList& hadAttrList(hadItr->second); 
-	       hadReference = hadAttrList["referenceValue"].data<double>();
-	       hadCalFactor = hadAttrList["calibrationFactor"].data<double>();
-	    }
-	    m_fineTimePlotManager->SetHadReferenceValue(hadReference);
-	    m_fineTimePlotManager->SetHadCalibrationFactor(hadCalFactor);
+	    m_fineTimePlotManager->SetReferenceValue(Reference);
+	    m_fineTimePlotManager->SetCalibrationFactor(CalFactor);
 	        
-	    m_fineTimePlotManager->Analyze(m_eventInfo,*TT_itr, EmIsDisabled, HadIsDisabled);
+	    m_fineTimePlotManager->Analyze(m_eventInfo,*TT_itr, ChanIsDisabled);
 	}
 	if (m_doPedestalPlots)
 	{
-	    m_pedestalPlotManager->Analyze(m_eventInfo,*TT_itr, EmIsDisabled, HadIsDisabled);
+	    m_pedestalPlotManager->Analyze(m_eventInfo,*TT_itr, ChanIsDisabled);
+	}
+	if (m_doPedestalCorrectionPlots)
+	{
+	    m_pedestalCorrectionPlotManager->Analyze(m_eventInfo,*TT_itr, ChanIsDisabled);	    
 	}
 	if (m_doEtCorrelationPlots)
 	{
-	    m_etCorrelationPlotManager->Analyze(m_eventInfo,*TT_itr, EmIsDisabled, HadIsDisabled);
+	    m_etCorrelationPlotManager->Analyze(m_eventInfo,*TT_itr, ChanIsDisabled);
 	}
     }
     
