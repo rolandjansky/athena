@@ -11,13 +11,11 @@
 
 #include "ElectronPhotonTagTools/PhotonTagTool.h"
 
-class StoreGateSvc;
-
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "EventTagAlgs/TagBuilderBase.h"
 
-class PhotonTagBuilder : public Algorithm, public TagBuilderBase
+class PhotonTagBuilder : public AthAlgorithm, public TagBuilderBase
 {
 public:
 
@@ -39,12 +37,8 @@ private:
   //! number of particles
   int m_MAX_NUMBER;
 
-  //! StoreGate service.
-  StoreGateSvc* m_storeGateSvc;
-
   //! the photon tag tool
   ToolHandle<PhotonTagTool> m_photonTagTool;
-
 };
 
 #endif

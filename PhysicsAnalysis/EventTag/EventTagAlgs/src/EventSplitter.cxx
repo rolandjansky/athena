@@ -14,7 +14,7 @@
 #include "StoreGate/StoreGateSvc.h"
 
 EventSplitter::EventSplitter(const std::string& name, ISvcLocator* pSvcLocator)
-  : Algorithm(name, pSvcLocator), 
+  : AthAlgorithm(name, pSvcLocator), 
     TagBuilderBase(),
     m_attribList(0),
     m_attrName ("NONE"),
@@ -55,38 +55,29 @@ EventSplitter::EventSplitter(const std::string& name, ISvcLocator* pSvcLocator)
 
 StatusCode EventSplitter::initialize() 
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "in initialize()" << endreq;
+  ATH_MSG_INFO( "in initialize()" );
 
   // Check to see if it should be added to the tags
   if (m_attrName != "NONE") {
     // define attribute 
     //std::string name("Filter"+name());
-    log << MSG::DEBUG << "Defining the attribute list specification." << endreq;
-    log << MSG::DEBUG << "Adding attribute " << name() << " to tags" << endreq;
+    ATH_MSG_DEBUG( "Defining the attribute list specification." );
+    ATH_MSG_DEBUG( "Adding attribute " << name() << " to tags" );
     if (m_attribListSpec!=0)
       addAttribute( name(), "bool" );
     else {
-      log << MSG::DEBUG << "AttribListSpec not initialized" << endreq;
+      ATH_MSG_DEBUG( "AttribListSpec not initialized" );
       m_attribListSpec  = new AthenaAttributeListSpecification;
-    }                                                                               
+    }
   }
   
-  // Locate the StoreGateSvc
-  StatusCode sc = service("StoreGateSvc", m_StoreGate);
-  if (sc.isFailure())
-    {
-      log << MSG::ERROR << "Could not find StoreGateSvc" << endreq;
-      return sc;
-    }
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode EventSplitter::execute() 
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in execute()" << endreq;
+  ATH_MSG_DEBUG( "in execute()" );
 
   // set attribute list to not filled, yet
   m_attribList=0;
@@ -102,43 +93,33 @@ StatusCode EventSplitter::execute()
 
   const DataHandle<xAOD::EventInfo> eventInfo;
   const DataHandle<xAOD::EventInfo> eventInfoEnd;
-  StatusCode sc = m_StoreGate->retrieve(eventInfo, eventInfoEnd);
-  if (sc.isFailure())
-    {
-      log << MSG::ERROR << "Cannot get event info" << endreq;
-      return sc;
-    }
+  ATH_CHECK( evtStore()->retrieve(eventInfo, eventInfoEnd) );
   if (eventInfo == eventInfoEnd)
     {
-      log << MSG::ERROR << "No event info objects" << endreq;
-      return sc;
+      ATH_MSG_ERROR( "No event info objects" );
+      return StatusCode::FAILURE;
     }
 
   uint32_t triggerTypeWord = eventInfo->level1TriggerType();
 
   // get CTP_Decision
   const CTP_Decision * ctpDecision = 0;
-  sc =m_StoreGate->retrieve(ctpDecision, m_KeyCTP_Decision);
+  StatusCode sc =evtStore()->retrieve(ctpDecision, m_KeyCTP_Decision);
   if (sc.isFailure())
     {
-      log << MSG::ERROR << "could not find CTP_Decision" << endreq;
+      ATH_MSG_ERROR( "could not find CTP_Decision" );
       //return sc;
     }
 
   // HLT word
-  const FakeHLTWord * hltWord;
-  sc =m_StoreGate->retrieve(hltWord, m_KeyHLTWord);
-  if (sc.isFailure())
-    {
-      log << MSG::ERROR << "could not find CTP_Decision" << endreq;
-      return sc;
-    }
+  const FakeHLTWord * hltWord = nullptr;
+  ATH_CHECK( evtStore()->retrieve(hltWord, m_KeyHLTWord) );
   
   // check Trigger Type Word
   for (int iN=0; iN<MaxN; ++iN)
     {
-      log << MSG::DEBUG << "TTW: " << MSG::hex << triggerTypeWord << " Mask: " <<  m_MaskTTW[iN] << " reqN: " << 
-iN << endreq;
+      ATH_MSG_DEBUG( "TTW: " << MSG::hex << triggerTypeWord << " Mask: " <<  m_MaskTTW[iN] << " reqN: " << 
+                     iN );
       uint32_t maskedWord = triggerTypeWord & m_MaskTTW[iN];
       int nItem = 0;
       for (int iBit=0; iBit<32; ++iBit)
@@ -169,7 +150,7 @@ iN << endreq;
 	      ctpWord = ctpWords[iCTP];
 	      mask = m_MaskCTP[iN][iCTP];
 	      maskedWord = ctpWord & mask;
-	      log << MSG::DEBUG << "CTP" << iCTP << ": " << MSG::hex << ctpWord << " Mask: " <<  mask << " reqN: " << iN << endreq;
+	      ATH_MSG_DEBUG( "CTP" << iCTP << ": " << MSG::hex << ctpWord << " Mask: " <<  mask << " reqN: " << iN );
 
 	      for (int iBit=0; iBit<32; ++iBit)
 		if ((0x1 << iBit) & maskedWord) ++nItem;
@@ -187,8 +168,8 @@ iN << endreq;
   // check HLT word
   for (int iN=0; iN<MaxN; ++iN)
     {
-      log << MSG::DEBUG << "HLT: " << MSG::hex << hltWord->word() << " Mask: " <<  m_MaskHLT[iN] << " reqN: " << 
-iN << endreq;
+      ATH_MSG_DEBUG( "HLT: " << MSG::hex << hltWord->word() << " Mask: " <<  m_MaskHLT[iN] << " reqN: " << 
+                     iN );
       uint32_t maskedWord = (hltWord->word()) & m_MaskHLT[iN];
       int nItem = 0;
       for (int iBit=0; iBit<32; ++iBit)
@@ -209,22 +190,20 @@ iN << endreq;
 
 StatusCode EventSplitter::finalize() 
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "in finalize()" << endreq;
+  ATH_MSG_INFO( "in finalize()" );
   return StatusCode::SUCCESS;
 }
 
 void EventSplitter::setSuccess(bool flag)
 {
-  MsgStream log(msgSvc(), name());
   // Fetch attrib list if not done already
-  log << MSG::DEBUG << "in setSuccess" << endreq;
+  ATH_MSG_DEBUG( "in setSuccess" );
   if (m_attrName != "NONE" && m_attribList==0) {
     // retrieve TagAthenaAttributeList
-    StatusCode sc = m_StoreGate->retrieve( m_attribList, m_attrName);
+    StatusCode sc = evtStore()->retrieve( m_attribList, m_attrName);
     if (sc.isFailure())
       {
-        log << MSG::ERROR << "No attribute list in SG" << endreq; 
+        ATH_MSG_ERROR( "No attribute list in SG" );
         //return sc;
       }
   }
@@ -247,8 +226,9 @@ void EventSplitter::setSuccess(bool flag)
       // decrease number of builders
       TagBuilderBase::decNumOfBuilder();
       // if this is the last builder, lock the Attribute List
-      //if (TagBuilderBase::lastBuilder()) sc = m_StoreGate->setConst(m_attribList);
-      if (TagBuilderBase::lastBuilder()) m_StoreGate->setConst(m_attribList);
+      //if (TagBuilderBase::lastBuilder()) evtStore()->setConst(m_attribList);
+      if (TagBuilderBase::lastBuilder())
+        evtStore()->setConst(m_attribList).ignore();
     }
 }
 

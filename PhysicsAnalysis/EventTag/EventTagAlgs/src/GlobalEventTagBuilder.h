@@ -35,13 +35,11 @@ inclusion in an event tag database.
 */
 
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "EventTagAlgs/TagBuilderBase.h"
 #include "EventTagUtils/GlobalEventTagTool.h"
 
-class StoreGateSvc;
-
-class GlobalEventTagBuilder : public Algorithm, public TagBuilderBase {
+class GlobalEventTagBuilder : public AthAlgorithm, public TagBuilderBase {
 public:
 
   /// Standard constructor.
@@ -59,12 +57,8 @@ private:
   /// Attribute list name
   std::string m_attributeListName;
 
-  /// StoreGate service.
-  StoreGateSvc* m_storeGateSvc;
-
   /// Global Event Tag Tool
   ToolHandle<GlobalEventTagTool> m_globalEventTagTool;
-
 };
 
 #endif // EVENTTAGALGS_GLOBALEVENTTAGBUILDER_H

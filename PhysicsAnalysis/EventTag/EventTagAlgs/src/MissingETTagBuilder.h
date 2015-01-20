@@ -11,13 +11,11 @@
 
 #include "JetMissingEtTagTools/JetMissingEtTagTool.h"
 
-class StoreGateSvc;
-
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "EventTagAlgs/TagBuilderBase.h"
 
-class MissingETTagBuilder : public Algorithm, public TagBuilderBase
+class MissingETTagBuilder : public AthAlgorithm, public TagBuilderBase
 {
 public:
 
@@ -36,12 +34,8 @@ private:
   //! Attribute list name
   std::string m_attributeListName;
 
-  //! StoreGate service.
-  StoreGateSvc* m_storeGateSvc;
-
   //! Jet and Missing Tag Tool
   ToolHandle<JetMetTagTool> m_jetMissingEtTagTool;
-
 };
 
 #endif

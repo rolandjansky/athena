@@ -14,10 +14,10 @@
 class StoreGateSvc;
 
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "EventTagAlgs/TagBuilderBase.h"
 
-class TauJetTagBuilder : public Algorithm, public TagBuilderBase
+class TauJetTagBuilder : public AthAlgorithm, public TagBuilderBase
 {
 public:
 
@@ -39,12 +39,8 @@ private:
   //! number of particles
   int m_MAX_NUMBER;
 
-  //! StoreGate service.
-  StoreGateSvc* m_storeGateSvc;
-
   //! TauJet Tag Tool
   ToolHandle<TauJetTagTool> m_tauJetTagTool;
-
 };
 
 #endif

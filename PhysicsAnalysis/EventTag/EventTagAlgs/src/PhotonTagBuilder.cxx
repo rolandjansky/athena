@@ -16,7 +16,7 @@
 #include <sstream>
 
 PhotonTagBuilder::PhotonTagBuilder( const std::string& name, ISvcLocator* pSvcLocator ) 
-  : Algorithm(name, pSvcLocator),
+  : AthAlgorithm(name, pSvcLocator),
     TagBuilderBase(), 
   m_photonTagTool("PhotonTagTool", this) {
   declareProperty("PhotonTagTool", m_photonTagTool);
@@ -29,34 +29,15 @@ PhotonTagBuilder::~PhotonTagBuilder()
 {}
 
 StatusCode PhotonTagBuilder::initialize() {
-  StatusCode sc;
+  ATH_MSG_DEBUG( "Initializing " << name() );
 
-  MsgStream mLog( messageService(), name() );
-  mLog << MSG::DEBUG << "Initializing " << name() << endreq;
-
-  /** get StoreGate service */
-  sc = service( "StoreGateSvc", m_storeGateSvc );
-  if (sc.isFailure()) {
-    mLog << MSG::ERROR << "Unable to get StoreGate service" << endreq;
-    return sc;
-  }
-
-  /** get the Photon Tag Tools */
-  sc = m_photonTagTool.retrieve();
-  if ( sc.isFailure() ) {
-     mLog << MSG::ERROR<< "Error retrieving the PhotonTagTool" << endreq;
-     return sc;
-  }
+  ATH_CHECK( m_photonTagTool.retrieve() );
 
   /** define attributes */
-  mLog << MSG::DEBUG << "Defining the attribute list specification." << endreq;
+  ATH_MSG_DEBUG( "Defining the attribute list specification." );
 
   std::map<std::string,AthenaAttributeType> attrMap;
-  sc = m_photonTagTool->attributeSpecification(attrMap, m_MAX_NUMBER);
-  if ( sc.isFailure() ) {
-     mLog << MSG::ERROR << "Fail to build Attribute List Specification " << endreq;
-     return sc; 
-  }
+  ATH_CHECK( m_photonTagTool->attributeSpecification(attrMap, m_MAX_NUMBER) );
 
   std::map<std::string,AthenaAttributeType>::iterator bMap = attrMap.begin();
   std::map<std::string,AthenaAttributeType>::iterator eMap = attrMap.end();
@@ -68,8 +49,7 @@ StatusCode PhotonTagBuilder::initialize() {
        //m_attrMap[(*bMap).first] = ((*bMap).second).typeName();
        addAttribute( (*bMap).first, (*bMap).second );
     } else {
-      mLog << MSG::WARNING << "Removing " << (*bMap).first << " from the attribute List: not in TAG EDM"
-           << endreq;
+      ATH_MSG_WARNING( "Removing " << (*bMap).first << " from the attribute List: not in TAG EDM" );
     }
   }
 
@@ -77,25 +57,17 @@ StatusCode PhotonTagBuilder::initialize() {
 }
 
 StatusCode PhotonTagBuilder::execute() {
-  StatusCode sc;
-
-  MsgStream mLog( messageService(), name() );
-
-  mLog << MSG::DEBUG << "Executing " << name() << endreq;
+  ATH_MSG_DEBUG( "Executing " << name() );
 
   /** retrieve TagAthenaAttributeList */
   TagAthenaAttributeList* attribList;  
-  sc = m_storeGateSvc->retrieve( attribList, m_attributeListName);
-  if (sc.isFailure()) {
-    mLog << MSG::WARNING << "No attribute list in SG" << endreq; 
-    return sc;
-  }
+  ATH_CHECK( evtStore()->retrieve( attribList, m_attributeListName) );
 
   /** ask the tool to fill the photon tag fragment */
   TagFragmentCollection photonTagColl; 
-  sc = m_photonTagTool->execute( photonTagColl, m_MAX_NUMBER );
+  StatusCode sc = m_photonTagTool->execute( photonTagColl, m_MAX_NUMBER );
   if (sc.isFailure()) {
-    mLog << MSG::WARNING << "Cannot Execute PhotonTagToool" << endreq; 
+    ATH_MSG_WARNING( "Cannot Execute PhotonTagToool" );
   } else fillAttribute(attribList, photonTagColl);
 
   /** decrease number of builders */
@@ -103,14 +75,14 @@ StatusCode PhotonTagBuilder::execute() {
 
   /** if this is the last builder, lock the Attribute List */
   if (TagBuilderBase::lastBuilder())
-    sc = m_storeGateSvc->setConst(attribList);
+    sc = evtStore()->setConst(attribList);
 
   if (sc.isFailure())
     {
-      mLog << MSG::WARNING << "Could not set const to attribList" << endreq; 
+      ATH_MSG_WARNING( "Could not set const to attribList" );
     }
 
-  mLog << MSG::DEBUG << "Finished " << name() << endreq;
+  ATH_MSG_DEBUG( "Finished " << name() );
 
   return StatusCode::SUCCESS;
 }

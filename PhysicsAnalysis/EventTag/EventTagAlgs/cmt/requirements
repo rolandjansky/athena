@@ -9,13 +9,13 @@ use AtlasPolicy              	AtlasPolicy-*
 use TagEvent		     	TagEvent-*		   	PhysicsAnalysis/EventTag
 use AthenaPoolUtilities	     	AthenaPoolUtilities-*      	Database/AthenaPOOL
 use GaudiInterface           	GaudiInterface-*           	External
+use AthenaBaseComps       	AthenaBaseComps-*		Control
 
 private
 use AtlasCLHEP		     	AtlasCLHEP-*	           	External
 use AtlasPOOL                	AtlasPOOL-*                	External
 
 use StoreGate                	StoreGate-*                	Control
-use AthenaBaseComps       	AthenaBaseComps-*		Control
 
 use xAODEventInfo               xAODEventInfo-*                	Event/xAOD
 use EventTagUtils	     	EventTagUtils-*			PhysicsAnalysis/EventTag

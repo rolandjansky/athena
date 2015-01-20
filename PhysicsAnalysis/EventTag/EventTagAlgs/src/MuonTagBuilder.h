@@ -14,10 +14,10 @@
 class StoreGateSvc;
 
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "EventTagAlgs/TagBuilderBase.h"
 
-class MuonTagBuilder : public Algorithm, public TagBuilderBase
+class MuonTagBuilder : public AthAlgorithm, public TagBuilderBase
 {
 public:
 
@@ -39,12 +39,8 @@ private:
   //! number of particles
   int m_MAX_NUMBER;
 
-  //! StoreGate service.
-  StoreGateSvc* m_storeGateSvc;
-
   //!  Muon Tag Tool 
   ToolHandle<MuonTagTool> m_muonTagTool;
-
 };
 
 #endif
