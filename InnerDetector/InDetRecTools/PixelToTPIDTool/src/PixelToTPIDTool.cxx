@@ -277,6 +277,7 @@ StatusCode InDet::PixelToTPIDTool::update( IOVSVC_CALLBACK_ARGS_P(I,keys) ) {
           //std::cout << "m_par[" << i << "][" << j << "]: " << m_par[i][j] << std::endl;
         }
         m_mydedx->setPar(i,param);
+	delete[] param;
       }
       m_mydedx->setPosNeg(false);
     } else {
@@ -287,6 +288,7 @@ StatusCode InDet::PixelToTPIDTool::update( IOVSVC_CALLBACK_ARGS_P(I,keys) ) {
           //std::cout << "m_par[" << i << "][" << j << "]: " << m_par[i][j] << std::endl;
         }
         m_mydedx->setPar(i,param);
+	delete[] param;
       }
       m_mydedx->setPosNeg(true);
     }
