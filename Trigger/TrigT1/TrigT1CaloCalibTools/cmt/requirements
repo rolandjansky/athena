@@ -31,6 +31,7 @@ use TrigT1CaloEvent             TrigT1CaloEvent-*               Trigger/TrigT1
 use TrigT1CaloToolInterfaces    TrigT1CaloToolInterfaces-*      Trigger/TrigT1
 use TrigT1CaloCondSvc           TrigT1CaloCondSvc-*             Trigger/TrigT1
 use TrigT1CaloUtils             TrigT1CaloUtils-*               Trigger/TrigT1
+use xAODTrigL1Calo		xAODTrigL1Calo-*		Event/xAOD
 end_public
 
 private
@@ -46,5 +47,9 @@ use TrigT1CaloEvent             TrigT1CaloEvent-*               Trigger/TrigT1
 end_private
 
 apply_tag ROOTGraphicsLibs
+
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Graf Gpad)"
+
 apply_pattern dual_use_library files=*.cxx
 apply_pattern declare_joboptions files="*.txt *.py"

@@ -100,35 +100,20 @@ StatusCode L1CaloPprEtCorrelationPlotManager::getCaloCells()
 
 // --------------------------------------------------------------------------
 
-double L1CaloPprEtCorrelationPlotManager::getMonitoringValue(const LVL1::TriggerTower* trigTower, CalLayerEnum theLayer)
+double L1CaloPprEtCorrelationPlotManager::getMonitoringValue(const xAOD::TriggerTower* trigTower, CalLayerEnum theLayer)
 {
-
     Identifier id;
     double caloEnergy;
-    double ttEnergy;
-    if ( theLayer == Emlayer ) {
-        ttEnergy=trigTower->emEnergy();
-	if (ttEnergy <= m_EtMin) return -1000.;
-        if(isOnline) { 
-	    id = m_ttToolOnline->identifier(trigTower->eta(),trigTower->phi(),0);
-	    caloEnergy = m_caloTool->et(id);
-	}
-	else {
-	  caloEnergy = m_ttToolOffline->emTTCellsEt(trigTower);
-	}
+    double ttCpEnergy;
+    ttCpEnergy=trigTower->cpET();
+    if (ttCpEnergy <= m_EtMin) return -1000.;
+    if(isOnline) { 
+	id = m_ttToolOnline->identifier(trigTower->eta(),trigTower->phi(),trigTower->layer());
+	caloEnergy = m_caloTool->et(id);
     }
     else {
-        ttEnergy=trigTower->hadEnergy();
-	if (ttEnergy <= m_EtMin) return -1000.;
-        if(isOnline) {
-	    id = m_ttToolOnline->identifier(trigTower->eta(),trigTower->phi(),1);
-	    caloEnergy = m_caloTool->et(id);
-	}
-	else {
-	  caloEnergy = m_ttToolOffline->hadTTCellsEt(trigTower);
-	}
+      caloEnergy = m_ttToolOffline->TTCellsEt(trigTower); //update to xAOD
     }
-    
     // round calo energy to nearest GeV in order to compare with L1 energy
     caloEnergy=int(caloEnergy+0.5);
     // set calo energy to saturation limit if necessary
@@ -136,14 +121,13 @@ double L1CaloPprEtCorrelationPlotManager::getMonitoringValue(const LVL1::Trigger
     
     // fill histograms only if L1 and calo cell energies 
     // are above the threshold defined by m_EtMin
-    if (  caloEnergy > m_EtMin && ttEnergy > m_EtMin ) {
-        return ttEnergy/caloEnergy;
+    if (  caloEnergy > m_EtMin && ttCpEnergy > m_EtMin ) {
+        return ttCpEnergy/caloEnergy;
     }
     else {
         // return default value
         return -1000.;
     }
-
 }
 
 // --------------------------------------------------------------------------

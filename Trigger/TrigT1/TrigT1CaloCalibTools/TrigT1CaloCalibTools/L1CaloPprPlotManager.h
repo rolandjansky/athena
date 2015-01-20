@@ -32,6 +32,9 @@
 
 #include "GaudiKernel/ToolHandle.h"
 
+#include "xAODTrigL1Calo/xAODTrigL1Calo/TriggerTower.h"
+#include "xAODTrigL1Calo/xAODTrigL1Calo/TriggerTowerContainer.h"
+
 class TH2F;
 class TH2F_LW;
 class TProfile;
@@ -116,7 +119,7 @@ class L1CaloPprPlotManager
 	// e.g. fine time, pedestal, ...
 	// makes this class an abstract base class to be further defined 
 	// in the derived class
-	virtual double getMonitoringValue(const LVL1::TriggerTower* trigTower, CalLayerEnum theLayer) = 0;
+	virtual double getMonitoringValue(const xAOD::TriggerTower* trigTower, CalLayerEnum theLayer) = 0;
 
 	// decide whether the given value that is supposed to be monitored
 	// is acctually plotted
@@ -126,25 +129,25 @@ class L1CaloPprPlotManager
     public:
 
 	// start the actual monitoring of the considered trigger tower
-        void Analyze(const EventInfo* evtInfo, const LVL1::TriggerTower* trigTower, bool EmisDisabled, bool HadisDisabled);
+        void Analyze(const EventInfo* evtInfo, const xAOD::TriggerTower* trigTower, bool channelDisabled);
 	// possibility to summarize plots at the end of a run
         virtual StatusCode MakeSummary();
 
     protected:
 	
 	virtual StatusCode bookRunHistograms();
-	void SetHistogramLimits(TProfile2D_LW* hist, const int min, const int max);
+	void SetHistogramLimits(TProfile2D_LW* hist, const int min, const int max);       
         TProfile* ConvertToOfflineHist(TProfile_LW* hist);
         TProfile2D* ConvertToOfflineHist(TProfile2D_LW* hist, unsigned int binCountour);
 	
-        virtual void fillOnlineHistos(const LVL1::TriggerTower* trigTower, unsigned int& coolID, CalLayerEnum layer);
-	virtual void fillGlobalOnlineHistos(const LVL1::TriggerTower* trigTower, CalLayerEnum layer, double &value);
-	virtual void fillPartitionOnlineHistos(const LVL1::TriggerTower* trigTower, CalLayerEnum theLayer, double &value);
-	virtual void fillDifferentialOnlineHistos(const LVL1::TriggerTower* trigTower, unsigned int &coolId, CalLayerEnum theLayer, double &value);
-        virtual void fillOfflineHistos(const LVL1::TriggerTower* trigTower,unsigned int& coolID, CalLayerEnum layer);
+        virtual void fillOnlineHistos(const xAOD::TriggerTower* trigTower, unsigned int& coolID, CalLayerEnum layer);
+	virtual void fillGlobalOnlineHistos(const xAOD::TriggerTower* trigTower, CalLayerEnum layer, double &value);
+	virtual void fillPartitionOnlineHistos(const xAOD::TriggerTower* trigTower, CalLayerEnum theLayer, double &value);
+	virtual void fillDifferentialOnlineHistos(const xAOD::TriggerTower* trigTower, unsigned int &coolId, CalLayerEnum theLayer, double &value);
+        virtual void fillOfflineHistos(const xAOD::TriggerTower* trigTower,unsigned int& coolID, CalLayerEnum layer);
 	virtual void fillRunHistograms(double &eta, double &phi, CalLayerEnum theLayer, double &value);
-	virtual void fillPartitionOfflineHistos(const LVL1::TriggerTower* trigTower, CalLayerEnum theLayer, double &value);
-	virtual void fillDifferentialOfflineHistos(const LVL1::TriggerTower* trigTower, unsigned int &coolId, CalLayerEnum theLayer, double &value);
+	virtual void fillPartitionOfflineHistos(const xAOD::TriggerTower* trigTower, CalLayerEnum theLayer, double &value);
+	virtual void fillDifferentialOfflineHistos(const xAOD::TriggerTower* trigTower, unsigned int &coolId, CalLayerEnum theLayer, double &value);
         
     protected:
 
@@ -178,7 +181,10 @@ class L1CaloPprPlotManager
 	// global histograms
 	TProfile_LW* m_p_online_em_valueVsLumi;
         TProfile_LW* m_p_online_had_valueVsLumi;
-
+	
+	TProfile_LW* m_p_online_em_valueVsBCN;
+        TProfile_LW* m_p_online_had_valueVsBCN;
+	
         TProfile* m_p_offline_em_valueVsLumi;
         TProfile* m_p_offline_had_valueVsLumi;
 
@@ -197,6 +203,8 @@ class L1CaloPprPlotManager
 
 	// histogram calorimeter partition maps
 	std::map<CaloDivisionEnum,TProfile_LW*> m_map_online_partitionProfile_ValueVsLumi;
+	std::map<CaloDivisionEnum,TProfile_LW*> m_map_online_partitionProfile_ValueVsBCN;
+
         std::map<CaloDivisionEnum,TProfile*> m_map_offline_partitionProfile_ValueVsLumi;
 	
         // histogram coolChannelID maps
@@ -208,6 +216,7 @@ class L1CaloPprPlotManager
 	bool m_doRunHistograms;
         int m_ppmAdcMinValue;
         unsigned int m_lumiNo;
+        unsigned int m_bunchCrossing;
         unsigned int m_lumiMax;
         unsigned int m_sampleInterval;
         unsigned int m_currentRunNo;

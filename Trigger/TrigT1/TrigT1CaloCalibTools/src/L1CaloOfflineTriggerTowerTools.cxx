@@ -73,6 +73,13 @@ namespace LVL1 {
     HWIdentifier HWId = m_ttSvc->createTTChannelID(Id);
     return m_ttOnlineIdHelper->channel(HWId);
   }
+  //Hanno: added more general CoolChannelId instead of em/had distinction:
+  unsigned int L1CaloOfflineTriggerTowerTools::CoolChannelId(const xAOD::TriggerTower* tt) const{
+    Identifier Id = this->ID(tt->eta(),tt->phi());
+    HWIdentifier HWId = m_ttSvc->createTTChannelID(Id);
+    L1CaloCoolChannelId coolId = m_ttSvc->createL1CoolChannelId(HWId);
+    return coolId.id();
+  }  
 
   unsigned int L1CaloOfflineTriggerTowerTools::emCoolChannelId(const TriggerTower* tt) const{
     Identifier Id = this->emID(tt->eta(),tt->phi());
@@ -382,6 +389,11 @@ namespace LVL1 {
     return output;
   }
 
+  float L1CaloOfflineTriggerTowerTools::TTCellsEt(const xAOD::TriggerTower* tt) const{
+    Identifier Id = this->ID(tt->eta(),tt->phi());
+    return m_cells2tt->et( m_cells2tt->caloCells(Id) );
+  }  
+  
   float L1CaloOfflineTriggerTowerTools::emTTCellsEt(const TriggerTower* tt) const{
     Identifier Id = this->emID(tt->eta(),tt->phi());
     return m_cells2tt->et( m_cells2tt->caloCells(Id) );
@@ -1214,7 +1226,22 @@ namespace LVL1 {
   //////////////////////////////////////////////////////
   //           Database Attributes                    //
   //////////////////////////////////////////////////////
-
+  
+  // General
+  
+  const coral::AttributeList*  L1CaloOfflineTriggerTowerTools::DbAttributes(const xAOD::TriggerTower* tt,const CondAttrListCollection* dbAttrList) const{
+    unsigned int coolId = this->CoolChannelId(tt);
+    typedef CondAttrListCollection::const_iterator Itr_db;
+    const coral::AttributeList* attrList = 0;
+    for(Itr_db i=dbAttrList->begin();i!=dbAttrList->end();++i){
+      if(i->first == coolId){
+        attrList = &(i->second);
+        break;
+      }
+    }
+    return attrList;
+  }
+  
   // EM
 
   const coral::AttributeList*  L1CaloOfflineTriggerTowerTools::emDbAttributes(const TriggerTower* tt,const CondAttrListCollection* dbAttrList) const{
@@ -1779,6 +1806,10 @@ namespace LVL1 {
 
   int L1CaloOfflineTriggerTowerTools::iphi(const double eta,const double phi) const{
     return m_l1CaloTTIdTools->phiIndex(eta,phi);
+  }
+  
+  Identifier L1CaloOfflineTriggerTowerTools::ID(const double eta,const double phi) const{
+    return m_lvl1Helper->tower_id(this->pos_neg_z(eta),0,this->region(eta),this->ieta(eta),this->iphi(eta,phi));
   }
 
   Identifier L1CaloOfflineTriggerTowerTools::emID(const double eta,const double phi) const{

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1CaloCalibTools/L1CaloPprPedestalPlotManager.h"
+#include "TrigT1CaloCalibTools/L1CaloPprPedestalCorrectionPlotManager.h"
 
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -14,14 +14,15 @@
 #include "LWHists/TH2F_LW.h"
 
 #include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
-
 #include "TrigT1CaloCalibConditions/L1CaloPprConditionsContainer.h"
 #include "TrigT1CaloCalibConditions/L1CaloPprConditions.h"
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloOfflineTriggerTowerTools.h"
 #include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
 #include "TrigT1CaloEvent/TriggerTower.h"
 
-L1CaloPprPedestalPlotManager::L1CaloPprPedestalPlotManager(ITHistSvc* histoSvc, 
+
+
+L1CaloPprPedestalCorrectionPlotManager::L1CaloPprPedestalCorrectionPlotManager(ITHistSvc* histoSvc, 
 							   ToolHandle<LVL1::IL1CaloOfflineTriggerTowerTools>&offlineTT_tool,
 							   const unsigned int lumimax,
 							   const std::string& pathInRootFile)
@@ -30,21 +31,19 @@ L1CaloPprPedestalPlotManager::L1CaloPprPedestalPlotManager(ITHistSvc* histoSvc,
 			   0, 
 			   lumimax, 
 			   pathInRootFile, 
-			   "Pedestal", 
-			   "pedestal", 
-			   "Pedestal", 
+			   "PedestalCorrection", 
+			   "pedestalCorrection", 
+			   "PedestalCorrection", 
 			   "",
 			   true),
       m_l1CondSvc("L1CaloCondSvc", histoSvc->name()),
-      m_conditionsContainer(0),
-      m_pedestalMaxWidth(0.),
       m_firstCall(true)
 {
 }
 
 // --------------------------------------------------------------------------
 
-L1CaloPprPedestalPlotManager::L1CaloPprPedestalPlotManager(ManagedMonitorToolBase* aMonObj,
+L1CaloPprPedestalCorrectionPlotManager::L1CaloPprPedestalCorrectionPlotManager(ManagedMonitorToolBase* aMonObj,
 							   ToolHandle<LVL1::IL1TriggerTowerTool>&onlineTT_tool,
 							   const unsigned int lumimax,
 							   const std::string& pathInRootFile)
@@ -53,13 +52,11 @@ L1CaloPprPedestalPlotManager::L1CaloPprPedestalPlotManager(ManagedMonitorToolBas
 			   0,
 			   lumimax,
 			   pathInRootFile,
-			   "Pedestal",
-			   "pedestal",
-			   "Pedestal",
+			   "PedestalCorrection",
+			   "pedestalCorrection",
+			   "PedestalCorrection",
 			   ""),
       m_l1CondSvc("L1CaloCondSvc", aMonObj->name()),
-      m_conditionsContainer(0),
-      m_pedestalMaxWidth(0.),
       m_firstCall(true)
 
 {
@@ -67,77 +64,31 @@ L1CaloPprPedestalPlotManager::L1CaloPprPedestalPlotManager(ManagedMonitorToolBas
 
 // --------------------------------------------------------------------------
 
-double L1CaloPprPedestalPlotManager::getMonitoringValue(const xAOD::TriggerTower* trigTower, CalLayerEnum theLayer)
-{
-    // only analyze non-signal towers
-    // otherwise return default value -1000.
-    if ( trigTower->cpET() && trigTower->jepET() ) { return -1000 ; }
-    
-    double eta = trigTower->eta();
-    double phi = trigTower->phi();
-
-    unsigned int coolID;
-    
-    if(isOnline) { coolID = m_ttToolOnline->channelID(eta, phi,trigTower->layer()).id(); }
-    else { coolID = m_ttToolOffline->CoolChannelId(trigTower); }
-
-    const std::vector<short unsigned int>& EtLut = trigTower->adc();
-    
-    const int nSlices = EtLut.size();
-    double pedMean = 0;
-
-    if (m_firstCall) {
-        this->loadConditionsContainer();
-        m_firstCall = false;
-    }
-
-    if (m_conditionsContainer)
-    {
-        const L1CaloPprConditions* ttConditions = m_conditionsContainer->pprConditions(coolID);
-	if (ttConditions)
-	{
-	    pedMean = ttConditions->pedMean();
-	}
-	else
-	{
-	    *m_log<<MSG::WARNING<< "No L1CaloPprConditions available" << endreq;
-	}
-    }
-    else
-    {
-        *m_log<<MSG::WARNING<< "No Conditions Container available" << endreq;
-    }
-
-    double pedestal = 0;  // to be returned
-    double pedestalAtSlice;
+double L1CaloPprPedestalCorrectionPlotManager::getMonitoringValue(const xAOD::TriggerTower* trigTower, CalLayerEnum theLayer)
+{   
+    const std::vector<short int>& pedCorrVec = trigTower->correction();
+    const int nSlices = pedCorrVec.size();
+    double pedestalCorrection = 0;  // to be returned
     
     // now compute monitored value:
-    // average the difference between the ADC count at every slice
-    // and the mean pedestal applied to the tower over the slices
     for( int i = 0; i < nSlices; i++ )
     {
-        pedestalAtSlice = EtLut[i]-pedMean;
-	// only analyze towers with activity close 
-	// to the pedestal mean value
-	if ( fabs(pedestalAtSlice) > m_pedestalMaxWidth ) { return -1000.; }
-	pedestal += pedestalAtSlice;
+	pedestalCorrection += pedCorrVec[i];
     }
-    pedestal/=static_cast<double>(nSlices);
-    return pedestal;
+    pedestalCorrection/=static_cast<double>(nSlices);
+    return pedestalCorrection;
     
 }
 
-
 // --------------------------------------------------------------------------
 
-void L1CaloPprPedestalPlotManager::fillGlobalOnlineHistos(const xAOD::TriggerTower* trigTower, CalLayerEnum layer, double &value)
+void L1CaloPprPedestalCorrectionPlotManager::fillGlobalOnlineHistos(const xAOD::TriggerTower* trigTower, CalLayerEnum layer, double &value)
 {
     /* Create global partition integrated plots */
     /********************************************************************************************************/
   
     double eta  = trigTower->eta();
     double phi  = trigTower->phi();
-
     if(!m_p_online_em_valueVsLumi){
 
         std::string mergeMethod("");
@@ -189,21 +140,22 @@ void L1CaloPprPedestalPlotManager::fillGlobalOnlineHistos(const xAOD::TriggerTow
         m_h_online_had_etaPhiValueRMS
 	  = m_histTool->bookPPMHadEtaVsPhi(Form("ppm_had_2d_etaPhi_adc_%sRMS",m_monitoringName.data()),
 					   Form("#eta-#phi map of %s RMS: Had Trigger Tower",m_monitoringTitle.data()));
-
-        m_p_online_em_valueVsBCN= 
-	  m_histTool->bookProfile(Form("ppm_em_1d_profile_adc_%sVsBCN",m_monitoringName.data()),
-			 	  Form("Profile plot of %s Vs BCN: Em TriggerTower; BCN; %s %s",
-				     m_monitoringTitle.data(),
-				     m_monitoringTitle.data(),
-				     m_monitoringDimension.data()),
-				     0xdec, 0, 0xdec);
-        m_p_online_had_valueVsBCN 
+	  
+	m_p_online_em_valueVsBCN 
+	  = m_histTool->bookProfile(Form("ppm_em_1d_profile_adc_%sVsBCN",m_monitoringName.data()),
+				  Form("Profile plot of %s Vs BCN: Em TriggerTower; BCN; %s %s",
+				      m_monitoringTitle.data(),
+				      m_monitoringTitle.data(),
+				      m_monitoringDimension.data()),
+				      0xdec, 0, 0xdec);
+	
+	  m_p_online_had_valueVsBCN 
 	  = m_histTool->bookProfile(Form("ppm_had_1d_profile_adc_%sVsBCN",m_monitoringName.data()),
 				    Form("Profile plot of %s Vs BCN: Had TriggerTower; BCN; %s %s",
-				       m_monitoringTitle.data(),
-				       m_monitoringTitle.data(),
-				       m_monitoringDimension.data()),
-				       0xdec, 0, 0xdec);
+					m_monitoringTitle.data(),
+					m_monitoringTitle.data(),
+					m_monitoringDimension.data()),
+					0xdec, 0, 0xdec);
         m_histTool->unsetMonGroup();
     }
     //Fill Channel and detector partition integrated plots.
@@ -211,10 +163,10 @@ void L1CaloPprPedestalPlotManager::fillGlobalOnlineHistos(const xAOD::TriggerTow
       m_p_online_em_valueVsLumi->Fill(m_lumiNo,value);
       m_p_online_em_valueVsBCN->Fill(m_bunchCrossing,value);
     }
-    else {
+    else { 
       m_p_online_had_valueVsLumi->Fill(m_lumiNo,value);
       m_p_online_had_valueVsBCN->Fill(m_bunchCrossing,value);
-    }    
+      }    
     
     //Fill Etaphi Plots
     int binX(0),binY(0);
@@ -247,14 +199,13 @@ void L1CaloPprPedestalPlotManager::fillGlobalOnlineHistos(const xAOD::TriggerTow
 
 // --------------------------------------------------------------------------
 
-void L1CaloPprPedestalPlotManager::fillPartitionOnlineHistos(const xAOD::TriggerTower* trigTower, CalLayerEnum theLayer, double &value)
+void L1CaloPprPedestalCorrectionPlotManager::fillPartitionOnlineHistos(const xAOD::TriggerTower* trigTower, CalLayerEnum theLayer, double &value)
 {   
     //Create Channel Integrated, Partition differentiated plots
     /****************************************************************************************************/
     
     double eta  = trigTower->eta();
     CaloDivisionEnum detectorRegion = this->GetDetectorRegion(eta,theLayer);
-    
     std::map<CaloDivisionEnum, TProfile_LW*>::iterator part_itr = m_map_online_partitionProfile_ValueVsLumi.find(detectorRegion);
 
     if(part_itr == m_map_online_partitionProfile_ValueVsLumi.end())
@@ -274,6 +225,7 @@ void L1CaloPprPedestalPlotManager::fillPartitionOnlineHistos(const xAOD::Trigger
 
         ManagedMonitorToolBase::MgmtAttr_t attr = ManagedMonitorToolBase::ATTRIB_UNMANAGED;
         ManagedMonitorToolBase::MonGroup ADC_Partitions(m_monObj, m_pathInRootFile , ManagedMonitorToolBase::run, attr, "", mergeMethod);
+	std::cout << "m_histTool = " << m_histTool << std::endl;
         m_histTool->setMonGroup(&ADC_Partitions);
 	
         TProfile_LW* anLWProfileHist = m_histTool->bookProfile(Form("ppm_%s_1d_profile_adc_%s_%sVsLumi",
@@ -296,13 +248,12 @@ void L1CaloPprPedestalPlotManager::fillPartitionOnlineHistos(const xAOD::Trigger
         part_itr->second->Fill(m_lumiNo,value);
     }
     
-    //Now for bunchcrossingnumber:
+    //Now for bunch crossing number:
     std::map<CaloDivisionEnum, TProfile_LW*>::iterator part_itr2 = m_map_online_partitionProfile_ValueVsBCN.find(detectorRegion);
     if(part_itr2 == m_map_online_partitionProfile_ValueVsBCN.end())
       {
         std::string plotType = this->GetDetectorLayerString(theLayer);
         std::string detectorRegionString = this->GetDetectorRegionString(detectorRegion);
-
         std::string mergeMethod("");
 	if (AthenaMonManager::environment() != AthenaMonManager::online) {
 	    mergeMethod = "mergeRebinned";
@@ -312,6 +263,7 @@ void L1CaloPprPedestalPlotManager::fillPartitionOnlineHistos(const xAOD::Trigger
         ManagedMonitorToolBase::MgmtAttr_t attr2 = ManagedMonitorToolBase::ATTRIB_UNMANAGED;
         ManagedMonitorToolBase::MonGroup ADC_Partitions2(m_monObj, m_pathInRootFile , ManagedMonitorToolBase::run, attr2, "", mergeMethod);
         m_histTool->setMonGroup(&ADC_Partitions2);
+        std::cout << Form("ppm_%s_1d_profile_adc_%s_%sVsBCN",plotType.data(),detectorRegionString.data(),m_monitoringName.data()) << std::endl;
         TProfile_LW* anLWProfileHist2 = m_histTool->bookProfile(Form("ppm_%s_1d_profile_adc_%s_%sVsBCN",
 								    plotType.data(),
 								    detectorRegionString.data(),
@@ -336,31 +288,8 @@ void L1CaloPprPedestalPlotManager::fillPartitionOnlineHistos(const xAOD::Trigger
 
 // --------------------------------------------------------------------------
 
-bool L1CaloPprPedestalPlotManager::doMonitoring(double &value)
+bool L1CaloPprPedestalCorrectionPlotManager::doMonitoring(double &value)
 {
     // check if default value (-1000.) has been determined
     return ( value!=-1000. );
-}
-
-// --------------------------------------------------------------------------
-
-void L1CaloPprPedestalPlotManager::loadConditionsContainer()
-{
-    if (m_l1CondSvc)
-    {
-        *m_log<<MSG::DEBUG<< "Retrieving Conditions Container" << endreq;
-	StatusCode sc = m_l1CondSvc->retrieve(m_conditionsContainer);
-	if (sc.isFailure()) 
-	{
-	    *m_log<<MSG::WARNING<< "Could not retrieve Conditions Container" << endreq;
-	}
-	else 
-	{
-	    *m_log<<MSG::DEBUG<< "Retrieved Conditions Container" << endreq;
-	}
-    }
-    else 
-    {
-        *m_log<<MSG::WARNING<< "Could not retrieve Conditions Containers" << endreq;
-    }
 }

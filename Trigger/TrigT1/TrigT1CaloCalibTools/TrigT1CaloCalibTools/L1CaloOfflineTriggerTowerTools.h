@@ -30,6 +30,10 @@
 #include "Identifier/IdentifierHash.h"
 #include "Identifier/HWIdentifier.h"
 
+// xAOD includes
+#include "xAODTrigL1Calo/xAODTrigL1Calo/TriggerTower.h"
+#include "xAODTrigL1Calo/xAODTrigL1Calo/TriggerTowerContainer.h"
+
 // L1 includes
 #include "TrigT1CaloEvent/TriggerTower.h"
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
@@ -87,6 +91,7 @@ namespace LVL1{
       int                                        emPpmModule(const TriggerTower* tt) const;
       int                                        emPpmSubmodule(const TriggerTower* tt) const;
       int                                        emPpmChannel(const TriggerTower* tt) const;
+      unsigned int                               CoolChannelId(const xAOD::TriggerTower* tt) const;  //added by Hanno
       unsigned int                               emCoolChannelId(const TriggerTower* tt) const;
       std::vector<int>                           emLocation(const TriggerTower* tt) const;
       std::vector<unsigned int>                  emRxId(const TriggerTower* tt) const;
@@ -111,6 +116,7 @@ namespace LVL1{
       float                                      emTTCellsEnergy(const TriggerTower* tt) const;
       std::vector<float>                         emTTCellsEnergyByLayer(const TriggerTower* tt) const;
       std::vector<float>                         emTTCellsEnergyByReceiver(const TriggerTower* tt,const int mode=0) const;
+      float                                      TTCellsEt(const xAOD::TriggerTower* tt) const;      //added by Hanno
       float                                      emTTCellsEt(const TriggerTower* tt) const;
       std::vector<float>                         emTTCellsEtByLayer(const TriggerTower* tt) const;
       std::vector<float>                         emTTCellsEtByReceiver(const TriggerTower* tt,const int mode=0) const;
@@ -155,6 +161,8 @@ namespace LVL1{
       std::vector<std::vector<float> >           hadNonNominalMeanScaleByReceiverByLayer(const TriggerTower* tt) const;
 
       //  Database Attributes
+      const coral::AttributeList*		 DbAttributes(const xAOD::TriggerTower* tt, const CondAttrListCollection* dbAttrList) const;
+      
       const coral::AttributeList*                emDbAttributes(const TriggerTower* tt,const CondAttrListCollection* dbAttrList) const;
       std::vector<const coral::AttributeList*>   emDbRxGainsAttributes(const TriggerTower* tt,const CondAttrListCollection* dbAttrList) const;
 
@@ -211,6 +219,7 @@ namespace LVL1{
       void                                       larDigits(const LArDigitContainer* lar);
       void                                       tileDigits(const TileDigitsContainer* tile);
       void                                       l1CaloLArTowerEnergy(const CaloCellContainer* cells, const TriggerTowerCollection* ttc);
+      Identifier                                 ID(const double eta,const double phi) const;
       Identifier                                 emID(const double eta,const double phi) const;
       Identifier                                 hadID(const double eta,const double phi) const;
 
