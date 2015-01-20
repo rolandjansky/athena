@@ -1073,6 +1073,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeTracklet(const TgcRdo::const_iterat
 					     TgcCoinData::TYPE_TRACKLET, 
 					     ((*itD)->subDetectorId()==ASIDE), // isAside
 					     static_cast<int>(m_tgcHelper->stationPhi(channelIdOut)), // phi
+                                             0, // isInner
 					     ((*itD)->sswId()==7||(*itD)->sswId()==2), // isForward
 					     static_cast<bool>(m_tgcHelper->isStrip(channelIdOut)), // isStrip
 					     trackletId, // trackletId
@@ -1081,7 +1082,8 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeTracklet(const TgcRdo::const_iterat
 					     width_i, // determined from channelIdIn 
 					     width_o, // determined from channelIdOut
 					     delta, // delta
-					     subMatrix); // subMatrix
+					     subMatrix,
+                                             0); // subMatrix
   newCoinData->setHashAndIndex(coincollection->identifyHash(), coincollection->size());  
   coincollection->push_back(newCoinData);
 
@@ -1313,8 +1315,11 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeHiPt(const TgcRdo::const_iterator& 
     ATH_MSG_DEBUG("TgcRdoToPrepDataTool::decodeHiPt::Unknown subDetectorId!!");
     return StatusCode::SUCCESS;
   }
+
+  bool isInner = (((*itD)->sector() & 4) != 0 ); // Inner flag for EIFI and Tile
+
   // Protection against invalid hitId
-  if((*itD)->hitId()==0) {
+  if((*itD)->hitId()==0 && !isInner ) {
     ATH_MSG_DEBUG("Invalid hitId_rdo_hipt, hitId == 0!! skip to convert this RDO to PRD");
     return StatusCode::SUCCESS;
   }
@@ -1346,50 +1351,70 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeHiPt(const TgcRdo::const_iterator& 
   int slbId_in[4] = {0, 0, 0, 0}; // only used for wire
   int sbLoc_in[4] = {0, 0, 0, 0}; // only used for wire
 
-  //*** TGC3 start ***//
-  // RDOHighPtID --> (Sim)HighPtID --> OfflineID --> ReadoutID --> getSLBID
-  found = getHiPtIds(itD, sswId_o, sbLoc_o, slbId_o);
-  if(!found) {
-    return StatusCode::SUCCESS;
-  }
+  int gasGap_i[4] = {0, 0, 0, 0}; 
+  int channel_i[4] = {0, 0, 0, 0}; 
+  double width_i = 0.;
+  double hit_position_i = 0.;
+  Amg::Vector2D tmp_hitPos_i(0., 0.);
 
-  // get the OfflineID of cernter of ROI of TGC3
-  if(!((*itD)->isStrip())) { // wire
-    getBitPosOutWire(itD, slbsubMatrix, bitpos_o);
-  } else { // strip
-    getBitPosOutStrip(itD, slbsubMatrix, bitpos_o);
-  }
-  for(int i=0; i<2; i++) {
-    found = m_tgcCabling->getOfflineIDfromReadoutID(channelIdOut[i], (*itD)->subDetectorId(), (*itD)->rodId(), 
-						    sswId_o, sbLoc_o, bitpos_o[i]);
+  int gasGap_o[2] = {0, 0}; 
+  int channel_o[2] = {0, 0};
+  double width_o = 0.;
+  double hit_position_o = 0.;
+  Amg::Vector2D tmp_hitPos_o(0., 0.);
+
+  const MuonGM::TgcReadoutElement* descriptor_ii;
+  const MuonGM::TgcReadoutElement* descriptor_oo;
+
+  //*** TGC3 start ***//
+  if (!isInner){
+  // RDOHighPtID --> (Sim)HighPtID --> OfflineID --> ReadoutID --> getSLBID
+    found = getHiPtIds(itD, sswId_o, sbLoc_o, slbId_o);
     if(!found) {
-      ATH_MSG_DEBUG("Failed to get OfflineID from ReadoutID for Pivot "
-		    << ((*itD)->isStrip() ? "Strip" : "Wire") << ".");
       return StatusCode::SUCCESS;
     }
+
+    // get the OfflineID of cernter of ROI of TGC3
+    if(!((*itD)->isStrip())) { // wire
+      getBitPosOutWire(itD, slbsubMatrix, bitpos_o);
+    } else { // strip
+      getBitPosOutStrip(itD, slbsubMatrix, bitpos_o);
+    }
+    for(int i=0; i<2; i++) {
+      found = m_tgcCabling->getOfflineIDfromReadoutID(channelIdOut[i], (*itD)->subDetectorId(), (*itD)->rodId(), 
+                                                      sswId_o, sbLoc_o, bitpos_o[i]);
+      if(!found ) {
+        ATH_MSG_DEBUG("Failed to get OfflineID from ReadoutID for Pivot "
+                      << ((*itD)->isStrip() ? "Strip" : "Wire") << ".");
+        return StatusCode::SUCCESS;
+      }
+    }
+   
   }
-  //*** TGC3 end ***//
+ //*** TGC3 end ***//
 
   //*** TGC1 start ***//
+  if (!isInner){
   // get the OfflineID of cernter of ROI of TGC1
-  if(!((*itD)->isStrip())) { // wire
-    getBitPosInWire(itD, DeltaBeforeConvert, bitpos_i, slbchannel_i, slbId_in, sbLoc_in, sswId_i, bitpos_o, 
-		    slbchannel_o, slbId_o);
-  } else { // strip
-    getBitPosInStrip(itD, DeltaBeforeConvert, bitpos_i, slbchannel_i, sbLoc_i, sswId_i, bitpos_o, slbchannel_o);
-  }
-  for(int i=0; i<4; i++) {
-    found = m_tgcCabling->getOfflineIDfromReadoutID(channelIdIn[i], (*itD)->subDetectorId(), (*itD)->rodId(), sswId_i,
-                                                    ((*itD)->isStrip() ? sbLoc_i : sbLoc_in[i]), 
-                                                    bitpos_i[i]);
-    if(!found) {
-      ATH_MSG_DEBUG("Failed to get OfflineID from ReadoutID for Pivot "
-		    << ((*itD)->isStrip() ? "Strip" : "Wire") << ".");
-      return StatusCode::SUCCESS;
+    if(!((*itD)->isStrip())) { // wire
+      getBitPosInWire(itD, DeltaBeforeConvert, bitpos_i, slbchannel_i, slbId_in, sbLoc_in, sswId_i, bitpos_o, 
+                      slbchannel_o, slbId_o);
+    } else { // strip
+      getBitPosInStrip(itD, DeltaBeforeConvert, bitpos_i, slbchannel_i, sbLoc_i, sswId_i, bitpos_o, slbchannel_o);
+    }
+    for(int i=0; i<4; i++) {
+      found = m_tgcCabling->getOfflineIDfromReadoutID(channelIdIn[i], (*itD)->subDetectorId(), (*itD)->rodId(), sswId_i,
+                                                      ((*itD)->isStrip() ? sbLoc_i : sbLoc_in[i]), 
+                                                      bitpos_i[i]);
+      if(!found) {
+        ATH_MSG_DEBUG("Failed to get OfflineID from ReadoutID for Pivot "
+                      << ((*itD)->isStrip() ? "Strip" : "Wire") << ".");
+        return StatusCode::SUCCESS;
+      }
     }
   }
   //*** TGC1 end ***//
-
+  
   ATH_MSG_DEBUG("TGC RDO->Coindata for HIPT: " << m_tgcHelper->show_to_string(channelIdOut[1])); 
   
   Identifier elementId = m_tgcHelper->elementID(channelIdOut[1]);
@@ -1409,99 +1434,95 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeHiPt(const TgcRdo::const_iterator& 
   
   //*** TGC3 start ***// 
   // Get geometry of pivot plane 
-  const MuonGM::TgcReadoutElement* descriptor_o[2] = {m_muonMgr->getTgcReadoutElement(channelIdOut[0]), 
-						      m_muonMgr->getTgcReadoutElement(channelIdOut[1])};
-  for(int i=0; i<2; i++) {
-    if(!isOfflineIdOKForTgcReadoutElement(descriptor_o[i], channelIdOut[i])) {
+  if (!isInner){
+    const MuonGM::TgcReadoutElement* descriptor_o[2] = {m_muonMgr->getTgcReadoutElement(channelIdOut[0]), 
+                                                        m_muonMgr->getTgcReadoutElement(channelIdOut[1])};
+    for(int i=0; i<2; i++) {
+      if(!isOfflineIdOKForTgcReadoutElement(descriptor_o[i], channelIdOut[i]) && !isInner ) {
+        return StatusCode::SUCCESS;
+      }
+    }
+
+    for(int i=0; i<2; i++) { 
+      gasGap_o[i] = m_tgcHelper->gasGap(channelIdOut[i]);
+      channel_o[i] = m_tgcHelper->channel(channelIdOut[i]);
+    }
+
+    if(!((*itD)->isStrip())) { // wire
+      found = getPosAndIdWireOut(descriptor_o, channelIdOut,
+                                 gasGap_o, channel_o,
+                                 width_o, hit_position_o, tmp_hitPos_o,
+                                 channelIdOut_tmp);
+    } else { //strip
+      found = getPosAndIdStripOut(descriptor_o, channelIdOut,
+                                  gasGap_o, channel_o,
+                                  width_o, hit_position_o, tmp_hitPos_o,
+                                  channelIdOut_tmp,
+                                  isBackward, ((*itD)->subDetectorId()==ASIDE));
+    }
+    if(!found) {
       return StatusCode::SUCCESS;
     }
-  }
-  
-  int gasGap_o[2] = {0, 0}; 
-  int channel_o[2] = {0, 0};
-  for(int i=0; i<2; i++) { 
-    gasGap_o[i] = m_tgcHelper->gasGap(channelIdOut[i]);
-    channel_o[i] = m_tgcHelper->channel(channelIdOut[i]);
-  }
-  double width_o = 0.;
-  double hit_position_o = 0.;
-  Amg::Vector2D tmp_hitPos_o(0., 0.);
-  
-  if(!((*itD)->isStrip())) { // wire
-    found = getPosAndIdWireOut(descriptor_o, channelIdOut,
-                               gasGap_o, channel_o,
-                               width_o, hit_position_o, tmp_hitPos_o,
-                               channelIdOut_tmp);
-  } else { //strip
-    found = getPosAndIdStripOut(descriptor_o, channelIdOut,
-                                gasGap_o, channel_o,
-                                width_o, hit_position_o, tmp_hitPos_o,
-                                channelIdOut_tmp,
-                                isBackward, ((*itD)->subDetectorId()==ASIDE));
-  }
-  if(!found) {
-    return StatusCode::SUCCESS;
-  }
-  if(width_o<s_cutDropPrdsWithZeroWidth && m_dropPrdsWithZeroWidth) { // Invalid PRD's whose widths are zero are dropped.
-    return StatusCode::SUCCESS;
-  }
+    if(width_o<s_cutDropPrdsWithZeroWidth && m_dropPrdsWithZeroWidth) { // Invalid PRD's whose widths are zero are dropped.
+      return StatusCode::SUCCESS;
+    }
 
-  const MuonGM::TgcReadoutElement* descriptor_oo = m_muonMgr->getTgcReadoutElement(channelIdOut_tmp);
-  if(!isOfflineIdOKForTgcReadoutElement(descriptor_oo, channelIdOut_tmp)) {
-    return StatusCode::SUCCESS;
+    //const MuonGM::TgcReadoutElement* descriptor_oo = m_muonMgr->getTgcReadoutElement(channelIdOut_tmp);
+    descriptor_oo = m_muonMgr->getTgcReadoutElement(channelIdOut_tmp);
+    if(!isOfflineIdOKForTgcReadoutElement(descriptor_oo, channelIdOut_tmp)) {
+      return StatusCode::SUCCESS;
+    }
   }
   //*** TGC3 end ***// 
   
   //*** TGC1 start ***// 
   // Get geometry of non-pivot plane 
-  const MuonGM::TgcReadoutElement* descriptor_i[4] = {m_muonMgr->getTgcReadoutElement(channelIdIn[0]), 
-						      m_muonMgr->getTgcReadoutElement(channelIdIn[1]), 
-						      m_muonMgr->getTgcReadoutElement(channelIdIn[2]), 
-						      m_muonMgr->getTgcReadoutElement(channelIdIn[3])};
-  for(int i=0; i<4; i++) {
-    if(!isOfflineIdOKForTgcReadoutElement(descriptor_i[i], channelIdIn[i])) {
+  if (!isInner){
+    const MuonGM::TgcReadoutElement* descriptor_i[4] = {m_muonMgr->getTgcReadoutElement(channelIdIn[0]), 
+                                                        m_muonMgr->getTgcReadoutElement(channelIdIn[1]), 
+                                                        m_muonMgr->getTgcReadoutElement(channelIdIn[2]), 
+                                                        m_muonMgr->getTgcReadoutElement(channelIdIn[3])};
+    for(int i=0; i<4; i++) {
+      if(!isOfflineIdOKForTgcReadoutElement(descriptor_i[i], channelIdIn[i])) {
+        return StatusCode::SUCCESS;
+      }
+    }
+    for(int i=0; i<4; i++) { 
+      gasGap_i[i] = m_tgcHelper->gasGap(channelIdIn[i]); 
+      channel_i[i] = m_tgcHelper->channel(channelIdIn[i]); 
+    }
+    
+    if(!(*itD)->isStrip()) { // WIRE
+      found = getPosAndIdWireIn(descriptor_i, channelIdIn,
+                                gasGap_i, channel_i,
+                                width_i, hit_position_i, tmp_hitPos_i,
+                                channelIdIn_tmp);
+    } else { // STRIP
+      found = getPosAndIdStripIn(descriptor_i, channelIdIn,
+                                 gasGap_i, channel_i,
+                                 width_i, hit_position_i, tmp_hitPos_i,
+                                 channelIdIn_tmp,
+                                 isBackward, ((*itD)->subDetectorId()==ASIDE));
+    }
+    if(!found) {
       return StatusCode::SUCCESS;
     }
-  }
-  
-  int gasGap_i[4] = {0, 0, 0, 0}; 
-  int channel_i[4] = {0, 0, 0, 0}; 
-  for(int i=0; i<4; i++) { 
-    gasGap_i[i] = m_tgcHelper->gasGap(channelIdIn[i]); 
-    channel_i[i] = m_tgcHelper->channel(channelIdIn[i]); 
-  }
-  double width_i = 0.;
-  double hit_position_i = 0.;
-  Amg::Vector2D tmp_hitPos_i(0., 0.);
-  
-  if(!(*itD)->isStrip()) { // WIRE
-    found = getPosAndIdWireIn(descriptor_i, channelIdIn,
-                              gasGap_i, channel_i,
-                              width_i, hit_position_i, tmp_hitPos_i,
-                              channelIdIn_tmp);
-  } else { // STRIP
-    found = getPosAndIdStripIn(descriptor_i, channelIdIn,
-                               gasGap_i, channel_i,
-                               width_i, hit_position_i, tmp_hitPos_i,
-                               channelIdIn_tmp,
-                               isBackward, ((*itD)->subDetectorId()==ASIDE));
-  }
-  if(!found) {
-    return StatusCode::SUCCESS;
-  }
-  if(width_i<s_cutDropPrdsWithZeroWidth && m_dropPrdsWithZeroWidth) { // Invalid PRD's whose widths are zero are dropped.
-    return StatusCode::SUCCESS;
-  }
+    if(width_i<s_cutDropPrdsWithZeroWidth && m_dropPrdsWithZeroWidth) { // Invalid PRD's whose widths are zero are dropped.
+      return StatusCode::SUCCESS;
+    }
 
-  const MuonGM::TgcReadoutElement* descriptor_ii = m_muonMgr->getTgcReadoutElement(channelIdIn_tmp);
-  if(!isOfflineIdOKForTgcReadoutElement(descriptor_ii, channelIdIn_tmp)) {
-    return StatusCode::SUCCESS;
+    //const MuonGM::TgcReadoutElement* descriptor_ii = m_muonMgr->getTgcReadoutElement(channelIdIn_tmp);
+    descriptor_ii = m_muonMgr->getTgcReadoutElement(channelIdIn_tmp);
+    if(!isOfflineIdOKForTgcReadoutElement(descriptor_ii, channelIdIn_tmp)) {
+      return StatusCode::SUCCESS;
+    }
   }
   //*** TGC1 end ***// 
 
   int trackletId = 2*sbLoc_o + slbsubMatrix;
   int delta = static_cast<int>((*itD)->delta());
   int hsub = static_cast<int>((*itD)->hsub());
+  int tile = static_cast<int>((*itD)->tile());
 
   // check duplicate digits
   TgcCoinDataCollection::const_iterator it_tgcCoinData   = coincollection->begin();
@@ -1512,7 +1533,8 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeHiPt(const TgcRdo::const_iterator& 
        (channelIdIn_tmp==(*it_tgcCoinData)->channelIdIn()) && // channelIdIn
        (trackletId==(*it_tgcCoinData)->trackletId()) && // trackletId 
        (delta==(*it_tgcCoinData)->delta()) && // delta
-       (hsub==(*it_tgcCoinData)->sub()) // hsub
+       (hsub==(*it_tgcCoinData)->sub()) && // hsub
+       (tile==(*it_tgcCoinData)->tile())
        ) { 
       if(38<=trackletId && trackletId<=41) {
 	// This drop is most probably due to the fix of the HiPt Endcap Strip Board bug. 
@@ -1537,6 +1559,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeHiPt(const TgcRdo::const_iterator& 
 					     TgcCoinData::TYPE_HIPT, // Coincidence type
 					     ((*itD)->subDetectorId()==ASIDE), // isAside
 					     static_cast<int>(m_tgcHelper->stationPhi(channelIdOut_tmp)), // phi
+                                             isInner,
 					     static_cast<bool>((*itD)->isForward()), // isForward
 					     static_cast<bool>((*itD)->isStrip()), // isStrip
 					     trackletId, // trackletId
@@ -1545,7 +1568,8 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeHiPt(const TgcRdo::const_iterator& 
 					     width_i,
 					     width_o,
 					     delta, // delta
-					     hsub); // hsub
+					     hsub,  // hsub
+                                             tile);
   // add the digit to the collection
   newCoinData->setHashAndIndex(coincollection->identifyHash(), coincollection->size());  
   coincollection->push_back(newCoinData);
@@ -1629,6 +1653,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeSL(const TgcRdo::const_iterator& it
   int trackletIdStrip = 2*sbLoc_s + subMatrix_s;
   int roi = static_cast<int>((*itD)->roi());
   int pt = static_cast<int>((*itD)->threshold());
+  bool veto = (*itD)->isVeto();
   bool isPositiveDeltaR = (*itD)->isMuplus(); // Current SL sets isMuplus flag based on sign of deltaR. 
                                               // Postive deltaR gives isMuplus=true.
   // check duplicate digits
@@ -1641,6 +1666,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeSL(const TgcRdo::const_iterator& it
        (trackletIdStrip==(*it_tgcCoinData)->trackletIdStrip()) &&
        (roi==(*it_tgcCoinData)->roi()) && 
        (pt==(*it_tgcCoinData)->pt()) && 
+       (veto==(*it_tgcCoinData)->veto()) && 
        (isPositiveDeltaR==(*it_tgcCoinData)->isPositiveDeltaR()) 
        ) {
       ATH_MSG_DEBUG("Duplicated TgcCoinData (SL) = "
@@ -1722,6 +1748,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeSL(const TgcRdo::const_iterator& it
 					     errMat,
 					     roi, // roi from RDO
 					     pt, // threshold from RDO
+					     veto, // veto flag from RDO
 					     isPositiveDeltaR); // isMuplus from RDO
 
   // add the digit to the collection

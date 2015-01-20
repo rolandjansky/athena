@@ -100,7 +100,7 @@ namespace Muon
 	  C-input : 112 - 155, 118 - 149 are valid. 
 	  D-input : 156 - 199, 162 - 193 are valid. 
 
-	  CHannel in this code : Large R                  15  14  13  12  11 ...   0  15 ...   3   2   1   0                 Small R
+	  Channel in this code : Large R                  15  14  13  12  11 ...   0  15 ...   3   2   1   0                 Small R
                                                            (it is better to be reverted to avoid confusion)
           ASD channel order    :  15 ... ...   0 (there are shifts dependent on position)
 	  PS board channel     :                           0   1   2   3   4 ...  15  16 ...  28  29  30  31 
