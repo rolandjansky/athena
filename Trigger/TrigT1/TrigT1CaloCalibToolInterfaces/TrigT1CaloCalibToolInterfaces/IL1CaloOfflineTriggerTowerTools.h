@@ -24,6 +24,9 @@
 
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
 
+#include "xAODTrigL1Calo/xAODTrigL1Calo/TriggerTower.h"
+#include "xAODTrigL1Calo/xAODTrigL1Calo/TriggerTowerContainer.h"
+
 class CaloCell;
 class CaloCellContainer;
 class LArDigitContainer;
@@ -56,6 +59,7 @@ namespace LVL1{
       virtual int                                        emPpmSubmodule(const TriggerTower* tt) const = 0;
       virtual int                                        emPpmChannel(const TriggerTower* tt) const = 0;
       virtual unsigned int                               emCoolChannelId(const TriggerTower* tt) const = 0;
+      virtual unsigned int				 CoolChannelId(const xAOD::TriggerTower* tt) const = 0;
       virtual std::vector<int>                           emLocation(const TriggerTower* tt) const = 0;
       virtual std::vector<unsigned int>                  emRxId(const TriggerTower* tt) const = 0;
 
@@ -79,6 +83,7 @@ namespace LVL1{
       virtual float                                      emTTCellsEnergy(const TriggerTower* tt) const = 0;
       virtual std::vector<float>                         emTTCellsEnergyByLayer(const TriggerTower* tt) const = 0;
       virtual std::vector<float>                         emTTCellsEnergyByReceiver(const TriggerTower* tt,const int mode=0) const = 0;
+      virtual float                                      TTCellsEt(const xAOD::TriggerTower* tt) const = 0;      
       virtual float                                      emTTCellsEt(const TriggerTower* tt) const = 0;
       virtual std::vector<float>                         emTTCellsEtByLayer(const TriggerTower* tt) const = 0;
       virtual std::vector<float>                         emTTCellsEtByReceiver(const TriggerTower* tt,const int mode=0) const = 0;
@@ -122,6 +127,8 @@ namespace LVL1{
       virtual std::vector<std::vector<float> >           hadNonNominalMeanScaleByReceiverByLayer(const TriggerTower* tt) const = 0;
 
       //  Database Attributes
+      virtual const coral::AttributeList*		 DbAttributes(const xAOD::TriggerTower* tt, const CondAttrListCollection* dbAttrList) const = 0;
+      
       virtual const coral::AttributeList*                emDbAttributes(const TriggerTower* tt,const CondAttrListCollection* dbAttrList) const = 0;
       virtual std::vector<const coral::AttributeList*>   emDbRxGainsAttributes(const TriggerTower* tt,const CondAttrListCollection* dbAttrList) const = 0;
 
