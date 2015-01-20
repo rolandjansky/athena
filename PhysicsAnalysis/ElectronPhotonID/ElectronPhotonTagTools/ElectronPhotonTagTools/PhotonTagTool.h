@@ -14,19 +14,18 @@ Purpose : build the Photon Tag objects - PhotonTagCollection.h.
 	  The Photon Tag fragment is built here
 *****************************************************************************/
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "TagEvent/TagFragmentCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 
 #include <map>
 
-class StoreGateSvc;
 class PhotonTagCollection;
 
 /** Interface ID for PhotonTagTool */  
 static const InterfaceID IID_PhotonTagTool("PhotonTagTool", 1, 0);
 
-class PhotonTagTool : public AlgTool {
+class PhotonTagTool : public AthAlgTool {
 
 public:
   
@@ -61,10 +60,6 @@ private:
   std::vector<std::string> m_phiStr;
   std::vector<std::string> m_tightStr;
   std::vector<std::string> m_isoStr;
-
-  /** Event Store */
-  StoreGateSvc* m_storeGate;
-
  };
 
 #endif // PHOTONTAGTOOL_H

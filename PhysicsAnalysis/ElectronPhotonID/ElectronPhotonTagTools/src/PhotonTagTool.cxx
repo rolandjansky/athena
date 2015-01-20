@@ -11,7 +11,6 @@ Purpose : create a collection of PhotonTag
 
 *****************************************************************************/
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 
 #include "StoreGate/StoreGateSvc.h"
@@ -35,7 +34,7 @@ Purpose : create a collection of PhotonTag
 /** the constructor */
 PhotonTagTool::PhotonTagTool (const std::string& type, const std::string& name, 
     const IInterface* parent) : 
-    AlgTool( type, name, parent )
+  AthAlgTool( type, name, parent )
 {
   /** Photon AOD Container Name */
   declareProperty("Container",     m_containerName = "PhotonCollection");
@@ -56,16 +55,7 @@ PhotonTagTool::PhotonTagTool (const std::string& type, const std::string& name,
 
 /** initialization - called once at the begginning */
 StatusCode  PhotonTagTool::initialize() {
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in intialize()" << endreq;
-
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) {
-    mLog << MSG::ERROR << "Unable to retrieve pointer to StoreGateSvc"
-         << endreq;
-    return sc;
-  }
-
+  ATH_MSG_DEBUG( "in intialize()" );
   return StatusCode::SUCCESS;
 }
 
@@ -75,8 +65,7 @@ StatusCode  PhotonTagTool::initialize() {
 StatusCode PhotonTagTool::attributeSpecification(std::map<std::string,AthenaAttributeType>& attrMap,
                                                  const int& max)
 {
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in attributeSpecification()" << endreq;
+  ATH_MSG_DEBUG( "in attributeSpecification()" );
 
   /** Photon Attributes */
   attrMap[ PhotonAttributeNames[PhotonID::NPhoton] ]  = AthenaAttributeType("unsigned int", PhotonAttributeUnitNames[PhotonID::NPhoton], PhotonAttributeGroupNames[PhotonID::NPhoton]);
@@ -126,17 +115,16 @@ StatusCode PhotonTagTool::attributeSpecification(std::map<std::string,AthenaAttr
 /** execute - called on every event */
 StatusCode PhotonTagTool::execute(TagFragmentCollection& pTagColl, const int& max) {
 
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in execute()" << endreq;
+  ATH_MSG_DEBUG( "in execute()" );
 
   /** retrieve the AOD photon container */
   const xAOD::PhotonContainer *photonContainer;
-  StatusCode sc = m_storeGate->retrieve( photonContainer, m_containerName);
+  StatusCode sc = evtStore()->retrieve( photonContainer, m_containerName);
   if (sc.isFailure()) {
-    mLog << MSG::WARNING << "No AOD Photon container found in SG" << endreq;
+    ATH_MSG_WARNING( "No AOD Photon container found in SG" );
     return StatusCode::SUCCESS;
   }
-  mLog << MSG::DEBUG << "AOD Photon container successfully retrieved" << endreq;
+  ATH_MSG_DEBUG( "AOD Photon container successfully retrieved" );
 
   xAOD::PhotonContainer userContainer( SG::VIEW_ELEMENTS );
   userContainer = *photonContainer;
@@ -172,12 +160,12 @@ StatusCode PhotonTagTool::execute(TagFragmentCollection& pTagColl, const int& ma
 	  bool val_tight=0;
 	  
 	  if(!(*photonItr)->passSelection(val_loose,"Loose")){
-	    mLog << MSG::ERROR << "No loose selection exits" <<endreq;
+	    ATH_MSG_ERROR( "No loose selection exits" );
 	  }
 	 
 	 
 	  if(!(*photonItr)->passSelection(val_tight,"Tight")){
-	    mLog << MSG::ERROR << "No Tight selection exits" <<endreq;
+	    ATH_MSG_ERROR( "No Tight selection exits" );
 	  }
 	 
 	  if (val_loose == 1 ) tightness |= (1<<0);//loose
@@ -264,8 +252,7 @@ StatusCode PhotonTagTool::execute(TagFragmentCollection& pTagColl, const int& ma
 
 /** finalize - called once at the end */
 StatusCode PhotonTagTool::finalize() {
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in finalize()" << endreq;
+  ATH_MSG_DEBUG( "in finalize()" );
   return StatusCode::SUCCESS;
 }
 
