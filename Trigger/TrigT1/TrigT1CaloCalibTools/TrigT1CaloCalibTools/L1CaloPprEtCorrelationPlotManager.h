@@ -27,6 +27,9 @@
 #include "TrigT1CaloCalibToolInterfaces/IL1CaloMonitoringCaloTool.h"
 #include "TrigT1CaloCalibTools/L1CaloPprPlotManager.h"
 
+#include "xAODTrigL1Calo/xAODTrigL1Calo/TriggerTower.h"
+#include "xAODTrigL1Calo/xAODTrigL1Calo/TriggerTowerContainer.h"
+
 class ITHistSvc;
 class ManagedMonitorToolBase;
 class Identifier;
@@ -71,7 +74,7 @@ class L1CaloPprEtCorrelationPlotManager : public L1CaloPprPlotManager
 	double m_EtMin;
 
 	// Providing Et correlation (=Et ratio)
-	double getMonitoringValue(const LVL1::TriggerTower* trigTower, CalLayerEnum theLayer);
+	double getMonitoringValue(const xAOD::TriggerTower* trigTower, CalLayerEnum theLayer);
 	
 	// decide whether the correlation
 	// is acctually plotted

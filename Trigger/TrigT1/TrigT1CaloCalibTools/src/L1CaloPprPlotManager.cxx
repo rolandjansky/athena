@@ -32,6 +32,8 @@
 #include "TrigT1CaloToolInterfaces/IL1TriggerTowerTool.h"
 
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
+#include "xAODTrigL1Calo/xAODTrigL1Calo/TriggerTower.h"
+#include "xAODTrigL1Calo/xAODTrigL1Calo/TriggerTowerContainer.h"
 
 // constructor for offline monitoring
 L1CaloPprPlotManager::L1CaloPprPlotManager(ITHistSvc* histSvc,
@@ -55,7 +57,6 @@ L1CaloPprPlotManager::L1CaloPprPlotManager(ITHistSvc* histSvc,
     m_monitoringName(monitoringName),
     m_monitoringTitle(monitoringTitle),
     m_monitoringDimension(monitoringDimension),
-    m_p_online_em_valueVsLumi(0),
     m_p_online_had_valueVsLumi(0),
     m_p_offline_em_valueVsLumi(0),
     m_p_offline_had_valueVsLumi(0),
@@ -72,6 +73,7 @@ L1CaloPprPlotManager::L1CaloPprPlotManager(ITHistSvc* histSvc,
     m_doRunHistograms(doRunHistograms),
     m_ppmAdcMinValue(ADC_cut),
     m_lumiNo(0),
+    m_bunchCrossing(0),
     m_lumiMax(lumiMax),
     m_sampleInterval(25), //25 nano second sampling interval
     m_currentRunNo(0),
@@ -91,8 +93,8 @@ L1CaloPprPlotManager::L1CaloPprPlotManager(ManagedMonitorToolBase* aMonObj,
 					   const std::string& monitoringPath,
 					   const std::string& monitoringName,
 					   const std::string& monitoringTitle,
-					   const std::string& monitoringDimension)
-    :m_histTool("TrigT1CaloLWHistogramTool"),
+					   const std::string& monitoringDimension):
+    m_histTool("TrigT1CaloLWHistogramTool"),
     m_ttToolOffline(0),
     m_ttToolOnline(ttTool_online),
     m_eventInfo(0),
@@ -120,6 +122,7 @@ L1CaloPprPlotManager::L1CaloPprPlotManager(ManagedMonitorToolBase* aMonObj,
     m_doRunHistograms(false),
     m_ppmAdcMinValue(ADC_cut),
     m_lumiNo(0),
+    m_bunchCrossing(0),
     m_lumiMax(lumiMax),
     m_sampleInterval(25), // 25 nano second sampling interval
     m_currentRunNo(0),
@@ -138,28 +141,24 @@ L1CaloPprPlotManager::~L1CaloPprPlotManager()
 
 // --------------------------------------------------------------------------
 
-void L1CaloPprPlotManager::Analyze(const EventInfo* evtInfo, const LVL1::TriggerTower* trigTower, bool EmDisabled, bool HadDisabled)
+void L1CaloPprPlotManager::Analyze(const EventInfo* evtInfo, const xAOD::TriggerTower* trigTower, bool channelDisabled)
 {
+    unsigned int coolID(0);
     
-    unsigned int EmcoolID(0);
-    unsigned int HadcoolID(0);
-
     if(isOnline && AthenaMonManager::environment() == AthenaMonManager::online)
     {
         double eta = trigTower->eta();
 	double phi = trigTower->phi();
-        EmcoolID    = m_ttToolOnline->channelID(eta, phi,0).id();
-        HadcoolID   = m_ttToolOnline->channelID(eta, phi,1).id();
+	coolID = m_ttToolOnline->channelID(eta, phi,trigTower->layer()).id();
     }
     else if(!isOnline)
     {
-        EmcoolID    = m_ttToolOffline->emCoolChannelId(trigTower);
-        HadcoolID   = m_ttToolOffline->hadCoolChannelId(trigTower);
+        coolID = m_ttToolOffline->CoolChannelId(trigTower);
     }
-    
     m_eventInfo = evtInfo;
     m_lumiNo = evtInfo->event_ID()->lumi_block();
     m_currentRunNo = evtInfo->event_ID()->run_number();
+    m_bunchCrossing = evtInfo->event_ID()->bunch_crossing_id();
     
     if(!isOnline && m_doRunHistograms)
     {
@@ -187,21 +186,21 @@ void L1CaloPprPlotManager::Analyze(const EventInfo* evtInfo, const LVL1::Trigger
 	m_h_online_em_etaPhiValueRMS = 0;
 	m_h_online_had_etaPhiValueRMS = 0;
 	m_map_online_partitionProfile_ValueVsLumi.clear();
+ 	m_map_online_partitionProfile_ValueVsBCN.clear();
 	m_map_online_coolIDProfile_ValueVsLumi.clear();
     }
-    
     //Check if the TriggerTowers are disabled or not before analysis
-    if(!EmDisabled)
+    if (!channelDisabled)
     {
-        if ( isOnline ) { this->fillOnlineHistos(trigTower, EmcoolID, Emlayer); }
-	else { this->fillOfflineHistos(trigTower, EmcoolID, Emlayer); }
+      if ( isOnline) {
+	if ( trigTower->layer()==0 ) { this->fillOnlineHistos(trigTower, coolID, Emlayer); }
+	if ( trigTower->layer()==1 ) { this->fillOnlineHistos(trigTower, coolID, Hadlayer); }
+      }
+      else {
+	if ( trigTower->layer()==0 ) { this->fillOfflineHistos(trigTower, coolID, Emlayer); }
+	if ( trigTower->layer()==1 ) { this->fillOfflineHistos(trigTower, coolID, Hadlayer); }
+      }
     }
-    if(!HadDisabled)
-    {	
-        if ( isOnline ) { this->fillOnlineHistos(trigTower, HadcoolID, Hadlayer); }
-	else { this->fillOfflineHistos(trigTower, HadcoolID, Hadlayer); }
-    }
-
 }
 
 // --------------------------------------------------------------------------
@@ -288,7 +287,7 @@ StatusCode L1CaloPprPlotManager::bookRunHistograms()
 // --------------------------------------------------------------------------
 
 /*virtual*/
-void L1CaloPprPlotManager::fillOnlineHistos(const LVL1::TriggerTower* trigTower, unsigned int &mapCoolid, CalLayerEnum theLayer)
+void L1CaloPprPlotManager::fillOnlineHistos(const xAOD::TriggerTower* trigTower, unsigned int &mapCoolid, CalLayerEnum theLayer)
 {
     // get value to be filled in histograms
     double value = this->getMonitoringValue(trigTower, theLayer);
@@ -307,11 +306,10 @@ void L1CaloPprPlotManager::fillOnlineHistos(const LVL1::TriggerTower* trigTower,
 // --------------------------------------------------------------------------
 
 /*virtual*/
-void L1CaloPprPlotManager::fillGlobalOnlineHistos(const LVL1::TriggerTower* trigTower, CalLayerEnum layer, double &value)
+void L1CaloPprPlotManager::fillGlobalOnlineHistos(const xAOD::TriggerTower* trigTower, CalLayerEnum layer, double &value)
 {
     /* Create global partition integrated plots */
     /********************************************************************************************************/
-  
     double eta  = trigTower->eta();
     double phi  = trigTower->phi();
     
@@ -368,9 +366,8 @@ void L1CaloPprPlotManager::fillGlobalOnlineHistos(const LVL1::TriggerTower* trig
 					   Form("#eta-#phi map of %s RMS: Had Trigger Tower",m_monitoringTitle.data()));
         m_histTool->unsetMonGroup();
     }
-    
     //Fill Channel and detector partition integrated plots.
-    if( layer == Emlayer ) {m_p_online_em_valueVsLumi->Fill(m_lumiNo,value);}
+    if( layer == 0 ) {m_p_online_em_valueVsLumi->Fill(m_lumiNo,value);}
     else { m_p_online_had_valueVsLumi->Fill(m_lumiNo,value);}
     
     //Fill Etaphi Plots
@@ -379,7 +376,7 @@ void L1CaloPprPlotManager::fillGlobalOnlineHistos(const LVL1::TriggerTower* trig
     double val = 0;
     double rms = 0;
     
-    if( layer == Emlayer )
+    if( layer == 0 )
     {
         m_histTool->fillPPMEmEtaVsPhi(m_p_online_em_etaPhiValue,eta,phi,value,1);
 	if (AthenaMonManager::environment() == AthenaMonManager::online) { // Needs post-processing algorithm on Tier0
@@ -405,11 +402,10 @@ void L1CaloPprPlotManager::fillGlobalOnlineHistos(const LVL1::TriggerTower* trig
 // --------------------------------------------------------------------------
 
 /*virtual*/
-void L1CaloPprPlotManager::fillPartitionOnlineHistos(const LVL1::TriggerTower* trigTower, CalLayerEnum theLayer, double &value)
+void L1CaloPprPlotManager::fillPartitionOnlineHistos(const xAOD::TriggerTower* trigTower, CalLayerEnum theLayer, double &value)
 {   
     //Create Channel Integrated, Partition differentiated plots
     /****************************************************************************************************/
-    
     double eta  = trigTower->eta();
     CaloDivisionEnum detectorRegion = this->GetDetectorRegion(eta,theLayer);
     
@@ -418,7 +414,6 @@ void L1CaloPprPlotManager::fillPartitionOnlineHistos(const LVL1::TriggerTower* t
     {
         std::string plotType = this->GetDetectorLayerString(theLayer);
         std::string detectorRegionString = this->GetDetectorRegionString(detectorRegion);
-
         std::string mergeMethod("");
 	int nbins = m_lumiMax;
 	double xmin = 0.;
@@ -444,6 +439,7 @@ void L1CaloPprPlotManager::fillPartitionOnlineHistos(const LVL1::TriggerTower* t
 								    detectorRegionString.data()),
 								    nbins, xmin, xmax);
 	anLWProfileHist->Fill(m_lumiNo,value);
+
 	m_map_online_partitionProfile_ValueVsLumi.insert( std::pair<CaloDivisionEnum, TProfile_LW*> (detectorRegion,anLWProfileHist));
 
         m_histTool->unsetMonGroup();
@@ -452,13 +448,12 @@ void L1CaloPprPlotManager::fillPartitionOnlineHistos(const LVL1::TriggerTower* t
     {
         part_itr->second->Fill(m_lumiNo,value);
     }
-
 }
 
 // --------------------------------------------------------------------------
 
 /*virtual*/
-void L1CaloPprPlotManager::fillDifferentialOnlineHistos(const LVL1::TriggerTower* trigTower, unsigned int &coolId, CalLayerEnum theLayer, double &value)
+void L1CaloPprPlotManager::fillDifferentialOnlineHistos(const xAOD::TriggerTower* trigTower, unsigned int &coolId, CalLayerEnum theLayer, double &value)
 {
     //Create fully differential plots
     /****************************************************************************************************/
@@ -470,6 +465,7 @@ void L1CaloPprPlotManager::fillDifferentialOnlineHistos(const LVL1::TriggerTower
     {
         double eta  = trigTower->eta();
         std::string plotType = this->GetDetectorLayerString(theLayer);
+	std::cout << "Now in fillDifferentialOnlineHistos and plotType = " << plotType << std::endl;
         CaloDivisionEnum detectorRegion = this->GetDetectorRegion(eta,theLayer);
         std::string detectorRegionString = this->GetDetectorRegionString(detectorRegion);
 
@@ -524,7 +520,7 @@ void L1CaloPprPlotManager::fillDifferentialOnlineHistos(const LVL1::TriggerTower
 // --------------------------------------------------------------------------
 
 /*virtual*/
-void L1CaloPprPlotManager::fillOfflineHistos(const LVL1::TriggerTower* trigTower, unsigned int &mapCoolid, CalLayerEnum theLayer)
+void L1CaloPprPlotManager::fillOfflineHistos(const xAOD::TriggerTower* trigTower, unsigned int &mapCoolid, CalLayerEnum theLayer)
 {    
     // compute value to be monitored
     double value = this->getMonitoringValue(trigTower, theLayer);
@@ -569,7 +565,7 @@ void L1CaloPprPlotManager::fillRunHistograms(double &eta, double &phi, CalLayerE
 // --------------------------------------------------------------------------
 
 /*virtual*/
-void L1CaloPprPlotManager::fillPartitionOfflineHistos(const LVL1::TriggerTower* trigTower,
+void L1CaloPprPlotManager::fillPartitionOfflineHistos(const xAOD::TriggerTower* trigTower,
 						      CalLayerEnum theLayer,
 						      double &value)
 {
@@ -578,6 +574,7 @@ void L1CaloPprPlotManager::fillPartitionOfflineHistos(const LVL1::TriggerTower* 
     double eta= trigTower->eta();
 
     std::string plotType = this->GetDetectorLayerString(theLayer);
+    std::cout << "Now in fillPartitionOfflineHistos and plotType = " << plotType << std::endl;
     CaloDivisionEnum detectorRegion  = this->GetDetectorRegion(eta,theLayer);
     std::string detectorRegionString = this->GetDetectorRegionString(detectorRegion);
 
@@ -620,7 +617,7 @@ void L1CaloPprPlotManager::fillPartitionOfflineHistos(const LVL1::TriggerTower* 
 // --------------------------------------------------------------------------
 
 /*virtual*/ 
-void L1CaloPprPlotManager::fillDifferentialOfflineHistos(const LVL1::TriggerTower* trigTower,
+void L1CaloPprPlotManager::fillDifferentialOfflineHistos(const xAOD::TriggerTower* trigTower,
 							 unsigned int &coolId,
 							 CalLayerEnum theLayer,
 							 double &value)
