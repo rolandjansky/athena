@@ -18,7 +18,7 @@ Purpose : Tool to buid the Global Event Tags
 #include "TagEvent/TagFragmentCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 
-#include "CoolKernel/IDatabase.h"
+//#include "CoolKernel/IDatabase.h"
 
 #include "EventTagUtils/EventInfoTagTool.h"
 

@@ -22,8 +22,6 @@
 #include "LumiCalc/LumiBlockCollectionConverter.h"
 #include "LumiBlockData/LumiBlockCollection.h"
 #include "DBDataModel/CollectionMetadata.h"
-#include "GoodRunsLists/TGoodRunsList.h"
-#include "GoodRunsLists/TGoodRunsListWriter.h"
 
 //#include "EventInfo/EventIncident.h"
 
