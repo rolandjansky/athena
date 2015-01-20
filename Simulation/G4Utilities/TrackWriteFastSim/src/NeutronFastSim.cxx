@@ -63,4 +63,3 @@ void NeutronFastSim::DoIt(const G4FastTrack& fastTrack, G4FastStep& fastStep)
   if (m_fsSD) m_fsSD->WriteTrack( fastTrack.GetPrimaryTrack() , false , false );
   fastStep.KillPrimaryTrack();
 }
-

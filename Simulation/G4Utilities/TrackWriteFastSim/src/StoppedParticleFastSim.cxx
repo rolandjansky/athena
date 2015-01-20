@@ -58,23 +58,23 @@ void StoppedParticleFastSim::DoIt(const G4FastTrack& fastTrack, G4FastStep& fast
     m_init = true;
 
     FADS::SensitiveDetectorCatalog * fsdc = FADS::SensitiveDetectorCatalog::GetSensitiveDetectorCatalog();
-    if (!fsdc) { 
+    if (!fsdc) {
       std::cout << "ERROR: StoppedParticleFastSim could not get sensitive detector catalog." << std::endl;
     } else {
       FADS::FadsSensitiveDetector * fsd = fsdc->GetSensitiveDetector("TrackFastSimSD");
-      if (!fsd) { 
-        std::cout << "StoppedParticleFastSim could not get TrackFastSimSD sensitive detector." << std::endl; 
+      if (!fsd) {
+        std::cout << "StoppedParticleFastSim could not get TrackFastSimSD sensitive detector." << std::endl;
       } else {
         m_fsSD = dynamic_cast<TrackFastSimSD*>(fsd);
         if (!m_fsSD) {
-          std::cout << "StoppedParticleFastSim could not cast the SD." << std::endl; 
+          std::cout << "StoppedParticleFastSim could not cast the SD." << std::endl;
         } else { // succeeded in cast
           m_fsSD->SetCollectionName("StoppingPositions");
         }
       } // found the SD
     } // got the catalog
   }
-  
+
   if (isSUSYParticle(fastTrack.GetPrimaryTrack()->GetDynamicParticle()->GetDefinition()->GetPDGEncoding()) &&
       m_fsSD) {
     m_fsSD->WriteTrack( fastTrack.GetPrimaryTrack() , false , true );
@@ -91,8 +91,7 @@ bool StoppedParticleFastSim::isSUSYParticle(const int id) const
       id==1009111 || id==1009113 || id==1009211 || id==1009213 || id==1009311 ||
       id==1009313 || id==1009321 || id==1009323 || id==1009223 || id==1009333 ||
       id==1092112 || id==1091114 || id==1092114 || id==1092212 || id==1092214 || id==1092224 ||
-      id==1093114 || id==1093122 || id==1093214 || id==1093224 || id==1093314 || id==1093324 || id==1093334) 
+      id==1093114 || id==1093122 || id==1093214 || id==1093224 || id==1093314 || id==1093324 || id==1093334)
     return true;
   return false;
 }
-
