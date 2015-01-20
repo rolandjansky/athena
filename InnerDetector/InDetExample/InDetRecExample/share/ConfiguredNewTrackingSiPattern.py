@@ -23,7 +23,7 @@ class  ConfiguredNewTrackingSiPattern:
       #
       # --- decide if use the association tool
       #
-      if (len(InputCollections) > 0) and (NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or NewTrackingCuts.mode() == "BeamGas" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "ForwardSLHCTracks"  or NewTrackingCuts.mode() == "PixelPrdAssociation"):
+      if (len(InputCollections) > 0) and (NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or NewTrackingCuts.mode() == "BeamGas" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "ForwardSLHCTracks"  or NewTrackingCuts.mode() == "PixelPrdAssociation" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks"):
          usePrdAssociationTool = True
       else:
          usePrdAssociationTool = False
@@ -96,10 +96,11 @@ class  ConfiguredNewTrackingSiPattern:
             InDetSiSpacePointsSeedMaker.maxRadius1         =1000.*Units.mm
             InDetSiSpacePointsSeedMaker.maxRadius2         =1000.*Units.mm
             InDetSiSpacePointsSeedMaker.maxRadius3         =1000.*Units.mm
-         if NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "ForwardSLHCTracks":
+         if NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks":
             InDetSiSpacePointsSeedMaker.checkEta           = True
             InDetSiSpacePointsSeedMaker.etaMin             = NewTrackingCuts.minEta()
             InDetSiSpacePointsSeedMaker.etaMax             = NewTrackingCuts.maxEta()
+            InDetSiSpacePointsSeedMaker.RapidityCut        = NewTrackingCuts.maxEta()
             
                     
          #InDetSiSpacePointsSeedMaker.OutputLevel = VERBOSE
@@ -200,7 +201,10 @@ class  ConfiguredNewTrackingSiPattern:
 
          elif NewTrackingCuts.mode() == "ForwardSLHCTracks":
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_ForwardSLHCTracks'
- 
+
+         elif NewTrackingCuts.mode() == "VeryForwardSLHCTracks": 
+          InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_VeryForwardSLHCTracks' 
+         
          else:
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSPSeededFinder'
 					  
