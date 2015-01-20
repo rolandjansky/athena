@@ -15,5 +15,6 @@ use TrkEventPrimitives  	TrkEventPrimitives-*       Tracking/TrkEvent
 use TrkSurfaces         	TrkSurfaces-*         	   Tracking/TrkDetDescr
 use muonEvent		        muonEvent-*     	   Reconstruction/MuonIdentification 
 
-
-
+# Declare this package as a metalibrary for cmake in order to ensure that its clients have
+# access to the libraries and header files from packages that this one depends on.
+apply_pattern cmake_add_command command=metalibrary
