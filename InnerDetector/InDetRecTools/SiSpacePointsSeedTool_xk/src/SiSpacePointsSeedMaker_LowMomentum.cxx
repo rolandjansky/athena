@@ -622,7 +622,7 @@ MsgStream& InDet::SiSpacePointsSeedMaker_LowMomentum::dumpConditions( MsgStream&
 
 MsgStream& InDet::SiSpacePointsSeedMaker_LowMomentum::dumpEvent( MsgStream& out ) const
 {
-  const float pi2    = 2.*M_PI;
+  //const float pi2    = 2.*M_PI;
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
   out<<"| m_ns                    | "
@@ -636,7 +636,7 @@ MsgStream& InDet::SiSpacePointsSeedMaker_LowMomentum::dumpEvent( MsgStream& out 
      <<"                              |"<<std::endl;
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
-
+  /*
   if(m_outputlevel==0) return out; 
 
   out<<"|-------------|--------|-------|-------|-------|-------|-------|";
@@ -666,6 +666,7 @@ MsgStream& InDet::SiSpacePointsSeedMaker_LowMomentum::dumpEvent( MsgStream& out 
   out<<"-------|-------|-------|-------|-------|-------|"
      <<std::endl;
   out<<std::endl;
+  */
   return out;
 }
 

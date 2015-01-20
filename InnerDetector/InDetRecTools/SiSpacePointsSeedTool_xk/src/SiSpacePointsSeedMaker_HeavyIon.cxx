@@ -641,7 +641,7 @@ MsgStream& InDet::SiSpacePointsSeedMaker_HeavyIon::dumpConditions( MsgStream& ou
 
 MsgStream& InDet::SiSpacePointsSeedMaker_HeavyIon::dumpEvent( MsgStream& out ) const
 {
-  const float pi2    = 2.*M_PI;
+  //const float pi2    = 2.*M_PI;
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
   out<<"| m_ns                    | "
@@ -658,7 +658,7 @@ MsgStream& InDet::SiSpacePointsSeedMaker_HeavyIon::dumpEvent( MsgStream& out ) c
      <<"                              |"<<std::endl;
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
-
+  /*
   if(m_outputlevel==0) return out; 
 
   out<<"|-------------|--------|-------|-------|-------|-------|-------|";
@@ -688,6 +688,7 @@ MsgStream& InDet::SiSpacePointsSeedMaker_HeavyIon::dumpEvent( MsgStream& out ) c
   out<<"-------|-------|-------|-------|-------|-------|"
      <<std::endl;
   out<<std::endl;
+  */
   return out;
 }
 

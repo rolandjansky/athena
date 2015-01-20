@@ -653,7 +653,7 @@ MsgStream& InDet::SiSpacePointsSeedMaker_BeamGas::dumpConditions( MsgStream& out
 
 MsgStream& InDet::SiSpacePointsSeedMaker_BeamGas::dumpEvent( MsgStream& out ) const
 {
-  const float pi2    = 2.*M_PI;
+  //const float pi2    = 2.*M_PI;
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
   out<<"| m_ns                    | "
@@ -667,7 +667,7 @@ MsgStream& InDet::SiSpacePointsSeedMaker_BeamGas::dumpEvent( MsgStream& out ) co
      <<"                              |"<<std::endl;
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
-
+  /*
   if(m_outputlevel==0) return out; 
 
   out<<"|-------------|--------|-------|-------|-------|-------|-------|";
@@ -697,6 +697,7 @@ MsgStream& InDet::SiSpacePointsSeedMaker_BeamGas::dumpEvent( MsgStream& out ) co
   out<<"-------|-------|-------|-------|-------|-------|"
      <<std::endl;
   out<<std::endl;
+  */
   return out;
 }
 

@@ -555,7 +555,7 @@ MsgStream& InDet::SiSpacePointsSeedMaker_Cosmic::dumpConditions( MsgStream& out 
 
 MsgStream& InDet::SiSpacePointsSeedMaker_Cosmic::dumpEvent( MsgStream& out ) const
 {
-  const float pi2    = 2.*M_PI;
+  //const float pi2    = 2.*M_PI;
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
   out<<"| m_ns                    | "
@@ -569,7 +569,7 @@ MsgStream& InDet::SiSpacePointsSeedMaker_Cosmic::dumpEvent( MsgStream& out ) con
      <<"                              |"<<std::endl;
   out<<"|---------------------------------------------------------------------|"
      <<std::endl;
-
+  /*
   if(m_outputlevel==0) return out; 
 
   out<<"|-------------|--------|-------|-------|-------|-------|-------|";
@@ -599,6 +599,7 @@ MsgStream& InDet::SiSpacePointsSeedMaker_Cosmic::dumpEvent( MsgStream& out ) con
   out<<"-------|-------|-------|-------|-------|-------|"
      <<std::endl;
   out<<std::endl;
+  */
   return out;
 }
 
