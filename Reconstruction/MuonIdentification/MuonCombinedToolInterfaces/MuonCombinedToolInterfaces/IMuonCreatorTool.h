@@ -15,6 +15,7 @@
 #include "xAODMuon/SlowMuonContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "TrkTrack/TrackCollection.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 
 namespace MuonCombined {
 
@@ -38,7 +39,7 @@ namespace MuonCombined {
                                                    combinedTrackParticleContainer(0),combinedTrackCollection(0),
                                                    extrapolatedTrackParticleContainer(0), extrapolatedTrackCollection(0),
                                                    xaodSegmentContainer(0), muonSegmentCollection(0),
-                                                   slowMuonContainer(0) {
+                                                   slowMuonContainer(0), clusterContainer(0) {
       }
       /** MuonContainer to be filled with the Muon objects */
       xAOD::MuonContainer* muonContainer; 
@@ -57,12 +58,15 @@ namespace MuonCombined {
 
       /** container for the xAOD segments from MuGirl */
       xAOD::MuonSegmentContainer* xaodSegmentContainer; 
+
       /** collection for the segments from MuGirl */
       Trk::SegmentCollection* muonSegmentCollection;
 
       /** container for the Slow muon content */
       xAOD::SlowMuonContainer* slowMuonContainer; 
 
+      /** container for the clusters associated with muons */
+      xAOD::CaloClusterContainer* clusterContainer;
     };
 
     static const InterfaceID& interfaceID( ) ;
