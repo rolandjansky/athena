@@ -10,14 +10,8 @@ Created : January 2006
 Purpose : create a TauIdentificationTag - word to encode tauJet specific informations
 *****************************************************************************/
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
-
-#include "StoreGate/StoreGateSvc.h"
-
-//#include "tauEvent/TauJetContainer.h"
-#include "xAODTau/TauJet.h"
-#include "xAODTau/TauJetContainer.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "TauTagTools/TauIdentificationTagTool.h"
 #include "TagEvent/TauIdentificationAttributeNames.h"
@@ -26,7 +20,7 @@ Purpose : create a TauIdentificationTag - word to encode tauJet specific informa
 /** the constructor */
 TauIdentificationTagTool::TauIdentificationTagTool (const std::string& type, const std::string& name, 
     const IInterface* parent) : 
-    AlgTool( type, name, parent ) {
+  AthAlgTool( type, name, parent ) {
 
   /** TauJet AOD Container Names */
   declareProperty("Container",   m_tauJetContainerName = "TauJetCollection");
@@ -41,16 +35,7 @@ TauIdentificationTagTool::TauIdentificationTagTool (const std::string& type, con
 
 /** initialization - called once at the begginning */
 StatusCode  TauIdentificationTagTool::initialize() {
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in intialize()" << endreq;
-
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) {
-    mLog << MSG::ERROR << "Unable to retrieve pointer to StoreGateSvc"
-         << endreq;
-    return sc;
-  }
-
+  ATH_MSG_DEBUG( "in intialize()" );
   return StatusCode::SUCCESS;
 }
 
@@ -58,8 +43,7 @@ StatusCode  TauIdentificationTagTool::initialize() {
 StatusCode TauIdentificationTagTool::attributeSpecification(std::map<std::string,AthenaAttributeType>& attrMap,
                                                             const int max) {
 
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in attributeSpecification()" << endreq;
+  ATH_MSG_DEBUG( "in attributeSpecification()" );
 
   /** specifiy the TauId the attributes */
 
@@ -74,8 +58,7 @@ StatusCode TauIdentificationTagTool::attributeSpecification(std::map<std::string
 /** execute - called on every event */
 StatusCode TauIdentificationTagTool::execute(TagFragmentCollection& tauIdTagCol, const int max) {
 
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in execute()" << endreq;
+  ATH_MSG_DEBUG( "in execute()" );
 
   /** fill the TauIdPhys analysis tag */
 
@@ -90,8 +73,7 @@ StatusCode TauIdentificationTagTool::execute(TagFragmentCollection& tauIdTagCol,
 
 /** finialize - called once at the end */
 StatusCode TauIdentificationTagTool::finalize() {
-  MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in finalize()" << endreq;
+  ATH_MSG_DEBUG( "in finalize()" );
   return StatusCode::SUCCESS;
 }
 

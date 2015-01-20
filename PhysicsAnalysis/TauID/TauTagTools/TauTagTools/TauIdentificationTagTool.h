@@ -15,18 +15,16 @@ Purpose : build the TauIdentification Tag object - AnalysisTag.h.
           Different tau identification method information can be encoded in this word
 *****************************************************************************/
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "TagEvent/TagFragmentCollection.h"
 #include "AthenaPoolUtilities/AthenaAttributeSpecification.h"
 
 #include <map>
 
-class StoreGateSvc;
-
 /** Interface ID for TauIdentificationTagTool*/  
 static const InterfaceID IID_TauIdentificationTagTool("TauIdentificationTagTool", 1, 0);
 
-class TauIdentificationTagTool : public AlgTool {
+class TauIdentificationTagTool : public AthAlgTool {
 
 public:
   
@@ -54,10 +52,6 @@ private:
   double m_tauJetPtCut;
   double m_likelihood;
   double m_hadEnergyFrac;
-
-  /** Event Store */
-  StoreGateSvc* m_storeGate;
-
  };
 
 #endif // TAUIDENTIFICATIONTAGTOOL_H
