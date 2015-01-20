@@ -49,7 +49,8 @@ void Muon::TgcByteStream::rdo2ByteStream(const TgcRdo* rdo, ByteStream& bs, MsgS
 	    TGC_BYTESTREAM_READOUTHIT roh;
 	    roh.channel = raw->channel()-40;
 	    roh.sbId = raw->slbId();
-	    // http://cern.ch/atlas-tgc/doc/ROBformat.pdf
+            // revised document : https://twiki.cern.ch/twiki/pub/Main/TgcDocument/ROBformat_V4_0_v2.pdf
+	    // (old ver. : http://cern.ch/atlas-tgc/doc/ROBformat.pdf)
 	    // Table 7 : SB type, bits 15..13
 	    // 0,1: doublet wire, strip
 	    // 2,3: triplet wire, strip triplet;
@@ -109,7 +110,8 @@ void Muon::TgcByteStream::rdo2ByteStream(const TgcRdo* rdo, ByteStream& bs, MsgS
 	      rot.sbId = raw->slbId();
 	      rot.ldbId = raw->sswId();
 	      rot.bcBitmap = bcBitmap(raw->bcTag());
-	      // http://cern.ch/atlas-tgc/doc/ROBformat.pdf 
+              // revised document : https://twiki.cern.ch/twiki/pub/Main/TgcDocument/ROBformat_V4_0_v2.pdf
+              // (old ver. : http://cern.ch/atlas-tgc/doc/ROBformat.pdf)
 	      // Table 8 : Slave Board type, bits 30..28
 	      // 0,1: doublet wire, strip
 	      // 2,3: triplet wire, strip triplet; 
@@ -130,42 +132,53 @@ void Muon::TgcByteStream::rdo2ByteStream(const TgcRdo* rdo, ByteStream& bs, MsgS
         case TgcRawData::TYPE_HIPT:
 	  ls.hipt = 1;
 	  counters[5].count++;
-	  {
-	    TGC_BYTESTREAM_HIPT hpt;
-	    hpt.delta = raw->delta();
-	    hpt.sub = raw->hsub();
-	    hpt.hitId = raw->hitId();
-	    hpt.hipt = raw->isHipt();
-	    hpt.cand = raw->index();
-	    hpt.chip = raw->chip();
-	    hpt.sector = raw->sector();
-	    hpt.fwd = raw->isForward();
-	    hpt.strip = raw->isStrip();
-	    hpt.bcBitmap = bcBitmap(raw->bcTag());
-	    dataBS.push_back(toBS32(hpt));
-	  }
-	  break;
+	  if(raw->isStrip() == 1 && raw->sector() & 4 ){
+            TGC_BYTESTREAM_HIPT_TILE hpt;
+            hpt.tile = raw->tile();
+            //hpt.hipt = raw->isHipt();
+            //hpt.cand = raw->index();
+            //hpt.chip = raw->chip();
+            hpt.sector = raw->sector();
+            //hpt.fwd = raw->isForward();
+            hpt.strip = raw->isStrip();
+            hpt.bcBitmap = bcBitmap(raw->bcTag());
+            dataBS.push_back(toBS32(hpt));
+          }else{
+            TGC_BYTESTREAM_HIPT hpt;
+            hpt.delta = raw->delta();
+            hpt.sub = raw->hsub();
+            hpt.hitId = raw->hitId();
+            hpt.hipt = raw->isHipt();
+            hpt.cand = raw->index();
+            hpt.chip = raw->chip();
+            hpt.sector = raw->sector();
+            hpt.fwd = raw->isForward();
+            hpt.strip = raw->isStrip();
+            hpt.bcBitmap = bcBitmap(raw->bcTag());
+            dataBS.push_back(toBS32(hpt));
+          }
+          break;
         case TgcRawData::TYPE_SL:
-	  ls.sl = 1;
-	  counters[6].count++;
-	  {
-	    TGC_BYTESTREAM_SL sl;
-	    sl.roi = raw->roi();
-	    sl.overlap = raw->isOverlap();
-	    sl.threshold = raw->threshold();
-	    //sl.bcId = ???;
-	    sl.sign = raw->isMuplus();
-	    sl.cand = raw->index();
-	    sl.sector = raw->sector();
-	    sl.fwd = raw->isForward();
-	    sl.bcBitmap = bcBitmap(raw->bcTag());
-	    sl.cand2plus = raw->cand3plus();
-	    dataBS.push_back(toBS32(sl));
-	  }
-	  break;
+          ls.sl = 1;
+          counters[6].count++;
+          {
+            TGC_BYTESTREAM_SL sl;
+            sl.roi = raw->roi();
+            sl.overlap = raw->isOverlap();
+            sl.veto = raw->isVeto();
+            sl.threshold = raw->threshold();
+            sl.sign = raw->isMuplus();
+            sl.cand = raw->index();
+            sl.sector = raw->sector();
+            sl.fwd = raw->isForward();
+            sl.bcBitmap = bcBitmap(raw->bcTag());
+            sl.cand2plus = raw->cand3plus();
+            dataBS.push_back(toBS32(sl));
+          }
+          break;
         default:
-	  log << MSG::ERROR << "Invalid type " << raw->typeName() << endreq;
-	  break;
+          log << MSG::ERROR << "Invalid type " << raw->typeName() << endreq;
+          break;
         }
     }
   
@@ -297,7 +310,8 @@ void Muon::TgcByteStream::byteStream2Rdo(const ByteStream& bs, TgcRdo& rdo, uint
 						  slbId,
 						  rdo.l1Id(),
 						  rdo.bcId(),
-						  // http://cern.ch/atlas-tgc/doc/ROBformat.pdf
+                                                  // revised document : https://twiki.cern.ch/twiki/pub/Main/TgcDocument/ROBformat_V4_0_v2.pdf
+                                                  // (old ver. : http://cern.ch/atlas-tgc/doc/ROBformat.pdf)
                                                   // Table 7 : SB type, bits 15..13
                                                   // 0,1: doublet wire, strip
                                                   // 2,3: triplet wire, strip triplet;
@@ -361,7 +375,8 @@ void Muon::TgcByteStream::byteStream2Rdo(const ByteStream& bs, TgcRdo& rdo, uint
 						     rotrk.sbId,
 						     rdo.l1Id(),
 						     rdo.bcId(),
-						     // http://cern.ch/atlas-tgc/doc/ROBformat.pdf
+                                                     // revised document : https://twiki.cern.ch/twiki/pub/Main/TgcDocument/ROBformat_V4_0_v2.pdf
+                                                     // (old ver. : http://cern.ch/atlas-tgc/doc/ROBformat.pdf)
 						     // Table 8 : Slave Board type, bits 30..28
 						     // 0,1: doublet wire, strip
 						     // 2,3: triplet wire, strip triplet;
@@ -379,7 +394,7 @@ void Muon::TgcByteStream::byteStream2Rdo(const ByteStream& bs, TgcRdo& rdo, uint
 						     rotrk.seg,
 						     0,
 						     rotrk.rphi);
-		    rdo.push_back(raw);
+                    rdo.push_back(raw);
 		  }
 		iBs++;
 	      }
@@ -392,32 +407,53 @@ void Muon::TgcByteStream::byteStream2Rdo(const ByteStream& bs, TgcRdo& rdo, uint
 		  << counters[iCnt].id << " " << counters[iCnt].count 
 		  << "words" << endreq;
 	    }
-	    TGC_BYTESTREAM_HIPT hpt;
+	    TGC_BYTESTREAM_HIPT      hpt;
+	    TGC_BYTESTREAM_HIPT_TILE hpttile;
 	    for(unsigned iFrag = 0; iFrag < counters[iCnt].count; iFrag++)
 	      {
 		if(p_debug) {
 		  log << MSG::DEBUG << "WORD"
 		      << iFrag << ":" << MSG::hex << bs[iBs] << endreq;
 		}
-		fromBS32(bs[iBs++], hpt);
-		
-		TgcRawData* raw = new TgcRawData(bcTag(hpt.bcBitmap),
-						 rdo.subDetectorId(),
-						 rdo.rodId(),
-						 rdo.l1Id(),
-						 rdo.bcId(),
-						 hpt.strip,
-						 hpt.fwd,
-						 hpt.sector,
-						 hpt.chip,
-						 hpt.cand,
-						 hpt.hipt,
-						 hpt.hitId,
-						 hpt.sub,
-						 hpt.delta);
-		rdo.push_back(raw);
-	      }
-	    break;
+		fromBS32(bs[iBs++], hpttile);
+		if(hpttile.strip == 1 &&  hpttile.sector & 4 ){
+                  TgcRawData* raw = new TgcRawData(bcTag(hpt.bcBitmap),
+                                                   rdo.subDetectorId(),
+                                                   rdo.rodId(),
+                                                   rdo.l1Id(),
+                                                   rdo.bcId(),
+                                                   hpttile.strip,
+                                                   0,
+                                                   hpttile.sector,
+                                                   0,
+                                                   0,
+                                                   0,
+                                                   0,
+                                                   0,
+                                                   0,
+                                                   hpttile.tile);
+                  rdo.push_back(raw);
+                }else{
+                  fromBS32(bs[iBs++], hpt);
+                  TgcRawData* raw = new TgcRawData(bcTag(hpt.bcBitmap),
+                                                   rdo.subDetectorId(),
+                                                   rdo.rodId(),
+                                                   rdo.l1Id(),
+                                                   rdo.bcId(),
+                                                   hpt.strip,
+                                                   hpt.fwd,
+                                                   hpt.sector,
+                                                   hpt.chip,
+                                                   hpt.cand,
+                                                   hpt.hipt,
+                                                   hpt.hitId,
+                                                   hpt.sub,
+                                                   hpt.delta,
+                                                   0);
+                  rdo.push_back(raw);
+                }
+              }
+            break;
 	  }
         case 9: // TgcRawData::TYPE_SL
 	  {
@@ -447,6 +483,7 @@ void Muon::TgcByteStream::byteStream2Rdo(const ByteStream& bs, TgcRdo& rdo, uint
 						 sl.sign,
 						 sl.threshold,
 						 sl.overlap,
+						 sl.veto,
 						 sl.roi);
 		rdo.push_back(raw);
 	      }

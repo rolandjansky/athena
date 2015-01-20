@@ -7,6 +7,7 @@
 
 MuonTGC_CnvTools package contains classes for conversions among BS, RDO, PRD etc. of TGC. 
 
+@author Toshi Sumida <Toshi.Sumida@cern.ch>
 @author Susumu Oda <Susumu.Oda@cern.ch>
 @author Zvi Tarem 
 @author Hisaya Kurashige 
@@ -143,8 +144,10 @@ It is well described Tables, 7, 9, 11 and 12 in http://cern.ch/Atlas-TGC/doc/ROB
 - index : int, 0-1, ID for candidates
 - hipt : bool, true:HipT, false:LowpT
 - hitId : int, 1-6, ID for location with a granularity of 16 channels
+        : int, 0-7, ID for EI/FI hit information read-out in SL
 - sub : int, 0-1, Divide hitId into two parts 
 - delta : int, -15 to +15 for Wire and -7 and +7 for Strip, saggita 
+- tile : int, 8 bits for TileMuon trigger information
 
 @subsection MuonTGC_CnvToolsRDOSL SL RDO Variables
 - bcTag : int, 0-3, the same with Hit RDO
@@ -160,6 +163,7 @@ It is well described Tables, 7, 9, 11 and 12 in http://cern.ch/Atlas-TGC/doc/ROB
 - threshold : int, 1-6, Trigger menu label
 - overlap : int
 - roi : int, 0-147, ROI (Region of Interest) number
+- veto : bool, 0-> success of Inner-Coincidence, 1->vetoed
  - https://twiki.cern.ch/twiki/pub/Main/TgcDocument/RoI_Numbering-080815.pdf
 
 @section MuonTGC_CnvToolsPRD PRD

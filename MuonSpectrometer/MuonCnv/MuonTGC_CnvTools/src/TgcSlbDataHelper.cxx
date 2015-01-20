@@ -377,6 +377,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
       uint16_t threshold[2];
       bool overlap[2];
       uint16_t roi[2];
+      bool veto[2];
       if(forward) {
 	TgcSlbDataHelper::getSL_F(bitArray,  cand3plus,
 				  hitSL,
@@ -402,6 +403,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 			     muplus[i],
 			     threshold[i],
 			     overlap[i],
+			     veto[i],
 			     roi[i]);
 	vChannel.push_back(rCh);
 	if(isFirstHit) {
@@ -437,6 +439,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
       uint16_t hitId[N_HPT_E];
       uint16_t sub[N_HPT_E];
       int16_t deltaHPT[N_HPT_E];
+      uint16_t tile[N_HPT_E];
 
       size_t numberOfHit;
       if(forward) {
@@ -508,7 +511,8 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 			     hipt[i],
 			     hitId[i],
 			     sub[i],
-			     deltaHPT[i]);
+			     deltaHPT[i],
+                             tile[i]);
 	vChannel.push_back(rCh);
 	if(isFirstHit) {
 	  if(m_debug) {

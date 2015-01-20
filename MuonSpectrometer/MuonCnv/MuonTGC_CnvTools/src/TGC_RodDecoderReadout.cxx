@@ -347,27 +347,48 @@ void Muon::TGC_RodDecoderReadout::byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::Po
 	    ATH_MSG_DEBUG( "fragment" << counters[iCnt].id << 
 			   " " << counters[iCnt].count << "words" );
 	    TGC_BYTESTREAM_HIPT hpt;
+	    TGC_BYTESTREAM_HIPT_TILE hpttile;
 	    for(unsigned iFrag = 0; iFrag < counters[iCnt].count; iFrag++)
 	      {
 		ATH_MSG_DEBUG( "WORD" << iFrag << ":" << MSG::hex << bs[iBs] );
-		fromBS32(bs[iBs++], hpt);
-
-		TgcRawData* raw = new TgcRawData(bcTag(hpt.bcBitmap),
-						 rdo.subDetectorId(),
-						 rdo.rodId(),
-						 rdo.l1Id(),
-						 rdo.bcId(),
-						 hpt.strip,
-						 hpt.fwd,
-						 hpt.sector,
-						 hpt.chip,
-						 hpt.cand,
-						 hpt.hipt,
-						 hpt.hitId,
-						 hpt.sub,
-						 hpt.delta);
-		rdo.push_back(raw);
-	      }
+		fromBS32(bs[iBs++], hpttile);
+		if(hpttile.strip == 1 &&  hpttile.sector & 4 ){
+                  TgcRawData* raw = new TgcRawData(bcTag(hpt.bcBitmap),
+                                                   rdo.subDetectorId(),
+                                                   rdo.rodId(),
+                                                   rdo.l1Id(),
+                                                   rdo.bcId(),
+                                                   hpttile.strip,
+                                                   0,
+                                                   hpttile.sector,
+                                                   0,
+                                                   0,
+                                                   0,
+                                                   0,
+                                                   0,
+                                                   0,
+                                                   hpttile.tile);
+                  rdo.push_back(raw);
+                }else{
+                  fromBS32(bs[iBs++], hpt);
+                  TgcRawData* raw = new TgcRawData(bcTag(hpt.bcBitmap),
+                                                   rdo.subDetectorId(),
+                                                   rdo.rodId(),
+                                                   rdo.l1Id(),
+                                                   rdo.bcId(),
+                                                   hpt.strip,
+                                                   hpt.fwd,
+                                                   hpt.sector,
+                                                   hpt.chip,
+                                                   hpt.cand,
+                                                   hpt.hipt,
+                                                   hpt.hitId,
+                                                   hpt.sub,
+                                                   hpt.delta,
+                                                   0);
+                  rdo.push_back(raw);
+                }
+              }
 	    break;
 	  }
         case 9: // TgcRawData::TYPE_SL
@@ -394,6 +415,7 @@ void Muon::TGC_RodDecoderReadout::byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::Po
 						 sl.sign,
 						 sl.threshold,
 						 sl.overlap,
+						 sl.veto,
 						 sl.roi);
 		rdo.push_back(raw);
 	      }
