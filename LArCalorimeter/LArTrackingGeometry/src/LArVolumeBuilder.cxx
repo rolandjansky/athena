@@ -1697,6 +1697,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
    // fill in the inner Gap
    // ST this better to be done by CaloTrackingGeometry ( to glue with BeamPipe )
   
+   /*
    if (lArPositiveEndcap && lArPositiveFcalBounds){
        // create the Bounds
        Trk::CylinderVolumeBounds* lArNegativeEndcapInnerGapBounds = new Trk::CylinderVolumeBounds(
@@ -1729,7 +1730,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
 							   dummyLayers, dummyVolumes,
 							   "Calo::GapVolumes::LAr::NegativeEndcapInnerGap");
    }
-  
+   */
 
    if (msgLvl(MSG::DEBUG)) {
      ATH_MSG_DEBUG( "Checking the existence of all Tracking Volumes:" );
@@ -1741,8 +1742,10 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
          printCheckResult(msg(MSG::DEBUG), lArBarrelPresampler);
      ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::Barrel                       ");
          printCheckResult(msg(MSG::DEBUG), lArBarrel);
-     ATH_MSG_DEBUG( "   -> Calo::GapVolumes::LAr::PositiveEndcapInnerGap      ");
-         printCheckResult(msg(MSG::DEBUG), lArPositiveEndcapInnerGap);
+     if (lArPositiveEndcapInnerGap) { 
+       ATH_MSG_DEBUG( "   -> Calo::GapVolumes::LAr::PositiveEndcapInnerGap      ");
+       printCheckResult(msg(MSG::DEBUG), lArPositiveEndcapInnerGap);
+     }
      ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::PositiveEndcap               ");
          printCheckResult(msg(MSG::DEBUG), lArPositiveEndcap);
      ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::PositiveHec                  ");
@@ -1751,8 +1754,10 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
          printCheckResult(msg(MSG::DEBUG), lArPositiveFcal);
      ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::LArPositiveHecFcalCover      ");
          printCheckResult(msg(MSG::DEBUG), lArPositiveHecFcalCover);
-     ATH_MSG_DEBUG( "   -> Calo::GapVolumes::LAr::NegativeEndcapInnerGap      ");
-         printCheckResult(msg(MSG::DEBUG), lArNegativeEndcapInnerGap);
+     if (lArNegativeEndcapInnerGap) { 
+       ATH_MSG_DEBUG( "   -> Calo::GapVolumes::LAr::NegativeEndcapInnerGap      ");
+       printCheckResult(msg(MSG::DEBUG), lArNegativeEndcapInnerGap);
+     }
      ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::NegativeEndcap               ");
          printCheckResult(msg(MSG::DEBUG), lArNegativeEndcap);
      ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::NegativeHec                  ");
@@ -1769,8 +1774,8 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
 
    // check if everything went fine
    if (solenoid && solenoidLArBarrelGap && lArBarrelPresampler && lArBarrel &&
-      lArPositiveEndcapInnerGap && lArPositiveEndcap && lArPositiveHec && lArPositiveFcal && lArPositiveHecFcalCover &&
-      lArNegativeEndcapInnerGap && lArNegativeEndcap && lArNegativeHec && lArNegativeFcal && lArNegativeHecFcalCover){
+      lArPositiveEndcap && lArPositiveHec && lArPositiveFcal && lArPositiveHecFcalCover &&
+      lArNegativeEndcap && lArNegativeHec && lArNegativeFcal && lArNegativeHecFcalCover){
 
      // + register color code for displaying
 
