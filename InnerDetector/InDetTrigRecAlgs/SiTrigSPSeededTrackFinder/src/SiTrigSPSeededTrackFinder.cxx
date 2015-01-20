@@ -26,7 +26,6 @@
 
 //
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
-#include "TrigInDetTrackUtils/TrigToTrkTrackTool.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
@@ -55,7 +54,6 @@ InDet::SiTrigSPSeededTrackFinder::SiTrigSPSeededTrackFinder
   m_seedsmaker("InDet::SiSpacePointsSeedMaker_ATLxk/InDetTrigSiSpacePointsSeedMaker"),
   m_zvertexmaker("InDet::SiZvertexMaker_xk/InDetTrigZvertexMaker"),
   m_trackmaker("InDet::SiTrackMaker_xk/InDetTrigSiTrackMaker"),
-  m_trkcnv("TrigToTrkTrackTool"),
   m_regionSelector("RegSelSvc", name),
   m_etaHalfWidth(0.1),
   m_phiHalfWidth(0.1),
@@ -154,14 +152,6 @@ HLT::ErrorCode InDet::SiTrigSPSeededTrackFinder::hltInitialize() {
 
   msg() << MSG::INFO << "Using internal seedMaker: " << m_useSeedMaker << endreq;
 
-  if (!m_useSeedMaker){
-    if(m_trkcnv.retrieve().isFailure()){
-      msg() << MSG::FATAL << "Failed to retrieve tool " << m_trkcnv << endreq;
-      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
-    } else {
-      msg() << MSG::INFO << "Retrieved tool " << m_trkcnv << endreq;
-    }
-  }
 
   // Get output print level
   //

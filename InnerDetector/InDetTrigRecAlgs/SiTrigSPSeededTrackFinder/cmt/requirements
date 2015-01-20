@@ -18,7 +18,6 @@ use IRegionSelector        IRegionSelector-*        DetectorDescription
 use TrigTimeAlgs           TrigTimeAlgs-*           Trigger/TrigTools
 use TrigSteeringEvent	   TrigSteeringEvent-*      Trigger/TrigEvent
 use TrigInDetEvent         TrigInDetEvent-*         Trigger/TrigEvent
-use TrigInDetTrackUtils    TrigInDetTrackUtils-*    Trigger/TrigEvent
 use TrkParameters   TrkParameters-*        Tracking/TrkEvent
 use TrkMeasurementBase      TrkMeasurementBase-*        Tracking/TrkEvent
 use TrkRIO_OnTrack         TrkRIO_OnTrack-*         Tracking/TrkEvent
