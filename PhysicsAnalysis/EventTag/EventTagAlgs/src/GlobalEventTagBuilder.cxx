@@ -18,7 +18,7 @@
 #include <vector>
 
 GlobalEventTagBuilder::GlobalEventTagBuilder( const std::string& name, ISvcLocator* pSvcLocator ) 
-  : Algorithm(name, pSvcLocator),
+  : AthAlgorithm(name, pSvcLocator),
     TagBuilderBase(),
     m_globalEventTagTool("GlobalEventTagTool/GlobalEventTagTool",this) {
   declareProperty("GlobalEventTagTool", m_globalEventTagTool);
@@ -30,35 +30,18 @@ GlobalEventTagBuilder::~GlobalEventTagBuilder()
 {}
 
 StatusCode GlobalEventTagBuilder::initialize() {
-  MsgStream mLog( messageService(), name() );
-  mLog << MSG::DEBUG << "Initializing " << name() << endreq;
+  ATH_MSG_DEBUG( "Initializing " << name() );
 
-  /** get StoreGate service */
-  StatusCode sc = service( "StoreGateSvc", m_storeGateSvc );
-  if (sc.isFailure()) {
-    mLog << MSG::ERROR << "Unable to get StoreGate service" << endreq;
-    return sc;
-  }
-
-  /** get the Global Event Tag Tools */
-  sc = m_globalEventTagTool.retrieve();
-  if ( sc.isFailure() ) {
-     mLog << MSG::ERROR<< "Error retrieving " << m_globalEventTagTool.typeAndName() << endreq;
-     return sc;
-  }
+  ATH_CHECK( m_globalEventTagTool.retrieve() );
 
   /** initialize attribute list spec pointer */
   m_attribListSpec  = new AthenaAttributeListSpecification;
   
   /** define attributes */
-  mLog << MSG::DEBUG << "Defining the attribute list specification." << endreq;
+  ATH_MSG_DEBUG( "Defining the attribute list specification." );
 
   std::vector<std::pair<std::string,AthenaAttributeType> > attrMap;
-  sc = m_globalEventTagTool->attributeSpecification(attrMap);
-  if ( sc.isFailure() ) {
-     mLog << MSG::ERROR << "Fail to build Attribute List Specification " << endreq;
-     return sc;
-  }
+  ATH_CHECK( m_globalEventTagTool->attributeSpecification(attrMap) );
 
   std::vector<std::pair<std::string,AthenaAttributeType> >::iterator bMap = attrMap.begin();
   std::vector<std::pair<std::string,AthenaAttributeType> >::iterator eMap = attrMap.end();
@@ -67,8 +50,7 @@ StatusCode GlobalEventTagBuilder::initialize() {
   for (; bMap != eMap; ++bMap) {
     bool check = checkAttribute((*bMap).first, EventAttributeSpecs, Evt::NevtAttr);
     if (!check) {
-      mLog << MSG::WARNING << "Removing " << (*bMap).first << " from the attribute List: not in TAG EDM"
-           << endreq;
+      ATH_MSG_WARNING( "Removing " << (*bMap).first << " from the attribute List: not in TAG EDM" );
     }
     else {
       addAttribute( (*bMap).first, (*bMap).second );
@@ -90,9 +72,7 @@ StatusCode GlobalEventTagBuilder::initialize() {
 
 
 StatusCode GlobalEventTagBuilder::execute() {
-  MsgStream mLog( messageService(), name() );
-
-  mLog << MSG::DEBUG << "Executing " << name() << endreq;
+  ATH_MSG_DEBUG( "Executing " << name() );
 
   /** reset number of builders */
   TagBuilderBase::setNumOfBuilderToMax();
@@ -103,9 +83,8 @@ StatusCode GlobalEventTagBuilder::execute() {
     attribList = new TagAthenaAttributeList( *m_attribListSpec );
   } 
   catch (pool::Exception& e) {
-    mLog << MSG::ERROR
-	 << "Caught exception during creation of TagAthenaAttributeList object. "
-	 << "Message: " << e.what() << endreq;
+    ATH_MSG_ERROR( "Caught exception during creation of TagAthenaAttributeList object. "
+                   << "Message: " << e.what() );
     return StatusCode::FAILURE;
   }
 
@@ -113,29 +92,25 @@ StatusCode GlobalEventTagBuilder::execute() {
   TagFragmentCollection globalEventTag;
   StatusCode sc = m_globalEventTagTool->execute( globalEventTag );
   if (sc.isFailure()) {
-    mLog << MSG::WARNING << "Cannot Execute GlobalEventTagTool" << endreq; 
+    ATH_MSG_WARNING( "Cannot Execute GlobalEventTagTool" );
   } else fillAttribute(attribList, globalEventTag);
 
   /** record attribute list to SG */
-  sc = m_storeGateSvc->record( attribList, m_attributeListName );
-  if (sc.isFailure()) {
-    mLog << MSG::ERROR << "Could not record TagAthenaAttributeList" << endreq;
-    return sc;
-  }
+  ATH_CHECK( evtStore()->record( attribList, m_attributeListName ) );
 
   /** decrease number of builders */
   TagBuilderBase::decNumOfBuilder();
 
   /** if this is the last builder, lock the Attribute List */
   if (TagBuilderBase::lastBuilder())
-    sc = m_storeGateSvc->setConst(attribList);
+    sc = evtStore()->setConst(attribList);
 
   if (sc.isFailure())
     {
-      mLog << MSG::WARNING << "Could not set const to attribList" << endreq; 
+      ATH_MSG_WARNING( "Could not set const to attribList" );
     }
 
-  mLog << MSG::DEBUG << "Finished " << name() << endreq;
+  ATH_MSG_DEBUG( "Finished " << name() );
 
   return StatusCode::SUCCESS;
 }

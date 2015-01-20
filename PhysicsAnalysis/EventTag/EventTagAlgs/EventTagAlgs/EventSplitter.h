@@ -8,13 +8,13 @@
 #include <inttypes.h>
 #include <string>
 #include <vector>
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "EventTagAlgs/TagBuilderBase.h"
 
 class StoreGateSvc;
 class TagAthenaAttributeList;
 
-class EventSplitter : public Algorithm, public TagBuilderBase
+class EventSplitter : public AthAlgorithm, public TagBuilderBase
 {
 public:
   EventSplitter (const std::string& name, ISvcLocator* pSvcLocator);
@@ -26,8 +26,6 @@ public:
 private:
   void setSuccess(bool f);
   
-  StoreGateSvc* m_StoreGate;
-
   // Name for attribute in tag (absent if not specified)
   TagAthenaAttributeList* m_attribList;
   std::string m_attrName;

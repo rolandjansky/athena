@@ -12,12 +12,10 @@
 #include "AthenaPoolUtilities/TagAthenaAttributeList.h"
 #include "StoreGate/StoreGateSvc.h"
 
-#include "GaudiKernel/MsgStream.h"
-
 #include <sstream>
 
 ParticleJetTagBuilder::ParticleJetTagBuilder( const std::string& name, ISvcLocator* pSvcLocator ) 
-  : Algorithm(name, pSvcLocator),
+  : AthAlgorithm(name, pSvcLocator),
     TagBuilderBase(),
     m_jetMissingEtTagTool("JetMissingEtTagTool", this) {
   declareProperty("JetMissingEtTagTool", m_jetMissingEtTagTool);
@@ -31,34 +29,15 @@ ParticleJetTagBuilder::~ParticleJetTagBuilder()
 
 StatusCode ParticleJetTagBuilder::initialize() 
 {
-  StatusCode sc;
+  ATH_MSG_DEBUG( "Initializing " << name() );
 
-  MsgStream mLog( messageService(), name() );
-  mLog << MSG::DEBUG << "Initializing " << name() << endreq;
-
-  /** get StoreGate service */
-  sc = service( "StoreGateSvc", m_storeGateSvc );
-  if (sc.isFailure()) {
-    mLog << MSG::ERROR << "Unable to get StoreGate service" << endreq;
-    return sc;
-  }
-
-  /** get the JetMissingEt Tag Tools */
-  sc = m_jetMissingEtTagTool.retrieve();
-  if ( sc.isFailure() ) {
-     mLog << MSG::ERROR<< "Error retrieving the JetMissingEtTagTool" << endreq;
-     return sc;
-  }
+  ATH_CHECK( m_jetMissingEtTagTool.retrieve() );
 
   /** define attributes */ 
-  mLog << MSG::DEBUG << "Defining the attribute list specification." << endreq;
+  ATH_MSG_DEBUG( "Defining the attribute list specification." );
 
   std::map<std::string,AthenaAttributeType> attrMap;
-  sc = m_jetMissingEtTagTool->attributeSpecification(attrMap, m_MAX_NUMBER);
-  if ( sc.isFailure() ) {
-     mLog << MSG::ERROR << "Fail to build Attribute List Specification " << endreq;
-     return sc;
-  }
+  ATH_CHECK(  m_jetMissingEtTagTool->attributeSpecification(attrMap, m_MAX_NUMBER) );
 
   std::map<std::string,AthenaAttributeType>::iterator bMap = attrMap.begin();
   std::map<std::string,AthenaAttributeType>::iterator eMap = attrMap.end();
@@ -70,8 +49,7 @@ StatusCode ParticleJetTagBuilder::initialize()
        //m_attrMap[(*bMap).first] = ((*bMap).second).typeName();
        addAttribute( (*bMap).first, (*bMap).second );
     } else {
-      mLog << MSG::WARNING << "Removing " << (*bMap).first << " from the attribute List: not in TAG EDM"
-           << endreq;
+      ATH_MSG_WARNING( "Removing " << (*bMap).first << " from the attribute List: not in TAG EDM" );
     }
   }
 
@@ -80,25 +58,17 @@ StatusCode ParticleJetTagBuilder::initialize()
 
 
 StatusCode ParticleJetTagBuilder::execute() {
-  StatusCode sc;
-
-  MsgStream mLog( messageService(), name() );
-
-  mLog << MSG::DEBUG << "Executing " << name() << endreq;
+  ATH_MSG_DEBUG( "Executing " << name() );
 
   // retrieve TagAthenaAttributeList
-  TagAthenaAttributeList* attribList;  
-  sc = m_storeGateSvc->retrieve( attribList, m_attributeListName);
-  if (sc.isFailure()) {
-    mLog << MSG::ERROR << "No attribute list in SG" << endreq; 
-    return sc;
-  }
+  TagAthenaAttributeList* attribList = nullptr;
+  ATH_CHECK( evtStore()->retrieve( attribList, m_attributeListName) );
   
   /** ask the tool to fill particle jet tag collection */ 
   TagFragmentCollection particleJetTagColl;
-  sc = m_jetMissingEtTagTool->execute( particleJetTagColl, m_MAX_NUMBER );
+  StatusCode sc = m_jetMissingEtTagTool->execute( particleJetTagColl, m_MAX_NUMBER );
   if (sc.isFailure()) {
-    mLog << MSG::WARNING << "Cannot Execute JetMissingEtTagToool" << endreq; 
+    ATH_MSG_WARNING( "Cannot Execute JetMissingEtTagToool" );
   } else fillAttribute(attribList, particleJetTagColl);
 
   /** decrease number of builders */
@@ -106,14 +76,14 @@ StatusCode ParticleJetTagBuilder::execute() {
 
   /** if this is the last builder, lock the Attribute List */
   if (TagBuilderBase::lastBuilder())
-    sc = m_storeGateSvc->setConst(attribList);
+    sc = evtStore()->setConst(attribList);
 
   if (sc.isFailure())
     {
-      mLog << MSG::WARNING << "Could not set const to attribList" << endreq; 
+      ATH_MSG_WARNING( "Could not set const to attribList" );
     }
 
-  mLog << MSG::DEBUG << "Finished" << name() << endreq;
+  ATH_MSG_DEBUG( "Finished" << name() );
 
   return StatusCode::SUCCESS;
 }

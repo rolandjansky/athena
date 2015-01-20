@@ -11,13 +11,11 @@
 
 #include "JetMissingEtTagTools/JetMissingEtTagTool.h"
 
-class StoreGateSvc;
-
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "EventTagAlgs/TagBuilderBase.h"
 
-class ParticleJetTagBuilder : public Algorithm, public TagBuilderBase
+class ParticleJetTagBuilder : public AthAlgorithm, public TagBuilderBase
 {
 public:
 
@@ -39,12 +37,8 @@ private:
   //! number of particles
   int m_MAX_NUMBER;
 
-  //! StoreGate service.
-  StoreGateSvc* m_storeGateSvc;
-
   //! Jet and Missing Tag Tool
   ToolHandle<JetMetTagTool> m_jetMissingEtTagTool;
-
 };
 
 #endif

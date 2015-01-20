@@ -9,16 +9,14 @@
    Tag Builder for Trigger
 */
 
-class StoreGateSvc;
-
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "EventTagAlgs/TagBuilderBase.h"
 #include "EventTagUtils/GlobalTriggerTagTool.h"
 
 #include <vector>
 
-class GlobalTriggerTagBuilder : public Algorithm, public TagBuilderBase
+class GlobalTriggerTagBuilder : public AthAlgorithm, public TagBuilderBase
 {
 public:
 
@@ -36,9 +34,6 @@ private:
   
   //! Attribute list name
   std::string m_attributeListName;
-
-  //! StoreGate service.
-  StoreGateSvc* m_storeGateSvc;
 
   //! global event tag tool
   ToolHandle<GlobalTriggerTagTool> m_globalTriggerTagTool;
