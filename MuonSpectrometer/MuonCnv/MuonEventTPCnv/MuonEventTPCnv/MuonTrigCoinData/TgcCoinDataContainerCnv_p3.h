@@ -2,12 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TGCCOINDATACONTAINERCNV_P2_H
-#define TGCCOINDATACONTAINERCNV_P2_H
+/* Takashi Kubota - June 30, 2008 */
+#ifndef TGCCOINDATACONTAINERCNV_P3_H
+#define TGCCOINDATACONTAINERCNV_P3_H
 
 //-----------------------------------------------------------------------------
 //
-// file:   TgcCoinDataContainerCnv_p2.h
+// file:   TgcCoinDataContainerCnv_p3.h
 //
 //-----------------------------------------------------------------------------
 
@@ -23,13 +24,13 @@ class StoreGateSvc;
 class TgcIdHelper;
 
 namespace Muon{
-    class TgcCoinDataContainerCnv_p2 : public T_AthenaPoolTPCnvBase< Muon::TgcCoinDataContainer, Muon::MuonCoinDataContainer_p1 >
+    class TgcCoinDataContainerCnv_p3 : public T_AthenaPoolTPCnvBase< Muon::TgcCoinDataContainer, Muon::MuonCoinDataContainer_p1 >
 
     {
     public:
         typedef Muon::MuonCoinDataContainer_p1 PERS; 
         typedef Muon::TgcCoinDataContainer TRANS;
-        TgcCoinDataContainerCnv_p2(): m_TgcId(0), m_storeGate(0), m_muonDetMgr(0), m_isInitialized(0) {}
+        TgcCoinDataContainerCnv_p3(): m_TgcId(0), m_storeGate(0), m_muonDetMgr(0), m_isInitialized(0) {}
         virtual void persToTrans(const PERS* persCont, TRANS* transCont, MsgStream &log); 
         virtual void transToPers(const TRANS* transCont, PERS* persCont, MsgStream &log);
         virtual Muon::TgcCoinDataContainer* createTransient(const Muon::MuonCoinDataContainer_p1* persObj, MsgStream& log);

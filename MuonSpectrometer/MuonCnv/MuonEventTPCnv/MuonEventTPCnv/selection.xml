@@ -68,8 +68,11 @@
     <class name="std::vector<Muon::MuonCoinDataContainer_p1>" />
 
     <class name="Muon::TgcCoinData_p2" />
+    <class name="Muon::TgcCoinData_p3" />
     <class name="std::vector<Muon::TgcCoinData_p2>" />
+    <class name="std::vector<Muon::TgcCoinData_p3>" />
     <class name="Muon::TgcCoinDataContainer_tlp2" id="524775D8-A66F-4AD3-912E-7D05389C1011"/>
+    <class name="Muon::TgcCoinDataContainer_tlp3" id="95BF89C7-1FFC-464F-A14D-742F9E874E56"/>
 
     <class name="Muon::RpcCoinData_p1" />
     <class name="std::vector<Muon::RpcCoinData_p1>" />

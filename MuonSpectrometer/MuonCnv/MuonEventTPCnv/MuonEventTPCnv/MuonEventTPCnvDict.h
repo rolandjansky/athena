@@ -25,8 +25,10 @@
 #include "MuonEventTPCnv/MuonTrigCoinData/RpcCoinData_p1.h"
 #include "MuonEventTPCnv/MuonTrigCoinData/TgcCoinData_p1.h"
 #include "MuonEventTPCnv/MuonTrigCoinData/TgcCoinData_p2.h"
+#include "MuonEventTPCnv/MuonTrigCoinData/TgcCoinData_p3.h"
 #include "MuonEventTPCnv/TgcCoinDataContainer_tlp1.h"
 #include "MuonEventTPCnv/TgcCoinDataContainer_tlp2.h"
+#include "MuonEventTPCnv/TgcCoinDataContainer_tlp3.h"
 #include "MuonEventTPCnv/MuonPrepRawData/MdtTwinPrepData_p1.h"
 #include "MuonEventTPCnv/MuonSimEvent/CSCSimHitCollection_p1.h"
 #include "MuonEventTPCnv/MuonSimEvent/CSCSimHitCollection_p2.h"
@@ -63,6 +65,7 @@ struct MuonEventTPCnvDict
     std::vector< Muon::MuonCoinDataCollection_p1 >      m_v11;
     std::vector< Muon::MuonCoinDataContainer_p1 >       m_v12;
     std::vector< Muon::TgcCoinData_p2>              m_v13a;
+    std::vector< Muon::TgcCoinData_p3>              m_v13b;
     Muon::MuonPRD_Container_p2<Muon::MdtPrepData_p2>      m_v14;
     Muon::MuonPRD_Container_p2<Muon::RpcPrepData_p3>      m_v14a;
     Muon::MuonPRD_Container_p2<Muon::CscPrepData_p2>      m_v14b;
