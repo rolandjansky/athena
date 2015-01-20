@@ -47,6 +47,7 @@ use TrigT1CaloCalibConditions TrigT1CaloCalibConditions-* Trigger/TrigT1
 use TrigT1CaloCondSvc         TrigT1CaloCondSvc-*         Trigger/TrigT1
 use TrigT1CaloCalibTools      TrigT1CaloCalibTools-*      Trigger/TrigT1
 use TrigT1CaloCalibToolInterfaces      TrigT1CaloCalibToolInterfaces-*      Trigger/TrigT1
+use xAODTrigL1Calo		xAODTrigL1Calo-*		Event/xAOD
 
 apply_pattern dual_use_library files=*.cxx
 apply_pattern declare_joboptions files="*.txt *.py"

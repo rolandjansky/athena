@@ -30,6 +30,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrigT1CaloCalibTools/L1CaloPprFineTimePlotManager.h"
 #include "TrigT1CaloCalibTools/L1CaloPprPedestalPlotManager.h"
+#include "TrigT1CaloCalibTools/L1CaloPprPedestalCorrectionPlotManager.h"
 #include "TrigT1CaloCalibTools/L1CaloPprEtCorrelationPlotManager.h"
 #include "TrigT1CaloToolInterfaces/IL1RoITools.h"
 
@@ -65,12 +66,13 @@ class L1CaloPprMonitoring : public AthAlgorithm
         const CondAttrListCollection* m_dbPpmDeadChannels;
         const CondAttrListCollection* m_dbPpmDisabledTowers;
 	const CondAttrListCollection* m_dbFineTimeRefsTowers;
-        const TriggerTowerCollection* m_triggerTowers;
+        const xAOD::TriggerTowerContainer* m_triggerTowers;
         ITHistSvc* m_histoSvc;
 	
 	// monitoring plotters
 	L1CaloPprFineTimePlotManager* m_fineTimePlotManager;
 	L1CaloPprPedestalPlotManager* m_pedestalPlotManager;
+	L1CaloPprPedestalCorrectionPlotManager* m_pedestalCorrectionPlotManager;
 	L1CaloPprEtCorrelationPlotManager* m_etCorrelationPlotManager;
  
         ServiceHandle<StoreGateSvc> m_storeGate;
@@ -87,6 +89,7 @@ class L1CaloPprMonitoring : public AthAlgorithm
 	// decide which plots to do
 	bool m_doFineTimePlots;       // do plots of ADC peak sampling jitter (fine time)
 	bool m_doPedestalPlots;       // do plots of non signal behaviour (pedestals)
+	bool m_doPedestalCorrectionPlots;  // do plots of the pedestal correction
 	bool m_doEtCorrelationPlots;  // do plots of correlation between Et as given by L1Calo
 	                              // and Et reconstructed using calorimeter cells
 	
