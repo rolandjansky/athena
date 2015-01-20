@@ -24,6 +24,7 @@ namespace Muon
 			    const CoinDataType type,
 			    const bool isAside,
 			    const int phi,
+			    const bool isInner,
 			    const bool isForward,
 			    const bool isStrip,
 			    const int trackletId,
@@ -32,7 +33,8 @@ namespace Muon
 			    const double widthIn,
 			    const double widthOut,
 			    const int delta, 
-			    const int sub) :
+			    const int sub,
+                            const int tile) :
     m_channelIdIn(channelIdIn),
     m_channelIdOut(channelIdOut),
     m_collectionIdHash(collectionIdHash),
@@ -42,6 +44,7 @@ namespace Muon
     m_type(type),
     m_isAside(isAside),
     m_phi(phi),
+    m_isInner(isInner),
     m_isForward(isForward),
     m_isStrip(isStrip),
     m_trackletId(trackletId),
@@ -54,7 +57,9 @@ namespace Muon
     m_delta(delta),
     m_roi(0),
     m_pt(0),
+    m_veto(false),
     m_sub(sub),
+    m_tile(tile),
     m_isPositiveDeltaR(false),
     m_globalposIn(0),
     m_globalposOut(0)
@@ -94,6 +99,7 @@ namespace Muon
     m_roi(0),
     m_pt(0),
     m_sub(sub),
+    m_tile(0),
     m_isPositiveDeltaR(false),
     m_globalposIn(0),
     m_globalposOut(0)
@@ -113,6 +119,7 @@ namespace Muon
 			    const Amg::MatrixX *errMat,
 			    const int roi,
 			    const int pt, 
+			    const bool veto, 
 			    const bool isPositiveDeltaR) :
     m_channelIdIn(0),
     m_channelIdOut(channelIdOut),
@@ -135,7 +142,9 @@ namespace Muon
     m_delta(0),
     m_roi(roi),
     m_pt(pt),
+    m_veto(veto),
     m_sub(0),
+    m_tile(0),
     m_isPositiveDeltaR(isPositiveDeltaR),
     m_globalposIn(0),
     m_globalposOut(0)
@@ -162,6 +171,7 @@ TgcCoinData::TgcCoinData():
     m_type(TgcCoinData::TYPE_UNKNOWN),
     m_isAside(true),
     m_phi(0),
+    m_isInner(false),
     m_isForward(false),
     m_isStrip(false),
     m_trackletId(0),
@@ -174,7 +184,9 @@ TgcCoinData::TgcCoinData():
     m_delta(0),
     m_roi(0),
     m_pt(0),
+    m_veto(false),
     m_sub(0),
+    m_tile(0),
     m_isPositiveDeltaR(false),
     m_globalposIn(0),
     m_globalposOut(0)
@@ -191,6 +203,7 @@ TgcCoinData::TgcCoinData(const TgcCoinData& RIO):
     m_type(RIO.m_type),
     m_isAside(RIO.m_isAside),
     m_phi(RIO.m_phi),
+    m_isInner(RIO.m_isInner),
     m_isForward(RIO.m_isForward),
     m_isStrip(RIO.m_isStrip),
     m_trackletId(RIO.m_trackletId),
@@ -200,7 +213,9 @@ TgcCoinData::TgcCoinData(const TgcCoinData& RIO):
     m_delta(RIO.m_delta),
     m_roi(RIO.m_roi),
     m_pt(RIO.m_pt),
+    m_veto(RIO.m_veto),
     m_sub(RIO.m_sub),
+    m_tile(RIO.m_tile),
     m_isPositiveDeltaR(RIO.m_isPositiveDeltaR)
 {
   m_posIn = ((RIO.m_posIn) ? new Amg::Vector2D(*RIO.m_posIn) : 0 );
@@ -225,6 +240,7 @@ TgcCoinData& TgcCoinData::operator=(const TgcCoinData& RIO)
       m_detElOut = RIO.m_detElOut;
       m_phi = RIO.m_phi;
       m_isAside = RIO.m_isAside;
+      m_isInner = RIO.m_isInner;
       m_isForward = RIO.m_isForward;
       m_isStrip = RIO.m_isStrip;
       m_trackletId = RIO.m_trackletId;
@@ -240,6 +256,8 @@ TgcCoinData& TgcCoinData::operator=(const TgcCoinData& RIO)
       m_delta = RIO.m_delta;
       m_roi = RIO.m_roi;
       m_pt = RIO.m_pt;
+      m_veto = RIO.m_veto;
+      m_tile = RIO.m_tile;
       m_sub = RIO.m_sub;
       m_isPositiveDeltaR = RIO.m_isPositiveDeltaR;
       delete m_globalposIn;
@@ -274,6 +292,7 @@ MsgStream& operator << ( MsgStream& sl, const TgcCoinData& coin)
     <<", delta = "<<coin.delta()
     <<", roi = "<<coin.roi()
     <<", pt = "<<coin.pt()
+    <<", veto = "<<coin.veto()
     <<", sub = "<<coin.sub()
     <<", isPositiveDeltaR = "<<coin.isPositiveDeltaR()
     <<endreq;
@@ -303,6 +322,7 @@ std::ostream& operator << ( std::ostream& sl, const TgcCoinData& coin)
     <<", delta = "<<coin.delta()
     <<", roi = "<<coin.roi()
     <<", pt = "<<coin.pt()
+    <<", veto = "<<coin.veto()
     <<", sub = "<<coin.sub()
     <<", isPositiveDeltaR = "<<coin.isPositiveDeltaR()
     <<std::endl;      
