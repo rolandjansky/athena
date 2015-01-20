@@ -19,7 +19,10 @@ class ICaloMuonLikelihoodTool : virtual public IAlgTool
 
   static const InterfaceID& interfaceID(){return IID_ICaloMuonLikelihoodTool;}
   
-  virtual double getLHR(const Trk::TrackParameters* trkpar, const double dR_CUT=0.3) const = 0;
+  virtual double getLHR(const Trk::TrackParameters* trkpar, 
+                        const xAOD::CaloClusterContainer* ClusCollection = nullptr,
+                        const double dR_CUT=0.3) const = 0;
+
   virtual double getLHR(const xAOD::CaloClusterContainer* ClusCollection, 
 			const double eta_trk, 
 			const double p_trk, 
