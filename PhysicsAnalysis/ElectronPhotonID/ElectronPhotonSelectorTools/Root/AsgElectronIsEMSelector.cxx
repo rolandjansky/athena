@@ -36,7 +36,7 @@ AsgElectronIsEMSelector::AsgElectronIsEMSelector(std::string myname) :
 
   m_rootTool = new Root::TElectronIsEMSelector();
 
-  declareProperty("ConfigFile",m_configFile="","The config file to use (if not setting cuts one by one)");
+  declareProperty("ConfigFile",m_configFile="ElectronPhotonSelectorTools/offline/dc14b_20150121/ElectronIsEMMediumSelectorCutDefs.conf","The config file to use (if not setting cuts one by one)");
   
   // Name of the PID
   declareProperty("isEMMask",
@@ -261,6 +261,10 @@ StatusCode AsgElectronIsEMSelector::initialize()
     m_rootTool->CutTRTRatio90 = AsgConfigHelper::HelperFloat("CutTRTRatio90",env);   
 
        
+  } else {
+    ATH_MSG_ERROR("Conf file empty: the racomanded are the one under : ElectronPhotonSelectorTools/offline/dc14b_20150121/");
+    sc = StatusCode::FAILURE;
+    return sc;
   }
 
   // We need to initialize the underlying ROOT TSelectorTool
@@ -389,14 +393,11 @@ StatusCode AsgElectronIsEMSelector::execute(const xAOD::Electron* eg) const
   
   // eta position in second sampling
   const float eta2   = fabsf(cluster->etaBE(2));
-  // transverse energy in calorimeter (using eta position in second sampling)
+  // energy in calorimeter 
   const double energy =  cluster->e();
-  double et = 0.;
-  if (eta2<999.) {
-    const double cosheta = cosh(eta2);
-    et = (cosheta != 0.) ? energy /cosheta : 0.;
-  }
-
+  // transverse energy of the electron (using the track eta) 
+  const double et = eg->pt();
+  
   if( m_caloOnly )   {
     
     //ATH_MSG_DEBUG("Doing CaloCutsOnly");
@@ -462,13 +463,8 @@ StatusCode AsgElectronIsEMSelector::execute(const xAOD::Egamma* eg ) const
   
   // eta position in second sampling
   const float eta2   = fabsf(cluster->etaBE(2));
-  // transverse energy in calorimeter (using eta position in second sampling)
-  const double energy =  cluster->e();
-  double et = 0.;
-  if (eta2<999.) {
-    const double cosheta = cosh(eta2);
-    et = (cosheta != 0.) ? energy /cosheta : 0.;
-  }
+  // transverse energy of the electron (using the track eta) 
+  const double et = eg->pt(); 
   
   // apply calorimeter selection
   iflag = calocuts_electrons(eg, eta2, et, m_trigEtTh, 0);

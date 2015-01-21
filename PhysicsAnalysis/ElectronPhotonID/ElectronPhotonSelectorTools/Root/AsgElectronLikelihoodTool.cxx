@@ -263,8 +263,8 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Electron* eg
       return m_acceptDummy;
     }
   
-  double et = cluster->e()/cosh(eta); 
-  
+  // transverse energy of the electron (using the track eta) 
+  const double et = eg->pt(); 
 
   // number of track hits
   uint8_t nSi(0);
@@ -365,7 +365,8 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
 {
   if( !m_caloOnly )
     {
-      return accept( (xAOD::IParticle*) eg);
+      const xAOD::Electron* el = dynamic_cast<const xAOD::Electron*>(eg);
+      return accept(el, mu); 
     }
   if ( !eg )
     {
@@ -387,7 +388,8 @@ const Root::TAccept& AsgElectronLikelihoodTool::accept( const xAOD::Egamma* eg, 
       return m_acceptDummy;
     }
   
-  double et = cluster->e()/cosh(eta); 
+  // transverse energy of the electron (using the track eta) 
+  const double et = eg->pt(); 
 
   // Variables the EFCaloLH ignores
   uint8_t nSi(0);
@@ -641,7 +643,8 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* e
 {
   if( !m_caloOnly )
     {
-      return calculate( (xAOD::IParticle*) eg);
+      const xAOD::Electron* el = dynamic_cast<const xAOD::Electron*>(eg);
+      return calculate(el, mu);
     }
   if ( !eg )
     {
@@ -748,7 +751,7 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* e
 const Root::TAccept& AsgElectronLikelihoodTool::accept(const xAOD::IParticle* part) const
 {
   ATH_MSG_DEBUG("Entering accept( const IParticle* part )");
-  const xAOD::Electron* eg = static_cast<const xAOD::Electron*>(part);
+  const xAOD::Electron* eg = dynamic_cast<const xAOD::Electron*>(part);
   if(eg)
     {
       return accept(eg);
