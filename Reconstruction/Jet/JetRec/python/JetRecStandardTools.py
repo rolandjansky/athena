@@ -31,7 +31,11 @@ from JetRecTools.JetRecToolsConf import TrackPseudoJetGetter
 from JetRecTools.JetRecToolsConf import JetTrackSelectionTool
 from JetRecTools.JetRecToolsConf import SimpleJetTrackSelectionTool
 from JetRecTools.JetRecToolsConf import TrackVertexAssociationTool
-from JetRecTools.JetRecToolsConf import MissingCellListTool
+try:
+  from JetRecCalo.JetRecCaloConf import MissingCellListTool
+  jtm.haveJetRecCalo = True
+except ImportError:
+  jtm.haveJetRecCalo = False
 from JetRecTools.JetRecToolsConf import PFlowPseudoJetGetter
 from JetRec.JetRecConf import JetPseudojetRetriever
 from JetRec.JetRecConf import JetConstituentsRetriever
@@ -40,13 +44,19 @@ from JetRec.JetRecConf import PseudoJetGetter
 from JetRec.JetRecConf import MuonSegmentPseudoJetGetter
 from JetRec.JetRecConf import JetFromPseudojet
 from JetRec.JetRecConf import JetConstitRemover
-from JetSimTools.JetSimToolsConf import JetTruthParticleSelectorTool
-from JetSimTools.JetSimToolsConf import TruthPseudoJetGetter
 from JetMomentTools.JetMomentToolsConf import JetCaloQualityTool
-from JetMomentTools.JetMomentToolsConf import JetCaloCellQualityTool
+try:
+  from JetMomentTools.JetMomentToolsConf import JetCaloCellQualityTool
+  jtm.haveJetCaloCellQualityTool = True
+except ImportError:
+  jtm.haveJetCaloCellQualityTool = False
 from JetMomentTools.JetMomentToolsConf import JetWidthTool
 from JetMomentTools.JetMomentToolsConf import JetCaloEnergies
-from JetMomentTools.JetMomentToolsConf import JetBadChanCorrTool
+try:
+  from JetMomentTools.JetMomentToolsConf import JetJetBadChanCorrTool
+  jtm.haveJetBadChanCorrTool = True
+except ImportError:
+  jtm.haveJetBadChanCorrTool = False
 from JetMomentTools.JetMomentToolsConf import JetVertexFractionTool
 from JetMomentTools.JetMomentToolsConf import JetVertexTaggerTool
 from JetMomentTools.JetMomentToolsConf import JetTrackMomentsTool
@@ -64,10 +74,20 @@ from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import EnergyCorr
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import CenterOfMassShapesTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetPullTool
 from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import JetChargeTool
-from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import ShowerDeconstructionTool
-from ParticleJetTools.ParticleJetToolsConf import Analysis__JetQuarkLabel
-from ParticleJetTools.ParticleJetToolsConf import Analysis__JetConeLabeling
-from ParticleJetTools.ParticleJetToolsConf import Analysis__JetPartonTruthLabel
+try:
+  from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import ShowerDeconstructionTool
+  jtm.haveShowerDeconstructionTool = True
+except ImportError:
+  jtm.haveShowerDeconstructionTool = False
+try:
+  from ParticleJetTools.ParticleJetToolsConf import Analysis__JetQuarkLabel
+  jtm.haveParticleJetTools = True
+except:
+  jtm.haveParticleJetTools = False
+if jtm.haveParticleJetTools:
+  from ParticleJetTools.ParticleJetToolsConf import Analysis__JetConeLabeling
+  from ParticleJetTools.ParticleJetToolsConf import Analysis__JetPartonTruthLabel
+  from ParticleJetTools.ParticleJetToolsConf import CopyTruthJetParticles
 
 #--------------------------------------------------------------
 # Track selection.
@@ -139,15 +159,9 @@ jtm += TrackVertexAssociationTool(
 #--------------------------------------------------------------
 
 if jetFlags.useTruth:
-  jtm += JetTruthParticleSelectorTool(
-    "truthsel",
-    SelectionMode = "StableNoMuonNoNu"
-  )
+    jtm += CopyTruthJetParticles("truthpartcopy", OutputName="JetInputTruthParticles" )
+    jtm += CopyTruthJetParticles("truthpartcopywz", OutputName="JetInputTruthParticlesNoWZ" )
 
-  jtm += JetTruthParticleSelectorTool(
-    "truthselwz",
-    SelectionMode = "NoWZDecay"
-  )
 
 #--------------------------------------------------------------
 # Jet reco infrastructure.
@@ -288,36 +302,32 @@ jtm += PseudoJetGetter(
 )
 
 # Truth.
-if jetFlags.useTruth:
-  jtm += TruthPseudoJetGetter(
+if jetFlags.useTruth and jtm.haveParticleJetTools:
+  jtm += PseudoJetGetter(
     "truthget",
     Label = "Truth",
-    InputContainer = "TruthParticles",
+    InputContainer = jtm.truthpartcopy.OutputName,
     OutputContainer = "PseudoJetTruth",
-    TruthSelector = jtm.truthsel,
     GhostScale = 0.0,
     SkipNegativeEnergy = True,
 
   )
-  jtm += TruthPseudoJetGetter(
+  jtm += PseudoJetGetter(
     "truthwzget",
     Label = "TruthWZ",
-    InputContainer = "TruthParticles",
+    InputContainer = jtm.truthpartcopywz.OutputName,
     OutputContainer = "PseudoJetTruthWZ",
-    TruthSelector = jtm.truthselwz,
     GhostScale = 0.0,
     SkipNegativeEnergy = True,
     
   )
-  jtm += TruthPseudoJetGetter(
+  jtm += PseudoJetGetter(
     "gtruthget",
     Label = "GhostTruth",
-    InputContainer = "TruthParticles",
+    InputContainer = jtm.truthpartcopy.OutputName,
     OutputContainer = "PseudoJetGhostTruth",
-    TruthSelector = jtm.truthsel,
     GhostScale = 1.e-20,
     SkipNegativeEnergy = True,
-
   )
 
   # Truth flavor tags.
@@ -331,15 +341,17 @@ if jetFlags.useTruth:
       GhostScale = 1e-20
     )
 
+  # ParticleJetTools tools may be omitted in analysi releases.
+  #ift jtm.haveParticleJetTools:
   # Delta-R truth parton label: truthpartondr.
   jtm += Analysis__JetQuarkLabel(
-    "jetquarklabel",
-    McEventCollection = "TruthEvents"
-  )
+      "jetquarklabel",
+      McEventCollection = "TruthEvents"
+    )
   jtm += Analysis__JetConeLabeling(
-    "truthpartondr",
-    JetTruthMatchTool = jtm.jetquarklabel
-  )
+      "truthpartondr",
+      JetTruthMatchTool = jtm.jetquarklabel
+      )
   
   # Parton truth label.
   jtm += Analysis__JetPartonTruthLabel("partontruthlabel")
@@ -371,13 +383,14 @@ jtm += JetCaloQualityTool(
 )
 
 # Quality from cells.
-jtm += JetCaloCellQualityTool(
-  "caloqual_cell",
-  LArQualityCut = 4000,
-  TileQualityCut = 254,
-  TimingCuts = [5, 10],
-  Calculations = ["LArQuality", "N90Cells", "FracSamplingMax",  "NegativeE", "Timing", "HECQuality", "Centroid", "AverageLArQF"]
-)
+if jtm.haveJetCaloCellQualityTool:
+  jtm += JetCaloCellQualityTool(
+    "caloqual_cell",
+    LArQualityCut = 4000,
+    TileQualityCut = 254,
+    TimingCuts = [5, 10],
+    Calculations = ["LArQuality", "N90Cells", "FracSamplingMax",  "NegativeE", "Timing", "HECQuality", "Centroid", "AverageLArQF"]
+  )
 
 # Jet width.
 jtm += JetWidthTool("width")
@@ -387,60 +400,62 @@ jtm += JetCaloEnergies("jetens")
 
 # Read in missing cell map (needed for the following)
 
-def missingCellFileReader(): 
-  import os
-  dataPathList = os.environ[ 'DATAPATH' ].split(os.pathsep)
-  dataPathList.insert(0, os.curdir)
-  from AthenaCommon.Utils.unixtools import FindFile
-  RefFileName = FindFile( "JetBadChanCorrTool.root" ,dataPathList, os.R_OK )
-  from AthenaCommon.AppMgr import ServiceMgr
-  if not hasattr(ServiceMgr, 'THistSvc'):
-    from GaudiSvc.GaudiSvcConf import THistSvc
-    ServiceMgr += THistSvc()
-  ServiceMgr.THistSvc.Input += ["JetBadChanCorrTool DATAFILE=\'%s\' OPT=\'READ\'" % RefFileName]
-  missingCellFileReader.called = True 
+if jtm.haveJetRecCalo:
+    def missingCellFileReader(): 
+      import os
+      dataPathList = os.environ[ 'DATAPATH' ].split(os.pathsep)
+      dataPathList.insert(0, os.curdir)
+      from AthenaCommon.Utils.unixtools import FindFile
+      RefFileName = FindFile( "JetBadChanCorrTool.root" ,dataPathList, os.R_OK )
+      from AthenaCommon.AppMgr import ServiceMgr
+      if not hasattr(ServiceMgr, 'THistSvc'):
+        from GaudiSvc.GaudiSvcConf import THistSvc
+        ServiceMgr += THistSvc()
+      ServiceMgr.THistSvc.Input += ["JetBadChanCorrTool DATAFILE=\'%s\' OPT=\'READ\'" % RefFileName]
+      missingCellFileReader.called = True 
 
-missingCellFileReader()
+    missingCellFileReader()
 
-jtm += MissingCellListTool(
-  "missingcells",
-  AddCellList = [],
-  RemoveCellList = [],
-  AddBadCells = True,
-  DeltaRmax = 1.0,
-  AddCellFromTool = False,
-  LArMaskBit = 608517,
-  TileMaskBit = 1,
-  MissingCellMapName = "MissingCaloCellsMap"
+    jtm += MissingCellListTool(
+      "missingcells",
+      AddCellList = [],
+      RemoveCellList = [],
+      AddBadCells = True,
+      DeltaRmax = 1.0,
+      AddCellFromTool = False,
+      LArMaskBit = 608517,
+      TileMaskBit = 1,
+      MissingCellMapName = "MissingCaloCellsMap"
 )
 
 # Bad channel corrections from cells
-jtm += JetBadChanCorrTool(
-  "bchcorrcell",
-  NBadCellLimit = 10000,
-  StreamName = "/JetBadChanCorrTool/",
-  ProfileName = "JetBadChanCorrTool.root",
-  ProfileTag = "",
-  UseCone = True,
-  UseCalibScale = False,
-  MissingCellMap = "MissingCaloCellsMap",
-  ForceMissingCellCheck = False,
-  UseClusters = False,
-)
+if jtm.haveJetBadChanCorrTool:
+  jtm += JetBadChanCorrTool(
+    "bchcorrcell",
+    NBadCellLimit = 10000,
+    StreamName = "/JetBadChanCorrTool/",
+    ProfileName = "JetBadChanCorrTool.root",
+    ProfileTag = "",
+    UseCone = True,
+    UseCalibScale = False,
+    MissingCellMap = "MissingCaloCellsMap",
+    ForceMissingCellCheck = False,
+    UseClusters = False,
+  )
   
-# Bad channel corrections from clusters
-jtm += JetBadChanCorrTool(
-  "bchcorrclus",
-  NBadCellLimit = 0,
-  StreamName = "",
-  ProfileName = "",
-  ProfileTag = "",
-  UseCone = True,
-  UseCalibScale = False,
-  MissingCellMap = "",
-  ForceMissingCellCheck = False,
-  UseClusters = True
-)
+  # Bad channel corrections from clusters
+  jtm += JetBadChanCorrTool(
+    "bchcorrclus",
+    NBadCellLimit = 0,
+    StreamName = "",
+    ProfileName = "",
+    ProfileTag = "",
+    UseCone = True,
+    UseCalibScale = False,
+    MissingCellMap = "",
+    ForceMissingCellCheck = False,
+    UseClusters = True
+  )
 
 # Jet vertex fraction.
 jtm += JetVertexFractionTool(
@@ -553,7 +568,8 @@ jtm += JetPullTool("pull", UseEtaInsteadOfY=False)
 jtm += JetChargeTool("charge", K=1.0)
 
 # Shower deconstruction.
-jtm += ShowerDeconstructionTool("showerdec")
+if jtm.haveShowerDeconstructionTool:
+  jtm += ShowerDeconstructionTool("showerdec")
 
-# Remove constituents (usefull for truth jets in evgen pile-up file)
+# Remove constituents (useful for truth jets in evgen pile-up file)
 jtm += JetConstitRemover("removeconstit")

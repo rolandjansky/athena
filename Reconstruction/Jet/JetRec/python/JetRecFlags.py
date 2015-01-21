@@ -63,12 +63,14 @@ class useTruth(JobProperty):
   StoredValue  = True # this irrelevant  
 
   def get_Value(self):
-      if self.statusOn:
-          return JobProperty.get_Value(self)
-      else:
-          from RecExConfig.RecFlags import rec
-          return rec.doTruth()
-  
+    if self.statusOn:
+      return JobProperty.get_Value(self)
+    else:
+      try:
+        from RecExConfig.RecFlags import rec
+        return rec.doTruth()
+      except ImportError:
+        return self.StoredValue
 
 class truthFlavorTags(JobProperty):
   """ List of flavor tags for truth tagging jets.

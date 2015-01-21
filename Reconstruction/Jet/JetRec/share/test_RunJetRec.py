@@ -363,7 +363,7 @@ if dumpGroomed:
   gdmp1.FloatMoments = ["MuMax", "YMin", "RClus", 
                         "SizeParameter",
                         "DRFilt", "MuFilt", "YFilt"]
-  hasActiveArea = False
+  hasActiveArea = True
   if hasActiveArea:
     gdmp1.FloatMoments += ["JetGhostArea", "ActiveArea"]
     gdmp1.FourVectorMoments = ["ActiveArea4vec"]

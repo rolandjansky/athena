@@ -246,12 +246,9 @@ class JetToolManager:
       else:
         raise TypeError
     # Check calibration.
-    if calibOpt != "":
-      if ncalib==0:
-        print self.prefix + "Calibration option (" + calibOpt + ") provided without any calibration modifiers."
-      elif ncalib > 1:
-        print self.prefix + "Calibration option (" + calibOpt + ") provided with multiple calibration modifiers."
-        raise Exception
+    if calibOpt != "" and ncalib==0:
+      print self.prefix + "Calibration " + calibOpt + " requested without any calibration modifiers."
+      raise Exception
         
     return outmods
 
@@ -389,7 +386,7 @@ class JetToolManager:
   #   doArea = whether to write jet areas (default false because work is needed to 
   #            recover this for reclustered jets).
   def addJetSplitter(self, output, mumax, ymin, input, modifiersin ="groomed",
-                     isTrigger =False, useTriggerStore =False, doArea =False):
+                     isTrigger =False, useTriggerStore =False, doArea =True):
     from JetRec.JetRecConf import JetSplitter
     from JetRec.JetRecConf import JetRecTool
     groomer = JetSplitter(output + "Groomer")
