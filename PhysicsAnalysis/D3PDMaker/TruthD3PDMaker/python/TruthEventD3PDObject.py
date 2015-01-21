@@ -32,7 +32,7 @@ TruthEventD3PDObject.defineBlock (
         'pdf_id2 = PDGID2',
         'pdf_x1 = X1',
         'pdf_x2 = X2',
-        'pdf_scale = Q',
+        #'pdf_scale = Q',
         'pdf1 = XF1',
         'pdf2 = XF2',
         'weight = weights',
