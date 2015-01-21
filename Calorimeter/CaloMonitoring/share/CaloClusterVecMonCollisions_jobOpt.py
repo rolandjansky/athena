@@ -54,7 +54,7 @@ print "tmp_useBeamBackgroundRemoval=", tmp_useBeamBackgroundRemoval
 
 CaloClusterMonNoTA = CaloClusterVecMon(
    name           = "CaloClusterMonNoTA",
-   CaloClusterContainer = "CaloCalTopoCluster",
+   CaloClusterContainer = "CaloCalTopoClusters",
 
    TimeGran = tmp_timeGran,
 
