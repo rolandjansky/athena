@@ -19,6 +19,8 @@
 #include "AthenaKernel/errorcheck.h"
 #include "InDetIdentifier/PixelID.h"
 
+#include "xAODEventInfo/EventInfo.h"
+
 #include <cmath>
 #include <stdexcept>
 #include <sstream>
@@ -43,8 +45,8 @@ const int Trk::RIO_OnTrackErrorScalingTool::s_pix_idx[Trk::RIO_OnTrackErrorScali
 
 // constructor
 Trk::RIO_OnTrackErrorScalingTool::RIO_OnTrackErrorScalingTool(const std::string& t,
-			      const std::string& n,
-			      const IInterface* p)
+            const std::string& n,
+            const IInterface* p)
   :  AthAlgTool(t,n,p),
      m_do_pix(false),
      m_do_sct(false),
@@ -82,6 +84,9 @@ Trk::RIO_OnTrackErrorScalingTool::RIO_OnTrackErrorScalingTool(const std::string&
      m_override_constant_term_sct_ecs(0.0071),
      m_override_constant_term_trt_bar(0.0),
      m_override_constant_term_trt_ecs(0.0),
+     m_override_mu_term_trt_bar(0.0),
+     m_override_mu_term_trt_ecs(0.0),
+     m_IncidentSvc("IncidentSvc",n),
      m_idFolder("/Indet/TrkErrorScaling"),
      m_muonFolder("/MUON/TrkErrorScaling")
  {
@@ -106,8 +111,14 @@ Trk::RIO_OnTrackErrorScalingTool::RIO_OnTrackErrorScalingTool(const std::string&
    declareProperty("overrideConstantSCTECs",m_override_constant_term_sct_ecs,"factor to change the constant term of SCT errors (end caops)");
    declareProperty("overrideConstantTRTBar",m_override_constant_term_trt_bar,"factor to change the constant term of TRT errors (barrel)");
    declareProperty("overrideConstantTRTECs",m_override_constant_term_trt_ecs,"factor to change the constant term of TRT errors (endcaps)");
+   declareProperty("overrideMuTRTBar",m_override_mu_term_trt_bar,"factor to change the mu dependent term of TRT errors (barrel)");
+   declareProperty("overrideMuTRTECs",m_override_mu_term_trt_ecs,"factor to change the mu dependent term of TRT errors (endcaps)");
+   declareProperty("IncidentService",m_IncidentSvc);
    m_scaling_pix.resize(kNPixParamTypes);
- }
+
+   m_mu = 0;
+   m_hasBeenCalledThisEvent = false;
+}
 
 // destructor
 Trk::RIO_OnTrackErrorScalingTool::~RIO_OnTrackErrorScalingTool()
@@ -121,6 +132,17 @@ StatusCode Trk::RIO_OnTrackErrorScalingTool::initialize()
  
   CHECK(  detStore()->retrieve(m_pixelID, "PixelID") );
 
+  //Incident service (to check for MC/data and setup accordingly)
+  if ( m_IncidentSvc.retrieve().isFailure() ) {
+    ATH_MSG_FATAL( "Failed to retrieve service " << m_IncidentSvc );
+    return StatusCode::FAILURE;
+  } else 
+    ATH_MSG_DEBUG( "Retrieved service " << m_IncidentSvc);
+  
+  m_IncidentSvc->addListener( this, std::string("BeginEvent"));
+
+
+    
   /* set up scaling factors for error matrices (use their **2 for cov)
    */
 
@@ -170,13 +192,13 @@ StatusCode Trk::RIO_OnTrackErrorScalingTool::initialize()
         regFcn(&Trk::RIO_OnTrackErrorScalingTool::callback,
                this,colptr,m_idFolder)) {
       msg(MSG::ERROR) << "Found the folder, but could not register a callback"
-		      << " on " << m_idFolder << endreq;
+          << " on " << m_idFolder << endreq;
       return StatusCode::FAILURE;
     } else
       msg(MSG::INFO) << "Registered callback on COOL folder " << m_idFolder << endreq;
   } else {
     msg(MSG::INFO) << "Folder " << m_idFolder << " is not loaded, "
-		      << "intrinsic meas't errors will be used for ID tracks." << endreq;
+          << "intrinsic meas't errors will be used for ID tracks." << endreq;
     m_do_pix = false;
     m_do_sct = false;
     m_do_trt = false;
@@ -194,14 +216,14 @@ StatusCode Trk::RIO_OnTrackErrorScalingTool::initialize()
         regFcn(&Trk::RIO_OnTrackErrorScalingTool::callback,
                this,colptr,m_muonFolder)) {
       msg(MSG::ERROR) << "Found the folder, but could not register a callback"
-		      << " on " << m_muonFolder << endreq;
+          << " on " << m_muonFolder << endreq;
       return StatusCode::FAILURE;
     } else
       msg(MSG::INFO) << "Registered callback on COOL folder " 
-		     << m_muonFolder << endreq;
+         << m_muonFolder << endreq;
   } else {
     msg(MSG::INFO) << "Folder " << m_muonFolder << " is not loaded, "
-		   << "intrinsic meas't errors will be used for Muon RIOs_OnTrack." << endreq;
+       << "intrinsic meas't errors will be used for Muon RIOs_OnTrack." << endreq;
     m_do_mdt = false;
     m_do_tgc = false;
     m_do_rpc = false;
@@ -238,6 +260,15 @@ MsgStream& Trk::RIO_OnTrackErrorScalingTool::dump( MsgStream& out ) const
   return out;
 }
 
+// handle BeginRun incidents------------------------------------------------
+void Trk::RIO_OnTrackErrorScalingTool::handle(const Incident& inc)
+{
+  if (inc.type() == "BeginEvent") {
+    m_hasBeenCalledThisEvent =  false;
+    m_mu=0;
+  }
+}
+
 
 const std::string Trk::RIO_OnTrackErrorScalingTool::makeInfoString 
 (const std::string& sdet, const bool do_detSystem,
@@ -259,6 +290,14 @@ const std::string Trk::RIO_OnTrackErrorScalingTool::makeInfoString
     s1.append("* err (+) ");
     snprintf(s2,7,"%6.3g ",errscaler[1]);s1.append(s2);
   }
+
+  if (errscaler.size() > 2){
+    s1.append(" * (1 + mu *");
+    char s2[7];
+    snprintf(s2,7,"%6.3g ",errscaler[2]);s1.append(s2);
+    s1.append(")");
+  }
+
   int n = nformat-s1.size();
   for(int i=0; i<n; ++i) s1.append(" "); s1.append("|");
   return s1;
@@ -275,6 +314,7 @@ void Trk::RIO_OnTrackErrorScalingTool::registerParameters
   // set default parameters in case no info is read from condDB for this set
   errscaler->clear();
   errscaler->push_back(1.0);
+  errscaler->push_back(0.0);
   errscaler->push_back(0.0);
   //    do_detSystem = false;
   //    if (errscaler[0] != 1.0) do_detSystem = true;
@@ -392,11 +432,24 @@ Amg::MatrixX*
 Trk::RIO_OnTrackErrorScalingTool::createScaledTrtCovariance
   (const Amg::MatrixX& inputCov, bool is_endcap) const
 {
+  if(!m_hasBeenCalledThisEvent){
+    const xAOD::EventInfo* eventInfo;
+    if( evtStore()->retrieve(eventInfo).isFailure() ){
+      ATH_MSG_ERROR("Cant retrieve EventInfo"); m_mu = 0;
+    } else {
+      m_mu = eventInfo->averageInteractionsPerCrossing();
+    }
+    m_hasBeenCalledThisEvent = true;
+  }
+
+
   Amg::MatrixX* newCov = new Amg::MatrixX(inputCov);
   double a = (is_endcap) ? m_scaling_trt_endcap[0] : m_scaling_trt_barrel[0];
   double b = (is_endcap) ? m_scaling_trt_endcap[1] : m_scaling_trt_barrel[1];
+  double c = (is_endcap) ? m_scaling_trt_endcap[2] : m_scaling_trt_barrel[2];
   (*newCov)(0,0) *= a*a;
   (*newCov)(0,0) += b*b;
+  (*newCov)(0,0) *= (1. + m_mu * c); 
   return newCov;
 }
 
@@ -489,7 +542,7 @@ Trk::RIO_OnTrackErrorScalingTool::createScaledCscCovariance
 
 
 StatusCode Trk::RIO_OnTrackErrorScalingTool::callback( 
-			      IOVSVC_CALLBACK_ARGS_P(I,keys) ) {
+            IOVSVC_CALLBACK_ARGS_P(I,keys) ) {
   (void) I;
 
   // callback function when the conditions data object changes
@@ -515,8 +568,10 @@ StatusCode Trk::RIO_OnTrackErrorScalingTool::callback(
               std::vector<double>* params=loc->second;
               ATH_MSG_DEBUG ("Setting " << nvals << " parameters for " << name << " at location " << params);
               params->clear();
-              for (int i=0;i<nvals;++i)
+              for (int i=0;i<nvals;++i){
+                ATH_MSG_VERBOSE("Parameter " << i << " = " << alist[2+i].data<double>() );
                 params->push_back(alist[2+i].data<double>());
+              }
             } else {
               ATH_MSG_DEBUG ("Ignored unexpected parameter" << name);
             }
@@ -553,7 +608,7 @@ StatusCode Trk::RIO_OnTrackErrorScalingTool::callback(
     m_do_pix = true;
     m_do_sct = true;
     m_do_trt = true;
-    std::vector<double> scale(2);
+    std::vector<double> scale(3,0);
 
     // pixel barrel 
     // local x (phi -> old convetion)
@@ -592,12 +647,13 @@ StatusCode Trk::RIO_OnTrackErrorScalingTool::callback(
     // trt barrel
     scale[0] = m_override_scale_inflation_trt_bar;
     scale[1] = m_override_constant_term_trt_bar; // 0.;
+    scale[2] = m_override_mu_term_trt_bar;
     m_scaling_trt_barrel = scale;
-    m_scaling_trt_endcap = scale;
 
     // trt end caps
     scale[0] = m_override_scale_inflation_trt_ecs;
     scale[1] = m_override_constant_term_trt_ecs; // 0.;
+    scale[2] = m_override_mu_term_trt_ecs;
     m_scaling_trt_endcap = scale;
   }
 
