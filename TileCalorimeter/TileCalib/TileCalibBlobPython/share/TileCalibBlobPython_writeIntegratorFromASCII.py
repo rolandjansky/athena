@@ -1,8 +1,17 @@
 #!/bin/env python
 # TileCalibBlobPython_writeIntegratorFromASCII.py
 # Lukas Pribyl <lukas.pribyl@cern.ch>, 2008-12-05
+# change: Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-24
 
-import PyCintex
+#import PyCintex
+try:
+   # ROOT5
+   import PyCintex
+except:
+   # ROOT6
+   import cppyy as PyCintex
+   sys.modules['PyCintex'] = PyCintex
+
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobObjs.Classes import * 
 import os
@@ -19,7 +28,7 @@ def fillIntegrator(fileInt, tag, since,
                    until=(TileCalibTools.MAXRUN, TileCalibTools.MAXLBK)):
     
     #=== construct folder path
-    folder = TileCalibTools.getTilePrefix()+"INTEGRATOR"
+    folder = TileCalibTools.getTilePrefix(True,True)+"INTEGRATOR"
 
     #=== get full folder tag
     folderTag = TileCalibUtils.getFullTag(folder, tag)

@@ -1,9 +1,8 @@
 #!/bin/env python
 # TileCalibBlobPython_writeDefaults.py
 # Nils Gollub <nils.gollub@cern.ch>, 2007-11-26
+# change Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-24
 
-import PyCintex
-from PyCool import cool, coral
 from TileCalibBlobPython import TileCalibTools, TileCalibDefaultWriter
 from TileCalibBlobObjs.Classes import *
 

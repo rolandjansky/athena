@@ -8,7 +8,7 @@
 
 import os,sys
 
-run = None if len(sys.argv)<2 else int(sys.argv[1])
+run = None if len(sys.argv) < 2 else int(sys.argv[1])
 
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobPython import TileBchTools
@@ -20,13 +20,13 @@ log = getLogger("SyncOnlWithOfl")
 import logging
 log.setLevel(logging.DEBUG)
 
-if run is None or run<0:
+if run is None or run < 0:
     badrun=run
     run=TileCalibTools.getLastRunNumber()
     if badrun is None:
         log.info( "Run number was not specified, using current run number %d" % run )
     else:
-        log.warning( "Bad run number %d was set, using current run number %d" % (badrun,run) )
+        log.warning( "Bad run number %d was set, using current run number %d" % (badrun, run) )
     if run is None or run<0:
         log.error( "Still bad run number")
         sys.exit(2)
@@ -36,8 +36,7 @@ if run is None or run<0:
 #===================================================================
 
 #--- run number and folder to synchronize to
-from PyCool import cool  
-runOfl = cool.Int32Max
+runOfl = MAXRUN
 folder = "/TILE/OFL02/STATUS/ADC"
 folderTag = TileCalibUtils.getFullTag(folder, "RUN2-HLT-UPD1-00")
 
@@ -47,7 +46,7 @@ db1 = TileCalibTools.openDb('ORACLE', 'CONDBR2', 'READONLY', 'COOLOFL_TILE')
 #--- create ofline bad channel manager
 mgrOfl = TileBchTools.TileBchMgr()
 mgrOfl.setLogLvl(logging.DEBUG)
-log.info("Initializing with offline bad channels at tag=%s and time=%s" % (folderTag,(runOfl,0)))
+log.info("Initializing with offline bad channels at tag=%s and time=%s" % (folderTag, (runOfl, 0)))
 mgrOfl.initialize(db1, folder, folderTag, (runOfl,0))
 
 #--- create online bad channel manager
@@ -71,14 +70,15 @@ log.info("================================================================ ")
 comment=""
 for ros in xrange(1,5):
     for mod in xrange(0,64):
-        modName = TileCalibUtils.getDrawerString(ros,mod)
+        modName = TileCalibUtils.getDrawerString(ros, mod)
         comm = ""
         for chn in xrange(0, 48):
-            statlo = mgrOfl.getAdcStatus(ros,mod,chn,0)
-            stathi = mgrOfl.getAdcStatus(ros,mod,chn,1)
+            statlo = mgrOfl.getAdcStatus(ros, mod, chn, 0)
+            stathi = mgrOfl.getAdcStatus(ros, mod, chn, 1)
 
             statloBefore = mgrOnl.getAdcProblems(ros,mod,chn,0)
             stathiBefore = mgrOnl.getAdcProblems(ros,mod,chn,1)
+
             #--- add IgnoreInHlt if either of the ADCs has isBad
             #--- add OnlineGeneralMaskAdc if the ADCs has isBad            
             if statlo.isBad() and stathi.isBad():
@@ -102,22 +102,32 @@ for ros in xrange(1,5):
                 mgrOnl.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineGeneralMaskAdc)
                 mgrOnl.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.IgnoredInHlt)
                 mgrOnl.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineGeneralMaskAdc)
-            statloAfter = mgrOnl.getAdcProblems(ros,mod,chn,0)
-            stathiAfter = mgrOnl.getAdcProblems(ros,mod,chn,1)
-            if (statloBefore!=statloAfter) or (stathiBefore!=stathiAfter):
-                pbm = [statloBefore,stathiBefore,statloAfter,stathiAfter]
+
+            #--- add OnlineBadTiming if either of the ADCs has isBadTiming
+            if statlo.isBadTiming() or stathi.isBadTiming():
+                mgrOnl.addAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineBadTiming)
+                mgrOnl.addAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineBadTiming)
+            else:
+                #--- delete OnlineBadTiming if the both ADCs has not isBadTiming
+                mgrOnl.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineBadTiming)
+                mgrOnl.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineBadTiming)
+
+            statloAfter = mgrOnl.getAdcProblems(ros, mod, chn, 0)
+            stathiAfter = mgrOnl.getAdcProblems(ros, mod, chn, 1)
+            if (statloBefore != statloAfter) or (stathiBefore != stathiAfter):
+                pbm = [statloBefore, stathiBefore, statloAfter, stathiAfter]
                 #print modName,"%3d 0"%chn,statloBefore,"=>",statloAfter
                 #print modName,"%3d 1"%chn,stathiBefore,"=>",stathiAfter
                 for adc in xrange(2):
-                    if pbm[adc] != pbm[adc+2]:
+                    if pbm[adc] != pbm[adc + 2]:
                         for pb in xrange(2):
                             if pb: msg += "  =>"
-                            else: msg = "%s %2i %1i " % (modName,chn,adc) 
+                            else: msg = "%s %2i %1i " % (modName, chn, adc) 
                             prbs = pbm[adc+pb*2]
                             if len(prbs):
                                 for prbCode in sorted(prbs.keys()):
                                     prbDesc = prbs[prbCode]
-                                    msg += " %5i (%s)" % (prbCode,prbDesc)
+                                    msg += " %5i (%s)" % (prbCode, prbDesc)
                             else:
                                 msg += "  GOOD"
                         log.info(msg)
@@ -131,7 +141,7 @@ for ros in xrange(1,5):
 #=== commit changes
 if len(comment):
     db2 = TileCalibTools.openDb('SQLITE', 'CONDBR2', 'RECREATE','COOLONL_TILE')
-    mgrOnl.commitToDb(db2, folderOnl, folderTagOnl, TileBchDecoder.BitPat_onl01, "tilebeam", "synchronizing with UPD1; updated channels:"+comment, (runOnl,0))
+    mgrOnl.commitToDb(db2, folderOnl, folderTagOnl, TileBchDecoder.BitPat_onl01, "tilebeam", "synchronizing with UPD1; updated channels:" + comment, (runOnl,0))
     db2.closeDatabase()
 else:
     log.warning("Folders are in sync, nothing to update")

@@ -22,7 +22,7 @@ log.setLevel(logging.DEBUG)
 db = TileCalibTools.openDb('SQLITE', 'CONDBR2', 'UPDATE')
 
 #=== ADC status folder
-folder = TileCalibTools.getTilePrefix()+"STATUS/ADC"
+folder = TileCalibTools.getTilePrefix(True,True) + "STATUS/ADC"
 
 #=== specify folder and tag
 folderTag = TileCalibUtils.getFullTag(folder, "RUN2-HLT-UPD1-00")
@@ -32,8 +32,8 @@ mgr = TileBchTools.TileBchMgr()
 mgr.setLogLvl(logging.DEBUG)
 
 #=== always initialize with no bad channels
-log.info("Initializing with no bad channels at tag=%s and time=%s" % (folderTag,(0,0)))
-mgr.initialize(db, folder, folderTag, (0,0))
+log.info("Initializing with no bad channels at tag=%s and time=%s" % (folderTag, (0, 0)))
+mgr.initialize(db, folder, folderTag, (0, 0))
 
 #=== Tuples of empty channels
 emptyChannelLongBarrel =     (30, 31, 43)
@@ -41,6 +41,7 @@ emptyChannelExtendedBarrel = (18, 19, 24, 25, 26, 27, 28, 29, 33, 34, 42, 43, 44
 #=== Add problems with mgr.addAdcProblem(ros, drawer, channel, adc, problem)
 
 # LBA
+# attention! mgr.addAdcProblem() is just an example
 mgr.addAdcProblem(1, 0, 23, 0, TileBchPrbs.BadCis)
 mgr.addAdcProblem(1, 1, 20, 0, TileBchPrbs.GeneralMaskAdc)
 
@@ -55,11 +56,11 @@ log.info("bad channels after update")
 mgr.listBadAdcs()
 
 #=== commit changes
-mgr.commitToDb(db, folder, folderTag, TileBchDecoder.BitPat_ofl01, "lpribyl", "test offline", (151950,0))
+mgr.commitToDb(db, folder, folderTag, TileBchDecoder.BitPat_ofl01, "lpribyl", "test offline", (151950, 0))
 
 #=== ONLINE FOLDER WITH SYNCHRONIZATION
 #=== ADC status folder
-folder = TileCalibTools.getTilePrefix(False)+"STATUS/ADC"
+folder = TileCalibTools.getTilePrefix(False) + "STATUS/ADC"
 
 #=== specify folder and tag
 folderTag = ""
@@ -69,12 +70,13 @@ mgrOnl = TileBchTools.TileBchMgr()
 mgrOnl.setLogLvl(logging.DEBUG)
 
 #=== always initialize with no bad channels
-log.info("Initializing with no bad channels at tag=%s and time=%s" % (folderTag,(0,0)))
-mgrOnl.initialize(db, folder, folderTag, (0,0))
+log.info("Initializing with no bad channels at tag=%s and time=%s" % (folderTag, (0, 0)))
+mgrOnl.initialize(db, folder, folderTag, (0, 0))
 
 #=== Add problems with mgrOnl.addAdcProblem(ros, drawer, channel, adc, problem)
 
 # LBA
+# attention! mgrOnl.addAdcProblem() is just an example
 mgrOnl.addAdcProblem(1, 1, 33, 1, TileBchPrbs.IgnoredInDsp)
 mgrOnl.addAdcProblem(1, 1, 33, 0, TileBchPrbs.IgnoredInDsp)
 
@@ -85,11 +87,11 @@ mgrOnl.addAdcProblem(1, 1, 33, 0, TileBchPrbs.IgnoredInDsp)
 # EBC
 
 #--- synchronization with offline folder
-for ros in xrange(1,5):
-    for mod in xrange(0,64):
+for ros in xrange(1, 5):
+    for mod in xrange(0, 64):
         for chn in xrange(0, 48):
-            statlo = mgr.getAdcStatus(ros,mod,chn,0)
-            stathi = mgr.getAdcStatus(ros,mod,chn,1)
+            statlo = mgr.getAdcStatus(ros, mod, chn, 0)
+            stathi = mgr.getAdcStatus(ros, mod, chn, 1)
 
             #--- add IgnoreInHlt if either of the ADCs has isBad
             #--- add OnlineGeneralMaskAdc if the ADCs has isBad
@@ -114,6 +116,16 @@ for ros in xrange(1,5):
                 mgrOnl.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineGeneralMaskAdc)
                 mgrOnl.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.IgnoredInHlt)
                 mgrOnl.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineGeneralMaskAdc)
+
+            #--- add OnlineBadTiming if either of the ADCs has isBadTiming
+            if statlo.isBadTiming() or stathi.isBadTiming():
+                mgrOnl.addAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineBadTiming)
+                mgrOnl.addAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineBadTiming)
+            else:
+                #--- delete OnlineBadTiming if the both ADCs has not isBadTiming
+                mgrOnl.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineBadTiming)
+                mgrOnl.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineBadTiming)
+
 
 log.info("============================")
 log.info("ONL01 and OFL02 synchronized")

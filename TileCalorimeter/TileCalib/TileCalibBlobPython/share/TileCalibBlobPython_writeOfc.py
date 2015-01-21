@@ -1,8 +1,17 @@
 #!/bin/env python
 # TileCalibBlobPython_writeOfc.py
 # Nils Gollub <nils.gollub@cern.ch>, 2007-11-19
+# change: Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-24
 
-import PyCintex
+#import PyCintex
+try:
+   # ROOT5
+   import PyCintex
+except:
+   # ROOT6
+   import cppyy as PyCintex
+   sys.modules['PyCintex'] = PyCintex
+
 from PyCool import cool, coral
 from TileCalibBlobPython import TileCalibTools, TileCalibLogger
 import re
