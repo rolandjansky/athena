@@ -16,6 +16,8 @@
 #include "MuonSegment/MuonSegment.h"
 #include "xAODMuon/SlowMuonContainer.h"
 #include "xAODMuon/SlowMuonAuxContainer.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODCaloEvent/CaloClusterAuxContainer.h"
 
 MuonCreatorAlg::MuonCreatorAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator),
@@ -30,6 +32,7 @@ MuonCreatorAlg::MuonCreatorAlg(const std::string& name, ISvcLocator* pSvcLocator
   declareProperty("MuonCandidateLocation", m_muonCandidateCollectionName = "MuonCandidates" );
   declareProperty("SegmentContainerName", m_segContainerName = "MuonSegments" );
   declareProperty("BuildSlowMuon",m_buildSlowMuon=false);
+  declareProperty("ClusterContainerName",m_clusterContainerName="");
 }
 
 MuonCreatorAlg::~MuonCreatorAlg()
@@ -86,17 +89,46 @@ StatusCode MuonCreatorAlg::execute()
     ATH_MSG_DEBUG( "Recorded Slow Muons with key: " << m_slowMuonCollectionName );   
   }
 
+  // combined tracks
   ATH_CHECK(createAndRecord(output.combinedTrackParticleContainer,output.combinedTrackCollection,m_combinedCollectionName));
 
+  // extrapolated tracks
   ATH_CHECK(createAndRecord(output.extrapolatedTrackParticleContainer,output.extrapolatedTrackCollection,m_extrapolatedCollectionName));
 
+  // segments
   ATH_CHECK(createAndRecordSegments(output.xaodSegmentContainer,output.muonSegmentCollection,m_segContainerName));
 
-
+  // calo clusters
+  if( m_clusterContainerName != "" ) ATH_CHECK(retrieveOrCreateAndRecord(output.clusterContainer));
+  
+  // build muons
   m_muonCreatorTool->create(muonCandidateCollection,indetCandidateCollection,output);
 
   return StatusCode::SUCCESS;
 }
+
+StatusCode MuonCreatorAlg::retrieveOrCreateAndRecord( xAOD::CaloClusterContainer*& xaod ) const {
+
+  // try retrieving the container
+  if(evtStore()->contains<xAOD::CaloClusterContainer>(m_clusterContainerName)) {
+    if(evtStore()->retrieve(xaod,m_clusterContainerName).isFailure()) {
+      ATH_MSG_FATAL( "Unable to retrieve " << m_clusterContainerName );
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_DEBUG( "Retrieved CaloClusterContainer with key: " << m_clusterContainerName );    
+  }else{
+    // if not found in SG, create it
+    xaod = new xAOD::CaloClusterContainer();
+    ATH_CHECK( evtStore()->record( xaod, m_clusterContainerName ) );
+	
+    xAOD::CaloClusterAuxContainer* aux = new xAOD::CaloClusterAuxContainer();
+    ATH_CHECK( evtStore()->record( aux, m_clusterContainerName + "Aux." ) );
+    xaod->setStore( aux );
+    ATH_MSG_DEBUG( "Recorded CaloClusterContainer with key: " << m_clusterContainerName );    
+  }
+  return StatusCode::SUCCESS;
+}
+
 
 StatusCode MuonCreatorAlg::createAndRecord( xAOD::TrackParticleContainer*& xaod, TrackCollection*& tracks, std::string name ) const {
   std::string tpName = name + "TrackParticles";

@@ -33,6 +33,7 @@ class MuonCreatorAlg : public AthAlgorithm
  private:
   StatusCode createAndRecord( xAOD::TrackParticleContainer*& xaod, TrackCollection*& tracks, std::string name ) const;
   StatusCode createAndRecordSegments( xAOD::MuonSegmentContainer*& xaodSegments,Trk::SegmentCollection*& segs, std::string name ) const;
+  StatusCode retrieveOrCreateAndRecord( xAOD::CaloClusterContainer*& xaod ) const;
 
   ToolHandle<MuonCombined::IMuonCreatorTool> m_muonCreatorTool;
   std::string m_muonCollectionName;
@@ -42,6 +43,7 @@ class MuonCreatorAlg : public AthAlgorithm
   std::string m_indetCandidateCollectionName;
   std::string m_muonCandidateCollectionName;
   std::string m_segContainerName;
+  std::string m_clusterContainerName;
   bool m_buildSlowMuon;
 
 };
