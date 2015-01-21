@@ -108,7 +108,7 @@ class MuGirlRecoConfig(MuGirlNS__MuGirlRecoTool):
         #    self.PtLowerLimit=0.0     
         #    self.momentumLowerLimit=2000.0     
 
-        from MuonCombinedRecExample import CombinedMuonTrackSummary 
+#        from MuonCombinedRecExample import CombinedMuonTrackSummary 
         self.IdTrackSelectorTool = getPublicTool("MuonCombinedInDetDetailedTrackSelectorTool")
         #from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool 
         #MuGirlIdTrackSelectorTool = InDet__InDetDetailedTrackSelectorTool(name = "MuGirlIdTrackSelectorTool") 

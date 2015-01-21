@@ -50,7 +50,7 @@ class writeChamberT0s(JobProperty):
     """ 
     statusOn = True 
     allowedTypes = ['bool'] 
-    StoredValue = True 
+    StoredValue = False 
 
 class MuGirlFlags(JobPropertyContainer):
     """ MuGirl Job Properties
