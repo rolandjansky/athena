@@ -128,6 +128,8 @@ if DQMonFlags.doMuonRawMon():
             if MuonDQADetFlags.doCSCMon() or MuonDQADetFlags.doCSCClusMon():
                 include ("CscRawDataMonitoring/CscRawBS_MonitoringOptions.py")
         if MuonESDMon:
+            # add configuration of muon cablings 
+            import MuonCnvExample.MuonCablingConfig
             if MuonDQADetFlags.doMDTMon():
                 include ("MdtRawDataMonitoring/MdtRaw_MonitoringOptions.py")
             if MuonDQADetFlags.doRPCMon():
