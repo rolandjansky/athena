@@ -230,6 +230,9 @@ namespace xAOD {
       /** Property: save only requested corrections (trigger usage mainly) */
       bool m_saveOnlyRequestedCorrections;
 
+      /** Property: exclude tile scintillator*/
+      bool m_ExcludeTG3;
+
     };
   
 }	// end of namespace
