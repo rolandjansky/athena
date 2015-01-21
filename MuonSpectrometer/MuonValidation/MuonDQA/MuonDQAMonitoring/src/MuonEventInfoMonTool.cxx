@@ -57,7 +57,9 @@ namespace MuonDQA {
   // ********************************************************************* 
 
   MuonEventInfoMonTool::MuonEventInfoMonTool( const std::string & type, const std::string & name, const IInterface* parent )
-    :ManagedMonitorToolBase( type, name, parent ), m_log( msgSvc(), name ), m_debuglevel(false) 
+    : ManagedMonitorToolBase( type, name, parent ), m_eventStore(NULL), m_activeStore(NULL), m_log( msgSvc(), name ),
+      m_debuglevel(false), mdt_eventstotal(-1), mdt_event_inarea(-1), in_area(false), testcounter(-1), m_eventNumber(0),
+      m_hTriggerType(NULL)
   {
     /*---------------------------------------------------------*/ 
     declareProperty("LastEvent",     m_lastEvent=0);
