@@ -86,18 +86,21 @@ namespace ExpressionParsing {
       intval(val), 
       doubleval(0),
       m_proxyLoader(nullptr),
+      m_variableType(),
       m_determinedVariableType(false) { }
   StackElement::StackElement(int val)
     : type(SE_INT),
       intval(val),
       doubleval(0),
       m_proxyLoader(nullptr),
+      m_variableType(),
       m_determinedVariableType(false) { }
   StackElement::StackElement(double val)
     : type(SE_DOUBLE),
       intval(0),
       doubleval(val),
       m_proxyLoader(nullptr),
+      m_variableType(),
       m_determinedVariableType(false) { }
   StackElement::StackElement(const std::vector<int> &val)
     : type(SE_VECINT),
@@ -105,6 +108,7 @@ namespace ExpressionParsing {
       doubleval(0),
       vecintval(val),
       m_proxyLoader(0),
+      m_variableType(),
       m_determinedVariableType(false) { }
   StackElement::StackElement(const std::vector<double> &val)
     : type(SE_VECDOUBLE),
@@ -112,6 +116,7 @@ namespace ExpressionParsing {
       doubleval(0),
       vecdoubleval(val),
       m_proxyLoader(0),
+      m_variableType(),
       m_determinedVariableType(false) { }
   StackElement::StackElement(const std::string &val, IProxyLoader *proxyLoader)
     : type(SE_UNK),
@@ -119,6 +124,7 @@ namespace ExpressionParsing {
       doubleval(0),
       varname(val),
       m_proxyLoader(proxyLoader),
+      m_variableType(),
       m_determinedVariableType(false) { }
 
   StackElement StackElement::operator =(const int &rhs)

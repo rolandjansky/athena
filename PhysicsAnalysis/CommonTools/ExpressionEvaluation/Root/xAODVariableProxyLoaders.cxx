@@ -54,6 +54,7 @@
       m_accessorCache[varname] = accWrap;  \
       return accWrap->variableType(); \
     } \
+    else delete accWrap; \
   } \
 } while(0)
 
@@ -63,6 +64,7 @@
     m_accessorCache[varname] = accWrap;  \
     return accWrap->variableType(); \
   } \
+  else delete accWrap; \
 } while(0)
 
 
@@ -81,7 +83,7 @@ namespace ExpressionParsing {
     m_methodCall = new TMethodCall(cls, methodName.c_str(), "");
     if (!m_methodCall) return;
 
-    m_valid = true;
+    m_valid = m_methodCall->IsValid();
   }
 
   TMethodWrapper::~TMethodWrapper()
@@ -164,7 +166,7 @@ namespace ExpressionParsing {
     m_methodCall = new TMethodCall(elementClass, methodName.c_str(), "");
     if (!m_methodCall) return;
 
-    m_valid = true;
+    m_valid = m_methodCall->IsValid();
   }
 
   TMethodCollectionWrapper::~TMethodCollectionWrapper()
@@ -276,8 +278,8 @@ namespace ExpressionParsing {
 
   IProxyLoader::VariableType xAODElementProxyLoader::variableTypeFromString(const std::string &varname)
   {
-    TRY_ALL_KNOWN_TYPES(m_auxElement, VT_);
     TRY_TMETHOD_WRAPPER();
+    TRY_ALL_KNOWN_TYPES(m_auxElement, VT_);
     return VT_UNK;
   }
 
@@ -337,8 +339,8 @@ namespace ExpressionParsing {
 
   IProxyLoader::VariableType xAODVectorProxyLoader::variableTypeFromString(const std::string &varname)
   {
-    TRY_ALL_KNOWN_TYPES(m_auxVectorData, VT_VEC);
     TRY_TMETHOD_COLLECTION_WRAPPER();
+    TRY_ALL_KNOWN_TYPES(m_auxVectorData, VT_VEC);
     return VT_UNK;
   }
 

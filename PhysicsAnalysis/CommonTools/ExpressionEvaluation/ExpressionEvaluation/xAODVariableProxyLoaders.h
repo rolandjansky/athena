@@ -55,6 +55,10 @@ namespace ExpressionParsing {
         SG::AuxTypeRegistry& r = SG::AuxTypeRegistry::instance();
         SG::auxid_t auxid = r.findAuxID(m_elementName);
         if (!auxVectorData || !auxVectorData->getConstStore()) return false;
+
+        // At this point we just have to cross our fingers and hope...
+        if (auxVectorData->size_v() == 0) return true;
+
         const SG::auxid_set_t& ids = auxVectorData->getConstStore()->getAuxIDs();
         if( ids.find (auxid) != ids.end() ) return true;
         return auxVectorData->getConstStore()->getData( auxid ) != 0;

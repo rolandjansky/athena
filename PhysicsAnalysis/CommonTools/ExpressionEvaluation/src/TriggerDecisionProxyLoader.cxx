@@ -10,9 +10,6 @@
 // ExpressionParsing library
 /////////////////////////////////////////////////////////////////
 
-// ManaCore doesn't currently include the Trigger Service
-#ifndef XAOD_ANALYSIS
-
 #include "ExpressionEvaluation/TriggerDecisionProxyLoader.h"
 #include <string>
 
@@ -27,8 +24,13 @@ namespace ExpressionParsing {
 
   IProxyLoader::VariableType TriggerDecisionProxyLoader::variableTypeFromString(const std::string &varname)
   {
-    std::string openingChars(varname.begin(), varname.begin()+3);
-    if ((openingChars=="L1_") || (openingChars=="L2_") || (openingChars=="EF_")) return VT_INT;
+    static std::vector<std::string> knownPrefixes({"L1", "L2", "EF", "HLT"});
+
+    std::size_t location = varname.find('_');
+    if (location == std::string::npos) return VT_UNK;
+    std::string prefix(varname.begin(), varname.begin()+location);
+
+    if (std::find(knownPrefixes.begin(), knownPrefixes.end(), prefix) != knownPrefixes.end()) return VT_INT;
     else return VT_UNK;    
   }
 
@@ -57,5 +59,3 @@ namespace ExpressionParsing {
     throw std::runtime_error("Trigger decision can't be vector<double>: check " + varname);
   }
 }
-
-#endif // XAOD_ANALYSIS

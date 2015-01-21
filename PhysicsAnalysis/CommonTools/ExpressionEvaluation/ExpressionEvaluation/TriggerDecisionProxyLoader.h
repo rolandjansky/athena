@@ -10,9 +10,6 @@
 // ExpressionParsing library
 /////////////////////////////////////////////////////////////////
 
-// ManaCore doesn't currently include the Trigger Service
-#ifndef XAOD_ANALYSIS
-
 #ifndef TRIGGERDECISIONPROXYLOADER_H
 #define TRIGGERDECISIONPROXYLOADER_H
 
@@ -40,5 +37,3 @@ namespace ExpressionParsing {
 }
 
 #endif // TRIGGERDECISIONPROXYLOADER_H
-
-#endif // XAOD_ANALYSIS
