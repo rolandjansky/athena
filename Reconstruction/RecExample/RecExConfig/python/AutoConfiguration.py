@@ -17,10 +17,11 @@ logAutoConfiguration = logging.getLogger( 'AutoConfiguration' )
 KnownCosmicsProjects=["data08_calocomm","data08_muoncomm","data08_cos","data08_cosmag","data08_idcomm",
                       "data09_cos","data09_cosmag","data09_idcomm","EO_NOISE","data09_calocomm","data09_muoncomm","data09_calophys",
                       "data10_muoncomm","data10_idcomm","data10_larcomm","data10_tilecomm","data10_calocomm","data10_calib","data10_cos",
-                      "data11_calib","data11_calocomm","data11_cos","data11_idcomm","data11_larcomm","data11_muoncomm","data11,tilecomm",
-                      "data12_calib","data12_calocomm","data12_cos","data12_idcomm","data12_larcomm","data12_muoncomm","data12,tilecomm",
-                      "data13_calib","data13_calocomm","data13_cos","data13_idcomm","data13_larcomm","data13_muoncomm","data13,tilecomm",
-                      "data14_calib","data14_calocomm","data14_cos","data14_idcomm","data14_larcomm","data14_muoncomm","data14,tilecomm",
+                      "data11_calib","data11_calocomm","data11_cos","data11_idcomm","data11_larcomm","data11_muoncomm","data11_tilecomm",
+                      "data12_calib","data12_calocomm","data12_cos","data12_idcomm","data12_larcomm","data12_muoncomm","data12_tilecomm",
+                      "data13_calib","data13_calocomm","data13_cos","data13_idcomm","data13_larcomm","data13_muoncomm","data13_tilecomm",
+                      "data14_calib","data14_calocomm","data14_cos","data14_idcomm","data14_larcomm","data14_muoncomm","data14_tilecomm",
+                      "data15_calib","data15_calocomm","data15_cos","data15_idcomm","data15_larcomm","data15_muoncomm","data15_tilecomm",
                       ]
 
 # Abandon the single-beam reconstruction all together, 26 February 2011 
@@ -34,7 +35,7 @@ KnownCollisionsProjects=["data08","data08_coll900","data09","data09_coll900","da
                          "data11_7TeV","data11_8TeV","data11_2p76TeV","data11_comm","data11_900GeV","data11_1beam","data11_hip", 
                          "data12_8TeV","data12_comm","mc12_8TeV","IS_SIMULATION","data12_1beam","data12_900GeV",
                          "data13_8TeV","data13_comm","data13_2p76TeV","data13_1beam",
-                         "data14_comm",
+                         "data14_comm","data15_comm","data15_900GeV","data15_1beam","data15_13TeV"
                          ]
 
 KnownHeavyIonProjects=["data10_hi","data11_hi"]
@@ -60,7 +61,8 @@ def GetRunNumber():
         try:
             runNb=inputFileSummary['run_number'][0]
         except Exception:
-            logAutoConfiguration.error("No RunNumber stored in InputFile!")
+            from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+            if not athenaCommonFlags.isOnline(): logAutoConfiguration.error("No RunNumber stored in InputFile!")
     else:
         runNb=rec.RunNumber()
     logAutoConfiguration.debug("RunNumber is: %s",runNb)
