@@ -15,6 +15,7 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/IIncidentListener.h"
 #include "AthenaKernel/IIOVSvc.h"
 
 #include "TrkToolInterfaces/IRIO_OnTrackErrorScalingTool.h"
@@ -54,7 +55,8 @@ namespace Trk {
       @author Wolfgang Liebig <http://consult.cern.ch/xwho/people/54608>
   */
   class RIO_OnTrackErrorScalingTool : public AthAlgTool,
-        virtual public IRIO_OnTrackErrorScalingTool {
+        virtual public IRIO_OnTrackErrorScalingTool,
+        virtual public IIncidentListener {
 
   public:
   ///////////////////////////////////////////////////////////////////
@@ -100,6 +102,10 @@ namespace Trk {
 
     //! dumps the current scaling parameters to MsgStream output
     virtual MsgStream& dump( MsgStream& ) const;
+
+    //! handle BeginRun incidents 
+    void handle(const Incident& inc);
+
   private:
   ///////////////////////////////////////////////////////////////////
   // Private data members:
@@ -154,6 +160,17 @@ namespace Trk {
     double                m_override_constant_term_sct_ecs;
     double                m_override_constant_term_trt_bar;
     double                m_override_constant_term_trt_ecs;
+    double                m_override_mu_term_trt_bar;
+    double                m_override_mu_term_trt_ecs;
+
+		
+    mutable double  m_mu; //!< Pileup in event to correct errors
+    mutable bool    m_hasBeenCalledThisEvent; //! < Is this the first time the tool has been called this event? 
+
+
+    //! Service to report incidents (begin run, begin event)
+    ServiceHandle< IIncidentSvc > m_IncidentSvc;
+
 
     //! conditions data handling: COOL folder name for InDet scaling paremeters
     const std::string m_idFolder;
