@@ -15,10 +15,11 @@
 // --------------------------------------------------------------------------------
 
 TrigL2MuonSA::TgcRoadDefiner::TgcRoadDefiner(MsgStream* msg)
-   : m_msg(msg), 
+   : m_msg(), 
      m_tgcFit(msg,10), // chi2 value 10 given by hand for now
      m_rWidth_TGC_Failed(0)
 {
+  if ( msg ) m_msg = msg; 
 }
 
 // --------------------------------------------------------------------------------
@@ -66,10 +67,10 @@ void TrigL2MuonSA::TgcRoadDefiner::setPtLUT(const TrigL2MuonSA::PtEndcapLUTSvc* 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*    p_roi,
-					      const TrigL2MuonSA::TgcHits& tgcHits,
-					      TrigL2MuonSA::MuonRoad&      muonRoad,
-					      TrigL2MuonSA::TgcFitResult&  tgcFitResult)
+bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi,
+                                              const TrigL2MuonSA::TgcHits& tgcHits,
+                                              TrigL2MuonSA::MuonRoad&      muonRoad,
+                                              TrigL2MuonSA::TgcFitResult&  tgcFitResult)
 {
   const int N_STATION = 8;
 
@@ -127,17 +128,17 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*    p_roi,
     }
     
     msg() << MSG::DEBUG << "tgcFitResult.tgcInn[0/1/2/3]=" << tgcFitResult.tgcInn[0] << "/" << tgcFitResult.tgcInn[1]
-	  << "/" << tgcFitResult.tgcInn[2] << "/" << tgcFitResult.tgcInn[3] << endreq;
+          << "/" << tgcFitResult.tgcInn[2] << "/" << tgcFitResult.tgcInn[3] << endreq;
     msg() << MSG::DEBUG << "tgcFitResult.tgcMid1[0/1/2/3]=" << tgcFitResult.tgcMid1[0] << "/" << tgcFitResult.tgcMid1[1]
-	  << "/" << tgcFitResult.tgcMid1[2] << "/" << tgcFitResult.tgcMid1[3] << endreq;
+          << "/" << tgcFitResult.tgcMid1[2] << "/" << tgcFitResult.tgcMid1[3] << endreq;
     msg() << MSG::DEBUG << "tgcFitResult.tgcMid2[0/1/2/3]=" << tgcFitResult.tgcMid2[0] << "/" << tgcFitResult.tgcMid2[1]
-	  << "/" << tgcFitResult.tgcMid2[2] << "/" << tgcFitResult.tgcMid2[3] << endreq;
+          << "/" << tgcFitResult.tgcMid2[2] << "/" << tgcFitResult.tgcMid2[3] << endreq;
     
     // PT calculation by using TGC fit result
     const double PHI_RANGE = 12./(CLHEP::pi/8.);
     side = (tgcFitResult.tgcMid2[3]<=0) ? 0 : 1;
     double alpha = m_ptEndcapLUT->alpha(tgcFitResult.tgcMid1[3], tgcFitResult.tgcMid1[2],
-					tgcFitResult.tgcMid2[3], tgcFitResult.tgcMid2[2]);
+                                        tgcFitResult.tgcMid2[3], tgcFitResult.tgcMid2[2]);
     
     int Octant = (int)(tgcFitResult.tgcMid1[1] / (CLHEP::pi/4.));
     double PhiInOctant = fabs(tgcFitResult.tgcMid1[1] - Octant * (CLHEP::pi/4.));
@@ -163,25 +164,25 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*    p_roi,
       tgcFitResult.isPhiDir = true;
 
       if( tgcFitResult.tgcMid1[1]*tgcFitResult.tgcMid2[1] < 0
-	  && fabsf(tgcFitResult.tgcMid1[1])>CLHEP::pi/2. ) {
+          && fabsf(tgcFitResult.tgcMid1[1])>CLHEP::pi/2. ) {
 
-	double tmp1 = (tgcFitResult.tgcMid1[1]>0)?
-	  tgcFitResult.tgcMid1[1] - CLHEP::pi : tgcFitResult.tgcMid1[1] + CLHEP::pi;
+        double tmp1 = (tgcFitResult.tgcMid1[1]>0)?
+          tgcFitResult.tgcMid1[1] - CLHEP::pi : tgcFitResult.tgcMid1[1] + CLHEP::pi;
 
-	double tmp2 = (tgcFitResult.tgcMid2[1]>0)?
-	  tgcFitResult.tgcMid2[1] - CLHEP::pi : tgcFitResult.tgcMid2[1] + CLHEP::pi;
+        double tmp2 = (tgcFitResult.tgcMid2[1]>0)?
+          tgcFitResult.tgcMid2[1] - CLHEP::pi : tgcFitResult.tgcMid2[1] + CLHEP::pi;
 
-	double tmp  = (tmp1+tmp2)/2.;
+        double tmp  = (tmp1+tmp2)/2.;
 
-	tgcFitResult.dPhidZ = (fabs(tgcFitResult.tgcMid2[3]-tgcFitResult.tgcMid1[3])>0.)?
-	  (tmp2-tmp1)/fabs(tgcFitResult.tgcMid2[3]-tgcFitResult.tgcMid1[3]): 0;
+        tgcFitResult.dPhidZ = (fabs(tgcFitResult.tgcMid2[3]-tgcFitResult.tgcMid1[3])>0.)?
+          (tmp2-tmp1)/fabs(tgcFitResult.tgcMid2[3]-tgcFitResult.tgcMid1[3]): 0;
 
-	tgcFitResult.phi = (tmp>0.)? tmp - CLHEP::pi : tmp + CLHEP::pi;
+        tgcFitResult.phi = (tmp>0.)? tmp - CLHEP::pi : tmp + CLHEP::pi;
 
       } else {
 
-	tgcFitResult.dPhidZ = (tgcFitResult.tgcMid2[1]-tgcFitResult.tgcMid1[1])/fabs(tgcFitResult.tgcMid2[3]-tgcFitResult.tgcMid1[3]);
-	tgcFitResult.phi = (tgcFitResult.tgcMid2[1]+tgcFitResult.tgcMid1[1])/2.;
+        tgcFitResult.dPhidZ = (tgcFitResult.tgcMid2[1]-tgcFitResult.tgcMid1[1])/fabs(tgcFitResult.tgcMid2[3]-tgcFitResult.tgcMid1[3]);
+        tgcFitResult.phi = (tgcFitResult.tgcMid2[1]+tgcFitResult.tgcMid1[1])/2.;
 
       }
     }
@@ -200,9 +201,9 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*    p_roi,
       muonRoad.aw[endcap_extra][0]     = tgcFitResult.slope;
       muonRoad.bw[endcap_extra][0]     = tgcFitResult.intercept;
       for (int i_layer=0; i_layer<8; i_layer++) {
-	muonRoad.rWidth[endcap_middle][i_layer] = R_WIDTH_DEFAULT;
-	muonRoad.rWidth[endcap_outer][i_layer] = R_WIDTH_DEFAULT;
-	muonRoad.rWidth[endcap_extra][i_layer] = R_WIDTH_DEFAULT;
+        muonRoad.rWidth[endcap_middle][i_layer] = R_WIDTH_DEFAULT;
+        muonRoad.rWidth[endcap_outer][i_layer] = R_WIDTH_DEFAULT;
+        muonRoad.rWidth[endcap_extra][i_layer] = R_WIDTH_DEFAULT;
       }
     } else {
       roiEta = p_roi->eta();
@@ -215,9 +216,9 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*    p_roi,
       muonRoad.aw[endcap_extra][0]     = aw;
       muonRoad.bw[endcap_extra][0]     = 0;
       for (int i_layer=0; i_layer<8; i_layer++) {
-	muonRoad.rWidth[endcap_middle][i_layer] = R_WIDTH_MIDDLE_NO_HIT;
-	muonRoad.rWidth[endcap_outer][i_layer] = R_WIDTH_MIDDLE_NO_HIT;
-	muonRoad.rWidth[endcap_extra][i_layer] = R_WIDTH_MIDDLE_NO_HIT;
+        muonRoad.rWidth[endcap_middle][i_layer] = R_WIDTH_MIDDLE_NO_HIT;
+        muonRoad.rWidth[endcap_outer][i_layer] = R_WIDTH_MIDDLE_NO_HIT;
+        muonRoad.rWidth[endcap_extra][i_layer] = R_WIDTH_MIDDLE_NO_HIT;
       }
     }
     
@@ -249,26 +250,32 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*    p_roi,
 
       double phi;
       double sigma_phi;
-      StatusCode sc
-	= (*m_backExtrapolatorTool)->give_eta_phi_at_vertex(muonSA, eta,sigma_eta,phi,sigma_phi,0.);
-      if (sc.isSuccess() ){
-	extrInnerEta = eta;
+
+      if (m_backExtrapolatorTool) {
+        StatusCode sc
+          = (*m_backExtrapolatorTool)->give_eta_phi_at_vertex(muonSA, eta,sigma_eta,phi,sigma_phi,0.);
+        if (sc.isSuccess() ){
+          extrInnerEta = eta;
+        } else {
+          extrInnerEta = etaMiddle;
+        }
       } else {
-	extrInnerEta = etaMiddle;
+        msg() << MSG::ERROR << "Null pointer to ITrigMuonBackExtrapolator" << endreq;
+        return StatusCode::FAILURE;
       }
 
       if (muonSA) delete muonSA;
       
       double theta = 0.;
       if (extrInnerEta != 0.) {
-	theta = atan(exp(-fabs(extrInnerEta)))*2.;
-	muonRoad.aw[endcap_inner][0] = tan(theta)*(fabs(extrInnerEta)/extrInnerEta);
-	muonRoad.aw[barrel_inner][0] = tan(theta)*(fabs(extrInnerEta)/extrInnerEta);
-	muonRoad.aw[csc][0]          = tan(theta)*(fabs(extrInnerEta)/extrInnerEta);
+        theta = atan(exp(-fabs(extrInnerEta)))*2.;
+        muonRoad.aw[endcap_inner][0] = tan(theta)*(fabs(extrInnerEta)/extrInnerEta);
+        muonRoad.aw[barrel_inner][0] = tan(theta)*(fabs(extrInnerEta)/extrInnerEta);
+        muonRoad.aw[csc][0]          = tan(theta)*(fabs(extrInnerEta)/extrInnerEta);
       } else {
-	muonRoad.aw[endcap_inner][0] = 0;
-	muonRoad.aw[barrel_inner][0] = 0;
-	muonRoad.aw[csc][0]          = 0;
+        muonRoad.aw[endcap_inner][0] = 0;
+        muonRoad.aw[barrel_inner][0] = 0;
+        muonRoad.aw[csc][0]          = 0;
       }
       
       for (int i_layer=0; i_layer<8; i_layer++) muonRoad.rWidth[endcap_inner][i_layer] = R_WIDTH_INNER_NO_HIT;
@@ -425,16 +432,16 @@ bool TrigL2MuonSA::TgcRoadDefiner::prepareTgcPoints(const TrigL2MuonSA::TgcHits&
       double w = 12.0 / hit.width / hit.width;
       if (hit.isStrip)
       {
-	 w *= hit.r * hit.r;
-	 double phi = hit.phi;
-	 if( phi < 0 && ( (CLHEP::pi+phi)<PHI_BOUNDARY) ) phi += CLHEP::pi*2;
-	 if      ( hit.sta < 3 ) { m_tgcStripMidPoints.push_back(TgcFit::Point(iHit + 1, hit.sta, hit.z, phi, w)); }
-	 else if ( hit.sta ==3 ) { m_tgcStripInnPoints.push_back(TgcFit::Point(iHit + 1, hit.sta, hit.z, phi, w)); }
+         w *= hit.r * hit.r;
+         double phi = hit.phi;
+         if( phi < 0 && ( (CLHEP::pi+phi)<PHI_BOUNDARY) ) phi += CLHEP::pi*2;
+         if      ( hit.sta < 3 ) { m_tgcStripMidPoints.push_back(TgcFit::Point(iHit + 1, hit.sta, hit.z, phi, w)); }
+         else if ( hit.sta ==3 ) { m_tgcStripInnPoints.push_back(TgcFit::Point(iHit + 1, hit.sta, hit.z, phi, w)); }
       }
       else
       {
-	 if      ( hit.sta < 3 ) { m_tgcWireMidPoints.push_back(TgcFit::Point(iHit + 1, hit.sta, hit.z, hit.r, w)); }
-	 else if ( hit.sta ==3 ) { m_tgcWireInnPoints.push_back(TgcFit::Point(iHit + 1, hit.sta, hit.z, hit.r, w)); }
+         if      ( hit.sta < 3 ) { m_tgcWireMidPoints.push_back(TgcFit::Point(iHit + 1, hit.sta, hit.z, hit.r, w)); }
+         else if ( hit.sta ==3 ) { m_tgcWireInnPoints.push_back(TgcFit::Point(iHit + 1, hit.sta, hit.z, hit.r, w)); }
       }
    }
 

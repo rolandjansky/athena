@@ -1462,81 +1462,78 @@ int TrigL2MuonSA::MuFastStationFitter::Evlfit(int Ifla, TrigL2MuonSA::PBFitResul
   
   for(j=0;j<pbFitResult.NPOI;j++) if(pbFitResult.IGLIN[j]>=1) pbFitResult.NDOF++;
   
-  for( ; ;) {
+  while(pbFitResult.NDOF>=1) {
 
-    while(pbFitResult.NDOF>=1) {
+    //      printf("pbFitResult.NDOF = %2d\n",pbFitResult.NDOF);
+    Ntry++;
+    Circles(pbFitResult.NPOI,pbFitResult.XILIN,pbFitResult.YILIN,pbFitResult.RILIN,pbFitResult.WILIN,
+            pbFitResult.IGLIN,&pbFitResult.ALIN,&pbFitResult.BLIN,pbFitResult.DABLIN,&pbFitResult.CHI2,
+            &pbFitResult.PCHI2);
 
-      //      printf("pbFitResult.NDOF = %2d\n",pbFitResult.NDOF);
-      Ntry++;
-      Circles(pbFitResult.NPOI,pbFitResult.XILIN,pbFitResult.YILIN,pbFitResult.RILIN,pbFitResult.WILIN,
-              pbFitResult.IGLIN,&pbFitResult.ALIN,&pbFitResult.BLIN,pbFitResult.DABLIN,&pbFitResult.CHI2,
-              &pbFitResult.PCHI2);
+    if(pbFitResult.CHI2<=ZERO_LIMIT) break;
 
-      if(pbFitResult.CHI2<=ZERO_LIMIT) break;
+    Xnor = 1. / sqrt(1. + pbFitResult.ALIN * pbFitResult.ALIN);
 
-      Xnor = 1. / sqrt(1. + pbFitResult.ALIN * pbFitResult.ALIN);
+    for(i=0;i<pbFitResult.NPOI;i++) pbFitResult.RESI[i] = 0.;
 
-      for(i=0;i<pbFitResult.NPOI;i++) pbFitResult.RESI[i] = 0.;
+    for(j=0;j<pbFitResult.NPOI;j++) {
 
-      for(j=0;j<pbFitResult.NPOI;j++) {
+      pbFitResult.DISTJ[j] = (pbFitResult.ALIN * pbFitResult.XILIN[j] + pbFitResult.BLIN - pbFitResult.YILIN[j]) * Xnor;
+      IGcur = abs(pbFitResult.IGLIN[j])%100;
 
-        pbFitResult.DISTJ[j] = (pbFitResult.ALIN * pbFitResult.XILIN[j] + pbFitResult.BLIN - pbFitResult.YILIN[j]) * Xnor;
-        IGcur = abs(pbFitResult.IGLIN[j])%100;
-
-        if (IGcur==1) {
-          pbFitResult.RESI[j] = pbFitResult.DISTJ[j];
-        } else if (IGcur==2) {
-          rlin = (pbFitResult.DISTJ[j]>=0.) ? pbFitResult.RILIN[j] : -pbFitResult.RILIN[j];
-          pbFitResult.RESI[j] = pbFitResult.DISTJ[j] - rlin;
-        } else if (IGcur==3) {
-          pbFitResult.RESI[j] = pbFitResult.DISTJ[j] - pbFitResult.RILIN[j];
-        }
-      } 
-
-      if(pbFitResult.PCHI2>=0.01||Ifla==1) return Ifit;
-       
-      if (pbFitResult.NDOF<=1||Ntry>=6) {
-
-        Ifit  = 1;
-        pbFitResult.NDOF  = 0;
-        pbFitResult.ALIN  = 0.;
-        pbFitResult.BLIN  = 0.;
-        pbFitResult.CHI2  = -1.;
-        pbFitResult.PCHI2 = -.5;
-
-        for (i=0;i<2;i++) {
-          for(k=0;k<2;k++) {
-            pbFitResult.DABLIN[i][k] = 0.;
-          }
-        }
-
-        for(j=0;j<pbFitResult.NPOI;j++) pbFitResult.IGLIN[j] = - abs(pbFitResult.IGLIN[j])%100;
-
-        return Ifit;
+      if (IGcur==1) {
+        pbFitResult.RESI[j] = pbFitResult.DISTJ[j];
+      } else if (IGcur==2) {
+        rlin = (pbFitResult.DISTJ[j]>=0.) ? pbFitResult.RILIN[j] : -pbFitResult.RILIN[j];
+        pbFitResult.RESI[j] = pbFitResult.DISTJ[j] - rlin;
+      } else if (IGcur==3) {
+        pbFitResult.RESI[j] = pbFitResult.DISTJ[j] - pbFitResult.RILIN[j];
       }
-       
-      //    Exclude the worst point       
-      Jbad = 0;
-      Xbad = -1.;
-      for (j=0;j<pbFitResult.NPOI;j++) {
-        if (pbFitResult.IGLIN[j]>=1) {
-          test = pbFitResult.RESI[j] * pbFitResult.RESI[j] * pbFitResult.WILIN[j];
-          if (test>=Xbad) {
-            Xbad = test;
-            Jbad = j;
-          }
+    } 
+
+    if(pbFitResult.PCHI2>=0.01||Ifla==1) return Ifit;
+     
+    if (pbFitResult.NDOF<=1||Ntry>=6) {
+
+      Ifit  = 1;
+      pbFitResult.NDOF  = 0;
+      pbFitResult.ALIN  = 0.;
+      pbFitResult.BLIN  = 0.;
+      pbFitResult.CHI2  = -1.;
+      pbFitResult.PCHI2 = -.5;
+
+      for (i=0;i<2;i++) {
+        for(k=0;k<2;k++) {
+          pbFitResult.DABLIN[i][k] = 0.;
         }
       }
-       
-      //    Try again
-       
-      pbFitResult.IGLIN[Jbad] = - pbFitResult.IGLIN[Jbad] - 100;
-      pbFitResult.NDOF        = pbFitResult.NDOF - 1;
-       
+
+      for(j=0;j<pbFitResult.NPOI;j++) pbFitResult.IGLIN[j] = - abs(pbFitResult.IGLIN[j])%100;
+
+      return Ifit;
     }
-
-    return Ifit;
+     
+    //    Exclude the worst point       
+    Jbad = 0;
+    Xbad = -1.;
+    for (j=0;j<pbFitResult.NPOI;j++) {
+      if (pbFitResult.IGLIN[j]>=1) {
+        test = pbFitResult.RESI[j] * pbFitResult.RESI[j] * pbFitResult.WILIN[j];
+        if (test>=Xbad) {
+          Xbad = test;
+          Jbad = j;
+        }
+      }
+    }
+     
+    //    Try again
+     
+    pbFitResult.IGLIN[Jbad] = - pbFitResult.IGLIN[Jbad] - 100;
+    pbFitResult.NDOF        = pbFitResult.NDOF - 1;
+     
   }
+
+  return Ifit;
 }
 
 // --------------------------------------------------------------------------------

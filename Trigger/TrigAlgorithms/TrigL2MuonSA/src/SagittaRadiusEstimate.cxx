@@ -16,10 +16,11 @@
 TrigL2MuonSA::SagittaRadiusEstimate::SagittaRadiusEstimate(MsgStream* msg,
 							   BooleanProperty use_mcLUT,
 							   const TrigL2MuonSA::AlignmentBarrelLUTSvc* alignmentBarrelLUTSvc): 
-  m_msg(msg),
+  m_msg(0),
   m_use_mcLUT(use_mcLUT),
   m_alignmentBarrelLUT(0)
 {
+  if ( msg ) m_msg = msg; 
   if ( alignmentBarrelLUTSvc && !m_use_mcLUT ) m_alignmentBarrelLUT = alignmentBarrelLUTSvc->alignmentBarrelLUT();
 }
 
