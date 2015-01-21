@@ -191,6 +191,7 @@ tag gcc-4.5 gcc45x gcc45 gcc
 tag gcc-4.6 gcc46x gcc46 gcc
 tag gcc-4.7 gcc47x gcc47 gcc
 tag gcc-4.8 gcc48x gcc48 gcc
+tag gcc-4.9 gcc49x gcc49 gcc
 
 # Setup slc5 host tags from those provided by CMT. 
 # Note that these need to be kept synchronized with the list in AtlasSetting.
@@ -272,6 +273,9 @@ tag x86_64-slc6-gcc47-dbg     Linux slc6 64  gcc-4.7 debug x86_64-slc6-gcc47
 
 tag x86_64-slc6-gcc48-opt     Linux slc6 64  gcc-4.8 opt   x86_64-slc6-gcc48
 tag x86_64-slc6-gcc48-dbg     Linux slc6 64  gcc-4.8 debug x86_64-slc6-gcc48
+
+tag x86_64-slc6-gcc49-opt     Linux slc6 64  gcc-4.9 opt   x86_64-slc6-gcc49
+tag x86_64-slc6-gcc49-dbg     Linux slc6 64  gcc-4.9 debug x86_64-slc6-gcc49
 
 tag x86_64-slc6-clang32-opt   Linux slc6 64  clang32 gcc46 opt   x86_64-slc6-clang32
 tag x86_64-slc6-clang32-dbg   Linux slc6 64  clang32 gcc46 debug x86_64-slc6-clang32
