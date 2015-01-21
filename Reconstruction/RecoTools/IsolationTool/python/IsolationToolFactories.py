@@ -76,4 +76,5 @@ CaloIsolationTool = ToolFactory(xAOD__CaloIsolationTool, name="CaloIsolationTool
 #                                 ParticleCaloExtensionTool       = None,
                                 EMCaloNums  = [SUBCALO.LAREM],
                                 HadCaloNums = [SUBCALO.LARHEC, SUBCALO.TILE],
-                                UseEMScale = True)
+                                UseEMScale = True
+                                ExcludeTG3 = True)
