@@ -134,7 +134,7 @@ else
            then
 	   jobrep=${joblog}-rep
 	   sed "$II" $joblog > $jobrep
-	   refrep=${reflog}-rep
+	   refrep=`basename ${reflog}`-rep
 	   sed "$II" $reflog > $refrep
            jobdiff=${joblog}-todiff
            refdiff=`basename ${reflog}`-todiff
