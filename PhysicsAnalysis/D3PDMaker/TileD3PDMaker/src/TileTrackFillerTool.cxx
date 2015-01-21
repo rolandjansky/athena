@@ -38,12 +38,11 @@ m_trackToVertexTool("Reco::TrackToVertex"){
 StatusCode TileTrackFillerTool::initialize(){
     //===============================================
     // RETRIEVES NECESSARY SERVICES AND TOOLS, INSTANTIATES GLOBAL VARIABLES
-    
+
+    ATH_MSG_DEBUG("TILETRACKERFILLERTOOL::INITIALIZE()");    
+
     // CHECK WHETHER BLOCKFILLERTOOL HAS BEEN INITIALIZED
     CHECK( D3PD::BlockFillerTool<xAOD::TrackParticle>::initialize());
-    
-    // OUTPUT MESSAGING SERVICE
-    ATH_MSG_DEBUG(" NOW IN TILETRACKERFILLERTOOL::INITIALIZE() ");
     
     // RETRIEVE STOREGATE SERVICE
     CHECK( service("StoreGateSvc",m_storeGate));
@@ -52,10 +51,7 @@ StatusCode TileTrackFillerTool::initialize(){
 
     CHECK(m_trackToVertexTool.retrieve()); 
    
-    ATH_MSG_ERROR(" NOW IN TILETRACKERFILLERTOOL::INITIALIZE() ");
-    
-    return StatusCode::SUCCESS;
-    
+    return StatusCode::SUCCESS;    
 } // TileTrackFillerTool::initialize
 
 //=========================================
@@ -64,7 +60,7 @@ StatusCode TileTrackFillerTool::book(){
     // ADDS VARIABLES TO THE D3PD TREE
     
     // OUTPUT MESSAGING SERVICE
-    ATH_MSG_DEBUG(" NOW IN TileTrackFillerTool::book() ");
+    ATH_MSG_DEBUG("TileTrackFillerTool::book()");
     
     if (m_LevelOfDetails > 0){
        
@@ -147,12 +143,13 @@ StatusCode TileTrackFillerTool::book(){
 StatusCode TileTrackFillerTool::fill(const xAOD::TrackParticle& p){
     //================================================================
     // OUTPUT MESSAGING SERVICE
-    ATH_MSG_DEBUG("in TileTrackFillerTool::fill");
+    ATH_MSG_DEBUG("TileTrackFillerTool::fill");
     
     // Get Track information
     const xAOD::TrackParticle* trackPointer = &p;
     
-    if(!trackPointer) ATH_MSG_ERROR("NULL POINTER");
+    if(!trackPointer) { ATH_MSG_INFO("NULL POINTER"); return StatusCode::RECOVERABLE; }
+
     
     // STORE TRACK PARAMETERS
     if(m_LevelOfDetails > 0){

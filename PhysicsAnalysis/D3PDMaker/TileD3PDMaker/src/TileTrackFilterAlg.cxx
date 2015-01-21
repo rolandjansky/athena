@@ -35,7 +35,7 @@ StatusCode TileTrackFilterAlg::initialize(){
 //==========================================
     // INITIALISE THE TRACK FILTER ALGORITHM
     
-    ATH_MSG_INFO(" NOW IN TileTrackFilterAlg::initialize() ");
+    ATH_MSG_INFO("TileTrackFilterAlg::initialize() ");
 
     CHECK(m_track_iso_tool.retrieve());
     CHECK(service("StoreGateSvc",m_storeGate));

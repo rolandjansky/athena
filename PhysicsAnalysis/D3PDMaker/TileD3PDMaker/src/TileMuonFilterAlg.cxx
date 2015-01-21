@@ -44,6 +44,7 @@ TileMuonFilterAlg::TileMuonFilterAlg( const std::string& name, ISvcLocator* pSvc
 //=======================================
 StatusCode TileMuonFilterAlg::initialize(){
 //=======================================
+  ATH_MSG_INFO("TileMuonFilterAlg::initialize()");
       
   CHECK(service("StoreGateSvc",m_storeGate));
   CHECK(m_trackInCalo.retrieve());
@@ -70,7 +71,7 @@ StatusCode TileMuonFilterAlg::execute(){
   //Get the input Muons
   const MUONCONTAINER* inputMuons = 0;
   CHECK( m_storeGate->retrieve( inputMuons, m_inputMuons ) );
-  ATH_MSG_INFO("Number of Muons: " << inputMuons->size());
+  ATH_MSG_DEBUG("Number of Muons: " << inputMuons->size());
 
   //Allocate the output Muons container
   MUONCONTAINER* outputMuons = new MUONCONTAINER;
@@ -221,8 +222,8 @@ StatusCode TileMuonFilterAlg::execute(){
 
   //for( int i = 0; i < Ncut; ++i) ATH_MSG_INFO(" cut["<<i<<"] = "<< cut[i] );
 
-  ATH_MSG_INFO("Number of selected Muons: "<< outputMuons->size() );
-  ATH_MSG_INFO("Number of selected cells: " << outputCells->size());
+  ATH_MSG_DEBUG("Number of selected Muons: "<< outputMuons->size() );
+  ATH_MSG_DEBUG("Number of selected cells: " << outputCells->size());
 
   CHECK( evtStore()->record(outputMuons, m_outputMuons) );
   CHECK( evtStore()->record(outputAuxMuons,m_outputMuons+"Aux.") );

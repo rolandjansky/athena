@@ -14,6 +14,9 @@
 from AthenaCommon.GlobalFlags import globalflags as globalFlags
 globalFlags.DetGeo				.set_Value_and_Lock("atlas")			# atlas, ctbh6, ctbh8, ctb
 globalFlags.DataSource				.set_Value_and_Lock(input_type)		# data source: data, geant3, geant4
+globalFlags.InputFormat				.set_Value_and_Lock('pool')
+#globalFlags.Luminosity				.set_Value_and_Lock('zero')
+globalFlags.DatabaseInstance			.set_Value_and_Lock(dbname)
 
 from AthenaCommon.BeamFlags import jobproperties as beamFlags
 beamFlags.Beam.beamType				.set_Value_and_Lock(beam_type)
@@ -52,6 +55,7 @@ from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
 theApp.EvtMax = EvtMax
 athenaCommonFlags.FilesInput.set_Value_and_Lock(inputFiles)
 athenaCommonFlags.EvtMax.set_Value_and_Lock(EvtMax)
+del EvtMax
 
 print "==============> DATABASE SET <=============="
 
@@ -198,7 +202,7 @@ from TileD3PDMaker import TileEventFillerTool
 TileEventFillerTool.LevelOfDetails    = 4
 
 from D3PDMakerCoreComps.D3PDObject import make_SG_D3PDObject
-TileEventD3PDObject = make_SG_D3PDObject( "xAOD::EventInfo_v1", D3PDMakerFlags.EventInfoSGKey(), 'evt_', "TileEventD3PDObject" )
+TileEventD3PDObject = make_SG_D3PDObject( "xAOD::EventInfo", D3PDMakerFlags.EventInfoSGKey(), 'evt_', "TileEventD3PDObject" )
 TileEventD3PDObject.defineBlock(0, 'EventDump', TileD3PDMaker.TileEventFillerTool)
 
 
@@ -210,7 +214,7 @@ TileTrackFillerTool.TrackParType          = 0 ;  #track parameters per 0: sampli
 TileTrackFillerTool.TrackToVertexTool     = TrackToVertexTool
 def tileTrackFiller(name, prefix, object_name):
     tileTrackGetter = SGDataVectorGetterTool('track_getter',
-                                             TypeName = 'xAOD::TrackParticleContainer_v1',
+                                             TypeName = 'xAOD::TrackParticleContainer',
                                              SGKey = 'SelectedTracks')
     return VectorFillerTool(name,
                             Prefix = prefix,
@@ -246,7 +250,7 @@ TileMuonFillerTool.LevelOfDetails        = 3
 TileMuonFillerTool.TrackType             = track_type
 def tileMuonFiller(name, prefix, object_name):
     tileMuonGetter = SGDataVectorGetterTool('Muon_getter',
-                                             TypeName = 'xAOD::MuonContainer_v1',
+                                             TypeName = 'xAOD::MuonContainer',
                                              SGKey = 'SelectedMuons')
     return VectorFillerTool(name,
                             Prefix = prefix,
@@ -301,8 +305,6 @@ if monitor_performance:
     jobproperties.PerfMonFlags.doPostProcessing = True
 
 # SET OUTPUT LEVEL OF MESSAGES
-debugging = False
-
 from AthenaCommon.AppMgr import theApp
 svcMgr = theApp.serviceMgr()
 if debugging: svcMgr.MessageSvc.OutputLevel = 1

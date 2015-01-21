@@ -44,7 +44,7 @@ m_trackInCalo("TrackInCaloTools/extrapolMuonInCaloTool"){
 StatusCode TileCellFillerTool::initialize(){
 //==============================================
 
-    ATH_MSG_DEBUG("in TileCellFillerTool::initialize()");
+    ATH_MSG_DEBUG("TileCellFillerTool::initialize()");
 
     IToolSvc* toolsvc;
     CHECK(service("ToolSvc",toolsvc));
@@ -69,7 +69,7 @@ StatusCode TileCellFillerTool::initialize(){
 StatusCode TileCellFillerTool::finalize(){
 //============================================
 
-    ATH_MSG_DEBUG("in TileCellFillerTool::finalize()");
+    ATH_MSG_DEBUG("TileCellFillerTool::finalize()");
     return StatusCode::SUCCESS;
 
 } // TileCellFillerTool::finalize
@@ -171,14 +171,13 @@ StatusCode TileCellFillerTool::book(){
     return StatusCode::SUCCESS;
 } // TileCellFillerTool::book
 
-
 //==========================================================
 StatusCode TileCellFillerTool::fill (const CaloCell& p){
 //==========================================================
+    ATH_MSG_DEBUG("TileCellFillerTool::fill()");
+ 
     const CaloDetDescrElement *dde = p.caloDDE();
 
-    ATH_MSG_DEBUG("in TileCellFillerTool::fill()");
-  
     if(m_LevelOfDetails > 0){
         // DEPOSITED ENERGY
         *m_cellEnergy                  = p.energy();
