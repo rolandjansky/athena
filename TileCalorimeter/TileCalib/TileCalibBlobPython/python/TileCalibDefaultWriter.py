@@ -5,6 +5,7 @@
 # Nils Gollub <nils.gollub@cern.ch>, 2007-11-23
 # modified Lukas Pribyl <lukas.pribyl@cern.ch>, 2008-07-09
 # modified Guilherme Lima <jlima@cernNOSPAM.ch>, 2013-07-30 - changes to default Cs conditions
+# modified Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-24 - PyCintex->cppyy for ROOT6
 """
 Python helper module for initializing db with default values
 Note the COOL channels for default values:
@@ -14,15 +15,24 @@ Note the COOL channels for default values:
 - default for EBA = channel 12
 - default for EBA = channel 16
 
-For the COOLOFL_TILE schema and folders updated offline only
-or folders that are updated both online and offline
-please use the prefix:
+All offline constants are written to OFL02 folder 
+In the COOLONL_TILE schema and COMP200 DB
+some constants exist also in OFL01 folder
+To write constants to this folder special prefix can be used:
 
-self.__tilePrefixOfl2
+self.__tilePrefixOfl1
 
 """
 
-import PyCintex
+#import PyCintex
+try:
+   # ROOT5
+   import PyCintex
+except:
+   # ROOT6
+   import cppyy as PyCintex
+   sys.modules['PyCintex'] = PyCintex
+
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobPython.TileCalibTools import MINRUN, MINLBK, MAXRUN, MAXLBK, LASPARTCHAN
 from TileCalibBlobPython.TileCalibLogger import TileCalibLogger
@@ -49,37 +59,29 @@ class TileCalibDefaultWriter(TileCalibLogger):
         - globalTag: A tag used if nothing is specified in specialized functions 
         """
         TileCalibLogger.__init__(self,"DefaultWriter")
+        self.__author = os.getlogin()
         try:
             if not db.isOpen():
                 raise "DB not open: ", db.databaseName()
             else:
                 self.__db = db
-                self.__tilePrefixOfl  = TileCalibTools.getTilePrefix()
+                self.__tilePrefixOfl1 = TileCalibTools.getTilePrefix(True,False)
                 #--- splitOnlineFolders in offline schema
-                self.__tilePrefixOfl2 = TileCalibTools.getTilePrefix(True, True) 
+                self.__tilePrefixOfl  = TileCalibTools.getTilePrefix(True,True) 
                 self.__tilePrefixOnl  = TileCalibTools.getTilePrefix(False)
                 #=== force the creation of template classes
                 PyCintex.makeClass('std::vector<float>')
                 PyCintex.makeClass('std::vector<unsigned int>')
         except Exception, e:
             self.log().critical( e )
-            
+
+
     #____________________________________________________________________
     def writeCis(self, tag="", loGainDef=(1023./800.), hiGainDef=(64.*1023./800.)):
 
         self.log().info( "*** Writing CIS with defaults loGain=%f, hiGain=%f and tag %s" %
                   (loGainDef,hiGainDef,tag)                                         )
 
-        #=== folders first
-        
-        # folders = [self.__tilePrefixOfl+"CALIB/CIS/FIT/",
-        #            self.__tilePrefixOfl+"CALIB/CIS/OF1/",
-        #            self.__tilePrefixOfl+"CALIB/CIS/OF2/",
-        #            self.__tilePrefixOfl+"CALIB/CIS/FMA/",
-        #            self.__tilePrefixOfl+"CALIB/CIS/FLT/"]
-
-        folders = [self.__tilePrefixOfl2+"CALIB/CIS/"]
-        
         #=== fill LIN (linear) folders first
         loGainDefVec = PyCintex.gbl.std.vector('float')()
         loGainDefVec.push_back(loGainDef)
@@ -88,9 +90,20 @@ class TileCalibDefaultWriter(TileCalibLogger):
         defVec = PyCintex.gbl.std.vector('std::vector<float>')()
         defVec.push_back(loGainDefVec)
         defVec.push_back(hiGainDefVec)
+
+        #=== folders
+        # folders = [self.__tilePrefixOfl+"CALIB/CIS/FIT/",
+        #            self.__tilePrefixOfl+"CALIB/CIS/OF1/",
+        #            self.__tilePrefixOfl+"CALIB/CIS/OF2/",
+        #            self.__tilePrefixOfl+"CALIB/CIS/FMA/",
+        #            self.__tilePrefixOfl+"CALIB/CIS/FLT/"]
+        folders = [self.__tilePrefixOfl+"CALIB/CIS/LIN",
+                   self.__tilePrefixOnl+"CALIB/CIS/LIN"]
+        
         for folder in folders:
-            folder += "LIN"
-            blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt')
+            multiVers=('OFL' in folder)
+            blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',multiVers)
+
             #=== initialize all channels
             util = PyCintex.gbl.TileCalibUtils()
             for ros in xrange(util.max_ros()):
@@ -99,8 +112,9 @@ class TileCalibDefaultWriter(TileCalibLogger):
             #=== only write to global defaul drawer ROS=0/drawer=0
             flt = blobWriter.getDrawer(0,0)
             flt.init(defVec,1,1)
-            blobWriter.setComment("lpribyl","CIS defaults")
-            folderTag = TileCalibUtils.getFullTag(folder, tag)
+            blobWriter.setComment(self.__author,"CIS defaults")
+            #=== register
+            folderTag = TileCalibUtils.getFullTag(folder, tag) if multiVers else ""
             blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
 
         #=== fill NLN (non-linear) folders with unit corretion
@@ -111,9 +125,14 @@ class TileCalibDefaultWriter(TileCalibLogger):
         lut.push_back(1.) # y1
         defVec.clear()
         defVec.push_back(lut) # one default LUT for lo & hi gain
+
+        folders = [self.__tilePrefixOfl+"CALIB/CIS/NLN",
+                   self.__tilePrefixOnl+"CALIB/CIS/NLN"]
+        
         for folder in folders:
-            folder += "NLN"
-            blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt')
+            multiVers=('OFL' in folder)
+            blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',multiVers)
+
             #=== initialize all channels
             for ros in xrange(util.max_ros()):
                 for drawer in xrange(util.getMaxDrawer(ros)):
@@ -121,60 +140,44 @@ class TileCalibDefaultWriter(TileCalibLogger):
             #=== only write to global defaul drawer ROS=0/drawer=0
             flt = blobWriter.getDrawer(0,0)
             flt.init(defVec,1,100)
-            blobWriter.setComment("lpribyl","CIS defaults")
-            folderTag = TileCalibUtils.getFullTag(folder, tag)
+            blobWriter.setComment(self.__author,"non-linear CIS defaults")
+            #=== register
+            folderTag = TileCalibUtils.getFullTag(folder, tag) if multiVers else ""
             blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
 
-        #==========================================
-        #=== fill ONLINE folder with linear part
-        #==========================================
-        onlFolder = TileCalibTools.getTilePrefix(False)+"CALIB/CIS/LIN"
-        defVec.clear()
-        defVec.push_back(loGainDefVec)
-        defVec.push_back(hiGainDefVec)
-        blobWriter = TileCalibTools.TileBlobWriter(self.__db,onlFolder,'Flt',False)
-        #=== initialize all channels
-        util = PyCintex.gbl.TileCalibUtils()
-        for ros in xrange(util.max_ros()):
-            for drawer in xrange(util.getMaxDrawer(ros)):
-                flt = blobWriter.zeroBlob(ros,drawer)
-        #=== only write to global defaul drawer ROS=0/drawer=0
-        flt = blobWriter.getDrawer(0,0)
-        flt.init(defVec,1,1)
-        blobWriter.setComment("lpribyl","CIS defaults")
-        blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),"")
-        
-        
+
     #____________________________________________________________________
     def writeLas(self, tag=""):
 
         self.log().info( "*** Writing Las default (1.) with tag %s" % tag )
 
-        lasFolderOfl = TileCalibTools.getTilePrefix()     +"CALIB/LAS/"
-        lasFolderOnl = TileCalibTools.getTilePrefix(False)+"CALIB/LAS/"
         #=== write linear (LIN) folders online and offline
         lasDef = PyCintex.gbl.std.vector('float')()
         lasDef.push_back(1.)
         defVec = PyCintex.gbl.std.vector('std::vector<float>')()
         defVec.push_back(lasDef)
-        blobWriterOfl = TileCalibTools.TileBlobWriter(self.__db,lasFolderOfl+"LIN",'Flt'      )
-        blobWriterOnl = TileCalibTools.TileBlobWriter(self.__db,lasFolderOnl+"LIN",'Flt',False)
-        #=== initialize all channels
-        util = PyCintex.gbl.TileCalibUtils()
-        for ros in xrange(util.max_ros()):
-            for drawer in xrange(util.getMaxDrawer(ros)):
-                fltOfl = blobWriterOfl.zeroBlob(ros,drawer)
-                fltOnl = blobWriterOnl.zeroBlob(ros,drawer)
-        #=== only write to global defaul drawer ROS=0/drawer=0
-        fltOfl = blobWriterOfl.getDrawer(0,0)
-        fltOfl.init(defVec,1,1)
-        fltOnl = blobWriterOnl.getDrawer(0,0)
-        fltOnl.init(defVec,1,1)
-        blobWriterOfl.setComment("lpribyl","LAS default")
-        blobWriterOnl.setComment("lpribyl","LAS default")
-        folderTag = TileCalibUtils.getFullTag(lasFolderOfl+"LIN", tag)
-        blobWriterOfl.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
-        blobWriterOnl.register((MINRUN,MINLBK),(MAXRUN,MAXLBK), "")
+
+        #=== write both to offline and online folders
+
+        folders = [self.__tilePrefixOfl+"CALIB/LAS/LIN",
+                   self.__tilePrefixOnl+"CALIB/LAS/LIN"]
+
+        for folder in folders:
+            multiVers=('OFL' in folder)
+            blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',multiVers)
+
+            #=== initialize all channels
+            util = PyCintex.gbl.TileCalibUtils()
+            for ros in xrange(util.max_ros()):
+                for drawer in xrange(util.getMaxDrawer(ros)):
+                    flt = blobWriter.zeroBlob(ros,drawer)
+            #=== only write to global defaul drawer ROS=0/drawer=0
+            flt = blobWriter.getDrawer(0,0)
+            flt.init(defVec,1,1)
+            blobWriter.setComment(self.__author,"LAS default")
+            #=== register
+            folderTag = TileCalibUtils.getFullTag(folder, tag) if multiVers else ""
+            blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
         
         #=== fill NLN (non-linear) folders with unit corretion
         lut = PyCintex.gbl.std.vector('float')()
@@ -182,24 +185,35 @@ class TileCalibDefaultWriter(TileCalibLogger):
         lut.push_back(1.) # y1
         defVec.clear()
         defVec.push_back(lut) 
-        blobWriter = TileCalibTools.TileBlobWriter(self.__db,lasFolderOfl+"NLN",'Flt')
-        #=== initialize all channels
-        for ros in xrange(util.max_ros()):
-            for drawer in xrange(util.getMaxDrawer(ros)):
-                flt = blobWriter.zeroBlob(ros,drawer)
-        #=== only write to global defaul drawer ROS=0/drawer=0
-        flt = blobWriter.getDrawer(0,0)
-        flt.init(defVec,1,100)
-        blobWriter.setComment("lpribyl","LAS default")
-        folderTag = TileCalibUtils.getFullTag(lasFolderOfl+"NLN", tag)
-        blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
+
+        #=== write both to offline and online folders
+        folders = [self.__tilePrefixOfl+"CALIB/LAS/NLN",
+                   self.__tilePrefixOnl+"CALIB/LAS/NLN"]
+
+        for folder in folders:
+            multiVers=('OFL' in folder)
+            blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',multiVers)
+
+            #=== initialize all channels
+            util = PyCintex.gbl.TileCalibUtils()
+            for ros in xrange(util.max_ros()):
+                for drawer in xrange(util.getMaxDrawer(ros)):
+                    flt = blobWriter.zeroBlob(ros,drawer)
+            #=== only write to global defaul drawer ROS=0/drawer=0
+            flt = blobWriter.getDrawer(0,0)
+            flt.init(defVec,1,100)
+            blobWriter.setComment(self.__author,"non-linear LAS default")
+            #=== register
+            folderTag = TileCalibUtils.getFullTag(folder, tag) if multiVers else ""
+            blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
+
 
     #____________________________________________________________________
     def writeLasFiber(self, tag=""):
 
         self.log().info( "*** Writing Las fiber and partition defaults (1.) with tag %s" % tag )
 
-        fibFolder = TileCalibTools.getTilePrefix()+"CALIB/LAS/FIBER"
+        fibFolder = self.__tilePrefixOfl+"CALIB/LAS/FIBER"
         #=== write fiber folder
         lasDef = PyCintex.gbl.std.vector('float')()
         lasDef.push_back(1.)
@@ -224,10 +238,11 @@ class TileCalibDefaultWriter(TileCalibLogger):
             fltDrawer.init(defVec,48,1)
             fltDrawer.setData(LASPARTCHAN,adc,idx,val)
 
-        blobWriter.setComment("lpribyl","LAS fiber and partition default")
+        blobWriter.setComment(self.__author,"LAS fiber and partition default")
         folderTag = TileCalibUtils.getFullTag(fibFolder, tag)
         blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
-        
+
+
     #____________________________________________________________________
     def writeCes(self, tag="", Simulation=True, MBTSflag="7TeV", dCellWeight=1.2, eCellWeight=1.5, since=(MINRUN,MINLBK), until=(MAXRUN, MAXLBK), mode='DEFAULT'):
         """
@@ -502,115 +517,73 @@ class TileCalibDefaultWriter(TileCalibLogger):
         defVec.push_back(default)
 
         #=== write both to offline and online folders
-        folderOfl2= self.__tilePrefixOfl2+"CALIB/CES"
-        #folderOfl = self.__tilePrefixOfl+"CALIB/CES"
-        #folderOnl = TileCalibTools.getTilePrefix(False)+"CALIB/CES"
-        blobWriterOfl2 = TileCalibTools.TileBlobWriter(self.__db,folderOfl2,'Flt'      )
-        #blobWriterOfl = TileCalibTools.TileBlobWriter(self.__db,folderOfl,'Flt'      )
-        #blobWriterOnl = TileCalibTools.TileBlobWriter(self.__db,folderOnl,'Flt',False)
+        folders = [self.__tilePrefixOfl+"CALIB/CES",
+                   self.__tilePrefixOnl+"CALIB/CES"]
 
-        #=== initialize all channels
-        util = PyCintex.gbl.TileCalibUtils()
-        for ros in xrange(util.max_ros()):
-            for drawer in xrange(util.getMaxDrawer(ros)):
-                fltOfl2= blobWriterOfl2.zeroBlob(ros,drawer)
-                #fltOfl = blobWriterOfl.zeroBlob(ros,drawer)
-                #fltOnl = blobWriterOnl.zeroBlob(ros,drawer)
+        for folder in folders:
+            multiVers=('OFL' in folder)
+            blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',multiVers)
 
-        #=== global detector default
-        detOfl2 = blobWriterOfl2.getDrawer(0,0)
-        detOfl2.init(defVec,48,1)
-        #detOfl = blobWriterOfl.getDrawer(0,0)
-        #detOfl.init(defVec,48,1)
-        #detOnl = blobWriterOnl.getDrawer(0,0)
-        #detOnl.init(defVec,48,1)
+            #=== initialize all channels
+            util = PyCintex.gbl.TileCalibUtils()
+            for ros in xrange(util.max_ros()):
+                for drawer in xrange(util.getMaxDrawer(ros)):
+                    flt = blobWriter.zeroBlob(ros,drawer)
 
-        #=== default settings (including all special cases)
-        if mode=='DEFAULT':
-            self.log().info( "*** Writing Ces defaults with dCellWeight = %.1f eCellWeight = %.1f" % (dCellWeight,eCellWeight) )
-            #=== defaults for LBA & LBC
-            lbaOfl2 = blobWriterOfl2.getDrawer(0,4)
-            lbaOfl2.init(defVec,48,1)
-            #lbaOfl = blobWriterOfl.getDrawer(0,4)
-            #lbaOfl.init(defVec,48,1)
-            #lbaOnl = blobWriterOnl.getDrawer(0,4)
-            #lbaOnl.init(defVec,48,1)
-            lbcOfl2 = blobWriterOfl2.getDrawer(0,8)
-            lbcOfl2.init(defVec,48,1)
-            #lbcOfl = blobWriterOfl.getDrawer(0,8)
-            #lbcOfl.init(defVec,48,1)
-            #lbcOnl = blobWriterOnl.getDrawer(0,8)
-            #lbcOnl.init(defVec,48,1)
-            for chan in xrange(48):
-                key = (1,0,chan)
-                ces = special.get(key,1.)
-                lbaOfl2.setData(chan,0,0,ces)
-                #lbaOfl.setData(chan,0,0,ces)
-                #lbaOnl.setData(chan,0,0,ces)
-                lbcOfl2.setData(chan,0,0,ces)
-                #lbcOfl.setData(chan,0,0,ces)
-                #lbcOnl.setData(chan,0,0,ces)
+            #=== global detector default
+            det = blobWriter.getDrawer(0,0)
+            det.init(defVec,48,1)
 
-            #=== defaults for EBA & EBC
-            ebaOfl2 = blobWriterOfl2.getDrawer(0,12)
-            ebaOfl2.init(defVec,48,1)
-            #ebaOfl = blobWriterOfl.getDrawer(0,12)
-            #ebaOfl.init(defVec,48,1)
-            #ebaOnl = blobWriterOnl.getDrawer(0,12)
-            #ebaOnl.init(defVec,48,1)
-            ebcOfl2 = blobWriterOfl2.getDrawer(0,16)
-            ebcOfl2.init(defVec,48,1)
-            #ebcOfl = blobWriterOfl.getDrawer(0,16)
-            #ebcOfl.init(defVec,48,1)
-            #ebcOnl = blobWriterOnl.getDrawer(0,16)
-            #ebcOnl.init(defVec,48,1)
-            for chan in xrange(48):
-                key = (3,0,chan)
-                ces = special.get(key,1.)
-                ebaOfl2.setData(chan,0,0,ces)
-                #ebaOfl.setData(chan,0,0,ces)
-                #ebaOnl.setData(chan,0,0,ces)
-                ebcOfl2.setData(chan,0,0,ces)
-                #ebcOfl.setData(chan,0,0,ces)
-                #ebcOnl.setData(chan,0,0,ces)
+            #=== default settings (including all special cases)
+            if mode=='DEFAULT':
+                self.log().info( "*** Writing Ces defaults with dCellWeight = %.1f eCellWeight = %.1f" % (dCellWeight,eCellWeight) )
+                #=== defaults for LBA & LBC
+                lba = blobWriter.getDrawer(0,4)
+                lba.init(defVec,48,1)
+                lbc = blobWriter.getDrawer(0,8)
+                lbc.init(defVec,48,1)
+                for chan in xrange(48):
+                    key = (1,0,chan)
+                    ces = special.get(key,1.)
+                    lba.setData(chan,0,0,ces)
+                    lbc.setData(chan,0,0,ces)
 
-            #=== defaults for EBA & EBC
-            #=== store each drawer individually
-            for ros in xrange(3,5):
-                for mod in xrange(64):
-                    fltOfl2 = blobWriterOfl2.getDrawer(ros,mod)
-                    fltOfl2.init(defVec,48,1)
-                    #fltOfl = blobWriterOfl.getDrawer(ros,mod)
-                    #fltOfl.init(defVec,48,1)
-                    #fltOnl = blobWriterOnl.getDrawer(ros,mod)
-                    #fltOnl.init(defVec,48,1)
-                    for chan in xrange(48):
-                        key = (ros,mod,chan)
-                        ces = special.get(key,1.)
-                        fltOfl2.setData(chan,0,0,ces)
-                        #fltOfl.setData(chan,0,0,ces)
-                        #fltOnl.setData(chan,0,0,ces)
+                #=== defaults for EBA & EBC
+                eba = blobWriter.getDrawer(0,12)
+                eba.init(defVec,48,1)
+                ebc = blobWriter.getDrawer(0,16)
+                ebc.init(defVec,48,1)
+                for chan in xrange(48):
+                    key = (3,0,chan)
+                    ces = special.get(key,1.)
+                    eba.setData(chan,0,0,ces)
+                    ebc.setData(chan,0,0,ces)
 
-            #=== set comment
-            blobWriterOfl2.setComment("solodkov","default cesium constants for Run %d and %s MBTS weights for %s" % (RUN,NEW,MBTSflag))
-            #blobWriterOfl.setComment("solodkov","default cesium constants for Run %d and %s MBTS weights for %s" % (RUN,NEW,MBTSflag))
-            #blobWriterOnl.setComment("solodkov","default cesium constants for Run %d and %s MBTS weights for %s" % (RUN,NEW,MBTSflag))
+                #=== defaults for EBA & EBC
+                #=== store each drawer individually
+                for ros in xrange(3,5):
+                    for mod in xrange(64):
+                        flt = blobWriter.getDrawer(ros,mod)
+                        flt.init(defVec,48,1)
+                        for chan in xrange(48):
+                            key = (ros,mod,chan)
+                            ces = special.get(key,1.)
+                            flt.setData(chan,0,0,ces)
 
-        #=== special case: write cesium = 1 everywhere    
-        else:    # (mode != 'DEFAULT')
-            self.log().info( "*** Writing Ces = 1 everywhere" )
-            #=== set comment
-            blobWriterOfl2.setComment("solodkov","cesium constants = 1 everywhere")
-            #blobWriterOfl.setComment("solodkov","cesium constants = 1 everywhere")
-            #blobWriterOnl.setComment("solodkov","cesium constants = 1 everywhere")
+                #=== set comment
+                blobWriter.setComment(self.__author,"default cesium constants for Run %d and %s MBTS weights for %s" % (RUN,NEW,MBTSflag))
 
-        #=== register
-        folderTag2 = TileCalibUtils.getFullTag(folderOfl2, tag)
-        blobWriterOfl2.register(since,until,folderTag2)
-        #folderTag = TileCalibUtils.getFullTag(folderOfl, tag)
-        #blobWriterOfl.register(since,until,folderTag)
-        #blobWriterOnl.register(since,until, "")
-        
+            #=== special case: write cesium = 1 everywhere    
+            else:    # (mode != 'DEFAULT')
+                self.log().info( "*** Writing Ces = 1 everywhere" )
+                #=== set comment
+                blobWriter.setComment(self.__author,"cesium constants = 1 everywhere")
+
+            #=== register
+            folderTag = TileCalibUtils.getFullTag(folder, tag) if multiVers else ""
+            blobWriter.register(since,until,folderTag)
+
+
     #____________________________________________________________________
     def writeOldCes(self, tag="", dCellWeight=1.2, eCellWeight=1.5, since=(MINRUN,MINLBK), until=(MAXRUN, MAXLBK)):
         """
@@ -691,7 +664,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
 
         #=== write both to offline and online folders
         folderOfl = self.__tilePrefixOfl+"CALIB/CES"
-        folderOnl = TileCalibTools.getTilePrefix(False)+"CALIB/CES"
+        folderOnl = self.__tilePrefixOnl+"CALIB/CES"
         blobWriterOfl = TileCalibTools.TileBlobWriter(self.__db,folderOfl,'Flt'      )
         blobWriterOnl = TileCalibTools.TileBlobWriter(self.__db,folderOnl,'Flt',False)
 
@@ -742,8 +715,8 @@ class TileCalibDefaultWriter(TileCalibLogger):
                     fltOnl.setData(chan,0,0,ces)
                     
         #=== set comment
-        blobWriterOfl.setComment("lpribyl","default old cesium constants (CSC,FDR) with dCellWeight=%.1f" % dCellWeight)
-        blobWriterOnl.setComment("lpribyl","default old cesium constants (CSC,FDR) with dCellWeight=%.1f" % dCellWeight)
+        blobWriterOfl.setComment(self.__author,"default old cesium constants (CSC,FDR) with dCellWeight=%.1f" % dCellWeight)
+        blobWriterOnl.setComment(self.__author,"default old cesium constants (CSC,FDR) with dCellWeight=%.1f" % dCellWeight)
 
         #=== register
         folderTag = TileCalibUtils.getFullTag(folderOfl, tag)
@@ -789,76 +762,62 @@ class TileCalibDefaultWriter(TileCalibLogger):
 
         self.log().info( "*** Writing Emscale with particle/Cesium factors with tag %s" % (tag,) )
 
-        emsFolderOfl = TileCalibTools.getTilePrefix(True )+"CALIB/EMS"
-        emsFolderOnl = TileCalibTools.getTilePrefix(False)+"CALIB/EMS"
         #=== write linear (LIN) folder
         emsDef = PyCintex.gbl.std.vector('float')()
         emsDef.push_back(emscale)
         defVec = PyCintex.gbl.std.vector('std::vector<float>')()
         defVec.push_back(emsDef)
-        blobWriterOfl = TileCalibTools.TileBlobWriter(self.__db,emsFolderOfl,'Flt'      )
-        blobWriterOnl = TileCalibTools.TileBlobWriter(self.__db,emsFolderOnl,'Flt',False)
-        #=== initialize all channels
-        util = PyCintex.gbl.TileCalibUtils()
-        for ros in xrange(util.max_ros()):
-            for drawer in xrange(util.getMaxDrawer(ros)):
-                fltOfl = blobWriterOfl.zeroBlob(ros,drawer)
-                fltOnl = blobWriterOnl.zeroBlob(ros,drawer)
-                
-        #=== write EM scale as global default and explicitly too
-        fltOfl = blobWriterOfl.getDrawer(0,0)
-        fltOfl.init(defVec,1,1)
-        fltOnl = blobWriterOnl.getDrawer(0,0)
-        fltOnl.init(defVec,1,1)
 
-        #=== LB values
-        for ros in xrange(1,3):
-            for mod in xrange(64):
-                fltOfl = blobWriterOfl.getDrawer(ros,mod)
-                fltOfl.init(defVec,48,1)
-                fltOnl = blobWriterOnl.getDrawer(ros,mod)
-                fltOnl.init(defVec,48,1)
-                for chan in clbA:
-                    fltOfl.setData(chan,0,0,emscale/flbA)
-                    fltOnl.setData(chan,0,0,emscale/flbA)
-                for chan in clbB:
-                    fltOfl.setData(chan,0,0,emscale/flbB)
-                    fltOnl.setData(chan,0,0,emscale/flbB)
-                for chan in clbB9:
-                    fltOfl.setData(chan,0,0,emscale/flbB9)
-                    fltOnl.setData(chan,0,0,emscale/flbB9)
-                for chan in clbD:
-                    fltOfl.setData(chan,0,0,emscale/flbD)
-                    fltOnl.setData(chan,0,0,emscale/flbD)
+        folders = [ self.__tilePrefixOfl+"CALIB/EMS",
+                    self.__tilePrefixOnl+"CALIB/EMS" ]
 
-        #=== EB and ITC values
-        for ros in xrange(3,5):
-            for mod in xrange(64):
-                fltOfl = blobWriterOfl.getDrawer(ros,mod)
-                fltOfl.init(defVec,48,1)
-                fltOnl = blobWriterOnl.getDrawer(ros,mod)
-                fltOnl.init(defVec,48,1)
-                for chan in cebA:
-                    fltOfl.setData(chan,0,0,emscale/febA)
-                    fltOnl.setData(chan,0,0,emscale/febA)
-                for chan in cebB:
-                    fltOfl.setData(chan,0,0,emscale/febB)
-                    fltOnl.setData(chan,0,0,emscale/febB)
-                for chan in cebD:
-                    fltOfl.setData(chan,0,0,emscale/febD)
-                    fltOnl.setData(chan,0,0,emscale/febD)
-                for chan in cC10:
-                    fltOfl.setData(chan,0,0,emscale/fC10)
-                    fltOnl.setData(chan,0,0,emscale/fC10)
-                for chan in cD4:
-                    fltOfl.setData(chan,0,0,emscale/fD4)
-                    fltOnl.setData(chan,0,0,emscale/fD4)
-                                   
-        blobWriterOfl.setComment("lpribyl","EMS with particle/Cesium factors (pC/MeV)")
-        blobWriterOnl.setComment("lpribyl","EMS with particle/Cesium factors (pC/MeV)")
-        folderTag = TileCalibUtils.getFullTag(emsFolderOfl, tag)
-        blobWriterOfl.register(since,until,folderTag)
-        blobWriterOnl.register(since,until, "")
+        for folder in folders:
+            multiVers=('OFL' in folder)
+            blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',multiVers)
+
+            #=== initialize all channels
+            util = PyCintex.gbl.TileCalibUtils()
+            for ros in xrange(util.max_ros()):
+                for drawer in xrange(util.getMaxDrawer(ros)):
+                    flt = blobWriter.zeroBlob(ros,drawer)
+                    
+            #=== write EM scale as global default and explicitly too
+            flt = blobWriter.getDrawer(0,0)
+            flt.init(defVec,1,1)
+        
+            #=== LB values
+            for ros in xrange(1,3):
+                for mod in xrange(64):
+                    flt = blobWriter.getDrawer(ros,mod)
+                    flt.init(defVec,48,1)
+                    for chan in clbA:
+                        flt.setData(chan,0,0,emscale/flbA)
+                    for chan in clbB:
+                        flt.setData(chan,0,0,emscale/flbB)
+                    for chan in clbB9:
+                        flt.setData(chan,0,0,emscale/flbB9)
+                    for chan in clbD:
+                        flt.setData(chan,0,0,emscale/flbD)
+        
+            #=== EB and ITC values
+            for ros in xrange(3,5):
+                for mod in xrange(64):
+                    flt = blobWriter.getDrawer(ros,mod)
+                    flt.init(defVec,48,1)
+                    for chan in cebA:
+                        flt.setData(chan,0,0,emscale/febA)
+                    for chan in cebB:
+                        flt.setData(chan,0,0,emscale/febB)
+                    for chan in cebD:
+                        flt.setData(chan,0,0,emscale/febD)
+                    for chan in cC10:
+                        flt.setData(chan,0,0,emscale/fC10)
+                    for chan in cD4:
+                        flt.setData(chan,0,0,emscale/fD4)
+                                       
+            blobWriter.setComment(self.__author,"EMS with particle/Cesium factors (pC/MeV)")
+            folderTag = TileCalibUtils.getFullTag(folder, tag) if multiVers else ""
+            blobWriter.register(since,until,folderTag)
 
 
     #____________________________________________________________________
@@ -866,38 +825,36 @@ class TileCalibDefaultWriter(TileCalibLogger):
 
         self.log().info( "*** Writing Emscale default (%.2f) with tag %s" % ((emscale * 1000.),tag) )
 
-        emsFolderOfl = TileCalibTools.getTilePrefix(True )+"CALIB/EMS"
-        emsFolderOnl = TileCalibTools.getTilePrefix(False)+"CALIB/EMS"
         #=== write linear (LIN) folder
         emsDef = PyCintex.gbl.std.vector('float')()
         emsDef.push_back(emscale)
         defVec = PyCintex.gbl.std.vector('std::vector<float>')()
         defVec.push_back(emsDef)
-        blobWriterOfl = TileCalibTools.TileBlobWriter(self.__db,emsFolderOfl,'Flt'      )
-        blobWriterOnl = TileCalibTools.TileBlobWriter(self.__db,emsFolderOnl,'Flt',False)
-        #=== initialize all channels
-        util = PyCintex.gbl.TileCalibUtils()
-        for ros in xrange(util.max_ros()):
-            for drawer in xrange(util.getMaxDrawer(ros)):
-                fltOfl = blobWriterOfl.zeroBlob(ros,drawer)
-                fltOnl = blobWriterOnl.zeroBlob(ros,drawer)
-        #=== only write to global defaul drawer ROS=0/drawer=0
-        fltOfl = blobWriterOfl.getDrawer(0,0)
-        fltOfl.init(defVec,1,1)
-        fltOnl = blobWriterOnl.getDrawer(0,0)
-        fltOnl.init(defVec,1,1)
-        blobWriterOfl.setComment("lpribyl","EMS default: %.2f/1000  pC/MeV" % (emscale * 1000.))
-        blobWriterOnl.setComment("lpribyl","EMS default: %.2f/1000  pC/MeV" % (emscale * 1000.))
-        folderTag = TileCalibUtils.getFullTag(emsFolderOfl, tag)
-        blobWriterOfl.register(since,until,folderTag)
-        blobWriterOnl.register(since,until, "")
+
+        folders = [ self.__tilePrefixOfl+"CALIB/EMS",
+                    self.__tilePrefixOnl+"CALIB/EMS" ]
+
+        for folder in folders:
+            multiVers=('OFL' in folder)
+            blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',multiVers)
+            #=== initialize all channels
+            util = PyCintex.gbl.TileCalibUtils()
+            for ros in xrange(util.max_ros()):
+                for drawer in xrange(util.getMaxDrawer(ros)):
+                    flt = blobWriter.zeroBlob(ros,drawer)
+            #=== only write to global defaul drawer ROS=0/drawer=0
+            flt = blobWriter.getDrawer(0,0)
+            flt.init(defVec,1,1)
+            blobWriter.setComment(self.__author,"EMS default: %.2f/1000  pC/MeV" % (emscale * 1000.))
+            folderTag = TileCalibUtils.getFullTag(folder, tag) if multiVers else ""
+            blobWriter.register(since,until,folderTag)
 
 
     #________________________________________________________________________
     def writeIntegrator(self, tag=""):
     
         #=== construct folder path
-        folder = TileCalibTools.getTilePrefix()+"INTEGRATOR"
+        folder = self.__tilePrefixOfl+"INTEGRATOR"
 
         #=== get full folder tag
         folderTag = TileCalibUtils.getFullTag(folder, tag)
@@ -932,7 +889,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
         #=== fill 
         #=====================================================
         writer = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt')
-        writer.setComment("lpribyl","Integrator gain defaults")
+        writer.setComment(self.__author,"Integrator gain defaults")
         #=== initialize all channels and write global default
         util = PyCintex.gbl.TileCalibUtils()
         for ros in xrange(util.max_ros()):
@@ -990,12 +947,13 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 lbc.setData(chan,0,0,valLbc)
                 eba.setData(chan,0,0,valEba)
                 ebc.setData(chan,0,0,valEbc)
-            blobWriter.setComment("lpribyl","channel (laser) clear fiber length")
+            blobWriter.setComment(self.__author,"channel (laser) clear fiber length")
             folderTag = TileCalibUtils.getFullTag(folder, tag)
             blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
         except Exception, e:
             self.log().critical( e )
-            
+
+
     #____________________________________________________________________
     def writeTclas(self, tag=""):
 
@@ -1015,12 +973,13 @@ class TileCalibDefaultWriter(TileCalibLogger):
                     flt = blobWriter.zeroBlob(ros,drawer)
             flt = blobWriter.getDrawer(0, 0)
             flt.init(defVec,1,0)
-            blobWriter.setComment("lpribyl","no channel timing offset by default")
+            blobWriter.setComment(self.__author,"no channel timing offset by default")
             folderTag = TileCalibUtils.getFullTag(folder, tag)
             blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
         except Exception, e:
             self.log().critical( e )
-            
+
+
     #____________________________________________________________________
     def writeTdlas(self, tag=""):
 
@@ -1040,11 +999,12 @@ class TileCalibDefaultWriter(TileCalibLogger):
                     flt = blobWriter.zeroBlob(ros,drawer)
             flt = blobWriter.getDrawer(0, 0)
             flt.init(defVec,1,0)
-            blobWriter.setComment("lpribyl","no drawer timing offset by default")
+            blobWriter.setComment(self.__author,"no drawer timing offset by default")
             folderTag = TileCalibUtils.getFullTag(folder, tag)
             blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
         except Exception, e:
             self.log().critical( e )
+
 
     #____________________________________________________________________
     def writeTof(self, tag=""):
@@ -1104,11 +1064,6 @@ class TileCalibDefaultWriter(TileCalibLogger):
         self.log().info( "*** Writing Fit Method Noise with defaults (ADC counts) loGain=%f, hiGain=%f and tag %s" %
                          (loGainDef,hiGainDef,tag) )
 
-        #=== folders first
-        folders = [self.__tilePrefixOfl+"NOISE/FIT",
-                   self.__tilePrefixOfl+"NOISE/OF1",
-                   self.__tilePrefixOfl+"NOISE/OF2"]
-        
         #=== fill folders 
         loGainDefVec = PyCintex.gbl.std.vector('float')()
         loGainDefVec.push_back(loGainDef)
@@ -1117,19 +1072,30 @@ class TileCalibDefaultWriter(TileCalibLogger):
         defVec = PyCintex.gbl.std.vector('std::vector<float>')()
         defVec.push_back(loGainDefVec)
         defVec.push_back(hiGainDefVec)
+
+        #=== folders
+        folders = [self.__tilePrefixOfl+"NOISE/FIT",
+                   self.__tilePrefixOfl+"NOISE/OF1",
+                   self.__tilePrefixOfl+"NOISE/OF2"]
+
         for folder in folders:
-            blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt')
-            #=== initialize all channels
-            util = PyCintex.gbl.TileCalibUtils()
-            for ros in xrange(util.max_ros()):
-                for drawer in xrange(util.getMaxDrawer(ros)):
-                    flt = blobWriter.zeroBlob(ros,drawer)
-            #=== only write to global defaul drawer ROS=0/drawer=0
-            flt = blobWriter.getDrawer(0,0)
-            flt.init(defVec,1,1)
-            blobWriter.setComment("lpribyl","Fit Method Noise defaults (ADC)")
-            folderTag = TileCalibUtils.getFullTag(folder, tag)
-            blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
+            try:
+                multiVers=('OFL' in folder)
+                blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',multiVers)
+                #=== initialize all channels
+                util = PyCintex.gbl.TileCalibUtils()
+                for ros in xrange(util.max_ros()):
+                    for drawer in xrange(util.getMaxDrawer(ros)):
+                        flt = blobWriter.zeroBlob(ros,drawer)
+                #=== only write to global defaul drawer ROS=0/drawer=0
+                flt = blobWriter.getDrawer(0,0)
+                flt.init(defVec,1,1)
+                blobWriter.setComment(self.__author,"Fit Method Noise defaults (ADC)")
+                folderTag = TileCalibUtils.getFullTag(folder, tag) if multiVers else ""
+                blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
+            except Exception, e:
+               self.log().critical( e )
+
 
     #____________________________________________________________________
     def writeNoiseSample(self, tag="", loGainDef=0.8, hiGainDef=1.6):
@@ -1137,8 +1103,6 @@ class TileCalibDefaultWriter(TileCalibLogger):
         self.log().info( "*** Writing sample noise (lo=%f, hi=%f) defaults using tag %s" %
                   (loGainDef,hiGainDef,tag)                                  )
         
-        folders = [self.__tilePrefixOfl+"NOISE/SAMPLE"]
-
         #=== common noise defaults
         defaultLo = PyCintex.gbl.std.vector('float')()
         defaultLo.push_back(      40.) # pedestal value  
@@ -1158,9 +1122,13 @@ class TileCalibDefaultWriter(TileCalibLogger):
         defVec.push_back(defaultLo)
         defVec.push_back(defaultHi)
 
+        folders = [self.__tilePrefixOfl+"NOISE/SAMPLE",
+                   self.__tilePrefixOnl+"NOISE/SAMPLE"]
+
         for folder in folders:
             try:
-                blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt')
+                multiVers=('OFL' in folder)
+                blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',multiVers)
                 #=== initialize all channels
                 util = PyCintex.gbl.TileCalibUtils()
                 for ros in xrange(util.max_ros()):
@@ -1168,48 +1136,54 @@ class TileCalibDefaultWriter(TileCalibLogger):
                         flt = blobWriter.zeroBlob(ros,drawer)
                 flt = blobWriter.getDrawer(0, 0)
                 flt.init(defVec,1,0)
-                blobWriter.setComment("lpribyl","default noise")
-                folderTag = TileCalibUtils.getFullTag(folder, tag)
+                blobWriter.setComment(self.__author,"default noise")
+                folderTag = TileCalibUtils.getFullTag(folder, tag) if multiVers else ""
                 blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
             except Exception, e:
                 self.log().critical( e )
 
+
     #____________________________________________________________________
-    def writeNoiseOnl(self, tag=""):
+    def writeNoiseOnl(self, tag="", loGainDef=0.8, hiGainDef=1.6):
 
-        self.log().info( "*** Writing 1-g noise defaults for singleversion folder /TILE/ONL01/NOISE/OFNI" )
+        self.log().info( "*** Writing 1-g noise(ADC counts)+pileup(MeV) defaults loGain=%f, hiGain=%f and tag %s" %
+                         (loGainDef,hiGainDef,tag) )
         
-        folder = TileCalibTools.getTilePrefix(False)+"NOISE/OFNI"
-
         #=== common noise defaults
         defaultLo = PyCintex.gbl.std.vector('float')()
-        defaultLo.push_back(0.) # el. noise  
+        defaultLo.push_back(loGainDef) # el. noise  
         defaultLo.push_back(0.) # pileup noise
         defaultHi = PyCintex.gbl.std.vector('float')()
-        defaultHi.push_back(0.) # el. noise
+        defaultHi.push_back(hiGainDef) # el. noise
         defaultHi.push_back(0.) # pileup noise
 
         defVec = PyCintex.gbl.std.vector('std::vector<float>')()
         defVec.push_back(defaultLo)
         defVec.push_back(defaultHi)
 
-        
-        blobWriterOnl = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',False)
-        
-        #=== initialize all channels
-        util = PyCintex.gbl.TileCalibUtils()
-        for ros in xrange(util.max_ros()):
-            for drawer in xrange(util.getMaxDrawer(ros)):
-                flt = blobWriterOnl.zeroBlob(ros,drawer)
-                
-        detonl = blobWriterOnl.getDrawer(0, 0)
-        detonl.init(defVec,48,1)
+        folders = [self.__tilePrefixOfl+"NOISE/OFNI",
+                   self.__tilePrefixOnl+"NOISE/OFNI"]
 
-        #
-        blobWriterOnl.setComment("artamonov","default noise for DSP reco")
-        blobWriterOnl.register((0,0),(TileCalibTools.MAXRUN, TileCalibTools.MAXLBK), "")
+        for folder in folders:
+            try:
+                multiVers=('OFL' in folder)
+                blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',multiVers)
+                #=== initialize all channels
+                util = PyCintex.gbl.TileCalibUtils()
+                for ros in xrange(util.max_ros()):
+                    for drawer in xrange(util.getMaxDrawer(ros)):
+                        flt = blobWriter.zeroBlob(ros,drawer)
+                #
+                flt = blobWriter.getDrawer(0, 0)
+                flt.init(defVec,48,1)
+                #
+                blobWriter.setComment(self.__author,"default noise for DSP reco")
+                folderTag = TileCalibUtils.getFullTag(folder, tag) if multiVers else ""
+                blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
+            except Exception, e:
+                self.log().critical( e )
 
-                    
+
     #____________________________________________________________________
     def writeNoiseSampleMC(self, tag="", loGainDef=0.8, hiGainDef=1.6):
         """
@@ -1221,11 +1195,13 @@ class TileCalibDefaultWriter(TileCalibLogger):
         self.log().info( "*** Writing sample noise MC defaults (lo=%f, hi=%f) using tag %s" %
                   (loGainDef,hiGainDef,tag)                                  )
         
-        folders = [self.__tilePrefixOfl+"NOISE/SAMPLE"]
+        folders = [self.__tilePrefixOfl+"NOISE/SAMPLE",
+                   self.__tilePrefixOnl+"NOISE/SAMPLE"]
 
         for folder in folders:
             try:
-                blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt')
+                multiVers=('OFL' in folder)
+                blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',multiVers)
                 #=== initialize all channels
                 util = PyCintex.gbl.TileCalibUtils()
                 for ros in xrange(util.max_ros()):
@@ -1278,8 +1254,8 @@ class TileCalibDefaultWriter(TileCalibLogger):
                     flt.setData(chan, 1, 4,        0.)
                     flt.setData(chan, 1, 5,        0.)
 
-                blobWriter.setComment("lpribyl","default noise")
-                folderTag = TileCalibUtils.getFullTag(folder, tag)
+                blobWriter.setComment(self.__author,"default noise")
+                folderTag = TileCalibUtils.getFullTag(folder, tag) if multiVers else ""
                 blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
             except Exception, e:
                 self.log().critical( e )
@@ -1307,57 +1283,44 @@ class TileCalibDefaultWriter(TileCalibLogger):
                     flt = blobWriter.zeroBlob(ros,drawer)
             flt = blobWriter.getDrawer(0, 0)
             flt.init(defVec,1,0)
-            blobWriter.setComment("lpribyl","default auto correlation (unit matrix)")
+            blobWriter.setComment(self.__author,"default auto correlation (unit matrix)")
             folderTag = TileCalibUtils.getFullTag(folder, tag)
             blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
         except Exception, e:
             self.log().critical( e )
-    
+
 
     #____________________________________________________________________
     def writeBadChannels(self, tag=""):
 
         self.log().info( "*** Writing BadChannel defaults using tag %s" % tag )
 
-        #=== fill offline folder with linear part
-        folder1 = self.__tilePrefixOfl+"STATUS/ADC"
-        folder2 = self.__tilePrefixOfl2+"STATUS/ADC"
-        folderlist = [folder1, folder2]
         default = PyCintex.gbl.std.vector('unsigned int')()
         default.push_back(0)
         defVec = PyCintex.gbl.std.vector('std::vector<unsigned int>')()
         defVec.push_back(default)
-        for folder in folderlist:
+
+        #=== fill offline folder
+        folders = [self.__tilePrefixOfl+"STATUS/ADC",
+                   self.__tilePrefixOnl+"STATUS/ADC"]
+
+        for folder in folders:
             try:
-                blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Bch')
+                multiVers=('OFL' in folder)
+                blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Bch',multiVers)
                 #=== initialize all channels
                 util = PyCintex.gbl.TileCalibUtils()
                 for ros in xrange(util.max_ros()):
                     for drawer in xrange(util.getMaxDrawer(ros)):
                         bch = blobWriter.zeroBlob(ros,drawer)
                 bch = blobWriter.getDrawer(0, 0)
-                bch.init(defVec,1,PyCintex.gbl.TileBchDecoder.BitPat_ofl01)
-                blobWriter.setComment("lpribyl","no bad channels")
-                folderTag = TileCalibUtils.getFullTag(folder, tag)
+                bch.init(defVec,1,PyCintex.gbl.TileBchDecoder.BitPat_ofl01 if multiVers else TileBchDecoder.BitPat_onl01)
+
+                blobWriter.setComment(self.__author,"no bad channels")
+                folderTag = TileCalibUtils.getFullTag(folder, tag) if multiVers else ""
                 blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
             except Exception, e:
                 self.log().critical( e )
-
-        #=== fill online folder with linear part
-        folder = self.__tilePrefixOnl+"STATUS/ADC"
-        try:
-            blobWriter = TileCalibTools.TileBlobWriter(self.__db,folder,'Bch',False)
-            #=== initialize all channels
-            util = PyCintex.gbl.TileCalibUtils()
-            for ros in xrange(util.max_ros()):
-                for drawer in xrange(util.getMaxDrawer(ros)):
-                    bch = blobWriter.zeroBlob(ros,drawer)
-            bch = blobWriter.getDrawer(0, 0)
-            bch.init(defVec,1,PyCintex.gbl.TileBchDecoder.BitPat_onl01)
-            blobWriter.setComment("lpribyl","no bad channels")
-            blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK))
-        except Exception, e:
-            self.log().critical( e )
 
 
     #____________________________________________________________________
@@ -1403,6 +1366,9 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 #=== ignore empty and comment lines
                 if not len(fields)          : continue
                 if fields[0].startswith("#"): continue 
+                if fields[0].startswith("*"): continue
+                if len(fields) != 2         : continue
+
                 xhi.append(float(fields[0]))
                 yhi.append(float(fields[1]))
 
@@ -1442,7 +1408,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
                 det = blobWriter.getDrawer(0, 0)
                 det.init(defVec,1,200)
 
-                blobWriter.setComment("lpribyl","default pulse shapes")
+                blobWriter.setComment(self.__author,"default pulse shapes")
                 folderTag = TileCalibUtils.getFullTag(folder, tag)
                 blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
 
@@ -1493,7 +1459,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
         defVec = PyCintex.gbl.std.vector('std::vector<float>')()
         defVec.push_back(defaultPls)
         try:
-            folder = self.__tilePrefixOfl2 + "PULSESHAPE/" + folder_name
+            folder = self.__tilePrefixOfl + "PULSESHAPE/" + folder_name
             blobWriter = TileCalibTools.TileBlobWriter(self.__db, folder, 'Flt')
             #=== initialize all channels
             util = PyCintex.gbl.TileCalibUtils()
@@ -1505,7 +1471,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
             det = blobWriter.getDrawer(0, 0)
             det.init(defVec,1,200)
 
-            blobWriter.setComment(os.getlogin(), "default pulse shape for tile muon receiver board")
+            blobWriter.setComment(self.__author, "default pulse shape for tile muon receiver board")
             folderTag = TileCalibUtils.getFullTag(folder, tag)
             blobWriter.register((MINRUN,MINLBK),(MAXRUN,MAXLBK),folderTag)
 
@@ -1526,7 +1492,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
         """
 
         #=== construct folder path
-        folder = TileCalibTools.getTilePrefix(False)+"MUID"
+        folder = self.__tilePrefixOnl+"MUID"
     
         #=== common TileMuId defaults
         default = PyCintex.gbl.std.vector('float')()
@@ -1539,7 +1505,7 @@ class TileCalibDefaultWriter(TileCalibLogger):
         
         #=== get a writter
         writer = TileCalibTools.TileBlobWriter(self.__db,folder,'Flt',False)
-        writer.setComment("lpribyl","TileMuId default values")
+        writer.setComment(self.__author,"TileMuId default values")
     
         #=== initialize all channels and write global default
         util = PyCintex.gbl.TileCalibUtils()
@@ -1551,3 +1517,4 @@ class TileCalibDefaultWriter(TileCalibLogger):
     
         #=== register in DB
         writer.register((MINRUN,MINLBK),(MAXRUN,MAXLBK), "")
+

@@ -136,13 +136,23 @@ if warn<0:
     reader = TileCalibTools.TileBlobReader(db,folderPath,folderTag)
 
 #=== Dump the current isBad definition
-isBadDef = mgr.getAdcProblems(0,1,0,0)
-log.info( "isBad Definition: " )
-for prbCode in sorted(isBadDef.keys()):
-    prbDesc = isBadDef[prbCode]
-    msg = "- %2i (%s)" % (prbCode,prbDesc)
-    log.info( msg )
+isBadDef = mgr.getAdcProblems(0, TileCalibUtils.definitions_draweridx(), TileCalibUtils.bad_definition_chan(), 0)
+if len(isBadDef.keys()):
+    log.info( "isBad Definition: " )
+    for prbCode in sorted(isBadDef.keys()):
+        prbDesc = isBadDef[prbCode]
+        msg = "- %2i (%s)" % (prbCode,prbDesc)
+        log.info( msg )
+#=== Dump the current isBadTiming definition
+isBadTimingDef = mgr.getAdcProblems(0, TileCalibUtils.definitions_draweridx(), TileCalibUtils.badtiming_definition_chan(), 0)
+if len(isBadTimingDef.keys()):
+    log.info( "isBadTiming Definition: " )
+    for prbCode in sorted(isBadTimingDef.keys()):
+        prbDesc = isBadTimingDef[prbCode]
+        msg = "- %2i (%s)" % (prbCode,prbDesc)
+        log.info( msg )
 log.info( "\n" )
+
 
 #=== Get ADC problems
 

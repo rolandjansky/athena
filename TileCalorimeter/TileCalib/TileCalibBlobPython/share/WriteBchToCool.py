@@ -1,12 +1,13 @@
 #!/bin/env python
 # WriteBchToCool.py
 # Alexander Solodkov <Sanya.Solodkov@cern.ch>, 2014-09-09
+# change Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-24
 
 import getopt,sys,os,string
 os.environ['TERM'] = 'linux'
 
 def usage():
-    print "Usage: ",sys.argv[0]," [OPTION] ... "
+    print "Usage: ", sys.argv[0]," [OPTION] ... "
     print "Update TileCal bad channels in COOL"
     print ""
     print "-h, --help      shows this help"
@@ -28,7 +29,7 @@ letters = "hr:l:m:s:i:o:t:f:e:c:nuv"
 keywords = ["help","run=","lumi=","mode=","schema=","inschema=","outschema=","tag=","folder=","execfile=","comment=","online","upd4","verbose"]
 
 try:
-    opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
+    opts, extraparams = getopt.getopt(sys.argv[1:], letters, keywords)
 except getopt.GetOptError, err:
     print str(err)
     usage()
@@ -87,14 +88,13 @@ for o, a in opts:
 
 onl=("/TILE/ONL01" in folderPath)
 if onl: 
-    if inSchema==oraSchema:
-        inSchema=inSchema.replace("COOLOFL","COOLONL")
-    oraSchema=oraSchema.replace("COOLOFL","COOLONL")
-if not len(outSchema): outSchema=schema
-else: schema=outSchema
-if not len(inSchema): inSchema=schema
+    if inSchema == oraSchema:
+        inSchema = inSchema.replace("COOLOFL","COOLONL")
+    oraSchema = oraSchema.replace("COOLOFL","COOLONL")
+if not len(outSchema): outSchema = schema
+else: schema = outSchema
+if not len(inSchema): inSchema = schema
 
-import PyCintex
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobPython import TileBchTools
 from TileCalibBlobObjs.Classes import *
@@ -107,21 +107,21 @@ log.setLevel(logging.DEBUG)
 dbr = TileCalibTools.openDbConn(inSchema,'READONLY')
 folderTag = TileCalibTools.getFolderTag(dbr, folderPath, tag)
 
-if run<0: since = (TileCalibTools.MAXRUN, TileCalibTools.MAXLBK-1) 
+if run < 0: since = (TileCalibTools.MAXRUN, TileCalibTools.MAXLBK - 1) 
 else: since = (run, lumi)
 until = (TileCalibTools.MAXRUN, TileCalibTools.MAXLBK)
 
-if mode==0:
-    if inSchema==outSchema: mode=1
-    else: mode=2
-elif mode!=1 and mode!=2:
+if mode == 0:
+    if inSchema == outSchema: mode = 1
+    else: mode = 2
+elif mode != 1 and mode != 2:
     log.error( "Bad mode %d" % mode )
     sys.exit(2)
 
 #=== create bad channel manager
 log.info("")
 log.info("Initializing bad channels from %s" % (inSchema))
-log.info("with tag=%s and IOV=%s" % (folderTag,since))
+log.info("with tag=%s and IOV=%s" % (folderTag, since))
 mgr = TileBchTools.TileBchMgr()
 mgr.setLogLvl(logging.DEBUG)
 mgr.initialize(dbr, folderPath, folderTag, since, mode)
@@ -186,10 +186,10 @@ else:
 
 if len(curSuffix) and not onl and "sqlite" in outSchema:
 
-    if len(comment)==0:
-        reader = TileCalibTools.TileBlobReader(dbr,folderPath, folderTag)
+    if len(comment) == 0:
+        reader = TileCalibTools.TileBlobReader(dbr, folderPath, folderTag)
         comment=reader.getComment(since)
-        if comment.find("): ")>-1: comment=comment[(comment.find("): "))+3:]
+        if comment.find("): ") > -1: comment = comment[(comment.find("): ")) + 3:]
 
     log.info("")
     log.info("============================================================== ")
@@ -197,7 +197,7 @@ if len(curSuffix) and not onl and "sqlite" in outSchema:
     log.info("creating DB with CURRENT UPD4 tag")
 
     folderTagUPD4 = TileCalibTools.getFolderTag(dbr, folderPath, "UPD4" )
-    if folderTagUPD4==folderTag:
+    if folderTagUPD4 == folderTag:
         log.warning("CURRENT UPD4 tag %s is identical to the tag in DB which was created already" % folderTagUPD4)
         folderTagUPD4 = TileCalibTools.getFolderTag(dbr, folderPath, "UPD1" )
         log.warning("Additional UPD1 DB with tag %s will be created instead" % folderTagUPD4 )
@@ -215,7 +215,7 @@ if len(curSuffix) and not onl and "sqlite" in outSchema:
         mgr.updateFromDb(dbr, folderPath, folderTagUPD4, since, 0, 2)
 
     #=== commit changes
-    dbW = TileCalibTools.openDbConn(curSchema,'RECREATE')
+    dbW = TileCalibTools.openDbConn(curSchema, 'RECREATE')
     mgr.commitToDb(dbW, folderPath, folderTagUPD4, TileBchDecoder.BitPat_ofl01, os.getlogin(), comment, since, until)
     dbW.closeDatabase()
 
@@ -223,33 +223,33 @@ if len(curSuffix) and not onl and "sqlite" in outSchema:
 if len(onlSuffix) and not onl and "sqlite" in outSchema:
 
     if len(comment)==0:
-        reader = TileCalibTools.TileBlobReader(dbr,folderPath, folderTag)
-        comment=reader.getComment(since)
-        if comment.find("): ")>-1: comment=comment[(comment.find("): "))+3:]
+        reader = TileCalibTools.TileBlobReader(dbr, folderPath, folderTag)
+        comment = reader.getComment(since)
+        if comment.find("): ") > -1: comment = comment[(comment.find("): ")) + 3:]
 
     log.info("")
     log.info("============================================================== ")
     log.info("")
     log.info("creating DB with ONLINE status")
 
-    if dbw: mgr.updateFromDb(dbw, folderPath, folderTag, since, -mode)
+    # if dbw: mgr.updateFromDb(dbw, folderPath, folderTag, since, -1)
 
     #--- create online bad channel manager
     folderOnl = "/TILE/ONL01/STATUS/ADC"
     folderTagOnl = ""
 
-    inSchemaOnl=inSchema.replace("COOLOFL","COOLONL")
-    if inSchemaOnl!=inSchema:
+    inSchemaOnl = inSchema.replace("COOLOFL", "COOLONL")
+    if inSchemaOnl != inSchema:
         dbr.closeDatabase()
-        dbr = TileCalibTools.openDbConn(inSchemaOnl,'READONLY')
+        dbr = TileCalibTools.openDbConn(inSchemaOnl, 'READONLY')
     else:
         try:
-            reader = TileCalibTools.TileBlobReader(dbr,folderOnl,folderTagOnl)
+            reader = TileCalibTools.TileBlobReader(dbr, folderOnl, folderTagOnl)
         except Exception, e:
-            log.warning( "No %s folder in %s, reading from Oracle" % (folderOnl,inSchema))
-            inSchemaOnl=oraSchema.replace("COOLOFL","COOLONL")
+            log.warning( "No %s folder in %s, reading from Oracle" % (folderOnl, inSchema))
+            inSchemaOnl = oraSchema.replace("COOLOFL", "COOLONL")
             dbr.closeDatabase()
-            dbr = TileCalibTools.openDbConn(inSchemaOnl,'READONLY')
+            dbr = TileCalibTools.openDbConn(inSchemaOnl, 'READONLY')
 
     mgrOnl = TileBchTools.TileBchMgr()
     mgrOnl.setLogLvl(logging.DEBUG)
@@ -262,11 +262,11 @@ if len(onlSuffix) and not onl and "sqlite" in outSchema:
         mgrOnl.listBadAdcs()
 
     #=== synchronize
-    for ros in xrange(1,5):
-        for mod in xrange(0,64):
+    for ros in xrange(1, 5):
+        for mod in xrange(0, 64):
             for chn in xrange(0, 48):
-                statlo = mgr.getAdcStatus(ros,mod,chn,0)
-                stathi = mgr.getAdcStatus(ros,mod,chn,1)
+                statlo = mgr.getAdcStatus(ros, mod, chn, 0)
+                stathi = mgr.getAdcStatus(ros, mod, chn, 1)
         
                 #--- add IgnoreInHlt if either of the ADCs has isBad
                 #--- add OnlineGeneralMaskAdc if the ADCs has isBad            
@@ -292,14 +292,24 @@ if len(onlSuffix) and not onl and "sqlite" in outSchema:
                     mgrOnl.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.IgnoredInHlt)
                     mgrOnl.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineGeneralMaskAdc)
 
+                #--- add OnlineBadTiming if either of the ADCs has isBadTiming
+                if statlo.isBadTiming() or stathi.isBadTiming():
+                    mgrOnl.addAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineBadTiming)
+                    mgrOnl.addAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineBadTiming)
+                else:
+                    #--- delete OnlineBadTiming if the both ADCs has not isBadTiming
+                    mgrOnl.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineBadTiming)
+                    mgrOnl.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineBadTiming)
+
+
     #=== print online channel status
     if verbose:
         log.info("online channel status AFTER update")
         mgrOnl.listBadAdcs()
 
     #=== commit changes
-    onlSchema = outSchema.replace(".db",onlSuffix+".db")
-    dbW = TileCalibTools.openDbConn(onlSchema,'RECREATE')
+    onlSchema = outSchema.replace(".db", onlSuffix + ".db")
+    dbW = TileCalibTools.openDbConn(onlSchema, 'RECREATE')
     mgrOnl.commitToDb(dbW, folderOnl, folderTagOnl, TileBchDecoder.BitPat_onl01, os.getlogin(), comment, since, until)
     dbW.closeDatabase()
 

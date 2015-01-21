@@ -5,6 +5,7 @@
 # Nils Gollub <nils.gollub@cern.ch>, 2007-11-23
 # Carlos Solans <carlos.solans@cern.ch>, 2012-10-19
 # Andrey Kamenshchikov <akamensh@cern.ch>, 23-10-2013 
+# Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-24
 ################################################################
 """
 Python helper module for managing COOL DB connections and TileCalibBlobs. 
@@ -16,7 +17,14 @@ ROOT.gInterpreter.EnableAutoLoading()
 import cx_Oracle
 from PyCool import cool
 import time, types, re, sys, os
-import PyCintex
+#import PyCintex
+try:
+   # ROOT5
+   import PyCintex
+except:
+   # ROOT6
+   import cppyy as PyCintex
+   sys.modules['PyCintex'] = PyCintex
 
 PyCintex.makeClass('std::vector<float>')
 PyCintex.makeClass('std::vector<std::vector<float> >')
@@ -73,7 +81,7 @@ def getLastRunNumber(partition=""):
 
 #
 #______________________________________________________________________
-def getTilePrefix(ofl=True,splitOnlInOflSchema=False):
+def getTilePrefix(ofl=True,splitOnlInOflSchema=True):
     """
     Returns the common Tile prefix used for all COOL folders.
     ofl = False ... single version folders
@@ -84,10 +92,10 @@ def getTilePrefix(ofl=True,splitOnlInOflSchema=False):
                     offline schema
     """
     if ofl:
-        if not splitOnlInOflSchema:
-            return "/TILE/OFL01/"
-        else:
+        if splitOnlInOflSchema:
             return "/TILE/OFL02/"
+        else:
+            return "/TILE/OFL01/"
     else:
         return "/TILE/ONL01/"
 

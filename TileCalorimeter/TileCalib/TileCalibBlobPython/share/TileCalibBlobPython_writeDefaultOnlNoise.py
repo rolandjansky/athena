@@ -2,12 +2,10 @@
 # TileCalibBlobPython_writeDefaults.py
 # Nils Gollub <nils.gollub@cern.ch>, 2007-11-26
 # Andrei Artamonov 2011-05-26
+# Yuri Smirnov 2014-12-24
 
-import PyCintex
-from PyCool import cool, coral
 from TileCalibBlobPython import TileCalibTools, TileCalibDefaultWriter
 from TileCalibBlobObjs.Classes import *
-
 
 #=== open database
 db = TileCalibTools.openDb('SQLITE', 'CONDBR2', 'UPDATE')

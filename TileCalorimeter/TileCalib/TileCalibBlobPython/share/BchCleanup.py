@@ -144,38 +144,12 @@ if __name__ == "__main__":
   from TileCalibBlobPython.TileCalibTools import MINRUN, MINLBK, MAXRUN, MAXLBK
   from TileCalibBlobObjs.Classes import *
 
-  from PyCool import cool, coral
-
   #=== open databases
   idb = TileCalibTools.openDbConn(ischema,'READONLY')
   #odb = TileCalibTools.openDbConn(oschema,'RECREATE')
 
-  #=== creating folder specifications
-  spec = cool.RecordSpecification()
-
   #-- Workout folderTag
-  if "/TILE/ONL01" in folderPath:
-    folderTag = ""
-  elif "/TILE/OFL01" in folderPath:
-    folderTag = TileCalibUtils.getFullTag(folderPath, "HLT-UPD1-00")
-  elif "/TILE/OFL02" in folderPath:
-    if tag == "UPD1" and 'CONDBR2' in schema:
-        gtagUPD1='CONDBR2-ES1PA-2014-00'
-        folderTag = TileCalibTools.getFolderTag(db, folderPath, gtagUPD1 )
-    elif tag == "UPD4":
-        sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/')
-        from AtlCoolBKLib import resolveAlias
-        gtagUPD4 = resolveAlias.getCurrent().replace('*','')
-        log.info("global tag: %s" % gtagUPD4)
-        if 'CONDBR2' in schema and 'RUN1-' in gtagUPD4:
-            gtagUPD4='CONDBR2-BLKPA-2014-00'
-            log.info("wrong global tag for CONDBR2, changing it to: %s" % gtagUPD4)
-        folderTag = TileCalibTools.getFolderTag(db, folderPath, gtagUPD4 )
-    else:
-        folderTag = TileCalibUtils.getFullTag(folderPath, tag)
-  else:
-    print "Unknown folder %s " % folderPath
-    sys.exit(2)
+  folderTag = TileCalibTools.getFolderTag(idb if 'CONDBR2' in ischema else ischema, folderPath, tag)
 
   #-- Blob I/O classes
   blobReader = TileCalibTools.TileBlobReader(idb,folderPath, folderTag)

@@ -1,8 +1,17 @@
 #!/bin/env python
 # TileCalibBlobPython_writeTileMuIdFromASCII.py
 # Lukas Pribyl <lukas.pribyl@cern.ch>, 2009-04-29
+# change: Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-24
 
-import PyCintex
+#import PyCintex
+try:
+   # ROOT5
+   import PyCintex
+except:
+   # ROOT6
+   import cppyy as PyCintex
+   sys.modules['PyCintex'] = PyCintex
+
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobObjs.Classes import * 
 import os
