@@ -19,6 +19,7 @@ MyTestClass::getValue() const {
 }
 
 CoolLumiUtilsTestObj::CoolLumiUtilsTestObj() {
+  m_value = 0;
 }
 
 void 
