@@ -94,7 +94,7 @@ function makeFrame(i,run) {
           if (!iframe) return;
           iframe.frameBorder = 0;
           iframe.width = 380;
-          iframe.height = 200;
+          iframe.height = 216;
           iframe.src = "'''+baseurl+'''LArPage1/iframe.py?run="+run
           iframe.setAttribute ("id", "testframe"+i);
           if(Obj2.value!='already') document.getElementById ("test"+i).appendChild(iframe);
@@ -197,12 +197,12 @@ if (not cgidata.has_key('lastrun')) or  int(cgidata['lastrun']) <1:
   import urllib
   f = urllib.urlopen(LatestRunUrl)
   last_run_bytes = f.read()
-  last_run_str = last_run_bytes.decode("utf8")
+  last_run_str = str(int(last_run_bytes.decode("utf8")))
   cgidata['lastrun'] = last_run_str
   cgidata['nolastrun'] = 1
   # for the "Last Run" nruns has a default value in config.ini
-  if (not cgidata.has_key('nruns')) or cgidata.has_key('nruns') < 1:
-    cgidata['nruns'] = str(config.get('run', 'nruns'))
+#  if (not cgidata.has_key('nruns')) or cgidata.has_key('nruns') < 1:
+#    cgidata['nruns'] = str(config.get('run', 'nruns'))
 
 # check for firstrun
 defdelta=int(config.get('run', 'defdelta'))
@@ -229,9 +229,9 @@ if int(cgidata['firstrun']) > int(cgidata['lastrun']):
   cgidata['firstrun']=cgidata['lastrun']
   cgidata['lastrun']=tmp
 
-# check for maxrun
+# check for nruns
 if not cgidata.has_key('nruns'):
-  cgidata['nruns']=str(-1)
+  cgidata['nruns']=str(config.get('run', 'nruns'))
 
 #check for datatag
 if not cgidata.has_key('datatag'):
@@ -258,6 +258,7 @@ if not cgidata.has_key('minnevent'):
 if not cgidata.has_key('minnlb'):
   cgidata['minnlb']=str(config.get('run', 'defminnlb'))
 
+#print cgidata
   
 # options input
 print '''<FORM METHOD=GET ACTION="'''+baseurl+'''LArPage1/index.py" TARGET=_BLANK>

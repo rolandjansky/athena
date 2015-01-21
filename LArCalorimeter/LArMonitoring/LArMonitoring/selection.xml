@@ -2,7 +2,6 @@
 
 <class name="LArHVMapTool"/>
 <class name="LArHVCablingTool"/>
-<class name="Identifier"/>
 <class name="L1CaloCoolChannelId" />
 
 </lcgdict>

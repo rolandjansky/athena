@@ -8,6 +8,7 @@ import os,re,time,sys,cgi,string
 import cgitb; cgitb.enable()
 import getopt,fileinput
 import xmlrpclib
+import GetNumberFromDB as DB
 #config reading for default url
 import ConfigParser 
 config = ConfigParser.RawConfigParser()
@@ -74,8 +75,10 @@ lumATLAS=beamluminfo[run][4]
 endoflooptime=s.get_end_of_calibration_period(run_spec) 
 endofloop_time_str=time.asctime(time.localtime(endoflooptime[run][0]))
 
-print '''<b>More information about run: '''+str(run)+'''</b>'''
+number_of_events=DB.GetNumberOfCosmicCaloEvents(run)
 
+
+print '''<b>More information about run: '''+str(run)+'''</b>'''
 print "<br/>Run start: "+run_start_time_str
 print "<br/>Run stop: "+run_stop_time_str
 print "<br/>End of calib loop: "+endofloop_time_str
@@ -83,6 +86,7 @@ curenttime_src=time.asctime(time.localtime(time.time()))
 print "<br/>Current time: "+curenttime_src
 
 print "<br/>Number of LB: "+str(number_of_lb)
+print "<br/>Number of Events: "+str(number_of_events)
 
 if stablebeamflag:
     print "<br/>Max beam Energy: %.2f TeV" % (maxenergy)

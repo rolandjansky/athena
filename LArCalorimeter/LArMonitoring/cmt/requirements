@@ -43,8 +43,9 @@ use CaloDetDescr        CaloDetDescr-*         Calorimeter
 apply_pattern declare_python_modules files="*.py"
 apply_pattern declare_joboptions files="*.txt *.py"
 
-library LArMonitoring *.cxx -s=components *.cxx
-apply_pattern component_library
+# create a dual_use_library since the lcgdict pattern doesn't work with a component library 
+# when building with cmake
+apply_pattern dual_use_library files=*.cxx
 
 apply_pattern lcgdict dict=LArMonitoring selectionfile=selection.xml headerfiles="../LArMonitoring/LArMonitoringDict.h"
 
