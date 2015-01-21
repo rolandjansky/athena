@@ -10,14 +10,16 @@ from JetRec.JetRecFlags import jetFlags
 
 print str(jetFlags.truthFlavorTags())
 
-def scheduleCopyTruthParticles(theJob):
+def scheduleCopyTruthParticles():
   myname = "scheduleCopyTruthParticles: "
+  from JetRec.JetRecStandardToolManager import jtm
+  if not jtm.haveParticleJetTools: return
   from ParticleJetTools.ParticleJetToolsConf import CopyFlavorLabelTruthParticles
   from ParticleJetTools.ParticleJetToolsConf import CopyBosonTopLabelTruthParticles
   from ParticleJetTools.ParticleJetToolsConf import CopyTruthPartons
   from ParticleJetTools.CopyTruthParticlesAlg import CopyTruthParticlesAlg
-  from JetRec.JetRecStandardToolManager import jtm
 
+  tools = []
   for ptype in jetFlags.truthFlavorTags():
     toolname = "CopyTruthTag" + ptype
     if toolname in jtm.tools:
@@ -38,5 +40,7 @@ def scheduleCopyTruthParticles(theJob):
       ctp.OutputName = "TruthLabel" + ptype
       ctp.PtMin = ptmin
       jtm += ctp
-      theJob += CopyTruthParticlesAlg(ctp, toolname + "Alg")
+      #theJob += CopyTruthParticlesAlg(ctp, toolname + "Alg")
       print ctp
+      tools.append( ctp )
+  return tools

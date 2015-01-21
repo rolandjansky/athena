@@ -134,11 +134,13 @@ common_ungroomed_modifiers = [
 
 # Add truth parton cone matching.
 if jetFlags.useTruth():
-  common_ungroomed_modifiers += [jtm.truthpartondr]
+  if jtm.haveParticleJetTools:
+    common_ungroomed_modifiers += [jtm.truthpartondr]
 
 # Add parton truth label.
 if jetFlags.useTruth():
-  common_ungroomed_modifiers += [jtm.partontruthlabel]
+  if jtm.haveParticleJetTools:
+    common_ungroomed_modifiers += [jtm.partontruthlabel]
 
 # Modifiers for truth jets.
 truth_ungroomed_modifiers = common_ungroomed_modifiers

@@ -49,10 +49,6 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
   if separateJetAlgs == None:
     separateJetAlgs = jetFlags.separateJetAlgs()
 
-  # Add the truth tools.
-  if useTruth:
-    from JetRec.JetFlavorAlgs import scheduleCopyTruthParticles
-    scheduleCopyTruthParticles(job)
 
   # Event shape tools.
   evstools = []
@@ -80,6 +76,14 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
 
   # Add the tool runner. It runs the jetrec tools.
   rtools = []
+  # Add the truth tools.
+  if useTruth:    
+    from JetRec.JetFlavorAlgs import scheduleCopyTruthParticles
+    rtools += scheduleCopyTruthParticles()
+    
+    # build truth jet input :
+    rtools += [ jtm.truthpartcopy, jtm.truthpartcopywz ]
+
   if jetFlags.useCells():
     rtools += [jtm.missingcells]
   if jetFlags.useTracks:
