@@ -200,7 +200,6 @@ def iter_algseq(seq):
     def _iter_algseq(seq):
         yield seq
         for c in seq.getChildren():
-            yield c
             for sub in _iter_algseq(c):
                 yield sub
     return _iter_algseq(seq)
