@@ -7,8 +7,6 @@
 // in a way to facilitate efficient lookups by systematic tools.
 // A hash value is cached using the joined string name and boost::hash<string>.
 
-#include <PATInterfaces/Global.h>
-
 #include <set>
 #include <vector>
 #include <string>
@@ -20,10 +18,6 @@
 
 namespace CP
 {
-
-  // Pulling global ops into CP. Not ideal.
-  using ::operator<;
-  using ::operator==;
 
   /// Class to wrap a set of SystematicVariations
   class SystematicSet
@@ -109,21 +103,6 @@ namespace CP
     float
     getParameterByBaseName(const std::string& basename) const;
 
-    /// \brief the toy variation for the given basename
-    ///
-    /// in case there is no toy variation for the given base name,
-    /// this returns (0,0)
-    /// \sa SystematicVariation::getToyVariation
-    /// \par Guarantee
-    ///   strong
-    /// \par Failures
-    ///   not a toy variation\n
-    ///   parse errors\n
-    ///   out of memory II
-  public:
-    std::pair<unsigned,float>
-    getToyVariationByBaseName (const std::string& basename) const;
-
     /// description: filter the systematics for the affected systematics
     /// returns: success
     /// guarantee: strong
@@ -192,9 +171,9 @@ namespace CP
   std::size_t hash_value(const SystematicSet&);
 
   /// Sorting operator for std::map
-  //bool operator < (const SystematicSet& a, const SystematicSet& b);
+  bool operator < (const SystematicSet& a, const SystematicSet& b);
   /// Equality operator for unordered containers
-  //bool operator == (const SystematicSet& a, const SystematicSet& b);
+  bool operator == (const SystematicSet& a, const SystematicSet& b);
 
 }
 

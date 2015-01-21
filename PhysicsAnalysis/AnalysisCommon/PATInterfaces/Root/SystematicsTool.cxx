@@ -1,4 +1,4 @@
-// $Id: SystematicsTool.cxx 768505 2016-08-17 18:13:04Z ssnyder $
+// $Id: SystematicsTool.cxx 638686 2015-01-10 20:31:36Z sfarrell $
 //        Copyright Iowa State University 2014.
 //                  Author: Nils Krumnack
 // Distributed under the Boost Software License, Version 1.0.
@@ -69,6 +69,7 @@ namespace CP {
 
       RCU_READ_INVARIANT( this );
       return m_appliedSystematics->name();
+      //return joinSystematicList( m_appliedSystematics );
    }
 
    SystematicCode SystematicsTool::
@@ -165,7 +166,7 @@ namespace CP {
 
    void SystematicsTool::testInvariant() const {
 
-     //RCU_INVARIANT( this != 0 );
+      RCU_INVARIANT( this != 0 );
    }
 
 } // namespace CP

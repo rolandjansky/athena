@@ -34,7 +34,9 @@ namespace SysStreamTest
       const CP::SystematicSet& sysSet() { return m_sysSet; }
       const std::vector<CP::SystematicSet>& sysList() { return m_sysList; }
 
-      ClassDef(StreamTestWrapper, 1)
+      #ifdef ROOTCORE
+      ClassDef(StreamTestWrapper, 1);
+      #endif
 
     private:
 

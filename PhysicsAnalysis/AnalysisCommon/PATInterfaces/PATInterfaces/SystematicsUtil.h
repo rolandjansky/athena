@@ -27,7 +27,7 @@ namespace CP
   ///   tool that places NP points much more elegantly, but for now
   ///   this should allow users to use the list in a reasonably
   ///   elegant fashion
-  std::vector<CP::SystematicSet>
+  std::vector<SystematicSet>
   make_systematics_vector (const SystematicSet& systematics);
 }
 
