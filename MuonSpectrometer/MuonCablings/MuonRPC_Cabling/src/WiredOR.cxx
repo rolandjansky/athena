@@ -32,17 +32,19 @@ CablingObject(Wor.number(),Wor.station(),Wor.sector_type(),Wor.name())
 WiredOR&
 WiredOR::operator=(const WiredOR& Wor)
 {
-    m_side  = Wor.side();
-    m_start = Wor.start();
-    m_stop  = Wor.stop();
-    m_RPCread.clear();
-    m_RPCread = Wor.RPCread();
-    m_readoutCMAs.clear();
-    m_readoutCMAs = Wor.readoutCMAs();
-    m_even_read_mul.clear();
-    m_even_read_mul = Wor.even_read_mul();
-    m_odd_read_mul.clear();
-    m_odd_read_mul = Wor.odd_read_mul();
+    if(this!=&Wor){
+      m_side  = Wor.side();
+      m_start = Wor.start();
+      m_stop  = Wor.stop();
+      m_RPCread.clear();
+      m_RPCread = Wor.RPCread();
+      m_readoutCMAs.clear();
+      m_readoutCMAs = Wor.readoutCMAs();
+      m_even_read_mul.clear();
+      m_even_read_mul = Wor.even_read_mul();
+      m_odd_read_mul.clear();
+      m_odd_read_mul = Wor.odd_read_mul();
+    }
     return*this;
 }
 

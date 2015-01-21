@@ -1088,6 +1088,7 @@ SectorLogicSetup::operator+=(RPCchamberdata& data)
                  << *cham << std::endl << "in "; 
             PrintElement(m_message->message(),data.station(),"RPC",0,false);
             DISP_ERROR;
+            delete cham;
             return ins.second;
         }
         delete cham;
@@ -1111,6 +1112,7 @@ SectorLogicSetup::operator+=(WiredORdata& data)
                  << *Wor << std::endl << "in ";
             PrintElement(m_message->message(),data.station(),"WOR",0,false);
             DISP_ERROR;
+            delete Wor;
             return ins.second;
         }
         delete Wor;
@@ -1175,6 +1177,7 @@ SectorLogicSetup::operator+=(CMApivotdata& data)
                      << *CMA << std::endl << "in ";
                 PrintElement(m_message->message(),0,CMA->name(),0,false);
                 DISP_ERROR;
+                delete CMA;
                 return ins.second;
         }
         delete CMA;
@@ -1203,6 +1206,7 @@ SectorLogicSetup::operator+=(CMAcablingdata& data)
                      << *CMA << std::endl << "in "; 
                 PrintElement(m_message->message(),0,"CMA",0,false);
                 DISP_ERROR;
+                delete CMA;
                 return ins.second;
 	    }
             (*inserted).second += *CMA;

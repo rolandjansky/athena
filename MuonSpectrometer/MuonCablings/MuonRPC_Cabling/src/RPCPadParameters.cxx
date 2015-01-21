@@ -31,10 +31,12 @@ RPCPadParameters::~RPCPadParameters() { }
 
 RPCPadParameters&  RPCPadParameters::operator=(const RPCPadParameters& parameters)
 {
-    m_eta_and_phi=parameters.eta_and_phi();
-    m_feet_on=parameters.feet_on();
-    m_feet_thresholds=parameters.feet_thresholds();
-    m_cma_mask=parameters.cma_mask();
+    if(this!=&parameters){
+      m_eta_and_phi=parameters.eta_and_phi();
+      m_feet_on=parameters.feet_on();
+      m_feet_thresholds=parameters.feet_thresholds();
+      m_cma_mask=parameters.cma_mask();
+    }
     return *this;
 }
 
