@@ -107,11 +107,15 @@ cool::Int32 CoolQuery::getL1PrescaleFromChannelId(const std::string& folder_name
 
   cool::IFolderPtr folder_ptr = m_sourceDbPtr->getFolder(folder_name);
   cool::IObjectIteratorPtr itr = folder_ptr->browseObjects(m_VKstart, m_VKstop,id);
-  itr->goToNext();
-  const cool::IRecord& payload=itr->currentRef().payload();    
 
-  return payload["Lvl1Prescale"].data<cool::Int32>();
-  
+  // Need to iterate once to get to first valid record, do it this way to avoid Coverity warning
+  if (itr->goToNext()) {
+    const cool::IRecord& payload=itr->currentRef().payload();    
+    return payload["Lvl1Prescale"].data<cool::Int32>();
+  }
+
+  // Nonsense value
+  return UINT_MAX;
 
 }
 
@@ -119,10 +123,15 @@ cool::Float CoolQuery::getHLTPrescaleFromChannelId(const std::string& folder_nam
 
   cool::IFolderPtr folder_ptr = m_sourceDbPtr->getFolder(folder_name);
   cool::IObjectIteratorPtr itr = folder_ptr->browseObjects(m_VKstart, m_VKstop,id);
-  itr->goToNext();
-  const cool::IRecord& payload=itr->currentRef().payload();    
 
-  return payload["Prescale"].data<cool::Float>();
+  // Need to iterate once to get to first valid record, do it this way to avoid Coverity warning
+  if (itr->goToNext()) {
+    const cool::IRecord& payload=itr->currentRef().payload();    
+    return payload["Prescale"].data<cool::Float>();
+  }
+
+  // Nonsense value
+  return -1.;
 
 }
 
