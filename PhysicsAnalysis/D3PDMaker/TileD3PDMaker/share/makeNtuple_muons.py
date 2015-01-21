@@ -21,6 +21,14 @@ if "outputFile" not in dir():
 if 'track_type' not in dir():
     track_type           = 1              # 0 combined; 1 inDetTrack; -1 
 
+if 'dbname' not in dir():
+    if input_type=="data":
+        dbname="CONDBR2"
+    else:
+        dbname="OFLP200"
+
+if 'debugging' not in dir():
+    debugging = False
 
 
 CellsContainer = "AODCellContainer"

@@ -40,7 +40,8 @@ TileCosmicMuonFilterAlg::TileCosmicMuonFilterAlg( const std::string& name, ISvcL
 //=======================================
 StatusCode TileCosmicMuonFilterAlg::initialize(){
 //=======================================
-      
+  ATH_MSG_INFO("TileCosmicMuonFilterAlg::initialize()");
+
   CHECK(service("StoreGateSvc",m_storeGate));
   CHECK(m_trackInCalo.retrieve());
   
@@ -201,8 +202,8 @@ StatusCode TileCosmicMuonFilterAlg::execute(){
 
   //for( int i = 0; i < Ncut; ++i) ATH_MSG_INFO(" cut["<<i<<"] = "<< cut[i] );
 
-  ATH_MSG_INFO("Number of selected Muons: "<< outputMuons->size() );
-  ATH_MSG_INFO("Number of selected cells: " << outputCells->size());
+  ATH_MSG_DEBUG("Number of selected Muons: "<< outputMuons->size() );
+  ATH_MSG_DEBUG("Number of selected cells: " << outputCells->size());
 
   CHECK( evtStore()->record(outputMuons, m_outputMuons) );
   CHECK( evtStore()->record(outputAuxMuons,m_outputMuons+"Aux.") );

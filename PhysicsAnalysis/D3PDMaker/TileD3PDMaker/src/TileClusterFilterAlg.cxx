@@ -22,7 +22,7 @@ TileClusterFilterAlg::TileClusterFilterAlg( const std::string& name, ISvcLocator
 
 StatusCode TileClusterFilterAlg::initialize(){
     
-  ATH_MSG_INFO(" NOW IN TileClusterFilterAlg::initialize() ");
+  ATH_MSG_INFO("TileClusterFilterAlg::initialize() ");
   
   CHECK(m_trackInCalo.retrieve());
   CHECK(service("StoreGateSvc",m_storeGate));

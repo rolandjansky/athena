@@ -52,6 +52,7 @@ StatusCode TrackTools::initialize(){
 //================================
 StatusCode TrackTools::finalize(){
 //===============================
+    ATH_MSG_INFO( "Finalizing TrackTools" );
     return StatusCode::SUCCESS;
 } // TRACKTOOLS::FINALIZE
 
@@ -275,7 +276,6 @@ double TrackTools::getPath(const CaloCell* cell, const Trk::TrackParameters *ent
     double Layer1X(exit->position().x()),Layer1Y(exit->position().y()),Layer1Z(exit->position().z());
     double Layer2X(entrance->position().x()),Layer2Y(entrance->position().y()),Layer2Z(entrance->position().z());
 
-    //     ATH_MSG_ERROR("CBNT: " << Layer1X << " , " << Layer1Y << " , " << Layer1Z << " | " << Layer2X << " , " << Layer2Y << " , " << Layer2Z);
     double CellPhi(cell->caloDDE()->phi()),CellDPhi(cell->caloDDE()->dphi());
     double CellPhimin = CellPhi-CellDPhi/2.;
     double CellPhimax = CellPhi+CellDPhi/2.;

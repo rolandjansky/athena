@@ -55,8 +55,7 @@ TileMuonFillerTool::TileMuonFillerTool (const std::string& type,
 //==========================================
 StatusCode TileMuonFillerTool::initialize(){
 //==========================================
-
-    ATH_MSG_DEBUG("in TileMuonFillerTool::initialize");
+    ATH_MSG_DEBUG("TileMuonFillerTool::initialize()");
     CHECK( D3PD::BlockFillerTool<xAOD::Muon>::initialize() ); 
 
     // CHECK WHETHER STOREGATE CAN BE RETRIEVED
@@ -86,8 +85,6 @@ StatusCode TileMuonFillerTool::initialize(){
         } // IF
     } // IF
 
-    // INITIALISE THE CALOCELL FILTER ALGORITHM
-    ATH_MSG_INFO(" NOW IN TileMuonFillerTool::initialize() ");
 
     return StatusCode::SUCCESS;
   } // TileMuonFillerTool::initialize
@@ -239,10 +236,12 @@ StatusCode TileMuonFillerTool::book2()
 StatusCode TileMuonFillerTool::fill(const xAOD::Muon& p){
 //===========================================================
 
-    ATH_MSG_DEBUG("in TileMuonFillerTool::fill");
+    ATH_MSG_DEBUG("TileMuonFillerTool::fill()");
 
     // RETRIEVE APPROPRIATE POINTERS
     const xAOD::Muon* muonPointer       = &p;
+
+    if(!muonPointer) { ATH_MSG_INFO("NULL POINTER"); return StatusCode::RECOVERABLE; }
 
     /// primaryTrackParticle() Returns a pointer (which should not usually be NULL, but might be if the muon has been stripped of information) to the
     /// primary TrackParticle corresponding to the MuonType of this muon.
@@ -278,12 +277,12 @@ StatusCode TileMuonFillerTool::fill(const xAOD::Muon& p){
     // STORE ISOLATION ENERGIES
     if(m_LevelOfDetails > 2){
 
-        muonPointer->isolation((*m_etcone20), Iso::IsolationType::etcone20 );
-        muonPointer->isolation((*m_etcone30), Iso::IsolationType::etcone30 );
-        muonPointer->isolation((*m_etcone40), Iso::IsolationType::etcone40 );
-        muonPointer->isolation((*m_ptcone20), Iso::IsolationType::ptcone20 );
-        muonPointer->isolation((*m_ptcone30), Iso::IsolationType::ptcone30 );
-        muonPointer->isolation((*m_ptcone40), Iso::IsolationType::ptcone40 );
+        if ( !muonPointer->isolation((*m_etcone20), Iso::IsolationType::etcone20 ) ) ATH_MSG_WARNING("No etcone20 defined");
+        if ( !muonPointer->isolation((*m_etcone30), Iso::IsolationType::etcone30 ) ) ATH_MSG_WARNING("No etcone30 defined");
+        if ( !muonPointer->isolation((*m_etcone40), Iso::IsolationType::etcone40 ) ) ATH_MSG_WARNING("No etcone40 defined");
+        if ( !muonPointer->isolation((*m_ptcone20), Iso::IsolationType::ptcone20 ) ) ATH_MSG_WARNING("No ptcone20 defined");
+        if ( !muonPointer->isolation((*m_ptcone30), Iso::IsolationType::ptcone30 ) ) ATH_MSG_WARNING("No ptcone30 defined");
+        if ( !muonPointer->isolation((*m_ptcone40), Iso::IsolationType::ptcone40 ) ) ATH_MSG_WARNING("No ptcone40 defined");
 
 /*
             *m_LAr_iso_cone05 = m_inCalo->getIsolationEnergy(muon_trk,0.05,em1,em3,false);

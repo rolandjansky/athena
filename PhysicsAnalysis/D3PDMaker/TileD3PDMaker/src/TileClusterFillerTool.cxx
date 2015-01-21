@@ -30,7 +30,7 @@ TileClusterFillerTool::TileClusterFillerTool (const std::string& type,
 StatusCode TileClusterFillerTool::initialize(){
 //=================================================
 
-    ATH_MSG_DEBUG("in TileClusterFillerTool::initialize");
+    ATH_MSG_DEBUG("TileClusterFillerTool::initialize");
 
     CHECK( D3PD::BlockFillerTool<xAOD::CaloCluster>::initialize() );
     //CHECK( service("StoreGateSvc",m_storeGate));
@@ -68,12 +68,12 @@ StatusCode TileClusterFillerTool::book(){
 //===============================================================
 StatusCode TileClusterFillerTool::fill(const xAOD::CaloCluster& p){
 //===============================================================
+  ATH_MSG_DEBUG("TileClusterFillerTool::fill()"); 
 
-  ATH_MSG_DEBUG("in TileClusterFillerTool::fill");
-  
   // RETRIEVE APPROPRIATE POINTERS
   const xAOD::CaloCluster* clusterPointer = &p;
 
+  if(!clusterPointer) { ATH_MSG_INFO("NULL POINTER"); return StatusCode::RECOVERABLE; }
     
   if(m_LevelOfDetails > 0){
     *m_e        = clusterPointer->e();

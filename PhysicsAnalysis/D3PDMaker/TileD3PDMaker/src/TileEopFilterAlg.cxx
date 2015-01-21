@@ -124,7 +124,7 @@ StatusCode TileEopFilterAlg::execute(){
     }
   }
   
-  ATH_MSG_INFO("Number of selected tracks: " << outputTracks->size());
+  ATH_MSG_DEBUG("Number of selected tracks: " << outputTracks->size());
 
   //Get input clusters
   const CLUSTERCONTAINER* inputClusters = 0;
@@ -194,7 +194,7 @@ StatusCode TileEopFilterAlg::execute(){
     } 
   }
 
-  ATH_MSG_INFO("Number of selected clusters: " << outputClusters->size());
+  ATH_MSG_DEBUG("Number of selected clusters: " << outputClusters->size());
   
   //Get input cells
   const CELLCONTAINER* inputCells = 0;
@@ -284,7 +284,7 @@ StatusCode TileEopFilterAlg::execute(){
     ++assocItr;
   }
 
-  ATH_MSG_INFO("Number of selected cells: " << outputCells->size());
+  ATH_MSG_DEBUG("Number of selected cells: " << outputCells->size());
 
   CHECK( evtStore()->record(outputClusters, m_outputClusters ) );
   CHECK( evtStore()->record(outputAuxClusters, m_outputClusters+"Aux.") );
