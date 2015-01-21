@@ -15,10 +15,10 @@
 namespace CP {
 
 LumiWeightHandler::LumiWeightHandler():
-                        m_user_lumi_weights(){
+                                m_user_lumi_weights(){
 }
 LumiWeightHandler::LumiWeightHandler(LumiWeightHandler::lumimap user_weights):
-                        m_user_lumi_weights(user_weights){
+                                m_user_lumi_weights(user_weights){
 
 }
 

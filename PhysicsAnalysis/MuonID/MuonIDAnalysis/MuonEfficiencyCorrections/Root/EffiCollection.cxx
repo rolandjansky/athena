@@ -24,9 +24,9 @@ CP::EffiCollection::EffiCollection(std::string file_central, std::string file_ca
         std::map<std::string, double> lumis_calo,
         std::map<std::string, double> lumis_forward,
         SystematicSet sys):
-			        m_central_eff(0),
-			        m_forward_eff(0),
-			        m_calo_eff(0) {
+			                m_central_eff(0),
+			                m_forward_eff(0),
+			                m_calo_eff(0) {
 
     double integral = 0;
     double integral_CT = 0;
@@ -90,13 +90,17 @@ bool CP::EffiCollection::CheckConsistency (){
 
 
 CP::EffiCollection::EffiCollection(const CP::EffiCollection & other){
-    
+
     m_central_eff = new CP::EfficiencyScaleFactor(*(other.m_central_eff));
     m_calo_eff = new CP::EfficiencyScaleFactor(*(other.m_calo_eff));
     m_forward_eff = new CP::EfficiencyScaleFactor(*(other.m_forward_eff));
-    
+
 }
 CP::EffiCollection & CP::EffiCollection::operator = (const CP::EffiCollection & other){
+
+    if (this == &other){
+        return *this;               
+    }
     delete m_central_eff;
     delete m_calo_eff;
     delete m_forward_eff;
@@ -104,7 +108,7 @@ CP::EffiCollection & CP::EffiCollection::operator = (const CP::EffiCollection & 
     m_calo_eff = new CP::EfficiencyScaleFactor(*(other.m_calo_eff));
     m_forward_eff = new CP::EfficiencyScaleFactor(*(other.m_forward_eff));
     return *this;
-    
+
 }
 CP::EfficiencyScaleFactor* CP::EffiCollection::operator ()(const xAOD::Muon& mu) {
 

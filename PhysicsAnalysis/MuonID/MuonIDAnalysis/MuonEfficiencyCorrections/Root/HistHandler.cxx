@@ -8,58 +8,74 @@ namespace CP{
 
 HistHandler_TH1F::HistHandler_TH1F(TH1F* h): m_h(h),
         m_x_handler(m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetXaxis())){
+    if (m_h) m_h->SetDirectory(0);
 }
 HistHandler_TH2F::HistHandler_TH2F(TH2F* h): m_h(h),
         m_x_handler(m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetXaxis())),
         m_y_handler(m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetYaxis())){
+    if (m_h) m_h->SetDirectory(0);
 }
 HistHandler_TH3F::HistHandler_TH3F(TH3F* h): m_h(h),
         m_x_handler(m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetXaxis())),
         m_y_handler(m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetYaxis())),
         m_z_handler(m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetZaxis())){
+    if (m_h) m_h->SetDirectory(0);
 }
 HistHandler_TH2Poly::HistHandler_TH2Poly(TH2Poly* h): m_h(h),
         m_x_handler(m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetXaxis())),
         m_y_handler(m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(h->GetYaxis())){
+    if (m_h) m_h->SetDirectory(0);
 }
 
 
 
 HistHandler_TH1F::HistHandler_TH1F( const HistHandler_TH1F & other):
-    m_h(other.m_h == NULL ? 0 : dynamic_cast<TH1F*>(other.m_h->Clone((std::string("CloneOf")+other.m_h->GetName()).c_str()))),
-    m_x_handler(other.m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetXaxis())){
+            m_h(other.m_h == NULL ? 0 : dynamic_cast<TH1F*>(other.m_h->Clone((std::string("CloneOf")+other.m_h->GetName()).c_str()))),
+            m_x_handler(other.m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetXaxis())){
+    if (m_h) m_h->SetDirectory(0);
 }
 HistHandler_TH2F::HistHandler_TH2F( const HistHandler_TH2F & other):
-    m_h(other.m_h == NULL ? 0 : dynamic_cast<TH2F*>(other.m_h->Clone((std::string("CloneOf")+other.m_h->GetName()).c_str()))),
-    m_x_handler(other.m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetXaxis())),
-    m_y_handler(other.m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetYaxis())){
+            m_h(other.m_h == NULL ? 0 : dynamic_cast<TH2F*>(other.m_h->Clone((std::string("CloneOf")+other.m_h->GetName()).c_str()))),
+            m_x_handler(other.m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetXaxis())),
+            m_y_handler(other.m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetYaxis())){
+    if (m_h) m_h->SetDirectory(0);
 }
 HistHandler_TH3F::HistHandler_TH3F( const HistHandler_TH3F & other):
-    m_h(other.m_h == NULL ? 0 : dynamic_cast<TH3F*>(other.m_h->Clone((std::string("CloneOf")+other.m_h->GetName()).c_str()))),
-    m_x_handler(other.m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetXaxis())),
-    m_y_handler(other.m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetYaxis())),
-    m_z_handler(other.m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetZaxis())){
+            m_h(other.m_h == NULL ? 0 : dynamic_cast<TH3F*>(other.m_h->Clone((std::string("CloneOf")+other.m_h->GetName()).c_str()))),
+            m_x_handler(other.m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetXaxis())),
+            m_y_handler(other.m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetYaxis())),
+            m_z_handler(other.m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetZaxis())){
+    if (m_h) m_h->SetDirectory(0);
 }
 HistHandler_TH2Poly::HistHandler_TH2Poly( const HistHandler_TH2Poly & other):
-    m_h(other.m_h == NULL ? 0 : dynamic_cast<TH2Poly*>(other.m_h->Clone((std::string("CloneOf")+other.m_h->GetName()).c_str()))),
-    m_x_handler(other.m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetXaxis())),
-    m_y_handler(other.m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetYaxis())){
+            m_h(other.m_h == NULL ? 0 : dynamic_cast<TH2Poly*>(other.m_h->Clone((std::string("CloneOf")+other.m_h->GetName()).c_str()))),
+            m_x_handler(other.m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetXaxis())),
+            m_y_handler(other.m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetYaxis())){
+    if (m_h) m_h->SetDirectory(0);
 }
 
 
 
 HistHandler_TH1F & HistHandler_TH1F::operator = (const HistHandler_TH1F & other){
+    if (this == &other){
+        return *this;               
+    }
     delete m_h;
     m_h = (other.m_h == NULL ? 0 : dynamic_cast<TH1F*>(other.m_h->Clone((std::string("CloneOf")+other.m_h->GetName()).c_str())));
-    
+    if (m_h) m_h->SetDirectory(0);
+
     delete m_x_handler;
     m_x_handler = (other.m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetXaxis()));
     return *this;
 }
 HistHandler_TH2F & HistHandler_TH2F::operator = (const HistHandler_TH2F & other){
+    if (this == &other){
+        return *this;               
+    }
     delete m_h;
     m_h = (other.m_h == NULL ? 0 : dynamic_cast<TH2F*>(other.m_h->Clone((std::string("CloneOf")+other.m_h->GetName()).c_str())));
-    
+    if (m_h) m_h->SetDirectory(0);
+
     delete m_x_handler;
     delete m_y_handler;
     m_x_handler = (other.m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetXaxis()));
@@ -67,21 +83,29 @@ HistHandler_TH2F & HistHandler_TH2F::operator = (const HistHandler_TH2F & other)
     return *this;
 }
 HistHandler_TH3F & HistHandler_TH3F::operator = (const HistHandler_TH3F & other){
+    if (this == &other){
+        return *this;               
+    }
     delete m_h;
     m_h = (other.m_h == NULL ? 0 : dynamic_cast<TH3F*>(other.m_h->Clone((std::string("CloneOf")+other.m_h->GetName()).c_str())));
-    
+    if (m_h) m_h->SetDirectory(0);
+
     delete m_x_handler;
     delete m_y_handler;
-    delete m_y_handler;
+    delete m_z_handler;
     m_x_handler = (other.m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetXaxis()));
     m_y_handler = (other.m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetYaxis()));
-    m_z_handler = (other.m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetYaxis()));
+    m_z_handler = (other.m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetZaxis()));
     return *this;
 }
 HistHandler_TH2Poly & HistHandler_TH2Poly::operator = (const HistHandler_TH2Poly & other){
+    if (this == &other){
+        return *this;               
+    }
     delete m_h;
     m_h = (other.m_h == NULL ? 0 : dynamic_cast<TH2Poly*>(other.m_h->Clone((std::string("CloneOf")+other.m_h->GetName()).c_str())));
-    
+    if (m_h) m_h->SetDirectory(0);
+
     delete m_x_handler;
     delete m_y_handler;
     m_x_handler = (other.m_h == NULL ? 0 : AxisHandlerProvider::GetAxisHandler(other.m_h->GetXaxis()));
@@ -105,13 +129,13 @@ HistHandler_TH3F::~HistHandler_TH3F(){
     delete m_x_handler;
     delete m_y_handler;
     delete m_z_handler;
-    
+
 }
 HistHandler_TH2Poly::~HistHandler_TH2Poly(){
     delete m_h;
     delete m_x_handler;
     delete m_y_handler;
-    
+
 }
 
 int HistHandler_TH1F::NBins(){
@@ -129,6 +153,7 @@ int HistHandler_TH2Poly::NBins(){
 
 
 CorrectionCode HistHandler_TH1F::FindBin (const xAOD::Muon & muon, int & bin){
+    if (!m_h) return CorrectionCode::Error;
     float par =  0;
     CorrectionCode found = m_x_handler->GetBinningParameter(muon,par);
     if (found == CorrectionCode::Error) return found;
@@ -140,6 +165,7 @@ CorrectionCode HistHandler_TH1F::FindBin (const xAOD::Muon & muon, int & bin){
 }
 
 CorrectionCode HistHandler_TH2F::FindBin (const xAOD::Muon & muon, int & bin){
+    if (!m_h) return CorrectionCode::Error;
     float parx =  0;
     float pary =  0;
     CorrectionCode foundx = m_x_handler->GetBinningParameter(muon,parx);
@@ -160,6 +186,7 @@ CorrectionCode HistHandler_TH2F::FindBin (const xAOD::Muon & muon, int & bin){
 }
 
 CorrectionCode HistHandler_TH3F::FindBin (const xAOD::Muon & muon, int & bin){
+    if (!m_h) return CorrectionCode::Error;
     float parx =  0;
     float pary =  0;
     float parz =  0;
@@ -185,6 +212,7 @@ CorrectionCode HistHandler_TH3F::FindBin (const xAOD::Muon & muon, int & bin){
 }
 
 CorrectionCode HistHandler_TH2Poly::FindBin (const xAOD::Muon & muon, int & bin){
+    if (!m_h) return CorrectionCode::Error;
     float parx =  0;
     float pary =  0;
     CorrectionCode foundx = m_x_handler->GetBinningParameter(muon,parx);

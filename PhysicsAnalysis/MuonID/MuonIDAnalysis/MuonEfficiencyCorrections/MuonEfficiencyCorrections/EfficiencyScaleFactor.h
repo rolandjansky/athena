@@ -127,6 +127,7 @@ private:
 
     typedef std::vector<HistHandler*> SFvec;
     typedef std::vector<HistHandler*>::iterator iSFvec;
+    typedef std::vector<HistHandler*>::const_iterator ciSFvec;
 
 
     /// read the content of the correct bin in one of my histos

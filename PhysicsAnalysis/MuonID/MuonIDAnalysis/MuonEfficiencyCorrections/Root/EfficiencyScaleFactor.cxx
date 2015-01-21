@@ -14,67 +14,81 @@
 namespace CP {
 
 EfficiencyScaleFactor::EfficiencyScaleFactor():
-                m_sf(0),
-                m_eff(0),
-                m_sf_sys(0),
-                m_eff_sys(0),
-                m_sf_replicas(),
-                m_eff_replicas(),
-                m_etaphi(),
-                m_sys(){
+                                m_sf(0),
+                                m_eff(0),
+                                m_sf_sys(0),
+                                m_eff_sys(0),
+                                m_sf_replicas(),
+                                m_eff_replicas(),
+                                m_etaphi(),
+                                m_sys(){
 }
 
 EfficiencyScaleFactor::EfficiencyScaleFactor(std::string file, std::string time_unit, SystematicSet sys):
-                    m_sf(0),
-                    m_eff(0),
-                    m_sf_sys(0),
-                    m_eff_sys(0),
-                    m_sf_replicas(),
-                    m_eff_replicas(),
-                    m_etaphi(),
-                    m_sys(sys){
+                                    m_sf(0),
+                                    m_eff(0),
+                                    m_sf_sys(0),
+                                    m_eff_sys(0),
+                                    m_sf_replicas(),
+                                    m_eff_replicas(),
+                                    m_etaphi(),
+                                    m_sys(sys){
 
     ReadFromFile(file, time_unit);
 }
 
-    
-EfficiencyScaleFactor::EfficiencyScaleFactor(const EfficiencyScaleFactor & other)
-    {
-        m_sf = package_histo(dynamic_cast<TH1*>(other.m_sf->GetHist()->Clone((std::string("EffSFCloneOf")+other.m_sf->GetHist()->GetName()).c_str())));
-        m_eff = package_histo(dynamic_cast<TH1*>(other.m_eff->GetHist()->Clone((std::string("EffSFCloneOf")+other.m_eff->GetHist()->GetName()).c_str())));
-        m_sf_sys = package_histo(dynamic_cast<TH1*>(other.m_sf_sys->GetHist()->Clone((std::string("EffSFCloneOf")+other.m_sf_sys->GetHist()->GetName()).c_str())));
-        m_eff_sys = package_histo(dynamic_cast<TH1*>(other.m_eff_sys->GetHist()->Clone((std::string("EffSFCloneOf")+other.m_eff_sys->GetHist()->GetName()).c_str())));
-        m_sys = other.m_sys;
-        if (other.m_sf_replicas.size() !=0){
-            GenerateReplicas(other.m_sf_replicas.size(),999);
-        }
-}
-EfficiencyScaleFactor & EfficiencyScaleFactor::operator = (const EfficiencyScaleFactor & other){
-    
-    delete m_sf;
-    delete m_eff;
-    delete m_eff_sys;
-    delete m_sf_sys;
-    /// FIXME: Deleting the replicas causes a segfault in finalize()!
-    /// for now, leave them alone - leaking memory once at the end of the job
-    /// probably preferable to a crash. 
-//     for (iSFvec h = m_sf_replicas.begin(); h != m_sf_replicas.end();++h) {
-//         if (*h) delete *h;
-//     }
-    m_sf_replicas.clear();
 
-//     for (iSFvec h = m_eff_replicas.begin(); h != m_eff_replicas.end();++h) {
-//         if (*h) delete *h;
-//     }
-    m_eff_replicas.clear();
+EfficiencyScaleFactor::EfficiencyScaleFactor(const EfficiencyScaleFactor & other)
+{
     m_sf = package_histo(dynamic_cast<TH1*>(other.m_sf->GetHist()->Clone((std::string("EffSFCloneOf")+other.m_sf->GetHist()->GetName()).c_str())));
     m_eff = package_histo(dynamic_cast<TH1*>(other.m_eff->GetHist()->Clone((std::string("EffSFCloneOf")+other.m_eff->GetHist()->GetName()).c_str())));
     m_sf_sys = package_histo(dynamic_cast<TH1*>(other.m_sf_sys->GetHist()->Clone((std::string("EffSFCloneOf")+other.m_sf_sys->GetHist()->GetName()).c_str())));
     m_eff_sys = package_histo(dynamic_cast<TH1*>(other.m_eff_sys->GetHist()->Clone((std::string("EffSFCloneOf")+other.m_eff_sys->GetHist()->GetName()).c_str())));
     m_sys = other.m_sys;
-    if (other.m_sf_replicas.size() !=0){
-        GenerateReplicas(other.m_sf_replicas.size(),999);
+
+    for (ciSFvec h = other.m_sf_replicas.begin(); h != other.m_sf_replicas.end();++h) {
+        m_sf_replicas.push_back(package_histo(dynamic_cast<TH1*>((*h)->GetHist()->Clone((std::string("EffSFsfReplicaCloneOf")+(*h)->GetHist()->GetName()).c_str()))));
     }
+    for (ciSFvec h = other.m_eff_replicas.begin(); h != other.m_eff_replicas.end();++h) {
+        m_eff_replicas.push_back(package_histo(dynamic_cast<TH1*>((*h)->GetHist()->Clone((std::string("EffSFeffReplicaCloneOf")+(*h)->GetHist()->GetName()).c_str()))));
+    }
+}
+EfficiencyScaleFactor & EfficiencyScaleFactor::operator = (const EfficiencyScaleFactor & other){
+
+    if (this == &other){
+        return *this;               
+    }
+
+    delete m_sf;
+    delete m_eff;
+    delete m_eff_sys;
+    delete m_sf_sys;
+
+    for (iSFvec h = m_sf_replicas.begin(); h != m_sf_replicas.end();++h) {
+        if (*h) delete *h;
+    }
+    m_sf_replicas.clear();
+
+
+    for (iSFvec h = m_eff_replicas.begin(); h != m_eff_replicas.end();++h) {
+        if (*h) delete *h;
+    }
+    m_eff_replicas.clear();
+
+    m_sf = package_histo(dynamic_cast<TH1*>(other.m_sf->GetHist()->Clone((std::string("EffSFCloneOf")+other.m_sf->GetHist()->GetName()).c_str())));
+    m_eff = package_histo(dynamic_cast<TH1*>(other.m_eff->GetHist()->Clone((std::string("EffSFCloneOf")+other.m_eff->GetHist()->GetName()).c_str())));
+    m_sf_sys = package_histo(dynamic_cast<TH1*>(other.m_sf_sys->GetHist()->Clone((std::string("EffSFCloneOf")+other.m_sf_sys->GetHist()->GetName()).c_str())));
+    m_eff_sys = package_histo(dynamic_cast<TH1*>(other.m_eff_sys->GetHist()->Clone((std::string("EffSFCloneOf")+other.m_eff_sys->GetHist()->GetName()).c_str())));
+    m_sys = other.m_sys;
+
+
+    for (ciSFvec h = other.m_sf_replicas.begin(); h != other.m_sf_replicas.end();++h) {
+        m_sf_replicas.push_back(package_histo(dynamic_cast<TH1*>((*h)->GetHist()->Clone((std::string("EffSFsfReplicaCloneOf")+(*h)->GetHist()->GetName()).c_str()))));
+    }
+    for (ciSFvec h = other.m_eff_replicas.begin(); h != other.m_eff_replicas.end();++h) {
+        m_eff_replicas.push_back(package_histo(dynamic_cast<TH1*>((*h)->GetHist()->Clone((std::string("EffSFeffReplicaCloneOf")+(*h)->GetHist()->GetName()).c_str()))));
+    }
+
     return *this;
 }
 
@@ -282,23 +296,18 @@ CorrectionCode EfficiencyScaleFactor::EfficiencyReplicas(const xAOD::Muon& mu, s
 
 EfficiencyScaleFactor::~EfficiencyScaleFactor(){
 
-
-    /// FIXME: Deleting the replicas causes a segfault in finalize()!
-    /// for now, leave them alone - leaking memory once at the end of the job
-    /// probably preferable to a crash. 
-//     for (size_t h = 0; h < m_sf_replicas.size();++h) {
-//         if (m_sf_replicas[h] != NULL) delete m_sf_replicas[h];
-//         m_sf_replicas[h] = 0;
-//     }
+    for (size_t h = 0; h < m_sf_replicas.size();++h) {
+        if (m_sf_replicas[h] != NULL) delete m_sf_replicas[h];
+        m_sf_replicas[h] = 0;
+    }
     m_sf_replicas.clear();
 
-//     for (size_t h = 0; h < m_eff_replicas.size();++h) {
-//         if (m_eff_replicas[h] != NULL) delete m_eff_replicas[h];
-//         m_eff_replicas[h] = 0;
-//     }
+    for (size_t h = 0; h < m_eff_replicas.size();++h) {
+        if (m_eff_replicas[h] != NULL) delete m_eff_replicas[h];
+        m_eff_replicas[h] = 0;
+    }
     m_eff_replicas.clear();
 
-    
     if (m_sf) delete m_sf;
     if (m_eff) delete m_eff;
     if (m_sf_sys) delete m_sf_sys;

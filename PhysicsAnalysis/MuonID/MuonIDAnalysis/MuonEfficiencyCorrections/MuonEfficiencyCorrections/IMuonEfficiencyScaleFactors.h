@@ -113,7 +113,7 @@
 namespace CP {
 
 
-class IMuonEfficiencyScaleFactors : public virtual asg::IAsgTool, virtual public CP::ISystematicsTool {
+class IMuonEfficiencyScaleFactors : public virtual asg::IAsgTool, public virtual  CP::ISystematicsTool {
 
     ///
     /// @class IMuonEfficiencyScaleFactors
