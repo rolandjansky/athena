@@ -45,8 +45,7 @@ namespace ExpressionParsing {
       try {
         result = proxyLoader->variableTypeFromString(varname);
         if (result == VT_UNK) continue;
-      } catch (const std::runtime_error &error) {
-        std::cerr << "MultipleProxyLoader - trial failed with exception: " << error.what() << std::endl;
+      } catch (const std::runtime_error &) {
         continue;
       }
       foundProxyLoader = true;
@@ -54,8 +53,9 @@ namespace ExpressionParsing {
       break;
     }
     if (!foundProxyLoader) {
-      throw std::runtime_error("MultipleProxyLoader: unable to find valid proxy for "+varname);
+      throw std::runtime_error("MultipleProxyLoader: unable to find valid proxy loader for "+varname);
     }
+    std::cout << "MultipleProxyLoader - found proxy loader for " << varname << std::endl;
     return result;
   }
 
