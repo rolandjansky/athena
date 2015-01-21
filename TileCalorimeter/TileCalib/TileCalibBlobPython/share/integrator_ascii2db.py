@@ -1,6 +1,7 @@
 #!/bin/env python
 # TileCalibBlobPython_integratorExample
 # Nils Gollub <nils.gollub@cern.ch>, 2008-02-07
+# change Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-24
 
 import sys, re, os.path
 
@@ -37,15 +38,22 @@ while len(sys.argv)>0:
             log.error("File \"%s\" does not exist, ignoring input!" % arg)
         
 
-import PyCintex
-from PyCool import cool, coral
+#import PyCintex
+try:
+   # ROOT5
+   import PyCintex
+except:
+   # ROOT6
+   import cppyy as PyCintex
+   sys.modules['PyCintex'] = PyCintex
+
 from TileCalibBlobPython import TileCalibTools
 
 #=== open the database
 db = TileCalibTools.openDb('SQLITE', 'CONDBR2', 'UPDATE')
 
 #=== get a blob writer
-blobWriter = TileCalibTools.TileBlobWriter(db,"/TILE/V01/INTEGRATOR",True,False)
+blobWriter = TileCalibTools.TileBlobWriter(db,"/TILE/ONL01/INTEGRATOR",True,False)
 
 #=== declare default vector
 default = PyCintex.gbl.std.vector('float')()

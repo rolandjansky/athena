@@ -1,6 +1,7 @@
 #!/bin/env python
 # WriteCalibToCool.py
 # Sanya Solodkov 2014-08-29
+# change Yuri Smirnov 2014-12-24
 
 import getopt,sys,os,string
 os.environ['TERM'] = 'linux'
@@ -97,7 +98,15 @@ if not len(outSchema): outSchema=schema
 else: schema=outSchema
 if not len(inSchema): inSchema=schema
 
-import PyCintex
+#import PyCintex
+try:
+   # ROOT5
+   import PyCintex
+except:
+   # ROOT6
+   import cppyy as PyCintex
+   sys.modules['PyCintex'] = PyCintex
+
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobObjs.Classes import *
 

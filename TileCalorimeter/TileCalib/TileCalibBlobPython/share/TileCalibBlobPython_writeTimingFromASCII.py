@@ -1,8 +1,17 @@
 #!/bin/env python
 # TileCalibBlobPython_writeTimingFromASCII.py
 # Nils Gollub <nils.gollub@cern.ch>, 2007-11-26
+# change: Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-24
 
-import PyCintex
+#import PyCintex
+try:
+   # ROOT5
+   import PyCintex
+except:
+   # ROOT6
+   import cppyy as PyCintex
+   sys.modules['PyCintex'] = PyCintex
+
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobObjs.Classes import * 
 import os
@@ -19,7 +28,7 @@ def fillTimingTc(fileTclas, tag, since,
                until=(TileCalibTools.MAXRUN, TileCalibTools.MAXLBK)):
 
     #=== construct folder path
-    folderTclas = TileCalibTools.getTilePrefix()+"TIME/CHANNELOFFSET/LAS"
+    folderTclas = TileCalibTools.getTilePrefix(True,True)+"TIME/CHANNELOFFSET/LAS"
 
     #=== create default: one number
     #--- per ADC    for Tclas
@@ -73,7 +82,7 @@ def fillTimingTd(fileTdlas, tag, since,
                until=(TileCalibTools.MAXRUN, TileCalibTools.MAXLBK)):
 
     #=== construct folder path
-    folderTdlas = TileCalibTools.getTilePrefix()+"TIME/DRAWEROFFSET/LAS"
+    folderTdlas = TileCalibTools.getTilePrefix(True,True)+"TIME/DRAWEROFFSET/LAS"
 
     #=== create default: one number
     #--- per drawer for Tdlas

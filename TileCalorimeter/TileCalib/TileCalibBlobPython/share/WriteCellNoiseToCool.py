@@ -4,7 +4,7 @@
 # Purpose: Manual update of cell noise constants from ascii file
 #
 # 2014-07-14 - Sasha, based on update_noise_bulk.py from Carlos,Gui,Blake,Yuri
-#
+# 2024-12-14 - Yuri Smirnov, change for PyCintex->cppyy for ROOT6
 
 import getopt,sys,os,string,math
 os.environ['TERM'] = 'linux'
@@ -156,7 +156,15 @@ else:
   # COOLOFL_TILE/OFLP200 COOLOFL_TILE/COMP200 COOLOFL_TILE/CONDBR2
 
 
-import PyCintex
+#import PyCintex
+try:
+   # ROOT5
+   import PyCintex
+except:
+   # ROOT6
+   import cppyy as PyCintex
+   sys.modules['PyCintex'] = PyCintex
+
 from CaloCondBlobAlgs import CaloCondTools
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobPython import TileCellTools

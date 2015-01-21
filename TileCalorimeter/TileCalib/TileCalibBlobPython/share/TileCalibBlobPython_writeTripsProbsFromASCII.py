@@ -45,7 +45,15 @@ for o, a in opts:
         assert False, "unhandled option"
 
  
-import PyCintex
+#import PyCintex
+try:
+   # ROOT5
+   import PyCintex
+except:
+   # ROOT6
+   import cppyy as PyCintex
+   sys.modules['PyCintex'] = PyCintex
+
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobObjs.Classes import * 
 

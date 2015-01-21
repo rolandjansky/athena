@@ -2,8 +2,17 @@
 # TileCalibBlobPython_writePedFromASCII.py
 # Nils Gollub <nils.gollub@cern.ch>, 2008-03-03
 # modified: Lukas Pribyl <lukas.pribyl@cern.ch>, 2008-06-27
+# modified: Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-14
 
-import PyCintex
+#import PyCintex
+try:
+   # ROOT5
+   import PyCintex
+except:
+   # ROOT6
+   import cppyy as PyCintex
+   sys.modules['PyCintex'] = PyCintex
+
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobObjs.Classes import * 
 import os
@@ -20,7 +29,7 @@ def fillAutoCr(filePed, tag, since,
                until=(TileCalibTools.MAXRUN, TileCalibTools.MAXLBK)):
     
     #=== construct folder path
-    folder = TileCalibTools.getTilePrefix()+"NOISE/AUTOCR"
+    folder = TileCalibTools.getTilePrefix(True,True)+"NOISE/AUTOCR"
 
     #=== get full folder tag
     folderTag = TileCalibUtils.getFullTag(folder, tag)

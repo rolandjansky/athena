@@ -6,6 +6,7 @@
 # and the pile-up noise normalized at 10^33cm-2s-1, (backwards compatibility)
 # The next three values are used for a two gaussian model. 
 # These are: ratio between first and second gaussian, RMS of the first gaussian, and RMS of the second gaussian
+# change Yuri Smirnov <iouri.smirnov@cern.ch> 2014-12-24
 
 import getopt,sys,os,string
 os.environ['TERM'] = 'linux'
@@ -82,7 +83,15 @@ for o, a in opts:
         
 tile=(chan==48)
 
-import PyCintex
+#import PyCintex
+try:
+   # ROOT5
+   import PyCintex
+except:
+   # ROOT6
+   import cppyy as PyCintex
+   sys.modules['PyCintex'] = PyCintex
+
 from CaloCondBlobAlgs import CaloCondTools, CaloCondLogger
 from TileCalibBlobPython import TileCalibTools
 from TileCalibBlobPython import TileCellTools

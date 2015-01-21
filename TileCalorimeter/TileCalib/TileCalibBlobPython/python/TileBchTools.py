@@ -7,13 +7,22 @@
 #
 # Edition:
 # Andrey Kamenshchikov, 23-10-2013 (akamensh@cern.ch)
+# Yuri Smirnov, 24-12-2014 (iouri.smirnov@cern.ch)
 ################################################################
 """
 Python module for managing TileCal ADC status words.
 
 """
 
-import PyCintex
+#import PyCintex
+try:
+   # ROOT5
+   import PyCintex
+except:
+   # ROOT6
+   import cppyy as PyCintex
+   sys.modules['PyCintex'] = PyCintex
+
 from TileCalibBlobObjs.Classes import *
 from TileCalibBlobPython import TileCalibTools
 from TileCalibTools import MINRUN, MINLBK, MAXRUN, MAXLBK
@@ -38,8 +47,9 @@ class TileBchMgr(TileCalibLogger):
         TileCalibLogger.__init__(self,"TileBchMgr")
 
         #=== initialize all channel status to "good"
-        self.__newStat = (self.__getAdcIdx(4,63,47,1) + 1) * [TileBchStatus()]
-        self.__oldStat = (self.__getAdcIdx(4,63,47,1) + 1) * [TileBchStatus()]
+        self.__newStat = [ TileBchStatus() for _ in range(self.__getAdcIdx(4, 63, 47, 1) + 1) ]
+        self.__oldStat = [ TileBchStatus() for _ in range(self.__getAdcIdx(4, 63, 47, 1) + 1) ]
+
         self.__comment = ""
         self.__mode = 1
         self.__runLumi = (MAXRUN,MAXLBK-1)
@@ -141,11 +151,20 @@ class TileBchMgr(TileCalibLogger):
 
         #=== update TileBchStatus::isBad() definition from DB
         self.log().info("Updating TileBchStatus::isBad() definition from DB")
-        status = self.__newStat[self.__getAdcIdx(0,1,0,0)]
+        status = self.getBadDefinition()
         if status.isGood():
             self.log().info("No TileBchStatus::isBad() definition found in DB, using defaults")
         else:    
             TileBchStatus.defineBad(status)
+
+        #=== update TileBchStatus::isBadTiming() definition from DB
+        self.log().info("Updating TileBchStatus::isBadTiming() definition from DB")
+        status = self.getBadTimingDefinition()
+        if status.isGood():
+            self.log().info("No TileBchStatus::isBadTiming() definition found in DB, using defaults")
+        else:    
+            TileBchStatus.defineBadTiming(status)
+
 
     #____________________________________________________________________
     def getAdcStatus(self, ros, drawer, channel, adc):
@@ -466,6 +485,15 @@ class TileBchMgr(TileCalibLogger):
                         drawer.setData(chn,0,0, loBits)
                         drawer.setData(chn,1,0, hiBits)
                         drawer.setData(chn,2,0, chBits)
+                        #=== synchronizing channel status in low and high gain
+                        if wordsLo[0] != chBits:
+                           self.log().info("Drawer %s ch %2d - sync LG status with HG "%(modName,chn))
+                           status = TileBchStatus( bchDecoder.decode(chBits,loBits) )
+                           self.setAdcStatus(ros,mod,chn,0,status)
+                        if wordsHi[0] != chBits:
+                           self.log().info("Drawer %s ch %2d - sync HG status with LG "%(modName,chn))
+                           status = TileBchStatus( bchDecoder.decode(chBits,hiBits) )
+                           self.setAdcStatus(ros,mod,chn,1,status)
 
         #=== register
         if nUpdates>0:
@@ -476,3 +504,17 @@ class TileBchMgr(TileCalibLogger):
                 self.log().error("Aborting update due to errors in comment string") 
         else:
             self.log().warning("No drawer modifications detected, ignoring commit request")
+
+
+    #____________________________________________________________________
+    def getBadDefinition(self):
+        """
+        Returns bad status definition
+        """
+        return self.getAdcStatus(0, TileCalibUtils.definitions_draweridx(), TileCalibUtils.bad_definition_chan(), 0)
+
+    def getBadTimingDefinition(self):
+        """
+        Returns bad time status definition
+        """
+        return self.getAdcStatus(0, TileCalibUtils.definitions_draweridx(), TileCalibUtils.badtiming_definition_chan(), 0)

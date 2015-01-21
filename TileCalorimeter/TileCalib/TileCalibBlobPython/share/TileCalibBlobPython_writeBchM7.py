@@ -20,7 +20,7 @@ log.setLevel(logging.DEBUG)
 db = TileCalibTools.openDb('SQLITE', 'COMP200', 'UPDATE')
 
 #=== ADC status folder
-folder = TileCalibTools.getTilePrefix()+"STATUS/ADC"
+folder = TileCalibTools.getTilePrefix(True,True)+"STATUS/ADC"
 
 #=== specify folder and tag
 folderTag = TileCalibUtils.getFullTag(folder, "COM-04")

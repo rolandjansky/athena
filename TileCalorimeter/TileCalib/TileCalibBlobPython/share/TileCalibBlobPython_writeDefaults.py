@@ -1,15 +1,13 @@
 #!/bin/env python
 # TileCalibBlobPython_writeDefaults.py
 # Nils Gollub <nils.gollub@cern.ch>, 2007-11-26
+# change: Yuri Smirnov <iouri.smirnov@cern.ch>, 2014-12-24
 
-import PyCintex
-from PyCool import cool, coral
 from TileCalibBlobPython import TileCalibTools, TileCalibDefaultWriter
 from TileCalibBlobObjs.Classes import *
 
 #=== open the commissioning database
 db = TileCalibTools.openDb('SQLITE', 'CONDBR2', 'UPDATE')
-
 
 #=== create default writer
 defaultWriter = TileCalibDefaultWriter.TileCalibDefaultWriter(db)
@@ -26,19 +24,21 @@ tag = "COM-00"
 defaultWriter.writeCis(tag)
 defaultWriter.writeLas(tag)
 defaultWriter.writeLasFiber(tag)
-defaultWriter.writeCes(tag, False, "none", 1.2, (75816,0))
+defaultWriter.writeCes(tag, False, "13TeV")
 defaultWriter.writeEmscale(tag)
 defaultWriter.writeIntegrator(tag)
 defaultWriter.writeTcfib(tag)
 defaultWriter.writeTclas(tag)
 defaultWriter.writeTdlas(tag)
 defaultWriter.writeTof(tag)
-defaultWriter.writeNoiseFit(tag)
+#defaultWriter.writeNoiseFit(tag)
+defaultWriter.writeNoiseOnl(tag)
 defaultWriter.writeNoiseSample(tag)
 defaultWriter.writeNoiseAutoCr(tag)
 defaultWriter.writeIntegrator(tag)
 defaultWriter.writeBadChannels(tag)
 defaultWriter.writePulseShape(tag)
+defaultWriter.writeMuonReceiverPulseShape(tag)
 defaultWriter.writeMuid()
 
 #=== write noise defaults for simulation db OFLP200 (not CONDBR2)
