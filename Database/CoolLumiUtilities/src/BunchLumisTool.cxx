@@ -316,9 +316,9 @@ BunchLumisTool::reloadRawLumi()
     }
     break;
 
-  default:
     // This error condition was delt with before   
-    return;
+    //default:
+    //return;
   }
 
 

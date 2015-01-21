@@ -183,8 +183,8 @@ LumiBlobUtil::unpack(const cool::Float &ARI, const coral::Blob &blobBC, const st
 	  m_bunchLumis.push_back(element);
 	}
 	BCIDold=0;
-      }//This ends y=2                
-      AB1 = AB1/len;
+      } //This ends y=2
+      if (len > 0) AB1 = AB1/len;
       // std::cout << AB1 << std::endl;
     } //This ends x=1    
     if (x==2) {
@@ -306,10 +306,10 @@ LumiBlobUtil::unpack(const cool::Float &ARI, const coral::Blob &blobBC, const st
         for (unsigned int i=(BCIDold); i<3564; i++) {
           m_bunchLumis.push_back(element);
         }
-      }//This ends y=2                                                                            \
-      AB1 = AB1/len;
+      }//This ends y=2
+      if (len > 0) AB1 = AB1/len;
       //  std::cout << AB1 << std::endl;
-    } //This ends x=4                                                                             \
+    } //This ends x=4
                                                                                                    
   } //This ends else       
   return true;
