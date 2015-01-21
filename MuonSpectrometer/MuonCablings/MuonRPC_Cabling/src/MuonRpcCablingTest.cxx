@@ -43,6 +43,8 @@ MuonRpcCablingTest::MuonRpcCablingTest(const std::string& name, ISvcLocator* pSv
   : AthAlgorithm            ( name, pSvcLocator ),
     p_MuonMgr		    ( 0 ),
     m_idHelper              ( 0 ),
+    m_cablingSvc            ( NULL ),
+    m_padHashIdHelper       ( NULL ),
     m_selSideStr            ( "" ),
     m_firstLastChannel      ( false )
 {

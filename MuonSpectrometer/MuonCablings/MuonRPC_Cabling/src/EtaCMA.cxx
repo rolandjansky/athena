@@ -58,6 +58,10 @@ EtaCMA::EtaCMA(int num,int stat,int type,int eta, int phi,
 {
     // Set the memory for storing the cabling map
 
+    m_msgSvc = Athena::getMessageSvc();
+    MsgStream log(m_msgSvc, name());
+    m_debug = log.level() <= MSG::DEBUG;
+
     m_pivot_rpc_read  = 1;
     m_lowPt_rpc_read  = 1;
     m_highPt_rpc_read = 1;
@@ -73,6 +77,10 @@ EtaCMA::EtaCMA(int num,int stat,int type,int eta, int phi,
 EtaCMA::EtaCMA(const EtaCMA& cma) : 
 CMAparameters(static_cast<const CMAparameters&>(cma))
 {
+    m_msgSvc = Athena::getMessageSvc();
+    MsgStream log(m_msgSvc, name());
+    m_debug = log.level() <= MSG::DEBUG;
+
     m_pivot_RPCs = cma.pivot_RPCs();
     m_lowPt_RPCs = cma.lowPt_RPCs();
     m_highPt_RPCs = cma.highPt_RPCs();
@@ -91,15 +99,17 @@ EtaCMA::~EtaCMA()
 EtaCMA&
 EtaCMA::operator=(const EtaCMA& cma)
 {
-    static_cast<CMAparameters&>(*this)=static_cast<const CMAparameters&>(cma);
-    m_pivot_RPCs.clear();
-    m_pivot_RPCs = cma.pivot_RPCs();
-    m_lowPt_RPCs.clear();
-    m_lowPt_RPCs = cma.lowPt_RPCs();
-    m_highPt_RPCs.clear();
-    m_highPt_RPCs = cma.highPt_RPCs();
-    
-    m_inversion = cma.inversion();
+    if(this!=&cma){
+      static_cast<CMAparameters&>(*this)=static_cast<const CMAparameters&>(cma);
+      m_pivot_RPCs.clear();
+      m_pivot_RPCs = cma.pivot_RPCs();
+      m_lowPt_RPCs.clear();
+      m_lowPt_RPCs = cma.lowPt_RPCs();
+      m_highPt_RPCs.clear();
+      m_highPt_RPCs = cma.highPt_RPCs();
+      
+      m_inversion = cma.inversion();
+    }
     return *this;
 }
 

@@ -67,32 +67,33 @@ CablingObject(cham.number(),cham.station(),cham.sector_type(),cham.name())
 }
 
 RPCchamber RPCchamber::operator=(const RPCchamber& cham)
-{    
-     m_strips_in_Eta_Conn = cham.strips_in_Eta_Conn();
-     m_strips_in_Phi_Conn = cham.strips_in_Phi_Conn();
-     m_eta_strips         = cham.eta_strips();
-     m_eta_connectors     = cham.eta_connectors();
-     m_ijk_etaReadout     = cham.ijk_etaReadout();
-     m_phi_strips         = cham.phi_strips();
-     m_phi_connectors     = cham.phi_connectors();
-     m_ijk_phiReadout     = cham.ijk_phiReadout();
-     m_chamber_name       = cham.chamber_name();
-     m_stationEta         = cham.stationEta();
-     m_doubletR           = cham.doubletR();
-     m_doubletZ           = cham.doubletZ();
-     m_phiReadoutPannels  = cham.phiReadoutPannels();
-     m_eta_strip_global   = cham.eta_strip_global();
-     m_eta_conn_global    = cham.eta_conn_global();
-     
-     m_readoutWORs.clear();
-     m_readoutCMAs.clear();
-     m_eta_read_mul.clear();
+{
+     if(this!=&cham){
+       m_strips_in_Eta_Conn = cham.strips_in_Eta_Conn();
+       m_strips_in_Phi_Conn = cham.strips_in_Phi_Conn();
+       m_eta_strips         = cham.eta_strips();
+       m_eta_connectors     = cham.eta_connectors();
+       m_ijk_etaReadout     = cham.ijk_etaReadout();
+       m_phi_strips         = cham.phi_strips();
+       m_phi_connectors     = cham.phi_connectors();
+       m_ijk_phiReadout     = cham.ijk_phiReadout();
+       m_chamber_name       = cham.chamber_name();
+       m_stationEta         = cham.stationEta();
+       m_doubletR           = cham.doubletR();
+       m_doubletZ           = cham.doubletZ();
+       m_phiReadoutPannels  = cham.phiReadoutPannels();
+       m_eta_strip_global   = cham.eta_strip_global();
+       m_eta_conn_global    = cham.eta_conn_global();
+       
+       m_readoutWORs.clear();
+       m_readoutCMAs.clear();
+       m_eta_read_mul.clear();
 
-     m_eta_read_mul     = cham.eta_read_mul();
-     m_readoutWORs      = cham.readoutWORs();
-     m_readoutCMAs      = cham.readoutCMAs();
-
-     return*this;
+       m_eta_read_mul     = cham.eta_read_mul();
+       m_readoutWORs      = cham.readoutWORs();
+       m_readoutCMAs      = cham.readoutCMAs();
+     }
+     return *this;
 }
 
 

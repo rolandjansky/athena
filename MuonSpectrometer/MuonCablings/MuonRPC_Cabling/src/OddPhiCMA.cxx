@@ -41,6 +41,10 @@ OddPhiCMA::OddPhiCMA(int num,int stat,int type,CMAcoverage coverage,
 OddPhiCMA::OddPhiCMA(const OddPhiCMA& cma) : 
 CMAparameters(static_cast<const CMAparameters&>(cma))
 {
+    m_msgSvc = Athena::getMessageSvc();
+    MsgStream log(m_msgSvc, name());
+    m_debug = log.level() <= MSG::DEBUG;
+
     m_pivot_WORs = cma.pivot_WORs();
     m_lowPt_WORs = cma.lowPt_WORs();
     m_highPt_WORs = cma.highPt_WORs();
@@ -59,15 +63,17 @@ OddPhiCMA::~OddPhiCMA()
 OddPhiCMA&
 OddPhiCMA::operator=(const OddPhiCMA& cma)
 {
-    static_cast<CMAparameters&>(*this)=static_cast<const CMAparameters&>(cma);
-    m_pivot_WORs.clear();
-    m_pivot_WORs = cma.pivot_WORs();
-    m_lowPt_WORs.clear();
-    m_lowPt_WORs = cma.lowPt_WORs();
-    m_highPt_WORs.clear();
-    m_highPt_WORs = cma.highPt_WORs();
-    
-    m_inversion = cma.inversion();
+    if(this!=&cma){
+      static_cast<CMAparameters&>(*this)=static_cast<const CMAparameters&>(cma);
+      m_pivot_WORs.clear();
+      m_pivot_WORs = cma.pivot_WORs();
+      m_lowPt_WORs.clear();
+      m_lowPt_WORs = cma.lowPt_WORs();
+      m_highPt_WORs.clear();
+      m_highPt_WORs = cma.highPt_WORs();
+      
+      m_inversion = cma.inversion();
+    }
     return *this;
 }
 

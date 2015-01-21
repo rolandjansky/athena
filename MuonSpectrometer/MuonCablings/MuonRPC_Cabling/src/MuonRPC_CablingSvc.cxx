@@ -32,6 +32,7 @@ const std::string* RPCConfMap = 0;
 MuonRPC_CablingSvc::MuonRPC_CablingSvc(const std::string& name, ISvcLocator* pSvcLocator) :
     AthService(name, pSvcLocator),
     m_padHashIdHelper(0),
+    m_pRpcIdHelper(NULL),
     m_condDataTool("RPCCablingDbTool"),
     m_condTriggerTool("RPCTriggerDbTool")
 {
@@ -47,7 +48,7 @@ MuonRPC_CablingSvc::MuonRPC_CablingSvc(const std::string& name, ISvcLocator* pSv
     declareProperty( "RPCTriggerRoadsfromCool",m_RPCTriggerRoadsfromCool=false);
     declareProperty( "TheRpcTriggerDbTool",  m_condTriggerTool,      "a tool reading RPC triiger roads from COOL");
     //M. Corradi 2015/1/8
-    declareProperty("ApplyFeetPadThresholds", m_ApplyFeetPadThresholds=false,
+    declareProperty("ApplyFeetPadThresholds", m_ApplyFeetPadThresholds=true,
                     "map 3 low pt thresholds from special feet pads on standard 6 (3low+3high)");
     declareProperty("FeetPadThresolds", m_FeetPadThresholds,
                     "threshold numbers assigned to 3 low pt thresholds from special feet pads");
@@ -212,36 +213,6 @@ StatusCode MuonRPC_CablingSvc::initialize()
 	    return StatusCode::FAILURE;
 	}	
     }    
-
-    msg(MSG::INFO) << "ApplyFeetPadThresholds : " << m_ApplyFeetPadThresholds << endreq;
-    
-    if (m_ApplyFeetPadThresholds){
-        if (m_FeetPadThresholds.size()!=3){
-            ATH_MSG_WARNING("ApplyFeetPadThreshold ON but FeetPadThresholds size is not 3");
-            m_FeetPadThresholds.assign(3,0);
-            m_FeetPadThresholds.at(0)=2;
-            m_FeetPadThresholds.at(1)=3;
-            m_FeetPadThresholds.at(2)=5;
-        }
-        msg(MSG::INFO) << "FeetPadThresholds : "
-                       <<  m_FeetPadThresholds.at(0) << " "
-                       <<  m_FeetPadThresholds.at(1) << " "
-                       <<  m_FeetPadThresholds.at(2) << endreq;
-        
-        const unsigned int NumFeetSectors = 8;
-        unsigned int FeetSectors[NumFeetSectors]={21,22,25,26,53,54,57,58};
-        const unsigned int NumSpecialFeetPads = 4;
-        unsigned int SpecialFeetPads[NumSpecialFeetPads]={2,4,5,7};
-
-        for (unsigned int is=0; is<NumFeetSectors; is++) {
-            for (unsigned int it=0; it<NumSpecialFeetPads; it++) {
-                
-                m_RPCPadParameters_array[FeetSectors[is]][SpecialFeetPads[it]].set_feet_on(true);
-                for (unsigned int th=0; th<3; th++) m_RPCPadParameters_array[FeetSectors[is]][SpecialFeetPads[it]].set_feet_threshold(th,m_FeetPadThresholds.at(th));
-            }
-        }
-        
-    }
     
     
     return StatusCode::SUCCESS;
@@ -757,12 +728,14 @@ bool MuonRPC_CablingSvc::giveOffflineID(unsigned short int Side,
     if (Side>=2) return false;
     if (Sector>=32) return false;
     if (PADID>=10) return false;
-
+    
     ID = m_offline_id[Side][Sector][PADID];
-    if( ID == 0xFFFFFFFF ) return false; 
-
+    //if( ID == 0xFFFFFFFF ) return false; // original, not working with 64 bit identifiers
+    if ( ID == m_uninitialized_identifier ) return false;
+    
     return true;
 }
+
 
 std::vector<uint32_t> MuonRPC_CablingSvc::giveFullListOfRobIds() const
 {
@@ -807,7 +780,11 @@ StatusCode MuonRPC_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys))
     // retrive (if existing) or create empty CablinRPC singleton - cast to CablingRPC
     msg(MSG::INFO)<<"Retrieving cabling singleton; to create an empty one or to get the existing one"<<endreq;
     CablingRPC* cabling = dynamic_cast<CablingRPC*>(CablingRPC::instance());
-    msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endreq;
+    if(!cabling) {
+      msg(MSG::ERROR)<<"casting of cabling singleton failed."<<endreq;
+      return StatusCode::FAILURE;
+    }
+    else msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endreq;
     // clear cache in case this is not first initialization on the job
     cabling->clearCache();
     cabling->ClearPtoCablingMap();
@@ -1051,7 +1028,11 @@ StatusCode MuonRPC_CablingSvc::initTrigRoadsModel(IOVSVC_CALLBACK_ARGS_P(I,keys)
     // retrive CablinRPC singleton - cast to CablingRPC
     msg(MSG::INFO)<<"Retrieve the pointer to the cabling singleton "<<endreq; 
     CablingRPC* cabling = dynamic_cast<CablingRPC*>(CablingRPC::instance());
-    msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endreq;
+    if(!cabling) {
+      msg(MSG::ERROR)<<"casting of cabling singleton failed."<<endreq;
+      return StatusCode::FAILURE;
+    }
+    else msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endreq;
     // clear cache in case this is not first initialization on the job
     cabling->clearCache();
     cabling->ClearPtoTrigRoads();
@@ -1203,10 +1184,45 @@ StatusCode MuonRPC_CablingSvc::initTrigRoadsModel(IOVSVC_CALLBACK_ARGS_P(I,keys)
        }
        // here get and provide the HashFunction
        if (m_padHashIdHelper) delete m_padHashIdHelper;
-       m_padHashIdHelper = new RpcPadIdHash();	
-      // 
-      msg(MSG::INFO) << name() << " initialized succesfully" << endreq;
+       m_padHashIdHelper = new RpcPadIdHash();
+       //      msg(MSG::INFO) << name() << " initialized succesfully" << endreq;
     }
+
+    // -----  Initialization of Pad configuration ------ //
+    if (m_ApplyFeetPadThresholds) {
+        // check the existence of a PAD not existing in run-1 cabling
+        Identifier offline_id;
+        if (!giveOffflineID(0,21,7,offline_id)) {
+            ATH_MSG_INFO("RUN-1 like cabling, not applying FeetPadThresholds");
+        }else{
+            if (m_FeetPadThresholds.size()!=3){
+                // if thresholds vector empty, set it to default
+                m_FeetPadThresholds.assign(3,0);
+                m_FeetPadThresholds.at(0)=0;
+                m_FeetPadThresholds.at(1)=2;
+                m_FeetPadThresholds.at(2)=5;
+            }
+            msg(MSG::INFO) << "Applying FeetPadThresholds : "
+                           <<  m_FeetPadThresholds.at(0) << ","
+                           <<  m_FeetPadThresholds.at(1) << ","
+                           <<  m_FeetPadThresholds.at(2) << endreq;
+            
+            const unsigned int NumFeetSectors = 8;
+            unsigned int FeetSectors[NumFeetSectors]={21,22,25,26,53,54,57,58};
+            const unsigned int NumSpecialFeetPads = 4;
+            unsigned int SpecialFeetPads[NumSpecialFeetPads]={2,4,5,7};
+            
+            for (unsigned int is=0; is<NumFeetSectors; is++) {
+                for (unsigned int it=0; it<NumSpecialFeetPads; it++) {
+                    
+                    m_RPCPadParameters_array[FeetSectors[is]][SpecialFeetPads[it]].set_feet_on(true);
+                    for (unsigned int th=0; th<3; th++) m_RPCPadParameters_array[FeetSectors[is]][SpecialFeetPads[it]].set_feet_threshold(th,m_FeetPadThresholds.at(th));
+                }
+            }
+            
+        }
+    }   
+    msg(MSG::INFO) << name() << " initialized succesfully" << endreq;
     return StatusCode::SUCCESS;
 }
 

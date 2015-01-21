@@ -199,7 +199,8 @@ public:
     OfflineOnlineHashMap    m_HashVec;
     std::vector<uint32_t>   m_fullListOfRobIds;
     Identifier              m_offline_id[2][32][10];
-
+    const Identifier m_uninitialized_identifier;
+    
     StringProperty  m_conf_filename;
     StringProperty  m_corr_filename;
     BooleanProperty m_cosmic_configuration;
