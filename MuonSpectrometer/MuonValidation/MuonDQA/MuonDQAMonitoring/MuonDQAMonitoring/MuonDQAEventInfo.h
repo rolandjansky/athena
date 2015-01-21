@@ -109,6 +109,26 @@ namespace MuonDQA {
     inline void setNumberOfTriggerBits(unsigned int n) { m_trigger_bits.resize(n); }
     inline void setTriggerBit(unsigned int n, bool bit) {m_trigger_bits[n]=bit;}
 
+    MuonDQAEventInfo & operator=(const MuonDQAEventInfo &right) {
+      if( this != &right ) { 
+        this->setRunNumber(right.runNumber());
+        this->setEventNumber(right.eventNumber());
+        this->setEventType(right.eventtype());
+        this->setTimeStamp(right.timeStamp());
+        this->setOffset(right.ns_Offset());
+        this->setTrigType(right.trigType());
+        this->setRunTime(right.runningtime());
+        this->setLumiBlock(right.lumiBlock());
+        this->setTag(right.tag());
+        std::vector<bool> trigbits = right.triggerBits();
+        this->setNumberOfTriggerBits(trigbits.size());
+        for(unsigned int ii=0; ii<trigbits.size(); ii++){
+           this->setTriggerBit(ii, trigbits[ii] );
+        }
+      } 
+      return *this; 
+    };
+
   private:
     unsigned int m_runNumber;     //!< runnumber member
     unsigned int m_eventNumber;   //!< eventnumber member

@@ -8,23 +8,23 @@
 namespace MuonDQA {
   
   MuonDQAEventInfo::MuonDQAEventInfo()
-    : m_runNumber( 0 ), m_eventNumber( 0 ), m_timeStamp( 0 ), m_lumiBlock( 0 ), m_tag( "none" )
+    : m_runNumber( 0 ), m_eventNumber( 0 ), m_timeStamp( 0 ), m_ns_Offset( 0 ), m_running_time( 0. ), m_lumiBlock( 0 ), m_tag( "none" )
   {
   }
 
   MuonDQAEventInfo::MuonDQAEventInfo( unsigned int run_number, unsigned int event_number )
-    : m_runNumber( run_number ), m_eventNumber( event_number ) 
+    : m_runNumber( run_number ), m_eventNumber( event_number ), m_timeStamp( 0 ), m_ns_Offset( 0 ), m_running_time( 0. ), m_lumiBlock( 0 )
   {
   }
 
  
   MuonDQAEventInfo::MuonDQAEventInfo( unsigned int run_number, unsigned int event_number, unsigned int time_stamp )
-    : m_runNumber( run_number ), m_eventNumber( event_number ), m_timeStamp( time_stamp ), m_tag( "none" )
+    : m_runNumber( run_number ), m_eventNumber( event_number ), m_timeStamp( time_stamp ), m_ns_Offset( 0 ), m_running_time( 0. ), m_lumiBlock( 0 ), m_tag( "none" )
   {
   }
  
   MuonDQAEventInfo::MuonDQAEventInfo( unsigned int run_number, unsigned int event_number, unsigned int time_stamp, unsigned int lumi_block )
-    : m_runNumber( run_number ), m_eventNumber( event_number ), m_timeStamp( time_stamp ), m_lumiBlock( lumi_block ) 
+    : m_runNumber( run_number ), m_eventNumber( event_number ), m_timeStamp( time_stamp ), m_ns_Offset( 0 ), m_running_time( 0. ), m_lumiBlock( lumi_block ) 
   {
   }
 
