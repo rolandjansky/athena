@@ -259,8 +259,8 @@ HLT::ErrorCode TrigEFTrkMassFex::hltExecute(const HLT::TriggerElement*  inputTE 
     xAODTrigBphysColl->setStore(&xAODTrigBphysAuxColl);
 
     bool result = false;
-    bool PassedRoIMatch=false;
-    bool PassedMass=false;
+    //bool PassedRoIMatch=false;
+    //bool PassedMass=false;
     // Processing timers
     if ( timerSvc() ) m_TotTimer->start();
     // Initialize the monitoring variables
@@ -453,8 +453,8 @@ HLT::ErrorCode TrigEFTrkMassFex::hltExecute(const HLT::TriggerElement*  inputTE 
 
         double pT = mutrk->pt();
         float trackChi2 = mutrk->chiSquared();
-        double eta =  mutrk->eta() ;
-        double phi =  mutrk->phi() ;
+        //double eta =  mutrk->eta() ;
+        //double phi =  mutrk->phi() ;
 
         if ( fabs(pT) >= m_muonPtthr ) {
             if ( !m_flag_stages[ ACCEPT_Mu1_pT_Cut ] ) {
@@ -534,8 +534,8 @@ HLT::ErrorCode TrigEFTrkMassFex::hltExecute(const HLT::TriggerElement*  inputTE 
 
         double pT2 = trk->pt();
         float track2Chi2 = trk->chiSquared();
-        double eta2 =  trk->eta() ;
-        double phi2 =  trk->phi() ;
+        //double eta2 =  trk->eta() ;
+        //double phi2 =  trk->phi() ;
 
         if ( track2Chi2 <= 1e7 ) {
             if ( !m_flag_stages[ ACCEPT_Mu2_Chi2_Cut ] ) {

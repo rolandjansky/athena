@@ -1225,7 +1225,7 @@ HLT::ErrorCode TrigL2BMuMuXFex::hltExecute(HLT::TEConstVec& inputTEs, HLT::Trigg
             ATH_MSG(DEBUG) << "  nTriedCombinations = " << nTriedCombinations 
                              << ", while MaxNcombinations = " << m_maxNcombinations << endreq;
             ATH_MSG(DEBUG) << "Terminate the loop" << endreq;
-            ATH_MSG(DEBUG) << "  Bphys Collection size is " << m_trigBphysColl_b->size() << endreq;
+            ATH_MSG(DEBUG) << "  Bphys Collection size is " << m_trigBphysColl_bxAOD->size() << endreq;
             if(m_trigBphysColl_bxAOD->size() > 0)
               mon_Errors.push_back(ERROR_TooManyComb_Acc);
             else

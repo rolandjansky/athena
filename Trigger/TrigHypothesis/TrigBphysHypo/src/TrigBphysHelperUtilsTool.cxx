@@ -58,7 +58,7 @@ TrigBphysHelperUtilsTool::~TrigBphysHelperUtilsTool()
 ////////////////////////////
 StatusCode TrigBphysHelperUtilsTool::initialize()
 {
-  ATH_MSG_INFO ("Initializing " << name() << "...");
+  ATH_MSG_DEBUG ("Initializing " << name() << "...");
     
     if (m_fitterSvc.retrieve().isFailure()) {
         msg() << MSG::ERROR << "Can't find Trk::TrkVKalVrtFitter" << endreq;
@@ -75,7 +75,7 @@ StatusCode TrigBphysHelperUtilsTool::initialize()
 
 StatusCode TrigBphysHelperUtilsTool::finalize()
 {
-  ATH_MSG_INFO ("Finalizing " << name() << "...");
+  ATH_MSG_DEBUG ("Finalizing " << name() << "...");
 
   return StatusCode::SUCCESS;
 }
@@ -275,15 +275,15 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
                                                xAOD::TrigBphys::pType ptype,
                                                xAOD::TrigBphys::levelType plevel) {
     ///Note - if sucess, then caller is responsible for the memory created in result
-    if ( msg().level() <= MSG::INFO ) msg()  << MSG::INFO << "In buildDiMu" << endreq;
+    if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "In buildDiMu" << endreq;
     result = nullptr;
     
     if (particles.size() != 2) {
-        if ( msg().level() <= MSG::INFO ) msg()  << MSG::INFO << "Found " << particles.size() << " inputs. Needed 2" << endreq;
+        if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Found " << particles.size() << " inputs. Needed 2" << endreq;
         return StatusCode::FAILURE;
     }
     if (!particles[0].isValid() | !particles[1].isValid() ) {
-        if ( msg().level() <= MSG::INFO ) msg()  << MSG::INFO << "Invalid inputs" << endreq;
+        if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Invalid inputs" << endreq;
         return StatusCode::FAILURE;
     }
 
@@ -303,11 +303,11 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
     // check the TrackParticles for a covariance matrix
     if ((*particles[0])->definingParametersCovMatrixVec().size() == 0) {
         doFit = false;
-        if ( msg().level() <= MSG::INFO ) msg()  << MSG::INFO << "Fit not allowed, Problems with TP0" << endreq;
+        if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Fit not allowed, Problems with TP0" << endreq;
     }
     if ((*particles[1])->definingParametersCovMatrixVec().size() == 0) {
         doFit = false;
-        if ( msg().level() <= MSG::INFO ) msg()  << MSG::INFO << "Fit not allowed, Problems with TP1" << endreq;
+        if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Fit not allowed, Problems with TP1" << endreq;
     }
 
     const Trk::Vertex startingPoint(Amg::Vector3D(0.,0.,0.)); // #FIXME use beamline for starting point?
@@ -318,7 +318,7 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
     if (doFit) vx =  m_fitterSvc->fit(trks,startingPoint);
 
     if (!vx){
-        if ( msg().level() <= MSG::INFO ) msg()  << MSG::INFO << "No Vertex returned from fit / fitting not allowed" << endreq;
+        if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "No Vertex returned from fit / fitting not allowed" << endreq;
         
         result->setFitmass     (-9999);
         result->setFitchi2     (-9999);
@@ -333,7 +333,7 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
         std::vector<double> masses(particles.size(), m_massMuon);
         m_VKVFitter->setMassInputParticles(masses); // give input tracks muon mass
         if (!(m_VKVFitter->VKalGetMassError(trkIndices,invariantMass,invariantMassError).isSuccess())) {
-            if ( msg().level() <= MSG::INFO ) msg()<<MSG::INFO<<"Warning from VKaVrt - cannot calculate uncertainties!"<<endreq;
+            if ( msg().level() <= MSG::DEBUG ) msg()<<MSG::DEBUG<<"Warning from VKaVrt - cannot calculate uncertainties!"<<endreq;
         } // if
         
         result->setFitmass     (invariantMass);
@@ -349,7 +349,7 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
     // now add in the element links - note that they need the reshuffling applied
 
     
-    if ( msg().level() <= MSG::INFO ) msg()  << MSG::INFO <<
+    if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG <<
         "Print for obj: " << result << "\n\t  " <<
         "roiId:         " << result->roiId()  << "\n\t  " <<
         "particleType:  " << result->particleType() << "\n\t  " <<
@@ -394,7 +394,7 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
         }
         if ((*ptlEL)->definingParametersCovMatrixVec().size() == 0) {
             doFit = false;
-            if ( msg().level() <= MSG::INFO ) msg()  << MSG::INFO << "Fit not allowed, Problems with TP in vertexFit" << endreq;
+            if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Fit not allowed, Problems with TP in vertexFit" << endreq;
         }
         trks.push_back(*ptlEL);
     } // loop over particle ELs
@@ -404,7 +404,7 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
     if (doFit) vx =  m_fitterSvc->fit(trks,startingPoint);
     
     if (!vx){
-        if ( msg().level() <= MSG::INFO ) msg()  << MSG::INFO << "No Vertex returned from fit / fitting not allowed" << endreq;
+        if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "No Vertex returned from fit / fitting not allowed" << endreq;
         
         result->setFitmass     (-9999);
         result->setFitchi2     (-9999);
@@ -418,7 +418,7 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
         double invariantMass(0.), invariantMassError(0.); // #FIXME what about the input masses?
         m_VKVFitter->setMassInputParticles( inputMasses); // give input tracks muon mass
         if (!(m_VKVFitter->VKalGetMassError(trkIndices,invariantMass,invariantMassError).isSuccess())) {
-            if ( msg().level() <= MSG::INFO ) msg()<<MSG::INFO<<"Warning from VKaVrt - cannot calculate uncertainties!"<<endreq;
+            if ( msg().level() <= MSG::DEBUG ) msg()<<MSG::DEBUG<<"Warning from VKaVrt - cannot calculate uncertainties!"<<endreq;
             invariantMass = -9999.;
         } // if
         
@@ -431,7 +431,7 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
         
         delete vx; vx = 0;
     } // if vx
-    if ( msg().level() <= MSG::INFO ) msg()  << MSG::INFO <<
+    if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG <<
         "Print for obj: " << result << "\n\t  " <<
         "roiId:         " << result->roiId()  << "\n\t  " <<
         "particleType:  " << result->particleType() << "\n\t  " <<
