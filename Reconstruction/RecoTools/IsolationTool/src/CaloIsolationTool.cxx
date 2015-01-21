@@ -70,6 +70,9 @@ namespace xAOD {
     // list of calo to treat
     declareProperty("EMCaloNums",  m_EMCaloNums,  "list of EM calo to treat");
     declareProperty("HadCaloNums", m_HadCaloNums, "list of Had calo to treat");
+
+    // Choose whether TileGap3 cells are excluded 
+    declareProperty("ExcludeTG3", m_ExcludeTG3 = true, "Exclude the TileGap3 cells");
   }
 
   CaloIsolationTool::~CaloIsolationTool() { }
@@ -535,8 +538,8 @@ namespace xAOD {
     if(doCoreCone && maxConeSize<coreConeDR) maxConeSize = coreConeDR;
 
     /// if noEM option is on, start from HEC0
-    bool noEM = false;
-    const CaloSampling::CaloSample fistTile = CaloSampling::HEC0;
+//     bool noEM = false;
+//     const CaloSampling::CaloSample fistTile = CaloSampling::HEC0;
 
     /// start the calculation 
     ATH_MSG_DEBUG("calculating etcone for # " << conesf.size() << " cones");
@@ -554,10 +557,8 @@ namespace xAOD {
       selector.setConeSize(conesf[i]);
       for (auto aCell : association->data()){
         if( !selector.select(*aCell) ) continue;
-        if(noEM){
-          const CaloDetDescrElement* dde = aCell->caloDDE();
-          if(!dde || dde->getSampling()<fistTile) continue;
-        }
+        if (m_ExcludeTG3 && CaloCell_ID::TileGap3 == aCell->caloDDE()->getSampling()) continue;
+//         if(noEM && aCell->caloDDE()->getSampling()<fistTile) continue;
         totE += aCell->energy();
       }
       result.etcones[i] = totE;
@@ -572,10 +573,8 @@ namespace xAOD {
       selector.setConeSize(coreConeDR);
       for (auto aCell : association->data()){
         if( !selector.select(*aCell) ) continue;
-        if(noEM){
-          const CaloDetDescrElement* dde = aCell->caloDDE();
-          if(!dde || dde->getSampling()<fistTile) continue;
-        }
+        if (m_ExcludeTG3 && CaloCell_ID::TileGap3 == aCell->caloDDE()->getSampling()) continue;
+//         if(noEM && aCell->caloDDE()->getSampling()<fistTile) continue;
         totE += aCell->energy();
       }
       std::map<Iso::IsolationCorrectionParameter,float> corecorr;
@@ -666,6 +665,14 @@ namespace xAOD {
       HADccl->select(eta, phi, Rmax);
 
       for (CaloCellList::list_iterator it = HADccl->begin(); it != HADccl->end(); ++it) {
+	// Optionally remove TileGap cells
+	if (m_ExcludeTG3 && CaloCell_ID::TileGap3 == (*it)->caloDDE()->getSampling())
+	{
+	  ATH_MSG_DEBUG("Excluding cell with Et = " << (*it)->et());
+	  continue;
+	}
+	
+	// if no TileGap cells excluded, log energy of all cells
 	double etacel = (*it)->eta();
 	double phicel = (*it)->phi();
         
@@ -679,7 +686,7 @@ namespace xAOD {
 	}
       }
     }
-    
+
     delete EMccl;
     delete HADccl;
     return true;
@@ -1066,8 +1073,8 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
 
     // initialize varialbes
     double ecore = 0.;
-    bool noEM = false; // should be an argument of the function
-    const CaloSampling::CaloSample firstTile = CaloSampling::HEC0;
+//     bool noEM = false; // should be an argument of the function
+//     const CaloSampling::CaloSample firstTile = CaloSampling::HEC0;
 
     /// get intersections
     const Trk::CaloExtension* caloExtension = 0;
@@ -1083,7 +1090,7 @@ bool CaloIsolationTool::correctIsolationEnergy_pflowCore(CaloIsolation& result, 
     for (unsigned int i=0;i<intersections.size();++i){
       int layerID = parsIdHelper.caloSample(intersections[i]->cIdentifier());
       if(layerID>=24) continue;
-      if(noEM && layerID<=firstTile) continue;
+//       if(noEM && layerID<=firstTile) continue;
 
       bool entering = parsIdHelper.isEntryToVolume(intersections[i]->cIdentifier());
       currentMom = intersections[i]->momentum();
