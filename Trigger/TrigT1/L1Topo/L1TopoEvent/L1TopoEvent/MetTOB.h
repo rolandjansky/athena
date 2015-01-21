@@ -25,7 +25,7 @@ namespace TCS {
       MetTOB();
       
       // constructor with individual values
-      MetTOB(int ex, int ey, int et);
+      MetTOB(int ex, int ey, unsigned int et);
 
       // constructor with initial values
       MetTOB(const MetTOB & met);
@@ -36,7 +36,7 @@ namespace TCS {
       // accessors
       int Ex() const { return m_Ex; }
       int Ey() const { return m_Ey; }
-      int Et() const { return m_Et; }
+      unsigned int Et() const { return m_Et; }
 
       double ExDouble() const { return m_ExDouble; }
       double EyDouble() const { return m_EyDouble; }
@@ -45,7 +45,7 @@ namespace TCS {
       // setters
       void setEx(int ex) { m_Ex = sizeCheck(ex, nBitsEx()); }
       void setEy(int ey) { m_Ey = sizeCheck(ey, nBitsEy()); }
-      void setEt(int et) { m_Et = sizeCheck(et, nBitsEt()); }
+      void setEt(unsigned int et) { m_Et = sizeCheck(et, nBitsEt()); }
       
       void setExDouble(double ex) { m_ExDouble = ex; }
       void setEyDouble(double ey) { m_EyDouble = ey; }
@@ -69,7 +69,7 @@ namespace TCS {
       
       int m_Ex = { 0 };
       int m_Ey = { 0 };
-      int m_Et = { 0 };
+      unsigned int m_Et = { 0 };
 
       double m_ExDouble = { 0 };
       double m_EyDouble = { 0 };
