@@ -20,6 +20,7 @@ namespace xAOD {
 
   PFlowObjectsInConeTool::PFlowObjectsInConeTool (const std::string& type, const std::string& name, const IInterface* parent)
     :	AthAlgTool(type, name, parent),
+        m_pflowObjects(nullptr),
         m_incidentSvc("IncidentSvc",name)
   {
     declareInterface<IPFlowObjectsInConeTool>(this);

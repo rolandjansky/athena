@@ -5,7 +5,8 @@
 #ifndef PARTICLESINCONETOOLS_IPARTICLELOOKUPTABLE_H
 #define PARTICLESINCONETOOLS_IPARTICLELOOKUPTABLE_H
 
-#include <math.h>
+#include <limits>
+#include <cmath>
 #include "AthContainers/DataVector.h"
 
 namespace xAOD {
@@ -16,7 +17,12 @@ namespace xAOD {
   class IParticlesLookUpTable {
   public:
     /** constructor taking the desired binsize */
-    IParticlesLookUpTable( unsigned int nbins = 50 ) : m_nphiBins(nbins), m_phiBinSize(m_2PI/m_nphiBins) {} 
+  IParticlesLookUpTable( unsigned int nbins = 50 , float minPt=1e-3) :m_container(0), 
+      m_nphiBins(nbins), 
+      m_phiBinSize(m_2PI/m_nphiBins),
+      m_minPt(minPt),
+      m_phiBinnedLookUpTable(m_nphiBins)
+      {} 
 
     /** initialize the look up table with an iParticle container */
     void init( const DataVector<T>& particles );
@@ -51,10 +57,11 @@ namespace xAOD {
     /// add an entry into a vector of ElementLinks 
     void addEntry( int i, std::vector< ElementLink<DataVector<T> > >& output ) const;
 
-    const DataVector<T>* m_container;
-
+    
+    const DataVector<T>* m_container; //internal container
     int   m_nphiBins;    /// number of bins
     float m_phiBinSize;  /// bin size 
+    float m_minPt;       /// cut on minimum Pt for the considered particles  
     std::vector< std::vector< int > > m_phiBinnedLookUpTable; /// the look-up table
   };
 
@@ -76,7 +83,7 @@ namespace xAOD {
     /// use hashing for phi look-up and sorting for eta look-up
     unsigned int size = particles.size();
     for( unsigned int i=0; i<size;++i ){
-      if(particles[i]->pt()>0){//sanity check (due to Truth)
+      if(particles[i]->pt()>m_minPt){//sanity check (mainly due to Truth)
 	int index = phiIndex(particles[i]->phi());
 	m_phiBinnedLookUpTable[index].push_back(i);
       }
