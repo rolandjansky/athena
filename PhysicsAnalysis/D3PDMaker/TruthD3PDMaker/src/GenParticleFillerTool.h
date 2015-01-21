@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: GenParticleFillerTool.h 639305 2015-01-13 20:08:46Z ssnyder $
+// $Id: GenParticleFillerTool.h 639304 2015-01-13 20:08:39Z ssnyder $
 /**
  * @file EventCommonD3PDMaker/src/GenParticleFillerTool.h
  * @author scott snyder <snyder@bnl.gov>
