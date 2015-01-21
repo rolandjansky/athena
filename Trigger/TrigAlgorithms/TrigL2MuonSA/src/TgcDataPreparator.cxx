@@ -252,13 +252,18 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
      return StatusCode::FAILURE;
    }
    
-   StatusCode sc_read = (*m_activeStore)->retrieve( tgcPrepContainer, "TGC_Measurements" );
-   if (sc_read.isFailure()){
-     msg() << MSG::ERROR << "Could not retrieve PrepDataContainer." << endreq;
-     return sc_read;
-   }
-   msg() << MSG::DEBUG << "Retrieved PrepDataContainer: " << tgcPrepContainer->numberOfCollections() << endreq;
-   
+   if ( m_activeStore ) {
+     StatusCode sc_read = (*m_activeStore)->retrieve( tgcPrepContainer, "TGC_Measurements" );
+     if (sc_read.isFailure()){
+       msg() << MSG::ERROR << "Could not retrieve PrepDataContainer." << endreq;
+       return sc_read;
+     }
+     msg() << MSG::DEBUG << "Retrieved PrepDataContainer: " << tgcPrepContainer->numberOfCollections() << endreq;
+   } else {
+     msg() << MSG::ERROR << "Null pointer to ActiveStore" << endreq;
+     return StatusCode::FAILURE;;
+   }  
+ 
    Muon::TgcPrepDataContainer::const_iterator it = tgcPrepContainer->begin();
    Muon::TgcPrepDataContainer::const_iterator it_end = tgcPrepContainer->end();
    for( ; it!=it_end; ++it ) { // loop over collections

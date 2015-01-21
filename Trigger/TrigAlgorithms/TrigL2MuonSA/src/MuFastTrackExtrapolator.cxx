@@ -23,8 +23,8 @@ const InterfaceID& TrigL2MuonSA::MuFastTrackExtrapolator::interfaceID() { return
 // --------------------------------------------------------------------------------
 
 TrigL2MuonSA::MuFastTrackExtrapolator::MuFastTrackExtrapolator(const std::string& type, 
-							       const std::string& name,
-							       const IInterface*  parent): 
+                                                               const std::string& name,
+                                                               const IInterface*  parent): 
   AthAlgTool(type,name,parent),
   m_msg(0),
   m_storeGateSvc( "StoreGateSvc", name )
@@ -85,7 +85,7 @@ void TrigL2MuonSA::MuFastTrackExtrapolator::setExtrapolatorTool(ToolHandle<ITrig
 // --------------------------------------------------------------------------------
 
 StatusCode TrigL2MuonSA::MuFastTrackExtrapolator::extrapolateTrack(std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns,
-								   double winPt)
+                                                                   double winPt)
 {
   msg() << MSG::DEBUG << "in extrapolateTrack" << endreq;
   
@@ -113,16 +113,25 @@ StatusCode TrigL2MuonSA::MuFastTrackExtrapolator::extrapolateTrack(std::vector<T
 
     double eptinv = getMuFastRes(m_muFastRes_barrel, (itTrack->pt)*(itTrack->charge), itTrack->s_address, itTrack->etaMap, itTrack->phiMS);
 
-    sc = (*m_backExtrapolatorTool)->give_eta_phi_at_vertex(muonSA, etaVtx, sigEta, phiVtx, sigPhi, winPt);
+    if (m_backExtrapolatorTool) {
+
+      sc = (*m_backExtrapolatorTool)->give_eta_phi_at_vertex(muonSA, etaVtx, sigEta, phiVtx, sigPhi, winPt);
     
-    if (sc.isFailure()) {
-      msg() << MSG::DEBUG  << "BackExtrapolator problem: "
-	    << "Pt of Muon Feature out of BackExtrapolator range."
-	    << endreq;
-      msg() << MSG::DEBUG  << "Use Muon Feature position to fill the "
-	    << "TrigRoiDescriptor for IDSCAN." << endreq;
-      etaVtx = itTrack->etaMap;
-      phiVtx = itTrack->phiMS;
+      if (sc.isFailure()) {
+        msg() << MSG::DEBUG  << "BackExtrapolator problem: "
+              << "Pt of Muon Feature out of BackExtrapolator range."
+              << endreq;
+        msg() << MSG::DEBUG  << "Use Muon Feature position to fill the "
+              << "TrigRoiDescriptor for IDSCAN." << endreq;
+        etaVtx = itTrack->etaMap;
+        phiVtx = itTrack->phiMS;
+      }
+
+    } else {
+
+	msg() << MSG::ERROR << "Null pointer to ITrigMuonBackExtrapolator" << endreq;
+	return StatusCode::FAILURE;
+
     }
 
     itTrack->deltaPt     = (eptinv!=0.)? eptinv * (itTrack->pt) * (itTrack->pt): 1.0e10;
@@ -154,7 +163,7 @@ StatusCode TrigL2MuonSA::MuFastTrackExtrapolator::finalize()
 // --------------------------------------------------------------------------------
 
 void TrigL2MuonSA::MuFastTrackExtrapolator::setMuFastRes(std::vector<double>& vec, double p1,double p2,
-							 double p3,double p4,double p5,double p6) {
+                                                         double p3,double p4,double p5,double p6) {
   vec.clear();
   vec.push_back(p1);
   vec.push_back(p2);
@@ -171,8 +180,8 @@ void TrigL2MuonSA::MuFastTrackExtrapolator::setMuFastRes(std::vector<double>& ve
 // Original author: Stefano Giagu
 // Copied from TrigmuComb/muCombUtil.cxx
 double TrigL2MuonSA::MuFastTrackExtrapolator::getMuFastRes(std::vector<double> vec,
-							   const double pt, const int add,
-							   const double eta, const double phi) {
+                                                           const double pt, const int add,
+                                                           const double eta, const double phi) {
   
   if (pt == 0) return 1.0e30;
   
@@ -186,7 +195,7 @@ double TrigL2MuonSA::MuFastTrackExtrapolator::getMuFastRes(std::vector<double> v
     else {
       double AbsPtInv3 = AbsPtInv*AbsPtInv*AbsPtInv;
       double AbsPtInv2 = AbsPtInv*AbsPtInv;
-      return vec[2]*AbsPtInv3 +	vec[3]*AbsPtInv2 + vec[4]*AbsPtInv +vec[5];
+      return vec[2]*AbsPtInv3 + vec[3]*AbsPtInv2 + vec[4]*AbsPtInv +vec[5];
     }
   } 
   else {//Takuya/Kunihiro updated numbers 
@@ -215,15 +224,15 @@ double TrigL2MuonSA::MuFastTrackExtrapolator::getMuFastRes(std::vector<double> v
     if     ( spReg==1 ) { vpar = vparECA; }
       else if( spReg==2 ) { vpar = vparECB; }
       else {
-	if     ( AbsEta < 1.20) { vpar = vparEC1; }
-	else if( AbsEta < 1.35) { vpar = vparEC2; }
-	else if( AbsEta < 1.50) { vpar = vparEC3; }
-	else if( AbsEta < 1.65) { vpar = vparEC4; }
-	else if( AbsEta < 1.80) { vpar = vparEC5; }
-	else if( AbsEta < 1.95) { vpar = vparEC6; }
-	else if( AbsEta < 2.10) { vpar = vparEC7; }
-	else if( AbsEta < 2.35) { vpar = vparEC8; }
-	else                    { vpar = vparEC9; }
+        if     ( AbsEta < 1.20) { vpar = vparEC1; }
+        else if( AbsEta < 1.35) { vpar = vparEC2; }
+        else if( AbsEta < 1.50) { vpar = vparEC3; }
+        else if( AbsEta < 1.65) { vpar = vparEC4; }
+        else if( AbsEta < 1.80) { vpar = vparEC5; }
+        else if( AbsEta < 1.95) { vpar = vparEC6; }
+        else if( AbsEta < 2.10) { vpar = vparEC7; }
+        else if( AbsEta < 2.35) { vpar = vparEC8; }
+        else                    { vpar = vparEC9; }
       }
     
     double fracRes = vpar[0] + vpar[1]*AbsPtInv
@@ -233,10 +242,8 @@ double TrigL2MuonSA::MuFastTrackExtrapolator::getMuFastRes(std::vector<double> v
     
     return fabs(fracRes * AbsPtInv);
   }
-  
-  return 9999.;
 }
-	
+        
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
@@ -255,16 +262,16 @@ int TrigL2MuonSA::MuFastTrackExtrapolator::whichECRegion( const double eta, cons
        (M_PI*23./48. <= fabs(phi) && fabs(phi) < M_PI*25./48. ) ||
        (M_PI*35./48. <= fabs(phi) && fabs(phi) < M_PI*37./48. ) ||
        (M_PI*47./48. <= fabs(phi) && fabs(phi) < M_PI )
-	     )
+             )
        ) return 1;
   
   else if ( ( 1.5 <= absEta && absEta < 1.65 ) &&
-	    ( (M_PI*3./32.  <= fabs(phi) && fabs(phi) < M_PI*5./32. ) ||
-	      (M_PI*11./32. <= fabs(phi) && fabs(phi) < M_PI*13./32.) ||
-	      (M_PI*19./32. <= fabs(phi) && fabs(phi) < M_PI*21./32.) ||
-	      (M_PI*27./32. <= fabs(phi) && fabs(phi) < M_PI*29./32.)
-	      )
-	    ) return 2;
+            ( (M_PI*3./32.  <= fabs(phi) && fabs(phi) < M_PI*5./32. ) ||
+              (M_PI*11./32. <= fabs(phi) && fabs(phi) < M_PI*13./32.) ||
+              (M_PI*19./32. <= fabs(phi) && fabs(phi) < M_PI*21./32.) ||
+              (M_PI*27./32. <= fabs(phi) && fabs(phi) < M_PI*29./32.)
+              )
+            ) return 2;
   
   else return 0;
 }
