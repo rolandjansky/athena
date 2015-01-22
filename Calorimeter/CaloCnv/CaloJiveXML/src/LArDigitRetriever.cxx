@@ -249,8 +249,13 @@ namespace JiveXML {
         float pedvalue=0;
         if (pedestal >= (1.0+LArElecCalib::ERRORCODE)) pedvalue = pedestal;
           else pedvalue = LArSamples[0];
-        const std::vector<float>* polynom_adc2mev =
-          m_adc2mevTool ? &(m_adc2mevTool->ADC2MEV(LArId,largain)) : 0;
+
+        const std::vector<float>* polynom_adc2mev = 0;
+        if ( m_adc2mevTool ){
+          polynom_adc2mev = &(m_adc2mevTool->ADC2MEV(LArId,largain));
+	}else{
+	  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "in getLArDigitData(), Could not access LAr ADC2MeV Tool" <<endreq;
+	}
         
         if ( Index >= 0 ){ // can be -1
           if ( (*cellContainer)[Index]->energy() >m_cellThreshold) {
@@ -287,9 +292,11 @@ namespace JiveXML {
               channel.push_back(DataType(larchan)); 
                     feedThrough.push_back(DataType(FT)); 
                      slotVec.push_back(DataType(slot)); 
-              if (polynom_adc2mev->size()==0) adc2Mev.push_back(DataType(-1));
-                else adc2Mev.push_back(DataType((*polynom_adc2mev)[1]));
-              
+              if (!polynom_adc2mev && polynom_adc2mev->size()==0){
+		adc2Mev.push_back(DataType(-1));
+              }else{ 
+		adc2Mev.push_back(DataType((*polynom_adc2mev)[1]));	
+	      }              
               if ( m_doLArDigit ) { 
                 LArSampleIndexStr="adcCounts multiple=\""+DataType(nLArSamples).toString()+"\"";
                 for(int i=0; i<nLArSamples; i++) LArSampleIndexVec.push_back(DataType(LArSamples[i]));
