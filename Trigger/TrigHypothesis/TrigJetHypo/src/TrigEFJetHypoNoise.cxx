@@ -20,16 +20,19 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "LArCellRec/LArNoisyROTool.h"
+#include "LArRecEvent/LArNoisyROSummary.h"
 
-//#include "TrigConfHLTData/HLTTriggerElement.h"
-
-//#include "TrigSteeringEvent/TriggerElement.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/Enums.h"
 
 #include "TrigJetHypo/TrigEFJetHypoNoise.h"
-#include "CaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
+
+#ifdef ONLINEIS
+#include "hltinterface/ContainerFactory.h"
+#endif
 
 class ISvcLocator;
 
@@ -38,21 +41,15 @@ class ISvcLocator;
 /////////////////////////////////////////////////////////////////////
 //
 TrigEFJetHypoNoise::TrigEFJetHypoNoise(const std::string& name, ISvcLocator* pSvcLocator):
-  HLT::HypoAlgo(name, pSvcLocator) {
+  HLT::HypoAlgo(name, pSvcLocator), m_isInterface(false), m_noisyROTool("",this) {
 
   declareProperty("Etcut",   m_EtCut = 40*CLHEP::GeV); // Default: 40 GeV
   declareProperty("doMonitoring", m_doMonitoring = false );
   declareProperty("AcceptAll",      m_acceptAll=false);
+  declareProperty("NoiseTool",   m_noisyROTool);
 
   declareProperty( "BadFEBCut", m_MinBadFEB=5 );
 
-  declareMonitoredVariable("CutCounter", m_cutCounter);
-
-  // Monitored variables...
-  declareMonitoredVariable("NJet", m_njet);
-  declareMonitoredVariable("Et", m_et);
-  declareMonitoredVariable("Eta", m_eta);
-  declareMonitoredVariable("Phi", m_phi);
 }
 
 TrigEFJetHypoNoise::~TrigEFJetHypoNoise()
@@ -79,6 +76,31 @@ HLT::ErrorCode TrigEFJetHypoNoise::hltInitialize()
   m_accepted=0;
   m_rejected=0;
   m_errors=0;
+  m_isInterface = false;
+
+  if ( m_noisyROTool.retrieve().isFailure() ){
+	msg() << MSG::WARNING << "Could not retrieve tool, no noise burst hunting" << endreq;
+	return HLT::OK;
+  }
+
+#ifdef ONLINEIS
+  auto cfact = hltinterface::ContainerFactory::getInstance();
+  if ( cfact ) {
+      msg() << MSG::DEBUG << "Got the factory for TDAQ interface, will try to register vectors" << endreq;
+      try {
+          m_IsObject = cfact->constructContainer("LArISInfo","LArNoiseBurstCandidates");
+          m_evntPos = cfact->addIntVector(m_IsObject,"Flag",hltinterface::GenericHLTContainer::LASTVALUE);
+          m_timeTagPos = cfact->addIntVector(m_IsObject,"TimeStamp",hltinterface::GenericHLTContainer::LASTVALUE);
+          m_timeTagPosns = cfact->addIntVector(m_IsObject,"TimeStamp_ns",hltinterface::GenericHLTContainer::LASTVALUE);
+          hltinterface::IInfoRegister::instance()->registerObject("/HLTObjects/",m_IsObject);
+          m_isInterface = true;
+      }
+      catch (std::exception& ex ) {
+	  msg() << MSG::WARNING << "Cannot really use ISInfo publication. got exception " << ex.what() << endreq;
+          m_isInterface = false;
+      }
+  } // if cfact
+#endif
   
   return HLT::OK;
   
@@ -104,58 +126,70 @@ HLT::ErrorCode TrigEFJetHypoNoise::hltExecute(const HLT::TriggerElement* outputT
   // -------------------------------------
   //  if (m_timersvc) m_timers[0]->start();
 
-  m_cutCounter = -1;
-
   pass=false;
+  bool msgDebug = msgLvl(MSG::DEBUG);
 
-  m_njet = 0.0;
-  m_et = -99000.;
-  m_eta = -99.;
-  m_phi = -99.;
+  if ( !m_noisyROTool ) return HLT::OK;
+  // no tool running anyway
 
-  const xAOD::CaloClusterContainer* outJets = 0;
-  HLT::ErrorCode ec = getFeature(outputTE, outJets);
+  const CaloCellContainer* outCells(0);
+  HLT::ErrorCode ec = getFeature(outputTE, outCells);
   if(ec!=HLT::OK) {
-    msg() << MSG::WARNING << " Failed to get JetCollections " << endreq;
+    msg() << MSG::WARNING << " Failed to get CellCollections " << endreq;
     return ec;
   }
-  xAOD::CaloClusterContainer::const_iterator itr =  outJets->begin();
-  xAOD::CaloClusterContainer::const_iterator itrE = outJets->end();
-  double NBadFEBEMBA = 0.0;
-  double NBadFEBEMBC = 0.0;
-  double NBadFEBEMECA = 0.0;
-  double NBadFEBEMECC = 0.0;
-  for( ; itr != itrE ; ++itr ){
-	NBadFEBEMECA = (*itr)->rawE();
-        NBadFEBEMBA =  (*itr)->e();
-	NBadFEBEMECC = (*itr)->time();
-        NBadFEBEMBC =  (*itr)->m();
+
+  
+  char flag = 0;
+  if ( outCells ) {
+	if ( msgDebug ) msg() << MSG::DEBUG << "Got cell container, will process it" << endreq;
+	std::unique_ptr<LArNoisyROSummary> noisyRO = m_noisyROTool->process(outCells);
+	if ( msgDebug ) msg() << MSG::DEBUG << "processed it" << endreq;
+        if ( noisyRO->BadFEBFlaggedPartitions() ) {
+	      if ( msgDebug ) msg() << MSG::DEBUG << "Passed : BadFEBFlaggedPartitions" << endreq;
+	      flag |= 0x1;
+        }
+        if ( noisyRO->BadFEB_WFlaggedPartitions() ) {
+	      if ( msgDebug ) msg() << MSG::DEBUG << "Passed : BadFEB_WFlaggedPartitions" << endreq;
+	      flag |= 0x8;
+        }
+        if ( noisyRO->SatTightFlaggedPartitions() ) {
+	      if ( msgDebug ) msg() << MSG::DEBUG << "Passed : SatTightFlaggedPartitions" << endreq;
+	      flag |= 0x2;
+        }
+  } // end of if outCells
+
+  if ( msgDebug ) msg() << MSG::DEBUG << "got the flag : " << (unsigned int)flag << endreq;
+  
+
+
+  if ( flag != 0x0 ) {
+	if ( msgDebug ) msg() << MSG::INFO << "LAr Noise detected : ";
+	pass = true;
   }
-    uint32_t BadFEBPartitions = 0;
-  if ( NBadFEBEMBA  > m_MinBadFEB )  BadFEBPartitions |= 1;
-  if ( NBadFEBEMBC  > m_MinBadFEB )  BadFEBPartitions |= 2;
-  if ( NBadFEBEMECA  > m_MinBadFEB )  BadFEBPartitions |=4;
-  if ( NBadFEBEMECC  > m_MinBadFEB )  BadFEBPartitions |=8;
-  bool badFEBFlag = (BadFEBPartitions != 0);
-  if ( msgLvl() <= MSG::DEBUG ) {
-     msg(MSG::DEBUG) << "BadFEBPartitions : 0x" <<
-        std::hex << BadFEBPartitions << std::dec << endreq;
-     if ( badFEBFlag ) {
-        msg(MSG::DEBUG) << "Noisy Event accepted!" << endreq;
-     } else {
-        msg(MSG::DEBUG) << "Noisy Event rejected!" << endreq;
-     }
+        else if ( msgDebug ) msg() << MSG::INFO << "LAr Noise not detected!" << endreq;
+
+  if ( pass ) {
+	const xAOD::EventInfo* evt;
+	if ( (store()->retrieve(evt)).isFailure() ) {
+		msg(MSG::DEBUG) << endreq;
+		msg(MSG::ERROR) << "Cannot access eventinfo" << endreq;
+	}
+	else {
+		if ( msgDebug ) msg() << MSG::DEBUG << "at event number : "
+			<< evt->eventNumber() << "; LB : "
+			<< evt->lumiBlock() << "; timeStamp : "
+			<< evt->timeStamp() << "; timeStamp ns : "
+			<< evt->timeStampNSOffset() << endreq;
+#ifdef ONLINEIS
+		if ( m_isInterface ) {
+		    m_IsObject->appendField(m_evntPos,std::vector<long>{flag});
+		    m_IsObject->appendField(m_timeTagPos,std::vector<long>{(long int)evt->timeStamp()});
+		    m_IsObject->appendField(m_timeTagPosns,std::vector<long>{(long int)evt->timeStampNSOffset()});
+		}
+#endif
+	}
   }
-  if ( badFEBFlag ) 
-        pass=true;
-  else
-        pass=false;
-
-
-  // Time total TrigEFCaloHypo execution time.
-  // -------------------------------------
-
-  //    if (m_timersvc) m_timers[0]->stop();
 
   return HLT::OK;
 
