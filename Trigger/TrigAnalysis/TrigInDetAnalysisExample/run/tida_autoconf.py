@@ -15,49 +15,10 @@ from AthenaCommon.BeamFlags import jobproperties
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.GlobalFlags import globalflags
 
-athenaCommonFlags.FilesInput=[
-'data/data12_8TeV.00215456.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215456.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0407._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0149._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0162._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0164._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0167._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0168._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0169._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0171._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0176._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0179._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0182._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0184._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0191._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0192._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0194._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0197._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0199._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0201._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0203._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0204._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0206-lb0209._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0210._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0213._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0219._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0220-lb0221._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0223._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0224._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0225._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0226._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0228._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0229._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0234._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0243._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0244._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0245._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0247._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0248._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0249._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0250._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0251._0001.1',
-'data/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215571.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0252._0001.1'
-]
+if athenaCommonFlags.FilesInput()==[]:
+  athenaCommonFlags.FilesInput=[
+    'data/data12_8TeV.00215456.physics_JetTauEtmiss.merge.AOD.f495_m1266/data12_8TeV.00215456.physics_JetTauEtmiss.merge.AOD.f495_m1266._lb0407._0001.1',
+   ]
 
 PdgId=15
 
@@ -121,7 +82,7 @@ else:
 
 
 TestMonTool.ntupleChainNames += [
-#  "Offline",
+  "Offline",
 #  "Muons",
 #  "Electrons",
   "Taus",
@@ -148,6 +109,7 @@ TestMonTool.ntupleChainNames += [
 #  "L2_b10_IDTrkNoCut:TrigIDSCAN_Jet",
 #  "L2_b10_IDTrkNoCut:TrigSiTrack_Jet",
 #  "EF_b10_IDTrkNoCut:InDetTrigParticleCreation_Bjet_EFID",
+   "HLT_.*id.*cosmic.*:InDetTrigTrackingxAODCnv_CosmicsN_EFID"
 ]
 TestMonTool.outputFileName="TrkNtuple.root"
 ToolSvc += TestMonTool

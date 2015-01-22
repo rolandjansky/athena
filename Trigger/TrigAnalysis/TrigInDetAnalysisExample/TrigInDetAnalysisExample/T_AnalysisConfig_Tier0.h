@@ -237,14 +237,15 @@ protected:
     Filter_True filter;
     //  Filter_etaPT     filterRef(5,500);
     Filter_etaPT     filter_etaPT(5,200);
-    Filter_Track filter_offline( 2.5, 1000., 2000., 2000., 1, 6, -1, -1, -2, -2);
+    Filter_Track filter_offline( 2.5, 1000., 2000., 2000., 0, 0, -1, -1, -2, -2);
     Filter_Vertex filter_vertex(1.5, 1.5);
-    Filter_Combined filterRef (&filter_offline, &filter_vertex);
+
+    //    Filter_Combined filterRef (&filter_offline, &filter_vertex);
+    Filter_Combined filterRef (&filter_offline, &filter);
     Filter_Combined filter_truth (&filter_etaPT, &filter_etaPT);
  
     TrigTrackSelector selectorTruth( &filter_truth ); 
     TrigTrackSelector selectorRef( &filterRef ); 
-    TrigTrackSelector selectorElectrons( &filterRef ); 
     TrigTrackSelector selectorTest( &filter ); 
     Associator_BestDeltaRMatcher dRmatcher("deltaR", 0.01); 
 
@@ -281,7 +282,14 @@ protected:
 				    << "\tevent " << event_number 
 				    << "\tlb "    << lumi_block << endreq;
     }
+
+    m_provider->msg(MSG::INFO) << "run "     << run_number 
+			       << "\tevent " << event_number 
+			       << "\tlb "    << lumi_block << endreq;
+
+    //    std::cout << "run "     << run_number  << "\tevent " << event_number  << "\tlb "    << lumi_block << std::endl;
     
+   
     // clear the ntuple TrackEvent class
     m_event->clear();
 
@@ -337,6 +345,15 @@ protected:
     }
     
     if ( !this->m_keepAllEvents && !analyse ) { 
+      m_provider->msg(MSG::INFO) << "No chains passed unprescaled - not processing this event" << endreq; 
+      this->m_keepAllEvents = true; 
+    }      
+
+
+    if ( !this->m_keepAllEvents && !analyse ) { 
+
+      m_provider->msg(MSG::INFO) << "No chains passed unprescaled - not processing this event" << endreq; 
+
       // if(m_provider->msg().level() <= MSG::VERBOSE)
       if(m_provider->msg().level() <= MSG::VERBOSE)
 	m_provider->msg(MSG::VERBOSE) << "No chains passed unprescaled - not processing this event" << endreq; 
@@ -491,6 +508,8 @@ protected:
 	continue;
       }
 
+      m_provider->msg(MSG::INFO) << "combinations for chain " << chainname << " " << (cEnd-c) << endreq;
+
       std::string chainName = m_chainNames[ichain];
 
       m_event->addChain( chainName );
@@ -551,7 +570,9 @@ protected:
 	  m_provider->msg(MSG::VERBOSE) << *roiInfo << endreq;
 	
 	selectorTest.clear();
-	
+
+	m_provider->msg(MSG::INFO) << "Searching for collection " << key << endreq;  
+
 	/// HLT and EF-like EDM
 	if ( key.find("InDetTrigParticleCreation")!=std::string::npos || 
 	     chainName.find("EF_")!=std::string::npos ||
@@ -560,9 +581,19 @@ protected:
 	  else if ( this->template selectTracks<TrackCollection>( &selectorTest, c, key ) );
 	  else if ( this->template selectTracks<TrigInDetTrackCollection>( &selectorTest, c, truthMap, key, key_index ) );
 #ifdef XAODTRACKING_TRACKPARTICLE_H
-	  else if ( this->template selectTracks<xAOD::TrackParticleContainer>( &selectorTest, c, key ) );
-#endif
+	  //	  else if ( this->template selectTracks<xAOD::TrackParticleContainer>( &selectorTest, c, key ) );
+	  else {
+	    m_provider->msg(MSG::INFO) << "\tsearch for xAOD::TrackParticle " << key << endreq;  
+	    if ( this->template selectTracks<xAOD::TrackParticleContainer>( &selectorTest, c, key ) ) {
+	      m_provider->msg(MSG::INFO) << "\tCollection " << key << " found"  << endreq;  
+	    }   
+	    else {
+	      m_provider->msg(MSG::WARNING) << "\tNo track collection " << key << " found"  << endreq;  
+	    }
+	  }
+#else
 	  else m_provider->msg(MSG::WARNING) << "No track collection " << key << " found"  << endreq;  
+#endif
 	}
 	else {
 	  /// L2 track EDM
@@ -601,14 +632,15 @@ protected:
       
       
       if(m_provider->msg().level() <= MSG::VERBOSE) {
-	m_provider->msg(MSG::VERBOSE) << "event: " << m_event << endreq;
+	m_provider->msg(MSG::VERBOSE) << "event: " << *m_event << endreq;
       }
       
       for ( unsigned  iroi=0 ; iroi<chain.size() ; iroi++ ){ 
 	
 	selectorRef.clear();      
-	selectorElectrons.clear();      
 	
+	//	std::cout << "RoI " << chain.rois().at(iroi).roi() << std::endl;
+
 	filterRef.setRoi( &chain.rois().at(iroi).roi() );
 	test_tracks.clear();
 	
@@ -693,7 +725,7 @@ protected:
 	  // not found any truth collection                                                                                   
 	  if ( !foundcollection ) {
 	    if(m_provider->msg().level() <= MSG::VERBOSE)
-	      m_provider->msg(MSG::VERBOSE) << "No MC Truth Collections of any sort, whatsoever!!!" << endreq;
+	      m_provider->msg(MSG::WARNING) << "No MC Truth Collections of any sort, whatsoever!!!" << endreq;
 
 	    //    m_tree->Fill();                                                                                       
 	    //    return StatusCode::FAILURE;                                                                           
@@ -783,20 +815,6 @@ protected:
 	    m_provider->msg(MSG::WARNING) << " Offline tracks not found " << endreq;
        	}
 	
-	/// why this nonsense with the egamma slice ??
-	if ( chainname.find("EF_e")!=std::string::npos || 
-	     chainname.find("L2_e")!=std::string::npos || 
-	     chainname.find("HLT_e")!=std::string::npos ) {
-	  
-	  std::string electronContainerName = "ElectronAODCollection";
-	  
-	  //	  unsigned Nel = this->processElectrons( selectorElectrons, electronContainerName );
-	  if ( this->processElectrons( selectorElectrons, electronContainerName ) == 0 ) {
-	    m_provider->msg(MSG::VERBOSE) << "no electrons found" << endreq; 
-	  }
-	  
-	} // do electron selection
-	
 	//      std::cout << "seeking (more?) offline tracks..." << std::endl;
 
 
@@ -817,17 +835,14 @@ protected:
 	  offline_tracks=selectorTruth.tracks();
 	}
 
-	if ( (chainname.find("EF_e")!=std::string::npos || 
-	      chainname.find("L2_e")!=std::string::npos ||
-	      chainname.find("HLT_e")!=std::string::npos ) && m_testType!="" )
-	  offline_tracks = selectorElectrons.tracks();
-	
 	test_tracks.clear();
 
 	for ( unsigned itrk=0 ; itrk<chain.rois().at(iroi).tracks().size() ; itrk++ ) {
 	  test_tracks.push_back(&(chain.rois().at(iroi).tracks().at(itrk)));
 	}
 	
+
+
 		//	std::cout << "offline tracks " << offline_tracks.size()  << std::endl;
 	//	std::cout << "trigger tracks " << test_tracks.size()     << std::endl; 
 	
@@ -838,12 +853,18 @@ protected:
 	/// match test and reference tracks 
 	dRmatcher.match( offline_tracks, test_tracks );
 	
+	//	std::cout << " Chain " << chain << std::endl;
+	//	std::cout << "\nref     tracks " << offline_tracks.size() << std::endl;
+	//	std::cout << "\ntest    tracks " << test_tracks.size() << std::endl;
+	//	std::cout << "\nmatched tracks " << dRmatcher.size() << std::endl;
+
 	m_analysisT0->execute( offline_tracks, test_tracks, &dRmatcher );
 	
       }
     }
+
+    std::cout << "\n\n Event\n" << *m_event << std::endl;
   }
-  
   
   
   
