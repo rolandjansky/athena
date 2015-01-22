@@ -749,7 +749,6 @@ class readHLTconfigFromXML(JobProperty):
         else:
             if TriggerFlags.inputHLTconfigFile != 'NONE':
                 TriggerFlags.inputHLTconfigFile = "HLTconfig_"+TriggerFlags.triggerMenuSetup()+"_" + TriggerFlags.menuVersion() + ".xml"
-
                 nightlyPaths=os.environ['XMLPATH'].split(':')
 
                 for p in nightlyPaths:
@@ -1027,7 +1026,7 @@ class triggerMenuSetup(JobProperty):
         'Physics_HI_v3', 'Physics_HI_v3_no_prescale', # for 2015 lead-lead menu 
         ]
 
-    _default_menu='Physics_pp_v5'
+    _default_menu='MC_pp_v5'
     _default_cosmic_menu='Physics_pp_v4_cosmics_prescale'
     _default_InitialBeam_menu='MC_InitialBeam_v3_no_prescale'
     
@@ -1050,7 +1049,7 @@ class triggerMenuSetup(JobProperty):
         # filenames for LVL1 and HLT
         if TriggerFlags.readLVL1configFromXML() is True:
             TriggerFlags.inputLVL1configFile = "LVL1config_"+self.get_Value()+"_" + TriggerFlags.menuVersion() + ".xml"
-        if TriggerFlags.readHLTconfigFromXML() is True:
+        if TriggerFlags.readHLTconfigFromXML() is True and (TriggerFlags.inputHLTconfigFile=="" or TriggerFlags.inputHLTconfigFile==None):
             TriggerFlags.inputHLTconfigFile = "HLTconfig_"+self.get_Value()+"_" + TriggerFlags.menuVersion() + ".xml"
 
 _flags.append(triggerMenuSetup)
