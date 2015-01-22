@@ -903,17 +903,24 @@ namespace InDet{
 //
 //  Check interactions on pixel layers
 //
-	     double xvt=FitVertex.x(); double yvt=FitVertex.y();
+	     float xvt=FitVertex.x(); float yvt=FitVertex.y();
              if(m_FillHist){m_hb_r2d->Fill( Dist2D, w_1); }
              if(m_useMaterialRejection){
-               Dist2D=sqrt( (xvt-m_Xbeampipe)*(xvt-m_Xbeampipe) + (yvt-m_Ybeampipe)*(yvt-m_Ybeampipe) ); 
-               if( fabs(Dist2D-m_Rbeampipe)< 1.5) BadTracks = 4;           // Beam Pipe removal  
-               Dist2D=sqrt( (xvt-m_XlayerB)*(xvt-m_XlayerB) + (yvt-m_YlayerB)*(yvt-m_YlayerB) ); 
-               if( fabs(Dist2D-m_RlayerB) < 3.5)  BadTracks = 4;
-               Dist2D=sqrt( (xvt-m_Xlayer1)*(xvt-m_Xlayer1) + (yvt-m_Ylayer1)*(yvt-m_Ylayer1) );
-               if( fabs(Dist2D-m_Rlayer1) < 4.0)  BadTracks = 4;
-               Dist2D=sqrt( (xvt-m_Xlayer2)*(xvt-m_Xlayer2) + (yvt-m_Ylayer2)*(yvt-m_Ylayer2) );
-               if( fabs(Dist2D-m_Rlayer2) < 5.0)  BadTracks = 4;
+               float Dist2DBP=sqrt( (xvt-m_Xbeampipe)*(xvt-m_Xbeampipe) + (yvt-m_Ybeampipe)*(yvt-m_Ybeampipe) ); 
+               float Dist2DBL=sqrt( (xvt-m_XlayerB)*(xvt-m_XlayerB) + (yvt-m_YlayerB)*(yvt-m_YlayerB) ); 
+               float Dist2DL1=sqrt( (xvt-m_Xlayer1)*(xvt-m_Xlayer1) + (yvt-m_Ylayer1)*(yvt-m_Ylayer1) );
+               float Dist2DL2=sqrt( (xvt-m_Xlayer2)*(xvt-m_Xlayer2) + (yvt-m_Ylayer2)*(yvt-m_Ylayer2) );
+               if(m_existIBL){              // 4-layer pixel detector
+                 if( fabs(Dist2DBP-m_Rbeampipe)< 1.0)  BadTracks = 4;           // Beam Pipe removal  
+                 if( fabs(Dist2DBL-m_RlayerB)  < 2.5)  BadTracks = 4;
+                 if( fabs(Dist2DL1-m_Rlayer1)  < 3.0)  BadTracks = 4;
+                 if( fabs(Dist2DL2-m_Rlayer2)  < 3.0)  BadTracks = 4;
+               }else{                       // 3-layer pixel detector
+                 if( fabs(Dist2DBP-m_Rbeampipe)< 1.5)  BadTracks = 4;           // Beam Pipe removal  
+                 if( fabs(Dist2DBL-m_RlayerB)  < 3.5)  BadTracks = 4;
+                 if( fabs(Dist2DL1-m_Rlayer1)  < 4.0)  BadTracks = 4;
+                 if( fabs(Dist2DL2-m_Rlayer2)  < 5.0)  BadTracks = 4;
+               }
              }
 //
 //  Creation of tracks from V0 list
@@ -986,13 +993,17 @@ namespace InDet{
 	int nLays[2]={0,0}; 
         getPixelLayers( p1, blTrk[0] , l1Trk[0], l2Trk[0], nLays[0] );
         getPixelLayers( p2, blTrk[1] , l1Trk[1], l2Trk[1], nLays[1] );    // Very close to PV. Both b-layer hits are mandatory.
-        if( Signif3D<15. && !(blTrk[0]*blTrk[1]) ) return false;
+        if( Signif3D<15. ){
+	   if( !((blTrk[0]+l1Trk[0])*(blTrk[1]+l1Trk[1])) ) return false;
+	   if( (blTrk[0]+blTrk[1]) == 0 )                   return false;
+        }
         double xDif=FitVertex.x()-m_XlayerB, yDif=FitVertex.y()-m_YlayerB ; 
         double Dist2DBL=sqrt(xDif*xDif+yDif*yDif);
         if      (Dist2DBL < m_RlayerB-m_SVResolutionR){       //----------------------------------------- Inside B-layer
           if( (blTrk[0]+blTrk[1])==0 )   return false;  // No b-layer hits at all
           if(  nLays[0]           <2 )   return false;  // Less than 2 layers on track 0
           if(  nLays[1]           <2 )   return false;  // Less than 2 layers on track 1
+	  return true;
         }else if(Dist2DBL > m_RlayerB+m_SVResolutionR){      //----------------------------------------- Outside b-layer
           if(  blTrk[0]+blTrk[1]>0 )              return false;  // Hit in b-layer is present
         }
@@ -1011,9 +1022,9 @@ namespace InDet{
           }else if(Dist2DL1 > m_Rlayer1+m_SVResolutionR) {  //------------------------------------------- Outside 1st-layer
 	     if( (l1Trk[0]+l1Trk[1])>0 )          return false;  //  L1 hits are present
           }
-          //
+          
           if      (Dist2DL2 < m_Rlayer2-m_SVResolutionR) {  //------------------------------------------- Inside 2nd-layer
-	     if( (l2Trk[0]*l2Trk[1])==0 )  return false;           // Both L2 hits must be present
+	     if( (l2Trk[0]+l2Trk[1])==0 )  return false;           // At least one L2 hit must be present
           }else if(Dist2DL2 > m_Rlayer2+m_SVResolutionR) {  
 	     if( (l2Trk[0]+l2Trk[1])>0  )  return false;           // L2 hits are present
 	  }           
