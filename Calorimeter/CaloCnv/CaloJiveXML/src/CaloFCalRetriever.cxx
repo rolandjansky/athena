@@ -207,9 +207,15 @@ namespace JiveXML {
 	    else pedvalue = 0;
 	    cellPedestal.push_back(DataType(pedvalue));
 	         
-	    const std::vector<float>* polynom_adc2mev = &(m_adc2mevTool->ADC2MEV(cellid,fcalgain));
-	    if (polynom_adc2mev->size()==0){ adc2Mev.push_back(DataType(-1)); }
-	    else{ adc2Mev.push_back(DataType((*polynom_adc2mev)[1])); }
+            if ( m_adc2mevTool ){
+	       const std::vector<float>* polynom_adc2mev = &(m_adc2mevTool->ADC2MEV(cellid,fcalgain));
+	       if (polynom_adc2mev->size()==0){ adc2Mev.push_back(DataType(-1)); }
+ 	       else{ adc2Mev.push_back(DataType((*polynom_adc2mev)[1])); }
+            }else{
+               adc2Mev.push_back(DataType(-1)); // write placeholder
+	       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) 
+ 		<< "LArADC2MeVTool dynamic cast failed" << endreq;
+	    }
 	  }
 
 	  const CaloDetDescrElement* elt = (*it1)->caloDDE();
