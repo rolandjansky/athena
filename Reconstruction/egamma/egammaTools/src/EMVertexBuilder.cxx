@@ -193,39 +193,3 @@ StatusCode EMVertexBuilder::contExecute()
   
   return StatusCode::SUCCESS;
 }
-// ============================================================
-void EMVertexBuilder::addSingleTrackVertices(const xAOD::TrackParticleContainer* tracks,
-                                             xAOD::VertexContainer* vertices) const
-{
-  if (!tracks || !vertices) return;
-
-  // Create a set of tracks that do belong to vertices
-  std::set<const xAOD::TrackParticle*> tracksInVertices;
-  xAOD::VertexContainer::const_iterator itVtx = vertices->begin();
-  for ( ; itVtx != vertices->end(); ++itVtx)
-    for (const auto& trackElement : (*itVtx)->trackParticleLinks() )
-      tracksInVertices.insert( trackElement.cachedElement() );
-  
-  ATH_MSG_DEBUG("Size of set with tracks: " << tracksInVertices.size());
-    
-  // Loop over tracks and create vertices for those that are not in the set
-  xAOD::TrackParticleContainer::const_iterator itTP = tracks->begin();
-  for ( ; itTP != tracks->end(); ++itTP)
-  {
-    if ( tracksInVertices.find(*itTP) != tracksInVertices.end() ) continue;
-
-    int nclus(0);
-    uint8_t dummy(0); 
-    
-    if( (*itTP)->summaryValue(dummy,xAOD::numberOfPixelHits) )
-      nclus += dummy;
-    if( (*itTP)->summaryValue(dummy,xAOD::numberOfSCTHits) )
-      nclus += dummy;
-    
-    if(nclus<4 && (*itTP)->pt() < m_minPtCut_SingleTrack )      continue;
-
-    m_singleTrkConvTool->buildSingleTrackParticleConversion(*itTP, vertices);
-  }
-
-}
-

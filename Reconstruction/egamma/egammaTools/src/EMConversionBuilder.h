@@ -62,6 +62,9 @@ private:
   /** @brief Return true if vertex and cluster pass Pt and E/p cuts **/
   bool passPtAndEoverP(const xAOD::Vertex&, const xAOD::CaloCluster&) const;
   
+  /** @brief Return the maximum fraction of TRT tube hits among the tracks **/
+  float getMaxTRTTubeHitFraction(const xAOD::Vertex& vertex) const;
+  
   // configuration:
   /** @brief Name of conversion container*/
   std::string		m_conversionContainerName; 
@@ -93,9 +96,8 @@ private:
  float m_maxEoverP_singleTrack;
  /** @brief Scale maxEoverP_singleTrack by 1+sf*Et(cluster)/GeV  **/
  float m_maxEoverP_singleTrack_EtSf;
- /** @brief Preference to vertices with more Si tracks when chosing a conversion vertex */
- int m_preferSi;
- 
+ /** @brief "Maximum fraction of tube hits for vertices with TRT tracks  **/ 
+ float m_maxTRTTubeHitFraction; 
 
 };
 

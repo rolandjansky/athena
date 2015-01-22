@@ -16,7 +16,7 @@ def configureClusterCorrections(swTool):
   
   clusterTypes = dict(
     Ele35='ele35', Ele55='ele55', Ele37='ele37',
-    Gam35='gam35_unconv', Gam55='gam55_unconv',
+    Gam35='gam35_unconv', Gam55='gam55_unconv',Gam37='gam37_unconv',
     Econv35='gam35_conv', Econv55='gam55_conv', Econv37='gam37_conv'
   )
 

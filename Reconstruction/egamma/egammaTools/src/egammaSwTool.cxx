@@ -41,6 +41,7 @@ egammaSwTool::egammaSwTool(const std::string& type,
 
   declareProperty("ClusterCorrectionToolsGam35",m_clusterCorrectionNamesGam35);
   declareProperty("ClusterCorrectionToolsGam55",m_clusterCorrectionNamesGam55);
+  declareProperty("ClusterCorrectionToolsGam37",m_clusterCorrectionNamesGam37);
 
   declareProperty("ClusterCorrectionToolsEconv55",m_clusterCorrectionNamesEconv55);
   declareProperty("ClusterCorrectionToolsEconv35",m_clusterCorrectionNamesEconv35);
@@ -191,6 +192,30 @@ StatusCode egammaSwTool::initialize()
       } 
     }
 
+    firstTool=m_clusterCorrectionNamesGam37.begin();
+    lastTool =m_clusterCorrectionNamesGam37.end();
+    
+    for ( ; firstTool != lastTool; firstTool++ ) {
+      IAlgTool* algToolPtr;
+      ListItem  clusAlgoTool(*firstTool);
+      StatusCode sCode = p_toolSvc->retrieveTool(clusAlgoTool.type(),
+						 clusAlgoTool.name(),
+						 algToolPtr,
+						 this);
+      if ( sCode.isFailure() ) {
+	ATH_MSG_ERROR("Cannot find tool for " << *firstTool);
+      }
+      else {
+	ATH_MSG_DEBUG("Found tool for " << *firstTool);
+	// check for tool type
+	CaloClusterProcessor* 
+	  theTool = dynamic_cast<CaloClusterProcessor*>(algToolPtr);
+	if ( theTool != 0 ) { 
+	  m_clusterCorrectionPointersGam37.push_back(theTool); 
+	}
+      } 
+    }
+
     firstTool=m_clusterCorrectionNamesEconv55.begin();
     lastTool =m_clusterCorrectionNamesEconv55.end();
     
@@ -308,6 +333,10 @@ StatusCode egammaSwTool::execute(xAOD::CaloCluster *cluster)
   case xAOD::CaloCluster::SW_55gam:
     firstTool = m_clusterCorrectionPointersGam55.begin();
     lastTool  = m_clusterCorrectionPointersGam55.end();
+    break;
+  case xAOD::CaloCluster::SW_37gam:
+    firstTool = m_clusterCorrectionPointersGam37.begin();
+    lastTool  = m_clusterCorrectionPointersGam37.end();
     break;
   case xAOD::CaloCluster::SW_55Econv:
     firstTool = m_clusterCorrectionPointersEconv55.begin();

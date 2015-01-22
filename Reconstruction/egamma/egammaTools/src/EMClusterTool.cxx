@@ -202,7 +202,7 @@ xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluste
     cluSize= (isBarrel ? xAOD::CaloCluster::SW_37Econv : xAOD::CaloCluster::SW_55Econv);
   }
   else  {//(egType == xAOD::EgammaParameters::unconvertedPhoton)
-    cluSize = (isBarrel ? xAOD::CaloCluster::SW_35gam : xAOD::CaloCluster::SW_55gam);
+    cluSize = (isBarrel ? xAOD::CaloCluster::SW_37gam : xAOD::CaloCluster::SW_55gam);
   }
 
   xAOD::CaloCluster* newClus = CaloClusterStoreHelper::makeCluster(cluster.getCellLinks()->getCellContainer(),
