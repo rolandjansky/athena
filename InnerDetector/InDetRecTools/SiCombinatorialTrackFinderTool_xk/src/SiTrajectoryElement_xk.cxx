@@ -30,6 +30,7 @@ bool InDet::SiTrajectoryElement_xk::set
   m_fieldMode    = false; if(m_tools->fieldTool().magneticFieldMode()!=0) m_fieldMode = true;
   m_status       = 0                       ;
   m_detstatus    = st                      ;
+  m_ndist        = 0                       ;
   m_nlinksF      = 0                       ;
   m_nlinksB      = 0                       ;
   m_nholesF      = 0                       ;
@@ -137,11 +138,13 @@ bool InDet::SiTrajectoryElement_xk::firstTrajectorElement
 
   noiseProduction(1,m_parametersUF);
 
+  m_dist         = -10. ;
   m_step         =  0.  ;
   m_xi2F         =  0.  ;
   m_xi2totalF    =  0.  ;
   m_status       =  1   ;
   m_inside       = -1   ;
+  m_ndist        =  0   ;
   m_nlinksF      =  0   ;
   m_nholesF      =  0   ;
   m_dholesF      =  0   ;
@@ -165,10 +168,12 @@ bool InDet::SiTrajectoryElement_xk::firstTrajectorElement()
   if(!initiateState(m_parametersPF,m_parametersUF)) return false;
   noiseProduction(1,m_parametersUF);
 
+  m_dist         = -10. ;
   m_xi2F         =  0.  ;
   m_xi2totalF    =  0.  ;
   m_status       =  1   ;
   m_inside       = -1   ;
+  m_ndist        =  0   ;
   m_nlinksF      =  0   ;
   m_nholesF      =  0   ;
   m_dholesF      =  0   ;
@@ -194,6 +199,7 @@ bool InDet::SiTrajectoryElement_xk::lastTrajectorElement()
 
   m_status       =      3 ;
   m_inside       =     -1 ;
+  m_ndist        =      0 ;
   m_nlinksB      =      0 ;
   m_nholesB      =      0 ;
   m_dholesB      =      0 ;
@@ -202,6 +208,7 @@ bool InDet::SiTrajectoryElement_xk::lastTrajectorElement()
   m_ndfB         =  m_ndf ;
   m_xi2B         =  m_xi2F;
   m_xi2totalB    =  m_xi2F;
+  m_dist         =    -10.;
   return true;
 }
 
@@ -232,6 +239,7 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithoutSearch
 
   m_nclustersF = TE.m_nclustersF;
   m_nholesF    = TE.m_nholesF   ; 
+  m_ndist      = TE.m_ndist     ;
   m_ndfF       = TE.m_ndfF      ;
   m_xi2totalF  = TE.m_xi2totalF ;
   m_step      += TE.m_step      ;  
@@ -245,9 +253,12 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithoutSearch
   }
   else           {
 
-    m_inside = m_detlink->intersect(m_parametersPF);
-    if(m_inside == 2) return false;
-    if(m_inside < 0 && m_detstatus >=0) {++m_nholesF; ++m_dholesF;}
+    m_inside = m_detlink->intersect(m_parametersPF,m_dist);
+
+    if( m_detstatus >=0) {
+      if(m_inside <  0 ) {++m_nholesF; ++m_dholesF;}
+      if(m_dist   < -2.) ++m_ndist;
+    }
   }
 
   // Noise production
@@ -297,9 +308,9 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithSearch
   m_cluster      =         0                           ;
   m_clusterNoAdd =         0                           ;  
   m_xi2F         =    10000.                           ;
-  m_inside       = m_detlink->intersect(m_parametersPF);
-  if(m_inside == 2) return false;
+  m_inside       = m_detlink->intersect(m_parametersPF,m_dist);
   m_nholesF      = TE.m_nholesF                        ;
+  m_ndist        = TE.m_ndist                          ;
   m_nclustersF   = TE.m_nclustersF                     ; 
   m_ndfF         = TE.m_ndfF                           ;
   m_xi2totalF    = TE.m_xi2totalF                      ;
@@ -327,8 +338,11 @@ bool InDet::SiTrajectoryElement_xk::ForwardPropagationWithSearch
   else {
     noiseProduction(1,m_parametersPF);
   }
-
-  if(m_inside < 0 && m_detstatus >=0 && !m_cluster && !m_clusterNoAdd) {++m_nholesF; ++m_dholesF;}
+  
+  if(m_detstatus >=0 && !m_cluster) {
+    if(m_inside < 0 && !m_clusterNoAdd) {++m_nholesF; ++m_dholesF;} 
+    if(m_dist < -2. ) ++m_ndist;
+  }
   return true;
 }
 
@@ -404,7 +418,7 @@ void InDet::SiTrajectoryElement_xk::CloseClusterSeach
     m_stereo = true : m_stereo = false;
   if(m_detstatus && m_ndf == 1) m_halflenght = (*sb)->width().z()*.5;
 
-  if(m_detlink->intersect(Tpa) > 0 || !searchClusters(Tpa,m_linkF)) return;
+  if(m_detlink->intersect(Tpa,m_dist) > 0 || !searchClusters(Tpa,m_linkF)) return;
   m_cluster = m_linkF[0].cluster();
   m_xi2F    = m_linkF[0].xi2    ();
 }
@@ -454,9 +468,9 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationFilter
   m_cluster      =         0;
   m_clusterNoAdd =         0;
   m_xi2B         =    10000.;
-  m_inside       = m_detlink->intersect(m_parametersPB);
-  if(m_inside == 2) return false;
+  m_inside       = m_detlink->intersect(m_parametersPB,m_dist);
   m_nholesB      = TE.m_nholesB                        ;
+  m_ndist        = TE.m_ndist                          ;
   m_nclustersB   = TE.m_nclustersB                     ; 
   m_ndfB         = TE.m_ndfB                           ;
   m_xi2totalB    = TE.m_xi2totalB                      ;
@@ -485,7 +499,10 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationFilter
     noiseProduction(-1,m_parametersPB);
   }
 
-  if(m_inside < 0 && m_detstatus >=0 && !m_cluster && !m_clusterNoAdd) {++m_nholesB; ++m_dholesB;}
+  if(m_detstatus >=0 && !m_cluster){
+    if(m_inside < 0 && !m_clusterNoAdd) {++m_nholesB; ++m_dholesB;}
+    if(m_dist < -2.) ++m_ndist;
+  }
   return true;
 }
 
@@ -520,14 +537,14 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationSmoother
   m_cluster ? m_status = 3 : m_status = 2;
 
   double Xi2max = m_xi2max; if( isTwoSpacePointsSeed) Xi2max*=2.;
-  m_inside       = m_detlink->intersect(m_parametersSM);
-  if(m_inside == 2) return false;
+  m_inside       = m_detlink->intersect(m_parametersSM,m_dist);
   m_nlinksB      =         0               ;
   m_clusterOld   = m_cluster               ;
   m_cluster      =         0               ;
   m_clusterNoAdd =         0               ;
   m_xi2B         =    10000.               ;
   m_nholesB      = TE.m_nholesB            ;
+  m_ndist        = TE.m_ndist              ;
   m_nclustersB   = TE.m_nclustersB         ; 
   m_ndfB         = TE.m_ndfB               ; 
   m_xi2totalB    = TE.m_xi2totalB          ;
@@ -556,7 +573,10 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationSmoother
 	m_clusterNoAdd = m_linkB[0].cluster();
       }
     }
-    if(m_inside < 0 && m_detstatus >=0 && !m_cluster && !m_clusterNoAdd) {++m_nholesB; ++m_dholesB;}
+    if(m_detstatus >=0 && !m_cluster) {
+      if(m_inside < 0 && !m_clusterNoAdd) {++m_nholesB; ++m_dholesB;}
+      if(m_dist < -2.) ++m_ndist;
+    } 
     return true;
   }
 
@@ -567,8 +587,13 @@ bool InDet::SiTrajectoryElement_xk::BackwardPropagationSmoother
 
   if     (m_xi2B <= Xi2max       ) {++m_nclustersB; m_xi2totalB+=m_xi2B; m_ndfB+=m_ndf;}
   else if(m_xi2B <= m_xi2maxNoAdd) {m_cluster      = 0; m_clusterNoAdd = m_clusterOld; }
-  else                                      {m_cluster      = 0;                                }
-  if(m_inside < 0 && !m_cluster && !m_clusterNoAdd) {++m_nholesB; ++m_dholesB;}
+  else                                      {m_cluster      = 0;                       }
+
+  if(!m_cluster) {
+    if(m_inside < 0 && !m_clusterNoAdd) {++m_nholesB; ++m_dholesB;}
+    if(m_dist < -2.) ++m_ndist;
+
+  }
   return true;
 }
 
@@ -596,6 +621,7 @@ bool InDet::SiTrajectoryElement_xk::addNextClusterB()
     m_nlinksB = 0;
     m_cluster = 0; --m_nclustersB; m_ndfB-=m_ndf;
     if(m_inside < 0 ) {++m_nholesB; ++m_dholesB;} m_xi2B = 0.;
+    if(m_dist   < -2.) ++m_ndist;
   }
   return true;
 } 
@@ -624,6 +650,7 @@ bool InDet::SiTrajectoryElement_xk::addNextClusterF()
     m_nlinksF = 0;
     m_cluster = 0; --m_nclustersF; m_ndfF-=m_ndf;
     if(m_inside < 0) {++m_nholesF; ++m_dholesF;} m_xi2F = 0.;
+    if(m_dist   < -2.) ++m_ndist;
   }
   return true;
 } 
@@ -641,6 +668,7 @@ bool InDet::SiTrajectoryElement_xk::addNextClusterB
   m_nclustersB = TE.m_nclustersB;
   m_ndfB       = TE.m_ndfB      ;
   m_nholesB    = TE.m_nholesB   ;
+  m_ndist      = TE.m_ndist     ;
   m_xi2totalB  = TE.m_xi2totalB ; 
 
   TE.m_cluster ? m_dholesB = 0 : m_dholesB = TE.m_dholesB;
@@ -654,6 +682,7 @@ bool InDet::SiTrajectoryElement_xk::addNextClusterB
   else  {
 
     if(m_inside < 0) {++m_nholesB; ++m_dholesB;} m_xi2B = 0.;
+    if(m_dist < -2.) ++m_ndist;
   }
   return true;
 } 
@@ -671,6 +700,7 @@ bool InDet::SiTrajectoryElement_xk::addNextClusterF
   m_nclustersF = TE.m_nclustersF;
   m_ndfF       = TE.m_ndfF      ;
   m_nholesF    = TE.m_nholesF   ;
+  m_ndist      = TE.m_ndist     ;
   m_xi2totalF  = TE.m_xi2totalF ; 
 
   TE.m_cluster ? m_dholesF = 0 : m_dholesF = TE.m_dholesF;
@@ -684,6 +714,7 @@ bool InDet::SiTrajectoryElement_xk::addNextClusterF
   else  {
 
     if(m_inside < 0) {++m_nholesF; ++m_dholesF;} m_xi2F = 0.;
+    if(m_dist < -2.) ++m_ndist;
   }
   return true;
 } 
@@ -1532,8 +1563,12 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
   double  Pi   =  149.89626*P[6];            // Invert mometum/2. 
 
   double  a    = A[0]*m_Tr[6]+A[1]*m_Tr[7]+A[2]*m_Tr[8]                 ; if(a==0.) return false; 
-  double  S    = ((m_Tr[12]-R[0]*m_Tr[6])-(R[1]*m_Tr[7]+R[2]*m_Tr[8]))/a; if(fabs(S) <= Smin) return true;
+  double  S    = ((m_Tr[12]-R[0]*m_Tr[6])-(R[1]*m_Tr[7]+R[2]*m_Tr[8]))/a; 
   double  S0   = fabs(S)                                                ;
+
+  if(S0 <= Smin) {
+    R[0]+=(A[0]*S); R[1]+=(A[1]*S); R[2]+=(A[2]*S); P[45]+=S; return true;
+  }
   bool   ste   = false; 
 
   double f0[3],f[3]; m_fieldService->getFieldZR(R,f0); 
@@ -1668,8 +1703,8 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
     double aSn = fabs(Sn);
 
     if(aSn <= Smin) {
-      double Sl = 2./S; 
-      sA[0] = A6*Sl; sA[1] = B6*Sl; sA[2] = C6*Sl; return true;
+      double Sl = 2./S; sA[0] = A6*Sl; sA[1] = B6*Sl; sA[2] = C6*Sl;
+      R[0]+=(A[0]*Sn); R[1]+=(A[1]*Sn); R[2]+=(A[2]*Sn); P[45]+=Sn; return true;  
     }
     if     (aSn  < fabs(S))  S=Sn;
     else if(S*Sn < 0.     ) {if(++it > 2) return false; S=Sn;}
