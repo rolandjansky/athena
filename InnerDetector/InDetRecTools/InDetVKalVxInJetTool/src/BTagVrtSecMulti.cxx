@@ -262,7 +262,7 @@ namespace InDet{
      if     (xAODwrk)xAODwrk->tmpListTracks.clear(); else if(RECwork)RECwork->tmpListTracks.clear();
      newvrt.SelTrk.clear();
      nth=m_WorkArray->m_Prmtrack.size();
-     int PrmVrtAdded=0;
+//     int PrmVrtAdded=-1;
 //     if( nth>1 && WrkVrtSet->size()>0 ){
 //          for(i=0;i<nth;i++) { 
 //             newvrt.SelTrk.push_back( m_WorkArray->m_Prmtrack[i] );
@@ -434,7 +434,7 @@ namespace InDet{
           Dist2D= (*WrkVrtSet)[iv].vertex.perp();
           Dist3D=((*WrkVrtSet)[iv].vertex-PrimVrt.position()).mag();
 //----
-          if(PrmVrtAdded && iv==PrmVrtAdded && Dist3D<3.5) continue;  /* Skip added primary vertex */
+//        if(PrmVrtAdded && iv==PrmVrtAdded && Dist3D<3.5) continue;  /* Skip added primary vertex */
 //----
           if(nth==2 && m_useVertexCleaning){
             if(RECwork){

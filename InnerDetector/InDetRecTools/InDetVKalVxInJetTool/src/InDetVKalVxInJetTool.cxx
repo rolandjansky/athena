@@ -226,15 +226,15 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 
 //------------------------------------------
 // Chose whether IBL is installed
-     if(m_existIBL){ // 3-layer pixel detector
-       if( m_Rbeampipe==0.)  m_Rbeampipe=25.4;    
-       if( m_RlayerB  ==0.)  m_RlayerB  =34.0;
-       if( m_Rlayer1  ==0.)  m_Rlayer1  =50.5;
-       if( m_Rlayer2  ==0.)  m_Rlayer2  =88.0;
+     if(m_existIBL){ // 4-layer pixel detector
+       if( m_Rbeampipe==0.)  m_Rbeampipe=24.0;    
+       if( m_RlayerB  ==0.)  m_RlayerB  =35.0;
+       if( m_Rlayer1  ==0.)  m_Rlayer1  =51.6;
+       if( m_Rlayer2  ==0.)  m_Rlayer2  =90.0;
      } else {   // 3-layer pixel detector
        if( m_Rbeampipe==0.)  m_Rbeampipe=29.4;    
-       if( m_RlayerB  ==0.)  m_RlayerB  =50.5;
-       if( m_Rlayer1  ==0.)  m_Rlayer1  =88.0;
+       if( m_RlayerB  ==0.)  m_RlayerB  =51.5;
+       if( m_Rlayer1  ==0.)  m_Rlayer1  =90.0;
        if( m_Rlayer2  ==0.)  m_Rlayer2  =123.0;
      }       
        
