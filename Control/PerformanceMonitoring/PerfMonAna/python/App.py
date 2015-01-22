@@ -170,7 +170,14 @@ class AppMgr(object):
             # get the last x percent of the total range,
             _ratio = (1.- float(fitSlice))*nbins
             # convert into a suitable python slice object
-            self._fitSlice = "%i:" % int( _ratio )
+            # To avoid jump in memory due to root flushing
+            if nbins <= 95:
+                self._fitSlice = "%i:" % int( _ratio )
+            elif nbins > 95 and nbins < 115 :
+                self._fitSlice = "%i:" % int( _ratio )
+                self._fitSlice += "95"
+            elif nbins > 120 :
+                self._fitSlice = "105:"
         else: self._fitSlice = fitSlice
         self.msg.info( "fit slice: [%s]", self._fitSlice )
         self.analyzers = analyzers
