@@ -91,7 +91,7 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 
          ATH_MSG_DEBUG("Muon ROI: thrvalue = " << roi.getThresholdValue() << " eta = " << roi.eta() << " phi = " << roi.phi() << ", w   = " << MSG::hex << std::setw( 8 ) << roi.roiWord() << MSG::dec);
          
-         TCS::MuonTOB muon( roi.getThresholdValue(), 0, int(10*roi.eta()), int(10*roi.phi()) );
+         TCS::MuonTOB muon( roi.getThresholdValue(), 0, int(10*roi.eta()), int(10*roi.phi()), roi.roiWord() );
          muon.setEtaDouble( roi.eta() );
          muon.setPhiDouble( roi.phi() );
          inputEvent.addMuon( muon );
