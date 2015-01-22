@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IParticleLink_v1.h 615672 2014-09-08 20:16:15Z kkoeneke $
+// $Id: IParticleLink_v1.h 637086 2014-12-19 16:02:19Z kkoeneke $
 #ifndef XAODPARTICLEEVENT_VERSIONS_IPARTICLELINK_V1_H
 #define XAODPARTICLEEVENT_VERSIONS_IPARTICLELINK_V1_H
 
@@ -20,9 +20,5 @@ namespace xAOD {
   typedef ElementLink< xAOD::IParticleContainer > IParticleLink_v1;
 
 } // namespace xAOD
-
-// // Set up a CLID for the object:
-// #include "xAODCore/CLASS_DEF.h"
-// CLASS_DEF( xAOD::IParticleLink_v1, 108878087, 1 )
 
 #endif // XAODPARTICLEEVENT_VERSIONS_IPARTICLELINK_V1_H

@@ -2,10 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CompositeParticle_v1.cxx 618587 2014-09-25 17:27:28Z kkoeneke $
+// $Id: CompositeParticle_v1.cxx 641075 2015-01-22 16:12:10Z kkoeneke $
+
+// standard includes
+#include <math.h>       /* remainder and M_PI */
 
 // EDM include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
+#include "xAODBase/IParticle.h"
 #include "xAODMissingET/MissingET.h"
 #include "xAODMissingET/MissingETContainer.h"
 
@@ -156,6 +160,328 @@ namespace xAOD {
 
   // End: Functions implementing other particly-type properties
   /////////////////////////////////////////////////////////////////////////////
+
+
+
+  /////////////////////////////////////////////////////////////////////////////
+  //
+  //     Functions returning variables that are calculated from 4-momentum
+  //     information from constituents.
+  //
+
+  // Get the delta-phi between two constituents (missingET is at index=-1)
+  double CompositeParticle_v1::deltaPhi( int constitAIdx, int constitBIdx ) const
+  {
+    // Defaul values
+    double phiA(0.0);
+    double phiB(0.0);
+
+    // Get the constituent number A
+    if ( constitAIdx >= 0 ) {
+      const xAOD::IParticle* part = this->constituent(constitAIdx);
+      if ( !part ) {
+        // This should not be... throw an error.
+        throw std::runtime_error("Got a zero pointer to an xAOD::IParticle when calling deltaPhi for constituent number A");
+        return 0.0;
+      }
+      phiA = part->phi();
+    }
+    else if ( constitAIdx == -1 ) { // Now, we need to check for missingET
+      const xAOD::MissingET* met = this->missingET();
+      if ( !met ) {
+        // This should not be... throw an error.
+        throw std::runtime_error("Got a zero pointer to an xAOD::MissingET when calling deltaPhi for constituent number A");
+        return 0.0;
+      }
+      phiA = met->phi();
+    }
+    else {
+      // This should not be... throw an error.
+      throw std::runtime_error("Got a non-valid first index when calling deltaPhi");
+      return 0.0;
+    }
+
+    // Get the constituent number B
+    if ( constitBIdx >= 0 ) {
+      const xAOD::IParticle* part = this->constituent(constitBIdx);
+      if ( !part ) {
+        // This should not be... throw an error.
+        throw std::runtime_error("Got a zero pointer to an xAOD::IParticle when calling deltaPhi for constituent number B");
+        return 0.0;
+      }
+      phiB = part->phi();
+    }
+    else if ( constitBIdx == -1 ) { // Now, we need to check for missingET
+      const xAOD::MissingET* met = this->missingET();
+      if ( !met ) {
+        // This should not be... throw an error.
+        throw std::runtime_error("Got a zero pointer to an xAOD::MissingET when calling deltaPhi for constituent number B");
+        return 0.0;
+      }
+      phiB = met->phi();
+    }
+    else {
+      // This should not be... throw an error.
+      throw std::runtime_error("Got a non-valid second index when calling deltaPhi");
+      return 0.0;
+    }
+
+    return -remainder( -phiA + phiB, 2*M_PI );
+  }
+
+
+  // Get the delta-eta between two constituents
+  double CompositeParticle_v1::deltaEta( int constitAIdx, int constitBIdx ) const
+  {
+    // Check that we got valid indices
+    if ( constitAIdx <= 0 || constitBIdx <=0 ) {
+      // This should not be... throw an error.
+      throw std::runtime_error("Got a negative index... this should not happen");
+      return 0.0;
+    }
+
+    // Defaul values
+    double etaA(0.0);
+    double etaB(0.0);
+
+    // Get the constituent number A
+    const xAOD::IParticle* partA = this->constituent(constitAIdx);
+    if ( !partA ) {
+      // This should not be... throw an error.
+      throw std::runtime_error("Got a zero pointer to an xAOD::IParticle when calling deltaEta for constituent number A");
+      return 0.0;
+    }
+    etaA = partA->eta();
+
+    // Get the constituent number B
+    const xAOD::IParticle* partB = this->constituent(constitBIdx);
+    if ( !partB ) {
+      // This should not be... throw an error.
+      throw std::runtime_error("Got a zero pointer to an xAOD::IParticle when calling deltaEta for constituent number B");
+      return 0.0;
+    }
+    etaB = partB->eta();
+
+    return etaA - etaB;
+  }
+
+
+
+  // Get the delta-rapidity between two constituents
+  double CompositeParticle_v1::deltaRapidity( int constitAIdx, int constitBIdx ) const
+  {
+    // Check that we got valid indices
+    if ( constitAIdx <= 0 || constitBIdx <=0 ) {
+      // This should not be... throw an error.
+      throw std::runtime_error("Got a negative index... this should not happen");
+      return 0.0;
+    }
+
+    // Defaul values
+    double yA(0.0);
+    double yB(0.0);
+
+    // Get the constituent number A
+    const xAOD::IParticle* partA = this->constituent(constitAIdx);
+    if ( !partA ) {
+      // This should not be... throw an error.
+      throw std::runtime_error("Got a zero pointer to an xAOD::IParticle when calling deltaEta for constituent number A");
+      return 0.0;
+    }
+    yA = partA->rapidity();
+
+    // Get the constituent number B
+    const xAOD::IParticle* partB = this->constituent(constitBIdx);
+    if ( !partB ) {
+      // This should not be... throw an error.
+      throw std::runtime_error("Got a zero pointer to an xAOD::IParticle when calling deltaEta for constituent number B");
+      return 0.0;
+    }
+    yB = partB->rapidity();
+
+    return yA - yB;
+  }
+
+
+
+  // Get the deltaR-squared between two constituents
+  // Is useRapidity=true, then the true rapidity will be used. Otherwise,
+  // the pseudorapidity eta will be used.
+  double CompositeParticle_v1::deltaR2( int constitAIdx, int constitBIdx, bool useRapidity ) const
+  {
+    // Check that we got valid indices
+    if ( constitAIdx <= 0 || constitBIdx <=0 ) {
+      // This should not be... throw an error.
+      throw std::runtime_error("Got a negative index... this should not happen");
+      return 0.0;
+    }
+
+    // Defaul values
+    double deltaPhi(0.0);
+    double deltaRap(0.0);
+
+    // Get deltaPhi
+    deltaPhi = this->deltaPhi( constitAIdx, constitBIdx );
+
+    // Get the other part (either deltaEta or deltaRapidity)
+    if (useRapidity) {
+      deltaRap = this->deltaRapidity( constitAIdx, constitBIdx );
+    }
+    else {
+      deltaRap = this->deltaEta( constitAIdx, constitBIdx );
+    }
+
+    return deltaPhi*deltaPhi + deltaRap*deltaRap;
+  }
+
+
+
+  // Get the deltaR between two constituents
+  // Is useRapidity=true, then the true rapidity will be used. Otherwise,
+  // the pseudorapidity eta will be used.
+  double CompositeParticle_v1::deltaR( int constitAIdx, int constitBIdx, bool useRapidity ) const
+  {
+    double deltaR2 = this->deltaR2(constitAIdx, constitBIdx, useRapidity);
+    return std::sqrt(deltaR2);
+  }
+
+
+  /// Get the delta-|\vec{p}| between two constituents
+  double CompositeParticle_v1::deltaAbsP( int constitAIdx, int constitBIdx ) const
+  {
+    // Check that we got valid indices
+    if ( constitAIdx <= 0 || constitBIdx <=0 ) {
+      // This should not be... throw an error.
+      throw std::runtime_error("Got a negative index... this should not happen");
+      return 0.0;
+    }
+
+    // Defaul values
+    double absPA(0.0);
+    double absPB(0.0);
+
+    // Get the constituent number A
+    const xAOD::IParticle* partA = this->constituent(constitAIdx);
+    if ( !partA ) {
+      // This should not be... throw an error.
+      throw std::runtime_error("Got a zero pointer to an xAOD::IParticle when calling deltaEta for constituent number A");
+      return 0.0;
+    }
+    absPA = (partA->p4()).P();
+
+    // Get the constituent number B
+    const xAOD::IParticle* partB = this->constituent(constitBIdx);
+    if ( !partB ) {
+      // This should not be... throw an error.
+      throw std::runtime_error("Got a zero pointer to an xAOD::IParticle when calling deltaEta for constituent number B");
+      return 0.0;
+    }
+    absPB = (partB->p4()).P();
+
+    return absPA - absPB;
+  }
+
+
+
+  /// Get the delta-|\vec{p_T}| between two constituents
+  double CompositeParticle_v1::deltaAbsPt( int constitAIdx, int constitBIdx ) const
+  {
+    // Check that we got valid indices
+    if ( constitAIdx <= 0 || constitBIdx <=0 ) {
+      // This should not be... throw an error.
+      throw std::runtime_error("Got a negative index... this should not happen");
+      return 0.0;
+    }
+
+    // Defaul values
+    double absPtA(0.0);
+    double absPtB(0.0);
+
+    // Get the constituent number A
+    const xAOD::IParticle* partA = this->constituent(constitAIdx);
+    if ( !partA ) {
+      // This should not be... throw an error.
+      throw std::runtime_error("Got a zero pointer to an xAOD::IParticle when calling deltaEta for constituent number A");
+      return 0.0;
+    }
+    absPtA = partA->pt();
+
+    // Get the constituent number B
+    const xAOD::IParticle* partB = this->constituent(constitBIdx);
+    if ( !partB ) {
+      // This should not be... throw an error.
+      throw std::runtime_error("Got a zero pointer to an xAOD::IParticle when calling deltaEta for constituent number B");
+      return 0.0;
+    }
+    absPtB = partB->pt();
+
+    return absPtA - absPtB;
+  }
+
+
+
+  // Get the transverse mass.
+  // Specify which calculation method to use as an optional additional argument.
+  double CompositeParticle_v1::mt( MT::Method method ) const
+  {
+    // Use the different calculation methods, depending on the given input
+    if ( method == xAOD::CompositeParticle_v1::MT::DEFAULT ) {
+      // Calculate m_T according to the ATLAS Higgs->WW publication
+      // from 2014/2015 (http://arxiv.org/pdf/1412.2641v1.pdf, page 3)
+
+      // Get all the visible constituents and sum up their 4-momenta
+      xAOD::IParticle::FourMom_t fourMom;
+      const std::size_t nConstits( this->nConstituents() );
+      for ( std::size_t i=0; i<nConstits; ++i ) {
+        const xAOD::IParticle* part = this->constituent(i);
+        if ( !part ) {
+          // This should not be... throw an error.
+          throw std::runtime_error("Got a zero pointer to an xAOD::IParticle when calling mt");
+          return -999.0;
+        }
+        fourMom += part->p4();
+      }
+
+      // Get the missing e_T
+      const xAOD::MissingET* metObj = this->missingET();
+      if ( !metObj ) {
+        // This should not be... throw an error.
+        throw std::runtime_error("Got a zero pointer to an xAOD::MissingET when calling mt");
+        return -9999.0;
+      }
+      double mpx( metObj->mpx() );
+      double mpy( metObj->mpy() );
+      double met( metObj->met() );
+
+      // Now, actually calculate the result (in two parts)
+      double px( fourMom.Px() );
+      double py( fourMom.Px() );
+      double part2 = (px+mpx)*(px+mpx) + (py+mpy)*(py+mpy);
+
+      double mll2( fourMom.M2() );
+      double etll( std::sqrt( (px*px + py*py) + mll2 ) );
+      double part1( (etll+met)*(etll+met) );
+
+      // One last sanity check
+      if ( part1 < part2 ) {
+        // This should not be... throw an error.
+        throw std::runtime_error("Got an invalid mt calculation");
+        return -99999.0;
+      }
+      return std::sqrt( part1 - part2 );
+    }
+
+    return 0.0;
+  }
+
+
+
+
+  // End: Functions returning variables that are calculated from 4-momentum
+  //      information from constituents.
+  /////////////////////////////////////////////////////////////////////////////
+
+
 
 
   /////////////////////////////////////////////////////////////////////////////

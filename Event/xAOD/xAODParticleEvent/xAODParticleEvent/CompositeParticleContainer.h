@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CompositeParticleContainer.h 599909 2014-06-02 14:25:44Z kkoeneke $
+// $Id: CompositeParticleContainer.h 637086 2014-12-19 16:02:19Z kkoeneke $
 #ifndef XAODPARTICLEEVENT_COMPOSITEPARTICLECONTAINER_H
 #define XAODPARTICLEEVENT_COMPOSITEPARTICLECONTAINER_H
 
@@ -16,5 +16,9 @@ namespace xAOD {
    /// Define the latest version of the CompositeParticle class
    typedef CompositeParticleContainer_v1 CompositeParticleContainer;
 }
+
+// Set up a CLID for the container:
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF( xAOD::CompositeParticleContainer, 1213067199, 1 )
 
 #endif // XAODPARTICLEEVENT_COMPOSITEPARTICLECONTAINER_H
