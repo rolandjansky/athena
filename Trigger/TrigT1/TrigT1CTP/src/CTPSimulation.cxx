@@ -111,7 +111,7 @@ LVL1CTP::CTPSimulation::CTPSimulation( const std::string& name, ISvcLocator* pSv
 	declareProperty( "RndmSvc", m_rndmSvc, "Random Number Service used in CTP simulation" );
 	declareProperty( "RndmEngine", m_rndmEngineName, "Random engine name");
 	// Property setting general behaviour:
-	declareProperty( "CtpVersion",  m_ctpVersion  = 3, "Version of the CTP to be used: 3 - latest version of run-I, 4 - initial version for run-II. For explanation of the other version see L1CommonCore/schema/L1CoreSpecifications.xml." );
+	declareProperty( "CtpVersion",  m_ctpVersion  = 0, "Version of the CTP to be used: 3 - latest version of run-I, 4 - initial version for run-II. For explanation of the other version see L1CommonCore/schema/L1CoreSpecifications.xml." );
 	declareProperty( "DoL1Topo",  m_doL1Topo  = true, "Use inputs from L1Topo system" );
 	declareProperty( "DoCalo",  m_doCalo  = true, "Use inputs (multiplicities) from Calo system" );
 	declareProperty( "DoMBTS",  m_doMBTS  = true, "Use inputs from MBTS system" );
@@ -198,12 +198,12 @@ LVL1CTP::CTPSimulation::initialize() {
    // TrigConfigSvc for the trigger configuration
    CHECK(m_configSvc.retrieve());
 
-   unsigned int ctpversion = max(m_ctpVersion, m_configSvc->ctpConfig()->ctpVersion());
+   unsigned int ctpVersion = ( m_ctpVersion != 0 ? m_ctpVersion : m_configSvc->ctpConfig()->ctpVersion() );
 	
-   ATH_MSG_DEBUG("CTP version from the menu:" << m_configSvc->ctpConfig()->ctpVersion());
+   ATH_MSG_DEBUG("CTP version from the menu:" << ctpVersion);
    
-   m_ctpDataformat = new CTPdataformatVersion(ctpversion);
-   ATH_MSG_DEBUG("Going to use the following for the CTP (version " << ctpversion << " ):\n" << m_ctpDataformat->dump());
+   m_ctpDataformat = new CTPdataformatVersion(ctpVersion);
+   ATH_MSG_DEBUG("Going to use the following for the CTP (version " << ctpVersion << " ):\n" << m_ctpDataformat->dump());
 
    m_countsBP.resize(m_ctpDataformat->getMaxTrigItems());
    m_countsAP.resize(m_ctpDataformat->getMaxTrigItems());
@@ -248,8 +248,8 @@ LVL1CTP::CTPSimulation::initialize() {
    if (m_doPSCL == false) {
       ATH_MSG_INFO("Inputs from LVL1 PSCL systems switched off");
    } else {
-      if (m_ctpVersion>3) {
-         ATH_MSG_DEBUG("There are no prescaled clock triggers in this version of the CTP (" << m_ctpVersion << ") any more. Setting m_doPSCL to false.");
+      if (ctpVersion>3) {
+         ATH_MSG_DEBUG("There are no prescaled clock triggers in this version of the CTP (" << ctpVersion << ") any more. Setting m_doPSCL to false.");
          m_doPSCL = false;
       }
    }
@@ -364,118 +364,122 @@ namespace {
 StatusCode
 LVL1CTP::CTPSimulation::start() {
 	
-	ATH_MSG_DEBUG("Start");
+   ATH_MSG_DEBUG("Start");
+
+   unsigned int ctpVersion = ( m_ctpVersion != 0 ? m_ctpVersion : m_configSvc->ctpConfig()->ctpVersion() );
 	
-	//
-	// monitoring
-	//
-	ToolHandleArray<IMonitorToolBase>::iterator it;
-	for ( it = m_monitors.begin(); it != m_monitors.end(); ++it ) {
-		if ( (*it)->bookHists().isFailure() ) {
-			ATH_MSG_WARNING("Monitoring tool: " <<  (*it)
-											<< " in Algo: " << name()
-											<< " can't book histograms successfully, remove it or fix booking problem");
-			return StatusCode::FAILURE;
-		} else {
-			ATH_MSG_DEBUG("Monitoring tool: " <<  (*it) 
-										<< " in Algo: " << name() << " bookHists successful");
-		}
-	}
+   //
+   // monitoring
+   //
+   ToolHandleArray<IMonitorToolBase>::iterator it;
+   for ( it = m_monitors.begin(); it != m_monitors.end(); ++it ) {
+      if ( (*it)->bookHists().isFailure() ) {
+         ATH_MSG_WARNING("Monitoring tool: " <<  (*it)
+                         << " in Algo: " << name()
+                         << " can't book histograms successfully, remove it or fix booking problem");
+         return StatusCode::FAILURE;
+      } else {
+         ATH_MSG_DEBUG("Monitoring tool: " <<  (*it) 
+                       << " in Algo: " << name() << " bookHists successful");
+      }
+   }
 
-    // booking histograms
-    // Topo input
-    m_HistL1TopoDecisionCable0 = new TH1I("L1TopoDecision0","L1Topo Decision Cable 0", 64, 0, 64);
-    m_HistL1TopoDecisionCable1 = new TH1I("L1TopoDecision1","L1Topo Decision Cable 1", 64, 0, 64);
-    const TXC::L1TopoMenu* topoMenu = m_configSvc->menu();
-    if(topoMenu) {
-       const std::vector<TXC::TriggerLine> & topoTriggers = topoMenu->getL1TopoConfigOutputList().getTriggerLines();
-       for(const TXC::TriggerLine tl : topoTriggers) {
-          switch(tl.module()) {
-          case 0:
-             m_HistL1TopoDecisionCable0->GetXaxis()->SetBinLabel(1+ tl.counter() % 64, tl.name().c_str());
-             break;
-          case 1:
-             m_HistL1TopoDecisionCable1->GetXaxis()->SetBinLabel(1+ tl.counter() % 64, tl.name().c_str());
-             break;
-          default:
-             break;
-          }
-       }
-    }
-    CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/L1TopoDecisionCable0", m_HistL1TopoDecisionCable0));
-    CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/L1TopoDecisionCable1", m_HistL1TopoDecisionCable1));
+   // booking histograms
+   // Topo input
+   m_HistL1TopoDecisionCable0 = new TH1I("L1TopoDecision0","L1Topo Decision Cable 0", 64, 0, 64);
+   m_HistL1TopoDecisionCable1 = new TH1I("L1TopoDecision1","L1Topo Decision Cable 1", 64, 0, 64);
+   const TXC::L1TopoMenu* topoMenu = m_configSvc->menu();
+   if(topoMenu) {
+      const std::vector<TXC::TriggerLine> & topoTriggers = topoMenu->getL1TopoConfigOutputList().getTriggerLines();
+      for(const TXC::TriggerLine tl : topoTriggers) {
+         switch(tl.module()) {
+         case 0:
+            m_HistL1TopoDecisionCable0->GetXaxis()->SetBinLabel(1+ tl.counter() % 64, tl.name().c_str());
+            break;
+         case 1:
+            m_HistL1TopoDecisionCable1->GetXaxis()->SetBinLabel(1+ tl.counter() % 64, tl.name().c_str());
+            break;
+         default:
+            break;
+         }
+      }
+   }
+   CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/L1TopoDecisionCable0", m_HistL1TopoDecisionCable0));
+   CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/L1TopoDecisionCable1", m_HistL1TopoDecisionCable1));
 
-    // threshold input
-    m_thrEMTot   = new TH1I("ThrEM", "Total threshold count EM", 16, 0, 16);
-    m_thrHATot   = new TH1I("ThrHA", "Total threshold count HA", 16, 0, 16);
-    m_thrJETTot  = new TH1I("ThrJET", "Total threshold count JET", 25, 0, 25);
-    m_thrMUTot   = new TH1I("ThrMU", "Total threshold count MU", 6, 0, 6);
-    m_thrTETot   = new TH1I("ThrTE", "Total threshold count TE", 8, 0, 8);
-    m_thrXETot   = new TH1I("ThrXE", "Total threshold count XE", 8, 0, 8);
-    m_thrXSTot   = new TH1I("ThrXS", "Total threshold count XS", 8, 0, 8);
+   // threshold input
+   m_thrEMTot   = new TH1I("ThrEM", "Total threshold count EM", 16, 0, 16);
+   m_thrHATot   = new TH1I("ThrHA", "Total threshold count HA", 16, 0, 16);
+   m_thrJETTot  = new TH1I("ThrJET", "Total threshold count JET", 25, 0, 25);
+   m_thrMUTot   = new TH1I("ThrMU", "Total threshold count MU", 6, 0, 6);
+   m_thrTETot   = new TH1I("ThrTE", "Total threshold count TE", 8, 0, 8);
+   m_thrXETot   = new TH1I("ThrXE", "Total threshold count XE", 8, 0, 8);
+   m_thrXSTot   = new TH1I("ThrXS", "Total threshold count XS", 8, 0, 8);
 
-    m_thrEMMult   = new TH1I("ThrMultEM", "Cumulative input threshold multiplicity EM", 128, 0, 128);
-    m_thrHAMult   = new TH1I("ThrMultHA", "Cumulative input threshold multiplicity HA", 128, 0, 128);
-    m_thrJET1Mult = new TH1I("ThrMultJET3b", "Cumulative input threshold multiplicity JET 3b", 80, 0, 80);
-    m_thrJET2Mult = new TH1I("ThrMultJET2b", "Cumulative input threshold multiplicity JET 2b", 60, 0, 60);
-    m_thrMUMult   = new TH1I("ThrMultMU", "Cumulative input threshold multiplicity MU", 48, 0, 48);
-    m_thrTEMult   = new TH1I("ThrMultTE", "Cumulative input threshold multiplicity TE", 16, 0, 16);
-    m_thrXEMult   = new TH1I("ThrMultXE", "Cumulative input threshold multiplicity XE", 16, 0, 16);
-    m_thrXSMult   = new TH1I("ThrMultXS", "Cumulative input threshold multiplicity XS", 16, 0, 16);
+   m_thrEMMult   = new TH1I("ThrMultEM", "Cumulative input threshold multiplicity EM", 128, 0, 128);
+   m_thrHAMult   = new TH1I("ThrMultHA", "Cumulative input threshold multiplicity HA", 128, 0, 128);
+   m_thrJET1Mult = new TH1I("ThrMultJET3b", "Cumulative input threshold multiplicity JET 3b", 80, 0, 80);
+   m_thrJET2Mult = new TH1I("ThrMultJET2b", "Cumulative input threshold multiplicity JET 2b", 60, 0, 60);
+   m_thrMUMult   = new TH1I("ThrMultMU", "Cumulative input threshold multiplicity MU", 48, 0, 48);
+   m_thrTEMult   = new TH1I("ThrMultTE", "Cumulative input threshold multiplicity TE", 16, 0, 16);
+   m_thrXEMult   = new TH1I("ThrMultXE", "Cumulative input threshold multiplicity XE", 16, 0, 16);
+   m_thrXSMult   = new TH1I("ThrMultXS", "Cumulative input threshold multiplicity XS", 16, 0, 16);
 
-    const TrigConf::ThresholdConfig* thresholdConfig = m_configSvc->thresholdConfig();
-    setThresholdHistLabels(m_thrEMMult, m_thrEMTot, thresholdConfig->getThresholdVector(L1DataDef::EM), 8);
-    setThresholdHistLabels(m_thrHAMult, m_thrHATot, thresholdConfig->getThresholdVector(L1DataDef::TAU), 8);
-    setThresholdHistLabels(m_thrMUMult, m_thrMUTot, thresholdConfig->getThresholdVector(L1DataDef::MUON), 8);
-    setThresholdHistLabels(m_thrJET1Mult, m_thrJETTot, thresholdConfig->getThresholdVector(L1DataDef::JET), 8,0,10);
-    setThresholdHistLabels(m_thrJET2Mult, m_thrJETTot, thresholdConfig->getThresholdVector(L1DataDef::JET), 4,10,25);
-    setThresholdHistLabels(m_thrTEMult, m_thrTETot, thresholdConfig->getThresholdVector(L1DataDef::TE), 2);
-    setThresholdHistLabels(m_thrXEMult, m_thrXETot, thresholdConfig->getThresholdVector(L1DataDef::XE), 2);
-    setThresholdHistLabels(m_thrXSMult, m_thrXSTot, thresholdConfig->getThresholdVector(L1DataDef::XS), 2);
+   const TrigConf::ThresholdConfig* thresholdConfig = m_configSvc->thresholdConfig();
+   setThresholdHistLabels(m_thrEMMult, m_thrEMTot, thresholdConfig->getThresholdVector(L1DataDef::EM), 8);
+   setThresholdHistLabels(m_thrHAMult, m_thrHATot, thresholdConfig->getThresholdVector(L1DataDef::TAU), 8);
+   setThresholdHistLabels(m_thrMUMult, m_thrMUTot, thresholdConfig->getThresholdVector(L1DataDef::MUON), 8);
+   setThresholdHistLabels(m_thrJET1Mult, m_thrJETTot, thresholdConfig->getThresholdVector(L1DataDef::JET), 8,0,10);
+   setThresholdHistLabels(m_thrJET2Mult, m_thrJETTot, thresholdConfig->getThresholdVector(L1DataDef::JET), 4,10,25);
+   setThresholdHistLabels(m_thrTEMult, m_thrTETot, thresholdConfig->getThresholdVector(L1DataDef::TE), 2);
+   setThresholdHistLabels(m_thrXEMult, m_thrXETot, thresholdConfig->getThresholdVector(L1DataDef::XE), 2);
+   setThresholdHistLabels(m_thrXSMult, m_thrXSTot, thresholdConfig->getThresholdVector(L1DataDef::XS), 2);
 
-    CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrEM", m_thrEMTot ));
-    CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrHA", m_thrHATot ));
-    CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrJET", m_thrJETTot ));
-    CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrMU", m_thrMUTot ));
-    CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrTE", m_thrTETot ));
-    CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrXE", m_thrXETot ));
-    CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrXS", m_thrXSTot ));
+   CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrEM", m_thrEMTot ));
+   CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrHA", m_thrHATot ));
+   CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrJET", m_thrJETTot ));
+   CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrMU", m_thrMUTot ));
+   CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrTE", m_thrTETot ));
+   CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrXE", m_thrXETot ));
+   CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrXS", m_thrXSTot ));
 
-    CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrMultEM", m_thrEMMult ));
-    CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrMultHA", m_thrHAMult ));
-    CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrMultJET1", m_thrJET1Mult ));
-    CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrMultJET2", m_thrJET2Mult ));
-    CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrMultMU", m_thrMUMult ));
-    CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrMultTE", m_thrTEMult ));
-    CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrMultXE", m_thrXEMult ));
-    CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrMultXS", m_thrXSMult ));
+   CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrMultEM", m_thrEMMult ));
+   CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrMultHA", m_thrHAMult ));
+   CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrMultJET1", m_thrJET1Mult ));
+   CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrMultJET2", m_thrJET2Mult ));
+   CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrMultMU", m_thrMUMult ));
+   CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrMultTE", m_thrTEMult ));
+   CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrMultXE", m_thrXEMult ));
+   CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/ThrMultXS", m_thrXSMult ));
 
-    // Items
-    m_itemAcceptBP = new TH1I("L1ItemsBP","L1 Items before prescale", 512, 0, 512);
-    m_itemAcceptAP = new TH1I("L1ItemsAP","L1 Items after prescale", 512, 0, 512);
-    m_itemAcceptAV = new TH1I("L1ItemsAV","L1 Items after veto", 512, 0, 512);
-    for(const TriggerItem * item : m_configSvc->ctpConfig()->menu().itemVector()) {
-       if(item==nullptr) continue;
-       string label = item->name() + " (CTP ID " + boost::lexical_cast<string,int>(item->ctpId())+ ")";
-       m_itemAcceptBP->GetXaxis()->SetBinLabel(item->ctpId()+1,label.c_str());
-       m_itemAcceptAP->GetXaxis()->SetBinLabel(item->ctpId()+1,label.c_str());
-       m_itemAcceptAV->GetXaxis()->SetBinLabel(item->ctpId()+1,label.c_str());
-    }
-    CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/L1ItemsBP", m_itemAcceptBP));
-    CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/L1ItemsAP", m_itemAcceptAP));
-    CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/L1ItemsAV", m_itemAcceptAV));
+   // Items
+   m_itemAcceptBP = new TH1I("L1ItemsBP","L1 Items before prescale", 512, 0, 512);
+   m_itemAcceptAP = new TH1I("L1ItemsAP","L1 Items after prescale", 512, 0, 512);
+   m_itemAcceptAV = new TH1I("L1ItemsAV","L1 Items after veto", 512, 0, 512);
+   for(const TriggerItem * item : m_configSvc->ctpConfig()->menu().itemVector()) {
+      if(item==nullptr) continue;
+      string label = item->name() + " (CTP ID " + boost::lexical_cast<string,int>(item->ctpId())+ ")";
+      m_itemAcceptBP->GetXaxis()->SetBinLabel(item->ctpId()+1,label.c_str());
+      m_itemAcceptAP->GetXaxis()->SetBinLabel(item->ctpId()+1,label.c_str());
+      m_itemAcceptAV->GetXaxis()->SetBinLabel(item->ctpId()+1,label.c_str());
+   }
+   CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/L1ItemsBP", m_itemAcceptBP));
+   CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/L1ItemsAP", m_itemAcceptAP));
+   CHECK(m_histSvc->regHist("/EXPERT/CTPSimulation/L1ItemsAV", m_itemAcceptAV));
 
-	return StatusCode::SUCCESS;
+   return StatusCode::SUCCESS;
 }
 
 
 StatusCode
 LVL1CTP::CTPSimulation::beginRun() {
    ATH_MSG_INFO("beginRun()");
+
+   unsigned int ctpVersion = ( m_ctpVersion != 0 ? m_ctpVersion : m_configSvc->ctpConfig()->ctpVersion() );
 	
    // get random engine
    CLHEP::HepRandomEngine* rndmEngine=0;
-	
+
    if(m_doRNDM == true){
       rndmEngine = m_rndmSvc->GetEngine(m_rndmEngineName);
       if (rndmEngine == 0) {
@@ -486,7 +490,7 @@ LVL1CTP::CTPSimulation::beginRun() {
       const TrigConf::Random random(m_configSvc->ctpConfig()->random());
 		
     
-      if (m_ctpVersion<4) {
+      if (ctpVersion<4) {
          std::ostringstream message;
          message << "Random trigger definition: " << random.name() << std::setw(8) << random.rate1() << std::setw(8) << random.rate2();
       
@@ -499,7 +503,7 @@ LVL1CTP::CTPSimulation::beginRun() {
       
          unsigned int rate1 = (0x1 << (8+random.rate1())) - 1;
          ATH_MSG_DEBUG("REGTEST - Rate for random trigger RNDM0: " << rate1 << " / " << 40080./rate1 << " Hz");
-         m_internalTrigger[ make_pair(TrigConf::L1DataDef::RNDM,0)] = new RandomTrigger(0, rate1,m_ctpVersion, rndmEngine);
+         m_internalTrigger[ make_pair(TrigConf::L1DataDef::RNDM,0)] = new RandomTrigger(0, rate1, ctpVersion, rndmEngine);
       
          if (random.rate2() < 0) {
             ATH_MSG_INFO("Rate factor for random trigger RNDM1 below zero (" << random.rate2() << "): only possible in simulation");
@@ -507,7 +511,7 @@ LVL1CTP::CTPSimulation::beginRun() {
       
          unsigned int rate2 = (0x1 << (8+random.rate2())) - 1;
          ATH_MSG_DEBUG("REGTEST - Rate for random trigger RNDM1: " << rate2 << " / " << 40080./rate2 << " Hz");
-         m_internalTrigger[ make_pair(TrigConf::L1DataDef::RNDM,1)] = new RandomTrigger(1, rate2,m_ctpVersion, rndmEngine);
+         m_internalTrigger[ make_pair(TrigConf::L1DataDef::RNDM,1)] = new RandomTrigger(1, rate2, ctpVersion, rndmEngine);
       
       }else {//XXX How to treat random triggers in run-II?
          uint32_t cut0 = random.cuts(0);
@@ -525,48 +529,48 @@ LVL1CTP::CTPSimulation::beginRun() {
          ATH_MSG_DEBUG("REGTEST - Cut for random trigger RNDM0: " << hex << cut0 << dec << " (" << cut0 << ")");
          float rate0 = random.getRateFromCut(0);
          ATH_MSG_DEBUG("REGTEST - Rate for random trigger RNDM0: " << rate0 << " (" << 40080./rate0 << " Hz)");
-         m_internalTrigger[ make_pair(TrigConf::L1DataDef::RNDM,0)] = new RandomTrigger(0, rate0, m_ctpVersion, rndmEngine);
+         m_internalTrigger[ make_pair(TrigConf::L1DataDef::RNDM,0)] = new RandomTrigger(0, rate0, ctpVersion, rndmEngine);
       
       
          ATH_MSG_DEBUG("REGTEST - Cut for random trigger RNDM1: " << hex << cut1 << dec << " (" << cut1 << ")");
          float rate1 = random.getRateFromCut(1);
          ATH_MSG_DEBUG("REGTEST - Rate for random trigger RNDM0: " << rate1 << " (" << 40080./rate1 << " Hz)");
-         m_internalTrigger[ make_pair(TrigConf::L1DataDef::RNDM,1)] = new RandomTrigger(1, cut1, m_ctpVersion, rndmEngine);
+         m_internalTrigger[ make_pair(TrigConf::L1DataDef::RNDM,1)] = new RandomTrigger(1, cut1, ctpVersion, rndmEngine);
       
       
          ATH_MSG_DEBUG("REGTEST - Cut for random trigger RNDM2: " << hex << cut2 << dec << " (" << cut2 << ")");
          float rate2 = random.getRateFromCut(2);
          ATH_MSG_DEBUG("REGTEST - Rate for random trigger RNDM0: " << rate2 << " (" << 40080./rate2 << " Hz)");
-         m_internalTrigger[ make_pair(TrigConf::L1DataDef::RNDM,2)] = new RandomTrigger(2, cut2, m_ctpVersion, rndmEngine);
+         m_internalTrigger[ make_pair(TrigConf::L1DataDef::RNDM,2)] = new RandomTrigger(2, cut2, ctpVersion, rndmEngine);
       
       
          ATH_MSG_DEBUG("REGTEST - Cut for random trigger RNDM3: " << hex << cut3 << dec << " (" << cut3 << ")");
          float rate3 = random.getRateFromCut(3);
          ATH_MSG_DEBUG("REGTEST - Rate for random trigger RNDM0: " << rate3 << " (" << 40080./rate3 << " Hz)");
-         m_internalTrigger[ make_pair(TrigConf::L1DataDef::RNDM,3)] = new RandomTrigger(3, cut3, m_ctpVersion, rndmEngine);
+         m_internalTrigger[ make_pair(TrigConf::L1DataDef::RNDM,3)] = new RandomTrigger(3, cut3, ctpVersion, rndmEngine);
       
       }
 		
 		
    }
 	
-   if(m_ctpVersion<4 && m_doPSCL == true){
+   if(ctpVersion<4 && m_doPSCL == true){
       const TrigConf::PrescaledClock prescaledClock(m_configSvc->ctpConfig()->prescaledClock());
 		
       ATH_MSG_DEBUG("REGTEST - Prescaled clock trigger definition: " << prescaledClock.name() 
                     << std::setw(8) << prescaledClock.clock1() << std::setw(8) << prescaledClock.clock2());	
       if (prescaledClock.clock1() > 0) {
-         m_internalTrigger[ make_pair(TrigConf::L1DataDef::PCLK,0)] = new PrescaledClockTrigger(0, prescaledClock.clock1(),m_ctpVersion);
+         m_internalTrigger[ make_pair(TrigConf::L1DataDef::PCLK,0)] = new PrescaledClockTrigger(0, prescaledClock.clock1(), ctpVersion);
       } else {
          ATH_MSG_WARNING("No prescaled clock trigger PCLK0 defined.");
       }
       if (prescaledClock.clock2() > 0) {
-         m_internalTrigger[ make_pair(TrigConf::L1DataDef::PCLK,1)] = new PrescaledClockTrigger(1, prescaledClock.clock2(),m_ctpVersion);
+         m_internalTrigger[ make_pair(TrigConf::L1DataDef::PCLK,1)] = new PrescaledClockTrigger(1, prescaledClock.clock2(), ctpVersion);
       } else {
          ATH_MSG_WARNING("No prescaled clock trigger PCLK1 defined.");
       }
-   }else if (m_ctpVersion>3 && m_doPSCL == true) {
-      ATH_MSG_DEBUG("There are no prescaled clock triggers in this version of the CTP (" << m_ctpVersion << ") any more. Setting m_doPSCL to false.");
+   }else if (ctpVersion>3 && m_doPSCL == true) {
+      ATH_MSG_DEBUG("There are no prescaled clock triggers in this version of the CTP (" << ctpVersion << ") any more. Setting m_doPSCL to false.");
       m_doPSCL=false;
    }else {
       ATH_MSG_DEBUG("Simulation of prescaled clock triggers is switched off.");
@@ -783,7 +787,7 @@ LVL1CTP::CTPSimulation::beginRun() {
    //
    // Construct the map between the configuration and decision threshold objects:
    //
-   if (m_ctpVersion<4) { //for versions of run-I there are only inputs via PIT bus
+   if (ctpVersion<4) { //for versions of run-I there are only inputs via PIT bus
 		
       if (m_configSvc->ctpConfig()->menu().pitVector().size()==0) { //assign PIT bits manually
          m_decisionMap = new ThresholdMap( m_configSvc->ctpConfig()->menu().thresholdVector());
@@ -854,9 +858,11 @@ LVL1CTP::CTPSimulation::beginRun() {
 
 StatusCode
 LVL1CTP::CTPSimulation::execute() {
-	
+   
    ATH_MSG_DEBUG("Executing CTPSimulation algorithm");
   
+   unsigned int ctpVersion = ( m_ctpVersion != 0 ? m_ctpVersion : m_configSvc->ctpConfig()->ctpVersion() );
+
 	
    ////////////////////////////////////////////////////////////////////////////
    //                                                                        //
@@ -1144,7 +1150,7 @@ LVL1CTP::CTPSimulation::execute() {
    //
    // Create the output objects:
    //
-   m_resultBuilder = new ResultBuilder( m_ctpVersion, m_configSvc->ctpConfig(), m_decisionMap, m_itemMap, &m_internalTrigger, m_readoutWindow);
+   m_resultBuilder = new ResultBuilder( ctpVersion, m_configSvc->ctpConfig(), m_decisionMap, m_itemMap, &m_internalTrigger, m_readoutWindow);
 
    collectStatistic();
       
@@ -1293,10 +1299,10 @@ LVL1CTP::CTPSimulation::execute() {
    return StatusCode::SUCCESS;
 }
 
+
 StatusCode
-LVL1CTP::CTPSimulation::extractMultiplicities() {	
-   //XXX need to add L1Topo here!
-	
+LVL1CTP::CTPSimulation::extractMultiplicities() {
+
    for ( TrigConf::TriggerThreshold* thr : m_configSvc->ctpConfig()->menu().thresholdVector() ) {
 		
       int multiplicity = 0;
@@ -1582,64 +1588,66 @@ LVL1CTP::CTPSimulation::extractMultiplicities() {
 
 StatusCode
 LVL1CTP::CTPSimulation::LoadBunchGroups() {
-	ATH_MSG_DEBUG("Trying to access bunch group content from COOL");  
+   ATH_MSG_DEBUG("Trying to access bunch group content from COOL");  
 	
-	TrigConf::BunchGroupSet *bunchGroupSet;
-	const AthenaAttributeList* atrlist;
+   unsigned int ctpVersion = ( m_ctpVersion != 0 ? m_ctpVersion : m_configSvc->ctpConfig()->ctpVersion() );
 	
-	//loading bunch groups from cool (data scenario)
-	if((detStore()->contains<AthenaAttributeList>(m_BunchGroupLoc))&& 
-		 (StatusCode::SUCCESS==detStore()->retrieve(atrlist, m_BunchGroupLoc))){ 
+   TrigConf::BunchGroupSet *bunchGroupSet;
+   const AthenaAttributeList* atrlist;
+	
+   //loading bunch groups from cool (data scenario)
+   if((detStore()->contains<AthenaAttributeList>(m_BunchGroupLoc))&& 
+      (StatusCode::SUCCESS==detStore()->retrieve(atrlist, m_BunchGroupLoc))){ 
 		
-		ATH_MSG_DEBUG("Reading bunch group information from COOL");
-		std::vector<TrigConf::BunchGroup> bgs;
-		bgs = TrigConfCoolL1PayloadConverters::readLvl1BGContent( *atrlist );
-		bunchGroupSet = new TrigConf::BunchGroupSet(bgs);
-		//bunchGroupSet->setId( m_lvl1BgKey ); // Update the BunchGroupSet object with the ID
-	}
+      ATH_MSG_DEBUG("Reading bunch group information from COOL");
+      std::vector<TrigConf::BunchGroup> bgs;
+      bgs = TrigConfCoolL1PayloadConverters::readLvl1BGContent( *atrlist );
+      bunchGroupSet = new TrigConf::BunchGroupSet(bgs);
+      //bunchGroupSet->setId( m_lvl1BgKey ); // Update the BunchGroupSet object with the ID
+   }
   
-	//if folder not avaible from cool (MC scenario) take default bunchgroup settings from configuration
-	else{
-		ATH_MSG_DEBUG("Could not retrieve bunch group content from COOL, setting to default BunchID found in trigger configuration");
-		bunchGroupSet=new TrigConf::BunchGroupSet(m_configSvc->ctpConfig()->bunchGroupSet());
-	}
+   //if folder not avaible from cool (MC scenario) take default bunchgroup settings from configuration
+   else{
+      ATH_MSG_DEBUG("Could not retrieve bunch group content from COOL, setting to default BunchID found in trigger configuration");
+      bunchGroupSet=new TrigConf::BunchGroupSet(m_configSvc->ctpConfig()->bunchGroupSet());
+   }
 	
-	if(!bunchGroupSet){
-		ATH_MSG_WARNING("Null pointer for bunch group set returned");  
-		return StatusCode::FAILURE;
-	}
+   if(!bunchGroupSet){
+      ATH_MSG_WARNING("Null pointer for bunch group set returned");  
+      return StatusCode::FAILURE;
+   }
 	
-	//log << MSG::DEBUG << "Dumping bunch group content");  
-	//bunchGroupSet->print();
+   //log << MSG::DEBUG << "Dumping bunch group content");  
+   //bunchGroupSet->print();
 	
-	//translating bunch group set into a CTPSimulation readable format
-	const std::vector<TrigConf::BunchGroup> bunchGroups(bunchGroupSet->bunchGroups());
-	for (size_t i(0); i < bunchGroups.size(); ++i) {
-		std::ostringstream message;
-		ATH_MSG_DEBUG("BunchGroup " << i << " Name " << bunchGroups[i].name() << " Bunches:";
-									for (size_t j(0); j < bunchGroups[i].bunches().size(); ++j) message << " " << bunchGroups[i].bunches()[j]);
-		ATH_MSG_DEBUG("REGTEST - " << message.str());
-	}
+   //translating bunch group set into a CTPSimulation readable format
+   const std::vector<TrigConf::BunchGroup> bunchGroups(bunchGroupSet->bunchGroups());
+   for (size_t i(0); i < bunchGroups.size(); ++i) {
+      std::ostringstream message;
+      ATH_MSG_DEBUG("BunchGroup " << i << " Name " << bunchGroups[i].name() << " Bunches:";
+                    for (size_t j(0); j < bunchGroups[i].bunches().size(); ++j) message << " " << bunchGroups[i].bunches()[j]);
+      ATH_MSG_DEBUG("REGTEST - " << message.str());
+   }
 	
-	if (bunchGroups.empty()) {
-		ATH_MSG_WARNING("No bunch group triggers defined.");
-	} 
+   if (bunchGroups.empty()) {
+      ATH_MSG_WARNING("No bunch group triggers defined.");
+   } 
 	
-	else {
-		ATH_MSG_DEBUG("Defining bunch group internal trigger");
-		for (size_t i(0); i < bunchGroups.size(); ++i) {
-			InternalTriggerMap::key_type trigtype = make_pair(TrigConf::L1DataDef::BGRP,i);
+   else {
+      ATH_MSG_DEBUG("Defining bunch group internal trigger");
+      for (size_t i(0); i < bunchGroups.size(); ++i) {
+         InternalTriggerMap::key_type trigtype = make_pair(TrigConf::L1DataDef::BGRP,i);
 			
-			//delete previous bunch group settings if there are any
-			if(m_internalTrigger.find(trigtype)!=m_internalTrigger.end())
-				delete m_internalTrigger[trigtype];
+         //delete previous bunch group settings if there are any
+         if(m_internalTrigger.find(trigtype)!=m_internalTrigger.end())
+            delete m_internalTrigger[trigtype];
 			
-			//declare new bunch group trigger
-			m_internalTrigger[trigtype] = new BunchGroupTrigger(i, bunchGroups[i].bunches(),m_ctpVersion);
-		}
-	}
-	delete bunchGroupSet;
-	return StatusCode::SUCCESS;
+         //declare new bunch group trigger
+         m_internalTrigger[trigtype] = new BunchGroupTrigger(i, bunchGroups[i].bunches(),ctpVersion);
+      }
+   }
+   delete bunchGroupSet;
+   return StatusCode::SUCCESS;
 }
 
 
