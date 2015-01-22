@@ -168,9 +168,6 @@ StatusCode TRTCalibrationMgr::execute()
         return StatusCode::SUCCESS;
   }
 
-
-
-
   // get event info pointer
   if ((evtStore()->retrieve(m_EventInfo)).isFailure()) {
     msg(MSG::FATAL) << "skipping event, could not get EventInfo" << endreq;
@@ -243,7 +240,7 @@ StatusCode TRTCalibrationMgr::execute()
 	     at[TRT::Track::event]=m_EventInfo->eventNumber();
 	     at[TRT::Track::trackNumber]=m_ntrk;
 	     if (msgLvl(MSG::DEBUG)) msg() << "  Track " << m_ntrk << " accepted Info: run="
-  					<< at[TRT::Track::run] << "   event=" << at[TRT::Track::event] << endreq;
+					   << at[TRT::Track::run] << "   event=" << at[TRT::Track::event] << endreq;
 	     for (unsigned int j=0;j<m_TrackInfoTools.size();j++)
 	       if (!m_TrackInfoTools[j]->fill(aTrack,&at)) break;
 	    if(m_dorefit)

@@ -1,0 +1,103 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+/* *******************************************************************
+
+  TRTOccupancyInclude.cxx : Simple code to include Occupancy inside event info xAOD 
+
+* ***************************************************************** */
+
+#include "TRT_CalibAlgs/TRTOccupancyInclude.h"
+#include "xAODEventInfo/EventInfo.h"
+
+TRTOccupancyInclude::TRTOccupancyInclude(const std::string& name, ISvcLocator* pSvcLocator) :
+  AthAlgorithm   (name, pSvcLocator),
+  m_LocalOccTool()
+{
+  declareProperty("TRT_LocalOccupancyTool", m_LocalOccTool);
+}
+
+//---------------------------------------------------------------------
+
+TRTOccupancyInclude::~TRTOccupancyInclude(void)
+{}
+
+//--------------------------------------------------------------------------
+
+StatusCode TRTOccupancyInclude::initialize()
+{
+  if ( m_LocalOccTool.retrieve().isFailure() ){
+    ATH_MSG_ERROR(" Failed to retrieve TRT Local Occupancy tool: " << m_LocalOccTool );
+    return StatusCode::FAILURE;
+  }
+  else {
+    ATH_MSG_INFO("Retrieved tool " << m_LocalOccTool);
+  }
+
+  return StatusCode::SUCCESS;
+}
+
+//---------------------------------------------------------------------
+
+StatusCode TRTOccupancyInclude::execute()
+{
+  msg(MSG::DEBUG) << "execute()" << endreq;
+
+  m_LocalOccTool->BeginEvent();
+  //  std::vector<float> TRTOccu = m_LocalOccTool->GlobalOccupancy( );
+  int* TRTOccu = m_LocalOccTool->getOccTotal( );
+
+
+  const xAOD::EventInfo* eventInfo = 0;
+  if (evtStore()->retrieve(eventInfo).isFailure()) {
+    ATH_MSG_ERROR(" Cannot access to event info.");
+    return StatusCode::FAILURE;
+  } 
+
+  // static SG::AuxElement::Decorator< float >  decEventInfo_occupancy0("TRTOccGlobal"); 
+  // decEventInfo_occupancy0( *eventInfo ) = TRTOccu.at(0); 
+
+  // static SG::AuxElement::Decorator< float >  decEventInfo_occupancy1("TRTOccEndcapC"); 
+  // decEventInfo_occupancy1( *eventInfo ) = TRTOccu.at(1); 
+
+  // static SG::AuxElement::Decorator< float >  decEventInfo_occupancy2("TRTOccBarrelC"); 
+  // decEventInfo_occupancy2( *eventInfo ) = TRTOccu.at(2); 
+
+  // static SG::AuxElement::Decorator< float >  decEventInfo_occupancy3("TRTOccBarrelA"); 
+  // decEventInfo_occupancy3( *eventInfo ) = TRTOccu.at(3); 
+
+  // static SG::AuxElement::Decorator< float >  decEventInfo_occupancy4("TRTOccEndcapA"); 
+  // decEventInfo_occupancy4( *eventInfo ) = TRTOccu.at(4); 
+
+  static SG::AuxElement::Decorator< float >  decEventInfo_occupancy0("TRTOccGlobal"); 
+  decEventInfo_occupancy0( *eventInfo ) = TRTOccu[0]; 
+
+  static SG::AuxElement::Decorator< float >  decEventInfo_occupancy1("TRTOccBarrelC"); 
+  decEventInfo_occupancy1( *eventInfo ) = TRTOccu[1]; 
+
+  static SG::AuxElement::Decorator< float >  decEventInfo_occupancy2("TRTOccEndcapAC"); 
+  decEventInfo_occupancy2( *eventInfo ) = TRTOccu[2]; 
+
+  static SG::AuxElement::Decorator< float >  decEventInfo_occupancy3("TRTOccEndcapBC"); 
+  decEventInfo_occupancy3( *eventInfo ) = TRTOccu[3]; 
+
+  static SG::AuxElement::Decorator< float >  decEventInfo_occupancy4("TRTOccBarrelA"); 
+  decEventInfo_occupancy4( *eventInfo ) = TRTOccu[4]; 
+
+  static SG::AuxElement::Decorator< float >  decEventInfo_occupancy5("TRTOccEndcapAA"); 
+  decEventInfo_occupancy5( *eventInfo ) = TRTOccu[5]; 
+
+  static SG::AuxElement::Decorator< float >  decEventInfo_occupancy6("TRTOccEndcapBA"); 
+  decEventInfo_occupancy6( *eventInfo ) = TRTOccu[6]; 
+
+  return StatusCode::SUCCESS;
+}
+
+//---------------------------------------------------------------------
+
+StatusCode TRTOccupancyInclude::finalize()
+{
+  msg(MSG::INFO) << "finalise()" << endreq;
+  return StatusCode::SUCCESS;
+}
