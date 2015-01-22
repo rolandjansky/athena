@@ -247,6 +247,10 @@ Trk::MeasurementSet GlobalFitTool::prepareMeasurementSet(const MuonSegmentList &
     for (MuonSegmentList::const_iterator MuonSegItr = pMuonSegments.begin(); MuonSegItr != pMuonSegments.end(); MuonSegItr++)
     {
         const Muon::MuonSegment* pSegment = *MuonSegItr;
+	
+	auto checkSegment = pSegment->rioOnTrack(0);
+	if (!checkSegment) continue;
+
         const Identifier& id = pSegment->rioOnTrack(0)->identify();
         if (m_MuonIdHelperTool->isMdt(id)) SegmentTechnology = "MDT";
         if (m_MuonIdHelperTool->isRpc(id)) SegmentTechnology = "RPC";
