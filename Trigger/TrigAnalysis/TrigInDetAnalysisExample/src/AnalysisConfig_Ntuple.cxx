@@ -163,12 +163,14 @@ void AnalysisConfig_Ntuple::loop() {
 
 	static std::set<std::string> configuredHLTChains;
 
+	std::vector<ChainString> chainNames;
+
 	if ( tida_first ) { 
 		std::vector<std::string> configuredChains  = (*m_tdt)->getListOfTriggers("L2_.*, EF_.*, HLT_.*");
 
 		m_provider->msg(MSG::INFO) << "[91;1m" << configuredChains.size() << " Configured Chains" << "[m" << endreq;
 		for ( unsigned i=0 ; i<configuredChains.size() ; i++ ) { 
-		  m_provider->msg(MSG::INFO) << "[91;1m" << "Chain " << configuredChains[i] << "[m" << endreq;
+		  m_provider->msg(MSG::INFO) << "[91;1m" << "Chain " << configuredChains[i] << "   (ACN)[m" << endreq;
 		  configuredHLTChains.insert( configuredChains[i] );
 		  
 		}
@@ -188,12 +190,10 @@ void AnalysisConfig_Ntuple::loop() {
 		  ChainString chainName = (*chainitr);
 
 		  /// check for wildcard ...
-		  if ( chainName.head().find("*")!=std::string::npos ) { 
+		  //if ( chainName.head().find("*")!=std::string::npos ) { 
 
 		    //		    std::cout << "wildcard chains: " << chainName << std::endl;
 
-		    /// delete from vector 
-		    m_chainNames.erase(chainitr);
 
 		    /// get matching chains
 		    std::vector<std::string> selectChains  = (*m_tdt)->getListOfTriggers( chainName.head() );
@@ -208,20 +208,22 @@ void AnalysisConfig_Ntuple::loop() {
 		      if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
 		     
 		      /// replace wildcard with actual matching chains ...
-		      m_chainNames.push_back( selectChains[iselected] );
+		      chainNames.push_back( selectChains[iselected] );
 
 		      m_provider->msg(MSG::INFO) << "[91;1m" << "Matching chain " << selectChains[iselected] << "[m" << endreq;
 		     
 		    }
-		  }
-		  else chainitr++;
+		  
+		    chainitr++;
 		}
-
+		
 		//	  std::cout << "output chains" << std::endl;
 		//	  for ( unsigned ic=0 ; ic<m_chainNames.size() ; ic++ ) std::cout << "chains " << ic << "\t" << m_chainNames[ic] << std::endl;
 
-
+		m_chainNames = chainNames;
 	}
+
+	
 
 	Filter_AcceptAll filter;
 	/// FIXME: should really have hardcoded limits encoded as 
@@ -301,9 +303,9 @@ void AnalysisConfig_Ntuple::loop() {
 	//    std::cout << CA.testFunction("L2_*,EF_*") << std::endl;
 
 	// build a chain group on the fly and use the reference
-	const Trig::ChainGroup* L2chain=(*m_tdt)->getChainGroup("L2_*");
-	const Trig::ChainGroup* EFchain=(*m_tdt)->getChainGroup("EF_*");
-	const Trig::ChainGroup* HLTchain=(*m_tdt)->getChainGroup("HLT_*");
+	const Trig::ChainGroup* L2chain=(*m_tdt)->getChainGroup("L2_.*");
+	const Trig::ChainGroup* EFchain=(*m_tdt)->getChainGroup("EF_.*");
+	const Trig::ChainGroup* HLTchain=(*m_tdt)->getChainGroup("HLT_.*");
 
 	m_provider->msg(MSG::DEBUG) << "[91;1m" 
 		<< "L2 pass " << L2chain->isPassed()  << "\t" 
@@ -321,10 +323,11 @@ void AnalysisConfig_Ntuple::loop() {
 	bool analyse = false;
 	// bool analyse = true;
 
+	int passed_chains = 0;
 	for ( unsigned ichain=0 ; ichain<m_chainNames.size() ; ichain++ ) {  
 		const std::string& chainName = m_chainNames[ichain].head();
 
-		//Only for trigger chains
+		// Only for trigger chains
 
 		if (chainName.find("L2")  == std::string::npos && 
 		    chainName.find("EF")  == std::string::npos && 
@@ -339,35 +342,46 @@ void AnalysisConfig_Ntuple::loop() {
 
 
 
-		m_provider->msg(MSG::DEBUG) << "Chain " << chainName 
-			<< "\tpass " << (*m_tdt)->isPassed(chainName) 
-			<< "\tpres " << (*m_tdt)->getPrescale(chainName) << endreq;
+		m_provider->msg(MSG::INFO) << "Chain "  << chainName 
+					   << "\tpres " << (*m_tdt)->getPrescale(chainName)
+					   << "\tpass " << (*m_tdt)->isPassed(chainName) << endreq;
 
 
-		if ( (*m_tdt)->isPassed(chainName) ) analyse = true;
+		if ( (*m_tdt)->isPassed(chainName) ) { 
+		  analyse = true;
+		  passed_chains++;
+		}
+
 		//if ( (*m_tdt)->getPrescale(chainName) ) analyse = true; 
 		const DataHandle<TrigDec::TrigDecision> td;
 		StatusCode sc = m_provider->evtStore()->retrieve(td);
 		if (sc.isFailure()) {
-			m_provider->msg(MSG::FATAL) << "Could not find TrigDecision object" << endreq;
+			m_provider->msg(MSG::FATAL) << "\tCould not find TrigDecision object" << endreq;
 			analyse = false;
 			return;
 		}
 
-		const HLT::HLTResult* r = (&(td->getL2Result()));
-		if (r->isHLTResultTruncated()){
-			m_provider->msg(MSG::WARNING) << "HLTResult Header: Truncated L2 result for event " << event_number << " in run " << run_number << endreq;
-			analyse = false;
-			return;
+		if ( chainName.find("HLT") == std::string::npos ) { 
+		  /// only check for corrupted L2 result in L2 or EF chains, not HLT chains
+		  const HLT::HLTResult* r = (&(td->getL2Result()));
+		  if (r->isHLTResultTruncated()){
+		    m_provider->msg(MSG::WARNING) << "\tHLTResult Header: Truncated L2 result for event " << event_number << " in run " << run_number << endreq;
+		    analyse = false;
+		    return;
+		  }
 		}
+		
+	}/// finished loop over chains
 
-	} /// finished loop over chains
 
 	/// bomb out if no chains passed and not told to keep all events  
 	if ( !analyse && !m_keepAllEvents ) { 
 		m_provider->msg(MSG::INFO) << "No chains passed unprescaled - not processing this event" << endreq; 
 		return;
 	}
+
+	m_provider->msg(MSG::INFO) << "Chains passed " << passed_chains << endreq;
+
 
 	/// for Monte Carlo get the truth particles if requested to do so
 
@@ -714,6 +728,8 @@ void AnalysisConfig_Ntuple::loop() {
 
 	  std::cout << "\tchain: " << chainname << "\tcollection: " << collectionname << "\tindex: " << index << "\tte: " << element << std::endl;  
 
+	  /// here we *only* want collections with no specified chain
+	  /// name, then we look in storegate for the collections directly
 	  if ( chainname!="" ) continue;
 
 	  //	  selectorRef.clear();
@@ -736,7 +752,7 @@ void AnalysisConfig_Ntuple::loop() {
 	  }
 #endif
 	  else { 
-	    m_provider->msg(MSG::WARNING) << "collection " << collectionname << " not found" << endreq;
+	    m_provider->msg(MSG::WARNING) << "\tcollection " << collectionname << " not found" << endreq;
 	  }
 	  
 	  if ( found ) { 
@@ -819,13 +835,10 @@ void AnalysisConfig_Ntuple::loop() {
 		    chainName.find("HLT_")==std::string::npos ) continue;
 
 
-		m_provider->msg(MSG::DEBUG) << "status for chain " << chainName 
-			<< "\tpass "     << (*m_tdt)->isPassed(chainName)
+		m_provider->msg(MSG::INFO) << "chain " << chainName 
 			<< "\tprescale " << (*m_tdt)->getPrescale(chainName)
+			<< "\tpass "     << (*m_tdt)->isPassed(chainName)
 			<< endreq;
-
-
-		m_provider->msg(MSG::DEBUG) << "fetching features for chain " << chainName << endreq;
 
 
 		/**
@@ -835,6 +848,8 @@ void AnalysisConfig_Ntuple::loop() {
 		 **/
 
 		//    if ( !(*m_tdt)->isPassed( chainName ) ) continue;
+
+		
 
 		/// now decide whether we want all the TEs for this chain, or just those 
 		/// that are still active
@@ -851,8 +866,25 @@ void AnalysisConfig_Ntuple::loop() {
 		Trig::FeatureContainer::combination_const_iterator comb(f.getCombinations().begin()); 
 		Trig::FeatureContainer::combination_const_iterator combEnd(f.getCombinations().end());
 
+		if ( (*m_tdt)->isPassed(chainName) ) { 
+		  m_provider->msg(MSG::INFO) << "\tfetching features for chain " << chainName << "\t" << combEnd-comb << " combinations" << endreq;
+		}
+
+
+		{
+		  Trig::FeatureContainer f = (*m_tdt)->features( chainName, TrigDefs::Physics );  //, TrigDefs::alsoDeactivateTEs);
+		  Trig::FeatureContainer::combination_const_iterator comb(f.getCombinations().begin()); 
+		  Trig::FeatureContainer::combination_const_iterator combEnd(f.getCombinations().end());
+		  
+		  m_provider->msg(MSG::INFO) << "[91;1m" << "\tpassed combinations   chain " << chainName << "\t" 
+					     << combEnd-comb << " combinations" 
+					     << "\tdecision " << (*m_tdt)->isPassed(chainName, TrigDefs::Physics )  << "[m"  
+					     << endreq;
+		}		
+
+
 		if ( comb==combEnd ) { 
-			m_provider->msg(MSG::DEBUG) << "no features for chain " << chainName << endreq;
+			m_provider->msg(MSG::INFO) << "\tno features for chain " << chainName << endreq;
 			continue;
 		}
 
@@ -861,8 +893,14 @@ void AnalysisConfig_Ntuple::loop() {
 		TrackChain& chain = m_event->back();
 
 
+		int icomb = 0;
+
+
 		for( ; comb!=combEnd ; ++comb) {
 
+  		        m_provider->msg(MSG::INFO) << "\tcombination " << icomb << "\t" << chainName << endreq;
+		        icomb++;
+		  
 			//   now add rois to this ntuple chain
 
 			// Get seeding RoI
@@ -879,7 +917,7 @@ void AnalysisConfig_Ntuple::loop() {
 
 			// notify if have multiple RoIs (get this for FS chains)
 			if(initRois.size()>1) {
-			  m_provider->msg(MSG::INFO) << " More than one initial RoI found for seeded chain " << chainName << ": not yet supported" << endreq;
+			  m_provider->msg(MSG::INFO) << "\tMore than one initial RoI found for seeded chain " << chainName << ": not yet supported" << endreq;
 			  //continue; 
 			}
 
@@ -890,7 +928,7 @@ void AnalysisConfig_Ntuple::loop() {
 			    
 			    const TrigRoiDescriptor* roid = initRois[itmp].cptr();
    
-			    m_provider->msg(MSG::INFO) << chainName << " RoI descriptor " << itmp << " " << *roid << endreq;
+			    m_provider->msg(MSG::INFO) << "\tchain " << chainName << " RoI descriptor " << itmp << " " << *roid << endreq;
 			    
 			    TIDARoiDescriptor* roi_tmp = new TIDARoiDescriptor(TIDARoiDescriptorBuilder(*roid));
 			    
@@ -913,12 +951,16 @@ void AnalysisConfig_Ntuple::loop() {
 
 			
 			else { 
-				m_provider->msg(MSG::INFO) << "roi not found" <<  endreq;
+				m_provider->msg(MSG::INFO) << "\troi not found" <<  endreq;
 			}
 
 			// get the tracks from this roi
 
 			selectorTest.clear();
+
+
+			m_provider->msg(MSG::INFO) <<  "AC Ntple [91;1m" << endreq;
+
 
 			//EF track EDM
 			if (collectionName.find("InDetTrigParticleCreation")!=std::string::npos || 
@@ -928,9 +970,14 @@ void AnalysisConfig_Ntuple::loop() {
 			  else if ( selectTracks<TrackCollection>( &selectorTest, comb, collectionName) );
 			  else if ( selectTracks<TrigInDetTrackCollection>( &selectorTest, comb, truthMap, collectionName, collectionName_index ) );
 #ifdef XAODTRACKING_TRACKPARTICLE_H
-			  else if ( selectTracks<xAOD::TrackParticleContainer>( &selectorTest, comb, collectionName ) );
+			  else {
+			    m_provider->msg(MSG::INFO) << "\tsearch for xAOD::TrackParticle " << collectionName << endreq;  
+			    if ( selectTracks<xAOD::TrackParticleContainer>( &selectorTest, comb, collectionName ) ) m_provider->msg(MSG::WARNING) << "\tFound collection " << collectionName << " (Ntple)"  << endreq;  
+			    else m_provider->msg(MSG::WARNING) << "\tNo track collection " << collectionName << " found"  << endreq;  
+			  }
+#else
+			  else m_provider->msg(MSG::WARNING) << "\tNo track collection " << collectionName << " found"  << endreq;  
 #endif
-			  else m_provider->msg(MSG::WARNING) << "No track collection " << collectionName << " found"  << endreq;  
 			}
 			else {
 			  //L2 track EDM
@@ -941,10 +988,11 @@ void AnalysisConfig_Ntuple::loop() {
 #ifdef XAODTRACKING_TRACKPARTICLE_H
 			    else if ( selectTracks<xAOD::TrackParticleContainer>( &selectorTest, comb, collectionName ) );
 #endif
-			    else m_provider->msg(MSG::WARNING) << "No track collection " << collectionName << " found"  << endreq;  
+			    else m_provider->msg(MSG::WARNING) << "\tNo track collection " << collectionName << " found"  << endreq;  
 			  }
 			}
 
+			m_provider->msg(MSG::INFO) << "[m" << endreq;
 
 
 			/// fetch vertices if available ...
@@ -956,7 +1004,7 @@ void AnalysisConfig_Ntuple::loop() {
 			std::vector< Trig::Feature<VxContainer> > trigvertices = comb->get<VxContainer>();
 
 			if ( trigvertices.empty() ) { 
-			  m_provider->msg(MSG::INFO) << "No VxContainer for chain " << chainName << endreq;
+			  m_provider->msg(MSG::INFO) << "\tNo VxContainer for chain " << chainName << endreq;
 			}
 			else {
 			  
@@ -964,7 +1012,7 @@ void AnalysisConfig_Ntuple::loop() {
 			    
 			    const VxContainer* vert = trigvertices[iv].cptr();
 			    
-			    m_provider->msg(MSG::INFO) << iv << "  VxContainer for " << chainName << " " << vert << endreq;
+			    m_provider->msg(MSG::INFO) << "\t" << iv << "  VxContainer for " << chainName << " " << vert << endreq;
 
 			    VxContainer::const_iterator vtxitr = vert->begin();
 			  
@@ -989,7 +1037,7 @@ void AnalysisConfig_Ntuple::loop() {
 								     (*vtxitr)->recVertex().fitQuality().chiSquared(),
 								     (*vtxitr)->recVertex().fitQuality().numberDoF() ) );
 				
-				m_provider->msg(MSG::INFO)<< "vertex " << tidavertices.back() << endreq;
+				m_provider->msg(MSG::INFO)<< "\tvertex " << tidavertices.back() << endreq;
 			      }
 			    }
 
@@ -1002,7 +1050,7 @@ void AnalysisConfig_Ntuple::loop() {
 			  std::vector< Trig::Feature<xAOD::VertexContainer> > xaodtrigvertices = comb->get<xAOD::VertexContainer>();
 
 			  if ( xaodtrigvertices.empty() ) { 
-			    m_provider->msg(MSG::INFO) << "No xAOD::VertexContainer for chain " << chainName << endreq;
+			    m_provider->msg(MSG::INFO) << "\tNo xAOD::VertexContainer for chain " << chainName << endreq;
 			  }
 			  else {
 
@@ -1010,7 +1058,7 @@ void AnalysisConfig_Ntuple::loop() {
 			    
 			      const xAOD::VertexContainer* vert = xaodtrigvertices[iv].cptr();
 			    
-			      m_provider->msg(MSG::INFO) << iv << "  xAOD VxContainer for " << chainName << " " << vert << endreq;
+			      m_provider->msg(MSG::INFO) << "\t" << iv << "  xAOD VxContainer for " << chainName << " " << vert << endreq;
 			      
 			      xAOD::VertexContainer::const_iterator vtxitr = vert->begin();
 			  
@@ -1038,7 +1086,7 @@ void AnalysisConfig_Ntuple::loop() {
 			}
 
 			const std::vector<TrigInDetAnalysis::Track*>& testTracks = selectorTest.tracks();
-			m_provider->msg(MSG::DEBUG) << "test tracks.size() " << testTracks.size() << endreq; 
+			m_provider->msg(MSG::DEBUG) << "\ttest tracks.size() " << testTracks.size() << endreq; 
 			for (unsigned int ii=0; ii < testTracks.size(); ii++) {
 				m_provider->msg(MSG::DEBUG) << "  test track " << ii << "for chain " << chainName + ":" + collectionName << " " << *testTracks[ii] << endreq;  
 			}
@@ -1054,7 +1102,7 @@ void AnalysisConfig_Ntuple::loop() {
 			  //		chain.back().addUserData(beamline);
 			  //			}      
 			  //		else {
-			  if ( testTracks.size()>0 ) m_provider->msg(MSG::WARNING) << "test tracks.size() " << testTracks.size() << "found but no roi!!!" << endreq; 
+			  if ( testTracks.size()>0 ) m_provider->msg(MSG::WARNING) << "\ttest tracks.size() " << testTracks.size() << "found but no roi!!!" << endreq; 
 			  roiInfo = new TIDARoiDescriptor();
 			  roiInfo->phiHalfWidth(M_PI);
 			  roiInfo->etaHalfWidth(3);
