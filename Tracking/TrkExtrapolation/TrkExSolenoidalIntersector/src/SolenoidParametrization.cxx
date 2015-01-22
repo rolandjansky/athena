@@ -17,6 +17,27 @@
 #include "GaudiKernel/SystemOfUnits.h"
 #include "TrkExSolenoidalIntersector/SolenoidParametrization.h"
 
+namespace {
+    class RestoreIOSFlags 
+    {
+    public:
+      RestoreIOSFlags (std::ostream &os) 
+        : m_os(&os), 
+          //m_flags(m_os->flags()),
+          m_precision(m_os->precision())
+      {}
+      ~RestoreIOSFlags() {
+        //m_os->flags(m_flags);
+        m_os->precision(m_precision);
+      }
+    private:
+      std::ostream *m_os;
+      //std::ios_base::fmtflags m_flags;
+      std::streamsize  m_precision;
+    };
+}
+
+
 namespace Trk
 {
    
@@ -43,30 +64,35 @@ double		SolenoidParametrization::s_parameters[]      	= {14688*0.};
 //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
 
 // note: both constructors are private
-SolenoidParametrization::SolenoidParametrization(void)
-    :	m_hasParametrization	(false)
-{
-    // get central field value in units required for fast tracking
-    s_centralField    	= fieldComponent(0.,0.,0.);
-
-    // note field = B*c 
-    std::cout << " SolenoidParametrization: centralField "
-	      << std::setw(6) << std::setprecision(3) << s_centralField/s_lightSpeed /Gaudi::Units::tesla
-	      << "T" << std::endl;
-}
+// SolenoidParametrization::SolenoidParametrization(void)
+//     :	m_hasParametrization	(false)
+// {
+//    // field component not defined without a m_magFieldSvc
+//    // get central field value in units required for fast tracking
+//    s_centralField    	= fieldComponent(0.,0.,0.);
+//
+//    // note field = B*c 
+//    RestoreIOSFlags restore(std::cout);
+//    std::cout << " SolenoidParametrization: centralField "
+//              << std::setw(6) << std::setprecision(3) << s_centralField/s_lightSpeed /Gaudi::Units::tesla
+//              << "T" << std::endl;
+//}
 
 SolenoidParametrization::SolenoidParametrization(MagField::IMagFieldSvc* magFieldSvc)
     :	m_hasParametrization	(false),
 	m_magFieldSvc		(magFieldSvc)
 {
     // get central field value in units required for fast tracking (i.e. field = B*c)
+    if (!m_magFieldSvc)
+       throw std::logic_error("fieldComponent not defined without magnetic field service.");
     s_centralField    	= fieldComponent(0.,0.,0.);
+    RestoreIOSFlags restore(std::cout);
     std::cout << " SolenoidParametrization: centralField "
-	      << std::setw(6) << std::setprecision(3) << s_centralField/s_lightSpeed /Gaudi::Units::tesla
+              << std::setw(6) << std::setprecision(3) << s_centralField/s_lightSpeed /Gaudi::Units::tesla
 	      << "T";
     
     // now parametrise field - if requested
-    if (magFieldSvc)
+    //if (magFieldSvc)
     {
 	std::cout << "  - please be patient while the solenoid is parametrised !! ";
 	parametrizeSolenoid();
