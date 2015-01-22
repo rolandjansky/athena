@@ -1047,7 +1047,7 @@ int main( int argc, char* argv[] ) {
 
             // the LVL1 menu information
             log << "Retrieving Lvl1 menu configuration from cool" << lineend;
-            coolReader.readL1Menu(runNumber, ctpc.menu());
+            coolReader.readL1Menu( runNumber, ctpc );
 
             // read the prescales
             log << "Retrieving Lvl1 prescale set from cool" << lineend;

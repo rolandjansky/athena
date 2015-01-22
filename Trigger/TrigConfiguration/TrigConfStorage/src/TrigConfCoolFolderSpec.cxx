@@ -11,9 +11,6 @@
 #include "CoolKernel/IDatabase.h"
 #include "CoolKernel/FolderSpecification.h"
 
-#include "boost/foreach.hpp"
-
-
 using namespace std;
 using namespace cool;
 using namespace TrigConf;
@@ -572,7 +569,7 @@ void
 TrigConfCoolFolderSpec::printFolderStructure(IDatabasePtr db, std::ostream & o)
 {
 
-   BOOST_FOREACH(const string& node, db->listAllNodes()) {
+   for(const string& node : db->listAllNodes()) {
       bool isFolderSet = db->existsFolderSet(node);
       o << "        " << node;
       if(isFolderSet) 

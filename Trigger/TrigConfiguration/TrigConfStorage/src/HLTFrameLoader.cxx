@@ -31,6 +31,8 @@ TrigConf::HLTFrameLoader::load( HLTFrame& frame ) {
    unsigned int smk = frame.smk();
    if(smk==0) return false;
 
+   TRG_MSG_INFO("Loading HLT menu for SMK " << smk);
+
    typedef pair<unsigned int, unsigned int> lbnpsk_t;
    vector<lbnpsk_t> reqested_prescale_keys = frame.getPrescaleSetCollection().prescale_keys();
    
@@ -114,7 +116,7 @@ TrigConf::HLTFrameLoader::load( HLTFrame& frame ) {
         }
       }
       
-      frame.print();
+      //frame.print();
    }
    catch (const std::exception& e) {
       TRG_MSG_ERROR("exception " << e.what());

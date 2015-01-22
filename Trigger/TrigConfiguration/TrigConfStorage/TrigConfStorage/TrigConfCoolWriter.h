@@ -357,7 +357,7 @@ namespace TrigConf {
        * @param runNumber run number
        * @returns L1 Menu pointer
        */
-      void readL1Menu(unsigned int runNumber, Menu& menu);
+      void readL1Menu(unsigned int runNumber, CTPConfig & ctpc);
 
       void addWriteFolder(const std::string& fname) { m_writeFolderList.push_back( fname ); }
 

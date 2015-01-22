@@ -30,6 +30,7 @@ namespace TrigConf {
    class TriggerThreshold;
    class BunchGroupSet;
    class PIT;
+   class TIP;
    class ThresholdMonitor;
 
    namespace TrigConfCoolL1PayloadConverters {
@@ -85,7 +86,7 @@ namespace TrigConf {
                                                     const TrigConf::Menu& lvl1Menu);
 
       /** @brief build a COOL db record from a PIT-mapping string value */
-      cool::Record createLvl1InputMapPayload(cool::IFolderPtr, const TrigConf::PIT& pit);
+      cool::Record createLvl1InputMapPayload(cool::IFolderPtr, const TrigConf::TIP& tip);
 
 
       /**@brief build a COOL db record from a monitoring-mapping string value

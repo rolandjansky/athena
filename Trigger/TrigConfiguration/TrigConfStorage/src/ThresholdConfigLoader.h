@@ -35,10 +35,14 @@ namespace TrigConf {
     ThresholdConfigLoader( StorageMgr& sm,  coral::ISessionProxy& session)
        : DBLoader("ThresholdConfigLoader", sm, session) {}
 
-    /**@brief destructor*/
     virtual ~ThresholdConfigLoader(){};
 
     virtual bool load( ThresholdConfig& data);
+
+  private:
+
+     void loadCaloInfo( ThresholdConfig& thrConfig, long caloInfoId );
+
   };
 }
 

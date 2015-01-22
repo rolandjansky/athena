@@ -40,8 +40,6 @@
 #include "RelationalAccess/IDatabaseServiceSet.h"
 
 #include "boost/lexical_cast.hpp"
-#include "boost/foreach.hpp"
-#define foreach BOOST_FOREACH
 
 #include <stdexcept>
 #include <sstream>
@@ -349,7 +347,8 @@ TrigConf::TrigConfCoolWriter::writeHLTPayload( ValidityRange vr,
       }
    }
 
-   writeHltPrescalePayload(vr.since(), vr.until(),  *(hltFrame.getPrescaleSet()));//*fHLTPrescaleSet);
+   if(hltFrame.getPrescaleSet() != 0)
+      writeHltPrescalePayload(vr.since(), vr.until(),  *(hltFrame.getPrescaleSet()));//*fHLTPrescaleSet);
    
    if( shouldFolderBeUpdated("/TRIGGER/HLT/Menu") ||
        shouldFolderBeUpdated("/TRIGGER/HLT/Groups") ) {
@@ -370,7 +369,7 @@ TrigConf::TrigConfCoolWriter::writeHLTPayload( ValidityRange vr,
             hltMenuFolder->setupStorageBuffer(); 
             hltGroupFolder->setupStorageBuffer(); 
 
-            foreach(const HLTChain* chain, hltFrame.getHLTChainList() ) {
+            for ( const HLTChain* chain : hltFrame.getHLTChainList() ) {
                menuChannel++;
                string concise = HLTUtils::ChainCondenseDisplay( *chain, hltFrame);
                Record payload = createHltMenuPayload( hltMenuFolder, *chain, concise );
@@ -458,12 +457,12 @@ TrigConfCoolWriter::writeRunPayload( const RunRangeVec& runRanges,
    AutoDBOpen db(this, READ_WRITE);
    TrigConfCoolFolderSpec::createFolderStructure(m_dbPtr); // just in case
 
-   foreach(RunRange rr, runRanges) {
+   for ( RunRange rr : runRanges) {
       writeL1Payload(rr, ctpConfig);
    }
 
    // loop over the run ranges
-   foreach(RunRange rr, runRanges) {
+   for ( RunRange rr : runRanges) {
       writeHLTPayload( ValidityRange(rr), hltFrame, configSource);
    }
 }
@@ -490,7 +489,7 @@ TrigConf::TrigConfCoolWriter::writeL1MonPayload( const RunRangeVec& runRanges,
    TrigConfCoolFolderSpec::createMonFolderStructure(m_dbPtr); 
 
    // loop over the run ranges
-   foreach(RunRange rr, runRanges) {
+   for ( RunRange rr : runRanges) {
   
       ValidityRange vr(rr);
       rangeInfo("LVL1 monitoring", vr.since(), vr.until());
@@ -778,7 +777,7 @@ TrigConf::TrigConfCoolWriter::writeL1MenuPayload( ValidityRange vr,
          lvl1MenuFolder->setupStorageBuffer();
          lvl1ItemDefFolder->setupStorageBuffer();
          // go through the items
-         foreach(TriggerItem* item, lvl1Menu.items()) {
+         for ( TriggerItem* item : lvl1Menu.items()) {
             cool::Record    payloadMenu = TrigConfCoolL1PayloadConverters::createLvl1MenuPayload( lvl1MenuFolder, *item );
             cool::Record    payloadItemDef  = TrigConfCoolL1PayloadConverters::createLvl1ItemDefPayload( lvl1ItemDefFolder, *item );
             cool::ChannelId menuChannel = static_cast<cool::ChannelId>(item->ctpId()); // int -> uint32
@@ -823,33 +822,32 @@ TrigConf::TrigConfCoolWriter::writeL1MenuPayload( ValidityRange vr,
    if( shouldFolderBeUpdated("/TRIGGER/LVL1/CTPCoreInputMapping") ) {
       // now write PIT mapping
       try {
-         cool::ChannelId pitNum(0);
-         cool::IFolderPtr pitFolder = TrigConfCoolFolderSpec::getLvl1InputMapFolder(m_dbPtr);
-         const std::vector<TrigConf::PIT*>& lvl1Pits = lvl1Menu.pitVector();
-         std::vector<TrigConf::PIT*>::const_iterator pit = lvl1Pits.begin();
-         // use buffer to speed up COOL writing
-         pitFolder->setupStorageBuffer();
-         for(;pit != lvl1Pits.end(); ++pit) {
-            pitNum = static_cast<cool::ChannelId>((*pit)->pitNumber());
 
-            stringstream pitName;
-            pitName << "name:" << (*pit)->thresholdName();
-            pitName << "|thresh bit:" << (*pit)->thresholdBit();
-            pitName << "|pos:" << (*pit)->thresholdMapping();
-            pitName << "|active:" << (*pit)->thresholdActive();
-            pitName << "|ctpin slot:" << (*pit)->ctpinSlot();
-            pitName << "|con:" << (*pit)->ctpinConnector();
-            pitName << "|cable bit:" << (*pit)->cableBit();
-            m_ostream << "Write PIT / channel " << pitNum << " : " << pitName.str() << endl;
+         cool::IFolderPtr tipFolder = TrigConfCoolFolderSpec::getLvl1InputMapFolder(m_dbPtr);
+         tipFolder->setupStorageBuffer();
 
-            Record payload = TrigConfCoolL1PayloadConverters::createLvl1InputMapPayload( pitFolder, **pit );
-            pitFolder->storeObject(vr.since(), vr.until(), payload, pitNum);
+         for ( const TIP * tip : lvl1Menu.tipVector() ) {
+
+            cool::ChannelId tipNum = static_cast<cool::ChannelId>(tip->tipNumber());
+
+            stringstream tipName;
+            tipName << "name:" << tip->thresholdName();
+            tipName << "|thresh bit:" << tip->thresholdBit();
+            tipName << "|pos:" << tip->thresholdMapping();
+            tipName << "|active:" << tip->thresholdActive();
+            tipName << "|ctpin slot:" << tip->slot();
+            tipName << "|con:" << tip->connector();
+            tipName << "|cable bit:" << tip->cableBit();
+            m_ostream << "Write TIP / channel " << tipNum << " : " << tipName.str() << endl;
+
+            Record payload = TrigConfCoolL1PayloadConverters::createLvl1InputMapPayload( tipFolder, *tip );
+            tipFolder->storeObject(vr.since(), vr.until(), payload, tipNum);
          }
          m_ostream << "Flushing LVL1 CTPInputMap buffer to /TRIGGER/LVL1/CTPCoreInputMapping" << endl;
-         pitFolder->flushStorageBuffer();
+         tipFolder->flushStorageBuffer();
       } catch( cool::Exception & e) {
          m_ostream << "Caught cool::Exception: " << e.what() << endl;
-         m_ostream << "Failed to write LVL1 PIT mapping to COOL" << endl;
+         m_ostream << "Failed to write LVL1 TIP mapping to COOL" << endl;
          throw;
       } catch( exception & e) {
          m_ostream << "<writeLVL1RunPayload> Caught std::exception: " << e.what() << endl;
@@ -864,7 +862,7 @@ TrigConf::TrigConfCoolWriter::writeL1MenuPayload( const RunRangeVec& runRanges,
                                                   const TrigConf::Menu& lvl1Menu)
 {
    AutoDBOpen db(this, READ_WRITE);
-   foreach(RunRange rr, runRanges)
+   for ( RunRange rr : runRanges)
       writeL1MenuPayload( rr, lvl1Menu );
 }
 
@@ -901,7 +899,7 @@ TrigConf::TrigConfCoolWriter::writeL1BunchGroupRunPayload( const RunRangeVec& ru
 {
    AutoDBOpen db(this, READ_WRITE);
    TrigConfCoolFolderSpec::createFolderStructure(m_dbPtr);
-   foreach(RunRange rr, runRanges)
+   for ( RunRange rr : runRanges)
       writeL1BunchGroupRunPayload( rr, lvl1Menu, bgs);
 }
 
@@ -912,7 +910,7 @@ TrigConf::TrigConfCoolWriter::writeL1BunchGroupLBPayload( const RunRangeVec& run
                                                           const TrigConf::BunchGroupSet& bgs)
 {
    AutoDBOpen db(this, READ_WRITE);
-   foreach(RunRange rr, runRanges) {
+   for ( RunRange rr : runRanges) {
       ValidityRange vr(rr);
       writeL1BunchGroupLBPayload( rr, bgKey, bgs);
    }
@@ -960,7 +958,7 @@ TrigConfCoolWriter::writeHltPrescalePayload( const RunRangeVec& runRanges,
 {
    AutoDBOpen db(this, READ_WRITE);
    TrigConfCoolFolderSpec::createFolderStructure(m_dbPtr);
-   foreach(RunRange rr, runRanges) {
+   for ( RunRange rr : runRanges) {
       ValidityRange vr(rr);
       writeHltPrescalePayload( vr.since(), vr.until(), pss);
    }
@@ -1106,7 +1104,7 @@ TrigConfCoolWriter::writeL1PrescalePayload( const RunRangeVec& runRanges,
 {
    AutoDBOpen db(this, READ_WRITE);
    TrigConfCoolFolderSpec::createFolderStructure(m_dbPtr);
-   foreach(RunRange rr, runRanges) {
+   for ( RunRange rr : runRanges) {
       ValidityRange vr(rr);
       writeL1PrescalePayload( vr.since(), vr.until(), lvl1PrescaleKey, prescale);
    }
@@ -1233,7 +1231,16 @@ void
 TrigConfCoolWriter::readL1Payload( unsigned int run,
                                    CTPConfig & ctpc)
 {
-   readL1Menu( run, ctpc.menu() );
+
+   /**
+    *
+    * Setting the ctpVersion based on the run number does not work for MC
+    */
+
+   readL1Menu( run, ctpc );
+
+   
+
 }
 
 void 
@@ -1244,7 +1251,7 @@ TrigConfCoolWriter::readL1InputMapPayload(unsigned int run,
    ValidityRange vr(run, 1);
    IObjectIteratorPtr objects;
    IFolderPtr folder = TrigConfCoolFolderSpec::getLvl1InputMapFolder(m_dbPtr);
-   vector<bool> foundPit(256,false);   
+   vector<bool> foundPit(256,false);
    for(ChannelId channel = 0; channel < 160; ++channel) {
       objects = folder->browseObjects( vr.since(), vr.until(), channel );
       if(objects->size()==0) continue;
@@ -1345,6 +1352,7 @@ TrigConfCoolWriter::readL1Items(unsigned int run,
          }
       }
    }
+
 }
 
 
@@ -1392,25 +1400,51 @@ TrigConfCoolWriter::readL1ItemDef(unsigned int run,
 
 
 void
-TrigConfCoolWriter::readL1Menu(unsigned int run, Menu& menu)
+TrigConfCoolWriter::readL1Menu(unsigned int run, CTPConfig & ctpc)
 {
    AutoDBOpen db(this, READ_ONLY);
+
+   Menu & menu = ctpc.menu();
+
+
+   // thresholds
+   vector<TriggerThreshold*> thrs;
+   readL1Thresholds(run, thrs);
+
+   /**
+    * a unpleasant hack so we can figure out if this Run1 (CTPVersion 3) or Run2 (CTPVersion 4)
+    * 
+    * we use the fact that in Run2 the cable names were different
+    */
+   bool isRun2 = false;
+   for(TriggerThreshold* thr : thrs) {
+      if( thr->cableName()=="EM1" || thr->cableName()=="EM2" || 
+          thr->cableName()=="JET1" || thr->cableName()=="JET2" || 
+          thr->cableName()=="TOPO1" || thr->cableName()=="TOPO2" || 
+          thr->cableName()=="TAU1" || thr->cableName()=="TAU2") {
+         isRun2 = true;
+         break;
+      }
+   }
+   ctpc.setCTPVersion(isRun2 ? 4 : 3);
+   ctpc.setL1Version(isRun2 ? 1 : 0);
+   L1DataDef::setMaxThresholdsFromL1Version( ctpc.l1Version() );
+   cout << "TrigConfCoolWriter::readL1Menu for run " << run << ". Determined format " << (isRun2 ? "Run 2" : "Run 1") << endl;
+
    // items
    vector<TriggerItem*> items;
    readL1Items(run, items);
    for(TriggerItem* item: items)
       menu.addTriggerItem(item);
 
-   // thresholds
-   vector<TriggerThreshold*> thrs;
-   readL1Thresholds(run, thrs);
+
    readL1ItemDef(run, items, thrs);
 
    CaloInfo ci;
    for(TriggerThreshold* thr: thrs) {
 
       if ( thr->name()=="JetWeights" ) {
-         foreach(const string& weights, split( thr->cableName(),",")  )
+         for ( const string& weights : split( thr->cableName(),",")  )
             ci.addJetWeight( boost::lexical_cast<int, string>(weights) );
       }
       else if ( thr->name()=="METSigParams" ) {
@@ -1435,7 +1469,7 @@ TrigConfCoolWriter::readL1Menu(unsigned int run, Menu& menu)
    // PITs
    vector<PIT*> pits;
    readL1InputMapPayload(run, pits);
-   foreach(PIT* pit, pits)
+   for ( PIT* pit : pits)
       menu.addPit(pit);
 }
 
@@ -1498,6 +1532,7 @@ TrigConfCoolWriter::readL1BunchGroupLBPayload( unsigned int run, unsigned int lb
       bgV[i].setInternalNumber(i);
       bgs.addBunchGroup(bgV[i]);
    }
+   bgs.setId(bgKey);
 }
 
 

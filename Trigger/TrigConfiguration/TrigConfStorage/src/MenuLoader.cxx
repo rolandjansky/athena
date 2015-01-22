@@ -17,6 +17,7 @@
 #include "TrigConfL1Data/TriggerThreshold.h"
 #include "TrigConfL1Data/ThresholdMonitor.h"
 #include "TrigConfL1Data/PIT.h"
+#include "TrigConfL1Data/TIP.h"
 #include "TrigConfL1Data/L1DataDef.h"
 
 #include "boost/lexical_cast.hpp"
@@ -370,8 +371,8 @@ TrigConf::MenuLoader::loadThresholds(TrigConf::Menu& menu) {
 
    loadPIT(menu);
 
-   if(verbose()>1)
-      menu.thresholdConfig().print();
+   createTipFromDirectThresholds(menu);
+
 }
 
 
@@ -381,6 +382,9 @@ TrigConf::MenuLoader::loadPIT(TrigConf::Menu& menu) {
    if( ! (DBLoader::getEnv() == DBLoader::ALL    ||
           DBLoader::getEnv() == DBLoader::CTPOnl ||
           DBLoader::getEnv() == DBLoader::COOLL1) ) return;
+
+   set<int> tipNumbersUsed;
+
 
    unique_ptr< coral::IQuery > q( m_session.nominalSchema().newQuery() );
    q->addToTableList ( "L1_TM_TO_TT",          "TM2TT" );
@@ -440,8 +444,55 @@ TrigConf::MenuLoader::loadPIT(TrigConf::Menu& menu) {
       pit->setThresholdActive(tt->active());
       pit->setThresholdMapping(tt->mapping());
       menu.addPit(pit);
+
+      int phase = 0;
+      if(tipNumbersUsed.count(pitnum) > 0) {
+         phase = 1;
+      } else {
+         tipNumbersUsed.insert(pitnum);
+      }
+
+      TIP* tip = new TIP();
+      tip->setThresholdName(tt->name());
+      tip->setSlot(slot);
+      tip->setConnector( con );
+      tip->setTipNumber(pitnum + 160 * phase);
+      tip->setClock(phase);
+      tip->setThresholdBit(bitnum);
+      tip->setCableBit( tt->cableStart() + bitnum );
+      tip->setTmToTtId(tmtott);
+      tip->setTriggerThresholdId(ttid);
+      tip->setThresholdActive(tt->active());
+      tip->setThresholdMapping(tt->mapping());
+      tip->setIsDirect(false);
+      menu.addTip(tip);
+   }
+
+}
+
+
+void
+TrigConf::MenuLoader::createTipFromDirectThresholds(TrigConf::Menu& menu) {
+   for(TriggerThreshold * thr : menu.thresholdConfig().getThresholdVector() ) {
+      if(thr->ttype()==L1DataDef::TOPO) {
+         TIP* tip = new TIP();
+         tip->setThresholdName(thr->name());
+         tip->setSlot(10);
+         const string & conn = thr->cableConnector(); // "CON0", "CON1", "CON2"
+         tip->setConnector( conn[3]-'0' );
+         //cout << *thr << "  mapping " << thr->mapping() << "  clock " << thr->clock() << " bitnum " << thr->bitnum() << endl;
+         tip->setTipNumber( 320 + thr->mapping() );
+         tip->setThresholdBit( thr->clock() );
+         tip->setCableBit( thr->cableStart() );
+         tip->setTriggerThresholdId(thr->id() );
+         tip->setThresholdActive(thr->active());
+         tip->setThresholdMapping(thr->mapping());
+         tip->setIsDirect(true);
+         menu.addTip(tip);
+      }
    }
 }
+
 
 
 void

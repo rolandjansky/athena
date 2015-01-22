@@ -11,7 +11,6 @@
 #include <map>
 #include <iterator>
 #include <algorithm>
-#include "boost/foreach.hpp"
 #include "boost/lexical_cast.hpp"
 #include "boost/regex.hpp"
 
@@ -34,9 +33,6 @@
 #include "TrigConfL1Data/HelperFunctions.h"
 
 #include <iostream>
-
-#define foreach BOOST_FOREACH
-#define reverse_foreach BOOST_REVERSE_FOREACH
 
 using namespace std;
 
@@ -126,7 +122,7 @@ public:
   virtual void execute(const Exc_t&) {
      if ( ! m_hlt ) return;
     
-     foreach( const TrigConf::HLTChain* ch, m_hlt->getHLTChainList() ) {
+     for( const TrigConf::HLTChain* ch : m_hlt->getHLTChainList() ) {
         if ( ch->chain_name().find(ch->level()+"_") != 0 ) // of the level is not a prefix for the chain and it is not right 
            m_offending += ch->chain_name()+"("+ch->level()+") ";
      }
@@ -147,9 +143,9 @@ public:
    {}
 
    bool isExplicitTE(const std::string& teName) {
-      foreach( const TrigConf::HLTChain* c, m_hlt->getHLTChainList() )
-         foreach( const TrigConf::HLTSignature* s, c->signatureList() )
-            foreach( const TrigConf::HLTTriggerElement* te, s->outputTEs() )
+      for( const TrigConf::HLTChain* c : m_hlt->getHLTChainList() )
+         for( const TrigConf::HLTSignature* s : c->signatureList() )
+            for( const TrigConf::HLTTriggerElement* te : s->outputTEs() )
                if(te->name() ==  teName) return true;
       return false;
    }
@@ -158,7 +154,7 @@ public:
    virtual void execute(const Exc_t&) {
       if ( ! m_hlt ) return;
      
-      foreach(const TrigConf::HLTSequence* seq, m_hlt->getHLTSequenceList()) {
+      for(const TrigConf::HLTSequence* seq : m_hlt->getHLTSequenceList()) {
          const std::string& tename = seq->outputTE()->name();
         
          if( ( tename.find("L2") != 0 ) &&
@@ -196,19 +192,21 @@ public:
    virtual void execute(const Exc_t&) {
       if ( ! m_hlt ) return;
 
-      foreach(TrigConf::HLTChain* ch, m_hlt->getHLTChainList() ) {
+      for(TrigConf::HLTChain* ch : m_hlt->getHLTChainList() ) {
     
          std::vector<struct multi_sign> nextinputTEcount; // input of each sign output
 
          bool isLastSignature = true;
-         reverse_foreach( TrigConf::HLTSignature* sig, ch->signatureList() ) {
+         for( auto i = ch->signatureList().rbegin(); i != ch->signatureList().rend(); ++i ) {
+
+            TrigConf::HLTSignature* sig = *i;
 
             std::vector<struct multi_sign> outputTEcount;
             createSignMultiplicity(sig->outputTEs(), outputTEcount);
 	
-            foreach( multi_sign outputMultiCount, outputTEcount) {
+            for( multi_sign outputMultiCount : outputTEcount) {
                bool connected = false;
-               foreach( multi_sign inputMultiCount, nextinputTEcount ) {
+               for( multi_sign inputMultiCount : nextinputTEcount ) {
                   // don't check for multiplicity changes, since ComboAlgo's can change multiplicity
                   //if( (inputMultiCount.name == outputMultiCount.name) && (inputMultiCount.multiplicity == outputMultiCount.multiplicity)){
                   if( inputMultiCount.name == outputMultiCount.name ){ 
@@ -264,10 +262,10 @@ public:
 
    // creates a vector of (TE-name, multiplicity)
    void createSignMultiplicity(std::vector<TrigConf::HLTTriggerElement*> TElist, std::vector<struct multi_sign>& Multilist) {
-      foreach ( TrigConf::HLTTriggerElement* te, TElist ) {
+      for ( TrigConf::HLTTriggerElement* te : TElist ) {
          bool newo=true;
          // find TE-name in multiList and increment count
-         foreach( multi_sign ms, Multilist ){ 
+         for( multi_sign ms : Multilist ){ 
             if (te->name() == ms.name ){ 
                ms.multiplicity++;
                newo=false;
@@ -301,7 +299,7 @@ public:
 
      std::set<std::string> chains;    
 
-     foreach(const HLTChain* ch, m_hlt->getHLTChainList()) {
+     for (const HLTChain* ch : m_hlt->getHLTChainList()) {
         if(chains.count(ch->chain_name())>0)
            m_repeated += ch->chain_name()+", ";
         else 
@@ -332,7 +330,7 @@ public:
      std::set<int> l2counters;    
      std::set<int> efcounters;    
 
-     foreach(const HLTChain* ch, m_hlt->getHLTChainList()) {
+     for(const HLTChain* ch : m_hlt->getHLTChainList()) {
         std::set<int>& counters = ch->level()=="L2"?l2counters:efcounters;
         if(counters.count(ch->chain_counter())>0) {
            std::string& rep = ch->level()=="L2"?m_repeatedl2:m_repeatedef;
@@ -362,7 +360,7 @@ public:
    virtual void execute(const Exc_t&) {
       if ( ! m_hlt ) return;
    
-      foreach(const HLTChain* ch, m_hlt->getHLTChainList()) {
+      for(const HLTChain* ch : m_hlt->getHLTChainList()) {
          if ( ch->chain_counter() > 0x1fff  || ch->chain_counter() < 1 ) 
             m_offending += ch->chain_name()+ "[" + boost::lexical_cast<std::string,int>(ch->chain_counter()) + "], ";
       }
@@ -384,14 +382,14 @@ public:
   virtual void execute(const Exc_t&) {
      if ( ! m_hlt ) return;
     
-     foreach(const HLTChain* ch, m_hlt->getHLTChainList()) {
+     for(const HLTChain* ch : m_hlt->getHLTChainList()) {
         if ( ch->streams().size() == 0 ) {
            m_offending += ch->chain_name()+" (no stream), ";
            continue;
         }
         // need at least one unprescaled stream
         int pt1streams = 0;
-        foreach(const HLTStreamTag *s, ch->streams()) {
+        for(const HLTStreamTag *s : ch->streams()) {
            if ( s->prescale() == 1 ) pt1streams++;
            if ( s->type() == "physics" && s->prescale() != 1) m_offending += ch->chain_name() +" has phsycsis stream:" + s->stream() + " prescaled, ";
         }
@@ -417,7 +415,7 @@ public:
 
   virtual void execute(const Exc_t&) {
      if ( ! m_hlt ) return;
-     foreach(TrigConf::HLTChain* ch, m_hlt->getHLTChainList() ) {
+     for(TrigConf::HLTChain* ch : m_hlt->getHLTChainList() ) {
         if ( ch->groups().empty() ) 
            m_offending += ch->chain_name() + ", ";
      }
@@ -445,11 +443,11 @@ public:
 
      std::vector<boost::regex> exc_regex = buildExcRec(exceptions);
 
-     foreach(TrigConf::HLTChain* ch, m_hlt->getHLTChainList() ) {
+     for(TrigConf::HLTChain* ch : m_hlt->getHLTChainList() ) {
         if( matches_any(exc_regex, ch->chain_name()) ) continue; // excempt
       
         bool bwgroup=false;
-        foreach( const string it, ch->groups()) {
+        for( const string it : ch->groups()) {
            if ( it.find("BW:") == 0 ) { bwgroup=true; break; }
         }
         if(!bwgroup)
@@ -476,9 +474,9 @@ public:
 
   virtual void execute(const Exc_t&) {
      if ( ! m_hlt ) return;
-     foreach (TrigConf::HLTChain* ch, m_hlt->getHLTChainList() ) {
+     for (TrigConf::HLTChain* ch : m_hlt->getHLTChainList() ) {
         int previousSigCounter = -1;
-        foreach(const TrigConf::HLTSignature* sig, ch->signatureList()) {
+        for(const TrigConf::HLTSignature* sig : ch->signatureList()) {
            int currentCounter = sig->signature_counter();
            if ( currentCounter <= previousSigCounter ) {
               m_offending += ch->chain_name() + ", ";
@@ -502,8 +500,8 @@ public:
   virtual void execute(const Exc_t&) {
      if (!m_hlt) return;
 
-     foreach(const TrigConf::HLTChain* chain, m_hlt->getHLTChainList() ) {
-        foreach(const TrigConf::HLTSignature* sig, chain->signatureList() ) {
+     for(const TrigConf::HLTChain* chain : m_hlt->getHLTChainList() ) {
+        for(const TrigConf::HLTSignature* sig : chain->signatureList() ) {
            if (sig->outputTEs().empty()) {
               m_offending += chain->chain_name() + ", ";
            }
@@ -534,7 +532,7 @@ public:
      std::set<std::string> l2Chains;    
      std::set<std::string> l1items;
 
-     foreach(const HLTChain* ch, m_hlt->getHLTChainList())
+     for(const HLTChain* ch : m_hlt->getHLTChainList())
         if ( ch->level() == "L2" ) l2Chains.insert( ch->chain_name() );
      
      if ( m_ctp ) {
@@ -548,7 +546,7 @@ public:
   
      // loop egain for all HLT chains and check if they use non-existing seeds
 
-     foreach(const HLTChain* ch, m_hlt->getHLTChainList()) {
+     for(const HLTChain* ch : m_hlt->getHLTChainList()) {
         if(!m_ctp && ( ch->level_enum() == L2 || ch->level_enum() == HLT) ) continue; // if there is no L1 info, we can't check the L2 or HLT chains for input
         const std::string& lcn = ch->lower_chain_name();
         if ( lcn == "" ) continue;  // unseeded chains are fine
@@ -587,99 +585,99 @@ private:
 // USAGE OF ALL LVL1 ITEMS AS PREREQUISITE TO AN HLT CHAIN, AND ALL L2 CHAINS TO AN EF CHAIN //
 class LowerLevelUsedTest : public TrigConfTest {
 public:
-  LowerLevelUsedTest(int level) 
-     : TrigConfTest((level==1?"SeedingL2":"SeedingEF"), (level==1?"Check for L1 items not used by L2":"Check for L2 chains not used by EF"), INFO),
-      m_chains(""),
-      m_items(""),
-      m_level(level)
-  {}
+   LowerLevelUsedTest(int level) 
+      : TrigConfTest((level==1?"SeedingL2":"SeedingEF"), (level==1?"Check for L1 items not used by L2":"Check for L2 chains not used by EF"), INFO),
+        m_chains(""),
+        m_items(""),
+        m_level(level)
+   {}
   
-  virtual void execute(const Exc_t& exceptions) {
-     if ( ! m_hlt ) return;
+   virtual void execute(const Exc_t& exceptions) {
+      if ( ! m_hlt ) return;
     
-     std::set<std::string> chainsSeedingEF;
-     std::set<std::string> itemsSeedingL2;
+      std::set<std::string> chainsSeedingEF;
+      std::set<std::string> itemsSeedingL2;
 
-     for(const HLTChain* ch: m_hlt->getHLTChainList() ) {
+      for(const HLTChain* ch: m_hlt->getHLTChainList() ) {
 
-        const std::string& lcn = ch->lower_chain_name();
-        if ( lcn == "" ) continue; // unseeded chains
-        std::set<std::string>& seeds = ch->level() == "EF"?chainsSeedingEF:itemsSeedingL2;
-        if (lcn.find(',')!=std::string::npos) {
-           std::vector<std::string> singleItems = TrigConf::split(lcn, ",");
+         const std::string& lcn = ch->lower_chain_name();
+         if ( lcn == "" ) continue; // unseeded chains
+         std::set<std::string>& seeds = ch->level() == "EF"?chainsSeedingEF:itemsSeedingL2;
+         if (lcn.find(',')!=std::string::npos) {
+            std::vector<std::string> singleItems = TrigConf::split(lcn, ",");
 
-           foreach(string itemname, singleItems ) {
-              TrigConf::strip(itemname);
-              seeds.insert( itemname );
-           }
+            for(string itemname : singleItems ) {
+               TrigConf::strip(itemname);
+               seeds.insert( itemname );
+            }
 
-        } else {
-           seeds.insert( lcn );
-        }
-     }
+         } else {
+            seeds.insert( lcn );
+         }
+      }
 
-     //std::copy(itemsSeedingL2.begin(), itemsSeedingL2.end(), std::ostream_iterator<std::string>(std::cout," "));
+      //std::copy(itemsSeedingL2.begin(), itemsSeedingL2.end(), std::ostream_iterator<std::string>(std::cout," "));
 
-     std::vector<boost::regex> exc_regex;
-     foreach(const string& exc, exceptions ) {
-        exc_regex.push_back(boost::regex(exc+"$"));
-     }
+      std::vector<boost::regex> exc_regex;
+      for(const string& exc : exceptions ) {
+         exc_regex.push_back(boost::regex(exc+"$"));
+      }
 
-     if(m_level==2) {
-       foreach(const TrigConf::HLTChain* ch, m_hlt->getHLTChainList() ) {
-	 if (ch->level() == "EF") continue;
-	 if (ch->level() == "HLT") continue;
+      if(m_level==2) {
+         for(const TrigConf::HLTChain* ch : m_hlt->getHLTChainList() ) {
+            if (ch->level() == "EF") continue;
+            if (ch->level() == "HLT") continue;
 	 
-	 // check for excempt chains
-	 bool chain_is_excempt = false;
-	  foreach(const boost::regex e, exc_regex ) {
-	    if(regex_match(ch->chain_name(), e)) {
-	      chain_is_excempt = true;
-	      break;
-	    }
-	  }
-	  if(chain_is_excempt) continue;
+            // check for excempt chains
+            bool chain_is_excempt = false;
+            for(const boost::regex e : exc_regex ) {
+               if(regex_match(ch->chain_name(), e)) {
+                  chain_is_excempt = true;
+                  break;
+               }
+            }
+            if(chain_is_excempt) continue;
 	  
-	  if( chainsSeedingEF.count( ch->chain_name())==0 ) {
-	    if(m_chains!="") m_chains += ", ";
-	    m_chains += ch->chain_name();
-	  }
-       }
-       if(m_chains.size()>0){
-	 m_error = "L2 chains not seeding EF: " + m_chains;
-       }
-     }
+            if( chainsSeedingEF.count( ch->chain_name())==0 ) {
+               if(m_chains!="") m_chains += ", ";
+               m_chains += ch->chain_name();
+            }
+         }
+         if(m_chains.size()>0){
+            m_error = "L2 chains not seeding EF: " + m_chains;
+         }
+      }
      
      
-     if ( m_ctp && m_level==1 ) {
+      if ( m_ctp && m_level==1 ) {
        
-        for(TriggerItem* item: m_ctp->menu().itemVector() ) {
+         for(TriggerItem* item: m_ctp->menu().itemVector() ) {
 
-           // check for exceptions
-           bool item_is_excempt = false;
-           foreach(const boost::regex e, exc_regex ) {
-              if(regex_match(item->name(), e)) {
-                 item_is_excempt = true;
-                 break;
-              }
-           }
-           if(item_is_excempt) continue;
+            // check for exceptions
+            bool item_is_excempt = false;
+            for(const boost::regex e : exc_regex ) {
+               if(regex_match(item->name(), e)) {
+                  item_is_excempt = true;
+                  break;
+               }
+            }
+            if(item_is_excempt) continue;
 
-           if ( itemsSeedingL2.count(item->name()) == 0 ) {
-              if (m_items!="") m_items += ", ";
-              m_items += item->name();
-           }
-        }
-        if(m_items.size()>0){	  
-	  m_error = "CTP items not seeding L2/HLT chains: " + m_items;
-	}
-     }
-  }
+            if ( itemsSeedingL2.count(item->name()) == 0 ) {
+               if (m_items!="") m_items += ", ";
+               m_items += item->name();
+            }
+         }
+         if(m_items.size()>0){	  
+            m_error = "CTP items not seeding L2/HLT chains: " + m_items;
+         }
+      }
+   }
   
 private:
-  std::string m_chains;
-  std::string m_items;
-  int m_level;
+   std::string m_chains;
+   std::string m_items;
+   int m_level;
 };
 
 
@@ -705,78 +703,78 @@ private:
 // All L1Calo thresholds must be defined, even if not used
 class L1CaloThrDef : public TrigConfTest {
 public:
-  L1CaloThrDef() 
-     : TrigConfTest("L1CaloDefined", "Check if all L1 calo thresholds are defined", WARNING),
-      m_missingThresholds("")
-  {}
+   L1CaloThrDef() 
+      : TrigConfTest("L1CaloDefined", "Check if all L1 calo thresholds are defined", WARNING),
+        m_missingThresholds("")
+   {}
 
   
-  virtual void execute(const Exc_t&) {
-     if ( !m_ctp ) return;
+   virtual void execute(const Exc_t&) {
+      if ( !m_ctp ) return;
 
-     unsigned int em_max  = L1DataDef::typeConfig(L1DataDef::EM).max;  // this is actually em+tau
-     unsigned int tau_max = L1DataDef::max_TH_Threshold_Number();
-     unsigned int jet_max = L1DataDef::typeConfig(L1DataDef::JET).max;
-     unsigned int jf_max  = L1DataDef::max_JF_Threshold_Number();
-     unsigned int jb_max  = L1DataDef::max_JB_Threshold_Number();
-     unsigned int te_max  = L1DataDef::max_TE_Threshold_Number();
-     unsigned int xe_max  = L1DataDef::max_XE_Threshold_Number();
-     unsigned int je_max  = L1DataDef::max_JE_Threshold_Number();
-     unsigned int xs_max  = L1DataDef::max_XS_Threshold_Number();
-     INITTHR(em)
-     INITTHR(tau)
-     INITTHR(jet)
-     INITTHR(jf)
-     INITTHR(jb)
-     INITTHR(te)
-     INITTHR(xe)
-     INITTHR(je)
-     INITTHR(xs)
+      unsigned int em_max  = L1DataDef::typeConfig(L1DataDef::EM).max;  // this is actually em+tau
+      unsigned int tau_max = L1DataDef::max_TH_Threshold_Number();
+      unsigned int jet_max = L1DataDef::typeConfig(L1DataDef::JET).max;
+      unsigned int jf_max  = L1DataDef::max_JF_Threshold_Number();
+      unsigned int jb_max  = L1DataDef::max_JB_Threshold_Number();
+      unsigned int te_max  = L1DataDef::max_TE_Threshold_Number();
+      unsigned int xe_max  = L1DataDef::max_XE_Threshold_Number();
+      unsigned int je_max  = L1DataDef::max_JE_Threshold_Number();
+      unsigned int xs_max  = L1DataDef::max_XS_Threshold_Number();
+      INITTHR(em)
+         INITTHR(tau)
+         INITTHR(jet)
+         INITTHR(jf)
+         INITTHR(jb)
+         INITTHR(te)
+         INITTHR(xe)
+         INITTHR(je)
+         INITTHR(xs)
         
-     BOOST_FOREACH(const TrigConf::TriggerThreshold* thr, m_ctp->menu().thresholdConfig().thresholdVector() ) {
-        SUBTHR(em)
-        SUBTHR(tau)
-        SUBTHR(jet)
-        SUBTHR(jf)
-        SUBTHR(jb)
-        SUBTHR(te)
-        SUBTHR(xe)
-        SUBTHR(je)
-        SUBTHR(xs) {};
-        if(thr->type()==L1DataDef::tauType()) {
-           em--;
-           emList += thr->name() + ", ";
-        }
-     }
+         for(const TrigConf::TriggerThreshold* thr : m_ctp->menu().thresholdConfig().thresholdVector() ) {
+         SUBTHR(em)
+            SUBTHR(tau)
+            SUBTHR(jet)
+            SUBTHR(jf)
+            SUBTHR(jb)
+            SUBTHR(te)
+            SUBTHR(xe)
+            SUBTHR(je)
+            SUBTHR(xs) {};
+         if(thr->type()==L1DataDef::tauType()) {
+            em--;
+            emList += thr->name() + ", ";
+         }
+      }
 
-     if(tau>0) tau=0; // it is OK if there are less than tau_max tau-thresholds, as long as tau+em == em_max
+      if(tau>0) tau=0; // it is OK if there are less than tau_max tau-thresholds, as long as tau+em == em_max
 
-     CHECKTHR(em);
-     CHECKTHR(tau);
-     CHECKTHR(jet);
-     CHECKTHR(jf);
-     CHECKTHR(jb);
-     CHECKTHR(te);
-     CHECKTHR(xe);
-     CHECKTHR(je);
-     CHECKTHR(xs);
+      CHECKTHR(em);
+      CHECKTHR(tau);
+      CHECKTHR(jet);
+      CHECKTHR(jf);
+      CHECKTHR(jb);
+      CHECKTHR(te);
+      CHECKTHR(xe);
+      CHECKTHR(je);
+      CHECKTHR(xs);
 
-     if(m_missingThresholds.size()>0) {
-        m_error = "L1 calo thresholds that are not complete: " + m_missingThresholds;
-        ERRORTHR(em);
-        ERRORTHR(tau);
-        ERRORTHR(jet);
-        ERRORTHR(jf);
-        ERRORTHR(jb);
-        ERRORTHR(te);
-        ERRORTHR(xe);
-        ERRORTHR(je);
-        ERRORTHR(xs);
-     }
-  }
+      if(m_missingThresholds.size()>0) {
+         m_error = "L1 calo thresholds that are not complete: " + m_missingThresholds;
+         ERRORTHR(em);
+         ERRORTHR(tau);
+         ERRORTHR(jet);
+         ERRORTHR(jf);
+         ERRORTHR(jb);
+         ERRORTHR(te);
+         ERRORTHR(xe);
+         ERRORTHR(je);
+         ERRORTHR(xs);
+      }
+   }
   
 private:
-  std::string m_missingThresholds;
+   std::string m_missingThresholds;
 };
 
 
@@ -826,7 +824,7 @@ public:
      boost::cmatch matches;  // cmatch = match_results<const char*>
 
      // calculate threshold rank
-     foreach(const TrigConf::TriggerThreshold* thr, m_ctp->menu().thresholdConfig().thresholdVector() ) {
+     for(const TrigConf::TriggerThreshold* thr : m_ctp->menu().thresholdConfig().thresholdVector() ) {
         if(typeName.find(thr->type()) == typeName.end()) continue; // only l1 calo
 
         int i = -1;
@@ -849,7 +847,7 @@ public:
         thr_map_frep[L1DataDef::emType()].pop_back();
      }
 
-     foreach(string thrname, typeName ) {
+     for(string thrname : typeName ) {
         // check the vector
         bool ordered = true;
         int pre_v = 0;
@@ -865,7 +863,7 @@ public:
 
            if(m_error.size()==0) m_error = "Some calo threshold types are out of order: ";
            m_error += "\n" + thrname + ": ";
-           foreach(string thresh, thr_map[thrname]) { m_error += thresh + ", "; }
+           for(string thresh : thr_map[thrname]) { m_error += thresh + ", "; }
 
         }
      }
@@ -891,10 +889,10 @@ public:
      std::set<std::string> teOutFromSeq;
 
      // find all output TE's from the SequenceList
-     foreach(const HLTSequence* seq, m_hlt->getHLTSequenceList())
+     for(const HLTSequence* seq : m_hlt->getHLTSequenceList())
         teOutFromSeq.insert( seq->outputTE()->name());
      
-     foreach(const HLTChain* ch, m_hlt->getHLTChainList()) {
+     for(const HLTChain* ch : m_hlt->getHLTChainList()) {
         for ( unsigned int s = 0; s < ch->signatureList().size(); s++ ) {
            HLTSignature* sig = ch->signatureList()[s];
            for ( unsigned int t = 0; t < sig->outputTEs().size(); ++t ) {
@@ -924,7 +922,7 @@ public:
 
       std::set<std::string> teOutFromSeq;
 
-      foreach(const HLTSequence* seq, m_hlt->getHLTSequenceList()) {
+      for(const HLTSequence* seq : m_hlt->getHLTSequenceList()) {
          if ( teOutFromSeq.count( seq->outputTE()->name() ) == 0 ) 
             teOutFromSeq.insert( seq->outputTE()->name());
          else {
@@ -954,18 +952,18 @@ public:
      std::set<std::string> teInForSeq; // TE's that are input to any sequence in the sequence list
     
      // find all output and input TE's from the SequenceList
-     foreach(HLTSequence* seq, m_hlt->getHLTSequenceList()) {
+     for(HLTSequence* seq : m_hlt->getHLTSequenceList()) {
         teOut.insert( seq->outputTE()->name());
-        foreach(const TrigConf::HLTTriggerElement* te, seq->inputTEs())
+        for(const TrigConf::HLTTriggerElement* te : seq->inputTEs())
            if(te->name()!="") teInForSeq.insert( te->name());
      }
 
      // add the threshold names to the output TE's
-     foreach( TriggerThreshold* thr, m_ctp->menu().thresholdConfig().thresholdVector() )
+     for( TriggerThreshold* thr : m_ctp->menu().thresholdConfig().thresholdVector() )
         teOut.insert( thr->name() );
 
      // check if all inputs are mentioned in outputs
-     foreach(const string& inTE, teInForSeq) {
+     for(const string& inTE : teInForSeq) {
         if ( teOut.count(inTE) == 0) { // input does not appear ( empty string is excepted )
            cout << "Not found as output ------------------: "  << inTE << endl;
            m_tes += inTE + ", ";
@@ -992,12 +990,12 @@ public:
      if ( !m_hlt || !m_ctp ) return;
 
      std::map<std::string, const TrigConf::HLTChain*> chainsMap;
-     foreach(const HLTChain* ch, m_hlt->getHLTChainList()) {
+     for(const HLTChain* ch : m_hlt->getHLTChainList()) {
         chainsMap[ch->lower_chain_name()] = ch;
      }
 
      std::map<std::string, const TrigConf::HLTSequence*> sequencesMap;
-     foreach(const HLTSequence* seq, m_hlt->getHLTSequenceList()) {
+     for(const HLTSequence* seq : m_hlt->getHLTSequenceList()) {
         sequencesMap[seq->outputTE()->name()] = seq;
      }
 
@@ -1008,7 +1006,7 @@ public:
         l1thresholds.insert((*thrIt)->name());
 
 
-     foreach(const HLTChain* ch, m_hlt->getHLTChainList()) {
+     for(const HLTChain* ch : m_hlt->getHLTChainList()) {
         if (ch->level() == "L2") // this is EF check
            continue;
         if (ch->lower_chain_name() == "") // skip unseeded
@@ -1069,13 +1067,13 @@ public:
       found = true;
       return;
     }
-    foreach(TriggerItemNode *child, node->children())
+    for(TriggerItemNode *child : node->children())
        checkForBG0inTop(child, found);
   }
 
   virtual void execute(const Exc_t&) {
      if ( !m_ctp ) return;
-     foreach(TriggerItem* trItem, m_ctp->menu().items() ) {
+     for(TriggerItem* trItem : m_ctp->menu().items() ) {
         if(trItem->name().find("L1_BGRP")==0) continue; // the 8 BGRP_X triggers are special
         bool found = false;
         checkForBG0inTop(trItem->topNode(),found);
@@ -1153,11 +1151,7 @@ public:
                             inserter(needed_tes, needed_tes.begin()));
          }
 
-//          cout << "CHAIN " << ch->name() << endl;
-//          cout << "   needed: ";
-//          copy(needed_tes.begin(),needed_tes.end(), ostream_iterator<string>(cout, ", "));
-//          cout << endl;
-         
+        
          // the notProducedInChain should be L1
          // now we need the L1 thresholds per item
          const TriggerItem* item = m_ctp->menu().item(ch->lower_chain_name());
@@ -1172,11 +1166,6 @@ public:
             //if ( roibased_thresholds.find(" "+t->type()+" ") != string::npos )
             item_tes.insert(t->name());	  
          }
-//          cout << "   seeding ITEM " << item->name() << endl;
-//          cout << "   providing: ";
-//          copy(item_tes.begin(),item_tes.end(), ostream_iterator<string>(cout, ", "));
-//          cout << endl;
-
       
          // we can now check if the two sets (needed and comming from L1) are the same
          set<string> missing_tes;
@@ -1195,7 +1184,7 @@ public:
          boost::regex eJ("J(\\d+)");
          boost::regex eMU("MU(\\d+)");
          boost::cmatch matchRes;  // cmatch = match_results<const char*>
-         foreach(string providedTE, item_tes) { // find the maximum provided threshold
+         for(string providedTE : item_tes) { // find the maximum provided threshold
             if( boost::regex_match(providedTE.c_str(),matchRes,eXE)) {
                int thrVal = boost::lexical_cast<int,std::string>(string(matchRes[1].first, matchRes[1].second));
                if(thrVal>max_xe_provided) max_xe_provided = thrVal;
@@ -1217,7 +1206,7 @@ public:
          //std::cout << "\n" << ch->chain_name() << " <-- " << ch->lower_chain_name() << ": XEmax" << max_xe_provided << " XSmax" << max_xs_provided << "  Jmax=" << max_J_provided << "  MUmax=" << max_mu_provided << std::endl;
 
          // special treatment 2) for XS triggers: seeding a chain of L1_XS<N> provides XE10 and XS15
-         foreach(string providedTE, item_tes) { // find the maximum provided threshold
+         for(string providedTE : item_tes) { // find the maximum provided threshold
             if( boost::regex_match(providedTE.c_str(),eXS)) {
                if(10>max_xe_provided) max_xe_provided = 10;
                if(15>max_xs_provided) max_xs_provided = 15;
@@ -1225,7 +1214,7 @@ public:
          }
 
          boost::regex eJE("JE(\\d+)");
-         foreach(string providedTE, item_tes) { // find the maximum provided threshold
+         for(string providedTE : item_tes) { // find the maximum provided threshold
             if( boost::regex_match(providedTE.c_str(),eJE)) {
                if(10>max_J_provided) max_J_provided = 10;
             }
@@ -1236,7 +1225,7 @@ public:
 
          if(missing_tes.size()>0) {
             set<string> tmp_missing_tes;
-            foreach(string missingTE, missing_tes) {
+            for(string missingTE : missing_tes) {
                if( boost::regex_match(missingTE.c_str(),matchRes,eXE)) {
                   int thrVal = boost::lexical_cast<int,std::string>(string(matchRes[1].first, matchRes[1].second));
                   if(thrVal>max_xe_provided) {
@@ -1268,7 +1257,7 @@ public:
          // remove exceptions
          if(input_exps.size()>0) {
             set<string> tmp_missing_tes;
-            foreach(string te, missing_tes) {
+            for(string te : missing_tes) {
                if(! matches_any(input_exps, te)) { // no exception
                   tmp_missing_tes.insert(te);
                }
@@ -1284,15 +1273,15 @@ public:
 //                continue;
 //             }
             m_error +=  "\n                                  " + severity() + " chain " + ch->chain_name() + " seeded by " + item->name() +" - thresholds needed:";
-            foreach(const string& th, needed_tes ) {
+            for(const string& th : needed_tes ) {
                m_error += " "+th; 	  
             }
             m_error += ", thresholds from L1 seed:";
-            foreach( const string& th, item_tes ) {
+            for( const string& th : item_tes ) {
                m_error += " "+th; 	  
             }
             m_error += ", hence missing: "; // + boost::lexical_cast<string,unsigned int>(missing_tes.size());
-            foreach( const string& th, missing_tes ) {
+            for( const string& th : missing_tes ) {
                m_error += " "+th;
             }
 	
@@ -1323,7 +1312,7 @@ public:
      set<std::string> outputTEsAllL2Chains = HLTUtils::allTEsProducedInL2( *m_hlt );
 
      // loop over chains
-     foreach(const HLTChain* ch, m_hlt->getHLTChainList()) {
+     for(const HLTChain* ch : m_hlt->getHLTChainList()) {
         if( ch->level()=="L2" ) continue;
         if( ch->lower_chain_name()=="" ) continue;
 
@@ -1513,13 +1502,13 @@ public:
 
      std::string offending;
 
-     foreach( TriggerItem* item, m_ctp->menu().itemVector() ) {
+     for( TriggerItem* item : m_ctp->menu().itemVector() ) {
         std::vector<TrigConf::TriggerThreshold*> thresholds; 
         item->topNode()->getAllThresholds(thresholds);
         // filter thresholds to contain forward and backward only
         std::vector<std::string> forward; 
         std::vector<std::string> backward; 
-        foreach(TrigConf::TriggerThreshold* t, thresholds) {
+        for(TrigConf::TriggerThreshold* t : thresholds) {
            if ("FJ" == t->type())
               forward.push_back(t->name());
            if ("BJ" == t->type())
@@ -1550,9 +1539,9 @@ public:
 
      std::vector<boost::regex> exc_regex = buildExcRec(exceptions);
 
-     foreach(const TrigConf::HLTChain * ch, m_hlt->getHLTChainList() ) {
+     for(const TrigConf::HLTChain * ch : m_hlt->getHLTChainList() ) {
         unsigned int cnt = 0;
-        foreach( const std::string& gr,  ch->groups() ) {
+        for( const std::string& gr :  ch->groups() ) {
            if (gr.find("CPS:") != std::string::npos ) {
               cnt += 1;
               chains[gr].push_back(ch);
@@ -1564,10 +1553,10 @@ public:
      }
      // now we have map of chain group to chains
      // check 1 all chains are from the same level (to avoid confusion)
-     foreach(map_t::value_type& cpsgr, chains) {
+     for(map_t::value_type& cpsgr : chains) {
         std::string level = cpsgr.second[0]->level();
         std::string item =  cpsgr.second[0]->lower_chain_name();
-        foreach(const TrigConf::HLTChain * ch, cpsgr.second) {
+        for(const TrigConf::HLTChain * ch : cpsgr.second) {
            if ( ch->level() != level )
               offending += " wrong trigger level: "+ch->chain_name();
 	
@@ -1622,7 +1611,7 @@ public:
 
 
    bool overlapsWithSamePriority(const priobox_t& box, priobox_t& overlap) {
-      foreach(priobox_t b, m_boxes) {
+      for(priobox_t b : m_boxes) {
          if(box.overlaps(b) && box.priority==b.priority) {
             overlap = b;
             return true; 
@@ -1637,11 +1626,11 @@ public:
       std::string offending("");
       //std::vector<boost::regex> exc_regex = buildExcRec(exceptions);
 
-      foreach(const TrigConf::TriggerThreshold* thr,
+      for(const TrigConf::TriggerThreshold* thr :
               m_ctp->menu().thresholdConfig().getThresholdVector() ) {
          int cntGlobalValues(0);
          m_boxes.clear();
-         foreach( const TrigConf::TriggerThresholdValue* thrVal,  thr->thresholdValueVector() ) {
+         for( const TrigConf::TriggerThresholdValue* thrVal :  thr->thresholdValueVector() ) {
             priobox_t b;
             const TrigConf::JetThresholdValue* jetThrVal = dynamic_cast<const TrigConf::JetThresholdValue*>(thrVal);
             if(jetThrVal!=0) {

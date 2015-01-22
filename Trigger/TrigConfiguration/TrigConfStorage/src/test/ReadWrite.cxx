@@ -126,7 +126,7 @@ public:
 
    // other
    bool         help {false};
-   int          printlevel {-1};
+   int          printlevel {1};
    MSGTC::Level outputlevel {MSGTC::WARNING};
    bool         jo {false};
    bool         fw {false};
@@ -372,6 +372,7 @@ int main( int argc, char* argv[] ) {
     *
     ***************************************/
    CTPConfig* ctpc(0);
+   BunchGroupSet* bgs(nullptr);
    HLTFrame* hltFrame(0);
    TXC::L1TopoMenu* l1tm = nullptr;
 
@@ -382,12 +383,12 @@ int main( int argc, char* argv[] ) {
       unique_ptr<StorageMgr> sm(new StorageMgr(gConfig.db, "", "", log));
 
       // Loadign L1 topo 
-      log << "Retrieving Lvl1 Topo configuration" << lineend;
+      //log << "Retrieving Lvl1 Topo configuration" << lineend;
       l1tm  = new TXC::L1TopoMenu();
       l1tm->setSMK(gConfig.getKey(0));
       sm->masterTableLoader().load(*l1tm);
 
-      log << "Retrieving Lvl1 CTP configuration" << lineend;
+      //log << "Retrieving Lvl1 CTP configuration" << lineend;
       ctpc = new TrigConf::CTPConfig();
       ctpc->setSMK( gConfig.getKey(0) );
       ctpc->setPrescaleSetId( gConfig.getKey(1) );
@@ -399,7 +400,7 @@ int main( int argc, char* argv[] ) {
       ctpc->muCTPi().setSMK( gConfig.getKey(0) );
       sm->masterTableLoader().load( ctpc->muCTPi() );
 
-      log << "Retrieving HLT menu configuration and prescale set from the TriggerDB" << lineend;
+      //log << "Retrieving HLT menu configuration and prescale set from the TriggerDB" << lineend;
       hltFrame = new HLTFrame();
       hltFrame->setSMK( gConfig.getKey(0) );
       if( gConfig.getKey(2)>0 )
@@ -443,25 +444,32 @@ int main( int argc, char* argv[] ) {
    else if (gConfig.input == JobConfig::COOL) {
       string coolinput = gConfig.inpar[0];
       unsigned int runnumber =  gConfig.inpar.size()>1 ? boost::lexical_cast<unsigned int,string>(gConfig.inpar[1]) : 1;
+      unsigned int lb =  gConfig.inpar.size()>2 ? boost::lexical_cast<unsigned int,string>(gConfig.inpar[2]) : 0;
       string connection("");
       if(coolinput.find('.') != string::npos) {
          connection = "sqlite://;schema="+coolinput+";dbname=COMP200";
          log << "TrigConfReadWrite:                Reading cool from file " << coolinput << " with schema name COMP200" << lineend;
       } else {
          connection = coolinput;
-         log << "TrigConfReadWrite:                Reading cool using dblookup with alias " << coolinput << " with schema name COMP200" << lineend;
+         log << "TrigConfReadWrite:                Reading cool using dblookup with alias " << coolinput << lineend;
       }
       TrigConfCoolWriter * coolWriter = new TrigConfCoolWriter( connection );
       string configSource("");
       ctpc = new CTPConfig();
       coolWriter->readL1Payload( runnumber, *ctpc);
+
+      //      bgs = new BunchGroupSet();
+      int bgKey(0);
+      coolWriter->readL1BunchGroupLBPayload( runnumber, lb, bgKey, ctpc->bunchGroupSet() );
       hltFrame = new HLTFrame();
       coolWriter->readHLTPayload(runnumber, *hltFrame);
    }
 
    if(gConfig.printlevel>=0) {
-      if(ctpc)     ctpc->print("  ",gConfig.printlevel);
-      if(hltFrame) hltFrame->print("  ",gConfig.printlevel);
+      log << "Printout with print level " << gConfig.printlevel << lineend;
+      if(ctpc)     ctpc->print("  ", gConfig.printlevel);
+      if(bgs)      bgs->print("  ", gConfig.printlevel);
+      if(hltFrame) hltFrame->print("  ", gConfig.printlevel);
    }
 
 
