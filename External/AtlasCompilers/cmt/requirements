@@ -17,7 +17,7 @@ macro gcc_config_version   "4.3.6" \
       target-gcc46   "4.6.3"	\
       target-gcc47   "4.7.2"	\
       target-gcc48   "4.8.1"	\
-      target-gcc49   "4.9.0"	\	  
+      target-gcc49   "4.9.1"	\	  
       target-clang32 "4.6.3"    \
       target-clang33 "4.8.1"    \
       target-icc13   "4.8.1"
