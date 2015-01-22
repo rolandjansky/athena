@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODParticleEventDict.h 599909 2014-06-02 14:25:44Z kkoeneke $
+// $Id: xAODParticleEventDict.h 637086 2014-12-19 16:02:19Z kkoeneke $
 #ifndef XAODPARTICLEEVENT_XAODPARTICLEEVENTDICT_H
 #define XAODPARTICLEEVENT_XAODPARTICLEEVENTDICT_H
 
@@ -18,11 +18,11 @@
 #include "AthLinks/ElementLinkVector.h"
 
 // Local include(s):
-#include "xAODParticleEvent/versions/IParticleLinkContainer_v1.h"
-#include "xAODParticleEvent/versions/ParticleContainer_v1.h"
-#include "xAODParticleEvent/versions/ParticleAuxContainer_v1.h"
-#include "xAODParticleEvent/versions/CompositeParticleContainer_v1.h"
-#include "xAODParticleEvent/versions/CompositeParticleAuxContainer_v1.h"
+#include "xAODParticleEvent/IParticleLinkContainer.h"
+#include "xAODParticleEvent/ParticleContainer.h"
+#include "xAODParticleEvent/ParticleAuxContainer.h"
+#include "xAODParticleEvent/CompositeParticleContainer.h"
+#include "xAODParticleEvent/CompositeParticleAuxContainer.h"
 
 
 namespace {

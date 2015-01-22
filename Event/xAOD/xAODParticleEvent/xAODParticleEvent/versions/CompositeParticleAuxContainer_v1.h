@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CompositeParticleAuxContainer_v1.h 615672 2014-09-08 20:16:15Z kkoeneke $
+// $Id: CompositeParticleAuxContainer_v1.h 637086 2014-12-19 16:02:19Z kkoeneke $
 #ifndef XAODPARTICLEEVENT_VERSIONS_COMPOSITEPARTICLEAUXCONTAINER_V1_H
 #define XAODPARTICLEEVENT_VERSIONS_COMPOSITEPARTICLEAUXCONTAINER_V1_H
 
@@ -27,7 +27,7 @@ namespace xAOD {
   /// @author Karsten Koeneke <karsten.koeneke@cern.ch>
   ///
   /// $Revsision$
-  /// $Date: 2014-09-08 22:16:15 +0200 (Mon, 08 Sep 2014) $
+  /// $Date: 2014-12-19 17:02:19 +0100 (Fri, 19 Dec 2014) $
   ///
   class CompositeParticleAuxContainer_v1 : public AuxContainerBase {
 
@@ -65,9 +65,7 @@ namespace xAOD {
 } // namespace xAOD
 
 
-// Set up a CLID and StoreGate inheritance for the class:
-#include "xAODCore/CLASS_DEF.h"
-CLASS_DEF( xAOD::CompositeParticleAuxContainer_v1, 1205246726, 1 )
+// Set up StoreGate inheritance for the class:
 #include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::CompositeParticleAuxContainer_v1, xAOD::AuxContainerBase );
 

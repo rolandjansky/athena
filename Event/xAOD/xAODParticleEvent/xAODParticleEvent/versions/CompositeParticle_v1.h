@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CompositeParticle_v1.h 618587 2014-09-25 17:27:28Z kkoeneke $
+// $Id: CompositeParticle_v1.h 641075 2015-01-22 16:12:10Z kkoeneke $
 #ifndef XAODPARTICLEEVENT_VERSIONS_COMPOSITEPARTICLE_V1_H
 #define XAODPARTICLEEVENT_VERSIONS_COMPOSITEPARTICLE_V1_H
 
@@ -31,8 +31,8 @@ namespace xAOD {
   /// e.g., a Z boson that consists out of two muons.
   /// @author Karsten Koeneke <karsten.koeneke@cern.ch>
   ///
-  /// $Revision: 618587 $
-  /// $Date: 2014-09-25 19:27:28 +0200 (Thu, 25 Sep 2014) $
+  /// $Revision: 641075 $
+  /// $Date: 2015-01-22 17:12:10 +0100 (Thu, 22 Jan 2015) $
   ///
   class CompositeParticle_v1 : public IParticle {
 
@@ -116,6 +116,50 @@ namespace xAOD {
     /// @}
 
 
+    /// @name Functions returning variables that are calculated from 4-momentum
+    ///       information from constituents.
+    /// @{
+
+    /// Get the delta-phi between two constituents (missingET is at index=-1)
+    double deltaPhi( int constitAIdx = 0, int constitBIdx = 1 ) const;
+
+    /// Get the delta-eta between two constituents
+    double deltaEta( int constitAIdx = 0, int constitBIdx = 1 ) const;
+
+    /// Get the delta-reapidity between two constituents
+    double deltaRapidity( int constitAIdx = 0, int constitBIdx = 1 ) const;
+
+    /// Get the deltaR-squared between two constituents.
+    /// Is useRapidity=true, then the true rapidity will be used. Otherwise,
+    /// the pseudorapidity eta will be used.
+    double deltaR2( int constitAIdx = 0, int constitBIdx = 1, bool useRapidity=true ) const;
+
+    /// Get the deltaR between two constituents.
+    /// Is useRapidity=true, then the true rapidity will be used. Otherwise,
+    /// the pseudorapidity eta will be used.
+    double deltaR( int constitAIdx = 0, int constitBIdx = 1, bool useRapidity=true ) const;
+
+    /// Get the delta-|\vec{p}| between two constituents
+    double deltaAbsP( int constitAIdx = 0, int constitBIdx = 1 ) const;
+
+    /// Get the delta-|\vec{p_T}| between two constituents
+    double deltaAbsPt( int constitAIdx = 0, int constitBIdx = 1 ) const;
+
+
+    /// Define the enumeration of calculation methods for the transverse mass
+    struct MT {
+      enum Method {
+        DEFAULT = 0
+      };
+    };
+
+    /// Get the transverse mass.
+    /// Specify which calculation method to use as an optional additional argument.
+    double mt( MT::Method method=MT::DEFAULT ) const;
+
+    /// @}
+
+
     /// @name Functions implementing handling of constituents
     /// @{
 
@@ -185,8 +229,18 @@ namespace xAOD {
     /// Note that MissingET is NOT counted as a constituent in this context
     std::size_t nConstituents() const;
 
+    /// Number of constituent particles (same as above).
+    std::size_t nParts() const;
+
     /// Get the constituent IParticle number i
     const xAOD::IParticle* constituent( std::size_t index = 0 ) const;
+
+    /// Get the constituent IParticle number i (same as above)
+    const xAOD::IParticle* part( std::size_t index = 0 ) const;
+
+    /// Get the constituent number i as a CompositeParticle.
+    /// If the cast to CompositeParticle fails for a constituent, a null pointer is returned.
+    const xAOD::CompositeParticle_v1* compPart( std::size_t index = 0 ) const;
 
     /// Get the constituent IParticle number i as an ElementLink
     const xAOD::IParticleLink& constituentLink( std::size_t index = 0 ) const;
@@ -202,7 +256,7 @@ namespace xAOD {
     /// @brief Set all constituents in one go.
     ///        Warning: This is meant for usage internal to this class only
     ///        because no addition of the constituent properties will be done!
-    void setConstituentLinks( const xAOD::IParticleLinkContainer& constitLinks);
+    void setConstituentLinks( const xAOD::IParticleLinkContainer& constitLinks );
 
 
   public:
@@ -223,8 +277,34 @@ namespace xAOD {
 } // namespace xAOD
 
 
-// Set up a CLID for the object:
-#include "xAODCore/CLASS_DEF.h"
-CLASS_DEF( xAOD::CompositeParticle_v1, 172352727, 1 )
+// Inline methods
+inline
+std::size_t
+xAOD::CompositeParticle_v1::nParts() const
+{
+  return this->nConstituents();
+}
+
+
+inline
+const xAOD::IParticle*
+xAOD::CompositeParticle_v1::part( std::size_t index ) const
+{
+  return this->constituent(index);
+}
+
+
+inline
+const xAOD::CompositeParticle_v1*
+xAOD::CompositeParticle_v1::compPart( std::size_t index ) const
+{
+  const xAOD::IParticle* ipart = this->constituent(index);
+  if ( ipart->type() != xAOD::Type::CompositeParticle ){ return 0; }
+  return static_cast<const xAOD::CompositeParticle_v1*>(ipart);
+}
+
+
+
+
 
 #endif // XAODPARTICLEEVENT_VERSIONS_COMPOSITEPARTICLE_V1_H
