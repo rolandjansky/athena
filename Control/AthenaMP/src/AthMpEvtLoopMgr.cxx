@@ -199,12 +199,13 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
   }
 
   // When forking before 1st event, fire BeforeFork incident in non-pileup jobs
+  ServiceHandle<IIncidentSvc> incSvc("IncidentSvc",name());
+  if(incSvc.retrieve().isFailure()) {
+    msg(MSG::FATAL) << "Unable to retrieve IncidentSvc" << endreq;
+    return StatusCode::FAILURE;
+  }
+
   if(m_nEventsBeforeFork==0 && !m_isPileup) {
-    ServiceHandle<IIncidentSvc> incSvc("IncidentSvc",name());
-    if(incSvc.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Unable to retrieve IncidentSvc" << endreq;
-      return StatusCode::FAILURE;
-    }
     incSvc->fireIncident(Incident(name(),"BeforeFork"));
   }
 
@@ -249,6 +250,8 @@ StatusCode AthMpEvtLoopMgr::executeRun(int maxevt)
   for(; it!=itLast; ++it) {
     (*it)->useFdsRegistry(registry);
     (*it)->setRandString(randStream.str());
+    if(it==m_tools.begin())
+      incSvc->fireIncident(Incident(name(),"PreFork")); // Do it only once
     int nChildren = (*it)->makePool(maxevt,m_nWorkers,m_workerTopDir);
     if(nChildren==-1) {
       msg(MSG::FATAL) << "makePool failed for " << (*it)->name() << endreq;
