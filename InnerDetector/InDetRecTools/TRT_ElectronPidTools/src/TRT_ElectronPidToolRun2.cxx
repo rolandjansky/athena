@@ -83,7 +83,6 @@ InDet::TRT_ElectronPidToolRun2::TRT_ElectronPidToolRun2(const std::string& t,
   declareProperty("TRT_LocalOccupancyTool", m_LocalOccTool);
   declareProperty("isData", m_DATA = true);
   declareProperty("TRTStrawSummarySvc",    m_TRTStrawSummarySvc);
-
 }
 
 
@@ -153,8 +152,6 @@ StatusCode InDet::TRT_ElectronPidToolRun2::initialize()
   } else {
     if ( !m_TRTStrawSummarySvc.empty()) msg(MSG::INFO) << "Retrieved tool " << m_TRTStrawSummarySvc << endreq;
   }
-
-
 
 //   m_timingProfile=0;
 //   sc = service("ChronoStatSvc", m_timingProfile);
@@ -410,7 +407,6 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk
   for (unsigned int i = 0; i < occ.size() ; i++){
     ATH_MSG_DEBUG("Local occ: " << i << "\t" << occ.at(i) );
   }
-
 
   //ATH_MSG_INFO("started electronProbabaility");
   //Intialize the return vector

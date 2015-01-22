@@ -174,7 +174,6 @@ namespace InDet
     ToolHandle<ITRT_ToT_dEdx> m_TRTdEdxTool;     //!< the track selector tool
 
     ToolHandle<InDet::ITRT_LocalOccupancy> m_LocalOccTool;     //!< the track selector tool
-
     ServiceHandle<ITRT_StrawStatusSummarySvc> m_TRTStrawSummarySvc;
 
    }; 
