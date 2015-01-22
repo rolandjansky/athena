@@ -209,33 +209,36 @@ StatusCode egammaSuperClusterBuilder::execute()
       xAOD::CaloCluster *newClus = AddTopoClusters(secondaryClusters);
 
       //Fill some relevant calibration variables.
-      fillPositionsInCalo(newClus);
-      newClus->setRawE   (newClus->calE());
-      newClus->setRawEta (newClus->calEta());
-      newClus->setRawPhi (newClus->calPhi());
+      if (newClus) {
+	fillPositionsInCalo(newClus);
+	newClus->setRawE   (newClus->calE());
+	newClus->setRawEta (newClus->calEta());
+	newClus->setRawPhi (newClus->calPhi());
 
-      ATH_MSG_INFO("Filled positions in calo");
+	ATH_MSG_INFO("Filled positions in calo");
 
-      static SG::AuxElement::Decorator<int> nClusters ("nClusters");
-      nClusters(*newClus) = secondaryClusters.size();
+	static SG::AuxElement::Decorator<int> nClusters ("nClusters");
+	nClusters(*newClus) = secondaryClusters.size();
 
-      //Push it back into the output container.
-      outputClusterContainer->push_back(newClus);
+	//Push it back into the output container.
+	if (outputClusterContainer)
+	  outputClusterContainer->push_back(newClus);
 
-      ElementLink< xAOD::CaloClusterContainer > clusterLink(newClus, *outputClusterContainer);
-      std::vector< ElementLink<xAOD::CaloClusterContainer> > elClusters {clusterLink};
+	ElementLink< xAOD::CaloClusterContainer > clusterLink(newClus, *outputClusterContainer);
+	std::vector< ElementLink<xAOD::CaloClusterContainer> > elClusters {clusterLink};
 
-      //Make egammaRec object, and push it back into output container.
-      egammaRec *newEgRec = new egammaRec();
-      newEgRec->setCaloClusters  (elClusters);
-      newEgRec->setTrackParticles(elTracks);
-      newEgammaRecs->push_back(newEgRec);
-
-      ATH_MSG_INFO("Made new egammaRec object");
-      
+	//Make egammaRec object, and push it back into output container.
+	egammaRec *newEgRec = new egammaRec();
+	if (newEgRec && newEgammaRecs) {
+	  newEgRec->setCaloClusters  (elClusters);
+	  newEgRec->setTrackParticles(elTracks);
+	  newEgammaRecs->push_back(newEgRec);
+	  ATH_MSG_INFO("Made new egammaRec object");
+	}
+      }
     }
 
-  }
+  } //End look on egammaRecs
 
   return StatusCode::SUCCESS;
 

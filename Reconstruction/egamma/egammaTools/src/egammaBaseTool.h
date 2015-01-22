@@ -19,10 +19,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "egammaInterfaces/IegammaBaseTool.h"
 #include "xAODEgamma/EgammaFwd.h"
-#include "xAODTracking/TrackParticleContainerFwd.h"
  
-class CaloCellContainer;
-class egammaRec;
 
 class egammaBaseTool : public AthAlgTool, virtual public IegammaBaseTool
 {
@@ -41,10 +38,6 @@ class egammaBaseTool : public AthAlgTool, virtual public IegammaBaseTool
   StatusCode finalize();
   /** @brief execute method*/
   virtual StatusCode execute(xAOD::Egamma* eg); 
-  /** @brief execute method*/
-  virtual StatusCode executeRec(egammaRec* eg); 
-  /** @brief execute method for TrackParticles*/
-  virtual StatusCode trackExecute(egammaRec* eg,  const xAOD::TrackParticleContainer * trackPC);
   /** @brief execute method for methods working on containers*/
   virtual StatusCode contExecute(); 
  

@@ -47,26 +47,6 @@ StatusCode egammaBaseTool::execute(xAOD::Egamma* eg)
 }
 
 // ====================================================================================
-StatusCode egammaBaseTool::executeRec(egammaRec* eg)
-{
-  //
-  // standard execute method
-  //
-  if(eg)   return StatusCode::SUCCESS;
-
-  return StatusCode::SUCCESS;
-
-}
-
-
-StatusCode egammaBaseTool::trackExecute(egammaRec* eg,  const xAOD::TrackParticleContainer* ) {
-
-  if(eg) return StatusCode::SUCCESS;
-  
-  return StatusCode::SUCCESS;
-}
-
-// ====================================================================================
 StatusCode egammaBaseTool::contExecute()
 {
   //

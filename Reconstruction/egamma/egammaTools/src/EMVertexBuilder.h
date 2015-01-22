@@ -47,11 +47,6 @@ class EMVertexBuilder : virtual public IEMVertexBuilder, public egammaBaseTool {
   float m_minPtCut_DoubleTrack;
   float m_minPtCut_SingleTrack;
 
-  /** @brief create single track vertices from tracks that are not part of other vertices **/
-  void addSingleTrackVertices(const xAOD::TrackParticleContainer*,
-			      xAOD::VertexContainer*) const;
-
-
   StoreGateSvc          *m_storeGate;
 		
   /** @brief TrackParticle container input name*/
