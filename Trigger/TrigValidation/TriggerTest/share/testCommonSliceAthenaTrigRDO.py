@@ -41,7 +41,8 @@ rec.doAOD=False
 rec.doESD.set_Value_and_Lock(False) 
 doTAG=False
 rec.doCBNT=False 
-rec.doTruth=True
+#rec.doTruth=True
+rec.doTruth.set_Value_and_Lock(False)
 
 #-----------------------------------------------------------
 include("RecExCond/RecExCommon_flags.py")
@@ -105,19 +106,19 @@ def minbiasEnhanced():
             TriggerFlags.Lvl1.items = TriggerFlags.Lvl1.items() + [L1item]
     mbHLTItems = [
                   # MBTS at L2
-                  #['mb_mbts_L1MBTS_2', 821, 'L1_MBTS_2', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
-                  #['mb_mbts_L1MBTS_2_UNPAIRED_ISO', 822, 'L1_MBTS_2_UNPAIRED_ISO', [], ['MinBias'],["BW:Unpaired_Minbias", "RATE:MinBias"], 1],
-                  #['mb_mbts_L1MBTS_4_4', 823, 'L1_MBTS_4_4', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1], 	
+                  #['mb_mbts_L1MBTS_2', 'L1_MBTS_2', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
+                  #['mb_mbts_L1MBTS_2_UNPAIRED_ISO', 'L1_MBTS_2_UNPAIRED_ISO', [], ['MinBias'],["BW:Unpaired_Minbias", "RATE:MinBias"], 1],
+                  #['mb_mbts_L1MBTS_4_4',  'L1_MBTS_4_4', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1], 	
                   # Other spTrk
-                  #['mb_sptrk_noisesup', 828, 'L1_RD0_FILLED', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                  ['mb_sptrk_L1MBTS_1', 830, 'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-                  ['mb_sptrk_L1MBTS_2', 833, 'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-                  ['mb_sptrk_noisesup_L1MBTS_1', 831, 'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-                  ['mb_sptrk_noisesup_L1MBTS_2', 834, 'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-                  ['mb_sp2000_trk70_hmt_L1MBTS_1', 832, 'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],                  
-                  ['mb_sp2000_trk70_hmt_L1MBTS_2', 835, 'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-                  ['mb_sp2000_pusup600_trk70_hmt_L1MBTS_1', 841, 'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
-                  ['mb_sptrk_costr_L1MBTS_1', 842, 'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+                  #['mb_sptrk_noisesup', 'L1_RD0_FILLED', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
+                  ['mb_sptrk_L1MBTS_1',  'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+                  ['mb_sptrk_L1MBTS_2',  'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+                  ['mb_sptrk_noisesup_L1MBTS_1',  'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+                  ['mb_sptrk_noisesup_L1MBTS_2',  'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+                  ['mb_sp2000_trk70_hmt_L1MBTS_1',  'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],                  
+                  ['mb_sp2000_trk70_hmt_L1MBTS_2',  'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+                  ['mb_sp2000_pusup600_trk70_hmt_L1MBTS_1', 'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
+                  ['mb_sptrk_costr_L1MBTS_1', 'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], -1],
                   ]
     TriggerFlags.MinBiasSlice.signatures = mbHLTItems
     for HLTitem in mbHLTItems:        
@@ -155,8 +156,8 @@ if  ('sliceName' in dir()):
         GenerateMenu.overwriteSignaturesWith(bjetOnly)
     elif sliceName == 'bphysics':
         GenerateMenu.overwriteSignaturesWith(bphysicsOnly)    
-#    elif sliceName == 'bphysicskstar':
-#        GenerateMenu.overwriteSignaturesWith(bphysicskstarOnly)
+    #    elif sliceName == 'bphysicskstar':
+    #        GenerateMenu.overwriteSignaturesWith(bphysicskstarOnly)
     elif sliceName == 'met':
         GenerateMenu.overwriteSignaturesWith(metOnly)
     elif sliceName == 'tau':

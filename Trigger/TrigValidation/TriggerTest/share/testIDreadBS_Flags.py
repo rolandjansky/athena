@@ -31,7 +31,8 @@ doTAG=False
 useROOTNtuple=False # False : hbook ntuple
 
 # Set Truth flags
-rec.doTruth=False    # needs to be true if creating Fake RoI 
+#rec.doTruth=False    # needs to be true if creating Fake RoI 
+# so what on or off ???
 
 include ("TriggerRelease/TriggerFlags.py")
 # only do test for Egamma Slice

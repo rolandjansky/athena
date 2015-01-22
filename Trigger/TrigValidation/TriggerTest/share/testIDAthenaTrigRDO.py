@@ -32,7 +32,9 @@ rec.doAOD=False
 rec.doESD.set_Value_and_Lock(False) 
 doTAG=False
 
-rec.doTruth=True
+#rec.doTruth=True
+rec.doTruth.set_Value_and_Lock(False)
+
 
 #-----------------------------------------------------------
 include("RecExCond/RecExCommon_flags.py")
@@ -80,7 +82,7 @@ def ElectronOnly():
   TriggerFlags.Lvl1.items = TriggerFlags.Lvl1.items() + [  ]
   
   TriggerFlags.EgammaSlice.signatures = [
-    ['e24_medium_idperf', 188, 'L1_EM18VH', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'],1],
+    ['e24_medium_idperf', 'L1_EM18VH', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'],1],
     ]
     
 try:

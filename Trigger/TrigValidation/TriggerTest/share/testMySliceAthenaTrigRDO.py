@@ -27,7 +27,9 @@ rec.doAOD=False
 rec.doESD.set_Value_and_Lock(False) 
 doTAG=False
 rec.doCBNT=False 
-rec.doTruth=True
+#rec.doTruth=True
+rec.doTruth.set_Value_and_Lock(False)
+
 
 #-----------------------------------------------------------
 include("RecExCond/RecExCommon_flags.py")
@@ -72,19 +74,19 @@ def mineOnly():
 
 
     # for now physics pp v5 has no taus included, so temporarily we add one signature
-    #TriggerFlags.TauSlice.signatures = [['tau20_medium1', 5123, 'L1_TAU12', [], ['Tau'], ['RATE:SingleTau', 'BW:Tau'],1]]
+    #TriggerFlags.TauSlice.signatures = [['tau20_medium1',  'L1_TAU12', [], ['Tau'], ['RATE:SingleTau', 'BW:Tau'],1]]
     
     # for now physics pp v5 has no egammas included, so temporarily we add here one signature
     # example for adding a chain
-    #TriggerFlags.EgammaSlice.signatures = [['e24_medium_iloose', 178, 'L1_EM18VH', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'],1]] 
+    #TriggerFlags.EgammaSlice.signatures = [['e24_medium_iloose',   'L1_EM18VH', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'],1]] 
                     
     # for now physics pp v5 does not have any muons in, so we add some here
     # example for adding several chains
     #TriggerFlags.MuonSlice.signatures = [
-    #                                     ['mu24',                816, 'L1_MU20', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'],   1],
-    #                                     ['mu24_imedium',        817, 'L1_MU20', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'],   1],
-    #                                     ['mu50',                718, 'L1_MU20', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'],   1],
-    #                                     ['2mu6',                722, 'L1_2MU6', [], ['Muon'], ['RATE:MultiMuon' ,'BW:Muon'],   1]
+    #                                     ['mu24',                 'L1_MU20', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'],   1],
+    #                                     ['mu24_imedium',          'L1_MU20', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'],   1],
+    #                                     ['mu50',                'L1_MU20', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'],   1],
+    #                                     ['2mu6',            'L1_2MU6', [], ['Muon'], ['RATE:MultiMuon' ,'BW:Muon'],   1]
     #                                     ]
 
 

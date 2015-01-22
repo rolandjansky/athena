@@ -25,7 +25,9 @@ rec.doESD.set_Value_and_Lock(False)
 doTAG=False
 rec.doCBNT=False
 
-rec.doTruth=False
+#rec.doTruth=False
+rec.doTruth.set_Value_and_Lock(False)
+
 
 #-----------------------------------------------------------
 include("RecExCond/RecExCommon_flags.py")

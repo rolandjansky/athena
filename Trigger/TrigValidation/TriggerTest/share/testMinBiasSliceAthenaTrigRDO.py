@@ -37,7 +37,9 @@ rec.doAOD=False
 rec.doESD.set_Value_and_Lock(False) 
 doTAG=False
 
-rec.doTruth=True
+#rec.doTruth=True
+rec.doTruth.set_Value_and_Lock(False)
+
 
 #-----------------------------------------------------------
 include("RecExCond/RecExCommon_flags.py")
@@ -77,31 +79,31 @@ def MinBiasOnly():
     
     TriggerFlags.MinBiasSlice.signatures = [
                                             #MBTS at L2
-                                            ['mb_mbts_L1MBTS_2', 821, 'L1_MBTS_2', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
-                                            #['mb_mbts_L1MBTS_2_UNPAIRED_ISO', 822, 'L1_MBTS_2_UNPAIRED_ISO', [], ['MinBias'],["BW:Unpaired_Minbias", "RATE:MinBias"], 1],
-                                            #['mb_mbts_L1MBTS_4_4', 823, 'L1_MBTS_4_4', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_perf_L1LUCID',         824, 'L1_LUCID',        [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_perf_L1MBTS_1', 825, 'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            #['mb_noalg_L1MBTS_2',         826, 'L1_MBTS_2',        [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sptrk', 827, 'L1_RD0_FILLED', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sptrk_noisesup', 828, 'L1_RD0_FILLED', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sp2000_trk70_hmt', 829, 'L1_TE20', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sptrk_L1MBTS_1', 830, 'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sptrk_noisesup_L1MBTS_1', 831, 'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sp2000_trk70_hmt_L1MBTS_1', 832, 'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],                  
-                                            ['mb_sptrk_L1MBTS_2', 833, 'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sptrk_noisesup_L1MBTS_2', 834, 'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sp2000_trk70_hmt_L1MBTS_2', 835, 'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sp2000_pusup600_trk70_hmt', 836, 'L1_TE20', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sp2000_pusup600_trk70_hmt_L1TE30', 837, 'L1_TE30', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sp2000_pusup600_trk70_hmt_L1TE40', 838, 'L1_TE40', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sp2000_pusup700_trk70_hmt_L1TE30', 839, 'L1_TE30', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sp2000_pusup700_trk70_hmt_L1TE40', 840, 'L1_TE40', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sp2000_pusup600_trk70_hmt_L1MBTS_1', 841, 'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            ['mb_sptrk_costr_L1MBTS_1', 842, 'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            #['noalg_mb_L1TE20', 843, 'L1_TE20', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            #['noalg_mb_L1TE30', 844, 'L1_TE30', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
-                                            #['noalg_mb_L1TE40', 845, 'L1_TE40', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
+                                            ['mb_mbts_L1MBTS_2', 'L1_MBTS_2', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
+                                            #['mb_mbts_L1MBTS_2_UNPAIRED_ISO',   'L1_MBTS_2_UNPAIRED_ISO', [], ['MinBias'],["BW:Unpaired_Minbias", "RATE:MinBias"], 1],
+                                            #['mb_mbts_L1MBTS_4_4',   'L1_MBTS_4_4', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
+                                            ['mb_perf_L1LUCID',           'L1_LUCID',        [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
+                                            ['mb_perf_L1MBTS_1', 'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
+                                            #['mb_noalg_L1MBTS_2',         'L1_MBTS_2',        [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
+                                            ['mb_sptrk', 'L1_RD0_FILLED', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
+                                            ['mb_sptrk_noisesup',   'L1_RD0_FILLED', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
+                                            ['mb_sp2000_trk70_hmt',   'L1_TE20', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
+                                            ['mb_sptrk_L1MBTS_1',  'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
+                                            ['mb_sptrk_noisesup_L1MBTS_1',  'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
+                                            ['mb_sp2000_trk70_hmt_L1MBTS_1', 'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],                  
+                                            ['mb_sptrk_L1MBTS_2',   'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
+                                            ['mb_sptrk_noisesup_L1MBTS_2',   'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
+                                            ['mb_sp2000_trk70_hmt_L1MBTS_2',  'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
+                                            ['mb_sp2000_pusup600_trk70_hmt',  'L1_TE20', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
+                                            ['mb_sp2000_pusup600_trk70_hmt_L1TE30',   'L1_TE30', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
+                                            ['mb_sp2000_pusup600_trk70_hmt_L1TE40',  'L1_TE40', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
+                                            ['mb_sp2000_pusup700_trk70_hmt_L1TE30',   'L1_TE30', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
+                                            ['mb_sp2000_pusup700_trk70_hmt_L1TE40',   'L1_TE40', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
+                                            ['mb_sp2000_pusup600_trk70_hmt_L1MBTS_1',   'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
+                                            ['mb_sptrk_costr_L1MBTS_1',  'L1_MBTS_1', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
+                                            #['noalg_mb_L1TE20',  'L1_TE20', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
+                                            #['noalg_mb_L1TE30',  'L1_TE30', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
+                                            #['noalg_mb_L1TE40', 'L1_TE40', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1],
                                             ]
 
 try:
