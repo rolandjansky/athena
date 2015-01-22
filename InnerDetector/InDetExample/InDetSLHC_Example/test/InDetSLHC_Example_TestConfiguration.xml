@@ -160,86 +160,152 @@
   </kvtest>
 
 </kv>
+
 <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
   <rttContactPerson>Andreas Korn</rttContactPerson>
   <mailto>atlas.indetslhcrtt.monitoring@cern.ch</mailto>
-        <refRelease>15.0.0</refRelease>
+  <refRelease>15.0.0</refRelease>
 
-   <jobList>
+  <jobList>
 
-      <classification>
-         <displayClass>OfflineValidation</displayClass>
-         <displayProcess>Reco</displayProcess>
-         <displayComponent>Det-InDet</displayComponent>
-      </classification>
+    <classification>
+      <displayClass>OfflineValidation</displayClass>
+      <displayProcess>Reco</displayProcess>
+      <displayComponent>Det-InDet</displayComponent>
+    </classification>
 
-     <chain>
-     <chainName>SLHCChainTest</chainName>
-     <sequential>
-     <chainElement>
-     <jobTransform userJobId="SLHCGen">
-     <doc>SLHCSimulation</doc>
-     <jobTransformJobName>chainG4SLHCRTT</jobTransformJobName>
-     <jobTransformCmd>AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/e_E50_eta0-25-7000.evgen.pool.root --outputHITSFile=SLHCtest.HITS.pool.root --maxEvents=500 --skipEvents=0 --randomSeed=10 --preInclude='sim:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py' --geometryVersion=ATLAS-P2-ITK-01-00-00_VALIDATION --conditionsTag=OFLCOND-ATLAS-HL-LHC-00 --postInclude='sim:InDetSLHC_Example/postInclude.SLHC_Setup.py'
-     </jobTransformCmd>
-     <group>SLHCFCTTransform</group>
-     <queue>medium</queue>
-     </jobTransform>
-     <chainfileout>SLHCtest.HITS.pool.root</chainfileout>
-     </chainElement>
+    <chain>
+      <chainName>SLHCChainTestLOI</chainName>
+      <sequential>
+	<chainElement>
+	  <jobTransform userJobId="SimLOI">
+	    <doc>SLHCSimulation</doc>
+	    <jobTransformJobName>chainSimLOISLHCRTT</jobTransformJobName>
+	    <jobTransformCmd>
+	      AtlasG4_tf.py --inputEVNTFile=/afs/cern.ch/atlas/offline/ProdData/15.6.11.3/e_E50_eta0-25-7000.evgen.pool.root --outputHITSFile=SLHCtest.LOI.HITS.pool.root --maxEvents=500 --skipEvents=0 --randomSeed=10 --preInclude='sim:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py' --geometryVersion=ATLAS-P2-ITK-01-00-00_VALIDATION --conditionsTag=OFLCOND-ATLAS-HL-LHC-00 --postInclude='sim:InDetSLHC_Example/postInclude.SLHC_Setup.py'
+	    </jobTransformCmd>
+	    <group>SLHCFCTTransform</group>
+	    <queue>medium</queue>
+	  </jobTransform>
+	  <chainfileout>SLHCtest.LOI.HITS.pool.root</chainfileout>
+	</chainElement>
 
-     <chainElement>
-     <jobTransform userJobId="SLHCDigi">
-     <doc>SLHCDigitization</doc>
-     <jobTransformJobName>chainDigiSLHCRTT</jobTransformJobName>
-     <jobTransformCmd> Digi_tf.py --inputHITSFile=SLHCtest.HITS.pool.root --outputRDOFile=SLHCtest.RDO.pool.root --maxEvents=500 --skipEvents=0 --preInclude='HITtoRDO:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py' --geometryVersion=ATLAS-P2-ITK-01-00-00 --conditionsTag=OFLCOND-ATLAS-HL-LHC-00 --postInclude='HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization.py,InDetSLHC_Example/postInclude.SLHC_Setup.py,RecJobTransforms/UseFrontier.py' --digiSeedOffset1=11 --digiSeedOffset2=22 --doAllNoise=False
-     </jobTransformCmd>
-     <group>SLHCFCTTransform</group>
-     <chaindataset_info>
-     <jobTransformData/>
-     <chaindatasetName>SLHCtest.HITS.pool.root</chaindatasetName>
-     <dataset_info>
-     <jobTransformData/>
-     <datasetName>NONE.pool.root</datasetName>
-     </dataset_info>
-     </chaindataset_info>
-     <queue>medium</queue>
-     </jobTransform>
-     <chainfileout>SLHCtest.RDO.pool.root</chainfileout>
-     </chainElement>
+	<chainElement>
+	  <jobTransform userJobId="DigiLOI">
+	    <doc>SLHCDigitization</doc>
+	    <jobTransformJobName>chainDigiLOISLHCRTT</jobTransformJobName>
+	    <jobTransformCmd> 
+	      Digi_tf.py --inputHITSFile=SLHCtest.LOI.HITS.pool.root --outputRDOFile=SLHCtest.LOI.RDO.pool.root --maxEvents=500 --skipEvents=0 --preInclude='HITtoRDO:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.SiliconOnly.py' --geometryVersion=ATLAS-P2-ITK-01-00-00 --conditionsTag=OFLCOND-ATLAS-HL-LHC-00 --postInclude='HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization.py,InDetSLHC_Example/postInclude.SLHC_Setup.py,RecJobTransforms/UseFrontier.py' --digiSeedOffset1=11 --digiSeedOffset2=22 --doAllNoise=False
+	    </jobTransformCmd>
+	    <group>SLHCFCTTransform</group>
+	    <chaindataset_info>
+	      <jobTransformData/>
+	      <chaindatasetName>SLHCtest.LOI.HITS.pool.root</chaindatasetName>
+	      <dataset_info>
+		<jobTransformData/>
+		<datasetName>NONE.pool.root</datasetName>
+	      </dataset_info>
+	    </chaindataset_info>
+	    <queue>medium</queue>
+	  </jobTransform>
+	  <chainfileout>SLHCtest.LOI.RDO.pool.root</chainfileout>
+	</chainElement>
 
-     <chainElement>
-     <jobTransform userJobId="SLHCReco">
-     <doc>SLHCReconstruction</doc>
-     <jobTransformJobName>chainRecoSLHCRTT</jobTransformJobName>
-     <jobTransformCmd> Reco_tf.py --inputRDOFile=SLHCtest.RDO.pool.root --preInclude InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py --postInclude InDetSLHC_Example/postInclude.SLHC_Setup.py r2e:InDetSLHC_Example/postInclude.DigitalClustering.py --outputESDFile=SLHCtest.ESD.pool.root --maxEvents=500  --geometryVersion=ATLAS-P2-ITK-01-00-00 --outputAODFile=SLHCtest.AOD.pool.root
-     </jobTransformCmd>
-     <group>SLHCFCTTransform</group>
-     <chaindataset_info>
-     <jobTransformData/>
-     <chaindatasetName>SLHCtest.RDO.pool.root</chaindatasetName>
-     <dataset_info>
-     <jobTransformData/>
-     <datasetName>NONE.pool.root</datasetName>
-     </dataset_info>
-     </chaindataset_info>
-     <queue>medium</queue>
-     </jobTransform>
-     <chainfileout>SLHCtest.ESD.pool.root</chainfileout>
-     </chainElement>
+	<chainElement>
+	  <jobTransform userJobId="RecoLOI">
+	    <doc>SLHCReconstruction</doc>
+	    <jobTransformJobName>chainRecoLOISLHCRTT</jobTransformJobName>
+	    <jobTransformCmd> 
+	      Reco_tf.py --inputRDOFile=SLHCtest.LOI.RDO.pool.root --preInclude InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py --postInclude InDetSLHC_Example/postInclude.SLHC_Setup.py r2e:InDetSLHC_Example/postInclude.DigitalClustering.py --outputESDFile=SLHCtest.LOI.ESD.pool.root --maxEvents=500  --geometryVersion=ATLAS-P2-ITK-01-00-00 --outputAODFile=SLHCtest.LOI.AOD.pool.root
+	    </jobTransformCmd>
+	    <group>SLHCFCTTransform</group>
+	    <chaindataset_info>
+	      <jobTransformData/>
+	      <chaindatasetName>SLHCtest.LOI.RDO.pool.root</chaindatasetName>
+	      <dataset_info>
+		<jobTransformData/>
+		<datasetName>NONE.pool.root</datasetName>
+	      </dataset_info>
+	    </chaindataset_info>
+	    <queue>medium</queue>
+	  </jobTransform>
+	  <chainfileout>SLHCtest.LOI.ESD.pool.root</chainfileout>
+	</chainElement>
 
-     </sequential>
-     </chain>
-     </jobList>
-<jobGroups>
- <jobGroup name="SLHCFCTTransform" parent="Transform">
-    <keepFilePattern>*.root</keepFilePattern>
-    <keepFilePattern>*.pdf</keepFilePattern>
-    <keepFilePattern>*.log</keepFilePattern>
-    <keepFilePattern>log.*</keepFilePattern>
- </jobGroup>
+      </sequential>
+    </chain>
 
-</jobGroups>
+    <chain>
+      <chainName>SLHCChainTestLOIVF</chainName>
+      <sequential>
+	<chainElement>
+	  <jobTransform userJobId="SimLOIVF">
+	    <doc>SLHCSimulation</doc>
+	    <jobTransformJobName>chainSimLOIVFSLHCRTT</jobTransformJobName>
+	    <jobTransformCmd>
+	      AtlasG4_tf.py --inputEVNTFile=root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/EVNTexample/mc12_14TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.evgen.EVNT.e1323_tid00851913_00/EVNT.00851913._001697.pool.root.1 --outputHITSFile=SLHCtest.LOIVF.HITS.pool.root --maxEvents=5 --skipEvents=0 --randomSeed=10 --preInclude='sim:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT.py' --geometryVersion=ATLAS-P2-ITK-02-00-00_VALIDATION --conditionsTag=OFLCOND-MC12-ITK-21-80-25 --postInclude='sim:InDetSLHC_Example/postInclude.SLHC_Setup.py'
+	    </jobTransformCmd>
+	    <group>SLHCFCTTransform</group>
+	    <queue>long</queue>
+	  </jobTransform>
+	  <chainfileout>SLHCtest.LOIVF.HITS.pool.root</chainfileout>
+	</chainElement>
+
+	<chainElement>
+	  <jobTransform userJobId="DigiLOIVF">
+	    <doc>SLHCDigitization</doc>
+	    <jobTransformJobName>chainDigiLOIVFSLHCRTT</jobTransformJobName>
+	    <jobTransformCmd>
+	      Digi_tf.py --inputHITSFile=SLHCtest.LOIVF.HITS.pool.root --outputRDOFile=SLHCtest.LOIVF.RDO.pool.root --maxEvents=-1 --skipEvents=0 --preInclude='HITtoRDO:InDetSLHC_Example/preInclude.SLHC.py,InDetSLHC_Example/preInclude.NoTRT.py' --geometryVersion=ATLAS-P2-ITK-02-00-00 --conditionsTag=OFLCOND-MC12-ITK-21-80-25 --postInclude='HITtoRDO:InDetSLHC_Example/postInclude.SLHC_Digitization.py,InDetSLHC_Example/postInclude.SLHC_Setup.py,RecJobTransforms/UseFrontier.py' --digiSeedOffset1=11 --digiSeedOffset2=22 --doAllNoise=False
+	    </jobTransformCmd>
+	    <group>SLHCFCTTransform</group>
+	    <chaindataset_info>
+	      <jobTransformData/>
+	      <chaindatasetName>SLHCtest.LOIVF.HITS.pool.root</chaindatasetName>
+	      <dataset_info>
+		<jobTransformData/>
+		<datasetName>NONE.pool.root</datasetName>
+	      </dataset_info>
+	    </chaindataset_info>
+	    <queue>medium</queue>
+	  </jobTransform>
+	  <chainfileout>SLHCtest.LOIVF.RDO.pool.root</chainfileout>
+	</chainElement>
+
+	<chainElement>
+	  <jobTransform userJobId="RecoLOIVF">
+	    <doc>SLHCReconstruction</doc>
+	    <jobTransformJobName>chainRecoLOIVFSLHCRTT</jobTransformJobName>
+	    <jobTransformCmd>
+	      Reco_tf.py --inputRDOFile=SLHCtest.LOIVF.RDO.pool.root --preInclude InDetSLHC_Example/preInclude.SLHC.NoTRT.Reco.py --postInclude InDetSLHC_Example/postInclude.SLHC_Setup.py r2e:InDetSLHC_Example/postInclude.DigitalClustering.py --outputESDFile=SLHCtest.LOIVF.ESD.pool.root --maxEvents=-1 --geometryVersion=ATLAS-P2-ITK-02-00-00 --conditionsTag=OFLCOND-MC12-ITK-21-80-25 --outputAODFile=SLHCtest.LOIVF.AOD.pool.root --preExec 'r2e:InDetFlags.doSLHCVeryForward.set_Value_and_Lock(True)' 
+	    </jobTransformCmd>
+	    <group>SLHCFCTTransform</group>
+	    <chaindataset_info>
+	      <jobTransformData/>
+	      <chaindatasetName>SLHCtest.LOIVF.RDO.pool.root</chaindatasetName>
+	      <dataset_info>
+		<jobTransformData/>
+		<datasetName>NONE.pool.root</datasetName>
+	      </dataset_info>
+	    </chaindataset_info>
+	    <queue>medium</queue>
+	  </jobTransform>
+	  <chainfileout>SLHCtest.LOIVF.ESD.pool.root</chainfileout>
+	  <chainfileout>SLHCtest.LOIVF.AOD.pool.root</chainfileout>
+	</chainElement>
+
+      </sequential>
+    </chain>
+  </jobList>
+  <jobGroups>
+    <jobGroup name="SLHCFCTTransform" parent="Transform">
+      <keepFilePattern>*.root</keepFilePattern>
+      <keepFilePattern>*.pdf</keepFilePattern>
+      <keepFilePattern>*.log</keepFilePattern>
+      <keepFilePattern>log.*</keepFilePattern>
+    </jobGroup>
+
+  </jobGroups>
 </rtt>
 
 </unifiedTestConfiguration>
