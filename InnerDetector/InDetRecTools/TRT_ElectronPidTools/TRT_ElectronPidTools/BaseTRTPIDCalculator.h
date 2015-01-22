@@ -55,7 +55,9 @@ namespace InDet
     UpperLimit( * ((float*)( Blob + OFF_UpperLim) ) ),
     LowerLimit( * ((float*)( Blob + OFF_LowerLim) ) ),
     HasBeenInitialized(0)
-      {}
+      {
+	CurrentVersion = -1;
+      }
   
   ~BaseTRTPIDCalculator(){
     delete [] Blob;
