@@ -697,7 +697,7 @@ if InDetFlags.loadAssoTool():
     InDetPrdAssociationTool = InDet__InDetPRD_AssociationToolGangedPixels(name                           = "InDetPrdAssociationTool",
                                                                           PixelClusterAmbiguitiesMapName = InDetKeys.GangedPixelMap(),
                                                                           addTRToutliers                 = True)
-    
+    #InDetPrdAssociationTool.OutputLevel = VERBOSE
     ToolSvc += InDetPrdAssociationTool
     if (InDetFlags.doPrintConfigurables()):
       print      InDetPrdAssociationTool

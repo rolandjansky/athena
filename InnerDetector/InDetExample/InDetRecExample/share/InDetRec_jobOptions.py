@@ -497,28 +497,47 @@ else:
     #
     # --- Forward Tracklets (after standard reconstruction)
     #
-    # ------------------------------------------------------------
+    # ------------------------------------------------------------         
+
     if InDetFlags.doForwardTracks() and InDetFlags.doSLHC():
-      #
-      # --- configure cuts for forward tracklets
-      #
-      if (not 'InDetNewTrackingCutsForwardTracks' in dir()):
+      if InDetFlags.doSLHCVeryForward(): 
+       if (not 'InDetNewTrackingCutsForwardTracks' in dir()): 
+         print "InDetRec_jobOptions: InDetNewTrackingCutsForwardTracks not set before - import them now"       
+         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts 
+         InDetNewTrackingCutsForwardTracks = ConfiguredNewTrackingCuts("VeryForwardSLHCTracks") 
+         InDetNewTrackingCutsForwardTracks.printInfo() 
+         # 
+         # --- now run Si pattern for Low Pt 
+         # 
+         include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py") 
+         InDetForwardTracksSiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks, 
+ 		                                                      InDetKeys.ResolvedForwardTracks(), 
+ 		                                                      InDetKeys.SiSpSeededForwardTracks(), 
+ 		                                                      InDetNewTrackingCutsForwardTracks, 
+ 		                                                      TrackCollectionKeys, 
+ 		                                                      TrackCollectionTruthKeys)   
+ 		          # --- do not add into list for combination YET 
+         #InputCombinedInDetTracks += [ InDetForwardTracksSiPattern.SiTrackCollection() ] 
+
+
+      else:
+       if (not 'InDetNewTrackingCutsForwardTracks' in dir()):
         print "InDetRec_jobOptions: InDetNewTrackingCutsForwardTracks not set before - import them now"      
         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
         InDetNewTrackingCutsForwardTracks = ConfiguredNewTrackingCuts("ForwardSLHCTracks")
         InDetNewTrackingCutsForwardTracks.printInfo()
-      #
-      # --- now run Si pattern for Low Pt
-      #
-      include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
-      InDetForwardTracksSiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks,
+        #
+        # --- now run Si pattern for Low Pt
+        #
+        include ("InDetRecExample/ConfiguredNewTrackingSiPattern.py")
+        InDetForwardTracksSiPattern = ConfiguredNewTrackingSiPattern(InputCombinedInDetTracks,
                                                                    InDetKeys.ResolvedForwardTracks(),
                                                                    InDetKeys.SiSpSeededForwardTracks(),
                                                                    InDetNewTrackingCutsForwardTracks,
                                                                    TrackCollectionKeys,
                                                                    TrackCollectionTruthKeys)  
-      # --- do not add into list for combination YET
-      InputCombinedInDetTracks += [ InDetForwardTracksSiPattern.SiTrackCollection() ]
+        # --- do not add into list for combination YET
+        #InputCombinedInDetTracks += [ InDetForwardTracksSiPattern.SiTrackCollection() ]
 
 
     elif InDetFlags.doForwardTracks():
