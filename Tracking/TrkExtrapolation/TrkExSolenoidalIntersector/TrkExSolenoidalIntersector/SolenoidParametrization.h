@@ -40,7 +40,6 @@ public:
     // forbidden copy constructor
     // forbidden assignment operator
 
-    static SolenoidParametrization*	instance (void);				// access to singleton
     static SolenoidParametrization*	instance (MagField::IMagFieldSvc* magFieldSvc);	// initialize singleton
     static void                 clearInstance(void);	// clear (to be used before reinitialization)
     
@@ -58,7 +57,8 @@ public:
     bool			validOrigin(Amg::Vector3D origin) const; // param valid for this origin?
 
 private:
-    SolenoidParametrization		(void);				// singleton constructor
+    //  implementation does not work without magnetic field service
+    //  SolenoidParametrization		(void);				// singleton constructor
     SolenoidParametrization		(MagField::IMagFieldSvc* magFieldSvc);	// configuration from Intersector
     int				fieldKey(void);
     void			integrate(double&, double&, double, double) const;
@@ -199,12 +199,13 @@ SolenoidParametrization::setTerms(int key1)
 
 //<<<<<< INLINE PUBLIC MEMBER FUNCTIONS                                 >>>>>>
 
-inline SolenoidParametrization*
-SolenoidParametrization::instance()
-{
-    if (s_instance == 0) s_instance = new SolenoidParametrization();
-    return s_instance;
-}
+// class does not work without magnetic field service
+//inline SolenoidParametrization*
+//SolenoidParametrization::instance()
+//{
+//    if (s_instance == 0) s_instance = new SolenoidParametrization();
+//    return s_instance;
+//}
 
 inline SolenoidParametrization*
 SolenoidParametrization::instance(MagField::IMagFieldSvc* magFieldSvc)
