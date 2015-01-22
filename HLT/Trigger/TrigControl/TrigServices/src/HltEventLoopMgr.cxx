@@ -1071,12 +1071,12 @@ StatusCode HltEventLoopMgr::processRoIs (
     for(const auto& rob : l1_result)
     {
       auto sid = eformat::helper::SourceIdentifier(rob.rob_source_id());
-      const char * label = UNEXPECTED_L1R_ROB_LABEL;
+      auto label = std::string{UNEXPECTED_L1R_ROB_LABEL};
       if(std::find(begin(L1R_BINS), end(L1R_BINS), sid.subdetector_id())
          != end(L1R_BINS))
-        label = sid.human_detector().c_str();
+        label = sid.human_detector();
 
-      m_hist_l1_robs->Fill(label, 1.);
+      m_hist_l1_robs->Fill(label.c_str(), 1.);
     }
   }
 
