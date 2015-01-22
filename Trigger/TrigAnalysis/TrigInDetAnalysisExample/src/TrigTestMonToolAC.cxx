@@ -140,12 +140,12 @@ StatusCode TrigTestMonToolAC::init() {
 
 
 #ifdef ManagedMonitorToolBase_Uses_API_201401
-  StatusCode TrigTestMonToolAC::book() { 
+StatusCode TrigTestMonToolAC::book() { 
 #else
-  StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool newRun) { 
+StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool newRun) { 
 #endif
 
-  msg(MSG::DEBUG) << " ----- enter book() ----- " << endreq;
+  msg(MSG::INFO) << " ----- enter book() (athena) ----- " << endreq;
 
   msg(MSG::INFO) << "TrigTestMonToolAC::book() " << gDirectory->GetName() << endreq;
 
@@ -194,62 +194,54 @@ StatusCode TrigTestMonToolAC::init() {
 
     msg(MSG::WARNING) << "[91;1m" << "m_analysis_config " << m_analysis_config << "[m" << endreq;
    
-    if(m_analysis_config == "Tier0"){
+    //    if(m_analysis_config == "Tier0"){
+    {
 
+      msg(MSG::INFO) << "[91;1m" << "setting up tier 0 analyses " << endreq;
 
       std::vector<std::string> chains;
       chains.reserve( m_ntupleChainNames.size() );
-
+      
       /// handle wildcard chain selection - but only the first time                                                                                                                                                                
       std::vector<std::string>::iterator chainitr = m_ntupleChainNames.begin();
-
-   
+      
       
       while ( chainitr!=m_ntupleChainNames.end() ) {
 	
 	/// get chain                                                                                                                                                                                                              
 	ChainString chainName = (*chainitr);
 	
-	/// check for wildcard ...                                                                                                                                                                                                 
-	if ( chainName.head().find("*")!=std::string::npos ) {
+	/// get matching chains ...                                                                                                                                                                                                  
+	std::vector<std::string> selectChains  = m_tdt->getListOfTriggers( chainName.head() );
+	
+	//                  std::cout << "selected chains " << selectChains.size() << std::endl;                                                                                                                                 
+	
+	if ( selectChains.size()==0 ) msg(MSG::WARNING) << "^[[91;1m" << "No chains matched for requested input " << chainName << "^[[m" << endreq;
+	
+	for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
 	  
-	  //                  std::cout << "wildcard chains: " << chainName << std::endl;                                                                                                                                          
+	  if ( chainName.tail()!="" )    selectChains[iselected] += ":"+chainName.tail();
+	  if ( chainName.extra()!="" )   selectChains[iselected] += ":"+chainName.extra();
+	  if ( chainName.element()!="" ) selectChains[iselected] += ":"+chainName.element();
+	  if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
 	  
-	  /// delete from vector                                                                                                                                                                                                   
-	  //  m_ntupleChainNames.erase(chainitr);
+	  /// replace wildcard with actual matching chains ...                                                                                                                                                                   
+	  chains.push_back( selectChains[iselected] );
 	  
-	  /// get matching chains                                                                                                                                                                                                  
-	  std::vector<std::string> selectChains  = m_tdt->getListOfTriggers( chainName.head() );
+	  msg(MSG::INFO) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << "^[[m" << endreq;
 	  
-	  //                  std::cout << "selected chains " << selectChains.size() << std::endl;                                                                                                                                 
-	  
-	  if ( selectChains.size()==0 ) msg(MSG::WARNING) << "[91;1m" << "No chains matched for requested input " << chainName << "[m" << endreq;
-	 
-	  for ( unsigned iselected=0 ; iselected<selectChains.size() ; iselected++ ) {
-	    
-	    if ( chainName.tail()!="" )    selectChains[iselected] += ":"+chainName.tail();
-	    if ( chainName.extra()!="" )   selectChains[iselected] += ":"+chainName.extra();
-	    if ( chainName.element()!="" ) selectChains[iselected] += ":"+chainName.element();
-	    if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
-	      
-	    /// replace wildcard with actual matching chains ...                                                                                                                                                                   
-	    chains.push_back( selectChains[iselected] );
-	    
-	    msg(MSG::INFO) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << "^[[m" << endreq;
-	    
-	  }
 	}
-	else { 
-	  chains.push_back( *chainitr );
-	}
-	 
+	
 	chainitr++;
       }
-
+      
       m_chainNames = chains;
       
-
+      msg(MSG::INFO) << "^[[91;1m" << "Matching chains " << m_chainNames.size() << " init() ^[[m" << endreq;
+      
       for ( unsigned i=0 ; i<m_chainNames.size() ; i++ ){
+	
+	msg(MSG::INFO) << "^[[91;1m" << "booking a Tier0 chain " << m_chainNames[i] << "^[[m" << endreq;
 	
 	m_sequences.push_back( new AnalysisConfig_Tier0(m_chainNames[i], 
 							m_chainNames[i], "", "",
@@ -258,14 +250,15 @@ StatusCode TrigTestMonToolAC::init() {
 							filterTest, filterRef, 
 							dR_matcher,
 							new Analysis_Tier0(m_chainNames.at(i), 1000., 2.5, 1.5, 1.5 ) ) );
-
+	
 	m_sequences.back()->releaseData(m_releaseMetaData);	
-
+	
+#if 0
 	if(m_chainNames.at(i).find("L2_e")!=std::string::npos ||
-	   m_chainNames.at(i).find("EF_e")!=std::string::npos)
-
+	   m_chainNames.at(i).find("EF_e")!=std::string::npos) { 
+	  
 	  /// ??? shouldn't this have some different name? seems we might have some duplication here 
-
+	  
 	  m_sequences.push_back( new AnalysisConfig_Tier0(m_chainNames[i],
 							  m_chainNames[i], "mediumPP", "",
 							  m_chainNames[i], "", "",
@@ -273,16 +266,20 @@ StatusCode TrigTestMonToolAC::init() {
 							  filterTest, filterRef,
 							  dR_matcher,
 							  new Analysis_Tier0(m_chainNames.at(i), 1000., 2.5, 1.5, 1.5 ) ) );
+	  
+	}
+#endif      
+	
       }
+      
     }
-    
-  }
-
+  }   
+  
   if ( !m_fileopen && newRun && ( m_initialisePerRun || m_firstRun ) ) { 
     m_fileopen = true;
-
+    
     for ( unsigned i=0 ; i<m_sequences.size() ; i++ ) { 
-      msg(MSG::INFO) << " ----- booking for analysis " << m_sequences[i]->name() << " -----" << endreq;
+      msg(MSG::INFO) << "^[[91;1m ----- booking for analysis " << m_sequences[i]->name() << " ----- ^[[m" << endreq;
       m_sequences[i]->initialize(this, &m_tdt);
       m_sequences[i]->setGenericFlag(m_genericFlag);
       m_sequences[i]->book();      
@@ -292,15 +289,33 @@ StatusCode TrigTestMonToolAC::init() {
   msg(MSG::DEBUG) << " ----- exit book() ----- " << endreq;
   return StatusCode::SUCCESS; 
 }
+  
+
+
 
 
 
 StatusCode TrigTestMonToolAC::fill() { 
-  msg(MSG::DEBUG) << " ----- enter fill() ----- " << endreq;  
+  msg(MSG::INFO) << " ----- enter fill() (athena) ----- " << endreq;  
+
+
+  msg(MSG::INFO) << "chains: " << m_chainNames.size() << endreq;
+
+  for ( unsigned i=0 ; i<m_chainNames.size() ; i++ ) { 
+    ChainString s = m_chainNames[i];
+    std::vector<string> triggers = m_tdt->getListOfTriggers( s.head() );
+    msg(MSG::INFO) << "Trigger output " << s.head() << " " << s.tail() << "\tdecision " << m_tdt->isPassed( s.head() ) << endreq;
+  }
+  
   for ( unsigned i=0 ; i<m_sequences.size() ; i++ ) m_sequences[i]->execute();
-  msg(MSG::DEBUG) << " ----- exit fill() ----- " << endreq;
+
+  msg(MSG::INFO) << " ----- exit fill() ----- " << endreq;
   return StatusCode::SUCCESS; 
 }
+
+
+
+
 
 #ifdef ManagedMonitorToolBase_Uses_API_201401
 StatusCode TrigTestMonToolAC::proc() { 
