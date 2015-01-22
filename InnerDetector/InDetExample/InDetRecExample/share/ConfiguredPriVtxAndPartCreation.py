@@ -30,7 +30,7 @@ class ConfiguredPriVtxAndPartCreation:
     #  --- now load primary vertex finder
     #
     # ------------------------------------------------------------
-    if InDetFlags.doVertexFinding() and not extension == "ForwardTracks" and not extension == "ForwardSLHCTracks":
+    if InDetFlags.doVertexFinding() and not extension == "ForwardTracks" and not extension == "ForwardSLHCTracks" and not extension == "VeryForwardSLHCTracks":
     
       if InDetFlags.primaryVertexSetup() == 'DummyVxFinder':
         from InDetPriVxFinder.InDetPriVxFinderConf import InDet__InDetPriVxDummyFinder

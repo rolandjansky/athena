@@ -985,7 +985,13 @@ class doTrackSegmentsPixelPrdAssociation(InDetFlagsJobProperty):
     """Turn running of track segment creation in pixel after NewTracking, and with PRD association, on and off"""
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = False
+    StoredValue  = True
+
+class doSLHCVeryForward(InDetFlagsJobProperty): 
+  """Turn running of SLHC reconstruction for Very Forward extension on and off""" 
+  statusOn     = True 
+  allowedTypes = ['bool']
+  StoredValue  = False 
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
@@ -1025,6 +1031,10 @@ class InDetJobProperties(JobPropertyContainer):
 
     if ( jobproperties.Beam.beamType()=="collisions" and not rec.Commissioning() ): 
        self.checkThenSet(self.InDet25nsec            , True)     
+
+    if self.doSLHCVeryForward():
+       self.checkThenSet(self.doSLHC            , True)
+       self.checkThenSet(self.doForwardTracks   , True)
 
     if (jobproperties.Beam.beamType()=="singlebeam"):
        self.checkThenSet(self.useHVForSctDCS         , True)    
@@ -1354,6 +1364,7 @@ class InDetJobProperties(JobPropertyContainer):
         self.checkThenSet(self.doTrackSegmentsTRT  , True )
         self.checkThenSet(self.doPixelClusterSplitting, False)
         self.checkThenSet(self.doTIDE_Ambi, False)
+        self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
 
   def init(self):
     #Method to do the final setup of the flags according to user input before.
@@ -1750,6 +1761,8 @@ class InDetJobProperties(JobPropertyContainer):
     if self.doSLHC() :
        print '*'
        print '* --------------------> Special reconstruction for SLHC !'
+       if self.doSLHCVeryForward():
+          print '* --------------------> Including Very Forward Extension !' 
        print '*'
     if self.doIBL() :
        print '*'
@@ -2311,7 +2324,8 @@ _list_InDetJobProperties = [Enabled,
                             doSSSfilter,
                             pT_SSScut,
                             ForceCoraCool,
-                            doTrackSegmentsPixelPrdAssociation
+                            doTrackSegmentsPixelPrdAssociation,
+                            doSLHCVeryForward
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)

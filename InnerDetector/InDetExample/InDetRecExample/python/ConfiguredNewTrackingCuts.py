@@ -379,7 +379,24 @@ class ConfiguredNewTrackingCuts :
       self.__radMax           = 600. * Units.mm
 
       self.__useTRT           = False # no TRT for forward tracks
-      
+
+    if mode == "VeryForwardSLHCTracks": 
+      self.__extension        = "VeryForwardSLHCTracks" # this runs parallel to NewTracking 
+      self.__minEta           = 2.4 # restrict to minimal eta 
+      self.__maxEta           = 4.0 
+      self.__minPT            = 2 * Units.GeV 
+      self.__minClusters      = 5 
+      self.__minSiNotShared   = 3 
+      self.__maxShared        = 1 
+      self.__minPixel         = 3 
+      self.__maxHoles         = 1 
+      self.__maxPixelHoles    = 1 
+      self.__maxSctHoles      = 0 
+      self.__maxDoubleHoles   = 0
+      self.__nHolesMax        = self.__maxHoles
+      self.__nHolesGapMax     = self.__maxHoles
+      self.__radMax           = 600. * Units.mm
+      self.__useTRT           = False # no TRT for forward tracks
 
     # --- change defauls for beam gas tracking 
     if mode == "BeamGas":
