@@ -62,6 +62,7 @@ LVL1CTP::ResultBuilder::ResultBuilder( unsigned int ctpVersionNumber,
     
       m_ctpDataFormat = new CTPdataformatVersion(m_ctpVersionNumber);
 		
+
       // build TIP word
       m_tip.resize(0);
       for (unsigned int i = 0; i < m_ctpDataFormat->getTIPwords(); ++i ) {
@@ -608,7 +609,6 @@ LVL1CTP::ResultBuilder::constructResultWord(unsigned int wrd_num, WrdType type )
    if( wrd_num < m_ctpDataFormat->getTBPwords() ) {
 			
       uint32_t result = 0;
-			
 			
       for( TrigConf::ItemContainer::const_iterator item = m_ctpConfig->menu().itemVector().begin();
            item != m_ctpConfig->menu().itemVector().end(); ++item ) {
