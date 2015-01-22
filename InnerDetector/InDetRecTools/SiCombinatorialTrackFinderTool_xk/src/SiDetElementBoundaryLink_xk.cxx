@@ -79,18 +79,17 @@ InDet::SiDetElementBoundaryLink_xk::SiDetElementBoundaryLink_xk
 // Detector element intersection test
 ///////////////////////////////////////////////////////////////////
 
-int InDet::SiDetElementBoundaryLink_xk::intersect(const Trk::PatternTrackParameters& Tp) const
+int InDet::SiDetElementBoundaryLink_xk::intersect(const Trk::PatternTrackParameters& Tp,double& a) const
 {
   double x = Tp.par()[0];
   double y = Tp.par()[1];
 
   int    n  = 0;
-  double a  = m_bound[0][0]*x+m_bound[0][1]*y-m_bound[0][2]; 
+  a         = m_bound[0][0]*x+m_bound[0][1]*y-m_bound[0][2]; 
   double a2 = m_bound[1][0]*x+m_bound[1][1]*y-m_bound[1][2]; if(a2>a) {a=a2; n=1;}
   double a3 = m_bound[2][0]*x+m_bound[2][1]*y-m_bound[2][2]; if(a3>a) {a=a3; n=2;}
   double a4 = m_bound[3][0]*x+m_bound[3][1]*y-m_bound[3][2]; if(a4>a) {a=a4; n=3;}
 
-  if(a > 100.) return 2;
   if(a > 20. ) return 1;
   double D  = (m_bound[n][0]*m_bound[n][0]* Tp.cov()[0]+
 	       m_bound[n][1]*m_bound[n][1]* Tp.cov()[2]+
@@ -104,4 +103,3 @@ int InDet::SiDetElementBoundaryLink_xk::intersect(const Trk::PatternTrackParamet
   }
   return 0;
 }
-

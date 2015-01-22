@@ -934,15 +934,17 @@ bool InDet::SiTrajectory_xk::backwardExtension(int itmax)
   int    lbest          = L                   ;
   int    hbest          = 0                   ;
   int    hbestb         = 0                   ;
+  int    nclbest        = 0                   ;
+  int    ndcut          = 3                   ;
   int    F              = L                   ;
   double Xi2best        = 0.                  ;
+
+  m_elements[m_elementsMap[F]].setNdist(0);
 
   for(; it!=itmax; ++it) {
 
     int  l = F;
     int  p = F; 
-    bool h = false;
-
     for(--F; F>=0; --F) {
       
       InDet::SiTrajectoryElement_xk& El = m_elements[m_elementsMap[F+1]];
@@ -951,54 +953,71 @@ bool InDet::SiTrajectory_xk::backwardExtension(int itmax)
       if(!Ef.BackwardPropagationFilter(El))  break;
 
       if     (Ef.cluster()) {
-	p=F; l=F; h=false; 
+	p=F; l=F; 
       }
       else if(Ef.inside() < 0  ) {
-	p=F; if(Ef.nholesB() > maxholes || Ef.dholesB() > maxdholes) break; h=true;
+	p=F; if(Ef.nholesB() > maxholes || Ef.dholesB() > maxdholes) break;
       }
+      int nm = Ef.nclustersB()+F;
+      if(Ef.ndist() >  ndcut || nm < nclbest || (nm == nclbest && Ef.xi2totalB() > Xi2best) ) break;
     } 
+
+    int    fl = F; if(fl<0) fl=0;
 
     int    m  = m_elementsMap[l];
     int    nc = m_elements[m].nclustersB();
-    int    nh = m_elements[m].nholesB();
-    
+
     if(it==0 && nc==m_nclusters) return true;
 
-    int    q  = 2*nc-3*nh;
+    int    nh = m_elements[m].nholesB();
+    int    nd =  m_elements[m_elementsMap[fl]].ndist();
+    int    q  = nc-nh;
     double X  = m_elements[m].xi2totalB();
-    
+
     if     ( (q > qbest) || (q==qbest && X < Xi2best ) ) {
+
       qbest   = q                                          ; 
       nbest   = 0                                          ;
       ndfbest = 0                                          ;
       hbest   = nh                                         ;
       hbestb  = m_elements[m_elementsMap[p]].nholesB()-nh  ; 
       itbest  = it                                         ;
-      lbest   = l-1                                        ;
+      lbest = l-1                                          ;
       Xi2best = X                                          ;
       PA      = m_elements[m_elementsMap[l]].parametersUB();
 
+      if(fl==0 && nd < ndcut) ndcut = nd;
+
       for(int i=l; i!=L; ++i) {
-      
+
 	InDet::SiTrajectoryElement_xk& Ei = m_elements[m_elementsMap[i]];
+	
 	if(Ei.inside() <= 0) {
 	  MPbest[++lbest] = i;
 	  if(Ei.cluster()) {CL[nbest]=Ei.cluster(); TE[nbest++]=lbest; ndfbest+=Ei.ndf();}
 	}
+	
       }
+      nclbest = m_nclusters+nbest;
     }
     
-    F = -1; 
-    for(int i=l; i!=L; ++i) {
-      
-      InDet::SiTrajectoryElement_xk& Ei = m_elements[m_elementsMap[i]];
-      if(Ei.cluster() && Ei.isNextClusterHoleB())  {F=i; break;}
+    F = -1; if(l<=0) l=1; bool cl = false; double Xn = 0.;
+
+    for(; l < L; ++l) {
+      InDet::SiTrajectoryElement_xk& Ei = m_elements[m_elementsMap[l]];
+      if(Ei.cluster() && Ei.isNextClusterHoleB(cl,Xn))  {
+
+	int nm = l+Ei.nclustersB();
+	if(!cl) {
+	  if(Ei.dist() < -2. && Ei.ndist() > ndcut-1 ) continue; --nm;
+	}
+	if(nm < nclbest || (nm == nclbest && Xn > Xi2best)) continue;
+	F=l; break;
+      }
     }
-  
-    if(F < 0 || (m_nclusters+nbest >= 12 && !h)) break;
+    if(F < 0 ) break;
     if(it!=itm) if(!m_elements[m_elementsMap[F]].addNextClusterB()) break; 
   }
-
   if(it == itmax) --it;
 
   if(!nbest) return true;
@@ -1011,7 +1030,7 @@ bool InDet::SiTrajectory_xk::backwardExtension(int itmax)
   m_elements[m_elementsMap[TE[0]]].setParametersB(PA);
 
   int dn = L-1-lbest;
-  
+ 
   if(dn != 0) {
 
     m_nElements  -=dn;
@@ -1087,11 +1106,11 @@ bool InDet::SiTrajectory_xk::forwardExtension(bool smoother,int itmax)
     }
     --L;
   }
-  if( L== lElement) return true; 
-
+  if( L== lElement) {
+    return true;
+  }
   // Search best forward trajectory prolongation
   //  
-
   int                     MP    [300]                              ;
   int                     MPbest[300]                              ;
   int                     TE    [100]                              ;  
@@ -1107,14 +1126,18 @@ bool InDet::SiTrajectory_xk::forwardExtension(bool smoother,int itmax)
   int    ndfbest        = 0                                        ;
   int    hbest          = 0                                        ;
   int    hbeste         = 0                                        ;
+  int    ndbest         = 0                                        ;
+  int    ndcut          = 3                                        ;
+  int    nclbest        = 0                                        ;
   int    lbest          = L                                        ;
   int    F              = L                                        ;
   int    M              = L                                        ;
   MP    [M]             = L                                        ;
-  
   double Xi2best        = 0.                                       ;
   const double dfmax    = 2.2                                      ;
   double f0             = m_elements[m_elementsMap[m_firstElement]].parametersUF().par()[2];
+
+  m_elements[m_elementsMap[F]].setNdist(0);
 
   for(; it!=itmax; ++it) {
 
@@ -1122,6 +1145,7 @@ bool InDet::SiTrajectory_xk::forwardExtension(bool smoother,int itmax)
     int  p  = F;
     int  Fs = F;
     int  Ml = M;
+    int  Cm = nclbest-lElement;
     bool h  = false;
 
     for(++F; F!=m_nElements; ++F) {
@@ -1146,21 +1170,23 @@ bool InDet::SiTrajectory_xk::forwardExtension(bool smoother,int itmax)
       if     (Ef.cluster()     ) {
 	double df = fabs(Ef.parametersUF().par()[2]-f0); if(df > pi) df = pi2-df; 
 	if(df > dfmax) break;
- 	p=F; l=F; Ml = M; h=false;
+ 	p=F; l=F; Ml = M; h=false; 
       }
-      else if(Ef.inside() < 0  ) {
 
+      else if(Ef.inside() < 0  ) {
 	p=F; if(Ef.nholesF() > maxholes || Ef.dholesF() > maxdholes) break; h=true;
 
 	double df = fabs(Ef.parametersPF().par()[2]-f0); if(df > pi) df = pi2-df; 
-	if(df > dfmax) break;
+	if(df > dfmax ) break;
       }
       else                       {
 	double df = fabs(Ef.parametersPF().par()[2]-f0); if(df > pi) df = pi2-df; 
 	if(df > dfmax) break;
       }
+      int nm = Ef.nclustersF()-F; 
+      if(Ef.ndist() > ndcut ||  nm < Cm || (nm == Cm && Ef.xi2totalF() > Xi2best)) break;
     }
-    
+
     int    m  = m_elementsMap[l];
     int    nc = m_elements[m].nclustersF();
     int    nh = m_elements[m].nholesF();
@@ -1168,9 +1194,10 @@ bool InDet::SiTrajectory_xk::forwardExtension(bool smoother,int itmax)
 
     if(it==0 && nc==m_nclusters) return true;
 
-    int    q  = 2*nc-3*nh;
+    int    fl = F; if(fl==m_nElements) --fl;
+    int    nd =  m_elements[m_elementsMap[fl]].ndist();
+    int    q  = nc-nh;
     double X  = m_elements[m].xi2totalF();
-
     if     ( (q > qbest) || (q==qbest && X < Xi2best ) ) {
       qbest   = q; 
       nbest   = 0;
@@ -1179,7 +1206,8 @@ bool InDet::SiTrajectory_xk::forwardExtension(bool smoother,int itmax)
       hbeste  = m_elements[m_elementsMap[p]].nholesF()-nh; 
       itbest  = it; 
       lbest   = L ;
-      Xi2best = X;
+      Xi2best = X ;
+      ndbest  = nd; if(fl==lElement && nd < ndcut) ndcut = nd;
 
       for(int j=L+1; j<=Ml; ++j) {
 
@@ -1191,17 +1219,30 @@ bool InDet::SiTrajectory_xk::forwardExtension(bool smoother,int itmax)
 	  if(Ei.cluster()) {CL[nbest]=Ei.cluster(); TE[nbest++]=lbest; ndfbest+=Ei.ndf();}
 	}
       }
+      nclbest = m_nclusters+nbest;
+      if( (nclbest >= 12 && !h) || (fl==lElement && ndbest == 0)) break;
     }
 
-    F = -1;
+    F = -1; bool cl = false; int nb = lElement-nclbest-1; double Xn;
+
     for(int j=Ml; j!=L; --j) {
 
       int i = MP[j]; 
       InDet::SiTrajectoryElement_xk& Ei = m_elements[m_elementsMap[i]];
-      if(i!=lElement && Ei.cluster() && Ei.isNextClusterHoleF()) {F=i; M=j; break;}
+
+      if(i!=lElement && Ei.cluster() && Ei.isNextClusterHoleF(cl,Xn)) {
+
+	int nm = nb-i+Ei.nclustersF();
+
+	if(!cl) {if(Ei.dist() < -2. && Ei.ndist() > ndcut-1) continue;}
+	else  ++nm;
+
+	if(nm < 0 || (nm == 0 &&   Xn > Xi2best)) continue;
+	F=i; M=j; break;
+      }
     }
 
-    if(F < 0 || (m_nclusters+nbest >= 12 && !h)) break;
+    if(F < 0 ) break;
     if(it!=itm) if(!m_elements[m_elementsMap[F]].addNextClusterF()) break;
   }
 
@@ -1244,7 +1285,9 @@ bool InDet::SiTrajectory_xk::forwardExtension(bool smoother,int itmax)
       }
     }
   } 
-  if(F < 0 || m_lastElement == F) return true;  
+  if(F < 0 || m_lastElement == F) {
+    return true;
+  }  
 
   for(++F; F<=m_lastElement; ++F) {
     

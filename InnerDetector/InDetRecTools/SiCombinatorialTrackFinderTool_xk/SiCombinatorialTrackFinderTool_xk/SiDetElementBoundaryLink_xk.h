@@ -39,7 +39,7 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
 
       const InDetDD::SiDetectorElement* detElement() const {return m_detelement;}
-      int intersect(const Trk::PatternTrackParameters&) const; 
+      int intersect(const Trk::PatternTrackParameters&,double&) const; 
 
     protected:
       

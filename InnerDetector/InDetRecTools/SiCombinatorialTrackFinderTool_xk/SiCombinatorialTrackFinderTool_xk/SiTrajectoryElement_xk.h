@@ -41,6 +41,7 @@ namespace InDet{
 
       const int&  detstatus   () const {return m_detstatus;}
       const int&  inside      () const {return m_inside;    }
+      const int&  ndist       () const {return m_ndist ;    }
       const int&  nlinksF     () const {return m_nlinksF;   }
       const int&  nlinksB     () const {return m_nlinksB;   }
       const int&  nholesF     () const {return m_nholesF;   }
@@ -57,6 +58,7 @@ namespace InDet{
       const int&  ndfB        () const {return m_ndfB;      }
       const int&  ntsos       () const {return m_ntsos;     }
       const double& step      () const {return m_step;      }
+      const double& dist      () const {return m_dist;      }
       bool        isBarrel    () const {return m_detelement->isBarrel();}
 
       const InDetDD::SiDetectorElement* detElement  () const {return m_detelement;  }  
@@ -65,8 +67,8 @@ namespace InDet{
       const InDet::SiCluster*           clusterNoAdd() const {return m_clusterNoAdd;} 
       Trk::TrackStateOnSurface*         tsos (int i);
 
-      bool isNextClusterHoleB();
-      bool isNextClusterHoleF();
+      bool isNextClusterHoleB(bool&,double&);
+      bool isNextClusterHoleF(bool&,double&);
 
       ///////////////////////////////////////////////////////////////////
       // Methods update with cluster information
@@ -98,6 +100,7 @@ namespace InDet{
 
       void setParametersB(Trk::PatternTrackParameters&); 
       void setParametersF(Trk::PatternTrackParameters&); 
+      void setNdist(int);
 
       int   numberClusters() const;
       const double& xi2F      () const {return m_xi2F      ;}
@@ -286,6 +289,7 @@ namespace InDet{
       int                                         m_status      ;  
       int                                         m_detstatus   ; // 0 (no clusters) 
       int                                         m_inside      ;
+      int                                         m_ndist       ;
       int                                         m_nlinksF     ;
       int                                         m_nlinksB     ;
       int                                         m_nholesF     ;
@@ -301,6 +305,7 @@ namespace InDet{
       int                                         m_ntsos       ;
       int                                         m_maxholes    ;
       int                                         m_maxdholes   ;
+      double                                      m_dist        ;
       double                                      m_xi2F        ;
       double                                      m_xi2B        ;
       double                                      m_xi2totalF   ;
@@ -359,6 +364,7 @@ namespace InDet{
       m_status     = 0  ;
       m_nlinksF    = 0  ;
       m_nlinksB    = 0  ;
+      m_ndist      = 0  ;
       m_radlength  = .03;
       m_radlengthN = .03;
       m_energylose = .4 ;
@@ -379,6 +385,7 @@ namespace InDet{
       m_halflenght  = 0.;
       m_step        = 0.;
       m_xi2max      = 0.;
+      m_dist        = 0.;
       m_xi2maxNoAdd = 0.;
       m_xi2maxlink  = 0.;  
       m_xi2multi    = 0.;
@@ -393,6 +400,17 @@ namespace InDet{
       m_proptool    = 0 ;
       m_assoTool    = 0 ;
       m_riotool     = 0 ;
+      m_inside      = 0 ;
+      m_nholesF     = 0 ;
+      m_nholesB     = 0 ;
+      m_dholesF     = 0 ;
+      m_dholesB     = 0 ;
+      m_nclustersF  = 0 ;
+      m_nclustersB  = 0 ;
+      m_stereo      = false;
+      m_fieldMode   = false;
+      m_useassoTool = false;
+
       m_tsos[0]=m_tsos[1]=m_tsos[2]=0; 
    }
 
@@ -410,6 +428,7 @@ namespace InDet{
       m_status       = E.m_status      ;
       m_detstatus    = E.m_detstatus   ;
       m_inside       = E.m_inside      ;
+      m_ndist        = E.m_ndist       ;
       m_stereo       = E.m_stereo      ;
       m_detelement   = E.m_detelement  ;
       m_detlink      = E.m_detlink     ;
@@ -424,6 +443,7 @@ namespace InDet{
       m_parametersPB = E.m_parametersPB;
       m_parametersUB = E.m_parametersUB;
       m_parametersSM = E.m_parametersSM;
+      m_dist         = E.m_dist        ;
       m_xi2F         = E.m_xi2F        ;
       m_xi2B         = E.m_xi2B        ;
       m_xi2totalF    = E.m_xi2totalF   ;
@@ -498,9 +518,16 @@ namespace InDet{
   // Test for next compatible cluster
   /////////////////////////////////////////////////////////////////////////////////
 
-  inline bool SiTrajectoryElement_xk::isNextClusterHoleB()
+  inline bool SiTrajectoryElement_xk::isNextClusterHoleB(bool& cl,double& X)
     {
-      if(m_nlinksB >  1 && m_linkB[1].xi2() <= m_xi2max) return true;
+      cl = false             ;
+      X  = m_xi2totalB-m_xi2B;
+
+      if(m_nlinksB >  1 && m_linkB[1].xi2() <= m_xi2max) {
+	X+=m_linkB[1].xi2();
+	cl = true; return true;
+      }
+
       if(m_inside < 0) {
 	if(m_nholesB < m_maxholes && m_dholesB < m_maxdholes) return true;
 	return false;
@@ -508,10 +535,17 @@ namespace InDet{
       return true;
     }
 
-  inline bool SiTrajectoryElement_xk::isNextClusterHoleF()
+  inline bool SiTrajectoryElement_xk::isNextClusterHoleF(bool& cl,double& X)
     {
-      if(m_detstatus == 2) return false;
-      if(m_nlinksF >  1 && m_linkF[1].xi2() <= m_xi2max) return true;
+      cl = false             ;
+      X  = m_xi2totalF-m_xi2F;
+
+     if(m_detstatus == 2) return false;
+      if(m_nlinksF >  1 && m_linkF[1].xi2() <= m_xi2max) {
+	X+=m_linkF[1].xi2();
+	cl = true; return true;
+      }
+
       if(m_inside < 0) {
         if(m_nholesF < m_maxholes && m_dholesF < m_maxdholes) return true;
 	return false;
@@ -533,6 +567,11 @@ namespace InDet{
   inline void SiTrajectoryElement_xk::setParametersF(Trk::PatternTrackParameters& P)
   {
     m_parametersUF = P;
+  }
+
+  inline void SiTrajectoryElement_xk::setNdist(int n)
+  {
+    m_ndist = n;
   }
  
   /////////////////////////////////////////////////////////////////////////////////
