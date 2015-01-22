@@ -329,10 +329,10 @@ PerfMonSvc::postFinalize()
           m_lastVmem,
 	  m_vmemfit_evt2to20.nPoints(),
 	  m_vmemfit_evt2to20.slope(),
-	  m_vmemfit_evt21to50.nPoints(),
-	  m_vmemfit_evt21to50.slope(),
-	  m_vmemfit_evt51plus.nPoints(),
-	  m_vmemfit_evt51plus.slope()
+	  m_vmemfit_evt21to100.nPoints(),
+	  m_vmemfit_evt21to100.slope(),
+	  m_vmemfit_evt101plus.nPoints(),
+	  m_vmemfit_evt101plus.slope()
           );
       if ( 0 == res ) {
         PMON_WARNING("Problem on python side during finalize() !!");
@@ -1233,8 +1233,8 @@ PerfMonSvc::comp_stopAud(const std::string& stepName,
 
     if ( m_nevts>=2 && stepName == PerfMon::Steps[PerfMon::State::evt]) {
       if (m_nevts<=20) m_vmemfit_evt2to20.addPoint(m_nevts,m_lastVmem);
-      else if (m_nevts<=50) m_vmemfit_evt21to50.addPoint(m_nevts,m_lastVmem);
-      else m_vmemfit_evt51plus.addPoint(m_nevts,m_lastVmem);
+      else if (m_nevts<=100) m_vmemfit_evt21to100.addPoint(m_nevts,m_lastVmem);
+      else m_vmemfit_evt101plus.addPoint(m_nevts,m_lastVmem);
     }
     if ( 1<=m_nevts && m_nevts < 11 &&
         stepName == PerfMon::Steps[PerfMon::State::evt]) {
