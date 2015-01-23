@@ -115,6 +115,7 @@ class ConfigurationFactory() :
             from TrigOnlineSpacePointTool.TrigOnlineSpacePointToolConf import TrigSpacePointConversionTool
             spTool = TrigSpacePointConversionTool()
             spTool.DoPhiFiltering = self.settings[('doSpacePointPhiFiltering',instName)]
+            spTool.UseBeamTilt = False
             ToolSvc += spTool
             ftfInstance.SpacePointProviderTool=spTool
 
@@ -161,6 +162,16 @@ class ConfigurationFactory() :
             ftfInstance.offlineTrackMaker = TrackMaker_FTF
             print TrackMaker_FTF
             print InDetTrigSiDetElementsRoadMaker_FTF
+            from TrigInDetTrackFitter.TrigInDetTrackFitterConf import TrigInDetTrackFitter
+            theTrigInDetTrackFitter = TrigInDetTrackFitter()
+            theTrigInDetTrackFitter.correctClusterPos = False #Flag to control whether to correct cluster position
+
+            from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigRotCreator
+            ToolSvc += InDetTrigRotCreator
+
+            theTrigInDetTrackFitter.ROTcreator = InDetTrigRotCreator
+            ToolSvc += theTrigInDetTrackFitter
+            ftfInstance.trigInDetTrackFitter = theTrigInDetTrackFitter
 
             ftfInstance.Triplet_MinPtFrac = self.settings[('Triplet_MinPtFrac',instName)]
             ftfInstance.Triplet_nMaxPhiSlice = self.settings[('Triplet_nMaxPhiSlice',instName)]
