@@ -15,13 +15,14 @@
  *  @date   2014-12-20
  */
 
-static const InterfaceID IID_IFastSimulation( "IFastSimulation" , 1 , 0 ) ;
-
 class IFastSimulation : virtual public IAlgTool {
  public:
   IFastSimulation() {}
   virtual ~IFastSimulation() {}
-  static const InterfaceID& interfaceID() { return IID_IFastSimulation ; }
+  static const InterfaceID& interfaceID() {
+    static const InterfaceID IID_IFastSimulation( "IFastSimulation" , 1 , 0 ) ;
+    return IID_IFastSimulation ; 
+  }
 };
 
 #endif

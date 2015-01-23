@@ -15,13 +15,14 @@
  *  @date   2014-12-20
  */
 
-static const InterfaceID IID_IFastSimulationSvc( "IFastSimulationSvc" , 1 , 0 ) ;
-
 class IFastSimulationSvc : virtual public IService {
  public:
   IFastSimulationSvc() {}
   virtual ~IFastSimulationSvc() {}
-  static const InterfaceID& interfaceID() { return IID_IFastSimulationSvc ; }
+  static const InterfaceID& interfaceID() {
+    static const InterfaceID IID_IFastSimulationSvc( "IFastSimulationSvc" , 1 , 0 ) ;
+    return IID_IFastSimulationSvc ;
+  }
 };
 
 #endif
