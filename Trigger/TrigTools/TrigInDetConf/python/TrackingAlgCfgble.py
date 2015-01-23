@@ -11,8 +11,11 @@ class TrigFastTrackFinder(TrigFastTrackFinderBase):
       "tauCore"  : "TauCore",
       "tauIso"   : "TauIso",
       "bjet"     : "Jet",
+      "bjetVtx"  : "Jet",
       "fullScan" : "FullScan",
       "beamSpot" : "BeamSpot",
+      "bphysics" : "Bphysics",
+      "cosmics"  : "Cosmic",
       }
 
     #this should not happen here
