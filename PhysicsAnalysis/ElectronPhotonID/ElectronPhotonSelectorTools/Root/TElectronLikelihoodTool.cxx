@@ -496,6 +496,7 @@ double Root::TElectronLikelihoodTool::EvaluateLikelihood(std::vector<float> varV
 double Root::TElectronLikelihoodTool::EvaluateLikelihood(std::vector<double> varVector,double et,double eta,double ip) const
 {
 
+  const double GeV = 1000;
   unsigned int etbin = getLikelihoodEtBin(et);
   unsigned int etabin = getLikelihoodEtaBin(eta);
   unsigned int ipbin  = getIpBin(ip);
@@ -534,7 +535,7 @@ double Root::TElectronLikelihoodTool::EvaluateLikelihood(std::vector<double> var
       continue;
     }
     // Don't use f3 for high et (>100 GeV)
-    if (doRemoveF3AtHighEt && (et > 100) && (varstr.find("el_f3") != std::string::npos)){
+    if (doRemoveF3AtHighEt && (et > 100*GeV) && (varstr.find("el_f3") != std::string::npos)){
         continue;
     }
     for (unsigned int s_or_b=0; s_or_b<2;s_or_b++) {
