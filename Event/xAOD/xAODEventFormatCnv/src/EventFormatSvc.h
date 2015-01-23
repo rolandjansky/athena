@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventFormatSvc.h 603941 2014-06-27 11:51:35Z krasznaa $
+// $Id: EventFormatSvc.h 641395 2015-01-23 20:07:21Z ssnyder $
 #ifndef XAODEVENTFORMATCNV_EVENTFORMATSVC_H
 #define XAODEVENTFORMATCNV_EVENTFORMATSVC_H
 
@@ -35,8 +35,8 @@ namespace xAODMaker {
     *
     * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
     *
-    * $Revision: 603941 $
-    * $Date: 2014-06-27 13:51:35 +0200 (Fri, 27 Jun 2014) $
+    * $Revision: 641395 $
+    * $Date: 2015-01-23 21:07:21 +0100 (Fri, 23 Jan 2015) $
     */
    class EventFormatSvc : public AthService,
                           public virtual IEventFormatSvc,
@@ -79,6 +79,10 @@ namespace xAODMaker {
       ServiceHandle< StoreGateSvc > m_metaStore;
       /// Connection to the incident service
       ServiceHandle< IIncidentSvc > m_incidentSvc;
+      /// We automatically generate event format information for type names
+      /// that contain the string `xAOD'.  This property gives a list of
+      /// additional type names that should have format information.
+      std::vector<std::string> m_formatNames;
 
       /// The object that we write out in the end
       xAOD::EventFormat* m_ef;
