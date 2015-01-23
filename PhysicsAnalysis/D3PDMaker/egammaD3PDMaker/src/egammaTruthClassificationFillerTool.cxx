@@ -92,16 +92,15 @@ StatusCode egammaTruthClassificationFillerTool::fill (const xAOD::Egamma& p)
   std::pair<MCTruthPartClassifier::ParticleType,
     MCTruthPartClassifier::ParticleOrigin> res;
 
-  IMCTruthClassifier::Info info;
   if (const xAOD::Electron* q =
       dynamic_cast<const xAOD::Electron*>(&p))
   {
-    res = m_classifier->particleTruthClassifier (q, &info);
+    res = m_classifier->particleTruthClassifier (q);
   }
   else if (const xAOD::Photon* q =
            dynamic_cast<const xAOD::Photon*>(&p))
   {
-    res = m_classifier->particleTruthClassifier (q, &info);
+    res = m_classifier->particleTruthClassifier (q);
   }
   else
     std::abort();
@@ -112,9 +111,9 @@ StatusCode egammaTruthClassificationFillerTool::fill (const xAOD::Egamma& p)
   if (m_doBkgElecOrigin) {
     if (res.first == MCTruthPartClassifier::BkgElectron && 
         res.second == MCTruthPartClassifier::PhotonConv &&
-        info.genPart)
+        m_classifier->getGenPart())
     {
-      res = m_classifier->checkOrigOfBkgElec(info.genPart, &info);
+      res = m_classifier->checkOrigOfBkgElec(m_classifier->getGenPart());
       *m_typebkg   = res.first;
       *m_originbkg = res.second;
     }

@@ -183,7 +183,7 @@ PhotonD3PDObject.defineBlock (
 PhotonD3PDObject.defineBlock (
     1, 'Layer0Shape',
     D3PDMakerCoreComps.AuxDataFillerTool,
-    Vars = ['E033 = e033 < float : 0'])
+    Vars = ['E033 = e033'])
 PhotonD3PDObject.defineBlock (
     1, 'Layer1Shape',
     D3PDMakerCoreComps.AuxDataFillerTool,
@@ -230,8 +230,8 @@ PhotonD3PDObject.defineBlock (
             ])
 PhotonD3PDObject.defineBlock (1, 'Conversion',
                               egammaD3PDMaker.egammaConversionFillerTool)
-PhotonD3PDObject.defineBlock (1, 'Retaphi',
-                              egammaD3PDMaker.egammaRetaphiFillerTool)
+#PhotonD3PDObject.defineBlock (1, 'Retaphi',
+#                              egammaD3PDMaker.egammaRetaphiFillerTool)
                                            
 
 
@@ -338,8 +338,8 @@ ConversionVertexTrackParticleAssociation.defineBlock (
     D3PDMakerCoreComps.AuxDataFillerTool,
     Vars = ['eProbabilityComb',
             'eProbabilityHT',
-            'eProbabilityToT < float:0',
-            'eProbabilityBrem < float:0'])
+            'eProbabilityToT',
+            'eProbabilityBrem'])
 ConversionVertexTrackParticleAssociation.defineBlock (
     10, 'ConversionTrackFitQuality',
     D3PDMakerCoreComps.AuxDataFillerTool,
