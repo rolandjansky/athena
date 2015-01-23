@@ -111,7 +111,8 @@ const Root::TAccept& AsgElectronMultiLeptonSelector::accept( const xAOD::Electro
       return m_acceptDummy;
     }
   
-  double et = cluster->e()/cosh(eta); 
+  // transverse energy of the electron (using the track eta) 
+  double et = eg->pt();
   
   bool allFound = true;
 

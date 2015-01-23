@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 // System include(s):
 #include <memory>
 #include <cstdlib>
@@ -89,13 +88,13 @@ int main( int argc, char* argv[] ) {
    AsgElectronLikelihoodTool myLikelihood ("myLikelihood");
    myLikelihood.setProperty("primaryVertexContainer","PrimaryVertices" );
    myLikelihood.setProperty("OperatingPoint",static_cast<unsigned int> (LikeEnum::Loose) );
-   myLikelihood.setProperty("inputPDFFileName","ElectronPhotonSelectorTools/v1/ElectronLikelihoodPdfs.root" );
+   myLikelihood.setProperty("inputPDFFileName","ElectronPhotonSelectorTools/offline/dc14b_20141031/DC14OfflinePDFs.root");
    myLikelihood.initialize();
 
    AsgElectronIsEMSelector myLoose ("myLoose"); 
-   myLoose.setProperty("ConfigFile","ElectronPhotonSelectorTools/ElectronIsEMMediumSelectorCutDefs.conf");
-   myLoose.setProperty("isEMMask",static_cast<unsigned int> (egammaPID::ElectronMediumPP) );
-   myLoose.setProperty("PIDName",static_cast<int> (egammaPID::IsEMMedium) );
+   myLoose.setProperty("ConfigFile","ElectronPhotonSelectorTools/offline/dc14b_20141031/ElectronIsEMLooseSelectorCutDefs.conf" );
+   myLoose.setProperty("isEMMask",static_cast<unsigned int> (egammaPID::ElectronLoosePP) );
+   myLoose.setProperty("PIDName",static_cast<int> (egammaPID::IsEMLoose) );
    myLoose.initialize();
 
    // Loop over the events:
@@ -109,16 +108,25 @@ int main( int argc, char* argv[] ) {
      const xAOD::EventInfo* event_info = 0;  
      CHECK( event.retrieve( event_info, "EventInfo" ) ); 
       
-     const xAOD::ElectronContainer* electrons;  
+     const xAOD::ElectronContainer* electrons = 0 ;  
      CHECK( event.retrieve(electrons, "ElectronCollection") );
      
-     auto el_it      = electrons->begin(); 
-     auto el_it_last = electrons->end(); 
+     if ( !event.retrieve( electrons, "ElectronCollection" ).isSuccess() ){ // retrieve arguments: container type, container key
+       Error("execute()", "Failed to retrieve El container. Exiting." );
+     }
+     
+     //     auto el_it      = electrons->begin(); 
+     // auto el_it_last = electrons->end(); 
+     xAOD::ElectronContainer::const_iterator el_it      = electrons->begin(); 
+     xAOD::ElectronContainer::const_iterator el_it_last = electrons->end(); 
      unsigned int i = 0; 
-     for (; el_it != el_it_last; ++el_it, ++i) { 
-       const xAOD::Electron* el = *el_it; 
-       std::cout << "Electron " << i << std::endl; 
-       std::cout << "xAOD/raw pt = " << el->pt() << std::endl; 
+     std::cout << "TEST " << std::endl; 
+     
+     for (; el_it != el_it_last; ++el_it, ++i) {
+       std::cout << "TEST 1" << std::endl;  
+       const xAOD::Electron* el = (*el_it); 
+       std::cout << "Electron " << el << " Num " << i << std::endl; 
+       std::cout << "xAOD/raw pt = " << (*el_it)->pt() << std::endl; 
        Info (APP_NAME,"Electron #%d", i); 
 
        bool value=false;

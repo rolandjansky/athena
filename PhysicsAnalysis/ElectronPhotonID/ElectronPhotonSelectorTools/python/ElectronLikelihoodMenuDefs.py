@@ -376,7 +376,7 @@ def ElectronLikelihoodLooseOfflineConfig2015(theTool) :
     '''
     
     theTool = GetTool(theTool)
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/dc14b_20141031/ElectronLikelihoodLooseOfflineConfig2015.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/dc14b_20150121/ElectronLikelihoodLooseOfflineConfig2015.conf"
 
     
 def ElectronLikelihoodMediumOfflineConfig2015(theTool) :
@@ -387,7 +387,7 @@ def ElectronLikelihoodMediumOfflineConfig2015(theTool) :
     '''
     
     theTool = GetTool(theTool)
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/dc14b_20141031/ElectronLikelihoodMediumOfflineConfig2015.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/dc14b_20150121/ElectronLikelihoodMediumOfflineConfig2015.conf"
 
     
 def ElectronLikelihoodTightOfflineConfig2015(theTool) :
@@ -398,6 +398,6 @@ def ElectronLikelihoodTightOfflineConfig2015(theTool) :
     '''
     
     theTool = GetTool(theTool)
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/dc14b_20141031/ElectronLikelihoodTightOfflineConfig2015.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/dc14b_20150121/ElectronLikelihoodTightOfflineConfig2015.conf"
 
     
