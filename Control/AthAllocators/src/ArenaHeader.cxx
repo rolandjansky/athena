@@ -12,7 +12,6 @@
  */
 
 #include "AthAllocators/ArenaHeader.h"
-#include "AthAllocators/ArenaHeaderGaudiClear.h"
 #include "AthAllocators/ArenaAllocatorRegistry.h"
 #include "AthAllocators/ArenaAllocatorBase.h"
 #include "AthAllocators/ArenaBase.h"
@@ -155,11 +154,7 @@ void ArenaHeader::reset()
  */
 ArenaHeader* ArenaHeader::defaultHeader()
 {
-  // FIXME xxx should be thread-local!
-  // FIXME xxx don't depend on gaudi here!
-  static ArenaHeaderGaudiClear head;
-  head.addRef();
-  head.initialize();
+  static ArenaHeader head;
   return &head;
 }
 

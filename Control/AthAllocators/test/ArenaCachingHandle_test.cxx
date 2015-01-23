@@ -13,7 +13,6 @@
 #undef NDEBUG
 #include "AthAllocators/ArenaCachingHandle.h"
 #include "AthAllocators/ArenaHeader.h"
-#include "AthAllocators/ArenaHeaderGaudiClear.h"
 #include "AthAllocators/ArenaPoolAllocator.h"
 #include "AthAllocators/ArenaHeapAllocator.h"
 #include "AthAllocators/ArenaBlock.h"
@@ -234,7 +233,6 @@ void test3()
 
 int main()
 {
-  SG::ArenaHeaderGaudiClear::disable();
   test1();
   test2();
   test3();

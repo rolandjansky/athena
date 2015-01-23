@@ -12,7 +12,6 @@
 
 #undef NDEBUG
 #include "AthAllocators/ArenaHeader.h"
-#include "AthAllocators/ArenaHeaderGaudiClear.h"
 #include "AthAllocators/ArenaAllocatorBase.h"
 #include "AthAllocators/ArenaAllocatorRegistry.h"
 #include "AthAllocators/ArenaAllocatorCreator.h"
@@ -117,7 +116,6 @@ Elts InUse/Free/Total   Bytes InUse/Free/Total  Blocks InUse/Free/Total\n\
 
 int main()
 {
-  SG::ArenaHeaderGaudiClear::disable();
   test1();
   test2();
   return 0;
