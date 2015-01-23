@@ -53,13 +53,18 @@ inline double Legendre_polynomial::value(const int & m_order,
 				-35.0*x)/16.0;
 			break;
 		default:
-			return (2.0*m_order-1)*x*value(m_order-1, x)/
-					static_cast<double>(m_order)
-				- (m_order-1)*value(m_order-2, x)/
-					static_cast<double>(m_order);
+//			return (2.0*m_order-1)*x*value(m_order-1, x)/
+// 					static_cast<double>(m_order)
+//				- (m_order-1)*value(m_order-2, x)/
+//					static_cast<double>(m_order);
 			break;
-	}
-
+  	}
+//  Move default option here to check m_order in order to satisfy Coverity
+        if( m_order ) {		
+          return (2.0*m_order-1)*x*value(m_order-1, x)/static_cast<double>(m_order)
+	         - (m_order-1)*value(m_order-2, x)/static_cast<double>(m_order);
+        }
+        return 0;
 }
 
 }
