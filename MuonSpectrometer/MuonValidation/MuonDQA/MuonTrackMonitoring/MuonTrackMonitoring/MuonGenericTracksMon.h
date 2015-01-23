@@ -130,7 +130,7 @@ class MuonGenericTracksMon : public ManagedMonitorToolBase
   bool                   m_debuglevel;           //!< private member to control debug messages
 
   // Handle for the trig decision tool
-  ToolHandle<ITrigDecisionTool> m_trigDecTool;
+  ToolHandle<Trig::ITrigDecisionTool> m_trigDecTool;
   
   /** Pointer to Trk::ITrackSummaryTool */
   ToolHandle< Trk::ITrackSummaryTool > m_trackSumTool;

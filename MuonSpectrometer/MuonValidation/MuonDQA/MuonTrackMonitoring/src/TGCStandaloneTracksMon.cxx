@@ -44,7 +44,6 @@
 
 #include <sstream>
 #include <algorithm>
-
 using namespace std;
 
 static const int maxColl =   1200;
@@ -55,23 +54,115 @@ static const int maxClus =   1000;
 
 TGCStandaloneTracksMon::TGCStandaloneTracksMon( const std::string & type, const std::string & name, const IInterface* parent )
   :ManagedMonitorToolBase( type, name, parent ),
-   m_trigDecTool(""),
-   m_log( msgSvc(), name ),
-   m_debuglevel(false)
+  m_eventStore(NULL), 
+  m_activeStore(NULL), 
+  m_trigDecTool(""),
+  m_log( msgSvc(), name ),
+  m_debuglevel(false),
+  m_muonMgr(NULL),
+  m_mdtIdHelper(NULL),
+  m_tgcIdHelper(NULL),
+  //numberOfTube{},
+  m_key_mdt(""),
+  m_tgcPrepDataContainerName(""),
+  m_outputCoinCollectionLocation(""),
+  theSL(NULL),
+  SLr(0.),
+  SLz(0.),
+  SLeta(0.),
+  SLphi(0.),
+  //MDTZpos{}，
+  mdtvstgclv1_mdt_adc(NULL),//MDTADC
+  mdtvstgclv1_mdt_tdc(NULL),//MDTTDC
+  mdtvstgclv1_mdt_tdc_adc_cut(NULL),//MDTTDC
+  mdtvstgclv1_mdt_tdc_vs_adc(NULL),//MDTTDCvsADC
+
+  //mdtvstgclv1_adcsector{},//
+
+  //correlation
+  mdtvstgclv1_eta{},//etacorrelation
+  mdtvstgclv1_eta3st{},//etacorrelation
+  mdtvstgclv1_eta3st_sector{},//[side][sector]
+
+  mdtvstgclv1_etadiff{},
+  mdtvstgclv1_etadiff3st{},//etacorrelation
+  mdtvstgclv1_etadiff3st_sector{},//etacorrelation
+
+  //correlationwithptcut
+  mdtvstgclv1_eta_ptcut{},//etacorrelation
+  mdtvstgclv1_eta3st_ptcut{},//etacorrelation
+  mdtvstgclv1_eta3st_sector_ptcut{},//[side][sector]
+
+  mdtvstgclv1_etadiff_ptcut{},
+  mdtvstgclv1_etadiff3st_ptcut{},//etacorrelation
+  mdtvstgclv1_etadiff3st_sector_ptcut{},//etacorrelation
+
+
+  //tracking
+  mdtvstgclv1_eff{},
+
+  mdtvstgclv1_nwire_around_roi{},
+  mdtvstgclv1_nwire_around_roi_ptcut{},
+
+
+  mdtvstgclv1_chi2overndf{},
+  mdtvstgclv1_chi2overndf_3st{},
+
+  mdtvstgclv1_chi2overndf_ptcut{},
+  mdtvstgclv1_chi2overndf_3st_ptcut{},
+
+  mdtvstgclv1_nhit{},
+  mdtvstgclv1_nhit_3st{},
+
+  mdtvstgclv1_nhit_ptcut{},
+  mdtvstgclv1_nhit_3st_ptcut{},
+
+  mdtvstgclv1_pull{},
+  mdtvstgclv1_pull3st{},
+
+  mdtvstgclv1_pull_ptcut{},
+  mdtvstgclv1_pull3st_ptcut{},
+
+  mdtvstgclv1_deltaeta{},
+  mdtvstgclv1_deltaeta3st{},
+
+  mdtvstgclv1_deltaeta_ptcut{},
+  mdtvstgclv1_deltaeta3st_ptcut{},
+
+  mdtvstgclv1_a{},
+  mdtvstgclv1_b{},
+  mdtvstgclv1_a_3st{},
+  mdtvstgclv1_b_3st{},
+
+  mdtvstgclv1_a_ptcut{},
+  mdtvstgclv1_b_ptcut{},
+  mdtvstgclv1_a_3st_ptcut{},
+  mdtvstgclv1_b_3st_ptcut{},
+
+  mdtvstgclv1_nlayer{},
+  mdtvstgclv1_nstation{},
+  mdtvstgclv1_nlayervsnhit{},//
+
+  mdtvstgclv1_nlayer_ptcut{},
+  mdtvstgclv1_nstation_ptcut{},
+  mdtvstgclv1_nlayervsnhit_ptcut{}
 {
   // Declare the properties 
   //declareProperty("CheckCabling",     m_checkCabling=false);
+  declareProperty("UseTriggerVector",    m_useTrigger);   
+  declareProperty("TriggerAware", m_triggerAware);
+
   declareProperty("MdtAdcCut",        m_MdtAdcCut=50);
   declareProperty("MdtTdcMinCut",        m_MdtTdcMinCut=400);
   declareProperty("MdtTdcMaxCut",        m_MdtTdcMaxCut=1500);
+
   declareProperty("TgcPrepDataContainer", m_tgcPrepDataContainerName = "TGC_Measurements");
   declareProperty("OutputCoinCollection", m_outputCoinCollectionLocation = "TrigT1CoinDataCollection" );
   declareProperty("MdtPrepDataContainer", m_key_mdt="MDT_DriftCircles");
   //for trigger aware analysis
-  declareProperty("TriggerAware", m_triggerAware);
   declareProperty("TriggerDecisionTool", m_trigDecTool);
   declareProperty("Muon_Trigger_Items",  m_muon_triggers);
-  declareProperty("UseTriggerVector",    m_useTrigger);     
+
 }
 
 TGCStandaloneTracksMon::~TGCStandaloneTracksMon()
@@ -1744,7 +1835,7 @@ int TGCStandaloneTracksMon::numberOfSL(const Muon::TgcCoinDataContainer* tgctrgc
          ++itc){
 
       Muon::TgcCoinData* tcd=*itc;
-      Identifier tgcid=(*itc)->identify();
+      //Identifier tgcid=(*itc)->identify();
 
       if( tcd->type() != Muon::TgcCoinData::TYPE_SL )continue;
       m_log<<MSG::DEBUG<<"pt"<<tcd->pt()<<endreq;
@@ -1771,7 +1862,7 @@ bool TGCStandaloneTracksMon::findTGCTrack(const Muon::TgcPrepDataContainer* tgc_
   wires.clear();
   strips.clear();
 
-  Identifier tgcSLID = theSL->identify();
+  //Identifier tgcSLID = theSL->identify();
   int SLAC=(theSL->isAside()==false);//isNotAside a:0, c:1
   //int SLEF=(theSL->isForward()==false);//isNotForward f:0, e:1
   //int SLStationPhi=theSL->phi();//1-48
@@ -2072,7 +2163,7 @@ bool TGCStandaloneTracksMon::LinearFit(std::vector<XYPosition>& positions,
   XYPosition* largest;
 
   double chi2overndfold=0.;
-  double dchi2overndf=0.;
+  //double dchi2overndf=0.;
   int nlayer;//number of used layer
   int nstation;//number of used station
 
@@ -2108,7 +2199,7 @@ bool TGCStandaloneTracksMon::LinearFit(std::vector<XYPosition>& positions,
 
     if( !LinearFitLoop2(positions,pchi2road, a,b,largest,chi2,ndf, nlayer, nstation) )return false;
     //largest->usable(false);
-    dchi2overndf=chi2/ndf-chi2overndfold;//difference of chi2/ndf
+    //dchi2overndf=chi2/ndf-chi2overndfold;//difference of chi2/ndf
     chi2overndfold=chi2/ndf;
 
     if( m_debuglevel )m_log << MSG::DEBUG << "a b largestpchi2 chi2 ndf chi2/ndf dchi2/ndf: " << a << " " << b << " " << largest->pchi2() << " " << chi2 << " " << ndf <<
@@ -2330,7 +2421,7 @@ bool TGCStandaloneTracksMon::LinearFitLoop2(std::vector<XYPosition>& positions,
     }
 
   }
-  largest->usable(false);
+  if (largest == NULL) largest->usable(false);
   if(m_debuglevel) m_log << MSG::DEBUG << "set usable flag to false" << endreq;
 
   return true;

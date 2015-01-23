@@ -111,7 +111,8 @@ class MuonSelectedTracksMon : public ManagedMonitorToolBase
   const MdtIdHelper*                  m_mdtIdHelper;
   
   /** ToolHandle Trigger Decision Tool*/
-  ToolHandle<ITrigDecisionTool> m_trigDecTool;
+  ToolHandle<Trig::ITrigDecisionTool> m_trigDecTool;
+
   
   /** Trigger items */
   std::vector<std::string> m_muon_triggers;
