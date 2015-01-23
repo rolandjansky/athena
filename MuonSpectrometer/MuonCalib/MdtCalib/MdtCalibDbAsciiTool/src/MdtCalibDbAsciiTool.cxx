@@ -36,8 +36,7 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
 
-namespace MuonCalib 
-{
+namespace MuonCalib {
 
 MdtCalibDbAsciiTool::MdtCalibDbAsciiTool (const std::string& type,
                              const std::string& name,
@@ -105,25 +104,21 @@ MdtCalibDbAsciiTool::MdtCalibDbAsciiTool (const std::string& type,
 
 }
 
-StatusCode MdtCalibDbAsciiTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* tad)
-{
-    CLID clid        = tad->clID();
-    std::string key  = tad->name();
-    if ( 1221928754== clid && m_tubeDataLocation == key) 
-    {
-      if( m_debug ) *m_log << MSG::DEBUG << "OK Tube" << endreq;
-      return StatusCode::SUCCESS;
-    }
-    if ( 1270996316== clid && m_rtDataLocation == key) 
-    {
-      if( m_debug ) *m_log << MSG::DEBUG << "OK Rt" << endreq;
-        return StatusCode::SUCCESS;
-    }
-    return StatusCode::FAILURE;
+StatusCode MdtCalibDbAsciiTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* tad) {
+  CLID clid        = tad->clID();
+  std::string key  = tad->name();
+  if ( 1221928754== clid && m_tubeDataLocation == key) {
+    if( m_debug ) *m_log << MSG::DEBUG << "OK Tube" << endreq;
+    return StatusCode::SUCCESS;
+  }
+  if ( 1270996316== clid && m_rtDataLocation == key) {
+    if( m_debug ) *m_log << MSG::DEBUG << "OK Rt" << endreq;
+    return StatusCode::SUCCESS;
+  }
+  return StatusCode::FAILURE;
 }
 
-StatusCode MdtCalibDbAsciiTool::initialize()
-{ 
+StatusCode MdtCalibDbAsciiTool::initialize() { 
   m_log = new MsgStream(msgSvc(), name());
   m_debug = m_log->level() <= MSG::DEBUG;
   m_verbose = m_log->level() <= MSG::VERBOSE;
@@ -159,15 +154,12 @@ StatusCode MdtCalibDbAsciiTool::initialize()
   if( m_t0Spread != 0. ) {
     static const bool CREATEIFNOTTHERE(true);
     StatusCode RndmStatus = service("AtRndmGenSvc", p_AtRndmGenSvc, CREATEIFNOTTHERE);
-    if (!RndmStatus.isSuccess() || 0 == p_AtRndmGenSvc)
-      {
-	*m_log << MSG::ERROR << " Could not initialize Random Number Service" << endreq;
-	return RndmStatus;
-      }      
-    else{
+    if (!RndmStatus.isSuccess() || 0 == p_AtRndmGenSvc) {
+      *m_log << MSG::ERROR << " Could not initialize Random Number Service" << endreq;
+      return RndmStatus;
+    } else{
       if( m_debug ) *m_log << MSG::DEBUG << " initialize Random Number Service: running with t0 shift "
-			<< m_t0Shift << " spread " << m_t0Spread << " rt shift " << m_rtShift << endreq;
-      
+			   << m_t0Shift << " spread " << m_t0Spread << " rt shift " << m_rtShift << endreq;
     }
     // getting our random numbers stream
     p_engine  =       p_AtRndmGenSvc->GetEngine("MDTCALIBDBASCIITOOL");
@@ -178,7 +170,6 @@ StatusCode MdtCalibDbAsciiTool::initialize()
   if(sc.isFailure()) return StatusCode::FAILURE;
   sc=m_detStore->record( m_tubeData, m_tubeDataLocation, true );
   if(sc.isFailure()) return StatusCode::FAILURE;
-
 
   // Get the TransientAddress from DetectorStore and set "this" as the
   // AddressProvider
@@ -225,19 +216,17 @@ StatusCode MdtCalibDbAsciiTool::initialize()
 }
 
 
-StatusCode MdtCalibDbAsciiTool::finalize()
-	{
-	if(m_tubeData)
-		delete m_tubeData;
-	if(m_rtData)
-		delete m_rtData;
-	if(m_log!=NULL) delete m_log;
-	return StatusCode::SUCCESS;
-	}
+StatusCode MdtCalibDbAsciiTool::finalize() {
+  if(m_tubeData)
+    delete m_tubeData;
+  if(m_rtData)
+    delete m_rtData;
+  if(m_log!=NULL) delete m_log;
+  return StatusCode::SUCCESS;
+}
 
 
-StatusCode MdtCalibDbAsciiTool::LoadCalibration(IOVSVC_CALLBACK_ARGS_P(I,keys)) 
-{
+StatusCode MdtCalibDbAsciiTool::LoadCalibration(IOVSVC_CALLBACK_ARGS_P(I,keys)) {
   if( m_debug ) *m_log << MSG::DEBUG << "LoadCalibration has been triggered for the following keys " << endreq;
  
   std::list<std::string>::const_iterator itr;
@@ -251,21 +240,18 @@ StatusCode MdtCalibDbAsciiTool::LoadCalibration(IOVSVC_CALLBACK_ARGS_P(I,keys))
 }
 
 
-StatusCode MdtCalibDbAsciiTool::defaultT0s()
-{
-
+StatusCode MdtCalibDbAsciiTool::defaultT0s() {
   // create collection
-  if (m_tubeData)
-  	{
-	delete m_tubeData;
-	}
+  if (m_tubeData) {
+    delete m_tubeData;
+  }
   m_tubeData = new MdtTubeCalibContainerCollection();
   m_tubeData->resize( m_mdtIdHelper->module_hash_max() );
   if( m_debug ) *m_log << MSG::DEBUG << " Created new MdtTubeCalibContainerCollection size " << m_tubeData->size() << endreq;
 
   MdtIdHelper::const_id_iterator it     = m_mdtIdHelper->module_begin();
   MdtIdHelper::const_id_iterator it_end = m_mdtIdHelper->module_end();
-  for( ; it!=it_end;++it ){
+  for( ; it!=it_end;++it ) {
     
     MuonCalib::MdtTubeCalibContainer* tubes=0;
     // create a MdtTubeContainer
@@ -312,49 +298,44 @@ StatusCode MdtCalibDbAsciiTool::defaultT0s()
       //look for calibration file
       bool from_file(false);
       StationT0FromFile station_t0;
-      if(m_calib_dir != "NONE")
-      	{
+      if(m_calib_dir != "NONE") {
 	std::ifstream t0_file((m_calib_dir + "/t0s/T0" + rName + ".dat").c_str());
-	if(t0_file.fail())
-		{
-		  if( m_verbose ) {
-		    *m_log << MSG::VERBOSE << "File '" << (m_calib_dir + "/t0s/" + rName + ".dat") << "' not found!" <<endreq;
-		    *m_log << MSG::VERBOSE << "Using default t0 for chamber '" << rName << "'!" <<endreq;
-		  }
-		}
-	else
-		{
-		  if( m_debug ) *m_log << MSG::DEBUG << "Reading calibraation for '" << rName << "' from calibration directory." << endreq;
-		from_file=true;
-		station_t0.readT0File(t0_file);
-		}
+	if(t0_file.fail()) {
+	  if( m_verbose ) {
+	    *m_log << MSG::VERBOSE << "File '" << (m_calib_dir + "/t0s/" + rName + ".dat") << "' not found!" <<endreq;
+	    *m_log << MSG::VERBOSE << "Using default t0 for chamber '" << rName << "'!" <<endreq;
+	  }
+	} else {
+	  if( m_debug ) *m_log << MSG::DEBUG << "Reading calibraation for '" << rName << "' from calibration directory." << endreq;
+	  from_file=true;
+	  station_t0.readT0File(t0_file);
 	}
+      }
       if( m_verbose ){
 	*m_log << MSG::VERBOSE << "Adding chamber " << m_mdtIdHelper->print_to_string(*it) << endreq;
 	*m_log << MSG::VERBOSE << " size " << size
-	    << " ml " << nml << " l " << nlayers << " t " 
-          << ntubes << " address " << tubes << endreq;
+	       << " ml " << nml << " l " << nlayers << " t " 
+	       << ntubes << " address " << tubes << endreq;
       }
       for( int ml=0;ml<nml;++ml ){
 	for( int l=0;l<nlayers;++l ){
 	  for( int t=0;t<ntubes;++t ){
 	    MuonCalib::MdtTubeCalibContainer::SingleTubeCalib data;
 	    double tt = t0;
-	    if(from_file)
-	    	{
-		tt = station_t0.t0(ml + 1, l + 1, t + 1);
-		if( m_verbose ) *m_log << MSG::VERBOSE << "tt="<<tt<<endreq;
-		}
-	    if( m_t0Shift != 0 ){
+	    if(from_file) {
+	      tt = station_t0.t0(ml + 1, l + 1, t + 1);
+	      if( m_verbose ) *m_log << MSG::VERBOSE << "tt="<<tt<<endreq;
+	    }
+	    if( m_t0Shift != 0 ) {
 	      tt += m_t0Shift;
 	      if( m_verbose ) *m_log << MSG::VERBOSE << "T0 shift " << m_t0Shift << " t0 " << tt 
-				  << " id " << ml << " " << l << " " << t << endreq;
+				     << " id " << ml << " " << l << " " << t << endreq;
 	    }
-	    if(m_t0Spread != 0 ){
+	    if(m_t0Spread != 0 ) {
 	      double sh = CLHEP::RandGaussZiggurat::shoot(p_engine,0.,m_t0Spread);
 	      tt += sh;
 	      if( m_verbose ) *m_log << MSG::VERBOSE << "T0 spread " << sh << " t0 " << tt 
-				  << " id " << ml << " " << l << " " << t << endreq;
+				     << " id " << ml << " " << l << " " << t << endreq;
 	    }
 	    data.t0 = tt;
 	    data.adcCal = 1.;
@@ -380,13 +361,10 @@ StatusCode MdtCalibDbAsciiTool::defaultT0s()
   }
   if( m_debug ) *m_log << MSG::DEBUG << " Done defaultT0s " << m_tubeData->size() << endreq;
 
-
-
   return StatusCode::SUCCESS;
 }
 
-MuonCalib::MdtTubeCalibContainer * MdtCalibDbAsciiTool::buildMdtTubeCalibContainer(const Identifier& id)    
-{    
+MuonCalib::MdtTubeCalibContainer * MdtCalibDbAsciiTool::buildMdtTubeCalibContainer(const Identifier& id) {    
     MuonCalib::MdtTubeCalibContainer* tubes = 0;
 
     const MuonGM::MdtReadoutElement* detEl = m_detMgr->getMdtReadoutElement( m_mdtIdHelper->channelID(id,1,1,1) );
@@ -437,27 +415,22 @@ MuonCalib::MdtTubeCalibContainer * MdtCalibDbAsciiTool::buildMdtTubeCalibContain
     return tubes;
 }
 
-
-StatusCode MdtCalibDbAsciiTool::defaultRt()
-{
+StatusCode MdtCalibDbAsciiTool::defaultRt() {
   std::vector<std::string>::const_iterator it     = m_RTfileNames.value().begin();
   std::vector<std::string>::const_iterator it_end = m_RTfileNames.value().end();
 
-
 //resolve filenames
-	std::vector<std::string> resolved_filenames;
-	for ( ; it != it_end ; ++it) 
-		{
-		std::string fileName = PathResolver::find_file(it->c_str(),"DATAPATH");
-		if(fileName.length() == 0)
-			{
-		      	*m_log << MSG::ERROR << "RT Ascii file \"" <<  it->c_str() << "\" not found" << endreq;
-			continue;
-    			}
-		resolved_filenames.push_back(fileName);
-   		}
+  std::vector<std::string> resolved_filenames;
+  for ( ; it != it_end ; ++it) {
+    std::string fileName = PathResolver::find_file(it->c_str(),"DATAPATH");
+    if(fileName.length() == 0) {
+      *m_log << MSG::ERROR << "RT Ascii file \"" <<  it->c_str() << "\" not found" << endreq;
+      continue;
+    }
+    resolved_filenames.push_back(fileName);
+  }
 		
-	AppendRtFiles(resolved_filenames);
+  AppendRtFiles(resolved_filenames);
   it = resolved_filenames.begin();
   it_end = resolved_filenames.end();
  
@@ -471,17 +444,15 @@ StatusCode MdtCalibDbAsciiTool::defaultRt()
   }
 
   // create collection 
-  if(m_rtData)
-  	{
-  	delete m_rtData;
-	}
+  if(m_rtData) {
+    delete m_rtData;
+  }
   m_rtData = new MdtRtRelationCollection(); 
   m_rtData->resize(m_regionSvc->numberOfRtRegions());
   if( m_debug ) *m_log << MSG::DEBUG << " Created new MdtRtRelationCollection size " << m_rtData->size() << endreq;
 
-
-  for ( ; it != it_end ; ++it) {
-    
+  // Loop over RT files
+  for ( ; it != it_end ; ++it) {    
     const std::string & fileName(*it);
     // Open the Ascii file with the RT relations
     std::ifstream inputFile( fileName.c_str() );
@@ -495,7 +466,9 @@ StatusCode MdtCalibDbAsciiTool::defaultRt()
     rts.read(inputFile);
     *m_log << MSG::VERBOSE << "File contains " << rts.nRts() << " RT relations " << endreq;
 
-    for( int n=0;n<static_cast<int>(rts.nRts());++n){
+    int nmax = static_cast <int> (rts.nRts());
+    if( nmax > 10000 ) nmax = 10000;   //prevent arbirarily large loop range to appease Coverity
+    for( int n=0; n<nmax; ++n ) {
       RtDataFromFile::RtRelation* rt = rts.getRt( n );
       unsigned int regionId = rt->regionId();
 
@@ -538,7 +511,6 @@ StatusCode MdtCalibDbAsciiTool::defaultRt()
       MuonCalib::CalibFunc::ParVec rtPars;
       rtPars.push_back( t_min );
       rtPars.push_back( bin_size );
-
       
       if( m_rtShift != 0. ){
 
@@ -591,45 +563,42 @@ StatusCode MdtCalibDbAsciiTool::defaultRt()
     
     }
   }
- return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
 
- void MdtCalibDbAsciiTool::AppendRtFiles(std::vector<std::string> &rt_files)
- 	{
-	DIR *directory(opendir((m_calib_dir + "/rts").c_str()));
-	if(directory==NULL) return;
-	struct dirent *dent;
-//loop on all files in directory
-	while((dent=readdir(directory))!=NULL)
-		{
-		std::string nm(dent->d_name);
-		std::string station;
-		int eta, phi;
-		if(!interpret_chamber_name(nm, "Rt_", station,eta, phi)) continue;
-		rt_files.push_back(m_calib_dir + "/rts/" + nm);
-		if( m_debug ) *m_log << MSG::DEBUG << "Appending rt file "<<m_calib_dir << "/rts/" << nm <<endreq;
-		}
-	closedir(directory);
-	}
-bool MdtCalibDbAsciiTool :: interpret_chamber_name(const std::string &nm, const char *prefix, std::string & station, int &eta, int & phi) const
-	{
-//check if name begins with the prefix
-	std::string prefix_st(prefix);
-	if(nm.find(prefix_st) !=0) return false;
-//check if filename ends in .dat
-	if(static_cast<int>(nm.find(".dat")) <0 || nm.find(".dat")!=nm.size()-4) return false;
-//cut prefix and suffix from filename
-	std::string cutout(nm, prefix_st.size(), nm.size()-4-prefix_st.size());
-//extrect station name
-	int uscore_pos(cutout.find('_'));		
-	if(uscore_pos<=0) return false;	
-	station=std::string(cutout, 0, uscore_pos);
-//get eta and phi
-	std::string cutout2(cutout, uscore_pos+1);
-	if(sscanf(cutout2.c_str(), "%d_%d", &phi, &eta)!=2) return false;
-	return true;	
-	}
+void MdtCalibDbAsciiTool::AppendRtFiles(std::vector<std::string> &rt_files) {
+  DIR *directory(opendir((m_calib_dir + "/rts").c_str()));
+  if(directory==NULL) return;
+  struct dirent *dent;
+  //loop on all files in directory
+  while((dent=readdir(directory))!=NULL) {
+    std::string nm(dent->d_name);
+    std::string station;
+    int eta, phi;
+    if(!interpret_chamber_name(nm, "Rt_", station,eta, phi)) continue;
+    rt_files.push_back(m_calib_dir + "/rts/" + nm);
+    if( m_debug ) *m_log << MSG::DEBUG << "Appending rt file "<<m_calib_dir << "/rts/" << nm <<endreq;
+  }
+  closedir(directory);
+}
 
+bool MdtCalibDbAsciiTool :: interpret_chamber_name(const std::string &nm, const char *prefix, std::string & station, int &eta, int & phi) const {
+//check if name begins with the prefix
+  std::string prefix_st(prefix);
+  if(nm.find(prefix_st) !=0) return false;
+  //check if filename ends in .dat
+  if(static_cast<int>(nm.find(".dat")) <0 || nm.find(".dat")!=nm.size()-4) return false;
+  //cut prefix and suffix from filename
+  std::string cutout(nm, prefix_st.size(), nm.size()-4-prefix_st.size());
+//extrect station name
+  int uscore_pos(cutout.find('_'));		
+  if(uscore_pos<=0) return false;	
+  station=std::string(cutout, 0, uscore_pos);
+//get eta and phi
+  std::string cutout2(cutout, uscore_pos+1);
+  if(sscanf(cutout2.c_str(), "%d_%d", &phi, &eta)!=2) return false;
+  return true;	
+}
 
 }
