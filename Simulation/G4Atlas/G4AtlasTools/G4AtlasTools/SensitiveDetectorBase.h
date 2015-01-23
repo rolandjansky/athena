@@ -43,6 +43,9 @@ class SensitiveDetectorBase : virtual public ISensitiveDetector , public G4VSens
     in some SDs to get a more precise location inside the geometry tree */
   virtual G4bool ProcessHits(G4Step*,G4TouchableHistory*) override;
 
+  /** Query interface method to make athena happy */
+  virtual StatusCode queryInterface(const InterfaceID&, void**);
+
  protected:
   std::vector<std::string> m_volumeNames;   ///!< All the volumes to which this SD is assigned
   AthenaHitsCollectionHelper m_hitCollHelp; ///!< Hit collection helper, used by many SDs for SG interfaces

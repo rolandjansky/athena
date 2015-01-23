@@ -53,6 +53,9 @@ class FastSimulationBase : virtual public IFastSimulation , public G4VFastSimula
   /** Version of DoIt for particles that have come to rest in the detector */
   virtual void   AtRestDoIt  (const G4FastTrack&, G4FastStep&) override { }
 
+  /** Query interface method to make athena happy */
+  virtual StatusCode queryInterface(const InterfaceID&, void**);
+
  protected:
   std::vector<std::string> m_regionNames; //!< All the volumes to which this fast sim is assigned
 
