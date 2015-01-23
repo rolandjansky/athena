@@ -157,6 +157,8 @@ class TrigInDetSequence(TrigInDetSequenceBase):
         self.__step__ = ["tauCore","tauIso","tau"]; 
       elif self.__signature__ == "muon":
         self.__step__ = ["muonCore","muonIso","muon"]; 
+      elif self.__signature__ == "bjet":  
+        self.__step__ = ["bjetVtx","bjet","bjet"]; 
       self.__step__.reverse()
 
     fullseq = list()
@@ -172,16 +174,19 @@ class TrigInDetSequence(TrigInDetSequenceBase):
     ftfname = ""
     roiupdater = ""
     if sequenceFlavour=="2step":
-      ftfname = "TrigFastTrackFinder_%sCore"
-      roiupdater = "IDTrigRoiUpdater_%sCore_IDTrig"
-
+      ftfname = "TrigFastTrackFinder_%sCore";  ftf2name = "TrigFastTrackFinder_%sIso"; 
+      roiupdater = "IDTrigRoiUpdater_%sCore_IDTrig";  roi2updater="IDTrigRoiUpdater_%sIso_IDTrig"
+      if self.__signature__=="bjet":
+        ftfname = "TrigFastTrackFinder_%sVtx"; ftf2name = ""; 
+        roiupdater = "IDTrigRoiUpdater_%sVtx_IDTrig"; roi2updater="";
+        
 
 
     if sequenceType=="IDTrig":
 
       algos = list()
 
-      if sequenceFlavour != "FTF":
+      if not (sequenceFlavour == "FTF" and self.__signature__=="beamSpot"):
         algos += [("IDTrigRoiUpdater", roiupdater)]
 
       algos += dataprep
@@ -192,9 +197,9 @@ class TrigInDetSequence(TrigInDetSequenceBase):
  
 
       if sequenceFlavour=="2step":
-        algos = [("IDTrigRoiUpdater", "IDTrigRoiUpdater_%sIso_IDTrig")]
+        algos = [("IDTrigRoiUpdater", roi2updater)]
         algos += dataprep
-        algos += [("TrigFastTrackFinder","TrigFastTrackFinder_%sIso"),
+        algos += [("TrigFastTrackFinder",ftf2name),
                   ("InDetTrigTrackingxAODCnv","InDetTrigTrackingxAODCnv_%s_FTF"),
                   ]
         fullseq.append(algos)
