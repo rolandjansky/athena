@@ -24,7 +24,7 @@ StatusCode SensitiveDetectorBase::initialize(){
   ATH_MSG_DEBUG( "Initialized and added SD " << name() );
 
   // Go through the logical volumes and hook the SDs up
-  bool missedOne = false;
+  bool gotOne = false;
   G4LogicalVolumeStore * logicalVolumeStore = G4LogicalVolumeStore::GetInstance();
   for (auto myvol : m_volumeNames){
     int found = 0;
@@ -32,20 +32,20 @@ StatusCode SensitiveDetectorBase::initialize(){
       if (ilv->GetName() == myvol.data()){
         ++found; // Do not break on found to protect against multiple volumes with the same name
         ilv->SetSensitiveDetector(this);
+        gotOne = true;
       } // Found a volume!
     } // Loop over all the volumes in the geometry
     // Give notice if we have missed a volume in here
     if (0==found){
-      ATH_MSG_ERROR( "Volume " << myvol << " not found." );
-      missedOne=true;
+      ATH_MSG_WARNING( "Volume " << myvol << " not found in G4LogicalVolumeStore." );
     } else {
       ATH_MSG_VERBOSE( found << " copies of LV " << myvol << " found; SD " << name() << " assigned." );
     }
   } // Loop over my volumes
 
   // Crash out if we have failed to assign a volume - this is bad news!
-  if (missedOne){
-    ATH_MSG_ERROR( "Failed to assign at least one volume to SD " << name() );
+  if (!gotOne){
+    ATH_MSG_ERROR( "Failed to assign *any* volume to SD " << name() );
     return StatusCode::FAILURE;
   }
 
@@ -69,3 +69,12 @@ G4bool SensitiveDetectorBase::ProcessHits(G4Step*,G4TouchableHistory*){
   throw "ShouldNotBeCalledOnBaseClass";
 }
 
+StatusCode
+SensitiveDetectorBase::queryInterface(const InterfaceID& riid, void** ppvIf) {
+  if ( riid == ISensitiveDetector::interfaceID() ) {
+    *ppvIf = (ISensitiveDetector*)this;
+    addRef();
+    return StatusCode::SUCCESS;
+  }
+  return AlgTool::queryInterface( riid, ppvIf );
+}

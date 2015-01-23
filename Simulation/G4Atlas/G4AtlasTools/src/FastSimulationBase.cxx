@@ -50,3 +50,12 @@ StatusCode FastSimulationBase::initialize(){
   return StatusCode::SUCCESS;
 }
 
+StatusCode FastSimulationBase::queryInterface(const InterfaceID& riid, void** ppvIf) {
+  if ( riid == IFastSimulation::interfaceID() ) {
+    *ppvIf = (IFastSimulation*)this;
+    addRef();
+    return StatusCode::SUCCESS;
+  }
+  return AlgTool::queryInterface( riid, ppvIf );
+}
+
