@@ -15,13 +15,14 @@
  *  @date   2014-12-20
  */
 
-static const InterfaceID IID_ISensitiveDetectorSvc( "ISensitiveDetectorSvc" , 1 , 0 ) ;
-
 class ISensitiveDetectorSvc : virtual public IService {
  public:
   ISensitiveDetectorSvc() {}
   virtual ~ISensitiveDetectorSvc() {}
-  static const InterfaceID& interfaceID() { return IID_ISensitiveDetectorSvc ; }
+  static const InterfaceID& interfaceID() {
+    static const InterfaceID IID_ISensitiveDetectorSvc( "ISensitiveDetectorSvc" , 1 , 0 ) ;
+    return IID_ISensitiveDetectorSvc ;
+  }
 
   /** End of athena event method.  This should get called once per athena event by the
    framework, somewhere.  Eventually it may be done via a Gaudi function.  This ensures

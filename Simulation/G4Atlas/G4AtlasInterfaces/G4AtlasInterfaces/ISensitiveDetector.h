@@ -15,13 +15,14 @@
  *  @date   2014-12-20
  */
 
-static const InterfaceID IID_ISensitiveDetector( "ISensitiveDetector" , 1 , 0 ) ;
-
 class ISensitiveDetector : virtual public IAlgTool {
  public:
   ISensitiveDetector() {}
   virtual ~ISensitiveDetector() {}
-  static const InterfaceID& interfaceID() { return IID_ISensitiveDetector ; }
+  static const InterfaceID& interfaceID() {
+    static const InterfaceID IID_ISensitiveDetector( "ISensitiveDetector" , 1 , 0 ) ;
+    return IID_ISensitiveDetector;
+  }
 
   /** Method to be called at the end of the *athena* event.  This is where the
    hit collection should be uploaded into StoreGate.  The G4VSensitiveDetector already

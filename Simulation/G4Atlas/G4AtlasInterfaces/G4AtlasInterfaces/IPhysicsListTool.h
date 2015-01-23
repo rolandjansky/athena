@@ -17,13 +17,14 @@ class G4VUserPhysicsList;
  *  @date   2014-10-01
  */
 
-static const InterfaceID IID_IPhysicsListTool( "IPhysicsListTool" , 1 , 0 ) ;
-
 class IPhysicsListTool : virtual public IAlgTool {
  public:
   IPhysicsListTool() {}
   virtual ~IPhysicsListTool() {}
-  static const InterfaceID& interfaceID() { return IID_IPhysicsListTool ; }
+  static const InterfaceID& interfaceID() {
+    static const InterfaceID IID_IPhysicsListTool( "IPhysicsListTool" , 1 , 0 ) ;
+    return IID_IPhysicsListTool ;
+  }
 
   /** Build the physics list.  This method should be called when G4 is ready
    for the initialization of the physics list */
