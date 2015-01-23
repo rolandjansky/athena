@@ -27,7 +27,6 @@
 
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 
-#include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "TrigInDetPattRecoTools/TrigCombinatorialSettings.h"
 
 class IFTK_DataProviderTool;
@@ -38,6 +37,7 @@ class ITrigL2SpacePointTruthTool;
 class ITrigInDetTrackFitter;
 class IRegSelSvc;
 class TrigRoiDescriptor;
+class TrigSiSpacePointBase;
 class Identifier;
 namespace InDet { 
   class SiSpacePointsSeed;
@@ -50,6 +50,7 @@ namespace MagField {
 
 namespace Trk {
   class ITrackSummaryTool;
+  class SpacePoint;
 }
 
 class TrigL2LayerSetLUT;
@@ -77,9 +78,9 @@ class TrigFastTrackFinder : public HLT::FexAlgo {
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE,
 			    HLT::TriggerElement* outputTE);
 
-  void convertToTrigInDetTrack(const TrackCollection& offlineTracks, TrigInDetTrackCollection& trigInDetTracks);
   double trackQuality(const Trk::Track* Tr);
   void filterSharedTracks(std::vector<std::tuple<bool, double, Trk::Track*>>& QT);
+  void convertToTrigInDetTrack(const TrackCollection& offlineTracks, TrigInDetTrackCollection& trigInDetTracks);
 
 protected: 
 
@@ -90,7 +91,6 @@ protected:
   int findBarCodeInData(int, const std::vector<TrigSiSpacePointBase>&);
   void showBarCodeInData(int, const std::vector<TrigSiSpacePointBase>&);
   int findBarCodeInTriplets(int, const std::vector<std::shared_ptr<TrigInDetTriplet>>&);
-  int findBarCodeInDoublets(int, const std::vector<TrigInDetDoublet*>&);
   void assignTripletBarCodes(const std::vector<std::shared_ptr<TrigInDetTriplet>>&, std::vector<int>&);
   void assignTripletBarCodes(const std::vector<TrigInDetTriplet*>&, std::vector<int>&);
   
@@ -113,11 +113,10 @@ protected:
 
   // Control flags
 
-  bool m_useNewSeeding;//to activate roadless seed generator
-
   bool m_ftkMode;
   bool m_useBeamSpot; 
   bool m_vertexSeededMode;
+  bool m_doTrigInDetTrack;
 
   // Cuts and settings
   TrigCombinatorialSettings m_tcs;
@@ -147,13 +146,11 @@ protected:
  
   // Reconstructed tracks 
 
-  TrigInDetTrackCollection* m_recoTracks;
-
   IBeamCondSvc* m_iBeamCondSvc;
   
   // Data members for monitoring
 
-  int m_ntracks;
+  int m_nTracks;
   int m_nPixSPsInRoI;  // Total number of (filtered) pixel SPs in the RoI
   int m_nSCTSPsInRoI;  // Total number of (filtered) SCT SPs in the RoI
   int m_currentStage;  // The last stage reached during the processing of a given RoI
@@ -167,34 +164,23 @@ protected:
   int m_nZvertices; 
   std::vector<float> m_zVertices; 
 
-  std::vector<double> m_a0beam;
-  std::vector<double> m_trkdPhi0, m_trkdEta;
+  std::vector<float> m_trk_pt;
+  std::vector<float> m_trk_a0;
+  std::vector<float> m_trk_z0;
+  std::vector<float> m_trk_phi0;
+  std::vector<float> m_trk_eta;
+  std::vector<float> m_trk_chi2dof;
+  std::vector<float> m_trk_nSiHits;
+  std::vector<float> m_trk_nPIXHits;
+  std::vector<float> m_trk_nSCTHits;
+  std::vector<float> m_trk_a0beam;
+  std::vector<float> m_trk_dPhi0;
+  std::vector<float> m_trk_dEta;
   //std::vector<double> m_sp_x, m_sp_y, m_sp_z, m_sp_r;//Spacepoint coordinates
-
-  std::vector<double> m_pixResPhiBarrel;
-  std::vector<double> m_pixResEtaBarrel;
-  std::vector<double> m_pixPullPhiBarrel;
-  std::vector<double> m_pixPullEtaBarrel;
-  std::vector<double> m_sctResBarrel;
-  std::vector<double> m_sctPullBarrel;
-  std::vector<double> m_pixResPhiEC;
-  std::vector<double> m_pixResEtaEC;
-  std::vector<double> m_pixPullPhiEC;
-  std::vector<double> m_pixPullEtaEC;
-  std::vector<double> m_sctResEC;
-  std::vector<double> m_sctPullEC;
 
   // Monitoring member functions 
 
-  static inline double monPt(const TrigInDetTrack *t){return t->param()->pT(); }
-  static inline double monA0(const TrigInDetTrack *t){return t->param()->a0(); }
-  static inline double monZ0(const TrigInDetTrack *t){return t->param()->z0(); }
-  static inline double monPhi0(const TrigInDetTrack *t){return t->param()->phi0();}
-  static inline double monEta(const TrigInDetTrack *t){return t->param()->eta(); }
-  static inline double monNHit_Si(const TrigInDetTrack *t){return (t->NPixelSpacePoints()+t->NSCT_SpacePoints());}
-  static inline double monChi2(const TrigInDetTrack *t){return (t->chi2()>9e7)?-9.9:t->chi2();}
-
-  void fill_a0();
+  void fillMon(const TrackCollection& tracks);
 
   void calculateRecoEfficiency(const std::vector<TrigSiSpacePointBase>&,
 			       const std::map<int,int>&,
@@ -217,7 +203,7 @@ protected:
 
   // Internal bookkeeping
 
-  std::string m_instanceName, m_attachedFeatureName1, m_attachedFeatureName2, 
+  std::string m_instanceName, m_attachedFeatureName, m_attachedFeatureName_TIDT,
     m_outputCollectionSuffix;
 
   unsigned int m_l1Id;
@@ -231,14 +217,11 @@ protected:
   int m_nSignalPresent;
   int m_nSignalDetected;
   int m_nSignalTracked;
-  int m_nGoodDoublets;
   int m_nSignalClones;
   const PixelID* m_pixelId;
   const SCT_ID* m_sctId;
   const AtlasDetectorID* m_idHelper;
 
-  //Merge clone triplet clusters?
-  int m_numSeedsToTry;
   int m_minSignalSPs;
 
   Trk::ParticleHypothesis m_particleHypothesis = Trk::pion;//particle hypothesis to attach to each track - usually pion, can be set to other values
