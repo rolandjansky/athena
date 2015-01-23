@@ -60,9 +60,9 @@ StatusCode egammaRetaphiFillerTool::fill (const xAOD::Egamma& p)
   float e233 = 0;
   float e237 = 0;
   float e277 = 0;
-  p.showerShapeValue (e233, xAOD::EgammaParameters::e233);
-  p.showerShapeValue (e237, xAOD::EgammaParameters::e237);
-  p.showerShapeValue (e277, xAOD::EgammaParameters::e277);
+  e233 = p.showerShapeValue (xAOD::EgammaParameters::e233);
+  e237 = p.showerShapeValue (xAOD::EgammaParameters::e237);
+  e277 = p.showerShapeValue (xAOD::EgammaParameters::e277);
 
   *m_reta = e277 ? e237 / e277 : 0;
   *m_rphi = e237 ? e233 / e237 : 0;

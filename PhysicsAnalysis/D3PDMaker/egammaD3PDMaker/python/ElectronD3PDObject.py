@@ -230,8 +230,8 @@ ElectronD3PDObject.defineBlock (
             'deltaphi2 = deltaPhi2',
             'deltaphiRescaled = deltaPhiRescaled2',
             ])
-ElectronD3PDObject.defineBlock (1, 'Retaphi',
-                                egammaD3PDMaker.egammaRetaphiFillerTool)
+#ElectronD3PDObject.defineBlock (1, 'Retaphi',
+#                               egammaD3PDMaker.egammaRetaphiFillerTool)
 
 
 ElectronD3PDObject.defineBlock (
@@ -296,8 +296,8 @@ TrackParticleCovarAssoc.defineBlock (3, 'TrkCovOffDiag',
 ElectronTPAssoc.defineBlock (
     2, 'TrkFitQuality',
     D3PDMakerCoreComps.AuxDataFillerTool,
-    Vars = ['chi2 = chiSquared',
-            'ndof = numberDoF'],
+    Vars = ['chi2 = chiSquared < float:0',
+            'ndof = numberDoF < float:0'],
     prefix = 'trackfit')
 
 xAODTrackSummaryFiller (ElectronTPAssoc, 1, 'IDHits',
@@ -313,10 +313,10 @@ xAODTrackSummaryFiller (ElectronTPAssoc, 1, 'IDHits',
 ElectronTPAssoc.defineBlock (
     1, 'TrackSummaryPID',
     D3PDMakerCoreComps.AuxDataFillerTool,
-    Vars = ['eProbabilityComb',
-            'eProbabilityHT',
-            'eProbabilityToT',
-            'eProbabilityBrem'])
+    Vars = ['eProbabilityComb < float:0',
+            'eProbabilityHT < float:0',
+            'eProbabilityToT < float:0',
+            'eProbabilityBrem < float:0'])
 
 
 ElectronVertAssoc = SimpleAssociation \
@@ -362,13 +362,13 @@ UnRefittedTrackParticlePerigeeAssoc.defineBlock (1, 'UnrefitTrk',
 #
 
 if D3PDMakerFlags.HaveEgammaUserData() or D3PDMakerFlags.MakeEgammaUserData():
-    defineBlockAndAlg (ElectronD3PDObject, 
-                       1, 'UDLayer1Shape',
-                       D3PDMakerCoreComps.AuxDataFillerTool,
-                       'egammaDeltaEmax2Config',
-                       AuxPrefix = auxprefix,
-                       Vars = ['deltaEmax2',
-                               ])
+    #defineBlockAndAlg (ElectronD3PDObject, 
+    #                   1, 'UDLayer1Shape',
+    #                   D3PDMakerCoreComps.AuxDataFillerTool,
+    #                   'egammaDeltaEmax2Config',
+    #                   AuxPrefix = auxprefix,
+    #                   Vars = ['deltaEmax2',
+    #                           ])
 
 
     defineBlockAndAlg \

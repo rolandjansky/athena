@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: egammaCluster.py 633849 2014-12-04 19:54:54Z ssnyder $
+# $Id: egammaCluster.py 633848 2014-12-04 19:54:50Z ssnyder $
 #
 # @file egammaD3PDMaker/python/egammaCluster.py
 # @author scott snyder <snyder@bnl.gov>

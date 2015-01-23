@@ -230,8 +230,8 @@ PhotonD3PDObject.defineBlock (
             ])
 PhotonD3PDObject.defineBlock (1, 'Conversion',
                               egammaD3PDMaker.egammaConversionFillerTool)
-PhotonD3PDObject.defineBlock (1, 'Retaphi',
-                              egammaD3PDMaker.egammaRetaphiFillerTool)
+#PhotonD3PDObject.defineBlock (1, 'Retaphi',
+#                              egammaD3PDMaker.egammaRetaphiFillerTool)
                                            
 
 
@@ -311,10 +311,10 @@ ConversionVertexTrackParticleAssociation.defineBlock (
 ConversionVertexTrackParticleAssociation.defineBlock (
     10, 'ConversionVertexTrackInfo',
     D3PDMakerCoreComps.AuxDataFillerTool,
-    Vars = ['fitter = trackFitter',
-            'patternReco = patternRecoInfo',
-            'trackProperties',
-            'particleHypothesis',
+    Vars = ['fitter = trackFitter < unsigned char: 0',
+            'patternReco = patternRecoInfo < unsigned long: 0',
+            'trackProperties < unsigned char: 0',
+            'particleHypothesis < unsigned char: 0',
             ])
      
 xAODTrackSummaryFiller (ConversionVertexTrackParticleAssociation,
