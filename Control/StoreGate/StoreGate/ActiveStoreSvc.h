@@ -44,7 +44,7 @@ public:
   }
 
   ///set the active store pointer: used by the event loop mgrs
-  inline void setStore(StoreGateSvc* s) { p_activeStore = s; }
+  void setStore(StoreGateSvc* s);
 
   //@{ @name IProxyDict implementation
   /// get proxy for a given data object address in memory,

@@ -51,6 +51,14 @@ StatusCode ActiveStoreSvc::initialize()    {
 }
 
 
+///set the active store pointer: used by the event loop mgrs
+void ActiveStoreSvc::setStore(StoreGateSvc* s)
+{
+  p_activeStore = s;
+  s->makeCurrent();
+}
+
+
 /// get proxy for a given data object address in memory,
 /// but performs a deep search among all possible 'symlinked' containers
 DataProxy* 

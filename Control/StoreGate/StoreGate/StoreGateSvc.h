@@ -36,6 +36,7 @@
 #include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "AthenaKernel/DefaultKey.h"
+#include "AthAllocators/Arena.h"
 
 #include <SGTools/StringPool.h> 
 #include "SGTools/ProxyMap.h" /* for SG::ConstProxyIterator */
@@ -87,6 +88,7 @@ class EventDumperSvc;
 class MemoryMonitorSvc;
 class SGDeleteAlg;
 class ThinningSvc;
+class ActiveStoreSvc;
 namespace SG { class VarHandleBase; }
 namespace PerfMon { class StorePayloadMon; }
 
@@ -912,6 +914,12 @@ private:
                         const std::type_info* tinfo,
                         bool warn_nobib = true);
 
+  friend class ActiveStoreSvc;
+  /// The current store is becoming the active store.  Switch the
+  /// allocation arena, if needed.
+  /// Only intended to be called by ActiveStoreSvc.
+  void makeCurrent();
+
   IIncidentSvc* m_pIncSvc;         
   IClassIDSvc* m_pCLIDSvc;  
   IConversionSvc* m_pDataLoader;   
@@ -939,6 +947,9 @@ private:
 
   ServiceHandle<IPageAccessControlSvc> m_pacSvc;
   BooleanProperty m_monitorPageAccess; 
+
+  /// Allocation arena to associate with this store.
+  SG::Arena m_arena;
   
   /// a std::cout like stream with levels to log messages
   mutable MsgStream m_msg;
