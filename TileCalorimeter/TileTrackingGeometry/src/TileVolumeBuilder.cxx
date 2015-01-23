@@ -321,6 +321,7 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
 	  std::vector<double> layerRadius;
 	  std::vector<double> layerEnvelope; 
 	  Trk::CylinderVolumeBounds* tileExtendedBounds = 0;
+          bool tileExtendedBoundsUsed = false;
 	  std::unique_ptr<Trk::CylinderVolumeBounds> gapVolBounds;
 	  
 	  // prepare for the Extended Barrel
@@ -374,6 +375,7 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
 									  extendedMaterialBinned,
 									  18,
 									  volumeName);
+            tileExtendedBoundsUsed = true;
 	    
 	  } else {          
 	    if ( gapVolBounds ) {
@@ -398,6 +400,7 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
 									    extendedMaterialBinned,
 									    18,
 									    volumeName);
+              tileExtendedBoundsUsed = true;
 	    }
 	  }
 	  // and assign it to the right one      
@@ -405,12 +408,15 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
 	    if (childZposition > 0.) {
 	      tilePositiveExtendedBarrel             = tileExtendedTrackingVolume;
 	      tilePositiveExtendedBarrelBounds       = tileExtendedBounds;
+              tileExtendedBoundsUsed = true;
 	    } else { 
 	      tileNegativeExtendedBarrel             = tileExtendedTrackingVolume;
 	    }
 	  } else if (childCylVolBounds->halflengthZ() > 100.) {
 	    tileZ = fabs(childZposition)+childCylVolBounds->halflengthZ();
 	  }
+          if (!tileExtendedBoundsUsed)
+            delete tileExtendedBounds;
 	} break;
 	} // end of switch
       } // end of ? cylVolBounds
