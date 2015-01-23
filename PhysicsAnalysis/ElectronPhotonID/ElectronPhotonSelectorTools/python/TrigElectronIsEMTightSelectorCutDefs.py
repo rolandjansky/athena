@@ -33,7 +33,7 @@ def TrigElectronIsEMTightSelectorConfigDC14(theTool) :
     
     # the isEM name
     theTool.PIDName = egammaPID.IsEMTight
-    theTool.ConfigFile = "ElectronPhotonSelectorTools/dc14b_20141031/ElectronIsEMTightSelectorCutDefs.conf"
+    theTool.ConfigFile = "ElectronPhotonSelectorTools/offline/dc14b_20150121/ElectronIsEMTightSelectorCutDefs.conf"
 
 
 
