@@ -35,7 +35,7 @@ macro PPSoptignore "" \
 apply_pattern UnitTest_run unit_test=DataProxy \
   extrapatterns="HistogramPersis.* +INFO|EventPersistenc.*INFO|^JobOptionsSvc +INFO|IConversionSvc ptr not set"
 apply_pattern UnitTest_run unit_test=ProxyProviderSvc \
-              extrapatterns="$(PPSoptignore)^ClassIDSvc +DEBUG|Histogram.* (DEBUG|INFO)|DetectorStore +DEBUG|ToyConversionSvc +DEBUG|EventDataSvc +DEBUG|EventPersis.* +(DEBUG|INFO)|HistoryStore +DEBUG|^JobOptionsSvc +INFO|^DataProxy +VERBOSE|^ProxyProviderSvc +DEBUG"
+              extrapatterns="$(PPSoptignore)^ClassIDSvc +DEBUG|Histogram.* (DEBUG|INFO)|DetectorStore +DEBUG|ToyConversionSvc +DEBUG|EventDataSvc +DEBUG|EventPersis.* +(DEBUG|INFO)|HistoryStore +DEBUG|^JobOptionsSvc +INFO|^DataProxy +VERBOSE|^ProxyProviderSvc +DEBUG|^ServiceManager +DEBUG"
 
 #DataModel tests that can't be run there due to StoreGate dep
 apply_pattern UnitTest_run unit_test=CircularDep \
