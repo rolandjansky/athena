@@ -63,9 +63,7 @@ public:
   // histogram registration
 
   virtual void addHistogram( TH1* h ) { 
-
     ATH_MSG_DEBUG("TIDAMonTool::addHistogram() ");
-    
     IHLTMonTool::addHistogram( h ); 
   }
 
