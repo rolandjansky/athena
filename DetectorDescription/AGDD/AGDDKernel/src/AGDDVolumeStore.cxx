@@ -4,6 +4,7 @@
 
 #include "AGDDKernel/AGDDVolumeStore.h"
 #include "AGDDKernel/AGDDVolume.h"
+#include "AGDDKernel/AGDDDetector.h"
 #include <iostream>
 
 AGDDVolumeStore::AGDDVolumeStore()
@@ -43,7 +44,12 @@ void AGDDVolumeStore::Clean()
 	AGDDVolumeMap::iterator volumeIt;
 	for (volumeIt=this->begin();volumeIt!=this->end();volumeIt++)
 	{
-		delete (*volumeIt).second;
+		AGDDDetector* testP=dynamic_cast<AGDDDetector*>((*volumeIt).second);
+		if (testP)
+		{
+			std::cout<<"++++++++++++++++ detector ----> "<<testP->GetName()<<std::endl;
+		}
+		else delete (*volumeIt).second;
 	}
 	this->clear();
 }

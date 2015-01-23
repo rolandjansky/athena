@@ -49,13 +49,10 @@ public:
 	std::string DetectorType() {return detectorType;}
 	std::string DetectorID() {return detectorID;}
 	
-	void SetAddressAndPosition(AGDDDetectorPositioner *p) {
-		AddDetectorPosition(p);
-		SetDetectorAddress(p);
-	}
+	void SetAddressAndPosition(AGDDDetectorPositioner*) ;
 	DetectorPositionParameters position;
 	
-	std::vector<AGDDDetectorPositioner*>& GetDetectorPositioners() {return detectorPositions;}
+	std::vector<AGDDDetectorPositioner*>& GetDetectorPositioners();
 	
 protected:
 	double _small_x;
@@ -71,7 +68,7 @@ protected:
 	
 	GeoMaterial* GetMMMaterial(std::string);
 	
-	void AddDetectorPosition(AGDDDetectorPositioner* p) {detectorPositions.push_back(p);}
+	void AddDetectorPosition(AGDDDetectorPositioner* p);
 
 	virtual void SetDetectorAddress(AGDDDetectorPositioner*) =0;
 	std::vector<AGDDDetectorPositioner*> detectorPositions;
