@@ -38,6 +38,7 @@ using std::setw;
 #include "CxxUtils/unordered_map.h"
 #include "StoreGate/ActiveStoreSvc.h"
 #include "StoreGate/StoreClearedIncident.h"
+#include "AthAllocators/ArenaHeader.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "boost/foreach.hpp"
@@ -97,6 +98,7 @@ StoreGateSvc::StoreGateSvc(const string& name,ISvcLocator* svc)
     m_remap_impl (new SG::RemapImpl),
     m_pacSvc("PageAccessControlSvc", name),
     m_monitorPageAccess(false),
+    m_arena (name),
     m_msg(msgSvc(), name)
 {
   declareProperty("Dump", m_DumpStore);
@@ -106,11 +108,17 @@ StoreGateSvc::StoreGateSvc(const string& name,ISvcLocator* svc)
 		  "unused data objects (SLOW, debug only)");
   //add handler for Service base class property
   m_outputLevel.declareUpdateHandler(&StoreGateSvc::msg_update_handler, this);
+  
+  SG::ArenaHeader* header = SG::ArenaHeader::defaultHeader();
+  header->addArena (&m_arena);
 }
 
 
 /// Standard Destructor
 StoreGateSvc::~StoreGateSvc()  {
+  SG::ArenaHeader* header = SG::ArenaHeader::defaultHeader();
+  header->delArena (&m_arena);
+
   delete m_pStore;
   delete m_remap_impl;
 }
@@ -145,6 +153,11 @@ StatusCode StoreGateSvc::initialize()    {
   } else {
     store()->setStoreID(StoreID::UNKNOWN);
   }
+
+  // If this is the default event store (StoreGateSvc), then declare
+  // our arena as the default for memory allocations.
+  if (name()  == "StoreGateSvc")
+    m_arena.makeCurrent();
 
   const bool CREATEIF(true);
   // set up the incident service:
@@ -335,6 +348,7 @@ StatusCode StoreGateSvc::clearStore(bool forceRemove)
   m_pStore->clearStore(forceRemove, pmlog);
   m_storeLoaded=false;  //FIXME hack needed by loadEventProxies
   m_remap_impl->m_remaps.clear();
+  m_arena.reset();
 
   // Send a notification that the store was cleared.
   if (m_pIncSvc)
@@ -633,7 +647,7 @@ StoreGateSvc::addSymLink(const CLID& linkid, DataProxy* dp)
 
   // If the symlink is a derived->base conversion, then we may have
   // a different transient pointer for the symlink.
-  if (sc.isSuccess()) {
+  if (sc.isSuccess() && dp->object()) {
     void* baseptr = SG::DataProxy_cast (dp, linkid);
     this->t2pRegister (baseptr, dp).ignore();
   }
@@ -1318,7 +1332,8 @@ void StoreGateSvc::addAutoSymLinks (const std::string& key,
       if ( bases[i] != clid ) {
 	if ( addSymLink( bases[i], dp ).isSuccess() ) {
           // register with t2p
-          this->t2pRegister( SG::DataProxy_cast( dp, bases[i] ), dp ).ignore();
+          if (dp->object())
+            this->t2pRegister( SG::DataProxy_cast( dp, bases[i] ), dp ).ignore();
         }
         else {
           msg() << MSG::WARNING
@@ -1352,6 +1367,15 @@ void StoreGateSvc::addAutoSymLinks (const std::string& key,
             << endreq;
     }
   }
+}
+
+
+/// The current store is becoming the active store.  Switch the
+/// allocation arena, if needed.
+// Only intended to be called by ActiveStoreSvc.
+void StoreGateSvc::makeCurrent()
+{
+  m_arena.makeCurrent();
 }
 
 
