@@ -27,6 +27,8 @@
 #include "TrkTrack/Track.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 
+#include "TrigInDetEvent/TrigVertex.h"
+#include "TrigInDetEvent/TrigL2Vertex.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
@@ -34,7 +36,7 @@
 
 TrigVertexingTool::TrigVertexingTool(const std::string& t, 
 				     const std::string& n,
-				     const IInterface*  p ): AlgTool(t,n,p)
+				     const IInterface*  p ): AthAlgTool(t,n,p)
 {
   declareInterface< ITrigVertexingTool >( this );  
 }

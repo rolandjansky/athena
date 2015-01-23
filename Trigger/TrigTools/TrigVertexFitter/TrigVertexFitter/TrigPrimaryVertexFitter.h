@@ -5,12 +5,12 @@
 #ifndef __TRIG_PRIM_VERTEX_FITTER__
 #define __TRIG_PRIM_VERTEX_FITTER__
 
-#include "GaudiKernel/AlgTool.h"
-#include "TrigVertexFitter/ITrigPrimaryVertexFitter.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "TrigInDetToolInterfaces/ITrigPrimaryVertexFitter.h"
 
 class TrigTimer;
 
-class TrigPrimaryVertexFitter: public AlgTool, virtual public ITrigPrimaryVertexFitter
+class TrigPrimaryVertexFitter: public AthAlgTool, virtual public ITrigPrimaryVertexFitter
 {
  public:
   TrigPrimaryVertexFitter( const std::string&, const std::string&, const IInterface* );

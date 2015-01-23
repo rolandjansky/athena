@@ -7,12 +7,11 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/MsgStream.h"
 #include "TrigInDetToolInterfaces/ITrigL2VertexFitter.h"
-#include "TrigInDetEvent/TrigL2Vertex.h"
 
 class TrigTimer;
 class ITrigVertexingTool;
+class TrigL2Vertex;
 
 /** This class implements a full vertex fitting algorithm, i.e. the 
   algorithm that estimates the vertex position and refits the track
