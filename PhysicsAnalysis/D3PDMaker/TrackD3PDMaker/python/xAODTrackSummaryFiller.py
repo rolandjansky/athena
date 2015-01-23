@@ -121,6 +121,7 @@ def xAODTrackSummaryFiller (obj, lod, blockName,
         if type(tags) != type([]): tags = [tags]
         sel = sum ([locals()[t] for t in tags], FullInfo)
         if sel:
+            v = v + '< unsigned char:0'
             varlist.append (v)
 
     obj.defineBlock (lod, blockName,
