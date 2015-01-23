@@ -11,10 +11,10 @@
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Vector/Rotation.h"
 
-AGDDDetectorPositioner::AGDDDetectorPositioner(std::string n,HepGeom::Transform3D t):AGDDPositioner(n,t),theVolume(0)
+AGDDDetectorPositioner::AGDDDetectorPositioner(std::string n,HepGeom::Transform3D t):AGDDPositioner(n,t),theDetector(0),theVolume(0)
 {
 }
-AGDDDetectorPositioner::AGDDDetectorPositioner(std::string n,CLHEP::HepRotation r,CLHEP::Hep3Vector v):AGDDPositioner(n,r,v),theVolume(0)
+AGDDDetectorPositioner::AGDDDetectorPositioner(std::string n,CLHEP::HepRotation r,CLHEP::Hep3Vector v):AGDDPositioner(n,r,v),theDetector(0),theVolume(0)
 {
 }
 

@@ -16,6 +16,8 @@
 
 class AGDDVolume;
 
+class AGDDDetector;
+
 struct Identifiers {
 	std::string detectorType;
 	std::string detectorAddress;
@@ -34,6 +36,8 @@ public:
 	AGDDDetectorPositioner(std::string n,CLHEP::HepRotation r,CLHEP::Hep3Vector v);
 
 	Identifiers ID;
+	
+	AGDDDetector* theDetector;
 	
 	GeoFullPhysVol* theVolume;
 };
