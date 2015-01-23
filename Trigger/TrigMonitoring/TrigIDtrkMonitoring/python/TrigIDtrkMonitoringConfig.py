@@ -446,8 +446,8 @@ def TrigIDtrkMonitoringTool():
 			"L2_InDetMon_FS:TrigL2SiTrackFinder_FullScan:2",
 			"EF_InDetMon_FS:InDetTrigParticleCreation_FullScan_EFID",
                         #Cosmics
-			"HLT_id_cosmic_L1MU4:InDetTrigTrackingxAODCnv_CosmicsN_EFID",
-			"HLT_id_cosmic:InDetTrigTrackingxAODCnv_CosmicsN_EFID",
+			"HLT_id_cosmic.*:InDetTrigTrackingxAODCnv_CosmicsN_EFID",
+			"HLT_id_cosmic.*:InDetTrigTrackingxAODCnvIOTRT_CosmicsN_EFID",
 		        #HI running
 			"L2_mu4_IDTrkNoCut:TrigL2SiTrackFinder_Muon:0",
 			"L2_mu4_IDTrkNoCut:TrigL2SiTrackFinder_Muon:1",
