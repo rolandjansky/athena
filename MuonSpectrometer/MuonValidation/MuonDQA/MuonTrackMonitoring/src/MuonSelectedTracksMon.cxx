@@ -8,9 +8,8 @@
 // November 2007
 // modified June 2008: for Trigger Aware monitoring :  A. Cortes (Illinlois)
 // ***************************************************************************
- 
-#include "MuonRecHelperTools/MuonEDMHelperTool.h"
 
+#include "MuonRecHelperTools/MuonEDMHelperTool.h"
 #include "MuonRecToolInterfaces/IMuonHitSummaryTool.h" 
 #include "MuonRecToolInterfaces/IMuonTofTool.h"
 #include "MdtCalibSvc/MdtCalibrationSvcInput.h"
@@ -84,18 +83,28 @@
 MuonSelectedTracksMon::MuonSelectedTracksMon( const std::string & type, const std::string & name, const IInterface* parent )
   :ManagedMonitorToolBase( type, name, parent ), 
    //  commented out - Compilation warnings
+  
+   m_storeGate(0),
+   good(0), 
+   good_chi2oDoF(0), 
+   good_pT(0), 
+   good_eta(0), 
+   good_phi(0), 
+   good_nStation(0),
    m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
    m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
    m_muonHitSummaryTool("Muon::MuonHitSummaryTool/MuonHitSummaryTool"),
-   m_tofTool(""),
-   m_trigDecTool(""),
-   m_MuonTriggerChainName("NoMuonTriggerSelection"),
-   m_trackSumTool("Trk::TrackSummaryTool/MuonTrackSummaryTool"),
    m_trackSummaryTool("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool"),
+   m_detMgr(0), 
+   m_mdtIdHelper(NULL),
+   //m_MuonTriggerChainName("NoMuonTriggerSelection"),   
+   m_trigDecTool(""),
+   m_trackSumTool("Trk::TrackSummaryTool/MuonTrackSummaryTool"),
+   trks(NULL), 
    m_TrackCol("Tracks"),
-   //m_useTrigger(false),
-   m_log( msgSvc(), name )
-					     
+   m_log( msgSvc(), name ),
+   m_debuglevel(false), 
+   muon_numEvents_passedTrigger(0)
 {
   declareProperty("TrackCol" ,             m_TrackCol);
   declareProperty("CheckRate",             m_checkrate=1000);
@@ -105,9 +114,9 @@ MuonSelectedTracksMon::MuonSelectedTracksMon( const std::string & type, const st
   declareProperty("AppliedCut",            v_applied_cut=true);
     
   declareProperty("GoodTrk_minPt",         m_gtrk_minPt         = 10.0/*GeV*/);
+  declareProperty("GoodTrk_maxChi2oDoF",   m_gtrk_maxChi2oDoF   = 15.0);
   declareProperty("GoodTrk_minPhiHits",    m_gtrk_minPhiHits    = 2);
   declareProperty("GoodTrk_minEtaHits",    m_gtrk_minEtaHits    = 3);
-  declareProperty("GoodTrk_maxChi2oDoF",   m_gtrk_maxChi2oDoF   = 15.0);
   declareProperty("GoodTrk_minMdtCscHits", m_gtrk_minMdtCscHits = 0); 
   declareProperty("GoodTrk_minStations",   m_gtrk_minStations   = 3);  
   
@@ -246,7 +255,7 @@ StatusCode MuonSelectedTracksMon::fillHistograms()
 	    const char* bin_triggerX;
 	    const char* bin_triggerY;
 	    if (m_debuglevel) m_log << MSG::DEBUG << "Checking trigger " << m_muon_triggers[ii] << endreq;
-	    if( m_trigDecTool->isPassed(m_muon_triggers[ii]) )
+	    if( m_trigDecTool->isPassed(m_muon_triggers[ii]))
 	      {
 		if (m_debuglevel) m_log << MSG::DEBUG << "Fired trigger "<< m_muon_triggers[ii]<<endreq;
 		if ( m_muon_triggers.size() > 1 ){ 
@@ -1423,7 +1432,7 @@ StatusCode MuonSelectedTracksMon::FillTrkSummaryHistograms(std::string CurrentTr
       int   DoF            = 0;
       int   Num_MDThits    = 0;
       int   Num_MDTCSChits = 0;
-      int   Num_RPCphiHits = 0;
+      //int   Num_RPCphiHits = 0;
       int   Num_EtaHits    = 0;
       int   Num_PhiHits    = 0;
       
@@ -1431,7 +1440,7 @@ StatusCode MuonSelectedTracksMon::FillTrkSummaryHistograms(std::string CurrentTr
       float trkd0          = -999;
       float trkz0          = -999;
       float trkphi         = -999;
-      float trktheta       = -999;
+      //float trktheta       = -999;
       float trketa         = -999;
       float qOverP         = -999;
       float trkpt          = -999;
@@ -1468,7 +1477,7 @@ StatusCode MuonSelectedTracksMon::FillTrkSummaryHistograms(std::string CurrentTr
 	trkd0    = perigeeParams[Trk::d0];  
 	trkz0    = perigeeParams[Trk::z0];    
 	trkphi   = perigeeParams[Trk::phi0];  
-	trktheta = perigeeParams[Trk::theta];
+	//trktheta = perigeeParams[Trk::theta];
 	trketa   = measPer->eta(); 
 	//qOverP   = perigeeParams[Trk::qOverP]*1000.;  
 	//trkpt    = measPer->pT()/1000.;  
@@ -1538,7 +1547,7 @@ StatusCode MuonSelectedTracksMon::FillTrkSummaryHistograms(std::string CurrentTr
 	nhits =  nhmdt + nhrpc + nhtgc + nhcsc; 
 	Num_MDTCSChits = nhmdt + nhcsc;
 	Num_MDThits    = nhmdt;
-	Num_RPCphiHits = nhrpcphi;
+	//Num_RPCphiHits = nhrpcphi;
 	 	
  	          
 	Trk::MuonTrackSummary muonSummary;

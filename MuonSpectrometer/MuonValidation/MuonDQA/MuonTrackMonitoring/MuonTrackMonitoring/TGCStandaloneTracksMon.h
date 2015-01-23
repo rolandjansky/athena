@@ -116,7 +116,7 @@ class TGCStandaloneTracksMon: public ManagedMonitorToolBase {
   ActiveStoreSvc* m_activeStore;
 
   // Handle for the trig decision tool
-  ToolHandle<ITrigDecisionTool> m_trigDecTool;
+  ToolHandle<Trig::ITrigDecisionTool> m_trigDecTool;
 
   // Trigger items
   std::vector<std::string> m_muon_triggers;

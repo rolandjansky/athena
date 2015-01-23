@@ -50,19 +50,32 @@ const int s_maxSoS        = 80;
 // *********************************************************************
 
 MuonGenericTracksMon::MuonGenericTracksMon( const std::string & type, const std::string & name, const IInterface* parent )
-  :ManagedMonitorToolBase( type, name, parent ), 
-   m_muonHitSummaryTool("Muon::MuonHitSummaryTool/MuonHitSummaryTool"),
-   m_log( msgSvc(), name ),  
+  :ManagedMonitorToolBase( type, name, parent ),
+   m_storeGate(0), 
+   m_activeStore(NULL),
+   m_stream(""),
+   m_checkrate(0),
+   m_nphi_bins(360),
+   m_idHelper(0),
+   m_muonMgr(NULL),
+   m_mdtIdHelper(NULL),
+   m_rpcIdHelper(NULL),
+   m_tgcIdHelper(NULL),
+   m_tracks(NULL),
+   m_eventCounter(0),
+   m_eventNumber(0),
+   m_log( msgSvc(), name ),
+   m_debuglevel(false),
    m_trigDecTool(""),
-   m_trackSumTool("Trk::TrackSummaryTool/MuonTrackSummaryTool"),
-   m_muondqafitfunc("Muon::MuonDQAFitFunc/MuonDQAFitFunc"),
-   m_trackSummaryTool("Muon::MuonTrackSummaryHelperTool/MuonTrackSummaryHelperTool")
+   m_useTrigger(false),
+   m_rec_nSoS(0), 
+   m_rec_nComponents(0),
+   m_muondqafitfunc("Muon::MuonDQAFitFunc/MuonDQAFitFunc")
 {
   m_pullCalculator = ToolHandle<Trk::IResidualPullCalculator>("Trk::ResidualPullCalculator/ResidualPullCalculator");
   declareProperty( "WhichTrackCollections", 	m_trackCollectionFlag);
   declareProperty( "MuonTrackCollections",  	m_trackCollectionName);
   declareProperty( "MuonTriggerChainName", 	m_MuonTriggerChainName);
-  declareProperty( "NPhiBins",  		m_nphi_bins=360); 
   declareProperty( "TriggerDecisionTool", 	m_trigDecTool);
   declareProperty( "Muon_Trigger_Items", 	m_muon_triggers);
   declareProperty( "UseTriggerVector", 		m_useTrigger); 
@@ -1743,12 +1756,11 @@ StatusCode MuonGenericTracksMon::fillHistograms()
 	for (unsigned int ii = 0; ii < m_muon_triggers.size(); ii++ )
 	  {
 	    if (m_debuglevel) m_log << MSG::DEBUG << "Checking trigger " << m_muon_triggers[ii] << endreq;
-	    if( m_trigDecTool->isPassed(m_muon_triggers[ii]) )
-	      {
-		if (m_debuglevel) m_log << MSG::DEBUG << "Fired trigger "<< m_muon_triggers[ii]<<endreq;
-		passesMuonTrigger = true;
-		break; 
-	      }
+	    if(m_trigDecTool->isPassed(m_muon_triggers[ii])){
+			if (m_debuglevel) m_log << MSG::DEBUG << "Fired trigger "<< m_muon_triggers[ii]<<endreq;
+			passesMuonTrigger = true;
+			break; 
+	    }
 	  }
 	if(!passesMuonTrigger){ if (m_debuglevel) m_log << MSG::DEBUG << "No Trigger Fired!" << endreq; }
       } 
@@ -1778,6 +1790,7 @@ StatusCode MuonGenericTracksMon::fillHistograms()
 	  if (m_debuglevel)  m_log << MSG::DEBUG << "Track collection Name is " << m_trackCollectionName[j] << endreq;
 
 	  if ( sc.isFailure() ){
+	    got_coll = false;//Tony: automatic flag false?
 	    if ( (j == (int)m_trackCollectionName.size()-1) && !got_coll)
 	      {
 		ATH_MSG_WARNING("Unable to retrieve reconstructed tracks from any collection... Exiting!" );  
@@ -1786,7 +1799,6 @@ StatusCode MuonGenericTracksMon::fillHistograms()
 	      ATH_MSG_WARNING("Unable to retrieve reconstructed tracks from collection... Trying next...");
 	      continue;
 	    }
-	    got_coll = false;
 	  } else{
 	    if (m_debuglevel){m_log <<MSG::DEBUG <<"Tracks in StoreGate found" <<endreq;
 	      m_log << MSG::DEBUG << "Track collection Name is " << m_trackCollectionName[j] << endreq;}
@@ -2051,9 +2063,8 @@ StatusCode MuonGenericTracksMon::fillHistograms()
 	      _chi2oDoF =  track->fitQuality()->chiSquared()/track->fitQuality()->numberDoF();
 	      
 	    }
-	    float errP = -999.;
-
-	    if( measPerigee ) errP = std::sqrt( (*measPerigee->covariance())(Trk::d0,Trk::d0)+ (*measPerigee->covariance())(Trk::z0,Trk::z0) ); 
+	    //float errP = -999.;
+	    //if( measPerigee ) errP = std::sqrt( (*measPerigee->covariance())(Trk::d0,Trk::d0)+ (*measPerigee->covariance())(Trk::z0,Trk::z0) ); 
 	    if (m_debuglevel){ m_log << MSG::DEBUG << " Muon Track position " << pos << " d0 " << measPerigee->parameters()[Trk::d0] << " z0 " << measPerigee->parameters()[Trk::z0] 
 				     << " theta Per " << measPerigee->parameters()[Trk::theta] << " theta " << direction.theta() 
 				     <<   " phi Per " << measPerigee->parameters()[Trk::phi0] << " phi " << direction.phi() << endreq;			       
@@ -2182,13 +2193,16 @@ StatusCode MuonGenericTracksMon::fillHistograms()
 		  continue;
 		}
 
-		Amg::Vector3D pos = meas->globalPosition();
-		float driftRadius(0.);
+		pos = meas->globalPosition();
+		/*
+		float driftRadius;
+		driftRadius = 0.;
 		if( meas->localParameters().contains(Trk::locX) ){
 		  driftRadius = meas->localParameters()[Trk::locX];
 		}else if( meas->localParameters().contains(Trk::locY) ){
 		  driftRadius = meas->localParameters()[Trk::locY];
-		} 
+		}
+		*/
 		
 		Identifier id;
 

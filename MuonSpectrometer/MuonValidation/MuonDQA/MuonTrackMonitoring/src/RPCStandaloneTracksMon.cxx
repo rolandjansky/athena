@@ -65,45 +65,588 @@ static const float Chi2dofCut         =     1;
 
 RPCStandaloneTracksMon::RPCStandaloneTracksMon( const std::string & type, const std::string & name, const IInterface* parent )
   :ManagedMonitorToolBase( type, name, parent ),
-   m_first(true) 
-{
-  // Declare the properties 
-  declareProperty("DoRpcEsd",            m_doRpcESD		= false	); 
-  declareProperty("CheckCabling",        m_checkCabling		= false	);
-  declareProperty("RpcFile",             m_rpcfile		= false	);    
-  declareProperty("RpcChamberHist",      m_rpcchamberhist	= false	);  
-  declareProperty("RPCStandaloneTracks", m_do_rpctracks		= true  );
-  declareProperty("RpcReduceNbins",      m_rpcreducenbins	= 8	);	   
-  declareProperty("RpcReduceNbinsStrip", m_rpcreducenbinsstrip	= 8	);	   
-  declareProperty("ResThEff",		 m_resThEff		= 61	);
-  declareProperty("ChamberName",         m_chamberName		= "XXX"	);
-  declareProperty("StationSize",         m_StationSize		= "XXX"	);
-  declareProperty("StationEta",          m_StationEta		= -100	);
-  declareProperty("StationPhi",          m_StationPhi		= -100	);
-  declareProperty("LastEvent",           m_lastEvent		= 0	);
-  declareProperty("Sector",              m_sector		= 0	); 
-  declareProperty("CosmicStation",       m_cosmicStation	= 0	);
-  declareProperty("Side",                m_side			= 0	); 
-  declareProperty("Clusters",            m_doClusters		= true	);			
-  declareProperty("ClusterContainer",    m_clusterContainerName = "rpcClusters"		);
-  declareProperty("RpcPrepDataContainer",m_key_rpc		= "RPC_Measurements"	);
-  declareProperty("RPCTriggerContainer", m_key_trig		= "RPC_triggerHits"	);
-  declareProperty("MinimunEntries",      MinEntries		= 10	);    // min entries required for summary plot 
-  declareProperty("rpc_readout_window",  m_rpc_readout_window	= 0.2   ); // rpc readout window in 10^(-6) s for noise evaluation 
-  declareProperty("doRadiography",       m_doRadiography        = false ); 
-  declareProperty("doCoolDB",	         m_doCoolDB		= false	);
-  declareProperty("selectLB",	         m_selectLB		= false	);
-  declareProperty("minSelLB",		 m_minSelLB             = 1	);
-  declareProperty("maxSelLB",            m_maxSelLB             = 9999	);
-  declareProperty("trackOnlySmall",	 m_trOnlySmall 		= false	);
-  declareProperty("trackOnlyLarge",	 m_trOnlyLarge 		= false	);
-  declareProperty("HPtPointForHPteff",	 m_HPtPointForHPteff 	= true	);
-  declareProperty("HPtPointForLPteff",	 m_HPtPointForLPteff 	= true	);
-  declareProperty("HPtPointForTracks",	 m_HPtPointForTracks 	= false	);
+  m_first(true),
+  type(""),
+  m_eventStore(NULL), 
+  m_activeStore(NULL), 
+  m_generic_path_rpcmonitoring(""),
+  rpc_eventstotal(0),
   
-  m_padsId     = 0;
-  m_chambersId = 0;
-} 
+  hardware_name(""),
+  m_chambersId(NULL), 
+  //hardware_name_list(""),
+  //layer_name_list(""),
+  //layer_name_list_panel(""),
+  //layer_name_bin_list(0),
+  //layer_name_bin_list_panel(0),
+  //layervslayer_name_list(""),
+  //layerPhivsEta_name_list(""),
+  //layerPhivsEtaSector_name_list(""),
+
+  shiftphiatlas(0),
+  m_padsId(NULL),
+  histo_flag(false),
+  m_muonMgr(NULL),
+  m_rpcIdHelper(NULL),
+  m_cabling(NULL),
+  m_rpcreducetimenbins(0),
+  m_lv1Thres_0(0),
+  m_lv1Thres_1(0),
+  m_lv1Thres_2(0),
+  Clus_Retr(false),
+  sector_num(""),
+  m_nClus(0),
+  ndbl(0),
+  //Then there is a list of hitsograms
+  rpczxSurfaceView(0),
+  rpcxSurfaceView(0),
+  rpczSurfaceView(0),
+  f_rpczxSurfaceView(0),
+
+  rpctrack_phivseta(0),
+  rpctrack_eta(0),
+  rpctrack_phi(0),
+
+  rpctrack_bvseta(0),
+  rpctrack_b(0),
+
+  rpctrack_bVTXy0(0),
+  rpctrack_bVTXx0(0),
+  rpctrack_bVTXz0(0),
+
+  rpcchi2dof(0),
+  rpcetavsphichi2dof(0),
+  f_rpcchi2dof(0),
+  rpcNtracks(0),
+  f_rpcNtracks(0),
+  rpcPointPerTracks(0),
+  f_rpcPointPerTracks(0),
+  rpcTimeTrackRes(0),
+  rpcTimeTrackRMS(0),
+  rpcPhiResidual(0),
+  rpcEtaResidual(0),
+  f_rpcPhiResidual(0),
+  f_rpcEtaResidual(0),
+  rpcTrackType(0),
+  f_rpcTrackType(0),
+
+  ResidualVsCS(0),
+
+  rpcSectorLayerTrackProj(0),
+  rpcSectorLayerResponse(0),
+  rpcSectorLayerResponseOR(0),
+  rpcSectorLayerNoiseCorr(0),
+  rpcSectorLayerNoiseNotCorr(0),
+  rpcCS_HitOnTrack(0),
+  rpcCS_NoiseCorr(0),
+  rpcCS_NoiseNotCorr(0),
+
+  m_rpcCS_angleLong(0),
+  m_rpcCS_angleTrasv(0),
+  m_rpcCS_EtavsPhi(0),
+
+  m_SummaryHist_Size(0),
+  m_SummaryHist_Idx(0),
+
+  SummaryTrackProj(0),//0
+  SummaryHitOnTrack(0),//1
+  SummaryHitOnTrack_withCrossStrip(0),//2
+  SummaryEfficiency(0),//5
+  SummaryGapEfficiency(0),//6
+  SummaryNoiseTot_NotNorm(0),//3
+  SummaryNoiseCorr_NotNorm(0),//4
+  SummaryCS_NotNorm(0),//7
+  SummaryCS_square(0),//8
+  SummaryCS_entries(0),//9
+  SummaryRes_CS1_NotNorm(0),//10
+  SummaryRes_CS1_square(0),//11
+  SummaryRes_CS1_entries(0),//12
+  SummaryRes_CS2_NotNorm(0),//13
+  SummaryRes_CS2_square(0),//14
+  SummaryRes_CS2_entries(0),//15
+  SummaryRes_CSmore2_NotNorm(0),//16
+  SummaryRes_CSmore2_square(0),//17
+  SummaryRes_CSmore2_entries(0),//18
+  SummaryOccupancy_NotNorm(0),//19
+  SummaryTime_NotNorm(0),//20
+  SummaryTime_square(0),//21
+  SummaryCS1_entries(0),//22
+  SummaryCS2_entries(0),//23adjustm_SummaryHist_Size
+
+  SummaryNoiseCorr(0),//0
+  SummaryNoiseTot(0),//1
+  SummaryRes_CS1(0),//2
+  SummaryRes_CS2(0),//3
+  SummaryRes_CSmore2(0),//4
+  SummaryOccupancy(0),//5
+  SummaryCS(0),//6
+  SummaryTime(0),//7
+
+
+  SummaryEffDistriPerSector(0),
+  SummaryGapEffDistriPerSector(0),
+  SummaryNoiseCorrDistriPerSector(0),
+  SummaryNoiseTotDistriPerSector(0),
+  SummaryCSDistriPerSector(0),
+  SummaryRes_CS1DistriPerSector(0),
+  SummaryRes_CS2DistriPerSector(0),
+  SummaryRes_CSmore2DistriPerSector(0),
+  SummaryRes_CS1rmsDistriPerSector(0),
+  SummaryRes_CS2rmsDistriPerSector(0),
+  SummaryRes_CSmore2rmsDistriPerSector(0),
+  SummaryOccupancyDistriPerSector(0),
+  SummaryTimeDistriPerSector(0),
+
+
+  StripTimeDistributionRPCBA(0),
+  StripTimeDistributionRPCBC(0),
+
+  RPCBA_layerTrackProj(0),
+  RPCBA_layerHitOnTrack(0),
+  RPCBA_layerHitOnTrack_withCrossStrip(0),
+  RPCBA_layerNoiseTot(0),
+  RPCBA_layerNoiseTot_s(0),
+  RPCBA_layerNoiseCorr(0),
+  RPCBA_layerNoiseCorr_s(0),
+  RPCBA_layerEfficiency(0),
+  RPCBA_layerGapEfficiency(0),
+  RPCBA_layerCS(0),
+  RPCBA_layerCS_s(0),
+  RPCBA_layerCS_square(0),
+  RPCBA_layerCS_entries(0),
+  RPCBA_layerRes_CS1(0),
+  RPCBA_layerRes_CS1_s(0),
+  RPCBA_layerRes_CS1_square(0),
+  RPCBA_layerRes_CS1_entries(0),
+  RPCBA_layerRes_CS2(0),
+  RPCBA_layerRes_CS2_s(0),
+  RPCBA_layerRes_CS2_square(0),
+  RPCBA_layerRes_CS2_entries(0),
+  RPCBA_layerRes_CSmore2(0),
+  RPCBA_layerRes_CSmore2_s(0),
+  RPCBA_layerRes_CSmore2_square(0),
+  RPCBA_layerRes_CSmore2_entries(0),
+  RPCBA_layerOccupancy(0),
+  RPCBA_layerOccupancy_s(0),
+  RPCBA_layerTime(0),
+  RPCBA_layerTime_s(0),
+  RPCBA_layerTime_square(0),
+
+  RPCBC_layerTrackProj(0),
+  RPCBC_layerHitOnTrack(0),
+  RPCBC_layerHitOnTrack_withCrossStrip(0),
+  RPCBC_layerNoiseTot(0),
+  RPCBC_layerNoiseTot_s(0),
+  RPCBC_layerNoiseCorr(0),
+  RPCBC_layerNoiseCorr_s(0),
+  RPCBC_layerEfficiency(0),
+  RPCBC_layerGapEfficiency(0),
+  RPCBC_layerCS(0),
+  RPCBC_layerCS_s(0),
+  RPCBC_layerCS_square(0),
+  RPCBC_layerCS_entries(0),
+  RPCBC_layerRes_CS1(0),
+  RPCBC_layerRes_CS1_s(0),
+  RPCBC_layerRes_CS1_square(0),
+  RPCBC_layerRes_CS1_entries(0),
+  RPCBC_layerRes_CS2(0),
+  RPCBC_layerRes_CS2_s(0),
+  RPCBC_layerRes_CS2_square(0),
+  RPCBC_layerRes_CS2_entries(0),
+  RPCBC_layerRes_CSmore2(0),
+  RPCBC_layerRes_CSmore2_s(0),
+  RPCBC_layerRes_CSmore2_square(0),
+  RPCBC_layerRes_CSmore2_entries(0),
+  RPCBC_layerOccupancy(0),
+  RPCBC_layerOccupancy_s(0),
+  RPCBC_layerTime(0),
+  RPCBC_layerTime_s(0),
+  RPCBC_layerTime_square(0),
+
+
+  LayerTrackProjection(0),
+  LayerHitOnTrack(0),
+  LayerEff(0),
+
+  rpcCool_TrackProj(0),
+  rpcCool_HitOnTrack(0),
+  rpcCool_HitOnTrack_withCrossStrip(0),
+  rpcCool_NoiseCorr_NotNorm(0),
+  rpcCool_NoiseTot_NotNorm(0),
+  rpcCool_Res_CS1_NotNorm(0),
+  rpcCool_Res_CS1_entries(0),
+  rpcCool_Res_CS1_square(0),
+  rpcCool_Res_CS2_NotNorm(0),
+  rpcCool_Res_CS2_entries(0),
+  rpcCool_Res_CS2_square(0),
+  rpcCool_Res_CSmore2_NotNorm(0),
+  rpcCool_Res_CSmore2_entries(0),
+  rpcCool_Res_CSmore2_square(0),
+  rpcCool_Occupancy_NotNorm(0),
+  rpcCool_CS_NotNorm(0),
+  rpcCool_CS_entries(0),
+  rpcCool_CS_square(0),
+  rpcCool_Time_NotNorm(0),
+  rpcCool_Time_square(0),
+
+  //GlobalVariablesdeclaration
+
+  //stringvariable
+  layeronly_name(""),
+  layer_name(""),
+  layervslayer_name(""),
+  layerPhivsEta_name(""),
+  layerPhivsEtaSector_name(""),
+  sector_name(""),
+  layer0_name(""),
+  layer1_name(""),
+  layer2_name(""),
+  layertodraw1_name(""),
+  layertodraw2_name(""),
+  layer_name_panel(""),
+  sector_dphi_layer(""),
+
+  irpc_station(0),
+  irpc_eta(0),
+  irpc_phi(0),
+  irpc_doublr(0),
+  irpc_doublz(0),
+  irpc_doublphi(0),
+  irpc_gasgap(0),
+  irpc_measphi(0),
+
+
+  irpctime(0.),
+  irpcstationPhi(0),
+  irpcstationName(0),
+  irpcstationEta(0),
+  irpcdoubletR(0),
+  irpcdoubletZ(0),
+  irpcdoubletPhi(0),
+  irpcgasGap(0),
+  irpcmeasuresPhi(0),
+  irpcstrip(0),
+  irpctriggerInfo(0),
+  //irpctriggerInfo(0),
+  irpcambiguityFlag(0.),
+  irpcthreshold(0),
+  m_threshold(0),
+
+
+  irpcstationPhi_prep(0),
+  irpcstationName_prep(0),
+  irpcstationEta_prep(0),
+  irpcdoubletR_prep(0),
+  irpcdoubletPhi_prep(0),
+  irpcmeasuresPhi_prep(0),
+
+  irpcstationNameC(0),
+
+  irpctimeII(0.),
+  irpcstationPhiII(0),
+  irpcstationNameII(0),
+  irpcstationEtaII(0),
+  irpcdoubletRII(0),
+  irpcdoubletZII(0),
+  irpcdoubletPhiII(0),
+  irpcgasGapII(0),
+  irpcmeasuresPhiII(0),
+  irpcstripII(0),
+  irpctriggerInfoII(0.),
+  irpcambiguityFlagII(0.),
+
+  x_atl(0.),y_atl(0.),z_atl(0.),
+  x_atl_II(0.),y_atl_II(0.),z_atl_II(0.),
+  x_atlas(0.),y_atlas(0.),z_atlas(0.),
+  x_atl_prep(0.),y_atl_prep(0.),z_atl_prep(0.),
+  phi_atlas(0.),
+  eta_atlas(0.),
+  impactParam(0.),
+
+  irpc_clus_station(0),
+  irpc_clus_eta(0),
+  irpc_clus_phi(0),
+  irpc_clus_doublr(0),
+  irpc_clus_doublz(0),
+  irpc_clus_doublphi(0),
+  irpc_clus_gasgap(0),
+  irpc_clus_measphi(0),
+  irpc_clus_size(0),
+  irpc_clus_time(0.),
+  irpc_clus_posx(0.),
+  irpc_clus_posy(0.),
+  irpc_clus_posz(0.),
+
+  irpc_clus_stationII(0),
+  irpc_clus_etaII(0),
+  irpc_clus_phiII(0),
+  irpc_clus_doublrII(0),
+  irpc_clus_doublzII(0),
+  irpc_clus_doublphiII(0),
+  irpc_clus_gasgapII(0),
+  irpc_clus_measphiII(0),
+  irpc_clus_sizeII(0),
+  irpc_clus_timeII(0.),
+  irpc_clus_posxII(0.),
+  irpc_clus_posyII(0.),
+  irpc_clus_poszII(0.),
+
+  strip(0),
+
+  NphiStrips(0),
+  NetaStrips(0),
+  NetaStripsTot(0),
+  NetaStripsTotSideA(0),
+  NetaStripsTotSideC(0),
+  EtaStripSign(0),
+  ShiftStrips(0),
+  ShiftEtaStrips(0),
+  ShiftEtaStripsTot(0),
+  ShiftPhiStrips(0),
+  Nbin(0),
+  SectorLogic(0),
+  Side(0),
+  PanelIndex(0),
+  Settore(0),
+  PlaneTipo(0),
+
+  shift_pos(0),
+
+  NbinII(0),
+
+  MinEntries(0),
+  irpc_posx(0.),
+  irpc_posy(0.),
+  irpc_posz(0.),
+
+  stripetaatlas(0),
+  stripphisector(0),
+  shiftstripphiatlas(0),
+  stripphiatlas(0),
+
+  N_Rpc_Clusters3D(0),
+
+  incAngle(0.),
+
+  Phi_Rpc_Track(0),
+  layertype(0),
+  planetype(0),
+
+
+  N_RpcTrack(0),
+
+
+  SideSector(""),
+  side(0),
+  sector(0),
+  sector_char{},
+  dblZ_char{},
+  dblPhi_char{},
+
+  av_strip(0.),
+  avstripeta(0.),
+  avstripphi(0.),
+  avstrip(0.),
+
+  N_Rpc_Tracks(0),
+  Phi_Rpc_Tracks(0),
+  PointperTrack(0),
+  linkedtrack(0),
+  lookforthirdII(0),
+  thirdlayertypeII(0),
+  thirdlayerHPt(0),
+  Rpc_track(0),
+
+
+  cosmerge(0.),
+
+  x0Phi(0.),
+  xyPhi(0.),
+  z0Eta(0.),
+  zyEta(0.),
+
+  NplaneSmall0(0),NplaneSmall1(0),NplaneSmall2(0),
+  NplaneLarge0(0),NplaneLarge1(0),NplaneLarge2(0),
+
+
+  xav(0.),x2av(0.),yav(0.),y2av(0.),zav(0.),z2av(0.),xyav(0.),xzav(0.),zyav(0.),
+  deltax(0.),deltaz(0.),deltay(0.),
+  projx(0.),projz(0.),projy(0.),
+  chi2dof(0.),chi2dofeta(0.),chi2dofphi(0),
+  res(0.),residual2(0.),
+  mineta(0),maxeta(0),minphi(0),maxphi(0),
+  tav(0.),t2av(0.),trms(0.),tres(0.),
+  cosyx(0.),
+  xsurface(0.),zsurface(0.),
+  xPy0(0.),zPy0(0.),
+  xPz0(0.),yPz0(0.),
+  zPx0(0.),yPx0(0.),
+  Impact_B_IP(0.),
+  pseudoeta(0.),anglephi(0.),
+  rhoxy(0.),rho(0.),costh(0.),sinth(0.),pseta(0.),
+  //NPhiStrip,NEtaStrip(0),
+  phipitch(0.),etapitch(0.),
+  Layer(0),
+  phistripN(0),etastripN(0),
+  foundonehiteta(0),foundonehitphi(0),
+  foundEtaPhi(0),
+  foundEtaOrPhi(0),
+  PanelIndexeta(0),PanelIndexphi(0),
+  StripIndexeta(0),StripIndexphi(0),
+  stripontrack(0.),residuals(0.),
+  TrackType(0.),
+  small_large(0.),
+  hitstripphi(0.),
+  hitstripeta(0.),
+  m_resThEff(0),
+
+  //m_HPtPointForHPteff(0),
+  //m_HPtPointForLPteff(0),
+  //m_HPtPointForTracks(0),
+
+  res_th(0),
+  n_eta_station(0),
+  //i_sector(0),
+  //i_side(0),
+  //i_sectorLogic(0),
+  //i_padId(0),
+  //i_status(0),
+  //i_errorCode(0),
+  //i_cmaId(0),
+  //i_fel1Id(0),
+  //i_febcId(0),
+  //i_crc(0),
+
+  //match_in_spacefound(0),
+  //N_16ch(0),
+  //charch16group[100](0),
+
+
+
+  nEtaStatFired_BA_LowPt(0),
+  nEtaStatFired_BC_LowPt(0),
+  nEtaStatFired_BA_HighPt(0),
+  nEtaStatFired_BC_HighPt(0),
+  //nTrigEtaStatVect_BA[8][16*3](0),
+  //nTrigEtaStatVect_BC[7][16*3](0),
+  m_doTrigEvol(false),
+  minStatTrEvol(0),
+  nTrigEtaStat_BA_LowPt(0),
+  nTrigEtaStat_BC_LowPt(0),
+  nTrigEtaStat_BA_HighPt(0),
+  nTrigEtaStat_BC_HighPt(0),
+
+
+  histName_char{},
+  histName(""),
+
+
+  istatPhi(0),
+  iName(0),
+  ir(0),
+  NTotStrips(0),
+  NTotStripsSideC(0),NTotStripsSideA(0),
+  NTotStripsEtaSideC(0),
+  NTotStripsEtaSideA(0),
+  NTotStripsPhiSideC(0),
+  NTotStripsPhiSideA(0),
+  NEtaTotStripsSideC(0),
+  NEtaTotStripsSideA(0),
+  NPhiTotStrips(0),
+  iStripEtaA(0),
+  iStripPhiA(0),
+  iStripEtaC(0),
+  iStripPhiC(0),
+  panelId(0),
+  panelLyIndex(0),
+  panelGasGap(0),
+
+  Npanel(0),NSecStrips(0),
+  strip_dbindex(0),
+  ShiftPhiTot_db(0),
+  NphiStripsTotSideA(0),
+  NphiStripsTotSideC(0),
+  ShiftPhi_db(0),
+  Nphi_Zstrips(0),
+
+  rpc2DEtaStatBinX_BA(0),
+  rpc2DEtaStatBinX_BC(0),
+  rpc2DEtaStatBinY(0),
+  etaStatShiftX_BA(0),
+  etaStatShiftX_BC(0),
+
+  binz(0),
+  binminz(0),
+  binmaxz(0),
+  binx(0),
+  binminx(0),
+  binmaxx(0),
+
+  panelBin(0),
+  indexplane(0),
+
+  RPCLyHitOnTr(0.),
+  RPCLyTrkPrj(0.),
+  RPCLyEff(0.),
+  RPCLyEff_err(0.),
+  PanelVal(0.),
+  PanelVal_err(0.),
+  PanelVal_entries(0.),
+  PanelVal_square(0.),
+  PanelHitOnTrack(0.),
+  PanelTrackProj(0.),
+  PanelHitOnTrack_withCrossStrip(0.),
+
+  invgasgaparea(0.),
+  invstriparea(0.),
+  distance(0.),
+
+  isNoise(0),
+  isNoiseCorr(0),
+  isNoisePhiStrip(0.),
+
+  norm1(0.),
+  norm2(0.),
+
+  norm3DGaprho(0.),
+  Vect3DCosrho(0.)
+  {
+  // Declare the properties   
+  declareProperty("Sector",              m_sector   = 0 ); 
+  declareProperty("Side",                m_side     = 0 ); 
+  declareProperty("ChamberName",         m_chamberName    = "XXX" );
+  declareProperty("StationSize",         m_StationSize    = "XXX" );
+  declareProperty("RpcPrepDataContainer",m_key_rpc    = "RPC_Measurements"  );
+  declareProperty("RPCTriggerContainer", m_key_trig   = "RPC_triggerHits" );
+  declareProperty("Clusters",            m_doClusters   = true  );      
+  declareProperty("ClusterContainer",    m_clusterContainerName = "rpcClusters"   );
+  declareProperty("CheckCabling",        m_checkCabling   = false );
+  declareProperty("RpcFile",             m_rpcfile    = false );    
+  declareProperty("RpcChamberHist",      m_rpcchamberhist = false );  
+  declareProperty("doRadiography",       m_doRadiography        = false ); 
+  declareProperty("RPCStandaloneTracks", m_do_rpctracks   = true  );
+  declareProperty("RpcReduceNbins",      m_rpcreducenbins = 8 );     
+  declareProperty("RpcReduceNbinsStrip", m_rpcreducenbinsstrip  = 8 );  
+  declareProperty("DoRpcEsd",            m_doRpcESD   = false );  
+  declareProperty("doCoolDB",          m_doCoolDB   = false );
+  declareProperty("selectLB",          m_selectLB   = false );
+  declareProperty("minSelLB",    m_minSelLB             = 1 );
+  declareProperty("maxSelLB",            m_maxSelLB             = 9999  );
+  declareProperty("trackOnlySmall",  m_trOnlySmall    = false );
+  declareProperty("trackOnlyLarge",  m_trOnlyLarge    = false );
+  declareProperty("StationEta",          m_StationEta   = -100  );
+  declareProperty("StationPhi",          m_StationPhi   = -100  );
+  declareProperty("LastEvent",           m_lastEvent    = 0 );
+  declareProperty("CosmicStation",       m_cosmicStation  = 0 );
+  declareProperty("rpc_readout_window",  m_rpc_readout_window = 0.2   ); // rpc readout window in 10^(-6) s for noise evaluation 
+
+  declareProperty("ResThEff",    m_resThEff   = 61  );
+  declareProperty("MinimunEntries",      MinEntries   = 10  );    // min entries required for summary plot 
+  declareProperty("HPtPointForHPteff",   m_HPtPointForHPteff  = true  );
+  declareProperty("HPtPointForLPteff",   m_HPtPointForLPteff  = true  );
+  declareProperty("HPtPointForTracks",   m_HPtPointForTracks  = false );
+  
+}
                             
 RPCStandaloneTracksMon::~RPCStandaloneTracksMon()
 {
@@ -4213,7 +4756,7 @@ StatusCode RPCStandaloneTracksMon::procHistograms()
 {
   StatusCode sc = StatusCode::SUCCESS;
   
-  return sc; 
+  //return sc; 
   
   {
     ATH_MSG_DEBUG ( "********Reached Last Event in RPCStandaloneTracksMon !!!" );	  

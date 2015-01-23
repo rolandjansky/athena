@@ -15,7 +15,6 @@ use     DataModel               DataModel-*                     Control
 
 # Detector Description dependencies
 use     MuonReadoutGeometry     MuonReadoutGeometry-*	        MuonSpectrometer/MuonDetDescr
-use     MuonIdHelpers           MuonIdHelpers-*                 MuonSpectrometer
 use     MuonPrepRawData         MuonPrepRawData-*               MuonSpectrometer/MuonReconstruction/MuonRecEvent
 use     MuonTrigCoinData        MuonTrigCoinData-*              MuonSpectrometer/MuonReconstruction/MuonRecEvent
 
@@ -58,6 +57,7 @@ use     TrkMaterialOnTrack      TrkMaterialOnTrack-*            Tracking/TrkEven
 use     TrkMeasurementBase      TrkMeasurementBase-*            Tracking/TrkEvent 
 use     TrkMultiComponentStateOnSurface     TrkMultiComponentStateOnSurface-*         Tracking/TrkEvent
 use     MuonRecToolInterfaces   MuonRecToolInterfaces-*         MuonSpectrometer/MuonReconstruction/MuonRecTools
+use     MuonIdHelpers           MuonIdHelpers-*                 MuonSpectrometer
 end_private
 
 
