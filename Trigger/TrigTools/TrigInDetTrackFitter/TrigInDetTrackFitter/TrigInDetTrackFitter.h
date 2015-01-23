@@ -19,6 +19,9 @@ namespace Trk {
   class TrkBaseNode;             
   class TrkTrackState;      
   class TrkPlanarSurface;
+  class IRIO_OnTrackCreator;
+  class Track;
+  class TrackStateOnSurface;
 }
 
 namespace MagField {	
@@ -56,12 +59,16 @@ private:
 
   void correctScale(Trk::TrkTrackState*);
 
+  Trk::TrackStateOnSurface* createTrackStateOnSurface(Trk::TrkBaseNode* pN) const;
+
   double m_DChi2;
   bool m_doMultScatt;
   bool m_doBremm;
   bool m_offlineClusters;
+  bool m_correctClusterPos;
   ServiceHandle<MagField::IMagFieldSvc> m_MagFieldSvc;  
-  ToolHandle<ITrigDkfTrackMakerTool> m_trackMaker;
+  ToolHandle<ITrigDkfTrackMakerTool>    m_trackMaker;
+	ToolHandle<Trk::IRIO_OnTrackCreator>  m_ROTcreator;
 
   std::vector<FitStatStruct> m_fitStats;
   int m_algorithmId;
