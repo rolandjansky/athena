@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventFormatSvc.cxx 620292 2014-10-06 22:00:16Z will $
+// $Id: EventFormatSvc.cxx 641395 2015-01-23 20:07:21Z ssnyder $
 
 // System include(s):
 #include <fstream>
@@ -37,6 +37,7 @@ namespace xAODMaker {
       declareProperty( "EventStore", m_eventStore );
       declareProperty( "MetaDataStore", m_metaStore );
       declareProperty( "IncidentSvc", m_incidentSvc );
+      declareProperty( "FormatNames", m_formatNames );
    }
 
    StatusCode EventFormatSvc::initialize() {
@@ -193,7 +194,13 @@ namespace xAODMaker {
 
          // Only consider xAOD objects. Note that the type name will not
          // necessarily start with xAOD, but it should have it somewhere.
-         if( typeName.find( "xAOD" ) == std::string::npos ) continue;
+         // Alternatively, the type name could be listed in FormatNames.
+         if( typeName.find( "xAOD" ) == std::string::npos &&
+             std::find (m_formatNames.begin(), m_formatNames.end(), typeName) ==
+             m_formatNames.end())
+         {
+           continue;
+         }
 
          // Check if we already know about this object:
          if( ef.exists( branchName ) ) continue;
