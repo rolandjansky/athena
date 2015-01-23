@@ -6,7 +6,8 @@ __doc__=""
 __version__="Implementation of Electron Slice single electron signatures"
 
 from AthenaCommon.Logging import logging
-logging.getLogger().info("Importing %s",__name__)
+log = logging.getLogger( 'TriggerMenu.egamma.generateElectronChainDefs' )
+log.info("Importing %s",__name__)
 
 
 from TriggerMenu.egamma.ElectronDef import L2EFChain_e as L2EFChain_e

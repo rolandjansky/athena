@@ -12,7 +12,6 @@ logElectronDef = logging.getLogger("TriggerMenu.egamma.ElectronDef")
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from TriggerMenu.menu.HltConfig import L2EFChainDef, mergeRemovingOverlap
-from TriggerMenu.menu.Lvl1Flags import Lvl1Flags
 
 #from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_cells
 

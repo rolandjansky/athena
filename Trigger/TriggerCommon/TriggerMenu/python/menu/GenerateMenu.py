@@ -24,8 +24,7 @@ from TriggerMenu.test.TestSliceFlags                   import TestSliceFlags
 from TriggerMenu.menu.TriggerPythonConfig  import TriggerPythonConfig
 
 from TriggerMenu.menu.Lumi                 import lumi, applyPrescales
-from TriggerMenu.menu.MenuUtil             import setL1TTStream7Bit, applyLVL1Prescale, checkTriggerGroupAssignment, allSignatures, checkStreamConsistency #,overwriteStreamTags,
-from TriggerMenu.menu.MenuUtil             import getJetWeights, remapL1Thresholds, remapL1Items
+from TriggerMenu.menu.MenuUtil             import checkTriggerGroupAssignment, checkStreamConsistency 
 import TriggerMenu.menu.MenuUtils       
 import traceback
 import operator
@@ -223,13 +222,13 @@ class GenerateMenu:
         missingL1items = []
         for chain in chains:
             log.debug('chain %s' % chain)
-            l1item = chain[2]
+            l1item = chain[1]
             if (l1item not in l1itemnames) & (l1item != ''):
                 myl1item = getSpecificL1Seeds(l1item, self.trigConfL1.menu.items)
                 if ('ERROR_' in myl1item):
                     if (l1item not in missingL1items):  missingL1items.append(l1item)                    
                 else:
-                    chain[2] = myl1item
+                    chain[1] = myl1item
         if  len(missingL1items) > 0 :
             log.error('The following L1 items were not found in the corresponding L1 menu: '+str(missingL1items))
 
@@ -725,6 +724,7 @@ class GenerateMenu:
     def generate(self):
         log.info('GenerateMenu.py:generate ')
 
+
         ###########################
         # L1 Topo menu generation #
         ###########################
@@ -761,6 +761,7 @@ class GenerateMenu:
 
             log.info('Generating L1 configuration for %s' % TriggerFlags.triggerMenuSetup() )
 
+
             from TriggerMenu.TriggerConfigLVL1 import TriggerConfigLVL1
             self.trigConfL1 = TriggerConfigLVL1( outputFile = TriggerFlags.outputLVL1configFile(), menuName = TriggerFlags.triggerMenuSetup() )        
             
@@ -769,6 +770,7 @@ class GenerateMenu:
             log.info('Menu has %i items' % len(self.trigConfL1.menu.items) )
             # write xml file
             self.trigConfL1.writeXML()
+
             
 
         elif TriggerFlags.readLVL1configFromXML():
@@ -780,7 +782,6 @@ class GenerateMenu:
 
         else:
             log.info("Doing nothing with L1 menu configuration...")
-
 
         ##################
         #setup of HLT menu
@@ -803,32 +804,29 @@ class GenerateMenu:
         m_chainsInMenu = self.getChainsFromMenu() # get names of chains to be generated
         if hasattr(self, 'trigConfL1'):
             self.checkL1SeedsForChainsFromMenu(m_chainsInMenu)
-
-
-        # assign chain counters automatically:
-        print 'MEOW chains in menu:', m_chainsInMenu
-        
-                                          
+                                                  
         # instantiate parser
         import DictFromChainName
         theDictFromChainName = DictFromChainName.DictFromChainName()
         import StreamInfo
+        
+        counter = 0
 
         for chain in m_chainsInMenu:
             log.info("Processing chain : %s" % chain)
             chainDicts = theDictFromChainName.getChainDict(chain)
+            counter += 1 
+            chainCounter =  counter
+            chainDicts['chainCounter'] = chainCounter
+
             chainDef = self.getChainDef(chainDicts)
 
             #Insert entry for chain counter later
             #For now, just modify it by assigning it automatically
-#            chain
-#            chain[]
-            
-            groups  = chain[5]
-            streams = chain[4]
-            EBstep = chain[6]
+            streams = chain[3]
+            groups  = chain[4]
+            EBstep = chain[5]
             streamTag = StreamInfo.getStreamTag(streams)
-            chainCounter =  chainDicts['chainCounter']
 
             if not chainDef:
                 log.error('No chainDef for chain %s returned. Will ignore and continue.' % chain)
@@ -837,8 +835,8 @@ class GenerateMenu:
         
             # generate HLTChains and associated sequences
             if  not self.chainDefIsConsistent(chainDef):
-                log.error('ChainDef consistency checks failing for chain %s' % chain)
-                #continue
+                log.error('ChainDef consistency checks failing for chain %s' % chain) 
+
                         
 
             theHLTChain = self.generateHLTChain(chainDef, str(chainDicts['chainCounter']), streamTag, groups, EBstep)
@@ -849,8 +847,9 @@ class GenerateMenu:
                 self.triggerPythonConfig.addHLTSequence(theHLTSequence)
 
             # chain_name is a key in allChains    
-            self.triggerPythonConfig.registerHLTChain(chain[0], theHLTChain)                
-            self.triggerPythonConfig.addHLTChain(theHLTChain)
+            self.triggerPythonConfig.registerHLTChain(chain[0], theHLTChain)          
+            if not (TriggerFlags.readHLTconfigFromXML() or TriggerFlags.readMenuFromTriggerDb()):
+                self.triggerPythonConfig.addHLTChain(theHLTChain)
 
         self.triggerPythonConfig.printIt()
 

@@ -76,6 +76,9 @@ class L2EFChain_CosmicTemplate(L2EFChainDef):
         elif 'larps' in self.chainPart['purpose']:
             self.setupCosmicLArPreSNoise()
 
+        elif 'larhec' in self.chainPart['purpose']:
+            self.setupCosmicLArHECNoise()
+
         elif ('pixel' in self.chainPart['purpose']) \
                 | ('sct' in self.chainPart['purpose']):
             self.setupCosmicIDNoiseCalibration()
@@ -155,10 +158,35 @@ class L2EFChain_CosmicTemplate(L2EFChainDef):
             'L2_step1': mergeRemovingOverlap('L2_','TrigL2CaloLayersHypo_'+self.chainName+'_080'),
             }
 
-
-
+    ##################################################################
+    def setupCosmicLArHECNoise(self):
+        
+        from TrigDetCalib.TrigDetCalibConfig import EtaHypo_HEC,LArL2ROBListWriter
+        
+        self.L2sequenceList += [[ '', 
+                                  [ EtaHypo_HEC('EtaHypo_HEC_' + self.chainPartName),],
+                                  'L2_step1']]
+        
+        self.L2sequenceList += [[ 'L2_step1',
+                                  [LArL2ROBListWriter('LArL2ROBListWriter_' + self.chainName, addCTPResult = True, addL2Result = True,etaWidth = 0.2, phiWidth = 0.2),],                                  
+                                  'L2_step2']]
+        
+        self.L2signatureList+=[ [['L2_step1']*self.mult] ]
+        self.L2signatureList+=[ [['L2_step2']*self.mult] ]
+        
+        self.TErenamingDict = {
+            'L2_step1': mergeRemovingOverlap('L2_','EtaHypo_HEC_'+self.chainName),
+            'L2_step2': mergeRemovingOverlap('L2_','LArL2ROBListWriter_'+self.chainName),
+            
+            }
+    
+        
+        
             
     ##################################################################
+
+
+
     def setupCosmicIDNoiseCalibration(self):
 
         from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter

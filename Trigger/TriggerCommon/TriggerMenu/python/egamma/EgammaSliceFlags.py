@@ -51,8 +51,6 @@ class EgammaSlice(JobPropertyContainer, CommonSliceHelper):
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 TriggerFlags.add_Container(EgammaSlice)
 
-from TriggerMenu.menu.Lvl1Flags import Lvl1Flags
-
 # add common slice flags
 TriggerFlags.EgammaSlice.import_JobProperties('TriggerMenu.menu.CommonSliceFlags')
 

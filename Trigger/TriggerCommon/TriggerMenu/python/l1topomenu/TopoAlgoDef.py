@@ -20,35 +20,39 @@ class TopoAlgoDef:
         currentAlgoId = 0
 
         _etamax = 49
+        _minet = 0
+        _emscale_for_decision = 2 # global scale for EM, TAU
         
         # Sorted lists:
         
         for jet_type in ['AJ', 'CJ', 'J']:
             jetabseta = _etamax
+            _minet = 25
             if jet_type=='J':
                 jetabseta = 32
+                _minet = 20
             elif jet_type=='CJ':
                 jetabseta = 26 
-
+                _minet = 15
+                
             alg = AlgConf.JetSort( name = jet_type+'s', inputs = 'JetTobArray', outputs = jet_type+'s', algoId = currentAlgoId ); currentAlgoId += 1
             alg.addgeneric('InputWidth',  HW.InputWidthJET)
             alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortJET )
             alg.addgeneric('OutputWidth', HW.OutputWidthSortJET )
-            alg.addgeneric('JetSize', HW.DefaultJetSize.value) # JetSize
-            #alg.addvariable('MinEt', 0) # Need to adjust
+            alg.addgeneric('JetSize', HW.DefaultJetSize.value) 
             alg.addvariable('MinEta', 0)
             alg.addvariable('MaxEta', jetabseta)
-            tm.registerAlgo(alg) # OK
+            tm.registerAlgo(alg) 
 
             alg = AlgConf.JetSelect( name = jet_type+'ab', inputs = 'JetTobArray', outputs = jet_type+'ab', algoId = currentAlgoId ); currentAlgoId += 1
             alg.addgeneric('InputWidth', HW.InputWidthJET)
             alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSelectJET )            
             alg.addgeneric('OutputWidth', HW.OutputWidthSelectJET)
             alg.addgeneric('JetSize', HW.DefaultJetSize.value)
-            alg.addvariable('MinEt', 0)  
+            alg.addvariable('MinEt', _minet)  
             alg.addvariable('MinEta', 0)
             alg.addvariable('MaxEta', jetabseta)
-            tm.registerAlgo(alg) # OK
+            tm.registerAlgo(alg) 
 
         alg = AlgConf.JetSort( name = 'AJjs', inputs = 'JetTobArray', outputs = 'AJjs', algoId = currentAlgoId); currentAlgoId += 1
         alg.addgeneric('InputWidth',  HW.InputWidthJET)
@@ -57,7 +61,7 @@ class TopoAlgoDef:
         alg.addgeneric('JetSize', 1 if HW.DefaultJetSize.value==2 else 2)                
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', _etamax)
-        tm.registerAlgo(alg) # OK 
+        tm.registerAlgo(alg) 
 
         alg = AlgConf.ClusterSort( name = 'EMs', inputs = 'ClusterTobArray', outputs = 'EMs', algoId = currentAlgoId ); currentAlgoId += 1
         alg.addgeneric('InputWidth', HW.InputWidthEM)
@@ -65,7 +69,7 @@ class TopoAlgoDef:
         alg.addgeneric('OutputWidth', HW.OutputWidthSortEM)
         alg.addvariable('IsoMask', 0)
         alg.addvariable('MinEta', 0)
-        alg.addvariable('MaxEta', _etamax) # OK
+        alg.addvariable('MaxEta', _etamax) 
         tm.registerAlgo(alg) 
 
         alg = AlgConf.ClusterSort( name = 'EMshi', inputs = 'ClusterTobArray', outputs = 'EMshi', algoId = currentAlgoId ); currentAlgoId += 1
@@ -81,7 +85,7 @@ class TopoAlgoDef:
         alg.addgeneric('InputWidth', HW.InputWidthTAU)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortTAU)
         alg.addgeneric('OutputWidth', HW.OutputWidthSortTAU)
-        alg.addvariable('IsoMask', 4) 
+        alg.addvariable('IsoMask', 2) 
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', _etamax)
         tm.registerAlgo(alg)
@@ -115,8 +119,8 @@ class TopoAlgoDef:
         alg.addgeneric('InputWidth',  HW.InputWidthEM)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSelectEM ) 
         alg.addgeneric('OutputWidth', HW.OutputWidthSelectEM)
-        alg.addvariable('MinEt', 0)
-        alg.addvariable('IsoMask', '00001') # Need to confirm with the simulation side for 'i'
+        alg.addvariable('MinEt', 8)
+        alg.addvariable('IsoMask', 2)
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', _etamax)
         tm.registerAlgo(alg) 
@@ -125,7 +129,7 @@ class TopoAlgoDef:
         alg.addgeneric('InputWidth',  HW.InputWidthEM)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSelectEM ) 
         alg.addgeneric('OutputWidth', HW.OutputWidthSelectEM)
-        alg.addvariable('MinEt', 0)
+        alg.addvariable('MinEt', 8)
         alg.addvariable('IsoMask', 3)
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', _etamax)
@@ -135,7 +139,7 @@ class TopoAlgoDef:
         alg.addgeneric('InputWidth',  HW.InputWidthTAU)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSelectTAU )
         alg.addgeneric('OutputWidth', HW.OutputWidthSelectTAU)
-        alg.addvariable('MinEt', 0) 
+        alg.addvariable('MinEt', 12) 
         alg.addvariable('IsoMask', 0)
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', _etamax)
@@ -145,8 +149,8 @@ class TopoAlgoDef:
         alg.addgeneric('InputWidth',  HW.InputWidthTAU)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSelectTAU )
         alg.addgeneric('OutputWidth', HW.OutputWidthSelectTAU)        
-        alg.addvariable('MinEt', 0) # --> MinEt               
-        alg.addvariable('IsoMask', 4) 
+        alg.addvariable('MinEt', 12) 
+        alg.addvariable('IsoMask', 2) 
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', _etamax)
         tm.registerAlgo(alg) 
@@ -155,7 +159,7 @@ class TopoAlgoDef:
         alg.addgeneric('InputWidth', HW.InputWidthMU)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSelectMU )
         alg.addgeneric('OutputWidth', HW.OutputWidthSelectMU)
-        alg.addvariable('MinEt', 4)
+        alg.addvariable('MinEt', 4) 
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', 25)
         tm.registerAlgo(alg)
@@ -164,7 +168,7 @@ class TopoAlgoDef:
         alg.addgeneric('InputWidth', HW.InputWidthMU)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSelectMU )
         alg.addgeneric('OutputWidth', HW.OutputWidthSelectMU)
-        alg.addvariable('MinEt', 4)
+        alg.addvariable('MinEt', 4) 
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', 10)
         tm.registerAlgo(alg)
@@ -289,7 +293,7 @@ class TopoAlgoDef:
             alg.addvariable('MinEt', ocut)                        
             alg.addvariable('MinEta', 0)
             alg.addvariable('MaxEta', oeta)            
-            alg.addvariable('MinHt', minHT) # OK
+            alg.addvariable('MinHt', minHT) 
             tm.registerAlgo(alg)  
 
         # (ATR-8192) L1Topo ZH Trigger
@@ -397,8 +401,8 @@ class TopoAlgoDef:
             alg.addgeneric('NumberLeading1', nleading)
             alg.addgeneric('NumberLeading2', HW.OutputWidthSelectEM)
             alg.addgeneric('NumResultBits', 1)                        
-            alg.addvariable('InvMassMin', minInvm)
-            alg.addvariable('InvMassMax', maxInvm)
+            alg.addvariable('InvMassMin', minInvm * _emscale_for_decision)
+            alg.addvariable('InvMassMax', maxInvm * _emscale_for_decision)
             alg.addvariable('MinET1', ocut)
             alg.addvariable('MinET2', 0)
             tm.registerAlgo(alg)
@@ -476,13 +480,13 @@ class TopoAlgoDef:
             
         # dimu DR items
         for x in [  
-            {"minDr": 2, "maxDr": 15, "mult": 2, "otype1" : "MU" ,"ocut1": 4,  "olist" : "ab", "otype2" : "",   "ocut2": 0}, # Bphys
+            {"minDr": 2, "maxDr": 15, "mult": 2, "otype1" : "MU" ,"ocut1": 4,  "olist" : "ab", "otype2" : "",   "ocut2": 4}, # Bphys
             {"minDr": 2, "maxDr": 15, "mult": 1, "otype1" : "CMU","ocut1": 4,  "olist" : "ab", "otype2" : "MU", "ocut2": 4},
-            {"minDr": 2, "maxDr": 15, "mult": 2, "otype1" : "CMU","ocut1": 4,  "olist" : "ab", "otype2" : "",   "ocut2": 0},
+            {"minDr": 2, "maxDr": 15, "mult": 2, "otype1" : "CMU","ocut1": 4,  "olist" : "ab", "otype2" : "",   "ocut2": 4},
             {"minDr": 2, "maxDr": 15, "mult": 1, "otype1" : "MU", "ocut1": 6,  "olist" : "ab", "otype2" : "MU", "ocut2": 4},
             {"minDr": 2, "maxDr": 15, "mult": 1, "otype1" : "CMU","ocut1": 6,  "olist" : "ab", "otype2" : "CMU","ocut2": 4},
-            {"minDr": 2, "maxDr": 15, "mult": 2, "otype1" : "MU" ,"ocut1": 6,  "olist" : "ab", "otype2" : "",   "ocut2": 0},
-            {"minDr": 2, "maxDr": 99, "mult": 2, "otype1" : "MU" ,"ocut1": 4,  "olist" : "ab", "otype2" : "",   "ocut2": 0}, # SM Y
+            {"minDr": 2, "maxDr": 15, "mult": 2, "otype1" : "MU" ,"ocut1": 6,  "olist" : "ab", "otype2" : "",   "ocut2": 6},
+            {"minDr": 2, "maxDr": 99, "mult": 2, "otype1" : "MU" ,"ocut1": 4,  "olist" : "ab", "otype2" : "",   "ocut2": 4}, # SM Y
             {"minDr": 0, "maxDr": 10, "mult": 1, "otype1" : "MU" ,"ocut1": 10, "olist" : "ab", "otype2" : "MU", "ocut2": 6}, # Exotic LFV 
             ]:
 
@@ -513,8 +517,8 @@ class TopoAlgoDef:
             {"minDeta": 5, "maxDeta": 99, "minDphi": 5, "maxDphi": 99, "mult": 1, "otype1" : "MU", "ocut1": 6, "olist1" : "ab", "nleading1": HW.OutputWidthSelectMU, "otype2" : "MU", "ocut2": 4, "olist2": "ab", "nleading2": HW.OutputWidthSelectMU},
             {"minDeta": 5, "maxDeta": 99, "minDphi": 5, "maxDphi": 99, "mult": 2, "otype1" : "MU", "ocut1": 6, "olist1" : "ab", "nleading1": HW.OutputWidthSelectMU, "otype2" : "", "ocut2": 6, "olist2": "", "nleading2": HW.OutputWidthSelectMU},
             {"minDeta": 5, "maxDeta": 99, "minDphi": 5, "maxDphi": 99, "mult": 2, "otype1" : "MU", "ocut1": 4, "olist1" : "ab", "nleading1": HW.OutputWidthSelectMU, "otype2" : "", "ocut2": 4, "olist2": "", "nleading2": HW.OutputWidthSelectMU},
-            {"minDeta": 0, "maxDeta": 35, "minDphi": 0, "maxDphi": 25, "mult": 1, "otype1" : "EM", "ocut1": 8, "olist1" : "abi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "MU", "ocut2": 10, "olist2": "ab", "nleading2": HW.OutputWidthSelectMU},
-            {"minDeta": 0, "maxDeta": 35, "minDphi": 0, "maxDphi": 25, "mult": 1, "otype1" : "EM", "ocut1": 15, "olist1" : "abi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "MU", "ocut2": 0, "olist2": "ab", "nleading2": HW.OutputWidthSelectMU},
+            {"minDeta": 0, "maxDeta": "04", "minDphi": 0, "maxDphi": "03", "mult": 1, "otype1" : "EM", "ocut1": 8, "olist1" : "abi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "MU", "ocut2": 10, "olist2": "ab", "nleading2": HW.OutputWidthSelectMU},
+            {"minDeta": 0, "maxDeta": "04", "minDphi": 0, "maxDphi": "03", "mult": 1, "otype1" : "EM", "ocut1": 15, "olist1" : "abi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "MU", "ocut2": 0, "olist2": "ab", "nleading2": HW.OutputWidthSelectMU},
             {"minDeta": 0, "maxDeta": 20, "minDphi": 0, "maxDphi": 20, "mult": 1, "otype1" : "TAU", "ocut1": 20, "olist1" : "abi", "nleading1": HW.OutputWidthSelectTAU, "otype2" : "TAU", "ocut2": 12, "olist2": "abi", "nleading2": HW.OutputWidthSelectTAU},
             ]:
             
@@ -523,7 +527,7 @@ class TopoAlgoDef:
 
             obj1 = "%s%s%s%s" % ((str(mult) if mult>1 else ""), otype1, str(ocut1), olist1)
             obj2 = "-%s%s%s" % (otype2, str(ocut2) if ocut2>0 else "", olist2)
-            toponame = "%iDETA%i-%iDPHI%i-%s%s"  % (minDeta, maxDeta, minDphi, maxDphi, obj1, "" if mult>1 else obj2)
+            toponame = "%sDETA%s-%sDPHI%s-%s%s"  % (minDeta, maxDeta, minDphi, maxDphi, obj1, "" if mult>1 else obj2)
             
             log.info("Define %s" % toponame)
             

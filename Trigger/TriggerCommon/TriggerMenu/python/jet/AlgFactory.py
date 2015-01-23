@@ -294,14 +294,14 @@ class AlgFactory(object):
         return Alg(factory, (), {})
 
     def jetRecDiagnostics(self):
-        chain_name = self.chain_config.chain_name
+        chain_name = self.chain_config.chain_name.replace('.', '_')
         factory = 'TrigHLTJetDiagnostics_named'
         kwds = {'name': "'TrigHLTJetDiagnostics_%s'" % chain_name,
                 'chain_name': "'%s'" % chain_name}
         return Alg(factory, (), kwds)
 
     def jetHypoDiagnostics(self):
-        chain_name = self.chain_config.chain_name
+        chain_name = self.chain_config.chain_name.replace('.', '_')
         factory = 'TrigHLTHypoDiagnostics_named'
         kwds = {'name': "'TrigHLTHypoDiagnostics_%s'" % chain_name,
                 'chain_name': "'%s'" % chain_name}
@@ -309,7 +309,7 @@ class AlgFactory(object):
 
 
     def clusterDiagnostics(self):
-        chain_name = self.chain_config.chain_name
+        chain_name = self.chain_config.chain_name.replace('.', '_')
         factory = 'TrigHLTClusterDiagnostics_named'
         kwds = {'name': "'TrigHLTClusterDiagnostics_%s'" % chain_name,
                 'chain_name': "'%s'" % chain_name}
@@ -317,7 +317,7 @@ class AlgFactory(object):
 
 
     def cellDiagnostics(self):
-        chain_name = self.chain_config.chain_name
+        chain_name = self.chain_config.chain_name.replace('.', '_')
         factory = 'TrigHLTCellDiagnostics_named'
         kwds = {'name': "'TrigHLTCellDiagnostics_%s'" % chain_name,
                 'chain_name': "'%s'" % chain_name}

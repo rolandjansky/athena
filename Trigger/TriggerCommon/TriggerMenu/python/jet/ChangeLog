@@ -1,3 +1,10 @@
+2015-01-20   Peter Sherwood  <peter@localhost>
+
+	* AlgFactory.py (AlgFactory.clusterDiagnostics): 
+	The instance name constains the chain name for all the diagnostics
+	routines. Gaudi does not allow instance names with '.'
+	Replace '.' by '_' in the string used to name the instances.
+
 2015-01-14   Peter Sherwood  <peter@localhost>
 
 	* added config changes for JetDefFromJets (jet reclustering)

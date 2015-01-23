@@ -44,6 +44,22 @@ class TriggerConfigL1Topo:
             self.registerMenu()
 
 
+
+    # remove prescale suffixes
+    @staticmethod
+    def getMenuBaseName(menuName):
+        import re 
+        pattern = re.compile('_v\d+|DC14')
+        patternPos = pattern.search(menuName)
+        if patternPos:
+            menuName=menuName[:patternPos.end()]
+        else:
+            log.info('Can\'t find pattern to shorten menu name, either non-existent in name or not implemented.')
+        return menuName         
+
+
+
+
     def registerAlgo(self, algo):
         """ Add a L1Topo algo to the set of algos which are registered for further use"""
 
@@ -104,13 +120,10 @@ class TriggerConfigL1Topo:
 
         Menu.defineMenu() defines the menu via L1TopoFlags
         """
-        #from TriggerConfigLVL1 import TriggerConfigLVL1
-        #tcl1 = TriggerConfigLVL1()
-        #menuName = tcl1.getMenuBaseName(menuName)
 
+        menuName = TriggerConfigL1Topo.getMenuBaseName(menuName)
         from TriggerJobOpts.TriggerFlags import TriggerFlags
-        menumodule = __import__('l1topomenu.Menu_%s' % menuName.replace('_tight_mc_prescale','').replace('_loose_mc_prescale','').replace('_special_mc_prescale','').replace('_no_prescale',''), globals(), locals(), ['defineMenu'], -1) 
-        #menumodule = __import__('l1topomenu.Menu_%s' % menuName, globals(), locals(), ['defineMenu'], -1)
+        menumodule = __import__('l1topomenu.Menu_%s' % menuName, globals(), locals(), ['defineMenu'], -1)
         menumodule.defineMenu()
         log.info("%s menu contains %i algos." % ( menuName, len(L1TopoFlags.algos()) )) 
         

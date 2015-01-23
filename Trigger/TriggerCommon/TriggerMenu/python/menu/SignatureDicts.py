@@ -35,7 +35,6 @@ SliceIDDict = {
 #==========================================================
 ChainDictTemplate = {
     'chainName'    : '',
-    'chainCounter' : (int),
     'L1item'        : '',
     'topo'          : '',
     'signatures'    : '',
@@ -69,7 +68,8 @@ AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu',
                       'BcmumuDs' ,   'BcmumuDsloose' , 
                       '7invm9', 'noos', 'noid', 'novtx',
                       '11invm60','18invm60', 'bUpsi',
-                      'Trkloose', 'Zmumu']
+                      'Trkloose', 'Zmumu',
+                      'noinvm', 'ss', 'BpmumuKp']
 AllowedTopos_jet = ['muvtx',
                     'llp',
                     'deta2', 
@@ -498,6 +498,7 @@ MinBiasChainParts_Default = {
 # ---- CosmicDef chains -----
 #==========================================================
 AllowedCosmicChainIdentifiers = ['larps',
+                                 'larhec',
                                  'tilecalib', 
                                  'pixel', 'sct', 
                                  'id',]
@@ -570,7 +571,7 @@ StreamingChainParts_Default = {
 #==========================================================
 # ---- CalibDef chains -----
 #==========================================================
-AllowedCalibChainIdentifiers = ['csccalib','larcalib', 'idcalib', 'l1calocalib', 'tilelarcalib','alfacalib']
+AllowedCalibChainIdentifiers = ['csccalib','larcalib', 'idcalib', 'l1calocalib', 'tilelarcalib','alfacalib','larnoiseburst']
 
 # ---- Calib Chain Dictinary of all allowed Values ----
 CalibChainParts = {

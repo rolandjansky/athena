@@ -46,8 +46,8 @@ def defineMenu():
                                                                             
         # Exotic LFV DR                                                     
         TopoOutput( algoname='0DR10-MU10ab-MU6ab',                          module=0, fpga=0, clock=1, firstbit=6 ),
-        TopoOutput( algoname='0DETA35-0DPHI25-EM8abi-MU10ab',               module=0, fpga=0, clock=1, firstbit=7 ),
-        TopoOutput( algoname='0DETA35-0DPHI25-EM15abi-MUab',                module=0, fpga=0, clock=1, firstbit=8 ),
+        TopoOutput( algoname='0DETA04-0DPHI03-EM8abi-MU10ab',             module=0, fpga=0, clock=1, firstbit=7 ),
+        TopoOutput( algoname='0DETA04-0DPHI03-EM15abi-MUab',              module=0, fpga=0, clock=1, firstbit=8 ),
 
 
                                                                             

@@ -208,6 +208,8 @@ class ThresholdDef:
         for thrV in [5, 10, 20, 30, 40, 50, 60, 2000, 4000]:
             tc.registerThr('TE%i' % thrV, 'TE').addThrValue(thrV)
 
+        for (thrV, etamax) in [(30,24),]:
+            tc.registerThr('TE%i.0ETA%i' % (thrV, etamax), 'TE').addThrValue(thrV).addThrValue( thrV, etamin = -etamax, etamax = etamax, priority=1)
 
         # XE
         for thrV in [35, 40, 45, 50, 55, 60, 70, 80]:

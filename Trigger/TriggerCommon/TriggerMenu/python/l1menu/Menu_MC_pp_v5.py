@@ -41,7 +41,8 @@ def defineMenu():
 
 
         # 9 x TAU
-        'HA6', 'HA8', 'HA12', 'HA12I', 'HA12IL', 'HA15', 'HA20', 'HA20I', 'HA30', 'HA40', 'HA60', 
+        #'HA6', 'HA8', 'HA12', 'HA12I', 'HA12IL', 'HA15', 'HA20', 'HA20I', 'HA30', 'HA40', 'HA60', 
+        'HA8', 'HA10IM','HA12', 'HA12IL', 'HA12IM', 'HA12IT','HA15', 'HA20', 'HA20IL',  'HA20IM', 'HA20IT','HA25','HA25IT', 'HA30', 'HA40', 'HA60', 
 
         # JETs and central jets (first 10 can have multiplicity 4 or more)
         #'J12', 'J15', 'J20', 'J25', 'J30', 'J40', 'J17.ETA22', 'J25.ETA22', 'J15.ETA24', 'JB15.23ETA49','JF15.23ETA49',#'FJ15.23ETA',
@@ -56,7 +57,7 @@ def defineMenu():
         'J15.32ETA49', 'J20.32ETA49', 'J30.32ETA49', 'J50.32ETA49', 'J75.32ETA49', 'J100.32ETA49', 
         
         # 8 x TE
-        'TE20', 'TE30', 'TE40', 'TE50', 'TE60',# 'TE1000', 'TE1200', 'TE1400',# --> the last three are left in as a forced threshold.
+        'TE20', 'TE30', 'TE40', 'TE50', 'TE30.0ETA24',# 'TE1000', 'TE1200', 'TE1400',# --> the last three are left in as a forced threshold.
 
         # 8 x XS
         # 'XS25', 'XS30', 'XS35', 'XS45', 'XS50', 'XS55', 'XS60', 'XS65',
@@ -154,8 +155,8 @@ def defineMenu():
         '5DETA99-5DPHI99-MU6ab-MU4ab',
         '5DETA99-5DPHI99-2MU6ab',
         '0DR10-MU10ab-MU6ab',
-        '0DETA35-0DPHI25-EM8abi-MU10ab',
-        '0DETA35-0DPHI25-EM15abi-MUab',
+        '0DETA04-0DPHI03-EM8abi-MU10ab',
+        '0DETA04-0DPHI03-EM15abi-MUab',
         '10MINDPHI-Js2-XE50',
         '10MINDPHI-J20s2-XE50',
         '10MINDPHI-J20ab-XE50',
@@ -218,22 +219,68 @@ def defineMenu():
 
 
         # single tau
-        "L1_TAU6", "L1_TAU8", "L1_TAU12", "L1_TAU12I", "L1_TAU20", "L1_TAU30", "L1_TAU40", "L1_TAU60", # "L1_2TAUXX",
-        "L1_TAU8_EMPTY",
+        #"L1_TAU6",
+        "L1_TAU12", "L1_TAU12IL",  "L1_TAU12IM",  "L1_TAU12IT", "L1_TAU20", "L1_TAU20IL", "L1_TAU20IM", "L1_TAU20IT", ##B
+        "L1_TAU30", "L1_TAU40", "L1_TAU60",
+        "L1_TAU8", "L1_TAU8_EMPTY",
+        
 
         # multi tau
-        "L1_TAU20_2TAU12", "L1_TAU20_2TAU12I",
+        "L1_TAU20IM_2TAU12IM", ##BN
+        #"L1_TAU20_2TAU12I", #B
+        "L1_TAU20_2TAU12", ##B
 
         # combined tau - lepton
-        "L1_EM15_2TAU12", "L1_EM15_2TAU20", "L1_EM15HI_2TAU12IL", "L1_EM15_TAU40_2TAU15", "L1_EM15HI_TAU40_2TAU15", 
-        "L1_EM15_2TAU12_J25_2J15_3J12", "L1_EM15HI_2TAU12I_J25_2J15_3J12",
-        "L1_MU10_TAU12", "L1_MU10_TAU12I", "L1_MU10_TAU12_J25_2J12", "L1_MU10_TAU20", "L1_MU10_TAU20I",
+        ##"L1_EM15_2TAU12",  ##BI
+        ##"L1_EM15_2TAU20", "L1_EM15HI_2TAU12IL", "L1_EM15_TAU40_2TAU15", "L1_EM15HI_TAU40_2TAU15", ##BI
+        "L1_EM15HI_2TAU12", ##BN
+        "L1_EM15HI_2TAU12IM", ##BN        
+        #"L1_EM15_2TAU12_J25_2J15_3J12", ##BI
+        #"L1_EM15HI_2TAU12I_J25_2J15_3J12",  ##B
+        "L1_EM15HI_2TAU12IM_J25_3J12",  ##BN
+        'L1_J25_3J12_DISAMB-EM15abhi-TAU12abi', ##BN
+        "L1_MU10_TAU12",  ##B
+        #"L1_MU10_TAU12I", ##B
+        "L1_MU10_TAU12IM", ##BN
+        "L1_MU10_TAU12IM_J25_2J12", ##BM
+        'L1_J25_2J12_0DR28-MU10ab-TAU12abi', ##BN
+        "L1_MU10_TAU20", ##B
+        #"L1_MU10_TAU20I", ##B
 
         # combined tau - jet
-         "L1_TAU12I_MU10_J25_2J12", "L1_TAU20_2TAU12_J25_2J20_3J12", "L1_TAU20_2TAU12I_J25_2J15_3J12",
+        #"L1_TAU12I_MU10_J25_2J12",  ##B
+        "L1_TAU20IM_2TAU12IM_J25_2J20_3J12", ##BM
+        #"L1_TAU20_2TAU12I_J25_2J15_3J12",##B
+        'L1_J25_2J20_3J12_0DETA20-0DPHI20-TAU20abi-TAU12abi', ##BN
+        'L1_J25_2J20_3J12_0DR28-TAU20abi-TAU12abi', ##BN
+        'L1_0DR28-MU10ab-TAU12abi_1DISAMB-TAU12abi-J25ab',##BN
+
 
         # combined tau - xe
-        "L1_TAU20_2J20_XE45", "L1_EM15HI_2TAU12I_XE35", "L1_MU10_TAU12I_XE35", "L1_TAU20_2TAU12_XE35", "L1_TAU20I_2TAU12I_XE35",
+        "L1_TAU20IM_2J20_XE45", ##B
+        "L1_TAU25_2J20_XE45",   ##BN
+        "L1_TAU20IM_2J20_XE50",   ##BN
+        'L1_XE45_1DISAMB-TAU20ab-J20ab',  ##BN   
+
+        #"L1_EM15HI_2TAU12I_XE35", ##B
+        "L1_EM15HI_2TAU12IM_XE35", ##BN
+        'L1_XE35_DISAMB-EM15abhi-TAU12abi',  
+        'L1_XE40_DISAMB-EM15abhi-TAU12abi',  
+
+
+        "L1_MU10_TAU12_XE35", ##B        
+        "L1_MU10_TAU12IM_XE35", ##B        
+        "L1_MU10_TAU12IL_XE35", ##B        
+        "L1_MU10_TAU12IT_XE35", ##B        
+        "L1_MU10_TAU12IM_XE40", ##B        
+
+        "L1_TAU20IM_2TAU12IM_XE35", ##B
+        "L1_TAU20IL_2TAU12IL_XE35", ##B
+        "L1_TAU20IT_2TAU12IT_XE35", ##B
+        "L1_TAU20_2TAU12_XE35", ##B,
+        "L1_TAU20IM_2TAU12IM_XE40", ##BN
+
+
 
         # combined em - jet
         #'L1_EM15VH_J15.23ETA49',
@@ -264,7 +311,7 @@ def defineMenu():
         "L1_XE35", "L1_XE40", "L1_XE45", "L1_XE50", "L1_XE55", "L1_XE60", "L1_XE70", "L1_XE80", 
         
         # TE
-        "L1_TE20", "L1_TE30", "L1_TE40", "L1_TE50", "L1_TE60",   
+        "L1_TE20", "L1_TE30", "L1_TE40", "L1_TE50", "L1_TE30.0ETA24",   
 
         # MBTS
         "L1_MBTS_1", "L1_MBTS_2", "L1_MBTS_1_1", "L1_MBTS_2_UNPAIRED_ISO",
@@ -361,8 +408,8 @@ def defineMenu():
         'L1_5DETA99-5DPHI99-MU6ab-MU4ab',
         'L1_5DETA99-5DPHI99-2MU6ab',
         'L1_0DR10-MU10ab-MU6ab',
-        'L1_0DETA35-0DPHI25-EM8abi-MU10ab',
-        'L1_0DETA35-0DPHI25-EM15abi-MUab',
+        'L1_0DETA04-0DPHI03-EM8abi-MU10ab',
+        'L1_0DETA04-0DPHI03-EM15abi-MUab',
         'L1_10MINDPHI-Js2-XE50',
         'L1_10MINDPHI-J20s2-XE50',
         'L1_10MINDPHI-J20ab-XE50',
@@ -383,17 +430,17 @@ def defineMenu():
         'L1_05RATIO-XE0-SUM0-EM9s1-HT0-AJj15all.ETA49',
         'L1_210RATIO-0MATCH-TAU30si2-EMall',
         'L1_NOT-0MATCH-TAU30si2-EMall',
-        'L1_0DR28-MU10ab-TAU12abi',
+        'L1_0DR28-MU10ab-TAU12abi', ##B
         'L1_1DISAMB-TAU12abi-J25ab',        
-        'L1_DISAMB-EM15abhi-TAU40ab',
+        'L1_DISAMB-EM15abhi-TAU40ab', ##B
         'L1_1DISAMB-TAU20ab-J20ab',
         'L1_DISAMB-EM15abhi-TAU12abi',
         'L1_1DISAMB-EM15his2-TAU12abi-J25ab',
-        'L1_1DISAMB-J25ab-0DR28-EM15his2-TAU12abi',
+        'L1_1DISAMB-J25ab-0DR28-EM15his2-TAU12abi', ##B
         'L1_1DISAMB-TAU20abi-TAU12abi-J25ab',
-        'L1_0DR28-TAU20abi-TAU12abi',
+        'L1_0DR28-TAU20abi-TAU12abi', ##B
         'L1_0DETA20-0DPHI20-TAU20abi-TAU12abi',
-        'L1_1DISAMB-J25ab-0DR28-TAU20abi-TAU12abi',
+        'L1_1DISAMB-J25ab-0DR28-TAU20abi-TAU12abi', ##B
         'L1_LAR-EM50s1',
         'L1_LAR-J100s1',
         'L1_2DR15-CMU4ab-MU4ab',

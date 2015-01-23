@@ -16,7 +16,6 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 import re
 
 from TriggerJobOpts.TriggerFlags            import TriggerFlags
-from TriggerMenu.menu.Lvl1Flags             import Lvl1Flags
 
 from TriggerMenu.minbias.MinBiasSliceFlags  import MinBiasSliceFlags
 
