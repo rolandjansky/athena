@@ -12,6 +12,7 @@ use Identifier                  Identifier-*             DetectorDescription
 use IRegionSelector             IRegionSelector-*             DetectorDescription
 use TrigSteeringEvent           TrigSteeringEvent-*      Trigger/TrigEvent
 use TrkTrack										TrkTrack-*      Tracking/TrkEvent
+use TrkEventPrimitives          TrkEventPrimitives-*      Tracking/TrkEvent
 
 use TrigInDetPattRecoEvent	TrigInDetPattRecoEvent-*	Trigger/TrigEvent
 
