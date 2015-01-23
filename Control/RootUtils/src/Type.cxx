@@ -38,6 +38,7 @@ Type::Type ()
     m_type(kNoType_t),
     m_ti(0),
     m_size(0),
+    m_assignInitialized(false),
     m_defElt(0)
 {
 }
@@ -52,6 +53,7 @@ Type::Type (TClass* cls)
     m_type(kNoType_t),
     m_ti(0),
     m_size(0),
+    m_assignInitialized(false),
     m_defElt(0)
 {
   init (cls);
@@ -67,6 +69,7 @@ Type::Type (EDataType type)
     m_type(kNoType_t),
     m_ti(0),
     m_size(0),
+    m_assignInitialized(false),
     m_defElt(0)
 {
   init (type);
@@ -86,6 +89,7 @@ Type::Type (const std::string& typname)
     m_type(kNoType_t),
     m_ti(0),
     m_size(0),
+    m_assignInitialized(false),
     m_defElt(0)
 {
   init (typname);
@@ -102,6 +106,7 @@ Type::Type (const Type& other)
     m_ti (other.m_ti),
     m_size (other.m_size),
     m_assign (other.m_assign),
+    m_assignInitialized (false),
     m_defElt (0)
 {
   // Don't copy m_tsAssign.
@@ -123,6 +128,7 @@ Type& Type::operator= (const Type& other)
     m_ti = other.m_ti;
     m_size = other.m_size;
     m_assign = other.m_assign;
+    m_assignInitialized = false;
     if (m_defElt)
       destroy (m_defElt);
     if (m_cls)
@@ -243,15 +249,6 @@ void Type::init (TClass* cls)
   m_size = cls->Size();
   m_defElt = create();
   m_ti = cls->GetTypeInfo();
-
-  std::string proto = "const ";
-  proto += cls->GetName();
-  proto += "&";
-  m_assign.InitWithPrototype (cls, "operator=", proto.c_str());
-  if (!m_assign.IsValid()) {
-    ::Warning ("RootUtils::Type: Can't get assignent op for type `%s'.",
-               cls->GetName());
-  }
 }
 
 
@@ -477,17 +474,10 @@ void Type::assign (void* dst,        size_t dst_index,
  */
 void Type::assign (void* dst, const void* src) const
 {
-  TMethodCall* assign_call = 0;
-  if (m_cls) {
-    if (m_tsAssign.get() == 0 || m_tsAssign->GetMethod() != m_assign.GetMethod())
-      m_tsAssign.reset (new TMethodCall (m_assign));
-    assign_call = &*m_tsAssign;
-  }
-
-  if (assign_call && assign_call->IsValid()) {
-    assign_call->ResetParam();
-    assign_call->SetParam (reinterpret_cast<Long_t>(src));
-    assign_call->Execute (dst);
+  if (m_cls && checkAssign()) {
+    m_tsAssign->ResetParam();
+    m_tsAssign->SetParam (reinterpret_cast<Long_t>(src));
+    m_tsAssign->Execute (dst);
   }
   else {
     if (src)
@@ -564,6 +554,40 @@ void Type::fromString (void* p, const std::string& s) const
   throw std::runtime_error
     (std::string ("RootUtils::Type::fromString: Can't convert objects of type `" +
                   getTypeName() + "'."));
+}
+
+
+/**
+ * @brief See if @c m_assign is initialized.
+ * If not, try to initialize it now,  and copy to the thread-specific variable.
+ * Returns true on success.
+ */
+bool Type::checkAssign() const
+{
+  // Fail if this isn't a class type.
+  if (m_cls == 0) return false;
+
+  if (!m_assignInitialized) {
+    // Not initialized ... try to do so now.  First take the lock.
+    std::lock_guard<std::mutex> lock (m_assignMutex);
+    if (!m_assignInitialized) {
+      std::string proto = "const ";
+      proto += m_cls->GetName();
+      proto += "&";
+      m_assign.InitWithPrototype (m_cls, "operator=", proto.c_str());
+      if (!m_assign.IsValid()) {
+        ::Warning ("RootUtils::Type: Can't get assignent op for type `%s'.",
+                   m_cls->GetName());
+      }
+    }
+  }
+
+  if (!m_assign.IsValid()) return false;
+
+  if (m_tsAssign.get() == 0 || m_tsAssign->GetMethod() != m_assign.GetMethod())
+    m_tsAssign.reset (new TMethodCall (m_assign));
+
+  return true;
 }
 
 
