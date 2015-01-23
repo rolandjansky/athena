@@ -5,8 +5,8 @@
 #ifndef __TRIG_VERTEX_FITTER__
 #define __TRIG_VERTEX_FITTER__
 
-#include "GaudiKernel/AlgTool.h"
 #include "TrigInDetToolInterfaces/ITrigVertexFitter.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 class TrigTimer;
 
@@ -56,7 +56,7 @@ public:
   const TrigInDetTrack* m_pTrack;
 };
 
-class TrigVertexFitter: public AlgTool, virtual public ITrigVertexFitter
+class TrigVertexFitter: public AthAlgTool, virtual public ITrigVertexFitter
 {
  public:
   TrigVertexFitter( const std::string&, const std::string&, const IInterface* );

@@ -16,6 +16,7 @@
 #include <cmath>
 #include <iostream>
 
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
@@ -26,7 +27,7 @@
 
 TrigVertexFitter::TrigVertexFitter(const std::string& t, 
 				   const std::string& n,
-				   const IInterface*  p ): AlgTool(t,n,p)
+				   const IInterface*  p ): AthAlgTool(t,n,p)
 {
   declareInterface< ITrigVertexFitter >( this );
   declareProperty( "numberOfIterations", m_numIter=5);  
@@ -662,6 +663,15 @@ void TrigVertexFitter::m_calculateInvariantMass(TrigVertex* pV, std::vector<Trig
       return;
     }
 
+  if(pV->tracks()->size()==0)
+    {
+      athenaLog << MSG::WARNING << "Vertex with 0 tracks !"<< endreq;
+      athenaLog << MSG::WARNING << "Skipping invariant mass calculation"<<endreq;
+      pV->setMass(invMass);
+      pV->setMassVariance(1e8);
+      return;
+    }
+
   double* Hk=new double[3*nSize+3];
   memset(&Hk[0],0,sizeof(double)*(3*nSize+3));
 
@@ -720,6 +730,8 @@ void TrigVertexFitter::m_calculateInvariantMass(TrigVertex* pV, std::vector<Trig
       Hk[offset]=-dP*Ck*(m_Rk[offset+2]-Ck*aCos*(m_Rk[1]*cosF-m_Rk[0]*sinF));
       Hk[offset+1]=(m_Rk[offset+2]/(sinT*sinT))*(P[2]*Ck-eE*cosT);
       Hk[offset+2]=eE/sinT-Ck*(P[0]*cos(phiV)+P[1]*sin(phiV)+P[2]*cosT/sinT)+dP*Ck*sinPsi/cosPsi;
+
+      athenaLog << MSG::INFO << "offset" << offset << endreq; 
     }
   
   double covM=0.0;

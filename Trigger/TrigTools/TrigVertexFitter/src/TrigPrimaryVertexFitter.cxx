@@ -16,20 +16,21 @@
 #include <cmath>
 #include <iostream>
 #include <algorithm>
-#include "GaudiKernel/ToolFactory.h"
 
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
+#include "TrigInDetEvent/TrigL2Vertex.h"
+#include "TrigInDetEvent/TrigVertex.h"
 
-#include "TrigVertexFitter/ITrigPrimaryVertexFitter.h"
+#include "TrigInDetToolInterfaces/ITrigPrimaryVertexFitter.h"
 #include "TrigVertexFitter/TrigPrimaryVertexFitter.h"
 #include "TrigVertexFitter/TrigPrimaryVertexTrack.h"
 
 
 TrigPrimaryVertexFitter::TrigPrimaryVertexFitter(const std::string& t, 
 						 const std::string& n,
-						 const IInterface*  p ): AlgTool(t,n,p), 
+						 const IInterface*  p ): AthAlgTool(t,n,p), 
 									 m_createTrackLists(false),
 									 m_xyVariance(10.0)
 {

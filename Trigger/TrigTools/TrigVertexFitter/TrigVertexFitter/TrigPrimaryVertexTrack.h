@@ -5,10 +5,11 @@
 #ifndef __TRIG_PRIM_VERTEX_TRACK_H__
 #define __TRIG_PRIM_VERTEX_TRACK_H__
 
-#include "TrigInDetEvent/TrigInDetTrack.h"
-#include "TrkTrack/Track.h"
-#include "TrigInDetEvent/TrigL2Vertex.h"
-#include "GaudiKernel/MsgStream.h"
+class TrigL2Vertex;
+class TrigInDetTrack;
+namespace Trk {
+  class Track;
+}
 
 class TrigPrimaryVertexTrack : public TrigVertexFittingNode
 {

@@ -5,16 +5,19 @@
 #ifndef __TRIG_VERTEXING_TOOL__
 #define __TRIG_VERTEXING_TOOL__
 
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/MsgStream.h"
-#include "TrigInDetEvent/TrigVertex.h"
-#include "TrigInDetEvent/TrigL2Vertex.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
-#include "TrigVertexFitter/ITrigVertexingTool.h"
+#include "TrigInDetToolInterfaces/ITrigVertexingTool.h"
 
 class TrigTimer;
+class TrigVertex;
+class TrigL2Vertex;
+class TrigInDetTrack;
+namespace Trk {
+  class Track;
+}
 
-class TrigVertexingTool: public AlgTool, virtual public ITrigVertexingTool
+class TrigVertexingTool: public AthAlgTool, virtual public ITrigVertexingTool
 {
  public:
   TrigVertexingTool( const std::string&, const std::string&, const IInterface* );

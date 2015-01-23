@@ -2,9 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrigInDetEvent/TrigL2Vertex.h"
-#include "TrkParameters/TrackParameters.h"
 #include "TrigVertexFitter/TrigPrimaryVertexTrack.h"
+#include "TrkParameters/TrackParameters.h"
+#include "TrkTrack/Track.h"
 
 TrigPrimaryVertexTrack::TrigPrimaryVertexTrack(const TrigInDetTrack* pT)
 {

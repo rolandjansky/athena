@@ -23,11 +23,12 @@
 #include <cmath>
 #include <iostream>
 
+#include "TrigInDetEvent/TrigL2Vertex.h"
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
-#include "TrigVertexFitter/ITrigVertexingTool.h"
+#include "TrigInDetToolInterfaces/ITrigVertexingTool.h"
 #include "TrigVertexFitter/TrigL2VertexFitter.h"
 
 TrigL2VertexFitter::TrigL2VertexFitter(const std::string& t, 

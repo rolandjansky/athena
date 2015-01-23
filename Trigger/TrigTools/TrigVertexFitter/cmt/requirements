@@ -7,11 +7,9 @@ public
 # General
 use AtlasPolicy			AtlasPolicy-*
 use GaudiInterface		GaudiInterface-*          External
-use TrigInDetEvent		TrigInDetEvent-*	  Trigger/TrigEvent
 use TrigInDetToolInterfaces     TrigInDetToolInterfaces-* Trigger/TrigTools
-use TrkTrack                    TrkTrack-*                Tracking/TrkEvent
-use TrkEventPrimitives          TrkEventPrimitives-*      Tracking/TrkEvent
 use AthenaBaseComps							AthenaBaseComps-*				Control
+use TrkEventPrimitives          TrkEventPrimitives-*      Tracking/TrkEvent
 
 library TrigVertexFitter "*.cxx components/*.cxx"
     
@@ -24,3 +22,5 @@ private
 
 use TrigTimeAlgs		TrigTimeAlgs-*		Trigger/TrigTools
 use TrkParameters	        TrkParameters-* 	Tracking/TrkEvent
+use TrkTrack                    TrkTrack-*                Tracking/TrkEvent
+use TrigInDetEvent		TrigInDetEvent-*	  Trigger/TrigEvent
