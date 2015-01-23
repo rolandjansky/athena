@@ -75,6 +75,7 @@ StatusCode OffloadSvc::sendData(std::unique_ptr<APE::BufferContainer> &buff, int
   m_mySocket->send(APE::BufferAccessor::getRawBuffer(*buff),buff->getTransferSize());
   ts.sendEnd=std::chrono::system_clock::now();
   ts.uploadSize=buff->getTransferSize();
+  ts.downloadSize = 0;
   m_stats[token]=ts;
   return StatusCode::SUCCESS;  
 }
@@ -182,20 +183,20 @@ StatusCode OffloadSvc::initialize()
     std::unique_lock<std::mutex> lock(m_cMutex);
     ATH_MSG_INFO("Waiting for connections");
     if(m_tCond.wait_for(lock,std::chrono::milliseconds(3000))==std::cv_status::timeout){
-      ATH_MSG_ERROR("Error while openning connection to APE! Timeout while trying to open the connection");
+      ATH_MSG_ERROR("Error while opening connection to APE! Timeout while trying to open the connection");
       t->detach();
       delete t;
       return StatusCode::FAILURE;
     }else{
       ATH_MSG_INFO ("Connection successfully opened");
-      return StatusCode::SUCCESS;
       if(m_isConnected){
 	t->join();
 	delete t;
       }
+      return StatusCode::SUCCESS;
     }
   }catch(std::exception &ex){
-    ATH_MSG_ERROR("Error while openning connection to APE! "<<ex.what());    
+    ATH_MSG_ERROR("Error while opening connection to APE! "<<ex.what());    
     m_isConnected=false;
     return StatusCode::FAILURE;
   }
