@@ -59,6 +59,7 @@
 #include "GeneratorFilters/TopCKMKinFilter.h"
 #include "GeneratorFilters/MultiHiggsFilter.h"
 #include "GeneratorFilters/XtoVVDecayFilter.h"
+#include "GeneratorFilters/XtoVVDecayFilterExtended.h"
 #include "GeneratorFilters/VHtoVVFilter.h"
 #include "GeneratorFilters/TtHtoVVDecayFilter.h"
 #include "GeneratorFilters/SusySubprocessFinder.h"
@@ -75,7 +76,8 @@
 #include "GeneratorFilters/LeptonPairFilter.h"
 #include "GeneratorFilters/DecayPositionFilter.h"
 #include "GeneratorFilters/HTFilter.h"
- 
+#include "GeneratorFilters/TTbarPlusHeavyFlavorFilter.h"
+
 
 DECLARE_ALGORITHM_FACTORY(ElectronFilter)
 DECLARE_ALGORITHM_FACTORY(LeptonFilter)
@@ -136,6 +138,7 @@ DECLARE_ALGORITHM_FACTORY(BSubstruct)
 DECLARE_ALGORITHM_FACTORY(TopCKMKinFilter)
 DECLARE_ALGORITHM_FACTORY(MultiHiggsFilter)
 DECLARE_ALGORITHM_FACTORY(XtoVVDecayFilter)
+DECLARE_ALGORITHM_FACTORY(XtoVVDecayFilterExtended)
 DECLARE_ALGORITHM_FACTORY(VHtoVVFilter)
 DECLARE_ALGORITHM_FACTORY(TtHtoVVDecayFilter)
 DECLARE_ALGORITHM_FACTORY(SusySubprocessFinder)
@@ -152,6 +155,7 @@ DECLARE_ALGORITHM_FACTORY(MultiParticleFilter)
 DECLARE_ALGORITHM_FACTORY(LeptonPairFilter)
 DECLARE_ALGORITHM_FACTORY(DecayPositionFilter)
 DECLARE_ALGORITHM_FACTORY(HTFilter)
+DECLARE_ALGORITHM_FACTORY(TTbarPlusHeavyFlavorFilter)
 
 DECLARE_FACTORY_ENTRIES(GeneratorFilters) {
     DECLARE_ALGORITHM(LeptonFilter)
@@ -212,6 +216,7 @@ DECLARE_FACTORY_ENTRIES(GeneratorFilters) {
     DECLARE_ALGORITHM(TopCKMKinFilter)
     DECLARE_ALGORITHM(MultiHiggsFilter)
     DECLARE_ALGORITHM(XtoVVDecayFilter)
+    DECLARE_ALGORITHM(XtoVVDecayFilterExtended)
     DECLARE_ALGORITHM(VHtoVVFilter)
     DECLARE_ALGORITHM(TtHtoVVDecayFilter)
     DECLARE_ALGORITHM(SusySubprocessFinder)
@@ -228,4 +233,6 @@ DECLARE_FACTORY_ENTRIES(GeneratorFilters) {
     DECLARE_ALGORITHM(LeptonPairFilter)
     DECLARE_ALGORITHM(DecayPositionFilter)
     DECLARE_ALGORITHM(HTFilter)
+    DECLARE_ALGORITHM(TTbarPlusHeavyFlavorFilter)
+
 }
