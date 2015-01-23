@@ -22,6 +22,8 @@
 #include "TMethodCall.h"
 #include "boost/thread/tss.hpp"
 #include <typeinfo>
+#include <atomic>
+#include <mutex>
 
 
 namespace RootUtils {
@@ -317,6 +319,11 @@ public:
 
 
 private:
+  /// See if @c m_assign is initialized.  If not, try to initialize it now,
+  /// and copy to the thread-specific variable.
+  /// Returns true on success.
+  bool checkAssign() const;
+
   /// The class of the derived type, or 0 if it's not a class type.
   TClass* m_cls;
 
@@ -337,6 +344,14 @@ private:
   /// thread-specific instances accessed through @c m_tsAssign.
   /// Mutable, to allow calls to GetMethod().
   mutable TMethodCall m_assign;
+
+  /// Flag whether or not m_assign has been initialized.
+  /// We don't want to do that before we actually need it,
+  /// to prevent needless parses with root6.
+  mutable std::atomic<bool> m_assignInitialized;
+
+  /// Control access to m_assign for initialization.
+  mutable std::mutex m_assignMutex;
 
   /// Objects used to call assignment on the payload object.
   /// Left invalid if the payload does not have class type.
