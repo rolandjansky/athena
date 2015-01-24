@@ -103,8 +103,14 @@ TrigEgammaRec = ToolFactory(TrigEgammaRecConf.TrigEgammaRec, name="TrigEgammaRec
     CaloCellIsolationTool = CaloIsolationTool, 
     CaloTopoIsolationTool = CaloIsolationTool, 
     # Configure types -- define all needed
-    IsoTypes = [ [int(isoPar.ptcone20), int(isoPar.ptcone30), int(isoPar.ptcone40)],
-        [int(isoPar.etcone20), int(isoPar.etcone30), int(isoPar.etcone40)] ], 
+    # Decreasing order for pt/etcone (what about topocone?)
+    IsoTypes = [ 
+        [ int(isoPar.ptcone40), ## Be carefull : store them in decreasing dR
+        int(isoPar.ptcone30), 
+        int(isoPar.ptcone20)],
+        [ int(isoPar.etcone40), ## Be carefull : store them in decreasing dR
+            int(isoPar.etcone30), 
+            int(isoPar.etcone20)] ], 
     # Run isolation, easier to config than isotypes
     doTrackIsolation = True,
     doCaloCellIsolation = True,
