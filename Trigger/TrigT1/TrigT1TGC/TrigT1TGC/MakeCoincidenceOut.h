@@ -6,8 +6,8 @@
 #ifndef __MAKECOINCIDENCEOUT_H__
 #define __MAKECOINCIDENCEOUT_H__
 
+#include "AthenaBaseComps/AthAlgorithm.h"
 // Gaudi includes
-#include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/Property.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -26,23 +26,20 @@ namespace LVL1TGCTrigger {
    *
    */
 
-  class MakeCoincidenceOut : public Algorithm
+  class MakeCoincidenceOut : public AthAlgorithm
   {
-    
-  public:
-    
-    MakeCoincidenceOut( const std::string& name, ISvcLocator* pSvcLocator ) ;
-    
+   public:
+    MakeCoincidenceOut( const std::string& name, ISvcLocator* pSvcLocator );
     ~MakeCoincidenceOut();
     
-    StatusCode initialize() ;
-    StatusCode execute() ;
-    StatusCode finalize() ;
-    StatusCode bookHistos() ;
-    
-  private:
+    StatusCode initialize();
+    StatusCode execute();
+    StatusCode finalize();
+    StatusCode bookHistos();
+
+   private:
     ServiceHandle<StoreGateSvc> m_sgSvc;
-    StringProperty  m_key ;
+    StringProperty  m_key;
     BooleanProperty m_WriteMCtruth;
     const TgcIdHelper* m_tgcIdHelper;
     NTuple::Tuple* m_ntuplePtr;

@@ -6,7 +6,7 @@
 #ifndef __LVL1TGCTRIGGER_H__
 #define __LVL1TGCTRIGGER_H__
 
-#include <fstream>
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 // STL
 #include <string>
@@ -14,16 +14,10 @@
 #include <map>
 
 // Gaudi includes
-#include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
-
-// TGC
-#include "TrigT1TGC/TGCElectronicsSystem.hh"
-#include "TrigT1TGC/TGCTimingManager.hh"
-#include "TrigT1TGC/TGCDatabaseManager.hh"
 
 // Other stuff
 #include "TrigT1Interfaces/SlinkWord.h"
@@ -35,7 +29,7 @@
 
 class TgcRdo;
 class TgcRawData;
-class ITGCcablingSvc ;
+class ITGCcablingSvc;
 
 namespace TrigConf {
   class ILVL1ConfigSvc;
@@ -62,10 +56,12 @@ namespace LVL1TGCTrigger {
    */
 class TGCSector;
 class TGCSLSelectorOut;
+class TGCElectronicsSystem;
+class TGCTimingManager;
+class TGCDatabaseManager;
 
-class LVL1TGCTrigger : public Algorithm
+class LVL1TGCTrigger : public AthAlgorithm
 {
-
  public:
 
   /** standard constructor and destructor for algorithms
@@ -165,7 +161,7 @@ class LVL1TGCTrigger : public Algorithm
   mutable MsgStream   m_log;
   bool                m_debuglevel;
 }; // class LVL1TGCTrigger
-  
+
 
 } // namespace LVL1TGCTrigger
 
