@@ -1189,7 +1189,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         if( m_photonPIDBuilder->execute(eg)){
             ATH_MSG_DEBUG("Computed PID and dressed");
         }
-        else ATH_MSG_DEBUG("Problem in electron PID");
+        else ATH_MSG_DEBUG("Problem in photon PID");
         if (timerSvc()) m_timerPIDTool3->stop(); //timer
         ATH_MSG_DEBUG(" REGTEST: xAOD Reconstruction Photon variables: ");
         if(msgLvl() <= MSG::DEBUG) PrintPhoton(eg);
