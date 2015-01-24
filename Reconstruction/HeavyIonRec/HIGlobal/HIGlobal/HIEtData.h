@@ -24,8 +24,8 @@ class Identifier;
 class HIEtData 
   {
   public:
-     HIEtData(): m_val(0) {}
-     HIEtData(int i): m_val(i) {}
+     HIEtData(): m_val(0), m_Et(0) {}
+     HIEtData(int i): m_val(i), m_Et(0) {}
 
    /** depreciated -  will be removed */  
      void val(int i) { m_val = i; }

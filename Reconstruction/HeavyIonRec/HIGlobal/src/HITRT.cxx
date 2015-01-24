@@ -38,7 +38,9 @@ using std::vector;
 using std::cout; using std::endl;
 
 HITRT::HITRT(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name,pSvcLocator),
+  AthAlgorithm(name,pSvcLocator),
+  m_isData(false),
+  m_initialized(false),
   m_sumSvc("TRT_StrawStatusSummarySvc",name)
 {
     declareProperty("InDetTRTStrawStatusSummarySvc",m_sumSvc);
@@ -61,18 +63,10 @@ HITRT::HITRT(const std::string& name, ISvcLocator* pSvcLocator) :
 
 StatusCode HITRT::initialize()
 {
-    // Call the initialization of the base class:
-
-  MsgStream log(msgSvc(),name());
-
+  // Call the initialization of the base class:
   m_initialized = true;
-
-  // retrieve the StoreGate Service (delete if not needed)
-  StatusCode sc= service("StoreGateSvc",m_sgSvc);
-  sc = m_sumSvc.retrieve();
-
-  //  return StatusCode::SUCCESS;
-  return sc;
+  ATH_CHECK( m_sumSvc.retrieve() );
+  return StatusCode::SUCCESS;
 }
 
 
@@ -85,24 +79,11 @@ StatusCode  HITRT::finalize()
 
 //================ Execution =================================================
 
-StatusCode HITRT::FillTRTNumber(vector<int> &m_OccupancyPerPart ) {
-  //if( m_writeBasicInfo ) {
-  MsgStream log(msgSvc(),name());
+StatusCode HITRT::FillTRTNumber(vector<int> &occupancyPerPart ) {
+  occupancyPerPart.resize(6);
   
-  StatusCode sc;
-  //const EventInfo *eventInfo = 0;
-  //StatusCode sc = evtStore()->retrieve(eventInfo);
-
-  m_OccupancyPerPart.resize(6);
-  
-  detStore = 0;
-  sc = service("DetectorStore",detStore);
-  //evtStore = 0;
-  //sc = service("EventStore",evtStore);
-  //sc = evtStore().retrieve();
-
-    const TRT_ID *m_TRTHelper;
-    detStore->retrieve(m_TRTHelper,"TRT_ID");
+    const TRT_ID *TRTHelper = nullptr;
+    ATH_CHECK( detStore()->retrieve(TRTHelper,"TRT_ID") );
     
     int n(0);
     int n_ds(0);
@@ -110,13 +91,8 @@ StatusCode HITRT::FillTRTNumber(vector<int> &m_OccupancyPerPart ) {
     int n_ec(0);
     int n_ec_A(0);
     int n_ec_C(0);
-    const TRT_RDO_Container* ev; // container of all TRT hits
-    //sc = evtStore()->retrieve(ev, "TRT_RDOs");
-    sc = m_sgSvc->retrieve(ev, "TRT_RDOs");
-    if ( sc.isFailure() ) {
-      log << (MSG::ERROR) << "no TRT_RDO container available " << endreq;
-      return sc;
-    }
+    const TRT_RDO_Container* ev = nullptr; // container of all TRT hits
+    ATH_CHECK( evtStore()->retrieve(ev, "TRT_RDOs") );
 
     for (TRT_RDO_Container::const_iterator rdoIt = ev->begin(); rdoIt != ev->end(); rdoIt++) {
       const InDetRawDataCollection<TRT_RDORawData>* TRTCollection(*rdoIt);
@@ -124,7 +100,7 @@ StatusCode HITRT::FillTRTNumber(vector<int> &m_OccupancyPerPart ) {
       for (DataVector<TRT_RDORawData>::const_iterator trtIt = TRTCollection->begin(); trtIt != TRTCollection->end(); trtIt++) {
 	
 	Identifier id = (*trtIt)->identify();
-	int side=m_TRTHelper->barrel_ec(id); // barrel, endcap
+	int side=TRTHelper->barrel_ec(id); // barrel, endcap
 	
 	if (m_sumSvc->get_status(id)){ 
 	  n_ds++; 
@@ -143,22 +119,13 @@ StatusCode HITRT::FillTRTNumber(vector<int> &m_OccupancyPerPart ) {
       }
     }
 
-
-    /*
-    m_OccupancyPerPart.push_back(n);
-    m_OccupancyPerPart.push_back(n_ds);
-    m_OccupancyPerPart.push_back(n_b);
-    m_OccupancyPerPart.push_back(n_ec);
-    m_OccupancyPerPart.push_back(n_ec_A);
-    m_OccupancyPerPart.push_back(n_ec_C);
-    */
     
-    m_OccupancyPerPart[0]=n;
-    m_OccupancyPerPart[1]=n_ds;
-    m_OccupancyPerPart[2]=n_b;
-    m_OccupancyPerPart[3]=n_ec;
-    m_OccupancyPerPart[4]=n_ec_A;
-    m_OccupancyPerPart[5]=n_ec_C;
+    occupancyPerPart[0]=n;
+    occupancyPerPart[1]=n_ds;
+    occupancyPerPart[2]=n_b;
+    occupancyPerPart[3]=n_ec;
+    occupancyPerPart[4]=n_ec_A;
+    occupancyPerPart[5]=n_ec_C;
     
     // }
   return StatusCode::SUCCESS;
@@ -167,28 +134,16 @@ StatusCode HITRT::FillTRTNumber(vector<int> &m_OccupancyPerPart ) {
 
 StatusCode  HITRT::execute()
 {
-  // Creates HITRTInfo object and saves it in SG
-  //cout << " HITRT::execute() " << endl;
-  MsgStream log(msgSvc(),name());
-
   if( !m_initialized) 
     return StatusCode::FAILURE;
 
-  StatusCode sc;
-  
-  HITRTInfo *hcd;
+  std::vector<int> occupancyPerPart;
+  ATH_CHECK( FillTRTNumber(occupancyPerPart) );
+  HITRTInfo *hcd = new HITRTInfo(occupancyPerPart);
+  ATH_MSG_WARNING( "Shulga hcd->GetAllStraws() = "<< hcd->GetAllStraws() );
+  ATH_CHECK( evtStore()->record( hcd,"HITRT" ) );
 
-  sc=FillTRTNumber(m_OccupancyPerPart);
-
-  hcd = new HITRTInfo(m_OccupancyPerPart);
-
-  //Put HITRT to Store Gate
-  log << (MSG::WARNING) << "Shulga hcd->GetAllStraws() = "<< hcd->GetAllStraws() << endreq;
-
-  sc = m_sgSvc->record( hcd,"HITRT" );
-
-
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
-//============================================================================================
+//============================================================================

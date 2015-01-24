@@ -10,24 +10,15 @@
 #define HICENTRALITY_H
 
 // Gaudi includes
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
-
-#include "StoreGate/DataHandle.h"
-#include "GaudiKernel/IIncidentListener.h"
-
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaKernel/IOVSvcDefs.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "TFile.h"
 #include "TH1F.h"
 
 #include <string>
-using std::string;
-using std::vector;
 
-class AtlasDetectorID;
-class Identifier;
-class StoreGateSvc;
 class ICoolHistSvc;
 
 /** @class HICentrality
@@ -39,7 +30,7 @@ class ICoolHistSvc;
     @author  Andrzej Olszewski <Andrzej.Olszewski@ifj.edu.pl>
 */  
 
-class HICentrality : public Algorithm
+class HICentrality : public AthAlgorithm
   {
   public:
     friend class HICentralityValidation;
@@ -56,10 +47,10 @@ class HICentrality : public Algorithm
     /** standard Athena-Algorithm method */
     StatusCode          finalize();
     
-    StatusCode          HijingParsVect(vector<float> &hijing_event_params);
-    StatusCode          CaloCellEnergy(vector<float> &energy_by_detector);
-    StatusCode          NumberOfSiClusters(vector<float> &npix_clusters, 
-                                           vector<float> &nsct_clusters);
+    StatusCode          HijingParsVect(std::vector<float> &hijing_event_params);
+    StatusCode          CaloCellEnergy(std::vector<float> &energy_by_detector);
+    StatusCode          NumberOfSiClusters(std::vector<float> &npix_clusters, 
+                                           std::vector<float> &nsct_clusters);
     
   private:
 
@@ -72,7 +63,7 @@ class HICentrality : public Algorithm
     TFile  *m_calibfile;
     /** user settable percentage schema 
 	for centrality bin definition */
-    vector<unsigned short> m_CentralityPercSchema;
+    std::vector<unsigned short> m_CentralityPercSchema;
     /** indicates if we are processing Data */
     bool    m_isData;
     /** global trigger efficiency correction */
@@ -86,19 +77,14 @@ class HICentrality : public Algorithm
     TH1   *m_ncoll_perch;
     TH1   *m_calocell_energy_perch;
     TH1   *m_number_of_siclusters_perch;    
-    /** class member version of retrieving MsgStream */
-    mutable MsgStream                 m_log;
 
-    /** class member version of retrieving StoreGate */
-    StoreGateSvc*  m_sgSvc;
-    StoreGateSvc*  p_detstore;
-    ICoolHistSvc* p_coolhistsvc;
+    ServiceHandle<ICoolHistSvc> m_coolhistsvc;
     std::string m_histfolder; // COOL folder to access
     std::string m_histname; // histogram name
     int m_channel; 
 
     /** name of the file with calibration histograms: */
-    string m_HICentralityCalibrationsFileName;
+    std::string m_HICentralityCalibrationsFileName;
 
   }; 
 

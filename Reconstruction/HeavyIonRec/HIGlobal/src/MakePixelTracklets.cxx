@@ -8,9 +8,7 @@
 #include "HIGlobal/HIPixelTracklets.h"
 #include "HIGlobal/HIPixelTrackletsCollection.h"
 
-#include <fstream>
 #include <vector>
-#include <iostream>
 #include <map>
 #include <set>
 #include <cmath>
@@ -20,12 +18,6 @@
 #include "EventInfo/PileUpEventInfo.h"
 
 
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/IPartPropSvc.h"
-#include "GaudiKernel/SmartDataPtr.h"
-#include "StoreGate/StoreGate.h"
-#include "Identifier/Identifier.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
@@ -36,13 +28,9 @@
 
 #include "InDetIdentifier/PixelID.h"
 
-//#include "InDetRecInput/InDetRecInputCollection.h"
-//#include "InDetRecInput/InDetRecInputContainer.h"
-//#include "InDetRecInput/InDetRecInputCLASS_DEF.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "InDetPrepRawData/SiWidth.h"
-
-#include "GaudiKernel/AlgFactory.h"
+#include "GaudiKernel/IPartPropSvc.h"
 
 #include "TMath.h"
 
@@ -73,15 +61,39 @@
 #include <CLHEP/Geometry/Vector3D.h>
 #include <CLHEP/Geometry/Point3D.h>
 
-// Create a factory for this algorithm.
-// static const AlgFactory<MakePixelTracklets> s_factory;
-// const IAlgFactory& MakePixelTracklets_AlgFactory = s_factory; 
-
 MakePixelTracklets::MakePixelTracklets(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator),   
-  m_iBeamCondSvc("BeamCondSvc",name)
+  AthAlgorithm(name, pSvcLocator),   
+  m_pixelID(nullptr),
+  m_iBeamCondSvc("BeamCondSvc",name),
+  m_calo_dd_man(nullptr),
+  m_ths("THistSvc", name),
+  m_particleDataTable(nullptr),
+  m_tesIO(nullptr),
+  m_Ntuple(nullptr),
+  m_event_id_run_number(0),
+  m_event_id_evt_number(0),
+  m_event_id_lumiBlock(0),
+  m_event_id_bc_id(0),
+  m_trackletsTree(nullptr),
+  m_NumVrtRec(0),
+  m_NumVrtFinder(0),
+  m_vz_finder(0),
+  m_vx(0),
+  m_vy(0),
+  m_vz(0),
+  m_sim_vx(0),
+  m_sim_vy(0),
+  m_sim_vz(0),
+  m_ntr(0),
+  m_ntrF(0),
+  m_ntrT(0),
+  m_n0(0),
+  m_n1(0),
+  m_n2(0),
+  m_nCalo(0),
+  m_effTree0(nullptr),
+  m_effTree1(nullptr)
 {  
-
   // Declare the properties
   declareProperty("PixelClusterContainerName", 
 		  m_PixelClustersName="PixelClusters");
@@ -91,8 +103,8 @@ MakePixelTracklets::MakePixelTracklets(const std::string& name, ISvcLocator* pSv
   declareProperty("PhiCut", m_phiCut=0.08);
   declareProperty("EtaMatch",m_etaMatch=0.005);
   declareProperty("PhiMatch",m_phiMatch=0.04);
-  declareProperty("VrtPhiCut", vrt_phi_cut=0.08);
-  declareProperty("VrtZCut", vrt_z_cut=1.4);
+  declareProperty("VrtPhiCut", m_vrt_phi_cut=0.08);
+  declareProperty("VrtZCut", m_vrt_z_cut=1.4);
   declareProperty("EtaMax", m_etaMax=2.);
   declareProperty("NtupleLoc", m_ntupleLoc = "AANT");
   declareProperty("MatchR", m_matchR=0.15);
@@ -104,84 +116,25 @@ MakePixelTracklets::MakePixelTracklets(const std::string& name, ISvcLocator* pSv
   declareProperty("pixelTrackletsCollection",m_pixelTrackletsCollection = "pixelTrackletsCollection");
 
 
-    sim_vz=0;
-  sim_vy=0;
-  sim_vx=0;
-  ntrT=0;
-  ntrF=0;
-  ntr=0;
-  nCalo=0;
-  n2=0;
-  n1=0;
-  n0=0;
-  multisatisfaction=0;
-  m_numberOfEvents=0;
-  m_eventNumber=0;
-  event_id_run_number=0;
-  event_id_lumiBlock=0;
-  event_id_evt_number=0;
-  event_id_bc_id=0;
-  NumVrtRec=0;
-  NumVrtFinder=0;
-  vz_finder=0;
-  vz=0;
-  vy_ref=0;
-  vy=0;
-  vx_ref=0;
-  vx=0;
 
-  detStore = 0;
-  effTree0 = 0;
-  effTree1 = 0;
-  m_Ntuple = 0;
-  m_StoreGate = 0;
-  m_caloCellHelper = 0;
-  m_caloMgr = 0;
-  m_calo_dd_man = 0;
-  m_clusterCont = 0;
-  m_particleDataTable = 0;
-  m_tesIO = 0;
-  m_ths = 0;
-  m_tileID = 0;
-  m_truthCollectionPixel = 0;
-  pixelID = 0;
-  trackletsTree = 0;
 
   NewVectors();
-  
 }
 
 MakePixelTracklets::~MakePixelTracklets() 
 {
-  
+  delete m_tesIO;
   DeleteNewVectors();   
-  
 }
 
 StatusCode MakePixelTracklets::initialize() {
-  MsgStream log(msgSvc(),name());
-  log << MSG::DEBUG << "In initialize()" << endreq;
-  StatusCode sc=service("StoreGateSvc",m_StoreGate);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "StoreGate service not found !" << endreq;
-    return StatusCode::FAILURE;
-  } else {}
+  ATH_MSG_DEBUG( "In initialize()" );
+  ATH_CHECK( m_ths.retrieve() );
+  ATH_CHECK( detStore()->retrieve(m_pixelID,"PixelID") );
 
-  sc = service("THistSvc",m_ths);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "THistSvc service not found !" << endreq;
-    return StatusCode::FAILURE;
-  } else {}
-
-  
   //get the Particle properties service
-  IPartPropSvc* partPropSvc;
-  sc = service("PartPropSvc",partPropSvc,true);
-  if(sc.isFailure())
-    {
-      log << MSG::FATAL << "Particle Properties Service not found!" << endreq;
-      return StatusCode::FAILURE;
-    }
+  ServiceHandle<IPartPropSvc> partPropSvc ("PartPropSvc", name());
+  ATH_CHECK( partPropSvc.retrieve() );
   m_particleDataTable = partPropSvc->PDT();
 
   // Removed for sake of AtlasReconstruction
@@ -189,16 +142,11 @@ StatusCode MakePixelTracklets::initialize() {
     m_tesIO = new TruthHelper::GenAccessIO();
 
 
-  if( m_iBeamCondSvc.retrieve().isFailure()){
-    log << MSG::DEBUG << "Could not find BeamCondSvc." << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_iBeamCondSvc.retrieve() );
+
   //pointer to detector manager
   m_calo_dd_man = CaloDetDescrManager::instance();
   
-  //TFile* m_file = new TFile("make_pixel_tracklets.root","RECREATE");
-  //m_file->cd();
-  multisatisfaction=0;
   //initialize dead areas;
   std::vector<int> etaPhiModule0[8];
   // etaPhiModule0[0].push_back(-5);
@@ -239,311 +187,267 @@ StatusCode MakePixelTracklets::initialize() {
   etaPhiModule1[4].push_back(1);
   etaPhiModule1[4].push_back(27);
   //log << MSG::DEBUG << "test. " << endreq;
+#if 0
   for(int idead=0; idead<5; idead++){
     deadLayer0.push_back(etaPhiModule0[idead]);
     deadLayer1.push_back(etaPhiModule1[idead]);
   }
+#endif
   
 
   //output tree for tracklets
-  trackletsTree = new TTree("trackletsTree","tracklet parameters");
-  trackletsTree->Branch("NumVrtRec",&NumVrtRec);
-  trackletsTree->Branch("NumVrtFinder",&NumVrtFinder);
-  trackletsTree->Branch("vz_finder",&vz_finder);
-  trackletsTree->Branch("event_id_run_number",&event_id_run_number);
-  trackletsTree->Branch("event_id_evt_number",&event_id_evt_number);
-  trackletsTree->Branch("event_id_lumiBlock",&event_id_lumiBlock);
-  trackletsTree->Branch("event_id_bc_id",&event_id_bc_id);
-  trackletsTree->Branch("matched",&matched);
-  trackletsTree->Branch("matchedNumber",&matchedNumber);
-  trackletsTree->Branch("matchedToWeakDecay",&matchedToWeakDecay);
-  trackletsTree->Branch("startingPoint",&startingPoint);
-  trackletsTree->Branch("threeLayerTrk",&threeLayerTrk);
-  trackletsTree->Branch("deleted",&deleted);
-  trackletsTree->Branch("deletedBecauseOf",&deletedBecauseOf);
-  trackletsTree->Branch("vx",&vx);
-  trackletsTree->Branch("vy",&vy);
-  trackletsTree->Branch("vz",&vz);
-  trackletsTree->Branch("sim_vx",&sim_vx);
-  trackletsTree->Branch("sim_vy",&sim_vy);
-  trackletsTree->Branch("sim_vz",&sim_vz);
-  trackletsTree->Branch("x0_all",&x0_all);
-  trackletsTree->Branch("y0_all",&y0_all);
-  trackletsTree->Branch("z0_all",&z0_all);
-  trackletsTree->Branch("x1_all",&x1_all);
-  trackletsTree->Branch("y1_all",&y1_all);
-  trackletsTree->Branch("z1_all",&z1_all);
-  trackletsTree->Branch("x0",&x0_tr);
-  trackletsTree->Branch("y0",&y0_tr);
-  trackletsTree->Branch("z0",&z0_tr);
-  trackletsTree->Branch("x1",&x1_tr);
-  trackletsTree->Branch("y1",&y1_tr);
-  trackletsTree->Branch("z1",&z1_tr);
-  trackletsTree->Branch("ntr",&ntr);
-  trackletsTree->Branch("multip",&multipTrks);
-  trackletsTree->Branch("ntrF",&ntrF);
-  trackletsTree->Branch("ntrT",&ntrT);
-  trackletsTree->Branch("n0",&n0);
-  trackletsTree->Branch("n1",&n1);
-  trackletsTree->Branch("n2",&n2);
-  trackletsTree->Branch("pt",&pt_tr);
-  trackletsTree->Branch("p",&p_tr);
-  trackletsTree->Branch("px",&px_tr);
-  trackletsTree->Branch("py",&py_tr);
-  trackletsTree->Branch("pz",&pz_tr);
-  trackletsTree->Branch("part_id",&partid_tr);
-  trackletsTree->Branch("parent_id",&parentid_tr);
-  trackletsTree->Branch("eta0_all",&eta0_all);
-  trackletsTree->Branch("phi0_all",&phi0_all);
-  trackletsTree->Branch("eta1_all",&eta1_all);
-  trackletsTree->Branch("phi1_all",&phi1_all);
-  trackletsTree->Branch("eta2_all",&eta2_all);
-  trackletsTree->Branch("phi2_all",&phi2_all);
-  trackletsTree->Branch("dedx0_all",&dedx0_all);
-  trackletsTree->Branch("dedx1_all",&dedx1_all);
-  trackletsTree->Branch("dedx2_all",&dedx2_all);
-  trackletsTree->Branch("pathLength0_all",&pathLength0_all);
-  trackletsTree->Branch("pathLength1_all",&pathLength1_all);
-  trackletsTree->Branch("pathLength2_all",&pathLength2_all);
-  trackletsTree->Branch("csize0_all",&csize0_all);
-  trackletsTree->Branch("csize1_all",&csize1_all);
-  trackletsTree->Branch("ccol0_all",&ccol0_all);
-  trackletsTree->Branch("ccol1_all",&ccol1_all);
-  trackletsTree->Branch("crow0_all",&crow0_all);
-  trackletsTree->Branch("crow1_all",&crow1_all);
-  trackletsTree->Branch("crphi0_all",&crphi0_all);
-  trackletsTree->Branch("crphi1_all",&crphi1_all);
-  trackletsTree->Branch("cz0_all",&cz0_all);
-  trackletsTree->Branch("cz1_all",&cz1_all);
-  trackletsTree->Branch("eta0",&eta0_tr);
-  trackletsTree->Branch("phi0",&phi0_tr);
-  trackletsTree->Branch("eta1",&eta1_tr);
-  trackletsTree->Branch("phi1",&phi1_tr);
-  trackletsTree->Branch("csize0",&csize0_tr);
-  trackletsTree->Branch("csize1",&csize1_tr);
-  trackletsTree->Branch("ccol0",&ccol0_tr);
-  trackletsTree->Branch("ccol1",&ccol1_tr);
-  trackletsTree->Branch("crow0",&crow0_tr);
-  trackletsTree->Branch("crow1",&crow1_tr);
-  trackletsTree->Branch("crphi0",&crphi0_tr);
-  trackletsTree->Branch("crphi1",&crphi1_tr);
-  trackletsTree->Branch("cz0",&cz0_tr);
-  trackletsTree->Branch("cz1",&cz1_tr);
-  trackletsTree->Branch("dedx0",&dedx0_tr);
-  trackletsTree->Branch("dedx1",&dedx1_tr);
-  trackletsTree->Branch("pathLength0",&pathLength0_tr);
-  trackletsTree->Branch("pathLength1",&pathLength1_tr);
-  trackletsTree->Branch("eta0F",&eta0F_tr);
-  trackletsTree->Branch("phi0F",&phi0F_tr);
-  trackletsTree->Branch("eta1F",&eta1F_tr);
-  trackletsTree->Branch("phi1F",&phi1F_tr);
-  trackletsTree->Branch("deta",&deta_tr);
-  trackletsTree->Branch("dphi",&dphi_tr);
-  trackletsTree->Branch("detaF",&detaF_tr);
-  trackletsTree->Branch("dphiF",&dphiF_tr);
-  trackletsTree->Branch("etaT",&etaT);
-  trackletsTree->Branch("phiT",&phiT);
-  trackletsTree->Branch("ptT",&ptT);
-  trackletsTree->Branch("pT",&pT);
-  trackletsTree->Branch("pxT",&pxT);
-  trackletsTree->Branch("pyT",&pyT);
-  trackletsTree->Branch("pzT",&pzT);
-  trackletsTree->Branch("partT_id",&partTid);
-  trackletsTree->Branch("nparentT",&nparentT);
-  trackletsTree->Branch("parentT_id",&parentTid);
-  trackletsTree->Branch("ganged0",&ganged0_tr);
-  trackletsTree->Branch("ganged1",&ganged1_tr);
-  trackletsTree->Branch("nPixelClustersT",&nPixelClustersT);
-  trackletsTree->Branch("nBLayerClustersT",&nBLayerClustersT);
-  trackletsTree->Branch("x0_true",&x0_true);
-  trackletsTree->Branch("y0_true",&y0_true);
-  trackletsTree->Branch("z0_true",&z0_true);
-  trackletsTree->Branch("x1_true",&x1_true);
-  trackletsTree->Branch("y1_true",&y1_true);
-  trackletsTree->Branch("z1_true",&z1_true);
-  trackletsTree->Branch("eta0_true",&eta0_true);
-  trackletsTree->Branch("phi0_true",&phi0_true);
-  trackletsTree->Branch("eta1_true",&eta1_true);
-  trackletsTree->Branch("phi1_true",&phi1_true);
-  trackletsTree->Branch("deta_true",&deta_true);
-  trackletsTree->Branch("dphi_true",&dphi_true);
-  //trackletsTree->Branch("pdgid",&pdgid);
-  trackletsTree->Branch("prod_vrtxT",&prod_vrtxT);
-  trackletsTree->Branch("prod_vrtyT",&prod_vrtyT);
-  trackletsTree->Branch("prod_vrtzT",&prod_vrtzT);
-  trackletsTree->Branch("primaryDecayLabel",&primaryDecayLabel);
-  trackletsTree->Branch("unassociated0_layer0",&unassociated0[0]);
-  trackletsTree->Branch("unassociated0_layer1",&unassociated0[1]);
-  trackletsTree->Branch("unassociated0_layer2",&unassociated0[2]);
-  trackletsTree->Branch("unassociated1_layer0",&unassociated1[0]);
-  trackletsTree->Branch("unassociated1_layer1",&unassociated1[1]);
-  trackletsTree->Branch("unassociated1_layer2",&unassociated1[2]);
-  trackletsTree->Branch("unassociated2_layer0",&unassociated2[0]);
-  trackletsTree->Branch("unassociated2_layer1",&unassociated2[1]);
-  trackletsTree->Branch("unassociated2_layer2",&unassociated2[2]);
-  trackletsTree->Branch("nCalo",&nCalo);
-  trackletsTree->Branch("eta_ca",&eta_ca);
-  trackletsTree->Branch("phi_ca",&phi_ca);
-  trackletsTree->Branch("ene_ca",&ene_ca);
+  m_trackletsTree = new TTree("trackletsTree","tracklet parameters");
+  m_trackletsTree->Branch("NumVrtRec",&m_NumVrtRec);
+  m_trackletsTree->Branch("NumVrtFinder",&m_NumVrtFinder);
+  m_trackletsTree->Branch("vz_finder",&m_vz_finder);
+  m_trackletsTree->Branch("event_id_run_number",&m_event_id_run_number);
+  m_trackletsTree->Branch("event_id_evt_number",&m_event_id_evt_number);
+  m_trackletsTree->Branch("event_id_lumiBlock",&m_event_id_lumiBlock);
+  m_trackletsTree->Branch("event_id_bc_id",&m_event_id_bc_id);
+  m_trackletsTree->Branch("matched",&m_matched.p);
+  m_trackletsTree->Branch("matchedNumber",&m_matchedNumber.p);
+  m_trackletsTree->Branch("matchedToWeakDecay",&m_matchedToWeakDecay.p);
+  m_trackletsTree->Branch("startingPoint",&m_startingPoint.p);
+  m_trackletsTree->Branch("threeLayerTrk",&m_threeLayerTrk.p);
+  m_trackletsTree->Branch("deleted",&m_deleted);
+  m_trackletsTree->Branch("deletedBecauseOf",&m_deletedBecauseOf);
+  m_trackletsTree->Branch("vx",&m_vx);
+  m_trackletsTree->Branch("vy",&m_vy);
+  m_trackletsTree->Branch("vz",&m_vz);
+  m_trackletsTree->Branch("sim_vx",&m_sim_vx);
+  m_trackletsTree->Branch("sim_vy",&m_sim_vy);
+  m_trackletsTree->Branch("sim_vz",&m_sim_vz);
+  m_trackletsTree->Branch("x0_all",&m_x0_all);
+  m_trackletsTree->Branch("y0_all",&m_y0_all);
+  m_trackletsTree->Branch("z0_all",&m_z0_all);
+  m_trackletsTree->Branch("x1_all",&m_x1_all);
+  m_trackletsTree->Branch("y1_all",&m_y1_all);
+  m_trackletsTree->Branch("z1_all",&m_z1_all);
+  m_trackletsTree->Branch("x0",&m_x0_tr);
+  m_trackletsTree->Branch("y0",&m_y0_tr);
+  m_trackletsTree->Branch("z0",&m_z0_tr);
+  m_trackletsTree->Branch("x1",&m_x1_tr);
+  m_trackletsTree->Branch("y1",&m_y1_tr);
+  m_trackletsTree->Branch("z1",&m_z1_tr);
+  m_trackletsTree->Branch("ntr",&m_ntr);
+  m_trackletsTree->Branch("multip",&m_multipTrks);
+  m_trackletsTree->Branch("ntrF",&m_ntrF);
+  m_trackletsTree->Branch("ntrT",&m_ntrT);
+  m_trackletsTree->Branch("n0",&m_n0);
+  m_trackletsTree->Branch("n1",&m_n1);
+  m_trackletsTree->Branch("n2",&m_n2);
+  m_trackletsTree->Branch("pt",&m_pt_tr);
+  m_trackletsTree->Branch("p",&m_p_tr);
+  m_trackletsTree->Branch("px",&m_px_tr);
+  m_trackletsTree->Branch("py",&m_py_tr);
+  m_trackletsTree->Branch("pz",&m_pz_tr);
+  m_trackletsTree->Branch("part_id",&m_partid_tr);
+  m_trackletsTree->Branch("parent_id",&m_parentid_tr);
+  m_trackletsTree->Branch("eta0_all",&m_eta0_all);
+  m_trackletsTree->Branch("phi0_all",&m_phi0_all);
+  m_trackletsTree->Branch("eta1_all",&m_eta1_all);
+  m_trackletsTree->Branch("phi1_all",&m_phi1_all);
+  m_trackletsTree->Branch("eta2_all",&m_eta2_all);
+  m_trackletsTree->Branch("phi2_all",&m_phi2_all);
+  m_trackletsTree->Branch("dedx0_all",&m_dedx0_all);
+  m_trackletsTree->Branch("dedx1_all",&m_dedx1_all);
+  m_trackletsTree->Branch("dedx2_all",&m_dedx2_all);
+  m_trackletsTree->Branch("pathLength0_all",&m_pathLength0_all);
+  m_trackletsTree->Branch("pathLength1_all",&m_pathLength1_all);
+  m_trackletsTree->Branch("pathLength2_all",&m_pathLength2_all);
+  m_trackletsTree->Branch("csize0_all",&m_csize0_all);
+  m_trackletsTree->Branch("csize1_all",&m_csize1_all);
+  m_trackletsTree->Branch("ccol0_all",&m_ccol0_all);
+  m_trackletsTree->Branch("ccol1_all",&m_ccol1_all);
+  m_trackletsTree->Branch("crow0_all",&m_crow0_all);
+  m_trackletsTree->Branch("crow1_all",&m_crow1_all);
+  m_trackletsTree->Branch("crphi0_all",&m_crphi0_all);
+  m_trackletsTree->Branch("crphi1_all",&m_crphi1_all);
+  m_trackletsTree->Branch("cz0_all",&m_cz0_all);
+  m_trackletsTree->Branch("cz1_all",&m_cz1_all);
+  m_trackletsTree->Branch("eta0",&m_eta0_tr);
+  m_trackletsTree->Branch("phi0",&m_phi0_tr);
+  m_trackletsTree->Branch("eta1",&m_eta1_tr);
+  m_trackletsTree->Branch("phi1",&m_phi1_tr);
+  m_trackletsTree->Branch("csize0",&m_csize0_tr);
+  m_trackletsTree->Branch("csize1",&m_csize1_tr);
+  m_trackletsTree->Branch("ccol0",&m_ccol0_tr);
+  m_trackletsTree->Branch("ccol1",&m_ccol1_tr);
+  m_trackletsTree->Branch("crow0",&m_crow0_tr);
+  m_trackletsTree->Branch("crow1",&m_crow1_tr);
+  m_trackletsTree->Branch("crphi0",&m_crphi0_tr);
+  m_trackletsTree->Branch("crphi1",&m_crphi1_tr);
+  m_trackletsTree->Branch("cz0",&m_cz0_tr);
+  m_trackletsTree->Branch("cz1",&m_cz1_tr);
+  m_trackletsTree->Branch("dedx0",&m_dedx0_tr);
+  m_trackletsTree->Branch("dedx1",&m_dedx1_tr);
+  m_trackletsTree->Branch("pathLength0",&m_pathLength0_tr);
+  m_trackletsTree->Branch("pathLength1",&m_pathLength1_tr);
+  m_trackletsTree->Branch("eta0F",&m_eta0F_tr);
+  m_trackletsTree->Branch("phi0F",&m_phi0F_tr);
+  m_trackletsTree->Branch("eta1F",&m_eta1F_tr);
+  m_trackletsTree->Branch("phi1F",&m_phi1F_tr);
+  m_trackletsTree->Branch("deta",&m_deta_tr);
+  m_trackletsTree->Branch("dphi",&m_dphi_tr);
+  m_trackletsTree->Branch("detaF",&m_detaF_tr);
+  m_trackletsTree->Branch("dphiF",&m_dphiF_tr);
+  m_trackletsTree->Branch("etaT",&m_etaT);
+  m_trackletsTree->Branch("phiT",&m_phiT);
+  m_trackletsTree->Branch("ptT",&m_ptT);
+  m_trackletsTree->Branch("pT",&m_pT);
+  m_trackletsTree->Branch("pxT",&m_pxT);
+  m_trackletsTree->Branch("pyT",&m_pyT);
+  m_trackletsTree->Branch("pzT",&m_pzT);
+  m_trackletsTree->Branch("partT_id",&m_partTid);
+  m_trackletsTree->Branch("nparentT",&m_nparentT);
+  m_trackletsTree->Branch("parentT_id",&m_parentTid);
+  m_trackletsTree->Branch("ganged0",&m_ganged0_tr);
+  m_trackletsTree->Branch("ganged1",&m_ganged1_tr);
+  m_trackletsTree->Branch("nPixelClustersT",&m_nPixelClustersT);
+  m_trackletsTree->Branch("nBLayerClustersT",&m_nBLayerClustersT);
+  m_trackletsTree->Branch("x0_true",&m_x0_true);
+  m_trackletsTree->Branch("y0_true",&m_y0_true);
+  m_trackletsTree->Branch("z0_true",&m_z0_true);
+  m_trackletsTree->Branch("x1_true",&m_x1_true);
+  m_trackletsTree->Branch("y1_true",&m_y1_true);
+  m_trackletsTree->Branch("z1_true",&m_z1_true);
+  m_trackletsTree->Branch("eta0_true",&m_eta0_true);
+  m_trackletsTree->Branch("phi0_true",&m_phi0_true);
+  m_trackletsTree->Branch("eta1_true",&m_eta1_true);
+  m_trackletsTree->Branch("phi1_true",&m_phi1_true);
+  m_trackletsTree->Branch("deta_true",&m_deta_true);
+  m_trackletsTree->Branch("dphi_true",&m_dphi_true);
+  //m_trackletsTree->Branch("pdgid",&m_pdgid);
+  m_trackletsTree->Branch("prod_vrtxT",&m_prod_vrtxT);
+  m_trackletsTree->Branch("prod_vrtyT",&m_prod_vrtyT);
+  m_trackletsTree->Branch("prod_vrtzT",&m_prod_vrtzT);
+  m_trackletsTree->Branch("primaryDecayLabel",&m_primaryDecayLabel);
+  m_trackletsTree->Branch("unassociated0_layer0",&m_unassociated0[0]);
+  m_trackletsTree->Branch("unassociated0_layer1",&m_unassociated0[1]);
+  m_trackletsTree->Branch("unassociated0_layer2",&m_unassociated0[2]);
+  m_trackletsTree->Branch("unassociated1_layer0",&m_unassociated1[0]);
+  m_trackletsTree->Branch("unassociated1_layer1",&m_unassociated1[1]);
+  m_trackletsTree->Branch("unassociated1_layer2",&m_unassociated1[2]);
+  m_trackletsTree->Branch("unassociated2_layer0",&m_unassociated2[0]);
+  m_trackletsTree->Branch("unassociated2_layer1",&m_unassociated2[1]);
+  m_trackletsTree->Branch("unassociated2_layer2",&m_unassociated2[2]);
+  m_trackletsTree->Branch("nCalo",&m_nCalo);
+  m_trackletsTree->Branch("eta_ca",&m_eta_ca);
+  m_trackletsTree->Branch("phi_ca",&m_phi_ca);
+  m_trackletsTree->Branch("ene_ca",&m_ene_ca);
 
-  effTree0 = new TTree("effTree0","Efficiency Tree for detecting holes in layer 0");
-  effTree0->Branch("NumVrtRec",&NumVrtRec);
-  effTree0->Branch("event_id_run_number",&event_id_run_number);
-  effTree0->Branch("event_id_evt_number",&event_id_evt_number);
-  effTree0->Branch("event_id_lumiBlock",&event_id_lumiBlock);
-  effTree0->Branch("event_id_bc_id",&event_id_bc_id);
-  effTree0->Branch("projected",&projected_eff);
-  effTree0->Branch("phiRef",&phi_eff);
-  effTree0->Branch("etaRef",&eta_eff);
-  effTree0->Branch("pt",&pt_eff);
-  effTree1 = (TTree*)effTree0->Clone("effTree1");
-  effTree1->SetTitle("Efficiency Tree for detectin holes in layer 1");
-  effTree0->CopyAddresses(effTree1);
+  m_effTree0 = new TTree("effTree0","Efficiency Tree for detecting holes in layer 0");
+  m_effTree0->Branch("NumVrtRec",&m_NumVrtRec);
+  m_effTree0->Branch("event_id_run_number",&m_event_id_run_number);
+  m_effTree0->Branch("event_id_evt_number",&m_event_id_evt_number);
+  m_effTree0->Branch("event_id_lumiBlock",&m_event_id_lumiBlock);
+  m_effTree0->Branch("event_id_bc_id",&m_event_id_bc_id);
+  m_effTree0->Branch("projected",&m_projected_eff);
+  m_effTree0->Branch("phiRef",&m_phi_eff);
+  m_effTree0->Branch("etaRef",&m_eta_eff);
+  m_effTree0->Branch("pt",&m_pt_eff);
+  m_effTree1 = (TTree*)m_effTree0->Clone("effTree1");
+  m_effTree1->SetTitle("Efficiency Tree for detectin holes in layer 1");
+  m_effTree0->CopyAddresses(m_effTree1);
   
     
-  sc = m_ths->regTree("/"+m_ntupleLoc+"/tracklets/trackletsTree",trackletsTree);
-  if( sc==StatusCode::FAILURE ) return sc;
-  sc = m_ths->regTree("/"+m_ntupleLoc+"/tracklets/effTree0",effTree0);
-  if( sc==StatusCode::FAILURE ) return sc;
-  sc = m_ths->regTree("/"+m_ntupleLoc+"/tracklets/effTree1",effTree1);
-  
-  return sc;
+  ATH_CHECK( m_ths->regTree("/"+m_ntupleLoc+"/tracklets/trackletsTree",m_trackletsTree) );
+  ATH_CHECK( m_ths->regTree("/"+m_ntupleLoc+"/tracklets/effTree0",m_effTree0) );
+  ATH_CHECK( m_ths->regTree("/"+m_ntupleLoc+"/tracklets/effTree1",m_effTree1) );
+  return StatusCode::SUCCESS;
 }
 
 StatusCode MakePixelTracklets::finalize() {
-  MsgStream log(msgSvc(),name());
-  log << MSG::DEBUG << "In finalize()" << endreq;
+  ATH_MSG_DEBUG( "In finalize()" );
   return StatusCode::SUCCESS;
 }
 
 StatusCode MakePixelTracklets::execute() {
-  StatusCode sc;
-  MsgStream log(msgSvc(),name());
-  sc = RetrievePixelClusters();
-  if(sc == StatusCode::FAILURE) return sc;
-  //sc = RetrieveCaloClusters();
-  //if(sc == StatusCode::FAILURE) return sc;
-  // get the det store
+  const DataHandle<EventInfo> eventInfo;
+  ATH_CHECK( evtStore()->retrieve(eventInfo) );
+
+  int eventNumber= eventInfo->event_ID()->event_number();
+  ATH_MSG_DEBUG( "event number " << eventNumber);
   
-  sc = service("DetectorStore",detStore);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "Detector store not found !" << endreq;
-    return StatusCode::FAILURE;
-  } else {}
+  const VxContainer *vxc = nullptr;
+  ATH_CHECK( evtStore()->retrieve( vxc, "VxPrimaryCandidate" ) );
 
-  //const InDetDD::SiDetectorManager* geoManager;
-  
-  sc=detStore->retrieve(pixelID,"PixelID");
-  if( sc.isFailure())
-    {
-      log << MSG::FATAL << "PixelID helper not found !" << endreq;
-      return StatusCode::FAILURE;
-    }
-
-  sc=detStore->retrieve(m_caloMgr);
-  if(sc.isFailure()) {
-    log << MSG::ERROR <<  "Unable to retrieve CaloIdManager from DetectorStore" << endreq;
-    return StatusCode::FAILURE;
-  }
-  m_caloCellHelper = m_caloMgr->getCaloCell_ID();
-  if (!m_caloCellHelper) {
-    log << MSG::ERROR << "Could not access CaloCell_ID helper" << endreq;
-    return StatusCode::FAILURE;
-  }
-  
-  // pixelID = dynamic_cast<const PixelID *>(geoManager->getIdHelper());
-
-  const VxContainer *vxc;
-  // Trk::RecVertex thisVx;
-
-  sc = m_StoreGate->retrieve( vxc, "VxPrimaryCandidate" );
-  if( sc.isFailure())
-    {
-      log << MSG::FATAL << "VxPrimaryCandidate not found !" << endreq;
-      return StatusCode::FAILURE;
-    }
   //some events may fail to find a vertex, how to take this into consideration??
   //excluding dummy vertex, from PUVertex.cxx
-  VxContainer::const_iterator vxb = vxc->begin();
-  VxContainer::const_iterator vxe = vxc->end();
-  --vxe;
   //This event fails to reconstruct a vertex 
-  if( vxb==vxe )
+  if( vxc->empty() )
     {
-      log <<MSG::INFO << "Event failed to produce a vertex!" << endreq;
-      NumVrtRec = 0;
-      //trackletsTree->Fill();
+      ATH_MSG_INFO( "Event failed to produce a vertex!" );
+      m_NumVrtRec = 0;
+      //m_trackletsTree->Fill();
       if( m_doHolesEfficiency ){
-	effTree0->Fill();
-	effTree1->Fill();
+	m_effTree0->Fill();
+	m_effTree1->Fill();
       }
       //return StatusCode::SUCCESS;
+
+      m_vx = 0;
+      m_vy = 0;
+      m_vz = 0;
     }
   else {
-    thisVx = (*vxc)[0]->recVertex();
-    //log <<MSG::DEBUG << "reconstructed vertex postion x,y,z: " << (*vxb)->recVertex().position().x() << "," << (*vxb)->recVertex().position().y() << "," << vz << endreq;
-    NumVrtRec = vxc->size()-1;
+    m_NumVrtRec = vxc->size()-1;
+    const Trk::RecVertex& thisVx = (*vxc)[0]->recVertex();
+    m_vx = thisVx.position().x();
+    m_vy = thisVx.position().y();
+    m_vz = thisVx.position().z();
   }
-  vx = thisVx.position().x();                                    
-  vy = thisVx.position().y(); 
-  vz = thisVx.position().z();
 
-  beamposition = m_iBeamCondSvc->beamVtx();
-  vx_ref = beamposition.position().x();
-  vy_ref = beamposition.position().y();
+  //const Amg::Vector3D& v_ref = m_iBeamCondSvc->beamVtx().position();
   
-  //log << MSG::DEBUG << "beam postion x,y,z: " << beamposition.position().x() << "," << beamposition.position().y() << "," << beamposition.position().z() << endreq;
-
-  NumVrtFinder = 0;
+  m_NumVrtFinder = 0;
   ClearVectors();
-  LayerClusters(); //the first two layer clusters now available
+  ClusterLayers_t clusterLayers;
+  std::map<int,int> threeLayerTrkMap;
+  LayerClusters(clusterLayers); //the first two layer clusters now available
   // LayerClusters();
 //   //my own version of z vertex finder
 //   std::vector<double> zVrts;
-//   if( NumVrtRec==0 ) {
-//     ZVrtCollection(zVrts);
+//   if( m_NumVrtRec==0 ) {
+//     ZVrtCollection(zVrts, v_ref, clusterLayers);
 //     ZVrtFinder(zVrts);
 //   }
  
-  if( NumVrtRec!=0 ){
+  std::vector<std::vector<PixelCluster> > trackletsCol; //tracklets collection
+  if( m_NumVrtRec!=0 ){
     std::vector<std::vector<PixelCluster> > outputTracklets[2];
-    MakeTracklets(true,1,clusterLayer[0],clusterLayer[1],trackletsCol);
+    MakeTracklets(true,1,clusterLayers,clusterLayers[0],clusterLayers[1],trackletsCol,threeLayerTrkMap);
     for(int i=0; i<3; i++) {
-      //log << MSG::DEBUG << "layer: " << i << endreq;
       //typedef std::map<int,int>::iterator mit;
-      for(int ic=0; ic<(int)clusterLayer[i].size(); ic++) {
-	if( usedClusterLayer[i][ic]==(int)0 ) {  //unassociated hits
-	  (*unassociated0[i]).push_back(ic);
+      for(int ic=0; ic<(int)clusterLayers[i].size(); ic++) {
+	if( clusterLayers[i].used[ic]==(int)0 ) {  //unassociated hits
+	  m_unassociated0[i].push_back(ic);
 	}
       }
     }
     
-    MakeTracklets(true,2,clusterLayer[0],clusterLayer[2],outputTracklets[0]);
+    MakeTracklets(true,2,clusterLayers,clusterLayers[0],clusterLayers[2],outputTracklets[0],threeLayerTrkMap);
     for(int i=0; i<3; i++) {
-      //log << MSG::DEBUG << "layer: " << i << endreq;
-      //typedef std::map<int,int>::iterator mit;
-      for(int ic=0; ic<(int)clusterLayer[i].size(); ic++) {
-	if( usedClusterLayer[i][ic]==0 ) {  //unassociated hits
-	  (*unassociated1[i]).push_back(ic);
+      for(int ic=0; ic<(int)clusterLayers[i].size(); ic++) {
+	if( clusterLayers[i].used[ic]==0 ) {  //unassociated hits
+	  m_unassociated1[i].push_back(ic);
         }
       }
     }
     
     
     if( m_doStartingPoint3==true ) {
-      MakeTracklets(true,3,clusterLayer[1],clusterLayer[2],outputTracklets[1]);
+      MakeTracklets(true,3,clusterLayers,clusterLayers[1],clusterLayers[2],outputTracklets[1],threeLayerTrkMap);
       for(int i=0; i<3; i++) {
-	//log << MSG::DEBUG << "layer: " << i << endreq;
-	//typedef std::map<int,int>::iterator mit;
-	for(int ic=0; ic<(int)clusterLayer[i].size(); ic++) {
-	  if( usedClusterLayer[i][ic]==0 ) {  //unassociated hits
-	    (*unassociated2[i]).push_back(ic);
+	for(int ic=0; ic<(int)clusterLayers[i].size(); ic++) {
+	  if( clusterLayers[i].used[ic]==0 ) {  //unassociated hits
+	    m_unassociated2[i].push_back(ic);
 	  }
 	}
       }
     }
     
-    log << MSG::DEBUG << "01:02:12=" << trackletsCol.size() << ":" << outputTracklets[0].size() << ":" << outputTracklets[1].size() << endreq;
+    ATH_MSG_DEBUG( "01:02:12=" << trackletsCol.size() << ":" << outputTracklets[0].size() << ":" << outputTracklets[1].size() );
     std::vector<std::vector<PixelCluster> > cleanedTracklets[3];
     RemoveDuplicate(0,outputTracklets[0],trackletsCol,cleanedTracklets[0]);
    
@@ -557,59 +461,47 @@ StatusCode MakePixelTracklets::execute() {
 	threeLayerTrkMap[trackletsCol.size()-1] = 0;
       }
     }
-    log << MSG::DEBUG << "tracklets found by MakeTracklets(): " << trackletsCol.size() << endreq;
+    ATH_MSG_DEBUG( "tracklets found by MakeTracklets(): " << trackletsCol.size() );
   }
   
+  std::vector<const HepMC::GenParticle*> primaryGenParts;
+  std::vector<const HepMC::GenParticle*> weakDecayParts;
+  std::vector<std::vector<PixelCluster> > genPartCol; //genParticle clusters collection for primaries
+  std::vector<std::vector<PixelCluster> > weakDecayCol; //clusters collection for weak decays
   if( m_mc_available )
     {
-      sc = RetrieveTruth();  if (sc.isFailure()) {return sc;} //AO
-      TruthAssociation();
+      ATH_CHECK( RetrieveTruth (clusterLayers,
+                                primaryGenParts,
+                                weakDecayParts,
+                                genPartCol,
+                                weakDecayCol) );
+      TruthAssociation (trackletsCol,
+                        primaryGenParts,
+                        weakDecayParts,
+                        genPartCol,
+                        weakDecayCol);
     }
   
-  //AnaCaloClusters();
-  sc = FillNTuple(); //with or without a reconstructed vertex
-  if( sc = StatusCode::FAILURE ) return sc;
-  if( NumVrtRec==1 && m_doHolesEfficiency )
+  //ATH_CHECK( AnaCaloClusters() );
+  ATH_CHECK( FillNTuple (clusterLayers,
+                         trackletsCol,
+                         primaryGenParts,
+                         genPartCol,
+                         threeLayerTrkMap) );
+  if( m_NumVrtRec==1 && m_doHolesEfficiency )
     {
-      CalEfficiency(0);
-      CalEfficiency(1);
+      CalEfficiency(0, clusterLayers, threeLayerTrkMap);
+      CalEfficiency(1, clusterLayers, threeLayerTrkMap);
     }
   
   return StatusCode::SUCCESS;
 }
 
-StatusCode MakePixelTracklets::RetrievePixelClusters(){
-
-    MsgStream log(msgSvc(), name());
-    const DataHandle<EventInfo> eventInfo;
-    StatusCode sc;
-    sc = (m_StoreGate->retrieve(eventInfo));
-    if (sc.isFailure()){
-	log << MSG::FATAL << "could not get event"<<endreq;
-	return StatusCode::FAILURE;
-    }
-
-    m_eventNumber= eventInfo->event_ID()->event_number();
-    log<< MSG::DEBUG<< "event number " << m_eventNumber<<endreq;
-    m_numberOfEvents++;
-
-    // get space points from TDS
-    sc = m_StoreGate->retrieve(m_clusters, m_PixelClustersName);
-    if (sc.isFailure()){
-      log << MSG::ERROR <<"Si cluster container not found"<< endreq;
-    }
-    else{ 
-      log <<MSG::DEBUG <<"Si Cluster container found" <<endreq;
-    }
-    return sc;
-    
-}
-
-void MakePixelTracklets::LayerClusters()
+void MakePixelTracklets::LayerClusters (ClusterLayers_t& clusterLayers)
 {
-  MsgStream log(msgSvc(), name());
-  InDet::PixelClusterContainer::const_iterator colNext = m_clusters->begin();
-  InDet::PixelClusterContainer::const_iterator colEnd = m_clusters->end();
+  const DataHandle<PixelClusterContainer> clusters;
+  InDet::PixelClusterContainer::const_iterator colNext = clusters->begin();
+  InDet::PixelClusterContainer::const_iterator colEnd = clusters->end();
   for (; colNext!= colEnd; ++colNext)
     {
       
@@ -620,22 +512,24 @@ void MakePixelTracklets::LayerClusters()
         {
           const PixelCluster& cluster = **nextCluster;
           //this is very important to make sure barrel layer cluster is used                   
-          int barrel = pixelID->barrel_ec(cluster.detectorElement()->identify());
+          int barrel = m_pixelID->barrel_ec(cluster.detectorElement()->identify());
           if( barrel!=0 ) continue; //it must be an endcap           
-	  int layer = pixelID->layer_disk(cluster.detectorElement()->identify());
+	  int layer = m_pixelID->layer_disk(cluster.detectorElement()->identify());
 	  std::vector<int> etaPhiModule;
-	  etaPhiModule.push_back(pixelID->eta_module(cluster.detectorElement()->identify()));
-	  etaPhiModule.push_back(pixelID->phi_module(cluster.detectorElement()->identify()));
+	  etaPhiModule.push_back(m_pixelID->eta_module(cluster.detectorElement()->identify()));
+	  etaPhiModule.push_back(m_pixelID->phi_module(cluster.detectorElement()->identify()));
 	  //bool dead = false;
-	  clusterLayer[layer].push_back(cluster);
+	  clusterLayers[layer].push_back(cluster);
 	  
 	}
     }
 }
 
-void MakePixelTracklets::MakeTracklets(bool trkoreff, int sumlayer, const std::vector<PixelCluster>& clusterColl0,const std::vector<PixelCluster>& clusterColl1, std::vector<std::vector<PixelCluster> > & outputTracklets)
+void MakePixelTracklets::MakeTracklets(bool trkoreff, int sumlayer,
+                                       ClusterLayers_t& clusterLayers,
+                                       const std::vector<PixelCluster>& clusterColl0,const std::vector<PixelCluster>& clusterColl1, std::vector<std::vector<PixelCluster> > & outputTracklets,
+                                       std::map<int,int>& threeLayerTrkMap)
 { 
-  MsgStream log(msgSvc(),name());
   double etaCutUsed = m_etaCut;
   double phiCutUsed = m_phiCut;
   if( trkoreff==false )
@@ -659,31 +553,31 @@ void MakePixelTracklets::MakeTracklets(bool trkoreff, int sumlayer, const std::v
   
   for(int i0=0; i0<nclus0; i0++)
     {
-      if( usedClusterLayer[firstLayer][i0] ) continue;
+      if( clusterLayers[firstLayer].used[i0] ) continue;
       //double rmin = 9999.;
       
       const PixelCluster& clusi0 = clusterColl0[i0];
-      double cxi0 = clusi0.globalPosition().x() - vx;
-      double cyi0 = clusi0.globalPosition().y() - vy;
-      double czi0 = clusi0.globalPosition().z() - vz;
+      double cxi0 = clusi0.globalPosition().x() - m_vx;
+      double cyi0 = clusi0.globalPosition().y() - m_vy;
+      double czi0 = clusi0.globalPosition().z() - m_vz;
       double phii0 = atan2(cyi0,cxi0);
       double ri0 = sqrt(cxi0*cxi0+cyi0*cyi0);
       double thetai0 = atan2(ri0,czi0);
       double etai0 = -TMath::Log(TMath::Tan(thetai0/2));
       
-      if(firstLayer==1) log << MSG::DEBUG << "innerIndex:" << i0 << endreq;
+      if(firstLayer==1) ATH_MSG_DEBUG( "innerIndex:" << i0 );
       std::vector<int> minclus1label;
       std::vector<double> rcan;
       std::vector<double> detaCan;
       for(int i1=0; i1<nclus1; i1++)
 	{
-	  if( usedClusterLayer[secondLayer][i1] ) {
+	  if( clusterLayers[secondLayer].used[i1] ) {
 	    continue;
 	  }
 	  const PixelCluster& clusi1 = clusterColl1[i1];
-	  double cxi1 = clusi1.globalPosition().x() - vx;
-	  double cyi1 = clusi1.globalPosition().y() - vy;
-	  double czi1 = clusi1.globalPosition().z() - vz;
+	  double cxi1 = clusi1.globalPosition().x() - m_vx;
+	  double cyi1 = clusi1.globalPosition().y() - m_vy;
+	  double czi1 = clusi1.globalPosition().z() - m_vz;
 	  double phii1 = atan2(cyi1,cxi1);
 	  double ri1 = sqrt(cxi1*cxi1+cyi1*cyi1);
 	  double thetai1 = atan2(ri1,czi1);
@@ -694,7 +588,7 @@ void MakePixelTracklets::MakeTracklets(bool trkoreff, int sumlayer, const std::v
 	  
 	  if( dphi>M_PI )  dphi -= 2*M_PI;
 	  if( dphi<-M_PI ) dphi += 2*M_PI;
-	  if(firstLayer==1 ) log << MSG::DEBUG << "outIndex:deta:dphi=" << i1 << ":" << deta << ":" << dphi << endreq;	
+	  if(firstLayer==1 ) ATH_MSG_DEBUG( "outIndex:deta:dphi=" << i1 << ":" << deta << ":" << dphi );
 	  if( fabs(deta)<etaCutUsed && fabs(dphi)<phiCutUsed )
 	    {
 	      minclus1label.push_back(i1);
@@ -705,8 +599,8 @@ void MakePixelTracklets::MakeTracklets(bool trkoreff, int sumlayer, const std::v
 	} //end of 2nd layer loop
       
       int minclus1can = -1;
-      int multip = rcan.size();
-      if( multip>1 ) multisatisfaction++;
+      //int multip = rcan.size();
+      //if( multip>1 ) multisatisfaction++;
       // for(unsigned int ir=0; ir<rcan.size(); ir++){
 //       	if( rcan[ir] < rmin ){
 //       	  rmin = rcan[ir];
@@ -725,23 +619,23 @@ void MakePixelTracklets::MakeTracklets(bool trkoreff, int sumlayer, const std::v
       if( minclus1can == -1 ) continue;
       
       const PixelCluster& minClus = clusterColl1[minclus1can];
-      usedClusterLayer[secondLayer][minclus1can]++;
-      usedClusterLayer[firstLayer][i0]++;
+      clusterLayers[secondLayer].used[minclus1can]++;
+      clusterLayers[firstLayer].used[i0]++;
       std::vector<PixelCluster> twoClusters;
       twoClusters.push_back(clusi0);
       twoClusters.push_back(minClus);
       
-      if(0) log << MSG::DEBUG << "innerIndex:outIndex=" << i0 <<":" << minclus1can << endreq;
+      //if(0) ATH_MSG_DEBUG( "innerIndex:outIndex=" << i0 <<":" << minclus1can );
       trackletsColCol.push_back(twoClusters);
 
       //project to 2 layer if the tracklet comes out from the B-layer and 1 layer
       //frobid projected cluster used again and label the tracklets as three layer tracklets 
       if( sumlayer==1 ) {
-	for(unsigned int i2=0; i2<clusterLayer[2].size(); i2++) {
-	  const PixelCluster& clusi2 = clusterLayer[2][i2];
-          double cxi2 = clusi2.globalPosition().x() - vx;
-          double cyi2 = clusi2.globalPosition().y() - vy;
-          double czi2 = clusi2.globalPosition().z() - vz;
+	for(unsigned int i2=0; i2<clusterLayers[2].size(); i2++) {
+	  const PixelCluster& clusi2 = clusterLayers[2][i2];
+          double cxi2 = clusi2.globalPosition().x() - m_vx;
+          double cyi2 = clusi2.globalPosition().y() - m_vy;
+          double czi2 = clusi2.globalPosition().z() - m_vz;
           double phii2 = atan2(cyi2,cxi2);
           double ri2 = sqrt(cxi2*cxi2+cyi2*cyi2);
           double thetai2 = atan2(ri2,czi2);
@@ -754,9 +648,9 @@ void MakePixelTracklets::MakeTracklets(bool trkoreff, int sumlayer, const std::v
 	  if( dphi<-M_PI ) dphi += 2*M_PI;
 
           if( fabs(deta)<2.0*etaCutUsed && fabs(dphi)<2.0*phiCutUsed*(122.5-50.5)/(88.5-50.5)){
-	    if(0) log << MSG::DEBUG << "projection Index:" << i2 << endreq;
+	    //if(0) ATH_MSG_DEBUG( "projection Index:" << i2 );
 	    //three layer cluster
-	    usedClusterLayer[2][i2]++;
+	    clusterLayers[2].used[i2]++;
 	    threeLayerTrkLabel[trackletsColCol.size()-1]++;
 	  }
 	}
@@ -798,11 +692,11 @@ void MakePixelTracklets::MakeTracklets(bool trkoreff, int sumlayer, const std::v
 	const PixelCluster & clus00 = twoClusters[0];
 	const PixelCluster & clus10 = trackletsColCol[jtrs][0];
 	
-	double cx00 = clus00.globalPosition().x() - vx;
-	double cy00 = clus00.globalPosition().y() - vy;
+	double cx00 = clus00.globalPosition().x() - m_vx;
+	double cy00 = clus00.globalPosition().y() - m_vy;
 	double r00 = sqrt(cx00*cx00+cy00*cy00);
-	double cx10 = clus10.globalPosition().x() - vx;
-        double cy10 = clus10.globalPosition().y() - vy;
+	double cx10 = clus10.globalPosition().x() - m_vx;
+        double cy10 = clus10.globalPosition().y() - m_vy;
         double r10 = sqrt(cx10*cx10+cy10*cy10);
 	if( r00>r10 ) {
 	  removedTrs.push_back(twoClusters); deleteReasonMap[ntrs]=jtrs;
@@ -815,11 +709,11 @@ void MakePixelTracklets::MakeTracklets(bool trkoreff, int sumlayer, const std::v
 	const PixelCluster & clus01 = twoClusters[1];
 	const PixelCluster & clus11 = trackletsColCol[jtrs][1];
 	
-	double cx01 = clus01.globalPosition().x() - vx;
-	double cy01 = clus01.globalPosition().y() - vy;
+	double cx01 = clus01.globalPosition().x() - m_vx;
+	double cy01 = clus01.globalPosition().y() - m_vy;
 	double r01 = sqrt(cx01*cx01+cy01*cy01);
-	double cx11 = clus11.globalPosition().x() - vx;
-        double cy11 = clus11.globalPosition().y() - vy;
+	double cx11 = clus11.globalPosition().x() - m_vx;
+        double cy11 = clus11.globalPosition().y() - m_vy;
         double r11 = sqrt(cx11*cx11+cy11*cy11);
 	if( r01>r11 ) {
 	  removedTrs.push_back(twoClusters); deleteReasonMap[ntrs]=jtrs;
@@ -851,8 +745,8 @@ void MakePixelTracklets::MakeTracklets(bool trkoreff, int sumlayer, const std::v
       //tracklets found by 0-2, 1-2 layers are not considered yet, see execute()
       // outputTracklets.push_back(testClusters);
 //       if( sumlayer==1 ) {
-// 	if(removed) { (*deleted).push_back(1); (*deletedBecauseOf).push_back(deleteReasonMap[i]); }
-// 	else { (*deleted).push_back(0); (*deletedBecauseOf).push_back(-1); }
+// 	if(removed) { m_deleted.push_back(1); m_deletedBecauseOf.push_back(deleteReasonMap[i]); }
+// 	else { m_deleted.push_back(0); m_deletedBecauseOf.push_back(-1); }
 //       }
       if( !removed ) {
        	outputTracklets.push_back(testClusters);
@@ -874,9 +768,9 @@ void MakePixelTracklets::RemoveDuplicate(int layer02or12, const std::vector<std:
     const PixelCluster* p12 = &twoClusters[0];
     if( layer02or12==2 ) p12 = &twoClusters[1];
     const PixelCluster& clus20 = *p12;
-    double cx20 = clus20.globalPosition().x() - vx;
-    double cy20 = clus20.globalPosition().y() - vy;
-    double cz20 = clus20.globalPosition().z() - vz;
+    double cx20 = clus20.globalPosition().x() - m_vx;
+    double cy20 = clus20.globalPosition().y() - m_vy;
+    double cz20 = clus20.globalPosition().z() - m_vz;
     double phi20 = atan2(cy20,cx20);
     double r20 = sqrt(cx20*cx20+cy20*cy20);
     double theta20 = atan2(r20,cz20);
@@ -886,9 +780,9 @@ void MakePixelTracklets::RemoveDuplicate(int layer02or12, const std::vector<std:
       const PixelCluster *aux = &outputTracklets0[ir][0];
       if( layer02or12==1 || layer02or12==2 ) aux = &outputTracklets0[ir][1];
       const PixelCluster& clus10 = *aux;
-      double cx10 = clus10.globalPosition().x() - vx;
-      double cy10 = clus10.globalPosition().y() - vy;
-      double cz10 = clus10.globalPosition().z() - vz;
+      double cx10 = clus10.globalPosition().x() - m_vx;
+      double cy10 = clus10.globalPosition().y() - m_vy;
+      double cz10 = clus10.globalPosition().z() - m_vz;
       double phi10 = atan2(cy10,cx10);
       double r10 = sqrt(cx10*cx10+cy10*cy10);
       double theta10 = atan2(r10,cz10);
@@ -923,35 +817,34 @@ void MakePixelTracklets::RemoveDuplicate(int layer02or12, const std::vector<std:
 }
 
 void MakePixelTracklets::GangedOrOverlap(const std::vector<PixelCluster> & tracklet1, const std::vector<PixelCluster> & tracklet2, int & gangeLayer0, int & gangeLayer1, int & overlapLayer0, int & overlapLayer1) {
-  MsgStream log(msgSvc(), name());
   const PixelCluster& clus10 = tracklet1[0];
   const PixelCluster& clus11 = tracklet1[1];
   const PixelCluster& clus20 = tracklet2[0];
   const PixelCluster& clus21 = tracklet2[1];
-  double cx10 = clus10.globalPosition().x() - vx;
-  double cy10 = clus10.globalPosition().y() - vy;
-  double cz10 = clus10.globalPosition().z() - vz;
+  double cx10 = clus10.globalPosition().x() - m_vx;
+  double cy10 = clus10.globalPosition().y() - m_vy;
+  double cz10 = clus10.globalPosition().z() - m_vz;
   double phi10 = atan2(cy10,cx10);
   double r10 = sqrt(cx10*cx10+cy10*cy10);
   double theta10 = atan2(r10,cz10);
   double eta10 = -TMath::Log(TMath::Tan(theta10/2));
-  double cx11 = clus11.globalPosition().x() - vx;
-  double cy11 = clus11.globalPosition().y() - vy;
-  double cz11 = clus11.globalPosition().z() - vz;
+  double cx11 = clus11.globalPosition().x() - m_vx;
+  double cy11 = clus11.globalPosition().y() - m_vy;
+  double cz11 = clus11.globalPosition().z() - m_vz;
   double phi11 = atan2(cy11,cx11);
   double r11 = sqrt(cx11*cx11+cy11*cy11);
   double theta11 = atan2(r11,cz11);
   double eta11 = -TMath::Log(TMath::Tan(theta11/2));
-  double cx20 = clus20.globalPosition().x() - vx;
-  double cy20 = clus20.globalPosition().y() - vy;
-  double cz20 = clus20.globalPosition().z() - vz;
+  double cx20 = clus20.globalPosition().x() - m_vx;
+  double cy20 = clus20.globalPosition().y() - m_vy;
+  double cz20 = clus20.globalPosition().z() - m_vz;
   double phi20 = atan2(cy20,cx20);
   double r20 = sqrt(cx20*cx20+cy20*cy20);
   double theta20 = atan2(r20,cz20);
   double eta20 = -TMath::Log(TMath::Tan(theta20/2));
-  double cx21 = clus21.globalPosition().x() - vx;
-  double cy21 = clus21.globalPosition().y() - vy;
-  double cz21 = clus21.globalPosition().z() - vz;
+  double cx21 = clus21.globalPosition().x() - m_vx;
+  double cy21 = clus21.globalPosition().y() - m_vy;
+  double cz21 = clus21.globalPosition().z() - m_vz;
   double phi21 = atan2(cy21,cx21);
   double r21 = sqrt(cx21*cx21+cy21*cy21);
   double theta21 = atan2(r21,cz21);
@@ -970,19 +863,19 @@ void MakePixelTracklets::GangedOrOverlap(const std::vector<PixelCluster> & track
   //   int overlapLayer1 = 0;
   if( fabs(deta)<m_etaCut && fabs(dphi)<m_phiCut && fabs(deta1)<m_etaCut && fabs(dphi1)<m_phiCut ) {
     //if( fabs(deta)<m_etaCut && fabs(dphi)<m_phiCut ) {  
-    log << MSG::DEBUG << "eta0:eta1=" << eta10 << ":" << eta20 << endreq;
-    log << MSG::DEBUG << "gange00:gange10=" << clus10.gangedPixel() << ":" << clus20.gangedPixel() << endreq;
-    log << MSG::DEBUG << "gange01:gange11=" << clus11.gangedPixel() << ":" << clus21.gangedPixel() << endreq; 
+    ATH_MSG_DEBUG( "eta0:eta1=" << eta10 << ":" << eta20 );
+    ATH_MSG_DEBUG( "gange00:gange10=" << clus10.gangedPixel() << ":" << clus20.gangedPixel() );
+    ATH_MSG_DEBUG( "gange01:gange11=" << clus11.gangedPixel() << ":" << clus21.gangedPixel() );
     if(clus10.gangedPixel() && clus20.gangedPixel() ) gangeLayer0=1;
     if(clus11.gangedPixel() && clus21.gangedPixel() ) gangeLayer1=1;
-    int phi10M = pixelID->phi_module(clus10.detectorElement()->identify()); 
-    int eta10M = pixelID->eta_module(clus10.detectorElement()->identify());
-    int phi11M = pixelID->phi_module(clus11.detectorElement()->identify());
-    int eta11M = pixelID->eta_module(clus11.detectorElement()->identify());
-    int phi20M = pixelID->phi_module(clus20.detectorElement()->identify());
-    int eta20M = pixelID->eta_module(clus20.detectorElement()->identify());
-    int phi21M = pixelID->phi_module(clus21.detectorElement()->identify());
-    int eta21M = pixelID->eta_module(clus21.detectorElement()->identify());
+    int phi10M = m_pixelID->phi_module(clus10.detectorElement()->identify()); 
+    int eta10M = m_pixelID->eta_module(clus10.detectorElement()->identify());
+    int phi11M = m_pixelID->phi_module(clus11.detectorElement()->identify());
+    int eta11M = m_pixelID->eta_module(clus11.detectorElement()->identify());
+    int phi20M = m_pixelID->phi_module(clus20.detectorElement()->identify());
+    int eta20M = m_pixelID->eta_module(clus20.detectorElement()->identify());
+    int phi21M = m_pixelID->phi_module(clus21.detectorElement()->identify());
+    int eta21M = m_pixelID->eta_module(clus21.detectorElement()->identify());
     if( phi10M!=phi20M || eta10M!=eta20M ) overlapLayer0 = 1;
     if( phi11M!=phi21M || eta11M!=eta21M ) overlapLayer1 = 1;
     //if( gangeLayer0*gangeLayer1 || gangeLayer0*overlapLayer1 || overlapLayer0*gangeLayer1 || overlapLayer0*overlapLayer1 )
@@ -994,88 +887,87 @@ void MakePixelTracklets::GangedOrOverlap(const std::vector<PixelCluster> & track
   }
 }
 
-StatusCode MakePixelTracklets::FillNTuple()
+StatusCode MakePixelTracklets::FillNTuple (const ClusterLayers_t& clusterLayers,
+                                           std::vector<std::vector<PixelCluster> >& trackletsCol,
+                                           const std::vector<const HepMC::GenParticle*>& primaryGenParts,
+                                           const std::vector<std::vector<PixelCluster> >& genPartCol,
+                                           std::map<int,int>& threeLayerTrkMap)
 {
-  MsgStream log(msgSvc(), name());
   //
   const DataHandle<EventInfo> eventInfo;
-  StatusCode sc = m_StoreGate->retrieve(eventInfo);
-  if (sc.isFailure()){
-    log<<MSG::FATAL << "could not get event"<<endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( evtStore()->retrieve(eventInfo) );
 
-  event_id_run_number = eventInfo->event_ID()->run_number();
-  event_id_evt_number = eventInfo->event_ID()->event_number();
-  event_id_lumiBlock = eventInfo->event_ID()->lumi_block();
-  event_id_bc_id = eventInfo->event_ID()->bunch_crossing_id();
+  m_event_id_run_number = eventInfo->event_ID()->run_number();
+  m_event_id_evt_number = eventInfo->event_ID()->event_number();
+  m_event_id_lumiBlock = eventInfo->event_ID()->lumi_block();
+  m_event_id_bc_id = eventInfo->event_ID()->bunch_crossing_id();
   
-  n0 = clusterLayer[0].size();
-  n1 = clusterLayer[1].size();
-  n2 = clusterLayer[2].size(); 
-  for(int i0=0; i0<n0; i0++) {
-    const PixelCluster& clusi0 = clusterLayer[0][i0];
-    double cxi0 = clusi0.globalPosition().x() - vx;
-    double cyi0 = clusi0.globalPosition().y() - vy;
-    double czi0 = clusi0.globalPosition().z() - vz;
+  m_n0 = clusterLayers[0].size();
+  m_n1 = clusterLayers[1].size();
+  m_n2 = clusterLayers[2].size(); 
+  for(int i0=0; i0<m_n0; i0++) {
+    const PixelCluster& clusi0 = clusterLayers[0][i0];
+    double cxi0 = clusi0.globalPosition().x() - m_vx;
+    double cyi0 = clusi0.globalPosition().y() - m_vy;
+    double czi0 = clusi0.globalPosition().z() - m_vz;
     double phii0 = atan2(cyi0,cxi0);
     double ri0 = sqrt(cxi0*cxi0+cyi0*cyi0);
     double thetai0 = atan2(ri0,czi0);
     double etai0 = -TMath::Log(TMath::Tan(thetai0/2));
-    (*eta0_all).push_back(etai0);
-    (*phi0_all).push_back(phii0);
-    (*dedx0_all).push_back(clusi0.energyLoss());
+    m_eta0_all.push_back(etai0);
+    m_phi0_all.push_back(phii0);
+    m_dedx0_all.push_back(clusi0.energyLoss());
     const InDetDD::SiDetectorElement* siDetectorElt0= clusi0.detectorElement();
     double pathLength = siDetectorElt0->thickness()/((siDetectorElt0->surface().normal().x()*cxi0+siDetectorElt0->surface().normal().y()*cyi0+siDetectorElt0->surface().normal().z()*czi0)/sqrt(cxi0*cxi0+cyi0*cyi0+czi0*czi0));
-    (*pathLength0_all).push_back(pathLength);
-    (*csize0_all).push_back(clusi0.rdoList().size());
-    (*ccol0_all).push_back((clusi0.width().colRow())[0]);
-    (*crow0_all).push_back((clusi0.width().colRow())[1]);
-    (*crphi0_all).push_back((clusi0.width().widthPhiRZ())[0]);
-    (*cz0_all).push_back((clusi0.width().widthPhiRZ())[1]);
-    (*x0_all).push_back(clusi0.globalPosition().x());
-    (*y0_all).push_back(clusi0.globalPosition().y());
-    (*z0_all).push_back(clusi0.globalPosition().z());
+    m_pathLength0_all.push_back(pathLength);
+    m_csize0_all.push_back(clusi0.rdoList().size());
+    m_ccol0_all.push_back((clusi0.width().colRow())[0]);
+    m_crow0_all.push_back((clusi0.width().colRow())[1]);
+    m_crphi0_all.push_back((clusi0.width().widthPhiRZ())[0]);
+    m_cz0_all.push_back((clusi0.width().widthPhiRZ())[1]);
+    m_x0_all.push_back(clusi0.globalPosition().x());
+    m_y0_all.push_back(clusi0.globalPosition().y());
+    m_z0_all.push_back(clusi0.globalPosition().z());
   }      
-  for(int i1=0; i1<n1; i1++) {
-    const PixelCluster& clusi1 = clusterLayer[1][i1];
-    double cxi1 = clusi1.globalPosition().x() - vx;
-    double cyi1 = clusi1.globalPosition().y() - vy;
-    double czi1 = clusi1.globalPosition().z() - vz;
+  for(int i1=0; i1<m_n1; i1++) {
+    const PixelCluster& clusi1 = clusterLayers[1][i1];
+    double cxi1 = clusi1.globalPosition().x() - m_vx;
+    double cyi1 = clusi1.globalPosition().y() - m_vy;
+    double czi1 = clusi1.globalPosition().z() - m_vz;
     double phii1 = atan2(cyi1,cxi1);
     double ri1 = sqrt(cxi1*cxi1+cyi1*cyi1);
     double thetai1 = atan2(ri1,czi1);
     double etai1 = -TMath::Log(TMath::Tan(thetai1/2));
-    (*eta1_all).push_back(etai1);
-    (*phi1_all).push_back(phii1);
-    (*dedx1_all).push_back(clusi1.energyLoss());
+    m_eta1_all.push_back(etai1);
+    m_phi1_all.push_back(phii1);
+    m_dedx1_all.push_back(clusi1.energyLoss());
     const InDetDD::SiDetectorElement* siDetectorElt1= clusi1.detectorElement();
     double pathLength = siDetectorElt1->thickness()/((siDetectorElt1->surface().normal().x()*cxi1+siDetectorElt1->surface().normal().y()*cyi1+siDetectorElt1->surface().normal().z()*czi1)/sqrt(cxi1*cxi1+cyi1*cyi1+czi1*czi1));
-    (*pathLength1_all).push_back(pathLength);
-    (*csize1_all).push_back(clusi1.rdoList().size());
-    (*ccol1_all).push_back((clusi1.width().colRow())[0]);
-    (*crow1_all).push_back((clusi1.width().colRow())[1]);
-    (*crphi1_all).push_back((clusi1.width().widthPhiRZ())[0]);
-    (*cz1_all).push_back((clusi1.width().widthPhiRZ())[1]);
-    (*x1_all).push_back(clusi1.globalPosition().x());
-    (*y1_all).push_back(clusi1.globalPosition().y());
-    (*z1_all).push_back(clusi1.globalPosition().z());
+    m_pathLength1_all.push_back(pathLength);
+    m_csize1_all.push_back(clusi1.rdoList().size());
+    m_ccol1_all.push_back((clusi1.width().colRow())[0]);
+    m_crow1_all.push_back((clusi1.width().colRow())[1]);
+    m_crphi1_all.push_back((clusi1.width().widthPhiRZ())[0]);
+    m_cz1_all.push_back((clusi1.width().widthPhiRZ())[1]);
+    m_x1_all.push_back(clusi1.globalPosition().x());
+    m_y1_all.push_back(clusi1.globalPosition().y());
+    m_z1_all.push_back(clusi1.globalPosition().z());
   }
-  for(int i2=0; i2<n2; i2++) {
-    const PixelCluster& clusi2 = clusterLayer[2][i2];
-    double cxi2 = clusi2.globalPosition().x() - vx;
-    double cyi2 = clusi2.globalPosition().y() - vy;
-    double czi2 = clusi2.globalPosition().z() - vz;
+  for(int i2=0; i2<m_n2; i2++) {
+    const PixelCluster& clusi2 = clusterLayers[2][i2];
+    double cxi2 = clusi2.globalPosition().x() - m_vx;
+    double cyi2 = clusi2.globalPosition().y() - m_vy;
+    double czi2 = clusi2.globalPosition().z() - m_vz;
     double phii2 = atan2(cyi2,cxi2);
     double ri2 = sqrt(cxi2*cxi2+cyi2*cyi2);
     double thetai2 = atan2(ri2,czi2);
     double etai2 = -TMath::Log(TMath::Tan(thetai2/2));
-    (*eta2_all).push_back(etai2);
-    (*phi2_all).push_back(phii2);
-    (*dedx2_all).push_back(clusi2.energyLoss());
+    m_eta2_all.push_back(etai2);
+    m_phi2_all.push_back(phii2);
+    m_dedx2_all.push_back(clusi2.energyLoss());
     const InDetDD::SiDetectorElement* siDetectorElt2= clusi2.detectorElement();
     double pathLength = siDetectorElt2->thickness()/((siDetectorElt2->surface().normal().x()*cxi2+siDetectorElt2->surface().normal().y()*cyi2+siDetectorElt2->surface().normal().z()*czi2)/sqrt(cxi2*cxi2+cyi2*cyi2+czi2*czi2));
-    (*pathLength2_all).push_back(pathLength);
+    m_pathLength2_all.push_back(pathLength);
     //     (*csize2_all).push_back(clusi2.rdoList().size());
     //     (*ccol2_all).push_back((clusi2.width().colRow())[0]);
     //     (*crow2_all).push_back((clusi2.width().colRow())[1]);
@@ -1090,70 +982,70 @@ StatusCode MakePixelTracklets::FillNTuple()
 
   Rec::TrackParticleContainer* trkpcon = new Rec::TrackParticleContainer();
   HIPixelTrackletsCollection* trkcoll = new HIPixelTrackletsCollection();
-  ntr = trackletsCol.size(); 
-  //log << MSG::DEBUG << "tracklets number: " << ntr << endreq;
-  for(int it=0; it<ntr; it++)
+  m_ntr = trackletsCol.size(); 
+  //log << MSG::DEBUG << "tracklets number: " << m_ntr << endreq;
+  for(int it=0; it<m_ntr; it++)
     {
-      (*threeLayerTrk).push_back(threeLayerTrkMap[it]);
+      m_threeLayerTrk.push_back(threeLayerTrkMap[it]);
       
       const PixelCluster& clusi0 = trackletsCol[it][0];
       const PixelCluster& clusi1 = trackletsCol[it][1];
-      (*startingPoint).push_back(pixelID->layer_disk(clusi0.detectorElement()->identify())+pixelID->layer_disk(clusi1.detectorElement()->identify()));
-      double cxi0 = clusi0.globalPosition().x() - vx;
-      double cyi0 = clusi0.globalPosition().y() - vy;
-      double czi0 = clusi0.globalPosition().z() - vz;
+      m_startingPoint.push_back(m_pixelID->layer_disk(clusi0.detectorElement()->identify())+m_pixelID->layer_disk(clusi1.detectorElement()->identify()));
+      double cxi0 = clusi0.globalPosition().x() - m_vx;
+      double cyi0 = clusi0.globalPosition().y() - m_vy;
+      double czi0 = clusi0.globalPosition().z() - m_vz;
       double phii0 = atan2(cyi0,cxi0);
       double ri0 = sqrt(cxi0*cxi0+cyi0*cyi0);
       double thetai0 = atan2(ri0,czi0);
       double etai0 = -TMath::Log(TMath::Tan(thetai0/2));
-      double cxi1 = clusi1.globalPosition().x() - vx;
-      double cyi1 = clusi1.globalPosition().y() - vy;
-      double czi1 = clusi1.globalPosition().z() - vz;
+      double cxi1 = clusi1.globalPosition().x() - m_vx;
+      double cyi1 = clusi1.globalPosition().y() - m_vy;
+      double czi1 = clusi1.globalPosition().z() - m_vz;
       double phii1 = atan2(cyi1,cxi1);
       double ri1 = sqrt(cxi1*cxi1+cyi1*cyi1);
       double thetai1 = atan2(ri1,czi1);
       double etai1 = -TMath::Log(TMath::Tan(thetai1/2));
-      (*eta0_tr).push_back(etai0);
-      (*phi0_tr).push_back(phii0);
-      (*eta1_tr).push_back(etai1);
-      (*phi1_tr).push_back(phii1);
-      (*dedx0_tr).push_back(clusi0.energyLoss());
-      (*dedx1_tr).push_back(clusi1.energyLoss());
+      m_eta0_tr.push_back(etai0);
+      m_phi0_tr.push_back(phii0);
+      m_eta1_tr.push_back(etai1);
+      m_phi1_tr.push_back(phii1);
+      m_dedx0_tr.push_back(clusi0.energyLoss());
+      m_dedx1_tr.push_back(clusi1.energyLoss());
       const InDetDD::SiDetectorElement* siDetectorElt0= clusi0.detectorElement();
       const InDetDD::SiDetectorElement* siDetectorElt1= clusi1.detectorElement();
       double pathLength0 = siDetectorElt0->thickness()/((siDetectorElt0->surface().normal().x()*cxi0+siDetectorElt0->surface().normal().y()*cyi0+siDetectorElt0->surface().normal().z()*czi0)/sqrt(cxi0*cxi0+cyi0*cyi0+czi0*czi0));
       double pathLength1 = siDetectorElt1->thickness()/((siDetectorElt1->surface().normal().x()*cxi1+siDetectorElt1->surface().normal().y()*cyi1+siDetectorElt1->surface().normal().z()*czi1)/sqrt(cxi1*cxi1+cyi1*cyi1+czi1*czi1));
-      (*pathLength0_tr).push_back(pathLength0);
-      (*pathLength1_tr).push_back(pathLength1);
-      (*csize0_tr).push_back(clusi0.rdoList().size());
-      (*csize1_tr).push_back(clusi1.rdoList().size());
-      (*ccol0_tr).push_back((clusi0.width().colRow())[0]);
-      (*crow0_tr).push_back((clusi0.width().colRow())[1]);
-      (*crphi0_tr).push_back((clusi0.width().widthPhiRZ())[0]);
-      (*cz0_tr).push_back((clusi0.width().widthPhiRZ())[1]);
-      (*ccol1_tr).push_back((clusi1.width().colRow())[0]);
-      (*crow1_tr).push_back((clusi1.width().colRow())[1]);
-      (*crphi1_tr).push_back((clusi1.width().widthPhiRZ())[0]);
-      (*cz1_tr).push_back((clusi1.width().widthPhiRZ())[1]);
-      (*x0_tr).push_back(clusi0.globalPosition().x());
-      (*y0_tr).push_back(clusi0.globalPosition().y());
-      (*z0_tr).push_back(clusi0.globalPosition().z());
-      (*x1_tr).push_back(clusi1.globalPosition().x());
-      (*y1_tr).push_back(clusi1.globalPosition().y());
-      (*z1_tr).push_back(clusi1.globalPosition().z());
-      (*deta_tr).push_back(etai0-etai1);
+      m_pathLength0_tr.push_back(pathLength0);
+      m_pathLength1_tr.push_back(pathLength1);
+      m_csize0_tr.push_back(clusi0.rdoList().size());
+      m_csize1_tr.push_back(clusi1.rdoList().size());
+      m_ccol0_tr.push_back((clusi0.width().colRow())[0]);
+      m_crow0_tr.push_back((clusi0.width().colRow())[1]);
+      m_crphi0_tr.push_back((clusi0.width().widthPhiRZ())[0]);
+      m_cz0_tr.push_back((clusi0.width().widthPhiRZ())[1]);
+      m_ccol1_tr.push_back((clusi1.width().colRow())[0]);
+      m_crow1_tr.push_back((clusi1.width().colRow())[1]);
+      m_crphi1_tr.push_back((clusi1.width().widthPhiRZ())[0]);
+      m_cz1_tr.push_back((clusi1.width().widthPhiRZ())[1]);
+      m_x0_tr.push_back(clusi0.globalPosition().x());
+      m_y0_tr.push_back(clusi0.globalPosition().y());
+      m_z0_tr.push_back(clusi0.globalPosition().z());
+      m_x1_tr.push_back(clusi1.globalPosition().x());
+      m_y1_tr.push_back(clusi1.globalPosition().y());
+      m_z1_tr.push_back(clusi1.globalPosition().z());
+      m_deta_tr.push_back(etai0-etai1);
       double dphi = phii0-phii1;
       if( dphi>M_PI )  dphi -= 2*M_PI;
       if( dphi<-M_PI ) dphi += 2*M_PI;
-      (*dphi_tr).push_back(dphi);
+      m_dphi_tr.push_back(dphi);
       
       //double dis = sqrt( (clusi0.globalPosition().x()-clusi1.globalPosition().x())*(clusi0.globalPosition().x()-clusi1.globalPosition().x()) + (clusi0.globalPosition().y()-clusi1.globalPosition().y())*(clusi0.globalPosition().y()-clusi1.globalPosition().y()) + (clusi0.globalPosition().z()-clusi1.globalPosition().z())*(clusi0.globalPosition().z()-clusi1.globalPosition().z()) );
       //double pt = fabs(0.0003*dis/dphi);
-      double x0p = clusi0.globalPosition().x()-vx;
-      double y0p = clusi0.globalPosition().y()-vy;
-      //double z0p = clusi0.globalPosition().z()-vz;
-      double x1p = clusi1.globalPosition().x()-vx;
-      double y1p = clusi1.globalPosition().y()-vy;
+      double x0p = clusi0.globalPosition().x()-m_vx;
+      double y0p = clusi0.globalPosition().y()-m_vy;
+      //double z0p = clusi0.globalPosition().z()-m_vz;
+      double x1p = clusi1.globalPosition().x()-m_vx;
+      double y1p = clusi1.globalPosition().y()-m_vy;
       //double z1p = clusi1.globalPosition().z()-vz;
       double O1 = 0.5*(y1p-y0p+x1p*x1p/y1p-x0p*x0p/y0p)/(x1p/y1p-x0p/y0p);//circle center x with respect to vx, vy
       double O2 = 0.5*(x1p-x0p+y1p*y1p/x1p-y0p*y0p/x0p)/(y1p/x1p-y0p/x0p);//circle center y with respect to vx, vy
@@ -1163,11 +1055,11 @@ StatusCode MakePixelTracklets::FillNTuple()
       double p = sqrt(pt*pt+pz*pz);
       double px = pt*cos(phii0);
       double py = pt*sin(phii0);
-      (*pt_tr).push_back(pt);
-      (*p_tr).push_back(p);
-      (*px_tr).push_back(px);
-      (*py_tr).push_back(py);
-      (*pz_tr).push_back(pz);
+      m_pt_tr.push_back(pt);
+      m_p_tr.push_back(p);
+      m_px_tr.push_back(px);
+      m_py_tr.push_back(py);
+      m_pz_tr.push_back(pz);
       
       Rec::TrackParticle* trkp = new Rec::TrackParticle();
       trkp->setPx(px);
@@ -1176,29 +1068,25 @@ StatusCode MakePixelTracklets::FillNTuple()
       trkp->setE(p);
       trkpcon->push_back(trkp);
 
-      const HepGeom::Point3D<double> vPosition(vx,vy,vz);
+      const HepGeom::Point3D<double> vPosition(m_vx,m_vy,m_vz);
       std::vector<PixelCluster*> twoClusters;
       twoClusters.push_back(&trackletsCol[it][0]);
       twoClusters.push_back(&trackletsCol[it][1]);
       trkcoll->push_back(new HIPixelTracklets(vPosition,twoClusters));
     }
-  sc = m_StoreGate->record(trkpcon,"PixelTrackletTrackParticles");
-  if( sc.isFailure() ){log << MSG::ERROR << "Could not save converted PixelTracklet Particles! " << endreq;
-  return StatusCode::FAILURE;}
-  sc = m_StoreGate->record(trkcoll,m_pixelTrackletsCollection);
-  if( sc.isFailure() ) {log << MSG::ERROR << "Could not record pixelTrackletsCollection to storegage!" << endreq; 
-  return StatusCode::FAILURE; }
+  ATH_CHECK( evtStore()->record(trkpcon,"PixelTrackletTrackParticles") );
+  ATH_CHECK( evtStore()->record(trkcoll,m_pixelTrackletsCollection) );
   
-  //log << MSG::DEBUG << "fill tracklets finished." << endreq;
+  //ATH_MSG_DEBUG( "fill tracklets finished." );
   if( m_mc_available )
     {
       //initialize number of truth tracks
-      ntrT = 0;
+      m_ntrT = 0;
       
-      for(std::vector<const HepMC::GenParticle*>::iterator pitr = primaryGenParts.begin();pitr != primaryGenParts.end(); pitr++)
+      for(std::vector<const HepMC::GenParticle*>::const_iterator pitr = primaryGenParts.begin();pitr != primaryGenParts.end(); pitr++)
 	{ 
-	  //(*pdgid).push_back((*pitr)->pdg_id());
-	  (*partTid).push_back((*pitr)->pdg_id());
+	  //m_pdgid.push_back((*pitr)->pdg_id());
+	  m_partTid.push_back((*pitr)->pdg_id());
 	  
 	  //13.07.11 Savannah #84284 Scott fix 
 	  //int vBarcode = 0;
@@ -1206,39 +1094,39 @@ StatusCode MakePixelTracklets::FillNTuple()
 	    {
 	      const HepMC::GenVertex *pvrt = (*pitr)->production_vertex();
 	      int ingoingparticles = pvrt->particles_in_size();
-	      (*nparentT).push_back(ingoingparticles);
-	      //log << MSG::DEBUG << ingoingparticles << " parents particles. " << endreq;
+	      m_nparentT.push_back(ingoingparticles);
+	      //ATH_MSG_DEBUG( ingoingparticles << " parents particles. " );
 	      if( ingoingparticles!=1 ){
-		(*parentTid).push_back(0);
+		m_parentTid.push_back(0);
 	      }
 	      else {
-		(*parentTid).push_back((*(pvrt->particles_in_const_begin()))->pdg_id());
+		m_parentTid.push_back((*(pvrt->particles_in_const_begin()))->pdg_id());
 	      }
 	      
 	      //13.07.11 Savannah #84284 Scott fix
 	      //vBarcode = (*pitr)->production_vertex()->barcode();
-	      //log << MSG::DEBUG << "vertex barcode: " << vBarcode << endreq;
+	      //ATH_MSG_DEBUG( "vertex barcode: " << vBarcode );
 	      //right now only by position to identify true primary
-	      (*prod_vrtxT).push_back((*pitr)->production_vertex()->position().x());
-	      (*prod_vrtyT).push_back((*pitr)->production_vertex()->position().y());
-	      (*prod_vrtzT).push_back((*pitr)->production_vertex()->position().z());
-	      if( (*pitr)->production_vertex()->position().z()==sim_vz && 
-		  (*pitr)->production_vertex()->position().x()==sim_vx &&
-		  (*pitr)->production_vertex()->position().y()==sim_vy )
+	      m_prod_vrtxT.push_back((*pitr)->production_vertex()->position().x());
+	      m_prod_vrtyT.push_back((*pitr)->production_vertex()->position().y());
+	      m_prod_vrtzT.push_back((*pitr)->production_vertex()->position().z());
+	      if( (*pitr)->production_vertex()->position().z()==m_sim_vz && 
+		  (*pitr)->production_vertex()->position().x()==m_sim_vx &&
+		  (*pitr)->production_vertex()->position().y()==m_sim_vy )
 		
-		(*primaryDecayLabel).push_back(0);
+		m_primaryDecayLabel.push_back(0);
 	      else
-		(*primaryDecayLabel).push_back(1);
+		m_primaryDecayLabel.push_back(1);
 	    }
 	  else
 	    {
-	      (*primaryDecayLabel).push_back(-1);
-	      (*prod_vrtxT).push_back(-100000);
-	      (*prod_vrtyT).push_back(-100000);
-	      (*prod_vrtzT).push_back(-100000);
-	      (*nparentT).push_back(-100000);
-	      (*parentTid).push_back(-100000);
-	      log << MSG::DEBUG << "gen particle has not production vertex! What does this mean. " << endreq;
+	      m_primaryDecayLabel.push_back(-1);
+	      m_prod_vrtxT.push_back(-100000);
+	      m_prod_vrtyT.push_back(-100000);
+	      m_prod_vrtzT.push_back(-100000);
+	      m_nparentT.push_back(-100000);
+	      m_parentTid.push_back(-100000);
+	      ATH_MSG_DEBUG( "gen particle has not production vertex! What does this mean. " );
 	    }
 	  
 	  double eta = (*pitr)->momentum().eta();
@@ -1251,91 +1139,91 @@ StatusCode MakePixelTracklets::FillNTuple()
 	  //make 100MeV cuts
 	  //if( pt<100.0 ) continue;
 	  
-	  (*etaT).push_back(eta);
-	  (*phiT).push_back(phi);
-	  (*ptT).push_back(pt/1000.);
-	  (*pT).push_back(p/1000.);
-	  (*pxT).push_back(px/1000.);
-	  (*pyT).push_back(py/1000.);
-	  (*pzT).push_back(pz/1000.);
-	  ntrT++;
+	  m_etaT.push_back(eta);
+	  m_phiT.push_back(phi);
+	  m_ptT.push_back(pt/1000.);
+	  m_pT.push_back(p/1000.);
+	  m_pxT.push_back(px/1000.);
+	  m_pyT.push_back(py/1000.);
+	  m_pzT.push_back(pz/1000.);
+	  m_ntrT++;
 	}
       
-      for(std::vector<std::vector<PixelCluster> >::iterator ino = genPartCol\
+      for(std::vector<std::vector<PixelCluster> >::const_iterator ino = genPartCol\
 	    .begin(); ino!=genPartCol.end(); ino++) {
 	std::vector<PixelCluster> genClusters = *ino;
-	(*nPixelClustersT).push_back(genClusters.size());
+	m_nPixelClustersT.push_back(genClusters.size());
 	int nBLayerCl = 0;
 	for(unsigned int icl=0; icl<genClusters.size(); icl++) {
 	  Identifier id = genClusters[icl].identify();
-	  if(pixelID->layer_disk(id)==0) nBLayerCl++;
+	  if(m_pixelID->layer_disk(id)==0) nBLayerCl++;
 	}
-	(*nBLayerClustersT).push_back(nBLayerCl);
+	m_nBLayerClustersT.push_back(nBLayerCl);
       }
-      //log << MSG::DEBUG << "number of genParticles: " << genPartCol.size() << endreq;
+      //ATH_MSG_DEBUG( "number of genParticles: " << genPartCol.size() );
       // int igenpart=-1;
 //       for(std::vector<std::vector<PixelCluster> >::iterator ino = genPartCol.begin(); ino!=genPartCol.end(); ino++)
 // 	{
 // 	  igenpart++;
 // 	  std::vector<PixelCluster> genClusters = *ino;
 // 	  //log << MSG::DEBUG << "number of clusters per gen particle. " << genClusters.size() << endreq;
-// 	  (*nPixelClustersT).push_back(genClusters.size());
+// 	  m_nPixelClustersT.push_back(genClusters.size());
 // 	  if( genClusters.size()==0 )
 // 	    {
-// 	      (*x0_true).push_back(-100);
-// 	      (*y0_true).push_back(-100);
-// 	      (*z0_true).push_back(-100);
-// 	      (*x1_true).push_back(-100);
-// 	      (*y1_true).push_back(-100);
-// 	      (*z1_true).push_back(-100);
-// 	      (*eta0_true).push_back(-100);
-// 	      (*phi0_true).push_back(-100);
-// 	      (*eta1_true).push_back(-100);
-// 	      (*phi1_true).push_back(-100);
-// 	      (*deta_true).push_back(-100);
-// 	      (*dphi_true).push_back(-100);
+// 	      m_x0_true.push_back(-100);
+// 	      m_y0_true.push_back(-100);
+// 	      m_z0_true.push_back(-100);
+// 	      m_x1_true.push_back(-100);
+// 	      m_y1_true.push_back(-100);
+// 	      m_z1_true.push_back(-100);
+// 	      m_eta0_true.push_back(-100);
+// 	      m_phi0_true.push_back(-100);
+// 	      m_eta1_true.push_back(-100);
+// 	      m_phi1_true.push_back(-100);
+// 	      m_deta_true.push_back(-100);
+// 	      m_dphi_true.push_back(-100);
 // 	    }
 // 	  if( genClusters.size()==1 )
 // 	    {
 // 	      const PixelCluster& clusi0=genClusters[0]; //not necessary the first layer
-// 	      int layer = pixelID->layer_disk(clusi0.identify());
-// 	      double cxi0 = clusi0.globalPosition().x() - vx;
-//               double cyi0 = clusi0.globalPosition().y() - vy;
-//               double czi0 = clusi0.globalPosition().z() - vz;
+// 	      int layer = m_pixelID->layer_disk(clusi0.identify());
+// 	      double cxi0 = clusi0.globalPosition().x() - m_vx;
+//               double cyi0 = clusi0.globalPosition().y() - m_vy;
+//               double czi0 = clusi0.globalPosition().z() - m_vz;
 //               double phii0 = atan2(cyi0,cxi0);
 //               double ri0 = sqrt(cxi0*cxi0+cyi0*cyi0);
 //               double thetai0 = atan2(ri0,czi0);
 //               double etai0 = -TMath::Log(TMath::Tan(thetai0/2));
 // 	      if( layer==0 ) //first layer
 // 		{
-// 		  (*x0_true).push_back(clusi0.globalPosition().x());
-// 		  (*y0_true).push_back(clusi0.globalPosition().y());
-// 		  (*z0_true).push_back(clusi0.globalPosition().z());
-// 		  (*eta0_true).push_back(etai0);
-// 		  (*phi0_true).push_back(phii0);
-// 		  (*x1_true).push_back(-100);
-//                   (*y1_true).push_back(-100);
-//                   (*z1_true).push_back(-100);
-// 		  (*eta1_true).push_back(-100);
-// 		  (*phi1_true).push_back(-100);
-// 		  (*deta_true).push_back(-100);
-// 		  (*dphi_true).push_back(-100);
+// 		  m_x0_true.push_back(clusi0.globalPosition().x());
+// 		  m_y0_true.push_back(clusi0.globalPosition().y());
+// 		  m_z0_true.push_back(clusi0.globalPosition().z());
+// 		  m_eta0_true.push_back(etai0);
+// 		  m_phi0_true.push_back(phii0);
+// 		  m_x1_true.push_back(-100);
+//                   m_y1_true.push_back(-100);
+//                   m_z1_true.push_back(-100);
+// 		  m_eta1_true.push_back(-100);
+// 		  m_phi1_true.push_back(-100);
+// 		  m_deta_true.push_back(-100);
+// 		  m_dphi_true.push_back(-100);
 		  
 // 		}
 // 	      if( layer==1 )
 // 		{
-// 		  (*x1_true).push_back(clusi0.globalPosition().x());
-//                   (*y1_true).push_back(clusi0.globalPosition().y());
-//                   (*z1_true).push_back(clusi0.globalPosition().z());
-// 		  (*eta1_true).push_back(etai0);
-// 		  (*phi1_true).push_back(phii0);
-// 		  (*x0_true).push_back(-100);
-//                   (*y0_true).push_back(-100);
-//                   (*z0_true).push_back(-100);
-// 		  (*eta0_true).push_back(-100);
-// 		  (*phi0_true).push_back(-100);
-// 		  (*deta_true).push_back(-100);
-// 		  (*dphi_true).push_back(-100);
+// 		  m_x1_true.push_back(clusi0.globalPosition().x());
+//                   m_y1_true.push_back(clusi0.globalPosition().y());
+//                   m_z1_true.push_back(clusi0.globalPosition().z());
+// 		  m_eta1_true.push_back(etai0);
+// 		  m_phi1_true.push_back(phii0);
+// 		  m_x0_true.push_back(-100);
+//                   m_y0_true.push_back(-100);
+//                   m_z0_true.push_back(-100);
+// 		  m_eta0_true.push_back(-100);
+// 		  m_phi0_true.push_back(-100);
+// 		  m_deta_true.push_back(-100);
+// 		  m_dphi_true.push_back(-100);
 // 		}
 // 	    }
 // 	  if( genClusters.size()>1 )
@@ -1344,100 +1232,100 @@ StatusCode MakePixelTracklets::FillNTuple()
 // 	      int label1=-1;
 // 	      for(unsigned int icl=0; icl<genClusters.size(); icl++)
 // 		{
-// 		  if(pixelID->layer_disk(genClusters[icl].identify())==0)
+// 		  if(m_pixelID->layer_disk(genClusters[icl].identify())==0)
 // 		    label0=icl;
-// 		  if(pixelID->layer_disk(genClusters[icl].identify())==1)
+// 		  if(m_pixelID->layer_disk(genClusters[icl].identify())==1)
 // 		    label1=icl;
 // 		}
 // 	      if( label1==-1 ) //both are first layer
 // 		{
 // 		  const PixelCluster& clusi0=genClusters[label0];
-// 		  double cxi0 = clusi0.globalPosition().x() - vx;
-//                   double cyi0 = clusi0.globalPosition().y() - vy;
-//                   double czi0 = clusi0.globalPosition().z() - vz;
+// 		  double cxi0 = clusi0.globalPosition().x() - m_vx;
+//                   double cyi0 = clusi0.globalPosition().y() - m_vy;
+//                   double czi0 = clusi0.globalPosition().z() - m_vz;
 //                   double phii0 = atan2(cyi0,cxi0);
 //                   double ri0 = sqrt(cxi0*cxi0+cyi0*cyi0);
 //                   double thetai0 = atan2(ri0,czi0);
 //                   double etai0 = -TMath::Log(TMath::Tan(thetai0/2));
-// 		  (*x0_true).push_back(clusi0.globalPosition().x());
-//                   (*y0_true).push_back(clusi0.globalPosition().y());
-//                   (*z0_true).push_back(clusi0.globalPosition().z());
-// 		  (*eta0_true).push_back(etai0);
-//                   (*phi0_true).push_back(phii0);
-// 		  (*x1_true).push_back(-100);
-//                   (*y1_true).push_back(-100);
-//                   (*z1_true).push_back(-100);
-//                   (*eta1_true).push_back(-100);
-//                   (*phi1_true).push_back(-100);
-//                   (*deta_true).push_back(-100);
-//                   (*dphi_true).push_back(-100);
+// 		  m_x0_true.push_back(clusi0.globalPosition().x());
+//                   m_y0_true.push_back(clusi0.globalPosition().y());
+//                   m_z0_true.push_back(clusi0.globalPosition().z());
+// 		  m_eta0_true.push_back(etai0);
+//                   m_phi0_true.push_back(phii0);
+// 		  m_x1_true.push_back(-100);
+//                   m_y1_true.push_back(-100);
+//                   m_z1_true.push_back(-100);
+//                   m_eta1_true.push_back(-100);
+//                   m_phi1_true.push_back(-100);
+//                   m_deta_true.push_back(-100);
+//                   m_dphi_true.push_back(-100);
 // 		}
 // 	      else if ( label0==-1 ) //both are second layer
 // 		{
 // 		  const PixelCluster& clusi1=genClusters[label1];
-// 		  double cxi1 = clusi1.globalPosition().x() - vx;
-//                   double cyi1 = clusi1.globalPosition().y() - vy;
-//                   double czi1 = clusi1.globalPosition().z() - vz;
+// 		  double cxi1 = clusi1.globalPosition().x() - m_vx;
+//                   double cyi1 = clusi1.globalPosition().y() - m_vy;
+//                   double czi1 = clusi1.globalPosition().z() - m_vz;
 //                   double phii1 = atan2(cyi1,cxi1);
 //                   double ri1 = sqrt(cxi1*cxi1+cyi1*cyi1);
 //                   double thetai1 = atan2(ri1,czi1);
 //                   double etai1 = -TMath::Log(TMath::Tan(thetai1/2));
-// 		  (*x1_true).push_back(clusi1.globalPosition().x());
-//                   (*y1_true).push_back(clusi1.globalPosition().y());
-//                   (*z1_true).push_back(clusi1.globalPosition().z());
-// 		  (*eta1_true).push_back(etai1);
-//                   (*phi1_true).push_back(phii1);
-// 		  (*x0_true).push_back(-100);
-//                   (*y0_true).push_back(-100);
-//                   (*z0_true).push_back(-100);
-//                   (*eta0_true).push_back(-100);
-//                   (*phi0_true).push_back(-100);
-//                   (*deta_true).push_back(-100);
-//                   (*dphi_true).push_back(-100);
+// 		  m_x1_true.push_back(clusi1.globalPosition().x());
+//                   m_y1_true.push_back(clusi1.globalPosition().y());
+//                   m_z1_true.push_back(clusi1.globalPosition().z());
+// 		  m_eta1_true.push_back(etai1);
+//                   m_phi1_true.push_back(phii1);
+// 		  m_x0_true.push_back(-100);
+//                   m_y0_true.push_back(-100);
+//                   m_z0_true.push_back(-100);
+//                   m_eta0_true.push_back(-100);
+//                   m_phi0_true.push_back(-100);
+//                   m_deta_true.push_back(-100);
+//                   m_dphi_true.push_back(-100);
 // 		}
 // 	      else
 // 		{
 // 		  const PixelCluster& clusi0=genClusters[label0];
 // 		  const PixelCluster& clusi1=genClusters[label1];
-// 		  double cxi0 = clusi0.globalPosition().x() - vx;
-// 		  double cyi0 = clusi0.globalPosition().y() - vy;
-// 		  double czi0 = clusi0.globalPosition().z() - vz;
+// 		  double cxi0 = clusi0.globalPosition().x() - m_vx;
+// 		  double cyi0 = clusi0.globalPosition().y() - m_vy;
+// 		  double czi0 = clusi0.globalPosition().z() - m_vz;
 // 		  double phii0 = atan2(cyi0,cxi0);
 // 		  double ri0 = sqrt(cxi0*cxi0+cyi0*cyi0);
 // 		  double thetai0 = atan2(ri0,czi0);
 // 		  double etai0 = -TMath::Log(TMath::Tan(thetai0/2));
-// 		  double cxi1 = clusi1.globalPosition().x() - vx;
-// 		  double cyi1 = clusi1.globalPosition().y() - vy;
-// 		  double czi1 = clusi1.globalPosition().z() - vz;
+// 		  double cxi1 = clusi1.globalPosition().x() - m_vx;
+// 		  double cyi1 = clusi1.globalPosition().y() - m_vy;
+// 		  double czi1 = clusi1.globalPosition().z() - m_vz;
 // 		  double phii1 = atan2(cyi1,cxi1);
 // 		  double ri1 = sqrt(cxi1*cxi1+cyi1*cyi1);
 // 		  double thetai1 = atan2(ri1,czi1);
 // 		  double etai1 = -TMath::Log(TMath::Tan(thetai1/2));
-// 		  (*x0_true).push_back(clusi0.globalPosition().x());
-//                   (*y0_true).push_back(clusi0.globalPosition().y());
-//                   (*z0_true).push_back(clusi0.globalPosition().z());
-// 		  (*eta0_true).push_back(etai0);
-// 		  (*phi0_true).push_back(phii0);
-// 		  (*x1_true).push_back(clusi1.globalPosition().x());
-//                   (*y1_true).push_back(clusi1.globalPosition().y());
-//                   (*z1_true).push_back(clusi1.globalPosition().z());
-// 		  (*eta1_true).push_back(etai1);
-// 		  (*phi1_true).push_back(phii1);
+// 		  m_x0_true.push_back(clusi0.globalPosition().x());
+//                   m_y0_true.push_back(clusi0.globalPosition().y());
+//                   m_z0_true.push_back(clusi0.globalPosition().z());
+// 		  m_eta0_true.push_back(etai0);
+// 		  m_phi0_true.push_back(phii0);
+// 		  m_x1_true.push_back(clusi1.globalPosition().x());
+//                   m_y1_true.push_back(clusi1.globalPosition().y());
+//                   m_z1_true.push_back(clusi1.globalPosition().z());
+// 		  m_eta1_true.push_back(etai1);
+// 		  m_phi1_true.push_back(phii1);
 // 		  double detat = etai0-etai1;
-// 		  (*deta_true).push_back(detat);
+// 		  m_deta_true.push_back(detat);
 // 		  double dphit = phii0-phii1;
 // 		  if( dphit>M_PI ) dphit -= 2*M_PI;
 // 		  if( dphit<-M_PI) dphit += 2*M_PI;
-// 		  (*dphi_true).push_back(dphit);
+// 		  m_dphi_true.push_back(dphit);
 // 		}
 // 	    }
 // 	}
       //log << MSG::DEBUG << "test. genCol end" << endreq;
       //    //used for test to see where are those fake tracklets coming from
-//       for(int i=0; i<ntr; i++)
+//       for(int i=0; i<m_ntr; i++)
 // 	{
 // 	  if( trackletsMatch[i] ) continue;
-// 	  if( (*matchedToWeakDecay)[i] ) continue;
+// 	  if( (*m_matchedToWeakDecay)[i] ) continue;
 // 	  std::vector<PixelCluster> twoClusters = trackletsCol[i];
 // 	  const PixelCluster& clus0 = twoClusters[0];
 // 	  const PixelCluster& clus1 = twoClusters[1];
@@ -1465,52 +1353,53 @@ StatusCode MakePixelTracklets::FillNTuple()
 // 	}
     }
 
-  //log << MSG::DEBUG << "NumVrtRec: " << NumVrtRec << " ntr: " << ntr << " ntrT: " << ntrT << endreq;
-  //log << MSG::DEBUG << "eta0 size: " << eta0_tr->size() << " eta0T size: " << eta0_true->size() << endreq;
-  trackletsTree->Fill();
+  //ATH_MSG_DEBUG( "NumVrtRec: " << m_NumVrtRec << " ntr: " << m_ntr << " ntrT: " << m_ntrT );
+  //ATH_MSG_DEBUG( "eta0 size: " << m_eta0_tr->size() << " eta0T size: " << m_eta0_true->size() );
+  m_trackletsTree->Fill();
   return StatusCode::SUCCESS;
 }
 
-StatusCode MakePixelTracklets::RetrieveTruth()
+StatusCode
+MakePixelTracklets::RetrieveTruth (const ClusterLayers_t& clusterLayers,
+                                   std::vector<const HepMC::GenParticle*>& primaryGenParts,
+                                   std::vector<const HepMC::GenParticle*>& weakDecayParts,
+                                   std::vector<std::vector<PixelCluster> >& genPartCol,
+                                   std::vector<std::vector<PixelCluster> >& weakDecayCol)
 {
-  MsgStream log(msgSvc(), name());
-  //log << MSG::DEBUG << "RetireveTruth()::beginning. " << endreq;
+  //ATH_MSG_DEBUG( "RetrieveTruth()::beginning. " );
   if( !m_mc_available )
     return StatusCode::SUCCESS;
   //retrieve all primary genparticles
   //get the simulated event position
-  const McEventCollection *mcCollection(0);
-  StatusCode sc = m_StoreGate->retrieve(mcCollection,"TruthEvent");
-  if( sc.isFailure() )
-    {
-      log << MSG::ERROR << "TruthEvent not found" << endreq;
-      log << MSG::ERROR << "the monte carlo flag tells us it there however!" << endreq;
-      return sc;
-    }
+  const McEventCollection *mcCollection = nullptr;
+  ATH_CHECK( evtStore()->retrieve(mcCollection,"TruthEvent") );
   
   //generated primary vertex
   McEventCollection::const_iterator it = mcCollection->begin();
   const HepMC::GenEvent* genEvent = (*it);
   if( genEvent==0 )
     {
-      log << MSG::INFO << " GenEvent not found. " << endreq;
+      ATH_MSG_INFO( " GenEvent not found. " );
       return StatusCode::FAILURE;
     }
   HepMC::GenEvent::vertex_const_iterator pv;
   pv = genEvent->vertices_begin();
  
   //log << MSG::DEBUG << "num of vertices: " << nvrts << endreq;
-  if( m_StoreGate->contains<PileUpEventInfo>("OverlayEvent")  )
+  if( evtStore()->contains<PileUpEventInfo>("OverlayEvent")  )
     {
-      log << MSG::INFO << "more that one mc vertices, pileup events? " << endreq;
-      log << MSG::INFO << "Anyway right now only use the first mc vertex." << endreq;
+      ATH_MSG_INFO( "more that one mc vertices, pileup events? " );
+      ATH_MSG_INFO( "Anyway right now only use the first mc vertex." );
     }
   
-  //log << MSG::DEBUG << " signal vertex barcode: " << (*pv)->barcode() << endreq;
-  if( !(*pv) ) { log<< MSG::INFO << "ERROR: Truth vertex not exist!" << endreq; return StatusCode::SUCCESS; }
-  sim_vx = (*pv)->position().x();
-  sim_vy = (*pv)->position().y();
-  sim_vz = (*pv)->position().z();
+  //ATH_MSG_DEBUG( " signal vertex barcode: " << (*pv)->barcode() );
+  if( !(*pv) ) {
+    ATH_MSG_INFO( "ERROR: Truth vertex not exist!" );
+    return StatusCode::SUCCESS;
+  }
+  m_sim_vx = (*pv)->position().x();
+  m_sim_vy = (*pv)->position().y();
+  m_sim_vz = (*pv)->position().z();
   
   //int nvrts = genEvent->vertices_size();
   pv++;
@@ -1525,19 +1414,19 @@ StatusCode MakePixelTracklets::RetrieveTruth()
       double eta = part->momentum().eta();
       if( fabs(eta)>m_etaMax+1.0 ) continue;
       if( part->status()!=1 ) continue;
-      //log << MSG::DEBUG << "stable particle barcode: " << part->barcode() << endreq;
+      //ATH_MSG_DEBUG( "stable particle barcode: " << part->barcode() );
       if( part->barcode() <200000 ) continue;
       weakDecayParts.push_back(part);
     }
     
   }
   
-  //log << MSG::DEBUG << "particles from weak decay: " << weakDecayParts.size() << endreq;
-  //log << MSG::DEBUG << " signal vertex x,y,z: " << sim_vx << "," << sim_vy << "," << sim_vz << endreq;
+  //ATH_MSG_DEBUG( "particles from weak decay: " << weakDecayParts.size() );
+  //ATH_MSG_DEBUG( " signal vertex x,y,z: " << m_sim_vx << "," << m_sim_vy << "," << m_sim_vz );
   McEventCollection::const_iterator ie = mcCollection->begin();
   ie++;
   for( ; ie!=mcCollection->end(); ie++){
-    log << MSG::DEBUG << "test. " << endreq;
+    ATH_MSG_DEBUG( "test. " );
   }
   
   TruthHelper::IsGenStable ifs;
@@ -1549,13 +1438,13 @@ StatusCode MakePixelTracklets::RetrieveTruth()
       const HepMC::GenParticle* part = *pitr;
       if( part==0 )
 	{
-	  log << MSG::INFO << "no genparticle found" << endreq;
+	  ATH_MSG_INFO( "no genparticle found" );
 	  continue;
 	}
       int barcode = part->barcode();
-      //log << MSG::DEBUG << " barcode: " << barcode << endreq;
+      //ATH_MSG_DEBUG( " barcode: " << barcode );
       
-      //  if(fabs((*pitr)->production_vertex()->position().z() - vz)>1.0) 
+      //  if(fabs((*pitr)->production_vertex()->position().z() - m_vz)>1.0) 
       // 	    continue;
       //primary particle cut???not sure
       if( barcode>200000 ) continue;
@@ -1563,7 +1452,7 @@ StatusCode MakePixelTracklets::RetrieveTruth()
       if( part->status()!= 1 ) continue;
       
       //if(fabs((*pitr)->production_vertex()->position().z() - sim_vrt_z)>0.5)
-      //log << MSG::DEBUG << " vertex z:x:y " << (*pitr)->production_vertex()->position().z() << ":" << (*pitr)->production_vertex()->position().x() << ":" << (*pitr)->production_vertex()->position().y() << " simulation vertex z: " << sim_vrt_z << endreq;
+      //ATH_MSG_DEBUG( " vertex z:x:y " << (*pitr)->production_vertex()->position().z() << ":" << (*pitr)->production_vertex()->position().x() << ":" << (*pitr)->production_vertex()->position().y() << " simulation vertex z: " << sim_vrt_z );
       
       Int_t pid = abs((*pitr)->pdg_id());
       // select stable hadrons
@@ -1573,23 +1462,26 @@ StatusCode MakePixelTracklets::RetrieveTruth()
       //Is there something wrong with the particle data group. Some (*m_particleDataTable)[pid] doesn't exist and cause crash. e.g. pid=21
       if( (*m_particleDataTable)[pid] )
 	charge = (*m_particleDataTable)[pid]->charge();
-      else { log<<MSG::INFO << "WARNING: this M_PID is not in particle data table." << pid << endreq; }
+      else {
+        ATH_MSG_INFO( "WARNING: this M_PID is not in particle data table." << pid );
+      }
       if( charge==0.0 ) continue;
       double eta = (*pitr)->momentum().eta();
       //only consider particles in the pixel acceptance region              
       if( fabs(eta)>m_etaMax+1.0 ) continue;
       primaryGenParts.push_back(part);
       
-      //log << MSG::DEBUG << "primary:" << barcode << endreq;
+      //ATH_MSG_DEBUG( "primary:" << barcode );
     }
-  
-  if(m_StoreGate->contains<PRD_MultiTruthCollection>(m_multiTruthCollectionPixelName)) 
+
+  const PRD_MultiTruthCollection *truthCollectionPixel;
+  if( evtStore()->contains<PRD_MultiTruthCollection>(m_multiTruthCollectionPixelName)) 
     {
-      sc = m_StoreGate->retrieve(m_truthCollectionPixel, m_multiTruthCollectionPixelName);
+      StatusCode sc = evtStore()->retrieve(truthCollectionPixel, m_multiTruthCollectionPixelName);
       if(sc.isFailure()){
-	log << MSG::INFO << " could not open PRD_MultiTruthCollection : " <<  m_multiTruthCollectionPixelName << endreq;
+	ATH_MSG_INFO( " could not open PRD_MultiTruthCollection : " <<  m_multiTruthCollectionPixelName );
 	sc=StatusCode::SUCCESS; // not having truth information is not a failure
-	m_truthCollectionPixel=0;
+	truthCollectionPixel=0;
 	return StatusCode::SUCCESS;
       }
     }
@@ -1598,11 +1490,11 @@ StatusCode MakePixelTracklets::RetrieveTruth()
   //std::map<Identifier,PixelCluster> clusIDMap;
   //std::set<int> genParticles;
   for(int la=0; la<3; la++) {
-    for(unsigned int i0=0; i0<clusterLayer[la].size(); i0++) {
-      const PixelCluster& clusi0 = clusterLayer[la][i0];
+    for(unsigned int i0=0; i0<clusterLayers[la].size(); i0++) {
+      const PixelCluster& clusi0 = clusterLayers[la][i0];
       Identifier ID = clusi0.identify();
       std::pair<PRD_MultiTruthCollection::const_iterator,PRD_MultiTruthCollection::const_iterator> range;
-      range= m_truthCollectionPixel->equal_range(ID);
+      range= truthCollectionPixel->equal_range(ID);
       //clusIDMap.insert(std::pair<Identifier,PixelCluster>(ID,clusi0));
       for(PRD_MultiTruthCollection::const_iterator i = range.first; i != range.second; i++) {
 	const HepMC::GenParticle& part = *(i->second);
@@ -1639,7 +1531,7 @@ StatusCode MakePixelTracklets::RetrieveTruth()
 //       const PixelCluster& clusi0 = clusterLayer0[i0];
 //       Identifier ID = clusi0.identify();
 //       std::pair<PRD_MultiTruthCollection::const_iterator,PRD_MultiTruthCollection::const_iterator> range;
-//       range= m_truthCollectionPixel->equal_range(ID);
+//       range= truthCollectionPixel->equal_range(ID);
 //       //clusIDMap.insert(std::pair<Identifier,PixelCluster>(ID,clusi0));
 //       for(PRD_MultiTruthCollection::const_iterator i = range.first; i != range.second; i++)
 // 	{
@@ -1655,7 +1547,7 @@ StatusCode MakePixelTracklets::RetrieveTruth()
 //       const PixelCluster& clusi1 = clusterLayer1[i1];
 //       Identifier ID = clusi1.identify();
 //       std::pair<PRD_MultiTruthCollection::const_iterator,PRD_MultiTruthCollection::const_iterator> range;
-//       range= m_truthCollectionPixel->equal_range(ID);
+//       range= truthCollectionPixel->equal_range(ID);
 //       //clusIDMap.insert(std::pair<Identifier,PixelCluster>(ID,clusi1));
 //       for(PRD_MultiTruthCollection::const_iterator i = range.first; i != range.second; i++)
 //         {
@@ -1667,7 +1559,7 @@ StatusCode MakePixelTracklets::RetrieveTruth()
 // 	  partClustersMap.insert(std::pair<int,PixelCluster>(barcode,clusi1));
 // 	}
 //     }
-  //log << MSG::DEBUG << "weak decay particles. " << weakDecayParts.size() << endreq;
+  //ATH_MSG_DEBUG( "weak decay particles. " << weakDecayParts.size() );
   for( std::vector<const HepMC::GenParticle*>::iterator pitr = weakDecayParts.begin(); pitr!=weakDecayParts.end(); pitr++)
     {
       int barcode = (*pitr)->barcode();
@@ -1686,9 +1578,13 @@ StatusCode MakePixelTracklets::RetrieveTruth()
 }
 
 
-void MakePixelTracklets::TruthAssociation() {
-  MsgStream log(msgSvc(), name());
-  //log << MSG::DEBUG << "TruthAssociation()::beginning" << endreq;
+void MakePixelTracklets::TruthAssociation(const std::vector<std::vector<PixelCluster> >& trackletsCol,
+                                          const std::vector<const HepMC::GenParticle*>& primaryGenParts,
+                                          const std::vector<const HepMC::GenParticle*>& weakDecayParts,
+                                          const std::vector<std::vector<PixelCluster> >& genPartCol,
+                                          const std::vector<std::vector<PixelCluster> >& weakDecayCol)
+{
+  //ATH_MSG_DEBUG( "TruthAssociation()::beginning" );
   for(unsigned int itr=0; itr<trackletsCol.size(); itr++) {
     int pdgid = 0;
     int parentPdgid = 0;
@@ -1714,17 +1610,17 @@ void MakePixelTracklets::TruthAssociation() {
 	const HepMC::GenVertex *pvrt = ppart->production_vertex();
 	if( pvrt ) parentPdgid = (*(pvrt->particles_in_const_begin()))->pdg_id();
 	
-	(*matched).push_back(1);
-	(*matchedToWeakDecay).push_back(0);
-	(*matchedNumber).push_back(ipart);
-	(*partid_tr).push_back(pdgid);
-	(*parentid_tr).push_back(parentPdgid);
+	m_matched.push_back(1);
+	m_matchedToWeakDecay.push_back(0);
+	m_matchedNumber.push_back(ipart);
+	m_partid_tr.push_back(pdgid);
+	m_parentid_tr.push_back(parentPdgid);
 	break;
       }
     }
     
     if( foundPri ) continue;
-    else   (*matched).push_back(0); //not matched to primaries
+    else   m_matched.push_back(0); //not matched to primaries
     //match to secondaries
     bool found = false;
     for(unsigned int ipart=0; ipart<weakDecayCol.size(); ipart++) {
@@ -1743,19 +1639,19 @@ void MakePixelTracklets::TruthAssociation() {
 	const HepMC::GenVertex *pvrt = wpart->production_vertex();
 	if( pvrt ) parentPdgid = (*(pvrt->particles_in_const_begin()))->pdg_id();
 	
-	(*matchedToWeakDecay).push_back(1);
-	(*matchedNumber).push_back(ipart);
-	(*partid_tr).push_back(pdgid);
-	(*parentid_tr).push_back(parentPdgid);
+	m_matchedToWeakDecay.push_back(1);
+	m_matchedNumber.push_back(ipart);
+	m_partid_tr.push_back(pdgid);
+	m_parentid_tr.push_back(parentPdgid);
 	break;
       }
     }
     //combinatorics, not matched to parimaries or secondaries
     if( !found ) { 
-      (*matchedToWeakDecay).push_back(0);
-      (*matchedNumber).push_back(-1);
-      (*partid_tr).push_back(0);
-      (*parentid_tr).push_back(0);
+      m_matchedToWeakDecay.push_back(0);
+      m_matchedNumber.push_back(-1);
+      m_partid_tr.push_back(0);
+      m_parentid_tr.push_back(0);
     }
     
   }
@@ -1763,41 +1659,42 @@ void MakePixelTracklets::TruthAssociation() {
 }
 
 
-void MakePixelTracklets::CalEfficiency(int layer)
+void MakePixelTracklets::CalEfficiency(int layer,
+                                       ClusterLayers_t& clusterLayers,
+                                       std::map<int,int>& threeLayerTrkMap)
 {
   //this should be done, because the function was called twice
-  (*projected_eff).clear();
-  (*phi_eff).clear();
-  (*eta_eff).clear();
-  (*pt_eff).clear();
-  MsgStream log(msgSvc(), name());
+  m_projected_eff.clear();
+  m_phi_eff.clear();
+  m_eta_eff.clear();
+  m_pt_eff.clear();
   std::vector<PixelCluster> clusterLayerRef;
   std::vector<PixelCluster> clusterLayerHole;
   if( layer==0 )
     {
-      for(unsigned int i=0; i<clusterLayer[1].size(); i++)
-	clusterLayerRef.push_back(clusterLayer[1][i]);
-      for(unsigned int i=0; i<clusterLayer[0].size(); i++)
-	clusterLayerHole.push_back(clusterLayer[0][i]);
+      for(unsigned int i=0; i<clusterLayers[1].size(); i++)
+	clusterLayerRef.push_back(clusterLayers[1][i]);
+      for(unsigned int i=0; i<clusterLayers[0].size(); i++)
+	clusterLayerHole.push_back(clusterLayers[0][i]);
     }
   else if( layer==1 )
     {
-      for(unsigned int i=0; i<clusterLayer[0].size(); i++)
-	clusterLayerRef.push_back(clusterLayer[0][i]);
-      for(unsigned int i=0; i<clusterLayer[1].size(); i++)
-	clusterLayerHole.push_back(clusterLayer[1][i]);
+      for(unsigned int i=0; i<clusterLayers[0].size(); i++)
+	clusterLayerRef.push_back(clusterLayers[0][i]);
+      for(unsigned int i=0; i<clusterLayers[1].size(); i++)
+	clusterLayerHole.push_back(clusterLayers[1][i]);
     }
   else {
-    log << MSG::ERROR << "CalEfficiency() with a wrong input parameter!" << endreq;
+    ATH_MSG_ERROR( "CalEfficiency() with a wrong input parameter!" );
   }
   std::vector<double> etaHoles;
   std::vector<double> phiHoles;
   for(unsigned int ih=0; ih<clusterLayerHole.size(); ih++)
     {
       const PixelCluster& clusi0 = clusterLayerHole[ih];
-      double cxi0 = clusi0.globalPosition().x() - vx;
-      double cyi0 = clusi0.globalPosition().y() - vy;
-      double czi0 = clusi0.globalPosition().z() - vz;
+      double cxi0 = clusi0.globalPosition().x() - m_vx;
+      double cyi0 = clusi0.globalPosition().y() - m_vy;
+      double czi0 = clusi0.globalPosition().z() - m_vz;
       double phii0 = atan2(cyi0,cxi0);
       double ri0 = sqrt(cxi0*cxi0+cyi0*cyi0);
       double thetai0 = atan2(ri0,czi0);
@@ -1811,24 +1708,24 @@ void MakePixelTracklets::CalEfficiency(int layer)
   std::vector<double> phiRef;
   std::vector<double> ptTrks;
   std::vector<std::vector<PixelCluster> > trackletsEff;
-  MakeTracklets(false,0,clusterLayerRef, clusterLayer[2], trackletsEff);
+  MakeTracklets(false,0,clusterLayers, clusterLayerRef, clusterLayers[2], trackletsEff,threeLayerTrkMap);
   unsigned int ntrksEff = trackletsEff.size();
   for(unsigned int it=0; it<ntrksEff; it++)
     {
       std::vector<PixelCluster> twoClusters = trackletsEff[it];
       const PixelCluster& clusi0 = twoClusters[0];
       const PixelCluster& clusi1 = twoClusters[1];
-      //log << MSG::DEBUG << "tracklets first layer:" << pixelID->layer_disk(clusi0.identify())<<endreq;
-      double cxi0 = clusi0.globalPosition().x() - vx;
-      double cyi0 = clusi0.globalPosition().y() - vy;
-      double czi0 = clusi0.globalPosition().z() - vz;
+      //ATH_MSG_DEBUG( "tracklets first layer:" << m_pixelID->layer_disk(clusi0.identify()));
+      double cxi0 = clusi0.globalPosition().x() - m_vx;
+      double cyi0 = clusi0.globalPosition().y() - m_vy;
+      double czi0 = clusi0.globalPosition().z() - m_vz;
       double phii0 = atan2(cyi0,cxi0);
       double ri0 = sqrt(cxi0*cxi0+cyi0*cyi0);
       double thetai0 = atan2(ri0,czi0);
       double etai0 = -TMath::Log(TMath::Tan(thetai0/2));
-      double cxi1 = clusi1.globalPosition().x() - vx;
-      double cyi1 = clusi1.globalPosition().y() - vy;
-      double czi1 = clusi1.globalPosition().z() - vz;
+      double cxi1 = clusi1.globalPosition().x() - m_vx;
+      double cyi1 = clusi1.globalPosition().y() - m_vy;
+      double czi1 = clusi1.globalPosition().z() - m_vz;
       double phii1 = atan2(cyi1,cxi1);
       double ri1 = sqrt(cxi1*cxi1+cyi1*cyi1);
       double thetai1 = atan2(ri1,czi1);
@@ -1864,9 +1761,9 @@ void MakePixelTracklets::CalEfficiency(int layer)
       double etai1 = etaLayer2[i];
       double phii1 = phiLayer2[i];
       double pt = ptTrks[i];
-      (*eta_eff).push_back(etai0);
-      (*phi_eff).push_back(phii0);
-      (*pt_eff).push_back(pt);
+      m_eta_eff.push_back(etai0);
+      m_phi_eff.push_back(phii0);
+      m_pt_eff.push_back(pt);
       bool found = false;
       for(unsigned int ih=0; ih<etaHoles.size(); ih++)
 	{
@@ -1888,463 +1785,175 @@ void MakePixelTracklets::CalEfficiency(int layer)
 	    }
 	}
       if( found )
-	(*projected_eff).push_back(1);
+	m_projected_eff.push_back(1);
       else
-	(*projected_eff).push_back(0);
+	m_projected_eff.push_back(0);
     }
 
   if( layer==0 )
-    effTree0->Fill();
+    m_effTree0->Fill();
   if( layer==1 )
-    effTree1->Fill();
+    m_effTree1->Fill();
 }
 
 void MakePixelTracklets::NewVectors()
 {
-  //new all the vectors that will be used for the output trees
-  
-  matched = new std::vector<int>;
-  matchedNumber = new std::vector<int>;
-  matchedToWeakDecay = new std::vector<int>;
-  startingPoint = new std::vector<int>;
-  threeLayerTrk = new std::vector<int>;
-  deleted = new std::vector<int>;
-  deletedBecauseOf = new std::vector<int>;
-  pt_tr = new std::vector<double>;
-  p_tr = new std::vector<double>;
-  px_tr = new std::vector<double>;
-  py_tr = new std::vector<double>;
-  pz_tr = new std::vector<double>;
-  ptF_tr = new std::vector<double>;
-  pF_tr = new std::vector<double>;
-  eta0_tr = new std::vector<double>;
-  phi0_tr = new std::vector<double>;
-  csize0_tr = new std::vector<int>;
-  eta1_tr = new std::vector<double>;
-  phi1_tr = new std::vector<double>;
-  csize1_tr = new std::vector<int>;
-  ccol0_tr = new std::vector<double>;
-  ccol1_tr = new std::vector<double>;
-  crow0_tr = new std::vector<double>;
-  crow1_tr = new std::vector<double>;
-  crphi0_tr = new std::vector<double>;
-  crphi1_tr = new std::vector<double>;
-  cz0_tr = new std::vector<double>;
-  cz1_tr = new std::vector<double>;
-  dedx0_tr = new std::vector<double>;
-  dedx1_tr = new std::vector<double>;
-  pathLength0_tr = new std::vector<double>;
-  pathLength1_tr = new std::vector<double>;
-  partid_tr = new std::vector<int>;
-  parentid_tr = new std::vector<int>;
-  eta0F_tr = new std::vector<double>;
-  phi0F_tr = new std::vector<double>;
-  eta1F_tr = new std::vector<double>;
-  phi1F_tr = new std::vector<double>;
-  deta_tr = new std::vector<double>;
-  dphi_tr = new std::vector<double>;
-  detaF_tr = new std::vector<double>;
-  dphiF_tr = new std::vector<double>;
-  etaT = new std::vector<double>;
-  phiT = new std::vector<double>;
-  ptT = new std::vector<double>;
-  pT = new std::vector<double>;
-  pxT = new std::vector<double>;
-  pyT = new std::vector<double>;
-  pzT = new std::vector<double>;
-  partTid = new std::vector<int>;
-  nparentT = new std::vector<int>; //number of parent particles,
-  parentTid = new std::vector<int>; //can only record with one parent particle, which are interested for k short, lambda, and sigma
-  multipTrks = new std::vector<int>;
-  
-  //parameters for all the clusters in layer 0 and 1                                        
-  eta0_all = new std::vector<double>;
-  phi0_all = new std::vector<double>;
-  csize0_all = new std::vector<int>;
-  eta1_all = new std::vector<double>;
-  phi1_all = new std::vector<double>;
-  csize1_all = new std::vector<int>;
-  ccol0_all = new std::vector<double>;
-  ccol1_all = new std::vector<double>;
-  crow0_all = new std::vector<double>;
-  crow1_all = new std::vector<double>;
-  crphi0_all = new std::vector<double>;
-  crphi1_all = new std::vector<double>;
-  cz0_all = new std::vector<double>;
-  cz1_all = new std::vector<double>;
-  dedx0_all = new std::vector<double>;
-  dedx1_all = new std::vector<double>;
-  pathLength0_all = new std::vector<double>;
-  pathLength1_all = new std::vector<double>;
-
-  eta2_all = new std::vector<double>;
-  phi2_all = new std::vector<double>;
-  dedx2_all = new std::vector<double>;
-  pathLength2_all = new std::vector<double>;
-  
-  //ganged flag
-  ganged0_tr = new std::vector<int>;
-  ganged1_tr = new std::vector<int>;
-  
-  x0_all = new std::vector<double>;
-  y0_all = new std::vector<double>;
-  z0_all = new std::vector<double>;
-  
-  x1_all = new std::vector<double>;
-  y1_all = new std::vector<double>;
-  z1_all = new std::vector<double>;
-  
-  x0_tr = new std::vector<double>;
-  y0_tr = new std::vector<double>;
-  z0_tr = new std::vector<double>;
-  
-  x1_tr = new std::vector<double>;
-  y1_tr = new std::vector<double>;
-  z1_tr = new std::vector<double>;
-  
-   //
-  nPixelClustersT = new std::vector<int>;
-  nBLayerClustersT = new std::vector<int>;
-  //
-  x0_true = new std::vector<double>;
-  y0_true = new std::vector<double>;
-  z0_true = new std::vector<double>;
-  eta0_true = new std::vector<double>;
-  phi0_true = new std::vector<double>;
-  x1_true = new std::vector<double>;
-  y1_true = new std::vector<double>;
-  z1_true = new std::vector<double>;
-  eta1_true = new std::vector<double>;
-  phi1_true = new std::vector<double>;
-  deta_true = new std::vector<double>;
-  dphi_true = new std::vector<double>;
-  //
-  //pdgid = new std::vector<int>;
-  prod_vrtxT = new std::vector<double>;
-  prod_vrtyT = new std::vector<double>;
-  prod_vrtzT = new std::vector<double>;
-  //primary or others
-  primaryDecayLabel = new std::vector<int>;
-  for(int i=0; i<3; i++) {
-    unassociated0[i] = new std::vector<int>;
-    unassociated1[i] = new std::vector<int>;
-    unassociated2[i] = new std::vector<int>;
-  }
-  //
-  projected_eff = new std::vector<int>;
-  phi_eff = new std::vector<double>;
-  eta_eff = new std::vector<double>;
-  pt_eff = new std::vector<double>;
-
-  eta_ca = new std::vector<double>;
-  phi_ca = new std::vector<double>;
-  ene_ca = new std::vector<double>;
 }
 
 void MakePixelTracklets::DeleteNewVectors()
 {
-  //delete all new vectors created in constructor
-  
-  delete matched;
-  delete matchedNumber;
-  delete matchedToWeakDecay;
-  delete startingPoint;
-  delete threeLayerTrk;
-  delete deleted;
-  delete deletedBecauseOf;
-  delete pt_tr;
-  delete p_tr;
-  delete px_tr;
-  delete py_tr;
-  delete pz_tr;
-  delete ptF_tr;
-  delete pF_tr;
-  delete eta0_tr;
-  delete phi0_tr;
-  delete csize0_tr;
-  delete eta1_tr;
-  delete phi1_tr;
-  delete csize1_tr;
-  delete ccol0_tr;
-  delete ccol1_tr;
-  delete crow0_tr;
-  delete crow1_tr;
-  delete crphi0_tr;
-  delete crphi1_tr;
-  delete cz0_tr;
-  delete cz1_tr;
-  delete dedx0_tr;
-  delete dedx1_tr;
-  delete pathLength0_tr;
-  delete pathLength1_tr;
-  delete partid_tr;
-  delete parentid_tr;
-  delete eta0F_tr;
-  delete phi0F_tr;
-  delete eta1F_tr;
-  delete phi1F_tr;
-  delete deta_tr;
-  delete dphi_tr;
-  delete detaF_tr;
-  delete dphiF_tr;
-  delete etaT;
-  delete phiT;
-  delete ptT;
-  delete pT;
-  delete pxT;
-  delete pyT;
-  delete pzT;
-  delete partTid;
-  delete nparentT; 
-  delete parentTid; 
-  delete multipTrks;
-  
-  //parameters for all the clusters in layer 0 and 1                                        
-  delete eta0_all;
-  delete phi0_all;
-  delete csize0_all;
-  delete eta1_all;
-  delete phi1_all;
-  delete csize1_all;
-  delete ccol0_all;
-  delete ccol1_all;
-  delete crow0_all;
-  delete crow1_all;
-  delete crphi0_all;
-  delete crphi1_all;
-  delete cz0_all;
-  delete cz1_all;
-  delete dedx0_all;
-  delete dedx1_all;
-  delete pathLength0_all;
-  delete pathLength1_all;
-
-  delete eta2_all;
-  delete phi2_all;
-  delete dedx2_all;
-  delete pathLength2_all;
-  
-  //ganged flag
-  delete ganged0_tr;
-  delete ganged1_tr;
-  
-  delete x0_all;
-  delete y0_all;
-  delete z0_all;
-  
-  delete x1_all;
-  delete y1_all;
-  delete z1_all;
-  
-  delete x0_tr;
-  delete y0_tr;
-  delete z0_tr;
-  
-  delete x1_tr;
-  delete y1_tr;
-  delete z1_tr;
-  
-  //
-  delete nPixelClustersT;
-  delete nBLayerClustersT;
-  //
-  delete x0_true;
-  delete y0_true;
-  delete z0_true;
-  delete eta0_true;
-  delete phi0_true;
-  delete x1_true;
-  delete y1_true;
-  delete z1_true;
-  delete eta1_true;
-  delete phi1_true;
-  delete deta_true;
-  delete dphi_true;
-  //
-  //pdgid = new std::vector<int>;
-  delete prod_vrtxT;
-  delete prod_vrtyT;
-  delete prod_vrtzT;
-  //primary or others
-  delete primaryDecayLabel;
-  for(int i=0; i<3; i++) {
-    delete unassociated0[i];
-    delete unassociated1[i];
-    delete unassociated2[i];
-  }
-  //
-  delete projected_eff;
-  delete phi_eff;
-  delete eta_eff;
-  delete pt_eff;
-
-  delete eta_ca;
-  delete phi_ca;
-  delete ene_ca;
 }
 
 void MakePixelTracklets::ClearVectors()
 {
   //clear all vectors that are global variable
-   trackletsCol.clear();
-  (*multipTrks).clear();
-  clusterLayer[0].clear();
-  clusterLayer[1].clear();
-  clusterLayer[2].clear();
-  usedClusterLayer[0].clear();
-  usedClusterLayer[1].clear();
-  usedClusterLayer[2].clear();
+   m_multipTrks.clear();
    //log << MSG::DEBUG << "Starting fill trees." << endreq;
-  (*matched).clear();
-  (*matchedNumber).clear();
-  (*matchedToWeakDecay).clear();
-  (*startingPoint).clear();
-  (*threeLayerTrk).clear();
-  (*deleted).clear();
-  (*deletedBecauseOf).clear();
-  (*pt_tr).clear();
-  (*p_tr).clear();
-  (*px_tr).clear();
-  (*py_tr).clear();
-  (*pz_tr).clear();
-  (*partid_tr).clear();
-  (*parentid_tr).clear();
-  (*ptF_tr).clear();
-  (*pF_tr).clear();
-  (*eta0_tr).clear();
-  (*phi0_tr).clear();
-  (*eta1_tr).clear();
-  (*phi1_tr).clear();
-  (*dedx0_tr).clear();
-  (*dedx1_tr).clear();
-  (*pathLength0_tr).clear();
-  (*pathLength1_tr).clear();
-  (*csize0_tr).clear();
-  (*ccol0_tr).clear();
-  (*ccol1_tr).clear();
-  (*crow0_tr).clear();
-  (*crow1_tr).clear();
-  (*crphi0_tr).clear();
-  (*crphi1_tr).clear();
-  (*cz0_tr).clear();
-  (*cz1_tr).clear();
-  
-  (*csize1_tr).clear();
-  (*eta0F_tr).clear();
-  (*phi0F_tr).clear();
-  (*eta1F_tr).clear();
-  (*phi1F_tr).clear();
-  (*deta_tr).clear();
-  (*dphi_tr).clear();
-  (*detaF_tr).clear();
-  (*dphiF_tr).clear();
-  (*etaT).clear();
-  (*phiT).clear();
-  (*ptT).clear();
-  (*pT).clear();
-  (*pxT).clear();
-  (*pyT).clear();
-  (*pzT).clear();
-  (*nparentT).clear();
-  (*parentTid).clear();
-  (*partTid).clear();
+  m_matched.clear();
+  m_matchedNumber.clear();
+  m_matchedToWeakDecay.clear();
+  m_startingPoint.clear();
+  m_threeLayerTrk.clear();
+  m_deleted.clear();
+  m_deletedBecauseOf.clear();
+  m_pt_tr.clear();
+  m_p_tr.clear();
+  m_px_tr.clear();
+  m_py_tr.clear();
+  m_pz_tr.clear();
+  m_partid_tr.clear();
+  m_parentid_tr.clear();
+  m_eta0_tr.clear();
+  m_phi0_tr.clear();
+  m_eta1_tr.clear();
+  m_phi1_tr.clear();
+  m_dedx0_tr.clear();
+  m_dedx1_tr.clear();
+  m_pathLength0_tr.clear();
+  m_pathLength1_tr.clear();
+  m_csize0_tr.clear();
+  m_ccol0_tr.clear();
+  m_ccol1_tr.clear();
+  m_crow0_tr.clear();
+  m_crow1_tr.clear();
+  m_crphi0_tr.clear();
+  m_crphi1_tr.clear();
+  m_cz0_tr.clear();
+  m_cz1_tr.clear();
+  m_csize1_tr.clear();
+  m_eta0F_tr.clear();
+  m_phi0F_tr.clear();
+  m_eta1F_tr.clear();
+  m_phi1F_tr.clear();
+  m_deta_tr.clear();
+  m_dphi_tr.clear();
+  m_detaF_tr.clear();
+  m_dphiF_tr.clear();
+  m_etaT.clear();
+  m_phiT.clear();
+  m_ptT.clear();
+  m_pT.clear();
+  m_pxT.clear();
+  m_pyT.clear();
+  m_pzT.clear();
+  m_nparentT.clear();
+  m_parentTid.clear();
+  m_partTid.clear();
   //parameters for all the clusters in layer 0 and 1
-  (*eta0_all).clear();
-  (*phi0_all).clear();
-  (*eta1_all).clear();
-  (*phi1_all).clear();
-  (*eta2_all).clear();
-  (*phi2_all).clear();
-  (*dedx0_all).clear();
-  (*dedx1_all).clear();
-  (*dedx2_all).clear();
-  (*pathLength0_all).clear();
-  (*pathLength1_all).clear();
-  (*pathLength2_all).clear();
-  (*csize0_all).clear();
-  (*csize1_all).clear();
-  (*ccol0_all).clear();
-  (*ccol1_all).clear();
-  (*crow0_all).clear();
-  (*crow1_all).clear();
-  (*crphi0_all).clear();
-  (*crphi1_all).clear();
-  (*cz0_all).clear();
-  (*cz1_all).clear();
-  //ganged flag
-  (*ganged0_tr).clear();
-  (*ganged1_tr).clear();
+  m_eta0_all.clear();
+  m_phi0_all.clear();
+  m_eta1_all.clear();
+  m_phi1_all.clear();
+  m_eta2_all.clear();
+  m_phi2_all.clear();
+  m_dedx0_all.clear();
+  m_dedx1_all.clear();
+  m_dedx2_all.clear();
+  m_pathLength0_all.clear();
+  m_pathLength1_all.clear();
+  m_pathLength2_all.clear();
+  m_csize0_all.clear();
+  m_csize1_all.clear();
+  m_ccol0_all.clear();
+  m_ccol1_all.clear();
+  m_crow0_all.clear();
+  m_crow1_all.clear();
+  m_crphi0_all.clear();
+  m_crphi1_all.clear();
+  m_cz0_all.clear();
+  m_cz1_all.clear();
+  m_ganged0_tr.clear();
+  m_ganged1_tr.clear();
 
   //all coordination to test overlap
-  (*x0_all).clear();
-  (*y0_all).clear();
-  (*z0_all).clear();
-  (*x1_all).clear();
-  (*y1_all).clear();
-  (*z1_all).clear();
-  (*x0_tr).clear();
-  (*y0_tr).clear();
-  (*z0_tr).clear();
-  (*x1_tr).clear();
-  (*y1_tr).clear();
-  (*z1_tr).clear();
+  m_x0_all.clear();
+  m_y0_all.clear();
+  m_z0_all.clear();
+  m_x1_all.clear();
+  m_y1_all.clear();
+  m_z1_all.clear();
+  m_x0_tr.clear();
+  m_y0_tr.clear();
+  m_z0_tr.clear();
+  m_x1_tr.clear();
+  m_y1_tr.clear();
+  m_z1_tr.clear();
   //
-  (*nPixelClustersT).clear();
-  (*nBLayerClustersT).clear();
-  (*x0_true).clear();
-  (*y0_true).clear();
-  (*z0_true).clear();
-  (*eta0_true).clear();
-  (*phi0_true).clear();
-  (*x1_true).clear();
-  (*y1_true).clear();
-  (*z1_true).clear();
-  (*eta1_true).clear();
-  (*phi1_true).clear();
-  (*deta_true).clear();
-  (*dphi_true).clear();
+  m_nPixelClustersT.clear();
+  m_nBLayerClustersT.clear();
+  m_x0_true.clear();
+  m_y0_true.clear();
+  m_z0_true.clear();
+  m_eta0_true.clear();
+  m_phi0_true.clear();
+  m_x1_true.clear();
+  m_y1_true.clear();
+  m_z1_true.clear();
+  m_eta1_true.clear();
+  m_phi1_true.clear();
+  m_deta_true.clear();
+  m_dphi_true.clear();
   //
-  //(*pdgid).clear();
-  (*prod_vrtxT).clear();
-  (*prod_vrtyT).clear();
-  (*prod_vrtzT).clear();
+  //m_pdgid.clear();
+  m_prod_vrtxT.clear();
+  m_prod_vrtyT.clear();
+  m_prod_vrtzT.clear();
   //primary decay label
-  (*primaryDecayLabel).clear();
+  m_primaryDecayLabel.clear();
   //
   for(int i=0; i<3; i++ ) {
-    (*unassociated0[i]).clear();
-    (*unassociated1[i]).clear();
-    (*unassociated2[i]).clear();
+    m_unassociated0[i].clear();
+    m_unassociated1[i].clear();
+    m_unassociated2[i].clear();
   }
-  primaryGenParts.clear();
-  weakDecayParts.clear();
-  genPartCol.clear();
-  weakDecayCol.clear();
-  threeLayerTrkMap.clear();
-  //
   
-  //
-  (*projected_eff).clear();
-  (*phi_eff).clear();
-  (*eta_eff).clear();
-  (*pt_eff).clear();
+  m_projected_eff.clear();
+  m_phi_eff.clear();
+  m_eta_eff.clear();
+  m_pt_eff.clear();
 
-  (*eta_ca).clear();
-  (*phi_ca).clear();
-  (*ene_ca).clear();
+  m_eta_ca.clear();
+  m_phi_ca.clear();
+  m_ene_ca.clear();
   
 }
 
-void MakePixelTracklets::ZVrtCollection(std::vector<double> & zVrts) {
-  for(unsigned int i0=0; i0<clusterLayer[0].size(); i0++){
-    const PixelCluster& clusi0 = clusterLayer[0][i0];
+void MakePixelTracklets::ZVrtCollection(std::vector<double> & zVrts,
+                                        const Amg::Vector3D& v_ref,
+                                        const ClusterLayers_t& clusterLayers)
+{
+  double vx_ref = v_ref.x();
+  double vy_ref = v_ref.y();
+
+  for(unsigned int i0=0; i0<clusterLayers[0].size(); i0++){
+    const PixelCluster& clusi0 = clusterLayers[0][i0];
     double xi0 = clusi0.globalPosition().x() - vx_ref;
     double yi0 = clusi0.globalPosition().y() - vy_ref;
     double phii0 = atan2(yi0,xi0);
     double ri0 = sqrt(xi0*xi0+yi0*yi0);
     double zi0 = clusi0.globalPosition().z();
-    for(unsigned int i1=0; i1<clusterLayer[1].size(); i1++) {
-      const PixelCluster& clusi1 = clusterLayer[1][i1];
+    for(unsigned int i1=0; i1<clusterLayers[1].size(); i1++) {
+      const PixelCluster& clusi1 = clusterLayers[1][i1];
       double xi1 = clusi1.globalPosition().x() - vx_ref;
       double yi1 = clusi1.globalPosition().y() - vy_ref;
       double phii1 = atan2(yi1,xi1);
@@ -2354,13 +1963,13 @@ void MakePixelTracklets::ZVrtCollection(std::vector<double> & zVrts) {
       double dphi = phii0 - phii1;
       if( dphi>M_PI )  dphi -= 2*M_PI;
       if( dphi<-M_PI ) dphi += 2*M_PI;
-      if( fabs(dphi)<vrt_phi_cut ) {
+      if( fabs(dphi)<m_vrt_phi_cut ) {
 	double zCan = zi0-ri0*(zi0-zi1)/(ri0-ri1);
 	zVrts.push_back(zCan);
       }
     }
-    for(unsigned int i1=0; i1<clusterLayer[2].size(); i1++) {
-      const PixelCluster& clusi1 = clusterLayer[2][i1];
+    for(unsigned int i1=0; i1<clusterLayers[2].size(); i1++) {
+      const PixelCluster& clusi1 = clusterLayers[2][i1];
       double xi1 = clusi1.globalPosition().x() - vx_ref;
       double yi1 = clusi1.globalPosition().y() - vy_ref;
       double phii1 = atan2(yi1,xi1);
@@ -2370,17 +1979,16 @@ void MakePixelTracklets::ZVrtCollection(std::vector<double> & zVrts) {
       double dphi = phii0 - phii1;
       if( dphi>M_PI )  dphi -= 2*M_PI;
       if( dphi<-M_PI ) dphi += 2*M_PI;
-      if( fabs(dphi)<vrt_phi_cut ) {
+      if( fabs(dphi)<m_vrt_phi_cut ) {
 	double zCan = zi0-ri0*(zi0-zi1)/(ri0-ri1);
 	zVrts.push_back(zCan);
       }
     }
   }
-  //log << MSG::DEBUG << "n0:n1:n2 " << clusterLayer0.size() << ":" << clusterLayer1.size() << ":" << clusterLayer2.size() << "# of candidate: " << zVrts.size() << endreq;
+  //ATH_MSG_DEBUG( "n0:n1:n2 " << clusterLayer0.size() << ":" << clusterLayer1.size() << ":" << clusterLayer2.size() << "# of candidate: " << zVrts.size() );
 }
 
 int MakePixelTracklets::ZVrtFinder(std::vector<double> & zVrts){
-  MsgStream log(msgSvc(),name());
   int zsize = zVrts.size();
   bool exchange;
   for(int iz=0; iz<zsize; iz++) {
@@ -2396,15 +2004,15 @@ int MakePixelTracklets::ZVrtFinder(std::vector<double> & zVrts){
     if( exchange == false ) break;
   }
   
-  // log << MSG::DEBUG << "after sorting: " << endreq;
+  // ATH_MSG_DEBUG( "after sorting: " );
 //   for(int iz=0; iz<zsize; iz++) {
-//     log << MSG::DEBUG << zVrts[iz] << endreq;
+//     ATH_MSG_DEBUG( zVrts[iz] );
 //   }
   
   std::vector<std::set<double> > zClusters;
   for(int iz=0; iz<zsize; iz++) {
     std::set<double> zColls;
-    while( fabs(zVrts[iz]-zVrts[iz+1])<vrt_z_cut )
+    while( fabs(zVrts[iz]-zVrts[iz+1])<m_vrt_z_cut )
       {
 	zColls.insert(zVrts[iz]);
 	zColls.insert(zVrts[iz+1]);
@@ -2413,9 +2021,9 @@ int MakePixelTracklets::ZVrtFinder(std::vector<double> & zVrts){
     if( zColls.size()!=0 ) zClusters.push_back(zColls);
   }
   if( zClusters.size()==0 ) {
-    //log << MSG::DEBUG << " ZVrtFinder() failed to find a vertex. " << endreq;
-    NumVrtFinder = 0;
-    vz_finder = 0.0;
+    //ATH_MSG_DEBUG( " ZVrtFinder() failed to find a vertex. " );
+    m_NumVrtFinder = 0;
+    m_vz_finder = 0.0;
     return 0;
   }
   unsigned int max_clus=0;
@@ -2433,41 +2041,31 @@ int MakePixelTracklets::ZVrtFinder(std::vector<double> & zVrts){
   for( ; it!=vrtZPos.end(); it++){
     zAvg += *it;
   }
-  
-  zAvg /= max_clus;
-  NumVrtFinder = 1;
-  vz_finder = zAvg;
-  //log << MSG::DEBUG << "find z vertex position: " << zAvg << endreq;
+
+  if (max_clus != 0)
+    zAvg /= max_clus;
+  m_NumVrtFinder = 1;
+  m_vz_finder = zAvg;
+  //ATH_MSG_DEBUG( "find z vertex position: " << zAvg );
   return 1;
 }
 
-StatusCode MakePixelTracklets::RetrieveCaloClusters() {
-  MsgStream log(msgSvc(),name());
-  
-  StatusCode sc = m_StoreGate->retrieve(m_clusterCont, m_CaloClustersContainerName);
-  if( sc.isFailure() || !m_clusterCont ) {
-    log << MSG::INFO << "No CaloCluster container found in TDS." << endreq;
-    return sc;
-  }
-  
-  return StatusCode::SUCCESS;
-}
-
-void MakePixelTracklets::AnaCaloClusters(){
-  MsgStream log(msgSvc(),name());
+StatusCode MakePixelTracklets::AnaCaloClusters(){
+  const CaloClusterContainer* clusterCont = nullptr;
+  ATH_CHECK( evtStore()->retrieve( clusterCont, m_CaloClustersContainerName) );
   const double m_maxAxisAngle = 20*CLHEP::deg; 
-  nCalo = m_clusterCont->size();
-  log << MSG::DEBUG << "ncalo cluster: " << nCalo << endreq;
-  log << MSG::DEBUG << "vertex x,y,z=" << vx << "," << vy << "," << vz << endreq;
-  CaloClusterContainer::const_iterator itb = m_clusterCont->begin();
-  CaloClusterContainer::const_iterator ite = m_clusterCont->end();
+  m_nCalo = clusterCont->size();
+  ATH_MSG_DEBUG( "ncalo cluster: " << m_nCalo );
+  ATH_MSG_DEBUG( "vertex x,y,z=" << m_vx << "," << m_vy << "," << m_vz );
+  CaloClusterContainer::const_iterator itb = clusterCont->begin();
+  CaloClusterContainer::const_iterator ite = clusterCont->end();
   for( ; itb!=ite; itb++ ) {
     const CaloCluster* caloclus = *itb;
     //if( caloclus->inBarrel() ) {
-      (*eta_ca).push_back(caloclus->eta());
-      (*phi_ca).push_back(caloclus->phi());
-      (*ene_ca).push_back(caloclus->energy());
-      log << MSG::DEBUG << "calo cluster: energy: " << caloclus->energy() << " inBarrel:" << caloclus->inBarrel() << endreq;
+      m_eta_ca.push_back(caloclus->eta());
+      m_phi_ca.push_back(caloclus->phi());
+      m_ene_ca.push_back(caloclus->energy());
+      ATH_MSG_DEBUG( "calo cluster: energy: " << caloclus->energy() << " inBarrel:" << caloclus->inBarrel() );
       double xc = 0.0;
       double yc = 0.0;
       double zc = 0.0;
@@ -2485,7 +2083,7 @@ void MakePixelTracklets::AnaCaloClusters(){
       for(; cellIter != cellIterEnd; cellIter++ ){
 	const CaloCell* pCell = (*cellIter);
 	if( !pCell ) {
-	  log << MSG::INFO << "ERROR:calo cell not exists! " << endreq;
+	  ATH_MSG_INFO( "ERROR:calo cell not exists! " );
 	  break;
 	}
 	Identifier myId = pCell->ID();
@@ -2497,7 +2095,7 @@ void MakePixelTracklets::AnaCaloClusters(){
 	  double xi = myCDDE->x();
 	  double yi = myCDDE->y();
 	  double zi = myCDDE->z();
-	  log << MSG::DEBUG << "Cell position (x,y,z)=(" << xi << "," << yi << "," << zi << endreq;
+	  ATH_MSG_DEBUG( "Cell position (x,y,z)=(" << xi << "," << yi << "," << zi );
 	  cellxv.push_back(xi);
 	  cellyv.push_back(yi);
 	  cellzv.push_back(zi);
@@ -2517,7 +2115,7 @@ void MakePixelTracklets::AnaCaloClusters(){
 	w = 0.0;
 	HepGeom::Vector3D<double> showerAxis(xc,yc,zc);
 	showerAxis.setMag(1);
-	log << MSG::DEBUG << "shower axis before: (x,y,z)=(" << showerAxis.x() << "," << showerAxis.y() << "," << showerAxis.z() << endreq;
+	ATH_MSG_DEBUG( "shower axis before: (x,y,z)=(" << showerAxis.x() << "," << showerAxis.y() << "," << showerAxis.z() );
 	double angle = 0.0;
 	if( ncell>2 ) {
 	  for(int ic=0; ic<ncell; ic++ ){
@@ -2569,16 +2167,17 @@ void MakePixelTracklets::AnaCaloClusters(){
 	      if(angle!=0.0) foundShowerAxis = true;
 	    }
 	    else 
-	      log << MSG::DEBUG << "principal Direction (" << prAxis.x() << ", "<< prAxis.y() << ", " << prAxis.z() << ") deviates more than "<< m_maxAxisAngle/CLHEP::deg << " CLHEP::deg from IP-to-ClusterCenter-axis (" << showerAxis.x() << ", "<< showerAxis.y() << ", " << showerAxis.z() << ")"<< endreq;
+	      ATH_MSG_DEBUG( "principal Direction (" << prAxis.x() << ", "<< prAxis.y() << ", " << prAxis.z() << ") deviates more than "<< m_maxAxisAngle/CLHEP::deg << " CLHEP::deg from IP-to-ClusterCenter-axis (" << showerAxis.x() << ", "<< showerAxis.y() << ", " << showerAxis.z() << ")");
 	  }
 	}
 	if( foundShowerAxis ) {
-	  log << MSG::DEBUG << "Shower Axis after= (" << showerAxis.x() << ", "<< showerAxis.y() << ", " << showerAxis.z() << ")" << endreq;
-	  log << MSG::DEBUG << "ncell=" << ncell << endreq;
-	  log << MSG::DEBUG << "test y,z=" <<yc-showerAxis.y()* (xc-vx)/showerAxis.x()<<"," << zc-showerAxis.z()*(xc-vx)/showerAxis.x() << endreq;
+	  ATH_MSG_DEBUG( "Shower Axis after= (" << showerAxis.x() << ", "<< showerAxis.y() << ", " << showerAxis.z() << ")" );
+	  ATH_MSG_DEBUG( "ncell=" << ncell );
+	  ATH_MSG_DEBUG( "test y,z=" <<yc-showerAxis.y()* (xc-m_vx)/showerAxis.x()<<"," << zc-showerAxis.z()*(xc-m_vx)/showerAxis.x() );
 	}
       }
       // }
   }
 
+  return StatusCode::SUCCESS;
 }

@@ -11,13 +11,8 @@
 
 #include "HIGlobal/HICaloUtil.h"
 // Gaudi includes
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include <string>
-
-class AtlasDetectorID;
-class Identifier;
-class StoreGateSvc;
 
 class CaloCellContainer;
 
@@ -30,7 +25,7 @@ class CaloCellContainer;
  *   @brief This calss is the algorithm for global Et reconstruction. 
  */  
 
-class HIGlobalEt : public Algorithm
+class HIGlobalEt : public AthAlgorithm
   {
   public:
 
@@ -41,7 +36,7 @@ class HIGlobalEt : public Algorithm
      /** Function which retrieve cell Et from CaloCellContainer */ 
      float GetEt(const CaloCellContainer * cCell);   
      /** Function which retrieve cell Et from CaloCellContainer and multiplicate it by proper calibration factor depending on cell's eta */
-     float* GetEtvsEta(const CaloCellContainer * cCell,HICaloUtil *m_correction);
+     float* GetEtvsEta(const CaloCellContainer * cCell);
            
      /** standard Athena-Algorithm method */
      StatusCode          initialize();
@@ -51,18 +46,7 @@ class HIGlobalEt : public Algorithm
      StatusCode          finalize();
 
   private:
-    
-    /** class member version of retrieving MsgStream */
-    mutable MsgStream                 m_log;
-
-    /** class member version of retrieving StoreGate */
-    StoreGateSvc*  m_sgSvc;
-
-    /** member variables for algorithm properties: */
-    float *m_et_vs_eta;
-     
-    HICaloUtil *m_correction;
-    
+    HICaloUtil m_correction;
   }; 
 
 #endif 

@@ -5,8 +5,7 @@
 #ifndef HIPIXELTRACKLETSMAKER_H
 #define HIPIXELTRACKLETSMAKER_H
 #include <string>
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/DataHandle.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
@@ -17,11 +16,10 @@
 
 //forward declaration
 class PixelID;
-class StoreGateSvc;
 class HIPixelTracklets;
 class Point3D;
 
-class HIPixelTrackletsMaker : public Algorithm {
+class HIPixelTrackletsMaker : public AthAlgorithm {
   typedef InDet::PixelClusterContainer PixelClusterContainer;
   typedef InDet::PixelClusterCollection PixelClusterCollection;
   typedef InDet::PixelCluster PixelCluster;
@@ -55,11 +53,9 @@ class HIPixelTrackletsMaker : public Algorithm {
   int m_backgroundFlip;
   bool m_doMC;
   bool m_doMagOff;
-  TF1* sigmaDetaEtaFunc;
-  TF1* sigmaDphiEtaFunc;
-  const PixelID *pixelID;
-  StoreGateSvc *m_storeGate;
-  StoreGateSvc* detStore;
+  TF1* m_sigmaDetaEtaFunc;
+  TF1* m_sigmaDphiEtaFunc;
+  const PixelID *m_pixelID;
   std::string m_pixelClustersName;
   HepGeom::Point3D<double> m_edgePositionLayer0[13][22];
   double m_edgePhiLayer0[13][22];
@@ -84,7 +80,7 @@ class HIPixelTrackletsMaker : public Algorithm {
   void setEdgePosition();
   void setEdgePhi();
   void clearVectors();
-  void layerClusters();
+  void layerClusters (const DataHandle<PixelClusterContainer>& clusters);
   void mapClusters();
   void makeTracklets(int innerLayer, int outLayer, std::map<int,std::vector<HIPixelTracklets*> > & trkletsCellMap);
   void makeTrackletsInCell(int innerLayer, int outLayer, int bin, std::vector<HIPixelTracklets*> & trkletsColl, std::vector<int> usedClusterIndex[3]);

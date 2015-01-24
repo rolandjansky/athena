@@ -11,6 +11,25 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
+HIFlowData::HIFlowData() :
+  m_Psi(),
+  m_Ssin(),
+  m_Scos(),
+  m_PsiEt(),
+  m_SsinEt(),
+  m_ScosEt(),
+  m_v2EMB1sil(0),
+  m_v2FCAL0sil(0),
+  m_PsiPtrack(0),
+  m_PsiNtrack(0),
+  m_v2track(0),
+  m_PsiPFCAL0_w(0),
+  m_PsiNFCAL0_w(0),
+  m_PsiFCAL0_w(0)
+{
+}
+
+
 // psi for e()
 void HIFlowData::Ssin(float *ssin)
 { 

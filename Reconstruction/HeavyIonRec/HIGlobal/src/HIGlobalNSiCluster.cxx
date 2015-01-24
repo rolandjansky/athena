@@ -7,26 +7,13 @@
 ///////////////////////////////////////////////////////////////////
 
 #include "HIGlobal/HIGlobalNSiCluster.h"
+#include "HIGlobal/EtaPhiBins.h"
 #include "StoreGate/StoreGateSvc.h"
 
-#include "StoreGate/StoreGateSvc.h"
-
-#include <fstream>
-
-#include "EventInfo/EventID.h"
 #include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/INTupleSvc.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/SmartDataPtr.h"
-#include "StoreGate/StoreGate.h"
-
-#include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiDetectorManager.h"
-
+#include "InDetPrepRawData/SiClusterContainer.h"
 #include "VxVertex/VxContainer.h"
 #include "VxVertex/RecVertex.h"
 
@@ -36,26 +23,30 @@
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "InDetPrepRawData/SiWidth.h"
 
-#include "GaudiKernel/AlgFactory.h"
-
 #include "TMath.h"
 
-#include <iostream>
-using std::cout;using std::endl;
 
 
 //================ Constructor =================================================
 
  HIGlobalNSiCluster::HIGlobalNSiCluster(const std::string& name, ISvcLocator* pSvcLocator)
   :
-  Algorithm(name,pSvcLocator),
-  m_log(msgSvc(),name)
+   AthAlgorithm(name,pSvcLocator),
+   m_nDet(0),
+   m_eventNumber(0),
+   m_numberOfEvents(0),
+   m_r(0),
+   m_phi(0),
+   m_z(0),
+   m_rowWidth(0),
+   m_colWidth(0),
+   m_phiWidth(0),
+   m_etaWidth(0),
+   m_errPhi(0),
+   m_errZ(0)
 {
-  //  template for property decalration
+  //  template for property declaration
   //declareProperty("PropertyName", m_propertyName);
-
-  //cout << " HIGlobalNSiCluster::creator    !!!!! " << endl;
-
 }
 
 //================ Destructor =================================================
@@ -70,18 +61,7 @@ StatusCode  HIGlobalNSiCluster::initialize()
 {
   // Code entered here will be executed once at program start.
   
-  m_log.setLevel(outputLevel());
-  m_log << MSG::DEBUG << name() << " initialize()" << endreq;
-
-  // retrieve the StoreGate Service (delete if not needed)
-
-  StatusCode sc= service("StoreGateSvc",m_sgSvc);
-  if (sc.isFailure()) {
-    m_log << MSG::FATAL << "StoreGate service not found !" << endreq;
-    return StatusCode::FAILURE;
-  } else {}
-
-  m_log << MSG::DEBUG << "initialize() successful in " << name() << endreq;
+  ATH_MSG_DEBUG( name() << " initialize()" );
   return StatusCode::SUCCESS;
 }
 
@@ -91,12 +71,10 @@ StatusCode  HIGlobalNSiCluster::finalize()
 {
   // Code entered here will be executed once at the end of the program run.
 
-  m_log.setLevel(outputLevel());
-  m_log << MSG::DEBUG << name() << " finalize  called  !!!!!" << endreq;
+  ATH_MSG_DEBUG( name() << " finalize  called  !!!!!" );
   //cout << " HIGlobalNSiCluster::finalize    !!!!! " << endl;
   //cout << " HIGlobalNSiCluster::finalize    !!!!! " << endl;
   //cout << " HIGlobalNSiCluster::finalize    !!!!! " << endl;
-
   return StatusCode::SUCCESS;
 }
 
@@ -109,57 +87,35 @@ StatusCode  HIGlobalNSiCluster::execute()
   //cout << " HIGlobalNSiCluster::execute() " << endl;
   //cout << " HIGlobalNSiCluster::execute    !!!!! " << endl;
 
-    StatusCode sc = StatusCode::SUCCESS;
-
     const DataHandle<EventInfo> eventInfo;
 
-    sc = (m_sgSvc->retrieve(eventInfo));
-    if (sc.isFailure()){
-        m_log << MSG::FATAL << "could not get event"<<endreq;
-        return StatusCode::FAILURE;
-    }
-    m_log << MSG::DEBUG << "HIG EventInfo retrieved!" << endreq;
-    //cout << "HIG EventInfo retrieved!" <<  endl;
+    ATH_CHECK( evtStore()->retrieve(eventInfo) );
+    ATH_MSG_DEBUG( "HIG EventInfo retrieved!" );
 
     m_eventNumber= eventInfo->event_ID()->event_number();
-    m_log<< MSG::DEBUG<< "event number " << m_eventNumber<<endreq;
+    ATH_MSG_DEBUG( "event number " << m_eventNumber);
     m_numberOfEvents++;
 
 
     // get space points from TDS
-    m_SiClustersName="PixelClusters";
-    sc = m_sgSvc->retrieve(m_clusters, m_SiClustersName);
-    if (sc.isFailure()){
-      m_log << MSG::ERROR <<"HIG Si cluster container not found"<< endreq;
-    }
-    else{
-      //cout << " HIG   Si Cluster container found" << endl;
-      m_log <<MSG::DEBUG <<"HIG  Si Cluster container found" <<endreq;
-    }
-    if(sc == StatusCode::FAILURE) return sc;
+    const DataHandle<InDet::SiClusterContainer> clusters;
+    ATH_CHECK( evtStore()->retrieve(clusters, "PixelClusers") );
+    ATH_MSG_DEBUG("HIG  Si Cluster container found" );
 
-  // get the det store
-  StoreGateSvc *detStore;
-  sc = service("DetectorStore",detStore);
-  if (sc.isFailure()) {
-    m_log << MSG::FATAL << "Detector store not found !" << endreq;
-    return StatusCode::FAILURE;
-  } else {}
-
-  const PixelID* pixelID;
+  const PixelID* pixelID = nullptr;
   //const InDetDD::SiDetectorManager* geoManager;
-  sc=detStore->retrieve(pixelID,"PixelID");
+  ATH_CHECK( detStore()->retrieve(pixelID,"PixelID") );
   // pixelID = dynamic_cast<const PixelID *>(geoManager->getIdHelper());
 
-  const VxContainer *vxc;
+  const VxContainer *vxc = nullptr;
+  ATH_CHECK( evtStore()->retrieve( vxc, "VxPrimaryCandidate" ) );
   Trk::RecVertex thisVx;
-  sc = m_sgSvc->retrieve( vxc, "VxPrimaryCandidate" );
   if (vxc->size() > 0) { thisVx = (*vxc)[0]->recVertex(); }
   //cout << " HIG   vertex position " << thisVx.position().x() << "  "
   //   << thisVx.position().y()  << "  "  << thisVx.position().z() << endl;
 
-  InDet::SiClusterContainer::const_iterator colNext = m_clusters->begin();
-  InDet::SiClusterContainer::const_iterator colEnd = m_clusters->end();
+  InDet::SiClusterContainer::const_iterator colNext = clusters->begin();
+  InDet::SiClusterContainer::const_iterator colEnd = clusters->end();
 
   float cx,cy,cz;
   float phi, theta, eta, r;
@@ -184,7 +140,7 @@ StatusCode  HIGlobalNSiCluster::execute()
 
       for (; nextCluster!=lastCluster; nextCluster++)
         {
-          const SiCluster& cluster = **nextCluster;
+          const InDet::SiCluster& cluster = **nextCluster;
           cx = cluster.globalPosition().x() - thisVx.position().x();
           cy = cluster.globalPosition().y() - thisVx.position().y();
           cz = cluster.globalPosition().z() - thisVx.position().z();
@@ -207,21 +163,12 @@ StatusCode  HIGlobalNSiCluster::execute()
       collectionCount++;
     }
 
-    sc = m_sgSvc->record(cleta0, "NSiClusterL0");
-     if( sc.isFailure() ) m_log << MSG::ERROR << "Could not save NSiClusterL0" <<endreq;
-    sc = m_sgSvc->record(cleta1, "NSiClusterL1");
-     if( sc.isFailure() ) m_log << MSG::ERROR << "Could not save NSiClusterL1" <<endreq;
-    sc = m_sgSvc->record(cleta2, "NSiClusterL2");
-     if( sc.isFailure() ) m_log << MSG::ERROR << "Could not save NSiClusterL2" <<endreq;
-
-
-     // cout << "GetBinContent   30   " << cleta0->GetBinContent(30, 1) <<
-     //    "  " << cleta1->GetBinContent(30, 1) << "  " << cleta2->GetBinContent(30, 1) << endl;
-
-     // cout << " HIG collectionCount = " << collectionCount << endl;
+  ATH_CHECK( evtStore()->record(cleta0, "NSiClusterL0") );
+  ATH_CHECK( evtStore()->record(cleta1, "NSiClusterL1") );
+  ATH_CHECK( evtStore()->record(cleta2, "NSiClusterL2") );
 
   return StatusCode::SUCCESS;
 }
 
-//============================================================================================
+//============================================================================
 

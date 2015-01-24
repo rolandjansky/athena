@@ -10,8 +10,7 @@
 #define HIFLOW_H
 
 // Gaudi includes
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include <string>
 #include "HIGlobal/HIFlowData.h"
 #include "HIGlobal/HICaloUtil.h"
@@ -24,7 +23,6 @@
 
 class AtlasDetectorID;
 class Identifier;
-class StoreGateSvc;
 class CaloCellContainer;
 class CaloTowerContainer;
 
@@ -40,7 +38,7 @@ class CaloTowerContainer;
     @author  Adam Trzupek <Adam.Trzupek@ifj.edu.pl>
 */  
 
-class HIFlow : public Algorithm
+class HIFlow : public AthAlgorithm
   {
   public:
 
@@ -69,11 +67,6 @@ class HIFlow : public Algorithm
 
   private:
     
-    /** class member version of retrieving MsgStream */
-    mutable MsgStream                 m_log;
-    /** class member version of retrieving StoreGate */
-    StoreGateSvc*  m_sgSvc;
-
     HIFlowData *m_HIFlowData; 
     HICaloUtil *m_HICaloUtil;
 
