@@ -10,6 +10,7 @@ public
 use AtlasPolicy            AtlasPolicy-*
 use StoreGate              StoreGate-*              Control
 use CLIDSvc                CLIDSvc-*                Control
+use AthenaBaseComps        AthenaBaseComps-*        Control
 use GaudiInterface         GaudiInterface-*         External
 
 use TrigT1Interfaces       TrigT1Interfaces-*       Trigger/TrigT1

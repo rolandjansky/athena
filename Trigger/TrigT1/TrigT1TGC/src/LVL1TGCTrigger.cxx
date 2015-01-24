@@ -74,7 +74,7 @@ namespace LVL1TGCTrigger {
 
 ///////////////////////////////////////////////////////////////////////////
   LVL1TGCTrigger::LVL1TGCTrigger::LVL1TGCTrigger(const std::string& name, ISvcLocator* pSvcLocator):
-    Algorithm(name,pSvcLocator),
+    AthAlgorithm(name,pSvcLocator),
     m_sgSvc("StoreGateSvc", name),
     m_detectorStore(0), 
     m_cabling(0),
@@ -967,14 +967,13 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
     int subDetectorId=0, rodId=0, sswId=0, sbLoc=0, secId=0;
     
     // trigger info
-    bool cand3plus=0, isEndcap=0, isAside=0, muplus=0, overlap=0;
+    bool cand3plus=0, isEndcap=0, isAside=0, muplus=0, overlap=0, veto=0; 
     int phi=0, index=0, threshold=0, roi=0;
     int Zdir= (subsystem==LVL1MUONIF::Lvl1MuCTPIInput::idSideA() ? 1 : -1);
 
     isAside = (sector->getSideId()==0);
     isEndcap = (sector->getRegionType()==Endcap);
     cand3plus = 0;
-    //overlap = 0; 
 
     //  sector Id = 0..47 (Endcap) 0..23 (forward) 
     int module = sector->getModuleId();
@@ -1026,8 +1025,8 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
       muplus = getCharge(selectorOut->getDR(icand), Zdir)==1 ? 1 : 0;
       threshold = selectorOut->getPtLevel(icand);
       roi = ((selectorOut->getR(icand))<<2)+(selectorOut->getPhi(icand));
-      if (selectorOut->getInnerVeto(icand)) overlap = 1;
-      else                                  overlap = 0;
+      if (selectorOut->getInnerVeto(icand)) veto = 1;
+      else                                  veto = 0;
 
       // create TgcRawData
       TgcRawData * rawdata = 
@@ -1037,7 +1036,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 			 l1Id, 
 			 bcId,
 			 cand3plus, (!isEndcap), secId, index,
-			 muplus, threshold, overlap, roi);
+			 muplus, threshold, overlap, veto, roi);
       addRawData(rawdata);      
       
 #ifdef TGCDEBUG
@@ -1049,7 +1048,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 	    << " cand=" << index 
 	    << " charge=" << (muplus ? "mu+" : "mu-")
 	    << " thre=" << threshold 
-	    << " overlap=" << overlap 
+	    << " veto=" << veto 
 	    << " roi=" << roi 
 	    << " rod=" << rodId << " sswId=" << sswId 
 	    << " SBLoc=" << sbLoc
@@ -1065,7 +1064,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 	      << " cand=" << index 
 	      << " charge=" << (muplus ? "mu+" : "mu-")
 	      << " thre=" << threshold 
-	      << " overlap=" << overlap 
+	      << " veto=" << veto 
 	      << " roi=" << roi 
 	      << " rod=" << rodId << " sswId=" << sswId << " SBLoc=" << sbLoc
 	      << endreq;
