@@ -61,7 +61,10 @@ class EvgenExecutor(athenaExecutor):
                     os.symlink(os.path.join(targetbasepath, d), os.path.join(dpath, pkgname))
                 if addtosearch:
                     os.environ["JOBOPTSEARCHPATH"] = dpath+":"+os.environ["JOBOPTSEARCHPATH"]
-                    os.environ["DATAPATH"] = dpath+":"+os.environ["DATAPATH"]
+                    os.environ["DATAPATH"] =os.path.join(targetbasepath, d)+":"+os.environ["DATAPATH"]
+#                    print("EA: DATAPATH=%s;") % os.environ["DATAPATH"]
+#		    print("EA: dpath=%s;") % (dpath)
+#                    print("EA: realpath=%s;") % os.path.realpath(dpath)
             os.environ["JOBOPTSEARCHPATH"] = os.environ['LOCAL_INSTALL_DIR']+":"+os.environ["JOBOPTSEARCHPATH"]
 
 
