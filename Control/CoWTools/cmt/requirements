@@ -1,0 +1,9 @@
+package CoWTools
+
+author sami.kama@cern.ch
+
+use AtlasPolicy         AtlasPolicy-*
+
+library CoWTools "../src/*.cxx"
+
+apply_pattern installed_library
