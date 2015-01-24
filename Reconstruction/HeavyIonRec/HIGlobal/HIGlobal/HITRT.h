@@ -1,3 +1,5 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
@@ -10,8 +12,7 @@
 #define HITRT_H
 
 // Gaudi includes
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include "StoreGate/DataHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
@@ -36,12 +37,8 @@
 #include "TH1F.h"
 
 #include <string>
-using std::string;
-using std::vector;
-
 class AtlasDetectorID;
 class Identifier;
-class StoreGateSvc;
 class ICoolHistSvc;
 
 class ITRT_StrawStatusSummarySvc;
@@ -54,7 +51,7 @@ class ITRT_StrawStatusSummarySvc;
     @author  Andrzej Olszewski <Andrzej.Olszewski@ifj.edu.pl>
 */  
 
-class HITRT : public Algorithm
+class HITRT : public AthAlgorithm
   {
   public:
     friend class HICentralityValidation;
@@ -71,11 +68,9 @@ class HITRT : public Algorithm
     /** standard Athena-Algorithm method */
     StatusCode          finalize();
 
-    StatusCode FillTRTNumber( vector<int> &m_OccupancyPerPart ); 
+    StatusCode FillTRTNumber( std::vector<int> &m_OccupancyPerPart ); 
   private:
 
-    //Main vector with occupancy have to be stored
-    vector<int> m_OccupancyPerPart;
     /** indicates if we are processing Data */
     bool    m_isData;
     /** global trigger efficiency correction */
@@ -83,17 +78,6 @@ class HITRT : public Algorithm
     /** indicates if initialization was succesfull */
     bool    m_initialized;
 
-
-    StoreGateSvc* detStore;
-    StoreGateSvc* evtStore;
-
-    /** class member version of retrieving StoreGate */
-    StoreGateSvc*  m_sgSvc;
-    //StoreGateSvc*  p_detstore;
-    // ICoolHistSvc* p_coolhistsvc;
-    //std::string m_histfolder; // COOL folder to access
-    //std::string m_histname; // histogram name
-    //int m_channel; 
 
     /** name of the file with calibration histograms: */
     //string m_HICentralityCalibrationsFileName;

@@ -96,7 +96,7 @@ class HIFlowData
     std::vector<float> const * SumEt() const {return m_SumEt;};
 
     ~HIFlowData() {};
-    HIFlowData() {};
+    HIFlowData();
     
   private:
     

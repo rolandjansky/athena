@@ -27,7 +27,7 @@
 #include "HepMC/GenParticle.h"
 
 HIPixelTrackletsMaker::HIPixelTrackletsMaker(const std::string& name, ISvcLocator* pSvcLocator) : 
-  Algorithm(name, pSvcLocator) {
+  AthAlgorithm(name, pSvcLocator) {
   declareProperty("PixelClusterContainerName",
                   m_pixelClustersName="PixelClusters");
   declareProperty("minEta",m_minEta=-3.0);
@@ -43,90 +43,57 @@ HIPixelTrackletsMaker::HIPixelTrackletsMaker(const std::string& name, ISvcLocato
   declareProperty("backgroundFlip",m_backgroundFlip=0); //method=2 and flip=1, flip layer 1
   declareProperty("doMC",m_doMC=false);
   declareProperty("doMagOff",m_doMagOff=false);
-  //MsgStream log(msgSvc(),name());
   
-  pixelID=0;
-  m_storeGate=0;
-  detStore=0;
+  m_pixelID=0;
   m_vx=0;
   m_binSizePhi=0;
   m_binSizeEta=0;
   m_vy=0;
   m_vz=0;
 
-  sigmaDetaEtaFunc = 0;
-  sigmaDphiEtaFunc = 0;
+  m_sigmaDetaEtaFunc = 0;
+  m_sigmaDphiEtaFunc = 0;
 }
 
 StatusCode HIPixelTrackletsMaker::initialize() {
-  MsgStream log(msgSvc(),name());
-
-  //check initialized value
-  
   m_binSizeEta = (m_maxEta-m_minEta)/m_nBinsEta;
   m_binSizePhi = (m_maxPhi-m_minPhi)/m_nBinsPhi;
   
   if( m_binSizeEta < m_dEta ) { 
-    log << MSG::DEBUG << "2D histogram bin too fine in eta direction. Reset to default." << endreq;
+    ATH_MSG_DEBUG( "2D histogram bin too fine in eta direction. Reset to default." );
     m_nBinsEta=50;
     m_binSizeEta = (m_maxEta-m_minEta)/m_nBinsEta;
   }
   if( m_binSizePhi < m_dPhi*(122.5-50.5)/(88.5-50.5) ) {
-    log << MSG::DEBUG << "2D histogram bin too fine in phi direction. Reset to default." << endreq;
+    ATH_MSG_DEBUG( "2D histogram bin too fine in phi direction. Reset to default." );
     m_nBinsPhi=40;
     m_binSizePhi = (m_maxPhi-m_minPhi)/m_nBinsPhi;
   }
   
-  log << MSG::DEBUG << "In initialize()" << endreq;
-  StatusCode sc=service("StoreGateSvc",m_storeGate);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "StoreGate service not found !" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_MSG_DEBUG( "In initialize()" );
+  ATH_CHECK( detStore()->retrieve(m_pixelID,"PixelID") );
   
   setEdgePosition();
   //setup the sigma dphi value in magoff samples
-  sigmaDetaEtaFunc = new TF1("sigmaDetaEtaFunc","[0]+[1]*TMath::Abs(x)+[2]*x*x+[3]*x*x*TMath::Abs(x)",-2,2);
-  sigmaDetaEtaFunc->SetParameters(0.007515,-0.000376,0.000216,0.000796);
-  sigmaDphiEtaFunc = new TF1("sigmaDphiEtaFunc","[0]+[1]*cosh(x)",-2,2);
-  sigmaDphiEtaFunc->SetParameters(0.0064,0.0007);
+  m_sigmaDetaEtaFunc = new TF1("sigmaDetaEtaFunc","[0]+[1]*TMath::Abs(x)+[2]*x*x+[3]*x*x*TMath::Abs(x)",-2,2);
+  m_sigmaDetaEtaFunc->SetParameters(0.007515,-0.000376,0.000216,0.000796);
+  m_sigmaDphiEtaFunc = new TF1("sigmaDphiEtaFunc","[0]+[1]*cosh(x)",-2,2);
+  m_sigmaDphiEtaFunc->SetParameters(0.0064,0.0007);
 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode HIPixelTrackletsMaker::finalize() {
-  MsgStream log(msgSvc(),name());
-  log << MSG::DEBUG << "In finalize()" << endreq;
+  ATH_MSG_DEBUG( "In finalize()" );
   return StatusCode::SUCCESS;
 }
 
 StatusCode HIPixelTrackletsMaker::execute() {
-  MsgStream log(msgSvc(),name());
- 
-  StatusCode sc = m_storeGate->retrieve(m_clusters, m_pixelClustersName);
-  if (sc.isFailure())
-    { log << MSG::ERROR <<"Si cluster container not found"<< endreq; return sc;}
-  else log <<MSG::DEBUG <<"Si Cluster container found" <<endreq;
+  const DataHandle<PixelClusterContainer> clusters;
+  ATH_CHECK( evtStore()->retrieve(clusters, m_pixelClustersName) );
   
-  detStore = 0;
-  sc = service("DetectorStore",detStore);
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "Detector store not found !" << endreq;
-    return sc;
-  }
-  
-  sc=detStore->retrieve(pixelID,"PixelID");
-  if( sc.isFailure()) {
-    log << MSG::FATAL << "PixelID helper not found !" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  const VxContainer *vxc;
-  sc = m_storeGate->retrieve( vxc, "VxPrimaryCandidate" );
-  if( sc.isFailure()){
-    log << MSG::FATAL << "VxPrimaryCandidate not found !" << endreq;
-    return sc;
-  }
+  const VxContainer *vxc = nullptr;
+  ATH_CHECK( evtStore()->retrieve( vxc, "VxPrimaryCandidate" ) );
   
   //excluding dummy vertex
   VxContainer::const_iterator vxb = vxc->begin();
@@ -137,12 +104,8 @@ StatusCode HIPixelTrackletsMaker::execute() {
   if( vxb==vxe ) {
     
     //right now conflict with PixelTrackeltsMaker program, turn them on later
-    sc = m_storeGate->record(trkcoll,"pixelTrackletsCollection");
-    if( sc.isFailure() ) {
-      log << MSG::ERROR << "Could not record pixelTrackletsCollection to storegage!" << endreq;
-      return sc;
-    }
-    return sc;
+    ATH_CHECK( evtStore()->record(trkcoll,"pixelTrackletsCollection") );
+    return StatusCode::SUCCESS;
   }
   
   m_vx = (*vxc)[0]->recVertex().position().x();
@@ -153,7 +116,7 @@ StatusCode HIPixelTrackletsMaker::execute() {
   setEdgePhi();
   
   clearVectors();
-  layerClusters();
+  layerClusters(clusters);
   
   removeGangedNoise(0,22,m_gangedClusIndexLayer0);
   removeGangedNoise(1,38,m_gangedClusIndexLayer1);
@@ -237,13 +200,9 @@ StatusCode HIPixelTrackletsMaker::execute() {
   
   //log << MSG::DEBUG << "total: " << trkcoll->size() << endreq;
   //record tracklets collection to store gate;
-  sc = m_storeGate->record(trkcoll,"pixelTrackletsCollection");
-  if( sc.isFailure() ) {
-    log << MSG::ERROR << "Could not record pixelTrackletsCollection to storegage!" << endreq;
-    return sc;
-  }
+  ATH_CHECK( evtStore()->record(trkcoll,"pixelTrackletsCollection") );
   
-  return sc;
+  return StatusCode::SUCCESS;;
 }
 
 
@@ -276,20 +235,15 @@ void HIPixelTrackletsMaker::clearVectors() {
   }
 }
 
-void HIPixelTrackletsMaker::layerClusters() {
-  MsgStream log(msgSvc(), name());
+void HIPixelTrackletsMaker::layerClusters (const DataHandle<PixelClusterContainer>& clusters) {
   //log << MSG::DEBUG << "layerClusters beginning." << endreq;
   //clear first
-  PixelClusterContainer::const_iterator colNext = m_clusters->begin();
-  PixelClusterContainer::const_iterator colEnd = m_clusters->end();
-  for (; colNext!= colEnd; ++colNext) {
-    PixelClusterCollection::const_iterator nextCluster = (*colNext)->begin();
-    PixelClusterCollection::const_iterator lastCluster = (*colNext)->end();
-    for (; nextCluster!=lastCluster; nextCluster++) {
-      const PixelCluster& cluster = **nextCluster;
-      int barrel = pixelID->barrel_ec(cluster.detectorElement()->identify());
+  for (const PixelClusterCollection* coll : *clusters) {
+    for (const PixelCluster* cluster_p : *coll) {
+      const PixelCluster& cluster = *cluster_p;
+      int barrel = m_pixelID->barrel_ec(cluster.detectorElement()->identify());
       if( barrel !=0 ) continue;
-      int layer = pixelID->layer_disk(cluster.detectorElement()->identify());
+      int layer = m_pixelID->layer_disk(cluster.detectorElement()->identify());
       m_clusterLayer[layer].push_back(cluster);
     }
   }
@@ -300,15 +254,15 @@ void HIPixelTrackletsMaker::layerClusters() {
       Identifier idClus = clusi0.detectorElement()->identify();
       if( !clusi0.gangedPixel() ) continue;
       
-      int etaMo = pixelID->eta_module( idClus ) + 6;
-      int phiMo = pixelID->phi_module( idClus );
+      int etaMo = m_pixelID->eta_module( idClus ) + 6;
+      int phiMo = m_pixelID->phi_module( idClus );
       //log << MSG::DEBUG << "layer:etaMo:phiMo=" << layer << ":" << etaMo << ":" << phiMo << endreq;
       const std::vector<Identifier>& rdoList = clusi0.rdoList();
       std::vector<IndexEtaPhi> pixsColl;
       for(unsigned int ir=0; ir<rdoList.size(); ir++) {
 	Identifier idPix = rdoList[ir];
-	int etaInd = pixelID->eta_index( idPix );
-	int phiInd = pixelID->phi_index( idPix );
+	int etaInd = m_pixelID->eta_index( idPix );
+	int phiInd = m_pixelID->phi_index( idPix );
 	IndexEtaPhi indexEtaPhi(etaInd, phiInd);
 	pixsColl.push_back(indexEtaPhi);
       }
@@ -321,19 +275,18 @@ void HIPixelTrackletsMaker::layerClusters() {
 }
 
 void HIPixelTrackletsMaker::mapClusters() {
-  MsgStream log(msgSvc(), name());
   const int nCells = m_nBinsEta*m_nBinsPhi;
   
   for(int layer=0; layer<3; layer++) {
     std::multimap<int, int> celli;
-    if(0) log << MSG::DEBUG << "layer: " << layer << endreq;
+    //if(0) ATH_MSG_DEBUG( "layer: " << layer );
     for(unsigned int i=0; i<m_clusterLayer[layer].size(); i++) {
       const PixelCluster& clusi0 = m_clusterLayer[layer][i];
       
       //impose disabled modules by hand, no good MC available now
       if(m_doMagOff && layer==1) {
-	if( pixelID->eta_module(clusi0.identify())==0 &&  pixelID->phi_module(clusi0.identify())==13 ) continue;
-	if( pixelID->eta_module(clusi0.identify())==5 &&  pixelID->phi_module(clusi0.identify())==9 ) continue;
+	if( m_pixelID->eta_module(clusi0.identify())==0 &&  m_pixelID->phi_module(clusi0.identify())==13 ) continue;
+	if( m_pixelID->eta_module(clusi0.identify())==5 &&  m_pixelID->phi_module(clusi0.identify())==9 ) continue;
       }
       
       mapiiitr ito = m_overlapClusLayer[layer].find(i);
@@ -378,7 +331,7 @@ void HIPixelTrackletsMaker::mapClusters() {
       int bphi = (int)((phii0-m_minPhi)/m_binSizePhi);
       if( beta<0 || beta>m_nBinsEta-1 || bphi<0 || bphi>m_nBinsPhi-1 )  continue;
       int bin = beta + bphi*m_nBinsEta;
-      if(0) log << MSG::DEBUG << "index:eta:phi:beta:bphi=" << i << ":" << etai0 << ":" << phii0 << ":" << beta << ":" << bphi << endreq;
+      //if(0) ATH_MSG_DEBUG( "index:eta:phi:beta:bphi=" << i << ":" << etai0 << ":" << phii0 << ":" << beta << ":" << bphi );
       celli.insert(std::pair<int,int>(bin,i));
     } //clusters in one layer
     
@@ -401,7 +354,6 @@ void HIPixelTrackletsMaker::mapClusters() {
 }
 
 void HIPixelTrackletsMaker::makeTracklets(int innerLayer, int outLayer, std::map<int,std::vector<HIPixelTracklets*> > & trackletsCellMap) {
-  MsgStream log(msgSvc(), name());
   //log << MSG::DEBUG << "makeTracklets beginning!" << endreq;
   std::set<int>::iterator it = m_filledCells[innerLayer].begin();
   std::set<int> trackletsCellKeys;
@@ -455,7 +407,9 @@ void HIPixelTrackletsMaker::makeTracklets(int innerLayer, int outLayer, std::map
 	  trkne->Merge(trki);
 	  break;
 	}
-	else {log<< MSG::ERROR << " returned value of checkGangedOrOverlap() function is wrong!" << endreq;}
+	else {
+          ATH_MSG_ERROR( " returned value of checkGangedOrOverlap() function is wrong!" );
+        }
       }  //jth tracklet
     } //ith tracklet
     
@@ -496,7 +450,9 @@ void HIPixelTrackletsMaker::makeTracklets(int innerLayer, int outLayer, std::map
 	  if(jb<0 || jb>m_nBinsPhi-1 ) {    //edge in phi direction, need more care                             
 	    if( jb==-1 ) neighborBin = ib+ (m_nBinsPhi-1)*m_nBinsEta ;
 	    else if ( jb==m_nBinsPhi ) neighborBin = ib;
-	    else { log << MSG::ERROR << " phi bin out of boundary!!! " << endreq; }
+	    else {
+              ATH_MSG_ERROR( " phi bin out of boundary!!! " );
+            }
 	  }
 	  mapiiitr itcom = comparedWithAllOthersBinLabel.find(neighborBin);
 	  if( itcom!=comparedWithAllOthersBinLabel.end() && (itcom->second)>0 ) continue; //this bin already processed
@@ -523,7 +479,9 @@ void HIPixelTrackletsMaker::makeTracklets(int innerLayer, int outLayer, std::map
               iRemoved = true;
 	      break;
             }
-            else { log<< MSG::ERROR << " returned value of checkGangedOrOverlap() function is wrong!" << endreq;}
+            else {
+              ATH_MSG_ERROR( " returned value of checkGangedOrOverlap() function is wrong!" );
+            }
 	    
 	  } //neighboring cells
 	  
@@ -675,8 +633,7 @@ void HIPixelTrackletsMaker::makeTracklets(int innerLayer, int outLayer, std::map
 }
 
 void HIPixelTrackletsMaker::makeTrackletsInCell(int innerLayer, int outLayer, int bin, std::vector<HIPixelTracklets*> & trkletsCollWithDup, std::vector<int> usedClustersIndex[3]) {
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "makeTrackletsInCell() begin!" << endreq;
+  ATH_MSG_DEBUG( "makeTrackletsInCell() begin!" );
   double etaCutUsed = m_dEta;
   double phiCutUsed = m_dPhi;
 
@@ -688,7 +645,7 @@ void HIPixelTrackletsMaker::makeTrackletsInCell(int innerLayer, int outLayer, in
     
   int etaBin,phiBin;
   returnCorrespondingCell(bin,etaBin,phiBin);
-  log << MSG::DEBUG << "etaBin:phiBin " << etaBin << ":" << phiBin << endreq;
+  ATH_MSG_DEBUG( "etaBin:phiBin " << etaBin << ":" << phiBin );
   
   //local variable to keep the used clusters
   //std::vector<int> usedClustersIndex[3]; //for both three layers
@@ -707,7 +664,7 @@ void HIPixelTrackletsMaker::makeTrackletsInCell(int innerLayer, int outLayer, in
     double phii0 = m_phiValueLayer[innerLayer][innerClusterIndex];
     double etai0 = m_etaValueLayer[innerLayer][innerClusterIndex];
     
-    if(innerLayer==1) log << MSG::DEBUG << "innerIndex:" << innerClusterIndex << endreq;
+    if(innerLayer==1) ATH_MSG_DEBUG( "innerIndex:" << innerClusterIndex );
     //multi satisfaction? restore them and only use the smallest r one
     //or use the smallest deta
     std::vector<int> minclus1label;
@@ -720,7 +677,9 @@ void HIPixelTrackletsMaker::makeTrackletsInCell(int innerLayer, int outLayer, in
 	if(j<0 || j>m_nBinsPhi-1 ) {    //edge in phi direction, need more care   
 	  if( j==-1 ) outBin = i+ (m_nBinsPhi-1)*m_nBinsEta ;
 	  else if ( j==m_nBinsPhi ) outBin = i;
-	  else { log << MSG::ERROR << " phi bin out of boundary!!! " <<endreq;}
+	  else {
+            ATH_MSG_ERROR( " phi bin out of boundary!!! " );
+          }
 	}
 	std::map<int, std::vector<int> >::iterator itm;
 	itm = m_clusterMap[outLayer].find(outBin);
@@ -740,7 +699,7 @@ void HIPixelTrackletsMaker::makeTrackletsInCell(int innerLayer, int outLayer, in
 	  double dphi = phii0 - phii1;
 	  if( dphi>M_PI )  dphi -= 2*M_PI;
 	  if( dphi<-M_PI ) dphi += 2*M_PI;
-	  if(innerLayer==1 ) log << MSG::DEBUG << "outIndex:deta:dphi=" << outClusterIndex << ":" << deta << ":" << dphi << endreq;
+	  if(innerLayer==1 ) ATH_MSG_DEBUG( "outIndex:deta:dphi=" << outClusterIndex << ":" << deta << ":" << dphi );
 	  if( !m_doMagOff ) { //with magnetic field
 	    if( fabs(deta)<etaCutUsed && fabs(dphi)<phiCutUsed ){
 	      //one more constraint on deta base the fitting function we got for sigma deta
@@ -767,8 +726,8 @@ void HIPixelTrackletsMaker::makeTrackletsInCell(int innerLayer, int outLayer, in
 	    }
 	  } //end of if magnetic field
 	  else { //magnetic off 
-	    double sigmaDphi = sigmaDphiEtaFunc->Eval(etai0);
-	    double sigmaDeta = sigmaDetaEtaFunc->Eval(etai0);
+	    double sigmaDphi = m_sigmaDphiEtaFunc->Eval(etai0);
+	    double sigmaDeta = m_sigmaDetaEtaFunc->Eval(etai0);
 	    // 	    double par0 = 0.0;
 // 	    double par1 = 0.0;
 // 	    fittingParSigmaDeta(innerLayer+outLayer-1,etai0,par0,par1);
@@ -822,7 +781,7 @@ void HIPixelTrackletsMaker::makeTrackletsInCell(int innerLayer, int outLayer, in
       }
       
       trkletsCollWithDup.push_back(new HIPixelTracklets(vPosition,twoClusters));
-      if(0 ) log << MSG::DEBUG << "innerIndex:outIndex=" << innerClusterIndex << ":" << minclus1can << endreq;
+      //if(0 ) ATH_MSG_DEBUG( "innerIndex:outIndex=" << innerClusterIndex << ":" << minclus1can );
     }
     
     //     //Right now according to Brian's suggestion, to test if the background are
@@ -860,7 +819,9 @@ void HIPixelTrackletsMaker::makeTrackletsInCell(int innerLayer, int outLayer, in
 	      if(m_nBinsPhi>1)   outBin = i + m_nBinsEta;
 	      else continue;
 	    }
-	    else { log << MSG::ERROR << "Bin in phi direction has an invalid value! " << endreq;}
+	    else {
+              ATH_MSG_ERROR( "Bin in phi direction has an invalid value! " );
+            }
 	  }
 	  std::map<int,std::vector<int> >::iterator itm;
 	  itm = m_clusterMap[2].find(outBin);
@@ -883,7 +844,7 @@ void HIPixelTrackletsMaker::makeTrackletsInCell(int innerLayer, int outLayer, in
 	    double dphi = phii0 - phii2;
 	    if( dphi>M_PI )  dphi -= 2*M_PI;
 	    if( dphi<-M_PI ) dphi += 2*M_PI;
-	    if(0) log << MSG::DEBUG << "projection Index:" << clusIndex << endreq;
+	    //if(0) ATH_MSG_DEBUG( "projection Index:" << clusIndex );
 	    if( fabs(deta)<2*etaCutUsed && fabs(dphi)<2*phiCutUsed*(122.5-50.5)/(88.5-50.5)) {
 	      // if( m_trackletsMethod==1 ) {
 	      //double cxi2 = clusi2.globalPosition().x() - m_vx;
@@ -960,7 +921,6 @@ void HIPixelTrackletsMaker::returnCorrespondingCell(int bin, int & i, int & j) {
 
 void HIPixelTrackletsMaker::makeTrackletsCellToCell(int /* innerLayer */, int /* outLayer */, int /* etaBin */, int /* phiBin */, const std::vector<int> & /* iclus */, const std::vector<int> & /* oclus */, std::vector<HIPixelTracklets*> & /* trkletsColl */) {
   //bin is the innerLayer bin number, used only for projection
-  // MsgStream log(msgSvc(), name());
 //   log << MSG::DEBUG << "makeTrackletsCellToCell begin! " << endreq;
 //   double etaCutUsed = m_dEta;
 //   double phiCutUsed = m_dPhi;
@@ -1072,7 +1032,6 @@ int HIPixelTrackletsMaker::checkGangedOrOverlap(const HIPixelTracklets* trk1, co
   //whichOneToKeep=1, keep trk1
   //whichOneToKeep=2, keep trk2
   //whichOneToKeep = 0; //not ganged or overlap
-  MsgStream log(msgSvc(), name());
   int gangeLayer0 = 0;
   int overlapLayer0 = 0;
   int sameLayer0 = 0;
@@ -1107,13 +1066,13 @@ int HIPixelTrackletsMaker::checkGangedOrOverlap(const HIPixelTracklets* trk1, co
   //     log << MSG::DEBUG << "clus10:eta_index:phi_index ";
   //     for(unsigned int i0=0; i0<rdo10.size(); i0++) {
   //       Identifier idp = rdo10[i0];
-  //       log << MSG::DEBUG << pixelID->eta_index(idp) << ":" << pixelID->phi_index(idp) << ",";
+  //       log << MSG::DEBUG << m_pixelID->eta_index(idp) << ":" << m_pixelID->phi_index(idp) << ",";
   //     }
   //     log << MSG::DEBUG << endreq;
   //     log << MSG::DEBUG << "clus20:eta_index:phi_index ";
   //     for(unsigned int i0=0; i0<rdo20.size(); i0++) {
   //       Identifier idp = rdo20[i0];
-  //       log << MSG::DEBUG << pixelID->eta_index(idp) << ":" << pixelID->phi_index(idp) << ",";
+  //       log << MSG::DEBUG << m_pixelID->eta_index(idp) << ":" << m_pixelID->phi_index(idp) << ",";
   //     }
   //     log<< MSG::DEBUG <<endreq;
   //   }
@@ -1123,24 +1082,24 @@ int HIPixelTrackletsMaker::checkGangedOrOverlap(const HIPixelTracklets* trk1, co
   //     log << MSG::DEBUG << "clus10:eta_index:phi_index ";
   //     for(unsigned int i0=0; i0<rdo10.size(); i0++) {
   //       Identifier idp = rdo10[i0];
-  //       log << MSG::DEBUG << pixelID->eta_index(idp) << ":" << pixelID->phi_index(idp) << ",";
+  //       log << MSG::DEBUG << m_pixelID->eta_index(idp) << ":" << m_pixelID->phi_index(idp) << ",";
   //     }
   //     log << MSG::DEBUG << endreq;
   //     log << MSG::DEBUG << "clus20:eta_index:phi_index ";
   //     for(unsigned int i0=0; i0<rdo20.size(); i0++) {
   //       Identifier idp = rdo20[i0];
-  //       log << MSG::DEBUG << pixelID->eta_index(idp) << ":" << pixelID->phi_index(idp) << ",";
+  //       log << MSG::DEBUG << m_pixelID->eta_index(idp) << ":" << m_pixelID->phi_index(idp) << ",";
   //     }
   //     log<< MSG::DEBUG <<endreq;
   //   }
   
   if( (sameLayer0&&gangeLayer1) ) {
-    if(0) log << MSG::DEBUG << "same0,gang1" << endreq;
+    //if(0) ATH_MSG_DEBUG( "same0,gang1" );
     if( clus11.rdoList().size()<clus21.rdoList().size() ) return 2;
     else return 1;
   }
   if( (sameLayer0&&sameLayer1) ) {
-    log << MSG::ERROR << "Two trklets have exactly the same clusters." << endreq;
+    ATH_MSG_ERROR( "Two trklets have exactly the same clusters." );
     //     log << MSG::DEBUG << "size1:size2=" << clus1Coll->size() << ":" << clus2Coll->size() << endreq;
     //     log << MSG::DEBUG << "ganged10:ganged20=" << clus10.gangedPixel() << ":" << clus20.gangedPixel() << endreq;
     //     log << MSG::DEBUG << "ganged11:ganged21=" << clus11.gangedPixel() << ":" << clus21.gangedPixel() << endreq;
@@ -1149,12 +1108,12 @@ int HIPixelTrackletsMaker::checkGangedOrOverlap(const HIPixelTracklets* trk1, co
     return 1;
   }
   if( gangeLayer0&&sameLayer1 ) {
-    if(0) log << MSG::DEBUG << "gang0,same1" << endreq;
+    //if(0) ATH_MSG_DEBUG( "gang0,same1" );
     if( clus10.rdoList().size()<clus20.rdoList().size() ) return 2;
     else return 1;
   }
   if( gangeLayer0&&gangeLayer1 ) {
-    if(0) log << MSG::DEBUG << "gang0,gang1" << endreq;
+    //if(0) ATH_MSG_DEBUG( "gang0,gang1" );
     if( clus10.rdoList().size()<clus20.rdoList().size() ) return 2;
     else if( clus10.rdoList().size()>clus20.rdoList().size() ) return 1;
     else {
@@ -1187,14 +1146,14 @@ int HIPixelTrackletsMaker::checkGangedOrOverlap(const HIPixelTracklets* trk1, co
   if( fabs(deta)<ETAMERGEBOX0 && fabs(dphi)<PHIMERGEBOX0 && fabs(deta1)<ETAMERGEBOX1 && fabs(dphi1)<PHIMERGEBOX1 ){
     //if( clus10.gangedPixel() && clus20.gangedPixel() ) gangeLayer0 = 1;
     //if( clus11.gangedPixel() && clus21.gangedPixel() ) gangeLayer1 = 1;
-    int phi10M = pixelID->phi_module(id10);
-    int eta10M = pixelID->eta_module(id10);
-    int phi11M = pixelID->phi_module(id11);
-    int eta11M = pixelID->eta_module(id11);
-    int phi20M = pixelID->phi_module(id20);
-    int eta20M = pixelID->eta_module(id20);
-    int phi21M = pixelID->phi_module(id21);
-    int eta21M = pixelID->eta_module(id21);
+    int phi10M = m_pixelID->phi_module(id10);
+    int eta10M = m_pixelID->eta_module(id10);
+    int phi11M = m_pixelID->phi_module(id11);
+    int eta11M = m_pixelID->eta_module(id11);
+    int phi20M = m_pixelID->phi_module(id20);
+    int eta20M = m_pixelID->eta_module(id20);
+    int phi21M = m_pixelID->phi_module(id21);
+    int eta21M = m_pixelID->eta_module(id21);
     if( !sameLayer0 )  if( phi10M!=phi20M || eta10M!=eta20M ) overlapLayer0 = 1;
     if( !sameLayer1 )  if( phi11M!=phi21M || eta11M!=eta21M ) overlapLayer1 = 1;
     double r10 = sqrt( clus10.globalPosition().x()*clus10.globalPosition().x() + clus10.globalPosition().y()*clus10.globalPosition().y() + clus10.globalPosition().z()*clus10.globalPosition().z() );
@@ -1203,12 +1162,12 @@ int HIPixelTrackletsMaker::checkGangedOrOverlap(const HIPixelTracklets* trk1, co
     double r21 = sqrt( clus21.globalPosition().x()*clus21.globalPosition().x() + clus21.globalPosition().y()*clus21.globalPosition().y() + clus21.globalPosition().z()*clus21.globalPosition().z() ); 
     
     if( (sameLayer0&&overlapLayer1)  ) {
-      if(0) log << MSG::DEBUG << "same0,overlap1" << endreq;
+      //if(0) ATH_MSG_DEBUG( "same0,overlap1" );
       if( r11>r21 ) return 2;
       else return 1;
     }
     if( gangeLayer0&&overlapLayer1 ) {
-      if(0) log << MSG::DEBUG << "gang0,overlap1" << endreq;
+      //if(0) ATH_MSG_DEBUG( "gang0,overlap1" );
       if( clus10.rdoList().size()<clus20.rdoList().size() ) return 2;
       else if( clus10.rdoList().size()>clus20.rdoList().size() ) return 1;
       else {
@@ -1217,17 +1176,17 @@ int HIPixelTrackletsMaker::checkGangedOrOverlap(const HIPixelTracklets* trk1, co
       }
     }
     if( overlapLayer0&&sameLayer1 ) {
-      if(0) log << MSG::DEBUG << "overlap0, same1" << endreq;
+      //if(0) ATH_MSG_DEBUG( "overlap0, same1" );
       if( r10>r20 ) return 2;
       else return 1;
     }
     if( overlapLayer0&&gangeLayer1 ) {
-      if(0) log << MSG::DEBUG << "overlap0,gang1" << endreq;
+      //if(0) ATH_MSG_DEBUG( "overlap0,gang1" );
       if( r10>r20 ) return 2;
       else return 1;
     }
     if( overlapLayer0&&overlapLayer1 ) {
-      if(0) log << MSG::DEBUG << "overlap0,overlap1" << endreq;
+      //if(0) ATH_MSG_DEBUG( "overlap0,overlap1" );
       if( r10>r20 ) return 2;
       else return 1;
     }
@@ -1250,7 +1209,6 @@ int HIPixelTrackletsMaker::checkGangedOrOverlap(const HIPixelTracklets* trk1, co
 }
 
 //void HIPixelTrackletsMaker::removeDuplicateInCell(const std::vector<HIPixelTracklets*> & trkletsCollWithDup, std::vector<HIPixelTracklets*> & trkletsColl, int & hasDuplicate) {
-  //  MsgStream log(msgSvc(), name());
   //log << MSG::DEBUG << "removeDuplicateInCell() begin! " << endreq;
  //  std::vector<int> removedTrklets;
 //   for(unsigned int i=0; i<trkletsCollWithDup.size(); i++){
@@ -1292,7 +1250,6 @@ int HIPixelTrackletsMaker::checkGangedOrOverlap(const HIPixelTracklets* trk1, co
 //}
 
 //void HIPixelTrackletsMaker::removeDuplicateInNeighborCell(const std::vector<HIPixelTracklets*> & trackletsInCell, const std::vector<HIPixelTracklets*> & trackletsInNeighborCell, std::vector<HIPixelTracklets*> & newTrackletsInNeighborCell, int & hasDuplicate) {
-// MsgStream log(msgSvc(), name());
   //log << MSG::DEBUG << "removeDuplicateInNeighborCell() begin!" << endreq;
 //   hasDuplicate = 0;
 //   std::vector<int> removedTrklets;
@@ -1325,7 +1282,6 @@ int HIPixelTrackletsMaker::checkGangedOrOverlap(const HIPixelTracklets* trk1, co
 //}
 
 void HIPixelTrackletsMaker::removeDuplicateLayerToLayer(int innerLayer, const std::map<int, std::vector<HIPixelTracklets*> > & toBeCleanedColl, std::map<int, std::vector<HIPixelTracklets*> > & referenceColl0, std::map<int, std::vector<HIPixelTracklets*> > & referenceColl1, HIPixelTrackletsCollection* trkcoll) {
-  MsgStream log(msgSvc(), name());
   typedef std::map<int,std::vector<HIPixelTracklets*> >::const_iterator mapit;
   for(mapit it=toBeCleanedColl.begin(); it!=toBeCleanedColl.end(); it++) {
     int bin = it->first;
@@ -1349,7 +1305,9 @@ void HIPixelTrackletsMaker::removeDuplicateLayerToLayer(int innerLayer, const st
 	  if(jb<0 || jb>m_nBinsPhi-1 ) {    //edge in phi direction, need more care 
 	    if( jb==-1 ) neighborBin = ib+ (m_nBinsPhi-1)*m_nBinsEta ;
 	    else if ( jb==m_nBinsPhi ) neighborBin = ib;
-	    else { log << MSG::ERROR << " phi bin out of boundary!!! " << endreq; }
+	    else {
+              ATH_MSG_ERROR( " phi bin out of boundary!!! " );
+            }
 	  }
 	  //compare to reference one
 	  std::vector<HIPixelTracklets*> trksRef0;
@@ -1451,9 +1409,9 @@ bool HIPixelTrackletsMaker::gangedNoiseClusEqualOrIncld(const PixelCluster & clu
   if( clus0.rdoList().size()>clus1.rdoList().size() ) return false;
   Identifier id0 = clus0.identify();
   Identifier id1 = clus1.identify();
-  if( pixelID->layer_disk(id0) != pixelID->layer_disk(id1) ) return false;
-  if( pixelID->eta_module(id0) != pixelID->eta_module(id1) ) return false;
-  if( pixelID->phi_module(id0) != pixelID->phi_module(id1) ) return false;
+  if( m_pixelID->layer_disk(id0) != m_pixelID->layer_disk(id1) ) return false;
+  if( m_pixelID->eta_module(id0) != m_pixelID->eta_module(id1) ) return false;
+  if( m_pixelID->phi_module(id0) != m_pixelID->phi_module(id1) ) return false;
   
   std::vector<Identifier> rdoList[2];
   std::vector<IndexEtaPhi> pixsId[2];
@@ -1462,8 +1420,8 @@ bool HIPixelTrackletsMaker::gangedNoiseClusEqualOrIncld(const PixelCluster & clu
   for(int i=0; i<2; i++) {
     for(unsigned int ir=0; ir<rdoList[i].size(); ir++) {
       Identifier idPix = rdoList[i][ir];
-      int etaInd = pixelID->eta_index( idPix );
-      int phiInd = pixelID->phi_index( idPix );
+      int etaInd = m_pixelID->eta_index( idPix );
+      int phiInd = m_pixelID->phi_index( idPix );
       IndexEtaPhi indexEtaPhi(etaInd, phiInd);
       pixsId[i].push_back(indexEtaPhi);
     }
@@ -1484,7 +1442,6 @@ bool HIPixelTrackletsMaker::gangedNoiseClusEqualOrIncld(const PixelCluster & clu
 
 void HIPixelTrackletsMaker::removeGangedNoise(int layer, int arrSize0,
 					      const std::map<int, std::vector<IndexEtaPhi> > gangedClusColl[][13]) {
-  MsgStream log(msgSvc(), name());
   for(int i=0; i<arrSize0; i++) {
     for(int j=0; j<13; j++) {
       std::map<int,std::vector<IndexEtaPhi> > gangedClus = gangedClusColl[i][j];
@@ -2010,15 +1967,14 @@ void HIPixelTrackletsMaker::setEdgePhi() {
 }
 
 void HIPixelTrackletsMaker::removeOverLapCluster(int layer, int arrSize0) {
-  MsgStream log(msgSvc(), name());
   for(unsigned int i=0; i<m_clusterLayer[layer].size(); i++) {
     const PixelCluster& clusi0 = m_clusterLayer[layer][i];
     Identifier id = clusi0.identify();
     double cxi0 = clusi0.globalPosition().x() - m_vx;
     double cyi0 = clusi0.globalPosition().y() - m_vy;
     double phii0 = atan2(cyi0,cxi0);
-    int etaMo = pixelID->eta_module(id);
-    int phiMo = pixelID->phi_module(id);
+    int etaMo = m_pixelID->eta_module(id);
+    int phiMo = m_pixelID->phi_module(id);
     double edgePhi = 3.1416;
     if( phiMo<arrSize0-1 ) {
       if( layer==0 ) edgePhi = m_edgePhiLayer0[etaMo+6][phiMo+1];

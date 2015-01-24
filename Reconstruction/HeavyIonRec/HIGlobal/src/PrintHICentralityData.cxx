@@ -9,7 +9,7 @@
 
 PrintHICentralityData::PrintHICentralityData 
 (const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator), m_sgSvc(0)
+  AthAlgorithm(name, pSvcLocator)
 {
   // Set users' request
   declareProperty("HICentralityKey",  m_key="HICentrality");
@@ -19,34 +19,16 @@ PrintHICentralityData::PrintHICentralityData
 
 StatusCode PrintHICentralityData::initialize(){
   
-  MsgStream log(messageService(), name());
-  log << MSG::DEBUG << ">>> PrintHICentralityData from Initialize" << endreq;
-  
-  // Get the Storegate collection
-  m_sgSvc = 0;
-  StatusCode sc = service("StoreGateSvc", m_sgSvc);
-  
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not find StoreGateSvc" << endreq;
-    return sc;
-  }
-  
-  // Initialization terminated
+  ATH_MSG_DEBUG( ">>> PrintHICentralityData from Initialize" );
   return StatusCode::SUCCESS;
 }
 
 StatusCode PrintHICentralityData::execute() 
 {
-  MsgStream log(messageService(), name());
-  log << MSG::DEBUG << ">>> PrintHICentralityData from execute" << endreq;
+  ATH_MSG_DEBUG( ">>> PrintHICentralityData from execute" );
   
-  const HICentralityData *hcd;
-  if ( m_sgSvc->retrieve(hcd, m_key).isFailure() ) {
-    log << MSG::ERROR << "Could not retrieve HICentralityData:" << m_key
-	<< endreq;
-
-    return StatusCode::FAILURE;
-  }
+  const HICentralityData *hcd = nullptr;
+  ATH_CHECK( evtStore()->retrieve(hcd, m_key) );
 
   // Have to use (non-const) copy to set a different percentage schema
   HICentralityData hcdcopy = *hcd;
@@ -62,9 +44,6 @@ StatusCode PrintHICentralityData::execute()
 
 StatusCode PrintHICentralityData::finalize() {
   
-  MsgStream log(messageService(), name());
-  log << MSG::DEBUG << ">>> PrintHICentralityData from finalize" << endreq;
-  
-  // End of finalization step
+  ATH_MSG_DEBUG( ">>> PrintHICentralityData from finalize" );
   return StatusCode::SUCCESS;
 }

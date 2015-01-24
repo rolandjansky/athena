@@ -1,11 +1,10 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/Algorithm.h"
-
-class StoreGateSvc;
-using std::string; using std::vector;
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 /** @class HICentralityData
 
@@ -14,7 +13,7 @@ using std::string; using std::vector;
     @author  Andrzej Olszewski <Andrzej.Olszewski@ifj.edu.pl>
 */
 
-class PrintHITRTInfo:public Algorithm {
+class PrintHITRTInfo:public AthAlgorithm {
 public:
         PrintHITRTInfo(const std::string& name, ISvcLocator* pSvcLocator);
         StatusCode initialize();
@@ -22,11 +21,9 @@ public:
         StatusCode finalize();
 
 private:
-  StoreGateSvc* m_sgSvc;
-
   // Setable Properties:-
   // name of HITRTInfo in SG
-  string m_key; 
+  std::string m_key; 
   // possible use of new percentage schema
-  vector<int> m_OccupancyPerPart;
+  std::vector<int> m_OccupancyPerPart;
 };

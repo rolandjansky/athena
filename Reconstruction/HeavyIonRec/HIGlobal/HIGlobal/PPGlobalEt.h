@@ -9,17 +9,12 @@
 #ifndef PPGLOBALET_H
 #define PPGLOBALET_H
 
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "HIGlobal/HICaloUtil.h"
+#include "CaloEvent/CaloCellContainer.h"
 // Gaudi includes
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
 #include <string>
 
-class AtlasDetectorID;
-class Identifier;
-class StoreGateSvc;
-
-class CaloCellContainer;
 
 // No NameSpace selected 
 /** @class PPGlobalEt
@@ -30,7 +25,7 @@ class CaloCellContainer;
  *   @brief any varialble ending with _pp are using for pp analysis. 
  */  
 
-class PPGlobalEt : public Algorithm
+class PPGlobalEt : public AthAlgorithm
 {
     public:
 
@@ -41,7 +36,7 @@ class PPGlobalEt : public Algorithm
      /** Function which retrieve cell Et from CaloCellContainer */ 
      float GetEt_pp(const CaloCellContainer * cCell);   
      /** Function which retrieve cell Et from CaloCellContainer and multiplicate it by proper calibration factor depending on cell's eta */
-     float* GetEtvsEta_pp(const CaloCellContainer * cCell,HICaloUtil *m_correction_pp); 
+     float* GetEtvsEta_pp(const CaloCellContainer * cCell);
 
 
      /** standard Athena-Algorithm method */
@@ -52,18 +47,7 @@ class PPGlobalEt : public Algorithm
      StatusCode          finalize();
 
     private:
-    
-    /** class member version of retrieving MsgStream */
-    mutable MsgStream                 m_log;
-
-    /** class member version of retrieving StoreGate */
-    StoreGateSvc*  m_sgSvc;
-
-    /** member variables for algorithm properties: */
-    float *m_et_vs_eta_pp;
-     
-    HICaloUtil *m_correction_pp;
-    
+    HICaloUtil m_correction_pp;
 };
 
 #endif

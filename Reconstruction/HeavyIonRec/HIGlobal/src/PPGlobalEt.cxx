@@ -11,9 +11,6 @@
 
 #include "HIGlobal/HIEtData.h"
 
-#include <iostream>
-using std::cout;using std::endl;
-
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"
 
@@ -21,8 +18,7 @@ using std::cout;using std::endl;
 
  PPGlobalEt::PPGlobalEt(const std::string& name, ISvcLocator* pSvcLocator)
   :
-  Algorithm(name,pSvcLocator),
-  m_log(msgSvc(),name)
+   AthAlgorithm(name,pSvcLocator)
 {
   //  template for property decalration
   //declareProperty("PropertyName", m_propertyName);
@@ -37,21 +33,7 @@ using std::cout;using std::endl;
 
 StatusCode  PPGlobalEt::initialize()
 {
-  // Code entered here will be executed once at program start.
-  
-  m_log.setLevel(outputLevel());
-  m_log << MSG::DEBUG << name() << " initialize()" << endreq;
-
-  
-  // retrieve the StoreGate Service (delete if not needed)
-  StatusCode sc= service("StoreGateSvc",m_sgSvc);
-  if (sc.isFailure()) 
-    m_log << MSG::ERROR << "Could not retrieve StoreGateSvc!" << endreq;
-  else 
-    m_log << MSG::DEBUG << "StoreGateSvc retrieved!" << endreq;
-  
-  m_correction_pp = new HICaloUtil;
-  m_log << MSG::DEBUG << "initialize() successful in " << name() << endreq;
+  ATH_MSG_DEBUG( name() << " initialize()" );
   return StatusCode::SUCCESS;
 }
 
@@ -67,71 +49,46 @@ StatusCode  PPGlobalEt::finalize()
 
 StatusCode  PPGlobalEt::execute()
 {
-  // Code entered here will be executed once per event
-  m_log << MSG::DEBUG << " PPGlobalEt::execute() " << endreq;
+  ATH_MSG_DEBUG( " PPGlobalEt::execute() " );
+
+  const CaloCellContainer* cellContainer = nullptr;
+  ATH_CHECK( evtStore()->retrieve (cellContainer,"AllCalo") );
 
   HIEtData *dobj = new HIEtData;
-
-  const CaloCellContainer  * CellContainer=0;
-  StatusCode sc = m_sgSvc->retrieve (CellContainer,"AllCalo");
-  if ( sc.isFailure() ) {
-      m_log<<MSG::ERROR << "Could not retrieve AllCalo" << endreq;
-  }
-
-  dobj->Et( GetEt_pp(CellContainer) );
-  dobj->EtvsEta(GetEtvsEta_pp(CellContainer,m_correction_pp)); 
-  sc = m_sgSvc->record( dobj,name() );
-  if(sc.isFailure())
-  	m_log << MSG::ERROR << "Could not record EtData!" << endreq;   
-   else
-	m_log << MSG::DEBUG << "EtData recorded!" << endreq;
+  dobj->Et( GetEt_pp(cellContainer) );
+  dobj->EtvsEta(GetEtvsEta_pp(cellContainer));
+  ATH_CHECK( evtStore()->record( dobj,name()) );
   return StatusCode::SUCCESS;
 }
 
 float PPGlobalEt::GetEt_pp(const CaloCellContainer * cCellc)
 {
-
-  CaloCellContainer::const_iterator f_cell=cCellc->begin();
-  CaloCellContainer::const_iterator l_cell=cCellc->end();
-
   float et=0;
- 
-  for ( ; f_cell!=l_cell; ++f_cell)
-    {
-      const CaloCell* cell = (*f_cell) ;
-      et  += cell->et() ;
-    }
+  for (const CaloCell* cell : *cCellc)
+    et  += cell->et() ;
   return et;
 }
 //===============================================================================
-float* PPGlobalEt::GetEtvsEta_pp(const CaloCellContainer * cccCellc,HICaloUtil *m_correction_pp)
+float* PPGlobalEt::GetEtvsEta_pp(const CaloCellContainer * cccCellc)
 {
+    float *et_vs_eta_pp=new float[50];
 
-    CaloCellContainer::const_iterator f_cell=cccCellc->begin();
-    CaloCellContainer::const_iterator l_cell=cccCellc->end();
-    float et         =0;
-    float eta        =0;
-    int   etabin     =0;
-    m_et_vs_eta_pp=new float[50];
+    std::fill (et_vs_eta_pp, et_vs_eta_pp + 50, 0);
 
-    memset(m_et_vs_eta_pp,0,50*sizeof(m_et_vs_eta_pp[0]));
-
-    for ( ; f_cell!=l_cell; ++f_cell)
-      {
-        const CaloCell* cell = (*f_cell)             ;
-        eta                  = cell->eta()           ;
-        etabin               = (int)((eta+5.001)/0.2);
-        et                   = cell->et()            ;
-        m_et_vs_eta_pp[etabin] += et;
-      }
+    for (const CaloCell* cell : *cccCellc) {
+      float eta                  = cell->eta()           ;
+      int   etabin               = (int)((eta+5.001)/0.2);
+      float et                   = cell->et()            ;
+      et_vs_eta_pp[etabin] += et;
+    }
 
     for (int i = 0; i<50; i++)
       {
-        float m_eta = -4.9+(i*0.2);
-        m_et_vs_eta_pp[i] *=m_correction_pp->C_Correction_pp(m_eta);
+        float eta = -4.9+(i*0.2);
+        et_vs_eta_pp[i] *=m_correction_pp.C_Correction_pp(eta);
       }
 
-    return m_et_vs_eta_pp;
+    return et_vs_eta_pp;
 }
 
 

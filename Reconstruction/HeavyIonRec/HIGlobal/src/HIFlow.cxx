@@ -68,8 +68,9 @@ const bool HIFlow::CaloTagPsi[HICaloUtil::Unknown] = {
 
  HIFlow::HIFlow(const std::string& name, ISvcLocator* pSvcLocator)
   :
-  Algorithm(name,pSvcLocator),
-  m_log(msgSvc(),name)
+   AthAlgorithm(name,pSvcLocator),
+   m_HIFlowData(nullptr),
+   m_HICaloUtil(nullptr)
 {
   //  template for property decalration
   declareProperty("doCalo", m_doCalo=true);
@@ -97,14 +98,8 @@ StatusCode  HIFlow::initialize()
 {
   // Code entered here will be executed once at program start.
   
-  m_log.setLevel(outputLevel());
-  m_log << MSG::DEBUG << name() << " initialize()" << endreq;
+  ATH_MSG_DEBUG( name() << " initialize()" );
 
-  // retrieve the StoreGate Service (delete if not needed)
-  StatusCode sc= service("StoreGateSvc",m_sgSvc);
-  if (sc.isFailure()) m_log << MSG::ERROR << "Could not retrieve StoreGateSvc!" << endreq;
-  else m_log << MSG::DEBUG << "StoreGateSvc retrieved!" << endreq;
-  
   m_HICaloUtil = new HICaloUtil();
   m_HICaloUtil->InitBinSizeEtaRange(HIFlow::CaloTagv2);
  
@@ -113,21 +108,22 @@ StatusCode  HIFlow::initialize()
   if(m_weightfile)
   {
     m_FCAL0_weight = (TH2D*) m_weightfile->Get("wFcal0_EtaPhi");
-    m_log << MSG::INFO << "Using file " << m_weightfile << " for event plane reweighting" << endreq;
+    ATH_MSG_INFO( "Using file " << m_weightfile << " for event plane reweighting" );
     if(!m_FCAL0_weight)
     {
-      m_log << MSG::WARNING << "Could not read reweighting file. No reweighting being applied" << endreq;
+      ATH_MSG_WARNING( "Could not read reweighting file. No reweighting being applied" );
       m_do_reweighting=false;
     }
   }
   else 
   {
-    m_log << MSG::INFO << "Using no event plane reweighting" << endreq;
-    if(m_do_reweighting) m_log << MSG::WARNING << "Conflicting options, reweighting requested but no file specified. No reweighting being applied." << endreq;
+    ATH_MSG_INFO( "Using no event plane reweighting" );
+    if(m_do_reweighting)
+      ATH_MSG_WARNING( "Conflicting options, reweighting requested but no file specified. No reweighting being applied." );
     m_do_reweighting=false;
   }
   
-  m_log << MSG::DEBUG << "initialize() successful in " << name() << endreq;
+  ATH_MSG_DEBUG( "initialize() successful in " << name() );
   return StatusCode::SUCCESS;
 }
 
@@ -143,63 +139,39 @@ StatusCode  HIFlow::execute()
 {
   // Code entered here will be executed once per event
   
-  m_log << MSG::DEBUG << "  execute() ..." << endreq;
+  ATH_MSG_DEBUG( "  execute() ..." );
   
   // Code entered here will be executed once per event
   m_HIFlowData =  new HIFlowData;
 
-  const CaloCellContainer * CellContainer=0;
-  const CaloTowerContainer* cTowers=0;
-  const InDet::SiClusterContainer * prdContainer=0;
-  const Rec::TrackParticleContainer * TPcontainer=0;
-  StatusCode sc;
+  const CaloCellContainer * CellContainer=nullptr;
+  const CaloTowerContainer* cTowers=nullptr;
+  const InDet::SiClusterContainer * prdContainer=nullptr;
+  const Rec::TrackParticleContainer * TPcontainer=nullptr;
   if(m_doCalo || m_doSi)
   {
-    sc = m_sgSvc->retrieve (CellContainer,"AllCalo");
-    if ( sc.isFailure() )
-    {
-      m_log<<MSG::ERROR << "Could not retrieve AllCalo" << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( evtStore()->retrieve (CellContainer,"AllCalo") );
     GetPsiCaloCells(CellContainer);
-    sc = m_sgSvc->retrieve (cTowers,"CombinedTower");
-    if ( sc.isFailure() )
-    {
-      m_log<<MSG::ERROR << "Could not retrieve CombinedTower" << endreq;
-      return StatusCode::FAILURE;
-    }
+
+    ATH_CHECK( evtStore()->retrieve (cTowers,"CombinedTower") );
     GetPsiTowers(cTowers);
     
     if(m_doCalo) Getv2EtaDependentCaloCells(CellContainer);
     if(m_doSi)
     {
-      sc = m_sgSvc->retrieve(prdContainer, "PixelClusters");
-      if (sc.isFailure() )
-      {
-	m_log<<MSG::ERROR << "Pixel Cluster Container NOT found"<< endreq;
-	return StatusCode::FAILURE;
-      } 
+      ATH_CHECK( evtStore()->retrieve(prdContainer, "PixelClusters") );
       Getv2sil(prdContainer);
     }
   }
 
   if(m_doTrack)
   {
-    sc = m_sgSvc->retrieve(TPcontainer, "TrackParticleCandidate");
-    if (sc.isFailure())
-    {
-      m_log << MSG::ERROR << "Unable to retrieve TrackParticleCandidate" << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( evtStore()->retrieve(TPcontainer, "TrackParticleCandidate") );
     GetPsitrack(TPcontainer);
     m_HIFlowData->v2track( Getv2track(TPcontainer) );  
   }
 
-  sc = m_sgSvc->record( m_HIFlowData,m_HIFlowDataContainerName );
-  if (sc.isFailure())
-    m_log << MSG::ERROR << "Could not record " << m_HIFlowDataContainerName << endreq;
-  else
-    m_log << MSG::DEBUG << m_HIFlowDataContainerName << " recorded !" << endreq;
+  ATH_CHECK( evtStore()->record( m_HIFlowData,m_HIFlowDataContainerName ) );
   return StatusCode::SUCCESS;
 }
 
@@ -232,10 +204,10 @@ void HIFlow::GetPsiCaloCells(const CaloCellContainer * cCellc)
       if ( cell->caloDDE()->eta_raw() < - 0.2) {
 	idf = MapN[id]; 
       }
-      if(HIFlow::CaloTagPsi[idf]){
+      if(idf >= 0 && HIFlow::CaloTagPsi[idf]){
 	w   = cell->e();
 	wEt = cell->et();
-	if(idf!=-1){
+	/*if(idf!=-1)*/{
 	  float cp = cell->phi();
 	  ssin[idf]    +=  w   * sin(m_harmonic*cp) ;
 	  scos[idf]    +=  w   * cos(m_harmonic*cp) ;
@@ -250,10 +222,9 @@ void HIFlow::GetPsiCaloCells(const CaloCellContainer * cCellc)
       if(HIFlow::CaloTagPsi[i]){
 	psi[i] = (1.0/m_harmonic)*atan2(ssin[i],scos[i]);
 	psiEt[i] = (1.0/m_harmonic)*atan2(ssinEt[i],scosEt[i]);
-	m_log << MSG::DEBUG  <<  HICaloUtil::CaloDetImage(i)
-	      << " psi e/et " << psi[i] <<" / " << psiEt[i] 
-	      << " ssin / scos " << ssin[i] <<" / " << scos[i] 
-	      << endreq;
+	ATH_MSG_DEBUG(  HICaloUtil::CaloDetImage(i)
+                        << " psi e/et " << psi[i] <<" / " << psiEt[i] 
+                        << " ssin / scos " << ssin[i] <<" / " << scos[i] );
       }
     }
 
@@ -270,7 +241,7 @@ void HIFlow::GetPsiCaloCells(const CaloCellContainer * cCellc)
 
 void HIFlow::Getv2EtaDependentCaloCells(const CaloCellContainer * cCellc)
 {
-  m_log << MSG::DEBUG << " Getv2EtaDependentCaloCells " << endreq;
+  ATH_MSG_DEBUG( " Getv2EtaDependentCaloCells " );
   
   std::vector<float> v2EtaEMB1[HICaloUtil::Unknown];
   std::vector<float> v2EtaFCAL0[HICaloUtil::Unknown];
@@ -349,7 +320,8 @@ void HIFlow::Getv2EtaDependentCaloCells(const CaloCellContainer * cCellc)
     }
   float sum_entry=0;
   for(int i=0;i<HICaloUtil::Unknown;i++){
-    if(HIFlow::CaloTagv2[i]) m_log << MSG::DEBUG << HICaloUtil::CaloDetImage(i)<< endreq;
+    if(HIFlow::CaloTagv2[i])
+      ATH_MSG_DEBUG( HICaloUtil::CaloDetImage(i));
     for(int j=0;j< (int)v2EtaEMB1[i].size();j++){
       if(entry[i][j]&& sumw[i][j] !=0. && sumwEt[i][j]!=0.){
 	sum_entry+=entry[i][j];
@@ -366,16 +338,15 @@ void HIFlow::Getv2EtaDependentCaloCells(const CaloCellContainer * cCellc)
 	v2EtaEtFCAL0[i][j]=9999;
       }
       float eta_cent = (j+0.5)*BinSize[i] + EtaRange[i][0];
-      m_log << MSG::DEBUG << 
-	" " << j << 
-	"eta_cent "  << eta_cent <<
-	", v2EtaEMB1 e/et" << v2EtaEMB1[i][j]<< " / " << v2EtaEtEMB1[i][j]<< 
-	", v2EtaFCAL0 e/et " << v2EtaFCAL0[i][j] << " / " << v2EtaEtFCAL0[i][j] << 
-	", entry " << entry[i][j] <<
-	", sumw " << sumw[i][j] << endreq;
+      ATH_MSG_DEBUG( " " << j << 
+                     "eta_cent "  << eta_cent <<
+                     ", v2EtaEMB1 e/et" << v2EtaEMB1[i][j]<< " / " << v2EtaEtEMB1[i][j]<< 
+                     ", v2EtaFCAL0 e/et " << v2EtaFCAL0[i][j] << " / " << v2EtaEtFCAL0[i][j] << 
+                     ", entry " << entry[i][j] <<
+                     ", sumw " << sumw[i][j] );
     }
   }
-  m_log << MSG::DEBUG  << " Number of all cells used in v2 calculations= " << sum_entry << endreq;
+  ATH_MSG_DEBUG( " Number of all cells used in v2 calculations= " << sum_entry );
   m_HIFlowData->v2EtaEMB1(v2EtaEMB1);
   m_HIFlowData->v2EtaFCAL0(v2EtaFCAL0);
   m_HIFlowData->SumE(sumw);
@@ -387,8 +358,13 @@ void HIFlow::Getv2EtaDependentCaloCells(const CaloCellContainer * cCellc)
   return;
 }
 
-void HIFlow::Getv2sil(const InDet::SiClusterContainer * prdContainer)
+void HIFlow::Getv2sil(const InDet::SiClusterContainer * /*prdContainer*/)
 {
+  // The assignment to detector below was commented out, which makes
+  // this entire function do nothing...
+  m_HIFlowData->v2EMB1sil(0 );
+  m_HIFlowData->v2FCAL0sil( 0  );
+#if 0
   // iterator over containers
   InDet::SiClusterContainer::const_iterator colNext = prdContainer->begin();
   InDet::SiClusterContainer::const_iterator lastCol = prdContainer->end(); 
@@ -445,12 +421,13 @@ void HIFlow::Getv2sil(const InDet::SiClusterContainer * prdContainer)
   
   if(count)v2silEMB1  = (v2NEMB1 + v2PEMB1)/count;
   if(count)v2silFCAL0 = (v2NFCAL0 + v2PFCAL0)/count;
-  m_log << MSG::DEBUG << " v2silEMB1 " << v2silEMB1  << endreq;
-  m_log << MSG::DEBUG << " v2silFCAL0 " << v2silFCAL0 << endreq;
+  ATH_MSG_DEBUG( " v2silEMB1 " << v2silEMB1  );
+  ATH_MSG_DEBUG( " v2silFCAL0 " << v2silFCAL0 );
   m_HIFlowData->v2EMB1sil(v2silEMB1 );
   m_HIFlowData->v2FCAL0sil( v2silFCAL0  );
   
   return;
+#endif
 }
 
 void HIFlow::GetPsiTowers(const CaloTowerContainer *cTower)
@@ -574,7 +551,7 @@ void HIFlow::GetPsitrack(const Rec::TrackParticleContainer * TPcontainer)
   m_HIFlowData->PsiPtrack( psiP_track );
   m_HIFlowData->PsiNtrack( psiN_track );
   
-  m_log << MSG::DEBUG << " psiP_track " << psiP_track << " psiN_track " << psiN_track << endreq;
+  ATH_MSG_DEBUG( " psiP_track " << psiP_track << " psiN_track " << psiN_track );
   return;
 }
 
