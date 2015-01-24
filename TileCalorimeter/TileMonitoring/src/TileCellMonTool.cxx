@@ -57,6 +57,7 @@ TileCellMonTool::TileCellMonTool(const std::string & type, const std::string & n
   , m_tileBadChanTool("TileBadChanTool")
   , m_TileCellTrig(0U)
   , m_delta_lumiblock(0U)
+  , m_nEventsProcessed(9,0)
   , m_TileBadCell(0)
 /*---------------------------------------------------------*/
 {
@@ -130,6 +131,8 @@ StatusCode TileCellMonTool:: initialize() {
 
   //=== get TileBadChanTool
   CHECK( m_tileBadChanTool.retrieve() );
+
+  for (auto &nEventsPerTrig : m_nEventsProcessed) nEventsPerTrig = 0;
 
   return TileFatherMonTool::initialize();
 }
@@ -306,11 +309,21 @@ StatusCode TileCellMonTool::bookHistTrigPart( int trig , int part ) {
     m_TileCellDetailOccMap[ part ].push_back( bookProfile2D(m_TrigNames[trig]+"/"+m_PartNames[part],
                                                             "tileCellDetailOccMap_"+m_PartNames[part] + m_TrigNames[trig],
                                                             "Run "+runNumStr+" Trigger "+m_TrigNames[trig]+" Partition "+m_PartNames[part]+
-                                                            ": Occupancy Map (MeV)",
+                                                            ": Occupancy Map (MeV) (entries = events)",
                                                             64,0.5, 64.5,48,-0.5,47.5,-2.e6,2.e6) ) ;
       
     SetBinLabel(m_TileCellDetailOccMap[ part ][ element ]->GetYaxis(),m_cellchLabel[part]);
     SetBinLabel(m_TileCellDetailOccMap[ part ][ element ]->GetXaxis(),m_moduleLabel[part]);
+
+    m_TileCellEneDiffChanMod[ part ].push_back( bookProfile2D(m_TrigNames[trig]+"/"+m_PartNames[part],
+                                                              "tileCellEneDiffChanMod_"+m_PartNames[part] + m_TrigNames[trig],
+                                                              "Run "+runNumStr+" Trigger "+m_TrigNames[trig]+" Partition "+m_PartNames[part]+
+                                                              ": Energy difference betwean pmts (MeV)",
+                                                              64,0.5, 64.5,48,-0.5,47.5,-2.e6,2.e6) ) ;
+      
+    SetBinLabel(m_TileCellEneDiffChanMod[ part ][ element ]->GetYaxis(),m_cellchLabel[part]);
+    SetBinLabel(m_TileCellEneDiffChanMod[ part ][ element ]->GetXaxis(),m_moduleLabel[part]);
+
 
     // Channel timing plots below.
     std::string histDir, histName, histTitle, xTitle;
@@ -319,9 +332,9 @@ StatusCode TileCellMonTool::bookHistTrigPart( int trig , int part ) {
     histDir = m_TrigNames[trig]+"/"+m_PartNames[part];
     histName = "tileChanPartTime_"+m_PartNames[part] + m_TrigNames[trig];
     histTitle = "Run "+runNumStr+" Trigger "+m_TrigNames[trig]+" Partition "+
-        m_PartNames[part]+": TileCal Average Channel Time (ns). "+
-        "Collision Events, E_{ch} > "+TC::to_string(m_ThresholdForTime)+
-        " MeV";
+                m_PartNames[part]+": TileCal Average Channel Time (ns). "+
+                "Collision Events, E_{ch} > "+TC::to_string(m_ThresholdForTime)+
+                " MeV";
     obj = bookProfile2D(histDir,histName,histTitle, 64,0.5,64.5,48,-0.5,47.5,-80,80);
     m_TileChanPartTime[part].push_back(static_cast<TProfile2D*>(obj));
     SetBinLabel(m_TileChanPartTime[part][element]->GetXaxis(),  m_moduleLabel[part]);
@@ -331,9 +344,9 @@ StatusCode TileCellMonTool::bookHistTrigPart( int trig , int part ) {
     // Tile Cell average digi time temperature plot for each partition.
     histName = "tileDigiPartTime_"+m_PartNames[part] + m_TrigNames[trig];
     histTitle = "Run "+runNumStr+" Trigger "+m_TrigNames[trig]+" Partition "+
-        m_PartNames[part]+": TileCal Average Digitizer Time (ns). "+
-        "Collision Events, E_{ch} > "+TC::to_string(m_ThresholdForTime)+
-        " MeV";
+                m_PartNames[part]+": TileCal Average Digitizer Time (ns). "+
+               "Collision Events, E_{ch} > "+TC::to_string(m_ThresholdForTime)+
+               " MeV";
     obj = bookProfile2D(histDir,histName,histTitle, 64,0.5,64.5,8,0.5,8.5,-80,80);
     m_TileDigiPartTime[part].push_back(static_cast<TProfile2D*>(obj));
     SetBinLabel(m_TileDigiPartTime[part][element]->GetXaxis(), m_moduleLabel[part]);
@@ -433,7 +446,7 @@ StatusCode TileCellMonTool::bookHistTrig( int trig ) {
     m_TileCellEtaPhiOvThrSamp[sample][ element ]->GetXaxis()->SetTitle("#eta");
     m_TileCellEtaPhiOvThrSamp[sample][ element ]->GetYaxis()->SetTitle("#phi");
 
-    m_TileCellEneEtaPhiSamp[sample].push_back( bookProfile2D(m_TrigNames[trig],"tileCellEneEtaPhi"+m_SampStrNames[sample] + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile 2D Cell "+m_SampStrNames[sample]+" Energy Average depostion (MeV)",21,-2.025, 2.025,64,-3.15,3.15,-2.e6, 2.e6) );
+    m_TileCellEneEtaPhiSamp[sample].push_back( bookProfile2D(m_TrigNames[trig],"tileCellEneEtaPhi"+m_SampStrNames[sample] + m_TrigNames[trig],"Run "+runNumStr+" Trigger "+m_TrigNames[trig]+": Tile 2D Cell "+m_SampStrNames[sample]+" Energy Average depostion (MeV) (entries = events)",21,-2.025, 2.025,64,-3.15,3.15,-2.e6, 2.e6) );
     m_TileCellEneEtaPhiSamp[sample][ element ]->GetXaxis()->SetTitle("#eta");
     m_TileCellEneEtaPhiSamp[sample][ element ]->GetYaxis()->SetTitle("#phi");
 
@@ -479,6 +492,8 @@ void  TileCellMonTool::cleanHistVec() {
     m_activeTrigs[i] = -1;
   }
 
+  for (auto &nEventsPerTrig : m_nEventsProcessed) nEventsPerTrig = 0;
+
   //m_TileCellEtaPhiOvThr.clear() ;
   //m_TileCellEtaOvThr.clear() ;
   //m_TileCellPhiOvThr.clear() ;
@@ -502,9 +517,10 @@ void  TileCellMonTool::cleanHistVec() {
     m_TileCellDetailOccMapOvThr30GeV[part].clear();
     m_TileCellDetailOccMapOvThr300GeV[part].clear();
     m_TileCellDetailOccMap[part].clear();
+    m_TileCellEneDiffChanMod[part].clear();
  
    //m_TilenCells[part].clear() ;
-   m_TilenCellsLB[part].clear() ;
+    m_TilenCellsLB[part].clear() ;
     m_TileCellModuleCorr[part].clear() ;
     //m_TileCellTime[part].clear() ;
     //m_TileCellEnergy[part].clear() ;
@@ -651,6 +667,9 @@ StatusCode TileCellMonTool::fillHistograms() {
       int partition = NumPart;
       int partition2 = NumPart;
 
+      int ros1(-1);
+      int ros2(-1);
+
       const CaloDetDescrElement * caloDDE = tile_cell->caloDDE();
 
       IdentifierHash hash1 = caloDDE->onl1();
@@ -658,7 +677,8 @@ StatusCode TileCellMonTool::fillHistograms() {
           HWIdentifier hw1 = m_tileHWID->channel_id(hash1);
           ch1 = m_tileHWID->channel(hw1);
           drw = m_tileHWID->drawer(hw1);
-          partition = m_ros2partition[m_tileHWID->ros(hw1)];
+          ros1 = m_tileHWID->ros(hw1);
+          partition = m_ros2partition[ros1];
       }
   
       IdentifierHash hash2 = caloDDE->onl2();
@@ -666,7 +686,8 @@ StatusCode TileCellMonTool::fillHistograms() {
           HWIdentifier hw2 = m_tileHWID->channel_id(hash2);
           ch2 = m_tileHWID->channel(hw2);
           drw = m_tileHWID->drawer(hw2);
-          partition2 = m_ros2partition[m_tileHWID->ros(hw2)];
+          ros2 = m_tileHWID->ros(hw2);
+          partition2 = m_ros2partition[ros2];
       }
 
       // just to avoid potential problems with disconnected cells
@@ -713,6 +734,7 @@ StatusCode TileCellMonTool::fillHistograms() {
 
       bool ch1Ok = (ch1>-1 && gn1 != CaloGain::INVALIDGAIN);
       bool ch2Ok = (ch2>-1 && gn2 != CaloGain::INVALIDGAIN);
+
 
       // get the cell energy, time and position info
       double energy = cell_ptr->energy();
@@ -969,79 +991,112 @@ StatusCode TileCellMonTool::fillHistograms() {
             //m_TileCellOccModPartOvThr[ vecInd ]->Fill(module, fpartition, 1.);// we fill only events in a precise energy region
             //m_TileCellOccModPartOvThrSamp[ AllSamp ][ vecInd ]->Fill(module, fpartition, 1.);
     
+
+
+
             if (ch1Ok && ene1 > m_Threshold && (!badch1)) {
-              m_TileCellDetailOccMapOvThr[partition][vecInd]->Fill(drawer, ch1, weight);
+          
+              // check if ch1 in low gain has masked high gain
+              bool fillCh1OccMapOverThr = (gn1 == 0 && gn2 == 1) ? !m_tileBadChanTool->getAdcStatus(TileCalibUtils::getDrawerIdx(ros1, drw), ch1, 1).isBad() : true;
+
+              if (fillCh1OccMapOverThr) m_TileCellDetailOccMapOvThr[partition][vecInd]->Fill(drawer, ch1, weight);
               if (ene1 > 30000.) m_TileCellDetailOccMapOvThr30GeV[partition][vecInd]->Fill(drawer, ch1);
               if (ene1 > 300000.) m_TileCellDetailOccMapOvThr300GeV[partition][vecInd]->Fill(drawer, ch1);
             }
+            
             if (ch2Ok && ene2 > m_Threshold && (!badch2)) {
-              m_TileCellDetailOccMapOvThr[partition2][vecInd]->Fill(drawer, ch2, 1.0);
+              
+              // check if ch2 in low gain has masked high gain
+              bool fillCh2OccMapOverThr = (gn2 == 0 && gn1 == 1) ? !m_tileBadChanTool->getAdcStatus(TileCalibUtils::getDrawerIdx(ros2, drw), ch2, 1).isBad() : true;
+              
+              if (fillCh2OccMapOverThr) m_TileCellDetailOccMapOvThr[partition2][vecInd]->Fill(drawer, ch2, 1.0);
               if (ene2 > 30000.) m_TileCellDetailOccMapOvThr30GeV[partition][vecInd]->Fill(drawer, ch2);
               if (ene2 > 300000.) m_TileCellDetailOccMapOvThr300GeV[partition][vecInd]->Fill(drawer, ch2);
             }
-
+            
           } // end loop over TriggerType
+          
+          bool fillEneAndTimeDiff(true);
+          
+          // avoid double peak structure in energy and time balance histograms
+          if ((gn1 == 0 && gn2 == 1 && (ene1 < 2000 || std::abs(ene1 / ene2) > 5))
+              || (gn1 == 1 && gn2 == 0 && (ene2 < 2000 || std::abs(ene2 / ene1) > 5))) {
+            
+            fillEneAndTimeDiff = false;
+          }
+          
           
           // check if cell is not completely bad
           if (cell_isbad < 2) {
-
+            
             for (unsigned int i = 0; i < m_eventTrigs.size(); i++) {
               int vecInd = vecIndx(i);
-    
-              //m_TileCellEneRatSamp [ partition ][ samp ][ vecInd ]->Fill(eratio, 1.);
-              if (samp != 3) { m_TileCellEneDiffSamp[ partition ][ samp ][ vecInd ]->Fill(ediff, 1.);} //Don't make samp E
-              //m_TileCellEneRatSamp [ NumPart   ][ samp ][ vecInd ]->Fill(eratio, 1.);
-              if (samp != 3) {m_TileCellEneDiffSamp[ NumPart   ][ samp ][ vecInd ]->Fill(ediff, 1.);} //Don't make samp E
-    
-              if ((ene1 > m_ThresholdForTime || 
-                  ene2 > m_ThresholdForTime) &&
-                  (m_iscoll || m_eventTrigs[i]==Trig_b7)) {        
-                if (samp != 3) {m_TileCellTimeDiffSamp[ partition ][ samp ][ vecInd ]->Fill(tdiff, 1.);} //Don't make samp E
-                if (samp != 3) {m_TileCellTimeDiffSamp[ NumPart   ][ samp ][ vecInd ]->Fill(tdiff, 1.);} //Don't make samp E
+              if (samp != 3 && fillEneAndTimeDiff){  //Don't make samp E
+                //m_TileCellEneRatSamp [ partition ][ samp ][ vecInd ]->Fill(eratio, 1.);
+                m_TileCellEneDiffSamp[ partition ][ samp ][ vecInd ]->Fill(ediff, 1.);
+                //m_TileCellEneRatSamp [ NumPart   ][ samp ][ vecInd ]->Fill(eratio, 1.);
+                m_TileCellEneDiffSamp[ NumPart   ][ samp ][ vecInd ]->Fill(ediff, 1.);
+                
+                if ((ene1 > m_ThresholdForTime
+                     || ene2 > m_ThresholdForTime)
+                    && (m_iscoll || m_eventTrigs[i]==Trig_b7)) {        
+                  
+                  m_TileCellTimeDiffSamp[ partition ][ samp ][ vecInd ]->Fill(tdiff, 1.);
+                  m_TileCellTimeDiffSamp[ NumPart   ][ samp ][ vecInd ]->Fill(tdiff, 1.);
+                }
+                
               }
             }
-    
+            
             if (cell_isbad<1 && (! single_PMT) ) { // we fill these histograms only if the both PMTs are good
       
               m_TileCellEneBal[ partition ]->Fill(module, eratio);
 
               if ((ene1 > m_ThresholdForTime || ene2 > m_ThresholdForTime)
                   && m_iscoll ) {
-
+                
                 m_TileCellTimBal[ partition ]->Fill(module, tdiff);
               }
+
+
               
               for (unsigned int i = 0; i < m_eventTrigs.size(); i++) {
                 int vecInd = vecIndx(i);
-      
-                m_TileCellEneDiffSamp[ partition ][ AllSamp ][ vecInd ]->Fill(ediff, 1.);
-                // also store the energy ratio diff/energy
-                //m_TileCellEneRatSamp [ partition ][ AllSamp ][ vecInd ]->Fill(eratio, 1.);
-                  
-                m_TileCellEneDiffSamp[ NumPart ][ AllSamp ][ vecInd ]->Fill(ediff, 1.);
-                // also store the energy ratio diff/energy
-                //m_TileCellEneRatSamp [ NumPart ][ AllSamp ][ vecInd ]->Fill(eratio, 1.);
-                if ((ene1 > m_ThresholdForTime || 
-                     ene2 > m_ThresholdForTime) &&
-                    (m_iscoll || m_eventTrigs[i]==Trig_b7)) {        
-                  m_TileCellTimeDiffSamp[ NumPart  ][ AllSamp ][ vecInd ]->Fill(tdiff, 1.);
-                  m_TileCellTimeDiffSamp[ partition][ AllSamp ][ vecInd ]->Fill(tdiff, 1.);
-                }        
                 
+                if (fillEneAndTimeDiff) {
+                  m_TileCellEneDiffSamp[ partition ][ AllSamp ][ vecInd ]->Fill(ediff, 1.);
+                  // also store the energy ratio diff/energy
+                  //m_TileCellEneRatSamp [ partition ][ AllSamp ][ vecInd ]->Fill(eratio, 1.);
+                  
+                  m_TileCellEneDiffSamp[ NumPart ][ AllSamp ][ vecInd ]->Fill(ediff, 1.);
+                  // also store the energy ratio diff/energy
+                  //m_TileCellEneRatSamp [ NumPart ][ AllSamp ][ vecInd ]->Fill(eratio, 1.);
+                  if ((ene1 > m_ThresholdForTime || ene2 > m_ThresholdForTime)
+                      && (m_iscoll || m_eventTrigs[i]==Trig_b7)) {        
+                    
+                    m_TileCellTimeDiffSamp[ NumPart  ][ AllSamp ][ vecInd ]->Fill(tdiff, 1.);
+                    m_TileCellTimeDiffSamp[ partition][ AllSamp ][ vecInd ]->Fill(tdiff, 1.);
+                  }        
+                }            
+            
                 // check if the energy or timing balance is out of range
                 if (TMath::Abs(eratio) > m_EneBalThreshold) 
                   m_TileCellEneBalModPart[ vecInd ]->Fill(module, fpartition, 1.0);
-                if (TMath::Abs(tdiff) > m_TimBalThreshold &&
-                    (ene1 > m_ThresholdForTime || 
-                     ene2 > m_ThresholdForTime) &&
-                    (m_iscoll || m_eventTrigs[i]==Trig_b7)) {        
+                if (TMath::Abs(tdiff) > m_TimBalThreshold 
+                    && (ene1 > m_ThresholdForTime || ene2 > m_ThresholdForTime)
+                    && (m_iscoll || m_eventTrigs[i]==Trig_b7)) {        
+                  
                   m_TileCellTimBalModPart[ vecInd ]->Fill(module, fpartition, 1.0);
                 }
-              }        
+                
+                m_TileCellEneDiffChanMod[partition][vecInd]->Fill(drawer, ch1, ediff);
+                m_TileCellEneDiffChanMod[partition2][vecInd]->Fill(drawer, ch2, -1 * ediff);
+                
+              }
               
               modulecorr[partition].inputxy( m_tileID->module(id));
               modulecorr[NumPart].inputxy( m_tileID->module(id));
-      
+
             } // end if cell has two pmts and both pmts are good
     
           } // end if cell is good
@@ -1177,10 +1232,25 @@ StatusCode TileCellMonTool::fillHistograms() {
   }
 
   // number of masked channels on the fly in a partition
-  for (int p = 0; p < NPartHisto; p++) {
-    m_TileMaskChannonFlyLumi[p]->Fill(lumi, badonfly[p]);
-    m_TileMaskCellonFlyLumi[p]->Fill(lumi, nBadCells[p]);
+
+  if (m_doOnline) {
+    for (int p = 0; p < NPartHisto; p++) {
+      if (old_lumi < lumi) { // we need move bins
+        int delta_lb = lumi - old_lumi;
+        ShiftTprofile(m_TileMaskChannonFlyLumi[p], delta_lb);
+        ShiftTprofile(m_TileMaskCellonFlyLumi[p], delta_lb);
+      }
+
+      m_TileMaskChannonFlyLumi[p]->Fill(0., badonfly[p]);
+      m_TileMaskCellonFlyLumi[p]->Fill(0., nBadCells[p]);
+    }
+  } else {
+    for (int p = 0; p < NPartHisto; p++) {
+      m_TileMaskChannonFlyLumi[p]->Fill(lumi, badonfly[p]);
+      m_TileMaskCellonFlyLumi[p]->Fill(lumi, nBadCells[p]);
+    }
   }
+
 
   // Fill histograms of masked channels per LB from DB
   if (old_lumi < lumi || f_first_lb) {
@@ -1197,6 +1267,23 @@ StatusCode TileCellMonTool::fillHistograms() {
 
   //Fill synchronization plots
   calculateSynch();
+
+
+  // Set number of events as entries
+  for (unsigned int i = 0; i < m_eventTrigs.size(); ++i) {
+    ++m_nEventsProcessed[m_eventTrigs[i]];
+    int nEventsPerTrig(m_nEventsProcessed[m_eventTrigs[i]]);
+    int vecInd = vecIndx(i);
+
+    for (int sample = 0; sample < TotalSamp; ++sample) {
+      m_TileCellEneEtaPhiSamp[sample][vecInd]->SetEntries(nEventsPerTrig);    
+    }
+
+    for (int partition = 0; partition < NumPart; ++partition) {
+      m_TileCellDetailOccMap[partition][vecInd]->SetEntries(nEventsPerTrig);
+    }
+  }
+
 
   return StatusCode::SUCCESS;
 }
@@ -1381,12 +1468,37 @@ void TileCellMonTool::FirstEvInit() {
 
   for (int p = 0; p < NPartHisto; p++) {
 
- 
-    m_TileMaskChannonFlyLumi[p] = bookProfile("", "tileMaskChannOnFlyLumi_" + m_PartNames[p]
-                                              , "Run " + runNumStr + " Partition " + m_PartNames[p] + ": Number of masked channels on the fly"
-                                              , 1500, -0.5, 1499.5);
-    m_TileMaskChannonFlyLumi[p]->SetYTitle("Number of masked channels");
-    m_TileMaskChannonFlyLumi[p]->SetXTitle("LumiBlock");
+    if (m_doOnline) {
+      m_TileMaskChannonFlyLumi[p] = bookProfile("", "tileMaskChannOnFlyLumi_" + m_PartNames[p]
+                                                , "Run " + runNumStr + " Partition " + m_PartNames[p] + ": Number of masked channels on the fly"
+                                                , 100, -99.5, 0.5);
+      m_TileMaskChannonFlyLumi[p]->SetYTitle("Number of masked channels");
+      m_TileMaskChannonFlyLumi[p]->SetXTitle("Last LumiBlocks");
+
+      ////////////////////////// Book Histograms with the cell status as a function of lumi block
+      m_TileMaskCellonFlyLumi[p] = bookProfile("", "tileMaskCellOnFlyLumi_" + m_PartNames[p]
+                                               , "Run " + runNumStr + " Partition " + m_PartNames[p] + ": Number of masked cells on the fly"
+                                               , 100, -99.5, 0.5);
+      m_TileMaskCellonFlyLumi[p]->SetYTitle("Number of masked cells");
+      m_TileMaskCellonFlyLumi[p]->SetXTitle("Last LumiBlocks");
+
+    } else {
+
+      m_TileMaskChannonFlyLumi[p] = bookProfile("", "tileMaskChannOnFlyLumi_" + m_PartNames[p]
+                                                , "Run " + runNumStr + " Partition " + m_PartNames[p] + ": Number of masked channels on the fly"
+                                                , 1500, -0.5, 1499.5);
+      m_TileMaskChannonFlyLumi[p]->SetYTitle("Number of masked channels");
+      m_TileMaskChannonFlyLumi[p]->SetXTitle("LumiBlock");
+      
+      
+      ////////////////////////// Book Histograms with the cell status as a function of lumi block
+      m_TileMaskCellonFlyLumi[p] = bookProfile("", "tileMaskCellOnFlyLumi_" + m_PartNames[p]
+                                               , "Run " + runNumStr + " Partition " + m_PartNames[p] + ": Number of masked cells on the fly"
+                                               , 1500, -0.5, 1499.5);
+      m_TileMaskCellonFlyLumi[p]->SetYTitle("Number of masked cells");
+      m_TileMaskCellonFlyLumi[p]->SetXTitle("LumiBlock");
+      
+    }
 
     m_TileMaskChannfromDBLumi[p] = bookProfile("", "tileMaskChannfromDBLumi_" + m_PartNames[p]
                                                , "Run " + runNumStr + " Partition " + m_PartNames[p] + ": Number of masked channels in DB"
@@ -1394,13 +1506,6 @@ void TileCellMonTool::FirstEvInit() {
     m_TileMaskChannfromDBLumi[p]->SetYTitle("Number of masked channels");
     m_TileMaskChannfromDBLumi[p]->SetXTitle("LumiBlock");
 
-	  ////////////////////////// Book Histograms with the cell status as a function of lumi block
-
-    m_TileMaskCellonFlyLumi[p] = bookProfile("", "tileMaskCellOnFlyLumi_" + m_PartNames[p]
-                                             , "Run " + runNumStr + " Partition " + m_PartNames[p] + ": Number of masked cells on the fly"
-                                             , 1500, -0.5, 1499.5);
-    m_TileMaskCellonFlyLumi[p]->SetYTitle("Number of masked cells");
-    m_TileMaskCellonFlyLumi[p]->SetXTitle("LumiBlock");
 
   }
 
