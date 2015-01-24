@@ -10,6 +10,8 @@ use MuonIdHelpers              MuonIdHelpers-*                    MuonSpectromet
 use MuonSimEvent               MuonSimEvent-*                     MuonSpectrometer
 use MuonPrepRawData            MuonPrepRawData-*       		  MuonSpectrometer/MuonReconstruction/MuonRecEvent        
 
+use MuonCalibITools            MuonCalibITools-*                  MuonSpectrometer/MuonCalib
+
 
 private 
 
@@ -23,9 +25,10 @@ use TrkDistortedSurfaces       TrkDistortedSurfaces-*             Tracking/TrkDe
 use RegionSelector             RegionSelector-*                   DetectorDescription
 use EventInfo                  EventInfo-*                        Event
 use MuonAlignmentData          MuonAlignmentData-*                MuonSpectrometer/MuonAlignment
-use AtlasROOT 		       AtlasROOT-*                   External
-#use AthenaBaseComps       AthenaBaseComps-*       Control
+use AtlasROOT 		       AtlasROOT-*                        External
+#use AthenaBaseComps 	       AthenaBaseComps-*                  Control
 
+use AtlasBoost 		       AtlasBoost-*                       External
 
 public
 

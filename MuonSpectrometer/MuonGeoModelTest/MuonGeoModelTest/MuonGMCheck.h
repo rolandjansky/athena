@@ -31,6 +31,8 @@
 //#include "MuonIdHelpers/RpcIdHelper.h"
 //#include "MuonIdHelpers/TgcIdHelper.h"
 
+#include "GaudiKernel/ToolHandle.h"
+#include "MuonCalibITools/IIdToFixedIdTool.h"
 
 
 class StoreGateSvc;
@@ -115,6 +117,8 @@ private:
     const MdtIdHelper*            p_MdtIdHelper;
     const sTgcIdHelper*           p_sTgcIdHelper;
     const MmIdHelper*             p_MmIdHelper;
+
+    ToolHandle<MuonCalib::IIdToFixedIdTool> m_fixedIdTool;
 
     int _mem; //<! counter for memory allocated VmSize values read from /proc/<pid>/status 
     int _cpu[2]; //<! counter for cpu time read from /proc/<pid>/cpu
