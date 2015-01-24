@@ -160,13 +160,13 @@ StatusCode TileRawChannelNoiseMonTool::bookRawChannelNoiseHistos() {
 
   for (unsigned int ros = 1; ros < TileCalibUtils::MAX_ROS; ++ros) {
 
-    m_map_sigma1[ros] = book2F("Summary", "map_sigma1_" + PartitionName[ros], "Sigma 1 - " + PartitionName[ros] + " " + m_gainName, 64, 0.5, 64.5, 48, -0.5, 47.5);
-    m_map_sigma2[ros] = book2F("Summary", "map_sigma2_" + PartitionName[ros], "Sigma 2 - " + PartitionName[ros] + " " + m_gainName, 64, 0.5, 64.5, 48, -0.5, 47.5);
-    m_map_R[ros] = book2F("Summary", "map_R_" + PartitionName[ros], "R (A_{1}/A_{2})- " + PartitionName[ros] + " " + m_gainName, 64, 0.5, 64.5, 48, -0.5, 47.5);
-    m_map_chi2[ros] = book2F("Summary", "map_chi2_" + PartitionName[ros], "chi2 - " + PartitionName[ros] + " " + m_gainName, 64, 0.5, 64.5, 48, -0.5, 47.5);
-    m_map_chi2prb[ros] = book2F("Summary", "map_chi2prb_" + PartitionName[ros], "chi2 prob. - " + PartitionName[ros] + " " + m_gainName, 64, 0.5, 64.5, 48, -0.5, 47.5);
-    m_map_rmsOsig[ros] = book2F("Summary", "map_rmsOsig_" + PartitionName[ros], "RMS/ Sigma1 - " + PartitionName[ros] + " " + m_gainName, 64, 0.5, 64.5, 48, -0.5, 47.5);
-    m_map_rms[ros] = book2F("Summary", "map_rms_" + PartitionName[ros], "RMS - " + PartitionName[ros] + " " + m_gainName, 64, 0.5, 64.5, 48, -0.5, 47.5);
+    m_map_sigma1[ros] = book2F("Summary", "map_sigma1_" + PartitionName[ros], "Sigma 1 - " + PartitionName[ros] + " " + m_gainName + " (entries = events)", 64, 0.5, 64.5, 48, -0.5, 47.5);
+    m_map_sigma2[ros] = book2F("Summary", "map_sigma2_" + PartitionName[ros], "Sigma 2 - " + PartitionName[ros] + " " + m_gainName + " (entries = events)", 64, 0.5, 64.5, 48, -0.5, 47.5);
+    m_map_R[ros] = book2F("Summary", "map_R_" + PartitionName[ros], "R (A_{1}/A_{2})- " + PartitionName[ros] + " " + m_gainName + " (entries = events)", 64, 0.5, 64.5, 48, -0.5, 47.5);
+    m_map_chi2[ros] = book2F("Summary", "map_chi2_" + PartitionName[ros], "chi2 - " + PartitionName[ros] + " " + m_gainName + " (entries = events)", 64, 0.5, 64.5, 48, -0.5, 47.5);
+    m_map_chi2prb[ros] = book2F("Summary", "map_chi2prb_" + PartitionName[ros], "chi2 prob. - " + PartitionName[ros] + " " + m_gainName + " (entries = events)", 64, 0.5, 64.5, 48, -0.5, 47.5);
+    m_map_rmsOsig[ros] = book2F("Summary", "map_rmsOsig_" + PartitionName[ros], "RMS/ Sigma1 - " + PartitionName[ros] + " " + m_gainName + " (entries = events)", 64, 0.5, 64.5, 48, -0.5, 47.5);
+    m_map_rms[ros] = book2F("Summary", "map_rms_" + PartitionName[ros], "RMS - " + PartitionName[ros] + " " + m_gainName + " (entries = events)", 64, 0.5, 64.5, 48, -0.5, 47.5);
 
 
     //////////// SET THE MODULE NAMES ON THE X-AXIS ////////////

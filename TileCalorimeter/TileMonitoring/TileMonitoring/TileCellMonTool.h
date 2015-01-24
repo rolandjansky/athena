@@ -66,6 +66,7 @@ class TileCellMonTool: public TileFatherMonTool {
     int32_t m_delta_lumiblock;
     int32_t m_OldLumiArray1[4][64][4];
     int32_t m_OldLumiArray2[4][64][4];
+    std::vector<int> m_nEventsProcessed; // number of processed events per trigger
     std::string m_cellsContName;
 
     std::vector<const CaloCell*> m_muonCells;
@@ -98,7 +99,10 @@ class TileCellMonTool: public TileFatherMonTool {
     //std::vector<TProfile2D*> m_TileCellOccModPartSamp[TotalSamp];
     //std::vector<TH2I*> m_TileCellOccModPartOvThrSamp[TotalSamp];
 
-    // energy and time balance in module number vs partition
+    // energy and time balance in channel vs module
+    std::vector<TProfile2D*> m_TileCellEneDiffChanMod[NPartHisto];
+
+
     std::vector<TH2S*> m_TileCellEneBalModPart;
     std::vector<TH2S*> m_TileCellTimBalModPart;
 
