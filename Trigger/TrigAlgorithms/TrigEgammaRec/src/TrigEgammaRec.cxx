@@ -610,46 +610,28 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     //**********************************************************************
     // Create an EgammaRec container  
     // should this be a pointer in the class?
-    EgammaRecContainer eg_container;
+    EgammaRecContainer *eg_container = new EgammaRecContainer();
 
     // Create collections used in the navigation
     // Electrons
     m_electron_container = new xAOD::ElectronContainer();
     xAOD::ElectronAuxContainer *electronAux = new xAOD::ElectronAuxContainer();
     
-    // Photons
-    m_photon_container = new xAOD::PhotonContainer();
-    xAOD::PhotonAuxContainer *photonAux = new xAOD::PhotonAuxContainer();
-
     // Get into egKey userfriendly key given by jobOptions property (if any)
     // Expanding to have separate Electron / Photon keys
     std::string electronKey="";
-    std::string photonKey = "";
+    std::string electronContSGKey = "";
     if (m_electronContainerAliasSuffix.size() > 0 ) {
         electronKey = m_electronContainerAliasSuffix;
         if(msgLvl() <= MSG::VERBOSE) 
             msg() << MSG::VERBOSE << "REGTEST: electronKey for Electron container: " << electronKey << endreq;
     }
-    if (m_photonContainerAliasSuffix.size() > 0 ) {
-        photonKey = m_photonContainerAliasSuffix;
-        if(msgLvl() <= MSG::VERBOSE) 
-            msg() << MSG::VERBOSE << "REGTEST: egKey for egamma container: " << photonKey << endreq;
-    }
-
-
-    std::string electronContSGKey = "";
-    std::string photonContSGKey = "";
+    
     HLT::ErrorCode sc = getUniqueKey( m_electron_container, electronContSGKey, electronKey);
     if (sc != HLT::OK) { 
         msg() << MSG::DEBUG << "Could not retrieve the electron container key" << endreq;
         return sc;                                                                       
     } 
-    sc = getUniqueKey( m_photon_container, photonContSGKey, photonKey);
-    if (sc != HLT::OK) { 
-        msg() << MSG::DEBUG << "Could not retrieve the photon container key" << endreq;
-        return sc;                                                                       
-    } 
-
 
     // Attach to TE and write to StoreGate (needed only for POOL persistency)
     //3rd argument:  always will return the name used to store the container
@@ -657,18 +639,48 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     //4th argument: will add customs' key to container name
     
     std::string electronContSGName = electronContSGKey; //if you put no empty string here you'll get an alias in SG
-    std::string photonContSGName = photonContSGKey; //if you put no empty string here you'll get an alias in SG
+    
     if ( store()->record(m_electron_container, electronContSGKey).isFailure()) {
         msg() << MSG::ERROR << "REGTEST: trigger ElectronContainer registration failed" << endreq;
+        delete electronAux;
+        delete eg_container;
+        return HLT::ERROR;
+    }
+    
+    if ( store()->record(eg_container, electronContSGKey+"EgammaRecContainer").isFailure()) {
+        msg() << MSG::ERROR << "REGTEST: trigger EgammaRecContainer registration failed" << endreq;
+        delete electronAux;
+        delete eg_container;
         return HLT::ERROR;
     }
     if ( store()->record(electronAux,electronContSGKey + "Aux.").isFailure() ) {
         msg() << MSG::ERROR << "REGTEST: trigger ElectronAuxContainer registration failed" << endreq;
         delete electronAux;
+        delete eg_container;
         return HLT::ERROR;
     }
     m_electron_container->setStore(electronAux);
-    
+
+    // Photons
+    m_photon_container = new xAOD::PhotonContainer();
+    xAOD::PhotonAuxContainer *photonAux = new xAOD::PhotonAuxContainer();
+
+    std::string photonKey = "";
+    std::string photonContSGKey = "";
+    if (m_photonContainerAliasSuffix.size() > 0 ) {
+        photonKey = m_photonContainerAliasSuffix;
+        if(msgLvl() <= MSG::VERBOSE) 
+            msg() << MSG::VERBOSE << "REGTEST: egKey for egamma container: " << photonKey << endreq;
+    }
+   
+    sc = getUniqueKey( m_photon_container, photonContSGKey, photonKey);
+    if (sc != HLT::OK) { 
+        msg() << MSG::DEBUG << "Could not retrieve the photon container key" << endreq;
+        return sc;                                                                       
+    } 
+
+
+    std::string photonContSGName = photonContSGKey; //if you put no empty string here you'll get an alias in SG
     if ( store()->record(m_photon_container, photonContSGKey).isFailure()) {
         msg() << MSG::ERROR << "REGTEST: trigger PhotonContainer registration failed" << endreq;
         return HLT::ERROR;
@@ -805,7 +817,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         const std::vector< ElementLink<xAOD::CaloClusterContainer> > elClusters {clusterLink}; 
         egammaRec* egRec = new egammaRec(); 
         egRec->setCaloClusters( elClusters );
-        eg_container.push_back( egRec );
+        eg_container->push_back( egRec );
     } // End attaching clusters to egammaRec
     //
     // Conversions
@@ -814,7 +826,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     if(m_doConversions){
         ATH_MSG_DEBUG("REGTEST:: Run Conversion Builder for egContainer");
         if (timerSvc()) m_timerTool2->start(); //timer
-        for(auto egRec : eg_container) {
+        for(auto egRec : *eg_container) {
             ATH_MSG_DEBUG( "REGTEST:: Running ConversionBuilder");
             if(m_conversionBuilder->hltExecute(egRec,pVxContainer).isFailure())
                 ATH_MSG_DEBUG("REGTEST: no Conversion");
@@ -825,7 +837,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     // Check for Track Match. 
     
     if(m_doTrackMatching){
-        for(auto egRec : eg_container) {
+        for(auto egRec : *eg_container) {
             if (timerSvc()) m_timerTool1->start(); //timer
             if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG 
                 << "REGTEST:: Running TrackMatchBuilder" << endreq;
@@ -870,7 +882,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     static SG::AuxElement::Decorator<float> phiCalo ("phiCalo");
     double tmp_etaCalo=-999.;
     double tmp_phiCalo=-999.;
-    for(const auto& egRec : eg_container){
+    for(const auto egRec : *eg_container){
         // For now set author as Electron
         ATH_MSG_DEBUG("REGTEST:: Running AmbiguityTool");
         if (timerSvc()) m_timerTool3->start(); //timer
@@ -1189,7 +1201,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         if( m_photonPIDBuilder->execute(eg)){
             ATH_MSG_DEBUG("Computed PID and dressed");
         }
-        else ATH_MSG_DEBUG("Problem in electron PID");
+        else ATH_MSG_DEBUG("Problem in photon PID");
         if (timerSvc()) m_timerPIDTool3->stop(); //timer
         ATH_MSG_DEBUG(" REGTEST: xAOD Reconstruction Photon variables: ");
         if(msgLvl() <= MSG::DEBUG) PrintPhoton(eg);
