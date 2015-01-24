@@ -30,6 +30,9 @@ from ElectronPhotonSelectorTools.ConfiguredAsgPhotonIsEMSelectors import Configu
 from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefElectron
 from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefPhoton
 
+# Path for versioned configuration
+ConfigFilePath = "ElectronPhotonSelectorTools/trigger/dc14b_20150121/"
+
 # Dictionaries for ToolNames
 ElectronToolName = {'vloose':'AsgElectronIsEMVLooseSelector',
     'loose':'AsgElectronIsEMLooseSelector',
@@ -90,7 +93,7 @@ ElectronLHToolConfigFile = {'cutd0dphi':'ElectronLikelihoodMediumTriggerConfig20
         'nodphi':'ElectronLikelihoodMediumTriggerConfig2015_NoDeta.conf',
         'nodphires':'ElectronLikelihoodMediumTriggerConfig2015_NoDphiRes.conf',}
 
-ElectronToolConfigFile = {'vloose':'ElectronIsEMLooseSelectorCutDefs.conf', #Vector size error in VLoose config, using Loose
+ElectronToolConfigFile = {'vloose':'ElectronIsEMVLooseSelectorCutDefs.conf', 
     'loose':'ElectronIsEMLooseSelectorCutDefs.conf',
     'medium':'ElectronIsEMMediumSelectorCutDefs.conf',
     'tight':'ElectronIsEMTightSelectorCutDefs.conf',
@@ -99,7 +102,7 @@ ElectronToolConfigFile = {'vloose':'ElectronIsEMLooseSelectorCutDefs.conf', #Vec
     'lhmedium':'ElectronLikelihoodMediumTriggerConfig2015.conf',
     'lhtight':'ElectronLikelihoodTightTriggerConfig2015.conf',}
 
-ElectronCaloToolConfigFile = {'vloose':'ElectronIsEMLooseSelectorCutDefs.conf', #Vector size error in VLoose config, using Loose
+ElectronCaloToolConfigFile = {'vloose':'ElectronIsEMVLooseSelectorCutDefs.conf', 
     'loose':'ElectronIsEMLooseSelectorCutDefs.conf',
     'medium':'ElectronIsEMMediumSelectorCutDefs.conf',
     'tight':'ElectronIsEMTightSelectorCutDefs.conf',
@@ -147,8 +150,6 @@ PhotonIsEMBits = {'loose':SelectionDefPhoton.PhotonLooseEF,
     'medium1':SelectionDefPhoton.PhotonMediumEF,
     'tight1':SelectionDefPhoton.PhotonTight,}
 
-# Path for versioned configuration
-ConfigFilePath = "ElectronPhotonSelectorTools/trigger/dc14b_20141031/"
 def ElectronPidTools():
     from AthenaCommon.AppMgr import ToolSvc
     # Run1 selectors -- added directly to ToolSvc from default config via mapping
@@ -251,6 +252,8 @@ def ElectronPidTools():
             #print ElectronToolConfigFile[key]
             tool=CfgMgr.AsgElectronLikelihoodTool(ElectronToolName[key])
             tool.ConfigFile = ConfigFilePath + ElectronToolConfigFile[key]
+            tool.inputPDFFileName = ConfigFilePath + "DC14OnlinePDFs.root"
+            #tool.inputPDFFileName = "ElectronPhotonSelectorTools/trigger/dc14b_20141031/DC14OnlinePDFs.root"
             tool.usePVContainer = False
             ToolSvc += tool
    
@@ -260,6 +263,7 @@ def ElectronPidTools():
         #print ElectronLHToolConfigFile[key]
         tool=CfgMgr.AsgElectronLikelihoodTool(ElectronLHToolName[key])
         tool.ConfigFile = ConfigFilePath + ElectronLHToolConfigFile[key]
+        tool.inputPDFFileName = ConfigFilePath + "DC14OnlinePDFs.root"
         tool.usePVContainer = False
         ToolSvc += tool
 
@@ -270,6 +274,7 @@ def ElectronPidTools():
             #print ElectronCaloToolName[key]
             tool=CfgMgr.AsgElectronLikelihoodTool(ElectronCaloToolName[key])
             tool.ConfigFile = ConfigFilePath + ElectronCaloToolConfigFile[key]
+            tool.inputPDFFileName = ConfigFilePath + "DC14OnlinePDFs.root"
             tool.usePVContainer = False
             tool.caloOnly = True
             ToolSvc += tool

@@ -5,7 +5,7 @@ from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, Tri
 
 
 class TrigEFCaloHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
-    def __init__ (self, name="TrigL2ElectronHypoOnlineMonitoring"):
+    def __init__ (self, name="TrigEFCaloHypoOnlineMonitoring"):
         super(TrigEFCaloHypoOnlineMonitoring, self).__init__(name)
         self.defineTarget( "Online" )
 

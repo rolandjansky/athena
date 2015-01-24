@@ -95,6 +95,10 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltInitialize()
       return HLT::BAD_JOB_SETUP; 
   }
   else ATH_MSG_DEBUG("Retrieved Tool " << m_fourMomBuilder);
+  if (timerSvc()){
+   m_totalTimer  = addTimer("TrigEFCaloCalibFexTot");
+   m_toolTimer = addTimer("MVACalibTool");
+  }
   ATH_MSG_DEBUG("Initialization of TrigEFCaloHypo completed successfully");
   ATH_MSG_DEBUG("Initialization successful");
   return HLT::OK;
@@ -115,6 +119,9 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
         HLT::TriggerElement* outputTE) {
     HLT::ErrorCode stat = HLT::OK;
 
+    // Time total TrigEFCaloHypo execution time.
+    // -------------------------------------
+    if (timerSvc()) m_totalTimer->start();    
     //clear the monitoring vectors
     m_EBE0.clear();
     m_EBE1.clear();
@@ -285,7 +292,6 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
         m_pCaloClusterContainer->push_back(newClus);
         //*newClus = *clus; //This causes an FPE overflow in TrigEgammaRec
         
-        //newClus->addCellLink(new CaloClusterCellLink(clus->getCellLinks()->getCellContainer())); //Ensure the cell links are there
         ATH_MSG_DEBUG("Copied cluster Energy, eta, phi " << newClus->e() << " " << newClus->eta() << " " << newClus->phi());
         ATH_MSG_DEBUG("Copied cluster raw E, eta, phi " << newClus->rawE() << " " << newClus->rawEta() << " " << newClus->rawPhi()); 
         ATH_MSG_DEBUG("Copied cluster cal E, eta, phi " << newClus->calE() << " " << newClus->calEta() << " " << newClus->calPhi()); 
@@ -298,15 +304,17 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
          //Now set the calibrated energy from MVA
         if(m_applyMVACalib){
             ATH_MSG_DEBUG("Applying MVA Calib");
+
+            if (timerSvc()) m_toolTimer->start();    
             if(m_MVACalibTool->hltexecute(newClus,m_egType).isFailure())
                 ATH_MSG_DEBUG("MVACalib Fails");
+            if (timerSvc()) m_toolTimer->stop();    
         }
         ATH_MSG_DEBUG("MVA Calibrated Cluster Energy, eta, phi " << newClus->e() << " " << newClus->eta() << " " << newClus->phi());
 
         //Setting link to new cluster for temporary studies
         const ElementLink<xAOD::CaloClusterContainer> linkToOriginal(*clusContainer,iclus);
         newClus->auxdata< ElementLink< xAOD::CaloClusterContainer > >( "originalCaloCluster" ) = linkToOriginal;
-        // linkToOriginal.toPersistent(); // Not compiling, is this still needed or persistency done behind the scenes???
        
         // Now creating the photon objects (dummy EDM for Calo selection at EF)
         const ElementLink<xAOD::CaloClusterContainer> clusterLink(*m_pCaloClusterContainer,iclus);
@@ -432,6 +440,9 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
 
     if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "acceptInput = " << pass << endreq;
 
+    // Time total TrigEFCaloHypo execution time.
+    // -------------------------------------
+    if (timerSvc()) m_totalTimer->stop();    
     return HLT::OK;
 }
 

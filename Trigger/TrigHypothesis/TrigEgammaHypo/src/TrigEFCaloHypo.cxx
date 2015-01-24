@@ -97,8 +97,9 @@ HLT::ErrorCode TrigEFCaloHypo::hltInitialize()
 
   // Initialize timing service
   //------------------------------
-  if (timerSvc())
+  if (timerSvc()){
    m_totalTimer  = addTimer("TrigEFCaloHypoTot");
+  }
 
   m_SelectorTool=ToolHandle<IAsgElectronIsEMSelector>(m_SelectorToolName);
   if(m_SelectorTool.retrieve().isFailure()) {
@@ -334,7 +335,7 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
   pass=accepted;
   ATH_MSG_DEBUG("REGTEST Result = " <<(accepted ? "accepted" : "not accepted"));
   ATH_MSG_DEBUG("REGTEST AcceptAll= " <<(m_acceptAll ? "true (no cuts)" : "false (selection applied)"));
-  ATH_MSG_DEBUG("REGETST Result = " <<(pass ? "passed" : "failed"));
+  ATH_MSG_DEBUG("REGTEST Result = " <<(pass ? "passed" : "failed"));
     
  
   // Time total TrigEFCaloHypo execution time.
