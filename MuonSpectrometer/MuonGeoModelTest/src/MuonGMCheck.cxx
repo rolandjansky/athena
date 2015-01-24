@@ -64,6 +64,8 @@
 
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
+#include <boost/format.hpp>
+
 #include <fstream>
 #include <sstream>
 
@@ -94,7 +96,8 @@ MuonGMCheck::MuonGMCheck(const std::string& name, ISvcLocator* pSvcLocator)
     p_CscIdHelper           ( 0 ),
     p_MdtIdHelper           ( 0 ),
     p_sTgcIdHelper           ( 0 ),
-    p_MmIdHelper           ( 0 )
+    p_MmIdHelper           ( 0 ),
+    m_fixedIdTool("MuonCalib::IdToFixedIdTool")
 {
     _mem = 0;
     _cpu[0] = 0;
@@ -151,6 +154,7 @@ MuonGMCheck::MuonGMCheck(const std::string& name, ISvcLocator* pSvcLocator)
     declareProperty("testCscDetectorElementHash",m_testCscDetectorElementHash=0);
     
         
+    declareProperty("idTool", m_fixedIdTool);
     
     m_print_level	   =	0;
     declareProperty("print_level",     m_print_level);
@@ -953,10 +957,13 @@ void MuonGMCheck::checkreadoutmdtgeo()
      std::string gVersion = p_MuonMgr->geometryVersion();
      std::string fileName = "mdt_current_"+gVersion;
      std::string fileNameEP = "mdt_current_EP_"+gVersion;
+     std::string fileNameEP2 = "mdt_current_EP2_"+gVersion;
      std::ofstream fout(fileName.c_str());
      //std::ofstream fendpoints(fileNameEP.c_str());
      std::ofstream fendpoints;
      if (m_check_blines) fendpoints.open(fileNameEP.c_str());
+     std::ofstream fendpoints2(fileNameEP2.c_str());
+     fendpoints2 << "id/I:str_id/C:px/D:py:pz:zx:zy:zz:mx:my:mz" << std::endl;
      exe_log << MSG::INFO << " ***** Writing file "<< fileName << endreq;
      fout << setiosflags(std::ios::fixed) << std::setprecision(4)<<std::endl;
 
@@ -1174,7 +1181,8 @@ void MuonGMCheck::checkreadoutmdtgeo()
 						   <<" MDT envelop Ssize, LongSsize, Zsize=Height, Rsize=Length "
 						   <<pms->Ssize()<<" "<<pms->LongSsize()<<" "
 						   <<pms->ZsizeMdtStation()<<" "<<pms->RsizeMdtStation()<<std::endl;
-				     HepGeom::Point3D<double> temp = pms->getBlineFixedPointInAmdbLRS();
+				     //HepGeom::Point3D<double> temp = pms->getBlineFixedPointInAmdbLRS();
+				     HepGeom::Point3D<double> temp = pms->getUpdatedBlineFixedPointInAmdbLRS();
 				     Amg::Vector3D bLineFixedPointAMDBl(temp[0],temp[1],temp[2]);
 				     Amg::Vector3D aLineFixedPoint      = mdt->AmdbLRSToGlobalCoords(Amg::Vector3D(0.,0.,0.));
 				     Amg::Vector3D bLineFixedPoint      = mdt->AmdbLRSToGlobalCoords(bLineFixedPointAMDBl);
@@ -1236,6 +1244,9 @@ void MuonGMCheck::checkreadoutmdtgeo()
 				 // 	       <<std::endl;
 				 // }
 				 // else fendpoints<<"A PROBLEM HERE "<<std::endl;
+
+				 Amg::Vector3D amdbpos  = mdt->AmdbLRStubePos(chid);
+				 fendpoints << "Amdb LRS rubePos " << amdbpos.x() << " " << amdbpos.y() << " " << amdbpos.z() << std::endl;
 				 fendpoints<<std::setw(20)<<setiosflags(std::ios::fixed)<<p_MdtIdHelper->show_to_string(chid)
 					   <<"     s+ "
 					   <<std::setw(12)<<setiosflags(std::ios::fixed)
@@ -1252,6 +1263,13 @@ void MuonGMCheck::checkreadoutmdtgeo()
 					   <<"    halfTubeLength "<<halfTubeL//<<" "<<pzROamdbS
 					   <<std::endl;
 
+				 fendpoints2 <<
+				   boost::format("%10d %25s   %12.4f %12.4f %12.4f   %12.4f %12.4f %12.4f   %12.4f %12.4f %12.4f\n")
+				   % m_fixedIdTool->idToFixedId(chid).getIdInt() % p_MdtIdHelper->show_to_string(chid)
+				   % pzEPsplus.x() % pzEPsplus.y() % pzEPsplus.z()
+				   % pz0.x() % pz0.y() % pz0.z()
+				   % pzEPsminus.x() % pzEPsminus.y() % pzEPsminus.z()
+				   ;
 				 
                                  fout<<" A-line in use is s,z,t rots,z,t "<<std::setw(10)<<setiosflags(std::ios::fixed)<<std::setprecision(7)
                                      <<pms->getALine_tras()<<" "
@@ -1318,7 +1336,11 @@ void MuonGMCheck::checkreadoutmdtgeo()
          }
      }
      fout.close();
-     if (m_check_blines) fendpoints.close();
+     if (m_check_blines) {
+       fendpoints2 << std::flush;
+       fendpoints2.close();
+       fendpoints.close();
+     }
      exe_log << MSG::INFO <<" CheckReadoutMdt done !"<<endreq;
  }
 void MuonGMCheck::checkreadouttgcgeo()
@@ -1896,11 +1918,13 @@ void MuonGMCheck::checkreadoutcscgeo()
                          Identifier lszp1 = p_CscIdHelper->channelID(idp1, ml+1, gg, 1, csc1->NphiStrips(gg));
 			 Amg::Vector3D AoriginGlobalF = csc->AmdbLRSToGlobalCoords(Amg::Vector3D(0.,0.,0.));
 			 Amg::Vector3D AoriginTrkF = csc->transform(fszp).inverse()*AoriginGlobalF;
-			 fout<<" Side-A: A-line origin Global Frame       "<<AoriginGlobalF<<std::endl;
+			 fout<<" Side-A: A-line origin Global Frame       "
+			   <<AoriginGlobalF.x() << " " << AoriginGlobalF.y() << " " << AoriginGlobalF.z()<<std::endl;
 			 fout<<" Side-A: A-line origin Tracking Phi Frame "<<AoriginTrkF<<std::endl;
 			 Amg::Vector3D AoriginGlobalF1 = csc1->AmdbLRSToGlobalCoords(Amg::Vector3D(0.,0.,0.));
 			 Amg::Vector3D AoriginTrkF1 = csc1->transform(fszp1).inverse()*AoriginGlobalF1;
-			 fout<<" Side-C: A-line origin Global Frame       "<<AoriginGlobalF1<<std::endl;
+			 fout<<" Side-C: A-line origin Global Frame       "
+			   <<AoriginGlobalF1.x() << " " << AoriginGlobalF1.y() << " " << AoriginGlobalF1.z()<<std::endl;
 			 fout<<" Side-C: A-line origin Tracking Phi Frame "<<AoriginTrkF1<<std::endl;
 
                          Amg::Vector3D xfwzp = csc->stripPos(fwzp);
@@ -2386,12 +2410,10 @@ void MuonGMCheck::buildMdtRegionSelectorMap()
                     Idv[3] = p_MdtIdHelper->channelID(Id, 1, ntlay, ntubesl1);
                     _mdt = p_MuonMgr->getMdtReadoutElement(Idv[3]);
                 }
-                else
-                {
+            }
+            if (_mdt == NULL) {
                     std::cout<<" Skipping element; i = "<<i<<" ----- "<<std::endl;
                     continue;
-                }
-                
             }            
             Amg::Vector3D mdtPos = _mdt->tubePos(Idv[i]);
             std::cout<<p_MdtIdHelper->show_to_string(Idv[i])<<" index "<<i<<" posx,y,z "<<mdtPos<<" R = "<<mdtPos.perp()<<std::endl;
@@ -3299,7 +3321,7 @@ void MuonGMCheck::testMdtDetectorElementHash()
         else                   log<<MSG::ERROR<<"     hash Id NOT computed "<<Idhash<<" for Id "<<extid<<endreq;
 
         std::string new_extid="";
-        int aux0, aux1, aux2, aux3, aux4, aux5, aux6;
+        int aux0 = 0, aux1 = 0, aux2 = 0, aux3 = 0, aux4 = 0, aux5 = 0, aux6 = 0;
         char _dot[6];
         std::string::size_type loc_o;
         std::string::size_type loc_c;
@@ -3314,7 +3336,13 @@ void MuonGMCheck::testMdtDetectorElementHash()
                 std::ostringstream mdtid_nstr;
                 mdtid_nstr <<aux0 <<"/" << aux1 <<"/" << aux2 <<"/"<< aux3 <<"/" <<aux4 <<"/"<<aux5 <<"/"<<aux6 ;
                 new_extid = mdtid_nstr.str();
+            } else {
+                log<<MSG::ERROR<<extid<<"There is sth wrong with CSC hash Id "<<Idhash<<" new format "<<new_extid<<" ... skipping ... "<<endreq;
+                continue;
             }
+        } else {
+            log<<MSG::ERROR<<extid<<"There is sth wrong with CSC hash Id "<<Idhash<<" new format "<<new_extid<<" ... skipping ... "<<endreq;
+            continue;
         }
         log<<MSG::VERBOSE<<extid<<" hash Id "<<Idhash<<" new format "<<new_extid<<endreq;
 

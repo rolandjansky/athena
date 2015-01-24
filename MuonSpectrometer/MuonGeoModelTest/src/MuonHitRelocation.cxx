@@ -70,7 +70,7 @@ public:
 };
 
 
-MuonHitRelocation::Clockwork::Clockwork()
+MuonHitRelocation::Clockwork::Clockwork() : nt(0)
 {
 }
 
@@ -81,7 +81,8 @@ MuonHitRelocation::Clockwork::~Clockwork() {
 /////////////////////////////////////////////////////////////////////////////
 
 MuonHitRelocation::MuonHitRelocation(const std::string& name, ISvcLocator* pSvcLocator) :
-  Algorithm(name, pSvcLocator),c(new Clockwork())
+  Algorithm(name, pSvcLocator),c(new Clockwork()), rmuonHelper(0), mmuonHelper(0),
+  tmuonHelper(0), cmuonHelper(0), stmuonHelper(0), mmmuonHelper(0)
 {
     declareProperty("checkMdt", _checkMdt = true );
     declareProperty("checkRpc", _checkRpc = true );
