@@ -43,9 +43,9 @@ void G4CosmicFilter::EndOfEventAction(const G4Event*)
   if (m_magicID!=0 || m_ptMin>0 || m_ptMax>0){
     counter=0;
     for (unsigned int i=0;i<coll->size();++i){
-      if (m_magicID!=0 && m_magicID != fabs(coll->operator[](i)->GetPDGCode())) continue;
-      if (m_ptMin>0 && m_ptMin > coll->operator[](i)->GetMomentum().perp() ) continue;
-      if (m_ptMax>0 && m_ptMax < coll->operator[](i)->GetMomentum().perp() ) continue;
+      if (m_magicID!=0 && m_magicID != fabs(coll->operator[](i).GetPDGCode())) continue;
+      if (m_ptMin>0 && m_ptMin > coll->operator[](i).GetMomentum().perp() ) continue;
+      if (m_ptMax>0 && m_ptMax < coll->operator[](i).GetMomentum().perp() ) continue;
       counter++;
     }
   }
