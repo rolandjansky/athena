@@ -68,7 +68,7 @@ namespace ISF {
      TrackRecordCollection *setupSGCollection(const std::string &name);
 
      /** convert ISFParticle to TrackRecord */
-     TrackRecord *convert(const ISF::ISFParticle &p, std::string &volumeName);
+     TrackRecord& convert(const ISF::ISFParticle &p, std::string &volumeName);
 
 
      /*  Incident Service */ 
