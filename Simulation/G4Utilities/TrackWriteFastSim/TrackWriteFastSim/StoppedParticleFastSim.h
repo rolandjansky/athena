@@ -10,21 +10,20 @@ class TrackFastSimSD;
 
 class StoppedParticleFastSim: public FastSimModel
 {
- public:
+public:
 
   StoppedParticleFastSim(G4String name) : FastSimModel(name) , m_fsSD(0) , m_init(false) {}
-  
+
   // Fast Sim Methods
   G4bool IsApplicable(const G4ParticleDefinition&);
   virtual G4bool ModelTrigger(const G4FastTrack &);
   void DoIt(const G4FastTrack&, G4FastStep&);
 
- protected: 
+protected:
 
   bool isSUSYParticle(const int) const;
-  TrackFastSimSD * m_fsSD;  
+  TrackFastSimSD * m_fsSD;
   bool m_init;
 };
 
 #endif
-

@@ -14,14 +14,14 @@
 
 static  FADS::SensitiveDetectorEntryT<TrackFastSimSD> trackfastsd("TrackFastSimSD");
 
-void TrackFastSimSD::Initialize(G4HCofThisEvent*) 
+void TrackFastSimSD::Initialize(G4HCofThisEvent*)
 {
-  trackRecordCollection = new TrackRecordCollection(m_colName);
+  m_trackRecordCollection = m_hitCollHelp.RetrieveNonconstCollection<TrackRecordCollection>(m_colName);
 }
 
 void TrackFastSimSD::WriteTrack(const G4Track* track, const bool originPos, const bool originMom)
 {
-  if (!track) { msg(MSG::ERROR) << "the track pointer was zero" << endreq; return; }
+  if (!track) { ATH_MSG_ERROR ( "the track pointer was zero" ); return; }
 
   G4VPhysicalVolume *preVol=track->GetVolume();
 
@@ -40,22 +40,22 @@ void TrackFastSimSD::WriteTrack(const G4Track* track, const bool originPos, cons
   int barcode = trHelp.GetBarcode();
 
   //create the TimedTrackRecord
-  TrackRecord *rec=new TrackRecord(pdgcode,ener,mom,pos,time,barcode,preVol?preVol->GetName():"Unknown");
-
-  if (!trackRecordCollection){
-    msg(MSG::ERROR) << "No collection" << endreq;
-    delete rec;
-  } else trackRecordCollection->Insert(rec);
+  if (!m_trackRecordCollection){
+    ATH_MSG_ERROR ( "No collection" );
+  } else m_trackRecordCollection->Emplace(pdgcode,ener,mom,pos,time,barcode,preVol?preVol->GetName():"Unknown");
 }
 
-void TrackFastSimSD::EndOfEvent(G4HCofThisEvent* ) 
+void TrackFastSimSD::EndOfEvent(G4HCofThisEvent* )
 {
-  if (trackRecordCollection) theHelper.ExportCollection<TrackRecordCollection>(trackRecordCollection);
+  if (m_trackRecordCollection) {
+    if(!m_allowMods) {
+      m_hitCollHelp.SetConstCollection<TrackRecordCollection>(m_trackRecordCollection);
+    }
+  }
 }
 
-void TrackFastSimSD::SetCollectionName(const std::string s) 
-{ 
-  m_colName = s; 
-  if (trackRecordCollection) trackRecordCollection->setName(s);
+void TrackFastSimSD::SetCollectionName(const std::string s)
+{
+  m_colName = s;
+  if (m_trackRecordCollection) m_trackRecordCollection->setName(s);
 }
-
