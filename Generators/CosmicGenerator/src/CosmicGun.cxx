@@ -48,11 +48,11 @@ extern flxout flxout_;
 //
 // singleton pattern
 //
-CosmicGun* CosmicGun::s_mpointer = 0;
+CosmicGun* CosmicGun::mpointer = 0;
 
 CosmicGun* CosmicGun::GetCosmicGun(void){
-  if(!s_mpointer) s_mpointer = new CosmicGun();
-  return s_mpointer;
+  if(!mpointer) mpointer = new CosmicGun();
+  return mpointer;
 }
 
 

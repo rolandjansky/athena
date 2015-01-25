@@ -2,5 +2,7 @@
 
 from AthenaCommon.CfgGetter import addAlgorithm
 
-addAlgorithm("CosmicGenerator.CosmicGeneratorConfig.getInput_GenericCosmicGenerator", "GenericCosmicGenerator")
-addAlgorithm("CosmicGenerator.CosmicGeneratorConfig.getInput_EvgenCosmicGenerator", "EvgenCosmicGenerator")
+addAlgorithm("CosmicGenerator.CosmicGeneratorConfig.getInput_GenericCosmicGenerator", "GenericCosmicGenerator") 
+addAlgorithm("CosmicGenerator.CosmicGeneratorConfig.getInput_EvgenCosmicGenerator", "EvgenCosmicGenerator") 
+addAlgorithm("CosmicGenerator.CosmicGeneratorConfig.getInput_TrackRecordCosmicGenerator", "TrackRecordCosmicGenerator")
+

@@ -12,7 +12,6 @@ class CosmicFilterVolumeName(JobProperty):
     allowedTypes = [ 'str' ]
     StoredValue = 'CaloEntryLayer'
 
-
 class CosmicFilterVolumeName2(JobProperty):
     """
     Declare a second volume used to do cosmics filtering.
@@ -23,16 +22,13 @@ class CosmicFilterVolumeName2(JobProperty):
     allowedTypes = [ 'str' ]
     StoredValue = 'NONE'
 
-
 class CosmicPtSlice(JobProperty):
     """
     Name of the pT slice used for cosmics simulation.
     """
     statusOn = False
     allowedTypes = [ 'str' ]
-    allowedValues = [ 'slice1', 'slice2', 'slice3', 'slice4', 'NONE' ]
     StoredValue = 'NONE'
-
 
 class CosmicFilterID(JobProperty):
     """
@@ -42,7 +38,6 @@ class CosmicFilterID(JobProperty):
     allowedTypes = [ 'str' ]
     StoredValue = '13'
 
-
 class CosmicFilterPTmin(JobProperty):
     """
     Particle minimum pT to be filtered in cosmics processing (in MeV).
@@ -51,7 +46,6 @@ class CosmicFilterPTmin(JobProperty):
     allowedTypes = [ 'str' ]
     StoredValue = "5000"
 
-
 class CosmicFilterPTmax(JobProperty):
     """
     Particle maximum pT to be filtered in cosmics processing (in MeV).
@@ -59,7 +53,6 @@ class CosmicFilterPTmax(JobProperty):
     statusOn = False
     allowedTypes = [ 'str' ]
     StoredValue = "6000"
-
 
 class PixelEC_cosmic_SCsetup(JobProperty):
     """
@@ -71,5 +64,3 @@ class PixelEC_cosmic_SCsetup(JobProperty):
     allowedTypes = ['int']
     allowedValues = [1,2]
     StoredValue = 1
-
-
