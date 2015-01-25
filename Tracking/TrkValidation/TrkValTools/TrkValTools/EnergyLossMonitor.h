@@ -9,7 +9,7 @@
 #ifndef TRK_ENERGYLOSSMONITOR_H
 #define TRK_ENERGYLOSSMONITOR_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/NTuple.h"
 
 #include "TrkValInterfaces/IEnergyLossMonitor.h"
@@ -17,18 +17,17 @@
 class INTupleSvc;
 
 namespace Trk {
-
 /** @class EnergyLossMonitor
 
-    This validation tool Energy states of partlices.
+    This validation tool Energy states of particles.
 
     @author Sebastian.Fleischmann@cern.ch
 */
 
-  class EnergyLossMonitor : virtual public Trk::IEnergyLossMonitor, public AlgTool {
+  class EnergyLossMonitor : virtual public Trk::IEnergyLossMonitor, public AthAlgTool {
     public:
 
-    /** standard AlgTool constructor / destructor */
+    /** standard AthAlgTool constructor / destructor */
     EnergyLossMonitor(const std::string&,const std::string&,const IInterface*);
     ~EnergyLossMonitor(){}
 
