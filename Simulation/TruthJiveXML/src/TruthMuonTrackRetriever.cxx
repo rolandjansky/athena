@@ -59,24 +59,24 @@ namespace JiveXML {
    */
   StatusCode TruthMuonTrackRetriever::retrieve(ToolHandle<IFormatTool> FormatTool) {
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endreq; 
+    ATH_MSG_DEBUG( "Retrieving " << dataTypeName() ); 
 
     //Try to retrieve the track record collection
     const TrackRecordCollection* TrackRecordColl = NULL ;
     //Loop over all the collections and try a retrieve (more efficenct than
     //contain-retrieve combination)
     std::vector<std::string>::const_iterator CollNameItr = TrackRecCollNames.begin();
-    for ( ; CollNameItr != TrackRecCollNames.end(); ++CollNameItr) { 
+    for (auto CollNameItr : TrackRecCollNames ) {
       //be verbose
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Trying to retrieve " << (*CollNameItr) << endreq;
+      ATH_MSG_DEBUG( "Trying to retrieve " << CollNameItr );
       //try to retrive
-      if ( !evtStore()->contains<TrackRecordCollection>( (*CollNameItr) )){ continue; } // skip if not in SG
-      if (evtStore()->retrieve(TrackRecordColl, (*CollNameItr)).isSuccess()) break ;
+      if ( !evtStore()->contains<TrackRecordCollection>( CollNameItr )){ continue; } // skip if not in SG
+      if (evtStore()->retrieve(TrackRecordColl, CollNameItr).isSuccess()) break ;
     }
 
     //If we didnt' get any, return
     if (TrackRecordColl == NULL ) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to retrieve any track collection from " << TrackRecCollNames << endreq;
+      ATH_MSG_WARNING( "Unable to retrieve any track collection from " << TrackRecCollNames );
       return StatusCode::RECOVERABLE;
     }
 
@@ -92,20 +92,20 @@ namespace JiveXML {
 
     //Now loop over the collection and retrieve data
     TrackRecordCollection::const_iterator record;
-    for (record=TrackRecordColl->begin(); record!=TrackRecordColl->end(); record++) {
+    for (auto record : *TrackRecordColl ) {
 
       //Get the pdg code
-      int pdgCode = (*record)->GetPDGCode();
+      int pdgCode = record.GetPDGCode();
 
       //Only accept muons
       if (abs(pdgCode) != 13) {
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Reject non-muon track with PDG ID " << pdgCode << endreq;
+        ATH_MSG_DEBUG( "Reject non-muon track with PDG ID " << pdgCode );
         continue;
       }
 
       //Get vertex and momentum
-      HepGeom::Point3D<double> vertex = (*record)->GetPosition();
-      HepGeom::Vector3D<double> momentum = (*record)->GetMomentum();
+      HepGeom::Point3D<double> vertex = record.GetPosition();
+      HepGeom::Vector3D<double> momentum = record.GetMomentum();
 
       //And store output
       pt.push_back(DataType( momentum.perp()/CLHEP::GeV ));
@@ -115,7 +115,7 @@ namespace JiveXML {
       phiVertex.push_back(DataType( vertex.phi() < 0 ? vertex.phi() + 2*M_PI : vertex.phi() ));
       zVertex.push_back(DataType( vertex.z()*CLHEP::mm/CLHEP::cm ));
       code.push_back(DataType( pdgCode ));
-      id.push_back(DataType( (*record)->GetBarCode() ));
+      id.push_back(DataType( record.GetBarCode() ));
     }
     
     //Finall add everything to the datamap
@@ -130,7 +130,7 @@ namespace JiveXML {
     dataMap["id"] = id;
     
     //some summary
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< pt.size() << endreq;
+    ATH_MSG_DEBUG( dataTypeName() << ": "<< pt.size() );
 
     //forward data to formating tool
     //return FormatTool->AddToEvent(dataTypeName(), (*CollNameItr), &dataMap);
