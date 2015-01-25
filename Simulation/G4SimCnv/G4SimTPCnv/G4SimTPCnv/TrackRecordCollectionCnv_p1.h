@@ -7,5 +7,5 @@
 #include "G4SimTPCnv/TrackRecordCollection_p1.h"
 #include "TrackRecordCnv_p1.h"
 
-typedef T_AthenaPoolTPCnvVector< TrackRecordCollection, TrackRecordCollection_p1, TrackRecordCnv_p1 >  TrackRecordCollectionCnv_p1;
+typedef TPCnvStdVector< TrackRecordCollection, TrackRecordCollection_p1, TrackRecordCnv_p1 >  TrackRecordCollectionCnv_p1;
 
