@@ -175,11 +175,16 @@ namespace met {
     {
       const ElectronContainer* elCont;
       const MuonContainer* muCont;
-      ATH_CHECK(evtStore()->retrieve(elCont,m_el_inputkey));
-      ATH_CHECK(evtStore()->retrieve(muCont,m_mu_inputkey));
-
-      selectElectrons(*elCont, selElectrons);
-      selectMuons(*muCont, selMuons);
+      if(evtStore()->retrieve(elCont,m_el_inputkey).isFailure()) {
+	ATH_MSG_WARNING("Failed to retrieve electron container");
+      } else {
+	selectElectrons(*elCont, selElectrons);
+      }
+      if(evtStore()->retrieve(muCont,m_mu_inputkey).isFailure()) {
+	ATH_MSG_WARNING("Failed to retrieve muon container");
+      } else {
+	selectMuons(*muCont, selMuons);
+      }
     }     
 
     // const CaloClusterContainer* cl_cont = 0;
