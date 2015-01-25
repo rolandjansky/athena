@@ -32,10 +32,14 @@ JetInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
    
 
    DataVector<JetCMXTopoData> * jettobdata = 0;
-   if( ! evtStore()->retrieve(jettobdata, m_jetLocation).isSuccess()) {
-      ATH_MSG_ERROR("No DataVector<JetCMXTopoData> found in the event. Configuration issue.");
-      return StatusCode::FAILURE;
+
+   if( evtStore()->contains<DataVector<JetCMXTopoData>>(m_jetLocation) ) {
+      CHECK( evtStore()->retrieve(jettobdata, m_jetLocation));
+   } else {
+      ATH_MSG_WARNING("No DataVector<JetCMXTopoData> with SG key '" << m_jetLocation.toString() << "' found in the event. No JET input for the L1Topo simulation.");
+      return StatusCode::RECOVERABLE;
    }
+
 
    ATH_MSG_DEBUG("Filling the input event. Number of jet topo data objects: " << jettobdata->size());
    for(const JetCMXTopoData * topoData : * jettobdata) {
@@ -50,10 +54,10 @@ JetInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
          ATH_MSG_DEBUG( "JET TOB with : et large = " << setw(4) << tob.etLarge() << ", et small " << tob.etSmall()
                         << ", eta = " << setw(2) << tob.eta() << ", phi = " << tob.phi()
                         << ", ieta = " << setw(2) << tob.ieta() << ", iphi = " << tob.iphi()
-                        << ", word = " << hex << tob.tobWord() << dec
+                        << ", word = " << hex << tob.roiWord() << dec
                         );
 
-         TCS::JetTOB jet( tob.etLarge(), tob.etSmall(), tob.ieta(), tob.iphi() );
+         TCS::JetTOB jet( tob.etLarge(), tob.etSmall(), tob.ieta(), tob.iphi(), tob.roiWord() );
          jet.setEtaDouble( tob.eta() );
          jet.setPhiDouble( tob.phi() );
          inputEvent.addJet( jet );

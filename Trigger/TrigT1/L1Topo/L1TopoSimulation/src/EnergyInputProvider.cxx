@@ -51,7 +51,13 @@ EnergyInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 
 
    const EnergyTopoData* topoData = 0;
-   CHECK( evtStore()->retrieve(topoData, m_energyLocation) );
+
+   if( evtStore()->contains<EnergyTopoData>(m_energyLocation) ) {
+      CHECK( evtStore()->retrieve(topoData, m_energyLocation) );
+   } else {
+      ATH_MSG_WARNING("No EnergyTopoData with SG key '" << m_energyLocation.toString() << "' found in the event. No MET input for the L1Topo simulation.");
+      return StatusCode::RECOVERABLE;
+   }
 
    ATH_MSG_DEBUG( "EnergyTopoData" << dec
                   << ": Ex = " << topoData->Ex()

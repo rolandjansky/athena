@@ -67,8 +67,14 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 
    ATH_MSG_DEBUG("Filling the muon input from MuCTPIToRoIBSLink produced by L1Muctpi.cxx.");
    L1MUINT::MuCTPIToRoIBSLink* muctpi_slink = 0;
-   CHECK( evtStore()->retrieve( muctpi_slink, "/Run/L1MuCTPItoRoIBLocation" ) );
- 
+
+   if( evtStore()->contains<L1MUINT::MuCTPIToRoIBSLink>("/Run/L1MuCTPItoRoIBLocation") ) {
+      CHECK( evtStore()->retrieve( muctpi_slink, "/Run/L1MuCTPItoRoIBLocation" ) );
+   } else {
+      ATH_MSG_WARNING("No MuCTPIToRoIBSLink with SG key '/Run/L1MuCTPItoRoIBLocation' found in the event. No muon input for the L1Topo simulation.");
+      return StatusCode::RECOVERABLE;
+   }
+
    if( muctpi_slink ) {
 
       ATH_MSG_DEBUG("Filling the input event. Number of Muon ROIs: " << muctpi_slink->getMuCTPIToRoIBWords().size() - ROIB::Header::wordsPerHeader - ROIB::Trailer::wordsPerTrailer - 1);
@@ -91,7 +97,7 @@ MuonInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
 
          ATH_MSG_DEBUG("Muon ROI: thrvalue = " << roi.getThresholdValue() << " eta = " << roi.eta() << " phi = " << roi.phi() << ", w   = " << MSG::hex << std::setw( 8 ) << roi.roiWord() << MSG::dec);
          
-         TCS::MuonTOB muon( roi.getThresholdValue(), 0, int(10*roi.eta()), int(10*roi.phi()) );
+         TCS::MuonTOB muon( roi.getThresholdValue(), 0, int(10*roi.eta()), int(10*roi.phi()), roi.roiWord() );
          muon.setEtaDouble( roi.eta() );
          muon.setPhiDouble( roi.phi() );
          inputEvent.addMuon( muon );

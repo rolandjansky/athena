@@ -43,9 +43,11 @@ EMTauInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
    // Retrieve EMTAU RoIs (they are built by EMTAUTrigger)
 
    DataVector<CPCMXTopoData> * emtau = 0;
-   if( ! evtStore()->retrieve(emtau, m_emTauLocation).isSuccess()) {
-      ATH_MSG_ERROR("No CPCMXTopoDataCollection found in the event. Configuration issue.");
-      return StatusCode::FAILURE;
+   if( evtStore()->contains<DataVector<CPCMXTopoData>>(m_emTauLocation) ) {
+      CHECK( evtStore()->retrieve(emtau, m_emTauLocation) );
+   } else {
+      ATH_MSG_WARNING("No CPCMXTopoDataCollection with SG key '" << m_emTauLocation.toString() << "' found in the event. No EM or TAU input for the L1Topo simulation.");
+      return StatusCode::RECOVERABLE;
    }
 
    ATH_MSG_DEBUG("Filling the input event. Number of emtau topo data objects: " << emtau->size());
@@ -62,10 +64,10 @@ EMTauInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
                         << " : e = " << setw(3) << tob.et() << ", isolation " << tob.isolation()
                         << ", eta = " << setw(2) << tob.eta() << ", phi = " << tob.phi()
                         << ", ieta = " << setw(2) << tob.ieta() << ", iphi = " << tob.iphi()
-                        << ", word = " << hex << tob.tobWord() << dec
+                        << ", word = " << hex << tob.roiWord() << dec
                         );
 
-         TCS::ClusterTOB cl(tob.et(), tob.isolation(), tob.ieta(), tob.iphi() );
+         TCS::ClusterTOB cl(tob.et(), tob.isolation(), tob.ieta(), tob.iphi(), tob.cmx()==0 ? TCS::CLUSTER : TCS::TAU, tob.roiWord() );
          cl.setEtaDouble( tob.eta() );
          cl.setPhiDouble( tob.phi() );
          
@@ -76,24 +78,6 @@ EMTauInputProvider::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const {
          }
       }
    }
-
-
-//    DataVector<EmTauROI> * emTauROIs = new DataVector<EmTauROI>;
-//    if( ! evtStore()->retrieve(emTauROIs, TrigT1CaloDefs::EmTauROILocation ).isSuccess()) {
-//       ATH_MSG_ERROR("No EMTAU ROI container found in the event. Configuration issue.");
-//       return StatusCode::FAILURE;
-//    }
-
-//    ATH_MSG_DEBUG("Filling the input event. Number of EMTAU ROIs: " << emTauROIs->size());
-//    for(const EmTauROI * roi: *emTauROIs) {
-//       // double eta, phi;
-//       // CalculateCoordinates(roiWord, eta, phi);
-//       ATH_MSG_DEBUG("EMTAU ROI: e = " << setw(3) << roi->energy() << ", eta = " << setw(2) << roi->eta() <<", phi = " << roi->phi() << ", w   = " << hex << roi->roiWord() << dec);
-//       TCS::ClusterTOB cl(roi->energy(), 0, round(10*roi->eta()), round(10*roi->phi()) );
-//       cl.setEtaDouble( roi->eta() );
-//       cl.setPhiDouble( roi->phi() );
-//       inputEvent.addCluster( cl );
-//    }
 
    return StatusCode::SUCCESS;
 }
