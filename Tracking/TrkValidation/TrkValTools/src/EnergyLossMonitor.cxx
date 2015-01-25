@@ -9,7 +9,6 @@
 // InDet include
 #include "TrkValTools/EnergyLossMonitor.h"
 // Gaudi
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/INTupleSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/SmartDataPtr.h"
@@ -17,7 +16,7 @@
 
 // constructor
 Trk::EnergyLossMonitor::EnergyLossMonitor(const std::string& t, const std::string& n, const IInterface* p) :
-  AlgTool(t,n,p),
+  AthAlgTool(t,n,p),
   m_outputNtuplePath("/NTUPLES/FILE1/EnergyLossMonitor/SingleTrackEnergyLoss"),
   m_outputNtupleDescription("Output of the Trk::EnergyLossMonitor AlgTool"),
   m_currentStep(0)
@@ -31,16 +30,14 @@ Trk::EnergyLossMonitor::EnergyLossMonitor(const std::string& t, const std::strin
 // initialize
 StatusCode Trk::EnergyLossMonitor::initialize()
 {
-    MsgStream log(msgSvc(), name());
  
     // Retrieve the NTuple Service
     StatusCode sc = service( "NTupleSvc", m_ntupleSvc );
 
     if (sc.isFailure())
-      log << MSG::FATAL << "Couldn't get pointer to Ntuple service ! " << endreq;
+      ATH_MSG_FATAL( "Couldn't get pointer to Ntuple service ! " );
     else {
-
-    NTuplePtr ntr(m_ntupleSvc, m_outputNtuplePath);
+     NTuplePtr ntr(m_ntupleSvc, m_outputNtuplePath);
     
     if (!ntr)
        ntr = m_ntupleSvc->book(m_outputNtuplePath, CLID_ColumnWiseTuple, m_outputNtupleDescription);
@@ -66,21 +63,17 @@ StatusCode Trk::EnergyLossMonitor::initialize()
        sc = ntr->addItem("MaterialHitR",      m_steps, m_hitR);      
 
       } else {
-         log << MSG::ERROR << "Ntuple booking failed!" << endreq;
+         ATH_MSG_ERROR( "Ntuple booking failed!" );
          return StatusCode::FAILURE;
       }
 
     }
-    log << MSG::INFO  << name() <<" initialize() successful" << endreq;    
     return sc;
 }
 
 // finalize
 StatusCode Trk::EnergyLossMonitor::finalize()
 {
-    MsgStream log(msgSvc(), name());
-
-    log << MSG::INFO  << name() <<" finalize() successful" << endreq;
     return StatusCode::SUCCESS;
 }
 
@@ -124,7 +117,6 @@ void Trk::EnergyLossMonitor::finalizeTrack() const
    StatusCode sc = m_ntupleSvc->writeRecord(m_outputNtuplePath);
 
    if (sc.isFailure()){
-     MsgStream log(msgSvc(), name());
-     log << MSG::WARNING << "Couldn't write ntuple record!" << std::endl;
+     ATH_MSG_WARNING( "Couldn't write ntuple record!" );
    }
 }
