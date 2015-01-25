@@ -534,7 +534,9 @@ StatusCode TrigSteer::execute()
 
       // fill the input event
       //HLT::ErrorCode topoEC = 
-      m_lvlTopoCnvTool->hltExecute(m_activeChains, m_topoSteer->inputEvent() );
+      if( m_lvlTopoCnvTool->hltExecute(m_activeChains, m_topoSteer->inputEvent() ) != HLT::OK) {
+         return StatusCode::FAILURE;
+      }
 
       // forward the mapping ( roiWord -> TE ) to the TopoSequences
       const map<uint32_t, TriggerElement*> * roiWord2TEMap = m_lvlCnvTool->roIWordToTE();
