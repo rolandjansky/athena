@@ -14,7 +14,7 @@ def scheduleRTTJetTests():
     from JetRec.JetRecConf import JetAlgorithm
     from JetRec.JetRecUtils import interpretJetName
 
-    from JetRec.JetRecStandard import calib_topo_ungroomed_modifiers, topo_ungroomed_modifiers
+    from JetRec.JetRecStandardToolManager import calib_topo_ungroomed_modifiers, topo_ungroomed_modifiers
 
     #calibarg = 'calib' if jetFlags.applyCalibrationName()!="none" else None
 

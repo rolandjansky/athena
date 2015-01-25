@@ -22,7 +22,6 @@ import sys
 import argparse
 
 testedContainers = ["AntiKt4LCTopoJets","AntiKt10LCTopoJets"]
-
 ##################################################
 # Read and store argument values                 #
 ##################################################
@@ -35,7 +34,9 @@ parser.add_argument('--treeName1', type=str, default="CollectionTree", help="Nam
 parser.add_argument('--treeName2', type=str, default="CollectionTree", help="Name of TTree", metavar='name2')
 parser.add_argument( '--containers', type=str, default= testedContainers, nargs='*',help="list of containers (ex: --containers cont1 cont2 cont3)", metavar='jetcontname')
 parser.add_argument('--details', action='store_true', help="Display status for each variable, even if no error")
-parser.add_argument('--ESD', action='store_true', help="Use this if input files are ESD")
+parser.add_argument('--ESD', action='store_true', help="Use this flag if both input files are ESD")
+parser.add_argument('--AODvsESD', action='store_true', help="Use this flag if file1 is AOD and file2 is  ESD")
+
 #parser.add_argument('-exV', '--excludedVar', type=str, default=[], nargs='*')
 #parser.add_argument('-t1', '--type1', type=str, default="xAOD", nargs='?')
 #parser.add_argument('--', type=str, default="")
@@ -84,6 +85,8 @@ def splitVarName_xAOD( fullname ):
 # act if reading ESD -----------
 if args.ESD:
     testedContainers = ["xAOD::JetAuxContainer_v1_"+b for b in testedContainers ]
+elif args.AODvsESD:
+    branchRenamer = lambda n : "xAOD::JetAuxContainer_v1_"+n
     
 # Static aux container branches -----
 additionalBranches = []
