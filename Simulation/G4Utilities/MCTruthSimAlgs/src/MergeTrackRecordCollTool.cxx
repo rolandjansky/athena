@@ -36,11 +36,8 @@ StatusCode MergeTrackRecordCollTool::processBunchXing(int bunchXing,
       const TrackRecordCollection* oldColl(0);
       if (seStore.retrieve(oldColl, m_trRecCollKey.value()).isSuccess()) {
         TrackRecordCollection* newColl = new TrackRecordCollection();
-        TrackRecordCollection::const_iterator trcit = oldColl->begin();
-        TrackRecordCollection::const_iterator trcend = oldColl->end();
-        while(trcit != trcend) {
-          newColl->push_back(new TrackRecord(**trcit) );
-          ++trcit;
+        for(auto trcit : *oldColl) {
+          newColl->push_back( TrackRecord(trcit) );
         }
         CHECK(evtStore()->record(newColl, m_trRecCollKey));
         ATH_MSG_DEBUG( "processBunchXing: copied original event TrackRecordCollection" );
@@ -85,8 +82,8 @@ StatusCode MergeTrackRecordCollTool::processAllSubEvents() {
       const TrackRecordCollection &oldColl=*(truthList.begin())->second;
       TrackRecordCollection *newColl = new TrackRecordCollection();
 
-      for (TrackRecordCollection::const_iterator trcit = oldColl.begin(); trcit != oldColl.end(); ++trcit) {
-        newColl->push_back(new TrackRecord(**trcit) );
+      for (auto trcit : oldColl) {
+        newColl->push_back( TrackRecord(trcit) );
       }
 
       CHECK(evtStore()->record(newColl, m_trRecCollKey));
