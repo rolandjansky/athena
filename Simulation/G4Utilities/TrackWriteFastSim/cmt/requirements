@@ -1,21 +1,18 @@
 package TrackWriteFastSim
 
-branches src cmt
+public
+use AtlasPolicy                 AtlasPolicy-*
 
-use AtlasPolicy         AtlasPolicy-*
-
-use G4FastSimulation    G4FastSimulation-*      Simulation/G4Utilities
-use FadsSensitiveDetector  FadsSensitiveDetector-*  Simulation/G4Sim/FADS
-
-use TrackRecord 	TrackRecord-* 		Simulation/G4Sim
-use SimHelpers 		SimHelpers-* 		Simulation/G4Sim
+use FadsSensitiveDetector       FadsSensitiveDetector-* Simulation/G4Sim/FADS
+use G4FastSimulation            G4FastSimulation-*      Simulation/G4Utilities
+use SimHelpers                  SimHelpers-*            Simulation/G4Sim
+use TrackRecord                 TrackRecord-*           Simulation/G4Sim
 
 private
-use Geant4              Geant4-*                External
-use MCTruth		MCTruth-*		Simulation/G4Sim
-use AtlasCLHEP	AtlasCLHEP-*		External
+use AtlasCLHEP                  AtlasCLHEP-*            External
+use Geant4                      Geant4-*                External
+use MCTruth                     MCTruth-*               Simulation/G4Sim
 end_private
 
 library TrackWriteFastSim ../src/*.cxx
 apply_pattern installed_library
-
