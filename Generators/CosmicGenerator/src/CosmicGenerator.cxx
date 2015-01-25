@@ -341,35 +341,30 @@ StatusCode CosmicGenerator::callGenerator() {
 
       //const DataHandle <TimedTrackRecordCollection> coll;
       const DataHandle <TrackRecordCollection> coll;
-      StatusCode sc = evtStore()->retrieve(coll,m_recordName);
-      if (sc.isFailure()) {
-        ATH_MSG_ERROR(" Cannot retrieve TrackRecordCollection ");
-        return StatusCode::FAILURE;
-      } else {
+      CHECK( evtStore()->retrieve(coll,m_recordName) );
+      {
 
         ATH_MSG_INFO("retrieved "<<coll->size()<<" TTR hits; will smear position by "<< (m_smearTR>0?m_smearTR:0.) <<" mm and momentum by "<< (m_smearTRp>0?m_smearTRp:0.) <<" radians");
 
-        //TimedTrackRecordCollection::const_iterator iterTTR;
-        TrackRecordCollection::const_iterator iterTTR;
-        for (iterTTR=coll->begin();iterTTR!=coll->end();++iterTTR) {
+        for (auto iterTTR : *coll) {
 
-          const HepPDT::ParticleData* particle = particleData(abs((*iterTTR)->GetPDGCode()));
+          const HepPDT::ParticleData* particle = particleData(abs(iterTTR.GetPDGCode()));
           double mass = particle->mass().value();
 
-          double en = mass*mass+(*iterTTR)->GetMomentum().x()*(*iterTTR)->GetMomentum().x()+
-            (*iterTTR)->GetMomentum().y()*(*iterTTR)->GetMomentum().y()+
-            (*iterTTR)->GetMomentum().z()*(*iterTTR)->GetMomentum().z();
+          double en = mass*mass+iterTTR.GetMomentum().x()*iterTTR.GetMomentum().x()+
+            iterTTR.GetMomentum().y()*iterTTR.GetMomentum().y()+
+            iterTTR.GetMomentum().z()*iterTTR.GetMomentum().z();
 
           en=sqrt(en);
 
-          ATH_MSG_VERBOSE("Reading back TTR:\n pos is "<<(*iterTTR)->GetPosition()
-                        <<"\n mom is "<<(*iterTTR)->GetMomentum()
-                        <<"\n pdg is "<<(*iterTTR)->GetPDGCode() );
+          ATH_MSG_VERBOSE("Reading back TTR:\n pos is "<<iterTTR.GetPosition()
+                        <<"\n mom is "<<iterTTR.GetMomentum()
+                        <<"\n pdg is "<<iterTTR.GetPDGCode() );
 
-          CLHEP::HepLorentzVector particle4Position( (*iterTTR)->GetPosition().x(),
-                               (*iterTTR)->GetPosition().y(),
-                               (*iterTTR)->GetPosition().z(),
-                               (*iterTTR)->GetTime());
+          CLHEP::HepLorentzVector particle4Position( iterTTR.GetPosition().x(),
+                               iterTTR.GetPosition().y(),
+                               iterTTR.GetPosition().z(),
+                               iterTTR.GetTime());
 
           ATH_MSG_DEBUG( "Smearing position by up to " << m_smearTR << " mm and momentum by up to " << m_smearTRp << " radians" );
           if (m_smearTR>0){
@@ -390,9 +385,9 @@ StatusCode CosmicGenerator::callGenerator() {
             }
             ATH_MSG_DEBUG( "Shifted cosmic ray to " << particle4Position );
           }
-          CLHEP::HepLorentzVector particle4Momentum( (*iterTTR)->GetMomentum().x(),
-                               (*iterTTR)->GetMomentum().y(),
-                               (*iterTTR)->GetMomentum().z(),
+          CLHEP::HepLorentzVector particle4Momentum( iterTTR.GetMomentum().x(),
+                               iterTTR.GetMomentum().y(),
+                               iterTTR.GetMomentum().z(),
                                en );
           if (m_smearTRp>0){
 
@@ -459,7 +454,7 @@ StatusCode CosmicGenerator::callGenerator() {
           m_fourPos.push_back( particle4Position );
           m_fourMom.push_back( particle4Momentum );
 
-          m_pdgCode.push_back((*iterTTR)->GetPDGCode());
+          m_pdgCode.push_back(iterTTR.GetPDGCode());
           HepMC::Polarization thePolarization;
           thePolarization.set_normal3d(HepGeom::Normal3D<double>(0,0,0));
           m_polarization.push_back(thePolarization);
