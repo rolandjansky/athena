@@ -17,10 +17,13 @@ public:
 	int GetParticleBarcode() const;
 	const ISF::ISFParticle *GetISFParticle() const;
 	void SetISFParticle(const ISF::ISFParticle*);
+	void SetReturnedToISF(bool returned);
+	bool GetReturnedToISF() const;
 
 private:
 	const ISF::ISFParticle *theISFParticle;
 	int barcode;
+	bool returnedToISF;
 };
 
 

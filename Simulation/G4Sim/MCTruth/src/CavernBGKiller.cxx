@@ -82,8 +82,7 @@ G4bool CavernBGKiller::ProcessHits(G4Step* aStep,G4TouchableHistory* )
   int barcode = trHelp.GetBarcode();
 
   //create the TimedTrackRecord
-  TrackRecord *rec=new TrackRecord(pdgcode,ener,mom,pos,time,barcode,preVol->GetName());
-  trackRecordCollection->Insert(rec);
+  trackRecordCollection->Emplace(pdgcode,ener,mom,pos,time,barcode,preVol->GetName());
 
   aStep->GetTrack()->SetTrackStatus(fStopAndKill); // Remove the neutron
 
