@@ -8,10 +8,7 @@ branches run
 
 private 
 
-use EventKernel                 EventKernel-*                   Event
 use GaudiInterface		GaudiInterface-*		External
-
-use CaloEvent			CaloEvent-*			Calorimeter
 
 use AtlasROOT			AtlasROOT-*                     External
 
@@ -22,11 +19,8 @@ apply_pattern validate_xml
 
 public
 
-use AtlasReflex     AtlasReflex-*       External
 use AtlasROOT       AtlasROOT-*         External
 
-use JetEvent			JetEvent-*			 Reconstruction/Jet
-use JetAnalysisEDM              JetAnalysisEDM-*                 Reconstruction/Jet/JetAnalysisTools
 
 #########################
 
@@ -34,6 +28,7 @@ library JetValidation *.cxx components/*.cxx
 
 apply_pattern component_library
 
+#use AtlasReflex     AtlasReflex-*       External
 #apply_pattern lcgdict dict=JetValidation \
 #                selectionfile="selection.xml"  headerfiles="../JetValidation/JetValidationDict.h"
 
@@ -44,8 +39,7 @@ apply_pattern declare_scripts files="../scripts/jetMakeRefSamples.py"
 
 # for RTT configuration
 macro JetValidation_TestConfiguration "../test/JetValidation_TestConfiguration.xml"
-apply_pattern declare_runtime extras="../test/JetValidation_TestConfiguration.xml"
+apply_pattern declare_runtime extras="../test/JetValidation_TestConfiguration.xml ../share/*.root"
 
-# for RTT auxiliary files
-apply_pattern declare_runtime extras="../share/*.root"
+
 

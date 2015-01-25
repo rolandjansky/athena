@@ -41,6 +41,8 @@ parser.add_argument('outputDir', type=str, nargs='?', default='jetRefFiles/')
 parser.add_argument('-n', '--noRun', action='store_true', help='Do not run the Reco_tf commands, just print them.')
 parser.add_argument( '--maxEvents', type=int, default=50, help="Propaged to the maxEvents of the Reco_tf commands")
 parser.add_argument( '--oneStep', action='store_true' , help="stop after 1st step processed")
+parser.add_argument( '--overWrite', action='store_true' , help="force to overWrite the output dir")
+
 
 arg=parser.parse_args()
 ## **************************************************** 
@@ -75,12 +77,12 @@ defaultData="/afs/cern.ch/atlas/groups/JetEtmiss/ReferenceFiles/RTT/DATA/RAW/dat
 
 
 def makeDirAndCd(dir):
-    if not os.path.exists(dir):
+    if not os.path.exists(dir):        
         os.mkdir(dir)
-    else:
+    elif not arg.overWrite:
         print 
         print "ERROR !!!"
-        print " Directory ",dir,'already exists. Not overwriting it'
+        print " Directory ",dir,'already exists. Not overwriting it (use --overWrite option if needed)'
         sys.exit(1)
 
     os.chdir(dir)
@@ -129,8 +131,12 @@ def runStep(inputFile):
 
 
     runDir = arg.outputDir + '/' + inputType+'to'+outputType + '/'
-    os.mkdir(runDir)
+    if not os.path.exists(runDir):
+        os.mkdir(runDir)
     outputFile = runDir + inputFileBase.replace(inputType, outputType)
+    if arg.overWrite and os.path.exists(outputFile):
+        os.remove(outputFile)
+        
     outputLog = runDir+'log'
     
     if specifyCondAndGeo:
@@ -182,7 +188,7 @@ elif arg.sampleType.lower() == 'data':
     inputFile=defaultData
 else:
     # assume sampleType is a path
-    inputFile = arg.sampleType
+    inputFile = os.path.abspath(arg.sampleType)
 
 if not os.path.exists(inputFile):
     print 'ERROR Input path does not exist ', inputFile
