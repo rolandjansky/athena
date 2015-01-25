@@ -192,7 +192,7 @@ ISF::EntryLayer ISF::EntryLayerTool::registerParticle(const ISF::ISFParticle& pa
   if ( layerHit != ISF::fUnsetEntryLayer) {
     ATH_MSG_VERBOSE( "Particle >>" << particle << "<< hit boundary surface, "
                      "adding it to '" << m_SGName[layerHit] << "' TrackRecord collection");
-    TrackRecord *tRec = convert(particle, m_volumeName[layerHit]);
+    TrackRecord tRec = convert(particle, m_volumeName[layerHit]);
     m_collection[layerHit]->push_back(tRec);
   }
 
@@ -225,7 +225,7 @@ TrackRecordCollection *ISF::EntryLayerTool::setupSGCollection(const std::string 
 
 
 /** convert ISFParticle to TrackRecord */
-TrackRecord *ISF::EntryLayerTool::convert( const ISF::ISFParticle &p,
+TrackRecord& ISF::EntryLayerTool::convert( const ISF::ISFParticle &p,
                                                std::string &volumeName )
 {
   // definitions for quick access:
@@ -236,13 +236,13 @@ TrackRecord *ISF::EntryLayerTool::convert( const ISF::ISFParticle &p,
   double time            = 0.; //!< @TODO: fix time
 
   // finally create the TrackRecord
-  TrackRecord *tRec = new TrackRecord( p.pdgCode(),
-                                       energy,
-                                       mom,
-                                       pos,
-                                       time,
-                                       p.barcode(),
-                                       volumeName );
+  TrackRecord tRec( p.pdgCode(),
+                    energy,
+                    mom,
+                    pos,
+                    time,
+                    p.barcode(),
+                    volumeName );
   return tRec;
 }
 
