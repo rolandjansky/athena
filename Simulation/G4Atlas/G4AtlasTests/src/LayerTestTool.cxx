@@ -75,68 +75,58 @@ StatusCode LayerTestTool::processEvent()
 
   if (evtStore()->retrieve(trCollection,m_key).isSuccess()) {
    
-    TrackRecordCollection::const_iterator e = trCollection->begin();
-    TrackRecordCollection::const_iterator e1 = trCollection->end();
+    for(auto e : *trCollection){
 
-    for(; e!=e1; ++e){
-
-      if((*e)->GetPDGCode() == 11){
-	energy = (*e)->GetEnergy();
-	m_n_energy_e->Fill(energy);
-      }
-
-      if((*e)->GetPDGCode() == -11){
-	energy = (*e)->GetEnergy();
-	m_n_energy_ep->Fill(energy);
-      }
-
-      if((*e)->GetPDGCode() == 22){
-	energy = (*e)->GetEnergy();
-	m_n_energy_gamma->Fill(energy);
-      }
-
-      if((*e)->GetPDGCode() == 2112){
-	energy = (*e)->GetEnergy();
-	m_n_energy_neutron->Fill(energy);
-      }
-
-      if((*e)->GetPDGCode() == 13){
-	energy = (*e)->GetEnergy();
-	m_n_energy_muon->Fill(energy);
-      }
-
-      if((*e)->GetPDGCode() == -13){
-	energy = (*e)->GetEnergy();
-	m_n_energy_muonp->Fill(energy);
-      }
-
-      energy = (*e)->GetEnergy();
+      energy = e.GetEnergy();
       m_n_energy->Fill(energy);
 
-      pos_x = (*e)->GetPosition().x();
-      pos_y = (*e)->GetPosition().y();
-      pos_z = (*e)->GetPosition().z();
+      if(e.GetPDGCode() == 11){
+        m_n_energy_e->Fill(energy);
+      }
+
+      if(e.GetPDGCode() == -11){
+        m_n_energy_ep->Fill(energy);
+      }
+
+      if(e.GetPDGCode() == 22){
+        m_n_energy_gamma->Fill(energy);
+      }
+
+      if(e.GetPDGCode() == 2112){
+        m_n_energy_neutron->Fill(energy);
+      }
+
+      if(e.GetPDGCode() == 13){
+        m_n_energy_muon->Fill(energy);
+      }
+
+      if(e.GetPDGCode() == -13){
+        m_n_energy_muonp->Fill(energy);
+      }
+
+      pos_x = e.GetPosition().x();
+      pos_y = e.GetPosition().y();
+      pos_z = e.GetPosition().z();
       pos_r= std::sqrt(pos_x*pos_x+pos_y*pos_y);
       m_n_pos->Fill(pos_z,pos_r);
 
-      p_x=(*e)->GetMomentum().x();
-      p_y=(*e)->GetMomentum().y();
-      p_z=(*e)->GetMomentum().z();
+      p_x=e.GetMomentum().x();
+      p_y=e.GetMomentum().y();
+      p_z=e.GetMomentum().z();
       //    std::cout<<"px="<<p_x<<";py="<<p_y<<";pz="<<p_z<<std::endl;
       m_n_px->Fill(p_x);
       m_n_py->Fill(p_y);
       m_n_pz->Fill(p_z);
 
-      p_rho=(*e)->GetMomentum().rho();
-      p_phi=(*e)->GetMomentum().phi();
-      p_eta=(*e)->GetMomentum().eta();
+      p_rho=e.GetMomentum().rho();
+      p_phi=e.GetMomentum().phi();
+      p_eta=e.GetMomentum().eta();
       //    std::cout<<"rho="<<p_rho<<";phi="<<p_phi<<";eta="<<p_eta<<std::endl;
       m_n_rho->Fill(p_rho);
       m_n_eta->Fill(p_eta);
       m_n_phi->Fill(p_phi);
     }
 
-    
   }
 
   return StatusCode::SUCCESS;
