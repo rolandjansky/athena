@@ -40,12 +40,9 @@ void TrackFastSimSD::WriteTrack(const G4Track* track, const bool originPos, cons
   int barcode = trHelp.GetBarcode();
 
   //create the TimedTrackRecord
-  TrackRecord *rec=new TrackRecord(pdgcode,ener,mom,pos,time,barcode,preVol?preVol->GetName():"Unknown");
-
   if (!m_trackRecordCollection){
     ATH_MSG_ERROR ( "No collection" );
-    delete rec;
-  } else m_trackRecordCollection->Insert(rec);
+  } else m_trackRecordCollection->Emplace(pdgcode,ener,mom,pos,time,barcode,preVol?preVol->GetName():"Unknown");
 }
 
 void TrackFastSimSD::EndOfEvent(G4HCofThisEvent* )
