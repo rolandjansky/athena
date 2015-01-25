@@ -85,9 +85,9 @@ bool ISF::CosmicEventFilterTool::eventPassesFilter() const
 	  const unsigned int ntracks(coll->size());
 	  for (unsigned int track=0;track<ntracks;++track)
 	    {
-	      if (m_magicID!=0 && m_magicID != fabs(coll->operator[](track)->GetPDGCode())) { continue; }
-	      if (m_ptMin>0 && m_ptMin > coll->operator[](track)->GetMomentum().perp() ) { continue; }
-	      if (m_ptMax>0 && m_ptMax < coll->operator[](track)->GetMomentum().perp() ) { continue; }
+	      if (m_magicID!=0 && m_magicID != fabs(coll->operator[](track).GetPDGCode())) { continue; }
+	      if (m_ptMin>0 && m_ptMin > coll->operator[](track).GetMomentum().perp() ) { continue; }
+	      if (m_ptMax>0 && m_ptMax < coll->operator[](track).GetMomentum().perp() ) { continue; }
 	      ++counter;
 	    }// end of loop over tracks
 	}
