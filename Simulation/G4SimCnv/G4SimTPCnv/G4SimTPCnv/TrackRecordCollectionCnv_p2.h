@@ -9,7 +9,7 @@
 #include "G4SimTPCnv/TrackRecordCnv_p1.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
                                                                                                                                                            
-typedef T_AthenaHitsVectorCnv< TrackRecordCollection, TrackRecordCollection_p2, TrackRecordCnv_p1 >  TrackRecordCollectionCnv_p2;
+typedef T_AtlasHitsVectorCnv< TrackRecordCollection, TrackRecordCollection_p2, TrackRecordCnv_p1 >  TrackRecordCollectionCnv_p2;
 
 template<>
 class T_TPCnv<TrackRecordCollection, TrackRecordCollection_p2>

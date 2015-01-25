@@ -18,13 +18,13 @@
 
 DECLARE_NAMED_TPCNV_FACTORY(TrackRecordCollectionCnv_p1,
                             TrackRecordCollectionCnv_p1,
-                            AthenaHitsVector<TrackRecord>,
+                            AtlasHitsVector<TrackRecord>,
                             TrackRecordCollection_p1,
                             Athena::TPCnvVers::Old)
                       
 DECLARE_NAMED_TPCNV_FACTORY(TrackRecordCollectionCnv_p2,
                             TrackRecordCollectionCnv_p2,
-                            AthenaHitsVector<TrackRecord>,
+                            AtlasHitsVector<TrackRecord>,
                             TrackRecordCollection_p2,
                             Athena::TPCnvVers::Current)
                       
