@@ -22,9 +22,11 @@ public:
 	VTrackInformation(TrackClassification tc=Primary);
 	virtual const HepMC::GenParticle *GetHepMCParticle() const;
 	virtual const ISF::ISFParticle *GetISFParticle() const;
+	virtual bool GetReturnedToISF() const;
 	virtual int GetParticleBarcode() const =0;
 	virtual void SetParticle(const HepMC::GenParticle*);
 	virtual void SetISFParticle(const ISF::ISFParticle*);
+	virtual void SetReturnedToISF(bool) ;
 	virtual void Print() const {}
 	void SetClassification(TrackClassification tc) {classify=tc;}
 	TrackClassification GetClassification() {return classify;}
