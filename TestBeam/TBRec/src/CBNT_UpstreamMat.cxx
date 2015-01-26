@@ -79,18 +79,18 @@ StatusCode CBNT_UpstreamMat::CBNT_execute() {
   TrackRecordCollection::const_iterator it=trackRecordCollection->begin(); 
   TrackRecordCollection::const_iterator it_e=trackRecordCollection->end(); 
   for (;it!=it_e;it++) {
-    TrackRecord* trackRecord=(*it);
-    const int pdgCode=trackRecord->GetPDGCode();
-    Hep3Vector p=trackRecord->GetMomentum();
+    TrackRecord trackRecord=*it;
+    const int pdgCode=trackRecord.GetPDGCode();
+    Hep3Vector p=trackRecord.GetMomentum();
     double pr=sqrt(p.y()*p.y()+p.z()*p.z());
     double alpha=atan(pr/p.x());
     if (pdgCode==22) {//Photon
-      m_PhotEne->push_back(trackRecord->GetEnergy());
+      m_PhotEne->push_back(trackRecord.GetEnergy());
       m_PhotAng->push_back(alpha); //in radiants
       m_nPhot++;
     }
     else if (pdgCode==11 || pdgCode==-11) { //Electron or photon
-      m_ElecEne->push_back(trackRecord->GetEnergy());
+      m_ElecEne->push_back(trackRecord.GetEnergy());
       m_ElecAng->push_back(alpha); //in radiants
       m_nElec++;
     }
