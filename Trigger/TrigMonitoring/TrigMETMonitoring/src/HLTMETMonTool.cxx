@@ -27,29 +27,46 @@ HLTMETMonTool::HLTMETMonTool(const std::string & type, const std::string & name,
   : IHLTMonTool(type, name, parent),
     m_debuglevel(false) {
 
-  ATH_MSG_INFO("in HLTMETMonTool::HLTMETMonTool() ");
+  ATH_MSG_DEBUG("in HLTMETMonTool::HLTMETMonTool()");
   
   declareProperty("PrintMETTriggerStats", m_is_print_met_trig_stats=true);
   declareProperty("MakeHistosForAllMETTriggers", m_is_make_histos_for_all_met_trig=false);
   declareProperty("MakeExpertHistos", m_is_make_expert_histos=true);
   declareProperty("MonPathBase", m_mon_path="/HLT/METMon");
-  //declareProperty("DoTriggerEfficiency", m_is_do_trigger_effic=true);
+  declareProperty("DoTriggerEfficiency", m_is_do_trigger_effic=true);
 
-  declareProperty("METTriggers", m_met_triggers);
+  // Triggers to monitor
+  declareProperty("METTriggersL1", m_met_triggers_l1);
+  declareProperty("METTriggersHLT", m_met_triggers_hlt);
   declareProperty("SampleSelectionTriggers", m_sample_selection_triggers);
 
+  // Met keys
   declareProperty("L1_ROI_Key", m_lvl1_roi_key="LVL1EnergySumRoI");
-  
   declareProperty("HLT_METKey", m_hlt_met_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET");
   declareProperty("HLT_FEBKey", m_hlt_met_feb_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_FEB");
   declareProperty("HLT_TCKey",  m_hlt_met_topocl_key="HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_topocl");
-
-  //declareProperty("IsRecMETPlot", m_doRecMET=false);  
-  //declareProperty("RecMETKey", m_recmet_key="MET_RefFinal");  
-  //declareProperty("RecMETCaloKey", m_recmetcalo_key="MET_Calib");
+  declareProperty("Off_METKey", m_off_met_key="MET_Reference_AntiKt4LCTopo");  
 
   declareProperty("CompNames", m_compNames);
   declareProperty("BitNames", m_bitNames);
+
+  // histograms limits
+  // et
+  declareProperty("EtMin",  m_et_min=-13.5, "Minimum Et");
+  declareProperty("EtMax",  m_et_max=601.5, "Maximum Et");
+  declareProperty("EtBins", m_et_bins=205,  "Number of bins Et");
+  // sumet
+  declareProperty("SumetMin",  m_sumet_min=-27.,  "Minimum Sumet");
+  declareProperty("SumetMax",  m_sumet_max=1803., "Maximum Sumet");
+  declareProperty("SumetBins", m_sumet_bins=305,  "Number of bins Sumet");
+  // phi, dphi
+  declareProperty("PhiMin",  m_phi_min=-3.1416, "Minimum Phi");
+  declareProperty("PhiMax",  m_phi_max=3.1416,  "Maximum Phi");
+  declareProperty("PhiBins", m_phi_bins=32,     "Number of bins Phi, dPhi");
+  // dEt, dEx, dEy
+  declareProperty("dEtMin",  m_det_min=-100., "Minimum dEt, dEx, dEy");
+  declareProperty("dEtMax",  m_det_max=100.,  "Maximum dEt, dEx, dEy");
+  declareProperty("dEtBins", m_det_bins=100,  "Number of bins dEt, dEx, dEy");
 }
 
 
@@ -69,10 +86,11 @@ StatusCode HLTMETMonTool::init() {
 
   if (m_debuglevel) {
     ATH_MSG_DEBUG("in HLTMETMonTool::init()");
-    ATH_MSG_DEBUG("HLTMETMonTool: L1Key  = "   << m_lvl1_roi_key);
+    ATH_MSG_DEBUG("HLTMETMonTool: L1Key  = "     << m_lvl1_roi_key);
     ATH_MSG_DEBUG("HLTMETMonTool: HLT_METKey = " << m_hlt_met_key);
     ATH_MSG_DEBUG("HLTMETMonTool: HLT_FEBKey = " << m_hlt_met_feb_key);
     ATH_MSG_DEBUG("HLTMETMonTool: HLT_TCKey = "  << m_hlt_met_topocl_key);
+    ATH_MSG_DEBUG("HLTMETMonTool: Off_METKey = " << m_off_met_key);
   }
 
   // point to the signatures we want to make histos for
@@ -95,43 +113,107 @@ StatusCode HLTMETMonTool::book() {
     ATH_MSG_DEBUG("in HLTMETMonTool::book()");
 
   // get all met triggers
-  if(m_is_make_histos_for_all_met_trig) // get all met trigger items
+  if(m_is_make_histos_for_all_met_trig) 
     getAllMETTriggers();  
-  else { // met triggers specified in the input list
-    if(m_met_triggers.size()) {
-      // check if input met triggers are in trigger configuration
-      // put the correct met triggers in m_l*_met_signatures and so on
-      checkTriggers(m_met_triggers, true);
-    }
+  else { 
+    // met triggers specified in the input list
+    // check if input met triggers are in trigger configuration
+    if(m_met_triggers_l1.size())
+      checkTriggers(m_met_triggers_l1, m_l1_met_signatures);
+    if(m_met_triggers_hlt.size())
+      checkTriggers(m_met_triggers_hlt, m_hlt_met_signatures);
   }
   
   // sample selection triggers specified in the input list
   if(m_sample_selection_triggers.size()) {
     // check if input sample selection triggers are in triggger configuration
     // put the correct met triggers in m_sample_selection_signatures
-    checkTriggers(m_sample_selection_triggers, false);
+    checkTriggers(m_sample_selection_triggers, m_sample_selection_signatures);
   }
 
-  /** histogram limits */
-  // et
-  low[0] = -13.5;   high[0] = 601.5;  nbins[0] = 205;
-  // sumet
-  low[1] = -27.;    high[1] = 1803.;  nbins[1] = 305;
-  // phi, dPhi
-  low[2] = -3.1416; high[2] = 3.1416; nbins[2] = 32;
-  // dEt, dEx, dEy
-  low[3] = -100.;   high[3] = 100.;   nbins[3] = 100;
+  // Create Shifter and Expert folders
+  m_shifter_path = m_mon_path + "/Shifter";
+  m_expert_path  = m_mon_path + "/Expert";
+
+  addMonGroup(new MonGroup(this, m_shifter_path, run));
+  addMonGroup(new MonGroup(this, m_expert_path, run));
+
+  //-- Book shifter histograms
+  // L1 histograms
+  std::string mongroupName = m_shifter_path + "/L1";
+  addMonGroup(new MonGroup(this, mongroupName.c_str(), run));
+  setCurrentMonGroup(mongroupName);
+
+  addHistogram(new TH1F("L1_METx", "L1 METx (GeV);METx (GeV)", 199, -298.5,  298.5));
+  addHistogram(new TH1F("L1_METy", "L1 METy (GeV);METy (GeV)", 199, -298.5,  298.5));
+  addHistogram(new TH1F("L1_MEx_log", "L1 Missing E_{x};sgn(E_{x}) log_{10}(E_{x}/GeV)", 55, -4.125, 4.125));
+  addHistogram(new TH1F("L1_MEy_log", "L1 Missing E_{y};sgn(E_{y}) log_{10}(E_{y}/GeV)", 55, -4.125, 4.125));
+  addHistogram(new TH1F("L1_MET_log", "L1 |Missing E_{T}|;log_{10}(ME_{T}/GeV)", 40, -1.875, 4.125));
+  addHistogram(new TH1F("L1_SumEt_log", "L1 Sum |E_{T}|;log_{10}(SumE_{T}/GeV)", 40, -1.875, 4.125));
   
-  bookHistograms_allStats();
+  addBasicL1Histograms();
+
+  // HLT histograms
+  mongroupName = m_shifter_path + "/HLT";
+  addMonGroup(new MonGroup(this, mongroupName.c_str(), run));
+  setCurrentMonGroup(mongroupName);
+
+  addHistogram(new TH1F("HLT_MEx_lin", "HLT Missing E_{x};E_{x} (GeV)", 199, -298.5,  298.5));
+  addHistogram(new TH1F("HLT_MEy_lin", "HLT Missing E_{y};E_{y} (GeV)", 199, -298.5,  298.5));
+
+  addBasicHLTHistograms();
+  addMoreHLTHistograms();
+  addHLTStatusHistogram();
+  addL1vsHLTHistograms();
+
+  // HTL_FEB histograms
+  mongroupName = m_shifter_path + "/HLT_FEB";
+  addMonGroup(new MonGroup(this, mongroupName.c_str(), run));
+  setCurrentMonGroup(mongroupName);
+
+  addHistogram(new TH1F("HLT_FEB_MEx_lin", "HLT Missing E_{x};E_{x} (GeV)", 199, -298.5,  298.5));
+  addHistogram(new TH1F("HLT_FEB_MEy_lin", "HLT Missing E_{y};E_{y} (GeV)", 199, -298.5,  298.5));
+
+  addBasicHLTHistograms();
+  addMoreHLTHistograms();
+
+  // HTL_topocl histograms
+  mongroupName = m_shifter_path + "/HLT_topocl";
+  addMonGroup(new MonGroup(this, mongroupName.c_str(), run));
+  setCurrentMonGroup(mongroupName);
+
+  addHistogram(new TH1F("HLT_topocl_MEx_lin", "HLT Missing E_{x};E_{x} (GeV)", 199, -298.5,  298.5));
+  addHistogram(new TH1F("HLT_topocl_MEy_lin", "HLT Missing E_{y};E_{y} (GeV)", 199, -298.5,  298.5));
+
+  addBasicHLTHistograms();
+  addMoreHLTHistograms();
+
+  // Offline histograms
+  mongroupName = m_shifter_path + "/Off";
+  addMonGroup(new MonGroup(this, mongroupName.c_str(), run));
+  setCurrentMonGroup(mongroupName);
+
+  addHistogram(new TH1F("Off_MEx_lin", "Offline Missing E_{x};E_{x} (GeV)", 199, -298.5,  298.5));
+  addHistogram(new TH1F("Off_MEy_lin", "Offline Missing E_{y};E_{y} (GeV)", 199, -298.5,  298.5));
+
+  addBasicOffHistograms();
+  addL1vsOffHistograms();
+  addHLTvsOffHistograms();
+
+  // DQFlags
+  // std::string DQFlagmongroupName = m_mon_path + "/DQFlags";
+  // addMonGroup (new MonGroup(this, DQFlagmongroupName.c_str(), run));
+  // setCurrentMonGroup(DQFlagmongroupName);
+  // addDQFlagHistograms();
     
-  // for now all the histograms other than extension for online are considered expert histograms
+  //-- Book expert histograms 
   if (m_is_make_expert_histos) {
     if (m_l1_met_signatures_tolook->size())
-      bookL1Histograms();
+      bookExpertL1Histograms();
     if (m_hlt_met_signatures_tolook->size())
-      bookHLTHistograms();
+      bookExpertHLTHistograms();
     if (m_is_do_trigger_effic)
-      bookEfficHistograms();
+      bookExpertEfficHistograms();
   }
   
   return StatusCode::SUCCESS;
@@ -162,72 +244,47 @@ StatusCode HLTMETMonTool::proc() {
   if (m_debuglevel) 
     ATH_MSG_DEBUG("in HLTMETMonTool::proc()");
 
+  if(m_is_print_met_trig_stats)
+    printMETTriggerStats();
+
+  std::map<std::string, int>::const_iterator it_s;
+  std::map<std::string, int>::const_iterator it;
+  TH1 *m_OffMET_et_denom;
+  TH1 *m_OffMET_phi_denom;
+  TH1 *m_OffMET_et_num;
+  TH1 *m_OffMET_phi_num;
+  std::string levels[2] = {"L1", "HLT"};
+  std::vector<std::map<std::string,int>*> m_met_signatures_tolook;
+  m_met_signatures_tolook.push_back(m_l1_met_signatures_tolook);
+  m_met_signatures_tolook.push_back(m_hlt_met_signatures_tolook);
+  unsigned int size = m_met_signatures_tolook.size();
+
+  if (m_is_do_trigger_effic) {
+
+    //for(it_s = m_sample_selection_signatures.begin(); it_s != m_sample_selection_signatures.end(); it_s++) {
+    //  setCurrentMonGroup(m_mon_path + "/Expert/Efficiency/"+it_s->first);
+      setCurrentMonGroup(m_shifter_path + "/Off");
+      m_OffMET_et_denom = hist("OffMET_et");
+      m_OffMET_phi_denom = hist("OffMET_phi");
+      m_OffMET_et_denom->Sumw2();
+      m_OffMET_phi_denom->Sumw2();
+      for (unsigned int i=0; i<size; i++) {
+        for(it = m_met_signatures_tolook[i]->begin(); it != m_met_signatures_tolook[i]->end(); it++) {
+          setCurrentMonGroup(m_expert_path + "/Efficiency/"+it->first);
+          m_OffMET_et_num = hist("OffMET_et");
+          m_OffMET_phi_num = hist("OffMET_phi");
+          m_OffMET_et_num->Sumw2();
+          m_OffMET_phi_num->Sumw2();
+          std::string et_effic_name = levels[i] + "_et_effic_wrt_OffMET";
+          std::string phi_effic_name = levels[i] + "_phi_effic_wrt_OffMET";
+          hist(et_effic_name)->Divide(m_OffMET_et_num, m_OffMET_et_denom);
+          hist(phi_effic_name)->Divide(m_OffMET_phi_num, m_OffMET_phi_denom);
+        }
+      }
+  }
+
   return StatusCode::SUCCESS;
 }
-
-
-//___________________________________________________________________________________________________________
-void HLTMETMonTool::bookHistograms_allStats() {
-
-  // L1 histograms
-  std::string mongroupName = m_mon_path + "/L1";
-  addMonGroup (new MonGroup(this, mongroupName.c_str(), run));
-  setCurrentMonGroup(mongroupName);
-
-  addHistogram(new TH1F("L1_METx", "L1 METx (GeV);METx (GeV)", 199, -298.5,  298.5));
-  addHistogram(new TH1F("L1_METy", "L1 METy (GeV);METy (GeV)", 199, -298.5,  298.5));
-  addHistogram(new TH1F("L1_MEx_log","L1 Missing E_{x};sgn(E_{x}) log_{10}(E_{x}/GeV)", 55, -4.125, 4.125));
-  addHistogram(new TH1F("L1_MEy_log","L1 Missing E_{y};sgn(E_{y}) log_{10}(E_{y}/GeV)", 55, -4.125, 4.125));
-  addHistogram(new TH1F("L1_MET_log","L1 |Missing E_{T}|;log_{10}(ME_{T}/GeV)", 40, -1.875, 4.125));
-  addHistogram(new TH1F("L1_SumEt_log","L1 Sum |E_{T}|;log_{10}(SumE_{T}/GeV)", 40, -1.875, 4.125));
-  
-  addBasicL1Histograms();
-
-  // HLT histograms
-  mongroupName = m_mon_path + "/HLT";
-  addMonGroup (new MonGroup(this, mongroupName.c_str(), run));
-  setCurrentMonGroup(mongroupName);
-  addHistogram(new TH1F("HLT_MEx_lin", "HLT Missing E_{x};E_{x} (GeV)", 199, -298.5,  298.5));
-  addHistogram(new TH1F("HLT_MEy_lin", "HLT Missing E_{y};E_{y} (GeV)", 199, -298.5,  298.5));
-
-  addBasicHLTHistograms();
-  addMoreHLTHistograms();
-  addHLTStatusHistogram();
-  addL1vsHLTHistograms();
-
-  mongroupName = m_mon_path + "/HLT_FEB";
-  addMonGroup (new MonGroup(this, mongroupName.c_str(), run));
-  setCurrentMonGroup(mongroupName);
-  addHistogram(new TH1F("HLT_FEB_MEx_lin", "HLT Missing E_{x};E_{x} (GeV)", 199, -298.5,  298.5));
-  addHistogram(new TH1F("HLT_FEB_MEy_lin", "HLT Missing E_{y};E_{y} (GeV)", 199, -298.5,  298.5));
-
-  addBasicHLTHistograms();
-  addMoreHLTHistograms();
-
-  mongroupName = m_mon_path + "/HLT_topocl";
-  addMonGroup (new MonGroup(this, mongroupName.c_str(), run));
-  setCurrentMonGroup(mongroupName);
-  addHistogram(new TH1F("HLT_topocl_MEx_lin", "HLT Missing E_{x};E_{x} (GeV)", 199, -298.5,  298.5));
-  addHistogram(new TH1F("HLT_topocl_MEy_lin", "HLT Missing E_{y};E_{y} (GeV)", 199, -298.5,  298.5));
-
-  addBasicHLTHistograms();
-  addMoreHLTHistograms();
-
-  // Offline histograms
-  mongroupName = m_mon_path + "/Off";
-  addMonGroup (new MonGroup(this, mongroupName.c_str(), run));
-  setCurrentMonGroup(mongroupName);
-  addBasicOffHistograms();
-  addL1vsOffHistograms();
-  addHLTvsOffHistograms();
-
-  // DQFlags
-  // std::string DQFlagmongroupName = m_mon_path + "/DQFlags";
-  // addMonGroup (new MonGroup(this, DQFlagmongroupName.c_str(), run));
-  // setCurrentMonGroup(DQFlagmongroupName);
-  // addDQFlagHistograms();
-}
-
 
 //___________________________________________________________________________________________________________
 void HLTMETMonTool::bookXSCalibHistograms(int level) {
@@ -280,122 +337,130 @@ void HLTMETMonTool::bookXSCalibHistograms(int level) {
 }
 
 //___________________________________________________________________________________________________________
-void HLTMETMonTool::bookL1Histograms() {
+void HLTMETMonTool::bookExpertL1Histograms() {
 
-  std::string m_generic_path_trigmetmonitoring = m_mon_path;
+  std::string monGroupName = m_expert_path + "/L1";
+  addMonGroup(new MonGroup(this, monGroupName.c_str(), run));
+
   std::map<std::string,int>::const_iterator it;
-
   for (it = m_l1_met_signatures_tolook->begin(); it != m_l1_met_signatures_tolook->end(); it++) {
-    std::string m_expert_path_trigmetmonitoring = m_generic_path_trigmetmonitoring + "/Expert/L1/" + it->first;
+
+    std::string m_expert_path_trigger = monGroupName + "/" + it->first;
 
     //declare a group of histograms
-    addMonGroup(new MonGroup(this, m_expert_path_trigmetmonitoring, run));
-    setCurrentMonGroup(m_expert_path_trigmetmonitoring);
+    addMonGroup(new MonGroup(this, m_expert_path_trigger, run));
+    setCurrentMonGroup(m_expert_path_trigger);
+
     addBasicL1Histograms();
     addBasicHLTHistograms();
     addBasicOffHistograms();
     addL1vsOffHistograms();
     
     // trigger efficiency histograms
-    addHistogram(new TH1F("L1_et_effic_wrt_OffMET", "et_effic_wrt_OffMET_L1 ; Et", nbins[0], low[0], high[0]));
-    addHistogram(new TH1F("L1_phi_effic_wrt_OffMET", "phi_effic_wrt_OffMET_L1 ; Phi", nbins[2], low[2], high[2]));
+    addHistogram(new TH1F("L1_et_effic_wrt_OffMET", "et_effic_wrt_OffMET_L1 ; Et", m_et_bins, m_et_min, m_et_max));
+    addHistogram(new TH1F("L1_phi_effic_wrt_OffMET", "phi_effic_wrt_OffMET_L1 ; Phi", m_phi_bins, m_phi_min, m_phi_max));
     
     if (m_debuglevel)
-      ATH_MSG_DEBUG("in HLTMETMonTool::bookL1Histograms: " << m_expert_path_trigmetmonitoring << "/" << " Histograms" << " booked successfully");
+      ATH_MSG_DEBUG("in HLTMETMonTool::bookL1Histograms: " << m_expert_path_trigger << "/" << " Histograms" << " booked successfully");
   }
 }
 
 //___________________________________________________________________________________________________________
-void HLTMETMonTool::bookHLTHistograms() {
+void HLTMETMonTool::bookExpertHLTHistograms() {
 
-  std::string m_generic_path_trigmetmonitoring = m_mon_path;
+  std::string monGroupName = m_expert_path + "/HLT";
+  addMonGroup(new MonGroup(this, monGroupName.c_str(), run));
 
   std::map<std::string,int>::const_iterator it;
 
   for (it = m_hlt_met_signatures_tolook->begin(); it != m_hlt_met_signatures_tolook->end(); it++) {
-    std::string m_expert_path_trigmetmonitoring = m_generic_path_trigmetmonitoring + "/Expert/HLT/" + it->first;
+    std::string m_expert_path_trigger = monGroupName + "/" + it->first;
 
     //declare a group of histograms
-    addMonGroup(new MonGroup(this, m_expert_path_trigmetmonitoring, run));
-    setCurrentMonGroup(m_expert_path_trigmetmonitoring);
+    addMonGroup(new MonGroup(this, m_expert_path_trigger, run));
+    setCurrentMonGroup(m_expert_path_trigger);
+
     addBasicHLTHistograms();
     addL1vsHLTHistograms();
     addBasicOffHistograms();
     addHLTvsOffHistograms();
 
     // trigger efficiency histograms
-    addHistogram(new TH1F("EF_et_effic_wrt_OffMET", "et_effic_wrt_OffMET_EF ; Et", nbins[0], low[0], high[0]));
-    addHistogram(new TH1F("EF_phi_effic_wrt_OffMET", "phi_effic_wrt_OffMET_EF ; Phi", nbins[2], low[2], high[2]));
+    addHistogram(new TH1F("EF_et_effic_wrt_OffMET", "et_effic_wrt_OffMET_EF ; Et", m_et_bins, m_et_min, m_et_max));
+    addHistogram(new TH1F("EF_phi_effic_wrt_OffMET", "phi_effic_wrt_OffMET_EF ; Phi", m_phi_bins, m_phi_min, m_phi_max));
 
     if (m_debuglevel)
-      ATH_MSG_DEBUG("in HLTMETMonTool::bookHLTHistograms: " << m_expert_path_trigmetmonitoring << "/" << " Histograms" << " booked successfully");
+      ATH_MSG_DEBUG("in HLTMETMonTool::bookHLTHistograms: " << m_expert_path_trigger << "/" << " Histograms" << " booked successfully");
 
   }
 }
 
 
 //___________________________________________________________________________________________________________
-void HLTMETMonTool::bookEfficHistograms() {
+void HLTMETMonTool::bookExpertEfficHistograms() {
 
-  std::string m_generic_path_trigmetmonitoring = m_mon_path;
-  std::map<std::string,int>::const_iterator it_s;
+  std::string monGroupName = m_expert_path + "/Efficiency";
+  addMonGroup(new MonGroup(this, monGroupName.c_str(), run));
+
   std::map<std::string,int>::const_iterator it;
 
-  for (it_s = m_sample_selection_signatures.begin(); it_s != m_sample_selection_signatures.end(); it_s++) {
-    std::string m_expert_path_trigmetmonitoring = m_generic_path_trigmetmonitoring + "/Expert/Efficiency/" + it_s->first;
-    //declare a group of histograms
-    addMonGroup(new MonGroup(this, m_expert_path_trigmetmonitoring, run));
-    setCurrentMonGroup(m_expert_path_trigmetmonitoring);
-    addBasicOffHistograms();  
+  //  for (it_s = m_sample_selection_signatures.begin(); it_s != m_sample_selection_signatures.end(); it_s++) {
+  //    std::string m_expert_path_trigmetmonitoring = m_generic_path_trigmetmonitoring + "/Expert/Efficiency/" + it_s->first;
+  //    //declare a group of histograms
+  //    addMonGroup(new MonGroup(this, m_expert_path_trigmetmonitoring, run));
+  //    setCurrentMonGroup(m_expert_path_trigmetmonitoring);
+  //    addBasicOffHistograms();  
+  
+  std::vector<std::map<std::string,int>*> m_met_signatures_tolook;
+  m_met_signatures_tolook.push_back(m_l1_met_signatures_tolook);
+  m_met_signatures_tolook.push_back(m_hlt_met_signatures_tolook);
+  unsigned int size = m_met_signatures_tolook.size();
+  std::string levels[2] = {"L1", "HLT"};
+  
+  for (unsigned int i=0; i<size; i++) {
+    for (it = m_met_signatures_tolook[i]->begin(); it != m_met_signatures_tolook[i]->end(); it++) {
+      
+      std::string m_expert_path_trigger = monGroupName + "/" + it->first;
 
-    std::vector<std::map<std::string,int>*> m_met_signatures_tolook;
-    m_met_signatures_tolook.push_back(m_l1_met_signatures_tolook);
-    m_met_signatures_tolook.push_back(m_hlt_met_signatures_tolook);
-    unsigned int size = m_met_signatures_tolook.size();
-    std::string levels[2] = {"L1", "HLT"};
-
-    for (unsigned int i=0; i<size; i++) {
-      for (it = m_met_signatures_tolook[i]->begin(); it != m_met_signatures_tolook[i]->end(); it++) {
-        std::string m_expert_path_trigmetmonitoring = m_generic_path_trigmetmonitoring + "/Expert/Efficiency/" + it_s->first + "/" + it->first;
-        //declare a group of histograms
-        addMonGroup(new MonGroup (this, m_expert_path_trigmetmonitoring, run));
-        setCurrentMonGroup(m_expert_path_trigmetmonitoring);
-        addBasicOffHistograms();
+      //declare a group of histograms
+      addMonGroup(new MonGroup (this, m_expert_path_trigger, run));
+      setCurrentMonGroup(m_expert_path_trigger);
+      addBasicOffHistograms();
    
-        // trigger efficiency histograms
-        std::string name = levels[i] + "_et_effic_wrt_OffMET";
-        std::string title = "et_effic_wrt_OffMET_" + levels[i] + " ; Et";
-        addHistogram(new TH1F(name.c_str(), title.c_str(), nbins[0], low[0], high[0]));
-        name = levels[i] + "_phi_effic_wrt_OffMET";
-        title = "phi_effic_wrt_OffMET_" + levels[i] + " ; Phi";
-        addHistogram(new TH1F(name.c_str(), title.c_str(), nbins[2], low[2], high[2]));
+      // trigger efficiency histograms
+      std::string name = levels[i] + "_et_effic_wrt_OffMET";
+      std::string title = "et_effic_wrt_OffMET_" + levels[i] + " ; Et";
+      addHistogram(new TH1F(name.c_str(), title.c_str(), m_et_bins, m_et_min, m_et_max));
+      name = levels[i] + "_phi_effic_wrt_OffMET";
+      title = "phi_effic_wrt_OffMET_" + levels[i] + " ; Phi";
+      addHistogram(new TH1F(name.c_str(), title.c_str(), m_phi_bins, m_phi_min, m_phi_max));
     
-        if (m_debuglevel) {
-          ATH_MSG_DEBUG("in HLTMETMonTool::bookEfficHistograms: " << m_expert_path_trigmetmonitoring
-                        << "/" << " Histograms" << " booked successfully");
-        }
-      } // end of loop over l* met signatures to look
-    } // end of loop over levels
-  } // end of loop over m_sample_selection_triggers
+      if (m_debuglevel) {
+        ATH_MSG_DEBUG("in HLTMETMonTool::bookEfficHistograms: " << m_expert_path_trigger
+                      << "/" << " Histograms" << " booked successfully");
+      }
+    } // end of loop over l* met signatures to look
+  } // end of loop over levels
+    //  } // end of loop over m_sample_selection_triggers
 }
 
 //___________________________________________________________________________________________________________
 void HLTMETMonTool::addBasicL1Histograms() {
-  addHistogram(new TH1F("L1_MET",      "L1 MET (GeV);MET (GeV)",                      nbins[0], low[0], high[0]));
+  addHistogram(new TH1F("L1_MET",      "L1 MET (GeV);MET (GeV)",                      m_et_bins, m_et_min, m_et_max));
   addHistogram(new TH1F("L1_MET_lin1", "L1 |Missing E_{T}| (0-10 GeV);ME_{T} (GeV)",  110, -0.5, 10.5));
-  addHistogram(new TH1F("L1_SumEt",    "L1 SumEt (GeV);SumEt (GeV)",                  nbins[1], low[1], high[1]));
-  addHistogram(new TH1F("L1_MET_phi",  "L1 MET #phi (rad);MET #phi (rad)",            nbins[2], low[2], high[2]));
-  addHistogram(new TH1F("L1_MET_phi1", "L1 MET #phi(|Missing E_{T}|);MET #phi (rad)", nbins[2], low[2], high[2]));
+  addHistogram(new TH1F("L1_SumEt",    "L1 SumEt (GeV);SumEt (GeV)",                  m_sumet_bins, m_sumet_min, m_sumet_max));
+  addHistogram(new TH1F("L1_MET_phi",  "L1 MET #phi (rad);MET #phi (rad)",            m_phi_bins, m_phi_min, m_phi_max));
+  addHistogram(new TH1F("L1_MET_phi1", "L1 MET #phi(|Missing E_{T}|);MET #phi (rad)", m_phi_bins, m_phi_min, m_phi_max));
   //bookXSCalibHistograms(1);
 }
 
 //___________________________________________________________________________________________________________
 void HLTMETMonTool::addBasicHLTHistograms() {
-  addHistogram(new TH1F("HLT_MET_lin",   "HLT |Missing E_{T}|;ME_{T} (GeV)",            nbins[0], low[0], high[0]));
+  addHistogram(new TH1F("HLT_MET_lin",   "HLT |Missing E_{T}|;ME_{T} (GeV)",            m_et_bins, m_et_min, m_et_max));
   addHistogram(new TH1F("HLT_MET_lin1",  "HLT |Missing E_{T}| (0-10 GeV);ME_{T} (GeV)", 110, -0.5, 10.5));
-  addHistogram(new TH1F("HLT_SumEt_lin", "HLT Sum |E_{T}|;SumE_{T} (GeV)",              nbins[1], low[1], high[1]));
-  addHistogram(new TH1F("HLT_MET_phi",   "HLT MET #phi (rad);#phi (rad)",               nbins[2], low[2], high[2]));
-  addHistogram(new TH1F("HLT_MET_phi1",  "HLT MET #phi(|Missing E_{T}|);#phi (rad)",    nbins[2], low[2], high[2]));
+  addHistogram(new TH1F("HLT_SumEt_lin", "HLT Sum |E_{T}|;SumE_{T} (GeV)",              m_sumet_bins, m_sumet_min, m_sumet_max));
+  addHistogram(new TH1F("HLT_MET_phi",   "HLT MET #phi (rad);#phi (rad)",               m_phi_bins, m_phi_min, m_phi_max));
+  addHistogram(new TH1F("HLT_MET_phi1",  "HLT MET #phi(|Missing E_{T}|);#phi (rad)",    m_phi_bins, m_phi_min, m_phi_max));
 }
 
 //___________________________________________________________________________________________________________
@@ -489,7 +554,7 @@ void HLTMETMonTool::addMoreHLTHistograms() {
     addHistogram(h2f[k]);
   }
 
-  int phibins = 16; double phimin = low[2]; double phimax = high[2];
+  int phibins = 16; double phimin = m_phi_min; double phimax = m_phi_max;
   int etabins = 24; double etamin = -4.8;   double etamax =  4.8;
 
   for (unsigned int j = 0; j < m_compNames.size(); j++) {
@@ -535,46 +600,46 @@ void HLTMETMonTool::addHLTStatusHistogram() {
 void HLTMETMonTool::addBasicOffHistograms() {
   // OffMET
   // et sumet phi histograms
-  addHistogram(new TH1F("OffMET_et", "et_OffMET ; Et", nbins[0], low[0], high[0]));
-  addHistogram(new TH1F("OffMET_sumet", "sumet_OffMET ; sumEt", nbins[1], low[1], high[1]));
-  addHistogram(new TH1F("OffMET_phi", "phi_OffMET ; Phi", nbins[2], low[2], high[2]));
+  addHistogram(new TH1F("OffMET_et", "et_OffMET ; Et", m_et_bins, m_et_min, m_et_max));
+  addHistogram(new TH1F("OffMET_sumet", "sumet_OffMET ; sumEt", m_sumet_bins, m_sumet_min, m_sumet_max));
+  addHistogram(new TH1F("OffMET_phi", "phi_OffMET ; Phi", m_phi_bins, m_phi_min, m_phi_max));
 }
 
 //___________________________________________________________________________________________________________
 void HLTMETMonTool::addL1vsHLTHistograms() {
 
-  addHistogram(new TH2F("L1MET_HLTMET_EtCor", "L1 vs HLT Missing E_{T} ; HLTME_{T} (GeV); L1ME_{T} (GeV)", nbins[0], low[0], high[0], nbins[0], low[0], high[0]));
-  addHistogram(new TH2F("L1MET_HLTMET_SumEtCor", "L1 vs HLT Sum |E_{T}| ; HLTSum|E_{T}| (GeV); L1Sum|E_{T}| (GeV)", nbins[1], low[1], high[1], nbins[1], low[1], high[1]));
-  addHistogram(new TH2F("L1MET_HLTMET_PhiCor", "L1 vs HLT #phi ; EF #phi (rad); L1 #phi (rad)", nbins[2], low[2], high[2], nbins[2], low[2], high[2]));
-  addHistogram(new TH1F("L1MET_HLTMET_dEt",  "#DeltaE_{T}(L1-HLT) ; #DeltaE_{T} (GeV)", nbins[3], low[3], high[3]));
-  addHistogram(new TH1F("L1MET_HLTMET_dPhi", "#Delta#phi(L1-HLT) ; #Delta#phi (GeV)", nbins[2], low[2], high[2]));
-  addHistogram(new TH1F("L1MET_HLTMET_dEx",  "#DeltaE_{x}(L1-HLT) ; #DeltaE_{x} (GeV)", nbins[3], low[3], high[3]));
-  addHistogram(new TH1F("L1MET_HLTMET_dEy",  "#DeltaE_{y}(L1-HLT) ; #DeltaE_{y} (GeV)", nbins[3], low[3], high[3]));
+  addHistogram(new TH2F("L1MET_HLTMET_EtCor", "L1 vs HLT Missing E_{T} ; HLTME_{T} (GeV); L1ME_{T} (GeV)", m_et_bins, m_et_min, m_et_max, m_et_bins, m_et_min, m_et_max));
+  addHistogram(new TH2F("L1MET_HLTMET_SumEtCor", "L1 vs HLT Sum |E_{T}| ; HLTSum|E_{T}| (GeV); L1Sum|E_{T}| (GeV)", m_sumet_bins, m_sumet_min, m_sumet_max, m_sumet_bins, m_sumet_min, m_sumet_max));
+  addHistogram(new TH2F("L1MET_HLTMET_PhiCor", "L1 vs HLT #phi ; EF #phi (rad); L1 #phi (rad)", m_phi_bins, m_phi_min, m_phi_max, m_phi_bins, m_phi_min, m_phi_max));
+  addHistogram(new TH1F("L1MET_HLTMET_dEt",  "#DeltaE_{T}(L1-HLT) ; #DeltaE_{T} (GeV)", m_det_bins, m_det_min, m_det_max));
+  addHistogram(new TH1F("L1MET_HLTMET_dPhi", "#Delta#phi(L1-HLT) ; #Delta#phi (GeV)", m_phi_bins, m_phi_min, m_phi_max));
+  addHistogram(new TH1F("L1MET_HLTMET_dEx",  "#DeltaE_{x}(L1-HLT) ; #DeltaE_{x} (GeV)", m_det_bins, m_det_min, m_det_max));
+  addHistogram(new TH1F("L1MET_HLTMET_dEy",  "#DeltaE_{y}(L1-HLT) ; #DeltaE_{y} (GeV)", m_det_bins, m_det_min, m_det_max));
 
 }
 
 //___________________________________________________________________________________________________________
 void HLTMETMonTool::addL1vsOffHistograms() {
 
-  addHistogram(new TH2F("L1MET_OffMET_EtCor", "EtCor_L1MET_OffMET ; OffMET_Et ; L1MET_Et", nbins[0],low[0],high[0], nbins[0],low[0],high[0]));
-  addHistogram(new TH2F("L1MET_OffMET_SumEtCor", "SumEtCor_L1MET_OffMET ; OffMET_SumEt ; L1MET_SumEt", nbins[1],low[1],high[1], nbins[1],low[1],high[1]));
-  addHistogram(new TH2F("L1MET_OffMET_PhiCor", "PhiCor_L1MET_OffMET ; OffMET_Phi ; L1MET_Phi", nbins[2],low[2],high[2], nbins[2],low[2],high[2]));
-  addHistogram(new TH1F("L1MET_OffMET_dEt", "dEt_L1MET_OffMET ; dEt", nbins[3],low[3],high[3]));
-  addHistogram(new TH1F("L1MET_OffMET_dPhi", "dPhi_L1MET_OffMET ; dPhi", nbins[2],low[2],high[2]));
-  addHistogram(new TH1F("L1MET_OffMET_dEx", "dEx_L1MET_OffMET ; dEx", nbins[3],low[3],high[3]));
-  addHistogram(new TH1F("L1MET_OffMET_dEy", "dEy_L1MET_OffMET ; dEy", nbins[3],low[3],high[3]));
+  addHistogram(new TH2F("L1MET_OffMET_EtCor", "EtCor_L1MET_OffMET ; OffMET_Et ; L1MET_Et", m_et_bins, m_et_min, m_et_max, m_et_bins, m_et_min, m_et_max));
+  addHistogram(new TH2F("L1MET_OffMET_SumEtCor", "SumEtCor_L1MET_OffMET ; OffMET_SumEt ; L1MET_SumEt", m_sumet_bins, m_sumet_min, m_sumet_max, m_sumet_bins, m_sumet_min, m_sumet_max));
+  addHistogram(new TH2F("L1MET_OffMET_PhiCor", "PhiCor_L1MET_OffMET ; OffMET_Phi ; L1MET_Phi", m_phi_bins, m_phi_min, m_phi_max, m_phi_bins, m_phi_min, m_phi_max));
+  addHistogram(new TH1F("L1MET_OffMET_dEt", "dEt_L1MET_OffMET ; dEt", m_det_bins, m_det_min, m_det_max));
+  addHistogram(new TH1F("L1MET_OffMET_dPhi", "dPhi_L1MET_OffMET ; dPhi", m_phi_bins, m_phi_min, m_phi_max));
+  addHistogram(new TH1F("L1MET_OffMET_dEx", "dEx_L1MET_OffMET ; dEx", m_det_bins, m_det_min, m_det_max));
+  addHistogram(new TH1F("L1MET_OffMET_dEy", "dEy_L1MET_OffMET ; dEy", m_det_bins, m_det_min, m_det_max));
 }
 
 //___________________________________________________________________________________________________________
 void HLTMETMonTool::addHLTvsOffHistograms() {
 
-  addHistogram(new TH2F("HLTMET_OffMET_EtCor", "EtCor_HLTMET_OffMET ; OffMET_Et ; HLTMET_Et", nbins[0],low[0],high[0], nbins[0],low[0],high[0]));
-  addHistogram(new TH2F("HLTMET_OffMET_SumEtCor", "SumEtCor_HLTMET_OffMET ; OffMET_SumEt ; HLTMET_SumEt", nbins[1],low[1],high[1], nbins[1],low[1],high[1]));
-  addHistogram(new TH2F("HLTMET_OffMET_PhiCor", "PhiCor_HLTMET_OffMET ; OffMET_Phi ; HLTMET_Phi", nbins[2],low[2],high[2], nbins[2],low[2],high[2]));
-  addHistogram(new TH1F("HLTMET_OffMET_dEt", "dEt_HLTMET_OffMET ; dEt", nbins[3],low[3],high[3]));
-  addHistogram(new TH1F("HLTMET_OffMET_dPhi", "dPhi_HLTMET_OffMET ; dPhi", nbins[2],low[2],high[2]));
-  addHistogram(new TH1F("HLTMET_OffMET_dEx", "dEx_HLTMET_OffMET ; dEx", nbins[3],low[3],high[3]));
-  addHistogram(new TH1F("HLTMET_OffMET_dEy", "dEy_HLTMET_OffMET ; dEy", nbins[3],low[3],high[3]));   
+  addHistogram(new TH2F("HLTMET_OffMET_EtCor", "EtCor_HLTMET_OffMET; OffMET_Et ; HLTMET_Et", m_et_bins, m_et_min, m_et_max, m_et_bins, m_et_min, m_et_max));
+  addHistogram(new TH2F("HLTMET_OffMET_SumEtCor", "SumEtCor_HLTMET_OffMET; OffMET_SumEt ; HLTMET_SumEt", m_sumet_bins, m_sumet_min, m_sumet_max, m_sumet_bins, m_sumet_min, m_sumet_max));
+  addHistogram(new TH2F("HLTMET_OffMET_PhiCor", "PhiCor_HLTMET_OffMET; OffMET_Phi ; HLTMET_Phi", m_phi_bins, m_phi_min, m_phi_max, m_phi_bins, m_phi_min, m_phi_max));
+  addHistogram(new TH1F("HLTMET_OffMET_dEt", "dEt_HLTMET_OffMET; dEt", m_det_bins, m_det_min, m_det_max));
+  addHistogram(new TH1F("HLTMET_OffMET_dPhi", "dPhi_HLTMET_OffMET; dPhi", m_phi_bins, m_phi_min, m_phi_max));
+  addHistogram(new TH1F("HLTMET_OffMET_dEx", "dEx_HLTMET_OffMET; dEx", m_det_bins, m_det_min, m_det_max));
+  addHistogram(new TH1F("HLTMET_OffMET_dEy", "dEy_HLTMET_OffMET; dEy", m_det_bins, m_det_min, m_det_max));   
 }
 
 //___________________________________________________________________________________________________________
@@ -638,50 +703,41 @@ StatusCode HLTMETMonTool::fillMETHistos() {
     ATH_MSG_DEBUG("Accessing met with " << m_hlt_met_topocl_cont->size() << " elements");
 
   // retrieve Offline MET container
-  //m_off_met_cont = 0;
+  m_off_met_cont = 0;
+  sc = m_storeGate->retrieve(m_off_met_cont, m_off_met_key);
+  if (sc.isFailure() || !m_off_met_cont) {
+    ATH_MSG_DEBUG("Could not retrieve Reconstructed MET term with Key " << m_off_met_key << " : m_off_met_cont = 0");
+  }
+  else if (m_debuglevel) {
+    ATH_MSG_DEBUG("Got Reconstructed MET term with key " << m_off_met_key);
+    ATH_MSG_DEBUG("m_off_met_cont = " << m_off_met_cont);
+  }
 
-  // if(m_doRecMET) {
-  //   // get offline MET
-  //   sc = m_storeGate->retrieve(missETRec, m_recmet_key);
-  //   if (sc.isFailure() || !missETRec) {
-  //     ATH_MSG_DEBUG("Could not retrieve Reconstructed MET term with Key " << m_recmet_key << " : missETRec = 0");
-  //   }
-  //   else if (m_debuglevel) {
-  //     ATH_MSG_DEBUG("Got Reconstructed MET term with key " << m_recmet_key);
-  //     ATH_MSG_DEBUG("missETRec = " << missETRec);
-  //   } 
-  // }
-
-  // fill shift histograms
-  sc = fillL1ShiftHistos(); 
-  sc = fillHLTShiftHistos();
-  //if(m_doRecMET) sc = fillRecShiftHistos(L1METROI, missETL2, missETEF, missETRec);
+  // fill shifter histograms
+  sc = fillL1ShifterHistos(); 
+  sc = fillHLTShifterHistos();
+  sc = fillOffShifterHistos();
 
   // fill expert histograms
-  //  if (m_is_make_expert_histos) {
   sc = fillExpertHistos();
-  //  }
 
   return sc;
 }
 
-
-StatusCode HLTMETMonTool::fillL1ShiftHistos() {
+StatusCode HLTMETMonTool::fillL1ShifterHistos() {
 
   if (m_debuglevel) 
     ATH_MSG_DEBUG("in HLTMETMonTool::fillL1ShiftHistos()");
 
   if(!m_l1_roi_cont) return StatusCode::SUCCESS;
 
-  std::string mongroupName = m_mon_path + "/L1";
+  std::string mongroupName = m_shifter_path + "/L1";
   setCurrentMonGroup(mongroupName.c_str());
 
   TH1 *h(0);
   //TH2 *h2(0);
   float epsilon = 1e-6;  // 1 keV
   float epsilon_l1met = 1.e-3; // 1 MeV
-  
-  //for( ; it_L1 != it_e_L1; it_L1++) {
   
   setCurrentMonGroup(mongroupName.c_str());
   float m_lvl1_mex = -9e9;
@@ -730,12 +786,12 @@ StatusCode HLTMETMonTool::fillL1ShiftHistos() {
     m_lvl1_set_log = 0.01;
   
   if(m_lvl1_met > epsilon_l1met) {
-    if((h = hist("L1_MEx_log"))) h->Fill(m_lvl1_mex_log);
-    if((h = hist("L1_MEy_log"))) h->Fill(m_lvl1_mey_log);
-    if((h = hist("L1_MET_log"))) h->Fill(m_lvl1_met_log);
+    if((h = hist("L1_MEx_log")))   h->Fill(m_lvl1_mex_log);
+    if((h = hist("L1_MEy_log")))   h->Fill(m_lvl1_mey_log);
+    if((h = hist("L1_MET_log")))   h->Fill(m_lvl1_met_log);
     if((h = hist("L1_SumEt_log"))) h->Fill(m_lvl1_set_log);
   }
-  // float m_sqrt_set = sqrt(m_lvl1_set > epsilon ? m_lvl1_set:0.);
+  float m_sqrt_set = sqrt(m_lvl1_set > epsilon ? m_lvl1_set:0.);
   // if((h2 = hist2("L1MET_VS_SqrtSET_All")      ))  h2->Fill(m_sqrt_set, m_lvl1_met);
   // if((h2 = hist2("L1MEx_VS_SqrtSET_All")      ))  h2->Fill(m_sqrt_set, m_lvl1_mex);
   // if((h2 = hist2("L1MEy_VS_SqrtSET_All")      ))  h2->Fill(m_sqrt_set, m_lvl1_mey);
@@ -751,7 +807,7 @@ StatusCode HLTMETMonTool::fillL1ShiftHistos() {
 }
 
 //___________________________________________________________________________________________________________
-StatusCode HLTMETMonTool::fillHLTShiftHistos() {
+StatusCode HLTMETMonTool::fillHLTShifterHistos() {
 
   if (m_hlt_met_cont && m_hlt_met_cont->size()>0)
     m_hlt_met = m_hlt_met_cont->at(0);
@@ -762,7 +818,7 @@ StatusCode HLTMETMonTool::fillHLTShiftHistos() {
 
   TH1 *h(0);
   TH2 *h2(0);
-  std::string mongroupName = m_mon_path + "/HLT";
+  std::string mongroupName = m_shifter_path + "/HLT";
   setCurrentMonGroup(mongroupName.c_str());	
 
   float m_etx_log = -9e9;
@@ -784,7 +840,7 @@ StatusCode HLTMETMonTool::fillHLTShiftHistos() {
   float m_ETx     = m_hlt_met->ex();
   float m_ETy     = m_hlt_met->ey();
   float m_ETz     = m_hlt_met->ez();
-  float m_MET     = sqrt(m_ETx*m_ETx+m_ETy*m_ETy); //m_EFMetC->at(0)->et();
+  float m_MET     = sqrt(m_ETx*m_ETx+m_ETy*m_ETy);
   float m_SumEt   = m_hlt_met->sumEt();
   float m_SumE    = m_hlt_met->sumE();
 
@@ -847,7 +903,6 @@ StatusCode HLTMETMonTool::fillHLTShiftHistos() {
   if((h = hist("HLT_SumEt_log")   ))  h->Fill(m_set_log);
   if((h = hist("HLT_SumE_log")    ))  h->Fill(m_se_log);
 
-
   // EF FEB
   if (m_hlt_met_feb_cont && m_hlt_met_feb_cont->size()>0)
     m_hlt_met = m_hlt_met_feb_cont->at(0);
@@ -856,7 +911,7 @@ StatusCode HLTMETMonTool::fillHLTShiftHistos() {
     return StatusCode::SUCCESS;
   }
 
-  std::string HLTFEBmongroupName = m_mon_path + "/HLT_FEB";
+  std::string HLTFEBmongroupName = m_shifter_path + "/HLT_FEB";
   setCurrentMonGroup(HLTFEBmongroupName.c_str());	
 
   m_ETx     = m_hlt_met->ex();
@@ -869,7 +924,6 @@ StatusCode HLTMETMonTool::fillHLTShiftHistos() {
   if((h = hist("HLTFEB_MEx_lin")   ))   h->Fill(m_etx_lin);
   if((h = hist("HLTFEB_MEy_lin")   ))   h->Fill(m_ety_lin);
 
-
   // EF topocl
   if (m_hlt_met_topocl_cont && m_hlt_met_topocl_cont->size()>0)
     m_hlt_met = m_hlt_met_topocl_cont->at(0);
@@ -878,7 +932,7 @@ StatusCode HLTMETMonTool::fillHLTShiftHistos() {
     return StatusCode::SUCCESS;
   }
 
-  std::string HLTtopoclmongroupName = m_mon_path + "/HLT_topocl";
+  std::string HLTtopoclmongroupName = m_shifter_path + "/HLT_topocl";
   setCurrentMonGroup(HLTtopoclmongroupName.c_str());
 
   m_ETx     = m_hlt_met->ex();
@@ -918,24 +972,24 @@ StatusCode HLTMETMonTool::fillHLTShiftHistos() {
   // }
 
   // fill correlation histograms -- L1MET vs EFMET
-  if (m_l1_roi_cont) {
+  // if (m_l1_roi_cont) {
 
-    float sumet = (m_l1_roi_cont->energyT())/CLHEP::GeV;
-    float ex = - (m_l1_roi_cont->energyX())/CLHEP::GeV;
-    float ey = - (m_l1_roi_cont->energyY())/CLHEP::GeV;
-    float et = sqrt(ex*ex + ey*ey);
-    float phi = atan2f(ey, ex);
-    float dphi = signed_delta_phi(phi, m_phi);
+  //   float sumet = (m_l1_roi_cont->energyT())/CLHEP::GeV;
+  //   float ex = - (m_l1_roi_cont->energyX())/CLHEP::GeV;
+  //   float ey = - (m_l1_roi_cont->energyY())/CLHEP::GeV;
+  //   float et = sqrt(ex*ex + ey*ey);
+  //   float phi = atan2f(ey, ex);
+  //   float dphi = signed_delta_phi(phi, m_phi);
 
-    if((h2 = hist2("L1MET_HLTMET_EtCor")))    h2->Fill(m_met_lin, et);
-    if((h2 = hist2("L1MET_HLTMET_SumEtCor"))) h2->Fill(m_set_lin, sumet);
-    if((h2 = hist2("L1MET_HLTMET_PhiCor")))   h2->Fill(m_phi, phi);
+  //   if((h2 = hist2("L1MET_HLTMET_EtCor")))    h2->Fill(m_met_lin, et);
+  //   if((h2 = hist2("L1MET_HLTMET_SumEtCor"))) h2->Fill(m_set_lin, sumet);
+  //   if((h2 = hist2("L1MET_HLTMET_PhiCor")))   h2->Fill(m_phi, phi);
 
-    if((h = hist("L1MET_HLTMET_dEt")))   h->Fill(et - m_met_lin);
-    if((h = hist("L1MET_HLTMET_dPhi")))  h->Fill(dphi);
-    if((h = hist("L1MET_HLTMET_dEx")))   h->Fill(ex - m_etx_lin);
-    if((h = hist("L1MET_HLTMET_dEy")))   h->Fill(ey - m_ety_lin); 
-  }
+  //   if((h = hist("L1MET_HLTMET_dEt")))   h->Fill(et - m_met_lin);
+  //   if((h = hist("L1MET_HLTMET_dPhi")))  h->Fill(dphi);
+  //   if((h = hist("L1MET_HLTMET_dEx")))   h->Fill(ex - m_etx_lin);
+  //   if((h = hist("L1MET_HLTMET_dEy")))   h->Fill(ey - m_ety_lin); 
+  // }
 
   // unsigned int Nc = missETEF->getNumOfComponents();
   // unsigned int compNc = m_compNamesEF.size();
@@ -1027,8 +1081,6 @@ StatusCode HLTMETMonTool::fillHLTShiftHistos() {
   //     if((h2 = hist2(Form("compSumEt_lin_EtaPhi_%02d", i))))      h2->Fill(eta, phi, m_comp_sum_et_lin);
   //     if((h2 = hist2(Form("compSumE_lin_EtaPhi_%02d", i))))      h2->Fill(eta, phi, m_comp_sum_e_lin);
 
-
-
   //   } // loop over components
   // }
 
@@ -1037,90 +1089,75 @@ StatusCode HLTMETMonTool::fillHLTShiftHistos() {
 
 
 //___________________________________________________________________________________________________________
-StatusCode HLTMETMonTool::fillOffShiftHistos() {
+StatusCode HLTMETMonTool::fillOffShifterHistos() {
 
   if (m_debuglevel) ATH_MSG_DEBUG("HLTMETMonTool : in fillOffShiftHistos()");
 
-  //if(!missETRec) return StatusCode::SUCCESS;
+  if (m_off_met_cont && m_off_met_cont->size()>0) {
+    m_off_met = (*m_off_met_cont)["FinalClus"];
+  }
+  else {
+    ATH_MSG_DEBUG("in fillOffShiftHistos: Offline container empty");
+    return StatusCode::SUCCESS;
+  }
+  
+  TH1 *h(0);
+  TH2 *h2(0);
 
-  //TH1 *h(0);
-  //TH2 *h2(0);
-  /*
-  std::string RecmongroupName = m_mon_path + "/RecMissingET_allStats";
-  setCurrentMonGroup(RecmongroupName.c_str());	
+  std::string OffmongroupName = m_shifter_path + "/Off";
+  setCurrentMonGroup(OffmongroupName.c_str());
 
-  float et_RecMET = (missETRec->et())/CLHEP::GeV;
-  float sumet_RecMET = (missETRec->sumet())/CLHEP::GeV;
-  float ex_RecMET = (missETRec->etx())/CLHEP::GeV;
-  float ey_RecMET = (missETRec->ety())/CLHEP::GeV;
-  float phi_RecMET = missETRec->phi();
+  float ex_OffMET = (m_off_met->mpx())/CLHEP::GeV;
+  float ey_OffMET = (m_off_met->mpy())/CLHEP::GeV;
+  float et_OffMET = sqrt(ex_OffMET*ex_OffMET+ey_OffMET*ey_OffMET);
+  float sumet_OffMET = (m_off_met->sumet())/CLHEP::GeV;
+  float phi_OffMET = atan2(ey_OffMET, ex_OffMET); 
 
-  if((h = hist("RecMET_et")))   h->Fill(et_RecMET);
-  if((h = hist("RecMET_sumet")))   h->Fill(sumet_RecMET);
-  if((h = hist("RecMET_phi")))   h->Fill(phi_RecMET);
+  if((h = hist("OffMET_et")))    h->Fill(et_OffMET);
+  if((h = hist("OffMET_sumet"))) h->Fill(sumet_OffMET);
+  if((h = hist("OffMET_phi")))   h->Fill(phi_OffMET);
+  if((h = hist("Off_MEx_lin")))  h->Fill(ex_OffMET);
+  if((h = hist("Off_MEy_lin")))  h->Fill(ey_OffMET);
 
   // fill correlation histograms -- L1MET vs RecMET
-  if (m_lvl1_roi) {
-    LVL1_ROI::energysums_type::const_iterator it_L1 = L1METROI.begin();
-    LVL1_ROI::energysums_type::const_iterator it_e_L1 = L1METROI.end();
+  // if (m_l1_roi_cont) {
+    
+  //   float sumet = (m_l1_roi_cont->energyT())/CLHEP::GeV;
+  //   float ex = - (m_l1_roi_cont->energyX())/CLHEP::GeV;
+  //   float ey = - (m_l1_roi_cont->energyY())/CLHEP::GeV;
+  //   float et = sqrt(ex*ex + ey*ey);
+  //   float phi = atan2f(ey, ex);
+  //   float dphi = signed_delta_phi(phi, phi_OffMET);
 
-    for( ; it_L1 != it_e_L1; it_L1++) {
-      float sumet = (it_L1->getEnergyT())/CLHEP::GeV;
-      float ex = - (it_L1->getExMiss())/CLHEP::GeV;
-      float ey = - (it_L1->getEyMiss())/CLHEP::GeV;
-      float et = sqrt(ex*ex + ey*ey);
-      float phi = atan2f(ey, ex);
-      float dphi = signed_delta_phi(phi, phi_RecMET);
+  //   if((h2 = hist2("L1MET_OffMET_EtCor")))    h2->Fill(et_OffMET, et);
+  //   if((h2 = hist2("L1MET_OffMET_SumEtCor"))) h2->Fill(sumet_OffMET, sumet);
+  //   if((h2 = hist2("L1MET_OffMET_PhiCor")))   h2->Fill(phi_OffMET, phi);
+    
+  //   if((h = hist("L1MET_OffMET_dEt")))   h->Fill(et - et_OffMET);
+  //   if((h = hist("L1MET_OffMET_dPhi")))   h->Fill(dphi);
+  //   if((h = hist("L1MET_OffMET_dEx")))   h->Fill(ex - ex_OffMET);
+  //   if((h = hist("L1MET_OffMET_dEy")))   h->Fill(ey - ey_OffMET); 
+  // }
+  
+  // // fill correlation histograms -- EFMET vs RecMET
+  // if (m_hlt_met) {
+  //   float sumet = (m_hlt_met->sumEt())/CLHEP::GeV;
+  //   float ex = (m_hlt_met->ex())/CLHEP::GeV;
+  //   float ey = (m_hlt_met->ey())/CLHEP::GeV;
+  //   float et = sqrt(ex*ex+ey*ey);
+  //   float phi = atan2f(ey, ex);
+  //   float dphi = signed_delta_phi(phi, phi_OffMET);
 
-      if((h2 = hist2("L1MET_RecMET_EtCor")))   h2->Fill(et_RecMET, et);
-      if((h2 = hist2("L1MET_RecMET_SumEtCor")))   h2->Fill(sumet_RecMET, sumet);
-      if((h2 = hist2("L1MET_RecMET_PhiCor")))   h2->Fill(phi_RecMET, phi);
+  //   if((h2 = hist2("HLTMET_OffMET_EtCor")))    h2->Fill(et_OffMET, et);
+  //   if((h2 = hist2("HLTMET_OffMET_SumEtCor"))) h2->Fill(sumet_OffMET, sumet);
+  //   if((h2 = hist2("HLTMET_OffMET_PhiCor")))   h2->Fill(phi_OffMET, phi);
 
-      if((h = hist("L1MET_RecMET_dEt")))   h->Fill(et - et_RecMET);
-      if((h = hist("L1MET_RecMET_dPhi")))   h->Fill(dphi);
-      if((h = hist("L1MET_RecMET_dEx")))   h->Fill(ex - ex_RecMET);
-      if((h = hist("L1MET_RecMET_dEy")))   h->Fill(ey - ey_RecMET); 
-    }
-  }
-
-  // fill correlation histograms -- L2MET vs RecMET
-  if (missETL2) {
-    float sumet = (missETL2->sumEt())/CLHEP::GeV;
-    float et = (missETL2->et())/CLHEP::GeV;
-    float ex = (missETL2->ex())/CLHEP::GeV;
-    float ey = (missETL2->ey())/CLHEP::GeV;
-    float phi = atan2f(ey, ex);
-    float dphi = signed_delta_phi(phi, phi_RecMET);
-
-    if((h2 = hist2("L2MET_RecMET_EtCor")))   h2->Fill(et_RecMET, et);
-    if((h2 = hist2("L2MET_RecMET_SumEtCor")))   h2->Fill(sumet_RecMET, sumet);
-    if((h2 = hist2("L2MET_RecMET_PhiCor")))   h2->Fill(phi_RecMET, phi);
-
-    if((h = hist("L2MET_RecMET_dEt")))   h->Fill(et - et_RecMET);
-    if((h = hist("L2MET_RecMET_dPhi")))   h->Fill(dphi);
-    if((h = hist("L2MET_RecMET_dEx")))   h->Fill(ex - ex_RecMET);
-    if((h = hist("L2MET_RecMET_dEy")))   h->Fill(ey - ey_RecMET);
-  }
-
-  // fill correlation histograms -- EFMET vs RecMET
-  if (missETEF) {
-    float sumet = (missETEF->sumEt())/CLHEP::GeV;
-    float et = (missETEF->et())/CLHEP::GeV;
-    float ex = (missETEF->ex())/CLHEP::GeV;
-    float ey = (missETEF->ey())/CLHEP::GeV;
-    float phi = atan2f(ey, ex);
-    float dphi = signed_delta_phi(phi, phi_RecMET);
-
-    if((h2 = hist2("EFMET_RecMET_EtCor")))   h2->Fill(et_RecMET, et);
-    if((h2 = hist2("EFMET_RecMET_SumEtCor")))   h2->Fill(sumet_RecMET, sumet);
-    if((h2 = hist2("EFMET_RecMET_PhiCor")))   h2->Fill(phi_RecMET, phi);
-
-    if((h = hist("EFMET_RecMET_dEt")))   h->Fill(et - et_RecMET);
-    if((h = hist("EFMET_RecMET_dPhi")))   h->Fill(dphi);
-    if((h = hist("EFMET_RecMET_dEx")))   h->Fill(ex - ex_RecMET);
-    if((h = hist("EFMET_RecMET_dEy")))   h->Fill(ey - ey_RecMET);
-  }
-  */
+  //   if((h = hist("HLTMET_OffMET_dEt")))   h->Fill(et - et_OffMET);
+  //   if((h = hist("HLTMET_OffMET_dPhi")))  h->Fill(dphi);
+  //   if((h = hist("HLTMET_OffMET_dEx")))   h->Fill(ex - ex_OffMET);
+  //   if((h = hist("HLTMET_OffMET_dEy")))   h->Fill(ey - ey_OffMET);
+  // }
+  
   return StatusCode::SUCCESS; 
 }
 
@@ -1134,14 +1171,12 @@ StatusCode HLTMETMonTool::fillExpertHistos() {
   StatusCode sc = StatusCode::SUCCESS;
 
   TH1 *h(0);
-  //  TH2 *h2(0);
+  TH2 *h2(0);
 
   // first store the values so that we don't need to retrieve/ealculate them again and again  
-  //std::vector<double> et_L1MET, sumet_L1MET, phi_L1MET, ex_L1MET, ey_L1MET;
-  //et_L1MET.clear(); sumet_L1MET.clear(); phi_L1MET.clear(); ex_L1MET.clear(); ey_L1MET.clear();
   double et_L1MET=0., sumet_L1MET=0., phi_L1MET=0., ex_L1MET=0., ey_L1MET=0.;
-  //double et_HLTMET=0., sumet_HLTMET=0., phi_HLTMET=0., ex_HLTMET=0., ey_HLTMET=0.;
-  //double et_OffMET=0., sumet_OffMET=0., phi_OffMET=0., ex_OffMET=0., ey_OffMET=0.;
+  double et_HLTMET=0., sumet_HLTMET=0., phi_HLTMET=0., ex_HLTMET=0., ey_HLTMET=0.;
+  double et_OffMET=0., sumet_OffMET=0., phi_OffMET=0., ex_OffMET=0., ey_OffMET=0.;
 
   // L1 MET
   if (m_l1_roi_cont) {
@@ -1151,137 +1186,135 @@ StatusCode HLTMETMonTool::fillExpertHistos() {
     et_L1MET = sqrt(ex_L1MET*ex_L1MET + ey_L1MET*ey_L1MET);
     phi_L1MET = atan2(ey_L1MET, ex_L1MET);
   }
-
+  
   // HLT MET
-  // if (m_hlt_met_cont) {  
-  //   sumet_HLTMET = (m_hlt_met_cont->at(0)->sumEt())/CLHEP::GeV;
-  //   ex_HLTMET = (m_hlt_met_cont->at(0)->ex())/CLHEP::GeV;
-  //   ey_HLTMET = (m_hlt_met_cont->at(0)->ey())/CLHEP::GeV;
-  //   et_HLTMET = sqrt(ex_HLTMET*ex_HLTMET+ey_HLTMET*ey_HLTMET);
-  //   phi_HLTMET = atan2(ey_HLTMET, ex_HLTMET);
-  // }
-
-  // // Rec MET
-  // if (missETRec) {
-  //   et_RecMET = (missETRec->et())/CLHEP::GeV;
-  //   sumet_RecMET = (missETRec->sumet())/CLHEP::GeV;
-  //   ex_RecMET = (missETRec->etx())/CLHEP::GeV;
-  //   ey_RecMET = (missETRec->ety())/CLHEP::GeV;
-  //   phi_RecMET = missETRec->phi();
-  //   //*m_log << MSG::DEBUG << "Rec MET: "<< et_RecMET << " Rec SumEt: " << sumet_RecMET << endreq;  
-  // }
+  if (m_hlt_met_cont && m_hlt_met_cont->size()) {  
+    sumet_HLTMET = (m_hlt_met_cont->at(0)->sumEt())/CLHEP::GeV;
+    ex_HLTMET = (m_hlt_met_cont->at(0)->ex())/CLHEP::GeV;
+    ey_HLTMET = (m_hlt_met_cont->at(0)->ey())/CLHEP::GeV;
+    et_HLTMET = sqrt(ex_HLTMET*ex_HLTMET+ey_HLTMET*ey_HLTMET);
+    phi_HLTMET = atan2(ey_HLTMET, ex_HLTMET);
+  }
+  
+  // Offline MET
+  if (m_off_met_cont && m_off_met_cont->size()) {
+    ex_OffMET = (m_off_met_cont->at(0)->mpx())/CLHEP::GeV;
+    ey_OffMET = (m_off_met_cont->at(0)->mpy())/CLHEP::GeV;
+    et_OffMET = sqrt(ex_OffMET*ex_OffMET+ey_OffMET*ey_OffMET);
+    sumet_OffMET = (m_off_met_cont->at(0)->sumet())/CLHEP::GeV;
+    phi_OffMET = atan2(ey_OffMET, ex_OffMET);
+  }
 
   // now fill the histograms
-  std::string expertpartialMonGroup = m_mon_path + "/Expert/L1/";
-
+  std::string expert_partial_path = m_expert_path + "/L1/";
+      
   std::map<std::string,int>::const_iterator it;
 
   // fill expert histograms for L1 MET Triggers
   for (it = m_l1_met_signatures_tolook->begin(); it != m_l1_met_signatures_tolook->end(); it++) {
     std::string name = it->first;
     if(getTDT()->isPassed(name, TrigDefs::eventAccepted)) {
-      setCurrentMonGroup(expertpartialMonGroup+name);
+
+      setCurrentMonGroup(expert_partial_path+name);
+      
       // L1 MET
       if (m_l1_roi_cont) {
-        //for (unsigned int i=0; i<et_L1MET.size(); i++) { 
         if((h = hist("L1_MET")))     h->Fill(et_L1MET);
         if((h = hist("L1_SumEt")))   h->Fill(sumet_L1MET);
         if((h = hist("L1_MET_phi"))) h->Fill(phi_L1MET);
-        // fill correlation if((h = histograms -- L1MET vs RecMET
-        //         if (missETRec) {
-        //           if((h2 = hist2("L1MET_RecMET_EtCor")))   h2->Fill(et_RecMET, et_L1MET[i]);
-        //           if((h2 = hist2("L1MET_RecMET_SumEtCor")))   h2->Fill(sumet_RecMET, sumet_L1MET[i]);
-        //           if((h2 = hist2("L1MET_RecMET_PhiCor")))   h2->Fill(phi_RecMET, phi_L1MET[i]);
-        //           if((h = hist("L1MET_RecMET_dEt")))   h->Fill(et_L1MET[i] - et_RecMET);
-        //           double dphi = signed_delta_phi(phi_L1MET[i], phi_RecMET);
-        //           if((h = hist("L1MET_RecMET_dPhi")))   h->Fill(dphi);
-        //           if((h = hist("L1MET_RecMET_dEx")))   h->Fill(ex_L1MET[i] - ex_RecMET);
-        //           if((h = hist("L1MET_RecMET_dEy")))   h->Fill(ey_L1MET[i] - ey_RecMET); 
-        //         }
-        //       }
+
+        // fill correlation if((h = histograms -- L1MET vs OffMET
+        if (m_off_met) {
+          if((h2 = hist2("L1MET_OffMET_EtCor")))    h2->Fill(et_OffMET, et_L1MET);
+          if((h2 = hist2("L1MET_OffMET_SumEtCor"))) h2->Fill(sumet_OffMET, sumet_L1MET);
+          if((h2 = hist2("L1MET_OffMET_PhiCor")))   h2->Fill(phi_OffMET, phi_L1MET);
+          if((h = hist("L1MET_OffMET_dEt")))        h->Fill(et_L1MET - et_OffMET);
+          double dphi = signed_delta_phi(phi_L1MET, phi_OffMET);
+          if((h = hist("L1MET_OffMET_dPhi")))   h->Fill(dphi);
+          if((h = hist("L1MET_OffMET_dEx")))   h->Fill(ex_L1MET - ex_OffMET);
+          if((h = hist("L1MET_OffMET_dEy")))   h->Fill(ey_L1MET - ey_OffMET); 
+        }
       }
       
       // HLT MET
-      // if (m_hlt_met_cont) {
-      //   if((h = hist("HLT_MET_lin")      ))   h->Fill(et_HLTMET);
-      //   if((h = hist("HLT_SumEt_lin")    ))   h->Fill(sumet_HLTMET);
-      //   if((h = hist("HLT_MET_phi")      ))   h->Fill(phi_HLTMET);
-      // }
+      if (m_hlt_met) {
+        if((h = hist("HLT_MET_lin")   ))   h->Fill(et_HLTMET);
+        if((h = hist("HLT_SumEt_lin") ))   h->Fill(sumet_HLTMET);
+        if((h = hist("HLT_MET_phi")   ))   h->Fill(phi_HLTMET);
+      }
 
       // Offline MET
-      //     if (missETRec) {
-      //       if((h = hist("RecMET_et")))   h->Fill(et_RecMET);
-      //       if((h = hist("RecMET_sumet")))   h->Fill(sumet_RecMET);
-      //       if((h = hist("RecMET_phi")))   h->Fill(phi_RecMET);
-      //     }
+      if (m_off_met) {
+        if((h = hist("OffMET_et")))    h->Fill(et_OffMET);
+        if((h = hist("OffMET_sumet"))) h->Fill(sumet_OffMET);
+        if((h = hist("OffMET_phi")))   h->Fill(phi_OffMET);
+      }
     }
   }
-
+  
   // fill expert histograms for HLT
-  // expertpartialMonGroup = m_mon_path + "/Expert/HLT/";
+  expert_partial_path = m_expert_path + "/HLT/";
 
-  // for (it = m_hlt_met_signatures_tolook->begin(); it != m_hlt_met_signatures_tolook->end(); it++) {
+  for (it = m_hlt_met_signatures_tolook->begin(); it != m_hlt_met_signatures_tolook->end(); it++) {
     
-  //   std::string name = it->first;
-  //   if (getTDT()->isPassed(name, TrigDefs::eventAccepted)) {
-  //     setCurrentMonGroup(expertpartialMonGroup+name);
-
-  //     // HLT MET
-  //     if (m_hlt_met_cont) {
-  //       if((h = hist("HLT_MET_lin")      ))   h->Fill(et_HLTMET);
-  //       if((h = hist("HLT_SumEt_lin")    ))   h->Fill(sumet_HLTMET);
-  //       if((h = hist("HLT_MET_phi")      ))   h->Fill(phi_HLTMET);
+    std::string name = it->first;
+    if (getTDT()->isPassed(name, TrigDefs::eventAccepted)) {
+      setCurrentMonGroup(expert_partial_path+name);
+    
+      // HLT MET
+      if (m_hlt_met) {
+        if((h = hist("HLT_MET_lin")      ))   h->Fill(et_HLTMET);
+        if((h = hist("HLT_SumEt_lin")    ))   h->Fill(sumet_HLTMET);
+        if((h = hist("HLT_MET_phi")      ))   h->Fill(phi_HLTMET);
         
-  //       // correlation histograms -- L1 vs HLT
-  //       if (m_l1_roi_cont) {
-  //         if((h2 = hist2("L1MET_HLTMET_EtCor")))     h2->Fill(et_HLTMET, et_L1MET);
-  //         if((h2 = hist2("L1MET_HLTMET_SumEtCor")))  h2->Fill(sumet_HLTMET, sumet_L1MET);
-  //         if((h2 = hist2("L1MET_HLTMET_PhiCor")))    h2->Fill(phi_HLTMET, phi_L1MET);
-  //         if((h = hist("L1MET_HLTMET_dEt")))   h->Fill(et_L1MET - et_HLTMET);
-  //         double dphi = signed_delta_phi(phi_L1MET, phi_HLTMET);
-  //         if((h = hist("L1MET_HLTMET_dPhi")))   h->Fill(dphi);
-  //         if((h = hist("L1MET_HLTMET_dEx")))   h->Fill(ex_L1MET - ex_HLTMET);
-  //         if((h = hist("L1MET_HLTMET_dEy")))   h->Fill(ey_L1MET - ey_HLTMET); 
-  //       }
-  //     }
-  //     // fill correlation histograms -- EFMET vs RecMET
-  //     //       if (missETRec) {
-  //     //         if((h2 = hist2("EFMET_RecMET_EtCor")))   h2->Fill(et_RecMET, et_EFMET);
-  //     //         if((h2 = hist2("EFMET_RecMET_SumEtCor")))   h2->Fill(sumet_RecMET, sumet_EFMET);
-  //     //         if((h2 = hist2("EFMET_RecMET_PhiCor")))   h2->Fill(phi_RecMET, phi_EFMET);
-  //     //         if((h = hist("EFMET_RecMET_dEt")))   h->Fill(et_EFMET - et_RecMET);
-  //     //         double dphi = signed_delta_phi(phi_EFMET, phi_RecMET);
-  //     //         if((h = hist("EFMET_RecMET_dPhi")))   h->Fill(dphi);
-  //     //         if((h = hist("EFMET_RecMET_dEx")))   h->Fill(ex_EFMET - ex_RecMET);
-  //     //         if((h = hist("EFMET_RecMET_dEy")))   h->Fill(ey_EFMET - ey_RecMET);
-  //     //       }
-  //     //     }
-  //     //     // Rec MET
-  //     //     if (missETRec) {
-  //     //       if((h = hist("RecMET_et")))   h->Fill(et_RecMET);
-  //     //       if((h = hist("RecMET_sumet")))   h->Fill(sumet_RecMET);
-  //     //       if((h = hist("RecMET_phi")))   h->Fill(phi_RecMET);
-  //     //     }
-  //   }
-  // }
-      
-
+        // correlation histograms -- L1 vs HLT
+        if (m_l1_roi_cont) {
+          if((h2 = hist2("L1MET_HLTMET_EtCor")))     h2->Fill(et_HLTMET, et_L1MET);
+          if((h2 = hist2("L1MET_HLTMET_SumEtCor")))  h2->Fill(sumet_HLTMET, sumet_L1MET);
+          if((h = hist("L1MET_HLTMET_dEt")))   h->Fill(et_L1MET - et_HLTMET);
+          
+          double dphi = signed_delta_phi(phi_L1MET, phi_HLTMET);
+          if((h = hist("L1MET_HLTMET_dPhi")))   h->Fill(dphi);
+          if((h = hist("L1MET_HLTMET_dEx")))   h->Fill(ex_L1MET - ex_HLTMET);
+          if((h = hist("L1MET_HLTMET_dEy")))   h->Fill(ey_L1MET - ey_HLTMET); 
+        }
+        
+        // fill correlation histograms -- HLTMET vs OffMET
+        if (m_off_met) {
+          if((h2 = hist2("HLTMET_OffMET_EtCor")))    h2->Fill(et_OffMET, et_HLTMET);
+          if((h2 = hist2("HLTMET_OffMET_SumEtCor"))) h2->Fill(sumet_OffMET, sumet_HLTMET);
+          if((h2 = hist2("HLTMET_OffMET_PhiCor")))   h2->Fill(phi_OffMET, phi_HLTMET);
+          if((h = hist("HLTMET_OffMET_dEt")))        h->Fill(et_HLTMET - et_OffMET);
+          double dphi = signed_delta_phi(phi_HLTMET, phi_OffMET);
+          if((h = hist("HLTMET_OffMET_dPhi")))  h->Fill(dphi);
+          if((h = hist("HLTMET_OffMET_dEx")))   h->Fill(ex_HLTMET - ex_OffMET);
+          if((h = hist("HLTMET_OffMET_dEy")))   h->Fill(ey_HLTMET - ey_OffMET);
+        }
+      }
+      // Offline MET
+      if (m_off_met) {
+        if((h = hist("OffMET_et")))    h->Fill(et_OffMET);
+        if((h = hist("OffMET_sumet"))) h->Fill(sumet_OffMET);
+        if((h = hist("OffMET_phi")))   h->Fill(phi_OffMET);
+      }
+    } 
+  }
+  
   // fill efficiency histograms
+  if (!m_is_do_trigger_effic) return sc;
   
-  //if (!m_is_do_trigger_effic) return sc;
+  if (m_debuglevel) 
+    ATH_MSG_DEBUG("filling efficiency histograms()");
+  
+  if (!m_off_met) return sc;
+  
+  expert_partial_path = m_expert_path + "/Efficiency/";
 
-  //if (m_debuglevel) ATH_MSG_DEBUG("filling efficiency histograms()");
-  
-  // if (!missETRec) return sc;
-  
-  // expertpartialMonGroup = m_mon_path + "/Expert/Efficiency/";
-  
   // std::map<std::string,int>::const_iterator it_s;
-  // std::vector<std::map<std::string,int>*> m_met_signatures_tolook;
-  // m_met_signatures_tolook.push_back(m_l1_met_signatures_tolook);
-  // m_met_signatures_tolook.push_back(m_l2_met_signatures_tolook);
-  // m_met_signatures_tolook.push_back(m_ef_met_signatures_tolook);
-  // unsigned int size = m_met_signatures_tolook.size();
+  std::vector<std::map<std::string,int>*> m_met_signatures_tolook;
+  m_met_signatures_tolook.push_back(m_l1_met_signatures_tolook);
+  m_met_signatures_tolook.push_back(m_hlt_met_signatures_tolook);
+  unsigned int size = m_met_signatures_tolook.size();
   
   // for (it_s = m_sample_selection_signatures.begin(); it_s != m_sample_selection_signatures.end(); it_s++) {
   //   if (getTDT()->isPassed(it_s->first, TrigDefs::eventAccepted)) {
@@ -1291,20 +1324,18 @@ StatusCode HLTMETMonTool::fillExpertHistos() {
   //     if((h = hist("RecMET_et")))   h->Fill(et_RecMET);
   //     if((h = hist("RecMET_sumet")))   h->Fill(sumet_RecMET);
   //     if((h = hist("RecMET_phi")))   h->Fill(phi_RecMET);
-  
-  //     for (unsigned int i=0; i<size; i++) {
-  //       for (it = m_met_signatures_tolook[i]->begin(); it != m_met_signatures_tolook[i]->end(); it++) {
-  //         std::string name = it->first;
-  //         if (getTDT()->isPassed(name, TrigDefs::eventAccepted)) {
-  //           setCurrentMonGroup(tmp_partialMonGroup + name);
-  //           if((h = hist("RecMET_et")))   h->Fill(et_RecMET);
-  //           if((h = hist("RecMET_sumet")))   h->Fill(sumet_RecMET);
-  //           if((h = hist("RecMET_phi")))   h->Fill(phi_RecMET);
-  //         }
-  //       }
-  //     }
-  //   }
 
+  for (unsigned int i=0; i<size; i++) {
+    for (it = m_met_signatures_tolook[i]->begin(); it != m_met_signatures_tolook[i]->end(); it++) {
+      std::string name = it->first;
+      if (getTDT()->isPassed(name, TrigDefs::eventAccepted)) {
+        setCurrentMonGroup(expert_partial_path + name);
+        if((h = hist("OffMET_et")))    h->Fill(et_OffMET);
+        if((h = hist("OffMET_sumet"))) h->Fill(sumet_OffMET);
+        if((h = hist("OffMET_phi")))   h->Fill(phi_OffMET);
+      }
+    }
+  }
 
   return sc;
 }
@@ -1344,55 +1375,69 @@ void HLTMETMonTool::getAllMETTriggers() {
   }
 }
 
-
 //___________________________________________________________________________________________________________
-void HLTMETMonTool::checkTriggers(std::vector<std::string>& m_triggers, bool isInputMETTriggers) {
+std::string HLTMETMonTool::get_trigger_level(std::string item)
+{
+  size_t n = item.find_first_of('_');
+  return item.substr(0, n);
+}
+
+void HLTMETMonTool::checkTriggers(std::vector<std::string>& m_triggers, std::map<std::string,int> &m_signatures) {
 
   const std::vector<std::string> TrigL1Items = getTDT()->getListOfTriggers("L1_.*");
   std::vector<std::string>::const_iterator iter;
  
+  const std::vector<std::string> TrigEFItems = getTDT()->getListOfTriggers("EF_.*");
   const std::vector<std::string> TrigHLTItems = getTDT()->getListOfTriggers("HLT_.*");
+
   std::vector<std::string>::const_iterator chain;
 
   for (unsigned int it = 0; it < m_triggers.size(); ++it) { // Loop over trigger items
     std::string item = m_triggers[it];
-    std::string tmp_trigLevel =  item.substr(0,3);
+    std::string tmp_trigLevel = get_trigger_level(item); //item.substr(0,3);
+
     if (m_debuglevel)
       ATH_MSG_DEBUG("signature " << item << " requested");
 
     // check your trigger is defined in the menu
     bool triggerFound = false;
-    if (tmp_trigLevel == "L1_") {
+    if (tmp_trigLevel == "L1") {
       for (iter=TrigL1Items.begin(); iter!=TrigL1Items.end(); ++iter) {
         std::string L1name = *iter;
         if (L1name == item) {
           triggerFound = true;
-          if (isInputMETTriggers)
-            m_l1_met_signatures.insert(std::map<std::string,int>::value_type(item,0));
+          m_signatures.insert(std::map<std::string,int>::value_type(item, 0));
         }
       }
       if (!triggerFound) {
         ATH_MSG_DEBUG("L1 signature " << item << " requested but not found in the menu");
       }
     } 
-    else if (tmp_trigLevel == "HLT") {
-      for (chain=TrigHLTItems.begin(); chain!=TrigHLTItems.end(); ++chain) {
-        std::string HLTname = *chain;
-        if (HLTname == item) {
+    else if (tmp_trigLevel == "EF") {
+      for (chain=TrigEFItems.begin(); chain!=TrigEFItems.end(); ++chain) {
+        std::string EFname = *chain;
+        if (EFname == item) {
           triggerFound = true;
-          if (isInputMETTriggers) {
-            m_hlt_met_signatures.insert(std::map<std::string,int>::value_type(item,0));
-          }
+          m_signatures.insert(std::map<std::string,int>::value_type(item, 0));
         }
       }
       if (!triggerFound)
         ATH_MSG_DEBUG("HLT signature " << item << " requested but not found in the menu");
     }
-    if (triggerFound && !isInputMETTriggers)
-      m_sample_selection_signatures.insert(std::map<std::string,int>::value_type(item,0));
+    else if (tmp_trigLevel == "HLT") {
+      for (chain=TrigHLTItems.begin(); chain!=TrigHLTItems.end(); ++chain) {
+        std::string HLTname = *chain;
+        if (HLTname == item) {
+          triggerFound = true;
+          m_signatures.insert(std::map<std::string,int>::value_type(item, 0));
+        }
+      }
+      if (!triggerFound)
+        ATH_MSG_DEBUG("HLT signature " << item << " requested but not found in the menu");
+    }
   }
-}
 
+}
 
 //___________________________________________________________________________________________________________
 void HLTMETMonTool::printMETTriggerStats() {

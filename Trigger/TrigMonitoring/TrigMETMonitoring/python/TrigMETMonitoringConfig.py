@@ -57,6 +57,31 @@ bitNames_allHLT= [
              "GlobError"           # bit 31
              ]
 
+
+
+
+met_triggers_l1 = [
+        "L1_XE35",
+        "L1_XE70",
+]
+
+met_triggers_hlt = [
+        "HLT_xeNOcut",
+        "HLT_xe35_tclcw",
+        "HLT_xe35_tcem"
+        "HLT_xe35_mht",
+        "HLT_xe35_pueta",
+        "HLT_xe100_tclcw",
+        "HLT_xe100_tcem",
+        "HLT_xe100_mht",
+        "HLT_xe100_pueta",
+        "HLT_xe100_wEFMu",
+        "HLT_xe100_tclcw_wEFMu",
+        "HLT_xe100_tcem_wEFMu",
+        "HLT_xe100_mht_wEFMu",
+        "HLT_xe100_pueta_wEFMu",
+] 
+
 def HLTMETMonitoringTool():
         from TrigMETMonitoring.TrigMETMonitoringConf import HLTMETMonTool
 
@@ -65,45 +90,15 @@ def HLTMETMonitoringTool():
                                   MonPathBase   = "/HLT/METMon",
                                   CompNames   = compNames_all,
                                   BitNames    = bitNames_allHLT,
-
-                                  METTriggers = ["L1_XE35", "L1_XE50", "L1_XE70",
-                                                 "HLT_xe50", "HLT_xe70"],
-
-                                  SampleSelectionTriggers = ["HLT_J10",     # jet trigger
-                                                             "HLT_MbSp",    # minbias trigger
-                                                             "HLT_mu6_rpc"] # other physics trigger
+                                  METTriggersL1 = met_triggers_l1,
+                                  METTriggersHLT = met_triggers_hlt,
+                                  # SampleSelectionTriggers = ["HLT_J10",     # jet trigger
+                                  #                            "HLT_MbSp",    # minbias trigger
+                                  #                            "HLT_mu6_rpc"] # other physics trigger
                                   );
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += HLTMETMon;
         list = [ "HLTMETMonTool/HLTMETMon" ];
 
-        # HLTMETMon_FEB = HLTMETMonTool(name          = 'HLTMETMon_FEB',
-        #                           histoPathBase = "/Trigger/HLT", 
-        #                           MonPathBase   = "/HLT/METMon_FEB",
-        #                           #L2METKey      = "HLT_T2MissingET",
-        #                           L2FEBKey      = "HLT_L2MissingET_FEB",
-        #                           EFMETKey      = "HLT_TrigEFMissingET_FEB",
-        #                           compNamesEF   = compNames_all,
-        #                           compNamesL2   = compNames_L2FEB,
-        #                           bitNamesL2    = bitNames_allL2,
-        #                           bitNamesEF    = bitNames_allEF
-        #                           );
-        # ToolSvc += HLTMETMon_FEB;
-        # list += [ "HLTMETMonTool/HLTMETMon_FEB" ];
 
-
-        # HLTMETMon_topocl = HLTMETMonTool(name          = 'HLTMETMon_topocl',
-        #                           histoPathBase = "/Trigger/HLT", 
-        #                           MonPathBase   = "/HLT/METMon_topocl",
-        #                           #L2METKey      = "HLT_T2MissingET",
-        #                           #L2FEBKey      = "HLT_L2MissingET_FEB",
-        #                           EFMETKey      = "HLT_TrigEFMissingET_topocl",
-        #                           #compNamesEF   = compNames_all,
-        #                           compNamesEF   = compNames_topocl,
-        #                           compNamesL2   = compNames_L2FEB,
-        #                           bitNamesL2    = bitNames_allL2,
-        #                           bitNamesEF    = bitNames_allEF
-        #                           );
-        # ToolSvc += HLTMETMon_topocl;
-        # list += [ "HLTMETMonTool/HLTMETMon_topocl" ];
         return list

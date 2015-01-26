@@ -8,9 +8,10 @@ use AtlasPolicy             AtlasPolicy-*
 use TrigSteeringEvent       TrigSteeringEvent-*     Trigger/TrigEvent
 use TrigMissingEtEvent      TrigMissingEtEvent-*    Trigger/TrigEvent
 use MissingETEvent          MissingETEvent-*        Reconstruction
-use TrigHLTMonitoring	    TrigHLTMonitoring-*	    Trigger/TrigMonitoring
-use xAODTrigger  			xAODTrigger-*           Event/xAOD
-use xAODTrigMissingET    	xAODTrigMissingET-*           Event/xAOD
+use TrigHLTMonitoring       TrigHLTMonitoring-*	    Trigger/TrigMonitoring
+use xAODTrigger             xAODTrigger-*           Event/xAOD
+use xAODTrigMissingET       xAODTrigMissingET-*     Event/xAOD
+use xAODMissingET           xAODMissingET-*         Event/xAOD
 
 private
 apply_tag ROOTGraphicsLibs
