@@ -19,7 +19,7 @@
 
 
 TrigTimerSvc::TrigTimerSvc( const std::string& name, ISvcLocator* svcloc ) 
-    : Service(name, svcloc),
+    : AthService(name, svcloc),
       m_includeName(".+"),     // by default all is allowed
       m_excludeName("()") {    // by default empty string is disallowed
     declareProperty("IncludeName", m_includeName, "Regex matching timer names, if do not match a fake(disabled) timer will be given out.");
@@ -42,7 +42,7 @@ StatusCode TrigTimerSvc::queryInterface (const InterfaceID& riid, void** ppvInte
     if ( IID_ITrigTimerSvc.versionMatch(riid) ) { 
 	*ppvInterface = static_cast<ITrigTimerSvc*> (this); 
     } else { 
-	return Service::queryInterface(riid, ppvInterface) ; 
+	return AthService::queryInterface(riid, ppvInterface) ; 
     }
     return StatusCode::SUCCESS;
 }
@@ -50,11 +50,9 @@ StatusCode TrigTimerSvc::initialize ( ) {
     MsgStream log(messageService(), name());
     log << MSG::INFO << name() << ": Start of run initialisation" << endreq;
 
-    StatusCode sc = Service::initialize();
-    if ( sc.isFailure() ) return sc;
-
+    
     // Set my own properties
-    sc = setProperties();  
+    StatusCode sc = setProperties();  
     if ( sc.isFailure() ) return sc;
   
     // compile regexes
@@ -72,7 +70,6 @@ StatusCode TrigTimerSvc::finalize ( ) {
     this->print();
   }
     // should delete timers? 
-
     return StatusCode::SUCCESS;
 }
 

@@ -7,6 +7,7 @@ use     AtlasROOT               AtlasROOT-*             External
 use     AtlasBoost		AtlasBoost-*		External
 use 	GaudiInterface 		GaudiInterface-* 	External
 use 	AthenaKernel            AthenaKernel-*          Control
+use 	AthenaBaseComps         AthenaBaseComps-*          Control
 use 	DataModel          	DataModel-*      	Control
 use 	SGTools          	SGTools-*      		Control
 
