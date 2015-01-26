@@ -23,12 +23,15 @@ use egammaInterfaces            egammaInterfaces-*            Reconstruction/ega
 # Tracking
 use VxVertex                    VxVertex-*                    Tracking/TrkEvent
 use TrkSurfaces                 TrkSurfaces-*                 Tracking/TrkDetDescr
+use TrkTrack                   TrkTrack-*              Tracking/TrkEvent
 
 # Calo
 use xAODCaloEvent               xAODCaloEvent-*                 Event/xAOD
 use CaloUtils                  CaloUtils-*             Calorimeter
+use CaloGeoHelpers             CaloGeoHelpers-*        Calorimeter  
 # Lumi <mu>
 use LumiBlockComps          LumiBlockComps-*             LumiBlock
+
 private
 apply_tag ROOTMathLibs
 
@@ -45,6 +48,13 @@ use     xAODEgammaCnv               xAODEgammaCnv-*                 Event/xAOD
 use     TrigMissingEtEvent TrigMissingEtEvent-* Trigger/TrigEvent
 use     TrigNavigation     TrigNavigation-*     Trigger/TrigEvent
 use	TrkCaloExtension	TrkCaloExtension-*	Tracking/TrkEvent
+
+# for GSF alg
+use NavFourMom                 NavFourMom-*            Event
+use TrkParticleBase            TrkParticleBase-*       Tracking/TrkEvent
+use TrkEventPrimitives         TrkEventPrimitives-*    Tracking/TrkEvent
+use TrkTrackLink               TrkTrackLink-*          Tracking/TrkEvent
+use TrkToolInterfaces          TrkToolInterfaces-*     Tracking/TrkTools 
 
 #need to import egammaPID
 use AtlasROOT                   AtlasROOT-*                   External
