@@ -5,8 +5,10 @@
 #ifndef ALFA_Ntuple_h
 #define ALFA_Ntuple_h
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
+
+//#include "GaudiKernel/Algorithm.h"
+//#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/IIOVSvc.h"
@@ -259,7 +261,7 @@ typedef struct _ALGOTREEOD
 class StoreGateSvc;
 class ActiveStoreSvc;
 
-class ALFA_Ntuple : public Algorithm
+class ALFA_Ntuple : public AthAlgorithm
 {
 public:
 	ALFA_Ntuple(const std::string& name, ISvcLocator* pSvcLocator);
@@ -270,8 +272,8 @@ public:
 
 private:
 	ServiceHandle< IIOVDbSvc > m_iovSvc;
-	StoreGateSvc* m_storeGate;
-	StoreGateSvc* m_pDetStore;
+	//StoreGateSvc* m_storeGate;
+	//StoreGateSvc* m_pDetStore;
 
 	int m_iDataType;			//data type (simulation or real data) using in the local reconstruction
 	int m_iGeneratorType;		//generator type (particle gun, pythia+beamTransport, flat file) using in the simulation
