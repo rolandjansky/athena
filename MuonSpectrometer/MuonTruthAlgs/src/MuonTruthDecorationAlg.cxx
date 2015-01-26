@@ -411,9 +411,9 @@ namespace Muon {
       // loop over collection and find particle with the same bar code
       for( const auto& particle : *col.first ){
       
-        if( particle->GetBarCode() != barcode ) continue;
-        CLHEP::Hep3Vector pos = particle->GetPosition();
-        CLHEP::Hep3Vector mom = particle->GetMomentum();
+        if( particle.GetBarCode() != barcode ) continue;
+        CLHEP::Hep3Vector pos = particle.GetPosition();
+        CLHEP::Hep3Vector mom = particle.GetMomentum();
         ATH_MSG_VERBOSE("Found associated  " << name << " pt " << mom.perp() << " position: r " << pos.perp() << " z " << pos.z());
         x = pos.x();
         y = pos.y();
