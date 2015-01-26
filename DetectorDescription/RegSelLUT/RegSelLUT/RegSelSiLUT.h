@@ -32,7 +32,6 @@
 #include <set>
 #include <map>
 #include <iostream>
-#include <algorithm>
 
 #include "RegSelLUT/RegSelRoI.h"
 #include "RegSelLUT/RegSelName.h"
@@ -47,7 +46,7 @@
 class RegSelSiLUT : public RegSelName {
 
 public:
-  typedef enum { UNDEF, PIXEL, SCT, TRT, FTK } DET;
+  typedef enum { UNDEF, PIXEL, SCT, TRT } DET;
   
   RegSelSiLUT() : m_ID(UNDEF) { } 
   RegSelSiLUT(DET id);

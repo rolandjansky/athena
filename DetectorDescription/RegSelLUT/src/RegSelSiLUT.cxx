@@ -53,7 +53,7 @@ RegSelSiLUT::RegSelSiLUT(const std::string& s) :
 
 void RegSelSiLUT::construct() 
 {   
-  const std::string s[5] = { "", "pixel", "sct", "trt", "ftk" };
+  const std::string s[4] = { "", "pixel", "sct", "trt" };
   m_name = s[m_ID];
 }
 
