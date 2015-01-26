@@ -14,6 +14,7 @@
  */
 
 #include <map>
+#include <mutex>
 #include <string>
 #include <vector>
 #include <utility> // for std::pair
@@ -28,7 +29,6 @@
 #include "AthenaKernel/MsgStreamMember.h"
 
 #include "SGTools/CLIDRegistry.h"
-#include "tbb/recursive_mutex.h"
 
 template <class TYPE> class SvcFactory;
 
@@ -135,9 +135,8 @@ private:
   /// a local @c MsgStream -like object
   mutable Athena::MsgStreamMember m_msg;
 
-  typedef tbb::recursive_mutex RegMutex_t;
-  ///protect db filling
-  RegMutex_t regMutex;
+  ///protect db failling
+  std::recursive_mutex m_regMutex;
 };
 
 //<<<<<< INLINE PUBLIC FUNCTIONS                                        >>>>>>

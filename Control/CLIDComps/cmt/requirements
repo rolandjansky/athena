@@ -6,7 +6,6 @@ use AtlasPolicy    AtlasPolicy-*
 
 private
 use AtlasBoost     AtlasBoost-*     External
-use AtlasTBB       AtlasTBB-*       External
 use GaudiInterface GaudiInterface-* External
 use AthenaKernel   AthenaKernel-*   Control
 use SGTools        SGTools-*        Control
