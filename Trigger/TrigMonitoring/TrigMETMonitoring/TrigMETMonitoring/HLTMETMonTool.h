@@ -13,6 +13,9 @@
 #include "xAODTrigMissingET/TrigMissingET.h"
 #include "xAODTrigMissingET/TrigMissingETContainer.h"
 
+#include "xAODMissingET/MissingET.h"
+#include "xAODMissingET/MissingETContainer.h"
+
 #include <string>
 #include <vector>
 
@@ -32,10 +35,9 @@ class HLTMETMonTool: public IHLTMonTool {
   private:
 
     /** methods called by book() */
-    void bookHistograms_allStats();
-    void bookL1Histograms();
-    void bookHLTHistograms();
-    void bookEfficHistograms();
+    void bookExpertL1Histograms();
+    void bookExpertHLTHistograms();
+    void bookExpertEfficHistograms();
 
     /** methods to make booking easier */
     void addBasicL1Histograms();
@@ -52,14 +54,16 @@ class HLTMETMonTool: public IHLTMonTool {
     void trigger_decision();
 
     StatusCode fillMETHistos();
-    StatusCode fillL1ShiftHistos(); 
-    StatusCode fillHLTShiftHistos();
-    StatusCode fillOffShiftHistos();
+    StatusCode fillL1ShifterHistos(); 
+    StatusCode fillHLTShifterHistos();
+    StatusCode fillOffShifterHistos();
     StatusCode fillExpertHistos();
 
     void getAllMETTriggers();
-    void checkTriggers(std::vector<std::string>& m_triggers,
-        bool isInputMETTriggers);
+    void checkTriggers(std::vector<std::string> &m_triggers,
+                       std::map<std::string,int> &m_signatures);
+
+    std::string get_trigger_level(std::string item);
 
     void printMETTriggerStats();
 
@@ -68,9 +72,9 @@ class HLTMETMonTool: public IHLTMonTool {
 
   private:
 
-    double low[4];
-    double high[4];
-    int nbins[4];
+    double m_et_min, m_sumet_min, m_phi_min, m_det_min;
+    double m_et_max, m_sumet_max, m_phi_max, m_det_max;
+    int m_et_bins, m_sumet_bins, m_phi_bins, m_det_bins;
 
     bool m_debuglevel; //!< private member to control debug messages
 
@@ -89,23 +93,34 @@ class HLTMETMonTool: public IHLTMonTool {
     bool m_is_make_histos_for_all_met_trig;
     bool m_is_make_expert_histos;
     bool m_doRecMET;
+
     std::string m_mon_path;
+    std::string m_shifter_path;
+    std::string m_expert_path;
+
     bool m_is_do_trigger_effic;
 
-    std::vector<std::string> m_met_triggers;
+    //std::vector<std::string> m_met_triggers;
+    std::vector<std::string> m_met_triggers_l1, m_met_triggers_hlt;
     std::vector<std::string> m_sample_selection_triggers;
 
-    std::string m_lvl1_roi_key, m_hlt_met_key, m_hlt_met_feb_key, m_hlt_met_topocl_key;
-    std::string m_recmet_key, m_recmetcalo_key;
+    std::string m_lvl1_roi_key;
+    std::string m_hlt_met_key, m_hlt_met_feb_key, m_hlt_met_topocl_key;
+    std::string m_off_met_key;
+    // std::string m_recmet_key, m_recmetcalo_key;
 
-    const xAOD::EnergySumRoI *m_l1_roi_cont;
+    const xAOD::EnergySumRoI            *m_l1_roi_cont;
     const xAOD::TrigMissingET           *m_hlt_met;
     const xAOD::TrigMissingETContainer  *m_hlt_met_cont;
     const xAOD::TrigMissingETContainer  *m_hlt_met_feb_cont;
     const xAOD::TrigMissingETContainer  *m_hlt_met_topocl_cont;
 
+    const xAOD::MissingET           *m_off_met;
+    const xAOD::MissingETContainer  *m_off_met_cont;
+
   private:
     std::vector<std::string> m_compNames, m_bitNames;
+
 };
 
 #endif // HLTMETMONTOOL_H
