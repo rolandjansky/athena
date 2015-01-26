@@ -31,12 +31,15 @@ l1menu=`find .  -name LVL1config_${stump}_\*.xml`
 
 #get the L1 Topo configuration
 
-get_files -xmls -copy L1Topoconfig_"${stump}_"\*.xml 
-l1topo=`find .  -name L1Topoconfig_${stump}_\*.xml`
-
+#get_files -xmls -copy L1Topoconfig_"${stump}_"\*.xml 
+l1topo=`find ../"${type}"_menu/ -name L1Topoconfig_\*.xml` 
 
 #prepare files for first key: l2 and ef menus are the same (full menu)
-hltmenu1=`find ../"${type}"_menu/ -name HLTconfig_\*.xml` 
+hltmenu1=`find ../"${type}"_menu/ -name outputHLTconfig_\*.xml`
+
+ 
+
+ 
 ConvertHLTSetup_txt2xml.py ../"${type}"_menu/ef_Default_setup.txt ../"${type}"_menu/ef_Default_setup_setup.txt > convertHLT1
 ef__setup1=../"${type}"_menu/ef_Default_setup.xml
 
@@ -59,12 +62,13 @@ then
     rel=$NICOS_PROJECT_RELNAME_COPY
 fi
 
-menuname=`grep menu_name $hltmenu1 | cut -f2 -d= | cut -f1 -d" "`
+echo "before grep"
+#menuname=`grep menu_name $hltmenu1 | cut -f2 -d= | cut -f1 -d" "`
 rundate=`date +%F" "%H:%M" "`
 
 # Upload SMK
 
-cmd="java -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release $p1_rel -l1_menu $l1menu -topo_menu $l1topo -hlt_menu $hltmenu1 -hlt_ef_setup $ef__setup1 -name "P1HLTtest" -l FINE --SMcomment \"${rundate}${nightly}_${rel}\" -dbConn $DBConn -w_n 25 -w_t 60  >& uploadSMK1"
+cmd="java -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release $p1_rel -l1_menu $l1menu -topo_menu $l1topo -hlt_menu $hltmenu1 -hlt_ef_setup $ef__setup1 -name 'P1HLTtest'  -l FINE --SMcomment \"${rundate}${nightly}_${rel}\" -dbConn $DBConn -w_n 25 -w_t 60  >& uploadSMK1"
 
 #cmd="java -jar TriggerTool.jar -up -release $p1_rel -l1_menu $l1menu -hlt_menu $hltmenu1 -hlt_l2_setup $l2__setup1 -hlt_ef_setup $ef__setup1 -name $menuname -l FINE --SMcomment \"${rundate}${nightly}_${rel}\" -dbConn $DBConn -w_n 25 -w_t 60"
 echo $cmd
@@ -88,14 +92,18 @@ echo "hltpsk=${hltpsk1}" >> exportMenuKeys.sh
 
 # Generate and upload prescales
 echo "Uploading prescale keys..."
+echo 'Skipping this step.. not configured yet'
+exit 0
 
 # Run rule book
 lumi=1000
-costxml=TriggerCosts_Physics_pp_v4.xml
+costxml=TriggerCosts_Physics_pp_v5.xml
 get_files -xmls -symlink $costxml
 
-echo "running: processRules.py --rulebook=Physics_pp_v4_rules --log=rulebook.log --force-rates-metadata --use_lowest_rule --target_lumi=$lumi --target_filled=1318 --target_empty=350 --target_unp_iso=60 --target_unp_noniso=60 --lvl1-xml=$l1menu --hlt-xml=$hltmenu1 --rates-xml=$costxml"
-processRules.py --rulebook=Physics_pp_v4_rules --log=rulebook.log --force-rates-metadata --use_lowest_rule --target_lumi=$lumi --target_filled=1318 --target_empty=350 --target_unp_iso=60 --target_unp_noniso=60 --lvl1-xml=$l1menu --hlt-xml=$hltmenu1 --rates-xml=$costxml
+cmdps="running: processRules.py --rulebook=Physics_pp_v5_rules --log=rulebook.log --force-rates-metadata --use_lowest_rule --target_lumi=$lumi --target_filled=1318 --target_empty=350 --target_unp_iso=60 --target_unp_noniso=60 --lvl1-xml=$l1menu --hlt-xml=$hltmenu1 --rates-xml=$costxml"
+echo $cmd
+eval $cmd 
+
 
 # Convert to uploadable XML file
 echo "Generating RuleBook_HLTPS_Physics${lumi}.xml by running\ncnvXML.py --ps_name=Physics${lumi} --ps_xml=prescales${lumi}.xml"
