@@ -7,7 +7,7 @@
 #include "TrigValAlgs/TrigSlimValAlg.h"
 
 TrigSlimValAlg::TrigSlimValAlg(const std::string& name, ISvcLocator *pSvcLocator) :
-  Algorithm(name, pSvcLocator),
+  AthAlgorithm(name, pSvcLocator),
   m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_slimmingTool("HLT::TrigNavigationSlimmingTool/TrigNavigationSlimmingTool"),
   m_eventSeen(0)
