@@ -139,11 +139,11 @@ void ALGOTREEOD::clear()
 }
 
 ALFA_Ntuple::ALFA_Ntuple(const std::string& name, ISvcLocator* pSvcLocator) :
-Algorithm(name, pSvcLocator), m_iovSvc( "IOVDbSvc", name ),
-m_pDetStore(0)
+AthAlgorithm(name, pSvcLocator), m_iovSvc( "IOVDbSvc", name )/*,
+m_pDetStore(0)*/
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::ALFA_Ntuple()");
-	LogStream << MSG::DEBUG << "begin ALFA_Ntuple::ALFA_Ntuple()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::ALFA_Ntuple()");
+	ATH_MSG_DEBUG("begin ALFA_Ntuple::ALFA_Ntuple()");
 
 	m_bCoolData = true;
 	declareProperty("CoolData", m_bCoolData);
@@ -196,7 +196,7 @@ m_pDetStore(0)
 	m_TreeRunHeader     = NULL;
 	m_TreeTrackingData  = NULL;
 	m_rootOutput        = NULL;
-	m_storeGate         = NULL;
+//	m_storeGate         = NULL;
 	m_TreeBLM           = NULL;
 	m_TreeBPMALFA       = NULL;
 	m_TreeHVChannel     = NULL;
@@ -266,15 +266,15 @@ m_pDetStore(0)
 	m_Radmon.clear();
 	m_TriggerRate.clear();
 
-	LogStream << MSG::DEBUG << "end ALFA_Ntuple::ALFA_Ntuple()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_Ntuple::ALFA_Ntuple()");
 }
 
 // Destructor - check up memory allocation
 // delete any memory allocation on the heap
 ALFA_Ntuple::~ALFA_Ntuple()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::~ALFA_Ntuple()");
-	LogStream << MSG::DEBUG << "begin ALFA_Ntuple::~ALFA_Ntuple()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::~ALFA_Ntuple()");
+	ATH_MSG_DEBUG("begin ALFA_Ntuple::~ALFA_Ntuple()");
 
 	if (m_vecMainDetGainMode!=NULL)
 	{
@@ -282,31 +282,31 @@ ALFA_Ntuple::~ALFA_Ntuple()
 		m_vecMainDetGainMode = NULL;
 	}
 
-	LogStream << MSG::DEBUG << "end ALFA_Ntuple::~ALFA_Ntuple()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_Ntuple::~ALFA_Ntuple()");
 }
 
 StatusCode ALFA_Ntuple::initialize()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::initialize()");
-	LogStream << MSG::DEBUG << "begin ALFA_Ntuple::initialize()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::initialize()");
+	ATH_MSG_DEBUG("begin ALFA_Ntuple::initialize()");
 
 	StatusCode sc;
 
-	sc = service("StoreGateSvc",m_storeGate);
-	if(sc.isFailure())
-	{
-		LogStream << MSG::ERROR << "Unable to retrieve pointer to StoreGateSvc" << endreq;
-		return sc;
-	}
+//	sc = service("StoreGateSvc",m_storeGate);
+//	if(sc.isFailure())
+//	{
+//		ATH_MSG_ERROR("Unable to retrieve pointer to StoreGateSvc");
+//		return sc;
+//	}
 
-	if (m_bCoolData)
-	{
-		if (StatusCode::SUCCESS!=service("DetectorStore",m_pDetStore))
-		{
-			LogStream << MSG::FATAL << "Detector store not found" << endreq;
-			return StatusCode::FAILURE;
-		}
-	}
+//	if (m_bCoolData)
+//	{
+//		if (StatusCode::SUCCESS!=service("DetectorStore",m_pDetStore))
+//		{
+//			ATH_MSG_FATAL("Detector store not found");
+//			return StatusCode::FAILURE;
+//		}
+//	}
 
 	m_MapAlgoNameToID.clear();
 	m_MapAlgoNameToID.insert(pair<string, int>("ODTracking", 1));
@@ -461,7 +461,7 @@ StatusCode ALFA_Ntuple::initialize()
 		strAlgoMD = m_vecListAlgoMD[i];
 		if (strAlgoMD == m_strMainAlgoMD) continue;
 
-		LogStream << MSG::DEBUG << "Algo [name, ID] = " << strAlgoMD << ", " << m_MapAlgoNameToID[strAlgoMD] << endreq;
+		ATH_MSG_DEBUG("Algo [name, ID] = " << strAlgoMD << ", " << m_MapAlgoNameToID[strAlgoMD]);
 
 		if(m_MapAlgoTreeMD.find(m_MapAlgoNameToID[strAlgoMD])==m_MapAlgoTreeMD.end())
 		{
@@ -507,7 +507,7 @@ StatusCode ALFA_Ntuple::initialize()
 		strAlgoOD = m_vecListAlgoOD[i];
 		if (strAlgoOD == m_strMainAlgoOD) continue;
 
-		LogStream << MSG::DEBUG << "Algo [name, ID] = " << strAlgoOD << ", " << m_MapAlgoNameToID[strAlgoOD] << endreq;
+		ATH_MSG_DEBUG("Algo [name, ID] = " << strAlgoOD << ", " << m_MapAlgoNameToID[strAlgoOD]);
 
 		if(m_MapAlgoTreeOD.find(m_MapAlgoNameToID[strAlgoOD])==m_MapAlgoTreeOD.end())
 		{
@@ -595,11 +595,11 @@ StatusCode ALFA_Ntuple::initialize()
 //		CHECK(AddCOOLFolderCallback(COOLFOLDER_LHC_FILLSTATE));
 //		CHECK(AddCOOLFolderCallbackAthenaAttributeList(COOLFOLDER_OLC_ALFA));
 
-		if (m_CoolFolders.size()==0) LogStream << MSG::DEBUG << "No COOL folders were specified in jobOption file(s), no ones were readout and stored in the ALFA n-tuple file." << endreq;
+		if (m_CoolFolders.size()==0) ATH_MSG_DEBUG("No COOL folders were specified in jobOption file(s), no ones were readout and stored in the ALFA n-tuple file.");
 
 		for (unsigned int i=0; i<m_CoolFolders.size(); i++)
 		{
-			LogStream << MSG::DEBUG << "m_CoolFolders[" << i << "] = " << m_CoolFolders[i] << endreq;
+			ATH_MSG_DEBUG("m_CoolFolders[" << i << "] = " << m_CoolFolders[i]);
 			if      (m_CoolFolders[i] == COOLFOLDER_BLM)             CHECK(AddCOOLFolderCallback(COOLFOLDER_BLM));
 			else if (m_CoolFolders[i] == COOLFOLDER_HVCHANNEL)       CHECK(AddCOOLFolderCallback(COOLFOLDER_HVCHANNEL));
 			else if (m_CoolFolders[i] == COOLFOLDER_LOCALMONITORING) CHECK(AddCOOLFolderCallback(COOLFOLDER_LOCALMONITORING));
@@ -614,15 +614,15 @@ StatusCode ALFA_Ntuple::initialize()
 	}
 
 
-	LogStream << MSG::DEBUG << "end ALFA_Ntuple::initialize()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_Ntuple::initialize()");
 
 	return StatusCode::SUCCESS;
 }
 
 StatusCode ALFA_Ntuple::execute()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::execute()");
-	LogStream << MSG::DEBUG << "begin ALFA_Ntuple::execute()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::execute()");
+	ATH_MSG_DEBUG("begin ALFA_Ntuple::execute()");
 
 	StatusCode sc;
 
@@ -701,10 +701,10 @@ StatusCode ALFA_Ntuple::execute()
 	fill_n(&m_fySlopeGlo[0], sizeof(m_fySlopeGlo)/sizeof(Double_t), -9999.0);
 
 	const EventInfo* eventInfo;
-	sc = m_storeGate->retrieve(eventInfo);
+	sc = evtStore()->retrieve(eventInfo);
 	if (sc.isFailure())
 	{
-		LogStream << MSG::ERROR << "ALFA_Ntuple: Cannot get event info." << endreq;
+		ATH_MSG_ERROR("ALFA_Ntuple: Cannot get event info.");
 		return sc;
 	}
 
@@ -739,7 +739,7 @@ StatusCode ALFA_Ntuple::execute()
 		sc = GetRawDataCollection();
 		if (sc.isFailure())
 		{
-			LogStream << MSG::WARNING << "Failed to read ALFA raw data collection." << endreq;
+			ATH_MSG_WARNING("Failed to read ALFA raw data collection.");
 		}
 	}
 
@@ -748,7 +748,7 @@ StatusCode ALFA_Ntuple::execute()
 		sc = TruthInfo();
 		if (sc.isFailure())
 		{
-			LogStream << MSG::FATAL << "TruthInfo Failed" << endreq;
+			ATH_MSG_FATAL("TruthInfo Failed");
 			return sc;
 		}
 	}
@@ -756,13 +756,13 @@ StatusCode ALFA_Ntuple::execute()
 	sc = GetLocRecData();
 	if (sc.isFailure())
 	{
-		LogStream << MSG::WARNING << "Failed to read ALFA locRec data collections." << endreq;
+		ATH_MSG_WARNING("Failed to read ALFA locRec data collections.");
 	}
 
 	sc = GetGloRecData();
 	if (sc.isFailure())
 	{
-		LogStream << MSG::WARNING << "Failed to read ALFA gloRec data collections." << endreq;
+		ATH_MSG_WARNING("Failed to read ALFA gloRec data collections.");
 	}
 
 	// from here NumTrack value is known ------------------------------------------------
@@ -771,32 +771,32 @@ StatusCode ALFA_Ntuple::execute()
 	sc = ALFACollectionReading();
 	if (sc.isFailure())
 	{
-		LogStream << MSG::WARNING << "Failed to read ALFA digit data collections." << endreq;
+		ATH_MSG_WARNING("Failed to read ALFA digit data collections.");
 	}
 
 	sc = GetLocRecCorrData();
 	if (sc.isFailure())
 	{
-		LogStream << MSG::WARNING << "Failed to read ALFA locRecCorr data collections." << endreq;
+		ATH_MSG_WARNING("Failed to read ALFA locRecCorr data collections.");
 	}
 
 	// ----------------------------------------------------------------------------------
-	LogStream << MSG::DEBUG << "filling of the EventHeader tree" << endreq;
+	ATH_MSG_DEBUG("filling of the EventHeader tree");
 	m_TreeEventHeader->Fill();
-	LogStream << MSG::DEBUG << "filling of the TrackingData tree" << endreq;
+	ATH_MSG_DEBUG("filling of the TrackingData tree");
 	m_TreeTrackingData->Fill();
-	LogStream << MSG::DEBUG << "filling of the GlobalTracks tree" << endreq;
+	ATH_MSG_DEBUG("filling of the GlobalTracks tree");
 	m_TreeGlobalTracks->Fill();
 
 
 	map<int, TTree*>::iterator itTree;
 	for (itTree=m_MapTreeOtherAlgo.begin(); itTree!=m_MapTreeOtherAlgo.end(); itTree++)
 	{
-		LogStream << MSG::DEBUG << "filling of the " << itTree->first << " tree" << endreq;
+		ATH_MSG_DEBUG("filling of the " << itTree->first << " tree");
 		m_MapTreeOtherAlgo[itTree->first]->Fill();
 	}
 
-	LogStream << MSG::DEBUG << "filling of the vtx info tree" << endreq;
+	ATH_MSG_DEBUG("filling of the vtx info tree");
 	if (m_bVtxKinFillFlag || (m_iDataType==0 && (m_iGeneratorType==0 || m_iGeneratorType==2))) {m_Tree_Vtx_Kin_Info->Fill();}
 //	if (m_iDataType==0) {m_Tree_Vtx_Kin_Info->Fill();}
 
@@ -808,15 +808,15 @@ StatusCode ALFA_Ntuple::execute()
 
 	m_iEvtFromZero++;
 
-	LogStream << MSG::DEBUG << "end ALFA_Ntuple::execute()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_Ntuple::execute()");
 
 	return StatusCode::SUCCESS;
 }
 
 StatusCode ALFA_Ntuple::finalize()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::finalize()");
-	LogStream << MSG::DEBUG << "begin ALFA_Ntuple::finalize()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::finalize()");
+	ATH_MSG_DEBUG("begin ALFA_Ntuple::finalize()");
 
 	//fill RunHeader tree ---------------------------------------------------------------
 	m_TreeRunHeader->Fill();
@@ -825,15 +825,15 @@ StatusCode ALFA_Ntuple::finalize()
 	m_rootOutput->Write();
 	m_rootOutput->Close();
 
-	LogStream << MSG::DEBUG << "end ALFA_Ntuple::finalize()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_Ntuple::finalize()");
 
 	return StatusCode::SUCCESS;
 }
 
 StatusCode ALFA_Ntuple::TruthInfo()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::TruthInfo()");
-	LogStream << MSG::DEBUG << "begin ALFA_Ntuple::TruthInfo()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::TruthInfo()");
+	ATH_MSG_DEBUG("begin ALFA_Ntuple::TruthInfo()");
 
 	const McEventCollection* mcTru = 0;
 	double px, py, pz, E, m;
@@ -851,10 +851,10 @@ StatusCode ALFA_Ntuple::TruthInfo()
 
 	m_bVtxKinFillFlag = false;
 
-	StatusCode sc = m_storeGate->retrieve(mcTru, m_strTruthCollectionName);
+	StatusCode sc = evtStore()->retrieve(mcTru, m_strTruthCollectionName);
 	if(sc.isFailure() || !mcTru)
 	{
-		LogStream << MSG::ERROR << "Container "<< m_strTruthCollectionName <<" NOT FOUND !!!!!!!" <<endreq;
+		ATH_MSG_ERROR("Container "<< m_strTruthCollectionName <<" NOT FOUND !!!!!!!" );
 		return sc;
 	}
 
@@ -868,13 +868,13 @@ StatusCode ALFA_Ntuple::TruthInfo()
 
 		if (coll_counter > 1 )
 		{
-			LogStream << MSG::ERROR << "problem, too many collections " << endreq;
+			ATH_MSG_ERROR("problem, too many collections ");
 			break;
 		}
 
 		if (coll_counter == 0 )
 		{
-			LogStream << MSG::DEBUG << "no collection for the event " << endreq;
+			ATH_MSG_DEBUG("no collection for the event ");
 			return sc;
 		}
 
@@ -890,8 +890,8 @@ StatusCode ALFA_Ntuple::TruthInfo()
 
 //			std::cout << " vtx_counter - 1 = " << vtx_counter[coll_counter-1]-1 << endl;
 
-			LogStream << MSG::DEBUG << " * vertex no: " << vtx_counter[coll_counter-1] << endreq;
-			LogStream << MSG::DEBUG << " * position x = " << (**begGenVtxItr).position().x() << ", y = " << (**begGenVtxItr).position().y()<< ", z =" << (**begGenVtxItr).position().z() << endreq;
+			ATH_MSG_DEBUG(" * vertex no: " << vtx_counter[coll_counter-1]);
+			ATH_MSG_DEBUG(" * position x = " << (**begGenVtxItr).position().x() << ", y = " << (**begGenVtxItr).position().y()<< ", z =" << (**begGenVtxItr).position().z());
 
 			HepMC::GenVertex::particle_iterator child;
 			child = (*begGenVtxItr)->particles_begin(HepMC::family);
@@ -908,12 +908,12 @@ StatusCode ALFA_Ntuple::TruthInfo()
 					E  = (*child)->momentum().e();
 					m  = (*child)->momentum().m();
 
-					LogStream << MSG::DEBUG << std::setprecision(12) << endreq;
-					LogStream << MSG::DEBUG << "particle barcode = " << (*child)->barcode() << endreq;
-					LogStream << MSG::DEBUG << "particle pdg = " << (*child)->pdg_id() << endreq;
-					LogStream << MSG::DEBUG << "particle status = " << (*child)->status() << endreq;
-					LogStream << MSG::DEBUG << " *  px = " << px << ", py = " << py << ", pz = " << pz <<  ", E = " << E << ", m = " << m << endreq;
-					LogStream << MSG::DEBUG << " " << endreq;
+					ATH_MSG_DEBUG(std::setprecision(12));
+					ATH_MSG_DEBUG("particle barcode = " << (*child)->barcode());
+					ATH_MSG_DEBUG("particle pdg = " << (*child)->pdg_id());
+					ATH_MSG_DEBUG("particle status = " << (*child)->status());
+					ATH_MSG_DEBUG(" *  px = " << px << ", py = " << py << ", pz = " << pz <<  ", E = " << E << ", m = " << m);
+					ATH_MSG_DEBUG(" ");
 
 					// incoming protons at the interaction point
 					if( ((*child)->status() == 4) && (pint < 2))
@@ -938,7 +938,7 @@ StatusCode ALFA_Ntuple::TruthInfo()
 							{
 								pi2=(*child);
 							}
-//							if(pint > 2){LogStream << MSG::DEBUG << "Strange: More than two incoming protons in this event!" << endreq;}
+//							if(pint > 2){ATH_MSG_DEBUG("Strange: More than two incoming protons in this event!");}
 						}
 					}
 
@@ -971,7 +971,7 @@ StatusCode ALFA_Ntuple::TruthInfo()
 								m_fvtx_beam2_f[2] = (**begGenVtxItr).position().y();
 								m_fvtx_beam2_f[3] = (**begGenVtxItr).position().z();
 							}
-//							if(pcount > 2){LogStream << MSG::DEBUG << "Strange: More than two outcoming protons in this event (elastic scaterring)!" << endreq;}
+//							if(pcount > 2){ATH_MSG_DEBUG("Strange: More than two outcoming protons in this event (elastic scaterring)!");}
 						}
 					}
 
@@ -1005,7 +1005,7 @@ StatusCode ALFA_Ntuple::TruthInfo()
 								m_fp_C[2] = py;
 								m_fp_C[3] = pz;
 							}
-//							if(pint > 2){LogStream << MSG::DEBUG << "Strange: More than two incoming protons in this event!" << endreq;}
+//							if(pint > 2){ATH_MSG_DEBUG("Strange: More than two incoming protons in this event!");}
 						}
 					}
 //					std::cout << "pip3" << endl;
@@ -1032,67 +1032,67 @@ StatusCode ALFA_Ntuple::TruthInfo()
 // 			m_ft_13 = (hp1-hp3).m2();
 // 			m_ft_24 = (hp2-hp4).m2();
 
-// 			LogStream << MSG::DEBUG << " ******************************************************* " << endreq;
-// 			LogStream << MSG::DEBUG << " " << endreq;
-// 			LogStream << MSG::DEBUG << " t_13 = " << m_ft_13 << endreq;
-// 			LogStream << MSG::DEBUG << " t_24 = " << m_ft_24 << endreq;
-// 			LogStream << MSG::DEBUG << " ***************** " << endreq;
+// 			ATH_MSG_DEBUG(" ******************************************************* ");
+// 			ATH_MSG_DEBUG(" ");
+// 			ATH_MSG_DEBUG(" t_13 = " << m_ft_13);
+// 			ATH_MSG_DEBUG(" t_24 = " << m_ft_24);
+// 			ATH_MSG_DEBUG(" ***************** ");
 
 // 			m_fp_beam1_i[0] = pi1->momentum().e();
 // 			m_fp_beam1_i[1] = pi1->momentum().px();
 // 			m_fp_beam1_i[2] = pi1->momentum().py();
 // 			m_fp_beam1_i[3] = pi1->momentum().pz();
 
-			LogStream << MSG::DEBUG << "initial particle 1: px = " << m_fp_beam1_i[1] << ", py = " << m_fp_beam1_i[2] << ", pz = " << m_fp_beam1_i[3] << ", E = " << m_fp_beam1_i[0] << endreq;
-			LogStream << MSG::DEBUG << " ** " << endreq;
+			ATH_MSG_DEBUG("initial particle 1: px = " << m_fp_beam1_i[1] << ", py = " << m_fp_beam1_i[2] << ", pz = " << m_fp_beam1_i[3] << ", E = " << m_fp_beam1_i[0]);
+			ATH_MSG_DEBUG(" ** ");
 
 // 			m_fp_beam2_i[0] = pi2->momentum().e();
 // 			m_fp_beam2_i[1] = pi2->momentum().px();
 // 			m_fp_beam2_i[2] = pi2->momentum().py();
 // 			m_fp_beam2_i[3] = pi2->momentum().pz();
 
-			LogStream << MSG::DEBUG << "initial particle 2: px = " << m_fp_beam2_i[1] << ", py = " << m_fp_beam2_i[2] << ", pz = " << m_fp_beam2_i[3] << ", E = " << m_fp_beam2_i[0] << endreq;
-			LogStream << MSG::DEBUG << " ** " << endreq;
+			ATH_MSG_DEBUG("initial particle 2: px = " << m_fp_beam2_i[1] << ", py = " << m_fp_beam2_i[2] << ", pz = " << m_fp_beam2_i[3] << ", E = " << m_fp_beam2_i[0]);
+			ATH_MSG_DEBUG(" ** ");
 
 			m_fp_beam1_f[0] = p1->momentum().e();
 			m_fp_beam1_f[1] = p1->momentum().px();
 			m_fp_beam1_f[2] = p1->momentum().py();
 			m_fp_beam1_f[3] = p1->momentum().pz();
 
-			LogStream << MSG::DEBUG << "final particle 1: px = " << m_fp_beam1_f[1] << ", py = " << m_fp_beam1_f[2] << ", pz = " << m_fp_beam1_f[3] << ", E = " << m_fp_beam1_f[0] << endreq;
-			LogStream << MSG::DEBUG << " ** " << endreq;
+			ATH_MSG_DEBUG("final particle 1: px = " << m_fp_beam1_f[1] << ", py = " << m_fp_beam1_f[2] << ", pz = " << m_fp_beam1_f[3] << ", E = " << m_fp_beam1_f[0]);
+			ATH_MSG_DEBUG(" ** ");
 
 			m_fp_beam2_f[0] = p2->momentum().e();
 			m_fp_beam2_f[1] = p2->momentum().px();
 			m_fp_beam2_f[2] = p2->momentum().py();
 			m_fp_beam2_f[3] = p2->momentum().pz();
 
-			LogStream << MSG::DEBUG << "final particle 2: px = " << m_fp_beam2_f[1] << ", py = " << m_fp_beam2_f[2] << ", pz = " << m_fp_beam2_f[3] << ", E = " << m_fp_beam2_f[0] << endreq;
-			LogStream << MSG::DEBUG << " ** " << endreq;
+			ATH_MSG_DEBUG("final particle 2: px = " << m_fp_beam2_f[1] << ", py = " << m_fp_beam2_f[2] << ", pz = " << m_fp_beam2_f[3] << ", E = " << m_fp_beam2_f[0]);
+			ATH_MSG_DEBUG(" ** ");
 
-			LogStream << MSG::DEBUG << " " << endreq;
-			LogStream << MSG::DEBUG << " ******************************************************* " << endreq;
+			ATH_MSG_DEBUG(" ");
+			ATH_MSG_DEBUG(" ******************************************************* ");
 		}
 	}
 
-	LogStream << MSG::DEBUG << "end ALFA_Ntuple::TruthInfo()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_Ntuple::TruthInfo()");
 
 	return StatusCode::SUCCESS;
 }
 
 StatusCode ALFA_Ntuple::GetRawDataCollection()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::GetRawDataCollection()");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRec::GetRawDataCollection()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::GetRawDataCollection()");
+	ATH_MSG_DEBUG("begin ALFA_LocRec::GetRawDataCollection()");
 
 	StatusCode sc = StatusCode::SUCCESS;
 
 	// retrieve the RawData RDO container from the TDS ----------------------------------
 	const ALFA_RawDataContainer* container = 0;
-	sc = m_storeGate->retrieve(container, m_strKeyRawDataCollection);
+	sc = evtStore()->retrieve(container, m_strKeyRawDataCollection);
 	if (sc.isFailure())
 	{
-		LogStream << MSG::WARNING << "Container "<< m_strKeyRawDataCollection <<" is not available !!!" << endreq;
+		ATH_MSG_WARNING("Container "<< m_strKeyRawDataCollection <<" is not available !!!");
 		return StatusCode::FAILURE;
 	}
 
@@ -1133,15 +1133,15 @@ StatusCode ALFA_Ntuple::GetRawDataCollection()
 		for (int i=0; i<iTrigPatSize; i++) m_bTrigPat[iMBId-1][i] = bTrigPat[iTrigPatSize-(i+1)];
 	}
 
-	LogStream << MSG::DEBUG << "end ALFA_Ntuple::GetRawDataCollection()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_Ntuple::GetRawDataCollection()");
 
 	return StatusCode::SUCCESS;
 }
 
 StatusCode ALFA_Ntuple::ALFACollectionReading()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::ALFA_Collection_Reading()");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRec::ALFA_Collection_Reading()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::ALFA_Collection_Reading()");
+	ATH_MSG_DEBUG("begin ALFA_LocRec::ALFA_Collection_Reading()");
 
 	StatusCode sc;
 	Int_t iRPot, iPlate, iFiber, iSide;
@@ -1149,10 +1149,10 @@ StatusCode ALFA_Ntuple::ALFACollectionReading()
 	const ALFA_DigitCollection* mcGen = 0;
 	const ALFA_ODDigitCollection* mcODGen = 0;
 
-	sc = m_storeGate->retrieve(mcGen,m_strCollectionName);
+	sc = evtStore()->retrieve(mcGen,m_strCollectionName);
 	if(sc.isFailure() || !mcGen)
 	{
-		LogStream << MSG::WARNING << "Container "<< m_strCollectionName <<" is not available !!!" << endreq;
+		ATH_MSG_WARNING("Container "<< m_strCollectionName <<" is not available !!!");
 		return StatusCode::FAILURE;
 	}
 
@@ -1169,10 +1169,10 @@ StatusCode ALFA_Ntuple::ALFACollectionReading()
 		m_iMultiMD[iRPot][iPlate]++;
 	}
 
-	sc = m_storeGate->retrieve(mcODGen,m_strODCollectionName);
+	sc = evtStore()->retrieve(mcODGen,m_strODCollectionName);
 	if(sc.isFailure() || !mcODGen)
 	{
-		LogStream << MSG::WARNING << "Container "<< m_strODCollectionName <<" is not available !!!" << endreq;
+		ATH_MSG_WARNING("Container "<< m_strODCollectionName <<" is not available !!!");
 		return StatusCode::FAILURE;
 	}
 
@@ -1193,15 +1193,15 @@ StatusCode ALFA_Ntuple::ALFACollectionReading()
 		else m_iMultiODPos[iRPot][iPlate]++;
 	}
 
-	LogStream << MSG::DEBUG << "end ALFA_Ntuple::ALFACollectionReading()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_Ntuple::ALFACollectionReading()");
 
 	return StatusCode::SUCCESS;
 }
 
 StatusCode ALFA_Ntuple::GetLocRecData()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::GetLocRecData()");
-	LogStream << MSG::DEBUG << "begin ALFA_Ntuple::GetLocRecData()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::GetLocRecData()");
+	ATH_MSG_DEBUG("begin ALFA_Ntuple::GetLocRecData()");
 
 	StatusCode sc;
 	Int_t iRPot, iSide, iNumTrackPot[RPOTSCNT];
@@ -1218,10 +1218,10 @@ StatusCode ALFA_Ntuple::GetLocRecData()
 	const ALFA_LocRecEvCollection* pLocRecCol = 0;
 	const ALFA_LocRecODEvCollection* pLocRecODCol = 0;
 
-	sc = m_storeGate->retrieve(pLocRecCol, m_strLocRecCollectionName);
+	sc = evtStore()->retrieve(pLocRecCol, m_strLocRecCollectionName);
 	if(sc.isFailure() || !pLocRecCol)
 	{
-		LogStream << MSG::WARNING << "Container "<< m_strLocRecCollectionName <<" is not available !!!" << endreq;
+		ATH_MSG_WARNING("Container "<< m_strLocRecCollectionName <<" is not available !!!");
 		return StatusCode::FAILURE;
 	}
 
@@ -1306,10 +1306,10 @@ StatusCode ALFA_Ntuple::GetLocRecData()
 	}
 
 
-	sc = m_storeGate->retrieve(pLocRecODCol, m_strLocRecODCollectionName);
+	sc = evtStore()->retrieve(pLocRecODCol, m_strLocRecODCollectionName);
 	if(sc.isFailure() || !pLocRecODCol)
 	{
-		LogStream << MSG::WARNING << "Container "<< m_strLocRecODCollectionName <<" is not available !!!" << endreq;
+		ATH_MSG_WARNING("Container "<< m_strLocRecODCollectionName <<" is not available !!!");
 		return StatusCode::FAILURE;
 	}
 
@@ -1435,15 +1435,15 @@ StatusCode ALFA_Ntuple::GetLocRecData()
 	}
 
 
-	LogStream << MSG::DEBUG << "end ALFA_Ntuple::GetLocRecData()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_Ntuple::GetLocRecData()");
 
 	return StatusCode::SUCCESS;
 }
 
 StatusCode ALFA_Ntuple::GetLocRecCorrData()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::GetLocRecCorrData()");
-	LogStream << MSG::DEBUG << "begin ALFA_Ntuple::GetLocRecCorrData()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::GetLocRecCorrData()");
+	ATH_MSG_DEBUG("begin ALFA_Ntuple::GetLocRecCorrData()");
 
 	StatusCode sc;
 	Int_t iRPot, iSide, iNumTrackPot[RPOTSCNT], iSign;
@@ -1465,10 +1465,10 @@ StatusCode ALFA_Ntuple::GetLocRecCorrData()
 	const ALFA_LocRecCorrEvCollection* pLocRecCorrCol = 0;
 	const ALFA_LocRecCorrODEvCollection* pLocRecCorrODCol = 0;
 
-	sc = m_storeGate->retrieve(pLocRecCorrCol, m_strLocRecCorrCollectionName);
+	sc = evtStore()->retrieve(pLocRecCorrCol, m_strLocRecCorrCollectionName);
 	if(sc.isFailure() || !pLocRecCorrCol)
 	{
-		LogStream << MSG::WARNING << "Container " << m_strLocRecCorrCollectionName << " is not available !!!" << endreq;
+		ATH_MSG_WARNING("Container " << m_strLocRecCorrCollectionName << " is not available !!!");
 		return StatusCode::FAILURE;
 	}
 
@@ -1534,10 +1534,10 @@ StatusCode ALFA_Ntuple::GetLocRecCorrData()
 //		cout << "iRPot, iNumTrackPot, fRecPosX = " << iRPot << ", " << iNumTrackPot[iRPot]-1 << ", " << fRecPosX << endl;
 	}
 
-	sc = m_storeGate->retrieve(pLocRecCorrODCol, m_strLocRecCorrODCollectionName);
+	sc = evtStore()->retrieve(pLocRecCorrODCol, m_strLocRecCorrODCollectionName);
 	if(sc.isFailure() || !pLocRecCorrODCol)
 	{
-		LogStream << MSG::WARNING << "Container " << m_strLocRecCorrODCollectionName << " is not available !!!" << endreq;
+		ATH_MSG_WARNING("Container " << m_strLocRecCorrODCollectionName << " is not available !!!");
 		return StatusCode::FAILURE;
 	}
 
@@ -1606,25 +1606,25 @@ StatusCode ALFA_Ntuple::GetLocRecCorrData()
 		}
 	}
 
-	LogStream << MSG::DEBUG << "end ALFA_Ntuple::GetLocRecCorrData()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_Ntuple::GetLocRecCorrData()");
 
 	return StatusCode::SUCCESS;
 }
 
 StatusCode ALFA_Ntuple::GetGloRecData()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::GetGloRecData()");
-	LogStream << MSG::DEBUG << "begin ALFA_Ntuple::GetGloRecData()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::GetGloRecData()");
+	ATH_MSG_DEBUG("begin ALFA_Ntuple::GetGloRecData()");
 
 	StatusCode sc;
 	Int_t iArm, iNumGloTrack = 0;
 	Double_t fxPos, fyPos, fxSlope, fySlope;
 
 	const ALFA_GloRecEvCollection* pGloRecCol = 0;
-	sc = m_storeGate->retrieve(pGloRecCol, m_strGloRecCollectionName);
+	sc = evtStore()->retrieve(pGloRecCol, m_strGloRecCollectionName);
 	if(sc.isFailure() || !pGloRecCol)
 	{
-		LogStream << MSG::WARNING << "Container "<< m_strGloRecCollectionName <<" is not available !!!" << endreq;
+		ATH_MSG_WARNING("Container "<< m_strGloRecCollectionName <<" is not available !!!");
 		return StatusCode::FAILURE;
 	}
 
@@ -1652,20 +1652,20 @@ StatusCode ALFA_Ntuple::GetGloRecData()
 
 	m_iNumGloTrack = iNumGloTrack;
 
-	LogStream << MSG::DEBUG << "end ALFA_Ntuple::GetGloRecData()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_Ntuple::GetGloRecData()");
 	return StatusCode::SUCCESS;
 }
 
 StatusCode ALFA_Ntuple::AddCOOLFolderCallback(const string& Folder)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::AddCOOLFolderCallback()");
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::AddCOOLFolderCallback()");
 	StatusCode sc=StatusCode::FAILURE;
 
 	const DataHandle<CondAttrListCollection> DataPtr;
-	sc=m_pDetStore->regFcn(&ALFA_Ntuple::COOLUpdate, this, DataPtr, Folder, true);
+	sc=detStore()->regFcn(&ALFA_Ntuple::COOLUpdate, this, DataPtr, Folder, true);
 	if(sc!=StatusCode::SUCCESS)
 	{
-		LogStream << MSG::ERROR << "Cannot register COOL callback for folder '"<<Folder<<"'" << endreq;
+		ATH_MSG_ERROR("Cannot register COOL callback for folder '"<<Folder<<"'");
 	}
 
 	return sc;
@@ -1673,14 +1673,14 @@ StatusCode ALFA_Ntuple::AddCOOLFolderCallback(const string& Folder)
 
 StatusCode ALFA_Ntuple::AddCOOLFolderCallbackAthenaAttributeList(const string& Folder)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::AddCOOLFolderCallbackAthenaAttributeList()");
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::AddCOOLFolderCallbackAthenaAttributeList()");
 	StatusCode sc=StatusCode::FAILURE;
 
 	const DataHandle<AthenaAttributeList> DataPtr;
-	sc=m_pDetStore->regFcn(&ALFA_Ntuple::COOLUpdate, this, DataPtr, Folder, false);
+	sc=detStore()->regFcn(&ALFA_Ntuple::COOLUpdate, this, DataPtr, Folder, false);
 	if(sc!=StatusCode::SUCCESS)
 	{
-		LogStream << MSG::ERROR << "Cannot register COOL callback for folder '"<<Folder<<"'" << endreq;
+		ATH_MSG_ERROR("Cannot register COOL callback for folder '"<<Folder<<"'");
 	}
 
 	return sc;
@@ -1688,7 +1688,7 @@ StatusCode ALFA_Ntuple::AddCOOLFolderCallbackAthenaAttributeList(const string& F
 
 StatusCode ALFA_Ntuple::COOLUpdate(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::COOLUpdate()");
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_Ntuple::COOLUpdate()");
 	list<string>::const_iterator iter;
 	const CondAttrListCollection* atrlistcol;
 	const AthenaAttributeList* atrlist;
@@ -1700,7 +1700,7 @@ StatusCode ALFA_Ntuple::COOLUpdate(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 	{
 		if((*iter)==COOLFOLDER_BLM)
 		{
-			if (StatusCode::SUCCESS==m_pDetStore->retrieve(atrlistcol,COOLFOLDER_BLM))
+			if (StatusCode::SUCCESS==detStore()->retrieve(atrlistcol,COOLFOLDER_BLM))
 			{
 				for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr)
 				{
@@ -1708,7 +1708,7 @@ StatusCode ALFA_Ntuple::COOLUpdate(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 					m_BeamLossMonitor.fBLM[iChannel] = (((*citr).second)[0]).data<float>();
 				}
 
-				if (COOLIOVRange(COOLFOLDER_BLM, iTimeIOVStart, iTimeIOVStop).isFailure()) LogStream << MSG::ERROR << "Couldn't get IOV data about folder: " << COOLFOLDER_BLM << endreq;
+				if (COOLIOVRange(COOLFOLDER_BLM, iTimeIOVStart, iTimeIOVStop).isFailure()) ATH_MSG_ERROR("Couldn't get IOV data about folder: " << COOLFOLDER_BLM);
 
 				m_BeamLossMonitor.iTimeIOVstart = iTimeIOVStart;
 				m_BeamLossMonitor.iTimeIOVstop  = iTimeIOVStop;
@@ -1716,11 +1716,11 @@ StatusCode ALFA_Ntuple::COOLUpdate(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 				m_TreeBLM->Fill();
 				m_iFlagBLM = m_TreeBLM->GetEntries()-1;
 			}
-			else LogStream << MSG::WARNING << "Could not retrieve CondAttrListCollection " << COOLFOLDER_BLM << endreq;
+			else ATH_MSG_WARNING("Could not retrieve CondAttrListCollection " << COOLFOLDER_BLM);
 		}
 		else if((*iter)==COOLFOLDER_HVCHANNEL)
 		{
-			if (StatusCode::SUCCESS==m_pDetStore->retrieve(atrlistcol,COOLFOLDER_HVCHANNEL))
+			if (StatusCode::SUCCESS==detStore()->retrieve(atrlistcol,COOLFOLDER_HVCHANNEL))
 			{
 				for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr)
 				{
@@ -1729,7 +1729,7 @@ StatusCode ALFA_Ntuple::COOLUpdate(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 					m_HVChannel.fActualIMeas[iChannel] = (((*citr).second)[1]).data<float>();
 				}
 
-				if (COOLIOVRange(COOLFOLDER_HVCHANNEL, iTimeIOVStart, iTimeIOVStop).isFailure()) LogStream << MSG::ERROR << "Couldn't get IOV data about folder: " << COOLFOLDER_HVCHANNEL << endreq;
+				if (COOLIOVRange(COOLFOLDER_HVCHANNEL, iTimeIOVStart, iTimeIOVStop).isFailure()) ATH_MSG_ERROR("Couldn't get IOV data about folder: " << COOLFOLDER_HVCHANNEL);
 
 				m_HVChannel.iTimeIOVstart = iTimeIOVStart;
 				m_HVChannel.iTimeIOVstop  = iTimeIOVStop;
@@ -1737,11 +1737,11 @@ StatusCode ALFA_Ntuple::COOLUpdate(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 				m_TreeHVChannel->Fill();
 				m_iFlagVolt = m_TreeHVChannel->GetEntries()-1;
 			}
-			else LogStream << MSG::WARNING << "Could not retrieve CondAttrListCollection " << COOLFOLDER_HVCHANNEL << endreq;
+			else ATH_MSG_WARNING("Could not retrieve CondAttrListCollection " << COOLFOLDER_HVCHANNEL);
 		}
 		else if((*iter)==COOLFOLDER_LOCALMONITORING)
 		{
-			if (StatusCode::SUCCESS==m_pDetStore->retrieve(atrlistcol,COOLFOLDER_LOCALMONITORING))
+			if (StatusCode::SUCCESS==detStore()->retrieve(atrlistcol,COOLFOLDER_LOCALMONITORING))
 			{
 				for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr)
 				{
@@ -1753,7 +1753,7 @@ StatusCode ALFA_Ntuple::COOLUpdate(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 					m_LocalMonitoring.fTempSensor5[iChannel] = (((*citr).second)[4]).data<float>();
 				}
 
-				if (COOLIOVRange(COOLFOLDER_LOCALMONITORING, iTimeIOVStart, iTimeIOVStop).isFailure()) LogStream << MSG::ERROR << "Couldn't get IOV data about folder: " << COOLFOLDER_LOCALMONITORING << endreq;
+				if (COOLIOVRange(COOLFOLDER_LOCALMONITORING, iTimeIOVStart, iTimeIOVStop).isFailure()) ATH_MSG_ERROR("Couldn't get IOV data about folder: " << COOLFOLDER_LOCALMONITORING);
 
 				m_LocalMonitoring.iTimeIOVstart = iTimeIOVStart;
 				m_LocalMonitoring.iTimeIOVstop  = iTimeIOVStop;
@@ -1761,11 +1761,11 @@ StatusCode ALFA_Ntuple::COOLUpdate(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 				m_TreeLocalMon->Fill();
 				m_iFlagTemperature = m_TreeLocalMon->GetEntries()-1;
 			}
-			else LogStream << MSG::WARNING << "Could not retrieve CondAttrListCollection " << COOLFOLDER_LOCALMONITORING << endreq;
+			else ATH_MSG_WARNING("Could not retrieve CondAttrListCollection " << COOLFOLDER_LOCALMONITORING);
 		}
 		else if((*iter)==COOLFOLDER_MOVEMENT)
 		{
-			if (StatusCode::SUCCESS==m_pDetStore->retrieve(atrlistcol,COOLFOLDER_MOVEMENT))
+			if (StatusCode::SUCCESS==detStore()->retrieve(atrlistcol,COOLFOLDER_MOVEMENT))
 			{
 				for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr)
 				{
@@ -1774,7 +1774,7 @@ StatusCode ALFA_Ntuple::COOLUpdate(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 					m_Movement.fPosMotor[iChannel] = (((*citr).second)[1]).data<float>();
 				}
 
-				if (COOLIOVRange(COOLFOLDER_MOVEMENT, iTimeIOVStart, iTimeIOVStop).isFailure()) LogStream << MSG::ERROR << "Couldn't get IOV data about folder: " << COOLFOLDER_MOVEMENT << endreq;
+				if (COOLIOVRange(COOLFOLDER_MOVEMENT, iTimeIOVStart, iTimeIOVStop).isFailure()) ATH_MSG_ERROR("Couldn't get IOV data about folder: " << COOLFOLDER_MOVEMENT);
 
 				m_Movement.iTimeIOVstart = iTimeIOVStart;
 				m_Movement.iTimeIOVstop  = iTimeIOVStop;
@@ -1782,11 +1782,11 @@ StatusCode ALFA_Ntuple::COOLUpdate(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 				m_TreeMovement->Fill();
 				m_iFlagPotPos = m_TreeMovement->GetEntries()-1;
 			}
-			else LogStream << MSG::WARNING << "Could not retrieve CondAttrListCollection " << COOLFOLDER_MOVEMENT << endreq;
+			else ATH_MSG_WARNING("Could not retrieve CondAttrListCollection " << COOLFOLDER_MOVEMENT);
 		}
 		else if((*iter)==COOLFOLDER_RADMON)
 		{
-			if (StatusCode::SUCCESS==m_pDetStore->retrieve(atrlistcol,COOLFOLDER_RADMON))
+			if (StatusCode::SUCCESS==detStore()->retrieve(atrlistcol,COOLFOLDER_RADMON))
 			{
 				for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr)
 				{
@@ -1796,7 +1796,7 @@ StatusCode ALFA_Ntuple::COOLUpdate(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 					m_Radmon.fTemp[iChannel]    = (((*citr).second)[2]).data<float>();
 				}
 
-				if (COOLIOVRange(COOLFOLDER_RADMON, iTimeIOVStart, iTimeIOVStop).isFailure()) LogStream << MSG::ERROR << "Couldn't get IOV data about folder: " << COOLFOLDER_RADMON << endreq;
+				if (COOLIOVRange(COOLFOLDER_RADMON, iTimeIOVStart, iTimeIOVStop).isFailure()) ATH_MSG_ERROR("Couldn't get IOV data about folder: " << COOLFOLDER_RADMON);
 
 				m_Radmon.iTimeIOVstart = iTimeIOVStart;
 				m_Radmon.iTimeIOVstop  = iTimeIOVStop;
@@ -1804,11 +1804,11 @@ StatusCode ALFA_Ntuple::COOLUpdate(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 				m_TreeRadmon->Fill();
 				m_iFlagRadDose = m_TreeRadmon->GetEntries()-1;
 			}
-			else LogStream << MSG::WARNING << "Could not retrieve CondAttrListCollection " << COOLFOLDER_RADMON << endreq;
+			else ATH_MSG_WARNING("Could not retrieve CondAttrListCollection " << COOLFOLDER_RADMON);
 		}
 		else if((*iter)==COOLFOLDER_TRIGGERRATES)
 		{
-			if (StatusCode::SUCCESS==m_pDetStore->retrieve(atrlistcol,COOLFOLDER_TRIGGERRATES))
+			if (StatusCode::SUCCESS==detStore()->retrieve(atrlistcol,COOLFOLDER_TRIGGERRATES))
 			{
 				for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr)
 				{
@@ -1816,7 +1816,7 @@ StatusCode ALFA_Ntuple::COOLUpdate(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 					m_TriggerRate.iTRate[iChannel] = (Int_t)(((*citr).second)[0]).data<unsigned int>();
 				}
 
-				if (COOLIOVRange(COOLFOLDER_TRIGGERRATES, iTimeIOVStart, iTimeIOVStop).isFailure()) LogStream << MSG::ERROR << "Couldn't get IOV data about folder: " << COOLFOLDER_TRIGGERRATES << endreq;
+				if (COOLIOVRange(COOLFOLDER_TRIGGERRATES, iTimeIOVStart, iTimeIOVStop).isFailure()) ATH_MSG_ERROR("Couldn't get IOV data about folder: " << COOLFOLDER_TRIGGERRATES);
 
 				m_TriggerRate.iTimeIOVstart = iTimeIOVStart;
 				m_TriggerRate.iTimeIOVstop  = iTimeIOVStop;
@@ -1824,11 +1824,11 @@ StatusCode ALFA_Ntuple::COOLUpdate(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 				m_TreeTriggerRate->Fill();
 				m_iFlagTRate = m_TreeTriggerRate->GetEntries()-1;
 			}
-			else LogStream << MSG::WARNING << "Could not retrieve CondAttrListCollection " << COOLFOLDER_TRIGGERRATES << endreq;
+			else ATH_MSG_WARNING("Could not retrieve CondAttrListCollection " << COOLFOLDER_TRIGGERRATES);
 		}
 		else if((*iter)==COOLFOLDER_FECONFIGURATION)
 		{
-			if (StatusCode::SUCCESS==m_pDetStore->retrieve(atrlistcol,COOLFOLDER_FECONFIGURATION))
+			if (StatusCode::SUCCESS==detStore()->retrieve(atrlistcol,COOLFOLDER_FECONFIGURATION))
 			{
 				for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr)
 				{
@@ -1844,11 +1844,11 @@ StatusCode ALFA_Ntuple::COOLUpdate(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 					m_vecMainDetGainMode->push_back((((*citr).second)[2]).data<string>());
 				}
 			}
-			else LogStream << MSG::WARNING << "Could not retrieve CondAttrListCollection " << COOLFOLDER_FECONFIGURATION << endreq;
+			else ATH_MSG_WARNING("Could not retrieve CondAttrListCollection " << COOLFOLDER_FECONFIGURATION);
 		}
 		else if((*iter)==COOLFOLDER_TRIGGERSETTINGS)
 		{
-			if (StatusCode::SUCCESS==m_pDetStore->retrieve(atrlistcol,COOLFOLDER_TRIGGERSETTINGS))
+			if (StatusCode::SUCCESS==detStore()->retrieve(atrlistcol,COOLFOLDER_TRIGGERSETTINGS))
 			{
 				for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr)
 				{
@@ -1864,11 +1864,11 @@ StatusCode ALFA_Ntuple::COOLUpdate(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 					m_iLatency[iChannel][2]    = (Int_t)(((*citr).second)[8]).data<unsigned int>();
 				}
 			}
-			else LogStream << MSG::WARNING << "Could not retrieve CondAttrListCollection " << COOLFOLDER_TRIGGERSETTINGS << endreq;
+			else ATH_MSG_WARNING("Could not retrieve CondAttrListCollection " << COOLFOLDER_TRIGGERSETTINGS);
 		}
 		else if((*iter)==COOLFOLDER_LHC_FILLSTATE)
 		{
-			if (StatusCode::SUCCESS==m_pDetStore->retrieve(atrlistcol,COOLFOLDER_LHC_FILLSTATE))
+			if (StatusCode::SUCCESS==detStore()->retrieve(atrlistcol,COOLFOLDER_LHC_FILLSTATE))
 			{
 				for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr)
 				{
@@ -1877,12 +1877,12 @@ StatusCode ALFA_Ntuple::COOLUpdate(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 			}
 			else
 			{
-				LogStream << MSG::WARNING << "Could not retrieve CondAttrListCollection " << COOLFOLDER_LHC_FILLSTATE << endreq;
+				ATH_MSG_WARNING("Could not retrieve CondAttrListCollection " << COOLFOLDER_LHC_FILLSTATE);
 			}
 		}
 		else if((*iter)==COOLFOLDER_OLC_ALFA)
 		{
-			if (StatusCode::SUCCESS==m_pDetStore->retrieve(atrlist,COOLFOLDER_OLC_ALFA))
+			if (StatusCode::SUCCESS==detStore()->retrieve(atrlist,COOLFOLDER_OLC_ALFA))
 			{
 				// the following code dumps the attribute list into a string for printing
 				// to access individual elements by name, use e.g.
@@ -1918,7 +1918,7 @@ StatusCode ALFA_Ntuple::COOLUpdate(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 				m_BPMALFA.bpmya_l_x_err = (*atrlist)["bpmya_l_x_err"].data<float>();
 				m_BPMALFA.bpmya_l_y_err = (*atrlist)["bpmya_l_y_err"].data<float>();
 
-				if (COOLIOVRange(COOLFOLDER_OLC_ALFA, iTimeIOVStart, iTimeIOVStop).isFailure()) LogStream << MSG::ERROR << "Couldn't get IOV data about folder: " << COOLFOLDER_OLC_ALFA << endreq;
+				if (COOLIOVRange(COOLFOLDER_OLC_ALFA, iTimeIOVStart, iTimeIOVStop).isFailure()) ATH_MSG_ERROR("Couldn't get IOV data about folder: " << COOLFOLDER_OLC_ALFA);
 
 				m_BPMALFA.iTimeIOVstart = iTimeIOVStart;
 				m_BPMALFA.iTimeIOVstop  = iTimeIOVStop;
@@ -1928,7 +1928,7 @@ StatusCode ALFA_Ntuple::COOLUpdate(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 			}
 			else
 			{
-				LogStream << MSG::WARNING << "Could not retrieve AthenaAttributeList " << COOLFOLDER_OLC_ALFA << endreq;
+				ATH_MSG_WARNING("Could not retrieve AthenaAttributeList " << COOLFOLDER_OLC_ALFA);
 			}
 		}
 	}

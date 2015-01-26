@@ -10,6 +10,8 @@ use StoreGate				StoreGate-*				Control
 use GeneratorObjects		        GeneratorObjects-*			Generators
 use AthenaKernel                        AthenaKernel-*                          Control 
 
+use AthenaBaseComps     AthenaBaseComps-*       Control
+
 #For reading file/DB metadata:
 use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
 #use AtlasCORAL          AtlasCORAL-*          External
