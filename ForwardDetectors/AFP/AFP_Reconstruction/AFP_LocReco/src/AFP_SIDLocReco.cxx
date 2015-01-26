@@ -4,14 +4,14 @@
 
 #include "AFP_LocReco/AFP_SIDLocReco.h"
 
-
 #include "AthenaKernel/errorcheck.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h" 
+
 
 AFP_SIDLocReco::AFP_SIDLocReco(const string& name, ISvcLocator* pSvcLocator) :
-Algorithm(name, pSvcLocator)
+AthAlgorithm(name, pSvcLocator)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "AFP_SIDLocReco::AFP_SIDLocReco");
-	LogStream << MSG::DEBUG << "begin AFP_SIDLocReco::AFP_SIDLocReco" << endreq;
+	ATH_MSG_DEBUG("begin AFP_SIDLocReco::AFP_SIDLocReco");
 
 	m_Config.clear();
 	m_pGeometry = new AFP_Geometry(&m_Config);
@@ -47,13 +47,12 @@ Algorithm(name, pSvcLocator)
 	m_iEvent   = 0;
 	m_iRunNum  = 0;
 
-	LogStream << MSG::DEBUG << "end AFP_SIDLocReco::AFP_SIDLocReco" << endreq;
+	ATH_MSG_DEBUG("end AFP_SIDLocReco::AFP_SIDLocReco");
 }
 
 AFP_SIDLocReco::~AFP_SIDLocReco()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "AFP_SIDLocReco::~AFP_SIDLocReco");
-	LogStream << MSG::DEBUG << "begin AFP_SIDLocReco::~AFP_SIDLocReco" << endreq;
+	ATH_MSG_DEBUG("begin AFP_SIDLocReco::~AFP_SIDLocReco");
 
 // 	if(m_pGeometryReader!=NULL)
 // 	{
@@ -61,13 +60,12 @@ AFP_SIDLocReco::~AFP_SIDLocReco()
 // 		m_pGeometryReader = NULL;
 // 	}
 
-	LogStream << MSG::DEBUG << "begin AFP_SIDLocReco::~AFP_SIDLocReco" << endreq;
+	ATH_MSG_DEBUG("begin AFP_SIDLocReco::~AFP_SIDLocReco");
 }
 
 StatusCode AFP_SIDLocReco::initialize()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "AFP_SIDLocReco::initialize()");
-	LogStream << MSG::DEBUG << "begin AFP_SIDLocReco::initialize()" << endreq;
+	ATH_MSG_DEBUG("begin AFP_SIDLocReco::initialize()");
 
 	StatusCode sc;
 	ClearGeometry();
@@ -75,18 +73,18 @@ StatusCode AFP_SIDLocReco::initialize()
 	sc = service("StoreGateSvc",m_storeGate);
 	if(sc.isFailure())
 	{
-		LogStream << MSG::ERROR << "reconstruction: unable to retrieve pointer to StoreGateSvc" << endreq;
+		ATH_MSG_ERROR("reconstruction: unable to retrieve pointer to StoreGateSvc");
 		return sc;
 	} 
 	
 	//read geometry
 	if(ReadGeometryDetCS())
 	{
-		LogStream<<MSG::DEBUG<<"Geometry loaded successfully"<<endreq;
+		ATH_MSG_DEBUG("Geometry loaded successfully");
 	}
 	else
 	{
-		LogStream<<MSG::FATAL<<"Could not load geometry"<<endreq;
+		ATH_MSG_FATAL("Could not load geometry");
 		return StatusCode::FAILURE;
 	}
 
@@ -105,14 +103,13 @@ StatusCode AFP_SIDLocReco::initialize()
 
 	m_iEvent = 0;
 
-	LogStream << MSG::DEBUG << "end AFP_SIDLocReco::initialize()" << endreq;
+	ATH_MSG_DEBUG("end AFP_SIDLocReco::initialize()");
 	return StatusCode::SUCCESS;
 }
 
 StatusCode AFP_SIDLocReco::execute()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "AFP_SIDLocReco::execute()");
-	LogStream << MSG::DEBUG << "begin AFP_SIDLocReco::execute()" << endreq;
+	ATH_MSG_DEBUG("begin AFP_SIDLocReco::execute()");
 
 	StatusCode sc;
 
@@ -125,7 +122,7 @@ StatusCode AFP_SIDLocReco::execute()
 	sc = m_storeGate->retrieve( eventInfo );
 	if (sc.isFailure())
 	{
-		LogStream << MSG::ERROR << "AFP_SIDLocReco, Cannot get event info." << endreq;
+		ATH_MSG_ERROR("AFP_SIDLocReco, Cannot get event info.");
 //		return sc;
 	}
 	else
@@ -150,14 +147,14 @@ StatusCode AFP_SIDLocReco::execute()
 	sc = RecordSIDCollection();
 	if (sc.isFailure())
 	{
-		LogStream << MSG::ERROR << "RecordCollection() failed" << endreq;
+		ATH_MSG_ERROR("RecordCollection() failed");
 		return StatusCode::SUCCESS;
 	}
 
 	sc = AFPCollectionReading(ListSIDHits);
 	if (sc.isFailure())
 	{
-		LogStream << MSG::WARNING << "AFP_Collection_Reading Failed" << endreq;
+		ATH_MSG_WARNING("AFP_Collection_Reading Failed");
 //		return StatusCode::SUCCESS;
 	}
 	else
@@ -172,7 +169,7 @@ StatusCode AFP_SIDLocReco::execute()
 			
 			if (sc.isFailure())
 			{
-			LogStream << MSG::FATAL << "SID Algorithm " << strAlgoSID << " failure!" << endreq;
+			ATH_MSG_FATAL("SID Algorithm " << strAlgoSID << " failure!");
 			return sc;
 			}
 		}
@@ -183,24 +180,22 @@ StatusCode AFP_SIDLocReco::execute()
 	
 	
 	m_iEvent++;
-	LogStream << MSG::DEBUG << "end AFP_SIDLocReco::execute()" << endreq;
+	ATH_MSG_DEBUG("end AFP_SIDLocReco::execute()");
 	return StatusCode::SUCCESS;
 }
 
 StatusCode AFP_SIDLocReco::finalize()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "AFP_SIDLocReco::finalize()");
-	LogStream << MSG::DEBUG << "begin AFP_SIDLocReco::finalize()" << endreq;
+	ATH_MSG_DEBUG("begin AFP_SIDLocReco::finalize()");
 
 
-	LogStream << MSG::DEBUG << "end AFP_SIDLocReco::finalize()" << endreq;
+	ATH_MSG_DEBUG("end AFP_SIDLocReco::finalize()");
 	return StatusCode::SUCCESS;
 }
 
 void AFP_SIDLocReco::ClearGeometry()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "AFP_SIDLocReco::ClearGeometry()");
-	LogStream << MSG::DEBUG << "begin AFP_SIDLocReco::ClearGeometry()" << endreq;
+	ATH_MSG_DEBUG("begin AFP_SIDLocReco::ClearGeometry()");
 
 	///////
 	memset(&m_fsSID, 0, sizeof(m_fsSID));
@@ -209,7 +204,7 @@ void AFP_SIDLocReco::ClearGeometry()
 	memset(&m_fzSID, 0, sizeof(m_fzSID));
 	///////
 	
-	LogStream << MSG::DEBUG << "end AFP_SIDLocReco::ClearGeometry()" << endreq;
+	ATH_MSG_DEBUG("end AFP_SIDLocReco::ClearGeometry()");
 }
 
 
@@ -217,8 +212,7 @@ StatusCode AFP_SIDLocReco::AFPCollectionReading(list<SIDHIT> &ListSIDHits)
 {
 	StatusCode sc;
 
-	MsgStream LogStream(Athena::getMessageSvc(), "AFP_SIDLocReco::AFPCollectionReading()");
-	LogStream << MSG::DEBUG << "begin AFP_SIDLocReco::AFPCollectionReading()" << endreq;
+	ATH_MSG_DEBUG("begin AFP_SIDLocReco::AFPCollectionReading()");
 
 	SIDHIT SIDHit;
 
@@ -250,7 +244,7 @@ StatusCode AFP_SIDLocReco::AFPCollectionReading(list<SIDHIT> &ListSIDHits)
 		ListSIDHits.push_back(SIDHit);
 	}
 
-	LogStream << MSG::DEBUG << "end AFP_SIDLocReco::AFPCollectionReading()" << endreq;
+	ATH_MSG_DEBUG("end AFP_SIDLocReco::AFPCollectionReading()");
 
 	return StatusCode::SUCCESS;
 }
@@ -258,8 +252,7 @@ StatusCode AFP_SIDLocReco::AFPCollectionReading(list<SIDHIT> &ListSIDHits)
 
 bool AFP_SIDLocReco::ReadGeometryDetCS()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "AFP_SIDLocReco::ReadGeometryDetCS()");
-	LogStream << MSG::DEBUG << "begin AFP_SIDLocReco::ReadGeometryDetCS()" << endreq;
+	ATH_MSG_DEBUG("begin AFP_SIDLocReco::ReadGeometryDetCS()");
 
 	//////	
 	StatusCode sc;
@@ -275,7 +268,7 @@ bool AFP_SIDLocReco::ReadGeometryDetCS()
 			
 			if (sc.isFailure())
 			{
-				LogStream << MSG::WARNING << "AFP_Geometry::GetPointInSIDSensorGlobalCS() Failed" << endreq;
+				ATH_MSG_WARNING("AFP_Geometry::GetPointInSIDSensorGlobalCS() Failed");
 
 				m_fsSID[nStationID][nPlateID] = NOMINALSIDSLOPE;
 				m_fxSID[nStationID][nPlateID] = LocPoint.x();
@@ -290,7 +283,7 @@ bool AFP_SIDLocReco::ReadGeometryDetCS()
 				m_fySID[nStationID][nPlateID] = GloPoint.y(); 
 				m_fzSID[nStationID][nPlateID] = GloPoint.z();	
 					
-				LogStream << MSG::DEBUG << "Global edge position of SID sensor: " <<GloPoint.x()<< "\t" <<GloPoint.y()<< "\t" <<GloPoint.z()<< "\t" << endreq;	
+				ATH_MSG_DEBUG("Global edge position of SID sensor: " <<GloPoint.x()<< "\t" <<GloPoint.y()<< "\t" <<GloPoint.z()<< "\t");	
 			}
 			
 		}
@@ -299,41 +292,38 @@ bool AFP_SIDLocReco::ReadGeometryDetCS()
 	
 	//SaveGeometry();
 
-	LogStream << MSG::DEBUG << "end AFP_SIDLocReco::ReadGeometryDetCS()" << endreq;
+	ATH_MSG_DEBUG("end AFP_SIDLocReco::ReadGeometryDetCS()");
 
 	return 1;
 }
 
-bool AFP_SIDLocReco::StoreReconstructionGeometry(const char* szDataDestination)
+bool AFP_SIDLocReco::StoreReconstructionGeometry(/*const char* szDataDestination*/)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "AFP_SIDLocReco::StoreReconstructionGeometry()");
-	LogStream << MSG::DEBUG << "begin AFP_SIDLocReco::StoreReconstructionGeometry()" << endreq;
+	ATH_MSG_DEBUG("begin AFP_SIDLocReco::StoreReconstructionGeometry()");
 
 	//////
 	// (...)
 	//////
 
-	LogStream << MSG::DEBUG << "end AFP_SIDLocReco::StoreReconstructionGeometry()" << endreq;
+	ATH_MSG_DEBUG("end AFP_SIDLocReco::StoreReconstructionGeometry()");
 
 	return true;
 }
 
 void AFP_SIDLocReco::SaveGeometry()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "AFP_SIDLocReco::SaveGeometry()");
-	LogStream << MSG::DEBUG << "begin AFP_SIDLocReco::SaveGeometry()" << endreq;
+	ATH_MSG_DEBUG("begin AFP_SIDLocReco::SaveGeometry()");
 
 	/////
 	// (...)
 	/////
 
-	LogStream << MSG::DEBUG << "end AFP_SIDLocReco::SaveGeometry()" << endreq;
+	ATH_MSG_DEBUG("end AFP_SIDLocReco::SaveGeometry()");
 }
 
 StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const string strAlgo, const list<SIDHIT> &ListSIDHits)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "AFP_SIDLocReco::ExecuteRecoMethod()");
-	LogStream << MSG::DEBUG << "begin AFP_SIDLocReco::ExecuteRecoMethod()" << endreq;
+	ATH_MSG_DEBUG("begin AFP_SIDLocReco::ExecuteRecoMethod()");
 
 	StatusCode sc = StatusCode::SUCCESS;
 	SIDRESULT SIDResults;
@@ -388,20 +378,19 @@ StatusCode AFP_SIDLocReco::ExecuteRecoMethod(const string strAlgo, const list<SI
 
 	default:
 		{
-			LogStream << MSG::ERROR << "Unable to recognize selected algorithm" << endreq;
+			ATH_MSG_ERROR("Unable to recognize selected algorithm");
 			return StatusCode::FAILURE;
 		}
 	}
 
-	LogStream << MSG::DEBUG << "end AFP_SIDLocReco::ExecuteRecoMethod()" << endreq;
+	ATH_MSG_DEBUG("end AFP_SIDLocReco::ExecuteRecoMethod()");
 
 	return sc;
 }
 
 StatusCode AFP_SIDLocReco::RecordSIDCollection()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "AFP_SIDLocReco::RecordSIDCollection()");
-	LogStream << MSG::DEBUG << "begin AFP_SIDLocReco::RecordSIDCollection()" << endreq;
+	ATH_MSG_DEBUG("begin AFP_SIDLocReco::RecordSIDCollection()");
 
 	StatusCode sc = StatusCode::SUCCESS;
 
@@ -410,15 +399,15 @@ StatusCode AFP_SIDLocReco::RecordSIDCollection()
 
 	if (sc.isFailure())
 	{
-		LogStream << MSG::ERROR << m_strAlgoSID << "SID - Could not record the empty LocRecoEv collection in StoreGate" << endreq;
+		ATH_MSG_ERROR( m_strAlgoSID << "SID - Could not record the empty LocRecoEv collection in StoreGate");
 		return sc;
 	}
 	else
 	{
-		LogStream << MSG::DEBUG << "SID - LocRecoEv collection was recorded in StoreGate" << endreq;
+		ATH_MSG_DEBUG("SID - LocRecoEv collection was recorded in StoreGate");
 	}
 
-	LogStream << MSG::DEBUG << "end AFP_SIDLocReco::RecordSIDCollection()" << endreq;
+	ATH_MSG_DEBUG("end AFP_SIDLocReco::RecordSIDCollection()");
 
 	return sc;
 }

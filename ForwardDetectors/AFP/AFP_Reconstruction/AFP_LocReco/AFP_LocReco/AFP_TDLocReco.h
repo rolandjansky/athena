@@ -12,7 +12,8 @@
 #include <vector>
 #include <fstream>
 
-#include "GaudiKernel/Algorithm.h"
+//#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ObjectVector.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -65,7 +66,7 @@ using namespace std;
 class StoreGateSvc;
 class ActiveStoreSvc;
 
-class AFP_TDLocReco : public Algorithm
+class AFP_TDLocReco : public AthAlgorithm
 {
 	public:
 		AFP_TDLocReco(const string& name, ISvcLocator* pSvcLocator);
@@ -103,7 +104,7 @@ class AFP_TDLocReco : public Algorithm
 		
 	private:
 		bool ReadGeometryDetCS();
-		bool StoreReconstructionGeometry(const char* szDataDestination);
+		bool StoreReconstructionGeometry(/*const char* szDataDestination*/);
 		void SaveGeometry();
 		void ClearGeometry();
 
