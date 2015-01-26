@@ -54,6 +54,7 @@ private:
    UnsignedIntegerProperty        m_muCTPIModuleID;
    UnsignedIntegerArrayProperty   m_jetProcModuleID;
    UnsignedIntegerArrayProperty   m_caloClusterProcModuleID;
+   UnsignedIntegerArrayProperty   m_topoProcModuleID;
    int m_storeID;
 };
 

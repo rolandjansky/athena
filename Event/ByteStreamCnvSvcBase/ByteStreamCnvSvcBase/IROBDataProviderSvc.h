@@ -8,7 +8,7 @@
 #include "GaudiKernel/IInterface.h"
 #include "ByteStreamData/RawEvent.h"
 
-#include <inttypes.h>
+#include <cstdint>
 #include <vector>
 #include <string>
 

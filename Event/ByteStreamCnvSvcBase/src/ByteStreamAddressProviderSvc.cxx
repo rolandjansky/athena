@@ -36,12 +36,19 @@ ByteStreamAddressProviderSvc::ByteStreamAddressProviderSvc(const std::string& na
   default_caloClusterProcModuleID.push_back(0xab);
   m_caloClusterProcModuleID.setValue(default_caloClusterProcModuleID);
 
+  // set default Topo Processor RoI module IDs
+  std::vector<unsigned int> default_topoProcModuleID;
+  default_topoProcModuleID.push_back(0x00910080);
+  default_topoProcModuleID.push_back(0x00910090);
+  m_topoProcModuleID.setValue(default_topoProcModuleID);
+
   declareProperty("TypeNames", m_typeNames);
   // Properties to set L1 ROB module IDs
   declareProperty("CTPModuleID", m_ctpModuleID = 1);
   declareProperty("MuCTPIModuleID", m_muCTPIModuleID = 1);
   declareProperty("JetProcModuleID", m_jetProcModuleID);
   declareProperty("CaloClusterProcModuleID", m_caloClusterProcModuleID);
+  declareProperty("TopoProcModuleID", m_topoProcModuleID);
   declareProperty("StoreID", m_storeID);
 }
 //________________________________________________________________________________
@@ -78,6 +85,8 @@ StatusCode ByteStreamAddressProviderSvc::initialize() {
 	   << ", 0x" << m_caloClusterProcModuleID.value()[3] << MSG::dec);
    ATH_MSG_INFO("   Calorimeter Jet/Energy Processor RoI = 0x" << MSG::hex << m_jetProcModuleID.value()[0]
 	   << ", 0x" << m_jetProcModuleID.value()[1] << MSG::dec);
+   ATH_MSG_INFO("   Topo Processor RoI = 0x" << MSG::hex << m_topoProcModuleID.value()[0]
+	   << ", 0x" << m_topoProcModuleID.value()[1] << MSG::dec);
    ATH_MSG_INFO("-- Will fill Store with id =  " << m_storeID);
    return(StatusCode::SUCCESS);
 }
@@ -148,6 +157,10 @@ StatusCode ByteStreamAddressProviderSvc::updateAddress(StoreID::type id, SG::Tra
          for (int i = 0; i < 4; i++) {
             eformat::helper::SourceIdentifier emID(eformat::TDAQ_CALO_CLUSTER_PROC_ROI, m_caloClusterProcModuleID.value()[i]);
             vid.push_back(emID.code());
+         }
+         for (int i = 0; i < 2; i++) {
+            eformat::helper::SourceIdentifier topoID(eformat::TDAQ_CALO_TOPO_PROC, m_topoProcModuleID.value()[i]);
+            vid.push_back(topoID.code());
          }
       } else {
          // L2 result
