@@ -57,7 +57,7 @@ METMonTool::METMonTool(const std::string& type, const std::string& name, const I
     m_metCalKey("MET_LocHadTopo"),
     m_metRegKey(""),
     m_jetColKey("AntiKt4LCTopoJets"),
-    m_eleColKey("ElectronCollection"),
+    m_eleColKey("Electrons"),
     m_muoColKey("Muons"),
     m_etabin(100),
     m_phibin(100),
@@ -1034,9 +1034,9 @@ StatusCode METMonTool::fillSourcesHistograms()
     const xAOD::Electron* xhEle = 0;
 
     if (m_eleColKey != "") {
-        ATH_CHECK(evtStore()->retrieve(xElectrons, "ElectronCollection"));
+        ATH_CHECK(evtStore()->retrieve(xElectrons, "Electrons"));
         if (!xElectrons) {
-            ATH_MSG_WARNING("Unable to retrieve ElectronContainer: " << "ElectronCollection");
+            ATH_MSG_WARNING("Unable to retrieve ElectronContainer: " << "Electrons");
         }
         else {
             // Get Hardest Electron
