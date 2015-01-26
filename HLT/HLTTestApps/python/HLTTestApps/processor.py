@@ -15,14 +15,13 @@ from pausable_istream import PauseIterationException
 def going_up(transition):
   return transition in ['configure','connect','prepareForRun','prepareWorker']
 
-def keep_processing(config, processed, total):
-  """Determines if we should continue processing events or not.
-  
-  Two situations are forseen:
-  i.  The config'ed value is < 0 and we should process all events once.
-  ii. The config'ed value is != 0
-  """
-  return processed < (total if config < 0 else config)
+def keep_processing(config, processed, total, skipped):
+  """Determines if we should continue processing events or not."""
+  if config < 0:
+    return processed + skipped < total
+  else:
+    return processed < config
+#  return processed < (total if config < 0 else config)
 
 class FSMTransitionError(RuntimeError): pass
 
@@ -142,7 +141,7 @@ class Processor:
       self._try_debug('run')
       self._transit_infrastructure('run')
       logging.info('Running HLT')
-      processed = 0
+      skipped, processed = 0, 0
       total = len(self.stream)
       # setup the output, if required
       self.datawriter = None
@@ -161,11 +160,11 @@ class Processor:
                             self.raw_file_name)
         
       try:
-          while keep_processing(self.number_of_events, processed, total):
+          while keep_processing(self.number_of_events, processed, total, skipped):
               try:
-                  processed = self._run_aux(processed, total)
-              except PauseIterationException, upd_proc: # we can still update 
-                  processed = upd_proc.args[0]          #processed
+                  skipped, processed = self._run_aux(skipped, processed, total)
+              except PauseIterationException, upd_proc: # we can still update
+                  skipped, processed = upd_proc.args    # skipped and processed
                   self.stopRun()
                   self.prepareForRun()
                   if len(self.save_output):
@@ -180,16 +179,24 @@ class Processor:
                                 self.raw_file_name)
 
       except KeyboardInterrupt, upd_proc: # we can still update processed
-          processed = upd_proc.args[0]
+          skipped, processed = upd_proc.args
           logging.info("Keyboard interruption caught. Stopping "
                        "event processing cleanly...")
-    
+      logging.info('Skipped %d events' % skipped)
       logging.info('Processed %d events' % processed)
       logging.info('Current state is "%s"' % self.state)
       
-  def _run_aux(self, processed, total):
+  def _run_aux(self, skipped, processed, total):
     try:
       for event in self.stream:
+        if skipped < self.skip_events:
+          logging.info("Skipping event %d" % skipped)
+          skipped += 1
+          if keep_processing(self.number_of_events, processed, total, skipped):
+            continue
+          else:
+            break
+        
         event.check()
 
         # update number of read events
@@ -200,10 +207,9 @@ class Processor:
           logging.debug1('---> Applying plugin %s <' % k.__module__)
           event = k(event)
           logging.debug1('---> Finished applying plugin %s <' % k.__module__)
-          if not event:
-            break
+          
         if not event:
-          if keep_processing(self.number_of_events, processed, total): 
+          if keep_processing(self.number_of_events, processed, total, skipped): 
             continue
           else:
             break     
@@ -217,13 +223,13 @@ class Processor:
             self.datawriter.write(processed_event)
           else:
             logging.debug1('Event %d was REJECTED, not saved' % event.lvl1_id())
-        if not keep_processing(self.number_of_events, processed, total): 
+        if not keep_processing(self.number_of_events, processed, total, skipped): 
           break     
     except PauseIterationException:
-      raise PauseIterationException, processed # we can still update processed
+      raise PauseIterationException, (skipped, processed) # update these 
     except KeyboardInterrupt:
-      raise KeyboardInterrupt, processed # we can still update processed
-    return processed
+      raise KeyboardInterrupt, (skipped, processed) # we can still update these
+    return skipped, processed
 
   def interact(self):
     """This will make the processor work in interactive mode"""
@@ -392,6 +398,7 @@ class dummy_processor(Processor):
     self.event_modifier = []
     self.interactive = False
     self.debug_stage = None
+    self.skip_events = 0
     self._add_config_specific_stuff()
   def _add_config_specific_stuff(self):
     self.config = dummy_configuration()

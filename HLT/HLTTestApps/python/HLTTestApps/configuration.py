@@ -121,6 +121,7 @@ class configuration(dict):
       rulept['IncludeFilter'] = self['histogram-include']
       rulept['ExcludeFilter'] = self['histogram-exclude']
       rulept['UID'] = 'GlobalOHRule'
+      rulept['Name'] = 'GlobalOHRule'
       pt.add_child(mon_config_rule_path, rulept)
     logging.debug('OH configure ptree:\n%s' % pt)
     return pt
@@ -152,14 +153,24 @@ class configuration(dict):
     self.__log_number_events()
     
   def __log_number_events(self):
-    if self['number-of-events'] > 0 and \
-      len(self.stream) < self['number-of-events']:
+    nevts, skip = self['number-of-events'], self['skip-events']
+    tot = nevts + skip
+    avail = len(self.stream)
+    if nevts == 0:
+      logging.warning("0 events will be processed")
+      if skip:
+        logging.warning("Skipping events makes no sense in this context")
+    elif nevts > 0 and \
+      len(self.stream) < tot:
       logging.warning("Events will be recycled!")
       logging.info("%d events available on input" % len(self.stream))
-      logging.info("%d events requested by user" % self['number-of-events'])
-      if len(self.stream) != 0:
-        n_file_iter = float(self['number-of-events'])/len(self.stream)
+      logging.info("User requested %d skipped events and %d processed events" 
+                   % (skip, nevts))
+      logging.info("A total of %d events have to be consumed" % tot)
+      if avail != 0:
+        n_file_iter = float(tot)/avail
       else:
+        logging.warning("Input stream has no events!")
         n_file_iter = 0.
         self['number-of-events'] = 0
       logging.info("I'll run over the file(s) %.2f times" % (n_file_iter))
@@ -174,6 +185,9 @@ class configuration(dict):
       self['file'] = [path.expandvars(path.expanduser(f)) for f in self['file']]
       logging.info('Creating event stream from file list %s' % self['file'])
       self.stream = pausable_istream(self['file'])
+      if self['skip-events'] >= self.stream.total_events:
+        raise option.BadOptionSet, ('Can only skip less events than those '
+                                    'provided as input')
     # We can now update the run number from the input stream if necessary
     self.__update_run_number()
     self['precommand'].append('_run_number=%d' % self['run-number'])
@@ -683,6 +697,7 @@ class configuration_tests(unittest.TestCase):
   def test_mon_online_config_ptree_paths(self):
     pt = self._gen_complete_mon_config_ptree(['--oh-monitoring'])
     self._test_ptree_path(pt, mon_config_rule_path + ".UID")
+    self._test_ptree_path(pt, mon_config_rule_path + ".Name")
     self._test_ptree_path(pt, oh_params_path + ".OHServer")
     self._test_ptree_path(pt, oh_params_path + ".ROOTProvider")
   def test_mon_online_config_ptree_include_filter(self):
@@ -828,7 +843,10 @@ class file_based_configuration_tests(configuration_tests):
     cli_args += self.special_cli_args
     c = configuration(self.opt_spec, cli_args)
     self.assertEquals(c['file'], [tf])
-    
+  def test_skip_too_many_events(self):
+    self.assertRaises(option.BadOptionSet, configuration,
+                      option.file_opt_spec, 
+                      self._gen_complete_args(['--skip-events', '10e20']))
 
 class emon_based_configuration_tests(configuration_tests):
   def setUp(self):

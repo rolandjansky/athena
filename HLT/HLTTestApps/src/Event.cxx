@@ -62,12 +62,13 @@ using std::find;
 namespace
 {
   // ROBs that should go into the L1R
-  constexpr array<uint32_t, 8> L1R_ROBS =
+  constexpr array<uint32_t, 10> L1R_ROBS =
     {{
       0x7300a8, 0x7300a9, 0x7300aa, 0x7300ab, // TDAQ_CALO_CLUSTER_PROC_ROI ROBs
       0x7500ac, 0x7500ad,                     // TDAQ_CALO_JET_PROC_ROI ROBs
       0x760001,                               // TDAQ_MUON_CTP_INTERFACE ROB
-      0x770001                                // TDAQ_CTP ROB
+      0x770001,                               // TDAQ_CTP ROB
+      0x910080, 0x910090                      // TDAQ_CALO_TOPO_PROC ROBs
     }};
 
   constexpr array<eformat::SubDetector, 1> L1R_SDS =

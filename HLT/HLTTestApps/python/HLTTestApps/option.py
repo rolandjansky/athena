@@ -62,7 +62,20 @@ def common_optcheck(option_spec, kwargs, extra):
   """
   unsupported_optcheck(option_spec, kwargs)
   db_optcheck(option_spec, kwargs, extra)
+  oh_optcheck(option_spec, kwargs)
+  skip_events_optcheck(option_spec, kwargs)
+  
+def skip_events_optcheck(option_spec, kwargs):
+  skip = kwargs['skip-events']
+  if skip:
+    if(skip < 0):
+      raise BadOptionSet, 'You cannot skip a negative number of events'
+    if kwargs['interactive']:
+      raise BadOptionSet, 'Skipping events in interactive mode is not supported'
+    if kwargs['rewind']:
+      raise BadOptionSet, 'Skipping events in rewind mode is not supported'
         
+def oh_optcheck(option_spec, kwargs):
   if not kwargs['oh-monitoring']:
     if kwargs['oh-display']:
       raise BadOptionSet, 'You cannot launch an OH display if OH monitoring is not enabled.'
@@ -292,15 +305,15 @@ class option_consistency_tests(option_tests_base):
                                       ["--unsupported", "123"])
     self.assertRaises(CurrentlyNotSupported, self.option_spec.optcheck, 
                       kwargs, extra)
-  def test_explicitely_supported(self):
-    self._aux_test_explicitely_supported(["run-number"], 
+  def test_explicitly_supported(self):
+    self._aux_test_explicitly_supported(["run-number"], 
                                         ["-R", "1234"] + 
                                         self._get_required_args())
-  def test_explicitely_supported_flag(self):
-    self._aux_test_explicitely_supported(["leak-check-execute"],
+  def test_explicitly_supported_flag(self):
+    self._aux_test_explicitly_supported(["leak-check-execute"],
                                         ["-Q"] + self._get_required_args())
-  def test_explicitely_supported_extra(self):
-    self._aux_test_explicitely_supported(["extra_argument"])
+  def test_explicitly_supported_extra(self):
+    self._aux_test_explicitly_supported(["extra_argument"])
   def _check_opt_allowed(self, optn, optv=None):
     # leave the value argument empty for flags
     kwargs, extra = self.parser.parse(self._get_required_args() + 
@@ -311,10 +324,9 @@ class option_consistency_tests(option_tests_base):
     self.check_arg_values(kwargs, d)
     self.option_spec.optcheck(kwargs, extra)
   def _check_opt_disallowed(self, optn, optv=None):
-    # we don't check the value since there are no guarantees when the value is
-    # not allowed to begin with
+    # we don't check the value when the option is not allowed to begin with
     self.assertRaises(BadOptionSet, self._check_opt_allowed, optn, optv)
-  def _aux_test_explicitely_supported(self, sup_args=[], cmd_args=None):
+  def _aux_test_explicitly_supported(self, sup_args=[], cmd_args=None):
     # sup_args are extra arguments, but they are also added to the list of 
     # supported arguments, so that currently unsupported options can still be
     # tested (e.g. test that oh-display is supported with oh-monitoring before
@@ -340,29 +352,29 @@ class option_specific_tests(option_consistency_tests):
   def test_histogram_exclude_requires_oh(self):
     self._check_opt_disallowed('histogram-exclude', 'abc*')    
   def test_oh_display_ok_with_oh(self):
-    self._aux_test_explicitely_supported(["oh-display"],
+    self._aux_test_explicitly_supported(["oh-display"],
                                          ["--oh-display", "--oh-monitoring"] +
                                          self._get_required_args())
   def test_user_ipc_ok_with_oh(self):
-    self._aux_test_explicitely_supported(cmd_args=["--user-ipc", 
+    self._aux_test_explicitly_supported(cmd_args=["--user-ipc", 
                                                    "--oh-monitoring"]
                                          + self._get_required_args())
   def test_info_service_ok_with_oh(self):
-    self._aux_test_explicitely_supported(cmd_args=["--info-service", "bla",
+    self._aux_test_explicitly_supported(cmd_args=["--info-service", "bla",
                                                    "--oh-monitoring"]
                                          + self._get_required_args())
   def test_histogram_publishing_interval_ok_with_oh(self):
     cargs=["--histogram-publishing-interval", "5", "--oh-monitoring"]
     cargs += self._get_required_args()
-    self._aux_test_explicitely_supported(cmd_args=cargs)
+    self._aux_test_explicitly_supported(cmd_args=cargs)
   def test_histogram_include_ok_with_oh(self):
     cargs = ['--histogram-include', '.*', '--oh-monitoring']
     cargs += self._get_required_args()
-    self._aux_test_explicitely_supported(cmd_args=cargs)
+    self._aux_test_explicitly_supported(cmd_args=cargs)
   def test_histogram_exclude_ok_with_oh(self):
     cargs = ['--histogram-exclude', ' ', '--oh-monitoring']
     cargs += self._get_required_args()
-    self._aux_test_explicitely_supported(cmd_args=cargs)
+    self._aux_test_explicitly_supported(cmd_args=cargs)
   def test_sor_time_allowed(self):
     allowed = ['now', 1386355338658000000, '13/3/13  08:30:00.123',
                '4/4/04 4:4:4.444444', -123]
@@ -380,6 +392,20 @@ class option_specific_tests(option_consistency_tests):
                   ('db-extra', {'a':'b'}), ('use-frontier',)]
     for args in disallowed:
       self._check_opt_disallowed(*args)
+
+class option_skip_events_tests(option_consistency_tests):
+  def setUp(self):
+    super(option_skip_events_tests, self).setUp()
+    self.required['skip-events'] = 123
+  def test_skip_events_interactive_disallowed(self):
+    self._check_opt_disallowed('interactive')
+  def test_skip_events_rewind_disallowed(self):
+    self._check_opt_disallowed('rewind')
+  def test_skip_events_negative_disallowed(self):
+    del self.required['skip-events']
+    self._check_opt_disallowed('skip-events', -1)
+  def test_skip_events_explicitly_supported(self):
+    self._aux_test_explicitly_supported(cmd_args=self._get_required_args())
 
 class option_database_tests(option_consistency_tests):
   def setUp(self):
