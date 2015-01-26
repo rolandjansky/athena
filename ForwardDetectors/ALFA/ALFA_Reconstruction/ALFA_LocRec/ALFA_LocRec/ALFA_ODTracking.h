@@ -8,7 +8,10 @@
 #include <iostream>
 #include <list>
 
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
+//#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 #include "AthenaKernel/getMessageSvc.h"
 
@@ -45,6 +48,16 @@ class ALFA_ODTracking
 	private:
 		void FiberProjection(Int_t iRPot, map<int, FIBERS> &MapLayers, Float_t faOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT], Float_t fbOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT]);
 		void FindingPosition(Int_t iRPot, map<int, FIBERS> &MapLayers, Float_t faOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT], Float_t fbOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT]);
+
+public:
+	/// Log a message using the Athena controlled logging system
+	MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
+	/// Check whether the logging system is active at the provided verbosity level
+	bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
+private:
+	/// Private message stream member
+	mutable Athena::MsgStreamMember m_msg;
 };
+
 
 #endif // ALFA_ODTRACKING_H

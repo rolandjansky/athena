@@ -93,20 +93,20 @@ StatusCode ALFA_CenterGravity::Initialize(const eRPotName &eRPName, const list<M
 StatusCode ALFA_CenterGravity::Execute()
 {
 	StatusCode sc;
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_CenterGravity::Execute()");
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_CenterGravity::Execute()");
 
   // SELECT CANDIDATE HITS
 	sc = SelectHitInLayer();
 	if(sc.isFailure())
 	{
-		LogStream << MSG::ERROR << " hit selection failure " << endreq;
+		ATH_MSG_ERROR(" hit selection failure ");
 		return sc;
 	}
 
 	sc = CenterGravity();
 	if(sc.isFailure())
 	{
-		LogStream << MSG::ERROR << " CenterGravity failure " << endreq;
+		ATH_MSG_ERROR(" CenterGravity failure ");
 		return sc;
 	}
 
@@ -269,7 +269,7 @@ StatusCode ALFA_CenterGravity::SelectHitInLayer()
 
 StatusCode ALFA_CenterGravity::CenterGravity()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_CenterGravity::CenterGravity()");
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_CenterGravity::CenterGravity()");
 
 	Int_t n_p = 0;
 	Int_t n_n = 0;
@@ -309,7 +309,7 @@ StatusCode ALFA_CenterGravity::CenterGravity()
 
 		if(faMeanP == faMeanN)
 		{
-			LogStream << MSG::DEBUG << "something goes wrong, faMeanP = faMeanN " << endreq;
+			ATH_MSG_DEBUG("something goes wrong, faMeanP = faMeanN ");
 		}
 
 		m_fRecXPos = (fbMeanN - fbMeanP)/(faMeanP - faMeanN);

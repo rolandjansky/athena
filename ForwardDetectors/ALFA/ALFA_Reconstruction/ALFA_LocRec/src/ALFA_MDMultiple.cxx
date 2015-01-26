@@ -59,8 +59,8 @@ ALFA_MDMultiple::~ALFA_MDMultiple()
 
 StatusCode ALFA_MDMultiple::Initialize(Int_t iRPot, Float_t faMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], Float_t fbMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], Int_t iMultiplicityCut, Int_t iNumLayerCut, Int_t iUVCut, Float_t fOverlapCut)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDMultiple::Initialize()");
-	LogStream << MSG::DEBUG << "ALFA_MDMultiple::Initialize()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDMultiple::Initialize()");
+	ATH_MSG_DEBUG("ALFA_MDMultiple::Initialize()");
 
 	m_iRPot            = iRPot;
 	m_iUVCut           = iUVCut;
@@ -87,8 +87,8 @@ StatusCode ALFA_MDMultiple::Initialize(Int_t iRPot, Float_t faMD[RPOTSCNT][ALFAL
 
 StatusCode ALFA_MDMultiple::Execute(const list<MDHIT> &ListMDHits)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDMultiple::Execute()");
-	LogStream << MSG::DEBUG << "ALFA_MDMultiple::Execute()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDMultiple::Execute()");
+	ATH_MSG_DEBUG("ALFA_MDMultiple::Execute()");
 
 	FIBERS structFibers;
 	m_MapLayers.clear();
@@ -248,8 +248,8 @@ StatusCode ALFA_MDMultiple::Execute(const list<MDHIT> &ListMDHits)
 
 StatusCode ALFA_MDMultiple::Finalize(Float_t (&fRecXPos)[MAXTRACKNUM], Float_t (&fRecYPos)[MAXTRACKNUM])
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDMultiple::Finalize()");
-	LogStream << MSG::DEBUG << "ALFA_MDMultiple::Finalize()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDMultiple::Finalize()");
+	ATH_MSG_DEBUG("ALFA_MDMultiple::Finalize()");
 
 	Int_t iTrackNum=0, iSize=0;
 	fill_n(&fRecXPos[0], sizeof(fRecXPos)/sizeof(Float_t), -9999.0);
@@ -272,8 +272,8 @@ StatusCode ALFA_MDMultiple::Finalize(Float_t (&fRecXPos)[MAXTRACKNUM], Float_t (
 /************************************************/
 void ALFA_MDMultiple::Proj_Store(Int_t iFiberSide, Int_t (&iOver)[72000], Float_t fbRef, Int_t iSideFlag)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDMultiple::Proj_Store()");
-	LogStream << MSG::DEBUG << "ALFA_MDMultiple::Pro_Store()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDMultiple::Proj_Store()");
+	ATH_MSG_DEBUG("ALFA_MDMultiple::Pro_Store()");
 
 	Float_t fSign;
 	Float_t fXInter, fYInter;
@@ -314,8 +314,8 @@ void ALFA_MDMultiple::Proj_Store(Int_t iFiberSide, Int_t (&iOver)[72000], Float_
 /************************************************/
 void ALFA_MDMultiple::Proj_Store(std::vector<Int_t> FiberHit[ALFAPLATESCNT], Int_t (&iOver)[72000], Float_t fbRef, Int_t iSideFlag)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDMultiple::Proj_Store()");
-	LogStream << MSG::DEBUG << "ALFA_MDMultiple::Pro_Store()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDMultiple::Proj_Store()");
+	ATH_MSG_DEBUG("ALFA_MDMultiple::Pro_Store()");
 
 	Float_t fSign;
 	Float_t fXInter, fYInter;
@@ -357,8 +357,8 @@ void ALFA_MDMultiple::Proj_Store(std::vector<Int_t> FiberHit[ALFAPLATESCNT], Int
 /************************************************/
 void ALFA_MDMultiple::Find_Proj(Int_t iOver[72000], Float_t fbRef, Float_t &fb, Float_t &fOv, Int_t &iNum)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDMultiple::Find_Proj()");
-	LogStream << MSG::DEBUG << "ALFA_MDMultiple::Find_Proj()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDMultiple::Find_Proj()");
+	ATH_MSG_DEBUG("ALFA_MDMultiple::Find_Proj()");
 
 	vector<int> iSizePlateau;
 	Int_t iNumFib=0;
@@ -424,8 +424,8 @@ void ALFA_MDMultiple::Find_Proj(Int_t iOver[72000], Float_t fbRef, Float_t &fb, 
 
 void ALFA_MDMultiple::Finding_Fib(Int_t iFiberSide, Float_t fbRef, Float_t fbRec, Int_t (&iFSel)[10], Int_t iSideFlag)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDMultiple::Finding_Fib()");
-	LogStream << MSG::DEBUG << "ALFA_MDMultiple::Finding_Fib()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDMultiple::Finding_Fib()");
+	ATH_MSG_DEBUG("ALFA_MDMultiple::Finding_Fib()");
 
 	Float_t b_pos, b_neg;
 	Float_t x, y, x_tmp, y_tmp;
@@ -493,8 +493,8 @@ void ALFA_MDMultiple::Reco_Track(vector<double> &b_p, vector<double> &b_n,
 								vector<int> (&FSel_n)[ALFAPLATESCNT], vector<int> (&FSel_p)[ALFAPLATESCNT],
 								vector<int> (&iTrackMatch)[2])
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDMultiple::Reco_Track()");
-	LogStream << MSG::DEBUG << "ALFA_MDMultiple::Reco_Track()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDMultiple::Reco_Track()");
+	ATH_MSG_DEBUG("ALFA_MDMultiple::Reco_Track()");
 
 //	Int_t FSel_pos[ALFAPLATESCNT];
 	Int_t FSel_neg[ALFAPLATESCNT];
@@ -776,8 +776,8 @@ void ALFA_MDMultiple::Reco_Track(vector<double> &b_p, vector<double> &b_n,
 
 void ALFA_MDMultiple::GetData(Int_t (&iNumU)[MAXTRACKNUM], Int_t (&iNumV)[MAXTRACKNUM], Float_t (&fOvU)[MAXTRACKNUM], Float_t (&fOvV)[MAXTRACKNUM], Int_t (&iFibSel)[MAXTRACKNUM][ALFALAYERSCNT*ALFAPLATESCNT])
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDMultiple::GetData()");
-	LogStream << MSG::DEBUG << "ALFA_MDMultiple::GetData()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDMultiple::GetData()");
+	ATH_MSG_DEBUG("ALFA_MDMultiple::GetData()");
 
 	Int_t iTrackNum;
 	Int_t iSize;

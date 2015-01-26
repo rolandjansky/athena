@@ -91,20 +91,20 @@ StatusCode ALFA_MDOverlap::Initialize(const eRPotName &eRPName, const list<MDHIT
 StatusCode ALFA_MDOverlap::Execute()
 {
 	StatusCode sc;
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDOverlap::Execute()");
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDOverlap::Execute()");
 
   // SELECT CANDIDATE HITS
 	sc = SelectHitInLayer();
 	if(sc.isFailure())
 	{
-		LogStream << MSG::ERROR << "hit selection failure" << endreq;
+		ATH_MSG_ERROR("hit selection failure");
 		return sc;
 	}
 
 	sc = Overlap();
 	if(sc.isFailure())
 	{
-		LogStream << MSG::ERROR << "Overlap failure" << endreq;
+		ATH_MSG_ERROR("Overlap failure");
 		return sc;
 	}
 

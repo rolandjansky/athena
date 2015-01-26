@@ -12,8 +12,10 @@
 #include <vector>
 #include <fstream>
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
+
+//#include "GaudiKernel/Algorithm.h"
+//#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ObjectVector.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IToolSvc.h"
@@ -77,7 +79,7 @@ using namespace std;
 class StoreGateSvc;
 class ActiveStoreSvc;
 
-class ALFA_LocRec : public Algorithm
+class ALFA_LocRec : public AthAlgorithm
 {
 	public:
 		ALFA_LocRec(const string& name, ISvcLocator* pSvcLocator);
@@ -87,8 +89,8 @@ class ALFA_LocRec : public Algorithm
 		GEOMETRYCONFIGURATION m_Config;
 		ALFA_GeometryReader* m_pGeometryReader;
 		// a handle on Store Gate
-		StoreGateSvc* m_storeGate;
-		StoreGateSvc* m_pDetStore;
+		//StoreGateSvc* m_storeGate;
+		//StoreGateSvc* m_pDetStore;
 
 		ALFA_LocRecEvCollection*	m_pLocRecEvCollection;
 		ALFA_LocRecEvent*			m_pLocRecEvent;

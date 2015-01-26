@@ -8,10 +8,10 @@
 #include "AthenaKernel/errorcheck.h"
 
 ALFA_LocRec::ALFA_LocRec(const string& name, ISvcLocator* pSvcLocator) :
-Algorithm(name, pSvcLocator)
+AthAlgorithm(name, pSvcLocator)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::ALFA_LocRec");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRec::ALFA_LocRec" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::ALFA_LocRec");
+	ATH_MSG_DEBUG("begin ALFA_LocRec::ALFA_LocRec");
 
 	m_pGeometryReader = new ALFA_GeometryReader();
 
@@ -116,20 +116,20 @@ Algorithm(name, pSvcLocator)
 	m_pLocRecEvent = NULL;
 	m_pLocRecODEvCollection = NULL;
 	m_pLocRecODEvent = NULL;
-	m_storeGate = NULL;
-	m_pDetStore = NULL;
+//	m_storeGate = NULL;
+//	m_pDetStore = NULL;
 
 	m_eventNum = 0;
 	m_iEvent   = 0;
 	m_iRunNum  = 0;
 
-	LogStream << MSG::DEBUG << "end ALFA_LocRec::ALFA_LocRec" << endreq;
+	ATH_MSG_DEBUG("end ALFA_LocRec::ALFA_LocRec");
 }
 
 ALFA_LocRec::~ALFA_LocRec()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::~ALFA_LocRec");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRec::~ALFA_LocRec" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::~ALFA_LocRec");
+	ATH_MSG_DEBUG("begin ALFA_LocRec::~ALFA_LocRec");
 
 // 	if(m_pGeometryReader!=NULL)
 // 	{
@@ -137,67 +137,67 @@ ALFA_LocRec::~ALFA_LocRec()
 // 		m_pGeometryReader = NULL;
 // 	}
 
-	LogStream << MSG::DEBUG << "begin ALFA_LocRec::~ALFA_LocRec" << endreq;
+	ATH_MSG_DEBUG("begin ALFA_LocRec::~ALFA_LocRec");
 }
 
 StatusCode ALFA_LocRec::initialize()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::initialize()");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRec::initialize()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::initialize()");
+	ATH_MSG_DEBUG("begin ALFA_LocRec::initialize()");
 
 	StatusCode sc;
 	ClearGeometry();
 
-	sc = service("StoreGateSvc",m_storeGate);
-	if(sc.isFailure())
-	{
-		LogStream << MSG::ERROR << "reconstruction: unable to retrieve pointer to StoreGateSvc" << endreq;
-		return sc;
-	} 
+//	sc = service("StoreGateSvc",m_storeGate);
+//	if(sc.isFailure())
+//	{
+//		ATH_MSG_ERROR("reconstruction: unable to retrieve pointer to StoreGateSvc");
+//		return sc;
+//	}
 	
 	//read geometry
 	if(ReadGeometryDetCS())
 	{
-		LogStream<<MSG::DEBUG<<"Geometry loaded successfully"<<endreq;
+		ATH_MSG_DEBUG("Geometry loaded successfully");
 	}
 	else
 	{
-		LogStream<<MSG::FATAL<<"Could not load geometry"<<endreq;
+		ATH_MSG_FATAL("Could not load geometry");
 		return StatusCode::FAILURE;
 	}
 
 	//write ALFA_GeometryReader to StoreGate
-	if (StatusCode::SUCCESS!=service("DetectorStore",m_pDetStore))
-	{
-		LogStream << MSG::ERROR << "Detector store not found" << endreq;
-		return StatusCode::FAILURE;
-	}
- 	sc = m_pDetStore->record(m_pGeometryReader, m_strKeyGeometryForReco);
+//	if (StatusCode::SUCCESS!=service("DetectorStore",m_pDetStore))
+//	{
+//		ATH_MSG_ERROR("Detector store not found");
+//		return StatusCode::FAILURE;
+//	}
+	sc = detStore()->record(m_pGeometryReader, m_strKeyGeometryForReco);
 	if(sc.isFailure())
 	{
-		LogStream << MSG::ERROR << "m_pGeometryReader: unable to record to StoreGate" << endreq;
+		ATH_MSG_ERROR("m_pGeometryReader: unable to record to StoreGate");
 		return sc;
 	}
 
-// 	if (!m_pDetStore->contains<ALFA_GeometryReader>(m_strKeyGeometryForReco))
+// 	if (!detStore()->contains<ALFA_GeometryReader>(m_strKeyGeometryForReco))
 // 	{
-// 		LogStream << MSG::ERROR << "m_pGeometryReader is not in StoreGate" << endreq;
+// 		ATH_MSG_ERROR("m_pGeometryReader is not in StoreGate");
 // 	}
 // 	else
 // 	{
-// 		LogStream << MSG::DEBUG << "m_pGeometryReader is in StoreGate" << endreq;
+// 		ATH_MSG_DEBUG("m_pGeometryReader is in StoreGate");
 // 	}
 
 	m_iEvent = 0;
 
-	LogStream << MSG::DEBUG << "end ALFA_LocRec::initialize()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_LocRec::initialize()");
 	return StatusCode::SUCCESS;
 }
 
 StatusCode ALFA_LocRec::execute()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::execute()");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRec::execute()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::execute()");
+	ATH_MSG_DEBUG("begin ALFA_LocRec::execute()");
 
 	StatusCode sc;
 	list<eRPotName>::const_iterator iterRPName;
@@ -211,10 +211,10 @@ StatusCode ALFA_LocRec::execute()
 	m_eventNum = 0;
 	m_iRunNum  = 0;
 	const EventInfo* eventInfo;
-	sc = m_storeGate->retrieve( eventInfo );
+	sc = evtStore()->retrieve( eventInfo );
 	if (sc.isFailure())
 	{
-		LogStream << MSG::ERROR << "ALFA_LocRec, Cannot get event info." << endreq;
+		ATH_MSG_ERROR("ALFA_LocRec, Cannot get event info.");
 //		return sc;
 	}
 	else
@@ -231,21 +231,21 @@ StatusCode ALFA_LocRec::execute()
 	sc = RecordCollection();
 	if (sc.isFailure())
 	{
-		LogStream << MSG::ERROR << "RecordCollection() failed" << endreq;
+		ATH_MSG_ERROR("RecordCollection() failed");
 		return StatusCode::SUCCESS;
 	}
 
 	sc = RecordODCollection();
 	if (sc.isFailure())
 	{
-		LogStream << MSG::ERROR << "RecordODCollection() failed" << endreq;
+		ATH_MSG_ERROR("RecordODCollection() failed");
 		return StatusCode::SUCCESS;
 	}
 
 	sc = ALFACollectionReading(ListMDHits, ListODHits);
 	if (sc.isFailure())
 	{
-		LogStream << MSG::WARNING << "ALFA_Collection_Reading Failed" << endreq;
+		ATH_MSG_WARNING("ALFA_Collection_Reading Failed");
 //		return StatusCode::SUCCESS;
 	}
 	else
@@ -263,7 +263,7 @@ StatusCode ALFA_LocRec::execute()
 				sc = ExecuteRecoMethod(strAlgoMD, eRPName, ListMDHits, ListODHits);
 				if (sc.isFailure())
 				{
-					LogStream << MSG::FATAL << "Algorithm " << strAlgoMD << " for the pot " << m_pGeometryReader->GetRPotLabel(eRPName) << " failure!" << endreq;
+					ATH_MSG_FATAL("Algorithm " << strAlgoMD << " for the pot " << m_pGeometryReader->GetRPotLabel(eRPName) << " failure!");
 					return sc;
 				}
 			}
@@ -282,7 +282,7 @@ StatusCode ALFA_LocRec::execute()
 				sc = ExecuteRecoMethod(strAlgoOD, eRPName, ListMDHits, ListODHits);
 				if (sc.isFailure())
 				{
-					LogStream << MSG::FATAL << "Algorithm " << strAlgoMD << " for the pot " << m_pGeometryReader->GetRPotLabel(eRPName) << " failure!" << endreq;
+					ATH_MSG_FATAL("Algorithm " << strAlgoMD << " for the pot " << m_pGeometryReader->GetRPotLabel(eRPName) << " failure!");
 					return sc;
 				}
 			}
@@ -302,7 +302,7 @@ StatusCode ALFA_LocRec::execute()
 //				sc = ExecuteRecoMethod(m_strAlgoMD, eRPName, ListMDHits, ListODHits);
 //				if (sc.isFailure())
 //				{
-//					LogStream << MSG::ERROR << "Algorithm " << m_strAlgoMD << " for pot " << m_pGeometryReader->GetRPotLabel(eRPName) << " failure!" << endreq;
+//					ATH_MSG_ERROR("Algorithm " << m_strAlgoMD << " for pot " << m_pGeometryReader->GetRPotLabel(eRPName) << " failure!");
 //	//				return sc;
 //				}
 //			}
@@ -313,7 +313,7 @@ StatusCode ALFA_LocRec::execute()
 //				sc = ExecuteRecoMethod(m_strAlgoOD, eRPName, ListMDHits, ListODHits);
 //				if (sc.isFailure())
 //				{
-//					LogStream << MSG::ERROR << "Algorithm " << m_strAlgoOD << " for pot " << m_pGeometryReader->GetRPotLabel(eRPName) << " failure!" << endreq;
+//					ATH_MSG_ERROR("Algorithm " << m_strAlgoOD << " for pot " << m_pGeometryReader->GetRPotLabel(eRPName) << " failure!");
 //	//				return sc;
 //				}
 //			}
@@ -321,25 +321,25 @@ StatusCode ALFA_LocRec::execute()
 	}
 
 	m_iEvent++;
-	LogStream << MSG::DEBUG << "end ALFA_LocRec::execute()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_LocRec::execute()");
 	return StatusCode::SUCCESS;
 }
 
 StatusCode ALFA_LocRec::finalize()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::finalize()");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRec::finalize()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::finalize()");
+	ATH_MSG_DEBUG("begin ALFA_LocRec::finalize()");
 
 
 
-	LogStream << MSG::DEBUG << "end ALFA_LocRec::finalize()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_LocRec::finalize()");
 	return StatusCode::SUCCESS;
 }
 
 void ALFA_LocRec::ClearGeometry()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::ClearGeometry()");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRec::ClearGeometry()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::ClearGeometry()");
+	ATH_MSG_DEBUG("begin ALFA_LocRec::ClearGeometry()");
 
 	memset(&m_faMD, 0, sizeof(m_faMD));
 	memset(&m_fbMD, 0, sizeof(m_fbMD));
@@ -348,15 +348,15 @@ void ALFA_LocRec::ClearGeometry()
 	memset(&m_fbOD, 0, sizeof(m_fbOD));
 	memset(&m_fzOD, 0, sizeof(m_fzOD));
 
-	LogStream << MSG::DEBUG << "end ALFA_LocRec::ClearGeometry()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_LocRec::ClearGeometry()");
 }
 
 StatusCode ALFA_LocRec::ALFACollectionReading(list<MDHIT> &ListMDHits, list<ODHIT> &ListODHits)
 {
 	StatusCode sc;
 
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::ALFACollectionReading()");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRec::ALFACollectionReading()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::ALFACollectionReading()");
+	ATH_MSG_DEBUG("begin ALFA_LocRec::ALFACollectionReading()");
 
 	ODHIT ODHit;
 	MDHIT MDHit;
@@ -367,7 +367,7 @@ StatusCode ALFA_LocRec::ALFACollectionReading(list<MDHIT> &ListMDHits, list<ODHI
 	const ALFA_DigitCollection* mcGen = 0;
 	const ALFA_ODDigitCollection* mcODGen = 0;
 
-	sc = m_storeGate->retrieve(mcGen,m_strCollectionName);
+	sc = evtStore()->retrieve(mcGen,m_strCollectionName);
 	if(sc.isFailure() || !mcGen)
 	{
 		return StatusCode::FAILURE;
@@ -387,7 +387,7 @@ StatusCode ALFA_LocRec::ALFACollectionReading(list<MDHIT> &ListMDHits, list<ODHI
 		ListMDHits.push_back(MDHit);
 	}
 
-	sc = m_storeGate->retrieve(mcODGen,m_strODCollectionName);
+	sc = evtStore()->retrieve(mcODGen,m_strODCollectionName);
 	if(sc.isFailure() || !mcODGen)
 	{
 		return StatusCode::FAILURE;
@@ -407,15 +407,15 @@ StatusCode ALFA_LocRec::ALFACollectionReading(list<MDHIT> &ListMDHits, list<ODHI
 		ListODHits.push_back(ODHit);
 	}
 
-	LogStream << MSG::DEBUG << "end ALFA_LocRec::ALFACollectionReading()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_LocRec::ALFACollectionReading()");
 
 	return StatusCode::SUCCESS;
 }
 
 bool ALFA_LocRec::ReadGeometryDetCS()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::ReadGeometryDetCS()");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRec::ReadGeometryDetCS()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::ReadGeometryDetCS()");
+	ATH_MSG_DEBUG("begin ALFA_LocRec::ReadGeometryDetCS()");
 
 	Int_t nPlateID, nFiberID;
 	FIBERPARAMS FiberParams;
@@ -426,12 +426,12 @@ bool ALFA_LocRec::ReadGeometryDetCS()
 
 	if((bRes=m_pGeometryReader->Initialize(&m_Config,EFCS_ATLAS))==true)
 	{
-		LogStream<<MSG::DEBUG<<"Geometry successfully initialized"<<endreq;
+		ATH_MSG_DEBUG("Geometry successfully initialized");
 		m_pGeometryReader->GetListOfExistingRPotIDs(&m_ListExistingRPots);
 	}
 	else
 	{
-		LogStream<<MSG::FATAL<<"Cannot initialize geometry"<<endreq;
+		ATH_MSG_FATAL("Cannot initialize geometry");
 		return bRes;
 	}
 
@@ -453,7 +453,7 @@ bool ALFA_LocRec::ReadGeometryDetCS()
 				}
 				else
 				{
-					LogStream << MSG::ERROR << "Unable to get FiberV parameters" << endreq;
+					ATH_MSG_ERROR("Unable to get FiberV parameters");
 					return false;
 				}
 
@@ -466,7 +466,7 @@ bool ALFA_LocRec::ReadGeometryDetCS()
 				}
 				else
 				{
-					LogStream << MSG::ERROR << "Unable to get FiberU parameters" << endreq;
+					ATH_MSG_ERROR("Unable to get FiberU parameters");
 					return false;
 				}
 			}
@@ -487,7 +487,7 @@ bool ALFA_LocRec::ReadGeometryDetCS()
 				}
 				else
 				{
-					LogStream << MSG::ERROR << "Unable to get ODFiberU0 parameters" << endreq;
+					ATH_MSG_ERROR("Unable to get ODFiberU0 parameters");
 					return false;
 				}
 
@@ -499,7 +499,7 @@ bool ALFA_LocRec::ReadGeometryDetCS()
 				}
 				else
 				{
-					LogStream << MSG::ERROR << "Unable to get ODFiberV0 parameters" << endreq;
+					ATH_MSG_ERROR("Unable to get ODFiberV0 parameters");
 					return false;
 				}
 
@@ -520,7 +520,7 @@ bool ALFA_LocRec::ReadGeometryDetCS()
 				}
 				else
 				{
-					LogStream << MSG::ERROR << "Unable to get ODFiberU1 parameters" << endreq;
+					ATH_MSG_ERROR("Unable to get ODFiberU1 parameters");
 					return false;
 				}
 				//(+16 because V1-nFiberID is indexed from 16 to 30 in Geometry package)
@@ -541,7 +541,7 @@ bool ALFA_LocRec::ReadGeometryDetCS()
 				}
 				else
 				{
-					LogStream << MSG::ERROR << "Unable to get ODFiberV1 parameters" << endreq;
+					ATH_MSG_ERROR("Unable to get ODFiberV1 parameters");
 					return false;
 				}
 			}
@@ -550,15 +550,15 @@ bool ALFA_LocRec::ReadGeometryDetCS()
 
 //	SaveGeometry();
 
-	LogStream << MSG::DEBUG << "end ALFA_LocRec::ReadGeometryDetCS()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_LocRec::ReadGeometryDetCS()");
 
 	return bRes;
 }
 
 bool ALFA_LocRec::StoreReconstructionGeometry(const eRPotName eRPName, const eFiberType eFType, const char* szDataDestination)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::StoreReconstructionGeometry()");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRec::StoreReconstructionGeometry()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::StoreReconstructionGeometry()");
+	ATH_MSG_DEBUG("begin ALFA_LocRec::StoreReconstructionGeometry()");
 
 	Int_t iLayer, iFiber, iPlate, iSide;
 	Float_t fParamB, fZ, fSlope;
@@ -602,15 +602,15 @@ bool ALFA_LocRec::StoreReconstructionGeometry(const eRPotName eRPName, const eFi
 	}
 	fclose(pFile);
 
-	LogStream << MSG::DEBUG << "end ALFA_LocRec::StoreReconstructionGeometry()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_LocRec::StoreReconstructionGeometry()");
 
 	return true;
 }
 
 void ALFA_LocRec::SaveGeometry()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::SaveGeometry()");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRec::SaveGeometry()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::SaveGeometry()");
+	ATH_MSG_DEBUG("begin ALFA_LocRec::SaveGeometry()");
 
 
 	eGeoSourceType eGeoType;
@@ -625,20 +625,20 @@ void ALFA_LocRec::SaveGeometry()
 			case EGST_IDEALGEOMETRY:
 				sprintf(szFilename,"ALFA_LocRec_Idealgeometry_RP-%s.txt",m_pGeometryReader->GetRPotLabel(*iterRPName));
 				StoreReconstructionGeometry(*iterRPName, EFT_FIBERMD, szFilename);
-				LogStream<<MSG::DEBUG<<"The ALFA Fiber geometry was stored in the "<<szFilename<<" file"<<endreq;
+				ATH_MSG_DEBUG("The ALFA Fiber geometry was stored in the "<<szFilename<<" file");
 				break;
 			case EGST_FILE:
 				sprintf(szFilename,"ALFA_LocRec_Realgeometry_RP-%s.txt",m_pGeometryReader->GetRPotLabel(*iterRPName));
 				StoreReconstructionGeometry(*iterRPName, EFT_FIBERMD, szFilename);
-				LogStream<<MSG::DEBUG<<"The ALFA Fiber geometry was stored in the "<<szFilename<<" file"<<endreq;
+				ATH_MSG_DEBUG("The ALFA Fiber geometry was stored in the "<<szFilename<<" file");
 				break;
 			case EGST_DATABASE:
 				sprintf(szFilename,"ALFA_LocRec_Realdbgeometry_RP-%s.txt",m_pGeometryReader->GetRPotLabel(*iterRPName));
 				StoreReconstructionGeometry(*iterRPName, EFT_FIBERMD, szFilename);
-				LogStream<<MSG::DEBUG<<"The ALFA Fiber geometry was stored in the "<<szFilename<<" file"<<endreq;
+				ATH_MSG_DEBUG("The ALFA Fiber geometry was stored in the "<<szFilename<<" file");
 				break;
 			default:
-				LogStream<<MSG::DEBUG<<"Unrecognized MD geometry!"<<endreq;
+				ATH_MSG_DEBUG("Unrecognized MD geometry!");
 				return;
 				break;
 		}
@@ -649,32 +649,32 @@ void ALFA_LocRec::SaveGeometry()
 			case EGST_IDEALGEOMETRY:
 				sprintf(szFilename,"ALFA_LocRec_Idealgeometry_OD_RP-%s.txt",m_pGeometryReader->GetRPotLabel(*iterRPName));
 				StoreReconstructionGeometry(*iterRPName, EFT_FIBEROD, szFilename);
-				LogStream<<MSG::DEBUG<<"The ODFiber geometry was stored in the "<<szFilename<<" file"<<endreq;
+				ATH_MSG_DEBUG("The ODFiber geometry was stored in the "<<szFilename<<" file");
 				break;
 			case EGST_FILE:
 				sprintf(szFilename,"ALFA_LocRec_Realgeometry_OD_RP-%s.txt",m_pGeometryReader->GetRPotLabel(*iterRPName));
 				StoreReconstructionGeometry(*iterRPName, EFT_FIBEROD, szFilename);
-				LogStream<<MSG::DEBUG<<"The ODFiber geometry was stored in the "<<szFilename<<" file"<<endreq;
+				ATH_MSG_DEBUG("The ODFiber geometry was stored in the "<<szFilename<<" file");
 				break;
 			case EGST_DATABASE:
 				sprintf(szFilename,"ALFA_LocRec_Realdbgeometry_OD_RP-%s.txt",m_pGeometryReader->GetRPotLabel(*iterRPName));
 				StoreReconstructionGeometry(*iterRPName, EFT_FIBEROD, szFilename);
-				LogStream<<MSG::DEBUG<<"The ODFiber geometry was stored in the "<<szFilename<<" file"<<endreq;
+				ATH_MSG_DEBUG("The ODFiber geometry was stored in the "<<szFilename<<" file");
 				break;
 			default:
-				LogStream<<MSG::DEBUG<<"Unrecognized OD geometry!"<<endreq;
+				ATH_MSG_DEBUG("Unrecognized OD geometry!");
 				return;
 				break;
 		}
 	}
 
-	LogStream << MSG::DEBUG << "end ALFA_LocRec::SaveGeometry()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_LocRec::SaveGeometry()");
 }
 
 StatusCode ALFA_LocRec::ExecuteRecoMethod(const string strAlgo, const eRPotName eRPName, const list<MDHIT> &ListMDHits, const list<ODHIT> &ListODHits)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::ExecuteRecoMethod()");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRec::ExecuteRecoMethod()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::ExecuteRecoMethod()");
+	ATH_MSG_DEBUG("begin ALFA_LocRec::ExecuteRecoMethod()");
 
 	StatusCode sc = StatusCode::SUCCESS;
 	ODRESULT ODResults;
@@ -955,63 +955,63 @@ StatusCode ALFA_LocRec::ExecuteRecoMethod(const string strAlgo, const eRPotName 
 		}
 	default:
 		{
-			LogStream << MSG::ERROR << "Unable to recognize selected algorithm" << endreq;
+			ATH_MSG_ERROR("Unable to recognize selected algorithm");
 			return StatusCode::FAILURE;
 		}
 	}
 
-	LogStream << MSG::DEBUG << "end ALFA_LocRec::ExecuteRecoMethod()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_LocRec::ExecuteRecoMethod()");
 
 	return sc;
 }
 
 StatusCode ALFA_LocRec::RecordCollection()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::RecordCollection()");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRec::RecordCollection()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::RecordCollection()");
+	ATH_MSG_DEBUG("begin ALFA_LocRec::RecordCollection()");
 
 	StatusCode sc = StatusCode::SUCCESS;
 
 	m_pLocRecEvCollection = new ALFA_LocRecEvCollection();
-	sc = m_storeGate->record(m_pLocRecEvCollection, m_strKeyLocRecEvCollection);
+	sc = evtStore()->record(m_pLocRecEvCollection, m_strKeyLocRecEvCollection);
 
 	if (sc.isFailure())
 	{
-		LogStream << MSG::ERROR << m_strAlgoMD << "MD - Could not record the empty LocRecEv collection in StoreGate" << endreq;
+		ATH_MSG_ERROR(m_strAlgoMD << "MD - Could not record the empty LocRecEv collection in StoreGate");
 		return sc;
 	}
 	else
 	{
-		LogStream << MSG::DEBUG << "MD - LocRecEv collection was recorded in StoreGate" << endreq;
+		ATH_MSG_DEBUG("MD - LocRecEv collection was recorded in StoreGate");
 	}
 
-	LogStream << MSG::DEBUG << "end ALFA_LocRec::RecordCollection()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_LocRec::RecordCollection()");
 
 	return sc;
 }
 
 StatusCode ALFA_LocRec::RecordODCollection()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::RecordODCollection()");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRec::RecordODCollection()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::RecordODCollection()");
+	ATH_MSG_DEBUG("begin ALFA_LocRec::RecordODCollection()");
 
 	StatusCode sc = StatusCode::SUCCESS;
 
 	m_pLocRecODEvCollection = new ALFA_LocRecODEvCollection();
-	sc = m_storeGate->record(m_pLocRecODEvCollection, m_strKeyLocRecODEvCollection);
+	sc = evtStore()->record(m_pLocRecODEvCollection, m_strKeyLocRecODEvCollection);
 
 	if (sc.isFailure())
 	{
-		LogStream << MSG::ERROR << m_strAlgoOD << "OD - Could not record the empty LocRecEv collection in StoreGate" << endreq;
+		ATH_MSG_ERROR(m_strAlgoOD << "OD - Could not record the empty LocRecEv collection in StoreGate");
 
 		return sc;
 	}
 	else
 	{
-		 LogStream << MSG::DEBUG << "OD - LocRecEv collection is recorded in StoreGate" << endreq;
+		 ATH_MSG_DEBUG("OD - LocRecEv collection is recorded in StoreGate");
 	}
 
-	LogStream << MSG::DEBUG << "end ALFA_LocRec::RecordODCollection()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_LocRec::RecordODCollection()");
 
 	return sc;
 }

@@ -10,7 +10,10 @@
 #include <vector>
 #include <map>
 
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
+//#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 #include "AthenaKernel/getMessageSvc.h"
 
@@ -73,6 +76,15 @@ class ALFA_MDGap
 						Int_t (&Gap_Fib_p)[ALFAPLATESCNT][2], Int_t (&Gap_Fib_n)[ALFAPLATESCNT][2]);
 		Int_t Silent_Gap(Int_t (&Over)[72000], Float_t b_ref, Float_t b_rec, Int_t FSel[ALFAPLATESCNT], Bool_t (&FGap)[ALFAPLATESCNT], Int_t (&Gap_Fib)[ALFAPLATESCNT][2], Float_t OverLap, Int_t iSideFlag);
 		Int_t Active_Gap(Int_t iFiberSide, Int_t (&Over)[72000], Float_t b_ref, Float_t b_rec, Int_t FSel[ALFAPLATESCNT], Float_t OverLap, Int_t iSideFlag);
+
+public:
+	/// Log a message using the Athena controlled logging system
+	MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
+	/// Check whether the logging system is active at the provided verbosity level
+	bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
+private:
+	/// Private message stream member
+	mutable Athena::MsgStreamMember m_msg;
 
 };
 #endif // ALFA_MDGap_H

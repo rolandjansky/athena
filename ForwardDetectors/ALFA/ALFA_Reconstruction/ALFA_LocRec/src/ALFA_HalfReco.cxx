@@ -6,8 +6,8 @@
 
 ALFA_HalfReco::ALFA_HalfReco()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_HalfReco::ALFA_HalfReco()");
-	LogStream << MSG::DEBUG << "begin ALFA_HalfReco::ALFA_HalfReco" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_HalfReco::ALFA_HalfReco()");
+	ATH_MSG_DEBUG("begin ALFA_HalfReco::ALFA_HalfReco");
 
 	m_fOvU = 0.0;
 	m_fOvV = 0.0;
@@ -27,7 +27,7 @@ ALFA_HalfReco::ALFA_HalfReco()
 	m_iRPot = 0;
 	m_iUVCut = 0;
 
-	LogStream << MSG::DEBUG << "end ALFA_HalfReco::ALFA_HalfReco" << endreq;
+	ATH_MSG_DEBUG("end ALFA_HalfReco::ALFA_HalfReco");
 }
 
 ALFA_HalfReco::~ALFA_HalfReco()
@@ -36,8 +36,8 @@ ALFA_HalfReco::~ALFA_HalfReco()
 
 StatusCode ALFA_HalfReco::Initialize(Float_t faMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], Float_t fbMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], Int_t iHalf, Int_t fMultiplicityCut, Int_t iUVCut, Float_t fOverlapCut)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_HalfReco::Initialize()");
-	LogStream << MSG::DEBUG << "begin ALFA_HalfReco::Initialize()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_HalfReco::Initialize()");
+	ATH_MSG_DEBUG("begin ALFA_HalfReco::Initialize()");
 
 	m_iMultiplicityCut = fMultiplicityCut;
 	m_iUVCut = iUVCut;
@@ -56,15 +56,15 @@ StatusCode ALFA_HalfReco::Initialize(Float_t faMD[RPOTSCNT][ALFALAYERSCNT*ALFAPL
 		}
 	}
 
-	LogStream << MSG::DEBUG << "end ALFA_HalfReco::Initialize()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_HalfReco::Initialize()");
 
 	return StatusCode::SUCCESS;
 }
 
 StatusCode ALFA_HalfReco::Execute(Int_t iRPot, const list<MDHIT> &ListMDHits)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_HalfReco::Execute()");
-	LogStream << MSG::DEBUG << "ALFA_HalfReco::Execute()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_HalfReco::Execute()");
+	ATH_MSG_DEBUG("ALFA_HalfReco::Execute()");
 
 	FIBERS structFibers;
 	Int_t iNumUFiberHits = 0;        //u_hits, v_hits (a condition for the UVCut 3)
@@ -116,26 +116,26 @@ StatusCode ALFA_HalfReco::Execute(Int_t iRPot, const list<MDHIT> &ListMDHits)
 
 	if (iNumUFiberHits>=m_iUVCut && iNumVFiberHits>=m_iUVCut) OverLap();
 
-	LogStream << MSG::DEBUG << "end ALFA_HalfReco::Execute()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_HalfReco::Execute()");
 	return StatusCode::SUCCESS;
 }
 
 StatusCode ALFA_HalfReco::Finalize(Float_t &fRecXPos, Float_t &fRecYPos)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_HalfReco::Finalize()");
-	LogStream << MSG::DEBUG << "begin ALFA_HalfReco::Finalize()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_HalfReco::Finalize()");
+	ATH_MSG_DEBUG("begin ALFA_HalfReco::Finalize()");
 
 	fRecXPos = m_fRecXPos;
 	fRecYPos = m_fRecYPos;
 
-	LogStream << MSG::DEBUG << "end ALFA_HalfReco::Execute()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_HalfReco::Execute()");
 	return StatusCode::SUCCESS;
 }
 
 void ALFA_HalfReco::HistFill(Float_t &b_p, Float_t &b_n, Float_t &Ov_p, Float_t &Ov_n, Int_t &NumU, Int_t &NumV, Int_t iFlag)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_HalfReco::HistFill()");
-	LogStream << MSG::DEBUG << "ALFA_HalfReco::HistFill()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_HalfReco::HistFill()");
+	ATH_MSG_DEBUG("ALFA_HalfReco::HistFill()");
 
 	Int_t iHit;
 	Float_t fFibCen;
@@ -319,13 +319,13 @@ void ALFA_HalfReco::HistFill(Float_t &b_p, Float_t &b_n, Float_t &Ov_p, Float_t 
 	delete max_p;
 	delete max_n;
 
-	LogStream << MSG::DEBUG << "endl ALFA_HalfReco::HistFill()" << endreq;
+	ATH_MSG_DEBUG("endl ALFA_HalfReco::HistFill()");
 }
 
 void ALFA_HalfReco::OverLap()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_HalfReco::OverLap()");
-	LogStream << MSG::DEBUG << "ALFA_HalfReco::OverLap()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_HalfReco::OverLap()");
+	ATH_MSG_DEBUG("ALFA_HalfReco::OverLap()");
 
 	Float_t b_mean_n=-9999.0;
 	Float_t b_mean_p=-9999.0;
@@ -435,26 +435,26 @@ void ALFA_HalfReco::OverLap()
 
 	SetData(NumU, NumV, OL_U, OL_V);
 
-	LogStream << MSG::DEBUG << "end ALFA_HalfReco::OverLap()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_HalfReco::OverLap()");
 }
 
 void ALFA_HalfReco::SetData(Int_t iNumU, Int_t iNumV, Float_t fOvU, Float_t fOvV)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_HalfReco::SetData()");
-	LogStream << MSG::DEBUG << "begin ALFA_HalfReco::SetData()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_HalfReco::SetData()");
+	ATH_MSG_DEBUG("begin ALFA_HalfReco::SetData()");
 
 	m_iNumU = iNumU;
 	m_iNumV = iNumV;
 	m_fOvU = fOvU;
 	m_fOvV = fOvV;
 
-	LogStream << MSG::DEBUG << "end ALFA_HalfReco::SetData()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_HalfReco::SetData()");
 }
 
 void ALFA_HalfReco::GetData(Int_t &iNumU, Int_t &iNumV, Float_t &fOvU, Float_t &fOvV, Int_t (&iFibSel)[ALFALAYERSCNT*ALFAPLATESCNT])
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_HalfReco::GetData()");
-	LogStream << MSG::DEBUG << "begin ALFA_HalfReco::GetData()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_HalfReco::GetData()");
+	ATH_MSG_DEBUG("begin ALFA_HalfReco::GetData()");
 
 	iNumU = m_iNumU;
 	iNumV = m_iNumV;
@@ -466,5 +466,5 @@ void ALFA_HalfReco::GetData(Int_t &iNumU, Int_t &iNumV, Float_t &fOvU, Float_t &
 		iFibSel[iLayer] = m_fhits[iLayer];
 	}
 
-	LogStream << MSG::DEBUG << "end ALFA_HalfReco::GetData()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_HalfReco::GetData()");
 }

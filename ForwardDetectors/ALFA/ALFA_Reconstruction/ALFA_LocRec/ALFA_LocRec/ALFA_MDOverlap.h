@@ -9,7 +9,10 @@
 #include <math.h>
 #include <list>
 
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
+//#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 
 #include "AthenaKernel/getMessageSvc.h"
@@ -92,6 +95,14 @@ class ALFA_MDOverlap
 
 		void GetData(Int_t (&iFibSel)[ALFALAYERSCNT*ALFAPLATESCNT]);
 
+public:
+	/// Log a message using the Athena controlled logging system
+	MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
+	/// Check whether the logging system is active at the provided verbosity level
+	bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
+private:
+	/// Private message stream member
+	mutable Athena::MsgStreamMember m_msg;
 
 
 };
