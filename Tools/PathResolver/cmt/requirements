@@ -4,26 +4,22 @@ author NLAA
 use AtlasPolicy AtlasPolicy-*
 use GaudiInterface GaudiInterface-* External
 
+use AsgTools AsgTools-* Control/AthToolSupport
 
-##Define the CALIBPATH environment variable ... is DATAPATH plus a few extra paths
-path CALIBPATH "`echo ${DATAPATH}`"
-
+##Define the CALIBPATH environment variable ... should be DATAPATH plus a few extra paths
 cmtpath_pattern \
-   path_prepend CALIBPATH "/afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData" ; \
-   path_prepend CALIBPATH "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData" ; \
-   path_prepend CALIBPATH "<path>/InstallArea/share" ; \
-   path_prepend CALIBPATH "${TestArea}/InstallArea/share" ; \
-   path_append CALIBPATH "http//atlas.web.cern.ch/Atlas/GROUPS/DATABASE/GroupData"
+   path_prepend CALIBPATH          "" \
+               <project>_with_installarea&Unix "<path>/$(cmt_installarea_prefix)/share" ; \
+#must remove the following path, which tends to appear before the testarea installarea, and we want testarea to be the first search location
+path_remove CALIBPATH "/cvmfs/atlas.cern.ch/repo/tools/slc6/cmt"
 
-
-#   path_remove CALIBPATH "$(cmt_installarea_prefix)" ; \ this line was first above
-
-
-#path_remove CALIBPATH "${CMTINSTALLAREA}/share"
-#path_append CALIBPATH "http//atlas.web.cern.ch/Atlas/GROUPS/DATABASE/GroupData"
-#path_prepend CALIBPATH "/afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData"
-#path_prepend CALIBPATH "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData"
-#path_prepend CALIBPATH "${CMTINSTALLAREA}/share"
+#add the extra paths: cvmfs/afs/http for everything except point1, which has a special sw location
+macro CheckAtlasP1 "`env | grep -q ^ATLAS_P1_SETUP= && echo AtlasP1 || echo NotAtlasP1`"
+apply_tag $(CheckAtlasP1)
+path_append CALIBPATH "/sw/DbData/GroupData" NotAtlasP1 ""
+path_append CALIBPATH "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData" AtlasP1 ""
+path_append CALIBPATH "/afs/cern.ch/atlas/www/GROUPS/DATABASE/GroupData" AtlasP1 ""
+path_append CALIBPATH "http//atlas.web.cern.ch/Atlas/GROUPS/DATABASE/GroupData" AtlasP1 ""
 
 
 
@@ -40,9 +36,14 @@ path_prepend DATAPATH ../test/A
 
 end_private
 
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS RIO)"
+
 library PathResolver ../Root/*.cxx
 apply_pattern installed_library
 
+branches python
+
+apply_pattern declare_python_modules files="*.py"
 
 
 #Next three lines kept for possible future developments
@@ -50,7 +51,10 @@ apply_pattern installed_library
 #pattern declare_calib \
 #   apply_pattern generic_declare_for_link files="<files>" prefix="share/atlasoff/$(<package>_offset)/<package>/<version>" name="<name>"
 
-
+private
+use AtlasReflex  AtlasReflex-*  External -no_auto_imports
+apply_pattern lcgdict dict=PathResolver selectionfile=selection.xml headerfiles="../PathResolver/PathResolverDict.h"
+end_private
 
 
 
