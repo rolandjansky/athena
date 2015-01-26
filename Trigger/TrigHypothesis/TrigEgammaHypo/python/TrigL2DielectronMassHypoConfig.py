@@ -174,3 +174,22 @@ class TrigL2DielectronMassHypo_Zee2 ( TrigL2DielectronMassHypo ):
         
         self.AthenaMonTools = [ TrigL2DielectronMassOnlineMonitoring(), TrigL2DielectronMassValidationMonitoring_Zee() ] 
         
+class TrigL2DielectronMassHypo_ZeeTight ( TrigL2DielectronMassHypo ):
+    __slots__ = []
+    def __init__(self, name="TrigL2DielectronMassHypo_ZeeTight"):
+        super(TrigL2DielectronMassHypo_ZeeTight, self).__init__(name)
+        
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptAll=False
+        
+        # cuts
+        self.OppositeSign=True
+        self.CommonVertex=True
+        self.ValidElectron=True
+        
+        # require invariant mass within window
+        self.LowerMassCut=80.0*GeV
+        self.UpperMassCut=100.0*GeV
+        
+        self.AthenaMonTools = [ TrigL2DielectronMassOnlineMonitoring(), TrigL2DielectronMassValidationMonitoring_Zee() ] 
+        

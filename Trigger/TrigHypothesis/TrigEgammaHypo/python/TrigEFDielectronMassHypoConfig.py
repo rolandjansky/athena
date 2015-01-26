@@ -47,6 +47,22 @@ class TrigEFDielectronMassHypo_Zee2 ( TrigEFDielectronMassHypo ):
         self.UpperMassCut=130.0*GeV
         
         self.AthenaMonTools = [ TrigEFDielectronMassOnlineMonitoring(), TrigEFDielectronMassValidationMonitoring_Zee() ] 
+
+class TrigEFDielectronMassHypo_ZeeTight ( TrigEFDielectronMassHypo ):
+    __slots__ = []
+    def __init__(self, name="TrigEFDielectronMassHypo_ZeeTight"):
+        super(TrigEFDielectronMassHypo_ZeeTight, self).__init__(name)
+        
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptAll=False
+        self.useElectronElectron = True
+        self.useElectronCluster = False
+
+        # require invariant mass within window
+        self.LowerMassCut=80.0*GeV
+        self.UpperMassCut=100.0*GeV
+        
+        self.AthenaMonTools = [ TrigEFDielectronMassOnlineMonitoring(), TrigEFDielectronMassValidationMonitoring_Zee() ] 
         
 class TrigEFDielectronMassFex_Jpsi ( TrigEFDielectronMassFex ):
     __slots__ = []
