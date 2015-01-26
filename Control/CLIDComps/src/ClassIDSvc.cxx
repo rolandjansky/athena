@@ -51,7 +51,8 @@ namespace {
 ClassIDSvc::ClassIDSvc(const std::string& name,ISvcLocator* svc)
   : Service(name,svc), m_outputFileName("NULL"),
     m_clidDBPath(System::getEnv("DATAPATH")),
-    m_msg (msgSvc(), name)
+    m_msg (msgSvc(), name),
+    m_regMutex()
 {
   // Property Default values
   m_DBFiles.push_back("clid.db");
@@ -113,8 +114,8 @@ ClassIDSvc::initialize()
 
 bool ClassIDSvc::getRegistryEntries(const std::string& moduleName) {
 
-  RegMutex_t::scoped_lock lock;
-  lock.acquire(regMutex);
+  std::lock_guard<std::recursive_mutex> lock(m_regMutex);
+
   //not only this is fast, but is necessary to prevent recursion
   if (!CLIDRegistry::hasNewEntries()) return true;
 
@@ -549,8 +550,7 @@ ClassIDSvc::dump() const {
 
 StatusCode
 ClassIDSvc::fillDB() {
-  RegMutex_t::scoped_lock lock;
-  lock.acquire(regMutex);
+  std::lock_guard<std::recursive_mutex> lock(m_regMutex);
   // Process the various clid dbs according to user's request
   vector< string >::const_iterator f(m_DBFiles.begin()), fE(m_DBFiles.end());
   bool allOK(true);
