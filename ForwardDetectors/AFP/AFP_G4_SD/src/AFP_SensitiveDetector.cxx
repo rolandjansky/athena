@@ -172,7 +172,8 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
   char* ppv1, *ppv2;
   char szbuff[32];
   memset(&szbuff[0],0,sizeof(szbuff));
-  strcpy(szbuff,VolumeName.data());
+  strncpy(szbuff,VolumeName.data(),sizeof(szbuff));
+  szbuff[sizeof(szbuff)-1] = '\0'; // idiomatic use of strncpy...
   ppv1=strchr(szbuff,'[');
   ppv2=strchr(szbuff,']');
   if(!ppv2 || !ppv1){
