@@ -6,8 +6,8 @@
 
 // gaudi
 #include "GaudiKernel/MsgStream.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
+#include "EventInfo/TagInfo.h"
 #include "TrackRecord/TrackRecordCollection.h"
 #include "TileEvent/TileContainer.h"
 #include "TileIdentifier/TileTBID.h"
@@ -25,7 +25,6 @@
 #include "GeneratorObjects/McEventCollection.h"
 #include "HepMC/GenEvent.h"
 #include "CLHEP/Vector/LorentzVector.h"
-#include "EventInfo/TagInfo.h"
 
 #include "GeoPrimitives/GeoPrimitives.h"
 
@@ -473,14 +472,14 @@ namespace MuonCalib {
 	TrackRecordConstIterator tr_it = truthCollection->begin();
 	TrackRecordConstIterator tr_it_end = truthCollection->end();
 	for(;tr_it!=tr_it_end; ++tr_it){
-	  Amg::Vector3D  pos( (*tr_it)->GetPosition().x(), (*tr_it)->GetPosition().y(), (*tr_it)->GetPosition().z() );
-	  Amg::Vector3D mom( (*tr_it)->GetMomentum().x(), (*tr_it)->GetMomentum().y(), (*tr_it)->GetMomentum().z() );
-	  double kinEnergy( (*tr_it)->GetEnergy() ) ;
-	  int PDGCode( (*tr_it)->GetPDGCode() ) ;
-	  int barcode((*tr_it)->GetBarCode() );	
+	  Amg::Vector3D  pos( (*tr_it).GetPosition().x(), (*tr_it).GetPosition().y(), (*tr_it).GetPosition().z() );
+	  Amg::Vector3D mom( (*tr_it).GetMomentum().x(), (*tr_it).GetMomentum().y(), (*tr_it).GetMomentum().z() );
+	  double kinEnergy( (*tr_it).GetEnergy() ) ;
+	  int PDGCode( (*tr_it).GetPDGCode() ) ;
+	  int barcode((*tr_it).GetBarCode() );	
 	  double prec = sqrt(mom[0]*mom[0]+mom[1]*mom[1]+mom[2]*mom[2]);  
 	  //        if (barcode%10000>10 || barcode < 0 && fabs(PDGCode) == 13 ) {
-	  //	  std::cout << " BARCODE for Track Record " << (*tr_it)->GetBarCode() << " energy " <<  kinEnergy << " code " << PDGCode << " pos x " << pos.x() << " y " << pos.y() << " z " << pos.z() << std::endl;
+	  //	  std::cout << " BARCODE for Track Record " << (*tr_it).GetBarCode() << " energy " <<  kinEnergy << " code " << PDGCode << " pos x " << pos.x() << " y " << pos.y() << " z " << pos.z() << std::endl;
 	  int newbarcode = 0; 	
 	  if (fabs(PDGCode) == 13 ) {
 	    muonfound = true;  
@@ -879,7 +878,7 @@ namespace MuonCalib {
   MuonCalibEventInfo MuonCalibAlg::retrieveEventInfo() const
     { 
       MsgStream log(messageService(), name());
-      const EventInfo* eventInfo;
+      const xAOD::EventInfo* eventInfo;
       log<<MSG::VERBOSE<<"retrieveEventInfo() called"<<endreq;
 
       MuonCalibEventInfo MCeventInfo;
@@ -893,11 +892,11 @@ namespace MuonCalib {
 
       //Cast eventID into MuonCalibEventInfo class:
    
-      MCeventInfo.setRunNumber( eventInfo->event_ID()->run_number() ) ;
-      MCeventInfo.setEventNumber( eventInfo->event_ID()->event_number() );
-      MCeventInfo.setTimeStamp( eventInfo->event_ID()->time_stamp() );
-      MCeventInfo.setLumiBlock( eventInfo->event_ID()->lumi_block() );
-      MCeventInfo.setBcId( eventInfo->event_ID()->bunch_crossing_id() );
+      MCeventInfo.setRunNumber( eventInfo->runNumber() ) ;
+      MCeventInfo.setEventNumber( eventInfo->eventNumber() );
+      MCeventInfo.setTimeStamp( eventInfo->timeStamp() );
+      MCeventInfo.setLumiBlock( eventInfo->lumiBlock() );
+      MCeventInfo.setBcId( eventInfo->bcid() );
       std::string eventTag=m_eventTag;
       MCeventInfo.setTag( eventTag );
       if ( m_addTriggerTag ) {
