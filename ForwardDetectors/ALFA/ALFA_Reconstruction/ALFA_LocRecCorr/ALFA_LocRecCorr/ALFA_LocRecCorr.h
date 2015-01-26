@@ -13,23 +13,11 @@
 
 #include "Riostream.h"
 #include "TROOT.h"
-#include "TFile.h"
-#include "TTree.h"
-#include "TH1.h"
-#include "TH2.h"
-#include "TCanvas.h"
-#include "TGraph.h"
-#include "TMinuit.h"
-#include "TF1.h"
-#include "TLegend.h"
-#include "TStyle.h"
-#include "TMath.h"
-#include "TLine.h"
-#include "TProfile.h"
-#include "TPad.h"
 
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
+
+//#include "GaudiKernel/Algorithm.h"
+//#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "EventInfo/EventInfo.h"
@@ -67,7 +55,7 @@ using namespace std;
 class StoreGateSvc;
 class ActiveStoreSvc;
 
-class ALFA_LocRecCorr : public Algorithm
+class ALFA_LocRecCorr : public AthAlgorithm
 {
 public:
 	ALFA_LocRecCorr(const string& name, ISvcLocator* pSvcLocator);
@@ -78,13 +66,12 @@ private:
 	ALFA_GeometryReader* m_pGeometryReader;
 
 	// a handle on Store Gate
-	StoreGateSvc* m_storeGate;
-	StoreGateSvc* m_pDetStore;
+	//StoreGateSvc* m_storeGate;
+	//StoreGateSvc* m_pDetStore;
 
 	ALFA_LocRecCorrEvCollection*	m_pLocRecCorrEvCollection;
 	ALFA_LocRecCorrODEvCollection*	m_pLocRecCorrODEvCollection;
 
-private:
 	bool m_bCoolData;
 	list<eRPotName> m_ListExistingRPots;
 
@@ -94,17 +81,6 @@ private:
 	Int_t m_iDataType;			//data type (simulation or real data) using in the local reconstruction
 	Int_t m_iEvt;
 
-	//slope, offset and Z-pos for MD fibers [8][2*10][64]
-	double m_faMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT];
-	double m_fbMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT];
-	double m_fzMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT];
-
-	//slope, offset and Z-pos for OD fibers [8][3][2][2*15], side 0 = right; side 1 = left (in +z direction)
-	double m_faOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT];
-	double m_fbOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT];
-	double m_fzOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT];
-
-private:
 	vector<bool> m_bIsTransformInStation;
 	vector<bool> m_bIsTransformInDetector;
 	vector<double> m_pointTransformInDetectorB7L1U;
@@ -132,7 +108,6 @@ private:
 	vector<double> m_vecTransformInStationA7R1U;
 	vector<double> m_vecTransformInStationA7R1L;
 
-private:
 	string m_strKeyGeometryForReco;
 	string m_strKeyLocRecEvCollection;
 	string m_strKeyLocRecODEvCollection;
@@ -144,7 +119,6 @@ private:
 	string m_strKeyRawDataCollection;
 	string m_rootInputFileName;
 
-private:
 	HepGeom::Transform3D m_TransMatrixSt[RPOTSCNT];
 	HepGeom::Transform3D m_TransMatrixLHC[RPOTSCNT];
 
@@ -154,11 +128,8 @@ public:
 	StatusCode finalize();
 
 private:
-	bool ReadGeometryAtlas();
 	bool UpdateGeometryAtlas();
-	bool SetNominalUserCorr();
-	void SaveGeometry();
-	void ClearGeometry();
+	void SetNominalGeometry();
 
 	StatusCode RecordCollection();
 	StatusCode RecordODCollection();

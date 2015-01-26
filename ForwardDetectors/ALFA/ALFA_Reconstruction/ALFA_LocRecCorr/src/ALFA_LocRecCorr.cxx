@@ -9,12 +9,11 @@
 
 
 ALFA_LocRecCorr::ALFA_LocRecCorr(const string& name, ISvcLocator* pSvcLocator) :
-Algorithm(name, pSvcLocator)
+AthAlgorithm(name, pSvcLocator)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::ALFA_LocRecCorr");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRecCorr::ALFA_LocRecCorr" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::ALFA_LocRecCorr");
+	ATH_MSG_DEBUG("begin ALFA_LocRecCorr::ALFA_LocRecCorr");
 
-// 	m_pGeometryReader = new ALFA_GeometryReader();
 	m_pGeometryReader = 0;
 
 //	m_Config.eOwner=EOT_RECO;
@@ -157,102 +156,90 @@ Algorithm(name, pSvcLocator)
 	m_strKeyLocRecCorrEvCollection		= "ALFA_LocRecCorrEvCollection";
 	m_strKeyLocRecCorrODEvCollection	= "ALFA_LocRecCorrODEvCollection";
 
-//	vector<string> ParAtrColList;
-//	ParAtrColList.clear();
-//	ParAtrColList.push_back("/RPO/DCS/BLM");
-//	ParAtrColList.push_back("/RPO/DCS/FECONFIGURATION");
-//	ParAtrColList.push_back("/RPO/DCS/HVCHANNEL");
-//	ParAtrColList.push_back("/RPO/DCS/LOCALMONITORING");
-//	ParAtrColList.push_back("/RPO/DCS/MOVEMENT");
-//	ParAtrColList.push_back("/RPO/DCS/RADMON");
-//	ParAtrColList.push_back("/RPO/DCS/TRIGGERRATES");
-//	ParAtrColList.push_back("/RPO/DCS/TRIGGERSETTINGS");
-
-//	declareProperty("ParAtrColList", m_ParAtrColList=ParAtrColList);
-
 	m_bCoolData = true;
 	declareProperty("CoolData", m_bCoolData);
 
-	LogStream << MSG::DEBUG << "end ALFA_LocRecCorr::ALFA_LocRecCorr" << endreq;
+	ATH_MSG_DEBUG("end ALFA_LocRecCorr::ALFA_LocRecCorr");
 }
 
 ALFA_LocRecCorr::~ALFA_LocRecCorr()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::~ALFA_LocRecCorr");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRecCorr::~ALFA_LocRecCorr" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::~ALFA_LocRecCorr");
+	ATH_MSG_DEBUG("begin ALFA_LocRecCorr::~ALFA_LocRecCorr");
 
-// 	if(m_pGeometryReader!=NULL) delete m_pGeometryReader;
-
-	LogStream << MSG::DEBUG << "end ALFA_LocRecCorr::~ALFA_LocRecCorr" << endreq;
+	ATH_MSG_DEBUG("end ALFA_LocRecCorr::~ALFA_LocRecCorr");
 }
 
 StatusCode ALFA_LocRecCorr::initialize()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::Initialize()");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRecCorr::Initialize()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::Initialize()");
+	ATH_MSG_DEBUG("begin ALFA_LocRecCorr::Initialize()");
 
 	StatusCode sc;
-	ClearGeometry();
 
-	sc = service("StoreGateSvc",m_storeGate);
-	if(sc.isFailure())
-	{
-		LogStream << MSG::ERROR << "reconstruction: unable to retrieve pointer to StoreGateSvc" << endreq;
-		return sc;
-	}
+//	sc = service("StoreGateSvc",m_storeGate);
+//	if(sc.isFailure())
+//	{
+//		ATH_MSG_ERROR("reconstruction: unable to retrieve pointer to StoreGateSvc");
+//		return sc;
+//	}
 
-	if (StatusCode::SUCCESS!=service("DetectorStore",m_pDetStore))
-	{
-		LogStream << MSG::ERROR << "Detector store not found" << endreq;
-		return StatusCode::FAILURE;
-	}
+//	if (StatusCode::SUCCESS!=service("DetectorStore",m_pDetStore))
+//	{
+//		ATH_MSG_ERROR("Detector store not found");
+//		return StatusCode::FAILURE;
+//	}
 
 	//read ALFA_Geometry from StoreGate
-	if (!m_pDetStore->contains<ALFA_GeometryReader>(m_strKeyGeometryForReco))
+	if (!detStore()->contains<ALFA_GeometryReader>(m_strKeyGeometryForReco))
 	{
-		LogStream << MSG::ERROR << "m_pGeometryReader is not in StoreGate" << endreq;
+		ATH_MSG_ERROR("m_pGeometryReader is not in StoreGate");
 	}
-	else LogStream << MSG::DEBUG << "m_pGeometryReader is in StoreGate" << endreq;
+	else ATH_MSG_DEBUG("m_pGeometryReader is in StoreGate");
 
-	if (StatusCode::SUCCESS != m_pDetStore->retrieve(m_pGeometryReader, m_strKeyGeometryForReco))
+	if (StatusCode::SUCCESS != detStore()->retrieve(m_pGeometryReader, m_strKeyGeometryForReco))
 	{
-		LogStream << MSG::ERROR << "m_pGeometryReader: unable to retrieve data from SG" << endreq;
+		ATH_MSG_ERROR("m_pGeometryReader: unable to retrieve data from SG");
 	}
-	else LogStream << MSG::DEBUG << "m_pGeometryReader: retrieved from SG" << endreq;
+	else ATH_MSG_DEBUG("m_pGeometryReader: retrieved from SG");
 
 	if (m_Config.eRPMetrologyGeoType==EMT_SWCORRECTIONS)
+	{
 		CHECK(AddCOOLFolderCallback("/FWD/ALFA/position_calibration"));
-	
+	}
+
 	if(m_Config.eRPMetrologyGeoType==EMT_NOMINAL)
-		SetNominalUserCorr();
+		SetNominalGeometry();
 
 	// do update geometry at the end of the initialization process
-	UpdateGeometryAtlas();
+	if (UpdateGeometryAtlas())
+		ATH_MSG_DEBUG("Geometry updated successfully.");
+	else
+		ATH_MSG_FATAL("Unable to update a geometry!");
 
-
-	LogStream << MSG::DEBUG << "end ALFA_LocRecCorr::initialize()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_LocRecCorr::initialize()");
 
 	return StatusCode::SUCCESS;
 }
 
 StatusCode ALFA_LocRecCorr::execute()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::Execute()");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRecCorr::Execute()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::Execute()");
+	ATH_MSG_DEBUG("begin ALFA_LocRecCorr::Execute()");
 
 	StatusCode sc = StatusCode::SUCCESS;
 
 	sc = RecordCollection();
 	if (sc.isFailure())
 	{
-		LogStream << MSG::ERROR  << "ALFA_LocRecCorr recordCollection failed" << endreq;
+		ATH_MSG_ERROR("ALFA_LocRecCorr recordCollection failed");
 		return StatusCode::SUCCESS;
 	}
 
 	sc = RecordODCollection();
 	if (sc.isFailure())
 	{
-		LogStream << MSG::ERROR << "ALFA_LocRecCorr recordODCollection failed" << endreq;
+		ATH_MSG_ERROR("ALFA_LocRecCorr recordODCollection failed");
 		return StatusCode::SUCCESS;
 	}
 
@@ -267,10 +254,10 @@ StatusCode ALFA_LocRecCorr::execute()
 	const ALFA_LocRecEvCollection* pLocRecCorrCol = 0;
 	const ALFA_LocRecODEvCollection* pLocRecCorrODCol = 0;
 
-	sc = m_storeGate->retrieve(pLocRecCorrCol, m_strLocRecCollectionName);
+	sc = evtStore()->retrieve(pLocRecCorrCol, m_strLocRecCollectionName);
 	if(sc.isFailure() || !pLocRecCorrCol)
 	{
-		LogStream << MSG::ERROR << "Container "<< m_strLocRecCollectionName <<" NOT FOUND !!!!!!!" << endreq;
+		ATH_MSG_ERROR("Container "<< m_strLocRecCollectionName <<" NOT FOUND !!!!!!!");
 //		return StatusCode::FAILURE;
 	}
 	else
@@ -295,10 +282,10 @@ StatusCode ALFA_LocRecCorr::execute()
 		}
 	}
 
-	sc = m_storeGate->retrieve(pLocRecCorrODCol, m_strLocRecODCollectionName);
+	sc = evtStore()->retrieve(pLocRecCorrODCol, m_strLocRecODCollectionName);
 	if(sc.isFailure() || !pLocRecCorrODCol)
 	{
-		LogStream << MSG::ERROR << "Container "<< m_strLocRecODCollectionName <<" NOT FOUND !!!!!!!" << endreq;
+		ATH_MSG_ERROR("Container "<< m_strLocRecODCollectionName <<" NOT FOUND !!!!!!!");
 //		return StatusCode::FAILURE;
 	}
 	else
@@ -324,64 +311,28 @@ StatusCode ALFA_LocRecCorr::execute()
 		}
 	}
 
-	LogStream << MSG::DEBUG << "end ALFA_LocRecCorr::execute()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_LocRecCorr::execute()");
 	return StatusCode::SUCCESS;
 }
 
 StatusCode ALFA_LocRecCorr::finalize()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::finalize()");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRecCorr::finalize()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::finalize()");
+	ATH_MSG_DEBUG("begin ALFA_LocRecCorr::finalize()");
 
 	StatusCode sc = StatusCode::SUCCESS;
 
-	gROOT->SetStyle("Plain");
-	gStyle->SetPalette(1);
-
-	LogStream << MSG::DEBUG << "end ALFA_LocRecCorr::finalize()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_LocRecCorr::finalize()");
 
 	return sc;
 }
 
-void ALFA_LocRecCorr::ClearGeometry()
-{
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::ClearGeometry()");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRecCorr::ClearGeometry()" << endreq;
-
-	for (int iRPot = 0; iRPot < RPOTSCNT; iRPot++)
-	{
-		for (int iPlate = 0; iPlate < ALFALAYERSCNT*ALFAPLATESCNT; iPlate++)
-		{
-			for (int iFiber = 0; iFiber < ALFAFIBERSCNT; iFiber++)
-			{
-				m_faMD[iRPot][iPlate][iFiber] = 0;
-				m_fbMD[iRPot][iPlate][iFiber] = 0;
-				m_fzMD[iRPot][iPlate][iFiber] = 0;
-			}
-		}
-
-		for (int iPlate = 0; iPlate < ODPLATESCNT; iPlate++)
-		{
-			for (int iSide = 0; iSide < ODSIDESCNT; iSide++)
-			{
-				for (int iFiber = 0; iFiber < ODLAYERSCNT*ODFIBERSCNT; iFiber++)
-				{
-					m_faOD[iRPot][iPlate][iSide][iFiber] = 0;
-					m_fbOD[iRPot][iPlate][iSide][iFiber] = 0;
-					m_fzOD[iRPot][iPlate][iSide][iFiber] = 0;
-				}
-			}
-		}
-	}
-
-	LogStream << MSG::DEBUG << "end ALFA_LocRecCorr::ClearGeometry()" << endreq;
-}
 
 
 HepGeom::Transform3D ALFA_LocRecCorr::UserTransform3DInStation(eRPotName eRPName)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::UserTransform3DInStation(eRPotName eRPName)");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRecCorr::UserTransform3DInStation()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::UserTransform3DInStation(eRPotName eRPName)");
+	ATH_MSG_DEBUG("begin ALFA_LocRecCorr::UserTransform3DInStation()");
 
 	CLHEP::HepRep3x3 matRotation;
 	USERTRANSFORM structUserTransform;
@@ -429,7 +380,7 @@ HepGeom::Transform3D ALFA_LocRecCorr::UserTransform3DInStation(eRPotName eRPName
 			structUserTransform.vecTranslation = CLHEP::Hep3Vector(m_vecTransformInStationB7R1L[4], m_vecTransformInStationB7R1L[5], m_vecTransformInStationB7R1L[6]);
 			break;
 		default:
-			LogStream << MSG::WARNING << "Unknown Roman pot, station transformation will be set to default (zero) values" << endreq;
+			ATH_MSG_WARNING("Unknown Roman pot, station transformation will be set to default (zero) values");
 			structUserTransform.fAngle = 0.0;
 			structUserTransform.vecRotation = CLHEP::Hep3Vector(0.0, 0.0, 0.0);
 			structUserTransform.vecTranslation = CLHEP::Hep3Vector(0.0, 0.0, 0.0);
@@ -452,15 +403,15 @@ HepGeom::Transform3D ALFA_LocRecCorr::UserTransform3DInStation(eRPotName eRPName
 	matRotation.zy_ = vRotation.z()*vRotation.y()*(1 - cos(fPhi)) + vRotation.x()*sin(fPhi);
 	matRotation.zz_ = vRotation.z()*vRotation.z()*(1 - cos(fPhi)) + cos(fPhi);
 
-	LogStream << MSG::DEBUG << "end ALFA_LocRecCorr::UserTransform3DInStation()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_LocRecCorr::UserTransform3DInStation()");
 
 	return HepGeom::Transform3D(CLHEP::HepRotation(matRotation), vTranslation);
 }
 
 HepGeom::Transform3D ALFA_LocRecCorr::UserTransform3DInDetector(eRPotName eRPName)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::UserTransform3DInDetector(eRPotName eRPName)");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRecCorr::UserTransform3DInDetector()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::UserTransform3DInDetector(eRPotName eRPName)");
+	ATH_MSG_DEBUG("begin ALFA_LocRecCorr::UserTransform3DInDetector()");
 
 	CLHEP::HepRep3x3 matRotation;
 	USERTRANSFORM structUserTransform;
@@ -508,7 +459,7 @@ HepGeom::Transform3D ALFA_LocRecCorr::UserTransform3DInDetector(eRPotName eRPNam
 			structUserTransform.vecTranslation = CLHEP::Hep3Vector(m_vecTransformInDetectorB7R1L[4], m_vecTransformInDetectorB7R1L[5], m_vecTransformInDetectorB7R1L[6]);
 			break;
 		default:
-			LogStream << MSG::WARNING << "Unknown Roman pot, detector transformation will be set to default (zero) values" << endreq;
+			ATH_MSG_WARNING("Unknown Roman pot, detector transformation will be set to default (zero) values");
 			structUserTransform.fAngle = 0.0;
 			structUserTransform.vecRotation = CLHEP::Hep3Vector(0.0, 0.0, 0.0);
 			structUserTransform.vecTranslation = CLHEP::Hep3Vector(0.0, 0.0, 0.0);
@@ -531,15 +482,15 @@ HepGeom::Transform3D ALFA_LocRecCorr::UserTransform3DInDetector(eRPotName eRPNam
 	matRotation.zy_ = vRotation.z()*vRotation.y()*(1 - cos(fPhi)) + vRotation.x()*sin(fPhi);
 	matRotation.zz_ = vRotation.z()*vRotation.z()*(1 - cos(fPhi)) + cos(fPhi);
 
-	LogStream << MSG::DEBUG << "end ALFA_LocRecCorr::UserTransform3DInDetector()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_LocRecCorr::UserTransform3DInDetector()");
 
 	return HepGeom::Transform3D(CLHEP::HepRotation(matRotation), vTranslation);
 }
 
 HepGeom::Point3D<double> ALFA_LocRecCorr::Point3DInDetector(eRPotName eRPName)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::Point3DInDetector(eRPotName eRPName)");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRecCorr::Point3DInDetector()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::Point3DInDetector(eRPotName eRPName)");
+	ATH_MSG_DEBUG("begin ALFA_LocRecCorr::Point3DInDetector()");
 
 	HepGeom::Point3D<double> Point;
 
@@ -570,361 +521,88 @@ HepGeom::Point3D<double> ALFA_LocRecCorr::Point3DInDetector(eRPotName eRPName)
 			Point = HepGeom::Point3D<double>(m_pointTransformInDetectorB7R1L[0], m_pointTransformInDetectorB7R1L[1], m_pointTransformInDetectorB7R1L[2]);
 			break;
 		default:
-			LogStream << MSG::WARNING << "Unknown Roman pot, transformation point will be set to default (zero) value" << endreq;
+			ATH_MSG_WARNING("Unknown Roman pot, transformation point will be set to default (zero) value");
 	}
 
-	LogStream << MSG::DEBUG << "end ALFA_LocRecCorr::Point3DInDetector()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_LocRecCorr::Point3DInDetector()");
 
 	return Point;
 }
 
-bool ALFA_LocRecCorr::ReadGeometryAtlas()
-{
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::ReadGeometryAtlas()");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRecCorr::ReadGeometryAtlas()" << endreq;
-
-	int nPlateID, nFiberID;
-	FIBERPARAMS FiberParams;
-	eRPotName eRPName;
-
-	bool bRes=false;
-	list<eRPotName>::const_iterator iterRPName;
-
-	if(m_Config.eRPMetrologyGeoType==EMT_NOMINAL)
-	{
-		for(int i=0;i<RPOTSCNT;i++)
-		{
-			eRPName=(eRPotName)(i+1);
-			if(m_bIsTransformInDetector[i]==true)
-			{
-				m_Config.CfgRPosParams[i].usercorr.bIsEnabledUserTranform=true;
-				m_Config.CfgRPosParams[i].usercorr.UserOriginOfDetTransInRPot=Point3DInDetector(eRPName);
-				m_Config.CfgRPosParams[i].usercorr.UserTransformOfDetInRPot=UserTransform3DInDetector(eRPName);
-			}
-			if(m_bIsTransformInStation[i]==true)
-			{
-				m_Config.CfgRPosParams[i].usercorr.bIsEnabledUserTranform=true;
-				m_Config.CfgRPosParams[i].usercorr.UserTransformOfRPInStation=UserTransform3DInStation(eRPName);
-			}
-		}
-	}
-
-	if((bRes=m_pGeometryReader->Initialize(&m_Config,EFCS_ATLAS))==true)
-	{
-		LogStream<<MSG::DEBUG<<"Geometry successfully initialized"<<endreq;
-		m_pGeometryReader->GetListOfExistingRPotIDs(&m_ListExistingRPots);
-	}
-	else
-	{
-		LogStream<<MSG::FATAL<<"Cannot initialize geometry"<<endreq;
-		return bRes;
-	}
-
-	for(iterRPName=m_ListExistingRPots.begin();iterRPName!=m_ListExistingRPots.end();iterRPName++)
-	{
-		eRPName = *iterRPName;
-
-		//for MD-fibers
-		for (nPlateID = 0; nPlateID < ALFAPLATESCNT; nPlateID++)
-		{
-			for (nFiberID = 0; nFiberID < ALFAFIBERSCNT; nFiberID++)
-			{
-				//for V-fibers
-				if (m_pGeometryReader->GetVFiberParams(&FiberParams, eRPName, nPlateID+1, nFiberID+1))
-				{
-					m_faMD[eRPName-1][2*nPlateID+1][nFiberID] = FiberParams.fcs_atlas.fSlope;
-					m_fbMD[eRPName-1][2*nPlateID+1][nFiberID] = FiberParams.fcs_atlas.fOffset;
-					m_fzMD[eRPName-1][2*nPlateID+1][nFiberID] = FiberParams.fcs_atlas.fZPos;
-				}
-				else
-				{
-					LogStream << MSG::ERROR << "Unable to get FiberV parameters" << endreq;
-					return false;
-				}
-
-				//for U-fibers
-				if (m_pGeometryReader->GetUFiberParams(&FiberParams, eRPName, nPlateID+1, nFiberID+1))
-				{
-					m_faMD[eRPName-1][2*nPlateID][nFiberID]	= FiberParams.fcs_atlas.fSlope;
-					m_fbMD[eRPName-1][2*nPlateID][nFiberID]	= FiberParams.fcs_atlas.fOffset;
-					m_fzMD[eRPName-1][2*nPlateID][nFiberID]	= FiberParams.fcs_atlas.fZPos;
-				}
-				else
-				{
-					LogStream << MSG::ERROR << "Unable to get FiberU parameters" << endreq;
-					return false;
-				}
-			}
-		}
-
-		//for OD-fibers
-		for (nPlateID = 0; nPlateID < ODPLATESCNT; nPlateID++)
-		{
-			for (nFiberID = 0; nFiberID < ODFIBERSCNT; nFiberID++)
-			{
-				//(+16 because U0-nFiberID is indexed from 16 to 30 in Geometry package)
-				if (m_pGeometryReader->GetODFiberParams(&FiberParams, EFT_ODFIBERU0, eRPName, nPlateID+1, nFiberID+16))
-				{
-					m_faOD[eRPName-1][nPlateID][0][nFiberID+15] = FiberParams.fcs_atlas.fSlope;
-					m_fbOD[eRPName-1][nPlateID][0][nFiberID+15] = FiberParams.fcs_atlas.fOffset;
-					m_fzOD[eRPName-1][nPlateID][0][nFiberID+15] = FiberParams.fcs_atlas.fZPos;
-				}
-				else
-				{
-					LogStream << MSG::ERROR << "Unable to get ODFiberU0 parameters" << endreq;
-					return false;
-				}
-
-				if (m_pGeometryReader->GetODFiberParams(&FiberParams, EFT_ODFIBERV0, eRPName, nPlateID+1, nFiberID+1))
-				{
-					m_faOD[eRPName-1][nPlateID][0][nFiberID] = FiberParams.fcs_atlas.fSlope;
-					m_fbOD[eRPName-1][nPlateID][0][nFiberID] = FiberParams.fcs_atlas.fOffset;
-					m_fzOD[eRPName-1][nPlateID][0][nFiberID] = FiberParams.fcs_atlas.fZPos;
-				}
-				else
-				{
-					LogStream << MSG::ERROR << "Unable to get ODFiberV0 parameters" << endreq;
-					return false;
-				}
-
-				//(+16 because V1-nFiberID is indexed from 16 to 30 in Geometry package)
-				if (m_pGeometryReader->GetODFiberParams(&FiberParams, EFT_ODFIBERU1, eRPName, nPlateID+1, nFiberID+16))
-				{
-					if (m_iDataType==1)	//for the tunnel and testbeam data
-					{
-						m_faOD[eRPName-1][nPlateID][1][14-nFiberID] = FiberParams.fcs_atlas.fSlope;
-						m_fbOD[eRPName-1][nPlateID][1][14-nFiberID] = FiberParams.fcs_atlas.fOffset;
-						m_fzOD[eRPName-1][nPlateID][1][14-nFiberID] = FiberParams.fcs_atlas.fZPos;
-					}
-					else				//simulation
-					{
-						m_faOD[eRPName-1][nPlateID][1][nFiberID+15] = FiberParams.fcs_atlas.fSlope;
-						m_fbOD[eRPName-1][nPlateID][1][nFiberID+15] = FiberParams.fcs_atlas.fOffset;
-						m_fzOD[eRPName-1][nPlateID][1][nFiberID+15] = FiberParams.fcs_atlas.fZPos;
-					}
-				}
-				else
-				{
-					LogStream << MSG::ERROR << "Unable to get ODFiberU1 parameters" << endreq;
-					return false;
-				}
-
-				if (m_pGeometryReader->GetODFiberParams(&FiberParams, EFT_ODFIBERV1, eRPName, nPlateID+1, nFiberID+1))
-				{
-					if (m_iDataType==1)	//for the tunnel and testbeam data
-					{
-						m_faOD[eRPName-1][nPlateID][1][29-nFiberID] = FiberParams.fcs_atlas.fSlope;
-						m_fbOD[eRPName-1][nPlateID][1][29-nFiberID] = FiberParams.fcs_atlas.fOffset;
-						m_fzOD[eRPName-1][nPlateID][1][29-nFiberID] = FiberParams.fcs_atlas.fZPos;
-					}
-					else				//simulation
-					{
-						m_faOD[eRPName-1][nPlateID][1][nFiberID] = FiberParams.fcs_atlas.fSlope;
-						m_fbOD[eRPName-1][nPlateID][1][nFiberID] = FiberParams.fcs_atlas.fOffset;
-						m_fzOD[eRPName-1][nPlateID][1][nFiberID] = FiberParams.fcs_atlas.fZPos;
-					}
-				}
-				else
-				{
-					LogStream << MSG::ERROR << "Unable to get ODFiberV1 parameters" << endreq;
-					return false;
-				}
-			}
-		}
-	}
-
-//	SaveGeometry();
-
-	LogStream << MSG::DEBUG << "end ALFA_LocRecCorr::ReadGeometryAtlas()" << endreq;
-
-	return bRes;
-}
-
-bool ALFA_LocRecCorr::UpdateGeometryAtlas()
-{
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::UpdateGeometryAtlas()");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRecCorr::UpdateGeometryAtlas()" << endreq;
-
-	if(m_pGeometryReader->Initialize(&m_Config,EFCS_ATLAS))
-	{
-		LogStream<<MSG::DEBUG<<"Geometry successfully updated."<<endreq;
-		m_pGeometryReader->GetListOfExistingRPotIDs(&m_ListExistingRPots);
-	}
-	else
-	{
-		LogStream<<MSG::FATAL<<"Cannot update geometry. Initialization process failed."<<endreq;
-		return false;
-	}
-
-	LogStream << MSG::DEBUG << "end ALFA_LocRecCorr::UpdateGeometryAtlas()" << endreq;
-	return true;
-}
-
-bool ALFA_LocRecCorr::SetNominalUserCorr()
-{
-	eRPotName eRPName;
-
-	if(m_Config.eRPMetrologyGeoType==EMT_NOMINAL)
-	{
-		for(int i=0;i<RPOTSCNT;i++)
-		{
-			eRPName=(eRPotName)(i+1);
-			if(m_bIsTransformInDetector[i]==true)
-			{
-				m_Config.CfgRPosParams[i].usercorr.bIsEnabledUserTranform=true;
-				m_Config.CfgRPosParams[i].usercorr.UserOriginOfDetTransInRPot=Point3DInDetector(eRPName);
-				m_Config.CfgRPosParams[i].usercorr.UserTransformOfDetInRPot=UserTransform3DInDetector(eRPName);
-			}
-			if(m_bIsTransformInStation[i]==true)
-			{
-				m_Config.CfgRPosParams[i].usercorr.bIsEnabledUserTranform=true;
-				m_Config.CfgRPosParams[i].usercorr.UserTransformOfRPInStation=UserTransform3DInStation(eRPName);
-			}
-		}
-	}
-
-	return true;
-}
-
-void ALFA_LocRecCorr::SaveGeometry()
-{
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::SaveGeometry()");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRecCorr::SaveGeometry()" << endreq;
-
-	eGeoSourceType eGeoType;
-	char szFilename[64];
-	list<eRPotName>::const_iterator iterRPName;
-
-	for(iterRPName=m_ListExistingRPots.begin();iterRPName!=m_ListExistingRPots.end();iterRPName++)
-	{
-
-		eGeoType=m_pGeometryReader->GetRPGeometryType(*iterRPName, EFT_FIBERMD);
-		switch(eGeoType)
-		{
-			case EGST_IDEALGEOMETRY:
-				sprintf(szFilename,"ALFA_LocRecCorr_Idealgeometry_RP-%s.txt",m_pGeometryReader->GetRPotLabel(*iterRPName));
-				m_pGeometryReader->StoreReconstructionGeometry(*iterRPName, EFT_FIBERMD, szFilename);
-				LogStream<<MSG::DEBUG<<"The ALFAFiber geometry was stored in the "<<szFilename<<" file"<<endreq;
-				break;
-			case EGST_FILE:
-				sprintf(szFilename,"ALFA_LocRecCorr_Realgeometry_RP-%s.txt",m_pGeometryReader->GetRPotLabel(*iterRPName));
-				m_pGeometryReader->StoreReconstructionGeometry(*iterRPName, EFT_FIBERMD, szFilename);
-				LogStream<<MSG::DEBUG<<"The ALFAFiber geometry was stored in the "<<szFilename<<" file"<<endreq;
-				break;
-			case EGST_DATABASE:
-				sprintf(szFilename,"ALFA_LocRecCorr_Realdbgeometry_RP-%s.txt",m_pGeometryReader->GetRPotLabel(*iterRPName));
-				m_pGeometryReader->StoreReconstructionGeometry(*iterRPName, EFT_FIBERMD, szFilename);
-				LogStream<<MSG::DEBUG<<"The ALFAFiber geometry was stored in the "<<szFilename<<" file"<<endreq;
-				break;
-			default:
-				LogStream<<MSG::WARNING<<"Unrecognized MD geometry!"<<endreq;
-				return;
-				break;
-		}
-
-		eGeoType=m_pGeometryReader->GetRPGeometryType(*iterRPName, EFT_FIBEROD);
-		switch(eGeoType)
-		{
-			case EGST_IDEALGEOMETRY:
-				sprintf(szFilename,"ALFA_LocRecCorr_Idealgeometry_OD_RP-%s.txt",m_pGeometryReader->GetRPotLabel(*iterRPName));
-				m_pGeometryReader->StoreReconstructionGeometry(*iterRPName, EFT_FIBEROD, szFilename);
-				LogStream<<MSG::DEBUG<<"The ODFiber geometry was stored in the "<<szFilename<<" file"<<endreq;
-				break;
-			case EGST_FILE:
-				sprintf(szFilename,"ALFA_LocRecCorr_Realgeometry_OD_RP-%s.txt",m_pGeometryReader->GetRPotLabel(*iterRPName));
-				m_pGeometryReader->StoreReconstructionGeometry(*iterRPName, EFT_FIBEROD, szFilename);
-				LogStream<<MSG::DEBUG<<"The ODFiber geometry was stored in the "<<szFilename<<" file"<<endreq;
-				break;
-			case EGST_DATABASE:
-				sprintf(szFilename,"ALFA_LocRecCorr_Realdbgeometry_OD_RP-%s.txt",m_pGeometryReader->GetRPotLabel(*iterRPName));
-				m_pGeometryReader->StoreReconstructionGeometry(*iterRPName, EFT_FIBEROD, szFilename);
-				LogStream<<MSG::DEBUG<<"The ODFiber geometry was stored in the "<<szFilename<<" file"<<endreq;
-				break;
-			default:
-				LogStream<<MSG::WARNING<<"Unrecognized OD geometry!"<<endreq;
-				return;
-				break;
-		}
-	}
-
-	LogStream << MSG::DEBUG << "end ALFA_LocRecCorr::SaveGeometry()" << endreq;
-}
-
-
 StatusCode ALFA_LocRecCorr::RecordCollection()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::RecordCollection()");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRecCorr::RecordCollection()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::RecordCollection()");
+	ATH_MSG_DEBUG("begin ALFA_LocRecCorr::RecordCollection()");
 
 	StatusCode sc = StatusCode::SUCCESS;
 
 	m_pLocRecCorrEvCollection = new ALFA_LocRecCorrEvCollection();
-	sc = m_storeGate->record(m_pLocRecCorrEvCollection, m_strKeyLocRecCorrEvCollection);
+	sc = evtStore()->record(m_pLocRecCorrEvCollection, m_strKeyLocRecCorrEvCollection);
 
 	if (sc.isFailure())
 	{
-		LogStream << MSG::FATAL << "MD - Could not record the empty LocRecCorrEv collection in StoreGate" << endreq;
+		ATH_MSG_FATAL("MD - Could not record the empty LocRecCorrEv collection in StoreGate");
 		return sc;
 	}
 	else
 	{
-		LogStream << MSG::DEBUG << "MD - LocRecCorrEv collection was recorded in StoreGate" << endreq;
+		ATH_MSG_DEBUG("MD - LocRecCorrEv collection was recorded in StoreGate");
 	}
 
-	LogStream << MSG::DEBUG << "end ALFA_LocRecCorr::RecordCollection()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_LocRecCorr::RecordCollection()");
 
 	return sc;
 }
 
 StatusCode ALFA_LocRecCorr::RecordODCollection()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::RecordODCollection()");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRecCorr::RecordODCollection()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::RecordODCollection()");
+	ATH_MSG_DEBUG("begin ALFA_LocRecCorr::RecordODCollection()");
 
 	StatusCode sc = StatusCode::SUCCESS;
 
 	m_pLocRecCorrODEvCollection = new ALFA_LocRecCorrODEvCollection();
-	sc = m_storeGate->record(m_pLocRecCorrODEvCollection, m_strKeyLocRecCorrODEvCollection);
+	sc = evtStore()->record(m_pLocRecCorrODEvCollection, m_strKeyLocRecCorrODEvCollection);
 
 	if (sc.isFailure())
 	{
-		LogStream << MSG::FATAL << "OD - Could not record the empty LocRecCorrEv collection in StoreGate" << endreq;
+		ATH_MSG_FATAL("OD - Could not record the empty LocRecCorrEv collection in StoreGate");
 
 		return sc;
 	}
 	else
 	{
-		 LogStream << MSG::DEBUG << "OD - LocRecCorrEv collection is recorded in StoreGate" << endreq;
+		 ATH_MSG_DEBUG("OD - LocRecCorrEv collection is recorded in StoreGate");
 	}
 
-	LogStream << MSG::DEBUG << "end ALFA_LocRecCorr::RecordODCollection()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_LocRecCorr::RecordODCollection()");
 
 	return sc;
 }
 
 StatusCode ALFA_LocRecCorr::AddCOOLFolderCallback(const string& szFolder)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::AddCOOLFolderCallback()");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRecCorr::AddCOOLFolderCallback()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::AddCOOLFolderCallback()");
+	ATH_MSG_DEBUG("begin ALFA_LocRecCorr::AddCOOLFolderCallback()");
 
 	StatusCode sc=StatusCode::FAILURE;
 
 	const DataHandle<CondAttrListCollection> DataPtr;
-	sc=m_pDetStore->regFcn(&ALFA_LocRecCorr::COOLUpdate, this, DataPtr, szFolder, true);
+	sc=detStore()->regFcn(&ALFA_LocRecCorr::COOLUpdate, this, DataPtr, szFolder, true);
 	if(sc!=StatusCode::SUCCESS)
 	{
-		LogStream << MSG::ERROR << "Cannot register COOL callback for folder '"<<szFolder<<"'" << endreq;
+		ATH_MSG_ERROR("Cannot register COOL callback for folder '"<<szFolder<<"'");
 	}
 
-	LogStream << MSG::DEBUG << "end ALFA_LocRecCorr::AddCOOLFolderCallback()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_LocRecCorr::AddCOOLFolderCallback()");
 
 	return sc;
 }
 
 StatusCode ALFA_LocRecCorr::COOLUpdate(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::COOLUpdate()");
-	LogStream << MSG::DEBUG << "begin ALFA_LocRecCorr::COOLUpdate()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::COOLUpdate()");
+	ATH_MSG_DEBUG("begin ALFA_LocRecCorr::COOLUpdate()");
 
 	int iChannel;
 	StatusCode sc=StatusCode::SUCCESS;
@@ -936,9 +614,9 @@ StatusCode ALFA_LocRecCorr::COOLUpdate(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 	{
 		if((*iter)=="/FWD/ALFA/position_calibration")
 		{
-			LogStream << MSG::DEBUG << " IOV/COOL Notification '"<<"/FWD/ALFA/position_calibration"<<"'" << endreq;
+			ATH_MSG_DEBUG(" IOV/COOL Notification '"<<"/FWD/ALFA/position_calibration"<<"'");
 
-			if(m_pDetStore->retrieve(listAttrColl,"/FWD/ALFA/position_calibration")==StatusCode::SUCCESS)
+			if(detStore()->retrieve(listAttrColl,"/FWD/ALFA/position_calibration")==StatusCode::SUCCESS)
 			{
 				for(iterAttr=listAttrColl->begin();iterAttr!=listAttrColl->end();iterAttr++)
 				{
@@ -947,31 +625,74 @@ StatusCode ALFA_LocRecCorr::COOLUpdate(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))
 					 m_Config.CfgRPosParams[iChannel].swcorr.fTheta  =((iterAttr->second)[1]).data<float>();
 					 m_Config.CfgRPosParams[iChannel].swcorr.fYOffset=((iterAttr->second)[2]).data<float>();
 
-					 LogStream << MSG::DEBUG << "iChannel, fXOffset, fTheta, fYOffset = " << iChannel << ", " << m_Config.CfgRPosParams[iChannel].swcorr.fXOffset;
-					 LogStream << MSG::DEBUG << ", " << m_Config.CfgRPosParams[iChannel].swcorr.fTheta << ", " << m_Config.CfgRPosParams[iChannel].swcorr.fYOffset << endreq;
+					 ATH_MSG_DEBUG("iChannel, fXOffset, fTheta, fYOffset = " << iChannel << ", " << m_Config.CfgRPosParams[iChannel].swcorr.fXOffset);
+					 ATH_MSG_DEBUG(", " << m_Config.CfgRPosParams[iChannel].swcorr.fTheta << ", " << m_Config.CfgRPosParams[iChannel].swcorr.fYOffset);
 				}
 
-//				//read geometry
-//				if(ReadGeometryAtlas())
-//				{
-//					LogStream<<MSG::DEBUG<<"Geometry loaded successfully"<<endreq;
-//				}
-//				else
-//				{
-//					LogStream<<MSG::FATAL<<"Could not load geometry"<<endreq;
-//					return StatusCode::FAILURE;
-//				}
+				// update SW corrections - needs to be updated during the COOL DB check
+				if (UpdateGeometryAtlas())
+				{
+					ATH_MSG_DEBUG("Geometry for the SW corrections updated successfully");
+				}
+				else
+				{
+					ATH_MSG_FATAL("Unable to update a geometry of the SW corrections!");
+					ATH_MSG_DEBUG("end ALFA_LocRecCorr::COOLUpdate()");
+					return StatusCode::FAILURE;
+				}
 			}
 			else
 			{
-				LogStream << MSG::ERROR << "The folder '"<<"/FWD/ALFA/position_calibration"<<"' not found" << endreq;
-				sc=StatusCode::FAILURE;
-				break;
+				ATH_MSG_ERROR("The folder '"<<"/FWD/ALFA/position_calibration"<<"' not found");
+				ATH_MSG_DEBUG("end ALFA_LocRecCorr::COOLUpdate()");
+				return StatusCode::FAILURE;
 			}
 		}
 	}
 
-	LogStream << MSG::DEBUG << "end ALFA_LocRecCorr::COOLUpdate()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_LocRecCorr::COOLUpdate()");
 
 	return sc;
 }
+
+bool ALFA_LocRecCorr::UpdateGeometryAtlas()
+{
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRecCorr::UpdateGeometryAtlas()");
+	ATH_MSG_DEBUG("begin ALFA_LocRecCorr::UpdateGeometryAtlas()");
+
+	if(m_pGeometryReader->Initialize(&m_Config,EFCS_ATLAS))
+	{
+		ATH_MSG_DEBUG("Geometry successfully updated.");
+		m_pGeometryReader->GetListOfExistingRPotIDs(&m_ListExistingRPots);
+	}
+	else
+	{
+		ATH_MSG_FATAL("Cannot update geometry. Initialization process failed.");
+		ATH_MSG_DEBUG("end ALFA_LocRecCorr::UpdateGeometryAtlas()");
+		return false;
+	}
+
+	ATH_MSG_DEBUG("end ALFA_LocRecCorr::UpdateGeometryAtlas()");
+	return true;
+}
+
+void ALFA_LocRecCorr::SetNominalGeometry()
+{
+	eRPotName eRPName;
+	for(int i=0;i<RPOTSCNT;i++)
+	{
+		eRPName=(eRPotName)(i+1);
+		if(m_bIsTransformInDetector[i]==true)
+		{
+			m_Config.CfgRPosParams[i].usercorr.bIsEnabledUserTranform=true;
+			m_Config.CfgRPosParams[i].usercorr.UserOriginOfDetTransInRPot=Point3DInDetector(eRPName);
+			m_Config.CfgRPosParams[i].usercorr.UserTransformOfDetInRPot=UserTransform3DInDetector(eRPName);
+		}
+		if(m_bIsTransformInStation[i]==true)
+		{
+			m_Config.CfgRPosParams[i].usercorr.bIsEnabledUserTranform=true;
+			m_Config.CfgRPosParams[i].usercorr.UserTransformOfRPInStation=UserTransform3DInStation(eRPName);
+		}
+	}
+}
+
