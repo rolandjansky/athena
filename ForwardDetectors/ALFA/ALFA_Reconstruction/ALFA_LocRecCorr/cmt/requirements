@@ -17,6 +17,7 @@ use ALFA_RawEv			ALFA_RawEv-*			ForwardDetectors/ALFA
 use ALFA_LocRecEv		ALFA_LocRecEv-*			ForwardDetectors/ALFA/ALFA_RecEv
 use ALFA_LocRecCorrEv	ALFA_LocRecCorrEv-*		ForwardDetectors/ALFA/ALFA_RecEv
 
+use AthenaBaseComps     AthenaBaseComps-*       Control
 
 private
 use AthenaKernel		AthenaKernel-*			Control
