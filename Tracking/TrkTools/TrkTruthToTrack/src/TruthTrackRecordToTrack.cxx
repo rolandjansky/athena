@@ -104,9 +104,9 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
 
   for (TrackRecordCollection::const_iterator record = recordCollection->begin();  record != recordCollection->end();++record){
           
-    if ( (*record)->GetBarCode() == part->barcode() ) {
+    if ( (*record).GetBarCode() == part->barcode() ) {
 
-      id = (**record).GetPDGCode();
+      id = (*record).GetPDGCode();
       pd = m_particleDataTable->particle(std::abs(id));
       if (!pd) {
         ATH_MSG_WARNING ("found barcode but could not digest pdg_id. " <<
@@ -114,12 +114,12 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
         continue;
       }
 
-      HepMC::ThreeVector tv = (**record).GetPosition();
+      HepMC::ThreeVector tv = (*record).GetPosition();
       prodVertexVector = Amg::Vector3D(tv.x(),tv.y(),tv.z());
       globalPos = prodVertexVector;
 
-      Amg::Vector3D hv2((**record).GetMomentum().x(), (**record).GetMomentum().y(),
-                            (**record).GetMomentum().z());
+      Amg::Vector3D hv2((*record).GetMomentum().x(), (*record).GetMomentum().y(),
+                            (*record).GetMomentum().z());
       globalMom = hv2;
 
       ATH_MSG_DEBUG("found barcode " << part->barcode() << " with pdg ID " <<
@@ -174,9 +174,9 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
 
   for (TrackRecordCollection::const_iterator record = recordCollection->begin();  record != recordCollection->end();++record){
           
-    if ( (*record)->GetBarCode() == part->barcode() ) {
+    if ( (*record).GetBarCode() == part->barcode() ) {
 
-      id = (**record).GetPDGCode();
+      id = (*record).GetPDGCode();
       pd = m_particleDataTable->particle(std::abs(id));
       if (!pd) {
         ATH_MSG_WARNING ("found barcode but could not digest pdg_id. " <<
@@ -184,12 +184,12 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
         continue;
       }
 
-      HepMC::ThreeVector tv = (**record).GetPosition();
+      HepMC::ThreeVector tv = (*record).GetPosition();
       prodVertexVector = Amg::Vector3D(tv.x(),tv.y(),tv.z());
       globalPos = prodVertexVector;
 
-      Amg::Vector3D hv2((**record).GetMomentum().x(), (**record).GetMomentum().y(),
-                            (**record).GetMomentum().z());
+      Amg::Vector3D hv2((*record).GetMomentum().x(), (*record).GetMomentum().y(),
+                            (*record).GetMomentum().z());
       globalMom = hv2;
 
       ATH_MSG_DEBUG("found barcode " << part->barcode() << " with pdg ID " <<
