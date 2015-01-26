@@ -48,8 +48,8 @@ if DetFlags.detdescr.Muon_on() and (rec.doWriteAOD() or rec.doWriteESD()):
          MuonAODList += [ "xAOD::TrackMeasurementValidationAuxContainer#TGC_ClustersAux."] 
 
    if muonRecFlags.rpcRawToxAOD():
-      MuonAODList += [ "xAOD::TrackMeasurementValidationContainer_v1#RPC_RDO_Measurements"] 
-      MuonAODList += [ "xAOD::TrackMeasurementValidationAuxContainer_v1#RPC_RDO_MeasurementsAux."] 
+      MuonAODList += [ "xAOD::TrackMeasurementValidationContainer#RPC_RDO_Measurements"] 
+      MuonAODList += [ "xAOD::TrackMeasurementValidationAuxContainer#RPC_RDO_MeasurementsAux."] 
 
 # ESD list includes all AOD items
 MuonESDList = []
@@ -68,7 +68,7 @@ if DetFlags.detdescr.Muon_on() and rec.doWriteESD():
    MuonESDList+=["Muon::sTgcPrepDataContainer#STGC_Measurements"]
 
    #trigger related info for offline DQA
-   ### MuonESDList+=["Muon::TgcCoinDataContainer#TrigT1CoinDataCollection"]
+   MuonESDList+=["Muon::TgcCoinDataContainer#TrigT1CoinDataCollection"]
    MuonESDList+=["Muon::RpcCoinDataContainer#RPC_triggerHits"]
    MuonESDList+=["RpcSectorLogicContainer#RPC_SECTORLOGIC"]
 
