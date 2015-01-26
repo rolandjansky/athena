@@ -85,12 +85,6 @@ class UseIlines(JobProperty):
 
 muonAlignFlags.add_JobProperty(UseIlines)
 
-class UseIlinesFromCondDB(JobProperty):
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False 
-
-muonAlignFlags.add_JobProperty(UseIlinesFromCondDB)
 
 # at the end, set the defaults
 muonAlignFlags.setDefaults()
