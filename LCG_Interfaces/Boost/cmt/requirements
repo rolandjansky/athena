@@ -1,0 +1,93 @@
+package Boost
+
+use LCG_Configuration v*
+use LCG_Settings      v*
+use Python            v* LCG_Interfaces -no_auto_imports
+
+macro Boost_native_version "$(Boost_config_version)_python$(Python_config_version_twodigit)"
+# 'sed' is not available on windows, I've moved this macro to the LCG_Configuration
+# macro Boost_file_version   "`echo $(Boost_native_version) | sed 's/\./_/g'`"
+
+#handle debug builds properly
+macro Boost_debug "" \
+      target-dbg "d-"
+
+macro Boost_home $(LCG_external)/Boost/$(Boost_native_version)/$(LCG_system)
+
+include_path none
+include_dirs $(Boost_home)/include/boost-$(Boost_file_version) 
+
+# silence warnings from gcc48 and later
+macro Boost_pp_cppflags "-isystem $(Boost_home)/include/boost-$(Boost_file_version) "
+
+macro Boost_compiler_version      "$(LCG_compiler)"    \
+      target-icc                  "$(gcc2icc)"  \
+      target-clang                "$(gcc2clang)" \
+      target-gccmax               "$(gcc2max)"  \
+      target-g11max               "$(gcc2g11)"  \
+      target-gcc42&target-darwin  "xgcc42" \
+      target-llvm42&target-darwin "xgcc42" \
+      target-gcc40&target-darwin  "xgcc40" \
+      target-vc9                  "vc90"  
+
+macro Boost_linkopts "-L$(Boost_home)/lib " \
+      target-win     "/LIBPATH:$(Boost_home)/lib "
+
+macro Boost_linkopts_python     " -lboost_python-$(Boost_compiler_version)-mt-$(Boost_debug)$(Boost_file_version) " \
+      target-win                "   boost_python-$(Boost_compiler_version)-mt-$(Boost_file_version).lib "
+
+macro Boost_linkopts_system     " -lboost_system-$(Boost_compiler_version)-mt-$(Boost_debug)$(Boost_file_version) " \
+      target-win                "   boost_system-$(Boost_compiler_version)-mt-$(Boost_file_version).lib "
+
+macro Boost_linkopts_filesystem " -lboost_filesystem-$(Boost_compiler_version)-mt-$(Boost_debug)$(Boost_file_version) " \
+      target-win                "   boost_filesystem-$(Boost_compiler_version)-mt-$(Boost_file_version).lib "
+
+macro Boost_linkopts_filesystem_mt " -lboost_filesystem-$(Boost_compiler_version)-mt-$(Boost_debug)$(Boost_file_version) " \
+      target-win                   "   boost_filesystem-$(Boost_compiler_version)-mt-$(Boost_file_version).lib "
+
+macro Boost_linkopts_iostreams  " -lboost_iostreams-$(Boost_compiler_version)-mt-$(Boost_debug)$(Boost_file_version) " \
+      target-win                " boost_iostreams-$(Boost_compiler_version)-mt-$(Boost_file_version).lib "
+
+macro Boost_linkopts_regex      " -lboost_regex-$(Boost_compiler_version)-mt-$(Boost_debug)$(Boost_file_version) " \
+      target-win                "   boost_regex-$(Boost_compiler_version)-mt-$(Boost_file_version).lib "
+
+macro Boost_linkopts_thread     " -lboost_thread-$(Boost_compiler_version)-mt-$(Boost_debug)$(Boost_file_version) " \
+      target-win                "  boost_thread-$(Boost_compiler_version)-mt-$(Boost_file_version).lib "
+
+macro Boost_linkopts_program_options " -lboost_program_options-$(Boost_compiler_version)-mt-$(Boost_debug)$(Boost_file_version) " \
+      target-win                     "  boost_program_options-$(Boost_compiler_version)-mt-$(Boost_file_version).lib "
+
+macro Boost_linkopts_serialization   " -lboost_serialization-$(Boost_compiler_version)-mt-$(Boost_debug)$(Boost_file_version) " \
+      target-win                     "  boost_serialization-$(Boost_compiler_version)-mt-$(Boost_file_version).lib "
+
+macro Boost_linkopts_date_time  " -lboost_date_time-$(Boost_compiler_version)-mt-$(Boost_debug)$(Boost_file_version) " \
+      target-win                " boost_date_time-$(Boost_compiler_version)-mt-$(Boost_file_version).lib "
+
+macro Boost_linkopts_graph      " -lboost_graph-$(Boost_compiler_version)-mt-$(Boost_debug)$(Boost_file_version) " \
+      target-win                " boost_graph-$(Boost_compiler_version)-mt-$(Boost_file_version).lib "
+
+# Setup CMT dependency optimization macros
+macro Boost_header_file_filter $(Boost_home)/include/boost-$(Boost_file_version)
+macro Boost_header_file_stamp  $(Boost_home)/include/boost-$(Boost_file_version)/boost/any.hpp
+
+apply_pattern set_lib_path
+
+macro_append cppflags  ""  target-win  " /DBOOST_ALL_DYN_LINK /wd4275 /wd4251 "
+
+# Special tag for using date_time with nano sec resolution
+macro_append cppflags       "" USE_BOOST_TIME_WITH_NSEC_RESOLUTION " -DBOOST_DATE_TIME_POSIX_TIME_STD_CONFIG "
+macro_append Boost_linkopts "" USE_BOOST_TIME_WITH_NSEC_RESOLUTION " $(Boost_linkopts_date_time) "
+
+make_fragment pythonmodulebuilder
+
+pattern lcg_python_module \
+  library <name> -import=Python -import=Boost <files> ;\
+  macro <name>_shlibflags  "$(libraryshr_linkopts) $(use_linkopts)" ;\
+  document pythonmodulebuilder pymodule $(bin)<name>.so ;\
+  macro_remove constituents "" target-win "pymodule" ;\
+  macro_append <name>_cppflags " -ftemplate-depth-64" target-win "" ;\
+  path_remove PYTHONPATH "/<package>/" target-win "\<package>\" ;\
+  path_append PYTHONPATH $(<PACKAGE>ROOT)/$(tag)
+  
+macro Boost_export_paths "$(Boost_home)"
+
