@@ -29,6 +29,7 @@ macro        for          "gfortran" \
 	     gcc46        "gfortran" \
 	     gcc47        "gfortran" \
 	     gcc48        "gfortran" \
+	     gcc49        "gfortran" \
 	     target-clang3 "gfortran" \
 	     Darwin       "gfortran" \
              useG77       "g77"
@@ -144,6 +145,7 @@ macro GFO_BASE      "${ATLAS_EXTERNAL}/fortran/$(AtlasFortranPolicy_native_versi
       gcc46         "`$(gfo_base_cmd)`" \
       gcc47         "`$(gfo_base_cmd)`" \
       gcc48         "`$(gfo_base_cmd)`" \
+      gcc49         "`$(gfo_base_cmd)`" \
       target-clang3       "`$(gfo_base_cmd)`" \	  
       slc4          "/usr" \
       slc5          "/usr" \
@@ -194,6 +196,7 @@ macro FORTRAN_libset "" \
      HAS_GFO&gcc46  " $(gfo_notAsNeeded_linkopt) `$(for) -print-file-name=libgfortran.so` $(gfo_asNeeded_linkopt)" \
      HAS_GFO&gcc47  " $(gfo_notAsNeeded_linkopt) `$(for) -print-file-name=libgfortran.so` $(gfo_asNeeded_linkopt)" \
      HAS_GFO&gcc48  " $(gfo_notAsNeeded_linkopt) `$(for) -print-file-name=libgfortran.so` $(gfo_asNeeded_linkopt)" \
+     HAS_GFO&gcc49  " $(gfo_notAsNeeded_linkopt) `$(for) -print-file-name=libgfortran.so` $(gfo_asNeeded_linkopt)" \
      HAS_GFO&target-clang3  " $(gfo_notAsNeeded_linkopt) `$(for) -print-file-name=libgfortran.so` $(gfo_asNeeded_linkopt)" \	 
      HAS_GFO&slc4   " $(GFO)/$(GFO_LIBS)/libgfortran.so.1" \
      HAS_GFO&slc5   " $(GFO)/$(GFO_LIBS)/libgfortran.so.1" \
