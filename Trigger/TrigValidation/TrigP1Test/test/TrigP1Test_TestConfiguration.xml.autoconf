@@ -23,7 +23,7 @@
     <!--
      **************************************************************************
      *
-     * This file defines these test suites   TrigP1HLTcore, TrigP1HLTMC, TrigP1HLTphysv5,TrigP1HLTLS1V1 TrigP1HLTvarious and TrigP1HLTmenus
+     * This file defines these test suites   TrigP1HLTcore, TrigP1HLTMC, TrigP1HLTphysv5, TrigP1HLTvarious and TrigP1HLTmenus
      * 
      * Note that for the summary html table to run  we need to have at least one test for
      * each suite.   This has been arranged in all projects,  but be carefully when editing 
@@ -80,62 +80,7 @@
         
         <!-- ENABLE-IN-PROJECT-END -->
         
-        <!-- note following tests form a chain and must be run together -->
         
-        
-        <!-- ENABLE-IN-PROJECT-BEGIN: AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasTrigger--> 
-               
- 
-        <TEST name="HLT_LS1V1" type="script" suite="TrigP1HLTLS1V1"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_LS1V1  --rundir HLT_LS1V1 --conf TrigP1Test.conf</options_atn> 
-            <timelimit>20</timelimit> 
-            <expectations> 
-                <errorMessage>FAILURE </errorMessage> 
-                <returnValue>0</returnValue> 
-            </expectations> 
-        </TEST>   
-        
-        <TEST name="HLT_LS1V1_menu" type="script" suite="TrigP1HLTLS1V1"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_LS1V1_menu --rundir HLT_LS1V1_menu  --conf TrigP1Test.conf</options_atn> 
-            <timelimit>20</timelimit> 
-            <expectations> 
-                <errorMessage>FAILURE </errorMessage> 
-                <returnValue>0</returnValue> 
-            </expectations> 
-        </TEST>      
-        
-
-        <TEST name="HLT_LS1V1_COS_M7MUONS" type="script" suite="TrigP1HLTLS1V1"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_LS1V1_COS_M7MUONS --rundir HLT_LS1V1_COS_M7MUONS --conf TrigP1Test.conf</options_atn> 
-            <timelimit>20</timelimit> 
-            <expectations> 
-                <errorMessage>FAILURE </errorMessage> 
-                <returnValue>0</returnValue> 
-            </expectations> 
-        </TEST>
-
-        <TEST name="HLT_LS1V1_COS_M7IDCOSMICS" type="script" suite="TrigP1HLTLS1V1"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_LS1V1_COS_M7IDCOSMICS --rundir HLT_LS1V1_COS_M7IDCOSMICS --conf TrigP1Test.conf</options_atn> 
-            <timelimit>20</timelimit> 
-            <expectations> 
-                <errorMessage>FAILURE </errorMessage> 
-                <returnValue>0</returnValue> 
-            </expectations> 
-        </TEST>
-        
-        <TEST name="AthenaP1BS_LS1V1_standalone" type="script" suite="TrigP1HLTLS1V1">
-            <options_atn>trigtest.pl --cleardir --test AthenaP1BS_LS1V1_standalone  --rundir AthenaP1BS_LS1V1_standalone  --conf TrigP1Test.conf</options_atn>
-            <timelimit>30</timelimit>
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
-        
-        
-        <!-- ENABLE-IN-PROJECT-END --> 
-        <!-- End of physics LS1V1 menu chain --> 
-
 
         <!-- ENABLE-IN-PROJECT-BEGIN: AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasTrigger--> 
 
@@ -241,6 +186,15 @@
         <!-- ENABLE-IN-PROJECT-BEGIN: AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasTrigger--> 
         <TEST name="HLT_physicsV5" type="script" suite="TrigP1HLTphysv5"> 
             <options_atn>trigtest.pl --cleardir --test HLT_physicsV5 --rundir HLT_physicsV5 --conf TrigP1Test.conf</options_atn> 
+            <timelimit>20</timelimit> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+
+        <TEST name="HLT_physicsV5_rerunlvl1" type="script" suite="TrigP1HLTphysv5"> 
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV5_rerunlvl1 --rundir HLT_physicsV5_rerunlvl1 --conf TrigP1Test.conf</options_atn> 
             <timelimit>20</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -364,7 +318,6 @@
         <TEST name="HLT_physicsV5_menu_rerundb" type="script" suite="TrigP1HLTmenus">
             <options_atn>trigtest.pl --cleardir  --test HLT_physicsV5_menu_rerundb --rundir HLT_physicsV5_menu_rerundb --conf TrigP1Test.conf</options_atn>
             <timelimit>25</timelimit>
-            <nightly_exclude>.*</nightly_exclude>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
@@ -495,7 +448,6 @@
             <prerequisite>TrigP1HLTphysv5</prerequisite>
             <prerequisite>TrigP1HLTvarious</prerequisite>
             <prerequisite>TrigP1HLTmenus</prerequisite>
-            <prerequisite>TrigP1HLTLS1V1</prerequisite>
             <prerequisite>TrigP1HLThiV3</prerequisite>
             <expectations>
                 <returnValue>0</returnValue>
@@ -511,7 +463,6 @@
             <prerequisite>TrigP1HLTphysv5</prerequisite>
             <prerequisite>TrigP1HLTvarious</prerequisite>
             <prerequisite>TrigP1HLTmenus</prerequisite>
-            <prerequisite>TrigP1HLTLS1V1</prerequisite>
             <prerequisite>TrigP1HLThiV3</prerequisite>
             <expectations>
                 <returnValue>0</returnValue>

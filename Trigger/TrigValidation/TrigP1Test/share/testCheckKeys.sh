@@ -35,17 +35,15 @@ get_files -xmls -copy L1Topoconfig_"${stump}_"\*.xml
 l1topo=`find .  -name L1Topoconfig_${stump}_\*.xml`
 
 #prepare files for first key: l2 and ef menus are the same (full menu)
-hltmenu1=`find ../"${type}"_menu/ -name HLTconfig_\*.xml` 
+hltmenu1=`find ../"${type}"_menu/ -name outputHLTconfig_\*.xml`
+
+
 ConvertHLTSetup_txt2xml.py ../"${type}"_menu/ef_Default_setup.txt ../"${type}"_menu/ef_Default_setup_setup.txt > convertHLT1
 ef__setup1=../"${type}"_menu/ef_Default_setup.xml
 
 
 #upload the first key
 echo "upload the first key"
-
-
-#echo java -jar TriggerTool.jar -up -release "P1HLT" -l1_menu $l1menu -hlt_menu $hltmenu1  -hlt_ef_setup $ef__setup1 -name "P1HLTtest" -l FINE -dbConn $DBConn -w_n 25 -w_t 60
-#java -jar TriggerTool.jar -up -release "P1HLT" -l1_menu $l1menu -hlt_menu $hltmenu1 -hlt_ef_setup $ef__setup1 -name "P1HLTtest" -l FINE -dbConn $DBConn -w_n 25 -w_t 60  >& uploadSMK1
 
 
 echo 'java -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release "P1HLT" -l1_menu $l1menu -topo_menu $l1topo -hlt_menu $hltmenu1 -hlt_ef_setup $ef__setup1 -name "P1HLTtest" -l FINE -dbConn $DBConn -w_n 25 -w_t 60  >& uploadSMK1'
@@ -60,16 +58,16 @@ fi
 mv MenusKeys.txt MenusKeys1.txt
 
 #prepare files for second key: l2 and ef menus are the same (full menu)
-hltmenu2=`find ../"${type}"_rerun/ -name HLTconfig_\*.xml`
+hltmenu2=`find ../"${type}"_rerun/ -name outputHLTconfig_\*.xml`
+
 ConvertHLTSetup_txt2xml.py ../"${type}"_rerun/ef_Default_setup.txt ../"${type}"_rerun/ef_Default_setup_setup.txt > convertHLT2
 ef__setup2=../"${type}"_rerun/ef_Default_setup.xml
 
 
 #upload the second key
 echo "upload the second key"
-echo java -jar TriggerTool.jar -up -release "P1HLT" -l1_menu $l1menu -hlt_menu $hltmenu2  -hlt_ef_setup $ef__setup2 -name "P1HLTtest" -l FINE -dbConn $DBConn -w_n 25 -w_t 60 >& uploadSMK
-
-java -jar TriggerTool.jar -up -release "P1HLT" -l1_menu $l1menu -hlt_menu $hltmenu2  -hlt_ef_setup $ef__setup2 -name "P1HLTtest" -l FINE -dbConn $DBConn -w_n 25 -w_t 60 >& uploadSMK
+echo "java -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release "P1HLT" -l1_menu $l1menu -topo_menu $l1topo -hlt_menu $hltmenu2 -hlt_ef_setup $ef__setup2 -name "P1HLTtest" -l FINE -dbConn $DBConn -w_n 25 -w_t 60  >& uploadSMK2"
+java -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release "P1HLT" -l1_menu $l1menu -topo_menu $l1topo -hlt_menu $hltmenu2 -hlt_ef_setup $ef__setup2 -name "P1HLTtest" -l FINE -dbConn $DBConn -w_n 25 -w_t 60  >& uploadSMK2
 
 if [ ! -f MenusKeys.txt ]
 then
@@ -83,7 +81,9 @@ smk1=`grep SM MenusKeys1.txt | cut -f8 -d" "| cut -f1 -d":"`
 smk2=`grep SM MenusKeys2.txt | cut -f8 -d" "| cut -f1 -d":"`
 
 echo "diff key 1 vs key 2"
-java -jar TriggerTool.jar -diff -smk1 $smk1 -smk2 $smk2 -name "P1HLTtest" -dbConn $DBConn -xml diff_smk_${smk1}_${smk2}.xml -w_n 25 -w_t 60
+#java -jar TriggerTool.jar -diff -smk1 $smk1 -smk2 $smk2 -name "P1HLTtest" -dbConn $DBConn -xml diff_smk_${smk1}_${smk2}.xml -w_n 25 -w_t 60
+echo "java  -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -diff -smk1 $smk1 -smk2 $smk2 -name "P1HLTtest" -dbConn $DBConn -xml diff_smk_${smk1}_${smk2}.xml -w_n 25 -w_t 60"
+java -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -diff -smk1 $smk1 -smk2 $smk2 -name "P1HLTtest" -dbConn $DBConn -xml diff_smk_${smk1}_${smk2}.xml -w_n 25 -w_t 60
 
 echo "checking L2" 
 
