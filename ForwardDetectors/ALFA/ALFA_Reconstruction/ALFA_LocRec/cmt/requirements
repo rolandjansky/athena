@@ -14,6 +14,8 @@ use AtlasPolicy			AtlasPolicy-*
 use StoreGate			StoreGate-*				Control
 use GeneratorObjects	GeneratorObjects-*		Generators
 
+use AthenaBaseComps     AthenaBaseComps-*       Control
+
 use ALFA_Geometry		ALFA_Geometry-*			ForwardDetectors/ALFA
 use ALFA_RawEv			ALFA_RawEv-*			ForwardDetectors/ALFA
 use ALFA_LocRecEv		ALFA_LocRecEv-*			ForwardDetectors/ALFA/ALFA_RecEv

@@ -62,8 +62,8 @@ StatusCode ALFA_MDGap::Initialize(Int_t iRPot, Float_t faMD[RPOTSCNT][ALFALAYERS
 
 StatusCode ALFA_MDGap::Execute(const list<MDHIT> &ListMDHits)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDGap::Execute()");
-	LogStream << MSG::DEBUG << "ALFA_MDGap::Execute()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDGap::Execute()");
+	ATH_MSG_DEBUG("ALFA_MDGap::Execute()");
 
 	FIBERS structFibers;
 	m_MapLayers.clear();

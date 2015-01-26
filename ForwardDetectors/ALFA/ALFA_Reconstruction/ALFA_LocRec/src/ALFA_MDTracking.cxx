@@ -6,8 +6,8 @@
 
 ALFA_MDTracking::ALFA_MDTracking()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::ALFA_MDTracking()");
-	LogStream << MSG::DEBUG << "begin ALFA_MDTracking::ALFA_MDTracking" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::ALFA_MDTracking()");
+	ATH_MSG_DEBUG("begin ALFA_MDTracking::ALFA_MDTracking");
 
 	m_iNumU = 0;
 	m_iNumV = 0;
@@ -25,20 +25,20 @@ ALFA_MDTracking::ALFA_MDTracking()
 	memset(&m_iFibSel, 0, sizeof(m_iFibSel));
 	fill_n(m_iFibSel, sizeof(m_iFibSel)/sizeof(Int_t), -9999);
 
-	LogStream << MSG::DEBUG << "end ALFA_MDTracking::ALFA_MDTracking" << endreq;
+	ATH_MSG_DEBUG("end ALFA_MDTracking::ALFA_MDTracking");
 }
 
 ALFA_MDTracking::~ALFA_MDTracking()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::~ALFA_MDTracking()");
-	LogStream << MSG::DEBUG << "begin ALFA_MDTracking::~ALFA_MDTracking" << endreq;
-	LogStream << MSG::DEBUG << "end ALFA_MDTracking::~ALFA_MDTracking" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::~ALFA_MDTracking()");
+	ATH_MSG_DEBUG("begin ALFA_MDTracking::~ALFA_MDTracking");
+	ATH_MSG_DEBUG("end ALFA_MDTracking::~ALFA_MDTracking");
 }
 
 StatusCode ALFA_MDTracking::Initialize(Float_t faMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], Float_t fbMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], Int_t iMultiplicityCut, Int_t iUVCut, Float_t fOverlapCut)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::Initialize()");
-	LogStream << MSG::DEBUG << "begin ALFA_MDTracking::Initialize()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::Initialize()");
+	ATH_MSG_DEBUG("begin ALFA_MDTracking::Initialize()");
 
 	m_iMultiplicityCut = iMultiplicityCut;
 	m_iUVCut = iUVCut;
@@ -56,15 +56,15 @@ StatusCode ALFA_MDTracking::Initialize(Float_t faMD[RPOTSCNT][ALFALAYERSCNT*ALFA
 		}
 	}
 
-	LogStream << MSG::DEBUG << "end ALFA_MDTracking::Initialize()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_MDTracking::Initialize()");
 
 	return StatusCode::SUCCESS;
 }
 
 StatusCode ALFA_MDTracking::Execute(Int_t iRPot, const list<MDHIT> &ListMDHits)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::Execute()");
-	LogStream << MSG::DEBUG << "ALFA_MDTracking::Execute()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::Execute()");
+	ATH_MSG_DEBUG("ALFA_MDTracking::Execute()");
 
 	FIBERS structFibers;
 	Int_t iNumUFiberHits = 0;
@@ -112,27 +112,27 @@ StatusCode ALFA_MDTracking::Execute(Int_t iRPot, const list<MDHIT> &ListMDHits)
 
 	if (iNumUFiberHits>=m_iUVCut && iNumVFiberHits>=m_iUVCut) OverLap();
 
-	LogStream << MSG::DEBUG << "end ALFA_MDTracking::Execute()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_MDTracking::Execute()");
 	return StatusCode::SUCCESS;
 }
 
 StatusCode ALFA_MDTracking::Finalize(Float_t &fRecXPos, Float_t &fRecYPos)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::Finalize()");
-	LogStream << MSG::DEBUG << "begin ALFA_MDTracking::Finalize()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::Finalize()");
+	ATH_MSG_DEBUG("begin ALFA_MDTracking::Finalize()");
 
 	fRecXPos = m_fRecXPos;
 	fRecYPos = m_fRecYPos;
 
-	LogStream << MSG::DEBUG << "end ALFA_MDTracking::Execute()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_MDTracking::Execute()");
 
 	return StatusCode::SUCCESS;
 }
 
 void ALFA_MDTracking::HistFill(Float_t &b_p, Float_t &b_n, Float_t &fOverP, Float_t &fOverN, Int_t &iNumU, Int_t &iNumV, Int_t iFlag)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::HistFill()");
-	LogStream << MSG::DEBUG << "begin ALFA_MDTracking::HistFill()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::HistFill()");
+	ATH_MSG_DEBUG("begin ALFA_MDTracking::HistFill()");
 
 	Int_t iHit;
 	Float_t fFibCen;
@@ -323,13 +323,13 @@ void ALFA_MDTracking::HistFill(Float_t &b_p, Float_t &b_n, Float_t &fOverP, Floa
 	delete vecMaxP;
 	delete vecMaxN;
 
-	LogStream << MSG::DEBUG << "endl ALFA_MDTracking::HistFill()" << endreq;
+	ATH_MSG_DEBUG("endl ALFA_MDTracking::HistFill()");
 }
 
 void ALFA_MDTracking::OverLap()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::OverLap()");
-	LogStream << MSG::DEBUG << "ALFA_MDTracking::OverLap()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::OverLap()");
+	ATH_MSG_DEBUG("ALFA_MDTracking::OverLap()");
 
 	Float_t fBMeanN = -9999.0;
 	Float_t fBMeanP = -9999.0;
@@ -438,26 +438,26 @@ void ALFA_MDTracking::OverLap()
 
 	SetData(iNumU, iNumV, fOverlapU, fOverlapV);
 
-	LogStream << MSG::DEBUG << "end ALFA_MDTracking::OverLap()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_MDTracking::OverLap()");
 }
 
 void ALFA_MDTracking::SetData(Int_t iNumU, Int_t iNumV, Float_t fOverlapU, Float_t fOverlapV)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::SetData()");
-	LogStream << MSG::DEBUG << "begin ALFA_MDTracking::SetData()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::SetData()");
+	ATH_MSG_DEBUG("begin ALFA_MDTracking::SetData()");
 
 	m_iNumU = iNumU;
 	m_iNumV = iNumV;
 	m_fOverlapU = fOverlapU;
 	m_fOverlapV = fOverlapV;
 
-	LogStream << MSG::DEBUG << "end ALFA_MDTracking::SetData()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_MDTracking::SetData()");
 }
 
 void ALFA_MDTracking::GetData(Int_t &iNumU, Int_t &iNumV, Float_t &fOverlapU, Float_t &fOverlapV, Int_t (&iFibSel)[ALFALAYERSCNT*ALFAPLATESCNT])
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::GetData()");
-	LogStream << MSG::DEBUG << "begin ALFA_MDTracking::GetData()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::GetData()");
+	ATH_MSG_DEBUG("begin ALFA_MDTracking::GetData()");
 
 	iNumU = m_iNumU;
 	iNumV = m_iNumV;
@@ -469,5 +469,5 @@ void ALFA_MDTracking::GetData(Int_t &iNumU, Int_t &iNumV, Float_t &fOverlapU, Fl
 		iFibSel[iLayer] = m_iFibSel[iLayer];
 	}
 
-	LogStream << MSG::DEBUG << "end ALFA_MDTracking::GetData()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_MDTracking::GetData()");
 }

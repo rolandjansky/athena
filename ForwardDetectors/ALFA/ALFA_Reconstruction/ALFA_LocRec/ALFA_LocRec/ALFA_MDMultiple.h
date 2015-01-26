@@ -9,7 +9,10 @@
 #include <vector>
 #include <map>
 
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
+//#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 #include "AthenaKernel/getMessageSvc.h"
 
@@ -79,6 +82,15 @@ class ALFA_MDMultiple
 						vector<int> &Num_p, vector<int> &Num_n,
 						vector<int> (&FSel_n)[ALFAPLATESCNT], vector<int> (&FSel_p)[ALFAPLATESCNT],
 						vector<int> (&Track_match)[2]);
+
+public:
+	/// Log a message using the Athena controlled logging system
+	MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
+	/// Check whether the logging system is active at the provided verbosity level
+	bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
+private:
+	/// Private message stream member
+	mutable Athena::MsgStreamMember m_msg;
 
 };
 #endif // ALFA_MDMULTIPLE_H

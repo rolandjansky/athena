@@ -8,7 +8,10 @@
 #include <iostream>
 #include <vector>
 
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/MsgStreamMember.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+
+//#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 #include "AthenaKernel/getMessageSvc.h"
 
@@ -53,5 +56,14 @@ class ALFA_MDTracking
 		void HistFill(Float_t &b_p, Float_t &b_n, Float_t &Ov_p, Float_t &Ov_n, Int_t &NumU, Int_t &NumV, Int_t iFlag);
 		void OverLap();
 		void SetData(Int_t NumU, Int_t NumV, Float_t OL_U, Float_t OL_V);
+
+public:
+	/// Log a message using the Athena controlled logging system
+	MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
+	/// Check whether the logging system is active at the provided verbosity level
+	bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
+private:
+	/// Private message stream member
+	mutable Athena::MsgStreamMember m_msg;
 };
 #endif // ALFA_MDTRACKING_H

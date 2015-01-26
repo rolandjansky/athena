@@ -327,8 +327,8 @@ void ALFA_ODTracking::FindingPosition(Int_t iRPot, map<int, FIBERS> &MapLayers, 
 
 void ALFA_ODTracking::GetData(Int_t (&iFibSel)[ODSIDESCNT][ODPLATESCNT])
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "ALFA_ODTracking::GetData()");
-	LogStream << MSG::DEBUG << "begin ALFA_ODTracking::GetData()" << endreq;
+	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_ODTracking::GetData()");
+	ATH_MSG_DEBUG("begin ALFA_ODTracking::GetData()");
 
 
 	for (int iSide=0; iSide<ODSIDESCNT; iSide++)
@@ -339,5 +339,5 @@ void ALFA_ODTracking::GetData(Int_t (&iFibSel)[ODSIDESCNT][ODPLATESCNT])
 		}
 	}
 
-	LogStream << MSG::DEBUG << "end ALFA_ODTracking::GetData()" << endreq;
+	ATH_MSG_DEBUG("end ALFA_ODTracking::GetData()");
 }
