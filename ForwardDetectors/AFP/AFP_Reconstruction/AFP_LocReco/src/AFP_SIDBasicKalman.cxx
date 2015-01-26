@@ -6,6 +6,7 @@
 
 AFP_SIDBasicKalman::AFP_SIDBasicKalman()
 {
+	MyFile = NULL;
 	histS1_PixMap = NULL;
 	histS2_PixMap = NULL;
 	histS3_PixMap = NULL;

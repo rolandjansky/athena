@@ -6,12 +6,12 @@
 //#include "AFP_Geometry/AFP_GeometryReader.h"
 
 #include "AthenaKernel/errorcheck.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h" 
 
 AFP_TDLocReco::AFP_TDLocReco(const string& name, ISvcLocator* pSvcLocator) :
-Algorithm(name, pSvcLocator)
+AthAlgorithm(name, pSvcLocator)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "AFP_TDLocReco::AFP_TDLocReco");
-	LogStream << MSG::DEBUG << "begin AFP_TDLocReco::AFP_TDLocReco" << endreq;
+	ATH_MSG_DEBUG("begin AFP_TDLocReco::AFP_TDLocReco");
 
 	//m_pGeometryReader = new AFP_GeometryReader();
 
@@ -46,13 +46,12 @@ Algorithm(name, pSvcLocator)
 	m_iEvent   = 0;
 	m_iRunNum  = 0;
 
-	LogStream << MSG::DEBUG << "end AFP_TDLocReco::AFP_TDLocReco" << endreq;
+	ATH_MSG_DEBUG("end AFP_TDLocReco::AFP_TDLocReco");
 }
 
 AFP_TDLocReco::~AFP_TDLocReco()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "AFP_TDLocReco::~AFP_TDLocReco");
-	LogStream << MSG::DEBUG << "begin AFP_TDLocReco::~AFP_TDLocReco" << endreq;
+	ATH_MSG_DEBUG("begin AFP_TDLocReco::~AFP_TDLocReco");
 
 // 	if(m_pGeometryReader!=NULL)
 // 	{
@@ -60,13 +59,11 @@ AFP_TDLocReco::~AFP_TDLocReco()
 // 		m_pGeometryReader = NULL;
 // 	}
 
-	LogStream << MSG::DEBUG << "begin AFP_TDLocReco::~AFP_TDLocReco" << endreq;
 }
 
 StatusCode AFP_TDLocReco::initialize()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "AFP_TDLocReco::initialize()");
-	LogStream << MSG::DEBUG << "begin AFP_TDLocReco::initialize()" << endreq;
+	ATH_MSG_DEBUG("begin AFP_TDLocReco::initialize()");
 
 	StatusCode sc;
 	//ClearGeometry();
@@ -74,7 +71,7 @@ StatusCode AFP_TDLocReco::initialize()
 	sc = service("StoreGateSvc",m_storeGate);
 	if(sc.isFailure())
 	{
-		LogStream << MSG::ERROR << "reconstruction: unable to retrieve pointer to StoreGateSvc" << endreq;
+		ATH_MSG_ERROR("reconstruction: unable to retrieve pointer to StoreGateSvc");
 		return sc;
 	} 
 	
@@ -104,14 +101,13 @@ StatusCode AFP_TDLocReco::initialize()
 
 	m_iEvent = 0;
 
-	LogStream << MSG::DEBUG << "end AFP_TDLocReco::initialize()" << endreq;
+	ATH_MSG_DEBUG("end AFP_TDLocReco::initialize()");
 	return StatusCode::SUCCESS;
 }
 
 StatusCode AFP_TDLocReco::execute()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "AFP_TDLocReco::execute()");
-	LogStream << MSG::DEBUG << "begin AFP_TDLocReco::execute()" << endreq;
+	ATH_MSG_DEBUG("begin AFP_TDLocReco::execute()");
 
 	StatusCode sc;
 
@@ -124,7 +120,7 @@ StatusCode AFP_TDLocReco::execute()
 	sc = m_storeGate->retrieve( eventInfo );
 	if (sc.isFailure())
 	{
-		LogStream << MSG::ERROR << "AFP_TDLocReco, Cannot get event info." << endreq;
+		ATH_MSG_ERROR("AFP_TDLocReco, Cannot get event info.");
 //		return sc;
 	}
 	else
@@ -149,14 +145,14 @@ StatusCode AFP_TDLocReco::execute()
 	sc = RecordTDCollection();
 	if (sc.isFailure())
 	{
-		LogStream << MSG::ERROR << "RecordCollection() failed" << endreq;
+		ATH_MSG_ERROR("RecordCollection() failed");
 		return StatusCode::SUCCESS;
 	}
 
 	sc = AFPCollectionReading(ListTDHits);
 	if (sc.isFailure())
 	{
-		LogStream << MSG::WARNING << "AFP_Collection_Reading Failed" << endreq;
+		ATH_MSG_WARNING("AFP_Collection_Reading Failed");
 //		return StatusCode::SUCCESS;
 	}
 	else
@@ -171,7 +167,7 @@ StatusCode AFP_TDLocReco::execute()
 			
 			if (sc.isFailure())
 			{
-			LogStream << MSG::FATAL << "TD Algorithm " << strAlgoTD << " failure!" << endreq;
+			ATH_MSG_FATAL("TD Algorithm " << strAlgoTD << " failure!");
 			return sc;
 			}
 		}
@@ -182,30 +178,28 @@ StatusCode AFP_TDLocReco::execute()
 	
 	
 	m_iEvent++;
-	LogStream << MSG::DEBUG << "end AFP_TDLocReco::execute()" << endreq;
+	ATH_MSG_DEBUG("end AFP_TDLocReco::execute()");
 	return StatusCode::SUCCESS;
 }
 
 StatusCode AFP_TDLocReco::finalize()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "AFP_TDLocReco::finalize()");
-	LogStream << MSG::DEBUG << "begin AFP_TDLocReco::finalize()" << endreq;
+	ATH_MSG_DEBUG("begin AFP_TDLocReco::finalize()");
 
 
 
-	LogStream << MSG::DEBUG << "end AFP_TDLocReco::finalize()" << endreq;
+	ATH_MSG_DEBUG("end AFP_TDLocReco::finalize()");
 	return StatusCode::SUCCESS;
 }
 
 void AFP_TDLocReco::ClearGeometry()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "AFP_TDLocReco::ClearGeometry()");
-	LogStream << MSG::DEBUG << "begin AFP_TDLocReco::ClearGeometry()" << endreq;
+	ATH_MSG_DEBUG("begin AFP_TDLocReco::ClearGeometry()");
 
 	///////
 	///////
 	
-	LogStream << MSG::DEBUG << "end AFP_TDLocReco::ClearGeometry()" << endreq;
+	ATH_MSG_DEBUG("end AFP_TDLocReco::ClearGeometry()");
 }
 
 
@@ -213,8 +207,7 @@ StatusCode AFP_TDLocReco::AFPCollectionReading(list<TDHIT> &ListTDHits)
 {
 	StatusCode sc;
 
-	MsgStream LogStream(Athena::getMessageSvc(), "AFP_TDLocReco::AFPCollectionReading()");
-	LogStream << MSG::DEBUG << "begin AFP_TDLocReco::AFPCollectionReading()" << endreq;
+	ATH_MSG_DEBUG("begin AFP_TDLocReco::AFPCollectionReading()");
 
 	TDHIT TDHit;
 
@@ -245,7 +238,7 @@ StatusCode AFP_TDLocReco::AFPCollectionReading(list<TDHIT> &ListTDHits)
 		ListTDHits.push_back(TDHit);
 	}
 
-	LogStream << MSG::DEBUG << "end AFP_TDLocReco::AFPCollectionReading()" << endreq;
+	ATH_MSG_DEBUG("end AFP_TDLocReco::AFPCollectionReading()");
 
 	return StatusCode::SUCCESS;
 }
@@ -253,47 +246,43 @@ StatusCode AFP_TDLocReco::AFPCollectionReading(list<TDHIT> &ListTDHits)
 
 bool AFP_TDLocReco::ReadGeometryDetCS()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "AFP_TDLocReco::ReadGeometryDetCS()");
-	LogStream << MSG::DEBUG << "begin AFP_TDLocReco::ReadGeometryDetCS()" << endreq;
+	ATH_MSG_DEBUG("begin AFP_TDLocReco::ReadGeometryDetCS()");
 
 	//////
 	//////
 	//SaveGeometry();
 
-	LogStream << MSG::DEBUG << "end AFP_TDLocReco::ReadGeometryDetCS()" << endreq;
+	ATH_MSG_DEBUG("end AFP_TDLocReco::ReadGeometryDetCS()");
 
 	return 1;
 }
 
-bool AFP_TDLocReco::StoreReconstructionGeometry(const char* szDataDestination)
+bool AFP_TDLocReco::StoreReconstructionGeometry(/*const char* szDataDestination*/)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "AFP_TDLocReco::StoreReconstructionGeometry()");
-	LogStream << MSG::DEBUG << "begin AFP_TDLocReco::StoreReconstructionGeometry()" << endreq;
+	ATH_MSG_DEBUG("begin AFP_TDLocReco::StoreReconstructionGeometry()");
 
 	//////
 	//////
 
-	LogStream << MSG::DEBUG << "end AFP_LocReco::StoreReconstructionGeometry()" << endreq;
+	ATH_MSG_DEBUG("end AFP_LocReco::StoreReconstructionGeometry()");
 
 	return true;
 }
 
 void AFP_TDLocReco::SaveGeometry()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "AFP_TDLocReco::SaveGeometry()");
-	LogStream << MSG::DEBUG << "begin AFP_TDLocReco::SaveGeometry()" << endreq;
+	ATH_MSG_DEBUG("begin AFP_TDLocReco::SaveGeometry()");
 
 
 	/////
 	/////
 
-	LogStream << MSG::DEBUG << "end AFP_TDLocReco::SaveGeometry()" << endreq;
+	ATH_MSG_DEBUG("end AFP_TDLocReco::SaveGeometry()");
 }
 
 StatusCode AFP_TDLocReco::ExecuteRecoMethod(const string strAlgo, const list<TDHIT> &ListTDHits)
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "AFP_TDLocReco::ExecuteRecoMethod()");
-	LogStream << MSG::DEBUG << "begin AFP_TDLocReco::ExecuteRecoMethod()" << endreq;
+	ATH_MSG_DEBUG("begin AFP_TDLocReco::ExecuteRecoMethod()");
 
 	StatusCode sc = StatusCode::SUCCESS;
 	TDRESULT TDResults;
@@ -342,20 +331,19 @@ StatusCode AFP_TDLocReco::ExecuteRecoMethod(const string strAlgo, const list<TDH
 
 	default:
 		{
-			LogStream << MSG::ERROR << "Unable to recognize selected algorithm" << endreq;
+			ATH_MSG_ERROR("Unable to recognize selected algorithm");
 			return StatusCode::FAILURE;
 		}
 	}
 
-	LogStream << MSG::DEBUG << "end AFP_TDLocReco::ExecuteRecoMethod()" << endreq;
+	ATH_MSG_DEBUG("end AFP_TDLocReco::ExecuteRecoMethod()");
 
 	return sc;
 }
 
 StatusCode AFP_TDLocReco::RecordTDCollection()
 {
-	MsgStream LogStream(Athena::getMessageSvc(), "AFP_TDLocReco::RecordTDCollection()");
-	LogStream << MSG::DEBUG << "begin AFP_TDLocReco::RecordTDCollection()" << endreq;
+	ATH_MSG_DEBUG("begin AFP_TDLocReco::RecordTDCollection()");
 
 	StatusCode sc = StatusCode::SUCCESS;
 
@@ -364,15 +352,15 @@ StatusCode AFP_TDLocReco::RecordTDCollection()
 
 	if (sc.isFailure())
 	{
-		LogStream << MSG::ERROR << m_strAlgoTD << "TD - Could not record the empty LocRecoEv collection in StoreGate" << endreq;
+		ATH_MSG_ERROR("TD - Could not record the empty LocRecoEv collection in StoreGate");
 		return sc;
 	}
 	else
 	{
-		LogStream << MSG::DEBUG << "TD - LocRecoEv collection was recorded in StoreGate" << endreq;
+		ATH_MSG_DEBUG("TD - LocRecoEv collection was recorded in StoreGate");
 	}
 
-	LogStream << MSG::DEBUG << "end AFP_TDLocReco::RecordTDCollection()" << endreq;
+	ATH_MSG_DEBUG("end AFP_TDLocReco::RecordTDCollection()");
 
 	return sc;
 }

@@ -2,13 +2,14 @@ package AFP_LocReco
 
 author Mateusz Dyndal <mateusz.dyndal@cern.ch>
 
-use AthenaPoolUtilities		AthenaPoolUtilities-*	Database/AthenaPOOL
+use AthenaPoolUtilities		AthenaPoolUtilities-*		Database/AthenaPOOL
 
 use AthenaKernel         	AthenaKernel-*            	Control
 use AtlasHepMC          	AtlasHepMC-*              	External
 use AtlasCLHEP            	AtlasCLHEP-*               	External
 use EventInfo            	EventInfo-*               	Event
 use GaudiInterface		GaudiInterface-*		External
+use AthenaBaseComps     	AthenaBaseComps-*       	Control
 
 use AtlasROOT			AtlasROOT-*			External
 use AtlasPolicy			AtlasPolicy-*

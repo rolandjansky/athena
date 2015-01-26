@@ -33,7 +33,7 @@ StatusCode AFP_TDZVertex::Execute(const list<TDHIT> &ListTDHits)
 	const int NST = 4;
 	const int NDET = 4;
 	const int NTRAINS = 4;
-	const int NBARS = 32;
+	//const int NBARS = 32;
 	
 	vector<float> vecTDHit[NST][NDET][NTRAINS];
 	
