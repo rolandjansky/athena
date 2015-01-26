@@ -13,6 +13,12 @@
 //
 // Properties (JobOption Parameters):
 //
+//       MuonReceiverEneThreshCellD6Low        "Setting the lowest trigger threshold for cell D6 in MeV (Def=500 MeV)"
+//       MuonReceiverEneThreshCellD6andD5Low   "Setting the lowest trigger threshold for cell D5+D6 in MeV (Def=500 MeV)"
+//       MuonReceiverEneThreshCellD6High       "Setting the highest trigger threshold for cell D6 in MeV (Def=600 MeV)"
+//       MuonReceiverEneThreshCellD6andD5High  "Setting the highest trigger threshold for cell D5+D6 in MeV (Def=600 MeV)"
+//       SelectionCutForMatchedFilterQf        "Selection cut for the quality factor of the matched filters (NOT implemented)"
+//       TileMuonReceiverContainer             "Tile Calorimeter decision to TGC Sector Logic"
 //
 // BUGS:
 //  

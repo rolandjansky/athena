@@ -127,6 +127,14 @@ private:
     std::string m_itADistHistName; //!< Name of histogram for in-time amplitude distribution
     std::string m_ootADistHistName; //!< Name of  histogram for out-of-time amplitude distribution
     
+    int m_seed;
+    int m_BunchSpacing; //!< Time between pulses in ms 25, 50 or 75
+    int nSamp;  //!< number of read out samples
+    int nPul;  //!< number of pileup pulses 
+    int nPul_eff;  //Used for symetrization of PU in computation
+    std::vector<float> m_PUAmp;
+    double n_inTimeAmp; //!< Local loop variable for amplitude of in-time pulse
+    
     //Members for simulator
     TilePulseShape*      m_ps[2]; //!< Class for defining pulse. One element for lo gain and one for hi.
     TileSampleBuffer*    m_buf; //!< Buffer class to hold generated pulses
