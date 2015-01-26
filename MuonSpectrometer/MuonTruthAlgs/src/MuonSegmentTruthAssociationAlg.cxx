@@ -68,8 +68,8 @@ namespace Muon {
       seg->auxdata< ElementLink< xAOD::MuonSegmentContainer > >("truthSegmentLink") = ElementLink< xAOD::MuonSegmentContainer >();
       if( seg->muonSegment().isValid() ) {
         const Muon::MuonSegment* mseg = dynamic_cast<const Muon::MuonSegment*>(*seg->muonSegment());
-        ATH_MSG_DEBUG(" Reco segment " << m_printer->print(*mseg));
         if( mseg ) {
+          ATH_MSG_DEBUG(" Reco segment " << m_printer->print(*mseg));
           muonSegments.push_back(mseg);
           muonSegmentLinkMap[mseg] = ElementLink< xAOD::MuonSegmentContainer >(m_muonSegmentCollectionName,segIndex);
         }

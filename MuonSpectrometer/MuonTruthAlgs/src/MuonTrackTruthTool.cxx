@@ -232,9 +232,9 @@ namespace Muon {
     TrackRecordConstIterator tr_it = truthTrackCol->begin();
     TrackRecordConstIterator tr_it_end = truthTrackCol->end();
     for(;tr_it!=tr_it_end; ++tr_it){
-      int PDGCode( (*tr_it)->GetPDGCode() ) ;
-//       int barcode( manipulateBarCode( (*tr_it)->GetBarCode()) );	
-      int barcode = (*tr_it)->GetBarCode();	
+      int PDGCode( (*tr_it).GetPDGCode() ) ;
+//       int barcode( manipulateBarCode( (*tr_it).GetBarCode()) );	
+      int barcode = (*tr_it).GetBarCode();	
       if( !m_matchAllParticles && abs(PDGCode) != 13 ) {
 	if( m_debug ) *m_log << MSG::VERBOSE << " discarding truth track: pdg " <<  PDGCode << "  barcode " << barcode << endreq;
 	continue;
@@ -250,7 +250,7 @@ namespace Muon {
       TruthTrajectory* truthTrajectory = 0;
       // associate the muon truth with the gen event info
       if( genEvent ){
-	HepMC::GenParticle* genParticle = genEvent->barcode_to_particle( (*tr_it)->GetBarCode() );
+	HepMC::GenParticle* genParticle = genEvent->barcode_to_particle( (*tr_it).GetBarCode() );
 	if( genParticle ){
 	  truthTrajectory = new TruthTrajectory();
 	  m_truthTrajectoryBuilder->buildTruthTrajectory(truthTrajectory,genParticle);
@@ -305,7 +305,7 @@ namespace Muon {
       }
 	
       TruthTreeEntry& entry = m_truthTree[barcode];
-      entry.truthTrack = *tr_it;
+      entry.truthTrack = &(*tr_it);
       entry.truthTrajectory = truthTrajectory;
       m_truthTrajectoriesToBeDeleted.push_back(truthTrajectory);
     }

@@ -26,7 +26,7 @@ public:
   virtual StatusCode finalize();
 
 private:
-  void addMuon( const xAOD::TruthParticle& truthParticle, const xAOD::MuonContainer& muons );
+  void addMuon( const xAOD::TruthParticleContainer& truthParticles, const xAOD::MuonContainer& muons );
 
   std::string m_muonTruthParticleContainerName;
   std::string m_muonName;
