@@ -228,15 +228,15 @@ namespace Muon {
     TrackRecordCollection::const_iterator it = truthCollection->begin();
     TrackRecordCollection::const_iterator it_end = truthCollection->end();
     for( ;it!=it_end;++it){
-      int barcode = (*it)->GetBarCode();     
+      int barcode = (*it).GetBarCode();     
       if( barcode == genPart.barcode() ){
 
 	ATH_MSG_DEBUG("Matched muon in track record: bc " << barcode 
-		      << " pt " << (*it)->GetMomentum().perp() << " eta " << (*it)->GetMomentum().eta() );	
-	return *it;
-      }else if( abs((*it)->GetPDGCode()) == 13 ) {
+		      << " pt " << (*it).GetMomentum().perp() << " eta " << (*it).GetMomentum().eta() );	
+	return &(*it);
+      }else if( abs((*it).GetPDGCode()) == 13 ) {
 	ATH_MSG_VERBOSE("Found muon in track record: bc " << barcode 
-			<< " pt " << (*it)->GetMomentum().perp() << " eta " << (*it)->GetMomentum().eta() );
+			<< " pt " << (*it).GetMomentum().perp() << " eta " << (*it).GetMomentum().eta() );
       }
     }
     ATH_MSG_DEBUG("No match found for muon: bc " << genPart.barcode() 
