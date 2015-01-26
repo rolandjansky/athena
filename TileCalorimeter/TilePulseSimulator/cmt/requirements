@@ -5,10 +5,15 @@ author  Simon Molander <simon.molander@fysik.su.se>
 use AtlasPolicy         AtlasPolicy-*
 use AtlasROOT           AtlasROOT-*             External
 
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Hist)"
+
 private
 
 #use PathResolver        PathResolver-*         Tools
 use  GaudiInterface             GaudiInterface-*                External
+
+
 
 
 apply_tag ROOTMathLibs 
