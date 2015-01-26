@@ -111,41 +111,41 @@ public:
   // roi access methods
 
   // access functions to get the list of hash id's 
-  void  getHashList(const RegSelRoI& roi, std::vector<IdentifierHash>& hashlist ) const;
+  virtual void  getHashList(const RegSelRoI& roi, std::vector<IdentifierHash>& hashlist ) const;
 
   // access functions to get the list of hash id's 
-  void  getHashList(const RegSelRoI& roi, std::vector<IdentifierHash>& hashlist, double x, double y) const;
+  virtual void  getHashList(const RegSelRoI& roi, std::vector<IdentifierHash>& hashlist, double x, double y) const;
 
   // roi layer methods
   // get the hash id's for a specified layer - see comment above about the layer format
-  void  getHashList(const RegSelRoI& roi, unsigned layer, std::vector<IdentifierHash>& hashlist) const;
+  virtual void  getHashList(const RegSelRoI& roi, unsigned layer, std::vector<IdentifierHash>& hashlist) const;
 
   // get the hash id's for the entire detector
-  void  getHashList(std::vector<IdentifierHash>& hashlist) const;
+  virtual void  getHashList(std::vector<IdentifierHash>& hashlist) const;
 
   // get the hash id's for a complete layer - see comment above about the layer format
-  void  getHashList(unsigned layer, std::vector<IdentifierHash>& hashlist) const;
+  virtual void  getHashList(unsigned layer, std::vector<IdentifierHash>& hashlist) const;
   //  void  getHashList(long int& layer, std::vector<IdentifierHash>& hashlist ) const { return getHashList( unsigned(layer), hashlist ); }
 
 
 
 
   // get the rob id's for a specified layer - see comment above about the layer format
-  void  getRobList(const RegSelRoI& roi, unsigned layer, std::vector<uint32_t>& roblist, bool removeduplicates=true ) const;
+  virtual void  getRobList(const RegSelRoI& roi, unsigned layer, std::vector<uint32_t>& roblist, bool removeduplicates=true ) const;
 
   // access functions to get the roblist as wanted by athena
-  void  getRobList(const RegSelRoI& roi, std::vector<uint32_t>& roblist, bool removeduplicates=true ) const;
+  virtual void  getRobList(const RegSelRoI& roi, std::vector<uint32_t>& roblist, bool removeduplicates=true ) const;
 
   // with beam line position
   // access functions to get the roblist as wanted by athena
-  void  getRobList(const RegSelRoI& roi, std::vector<uint32_t>& roblist, double x, double y ) const;
+  virtual void  getRobList(const RegSelRoI& roi, std::vector<uint32_t>& roblist, double x, double y ) const;
 
   // full scan methods
   // get the rob list for the entire detector
-  void  getRobList(std::vector<uint32_t>& roblist) const;
+  virtual void  getRobList(std::vector<uint32_t>& roblist) const;
 
   // get the rob list for a complete layer - see comment above about the layer format
-  void  getRobList(unsigned layer, std::vector<uint32_t>& roblist) const;
+  virtual void  getRobList(unsigned layer, std::vector<uint32_t>& roblist) const;
   //  void  getRobList(long int& layer, std::vector<uint32_t>& roblist) const { return getRobList( unsigned(layer), roblist ); } 
 
   
@@ -153,13 +153,13 @@ public:
 
 
   // get the hash id's and robs for the entire detector
-  void  getRobHashList(std::vector<uint32_t>& roblist, std::vector<IdentifierHash>& hashlist) const;
+  virtual void  getRobHashList(std::vector<uint32_t>& roblist, std::vector<IdentifierHash>& hashlist) const;
 
   // get the rob list and hash id's for an roi
-  void  getRobHashList(const RegSelRoI& roi, std::vector<uint32_t>& roblist, std::vector<IdentifierHash>& hashlist) const;
+  virtual void  getRobHashList(const RegSelRoI& roi, std::vector<uint32_t>& roblist, std::vector<IdentifierHash>& hashlist) const;
 
   // get the rob list and hash id's for an roi - see comment above about the layer format
-  void  getRobHashList(const RegSelRoI& roi, unsigned layer, std::vector<uint32_t>& roblist, std::vector<IdentifierHash>& hashlist) const;
+  virtual void  getRobHashList(const RegSelRoI& roi, unsigned layer, std::vector<uint32_t>& roblist, std::vector<IdentifierHash>& hashlist) const;
 
 
 
