@@ -9,7 +9,7 @@ use GaudiInterface			GaudiInterface-*			External
 use GeneratorObjects		GeneratorObjects-*			Generators
 
 use AtlasPolicy				AtlasPolicy-*
-use AtlasCLHEP				AtlasCLHEP-*				External
+#use AtlasCLHEP				AtlasCLHEP-*				External
 use AtlasROOT				AtlasROOT-*					External 
 
 use StoreGate				StoreGate-*					Control
