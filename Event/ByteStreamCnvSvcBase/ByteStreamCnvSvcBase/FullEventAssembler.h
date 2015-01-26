@@ -5,7 +5,7 @@
 #ifndef BYTESTRAMCNVSVC_FULLEVENTASSEMBLER_H
 #define BYTESTRAMCNVSVC_FULLEVENTASSEMBLER_H
 
-#include <inttypes.h>
+#include <cstdint>
 #include <map>
 
 #include "ByteStreamCnvSvcBase/SrcIdMap.h"
