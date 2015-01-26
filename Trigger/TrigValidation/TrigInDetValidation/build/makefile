@@ -32,14 +32,12 @@ JOBS =  \
         TrigInDetValidation_cosmic.xml                                  \
                                                                         \
         TrigInDetValidation_bjet_run2.xml                               \
-        TrigInDetValidation_bjet_pileUp.xml                             \
         TrigInDetValidation_bjet_pu46_run2.xml                          \
         TrigInDetValidation_bjet_IBL_pu40_run2.xml                      \
                                                                         \
         TrigInDetValidation_tau_pu46.xml                                \
         TrigInDetValidation_tau_pu46_run2.xml                           \
         TrigInDetValidation_tau_IBL_pu46_run2.xml                       \
-        TrigInDetValidation_tau_pileup.xml                              \
                                                                         \
         TrigInDetValidation_mu_Zmumu_pu40.xml                           \
         TrigInDetValidation_mu_Zmumu_pu40_run2.xml                      \

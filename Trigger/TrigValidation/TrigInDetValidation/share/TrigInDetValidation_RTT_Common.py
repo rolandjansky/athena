@@ -60,6 +60,7 @@ except:
 
 rec.doWriteTAG=False
 
+
 # switch on detectors
 rec.doTruth=False     # needs to be true if creating Fake RoI
 
@@ -72,6 +73,7 @@ rec.doMuonCombined=False
 rec.doJetMissingETTag=False
 rec.doTau=False
 rec.doTrigger=True
+
 
 from MuonRecExample.MuonRecFlags import muonRecFlags
 muonRecFlags.Enabled.set_Value_and_Lock(False)
@@ -87,6 +89,10 @@ from RecExConfig.RecAlgsFlags import recAlgs
 # recAlgs.doStaco.set_Value_and_Lock(False)
 # recAlgs.doMuTag.set_Value_and_Lock(False)
 # recAlgs.doTrigger.set_Value_and_Lock(True)
+
+
+
+
 
 flags = {}
 flags.update(recAlgs.__dict__)
@@ -110,7 +116,9 @@ jobproperties.CaloRecFlags.doCaloEMTopoCluster.set_Value_and_Lock(False)
 #switch off some InDet reco
 from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.doNewTracking=doIDNewTracking
-InDetFlags.doPixelClusterSplitting.set_Value_and_Lock(False)
+# disable the pixel neural net clustering
+InDetFlags.doTIDE_Ambi.set_Value_and_Lock(False)
+InDetFlags.doPixelClusterSplitting.set_Value_and_Lock(True)
 InDetFlags.doBackTracking=False
 InDetFlags.doTRTStandalone=False
 InDetFlags.doiPatRec=False
@@ -183,7 +191,8 @@ Service( "RegSelSvc" ).enableCalo = False
 if 'disablePixelLayer' in dir() and disablePixelLayer == True:
   import TrigInDetValidation.InDetModules as IDM
   pixel_barrel_layer1_hashes = IDM.getHashes(IDM.getLayer(IDM.getBarrel(IDM.Pixel),1))
-  RegSelSvcDefault.DeletePixelHashList= pixel_barrel_layer1_hashes
+  # RegSelSvcDefault.DeletePixelHashList= pixel_barrel_layer1_hashes
+  Service( "RegSelSvc" ).DeletePixelHashList=pixel_barrel_layer1_hashes
   #a new svc
   from TrigIDUtils.TrigIDUtilsConf import TestPixelModuleDisablingSvc
   tpmdsvc = TestPixelModuleDisablingSvc(name="TestPixelModuleDisablingSvc")

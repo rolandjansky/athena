@@ -20,8 +20,8 @@ def electronChains(runMergedChain):
       "EF_e22vh_medium_IDTrkNoCut:InDetTrigParticleCreation_Electron_EFID",  
       ]
   else:
-    idTrigChainlist.append( ['e24_medium_L2Star_idperf', 198, 'L1_EM18VH', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'],1])
-    idTrigChainlist.append( ['e5_loose_L2Star_idperf', 199, 'L1_EM3', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'],1])
+    idTrigChainlist.append( ['e24_medium_L2Star_idperf', 'L1_EM18VH', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'],1])
+    idTrigChainlist.append( ['e5_loose_L2Star_idperf', 'L1_EM3', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'],1])
     tidaAnalysischains += [
       "HLT_e24_medium_L2Star_idperf:TrigL2SiTrackFinder_eGamma:0",
       "HLT_e24_medium_L2Star_idperf:TrigL2SiTrackFinder_eGamma:1",
@@ -37,8 +37,8 @@ def electronChains(runMergedChain):
   
   if 'runMergedChain' in dir() and runMergedChain==True:
     if use_new_tm:
-      idTrigChainlist.append(  ['e24_medium_idperf', 188, 'L1_EM18VH', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'],1])
-      idTrigChainlist.append(   ['e5_loose_idperf', 189, 'L1_EM3', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'],1])
+      idTrigChainlist.append(  ['e24_medium_idperf', 'L1_EM18VH', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'],1])
+      idTrigChainlist.append(   ['e5_loose_idperf', 'L1_EM3', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'],1])
       tidaAnalysischains.append('HLT_e24_medium_idperf:TrigFastTrackFinder_eGamma')
       tidaAnalysischains.append('HLT_e24_medium_idperf:InDetTrigParticleCreation_Electron_EFID')
       tidaAnalysischains.append('HLT_e24_medium_idperf:InDetTrigTrackingxAODCnv_Electron_EFID')
@@ -69,8 +69,8 @@ def muonChains(runMergedChain):
     tidaAnalysischains.append("EF_mu22_IDTrkNoCut_tight:InDetTrigParticleCreation_Muon_EFID")
   
   else:
-    idTrigChainlist.append(['mu24_L2Star_idperf',     816, 'L1_MU20', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'],   1])
-    idTrigChainlist.append(['mu6_L2Star_idperf',     817, 'L1_MU4', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'],   1])
+    idTrigChainlist.append(['mu24_L2Star_idperf', 'L1_MU20', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'],   1])
+    idTrigChainlist.append(['mu6_L2Star_idperf', 'L1_MU4', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'],   1])
     tidaAnalysischains.append('HLT_mu24_L2Star_idperf:TrigL2SiTrackFinder_Muon:0')
     tidaAnalysischains.append('HLT_mu24_L2Star_idperf:TrigL2SiTrackFinder_Muon:1')
     tidaAnalysischains.append('HLT_mu24_L2Star_idperf:TrigL2SiTrackFinder_Muon:2')
@@ -84,8 +84,8 @@ def muonChains(runMergedChain):
 
   if runMergedChain==True:
     if use_new_tm:
-      idTrigChainlist.append(['mu24_idperf',     826, 'L1_MU20', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'],   1])
-      idTrigChainlist.append(['mu6_idperf',     827, 'L1_MU4', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'],   1])
+      idTrigChainlist.append(['mu24_idperf',  'L1_MU20', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'],   1])
+      idTrigChainlist.append(['mu6_idperf',   'L1_MU4', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'],   1])
       tidaAnalysischains.append('HLT_mu24_idperf:TrigFastTrackFinder_Muon')
       tidaAnalysischains.append('HLT_mu24_idperf:InDetTrigParticleCreation_Muon_EFID')
       tidaAnalysischains.append('HLT_mu24_idperf:InDetTrigTrackingxAODCnv_Muon_EFID')
@@ -116,7 +116,7 @@ def tauChains(runMergedChain):
     tidaAnalysischains.append("EF_tau29_IDTrkNoCut:InDetTrigParticleCreation_Tau_EFID")
   
   else:
-    idTrigChainlist.append(['tau20_r1_idperf',  5224, 'L1_TAU12', [], ['Tau'], ['RATE:SingleTau', 'BW:Tau'], 1])
+    idTrigChainlist.append(['tau20_r1_idperf',  'L1_TAU12', [], ['Tau'], ['RATE:SingleTau', 'BW:Tau'], 1])
     tidaAnalysischains.append('HLT_tau20_r1_idperf:TrigFastTrackFinder_Tau')
     tidaAnalysischains.append('HLT_tau20_r1_idperf:TrigFastTrackFinder_Tau_IDTrig')
     tidaAnalysischains.append('HLT_tau20_r1_idperf:TrigL2SiTrackFinder_Tau:0')
@@ -128,7 +128,7 @@ def tauChains(runMergedChain):
   
   if runMergedChain==True:
     if use_new_tm:
-      idTrigChainlist.append(['tau29_idperf', 5223, 'L1_TAU12', [], ['Tau'], ['RATE:SingleTau', 'BW:Tau'], 1])
+      idTrigChainlist.append(['tau29_idperf', 'L1_TAU12', [], ['Tau'], ['RATE:SingleTau', 'BW:Tau'], 1])
       tidaAnalysischains.append('HLT_tau29_idperf:TrigFastTrackFinder_Tau')
       tidaAnalysischains.append('HLT_tau29_idperf:TrigFastTrackFinder_Tau_IDTrig')
       tidaAnalysischains.append('HLT_tau29_idperf:InDetTrigParticleCreation_Tau_EFID')
@@ -159,9 +159,9 @@ def bjetChains(runMergedChain):
       "EF_b55_NoCut_j55_a4tchad:InDetTrigParticleCreation_Bjet_EFID"
       ] 
   else :
-    idTrigChainlist.append( ['j55_bperf',        10, 'L1_J20', [], ['Jet'], ['RATE:MultiJet', 'BW:Jets'], 1],)
-    idTrigChainlist.append( ['j55_EFID_bperf',   11, 'L1_J20', [], ['Jet'], ['RATE:MultiJet', 'BW:Jets'], 1],)
-    idTrigChainlist.append( ['j55_bperf_split',  32, 'L1_J20', [], ['Jet'], ['RATE:MultiJet', 'BW:Jets'], 1],)
+    idTrigChainlist.append( ['j55_bperf',        'L1_J20', [], ['Jet'], ['RATE:MultiJet', 'BW:Jets'], 1],)
+    idTrigChainlist.append( ['j55_EFID_bperf',   'L1_J20', [], ['Jet'], ['RATE:MultiJet', 'BW:Jets'], 1],)
+    idTrigChainlist.append( ['j55_bperf_split',  'L1_J20', [], ['Jet'], ['RATE:MultiJet', 'BW:Jets'], 1],)
     tidaAnalysischains += [
       'HLT_j55_bperf:TrigFastTrackFinder_Jet',
       'HLT_j55_bperf:InDetTrigParticleCreation_Bjet_EFID',
@@ -190,7 +190,7 @@ def minBiasChains(runMergedChain):
     tidaAnalysischains.append["L2_InDetMonMergeDP_FS:TrigL2SiTrackFinder_FullScan:3"]
     tidaAnalysischains.append["EF_InDetMonMergeDP_FS:InDetTrigParticleCreation_FullScan_EFID"]
   else:
-    idTrigChainlist.append(['mb_idperf_L1MBTS_2', 804, 'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1])
+    idTrigChainlist.append(['mb_idperf_L1MBTS_2', 'L1_MBTS_2', [], ['MinBias'], ["BW:MinBias", "RATE:MinBias"], 1])
     tidaAnalysischains.append('HLT_mb_idperf_L1MBTS_2:InDetTrigParticleCreation_minBias_EFID')
     tidaAnalysischains.append('HLT_mb_idperf_L1MBTS_2:InDetTrigTrackingxAODCnv_minBias_EFID') 
   

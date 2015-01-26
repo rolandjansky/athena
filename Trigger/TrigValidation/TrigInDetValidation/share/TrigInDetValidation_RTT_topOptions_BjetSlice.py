@@ -47,7 +47,7 @@ if 'runMergedChain' in dir() and runMergedChain==True:
 (idtrigChainlist, tidaAnalysischains) = bjetChains(rMC)
 
 def resetSigs():
-  TriggerFlags.doMuon=False
+  #TriggerFlags.doMuon=False         #dependency of L1Topo
   TriggerFlags.doHypo=False
   TriggerFlags.Slices_all_setOff()
   TriggerFlags.BjetSlice.setAll();
