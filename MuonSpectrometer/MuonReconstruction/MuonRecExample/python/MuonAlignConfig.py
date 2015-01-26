@@ -32,13 +32,15 @@ conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/ENDCAP/SIDEA','/MUON
 conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/ENDCAP/SIDEC','/MUONALIGN/MDT/ENDCAP/SIDEC')
 conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/TGC/SIDEA','/MUONALIGN/TGC/SIDEA')
 conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/TGC/SIDEC','/MUONALIGN/TGC/SIDEC')
+conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/CSC/ILINES','/MUONALIGN/CSC/ILINES')
 from MuonCondTool.MuonCondToolConf import MuonAlignmentDbTool
 MuonAlignmentDbTool = MuonAlignmentDbTool("MGM_AlignmentDbTool")
 MuonAlignmentDbTool.ParlineFolders = ["/MUONALIGN/MDT/BARREL",
                                       "/MUONALIGN/MDT/ENDCAP/SIDEA",
                                       "/MUONALIGN/MDT/ENDCAP/SIDEC",
                                       "/MUONALIGN/TGC/SIDEA",
-                                      "/MUONALIGN/TGC/SIDEC"]
+                                      "/MUONALIGN/TGC/SIDEC",
+                                      "/MUONALIGN/CSC/ILINES"]
 ToolSvc += MuonAlignmentDbTool
 MGM_AlignmentDbTool = ToolSvc.MGM_AlignmentDbTool
 
@@ -63,11 +65,6 @@ if not (muonAlignFlags.UseAlines=='none' and muonAlignFlags.UseBlines=='none'):
 # here define if I-lines (CSC internal alignment) are enabled
 if muonAlignFlags.UseIlines: 
     MuonDetectorTool.EnableCscInternalAlignment = True
-    
-# CSC i-lines from DB - to become default at some point
-if muonAlignFlags.UseIlinesFromCondDB: 
-    MuonDetectorTool.EnableCscInternalAlignment = True
     MuonDetectorTool.UseIlinesFromGM = False
-    conddb.addFolder("MUONALIGN","/MUONALIGN/ILINES <tag>MuonAlignIlines-RUN1-04</tag> <dbConnection>frontier://ATLF/(proxyurl=http://atlast0fsquid.cern.ch:3128);schema=ATLAS_COOLOFL_MUONALIGN;dbname=COMP200</dbConnection>",force=True)
     MuonAlignmentDbTool.ILinesFromCondDB = True
-    MuonAlignmentDbTool.ParlineFolders += ["/MUONALIGN/ILINES"]
+    

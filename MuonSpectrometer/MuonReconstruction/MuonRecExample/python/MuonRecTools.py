@@ -359,6 +359,7 @@ MuonParticleCreatorTool.setDefaultProperties(
     Extrapolator     = "AtlasExtrapolator"    ,
     TrackSummaryTool = "MuonTrackSummaryTool",
     KeepAllPerigee=True,
+    UseMuonSummaryTool=True,
     PerigeeExpression="Origin")
 # end of class MuonParticleCreatorTool
 
