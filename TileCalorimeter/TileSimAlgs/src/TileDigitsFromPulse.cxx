@@ -24,7 +24,17 @@
 #undef private
 #undef protected
 
-#include "DataModel/DataPool.h"
+#ifndef ATHENAHIVE
+#define USE_TILEDIGITS_DATAPOOL
+#endif
+
+#ifdef USE_TILEDIGITS_DATAPOOL
+#define NEWTILEDIGITS  tileDigitsPool.nextElementPtr
+#else
+#define NEWTILEDIGITS new TileDigits
+#endif
+
+#include "AthAllocators/DataPool.h"
 #include "PathResolver/PathResolver.h"
 
 // Tile includes
@@ -97,14 +107,24 @@ TileDigitsFromPulse::TileDigitsFromPulse(std::string name, ISvcLocator* pSvcLoca
   declareProperty("InTimeAmpDistHistogramName", m_itADistHistName = "h_Eopt_hi");
   declareProperty("OutOfTimeAmpDistHistogramName", m_ootADistHistName = "h_Eopt_hi");
 
-  double nSamp = 7; // number of time slices for each chan
   
+  declareProperty("RandomSeed", m_seed = 4357);
+  declareProperty("BunchSpacing", m_BunchSpacing = 25.); // 25, 50 or 75
+//   declareProperty("nSamples", nSamp = 7); //TBD
+//   declareProperty("nPulses", nPul = 21);  //TBD
+  
+  
+  //Number of samples and pileup, currently hard-coded
+  nSamp=7;
+  nPul=21;
   
   //Initialisations 
-  m_ps[0] = new TilePulseShape(msgSvc(),"TilePulseShapeLo");
-  m_ps[1] = new TilePulseShape(msgSvc(),"TilePulseShapeHi");
-  m_buf = new TileSampleBuffer(nSamp, -75., 25.);
-  m_tsg = new TileSampleGenerator(m_ps[0], m_buf);
+  m_ps[0] = new TilePulseShape(msgSvc(),"TilePulseShapeLo"); //Low Gain
+  m_ps[1] = new TilePulseShape(msgSvc(),"TilePulseShapeHi"); //High Gain
+
+  m_buf = new TileSampleBuffer(nSamp, -75., 25.);  
+  m_tsg = new TileSampleGenerator(m_ps[0], m_buf, false); //Set third parameter to true for debug of the sum of pulses 
+  
   
   m_itFile = new TFile();
   m_itDist = new TH1F();
@@ -115,6 +135,11 @@ TileDigitsFromPulse::TileDigitsFromPulse(std::string name, ISvcLocator* pSvcLoca
   
   m_useOffsetHisto = kFALSE;
 
+
+  
+  
+  nPul_eff=(nPul-1)/2;  //Used for symetrization of PU in computation
+  
 }
 
 TileDigitsFromPulse::~TileDigitsFromPulse() {
@@ -162,8 +187,8 @@ StatusCode TileDigitsFromPulse::initialize()
     if(m_ootADistFileName.size() == 0) {
         m_ootADistFileName = PathResolver::find_file ("Distributions_small_h2000_177531_ZeroBias.root", "DATAPATH");
         if (m_ootADistFileName.size() == 0) {
-            ATH_MSG_FATAL ("Could not find input file Distributions_small_h2000_177531_ZeroBias.root");
-            return StatusCode::FAILURE;
+          ATH_MSG_FATAL ("Could not find input file Distributions_small_h2000_177531_ZeroBias.root");
+          return StatusCode::FAILURE;
         }   
     }
     if (makeDist(m_ootFile, m_ootDist, m_ootADistFileName, m_ootADistHistName) == kFALSE) return StatusCode::FAILURE;
@@ -221,44 +246,80 @@ StatusCode TileDigitsFromPulse::execute() {
   TileRawChannel * pRawChannel;
   TileRawChannelContainer * pRawChannelContainer;
   pRawChannelContainer=new TileRawChannelContainer(true, m_rChType, m_rChUnit);
-
+#ifdef USE_TILEDIGITS_DATAPOOL
   static DataPool<TileDigits> tileDigitsPool(m_tileHWID->adc_hash_max());
-  static bool first=true;
+#endif
   
-  TRandom3 *random = new TRandom3; //Randomizer for pulshe-shape imperfection
+  TRandom3 *random = new TRandom3(m_seed); //Randomizer for pulshe-shape imperfection
   double tFit = 0, ped = 50.; //Settings for simulation 
   TF1 *pdf = new TF1("pdf","[0] * (Gaus(x,0,[1]) + [2] * Gaus(x,0,[3]))",-100.,100.); //Noise pdf for general noise. Maybe use as a member and put in init.
   pdf->SetParameters(m_GNAmpOne, m_GNSigmaOne, m_GNAmpTwo, m_GNSigmaTwo);
   
-  std::vector<float> samples(7);
+  std::vector<float> samples(nSamp);
   
   double Rndm[16];       // Can't use variable size array,
   double Rndm_dG[1];    // uniform random number for the double gaussian
   
   ATH_MSG_DEBUG ("Starting loop");
-  
-  for (int gain=0; gain<2; ++gain) {
-    m_tsg->setPulseShape(m_ps[gain]);
-    for (int ros=1; ros<5; ++ros) {
-      for (int drawer=0; drawer<64; ++drawer) {
-        unsigned int drawerIdx =  TileCalibUtils::getDrawerIdx(ros, drawer);
-        for (int channel=0; channel<48; ++channel) {
-          ATH_MSG_VERBOSE ("New ADC " << ros << "/" << drawer << "/" << channel << "/" << gain);
-          if(m_useItADist) m_inTimeAmp = m_itDist->GetRandom();
-          if(m_useOotADist) m_ootAmp = m_ootDist->GetRandom();
-          if(m_chanPed) ped = m_tileToolNoiseSample->getPed(drawerIdx,channel,gain); 
-          if(random->Rndm() >= m_pileUpFraction) m_ootAmp = 0; //Set oot amplitude to 0 if no pile-up.
-          tFit = random->Gaus(0.,m_gausC2C); //C2C phase variation
-          double deformatedTime = random->Gaus(m_imperfectionMean,m_imperfectionRms); //Widening of pulseshape
-          m_ps[gain]->scalePulse(deformatedTime, deformatedTime);             // Deformation of pulse shape by changing its width
-          if(m_useOffsetHisto) m_ootOffset = m_ootOffsetDist->GetRandom();
-          m_tsg->fillSamples(tFit,ped,m_inTimeAmp,m_ootAmp,pdf,m_gaussNoise, m_itOffset, m_ootOffset);   // Generation of pulse
+  int gain=1;
+  for (int ros=1; ros<5; ++ros) {
+    for (int drawer=0; drawer<64; ++drawer) {
+      unsigned int drawerIdx =  TileCalibUtils::getDrawerIdx(ros, drawer);
+      for (int channel=0; channel<48; ++channel) {
+        bool isHGSaturated=false;
+        for(int igain=1; igain>=0; igain--){
+          gain=igain;
+          if(gain==1){
+            n_inTimeAmp=  m_useItADist ? m_itDist->GetRandom() : m_inTimeAmp;
+            if(m_chanPed) ped = m_tileToolNoiseSample->getPed(drawerIdx,channel,gain); 
+            if(random->Rndm() >= m_pileUpFraction) m_ootAmp = 0; //Set oot amplitude to 0 if no pile-up.
+            tFit = random->Gaus(0.,m_gausC2C); //C2C phase variation
+            double deformatedTime = random->Gaus(m_imperfectionMean,m_imperfectionRms); //Widening of pulseshape
+            m_ps[gain]->scalePulse(deformatedTime, deformatedTime);             // Deformation of pulse shape by changing its width
+            //if(m_useOffsetHisto) m_ootOffset = m_ootOffsetDist->GetRandom();  //OLD Remove for 7 samples -> BunchSpacing
+            
+            //Pileup samples
+            m_PUAmp.clear();
+            m_PUAmp.resize(nPul);
+            
+            for(int i=0; i<=nPul_eff; i++){  
+              if(((i*25)%m_BunchSpacing)==0){
+                m_PUAmp.at(nPul_eff+i) =  m_useOotADist ? m_ootDist->GetRandom() : m_ootAmp;
+                m_PUAmp.at(nPul_eff-i) =  m_useOotADist ? m_ootDist->GetRandom() : m_ootAmp;
+                
+              }
+              else {
+                m_PUAmp.at(nPul_eff+i) = 0;
+                m_PUAmp.at(nPul_eff-i) = 0;
+              }
+            }
+          }
+          else {
+            if(m_chanPed) ped = m_tileToolNoiseSample->getPed(drawerIdx,channel,gain); 
+            double deformatedTime = random->Gaus(m_imperfectionMean,m_imperfectionRms); //Widening of pulseshape
+            m_ps[gain]->scalePulse(deformatedTime, deformatedTime);             // Deformation of pulse shape by changing its width
+            if(m_chanPed) ped = m_tileToolNoiseSample->getPed(drawerIdx,channel,gain); 
+           
+            n_inTimeAmp/=64;
+            for(int i=0; i<=nPul_eff; i++){  
+                m_PUAmp.at(nPul_eff+i)/= 64;
+                m_PUAmp.at(nPul_eff-i)/= 64;
+              }
+          }
+           
+          m_tsg->setPulseShape(m_ps[gain]);
+          m_tsg->fill7Samples(tFit,ped,n_inTimeAmp,m_PUAmp,pdf,m_gaussNoise, m_itOffset);   // Sum of Intime + PU pulses
+          //m_tsg->fillSamples(tFit,ped,n_inTimeAmp,m_ootAmp,pdf,m_gaussNoise, m_itOffset, m_ootOffset);   //OLD Generation of pulse
+          
+          samples.clear();
+          samples.resize(nSamp);
           m_buf->getValueVector(samples);
+          
           if(m_chanNoise) {
             double Hfn1 = m_tileToolNoiseSample->getHfn1(drawerIdx,channel,gain);
             double Hfn2 = m_tileToolNoiseSample->getHfn2(drawerIdx,channel,gain);
             double Norm = m_tileToolNoiseSample->getHfnNorm(drawerIdx,channel,gain);
-          	RandGaussQ::shootArray(m_pHRengine,samples.size(),Rndm,0.0, 1.0);
+            RandGaussQ::shootArray(m_pHRengine,samples.size(),Rndm,0.0, 1.0);
             RandFlat::shootArray(m_pHRengine,1,Rndm_dG,0.0, 1.0);
             for(unsigned int js=0; js<samples.size(); ++js) {
               //using the same gaussian(sigma) for all samples in one channel in one event
@@ -266,21 +327,32 @@ StatusCode TileDigitsFromPulse::execute() {
                 samples[js] += (float) Hfn1*Rndm[js];
               else
                 samples[js] += (float) Hfn2*Rndm[js];
-            }                                     
+            }
           }
-          TileDigits * digit = tileDigitsPool.nextElementPtr();
-          if (first) digit->m_adc_hwid = m_tileHWID->adc_id(ros,drawer,channel,gain); // needed only once
-          digit->m_digits = samples;
-          outputCont->push_back(digit);
           
-          pRawChannel = new TileRawChannel(digit->adc_HWID(),m_inTimeAmp,tFit,m_ootAmp,m_ootOffset);
-          pRawChannelContainer->push_back(pRawChannel);
+          
+          for(unsigned int i=0; i<samples.size(); ++i){
+            if(samples[i] >=1023) isHGSaturated=true;
+          }
+          if(!isHGSaturated) break;
+          
         }
+        
+        ATH_MSG_VERBOSE("New ADC " << ros << "/" << drawer << "/" << channel << "/   saving gain  " << gain);
+        
+        TileDigits * digit = tileDigitsPool.nextElementPtr();
+        digit->m_adc_hwid = m_tileHWID->adc_id(ros,drawer,channel,gain);
+        digit->m_digits = samples;
+        outputCont->push_back(digit);
+        
+        pRawChannel = new TileRawChannel(digit->adc_HWID(),n_inTimeAmp,tFit,m_ootAmp,m_ootOffset);
+        pRawChannelContainer->push_back(pRawChannel); 
       }
     }
   }
+  
+  
   CHECK(evtStore()->record(pRawChannelContainer, "TrueAmp", false));
-  first = false;
   
   if (m_outputContainer.size() > 0) {
 

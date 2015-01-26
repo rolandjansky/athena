@@ -50,8 +50,8 @@ TileMuonReceiverDecision::TileMuonReceiverDecision(std::string name, ISvcLocator
 {
   // declare properties...
   declareProperty( "MuonReceiverEneThreshCellD6Low"       , m_threshold_d6_lo   = 500. , "Setting the lowest trigger threshold for cell D6 in MeV (Def=500 MeV)");
-  declareProperty( "MuonReceiverEneThreshCellD6andD5Low"  , m_threshold_d5d6_lo = 600. , "Setting the lowest trigger threshold for cell D5+D6 in MeV (Def=600 MeV)");
-  declareProperty( "MuonReceiverEneThreshCellD6High"      , m_threshold_d6_hi   = 500. , "Setting the highest trigger threshold for cell D6 in MeV (Def=500 MeV)");
+  declareProperty( "MuonReceiverEneThreshCellD6andD5Low"  , m_threshold_d5d6_lo = 500. , "Setting the lowest trigger threshold for cell D5+D6 in MeV (Def=500 MeV)");
+  declareProperty( "MuonReceiverEneThreshCellD6High"      , m_threshold_d6_hi   = 600. , "Setting the highest trigger threshold for cell D6 in MeV (Def=600 MeV)");
   declareProperty( "MuonReceiverEneThreshCellD6andD5High" , m_threshold_d5d6_hi = 600. , "Setting the highest trigger threshold for cell D5+D6 in MeV (Def=600 MeV)");
   declareProperty( "SelectionCutForMatchedFilterQf"       , m_selCutQf=0.              , "Selection cut for the quality factor of the matched filters");
   declareProperty( "TileMuonReceiverContainer"            , m_TileMuRcvContainer       , "Tile Calorimeter decision to TGC Sector Logic");
