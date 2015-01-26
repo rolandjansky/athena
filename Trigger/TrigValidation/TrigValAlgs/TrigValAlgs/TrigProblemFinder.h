@@ -6,18 +6,18 @@
 #define TrigValAlgs_TrigProblemFinder_h
 
 
-#include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "StoreGate/StoreGateSvc.h"
 
+#include "AthenaBaseComps/AthAlgorithm.h"
 class MsgStream;
 namespace HLT {
   class HLTResult;
 }
 
-class TrigProblemFinder : public Algorithm {
+class TrigProblemFinder : public AthAlgorithm {
 public:
   
   TrigProblemFinder(const std::string &name, ISvcLocator *pSvcLocator);

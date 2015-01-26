@@ -11,7 +11,7 @@
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrigNavigation/TriggerElement.h"
 #include "TrigNavTools/TrigNavigationSlimmingTool.h"
-
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include <iostream>
 
 /**
@@ -29,7 +29,7 @@
   * can be found in the TrigValTools package in the bin directory
   */
 
-class TrigSlimValAlg : public Algorithm {
+class TrigSlimValAlg : public AthAlgorithm {
 
   public:
     TrigSlimValAlg(const std::string& name, ISvcLocator *pSvcLocator);

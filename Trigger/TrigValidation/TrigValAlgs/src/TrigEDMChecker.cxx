@@ -141,6 +141,8 @@ TrigEDMChecker::TrigEDMChecker(const std::string& name, ISvcLocator* pSvcLocator
 	declareProperty("doDumpTrigVertexCollection", doDumpTrigVertexCollection = false);
 	declareProperty("doDumpTrigEMCluster", doDumpTrigEMCluster = false);
 	declareProperty("doDumpTrigEMClusterContainer", doDumpTrigEMClusterContainer = false);
+	declareProperty("doDumpxAODTrigEMCluster", doDumpxAODTrigEMCluster = false);
+	declareProperty("doDumpxAODTrigEMClusterContainer", doDumpxAODTrigEMClusterContainer = false);
 	declareProperty("doDumpTrigTauClusterContainer", doDumpTrigTauClusterContainer = false);
 	declareProperty("doDumpTrackParticleContainer", doDumpTrackParticleContainer = false);
 	declareProperty("doDumpTauJetContainer", doDumpTauJetContainer = false);
@@ -1726,8 +1728,8 @@ StatusCode TrigEDMChecker::dumpxAODTrigElectronContainer() {
       ATH_MSG_INFO("REGTEST TrigElectron->rEta returns " << eg->rcore());
       ATH_MSG_INFO("REGTEST TrigElectron->eratio() returns " << eg->eratio());
       ATH_MSG_INFO("REGTEST TrigElectron->pt() returns " << eg->pt());
-      ATH_MSG_INFO("REGETST TrigElectron->etHad() returns " << eg->etHad());
-      ATH_MSG_INFO("REGETST TrigElectron->f1() returns " << eg->f1());
+      ATH_MSG_INFO("REGTEST TrigElectron->etHad() returns " << eg->etHad());
+      ATH_MSG_INFO("REGTEST TrigElectron->f1() returns " << eg->f1());
       ATH_MSG_INFO("REGTEST TrigElectron caloEta = " << eg->caloEta());
       ATH_MSG_INFO("REGTEST TrigElectron dPhiCalo" << eg->trkClusDphi());
       ATH_MSG_INFO("REGTEST TrigElectron dEtaCalo" << eg->trkClusDeta());
@@ -1787,8 +1789,8 @@ StatusCode TrigEDMChecker::dumpxAODTrigPhotonContainer() {
       ATH_MSG_INFO("REGTEST TrigPhoton->rEta returns " << eg->rcore());
       ATH_MSG_INFO("REGTEST TrigPhoton->eratio() returns " << eg->eratio());
       ATH_MSG_INFO("REGTEST TrigPhoton->pt() returns " << eg->pt());
-      ATH_MSG_INFO("REGETST TrigPhoton->etHad() returns " << eg->etHad());
-      ATH_MSG_INFO("REGETST TrigPhoton->f1() returns " << eg->f1());
+      ATH_MSG_INFO("REGTEST TrigPhoton->etHad() returns " << eg->etHad());
+      ATH_MSG_INFO("REGTEST TrigPhoton->f1() returns " << eg->f1());
       ATH_MSG_INFO("REGTEST TrigPhoton Check EMCluster");
       if(eg->emCluster()){
           ATH_MSG_INFO("REGTEST TrigPhoton EMCluster retrieved");
@@ -1821,6 +1823,7 @@ StatusCode TrigEDMChecker::dumpxAODElectronContainer() {
     return StatusCode::SUCCESS;
   }
   float val_float=-99;
+  unsigned int isEMbit=0;
   //DEBUG output for Egamma container
   ATH_MSG_INFO(" REGTEST: xAOD Reconstruction variables: ");
   //                //Cluster and ShowerShape info
@@ -1830,6 +1833,28 @@ StatusCode TrigEDMChecker::dumpxAODElectronContainer() {
           ATH_MSG_INFO(" REGTEST: egamma energy: " << eg->e() );
           ATH_MSG_INFO(" REGTEST: egamma eta: " << eg->eta() );
           ATH_MSG_INFO(" REGTEST: egamma phi: " << eg->phi() );
+          ATH_MSG_INFO(" REGTEST: isEMVLoose " << eg->selectionisEM(isEMbit,"isEMVLoose"));
+          ATH_MSG_INFO(" REGTEST: isEMVLoose bit " << std::hex << isEMbit);
+          ATH_MSG_INFO(" REGTEST: isEMLoose " << eg->selectionisEM(isEMbit,"isEMLoose"));
+          ATH_MSG_INFO(" REGTEST: isEMLoose bit " << std::hex << isEMbit);
+          ATH_MSG_INFO(" REGTEST: isEMMedium " << eg->selectionisEM(isEMbit,"isEMMedium"));
+          ATH_MSG_INFO(" REGTEST: isEMMedium bit " << std::hex << isEMbit);
+          ATH_MSG_INFO(" REGTEST: isEMTight " << eg->selectionisEM(isEMbit,"isEMTight"));
+          ATH_MSG_INFO(" REGTEST: isEMTight bit " << std::hex << isEMbit);
+          ATH_MSG_INFO(" REGTEST: LHValue " << eg->likelihoodValue("LHValue"));
+          ATH_MSG_INFO(" REGTEST: LHCaloValue " << eg->likelihoodValue("LHCaloValue"));
+          ATH_MSG_INFO(" REGTEST: LHVLoose " << eg->passSelection("LHVLoose"));
+          ATH_MSG_INFO(" REGTEST: LHLoose " << eg->passSelection("LHLoose"));
+          ATH_MSG_INFO(" REGTEST: LHMedium " << eg->passSelection("LHMedium"));
+          ATH_MSG_INFO(" REGTEST: LHTight " << eg->passSelection("LHTight"));
+          ATH_MSG_INFO(" REGTEST: isEMLHVLoose " << eg->selectionisEM(isEMbit,"isEMLHVLoose"));
+          ATH_MSG_INFO(" REGTEST: isEMLHVLoose bit " << std::hex << isEMbit);
+          ATH_MSG_INFO(" REGTEST: isEMLHLoose " << eg->selectionisEM(isEMbit,"isEMLHLoose"));
+          ATH_MSG_INFO(" REGTEST: isEMLHLoose bit " << std::hex << isEMbit);
+          ATH_MSG_INFO(" REGTEST: isEMLHMedium " << eg->selectionisEM(isEMbit,"isEMLHMedium"));
+          ATH_MSG_INFO(" REGTEST: isEMLHMedium bit " << std::hex << isEMbit);
+          ATH_MSG_INFO(" REGTEST: isEMLHTight " << eg->selectionisEM(isEMbit,"isEMLHTight"));
+          ATH_MSG_INFO(" REGTEST: isEMLHTight bit " << std::hex << isEMbit); 
       } else{
           ATH_MSG_INFO(" REGTEST: problems with egamma pointer" );
           return StatusCode::SUCCESS;
@@ -1921,7 +1946,8 @@ StatusCode TrigEDMChecker::dumpxAODPhotonContainer() {
   }
 
   float val_float=-99;
-  //DEBUG output for Egamma container
+  unsigned int isEMbit=0;
+  //DEBUG output for xAOD::PhotonContainer
   ATH_MSG_INFO(" REGTEST: xAOD Reconstruction variables: ");
   //                //Cluster and ShowerShape info
   for (const auto& eg : *phCont){
@@ -1930,6 +1956,12 @@ StatusCode TrigEDMChecker::dumpxAODPhotonContainer() {
           ATH_MSG_INFO(" REGTEST: egamma energy: " << eg->e() );
           ATH_MSG_INFO(" REGTEST: egamma eta: " << eg->eta() );
           ATH_MSG_INFO(" REGTEST: egamma phi: " << eg->phi() );
+          ATH_MSG_INFO(" REGTEST: isEMLoose " << eg->selectionisEM(isEMbit,"isEMLoose"));
+          ATH_MSG_INFO(" REGTEST: isEMLoose bit " << std::hex << isEMbit);
+          ATH_MSG_INFO(" REGTEST: isEMMedium " << eg->selectionisEM(isEMbit,"isEMMedium"));
+          ATH_MSG_INFO(" REGTEST: isEMMedium bit " << std::hex << isEMbit);
+          ATH_MSG_INFO(" REGTEST: isEMTight " << eg->selectionisEM(isEMbit,"isEMTight"));
+          ATH_MSG_INFO(" REGTEST: isEMTight bit " << std::hex << isEMbit);
       } else{
           ATH_MSG_INFO(" REGTEST: problems with egamma pointer" );
           return StatusCode::SUCCESS;
@@ -1972,12 +2004,6 @@ StatusCode TrigEDMChecker::dumpxAODPhotonContainer() {
       ATH_MSG_INFO(" REGTEST: e2ts1    =  " << val_float);
       eg->showerShapeValue(val_float,xAOD::EgammaParameters::e2tsts1);
       ATH_MSG_INFO(" REGTEST: e2tsts1  =  " << val_float);
-      eg->isolationValue(val_float,xAOD::Iso::ptcone20);
-      ATH_MSG_INFO(" REGTEST: ptcone20   =  " << val_float);
-      eg->isolationValue(val_float,xAOD::Iso::ptcone30);
-      ATH_MSG_INFO(" REGTEST: ptcone30   =  " << val_float);
-      eg->isolationValue(val_float,xAOD::Iso::ptcone40);
-      ATH_MSG_INFO(" REGTEST: ptcone40   =  " << val_float);
       eg->isolationValue(val_float,xAOD::Iso::etcone20);
       ATH_MSG_INFO(" REGTEST: etcone20   =  " << val_float);
       eg->isolationValue(val_float,xAOD::Iso::etcone30);
