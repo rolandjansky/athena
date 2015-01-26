@@ -216,7 +216,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltInitialize()
   // Initialize timing service
   //------------------------------
   if (timerSvc())
-    m_totalTimer = addTimer("TrigEEgammaHypoTot");  
+    m_totalTimer = addTimer("TrigEFElectronHypoTot");  
 
  
   //retrieving TrackToVertex:    
@@ -248,7 +248,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltInitialize()
     else {
       msg()<<MSG::DEBUG<<"Tool " << m_egammaElectronCutIDTool << " retrieved"<<endreq; 
       //timing
-      if (timerSvc()) m_timerPIDTool = addTimer("m_egammaElectronCutIDToolName");
+      if (timerSvc()) m_timerPIDTool = addTimer("AsgElectronIsEMTool");
     }
   }
   
@@ -265,7 +265,7 @@ HLT::ErrorCode TrigEFElectronHypo::hltInitialize()
       } 
       else{
           msg()<<MSG::DEBUG<<"Tool " << m_athElectronLHIDSelectorTool << " retrieved"<<endreq; 
-          if (timerSvc()) m_timerPIDTool = addTimer("m_athElectronLHIDSelectorToolName");
+          if (timerSvc()) m_timerPIDTool = addTimer("AsgElectronLHTool");
       }
   }
   // For now, just try to retrieve the lumi tool

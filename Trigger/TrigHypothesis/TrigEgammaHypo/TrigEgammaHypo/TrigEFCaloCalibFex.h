@@ -28,10 +28,10 @@
 
 // trigger includes
 #include "TrigInterfaces/FexAlgo.h"
+#include "TrigTimeAlgs/TrigTimerSvc.h"
 
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "CaloUtils/CaloCellDetPos.h"
-//#include "egammaMVACalib/IegammaMVATool.h"
 #include "egammaInterfaces/IEMShowerBuilder.h"
 #include "egammaInterfaces/IEMFourMomBuilder.h"
 class TrigCaloQuality;
@@ -72,6 +72,9 @@ class TrigEFCaloCalibFex : public HLT::FexAlgo  {
   ToolHandle<IEMFourMomBuilder> m_fourMomBuilder;
   ToolHandle<IEMShowerBuilder> m_showerBuilder;
 
+  // Timers
+  TrigTimer* m_totalTimer;
+  TrigTimer* m_toolTimer;
   // Monitor collections
   std::vector<float> m_EBE0;
   std::vector<float> m_EBE1;
