@@ -32,7 +32,7 @@ supported =  ['file', 'number-of-events', 'perfmon', 'verbosity',
               'appmgrfactory', 'python-setup', 'timeout', 
               'use-compression', 'use-raw-file-convention', 'trace', 
               'muoncal-buffername', 'muoncal-buffersize', 'max-result-size', 
-              'debug', 'extra-l1r-robs']
+              'debug', 'extra-l1r-robs', 'skip-events']
 
 def sor_as_nanos(sorv):
   sor = sor_as_datetime(sorv)
@@ -132,7 +132,13 @@ common['number-of-events'] = \
    'arg': True, 
    'default': -1,
    'group': 'Data',
-   'description': 'Processes this number of events (-1=all)'}
+   'description': 'Processes this number of events (<=0 means all).'}
+common['skip-events'] = \
+  {'short': 'k',
+   'arg': True,
+   'default': 0,
+   'group': 'Data',
+   'description': 'Skip these many events. Not allowed with "--interactive" nor "--rewind". Must be smaller than the number of events in the input stream. '}
 common['rewind'] = \
   {'short': 'r', 
    'arg': False, 
