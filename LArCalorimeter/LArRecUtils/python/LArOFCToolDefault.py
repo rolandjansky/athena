@@ -29,6 +29,8 @@ def LArOFCToolDefault (name="LArOFCToolDefault", **kw):
         from LArROD.LArRODFlags import larRODFlags
 
         tool.firstSample = larRODFlags.firstSample()
+
+        tool.useHighestGainAutoCorr = larRODFlags.useHighestGainAutoCorr()
       
         if larRODFlags.doOFCMixedOptimization(): # kept for backward compatibility
 
