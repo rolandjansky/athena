@@ -65,12 +65,16 @@ public:
    StatusCode createObj( IOpaqueAddress* iAddr, DataObject *& pO ) {
 
       const std::string clname = ClassID_traits< DATA >::typeName();
+
+      std::string normalized = SG::normalizedTypeinfoName( typeid(DATA) ); // normalized string representation (matching the names used in the root dictionary)
+
+
       void *ptr( 0 );
       if( m_log->level() <= MSG::DEBUG ) {
-         *m_log << MSG::DEBUG << "In createObj for : " << clname << endreq;
+	*m_log << MSG::DEBUG << "In createObj for : " << clname << " normalized to " << normalized << endreq;
       }
 
-      StatusCode sc = m_convHelper->createObj( clname, iAddr, ptr, typeIsxAOD);
+      StatusCode sc = m_convHelper->createObj( normalized, iAddr, ptr, typeIsxAOD);
       if( sc.isFailure() ){
          *m_log << MSG::WARNING << "m_convHelper->createObj failed for "
                 << clname << endreq;
