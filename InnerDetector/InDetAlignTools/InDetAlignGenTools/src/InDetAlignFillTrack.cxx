@@ -412,19 +412,19 @@ StatusCode InDetAlignFillTrack::FillTrack() {
                   for (TrackRecordCollection::const_iterator record = recordCollection->begin();  
                        record != recordCollection->end();++record) {
         
-                    const HepPDT::ParticleData* particle = m_mctable->particle(abs((**record).GetPDGCode()));
+                    const HepPDT::ParticleData* particle = m_mctable->particle(abs((*record).GetPDGCode()));
                     if (!particle) continue;
         
                     double charge=particle->charge();
                     if (std::abs(charge)<0.01) continue;
         
-                    HepGeom::Point3D<double> productionVertex = (**record).GetPosition();
-                    if ((**record).GetPDGCode()<0) charge=-charge; 
-                    if (fabs((**record).GetPDGCode())!=13) continue;
+                    HepGeom::Point3D<double> productionVertex = (*record).GetPosition();
+                    if ((*record).GetPDGCode()<0) charge=-charge; 
+                    if (fabs((*record).GetPDGCode())!=13) continue;
         
-                    Amg::Vector3D direction((**record).GetMomentum().x(), 
-                                            (**record).GetMomentum().y(), 
-                                            (**record).GetMomentum().z());
+                    Amg::Vector3D direction((*record).GetMomentum().x(), 
+                                            (*record).GetMomentum().y(), 
+                                            (*record).GetMomentum().z());
 
                     double momentum = direction.mag();
                     if (momentum<500) continue;
