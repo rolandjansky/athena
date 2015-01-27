@@ -248,8 +248,8 @@ inline double TRTDigSettings::relativeLowThresholdFluctuation() const {
 inline double TRTDigSettings::relativeHighThresholdFluctuation() const {
   return m_relativeHighThresholdFluctuation;
 }
-inline double TRTDigSettings::solenoidalFieldStrength() const {
-  return m_solenoidalFieldStrength;
+inline double TRTDigSettings::solenoidFieldStrength() const {
+  return m_solenoidFieldStrength;
 }
 inline unsigned int TRTDigSettings::storeSDO() const {
   return m_storeSDO;
