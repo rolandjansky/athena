@@ -304,4 +304,55 @@ class TrigLoFRemovalHypoCosmicMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('CellContainerSize', type='TH1F', title="TrigLoFRemoval HYPO CellContainerSize;CellContainerSize; nevents", xbins=100, xmin=0.0, xmax=100.0) ]
 
 
+######## Calo-ratio HYPO
+class TrigCaloRatioHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
+    def __init__ (self, name="TrigCaloRatioHypo_Validation"):
+        super(TrigCaloRatioHypoValidationMonitoring, self).__init__(name)
 
+        self.defineTarget("Validation")
+
+        self.Histograms = [ defineHistogram('JetEt', type='TH1F', title="L2HVJetHypo Jet Et; Et(GeV); events", xbins=200, xmin=0.0, xmax=200.0) ]
+        self.Histograms += [ defineHistogram('logRatio', type='TH1F', title="L2HVJetHypo Log(H/E); Log(H/E); events", xbins=100, xmin=-10.0, xmax=10.0) ]
+
+        cutNames = ['No Jet obj', 'Rejected', 'Accepted']
+        labelsDescription = ''
+        for a in cutNames:
+            labelsDescription += a+':'
+
+        self.Histograms += [ defineHistogram('CutCounter', type='TH1F', title="TrigCaloRatio cut counter", xbins=3, xmin=-1.5, xmax=1.5, labels=labelsDescription) ]
+
+
+class TrigCaloRatioHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
+    def __init__ (self, name="CaloRatioHypo_Online"):
+        """ defines histograms for online """
+        super(TrigCaloRatioHypoOnlineMonitoring, self).__init__(name)
+
+        self.defineTarget("Online")
+
+        self.Histograms = [ defineHistogram('JetEt', type='TH1F', title="CaloRatioHypo Jet Et; Et(GeV); events", xbins=200, xmin=0.0, xmax=200.0) ]
+        self.Histograms += [ defineHistogram('logRatio', type='TH1F', title="CaloRatioHypo Log(H/E); Log(H/E); events", xbins=100, xmin=-10.0, xmax=10.0) ]
+
+        cutNames = ['No Jet obj', 'Rejected', 'Accepted']
+        labelsDescription = ''
+        for a in cutNames:
+            labelsDescription += a+':'
+
+        self.Histograms += [ defineHistogram('CutCounter', type='TH1F', title="CaloRatioHypo cut counter", xbins=3, xmin=-1.5, xmax=1.5, labels=labelsDescription) ]
+
+
+class TrigCaloRatioHypoCosmicMonitoring(TrigGenericMonitoringToolConfig):
+    def __init__ (self, name="CaloRatioHypo_Cosmic"):
+        """ defines histograms for cosmic """
+        super(TrigCaloRatioHypoCosmicMonitoring, self).__init__(name)
+
+        self.defineTarget("Cosmic")
+
+        self.Histograms = [ defineHistogram('JetEt', type='TH1F', title="CaloRatioHypo Jet Et; Et(GeV); events", xbins=200, xmin=0.0, xmax=200.0) ]
+        self.Histograms += [ defineHistogram('logRatio', type='TH1F', title="CaloRatioHypo Log(H/E); Log(H/E); events", xbins=100, xmin=-10.0, xmax=10.0) ]
+
+        cutNames = ['No Jet obj', 'Rejected', 'Accepted']
+        labelsDescription = ''
+        for a in cutNames:
+            labelsDescription += a+':'
+
+        self.Histograms += [ defineHistogram('CutCounter', type='TH1F', title="CaloRatioHypo cut counter", xbins=3, xmin=-1.5, xmax=1.5, labels=labelsDescription) ]
