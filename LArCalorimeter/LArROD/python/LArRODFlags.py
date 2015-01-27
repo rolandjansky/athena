@@ -114,6 +114,12 @@ class firstSample(JobProperty):
     statusOn=True
     allowedTypes=['int']
     StoredValue=0
+
+class useHighestGainAutoCorr(JobProperty):
+    ### flag to force using the highest gain autocorelation function when doing OFC optimization
+    statusOn=True
+    allowTypes=['bool']
+    StoredValue=False
     
 class LArRODFlags(JobPropertyContainer):
     """ LAr signal reconstruction information """
@@ -125,7 +131,7 @@ class LArRODFlags(JobPropertyContainer):
 
 jobproperties.add_Container(LArRODFlags)
 
-_list_LArRODFlags=[readDigits,readRawChannels,doDSP,doBuildBadChannel,doLArFebErrorSummary,forceIter,keepDSPRaw,RawChannelFromDigitsContainerName,NumberOfCollisions,UseDelta,doOFCPileupOptimization,doOFCAverageConstraint,doOFCAverageConstraintHighEta,doOFCMixedOptimization,nSamples,firstSample]
+_list_LArRODFlags=[readDigits,readRawChannels,doDSP,doBuildBadChannel,doLArFebErrorSummary,forceIter,keepDSPRaw,RawChannelFromDigitsContainerName,NumberOfCollisions,UseDelta,doOFCPileupOptimization,doOFCAverageConstraint,doOFCAverageConstraintHighEta,doOFCMixedOptimization,nSamples,firstSample,useHighestGainAutoCorr]
 
 
 for j in _list_LArRODFlags:
