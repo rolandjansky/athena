@@ -361,6 +361,13 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::extrapolateWithPathLimit(
 
   //save actual path on output  
   if (m_path.x0Collected>0.)  pathLim.updateMat(m_path.x0Collected, m_path.weightedZ/m_path.x0Collected, m_path.l0Collected);
+
+  ATH_MSG_DEBUG( hitInfo->size()<< " identified intersections found");
+  for (unsigned int ih=0; ih<hitInfo->size(); ih++) {
+    ATH_MSG_DEBUG( "R,z,ID:"<<(*hitInfo)[ih].trackParms->position().perp()<< ","
+		   <<(*hitInfo)[ih].trackParms->position().z()<< "," 
+		   <<(*hitInfo)[ih].detID);
+  }
    
   return returnParms;
 } 
@@ -414,6 +421,7 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::extrapolateToVolumeWithPath
   // resolve current position
   bool updateStatic = false;
   Amg::Vector3D gp = parm.position();
+
   if ( !m_currentStatic || !m_currentStatic->inside(gp,m_tolerance) ) {
     m_currentStatic =  m_navigator->trackingGeometry()->lowestStaticTrackingVolume(gp);   
     updateStatic = true; 
@@ -436,7 +444,12 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::extrapolateToVolumeWithPath
   if ( m_hitVector && nextGeoID==Trk::Calo ) {
     const Trk::AlignableTrackingVolume* alignTV = dynamic_cast<const Trk::AlignableTrackingVolume*> (m_currentStatic);
     if (alignTV) {
-      return extrapolateInAlignableTV(*currPar,timeLim,dir,particle,nextGeoID,alignTV).trPar;
+      Trk::BoundaryTrackParameters boundPar = extrapolateInAlignableTV(*currPar,timeLim,dir,particle,nextGeoID,alignTV);
+      const Trk::TrackParameters* aPar = boundPar.trPar;
+      if (!aPar ) return returnParameters;
+      throwIntoGarbageBin(aPar);         
+      //m_currentStatic = boundPar.exitVol;  
+      return extrapolateToVolumeWithPathLimit(*aPar,timeLim,dir,particle,nextGeoID,destVol);
     }
   }
 
@@ -809,7 +822,7 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::extrapolateToVolumeWithPath
 
 	 // material attached ?
 	 const Trk::Layer*  mb =  m_navigSurfs[solutions[iSol]].first->materialLayer();  
-	 if (mb) {
+	 if (mb && m_includeMaterialEffects) {
 	   if (mb->layerMaterialProperties() && mb->layerMaterialProperties()->fullMaterial(nextPar->position()) ) {
 
 	     const ITimedMatEffUpdator* currentUpdator = subMaterialEffectsUpdator(*m_currentStatic);
@@ -847,15 +860,15 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::extrapolateToVolumeWithPath
 	   if ( !nextVol ) {
 	     ATH_MSG_DEBUG( "  [+] World boundary reached        - at " << positionOutput(nextPar->position())<<", timed at " << timeLim.time);
              nextGeoID = Trk::GeometrySignature(Trk::Unsigned);
-	     if (!destVol) { return nextPar;}
+	     if (!destVol) { return nextPar->clone();}
 	   }
            // next volume found and parameters are at boundary
 	   if ( nextVol && nextPar ){ 
 	     ATH_MSG_DEBUG( "  [+] Crossing to next volume '" << nextVol->volumeName() << "'");
 	     ATH_MSG_DEBUG( "  [+] Crossing position is         - at " <<  positionOutput(nextPar->position()) );
              if (!destVol && m_currentStatic->geometrySignature()!=nextVol->geometrySignature())
-	       { nextGeoID=nextVol->geometrySignature(); return nextPar; }   
-	   }     
+	       { nextGeoID=nextVol->geometrySignature(); return nextPar->clone(); }   
+	   } 
 	   return extrapolateToVolumeWithPathLimit(*nextPar,timeLim,dir,particle,nextGeoID,destVol);
 	 }
        } else if ( solutions[iSol] < iDest + m_staticBoundaries.size() + m_layers.size() ) {
@@ -1336,7 +1349,10 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::transportToVolumeWithPathLi
   if ( m_hitVector && nextGeoID==Trk::Calo ) {
     const Trk::AlignableTrackingVolume* alignTV = dynamic_cast<const Trk::AlignableTrackingVolume*> (m_currentStatic);
     if (alignTV) {
-      return transportInAlignableTV(parm,timeLim,dir,particle,nextGeoID,alignTV).trPar;
+      const Trk::TrackParameters* aPar=transportInAlignableTV(parm,timeLim,dir,particle,nextGeoID,alignTV).trPar;
+      if (!aPar) return returnParameters;  
+      throwIntoGarbageBin(aPar);         
+      return transportToVolumeWithPathLimit(*aPar, timeLim, dir, particle, nextGeoID, destVol);	  
     }
   }
 
@@ -1766,12 +1782,12 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::transportToVolumeWithPathLi
      throwIntoGarbageBin(nextPar);
 
      if (sols[is]<iDest) {      // destination volume (most often, subdetector boundary)
-       return nextPar;          
+       return nextPar->clone();          
      } else if ( sols[is] < iDest + m_trStaticBounds.size() ) {     // tracking geometry frame
 
        // material attached ?
        const Trk::Layer*  mb =  m_trStaticBounds[sols[is]-iDest].surface->materialLayer();  
-       if (mb) {
+       if (mb && m_includeMaterialEffects) {
          if (mb->layerMaterialProperties() && mb->layerMaterialProperties()->fullMaterial(nextPos) ) {
 
 	   const ITimedMatEffUpdator* currentUpdator = subMaterialEffectsUpdator(*m_currentStatic);
@@ -1807,14 +1823,14 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::transportToVolumeWithPathLi
 	 if ( !nextVol ) {
 	   ATH_MSG_DEBUG( "  [+] World boundary reached        - at " << positionOutput(nextPar->position())<<", timed at " << m_time );
 	   nextGeoID = Trk::GeometrySignature(Trk::Unsigned);
-	   if (!destVol) { return nextPar;}
+	   if (!destVol) { return nextPar->clone();}
 	 }
 	 // next volume found and parameters are at boundary
 	 if ( nextVol && nextPar ){ 
 	   ATH_MSG_DEBUG( "  [+] Crossing to next volume '" << nextVol->volumeName() << "'");
 	   ATH_MSG_DEBUG( "  [+] Crossing position is         - at " <<  positionOutput(nextPar->position()) );
 	   if (!destVol && m_currentStatic->geometrySignature()!=nextVol->geometrySignature())
-	     { nextGeoID=nextVol->geometrySignature(); return nextPar; }   
+	     { nextGeoID=nextVol->geometrySignature(); return nextPar->clone(); }   
 	 }     
 	 return transportToVolumeWithPathLimit(*nextPar, timeLim, dir, particle, nextGeoID, destVol);
        }
@@ -1835,7 +1851,7 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::transportToVolumeWithPathLi
        if (matUp && nextLayer==m_lastMaterialLayer && nextLayer->surfaceRepresentation().type()!=Trk::Surface::Cylinder ) matUp = false;
 
        // material update        
-       if (matUp) {
+       if (matUp && m_includeMaterialEffects) {
 
 	 const ITimedMatEffUpdator* currentUpdator = subMaterialEffectsUpdator(*m_currentStatic);
 
@@ -1889,7 +1905,7 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::transportToVolumeWithPathLi
 
    ATH_MSG_WARNING( "  transportToVolumeWithPathLimit() - return with navigation break from volume "<<  m_currentStatic->volumeName()   );
 
-   return nextPar;
+   return nextPar->clone();
 
 }
 
@@ -1927,10 +1943,10 @@ Trk::BoundaryTrackParameters Trk::TimedExtrapolator::transportInAlignableTV(cons
 
   const Trk::Material*  currMat = aliTV;     // material to be used
 
-  if (binMat && m_hitVector) {
-    binIDMat = binMat->material(currPar->position());
-    if (binIDMat->second>0) m_hitVector->push_back(Trk::HitInfo(currPar->clone(),timeLim.time,binIDMat->second,0.));
-  }
+  //if (binMat && m_hitVector) {
+  //  binIDMat = binMat->material(currPar->position());
+  //  if (binIDMat->second>0) m_hitVector->push_back(Trk::HitInfo(currPar->clone(),timeLim.time,binIDMat->second,0.));
+  //}
 
   // loop through binned material : save identifier, material, distance
 
@@ -1938,27 +1954,45 @@ Trk::BoundaryTrackParameters Trk::TimedExtrapolator::transportInAlignableTV(cons
   if (binMat) {
 
     Amg::Vector3D pos = currPar->position();
+    Amg::Vector3D pot = currPar->position();
     Amg::Vector3D umo = currPar->momentum().normalized();
+
+    m_currentLayerBin = binMat->layerBin(pos);
+    binIDMat          = binMat->material(pos);
+
+    if (m_hitVector && binIDMat) {
+      //std::cout <<"id info at the alignable volume entry:"<<binIDMat->second<<std::endl;
+      if (binIDMat->second>0) m_hitVector->push_back(Trk::HitInfo(currPar->clone(),timeLim.time,binIDMat->second,0.));
+    }
 
     const Trk::BinUtility* lbu =  binMat->layerBinUtility(pos);
     if (lbu) {
+      unsigned int cbin = lbu->bin(pos);
       //std::cout <<"layerBinUtility retrieved:"<<lbu->bins()<< std::endl;
-      m_currentLayerBin = binMat->layerBin(pos);
-      currMat           = binMat->material(pos)->first;
-      std::pair<size_t,float> dist2next = lbu->distanceToNext(pos,dir*umo);
-      //std::cout<<"estimated distance to the next bin:"<<dist2next.first<<","<<dist2next.second<< std::endl; 
-      unsigned int lastBin = dist2next.first;
-      double distTot = dist2next.second*dir;
-      while (dist2next.first < lbu->bins()) {
-        pos = pos+ dist2next.second*dir*umo;
-	//std::cout <<"step inside volume?"<< aliTV->inside(pos)<<","<<aliTV->inside(pos,0.002)<< std::endl;
+      std::pair<size_t,float> d2n = lbu->distanceToNext(pos,dir*umo);
+      //std::cout<<"estimated distance to the next bin:"<<d2n.first<<","<<d2n.second<< std::endl; 
+      float dTot = 0.; float distTot = 0.;
+      //std::cout <<"input bin:"<<cbin<<", next: "<<d2n.first<<", at distance:"<<d2n.second<< std::endl;
+      while (true) {
+        if (d2n.first==cbin) break;
+        dTot += d2n.second;
+        distTot = dTot;
+	pos = pos+d2n.second*dir*umo;
         if ( !aliTV->inside(pos) ) break;   // step outside volume
-        binIDMat       = binMat->material(pos);   // material at the bin entry
-        iis.push_back(Trk::IdentifiedIntersection(distTot,binIDMat->second,binIDMat->first));
-        dist2next = lbu->distanceToNext(pos,dir*umo);  // distance to the bin exit
-        distTot += dist2next.second*dir;                // combined distance
-        if (dist2next.first==lastBin) break;
-        lastBin=dist2next.first;
+        cbin =  d2n.first;
+	d2n = lbu->distanceToNext(pos,dir*umo);  
+        if (d2n.first==cbin && fabs(d2n.second)<0.002) {   // move ahead
+	  pos = pos+0.002*dir*umo;
+          dTot += 0.002;
+	  d2n = lbu->distanceToNext(pos,dir*umo);  
+	}
+	//std::cout <<"finding next bin?:"<<d2n.first<<","<<dTot<<"+"<<d2n.second<< std::endl;
+        if (d2n.second>0.001) {    // retrieve material and save bin entry
+          pot = pos+0.5*d2n.second*dir*umo;
+	  binIDMat  = binMat->material(pot);
+	  iis.push_back(Trk::IdentifiedIntersection(distTot,binIDMat->second,binIDMat->first));
+	  //std::cout <<"saving next bin entry:"<< distTot<<","<<binIDMat->second<<std::endl;
+	}
       }
     }
   }
@@ -2007,6 +2041,8 @@ Trk::BoundaryTrackParameters Trk::TimedExtrapolator::transportInAlignableTV(cons
   double mom=currPar->momentum().mag(); 
   double beta = mom/sqrt(mom*mom+m_particleMass*m_particleMass)*Gaudi::Units::c_light;
   Amg::Vector3D nextPos = currPar->position(); 
+ 
+  int currLay=0;
   
   for (unsigned int is=0; is<iis.size(); is++) {
     
@@ -2075,12 +2111,15 @@ Trk::BoundaryTrackParameters Trk::TimedExtrapolator::transportInAlignableTV(cons
     m_time += tDelta;
     
     if ( is<iis.size()-1 ) {  // update bin material info
-      binIDMat = binMat->material(nextPos);
-      currMat = binIDMat->first; 
-      if (m_hitVector && binIDMat->second>0 ) {      // save entry to the next layer
-	ATH_MSG_VERBOSE("active layer entry:"<<binIDMat->second << " at R,z:"<<nextPos.perp()<<","<<nextPos.z());
+      //binIDMat = binMat->material(nextPos);
+      //currMat = binIDMat->first; 
+      currMat=iis[is].material;
+      currLay=iis[is].identifier;
+  
+      if (m_hitVector && iis[is].identifier>0 ) {      // save entry to the next layer
+	ATH_MSG_VERBOSE("active layer entry:"<<currLay << " at R,z:"<<nextPos.perp()<<","<<nextPos.z());
 	Trk::CurvilinearParameters* nextPar = new Trk::CurvilinearParameters(nextPos,currPar->momentum(),0.);      
-	m_hitVector->push_back(Trk::HitInfo(nextPar,timeLim.time,binIDMat->second,0.));
+	m_hitVector->push_back(Trk::HitInfo(nextPar,timeLim.time,iis[is].identifier,0.));
       }
     }
   }   // end loop over intersections
@@ -2088,8 +2127,8 @@ Trk::BoundaryTrackParameters Trk::TimedExtrapolator::transportInAlignableTV(cons
   Trk::CurvilinearParameters* nextPar = new Trk::CurvilinearParameters(nextPos,currPar->momentum(),0.);      
 
   if (m_hitVector) {      // save volume exit /active layer only ? 
-    ATH_MSG_VERBOSE("active layer/volume exit:"<<binIDMat->second << " at R,z:"<<nextPos.perp()<<","<<nextPos.z());
-    if (binIDMat->second>0) m_hitVector->push_back(Trk::HitInfo(nextPar->clone(),timeLim.time,-binIDMat->second,0.));
+    ATH_MSG_VERBOSE("active layer/volume exit:"<<currLay << " at R,z:"<<nextPos.perp()<<","<<nextPos.z());
+    if (binIDMat->second>0) m_hitVector->push_back(Trk::HitInfo(nextPar->clone(),timeLim.time,currLay,0.));
   }
   
   throwIntoGarbageBin(nextPar);
@@ -2116,7 +2155,7 @@ Trk::BoundaryTrackParameters Trk::TimedExtrapolator::transportInAlignableTV(cons
     ATH_MSG_DEBUG( "  [+] Crossing position is         - at " <<  positionOutput(nextPar->position()) );
   }     
 
-  return Trk::BoundaryTrackParameters(nextPar,m_currentStatic,nextVol);    
+  return Trk::BoundaryTrackParameters(nextPar,nextVol,m_currentStatic);    
 }
 
 
@@ -2127,7 +2166,7 @@ Trk::BoundaryTrackParameters Trk::TimedExtrapolator::extrapolateInAlignableTV(co
 									      Trk::GeometrySignature& nextGeoID,
 									      const Trk::AlignableTrackingVolume* vol) const
 {
-  ATH_MSG_DEBUG( "M-[" << ++m_methodSequence << "] extrapolateInAlignableTV(...) " );
+  ATH_MSG_DEBUG( "M-[" << ++m_methodSequence << "] extrapolateInAlignableTV(...) "<< vol->volumeName() );
  
   // material loop in sensitive Calo volumes 
   // extrapolation without target surface returns:
@@ -2301,7 +2340,7 @@ Trk::BoundaryTrackParameters Trk::TimedExtrapolator::extrapolateInAlignableTV(co
 	     ATH_MSG_DEBUG( "  [+] Crossing position is         - at " <<  positionOutput(nextPar->position()) );
 	   }     
 	   
-	   return Trk::BoundaryTrackParameters(nextPar,m_currentStatic,nextVol);    
+	   return Trk::BoundaryTrackParameters(nextPar,nextVol,m_currentStatic);    
 	 }
        }
      }

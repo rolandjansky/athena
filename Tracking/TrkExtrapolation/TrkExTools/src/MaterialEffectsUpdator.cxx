@@ -246,25 +246,22 @@ const Trk::TrackParameters*  Trk::MaterialEffectsUpdator::update( const TrackPar
     if(m_doMs){
       //If the meff has scattering angles use those, otherwise use MEffUpdator
       if(meff.scatteringAngles() == NULL){
-       //Trick to keep using existing MultipleScatteringUpdator interface
-       //Here we know the path length to be meff.thicknessX0, so we set pathcorrection = 1
-       //and create a dummy materialProperties with the properties we are interested in
-	MaterialProperties mprop(meff.thicknessInX0(),1.,0.,0.,0.,0.);
-       double angularVariation = m_msUpdator->sigmaSquare(mprop, updateMomentum, pathcorrection, Trk::muon);  
-       //sigmaDeltaPhiSq = angularVariation/(parm->sinTheta()*parm->sinTheta());
-       sigmaDeltaPhiSq = angularVariation/(sin(parm->parameters()[Trk::theta])*sin(parm->parameters()[Trk::theta]));
-       sigmaDeltaThetaSq = angularVariation;
+          //Trick to keep using existing MultipleScatteringUpdator interface
+          //Here we know the path length to be meff.thicknessX0, so we set pathcorrection = 1
+          //and create a dummy materialProperties with the properties we are interested in
+	      MaterialProperties mprop(meff.thicknessInX0(),1.,0.,0.,0.,0.);
+          angularVariation = m_msUpdator->sigmaSquare(mprop, updateMomentum, pathcorrection, Trk::muon);  
+          //sigmaDeltaPhiSq = angularVariation/(parm->sinTheta()*parm->sinTheta());
+          sigmaDeltaPhiSq = angularVariation/(sin(parm->parameters()[Trk::theta])*sin(parm->parameters()[Trk::theta]));
+          sigmaDeltaThetaSq = angularVariation;
      }else{
-      // material update from mefots -> D.L.
-      sigmaDeltaPhiSq = meff.scatteringAngles()->sigmaDeltaPhi();
-      sigmaDeltaPhiSq *= sigmaDeltaPhiSq;
-      sigmaDeltaThetaSq = meff.scatteringAngles()->sigmaDeltaTheta();
-      sigmaDeltaThetaSq *= sigmaDeltaThetaSq;
-
-     updatedParameters[Trk::phi]=parm->position().phi()  +meff.scatteringAngles()->deltaPhi();
-     updatedParameters[Trk::theta]=parm->position().theta()+meff.scatteringAngles()->deltaTheta(); 
-
-
+          // material update from mefots -> D.L.
+          sigmaDeltaPhiSq = meff.scatteringAngles()->sigmaDeltaPhi();
+          sigmaDeltaPhiSq *= sigmaDeltaPhiSq;
+          sigmaDeltaThetaSq = meff.scatteringAngles()->sigmaDeltaTheta();
+          sigmaDeltaThetaSq *= sigmaDeltaThetaSq;
+          updatedParameters[Trk::phi]=parm->position().phi()  +meff.scatteringAngles()->deltaPhi();
+          updatedParameters[Trk::theta]=parm->position().theta()+meff.scatteringAngles()->deltaTheta(); 
       }
     }
     // update the covariance entries - angular variation in phi has dependency on theta direction
@@ -272,12 +269,11 @@ const Trk::TrackParameters*  Trk::MaterialEffectsUpdator::update( const TrackPar
     
           // sign of the noise adding -----------------------
           int sign = int(matupmode);
-          // checks will only be done in the removeNoise mode
-          
-          (*updatedCovariance)(Trk::phi,Trk::phi)       += sign*sigmaDeltaPhiSq; 
-          (*updatedCovariance)(Trk::theta,Trk::theta)   += sign*sigmaDeltaThetaSq; 
+          // check for non-zero covariance matrix
+          COVARIANCEUPDATEWITHCHECK((*updatedCovariance)(Trk::phi,Trk::phi), sign, sigmaDeltaPhiSq);
+          COVARIANCEUPDATEWITHCHECK((*updatedCovariance)(Trk::theta,Trk::theta), sign, sigmaDeltaThetaSq);
           if (!m_xKalmanStraggling && !m_landauMode)
-             (*updatedCovariance)(Trk::qOverP,Trk::qOverP) += sign*sigmaQoverPSq;
+              COVARIANCEUPDATEWITHCHECK((*updatedCovariance)(Trk::qOverP,Trk::qOverP), sign, sigmaQoverPSq);
           else if(m_xKalmanStraggling)
             { /* to be filled in*/  }
           else if(m_landauMode){
@@ -285,9 +281,8 @@ const Trk::TrackParameters*  Trk::MaterialEffectsUpdator::update( const TrackPar
              //Landau's 68% limit is approx 1.6*sigmaParameter
              (*updatedCovariance)(Trk::qOverP,Trk::qOverP) -= sign*std::pow(1.6*(m_accumulatedElossSigma-p*p*sigmaQoverP)/(p*p),2);
              (*updatedCovariance)(Trk::qOverP,Trk::qOverP) += sign*std::pow(1.6*m_accumulatedElossSigma/(newP*newP),2);
-  
           }
-        // the checks for the remove Noise mode -----------------------------------------------------
+         // the checks for the remove Noise mode -----------------------------------------------------
          if (matupmode == Trk::removeNoise && !checkCovariance(*updatedCovariance)){
             // the covariance is invalid      
             delete updatedCovariance; return 0;
@@ -499,16 +494,17 @@ const Trk::TrackParameters*  Trk::MaterialEffectsUpdator::update(const TrackPara
           
           // sign of the noise adding ----------------------------------------------------------------    
           int sign = int(matupmode);
-          // checks will only be done in the removeNoise mode 
           
-          (*updatedCovariance)(Trk::phi,Trk::phi)       += sign*angularVariation/(sin(parm->parameters()[Trk::theta])*sin(parm->parameters()[Trk::theta])); 
-          (*updatedCovariance)(Trk::theta,Trk::theta)   += sign*angularVariation; 
-                
+          double sigmaDeltaPhiSq   = angularVariation/(sin(parm->parameters()[Trk::theta])*sin(parm->parameters()[Trk::theta]));
+          double sigmaDeltaThetaSq = angularVariation;
+          // checks will only be done in the removeNoise mode 
+          COVARIANCEUPDATEWITHCHECK((*updatedCovariance)(Trk::phi,Trk::phi), sign, sigmaDeltaPhiSq);
+          COVARIANCEUPDATEWITHCHECK((*updatedCovariance)(Trk::theta,Trk::theta), sign, sigmaDeltaThetaSq);
           if (!m_xKalmanStraggling && !m_landauMode)
-             (*updatedCovariance)(Trk::qOverP,Trk::qOverP) += sign*sigmaQoverP*sigmaQoverP;
+              COVARIANCEUPDATEWITHCHECK((*updatedCovariance)(Trk::qOverP,Trk::qOverP), sign, sigmaQoverP*sigmaQoverP);
           else if(m_xKalmanStraggling){
              double q    = parm->charge();
-             (*updatedCovariance)(Trk::qOverP,Trk::qOverP) += sign*0.2*deltaP*deltaP*q*q*q*q;
+             COVARIANCEUPDATEWITHCHECK((*updatedCovariance)(Trk::qOverP,Trk::qOverP), sign, 0.2*deltaP*deltaP*q*q*q*q);
           } else if(m_landauMode){
             //subtract what we added up till now and add what we should add up till now
             //Landau's 68% limit is approx 1.6*sigmaParameter
@@ -655,11 +651,13 @@ const Trk::TrackParameters*  Trk::MaterialEffectsUpdator::update(const TrackPara
       // sign of the noise adding ----------------------------------------------------------------    
       int sign = int(matupmode);
       // checks will only be done in the removeNoise mode  
-      
-      (*updatedCovariance)(Trk::phi,Trk::phi)       += sign*angularVariation/(sin(parm.parameters()[Trk::theta])*sin(parm.parameters()[Trk::theta])); 
-      (*updatedCovariance)(Trk::theta,Trk::theta)   += sign*angularVariation; 
-       if (!m_xKalmanStraggling && !m_landauMode)
-          (*updatedCovariance)(Trk::qOverP,Trk::qOverP) += sign*sigmaQoverP*sigmaQoverP;
+      double sigmaDeltaPhiSq   = angularVariation/(sin(parm.parameters()[Trk::theta])*sin(parm.parameters()[Trk::theta]));
+      double sigmaDeltaThetaSq = angularVariation;
+      // checks will only be done in the removeNoise mode 
+      COVARIANCEUPDATEWITHCHECK((*updatedCovariance)(Trk::phi,Trk::phi), sign, sigmaDeltaPhiSq);
+      COVARIANCEUPDATEWITHCHECK((*updatedCovariance)(Trk::theta,Trk::theta), sign, sigmaDeltaThetaSq);
+      if (!m_xKalmanStraggling && !m_landauMode)
+          COVARIANCEUPDATEWITHCHECK((*updatedCovariance)(Trk::qOverP,Trk::qOverP),sign,sigmaQoverP*sigmaQoverP);
        else if(m_xKalmanStraggling)
            { /* to be filled in*/  }
        else if(m_landauMode){
