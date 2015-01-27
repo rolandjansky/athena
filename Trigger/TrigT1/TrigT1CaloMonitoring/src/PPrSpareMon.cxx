@@ -32,6 +32,7 @@
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
 #include "TrigT1CaloUtils/DataError.h"
 
+#include "xAODTrigL1Calo/xAODTrigL1Calo/TriggerTowerContainer.h"
 
 /*---------------------------------------------------------*/
 PPrSpareMon::PPrSpareMon(const std::string & type, const std::string & name,
@@ -53,6 +54,8 @@ PPrSpareMon::PPrSpareMon(const std::string & type, const std::string & name,
 {
   declareProperty("BS_TriggerTowerContainer",
                   m_TriggerTowerContainerName = "TriggerTowersSpare");
+  declareProperty("BS_xAODTriggerTowerContainer",
+                  m_xAODTriggerTowerContainerName = "xAODTriggerTowersSpare");  
   declareProperty("ADCHitMap_Thresh",  m_TT_ADC_HitMap_Thresh = 40,
                   "ADC cut for hitmaps");
 
@@ -258,9 +261,9 @@ StatusCode PPrSpareMon::fillHistograms()
 
   //Retrieve TriggerTowers from SG
   StatusCode sc;
-  const TriggerTowerCollection* TriggerTowerTES = 0; 
-  if (evtStore()->contains<TriggerTowerCollection>(m_TriggerTowerContainerName)) {
-    sc = evtStore()->retrieve(TriggerTowerTES, m_TriggerTowerContainerName); 
+  const xAOD::TriggerTowerContainer_v2* TriggerTowerTES = 0; 
+  if (evtStore()->contains<xAOD::TriggerTowerContainer_v2>(m_xAODTriggerTowerContainerName)) {
+    sc = evtStore()->retrieve(TriggerTowerTES, m_xAODTriggerTowerContainerName); 
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !TriggerTowerTES) {
     if (debug) msg(MSG::DEBUG) << "No TriggerTower found in TES at "
@@ -273,9 +276,9 @@ StatusCode PPrSpareMon::fillHistograms()
   // ================= Container: TriggerTower ===============================
   // =========================================================================
 
-  TriggerTowerCollection::const_iterator TriggerTowerIterator =
+  xAOD::TriggerTowerContainer_v2::const_iterator TriggerTowerIterator =
                                                      TriggerTowerTES->begin(); 
-  TriggerTowerCollection::const_iterator TriggerTowerIteratorEnd =
+  xAOD::TriggerTowerContainer_v2::const_iterator TriggerTowerIteratorEnd =
                                                      TriggerTowerTES->end(); 
  
   for (; TriggerTowerIterator != TriggerTowerIteratorEnd;
@@ -294,8 +297,8 @@ StatusCode PPrSpareMon::fillHistograms()
 
     if (crate < 2 || crate > 5) continue;
     
-    const int adc = (*TriggerTowerIterator)->emADC()[
-                                         (*TriggerTowerIterator)->emADCPeak()];
+    const short unsigned int adc = (*TriggerTowerIterator)->adc()[
+                                         (*TriggerTowerIterator)->adcPeak()];
     if (adc > m_TT_ADC_HitMap_Thresh) {
       m_h_ppmspare_2d_tt_adc_HitMap->Fill(crateModule-32., submoduleChannel, 1);
     }
@@ -303,10 +306,10 @@ StatusCode PPrSpareMon::fillHistograms()
 
     //------------------------ SubStatus Word errors -------------------------
 
-    if ((*TriggerTowerIterator)-> emError()) {
+    if ((*TriggerTowerIterator)-> error()) {
 
       using LVL1::DataError;
-      const DataError error((*TriggerTowerIterator)-> emError());
+      const DataError error((*TriggerTowerIterator)-> error());
    
       //Summary
 
@@ -374,7 +377,7 @@ StatusCode PPrSpareMon::fillHistograms()
      }
 
      // number of triggered slice
-     m_h_ppmspare_1d_tt_adc_TriggeredSlice->Fill((*TriggerTowerIterator)->emADCPeak(),1);
+     m_h_ppmspare_1d_tt_adc_TriggeredSlice->Fill((*TriggerTowerIterator)->adcPeak(),1);
 
   }	     
      

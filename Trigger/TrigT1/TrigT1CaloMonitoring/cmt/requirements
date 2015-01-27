@@ -9,6 +9,7 @@ use DataModel 			DataModel-*		Control
 use AnalysisTriggerEvent        AnalysisTriggerEvent-*  PhysicsAnalysis/AnalysisTrigger
 use Identifier                  Identifier-*            DetectorDescription
 use xAODJet                     xAODJet-*               Event/xAOD
+use xAODTrigL1Calo		xAODTrigL1Calo-*	Event/xAOD
 
 private
 use StoreGate                   StoreGate-*             Control
