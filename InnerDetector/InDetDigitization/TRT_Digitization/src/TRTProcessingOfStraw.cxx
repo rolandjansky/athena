@@ -103,15 +103,26 @@ TRTProcessingOfStraw::~TRTProcessingOfStraw()
 //________________________________________________________________________________
 void TRTProcessingOfStraw::Initialize(ServiceHandle <IAtRndmGenSvc> atRndmGenSvc)
 {
-  m_useMagneticFieldMap           = m_settings->useMagneticFieldMap();
-  m_signalPropagationSpeed        = m_settings->signalPropagationSpeed() ;
-  m_attenuationLength             = m_settings->attenuationLength();
-  m_useAttenuation                = m_settings->useAttenuation();
   m_smearingFactorDependsOnRadius = m_settings->smearingFactorDependsOnRadius();
-  m_epsilonBarrel                 = m_settings->trEfficiencyBarrel();
-  m_epsilonEndCap                 = m_settings->trEfficiencyEndCap(); // is 100% in the EndCap
-  m_epsilonBarrelArgon            = m_settings->trEfficiencyBarrelArgon();
-  m_epsilonEndCapArgon            = m_settings->trEfficiencyEndCapArgon();
+  m_useMagneticFieldMap    = m_settings->useMagneticFieldMap();
+  m_signalPropagationSpeed = m_settings->signalPropagationSpeed() ;
+  m_attenuationLength      = m_settings->attenuationLength();
+  m_useAttenuation         = m_settings->useAttenuation();
+  m_epsilonBarrel          = m_settings->trEfficiencyBarrel();
+  m_epsilonEndCap          = m_settings->trEfficiencyEndCap();
+  m_epsilonBarrelArgon     = m_settings->trEfficiencyBarrelArgon();
+  m_epsilonEndCapArgon     = m_settings->trEfficiencyEndCapArgon();
+  m_innerRadiusOfStraw     = m_settings->innerRadiusOfStraw();
+  m_outerRadiusOfWire      = m_settings->outerRadiusOfWire();
+  m_outerRadiusEndcap      = m_settings->outerRadiusEndcap();
+  m_innerRadiusEndcap      = m_settings->innerRadiusEndcap();
+  m_strawLengthBarrel      = m_settings->strawLengthBarrel();
+  m_timeCorrection         = m_settings->timeCorrection();            // false for beamType='cosmics'
+  m_usedrifttimespread     = m_settings->useDriftTimeSpread();
+  m_solenoidFieldStrength  = m_settings->solenoidFieldStrength();
+
+  m_ionisationPotential    = m_settings->ionisationPotential(false);  // isArgonStraw=false here just to initialize
+  m_smearingFactor         = m_settings->smearingFactor(false);       // to keep coverity happy. Reset correctly later.
 
   m_maxelectrons = 100; // 100 gives good Gaussian approximation
   m_depositEnergy.reserve(m_maxelectrons);    // Electron energy deposits.
@@ -119,20 +130,16 @@ void TRTProcessingOfStraw::Initialize(ServiceHandle <IAtRndmGenSvc> atRndmGenSvc
 
   if (m_UseArgonStraws == false){
     ATH_MSG_DEBUG ( "TRTProcessingOfStraw::Initialize: Average value of barrel drift-time at r = "
-		  << m_settings->innerRadiusOfStraw()/CLHEP::mm << " CLHEP::mm is "
-		  << m_pSimDriftTimeTool->getAverageDriftTime(m_settings->innerRadiusOfStraw(),
-							      m_settings->solenoidalFieldStrength(),false)/CLHEP::nanosecond
-		  << " CLHEP::ns at the solenoidal field value of "<<m_settings->solenoidalFieldStrength()/CLHEP::tesla << " T" );
+		  << m_innerRadiusOfStraw/CLHEP::mm << " CLHEP::mm is "
+		  << m_pSimDriftTimeTool->getAverageDriftTime(m_innerRadiusOfStraw, m_solenoidFieldStrength,false)/CLHEP::nanosecond
+		  << " CLHEP::ns at the solenoid field value of " << m_solenoidFieldStrength/CLHEP::tesla << " T" );
   } else {
     ATH_MSG_DEBUG ( "TRTProcessingOfStraw::Initialize: Average value of barrel drift-time at r = "
-		  << m_settings->innerRadiusOfStraw()/CLHEP::mm << " CLHEP::mm is "
-		  << m_pSimDriftTimeTool->getAverageDriftTime(m_settings->innerRadiusOfStraw(),
-							      m_settings->solenoidalFieldStrength(),true)/CLHEP::nanosecond
+		  << m_innerRadiusOfStraw/CLHEP::mm << " CLHEP::mm is "
+		  << m_pSimDriftTimeTool->getAverageDriftTime(m_innerRadiusOfStraw, m_solenoidFieldStrength,true)/CLHEP::nanosecond
                   << " CLHEP::ns for Argon straws and "
-                  << m_pSimDriftTimeTool->getAverageDriftTime(m_settings->innerRadiusOfStraw(),
-                     m_settings->solenoidalFieldStrength(),false)/CLHEP::nanosecond
-                  << " CLHEP::ns for Xenon straws"
-		  << " at the solenoidal field value of "<<m_settings->solenoidalFieldStrength()/CLHEP::tesla << " T" );
+                  << m_pSimDriftTimeTool->getAverageDriftTime(m_innerRadiusOfStraw, m_solenoidFieldStrength,false)/CLHEP::nanosecond
+                  << " CLHEP::ns for Xenon straws" << " at the solenoid field value of " << m_solenoidFieldStrength/CLHEP::tesla << " T" );
     if (m_pPAItool_optional==NULL){
       ATH_MSG_ERROR ( "TRT_PAITool for Argon is not defined!!! Xenon TRT_PAITool will be used for Argon straws!!!" );
       m_pPAItool_optional = m_pPAItool;
@@ -146,21 +153,15 @@ void TRTProcessingOfStraw::Initialize(ServiceHandle <IAtRndmGenSvc> atRndmGenSvc
     ATH_MSG_DEBUG ( "Retrieved tool " << m_magneticfieldsvc );
   }
 
-  m_timeCorrection = m_settings->timeCorrection(); // false for beamType='cosmics'
-
-  m_pTimeCorrection = new TRTTimeCorrection("TRTTimeCorrection",m_settings, m_detmgr, m_id_helper);
+  m_pTimeCorrection = new TRTTimeCorrection("TRTTimeCorrection", m_settings, m_detmgr, m_id_helper);
 
   const double intervalBetweenCrossings(m_settings->timeInterval() / 3.);
   m_minCrossingTime = - (intervalBetweenCrossings * 2. + 1.*CLHEP::ns);
   m_maxCrossingTime =    intervalBetweenCrossings * 3. + 1.*CLHEP::ns;
-  const unsigned int numberOfCrossingsBeforeMain = m_settings->numberOfCrossingsBeforeMain();
-  m_shiftOfZeroPoint = static_cast<double>(numberOfCrossingsBeforeMain) * intervalBetweenCrossings;
+  m_shiftOfZeroPoint = static_cast<double>( m_settings->numberOfCrossingsBeforeMain() ) * intervalBetweenCrossings;
 
   //Create our own engine with own seeds:
   m_pHRengine = atRndmGenSvc->GetEngine("TRT_ProcessStraw");
-
-  m_usedrifttimespread = m_settings->useDriftTimeSpread();
-  m_solenoidfieldstrength = m_settings->solenoidalFieldStrength();
 
   // Tabulate exp(-dist/m_attenuationLength) as a function of
   // dist = time*m_signalPropagationSpeed [0.0 mm ,1419.9 mm]
@@ -178,7 +179,7 @@ void TRTProcessingOfStraw::Initialize(ServiceHandle <IAtRndmGenSvc> atRndmGenSvc
   //sanity check against future code developments we will test this
   //assumption on one straw from each endcap layer.
 
-  if (m_solenoidfieldstrength!=0.0)
+  if (m_solenoidFieldStrength!=0.0)
     {
       const InDetDD::TRT_Numerology * num = m_detmgr->getNumerology();
       for (unsigned int iwheel = 0; iwheel < num->getNEndcapWheels(); ++iwheel)
@@ -586,9 +587,10 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
 {
 
   // Some initial work before looping over the cluster
-
   deposits.clear();
   const bool isBarrel(!(hitID & 0x00200000));
+  m_ionisationPotential = m_settings->ionisationPotential(isArgonStraw);
+  m_smearingFactor      = m_settings->smearingFactor(isArgonStraw); // can change below if depends on radius of the cluster
 
   std::vector<cluster>::const_iterator currentClusterIter(clusters.begin());
   const std::vector<cluster>::const_iterator endOfClusterList(clusters.end());
@@ -637,18 +639,11 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
   // comes from the sum of the variances from the Binomial and Exponential. In this scheme it is
   // sufficient (for diffusion) to divided the energy equally amongst 100 (maxelectrons) electrons.
 
-  m_ionisationPotential = m_settings->ionisationPotential(isArgonStraw);
-
   // straw radius
-  m_innerRadiusOfStraw  = m_settings->innerRadiusOfStraw();
-  m_outerRadiusOfWire   = m_settings->outerRadiusOfWire();
   const double  wire_r2 = m_outerRadiusOfWire*m_outerRadiusOfWire;
   const double straw_r2 = m_innerRadiusOfStraw*m_innerRadiusOfStraw;
 
   // straw length
-  m_outerRadiusEndcap  = m_settings->outerRadiusEndcap();
-  m_innerRadiusEndcap  = m_settings->innerRadiusEndcap();
-  m_strawLengthBarrel  = m_settings->strawLengthBarrel();
   const double halfECstrawLength = (m_outerRadiusEndcap-m_innerRadiusEndcap)/2;
   const double quartBstrawLength = m_strawLengthBarrel/4;
 
@@ -683,12 +678,7 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
       const double cluster_E(currentClusterIter->energy); // cluster energy
       const unsigned int nprimaryelectrons( static_cast<unsigned int>( cluster_E/m_ionisationPotential + 1.0 ) );
 
-      // Determine the survival probability (optionally as a function of cluster radius).
-      if (!m_smearingFactorDependsOnRadius) // Constant survival prob.
-        {
-          m_smearingFactor = m_settings->smearingFactor(isArgonStraw);
-        }
-      else // Survival prob is a function of cluster radius Page 102 of Esben's thesis.
+      if (m_smearingFactorDependsOnRadius) // Survival prob is a function of cluster radius Page 102 of Esben's thesis.
         {
           m_smearingFactor = 1.03 - 0.6745*cluster_r + 0.8196*cluster_r2 - 0.5507*cluster_r2*cluster_r + 0.1187*cluster_r2*cluster_r2;
           if (m_smearingFactor<0.1) m_smearingFactor=0.1; // Actually we don't expect such small values.
@@ -732,30 +722,30 @@ void TRTProcessingOfStraw::ClustersToDeposits (const int& hitID,
       // Electron drift time is prolonged by the magnetic field according to an "effective field".
       // For the endcap, the effective field is dependent on the relative (x,y) position of the cluster.
       // It is assumed here (checked in initialize) that the local straw x-direction is parallel with
-      // the solenoidal z-direction. After Garfield simulations and long thought it was found that only
+      // the solenoid z-direction. After Garfield simulations and long thought it was found that only
       // field perpendicular to the electron drift is of importance.
 
       if (!isBarrel) // Endcap
         {
           if (m_useMagneticFieldMap) { // Using magnetic field map
 	      effectiveField2 = map_z2*cluster_y2/cluster_r2 + map_x2 + map_y2;
-            }
+          }
           else { // Not using magnetic field map (you really should not do this!):
-              effectiveField2 = m_solenoidfieldstrength*m_solenoidfieldstrength * cluster_y2 / cluster_r2;
-            }
+              effectiveField2 = m_solenoidFieldStrength*m_solenoidFieldStrength * cluster_y2 / cluster_r2;
+          }
 	}
       else // Barrel
 	{
           if (m_useMagneticFieldMap) { // Using magnetic field map (here bug #91830 is fixed)
               effectiveField2 = map_z2 + (map_x2+map_y2)*cluster_y2/cluster_r2;
-            }
+          }
           else { // Without the mag field map (very small change in digi output)
-              effectiveField2 = m_solenoidfieldstrength*m_solenoidfieldstrength;
-            }
+              effectiveField2 = m_solenoidFieldStrength*m_solenoidFieldStrength;
+          }
 	}
 
       // If there is no field we might need to reset effectiveField2 to zero.
-      if (m_solenoidfieldstrength == 0. ) effectiveField2=0.;
+      if (m_solenoidFieldStrength == 0. ) effectiveField2=0.;
 
       // Now we need the deposit time which is the sum of three components:
       // 1. Time of the hit(cluster): clusterTime.

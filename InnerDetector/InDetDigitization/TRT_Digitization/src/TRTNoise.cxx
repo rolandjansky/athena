@@ -122,36 +122,34 @@ void TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool() {
 			     nl_given_LT2Amp, min_lt2amp, max_lt2amp);
     float new_min_lt2amp, new_max_lt2amp;
     evolve_LT2AmpVsNL_to_include_LTfluct( nl_given_LT2Amp,
-					  min_lt2amp,
-					  max_lt2amp,
+					  min_lt2amp, max_lt2amp,
 					  relfluct,
-					  new_min_lt2amp,
-					  new_max_lt2amp,
+					  new_min_lt2amp, new_max_lt2amp,
 					  static_cast<unsigned int>(0.1*nl_given_LT2Amp.size()));
     float min_nl,max_nl;  //Sanity check could be that ~0 and ~1 are returned.
-    makeInvertedLookupTable( nl_given_LT2Amp,new_min_lt2amp, new_max_lt2amp,
-			     maxLTOverNoiseAmp,min_nl,max_nl);
+    makeInvertedLookupTable( nl_given_LT2Amp,new_min_lt2amp, new_max_lt2amp, maxLTOverNoiseAmp,min_nl,max_nl);
   }
 
   ///////////////////////////////////////////////////////////////////
-  // Step 2 - figure out constant, k = <LT_i>/<(LT/NA)_i * r_i>    //
+  // Step 2 - figure out constant, k = <LT_i> / <(LT/NA)_i * r_i>  //
   ///////////////////////////////////////////////////////////////////
 
   //Figure out <(LT/NA)_i * r_i>:
 
-  //double sum_Xenon(0.), sumBar_Xenon(0.), sumEC_Xenon(0.);
+  unsigned long nstrawsBar_Xenon(0), nstrawsEC_Xenon(0);
+  unsigned long nstrawsBar_Argon(0), nstrawsEC_Argon(0);
   double sumBar_Xenon(0.), sumEC_Xenon(0.);
-  unsigned long nstraws_Xenon(0), nstrawsBar_Xenon(0), nstrawsEC_Xenon(0);
-  //double sum_Argon(0.), sumBar_Argon(0.), sumEC_Argon(0.);
   double sumBar_Argon(0.), sumEC_Argon(0.);
-  unsigned long nstraws_Argon(0), nstrawsBar_Argon(0), nstrawsEC_Argon(0);
   int hitid(0);
   float noiselevel(0.), noiseamp(0.);
 
   m_pDigConditions->resetGetNextStraw();
+
   /// Loop through all non-dead straws:
   while ( m_pDigConditions->getNextStraw(hitid, noiselevel, noiseamp) ) {
+
     bool isArgonStraw = IsArgonStraw(getStrawIdentifier(hitid));
+
     if (isArgonStraw){
       if ( !(hitid & 0x00200000) ) {
 	++nstrawsBar_Argon;
@@ -170,38 +168,15 @@ void TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool() {
 	sumEC_Xenon += useLookupTable(noiselevel, maxLTOverNoiseAmp, 0., 1.) * noiseamp;
       }
     }
+
   };
-  if(0==nstrawsBar_Argon + nstrawsBar_Xenon) {
-    if (msgLevel(MSG::FATAL)) { msg(MSG::FATAL) << "Found no noise information for straws in the Barrel!" << endreq; }
-    throw std::exception();
-  }
-  if(0==nstrawsEC_Argon + nstrawsEC_Xenon) {
-    if (msgLevel(MSG::FATAL)) { msg(MSG::FATAL) << "Found no noise information for straws in the Endcaps!" << endreq; }
-    throw std::exception();
-  }
-
-  nstraws_Argon = nstrawsBar_Argon + nstrawsEC_Argon;
-  if (nstraws_Argon!=0){
-    //sum_Argon = (sumBar_Argon+sumEC_Argon) / (nstraws_Argon);
-    sumBar_Argon /= nstrawsBar_Argon;
-    sumEC_Argon /= nstrawsEC_Argon;
-  }
-
-  nstraws_Xenon = nstrawsBar_Xenon + nstrawsEC_Xenon;
-  if (nstraws_Xenon!=0){
-    //sum_Xenon = (sumBar_Xenon+sumEC_Xenon) / (nstraws_Xenon);
-    sumBar_Xenon /= nstrawsBar_Xenon;
-    sumEC_Xenon /= nstrawsEC_Xenon;
-  }
 
   //This gives us k right away:
-  // Argon straws:
-  double kBar_Argon = m_settings->lowThresholdBar(true)/sumBar_Argon;
-  double kEC_Argon = m_settings->lowThresholdEC(true)/sumEC_Argon;
-
-  // Xenon straws:
-  double kBar_Xenon = m_settings->lowThresholdBar(false)/sumBar_Xenon;
-  double kEC_Xenon = m_settings->lowThresholdEC(false)/sumEC_Xenon;
+  double kBar_Argon(0.), kEC_Argon(0.), kBar_Xenon(0.), kEC_Xenon(0.);
+  if (sumBar_Argon !=0.) kBar_Argon = m_settings->lowThresholdBar(true)  * (nstrawsBar_Argon/sumBar_Argon);
+  if (sumEC_Argon  !=0.) kEC_Argon  = m_settings->lowThresholdEC(true)   * (nstrawsEC_Argon/sumEC_Argon);
+  if (sumBar_Xenon !=0.) kBar_Xenon = m_settings->lowThresholdBar(false) * (nstrawsBar_Xenon/sumBar_Xenon);
+  if (sumEC_Xenon  !=0.) kEC_Xenon  = m_settings->lowThresholdEC(false)  * (nstrawsEC_Xenon/sumEC_Xenon);
 
   ///////////////////////////////////////////////////////////////////
   // Step 3 - Calculate and set actual LT_i and NA_i               //
@@ -248,28 +223,25 @@ void TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool() {
     };
   };
 
-  if (nstraws_Argon!=0){
-    if (msgLevel(MSG::DEBUG)) { msg(MSG::DEBUG)
-      << "TRTNoise:: Average LT is " << sumLT_Argon/nstraws_Argon/CLHEP::eV
-      << " CLHEP::eV, with an RMS of "
-      << sqrt((sumLTsq_Argon/nstraws_Argon)-(sumLT_Argon/nstraws_Argon)*(sumLT_Argon/nstraws_Argon))/CLHEP::eV << " CLHEP::eV"
-      << endreq; }
-    if (msgLevel(MSG::DEBUG)) { msg(MSG::DEBUG)
-      << "TRTNoise:: Average NA is "<<sumNA_Argon/nstraws_Argon/CLHEP::eV <<" CLHEP::eV, with an RMS of "
-      << sqrt((sumNAsq_Argon/nstraws_Argon)-(sumNA_Argon/nstraws_Argon)*(sumNA_Argon/nstraws_Argon))/CLHEP::eV << " CLHEP::eV"
-      << endreq; }
-  }
 
-  if (nstraws_Xenon!=0){
-    if (msgLevel(MSG::DEBUG)) { msg(MSG::DEBUG)
-      << "TRTNoise:: Average LT is " << sumLT_Xenon/nstraws_Xenon/CLHEP::eV
-      << " CLHEP::eV, with an RMS of "
-      << sqrt((sumLTsq_Xenon/nstraws_Xenon)-(sumLT_Xenon/nstraws_Xenon)*(sumLT_Xenon/nstraws_Xenon))/CLHEP::eV << " CLHEP::eV"
-      << endreq; }
-    if (msgLevel(MSG::DEBUG)) { msg(MSG::DEBUG)
-      << "TRTNoise:: Average NA is "<<sumNA_Xenon/nstraws_Xenon/CLHEP::eV <<" CLHEP::eV, with an RMS of "
-      << sqrt((sumNAsq_Xenon/nstraws_Xenon)-(sumNA_Xenon/nstraws_Xenon)*(sumNA_Xenon/nstraws_Xenon))/CLHEP::eV << " CLHEP::eV"
-      << endreq; }
+  if (msgLevel(MSG::DEBUG)) {
+
+    unsigned long nstraws_Argon = nstrawsBar_Argon + nstrawsEC_Argon;
+    unsigned long nstraws_Xenon = nstrawsBar_Xenon + nstrawsEC_Xenon;
+
+    if (nstraws_Argon!=0){
+      msg(MSG::DEBUG) << "TRTNoise:: Average LT is " << sumLT_Argon/nstraws_Argon/CLHEP::eV << " CLHEP::eV, with an RMS of "
+      << sqrt((sumLTsq_Argon/nstraws_Argon)-(sumLT_Argon/nstraws_Argon)*(sumLT_Argon/nstraws_Argon))/CLHEP::eV << " CLHEP::eV" << endreq;
+      msg(MSG::DEBUG) << "TRTNoise:: Average NA is "<<sumNA_Argon/nstraws_Argon/CLHEP::eV <<" CLHEP::eV, with an RMS of "
+      << sqrt((sumNAsq_Argon/nstraws_Argon)-(sumNA_Argon/nstraws_Argon)*(sumNA_Argon/nstraws_Argon))/CLHEP::eV << " CLHEP::eV" << endreq;
+    }
+    if (nstraws_Xenon!=0){
+      msg(MSG::DEBUG) << "TRTNoise:: Average LT is " << sumLT_Xenon/nstraws_Xenon/CLHEP::eV << " CLHEP::eV, with an RMS of "
+      << sqrt((sumLTsq_Xenon/nstraws_Xenon)-(sumLT_Xenon/nstraws_Xenon)*(sumLT_Xenon/nstraws_Xenon))/CLHEP::eV << " CLHEP::eV" << endreq;
+      msg(MSG::DEBUG) << "TRTNoise:: Average NA is "<<sumNA_Xenon/nstraws_Xenon/CLHEP::eV <<" CLHEP::eV, with an RMS of "
+      << sqrt((sumNAsq_Xenon/nstraws_Xenon)-(sumNA_Xenon/nstraws_Xenon)*(sumNA_Xenon/nstraws_Xenon))/CLHEP::eV << " CLHEP::eV" << endreq;
+    }
+
   }
 
   ///////////////////////////////////////////////////////////////////
@@ -485,13 +457,13 @@ float TRTNoise::useLookupTable(const float& x, // noise_level
   unsigned int lower_index;
   double       fraction_into_bin;
 
-
   // Assumes that y_given_x is homogeneous (and not entirely flat)
 
   // Low x-value, return first y-value
   if ( x < min_x ) {
     return y_given_x.front();
   }
+
   // Which bin?
   bin_withfrac = (x-min_x)*(y_given_x.size()-1)/(max_x-min_x);
   lower_index = static_cast<unsigned int>(bin_withfrac);
@@ -500,11 +472,11 @@ float TRTNoise::useLookupTable(const float& x, // noise_level
   if ( lower_index >= y_given_x.size()-1 ) {
     return y_given_x.back();
   }
+
   // Normal case: return weighted sum of two neighbouring bin values
-  fraction_into_bin =
-    bin_withfrac - lower_index;
-  return (1.-fraction_into_bin) * y_given_x[lower_index] +
-    fraction_into_bin * y_given_x[lower_index+1];
+  fraction_into_bin = bin_withfrac - lower_index;
+  return (1.-fraction_into_bin) * y_given_x[lower_index] + fraction_into_bin * y_given_x[lower_index+1];
+
 }
 
 //_____________________________________________________________________________
