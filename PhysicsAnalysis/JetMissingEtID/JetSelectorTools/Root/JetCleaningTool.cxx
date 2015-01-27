@@ -24,7 +24,7 @@ Description: Class for selecting jets that pass some cleaning cuts
 JetCleaningTool::JetCleaningTool(const std::string& name)
   : asg::AsgTool(name)
   , m_cutName("")
-  , cutLevel(VeryLooseBad)
+  , m_cutLevel(VeryLooseBad)
 {
   declareProperty( "CutLevel" , m_cutName = "" );
 }
@@ -33,14 +33,14 @@ JetCleaningTool::JetCleaningTool(const std::string& name)
 JetCleaningTool::JetCleaningTool(const CleaningLevel alevel)
   : JetCleaningTool( "JetCleaningTool_"+getCutName(alevel) )
 {
-  cutLevel=alevel;
+  m_cutLevel=alevel;
 }
 
 /** Cut and string based constructor */
 JetCleaningTool::JetCleaningTool(const std::string& name , const CleaningLevel alevel)
   : JetCleaningTool(name)
 {
-  cutLevel=alevel;
+  m_cutLevel=alevel;
 }
 
 //=============================================================================
@@ -48,13 +48,13 @@ JetCleaningTool::JetCleaningTool(const std::string& name , const CleaningLevel a
 //=============================================================================
 StatusCode JetCleaningTool::initialize()
 {
-  if (UnknownCut==cutLevel){
+  if (UnknownCut==m_cutLevel){
     ATH_MSG_ERROR( "Tool initialized with unknown cleaning level." );
     return StatusCode::FAILURE;
   }
 
-  if (m_cutName!="") cutLevel = getCutLevel( m_cutName );
-  ATH_MSG_INFO( "Configured with cut level " << getCutName( cutLevel ) );
+  if (m_cutName!="") m_cutLevel = getCutLevel( m_cutName );
+  ATH_MSG_INFO( "Configured with cut level " << getCutName( m_cutLevel ) );
 
   m_accept.addCut( "Cleaning", "Cleaning of the jet" );
 
@@ -96,7 +96,7 @@ const Root::TAccept& JetCleaningTool::accept( const double emf,
   if(hecf>0.5 && std::fabs(hecq)>0.5 && AverageLArQF/65535>0.8)                     return m_accept;
   //EM calo noise
   if(emf>0.95 && std::fabs(larq)>0.8 && std::fabs(eta)<2.8 && AverageLArQF/65535>0.8)    return m_accept;
-  if (VeryLooseBad==cutLevel){
+  if (VeryLooseBad==m_cutLevel){
     m_accept.setCutResult( "Cleaning", true );
     return m_accept;
   }
@@ -110,7 +110,7 @@ const Root::TAccept& JetCleaningTool::accept( const double emf,
   if(hecf>0.5 && std::fabs(hecq)>0.5)                     return m_accept;
   //EM calo noise
   if(emf>0.95 && std::fabs(larq)>0.8 && std::fabs(eta)<2.8)    return m_accept;
-  if (LooseBad==cutLevel){
+  if (LooseBad==m_cutLevel){
     m_accept.setCutResult( "Cleaning", true );
     return m_accept; 
   } 
@@ -126,7 +126,7 @@ const Root::TAccept& JetCleaningTool::accept( const double emf,
   if(hecf>1-std::fabs(hecq))                            return m_accept;
   //EM calo noise
   if(emf>0.9 && std::fabs(larq)>0.8 && std::fabs(eta)<2.8)   return m_accept;
-  if (MediumBad==cutLevel){
+  if (MediumBad==m_cutLevel){
     m_accept.setCutResult( "Cleaning", true );
     return m_accept; 
   } 
@@ -142,13 +142,13 @@ const Root::TAccept& JetCleaningTool::accept( const double emf,
   if(std::fabs(larq)>0.95)                              return m_accept;
   if(emf>0.98 && std::fabs(larq)>0.05)                  return m_accept;
   if(chf<0.01 && std::fabs(eta)<2.5 )                   return m_accept;
-  if (TightBad==cutLevel){
+  if (TightBad==m_cutLevel){
     m_accept.setCutResult( "Cleaning", true );
     return m_accept; 
   } 
 
   // We should never arrive here!
-  ATH_MSG_ERROR( "Unknown cut name: " << getCutName( cutLevel ) << " in JetCleaningTool" );
+  ATH_MSG_ERROR( "Unknown cut name: " << getCutName( m_cutLevel ) << " in JetCleaningTool" );
   return m_accept;
 }
 
