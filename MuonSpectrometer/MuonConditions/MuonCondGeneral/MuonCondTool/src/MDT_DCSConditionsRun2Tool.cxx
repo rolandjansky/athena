@@ -42,8 +42,8 @@ MDT_DCSConditionsRun2Tool::MDT_DCSConditionsRun2Tool (const std::string& type,
 	  : AthAlgTool(type, name, parent),
 	    m_condMapTool("MDT_MapConversion"), 
 	    log( msgSvc(), name ),
-	    m_debug(true),
-	    m_verbose(true)   
+	    m_debug(false),
+	    m_verbose(false)   
 {
   
   declareInterface< IMDT_DCSConditionsRun2Tool >(this);
@@ -226,7 +226,7 @@ StatusCode MDT_DCSConditionsRun2Tool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
   
   unsigned int chan_index=0; 
 
-  log<<MSG::INFO<<"index "<<chan_index<< "  chanNum :" <<atrc->chanNum(chan_index)<< " " << atrc->size()<< endreq;
+  //  log<<MSG::INFO<<"index "<<chan_index<< "  chanNum :" <<atrc->chanNum(chan_index)<< " " << atrc->size()<< endreq;
   for (itr = atrc->begin(); itr != atrc->end(); ++itr){
     
 
@@ -237,7 +237,7 @@ StatusCode MDT_DCSConditionsRun2Tool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
     itr=atrc->chanAttrListPair(chanNum);
     const coral::AttributeList& atr=itr->second;
 
-    log<<MSG::INFO<<" CondAttrListCollection ChanNum : "<<chanNum<<" AttributeList  size : " << atr.size() <<endreq;
+    //log<<MSG::INFO<<" CondAttrListCollection ChanNum : "<<chanNum<<" AttributeList  size : " << atr.size() <<endreq;
 
     if(atr.size()) {
       hv_name_ml1=*(static_cast<const std::string*>((atr["fsmCurrentState_ML1"]).addressOfData()));
@@ -264,7 +264,7 @@ StatusCode MDT_DCSConditionsRun2Tool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
      
       if(hv_name_ml1 !="ON" && hv_name_ml1 !="STANDBY" && hv_name_ml1 !="UNKNOWN"){
 	if( m_verbose ) log << MSG::VERBOSE << "NOT ON and NOT STANDBY HV : " <<hv_name_ml1  << " ChamberName : "<<tokens2[0] << "multilayer 1"  <<endreq;	
-	log << MSG::INFO << "NOT ON and NOT STANDBY HV : " <<hv_name_ml1  << " ChamberName : "<<tokens2[0] << "multilayer 1"  <<endreq;	
+	//	log << MSG::INFO << "NOT ON and NOT STANDBY HV : " <<hv_name_ml1  << " ChamberName : "<<tokens2[0] << "multilayer 1"  <<endreq;	
 	//	m_cachedDeadMultiLayers.push_back(1);
 	int multilayer =1;
 	std::string chamber_name = tokens2[0];
@@ -277,7 +277,7 @@ StatusCode MDT_DCSConditionsRun2Tool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
       if(hv_name_ml1=="STANDBY" && hv_v0_ml1 != hv_v1_ml1){
 	
 	if( m_verbose ) log << MSG::VERBOSE << "STANDBY HV : " << hv_name_ml1<< " ChamberName : "<<tokens2[0] << "multilayer 1"<<endreq;	
-	log << MSG::INFO << "STANDBY HV : " << hv_name_ml1<< " ChamberName : "<<tokens2[0] << "multilayer 1"<<endreq;	
+	//log << MSG::INFO << "STANDBY HV : " << hv_name_ml1<< " ChamberName : "<<tokens2[0] << "multilayer 1"<<endreq;	
 	
 	int multilayer =1;
 	std::string chamber_name = tokens2[0];
@@ -288,7 +288,7 @@ StatusCode MDT_DCSConditionsRun2Tool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
 
       if(hv_name_ml2 !="ON" && hv_name_ml2 !="STANDBY" && hv_name_ml2 !="UNKNOWN"){
 	if( m_verbose ) log << MSG::VERBOSE << "NOT ON and NOT STANDBY HV : " <<hv_name_ml2  << " ChamberName : "<<tokens2[0] << "multilayer 2"  <<endreq;
-	log << MSG::INFO << "NOT ON and NOT STANDBY HV : " <<hv_name_ml2  << " ChamberName : "<<tokens2[0] << "multilayer 2"  <<endreq;	
+	//log << MSG::INFO << "NOT ON and NOT STANDBY HV : " <<hv_name_ml2  << " ChamberName : "<<tokens2[0] << "multilayer 2"  <<endreq;	
 	//m_cachedDeadMultiLayers.push_back(2);
 	int multilayer =1;
 	std::string chamber_name = tokens2[0];
@@ -301,7 +301,7 @@ StatusCode MDT_DCSConditionsRun2Tool::loadHV(IOVSVC_CALLBACK_ARGS_P(I,keys))
       if(hv_name_ml2=="STANDBY" && hv_v0_ml2 != hv_v1_ml2){
 	
 	if( m_verbose ) log << MSG::VERBOSE << "STANDBY HV : " << hv_name_ml2<< " ChamberName : "<<tokens2[0] << "multilayer 2"<<endreq;	
-	log << MSG::INFO << "STANDBY HV : " << hv_name_ml2<< " ChamberName : "<<tokens2[0] << "multilayer 2"<<endreq;	
+	//log << MSG::INFO << "STANDBY HV : " << hv_name_ml2<< " ChamberName : "<<tokens2[0] << "multilayer 2"<<endreq;	
 	
 	int multilayer =2;
 	std::string chamber_name = tokens2[0];
