@@ -15,7 +15,8 @@
 
 // Trigger include(s):
 #include "TrigT1Result/RoIBResult.h"
-
+#include "TrigT1Result/L1TopoResult.h"
+#include "L1TopoRDO/L1TopoRDO.h"
 #include "CTPfragment/CTPfragment.h"
 #include "CTPfragment/CTPdataformat.h"
 
@@ -35,11 +36,13 @@ StatusCode RoIBResultByteStreamTool::convert( const std::vector< ROBF >& robs,
   ROIB::MuCTPIResult muCTPIResult;
   std::vector< ROIB::EMTauResult > eMTauResult( 4 );
   std::vector< ROIB::JetEnergyResult > jetEnergyResult( 2 );
+  std::vector< ROIB::L1TopoResult > l1TopoResult;
 
   /* Create a few flags indicating whether or not ROB fragment was found. */
   bool cTPFound( false ), muCTPIFound( false );
   bool jetEnergyFound[ 2 ] = { false, false };
   bool eMTauFound[ 4 ] = { false, false, false, false };
+  bool l1TopoFound( false );
 
   /* Loop over ROB fragments. */
   for( unsigned int i = 0; i < robs.size(); ++i ) {
@@ -83,7 +86,7 @@ StatusCode RoIBResultByteStreamTool::convert( const std::vector< ROBF >& robs,
     eformat::helper::SourceIdentifier helpCTPID( eformat::TDAQ_CTP, m_ctpModuleID );
     eformat::helper::SourceIdentifier helpCTPID_II( eformat::TDAQ_CTP, 0 );
 
-	 log << MSG::DEBUG << "Check ROD ID against 0x" << MSG::hex 
+	 log << MSG::DEBUG << "Check ROD ID against CTP 0x" << MSG::hex 
 		  << helpCTPID.code() << MSG::dec << endreq;
     if( rodId == helpCTPID.code() || 
         // this is a hack to catch the early data with the old CTP
@@ -251,6 +254,51 @@ StatusCode RoIBResultByteStreamTool::convert( const std::vector< ROBF >& robs,
 
     } /* end of EMTau ROBs */
 
+    /* L1Topo ROB */
+    eformat::helper::SourceIdentifier helpL1TopoID_0( eformat::TDAQ_CALO_TOPO_PROC, m_l1TopoModuleID[0] );
+    eformat::helper::SourceIdentifier helpL1TopoID_1( eformat::TDAQ_CALO_TOPO_PROC, m_l1TopoModuleID[1] );
+
+    log << MSG::DEBUG << "Check ROD ID against L1Topo 0x" << MSG::hex 
+        << helpL1TopoID_0.code() << " 0x" << helpL1TopoID_1.code() << MSG::dec << endreq;
+
+    if( rodId == helpL1TopoID_0.code() || rodId == helpL1TopoID_1.code() ) {
+
+      log << MSG::DEBUG << "   Found L1Topo ROB." << endreq;
+
+      /* Create header */
+      ROIB::Header l1TopoHead( rodId, evtNum, formatVersion );
+      /* Create content body */
+      DataType data;
+      rob.rod_data( data );
+      uint32_t ndata = rob.rod_ndata();
+      L1TopoRDO l1TopoContent;
+      ATH_MSG_VERBOSE( "   Dumping RoI Words:" );
+      std::vector<uint32_t> vDataWords;
+      for ( uint32_t i = 0; i < ndata; ++i, ++data ) {
+	vDataWords.push_back( static_cast<uint32_t>( *data ) );
+	ATH_MSG_VERBOSE( "     0x" << MSG::hex << std::setfill ('0') << std::setw( 8 )  << static_cast<uint32_t>( *data ) << MSG::dec);
+      }
+      l1TopoContent.setDataWords(vDataWords);
+      l1TopoContent.setSourceID(rodId);
+      /* Create Trailer */
+      std::vector< uint32_t > words;
+      // the two status words
+      words.push_back( errorStat );         // error status
+      words.push_back( statInfo );          // status info
+      l1TopoContent.setStatusWords(words);  // add status words to RDO
+      //
+      words.push_back( 2 );                 // number of status words
+      words.push_back( ndata );             // number of data words
+      words.push_back( 1 );                 // status block position
+      ROIB::Trailer l1TopoTrail( words );
+     
+      /* Create L1TopoResult object */
+      l1TopoResult.push_back( ROIB::L1TopoResult(l1TopoHead, l1TopoTrail, l1TopoContent) );
+      /* Flag that at least one ROD was found */
+      l1TopoFound = true;
+
+    } /* end of L1Topo ROB */
+
   } /* End of loop over all ROB fragments. */
 
   /* create the top object and fill it. */
@@ -285,6 +333,11 @@ StatusCode RoIBResultByteStreamTool::convert( const std::vector< ROBF >& robs,
   } else {
     result = new ROIB::RoIBResult();
     log << MSG::DEBUG << "No LVL1 fragments found, create empty RoIBResult." << endreq;
+  }
+
+  if( l1TopoFound ){
+    result->l1TopoResult(l1TopoResult);
+    ATH_MSG_DEBUG( "Adding L1Topo fragment(s) to RoIBResult" );
   }
 
   return StatusCode::SUCCESS;

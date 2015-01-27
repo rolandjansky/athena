@@ -34,11 +34,11 @@ const InterfaceID& RoIBResultByteStreamTool::interfaceID() {
  */
 RoIBResultByteStreamTool::RoIBResultByteStreamTool( const std::string& type, const std::string& name,
                                                     const IInterface* parent )
-  : AlgTool( type, name, parent ) {
+  : AthAlgTool( type, name, parent ) {
 
   declareInterface< RoIBResultByteStreamTool >( this );
 
-  // set defailt RoI ROB module IDs
+  // set default RoI ROB module IDs
   m_ctpModuleID = 1;
 
   m_muCTPIModuleID = 1;
@@ -52,6 +52,10 @@ RoIBResultByteStreamTool::RoIBResultByteStreamTool( const std::string& type, con
   m_emModuleID.push_back(0xa9) ;
   m_emModuleID.push_back(0xaa) ;
   m_emModuleID.push_back(0xab) ;
+
+  m_l1TopoModuleID.reserve(2);
+  m_emModuleID.push_back(0x00910081);
+  m_emModuleID.push_back(0x00910010);
 }
 
 /**
@@ -85,7 +89,7 @@ StatusCode RoIBResultByteStreamTool::initialize() {
     log << MSG::ERROR << "Can't get ByteStreamAddressProviderSvc" << endreq;
     return sc;
   } else {
-    log << MSG::DEBUG << "Connected to ByteStreamAddressProviderSvc" << endreq;
+    log << MSG::DEBUG << "Connected to " << p_ByteStreamAddressProviderSvc.name() << endreq;
 
     UnsignedIntegerProperty ctpModuleID;
     ctpModuleID.setName("CTPModuleID");
@@ -93,7 +97,7 @@ StatusCode RoIBResultByteStreamTool::initialize() {
       m_ctpModuleID = ctpModuleID.value() ;
       log << MSG::DEBUG << " ---> getProperty('CTPModuleID')             = " << ctpModuleID << endreq;
     } else {
-      log << MSG::WARNING << " RoIBResultByteStreamTool::getProperty('CTPModuleID') failed." << endreq;
+      log << MSG::WARNING << p_ByteStreamAddressProviderSvc.name() << "::getProperty('CTPModuleID') failed." << endreq;
     }
 
     UnsignedIntegerProperty muCTPIModuleID;
@@ -102,7 +106,7 @@ StatusCode RoIBResultByteStreamTool::initialize() {
       m_muCTPIModuleID = muCTPIModuleID.value() ;
       log << MSG::DEBUG << " ---> getProperty('MuCTPIModuleID')          = " << muCTPIModuleID << endreq;
     } else {
-      log << MSG::WARNING << " RoIBResultByteStreamTool::getProperty('MuCTPIModuleID') failed." << endreq;
+      log << MSG::WARNING << p_ByteStreamAddressProviderSvc.name() << "::getProperty('MuCTPIModuleID') failed." << endreq;
     }
 
     UnsignedIntegerArrayProperty jetProcModuleID;
@@ -111,7 +115,7 @@ StatusCode RoIBResultByteStreamTool::initialize() {
       m_jetModuleID = jetProcModuleID.value() ;
       log << MSG::DEBUG << " ---> getProperty('JetProcModuleID')         = " << jetProcModuleID << endreq;
     } else {
-      log << MSG::WARNING << " RoIBResultByteStreamTool::getProperty('JetProcModuleID') failed." << endreq;
+      log << MSG::WARNING << p_ByteStreamAddressProviderSvc.name() << "::getProperty('JetProcModuleID') failed." << endreq;
     }
 
     UnsignedIntegerArrayProperty caloClusterProcModuleID;
@@ -120,7 +124,16 @@ StatusCode RoIBResultByteStreamTool::initialize() {
       m_emModuleID = caloClusterProcModuleID.value() ;
       log << MSG::DEBUG << " ---> getProperty('CaloClusterProcModuleID') = " << caloClusterProcModuleID << endreq;
     } else {
-      log << MSG::WARNING << " RoIBResultByteStreamTool::getProperty('CaloClusterProcModuleID') failed." << endreq;
+      log << MSG::WARNING << p_ByteStreamAddressProviderSvc.name() << "::getProperty('CaloClusterProcModuleID') failed." << endreq;
+    }
+
+    UnsignedIntegerArrayProperty l1TopoModuleID;
+    l1TopoModuleID.setName("TopoProcModuleID");
+    if (l1TopoModuleID.assign(p_ByteStreamAddressProviderSvc->getProperty("TopoProcModuleID"))) {
+      m_l1TopoModuleID = l1TopoModuleID.value();
+      log << MSG::DEBUG << " ---> getProperty('TopoProcModuleID') = " << l1TopoModuleID << endreq;
+    } else {
+      log << MSG::WARNING << p_ByteStreamAddressProviderSvc.name() << "::getProperty('TopoProcModuleID') failed." << endreq;
     }
   }
 
@@ -131,6 +144,7 @@ StatusCode RoIBResultByteStreamTool::initialize() {
      << ", 0x" << m_emModuleID[1] << ", 0x" << m_emModuleID[2] << ", 0x" << m_emModuleID[3] <<MSG::dec<<endreq;
   log<<MSG::DEBUG << "    Calorimeter Jet/Energy Processor RoI = 0x" <<MSG::hex<< m_jetModuleID[0]
      << ", 0x" << m_jetModuleID[1] <<MSG::dec<<endreq;
+  log<<MSG::DEBUG << "    L1Topo                               = 0x" <<MSG::hex<< m_l1TopoModuleID[0]     << ", 0x" <<  m_l1TopoModuleID[1] <<MSG::dec<<endreq;
 
   return StatusCode::SUCCESS;
 }
@@ -212,6 +226,26 @@ StatusCode RoIBResultByteStreamTool::convert( ROIB::RoIBResult* result, RawEvent
     }
   }
 
+  /** L1Topo ROD */
+  log << MSG::VERBOSE << "   Dumping L1Topo RoI words" << endreq;
+  const std::vector< ROIB::L1TopoResult >& l1TopoResultVector = result->l1TopoResult();
+  log << MSG::VERBOSE << "   Dumping L1Topo RoI words for " << l1TopoResultVector.size() << " RODs:" << endreq;
+  unsigned int slink(0);
+  for (auto & l1tr : l1TopoResultVector){
+    unsigned int sourceID = l1tr.rdo().getSourceID();
+    log << MSG::VERBOSE << "  for L1Topo source ID "  << MSG::hex << std::setw(8) << std::showbase << sourceID << std::noshowbase << std::dec << endreq;
+    if (sourceID == 0){
+      sourceID = m_l1TopoModuleID[slink];
+      log << MSG::DEBUG << "  (source ID in L1TopoRDO was zero so using Property for slink " << std::dec << slink << ": " <<  MSG::hex << std::setw(8) << std::showbase << sourceID << std::noshowbase << std::dec << ")" << endreq;
+    }
+    eformat::helper::SourceIdentifier helpL1TopoID( eformat::TDAQ_CALO_TOPO_PROC, sourceID );
+    theROD = m_fea.getRodData( helpL1TopoID.code() );
+    for ( auto & word : l1tr.rdo().getDataWords()){
+      log << MSG::VERBOSE << "     " << MSG::hex << std::setw(8) << std::showbase << word << std::noshowbase << std::dec << endreq;
+      theROD->push_back(word);
+    }
+    ++slink;
+  }
   /** now fill them into the RawEvent re */
   log << MSG::DEBUG << "Now filling the event with the RoI Builder fragments" << endreq;
   m_fea.fill( re, log );

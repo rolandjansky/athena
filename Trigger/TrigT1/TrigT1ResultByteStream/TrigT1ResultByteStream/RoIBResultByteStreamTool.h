@@ -11,13 +11,13 @@
 #include <vector>
 
 // Gaudi/Athena include(s):
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "ByteStreamData/RawEvent.h"
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h"
 
 // Local include(s):
-#include "TrigT1ResultByteStream/L1SrcIdMap.h"
+#include "L1SrcIdMap.h"
 
 // Forward declaration(s):
 namespace ROIB {
@@ -36,7 +36,7 @@ namespace ROIB {
  *  @author Attila Krasznahorkay
  *    @date $Date: 2008-03-28 17:25:52 $
  */
-class RoIBResultByteStreamTool : public AlgTool {
+class RoIBResultByteStreamTool : public AthAlgTool {
 
 public:
   /// Default constructor
@@ -69,6 +69,7 @@ private:
   uint32_t m_muCTPIModuleID;
   std::vector<uint32_t> m_jetModuleID;
   std::vector<uint32_t> m_emModuleID;
+  std::vector<uint32_t> m_l1TopoModuleID;
 
 }; // class RoIBResultByteStreamTool
 
