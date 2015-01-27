@@ -14,6 +14,7 @@ try:
 except NameError:
     LArNoisyROMonForceTrigger = False
 
+from LArCellRec.LArNoisyROFlags import larNoisyROFlags
 
 theLArNoisyROMon = LArNoisyROMon(name="LArNoisyROMon")
 theLArNoisyROMon.IsOnline = OnlineMode
