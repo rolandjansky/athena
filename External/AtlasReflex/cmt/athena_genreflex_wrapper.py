@@ -19,6 +19,22 @@ def main():
                 v = e[len(k)+1:]
                 env[k] = str(v)
             break
+    
+    # now remove possible "-isystem dir" from the list of arguements
+    #  gcc will not issue warnings that come from system headers, so in future we
+    #   need to be able to suppress warnings from external packages as well
+    #  The way to do it is to add these directories to headers from externals to
+    #   the list of system headers by " -isystem dir "
+    #  Directories listed as "-isystem dir" AND "-I dir" are still classified as
+    #   system headers
+    idx=2
+    while ( idx < len(genreflex_cmd) ):
+        print "RS---",genreflex_cmd[idx],genreflex_cmd[idx].startswith( '-isystem' );
+        if genreflex_cmd[idx].startswith( '-isystem' ):
+            if len(genreflex_cmd)>idx+1:
+                del genreflex_cmd[idx+1]
+            del genreflex_cmd[idx]
+        idx += 1
         
     libdict_name = sys.argv[1]
     munged_reflex_opts = []
