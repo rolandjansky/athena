@@ -1,0 +1,68 @@
+** test1: L1Topo::Header decoding **
+L1Topo::Header created from word     0xc0460023
+** test2: L1Topo::Header encoding **
+L1Topo::Header encoded word     0xc0420034
+L1Topo::Header     ref word     0xc0420034
+** test3: L1Topo::Header decode+encode **
+L1Topo::Header  decoded from word     0xc0460023
+L1Topo::Header re-encoded to word     0xc0460023
+** test4: L1Topo::signedBCN all cases **
+** test5: L1Topo::L1TopoTOB encoding **
+L1Topo::L1TopoTOB created from word     0x83001037
+** test6: L1Topo::L1TopoTOB decoding **
+** test7: L1Topo::L1TopoTOB encode + decode **
+L1Topo::L1TopoTOB encoded from word     0x82000112
+L1Topo::L1TopoTOB decoded   to word     0x82000112
+** test8: L1Topo::L1TopoTOB index, clock and fpga decoding **
+** test9: L1Topo::getCTPbits **
+L1TopoRDO:
+     SourceID 0x00910080
+     BS Tool error flags 0b00000000
+     Status words
+     Data words
+     0x80000100      L1Topo TOB:  ctp_signal 0x0 ( index 0 clock 0 fpga 0 ) overflow bits 0b00000001 trigger bits 0b00000000
+     0x81000201      L1Topo TOB:  ctp_signal 0x1 ( index 1 clock 0 fpga 0 ) overflow bits 0b00000010 trigger bits 0b00000001
+     0x82000330      L1Topo TOB:  ctp_signal 0x2 ( index 0 clock 1 fpga 0 ) overflow bits 0b00000011 trigger bits 0b00110000
+     0x83000402      L1Topo TOB:  ctp_signal 0x3 ( index 1 clock 1 fpga 0 ) overflow bits 0b00000100 trigger bits 0b00000010
+     0x84000510      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 1 ) overflow bits 0b00000101 trigger bits 0b00010000
+     0x850006f6      L1Topo TOB:  ctp_signal 0x5 ( index 1 clock 0 fpga 1 ) overflow bits 0b00000110 trigger bits 0b11110110
+     0x860007b0      L1Topo TOB:  ctp_signal 0x6 ( index 0 clock 1 fpga 1 ) overflow bits 0b00000111 trigger bits 0b10110000
+     0x87000800      L1Topo TOB:  ctp_signal 0x7 ( index 1 clock 1 fpga 1 ) overflow bits 0b00001000 trigger bits 0b00000000
+L1TopoRDO:
+     SourceID 0x00910090
+     BS Tool error flags 0b00000000
+     Status words
+     Data words
+     0x800010d1      L1Topo TOB:  ctp_signal 0x0 ( index 0 clock 0 fpga 0 ) overflow bits 0b00010000 trigger bits 0b11010001
+     0x810020ab      L1Topo TOB:  ctp_signal 0x1 ( index 1 clock 0 fpga 0 ) overflow bits 0b00100000 trigger bits 0b10101011
+     0x82003002      L1Topo TOB:  ctp_signal 0x2 ( index 0 clock 1 fpga 0 ) overflow bits 0b00110000 trigger bits 0b00000010
+     0x83004028      L1Topo TOB:  ctp_signal 0x3 ( index 1 clock 1 fpga 0 ) overflow bits 0b01000000 trigger bits 0b00101000
+     0x84005000      L1Topo TOB:  ctp_signal 0x4 ( index 0 clock 0 fpga 1 ) overflow bits 0b01010000 trigger bits 0b00000000
+     0x85006083      L1Topo TOB:  ctp_signal 0x5 ( index 1 clock 0 fpga 1 ) overflow bits 0b01100000 trigger bits 0b10000011
+     0x86007045      L1Topo TOB:  ctp_signal 0x6 ( index 0 clock 1 fpga 1 ) overflow bits 0b01110000 trigger bits 0b01000101
+     0x87008079      L1Topo TOB:  ctp_signal 0x7 ( index 1 clock 1 fpga 1 ) overflow bits 0b10000000 trigger bits 0b01111001
+Trigger decision bits:
+  ref 01111001010001011000001100000000001010000000001010101011110100010000000010110000111101100001000000000010001100000000000100000000
+ test 01111001010001011000001100000000001010000000001010101011110100010000000010110000111101100001000000000010001100000000000100000000
+Trigger overflow bits:
+  ref 10000000011100000110000001010000010000000011000000100000000100000000100000000111000001100000010100000100000000110000001000000001
+ test 10000000011100000110000001010000010000000011000000100000000100000000100000000111000001100000010100000100000000110000001000000001
+** test10: L1Topo::triggerBitIndex **
+size of unsigned long 8 size of uint32_t 4
+module, ROIword, (index clock fpga), index, multiple of 8?
+0 0x0x80000000 ( 0 0 0 ) -> 0 true
+0 0x0x81000000 ( 1 0 0 ) -> 8 true
+0 0x0x82000000 ( 0 1 0 ) -> 16 true
+0 0x0x83000000 ( 1 1 0 ) -> 24 true
+0 0x0x84000000 ( 0 0 1 ) -> 32 true
+0 0x0x85000000 ( 1 0 1 ) -> 40 true
+0 0x0x86000000 ( 0 1 1 ) -> 48 true
+0 0x0x87000000 ( 1 1 1 ) -> 56 true
+1 0x0x80000000 ( 0 0 0 ) -> 64 true
+1 0x0x81000000 ( 1 0 0 ) -> 72 true
+1 0x0x82000000 ( 0 1 0 ) -> 80 true
+1 0x0x83000000 ( 1 1 0 ) -> 88 true
+1 0x0x84000000 ( 0 0 1 ) -> 96 true
+1 0x0x85000000 ( 1 0 1 ) -> 104 true
+1 0x0x86000000 ( 0 1 1 ) -> 112 true
+1 0x0x87000000 ( 1 1 1 ) -> 120 true
