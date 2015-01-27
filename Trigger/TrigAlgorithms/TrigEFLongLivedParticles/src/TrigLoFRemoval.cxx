@@ -19,32 +19,42 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"
-//
+
+#include "xAODJet/JetContainer.h"
+#include "xAODJet/Jet.h"
+
 #include "TrigEFLongLivedParticles/TrigLoFRemoval.h"
-//
+
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloEvent/CaloCell.h"
-//
+
 #include "FourMomUtils/P4DescendingSorters.h"
-//
+
 #include "TrigSteeringEvent/PhiHelper.h"
 #include "TrigTimeAlgs/TrigTimer.h"
 #include "AthenaKernel/Timeout.h"
 
-//
 #define PI 3.14159265
 
 
 class ISvcLocator;
 
-/////////////////////////////////////////////////////////////////////
-// CONSTRUCTOR:
-/////////////////////////////////////////////////////////////////////
-//
-TrigLoFRemoval::TrigLoFRemoval(const std::string& name, ISvcLocator* pSvcLocator):
-    HLT::FexAlgo(name, pSvcLocator)
- {
 
+//** ----------------------------------------------------------------------------------------------------------------- **//
+
+
+struct DescendingEt:std::binary_function<const xAOD::Jet*, const xAOD::Jet*, bool> {
+  bool operator()(const xAOD::Jet* l, const xAOD::Jet* r)  const {
+    return l->p4().Et() > r->p4().Et();
+  }
+};
+
+
+//** ----------------------------------------------------------------------------------------------------------------- **//
+
+
+TrigLoFRemoval::TrigLoFRemoval(const std::string& name, ISvcLocator* pSvcLocator):
+    HLT::FexAlgo(name, pSvcLocator) {
 
   // Monitored variables...
   declareMonitoredVariable("Et", m_et);
@@ -52,49 +62,45 @@ TrigLoFRemoval::TrigLoFRemoval(const std::string& name, ISvcLocator* pSvcLocator
   declareMonitoredVariable("Eta", m_eta);
   declareMonitoredVariable("Phi", m_phi);
   declareMonitoredVariable("CellContainerSize", m_CellContainerSize);
-
+  
 }
-//}; // Supress the semicolon to make it compatible with gcc 3.4.4
 
-/////////////////////////////////////////////////////////////////////
-// DESTRUCTOR:
-/////////////////////////////////////////////////////////////////////
-//
-TrigLoFRemoval::~TrigLoFRemoval()
-{  }
-//{  }; // Supress the semicolon to make it compatible with gcc 3.4.4
 
-/////////////////////////////////////////////////////////////////////
-// INITIALIZE:
-// The initialize method will create all the required algorithm objects
-// Note that it is NOT NECESSARY to run the initialize of individual
-// sub-algorithms.  The framework takes care of it.
-/////////////////////////////////////////////////////////////////////
-//
+//** ----------------------------------------------------------------------------------------------------------------- **//
 
-HLT::ErrorCode TrigLoFRemoval::hltInitialize()
-{
 
+TrigLoFRemoval::~TrigLoFRemoval() {}
+
+
+//** ----------------------------------------------------------------------------------------------------------------- **//
+
+
+HLT::ErrorCode TrigLoFRemoval::hltInitialize() {
 
   msg() << MSG::INFO << "in initialize()" << endreq;
 
   return HLT::OK;
 }
 
+//** ----------------------------------------------------------------------------------------------------------------- **//
 
-HLT::ErrorCode TrigLoFRemoval::hltFinalize(){
+
+HLT::ErrorCode TrigLoFRemoval::hltFinalize() {
 
   msg() << MSG::INFO << "in finalize()" << endreq;
 
   return HLT::OK;
 }
 
-HLT::ErrorCode TrigLoFRemoval::hltExecute(const HLT::TriggerElement* inputTE,
-                            HLT::TriggerElement* outputTE){
+
+//** ----------------------------------------------------------------------------------------------------------------- **//
+
+
+HLT::ErrorCode TrigLoFRemoval::hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElement* outputTE) {
 
   if (msgLvl() <= MSG::DEBUG)
     msg() << MSG::DEBUG << "in execute()" << endreq;
-
+  
   // Monitoring, we set-up default :
   m_et = -99000.;
   m_njet = 0.0;
@@ -107,50 +113,48 @@ HLT::ErrorCode TrigLoFRemoval::hltExecute(const HLT::TriggerElement* inputTE,
     msg() << MSG::DEBUG << "inputTE->getId(): " << inputTE->getId() << endreq;
   }
 
+  const xAOD::JetContainer* vectorOfJets = 0;
+  HLT::ErrorCode status = getFeature(outputTE, vectorOfJets);
 
-
-  const JetCollection* outJets(0);
-  HLT::ErrorCode ec = getFeature(outputTE, outJets);
-
-  if(ec!=HLT::OK) {
-    msg() << MSG::WARNING << " Failed to get JetCollections " << endreq;
-    return ec;
-  }
-
-  if( outJets == 0 ){
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Got no JetCollections associated to the TE! " << endreq;
+  if(status != HLT::OK) {
+    msg() << MSG::ERROR << "Failed to get the xAOD jet container" << endreq;
+    return HLT::ERROR;
+  } else if (msgLvl() <= MSG::DEBUG)
+    msg() << MSG::DEBUG << "Got the xAOD jet container" << endreq;
+  
+  if(vectorOfJets->size() == 0) {
+    if (msgLvl() <= MSG::DEBUG)
+      msg() << MSG::DEBUG << "The xAOD jet container is empty" << endreq;
     return HLT::OK;
+  } else {
+    if (msgLvl() <= MSG::DEBUG)
+      msg() << MSG::DEBUG << vectorOfJets->size() << " jets are found" << endreq;
   }
 
-  std::vector<const Jet*> theJets(outJets->begin(), outJets->end());
+  std::vector<const xAOD::Jet*> theJets(vectorOfJets->begin(), vectorOfJets->end());
 
-  //check size of JetCollection
-  if( theJets.size() == 0 ){
-    if(msgLvl() <= MSG::DEBUG) msg()<< MSG::DEBUG << " Size of JetCollection is 0! " << endreq;
-    return HLT::OK;
-  }
-  std::sort (theJets.begin(), theJets.end(), P4Sorters::Descending::Et());
-
-  // only one jet per JetCollection (for the moment, change it in the future)
+  std::sort (theJets.begin(), theJets.end(), DescendingEt());
  
   double etLjet = 0;
   double etaLjet = 0;
   double phiLjet = 0;
   int count = 0;
-  for (const Jet* aJet : theJets) {
+
+  for (const xAOD::Jet* aJet : theJets) {
     count++;
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Jet Et: " << aJet->et() << endreq;
+    if(msgLvl() <= MSG::DEBUG) 
+      msg() << MSG::DEBUG << "Jet Et: " << aJet->p4().Et() << endreq;
     if(count==1) {
-      etLjet = aJet->et();
+      etLjet = aJet->p4().Et();
       etaLjet = aJet->eta();
       phiLjet = aJet->phi();
     }
   }
   
   if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << " Highest Et Jet Et= "   << etLjet        << endreq;
-    msg() << MSG::DEBUG << " Highest Et Jet eta = " << etaLjet       << endreq;
-    msg() << MSG::DEBUG << " Highest Et Jet phi = " << phiLjet       << endreq;
+    msg() << MSG::DEBUG << " Highest Et Jet Et= "   << etLjet << endreq;
+    msg() << MSG::DEBUG << " Highest Et Jet eta = " << etaLjet << endreq;
+    msg() << MSG::DEBUG << " Highest Et Jet phi = " << phiLjet << endreq;
   }
 
   // monitoring
@@ -163,7 +167,7 @@ HLT::ErrorCode TrigLoFRemoval::hltExecute(const HLT::TriggerElement* inputTE,
   // We retrieve the CellContainer from the Trigger Element...
   std::vector<const CaloCellContainer*> vectorOfCellContainers;
 
-  if( getFeatures(outputTE, vectorOfCellContainers, "") != HLT::OK) {
+  if(getFeatures(outputTE, vectorOfCellContainers, "") != HLT::OK) {
     msg() << MSG::WARNING << "Failed to get TrigCells" << endreq;   
     return HLT::OK;
   }
@@ -231,10 +235,10 @@ HLT::ErrorCode TrigLoFRemoval::hltExecute(const HLT::TriggerElement* inputTE,
     msg() << MSG::WARNING << "Could not record a cell container with key " << cellCollKey << " " << name() << endreq;
   } else {
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << " REGTEST: Recorded the cell container " << endreq;
+      msg() << MSG::DEBUG << "Recorded the cell container " << endreq;
   }
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << " REGTEST: Produced a Cell Container of Size= " << theCellContLoF->size() << endreq;
+    msg() << MSG::DEBUG << "Produced a Cell Container of Size= " << theCellContLoF->size() << endreq;
 
   //monitoring
   m_CellContainerSize = (float)theCellContLoF->size();
