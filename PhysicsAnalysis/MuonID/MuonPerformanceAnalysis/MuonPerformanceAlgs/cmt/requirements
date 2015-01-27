@@ -1,0 +1,21 @@
+package MuonPerformanceAlgs
+ 
+author Massimiliano Bellomo
+ 
+use AtlasPolicy              AtlasPolicy-* 
+
+ 
+private
+use GaudiInterface           GaudiInterface-*            External
+use AthenaBaseComps          AthenaBaseComps-*           Control
+use MuonTPTools              MuonTPTools-*               PhysicsAnalysis/MuonID/MuonPerformanceAnalysis
+use xAODMuon                 xAODMuon-*                  Event/xAOD
+use xAODEventInfo            xAODEventInfo-*             Event/xAOD
+use MuonPerformanceHistUtils MuonPerformanceHistUtils-*  PhysicsAnalysis/MuonID/MuonPerformanceAnalysis
+use MuonResonanceTools       MuonResonanceTools-*        PhysicsAnalysis/MuonID/MuonPerformanceAnalysis
+use xAODEventInfo            xAODEventInfo-*             Event/xAOD
+use  RecoToolInterfaces         RecoToolInterfaces-*          Reconstruction/RecoTools
+public
+library MuonPerformanceAlgs *.cxx -s=components *.cxx
+apply_pattern component_library
+apply_pattern declare_joboptions files="../share/*.py"
