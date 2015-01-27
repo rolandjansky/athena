@@ -17,9 +17,8 @@ TrigConf::HLTSequenceLoader::load( HLTFrame& frame ) {
    m_smk=frame.smk();
 
    m_schemaversion = triggerDBSchemaVersion();
-   if(verbose())
-      msg() << "HLTSequenceLoader:                TriggerDB Schema version:  " 
-            << m_schemaversion << endl;
+
+   TRG_MSG_INFO("Loading HLT sequences");
 
    HLTSequenceList& sequences = frame.theHLTSequenceList();
 
@@ -29,7 +28,7 @@ TrigConf::HLTSequenceLoader::load( HLTFrame& frame ) {
       commitSession();
    }
    catch (const std::exception& e) {
-      msg() << "HLTSequenceLoader:                exception: " << e.what() << endl;
+      TRG_MSG_ERROR("exception caught and rethrown : " << e.what());
       throw;
    }
    return true;

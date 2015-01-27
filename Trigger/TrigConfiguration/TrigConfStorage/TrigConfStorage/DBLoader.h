@@ -42,7 +42,7 @@ namespace TrigConf {
       void startSession();
 
       /** @brief commit session if not already done */
-      void commitSession();
+      void commitSession() const;
 
       /** @brief get l1 master from super master */
       bool loadL1MasterKey(int SuperMasterKey, int& Lvl1MasterKey); 
@@ -55,8 +55,8 @@ namespace TrigConf {
       virtual int verbose() const { return m_verbose; }
       virtual void setVerbose(int v) { m_verbose=v; }
 
-      bool isRun1() const { return ! isRun2(); }
-      bool isRun2() const;
+      bool isRun1() { return ! isRun2(); }
+      bool isRun2();
 
    private:
       int m_verbose;
@@ -76,7 +76,7 @@ namespace TrigConf {
       static unsigned int            s_l1Version;
 
    private:
-      void loadSchemaVersion();
+      void loadSchemaVersion() const;
 
    private:
       static ENV m_env;

@@ -20,9 +20,6 @@
 #include "TrigConfHLTData/HLTStreamTag.h"
 #include "TrigConfHLTData/HLTUtils.h"
 
-#include "boost/foreach.hpp"
-
-
 using namespace std;
 using namespace cool;
 using namespace TrigConf;
@@ -46,7 +43,7 @@ TrigConfCoolHLTPayloadConverters::createHltMenuPayload(cool::IFolderPtr fld, con
    // stream info
    stringstream streamCat;
    bool first(true);
-   BOOST_FOREACH(HLTStreamTag* stream, ch.streams()) {
+   for(HLTStreamTag* stream : ch.streams()) {
       if(first) { first = false; } else { streamCat << ";"; } 
       streamCat << stream->stream() << "," << stream->type() << "," << stream->prescale();
    }
@@ -62,7 +59,7 @@ TrigConfCoolHLTPayloadConverters::createHltChainGroupPayload(cool::IFolderPtr fl
    string groups(ch.level());
    groups += ";";
    bool start(true);
-   BOOST_FOREACH(string group, ch.groups()) {
+   for(string group : ch.groups()) {
       if(start) { start=false; } else { groups += ","; }
       groups += group;
    }
@@ -132,7 +129,7 @@ TrigConfCoolHLTPayloadConverters::createHLTChain( const coral::AttributeList & a
       // old style
       int sc(0); // signature counter
       vector<string> singleSigStrings = split(fullTeString,";");
-      BOOST_FOREACH(const string& sigdef, singleSigStrings ) {
+      for(const string& sigdef : singleSigStrings ) {
          if(sigdef=="") { ++sc; continue; } // empty signature (when signaturCounter is not continuious)
          // the information available in the signature will be the signature counter and the list of TEs
          HLTSignature * signature = new HLTSignature();
@@ -140,7 +137,7 @@ TrigConfCoolHLTPayloadConverters::createHLTChain( const coral::AttributeList & a
          signature->set_signature_counter(++sc);
 
          vector<string> teStrings = split(sigdef,",");
-         BOOST_FOREACH( const string& te, teStrings) {
+         for( const string& te : teStrings) {
             HLTTriggerElement * outte = new HLTTriggerElement( te );
             signature->outputTEs().push_back( outte );
             if(sequences && !sequences->hasTE(te) )
@@ -155,7 +152,7 @@ TrigConfCoolHLTPayloadConverters::createHLTChain( const coral::AttributeList & a
 
          // the part in front of the '|'
          vector< string > splitRecursive = HLTUtils::splitGroups( singleSigStrings[0] );
-         BOOST_FOREACH( string outtename, splitRecursive ) {
+         for( string outtename : splitRecursive ) {
             if(outtename.find(',')!=string::npos)
                outtename.erase(0,outtename.rfind(',')+1);
 
@@ -168,7 +165,7 @@ TrigConfCoolHLTPayloadConverters::createHLTChain( const coral::AttributeList & a
          // the part after the '|'
          int sc(0); // signature counter
          vector<string> signatureDesc = split(singleSigStrings[1],";");
-         BOOST_FOREACH(const string& sigdef, signatureDesc) {
+         for(const string& sigdef : signatureDesc) {
             if(sigdef=="") { sc++; continue; } // empty signature (when signaturCounter is not continous)
             // the information available in the signature will be the signature counter and the list of TEs
             HLTSignature * signature = new HLTSignature();
@@ -176,7 +173,7 @@ TrigConfCoolHLTPayloadConverters::createHLTChain( const coral::AttributeList & a
             signature->set_signature_counter(++sc);
 
             vector<string> sequenceDescriptions = HLTUtils::splitGroups(sigdef);
-            BOOST_FOREACH(string outtename, sequenceDescriptions) {
+            for(string outtename : sequenceDescriptions) {
                
                if(outtename.find(',') != string::npos)
                   outtename.erase(0,outtename.rfind(',')+1);
@@ -196,7 +193,7 @@ TrigConfCoolHLTPayloadConverters::createHLTChain( const coral::AttributeList & a
    string fullStreamString = al["StreamInfo"].data<cool::String255>();
    vector<string> singleStreams = split( fullStreamString, ";" );
 
-   BOOST_FOREACH( const string& stream_def, singleStreams ) {
+   for( const string& stream_def : singleStreams ) {
       HLTStreamTag * stream = new HLTStreamTag();
       vector<string> streamInfo = split(stream_def,",");
       if(streamInfo.size()==2) {
@@ -223,9 +220,9 @@ TrigConfCoolHLTPayloadConverters::addGroupsToHltChain( const coral::AttributeLis
    string level = lvlGrp[0];
    if(lvlGrp.size()==2) {
       vector<string> grV = split(lvlGrp[1],",");
-      BOOST_FOREACH(HLTChain* ch, chl) {
+      for(HLTChain* ch : chl) {
          if( ch->chain_counter()==cc && ch->level()==level) {
-            BOOST_FOREACH(string gr, grV) ch->addGroup(gr);
+            for(string gr : grV) ch->addGroup(gr);
             break;
          }
       }

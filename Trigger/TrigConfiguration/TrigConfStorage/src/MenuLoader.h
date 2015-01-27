@@ -51,6 +51,7 @@ namespace TrigConf {
       void loadPIT(TrigConf::Menu& menu);
       void loadItems(TrigConf::Menu& menu);
       void loadMonitoring(TrigConf::Menu& menu);
+      void createTipFromDirectThresholds(TrigConf::Menu& menu);
 
       /**@brief New versions for item definition in string*/
       TriggerItemNode* constructTree(const std::string& def, const std::vector<ThrInfo>&);

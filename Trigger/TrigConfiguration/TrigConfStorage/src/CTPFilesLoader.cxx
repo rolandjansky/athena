@@ -480,9 +480,13 @@ void TrigConf::CTPFilesLoader::parseHexString(std::vector<u_int>& vec,const std:
    static u_int postFix = 1;
    static u_int wordsize = (preFix + significantBits + postFix);	    
 
-   if(str.size() != wordsize * vec.size()) {
-      TRG_MSG_ERROR("File content of size " << str.size() << ", but expects " << wordsize * vec.size() << " [11 * " << vec.size() << "]");
-      throw std::runtime_error( "CTPFilesLoader: file of unexpected size" );
+   if(str.size() != 0) {
+      if(str.size() != wordsize * vec.size()) {
+         TRG_MSG_ERROR("File content from DB of size " << str.size() << ", but expects " << wordsize * vec.size() << " [11 * " << vec.size() << "]");
+         throw std::runtime_error( "CTPFilesLoader: file of unexpected size" );
+      }
+   } else {
+      TRG_MSG_INFO("DB File content is 0, which is expected for MC, Reprocessing, and ATN databases");
    }
 
    for(u_int i=0; i < vec.size(); ++i) {

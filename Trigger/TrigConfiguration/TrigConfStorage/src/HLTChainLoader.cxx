@@ -21,7 +21,7 @@ TrigConf::HLTChainLoader::load( HLTFrame& frame ) {
    m_smk=frame.smk();
 
    m_schemaversion = triggerDBSchemaVersion();
-   TRG_MSG_INFO("TriggerDB Schema version:  " << m_schemaversion);
+   TRG_MSG_INFO("Loading HLT chains");
 
    HLTChainList& chains = frame.theHLTChainList();
 
@@ -49,7 +49,7 @@ TrigConf::HLTChainLoader::load( HLTFrame& frame ) {
 void
 TrigConf::HLTChainLoader::loadChains( HLTChainList& chainlist ) {
 
-   TRG_MSG_INFO("Start loading chains with SMK " << m_smk);
+   TRG_MSG_INFO("Loading chains with SMK " << m_smk);
 
    std::unique_ptr< coral::IQuery > q( m_session.nominalSchema().newQuery() );
 
@@ -250,8 +250,6 @@ TrigConf::HLTChainLoader::loadStreams( HLTChainList& chainlist ) {
 
    q->setCondition( theCondition, bindings );
 
-   fillQuery(q.get(),output);
-   
    q->setDistinct();
    coral::ICursor& cursor = q->execute();
 
@@ -264,7 +262,11 @@ TrigConf::HLTChainLoader::loadStreams( HLTChainList& chainlist ) {
       string streamname   = rmtilde(row["TR.HTR_NAME"].data<string>());
       string type         = rmtilde(row["TR.HTR_TYPE"].data<string>());
       bool obeyLB         = row["TR.HTR_OBEYLB"].data<int>();
-      int prescale = boost::lexical_cast<int,string>(prescale_str);
+      int prescale = 1;
+      try {
+         prescale = boost::lexical_cast<int,string>(prescale_str);
+      }
+      catch(boost::bad_lexical_cast & e) {}
       chainlist.chain(chainname)->addStream( new HLTStreamTag(streamname, type, obeyLB, prescale) );
    }
    cursor.close();

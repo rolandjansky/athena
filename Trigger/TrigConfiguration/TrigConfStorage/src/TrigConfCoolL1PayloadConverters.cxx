@@ -10,6 +10,8 @@
 #include "CoralBase/Attribute.h"
 #include "CoralBase/AttributeList.h"
 
+#include "L1CommonCore/CTPdataformatVersion.h"
+
 #include "TrigConfL1Data/HelperFunctions.h"
 #include "TrigConfL1Data/PIT.h"
 #include "TrigConfL1Data/Menu.h"
@@ -280,6 +282,9 @@ TrigConfCoolL1PayloadConverters::createLvl1BGContentPayload( cool::IFolderPtr fl
 
 Record
 TrigConfCoolL1PayloadConverters::createLvl1BGDescPayload( cool::IFolderPtr fld, const BunchGroupSet& bgs, const Menu& lvl1Menu) {
+
+   CTPdataformatVersion ctpDataformat(lvl1Menu.thresholdConfig().ctpVersion());
+
    Record payload(fld->payloadSpecification());
 
 
@@ -299,7 +304,9 @@ TrigConfCoolL1PayloadConverters::createLvl1BGDescPayload( cool::IFolderPtr fld, 
       }
    }
 
-   vector<unsigned char> codes(TrigConfCoolFolderSpec::mBGDescBlobSize,0);
+   cout << "Writing bunch group description with size " << ctpDataformat.getMaxTrigItems() << endl;
+
+   vector<unsigned char> codes( ctpDataformat.getMaxTrigItems() ,0);
    for(TriggerItem* item: lvl1Menu.items() ) {
 
       unsigned int ctpid = item->ctpId();
@@ -324,9 +331,9 @@ TrigConfCoolL1PayloadConverters::createLvl1BGDescPayload( cool::IFolderPtr fld, 
    // Get the blob, resize it to actual size, and push codes into it
    //   coral::Blob& blob = payload["ItemToBunchGroupMap"].data<coral::Blob>();
    coral::Blob blob;
-   blob.resize( TrigConfCoolFolderSpec::mBGDescBlobSize );
+   blob.resize( codes.size() );
    unsigned char* p = static_cast<unsigned char*>(blob.startingAddress());
-   for (size_t i=0; i<static_cast<size_t>(TrigConfCoolFolderSpec::mBGDescBlobSize) ;++i,++p) {
+   for (size_t i=0; i < codes.size(); ++i,++p) {
       *p = codes[i];
    }
 
@@ -342,16 +349,16 @@ TrigConfCoolL1PayloadConverters::createLvl1BGDescPayload( cool::IFolderPtr fld, 
 // createLvl1InputMapPayload(std::string pitMap)
 // ------------------------------------------------------------
 cool::Record 
-TrigConfCoolL1PayloadConverters::createLvl1InputMapPayload( cool::IFolderPtr fld, const TrigConf::PIT& pit)
+TrigConfCoolL1PayloadConverters::createLvl1InputMapPayload( cool::IFolderPtr fld, const TrigConf::TIP& tip)
 {
    Record payload(fld->payloadSpecification());
-   payload["ThresholdName"].setValue<cool::String255>(pit.thresholdName());
-   payload["CtpinSlot"].setValue<cool::UChar>(static_cast<unsigned char>(pit.ctpinSlot()));
-   payload["CtpinConnector"].setValue<cool::UChar>(static_cast<unsigned char>(pit.ctpinConnector()));
-   payload["ThresholdBit"].setValue<cool::UChar>(static_cast<unsigned char>(pit.thresholdBit()));
-   payload["CableBit"].setValue<cool::UChar>(static_cast<unsigned char>(pit.cableBit()));
-   payload["ThresholdMapping"].setValue<cool::UChar>(static_cast<unsigned char>(pit.thresholdMapping()));
-   payload["ThresholdActive"].setValue<cool::Bool>(pit.thresholdActive());
+   payload["ThresholdName"].setValue<cool::String255>(tip.thresholdName());
+   payload["CtpinSlot"].setValue<cool::UChar>(static_cast<unsigned char>(tip.slot()));
+   payload["CtpinConnector"].setValue<cool::UChar>(static_cast<unsigned char>(tip.connector()));
+   payload["ThresholdBit"].setValue<cool::UChar>(static_cast<unsigned char>(tip.thresholdBit()));
+   payload["CableBit"].setValue<cool::UChar>(static_cast<unsigned char>(tip.cableBit()));
+   payload["ThresholdMapping"].setValue<cool::UChar>(static_cast<unsigned char>(tip.thresholdMapping()));
+   payload["ThresholdActive"].setValue<cool::Bool>(tip.thresholdActive());
    return payload;
 }
 
@@ -540,13 +547,13 @@ TrigConfCoolL1PayloadConverters::readLvl1BGDesc(const coral::AttributeList & al)
    const coral::Blob& blob = al["ItemToBunchGroupMap"].data<coral::Blob>();
    // check blob size - if we ever change the blob size, have to work
    // with schema versions here
-   if(blob.size() != TrigConfCoolFolderSpec::mBGDescBlobSize)
+
+   if(blob.size() != 256 && blob.size() != 512)
       throw runtime_error("Read BLOB for ItemToBunchGroupMap of unexpected size!");
 
    const unsigned char* p = static_cast<const unsigned char*>(blob.startingAddress());
-   for (size_t i = 0; i < static_cast<size_t>(blob.size());++i,++p) {
+   for (size_t i = 0; i < blob.size(); ++i,++p) {
       unsigned char mask = (*p);
-      if( i>255 ) throw runtime_error("Exceed 256 items!");
       codes.insert( make_pair(i,mask) );
    }
    return make_pair(names,codes);

@@ -17,7 +17,10 @@ namespace coral {
    class ISessionProxy;
 }
 
+
 namespace TrigConf {
+
+   class ReplicaSorter;
   
    /**@brief Manager of the database session
     * 
@@ -30,32 +33,6 @@ namespace TrigConf {
       /**@brief constructor */
       SessionMgr();
 
-//       /**@brief constructor
-//        *
-//        * @param cs connection string
-//        * @param user user name, if not specified the XML authentication will be used
-//        * @param password password string (only used in connection with a user name)
-//        * @param o output stream for all messages
-//        */
-//       SessionMgr( const std::string& cs,
-//                   const std::string& user = "",
-//                   const std::string& password = "");
-
-//       /**@brief constructor
-//        *
-//        * @param type Server technology 
-//        * @param server Server name
-//        * @param name Database name, or schema name, or, if server and type are not specified, alias name for lookup
-//        * @param user user name, if not specified the XML authentication will be used
-//        * @param password password string (only used in connection with a user name)
-//        * @param o output stream for all messages
-//        */
-//       SessionMgr( const std::string& type,
-//                   const std::string& server, 
-//                   const std::string& name,
-//                   const std::string& user,
-//                   const std::string& password);
-
       /**@brief destructor*/
       ~SessionMgr();
 
@@ -64,7 +41,6 @@ namespace TrigConf {
     
       /**@brief instantiates the session*/
       coral::ISessionProxy& createSession();
-//       coral::ISession& createSessionOld(int retrialPeriod=30, int retrialTimeout=300, int connectionTimeout=5);
 
       /**@brief SQL -> C++ type conversion mapping for Oracle database to match MySQL*/
       void setTypeConversionRules();
@@ -94,7 +70,6 @@ namespace TrigConf {
       const std::string & dbUser() const { return m_user; }
       const std::string & dbPassword() const { return m_password; }
 
-
    private:
 
       void buildConnectionString();
@@ -115,6 +90,9 @@ namespace TrigConf {
       int                    m_retrialPeriod {0};
       int                    m_retrialTimeout {0};
       int                    m_connectionTimeout {0};
+
+      ReplicaSorter *        m_replicaSorter { nullptr }; // private replica sorter in case of standalone usage of SessionMgr
+
    };
 }
 

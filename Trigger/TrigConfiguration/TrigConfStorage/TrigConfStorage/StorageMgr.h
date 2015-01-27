@@ -105,6 +105,14 @@ namespace TrigConf {
       void setUseFrontier(bool useFrontier) { m_useFrontier = useFrontier; } 
       bool useFrontier() const { return m_useFrontier; } 
 
+      void setRetrialPeriod(int retrialPeriod) { m_retrialPeriod = retrialPeriod; }
+      void setRetrialTimeout(int retrialTimeout) { m_retrialTimeout = retrialTimeout; }
+      void setConnectionTimeout(int connectionTimeout) { m_connectionTimeout = connectionTimeout; }
+
+      int retrialPeriod() const { return m_retrialPeriod; }
+      int retrialTimeout() const { return m_retrialTimeout; }
+      int connectionTimeout() const { return m_connectionTimeout; }
+
    private:
 
       template< class L >
@@ -124,6 +132,11 @@ namespace TrigConf {
       std::string     m_password {""};///< password         
       bool            m_useFrontier {false}; ///< using frontier to connect to oracle (if set, disables sqlite) 
       std::ostream &  m_ostream; ///< output stream    
+
+      int             m_retrialPeriod {0};
+      int             m_retrialTimeout {0};
+      int             m_connectionTimeout {0};
+
    };
 }
 
