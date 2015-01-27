@@ -24,7 +24,7 @@ def JetCleaningToolConfig_VeryLoose(theTool) :
     This defines the jet cleaning cut values for the very Loose (Looser) operating point
     """
     theTool = GetTool(theTool)
-    theTool.cutName = 'VeryLooseBad'
+    theTool.CutLevel = 'VeryLooseBad'
     pass
 
 def JetCleaningToolConfig_Loose(theTool) :
@@ -32,7 +32,7 @@ def JetCleaningToolConfig_Loose(theTool) :
     This defines the jet cleaning cut values for the Loose operating point.
     """
     theTool = GetTool(theTool)
-    theTool.cutName = 'LooseBad'
+    theTool.CutLevel = 'LooseBad'
     pass
 
 def JetCleaningToolConfig_Medium(theTool) :
@@ -40,7 +40,7 @@ def JetCleaningToolConfig_Medium(theTool) :
     This defines the jet cleaning cut values for the Medium operating point.
     """
     theTool = GetTool(theTool)
-    theTool.cutName = 'MediumBad'
+    theTool.CutLevel = 'MediumBad'
     pass
 
 def JetCleaningToolConfig_Tight(theTool) :
@@ -48,6 +48,6 @@ def JetCleaningToolConfig_Tight(theTool) :
     This defines the jet cleaning cut values for the Tight operating point.
     """
     theTool = GetTool(theTool)
-    theTool.cutName = 'TightBad'
+    theTool.CutLevel = 'TightBad'
     pass
 

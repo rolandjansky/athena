@@ -1,12 +1,12 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
-## Name:        ConfiguredAthJetCleaningTools
+## Name:        ConfiguredJetCleaningTools
 ##
 ## Author:      Karsten Koeneke (CERN)
 ## Created:     July 2011
 ##
-## Description: Apply the default configurations for the AthJetCleaningTools,
+## Description: Apply the default configurations for the JetCleaningTools,
 ##              but allow for overwriting them with user-defined values.
 ##
 ##=============================================================================
@@ -16,22 +16,21 @@ from PATCore.HelperUtils import SetToolProperties
 from AthenaCommon import CfgMgr
 
 # Import the needed stuff specific to the JetCleaning
-from JetSelectorTools.JetSelectorToolsConf import AthJetCleaningTool
+from JetSelectorTools.JetSelectorToolsConf import JetCleaningTool
 from JetSelectorTools.JetCleaningCutDefs import *
 
 
 
-def ConfiguredAthJetCleaningTool_VeryLoose( name, **kw ):
+def ConfiguredJetCleaningTool_VeryLoose( name, **kw ):
     """
-    Configure the AthJetCleaningTool with the default VeryLoose cuts
+    Configure the JetCleaningTool with the default VeryLoose cuts
     and allow for (re-)setting of all provided cuts.
     """
     # Set some default properties, but don't overwrite them if they already exist
-    kw["userDataPrefix"] = kw.get( "userDataPrefix", "" )
-    kw["userDataLabel"]  = kw.get( "userDataLabel", "isCleanVeryLoose" )
+    kw["CutLevel"] = kw.get( "CutLevel" , "VeryLooseBad" )
 
     # Create and instance of the tool
-    tool = CfgMgr.AthJetCleaningTool(name, **kw)
+    tool = CfgMgr.JetCleaningTool(name, **kw)
 
     # Configure it with the standard configuration
     JetCleaningToolConfig_VeryLoose( tool )
@@ -44,17 +43,13 @@ def ConfiguredAthJetCleaningTool_VeryLoose( name, **kw ):
 
 
 
-def ConfiguredAthJetCleaningTool_Loose( name, **kw ):
+def ConfiguredJetCleaningTool_Loose( name, **kw ):
     """
-    Configure the AthJetCleaningTool with the default Loose cuts
+    Configure the JetCleaningTool with the default Loose cuts
     and allow for (re-)setting of all provided cuts.
     """
-    # Set some default properties, but don't overwrite them if they already exist
-    kw["userDataPrefix"] = kw.get( "userDataPrefix", "" )
-    kw["userDataLabel"]  = kw.get( "userDataLabel", "isCleanLoose" )
-    
     # Create and instance of the tool
-    tool = CfgMgr.AthJetCleaningTool(name, **kw)
+    tool = CfgMgr.JetCleaningTool(name, **kw)
 
     # Configure it with the standard configuration
     JetCleaningToolConfig_Loose( tool )
@@ -67,17 +62,13 @@ def ConfiguredAthJetCleaningTool_Loose( name, **kw ):
 
 
 
-def ConfiguredAthJetCleaningTool_Medium( name, **kw ):
+def ConfiguredJetCleaningTool_Medium( name, **kw ):
     """
-    Configure the AthJetCleaningTool with the default Medium cuts
+    Configure the JetCleaningTool with the default Medium cuts
     and allow for (re-)setting of all provided cuts.
     """
-    # Set some default properties, but don't overwrite them if they already exist
-    kw["userDataPrefix"] = kw.get( "userDataPrefix", "" )
-    kw["userDataLabel"]  = kw.get( "userDataLabel", "isCleanMedium" )
-    
     # Create and instance of the tool
-    tool = CfgMgr.AthJetCleaningTool(name, **kw)
+    tool = CfgMgr.JetCleaningTool(name, **kw)
 
     # Configure it with the standard configuration
     JetCleaningToolConfig_Medium( tool )
@@ -90,17 +81,13 @@ def ConfiguredAthJetCleaningTool_Medium( name, **kw ):
 
 
 
-def ConfiguredAthJetCleaningTool_Tight( name, **kw ):
+def ConfiguredJetCleaningTool_Tight( name, **kw ):
     """
-    Configure the AthJetCleaningTool with the default Tight cuts
+    Configure the JetCleaningTool with the default Tight cuts
     and allow for (re-)setting of all provided cuts.
     """
-    # Set some default properties, but don't overwrite them if they already exist
-    kw["userDataPrefix"] = kw.get( "userDataPrefix", "" )
-    kw["userDataLabel"]  = kw.get( "userDataLabel", "isCleanTight" )
-    
     # Create and instance of the tool
-    tool = CfgMgr.AthJetCleaningTool(name, **kw)
+    tool = CfgMgr.JetCleaningTool(name, **kw)
 
     # Configure it with the standard configuration
     JetCleaningToolConfig_Tight( tool )

@@ -47,9 +47,6 @@ class JetCleaningTool : public asg::AsgTool , virtual public IJetSelector
     /** Standard destructor */
     ~JetCleaningTool() {}
 
-    /** Copy constructor */
-    JetCleaningTool(const JetCleaningTool& jct) : asg::AsgTool( jct.name() ) , m_cutName(jct.m_cutName) {}
-
     /** Initialize method */
     virtual StatusCode initialize();
 
@@ -82,7 +79,7 @@ class JetCleaningTool : public asg::AsgTool , virtual public IJetSelector
   private:
     /** Name of the cut */    
     std::string m_cutName;    
-    CleaningLevel cutLevel;   
+    CleaningLevel m_cutLevel;   
 
     /** Previous decision */
     mutable Root::TAccept m_accept;
