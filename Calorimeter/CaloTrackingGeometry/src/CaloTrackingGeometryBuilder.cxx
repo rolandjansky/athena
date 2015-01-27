@@ -343,8 +343,8 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
     ATH_MSG_VERBOSE( "--------------- detailed output ---------------------------------------------------------- " );
     std::vector<const Trk::TrackingVolume*>::const_iterator lArVolIter    = lArVolumes->begin();
     std::vector<const Trk::TrackingVolume*>::const_iterator lArVolIterEnd = lArVolumes->end();
-    for ( ; lArVolIter != lArVolIterEnd; (*lArVolIter)->screenDump(msg(MSG::VERBOSE)), ++lArVolIter)
-      ;
+    for ( ; lArVolIter != lArVolIterEnd; ++lArVolIter)
+     if (*lArVolIter) (*lArVolIter)->screenDump(msg(MSG::VERBOSE)) ;
   }           
   
   // LAr Barrel part  
@@ -1168,7 +1168,8 @@ const Trk::TrackingGeometry* Calo::CaloTrackingGeometryBuilder::trackingGeometry
    lArCentralBarrelSector =  m_trackingVolumeCreator->createContainerTrackingVolume(
 										    lArCentralBarrelSectorVolumes,
 										    *m_caloMaterial,
-										    "Calo::Containers::LAr::CentralBarrelSector");
+										    "Calo::Containers::LAr::CentralBarrelSector",
+										    false, true);
    /////////////////////////////////////////////////////////////////////////////////////
    // side buffers   
    // the Tile Crack volume (TileGap3, enum 17) inserted here
