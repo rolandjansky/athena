@@ -395,13 +395,27 @@ const Trk::Track* InDet::InDetAmbiTrackSelectionTool::getCleanedOutTrack(const T
   // special cut, do not allow the last hit to be to far away or after to many holes
   if (ispatterntrack                                                                              && // pattern track and
       totalSiHits > m_minHits                                                                     && // we have enough hits on the track
-      ( nsctholes>3 || (lastrot->globalPosition()-lastbutonerot->globalPosition()).mag()>1000*CLHEP::mm)) { // to many holes or distance cut
-    ATH_MSG_DEBUG ("Special cut on distance or to many holes, reject last hit on track !");
+      (lastrot && lastbutonerot)                                                                  && // has enough ROTs
+      (lastrot->globalPosition()-lastbutonerot->globalPosition()).mag()>1000*CLHEP::mm) { // distance cut
+    ATH_MSG_DEBUG ("Special cut on distance, reject last hit on track !");
     tsosType[lastrotindex] = RejectedHit;
     numUnused--; // update counter
     // mark track as bad !
     TrkCouldBeAccepted     = false;
   }
+
+  // special cut, do not allow the last hit to be after to many holes
+  if (ispatterntrack                                                                              && // pattern track and
+      totalSiHits > m_minHits                                                                     && // we have enough hits on the track
+      nsctholes>3 ) { // too many holes cut
+    ATH_MSG_DEBUG ("Special cut on too many holes, reject last hit on track !");
+    tsosType[lastrotindex] = RejectedHit;
+    numUnused--; // update counter
+    // mark track as bad !
+    TrkCouldBeAccepted     = false;
+  }
+
+  
 
   // get chi2/NDF, if track is fitted
   if ( !ispatterntrack ) {
