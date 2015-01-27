@@ -21,6 +21,10 @@
 
 #define TRKEXTOOLS_MAXUPDATES 100
 
+#ifndef COVARIANCEUPDATEWITHCHECK
+#define COVARIANCEUPDATEWITHCHECK(cov, sign, value) cov += ( sign > 0 ? value : ( value > cov ? 0 : sign*value ) )
+#endif
+
 class TTree;
 
 namespace Trk {
