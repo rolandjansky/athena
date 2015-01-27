@@ -29,6 +29,8 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
+#include "TrigT1Interfaces/TrigT1CaloDefs.h"
+
 #include "TrigT1CaloMonitoring/PPrMon.h"
 #include "TrigT1CaloMonitoringTools/TrigT1CaloMonErrorTool.h"
 #include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
@@ -39,6 +41,8 @@
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
 #include "TrigT1CaloEvent/TriggerTower_ClassDEF.h"
 #include "TrigT1CaloUtils/DataError.h"
+
+#include "xAODTrigL1Calo/xAODTrigL1Calo/TriggerTowerContainer.h"
 
 
 /*---------------------------------------------------------*/
@@ -63,10 +67,6 @@ PPrMon::PPrMon(const std::string & type, const std::string & name,
     m_v_ppm_had_2d_etaPhi_tt_lutcp_Threshold(0),
     m_h_ppm_em_2d_etaPhi_tt_lutcp_AverageEt(0),
     m_h_ppm_had_2d_etaPhi_tt_lutcp_AverageEt(0),
-    m_v_ppm_em_2d_etaPhi_tt_lutjep_Threshold(0),
-    m_v_ppm_had_2d_etaPhi_tt_lutjep_Threshold(0),
-    m_h_ppm_em_2d_etaPhi_tt_lutjep_AverageEt(0),
-    m_h_ppm_had_2d_etaPhi_tt_lutjep_AverageEt(0),
     m_h_ppm_em_1d_tt_lutcp_Et(0),
     m_h_ppm_em_1d_tt_lutcp_Eta(0),
     m_h_ppm_em_1d_tt_lutcp_Phi(0),
@@ -75,6 +75,10 @@ PPrMon::PPrMon(const std::string & type, const std::string & name,
     m_h_ppm_had_1d_tt_lutcp_Phi(0),
     m_h_ppm_1d_tt_lutcp_LutPerBCN(0),
     m_h_ppm_2d_tt_lutcp_BcidBits(0),
+    m_v_ppm_em_2d_etaPhi_tt_lutjep_Threshold(0),
+    m_v_ppm_had_2d_etaPhi_tt_lutjep_Threshold(0),
+    m_h_ppm_em_2d_etaPhi_tt_lutjep_AverageEt(0),
+    m_h_ppm_had_2d_etaPhi_tt_lutjep_AverageEt(0),
     m_h_ppm_em_1d_tt_lutjep_Et(0),
     m_h_ppm_em_1d_tt_lutjep_Eta(0),
     m_h_ppm_em_1d_tt_lutjep_Phi(0),
@@ -97,6 +101,8 @@ PPrMon::PPrMon(const std::string & type, const std::string & name,
 {
   declareProperty("BS_TriggerTowerContainer",
                   m_TriggerTowerContainerName = "LVL1TriggerTowers");
+  declareProperty("BS_xAODTriggerTowerContainer",
+                  m_xAODTriggerTowerContainerName = "xAODTriggerTowers");
   declareProperty("LUTHitMap_LumiBlocks",  m_TT_HitMap_LumiBlocks = 10,
         "The number of back lumiblocks for separate LUT hitmaps online");
   declareProperty("ADCHitMap_Thresh",      m_TT_ADC_HitMap_Thresh = 15,
@@ -280,8 +286,6 @@ StatusCode PPrMon::bookHistogramsRecurrent()
     if (m_environment == AthenaMonManager::online || m_onlineTest) {
       m_v_ppm_em_2d_etaPhi_tt_lutcp_Threshold.clear();
       m_v_ppm_had_2d_etaPhi_tt_lutcp_Threshold.clear();
-      m_v_ppm_em_2d_etaPhi_tt_lutjep_Threshold.clear();
-      m_v_ppm_had_2d_etaPhi_tt_lutjep_Threshold.clear();
       m_histTool->setMonGroup(&TT_LutCpHitMaps);
       for (unsigned int thresh = 0; thresh < m_TT_HitMap_ThreshVec.size(); ++thresh) {
         buffer.str("");
@@ -296,7 +300,16 @@ StatusCode PPrMon::bookHistogramsRecurrent()
 	       "ppm_had_2d_etaPhi_tt_lutcp_Threshold"+buffer_name.str(),
 	       "#eta - #phi Map of HAD LUT-CP > "+buffer.str());
 	m_v_ppm_had_2d_etaPhi_tt_lutcp_Threshold.push_back(hist);
-	hist = m_histTool->bookPPMEmEtaVsPhi(
+      }
+      m_v_ppm_em_2d_etaPhi_tt_lutjep_Threshold.clear();
+      m_v_ppm_had_2d_etaPhi_tt_lutjep_Threshold.clear();
+      m_histTool->setMonGroup(&TT_LutJepHitMaps);
+      for (unsigned int thresh = 0; thresh < m_TT_HitMap_ThreshVec.size(); ++thresh) {
+        buffer.str("");
+        buffer_name.str("");
+        buffer << m_TT_HitMap_ThreshVec[thresh];
+        buffer_name << std::setw(2) << std::setfill('0') << thresh;
+	TH2F_LW* hist = m_histTool->bookPPMEmEtaVsPhi(
 	       "ppm_em_2d_etaPhi_tt_lutjep_Threshold"+buffer_name.str(),
 	       "#eta - #phi Map of EM LUT-JEP > "+buffer.str());
 	m_v_ppm_em_2d_etaPhi_tt_lutjep_Threshold.push_back(hist);
@@ -656,7 +669,7 @@ StatusCode PPrMon::bookHistogramsRecurrent()
     m_histTool->unsetMonGroup();
     if (newRun) m_histBooked = true;
     
-  }
+ }
 
   return StatusCode::SUCCESS;
 }
@@ -684,12 +697,14 @@ StatusCode PPrMon::fillHistograms()
   std::vector<int> overview(8);
   
   //Retrieve TriggerTowers from SG
-  const TriggerTowerCollection* TriggerTowerTES = 0; 
+  const xAOD::TriggerTowerContainer_v2* TriggerTowerTES = 0;
   StatusCode sc = evtStore()->retrieve(TriggerTowerTES,
-                                                m_TriggerTowerContainerName); 
+						   m_xAODTriggerTowerContainerName);
+  
   if (sc.isFailure() || !TriggerTowerTES) {
     if (debug) msg(MSG::DEBUG) << "No TriggerTower found in TES at "
-                               << m_TriggerTowerContainerName << endreq ;
+                               << m_xAODTriggerTowerContainerName << endreq ;
+    std::cout<<"No TriggerTower found in TES as " << m_xAODTriggerTowerContainerName << std::endl;
     return StatusCode::SUCCESS;
   }
 
@@ -709,360 +724,364 @@ StatusCode PPrMon::fillHistograms()
   // ================= Container: TriggerTower ===========================
   // =====================================================================
 
-  TriggerTowerCollection::const_iterator TriggerTowerIterator =
+  xAOD::TriggerTowerContainer_v2::const_iterator TriggerTowerIterator =
                                                       TriggerTowerTES->begin(); 
-  TriggerTowerCollection::const_iterator TriggerTowerIteratorEnd =
+  xAOD::TriggerTowerContainer_v2::const_iterator TriggerTowerIteratorEnd =
                                                       TriggerTowerTES->end(); 
  
   for (; TriggerTowerIterator != TriggerTowerIteratorEnd;
                                                 ++TriggerTowerIterator) {
     
-    //---------------------------- EM Energy -----------------------------
-    // em LUT Peak per channel
-    const int EmEnergy = (*TriggerTowerIterator)->emEnergy();
-    const int EmEnergy2 = EmEnergy/2;
-    const double eta   = (*TriggerTowerIterator)->eta();
-    const double phi   = (*TriggerTowerIterator)->phi();
+    const int layer = (*TriggerTowerIterator)->layer();
+    const double eta = (*TriggerTowerIterator)->eta();
+    const double phi = (*TriggerTowerIterator)->phi();
+    const int cpET = (*TriggerTowerIterator)->cpET();
+    const int jepET = (*TriggerTowerIterator)->jepET();
+    //Check if TT is in EM or HAD layer:
+    //========== FOR ELECTROMAGNETIC LAYER ================================
+    if (layer == 0) {
+      //--------------------- LUT-----------------------------------------
+	// em energy distributions per detector region
+      if (cpET > 0) {
+	m_h_ppm_em_1d_tt_lutcp_Eta->Fill(eta, 1);
+	m_histTool->fillPPMPhi(m_h_ppm_em_1d_tt_lutcp_Phi, eta, phi);
+	m_h_ppm_em_1d_tt_lutcp_Et->Fill(cpET, 1);
 
-    // em energy distributions per detector region
-    if (EmEnergy > 0) {
-      m_h_ppm_em_1d_tt_lutcp_Eta->Fill(eta, 1);
-      m_histTool->fillPPMPhi(m_h_ppm_em_1d_tt_lutcp_Phi, eta, phi);
-      m_h_ppm_em_1d_tt_lutcp_Et->Fill(EmEnergy, 1);
-      if (EmEnergy > 5) {
-        m_histTool->fillPPMEmEtaVsPhi(m_h_ppm_em_2d_etaPhi_tt_lutcp_AverageEt, eta, phi,
-	                                                             EmEnergy);
-        // Bunch crossing and BCID bits
-        m_h_ppm_1d_tt_lutcp_LutPerBCN->Fill(bunchCrossing);
-      }
-      m_h_ppm_2d_tt_lutcp_BcidBits->Fill((*TriggerTowerIterator)->emBCID(), EmEnergy);
-    }
-    if (EmEnergy2 > 0) {
-      m_h_ppm_em_1d_tt_lutjep_Eta->Fill(eta, 1);
-      m_histTool->fillPPMPhi(m_h_ppm_em_1d_tt_lutjep_Phi, eta, phi);
-      m_h_ppm_em_1d_tt_lutjep_Et->Fill(EmEnergy2, 1);
-      if (EmEnergy2 > 5) {
-        m_histTool->fillPPMEmEtaVsPhi(m_h_ppm_em_2d_etaPhi_tt_lutjep_AverageEt, eta, phi,
-	                                                             EmEnergy2);
-        // Bunch crossing and BCID bits
-        m_h_ppm_1d_tt_lutjep_LutPerBCN->Fill(bunchCrossing);
-      }
-      m_h_ppm_2d_tt_lutjep_BcidBits->Fill((*TriggerTowerIterator)->emBCID(), EmEnergy2);
-    }
-	 
-    //---------------------------- EM LUT HitMaps -----------------------------
-    for (unsigned int thresh = 0; thresh < m_TT_HitMap_ThreshVec.size(); ++thresh) {
-      if (EmEnergy > 0) {
-        unsigned int u_EmEnergy = static_cast<unsigned int>(EmEnergy); 
-        if (u_EmEnergy > m_TT_HitMap_ThreshVec[thresh]) {
-   	  m_histTool->fillPPMEmEtaVsPhi(m_v_ppm_em_2d_etaPhi_tt_lutcp_Threshold[thresh],
-	                                                            eta, phi, 1);
-	  if (m_environment == AthenaMonManager::online || m_onlineTest) {
-	    m_histTool->fillPPMEmEtaVsPhi(
-	      m_v_ppm_em_2d_etaPhi_tt_lutcp_Threshold[thresh+m_TT_HitMap_ThreshVec.size()],
-	      eta, phi, 1);
-          }
-        }
-      }
-      if (EmEnergy2 > 0) {
-        unsigned int u_EmEnergy2 = static_cast<unsigned int>(EmEnergy2); 
-        if (u_EmEnergy2 > m_TT_HitMap_ThreshVec[thresh]) {
-   	  m_histTool->fillPPMEmEtaVsPhi(m_v_ppm_em_2d_etaPhi_tt_lutjep_Threshold[thresh],
-	                                                            eta, phi, 1);
-	  if (m_environment == AthenaMonManager::online || m_onlineTest) {
-	    m_histTool->fillPPMEmEtaVsPhi(
-	      m_v_ppm_em_2d_etaPhi_tt_lutjep_Threshold[thresh+m_TT_HitMap_ThreshVec.size()],
-	      eta, phi, 1);
-          }
-        }
-      }
-    }
-    
-    //---------------------------- HAD Energy -----------------------------
-    // had LUT peak per channel
-    const int HadEnergy = (*TriggerTowerIterator)->hadEnergy();
-    const int HadEnergy2 = HadEnergy*2;
+	if (cpET > 5) {
+	  m_histTool->fillPPMEmEtaVsPhi(m_h_ppm_em_2d_etaPhi_tt_lutcp_AverageEt, eta, phi,
+								      cpET);
+	  // Bunch crossing and BCID bits
+	  m_h_ppm_1d_tt_lutcp_LutPerBCN->Fill(bunchCrossing);
+	}
+	m_h_ppm_2d_tt_lutcp_BcidBits->Fill((*TriggerTowerIterator)->bcidVec()[(*TriggerTowerIterator)->peak()], cpET); //Hanno: Vector entry specified
 	
-    // had energy distribution per detector region
-    if (HadEnergy>0) {
-      m_h_ppm_had_1d_tt_lutcp_Eta->Fill(eta, 1);
-      m_histTool->fillPPMPhi(m_h_ppm_had_1d_tt_lutcp_Phi, eta, phi);
-      m_h_ppm_had_1d_tt_lutcp_Et->Fill(HadEnergy,1);
-      if (HadEnergy>5) {
-        m_histTool->fillPPMHadEtaVsPhi(m_h_ppm_had_2d_etaPhi_tt_lutcp_AverageEt, eta, phi,
-	                                                            HadEnergy);
-        // Bunch crossing and BCID bits
-        m_h_ppm_1d_tt_lutcp_LutPerBCN->Fill(bunchCrossing);
+        }
+      if (jepET > 0) {
+	m_h_ppm_em_1d_tt_lutjep_Eta->Fill(eta, 1);
+	m_histTool->fillPPMPhi(m_h_ppm_em_1d_tt_lutjep_Phi, eta, phi);
+	m_h_ppm_em_1d_tt_lutjep_Et->Fill(jepET, 1);
+	if (jepET > 5) {
+	  m_histTool->fillPPMEmEtaVsPhi(m_h_ppm_em_2d_etaPhi_tt_lutjep_AverageEt, eta, phi,
+								      jepET);
+	  // Bunch crossing and BCID bits
+	  m_h_ppm_1d_tt_lutjep_LutPerBCN->Fill(bunchCrossing);
+	}
+	m_h_ppm_2d_tt_lutjep_BcidBits->Fill((*TriggerTowerIterator)->bcidVec()[(*TriggerTowerIterator)->peak()], jepET); //Hanno: Vector entry specified
       }
-      m_h_ppm_2d_tt_lutcp_BcidBits->Fill((*TriggerTowerIterator)->hadBCID(), HadEnergy);
-    }
-    if (HadEnergy2>0) {
-      m_h_ppm_had_1d_tt_lutjep_Eta->Fill(eta, 1);
-      m_histTool->fillPPMPhi(m_h_ppm_had_1d_tt_lutjep_Phi, eta, phi);
-      m_h_ppm_had_1d_tt_lutjep_Et->Fill(HadEnergy2,1);
-      if (HadEnergy>5) {
-        m_histTool->fillPPMHadEtaVsPhi(m_h_ppm_had_2d_etaPhi_tt_lutjep_AverageEt, eta, phi,
-	                                                            HadEnergy2);
-        // Bunch crossing and BCID bits
-        m_h_ppm_1d_tt_lutjep_LutPerBCN->Fill(bunchCrossing);
+	  
+      //---------------------------- EM LUT HitMaps -----------------------------
+      for (unsigned int thresh = 0; thresh < m_TT_HitMap_ThreshVec.size(); ++thresh) {
+	if (cpET > 0) {
+	  unsigned int u_cpET = static_cast<unsigned int>(cpET); 
+	  if (u_cpET > m_TT_HitMap_ThreshVec[thresh]) {
+	    m_histTool->fillPPMEmEtaVsPhi(m_v_ppm_em_2d_etaPhi_tt_lutcp_Threshold[thresh],
+								      eta, phi, 1);
+	    if (m_environment == AthenaMonManager::online || m_onlineTest) {
+	      m_histTool->fillPPMEmEtaVsPhi(
+		m_v_ppm_em_2d_etaPhi_tt_lutcp_Threshold[thresh+m_TT_HitMap_ThreshVec.size()],
+		eta, phi, 1);
+	    }
+	  }
+	}
+	if (jepET > 0) {
+	  unsigned int u_jepET = static_cast<unsigned int>(jepET); 
+	  if (u_jepET > m_TT_HitMap_ThreshVec[thresh]) {
+	    m_histTool->fillPPMEmEtaVsPhi(m_v_ppm_em_2d_etaPhi_tt_lutjep_Threshold[thresh],
+								      eta, phi, 1);
+	    if (m_environment == AthenaMonManager::online || m_onlineTest) {
+	      m_histTool->fillPPMEmEtaVsPhi(
+		m_v_ppm_em_2d_etaPhi_tt_lutjep_Threshold[thresh+m_TT_HitMap_ThreshVec.size()],
+		eta, phi, 1);
+	    }
+	  }
+	}
       }
-      m_h_ppm_2d_tt_lutjep_BcidBits->Fill((*TriggerTowerIterator)->hadBCID(), HadEnergy2);
-    }
-    
-    //---------------------------- had LUT HitMaps -----------------------------
-    for (unsigned int thresh = 0; thresh < m_TT_HitMap_ThreshVec.size(); ++thresh) {
-      if (HadEnergy > 0) {
-        unsigned int u_HadEnergy = static_cast<unsigned int>(HadEnergy);
-        if (u_HadEnergy > m_TT_HitMap_ThreshVec[thresh]) {
-	  m_histTool->fillPPMHadEtaVsPhi(m_v_ppm_had_2d_etaPhi_tt_lutcp_Threshold[thresh],
-	                                                            eta, phi, 1);
-          if (m_environment == AthenaMonManager::online || m_onlineTest) {
-	    m_histTool->fillPPMHadEtaVsPhi(
-	      m_v_ppm_had_2d_etaPhi_tt_lutcp_Threshold[thresh+m_TT_HitMap_ThreshVec.size()],
-	      eta, phi, 1);
+      
+      //---------------------------- ADC HitMaps per timeslice -----------------
+      unsigned int tslice = (*TriggerTowerIterator)->adcPeak();
+     
+      if (tslice < ((*TriggerTowerIterator)->adc()).size()) {
+	const int ADC = ((*TriggerTowerIterator)->adc())[tslice];
+	if (ADC > m_TT_ADC_HitMap_Thresh) {
+	  m_histTool->fillPPMEmEtaVsPhi(m_h_ppm_em_2d_etaPhi_tt_adc_HitMap, eta, phi, 1);
+	  m_histTool->fillPPMEmEtaVsPhi(m_h_ppm_em_2d_etaPhi_tt_adc_ProfileHitMap, eta, phi,
+									ADC);
+	}
+      }
+      
+      //---------------------------- Timing of FADC Signal ---------------------    
+      const std::vector<short unsigned int>& ADC((*TriggerTowerIterator)->adc());
+
+      double max = recTime(ADC, m_EMFADCCut);
+//       log << MSG::INFO << "TimeSlice of Maximum "<< max<< endreq ;  // Doesn't work anymore with xAOD, or never worked?
+      if (max >= 0.) {
+	m_histTool->fillPPMEmEtaVsPhi(m_h_ppm_em_2d_etaPhi_tt_adc_MaxTimeslice, eta, phi,
+									max+1.);
+	m_h_ppm_em_1d_tt_adc_MaxTimeslice->Fill(max);
+      }      
+      //------------------------ Signal shape profile --------------------------
+
+      if (cpET> 0) {
+	const int emPart  = partition(0, eta);
+	std::vector<short unsigned int>::const_iterator it  = ADC.begin();
+	std::vector<short unsigned int>::const_iterator itE = ADC.end();
+	for (int slice = 0; it != itE && slice < m_SliceNo; ++it, ++slice) {
+	  m_v_ppm_1d_tt_adc_SignalProfile[emPart]->Fill(slice, *it);
+	}
+      }
+      
+      //---------------------------- SubStatus Word errors ---------------------
+      //----------------------------- em ---------------------------------------
+
+      using LVL1::DataError;
+
+      if ((*TriggerTowerIterator)-> error()) {
+// 
+	const DataError err((*TriggerTowerIterator)-> error());
+
+        const L1CaloCoolChannelId CoolId(m_ttTool->channelID(eta, phi, 0));
+        int crate     = CoolId.crate();
+        int module    = CoolId.module();
+        int submodule = CoolId.subModule();
+        int channel   = CoolId.channel();
+  
+        // em signals Crate 0-3
+        //em+had FCAL signals get processed in one crate (Crates 4-7)
+  
+        int ypos = (crate < 4) ? module+crate*16 : module+(crate-4)*16;
+  
+        for (int bit = 0; bit < 8; ++bit) {
+          if (err.get(bit + DataError::ChannelDisabled)) {
+            if (crate < 4) m_h_ppm_2d_ErrorField03->Fill(bit, ypos);
+    	  else           m_h_ppm_2d_ErrorField47->Fill(bit, ypos);
+  	  m_histTool->fillEventNumber(m_h_ppm_2d_ASICErrorEventNumbers, bit);
+          }
+          if (err.get(bit + DataError::GLinkParity)) {
+  	  if (crate < 4) m_h_ppm_2d_Status03->Fill(bit, ypos);
+  	  else           m_h_ppm_2d_Status47->Fill(bit, ypos);
+  	  m_h_ppm_1d_ErrorSummary->Fill(bit);
+  	  m_histTool->fillEventNumber(m_h_ppm_2d_ErrorEventNumbers, bit);
           }
         }
-      }
-      if (HadEnergy2 > 0) {
-        unsigned int u_HadEnergy2 = static_cast<unsigned int>(HadEnergy2);
-        if (u_HadEnergy2 > m_TT_HitMap_ThreshVec[thresh]) {
-	  m_histTool->fillPPMHadEtaVsPhi(m_v_ppm_had_2d_etaPhi_tt_lutjep_Threshold[thresh],
-	                                                            eta, phi, 1);
-          if (m_environment == AthenaMonManager::online || m_onlineTest) {
-	    m_histTool->fillPPMHadEtaVsPhi(
-	      m_v_ppm_had_2d_etaPhi_tt_lutjep_Threshold[thresh+m_TT_HitMap_ThreshVec.size()],
-	      eta, phi, 1);
-          }
+  
+        if (err.get(DataError::ChannelDisabled) ||
+            err.get(DataError::MCMAbsent)) overview[crate] |= 1;
+  
+        if (err.get(DataError::Timeout)       ||
+            err.get(DataError::ASICFull)      ||
+            err.get(DataError::EventMismatch) ||
+  	    err.get(DataError::BunchMismatch) ||
+            err.get(DataError::FIFOCorrupt)   ||
+  	    err.get(DataError::PinParity)) overview[crate] |= (1 << 1);
+  
+        if (err.get(DataError::GLinkParity)   ||
+            err.get(DataError::GLinkProtocol) ||
+            err.get(DataError::FIFOOverflow)  ||
+  	    err.get(DataError::ModuleError)   ||
+            err.get(DataError::GLinkDown)     ||
+  	    err.get(DataError::GLinkTimeout)  ||
+  	    err.get(DataError::BCNMismatch)) overview[crate] |= (1 << 2);
+  
+        // Detailed plots by MCM
+        ypos = (crate%2)*16+module;
+        if (err.get(DataError::ChannelDisabled)) {
+          m_v_ppm_2d_ASICErrorsDetail[(channel/2)*4+crate/2]->Fill((channel%2)*16+submodule,
+                                                                            ypos);
         }
-      }
-    }
-
-    //---------------------------- ADC HitMaps per timeslice -----------------
-
-    unsigned int tslice = (*TriggerTowerIterator)->emADCPeak();
-    
-    if (tslice < ((*TriggerTowerIterator)->emADC()).size()) {
-      const int temADC = ((*TriggerTowerIterator)->emADC())[tslice];
-      if (temADC > m_TT_ADC_HitMap_Thresh) {
-	m_histTool->fillPPMEmEtaVsPhi(m_h_ppm_em_2d_etaPhi_tt_adc_HitMap, eta, phi, 1);
-	m_histTool->fillPPMEmEtaVsPhi(m_h_ppm_em_2d_etaPhi_tt_adc_ProfileHitMap, eta, phi,
-	                                                              temADC);
-      }
-    }
-
-    tslice = (*TriggerTowerIterator)->hadADCPeak();
-
-    if (tslice < ((*TriggerTowerIterator)->hadADC()).size()) {
-      const int thadADC = ((*TriggerTowerIterator)->hadADC())[tslice];
-      if (thadADC > m_TT_ADC_HitMap_Thresh) {
-        m_histTool->fillPPMHadEtaVsPhi(m_h_ppm_had_2d_etaPhi_tt_adc_HitMap, eta, phi, 1);
-        m_histTool->fillPPMHadEtaVsPhi(m_h_ppm_had_2d_etaPhi_tt_adc_ProfileHitMap, eta, phi,
-	                                                               thadADC);
-      }
-    }
-	             
-    //---------------------------- Timing of FADC Signal ---------------------
-
-    const std::vector<int>& emADC((*TriggerTowerIterator)->emADC());
-    const std::vector<int>& hadADC((*TriggerTowerIterator)->hadADC());
-
-    double max = recTime(emADC, m_EMFADCCut);
-    //log << MSG::INFO << "TimeSlice of Maximum "<< max<< endreq ;
-    if (max >= 0.) {
-      m_histTool->fillPPMEmEtaVsPhi(m_h_ppm_em_2d_etaPhi_tt_adc_MaxTimeslice, eta, phi,
-                                                                       max+1.);
-      m_h_ppm_em_1d_tt_adc_MaxTimeslice->Fill(max);
-    }
-
-    max = recTime(hadADC, m_HADFADCCut);
-    //log << MSG::INFO << "TimeSlice of Maximum "<< max<< endreq ;
-    if (max >= 0.) {
-      m_histTool->fillPPMHadEtaVsPhi(m_h_ppm_had_2d_etaPhi_tt_adc_MaxTimeslice, eta, phi,
-                                                                       max+1.);
-      m_h_ppm_had_1d_tt_adc_MaxTimeslice->Fill(max);
-    }
-
-    //------------------------ Signal shape profile --------------------------
-
-    if (EmEnergy > 0) {
-      const int emPart  = partition(0, eta);
-      std::vector<int>::const_iterator it  = emADC.begin();
-      std::vector<int>::const_iterator itE = emADC.end();
-      for (int slice = 0; it != itE && slice < m_SliceNo; ++it, ++slice) {
-        m_v_ppm_1d_tt_adc_SignalProfile[emPart]->Fill(slice, *it);
-      }
-    }
-    if (HadEnergy > 0) {
-      const int hadPart = partition(1, eta);
-      std::vector<int>::const_iterator it  = hadADC.begin();
-      std::vector<int>::const_iterator itE = hadADC.end();
-      for (int slice = 0; it != itE && slice < m_SliceNo; ++it, ++slice) {
-        m_v_ppm_1d_tt_adc_SignalProfile[hadPart]->Fill(slice, *it);
-      }
-    }
-
-    //---------------------------- SubStatus Word errors ---------------------
-    //----------------------------- em ---------------------------------------
-
-    using LVL1::DataError;
-
-    if ((*TriggerTowerIterator)-> emError()) {
-
-      const DataError emerr((*TriggerTowerIterator)-> emError());
-
-      const L1CaloCoolChannelId emCoolId(m_ttTool->channelID(eta, phi, 0));
-      int crate     = emCoolId.crate();
-      int module    = emCoolId.module();
-      int submodule = emCoolId.subModule();
-      int channel   = emCoolId.channel();
-
-      // em signals Crate 0-3
-      //em+had FCAL signals get processed in one crate (Crates 4-7)
-
-      int ypos = (crate < 4) ? module+crate*16 : module+(crate-4)*16;
-
-      for (int bit = 0; bit < 8; ++bit) {
-        if (emerr.get(bit + DataError::ChannelDisabled)) {
-          if (crate < 4) m_h_ppm_2d_ErrorField03->Fill(bit, ypos);
-  	  else           m_h_ppm_2d_ErrorField47->Fill(bit, ypos);
-	  m_histTool->fillEventNumber(m_h_ppm_2d_ASICErrorEventNumbers, bit);
+        if (err.get(DataError::MCMAbsent)) {
+          m_v_ppm_2d_ASICErrorsDetail[8+crate/2]->Fill(submodule, ypos);
         }
-        if (emerr.get(bit + DataError::GLinkParity)) {
-	  if (crate < 4) m_h_ppm_2d_Status03->Fill(bit, ypos);
-	  else           m_h_ppm_2d_Status47->Fill(bit, ypos);
-	  m_h_ppm_1d_ErrorSummary->Fill(bit);
-	  m_histTool->fillEventNumber(m_h_ppm_2d_ErrorEventNumbers, bit);
+        if (err.get(DataError::Timeout)) {
+          m_v_ppm_2d_ASICErrorsDetail[12+crate/2]->Fill(submodule, ypos);
         }
-      }
-
-      if (emerr.get(DataError::ChannelDisabled) ||
-          emerr.get(DataError::MCMAbsent)) overview[crate] |= 1;
-
-      if (emerr.get(DataError::Timeout)       ||
-          emerr.get(DataError::ASICFull)      ||
-          emerr.get(DataError::EventMismatch) ||
-	  emerr.get(DataError::BunchMismatch) ||
-          emerr.get(DataError::FIFOCorrupt)   ||
-	  emerr.get(DataError::PinParity)) overview[crate] |= (1 << 1);
-
-      if (emerr.get(DataError::GLinkParity)   ||
-          emerr.get(DataError::GLinkProtocol) ||
-          emerr.get(DataError::FIFOOverflow)  ||
-	  emerr.get(DataError::ModuleError)   ||
-          emerr.get(DataError::GLinkDown)     ||
-	  emerr.get(DataError::GLinkTimeout)  ||
-	  emerr.get(DataError::BCNMismatch)) overview[crate] |= (1 << 2);
-
-      // Detailed plots by MCM
-      ypos = (crate%2)*16+module;
-      if (emerr.get(DataError::ChannelDisabled)) {
-        m_v_ppm_2d_ASICErrorsDetail[(channel/2)*4+crate/2]->Fill((channel%2)*16+submodule,
-                                                                          ypos);
-      }
-      if (emerr.get(DataError::MCMAbsent)) {
-        m_v_ppm_2d_ASICErrorsDetail[8+crate/2]->Fill(submodule, ypos);
-      }
-      if (emerr.get(DataError::Timeout)) {
-        m_v_ppm_2d_ASICErrorsDetail[12+crate/2]->Fill(submodule, ypos);
-      }
-      if (emerr.get(DataError::ASICFull)) {
-        m_v_ppm_2d_ASICErrorsDetail[12+crate/2]->Fill(16+submodule, ypos);
-      }
-      if (emerr.get(DataError::EventMismatch)) {
-        m_v_ppm_2d_ASICErrorsDetail[16+crate/2]->Fill(submodule, ypos);
-      }
-      if (emerr.get(DataError::BunchMismatch)) {
-        m_v_ppm_2d_ASICErrorsDetail[16+crate/2]->Fill(16+submodule, ypos);
-      }
-      if (emerr.get(DataError::FIFOCorrupt)) {
-        m_v_ppm_2d_ASICErrorsDetail[20+crate/2]->Fill(submodule, ypos);
-      }
-      if (emerr.get(DataError::PinParity)) {
-        m_v_ppm_2d_ASICErrorsDetail[20+crate/2]->Fill(16+submodule, ypos);
-      }
-
+        if (err.get(DataError::ASICFull)) {
+          m_v_ppm_2d_ASICErrorsDetail[12+crate/2]->Fill(16+submodule, ypos);
+        }
+        if (err.get(DataError::EventMismatch)) {
+          m_v_ppm_2d_ASICErrorsDetail[16+crate/2]->Fill(submodule, ypos);
+        }
+        if (err.get(DataError::BunchMismatch)) {
+          m_v_ppm_2d_ASICErrorsDetail[16+crate/2]->Fill(16+submodule, ypos);
+        }
+        if (err.get(DataError::FIFOCorrupt)) {
+          m_v_ppm_2d_ASICErrorsDetail[20+crate/2]->Fill(submodule, ypos);
+        }
+        if (err.get(DataError::PinParity)) {
+          m_v_ppm_2d_ASICErrorsDetail[20+crate/2]->Fill(16+submodule, ypos);
+        }
+  
+      }      
+      // number of triggered slice
+      m_h_ppm_em_1d_tt_adc_TriggeredSlice->Fill((*TriggerTowerIterator)->adcPeak(), 1); 
     }
     
-    //had
-
-    if ((*TriggerTowerIterator)-> hadError()) {
-
-      const DataError haderr((*TriggerTowerIterator)-> hadError());
-
-      const L1CaloCoolChannelId hadCoolId(m_ttTool->channelID(eta, phi, 1));
-      int crate     = hadCoolId.crate();
-      int module    = hadCoolId.module();
-      int submodule = hadCoolId.subModule();
-      int channel   = hadCoolId.channel();
+    //================== FOR HADRONIC LAYER ======================================
+    if (layer == 1) {  
+      //----------------------------LUT----------------------------------------------
+      // had energy distribution per detector region
+      if (cpET>0) {
+	m_h_ppm_had_1d_tt_lutcp_Eta->Fill(eta, 1);
+	m_histTool->fillPPMPhi(m_h_ppm_had_1d_tt_lutcp_Phi, eta, phi);
+	m_h_ppm_had_1d_tt_lutcp_Et->Fill(cpET,1);
+	if (cpET>5) {
+	  m_histTool->fillPPMHadEtaVsPhi(m_h_ppm_had_2d_etaPhi_tt_lutcp_AverageEt, eta, phi,
+								      cpET);
+	  // Bunch crossing and BCID bits
+	  m_h_ppm_1d_tt_lutcp_LutPerBCN->Fill(bunchCrossing);
+	}
+	m_h_ppm_2d_tt_lutcp_BcidBits->Fill((*TriggerTowerIterator)->bcidVec()[(*TriggerTowerIterator)->peak()], cpET);
+      }
+      if (jepET>0) {
+	m_h_ppm_had_1d_tt_lutjep_Eta->Fill(eta, 1);
+	m_histTool->fillPPMPhi(m_h_ppm_had_1d_tt_lutjep_Phi, eta, phi);
+	m_h_ppm_had_1d_tt_lutjep_Et->Fill(jepET,1);
+	if (jepET>5) {
+	  m_histTool->fillPPMHadEtaVsPhi(m_h_ppm_had_2d_etaPhi_tt_lutjep_AverageEt, eta, phi,
+								      jepET);
+	  // Bunch crossing and BCID bits
+	  m_h_ppm_1d_tt_lutjep_LutPerBCN->Fill(bunchCrossing);
+	}
+	m_h_ppm_2d_tt_lutjep_BcidBits->Fill((*TriggerTowerIterator)->bcidVec()[(*TriggerTowerIterator)->peak()], jepET);
+      }
       
-      int ypos = (crate < 4) ? module+crate*16 : module+(crate-4)*16;
-
-      for (int bit = 0; bit < 8; ++bit) {
-        if (haderr.get(bit + DataError::ChannelDisabled)) {
-	  if (crate < 4) m_h_ppm_2d_ErrorField03->Fill(bit, ypos);
-	  else           m_h_ppm_2d_ErrorField47->Fill(bit, ypos);
-	  m_histTool->fillEventNumber(m_h_ppm_2d_ASICErrorEventNumbers, bit);
-        }
-        if (haderr.get(bit + DataError::GLinkParity)) {
-	  if (crate < 4) m_h_ppm_2d_Status03->Fill(bit, ypos);
-	  else           m_h_ppm_2d_Status47->Fill(bit, ypos);
-	  m_h_ppm_1d_ErrorSummary->Fill(bit);
-	  m_histTool->fillEventNumber(m_h_ppm_2d_ErrorEventNumbers, bit);
-        }
-      }
-
-      if (haderr.get(DataError::ChannelDisabled) ||
-          haderr.get(DataError::MCMAbsent)) overview[crate] |= 1;
-
-      if (haderr.get(DataError::Timeout)       ||
-          haderr.get(DataError::ASICFull)      ||
-          haderr.get(DataError::EventMismatch) ||
-	  haderr.get(DataError::BunchMismatch) ||
-          haderr.get(DataError::FIFOCorrupt)   ||
-	  haderr.get(DataError::PinParity)) overview[crate] |= (1 << 1);
-
-      if (haderr.get(DataError::GLinkParity)   ||
-          haderr.get(DataError::GLinkProtocol) ||
-          haderr.get(DataError::FIFOOverflow)  ||
-	  haderr.get(DataError::ModuleError)   ||
-          haderr.get(DataError::GLinkDown)     ||
-	  haderr.get(DataError::GLinkTimeout)  ||
-	  haderr.get(DataError::BCNMismatch)) overview[crate] |= (1 << 2);
-    
-      // Detailed plots by MCM
-      ypos = (crate%2)*16+module;
-      if (haderr.get(DataError::ChannelDisabled)) {
-        m_v_ppm_2d_ASICErrorsDetail[(channel/2)*4+crate/2]->Fill((channel%2)*16+submodule,
-                                                                          ypos);
-      }
-      if (haderr.get(DataError::MCMAbsent)) {
-        m_v_ppm_2d_ASICErrorsDetail[8+crate/2]->Fill(submodule, ypos);
-      }
-      if (haderr.get(DataError::Timeout)) {
-        m_v_ppm_2d_ASICErrorsDetail[12+crate/2]->Fill(submodule, ypos);
-      }
-      if (haderr.get(DataError::ASICFull)) {
-        m_v_ppm_2d_ASICErrorsDetail[12+crate/2]->Fill(16+submodule, ypos);
-      }
-      if (haderr.get(DataError::EventMismatch)) {
-        m_v_ppm_2d_ASICErrorsDetail[16+crate/2]->Fill(submodule, ypos);
-      }
-      if (haderr.get(DataError::BunchMismatch)) {
-        m_v_ppm_2d_ASICErrorsDetail[16+crate/2]->Fill(16+submodule, ypos);
-      }
-      if (haderr.get(DataError::FIFOCorrupt)) {
-        m_v_ppm_2d_ASICErrorsDetail[20+crate/2]->Fill(submodule, ypos);
-      }
-      if (haderr.get(DataError::PinParity)) {
-        m_v_ppm_2d_ASICErrorsDetail[20+crate/2]->Fill(16+submodule, ypos);
-      }
-
-    }
+      //---------------------------- had LUT HitMaps -----------------------------
+      for (unsigned int thresh = 0; thresh < m_TT_HitMap_ThreshVec.size(); ++thresh) {
+	if (cpET > 0) {
+	  unsigned int u_cpET = static_cast<unsigned int>(cpET);
+	  if (u_cpET > m_TT_HitMap_ThreshVec[thresh]) {
+	    m_histTool->fillPPMHadEtaVsPhi(m_v_ppm_had_2d_etaPhi_tt_lutcp_Threshold[thresh],
+								      eta, phi, 1);
+	    if (m_environment == AthenaMonManager::online || m_onlineTest) {
+	      m_histTool->fillPPMHadEtaVsPhi(
+		m_v_ppm_had_2d_etaPhi_tt_lutcp_Threshold[thresh+m_TT_HitMap_ThreshVec.size()],
+		eta, phi, 1);
+	    }
+	  }
+	}
+	if (jepET > 0) {
+	  unsigned int u_jepET = static_cast<unsigned int>(jepET);
+	  if (u_jepET > m_TT_HitMap_ThreshVec[thresh]) {
+	    m_histTool->fillPPMHadEtaVsPhi(m_v_ppm_had_2d_etaPhi_tt_lutjep_Threshold[thresh],
+								      eta, phi, 1);
+	    if (m_environment == AthenaMonManager::online || m_onlineTest) {
+	      m_histTool->fillPPMHadEtaVsPhi(
+		m_v_ppm_had_2d_etaPhi_tt_lutjep_Threshold[thresh+m_TT_HitMap_ThreshVec.size()],
+		eta, phi, 1);
+	    }
+	  }
+	}
+      }  
       
-    // number of triggered slice
-    m_h_ppm_em_1d_tt_adc_TriggeredSlice->Fill((*TriggerTowerIterator)->emADCPeak(), 1);
-    m_h_ppm_had_1d_tt_adc_TriggeredSlice->Fill((*TriggerTowerIterator)->hadADCPeak(), 1);
+      //---------------------------- ADC HitMaps per timeslice -----------------
+      unsigned int tslice = (*TriggerTowerIterator)->adcPeak();
 
+      if (tslice < ((*TriggerTowerIterator)->adc()).size()) {
+	const int ADC = ((*TriggerTowerIterator)->adc())[tslice];
+	if (ADC > m_TT_ADC_HitMap_Thresh) {
+	  m_histTool->fillPPMHadEtaVsPhi(m_h_ppm_had_2d_etaPhi_tt_adc_HitMap, eta, phi, 1);
+	  m_histTool->fillPPMHadEtaVsPhi(m_h_ppm_had_2d_etaPhi_tt_adc_ProfileHitMap, eta, phi,
+									ADC);
+	}
+      }
+      
+      //---------------------------- Timing of FADC Signal ---------------------      
+      
+      
+      
+      const std::vector<short unsigned int>& ADC((*TriggerTowerIterator)->adc());
+      double max = recTime(ADC, m_HADFADCCut);
+      //log << MSG::INFO << "TimeSlice of Maximum "<< max<< endreq ;
+      if (max >= 0.) {
+	m_histTool->fillPPMHadEtaVsPhi(m_h_ppm_had_2d_etaPhi_tt_adc_MaxTimeslice, eta, phi,
+									max+1.);
+	m_h_ppm_had_1d_tt_adc_MaxTimeslice->Fill(max);
+      }
+      
+      //------------------------ Signal shape profile --------------------------     
+      if (cpET > 0) {
+	const int hadPart = partition(1, eta);
+	std::vector<short unsigned int>::const_iterator it  = ADC.begin();
+	std::vector<short unsigned int>::const_iterator itE = ADC.end();
+	for (int slice = 0; it != itE && slice < m_SliceNo; ++it, ++slice) {
+	  m_v_ppm_1d_tt_adc_SignalProfile[hadPart]->Fill(slice, *it);
+	}
+      }
+      if ((*TriggerTowerIterator)-> error()) {
+
+	const DataError err((*TriggerTowerIterator)-> error());
+
+	const L1CaloCoolChannelId CoolId(m_ttTool->channelID(eta, phi, 1));
+	int crate     = CoolId.crate();
+	int module    = CoolId.module();
+	int submodule = CoolId.subModule();
+	int channel   = CoolId.channel();
+	
+	int ypos = (crate < 4) ? module+crate*16 : module+(crate-4)*16;
+
+	for (int bit = 0; bit < 8; ++bit) {
+	  if (err.get(bit + DataError::ChannelDisabled)) {
+	    if (crate < 4) m_h_ppm_2d_ErrorField03->Fill(bit, ypos);
+	    else           m_h_ppm_2d_ErrorField47->Fill(bit, ypos);
+	    m_histTool->fillEventNumber(m_h_ppm_2d_ASICErrorEventNumbers, bit);
+	  }
+	  if (err.get(bit + DataError::GLinkParity)) {
+	    if (crate < 4) m_h_ppm_2d_Status03->Fill(bit, ypos);
+	    else           m_h_ppm_2d_Status47->Fill(bit, ypos);
+	    m_h_ppm_1d_ErrorSummary->Fill(bit);
+	    m_histTool->fillEventNumber(m_h_ppm_2d_ErrorEventNumbers, bit);
+	  }
+	}
+
+	if (err.get(DataError::ChannelDisabled) ||
+	    err.get(DataError::MCMAbsent)) overview[crate] |= 1;
+
+	if (err.get(DataError::Timeout)       ||
+	    err.get(DataError::ASICFull)      ||
+	    err.get(DataError::EventMismatch) ||
+	    err.get(DataError::BunchMismatch) ||
+	    err.get(DataError::FIFOCorrupt)   ||
+	    err.get(DataError::PinParity)) overview[crate] |= (1 << 1);
+
+	if (err.get(DataError::GLinkParity)   ||
+	    err.get(DataError::GLinkProtocol) ||
+	    err.get(DataError::FIFOOverflow)  ||
+	    err.get(DataError::ModuleError)   ||
+	    err.get(DataError::GLinkDown)     ||
+	    err.get(DataError::GLinkTimeout)  ||
+	    err.get(DataError::BCNMismatch)) overview[crate] |= (1 << 2);
+      
+	// Detailed plots by MCM
+	ypos = (crate%2)*16+module;
+	if (err.get(DataError::ChannelDisabled)) {
+	  m_v_ppm_2d_ASICErrorsDetail[(channel/2)*4+crate/2]->Fill((channel%2)*16+submodule,
+									    ypos);
+	}
+	if (err.get(DataError::MCMAbsent)) {
+	  m_v_ppm_2d_ASICErrorsDetail[8+crate/2]->Fill(submodule, ypos);
+	}
+	if (err.get(DataError::Timeout)) {
+	  m_v_ppm_2d_ASICErrorsDetail[12+crate/2]->Fill(submodule, ypos);
+	}
+	if (err.get(DataError::ASICFull)) {
+	  m_v_ppm_2d_ASICErrorsDetail[12+crate/2]->Fill(16+submodule, ypos);
+	}
+	if (err.get(DataError::EventMismatch)) {
+	  m_v_ppm_2d_ASICErrorsDetail[16+crate/2]->Fill(submodule, ypos);
+	}
+	if (err.get(DataError::BunchMismatch)) {
+	  m_v_ppm_2d_ASICErrorsDetail[16+crate/2]->Fill(16+submodule, ypos);
+	}
+	if (err.get(DataError::FIFOCorrupt)) {
+	  m_v_ppm_2d_ASICErrorsDetail[20+crate/2]->Fill(submodule, ypos);
+	}
+	if (err.get(DataError::PinParity)) {
+	  m_v_ppm_2d_ASICErrorsDetail[20+crate/2]->Fill(16+submodule, ypos);
+	}
+
+      }    
+      // number of triggered slice
+      m_h_ppm_had_1d_tt_adc_TriggeredSlice->Fill((*TriggerTowerIterator)->adcPeak(), 1);
+    }  
   }	     
 	     
   // Write overview vector to StoreGate
@@ -1078,7 +1097,7 @@ StatusCode PPrMon::fillHistograms()
 }
 
 /*---------------------------------------------------------*/
-double PPrMon::recTime(const std::vector<int>& vFAdc, int cut) {
+double PPrMon::recTime(const std::vector<short unsigned int>& vFAdc, int cut) {
 /*---------------------------------------------------------*/
 
   int max = -1;

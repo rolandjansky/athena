@@ -21,6 +21,9 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "xAODTrigL1Calo/xAODTrigL1Calo/TriggerTower.h"
+#include "xAODTrigL1Calo/xAODTrigL1Calo/TriggerTowerContainer.h"
+
 class StatusCode;
 class EventInfo;
 
@@ -28,6 +31,7 @@ class TrigT1CaloMonErrorTool;
 class TrigT1CaloLWHistogramTool;
 class L1CaloPprFineTimePlotManager;
 class L1CaloPprPedestalPlotManager;
+class L1CaloPprPedestalCorrectionPlotManager;
 class L1CaloPprEtCorrelationPlotManager;
 
 namespace LVL1 {
@@ -58,6 +62,8 @@ namespace LVL1 {
  *                                                           from reference                  </td></tr>
  *  <tr><td> @c L1Calo/PPM/Stability/Pedestal      </td><td> Ditto for pedestal difference
  *                                                           from mean                       </td></tr>
+ *  <tr><td> @c L1Calo/PPM/Stability/PedestalCorrection  </td><td> Ditto for pedestalCorrection
+ *                                                                                 </td></tr>
  *  </table>
  *
  *  <b>ROOT Histogram Directories (online):</b>
@@ -75,6 +81,9 @@ namespace LVL1 {
  *  <tr><td> @c L1Calo/PPrStabilityMon/Pedestal                </td><td> As Tier0            </td></tr>
  *  <tr><td> @c L1Calo/PPrStabilityMon/Pedestal/Partition      </td><td> Ditto for pedestal difference
  *                                                                       from mean           </td></tr>
+ *  <tr><td> @c L1Calo/PPrStabilityMon/PedestalCorrection      </td><td> As Tier0            </td></tr>
+ *  <tr><td> @c L1Calo/PPrStabilityMon/PedestalCorrection/Partition  </td><td> Ditto for pedestalCorrection
+ *                                                                                           </td></tr>
  *  </table>
  *
  *  <!--
@@ -118,11 +127,13 @@ namespace LVL1 {
  *  <table>
  *  <tr><th> Property                     </th><th> Description                          </th></tr>
  *  <tr><td> @c BS_TriggerTowerContainer  </td><td> @copydoc m_TriggerTowerContainerName </td></tr>
+ *  <tr><td> @c BS_xAODTriggerTowerContainer  </td><td> @copydoc m_xAODTriggerTowerContainerName </td></tr>
  *  <tr><td> @c ppmADCMinValue            </td><td> @copydoc m_ppmADCMinValue            </td></tr>
  *  <tr><td> @c ppmADCMaxValue            </td><td> @copydoc m_ppmADCMaxValue            </td></tr>
  *  <tr><td> @c PathInRootFile            </td><td> @copydoc m_PathInRootFile            </td></tr>
  *  <tr><td> @c doFineTimeMonitoring      </td><td> @copydoc m_doFineTimeMonitoring      </td></tr>
  *  <tr><td> @c doPedestalMonitoring      </td><td> @copydoc m_doPedestalMonitoring      </td></tr>
+ *  <tr><td> @c doPedestalCorrectionMonitoring </td><td> @copydoc m_doPedestalCorrectionMonitoring </td></tr>
  *  <tr><td> @c doEtCorrelationMonitoring </td><td> @copydoc m_doEtCorrelationMonitoring </td></tr>
  *  <tr><td> @c lumiMax                   </td><td> @copydoc m_lumiBlockMax              </td></tr>
  *  <tr><td> @c fineTimeCut               </td><td> @copydoc m_fineTimeCut               </td></tr>
@@ -170,6 +181,8 @@ private:
   L1CaloPprFineTimePlotManager*         m_fineTimePlotManager;
   /// Manager for pedestal plots
   L1CaloPprPedestalPlotManager*         m_pedestalPlotManager;
+  /// Manager for pedestalCorrection plots
+  L1CaloPprPedestalCorrectionPlotManager*	m_pedestalCorrectionPlotManager;
   /// Manager for Et correlation plots
   L1CaloPprEtCorrelationPlotManager*    m_etCorrelationPlotManager;
   
@@ -177,11 +190,14 @@ private:
   bool m_doFineTimeMonitoring;
   /// Flag for pedestal monitoring
   bool m_doPedestalMonitoring;
+  /// Flag for pedestalCorrection monitoring
+  bool m_doPedestalCorrectionMonitoring;
   /// Flag for Et correlation monitoring
   bool m_doEtCorrelationMonitoring;
 
   /// TriggerTower Container key
   std::string m_TriggerTowerContainerName;
+  std::string m_xAODTriggerTowerContainerName;
   /// Root directory
   std::string m_PathInRootFile;
 

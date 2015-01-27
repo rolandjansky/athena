@@ -43,14 +43,22 @@ PPMSimBSMon::PPMSimBSMon(const std::string & type,
     m_histTool("TrigT1CaloLWHistogramTool"),
     m_debug(false), m_events(0),
     m_histBooked(false),
-    m_h_ppm_em_2d_etaPhi_tt_lut_SimEqData(0),
-    m_h_ppm_em_2d_etaPhi_tt_lut_SimNeData(0),
-    m_h_ppm_em_2d_etaPhi_tt_lut_SimNoData(0),
-    m_h_ppm_em_2d_etaPhi_tt_lut_DataNoSim(0),
-    m_h_ppm_had_2d_etaPhi_tt_lut_SimEqData(0),
-    m_h_ppm_had_2d_etaPhi_tt_lut_SimNeData(0),
-    m_h_ppm_had_2d_etaPhi_tt_lut_SimNoData(0),
-    m_h_ppm_had_2d_etaPhi_tt_lut_DataNoSim(0),
+    m_h_ppm_em_2d_etaPhi_tt_lutCp_SimEqData(0),
+    m_h_ppm_em_2d_etaPhi_tt_lutCp_SimNeData(0),
+    m_h_ppm_em_2d_etaPhi_tt_lutCp_SimNoData(0),
+    m_h_ppm_em_2d_etaPhi_tt_lutCp_DataNoSim(0),
+    m_h_ppm_had_2d_etaPhi_tt_lutCp_SimEqData(0),
+    m_h_ppm_had_2d_etaPhi_tt_lutCp_SimNeData(0),
+    m_h_ppm_had_2d_etaPhi_tt_lutCp_SimNoData(0),
+    m_h_ppm_had_2d_etaPhi_tt_lutCp_DataNoSim(0),
+    m_h_ppm_em_2d_etaPhi_tt_lutJep_SimEqData(0),
+    m_h_ppm_em_2d_etaPhi_tt_lutJep_SimNeData(0),
+    m_h_ppm_em_2d_etaPhi_tt_lutJep_SimNoData(0),
+    m_h_ppm_em_2d_etaPhi_tt_lutJep_DataNoSim(0),
+    m_h_ppm_had_2d_etaPhi_tt_lutJep_SimEqData(0),
+    m_h_ppm_had_2d_etaPhi_tt_lutJep_SimNeData(0),
+    m_h_ppm_had_2d_etaPhi_tt_lutJep_SimNoData(0),
+    m_h_ppm_had_2d_etaPhi_tt_lutJep_DataNoSim(0),
     m_h_ppm_2d_LUT_MismatchEvents_cr0cr1(0),
     m_h_ppm_2d_LUT_MismatchEvents_cr2cr3(0),
     m_h_ppm_2d_LUT_MismatchEvents_cr4cr5(0),
@@ -59,7 +67,7 @@ PPMSimBSMon::PPMSimBSMon(const std::string & type,
 {
   declareProperty("TriggerTowerLocation",
                  m_triggerTowerLocation =
-		  LVL1::TrigT1CaloDefs::TriggerTowerLocation);
+		  LVL1::TrigT1CaloDefs::xAODTriggerTowerLocation);
   
   declareProperty("RootDirectory", m_rootDir = "L1Calo");
 
@@ -148,30 +156,55 @@ StatusCode PPMSimBSMon::bookHistogramsRecurrent()
 
   m_histTool->setMonGroup(&monPPM);
 
-  m_h_ppm_em_2d_etaPhi_tt_lut_SimEqData = m_histTool->bookPPMEmEtaVsPhi(
-    "ppm_em_2d_etaPhi_tt_lut_SimEqData",
-    "PPM LUT EM Data/Simulation Non-zero Matches");
-  m_h_ppm_em_2d_etaPhi_tt_lut_SimNeData = m_histTool->bookPPMEmEtaVsPhi(
-    "ppm_em_2d_etaPhi_tt_lut_SimNeData",
-    "PPM LUT EM Data/Simulation Non-zero Mismatches");
-  m_h_ppm_em_2d_etaPhi_tt_lut_SimNoData = m_histTool->bookPPMEmEtaVsPhi(
-    "ppm_em_2d_etaPhi_tt_lut_SimNoData",
-    "PPM LUT EM Simulation but no Data");
-  m_h_ppm_em_2d_etaPhi_tt_lut_DataNoSim = m_histTool->bookPPMEmEtaVsPhi(
-    "ppm_em_2d_etaPhi_tt_lut_DataNoSim",
-    "PPM LUT EM Data but no Simulation");
-  m_h_ppm_had_2d_etaPhi_tt_lut_SimEqData = m_histTool->bookPPMHadEtaVsPhi(
-    "ppm_had_2d_etaPhi_tt_lut_SimEqData",
-    "PPM LUT HAD Data/Simulation Non-zero Matches");
-  m_h_ppm_had_2d_etaPhi_tt_lut_SimNeData = m_histTool->bookPPMHadEtaVsPhi(
-    "ppm_had_2d_etaPhi_tt_lut_SimNeData",
-    "PPM LUT HAD Data/Simulation Non-zero Mismatches");
-  m_h_ppm_had_2d_etaPhi_tt_lut_SimNoData = m_histTool->bookPPMHadEtaVsPhi(
-    "ppm_had_2d_etaPhi_tt_lut_SimNoData",
-    "PPM LUT HAD Simulation but no Data");
-  m_h_ppm_had_2d_etaPhi_tt_lut_DataNoSim = m_histTool->bookPPMHadEtaVsPhi(
-    "ppm_had_2d_etaPhi_tt_lut_DataNoSim",
-    "PPM LUT HAD Data but no Simulation");
+  m_h_ppm_em_2d_etaPhi_tt_lutCp_SimEqData = m_histTool->bookPPMEmEtaVsPhi(
+    "ppm_em_2d_etaPhi_tt_lutCp_SimEqData",
+    "PPM LUT-CP EM Data/Simulation Non-zero Matches");
+  m_h_ppm_em_2d_etaPhi_tt_lutCp_SimNeData = m_histTool->bookPPMEmEtaVsPhi(
+    "ppm_em_2d_etaPhi_tt_lutCp_SimNeData",
+    "PPM LUT-CP EM Data/Simulation Non-zero Mismatches");
+  m_h_ppm_em_2d_etaPhi_tt_lutCp_SimNoData = m_histTool->bookPPMEmEtaVsPhi(
+    "ppm_em_2d_etaPhi_tt_lutCp_SimNoData",
+    "PPM LUT-CP EM Simulation but no Data");
+  m_h_ppm_em_2d_etaPhi_tt_lutCp_DataNoSim = m_histTool->bookPPMEmEtaVsPhi(
+    "ppm_em_2d_etaPhi_tt_lutCp_DataNoSim",
+    "PPM LUT-CP EM Data but no Simulation");
+  m_h_ppm_had_2d_etaPhi_tt_lutCp_SimEqData = m_histTool->bookPPMHadEtaVsPhi(
+    "ppm_had_2d_etaPhi_tt_lutCp_SimEqData",
+    "PPM LUT-CP HAD Data/Simulation Non-zero Matches");
+  m_h_ppm_had_2d_etaPhi_tt_lutCp_SimNeData = m_histTool->bookPPMHadEtaVsPhi(
+    "ppm_had_2d_etaPhi_tt_lutCp_SimNeData",
+    "PPM LUT-CP HAD Data/Simulation Non-zero Mismatches");
+  m_h_ppm_had_2d_etaPhi_tt_lutCp_SimNoData = m_histTool->bookPPMHadEtaVsPhi(
+    "ppm_had_2d_etaPhi_tt_lutCp_SimNoData",
+    "PPM LUT-CP HAD Simulation but no Data");
+  m_h_ppm_had_2d_etaPhi_tt_lutCp_DataNoSim = m_histTool->bookPPMHadEtaVsPhi(
+    "ppm_had_2d_etaPhi_tt_lutCp_DataNoSim",
+    "PPM LUT-CP HAD Data but no Simulation");
+
+  m_h_ppm_em_2d_etaPhi_tt_lutJep_SimEqData = m_histTool->bookPPMEmEtaVsPhi(
+    "ppm_em_2d_etaPhi_tt_lutJep_SimEqData",
+    "PPM LUT-JEP EM Data/Simulation Non-zero Matches");
+  m_h_ppm_em_2d_etaPhi_tt_lutJep_SimNeData = m_histTool->bookPPMEmEtaVsPhi(
+    "ppm_em_2d_etaPhi_tt_lutJep_SimNeData",
+    "PPM LUT-JEP EM Data/Simulation Non-zero Mismatches");
+  m_h_ppm_em_2d_etaPhi_tt_lutJep_SimNoData = m_histTool->bookPPMEmEtaVsPhi(
+    "ppm_em_2d_etaPhi_tt_lutJep_SimNoData",
+    "PPM LUT-JEP EM Simulation but no Data");
+  m_h_ppm_em_2d_etaPhi_tt_lutJep_DataNoSim = m_histTool->bookPPMEmEtaVsPhi(
+    "ppm_em_2d_etaPhi_tt_lutJep_DataNoSim",
+    "PPM LUT-JEP EM Data but no Simulation");
+  m_h_ppm_had_2d_etaPhi_tt_lutJep_SimEqData = m_histTool->bookPPMHadEtaVsPhi(
+    "ppm_had_2d_etaPhi_tt_lutJep_SimEqData",
+    "PPM LUT-JEP HAD Data/Simulation Non-zero Matches");
+  m_h_ppm_had_2d_etaPhi_tt_lutJep_SimNeData = m_histTool->bookPPMHadEtaVsPhi(
+    "ppm_had_2d_etaPhi_tt_lutJep_SimNeData",
+    "PPM LUT-JEP HAD Data/Simulation Non-zero Mismatches");
+  m_h_ppm_had_2d_etaPhi_tt_lutJep_SimNoData = m_histTool->bookPPMHadEtaVsPhi(
+    "ppm_had_2d_etaPhi_tt_lutJep_SimNoData",
+    "PPM LUT-JEP HAD Simulation but no Data");
+  m_h_ppm_had_2d_etaPhi_tt_lutJep_DataNoSim = m_histTool->bookPPMHadEtaVsPhi(
+    "ppm_had_2d_etaPhi_tt_lutJep_DataNoSim",
+    "PPM LUT-JEP HAD Data but no Simulation");
 							
   // Mismatch Event Number Histograms
 
@@ -217,7 +250,7 @@ StatusCode PPMSimBSMon::fillHistograms()
   StatusCode sc;
 
   //Retrieve Trigger Towers from SG
-  const TriggerTowerCollection* triggerTowerTES = 0; 
+  const xAOD::TriggerTowerContainer* triggerTowerTES = 0; 
   sc = evtStore()->retrieve(triggerTowerTES, m_triggerTowerLocation); 
   if( sc.isFailure()  ||  !triggerTowerTES ) {
     if (m_debug) msg(MSG::DEBUG) << "No Trigger Tower container found"<< endreq; 
@@ -250,7 +283,7 @@ StatusCode PPMSimBSMon::procHistograms()
   return StatusCode::SUCCESS;
 }
 
-void PPMSimBSMon::simulateAndCompare(const TriggerTowerCollection* ttIn)
+void PPMSimBSMon::simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn)
 {
   if (m_debug) msg(MSG::DEBUG) << "Simulate LUT data from FADC data" << endreq;
 
@@ -261,175 +294,223 @@ void PPMSimBSMon::simulateAndCompare(const TriggerTowerCollection* ttIn)
   ErrorVector crateError(nCrates);
   ErrorVector moduleError(nCrates);
  
-  std::vector<int> emLut;
-  std::vector<int> emBcidR;
-  std::vector<int> emBcidD;
-  std::vector<int> hadLut;
-  std::vector<int> hadBcidR;
-  std::vector<int> hadBcidD;
+  std::vector<int> Lut;
+  std::vector<int> BcidR;
+  std::vector<int> BcidD;
   
   m_ttTool->setDebug(false);
-  TriggerTowerCollection::const_iterator iter  = ttIn->begin();
-  TriggerTowerCollection::const_iterator iterE = ttIn->end();
+  xAOD::TriggerTowerContainer::const_iterator iter  = ttIn->begin();
+  xAOD::TriggerTowerContainer::const_iterator iterE = ttIn->end();
 
   for (; iter != iterE; ++iter) {
     
-    const LVL1::TriggerTower* tt = *iter;
-    const std::vector<int>& emADC(tt->emADC());
-    const std::vector<int>& hadADC(tt->hadADC());
+    const xAOD::TriggerTower* tt = *iter;
     const double eta = tt->eta();
-    const double phi = tt->phi();
-
-    int simEm = 0;
-    const int datEm = tt->emEnergy();
-    const int emSlices = emADC.size();
-    bool keep = true;
-    if (datEm == 0) {
-      keep = false;
-      std::vector<int>::const_iterator it1 = emADC.begin();
-      std::vector<int>::const_iterator itE = emADC.end();
-      for (;it1 != itE; ++it1) {
-        if (*it1 >= m_simulationADCCut) {
-          keep = true;
-	  break;
-        }
-      }
-    }
-    if (keep) {
-      emLut.clear();
-      emBcidR.clear();
-      emBcidD.clear();
-      const int emPeak = tt->emADCPeak();
-      const L1CaloCoolChannelId em_coolId(m_ttTool->channelID(eta, phi, 0));
-      m_ttTool->process(emADC, em_coolId, emLut, emBcidR, emBcidD);
-      if (emSlices < 7 || emBcidD[emPeak]) simEm = emLut[emPeak];
-      if (m_debug && simEm != datEm && (emSlices >= 7 || datEm != 0)) { // mismatch - repeat with debug on
-        std::vector<int> emLut2; 
-        std::vector<int> emBcidR2;
-        std::vector<int> emBcidD2;
-        m_ttTool->setDebug(true);
-        m_ttTool->process(emADC, em_coolId, emLut2, emBcidR2, emBcidD2);
-        m_ttTool->setDebug(false);
-      }
-    }
+    const double phi = tt->phi(); 
+    const int datCp = tt->cpET();
+    const int datJep = tt->jepET();
+    const std::vector<uint_least16_t>& ADC(tt->adc());
+    const int Slices = ADC.size();
+    const int Peak = tt->adcPeak();
+    int simCp = 0;
+    int simJep = 0;
     
-    int simHad = 0;
-    const int datHad = tt->hadEnergy();
-    const int hadSlices = hadADC.size();
-    keep = true;
-    if (datHad == 0) {
+    bool keep = true;
+    if (datCp == 0) {
       keep = false;
-      std::vector<int>::const_iterator it1 = hadADC.begin();
-      std::vector<int>::const_iterator itE = hadADC.end();
+      std::vector<uint_least16_t>::const_iterator it1 = ADC.begin();
+      std::vector<uint_least16_t>::const_iterator itE = ADC.end();
       for (;it1 != itE; ++it1) {
-        if (*it1 >= m_simulationADCCut) {
+	if (*it1 >= m_simulationADCCut) {
 	  keep = true;
 	  break;
-        }
+	}
       }
     }
+    
     if (keep) {
-      hadLut.clear();
-      hadBcidR.clear();
-      hadBcidD.clear();
-      const int hadPeak = tt->hadADCPeak();
-      const L1CaloCoolChannelId had_coolId(m_ttTool->channelID(eta, phi, 1));
-      m_ttTool->process(hadADC, had_coolId, hadLut, hadBcidR, hadBcidD);
-      if (hadSlices < 7 || hadBcidD[hadPeak]) simHad = hadLut[hadPeak];
-      if (m_debug && simHad != datHad && (hadSlices >= 7 || datHad !=0 )) {
-        std::vector<int> hadLut2;
-        std::vector<int> hadBcidR2;
-        std::vector<int> hadBcidD2;
-        m_ttTool->setDebug(true);
-        m_ttTool->process(hadADC, had_coolId, hadLut2, hadBcidR2, hadBcidD2);
-        m_ttTool->setDebug(false);
+      Lut.clear();
+      BcidR.clear();
+      BcidD.clear();
+      const L1CaloCoolChannelId coolId(m_ttTool->channelID(eta, phi, tt->layer()));
+      m_ttTool->process(PPMSimBSMon::convertVectorType<int>(ADC), coolId, Lut, BcidR, BcidD);
+      if (Slices < 7 || BcidD[Peak]) simCp = Lut[Peak];
+      if (m_debug && simCp != datCp && (Slices >= 7 || datCp != 0)) { // mismatch - repeat with debug on
+	std::vector<int> Lut2; 
+	std::vector<int> BcidR2;
+	std::vector<int> BcidD2;
+	m_ttTool->setDebug(true);
+	m_ttTool->process(PPMSimBSMon::convertVectorType<int>(ADC), coolId, Lut2, BcidR2, BcidD2);
+	m_ttTool->setDebug(false);
       }
     }
     
-    if (!simEm && !simHad && !datEm && !datHad) continue;
+    if (!simCp && !datCp) continue;
     
-    //  Fill in error plots
+    simJep = simCp*2;
     
-    int em_mismatch = 0;
-    int had_mismatch = 0;
-    
-    TH2F_LW* hist1 = 0;
-    if (simEm && simEm == datEm) { // non-zero match
-      hist1 = m_h_ppm_em_2d_etaPhi_tt_lut_SimEqData;
-    } else if (simEm != datEm) {  // mis-match
-      em_mismatch = 1;
-      if (simEm && datEm) {       // non-zero mis-match
-        hist1 = m_h_ppm_em_2d_etaPhi_tt_lut_SimNeData;
-      } else if (!datEm) {        // no data
-	if (emSlices >= 7) {
-	  hist1 = m_h_ppm_em_2d_etaPhi_tt_lut_SimNoData;
-	} else em_mismatch = 0;
-      } else {                    // no sim
-	hist1 = m_h_ppm_em_2d_etaPhi_tt_lut_DataNoSim;
-      }
-      if (m_debug) {
-        msg(MSG::DEBUG) << " EMTowerMismatch eta/phi/sim/dat: "
-              << eta << "/" << phi << "/" << simEm << "/" << datEm << endreq;
-      }
-    }
-    
-    if (hist1) m_histTool->fillPPMEmEtaVsPhi(hist1, eta, phi);
-    
-    if (em_mismatch == 1) {
-      const L1CaloCoolChannelId em_coolId(m_ttTool->channelID(eta, phi, 0));
-      const int em_crate  = em_coolId.crate();
-      const int em_module = em_coolId.module();
-      crateError[em_crate] = 1;
-      if (!((moduleError[em_crate]>>em_module)&0x1)) {
-	fillEventSample(em_crate, em_module);
-	moduleError[em_crate] |= (1 << em_module);
-      }
-    }
-    
-    hist1 = 0;
-    if (simHad && simHad == datHad) { // non-zero match
-      hist1 = m_h_ppm_had_2d_etaPhi_tt_lut_SimEqData;
-    } else if (simHad != datHad) {   // mis-match
-      had_mismatch = 1;
-      if (simHad && datHad) {        // non-zero mis-match
-        hist1 = m_h_ppm_had_2d_etaPhi_tt_lut_SimNeData;
-      } else if (!datHad) {          // no data
-	if (hadSlices >= 7) {
-	  hist1 = m_h_ppm_had_2d_etaPhi_tt_lut_SimNoData;
-	} else had_mismatch = 0;
-      } else {                       // no sim
-	hist1 = m_h_ppm_had_2d_etaPhi_tt_lut_DataNoSim;
-      }
-      if (m_debug) {
-        msg(MSG::DEBUG) << " HadTowerMismatch eta/phi/sim/dat: "
-              << eta << "/" << phi << "/" << simHad << "/" << datHad << endreq;
-      }
-    }
+    //=====================FOR ELECTROMAGNETIC LAYER============================
+    if (tt->layer() == 0) {
 
-    if (hist1) m_histTool->fillPPMHadEtaVsPhi(hist1, eta, phi);
-      
-    if (had_mismatch == 1) {
-      const L1CaloCoolChannelId had_coolId(m_ttTool->channelID(eta, phi, 1));
-      const int had_crate  = had_coolId.crate();
-      const int had_module = had_coolId.module();
-      crateError[had_crate] = 1;
-      if (!((moduleError[had_crate]>>had_module)&0x1)) {
-	fillEventSample(had_crate, had_module);
-	moduleError[had_crate] |= (1 << had_module);
+      //  Fill in error plots
+      //------------------For LUT-CP------------------------------------------------
+      int mismatch = 0;
+      TH2F_LW* hist1 = 0;
+      if (simCp && simCp == datCp) { // non-zero match
+	hist1 = m_h_ppm_em_2d_etaPhi_tt_lutCp_SimEqData;
+      } else if (simCp != datCp) {  // mis-match
+	mismatch = 1;
+	if (simCp && datCp) {       // non-zero mis-match
+	  hist1 = m_h_ppm_em_2d_etaPhi_tt_lutCp_SimNeData;
+	} else if (!datCp) {        // no data
+	  if (Slices >= 7) {
+	    hist1 = m_h_ppm_em_2d_etaPhi_tt_lutCp_SimNoData;
+	  } else mismatch = 0;
+	} else {                    // no sim
+	  hist1 = m_h_ppm_em_2d_etaPhi_tt_lutCp_DataNoSim;
+	}
+	if (m_debug) {
+	  msg(MSG::DEBUG) << " EMTowerMismatch eta/phi/sim/dat: "
+		<< eta << "/" << phi << "/" << simCp << "/" << datCp << endreq;
+	}
       }
+      
+      if (hist1) m_histTool->fillPPMEmEtaVsPhi(hist1, eta, phi);
+      
+      if (mismatch == 1) {
+	const L1CaloCoolChannelId coolId(m_ttTool->channelID(eta, phi, tt->layer()));
+	const int crate  = coolId.crate();
+	const int module = coolId.module();
+	crateError[crate] = 1;
+	if (!((moduleError[crate]>>module)&0x1)) {
+	  fillEventSample(crate, module);
+	  moduleError[crate] |= (1 << module);
+	}
+      }    
+      
+      //--------------FOR LUT-JEP------------------------------------------------------
+      mismatch = 0;
+      hist1 = 0;
+      if (simJep && simJep == datJep) { // non-zero match
+	hist1 = m_h_ppm_em_2d_etaPhi_tt_lutJep_SimEqData;
+      } else if (simJep != datJep) {  // mis-match
+	mismatch = 1;
+	if (simJep && datJep) {       // non-zero mis-match
+	  hist1 = m_h_ppm_em_2d_etaPhi_tt_lutJep_SimNeData;
+	} else if (!datJep) {        // no data
+	  if (Slices >= 7) {
+	    hist1 = m_h_ppm_em_2d_etaPhi_tt_lutJep_SimNoData;
+	  } else mismatch = 0;
+	} else {                    // no sim
+	  hist1 = m_h_ppm_em_2d_etaPhi_tt_lutJep_DataNoSim;
+	}
+	if (m_debug) {
+	  msg(MSG::DEBUG) << " EMTowerMismatch eta/phi/sim/dat: "
+		<< eta << "/" << phi << "/" << simJep << "/" << datJep << endreq;
+	}
+      }
+      
+      if (hist1) m_histTool->fillPPMEmEtaVsPhi(hist1, eta, phi);
+      
+      if (mismatch == 1) {
+	const L1CaloCoolChannelId coolId(m_ttTool->channelID(eta, phi, tt->layer()));
+	const int crate  = coolId.crate();
+	const int module = coolId.module();
+	crateError[crate] = 1;
+	if (!((moduleError[crate]>>module)&0x1)) {
+	  fillEventSample(crate, module);
+	  moduleError[crate] |= (1 << module);
+	}
+      } 
+
     }
-  
-  }    
     
+    //=====================FOR HADRONIC LAYER============================
+    if (tt->layer() == 1) {
+
+      //  Fill in error plots
+      //------------------FOR LUT-CPP----------------------------------------
+      int mismatch = 0;
+      
+      TH2F_LW* hist1 = 0;
+      if (simCp && simCp == datCp) { // non-zero match
+	hist1 = m_h_ppm_had_2d_etaPhi_tt_lutCp_SimEqData;
+      } else if (simCp != datCp) {  // mis-match
+	mismatch = 1;
+	if (simCp && datCp) {       // non-zero mis-match
+	  hist1 = m_h_ppm_had_2d_etaPhi_tt_lutCp_SimNeData;
+	} else if (!datCp) {        // no data
+	  if (Slices >= 7) {
+	    hist1 = m_h_ppm_had_2d_etaPhi_tt_lutCp_SimNoData;
+	  } else mismatch = 0;
+	} else {                    // no sim
+	  hist1 = m_h_ppm_had_2d_etaPhi_tt_lutCp_DataNoSim;
+	}
+	if (m_debug) {
+	  msg(MSG::DEBUG) << " EMTowerMismatch eta/phi/sim/dat: "
+		<< eta << "/" << phi << "/" << simCp << "/" << datCp << endreq;
+	}
+      }
+      
+      if (hist1) m_histTool->fillPPMHadEtaVsPhi(hist1, eta, phi);
+      
+      if (mismatch == 1) {
+	const L1CaloCoolChannelId coolId(m_ttTool->channelID(eta, phi, tt->layer()));
+	const int crate  = coolId.crate();
+	const int module = coolId.module();
+	crateError[crate] = 1;
+	if (!((moduleError[crate]>>module)&0x1)) {
+	  fillEventSample(crate, module);
+	  moduleError[crate] |= (1 << module);
+	}
+      }
+
+      //-----------------------FOR LUT-JEP--------------------------------
+      mismatch = 0;
+      hist1 = 0;
+      if (simJep && simJep == datJep) { // non-zero match
+	hist1 = m_h_ppm_had_2d_etaPhi_tt_lutJep_SimEqData;
+      } else if (simJep != datJep) {  // mis-match
+	mismatch = 1;
+	if (simJep && datJep) {       // non-zero mis-match
+	  hist1 = m_h_ppm_had_2d_etaPhi_tt_lutJep_SimNeData;
+	} else if (!datJep) {        // no data
+	  if (Slices >= 7) {
+	    hist1 = m_h_ppm_had_2d_etaPhi_tt_lutJep_SimNoData;
+	  } else mismatch = 0;
+	} else {                    // no sim
+	  hist1 = m_h_ppm_had_2d_etaPhi_tt_lutJep_DataNoSim;
+	}
+	if (m_debug) {
+	  msg(MSG::DEBUG) << " EMTowerMismatch eta/phi/sim/dat: "
+		<< eta << "/" << phi << "/" << simJep << "/" << datJep << endreq;
+	}
+      }
+      
+      if (hist1) m_histTool->fillPPMEmEtaVsPhi(hist1, eta, phi);
+      
+      if (mismatch == 1) {
+	const L1CaloCoolChannelId coolId(m_ttTool->channelID(eta, phi, tt->layer()));
+	const int crate  = coolId.crate();
+	const int module = coolId.module();
+	crateError[crate] = 1;
+	if (!((moduleError[crate]>>module)&0x1)) {
+	  fillEventSample(crate, module);
+	  moduleError[crate] |= (1 << module);
+	}
+      } 
+        
+    }    
+  } 
   ErrorVector* save = new ErrorVector(crateError);
   sc = evtStore()->record(save, "L1CaloPPMMismatchVector");
   if (sc.isFailure()) {
     msg(MSG::ERROR) << "Error recording PPM mismatch vector in TES "
-	            << endreq;
+		    << endreq;
   }
-  
+
   m_ttTool->setDebug(true);
-  
+
 }
 
 void PPMSimBSMon::fillEventSample(int crate, int module)
@@ -442,5 +523,3 @@ void PPMSimBSMon::fillEventSample(int crate, int module)
   else if(crate==6 || crate==7) hist = m_h_ppm_2d_LUT_MismatchEvents_cr6cr7;
   if (hist) m_histTool->fillEventNumber(hist, y);
 }
-
-

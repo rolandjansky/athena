@@ -64,7 +64,6 @@ if l1caloRawMon:
             svcMgr.IOVDbSvc.Folders += ["<dbConnection>sqlite://;schema=" + dbpath + ";dbname=L1CALO</dbConnection>/TRIGGER/L1Calo/V1/References/FineTimeReferences"]
             doFineTime = True
        
-    
     if LVL1CaloMonFlags.doPPrStabilityMon():      
 
         #=================================================================================
@@ -310,13 +309,17 @@ if l1caloRawMon:
             #=================================================================================
             trigstring = ['EF_.*']
             from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import JetEfficienciesMonTool
-            from JetSelectorTools.ConfiguredAthJetCleaningTools import *  
+            from JetSelectorTools.ConfiguredJetCleaningTools import *  
             L1JetEfficienciesMonTool = JetEfficienciesMonTool ( name = "JetEfficienciesMonTool",
                                                                   TriggerStrings = trigstring
                                                               )
-            L1JetEfficienciesMonTool.JetCleaningLooseTool = ConfiguredAthJetCleaningTools_Loose("JetCleaningLooseTool")       
-            L1JetEfficienciesMonTool.JetCleaningMediumTool = ConfiguredAthJetCleaningTools_Medium("JetCleaningMediumTool")
-            L1JetEfficienciesMonTool.JetCleaningTightTool = ConfiguredAthJetCleaningTools_Tight("JetCleaningTightTool") 
+            from AthenaCommon.AppMgr import ToolSvc
+            ToolSvc += JetCleaningTool('JetCleaningLooseTool')
+            ToolSvc += JetCleaningTool('JetCleaningMediumTool')
+            ToolSvc += JetCleaningTool('JetCleaningTightTool')
+            L1JetEfficienciesMonTool.JetCleaningLooseTool = ConfiguredJetCleaningTool_Loose("JetCleaningLooseTool")       
+            L1JetEfficienciesMonTool.JetCleaningMediumTool = ConfiguredJetCleaningTool_Medium("JetCleaningMediumTool")
+            L1JetEfficienciesMonTool.JetCleaningTightTool = ConfiguredJetCleaningTool_Tight("JetCleaningTightTool") 
 
             ToolSvc += L1JetEfficienciesMonTool
             L1CaloMan.AthenaMonTools += [ L1JetEfficienciesMonTool ]

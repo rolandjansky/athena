@@ -97,6 +97,7 @@ namespace LVL1 {
  *  <tr><th> Container                 </th><th> Comment                                  </th></tr>
  *  <tr><td> @c DataVector
  *           @c <LVL1::TriggerTower>   </td><td> PPM data                                 </td></tr>
+ *  <tr><td> @c <xAOD::TriggerTower>   </td><td> PPM data                                 </td></tr>
  *  <tr><td> @c EventInfo              </td><td> For bunch crossing number via @c EventID </td></tr>
  *  <tr><td> @c std::vector<int>       <br>
  *           @c "L1CaloPPMErrorVector" </td><td> Output.
@@ -115,18 +116,19 @@ namespace LVL1 {
  *  <b>JobOption Properties:</b>
  *
  *  <table>
- *  <tr><th> Property                    </th><th> Description                          </th></tr>
- *  <tr><td> @c BS_TriggerTowerContainer </td><td> @copydoc m_TriggerTowerContainerName </td></tr>
- *  <tr><td> @c LUTHitMap_LumiBlocks     </td><td> @copydoc m_TT_HitMap_LumiBlocks      </td></tr>
- *  <tr><td> @c ADCHitMap_Thresh         </td><td> @copydoc m_TT_ADC_HitMap_Thresh      </td></tr>
- *  <tr><td> @c MaxEnergyRange           </td><td> @copydoc m_MaxEnergyRange            </td></tr>
- *  <tr><td> @c ADCPedestal              </td><td> @copydoc m_TT_ADC_Pedestal           </td></tr>
- *  <tr><td> @c HADFADCCut               </td><td> @copydoc m_HADFADCCut                </td></tr>
- *  <tr><td> @c EMFADCCut                </td><td> @copydoc m_EMFADCCut                 </td></tr>
- *  <tr><td> @c PathInRootFile           </td><td> @copydoc m_PathInRootFile            </td></tr>
- *  <tr><td> @c ErrorPathInRootFile      </td><td> @copydoc m_ErrorPathInRootFile       </td></tr>
- *  <tr><td> @c OnlineTest               </td><td> @copydoc m_onlineTest                </td></tr>
- *  <tr><td> @c LUTHitMap_ThreshVec      </td><td> @copydoc m_TT_HitMap_ThreshVec       </td></tr>
+ *  <tr><th> Property                        </th><th> Description                              </th></tr>
+ *  <tr><td> @c BS_TriggerTowerContainer     </td><td> @copydoc m_TriggerTowerContainerName     </td></tr>
+ *  <tr><td> @c BS_xAODTriggerTowerContainer </td><td> @copydoc m_xAODTriggerTowerContainerName </td></tr>
+ *  <tr><td> @c LUTHitMap_LumiBlocks         </td><td> @copydoc m_TT_HitMap_LumiBlocks          </td></tr>
+ *  <tr><td> @c ADCHitMap_Thresh             </td><td> @copydoc m_TT_ADC_HitMap_Thresh          </td></tr>
+ *  <tr><td> @c MaxEnergyRange               </td><td> @copydoc m_MaxEnergyRange                </td></tr>
+ *  <tr><td> @c ADCPedestal                  </td><td> @copydoc m_TT_ADC_Pedestal               </td></tr>
+ *  <tr><td> @c HADFADCCut                   </td><td> @copydoc m_HADFADCCut                    </td></tr>
+ *  <tr><td> @c EMFADCCut                    </td><td> @copydoc m_EMFADCCut                     </td></tr>
+ *  <tr><td> @c PathInRootFile               </td><td> @copydoc m_PathInRootFile                </td></tr>
+ *  <tr><td> @c ErrorPathInRootFile          </td><td> @copydoc m_ErrorPathInRootFile           </td></tr>
+ *  <tr><td> @c OnlineTest                   </td><td> @copydoc m_onlineTest                    </td></tr>
+ *  <tr><td> @c LUTHitMap_ThreshVec          </td><td> @copydoc m_TT_HitMap_ThreshVec           </td></tr>
  *  </table>
  *
  *  <b>Related Documentation:</b>
@@ -160,7 +162,7 @@ private:
       MaxPartitions };
 
   /// Find signal maximum FADC slice
-  double recTime(const std::vector<int>& vFAdc, int cut);
+  double recTime(const std::vector<short unsigned int>& vFAdc, int cut);
   /// Return subdetector partition
   int partition(int layer, double eta);
   /// Return subdetector partition name
@@ -168,6 +170,8 @@ private:
 
   /// TriggerTower Container key
   std::string m_TriggerTowerContainerName;
+  /// xAODTriggerTower Container key
+  std::string m_xAODTriggerTowerContainerName;
   /// Et cuts for hitmaps
   std::vector<unsigned int> m_TT_HitMap_ThreshVec;
   /// The number of back lumiblocks for separate LUT hitmaps online
