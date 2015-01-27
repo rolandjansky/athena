@@ -28,7 +28,7 @@ namespace TrigConf {
    class PrescaleSetLoader : virtual public IPrescaleSetLoader, public DBLoader {
    public:
 
-      PrescaleSetLoader( StorageMgr& sm,  coral::ISessionProxy& session) : DBLoader(sm, session) {}
+      PrescaleSetLoader( StorageMgr& sm,  coral::ISessionProxy& session) : DBLoader("PrescaleSetLoader", sm, session) {}
       virtual ~PrescaleSetLoader(){};
 
       virtual bool load( PrescaleSet& data);

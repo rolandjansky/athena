@@ -495,7 +495,7 @@ int main( int argc, char* argv[] ) {
             uint runNumber = (uint)gConfig.RunNumber();
             log << "TrigConfConsistencyChecker:       INFO Retrieving Lvl1 menu configuration from cool" << std::endl;
             TrigConf::TrigConfCoolWriter coolReader(gConfig.CoolConnection());
-            coolReader.readL1Menu(runNumber, ctpc->menu());
+            coolReader.readL1Menu(runNumber, *ctpc);
          }
          catch(std::exception & e) {
             log << e.what() << std::endl;

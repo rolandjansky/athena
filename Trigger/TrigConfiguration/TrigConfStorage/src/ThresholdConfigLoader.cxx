@@ -40,20 +40,20 @@
 
 using namespace std;
 
-bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& tcTarget ) {
+bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& thrConfig ) {
 
    const unsigned int schema_version_with_zb_fields = 9;
 
    if(verbose())
       msg() << "ThresholdConfigLoader:            Loading ThresholdConfig object attached to Lvl1 master ID "
-            << tcTarget.lvl1MasterTableId() << std::endl;
+            << thrConfig.lvl1MasterTableId() << std::endl;
 
-   //L1DataDef def; // tmp patch      
+   long caloinfoid = 0;
+
    try {
       startSession();
-      // get menu id and caloinfo id from tcTarget.m_MasterTableId and the table L1_MASTER_TABLE
+      // get menu id and caloinfo id from thrConfig.m_MasterTableId and the table L1_MASTER_TABLE
       int menuid = 0;
-      long caloinfoid = 0;
 
       unique_ptr<coral::IQuery> query0(m_session.nominalSchema().tableHandle( "L1_MASTER_TABLE").newQuery());
       query0->setRowCacheSize( 5 );
@@ -62,7 +62,7 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& tcTarget ) {
       coral::AttributeList bindList0;
       bindList0.extend<int>("mtId");
       std::string cond0 = "L1MT_ID = :mtId";
-      bindList0[0].data<int>() = tcTarget.lvl1MasterTableId();
+      bindList0[0].data<int>() = thrConfig.lvl1MasterTableId();
       query0->setCondition( cond0, bindList0 );
 
       //Output and types
@@ -75,7 +75,7 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& tcTarget ) {
       coral::ICursor& cursor0 = query0->execute();
 
       if ( ! cursor0.next() ) {
-         msg() << "ThresholdConfigLoader >> No such Master_Table exists " << tcTarget.lvl1MasterTableId() << std::endl;
+         msg() << "ThresholdConfigLoader >> No such Master_Table exists " << thrConfig.lvl1MasterTableId() << std::endl;
          commitSession();
          throw std::runtime_error( "ThresholdConfigLoader >> ThresholdConfig not available" );
       }
@@ -87,14 +87,19 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& tcTarget ) {
       if ( cursor0.next() ) {
 
          msg() << "ThresholdConfigLoader >> More than one Master_Table exists " 
-               << tcTarget.lvl1MasterTableId() << std::endl;
+               << thrConfig.lvl1MasterTableId() << std::endl;
          commitSession();
          throw std::runtime_error( "ThresholdConfigLoader >>  Master_Table not available" );
       }
 
 
+
+
+
+
+
       //=====================================================
-      // get Thresholds  WITH trigger threshold values
+      // get Thresholds WITH trigger threshold values
 
       coral::AttributeList emptyBindVariableList;
 	
@@ -161,13 +166,7 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& tcTarget ) {
 
       unsigned int schema_version = triggerDBSchemaVersion();
       unsigned int numberofvalues = 0;
-      float ptcut        = 0;
-      string emisolation  = "";
-      string hadisolation = "";
-      string hadveto      = "";
-      float priority     = 0;
       TriggerThreshold*       tt = 0;
-      TriggerThresholdValue* ttv = 0;
       int nRowsLoop1 = -2009;
       int nRowsLoop2 = -2010;
 
@@ -179,9 +178,8 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& tcTarget ) {
          if (nRowsLoop1 != nRowsLoop2) {
 
             if (tt != 0) {
-               //tt->setNumberofValues(numberofvalues);
                // trigger thresholds sorted by type
-               tcTarget.addTriggerThreshold(tt);
+               thrConfig.addTriggerThreshold(tt);
                tt = new TriggerThreshold();
                numberofvalues = 0;
             } else {
@@ -191,15 +189,15 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& tcTarget ) {
 
             //==================================================
             // now get the cable info from TM_TT
-              
-            // ttldr.setLoadCableInfo(true); will be moved from tt to thrcfg loader
-            //if(loadCableInfo()) {
-            tt->setCableName     (row["TM2TT.L1TM2TT_CABLE_NAME"].data<std::string>());
+
+            string cableName = row["TM2TT.L1TM2TT_CABLE_NAME"].data<std::string>();
+            tt->setCableName     (cableName);
             tt->setCableCtpin    (row["TM2TT.L1TM2TT_CABLE_CTPIN"].data<std::string>());
             tt->setCableConnector(row["TM2TT.L1TM2TT_CABLE_CONNECTOR"].data<std::string>());
             tt->setCableStart    (row["TM2TT.L1TM2TT_CABLE_START"].data<int>());
             tt->setCableEnd      (row["TM2TT.L1TM2TT_CABLE_END"].data<int>());
-            //}
+
+
             tt->setId     (row["TT.L1TT_ID"].data<int>());
             tt->setName   (row["TT.L1TT_NAME"].data<std::string>());
             tt->setVersion(row["TT.L1TT_VERSION"].data<int>());
@@ -216,21 +214,21 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& tcTarget ) {
          if(tt->type() == L1DataDef::rndmType() ||
             tt->type() == L1DataDef::pclkType() ||
             tt->type() == L1DataDef::bgrpType() ) {
-            // no trigger threshold values exist for internal triggers
-            //tt->setNumberofValues(0);
          } else {
-            ttv = tt->createThresholdValue(row["TT.L1TT_TYPE"].data<std::string>()); 
+
+            TriggerThresholdValue* ttv = tt->createThresholdValue(row["TT.L1TT_TYPE"].data<std::string>()); 
+
             ttv->setId       (row["TTV.L1TTV_ID"].data<int>());
 
             // Fill the value common for all threshold_value
             ttv->setName     (row["TTV.L1TTV_NAME"].data<std::string>());
             ttv->setVersion  (row["TTV.L1TTV_VERSION"].data<int>());
             ttv->setType     (row["TTV.L1TTV_TYPE"].data<std::string>());
-            ptcut = boost::lexical_cast<float,std::string>(row["TTV.L1TTV_PT_CUT"].data<std::string>());
-            emisolation = row["TTV.L1TTV_EM_ISOLATION"].data<std::string>();
-            hadisolation = row["TTV.L1TTV_HAD_ISOLATION"].data<std::string>();
-            hadveto = row["TTV.L1TTV_HAD_VETO"].data<std::string>();
-            priority = boost::lexical_cast<float,std::string>(row["TTV.L1TTV_PRIORITY"].data<std::string>());
+            float ptcut = boost::lexical_cast<float,std::string>(row["TTV.L1TTV_PT_CUT"].data<std::string>());
+            string emisolation = row["TTV.L1TTV_EM_ISOLATION"].data<std::string>();
+            string hadisolation = row["TTV.L1TTV_HAD_ISOLATION"].data<std::string>();
+            string hadveto = row["TTV.L1TTV_HAD_VETO"].data<std::string>();
+            float priority = boost::lexical_cast<float,std::string>(row["TTV.L1TTV_PRIORITY"].data<std::string>());
             ttv->setPtcut    (ptcut);
             ttv->setPriority (priority);
 
@@ -289,9 +287,20 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& tcTarget ) {
          nRowsLoop2 = row["TT.L1TT_ID"].data<int>();
 
       }
+
       // trigger thresholds sorted by type
-      tcTarget.addTriggerThreshold(tt);
-      //std::cout << "ThresholdConfigLoader: Total thresholds found:" << tcTarget.thresholdVector().size() << std::endl; 
+      thrConfig.addTriggerThreshold(tt);
+
+
+
+
+
+
+
+
+
+
+
 
       //===========================================
       // now get the Thresholds WITHOUT trigger threshold values
@@ -354,14 +363,14 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& tcTarget ) {
          const coral::AttributeList& row = cursor1.currentRow();
 
          nRowsLoop1 = row["TT.L1TT_ID"].data<int>();
-         tt = tcTarget.findTriggerThreshold(nRowsLoop1);
+         tt = thrConfig.findTriggerThreshold(nRowsLoop1);
          if (tt) continue;
          if (nRowsLoop1 != nRowsLoop2) {
 
             if (tt != 0) {
                //tt->setNumberofValues(numberofvalues);
                // trigger thresholds sorted by type
-               tcTarget.addTriggerThreshold(tt);
+               thrConfig.addTriggerThreshold(tt);
                tt = new TriggerThreshold();
                numberofvalues = 0;
             } else {
@@ -373,13 +382,13 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& tcTarget ) {
             // now get the cable info from TM_TT
 
             // ttldr.setLoadCableInfo(true); will be moved from tt to thrcfg loader
-            //if(loadCableInfo()) {
-            tt->setCableName     (row["TM2TT.L1TM2TT_CABLE_NAME"].data<std::string>());
+
+            string cableName = row["TM2TT.L1TM2TT_CABLE_NAME"].data<std::string>();
+            tt->setCableName(cableName);
             tt->setCableCtpin    (row["TM2TT.L1TM2TT_CABLE_CTPIN"].data<std::string>());
             tt->setCableConnector(row["TM2TT.L1TM2TT_CABLE_CONNECTOR"].data<std::string>());
             tt->setCableStart    (row["TM2TT.L1TM2TT_CABLE_START"].data<int>());
             tt->setCableEnd      (row["TM2TT.L1TM2TT_CABLE_END"].data<int>());
-            //}
             tt->setId     (row["TT.L1TT_ID"].data<int>());
             tt->setName   (row["TT.L1TT_NAME"].data<std::string>());
             tt->setVersion(row["TT.L1TT_VERSION"].data<int>());
@@ -406,29 +415,14 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& tcTarget ) {
                           << tt->id() << " for MenuId = " << menuid << ": ");
             //tt->setNumberofValues(numberofvalues);
             // trigger thresholds sorted by type
-            tcTarget.addTriggerThreshold(tt);
+            thrConfig.addTriggerThreshold(tt);
             tt = new TriggerThreshold();
          }
 
          nRowsLoop2 = row["TT.L1TT_ID"].data<int>();
 
       }
-
-      //============================================
-      // get CaloInfo
-
-      CaloInfoLoader& cildr = dynamic_cast<CaloInfoLoader&>
-         ((dynamic_cast<StorageMgr&>(m_storageMgr)).caloInfoLoader());
-      CaloInfo ci;
-      ci.setId(caloinfoid);
-      if ( !cildr.load( ci )) {
-         TRG_MSG_ERROR("loading CaloInfo " << ci.id());
-         throw runtime_error( "ThresholdConfigLoader: Error loading CaloInfo" );
-      }
-      tcTarget.setCaloInfo(ci);
-      TriggerThresholdValue::setCaloInfo(ci);
       commitSession();
-      return true;    
    }
    catch( const coral::Exception& e ) {
       TRG_MSG_ERROR("Caught coral exception: " << e.what() );
@@ -439,5 +433,43 @@ bool TrigConf::ThresholdConfigLoader::load( ThresholdConfig& tcTarget ) {
       throw; 
    }
 
+   loadCaloInfo(thrConfig, caloinfoid);
+
+   // create TIPs from TOPO and ALFA TriggerThresholds
+
+   return true;    
+
 }
+
+
+
+void
+TrigConf::ThresholdConfigLoader::loadCaloInfo( ThresholdConfig& thrConfig, long caloInfoId ) {
+   //============================================
+   // get CaloInfo
+   //============================================
+   try {
+      startSession();
+      CaloInfoLoader& cildr = dynamic_cast<CaloInfoLoader&>
+         ((dynamic_cast<StorageMgr&>(m_storageMgr)).caloInfoLoader());
+      CaloInfo ci;
+      ci.setId(caloInfoId);
+      if ( !cildr.load( ci )) {
+         TRG_MSG_ERROR("loading CaloInfo " << ci.id());
+         throw runtime_error( "ThresholdConfigLoader: Error loading CaloInfo" );
+      }
+      thrConfig.setCaloInfo(ci);
+      TriggerThresholdValue::setCaloInfo(ci);
+      commitSession();
+   }
+   catch( const coral::Exception& e ) {
+      TRG_MSG_ERROR("Caught coral exception: " << e.what() );
+      throw; 
+   }
+   catch( const std::exception& e ) {
+      TRG_MSG_ERROR("Caught standard exception: " << e.what() );
+      throw; 
+   }
+}
+
 

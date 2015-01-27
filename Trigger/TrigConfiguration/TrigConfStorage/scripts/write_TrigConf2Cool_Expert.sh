@@ -14,16 +14,20 @@ help() {
     echo "  -h|--help                ..... this help"
     echo "  -x|--examples            ..... show examples"
     echo "  -c|--createdb            ..... (re)create cool db"
-    echo "  -w|--what <what>         ..... what=[l1menu|hltmenu|l1ps|hltps]"
+    echo "  -w|--what <what>         ..... what=[bginfo|l1menu|hltmenu|l1ps|hltps]"
     echo "  -r|--run <runNr>         ..... run number"
     echo "  --lb <lb>                ..... LB number"
     echo "  -s|--smk <smk>           ..... SMK "
     echo "  --l1psk <runNr>          ..... L1 PSK"
+    echo "  -b|--bgk <bgk>           ..... BG key"
     exit 0
 }
 
 examples() {
 echo "Examples:
+
+BG info:
+./$prog -w bginfo -r 1000 -b 474
 
 L1 menu:
 ./$prog -w l1menu -r 1000 -s 875  
@@ -47,7 +51,8 @@ lbnr=0
 smk=0
 l1psk=0
 hltpsk=0
-cooldb="sqlite://;schema=$sqlitefile;dbname=TRIGCONF"
+bgk=0
+cooldb="sqlite://;schema=$sqlitefile;dbname=CONDBR2"
 triggerdb="TRIGGERDB"
 
 while [ $# -gt 0 ]
@@ -57,6 +62,7 @@ do
         -x|--examples) examples;;
         -s|--smk) shift; smk=$1;;
         -w|--what) shift; what=$1;;
+        -b|--lbk) shift; bgk=$1;;
         --l1psk) shift; l1psk=$1;;
         --hltpsk) shift; hltpsk=$1;;
         --lb) shift; lbnr=$1;;
@@ -69,7 +75,7 @@ do
 done
 
 case $what in
-    l1menu|hltmenu|l1ps|hltps) ;;
+    bginfo|l1menu|hltmenu|l1ps|hltps) ;;
     *)
     echo "--what is not specified"
     help
@@ -105,6 +111,14 @@ case $what in
     if [ "$smk" -ne 0 -a "$hltpsk" -ne 0 -a "$runnr" -ne 0 -a "$lbnr" -ne 0 ]; then
         TrigConf2COOLApp -e writehlt --cooldb $cooldb \
             --trigdb $triggerdb --configkey $smk --run $runnr  --lumiblock $lbnr --prescalekeyhlt $hltpsk
+    fi
+    ;;
+    bginfo)
+    if [ "$smk" -ne 0 -a "$bgk" -ne 0 -a "$runnr" -ne 0 ]; then
+        echo TrigConf2COOLApp -e writel1 --cooldb \'$cooldb\' \
+            --trigdb $triggerdb --configkey $smk  --run $runnr  --bgkey $bgk
+    else
+        echo "SMK or run nr or bg key is missing"
     fi
     ;;
 esac

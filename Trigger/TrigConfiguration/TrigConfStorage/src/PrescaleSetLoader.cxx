@@ -27,13 +27,13 @@
 using namespace std;
 
 bool
-TrigConf::PrescaleSetLoader::load( PrescaleSet& psTarget ) {
+TrigConf::PrescaleSetLoader::load( PrescaleSet& prescaleSet ) {
 
-   TRG_MSG_INFO("loading data with ID = " << psTarget.id());
+   TRG_MSG_INFO("loading L1 prescale set with PSK " << prescaleSet.id());
 
    CTPdataformatVersion ctpformat(s_ctpVersion);
 
-   psTarget.resize(ctpformat.getMaxTrigItems());
+   prescaleSet.resize(ctpformat.getMaxTrigItems());
 
    try {
       startSession();
@@ -44,7 +44,7 @@ TrigConf::PrescaleSetLoader::load( PrescaleSet& psTarget ) {
       coral::AttributeList bindList;
       bindList.extend<int>("psId");
       std::string cond = "L1PS_ID = :psId";
-      bindList[0].data<int>() = psTarget.id();
+      bindList[0].data<int>() = prescaleSet.id();
       q->setCondition( cond, bindList );
 
       //Output data and types
@@ -60,7 +60,7 @@ TrigConf::PrescaleSetLoader::load( PrescaleSet& psTarget ) {
       coral::ICursor& cursor = q->execute();
       
       if ( ! cursor.next() ) {
-         TRG_MSG_ERROR("No such prescaleset exists " << psTarget.id());
+         TRG_MSG_ERROR("No such prescaleset exists " << prescaleSet.id());
          throw std::runtime_error( "PrescaleSetLoader >> PrescaleSet not available" );
       }
 
@@ -70,15 +70,15 @@ TrigConf::PrescaleSetLoader::load( PrescaleSet& psTarget ) {
       std::string comment = row["L1PS_COMMENT"].data<std::string>();
 
       // fill the object with data
-      psTarget.setName( name );
-      psTarget.setVersion( version );
-      psTarget.setComment( comment );
+      prescaleSet.setName( name );
+      prescaleSet.setVersion( version );
+      prescaleSet.setComment( comment );
       for (unsigned int ctpid=0; ctpid < ctpformat.getMaxTrigItems(); ++ctpid) {
          int64_t val = row["L1PS_VAL" + boost::lexical_cast<string,unsigned int>(ctpid+1)].data<int64_t>();
          if(isRun1()) {
-            psTarget.setPrescale(ctpid,val);
+            prescaleSet.setPrescale(ctpid,val);
          } else {
-            psTarget.setCut(ctpid,val);
+            prescaleSet.setCut(ctpid,val);
          }
       }
 

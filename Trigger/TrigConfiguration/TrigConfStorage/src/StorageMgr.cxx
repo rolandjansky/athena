@@ -100,11 +100,12 @@ StorageMgr::sessionMgr() {
          m_sessionMgr->setDbPassword(m_password);
       }
       m_sessionMgr->setUseFrontier(useFrontier()); 
+      m_sessionMgr->setRetrialPeriod(m_retrialPeriod);
+      m_sessionMgr->setRetrialTimeout(m_retrialTimeout);
+      m_sessionMgr->setConnectionTimeout(m_connectionTimeout);
    }
    return * m_sessionMgr;
 }
-
-
 
 
 
