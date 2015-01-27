@@ -5,7 +5,6 @@ public
 
 # Central package(s):
 use AtlasPolicy   AtlasPolicy-*
-use SGTools       SGTools-*       Control
 use AthContainers AthContainers-* Control
 use AthLinks      AthLinks-*      Control
 

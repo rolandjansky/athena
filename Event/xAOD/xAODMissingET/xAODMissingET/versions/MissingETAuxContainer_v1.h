@@ -45,7 +45,7 @@ namespace xAOD
   };
 }
 
-#include "SGTools/BaseInfo.h"
+#include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::MissingETAuxContainer_v1, xAOD::AuxContainerBase );
 
 #endif // XAODMISSINGET_VERSIONS_MISSINGETAUXCONTAINER_V1_H

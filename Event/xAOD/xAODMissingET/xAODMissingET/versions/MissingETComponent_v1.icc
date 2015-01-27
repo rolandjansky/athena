@@ -19,9 +19,9 @@ inline xAOD::MissingETComponent_v1::Weight::Weight(double wpx,double wpy,double 
   : m_wpx(wpx), m_wpy(wpy), m_wet(wet)
 { }
 
-inline xAOD::MissingETComponent_v1::Weight::Weight(const Weight& wght)
-  : m_wpx(wght.wpx()), m_wpy(wght.wpy()), m_wet(wght.wet())
-{ }
+// inline xAOD::MissingETComponent_v1::Weight::Weight(const Weight& wght)
+//   : m_wpx(wght.wpx()), m_wpy(wght.wpy()), m_wet(wght.wet())
+// { }
 
 inline xAOD::MissingETComponent_v1::Weight::~Weight()
 { }

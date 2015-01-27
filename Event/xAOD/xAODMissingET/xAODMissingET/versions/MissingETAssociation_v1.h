@@ -16,6 +16,7 @@
 #include "xAODMissingET/versions/MissingET_v1.h"
 
 #include <vector>
+#include <set>
 
 namespace xAOD
 {
@@ -33,7 +34,7 @@ namespace xAOD
       ConstVec();                                 /*!< @brief Default constructor */
       ConstVec(double cpx,double cpy,double cpz,double ce,double sumpt); /*!< @brief Constructor with parameters */
       ConstVec(const IParticle& ipar);            /*!< @brief Constructor from IParticle */
-      ConstVec(const ConstVec& cvec);             /*!< @brief Copy constructor */
+      // ConstVec(const ConstVec& cvec);             /*!< @brief Copy constructor */
       ~ConstVec();                                /*!< @brief Data class destructor */
       /*! @name Accessors */
       /*!@{*/
@@ -295,7 +296,8 @@ namespace xAOD
     ConstVec overlapCalVec() const;                                       /*!< @brief Retrieve total cluster-based vector to be subtracted from the jet */
     ConstVec overlapTrkVec() const;                                       /*!< @brief Retrieve total track-based vector to be subtracted from the jet */
 
-    bool contains(const IParticle* pSig) const;                           /*!< @brief Check if this signal object matches the constituents of any contributing objects */
+    bool containsSignal(const IParticle* pSig) const;                     /*!< @brief Check if this signal object matches the constituents of any contributing objects */
+    bool containsPhysics(const IParticle* pPhys) const;                   /*!< @brief Check if this physics object matches any contributing objects */
     bool checkUsage(const IParticle* pSig,MissingETBase::UsageHandler::Policy p) const; /*!< @brief Check if this signal object matches the constituents of any flagged contributing objects */
     bool isMisc() const;                                                  /*!< @brief Check if this association is a miscellaneous association */
 
@@ -420,6 +422,7 @@ namespace xAOD
 							      */
     /*!@}*/
   private:
+    mutable std::set<size_t> m_objsInSum;
     /*! @name Cache remembering the previous search result */
     /*!@{*/
     mutable const IParticle* m_lastObjectPointer; /*!< @brief Pointer to last searched object */

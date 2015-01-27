@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 625182 2014-10-30 16:45:03Z khoo $ -->
+<!-- $Id: selection.xml 641248 2015-01-23 12:58:17Z khoo $ -->
 <lcgdict>
 
   <!-- MissingET_v1 dictionaries: -->
@@ -29,6 +29,7 @@
 
   <!-- MissingETAssociation_v1/MissingETAssociationMap_v1 dictionaries: -->
   <class name="xAOD::MissingETAssociation_v1">
+    <field name="m_objsInSum" transient="true" />
     <field name="m_lastObjectPointer" transient="true" />
     <field name="m_lastObjectIndex" transient="true" />
     <field name="m_objConstLinks" transient="true" />
@@ -71,9 +72,8 @@
   <class name="std::vector<ElementLink<xAOD::MissingETAssociationMap_v1> >" />
   <class name="std::vector<std::vector<ElementLink<xAOD::MissingETAssociationMap_v1> > >" />
 
-  <class name="std::vector<unsigned long long>" />
-  <class name="std::vector<std::vector<size_t> >" />
-  <class name="std::vector<std::vector<unsigned char> >" />
+  <class name="std::vector<std::vector<std::vector<unsigned long> > >" />
+  <class name="std::vector<std::vector<std::vector<unsigned char> > >" />
 
   <!-- Suppress the unwanted classes found by ROOT 6. -->
   <!-- Hopefully we can remove these extra lines at one point... -->
@@ -82,6 +82,7 @@
     <class name="DataLink<SG::IConstAuxStore>" />
     <class name="DataVector<xAOD::IParticle>" />
     <class name="ElementLink<DataVector<xAOD::IParticle> >" />
+    <class name="ElementLink<DataVector<xAOD::Jet_v1> >" />
   </exclusion>
 
 </lcgdict>

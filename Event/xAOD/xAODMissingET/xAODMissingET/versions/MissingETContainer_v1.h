@@ -45,6 +45,7 @@ namespace xAOD
   };
 }
 
+#include "xAODCore/BaseInfo.h"
 SG_BASE(xAOD::MissingETContainer_v1, DataVector<xAOD::MissingET_v1>);
 
 #include "xAODMissingET/versions/MissingETContainer_v1.icc"

@@ -281,11 +281,11 @@ bool MissingETComponentMap_v1::f_checkObjectUsage(MissingETBase::Types::object_v
   if ( signalLinks.empty() )  // this also an indication that there is no overlap!
     {
       size_t nSig(m_maxSignalSize);
-      const IParticleContainer* pCont = dynamic_cast<const IParticleContainer*>(signals.front()->container());
-      if ( pCont == 0 ) 
-	{ printf("MissingETComponentMap::f_checkObjectUsage(...) - WARNING - cannot cast container pointer %p to IParticleContainer\n",(void*)signals.front()->container()); }
-      else
-	{ nSig = pCont->size(); }
+      const IParticleContainer* pCont = static_cast<const IParticleContainer*>(signals.front()->container());
+      // if ( pCont == 0 ) 
+      // 	{ printf("MissingETComponentMap::f_checkObjectUsage(...) - WARNING - cannot cast container pointer %p to IParticleContainer\n",(void*)signals.front()->container()); }
+      // else
+      nSig = pCont->size();
       indexedlink_t sw(MissingETBase::Numerical::invalidLink().get<0>(),MissingETBase::Numerical::invalidLink().get<1>());
       signalLinks.resize(nSig,sw);
       return false;
@@ -362,11 +362,11 @@ bool MissingETComponentMap_v1::setClusters(const MissingET* pMET,const IParticle
 	firstCluster = false;
 	if ( m_clusterLinks.empty() )  { 
 	  size_t nClus(m_maxClusterSize);
-	  const IParticleContainer* pCont(dynamic_cast<const IParticleContainer*>((*fSig)->container()));
-	  if ( pCont == 0 )
-	    { printf("MissingETComponentMap::setClusters(...) - WARNING   - cannot access cluster container (invalid NULL pointer), use %i words\n",(int)nClus); }
-	  else
-	    { nClus = pCont->size(); }
+	  const IParticleContainer* pCont(static_cast<const IParticleContainer*>((*fSig)->container()));
+	  // if ( pCont == 0 )
+	  //   { printf("MissingETComponentMap::setClusters(...) - WARNING   - cannot access cluster container (invalid NULL pointer), use %i words\n",(int)nClus); }
+	  // else
+	  nClus = pCont->size();
 	  m_clusterLinks.resize(nClus,MissingETBase::Numerical::invalidLink());
 	} // empty cluster link list
       } //first cluster
@@ -396,11 +396,11 @@ bool MissingETComponentMap_v1::setTracks(const MissingET* pMET,const IParticle* 
       if(firstTrack) {
 	firstTrack = false;
 	if ( m_trackLinks.empty() ) { 
-	  const IParticleContainer* pCont(dynamic_cast<const IParticleContainer*>((*fSig)->container()));
-	  if ( pCont == 0 )
-	    { printf("MissingETComponentMap::setTracks(...) - WARNING   - cannot access track container (invalid NULL pointer), use %i words\n",(int)nTrack); }
-	  else
-	    { nTrack = pCont->size(); }
+	  const IParticleContainer* pCont(static_cast<const IParticleContainer*>((*fSig)->container()));
+	  // if ( pCont == 0 )
+	  //   { printf("MissingETComponentMap::setTracks(...) - WARNING   - cannot access track container (invalid NULL pointer), use %i words\n",(int)nTrack); }
+	  // else
+	  nTrack = pCont->size();
 	  m_trackLinks.resize(nTrack,MissingETBase::Numerical::invalidLink());
 	} // empty track link list
       } // first track

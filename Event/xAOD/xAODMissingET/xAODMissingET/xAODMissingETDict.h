@@ -4,9 +4,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODMissingETDict.h 630852 2014-11-25 11:14:23Z khoo $
+// $Id: xAODMissingETDict.h 637597 2015-01-03 01:35:01Z khoo $
 #ifndef XAODMISSINGET_XAODMISSINGETDICT_H
 #define XAODMISSINGET_XAODMISSINGETDICT_H
+
+// Needed to successfully generate the dictionary in standalone mode:
+#if defined(__GCCXML__) and not defined(EIGEN_DONT_VECTORIZE)
+#   define EIGEN_DONT_VECTORIZE
+#endif // __GCCXML__
 
 // System include(s):
 #include <vector>
@@ -59,6 +64,8 @@ namespace {
       std::vector< unsigned long long > vec2;
       std::vector< std::vector< size_t > > vec3;
       std::vector< std::vector< unsigned char > > vec4;
+      std::vector< std::vector< std::vector< unsigned long > > > vec5;
+      std::vector< std::vector< std::vector< unsigned char > > > vec6;
    };
 }
 

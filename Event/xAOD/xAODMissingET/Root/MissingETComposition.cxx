@@ -70,9 +70,7 @@ namespace xAOD {
   {
     if ( pMap == 0 ) return false;
     //
-    MissingETComponentMap::iterator fCont(pMap->begin());
-    MissingETComponentMap::iterator lCont(pMap->end());
-    for ( ; fCont != lCont; ++fCont ) { (*fCont)->updateLinks(); }
+    for ( auto iter : *pMap ) { iter->updateLinks(); }
     return true;
   }
 
@@ -80,9 +78,7 @@ namespace xAOD {
   { 
     if ( pMap == 0 ) return false;
     //
-    MissingETComponentMap::iterator fCont(pMap->begin());
-    MissingETComponentMap::iterator lCont(pMap->end());
-    for ( ; fCont != lCont; ++fCont ) { (*fCont)->updateMETLink(); }
+    for ( auto iter : *pMap ) { iter->updateMETLink(); }
     return true;
   }
 
@@ -215,12 +211,11 @@ namespace xAOD {
     std::vector<ElementLink<IParticleContainer> > jetconst = pJet->constituentLinks();
     MissingETBase::Types::constvec_t trkvec;
     if(jettracks.size()>0) {
-      const IParticleContainer* pTrkCont = dynamic_cast<const IParticleContainer*>(jettracks.front()->container());
-      for(std::vector<const IParticle*>::const_iterator iTrack=jettracks.begin();
-    	  iTrack!=jettracks.end(); ++iTrack) {  
-    	ElementLink<IParticleContainer> link(*pTrkCont,(*iTrack)->index());
+      const IParticleContainer* pTrkCont = static_cast<const IParticleContainer*>(jettracks.front()->container());
+      for(const auto& trk : jettracks) {  
+    	ElementLink<IParticleContainer> link(*pTrkCont,trk->index());
     	jetconst.push_back(link);
-    	trkvec += **iTrack;
+    	trkvec += *trk;
       }
     }
     pMap->setJetConstituents(jetconst,nextIdx);
@@ -240,13 +235,15 @@ namespace xAOD {
   }
 
   bool MissingETComposition::insert(MissingETAssociationMap* pMap,size_t jetIndex,const IParticle* pPart,const std::vector<const IParticle*>& constlist,
-				     const MissingETBase::Types::constvec_t& calvec,
-				     const MissingETBase::Types::constvec_t& trkvec)
+				    const MissingETBase::Types::constvec_t& calvec,
+				    const MissingETBase::Types::constvec_t& trkvec)
   { 
     // input check
     if ( pMap == 0 )
       { printf("MissingETComposition::insert - ERROR - possible invalid pointer value: MissingETAssociationMap* = %p\n",(void*)pMap); return false; }
     // check if MET object already in map
+
+    // printf("MissingETComposition::insert - INFO - associated to jet %lu\n",jetIndex);
 
     if ( jetIndex==MissingETBase::Numerical::invalidIndex() || jetIndex>=pMap->size())
       { printf("MissingETComposition::insert - WARNING - no MissingETAssociation matching this jet, could not add\n"); return false; }
@@ -256,8 +253,8 @@ namespace xAOD {
   }
 
   bool MissingETComposition::insert(MissingETAssociationMap* pMap,const Jet* pJet,const IParticle* pPart,const std::vector<const IParticle*>& constlist,
-				     const MissingETBase::Types::constvec_t& calvec,
-				     const MissingETBase::Types::constvec_t& trkvec)
+				    const MissingETBase::Types::constvec_t& calvec,
+				    const MissingETBase::Types::constvec_t& trkvec)
   { 
     // input check
     if ( pMap == 0 || pJet == 0 )
@@ -271,8 +268,7 @@ namespace xAOD {
   }
 
   bool MissingETComposition::insert(MissingETAssociationMap* pMap,const IParticle* pPart,const std::vector<const IParticle*>& constlist,
-				     const MissingETBase::Types::constvec_t& calvec,
-				     const MissingETBase::Types::constvec_t& trkvec)
+				    std::map<const IParticle*,MissingETBase::Types::constvec_t> pOverride)
   { 
     // input check
     if ( pMap == 0 )
@@ -280,18 +276,36 @@ namespace xAOD {
     if(constlist.size()==0)
       { return false; }
     
-    size_t jetIndex(MissingETBase::Numerical::invalidIndex());
     // loop over constituents and try to identify an appropriate association
     // FIXME: check in case more than one appropriate index found?
-    for(std::vector<const IParticle*>::const_iterator iConst=constlist.begin();
-	iConst!=constlist.end(); ++iConst) {
-      jetIndex = pMap->findIndexByJetConst(*iConst);
-      if(jetIndex!=MissingETBase::Numerical::invalidIndex()) {
-	if(insert(pMap,jetIndex,pPart,constlist,calvec,trkvec)) {return true;}
+    std::map<size_t,MissingETBase::Types::constvec_t> calMap,trkMap;
+    std::map<size_t,std::vector<const IParticle*> > constMap;
+    for(const auto& signal : constlist) {
+      size_t jetIndex = pMap->findIndexByJetConst(signal);
+      // printf("Constituent type %i, jetIndex %lu\n",signal->type(),jetIndex);
+      if (jetIndex!=MissingETBase::Numerical::invalidIndex() || !pMap->getMiscAssociation()->containsSignal(signal)) {
+	if ((signal)->type()==xAOD::Type::CaloCluster) calMap[jetIndex] += MissingETBase::Types::constvec_t(*signal);
+	else if ((signal)->type()==xAOD::Type::TrackParticle) trkMap[jetIndex] += MissingETBase::Types::constvec_t(*signal);
+	else if ((signal)->type()==xAOD::Type::ObjectType::ParticleFlow)  {
+	  if(pOverride.find(signal)!=pOverride.end()) {
+	    calMap[jetIndex] += pOverride[signal];
+	  } else {
+	    calMap[jetIndex] += MissingETBase::Types::constvec_t(*signal);
+	    trkMap[jetIndex] += MissingETBase::Types::constvec_t(*signal);
+	  }
+	}
+	constMap[jetIndex].push_back(signal);
       }
     }
-
-    return false;
+    std::map<size_t,std::vector<const IParticle*> >::iterator jetIter;
+    for(auto& jetIter : constMap) {
+      if(jetIter.first!=MissingETBase::Numerical::invalidIndex()) {
+        insert(pMap,jetIter.first,pPart,jetIter.second,calMap[jetIter.first],trkMap[jetIter.first]);
+      } else {
+	insertMisc(pMap,pPart,jetIter.second,calMap[jetIter.first],trkMap[jetIter.first]);
+      }
+    }
+    return true;
   }
 
   bool MissingETComposition::insertMisc(MissingETAssociationMap* pMap,const IParticle* pPart,const std::vector<const IParticle*>& constlist,
@@ -306,12 +320,11 @@ namespace xAOD {
     
     size_t jetIndex(MissingETBase::Numerical::invalidIndex());
     // loop over constituents and make sure these don't belong to some other association
-    for(std::vector<const IParticle*>::const_iterator iConst=constlist.begin();
-	iConst!=constlist.end(); ++iConst) {
-      //      printf("MissingETComposition::insertMisc - INFO - constituent pt %f\n", (*iConst)->pt());
-      jetIndex = pMap->findIndexByJetConst(*iConst);
+    for(const auto& signal : constlist) {
+      // printf("MissingETComposition::insertMisc - INFO - constituent pt %f\n", signal->pt());
+      jetIndex = pMap->findIndexByJetConst(signal);
       if(jetIndex!=MissingETBase::Numerical::invalidIndex()) {
-	//printf("MissingETComposition::insertMisc - ERROR - object %p with constituent %p is associated to jet %lu, will not place in misc association\n",(void*)pPart,(void*)*iConst,jetIndex); return false;
+	//printf("MissingETComposition::insertMisc - ERROR - object %p with constituent %p is associated to jet %lu, will not place in misc association\n",(void*)pPart,(void*)signal,jetIndex); return false;
       }
     }
     
@@ -348,20 +361,32 @@ namespace xAOD {
     return fAssoc;
   }
 
-  const MissingETAssociation* MissingETComposition::getAssociation(const MissingETAssociationMap* pMap,const IParticle* pPart)
+  std::vector<const MissingETAssociation*> MissingETComposition::getAssociations(const MissingETAssociationMap* pMap,const IParticle* pPart)
   { 
-    if ( pMap == 0 ) { return (const MissingETAssociation*)0; }
-    else { MissingETAssociationMap::const_iterator fAssoc(find(pMap,pPart)); return fAssoc != pMap->end() ? *fAssoc : (const MissingETAssociation*)0; }
+    std::vector<const MissingETAssociation*> assocs;
+    if ( pMap == 0 ) { return assocs; }
+    else { 
+      for (MissingETAssociationMap::const_iterator fAssoc = pMap->begin();fAssoc!=pMap->end(); fAssoc++) {
+	if ((*fAssoc)->findIndex(pPart) != MissingETBase::Numerical::invalidIndex()) assocs.push_back(*fAssoc);
+      }
+    }
+    return assocs;
+  } 
+
+  std::vector<MissingETAssociation*> MissingETComposition::getAssociations(MissingETAssociationMap* pMap,const IParticle* pPart)
+  { 
+    std::vector<MissingETAssociation*> assocs;
+    if ( pMap == 0 ) { return assocs; }
+    else { 
+      for (MissingETAssociationMap::iterator fAssoc = pMap->begin();fAssoc!=pMap->end(); fAssoc++) {
+	if ((*fAssoc)->findIndex(pPart) != MissingETBase::Numerical::invalidIndex()) assocs.push_back(*fAssoc);
+      }
+    }
+    return assocs;
   } 
 
   const MissingETAssociation* MissingETComposition::getAssociation(const MissingETAssociationMap* pMap,const Jet* pJet)
   { MissingETAssociationMap::const_iterator fAssoc(find(pMap,pJet)); return fAssoc != pMap->end() ? *fAssoc : (const MissingETAssociation*)0; }
-
-  MissingETAssociation* MissingETComposition::getAssociation(MissingETAssociationMap* pMap,const IParticle* pPart)
-  { 
-    if ( pMap == 0 ) { return (MissingETAssociation*)0; }
-    else { MissingETAssociationMap::iterator fAssoc(find(pMap,pPart)); return fAssoc != pMap->end() ? *fAssoc : (MissingETAssociation*)0; }
-  } 
 
   MissingETAssociation* MissingETComposition::getAssociation(MissingETAssociationMap* pMap,const Jet* pJet)
   { MissingETAssociationMap::iterator fAssoc(find(pMap,pJet)); return fAssoc != pMap->end() ? *fAssoc : (MissingETAssociation*)0; }

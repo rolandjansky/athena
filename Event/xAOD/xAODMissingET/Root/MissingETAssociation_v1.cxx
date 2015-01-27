@@ -146,10 +146,9 @@ bool MissingETAssociation_v1::addObject(const IParticle* pPart,const std::vector
       this->f_trkpx()[idx] += tpx; this->f_trkpy()[idx] += tpy; this->f_trkpz()[idx] += tpz; this->f_trke()[idx] += te; this->f_trksumpt()[idx] += tsumpt;
       m_objConstLinks[idx].clear();
       m_objConstLinks[idx].reserve(constlist.size());
-      for(vector<const IParticle*>::const_iterator iConst=constlist.begin();
-	  iConst!=constlist.end(); ++iConst) {
-	const IParticleContainer* pCont = dynamic_cast<const IParticleContainer*>((*iConst)->container());
-	ElementLink<IParticleContainer> el(*pCont,(*iConst)->index());
+      for(const auto& signal : constlist) {
+	const IParticleContainer* pCont = static_cast<const IParticleContainer*>(signal->container());
+	MissingETBase::Types::objlink_t el(*pCont,signal->index());
 	m_objConstLinks[idx].push_back(el);
       }
       return false; }
@@ -161,12 +160,11 @@ bool MissingETAssociation_v1::addObject(const IParticle* pPart,const std::vector
       this->f_objectLinks().push_back(oLnk);
       this->f_calpx().push_back(cpx);this->f_calpy().push_back(cpy);this->f_calpz().push_back(cpz);this->f_cale().push_back(ce);this->f_calsumpt().push_back(csumpt);
       this->f_trkpx().push_back(tpx);this->f_trkpy().push_back(tpy);this->f_trkpz().push_back(tpz);this->f_trke().push_back(te);this->f_trksumpt().push_back(tsumpt);
-      vector<ElementLink<IParticleContainer> > linklist;
+      vector<MissingETBase::Types::objlink_t > linklist;
       linklist.reserve(constlist.size());
-      for(vector<const IParticle*>::const_iterator iConst=constlist.begin();
-	  iConst!=constlist.end(); ++iConst) {
-	const IParticleContainer* pCont = dynamic_cast<const IParticleContainer*>((*iConst)->container());
-	ElementLink<IParticleContainer> el(*pCont,(*iConst)->index());
+      for(const auto& signal : constlist) {
+	const IParticleContainer* pCont = static_cast<const IParticleContainer*>(signal->container());
+	MissingETBase::Types::objlink_t el(*pCont,signal->index());
 	linklist.push_back(el);
       }
       m_objConstLinks.push_back(linklist);
@@ -182,10 +180,8 @@ void MissingETAssociation_v1::updateLinks()
   this->updateJetLink();
   static SG::AuxElement::Accessor<MissingETBase::Types::objlink_vector_t> acc("objectLinks");
   if(acc.isAvailableWritable(*this)) {
-    MissingETBase::Types::objlink_vector_t::iterator fLnk(this->f_objectLinks().begin());
-    MissingETBase::Types::objlink_vector_t::iterator lLnk(this->f_objectLinks().end());
-    for ( ; fLnk != lLnk; ++fLnk ) { 
-      fLnk->toPersistent();
+    for ( auto& link : this->f_objectLinks() ) { 
+      link.toPersistent();
     } 
   }
 }
@@ -519,8 +515,8 @@ bool MissingETAssociation_v1::operator==(const MissingETAssociation_v1& assocDes
 {
   // FIXME compare only jet link and number of contributing particles 
   return 
-    this->jetLink()    == assocDescr.jetLink()    &&
-    this->size()       == assocDescr.size();
+    this->jetLink() == assocDescr.jetLink()    &&
+    this->size()    == assocDescr.size();
 }
 
 
@@ -562,12 +558,12 @@ bool MissingETAssociation_v1::identifyOverlaps(size_t objIdx)
 {
   if ( objIdx == MissingETBase::Numerical::invalidIndex() ) return false;
   // extract constituent list
-  const vector<ElementLink<IParticleContainer> >& myConst = m_objConstLinks[objIdx];
+  const vector<MissingETBase::Types::objlink_t >& myConst = m_objConstLinks[objIdx];
   // loop over subsequent objects in this association
   // (assume earlier ones have been tested)
   vector<size_t>& myOverlaps = f_overlapIndices()[objIdx];
   for(size_t iTargetObj=objIdx+1; iTargetObj<this->objectLinks().size(); ++iTargetObj) {
-    const vector<ElementLink<IParticleContainer> >& checkConst = m_objConstLinks[iTargetObj];
+    const vector<MissingETBase::Types::objlink_t >& checkConst = m_objConstLinks[iTargetObj];
     bool overlapFound(false);
     unsigned char overlapTypes(0);
     // if we somehow already recorded an overlap for this one, skip
@@ -577,12 +573,10 @@ bool MissingETAssociation_v1::identifyOverlaps(size_t objIdx)
     }
     if(overlapFound) continue;
     // otherwise, compare constituents to check if any match
-    for(vector<ElementLink<IParticleContainer> >::const_iterator iMine=myConst.begin();
-	iMine!=myConst.end(); ++iMine) {
-      for(vector<ElementLink<IParticleContainer> >::const_iterator iTargetConst=checkConst.begin();
-	  iTargetConst!=checkConst.end(); ++iTargetConst) {
-	overlapFound |= ( (*iMine) == (*iTargetConst) );
-	overlapTypes |= 1 << (**iMine)->type();
+    for(const auto& mine : myConst) {
+      for(const auto& target : checkConst) {
+	overlapFound |= ( mine == target );
+	if(mine == target) overlapTypes |= 1 << (*mine)->type();
       }
     }
     // record the overlap
@@ -600,7 +594,7 @@ bool MissingETAssociation_v1::hasOverlaps(size_t objIdx,MissingETBase::UsageHand
   vector<size_t> indices = this->overlapIndices(objIdx);
   vector<unsigned char> types = this->overlapTypes(objIdx);
   for(size_t iOL=0; iOL<indices.size(); ++iOL) {
-    if(this->objSelected(indices[iOL])) {
+    if(this->objSelected(indices[iOL]) && (!this->objSelected(objIdx)||m_objsInSum.find(indices[iOL])!=m_objsInSum.end())) {
       //      printf("Test object %lu for overlaps: OL type %i\n",indices[iOL],(int)types[iOL]);
       switch(p) {
       case MissingETBase::UsageHandler::TrackCluster:      
@@ -628,6 +622,7 @@ constvec_t MissingETAssociation_v1::overlapCalVec() const
   MissingETBase::Types::bitmask_t useObjectFlags_orig = m_useObjectFlags;
 
   constvec_t calvec;
+  m_objsInSum.clear();
   for(size_t iObj=0; iObj<this->objectLinks().size(); ++iObj) {
     if(this->isMisc()) {
       // in misc association, add in the unused clusters
@@ -646,11 +641,13 @@ constvec_t MissingETAssociation_v1::overlapCalVec() const
 	 && !this->hasOverlaps(iObj,MissingETBase::UsageHandler::OnlyCluster)
 	 && !this->hasOverlaps(iObj,MissingETBase::UsageHandler::ParticleFlow)) {
 	calvec += this->calVec(iObj);
+        m_objsInSum.insert(iObj);
       } // remove clusters from selected, non-overlapping objects
     } // treatment for standard associations
   } // loop over associated objects
 
   m_useObjectFlags = useObjectFlags_orig;
+  m_objsInSum.clear();
   return calvec;
 }
 
@@ -660,6 +657,7 @@ constvec_t MissingETAssociation_v1::overlapTrkVec() const
 
   constvec_t trkvec;
   // Loop once ignoring muons
+  m_objsInSum.clear();
   for(size_t iObj=0; iObj<this->objectLinks().size(); ++iObj) {
     if((*this->objectLinks()[iObj])->type()==xAOD::Type::Muon) continue;
     if(this->isMisc()) {
@@ -674,10 +672,11 @@ constvec_t MissingETAssociation_v1::overlapTrkVec() const
       } // add tracks for unselected objects or overlapping objects
     } else {
       if(this->objSelected(iObj)
-	 && !this->hasOverlaps(iObj,MissingETBase::UsageHandler::OnlyCluster)
+	 && !this->hasOverlaps(iObj,MissingETBase::UsageHandler::TrackCluster)
 	 && !this->hasOverlaps(iObj,MissingETBase::UsageHandler::ParticleFlow)) {
 	// printf("object %lu with type %i and pt %f\n",iObj,(*this->objectLinks()[iObj])->type(),(*this->objectLinks()[iObj])->pt());
 	trkvec += this->trkVec(iObj);
+	m_objsInSum.insert(iObj);
       } // remove tracks from selected, non-overlapping objects
     } // treatment for standard associations
   } // loop over associated objects
@@ -705,18 +704,30 @@ constvec_t MissingETAssociation_v1::overlapTrkVec() const
   } // loop over associated objects
   
   m_useObjectFlags = useObjectFlags_orig;
+  m_objsInSum.clear();
   return trkvec;
 }
 
-bool MissingETAssociation_v1::contains(const IParticle* pSig) const
+bool MissingETAssociation_v1::containsPhysics(const IParticle* pPhys) const
 {
-  const IParticleContainer* pCont = dynamic_cast<const IParticleContainer*>(pSig->container());
-  ElementLink<IParticleContainer> el(*pCont,pSig->index());
-  for(size_t iObj=0; iObj<this->objectLinks().size(); ++iObj) {
-    for(vector<ElementLink<IParticleContainer> >::const_iterator iLnk=m_objConstLinks[iObj].begin();
-	iLnk!=m_objConstLinks[iObj].end(); ++iLnk) {
-      if(*(*iLnk)==pSig) {
+  for(const auto& link : this->objectLinks()) {
+    if(link.isValid()) {
+      if(pPhys == *link) {
 	return true;
+      }
+    }
+  }
+  return false;
+}
+
+bool MissingETAssociation_v1::containsSignal(const IParticle* pSig) const
+{
+  for(size_t iObj=0; iObj<this->objectLinks().size(); ++iObj) {
+    for(const auto& link : m_objConstLinks[iObj]) {
+      if(link.isValid()) {
+	if(pSig == *link) {
+	  return true;
+	}
       }
     }
   }
@@ -726,13 +737,12 @@ bool MissingETAssociation_v1::contains(const IParticle* pSig) const
 bool MissingETAssociation_v1::checkUsage(const IParticle* pSig,MissingETBase::UsageHandler::Policy p) const
 {
   if(MissingETAssociation_v1::testPolicy(pSig->type(),p)) {
-    const IParticleContainer* pCont = dynamic_cast<const IParticleContainer*>(pSig->container());
-    ElementLink<IParticleContainer> el(*pCont,pSig->index());
+    const IParticleContainer* pCont = static_cast<const IParticleContainer*>(pSig->container());
+    MissingETBase::Types::objlink_t el(*pCont,pSig->index());
     for(size_t iObj=0; iObj<this->objectLinks().size(); ++iObj) {
       if(objSelected(iObj)) {
-	for(vector<ElementLink<IParticleContainer> >::const_iterator iLnk=m_objConstLinks[iObj].begin();
-	    iLnk!=m_objConstLinks[iObj].end(); ++iLnk) {
-	  if(*(*iLnk)==pSig) {
+	for(const auto& link : m_objConstLinks[iObj]) {
+	  if(el == link) {
 	    return true;
 	  }
 	}
