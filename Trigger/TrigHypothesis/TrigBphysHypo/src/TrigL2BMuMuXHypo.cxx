@@ -112,17 +112,15 @@ HLT::ErrorCode TrigL2BMuMuXHypo::hltInitialize()
 /*------------------------------------------------------------------------------------------*/
 HLT::ErrorCode TrigL2BMuMuXHypo::hltFinalize()
 {
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "In Finalize()" << endreq;
-  if(msgLvl() <= MSG::VERBOSE){
-    msg() << MSG::VERBOSE << "|----------------------- SUMMARY FROM TrigL2LbMuMuKHypo -------------|" << endreq;
-    msg() << MSG::VERBOSE << "Run on events/RoIs " << m_countTotalEvents << "/" << m_countTotalRoI <<  endreq;
-    msg() << MSG::VERBOSE << "Passed events/RoIs " << m_countPassedEvents << "/" << m_countPassedRoIs <<  endreq;
-    msg() << MSG::VERBOSE << "RoIs Passed BMass: " << m_countPassedBMass << endreq;
-    msg() << MSG::VERBOSE << "RoIs Passed BdMass: " << m_countPassedBdMass << endreq;
-    msg() << MSG::VERBOSE << "RoIs Passed BsMass: " << m_countPassedBsMass << endreq;
-    msg() << MSG::VERBOSE << "RoIs Passed LbMass: " << m_countPassedLbMass << endreq;
-    msg() << MSG::VERBOSE << "|-----------------------------------------------------------------------|" << endreq;
-  }
+  msg() << MSG::INFO << "In Finalize()" << endreq;
+  msg() << MSG::INFO << "|----------------------- SUMMARY FROM TrigL2BMuMuXHypo -------------|" << endreq;
+  msg() << MSG::INFO << "Run on events/RoIs " << m_countTotalEvents << "/" << m_countTotalRoI <<  endreq;
+  msg() << MSG::INFO << "Passed events/RoIs " << m_countPassedEvents << "/" << m_countPassedRoIs <<  endreq;
+  msg() << MSG::INFO << "RoIs Passed BMass: " << m_countPassedBMass << endreq;
+  msg() << MSG::INFO << "RoIs Passed BdMass: " << m_countPassedBdMass << endreq;
+  msg() << MSG::INFO << "RoIs Passed BsMass: " << m_countPassedBsMass << endreq;
+  msg() << MSG::INFO << "RoIs Passed LbMass: " << m_countPassedLbMass << endreq;
+  msg() << MSG::INFO << "|-----------------------------------------------------------------------|" << endreq;
 
   return HLT::OK;
 }

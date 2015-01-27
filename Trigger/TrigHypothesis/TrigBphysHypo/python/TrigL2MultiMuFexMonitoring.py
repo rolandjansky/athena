@@ -50,7 +50,7 @@ class TrigL2MultiMuFexValidationMonitoring(TrigGenericMonitoringToolConfig):
                                                xbins = 100, xmin = 0., xmax = 10. ) ]
         self.Histograms += [ defineHistogram ( 'FitVtxZ', type = 'TH1F',
                                                title = 'L2MultiMuFex - Fitted vertex Z-position ; Z [mm] ; # Candidates',
-                                               xbins = 100, xmin = 0., xmax = 500. ) ]
+                                               xbins = 100, xmin = -500., xmax = 500. ) ]
 
 class TrigL2MultiMuFexOnlineMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="TrigL2MultiMuFexOnlineMonitoring"):
@@ -94,5 +94,5 @@ class TrigL2MultiMuFexOnlineMonitoring(TrigGenericMonitoringToolConfig):
                                                xbins = 100, xmin = 0., xmax = 10. ) ]
         self.Histograms += [ defineHistogram ( 'FitVtxZ', type = 'TH1F',
                                                title = 'L2MultiMuFex - Fitted vertex Z-position ; Z [mm] ; # Candidates',
-                                               xbins = 100, xmin = 0., xmax = 500. ) ]
+                                               xbins = 100, xmin = -500., xmax = 500. ) ]
 

@@ -138,6 +138,22 @@ class L2BMuMuXFex_allModes (L2BMuMuXFex_1):
         # Bc -> Ds* Mu Mu
         self.DoBc_DsMuMuDecay = True
 
+
+class L2BMuMuXFex_BplusMuMuKplus (L2BMuMuXFex_1):
+    __slots__ = []
+    def __init__(self, name = "L2BMuMuXFex_BplusMuMuKplus"):
+        L2BMuMuXFex_1.__init__(self, name )
+        
+        # B{+/-} -> K{+/-} Mu Mu
+        self.DoB_KMuMuDecay = True
+        # Bd -> K*(892) Mu Mu
+        self.DoBd_KstarMuMuDecay = False
+        # Bs -> Phi(1020) Mu Mu
+        self.DoBs_Phi1020MuMuDecay = False
+        # Lb -> L Mu Mu     
+        self.DoLb_LambdaMuMuDecay = False
+        # Bc -> Ds* Mu Mu
+        self.DoBc_DsMuMuDecay = False
         
 
 class L2BMuMuXFex_allModes_tightBc (L2BMuMuXFex_allModes):

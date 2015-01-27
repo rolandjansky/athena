@@ -32,7 +32,7 @@
 #include "TrigInDetEvent/TrigVertexCollection.h"
 
 #include "TrigInDetToolInterfaces/ITrigL2VertexFitter.h"
-#include "TrigVertexFitter/ITrigVertexingTool.h"
+#include "TrigInDetToolInterfaces/ITrigVertexingTool.h"
 #include "TrigInDetToolInterfaces/ITrigVertexFitter.h"
 
 #include "TrigBphysHypo/Constants.h"

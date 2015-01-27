@@ -4,6 +4,7 @@ author Natalia Panikashvili <Natalia.Panikashvili@cern.ch>
 
 public
 use  AtlasPolicy                AtlasPolicy-*                   
+private
 use  GaudiInterface             GaudiInterface-*                External
 use  DataModel                DataModel-*                Control
 use  TrigCaloEvent              TrigCaloEvent-*                 Trigger/TrigEvent
@@ -16,9 +17,8 @@ use  TrigSteeringEvent          TrigSteeringEvent-*             Trigger/TrigEven
 use  TrigT1Interfaces           TrigT1Interfaces-*              Trigger/TrigT1
 use  TrigNavigation             TrigNavigation-*                Trigger/TrigEvent
 use xAODTrigMuon                xAODTrigMuon-*                  Event/xAOD
-private
+#private
 use  TrigTimeAlgs               TrigTimeAlgs-*                  Trigger/TrigTools
-use  TrigVertexFitter           TrigVertexFitter-*              Trigger/TrigTools
 use  TrkTrack                   TrkTrack-*                      Tracking/TrkEvent
 use  xAODMuon                   xAODMuon-*                      Event/xAOD
 use xAODTrigBphys          xAODTrigBphys-*          Event/xAOD
@@ -31,7 +31,6 @@ use  EventInfo                  EventInfo-*                     Event
 use  GeneratorObjects           GeneratorObjects-*              Generators
 use  GeoPrimitives              GeoPrimitives-*                 DetectorDescription
 use  InDetBeamSpotService       InDetBeamSpotService-*          InnerDetector/InDetConditions
-use  MuidEvent                  MuidEvent-*                     Reconstruction/MuonIdentification
 use  Particle                   Particle-*                      Reconstruction
 use  StoreGate                  StoreGate-*                     Control
 use  TrkParameters              TrkParameters-*                 Tracking/TrkEvent

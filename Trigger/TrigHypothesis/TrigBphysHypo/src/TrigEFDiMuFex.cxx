@@ -698,22 +698,24 @@ HLT::ErrorCode TrigEFDiMuFex::doMuTruth()
             
             if (pPart->pdg_id() == -13 || pPart->pdg_id() == 13)
             {
-                int parent_pdg = 0;
-                if (pPart->production_vertex() != NULL)
-                {
-					HepMC::GenVertex::particle_iterator
-                    itVxPart = pPart->production_vertex()->particles_begin(HepMC::parents),
-                    itVxPart_e = pPart->production_vertex()->particles_end(HepMC::parents);
-                    for (; itVxPart != itVxPart_e; ++itVxPart)
-                    {
-                        parent_pdg = (*itVxPart)->pdg_id();
-                    }
-                }
+                // ST: this stuff seems not to be used anywhere else - commented out for now
+                //
+                // int parent_pdg = 0;
+                // if (pPart->production_vertex() != NULL)
+                // {
+		// 			HepMC::GenVertex::particle_iterator
+                //     itVxPart = pPart->production_vertex()->particles_begin(HepMC::parents),
+                //     itVxPart_e = pPart->production_vertex()->particles_end(HepMC::parents);
+                //     for (; itVxPart != itVxPart_e; ++itVxPart)
+                //     {
+                //         parent_pdg = (*itVxPart)->pdg_id();
+                //     }
+                // }
                 
                 ++nTruthMu;
                 if (m_doNTuple)
                 {
-                    double cot=1/tan(2*atan(exp(-pPart->momentum().eta())));
+                    // double cot=1/tan(2*atan(exp(-pPart->momentum().eta())));
                     
                     status = StatusCode::FAILURE; //m_pTrigEFDiMuNtuple->fillTruth(nTruthMu,
                                                   //          pPart->momentum().phi(),
