@@ -40,6 +40,7 @@
 #include "LArRawEvent/LArRawChannel.h"
 #include "LArRawEvent/LArRawChannelContainer.h"
 //#include "LArRecEvent/LArNoisyROSummary.h"
+#include "LArRecEvent/LArEventBitInfo.h"
 #include "StoreGate/DataHandle.h"
 
 #include "LWHists/TH1F_LW.h"
@@ -460,6 +461,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
     std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_timeVetoBurs = _per_detector_hists[timeVetoBurst_h];
     std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_nfrac= _per_detector_hists[noise_fraction_h];
     std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_nfracNeg= _per_detector_hists[noise_fraction_Neg_h];
+    std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_nfrac_W= _per_detector_hists[noise_fraction_W_h];
     std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_nfracNoLArNoisyRO= _per_detector_hists[noise_fraction_NoLArNoisyRO_h];
     std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_nfracTimeVetoLArNoisyRO= _per_detector_hists[noise_fraction_TimeVetoLArNoisyRO_h];
 
@@ -686,6 +688,18 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 	  factory_ptr->SetYTitle("Number of Events per 0.02 %");
 	  det_histogram_factories[det][noise_fraction_Neg_h] = factory_ptr;
 	}
+
+	// Noise fraction (Positive only) histogram when not flagged by LArNoisyROAlg_W 
+	if ( _monitor_burst){
+	  //	if ( _monitor_negative_noise ) {
+	  std::string his_title    = "Percent of Channels in the " + detector_str( det ) +
+	    " with Wheighted Flag > " + lexical_cast<std::string>( _noise_threshold ) +" #sigma";
+	  factory_ptr.reset(new LWHist1DFactory<TH1F_LW>(his_title.c_str(),375, 0., 7.5 ));
+	  factory_ptr->SetXTitle("Percent of Channels");
+	  factory_ptr->SetYTitle("Number of Events per 0.02 %");
+	  det_histogram_factories[det][noise_fraction_W_h] = factory_ptr;
+	}
+
 
 	// Noise fraction (Positive only) histogram when not flagged by LArNoisyROAlg
 	if ( _monitor_burst){
@@ -1125,6 +1139,20 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 	  } else return StatusCode::FAILURE;
 	}
 
+
+	if ( _monitor_burst){
+	  //	if ( _monitor_positive_noise ) {
+	  std::string his_name  = detector_str( det ) + "_noise_fraction_W";
+	  std::string dir_name  = m_path + "/" + detector_str( det );
+	  LWHist* histo = ( the_det_histo_factories[noise_fraction_W_h]->create( his_name ) );
+	  //TK: REMOVED//histo->Sumw2();
+	  if ( registerHistogram( histo, dir_name ) ) {
+	    per_det_nfrac_W[det] = shared_ptr<IHistoProxyBase>( createLWHistProxy(histo) );
+	  } else return StatusCode::FAILURE;
+	}
+	
+
+
 	// per_det_nfra (for positive energy only ) when Not flagged by LArNoisyROAlg
 	if ( _monitor_burst){
 	  //	if ( _monitor_positive_noise ) {
@@ -1209,7 +1237,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 StatusCode LArRawChannelMonTool::fillHistograms()
 {
 
-  ATH_MSG(DEBUG) << "===> start " << name() << "::fillHistograms <=== " << endreq;
+  ATH_MSG(DEBUG) << "===> start " << name() << "::fillHistograms boulou <=== " << endreq;
 
 
   // -- Set ATLAS Ready Filter
@@ -1235,15 +1263,24 @@ StatusCode LArRawChannelMonTool::fillHistograms()
   uint32_t lumi_block        = 0;
   bool isEventFlaggedByLArNoisyROAlg = false; // keep default as false
   bool isEventFlaggedByLArNoisyROAlgInTimeW = false; // keep deault as false
+  bool isEventFlaggedByLArNoisyROAlg_W =false; // keep deault as false
   //  double event_time_minutes = -1;
   if ( evtStore()->retrieve( event_info ).isSuccess()) {
-
+   
+    //ATH_MSG(DEBUG) << "event_info->isEventFlagBitSet(xAOD::EventInfo::LAr,0"<<event_info->isEventFlagBitSet(xAOD::EventInfo::LAr,0) << endreq;
     // Check for LArNoisyROAlg event info
     //    if (event_info->errorState(EventInfo::LAr) == EventInfo::Warning) {
-    if ( event_info->isEventFlagBitSet(xAOD::EventInfo::LAr,0) ) {
+    if ( event_info->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::BADFEBS) ) {
       isEventFlaggedByLArNoisyROAlg = true;
       ATH_MSG(DEBUG) << " !!! Noisy event found from LArNoisyROAlg !!!" << endreq;
     }
+
+   
+    if ( event_info->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::BADFEBS_W) ) {
+      isEventFlaggedByLArNoisyROAlg_W = true;
+      ATH_MSG(DEBUG) << " !!! Noisy event found from LArNoisyROAlg_W !!!" << endreq;
+    }
+   
 
     if ( event_info->isEventFlagBitSet(xAOD::EventInfo::LAr,3) ) {
       isEventFlaggedByLArNoisyROAlgInTimeW = true;
@@ -1323,6 +1360,7 @@ StatusCode LArRawChannelMonTool::fillHistograms()
   //  std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_mevbc= _per_detector_hists[E_v_bc_h]; 
   std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_nfrac= _per_detector_hists[noise_fraction_h];
   std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_nfracNeg= _per_detector_hists[noise_fraction_Neg_h];
+  std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_nfrac_W= _per_detector_hists[noise_fraction_W_h];
   std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_nfracNoLArNoisyRO= _per_detector_hists[noise_fraction_NoLArNoisyRO_h];
   std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_nfracTimeVetoLArNoisyRO= _per_detector_hists[noise_fraction_TimeVetoLArNoisyRO_h];
   std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_burs = _per_detector_hists[burst_h];
@@ -1744,7 +1782,14 @@ StatusCode LArRawChannelMonTool::fillHistograms()
 	shared_ptr<IHistoProxyBase> histo = hist_itr->second;
 	if ( histo ) histo->Fill( noisy_channel_percent_Neg );
       }
-
+     
+      // Weighted Flag 
+      hist_itr = per_det_nfrac_W.find( det );
+      if ( hist_itr != per_det_nfrac_W.end() ) {
+	shared_ptr<IHistoProxyBase> histo = hist_itr->second;
+	if ( histo && !isEventFlaggedByLArNoisyROAlg_W ) histo->Fill( noisy_channel_percent );
+      }
+      
       //New Plot. Fill when event is not flagged by LArNoisyROAlg
       hist_itr = per_det_nfracNoLArNoisyRO.find( det );
       if ( hist_itr != per_det_nfracNoLArNoisyRO.end() ) {
