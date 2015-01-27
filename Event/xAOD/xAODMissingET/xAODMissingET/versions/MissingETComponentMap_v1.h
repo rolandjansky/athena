@@ -167,6 +167,19 @@ namespace xAOD
     size_t getObjectIndex(const IParticle* pPart) const;
     /*!@}*/
 
+    /* override base DataVector methods that can remove elements
+     * in order to invalidate the cache
+     */
+    void resize(size_type sz);
+    void pop_back();
+    void clear();
+    void sort();
+    template <class COMPARE> void sort(COMPARE comp);
+    void clear (SG::OwnershipPolicy ownPolicy);
+    void clear (SG::OwnershipPolicy ownPolicy,SG::IndexTrackingPolicy trackIndices);
+    iterator erase(iterator position);
+    iterator erase(iterator first, iterator last);
+
   protected:
 
     /*! @name Internal types for local cache handling */
@@ -309,11 +322,11 @@ namespace xAOD
     void f_setConstCache(const_iterator fCont) const;
     /*!@}*/
 
-
     iterator f_find(const MissingET* pMET);
     iterator f_find(const std::string& name);
     iterator f_find(MissingETBase::Types::bitmask_t src);
     void f_setCache(iterator fCont);
+    void resetCache() const;
 
     const MissingET* f_retrieveMissingETExcl(MissingETBase::Types::bitmask_t src)              const;
     const MissingET* f_retrieveMissingETExcl(MissingETBase::Types::bitmask_t src,MissingETBase::Types::bitmask_t sw) const;
@@ -334,6 +347,8 @@ namespace xAOD
   }; // class xAOD::MissingETComponentMap_v1
 } // namespace xAOD
 
+#include "xAODCore/BaseInfo.h"
 SG_BASE(xAOD::MissingETComponentMap_v1, DataVector<xAOD::MissingETComponent_v1>);
 
+#include "xAODMissingET/versions/MissingETComponentMap_v1.icc"
 #endif

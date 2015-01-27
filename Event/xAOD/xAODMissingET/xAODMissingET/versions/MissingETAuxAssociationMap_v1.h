@@ -62,6 +62,6 @@ namespace xAOD
   };
 }
 
-#include "SGTools/BaseInfo.h"
+#include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::MissingETAuxAssociationMap_v1, xAOD::AuxContainerBase );
 #endif

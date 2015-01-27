@@ -68,6 +68,7 @@ namespace xAOD
     void add(const IParticle* particle);                 /*!< @brief Add particle kinematics to MET */
     void add(const IParticle* particle,double scale);    /*!< @brief Add scaled particle kinematics to MET */
     void add(double px,double py,double pt);             /*!< @brief Add kinematic variables to MET */
+    MissingET_v1& operator=(const MissingET_v1& met); /*!< @brief Add particle kinematics to MET */ 
     MissingET_v1& operator+=(const IParticle* particle); /*!< @brief Add particle kinematics to MET */ 
     MissingET_v1& operator-=(const IParticle* part);     /*!< @brief Remove particle kinematics to MET */ 
     /*!@}*/

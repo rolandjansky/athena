@@ -25,9 +25,9 @@ inline xAOD::MissingETAssociation_v1::ConstVec::ConstVec(const IParticle& ipar)
   : m_cpx(ipar.p4().Px()), m_cpy(ipar.p4().Py()), m_cpz(ipar.p4().Pz()), m_ce(ipar.e()), m_sumpt(ipar.pt())
 { }
 
-inline xAOD::MissingETAssociation_v1::ConstVec::ConstVec(const ConstVec& cvec)
-  : m_cpx(cvec.cpx()), m_cpy(cvec.cpy()), m_cpz(cvec.cpz()), m_ce(cvec.ce()), m_sumpt(cvec.sumpt())
-{ }
+// inline xAOD::MissingETAssociation_v1::ConstVec::ConstVec(const ConstVec& cvec)
+//   : m_cpx(cvec.cpx()), m_cpy(cvec.cpy()), m_cpz(cvec.cpz()), m_ce(cvec.ce()), m_sumpt(cvec.sumpt())
+// { }
 
 inline xAOD::MissingETAssociation_v1::ConstVec::~ConstVec()
 { }
@@ -232,7 +232,7 @@ inline std::vector<std::vector<unsigned char> >& xAOD::MissingETAssociation_v1::
 
 // ------------------------------------------------ Reference jet and container
 inline const xAOD::Jet* xAOD::MissingETAssociation_v1::refJet() const
-{ return (!this->jetLink().isDefault() ? *this->jetLink() : (const xAOD::Jet*)0); }
+{ return (this->jetLink().isValid() ? *this->jetLink() : (const xAOD::Jet*)0); }
 
 inline const xAOD::JetContainer* xAOD::MissingETAssociation_v1::refJetContainer() const 
 { return this->refJet() != 0 ? this->jetLink().getStorableObjectPointer() : (const JetContainer*)0; }

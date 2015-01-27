@@ -82,6 +82,16 @@ void MissingET_v1::add(const IParticle* particle,double scale)
 void xAOD::MissingET_v1::add(double px,double py, double pt) 
 { this->f_mpx() -= px; this->f_mpy() -= py; this->f_sumet() += pt; }
 
+MissingET_v1& MissingET_v1::operator=(const MissingET_v1& met)
+{
+  setName( met.name() );
+  setSource( met.source() );
+  this->f_mpx() = met.mpx();
+  this->f_mpy() = met.mpy();
+  this->f_sumet() = met.sumet();
+  return *this;
+}
+
 MissingET_v1& MissingET_v1::operator-=(const IParticle* particle)
 {
   EXTRACT_PX( double, px, (*particle) );

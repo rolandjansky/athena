@@ -29,7 +29,7 @@ namespace xAOD
     public:
       Weight();                                 /*!< @brief Default constructor */
       Weight(double wpx,double wpy,double wet); /*!< @brief Constructor with parameters */
-      Weight(const Weight& wght);               /*!< @brief Copy constructor */
+      // Weight(const Weight& wght);               /*!< @brief Copy constructor */
       ~Weight();                                /*!< @brief Data class destructor */
       /*! @name Accessors */
       /*!@{*/

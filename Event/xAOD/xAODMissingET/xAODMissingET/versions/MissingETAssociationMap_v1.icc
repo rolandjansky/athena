@@ -5,6 +5,44 @@
 */
 
 
+////////////////////////////////////////
+// Inlined Overrides of DV methods    //
+////////////////////////////////////////
+
+inline void xAOD::MissingETAssociationMap_v1::resetCache() const
+{
+  m_lastRefJet = 0;
+  m_lastContribIndex = MissingETBase::Numerical::invalidIndex();
+  m_miscAssocIndex = MissingETBase::Numerical::invalidIndex();
+}
+
+inline void xAOD::MissingETAssociationMap_v1::resize(xAOD::MissingETAssociationMap_v1::size_type sz)
+{ this->resetCache(); DataVector::resize(sz); }
+
+inline void xAOD::MissingETAssociationMap_v1::pop_back()
+{ this->resetCache(); DataVector::pop_back(); }
+
+inline void xAOD::MissingETAssociationMap_v1::sort()
+{ this->resetCache(); DataVector::sort(); }
+
+template<class COMPARE> inline void xAOD::MissingETAssociationMap_v1::sort(COMPARE comp)
+{ this->resetCache(); DataVector::sort(comp); }
+
+inline void xAOD::MissingETAssociationMap_v1::clear()
+{ this->resetCache(); DataVector::clear(); }
+
+inline void xAOD::MissingETAssociationMap_v1::clear (SG::OwnershipPolicy ownPolicy)
+{ this->resetCache(); DataVector::clear(ownPolicy); }
+
+inline void xAOD::MissingETAssociationMap_v1::clear (SG::OwnershipPolicy ownPolicy,SG::IndexTrackingPolicy trackIndices)
+{ this->resetCache(); DataVector::clear(ownPolicy,trackIndices); }
+
+inline xAOD::MissingETAssociationMap_v1::iterator xAOD::MissingETAssociationMap_v1::erase(xAOD::MissingETAssociationMap_v1::iterator position)
+{ this->resetCache(); return DataVector::erase(position); }
+
+inline xAOD::MissingETAssociationMap_v1::iterator xAOD::MissingETAssociationMap_v1::erase(xAOD::MissingETAssociationMap_v1::iterator first,
+											  xAOD::MissingETAssociationMap_v1::iterator last)
+{ this->resetCache(); return DataVector::erase(first, last); }
 
 ///////////////////////////////////////////////////////////////
 // The rest of the file contains doxygen documentation only! //

@@ -310,8 +310,8 @@ namespace xAOD
      *  @param[in] trkvec    reference to a ConstVec with the 4-mom sum of track constituents of this physics object
      */
     static bool insert(MissingETAssociationMap* pMap,size_t jetIndex,const IParticle* pPart,const std::vector<const IParticle*>& constlist,
-		       const MissingETBase::Types::constvec_t& calvec=MissingETBase::Types::constvec_t(),
-		       const MissingETBase::Types::constvec_t& trkvec=MissingETBase::Types::constvec_t());
+			   const MissingETBase::Types::constvec_t& calvec,
+			   const MissingETBase::Types::constvec_t& trkvec);
     /*! @brief Insert contributing object to jet referenced by pointer,
         with constVecs for track and calo constituents
      * 
@@ -324,8 +324,8 @@ namespace xAOD
      *  @param[in] trkvec    reference to a ConstVec with the 4-mom sum of track constituents of this physics object
      */
     static bool insert(MissingETAssociationMap* pMap,const Jet* pJet,const IParticle* pPart,const std::vector<const IParticle*>& constlist,
-		       const MissingETBase::Types::constvec_t& calvec=MissingETBase::Types::constvec_t(),
-		       const MissingETBase::Types::constvec_t& trkvec=MissingETBase::Types::constvec_t());
+			   const MissingETBase::Types::constvec_t& calvec,
+			   const MissingETBase::Types::constvec_t& trkvec);
     /*! @brief Insert contributing object, finding the appropriate association automatically
      * 
      *  @return @c true if insertion successful according to the rules lined out @ref metcontrib_insert_rules "here"
@@ -335,9 +335,7 @@ namespace xAOD
      *  @param[in] calvec    reference to a ConstVec with the 4-mom sum of calo constituents of this physics object
      *  @param[in] trkvec    reference to a ConstVec with the 4-mom sum of track constituents of this physics object
      */
-    static bool insert(MissingETAssociationMap* pMap,const IParticle* pPart,const std::vector<const IParticle*>& constlist,
-		       const MissingETBase::Types::constvec_t& calvec=MissingETBase::Types::constvec_t(),
-		       const MissingETBase::Types::constvec_t& trkvec=MissingETBase::Types::constvec_t());
+    static bool insert(MissingETAssociationMap* pMap,const IParticle* pPart,const std::vector<const IParticle*>& constlist,std::map<const IParticle*,MissingETBase::Types::constvec_t> pOverride=std::map<const IParticle*,MissingETBase::Types::constvec_t>());
     /*! @brief Insert contributing object into miscellaneous association
      * 
      *  @return @c true if insertion successful according to the rules lined out @ref metcontrib_insert_rules "here"
@@ -396,7 +394,7 @@ namespace xAOD
      *
      *  @param[in] pPart pointer to non-modifiable object possibly contributing to a given MET object.
      */
-    static const MissingETAssociation* getAssociation(const MissingETAssociationMap* pMap,const IParticle* pPart);
+    static std::vector<const MissingETAssociation*> getAssociations(const MissingETAssociationMap* pMap,const IParticle* pPart);
     static const MissingETAssociation* getAssociation(const MissingETAssociationMap* pMap,const Jet* pJet);
     //    static const MissingETAssociation* getMiscAssociation(const MissingETAssociationMap* pMap);
     /*! @brief Access non-modifiable contribution object
@@ -404,7 +402,7 @@ namespace xAOD
      *  @return Pointer to modifiable 
      *  @link MissingETAssociation MissingETAssociation @endlink object if contribution of referenced object (particle) found, else NULL.
      */
-    static MissingETAssociation* getAssociation(MissingETAssociationMap* pMap,const IParticle* pPart);
+    static std::vector<MissingETAssociation*> getAssociations(MissingETAssociationMap* pMap,const IParticle* pPart);
     static MissingETAssociation* getAssociation(MissingETAssociationMap* pMap,const Jet* pJet);
     //    static MissingETAssociation* getMiscAssociation(MissingETAssociationMap* pMap);
     /*!@}*/

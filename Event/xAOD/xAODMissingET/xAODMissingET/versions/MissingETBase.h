@@ -495,6 +495,7 @@ namespace MissingETBase
       static bool isJetTerm(Types::bitmask_t bits,Region reg=FullAcceptance)      { return hasPattern(bits,jet(reg)); }
       static bool isSoftTerm(Types::bitmask_t bits,Region reg=FullAcceptance)     { return hasPattern(bits,softEvent(reg)); }
       static bool isTrackTerm(Types::bitmask_t bits,Region reg=FullAcceptance)    { return hasPattern(bits,track(reg)); }
+      static bool isTotalTerm(Types::bitmask_t bits,Region reg=FullAcceptance)    { return hasPattern(bits,total(reg)); }
 
       static bool isTruthNonInt(Types::bitmask_t bits)                          { return hasPattern(bits,truthNonInt()); }
       static bool isTruthInt(Types::bitmask_t bits,Region reg=FullAcceptance)    { return hasPattern(bits,truthInt(reg)); }
