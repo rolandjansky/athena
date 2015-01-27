@@ -1060,20 +1060,21 @@ const Trk::TrackParameters*
     // take into account that there may be many identical surfaces with different boundaries
     Amg::Vector3D gp(P[0],P[1],P[2]);  
     bool solution = false;
+    std::vector<unsigned int> valid_solutions;
+    valid_solutions.reserve(solutions.size());
+
     std::vector<unsigned int>::iterator iSol= solutions.begin();
     while ( iSol != solutions.end() ) {  
-      bool validSolution = true;
       if ( targetSurfaces[*iSol].first->isOnSurface(gp,targetSurfaces[*iSol].second ,0.001,0.001) ) {
 	if (!solution) {
 	  rungeKuttaUtils.transformGlobalToLocal(targetSurfaces[*iSol].first,errorPropagation,P,localp,Jacobian);
 	  solution = true;
         }
-      } else {    // remove this solution
-	validSolution = false;
-      }
-      if (!validSolution) solutions.erase(iSol);
-      else iSol++;
+        valid_solutions.push_back( *iSol );
+      } 
+      iSol++;
     }
+    solutions = valid_solutions;
     if (solution) break;
   }
 
@@ -1389,6 +1390,7 @@ bool
       }
       if (m_matstates||errorPropagation) m_combinedEloss.update(m_delIoni*distanceStepped,m_sigmaIoni*distanceStepped,
 					      m_delRad *distanceStepped,m_sigmaRad *distanceStepped,m_MPV);
+      
       if (m_material && m_material->x0()!=0.) {
 	m_combinedThickness += distanceStepped/m_material->x0(); 
       }
@@ -1442,7 +1444,7 @@ bool
 	Trk::RungeKuttaUtils rungeKuttaUtils;
         distanceToNextBin = dist2next.second;
 	//std::cout <<"step in binned material:"<< dist2next.first<<","<<dist2next.second<< std::endl;
-        if (layerBin != m_currentLayerBin ) {
+        if (layerBin != m_currentLayerBin ) {       // step into new bin
           // check the overshoot
 	  std::pair<size_t,float> dist2previous = lbu->distanceToNext(position,-propDir*direction);
           float stepOver = dist2previous.second;
@@ -1452,12 +1454,14 @@ bool
 	  const Trk::CurvilinearParameters* cPar =  new Trk::CurvilinearParameters(Amg::Vector3D(P[0],P[1],P[2]),localp[2],localp[3],localp[4]); 
           // such a detailed material dump no longer needed ?
           // if (m_matstates) dumpMaterialEffects( cPar, sumPath+path-stepOver );
+          //if (m_identifiedParameters || m_hitVector) {
+	  //   std::cout <<"dump of identified parameters? step over:"<< m_currentLayerBin<<","<<layerBin<< ":"
+	  //  <<position.perp()<<","<<position.z()<<std::endl;
+	  //  if (binIDMat) std::cout <<"layer identification current:"<<binIDMat->second <<std::endl;
+	  //  if (iMat) std::cout <<"layer identification next:"<<iMat->second <<std::endl;
+	  //}
           if (m_identifiedParameters) {
-	    // std::cout <<"dump of identified parameters? step over:"<< m_currentLayerBin<<","<<layerBin<< ":"
-	    //<<position.perp()<<","<<position.z()<<std::endl;
-	    //if (binIDMat) std::cout <<"layer identification current:"<<binIDMat->second <<std::endl;
-	    //if (iMat) std::cout <<"layer identification next:"<<iMat->second <<std::endl;
-            if (binIDMat && binIDMat->second>0 && !iMat ) {  // exit from active layer
+           if (binIDMat && binIDMat->second>0 && !iMat ) {  // exit from active layer
 	      m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*,int> (cPar->clone(),-binIDMat->second));
             } else if (binIDMat && binIDMat->second>0 && (iMat->second==0 || iMat->second==binIDMat->second) ) {  // exit from active layer
 	      m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*,int> (cPar->clone(),-binIDMat->second));
@@ -1480,16 +1484,22 @@ bool
           m_currentLayerBin = layerBin;
           binIDMat = iMat;
 	  if (binIDMat) {                // change of material triggers update of the cache 
+            // @TODO Coverity complains about a possible NULL pointer dereferencing here 
+            //  because the code above does not explicitly forbid m_material to be NULL and m_material is used
+            //  unchecked inside updateMaterialEffects.
+            //  Can m_material be NULL at this point ?
+            if (m_material) {
             updateMaterialEffects(mom, sin(direction.theta()), sumPath+path-stepOver);
+            }
 	    m_material = binIDMat->first;                
 	  }
           // recalculate distance to next bin
-          if (distanceToNextBin<1.) {
-	    Amg::Vector3D probe = position + (distanceToNextBin+1.)*propDir*direction;
+          if (distanceToNextBin<h) {
+	    Amg::Vector3D probe = position + (distanceToNextBin+h)*propDir*direction;
 	    std::pair<size_t,float> d2n = lbu->distanceToNext(probe,propDir*direction);
-	    distanceToNextBin += d2n.second+1.;
+	    distanceToNextBin += d2n.second+h;
 	  }
-	} else if ( dist2next.first < lbu->bins() && fabs(distanceToNextBin) < 1. ) {
+	} else if ( dist2next.first < lbu->bins() && fabs(distanceToNextBin) < 0.01 && h>0.01 ) {     // tolerance 10 microns ?
 	  double localp[5];
 	  rungeKuttaUtils.transformGlobalToLocal(P, localp);
 	  const Trk::CurvilinearParameters* cPar =  new Trk::CurvilinearParameters(Amg::Vector3D(P[0],P[1],P[2]),localp[2],localp[3],localp[4]); 
@@ -1498,14 +1508,16 @@ bool
 
 	  const Trk::IdentifiedMaterial* nextMat = binIDMat;
 	  // need to know what comes next
-	  Amg::Vector3D probe = position + (distanceToNextBin+1.)*propDir*direction.normalized();
+	  Amg::Vector3D probe = position + (distanceToNextBin+0.01)*propDir*direction.normalized();
 	  nextMat = m_binMat->material(probe); 
 
+          //if (m_identifiedParameters || m_hitVector) {
+	  //  std::cout <<"dump of identified parameters? step before:"<<distanceToNextBin<<": current:"<< 
+	  //  m_currentLayerBin<<","<<dist2next.first<< ":"<<position.perp()<<","<<position.z()<<std::endl;
+	  //  if (binIDMat) std::cout <<"layer identification current:"<<binIDMat->second <<std::endl;
+	  //  if (nextMat) std::cout <<"layer identification next:"<<nextMat->second <<std::endl;
+	  //}
 	  if (m_identifiedParameters ) {
-	    //std::cout <<"dump of identified parameters? step before:"<<distanceToNextBin<<": current:"<< 
-	    //m_currentLayerBin<<","<<dist2next.first<< ":"<<position.perp()<<","<<position.z()<<std::endl;
-	    //if (binIDMat) std::cout <<"layer identification current:"<<binIDMat->second <<std::endl;
-	    //if (nextMat) std::cout <<"layer identification next:"<<nextMat->second <<std::endl;
             if (binIDMat && binIDMat->second>0 && !nextMat ) {  // exit from active layer
 	      m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*,int> (cPar->clone(),-binIDMat->second));
             } else if (binIDMat && binIDMat->second>0 && (nextMat->second==0 || nextMat->second==binIDMat->second) ) {  // exit from active layer
@@ -1529,12 +1541,15 @@ bool
           m_currentLayerBin = dist2next.first;
 	  if (binIDMat!=nextMat) {               // change of material triggers update of the cache 
 	    binIDMat = nextMat;
-            updateMaterialEffects(mom, sin(direction.theta()), sumPath+path);
-	    m_material = binIDMat->first;            
+            if (binIDMat) {
+              assert( m_material);
+              updateMaterialEffects(mom, sin(direction.theta()), sumPath+path);
+              m_material = binIDMat->first;            
+            }
 	  }
           // recalculate distance to next bin
 	  std::pair<size_t,float> d2n = lbu->distanceToNext(probe,propDir*direction.normalized());
-	  distanceToNextBin += d2n.second+1.;
+	  distanceToNextBin += d2n.second+0.01;
 	}
         // TODO: trigger the update of material properties and recalculation of distance to the target sliding surface
       }
@@ -1698,7 +1713,12 @@ bool
     if (fabs( h) > fabs( distanceToTarget)) h = distanceToTarget;
 
     //don't step beyond bin boundary - adjust step
-    if (m_binMat && fabs( h) > fabs(distanceToNextBin)+0.001) h = distanceToNextBin*propDir;
+    if (m_binMat && fabs( h) > fabs(distanceToNextBin)+0.001 ) {
+      if ( distanceToNextBin>0 ) {     // TODO : investigate source of negative distance in BinningData  
+        //std::cout <<"adjusting step because of bin boundary:"<< h<<"->"<< distanceToNextBin*propDir<< std::endl;
+        h = distanceToNextBin*propDir;
+      }
+    }
 
     if ( helpSoft<1.) h*=helpSoft;
 
@@ -2075,7 +2095,10 @@ void
   double* R=&pos[0];
   double H[3],dH[9];
 
-  if (getGradients && m_includeBgradients && m_fieldService) {   // field gradients needed and available
+  // m_fieldService is set in initialize and cannot be zero 
+  assert( m_fieldService );
+
+  if (getGradients && m_includeBgradients) {   // field gradients needed and available
 
     getFieldGradient(R,H,dH);
 
@@ -2094,7 +2117,7 @@ void
 
   }
   else {  //Homogenous field or no gradients needed, only retrieve the field strength.
-
+    
     getField(R,H); 
 
     BG[0]=H[0]*magScale;
