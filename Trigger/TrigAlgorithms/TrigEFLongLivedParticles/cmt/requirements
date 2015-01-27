@@ -22,9 +22,10 @@ private
 use AthenaKernel            AthenaKernel-*               Control
 use GaudiInterface          GaudiInterface-*             External
 use FourMomUtils            FourMomUtils-*               Event
+use xAODJet		    xAODJet-*			 Event/xAOD
 use CaloEvent               CaloEvent-*                  Calorimeter
 use TrigTimeAlgs            TrigTimeAlgs-*               Trigger/TrigTools
-
+use TrigParticle	    TrigParticle-*		 Trigger/TrigEvent
 
 
 # =====================================================================
