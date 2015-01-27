@@ -70,16 +70,16 @@ StatusCode TrackRecordFilter::execute() {
 
   // iterate over the collection
   for (TrackRecordCollection::const_iterator trkit=trackCollection->begin(); trkit != trackCollection->end() ; ++trkit) {
-    int pdgId((*trkit)->GetPDGCode());
-    ATH_MSG_VERBOSE ( "Track found with pdg id= " << (*trkit)->GetPDGCode() << " with energy "<< (*trkit)->GetEnergy() );
+    int pdgId((*trkit).GetPDGCode());
+    ATH_MSG_VERBOSE ( "Track found with pdg id= " << (*trkit).GetPDGCode() << " with energy "<< (*trkit).GetEnergy() );
 
     if(pdgId) { //Geant makes particle with pdgid=0...
       // get rid of neutral particles
       const HepPDT::ParticleData* particle =
         m_pParticleTable->particle(HepPDT::ParticleID(abs(pdgId)));
       if(particle){
-        if(fabs(particle->charge() ) >0.5 && (*trkit)->GetEnergy() > m_cutOff)
-          filterCollection->push_back(new TrackRecord(**trkit));
+        if(fabs(particle->charge() ) >0.5 && (*trkit).GetEnergy() > m_cutOff)
+          filterCollection->push_back(*(new TrackRecord(*trkit)));
       }
     }
   }
