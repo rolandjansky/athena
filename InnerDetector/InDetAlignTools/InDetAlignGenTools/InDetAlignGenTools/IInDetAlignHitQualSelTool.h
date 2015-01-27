@@ -31,6 +31,9 @@ class IInDetAlignHitQualSelTool : virtual public IAlgTool {
   /** main method: from a TrackStateOnSurface select a good hit cutting on outlier hits, hits with
   too many pixels/strips, hits with large incidence angles */
   virtual const Trk::RIO_OnTrack* getGoodHit( const Trk::TrackStateOnSurface* tsos ) const = 0 ;
+
+  virtual bool isGoodSiHit( const Trk::TrackStateOnSurface* tsos ) const = 0 ;
+
   /** from a TrackStateOnSurface select a good hole in track cutting on
   large incidence angles only */
   virtual bool getGoodHole( const Trk::TrackStateOnSurface* tsos ) const = 0 ;

@@ -648,7 +648,8 @@ void InDetAlignDBTool::writeFile(const bool ntuple, const std::string file)
         double alpha, beta, gamma;
         extractAlphaBetaGamma(trans, alpha, beta, gamma);
         
-        ATH_MSG_WARNING("THIS NEEDS TO BE CHECKED --- InDetAlignDBTool.cxx:647");
+        //ATH_MSG_WARNING("THIS NEEDS TO BE CHECKED --- InDetAlignDBTool.cxx:647"); 
+	// checked and appears all good, keep this in for now in case we have to recheck things
         Amg::Vector3D ea = rot.eulerAngles(2, 0, 2); 
         
         phi= ea[0];

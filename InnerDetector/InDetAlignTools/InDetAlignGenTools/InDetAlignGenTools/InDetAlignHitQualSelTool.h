@@ -43,6 +43,9 @@ class InDetAlignHitQualSelTool : virtual public IInDetAlignHitQualSelTool, publi
   /** main method: from a TrackStateOnSurface select a good hit cutting on outlier
   hits, hits with too many pixels/strips, hits with large incidence angles */
   const Trk::RIO_OnTrack* getGoodHit( const Trk::TrackStateOnSurface* tsos ) const ;
+
+  bool isGoodSiHit( const Trk::TrackStateOnSurface* tsos ) const ;
+  
   /** from a TrackStateOnSurface select a good hole in track cutting on
   large incidence angles only */
   bool getGoodHole( const Trk::TrackStateOnSurface* tsos ) const ;
@@ -72,6 +75,7 @@ class InDetAlignHitQualSelTool : virtual public IInDetAlignHitQualSelTool, publi
   bool  m_rejectEdgeChannels ;
   /** reject clusters containing ganged pixels */
   bool  m_rejectGangedPixels ;
+
   /** maximum incidence angle of a track (to which the hit belongs) on the Si-module.
   It is caculated in the local xz frame to ensure that the only the angle component 
   perpendicular to the strips is considered. It is defined w/r/t the local z-axis. */
