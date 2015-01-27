@@ -135,6 +135,7 @@ class LArOFCTool: public AthAlgTool,
 
   int m_useDelta;
   unsigned int m_deltaBunch;
+  bool m_useHighestGainAutoCorr;
   std::vector<float> getShapeAverages( const unsigned n_samples, 
 				       const unsigned n_deltaBunch, // in unit of 25 ns
 				       const std::vector<float>& shape, unsigned int firstSample) const;

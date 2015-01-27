@@ -59,6 +59,7 @@ LArOFCTool::LArOFCTool(const std::string& type,
   declareProperty("DeltaBunch",m_deltaBunch);
   declareProperty("firstSample",m_firstSample);
   declareProperty("IsSuperCell",m_isSC=false);
+  declareProperty("useHighestGainAutoCorr",m_useHighestGainAutoCorr=false);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -355,13 +356,22 @@ LArOFCTool::computeOFC(int aORb, const HWIdentifier& CellID,
       }
       ILArShape::ShapeRef_t ShapeDer = m_dd_shape->ShapeDer(CellID,igain);
       //:::::::::::::::::::::::::::::::
+
+      // get Noise autocorrelation for gain
+      int igain_autocorr=igain;
+      // to use only Autocorr fro highest gain in optimization: HEC/FCAL=> medium gain    EM=>high gain
+      if (m_useHighestGainAutoCorr) {
+          if  (m_lar_on_id->isHECchannel(CellID) || m_lar_on_id->isFCALchannel(CellID) ) igain_autocorr=1;
+          else igain_autocorr=0;
+      }
+      
       const std::vector<double> AutoCorr = 
-	m_autocorrTool->autoCorrTotal(CellID,igain,Nminbias);
+	m_autocorrTool->autoCorrTotal(CellID,igain_autocorr,Nminbias);
       //unsigned int nsamples_AC_OFC=AutoCorr.size()+1;
       unsigned int nsamples_AC_OFC = (1+((int)(sqrt(1+8*AutoCorr.size()))))/2;
 
       const std::vector<double>& rmsSampl =
-        m_autocorrTool->samplRMS(CellID,igain,Nminbias);
+        m_autocorrTool->samplRMS(CellID,igain_autocorr,Nminbias);
       unsigned int nsamples2 = rmsSampl.size();
       if (nsamples2 != nsamples_AC_OFC) {
           MsgStream log(msgSvc(), name());
@@ -492,7 +502,6 @@ LArOFCTool::computeOFC(int aORb, const HWIdentifier& CellID,
 	      std::cout<<(ACinv_PS[i]*Q2-ACinv_PSD[i]*Q3)/DELTA<<" ";
 	    std::cout<<std::endl;
 	  }
-
       } else { // OPTIMIZATION WRT NOISE AND PEDESTAL SHIFTS
 
 
@@ -575,7 +584,7 @@ LArOFCTool::computeOFC(int aORb, const HWIdentifier& CellID,
 	  for(i=0;i<nsamples_AC_OFC;++i)  
 	    m_OFCtmp.push_back( OFCa[i] );
           if (m_Dump) {
-             std::cout << " OFCa: ";
+             std::cout << "OFCa: ";
              for(i=0;i<nsamples_AC_OFC;++i) std::cout << OFCa[i] << " ";
              std::cout << std::endl;
           }
