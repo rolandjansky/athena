@@ -31,8 +31,7 @@
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 //#include "TrigMuonEvent/TrigCombDiMuonContainer.h"
 
-#include "TrigVertexFitter/TrigL2VertexFitter.h"
-#include "TrigVertexFitter/ITrigVertexingTool.h"
+#include "TrigInDetToolInterfaces/ITrigVertexingTool.h"
 
 #include "TrigInDetToolInterfaces/ITrigL2VertexFitter.h"                         
 

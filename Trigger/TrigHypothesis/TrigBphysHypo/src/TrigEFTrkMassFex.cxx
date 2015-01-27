@@ -75,7 +75,7 @@ HLT::FexAlgo(name, pSvcLocator)
     declareMonitoredStdContainer("ROIPhi"           , mon_ROIPhi                                    , AutoClear);
     declareMonitoredVariable(    "nTracks"          , mon_nTracks );
     declareMonitoredStdContainer("TrkPt"            , mon_TrkPt                                     , AutoClear);
-    declareMonitoredStdContainer("TrkPt_wideRange"  , mon_TrkPt_wideRange                           , AutoClear);
+    declareMonitoredStdContainer("TrkPt_wideRange"  , mon_TrkPt                                     , AutoClear);
     declareMonitoredStdContainer("TrkEta"           , mon_TrkEta                                    , AutoClear);
     declareMonitoredStdContainer("TrkPhi"           , mon_TrkPhi                                    , AutoClear);
     declareMonitoredStdContainer("TrkROIdEta"       , mon_TrkROIdEta                                , AutoClear);
@@ -259,8 +259,8 @@ HLT::ErrorCode TrigEFTrkMassFex::hltExecute(const HLT::TriggerElement*  inputTE 
     xAODTrigBphysColl->setStore(&xAODTrigBphysAuxColl);
 
     bool result = false;
-    bool PassedRoIMatch=false;
-    bool PassedMass=false;
+    //bool PassedRoIMatch=false;
+    //bool PassedMass=false;
     // Processing timers
     if ( timerSvc() ) m_TotTimer->start();
     // Initialize the monitoring variables
@@ -453,8 +453,8 @@ HLT::ErrorCode TrigEFTrkMassFex::hltExecute(const HLT::TriggerElement*  inputTE 
 
         double pT = mutrk->pt();
         float trackChi2 = mutrk->chiSquared();
-        double eta =  mutrk->eta() ;
-        double phi =  mutrk->phi() ;
+        //double eta =  mutrk->eta() ;
+        //double phi =  mutrk->phi() ;
 
         if ( fabs(pT) >= m_muonPtthr ) {
             if ( !m_flag_stages[ ACCEPT_Mu1_pT_Cut ] ) {
@@ -551,7 +551,14 @@ HLT::ErrorCode TrigEFTrkMassFex::hltExecute(const HLT::TriggerElement*  inputTE 
             }
             mon_Acceptance.push_back( ACCEPT_Each_Mu2_pT_Cut );
         }
-
+        
+        mon_TrkPt.push_back(pT2*0.001);
+        mon_TrkEta.push_back(eta2);
+        mon_TrkPhi.push_back(phi2);
+        
+        mon_TrkROIdEta.push_back( m_bphysHelperTool->absDeltaEta(eta2, roiDescriptor->eta()) );
+        mon_TrkROIdPhi.push_back( m_bphysHelperTool->absDeltaPhi(phi2, roiDescriptor->phi()) );
+        mon_TrkROIdR.push_back( m_bphysHelperTool->deltaR(eta2,phi2, roiDescriptor->eta(),roiDescriptor->phi()) );
         
         tracks.push_back(trkel);
     }// optimize? addUnique?

@@ -28,7 +28,8 @@
 
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 
-#include "TrigVertexFitter/ITrigVertexingTool.h"
+#include "TrigInDetToolInterfaces/ITrigVertexingTool.h"
+#include "TrigInDetEvent/TrigL2Vertex.h"
 
 #include "TrigParticle/TrigL2Bphys.h"
 
@@ -88,9 +89,9 @@ m_massMuon(105.6583715)
   //declareMonitoredStdContainer("Mutrk1Mutrk2dR"         , mon_Mutrk1Mutrk2dR          , AutoClear);
   //declareMonitoredStdContainer("SumPtMutrk12"           , mon_SumPtMutrk12            , AutoClear);
   declareMonitoredStdContainer("InvMass_comb"           , mon_InvMass_comb            , AutoClear);
-  declareMonitoredStdContainer("InvMass_comb_wideRange" , mon_InvMass_comb_wideRange  , AutoClear);
+  declareMonitoredStdContainer("InvMass_comb_wideRange" , mon_InvMass_comb            , AutoClear);
   declareMonitoredStdContainer("FitMass"                , mon_FitMass                 , AutoClear);
-  declareMonitoredStdContainer("FitMass_wideRange"      , mon_FitMass_wideRange       , AutoClear);
+  declareMonitoredStdContainer("FitMass_wideRange"      , mon_FitMass                 , AutoClear);
   declareMonitoredStdContainer("InvMass_comb_okFit"     , mon_InvMass_comb_okFit      , AutoClear);
   declareMonitoredStdContainer("Chi2toNDoF"             , mon_Chi2toNDoF              , AutoClear);
   declareMonitoredStdContainer("FitTotalPt"             , mon_FitTotalPt              , AutoClear);
@@ -314,43 +315,43 @@ void TrigL2MultiMuFex::processTriMuon(HLT::TEConstVec& inputTE)
     //      const CombinedMuonFeature *muon3;
 
     const xAOD::L2CombinedMuon *muon1(nullptr), *muon2(nullptr), *muon3(nullptr);
-    ElementLink<xAOD::L2CombinedMuonContainer> l2combinedMuonEL[3];
+    ElementLinkVector<xAOD::L2CombinedMuonContainer> l2combinedMuonEL[3];
     
     
     //if(getFeature(te1,muon1)!= HLT::OK) {
-    if(getFeatureLink<xAOD::L2CombinedMuonContainer,xAOD::L2CombinedMuonContainer>(te1,l2combinedMuonEL[0]) != HLT::OK
-       || !l2combinedMuonEL[0].isValid()) {
+    if(getFeaturesLinks<xAOD::L2CombinedMuonContainer,xAOD::L2CombinedMuonContainer>(te1,l2combinedMuonEL[0]) != HLT::OK
+       || !l2combinedMuonEL[0].size()) {
         msg() <<MSG::DEBUG << "Failed to get muon Feature for TE 1" << endreq;
         mon_Errors.push_back( ERROR_GetMuonFailed );
         return;
     }
-    muon1 = *l2combinedMuonEL[0];
+    muon1 = l2combinedMuonEL[0][0].isValid() ? *(l2combinedMuonEL[0][0]) : nullptr;
     if ( muon1 == NULL ) {
         msg() <<MSG::DEBUG << "NULL pointer of muon Feature for TE 1" << endreq;
         mon_Errors.push_back( ERROR_GetMuonFailed );
         return;
     }
     //if(getFeature(te2,muon2)!= HLT::OK) {
-    if(getFeatureLink<xAOD::L2CombinedMuonContainer,xAOD::L2CombinedMuonContainer>(te2,l2combinedMuonEL[1]) != HLT::OK
-       || !l2combinedMuonEL[1].isValid()) {
+    if(getFeaturesLinks<xAOD::L2CombinedMuonContainer,xAOD::L2CombinedMuonContainer>(te2,l2combinedMuonEL[1]) != HLT::OK
+       || !l2combinedMuonEL[1].size()) {
         msg() <<MSG::DEBUG << "Failed to get muon Feature for TE 2" << endreq;
         mon_Errors.push_back( ERROR_GetMuonFailed );
         return;
     }
-    muon2 = *l2combinedMuonEL[1];
+    muon2 = l2combinedMuonEL[1][0].isValid() ? *(l2combinedMuonEL[1][0]) : nullptr;
     if ( muon2 == NULL ) {
         msg() <<MSG::DEBUG << "NULL pointer of muon Feature for TE 2" << endreq;
         mon_Errors.push_back( ERROR_GetMuonFailed );
         return;
     }
-    if(getFeatureLink<xAOD::L2CombinedMuonContainer,xAOD::L2CombinedMuonContainer>(te3,l2combinedMuonEL[2]) != HLT::OK
-       || !l2combinedMuonEL[2].isValid()) {
+    if(getFeaturesLinks<xAOD::L2CombinedMuonContainer,xAOD::L2CombinedMuonContainer>(te3,l2combinedMuonEL[2]) != HLT::OK
+       || !l2combinedMuonEL[2].size()) {
         //if(getFeature(te3,muon3)!= HLT::OK) {
         msg() <<MSG::DEBUG << "Failed to get muon Feature for TE 3" << endreq;
         mon_Errors.push_back( ERROR_GetMuonFailed );
         return;
     }
-    muon3 = *l2combinedMuonEL[2];
+    muon3 = l2combinedMuonEL[2][0].isValid() ? *(l2combinedMuonEL[2][0]) : nullptr;
     if ( muon3 == NULL ) {
         msg() <<MSG::DEBUG << "NULL pointer of muon Feature for TE 3" << endreq;
         mon_Errors.push_back( ERROR_GetMuonFailed );
@@ -792,6 +793,9 @@ TrigVertex* TrigL2MultiMuFex::fitToVertex(const std::vector<const xAOD::L2Combin
     }
     mon_FitMass.push_back(p_mumuV->mass()/1000.);
     mon_Chi2toNDoF.push_back(p_mumuV->chi2()/ p_mumuV->ndof());
+//     mon_FitTotalPt.push_back(p_mumuV->getMotherTrack()->pT()); // crashes -- no mother particle is created?
+    mon_FitVtxR.push_back( pow(p_mumuV->x(),2) + pow(p_mumuV->y(),2) );
+    mon_FitVtxZ.push_back( p_mumuV->z() );
     
     return p_mumuV;
 } //fitToVertex

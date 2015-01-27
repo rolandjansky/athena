@@ -28,7 +28,8 @@
 
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 
-#include "TrigVertexFitter/ITrigVertexingTool.h"
+#include "TrigInDetToolInterfaces/ITrigVertexingTool.h"
+#include "TrigInDetEvent/TrigL2Vertex.h"
 
 #include "TrigParticle/TrigL2Bphys.h"
 
@@ -332,7 +333,7 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
     // Get the RoIs from the navigation
     const TrigRoiDescriptor *roi[2] = { 0, 0 };
     for ( int i=0; i<2; i++ ) {
-        if ( getFeature(inputTE.front(), roi[i]) != HLT::OK ) {
+        if ( getFeature(inputTE.at(i), roi[i]) != HLT::OK ) {
             msg() << MSG::ERROR << "Navigation error while getting RoI descriptor " << i+1 << endreq;
             if ( timerSvc() ) {
                 m_BmmHypTot->stop();

@@ -25,7 +25,8 @@
 
 #include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 
-#include "TrigVertexFitter/ITrigVertexingTool.h"
+#include "TrigInDetToolInterfaces/ITrigVertexingTool.h"
+#include "TrigInDetEvent/TrigL2Vertex.h"
 
 #include "TrigParticle/TrigL2Bphys.h"
 

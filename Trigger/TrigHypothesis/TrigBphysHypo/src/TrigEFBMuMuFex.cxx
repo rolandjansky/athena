@@ -496,6 +496,13 @@ void TrigEFBMuMuFex::buildCombination(const xAOD::Muon *mu0, const xAOD::Muon *m
         return;
     }// same charge
     
+    // Fill monitoring histograms for muons
+    mon_mu1eta = mu0->eta(); mon_mu2eta = mu1->eta();
+    mon_mu1phi = mu0->phi(); mon_mu2phi = mu1->phi();
+    mon_mu1pT = mu0->pt()*0.001; mon_mu2pT = mu1->pt()*0.001;
+    mon_dEtaMuMu = m_bphysHelperTool->absDeltaEta(mon_mu1eta, mon_mu2eta);
+    mon_dPhiMuMu = m_bphysHelperTool->absDeltaPhi(mon_mu1phi, mon_mu2phi);
+    mon_pTsum = mon_mu1pT + mon_mu2pT;
     
     // simple mass
     double tp_mass = m_bphysHelperTool->invariantMass(tp0,tp1,m_massMuon,m_massMuon);
@@ -514,6 +521,7 @@ void TrigEFBMuMuFex::buildCombination(const xAOD::Muon *mu0, const xAOD::Muon *m
         double massMuMu = result->mass();
         mon_MuMumass = massMuMu * 0.001;
         mon_BmassFit = result->fitmass() * 0.001;
+        mon_Chi2 = result->fitchi2();
         m_vtxpass = true; // may not be strictly true now, if vx was null (maybe use chi2 / ndf value as a test?)
         if(m_lowerMassCut < massMuMu && ((massMuMu < m_upperMassCut) || (!m_ApplyupperMassCut) ))
             m_PassedBsMass = true;
