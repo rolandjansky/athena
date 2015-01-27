@@ -16,6 +16,7 @@
 #define PPMSIMBSMON_H
 
 #include <string>
+#include <algorithm> //added by Hanno for on-the-fly vector conversion
 #include <vector>
 
 #include "GaudiKernel/ServiceHandle.h"
@@ -23,6 +24,9 @@
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "DataModel/DataVector.h"
+
+#include "xAODTrigL1Calo/xAODTrigL1Calo/TriggerTowerContainer.h"
+
 
 class TH2F_LW;
 class TH2I_LW;
@@ -123,15 +127,24 @@ public:
 
 private:
 
-  typedef DataVector<LVL1::TriggerTower> TriggerTowerCollection;
+  typedef DataVector<xAOD::TriggerTower> TriggerTowerContainer;
   
   typedef std::vector<int> ErrorVector;
+  
+  template <typename DST, typename SRC>
+  std::vector<DST> convertVectorType(const std::vector<SRC>& s) {
+    using std::begin;
+    using std::end;
+    std::vector<DST> d(s.size());
+    std::transform(begin(s), end(s), begin(d), [](SRC v){return static_cast<DST>(v);}); 
+    return d;
+  } 
 
   /// Fill error event number histogram
   void  fillEventSample(int crate, int module);
 
   /// Simulate LUT data from FADC data
-  void simulateAndCompare(const TriggerTowerCollection* ttIn);
+  void simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn);
 
   /// LUT simulation tool
   ToolHandle<LVL1::IL1TriggerTowerTool> m_ttTool;
@@ -160,21 +173,37 @@ private:
   //   Match/Mismatch plots
   //=======================
 
-  // LUT
-  TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_lut_SimEqData;  ///< PPM LUT EM Data/Simulation Non-zero Matches
-  TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_lut_SimNeData;  ///< PPM LUT EM Data/Simulation Non-zero Mismatches
-  TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_lut_SimNoData;  ///< PPM LUT EM Simulation but no Data
-  TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_lut_DataNoSim;  ///< PPM LUT EM Data but no Simulation
-  TH2F_LW* m_h_ppm_had_2d_etaPhi_tt_lut_SimEqData; ///< PPM LUT HAD Data/Simulation Non-zero Matches
-  TH2F_LW* m_h_ppm_had_2d_etaPhi_tt_lut_SimNeData; ///< PPM LUT HAD Data/Simulation Non-zero Mismatches
-  TH2F_LW* m_h_ppm_had_2d_etaPhi_tt_lut_SimNoData; ///< PPM LUT HAD Simulation but no Data
-  TH2F_LW* m_h_ppm_had_2d_etaPhi_tt_lut_DataNoSim; ///< PPM LUT HAD Data but no Simulation
+  // LUT-CP
+  TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_lutCp_SimEqData;  ///< PPM LUT EM Data/Simulation Non-zero Matches
+  TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_lutCp_SimNeData;  ///< PPM LUT EM Data/Simulation Non-zero Mismatches
+  TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_lutCp_SimNoData;  ///< PPM LUT EM Simulation but no Data
+  TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_lutCp_DataNoSim;  ///< PPM LUT EM Data but no Simulation
+  TH2F_LW* m_h_ppm_had_2d_etaPhi_tt_lutCp_SimEqData; ///< PPM LUT HAD Data/Simulation Non-zero Matches
+  TH2F_LW* m_h_ppm_had_2d_etaPhi_tt_lutCp_SimNeData; ///< PPM LUT HAD Data/Simulation Non-zero Mismatches
+  TH2F_LW* m_h_ppm_had_2d_etaPhi_tt_lutCp_SimNoData; ///< PPM LUT HAD Simulation but no Data
+  TH2F_LW* m_h_ppm_had_2d_etaPhi_tt_lutCp_DataNoSim; ///< PPM LUT HAD Data but no Simulation
+  
+  // LUT-JEP
+  TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_lutJep_SimEqData;  ///< PPM LUT EM Data/Simulation Non-zero Matches
+  TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_lutJep_SimNeData;  ///< PPM LUT EM Data/Simulation Non-zero Mismatches
+  TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_lutJep_SimNoData;  ///< PPM LUT EM Simulation but no Data
+  TH2F_LW* m_h_ppm_em_2d_etaPhi_tt_lutJep_DataNoSim;  ///< PPM LUT EM Data but no Simulation
+  TH2F_LW* m_h_ppm_had_2d_etaPhi_tt_lutJep_SimEqData; ///< PPM LUT HAD Data/Simulation Non-zero Matches
+  TH2F_LW* m_h_ppm_had_2d_etaPhi_tt_lutJep_SimNeData; ///< PPM LUT HAD Data/Simulation Non-zero Mismatches
+  TH2F_LW* m_h_ppm_had_2d_etaPhi_tt_lutJep_SimNoData; ///< PPM LUT HAD Simulation but no Data
+  TH2F_LW* m_h_ppm_had_2d_etaPhi_tt_lutJep_DataNoSim; ///< PPM LUT HAD Data but no Simulation
   
   // Mismatch Event Number Histograms
   TH2I_LW* m_h_ppm_2d_LUT_MismatchEvents_cr0cr1;   ///< PPM LUT Mismatch Event Numbers Crates 0 and 1
   TH2I_LW* m_h_ppm_2d_LUT_MismatchEvents_cr2cr3;   ///< PPM LUT Mismatch Event Numbers Crates 2 and 3
   TH2I_LW* m_h_ppm_2d_LUT_MismatchEvents_cr4cr5;   ///< PPM LUT Mismatch Event Numbers Crates 4 and 5
   TH2I_LW* m_h_ppm_2d_LUT_MismatchEvents_cr6cr7;   ///< PPM LUT Mismatch Event Numbers Crates 6 and 7
+  
+  // Mismatch Event Number Histograms for LUT-JEP
+  TH2I_LW* m_h_ppm_2d_LUTJEP_MismatchEvents_cr0cr1;   ///< PPM LUT-JEP Mismatch Event Numbers Crates 0 and 1
+  TH2I_LW* m_h_ppm_2d_LUTJEP_MismatchEvents_cr2cr3;   ///< PPM LUT-JEP Mismatch Event Numbers Crates 2 and 3
+  TH2I_LW* m_h_ppm_2d_LUTJEP_MismatchEvents_cr4cr5;   ///< PPM LUT-JEP Mismatch Event Numbers Crates 4 and 5
+  TH2I_LW* m_h_ppm_2d_LUTJEP_MismatchEvents_cr6cr7;   ///< PPM LUT-JEP Mismatch Event Numbers Crates 6 and 7
   
 };
 

@@ -18,6 +18,7 @@
 #include "TrigT1CaloCalibConditions/L1CaloCoolChannelId.h"
 #include "TrigT1CaloCalibTools/L1CaloPprFineTimePlotManager.h"
 #include "TrigT1CaloCalibTools/L1CaloPprPedestalPlotManager.h"
+#include "TrigT1CaloCalibTools/L1CaloPprPedestalCorrectionPlotManager.h"
 #include "TrigT1CaloCalibTools/L1CaloPprEtCorrelationPlotManager.h"
 
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
@@ -30,16 +31,19 @@ PPrStabilityMon::PPrStabilityMon(const std::string & type, const std::string & n
     m_ttTool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
     m_fineTimePlotManager(0),
     m_pedestalPlotManager(0),
+    m_pedestalCorrectionPlotManager(0),
     m_etCorrelationPlotManager(0),
     m_doFineTimeMonitoring(0),
     m_doPedestalMonitoring(0),
+    m_doPedestalCorrectionMonitoring(0),
     m_doEtCorrelationMonitoring(0),
     m_evtInfo(0),
     m_fineTimeCut(0),
     m_pedestalMaxWidth(0),
     m_EtMinForEtCorrelation(0)
 {
-  declareProperty("BS_TriggerTowerContainer", m_TriggerTowerContainerName = "LVL1TriggerTowers");
+  declareProperty("BS_TriggerTowerContainer", m_TriggerTowerContainerName = "xAODTriggerTowers");
+  declareProperty("BS_xAODTriggerTowerContainer", m_xAODTriggerTowerContainerName = "xAODTriggerTowers");
   declareProperty("ppmADCMinValue", m_ppmADCMinValue=60,
                   "Cut on ADC minimum value, used for fine time monitoring");
   declareProperty("ppmADCMaxValue", m_ppmADCMaxValue=1023,
@@ -47,6 +51,7 @@ PPrStabilityMon::PPrStabilityMon(const std::string & type, const std::string & n
   declareProperty("PathInRootFile", m_PathInRootFile="L1Calo/PPrStabilityMon");
   declareProperty("doFineTimeMonitoring", m_doFineTimeMonitoring = true );
   declareProperty("doPedestalMonitoring", m_doPedestalMonitoring = true );
+  declareProperty("doPedestalCorrectionMonitoring", m_doPedestalCorrectionMonitoring = true );
   declareProperty("doEtCorrelationMonitoring", m_doEtCorrelationMonitoring = true );
   declareProperty("lumiMax", m_lumiBlockMax = 2000,
                   "Maximum number of lumiblocks in stability plots");
@@ -76,7 +81,7 @@ StatusCode PPrStabilityMon::initialize()
 		   << PACKAGE_VERSION << endreq;
     
     StatusCode sc;
-    
+      std::cout << "0 m_TriggerTowerContainerName = " << m_TriggerTowerContainerName << std::cout;
     sc = ManagedMonitorToolBase::initialize();
     if (sc.isFailure()) return sc;
     
@@ -108,6 +113,13 @@ StatusCode PPrStabilityMon::initialize()
 								m_PathInRootFile+"/Pedestal");
 	m_pedestalPlotManager->SetPedestalMaxWidth(m_pedestalMaxWidth);
     }
+    if (m_doPedestalCorrectionMonitoring)
+    {
+        m_pedestalCorrectionPlotManager = new L1CaloPprPedestalCorrectionPlotManager(this,
+								m_ttTool,
+								m_lumiBlockMax,
+								m_PathInRootFile+"/PedestalCorrection");
+    }
     if (m_doEtCorrelationMonitoring){
         m_etCorrelationPlotManager = new L1CaloPprEtCorrelationPlotManager(this,
 								m_ttTool,
@@ -124,6 +136,7 @@ StatusCode PPrStabilityMon::finalize()
 {
     if (m_doFineTimeMonitoring) {delete m_fineTimePlotManager;}
     if (m_doPedestalMonitoring) {delete m_pedestalPlotManager;}
+    if (m_doPedestalCorrectionMonitoring) {delete m_pedestalCorrectionPlotManager;}
     if (m_doEtCorrelationMonitoring) {delete m_etCorrelationPlotManager;}
     return StatusCode::SUCCESS;
 }
@@ -141,14 +154,13 @@ StatusCode PPrStabilityMon::fillHistograms()
     m_evtInfo = 0;
     sc = evtStore()->retrieve(m_evtInfo);
     if( sc.isFailure() ) { msg(MSG::ERROR) <<"Could not retrieve Event Info" <<endreq; return sc;}
-   
-    //Retrieve TriggerTowers from SG
-    const TriggerTowerCollection* trigTwrColl = 0; 
 
-    sc = evtStore()->retrieve(trigTwrColl,m_TriggerTowerContainerName); 
+    //Retrieve TriggerTowers from SG
+    const xAOD::TriggerTowerContainer* trigTwrColl = 0; 
+    sc = evtStore()->retrieve(trigTwrColl,m_xAODTriggerTowerContainerName);
     if (sc.isFailure())
     {
-        if (debug) msg(MSG::DEBUG) << "No TriggerTower found at "<< m_TriggerTowerContainerName << endreq ;
+        if (debug) msg(MSG::DEBUG) << "No TriggerTower found at "<< m_xAODTriggerTowerContainerName << endreq ;
         return sc;
     }
     if (debug) msg(MSG::DEBUG)<<"In Fill histograms"<<endreq;
@@ -172,66 +184,50 @@ StatusCode PPrStabilityMon::fillHistograms()
     
     // ================= Container: TriggerTower ===========================
     
-    TriggerTowerCollection::const_iterator TriggerTowerIterator = trigTwrColl->begin(); 
-    TriggerTowerCollection::const_iterator TriggerTowerIteratorEnd = trigTwrColl->end(); 
+    xAOD::TriggerTowerContainer::const_iterator TriggerTowerIterator = trigTwrColl->begin(); 
+    xAOD::TriggerTowerContainer::const_iterator TriggerTowerIteratorEnd = trigTwrColl->end(); 
     
     for (; TriggerTowerIterator != TriggerTowerIteratorEnd; ++TriggerTowerIterator) 
     {
         const double eta = (*TriggerTowerIterator)->eta();
         const double phi = (*TriggerTowerIterator)->phi();
 
-        const L1CaloCoolChannelId emCoolChannelID = m_ttTool->channelID(eta,phi,0);
-        const L1CaloCoolChannelId hadCoolChannelID = m_ttTool->channelID(eta,phi,1);
-
-        bool emDead = m_ttTool->disabledChannel(emCoolChannelID);
-        bool hadDead= m_ttTool->disabledChannel(hadCoolChannelID);
+        const L1CaloCoolChannelId CoolChannelID = m_ttTool->channelID(eta,phi,(*TriggerTowerIterator)->layer());
+	
+        bool Dead = m_ttTool->disabledChannel(CoolChannelID);
 		
         if (m_doFineTimeMonitoring) {
-	      
             // Need signal
-	    int emPeak  = (*TriggerTowerIterator)->emADCPeak();
-	    int hadPeak = (*TriggerTowerIterator)->hadADCPeak();
-	    unsigned int emPeakVal  = (*TriggerTowerIterator)->emADC()[emPeak];
-	    unsigned int hadPeakVal = (*TriggerTowerIterator)->hadADC()[hadPeak];
-	    if (emPeakVal > m_ppmADCMinValue || hadPeakVal > m_ppmADCMinValue) {
+	  int Peak = (*TriggerTowerIterator)->adcPeak();
+	  unsigned int PeakVal = (*TriggerTowerIterator)->adc()[Peak];
+	  if (PeakVal > m_ppmADCMinValue) {
+	    //Set the reference and calibration values for the fine time, they are stored per cool ID in a data base
+	      std::pair<double, double> Ref = m_ttTool->refValues(CoolChannelID);
+	      double Reference = Ref.first;
+	      double CalFactor = Ref.second;
 
-	        //Set the reference and calibration values for the fine time, they are stored per cool ID in a data base
-	        if (emPeakVal > m_ppmADCMinValue) {
-	            std::pair<double, double> emRef = m_ttTool->refValues(emCoolChannelID);
-	            double emReference = emRef.first;
-	            double emCalFactor = emRef.second;
-
-	            m_fineTimePlotManager->SetEmReferenceValue(emReference);
-	            m_fineTimePlotManager->SetEmCalibrationFactor(emCalFactor);
-	        }
-	        if (hadPeakVal > m_ppmADCMinValue) {
-	            std::pair<double, double> hadRef = m_ttTool->refValues(hadCoolChannelID);
-	            double hadReference = hadRef.first;
-	            double hadCalFactor = hadRef.second;   
-    
-	            m_fineTimePlotManager->SetHadReferenceValue(hadReference);
-	            m_fineTimePlotManager->SetHadCalibrationFactor(hadCalFactor);
-	        }
-	    
-	        m_fineTimePlotManager->Analyze(m_evtInfo, *TriggerTowerIterator,emDead,hadDead);
-	    }
+	      m_fineTimePlotManager->SetReferenceValue(Reference);
+	      m_fineTimePlotManager->SetCalibrationFactor(CalFactor);
+	      m_fineTimePlotManager->Analyze(m_evtInfo, *TriggerTowerIterator, Dead);
+	   }
 	}
 
-	const int emEt  = (*TriggerTowerIterator)->emEnergy();
-	const int hadEt = (*TriggerTowerIterator)->hadEnergy();
+	const int cpEt = (*TriggerTowerIterator)->cpET();
+	const int jepEt = (*TriggerTowerIterator)->jepET();
 
 	if (m_doPedestalMonitoring) {
-
 	    // Need no signal
-	    if (emEt == 0 || hadEt == 0) {
-	        m_pedestalPlotManager->Analyze(m_evtInfo, *TriggerTowerIterator,emDead,hadDead);
+	    if (cpEt == 0 && jepEt == 0) {  //Hanno: changed || to &&
+	        m_pedestalPlotManager->Analyze(m_evtInfo, *TriggerTowerIterator, Dead);
 	    }
 	}
-	if (m_doEtCorrelationMonitoring) {
-
+	if (m_doPedestalCorrectionMonitoring) {
+	        m_pedestalCorrectionPlotManager->Analyze(m_evtInfo, *TriggerTowerIterator, Dead);
+	}
+	if (m_doEtCorrelationMonitoring) {	  
 	    // Need signal
-	    if (emEt > m_EtMinForEtCorrelation || hadEt > m_EtMinForEtCorrelation) {
-	        m_etCorrelationPlotManager->Analyze(m_evtInfo, *TriggerTowerIterator,emDead,hadDead);
+	    if (cpEt > m_EtMinForEtCorrelation || jepEt > m_EtMinForEtCorrelation) {
+	        m_etCorrelationPlotManager->Analyze(m_evtInfo, *TriggerTowerIterator, Dead);
 	    }
 	}
     }

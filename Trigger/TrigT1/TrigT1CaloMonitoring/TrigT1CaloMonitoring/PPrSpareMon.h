@@ -84,6 +84,7 @@ class TrigT1CaloLWHistogramTool;
  *  <table>
  *  <tr><th> Property                    </th><th> Description                          </th></tr>
  *  <tr><td> @c BS_TriggerTowerContainer </td><td> @copydoc m_TriggerTowerContainerName </td></tr>
+ *  <tr><td> @c BS_xAODTriggerTowerContainer </td><td> @copydoc m_xAODTriggerTowerContainerName </td></tr>
  *  <tr><td> @c ADCHitMap_Thresh         </td><td> @copydoc m_TT_ADC_HitMap_Thresh      </td></tr>
  *  <tr><td> @c PathInRootFile           </td><td> @copydoc m_PathInRootFile            </td></tr>
  *  <tr><td> @c ErrorPathInRootFile      </td><td> @copydoc m_ErrorPathInRootFile       </td></tr>
@@ -117,6 +118,7 @@ private:
 
   /// TriggerTower Container key
   std::string m_TriggerTowerContainerName;
+  std::string m_xAODTriggerTowerContainerName;
   /// ADC cut for hitmaps
   int m_TT_ADC_HitMap_Thresh;
   /// The maximum number of ADC slices
