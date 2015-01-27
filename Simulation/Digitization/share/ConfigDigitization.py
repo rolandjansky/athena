@@ -11,7 +11,8 @@ from AthenaCommon.AppMgr import ServiceMgr
 if not hasattr(ServiceMgr, 'EventSelector'):
     import AthenaPoolCnvSvc.ReadAthenaPool
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.PoolHitsInput()
+if not athenaCommonFlags.DoFullChain:
+    ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.PoolHitsInput()
 #Settings the following attributes reduces the job size slightly
 #ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [  "TREE_BRANCH_OFFSETTAB_LEN ='100'" ]
 #ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DEFAULT_BUFFERSIZE = '2048'" ]
@@ -108,8 +109,10 @@ if digitizationFlags.readSeedsFromFile.get_Value():
 # write out a summary of the time spent
 from AthenaCommon.AppMgr import theAuditorSvc
 from GaudiAud.GaudiAudConf import ChronoAuditor, MemStatAuditor
-theAuditorSvc += ChronoAuditor()
-theAuditorSvc += MemStatAuditor()
+if not 'ChronoAuditor/ChronoAuditor' in theAuditorSvc.Auditors:
+    theAuditorSvc += ChronoAuditor()
+if not 'MemStatAuditor/MemStatAuditor' in theAuditorSvc.Auditors:
+    theAuditorSvc += MemStatAuditor()
 
 # LSFTimeLimi. Temporary disable
 # include( "LSFTimeKeeper/LSFTimeKeeperOptions.py" )

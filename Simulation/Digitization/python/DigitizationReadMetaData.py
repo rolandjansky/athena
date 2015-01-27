@@ -103,6 +103,7 @@ def doSpecialConfiguration(f):
                     params[k] = v
             digitizationFlags.specialConfiguration = params
             ## Now that we've looked at and stored all the evgen metadata keys, we should do any requested preIncludes
+            from AthenaCommon.Include import include
             for incfile in preIncludes:
                 logDigitizationReadMetadata.info("Including %s as instructed by specialConfiguration metadata" % incfile)
                 include(incfile)

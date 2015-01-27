@@ -38,7 +38,8 @@ def getRunNumberRangeForOutputMetadata():
     myRunNumber = 0
     myEndRunNumber = 2147483647 # the max run number
     from Digitization.DigitizationFlags import digitizationFlags
-    if not digitizationFlags.simRunNumber.statusOn:
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    if not digitizationFlags.simRunNumber.statusOn and not athenaCommonFlags.DoFullChain:
         #---------------------------------------------------
         # Always Check for RunNumber in the first Input file
         #---------------------------------------------------
