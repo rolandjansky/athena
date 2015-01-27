@@ -19,6 +19,10 @@ def useLArFloat():
         # temporary, remapping to LArHitFloat does not seeem to work
         # with this scheme... => larger memory usage
         return False
+    # check for fast chain, running digitisation from hits in memory
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+    if athenaCommonFlags.DoFullChain:
+        return False
     # use simplified transient LArHit with float E,time
     return True
 
