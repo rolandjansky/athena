@@ -16,6 +16,9 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
 
+// --- Athena ---
+#include "CaloEvent/CaloCellContainer.h"
+
 // --- STL ---
 #include <utility>
 #include <vector>
@@ -62,7 +65,7 @@ class TrackDepositInCaloTool: public AthAlgTool, virtual public ITrackDepositInC
        @param deltaR Unused parameter. Kept for backward compatibility.
        @param inCell Unused parameter. Kept for backward compatibility.
     */
-    std::vector<DepositInCalo> getDeposits(const Trk::TrackParameters* par) const;
+    std::vector<DepositInCalo> getDeposits(const Trk::TrackParameters* par, const CaloCellContainer* caloCellCont = nullptr) const;
     
     std::vector<DepositInCalo> deposits(const Trk::TrackParameters *par, const double deltaR=0.3, const bool inCell= true) const;
     /**

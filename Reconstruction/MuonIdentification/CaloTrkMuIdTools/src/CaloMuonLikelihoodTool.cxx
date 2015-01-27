@@ -282,7 +282,7 @@ StatusCode CaloMuonLikelihoodTool::retrieveHistograms() {
 ///////////////////////////////////////////////////////////////////////////////
 // CaloMuonLikelihoodTool::getLHR
 ///////////////////////////////////////////////////////////////////////////////
-double CaloMuonLikelihoodTool::getLHR( const Trk::TrackParameters* trkpar, const double dR_CUT ) const {  
+double CaloMuonLikelihoodTool::getLHR( const Trk::TrackParameters* trkpar, const xAOD::CaloClusterContainer* ClusContainer, const double dR_CUT ) const {  
   ATH_MSG_DEBUG("in CaloMuonLikelihoodTool::getLHR()");
 
   Trk::ParticleHypothesis particleHypo = Trk::muon;
@@ -317,13 +317,16 @@ double CaloMuonLikelihoodTool::getLHR( const Trk::TrackParameters* trkpar, const
     }
 
     
-    const xAOD::CaloClusterContainer* m_clusCont;
-    if ( evtStore()->retrieve(m_clusCont, m_caloClusterContainerName).isFailure() ) {
-      ATH_MSG_WARNING("Could not retrieve CaloClusterContainer with key <" << m_caloClusterContainerName << " >");
-      return 0;
+    const xAOD::CaloClusterContainer* clusCont = ClusContainer;
+    if(clusCont == nullptr) {
+      if ( evtStore()->retrieve(clusCont, m_caloClusterContainerName).isFailure() ) {
+        ATH_MSG_WARNING("Could not retrieve CaloClusterContainer with key <" << m_caloClusterContainerName << " >");
+        return 0;
+      }
     }
+    if(clusCont == nullptr) return 0;
     
-    double LR = getLHR( m_clusCont, eta_trk, p_trk, eta_trkAtCalo, phi_trkAtCalo, dR_CUT);
+    double LR = getLHR( clusCont, eta_trk, p_trk, eta_trkAtCalo, phi_trkAtCalo, dR_CUT);
     return LR;
   }
     

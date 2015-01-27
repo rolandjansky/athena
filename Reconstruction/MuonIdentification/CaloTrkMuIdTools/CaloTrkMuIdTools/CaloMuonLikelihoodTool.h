@@ -13,6 +13,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "CaloEvent/CaloClusterContainer.h"
 
 
 #include <string>
@@ -35,7 +36,7 @@ public:
   virtual StatusCode initialize();
   virtual StatusCode finalize();
   
-  double getLHR(const Trk::TrackParameters* trkpar, const double dR_CUT=0.3) const;
+  double getLHR(const Trk::TrackParameters* trkpar, const xAOD::CaloClusterContainer* ClusCollection=nullptr, const double dR_CUT=0.3) const;
   double getLHR(const xAOD::CaloClusterContainer* ClusCollection, const double eta_trk, const double p_trk, const double eta_trkAtCalo, const double phi_trkAtCalo, const double dR_CUT=0.3) const;
 
 private:

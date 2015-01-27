@@ -116,7 +116,7 @@ StatusCode TrackDepositInCaloTool::finalize() {
 ///////////////////////////////////////////////////////////////////////////////
 // getDeposits
 ///////////////////////////////////////////////////////////////////////////////
-std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const Trk::TrackParameters* par) const {
+std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const Trk::TrackParameters* par, const CaloCellContainer* caloCellCont) const {
 
   ATH_MSG_DEBUG("In TrackDepositInCaloTool::getDeposits()");
   std::vector<DepositInCalo> result;
@@ -126,13 +126,18 @@ std::vector<DepositInCalo> TrackDepositInCaloTool::getDeposits(const Trk::TrackP
     return result;
   }
   // --- Get the CaloCellContainer from storegate every event ---
-  if ( evtStore()->retrieve(m_cellContainer, m_cellContainerName).isFailure() ) {
-    ATH_MSG_WARNING("Could not retrieve CaloCellContainer, key <" << m_cellContainerName << ">");
-    return result;
+  if(caloCellCont == nullptr) {
+    if ( evtStore()->retrieve(m_cellContainer, m_cellContainerName).isFailure() ) {
+      ATH_MSG_WARNING("Could not retrieve CaloCellContainer, key <" << m_cellContainerName << ">");
+      return result;
+    }
+    if (!m_cellContainer) {
+      ATH_MSG_WARNING("Cell container retrieved, but pointer is 0.");
+      return result;
+    }
   }
-  if (!m_cellContainer) {
-    ATH_MSG_WARNING("Cell container retrieved, but pointer is 0.");
-    return result;
+  else {
+    m_cellContainer = caloCellCont;
   }
   
   const Trk::ParticleHypothesis muonHypo = Trk::muon;

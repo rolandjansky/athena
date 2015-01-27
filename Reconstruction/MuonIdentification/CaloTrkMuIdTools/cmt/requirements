@@ -13,6 +13,7 @@ use ICaloTrkMuIdTools           ICaloTrkMuIdTools-*         Reconstruction/MuonI
 
 use CaloInterface               CaloInterface-*             Calorimeter
 use CaloTrackingGeometry        CaloTrackingGeometry-*      Calorimeter
+use CaloEvent                   CaloEvent-*                 Calorimeter
 
 private
 use AtlasCLHEP                  AtlasCLHEP-*                External
@@ -24,7 +25,6 @@ use TrkEventPrimitives          TrkEventPrimitives-*        Tracking/TrkEvent
 use TrkSurfaces                 TrkSurfaces-*               Tracking/TrkDetDescr
 
 use CaloIdentifier              CaloIdentifier-*            Calorimeter       
-use CaloEvent                   CaloEvent-*                 Calorimeter
 use xAODCaloEvent               xAODCaloEvent-*             Event/xAOD
 use CaloDetDescr                CaloDetDescr-*              Calorimeter
 use TileDetDescr                TileDetDescr-*              TileCalorimeter
