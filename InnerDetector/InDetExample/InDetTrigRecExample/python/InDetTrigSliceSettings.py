@@ -31,7 +31,8 @@ class InDetTrigSliceSettingsDB:
                'heavyIon', 'heavyIonFS',   #RoI and FS instances for the heavy ion
                'minBias400',          #another minBias with 400MeV threshold
                'tauCore', 'tauIso',
-               'beamSpot',
+               'beamSpot', 'cosmics',
+               'bjetVtx',
                ]
 
     self.db = {}
@@ -76,6 +77,7 @@ class InDetTrigSliceSettingsDB:
       'minBias2'  : 3.0,
       'beamgas'   : 3.0,
       'cosmicsN'  : 3.0,
+      'cosmics'   : 3.0,
       'lowPt'     : 3.0,
       'heavyIonFS': 3.0,
       'heavyIon'  : 0.1,
@@ -83,6 +85,7 @@ class InDetTrigSliceSettingsDB:
       'tauCore'   : 0.1,
       'tauIso'    : 0.4,
       'beamSpot'  : 3.0,
+      'bjetVtx'   : 0.2,
       }
     self.db['etaHalfWidth']=etahalf
 
@@ -102,6 +105,7 @@ class InDetTrigSliceSettingsDB:
       'minBias2'  : 3.14159,
       'beamgas'   : 3.14159,
       'cosmicsN'  : 3.14159,
+      'cosmics'   : 3.14159,
       'lowPt'     : 3.14159,
       'heavyIonFS': 3.14159,
       'heavyIon'  : 0.1,
@@ -109,6 +113,7 @@ class InDetTrigSliceSettingsDB:
       'tauCore'   : 0.1,
       'tauIso'    : 0.4,
       'beamSpot'  : 3.14159,
+      'bjetVtx'   : 0.201,
       }
     self.db['phiHalfWidth']=phihalf
 
@@ -121,6 +126,7 @@ class InDetTrigSliceSettingsDB:
     fullscan['minBias2'] = True
     fullscan['beamgas']  = True
     fullscan['cosmicsN'] = True
+    fullscan['cosmics']  = True
     fullscan['lowPt']    = True
     fullscan['heavyIonFS']=True
     fullscan['minBias400']=True
