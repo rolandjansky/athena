@@ -3,66 +3,12 @@
 from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import MuonClusterHypo
 from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import TrigL2HVJetHypoAllCuts
 from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import TrigL2HVJetHypo 
-from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import TrigL2HVJetHypoTrk 
-from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import TrigMuonJetHypo 
+from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import TrigL2HVJetHypoTrk
+from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import TrigCaloRatioHypo
 from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConf import TrigLoFRemovalHypo
 from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoMonitoring import *
 from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.AppMgr import ToolSvc
-
-
-def getTrigMuonJetHypoInstance( instance, version ):
-    return MuonJetHypo( instance=instance, version=version, name="Trig"+instance+"MuonJetHypo_"+version )
-
-
-
-class MuonJetHypo (TrigMuonJetHypo):
-    
-    __slots__ = []
-    def __init__(self, instance, version, name):
-        super( MuonJetHypo, self ).__init__( name )
-        
-        AllowedInstances = ["L2","EF"]
-        AllowedVersions  = ["2012","2011"]
-        
-        if instance not in AllowedInstances :
-            mlog.error("Instance "+instance+" is not supported!")
-            return None
-        
-        if version not in AllowedVersions :
-            mlog.error("Version "+version+" is not supported!")
-            return None
-        
-        self.Instance = instance
-
-        self.IDalgo = "None"
-       
-        if version=="2011" :
-            self.IDalgo     = "SITRACK"
-            self.UseL2Muons = False
-        elif version=="2012" :
-            self.IDalgo = "STRATEGY_B"
-            self.UseL2Muons = True            
-       
-        if self.IDalgo=="None" :
-            mlog.error("AlgoId is wrongly set!")
-            return None
-        
-        if instance == "L2" :
-            self.AcceptAll      = False
-            self.deltaRMatching = True
-            self.Instance       = "L2"
-            
-
-        from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoMonitoring import MuonJetHypoValidationMonitoring, MuonJetHypoOnlineMonitoring, MuonJetHypoCosmicMonitoring
-        validation = MuonJetHypoValidationMonitoring()
-        online     = MuonJetHypoOnlineMonitoring()
-        cosmic     = MuonJetHypoCosmicMonitoring()
-
-        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-        time = TrigTimeHistToolConfig("TimeHistogramForTrigMuonJetFex")
-        time.TimerHistLimits = [0,2]
-        self.AthenaMonTools = [ time, validation, online, cosmic ]
 
 
 
@@ -89,6 +35,7 @@ class MuonClusterHypoConfig (MuonClusterHypo):
         self.nEta                = maxEta
         self.nJet                = 0 
         self.nTrk                = 0
+
 
 class MuonClusterAllMSHypoConfig (MuonClusterHypo):
     __slots__ = []
@@ -130,6 +77,7 @@ class L2HVJetHypoAllCutsBase (TrigL2HVJetHypoAllCuts):
 
         self.AthenaMonTools = [ time, validation, online, cosmic ]
 
+
 class L2HVJetHypoAllCuts (L2HVJetHypoAllCutsBase):
     __slots__ = []
     def __init__(self, name = "L2HVJetHypoAllCuts",l2_thr=35*GeV, l2_lrat=1.):
@@ -165,8 +113,6 @@ class L2HVJetHypoAllCuts_doCleaning (L2HVJetHypoAllCuts):
         self.jetTimeCellsThr = 25
 
 
-
-
 class L2HVJetHypoBase (TrigL2HVJetHypo):
     __slots__ = []
     def __init__(self, name):
@@ -181,6 +127,7 @@ class L2HVJetHypoBase (TrigL2HVJetHypo):
         time = TrigTimeHistToolConfig("L2HVJetHypo_Time")
 
         self.AthenaMonTools = [ time, validation, online, cosmic ]
+
 
 class L2HVJetHypo (L2HVJetHypoBase):
     __slots__ = []
@@ -216,6 +163,7 @@ class L2HVJetHypo_doCleaning (L2HVJetHypo):
         self.emfThrE = 0.01
         self.jetTimeCellsThr = 25
 
+
 class L2HVJetHypoTrkBase (TrigL2HVJetHypoTrk):
     __slots__ = []
     def __init__(self, name):
@@ -231,58 +179,12 @@ class L2HVJetHypoTrkBase (TrigL2HVJetHypoTrk):
 
         self.AthenaMonTools = [ time, validation, online, cosmic ]
 
+
 class L2HVJetHypoTrk (L2HVJetHypoTrkBase):
     __slots__ = []
     def __init__(self, name = "L2HVJetHypoTrk"):
         super( L2HVJetHypoTrk, self ).__init__( name )
 
-
-
-class TrigL2MuonJetHypoBase (TrigMuonJetHypo):
-    __slots__ = []
-    def __init__(self, name):
-        super( TrigL2MuonJetHypoBase, self ).__init__( name )
-
-        self.AcceptAll                   = False
-        self.deltaRMatching              = True
-        self.Instance                    = "L2"
-
-        from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoMonitoring import MuonJetHypoValidationMonitoring, MuonJetHypoOnlineMonitoring, MuonJetHypoCosmicMonitoring
-        validation = MuonJetHypoValidationMonitoring()
-        online     = MuonJetHypoOnlineMonitoring()
-        cosmic     = MuonJetHypoCosmicMonitoring()
-
-        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-        time = TrigTimeHistToolConfig("TimeHistogramForTrigMuonJetFex")
-        time.TimerHistLimits = [0,2]
-        self.AthenaMonTools = [ time, validation, online, cosmic ]
-
-
-
-
-
-class TrigEFMuonJetHypoBase (TrigMuonJetHypo):
-    __slots__ = []
-    def __init__(self, name):
-        super( TrigEFMuonJetHypoBase, self ).__init__( name )
-
-        self.Instance       = "EF"
-
-        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-        time = TrigTimeHistToolConfig("TimeHistogramForTrigMuonJetFex")
-        time.TimerHistLimits = [0,2]
-        self.AthenaMonTools = [ time ]
-
-         
-class L2MuonJetHypo (TrigL2MuonJetHypoBase):
-    __slots__ = []
-    def __init__(self, name = "L2MuonJetHypo"):
-        super( L2MuonJetHypo, self ).__init__( name )
-
-class EFMuonJetHypo (TrigEFMuonJetHypoBase):
-    __slots__ = []
-    def __init__(self, name = "EFMuonJetHypo"):
-        super( EFMuonJetHypo, self ).__init__( name )
 
 class TrigLoFRemovalHypoConfig (TrigLoFRemovalHypo):
     __slots__ = []
@@ -304,5 +206,23 @@ class TrigLoFRemovalHypoConfig (TrigLoFRemovalHypo):
         self.AcceptAll           = False
         self.LoFCellContSize     = 4
 
+
+class CaloRatioHypo (TrigCaloRatioHypo):
+    __slots__ = []
+    def __init__(self, name = "CaloRatioHypo", threshold=35*GeV, logratio=1.):
+        super( CaloRatioHypo, self ).__init__( name )
+
+        self.EtCut       = threshold
+        self.LogRatioCut = logratio
+
+        from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoMonitoring import TrigCaloRatioHypoValidationMonitoring, TrigCaloRatioHypoOnlineMonitoring, TrigCaloRatioHypoCosmicMonitoring
+        validation = TrigCaloRatioHypoValidationMonitoring()
+        online = TrigCaloRatioHypoOnlineMonitoring()
+        cosmic = TrigCaloRatioHypoCosmicMonitoring()
+
+        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        time = TrigTimeHistToolConfig("CaloRatioHypo_Time")
+
+        self.AthenaMonTools = [ time, validation, online, cosmic ]
 
 

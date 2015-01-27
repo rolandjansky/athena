@@ -13,12 +13,14 @@ use TrigTimeAlgs        TrigTimeAlgs-*          Trigger/TrigTools
 use TrigCaloEvent       TrigCaloEvent-*         Trigger/TrigEvent
 
 private
+use FourMomUtils	FourMomUtils-*		Event
+use xAODJet             xAODJet-*               Event/xAOD
 use AtlasCLHEP          AtlasCLHEP-*            External
 use AtlasROOT           AtlasROOT-*             External
 use GaudiInterface      GaudiInterface-*        External
 use CaloEvent           CaloEvent-*             Calorimeter
 use CxxUtils            CxxUtils-*              Control
-
+use TrigParticle	TrigParticle-*		Trigger/TrigEvent
 
 private
 apply_tag ROOTMathLibs
