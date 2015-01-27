@@ -5,7 +5,7 @@
 #ifndef TRIGT1RESULTBYTESTREAM_MUCTPISRCIDMAP_H
 #define TRIGT1RESULTBYTESTREAM_MUCTPISRCIDMAP_H
 
-#include <inttypes.h>
+#include <cstdint>
 
 /** This class provides conversion between Lower level Source ID to
     higher level source ID for MuCTPI ByteStream fragments.
