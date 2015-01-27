@@ -21,7 +21,7 @@
 #include "TF1.h"
 
 // constructor
-TRT_ToT_dEdx::TRT_ToT_dEdx(const std::string& t, const std::string& n, const IInterface* p) : AlgTool(t,n,p)
+TRT_ToT_dEdx::TRT_ToT_dEdx(const std::string& t, const std::string& n, const IInterface* p) : AthAlgTool(t,n,p)
 {
   declareInterface<ITRT_ToT_dEdx>(this);
 }

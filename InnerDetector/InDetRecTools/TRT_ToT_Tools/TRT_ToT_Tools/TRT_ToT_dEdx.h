@@ -35,7 +35,7 @@ namespace InDetDD {
 // class TRT_DriftCircleOnTrack ;
 // } 
 //namespace Trk { class TrackParameters ; } 
-class TRT_ToT_dEdx : public AlgTool, virtual public ITRT_ToT_dEdx 
+class TRT_ToT_dEdx : virtual public ITRT_ToT_dEdx, public AthAlgTool 
 {
 
  public:
