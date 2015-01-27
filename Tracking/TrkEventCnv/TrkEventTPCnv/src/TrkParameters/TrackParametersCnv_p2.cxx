@@ -59,6 +59,7 @@ Trk::TrackParameters* TrackParametersCnv_p2::createTransient( const Trk::TrackPa
     AmgVector(7) parameters;
     for (unsigned int i=0; i<size; ++i) parameters[i]=persObj->m_parameters[i];
     transObj= new Trk::CurvilinearParameters(parameters, cov);
+    return transObj;
   } else {
     // Okay, not curvilinear & so we need to have a surface to handle local->global transformations etc
     
@@ -74,9 +75,9 @@ Trk::TrackParameters* TrackParametersCnv_p2::createTransient( const Trk::TrackPa
     
     if (surface){
       // Now create concrete parameters ...
-      if      (type==Trk::Surface::Perigee)      transObj= new Trk::Perigee(parameters,         static_cast<const Trk::PerigeeSurface*>(surface),     cov);
-      else if (type==Trk::Surface::Plane)        transObj= new Trk::AtaPlane(parameters,        static_cast<const Trk::PlaneSurface*>(surface),       cov);
-      else if (type==Trk::Surface::Line)         transObj= new Trk::AtaStraightLine(parameters, static_cast<const Trk::StraightLineSurface*>(surface),cov);
+      if      (type==Trk::Surface::Perigee) {     transObj= new Trk::Perigee(parameters,         static_cast<const Trk::PerigeeSurface*>(surface),     cov); return transObj;}
+      else if (type==Trk::Surface::Plane)   {     transObj= new Trk::AtaPlane(parameters,        static_cast<const Trk::PlaneSurface*>(surface),       cov); return transObj;}
+      else if (type==Trk::Surface::Line)    {     transObj= new Trk::AtaStraightLine(parameters, static_cast<const Trk::StraightLineSurface*>(surface),cov); return transObj;}
     } else if (!m_nosurf) {
       // FIXME: next line changed to DEBUG to avoid filling the derivation job options with garbage. Underlying issue should be fixed.
       log<<MSG::DEBUG<<"No surface of type="<<type<<" created - so these parameters cannot be made!"<<endreq;
@@ -87,7 +88,8 @@ Trk::TrackParameters* TrackParametersCnv_p2::createTransient( const Trk::TrackPa
 
   //transObj->m_position.setZero();
   //transObj->m_momentum.setZero();
-  return transObj;
+  delete cov;
+  return 0;
 }
 
 AmgSymMatrix(5)* TrackParametersCnv_p2::transErrorMatrix(const Trk :: TrackParameters_p2 *persObj,MsgStream& log){
