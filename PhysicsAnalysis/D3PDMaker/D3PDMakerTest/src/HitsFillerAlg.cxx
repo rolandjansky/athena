@@ -99,15 +99,14 @@ StatusCode HitsFillerAlg::fillTrackRecordCollection()
     int j = i * 10 + m_count;
     CLHEP::Hep3Vector p(j+11,j+12,j+13);
     CLHEP::Hep3Vector x(j+14,j+15,j+16);
-    TrackRecord* r = new TrackRecord (j, // PDG
-                                      j+10, // energy
-                                      p, //position
-                                      x, //momentum
-                                      j+17, // time
-                                      j+18, // barcode
-                                      "volname" // volume name
-                                      );
-    c->push_back (r);
+    c->Emplace(j, // PDG
+               j+10, // energy
+               p, //position
+               x, //momentum
+               j+17, // time
+               j+18, // barcode
+               "volname" // volume name
+               );
   }
 
   CHECK( this->evtStore()->record (c, m_TrackRecordName) );

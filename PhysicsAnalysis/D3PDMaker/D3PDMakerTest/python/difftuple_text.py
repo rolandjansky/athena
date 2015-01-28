@@ -693,6 +693,7 @@ _ignore_branches = [
       'ph_Etcone30_pt_corrected',
       'ph_Etcone40_pt_corrected',
       'trig_L1_emtau_thrPattern',
+      'mcevt_pdf_scale',
       
       # fwd eles?
       'el*_f3',
