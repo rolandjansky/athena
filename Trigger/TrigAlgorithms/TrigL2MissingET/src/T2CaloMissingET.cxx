@@ -216,7 +216,7 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
     bool storeL2L1 = true;    
 
     unsigned int tes_in_size=tes_in.size(); // = 2 (seeded) or 1 (unseeded)
-    std::vector<const TrigMissingET*> vectorL2L1MissingET;
+    std::vector<const xAOD::TrigMissingET*> vectorL2L1MissingET;
 
     if (tes_in_size != 1) {
       msg() << MSG::WARNING << " Failed to get L2=L1 vectorMissingETs. No storage of L1 will be performed " << endreq;
@@ -243,7 +243,7 @@ HLT::ErrorCode T2CaloMissingET::hltExecute(std::vector<std::vector<HLT::TriggerE
       }
     }
 
-   const TrigMissingET* metL2L1;
+   const xAOD::TrigMissingET* metL2L1;
    if(storeL2L1) {
      metL2L1 = vectorL2L1MissingET.front();
      if (metL2L1==0){
