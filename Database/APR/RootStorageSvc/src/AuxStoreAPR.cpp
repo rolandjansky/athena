@@ -14,6 +14,7 @@
 #include "TBranch.h"
 #include "TLeaf.h"
 #include "TClass.h"
+#include "TClassTable.h"
 #include "TClassEdit.h"
 #include "TVirtualCollectionProxy.h"
 
@@ -124,16 +125,24 @@ AuxStoreAPR::AuxStoreAPR(RootTreeContainer &container, long long entry, bool sta
           if (fac_class_name[fac_class_name.size()-1] == '>')
             fac_class_name += ' ';
           fac_class_name += '>';
-          TClass* fac_class = TClass::GetClass (fac_class_name.c_str());
+          TClass* fac_class = 0;
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-          if (fac_class) {
+          fac_class = TClass::GetClass (fac_class_name.c_str());
+          if (fac_class)
 #else
-          if (fac_class && fac_class->HasDictionary()) {
+          std::string result;
+          if (TClassTable::Check(fac_class_name.c_str(),result))
+            fac_class = TClass::GetClass (fac_class_name.c_str());
+          if (fac_class && fac_class->HasDictionary())
 #endif
-            TClass* base_class = TClass::GetClass ("SG::IAuxTypeVectorFactory");
+          {
+            TClass* base_class = 0;
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
+            base_class = TClass::GetClass ("SG::IAuxTypeVectorFactory");
             if (base_class) {
 #else
+            if (TClassTable::Check("SG::IAuxTypeVectorFactory",result))
+              base_class = TClass::GetClass ("SG::IAuxTypeVectorFactory");
             if (base_class && base_class->HasDictionary()) {
 #endif
               int offs = fac_class->GetBaseClassOffset (base_class);
