@@ -103,6 +103,14 @@ namespace Trk
       }
     }
 
+    if (parsAtVertex && parsAtVertex->covariance() && parsAtVertex->covariance()->determinant()<=0)
+    {
+      ATH_MSG_WARNING ("The track covariance matrix after extrapolation is: " << parsAtVertex->covariance()->determinant() << 
+                       " --> Using non extrapolated track parameters");
+      delete parsAtVertex;
+      parsAtVertex=trackPars->clone();
+    }
+
     // positions
     AmgVector(5) param = parsAtVertex->parameters();  
     Amg::Vector3D expPoint = parsAtVertex->position();
