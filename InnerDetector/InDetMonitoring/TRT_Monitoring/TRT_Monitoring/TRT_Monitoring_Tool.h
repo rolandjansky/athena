@@ -22,6 +22,7 @@ class TProfile;
 class TH1F_LW;
 class TH2F_LW;
 class TProfile_LW;
+class TH1D_LW;
 
 namespace Trk
 {
@@ -141,6 +142,7 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   //TH2F*       bookTH2F(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int xbins, double lowxbins, double highxbins, int ybins, double lowybins, double highybins, const std::string &xTitle, const std::string &yTitle, StatusCode &scode);
   TProfile_LW* bookTProfile_LW(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int bins, double lowbin, double highbin, double ymin, double ymax, const std::string &xTitle, const std::string &yTitle, StatusCode &scode);
   TProfile*       bookTProfile(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int bins, double lowbin, double highbin, double ymin, double ymax, const std::string &xTitle, const std::string &yTitle, StatusCode &scode);
+  TH1D_LW* bookTH1D_LW(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int bins, double lowbin, double highbin, const std::string &xTitle, const std::string &yTitle, StatusCode &scode);
 
   template<typename T> StatusCode trtRegHist(T *hist, MonGroup &mongrp, const char *hName)
     {
@@ -474,7 +476,7 @@ class TRT_Monitoring_Tool : public ManagedMonitorToolBase
   TH1F_LW* m_trackr_HT[4][2];
   TH1F_LW* m_IntLum;
   TH1F_LW* m_LBvsLum;
-
+  TH1D_LW* m_LBvsTime;
 
   float m_HTfraconTrack_B[32];
   float m_LonTrack_B[32];
