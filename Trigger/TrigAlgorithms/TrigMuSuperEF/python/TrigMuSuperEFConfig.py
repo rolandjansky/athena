@@ -5,7 +5,6 @@ from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
 from TrigMuSuperEFMonitoring import TrigMuSuperEFMonitoring
 from TrigMuonEF.TrigMuonEFMonitoring import TrigMuonEFStandaloneToolMonitoring,TrigMuonEFCombinerToolMonitoring
 
-
 from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFCombinerHypoConfig
 from TrigMuSuperEFConf import TrigMuSuperEF
 from AthenaCommon.BeamFlags import jobproperties
@@ -17,8 +16,8 @@ from AthenaCommon.BeamFlags import jobproperties
 class TrigMuSuperEFConfig(TrigMuSuperEF):
     __slots__ = ()
 
-    def __init__(self,name="TrigMuSuperEF", **kwargs):
-        kwargs.setdefault("doInsideOut", False)
+    def __init__(self,name="TrigMuSuperEF",**kwargs):
+        kwargs.setdefault("doInsideOut", True)
         kwargs.setdefault("doOutsideIn", True)
         kwargs.setdefault("insideOutFirst", False)
         kwargs.setdefault("fullScan", False)
@@ -38,8 +37,6 @@ class TrigMuSuperEFConfig(TrigMuSuperEF):
         doFullScan       = kwargs["fullScan"]
         combinerOnly     = kwargs["CombinerOnly"]
         doCosmics        = jobproperties.Beam.beamType == 'cosmics'
-
-        
         # make instance
         super(TrigMuSuperEFConfig,self).__init__(name,**kwargs)
 
@@ -58,8 +55,13 @@ class TrigMuSuperEFConfig(TrigMuSuperEF):
 
         # only add TrigMuGirl monitoring if it is run
         if doTrigMuGirl:
-            from TrigMuGirl.TrigMuGirlMonitoring import TrigMuGirlToolMonitoring
-            monTools.append( TrigMuGirlToolMonitoring() )
+            from AthenaCommon.CfgGetter import getPublicTool,getPublicToolClone
+            self.StauCreatorTool = getPublicToolClone("TMEF_StauCreatorTool","TMEF_MuonCreatorTool",BuildStauContainer=True)
+            self.MuGirlTool = getPublicTool("TrigMuGirlTagTool")
+            #from TrigMuGirl.TrigMuGirlMonitoring import TrigMuGirlToolMonitoring
+            #montool = TrigMuGirlToolMonitoring()
+            #print montool
+            #monTools.append( montool )
 
         # always add timing monitoring
         timetool =  TrigTimeHistToolConfig("Time") 
@@ -74,7 +76,11 @@ class TrigMuSuperEFConfig(TrigMuSuperEF):
 #
 # Several pre-configured RoI based variations
 #
+def TrigMuSuperEF(name="TrigMuSuperEF",**kwargs):
+    return TrigMuSuperEFConfig(name,**kwargs)
+    
 def TrigMuSuperEF_MGfirst(name="TrigMuSuperEF_MGfirst",**kwargs):
+
     kwargs.setdefault("doInsideOut", True)
     kwargs.setdefault("doOutsideIn", True)
     kwargs.setdefault("insideOutFirst", True)
@@ -147,7 +153,6 @@ def TrigMuSuperEF_FSCB(name="TrigMuSuperEF_FSCB",**kwargs):
 def TrigMuSuperEF_FSSA(name="TrigMuSuperEF_FSSA",**kwargs):
     kwargs.setdefault("StandaloneOnly",True)
     return TrigMuSuperEF_FSCB(name,**kwargs)
-
 
 
 

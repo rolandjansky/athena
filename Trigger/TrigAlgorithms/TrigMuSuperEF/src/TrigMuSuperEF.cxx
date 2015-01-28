@@ -96,6 +96,7 @@ TrigMuSuperEF::TrigMuSuperEF(const std::string& name, ISvcLocator* pSvcLocator) 
   m_muGirlTool("MuonCombined::MuGirlTagTool/MuGirlTagTool"),
   m_TrackToTrackParticleConvTool("TrackToTrackParticleConvTool",this),
   m_muonCreatorTool("MuonCreatorTool"),
+  m_stauCreatorTool(""),
   m_doMuonFeature(false)
 {
 
@@ -117,6 +118,7 @@ TrigMuSuperEF::TrigMuSuperEF(const std::string& name, ISvcLocator* pSvcLocator) 
   declareProperty("TrkToTrackParticleConvTool", m_TrackToTrackParticleConvTool);
   // tool to create xAOD::Muons
   declareProperty("MuonCreatorTool", m_muonCreatorTool);
+  declareProperty("StauCreatorTool", m_stauCreatorTool);
 
   declareProperty("recordSegmentCombinations",  m_recordSegments);
   declareProperty("recordPatternCombinations",  m_recordPatterns);
@@ -261,7 +263,8 @@ TrigMuSuperEF::hltInitialize()
   ATH_MSG_INFO("doTiming is set to: "<< doTiming());    
   if(doTiming()) m_totalTime = addTimer("TrigMuSuperEF_totalTime");
 
-  if ( m_doOutsideIn ) {
+  // for now always loading TrigMuonEF tools, or get errors when running MuGirl only (9-1-15)
+  //if ( m_doOutsideIn ) {
     // TrigMuonEF algtools
     if(!m_combinerOnly) {
       StatusCode sc = m_TrigMuonEF_saTrackTool.retrieve();
@@ -286,7 +289,7 @@ TrigMuSuperEF::hltInitialize()
       }
       if (doTiming()) setCombinedTimers(this, m_TMEF_CBTimers);
     }
-  }//setup TrigMuonEF
+    // }//setup TrigMuonEF
 
   // retrieve Trk::Track -> TrackParticle converter
   if (m_TrackToTrackParticleConvTool.retrieve().isSuccess()){
@@ -303,9 +306,18 @@ TrigMuSuperEF::hltInitialize()
     msg() << MSG::FATAL << "Could not get " << m_muonCreatorTool << endreq;
     return StatusCode::FAILURE;
   }
+  if(!m_stauCreatorTool.empty() ){
+    if( m_stauCreatorTool.retrieve().isSuccess()){
+      msg() << MSG::INFO << "Retrieved " << m_stauCreatorTool << endreq;
+    } else {
+      msg() << MSG::FATAL << "Could not get " << m_stauCreatorTool << endreq;
+      return StatusCode::FAILURE;
+    }
+  }
   
   if ( m_doInsideOut ) {
     // Retrieve TrigMuGirl tool
+    ATH_MSG_INFO("Try to retrieve " << m_muGirlTool);
     StatusCode sc = m_muGirlTool.retrieve();
     if (sc.isSuccess()){
       ATH_MSG_INFO( "Retrieved " << m_muGirlTool );
@@ -669,7 +681,7 @@ TrigMuSuperEF::runStandardChain(const HLT::TriggerElement* inputTE, HLT::Trigger
     combTrackParticleCont = new xAOD::TrackParticleContainer();
     combTrackParticleCont->setStore( &combTrackParticleAuxCont );
 
-    if(m_doOutsideIn && !m_insideOutFirst) { // run TrigMuonEF
+    if(m_doOutsideIn && (!m_insideOutFirst || !m_doInsideOut) ) { // run TrigMuonEF
 
       ++m_counter_TrigMuonEF.total;
       // TrigMuonEF MS+CB
@@ -692,7 +704,7 @@ TrigMuSuperEF::runStandardChain(const HLT::TriggerElement* inputTE, HLT::Trigger
       }// doInsideOut
 
     }//TrigMuonEF first
-    if(m_doInsideOut && m_insideOutFirst) {
+    if(m_doInsideOut && (m_insideOutFirst || !m_doOutsideIn)) {
       ATH_MSG_DEBUG( "Executing extend()" );
       ++m_counter_TrigMuGirl.total;
       m_muGirlTool->extend(inDetCandidates);
@@ -782,7 +794,7 @@ HLT::ErrorCode TrigMuSuperEF::runMSCBReconstruction(const IRoiDescriptor* muonRo
 /// Function to build combined tracks
 HLT::ErrorCode TrigMuSuperEF::buildCombinedTracks(const MuonCandidateCollection* muonCandidates,
 						  InDetCandidateCollection& inDetCandidates,
-						  TrigMuonEFCBMonVars& monVars,
+						  TrigMuonEFCBMonVars& /*monVars*/,
 						  std::vector<TrigTimer*>& timers) {
 
   TrigTimer* trackFinderTime  = 0;
@@ -934,6 +946,7 @@ HLT::ErrorCode TrigMuSuperEF::buildMuons(const MuonCandidateCollection* muonCand
   output.extrapolatedTrackCollection = extrapolatedTracks;
 
   m_muonCreatorTool->create( muonCandidates, inDetCandidates, output);
+  if( !m_stauCreatorTool.empty() ) m_stauCreatorTool->create( 0, inDetCandidates, output);
 
   ATH_MSG_DEBUG("N(input SA) = " << muonCandidates->size() << " N(SA from muon creator tool) = " << extrapolatedTracks->size());
 

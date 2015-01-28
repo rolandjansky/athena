@@ -197,6 +197,7 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
 
   /// tool for creating xAOD muons
   ToolHandle<MuonCombined::IMuonCreatorTool> m_muonCreatorTool;
+  ToolHandle<MuonCombined::IMuonCreatorTool> m_stauCreatorTool;
 
   //Timers
   std::vector<TrigTimer*> m_TMEF_SATimers;

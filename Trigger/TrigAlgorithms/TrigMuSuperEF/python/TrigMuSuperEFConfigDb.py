@@ -3,7 +3,7 @@
 from AthenaCommon.CfgGetter import addAlgorithm,addTool,addService
 
 # RoI based
-addAlgorithm("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEFConfig","TrigMuSuperEF")
+addAlgorithm("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEF","TrigMuSuperEF")
 #addAlgorithm("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEF_MGfirst","TrigMuSuperEF_MGfirst")
 addAlgorithm("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEF_TMEFfirst","TrigMuSuperEF_TMEFfirst")
 #addAlgorithm("TrigMuSuperEF.TrigMuSuperEFConfig.TrigMuSuperEF_MGonly","TrigMuSuperEF_MGonly")
