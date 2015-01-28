@@ -244,6 +244,10 @@ public:
   virtual double PixelLadderSupportWidth()=0; 
   virtual double PixelLadderSupportLength()=0; 
 
+  virtual double PixelLadderBentStaveAngle()=0;
+  virtual int PixelBentStaveNModule()=0;
+  virtual double PixelLadderModuleDeltaZ()=0;
+
   virtual int PixelStaveIndex(int layer)=0;
 
   // Stave support (IBL)
