@@ -7,6 +7,7 @@ use AtlasBoost       AtlasBoost-*          External
 use StoreGate        StoreGate-*           Control
 use AtlasPyROOT      AtlasPyROOT-*         External
 
+use GeneratorModules GeneratorModules-*    Generators
 use GeneratorObjects GeneratorObjects-*    Generators
 use AtlasHepMC	     AtlasHepMC-*	   External
 use EvtGen           EvtGen-*              External
