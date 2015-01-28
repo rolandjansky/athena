@@ -23,7 +23,7 @@ use AtlasCLHEP             AtlasCLHEP-*             External
 use AtlasROOT              AtlasROOT-*              External
 use AtlasHepMC             AtlasHepMC-*             External
 
-use EventInfo              EventInfo-*              Event
+use xAODEventInfo          xAODEventInfo-*          Event/xAOD
 
 use StoreGate              StoreGate-*              Control
 
