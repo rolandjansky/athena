@@ -45,13 +45,6 @@ class nIDhits(JobProperty):
     allowedTypes = ['int'] 
     StoredValue = 5 
 
-class writeChamberT0s(JobProperty): 
-    """  
-    """ 
-    statusOn = True 
-    allowedTypes = ['bool'] 
-    StoredValue = True 
-
 class MuGirlFlags(JobPropertyContainer):
     """ MuGirl Job Properties
     """
@@ -64,7 +57,6 @@ jobproperties.MuGirlFlags.add_JobProperty(doLHR)
 jobproperties.MuGirlFlags.add_JobProperty(PtLowerLimit) 
 jobproperties.MuGirlFlags.add_JobProperty(momentumLowerLimit) 
 jobproperties.MuGirlFlags.add_JobProperty(nIDhits) 
-jobproperties.MuGirlFlags.add_JobProperty(writeChamberT0s) 
 
 muGirlFlags = jobproperties.MuGirlFlags
-muGirlFlags.print_JobProperties('tree&value')
+#muGirlFlags.print_JobProperties('tree&value')
