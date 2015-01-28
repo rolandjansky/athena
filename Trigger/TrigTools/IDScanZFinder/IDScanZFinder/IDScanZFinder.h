@@ -27,7 +27,8 @@
 #include "GaudiKernel/ToolHandle.h"
 
 #include "TrigInDetToolInterfaces/ITrigZFinder.h"
-#include "GaudiKernel/AlgTool.h"
+// #include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigInDetEvent/TrigVertexCollection.h"
 #include "IDScanZFinder/IDScanZFinderInternal.h"
 // for some reason it cannot find the header with the usual cmt path resolution
@@ -38,7 +39,7 @@ class TrigSiSpacePoint;
 class IRoiDescriptor;
 
 
-class IDScanZFinder: public IDScanZFinderInternal<TrigSiSpacePoint>, public AlgTool, virtual public ITrigZFinder
+class IDScanZFinder: public IDScanZFinderInternal<TrigSiSpacePoint>, public AthAlgTool, virtual public ITrigZFinder
 {
  public:
  

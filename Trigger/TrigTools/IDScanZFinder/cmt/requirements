@@ -13,9 +13,11 @@ public
 # use AtlasCLHEP		AtlasCLHEP-00-*			External
 
 use AtlasPolicy			AtlasPolicy-*
-use GaudiInterface		GaudiInterface-*     	External
+use GaudiInterface		GaudiInterface-*     	        External
 use AtlasCLHEP			AtlasCLHEP-*			External
 
+use AthenaBaseComps             AthenaBaseComps-*               Control
+ 
 use TrigInDetEvent		TrigInDetEvent*			Trigger/TrigEvent
 use TrigInDetToolInterfaces	TrigInDetToolInterfaces-*	Trigger/TrigTools
 use	IRegionSelector			IRegionSelector-*		DetectorDescription

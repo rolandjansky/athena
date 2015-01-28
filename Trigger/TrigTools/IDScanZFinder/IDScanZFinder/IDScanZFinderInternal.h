@@ -29,7 +29,7 @@
 #include "IDScanZFinder/PhiSlice.h"
 #include "IRegionSelector/IRoiDescriptor.h"
 
-static const std::string mZFIVER("$Id: IDScanZFinderInternal.h 607502 2014-07-19 19:12:53Z sutt $");
+static const std::string mZFIVER("$Id: IDScanZFinderInternal.h 642494 2015-01-28 17:22:00Z sutt $");
 
 
 
@@ -48,7 +48,8 @@ public:
  
   IDScanZFinderInternal( const std::string&, const std::string& );
   virtual ~IDScanZFinderInternal(){};
-  void initializeInternal(long maxLayers=19, long lastBarrel=6); 
+  //  void initializeInternal(long maxLayers=20, long lastBarrel=7); 
+  void initializeInternal(long maxLayers, long lastBarrel); 
 
   std::vector<vertex>* findZInternal( const std::vector<SpacePoint *>& spVec, const IRoiDescriptor& roi);
 
@@ -57,8 +58,8 @@ public:
 
   long  GetNMax() { return m_NMax; } 
 
-  /// static since constructor depends on these
-  void setLayers(long maxLayers=19, long lastBarrelLayer=6) {
+  //  void setLayers(long maxLayers=20, long lastBarrelLayer=7) {
+  void setLayers(long maxLayers, long lastBarrelLayer) {
     m_IdScan_MaxNumLayers = maxLayers;        // dphiEC depends on this value
     m_IdScan_LastBrlLayer = lastBarrelLayer;  // dphiBrl depends on this value
   } 
@@ -155,8 +156,8 @@ protected:  // data members
 
 
 
-// template<typename T> long IDScanZFinderInternal<T>::IdScan_MaxNumLayers = 19; // dphiEC depends on this value
-// template<typename T> long IDScanZFinderInternal<T>::IdScan_LastBrlLayer = 6;
+// template<typename T> long IDScanZFinderInternal<T>::IdScan_MaxNumLayers = 20; // dphiEC depends on this value
+// template<typename T> long IDScanZFinderInternal<T>::IdScan_LastBrlLayer = 7;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -201,17 +202,19 @@ IDScanZFinderInternal<SpacePoint>::IDScanZFinderInternal( const std::string& typ
 
 
   /// to allow valiable size layers
-  /// NB: These are static variables now, so should be set before the constructors are 
-  ///     called to initialise the tool
-  m_IdScan_MaxNumLayers     = 19; // dphiEC depends on this value
-  m_IdScan_LastBrlLayer     = 6;  // dphiBrl depends on this value
+  m_IdScan_MaxNumLayers     = 20; // dphiEC depends on this value !!! 19 without IBL, 20 with IBL!!
+  m_IdScan_LastBrlLayer     = 7;  // dphiBrl depends on this value
 
   //  std::cout << "m_nFirstLayers  " << m_nFirstLayers  << std::endl;
 
-  initializeInternal();
+  /// why is this called from the constructor ???? it is called again during initialise?
+  /// do not call that here
+  ///  initializeInternal( m_IdScan_MaxNumLayers, m_IdScan_LastBrlLayer );
 
   m_Status = 0;
 }
+
+
 
 template<class SpacePoint>
 void IDScanZFinderInternal<SpacePoint>::initializeInternal(long maxLayers, long lastBarrel )
@@ -220,7 +223,7 @@ void IDScanZFinderInternal<SpacePoint>::initializeInternal(long maxLayers, long 
   m_IdScan_LastBrlLayer = lastBarrel; 
 
   //  std::cout << "m_IdScan_MaxNumLayers "    <<  m_IdScan_MaxNumLayers
-  //	        << "\tm_IdScan_LastBrlLayer "  <<  m_IdScan_LastBrlLayer << std::endl;
+  //	    << "\tm_IdScan_LastBrlLayer "  <<  m_IdScan_LastBrlLayer << std::endl;
 
   // number of phi neighbours to look at
   //  if ( extraPhi.size()==0 ) 
@@ -238,38 +241,63 @@ void IDScanZFinderInternal<SpacePoint>::initializeInternal(long maxLayers, long 
   /// this has to be computed event by event !!!
   ///  m_NumPhiSlices = long (ceil( m_usedROIphiWidth*m_invPhiSliceSize ));  
 
-  for (long l1=0; l1<m_IdScan_MaxNumLayers-1; ++l1)
-    for (long l2=l1+1; l2<m_IdScan_MaxNumLayers; ++l2)
+  for (long l1=0; l1<m_IdScan_MaxNumLayers-1; ++l1) {
+    for (long l2=l1+1; l2<m_IdScan_MaxNumLayers; ++l2) {
       extraPhi[l1][l2]=1; // look at a single phi neighbour
+    }
+  }
+
+  /// barrel
+
+  long first_layer  = 0;
+  long offset_layer = 1;
+  if ( m_IdScan_MaxNumLayers<20 ) { 
+    first_layer  = 1; 
+    offset_layer = 0; 
+  }
 
   long lyrcnt = 0;
-  for (long l1=0; l1<m_IdScan_LastBrlLayer; ++l1)
+  for (long l1=0; l1<m_IdScan_LastBrlLayer; ++l1) {
     for (long l2=l1+1; l2<=m_IdScan_LastBrlLayer; ++l2) {
-      double dphi = ZF_dphiBrl[lyrcnt];
+      double dphi = ZF_dphiBrl[lyrcnt + 7*first_layer];
       dphi *= m_neighborMultiplier;
-      extraPhi[l1][l2]=static_cast<long>(ceil(sqrt(dphi*dphi+
-						   ZF_phiRes*ZF_phiRes*2)*m_invPhiSliceSize));
+      extraPhi[l1][l2]=static_cast<long>( ceil(  sqrt(dphi*dphi+ZF_phiRes*ZF_phiRes*2) * m_invPhiSliceSize ) );
+					      
+      //      std::cout << "test 1 " << l1 << " " << l2 << "\tmax : " <<  m_IdScan_MaxNumLayers << std::endl;
+						   
       if (extraPhi[l1][l2]<1) extraPhi[l1][l2]=1;
-      //  std::cout << "Delta Phi between layers " << l1 << " and " << l2 << " = "
-      //  	<< ZF_dphiBrl[lyrcnt] << " rads ( "
-      // 	<< extraPhi[l1][l2] << " bins including phi resln.)\n";
+      //      std::cout << "Delta Phi between layers " << l1 << " and " << l2
+      //		<< " = "<< ZF_dphiBrl[lyrcnt] 
+      //		<< " rads ( " << extraPhi[l1][l2] << " bins including phi resln.)\n";
       lyrcnt++;
     }
+  }
 
-  for (long lyrpair=0; lyrpair<105; ++lyrpair) {
+
+  /// standard Endcap
+
+  
+
+  for ( long lyrpair=12*first_layer ;  lyrpair<117; ++lyrpair ) {
 
     double dphi = ZF_dphiEC[lyrpair*4+2];
-    long l1 = (long)ZF_dphiEC[lyrpair*4], l2 = (long)ZF_dphiEC[lyrpair*4+1];
-    double eta = ZF_dphiEC[lyrpair*4+3];
-    //std::cout << "Delta Phi between layers " << l1 << " and " << l2 << " = " 
-    //      << dphi << " rads @ eta=" << eta
-    //      << ". Extrapolate it to eta=0.9 to get ";
+    /// increment all the layer ids by one because of the IBL
+    /// IF and ONLY IF the IBL is included
+    long     l1 = (long)ZF_dphiEC[lyrpair*4] + offset_layer; 
+    long     l2 = (long)ZF_dphiEC[lyrpair*4+1] + offset_layer; 
+    double  eta = ZF_dphiEC[lyrpair*4+3];
+    //   std::cout << "Delta Phi between layers " << l1 << " and " << l2 
+    //	      << " = " << dphi << " rads @ eta=" << eta
+    //	      << ". Extrapolate it to eta=0.9 to get ";
     dphi = dphi + m_dphideta * ( 0.9 - eta );
     dphi *= m_neighborMultiplier;
-    extraPhi[l1][l2]=static_cast<long>(ceil(sqrt(dphi*dphi+
-						 ZF_phiRes*ZF_phiRes*2)*m_invPhiSliceSize));
+    extraPhi[l1][l2]=static_cast<long>(ceil(sqrt(dphi*dphi+ZF_phiRes*ZF_phiRes*2)*m_invPhiSliceSize));
+						 
     if (extraPhi[l1][l2]<1) extraPhi[l1][l2]=1;
-    //    std::cout << dphi << " rads ( " << extraPhi[l1][l2] << " bins including phi resln.)\n";
+
+    //    std::cout << "test 2 " << l1 << " " << l2 << "\tmax : " <<  m_IdScan_MaxNumLayers << std::endl;
+
+    // std::cout << dphi << " rads ( " << extraPhi[l1][l2] << " bins including phi resln.)\n";
   }
 
 }
