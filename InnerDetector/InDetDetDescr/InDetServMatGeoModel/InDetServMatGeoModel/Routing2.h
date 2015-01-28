@@ -58,16 +58,23 @@ private:
   VRoute m_istVRoute;
   HRoute m_istHRoute;
 
+  HRoute  m_ISTouter_HRoute; // Route running on outside of IST
+  HRoute  m_MSTinside_HRoute; // Route running on outside of IST
+
+  HRoute  m_MSTO_HRoute;
+  HRoute  m_MSTM_HRoute;
+  HRoute  m_MSTM_HRouteInner;
+  HRoute  m_MSTI_HRoute;
+
   double eosTolerance( DetType::Type type, DetType::Part part);
   double eosLength( DetType::Type type, DetType::Part part);
   double eosHalfThickness( DetType::Type type, DetType::Part part);
 
   void connect( ServiceVolume* prev, ServiceVolume* newv);
-  void routeBarrelLayer(LayerContainer::const_iterator bl, LayerContainer::const_iterator blend, 
-			ServicesTracker& tracker, VRoute& route);
-  void routeEndcapLayer(LayerContainer::const_iterator bl, LayerContainer::const_iterator blend, 
-			ServicesTracker& tracker, HRoute& route);
+  void routeBarrelLayer(LayerContainer::const_iterator bl, LayerContainer::const_iterator blend, ServicesTracker& tracker, VRoute& route);
+  void routeEndcapLayer(LayerContainer::const_iterator bl, LayerContainer::const_iterator blend, ServicesTracker& tracker, HRoute& route);
 
+  bool isRoutedOutsideSupportTube(LayerContainer::const_iterator bl, HRoute& route);
   void routeOuterBarrelPixel(ServicesTracker& tracker);
   void routeEndcapPixel(ServicesTracker& tracker);
   void routeBarrelStrip(ServicesTracker& tracker);

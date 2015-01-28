@@ -33,7 +33,11 @@ ServicesTracker* ServicesTrackerBuilder::buildGeometry(const InDetServMatGeometr
 
     int modulesPerStave = geoMgr.pixelModulesPerStave(i)/2; // we need only half-stave modules for services
 
-    tracker->constructBarrelLayer( geoMgr.pixelLayerRadius(i), 0.5*geoMgr.pixelLayerLength(i),
+    double layerRadius =  geoMgr.pixelLayerRadius(i);
+    // Correction is 0 if no bent stave modules defined
+    layerRadius -=  double(geoMgr.pixelBentStaveNModule(i))*geoMgr.pixelLadderModuleDeltaZ(i)*sin(geoMgr.pixelLadderBentStaveAngle(i) * M_PI / 180.0);
+
+    tracker->constructBarrelLayer( layerRadius, 0.5*geoMgr.pixelLayerLength(i),
 				   DetType::Pixel, i, geoMgr.pixelNumSectorsForLayer(i), suffix,
 				   modulesPerStave, nChipsPerModule);
   }

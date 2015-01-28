@@ -64,6 +64,7 @@ InDetServMatGeometryManager::InDetServMatGeometryManager(const InDetDD::AthenaCo
   m_PixelReadout       = rdbSvc->getRecordsetPtr("PixelReadout",       pixelDetectorKey, pixelDetectorNode);
   m_PixelWeights       = rdbSvc->getRecordsetPtr("PixelWeights",       pixelDetectorKey, pixelDetectorNode);
   m_PixelEnvelope      = rdbSvc->getRecordsetPtr("PixelEnvelope",      pixelDetectorKey, pixelDetectorNode);
+  m_PixelSvcRoute      = rdbSvc->getRecordsetPtr("PixelServiceRoute",  pixelDetectorKey, pixelDetectorNode);
 
   m_SctBrlGeneral      = rdbSvc->getRecordsetPtr("SSctBrlGeneral",      sctDetectorKey, sctDetectorNode);
   m_SctBrlLayer        = rdbSvc->getRecordsetPtr("SSctBrlLayer",        sctDetectorKey, sctDetectorNode);
@@ -105,65 +106,49 @@ bool InDetServMatGeometryManager::buildServices() const
   return false;
 }
 
-int InDetServMatGeometryManager::pstIndex() const 
+int InDetServMatGeometryManager::SupportTubeIndex(std::string name) const 
 {
-  for (unsigned int i = 0; i < db()->getTableSize(m_InDetSimpleServices); i++) {
-    std::string name = db()->getString(m_InDetSimpleServices,"NAME",i);
-    if (name == "PST") return i;
+  for (unsigned int i = 0; i < db()->getTableSize(m_InDetSimpleServices); i++) 
+  {
+    if (db()->getString(m_InDetSimpleServices,"NAME",i)  == name) return i;
   }
   return -1;
 }
 
-double InDetServMatGeometryManager::pstRMin() const 
+double InDetServMatGeometryManager::SupportTubeRMin(std::string name) const 
 {
-  int ind = pstIndex();
+  int ind = SupportTubeIndex(name);
   if (ind >= 0) return db()->getDouble(m_InDetSimpleServices, "RMIN", ind);
-  else          return 0;
+  return 0;
 }
 
-double InDetServMatGeometryManager::pstRMax() const 
+double InDetServMatGeometryManager::SupportTubeRMax(std::string name) const 
 {
-  int ind = pstIndex();
+  int ind = SupportTubeIndex(name);
   if (ind >= 0) return db()->getDouble(m_InDetSimpleServices, "RMAX", ind);
-  else          return 0;
+  return 0;
 }
 
-double InDetServMatGeometryManager::pstZMax() const 
+double InDetServMatGeometryManager::SupportTubeZMin(std::string name) const 
 {
-  int ind = pstIndex();
+  int ind = SupportTubeIndex(name);
+  if (ind >= 0) return db()->getDouble(m_InDetSimpleServices, "ZMIN", ind);
+  return 0;
+}
+
+double InDetServMatGeometryManager::SupportTubeZMax(std::string name) const 
+{
+  int ind = SupportTubeIndex(name);
   if (ind >= 0) return db()->getDouble(m_InDetSimpleServices, "ZMAX", ind);
-  else          return 0;
+  return 0;
 }
 
-int InDetServMatGeometryManager::istIndex() const 
+int InDetServMatGeometryManager::SupportTubeExists(std::string name) const 
 {
-  for (unsigned int i = 0; i < db()->getTableSize(m_InDetSimpleServices); i++) {
-    std::string name = db()->getString(m_InDetSimpleServices,"NAME",i);
-    if (name == "IST") return i;
-  }
-  return -1;
+  if (SupportTubeIndex(name) != -1) return 1;
+  return 0;
 }
 
-double InDetServMatGeometryManager::istRMin() const 
-{
-  int ind = istIndex();
-  if (ind >= 0) return db()->getDouble(m_InDetSimpleServices, "RMIN", ind);
-  else          return 0;
-}
-
-double InDetServMatGeometryManager::istRMax() const 
-{
-  int ind = istIndex();
-  if (ind >= 0) return db()->getDouble(m_InDetSimpleServices, "RMAX", ind);
-  else          return 0;
-}
-
-double InDetServMatGeometryManager::istZMax() const 
-{
-  int ind = istIndex();
-  if (ind >= 0) return db()->getDouble(m_InDetSimpleServices, "ZMAX", ind);
-  else          return 0;
-}
 
 // number of layers
 int InDetServMatGeometryManager::pixelNumLayers() const
@@ -202,6 +187,29 @@ int InDetServMatGeometryManager::pixelModulesPerStave(int layer) const
 
   return db()->getInt(m_PixelStave,"NMODULE",staveIndex);
 }
+
+
+// Bent stave (conical layout) parameters
+double InDetServMatGeometryManager::pixelLadderBentStaveAngle(int layer)  const
+{
+  if (!db()->testFieldTxt(m_PixelStave, "BENTSTAVEANGLE")) return 0;
+  int staveIndex = db()->getInt(m_PixelLayer,"STAVEINDEX", layer);
+  return db()->getDouble(m_PixelStave,"BENTSTAVEANGLE", staveIndex);
+}
+
+int InDetServMatGeometryManager::pixelBentStaveNModule(int layer) const
+{
+  if (!db()->testFieldTxt(m_PixelStave,"BENTSTAVENMODULE")) return 0;
+  int staveIndex = db()->getInt(m_PixelLayer, "STAVEINDEX", layer);
+  return db()->getInt(m_PixelStave, "BENTSTAVENMODULE", staveIndex);
+}
+
+double InDetServMatGeometryManager::pixelLadderModuleDeltaZ(int layer) const
+{
+  int staveIndex = db()->getInt(m_PixelLayer, "STAVEINDEX", layer);
+  return db()->getDouble(m_PixelStave, "MODULEDZ", staveIndex);
+}
+
 
 // Number of staves/sectors per endcap layer 
 int InDetServMatGeometryManager::pixelEndcapNumSectorsForLayer(int layer) const
@@ -261,15 +269,42 @@ double InDetServMatGeometryManager::pixelDiskZ(int disk) const
 // disk min radius
 double InDetServMatGeometryManager::pixelDiskRMin(int disk) const 
 {
-  // FIXME. Number in DB doesn't take into account support
-  return db()->getDouble(m_PixelDisk,"RMIN",disk) * CLHEP::mm - 11*CLHEP::mm;
+  std::string route = pixelDiskServiceRoute(disk);   
+  if(route=="StdRoute")
+    return db()->getDouble(m_PixelDisk,"RMIN",disk) * CLHEP::mm - 11*CLHEP::mm;
+
+  // support structures - SUP1RMIN is always closest to centre
+  return db()->getDouble(m_PixelDisk,"SUP1RMIN",disk) * CLHEP::mm;
+
 }
 
 // disk max radius
 double InDetServMatGeometryManager::pixelDiskRMax(int disk) const 
 {
-  // FIXME. Number in DB doesn't take into account support
-  return db()->getDouble(m_PixelDisk,"RMAX",disk) * CLHEP::mm + 11*CLHEP::mm;
+  std::string route = pixelDiskServiceRoute(disk);   
+  if(route=="StdRoute")
+    return db()->getDouble(m_PixelDisk,"RMAX",disk) * CLHEP::mm + 11*CLHEP::mm;
+
+  // support structures - SUP3RMAX is always furthest from centre
+  return db()->getDouble(m_PixelDisk,"SUP3RMAX",disk) * CLHEP::mm;
+
+}
+
+// EOS ZOffset
+double InDetServMatGeometryManager::pixelDiskEOSZOffset(int disk) const 
+{
+  if (!db()->testField(m_PixelSvcRoute, "EOSZOFFSET")) 
+    return 0.0;
+  else
+    return db()->getDouble(m_PixelSvcRoute,"EOSZOFFSET",disk) * CLHEP::mm;
+}
+
+// return name of support tube where 
+std::string InDetServMatGeometryManager::pixelDiskServiceRoute(int disk) const 
+{
+  if(db()->testField(m_PixelSvcRoute,"SERVICEROUTE"))
+    return db()->getString(m_PixelSvcRoute,"SERVICEROUTE",disk);
+  return "StdRoute";
 }
 
 double InDetServMatGeometryManager::pixelEnvelopeRMax() const
