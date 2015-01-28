@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RoIBResultToxAOD.cxx 638077 2015-01-07 16:25:46Z watsona $
+// $Id: RoIBResultToxAOD.cxx 642485 2015-01-28 17:12:38Z watsona $
 
 // STL include(s):
 #include <algorithm>
@@ -678,6 +678,10 @@ StatusCode RoIBResultToxAOD::addJetEnergyRoI( const ROIB::RoIBResult* result ) {
          }
          // EnergySum ROI
          else if ( roiType == LVL1::TrigT1CaloDefs::EnergyRoIWordType0 ) {
+            // Temporary kludge: ignore truncated eta range ET RoI
+            if ( (roIWord & 0x4000000) != 0) continue;
+            
+            // Extract information and fill EnergySumRoI
             uint32_t roiWord0 = roIWord;
             ATH_MSG_DEBUG( "ET RoIWord 0 : " << MSG::hex << std::setw( 8 )
                            << roiWord0 << MSG::dec );
