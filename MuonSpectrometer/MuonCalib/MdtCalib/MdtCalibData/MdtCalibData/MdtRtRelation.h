@@ -27,6 +27,11 @@ namespace MuonCalib {
     IRtResolution* m_rtRes;
     TrRelation *m_tr;
     float m_t0;
+
+    /** private copy constructor, assignment operator w/o concrete implemenation */
+    MdtRtRelation(const MdtRtRelation&);
+    MdtRtRelation & operator=(const MdtRtRelation &right);
+
   };
 
 }

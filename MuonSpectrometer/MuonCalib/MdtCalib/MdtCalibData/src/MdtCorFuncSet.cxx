@@ -29,8 +29,8 @@ namespace MuonCalib {
     delete m_wireSag;
   }
 
-  MdtCorFuncSet& MdtCorFuncSet::operator=(const MdtCorFuncSet&) {return *this;}
-  MdtCorFuncSet::MdtCorFuncSet(const MdtCorFuncSet&) {}
+  //MdtCorFuncSet& MdtCorFuncSet::operator=(const MdtCorFuncSet&) {return *this;}
+  //MdtCorFuncSet::MdtCorFuncSet(const MdtCorFuncSet&) {}
 
   void MdtCorFuncSet::setSlewing(IMdtSlewCorFunc * slew) { if( m_slewing ) delete m_slewing; m_slewing=slew;}
   void MdtCorFuncSet::setBField(IMdtBFieldCorFunc* bField) { if( m_bField ) delete m_bField; m_bField=bField; }
