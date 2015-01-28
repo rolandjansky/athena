@@ -27,7 +27,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 IDScanZFinder::IDScanZFinder( const std::string& type, const std::string& name, const IInterface* parent) : 
-  IDScanZFinderInternal<TrigSiSpacePoint>(type, name), AlgTool( type, name, parent ),
+  IDScanZFinderInternal<TrigSiSpacePoint>(type, name), AthAlgTool( type, name, parent ),
   m_numberingTool("TrigL2LayerNumberTool")
 {
   declareInterface< ITrigZFinder >( this );
@@ -65,13 +65,13 @@ IDScanZFinder::IDScanZFinder( const std::string& type, const std::string& name, 
 
 StatusCode IDScanZFinder::initialize()
 {
-  StatusCode sc = AlgTool::initialize(); // sets properties
+  StatusCode sc = AthAlgTool::initialize(); // sets properties
 
   MsgStream athenaLog( msgSvc(), name() );
 
   if ( sc.isFailure() ){
-    athenaLog << MSG::ERROR << "Error in AlgTool::initialize()  " << endreq;
-    // msg(MSG::ERROR) << "Error in AlgTool::initialize()  " << endreq;
+    athenaLog << MSG::ERROR << "Error in AthAlgTool::initialize()  " << endreq;
+    // msg(MSG::ERROR) << "Error in AthAlgTool::initialize()  " << endreq;
     return sc;
   }
 
@@ -115,8 +115,8 @@ StatusCode IDScanZFinder::initialize()
   //  int offsetBarrelSCT    = m_numberingTool->offsetBarrelSCT(); 
  
 
-  //  std::cout << "ZFinder::initialise() offset pixels " << offsetEndcapPixels 
-  //	    << "\toffsetBarrelSCT " << offsetBarrelSCT 
+  // std::cout << "ZFinder::initialise() offset pixels " << offsetEndcapPixels 
+  // 	    << "\toffsetBarrelSCT " << offsetBarrelSCT 
   //	    << "\tmaxlayers " << maxSiliconLayerNum << std::endl;
 
   /// pass in the total number of layers, and the last barrel layer
@@ -162,7 +162,7 @@ StatusCode IDScanZFinder::initialize()
 
 
 StatusCode IDScanZFinder::finalize() { 
-  return AlgTool::finalize(); 
+  return AthAlgTool::finalize(); 
 }
 
 TrigVertexCollection* IDScanZFinder::findZ( const std::vector<TrigSiSpacePoint *>& spVec, const IRoiDescriptor& roi)
