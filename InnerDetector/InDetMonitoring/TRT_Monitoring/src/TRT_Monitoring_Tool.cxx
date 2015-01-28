@@ -42,6 +42,7 @@
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH2F_LW.h"
 #include "LWHists/TProfile_LW.h"
+#include "LWHists/TH1D_LW.h"
 
 #include <sstream>
 #include <iomanip>
@@ -230,6 +231,9 @@ TRT_Monitoring_Tool::TRT_Monitoring_Tool(const std::string &type, const std::str
   m_flagforscale=1;//Added for a fix
   nEvents=0;
   m_hSummary = 0;
+  m_IntLum = 0;//
+  m_LBvsLum =0;// coverity 25098
+  m_LBvsTime =0;//
   m_hEvtPhaseDetPhi_B = 0;
   m_hEvtPhase = 0;
   m_hEvtPhaseVsTrig = 0;
@@ -821,7 +825,7 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_RDOs(bool newLumiBlock, bool newRun)
       //lumi summary histograms 
       m_IntLum =bookTH1F_LW(rdoShiftSmry,"hIntLum", "Luminosity", 1, 0., 1., " ", "Luminosity [#mub^{1}]", scode);
       m_LBvsLum =bookTH1F_LW(rdoShiftSmry,"hLBvsLum", "Luminosity", 2000, 0., 2000., "Luminosity Bin", "Luminosity [#mub^{1}]", scode);
-
+      m_LBvsTime =bookTH1D_LW(rdoShiftSmry,"hLBvsTime", "Time", 2000, 0., 2000., " Luminosity Bin", "Time [s]", scode);
       const unsigned int maxLumiBlock = 200;
 
       for (int ibe=0; ibe<2; ibe++) { // ibe=0(barrel), ibe=1(endcap)
@@ -1049,11 +1053,13 @@ StatusCode TRT_Monitoring_Tool::Book_TRT_Shift_Tracks(bool newLumiBlock, bool ne
   const int maxLumiblock = 720;
 
   //Arrays for Aging
-  const std::string gas_in[4] ={ "EA_in_A", "EA_in_B","EC_in_A","EC_in_B"};
-  const std::string gas_out[4] ={ "EA_out_A", "EA_out_B","EC_out_A","EC_out_B"}; 
+  //const std::string gas_in[4] ={ "EA_in_A", "EA_in_B","EC_in_A","EC_in_B"};
+  //const std::string gas_out[4] ={ "EA_out_A", "EA_out_B","EC_out_A","EC_out_B"};
   const std::string gas[4] ={ "in_A","in_B","out_A","out_B"};
   const std::string Mod[5] ={"1","2","3","shortP","shortN"}; 
-  const std::string Lum[8] ={"1","2","3","4","5","6","7","8"};
+  //const std::string Lum[8] ={"1","2","3","4","5","6","7","8"};
+  //Some unused variables commented out "gas_in,gas_out,Lum"
+  //There was warnings about it on the NICOS Nightly System 
 
   for (int ibe=0; ibe<2; ibe++) {
     const std::string regionTag = " (" + barrel_or_endcap[ibe] + ")";
@@ -2101,6 +2107,12 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_RDOs()
               m_hAvgLLOccMod_side[ibe][iside]->Fill(i, (float(moduleHits_B[modulenum_tmp])/float(numberOfStrawsMod[nclass])));       //Avg. Occupancy
               m_hAvgHLOccMod_side[ibe][iside]->Fill(i, (float(HLmoduleHits_B[modulenum_tmp])/float(numberOfStrawsMod[nclass])));     //Avg. Occupancy
             } else if (ibe==1) {
+	      //limit test
+	      /*
+	      if((index_tmp-32*nclass)>62){
+		printf("(index_tmp-32*nclass) == %d \n",(index_tmp-32*nclass));
+	      }
+	      */
               m_LLOcc[ibe][(index_tmp-32*nclass)] += float(moduleHits_E[modulenum_tmp])/float(numberOfStrawsWheel[nclass]);
               m_hAvgLLOcc_side[ibe][iside]->Fill(i-(32*nclass), (float(moduleHits_E[modulenum_tmp])/float(numberOfStrawsWheel[nclass])));       //Avg. Occupancy
               m_hAvgHLOcc_side[ibe][iside]->Fill(i-(32*nclass), (float(HLmoduleHits_E[modulenum_tmp])/float(numberOfStrawsWheel[nclass])));     //Avg. Occupancy
@@ -3451,7 +3463,7 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_Efficiency()
 }
 
 
-
+int maxtimestamp = 0.;
 //----------------------------------------------------------------------------------//
 StatusCode TRT_Monitoring_Tool::Fill_TRT_HT()
 //----------------------------------------------------------------------------------//
@@ -3469,6 +3481,7 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_HT()
 
   int lumiBlockNumber;
   //int trt_bcid;
+  int timestamp;
   const EventInfo* thisEventsInfo;
   if (evtStore()->retrieve(thisEventsInfo).isFailure()) {
     ATH_MSG_ERROR("Could not retrieve the EventInfo from Store Gate");
@@ -3477,13 +3490,17 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_HT()
     lumiBlockNumber = thisEventsInfo->event_ID()->lumi_block();
     //trt_bcid = thisEventsInfo->event_ID()->bunch_crossing_id();
   }
+  timestamp = thisEventsInfo->event_ID()->time_stamp();
+   if(timestamp>maxtimestamp)maxtimestamp = timestamp;
+
   // get Online Luminosity 
   //double lbDur = m_lumiTool->lbDuration();      
   //double AveLum = m_lumiTool->lbAverageLuminosity();
   double IntLum = (m_lumiTool->lbDuration()*m_lumiTool->lbAverageLuminosity());
+  double timestamp_ave = (maxtimestamp -0.5*m_lumiTool->lbDuration());
   m_IntLum->SetBinContent(1,IntLum);
   m_LBvsLum->SetBinContent(lumiBlockNumber,IntLum);
-
+  m_LBvsTime->SetBinContent(lumiBlockNumber,timestamp_ave);
 
   for (p_trk = m_trkCollection->begin(); p_trk != m_trkCollection->end(); ++p_trk) {
 
@@ -3585,6 +3602,11 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_HT()
       // assume always Xe if m_ArgonXenonSplitter is not enabled, otherwise check the straw status (good is Xe, non-good is Ar)
       //const bool isArgonStraw = m_ArgonXenonSplitter && (m_sumSvc->getStatusHT(surfaceID) != TRTCond::StrawStatus::Good);//
       const InDet::TRT_DriftCircle *RawDriftCircle = dynamic_cast<const InDet::TRT_DriftCircle*>(trtCircle->prepRawData());
+      if(!RawDriftCircle){//coverity 25097 
+	//This shouldn't happen in normal conditions  because trtCircle is a TRT_DriftCircleOnTrack object
+	ATH_MSG_WARNING("RawDriftCircle object returned null");	
+	continue;
+      }
       bool isHighLevel= RawDriftCircle->highLevel();
 
       //Barrel Plots
@@ -3637,6 +3659,10 @@ StatusCode TRT_Monitoring_Tool::Fill_TRT_HT()
       if((Ba_Ec==1)&&(layer_or_wheel<6)&&((straw_layer>-1.&&straw_layer<4.)||(straw_layer>7.&&straw_layer<12.)))WType = 2.; //out_A
       if((Ba_Ec==1)&&(layer_or_wheel>=6)&&((straw_layer>-1.&&straw_layer<4.)))WType=1.; //in_B Assuming Reversed in Type B
 
+      if(WType<0&&Ba_Ec==1){//Coverity CID 25096 
+	ATH_MSG_WARNING("The variable  \"WType\" is less than zero!.");
+	continue;	
+      }
 
       if(Ba_Ec==1){
 	m_trackr_All[WType][Side]->Fill(RPos);
@@ -4054,6 +4080,21 @@ TH1F_LW *TRT_Monitoring_Tool::bookTH1F_LW(MonGroup& mongroup, const std::string 
 
   return hist;
 }
+//Bens addition
+TH1D_LW *TRT_Monitoring_Tool::bookTH1D_LW(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int nbins, double firstbin, double lastbin, const std::string &xTitle, const std::string &yTitle, StatusCode &scode)
+{
+  TH1D_LW *hist = TH1D_LW::create(hName.c_str(), hTitle.c_str(), nbins, firstbin, lastbin);
+  scode = trtRegHist<TH1D_LW>(hist, mongroup, hName.c_str());
+
+  hist->GetXaxis()->SetLabelSize(0.03);
+  hist->GetYaxis()->SetLabelSize(0.03);
+  hist->SetXTitle(xTitle.c_str());
+  hist->SetYTitle(yTitle.c_str());
+
+  return hist;
+}
+
+
 /*
   TH1F *TRT_Monitoring_Tool::bookTH1F(MonGroup& mongroup, const std::string &hName, const std::string &hTitle, int nbins, double firstbin, double lastbin, const std::string &xTitle, const std::string &yTitle, StatusCode &scode)
   {
