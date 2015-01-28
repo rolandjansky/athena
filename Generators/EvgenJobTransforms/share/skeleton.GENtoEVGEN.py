@@ -29,20 +29,19 @@ topSeq += acas.AlgSequence("EvgenPostSeq")
 postSeq = topSeq.EvgenPostSeq
 #topAlg = topSeq #< alias commented out for now, so that accidental use throws an error
 
-## Run performance monitoring (memory logging)
-from PerfMonComps.PerfMonFlags import jobproperties as perfmonjp
-perfmonjp.PerfMonFlags.doMonitoring = True
-perfmonjp.PerfMonFlags.doSemiDetailedMonitoring = True
 
-## Set up a standard logger and declare the start of the evgen config
-from AthenaCommon.Logging import logging
-evgenLog = logging.getLogger('Generate')
-evgenLog.debug("****************** STARTING EVENT GENERATION *****************")
-evgenLog.debug(str(runArgs))
+##==============================================================
+## Configure standard Athena services
+##==============================================================
 
 ## Special setup for event generation
 include("AthenaCommon/Atlas_Gen.UnixStandardJob.py")
 include("PartPropSvc/PartPropSvc.py")
+
+## Run performance monitoring (memory logging)
+from PerfMonComps.PerfMonFlags import jobproperties as perfmonjp
+perfmonjp.PerfMonFlags.doMonitoring = True
+perfmonjp.PerfMonFlags.doSemiDetailedMonitoring = True
 
 ## Random number services
 from AthenaServices.AthenaServicesConf import AtRndmGenSvc, AtRanluxGenSvc
@@ -56,15 +55,18 @@ jobproperties.AthenaCommonFlags.AllowIgnoreConfigError = False
 from RecExConfig.RecConfFlags import jobproperties
 jobproperties.RecConfFlags.AllowBackNavigation = True
 
-## Functions for operating on generator names
-## NOTE: evgenConfig, topSeq, svcMgr, theApp, etc. should NOT be explicitly re-imported in JOs
-from EvgenJobTransforms.EvgenConfig import evgenConfig
-from EvgenJobTransforms.EvgenConfig import gens_known, gens_lhef, gen_sortkey, gens_testhepmc, gens_notune
+## Set up a standard logger
+from AthenaCommon.Logging import logging
+evgenLog = logging.getLogger('Generate')
 
 
 ##==============================================================
 ## Run arg handling
 ##==============================================================
+
+## Announce arg checking
+evgenLog.debug("****************** CHECKING EVENT GENERATION ARGS *****************")
+evgenLog.debug(str(runArgs))
 
 ## Ensure that an output name has been given
 # TODO: Allow generation without writing an output file (if outputEVNTFile is None)?
@@ -84,8 +86,74 @@ if not hasattr(runArgs, "firstEvent"):
 
 
 ##==============================================================
+## Configure standard Athena and evgen services
+##==============================================================
+
+## Announce start of job configuration
+evgenLog.debug("****************** CONFIGURING EVENT GENERATION *****************")
+
+## Functions for operating on generator names
+## NOTE: evgenConfig, topSeq, svcMgr, theApp, etc. should NOT be explicitly re-imported in JOs
+from EvgenJobTransforms.EvgenConfig import evgenConfig
+from EvgenJobTransforms.EvgenConfig import gens_known, gens_lhef, gen_sortkey, gens_testhepmc, gens_notune
+
+## Fix non-standard event features
+from EvgenProdTools.EvgenProdToolsConf import FixHepMC
+if not hasattr(fixSeq, "FixHepMC"):
+    fixSeq += FixHepMC()
+
+## Sanity check the event record (not appropriate for all generators)
+from EvgenProdTools.EvgenProdToolsConf import TestHepMC
+testSeq += TestHepMC(CmEnergy=runArgs.ecmEnergy*Units.GeV)
+if not hasattr(svcMgr, 'THistSvc'):
+    from GaudiSvc.GaudiSvcConf import THistSvc
+    svcMgr += THistSvc()
+svcMgr.THistSvc.Output = ["TestHepMCname DATAFILE='TestHepMC.root' OPT='RECREATE'"]
+
+## Copy the event weight from HepMC to the Athena EventInfo class
+# TODO: Rewrite in Python?
+from EvgenProdTools.EvgenProdToolsConf import CopyEventWeight
+if not hasattr(postSeq, "CopyEventWeight"):
+    postSeq += CopyEventWeight()
+
+## Configure the event counting (AFTER all filters)
+# TODO: Rewrite in Python?
+from EvgenProdTools.EvgenProdToolsConf import CountHepMC
+svcMgr.EventSelector.FirstEvent = runArgs.firstEvent
+theApp.EvtMax = -1
+if not hasattr(postSeq, "CountHepMC"):
+    postSeq += CountHepMC()
+postSeq.CountHepMC.RequestedOutput = evgenConfig.minevents if runArgs.maxEvents == -1 else runArgs.maxEvents
+postSeq.CountHepMC.FirstEvent = runArgs.firstEvent
+postSeq.CountHepMC.CorrectHepMC = False
+postSeq.CountHepMC.CorrectEventID = True
+
+## Print out the contents of the first 5 events (after filtering)
+# TODO: Allow configurability from command-line/exec/include args
+if hasattr(runArgs, "printEvts") and runArgs.printEvts > 0:
+    from TruthIO.TruthIOConf import PrintMC
+    postSeq += PrintMC()
+    postSeq.PrintMC.McEventKey = "GEN_EVENT"
+    postSeq.PrintMC.VerboseOutput = True
+    postSeq.PrintMC.PrintStyle = "Barcode"
+    postSeq.PrintMC.FirstEvent = 1
+    postSeq.PrintMC.LastEvent  = runArgs.printEvts
+
+## Add Rivet_i to the job
+# TODO: implement auto-setup of analyses triggered on evgenConfig.keywords (from T Balestri)
+if hasattr(runArgs, "rivetAnas"):
+    from Rivet_i.Rivet_iConf import Rivet_i
+    anaSeq += Rivet_i()
+    anaSeq.Rivet_i.Analyses = runArgs.rivetAnas
+    anaSeq.Rivet_i.DoRootHistos = True
+
+
+##==============================================================
 ## Pre- and main config parsing
 ##==============================================================
+
+## Announce JO loading
+evgenLog.debug("****************** LOADING PRE-INCLUDES AND JOB CONFIG *****************")
 
 ## Pre-include
 if hasattr(runArgs, "preInclude"):
@@ -99,8 +167,9 @@ if hasattr(runArgs, "preExec"):
         evgenLog.info(cmd)
         exec(cmd)
 
+# TODO: Explain!!!
 def OutputTXTFile():
-    outputTXTFile=None
+    outputTXTFile = None
     if hasattr(runArgs,"outputTXTFile"): outputTXTFile=runArgs.outputTXTFile
     return outputTXTFile
 
@@ -151,23 +220,47 @@ include(jo)
 
 
 ##==============================================================
-## Config propagation to services, generators, etc.
+## Config validation and propagation to services, generators, etc.
 ##==============================================================
 
-# TODO: Add a callbacks system to modify std alg configs after instantiation?
+## Announce start of JO checking
+evgenLog.debug("****************** CHECKING EVGEN CONFIGURATION *****************")
 
 ## Print out options
 for opt in str(evgenConfig).split(os.linesep):
     evgenLog.info(opt)
 
-## Check that the generators list is not empty...
+## Sort and check generator name / JO name consistency
+##
+## Check that the generators list is not empty:
 if not evgenConfig.generators:
     evgenLog.error("No entries in evgenConfig.generators: invalid configuration, please check your JO")
     sys.exit(1)
+## Check for duplicates:
 if len(evgenConfig.generators) > len(set(evgenConfig.generators)):
     evgenLog.error("Duplicate entries in evgenConfig.generators: invalid configuration, please check your JO")
     sys.exit(1)
-
+## Sort the list of generator names into standard form
+gennames = sorted(evgenConfig.generators, key=gen_sortkey)
+## Check that the actual generators, tune, and main PDF are consistent with the JO name
+if joparts[0].startswith("MC"): #< if this is an "official" JO
+    genpart = jo_physshortparts[0]
+    expectedgenpart = ''.join(gennames)
+    ## We want to record that HERWIG was used in metadata, but in the JO naming we just use a "Jimmy" label
+    expectedgenpart = expectedgenpart.replace("HerwigJimmy", "Jimmy")
+    def _norm(s):
+        # TODO: add EvtGen to this normalization for MC14?
+        return s.replace("Photospp", "").replace("Photos", "").replace("Tauola", "")
+    if genpart != expectedgenpart and _norm(genpart) != _norm(expectedgenpart):
+        evgenLog.error("Expected first part of JO name to be '%s' or '%s', but found '%s'" % (_norm(expectedgenpart), expectedgenpart, genpart))
+        sys.exit(1)
+    del _norm
+    ## Check if the tune/PDF part is needed, and if so whether it's present
+    if not gens_notune(gennames) and len(jo_physshortparts) < 3:
+        evgenLog.error(jofile + " with generators " + expectedgenpart +
+                       " has too few physicsShort fields separated by '_'." +
+                       " It should contain <generators>_<tune+PDF_<process>. Please rename.")
+        sys.exit(1)
 
 ## Check that the evgenConfig.minevents setting is acceptable
 ## minevents defines the production event sizes and must be sufficiently "round"
@@ -234,7 +327,6 @@ if evgenConfig.saveJets:
     StreamEVGEN.ItemList += ["xAOD::JetContainer_v1#*"]
     StreamEVGEN.ItemList += ["xAOD::JetAuxContainer_v1#*.TruthLabelID.PartonTruthLabelID"]
 
-
 ## Set the run numbers
 svcMgr.EventSelector.RunNumber = runArgs.runNumber
 # TODO: set EventType::mc_channel_number = runArgs.runNumber
@@ -254,72 +346,15 @@ include("EvgenJobTransforms/Generate_randomseeds.py")
 ## Add special config option (extended model info for BSM scenarios)
 svcMgr.TagInfoMgr.ExtraTagValuePairs += ["specialConfiguration", evgenConfig.specialConfig ]
 
-
-## Fix non-standard event features
-from EvgenProdTools.EvgenProdToolsConf import FixHepMC
-if not hasattr(fixSeq, "FixHepMC"):
-    fixSeq += FixHepMC()
-
-
-## Sanity check the event record (not appropriate for all generators)
-from EvgenProdTools.EvgenProdToolsConf import TestHepMC
-if gens_testhepmc(evgenConfig.generators):
-    evgenLog.info("Configuring TestHepMC")
-    if not hasattr(testSeq, "TestHepMC"):
-        testSeq += TestHepMC(CmEnergy=runArgs.ecmEnergy*Units.GeV)
-    if not hasattr(svcMgr, 'THistSvc'):
-        from GaudiSvc.GaudiSvcConf import THistSvc
-        svcMgr += THistSvc()
-    svcMgr.THistSvc.Output = ["TestHepMCname DATAFILE='TestHepMC.root' OPT='RECREATE'"]
-else:
-    evgenLog.info("Not running TestHepMC")
-
-
-## Copy the event weight from HepMC to the Athena EventInfo class
-# TODO: Rewrite in Python?
-from EvgenProdTools.EvgenProdToolsConf import CopyEventWeight
-if not hasattr(postSeq, "CopyEventWeight"):
-    postSeq += CopyEventWeight()
-
-
-## Configure the event counting (AFTER all filters)
-# TODO: Rewrite in Python?
-from EvgenProdTools.EvgenProdToolsConf import CountHepMC
-svcMgr.EventSelector.FirstEvent = runArgs.firstEvent
-theApp.EvtMax = -1
-if not hasattr(postSeq, "CountHepMC"):
-    postSeq += CountHepMC()
-postSeq.CountHepMC.RequestedOutput = evgenConfig.minevents if runArgs.maxEvents == -1 else runArgs.maxEvents
-postSeq.CountHepMC.FirstEvent = runArgs.firstEvent
-postSeq.CountHepMC.CorrectHepMC = False
-postSeq.CountHepMC.CorrectEventID = True
-
-
-## Print out the contents of the first 5 events (after filtering)
-# TODO: Allow configurability from command-line/exec/include args
-if hasattr(runArgs, "printEvts") and runArgs.printEvts > 0:
-    from TruthIO.TruthIOConf import PrintMC
-    postSeq += PrintMC()
-    postSeq.PrintMC.McEventKey = "GEN_EVENT"
-    postSeq.PrintMC.VerboseOutput = True
-    postSeq.PrintMC.PrintStyle = "Barcode"
-    postSeq.PrintMC.FirstEvent = 1
-    postSeq.PrintMC.LastEvent  = runArgs.printEvts
-
-
-## Add Rivet_i to the job
-# TODO: implement auto-setup of analyses triggered on evgenConfig.keywords (from T Balestri)
-if hasattr(runArgs, "rivetAnas"):
-    from Rivet_i.Rivet_iConf import Rivet_i
-    anaSeq += Rivet_i()
-    anaSeq.Rivet_i.Analyses = runArgs.rivetAnas
-    anaSeq.Rivet_i.DoRootHistos = True
+## Remove TestHepMC if it's inappropriate for this generator combination
+# TODO: replace with direct del statements in the generator common JO fragments?
+if hasattr(testSeq, "TestHepMC") and not gens_testhepmc(evgenConfig.generators):
+    evgenLog.info("Removing TestHepMC sanity checker")
+    del testSeq.TestHepMC
 
 
 ##==============================================================
-## Special handling of a post-include/exec args after all filters etc.
-## Intended for testing where an analysis alg is added as part of the evgen trf
-## NOTE: even less useful now that there is a dedicated filter seq!
+## Handling of a post-include/exec args at the end of standard configuration
 ##==============================================================
 
 if hasattr(runArgs, "postInclude"):
@@ -340,77 +375,11 @@ acas.dumpMasterSequence()
 
 
 ##==============================================================
-## Sort and check generator name / JO name consistency
-##==============================================================
-
-## Get a list of generator names, appropriately sorted
-gennames = sorted(evgenConfig.generators, key=gen_sortkey)
-
-## Check that the actual generators, tune, and main PDF are consistent with the JO name
-if joparts[0].startswith("MC"): #< if this is an "official" JO
-    genpart = jo_physshortparts[0]
-    expectedgenpart = ''.join(gennames)
-    ## We want to record that HERWIG was used in metadata, but in the JO naming we just use a "Jimmy" label
-    expectedgenpart = expectedgenpart.replace("HerwigJimmy", "Jimmy")
-    def _norm(s):
-        # TODO: add EvtGen to this normalization for MC14?
-        return s.replace("Photospp", "").replace("Photos", "").replace("Tauola", "")
-    if genpart != expectedgenpart and _norm(genpart) != _norm(expectedgenpart):
-        evgenLog.error("Expected first part of JO name to be '%s' or '%s', but found '%s'" % (_norm(expectedgenpart), expectedgenpart, genpart))
-        sys.exit(1)
-    del _norm
-    ## Check if the tune/PDF part is needed, and if so whether it's present
-    if not gens_notune(gennames) and len(jo_physshortparts) < 3:
-        evgenLog.error(jofile + " with generators " + expectedgenpart +
-                       " has too few physicsShort fields separated by '_'." +
-                       " It should contain <generators>_<tune+PDF_<process>. Please rename.")
-        sys.exit(1)
-
-
-##==============================================================
-## Write out metadata for reporting to AMI
-##==============================================================
-
-def _checkattr(attr, required=False):
-    if not hasattr(evgenConfig, attr) or not getattr(evgenConfig, attr):
-        msg = "evgenConfig attribute '%s' not found." % attr
-        if required:
-            raise RuntimeError("Required " + msg)
-        return False
-    return True
-
-if _checkattr("description", required=True):
-    msg = evgenConfig.description
-    if _checkattr("notes"):
-        msg += " " + evgenConfig.notes
-    print "MetaData: %s = %s" % ("physicsComment", msg)
-if _checkattr("generators", required=True):
-    print "MetaData: %s = %s" % ("generatorName", "+".join(gennames))
-if _checkattr("process"):
-    print "MetaData: %s = %s" % ("physicsProcess", evgenConfig.process)
-if _checkattr("tune"):
-    print "MetaData: %s = %s" % ("generatorTune", evgenConfig.tune)
-if _checkattr("hardPDF"):
-    print "MetaData: %s = %s" % ("hardPDF", evgenConfig.hardPDF)
-if _checkattr("softPDF"):
-    print "MetaData: %s = %s" % ("softPDF", evgenConfig.softPDF)
-if _checkattr("keywords"):
-    print "MetaData: %s = %s" % ("keywords", ", ".join(evgenConfig.keywords).lower())
-if _checkattr("specialConfig"):
-   print "MetaData: %s = %s" % ("specialConfig", evgenConfig.specialConfig)
-# TODO: Require that a contact / JO author is always set
-if _checkattr("contact"):
-    print "MetaData: %s = %s" % ("contactPhysicist", ", ".join(evgenConfig.contact))
-
-# Output list of generator filters used
-filterNames = [alg.getType() for alg in acas.iter_algseq(filtSeq)]
-excludedNames = ['AthSequencer', 'PyAthena::Alg', 'TestHepMC']
-filterNames = list(set(filterNames) - set(excludedNames))
-print "MetaData: %s = %s" % ("genFilterNames", ", ".join(filterNames))
-
-##==============================================================
 ## Input file arg handling
 ##==============================================================
+
+## Announce start of input file handling
+evgenLog.debug("****************** HANDLING EVGEN INPUT FILES *****************")
 
 ## Dat files
 datFile = None
@@ -497,6 +466,48 @@ if evgenConfig.auxfiles:
 
 
 ##==============================================================
+## Write out metadata for reporting to AMI
+##==============================================================
+
+def _checkattr(attr, required=False):
+    if not hasattr(evgenConfig, attr) or not getattr(evgenConfig, attr):
+        msg = "evgenConfig attribute '%s' not found." % attr
+        if required:
+            raise RuntimeError("Required " + msg)
+        return False
+    return True
+
+if _checkattr("description", required=True):
+    msg = evgenConfig.description
+    if _checkattr("notes"):
+        msg += " " + evgenConfig.notes
+    print "MetaData: %s = %s" % ("physicsComment", msg)
+if _checkattr("generators", required=True):
+    print "MetaData: %s = %s" % ("generatorName", "+".join(gennames))
+if _checkattr("process"):
+    print "MetaData: %s = %s" % ("physicsProcess", evgenConfig.process)
+if _checkattr("tune"):
+    print "MetaData: %s = %s" % ("generatorTune", evgenConfig.tune)
+if _checkattr("hardPDF"):
+    print "MetaData: %s = %s" % ("hardPDF", evgenConfig.hardPDF)
+if _checkattr("softPDF"):
+    print "MetaData: %s = %s" % ("softPDF", evgenConfig.softPDF)
+if _checkattr("keywords"):
+    print "MetaData: %s = %s" % ("keywords", ", ".join(evgenConfig.keywords).lower())
+if _checkattr("specialConfig"):
+   print "MetaData: %s = %s" % ("specialConfig", evgenConfig.specialConfig)
+# TODO: Require that a contact / JO author is always set
+if _checkattr("contact"):
+    print "MetaData: %s = %s" % ("contactPhysicist", ", ".join(evgenConfig.contact))
+
+# Output list of generator filters used
+filterNames = [alg.getType() for alg in acas.iter_algseq(filtSeq)]
+excludedNames = ['AthSequencer', 'PyAthena::Alg', 'TestHepMC']
+filterNames = list(set(filterNames) - set(excludedNames))
+print "MetaData: %s = %s" % ("genFilterNames", ", ".join(filterNames))
+
+
+##==============================================================
 ## Dump evgenConfig so it can be recycled in post-run actions
 ##==============================================================
 
@@ -507,3 +518,9 @@ runPars.maxeventsstrategy = evgenConfig.maxeventsstrategy
 with open("config.pickle", 'w') as f:
     import cPickle
     cPickle.dump(runPars, f)
+
+
+##==============================================================
+## Get ready to run...
+##==============================================================
+evgenLog.debug("****************** STARTING EVENT GENERATION *****************")

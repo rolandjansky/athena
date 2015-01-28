@@ -46,27 +46,35 @@ class EvgenExecutor(athenaExecutor):
                 zf.extractall()
                 zf.close()
 
-        def mk_jo_proxy(targetbasepath, pkgname, proxypath="_joproxy", addtosearch=True):
+        def get_immediate_subdirectories(a_dir):
+            return [name for name in os.listdir(a_dir)
+                    if os.path.isdir(os.path.join(a_dir, name))]                
+
+        def mk_jo_proxy(targetbasepath, pkgname, proxypath, addtosearch=True):
             "Make a JO proxy dir such that the MCxxJobOptions/dddd dirs contents are found via include(MCxxJobOptions/yyyy)"
             if proxypath:
                 if os.path.exists(proxypath):
                     shutil.rmtree(proxypath)
                 os.mkdir(proxypath)
-            os.environ['LOCAL_INSTALL_DIR'] = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]    
-            for d in ("common", "share", "gencontrol", "susycontrol"):
+            os.environ['LOCAL_INSTALL_DIR'] = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]
+            comdir = os.path.join(targetbasepath, "common")
+            subdirlist = get_immediate_subdirectories(comdir)
+            subdirlist1 = ['common/%s' % item for item in subdirlist]
+            dirlist = ['common','share','gencontrol','susycontrol']
+            for d in (dirlist+subdirlist1):
                 # TODO: we could _maybe_ add the appropriate share/DSIDxxxx/ dir to the path based on the jobConfig arg... too much magic?
-                dpath = os.path.join(proxypath, d)
-                if proxypath:
+                if (d != 'common/.svn'):
+                  dpath = os.path.join(proxypath, d)
+
+                  if proxypath:
                     os.mkdir(dpath)
                     os.symlink(os.path.join(targetbasepath, d), os.path.join(dpath, pkgname))
-                if addtosearch:
+                  if addtosearch:
                     os.environ["JOBOPTSEARCHPATH"] = dpath+":"+os.environ["JOBOPTSEARCHPATH"]
                     os.environ["DATAPATH"] =os.path.join(targetbasepath, d)+":"+os.environ["DATAPATH"]
-#                    print("EA: DATAPATH=%s;") % os.environ["DATAPATH"]
-#		    print("EA: dpath=%s;") % (dpath)
-#                    print("EA: realpath=%s;") % os.path.realpath(dpath)
-            os.environ["JOBOPTSEARCHPATH"] = os.environ['LOCAL_INSTALL_DIR']+":"+os.environ["JOBOPTSEARCHPATH"]
 
+            os.environ["JOBOPTSEARCHPATH"] = os.environ['LOCAL_INSTALL_DIR']+":"+os.environ["JOBOPTSEARCHPATH"]
+        
 
         ## Handle locating of evgen job options / fragments, either from a tarball or CVMFS
         if "evgenJobOpts" in self._trf.argdict: ## Use a specified JO tarball
@@ -87,7 +95,8 @@ class EvgenExecutor(athenaExecutor):
                 msg.info('Evgen tarball download success: %s' % output)
             ## Expand tarball
             expand_if_archive(tarball)
-            mk_jo_proxy(os.getcwd(), "MC14JobOptions", "")
+            mk_jo_proxy(os.getcwd(), "MC14JobOptions", "_joproxy14")
+            mk_jo_proxy(os.getcwd(), "MC15JobOptions", "_joproxy15")
             ## Source setup script (requires some shenanigans to update the Python env robustly)
             # TODO: trf framework now bans use of exec()...
             #import subprocess
@@ -98,10 +107,12 @@ class EvgenExecutor(athenaExecutor):
         else: ## Use the CVMFS copy of the latest MC14 JOs tag
             if os.path.exists("/cvmfs/atlas.cern.ch"):
                 # TODO: Make the package name configurable
-                mk_jo_proxy("/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/", "MC14JobOptions")
+                mk_jo_proxy("/cvmfs/atlas.cern.ch/repo/sw/Generators/MC14JobOptions/latest/", "MC14JobOptions","_joproxy14")
+                mk_jo_proxy("/cvmfs/atlas.cern.ch/repo/sw/Generators/MC15JobOptions/latest/", "MC15JobOptions","_joproxy15")
                 msg.info("No evgenJobOpts tarball specified, using JOBOPTSEARCHPATH = '%s'" % os.environ["JOBOPTSEARCHPATH"])
             elif os.path.exists("/afs/cern.ch/atlas/groups/Generators"):
-                mk_jo_proxy("/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/", "MC14JobOptions")
+                mk_jo_proxy("/afs/cern.ch/atlas/groups/Generators/MC14JobOptions/latest/", "MC14JobOptions","_joproxy14")
+                mk_jo_proxy("/afs/cern.ch/atlas/groups/Generators/MC15JobOptions/latest/", "MC15JobOptions","_joproxy15")
                 msg.info("No evgenJobOpts tarball specified, no cvmfs, using JOBOPTSEARCHPATH = '%s'" % os.environ["JOBOPTSEARCHPATH"])
 
         ## Expand tarball input event and generator conf files, if provided
