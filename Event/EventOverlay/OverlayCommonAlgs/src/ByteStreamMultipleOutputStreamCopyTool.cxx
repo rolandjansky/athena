@@ -61,7 +61,7 @@ ByteStreamMultipleOutputStreamCopyTool::ByteStreamMultipleOutputStreamCopyTool(
 		  const std::string& type,
 		  const std::string& name,
 		  const IInterface* parent) 
-  : AlgTool(type, name, parent),
+  : AthAlgTool(type, name, parent),
     m_inputSvc("ByteStreamEventStorageInputSvc", name)
 {
    // Declare IAthenaOutputStreamTool interface
@@ -138,37 +138,20 @@ ByteStreamMultipleOutputStreamCopyTool::~ByteStreamMultipleOutputStreamCopyTool(
 }
 //__________________________________________________________________________
 StatusCode ByteStreamMultipleOutputStreamCopyTool::initialize() {
-   MsgStream log(msgSvc(), name());
-   log << MSG::INFO << "Initializing " << name() << " - package version " << PACKAGE_VERSION << endreq;
+   ATH_MSG_INFO( "Initializing " << name() << " - package version " << PACKAGE_VERSION );
 
-   StatusCode status = ::AlgTool::initialize();
-   if (!status.isSuccess()) {
-      log << MSG::ERROR << "Unable to initialize AlgTool base class." << endreq;
-      return(status);
-   }
+   CHECK( ::AlgTool::initialize() );
 
    // retrieve services 
-   status = m_inputSvc.retrieve();
-   if (status.isFailure()) {
-      log << MSG::ERROR << "Unable to locate ByteStreamInputSvc " << endreq;
-      return(status);
-   } else {
-      log << MSG::DEBUG << "Found ByteStreamInputSvc." << endreq;
-   }
+   CHECK( m_inputSvc.retrieve() );
    
    for (int i=0; i<m_NoutputSvc; ++i){
-   status = m_outputSvc[i].retrieve();
-   if (status.isFailure()) {
-     log << MSG::ERROR << "Unable to locate ByteStreamOutputSvc"<<i<< endreq;
-     return(status);
-   } else {
-     log << MSG::INFO << "Found ByteStreamOutputSvc"<<i<< endreq;
-   }
+     CHECK( m_outputSvc[i].retrieve() );
    }
    
    if (m_lbn_map_file!=std::string("") && m_lbn_map_file!=std::string("random") && m_lbn_map_file!=std::string("serial") ) m_uselbnmap=1;
    else m_uselbnmap=0;
-   std::cout<<"lbn_map_file is "<<m_lbn_map_file<<" and uselbnmap is "<<m_uselbnmap<<std::endl;
+   ATH_MSG_INFO( "lbn_map_file is "<<m_lbn_map_file<<" and uselbnmap is "<<m_uselbnmap );
 
    if (m_uselbnmap>0) initlbnmap();
 
@@ -176,14 +159,14 @@ StatusCode ByteStreamMultipleOutputStreamCopyTool::initialize() {
 }
 
 void ByteStreamMultipleOutputStreamCopyTool::initlbnmap(){
-  MsgStream log(msgSvc(), name());
   
   //read the runlbn map
    std::string file = m_lbn_map_file;
-   log<<MSG::INFO<<"Going to open "<<file<<endreq;
+   ATH_MSG_INFO( "Going to open "<<file );
+
    FILE *fp = fopen(file.c_str(),"r");
    if (!fp) {
-     log<<MSG::ERROR<<"Could not open "<<file<<"!"<<endreq;
+     ATH_MSG_ERROR( "Could not open "<<file<<"!" );
      //return(StatusCode::FAILURE);
    }
    char *line=new char[500];
@@ -193,59 +176,54 @@ void ByteStreamMultipleOutputStreamCopyTool::initlbnmap(){
       if (line[0]=='-') continue;
       int s=sscanf(&line[0],"stream %d, run %d, lbn %d, has %d events and %f/ub, %f intlumi of run, and %d wanted",&stream,&run,&lbn,&nevt,&intlumi,&intlumifrac,&nwanted);
       if (s>0) {
-	log<<MSG::DEBUG<<run<<" "<<lbn<<" has "<<nevt<<" events and we want "<<nwanted<<" of them for stream "<<stream<<endreq;
+	ATH_MSG_DEBUG(run<<" "<<lbn<<" has "<<nevt<<" events and we want "<<nwanted<<" of them for stream "<<stream);
 	runlbnmap[run][lbn].magic=9999;
 	runlbnmap[run][lbn].nevt=nevt;
 	runlbnmap[run][lbn].wantedmap[stream]=nwanted;
       }
       else{
-	log<<MSG::ERROR<<"Line in "<<file<<" not understood!"<<endreq;
-	log<<MSG::ERROR<<line<<endreq;
+	ATH_MSG_ERROR("Line in "<<file<<" not understood!");
+	ATH_MSG_ERROR(line);
       }      
    }
 
    //go through the runlbn map and figure out which events to put to which stream(s)
    myrand.SetSeed();
-   log<<MSG::INFO<<"Seed is "<<myrand.GetSeed()<<endreq;
-   for (std::map<int, std::map<int, lbninfo> >::iterator r=runlbnmap.begin(); r!=runlbnmap.end(); ++r){
-     for (std::map<int,lbninfo>::iterator l=r->second.begin(); l!=r->second.end(); ++l){
-       l->second.makestreammap();
-       log<<MSG::DEBUG<<r->first<<" "<<l->first<<" wants: "<<l->second.streameventstring()<<endreq;
+   ATH_MSG_INFO("Seed is "<<myrand.GetSeed());
+   for (auto r : runlbnmap ){
+     for (auto l : r.second ){
+       l.second.makestreammap();
+       ATH_MSG_DEBUG(r.first<<" "<<l.first<<" wants: "<<l.second.streameventstring());
      }
    }
 }
 
 //__________________________________________________________________________
 StatusCode ByteStreamMultipleOutputStreamCopyTool::finalize() {
-  MsgStream log(msgSvc(), name());
  
-  for (std::map<int, std::map<int, lbninfo> >::iterator r=runlbnmap.begin(); r!=runlbnmap.end(); ++r){
-     for (std::map<int,lbninfo>::iterator l=r->second.begin(); l!=r->second.end(); ++l){
+  for (auto r : runlbnmap ){
+     for (auto l : r.second ){
        
-       if (l->second.magic!=9999){
-	 log<<MSG::WARNING<<"Run "<<r->first<<" saw events but wasn't in the map"<<endreq;
+       if (l.second.magic!=9999){
+	 ATH_MSG_WARNING("Run "<<r.first<<" saw events but wasn't in the map");
 	 continue;
        }
   
-       if (l->second.currentevent!=0){
+       if (l.second.currentevent!=0){
        //check that we got all the events we were promised
-       if (l->second.currentevent!=l->second.nevt){
-	 log<<MSG::WARNING<<r->first<<" "<<l->first<<" saw "<<l->second.currentevent<<" and we expected "<<l->second.nevt<<" events!"<<endreq;
+       if (l.second.currentevent!=l.second.nevt){
+	 ATH_MSG_WARNING(r.first<<" "<<l.first<<" saw "<<l.second.currentevent<<" and we expected "<<l.second.nevt<<" events!");
        }
        else {
-	 log<<MSG::INFO<<r->first<<" "<<l->first<<" saw all "<<l->second.nevt<<" events expected."<<endreq;
+	 ATH_MSG_INFO(r.first<<" "<<l.first<<" saw all "<<l.second.nevt<<" events expected.");
        }
        }
      }
   }
      
 
-  StatusCode status;
   for (int i=0; i<m_NoutputSvc; ++i){
-    status= m_outputSvc[i].release();
-    if (status.isFailure()) {
-      log << MSG::WARNING << "Cannot release the ByteStreamOutputSvc"<<i<<endreq;
-    }
+    CHECK( m_outputSvc[i].release() );
   }
   return(::AlgTool::finalize());
 }
@@ -263,32 +241,31 @@ StatusCode ByteStreamMultipleOutputStreamCopyTool::connectOutput(const std::stri
 }
 //__________________________________________________________________________
 StatusCode ByteStreamMultipleOutputStreamCopyTool::commitOutput() {
-   MsgStream log(msgSvc(), name());
-   log << MSG::DEBUG << "In commitOutput" << endreq;
+   ATH_MSG_DEBUG( "In commitOutput" );
 
    const RawEvent* re_c = m_inputSvc->currentEvent() ; 
    if(!re_c){
-     log << MSG::ERROR << " failed to get the current event from ByteStreamInputSvc  " << endreq; 
+     ATH_MSG_ERROR( " failed to get the current event from ByteStreamInputSvc  " ); 
      return StatusCode::FAILURE ; 
    }
 
    int run = re_c->run_no();
-   log<<MSG::DEBUG<<"run is "<<run<<endreq;
+   ATH_MSG_DEBUG("run is "<<run);
    //int event = re_c->event_no();
    //log<<MSG::DEBUG<<"event is "<<event<<endreq;
    int lbn = re_c->lumi_block();
-   log<<MSG::DEBUG<<"lbn is "<<lbn<<endreq;
+   ATH_MSG_DEBUG("lbn is "<<lbn);
    int bcid = re_c->bc_id();
-   log<<MSG::DEBUG<<"bcid is "<<bcid<<endreq;
+   ATH_MSG_DEBUG("bcid is "<<bcid);
    int nL1word = re_c->nlvl1_trigger_info();
-   log<<MSG::DEBUG<<"nL1word is "<<nL1word<<endreq;
+   ATH_MSG_DEBUG("nL1word is "<<nL1word);
    const OFFLINE_FRAGMENTS_NAMESPACE::DataType* L1word; re_c->lvl1_trigger_info(L1word);
    int bit=240;//2*8 gets us to the Trigger AfterVeto (TAV) bank
-   log<<MSG::DEBUG<<"bit "<<bit<<" fired? "<< IsBitSet(L1word[2*8+bit/32],bit%32) <<endreq;
+   ATH_MSG_DEBUG("bit "<<bit<<" fired? "<< IsBitSet(L1word[2*8+bit/32],bit%32) );
 
    //Skip the first N events, if asked to do so...
    if (m_skipevents>0){
-     log <<MSG::INFO << "Skipping this event because skipevents="<<m_skipevents<<"."<< endreq;
+     ATH_MSG_INFO("Skipping this event because skipevents="<<m_skipevents<<".");
      --m_skipevents;
      return StatusCode::SUCCESS ;
    }
@@ -297,23 +274,23 @@ StatusCode ByteStreamMultipleOutputStreamCopyTool::commitOutput() {
      //See if we want this event in any stream...
      lbninfo &l = runlbnmap[run][lbn];
      if (l.magic!=9999){
-       log <<MSG::WARNING << "Event in lbn "<<lbn<<" not in map... skipping." << endreq;
+       ATH_MSG_WARNING( "Event in lbn "<<lbn<<" not in map... skipping." );
        return StatusCode::SUCCESS ;
      }
-     if (l.currentevent>=l.nevt) {log<<MSG::WARNING<<"Only expecting "<<l.nevt<<" events in "<<run<<" "<<lbn<<endreq;}
+     if (l.currentevent>=l.nevt) {ATH_MSG_WARNING("Only expecting "<<l.nevt<<" events in "<<run<<" "<<lbn);}
      std::vector<int> &streams= l.streammap[l.currentevent];//so at this point the first event is at index 0, last at nevt-1
-     log<<MSG::DEBUG<<lbn<<" "<<l.currentevent<<" goes to "<<streams.size()<<" streams"<<endreq;
+     ATH_MSG_DEBUG(lbn<<" "<<l.currentevent<<" goes to "<<streams.size()<<" streams");
      l.currentevent++;
      
      RawEvent* re =  const_cast<RawEvent*>(re_c); 
      for (unsigned int s=0; s<streams.size(); ++s){
-       if (streams[s]>=m_NoutputSvc) log<<MSG::ERROR<<"Stream "<<streams[s]<< "is more than we have ("<<m_NoutputSvc<<")"<<endreq;
+       if (streams[s]>=m_NoutputSvc) ATH_MSG_ERROR("Stream "<<streams[s]<< "is more than we have ("<<m_NoutputSvc<<")");
        else{
 	 if( !m_outputSvc[streams[s]]->putEvent(re) ) {
-	   log << MSG::ERROR << " failed to write event to ByteStreamOutputSvc"<<streams[s]<< endreq; 
+	   ATH_MSG_ERROR( " failed to write event to ByteStreamOutputSvc"<<streams[s]);
 	   return StatusCode::FAILURE ; 
 	 }
-	 log << MSG::DEBUG << " wrote event to ByteStreamOutputSvc"<<streams[s]<< endreq; 
+	 ATH_MSG_DEBUG( " wrote event to ByteStreamOutputSvc"<<streams[s] );
        }
      }
    }//m_usebnlmap
@@ -322,21 +299,28 @@ StatusCode ByteStreamMultipleOutputStreamCopyTool::commitOutput() {
      static int eventstream=-1,ntotevents=0;
      if (m_lbn_map_file==std::string("random")){
        eventstream = rand()%m_NoutputSvc;
-       assert(eventstream>0 && eventstream<m_NoutputSvc);
+       if (eventstream<0 || eventstream>=m_NoutputSvc){
+	 ATH_MSG_ERROR("Only have "<<m_NoutputSvc<<" streams but eventstream is "<<eventstream<<"!");
+	 return StatusCode::FAILURE ;
+       }
      }
      else if (m_lbn_map_file==std::string("serial")){
-       if (ntotevents%100==0) ++eventstream;
-       assert(eventstream>0 && eventstream<m_NoutputSvc);
+       if (ntotevents%100==0){ ++eventstream; }
+       if (eventstream<0 || eventstream>=m_NoutputSvc){
+	 ATH_MSG_WARNING("Skipping event because only have "<<m_NoutputSvc<<" streams (of 100 events)");
+	 return StatusCode::SUCCESS ;
+       }
      }
      else {
-       log << MSG::ERROR << " I don't know what lbn_map_file="<<m_lbn_map_file<<" means!"<< endreq; 
+       ATH_MSG_ERROR( " I don't know what lbn_map_file="<<m_lbn_map_file<<" means!");
        return StatusCode::FAILURE ;
      }
+
      if( !m_outputSvc[eventstream]->putEvent(re) ) {
-       log << MSG::ERROR << " failed to write event to ByteStreamOutputSvc"<<eventstream<< endreq; 
+       ATH_MSG_ERROR( " failed to write event to ByteStreamOutputSvc"<<eventstream);
        return StatusCode::FAILURE ; 
      }
-     log << MSG::INFO << " wrote event "<<ntotevents<<" to ByteStreamOutputSvc"<<eventstream<< endreq;
+     ATH_MSG_INFO( " wrote event "<<ntotevents<<" to ByteStreamOutputSvc"<<eventstream);
      ++ntotevents;
    }
    return StatusCode::SUCCESS ;
@@ -352,7 +336,7 @@ StatusCode ByteStreamMultipleOutputStreamCopyTool::finalizeOutput()
 StatusCode ByteStreamMultipleOutputStreamCopyTool::streamObjects(const TypeKeyPairs&  typeKeys ) {
    if ( typeKeys.size()!=0){
      MsgStream log(msgSvc(), name());
-     log << MSG::WARNING << " Streaming objects is not supported.  The whole input event is written out" << endreq;
+     ATH_MSG_WARNING( " Streaming objects is not supported.  The whole input event is written out" );
    }
 
    return(StatusCode::SUCCESS);
@@ -360,8 +344,7 @@ StatusCode ByteStreamMultipleOutputStreamCopyTool::streamObjects(const TypeKeyPa
 //__________________________________________________________________________
 StatusCode ByteStreamMultipleOutputStreamCopyTool::streamObjects(const DataObjectVec& dataObjects) {
    if ( dataObjects.size()!=0){
-     MsgStream log(msgSvc(), name());
-     log << MSG::WARNING << " Streaming objects is not supported.  The whole input event is written out" << endreq;
+     ATH_MSG_WARNING( " Streaming objects is not supported.  The whole input event is written out" );
    }
 
    return(StatusCode::SUCCESS);
@@ -369,8 +352,7 @@ StatusCode ByteStreamMultipleOutputStreamCopyTool::streamObjects(const DataObjec
 //__________________________________________________________________________
 StatusCode ByteStreamMultipleOutputStreamCopyTool::fillObjectRefs(const DataObjectVec& dataObjects) {
    if ( dataObjects.size()!=0){
-     MsgStream log(msgSvc(), name());
-     log << MSG::WARNING << " fillObjectRefs is not supported.  The whole input event is written out" << endreq;
+     ATH_MSG_WARNING( " fillObjectRefs is not supported.  The whole input event is written out" );
    }
 
    return(StatusCode::SUCCESS);

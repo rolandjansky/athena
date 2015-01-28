@@ -121,16 +121,6 @@ StatusCode BSFilter::execute()
   uint16_t lbn = d->event_ID()->lumi_block();
   //uint16_t bcid = d->event_ID()->bunch_crossing_id();
   
-  if (efile) {
-    static bool efilefirst=true;
-    if (efilefirst){
-      efilefirst=false;//just rpint this stuff once, for the first event
-      //fprintf(efile,"svcMgr.EventSelector.RunNumber = %d\n",run);
-      //fprintf(efile,"svcMgr.EventSelector.OverrideRunNumber = True\n");
-    }
-    fprintf(efile,"svcMgr.EvtIdModifierSvc.add_modifier(run_nbr=%d, evt_nbr=%d, time_stamp=%d, lbk_nbr=%d, nevts=1)\n",run,event,bc_time_sec,lbn);
-  }
-  
   ////////////////////////////////////////////////////////////
   if (m_trigbit>=0){
   const DataHandle< CTP_RDO > ctpRDO;
@@ -179,6 +169,7 @@ StatusCode BSFilter::execute()
     ATH_MSG_DEBUG("Filter Passed");
     setFilterPassed(true);
     pass++;
+    if (efile) fprintf(efile,"svcMgr.EvtIdModifierSvc.add_modifier(run_nbr=%d, evt_nbr=%d, time_stamp=%d, lbk_nbr=%d, nevts=1)\n",run,event,bc_time_sec,lbn);
   }
   else    {
     ATH_MSG_DEBUG("Filter Failed");
@@ -212,6 +203,7 @@ StatusCode BSFilter::execute()
       ATH_MSG_DEBUG("Filter Passed");
       setFilterPassed(true);
       pass++;
+      if (efile) fprintf(efile,"svcMgr.EvtIdModifierSvc.add_modifier(run_nbr=%d, evt_nbr=%d, time_stamp=%d, lbk_nbr=%d, nevts=1)\n",run,event,bc_time_sec,lbn);
     }
     else    {
       ATH_MSG_DEBUG("Filter Failed");
