@@ -63,71 +63,39 @@ InDetV0FinderTool::InDetV0FinderTool(const std::string& t, const std::string& n,
   //m_extrapolator("Trk::Extrapolator/InDetExtrapolator"),
   m_extrapolator("Trk::Extrapolator"),
   m_particleDataTable(0),
-  m_startup(true),
+  m_doSimpleV0(false),
   m_useorigin(true),
   m_samesign(false),
-  m_pv(true),
+  //m_pv(true),
+  m_pv(false),
   m_use_vertColl(false),
   m_useTRTplusTRT(false),
   m_useTRTplusSi(false),
   m_useV0Fitter(false),
-  m_useerrorcode5(true),
-  m_CnstType(2),
-  m_vertex(1),
   m_masses(1),
-  m_gamma(1),
-  m_electrons(0),
   m_masspi(139.57),
   m_massp(938.272),
   m_masse(0.510999),
   m_massK0S(497.672),
   m_massLambda(1115.68),
-  m_massGamma(0.),
   m_ptTRT(700.),
-  m_minRxy(0.0),
-  m_minsxy(0.0),
   m_maxsxy(1000.),
-  m_minslxy(-1000),
-  m_maxslxy(1000),
-  m_rmax_s(300.),
-  m_rmax_t(1000.),
+  m_uksmin(400.),
+  m_uksmax(600.),
+  m_ulamin(1000.),
+  m_ulamax(1200.),
   m_ksmin(400.),
   m_ksmax(600.),
   m_lamin(1000.),
   m_lamax(1200.),
-  m_ugamax(100.0),
-  m_errmass_ks(25.),
-  m_errmass_la(10.),
-  m_errmass_ga(10.),
-  m_errmass_t(500.),
+  m_errmass(100.),
   m_minVertProb(0.0001),
   m_minConstrVertProb(0.0001),
-  m_hlxymin_ss(0.),
-  m_hlxymax_ss(10.),
-  m_hlxymin_st(0.),
-  m_hlxymax_st(20.),
-  m_hlxymin_tt(-50.),
-  m_hlxymax_tt(50.),
-  m_pt_s(-99.),
-  m_pt_t(-99.),
-  m_upt_s(-99.),
-  m_upt_t(-99.),
-  m_kspt_s(-99.),
-  m_lapt_s(-99.),
-  m_gapt_s(-99.),
-  m_kspt_t(-99.),
-  m_lapt_t(-99.),
-  m_gapt_t(-99.),
-  m_ulxy_s(-1000.),
-  m_ulxy_t(-1000.),
-  m_lalxy_s(-1000.),
-  m_lalxy_t(-1000.),
-  m_kslxy_s(-1000.),
-  m_kslxy_t(-1000.),
-  m_galxy_s(-1000.),
-  m_galxy_t(-1000.),
   m_d0_cut(5.),
-
+  m_vert_lxy_sig(5.),
+  m_vert_lxy_cut(500.),
+  m_vert_a0xy_cut(3.),
+  m_vert_a0z_cut(15.),
   m_beamConditionsService("BeamCondSvc", n),
   m_TrkParticleCollection("TrackParticleCandidate"),
   m_V0CandidatesOutputName("V0Candidates")
@@ -145,7 +113,7 @@ InDetV0FinderTool::InDetV0FinderTool(const std::string& t, const std::string& n,
   declareProperty("TrackSelectorTool", m_trkSelector);
   declareProperty("VertexPointEstimator", m_vertexEstimator);
   declareProperty("Extrapolator", m_extrapolator);
-  declareProperty("startup", m_startup);
+  declareProperty("doSimpleV0", m_doSimpleV0);
   declareProperty("useorigin", m_useorigin);
   declareProperty("AddSameSign", m_samesign);
   declareProperty("trkSelPV", m_pv);
@@ -153,67 +121,30 @@ InDetV0FinderTool::InDetV0FinderTool(const std::string& t, const std::string& n,
   declareProperty("useTRTplusTRT", m_useTRTplusTRT);
   declareProperty("useTRTplusSi", m_useTRTplusSi);
   declareProperty("useV0Fitter", m_useV0Fitter);
-  declareProperty("useerrorcode5", m_useerrorcode5);
-  declareProperty("CnstType", m_CnstType);
-  declareProperty("vertex", m_vertex);
   declareProperty("masses", m_masses);
-  declareProperty("gamma", m_gamma);
-  declareProperty("electrons", m_electrons);
   declareProperty("masspi", m_masspi);
   declareProperty("massp", m_massp);
   declareProperty("masse", m_masse);
   declareProperty("massK0S", m_massK0S);
   declareProperty("massLambda", m_massLambda);
-  declareProperty("massGamma", m_massGamma);
   declareProperty("ptTRT", m_ptTRT);
-  declareProperty("minRxy", m_minRxy);
-  declareProperty("minsxy", m_minsxy);
   declareProperty("maxsxy", m_maxsxy);
-
-  declareProperty("minslxy", m_minslxy);
-  declareProperty("maxslxy", m_maxslxy);
-
-  declareProperty("rmax_s", m_rmax_s);
-  declareProperty("rmax_t", m_rmax_t);
+  declareProperty("uksmin", m_uksmin);
+  declareProperty("uksmax", m_uksmax);
+  declareProperty("ulamin", m_ulamin);
+  declareProperty("ulamax", m_ulamax);
   declareProperty("ksmin", m_ksmin);
   declareProperty("ksmax", m_ksmax);
   declareProperty("lamin", m_lamin);
   declareProperty("lamax", m_lamax);
-  declareProperty("ugamax", m_ugamax),
-  declareProperty("errmass_ks", m_errmass_ks);
-  declareProperty("errmass_la", m_errmass_la);
-  declareProperty("errmass_ga", m_errmass_ga);
-  declareProperty("errmass_t", m_errmass_t);
+  declareProperty("errmass", m_errmass);
   declareProperty("minVertProb", m_minVertProb);
   declareProperty("minConstrVertProb", m_minConstrVertProb);
-  declareProperty("hlxymin_ss", m_hlxymin_ss);
-  declareProperty("hlxymin_st", m_hlxymin_st);
-  declareProperty("hlxymin_tt", m_hlxymin_tt);
-  declareProperty("hlxymax_ss", m_hlxymax_ss);
-  declareProperty("hlxymax_st", m_hlxymax_st);
-  declareProperty("hlxymax_tt", m_hlxymax_tt);
-
-  declareProperty("pt_s"  , m_pt_s   );
-  declareProperty("pt_t"  , m_pt_t   );
-  declareProperty("upt_s" , m_upt_s  );
-  declareProperty("upt_t" , m_upt_t  );
-  declareProperty("kspt_s", m_kspt_s );
-  declareProperty("lapt_s", m_lapt_s );
-  declareProperty("gapt_s", m_gapt_s );
-  declareProperty("kspt_t", m_kspt_t );
-  declareProperty("lapt_t", m_lapt_t );
-  declareProperty("gapt_t", m_gapt_t );
-
-  declareProperty("ulxy_s" , m_ulxy_s  );
-  declareProperty("ulxy_t" , m_ulxy_t  );
-  declareProperty("kslxy_s", m_kslxy_s );
-  declareProperty("lalxy_s", m_lalxy_s );
-  declareProperty("galxy_s", m_galxy_s );
-  declareProperty("kslxy_t", m_kslxy_t );
-  declareProperty("lalxy_t", m_lalxy_t );
-  declareProperty("galxy_t", m_galxy_t );
   declareProperty("d0_cut", m_d0_cut );
-
+  declareProperty("vert_lxy_sig", m_vert_lxy_sig );
+  declareProperty("vert_lxy_cut", m_vert_lxy_cut );
+  declareProperty("vert_a0xy_cut", m_vert_a0xy_cut );
+  declareProperty("vert_a0z_cut", m_vert_a0z_cut );
   declareProperty("BeamConditionsSvc", m_beamConditionsService); 
   declareProperty("TrackParticleCollection", m_TrkParticleCollection);
   declareProperty("V0CandidatesOutputName",m_V0CandidatesOutputName="V0Candidates");
@@ -286,7 +217,7 @@ StatusCode InDetV0FinderTool::initialize()
 // get the Particle Properties Service
   IPartPropSvc* partPropSvc = 0;
   sc = service("PartPropSvc", partPropSvc, true);
-  if (sc.isFailure()) {
+  if ( sc.isFailure() ) {
     msg(MSG::ERROR) << "Could not initialize Particle Properties Service" << endreq;
     return StatusCode::FAILURE;
   }
@@ -349,14 +280,12 @@ StatusCode InDetV0FinderTool::initialize()
   const HepPDT::ParticleData* pd_e  = m_particleDataTable->particle(PDG::e_minus);
   const HepPDT::ParticleData* pd_K  = m_particleDataTable->particle(PDG::K_S0);
   const HepPDT::ParticleData* pd_L  = m_particleDataTable->particle(PDG::Lambda0);
-  const HepPDT::ParticleData* pd_G  = m_particleDataTable->particle(PDG::gamma);
   if (m_masses == 1) {
    m_masspi     = pd_pi->mass();
    m_massp      = pd_p->mass();
    m_masse      = pd_e->mass();
    m_massK0S    = pd_K->mass();
    m_massLambda = pd_L->mass();
-   m_massGamma  = pd_G->mass();
   }
 
   m_events_processed = 0;
@@ -398,7 +327,7 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
 // Get the ToolSvc
   IToolSvc* toolsvc;
   sc=service("ToolSvc",toolsvc);
-  if (sc.isFailure() ) {
+  if ( sc.isFailure() ) {
     ATH_MSG_WARNING("Problem loading tool service. v0Candidates will be EMPTY!");
     return StatusCode::SUCCESS;;
   };
@@ -407,7 +336,7 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
   Trk::TrkV0VertexFitter* concreteVertexFitter=0;
   if (m_useV0Fitter) {
     concreteVertexFitter = dynamic_cast<Trk::TrkV0VertexFitter * >(&(*m_iVertexFitter));
-    if(concreteVertexFitter == 0) {
+    if (concreteVertexFitter == 0) {
       ATH_MSG_FATAL("The vertex fitter passed is not a V0 Vertex Fitter");
       return StatusCode::FAILURE;
     }
@@ -416,7 +345,7 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
 // Retrieve track particles from StoreGate
   const xAOD::TrackParticleContainer* TPC(0);
   sc = evtStore()->retrieve(TPC,m_TrkParticleCollection);
-  if(sc.isFailure()){
+  if ( sc.isFailure() ){
       ATH_MSG_ERROR("No TrackParticle collection with name " << m_TrkParticleCollection << " found in StoreGate!");
       return StatusCode::SUCCESS;;
   } else {
@@ -428,7 +357,7 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
   if (m_use_vertColl) {
 // Retrieve vertex collection for V0 selection
     sc = evtStore()->retrieve(vertColl,vertCollName);
-    if (sc.isFailure() ) {
+    if ( sc.isFailure() ) {
       ATH_MSG_WARNING("No vertex collection with name " << vertCollName << " found in StoreGate!");
       return StatusCode::RECOVERABLE;
     } else {
@@ -479,8 +408,8 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
     const xAOD::TrackParticle* TP1 = (*tpIt1);
     uint8_t temp1(0);
     uint8_t nclus1(0);
-    if( TP1->summaryValue( temp1 , xAOD::numberOfPixelHits) ) nclus1 += temp1;
-    if( TP1->summaryValue( temp1 , xAOD::numberOfSCTHits)   ) nclus1 += temp1; 
+    if ( TP1->summaryValue( temp1 , xAOD::numberOfPixelHits) ) nclus1 += temp1;
+    if ( TP1->summaryValue( temp1 , xAOD::numberOfSCTHits)   ) nclus1 += temp1; 
     double pt1 = TP1->pt();
 
     unsigned int i2 = 0;
@@ -492,23 +421,12 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
       const xAOD::TrackParticle* TP2 = (*tpIt2);
       uint8_t temp2(0);
       uint8_t nclus2(0);
-      if( TP2->summaryValue( temp2 , xAOD::numberOfPixelHits) ) nclus2 += temp2;
-      if( TP2->summaryValue( temp2 , xAOD::numberOfSCTHits)   ) nclus2 += temp2; 
+      if ( TP2->summaryValue( temp2 , xAOD::numberOfPixelHits) ) nclus2 += temp2;
+      if ( TP2->summaryValue( temp2 , xAOD::numberOfSCTHits)   ) nclus2 += temp2; 
+      ATH_MSG_DEBUG("nclus1 " << (int)nclus1 << " nclus2 " << (int)nclus2);
 
       if (!m_useTRTplusTRT && nclus1 == 0 && nclus2 == 0) continue;
       if (!m_useTRTplusSi && (nclus1 == 0 || nclus2 == 0)) continue;
-
-
-//      const Trk::Perigee* perBS1;
-//      perBS1 = m_trackToVertexTool->perigeeAtBeamspot( *TP1 );
-//      double d0BS_1 = perBS1->parameters()[Trk::d0];
-//      const Trk::Perigee* per1;
-//      per1 = m_trackToVertexTool->perigeeAtVertex( *TP1, primaryVertex->position() );
-//      double d0_1 = per1->parameters()[Trk::d0];
-//      //const AmgSymMatrix(5)* cov_tmp1 = per1->covariance();
-//      //double d0err_1 = (*cov_tmp1)(0,0);
-//      double d0err_1 = sqrt((*per1->covariance())(0,0));
-//  ATH_MSG_INFO("d0BS_1 " << d0BS_1 << " d0 " << TP1->d0() << " d0_1 " << d0_1 << " d0err_1 " << d0err_1);
 
       double pt2 = TP2->pt();
       bool trk_cut1 = false;
@@ -546,25 +464,13 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
         Amg::Vector3D startingPoint = m_vertexEstimator->getCirclesIntersectionPoint(&aPerigee1,&aPerigee2,sflag,errorcode);
         if (errorcode != 0) {startingPoint(0) = 0.0; startingPoint(1) = 0.0; startingPoint(2) = 0.0;}
         bool errorCode = false;
-        if (errorcode == 0) errorCode = true;
-        if (errorcode == 5 && m_useerrorcode5) errorCode = true;
+        if (errorcode == 0 || errorcode == 5) errorCode = true;
         if (errorCode)
         {
 
-          //bool is_TRT = false;
-          if (nclus1 == 0 || nclus2 == 0) {
-            //is_TRT = true;
-            m_rmax    = m_rmax_t;
-            m_pt      = m_pt_t;
-          } else {
-            m_rmax    = m_rmax_s;
-            m_pt      = m_pt_s;
-          }
-
 // pair pre-selection cuts
-          if ( doFit(TP1, TP2, startingPoint, primaryVertex) )
+          if ( doFit(TP1,TP2,startingPoint) )
           {
-
             Trk::Vertex vertex(startingPoint);
             std::vector<const xAOD::TrackParticle*> pairV0;
             pairV0.clear();
@@ -581,85 +487,80 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
               myVxCandidate = m_iVKVertexFitter->fit(pairV0, vertex);
             }
       
-              if(myVxCandidate != 0)
+              if (myVxCandidate != 0)
               {
                 myVxCandidate->setVertexType(xAOD::VxType::V0Vtx);
-
-                if (nclus1 == 0 && nclus2 == 0) {                // TRT + TRT
-                    m_hlxymin = m_hlxymin_tt;
-                    m_hlxymax = m_hlxymax_tt;
-                    m_upt     = m_upt_t;
-                    m_kspt    = m_kspt_t;
-                    m_lapt    = m_lapt_t;
-                    m_gapt    = m_gapt_t;
-                    m_ulxy    = m_ulxy_t;
-                    m_lalxy   = m_lalxy_t;
-                    m_kslxy   = m_kslxy_t;
-                    m_galxy   = m_galxy_t;
-                } else if (nclus1 != 0 && nclus2 != 0) {         // Si + Si
-                    m_hlxymin = m_hlxymin_ss;
-                    m_hlxymax = m_hlxymax_ss;
-                    m_upt     = m_upt_s;
-                    m_kspt    = m_kspt_s;
-                    m_lapt    = m_lapt_s;
-                    m_gapt    = m_gapt_s;
-                    m_ulxy    = m_ulxy_s;
-                    m_lalxy   = m_lalxy_s;
-                    m_kslxy   = m_kslxy_s;
-                    m_galxy   = m_galxy_s;
-                } else {                                         // Si + TRT
-                    m_hlxymin = m_hlxymin_st;
-                    m_hlxymax = m_hlxymax_st;
-                    m_upt     = m_upt_t;
-                    m_kspt    = m_kspt_t;
-                    m_lapt    = m_lapt_t;
-                    m_gapt    = m_gapt_t;
-                    m_ulxy    = m_ulxy_t;
-                    m_lalxy   = m_lalxy_t;
-                    m_kslxy   = m_kslxy_t;
-                    m_galxy   = m_galxy_t;
-                }
-
-
-                double chi2 = myVxCandidate->chiSquared();
-                if (chi2 <= 20.)
+                if ( m_V0Tools->vertexProbability(myVxCandidate) >= m_minVertProb )
                 {
-
-                  double mass_Ks = m_V0Tools->invariantMass(myVxCandidate,m_masspi,m_masspi);
-                  double mass_La = m_V0Tools->invariantMass(myVxCandidate,m_massp,m_masspi);
-                  double mass_Lb = m_V0Tools->invariantMass(myVxCandidate,m_masspi,m_massp);
-                  if ((mass_Ks >= m_ksmin && mass_Ks <= m_ksmax) || (mass_La >= m_lamin && mass_La <= m_lamax) || (mass_Lb >= m_lamin && mass_Lb <= m_lamax))
+                  bool doKshortFit = false;
+                  doKshortFit = doMassFit(myVxCandidate,310);
+                  bool doLambdaFit = false;
+                  doLambdaFit = doMassFit(myVxCandidate,3122);
+                  bool doLambdabarFit = false;
+                  doLambdabarFit = doMassFit(myVxCandidate,-3122);
+                  if (doKshortFit || doLambdaFit || doLambdabarFit)
                   {
+                    bool pointAtVert = true;
+                    if (m_use_vertColl) {
+                      if ( !pointAtVertexColl(myVxCandidate,vertColl) ) pointAtVert = false;
+                    }
+                    if (!m_use_vertColl && m_pv && primaryVertex) {
+                      if ( !pointAtVertex(myVxCandidate,primaryVertex) ) pointAtVert = false;
+                    }
+                    if (pointAtVert)
+                    {
+                      Trk::Vertex vertex0(m_V0Tools->vtx(myVxCandidate));
 
-                    m_V0s_stored++;
-                    v0Container->push_back(myVxCandidate);
+                      xAOD::Vertex* myKshort(0);
+                      xAOD::Vertex* myLambda(0);
+                      xAOD::Vertex* myLambdabar(0);
+                      xAOD::Vertex* myGamma(0);
+                      bool foundKshort = false;
+                      bool foundLambda = false;
+                      bool foundLambdabar = false;
 
-                    static SG::AuxElement::Decorator< ElementLink<xAOD::VertexContainer> > v0LinksDecor("V0Link");
-                    static SG::AuxElement::Decorator< ElementLink<xAOD::VertexContainer> > v0_ksLinksDecor("KshortLink");
-                    static SG::AuxElement::Decorator< ElementLink<xAOD::VertexContainer> > v0_laLinksDecor("LambdaLink");
-                    static SG::AuxElement::Decorator< ElementLink<xAOD::VertexContainer> > v0_lbLinksDecor("LambdabarLink");
-                    v0_ksLinksDecor(*myVxCandidate) = ElementLink<xAOD::VertexContainer>();
-                    v0_laLinksDecor(*myVxCandidate) = ElementLink<xAOD::VertexContainer>();
-                    v0_lbLinksDecor(*myVxCandidate) = ElementLink<xAOD::VertexContainer>();
-                    ElementLink<xAOD::VertexContainer> v0Link;
-
-                    Trk::Vertex vertex0(m_V0Tools->vtx(myVxCandidate));
-
-                    xAOD::Vertex* myKshort(0);
-                    xAOD::Vertex* myLambda(0);
-                    xAOD::Vertex* myLambdabar(0);
-                    if (mass_Ks >= m_ksmin && mass_Ks <= m_ksmax) {
-                      std::vector<double> masses;
-                      masses.push_back(m_masspi);
-                      masses.push_back(m_masspi);
-                      if (m_useV0Fitter) {
-                        myKshort = concreteVertexFitter->fit(pairV0, masses, m_massK0S, 0, vertex);
-                      } else {
-                        myKshort = m_iKshortFitter->fit(pairV0, vertex);
+                      if (doKshortFit && !m_doSimpleV0) {
+                        myKshort = massFit(310, pairV0, vertex0, concreteVertexFitter);
+                        if (myKshort != 0) {
+                          if (m_V0Tools->vertexProbability(myKshort) >= m_minConstrVertProb) {
+                            myKshort->setVertexType(xAOD::VxType::V0Vtx);
+                            //myKshort->setVertexType(xAOD::VxType::V0KShort);
+                            foundKshort = true;
+                          }
+                        }
                       }
-                      if(myKshort != 0) {
-                        double chi2_ks = myKshort->chiSquared();
-                        if (chi2_ks <= 20.) {
+
+                      if (doLambdaFit && !m_doSimpleV0) {
+                        myLambda = massFit(3122, pairV0, vertex0, concreteVertexFitter);
+                        if (myLambda != 0) {
+                          if (m_V0Tools->vertexProbability(myLambda) >= m_minConstrVertProb) {
+                            myLambda->setVertexType(xAOD::VxType::V0Vtx);
+                            foundLambda = true;
+                          }
+                        }
+                      }
+
+                      if (doLambdabarFit && !m_doSimpleV0) {
+                        myLambdabar = massFit(-3122, pairV0, vertex0, concreteVertexFitter);
+                        if (myLambdabar != 0) {
+                          if (m_V0Tools->vertexProbability(myLambdabar) >= m_minConstrVertProb) {
+                            myLambdabar->setVertexType(xAOD::VxType::V0Vtx);
+                            foundLambdabar = true;
+                          }
+                        }
+                      }
+
+                      bool doGamma = false;
+                      int gamma_fit = 0;
+                      double gamma_prob = -1., gamma_mass = -1., gamma_massErr = -1.;
+                      if (foundKshort || foundLambda || foundLambdabar) doGamma = true;
+
+                      ElementLink<xAOD::VertexContainer> v0Link;
+                      static SG::AuxElement::Decorator< ElementLink<xAOD::VertexContainer> > v0LinksDecor("V0Link");
+                      if (m_doSimpleV0 || (!m_doSimpleV0 && doGamma)) {
+                        m_V0s_stored++;
+                        v0Container->push_back(myVxCandidate);
+                        if (foundKshort && !m_doSimpleV0) {
                           m_Kshort_stored++;
                           ksContainer->push_back(myKshort);
 
@@ -667,31 +568,14 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
                           v0Link.setStorableObject(*v0Container);
                           v0LinksDecor(*myKshort) = v0Link;
 
+                          static SG::AuxElement::Decorator< ElementLink<xAOD::VertexContainer> > v0_ksLinksDecor("KshortLink");
+                          v0_ksLinksDecor(*myVxCandidate) = ElementLink<xAOD::VertexContainer>();
                           ElementLink<xAOD::VertexContainer> ksLink;
                           ksLink.setElement(myKshort);
                           ksLink.setStorableObject(*ksContainer);
                           v0_ksLinksDecor(*myVxCandidate) = ksLink;
-
-
                         }
-                      } else {
-                        delete myKshort;
-                      }
-
-                    }
-
-                    if (mass_La >= m_lamin && mass_La <= m_lamax) {
-                      std::vector<double> masses;
-                      masses.push_back(m_massp);
-                      masses.push_back(m_masspi);
-                      if (m_useV0Fitter) {
-                        myLambda = concreteVertexFitter->fit(pairV0, masses, m_massLambda, 0, vertex);
-                      } else {
-                        myLambda = m_iLambdaFitter->fit(pairV0, vertex);
-                      }
-                      if(myLambda != 0) {
-                        double chi2_la = myLambda->chiSquared();
-                        if (chi2_la <= 20.) {
+                        if (foundLambda && !m_doSimpleV0) {
                           m_Lambda_stored++;
                           laContainer->push_back(myLambda);
 
@@ -699,30 +583,14 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
                           v0Link.setStorableObject(*v0Container);
                           v0LinksDecor(*myLambda) = v0Link;
 
+                          static SG::AuxElement::Decorator< ElementLink<xAOD::VertexContainer> > v0_laLinksDecor("LambdaLink");
+                          v0_laLinksDecor(*myVxCandidate) = ElementLink<xAOD::VertexContainer>();
                           ElementLink<xAOD::VertexContainer> laLink;
                           laLink.setElement(myLambda);
                           laLink.setStorableObject(*laContainer);
                           v0_laLinksDecor(*myVxCandidate) = laLink;
-
                         }
-                      } else {
-                        delete myLambda;
-                      }
-
-                    }
-
-                    if (mass_Lb >= m_lamin && mass_Lb <= m_lamax) {
-                      std::vector<double> masses;
-                      masses.push_back(m_masspi);
-                      masses.push_back(m_massp);
-                      if (m_useV0Fitter) {
-                        myLambdabar = concreteVertexFitter->fit(pairV0, masses, m_massLambda, 0, vertex);
-                      } else {
-                        myLambdabar = m_iLambdabarFitter->fit(pairV0, vertex);
-                      }
-                      if(myLambdabar != 0) {
-                        double chi2_lb = myLambdabar->chiSquared();
-                        if (chi2_lb <= 20.) {
+                        if (foundLambdabar && !m_doSimpleV0) {
                           m_Lambdabar_stored++;
                           lbContainer->push_back(myLambdabar);
 
@@ -730,29 +598,47 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
                           v0Link.setStorableObject(*v0Container);
                           v0LinksDecor(*myLambdabar) = v0Link;
 
+                          static SG::AuxElement::Decorator< ElementLink<xAOD::VertexContainer> > v0_lbLinksDecor("LambdabarLink");
+                          v0_lbLinksDecor(*myVxCandidate) = ElementLink<xAOD::VertexContainer>();
                           ElementLink<xAOD::VertexContainer> lbLink;
                           lbLink.setElement(myLambdabar);
                           lbLink.setStorableObject(*lbContainer);
                           v0_lbLinksDecor(*myVxCandidate) = lbLink;
-
                         }
-                      } else {
-                        delete myLambdabar;
+                        if (doGamma && !m_doSimpleV0) {
+                          myGamma = massFit(22, pairV0, vertex0, concreteVertexFitter);
+                          if (myGamma != 0) {
+                            gamma_fit = 1;
+                            gamma_prob = m_V0Tools->vertexProbability(myGamma);
+                            gamma_mass = m_V0Tools->invariantMass(myGamma,m_masse,m_masse);
+                            gamma_massErr = m_V0Tools->invariantMassError(myGamma,m_masse,m_masse);
+                            delete myGamma;
+                          }
+                          SG::AuxElement::Decorator<int> mDecor_gfit("gamma_fit");
+                          SG::AuxElement::Decorator<float> mDecor_gmass("gamma_mass");
+                          SG::AuxElement::Decorator<float> mDecor_gmasserr("gamma_massError");
+                          SG::AuxElement::Decorator<float> mDecor_gprob("gamma_probability");
+                          mDecor_gfit( *myVxCandidate ) = gamma_fit;
+                          mDecor_gmass( *myVxCandidate ) = gamma_mass;
+                          mDecor_gmasserr( *myVxCandidate ) = gamma_massErr;
+                          mDecor_gprob( *myVxCandidate ) = gamma_prob;
+                        }
                       }
 
+                    } else { // pointAtVert
+                      delete myVxCandidate;
                     }
 
-
-                  } else {
+                  } else { // in mass window (doMassFit)
                     delete myVxCandidate;
                   }
 
                 } else { // chi2 cut failed
                   delete myVxCandidate;
                 }
-              } else { // fit failed
+              } else { // unconstrained fit failed
                 ATH_MSG_DEBUG("Fitter failed!");
-                delete myVxCandidate;
+                //delete myVxCandidate;
               }
 
           }  // doFit
@@ -765,10 +651,10 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
 
   }  // posTracks.size() > 0 && negTracks.size() > 0
 
-  if ( v0Container->size()==0) ATH_MSG_DEBUG("No Candidates found. Empty container returned");
-  if ( ksContainer->size()==0) ATH_MSG_DEBUG("No Kshort Candidates found. Empty container returned");
-  if ( laContainer->size()==0) ATH_MSG_DEBUG("No Lambda Candidates found. Empty container returned");
-  if ( lbContainer->size()==0) ATH_MSG_DEBUG("No Lambdabar Candidates found. Empty container returned");
+  if (v0Container->size()==0) ATH_MSG_DEBUG("No Candidates found. Empty container returned");
+  if (ksContainer->size()==0) ATH_MSG_DEBUG("No Kshort Candidates found. Empty container returned");
+  if (laContainer->size()==0) ATH_MSG_DEBUG("No Lambda Candidates found. Empty container returned");
+  if (lbContainer->size()==0) ATH_MSG_DEBUG("No Lambdabar Candidates found. Empty container returned");
 
   return StatusCode::SUCCESS;
 }
@@ -795,19 +681,13 @@ void InDetV0FinderTool::SGError(std::string errService)
 }
 
 
-bool InDetV0FinderTool::doFit(const xAOD::TrackParticle* track1, const xAOD::TrackParticle* track2, Amg::Vector3D &startingPoint, xAOD::Vertex* primaryVertex)
+bool InDetV0FinderTool::doFit(const xAOD::TrackParticle* track1, const xAOD::TrackParticle* track2, Amg::Vector3D &startingPoint)
 {
   bool pass = false;
-  double slxy = 0.;
-  if (primaryVertex) {
-    slxy = (startingPoint-primaryVertex->position()).perp();
-  } else {
-    slxy = startingPoint.perp();
-  }
-
-  if (startingPoint.perp() > m_minsxy && startingPoint.perp() < m_maxsxy && slxy > m_minslxy && slxy < m_maxslxy)
+  double srxy = startingPoint.perp();
+  if (srxy <= m_maxsxy)
   {
-    double massKshort_i=2001., massLambda_i=2001., massLambdabar_i=2001., pt_i=2001.;
+    double massKshort_i=2000001., massLambda_i=2000001., massLambdabar_i=2000001.;
     Amg::Vector3D globalPosition = startingPoint;
     Trk::PerigeeSurface perigeeSurface(globalPosition);
     const Trk::TrackParameters* extrapolatedPerigee1 = m_extrapolator->extrapolate(*track1, perigeeSurface);
@@ -817,11 +697,9 @@ bool InDetV0FinderTool::doFit(const xAOD::TrackParticle* track1, const xAOD::Tra
       massKshort_i = invariantMass(extrapolatedPerigee1,extrapolatedPerigee2,m_masspi,m_masspi);
       massLambda_i = invariantMass(extrapolatedPerigee1,extrapolatedPerigee2,m_massp,m_masspi);
       massLambdabar_i = invariantMass(extrapolatedPerigee1,extrapolatedPerigee2,m_masspi,m_massp);
-      pt_i = getPt(extrapolatedPerigee1,extrapolatedPerigee2);
-      if ( ((massKshort_i >= m_ksmin && massKshort_i <= m_ksmax) ||
-            (massLambda_i >= m_lamin && massLambda_i <= m_lamax) ||
-            (massLambdabar_i >= m_lamin && massLambdabar_i <= m_lamax)) &&
-           pt_i > m_pt ) pass = true;
+      if ( ((massKshort_i >= m_uksmin && massKshort_i <= m_uksmax) ||
+            (massLambda_i >= m_ulamin && massLambda_i <= m_ulamax) ||
+            (massLambdabar_i >= m_ulamin && massLambdabar_i <= m_ulamax)) ) pass = true;
     }
     delete extrapolatedPerigee1; delete extrapolatedPerigee2;
   }
@@ -879,6 +757,34 @@ bool InDetV0FinderTool::d0Pass(const xAOD::TrackParticle* track1, const xAOD::Tr
   return pass;
 }
 
+bool InDetV0FinderTool::pointAtVertex(xAOD::Vertex* v0, xAOD::Vertex* PV)
+{
+  bool pass = false;
+  double v0lxy = m_V0Tools->lxy(v0,PV);
+  double v0lxyError = m_V0Tools->lxyError(v0,PV);
+  double cos = -1;
+  if (PV->vxTrackAtVertexAvailable()) {
+    double prod = m_V0Tools->V0Momentum(v0).dot(m_V0Tools->V0Momentum(PV));
+    cos = prod/(m_V0Tools->V0Momentum(v0).mag()*m_V0Tools->V0Momentum(PV).mag());
+  } else {
+    cos = m_V0Tools->cosTheta(v0,PV);
+  }
+  double v0a0xy = m_V0Tools->a0xy(v0,PV);
+  double v0a0z = m_V0Tools->a0z(v0,PV);
+  if (v0lxy/v0lxyError > m_vert_lxy_sig && cos > 0. &&
+      fabs(v0a0xy) < m_vert_a0xy_cut && fabs(v0a0z) < m_vert_a0z_cut &&
+      v0lxy < m_vert_lxy_cut) pass = true;
+  return pass;
+}
+
+bool InDetV0FinderTool::pointAtVertexColl(xAOD::Vertex* v0, const xAOD::VertexContainer * vertColl)
+{
+  bool pass = false;
+  xAOD::VertexContainer::const_iterator vItr = vertColl->begin();
+  for ( vItr=vertColl->begin(); vItr!=vertColl->end(); ++vItr ) { if (pointAtVertex(v0,(*vItr))) pass = true; }
+  return pass;
+}
+
 double InDetV0FinderTool::invariantMass(const Trk::TrackParameters* per1, const Trk::TrackParameters* per2, double &m1, double &m2)
 {
   double e1sq = per1->momentum().mag2() + m1*m1;
@@ -891,13 +797,82 @@ double InDetV0FinderTool::invariantMass(const Trk::TrackParameters* per1, const 
   return mass;
 }
 
-double InDetV0FinderTool::getPt(const Trk::TrackParameters* per1, const Trk::TrackParameters* per2) {
+bool InDetV0FinderTool::doMassFit(xAOD::Vertex* vxCandidate, int pdgID)
+{
+  bool pass = false;
+  double mass = 1000000000.;
+  double error = 1000000001.;
+  bool in_mass_window = false;
+  double winmass_min = 0., winmass_max = 0.;
 
-  Amg::Vector3D momentum( per1->momentum() + per2->momentum() );
-  return momentum.perp();
+  if (pdgID == 310) {
+    winmass_min = m_ksmin;
+    winmass_max = m_ksmax;
+    mass = m_V0Tools->invariantMass(vxCandidate,m_masspi,m_masspi);
+    error = m_V0Tools->invariantMassError(vxCandidate,m_masspi,m_masspi);
+    if (mass >= winmass_min && mass <= winmass_max && error <= m_errmass) in_mass_window = true;
+  } else if (pdgID == 3122 || pdgID == -3122) {
+    winmass_min = m_lamin;
+    winmass_max = m_lamax;
+    if (pdgID == 3122) {
+      mass = m_V0Tools->invariantMass(vxCandidate,m_massp,m_masspi);
+      error = m_V0Tools->invariantMassError(vxCandidate,m_massp,m_masspi);
+    } else if (pdgID == -3122) {
+      mass = m_V0Tools->invariantMass(vxCandidate,m_masspi,m_massp);
+      error = m_V0Tools->invariantMassError(vxCandidate,m_masspi,m_massp);
+    }
+    if (mass >= winmass_min && mass <= winmass_max && error <= m_errmass) in_mass_window = true;
+  }
+  if (in_mass_window) pass = true;
 
+  return pass;
 }
 
+xAOD::Vertex* InDetV0FinderTool::massFit(int pdgID, std::vector<const xAOD::TrackParticle*> pairV0, Trk::Vertex vertex, Trk::TrkV0VertexFitter* concreteVertexFitter)
+{
+  xAOD::Vertex* vxCandidate(0);
+  std::vector<double> masses;
+  if (pdgID == 310) {
+    masses.push_back(m_masspi);
+    masses.push_back(m_masspi);
+  } else if (pdgID == 3122) {
+    masses.push_back(m_massp);
+    masses.push_back(m_masspi);
+  } else if (pdgID == -3122) {
+    masses.push_back(m_masspi);
+    masses.push_back(m_massp);
+  } else if (pdgID == 22) {
+    masses.push_back(m_masse);
+    masses.push_back(m_masse);
+  }
+
+  if (pdgID == 22) {
+    vxCandidate = m_iGammaFitter->fit(pairV0, vertex);
+  }
+  if (pdgID ==   310) {
+    if (m_useV0Fitter) {
+      vxCandidate = concreteVertexFitter->fit(pairV0, masses, m_massK0S, 0, vertex);
+    } else {
+      vxCandidate = m_iKshortFitter->fit(pairV0, vertex);
+    }
+  }
+  if (pdgID ==  3122) {
+    if (m_useV0Fitter) {
+      vxCandidate = concreteVertexFitter->fit(pairV0, masses, m_massLambda, 0, vertex);
+    } else {
+      vxCandidate = m_iLambdaFitter->fit(pairV0, vertex);
+    }
+  }
+  if (pdgID == -3122) {
+    if (m_useV0Fitter) {
+      vxCandidate = concreteVertexFitter->fit(pairV0, masses, m_massLambda, 0, vertex);
+    } else {
+      vxCandidate = m_iLambdabarFitter->fit(pairV0, vertex);
+    }
+  }
+
+  return vxCandidate;
+}
 
 }//end of namespace InDet
 

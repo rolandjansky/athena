@@ -18,7 +18,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "InDetV0Finder/InDetV0FinderTool.h"
-
 #include "HepPDT/ParticleDataTable.hh"
 
 /**
@@ -52,11 +51,11 @@ namespace InDet
 
   protected:
 
+    ToolHandle<InDet::InDetV0FinderTool> m_v0FinderTool;
+    ToolHandle < Trk::V0Tools >          m_V0Tools;
     const HepPDT::ParticleDataTable *m_particleDataTable;
 
-    ToolHandle < Trk::V0Tools >          m_V0Tools;
-    ToolHandle<InDet::InDetV0FinderTool> m_v0FinderTool;
-
+    bool          m_decorate;
     int           m_masses;                   //!< = 1 if using PDG values, = 2 if user set (1)
     double        m_masspi;                   //!< pion mass (139.57 MeV)
     double        m_massp;                    //!< proton mass (938.272 MeV)
