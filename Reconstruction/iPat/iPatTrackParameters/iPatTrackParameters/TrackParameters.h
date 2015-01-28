@@ -74,7 +74,8 @@ protected:
     double		m_qOverPt;
 
 private:
-    
+    // assignment operator: no implementation
+    TrackParameters &operator= (const TrackParameters&);
 };
 
 //<<<<<< INLINE CLASS STRUCTURE INITIALIZATION                          >>>>>>
