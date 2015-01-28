@@ -551,11 +551,11 @@ void MDTPRDValAlg::addMuonRecord( TruthMap& truthMap, bool exit ) const {
   TrackRecordConstIterator tr_it_end = truthCollection->end();
   for(;tr_it!=tr_it_end; ++tr_it){
 
-    int pdg = (*tr_it)->GetPDGCode();
+    int pdg = (*tr_it).GetPDGCode();
     // only use muons
     if( abs(pdg) != 13 && pdg !=0 && abs(pdg) != 998) continue;
     
-    int barcode = (*tr_it)->GetBarCode();
+    int barcode = (*tr_it).GetBarCode();
     
     TruthInfo* info; 
 
@@ -583,23 +583,23 @@ void MDTPRDValAlg::addMuonRecord( TruthMap& truthMap, bool exit ) const {
     particle->charge   = pdg < 0 ? 1. : -1.;
     if(pdg==-998)  particle->charge   = -1.; 
     if(pdg==0)  particle->charge   = 1.; 
-    particle->position = Amg::Vector3D( (*tr_it)->GetPosition().x(), (*tr_it)->GetPosition().y(), (*tr_it)->GetPosition().z() );
-    particle->momentum = Amg::Vector3D( (*tr_it)->GetMomentum().x(), (*tr_it)->GetMomentum().y(), (*tr_it)->GetMomentum().z() );
+    particle->position = Amg::Vector3D( (*tr_it).GetPosition().x(), (*tr_it).GetPosition().y(), (*tr_it).GetPosition().z() );
+    particle->momentum = Amg::Vector3D( (*tr_it).GetMomentum().x(), (*tr_it).GetMomentum().y(), (*tr_it).GetMomentum().z() );
       
 //    particle->pars= new Trk::Perigee( particle->position, particle->momentum, particle->charge, Amg::Vector3D(0.,0.,0.) );
     particle->pars= new Trk::Perigee( particle->position, particle->momentum, particle->charge, particle->position );
 
     if(!exit) info->muonEntry = particle;
     if(exit) info->muonExit = particle;
-    double e = (*tr_it)->GetEnergy();
+    double e = (*tr_it).GetEnergy();
     double mass = e*e - particle->momentum.mag()*particle->momentum.mag();
     if(mass>0) mass = sqrt(mass); 
     if( m_debug ) *m_log << MSG::DEBUG << " New muon at " << location << " barcode  " << barcode <<  " pdgid " << pdg
                          << " pos " << particle->position 
                          << " pergee pos " << particle->pars->position()
 			 << " phi " << particle->momentum.phi() << " theta " << particle->momentum.theta()
-			 << " q*p " << particle->charge*particle->momentum.mag() << " energy " << (*tr_it)->GetEnergy() 
-                         << " mass " << mass << " volumeName " << (*tr_it)->GetVolName() << endreq;
+			 << " q*p " << particle->charge*particle->momentum.mag() << " energy " << (*tr_it).GetEnergy() 
+                         << " mass " << mass << " volumeName " << (*tr_it).GetVolName() << endreq;
       
   }
   
