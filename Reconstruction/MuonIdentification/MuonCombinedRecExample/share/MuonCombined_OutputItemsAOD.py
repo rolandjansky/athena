@@ -6,8 +6,9 @@ from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from RecExConfig.RecFlags import rec as rec
 
 if DetFlags.detdescr.Calo_on(): # FIXME - check if the objects below still make sense. EJWM
-   MuonCombinedAODList+=["CaloClusterContainer#MuonClusterCollection"]
-   MuonCombinedAODList+=["CaloCellLinkContainer#MuonClusterCollection_Link"]
+   MuonCombinedAODList+=["xAOD::CaloClusterContainer#MuonClusterCollection"]
+   MuonCombinedAODList+=["xAOD::CaloClusterAuxContainer#MuonClusterCollectionAux."]
+   MuonCombinedAODList+=["CaloClusterCellLinkContainer#MuonClusterCollection_links"]
 
 if DetFlags.detdescr.Muon_on():
    excludedAuxData = '-caloExtension.-cellAssociation.-clusterAssociation'
