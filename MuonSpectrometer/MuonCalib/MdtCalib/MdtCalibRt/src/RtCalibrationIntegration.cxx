@@ -44,33 +44,31 @@
 using namespace std;
 using namespace MuonCalib;
 
-inline Double_t slope_function_C(Double_t *x, Double_t *par)
-	{
-	Double_t &t(x[0]);
-	Double_t &a(par[0]),
-	         &b(par[1]),
-		 &t_0(par[2]),
-		 &back(par[3]);
-	return back + exp(a+b*(t-t_0));
-	}
+inline Double_t slope_function_C(Double_t *x, Double_t *par) {
+  Double_t &t(x[0]);
+  Double_t &a(par[0]),
+    &b(par[1]),
+    &t_0(par[2]),
+    &back(par[3]);
+  return back + exp(a+b*(t-t_0));
+}
 
-inline void update_parameter_on_mttmax(TH1 * h, TF1 *f, const float &b, const float & T, const T0MTSettingsTMax &tmax_settings)
-	{
-	Double_t rmin, rmax;
-	f->GetRange(rmin, rmax);
-	TF1 *slope_function=new TF1("slope_function", slope_function_C, rmin, rmin+tmax_settings.WidthAB(), 4);
-	slope_function->SetParameter(0, f->GetParameter(T0MTHistos::TMAX_PAR_NR_A));
-	slope_function->FixParameter(1, b);
-	slope_function->FixParameter(2, f->GetParameter(T0MTHistos::TMAX_PAR_NR_T0));
-	slope_function->FixParameter(3, f->GetParameter(T0MTHistos::TMAX_PAR_NR_BACK));
-	h->Fit("slope_function", "R+", "");
-	f->FixParameter(T0MTHistos::TMAX_PAR_NR_A, slope_function->GetParameter(0));
-	f->FixParameter(T0MTHistos::TMAX_PAR_NR_B, b);
-	f->FixParameter(T0MTHistos::TMAX_PAR_NR_T, T);
+inline void update_parameter_on_mttmax(TH1 * h, TF1 *f, const float &b, const float & T, const T0MTSettingsTMax &tmax_settings) {
+  Double_t rmin, rmax;
+  f->GetRange(rmin, rmax);
+  TF1 *slope_function=new TF1("slope_function", slope_function_C, rmin, rmin+tmax_settings.WidthAB(), 4);
+  slope_function->SetParameter(0, f->GetParameter(T0MTHistos::TMAX_PAR_NR_A));
+  slope_function->FixParameter(1, b);
+  slope_function->FixParameter(2, f->GetParameter(T0MTHistos::TMAX_PAR_NR_T0));
+  slope_function->FixParameter(3, f->GetParameter(T0MTHistos::TMAX_PAR_NR_BACK));
+  h->Fit("slope_function", "R+", "");
+  f->FixParameter(T0MTHistos::TMAX_PAR_NR_A, slope_function->GetParameter(0));
+  f->FixParameter(T0MTHistos::TMAX_PAR_NR_B, b);
+  f->FixParameter(T0MTHistos::TMAX_PAR_NR_T, T);
 //	std::cout<<"LLllLL "<<slope_function->GetParameter(0)<<" "<<b<<std::endl;
 //	std::cout<<"LLllLL "<<f->GetParameter(T0MTHistos::TMAX_PAR_NR_A)<<" "<<f->GetParameter(T0MTHistos::TMAX_PAR_NR_B)<<std::endl;
 	
-	}
+}
 
 //*****************************************************************************
 
@@ -94,7 +92,6 @@ void RtCalibrationIntegration::init(bool close_hits,
   m_nb_segments_used = 0;
   m_add_tmax_difference = add_tmax_difference;
   return;
-
 }
 
 //*****************************************************************************
@@ -104,9 +101,7 @@ void RtCalibrationIntegration::init(bool close_hits,
 //::::::::::::::::::::::::::::::::
 
 unsigned int RtCalibrationIntegration::number_of_hits_used(void) const {
-
   return m_nb_hits_used;
-
 }
 
 //*****************************************************************************
@@ -201,7 +196,7 @@ bool RtCalibrationIntegration::analyse(void) {
   double bin_content; // number of entries per bin
   vector<SamplePoint> point(nb_bins+1); // (t, r) points
   double radius(0.0); // r(t)
-  double scf; // scale factor (r_max/number of used hits)
+  double scf=0.; // scale factor (r_max/number of used hits)
   RtFromPoints rt_from_points; // r-t converter
 
   ///////////////////////////////////////////////////////////////////////////
@@ -283,7 +278,9 @@ bool RtCalibrationIntegration::analyse(void) {
 
   bin_content = static_cast<double>(m_nb_hits_used)/static_cast<double>(nb_bins);
 
-  scf = m_r_max/static_cast<double>(m_nb_hits_used);
+  if( m_nb_hits_used > 0 ) {
+    scf = m_r_max/static_cast<double>(m_nb_hits_used);
+  }
 
   point[0].set_x1(t0);
   point[0].set_x2(0.0);
