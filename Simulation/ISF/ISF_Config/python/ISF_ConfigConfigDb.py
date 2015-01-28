@@ -44,6 +44,9 @@ addService("ISF_HepMC_Services.ISF_HepMC_ServicesConfig.getMC12TruthService"    
 addService("ISF_HepMC_Services.ISF_HepMC_ServicesConfig.getMC15TruthService"          , "ISF_MC15TruthService")
 addService("ISF_HepMC_Services.ISF_HepMC_ServicesConfig.getValidationTruthService"    , "ISF_ValidationTruthService")
 
+addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getNIMatEffUpdator",                 "ISF_NIMatEffUpdator")
+addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getNIPropagator",                    "ISF_NIPropagator")
+addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getNITimedExtrapolator",             "ISF_NITimedExtrapolator")
 addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getPunchThroughTool",                "ISF_PunchThroughTool")
 addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getEmptyCellBuilderTool",            "ISF_EmptyCellBuilderTool")
 addTool("ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfig.getFastShowerCellBuilderTool",       "ISF_FastShowerCellBuilderTool")
