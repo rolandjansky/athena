@@ -12,7 +12,8 @@ from AthenaCommon.Constants import *  # FATAL,ERROR etc.
 # combined tools
 addTool("MuonCombined::InDetCandidateTool","InDetCandidateTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedTool","MuonCombinedTool")
-addTool("MuonCombined::MuGirlTagTool","MuGirlTagTool")
+addTool("MuonCombinedRecExample.MuGirlTagTool.MuGirlTagTool","MuGirlTagTool")
+addTool("MuonCombinedRecExample.MuGirlTagTool.TrigMuGirlTagTool","TrigMuGirlTagTool")
 addTool("MuonCombined::MuonSegmentTagTool","MuonSegmentTagTool")
 addTool("MuonCombined::MuonCombinedStacoTagTool","MuonCombinedStacoTagTool")
 addTool("MuonCombinedRecExample.MuonCombinedTools.MuonCombinedFitTagTool","MuonCombinedFitTagTool")
