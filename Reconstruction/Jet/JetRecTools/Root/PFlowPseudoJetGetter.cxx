@@ -58,6 +58,7 @@ PFlowPseudoJetGetter::PFlowPseudoJetGetter(const std::string &name)
   declareProperty("CalibratePFO",    m_calibrate =true,  "True if LC calibration should be applied to EM PFOs.");
   declareProperty("UseNeutral",      m_useneutral =true, "True to use the nuetral component of PFlow.");
   declareProperty("UseCharged",      m_usecharged =true, "True if use the charged component of PFlow.");
+  declareProperty("UseVertices", m_usevertices = true, "True if we make use of the primary vertex information.");
 }
 
 int PFlowPseudoJetGetter::appendTo(PseudoJetVector& psjs, const LabelIndex* pli) const { 
@@ -66,12 +67,15 @@ int PFlowPseudoJetGetter::appendTo(PseudoJetVector& psjs, const LabelIndex* pli)
 
   // Get the vertex.
   const xAOD::VertexContainer* pvtxs = 0;
-  ATH_CHECK(evtStore()->retrieve(pvtxs, "PrimaryVertices"));
-  if ( pvtxs == 0 || pvtxs->size()==0 ) {
-    ATH_MSG_WARNING(" This event has no primary vertices " );
-    return 1;
+  const xAOD::Vertex* vtx = nullptr;
+  if (m_usevertices){
+    ATH_CHECK(evtStore()->retrieve(pvtxs, "PrimaryVertices"));
+    if ( pvtxs == 0 || pvtxs->size()==0 ) {
+      ATH_MSG_WARNING(" This event has no primary vertices " );
+      return 1;
+    }
+    vtx = pvtxs->at(0);
   }
-  const xAOD::Vertex& vtx = *pvtxs->at(0);
 
   // Get the neutral pflow.
   if ( m_useneutral ) {
@@ -88,9 +92,11 @@ int PFlowPseudoJetGetter::appendTo(PseudoJetVector& psjs, const LabelIndex* pli)
         continue;
       }
       if ( !m_inputIsEM || m_calibrate ) {
-        filler.fill(ppfo, ppfo->GetVertexCorrectedFourVec(vtx));
+	if (m_usevertices) filler.fill(ppfo, ppfo->GetVertexCorrectedFourVec(*vtx));
+        else filler.fill(ppfo, ppfo->p4());
       } else { 
-        filler.fill(ppfo, ppfo->GetVertexCorrectedEMFourVec(vtx));
+	if (m_usevertices) filler.fill(ppfo, ppfo->GetVertexCorrectedEMFourVec(*vtx));
+        else filler.fill(ppfo, ppfo->p4EM());
       }
     }
     delete pnpfs;
@@ -110,7 +116,10 @@ int PFlowPseudoJetGetter::appendTo(PseudoJetVector& psjs, const LabelIndex* pli)
         continue;
       }
       //vtz.z() provides z of that vertex w.r.t the center of the beamspot (z = 0). Thus we corrext the track z0 to be w.r.t z = 0
-      float z0 = ptrk->z0() + ptrk->vz() - vtx.z();
+      float z0 = ptrk->z0() + ptrk->vz();
+      if (m_usevertices) {
+        if (vtx) z0 = z0 - vtx->z();
+      }
       float theta = ptrk->theta();
       if ( fabs(z0*sin(theta)) < 2.0 ) filler.fill(pcpf, pcpf->p4() );
     }

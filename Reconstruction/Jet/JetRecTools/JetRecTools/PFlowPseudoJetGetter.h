@@ -52,6 +52,7 @@ protected:
   bool m_calibrate;   /// If true, EM PFOs are calibrated to LC.
   bool m_useneutral;  // IF true, neutral pflow is included.
   bool m_usecharged;  // IF true, neutral pflow is included.
+  bool m_usevertices; //If true, then we make use of the primary vertex information
 };
 
 #endif
