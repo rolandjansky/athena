@@ -50,8 +50,11 @@ private:
 
 inline
 FitQuality::FitQuality(void)
-    :	m_fit_code			(2),
-	m_fit_probability		(-1.0)
+    :	m_chi_squared			(0.),
+	m_degrees_of_freedom		(0),
+	m_fit_code			(2),
+	m_fit_probability		(-1.0),
+	m_worst_hit_chi_squared		(0.)
 {}
  
 inline
