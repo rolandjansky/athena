@@ -4,7 +4,7 @@
 
 // $Id$
 /**
- * @file RootAuxVectorFactory.h
+ * @file RootStorageSvc/src/RootAuxVectorFactory.cpp
  * @author scott snyder <snyder@bnl.gov>
  * @date May, 2014
  * @brief Dynamic implementation of @c IAuxVectorFactory,

@@ -229,7 +229,7 @@ DbStatus RootTreeContainer::writeObject(TransactionStack::value_type& ent) {
                          if( dsc.rows_written ) {
                             // catch up with the rows written by other branches
                             newBrDsc.object = 0;
-                            newBrDsc.branch->SetAddress( newBrDsc.objectAddr() );
+                            newBrDsc.branch->SetAddress( 0 );
                             for( size_t r=0; r<dsc.rows_written; ++r ) {
                                num_bytes += newBrDsc.branch->Fill();
                             }
@@ -286,7 +286,7 @@ DbStatus RootTreeContainer::writeObject(TransactionStack::value_type& ent) {
          BranchDesc& dsc = descMapElem.second;
          if( !dsc.written ) {
             dsc.object = 0;
-            dsc.branch->SetAddress( dsc.objectAddr() );
+            dsc.branch->SetAddress( 0 );
             // cout << "   Branch " <<  SG::AuxTypeRegistry::instance().getName(descMapElem.first) << " filled out with NULL" << endl;
             if( isBranchContainer() && !m_treeFillMode ) {
                size_t bytes_out = dsc.branch->Fill();
@@ -1000,12 +1000,12 @@ DbStatus  RootTreeContainer::addAuxBranch(const std::string& attribute,
             dsc.clazz = (TClass*)hnd->nativeClass();
             if( dsc.clazz )  {
                if( dsc.clazz->GetStreamerInfo() )  {
-                  //int split = dsc.clazz->CanSplit() ? 1 : 0;
+                  int split = dsc.clazz->CanSplit() ? 1 : 0;
                   dsc.branch  = m_tree->Branch(branch_name.c_str(),   // Branch name
                                                dsc.clazz->GetName(),  // Object class
                                                (void*)&dsc.buffer,    // Object address
                                                8192,                  // Buffer size
-                                               0 /* split */);                // Split Mode (Levels) 
+                                               split);                // Split Mode (Levels) 
                }
             }
          }
