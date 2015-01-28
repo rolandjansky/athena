@@ -44,14 +44,13 @@ namespace
 namespace Trk
 {
   TrkV0VertexFitter::TrkV0VertexFitter(const std::string& t, const std::string& n, const IInterface*  p) : AthAlgTool(t,n,p),
-													   m_maxIterations(10),
-													   m_maxDchi2PerNdf(0.1),
-													   m_maxR(2000.),
-													   m_maxZ(5000.),
-													   m_deltaR(false),
-													   m_extrapolator("Trk::Extrapolator/InDetExtrapolator"),
-													   m_magFieldSvc("AtlasFieldSvc",n),
-													    m_xaodConverter("Trk::VxCandidateXAODVertex")
+      m_maxIterations(10),
+      m_maxDchi2PerNdf(0.1),
+      m_maxR(2000.),
+      m_maxZ(5000.),
+      m_deltaR(false),
+      m_extrapolator("Trk::Extrapolator/InDetExtrapolator"),
+      m_magFieldSvc("AtlasFieldSvc",n)
   {
     declareProperty("MaxIterations",             m_maxIterations);
     declareProperty("MaxChi2PerNdf",             m_maxDchi2PerNdf);
@@ -59,8 +58,7 @@ namespace Trk
     declareProperty("MaxZ",                      m_maxZ);
     declareProperty("Use_deltaR",                m_deltaR);
     declareProperty("Extrapolator",              m_extrapolator);
-    declareProperty("MagFieldSvc",         m_magFieldSvc);
-    declareProperty("XAODConverter",m_xaodConverter); 
+    declareProperty("MagFieldSvc",               m_magFieldSvc);
     declareInterface<IVertexFitter>(this);
   }
 
@@ -83,14 +81,6 @@ namespace Trk
       msg(MSG::INFO) << "Retrieved service " << m_magFieldSvc << endreq;
     }
 
-    //XAOD Converter   
-    if ( m_xaodConverter.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_xaodConverter << endreq;
-      return StatusCode::FAILURE;
-    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_xaodConverter << endreq;
-    } 
-    
     msg(MSG::INFO) << "Initialize successful" << endreq;
     return StatusCode::SUCCESS;
   }
@@ -176,21 +166,22 @@ namespace Trk
     return fit(vectorTrk, tmpVtx);
   }
 
-
-  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, const Vertex& startingPoint)
+  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
+                                        const Vertex& firstStartingPoint)
   {
     std::vector<double> masses;
     double constraintMass = - 9999.;
     Trk::RecVertex * pointingVertex = 0;
-    return fit(vectorTrk, masses, constraintMass, pointingVertex, startingPoint);
+    return fit(vectorTrk, masses, constraintMass, pointingVertex, firstStartingPoint);
   }
 
- xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, const RecVertex& constraint)
+  xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk,
+                                        const RecVertex& firstStartingPoint)
   {
     std::vector<double> masses;
     double constraintMass = - 9999.;
     Trk::RecVertex * pointingVertex = 0;
-    return fit(vectorTrk, masses, constraintMass, pointingVertex, constraint);
+    return fit(vectorTrk, masses, constraintMass, pointingVertex, firstStartingPoint);
 
   }
 
@@ -209,32 +200,54 @@ namespace Trk
     // push_back measured perigees at first measurements into vector<const Trk::ParametersBase*>
     std::vector<const Trk::TrackParameters*> measuredPerigees;
     for (const xAOD::TrackParticle* p : vectorTrk)
-      {
-	measuredPerigees.push_back (&p->perigeeParameters());
-      }
+    {
+      measuredPerigees.push_back (&p->perigeeParameters());
+    }
     
-    Trk::VxCandidate* fittedVxCandidate = fit(measuredPerigees, masses, constraintMass, pointingVertex, firstStartingPoint);
+    Trk::VxCandidate* fitVxCandidate = fit(measuredPerigees, masses, constraintMass, pointingVertex, firstStartingPoint);
     
-    if (fittedVxCandidate == 0) return 0;
-    const Trk::RecVertex& rv = fittedVxCandidate->recVertex();
-    
+    if (fitVxCandidate == 0) return 0;
+    const Trk::ExtendedVxCandidate* vxCandidate = dynamic_cast<const Trk::ExtendedVxCandidate*>(fitVxCandidate);
+    const Trk::RecVertex& rv = vxCandidate->recVertex();
+
     xAOD::Vertex* vx = new xAOD::Vertex;
     vx->makePrivateStore();
     vx->setPosition (rv.position());
     vx->setCovariancePosition (rv.covariancePosition());
     vx->setFitQuality(rv.fitQuality().chiSquared(),
                       static_cast<float>(rv.fitQuality().doubleNumberDoF ())); 
-    vx->setVertexType((xAOD::VxType::VertexType)fittedVxCandidate->vertexType());
+    //vx->setVertexType((xAOD::VxType::VertexType)vxCandidate->vertexType());
+    vx->setVertexType(xAOD::VxType::V0Vtx);
     
     // assign the used tracks to the V0Candidate
     for (const xAOD::TrackParticle* p : vectorTrk)
+    {
+      ElementLink<xAOD::TrackParticleContainer> el;
+      el.setElement(p);
+      vx->addTrackAtVertex (el);
+    }
+
+    std::vector<VxTrackAtVertex> & tmpVTAV = vx->vxTrackAtVertex(); tmpVTAV.clear();
+    unsigned int VTAVsize = vxCandidate->vxTrackAtVertex()->size();
+    for (unsigned int i = 0 ; i < VTAVsize ; ++i)
+    {
+      const Trk::VxTrackAtVertex* VTAV = vxCandidate->vxTrackAtVertex()->at(i);
+      tmpVTAV.push_back( *VTAV );
+    }
+
+    int DIM = (*(vxCandidate->fullCovariance())).innerSize();
+    std::vector<float> floatErrMtx;
+    floatErrMtx.resize(DIM*(DIM+1)/2);
+    int ipnt = 0;
+    for (int i=0;i<DIM;i++)
+    {
+      for (int j=0;j<=i;j++)
       {
-	ElementLink<xAOD::TrackParticleContainer> el;
-	el.setElement(p);
-	vx->addTrackAtVertex (el);
+        floatErrMtx[ipnt++]=(*(vxCandidate->fullCovariance()))(i,j);
       }
-    
-    delete fittedVxCandidate;
+    }
+    vx->setCovariance(floatErrMtx);
+
     return vx;
   }
   
@@ -339,8 +352,7 @@ namespace Trk
       return 0;
     }
  
-    /* Initialisation of variables */
-    bool fitfail = false;
+    // Initialisation of variables
     bool pointingConstraint = false;
     bool massConstraint = false;
     if(constraintMass > -100.) massConstraint = true;
@@ -400,80 +412,56 @@ namespace Trk
 
     ATH_MSG_DEBUG("ndf " << ndf << " n_dim " << n_dim << " m_dim " << m_dim);
 
-    RecVertex fittedVertex;
-    std::vector<VxTrackAtVertex*> tracksAtVertex;
     std::vector<V0FitterTrack> v0FitterTracks;
 
-    Amg::VectorX Y_vec(n_dim);
- 	Y_vec.setZero();
-    Amg::VectorX Y0_vec(n_dim);
-	Y0_vec.setZero();
-    Amg::Vector3D A_vec;
-	A_vec.setZero();
-    Amg::MatrixX Wmeas_mat(n_dim,n_dim);
-	Wmeas_mat.setZero();
-    Amg::MatrixX Wmeas0_mat(n_dim,n_dim);
-	Wmeas0_mat.setZero();
-    Amg::MatrixX Bjac_mat(m_dim,n_dim);
-	Bjac_mat.setZero();
-    Amg::MatrixX Ajac_mat(m_dim,3);
-	Ajac_mat.setZero();
-    Amg::MatrixX C11_mat(n_dim,n_dim);
-        C11_mat.setZero();
-    Amg::MatrixX C22_mat(3,3);
-	C22_mat.setZero();
-    Amg::MatrixX C21_mat(3,n_dim);
- 	C21_mat.setZero();
-    Amg::MatrixX C31_mat(m_dim,n_dim);
-        C31_mat.setZero();
-    Amg::MatrixX C32_mat(m_dim,3);
-        C32_mat.setZero();
-    Amg::MatrixX Wb_mat(m_dim,m_dim);
-    	Wb_mat.setZero();
-    Amg::MatrixX Btemp_mat(m_dim,n_dim);
-	Btemp_mat.setZero();
-    Amg::MatrixX Atemp_mat(m_dim,3);
-	Atemp_mat.setZero();
-    Amg::VectorX DeltaY_vec(n_dim);
-	DeltaY_vec.setZero();
-    Amg::Vector3D DeltaA_vec;
-	DeltaA_vec.setZero();
-    Amg::VectorX DeltaY0_vec(n_dim);
-	DeltaY0_vec.setZero();
-    Amg::VectorX F_vec(m_dim);
-	F_vec.setZero();
-    Amg::VectorX C_vec(m_dim);
-	C_vec.setZero();
-    Amg::VectorX C_cor_vec(m_dim);
-	C_cor_vec.setZero();
-    Amg::MatrixX V_mat(nPar,nPar);
-	V_mat.setZero();
-    Amg::MatrixX Chi_vec(1,n_dim);
-	Chi_vec.setZero();
-    AmgSymMatrix(1) Chi_mat;
-	Chi_mat.setZero();
-    Amg::MatrixX ChiItr_vec(1,n_dim);
-	ChiItr_vec.setZero();
-    AmgSymMatrix(1) ChiItr_mat;
-	ChiItr_mat.setZero();
-    Amg::VectorX F_fac_vec(m_dim);
-	F_fac_vec.setZero();
+    Amg::VectorX Y_vec(n_dim); Y_vec.setZero();
+    Amg::VectorX Y0_vec(n_dim); Y0_vec.setZero();
+    Amg::Vector3D A_vec; A_vec.setZero();
+
+    Amg::MatrixX Wmeas_mat(n_dim,n_dim); Wmeas_mat.setZero();
+    Amg::MatrixX Wmeas0_mat(n_dim,n_dim); Wmeas0_mat.setZero();
+    Amg::MatrixX Bjac_mat(m_dim,n_dim); Bjac_mat.setZero();
+    Amg::MatrixX Ajac_mat(m_dim,3); Ajac_mat.setZero();
+    Amg::MatrixX C11_mat(n_dim,n_dim); C11_mat.setZero();
+    Amg::MatrixX C22_mat(3,3); C22_mat.setZero();
+    Amg::MatrixX C21_mat(3,n_dim); C21_mat.setZero();
+    Amg::MatrixX C31_mat(m_dim,n_dim); C31_mat.setZero();
+    Amg::MatrixX C32_mat(m_dim,3); C32_mat.setZero();
+    Amg::MatrixX Wb_mat(m_dim,m_dim); Wb_mat.setZero();
+    Amg::MatrixX Btemp_mat(m_dim,n_dim); Btemp_mat.setZero();
+    Amg::MatrixX Atemp_mat(m_dim,3); Atemp_mat.setZero();
+    Amg::VectorX DeltaY_vec(n_dim); DeltaY_vec.setZero();
+    Amg::Vector3D DeltaA_vec; DeltaA_vec.setZero();
+    Amg::VectorX DeltaY0_vec(n_dim); DeltaY0_vec.setZero();
+    Amg::VectorX F_vec(m_dim); F_vec.setZero();
+    Amg::VectorX C_vec(m_dim); C_vec.setZero();
+    Amg::VectorX C_cor_vec(m_dim); C_cor_vec.setZero();
+    Amg::MatrixX V_mat(nPar,nPar); V_mat.setZero();
+    Amg::MatrixX Chi_vec(1,n_dim); Chi_vec.setZero();
+    AmgSymMatrix(1) Chi_mat; Chi_mat.setZero();
+    Amg::MatrixX ChiItr_vec(1,n_dim); ChiItr_vec.setZero();
+    AmgSymMatrix(1) ChiItr_mat; ChiItr_mat.setZero();
+    Amg::VectorX F_fac_vec(m_dim); F_fac_vec.setZero();
 
     const Amg::Vector3D * globalPosition = &(firstStartingPoint.position());
     ATH_MSG_DEBUG("globalPosition of starting point: " << globalPosition[0] << ", " << globalPosition[1] << ", " << globalPosition[2]);
     if (globalPosition->perp() > m_maxR && globalPosition->z() > m_maxZ) return 0;
 
 // magnetic field  
-    Amg::Vector3D * mField = 0;
-    m_magFieldSvc->getField(globalPosition,mField);
-    double B_z = mField->z()*299.792;            // should be in GeV/CLHEP::mm
+    double fieldXYZ[3];  double BField[3];
+    fieldXYZ[0] = globalPosition->x();
+    fieldXYZ[1] = globalPosition->y();
+    fieldXYZ[2] = globalPosition->z();
+    m_magFieldSvc->getField(fieldXYZ,BField);
+    double B_z = BField[2]*299.792;            // should be in GeV/mm
     if (B_z == 0. || std::isnan(B_z)) {
       ATH_MSG_DEBUG("Could not find a magnetic field different from zero: very very strange");
-      B_z = 0.60407;                            // Value in GeV/CLHEP::mm (ATLAS units)
+      B_z = 0.60407;                            // Value in GeV/mm (ATLAS units)
     } else {
-      ATH_MSG_VERBOSE("Magnetic field projection of z axis in the perigee position is: " << B_z << " CLHEP::GeV/CLHEP::mm ");
+      ATH_MSG_VERBOSE("Magnetic field projection of z axis in the perigee position is: " << B_z << " GeV/mm ");
     }
 //    double B_z = 1.998*0.3;
+
 
     v0FitterTracks.clear();
     Trk::PerigeeSurface perigeeSurface(*globalPosition);
@@ -518,13 +506,9 @@ namespace Trk
       }
     }
 
-    // New track covariance matrices
-    std::vector<Amg::MatrixX> cov_delta_P_mat(nTrk);
-
     // Iterate fits until the fit criteria are met, or the number of max iterations is reached
     double chi2New=0.; double chi2Old=chi2;
     double sumConstr=0.;
-    //   sumConstrOld=0.;
     bool onConstr = false;
     Amg::Vector3D frameOrigin = firstStartingPoint.position();
     Amg::Vector3D frameOriginItr = firstStartingPoint.position();
@@ -542,21 +526,21 @@ namespace Trk
         for (PTIter = v0FitterTracks.begin(); PTIter != v0FitterTracks.end() ; ++PTIter)
         {
           V0FitterTrack locP((*PTIter));
-           Wmeas0_mat.block<5,5>(5*i,5*i) = locP.Wi_mat;
-           Wmeas_mat.block<5,5>(5*i,5*i) = locP.Wi_mat;
+           Wmeas0_mat.block(5*i,5*i,5,5) = locP.Wi_mat;
+           Wmeas_mat.block(5*i,5*i,5,5) = locP.Wi_mat;
           for (int j=0; j<5; ++j) {
-            Y0_vec[j+5*i]  = locP.TrkPar[j];
+            Y0_vec(j+5*i)  = locP.TrkPar[j];
           }
           ++i;
         }
         if(pointingConstraint) {
-          Y0_vec(5*nTrk + 1) = x_point;
-          Y0_vec(5*nTrk + 2) = y_point;
-          Y0_vec(5*nTrk + 3) = z_point;
-          Wmeas0_mat.block<3,3>(5*nTrk,5*nTrk) = pointingVertexCov;
-	  Wmeas_mat.block<3,3>(5*nTrk,5*nTrk) = pointingVertexCov;
+          Y0_vec(5*nTrk + 0) = x_point;
+          Y0_vec(5*nTrk + 1) = y_point;
+          Y0_vec(5*nTrk + 2) = z_point;
+          Wmeas0_mat.block(5*nTrk,5*nTrk,3,3) = pointingVertexCov;
+          Wmeas_mat.block(5*nTrk,5*nTrk,3,3) = pointingVertexCov;
         }
-        Wmeas_mat.inverse();
+        Wmeas_mat = Wmeas_mat.inverse();
       }
 
       Y_vec = Y0_vec + DeltaY_vec;
@@ -565,19 +549,19 @@ namespace Trk
       // check theta and phi ranges
       for (unsigned int i=0; i<nTrk; ++i) 
       {
-        if ( fabs ( Y_vec(3+5*i) ) > 100. || fabs ( Y_vec(4+5*i) ) > 100. ) { return 0; }
-        while ( fabs ( Y_vec(3+5*i) ) > M_PI ) Y_vec(3+5*i) += ( Y_vec(3+5*i) > 0 ) ? -2*M_PI : 2*M_PI;
-        while ( Y_vec(4+5*i) > 2*M_PI ) Y_vec(4+5*i) -= 2*M_PI;
-        while ( Y_vec(4+5*i) < -M_PI ) Y_vec(4+5*i) += M_PI;
-        if ( Y_vec(4+5*i) > M_PI )
+        if ( fabs ( Y_vec(2+5*i) ) > 100. || fabs ( Y_vec(3+5*i) ) > 100. ) { return 0; }
+        while ( fabs ( Y_vec(2+5*i) ) > M_PI ) Y_vec(2+5*i) += ( Y_vec(2+5*i) > 0 ) ? -2*M_PI : 2*M_PI;
+        while ( Y_vec(3+5*i) > 2*M_PI ) Y_vec(3+5*i) -= 2*M_PI;
+        while ( Y_vec(3+5*i) < -M_PI ) Y_vec(3+5*i) += M_PI;
+        if ( Y_vec(3+5*i) > M_PI )
         {
-          Y_vec(4+5*i) = 2*M_PI - Y_vec(4+5*i);
-          if ( Y_vec(3+5*i) >= 0 )   Y_vec(3+5*i)  += ( Y_vec(3+5*i) >0 ) ? -M_PI : M_PI;
+          Y_vec(3+5*i) = 2*M_PI - Y_vec(3+5*i);
+          if ( Y_vec(2+5*i) >= 0 )   Y_vec(2+5*i)  += ( Y_vec(2+5*i) >0 ) ? -M_PI : M_PI;
         }
-        if ( Y_vec(4+5*i) < 0.0 )
+        if ( Y_vec(3+5*i) < 0.0 )
         {
-          Y_vec(4+5*i)  = - Y_vec(4+5*i);
-          if ( Y_vec(3+5*i) >= 0 )  Y_vec(3+5*i) += ( Y_vec(3+5*i) >0 ) ? -M_PI : M_PI;
+          Y_vec(3+5*i)  = - Y_vec(3+5*i);
+          if ( Y_vec(2+5*i) >= 0 )  Y_vec(2+5*i) += ( Y_vec(2+5*i) >0 ) ? -M_PI : M_PI;
         }
       }
 
@@ -590,28 +574,27 @@ namespace Trk
 	 conv_sign[0] = -1; conv_sign[1] = 1;
       for (unsigned int i=0; i<nTrk; ++i) 
       {
-        charge[i] = (Y_vec(5+5*i) < 0.) ? -1. : 1.;
-        rho[i] = sin(Y_vec(4+5*i))/(B_z*Y_vec(5+5*i));
-	xcphiplusysphi[i]  = A_vec(0)*cos(Y_vec(3+5*i))+A_vec(1)*sin(Y_vec(3+5*i));
-        xsphiminusycphi[i] = A_vec(0)*sin(Y_vec(3+5*i))-A_vec(1)*cos(Y_vec(3+5*i));
+        charge[i] = (Y_vec(4+5*i) < 0.) ? -1. : 1.;
+        rho[i] = sin(Y_vec(3+5*i))/(B_z*Y_vec(4+5*i));
+	xcphiplusysphi[i]  = A_vec(0)*cos(Y_vec(2+5*i))+A_vec(1)*sin(Y_vec(2+5*i));
+        xsphiminusycphi[i] = A_vec(0)*sin(Y_vec(2+5*i))-A_vec(1)*cos(Y_vec(2+5*i));
         if(fabs(-xcphiplusysphi[i]/rho[i]) > 1.) {
-          fitfail = true;
           return 0;
         }
         d0Cor[i] = 0.5*asin(-xcphiplusysphi[i]/rho[i]);
         double d0Facsq = 1. - xcphiplusysphi[i]*xcphiplusysphi[i]/(rho[i]*rho[i]);
         d0Fac[i] = (d0Facsq>0.) ? sqrt(d0Facsq) : 0;
-        Phi[i] = Y_vec(3+5*i) + 2.*d0Cor[i];
+        Phi[i] = Y_vec(2+5*i) + 2.*d0Cor[i];
 
         if(massConstraint && masses.size() != 0 && masses[i] != 0.){
-          SigE  += sqrt(1./(Y_vec(5+5*i)*Y_vec(5+5*i)) + masses[i]*masses[i]);
-          SigPx += sin(Y_vec(4+5*i))*cos(Y_vec(3+5*i))*charge[i]/Y_vec(5+5*i);
-          SigPy += sin(Y_vec(4+5*i))*sin(Y_vec(3+5*i))*charge[i]/Y_vec(5+5*i);
-          SigPz += cos(Y_vec(4+5*i))*charge[i]/Y_vec(5+5*i);
+          SigE  += sqrt(1./(Y_vec(4+5*i)*Y_vec(4+5*i)) + masses[i]*masses[i]);
+          SigPx += sin(Y_vec(3+5*i))*cos(Y_vec(2+5*i))*charge[i]/Y_vec(4+5*i);
+          SigPy += sin(Y_vec(3+5*i))*sin(Y_vec(2+5*i))*charge[i]/Y_vec(4+5*i);
+          SigPz += cos(Y_vec(3+5*i))*charge[i]/Y_vec(4+5*i);
         }
-        Px += sin(Y_vec(4+5*i))*cos(Y_vec(3+5*i))*charge[i]/Y_vec(5+5*i);
-        Py += sin(Y_vec(4+5*i))*sin(Y_vec(3+5*i))*charge[i]/Y_vec(5+5*i);
-        Pz += cos(Y_vec(4+5*i))*charge[i]/Y_vec(5+5*i);
+        Px += sin(Y_vec(3+5*i))*cos(Y_vec(2+5*i))*charge[i]/Y_vec(4+5*i);
+        Py += sin(Y_vec(3+5*i))*sin(Y_vec(2+5*i))*charge[i]/Y_vec(4+5*i);
+        Pz += cos(Y_vec(3+5*i))*charge[i]/Y_vec(4+5*i);
       }
 
       double FMass=0., dFMassdxs=0., dFMassdys=0., dFMassdzs=0.;
@@ -639,7 +622,7 @@ namespace Trk
       dPhidd0.setZero(); dPhidz0.setZero(); dPhidphi0.setZero(); dPhidtheta.setZero(); dPhidqOverP.setZero();
       Amg::VectorX dPhidxs(nTrk), dPhidys(nTrk), dPhidzs(nTrk);
       dPhidxs.setZero(); dPhidys.setZero(); dPhidzs.setZero();
-       //
+      //
       // constraint equations for V0vertex fitter
       //
       // FMass = mass vertex constraint
@@ -663,38 +646,38 @@ namespace Trk
       //
       // Fxy = vertex constraint in xy plane (one for each track)
       //
-        Fxy[i] = Y_vec(1+5*i) + xsphiminusycphi[i] - 2.*rho[i]*sin(d0Cor[i])*sin(d0Cor[i]);
+        Fxy[i] = Y_vec(0+5*i) + xsphiminusycphi[i] - 2.*rho[i]*sin(d0Cor[i])*sin(d0Cor[i]);
       //
       // Fxz = vertex constraint in xz plane (one for each track)
       //
-	Fxz[i] = Y_vec(2+5*i) - A_vec(2) - rho[i]*2.*d0Cor[i]/tan(Y_vec(4+5*i));
+	Fxz[i] = Y_vec(1+5*i) - A_vec(2) - rho[i]*2.*d0Cor[i]/tan(Y_vec(3+5*i));
       //
       // derivatives
       //
-        drhodtheta[i]  =  cos(Y_vec(4+5*i))/(B_z*Y_vec(5+5*i));
-        drhodqOverP[i] = -sin(Y_vec(4+5*i))/(B_z*Y_vec(5+5*i)*Y_vec(5+5*i));
+        drhodtheta[i]  =  cos(Y_vec(3+5*i))/(B_z*Y_vec(4+5*i));
+        drhodqOverP[i] = -sin(Y_vec(3+5*i))/(B_z*Y_vec(4+5*i)*Y_vec(4+5*i));
 
         dFxydd0[i]     =  1.;
         dFxydphi[i]    =  xcphiplusysphi[i]*(1. + xsphiminusycphi[i]/(d0Fac[i]*rho[i]));
         dFxydtheta[i]  =  (xcphiplusysphi[i]*xcphiplusysphi[i]/(d0Fac[i]*rho[i]*rho[i])-2.*sin(d0Cor[i])*sin(d0Cor[i]))*drhodtheta[i];
         dFxydqOverP[i] =  (xcphiplusysphi[i]*xcphiplusysphi[i]/(d0Fac[i]*rho[i]*rho[i])-2.*sin(d0Cor[i])*sin(d0Cor[i]))*drhodqOverP[i];
-        dFxydxs[i]     =  sin(Y_vec(3+5*i)) - cos(Y_vec(3+5*i))*xcphiplusysphi[i]/(d0Fac[i]*rho[i]);
-        dFxydys[i]     = -cos(Y_vec(3+5*i)) - sin(Y_vec(3+5*i))*xcphiplusysphi[i]/(d0Fac[i]*rho[i]);
+        dFxydxs[i]     =  sin(Y_vec(2+5*i)) - cos(Y_vec(2+5*i))*xcphiplusysphi[i]/(d0Fac[i]*rho[i]);
+        dFxydys[i]     = -cos(Y_vec(2+5*i)) - sin(Y_vec(2+5*i))*xcphiplusysphi[i]/(d0Fac[i]*rho[i]);
 
         dFxzdz0[i]     =  1.;
-        dFxzdphi[i]    = -xsphiminusycphi[i]/(d0Fac[i]*tan(Y_vec(4+5*i)));
-        dFxzdtheta[i]  = -((xcphiplusysphi[i]/(d0Fac[i]*rho[i]) + 2.*d0Cor[i])*tan(Y_vec(4+5*i))*drhodtheta[i] -
-                                       rho[i]*2.*d0Cor[i]/(cos(Y_vec(4+5*i))*cos(Y_vec(4+5*i))))/(tan(Y_vec(4+5*i))*tan(Y_vec(4+5*i)));
-        dFxzdqOverP[i] = -(xcphiplusysphi[i]/(d0Fac[i]*rho[i]) + 2.*d0Cor[i])*drhodqOverP[i]/tan(Y_vec(4+5*i));
-        dFxzdxs[i]     =  cos(Y_vec(3+5*i))/(d0Fac[i]*tan(Y_vec(4+5*i)));
-        dFxzdys[i]     =  sin(Y_vec(3+5*i))/(d0Fac[i]*tan(Y_vec(4+5*i)));
+        dFxzdphi[i]    = -xsphiminusycphi[i]/(d0Fac[i]*tan(Y_vec(3+5*i)));
+        dFxzdtheta[i]  = -((xcphiplusysphi[i]/(d0Fac[i]*rho[i]) + 2.*d0Cor[i])*tan(Y_vec(3+5*i))*drhodtheta[i] -
+                                       rho[i]*2.*d0Cor[i]/(cos(Y_vec(3+5*i))*cos(Y_vec(3+5*i))))/(tan(Y_vec(3+5*i))*tan(Y_vec(3+5*i)));
+        dFxzdqOverP[i] = -(xcphiplusysphi[i]/(d0Fac[i]*rho[i]) + 2.*d0Cor[i])*drhodqOverP[i]/tan(Y_vec(3+5*i));
+        dFxzdxs[i]     =  cos(Y_vec(2+5*i))/(d0Fac[i]*tan(Y_vec(3+5*i)));
+        dFxzdys[i]     =  sin(Y_vec(2+5*i))/(d0Fac[i]*tan(Y_vec(3+5*i)));
         dFxzdzs[i]     = -1.;
 
         dPhidphi0[i]   = 1. + xsphiminusycphi[i]/(d0Fac[i]*rho[i]);
         dPhidtheta[i]  =  xcphiplusysphi[i]*drhodtheta[i]/(d0Fac[i]*rho[i]*rho[i]);
         dPhidqOverP[i] =  xcphiplusysphi[i]*drhodqOverP[i]/(d0Fac[i]*rho[i]*rho[i]);
-        dPhidxs[i]     = -cos(Y_vec(3+5*i))/(d0Fac[i]*rho[i]);
-        dPhidys[i]     = -sin(Y_vec(3+5*i))/(d0Fac[i]*rho[i]);
+        dPhidxs[i]     = -cos(Y_vec(2+5*i))/(d0Fac[i]*rho[i]);
+        dPhidys[i]     = -sin(Y_vec(2+5*i))/(d0Fac[i]*rho[i]);
 
         if (massConstraint && masses.size() != 0 && masses[i] != 0.){
           if (conversion) {
@@ -704,34 +687,33 @@ namespace Trk
             dFMassdxs       += conv_sign[i]*dPhidxs[i];
             dFMassdys       += conv_sign[i]*dPhidys[i];
           } else {
-            csplusbc[i]      = SigPy*sin(Y_vec(3+5*i))+SigPx*cos(Y_vec(3+5*i));
-            ccminusbs[i]     = SigPy*cos(Y_vec(3+5*i))-SigPx*sin(Y_vec(3+5*i));
-
-            dFMassdphi[i]    = 2.*sin(Y_vec(4+5*i))*ccminusbs[i]*charge[i]/Y_vec(5+5*i);
-            dFMassdtheta[i]  = 2.*(cos(Y_vec(4+5*i))*csplusbc[i] - sin(Y_vec(4+5*i))*SigPz)*charge[i]/Y_vec(5+5*i);
-            dFMassdqOverP[i] = 2.*SigE/(sqrt(1./(Y_vec(5+5*i)*Y_vec(5+5*i)) + masses[i]*masses[i])*Y_vec(5+5*i)*Y_vec(5+5*i)*Y_vec(5+5*i)) -
-                               2.*charge[i]*(sin(Y_vec(4+5*i))*csplusbc[i] + cos(Y_vec(4+5*i))*SigPz)/(Y_vec(5+5*i)*Y_vec(5+5*i));
+            csplusbc[i]      = SigPy*sin(Y_vec(2+5*i))+SigPx*cos(Y_vec(2+5*i));
+            ccminusbs[i]     = SigPy*cos(Y_vec(2+5*i))-SigPx*sin(Y_vec(2+5*i));
+            dFMassdphi[i]    = 2.*sin(Y_vec(3+5*i))*ccminusbs[i]*charge[i]/Y_vec(4+5*i);
+            dFMassdtheta[i]  = 2.*(cos(Y_vec(3+5*i))*csplusbc[i] - sin(Y_vec(3+5*i))*SigPz)*charge[i]/Y_vec(4+5*i);
+            dFMassdqOverP[i] = 2.*SigE/(sqrt(1./(Y_vec(4+5*i)*Y_vec(4+5*i)) + masses[i]*masses[i])*Y_vec(4+5*i)*Y_vec(4+5*i)*Y_vec(4+5*i)) -
+                               2.*charge[i]*(sin(Y_vec(3+5*i))*csplusbc[i] + cos(Y_vec(3+5*i))*SigPz)/(Y_vec(4+5*i)*Y_vec(4+5*i));
           }
         }
 
         if (pointingConstraint){
-          dFPxydphi[i]    = -sin(Y_vec(4+5*i))*(sin(Y_vec(3+5*i))*(frameOriginItr[1]-y_point)+cos(Y_vec(3+5*i))*(frameOriginItr[0]-x_point))*charge[i]/Y_vec(5+5*i);
-          dFPxydtheta[i]  =  cos(Y_vec(4+5*i))*(cos(Y_vec(3+5*i))*(frameOriginItr[1]-y_point)-sin(Y_vec(3+5*i))*(frameOriginItr[0]-x_point))*charge[i]/Y_vec(5+5*i);
-          dFPxydqOverP[i] = -sin(Y_vec(4+5*i))*(cos(Y_vec(3+5*i))*(frameOriginItr[1]-y_point)-sin(Y_vec(3+5*i))*(frameOriginItr[0]-x_point))*charge[i]/(Y_vec(5+5*i)*Y_vec(5+5*i));
-          dFPxydxs       += -sin(Y_vec(4+5*i))*sin(Y_vec(3+5*i))*charge[i]/Y_vec(5+5*i);
-          dFPxydys       +=  sin(Y_vec(4+5*i))*cos(Y_vec(3+5*i))*charge[i]/Y_vec(5+5*i);
-          dFPxydxp       +=  sin(Y_vec(4+5*i))*sin(Y_vec(3+5*i))*charge[i]/Y_vec(5+5*i);
-          dFPxydyp       += -sin(Y_vec(4+5*i))*cos(Y_vec(3+5*i))*charge[i]/Y_vec(5+5*i);
+          dFPxydphi[i]    = -sin(Y_vec(3+5*i))*(sin(Y_vec(2+5*i))*(frameOriginItr[1]-y_point)+cos(Y_vec(2+5*i))*(frameOriginItr[0]-x_point))*charge[i]/Y_vec(4+5*i);
+          dFPxydtheta[i]  =  cos(Y_vec(3+5*i))*(cos(Y_vec(2+5*i))*(frameOriginItr[1]-y_point)-sin(Y_vec(2+5*i))*(frameOriginItr[0]-x_point))*charge[i]/Y_vec(4+5*i);
+          dFPxydqOverP[i] = -sin(Y_vec(3+5*i))*(cos(Y_vec(2+5*i))*(frameOriginItr[1]-y_point)-sin(Y_vec(2+5*i))*(frameOriginItr[0]-x_point))*charge[i]/(Y_vec(4+5*i)*Y_vec(4+5*i));
+          dFPxydxs       += -sin(Y_vec(3+5*i))*sin(Y_vec(2+5*i))*charge[i]/Y_vec(4+5*i);
+          dFPxydys       +=  sin(Y_vec(3+5*i))*cos(Y_vec(2+5*i))*charge[i]/Y_vec(4+5*i);
+          dFPxydxp       +=  sin(Y_vec(3+5*i))*sin(Y_vec(2+5*i))*charge[i]/Y_vec(4+5*i);
+          dFPxydyp       += -sin(Y_vec(3+5*i))*cos(Y_vec(2+5*i))*charge[i]/Y_vec(4+5*i);
 
-          dFPxzdphi[i]    = -sin(Y_vec(4+5*i))*sin(Y_vec(3+5*i))*(frameOriginItr[2]-z_point)*charge[i]/Y_vec(5+5*i);
-          dFPxzdtheta[i]  =  cos(Y_vec(4+5*i))*cos(Y_vec(3+5*i))*(frameOriginItr[2]-z_point)*charge[i]/Y_vec(5+5*i)
-                            +sin(Y_vec(4+5*i))*(frameOriginItr[0]-x_point)*charge[i]/Y_vec(5+5*i);
-          dFPxzdqOverP[i] = -sin(Y_vec(4+5*i))*cos(Y_vec(3+5*i))*(frameOriginItr[2]-z_point)*charge[i]/(Y_vec(5+5*i)*Y_vec(5+5*i))
-                            +cos(Y_vec(4+5*i))*(frameOriginItr[0]-x_point)*charge[i]/(Y_vec(5+5*i)*Y_vec(5+5*i));
-          dFPxzdxs       += -cos(Y_vec(4+5*i))*charge[i]/Y_vec(5+5*i);
-          dFPxzdzs       +=  sin(Y_vec(4+5*i))*cos(Y_vec(3+5*i))*charge[i]/Y_vec(5+5*i);
-          dFPxzdxp       +=  cos(Y_vec(4+5*i))*charge[i]/Y_vec(5+5*i);
-          dFPxzdzp       += -sin(Y_vec(4+5*i))*cos(Y_vec(3+5*i))*charge[i]/Y_vec(5+5*i);
+          dFPxzdphi[i]    = -sin(Y_vec(3+5*i))*sin(Y_vec(2+5*i))*(frameOriginItr[2]-z_point)*charge[i]/Y_vec(4+5*i);
+          dFPxzdtheta[i]  =  cos(Y_vec(3+5*i))*cos(Y_vec(2+5*i))*(frameOriginItr[2]-z_point)*charge[i]/Y_vec(4+5*i)
+                            +sin(Y_vec(3+5*i))*(frameOriginItr[0]-x_point)*charge[i]/Y_vec(4+5*i);
+          dFPxzdqOverP[i] = -sin(Y_vec(3+5*i))*cos(Y_vec(2+5*i))*(frameOriginItr[2]-z_point)*charge[i]/(Y_vec(4+5*i)*Y_vec(4+5*i))
+                            +cos(Y_vec(3+5*i))*(frameOriginItr[0]-x_point)*charge[i]/(Y_vec(4+5*i)*Y_vec(4+5*i));
+          dFPxzdxs       += -cos(Y_vec(3+5*i))*charge[i]/Y_vec(4+5*i);
+          dFPxzdzs       +=  sin(Y_vec(3+5*i))*cos(Y_vec(2+5*i))*charge[i]/Y_vec(4+5*i);
+          dFPxzdxp       +=  cos(Y_vec(3+5*i))*charge[i]/Y_vec(4+5*i);
+          dFPxzdzp       += -sin(Y_vec(3+5*i))*cos(Y_vec(2+5*i))*charge[i]/Y_vec(4+5*i);
         }
 
         // fill vector of constraints
@@ -740,23 +722,22 @@ namespace Trk
         F_fac_vec[i]      = 1.;
         F_fac_vec[i+nTrk] = 1.;
       }
-      if(massConstraint) F_vec(2*nTrk+1) = -FMass;
-      if(massConstraint) F_fac_vec(2*nTrk+1) = 1.;
+      if(massConstraint) F_vec(2*nTrk+0) = -FMass;
+      if(massConstraint) F_fac_vec(2*nTrk+0) = 1.;
       if(pointingConstraint) {
         if(massConstraint) {
-          F_vec(2*nTrk+2) = -FPxy;
-          F_vec(2*nTrk+3) = -FPxz;
-          F_fac_vec(2*nTrk+2) = 0.00001;
-          F_fac_vec(2*nTrk+3) = 0.00001;
-        } else {
           F_vec(2*nTrk+1) = -FPxy;
           F_vec(2*nTrk+2) = -FPxz;
           F_fac_vec(2*nTrk+1) = 0.00001;
           F_fac_vec(2*nTrk+2) = 0.00001;
+        } else {
+          F_vec(2*nTrk+0) = -FPxy;
+          F_vec(2*nTrk+1) = -FPxz;
+          F_fac_vec(2*nTrk+0) = 0.00001;
+          F_fac_vec(2*nTrk+1) = 0.00001;
         }
       }
 
-      //sumConstrOld = sumConstr;
       sumConstr = 0.;
       for (unsigned int i=0; i<m_dim; ++i) 
       {
@@ -766,98 +747,98 @@ namespace Trk
       if (sumConstr < 0.001) { onConstr = true; }
       ATH_MSG_DEBUG("sumConstr " << sumConstr);
 
-      for (unsigned int i=1; i<nTrk+1; ++i) 
+      for (unsigned int i=0; i<nTrk; ++i) 
       {
-        Bjac_mat(i,1+5*(i-1))        = dFxydd0(i);
-        Bjac_mat(i,2+5*(i-1))        = dFxydz0(i);
-        Bjac_mat(i,3+5*(i-1))        = dFxydphi(i);
-        Bjac_mat(i,4+5*(i-1))        = dFxydtheta(i);
-        Bjac_mat(i,5+5*(i-1))        = dFxydqOverP(i);
-        Bjac_mat(i+nTrk,1+5*(i-1))   = dFxzdd0(i);
-        Bjac_mat(i+nTrk,2+5*(i-1))   = dFxzdz0(i);
-        Bjac_mat(i+nTrk,3+5*(i-1))   = dFxzdphi(i);
-        Bjac_mat(i+nTrk,4+5*(i-1))   = dFxzdtheta(i);
-        Bjac_mat(i+nTrk,5+5*(i-1))   = dFxzdqOverP(i);
+        Bjac_mat(i,0+5*i)        = dFxydd0(i);
+        Bjac_mat(i,1+5*i)        = dFxydz0(i);
+        Bjac_mat(i,2+5*i)        = dFxydphi(i);
+        Bjac_mat(i,3+5*i)        = dFxydtheta(i);
+        Bjac_mat(i,4+5*i)        = dFxydqOverP(i);
+        Bjac_mat(i+nTrk,0+5*i)   = dFxzdd0(i);
+        Bjac_mat(i+nTrk,1+5*i)   = dFxzdz0(i);
+        Bjac_mat(i+nTrk,2+5*i)   = dFxzdphi(i);
+        Bjac_mat(i+nTrk,3+5*i)   = dFxzdtheta(i);
+        Bjac_mat(i+nTrk,4+5*i)   = dFxzdqOverP(i);
         if(massConstraint) {
-          Bjac_mat(2*nTrk+1,1+5*(i-1)) = dFMassdd0(i);
-          Bjac_mat(2*nTrk+1,2+5*(i-1)) = dFMassdz0(i);
-          Bjac_mat(2*nTrk+1,3+5*(i-1)) = dFMassdphi(i);
-          Bjac_mat(2*nTrk+1,4+5*(i-1)) = dFMassdtheta(i);
-          Bjac_mat(2*nTrk+1,5+5*(i-1)) = dFMassdqOverP(i);
+          Bjac_mat(2*nTrk,0+5*i) = dFMassdd0(i);
+          Bjac_mat(2*nTrk,1+5*i) = dFMassdz0(i);
+          Bjac_mat(2*nTrk,2+5*i) = dFMassdphi(i);
+          Bjac_mat(2*nTrk,3+5*i) = dFMassdtheta(i);
+          Bjac_mat(2*nTrk,4+5*i) = dFMassdqOverP(i);
         }
         if(pointingConstraint) {
           if(massConstraint) {
-            Bjac_mat(2*nTrk+2,1+5*(i-1))    = dFPxydd0(i);
-            Bjac_mat(2*nTrk+2,2+5*(i-1))    = dFPxydz0(i);
-            Bjac_mat(2*nTrk+2,3+5*(i-1))    = dFPxydphi(i);
-            Bjac_mat(2*nTrk+2,4+5*(i-1))    = dFPxydtheta(i);
-            Bjac_mat(2*nTrk+2,5+5*(i-1))    = dFPxydqOverP(i);
-            Bjac_mat(2*nTrk+2,5*nTrk)   = dFPxydxp;
-            Bjac_mat(2*nTrk+2,5*nTrk+1) = dFPxydyp;
-            Bjac_mat(2*nTrk+2,5*nTrk+2) = dFPxydzp;
-            Bjac_mat(2*nTrk+3,1+5*(i-1))    = dFPxzdd0(i);
-            Bjac_mat(2*nTrk+3,2+5*(i-1))    = dFPxzdz0(i);
-            Bjac_mat(2*nTrk+3,3+5*(i-1))    = dFPxzdphi(i);
-            Bjac_mat(2*nTrk+3,4+5*(i-1))    = dFPxzdtheta(i);
-            Bjac_mat(2*nTrk+3,5+5*(i-1))    = dFPxzdqOverP(i);
-            Bjac_mat(2*nTrk+3,5*nTrk)   = dFPxzdxp;
-            Bjac_mat(2*nTrk+3,5*nTrk+1) = dFPxzdyp;
-            Bjac_mat(2*nTrk+3,5*nTrk+2) = dFPxzdzp;
-          } else {
-            Bjac_mat(2*nTrk+1,1+5*(i-1))    = dFPxydd0(i);
-            Bjac_mat(2*nTrk+1,2+5*(i-1))    = dFPxydz0(i);
-            Bjac_mat(2*nTrk+1,3+5*(i-1))    = dFPxydphi(i);
-            Bjac_mat(2*nTrk+1,4+5*(i-1))    = dFPxydtheta(i);
-            Bjac_mat(2*nTrk+1,5+5*(i-1))    = dFPxydqOverP(i);
+            Bjac_mat(2*nTrk+1,0+5*i)    = dFPxydd0(i);
+            Bjac_mat(2*nTrk+1,1+5*i)    = dFPxydz0(i);
+            Bjac_mat(2*nTrk+1,2+5*i)    = dFPxydphi(i);
+            Bjac_mat(2*nTrk+1,3+5*i)    = dFPxydtheta(i);
+            Bjac_mat(2*nTrk+1,4+5*i)    = dFPxydqOverP(i);
             Bjac_mat(2*nTrk+1,5*nTrk)   = dFPxydxp;
             Bjac_mat(2*nTrk+1,5*nTrk+1) = dFPxydyp;
             Bjac_mat(2*nTrk+1,5*nTrk+2) = dFPxydzp;
-            Bjac_mat(2*nTrk+2,1+5*(i-1))    = dFPxzdd0(i);
-            Bjac_mat(2*nTrk+2,2+5*(i-1))    = dFPxzdz0(i);
-            Bjac_mat(2*nTrk+2,3+5*(i-1))    = dFPxzdphi(i);
-            Bjac_mat(2*nTrk+2,4+5*(i-1))    = dFPxzdtheta(i);
-            Bjac_mat(2*nTrk+2,5+5*(i-1))    = dFPxzdqOverP(i);
+            Bjac_mat(2*nTrk+2,0+5*i)    = dFPxzdd0(i);
+            Bjac_mat(2*nTrk+2,1+5*i)    = dFPxzdz0(i);
+            Bjac_mat(2*nTrk+2,2+5*i)    = dFPxzdphi(i);
+            Bjac_mat(2*nTrk+2,3+5*i)    = dFPxzdtheta(i);
+            Bjac_mat(2*nTrk+2,4+5*i)    = dFPxzdqOverP(i);
             Bjac_mat(2*nTrk+2,5*nTrk)   = dFPxzdxp;
             Bjac_mat(2*nTrk+2,5*nTrk+1) = dFPxzdyp;
             Bjac_mat(2*nTrk+2,5*nTrk+2) = dFPxzdzp;
+          } else {
+            Bjac_mat(2*nTrk+0,0+5*i)    = dFPxydd0(i);
+            Bjac_mat(2*nTrk+0,1+5*i)    = dFPxydz0(i);
+            Bjac_mat(2*nTrk+0,2+5*i)    = dFPxydphi(i);
+            Bjac_mat(2*nTrk+0,3+5*i)    = dFPxydtheta(i);
+            Bjac_mat(2*nTrk+0,4+5*i)    = dFPxydqOverP(i);
+            Bjac_mat(2*nTrk+0,5*nTrk)   = dFPxydxp;
+            Bjac_mat(2*nTrk+0,5*nTrk+1) = dFPxydyp;
+            Bjac_mat(2*nTrk+0,5*nTrk+2) = dFPxydzp;
+            Bjac_mat(2*nTrk+1,0+5*i)    = dFPxzdd0(i);
+            Bjac_mat(2*nTrk+1,1+5*i)    = dFPxzdz0(i);
+            Bjac_mat(2*nTrk+1,2+5*i)    = dFPxzdphi(i);
+            Bjac_mat(2*nTrk+1,3+5*i)    = dFPxzdtheta(i);
+            Bjac_mat(2*nTrk+1,4+5*i)    = dFPxzdqOverP(i);
+            Bjac_mat(2*nTrk+1,5*nTrk)   = dFPxzdxp;
+            Bjac_mat(2*nTrk+1,5*nTrk+1) = dFPxzdyp;
+            Bjac_mat(2*nTrk+1,5*nTrk+2) = dFPxzdzp;
           }
         }
 
-        Ajac_mat(i,1) = dFxydxs(i);
-        Ajac_mat(i,2) = dFxydys(i);
-        Ajac_mat(i,3) = dFxydzs(i);
-        Ajac_mat(i+nTrk,1) = dFxzdxs(i);
-        Ajac_mat(i+nTrk,2) = dFxzdys(i);
-        Ajac_mat(i+nTrk,3) = dFxzdzs(i);
+        Ajac_mat(i,0) = dFxydxs(i);
+        Ajac_mat(i,1) = dFxydys(i);
+        Ajac_mat(i,2) = dFxydzs(i);
+        Ajac_mat(i+nTrk,0) = dFxzdxs(i);
+        Ajac_mat(i+nTrk,1) = dFxzdys(i);
+        Ajac_mat(i+nTrk,2) = dFxzdzs(i);
         if(massConstraint) {
-          Ajac_mat(2*nTrk+1,1) = dFMassdxs;
-          Ajac_mat(2*nTrk+1,2) = dFMassdys;
-          Ajac_mat(2*nTrk+1,3) = dFMassdzs;
+          Ajac_mat(2*nTrk,0) = dFMassdxs;
+          Ajac_mat(2*nTrk,1) = dFMassdys;
+          Ajac_mat(2*nTrk,2) = dFMassdzs;
         }
         if(pointingConstraint) {
           if(massConstraint) {
-            Ajac_mat(2*nTrk+2,1) = dFPxydxs;
-            Ajac_mat(2*nTrk+2,2) = dFPxydys;
-            Ajac_mat(2*nTrk+2,3) = dFPxydzs;
-            Ajac_mat(2*nTrk+3,1) = dFPxzdxs;
-            Ajac_mat(2*nTrk+3,2) = dFPxzdys;
-            Ajac_mat(2*nTrk+3,3) = dFPxzdzs;
+            Ajac_mat(2*nTrk+1,0) = dFPxydxs;
+            Ajac_mat(2*nTrk+1,1) = dFPxydys;
+            Ajac_mat(2*nTrk+1,2) = dFPxydzs;
+            Ajac_mat(2*nTrk+2,0) = dFPxzdxs;
+            Ajac_mat(2*nTrk+2,1) = dFPxzdys;
+            Ajac_mat(2*nTrk+2,2) = dFPxzdzs;
           } else {
-            Ajac_mat(2*nTrk+1,1) = dFPxydxs;
-            Ajac_mat(2*nTrk+1,2) = dFPxydys;
-            Ajac_mat(2*nTrk+1,3) = dFPxydzs;
-            Ajac_mat(2*nTrk+2,1) = dFPxzdxs;
-            Ajac_mat(2*nTrk+2,2) = dFPxzdys;
-            Ajac_mat(2*nTrk+2,3) = dFPxzdzs;
+            Ajac_mat(2*nTrk+0,0) = dFPxydxs;
+            Ajac_mat(2*nTrk+0,1) = dFPxydys;
+            Ajac_mat(2*nTrk+0,2) = dFPxydzs;
+            Ajac_mat(2*nTrk+1,0) = dFPxzdxs;
+            Ajac_mat(2*nTrk+1,1) = dFPxzdys;
+            Ajac_mat(2*nTrk+1,2) = dFPxzdzs;
           }
         }
       }
 
       Wb_mat = Wmeas_mat.similarity(Bjac_mat) ;
-      Wb_mat.inverse();
+      Wb_mat = Wb_mat.inverse();
 
       C22_mat = Wb_mat.similarity(Ajac_mat.transpose());
-      C22_mat.inverse();
+      C22_mat = C22_mat.inverse();
 
       Btemp_mat = Wb_mat * Bjac_mat * Wmeas_mat;
       Atemp_mat = Wb_mat * Ajac_mat;
@@ -875,27 +856,31 @@ namespace Trk
       DeltaY_vec = C31_mat.transpose()*C_vec;
       DeltaA_vec = C32_mat.transpose()*C_vec;
 
-      for (unsigned int i=1; i<n_dim+1; ++i) 
+      for (unsigned int i=0; i<n_dim; ++i) 
       {
-        ChiItr_vec(1,i) = DeltaY_vec(i);
+        ChiItr_vec(0,i) = DeltaY_vec(i);
       }
       ChiItr_mat = Wmeas0_mat.similarity( ChiItr_vec );
-	chi2New = ChiItr_mat(1,1);
+      chi2New = ChiItr_mat(0,0);
 
       // current vertex position in global coordinates
       frameOriginItr[0] += DeltaA_vec(0);
       frameOriginItr[1] += DeltaA_vec(1);
       frameOriginItr[2] += DeltaA_vec(2);
       if (msgLvl(MSG::DEBUG)) {
-        msg(MSG::DEBUG) << "New vertex, global coordinates: " << frameOriginItr << endreq;
+        msg(MSG::DEBUG) << "New vertex, global coordinates: " << frameOriginItr.transpose() << endreq;
         msg(MSG::DEBUG) << "chi2Old: " << chi2Old << " chi2New: " << chi2New << " fabs(chi2Old-chi2New): " << fabs(chi2Old-chi2New) << endreq;
       }
 
-     const Amg::Vector3D * globalPositionItr = &frameOriginItr;
+      const Amg::Vector3D * globalPositionItr = &frameOriginItr;
       if (globalPositionItr->perp() > m_maxR && globalPositionItr->z() > m_maxZ) return 0;
 
-      m_magFieldSvc->getField(globalPositionItr,mField);
-      double B_z_new = mField->z()*299.792;
+      double fieldXYZItr[3];  double BFieldItr[3];
+      fieldXYZItr[0] = globalPositionItr->x();
+      fieldXYZItr[1] = globalPositionItr->y();
+      fieldXYZItr[2] = globalPositionItr->z();
+      m_magFieldSvc->getField(fieldXYZItr,BFieldItr);
+      double B_z_new = BFieldItr[2]*299.792;            // should be in GeV/mm
       if (B_z_new == 0. || std::isnan(B_z)) {
         ATH_MSG_DEBUG("Using old B_z");
         B_z_new = B_z;
@@ -966,7 +951,6 @@ namespace Trk
         chi2Old = 2000000000000.;
         chi2New = 0.;
         sumConstr = 0.;
-        //sumConstrOld = 0.;
         onConstr = false;
         restartFit = true;
       }
@@ -985,100 +969,94 @@ namespace Trk
     // check theta and phi ranges
     for (unsigned int i=0; i<nTrk; ++i) 
     {
-      if ( fabs ( Y_vec(3+5*i) ) > 100. || fabs ( Y_vec(4+5*i) ) > 100. ) { return 0; }
-      while ( fabs ( Y_vec(3+5*i) ) > M_PI ) Y_vec(3+5*i) += ( Y_vec(3+5*i) > 0 ) ? -2*M_PI : 2*M_PI;
-      while ( Y_vec(4+5*i) > 2*M_PI ) Y_vec(4+5*i) -= 2*M_PI;
-      while ( Y_vec(4+5*i) < -M_PI ) Y_vec(4+5*i) += M_PI;
-      if ( Y_vec(4+5*i) > M_PI )
+      if ( fabs ( Y_vec(2+5*i) ) > 100. || fabs ( Y_vec(3+5*i) ) > 100. ) { return 0; }
+      while ( fabs ( Y_vec(2+5*i) ) > M_PI ) Y_vec(2+5*i) += ( Y_vec(2+5*i) > 0 ) ? -2*M_PI : 2*M_PI;
+      while ( Y_vec(3+5*i) > 2*M_PI ) Y_vec(3+5*i) -= 2*M_PI;
+      while ( Y_vec(3+5*i) < -M_PI ) Y_vec(3+5*i) += M_PI;
+      if ( Y_vec(3+5*i) > M_PI )
       {
-        Y_vec(4+5*i) = 2*M_PI - Y_vec(4+5*i);
-        if ( Y_vec(3+5*i) >= 0 )   Y_vec(3+5*i)  += ( Y_vec(3+5*i) >0 ) ? -M_PI : M_PI;
+        Y_vec(3+5*i) = 2*M_PI - Y_vec(3+5*i);
+        if ( Y_vec(2+5*i) >= 0 )   Y_vec(2+5*i)  += ( Y_vec(2+5*i) >0 ) ? -M_PI : M_PI;
       }
-      if ( Y_vec(4+5*i) < 0.0 )
+      if ( Y_vec(3+5*i) < 0.0 )
       {
-        Y_vec(4+5*i)  = - Y_vec(4+5*i);
-        if ( Y_vec(3+5*i) >= 0 )  Y_vec(3+5*i) += ( Y_vec(3+5*i) >0 ) ? -M_PI : M_PI;
+        Y_vec(3+5*i)  = - Y_vec(3+5*i);
+        if ( Y_vec(2+5*i) >= 0 )  Y_vec(2+5*i) += ( Y_vec(2+5*i) >0 ) ? -M_PI : M_PI;
       }
     }
 
-    for (unsigned int i=1; i<n_dim+1; ++i) 
+    for (unsigned int i=0; i<n_dim; ++i) 
     {
-      Chi_vec(1,i) = DeltaY_vec(i);
+      Chi_vec(0,i) = DeltaY_vec(i);
     }
     Chi_mat = Wmeas0_mat.similarity( Chi_vec );
-	chi2 = Chi_mat(1,1);
-    
-     V_mat.block(0,0,n_dim,n_dim) = C11_mat;
-    V_mat.block(n_dim,n_dim,n_dim,n_dim) = C22_mat;
-    for (unsigned int i=1; i<n_dim+1; ++i) {
-      V_mat(n_dim+1,i) = C21_mat(1,i);
-      V_mat(n_dim+2,i) = C21_mat(2,i);
-      V_mat(n_dim+3,i) = C21_mat(3,i);
-    }
+    chi2 = Chi_mat(0,0);
+
+    V_mat.setZero();
+    V_mat.block(0,0,n_dim,n_dim) = C11_mat;
+    V_mat.block(n_dim,n_dim,3,3) = C22_mat;
+    V_mat.block(n_dim,0,3,n_dim) = C21_mat;
+    V_mat.block(0,n_dim,n_dim,3) = C21_mat.transpose();
+    ATH_MSG_DEBUG("V_mat " << V_mat);
 
     // ===> loop over tracks
     std::vector<V0FitterTrack>::iterator BTIter;
     int iRP=0;
     for (BTIter = v0FitterTracks.begin(); BTIter != v0FitterTracks.end() ; ++BTIter)
     {
-      cov_delta_P_mat[iRP] = V_mat.block(5*iRP,5*iRP,5+5*iRP,5+5*iRP);
-
       // chi2 per track
-      AmgSymMatrix(5) covTrk;
-	covTrk.setZero();
-      AmgVector(5) chi_vec;
-	chi_vec.setZero();
-      for (unsigned int i=1; i<6; ++i)
-      {
-        chi_vec(i)  = DeltaY_vec(i+5*iRP);
-        covTrk = Wmeas0_mat.block(5*iRP,5*iRP,5+5*iRP,5+5*iRP);
-      }
+      AmgSymMatrix(5) covTrk; covTrk.setZero();
+      covTrk = Wmeas0_mat.block(5*iRP,5*iRP,4+5*iRP,4+5*iRP);
+      AmgVector(5) chi_vec; chi_vec.setZero();
+      for (unsigned int i=0; i<5; ++i) chi_vec(i) = DeltaY_vec(i+5*iRP);
       double chi2Trk = chi_vec.dot(covTrk*chi_vec);
       (*BTIter).chi2=chi2Trk;
-      ++iRP;
+      iRP++;
     }
 
     // Store the vertex 
     Trk::ExtendedVxCandidate * fittedVxCandidate = 0;
+    RecVertex * fittedVertex; 
+    fittedVertex = new RecVertex( frameOrigin, C22_mat, ndf, chi2 );
 
-    //chi2 = chi2New;
-    const Amg::MatrixX newErrorMatrix = C22_mat.inverse().eval();
-    fittedVertex = RecVertex(frameOrigin, newErrorMatrix, ndf, chi2);
+    std::vector<VxTrackAtVertex*> * tracksAtVertex;
+    tracksAtVertex = new std::vector<VxTrackAtVertex*>();
 
-    // go through vector and delete entries
-    for (std::vector<Trk::VxTrackAtVertex*>::const_iterator itr = tracksAtVertex.begin();
-          itr != tracksAtVertex.end(); ++itr)
-    {
-      delete (*itr);
-    }
-
-    if(fitfail) {
-      return fittedVxCandidate;
-    }
- 
     // Store the tracks at vertex 
-    tracksAtVertex.clear();
     Amg::Vector3D Vertex(frameOrigin[0],frameOrigin[1],frameOrigin[2]);
     const Trk::PerigeeSurface Surface(Vertex);
-    Trk::TrackParameters * refittedPerigee(0);
+    Trk::Perigee * refittedPerigee(0);
     unsigned int iterf=0;
     std::vector<V0FitterTrack>::iterator BTIterf;
     for (BTIterf = v0FitterTracks.begin(); BTIterf != v0FitterTracks.end() ; ++BTIterf)
     {
-  Amg::MatrixX newTrackErrorMatrix_b = cov_delta_P_mat.at(iterf).inverse().eval();
- AmgSymMatrix(5) * newTrackErrorMatrix = (AmgSymMatrix(5)*) &newTrackErrorMatrix_b;
-	refittedPerigee = new Trk::Perigee (Y_vec(1+5*iterf),Y_vec(2+5*iterf),Y_vec(3+5*iterf),Y_vec(4+5*iterf),Y_vec(5+5*iterf), Surface, newTrackErrorMatrix);		
-      tracksAtVertex.push_back(new Trk::VxTrackAtVertex((*BTIterf).chi2, refittedPerigee, (*BTIterf).originalPerigee));
-      iterf ++;
+      AmgSymMatrix(5) * CovMtxP = new AmgSymMatrix(5);
+      CovMtxP->setIdentity();
+      for (unsigned int i=0; i<5; ++i) {
+        for (unsigned int j=0; j<i+1; ++j) {
+          double val = V_mat(5*iterf+i,5*iterf+j);
+          CovMtxP->fillSymmetric(i,j,val);
+        }
+      }
+      refittedPerigee = new Trk::Perigee (Y_vec(0+5*iterf),Y_vec(1+5*iterf),Y_vec(2+5*iterf),Y_vec(3+5*iterf),Y_vec(4+5*iterf), Surface, CovMtxP);
+      VxTrackAtVertex* trkV = new VxTrackAtVertex((*BTIterf).chi2, refittedPerigee, (*BTIterf).originalPerigee);
+      tracksAtVertex->push_back(trkV);
+      iterf++;
     }
 
     // Full Covariance Matrix
-    const Amg::MatrixX * newFullCovarianceMatrix = &V_mat;
-   Amg::MatrixX  newFullErrorMatrix_b =  newFullCovarianceMatrix->inverse().eval(); 
-   Amg::MatrixX *  newFullErrorMatrix =  &newFullErrorMatrix_b;
+    Amg::MatrixX * newFullCovarianceMatrix = new Amg::MatrixX(nPar,nPar);
+    newFullCovarianceMatrix->setIdentity();
+    for (unsigned int i=0; i<nPar; ++i) {
+      for (unsigned int j=0; j<i+1; ++j) {
+        double val = V_mat(i,j);
+        newFullCovarianceMatrix->fillSymmetric(i,j,val);
+      }
+    }
+    fittedVxCandidate = new Trk::ExtendedVxCandidate(*fittedVertex, *tracksAtVertex, newFullCovarianceMatrix);
 
-    fittedVxCandidate = new Trk::ExtendedVxCandidate(fittedVertex, tracksAtVertex, newFullErrorMatrix);
-
+    delete fittedVertex;
+    delete tracksAtVertex;
     return fittedVxCandidate;
   }
 
