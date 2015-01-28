@@ -64,6 +64,30 @@ GeoPixelLadder::GeoPixelLadder(GeoPixelSiCrystal& theSensor,
     double halfThickness = m_thicknessP;
     ladderShape = new GeoBox(halfThickness, m_width/2., length/2.);
   } 
+  else if (gmt_mgr->PixelBentStaveNModule() != 0)
+    {
+      // Calculate thickness from bent stave part
+      double angle              = gmt_mgr->PixelLadderBentStaveAngle() * CLHEP::pi / 180.0;
+      double BentStaveThickness = double(gmt_mgr->PixelBentStaveNModule()) * gmt_mgr->PixelLadderModuleDeltaZ() * sin(angle);
+      
+      // Extend +ve or -ve ladder thickness according to stave angle
+      if (angle < 0) m_thicknessP += BentStaveThickness;
+      if (angle > 0) m_thicknessN += BentStaveThickness;
+      
+      //    std::cout << "NPR:: m_thicknessP = " << m_thicknessP << std::endl;
+      //    std::cout << "NPR:: m_thicknessN = " << m_thicknessN << std::endl;
+      //    std::cout << "NPR:: shift        = " << -0.5*BentStaveThickness << std::endl;
+      //    std::cout << "NPR:: an gle       = " << angle << std::endl;
+      
+      // Create stave and apply shift to the ladder.
+      GeoBox * box = new GeoBox((m_thicknessP+m_thicknessN)/2., m_width/2., length/2.);
+      
+      // Shift ladder outwards if stave bends away from beam pipe
+      double shift = 0.5*BentStaveThickness;
+      if (angle > 0) shift *= -1.0;
+      const GeoShape & shiftedBox = (*box) << HepGeom::TranslateX3D(shift);
+      ladderShape = &shiftedBox; 
+    }
   else if (!(gmt_mgr->PixelStaveLayout()>3&& gmt_mgr->PixelStaveLayout()<7)){
     double halfThickness = 0.5*(m_thicknessP+m_thicknessN);
     double shift = 0.5*(m_thicknessP-m_thicknessN);
@@ -314,7 +338,9 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
     ladderPhys->add(modulephys );
 
     // Now store the xform by identifier:
-    Identifier id = m_theSensor.getID();
+    Identifier id;
+    if(!b3DModule)  id = m_theSensor.getID();
+    else id = theSensor3D.getID();
     DDmgr->addAlignableTransform(0,id,xform,modulephys);
     
   }
@@ -323,6 +349,53 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
     ladderPhys->add(new GeoTransform(m_staveSupport->transform()));
     ladderPhys->add(m_staveSupport->getPhysVol()); 
   }
+
+  
+  if (gmt_mgr->PixelBentStaveNModule() != 0)
+    {
+      std::cout << "SB: Adding bent stave support" << std::endl;
+      double thickness = gmt_mgr->PixelLadderSupportThickness();
+      double width     = gmt_mgr->PixelLadderSupportWidth();
+      double length    = gmt_mgr->PixelLadderSupportLength();
+      double xOffset   = gmt_mgr->PixelLadderServicesX();
+      //      double yOffset   = gmt_mgr->PixelLadderServicesY();
+      //      int staveIndex   = gmt_mgr->PixelStaveIndex(gmt_mgr->GetLD());
+      
+      // Bent stave half length  = 0.5 * nModules * ModuleSize
+      double bentStaveHalfLength = 0.5 * double(gmt_mgr->PixelBentStaveNModule()) * gmt_mgr->PixelLadderModuleDeltaZ();
+      
+      // Create bent stave
+      GeoBox * shapeSupBent = new GeoBox(0.5*thickness, 0.5*width, bentStaveHalfLength);
+      
+      //      std::string matName = gmt_mgr->getMaterialName("StaveSupportOuter", gmt_mgr->GetLD(), staveIndex);
+      //      std::string matName = gmt_mgr->getMaterialName("StaveSupport", gmt_mgr->GetLD(), staveIndex);
+      //      const GeoMaterial* materialSup = mat_mgr->getMaterialForVolume(matName,shapeSupBent->volume());
+      const GeoMaterial* materialSup = mat_mgr->getMaterial("pix::StaveSupportBase");
+      
+      double ang = gmt_mgr->PixelLadderBentStaveAngle() * CLHEP::pi / 180.0;
+      double xst = xOffset - (bentStaveHalfLength * sin(ang)); 
+      
+      // Construct bent stave at negative z
+      GeoLogVol* logVolBentNeg = new GeoLogVol("StaveSupportBentNeg2",shapeSupBent,materialSup);
+      GeoPhysVol* physVolBentNeg = new GeoPhysVol(logVolBentNeg);
+      CLHEP::HepRotation rmNeg;
+      rmNeg.rotateY(ang);
+      double zstneg = -length/2.0 - (bentStaveHalfLength * cos(ang));
+      HepGeom::Point3D<double> stavePosNeg(xst,0.,zstneg);
+      ladderPhys->add(new GeoTransform(HepGeom::Transform3D(rmNeg,stavePosNeg)));
+      ladderPhys->add(physVolBentNeg); 
+      
+      // COnstruct bent stave at positive z
+      GeoLogVol* logVolBentPos = new GeoLogVol("StaveSupportBentPos2",shapeSupBent,materialSup);
+      GeoPhysVol* physVolBentPos = new GeoPhysVol(logVolBentPos);
+      CLHEP::HepRotation rmPos;
+      rmPos.rotateY(-ang);
+      double zstpos = length/2.0 + (bentStaveHalfLength * cos(ang));
+      HepGeom::Point3D<double> stavePosPos(xst,0.,zstpos);
+      ladderPhys->add(new GeoTransform(HepGeom::Transform3D(rmPos,stavePosPos)));
+      ladderPhys->add(physVolBentPos);       
+    }
+
 
   return ladderPhys;
 }
