@@ -286,15 +286,20 @@ namespace CP {
     float CaloLRLikelihood = 1.0;
     int CaloMuonIDTag = 20;
 
-    bool readLR = mu.parameter(CaloLRLikelihood, xAOD::Muon::CaloLRLikelihood);
-    bool readID = mu.parameter(CaloMuonIDTag, xAOD::Muon::CaloMuonIDTag);
-
-    if (!readLR || !readID){
-      ATH_MSG_VERBOSE("Unable to read CaloTag Quality information! Don't do anything for now, accept the calotag muons as they are!");
-      //just a hack for now -- this information is not available in the DC14 xAODs
-      //return false;
+    try{
+      bool readLR = mu.parameter(CaloLRLikelihood, xAOD::Muon::CaloLRLikelihood);
+      bool readID = mu.parameter(CaloMuonIDTag, xAOD::Muon::CaloMuonIDTag);
+      
+      if (!readLR || !readID){
+	ATH_MSG_VERBOSE("Unable to read CaloTag Quality information! Don't do anything for now, accept the calotag muons as they are!");
+	//just a hack for now -- this information is not available in the DC14 xAODs
+	//return false;
+      }
+      return (CaloLRLikelihood > 0.9 || CaloMuonIDTag > 10);
     }
-    return (CaloLRLikelihood > 0.9 || CaloMuonIDTag > 10);
+
+    catch (SG::ExcBadAuxVar b){
+      return false;
+    }
   }
-  
 } // namespace CP
