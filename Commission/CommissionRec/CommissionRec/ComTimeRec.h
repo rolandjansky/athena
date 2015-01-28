@@ -5,17 +5,14 @@
 #ifndef COMMISSIONREC_COMTIMEREC
 #define COMMISSIONREC_COMTIMEREC
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "CommissionUtils/CosmicTriggerTimeTool.h"
 
-#include <string>
-
-class StoreGateSvc;
-class CosmicTriggerTimeTool; 
-
-class ComTimeRec : public Algorithm
+class ComTimeRec : public AthAlgorithm
 {
 
- public:
+public:
 
   ComTimeRec(const std::string& name, ISvcLocator* pSvcLocator);
   ~ComTimeRec();
@@ -24,9 +21,7 @@ class ComTimeRec : public Algorithm
   StatusCode execute();
   StatusCode finalize();
 
- private:
-
-  StoreGateSvc* m_eventStore;
+private:
 
   std::string m_comTimeKey;
   std::string m_mode;
@@ -34,7 +29,7 @@ class ComTimeRec : public Algorithm
   std::string m_TTRKey;
   double m_samplingPeriod;
   double m_velocity;
-  CosmicTriggerTimeTool* m_triggerTimeTool; 
+  CosmicTriggerTimeTool* m_triggerTimeTool;
 
 };
 

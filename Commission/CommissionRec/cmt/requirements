@@ -4,19 +4,17 @@ author Rob McPherson <Robert.McPherson@cern.ch>
 
 use AtlasPolicy     	AtlasPolicy-*     
 
-
+use AthenaBaseComps     AthenaBaseComps-*    Control
 use GaudiInterface      GaudiInterface-*     External
+use CommissionUtils     CommissionUtils-*    Commission
 
 private
-use AtlasCLHEP          AtlasCLHEP-*            External
+use AtlasCLHEP          AtlasCLHEP-*         External
 use CommissionEvent     CommissionEvent-*    Commission
-use CommissionUtils     CommissionUtils-*    Commission
-use StoreGate           StoreGate-*          Control
-use TrackRecord TrackRecord-* Simulation/G4Sim
+use TrackRecord         TrackRecord-*        Simulation/G4Sim
 end_private
 
 
 library CommissionRec *.cxx -s=components *.cxx
 apply_pattern component_library
-
 
