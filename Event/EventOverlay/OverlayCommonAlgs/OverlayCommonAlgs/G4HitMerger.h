@@ -5,7 +5,7 @@
 #ifndef Overlay_G4HitMerger_H
 #define Overlay_G4HitMerger_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/Property.h"
 #include <vector>
@@ -17,7 +17,7 @@ class PileUpMergeSvc;
 
 using namespace std;
 
-class G4HitMerger : public Algorithm
+class G4HitMerger : public AthAlgorithm
 {
  public:
   G4HitMerger(const string& name, ISvcLocator* pSvcLocator);

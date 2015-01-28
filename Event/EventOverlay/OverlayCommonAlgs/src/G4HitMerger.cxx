@@ -45,7 +45,7 @@ operator<<(std::ostream& o, const McEventCollection& in)
 }
 
 G4HitMerger::G4HitMerger(const std::string& name, ISvcLocator* pSvcLocator)
-  : Algorithm(name, pSvcLocator), m_storeGateSvc("StoreGateSvc",name)
+  : AthAlgorithm(name, pSvcLocator), m_storeGateSvc("StoreGateSvc",name)
 {
   declareProperty("Detectors", m_Detectors, "Detector selection");
 }
@@ -54,43 +54,11 @@ G4HitMerger::~G4HitMerger(){}
 
 StatusCode G4HitMerger::initialize()
 {
-  MsgStream  msglog(messageService(),name());
 
-// ....... Access Event StoreGate
-  StatusCode sc = m_storeGateSvc.retrieve() ;
-  if (sc.isFailure()) 
-  {
-    msglog << MSG::ERROR
-	   << "Unable to access pointer to StoreGate"
-	   << endreq;
-    return StatusCode::FAILURE;
-  }
+  // locate the PileUpMergeSvc and initialize our local ptr
+  CHECK( service("PileUpMergeSvc", p_mergeSvc) );
 
-// locate the PileUpMergeSvc and initialize our local ptr
-  if (!(service("PileUpMergeSvc", p_mergeSvc)).isSuccess() ||
-       0 == p_mergeSvc) {
-     msglog << MSG::ERROR << "Could not find PileUpMergeSvc" << endreq;
-     return StatusCode::FAILURE;
-  }
-  else
-  {
-    msglog << MSG::INFO << "PileUpMergeSvc successfully initialized" << endreq;
-  }
-
-// ....... Access DD StoreGate
-  sc = service ( "DetectorStore" , detStore ) ;
-
-  if (sc.isFailure()) 
-  {
-    msglog << MSG::ERROR
-	   << "Unable to access pointer to DetectorStore"
-	   << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  msglog << MSG::DEBUG 
-	 << "Initialization completed successfully" 
-	 << endreq;
+  ATH_MSG_DEBUG( "Initialization completed successfully" );
 
   return StatusCode::SUCCESS;
 
@@ -99,9 +67,6 @@ StatusCode G4HitMerger::initialize()
 StatusCode G4HitMerger::execute()
 {
   
-  MsgStream  msglog(messageService(),name());
-  StatusCode sc(StatusCode::FAILURE);
-  
   /////////////////////////////////////////////////////////////////////////////////////
   // Append MCEventCollections
   
@@ -109,46 +74,35 @@ StatusCode G4HitMerger::execute()
   //  TimedTruthList truthList;
   std::string truthCollKey("TruthEvent");
   
-  msglog << MSG::INFO << " asking for container " << truthCollKey << endreq;
+  ATH_MSG_INFO( " asking for container " << truthCollKey );
   
   TimedTruthList* truthList = new TimedTruthList;
   
   // retrieve the list of pairs (time, container) from the PileUp service
-  if (!(p_mergeSvc->retrieveSubEvtsData(truthCollKey, *truthList).isSuccess()) && truthList->size() == 0) {
-    msglog << MSG::ERROR << "Could not fill truthList for " << truthCollKey << endreq;
-    return StatusCode::FAILURE;
-  }
+  CHECK( p_mergeSvc->retrieveSubEvtsData(truthCollKey, *truthList) );
   
   // Start with a new (blank) McEventCollection
   
   McEventCollection* new_collection = new McEventCollection;
-  sc = m_storeGateSvc->record(new_collection, truthCollKey);
-  if (sc.isFailure()) {
-    msglog << MSG::ERROR << "Cannot record new McEventCollection for " << truthCollKey << endreq;
-    return sc;
-  }
+  CHECK( evtStore()->record(new_collection, truthCollKey) );
   
   // loop over the list, adding the component McEventCollections to the new one
   //
   int McCounter(0);
-  for (TimedTruthList::iterator iter = truthList->begin(); iter != truthList->end(); ++iter) {
+  for (auto iter : *truthList ) {
     McCounter++;
     
-    msglog << MSG::INFO << "Input McEventCollection " << McCounter << " " << *(iter->second) << endreq;
+    ATH_MSG_INFO( "Input McEventCollection " << McCounter << " " << *(iter.second) );
 
     // Surprisingly, McEventCollection::operator= pushes_back GenEvents from the RHS
     // onto the current list without first clearing the list first. 
     // Thus, '=' is really an 'append' or += operation
     //
-      (*new_collection) = *(iter->second);
+      (*new_collection) = *(iter.second);
   }
-  msglog << MSG::INFO << "Merged McEventCollection  " << *(new_collection) << endreq;
+  ATH_MSG_INFO( "Merged McEventCollection  " << *(new_collection) );
 
-  sc = m_storeGateSvc->setConst(new_collection);
-  if (sc.isFailure()) {
-    msglog << MSG::ERROR << " Cannot lock container for " << truthCollKey << endreq;
-    return(StatusCode::FAILURE);
-  }
+  CHECK( evtStore()->setConst(new_collection) );
   
   delete truthList;
   
@@ -185,23 +139,16 @@ StatusCode G4HitMerger::execute()
   int nhit_tot=0;
   for (unsigned int iHitContainer=0;iHitContainer<m_HitContainer.size();iHitContainer++)
     {    
-      msglog << MSG::INFO << " asking for: " << m_HitContainer[iHitContainer] << endreq;
+      ATH_MSG_INFO( " asking for: " << m_HitContainer[iHitContainer] );
       typedef PileUpMergeSvc::TimedList<LArHitContainer>::type TimedHitContList;
       TimedHitContList *hitContList = new TimedHitContList;
 
       // retrieve list of pairs (time,container) from PileUp service
-      if (!(p_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],*hitContList).isSuccess()) && hitContList->size()==0) {
-	msglog << MSG::ERROR << "Could not fill TimedHitContList for " << m_HitContainer[iHitContainer] << endreq;
-	return StatusCode::FAILURE;
-      }
+      CHECK( p_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],*hitContList) );
 
       // make new hit container
       LArHitContainer *new_collection = new LArHitContainer();
-      sc = m_storeGateSvc->record(new_collection,m_HitContainer[iHitContainer]);
-      if (sc.isFailure()) {
-	msglog << MSG::ERROR << " cannot record new container for " << m_HitContainer[iHitContainer] << endreq;
-	return sc;
-      }
+      CHECK( evtStore()->record(new_collection,m_HitContainer[iHitContainer]) );
       
       // loop over this list
       int subevent=0;
@@ -218,7 +165,7 @@ StatusCode G4HitMerger::execute()
 	  float energy = hit->energy();
 	  Identifier cellId = hit->cellID();
 	  //if (energy<1e-6) continue;
-	  msglog<<MSG::DEBUG<<"LArHit "<<cellId<<" has energy "<<energy<<endreq;
+	  ATH_MSG_DEBUG("LArHit "<<cellId<<" has energy "<<energy);
 	  new_collection->push_back(hit);
 	} // loop over hits
 	++iFirstCont; ++subevent;
@@ -226,16 +173,11 @@ StatusCode G4HitMerger::execute()
       } // loop over subevent list
 
       // lock finished new container
-      sc = m_storeGateSvc->setConst(new_collection);
-      if (sc.isFailure()) {
-	msglog << MSG::ERROR << " Cannot lock container for " << m_HitContainer[iHitContainer] << endreq;
-	return(StatusCode::FAILURE);
-      }
-
+      CHECK( evtStore()->setConst(new_collection) );
       delete hitContList;
       
     } // end of loop over containers
-  msglog << MSG::INFO << "Total number of LArHit found "  << nhit_tot << endreq;
+  ATH_MSG_INFO( "Total number of LArHit found "  << nhit_tot );
 
   
   ////////////////////////////////////////////////////////////////////////////////////////////
@@ -246,23 +188,16 @@ StatusCode G4HitMerger::execute()
   nhit_tot=0;
   for (unsigned int iHitContainer=0;iHitContainer<m_HitContainer.size();iHitContainer++)
     {    
-      msglog << MSG::INFO << " asking for: " << m_HitContainer[iHitContainer] << endreq;
+      ATH_MSG_INFO( " asking for: " << m_HitContainer[iHitContainer] );
       typedef PileUpMergeSvc::TimedList<TileHitVector>::type TimedHitContList;
       TimedHitContList *hitContList = new TimedHitContList;
 
       // retrieve list of pairs (time,container) from PileUp service
-      if (!(p_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],*hitContList).isSuccess()) && hitContList->size()==0) {
-	msglog << MSG::ERROR << "Could not fill TimedHitContList for " << m_HitContainer[iHitContainer] << endreq;
-	return StatusCode::FAILURE;
-      }
+      CHECK( p_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],*hitContList).isSuccess() );
 
       // make new hit container
       TileHitVector *new_collection = new TileHitVector();
-      sc = m_storeGateSvc->record(new_collection,m_HitContainer[iHitContainer]);
-      if (sc.isFailure()) {
-	msglog << MSG::ERROR << " cannot record new container for " << m_HitContainer[iHitContainer] << endreq;
-	return sc;
-      }
+      CHECK( evtStore()->record(new_collection,m_HitContainer[iHitContainer]) );
       
       // loop over this list
       int subevent=0;
@@ -279,24 +214,19 @@ StatusCode G4HitMerger::execute()
 	  float energy = 0; for (int i=0; i<hit.size(); ++i) energy+=hit.energy(i);
 	  Identifier cellId = hit.identify();
 	  //if (energy<1e-6) continue;
-	  msglog<<MSG::DEBUG<<"TileHit "<<cellId<<" has energy "<<energy<<endreq;
+	  ATH_MSG_DEBUG("TileHit "<<cellId<<" has energy "<<energy);
 	  new_collection->push_back(hit);
 	} // loop over hits
 	++iFirstCont; ++subevent;
-	//msglog << MSG::INFO << "Subevent "<<subevent<<endreq;
       } // loop over subevent list
 
       // lock finished new container
-      sc = m_storeGateSvc->setConst(new_collection);
-      if (sc.isFailure()) {
-	msglog << MSG::ERROR << " Cannot lock container for " << m_HitContainer[iHitContainer] << endreq;
-	return(StatusCode::FAILURE);
-      }
+      CHECK( evtStore()->setConst(new_collection) );
 
       delete hitContList;
       
     } // end of loop over containers
-  msglog << MSG::INFO << "Total number of TileHit found "  << nhit_tot << endreq;
+  ATH_MSG_INFO( "Total number of TileHit found "  << nhit_tot );
 
 
   ////////////////////////////////////////////////////////////////////////////////////////////
@@ -306,23 +236,16 @@ StatusCode G4HitMerger::execute()
   nhit_tot=0;
   for (unsigned int iHitContainer=0;iHitContainer<m_HitContainer.size();iHitContainer++)
     {    
-      msglog << MSG::INFO << " asking for: " << m_HitContainer[iHitContainer] << endreq;
+      ATH_MSG_INFO( " asking for: " << m_HitContainer[iHitContainer] );
       typedef PileUpMergeSvc::TimedList<TRTUncompressedHitCollection>::type TimedHitContList;
       TimedHitContList hitContList;
 
       // retrieve list of pairs (time,container) from PileUp service
-      if (!(p_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],hitContList).isSuccess()) && hitContList.size()==0) {
-	msglog << MSG::ERROR << "Could not fill TimedHitContList for " << m_HitContainer[iHitContainer] << endreq;
-	return StatusCode::FAILURE;
-      }
+      CHECK( p_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],hitContList).isSuccess() );
 
       // make new hit container
       TRTUncompressedHitCollection *new_collection = new TRTUncompressedHitCollection();
-      sc = m_storeGateSvc->record(new_collection,m_HitContainer[iHitContainer]);
-      if (sc.isFailure()) {
-	msglog << MSG::ERROR << " cannot record new container for " << m_HitContainer[iHitContainer] << endreq;
-	return sc;
-      }
+      CHECK( evtStore()->record(new_collection,m_HitContainer[iHitContainer]) );
       
       // loop over this list
       int subevent=0;
@@ -339,7 +262,7 @@ StatusCode G4HitMerger::execute()
 	  float energy = hit.GetEnergyDeposit();
 	  int cellId = hit.GetHitID();
 	  //if (energy<1e-6) continue;
-	  msglog<<MSG::DEBUG<<"TRTUncompressedHit "<<cellId<<" has energy "<<energy<<endreq;
+	  ATH_MSG_DEBUG("TRTUncompressedHit "<<cellId<<" has energy "<<energy);
 	  new_collection->push_back(hit);
 	} // loop over hits
 	++iFirstCont; ++subevent;
@@ -347,14 +270,10 @@ StatusCode G4HitMerger::execute()
       } // loop over subevent list
 
       // lock finished new container
-      sc = m_storeGateSvc->setConst(new_collection);
-      if (sc.isFailure()) {
-	msglog << MSG::ERROR << " Cannot lock container for " << m_HitContainer[iHitContainer] << endreq;
-	return(StatusCode::FAILURE);
-      }
+      CHECK( evtStore()->setConst(new_collection) );
       
     } // end of loop over containers
-  msglog << MSG::INFO << "Total number of TRTUncompressedHit found "  << nhit_tot << endreq;
+  ATH_MSG_INFO( "Total number of TRTUncompressedHit found "  << nhit_tot );
   
   
   
@@ -365,23 +284,16 @@ StatusCode G4HitMerger::execute()
   nhit_tot=0;
   for (unsigned int iHitContainer=0;iHitContainer<m_HitContainer.size();iHitContainer++)
     {    
-      msglog << MSG::INFO << " asking for: " << m_HitContainer[iHitContainer] << endreq;
+      ATH_MSG_INFO( " asking for: " << m_HitContainer[iHitContainer] );
       typedef PileUpMergeSvc::TimedList<CSCSimHitCollection>::type TimedHitContList;
       TimedHitContList hitContList;
 
       // retrieve list of pairs (time,container) from PileUp service
-      if (!(p_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],hitContList).isSuccess()) && hitContList.size()==0) {
-	msglog << MSG::ERROR << "Could not fill TimedHitContList for " << m_HitContainer[iHitContainer] << endreq;
-	return StatusCode::FAILURE;
-      }
+      CHECK( p_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],hitContList).isSuccess() );
 
       // make new hit container
       CSCSimHitCollection *new_collection = new CSCSimHitCollection();
-      sc = m_storeGateSvc->record(new_collection,m_HitContainer[iHitContainer]);
-      if (sc.isFailure()) {
-	msglog << MSG::ERROR << " cannot record new container for " << m_HitContainer[iHitContainer] << endreq;
-	return sc;
-      }
+      CHECK( evtStore()->record(new_collection,m_HitContainer[iHitContainer]) );
       
       // loop over this list
       int subevent=0;
@@ -399,7 +311,7 @@ StatusCode G4HitMerger::execute()
 	  double time = hit.globalTime();
 	  int cellId = hit.CSCid();
 	  //if (energy<1e-6) continue;
-	  msglog<<MSG::DEBUG<<"CSCSimHit "<<cellId<<" has energy "<<energy<<" and time "<<time<<endreq;
+	  ATH_MSG_DEBUG("CSCSimHit "<<cellId<<" has energy "<<energy<<" and time "<<time);
 	  new_collection->push_back(hit);
 	} // loop over hits
 	++iFirstCont; ++subevent;
@@ -407,14 +319,10 @@ StatusCode G4HitMerger::execute()
       } // loop over subevent list
 
       // lock finished new container
-      sc = m_storeGateSvc->setConst(new_collection);
-      if (sc.isFailure()) {
-	msglog << MSG::ERROR << " Cannot lock container for " << m_HitContainer[iHitContainer] << endreq;
-	return(StatusCode::FAILURE);
-      }
+      CHECK( evtStore()->setConst(new_collection) );
       
     } // end of loop over containers
-  msglog << MSG::INFO << "Total number of CSCSimHit found "  << nhit_tot << endreq;
+  ATH_MSG_INFO( "Total number of CSCSimHit found "  << nhit_tot );
 
 
 
@@ -425,23 +333,16 @@ StatusCode G4HitMerger::execute()
   nhit_tot=0;
   for (unsigned int iHitContainer=0;iHitContainer<m_HitContainer.size();iHitContainer++)
     {    
-      msglog << MSG::INFO << " asking for: " << m_HitContainer[iHitContainer] << endreq;
+      ATH_MSG_INFO( " asking for: " << m_HitContainer[iHitContainer] );
       typedef PileUpMergeSvc::TimedList<RPCSimHitCollection>::type TimedHitContList;
       TimedHitContList hitContList;
 
       // retrieve list of pairs (time,container) from PileUp service
-      if (!(p_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],hitContList).isSuccess()) && hitContList.size()==0) {
-	msglog << MSG::ERROR << "Could not fill TimedHitContList for " << m_HitContainer[iHitContainer] << endreq;
-	return StatusCode::FAILURE;
-      }
+      CHECK( p_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],hitContList) );
 
       // make new hit container
       RPCSimHitCollection *new_collection = new RPCSimHitCollection();
-      sc = m_storeGateSvc->record(new_collection,m_HitContainer[iHitContainer]);
-      if (sc.isFailure()) {
-	msglog << MSG::ERROR << " cannot record new container for " << m_HitContainer[iHitContainer] << endreq;
-	return sc;
-      }
+      CHECK( evtStore()->record(new_collection,m_HitContainer[iHitContainer]) );
       
       // loop over this list
       int subevent=0;
@@ -457,7 +358,7 @@ StatusCode G4HitMerger::execute()
 	  ++f_cell; nhit_tot++;
 	  double time = hit.globalTime();
 	  int cellId = hit.RPCid();
-	  msglog<<MSG::DEBUG<<"RPCSimHit "<<cellId<<" has time "<<time<<endreq;
+	  ATH_MSG_DEBUG("RPCSimHit "<<cellId<<" has time "<<time);
 	  new_collection->push_back(hit);
 	} // loop over hits
 	++iFirstCont; ++subevent;
@@ -465,14 +366,10 @@ StatusCode G4HitMerger::execute()
       } // loop over subevent list
 
       // lock finished new container
-      sc = m_storeGateSvc->setConst(new_collection);
-      if (sc.isFailure()) {
-	msglog << MSG::ERROR << " Cannot lock container for " << m_HitContainer[iHitContainer] << endreq;
-	return(StatusCode::FAILURE);
-      }
+      CHECK( evtStore()->setConst(new_collection) );
       
     } // end of loop over containers
-  msglog << MSG::INFO << "Total number of RPCSimHit found "  << nhit_tot << endreq;
+  ATH_MSG_INFO( "Total number of RPCSimHit found "  << nhit_tot );
 
 
   
@@ -481,25 +378,17 @@ StatusCode G4HitMerger::execute()
   m_HitContainer.clear();
   m_HitContainer.push_back("MDT_Hits");
   nhit_tot=0;
-  for (unsigned int iHitContainer=0;iHitContainer<m_HitContainer.size();iHitContainer++)
-    {    
-      msglog << MSG::INFO << " asking for: " << m_HitContainer[iHitContainer] << endreq;
+  for (unsigned int iHitContainer=0;iHitContainer<m_HitContainer.size();iHitContainer++){
+      ATH_MSG_INFO( " asking for: " << m_HitContainer[iHitContainer] );
       typedef PileUpMergeSvc::TimedList<MDTSimHitCollection>::type TimedHitContList;
       TimedHitContList hitContList;
 
       // retrieve list of pairs (time,container) from PileUp service
-      if (!(p_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],hitContList).isSuccess()) && hitContList.size()==0) {
-	msglog << MSG::ERROR << "Could not fill TimedHitContList for " << m_HitContainer[iHitContainer] << endreq;
-	return StatusCode::FAILURE;
-      }
+      CHECK( p_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],hitContList).isSuccess() );
 
       // make new hit container
       MDTSimHitCollection *new_collection = new MDTSimHitCollection();
-      sc = m_storeGateSvc->record(new_collection,m_HitContainer[iHitContainer]);
-      if (sc.isFailure()) {
-	msglog << MSG::ERROR << " cannot record new container for " << m_HitContainer[iHitContainer] << endreq;
-	return sc;
-      }
+      CHECK( evtStore()->record(new_collection,m_HitContainer[iHitContainer]) );
       
       // loop over this list
       int subevent=0;
@@ -515,7 +404,7 @@ StatusCode G4HitMerger::execute()
 	  ++f_cell; nhit_tot++;
 	  double time = hit.globalTime();
 	  int cellId = hit.MDTid();
-	  msglog<<MSG::DEBUG<<"MDTSimHit "<<cellId<<" has time "<<time<<endreq;
+	  ATH_MSG_DEBUG( "MDTSimHit "<<cellId<<" has time "<<time );
 	  new_collection->push_back(hit);
 	} // loop over hits
 	++iFirstCont; ++subevent;
@@ -523,14 +412,10 @@ StatusCode G4HitMerger::execute()
       } // loop over subevent list
 
       // lock finished new container
-      sc = m_storeGateSvc->setConst(new_collection);
-      if (sc.isFailure()) {
-	msglog << MSG::ERROR << " Cannot lock container for " << m_HitContainer[iHitContainer] << endreq;
-	return(StatusCode::FAILURE);
-      }
+      CHECK( evtStore()->setConst(new_collection) );
       
     } // end of loop over containers
-  msglog << MSG::INFO << "Total number of MDTSimHit found "  << nhit_tot << endreq;
+  ATH_MSG_INFO( "Total number of MDTSimHit found "  << nhit_tot );
   
 
   
@@ -541,23 +426,16 @@ StatusCode G4HitMerger::execute()
   nhit_tot=0;
   for (unsigned int iHitContainer=0;iHitContainer<m_HitContainer.size();iHitContainer++)
     {    
-      msglog << MSG::INFO << " asking for: " << m_HitContainer[iHitContainer] << endreq;
+      ATH_MSG_INFO( " asking for: " << m_HitContainer[iHitContainer] );
       typedef PileUpMergeSvc::TimedList<TGCSimHitCollection>::type TimedHitContList;
       TimedHitContList hitContList;
 
       // retrieve list of pairs (time,container) from PileUp service
-      if (!(p_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],hitContList).isSuccess()) && hitContList.size()==0) {
-	msglog << MSG::ERROR << "Could not fill TimedHitContList for " << m_HitContainer[iHitContainer] << endreq;
-	return StatusCode::FAILURE;
-      }
+      CHECK( p_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],hitContList) );
 
       // make new hit container
       TGCSimHitCollection *new_collection = new TGCSimHitCollection();
-      sc = m_storeGateSvc->record(new_collection,m_HitContainer[iHitContainer]);
-      if (sc.isFailure()) {
-	msglog << MSG::ERROR << " cannot record new container for " << m_HitContainer[iHitContainer] << endreq;
-	return sc;
-      }
+      CHECK( evtStore()->record(new_collection,m_HitContainer[iHitContainer]) );
       
       // loop over this list
       int subevent=0;
@@ -573,7 +451,7 @@ StatusCode G4HitMerger::execute()
 	  ++f_cell; nhit_tot++;
 	  double time = hit.globalTime();
 	  int cellId = hit.TGCid();
-	  msglog<<MSG::DEBUG<<"TGCSimHit "<<cellId<<" has time "<<time<<endreq;
+	  ATH_MSG_DEBUG( "TGCSimHit "<<cellId<<" has time "<<time );
 	  new_collection->push_back(hit);
 	} // loop over hits
 	++iFirstCont; ++subevent;
@@ -581,14 +459,10 @@ StatusCode G4HitMerger::execute()
       } // loop over subevent list
 
       // lock finished new container
-      sc = m_storeGateSvc->setConst(new_collection);
-      if (sc.isFailure()) {
-	msglog << MSG::ERROR << " Cannot lock container for " << m_HitContainer[iHitContainer] << endreq;
-	return(StatusCode::FAILURE);
-      }
+      CHECK( evtStore()->setConst(new_collection) );
       
     } // end of loop over containers
-  msglog << MSG::INFO << "Total number of TGCSimHit found "  << nhit_tot << endreq;
+  ATH_MSG_INFO( "Total number of TGCSimHit found "  << nhit_tot );
 
 
 
@@ -602,23 +476,16 @@ StatusCode G4HitMerger::execute()
   nhit_tot=0;
   for (unsigned int iHitContainer=0;iHitContainer<m_HitContainer.size();iHitContainer++)
     {    
-      msglog << MSG::INFO << " asking for: " << m_HitContainer[iHitContainer] << endreq;
+      ATH_MSG_INFO( " asking for: " << m_HitContainer[iHitContainer] );
       typedef PileUpMergeSvc::TimedList<SiHitCollection>::type TimedHitContList;
       TimedHitContList hitContList;
 
       // retrieve list of pairs (time,container) from PileUp service
-      if (!(p_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],hitContList).isSuccess()) && hitContList.size()==0) {
-	msglog << MSG::ERROR << "Could not fill TimedHitContList for " << m_HitContainer[iHitContainer] << endreq;
-	return StatusCode::FAILURE;
-      }
+      CHECK( p_mergeSvc->retrieveSubEvtsData(m_HitContainer[iHitContainer],hitContList) );
 
       // make new hit container
       SiHitCollection *new_collection = new SiHitCollection();
-      sc = m_storeGateSvc->record(new_collection,m_HitContainer[iHitContainer]);
-      if (sc.isFailure()) {
-	msglog << MSG::ERROR << " cannot record new container for " << m_HitContainer[iHitContainer] << endreq;
-	return sc;
-      }
+      CHECK( evtStore()->record(new_collection,m_HitContainer[iHitContainer]) );
       
       // loop over this list
       int subevent=0;
@@ -636,29 +503,24 @@ StatusCode G4HitMerger::execute()
 	  ++f_cell; nhit_tot++;
 	  double energy = hit.energyLoss();
 	  unsigned int cellId = hit.identify();
-	  msglog<<MSG::DEBUG<<"Sihit "<<cellId<<" has energy "<<energy<<endreq;
+	  ATH_MSG_DEBUG("Sihit "<<cellId<<" has energy "<<energy);
 	  new_collection->push_back(hit);
 	}              //  loop over hits
 	++iFirstCont;
-	msglog << MSG::INFO << "Subevent "<<++subevent<<endreq;
+	ATH_MSG_INFO( "Subevent "<<++subevent );
       } // loop over subevent list
 
       // lock finished new container
-      sc = m_storeGateSvc->setConst(new_collection);
-      if (sc.isFailure()) {
-	msglog << MSG::ERROR << " Cannot lock container for " << m_HitContainer[iHitContainer] << endreq;
-	return(StatusCode::FAILURE);
-      }
+      CHECK( evtStore()->setConst(new_collection) );
       
     } // end of loop over containers
-  msglog << MSG::INFO << "Total number of inner detector hits found "  << nhit_tot << endreq;
+  ATH_MSG_INFO( "Total number of inner detector hits found "  << nhit_tot );
   
   return StatusCode::SUCCESS;
 }
 
 StatusCode G4HitMerger::finalize()
 {
-  MsgStream  msglog(messageService(),name());
-  msglog << MSG::DEBUG << " G4HitMerger finalize completed successfully" << endreq;
+  ATH_MSG_DEBUG( " G4HitMerger finalize completed successfully" );
   return StatusCode::SUCCESS;
 }

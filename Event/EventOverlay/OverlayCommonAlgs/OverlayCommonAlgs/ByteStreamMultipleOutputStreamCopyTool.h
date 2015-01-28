@@ -20,7 +20,7 @@
 // Gaudi
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include <string>
 #include <vector>
@@ -41,7 +41,7 @@
  **
  **/
 
-class ByteStreamMultipleOutputStreamCopyTool  :  public AlgTool, virtual public IAthenaOutputStreamTool
+class ByteStreamMultipleOutputStreamCopyTool  :  public AthAlgTool, virtual public IAthenaOutputStreamTool
 {
 
 public:    

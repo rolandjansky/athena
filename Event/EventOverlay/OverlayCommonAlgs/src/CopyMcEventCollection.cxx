@@ -21,16 +21,24 @@
 
 //================================================================
 CopyMcEventCollection::CopyMcEventCollection(const std::string &name, ISvcLocator *pSvcLocator) :
-  OverlayAlgBase(name, pSvcLocator)
+  OverlayAlgBase(name, pSvcLocator),
+  m_storeGateData2("StoreGateSvc/OriginalEvent2_SG", name)
 {
   declareProperty("InfoType", m_infoType="MyEvent");
   declareProperty("RealData", m_realdata=false);
+  declareProperty("DataStore2", m_storeGateData2, "help");
   declareProperty("CheckEventNumbers", m_checkeventnumbers=true);
 }
 
 //================================================================
 StatusCode CopyMcEventCollection::overlayInitialize()
 {
+
+  if (m_storeGateData2.retrieve().isFailure()) {
+    ATH_MSG_FATAL("OverlayAlgBase::initialize): StoreGate[data2] service not found !");
+    return StatusCode::FAILURE;
+  } 
+
   return StatusCode::SUCCESS;
 }
 
@@ -60,11 +68,14 @@ StatusCode CopyMcEventCollection::overlayExecute() {
 	<< " timestamp " << mcEvtInfo->event_ID()->time_stamp()
 	<< " lbn " << mcEvtInfo->event_ID()->lumi_block()
 	<< " bcid " << mcEvtInfo->event_ID()->bunch_crossing_id()
+	<< " SIMULATION " << mcEvtInfo->event_type()->test(EventType::IS_SIMULATION)
 	<< " mc_channel_number " << mcEvtInfo->event_type()->mc_channel_number()
 	<< " mc_event_number " << mcEvtInfo->event_type()->mc_event_number()
 	<< " mc_event_weight " << mcEvtInfo->event_type()->mc_event_weight()
-	<< " eventflags " << mcEvtInfo->eventFlags(EventInfo::Core)
-	<< " errorstate " << mcEvtInfo->errorState(EventInfo::Core)
+	<< " eventflags core " << mcEvtInfo->eventFlags(EventInfo::Core)
+	<< " errorstate core " << mcEvtInfo->errorState(EventInfo::Core)
+	<< " eventflags lar " << mcEvtInfo->eventFlags(EventInfo::LAr)
+	<< " errorstate lar " << mcEvtInfo->errorState(EventInfo::LAr)
 	<< " from store " << m_storeGateMC->name() << endreq;
     
   } else {
@@ -80,14 +91,39 @@ StatusCode CopyMcEventCollection::overlayExecute() {
 	<< " timestamp " << dataEvtInfo->event_ID()->time_stamp()
 	<< " lbn " << dataEvtInfo->event_ID()->lumi_block()
 	<< " bcid " << dataEvtInfo->event_ID()->bunch_crossing_id()
+	<< " SIMULATION " << dataEvtInfo->event_type()->test(EventType::IS_SIMULATION)
 	<< " mc_channel_number " << dataEvtInfo->event_type()->mc_channel_number()
 	<< " mc_event_number " << dataEvtInfo->event_type()->mc_event_number()
 	<< " mc_event_weight " << dataEvtInfo->event_type()->mc_event_weight()
-	<< " eventflags " << dataEvtInfo->eventFlags(EventInfo::Core)
-	<< " errorstate " << dataEvtInfo->errorState(EventInfo::Core)
+	<< " eventflags core " << dataEvtInfo->eventFlags(EventInfo::Core)
+	<< " errorstate core " << dataEvtInfo->errorState(EventInfo::Core)
+	<< " eventflags lar " << dataEvtInfo->eventFlags(EventInfo::LAr)
+	<< " errorstate lar " << dataEvtInfo->errorState(EventInfo::LAr)
 	<< " from store " << m_storeGateData->name() << endreq;    
   } else {
     log << MSG::WARNING << "Could not retrieve EventInfo from Data store "<< endreq;  
+  }
+
+  const EventInfo* data2EvtInfo = 0;
+  if (m_storeGateData2->retrieve(data2EvtInfo).isSuccess() ) {
+    log << MSG::INFO
+	<< "Got EventInfo from Data2 store: " 
+	<< " event " << data2EvtInfo->event_ID()->event_number() 
+	<< " run " << data2EvtInfo->event_ID()->run_number()
+	<< " timestamp " << data2EvtInfo->event_ID()->time_stamp()
+	<< " lbn " << data2EvtInfo->event_ID()->lumi_block()
+	<< " bcid " << data2EvtInfo->event_ID()->bunch_crossing_id()
+	<< " SIMULATION " << data2EvtInfo->event_type()->test(EventType::IS_SIMULATION)
+	<< " mc_channel_number " << data2EvtInfo->event_type()->mc_channel_number()
+	<< " mc_event_number " << data2EvtInfo->event_type()->mc_event_number()
+	<< " mc_event_weight " << data2EvtInfo->event_type()->mc_event_weight()
+	<< " eventflags core " << data2EvtInfo->eventFlags(EventInfo::Core)
+	<< " errorstate core " << data2EvtInfo->errorState(EventInfo::Core)
+	<< " eventflags lar " << data2EvtInfo->eventFlags(EventInfo::LAr)
+	<< " errorstate lar " << data2EvtInfo->errorState(EventInfo::LAr)
+	<< " from store " << m_storeGateData2->name() << endreq;    
+  } else {
+    log << MSG::WARNING << "Could not retrieve EventInfo from Data2 store "<< endreq;  
   }
   
   const EventInfo* outEvtInfo = 0;
@@ -99,11 +135,14 @@ StatusCode CopyMcEventCollection::overlayExecute() {
 	<< " timestamp " << outEvtInfo->event_ID()->time_stamp()
 	<< " lbn " << outEvtInfo->event_ID()->lumi_block()
 	<< " bcid " << outEvtInfo->event_ID()->bunch_crossing_id()
+	<< " SIMULATION " << outEvtInfo->event_type()->test(EventType::IS_SIMULATION)
 	<< " mc_channel_number " << outEvtInfo->event_type()->mc_channel_number()
 	<< " mc_event_number " << outEvtInfo->event_type()->mc_event_number()
 	<< " mc_event_weight " << outEvtInfo->event_type()->mc_event_weight()
-	<< " eventflags " << outEvtInfo->eventFlags(EventInfo::Core)
-	<< " errorstate " << outEvtInfo->errorState(EventInfo::Core)
+	<< " eventflags core " << outEvtInfo->eventFlags(EventInfo::Core)
+	<< " errorstate core " << outEvtInfo->errorState(EventInfo::Core)
+	<< " eventflags lar " << outEvtInfo->eventFlags(EventInfo::LAr)
+	<< " errorstate lar " << outEvtInfo->errorState(EventInfo::LAr)
 	<< " from store " << m_storeGateOutput->name()	<< endreq;
   } else {
     log << MSG::WARNING << "Could not retrieve EventInfo from Out store "<< endreq;  
@@ -142,8 +181,8 @@ StatusCode CopyMcEventCollection::overlayExecute() {
   if (outEvtInfo->event_ID()->lumi_block() != mcEvtInfo->event_ID()->lumi_block()){
     log << MSG::ERROR << "Output lbn doesn't match input MC lbn!" << endreq;
     return StatusCode::FAILURE;
-  }
-  if (outEvtInfo->event_ID()->bunch_crossing_id() != dataEvtInfo->event_ID()->bunch_crossing_id()){
+  } 
+ if (outEvtInfo->event_ID()->bunch_crossing_id() != dataEvtInfo->event_ID()->bunch_crossing_id()){
     log << MSG::ERROR << "Output bcid doesn't match input data bcid!" << endreq;
     return StatusCode::FAILURE;
   }
@@ -169,12 +208,15 @@ StatusCode CopyMcEventCollection::overlayExecute() {
       << " timestamp " << newEvtInfo->event_ID()->time_stamp()
       << " lbn " << newEvtInfo->event_ID()->lumi_block()
       << " bcid " << newEvtInfo->event_ID()->bunch_crossing_id()
+      << " SIMULATION " << newEvtInfo->event_type()->test(EventType::IS_SIMULATION)
       << " mc_channel_number " << newEvtInfo->event_type()->mc_channel_number()
       << " mc_event_number " << newEvtInfo->event_type()->mc_event_number()
       << " mc_event_weight " << newEvtInfo->event_type()->mc_event_weight() 
-      << " eventflags " << newEvtInfo->eventFlags(EventInfo::Core)
-      << " errorstate " << newEvtInfo->errorState(EventInfo::Core)
-      << endreq;
+      << " eventflags core " << newEvtInfo->eventFlags(EventInfo::Core)
+      << " errorstate core " << newEvtInfo->errorState(EventInfo::Core)
+      << " eventflags lar " << newEvtInfo->eventFlags(EventInfo::LAr)
+      << " errorstate lar " << newEvtInfo->errorState(EventInfo::LAr)
+      << " to store "<<m_storeGateOutput->name()<< endreq;
   if (m_storeGateOutput->contains<EventInfo>(m_infoType) ){ removeAllObjectsOfType<EventInfo>(&*m_storeGateOutput); }
   if ( m_storeGateOutput->record( newEvtInfo, m_infoType ).isFailure() ) {
     log << MSG::ERROR << "could not record EventInfo to output storeGate, key= " << m_infoType << endreq;
