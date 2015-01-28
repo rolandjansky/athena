@@ -1,0 +1,198 @@
+2014-10-23 Elmar Ritsch  <Elmar.Ritsch@cern.ch>
+	* get BarcodeService directly from ISF_Flags (ATLASSIM-1658)
+	* tag as ISF_FastCaloSimServices-00-03-03
+
+2014-10-10 Sharka Todorova <sarka.todorova@cern.ch>
+	* update interface to FastShowerCellBuilderTool
+	* tag as ISF_FastCaloSimServices-00-03-02
+
+2014-09-12 Zdenek Hubacek <zdenek.hubacek@cern.ch>
+	* Fix requirements file (remove FastSimulationEvent)
+	* tag as ISF_FastCaloSimServices-00-03-01
+
+2014-01-10 Elmar Ritsch <elmar.ritsch@cern.ch>
+	* Eigen code migration
+	* tag as ISF_FastCaloSimServices-00-03-00
+
+2013-12-04 Max Baak <mbaak@cern.ch>
+	M       python/ISF_FastCaloSimServicesConfig.py
+	* Addition of FastCaloSimPileupSvc
+	* tag as ISF_FastCaloSimServices-00-02-10
+
+2013-10-07 Anna Usanova	< Anna.Usanova@cern.ch >
+	  * removed OutputLevel property for PunchThroughTool
+	  * tag as ISF_FastCaloSimServices-00-02-09
+
+2013-10-07 Anna Usanova	< Anna.Usanova@cern.ch >
+	  * ISF_FastCaloSimServicesConfig.py - added properties for beam pipe radius and output level to the PunchThrough
+	  * tag as ISF_FastCaloSimServices-00-02-08
+
+2013-10-07 Anna Usanova	< Anna.Usanova@cern.ch >
+	  * removed BarcodeOffset property from punchthrough
+	  * tag as ISF_FastCaloSimServices-00-02-07
+
+2013-09-27 Elmar Ritsch <elmar.ritsch@cern.ch>
+	  * passing global 'AtlasGeometry_EnvelopeDefSvc' to PunchThroughTool
+	  * tag as ISF_FastCaloSimServices-00-02-06
+
+2013-08-20 Anna Usanova	< Anna.Usanova@cern.ch >
+	  * moved Punch-Through call to the begining of the simulation
+	  * tag as ISF_FastCaloSimServices-00-02-05
+
+2013-08-09 Elmar Ritsch <elmar.ritsch@cern.ch>
+	* python/ISF_FastCaloSimServicesConfig.py making FastHitConvertTool
+	the default configuration
+	* tag as ISF_FastCaloSimServices-00-02-04
+
+2013-08-07 Bo Liu <boliu@cern.ch>
+	* python/ISF_FastCaloSimServicesConfig.py using FastHitConvertTool as
+	default hit converter and remove "Test" marked configuration
+	* tag as ISF_FastCaloSimServices-00-02-03
+
+2013-06-03 Elmar Ritsch  <elmar.ritsch@cern.ch>
+	  * use random number service as set in simFlags
+	  * tag as ISF_FastCaloSimServices-00-02-02
+
+2013-04-29 Bo Liu <boliu@cern.ch>
+	  * python/ISF_FastCaloSimServicesConfig.py rename ISF_FastCaloSimSvc
+	  to ISF_FastCaloSimSvcBase to hold basic setup of FastCaloSim add
+	  ISF_TestLegacyAFIIFastCaloSimSvc base in ISF_TestFastCaloSimSvc but
+	  with Legacy configuration
+	  * tag as ISF_FastCaloSimServices-00-02-01
+
+2013-04-23 Elmar Ritsch <elmar.ritsch@cern.ch>
+	  * remove depricated files iFastCaloSim.py and ISF_iFastCaloSimConfig.py
+	  * rename LegacyFastCaloSimSvc back into FastCaloSimSvc
+	  * implement 'BatchProcessMcTruth' mode in FastCaloSimSvc.cxx
+	  * two separate FastCaloSim configurations
+	  	** 'LegacyAFIIFastCaloSimSvc' uses the 'TruthEvent' for FastShowerCellBuilder input
+	  	** 'FastCalSimSvc' is the default that does per-particle processing
+	  * moved DefaultSelector configuration into ISF_SimulationSelectors package
+	  * tag as ISF_FastCaloSimServices-00-02-00
+
+2013-04-19 Bo Liu <boliu@cern.ch>
+	  * python/ISF_FastCaloSimServicesConfig.py add
+	  ISF_FastHitConvertTool function and add ISF_TestFastCaloSimSvc based
+	  on ISF_FastCaloSimSvc which implemented FastHitConvertTool instead of FastHitConv
+	  algorithm, add ISF_TestFastCaloSimSelector based on
+	  ISF_DefaultFastCaloSimSelector but change service to ISF_TestFastCaloSimSvc 
+	  * tag as ISF_FastCaloSimServices-00-01-18
+
+2013-04-18 Elmar Ritsch <Elmar.Ritsch@cern.ch>
+	  * renamed FastCaloSimSvc implementation to LegacyFastCaloSimSvc
+	  * added FastShowerCellBuilder use with modified McTruth input
+	  * tag as ISF_FastCaloSimServices-00-01-17
+
+2013-04-05 Elmar Ritsch <Elmar.Ritsch@cern.ch>
+	  * update FastShowerCellBuilderTool configuration to look the same as MC12
+	  * tag as ISF_FastCaloSimServices-00-01-16
+
+2013-02-21 Elmar Ritsch <Elmar.Ritsch@cern.ch>
+	  * register FastCaloSim random number stream to random number service
+	  * tag as ISF_FastCaloSimServices-00-01-15
+
+2013-02-21 Elmar Ritsch <Elmar.Ritsch@cern.ch>
+	  * add 'CaloCellsName' job property
+	  * tag as ISF_FastCaloSimServices-00-01-14
+
+2013-02-21 Elmar Ritsch <Elmar.Ritsch@cern.ch>
+	  * ISF_FastHitConv algorithm is not setup for every FastCaloSim use
+	  * tag as ISF_FastCaloSimServices-00-01-13
+
+2013-02-20 Elmar Ritsch <Elmar.Ritsch@cern.ch>
+	  * simulation selectors moved to ISF_SimulationSelectors package
+	  * using new ISFParticleContainer datatype
+	  * tag as ISF_FastCaloSimServices-00-01-12
+
+2013-01-27 Elmar Ritsch <Elmar.Ritsch@cern.ch>
+	  * add JobProperty flag FastCaloSimIsActive
+	  	** TODO there's probably a better way of handling this flag?
+	  * tag as ISF_FastCaloSimServices-00-01-11
+
+2013-01-11 KG Tan <Kong.Guan.Tan@cern.ch>
+	  * moved configuration to ISF_Config
+	  * tag as ISF_FastCaloSimServices-00-01-10
+
+2013-01-10 Elmar Ritsch < Elmar.Ritsch -at- cern.ch >
+	  * enable FastShowerCellBuilder for 'outside ID' simulation
+	  * tag as ISF_FastCaloSimServices-00-01-09
+
+2012-12-07 KG Tan <Kong.Guan.Tan@cern.ch>
+      * moved default configuration to use AtDSFMTGenSvc, and also
+		confgetter in fastsim
+      * tag as ISF_FastCaloSimServices-00-01-07 & 08
+
+2012-11-06 Elmar Ritsch < Elmar.Ritsch -at- cern.ch >
+	  * cleanup StatusCode handling inside FastCaloSimSvc.cxx
+	  * tag as ISF_FastCaloSimServices-00-01-06
+
+2012-10-18 Anna Usanova	< Anna.Usanova -at- cern.ch >
+	  * added BarcodeSvc property to PunchThroughTool
+	  * tag as ISF_FastCaloSimServices-00-01-05
+
+2012-08-30 Elmar Ritsch < Elmar.Ritsch -at- cern.ch >
+	  * FastCaloSimSvc.cxx: punch-through code cleanup
+	  * tag as ISF_FastCaloSimServices-00-01-04
+
+2012-08-30 Elmar Ritsch < Elmar.Ritsch -at- cern.ch >
+	  * FastCaloSimSvc.cxx: added CLHEP namespace to unit variables
+	  * iFastCaloSim.py: add fast hit converter configuration (moved out of ISF core configuration)
+	  * tag as ISF_FastCaloSimServices-00-01-03
+
+2012-08-29 Anna Usanova	< Anna.Usanova -at- cern.ch >
+	  * added particle broker
+	  * changed call to PunchThroughTool
+	  * tag as ISF_FastCaloSimServices-00-01-02
+
+2012-06-20 Elmar Ritsch < Elmar.Ritsch -at- cern.ch >
+          * remove hardcoded OutputLevels
+          * tag as ISF_FastCaloSimServices-00-01-01
+
+2012-06-19 Elmar Ritsch < Elmar.Ritsch -at- cern.ch >
+          * add confGetter configuration by KG
+          * tag as ISF_FastCaloSimServices-00-01-00
+
+2012-05-25 Anna Usanova	< Anna.Usanova -at- cern.ch >
+	  * added PunchThroughTool
+	  * tag as ISF_FastCaloSimServices-00-00-09
+
+2012-04-04 Elmar Ritsch < Elmar.Ritsch -at- cern.ch >
+          * code cleanup, classes renamed:
+          	* IStackParticle -> ISFParticle
+          * add ISF_FastCaloSimServices header file directory
+          * requirements update
+          * tag as ISF_FastCaloSimServices-00-00-08
+
+2012-02-29 Elmar Ritsch < Elmar.Ritsch -at- cern.ch >
+          * adopted to update in BaseSimulationSvc base class
+          * tag as ISF_FastCaloSimServices-00-00-07
+
+2012-01-13 Elmar Ritsch < Elmar.Ritsch -at- cern.ch >
+          * fixing OutputLevels in .py files
+          * tag as ISF_FastCaloSimServices-00-00-06
+
+2012-01-11 Elmar Ritsch < Elmar.Ritsch -at- cern.ch >
+          * implement Python class for simulator setup
+          * tag as ISF_FastCaloSimServices-00-00-05
+
+2011-12-05 Elmar Ritsch < Elmar.Ritsch -at- cern.ch >
+          * BaseSimulationSvc now requires SimSvcID in constructor
+          * tag as ISF_FastCaloSimServices-00-00-04
+
+2011-12-02 Elmar Ritsch < Elmar.Ritsch -at- cern.ch >
+          * interface change for ISimulationSvc::simulate() call
+          * tag as ISF_FastCaloSimServices-00-00-03
+
+2011-11-29 Elmar Ritsch < Elmar.Ritsch -at- cern.ch >
+          * remove geoID tag: not needed any more due to routing chain
+          * adapted to enum name change SimSvcFlavorID -> SimSvcID
+          * tag as ISF_FastCaloSimServices-00-00-02
+
+2011-11-09 Elmar Ritsch < Elmar.Ritsch -at- cern.ch >
+          * FastCaloSimSvc.cxx: added null-pointer check for m_chrono variable
+          * tag as ISF_FastCaloSimServices-00-00-01
+
+2011-10-14 Wolfgang Lukas < wolfgang.lukas -at- cern.ch >
+          * tag as ISF_FastCaloSimServices-00-00-00
+          * starting ChangeLog
+          * checkreq fixes
