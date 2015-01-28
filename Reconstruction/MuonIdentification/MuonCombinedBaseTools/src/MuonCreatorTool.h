@@ -28,9 +28,11 @@
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "xAODMuonCnv/IMuonSegmentConverterTool.h"
 #include "xAODMuon/MuonSegmentAuxContainer.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 
 #include "TrkSegment/Segment.h"
 #include "MuonSegment/MuonSegment.h"
+#include "TrackToCalo/CaloCellCollector.h"
 
 namespace Muon {
   class MuonEDMPrinterTool;
@@ -46,6 +48,7 @@ namespace Rec {
   class IMuonPrintingTool;
   class IMuonMeanMDTdADCFiller;  
   class IParticleCaloClusterAssociationTool;
+  class IParticleCaloCellAssociationTool;
 }
 namespace MuonCombined {
   class IMuonCombinedTagTool;
@@ -82,7 +85,7 @@ namespace MuonCombined {
 
     void addMuGirl( xAOD::Muon& muon, const MuGirlTag& tag, OutputData& outputData ) const;
 
-    void addMuGirlLowBeta( xAOD::Muon& muon, MuGirlLowBetaTag& tag, xAOD::SlowMuon& slowMuon, OutputData& outputData ) const;
+    void addMuGirlLowBeta( xAOD::Muon& muon, MuGirlLowBetaTag& tag, xAOD::SlowMuon* slowMuon, OutputData& outputData ) const;
 
     void addSegmentTag( xAOD::Muon& muon, const SegmentTag& tag ) const;
     void addCaloTag( xAOD::Muon& muon, const CaloTag& tag ) const;
@@ -114,6 +117,7 @@ namespace MuonCombined {
 
     bool addCaloExtensionPositions(  xAOD::Muon& muon ) const;
     void setClosestCluster( xAOD::Muon& muon ) const;
+    void collectCells( xAOD::Muon& muon, xAOD::CaloClusterContainer& clusterContainer ) const;
 
     /// flag to decide whether or not to make link to MS track before extrapolation
     bool m_makeMSPreExtrapLink;
@@ -144,6 +148,7 @@ namespace MuonCombined {
     ToolHandle<Rec::IMuonPrintingTool>            m_muonPrinter;
     ToolHandle<Trk::IParticleCaloExtensionTool>   m_caloExtTool;
     ToolHandle<Rec::IParticleCaloClusterAssociationTool>   m_caloClusterAssociationTool;
+    ToolHandle<Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool;
     ToolHandle<Trk::ITrackParticleCreatorTool>    m_particleCreator;
     ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiguityProcessor;
     ToolHandle<Trk::IPropagator>                  m_propagator;
@@ -152,7 +157,11 @@ namespace MuonCombined {
     ToolHandle<Rec::IMuonScatteringAngleSignificance> m_scatteringAngleTool; 
     ToolHandle<CP::IMuonSelectionTool>            m_selectorTool; 
     ToolHandle<xAODMaker::IMuonSegmentConverterTool>  m_muonSegmentConverterTool;
-    ToolHandle<Rec::IMuonMeanMDTdADCFiller>       m_meanMDTdADCTool;		
+    ToolHandle<Rec::IMuonMeanMDTdADCFiller>       m_meanMDTdADCTool;
+    Rec::CaloCellCollector                        m_cellCollector;
+    std::string                                   m_cellContainerName;
+      
+
   };
 
   inline void MuonCreatorTool::setP4( xAOD::Muon& muon, const xAOD::TrackParticle& tp ) const {

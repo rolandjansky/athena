@@ -10,7 +10,7 @@
 #include "MuonCombinedToolInterfaces/IMuonCombinedInDetExtensionTool.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
 
-#include "MuGirl/IMuGirlRecoTool.h"
+#include "MuGirlInterfaces/IMuGirlRecoTool.h"
 
 
 namespace MuonCombined {

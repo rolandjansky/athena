@@ -52,10 +52,13 @@
 
 #include "MuonCombinedToolInterfaces/IMuonMeanMDTdADCFiller.h"
 #include "RecoToolInterfaces/IParticleCaloClusterAssociationTool.h"
+#include "RecoToolInterfaces/IParticleCaloCellAssociationTool.h"
 
 #include "muonEvent/CaloEnergy.h"
 #include "FourMomUtils/P4Helpers.h"
-
+#include "xAODCaloEvent/CaloCluster.h"
+#include "TrackToCalo/CaloCellCollector.h"
+#include "CaloEvent/CaloCellContainer.h"
 
 namespace MuonCombined {
  
@@ -70,6 +73,7 @@ namespace MuonCombined {
 	m_muonPrinter("Rec::MuonPrintingTool/MuonPrintingTool"),
         m_caloExtTool("Trk::ParticleCaloExtensionTool/ParticleCaloExtensionTool"),
         m_caloClusterAssociationTool("Rec::ParticleCaloClusterAssociationTool/ParticleCaloClusterAssociationTool"),
+        m_caloCellAssociationTool("Rec::ParticleCaloCellAssociationTool/ParticleCaloCellAssociationTool"),
 	m_particleCreator("Trk::TrackParticleCreatorTool/MuonCombinedTrackParticleCreator"),
 	m_ambiguityProcessor("Trk::TrackSelectionProcessorTool/MuonSimpleAmbiProcessorTool"),
 	m_propagator("Trk::RungeKuttaPropagator/AtlasRungeKuttaPropagator"),
@@ -100,6 +104,8 @@ namespace MuonCombined {
     declareProperty("FillExtraELossInfo", m_fillExtraELossInfo=true);
     declareProperty("SaveCaloExtensionPosition", m_saveCaloExtensionPosition=true);
     declareProperty("PrintSummary", m_printSummary=false);
+    //Default data source for the calocells
+    declareProperty("CaloCellContainer", m_cellContainerName="AllCalo");
   }
 
   MuonCreatorTool::~MuonCreatorTool()
@@ -126,6 +132,7 @@ namespace MuonCombined {
     if(!m_meanMDTdADCTool.empty()) ATH_CHECK(m_meanMDTdADCTool.retrieve());
     if(m_saveCaloExtensionPosition) ATH_CHECK(m_caloExtTool.retrieve());
     if(!m_caloClusterAssociationTool.empty()) ATH_CHECK(m_caloClusterAssociationTool.retrieve());
+    if(!m_caloCellAssociationTool.empty())    ATH_CHECK(m_caloCellAssociationTool.retrieve());
     return StatusCode::SUCCESS;
   }
 
@@ -169,6 +176,10 @@ namespace MuonCombined {
       ATH_MSG_INFO(m_muonPrinter->print(*outputData.muonContainer));
       ATH_MSG_INFO("Done");
     }
+    if( msgLvl(MSG::VERBOSE) && outputData.clusterContainer ){    
+      ATH_MSG_VERBOSE("Associated clusters : " << outputData.clusterContainer->size());
+    }
+
   }
 
   xAOD::Muon* MuonCreatorTool::create( const MuonCandidate& candidate, OutputData& outputData ) const {
@@ -184,12 +195,6 @@ namespace MuonCombined {
     muon->setMuonType(xAOD::Muon::MuonStandAlone);
     muon->addAllAuthor(xAOD::Muon::MuidSA);
 
-    muon->setCharge(0.0);
-    const DataVector< const Trk::TrackParameters > * trackParameters = candidate.extrapolatedTrack()->trackParameters();
-    if ( trackParameters && trackParameters->size())
-      muon->setCharge( static_cast<float>( (*trackParameters)[0]->charge() ) );
-
-
     // create candidate from SA muon only
     addMuonCandidate(candidate,*muon,outputData);
     
@@ -198,6 +203,7 @@ namespace MuonCombined {
       delete muon; 
       return 0;
     }
+
     return muon;
   }
 
@@ -230,7 +236,7 @@ namespace MuonCombined {
       ATH_MSG_DEBUG("Handling tag: type " << tag->type() );
 
       // staus
-      if( m_buildStauContainer && outputData.slowMuonContainer ){
+      if( m_buildStauContainer ){
         const MuGirlLowBetaTag* muGirlLowBetaConstTag = dynamic_cast<const MuGirlLowBetaTag*>(tag);
 
         if( muGirlLowBetaConstTag ) {
@@ -246,21 +252,21 @@ namespace MuonCombined {
             ATH_MSG_DEBUG("MuonCreatorTool MuGirlLowBetaTag combined");
 	    
 	    // Create the xAOD object:
-
-	    xAOD::SlowMuon* slowMuon = new xAOD::SlowMuon();
-            outputData.slowMuonContainer->push_back( slowMuon );
-
-            addMuGirlLowBeta(*muon,*muGirlLowBetaTag,*slowMuon, outputData );
+	    xAOD::SlowMuon* slowMuon = 0;
+            if( outputData.slowMuonContainer ) {
+              slowMuon = new xAOD::SlowMuon();
+              outputData.slowMuonContainer->push_back( slowMuon );
+            }
+            addMuGirlLowBeta(*muon,*muGirlLowBetaTag,slowMuon, outputData );
 
 
 	    ATH_MSG_DEBUG("slowMuon muonContainer size "<<outputData.muonContainer->size());
 	    ElementLink<xAOD::MuonContainer> muonLink(*outputData.muonContainer,outputData.muonContainer->size()-1);
-	    if( muonLink.isValid() ) {
+	    if( slowMuon && muonLink.isValid() ) {
 
 	      ATH_MSG_DEBUG("slowMuon muonLink valid");
 	      slowMuon->setMuonLink(muonLink);
 	    }
-            continue;   
           }
         }
       }else{
@@ -332,9 +338,10 @@ namespace MuonCombined {
       delete muon; 
       return 0;
     }
+    
+    // check if there is a cluster container, if yes collect the cells around the muon
+    if( outputData.clusterContainer ) collectCells(*muon,*outputData.clusterContainer);
 
-    float qOverP = candidate.indetTrackParticle().qOverP();
-    muon->setCharge(qOverP/std::fabs(qOverP));
     ATH_MSG_DEBUG("Done creating muon");
 
     return muon;
@@ -418,29 +425,29 @@ namespace MuonCombined {
 
   }
 
-  void MuonCreatorTool::addMuGirlLowBeta( xAOD::Muon& muon, MuGirlLowBetaTag& tag, xAOD::SlowMuon& slowMuon, OutputData& outputData ) const {
+  void MuonCreatorTool::addMuGirlLowBeta( xAOD::Muon& muon, MuGirlLowBetaTag& tag, xAOD::SlowMuon* slowMuon, OutputData& outputData ) const {
 
     ATH_MSG_DEBUG("Adding MuGirlLowBeta Muon  " << tag.author() << " type " << tag.type());
     
     //get stauExtras and write to slowMuon
     const MuGirlNS::StauExtras* stauExtras = tag.getStauExtras();
-    if( stauExtras ){
+    if( slowMuon && stauExtras ){
 
       ATH_MSG_DEBUG("StauSummary beta "<<stauExtras->betaAll);
-      slowMuon.setBeta(stauExtras->betaAll);
-      slowMuon.setBetaT(stauExtras->betaAllt);
-      slowMuon.setAnn(stauExtras->ann);
-      slowMuon.setNRpcHits(stauExtras->numRpcHitsInSeg);
-      slowMuon.setNTileCells(stauExtras->numCaloCells);
-      slowMuon.setRpcInfo(stauExtras->rpcBetaAvg,
+      slowMuon->setBeta(stauExtras->betaAll);
+      slowMuon->setBetaT(stauExtras->betaAllt);
+      slowMuon->setAnn(stauExtras->ann);
+      slowMuon->setNRpcHits(stauExtras->numRpcHitsInSeg);
+      slowMuon->setNTileCells(stauExtras->numCaloCells);
+      slowMuon->setRpcInfo(stauExtras->rpcBetaAvg,
                            stauExtras->rpcBetaRms,
                            stauExtras->rpcBetaChi2,
                            stauExtras->rpcBetaDof);
-      slowMuon.setMdtInfo(stauExtras->mdtBetaAvg,
+      slowMuon->setMdtInfo(stauExtras->mdtBetaAvg,
                            stauExtras->mdtBetaRms,
                            stauExtras->mdtBetaChi2,
                            stauExtras->mdtBetaDof);
-      slowMuon.setCaloInfo(stauExtras->caloBetaAvg,
+      slowMuon->setCaloInfo(stauExtras->caloBetaAvg,
                             stauExtras->caloBetaRms,
                             stauExtras->caloBetaChi2,
                             stauExtras->caloBetaDof);
@@ -467,16 +474,16 @@ namespace MuonCombined {
         shiftVec.push_back(hit.shift);
         propagationTimeVec.push_back(hit.propagationTime);
       }
-      slowMuon.auxdata< std::vector<uint8_t> >("hitTechnology") = eTechVec;
-      slowMuon.auxdata< std::vector<unsigned int> >("hitIdentifier") = idVec;
-      slowMuon.auxdata< std::vector<float> >("hitTOF") = mToFVec;
-      slowMuon.auxdata< std::vector<float> >("hitPositionX") = xVec;
-      slowMuon.auxdata< std::vector<float> >("hitPositionY") = yVec;
-      slowMuon.auxdata< std::vector<float> >("hitPositionZ") = zVec;
-      slowMuon.auxdata< std::vector<float> >("hitEnergy") = eVec;
-      slowMuon.auxdata< std::vector<float> >("hitError") = errorVec;
-      slowMuon.auxdata< std::vector<float> >("hitShift") = shiftVec;
-      slowMuon.auxdata< std::vector<float> >("hitPropagationTime") = propagationTimeVec;
+      slowMuon->auxdata< std::vector<uint8_t> >("hitTechnology") = eTechVec;
+      slowMuon->auxdata< std::vector<unsigned int> >("hitIdentifier") = idVec;
+      slowMuon->auxdata< std::vector<float> >("hitTOF") = mToFVec;
+      slowMuon->auxdata< std::vector<float> >("hitPositionX") = xVec;
+      slowMuon->auxdata< std::vector<float> >("hitPositionY") = yVec;
+      slowMuon->auxdata< std::vector<float> >("hitPositionZ") = zVec;
+      slowMuon->auxdata< std::vector<float> >("hitEnergy") = eVec;
+      slowMuon->auxdata< std::vector<float> >("hitError") = errorVec;
+      slowMuon->auxdata< std::vector<float> >("hitShift") = shiftVec;
+      slowMuon->auxdata< std::vector<float> >("hitPropagationTime") = propagationTimeVec;
     }
 
     if( !muon.combinedTrackParticleLink().isValid() && tag.getCombinedTrack()){  
@@ -777,7 +784,7 @@ namespace MuonCombined {
           if( tags.size() == 1 && tags.front()->type() == xAOD::Muon::CaloTagged ) caloMuons.push_back(candidate);
           else                                                                     resolvedInDetCandidates.push_back(candidate);
 	  
-          if( msgLvl(MSG::DEBUG) && tags.size() > 1 ) {
+          if( msgLvl(MSG::DEBUG) && tags.size() >= 1 ) {
             msg(MSG::DEBUG) << " InDetCandidate ";
             for( auto tag : tags ) msg(MSG::DEBUG) << " - " << tag->toString() << " " << typeRank(tag->type()) << " " << authorRank(tag->author());
             msg(MSG::DEBUG)<< endreq;
@@ -788,7 +795,7 @@ namespace MuonCombined {
       // now sort the selected ID candidates
       std::stable_sort(resolvedInDetCandidates.begin(),resolvedInDetCandidates.end(),SortInDetCandidates());
       if( msgLvl(MSG::DEBUG) ){
-        ATH_MSG_DEBUG("ID candidates:  " << inDetCandidates->size() << "  after removal " << resolvedInDetCandidates.size() );
+        ATH_MSG_DEBUG("ID candidates:  " << inDetCandidates->size() << "  after selection " << resolvedInDetCandidates.size() );
         for( auto candidate : resolvedInDetCandidates ){
           msg(MSG::DEBUG) << "ID candidate:  " << candidate->toString() << endreq;
         }      
@@ -950,6 +957,8 @@ namespace MuonCombined {
     if( muon.primaryTrackParticleLink().isValid() ){
       // update parameters with primaty track particle
       setP4(muon,*muon.primaryTrackParticle());
+      float qOverP = muon.primaryTrackParticle()->qOverP();
+      muon.setCharge(qOverP/std::fabs(qOverP));
     }else{
       ATH_MSG_WARNING("No primary track particle set, deleting muon");
       return false;
@@ -1135,6 +1144,44 @@ namespace MuonCombined {
 
     return true;
   }
-  
+
+  void MuonCreatorTool::collectCells( xAOD::Muon& muon, xAOD::CaloClusterContainer& clusterContainer ) const {
+
+    const xAOD::TrackParticle* tp = muon.primaryTrackParticle();
+    if(!tp){
+      ATH_MSG_WARNING("Can not get primary track.");
+      return;
+    }
+
+    // get ParticleCellAssociation
+    ATH_MSG_DEBUG(" Selected track: pt " << tp->pt() << " eta " << tp->eta() << " phi " << tp->phi() );
+
+    const Trk::CaloExtension* caloExtension = 0;
+    if(!m_caloExtTool->caloExtension(*tp,caloExtension)){
+      ATH_MSG_WARNING("Can not get caloExtension.");
+      return;
+    };
+
+    const CaloCellContainer* container = 0;
+    //retrieve the cell container
+    if( evtStore()->retrieve(container, m_cellContainerName).isFailure() || !container ) {
+      ATH_MSG_WARNING( "Unable to retrieve the cell container  " << m_cellContainerName << " container ptr " << container );
+      return;
+    }
+
+    xAOD::CaloCluster* cluster = m_cellCollector.collectCells( *caloExtension, *container, clusterContainer );
+    if( !cluster ){
+      ATH_MSG_WARNING("Failed to create cluster from ParticleCellAssociation");
+      return;
+    }else{
+      ATH_MSG_DEBUG(" New cluster: eta " << cluster->eta() << " phi " << cluster->phi() << " cells " << cluster->size() );
+    }
+	
+    // create element links
+    ElementLink< xAOD::CaloClusterContainer >   clusterLink(clusterContainer,clusterContainer.size()-1);
+    muon.auxdata< ElementLink< xAOD::CaloClusterContainer > >("crossedCellClusterLink") = clusterLink;
+    
+  }
+
 
 }	// end of namespace

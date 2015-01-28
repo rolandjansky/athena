@@ -47,6 +47,7 @@ namespace MuonCombined {
         m_trkSelTool("InDet::InDetDetailedTrackSelectorTool/CaloTrkMuIdAlgTrackSelectorTool")
   {
     declareInterface<IMuonCombinedInDetExtensionTool>(this);
+    declareInterface<IMuonCombinedTrigCaloTagExtensionTool>(this);
     // --- Collections ---
     declareProperty("TrackParticleName",                 m_TrackParticleName             =  "TrackParticleCandidate"    );
     declareProperty("VertexContainerName",               m_VertexContainerName           =  "VxPrimaryCandidate"        );
@@ -127,9 +128,17 @@ namespace MuonCombined {
     ATH_MSG_INFO("Number of tracks tagged pT < 4 GeV : " << m_nTracksTaggedLowPt);
     
     return StatusCode::SUCCESS;
+  
   }
 
   void MuonCaloTagTool::extend( const InDetCandidateCollection& inDetCandidates ) const {
+    extend(inDetCandidates, nullptr, nullptr);
+  }
+
+  void MuonCaloTagTool::extend( const InDetCandidateCollection& inDetCandidates,
+                                const CaloCellContainer* caloCellCont,
+                                const xAOD::CaloClusterContainer* caloClusterCont) const {
+
 
     //return;
     //
@@ -209,12 +218,12 @@ namespace MuonCombined {
       int tag = 0;
       std::vector<DepositInCalo> deposits;
       if (m_doCaloMuonTag) {
-	deposits = m_trkDepositInCalo->getDeposits(par);
+	deposits = m_trkDepositInCalo->getDeposits(par, caloCellCont);
 	tag = m_caloMuonTagLoose->caloMuonTag(deposits, par->eta(), par->pT());
 	tag += 10*m_caloMuonTagTight->caloMuonTag(deposits, par->eta(), par->pT());
       }
       if(m_doCaloLR)
-	likelihood = m_caloMuonLikelihood->getLHR(par);
+	likelihood = m_caloMuonLikelihood->getLHR(par, caloClusterCont);
   //    if (m_debugMode)
 	ATH_MSG_DEBUG("Track found with tag " << tag << " and LHR " << likelihood);
 //	ATH_MSG_INFO("Track found with tag " << tag << " and LHR " << likelihood);
@@ -250,7 +259,7 @@ namespace MuonCombined {
 //      m_nTracksTagged++;
 //        delete trackParticle;
       /* WE CAN JUST DO A counting here, but using the TRACK instead of particle
-      // --- Count number of muons written to container ---
+      // --- Count number of muons written to container 
       if ( particle->pt()<4000 ) {
 	m_nTracksTaggedLowPt++;
       }

@@ -20,7 +20,6 @@ use  EventInfo                  EventInfo-*                     Event
 use  EventPrimitives            EventPrimitives-*               Event
 use  GaudiInterface             GaudiInterface-*                External
 use  ICaloTrkMuIdTools          ICaloTrkMuIdTools-*             Reconstruction/MuonIdentification
-use  MuGirl                     MuGirl-*                        Reconstruction/MuonIdentification
 use  MuGirlInterfaces           MuGirlInterfaces-*              Reconstruction/MuonIdentification
 use  MuidInterfaces             MuidInterfaces-*                Reconstruction/MuonIdentification
 use  MuonCombinedEvent          MuonCombinedEvent-*             Reconstruction/MuonIdentification
@@ -52,7 +51,10 @@ use  xAODMuon                   xAODMuon-*                      Event/xAOD
 use  xAODMuonCnv                xAODMuonCnv-*                   Event/xAOD
 use  xAODTracking               xAODTracking-*                  Event/xAOD
 use  xAODTruth                  xAODTruth-*                     Event/xAOD
+use  xAODCaloEvent              xAODCaloEvent-*                 Event/xAOD
 use  FourMomUtils               FourMomUtils-*                  Event
+use  TrackToCalo                TrackToCalo-*                   Reconstruction/RecoTools
+use  CaloEvent                  CaloEvent-*                     Calorimeter
 end_private                     
 
 public

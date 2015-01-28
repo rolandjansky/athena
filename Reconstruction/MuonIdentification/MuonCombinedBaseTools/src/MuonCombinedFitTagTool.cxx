@@ -247,7 +247,8 @@ namespace MuonCombined {
 	
 	if (fabs(pull) > m_indetPullCut) {
 	  // fail with too high momentum pull
-	  ATH_MSG_WARNING("combinedTrackQualityCheck: fail with momentum pull above cut: " << pull);
+	  ATH_MSG_WARNING("combinedTrackQualityCheck: fail with momentum pull above cut: " << pull << " pid " << 1./indetPerigee->parameters()[Trk::qOverP]
+                          << " pcb " << 1./combinedPerigee->parameters()[Trk::qOverP] << " 1./sigma " << 1./sigma );
 	  return false;
 	}
       }
