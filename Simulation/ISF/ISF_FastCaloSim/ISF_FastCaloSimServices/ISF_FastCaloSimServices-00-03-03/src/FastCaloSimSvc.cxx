@@ -39,7 +39,7 @@
 /** Constructor **/
 ISF::FastCaloSimSvc::FastCaloSimSvc(const std::string& name,ISvcLocator* svc) :
   BaseSimulationSvc(name, svc),
-  m_extrapolator(),
+  m_extrapolator(""),
   m_ownPolicy(static_cast<int>(SG::VIEW_ELEMENTS)),
   m_batchProcessMcTruth(false),
   m_simulateUndefinedBCs(false),
@@ -318,6 +318,8 @@ StatusCode ISF::FastCaloSimSvc::simulate(const ISF::ISFParticle& isfp)
 StatusCode ISF::FastCaloSimSvc::processOneParticle( const ISF::ISFParticle& isfp) {
   ATH_MSG_VERBOSE ( m_screenOutputPrefix << "Simulating pdgid = "<< isfp.pdgCode());
 
+  StatusCode sc(StatusCode::SUCCESS);
+
   ToolHandleArray<ICaloCellMakerTool>::iterator itrTool=m_caloCellMakerTools_simulate.begin();
   ToolHandleArray<ICaloCellMakerTool>::iterator endTool=m_caloCellMakerTools_simulate.end();
 
@@ -345,7 +347,7 @@ StatusCode ISF::FastCaloSimSvc::processOneParticle( const ISF::ISFParticle& isfp
     if(fcs->process_particle(m_theContainer,hitVector,
 			     isfp.momentum(),isfp.mass(),isfp.pdgCode(),isfp.barcode()).isFailure()) {
       ATH_MSG_WARNING( m_screenOutputPrefix << "simulation of particle pdgid=" << isfp.pdgCode()<< " failed" );   
-      return StatusCode::FAILURE;
+      sc = StatusCode::FAILURE;
     }
 
     if (m_chrono) m_chrono->chronoStop( chronoName );
@@ -353,7 +355,7 @@ StatusCode ISF::FastCaloSimSvc::processOneParticle( const ISF::ISFParticle& isfp
   } //end of for-loop
 
   //  ATH_MSG_VERBOSE ( m_screenOutputPrefix << "kill the particle in the end");
-  return StatusCode::SUCCESS;
+  return sc;
 }
 
 
@@ -375,7 +377,7 @@ std::vector<Trk::HitInfo>* ISF::FastCaloSimSvc::caloHits(const ISF::ISFParticle&
   if ( absPdg == 999 ) pHypothesis = Trk::geantino;
 
   // choose the extrapolator
-  //const Trk::ITimedExtrapolator* processor = &(*m_extrapolator); 
+  const Trk::ITimedExtrapolator* processor = &(*m_extrapolator); 
 
   // input parameters : curvilinear parameters
   Trk::CurvilinearParameters inputPar(isp.position(),isp.momentum(),isp.charge());
@@ -416,25 +418,18 @@ std::vector<Trk::HitInfo>* ISF::FastCaloSimSvc::caloHits(const ISF::ISFParticle&
   //if (absPdg!=999 && pHypothesis<99) pathLim = m_samplingTool->sampleProcess(mom,isp.charge(),pHypothesis);
      
   Trk::GeometrySignature nextGeoID=Trk::GeometrySignature(isp.nextGeoID()); 
-
-  // save Calo entry hit (fallback info)
-  hitVector->push_back(Trk::HitInfo(inputPar.clone(),isp.timeStamp(),nextGeoID,0.));  
     
   const Trk::TrackParameters* eParameters = 0;
 
   if ( !charged ) {
 
-    eParameters = m_extrapolator->transportNeutralsWithPathLimit(inputPar,pathLim,timeLim,Trk::alongMomentum,pHypothesis,hitVector,nextGeoID);  
+    eParameters = processor->transportNeutralsWithPathLimit(inputPar,pathLim,timeLim,Trk::alongMomentum,pHypothesis,hitVector,nextGeoID);  
  
   } else {
           
-    eParameters = m_extrapolator->extrapolateWithPathLimit(inputPar,pathLim,timeLim,Trk::alongMomentum,pHypothesis,hitVector,nextGeoID);
+    eParameters = processor->extrapolateWithPathLimit(inputPar,pathLim,timeLim,Trk::alongMomentum,pHypothesis,hitVector,nextGeoID);
 
   }
-  // save Calo exit hit (fallback info)
-  if (eParameters) hitVector->push_back(Trk::HitInfo(eParameters,timeLim.time,nextGeoID,0.));  
-
-  ATH_MSG_VERBOSE( "[ fastCaloSim transport ] number of intersections "<< hitVector->size());
 
   return hitVector;
 
