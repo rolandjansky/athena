@@ -8,6 +8,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCombinedToolInterfaces/IMuonCombinedInDetExtensionTool.h"
+#include "MuonCombinedToolInterfaces/IMuonCombinedTrigCaloTagExtensionTool.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
 #include "MuonCombinedEvent/CaloTag.h"
 
@@ -30,7 +31,7 @@
 
 namespace MuonCombined {
 
-  class MuonCaloTagTool: public AthAlgTool, virtual public IMuonCombinedInDetExtensionTool
+  class MuonCaloTagTool: public AthAlgTool, virtual public IMuonCombinedInDetExtensionTool, virtual public IMuonCombinedTrigCaloTagExtensionTool
   {
 
   public:
@@ -42,6 +43,10 @@ namespace MuonCombined {
 
     /**IMuonCombinedInDetExtensionTool interface: extend ID candidate */    
     void extend( const InDetCandidateCollection& inDetCandidates ) const;
+
+    void extend( const InDetCandidateCollection& inDetCandidates,
+                 const CaloCellContainer* caloCellContainer,
+                 const xAOD::CaloClusterContainer* caloClusterContainer) const;
 
 
   private:
