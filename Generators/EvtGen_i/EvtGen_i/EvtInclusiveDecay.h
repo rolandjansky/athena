@@ -35,10 +35,11 @@
 #include "EvtGen/EvtGen.hh"
 #include "EvtGenBase/EvtRandomEngine.hh"
 
-#include "GaudiKernel/Algorithm.h"
+#include "GeneratorModules/GenBase.h"
+//#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ISvcLocator.h"
 
-#include "StoreGate/StoreGateSvc.h"
+//#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 #include "GeneratorObjects/McEventCollection.h"
 
@@ -58,7 +59,7 @@ class EvtInclusiveAtRndmGen : public EvtRandomEngine {
 
 
 
-class EvtInclusiveDecay:public Algorithm {
+class EvtInclusiveDecay:public GenBase {
 	
         public:
 		EvtInclusiveDecay(const std::string& name, ISvcLocator* pSvcLocator);
@@ -93,7 +94,7 @@ class EvtInclusiveDecay:public Algorithm {
 		std::string pdgName(const HepMC::GenParticle* p, bool statusHighlighting = false, std::set<int>* barcodeList = 0);
       
 		// StoreGate access
-		StoreGateSvc* m_sgSvc;
+		//		StoreGateSvc* m_sgSvc;
 		McEventCollection* m_mcEvtColl;
   
 		// Particle properties service
