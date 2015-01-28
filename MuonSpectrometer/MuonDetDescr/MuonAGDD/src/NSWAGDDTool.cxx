@@ -7,20 +7,6 @@
 #include "AGDDControl/AGDDController.h"
 #include "AGDD2GeoSvc/IAGDD2GeoSvc.h"
 
-// #include "EventInfo/TagInfo.h"
-// #include "EventInfoMgt/ITagInfoMgr.h"
-// 
-// #include "RDBAccessSvc/IRDBAccessSvc.h"
-// #include "RDBAccessSvc/IRDBRecord.h"
-// #include "RDBAccessSvc/IRDBRecordset.h"
-// #include "GeoModelInterfaces/IGeoModelSvc.h"
-// #include "MuonReadoutGeometry/MuonDetectorManager.h"
-// #include "MuonReadoutGeometry/MuonReadoutElement.h"
-// #include "MuonReadoutGeometry/MMReadoutElement.h"
-// #include "MuonReadoutGeometry/sTgcReadoutElement.h"
-// #include "StoreGate/DataHandle.h"
-// #include "StoreGate/StoreGateSvc.h"
-
 #include "AGDDModel/AGDDParameterStore.h"
 #include "AGDDKernel/AGDDDetector.h"
 #include "AGDDKernel/AGDDDetectorStore.h"
@@ -34,7 +20,6 @@ using namespace MuonGM;
 NSWAGDDTool::NSWAGDDTool(const std::string& type, const std::string& name, 
 				 const IInterface* parent):AGDDToolBase(type,name,parent)
 {
-	
 	std::cout<<"This is NSWAGDDTool's constructor!!!! "<<name<<std::endl;
 }
 
