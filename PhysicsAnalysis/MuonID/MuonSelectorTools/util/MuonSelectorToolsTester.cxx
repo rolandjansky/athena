@@ -140,8 +140,8 @@ int main( int argc, char* argv[] ) {
 	bool passesTool = false;
 	bool passesxAOD = false;
 
-	// Info( APP_NAME, "Muon pT:             %g ", std::abs((*mu_itr)->pt()));
-	// Info( APP_NAME, "Muon eta:            %g ", std::abs((*mu_itr)->eta()));
+	Info( APP_NAME, "Muon pT:             %g ", std::abs((*mu_itr)->pt())/1000.);
+	Info( APP_NAME, "Muon eta:            %g ", std::abs((*mu_itr)->eta()));
 	// Info( APP_NAME, "Muon phi:            %g ", std::abs((*mu_itr)->phi()));
 	// Info( APP_NAME, "Muon charge:         %g ", (*mu_itr)->charge());
 	if((*mu_itr)->charge() > 0)
@@ -171,7 +171,7 @@ int main( int argc, char* argv[] ) {
 	
         passesIDRequirements = m_muonSelection.passedIDCuts(**mu_itr);
 	my_quality = m_muonSelection.getQuality(**mu_itr);
-
+	std::cout << "quality " << my_quality << " IDHits " << passesIDRequirements << std::endl;
 	//std::cout << "Comparison of the quality: xAOD vs SelectorTool " << (*mu_itr)->quality() << " " <<  my_quality << std::endl;
 
 

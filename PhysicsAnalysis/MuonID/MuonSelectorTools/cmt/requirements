@@ -11,9 +11,9 @@ use  xAODMuon                   xAODMuon-*                      Event/xAOD
 private
 use  AthenaBaseComps            AthenaBaseComps-*               Control
 use  AtlasROOT                  AtlasROOT-*                     External
-
-use xAODTracking              xAODTracking-*                  Event/xAOD
-use xAODEventInfo             xAODEventInfo-*                  Event/xAOD
+use  xAODCore			xAODCore-*			Event/xAOD
+use  xAODTracking               xAODTracking-*                  Event/xAOD
+use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
 end_private
 
 # Change to a dual_use library because the lcgdict pattern doesn't work with a pure component library 
