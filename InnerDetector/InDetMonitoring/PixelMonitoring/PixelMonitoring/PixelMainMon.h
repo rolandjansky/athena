@@ -355,7 +355,6 @@ class PixelMainMon:public ManagedMonitorToolBase
       TH1I_LW*              m_totalclusters_per_lumi_B1;
       TH1I_LW*              m_totalclusters_per_lumi_B2;
       TH1I_LW*              m_highNclusters_per_lumi;
-      TH1F_LW*              m_cluster_ToT;
       TH1F_LW*              m_cluster_ToT_PIX;
       TH1F_LW*              m_cluster_ToT_ECA;
       TH1F_LW*              m_cluster_ToT_IBL;
