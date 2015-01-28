@@ -180,7 +180,7 @@ def createxAOD (seq):
     #setVxLinks (seq, 'GSFTrackParticles', 'VxPrimaryCandidate')
 
     makexAOD (seq, 'xAOD::MissingETContainer',
-              'MET_Reference_AntiKt4EMTopo',
+              'MET_Core_AntiKt4EMTopo',
               'MET_RefFinal')
 
     from xAODTriggerCnv.xAODRoICreator import xAODRoICreator
@@ -298,7 +298,7 @@ def egammaD3PD (alg = None,
     # alg += ZDCTriggerBitsD3PDObject   (**_args (level, 'ZDCTriggerBits', kw))
     alg += CollisionDecisionD3PDObject(**_args (level, 'CollisionDecision', kw))
     alg += MissingETD3PDObject (**_args (level, 'MissingET', kw,
-                                         sgkey = 'MET_Reference_AntiKt4EMTopo',
+                                         sgkey = 'MET_Core_AntiKt4EMTopo',
                                          prefix = 'MET_RefFinal_'))
     if D3PDMakerFlags.DoTrigger():
         from TriggerD3PDMaker.TrigDecisionD3PDObject \
