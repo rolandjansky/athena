@@ -379,10 +379,13 @@ StatusCode NSWPRDValAlg::execute()
   StatusCode sc = evtStore()->retrieve(pevt);
   if(!sc.isSuccess()) {
     ATH_MSG_WARNING("Could not retrieve event info");
-    return StatusCode::SUCCESS;
+    m_runNumber = -999999;
+    m_eventNumber = -999999;
+    // return StatusCode::SUCCESS;
+  } else {
+    m_runNumber = pevt->runNumber();
+    m_eventNumber = pevt->eventNumber();
   }
-  m_runNumber = pevt->runNumber();
-  m_eventNumber = pevt->eventNumber();
 
   // Truth information
   if (m_doTruth)  {
@@ -680,13 +683,13 @@ StatusCode NSWPRDValAlg::fillMuEntryVariables() {
   TrackRecordCollection::const_iterator it_e = trackRecordCollection->end();
   for(; it!=it_e; ++it) {
 
-    const CLHEP::Hep3Vector momentum = (*it)->GetMomentum();
-    const CLHEP::Hep3Vector position = (*it)->GetPosition();
+    const CLHEP::Hep3Vector momentum = (*it).GetMomentum();
+    const CLHEP::Hep3Vector position = (*it).GetPosition();
     m_MuEntry_particlePt->push_back(momentum.perp());
     m_MuEntry_particleEta->push_back(momentum.getEta());
     m_MuEntry_particlePhi->push_back(momentum.getPhi());
-    m_MuEntry_particlePdg_id->push_back((*it)->GetPDGCode());
-    m_MuEntry_particleBarcode->push_back((*it)->GetBarCode());
+    m_MuEntry_particlePdg_id->push_back((*it).GetPDGCode());
+    m_MuEntry_particleBarcode->push_back((*it).GetBarCode());
     m_MuEntry_positionEta->push_back(position.getEta());
     m_MuEntry_positionPhi->push_back(position.getPhi());
     m_MuEntry_positionX->push_back(position.x());
@@ -1857,11 +1860,11 @@ StatusCode NSWPRDValAlg::fillNSWMMHitVariables()
     ATH_MSG_DEBUG("MicroMegas geometry, retrieving detector element for: isSmall " << isSmall << " eta " << m_MmIdHelper->stationEta(offId)
                   << " phi " << m_MmIdHelper->stationPhi(offId) << " ml " << m_MmIdHelper->multilayer(offId) );
 
-    //   int phiCor = m_MmIdHelper->stationPhi(offId);
-    //   int mlCor  = m_MmIdHelper->multiplet(offId);
+    int phiCor = m_MmIdHelper->stationPhi(offId);
+    int mlCor  = m_MmIdHelper->multilayer(offId);
 
-    // const MuonGM::MMReadoutElement* detEl = m_detManager->getMMRElement_fromIdFields(isSmall, m_MmIdHelper->stationEta(offId), phiCor, mlCor );  
-    const MuonGM::MMReadoutElement* detEl = m_detManager->getMMReadoutElement(offId);
+    const MuonGM::MMReadoutElement* detEl = m_detManager->getMMRElement_fromIdFields(isSmall, m_MmIdHelper->stationEta(offId), phiCor, mlCor );  
+    //const MuonGM::MMReadoutElement* detEl = m_detManager->getMMReadoutElement(offId);
 
     if( !detEl ){
       /*
