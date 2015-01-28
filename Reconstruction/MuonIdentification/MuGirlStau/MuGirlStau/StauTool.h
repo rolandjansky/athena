@@ -211,10 +211,6 @@ public:
     {
         return m_pGlobalFitTool;
     }
-    const ToolHandle<Trk::ITrackParticleCreatorTool>& particleCreator() const
-    {
-        return m_particleCreatorTool;
-    }
     const ToolHandle<Rec::IParticleCaloCellAssociationTool>& caloCellAssociationTool() const
     {
         return m_caloCellAssociationTool;
@@ -441,7 +437,6 @@ private:
     ToolHandle<Muon::IMdtDriftCircleOnTrackCreator> m_pMdtDriftCircleCreator;
     ToolHandle<IStauBetaTofTool> m_pTofTool;
     ToolHandle<MuGirlNS::IGlobalFitTool> m_pGlobalFitTool;
-    ToolHandle<Trk::ITrackParticleCreatorTool> m_particleCreatorTool;
     ToolHandle<Rec::IParticleCaloCellAssociationTool> m_caloCellAssociationTool; //!< Tool to make the step-wise extrapolation
 
     ServiceHandle<MdtCalibrationDbSvc> m_pMdtCalibDbSvc;
