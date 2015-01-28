@@ -96,6 +96,13 @@ class useTracks(JobProperty):
   allowedTypes = ['bool']  # type
   StoredValue  = True      # default value
 
+class useVertices(JobProperty):
+  """ If true, vertices are present and used in pflow jet reconstruction.
+  """
+  statusOn     = True     
+  allowedTypes = ['bool']  # type
+  StoredValue  = True      # default value
+
 class useMuonSegments(JobProperty):
   """ If true, muon segments are present and used in jet reconstruction.
   """
@@ -211,6 +218,7 @@ jobproperties.JetRecFlags.add_JobProperty(useTruth)
 jobproperties.JetRecFlags.add_JobProperty(truthFlavorTags)
 jobproperties.JetRecFlags.add_JobProperty(useTopo)
 jobproperties.JetRecFlags.add_JobProperty(useTracks)
+jobproperties.JetRecFlags.add_JobProperty(useVertices)
 jobproperties.JetRecFlags.add_JobProperty(useInDetTrackSelection)
 jobproperties.JetRecFlags.add_JobProperty(useMuonSegments)
 jobproperties.JetRecFlags.add_JobProperty(usePFlow)

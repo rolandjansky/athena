@@ -1,13 +1,13 @@
-Thu Jan  8 15:38:36 CET 2015
+Mon Jan 26 16:49:06 CET 2015
 Preloading tcmalloc_minimal.so
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [AtlasOffline-20.1.0] [x86_64-slc6-gcc48-opt] [20.X.0-VAL/rel_2] -- built on [2015-01-05 22:35]
+Py:Athena            INFO using release [AtlasProduction-20.1.0.2] [x86_64-slc6-gcc48-opt] [20.1.0.Y-VAL-Prod/rel_0] -- built on [2015-01-24 23:30]
 Py:Athena            INFO including file "AthenaCommon/Bootstrap.py"
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "trimjets.py"
-Py:ConfigurableDb    INFO Read module info for 4673 configurables from 9 genConfDb files
-Py:ConfigurableDb WARNING Found 2 duplicates among the 9 genConfDb files :
+Py:ConfigurableDb    INFO Read module info for 4663 configurables from 11 genConfDb files
+Py:ConfigurableDb WARNING Found 2 duplicates among the 11 genConfDb files :
 Py:ConfigurableDb WARNING --------------------------------------------------
 Py:ConfigurableDb WARNING   -<component name>: <module> - [ <duplicates> ]
 Py:ConfigurableDb WARNING --------------------------------------------------
@@ -415,7 +415,7 @@ Py:Athena            INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
                                                    Welcome to ApplicationMgr (GaudiCoreSvc v3r1)
-                                          running on lxplus0205.cern.ch on Thu Jan  8 15:38:39 2015
+                                          running on lxplus0060.cern.ch on Mon Jan 26 16:49:09 2015
 ====================================================================================================================================
 ApplicationMgr       INFO Successfully loaded modules : AthenaServices
 ApplicationMgr       INFO Application Manager Configured successfully
@@ -423,12 +423,12 @@ ApplicationMgr                                       INFO Updating Gaudi::Plugin
 StatusCodeSvc                                        INFO initialize
 AthDictLoaderSvc                                     INFO in initialize...
 AthDictLoaderSvc                                     INFO acquired Dso-registry
-ClassIDSvc                                           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-13-02
+ClassIDSvc                                           INFO Initializing ClassIDSvc - package version CLIDComps-00-06-16
 ClassIDSvc                                           INFO  getRegistryEntries: read 2071 CLIDRegistry entries for module ALL
 ChronoStatSvc                                        INFO  Number of skipped events for MemStat-1
 CoreDumpSvc                                          INFO install f-a-t-a-l handler... (flag = -1)
 CoreDumpSvc                                          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
-AthenaEventLoopMgr                                   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-58-31
+AthenaEventLoopMgr                                   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-01-59-01
 AthMasterSeq                                         INFO Member list: AthSequencer/AthAlgSeq, AthSequencer/AthOutSeq, AthSequencer/AthRegSeq
 AthAlgSeq                                            INFO Member list: PyAthena::Alg/CopyTruthTagBHadronsInitialAlg, PyAthena::Alg/CopyTruthTagBHadronsFinalAlg, PyAthena::Alg/CopyTruthTagBQuarksFinalAlg, PyAthena::Alg/CopyTruthTagCHadronsInitialAlg, PyAthena::Alg/CopyTruthTagCHadronsFinalAlg, PyAthena::Alg/CopyTruthTagCQuarksFinalAlg, PyAthena::Alg/CopyTruthTagTausFinalAlg, PyAthena::Alg/CopyTruthTagWBosonsAlg, PyAthena::Alg/CopyTruthTagZBosonsAlg, PyAthena::Alg/CopyTruthTagHBosonsAlg, PyAthena::Alg/CopyTruthTagTQuarksFinalAlg, PyAthena::Alg/CopyTruthTagPartonsAlg, JetAlgorithm/jetalg
 PyComponentMgr                                       INFO Initializing PyComponentMgr...
@@ -488,7 +488,7 @@ ToolSvc.calib_AntiKt4LCTopo_reco_arj                 INFO   Reading global JES s
     JES_Full2012dataset_Preliminary_Jan13.config
 
 ToolSvc.calib_AntiKt4LCTopo_reco_arj                 INFO                      resolved in  :
-    /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasReconstruction/rel_2/InstallArea/share/JetCalibTools/CalibrationConfigs/JES_Full2012dataset_Preliminary_Jan13.config
+    /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc48-opt/20.1.0/AtlasReconstruction/20.1.0/InstallArea/share/JetCalibTools/CalibrationConfigs/JES_Full2012dataset_Preliminary_Jan13.config
 
 
 ToolSvc.calib_AntiKt4LCTopo_reco_arj                 INFO Initializing sub tools.
@@ -500,7 +500,7 @@ ToolSvc.calib_AntiKt4LCTopo_reco_arj_Pileup          INFO
 
 PathResolver    INFO   Trying to locate JetCalibTools/CalibrationFactors/MCBasedOffset_Nov2012.config
 ToolSvc.calib_AntiKt4LCTopo_reco_arj_Pileup          INFO   Reading residual jet-area pile-up correction factors from:
-    /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasReconstruction/rel_2/InstallArea/share/JetCalibTools/CalibrationFactors/MCBasedOffset_Nov2012.config
+    /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc48-opt/20.1.0/AtlasReconstruction/20.1.0/InstallArea/share/JetCalibTools/CalibrationFactors/MCBasedOffset_Nov2012.config
 
 ToolSvc.calib_AntiKt4LCTopo_reco_arj_Pileup          INFO   Description:
     Residual 2012 mu- and N_{PV}-dependent jet pileup corrections
@@ -517,7 +517,7 @@ PathResolver    INFO   Trying to locate JetCalibTools/CalibrationFactors/Absolut
 ToolSvc.calib_AntiKt4LCTopo_reco_arj_EtaJES          INFO   
 
 Reading absolute calibration factors from:
-    /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasReconstruction/rel_2/InstallArea/share/JetCalibTools/CalibrationFactors/AbsoluteJES_Rel17.2_AreaSubtracted_0.config
+    /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc48-opt/20.1.0/AtlasReconstruction/20.1.0/InstallArea/share/JetCalibTools/CalibrationFactors/AbsoluteJES_Rel17.2_AreaSubtracted_0.config
 
 ToolSvc.calib_AntiKt4LCTopo_reco_arj_EtaJES          INFO   Description:
     JES for release 17.2, derived November 2012 with Jet Areas, for application to Data12 and MC12
@@ -577,7 +577,7 @@ ToolSvc.MyAntiKt4LCTopoJets                          INFO   InputTool is not def
 ToolSvc.MyAntiKt4LCTopoJets                          INFO   Pseudojet getter count is 1
 ToolSvc.MyAntiKt4LCTopoJets                          INFO     ToolSvc.lcget
 #--------------------------------------------------------------------------
-#                         FastJet release 3.1.0
+#                         FastJet release 3.1.1
 #                 M. Cacciari, G.P. Salam and G. Soyez                  
 #     A software package for jet finding and analysis at colliders      
 #                           http://fastjet.fr                           
@@ -671,10 +671,10 @@ ToolSvc.jetdumper3                                   INFO       Container: AntiK
 ToolSvc.jetdumper3                                   INFO          Detail: 1
 ToolSvc.jetdumper3                                   INFO      LineDetail: 3
 ToolSvc.jetdumper3                                   INFO   Max # objects: 500
-StoreGateSvc                                         INFO Initializing StoreGateSvc - package version StoreGate-02-45-01
-MetaDataSvc                                          INFO Initializing MetaDataSvc - package version AthenaServices-01-58-31
-InputMetaDataStore                                   INFO Initializing InputMetaDataStore - package version StoreGate-02-45-01
-MetaDataStore                                        INFO Initializing MetaDataStore - package version StoreGate-02-45-01
+StoreGateSvc                                         INFO Initializing StoreGateSvc - package version StoreGate-02-45-01-01
+MetaDataSvc                                          INFO Initializing MetaDataSvc - package version AthenaServices-01-59-01
+InputMetaDataStore                                   INFO Initializing InputMetaDataStore - package version StoreGate-02-45-01-01
+MetaDataStore                                        INFO Initializing MetaDataStore - package version StoreGate-02-45-01-01
 AthenaPoolCnvSvc                                     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-26-18
 Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<bool>=vector.dll vectorbool.dll> for level 0; ignored
 Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<char>=vector.dll vectorbool.dll> for level 0; ignored
@@ -735,20 +735,19 @@ PoolSvc                                              INFO io_register[PoolSvc](x
 PoolSvc                                              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc                                              INFO Frontier compression level set to 5
 DBReplicaSvc                                         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://aiatlas036.cern.ch:8000/atlr)(serverurl=http://aiatlas034.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli02.in2p3.fr:23128/ccin2p3-AtlasFrontier)(serverurl=http://ccsqfatlasli01.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://ca18.cern.ch:3128)(proxyurl=http://ca17.cern.ch:3128)(proxyurl=http://atlast0fsquid.cern.ch:3128)(proxyurl=http://atlassquid1.cern.ch:3128)(proxyurl=http://atlassquid2.cern.ch:3128)(proxyurl=http://atlassquid4.cern.ch:3128) will be considered for COOL data
-DBReplicaSvc                                         INFO Read replica configuration from /afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_2/InstallArea/share/dbreplica.config
-DBReplicaSvc                                         INFO Total of 5 servers found for host lxplus0205.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG ATLF ]
+DBReplicaSvc                                         INFO Read replica configuration from /cvmfs/atlas.cern.ch/repo/sw/software/x86_64-slc6-gcc48-opt/20.1.0/AtlasCore/20.1.0/InstallArea/share/dbreplica.config
+DBReplicaSvc                                         INFO Total of 5 servers found for host lxplus0060.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG ATLF ]
 PoolSvc                                              INFO Successfully setup replica sorting algorithm
 PoolSvc                                              INFO Re-initializing PoolSvc
 PoolSvc                                              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
 XMLFileCatalog Info Connecting to the catalog
 PoolXMLFileCatalog Info Xerces-c initialization Number 0
 EventSelector                                        INFO Initializing EventSelector - package version EventSelectorAthenaPool-00-18-35
-TagMetaDataStore                                     INFO Initializing TagMetaDataStore - package version StoreGate-02-45-01
+TagMetaDataStore                                     INFO Initializing TagMetaDataStore - package version StoreGate-02-45-01-01
 EventSelector                                        INFO reinitialization...
 EventSelector                                        INFO EventSelection with query 
-Warning in <TClassTable::Add>: class pair<string,string> already in TClassTable
 RootCollection Info Opening Collection File /afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root in mode: READ
-JobIDSvc                                             INFO Initializing JobIDSvc - package version AthenaServices-01-58-31
+JobIDSvc                                             INFO Initializing JobIDSvc - package version AthenaServices-01-59-01
 RootCollection Info File /afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root opened
 RootCollectionSchemaEditor Warning  Collection Description not found in file, reconstructing 
 RootCollection Info Root collection opened, size = 5
@@ -763,7 +762,7 @@ AthenaPoolAddressProviderSvc                         INFO Initializing AthenaPoo
 ProxyProviderSvc                                     INFO Initializing ProxyProviderSvc - package version SGComps-00-01-09
 HistogramPersistencySvc                           WARNING Histograms saving not required.
 AthenaEventLoopMgr                                   INFO Setup EventSelector service EventSelector
-ActiveStoreSvc                                       INFO Initializing ActiveStoreSvc - package version StoreGate-02-45-01
+ActiveStoreSvc                                       INFO Initializing ActiveStoreSvc - package version StoreGate-02-45-01-01
 ApplicationMgr                                       INFO Application Manager Initialized successfully
 InputMetaDataStore                                   INFO Start InputMetaDataStore
 MetaDataStore                                        INFO Start MetaDataStore
@@ -778,7 +777,7 @@ ApplicationMgr                                       INFO Application Manager St
 PoolSvc                                              INFO Failed to find container MetaDataHdrDataHeader to get Token.
 AthenaEventLoopMgr                                   INFO   ===>>>  start of run 189751    <<<===
 AthenaEventLoopMgr                                   INFO   ===>>>  start processing event #35002, run #189751 0 events processed so far  <<<===
-ClassIDSvc                                           INFO  getRegistryEntries: read 14342 CLIDRegistry entries for module ALL
+ClassIDSvc                                           INFO  getRegistryEntries: read 14491 CLIDRegistry entries for module ALL
 ClassIDSvc                                           INFO  getRegistryEntries: read 107 CLIDRegistry entries for module ALL
 ToolSvc.xAODClusterCompressor                        INFO Compression of ClusterMoments to 16 bits enabled
 AthenaPoolConverter                                  INFO Retrieved compression tool
@@ -926,13 +925,13 @@ AthAlgSeq                                            INFO Finalizing AthAlgSeq..
 AthOutSeq                                            INFO Finalizing AthOutSeq...
 AthRegSeq                                            INFO Finalizing AthRegSeq...
 AthMasterSeq                                         INFO Finalizing AthMasterSeq...
-StoreGateSvc                                         INFO Finalizing StoreGateSvc - package version StoreGate-02-45-01
+StoreGateSvc                                         INFO Finalizing StoreGateSvc - package version StoreGate-02-45-01-01
 RootCollection Info Closing open collection '/afs/cern.ch/user/d/dadams/pubdata/r20test_AOD.pool.root'
-TagMetaDataStore                                     INFO Finalizing TagMetaDataStore - package version StoreGate-02-45-01
+TagMetaDataStore                                     INFO Finalizing TagMetaDataStore - package version StoreGate-02-45-01-01
 PoolSvc                                              INFO I/O finalization...
 PoolXMLFileCatalog Info XercesC termination number 0
-MetaDataStore                                        INFO Finalizing MetaDataStore - package version StoreGate-02-45-01
-InputMetaDataStore                                   INFO Finalizing InputMetaDataStore - package version StoreGate-02-45-01
+MetaDataStore                                        INFO Finalizing MetaDataStore - package version StoreGate-02-45-01-01
+InputMetaDataStore                                   INFO Finalizing InputMetaDataStore - package version StoreGate-02-45-01-01
 PyComponentMgr                                       INFO Finalizing PyComponentMgr...
 AthDictLoaderSvc                                     INFO in finalize...
 ToolSvc                                              INFO Removing all tools created by ToolSvc

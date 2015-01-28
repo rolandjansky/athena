@@ -234,6 +234,10 @@ jtm += MuonSegmentPseudoJetGetter(
 # Retriever for pflow objects.
 jtm += RetrievePFOTool("pflowretriever")
 
+useVertices = True
+if False == jetFlags.useVertices:
+  useVertices = False
+
 # EM-scale pflow.
 jtm += PFlowPseudoJetGetter(
   "empflowget",
@@ -243,6 +247,7 @@ jtm += PFlowPseudoJetGetter(
   InputIsEM = True,
   CalibratePFO = False,
   SkipNegativeEnergy = True,
+  UseVertices = useVertices
 )
 
 # Calibrated EM-scale pflow.
@@ -254,6 +259,7 @@ jtm += PFlowPseudoJetGetter(
   InputIsEM = True,
   CalibratePFO = True,
   SkipNegativeEnergy = True,
+  UseVertices = useVertices
 )
 
 # LC-scale pflow.
@@ -265,6 +271,7 @@ jtm += PFlowPseudoJetGetter(
   InputIsEM = False,
   CalibratePFO = False,
   SkipNegativeEnergy = True,
+  UseVertices = useVertices
 )
 
 # AntiKt3 track jets.
