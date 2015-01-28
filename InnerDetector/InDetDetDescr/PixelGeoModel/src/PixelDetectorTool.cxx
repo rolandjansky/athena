@@ -40,6 +40,7 @@ PixelDetectorTool::PixelDetectorTool( const std::string& type, const std::string
   : GeoModelTool( type, name, parent ),
     m_detectorName("PixelDetector"),
     m_IBLParameterSvc("IBLParameterSvc",name),
+    m_buildDBM(0),
     m_bcmTool(""),
     m_blmTool(""),
     m_serviceBuilderTool(""),

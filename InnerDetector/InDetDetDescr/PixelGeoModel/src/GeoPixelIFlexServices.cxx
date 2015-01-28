@@ -21,7 +21,12 @@
 #include <algorithm>
 using std::max;
 
-GeoPixelIFlexServices::GeoPixelIFlexServices(int iSection): m_section(iSection)
+GeoPixelIFlexServices::GeoPixelIFlexServices(int iSection): 
+  m_section(iSection),
+  m_supportPhysA(0),
+  m_supportPhysC(0),
+  m_xformSupportA(0),
+  m_xformSupportC(0)
 {
 }
 
@@ -35,7 +40,9 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
   double barrelZmax = gmt_mgr->PixelBarrelHalfLength();
   int nSectors = gmt_mgr->NPixelSectors();
 
-  double angle=360./nSectors*CLHEP::deg;
+  // check if sectors are properly defined
+  if(nSectors==0) return 0;
+  double angle=360./(double)nSectors*CLHEP::deg;
 
   double zmin=0., zmax=0.;
   if(m_section==0) {
@@ -58,6 +65,7 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
 
   double innerRadius = gmt_mgr->IBLServiceGetMaxRadialPosition("IPT","simple",zmin,zmax)+safety;
   double outerRadius = gmt_mgr->IBLServiceGetMinRadialPosition("IST","simple",zmin,zmax)-safety;
+  double phiOfModuleZero =  gmt_mgr->PhiOfModuleZero();  
 
 
   // Define IFlex section for side A
@@ -165,7 +173,7 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
     gmt_mgr->SetPhi(ii);    
     
     // cooling transform 
-    double phiOfCooling = cooling_angle + ii*angle;
+    double phiOfCooling = phiOfModuleZero+ cooling_angle + ii*angle;
     std::ostringstream tmp1; 
     tmp1 << "fl" << ii;
     GeoNameTag * tag1 = new GeoNameTag(tmp1.str());
@@ -180,7 +188,7 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
 
 
     // flex transform 
-    double phiOfFlex = flex_angle + ii*angle;
+    double phiOfFlex = phiOfModuleZero+ flex_angle + ii*angle;
     std::ostringstream tmp2; 
     tmp2 << "fl" << ii;
     GeoNameTag * tag2 = new GeoNameTag(tmp2.str());
@@ -224,8 +232,6 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
   HepGeom::Transform3D supportTrfC = HepGeom::TranslateZ3D(-(zmin+zmax)*0.5);
   m_xformSupportC = new GeoTransform(supportTrfC);
 
-
-  
   return 0;
 
 }

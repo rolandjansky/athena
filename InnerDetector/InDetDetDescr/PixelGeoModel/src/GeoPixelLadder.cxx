@@ -25,6 +25,7 @@ using std::max;
 
 GeoPixelLadder::GeoPixelLadder(GeoPixelSiCrystal& theSensor,
 			       GeoPixelStaveSupport* staveSupport) :
+  m_theLadder(0),
   m_theSensor(theSensor),
   m_staveSupport(staveSupport)
 {
@@ -70,15 +71,19 @@ GeoPixelLadder::GeoPixelLadder(GeoPixelSiCrystal& theSensor,
     const GeoShape & shiftedBox = (*box) << HepGeom::TranslateX3D(shift);
     ladderShape = &shiftedBox;  
   }
-  else 
+  else if(m_staveSupport) 
     {
       GeoSimplePolygonBrep* staveSupportShape=m_staveSupport->computeStaveEnvelopShape(safety);
       const GeoShape & staveShape = (*staveSupportShape);
       ladderShape = &staveShape;  
     }
+  else
+    {
+      gmt_mgr->msg(MSG::ERROR)<<"No ladder shape could be defined "<<endreq;      
+    }
 
   const GeoMaterial* air = mat_mgr->getMaterial("std::Air");
-  theLadder = new GeoLogVol("Ladder",ladderShape,air);
+  m_theLadder = new GeoLogVol("Ladder",ladderShape,air);
 
   m_thickness = 2*std::max(m_thicknessN,m_thicknessP);
 }
@@ -113,7 +118,11 @@ GeoPixelLadder::GeoPixelLadder(GeoPixelSiCrystal& theSensor,
 
 GeoVPhysVol* GeoPixelLadder::Build( ) {
 
-  GeoPhysVol* ladderPhys = new GeoPhysVol(theLadder);
+  // Something went wrong while building the ladder logical volume 
+  if(!m_theLadder) return 0;
+
+  // Create the ladder physVolume
+  GeoPhysVol* ladderPhys = new GeoPhysVol(m_theLadder);
   //
   // Place the Modules
   //
@@ -305,7 +314,9 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
     ladderPhys->add(modulephys );
 
     // Now store the xform by identifier:
-    Identifier id = m_theSensor.getID();
+    Identifier id;
+    if(!b3DModule)  id = m_theSensor.getID();
+    else id = theSensor3D.getID();
     DDmgr->addAlignableTransform(0,id,xform,modulephys);
     
   }

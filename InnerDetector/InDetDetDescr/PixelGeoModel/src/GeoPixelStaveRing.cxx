@@ -27,7 +27,12 @@ GeoPixelStaveRing::GeoPixelStaveRing()
 {
   m_ringName="staveRing";
   m_ringPosition="AC";
-  //  m_physVol = Build();
+  
+  m_zPosition =0;
+  m_innerRadius = 0.;
+  m_outerRadius = 0.;
+
+  m_physVol = 0;
 }
 
 GeoVPhysVol* GeoPixelStaveRing::SetParametersAndBuild(std::string ringName, std::string ringPos)

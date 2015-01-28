@@ -262,7 +262,7 @@ GeoVPhysVol* GeoPixelEnvelope::Build( ) {
     }
   }
 
-  delete pixServices;
+  if(pixServices) delete pixServices;
 
   return envelopePhys;
   

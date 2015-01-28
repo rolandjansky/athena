@@ -72,6 +72,9 @@ OraclePixGeoManager::OraclePixGeoManager(const PixelGeoModelAthenaComps * athena
     m_dbVersion(0),
     m_defaultLengthUnit(CLHEP::mm)
 {
+  m_commonItems = 0;
+  m_pDDmgr = 0;
+
   init();
 }
 
@@ -2273,7 +2276,8 @@ double OraclePixGeoManager::PhiOfModuleZero()
 {
   // For backward compatibilty first module is at 1/2 a module division
   if (!db()->testField(PixelLayer,"PHIOFMODULEZERO",currentLD)){
-    return 180.0*CLHEP::degree/NPixelSectors();
+    if(NPixelSectors()>0) return 180.0*CLHEP::degree/NPixelSectors();
+    return 0.;
   } else { 
     return db()->getDouble(PixelLayer,"PHIOFMODULEZERO",currentLD) * CLHEP::degree;
   }
@@ -2326,9 +2330,9 @@ double OraclePixGeoManager::PixelModuleZPositionTabulated(int etaModule, int typ
   if (!m_zPositionMap) {
     m_zPositionMap = new InDetDD::PairIndexMap;
     for (unsigned int indexTmp = 0; indexTmp < db()->getTableSize(PixelStaveZ); ++indexTmp) {
-      int etaModule = db()->getInt(PixelStaveZ,"ETAMODULE",indexTmp);
-      int type      = db()->getInt(PixelStaveZ,"TYPE",indexTmp);
-      m_zPositionMap->add(type,etaModule,indexTmp);
+      int eta_module = db()->getInt(PixelStaveZ,"ETAMODULE",indexTmp);
+      int type       = db()->getInt(PixelStaveZ,"TYPE",indexTmp);
+      m_zPositionMap->add(type,eta_module,indexTmp);
     }
   }
   int index = m_zPositionMap->find(type, etaModule);

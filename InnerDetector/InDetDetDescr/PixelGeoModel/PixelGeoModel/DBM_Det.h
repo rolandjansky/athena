@@ -32,10 +32,6 @@ class DBM_Det : public GeoVPixelFactory {
   /** member variables for algorithm properties: */
   // int/double/bool  m_propertyName;
   std::vector<double> m_module[4];
-
-  unsigned int m_moduleon;
-  bool m_dbmon;
-  bool m_BDparameters;
 };
 
 #endif

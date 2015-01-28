@@ -86,6 +86,7 @@ class GeoPixelBarrel : public GeoVPixelFactory {
 
 class GeoPixelCable : public GeoVPixelFactory {
  public:
+  GeoPixelCable():m_moduleNumber(0){}
   virtual GeoVPhysVol* Build();
   double Thickness();
   double Length();
@@ -97,8 +98,6 @@ class GeoPixelCable : public GeoVPixelFactory {
   // 0 is the central module, 6 is the one to the left/right
   int m_moduleNumber;
 };
-
-
 
 #endif
 #ifndef GEOPIXELCHIP_H

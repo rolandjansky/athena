@@ -36,6 +36,9 @@ GeoPixelLayer::GeoPixelLayer(){
   m_supportPhysA=0;
   m_supportPhysC=0;
   m_supportMidRing=0;
+  m_xformSupportA=0;
+  m_xformSupportC=0;
+  m_xformSupportMidRing=0;
 }
 
 GeoVPhysVol* GeoPixelLayer::Build() {
@@ -80,6 +83,12 @@ GeoVPhysVol* GeoPixelLayer::Build() {
       gmt_mgr->SetIBLPlanarModuleNumber(staveSupport->PixelNPlanarModule());
       gmt_mgr->SetIBL3DModuleNumber(staveSupport->PixelN3DModule());
 
+    }
+
+  if(!staveSupport)
+    {
+      gmt_mgr->msg(MSG::ERROR)<<"No stave support corresponding to the staveLayout "<<staveLayout<<" could be defined "<<endreq; 
+      return 0;
     }
 
   gmt_mgr->msg(MSG::INFO)<<"*** LAYER "<<gmt_mgr->GetLD()<<"  planar/3D modules : "<< staveSupport->PixelNPlanarModule()<<" "<<staveSupport->PixelN3DModule()<<endreq;
@@ -227,42 +236,49 @@ GeoVPhysVol* GeoPixelLayer::Build() {
     //
     // Calculate layerThicknessP: Thickness from layer radius to max radius of envelope
     //
-    
-    // We need the dimensions of the GeoPixelLadderServices. They are all the same in this regards
-    // so any of them will do -  use the first one.
-    
-    HepGeom::Point3D<double> corner1 = firstLadderServices->envelopeCornerC1();
-    HepGeom::Point3D<double> corner2 = firstLadderServices->envelopeCornerC2();
-    HepGeom::Point3D<double> corner3 = firstLadderServices->envelopeCornerA1();
-    HepGeom::Point3D<double> corner4 = firstLadderServices->envelopeCornerA2();
-    
-    // translate relative to sensor center (center of tilt rotation),
-    // then tilt then translate by radius of layer, then calculate r.
-    double xLadderServicesOffset = gmt_mgr->PixelLadderServicesX();
-    double yLadderServicesOffset = gmt_mgr->PixelLadderServicesY();
-    // xCenter, yCenter or coordinates of ladder services relative to active layer center (center of tilt rotation)
-    double xCenter = (firstLadderServices->referenceX() + xLadderServicesOffset);
-    double yCenter = (firstLadderServices->referenceY() + yLadderServicesOffset);
-    HepGeom::Transform3D ladderSvcToglobal = HepGeom::TranslateX3D(layerRadius) 
-      * HepGeom::RotateZ3D(ladderTilt) 
-      * HepGeom::Translate3D(xCenter, yCenter, 0);
-    HepGeom::Point3D<double> corner1global = ladderSvcToglobal * corner1;
-    HepGeom::Point3D<double> corner2global = ladderSvcToglobal * corner2;
-    HepGeom::Point3D<double> corner3global = ladderSvcToglobal * corner3;
-    HepGeom::Point3D<double> corner4global = ladderSvcToglobal * corner4;
-    
-    double rMaxTmp = std::max(corner1global.perp(), 
-			      std::max(corner2global.perp(), 
-				       std::max(corner3global.perp(), corner4global.perp())));
-    // Thickness from layer radius to max radius of envelope
-    layerThicknessP = std::max(layerThicknessP, rMaxTmp - gmt_mgr->PixelLayerRadius());
 
-    //std::cout << rMaxTmp << std::endl;
-    //std::cout << layerThicknessP<< " "<<layerThicknessN <<std::endl;
+    double xCenter = 0.;
+    double yCenter = 0.;
+    if(firstLadderServices){
     
-    // No longer needed
-    delete firstLadderServices;
+      // We need the dimensions of the GeoPixelLadderServices. They are all the same in this regards
+      // so any of them will do -  use the first one.
+      
+      HepGeom::Point3D<double> corner1 = firstLadderServices->envelopeCornerC1();
+      HepGeom::Point3D<double> corner2 = firstLadderServices->envelopeCornerC2();
+      HepGeom::Point3D<double> corner3 = firstLadderServices->envelopeCornerA1();
+      HepGeom::Point3D<double> corner4 = firstLadderServices->envelopeCornerA2();
+      
+      // translate relative to sensor center (center of tilt rotation),
+      // then tilt then translate by radius of layer, then calculate r.
+      double xLadderServicesOffset = gmt_mgr->PixelLadderServicesX();
+      double yLadderServicesOffset = gmt_mgr->PixelLadderServicesY();
+      // xCenter, yCenter or coordinates of ladder services relative to active layer center (center of tilt rotation)
+      xCenter = (firstLadderServices->referenceX() + xLadderServicesOffset);
+      yCenter = (firstLadderServices->referenceY() + yLadderServicesOffset);
+      HepGeom::Transform3D ladderSvcToglobal = HepGeom::TranslateX3D(layerRadius) 
+	* HepGeom::RotateZ3D(ladderTilt) 
+	* HepGeom::Translate3D(xCenter, yCenter, 0);
+      HepGeom::Point3D<double> corner1global = ladderSvcToglobal * corner1;
+      HepGeom::Point3D<double> corner2global = ladderSvcToglobal * corner2;
+      HepGeom::Point3D<double> corner3global = ladderSvcToglobal * corner3;
+      HepGeom::Point3D<double> corner4global = ladderSvcToglobal * corner4;
+      
+      double rMaxTmp = std::max(corner1global.perp(), 
+				std::max(corner2global.perp(), 
+					 std::max(corner3global.perp(), corner4global.perp())));
+      // Thickness from layer radius to max radius of envelope
+      layerThicknessP = std::max(layerThicknessP, rMaxTmp - gmt_mgr->PixelLayerRadius());
 
+      //std::cout << rMaxTmp << std::endl;
+      //std::cout << layerThicknessP<< " "<<layerThicknessN <<std::endl;
+      
+      // No longer needed
+      delete firstLadderServices;
+      
+    }
+  
+      
     //
     // Determine the position of the ladders and service volume.
     //
@@ -324,7 +340,7 @@ GeoVPhysVol* GeoPixelLayer::Build() {
   //
   // A few variables needed below
   //  
-  double angle=360./nSectors*CLHEP::deg;
+  double angle=(nSectors>0)?(360./(double)nSectors*CLHEP::deg):(360.*CLHEP::deg);
   HepGeom::Transform3D transRadiusAndTilt = HepGeom::TranslateX3D(layerRadius)*HepGeom::RotateZ3D(ladderTilt);
   double phiOfModuleZero =  gmt_mgr->PhiOfModuleZero();
 
