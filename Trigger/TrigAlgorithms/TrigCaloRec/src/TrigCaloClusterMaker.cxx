@@ -265,13 +265,8 @@ HLT::ErrorCode TrigCaloClusterMaker::hltExecute(const HLT::TriggerElement* input
     return HLT::TOOL_FAILURE;
   }
 
-  xAOD::CaloClusterAuxContainer* aux = new xAOD::CaloClusterAuxContainer();
-  if (store()->record (aux, clusterCollKey + "Aux.").isFailure()) {
-    msg() << MSG::ERROR << "recording CaloClusterAuxContainer with key <" << clusterCollKey << "Aux.> failed" << endreq;
-    delete aux;
-    return HLT::TOOL_FAILURE;
-  }
-  m_pCaloClusterContainer->setStore (aux);
+  xAOD::CaloClusterAuxContainer aux;
+  m_pCaloClusterContainer->setStore (&aux);
   
 
 
