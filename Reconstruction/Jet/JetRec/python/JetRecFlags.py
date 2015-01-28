@@ -63,14 +63,12 @@ class useTruth(JobProperty):
   StoredValue  = True # this irrelevant  
 
   def get_Value(self):
-    if self.statusOn:
-      return JobProperty.get_Value(self)
-    else:
-      try:
-        from RecExConfig.RecFlags import rec
-        return rec.doTruth()
-      except ImportError:
-        return self.StoredValue
+      if self.statusOn:
+          return JobProperty.get_Value(self)
+      else:
+          from RecExConfig.RecFlags import rec
+          return rec.doTruth()
+  
 
 class truthFlavorTags(JobProperty):
   """ List of flavor tags for truth tagging jets.
@@ -93,6 +91,13 @@ class useTopo(JobProperty):
 
 class useTracks(JobProperty):
   """ If true, tracks and vertices are present and used in jet reconstruction.
+  """
+  statusOn     = True     
+  allowedTypes = ['bool']  # type
+  StoredValue  = True      # default value
+
+class useVertices(JobProperty):
+  """ If true, vertices are present and used in pflow jet reconstruction.
   """
   statusOn     = True     
   allowedTypes = ['bool']  # type
@@ -213,6 +218,7 @@ jobproperties.JetRecFlags.add_JobProperty(useTruth)
 jobproperties.JetRecFlags.add_JobProperty(truthFlavorTags)
 jobproperties.JetRecFlags.add_JobProperty(useTopo)
 jobproperties.JetRecFlags.add_JobProperty(useTracks)
+jobproperties.JetRecFlags.add_JobProperty(useVertices)
 jobproperties.JetRecFlags.add_JobProperty(useInDetTrackSelection)
 jobproperties.JetRecFlags.add_JobProperty(useMuonSegments)
 jobproperties.JetRecFlags.add_JobProperty(usePFlow)

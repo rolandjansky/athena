@@ -23,6 +23,11 @@ from RecExConfig.ObjKeyStore import cfgKeyStore
 from AthenaCommon import Logging
 jetlog = Logging.logging.getLogger('JetRec_jobOptions')
 
+# Disable usage of vertices in pflow jets, if we are using cosmic data.
+from AthenaCommon.BeamFlags import jobproperties
+if jobproperties.Beam.beamType == 'cosmics':
+  jetFlags.useVertices = False
+
 # Skip truth if rec says it is absent.
 if not rec.doTruth():
   jetFlags.useTruth = False 
