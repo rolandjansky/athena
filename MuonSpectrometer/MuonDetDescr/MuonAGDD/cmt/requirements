@@ -17,6 +17,7 @@ use AGDDKernel		    	AGDDKernel-*		 	DetectorDescription/AGDD
 use AGDDControl		    	AGDDControl-*			DetectorDescription/AGDD
 
 private
+use MuonAGDDBase			MuonAGDDBase-*			MuonSpectrometer/MuonDetDescr
 use StoreGate               StoreGate-*             Control
 use GeoModelInterfaces      GeoModelInterfaces-*    DetectorDescription/GeoModel
 use MuonGeoModel            MuonGeoModel-*          MuonSpectrometer

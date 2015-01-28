@@ -32,13 +32,13 @@
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 
-#include "MuonAGDD/micromegasHandler.h"
-#include "MuonAGDD/mm_TechHandler.h"
-#include "MuonAGDD/sTGCHandler.h"
-#include "MuonAGDD/sTGC_readoutHandler.h"
-#include "MuonAGDD/sTGC_TechHandler.h"
-#include "MuonAGDD/mmSpacerHandler.h"
-#include "MuonAGDD/mmSpacer_TechHandler.h"
+#include "MuonAGDDBase/micromegasHandler.h"
+#include "MuonAGDDBase/mm_TechHandler.h"
+#include "MuonAGDDBase/sTGCHandler.h"
+#include "MuonAGDDBase/sTGC_readoutHandler.h"
+#include "MuonAGDDBase/sTGC_TechHandler.h"
+#include "MuonAGDDBase/mmSpacerHandler.h"
+#include "MuonAGDDBase/mmSpacer_TechHandler.h"
 
 #include <fstream>
 
@@ -120,6 +120,7 @@ std::string MuonAGDDToolHelper::GetAGDD(bool dumpIt)
      detectorKey  = AtlasVersion ;
      detectorNode = "ATLAS"  ;
    } 
+
 
    const IRDBRecordset *recordsetAGDD = accessSvc->getRecordset("AGDD",detectorKey,detectorNode);
 
