@@ -286,7 +286,7 @@ namespace Trk{
     
       if (trackParametersWeight.determinant()<=0)  
       {
-        ATH_MSG_WARNING(" The determinant of the track covariance matrix is negative: " << trackParametersWeight.determinant());
+        ATH_MSG_ERROR(" The determinant of the track covariance matrix is negative: " << trackParametersWeight.determinant());
       }
       
 
@@ -376,7 +376,7 @@ namespace Trk{
 
       if (new_vrt_cov.determinant()<=0)
       {
-        ATH_MSG_ERROR(std::scientific << "The new vtx weight  matrix determinant is negative: "<< new_vrt_cov.determinant());
+        ATH_MSG_WARNING(std::scientific << "The new vtx weight  matrix determinant is negative: "<< new_vrt_cov.determinant());
       }
       
 //      std::cout << " new_vrt_cov " << new_vrt_cov << std::endl;
