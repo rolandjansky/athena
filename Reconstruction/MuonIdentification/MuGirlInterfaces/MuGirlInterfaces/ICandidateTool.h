@@ -78,8 +78,6 @@ public:
     virtual const RIO_OnTrackLists& getTgcHitsInSegments() = 0;
     virtual void candidateClear()=0;
     virtual void setSegmentManager(SegmentManager* pSegmentManager) = 0;
-    virtual void setT0Map(std::map<Identifier,const Muon::MuonSegment* >* map) = 0;
-    virtual std::map<Identifier,const Muon::MuonSegment* >* getT0Map() = 0;
     virtual bool hasInnerStationSegments() = 0;
     virtual bool isHoughMaxAssociated(MuonHough::MuonLayerHough::Maximum* max,int sector, int distance, int region) = 0;
 };

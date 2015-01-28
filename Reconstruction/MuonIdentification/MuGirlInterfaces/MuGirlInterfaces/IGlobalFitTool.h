@@ -50,23 +50,11 @@ namespace MuGirlNS
 
         typedef std::vector<const Muon::MuonSegment*> MuonSegmentList;
 
-        virtual const Trk::Track*   globalFit(const Trk::Track * IDTrack,
-        //virtual const Rec::TrackParticle*   globalFit(const Trk::Track * IDTrack,
+        virtual const Trk::Track*  globalFit(const Trk::Track * IDTrack,
                                               const MuonSegmentList& pMuonSegments,
                                               BooleanProperty m_doNTuple)=0;
-        virtual const Trk::Track*  globalFit(const MuonSegmentList & pMuonSegments,double qoverp, BooleanProperty doNTuple) = 0;
         virtual const Trk::Track*  globalFit(const MuonSegmentList & pMuonSegments, const Trk::Perigee*trk1, BooleanProperty doNTuple) = 0;
-        //virtual const TrackCollection* msFit(const MuonSegmentList & pMuonSegments, BooleanProperty doNTuple) = 0;
-        virtual const Trk::Track* standAloneRefit(const MuonSegmentList & pMuonSegments, const Trk::Track* cbtrk, BooleanProperty doNTuple) = 0;
-        virtual const Trk::Track* backExtrapolation(const Trk::Track& Track) = 0;
-
-/*
-        virtual  const Trk::Track* globalFit(const Trk::TrackParameters* trk, 
-                                             const MuonSegmentList & pMuonSegments, 
-                                             double qoverp, 
-                                             double eta, 
-                                             BooleanProperty doNTuple);
-*/
+        virtual const Trk::Track*  standAloneRefit(const Trk::Track& cbtrk) = 0;
         
         virtual StatusCode bookNTuple(NTuple::Tuple* pNTuple, const std::string type) = 0;
         virtual StatusCode fillNTuple(const Trk::Track* RefittedTrack) = 0;

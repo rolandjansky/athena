@@ -35,6 +35,11 @@ public:
             //std::cout << "Modified pSegment=" << pSeg << ",  isStore=" << itSeg->second->inStore << ",  map size: " << m_map.size() << std::endl;
         }
     }
+  void setInStore(const std::vector<const Muon::MuonSegment*>& segs, bool inStore = true)
+    {
+      for( auto seg : segs ) setInStore(seg,inStore);
+    }
+
     bool isNotMDT(const Muon::MuonSegment* pSeg) const
     {
         InfoMap::const_iterator itSeg = m_map.find(pSeg);
