@@ -164,8 +164,6 @@ public:
     //StatusCode fillSummary(CandidateSummary* pSummary,const Trk::MeasuredPerigee* pPerigee);
     StatusCode fillSummary(CandidateSummary* pSummary);
     StatusCode fillSummaryFromBetaRefit(CandidateSummary* pSummary);
-    //void fillChamberT0s(const std::vector<const Muon::MuonSegment*>& pSegments);
-    void fillChamberT0s();
 
 
     bool firstIsBest( const Muon::MuonSegment& seg1, const Muon::MuonSegment& seg2 ) const;
@@ -280,29 +278,6 @@ protected:
 
 };
 
-inline Candidate::Candidate(CandidateTool* pMuGirl) :
-        m_pMuGirl(pMuGirl),
-        m_pIDPerigee(NULL),
-        m_pIDTrkIsect(NULL),
-        m_pIDTrk(NULL),
-        m_pRefittedTrack(NULL),
-        m_pMSRefittedTrack(NULL),
-        m_pTrkRefittedTrack(NULL),
-        m_pMSTrkRefittedTrack(NULL),
-        m_bSaveMdtSegmentMakerInfo(false),
-        m_passAnn(false),
-        m_passStau(false),
-        m_pSegmentManager(NULL)
-{
-    clear();
-}
-
-inline Candidate::~Candidate()
-{
-    if (m_pIDPerigee!=0) {
-        delete m_pIDPerigee;
-    }
-}
 
 inline const Trk::TrackParameters* Candidate::IDPerigee() const
 {

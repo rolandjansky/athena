@@ -51,7 +51,6 @@ CandidateTool::CandidateTool(const std::string& t,
         m_doMM(false),
         m_doMdtHough(true),
         m_doSegments(true),
-        m_writeChamberT0s(false),
         m_sCscPrepDataCollection("CSC_Clusters"),
         m_sMdtPrepDataCollection("MDT_DriftCircles"),
         m_sRpcPrepDataCollection("RPC_Measurements"),
@@ -97,7 +96,6 @@ CandidateTool::CandidateTool(const std::string& t,
     declareProperty("doMM",                         m_doMM);
     declareProperty("doMdtHough",                   m_doMdtHough, "Call the MDT segment maker");
     declareProperty("doSegments",                   m_doSegments);
-    declareProperty("writeChamberT0s",              m_writeChamberT0s);
     //    declareProperty("doNTuple",                     m_doNTuple);
     declareProperty("CscPrepDataCollection",        m_sCscPrepDataCollection);
     declareProperty("MdtPrepDataCollection",        m_sMdtPrepDataCollection);
@@ -450,7 +448,6 @@ StatusCode CandidateTool::fill(int iTrack, const xAOD::TrackParticle* pTrackPart
 
     m_pCandidate->computeAngles();
 
-    if (m_writeChamberT0s) m_pCandidate->fillChamberT0s();
     return StatusCode::SUCCESS;
 }
 
@@ -513,16 +510,6 @@ const RIO_OnTrackLists& CandidateTool::getTgcHitsInSegments()
     return m_pCandidate->getTgcHitsInSegments();
 }
 
-
-std::map<Identifier,const Muon::MuonSegment* >*  CandidateTool::getT0Map()
-{
-    return m_pCandidate->getT0Map();
-}
-
-void CandidateTool::setT0Map(std::map<Identifier,const Muon::MuonSegment* >* map)
-{
-    m_pCandidate->setT0Map(map);
-}
 
 void CandidateTool::candidateClear()
 {

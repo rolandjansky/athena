@@ -58,6 +58,30 @@ using MuGirlNS::Chamber;
 std::set
     <const Trk::TrackSurfaceIntersection*> Intersection::m_TrkIsects;
 
+Candidate::Candidate(CandidateTool* pMuGirl) :
+        m_pMuGirl(pMuGirl),
+        m_pIDPerigee(NULL),
+        m_pIDTrkIsect(NULL),
+        m_pIDTrk(NULL),
+        m_pRefittedTrack(NULL),
+        m_pMSRefittedTrack(NULL),
+        m_pTrkRefittedTrack(NULL),
+        m_pMSTrkRefittedTrack(NULL),
+        m_bSaveMdtSegmentMakerInfo(false),
+        m_passAnn(false),
+        m_passStau(false),
+        m_pSegmentManager(NULL)
+{
+  clear();
+}
+
+Candidate::~Candidate()
+{
+    if (m_pIDPerigee!=0) {
+        delete m_pIDPerigee;
+    }
+}
+
 void Candidate::Cell::clear()
 {
     pIsect = NULL;
@@ -942,13 +966,11 @@ void Candidate::collectHits(TechnologyType eTech,
             {
                 if (pPrepData == NULL)
                 {
-                    //std::cout<<"sofia NULL pPrepData "<<std::endl;
                     continue;
                 }
                 const Muon::MdtPrepData* pMdtPrepData = dynamic_cast<const Muon::MdtPrepData*>(pPrepData);
                 if (pMdtPrepData == NULL)
                 {
-                   // std::cout<<"sofia pMdtPrepData is NULL "<<std::endl;
                     continue;
                 }
                 if (pMdtPrepData->tdc() == 0)
@@ -1159,27 +1181,6 @@ void Candidate::addT0Segments(const Muon::MuonSegment* pMuonSegment)
     m_pSegmentManager->addSegment(pMuonSegment,SegmentManager::NONE);
 }
 
-//void Candidate::fillChamberT0s(const std::vector<const Muon::MuonSegment*>& muonSegmentList)
-void Candidate::fillChamberT0s()
-{
-    if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg() << "Candidate::filChamberT0s" << endreq;
-    for (MuGirlNS::MuonSegmentList::const_iterator MuonSegItr=m_muonT0Segments.begin();  MuonSegItr!=m_muonT0Segments.end(); MuonSegItr++)
-    {
-        const Muon::MuonSegment* t0Seg = dynamic_cast<const Muon::MuonSegment*>(*MuonSegItr);
-        if (t0Seg)
-        {
-            Identifier chId = (m_pMuGirl->muonHelperTool())->chamberId(*t0Seg);
-            std::map<Identifier,const Muon::MuonSegment*>::iterator pos = m_pT0map->find(chId);
-            if (pos == m_pT0map->end() ) (*m_pT0map)[chId] = t0Seg;
-            else
-            {
-               if (firstIsBest(*t0Seg,*pos->second))
-                   pos->second = t0Seg;
-            }
-        }
-    }
-}
 
 void Candidate::computeChamberIntersections(TechnologyType eOrigTech,
         DistanceType eOrigDist,

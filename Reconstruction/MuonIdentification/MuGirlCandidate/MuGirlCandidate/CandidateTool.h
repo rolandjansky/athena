@@ -105,8 +105,6 @@ public:
     virtual const RIO_OnTrackLists& getRpcHitsInSegments();
     virtual const RIO_OnTrackLists& getTgcHitsInSegments();
     virtual void candidateClear();
-    virtual void setT0Map(std::map<Identifier,const Muon::MuonSegment* >* map);
-    virtual std::map<Identifier,const Muon::MuonSegment* >* getT0Map();
     virtual bool hasInnerStationSegments();
     virtual bool isHoughMaxAssociated(MuonHough::MuonLayerHough::Maximum* max, int sector, int distance, int region);
     bool doCSC() const
@@ -276,7 +274,6 @@ private:
     BooleanProperty                                 m_doMM;             /**< Process MM hits  */
     BooleanProperty                                 m_doMdtHough;       /**< Call the MDT segment maker */
     BooleanProperty                                 m_doSegments;       /**< Create segements (of any kind) */
-    BooleanProperty                                 m_writeChamberT0s;       /**< Create segements (of any kind) */
     StringProperty                                  m_sCscPrepDataCollection;
     StringProperty                                  m_sMdtPrepDataCollection;
     StringProperty                                  m_sRpcPrepDataCollection;
