@@ -466,7 +466,6 @@ namespace Trk
       ATH_MSG_WARNING("This track is returned not refitted");
       // throw std::string("Inversion of S matrix fails in track parameters refit");
     }
-    Sm.inverse();
     Sm = Sm.inverse().eval();
     AmgMatrix(3,3) posMomentumCovariance = -vrt_cov * A.transpose() * trkParametersWeight * B *Sm;
     AmgMatrix(3,3) momentumCovariance = Sm + vrt_weight.similarityT(posMomentumCovariance);
