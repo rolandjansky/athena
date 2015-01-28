@@ -44,6 +44,10 @@ def addStdEvgenArgs(parser):
                         help="optional generator configuration file",
                         type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True))
 
+    # parser.add_argument("--inputHepMCFile", group="Evgen",
+    #                     help="optional fully showered HepMC input event file",
+    #                     type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True))
+
     parser.add_argument("--evgenJobOpts", "--EvgenJobOpts", group="Evgen",
                         help="download and install the EvgenJobOpts tarball with the given name",
                         type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True))

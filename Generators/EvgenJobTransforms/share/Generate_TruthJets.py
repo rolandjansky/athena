@@ -17,7 +17,9 @@ jetFlags.useTracks = False
 jetFlags.eventShapeTools = []
 jetFlags.useTopo = False
 jetFlags.useMuonSegments = False
-jetFlags.usePflow = False
+if hasattr( jetFlags, 'usePFlow' ): jetFlags.usePFlow = False
+elif hasattr( jetFlags, 'usePflow'): jetFlags.usePflow = False
+else: raise NameError('jetFlags has no attribute usePflow or usePFlow') 
 jetFlags.useCaloQualityTool = False
 
 # Attach jet algorithms
