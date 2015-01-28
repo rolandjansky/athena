@@ -69,7 +69,7 @@ public:
     virtual const Trk::Track* globalFit(const MuonSegmentList & pMuonSegments,double qoverp, BooleanProperty doNTuple);
     virtual const Trk::Track* globalFit(const MuonSegmentList & pMuonSegments, const Trk::Perigee* trk1, BooleanProperty doNTuple);
 
-    virtual const Trk::Track* standAloneRefit(const MuonSegmentList & pMuonSegments, const Trk::Track* cbtrk, BooleanProperty doNTuple);
+    virtual const Trk::Track* standAloneRefit(const Trk::Track& cbtrk);
    
     virtual StatusCode bookNTuple(NTuple::Tuple* pNTuple, const std::string type);
     virtual StatusCode fillNTuple(const Trk::Track* RefittedTrack);
@@ -80,11 +80,7 @@ private:
     ToolHandle<Muon::MuonIdHelperTool> m_MuonIdHelperTool;
     ToolHandle<Muon::IMuonCompetingClustersOnTrackCreator> m_compClusterCreator;
     ToolHandle<Trk::IIntersector>                   m_pIntersector;
-    ToolHandle<Muon::IMuonTrackFinder> m_msTrackFitter;
     DoubleProperty m_probCut;
-    BooleanProperty m_doSAfit;
-
-    const Trk::Track* backExtrapolation(const Trk::Track& Track);
 
     PerigeeParameters* convertPerigee(const Trk::Perigee* trkPerigee);
     void SortMeasurementSet(Trk::MeasurementSet& inputMbs);
@@ -133,6 +129,9 @@ private:
     NTuple::Item<float>  m_RefittedTrkMeasurementSetSize;
     NTuple::Item<float>  m_RefittedTrkMeasurementsOnTrack;
     NTuple::Item<float>  m_RefittedTrkOutliersOnTrack;
+
+    unsigned int m_nrefits;
+    unsigned int m_nfailedRefits;
 };
 
 } // end of namespace
