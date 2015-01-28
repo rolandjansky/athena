@@ -34,6 +34,11 @@ if recAlgs.doEFlow() :
   PFlowObjectsInConeTool = ToolFactory(xAOD__PFlowObjectsInConeTool,
                                        name = "PFlowObjectsInConeTool",
                                        RetrievePFOTool = pfoTool)
+
+  from AthenaCommon.BeamFlags import jobproperties
+  useVertices = True
+  if jobproperties.Beam.beamType == 'cosmics':
+    useVertices = False
   
   from JetRec.JetRecStandard import jtm
   from JetRecTools.JetRecToolsConf import PFlowPseudoJetGetter
@@ -46,7 +51,8 @@ if recAlgs.doEFlow() :
     CalibratePFO       = False,
     SkipNegativeEnergy = True,
     UseNeutral         = True,
-    UseCharged         = False
+    UseCharged         = False,
+    UseVertices        = useVertices
     )
 
 # tool to collect topo clusters in cone

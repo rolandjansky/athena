@@ -55,4 +55,3 @@ for icut in CustomCuts:
   topSequence.insert(index,isoBuilderCustom)
 
 ##  --postInclude 'RecJobTransforms/UseFrontier.py' RAWtoESD:'IsolationAlgs/CustomTrackIsoGetter.py'
-# Reco_tf.py --inputRDOFile $INFILE --outputESDFile $OUTESD --outputAODFile $OUTAOD --autoConfiguration everything --postExec 'CfgMgr.MessageSvc().setError+=["HepMcParticleLink"]' --preExec 'rec.doTrigger.set_Value_and_Lock(False);' --ignoreErrors 'True' --maxEvents -1 --postInclude RAWtoESD:'IsolationAlgs/CustomTrackIsoGetter.py'
