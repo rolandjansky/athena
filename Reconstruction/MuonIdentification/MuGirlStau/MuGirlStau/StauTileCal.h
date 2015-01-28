@@ -76,7 +76,6 @@ namespace MuGirlNS
         double m_avgBeta;
         double m_rmsBeta;
 
-        ToolHandle<Trk::ITrackParticleCreatorTool> m_particleCreatorTool;
         StauTileCalCells* m_pCaloCells;
         bool m_hasCells;
         StauHits m_hits;

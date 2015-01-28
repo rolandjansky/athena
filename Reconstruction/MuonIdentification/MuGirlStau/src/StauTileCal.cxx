@@ -77,17 +77,7 @@ MuGirlNS::StauTileCal::StauTileCal(StauTool* pStauTool, MsgStream& log, const Tr
                 m_pCaloCells(NULL),
                 m_hasCells(false)
 {
-
-    //const Trk::VxCandidate* pVxCandidate = 0 ;
-
-    /*
-     Rec::TrackParticle* tp = m_pStau->particleCreator()->createParticle(trk,pVxCandidate,Trk::NoVtx);
-     //std::vector<const CaloCell*> cellsOnTrack = m_pToCalo->getCellsOnTrack(tp,tile1,tile3,true);
-     std::vector<const CaloCell*> cellsOnTrack = m_pToCalo->getCellsOnTrack(tp,em1,hec3,true);
-     initCaloCells(cellsOnTrack);
-     */
     m_pCaloCells = new StauTileCalCells();
-
 }
 
 static int BinFromE(double E)
