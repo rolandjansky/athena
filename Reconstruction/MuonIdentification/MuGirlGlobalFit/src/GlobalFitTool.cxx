@@ -44,17 +44,14 @@ GlobalFitTool::GlobalFitTool(const std::string& t,
         m_MuonIdHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
         m_compClusterCreator("Muon::TriggerChamberClusterOnTrackCreator/TriggerChamberClusterOnTrackCreator"),
         m_pIntersector("Trk::RungeKuttaIntersector/Trk::RungeKuttaIntersector"),
-        m_msTrackFitter("Muon::IMuonTrackFinder/MuonTrackSteering"),
         m_probCut(0.01),
-        m_doSAfit(false)
+        m_nrefits(0),
+        m_nfailedRefits(0)
 {
     declareInterface<IGlobalFitTool>(this);
     //  template for property decalration
     declareProperty("trackFitter",  m_trackFitter);
-    declareProperty("TrackSteering",m_msTrackFitter);
-    //declareProperty("ParticleCreatorTool", m_particleCreatorTool);
     declareProperty("ProbabilityCut", m_probCut);
-    declareProperty("doSAfit", m_doSAfit);
 }
 
 //================ Destructor =================================================
@@ -94,23 +91,6 @@ StatusCode GlobalFitTool::initialize()
         return StatusCode::RECOVERABLE;
 
     msg(MSG::INFO) << "Retrieved tool " << m_compClusterCreator << endreq;
-
-    msg(MSG::DEBUG) << "doSAfit " << m_doSAfit << endreq;
-
-    if (m_doSAfit)
-    {
-       if (m_msTrackFitter.retrieve().isFailure())
-       {
-          msg(MSG::WARNING) <<"Could not get " << m_msTrackFitter <<endreq; 
-          return StatusCode::RECOVERABLE;
-       }
-       else
-	 {
-	   msg(MSG::INFO) << "Retrieved tool " << m_msTrackFitter << endreq;
-	 }
-    }
-
-
     msg(MSG::INFO) << "initialize() successful in " << name() << endreq;
     return StatusCode::SUCCESS;
 }
@@ -120,8 +100,9 @@ StatusCode GlobalFitTool::initialize()
 StatusCode GlobalFitTool::finalize()
 {
     msg(MSG::INFO) << "Finalizing " << name() << " - package version " << PACKAGE_VERSION << endreq;
-    StatusCode sc = AthAlgTool::finalize();
-    return sc;
+    float fracFailed = m_nrefits != 0 ? m_nfailedRefits/m_nrefits : 0.;
+    msg(MSG::INFO) << " Total refits " << m_nrefits << " failed fits " << m_nfailedRefits << " fraction " << fracFailed << endreq;
+    return StatusCode::SUCCESS;
 }
 
 //============================================================================================
@@ -247,6 +228,10 @@ Trk::MeasurementSet GlobalFitTool::prepareMeasurementSet(const MuonSegmentList &
     for (MuonSegmentList::const_iterator MuonSegItr = pMuonSegments.begin(); MuonSegItr != pMuonSegments.end(); MuonSegItr++)
     {
         const Muon::MuonSegment* pSegment = *MuonSegItr;
+	
+	auto checkSegment = pSegment->rioOnTrack(0);
+	if (!checkSegment) continue;
+
         const Identifier& id = pSegment->rioOnTrack(0)->identify();
         if (m_MuonIdHelperTool->isMdt(id)) SegmentTechnology = "MDT";
         if (m_MuonIdHelperTool->isRpc(id)) SegmentTechnology = "RPC";
@@ -547,139 +532,16 @@ const Trk::Track* GlobalFitTool::globalFit(const Trk::Track * IDTrack, const Muo
 }
 //=================================  standAloneRefit
 
-const Trk::Track* GlobalFitTool::standAloneRefit(const MuonSegmentList & pMuonSegments,const Trk::Track* cbtrack=NULL,BooleanProperty doNTuple=false)
+const Trk::Track* GlobalFitTool::standAloneRefit(const Trk::Track& cbtrack)
 {
-//============== SEGMENT PRESEL
-  MuonSegmentList newMuonSegments;
-  for (MuonSegmentList::const_iterator MuonSegItr = pMuonSegments.begin(); MuonSegItr != pMuonSegments.end(); MuonSegItr++)
-    {
-        const Muon::MuonSegment* pSegment = *MuonSegItr;
-        const Identifier& id = pSegment->rioOnTrack(0)->identify();
-
-        int ndf;
-        double chisq;
-        double segmentProbability;
-        if (pSegment->fitQuality() != NULL)
-        {
-            ndf = pSegment->fitQuality()->numberDoF();
-            chisq = pSegment->fitQuality()->chiSquared();
-            if (ndf > 0 && chisq > 0)
-                segmentProbability = 1. - Genfun::CumulativeChiSquare(ndf)(chisq);
-            else continue;
-        }
-        else continue;
-
-
-        if (m_MuonIdHelperTool->isMdt(id) && segmentProbability < m_probCut ) continue;
-        if (!m_MuonIdHelperTool->isMdt(id) && !m_MuonIdHelperTool->isCsc(id)) continue;
-
-
-       newMuonSegments.push_back(*MuonSegItr);
-   }
-      
- if (msgLvl(MSG::DEBUG)) msg() <<"Using "<< newMuonSegments.size()<<" muon segments "<<endreq;
-
- TrackCollection * newTracks = m_msTrackFitter->find(newMuonSegments);
-
-
- const Trk::Track* backextrpTrack = NULL;
-
- if (newTracks ==NULL || newTracks->size() == 0 ) 
-   {
-      if (cbtrack == NULL) return NULL;
-      else
-      {
-         const Trk::Track* RefittedTrack=m_trackFitter->standaloneRefit(*cbtrack);
-         if (RefittedTrack == NULL)
-            return NULL;
-         else
-         {   
-
-            const Trk::Perigee* pRefittedPerigee=RefittedTrack->perigeeParameters();
-            if (pRefittedPerigee!=NULL)
-            {
-                msg(MSG::DEBUG) << "standaloneRefit found a track: pT "<< 
-                pRefittedPerigee->pT()<<" eta "<< pRefittedPerigee->eta() <<
-                " phi "<< pRefittedPerigee->parameters()[Trk::phi0]<<endreq;
-
-                const Trk::Track* extrpTrack = backExtrapolation(*RefittedTrack);
-                if(backextrpTrack==NULL)backextrpTrack = extrpTrack;
-
-                if (extrpTrack !=NULL)
-
-                if (doNTuple) if (fillNTuple(extrpTrack).isFailure())
-                    msg(MSG::WARNING) << "GlobalFitTool Cannot fill msTrack in NTuple" << endreq;
-            }
-
-         }
-      }
-   }
-   else 
-  {
-     if (msgLvl(MSG::DEBUG)) msg() <<"Found "<< newTracks->size()<<" ms tracks "<<endreq;
-     int trk_index = 0;
-     for (unsigned int tk=0;tk<newTracks->size();++tk)
-     {
-         if ( !newTracks->at(tk) ) continue;
-         const Trk::Track* msTrack = (*newTracks)[tk];
-         if (msTrack!=NULL)
-         {
-            
-             const Trk::Perigee* pRefittedPerigee=msTrack->perigeeParameters();
-             if (pRefittedPerigee!=NULL)
-             {
-                msg(MSG::DEBUG) << "ms Fit found a track: pT "<< 
-                pRefittedPerigee->pT()<<" eta "<< pRefittedPerigee->eta() <<
-                " phi "<< pRefittedPerigee->parameters()[Trk::phi0]<<endreq;
-
-                const Trk::Track* extrpTrack = backExtrapolation(*msTrack);
-	        if(backextrpTrack==NULL)backextrpTrack = extrpTrack;
-	     
-                if (extrpTrack !=NULL)
-                {
-
-	          const Trk::Perigee* pExtrpPerigee=extrpTrack->perigeeParameters();
-
-	          if (pExtrpPerigee!=NULL)
-                    {
-                      trk_index = tk;
-		      msg(MSG::DEBUG) << "extrapolated track: pT "<< 
-		         pExtrpPerigee->pT()<<" eta "<< pExtrpPerigee->eta() <<
-		         " phi "<< pExtrpPerigee->parameters()[Trk::phi0]<<endreq;
-                      break;
-		      if (doNTuple) if (fillNTuple(extrpTrack).isFailure())
-		         msg(MSG::WARNING) << "GlobalFitTool Cannot fill msTrack in NTuple" << endreq;
-                    }
-                }
-             }
-          }
-     }
-
-     for (unsigned int trk=trk_index;trk<newTracks->size();++trk)
-     //for (unsigned int trk=0;trk<newTracks->size();trk++)
-       delete (*newTracks)[trk];      
+  ++m_nrefits;
+  const Trk::Track* refittedTrack=m_trackFitter->standaloneRefit(cbtrack);
+  if (refittedTrack == nullptr){
+    ++m_nfailedRefits;
+    if( m_nfailedRefits < 10 ) ATH_MSG_WARNING("standaloneRefit failed ");
+    return nullptr;
   }
- // return newTracks;
- //return (*newTracks)[0];
- return backextrpTrack;
-}
-// ======================== run Back Extrapolation
-
-const Trk::Track* GlobalFitTool::backExtrapolation(const Trk::Track& Track) 
-{
- msg(MSG::DEBUG) << "In backExtrapolation "<<endreq; 
- const Trk::Perigee* perig = Track.perigeeParameters();
- if (perig != NULL)
- { 
-    msg(MSG::DEBUG) << "Found MS  perigee "<<endreq; 
-    const Trk::Track* extrp =   m_trackFitter->standaloneFit(Track);
-    if (extrp != NULL)
-        msg(MSG::DEBUG) << "Found extrapolated track "<< endreq;
-    else msg(MSG::DEBUG) << "extrapolated track is NULL "<<endreq;
-    return extrp;
- }
- else return NULL;
-
+  return refittedTrack;
 }
 
 //===================================================================================================
