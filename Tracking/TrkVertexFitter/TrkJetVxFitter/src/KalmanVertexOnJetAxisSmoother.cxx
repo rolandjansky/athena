@@ -397,9 +397,8 @@ namespace Trk
       Amg::MatrixX vrt_removed_tracks_covariance = vrt_removed_tracks_weight;
 
       //4.October 2014 remove smartInversion for now (problems with numerical accuracy)
-//      vrt_removed_tracks_covariance=vrt_removed_tracks_weight.inverse().eval();
-	vrt_removed_tracks_covariance=(vrt_removed_tracks_covariance.transpose().eval()+vrt_removed_tracks_covariance)/2.0;
-// After symmetrizing the matrix before inversion, the smart inversion works again, and move back. wesong@cern.ch 28/05/2016
+      vrt_removed_tracks_covariance=vrt_removed_tracks_weight.inverse().eval();
+/*
       try 
       {
         m_Updator->smartInvert(vrt_removed_tracks_covariance);
@@ -409,7 +408,7 @@ namespace Trk
         msg(MSG::ERROR)  << a << " Doing inversion the normal way " << endreq;
         vrt_removed_tracks_covariance=vrt_removed_tracks_weight.inverse().eval();
       }
-
+*/
       const Amg::VectorX vrt_removed_tracks_pos=vrt_removed_tracks_covariance*vrt_removed_tracks_weight_times_vrt_pos;
     
       #ifdef KalmanVertexOnJetAxisSmoother_DEBUG
