@@ -314,7 +314,9 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
     ladderPhys->add(modulephys );
 
     // Now store the xform by identifier:
-    Identifier id = m_theSensor.getID();
+    Identifier id;
+    if(!b3DModule)  id = m_theSensor.getID();
+    else id = theSensor3D.getID();
     DDmgr->addAlignableTransform(0,id,xform,modulephys);
     
   }
