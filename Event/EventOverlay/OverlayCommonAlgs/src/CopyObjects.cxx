@@ -74,7 +74,7 @@ StatusCode CopyObjects::overlayExecute() {
   }
 
   if ( m_truth ) {
-     copyAthenaHitObject<TrackRecordCollection, TrackRecord>(&*m_storeGateOutput, &*m_storeGateMC);
+     copyAllObjectsOfType<TrackRecordCollection>(&*m_storeGateOutput, &*m_storeGateMC);
      copyAthenaHitObject<CaloCalibrationHitContainer,CaloCalibrationHit>(&*m_storeGateOutput, &*m_storeGateMC);
      copySDOobject<InDetSimDataCollection,InDetSimData>(&*m_storeGateOutput, &*m_storeGateMC);
      copyMuonSDOobject<MuonSimDataCollection,MuonSimData>(&*m_storeGateOutput, &*m_storeGateMC, "MDT_SDO");
