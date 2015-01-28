@@ -175,8 +175,10 @@ Track::print_parameters (void) const
     }
     else
     {
-	std::cout << "  prob" 	<< std::setw(6) << std::setprecision(3)
+	int prec	= std::cout.precision();
+	std::cout << "  prob" << std::setw(6) << std::setprecision(3)
 		  << m_fitQuality->fit_probability();
+	std::cout.precision(prec);
     }
     if (m_hitQuality != 0)
     {

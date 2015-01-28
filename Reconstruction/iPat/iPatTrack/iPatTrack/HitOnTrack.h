@@ -150,7 +150,11 @@ protected:
     HitStatus					m_status;
     const Trk::Surface*				m_surface;
     bool					m_surfaceOwner;
-    bool					m_trtThreshold;	
+    bool					m_trtThreshold;
+
+    private:
+    // forbidden assignment operator: no implementation
+    HitOnTrack &operator= (const HitOnTrack&);
 };
 
 //<<<<<< INLINE PUBLIC MEMBER FUNCTIONS                                 >>>>>>
