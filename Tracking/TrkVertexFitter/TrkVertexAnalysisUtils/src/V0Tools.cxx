@@ -261,6 +261,7 @@ namespace Trk
     delete fullCov;
 
     double massVarsq = V0_merr(0,0);
+    if (massVarsq <= 0.) ATH_MSG_DEBUG("massError: negative sqrt massVarsq " << massVarsq);
     double massVar = (massVarsq>0.) ? sqrt(massVarsq) : 0.;
     double massErr = massVar/(2.*mass);
     return massErr;
@@ -338,6 +339,7 @@ namespace Trk
       }
     }
     delete fullCov;
+    if (err <= 0.) ATH_MSG_DEBUG("massError: negative sqrt err " << err);
     return (err>0.) ? sqrt(err) : 0.;
   }
 
@@ -410,6 +412,7 @@ namespace Trk
     Amg::MatrixX V0_merr = D_vec.transpose() * V0_cor * D_vec;
 
     double massVarsq = V0_merr(0,0);
+    if (massVarsq <= 0.) ATH_MSG_DEBUG("massError: negative sqrt massVarsq " << massVarsq);
     double massVar = (massVarsq>0.) ? sqrt(massVarsq) : 0.;
     double massErr = massVar/(2.*mass);
     return massErr;
@@ -442,8 +445,6 @@ namespace Trk
       }
     }
     else {
-      //ATH_MSG_DEBUG("massErr <= 0");
-      //throw std::runtime_error("massErr <= 0");
       return -1.;
     }
   }
@@ -582,7 +583,6 @@ namespace Trk
       }
     } else {
       ATH_MSG_DEBUG("dof <= 0");
-      //throw std::runtime_error("dof <= 0");
       return -1.;
     }
 
@@ -629,6 +629,7 @@ namespace Trk
     double dx = vxCandidate->position().x();
     double dy = vxCandidate->position().y();
     double rxyVar = rxy_var(dx,dy,cov);
+    if (rxyVar <= 0.) ATH_MSG_DEBUG("rxyError: negative sqrt rxyVar " << rxyVar);
     return (rxyVar>0.) ? sqrt(rxyVar) : 0.;
   }
 
@@ -638,6 +639,7 @@ namespace Trk
     double dx = (vxCandidate->position() - vertex->position()).x();
     double dy = (vxCandidate->position() - vertex->position()).y();
     double rxyVar = rxy_var(dx,dy,cov);
+    if (rxyVar <= 0.) ATH_MSG_DEBUG("rxyError: negative sqrt rxyVar " << rxyVar);
     return (rxyVar>0.) ? sqrt(rxyVar) : 0.;
   }
 
@@ -647,6 +649,7 @@ namespace Trk
     double dx = (vxCandidate->position() - vertex).x();
     double dy = (vxCandidate->position() - vertex).y();
     double rxyVar = rxy_var(dx,dy,cov);
+    if (rxyVar <= 0.) ATH_MSG_DEBUG("rxyError: negative sqrt rxyVar " << rxyVar);
     return (rxyVar>0.) ? sqrt(rxyVar) : 0.;
   }
 
@@ -736,6 +739,7 @@ namespace Trk
     delete fullCov;
 
     PtErrsq = PtErrSq(0,0);
+    if (PtErrsq <= 0.) ATH_MSG_DEBUG("ptError: negative sqrt PtErrsq " << PtErrsq);
     return (PtErrsq>0.) ? sqrt(PtErrsq) : 0.;
   }
 
@@ -763,7 +767,7 @@ namespace Trk
     D_vec(2) = (vxCandidate->position() - vertex->position()).z();
     Amg::MatrixX sepVarsqMat = D_vec.transpose() * cov * D_vec;
     double sepVarsq = sepVarsqMat(0,0); 
-    if (sepVarsq <= 0.) ATH_MSG_INFO("separation: negative sqrt sepVarsq " << sepVarsq);
+    if (sepVarsq <= 0.) ATH_MSG_DEBUG("separation: negative sqrt sepVarsq " << sepVarsq);
     double sepVar = (sepVarsq>0.) ? sqrt(sepVarsq) : 0.;
     return sepVar;
   }
@@ -777,7 +781,7 @@ namespace Trk
     D_vec(2) = (vxCandidate->position() - vertex).z();
     Amg::MatrixX sepVarsqMat = D_vec.transpose() * cov * D_vec;
     double sepVarsq = sepVarsqMat(0,0);
-    if (sepVarsq <= 0.) ATH_MSG_INFO("separation: negative sqrt sepVarsq " << sepVarsq);
+    if (sepVarsq <= 0.) ATH_MSG_DEBUG("separation: negative sqrt sepVarsq " << sepVarsq);
     double sepVar = (sepVarsq>0.) ? sqrt(sepVarsq) : 0.;
     return sepVar;
   }
@@ -930,6 +934,7 @@ namespace Trk
     }
 
     double a0Errsq = V0_err(0,0);
+    if (a0Errsq <= 0.) ATH_MSG_DEBUG("a0Error: negative sqrt a0Errsq " << a0Errsq);
     double a0Err = (a0Errsq>0.) ? sqrt(a0Errsq) : 0.;
     delete fullCov;
     return a0Err;
@@ -977,7 +982,7 @@ namespace Trk
       Py += bPer->momentum()[Trk::py];
       Pz += bPer->momentum()[Trk::pz];
       if (fullCov == 0) {
-        //V0_cov.block(5*it,5*it,5*it+4,5*it+4) = *(bPer->covariance());
+        //V0_cov.block(5*it,5*it,5,5) = *(bPer->covariance());
         const AmgSymMatrix(5)* cov_tmp = bPer->covariance();
         V0_cov(5*it+2,5*it+2) = (*cov_tmp)(2,2);
         V0_cov(5*it+2,5*it+3) = (*cov_tmp)(2,3);
@@ -1070,6 +1075,7 @@ namespace Trk
     }
 
     double a0Errsq = V0_err(0,0);
+    if (a0Errsq <= 0.) ATH_MSG_DEBUG("a0Error: negative sqrt a0Errsq " << a0Errsq);
     double a0Err = (a0Errsq>0.) ? sqrt(a0Errsq) : 0.;
     delete fullCov;
     return a0Err;
@@ -1198,6 +1204,7 @@ namespace Trk
     }
 
     double LxyErrsq = V0_err(0,0);
+    if (LxyErrsq <= 0.) ATH_MSG_DEBUG("lxyError: negative sqrt LxyErrsq " << LxyErrsq);
     delete fullCov;
     return (LxyErrsq>0.) ? sqrt(LxyErrsq) : 0.;
   }
@@ -1410,6 +1417,7 @@ namespace Trk
     }
 
     double tauErrsq = V0_err(0,0);
+    if (tauErrsq <= 0.) ATH_MSG_DEBUG("tauError: negative sqrt tauErrsq " << tauErrsq);
     double tauErr = (tauErrsq>0.) ? sqrt(tauErrsq) : 0.;
     delete fullCov;
     return CONST*tauErr;
@@ -1560,6 +1568,7 @@ namespace Trk
     }
 
     double tauErrsq = V0_err(0,0);
+    if (tauErrsq <= 0.) ATH_MSG_DEBUG("tauError: negative sqrt tauErrsq " << tauErrsq);
     double tauErr = (tauErrsq>0.) ? sqrt(tauErrsq) : 0.;
     delete fullCov;
     return CONST*tauErr;
@@ -2107,6 +2116,7 @@ namespace Trk
     Amg::MatrixX V0_merr = D_vec.transpose() * V0_cor * D_vec;
 
     double massVarsq = V0_merr(0,0);
+    if (massVarsq <= 0.) ATH_MSG_DEBUG("massError: negative sqrt massVarsq " << massVarsq);
     double massVar = (massVarsq>0.) ? sqrt(massVarsq) : 0.;
     double massErr = massVar/(2.*mass);
     return massErr;
@@ -2203,6 +2213,7 @@ namespace Trk
     Amg::MatrixX V0_merr = D_vec.transpose() * V0_cor * D_vec;
 
     double massVarsq = V0_merr(0,0);
+    if (massVarsq <= 0.) ATH_MSG_DEBUG("massError: negative sqrt massVarsq " << massVarsq);
     double massVar = (massVarsq>0.) ? sqrt(massVarsq) : 0.;
     double massErr = massVar/(2.*mass);
     return massErr;
@@ -2513,8 +2524,6 @@ namespace Trk
 
   Amg::MatrixX * V0Tools::convertCovMatrix(xAOD::Vertex * vxCandidate) const
   {
-    //assert(vxCandidate->covariance() != 0);
-
     unsigned int NTrk = vxCandidate->nTrackParticles();
     std::vector<float> matrix;
     matrix = vxCandidate->covariance();
@@ -2542,7 +2551,6 @@ namespace Trk
         ij++;
        }
     }
-
     // NOTE: mtx is a pointer! Take care of deleting it after you do not
     // need it anymore!!!!
     return mtx;
