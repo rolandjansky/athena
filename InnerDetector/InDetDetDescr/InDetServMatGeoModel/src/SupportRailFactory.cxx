@@ -221,8 +221,9 @@ void SupportRailFactory::create(GeoPhysVol *mother)
 
     //GeoBox** railEndcap = new GeoBox*[numberOfPieces];
     GeoBox* railEndcap[numberOfPieces];
-    CLHEP::Hep3Vector* vectorForTrans = new CLHEP::Hep3Vector[numberOfPieces];
-    //CLHEP::Hep3Vector vectorForTrans[numberOfPieces];
+    //    CLHEP::Hep3Vector* vectorForTrans = new CLHEP::Hep3Vector[numberOfPieces];
+    //    //CLHEP::Hep3Vector vectorForTrans[numberOfPieces];
+    CLHEP::Hep3Vector vectorForTrans[numberOfPieces];
 
     GeoBox* railEndcapFirst = new GeoBox(railEBx/2., railEBy/2., railLengthE/2);
     CLHEP::Hep3Vector vectorForTransFirst (0., 0., 0.);

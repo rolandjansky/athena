@@ -23,6 +23,7 @@ public:
 
   /// Construct an empty tracker, to be filled by Builder
   ServicesTracker(const Athena::MsgStreamMember&);
+  ~ServicesTracker();
 
   // Construct somehow (for testing)
   //ServicesTracker(bool toy);
@@ -70,12 +71,6 @@ private:
   std::vector<ServiceVolume*>  m_volumes;
 
   const InDetServMatGeometryManager* m_geoMgr;
-
-  /// for debugging only, use hard-wired numbers
-  /*
-  void constructBarrelLayer( double radius, double zHalfLength, DetType::Type type);
-  void constructEndcapLayer( double zpos, double rmin, double rmax, DetType::Type type);
-  */
 
   void add( std::map<std::string, double>& res, const std::string& name, double len);
   void addEosMaterial( const ServiceVolume& vol, std::vector<ServiceMaterial>& result);

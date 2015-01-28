@@ -148,7 +148,7 @@ void InDetServMatBuilderToolSLHC::build()
       msg(MSG::DEBUG) << " sctDiskRMax(" << i << ") : " << m_geoMgr->sctDiskRMax(i) << endreq;
     }
     msg(MSG::DEBUG) << "sctInnerSupport radius: " << m_geoMgr->sctInnerSupport() << endreq;
-    msg(MSG::DEBUG) << "PST inner radius: " << m_geoMgr->pstRMin() << endreq;
+    msg(MSG::DEBUG) << "PST inner radius: " << m_geoMgr->SupportTubeRMin("PST") << endreq;
     msg(MSG::DEBUG) << "Pixel Envelope radius: " << m_geoMgr->pixelEnvelopeRMax() << endreq;
   }
 
@@ -208,6 +208,7 @@ void InDetServMatBuilderToolSLHC::addServiceVolume( const ServiceVolume& vol)
 		  << " with " << vol.materials().size() << " materials" << endreq;
 
   InDetDD::ServiceVolume * param = new InDetDD::ServiceVolume;
+  //  std::unique_ptr<InDetDD::ServiceVolume>  param( new InDetDD::ServiceVolume); 
   std::vector<std::string> linearComponents;
   std::vector<double>      linWeights;
 
@@ -250,6 +251,7 @@ void InDetServMatBuilderToolSLHC::addServiceVolume( const ServiceVolume& vol)
 
     param->setMaterial(newMat);
     addService(param);
+    //    addService(param.release()); 
   }
 }
 
