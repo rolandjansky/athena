@@ -59,6 +59,9 @@ public:
 
   // Number of modules per stave
   int pixelModulesPerStave(int layer) const;
+  double pixelLadderBentStaveAngle(int layer) const;
+  int pixelBentStaveNModule(int layer) const;
+  double pixelLadderModuleDeltaZ(int layer) const;
 
   // Number of staves/sectors per endcap layer 
   int pixelEndcapNumSectorsForLayer(int layer) const;
@@ -78,6 +81,12 @@ public:
 
   // disk max radius
   double pixelDiskRMax(int disk) const; 
+
+ 
+  // Z-axis Offset for EOS services
+  double pixelDiskEOSZOffset(int disk) const ;
+
+  std::string pixelDiskServiceRoute(int disk) const;
 
   // pixel envelpoe radius
   double pixelEnvelopeRMax() const;
@@ -126,13 +135,12 @@ public:
   // Inner radius of first SCT support
   double sctInnerSupport() const;
 
-  // Pixel support tubes dimensions: PST is the outer pixel support tube, IST is the inner one
-  double pstRMin() const;
-  double pstRMax() const;
-  double pstZMax() const;
-  double istRMin() const;
-  double istRMax() const;
-  double istZMax() const;
+  // Pixel support tubes dimensions: specify name from simple services table
+  double SupportTubeRMin(std::string name) const;
+  double SupportTubeRMax(std::string name) const;
+  double SupportTubeZMin(std::string name) const;
+  double SupportTubeZMax(std::string name) const;
+  int    SupportTubeExists(std::string name) const;
 
 private:
   // Record sets
@@ -149,6 +157,7 @@ private:
   IRDBRecordset_ptr m_PixelReadout;
   IRDBRecordset_ptr m_PixelWeights;
   IRDBRecordset_ptr m_PixelEnvelope;
+  IRDBRecordset_ptr m_PixelSvcRoute;
 
   IRDBRecordset_ptr m_SctBrlGeneral;
   IRDBRecordset_ptr m_SctBrlLayer;
@@ -171,9 +180,8 @@ private:
   // Material Manager
   InDetMaterialManager * m_matMgr;
 
-  // index of PST and IST in  m_InDetSimpleServices table, -1 if not found. Could be cashed for speed.
-  int    pstIndex() const;
-  int    istIndex() const;
+  // index of named support tube in  m_InDetSimpleServices table, -1 if not found. Could be cached for speed.
+  int SupportTubeIndex(std::string name) const;
 
 };
 

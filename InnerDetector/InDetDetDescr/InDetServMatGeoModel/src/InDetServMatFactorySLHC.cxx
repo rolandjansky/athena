@@ -43,6 +43,9 @@ InDetServMatFactorySLHC::InDetServMatFactorySLHC(const InDetServMatAthenaComps *
      m_athenaComps(athenaComps),
      m_manager(0)
 {
+   // create a new det manager
+  m_manager = new InDetDD::InDetServMatManager();
+
 }
 
 
@@ -56,9 +59,6 @@ InDetServMatFactorySLHC::~InDetServMatFactorySLHC()
 //## Other Operations (implementation)
 void InDetServMatFactorySLHC::create(GeoPhysVol *world )
 {
-
-   // create a new det manager
-  m_manager = new InDetDD::InDetServMatManager();
 
   // Get the material manager:  
   InDetMaterialManager * materialManager = new InDetMaterialManager("InDetServMatMaterialManager",m_athenaComps);

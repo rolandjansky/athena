@@ -21,29 +21,24 @@ using namespace std;
 ServicesTracker::ServicesTracker(const Athena::MsgStreamMember& msg):
   m_geoMgr(0),
   m_msg(msg)
-{}
-
-/*
-ServicesTracker::ServicesTracker( bool toy) 
 {
-  if (!toy) return;
-
-  constructBarrelLayer( 5, 50, DetType::Pixel);
-  constructBarrelLayer( 8, 60, DetType::Pixel);
-  constructBarrelLayer( 15, 80, DetType::Pixel);
-  constructBarrelLayer( 20, 80, DetType::Pixel);
-  constructBarrelLayer( 35, 120, DetType::ShortStrip);
-  constructBarrelLayer( 45, 120, DetType::ShortStrip);
-  constructBarrelLayer( 60, 120, DetType::ShortStrip);
-  constructBarrelLayer( 75, 120, DetType::LongStrip);
-  constructBarrelLayer( 95, 120, DetType::LongStrip);
-
-  constructEndcapLayer( 90, 15, 25, DetType::Pixel);
-  constructEndcapLayer( 100, 15, 25, DetType::Pixel);
-  constructEndcapLayer( 110, 15, 25, DetType::Pixel);
-  constructEndcapLayer( 120, 15, 25, DetType::Pixel);
+  m_barrelLayers.clear();
+  m_barrelPixelLayers.clear();
+  m_endcapPixelLayers.clear();
+  m_barrelStripLayers.clear();
+  m_endcapStripLayers.clear();
 }
-*/
+
+ServicesTracker::~ServicesTracker()
+{
+
+  for (std::vector<ServiceVolume *>::iterator iter = m_volumes.begin(); iter != m_volumes.end(); ++iter) delete *iter;
+  
+  for (LayerContainer::const_iterator iter=m_barrelLayers.begin(); iter!=m_barrelLayers.end(); ++iter) delete *iter;
+  for (LayerContainer::const_iterator iter=m_endcapPixelLayers.begin(); iter!=m_endcapPixelLayers.end(); ++iter) delete *iter;
+  for (LayerContainer::const_iterator iter=m_endcapStripLayers.begin(); iter!=m_endcapStripLayers.end(); ++iter) delete *iter;
+
+}
 
 void ServicesTracker::constructBarrelLayer( double radius, double zHalfLength, 
 					    DetType::Type type, int layerNum,
@@ -58,21 +53,6 @@ void ServicesTracker::constructBarrelLayer( double radius, double zHalfLength,
   if (type == DetType::Pixel) m_barrelPixelLayers.push_back(nl);
   else                        m_barrelStripLayers.push_back(nl);
 }
-/*
-void ServicesTracker::constructBarrelLayer( double radius, double zHalfLength, DetType::Type type)
-{
-  using namespace std;
-  // FIXME
-  double stavew;
-  if (type == DetType::Pixel) stavew = 4;
-  else stavew = 10;
-  int nstaves = int(2.*M_PI*radius / stavew);
-
-  msg(MSG::INFO) << "layer at radius " << radius << " has " << nstaves << " staves" << endreq;
-
-  constructBarrelLayer( radius, zHalfLength, type, 0, nstaves, "");
-}
-*/
 
 void ServicesTracker::constructEndcapLayer( double zpos, double rmin, double rmax, 
 					    DetType::Type type, int layerNum,
@@ -87,66 +67,14 @@ void ServicesTracker::constructEndcapLayer( double zpos, double rmin, double rma
   if (type == DetType::Pixel) m_endcapPixelLayers.push_back(nl);
   else                        m_endcapStripLayers.push_back(nl);
 }
-/*
-void ServicesTracker::constructEndcapLayer( double zpos, double rmin, double rmax, 
-					    DetType::Type type)
-{
-  using namespace std;
-  // FIXME
-  double stavew;
-  if (type == DetType::Pixel) stavew = 4;
-  else stavew = 10;
-  int nstaves = int(2.*M_PI*rmax / stavew);
-
-  msg(MSG::INFO) << "endcap layer at z " << zpos << " has " << nstaves << " staves" << endreq;
-
-  constructEndcapLayer( zpos, rmin, rmax, type, 0, nstaves, "");
-}
-*/
 
 void ServicesTracker::computeServicesPerLayer()
 {
   Routing2 routing(msgStream());
   routing.createRoutingVolumes(*this);
 }
-/*
-void ServicesTracker::finaliseServices()
-{
-  using namespace std;
-
-  msg(MSG::INFO) << "Entering ServicesTracker::finaliseServices()" << endreq;
-
-  typedef  std::vector<ServiceVolume*>::iterator VolumeIter;
-  for (VolumeIter iv=m_volumes.begin(); iv!=m_volumes.end(); iv++) {
-    std::vector<LinearService> result = (**iv).materials(); // preserve already present mat. (EOS)
-    std::map<std::string, double> res;
-    ServiceVolume::LayerContainer layers = (**iv).layers();
-    for (ServiceVolume::LayerContainer::const_iterator il=layers.begin(); il!=layers.end(); ++il) {
-      const ServicesStave& stave = *(**il).stave();
-      double totalLength =  (**il).nStaves() * (**iv).length();
-      add( res, stave.inletPipe(), totalLength*stave.nInletPipes());
-      add( res, stave.outletPipe(), totalLength*stave.nOutletPipes());
-      add( res, stave.cable()+(**il).layerSuffix(), totalLength*stave.nCables());
-      add( res, stave.fibre(), totalLength*stave.nFibres());
-    }
-    for (std::map<std::string, double>::iterator i = res.begin(); i!= res.end(); i++) {
-      result.push_back( LinearService( i->first, i->second));
-    }
-    (**iv).setMaterials( result);
-  }
-}
 
 
-void ServicesTracker::add( std::map<std::string, double>& res, const std::string& name, double len) 
-{
-  using namespace std;
-  msg(MSG::INFO) << "Entering NEW ServicesTracker::finaliseServices()" << endreq;
-
-  std::map<std::string, double>::iterator i=res.find(name);
-  if (i != res.end()) i->second += len;
-  else res[name] = len;
-}
-*/
 void ServicesTracker::finaliseServices()
 {
   msg(MSG::INFO) << "ServicesTracker::finaliseServices called for " << m_volumes.size() << " volumes" << endreq;
