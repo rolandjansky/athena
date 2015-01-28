@@ -18,13 +18,14 @@ use VxVertex            VxVertex-*           Tracking/TrkEvent
 use TrkSurfaces         TrkSurfaces-*        Tracking/TrkDetDescr
 use TrkDetDescrUtils    TrkDetDescrUtils-*   Tracking/TrkDetDescr
 use TrkExInterfaces     TrkExInterfaces-*    Tracking/TrkExtrapolation
-use TrkLinks		TrkLinks-*   	     Tracking/TrkEvent		
-use TrkVxEdmCnv		TrkVxEdmCnv-*	     Tracking/TrkVertexFitter 
+use TrkLinks            TrkLinks-*           Tracking/TrkEvent		
+use TrkVxEdmCnv         TrkVxEdmCnv-*        Tracking/TrkVertexFitter 
 
 public
 use MagFieldInterfaces    MagFieldInterfaces-*   MagneticField
-use TrkParameters       TrkParameters-*      Tracking/TrkEvent
-use xAODTracking	xAODTracking-*	     Event/xAOD
+use TrkParameters         TrkParameters-*        Tracking/TrkEvent
+use xAODTracking          xAODTracking-*         Event/xAOD
+
 #library TrkV0Fitter *.cxx components/*.cxx
 #apply_pattern component_library
 apply_pattern dual_use_library files="*.cxx"

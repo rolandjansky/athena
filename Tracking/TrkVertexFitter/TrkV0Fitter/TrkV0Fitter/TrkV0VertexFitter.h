@@ -15,7 +15,7 @@
  *
  */
 
-#ifndef TRKVOFITTER_TRKV0VERTEXFITTER_H
+#ifndef TRKV0FITTER_TRKV0VERTEXFITTER_H
 #define TRKV0FITTER_TRKV0VERTEXFITTER_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -161,7 +161,7 @@ namespace Trk
 
     ToolHandle< Trk::IExtrapolator > m_extrapolator;
     ServiceHandle < MagField::IMagFieldSvc > m_magFieldSvc;
-    ToolHandle< IVxCandidateXAODVertex > m_xaodConverter;
+
   };
 }
 #endif
