@@ -52,7 +52,7 @@
 #include <map>
 
 
-EvtInclusiveDecay::EvtInclusiveDecay(const std::string& name, ISvcLocator* pSvcLocator):Algorithm( name, pSvcLocator ) {
+EvtInclusiveDecay::EvtInclusiveDecay(const std::string& name, ISvcLocator* pSvcLocator):GenBase( name, pSvcLocator ) {
   m_evtAtRndmGen = 0;
   m_myEvtGen = 0;
 
@@ -100,7 +100,6 @@ EvtInclusiveDecay::EvtInclusiveDecay(const std::string& name, ISvcLocator* pSvcL
 
   m_atRndmGenSvc = 0;
   m_mcEvtColl = 0;
-  m_sgSvc = 0;
 
   // We have decided to blacklist Tau decays because we are not sure whether the polarization
   // would be properly passed to EvtGen
@@ -117,51 +116,46 @@ EvtInclusiveDecay::~EvtInclusiveDecay() {
 
 
 StatusCode EvtInclusiveDecay::initialize() {
-  StatusCode sc;
-  MsgStream log(messageService(), name());
-  log << MSG::INFO << "EvtInclusiveDecay initialize" << endreq;
-  log << MSG::INFO << "Particle properties definition file = " << m_pdtFile << endreq;
-  log << MSG::INFO << "Main decay file                     = " << m_decayFile << endreq;
-  log << MSG::INFO << "User decay file                     = " << m_userDecayFile << endreq;
-  log << MSG::INFO << "Max number of repeated decays       = " << m_maxNRepeatedDecays << endreq;
-  log << MSG::INFO << "EvtInclusiveDecay selection parameters:" << endreq;
-  log << MSG::INFO << "* prohibitFinalStateDecay = " << m_prohibitFinalStateDecay << endreq;
-  log << MSG::INFO << "* prohibitReDecay         = " << m_prohibitReDecay << endreq;
-  log << MSG::INFO << "* prohibitUnDecay         = " << m_prohibitUnDecay << endreq;
-  log << MSG::INFO << "* prohibitRemoveSelfDecay = " << m_prohibitRemoveSelfDecay << endreq;
-  log << MSG::INFO << "* allowAllKnownDecays     = " << m_allowAllKnownDecays << endreq;
-  log << MSG::INFO << "* allowDefaultBDecays     = " << m_allowDefaultBDecays << endreq;
-  log << MSG::INFO << "User selection parameters:" << endreq;
-  log << MSG::INFO << "* applyUserSelection             = " << m_applyUserSelection << endreq;
-  log << MSG::INFO << "* userSelRequireOppositeSignedMu = " << m_userSelRequireOppositeSignedMu << endreq;
-  log << MSG::INFO << "* userSelMu1MinPt                = " << m_userSelMu1MinPt << endreq;
-  log << MSG::INFO << "* userSelMu2MinPt                = " << m_userSelMu2MinPt << endreq;
-  log << MSG::INFO << "* userSelMu1MaxEta               = " << m_userSelMu1MaxEta << endreq;
-  log << MSG::INFO << "* userSelMu2MaxEta               = " << m_userSelMu2MaxEta << endreq;
-  log << MSG::INFO << "* userSelMinDimuMass             = " << m_userSelMinDimuMass << endreq;
-  log << MSG::INFO << "* userSelMaxDimuMass             = " << m_userSelMaxDimuMass << endreq;
+
+  msg(MSG::INFO) << "EvtInclusiveDecay initialize" << endreq;
+  msg(MSG::INFO) << "Particle properties definition file = " << m_pdtFile << endreq;
+  msg(MSG::INFO) << "Main decay file                     = " << m_decayFile << endreq;
+  msg(MSG::INFO) << "User decay file                     = " << m_userDecayFile << endreq;
+  msg(MSG::INFO) << "Max number of repeated decays       = " << m_maxNRepeatedDecays << endreq;
+  msg(MSG::INFO) << "EvtInclusiveDecay selection parameters:" << endreq;
+  msg(MSG::INFO) << "* prohibitFinalStateDecay = " << m_prohibitFinalStateDecay << endreq;
+  msg(MSG::INFO) << "* prohibitReDecay         = " << m_prohibitReDecay << endreq;
+  msg(MSG::INFO) << "* prohibitUnDecay         = " << m_prohibitUnDecay << endreq;
+  msg(MSG::INFO) << "* prohibitRemoveSelfDecay = " << m_prohibitRemoveSelfDecay << endreq;
+  msg(MSG::INFO) << "* allowAllKnownDecays     = " << m_allowAllKnownDecays << endreq;
+  msg(MSG::INFO) << "* allowDefaultBDecays     = " << m_allowDefaultBDecays << endreq;
+  msg(MSG::INFO) << "User selection parameters:" << endreq;
+  msg(MSG::INFO) << "* applyUserSelection             = " << m_applyUserSelection << endreq;
+  msg(MSG::INFO) << "* userSelRequireOppositeSignedMu = " << m_userSelRequireOppositeSignedMu << endreq;
+  msg(MSG::INFO) << "* userSelMu1MinPt                = " << m_userSelMu1MinPt << endreq;
+  msg(MSG::INFO) << "* userSelMu2MinPt                = " << m_userSelMu2MinPt << endreq;
+  msg(MSG::INFO) << "* userSelMu1MaxEta               = " << m_userSelMu1MaxEta << endreq;
+  msg(MSG::INFO) << "* userSelMu2MaxEta               = " << m_userSelMu2MaxEta << endreq;
+  msg(MSG::INFO) << "* userSelMinDimuMass             = " << m_userSelMinDimuMass << endreq;
+  msg(MSG::INFO) << "* userSelMaxDimuMass             = " << m_userSelMaxDimuMass << endreq;
 
   // Initialize and print blackList
   m_blackListSet.insert(m_blackList.begin(),m_blackList.end());
-  log << MSG::INFO << "* blackList               = ";
+  msg(MSG::INFO) << "* blackList;               = ";
   for (std::set<int>::iterator i = m_blackListSet.begin(); i!=m_blackListSet.end(); ++i)
-    log << (*i) << " ";
-  log << endreq;
+     msg(MSG::INFO) << (*i) << " ";
+  msg(MSG::INFO)<< endreq;
 
   // Initialize and print whiteList
   m_whiteListSet.insert(m_whiteList.begin(),m_whiteList.end());
-  log << MSG::INFO << "* whiteList               = ";
+  msg(MSG::INFO) << "* whiteList               = ";
   for (std::set<int>::iterator i = m_whiteListSet.begin(); i!=m_whiteListSet.end(); ++i)
-    log << (*i) << " ";
-  log << endreq;
+    msg(MSG::INFO) << (*i) << " ";
+  msg(MSG::INFO) << endreq;
 
   // Obtain random number generator for EvtGen
   static const bool CREATEIFNOTTHERE(true);
-  sc = service("AtRndmGenSvc", m_atRndmGenSvc, CREATEIFNOTTHERE);
-  if (!sc.isSuccess() || 0==m_atRndmGenSvc) {
-    log << MSG::ERROR << "Failed to initialize random number service" << endreq;
-    return sc;
-  }
+  CHECK(service("AtRndmGenSvc", m_atRndmGenSvc, CREATEIFNOTTHERE));
   m_evtAtRndmGen = new EvtInclusiveAtRndmGen(m_atRndmGenSvc,m_randomStreamName);
 
   // Create an instance of EvtGen and read particle properties and decay files
@@ -178,13 +172,6 @@ StatusCode EvtInclusiveDecay::initialize() {
   if(!m_userDecayFile.empty())
     m_myEvtGen->readUDecay(m_userDecayFile.c_str());
 
-  // Get a handle to StoreGate
-  sc = service("StoreGateSvc", m_sgSvc);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not find StoreGateSvc" << endreq;
-    return sc;
-  } 
-  
   m_nRepeatedDecays = 0;
 
   return StatusCode::SUCCESS;
@@ -193,55 +180,31 @@ StatusCode EvtInclusiveDecay::initialize() {
 
 
 StatusCode EvtInclusiveDecay::execute() {
-  MsgStream log(messageService(), name());
-  log << MSG::DEBUG << "EvtInclusiveDecay executing" << endreq;
+  ATH_MSG_DEBUG("EvtInclusiveDecay executing");
 
   std::string   key = m_inputKeyName;
 
   // retrieve event from Transient Store (Storegate)
   if(m_readExisting) {
-    const McEventCollection* oldmcEvtColl;
-    if(m_sgSvc->retrieve(oldmcEvtColl, key).isFailure()) {
-      log << MSG::ERROR << "Could not retrieve const McEventCollection" << endreq;
-      return StatusCode::FAILURE;
-    }
- 
-    m_mcEvtColl = new McEventCollection;
-    std::size_t evtIdx = 0;
-    std::size_t pushCount = 0;
-    for ( McEventCollection::const_iterator iEvt = oldmcEvtColl->begin();
-	iEvt != oldmcEvtColl->end();
-	++iEvt, ++evtIdx ) {
-        m_mcEvtColl->push_back( new HepMC::GenEvent(**iEvt) );
-        ++pushCount;
-    } //> end loop over HepMC::GenEvent
 
-    // If we are using the same key for the old and new collections, we have
-    // to delete the old one
+    
+    m_mcEvtColl = new McEventCollection();
+    // Fill the new McEventCollection with a copy of the initial HepMC::GenEvent
+    for (McEventCollection::const_iterator evt = events_const()->begin(); evt != events_const()->end(); ++evt) {
+      m_mcEvtColl->push_back(new HepMC::GenEvent(*(*evt)));
+    }
+  }
+  else {CHECK(evtStore()->retrieve(m_mcEvtColl, key));}
+
+  if(m_readExisting) {
     if(m_outputKeyName==key) {
-      if ( m_sgSvc->remove(oldmcEvtColl).isFailure() ) {
-        log<< "Could not remove old HepMC collection" << endreq;
-        return StatusCode::FAILURE;
-      }
+     CHECK(evtStore()->overwrite(m_mcEvtColl,m_outputKeyName));
     }
-    /*
-  if (m_deleteOldCollection) {
-    if ( evtStore()->remove(m_mcEvtColl).isFailure() ) {
-      ATH_MSG_ERROR ( "Could not remove old HepMC collection" );
-      return StatusCode::FAILURE;
+    else {
+     CHECK(evtStore()->record( m_mcEvtColl,m_outputKeyName));
     }
-  
+  }
 
-  if ( evtStore()->record(m_newMcEvtColl, m_newCollectionKey).isFailure() ) {
-    ATH_MSG_ERROR ( "Could not add new HepMC collection with key " << m_newCollectionKey );
-    return StatusCode::FAILURE;
-  }
-    */
-  }
-  else  if ( m_sgSvc->retrieve(m_mcEvtColl, key).isFailure() ) {
-    log << MSG::ERROR << "Could not retrieve McEventCollection" << endreq;
-    return StatusCode::FAILURE;
-  }
 
   McEventCollection::iterator mcItr;
   for( mcItr = m_mcEvtColl->begin(); mcItr != m_mcEvtColl->end(); mcItr++ )   {
@@ -264,7 +227,7 @@ StatusCode EvtInclusiveDecay::execute() {
 
     // Print HepMC in tree format if desired (before doing anything)
     if (m_printHepMCBeforeEvtGen) {
-      log << MSG::DEBUG << "Printing HepMC record at " << hepMC << " BEFORE running EvtGen:" << endreq;
+      msg(MSG::INFO) << "Printing HepMC record at " << hepMC << " BEFORE running EvtGen:" << endreq;
       if (m_printHepMCHighLightTopLevelDecays)
 	printHepMC(hepMC,&toBeDecayed);
       else
@@ -278,7 +241,7 @@ StatusCode EvtInclusiveDecay::execute() {
       for (std::set<int>::iterator itb = toBeDecayed.begin(); itb!=toBeDecayed.end(); ++itb) {
         HepMC::GenParticle* p = hepMC->barcode_to_particle(*itb);
         if (p==0) {
-          log << MSG::ERROR << "Overlapping decay tree encountered for barcode " << *itb << endreq;
+          msg(MSG::ERROR ) << "Overlapping decay tree encountered for barcode " << *itb << endreq;
           return StatusCode::FAILURE;
         }
         decayParticle(hepMC,p);
@@ -297,32 +260,24 @@ StatusCode EvtInclusiveDecay::execute() {
     if(m_maxNRepeatedDecays > 1)
       hepMC->weights()["nEvtGenDecayAttempts"] = loopCounter;
     //hepMC->weights().write();
-
     // Print HepMC in tree format if desired (after finishing all EvtGen decays)
     if (m_printHepMCAfterEvtGen) {
-      log << MSG::DEBUG << "Printing HepMC record at " << hepMC << " AFTER running EvtGen:" << endreq;
+      msg(MSG::INFO)  << "Printing HepMC record at " << hepMC << " AFTER running EvtGen:" << endreq;
       if (m_printHepMCHighLightTopLevelDecays)
 	printHepMC(hepMC,&toBeDecayed);
       else
 	printHepMC(hepMC);
     }
   }
-  if(m_readExisting) {
-    if ( m_sgSvc->record( m_mcEvtColl,m_outputKeyName).isFailure() ) {
-      log << "Could not add new HepMC collection with key " << m_outputKeyName << endreq;
-    return StatusCode::FAILURE;
-    }
-  }
   return StatusCode::SUCCESS;
 }
 
 
-
 StatusCode EvtInclusiveDecay::finalize() {
-  MsgStream log(messageService(), name());
+
   if (m_checkDecayChannels) {
-    log << MSG::INFO << "The following particles were checked and didn't have any decay channels:" << endreq;
-    if (log.level() <= MSG::INFO) {
+    ATH_MSG_INFO("The following particles were checked and didn't have any decay channels:");
+    if (msgLvl(MSG::INFO)) {
       std::cout << std::endl;
       std::cout << " Particle code    Name from HepPDT        # Occurences" << std::endl;
       std::cout << "------------------------------------------------------"  << std::endl;
@@ -337,8 +292,8 @@ StatusCode EvtInclusiveDecay::finalize() {
       std::cout << std::endl;
     }
   }
-  log << MSG::INFO << "Total number of repeated decays: " << m_nRepeatedDecays << endreq;
-  log << MSG::INFO << "EvtInclusiveDecay finalized" << endreq;
+  ATH_MSG_INFO("Total number of repeated decays: " << m_nRepeatedDecays);
+  ATH_MSG_INFO("EvtInclusiveDecay finalized");
   return StatusCode::SUCCESS;
 }
 
@@ -355,13 +310,13 @@ StatusCode EvtInclusiveDecay::traverseDecayTree(HepMC::GenParticle* p,
 						bool isToBeRemoved,
 						std::set<HepMC::GenVertex*>& visited,
 						std::set<int>& toBeDecayed) {
-  MsgStream log(messageService(), name());
-  log << MSG::VERBOSE << "Inspecting: " << pdgName(p) << "   barcode: " << p->barcode() << endreq;
+  ATH_MSG_VERBOSE("Inspecting: " << pdgName(p) << "   barcode:"<< p->barcode());
   if (!isToBeRemoved) {
     if (isToBeDecayed(p,true)) {
       toBeDecayed.insert(p->barcode());
       isToBeRemoved = true;
-      log << MSG::VERBOSE << "Selected particle for decay: " << pdgName(p) << " (barcode " << p->barcode() << ")" << endreq;
+      ATH_MSG_VERBOSE("Selected particle for decay: " << pdgName(p) << " (barcode " << p->barcode() << ")");
+
       // In principle we could stop the recursion here. However, to prevent
       // pathological cases in certain decay trees (in particular from Herwig),
       // we continue in order to mark all descendants of this particle
@@ -374,8 +329,8 @@ StatusCode EvtInclusiveDecay::traverseDecayTree(HepMC::GenParticle* p,
     if (visited.insert(v).second) {
       if ( isToBeRemoved && (v->particles_in_size()>1) && m_checkDecayTree ) {
 	// This is normal for Herwig but should not occur for Pythia
-	log << MSG::WARNING << "Found particle to be decayed with vertex with >1 incoming mother particles in decay tree" << endreq;
-	if (log.level() <= MSG::WARNING) {
+	ATH_MSG_WARNING("Found particle to be decayed with vertex with >1 incoming mother particles in decay tree");
+	if (msgLvl(MSG::WARNING)) {
 	  std::cout << std::endl;
 	  p->print();
 	  v->print();
@@ -403,7 +358,6 @@ StatusCode EvtInclusiveDecay::traverseDecayTree(HepMC::GenParticle* p,
 void EvtInclusiveDecay::removeDecayTree(HepMC::GenEvent* hepMC, HepMC::GenParticle* p) {
   HepMC::GenVertex* v = p->end_vertex();
   if (v) {
-    MsgStream log(messageService(), name());
     std::set<int> vtxBarCodesToDelete;
     vtxBarCodesToDelete.insert(v->barcode());
     for (HepMC::GenVertex::vertex_iterator itv = v->vertices_begin(HepMC::descendants);
@@ -416,8 +370,8 @@ void EvtInclusiveDecay::removeDecayTree(HepMC::GenEvent* hepMC, HepMC::GenPartic
       delete vdel;
     }
     p->set_status(1);   // For now, flag particle as undecayed (stable)
-    log << MSG::DEBUG << "Removed existing " << pdgName(p) << " (barcode " << p->barcode() << ")" 
-	<< " decay tree with " << vtxBarCodesToDelete.size() << " vertices" << endreq;
+    ATH_MSG_DEBUG("Removed existing " << pdgName(p) << " (barcode " << p->barcode() << ")" 
+		  << " decay tree with " << vtxBarCodesToDelete.size() << " vertices");
   }
 }
 
@@ -439,9 +393,8 @@ void EvtInclusiveDecay::removeDecayTree(HepMC::GenEvent* hepMC, HepMC::GenPartic
 // isToBeDecayed() to never enable decays of such particles by EvtGen.
 //
 void EvtInclusiveDecay::decayParticle(HepMC::GenEvent* hepMC, HepMC::GenParticle* part) {
-  MsgStream log(messageService(), name());
-  log << MSG::DEBUG << "Decaying particle " << pdgName(part) << " (barcode " << part->barcode() << ")" << endreq;
-  if (log.level() <= MSG::VERBOSE) part->print();
+  ATH_MSG_DEBUG("Decaying particle " << pdgName(part) << " (barcode " << part->barcode() << ")");
+  if (msgLvl(MSG::VERBOSE)) part->print();
 
   // Remove existing decay tree, if any, and flag particle as being decayed by EvtGen
   removeDecayTree(hepMC,part);
@@ -458,7 +411,7 @@ void EvtInclusiveDecay::decayParticle(HepMC::GenEvent* hepMC, HepMC::GenParticle
   EvtVector4R evtP(en,px,py,pz);
   EvtParticle* evtPart = EvtParticleFactory::particleFactory(evtId,evtP);
   m_myEvtGen->generateDecay(evtPart);
-  if (log.level() <= MSG::VERBOSE) evtPart->printTree();
+  if (msgLvl(MSG::VERBOSE)) evtPart->printTree();
 
   // Add new decay tree to hepMC, converting back from GeV to MeV.
   addEvtGenDecayTree(hepMC, part, evtPart, 1000.);
@@ -506,7 +459,6 @@ void EvtInclusiveDecay::addEvtGenDecayTree(HepMC::GenEvent* hepMC, HepMC::GenPar
 // if isToBeDecayed is called more than once for the same particle.
 //
 bool EvtInclusiveDecay::isToBeDecayed(const HepMC::GenParticle* p, bool doCrossChecks) {
-  MsgStream log(messageService(), name());
   int id = p->pdg_id();
   int stat = p->status();
   int nDaughters = 0;
@@ -520,7 +472,7 @@ bool EvtInclusiveDecay::isToBeDecayed(const HepMC::GenParticle* p, bool doCrossC
   // be flagged as documentation lines
   double m2 = p->momentum().m2();
   if (m2 < -1.0E-3) {
-    log << MSG::DEBUG << "Ignoring particle " << pdgName(p) << " with m^2 = " << m2 << endreq;
+    ATH_MSG_DEBUG("Ignoring particle " << pdgName(p) << " with m^2 = " << m2);
     return false;
   }
 
@@ -532,9 +484,9 @@ bool EvtInclusiveDecay::isToBeDecayed(const HepMC::GenParticle* p, bool doCrossC
     //    nModes = EvtDecayTable::getNMode(evtId.getAlias());
     nModes = EvtDecayTable::getInstance()->getNMode(evtId.getAlias());
   if (doCrossChecks) {
-    log << MSG::VERBOSE << "Checking particle " << pdgName(p)
+    ATH_MSG_VERBOSE("Checking particle " << pdgName(p)
 	<< " (status = " << stat
-	<<") -- " << nModes << " decay modes found" << endreq;
+		    <<") -- " << nModes << " decay modes found");
     if (m_checkDecayChannels && nModes==0) {
       std::map<int,long>::iterator pos = m_noDecayChannels.find(id);
       if (pos != m_noDecayChannels.end())
@@ -599,31 +551,27 @@ bool EvtInclusiveDecay::isDefaultB(const int pId) const {
 // TODO: to be replaced by something more configurable
 //
 bool EvtInclusiveDecay::passesUserSelection(HepMC::GenEvent* hepMC) {
-//   MsgStream log(messageService(), name());
   bool passed(false);
   std::vector<HepMC::GenParticle*> *muons = new std::vector<HepMC::GenParticle*>;
+
   for (HepMC::GenEvent::particle_iterator itp = hepMC->particles_begin(); itp != hepMC->particles_end(); ++itp) {
     HepMC::GenParticle* p = *itp;
     if( abs(p->pdg_id()) == 13 )
       muons->push_back(p);
   }
-//   log << MSG::INFO << "Found " << muons->size() << " muons" << endreq;
   
   for (std::vector<HepMC::GenParticle*>::iterator muItr1 = muons->begin(); muItr1 != muons->end(); ++muItr1) {
     for (std::vector<HepMC::GenParticle*>::iterator muItr2 = muItr1+1; muItr2 != muons->end(); ++muItr2) {
       if( m_userSelRequireOppositeSignedMu && (*muItr1)->pdg_id() * (*muItr2)->pdg_id() > 0)
         continue;
-//       log << MSG::INFO << "Opp sign ok" << endreq;
       if( !( (*muItr1)->momentum().perp() > m_userSelMu1MinPt && fabs((*muItr1)->momentum().pseudoRapidity()) < m_userSelMu1MaxEta && 
              (*muItr2)->momentum().perp() > m_userSelMu2MinPt && fabs((*muItr2)->momentum().pseudoRapidity()) < m_userSelMu2MaxEta ) &&
           !( (*muItr2)->momentum().perp() > m_userSelMu1MinPt && fabs((*muItr2)->momentum().pseudoRapidity()) < m_userSelMu1MaxEta && 
              (*muItr1)->momentum().perp() > m_userSelMu2MinPt && fabs((*muItr1)->momentum().pseudoRapidity()) < m_userSelMu2MaxEta ) )
         continue;
-//       log << MSG::INFO << "Pt ok" << endreq;
       double dimuMass = invMass((*muItr1),(*muItr2));
       if( !( dimuMass > m_userSelMinDimuMass && (dimuMass < m_userSelMaxDimuMass || m_userSelMaxDimuMass < 0.) ) )
         continue;
-//       log << MSG::INFO << "Mass ok" << endreq;
       passed = true;
     }
   }
