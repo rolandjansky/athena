@@ -117,6 +117,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_newLowStatInterval = false;
 
    //initalize all the histograms to 0 to start
+   m_storegate_errors = 0;
    m_mu_vs_lumi = 0;
    m_hiteff_mod = 0;
    m_hits_per_lumi = 0;
