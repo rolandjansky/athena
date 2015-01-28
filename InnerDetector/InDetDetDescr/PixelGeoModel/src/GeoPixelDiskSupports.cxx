@@ -24,13 +24,13 @@ GeoPixelDiskSupports::GeoPixelDiskSupports() {
     double halflength = gmt_mgr->PixelDiskSupportThickness(ii)/2.;
     double zpos = 0.;
     int matTypeNum = gmt_mgr->PixelDiskSupportMaterialTypeNum(ii);
-    _rmin.push_back(rmin);
-    _rmax.push_back(rmax);
-    _zpos.push_back(zpos);
-    _halflength.push_back(halflength);
-    _typeNum.push_back(matTypeNum);
+    m_rmin.push_back(rmin);
+    m_rmax.push_back(rmax);
+    m_zpos.push_back(zpos);
+    m_halflength.push_back(halflength);
+    m_typeNum.push_back(matTypeNum);
   }
-  _nframe = 0;
+  m_nframe = 0;
 }
 
 
@@ -38,16 +38,17 @@ GeoVPhysVol* GeoPixelDiskSupports::Build( ) {
   //
   // Dimensions: (_nframe set with teh SetCylinder method)
   //
-  double rmin = _rmin[_nframe];
-  double rmax = _rmax[_nframe];
-  double halflength = _halflength[_nframe];
-  int typeNum = _typeNum[_nframe];
+  double rmin = m_rmin[m_nframe];
+  double rmax = m_rmax[m_nframe];
+  double halflength = m_halflength[m_nframe];
+  int typeNum = m_typeNum[m_nframe];
+
   const GeoTube* supportTube = new GeoTube(rmin,rmax,halflength);
   std::string matName = gmt_mgr->getMaterialName("DiskSupport", gmt_mgr->GetLD(), typeNum);
   const GeoMaterial* supportMat = mat_mgr->getMaterialForVolume(matName, supportTube->volume());
   std::string logName = "DiskSup";
   std::ostringstream o;
-  o << _nframe;
+  o << m_nframe;
   logName = logName+o.str();
   GeoLogVol* theSupport = new GeoLogVol(logName,supportTube,supportMat);
   GeoPhysVol* supportPhys = new GeoPhysVol(theSupport);

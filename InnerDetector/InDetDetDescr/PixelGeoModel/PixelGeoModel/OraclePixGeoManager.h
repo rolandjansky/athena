@@ -68,6 +68,7 @@ class OraclePixGeoManager : public PixelGeometryManager {
   IRDBRecordset_ptr PixelIBLFlex;
   IRDBRecordset_ptr PixelIBLFlexMaterial;
   IRDBRecordset_ptr PixelIBLGlueGrease;
+  IRDBRecordset_ptr PixelConicalStave;
   IRDBRecordset_ptr m_weightTable;
   IRDBRecordset_ptr m_scalingTable;
   IRDBRecordset_ptr m_materialTable;
@@ -464,6 +465,11 @@ class OraclePixGeoManager : public PixelGeometryManager {
   double PixelLadderSupportThickness(); 
   double PixelLadderSupportWidth(); 
   double PixelLadderSupportLength(); 
+
+  // Bent modules
+  double PixelLadderBentStaveAngle();
+  int PixelBentStaveNModule();
+  double PixelLadderModuleDeltaZ();
 
   // Layer support (SLHC)
   // if rmin is not found or <=0 the calculate as Rmin = layer radius + roffset 

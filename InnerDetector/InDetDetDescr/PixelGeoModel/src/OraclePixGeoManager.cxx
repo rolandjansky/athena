@@ -145,6 +145,7 @@ OraclePixGeoManager::init()
   PixelIBLFlex    = rdbSvc->getRecordsetPtr("PixelIBLFlex",        detectorKey, detectorNode);
   PixelIBLFlexMaterial    = rdbSvc->getRecordsetPtr("PixelIBLFlexMaterial",        detectorKey, detectorNode);
   PixelIBLGlueGrease    = rdbSvc->getRecordsetPtr("PixelIBLGlueGrease",        detectorKey, detectorNode);
+  PixelConicalStave     = rdbSvc->getRecordsetPtr("PixelConicalStave",             detectorKey, detectorNode);
 
   // Weights table 
   m_weightTable = rdbSvc->getRecordsetPtr("PixelWeights", detectorKey, detectorNode);
@@ -1061,13 +1062,18 @@ OraclePixGeoManager::PixelCableLabel(int index)
 int OraclePixGeoManager::determineDbVersion() {
   // This determines a version depending on various changes in the database;
   int version = 0;
+
+  if (db()->testField(PixelSwitches,"VERSIONNAME") 
+      && db()->getString(PixelSwitches,"VERSIONNAME")== "SLHC"){
+    version = 4; // SLHC may have TMT table removed. 
+    return version;
+  }
+
   if (!(*PixelLayer)[0]->isFieldNull("PHIOFMODULEZERO")) version = 1;
   if (PixelReadout->size() != 0) version = 2;
   if (m_weightTable->size() != 0) version = 3;
   if (PixelTMT->size() != 0) version = 4; // Removed all legacy tables
 
-  if (db()->testField(PixelSwitches,"VERSIONNAME") 
-      && db()->getString(PixelSwitches,"VERSIONNAME")== "SLHC") version = 4; // SLHC may have TMT table removed. 
   return version;
 }
 
@@ -1545,6 +1551,32 @@ double OraclePixGeoManager::PixelLadderSupportWidth()
 {
   int index = PixelStaveIndex(currentLD);
   return db()->getDouble(PixelStave,"SUPPORTWIDTH",index) * CLHEP::mm;
+}
+
+
+
+
+
+// SLHC/IBL only
+double OraclePixGeoManager::PixelLadderBentStaveAngle() 
+{
+  if (!db()->testFieldTxt(PixelConicalStave,"BENTSTAVEANGLE")) return 0;
+  int index = PixelStaveIndex(currentLD);
+  return db()->getDouble(PixelConicalStave,"BENTSTAVEANGLE",index);
+}
+
+// SLHC/IBL only
+int OraclePixGeoManager::PixelBentStaveNModule() 
+{
+  if (!db()->testFieldTxt(PixelConicalStave,"BENTSTAVENMODULE")) return 0;
+  int index = PixelStaveIndex(currentLD);
+  return db()->getInt(PixelConicalStave,"BENTSTAVENMODULE",index);
+}
+
+double OraclePixGeoManager::PixelLadderModuleDeltaZ()
+{
+  int index = PixelStaveIndex(currentLD);
+  return db()->getDouble(PixelStave,"MODULEDZ",index);
 }
 
 // SLHC/IBL only
@@ -3517,6 +3549,7 @@ double OraclePixGeoManager::PixelDiskSupportRMax(int isup) {
   return db()->getDouble(PixelDisk,field.str(),currentLD)*mmcm();
 }
 
+
 // SLHC only
 double OraclePixGeoManager::PixelDiskSupportThickness(int isup) {
 
@@ -3525,6 +3558,7 @@ double OraclePixGeoManager::PixelDiskSupportThickness(int isup) {
 
   bool found = false;
   double tck = 0;
+
   // First check text file
   // default support thickness
   if (db()->testFieldTxt(PixelDisk,"SUP_THICK")) {
@@ -3538,7 +3572,7 @@ double OraclePixGeoManager::PixelDiskSupportThickness(int isup) {
   }
 
   // Now check database
-  if (!found) tck = db()->getDouble(PixelDisk,prefix.str(),currentLD);
+  if (!found)  tck = db()->getDouble(PixelDisk,prefix.str(),currentLD);
 
   if(tck>0.) {
     return tck * mmcm();
