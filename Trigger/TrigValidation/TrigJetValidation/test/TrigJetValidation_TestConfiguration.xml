@@ -47,6 +47,7 @@
                 <keepFilePattern info="Cluster histograms">clusters*.root</keepFilePattern>
                 <keepFilePattern info="Jet histograms">jets*.root</keepFilePattern>
                 <keepFilePattern info="Hypo histograms">hypo*.root</keepFilePattern>
+ 		<keepFilePattern info="Plots">plots/*.png</keepFilePattern>
                 <keepFilePattern info="Timing histograms">timing-histograms.root</keepFilePattern>
                 <keepFilePattern info="checkfilelog">*checkFile*</keepFilePattern>
                 <keepFilePattern info="PerfMon ntuple">*.pmon.gz</keepFilePattern>
@@ -73,10 +74,15 @@
                 <auxFilePattern>helperFunctions.py</auxFilePattern>
                 <auxFilePattern>AtlasStyle.py</auxFilePattern>
                 <auxFilePattern>plottingMacro.py</auxFilePattern>
+                <auxFilePattern>clustersAndCells.py</auxFilePattern>
                 <auxFilePattern>HLTChain_ref_devval.txt</auxFilePattern>
                 <auxFilePattern>HLTChain_ref_dev.txt</auxFilePattern>
                 <auxFilePattern>HLTTE_ref_devval.txt</auxFilePattern>
                 <auxFilePattern>HLTTE_ref_dev.txt</auxFilePattern>
+                <auxFilePattern>clusters_ref_devval.txt</auxFilePattern>
+                <auxFilePattern>clusters_ref_dev.txt</auxFilePattern>
+                <auxFilePattern>cells_ref_devval.txt</auxFilePattern>
+                <auxFilePattern>cells_ref_dev.txt</auxFilePattern>
                 
                 <test position="1">
                     <modulename>chainDump</modulename>
@@ -123,6 +129,7 @@
                     <modulename>FileComparatorRunnerJet</modulename>
                     <testname>FileComparatorRunnerJet</testname>
                     <outputFile>HLTChainReferenceComparison.txt</outputFile>
+                    <testdoc>Compare HLTChain.txt</testdoc>
                     <arg>
                         <argname>testFile</argname>
                         <argvalue>HLTChain.txt</argvalue>
@@ -137,6 +144,7 @@
                     <modulename>FileComparatorRunnerJet</modulename>
                     <testname>FileComparatorRunnerJet</testname>
                     <outputFile>HLTTEReferenceComparison.txt</outputFile>
+                    <testdoc>Compare HLTTE.txt</testdoc>
                     <arg>
                         <argname>testFile</argname>
                         <argvalue>HLTTE.txt</argvalue>
@@ -150,6 +158,7 @@
                 <test position="7">   
                     <modulename>Diagnostics</modulename>
                     <testname>Diagnostics</testname>
+                    <testdoc>Create diagnostics.root</testdoc>
                     <arg>
                         <argname>command</argname>
                         <argvalue>hadd diagnostics.root `ls cells*.root clusters*.root jets*.root hypo*.root`; rm cells*.root clusters*.root jets*.root hypo*.root</argvalue>
@@ -159,11 +168,52 @@
                 <test position="8">   
                     <modulename>Diagnostics</modulename>
                     <testname>Diagnostics</testname>
+                    <testdoc>Save diagnostics plots</testdoc>
                     <arg>
                         <argname>command</argname>
                         <argvalue>mkdir plots; python plottingMacro.py</argvalue>
                     </arg>
                 </test>
+
+                <test position="9">   
+                    <modulename>Diagnostics</modulename>
+                    <testname>Diagnostics</testname>
+                    <testdoc>Save cluster and cell information from diagnostics to text files</testdoc>
+                    <arg>
+                        <argname>command</argname>
+                        <argvalue>python clustersAndCells.py</argvalue>
+                    </arg>
+                </test>
+
+                <test position="10">
+                    <modulename>FileComparatorRunnerJet</modulename>
+                    <testname>FileComparatorRunnerJet</testname>
+                    <outputFile>ClustersReferenceComparison.txt</outputFile>
+                    <testdoc>Compare clusters</testdoc>
+                    <arg>
+                        <argname>testFile</argname>
+                        <argvalue>clusters.txt</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>refFile</argname>
+                        <argvalue>clusters_ref_</argvalue>
+                    </arg>
+                </test>   
+
+                <test position="11">
+                    <modulename>FileComparatorRunnerJet</modulename>
+                    <testname>FileComparatorRunnerJet</testname>
+                    <outputFile>CellsReferenceComparison.txt</outputFile>
+                    <testdoc>Compare cells</testdoc>
+                    <arg>
+                        <argname>testFile</argname>
+                        <argvalue>cells.txt</argvalue>
+                    </arg>
+                    <arg>
+                        <argname>refFile</argname>
+                        <argvalue>cells_ref_</argvalue>
+                    </arg>
+                </test> 
              
                 <testToRemove>
                     <jobGroupName>RTT:Top</jobGroupName>

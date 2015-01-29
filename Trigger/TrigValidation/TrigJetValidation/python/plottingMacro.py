@@ -41,16 +41,23 @@ def setDefaults(greyScale = False):
   if greyScale:  CANVAS.SetGrayscale()
 
 
-def plotCurve(hist):
+def plotCurve(chain, hist):
    f1  = TFile('diagnostics.root')
-   h1  = f1.Get( 'jets_j400/%s' % hist )
-   h2  = f1.Get( 'jets_j400_a4_tc_em_jes/%s' % hist )
-   h3  = f1.Get( 'jets_j400_a4_tc_em_sub/%s' % hist )
+   h1  = f1.Get( 'jets_%s/%s' % (chain, hist) )
+   h2  = f1.Get( 'jets_%s_jes/%s' % (chain, hist) )
+   h3  = f1.Get( 'jets_%s_lcw/%s' % (chain, hist) )
+   h4  = f1.Get( 'jets_%s_lcw_jes/%s' % (chain, hist) )
+   h5  = f1.Get( 'jets_%s_lcw_nojcalib/%s' % (chain, hist) )
+   h6  = f1.Get( 'jets_%s_nojcalib/%s' % (chain, hist) )
+
 
    bins = [ 10000 * i for i in range(51) ]
    h1 = h1.Rebin( (len(bins) - 1), str(h1) + '_mod', array('d', bins))
    h2 = h2.Rebin( (len(bins) - 1), str(h2) + '_mod', array('d', bins))
    h3 = h3.Rebin( (len(bins) - 1), str(h3) + '_mod', array('d', bins))
+   h4 = h4.Rebin( (len(bins) - 1), str(h4) + '_mod', array('d', bins))
+   h5 = h5.Rebin( (len(bins) - 1), str(h5) + '_mod', array('d', bins))
+   h6 = h6.Rebin( (len(bins) - 1), str(h6) + '_mod', array('d', bins))
 
    # set up canvas
    CANVAS.Clear()
@@ -62,23 +69,34 @@ def plotCurve(hist):
    h2.Draw('same')
    h3.SetLineColor(kRed)
    h3.Draw('same')
+   h4.SetLineColor(kGreen)
+   h4.Draw('same')
+   h5.SetLineColor(kOrange)
+   h5.Draw('same')
+   h6.SetLineColor(kMagenta)
+   h6.Draw('same')
 
    leg = TLegend(0.7, 0.65, 0.9, 0.92)
-   leg.AddEntry(h1, 'jets_j400',  'L')
-   leg.AddEntry(h2, 'jets_j400_a4_tc_em_jes', 'L')
-   leg.AddEntry(h3, 'jets_j400_a4_tc_em_sub', 'L')
+   leg.AddEntry(h1, 'jets_%s' % chain,  'L')
+   leg.AddEntry(h2, 'jets_%s_jes' % chain, 'L')
+   leg.AddEntry(h3, 'jets_%s_lcw' % chain, 'L')
+   leg.AddEntry(h4, 'jets_%s_lcw_jes' % chain, 'L')
+   leg.AddEntry(h5, 'jets_%s_lcw_nojcalib' % chain, 'L')
+   leg.AddEntry(h6, 'jets_%s_nojcalib' % chain, 'L')
    leg.Draw('same')
 
    for fType in [ 'png' ]:#, 'pdf' ]: # 'gif', 'eps' ]:
-     CANVAS.SaveAs( 'plots/%s.%s' % (hist, fType) )
+     CANVAS.SaveAs( 'plots/%s_%s.%s' % (chain, hist, fType) )
 
    f1.Close()
 
 #
 # main function calls
 #
-
+chains = [ 'j85', 'j175' ]#, '4j85', '5j85', 'j85_280eta320', 'j175_320eta490', 'j260_320eta490' ]
 setDefaults()
-plotCurve('Et')
-plotCurve('Pt')
-plotCurve('Energy')
+
+for chain in chains:
+   plotCurve(chain, 'Et')
+   plotCurve(chain, 'Pt')
+   plotCurve(chain, 'Energy')
