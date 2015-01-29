@@ -121,6 +121,8 @@ namespace ISF {
 
       bool                          m_checkLastSecondaryOnly;
       mutable std::vector<bool>     m_passedFilters;
+
+      HepMC::GenParticle           *m_primaryParticleAfterIncident;
    };
   void ISF::Geant4TruthIncident::setSecondaryPassed(unsigned short index) const {
     m_passedFilters[index] = m_passedFilters[index] || true;
