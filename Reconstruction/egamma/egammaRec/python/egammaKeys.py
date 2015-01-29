@@ -58,3 +58,6 @@ def caloCellKey():
 
 def truthParticleKey():
   return 'TruthParticles'
+
+def truthEventKey():
+  return 'TruthEvents'

@@ -50,26 +50,30 @@ class egammaTruthAssociationAlg : public AthAlgorithm {
   
   /** @brief Loop over elements in the reco container, decorate them with truth info and
     * decorate the truth particles with links to the reco ones (reco<typeName>Link) **/
-  template<class T> StatusCode match(std::string containerName, std::string typeName);
+  template<class T> StatusCode match(std::string containerName, std::string typeName) const;
+
+  /** @brief return the result of MCTruthClassifier::particleTruthClassifier
+    * or do a second pass for electrons based on the cluster to find true photons **/
+  template<class T> MCTruthInfo_t particleTruthClassifier(const T*) const;
    
   /** @brief Decorate IParticle (cluster or egamma) object with truth information **/
-  StatusCode decorateWithTruthInfo(xAOD::IParticle*, MCTruthInfo_t&);
+  StatusCode decorateWithTruthInfo(xAOD::IParticle*, MCTruthInfo_t&) const;
   
   /** @brief Decorate truth object with link to reco as recoNameLink **/
-  template<class T> bool decorateWithRecoLink(T* part, const DataVector<T>* container, std::string name);
+  template<class T> bool decorateWithRecoLink(T* part, const DataVector<T>* container, std::string name) const;
   
   /** @brief Create a copy a truth particle, add it to the new container and decorate it
     *  with a link to the original particle **/
   void getNewTruthParticle(const xAOD::TruthParticle *truth, 
                            const xAOD::TruthParticleContainer *oldContainer,
-                           xAOD::TruthParticleContainer *newContainer);
+                           xAOD::TruthParticleContainer *newContainer) const;
 
   /** @brief Return true if the truth particle is a prompt electron or photon **/  
-  bool isPromptEgammaParticle(const xAOD::TruthParticle *truth);
+  bool isPromptEgammaParticle(const xAOD::TruthParticle *truth) const;
   
   /** @brief Return the truth particle in the egamma truth container that corresponds
     * to the given truth particle **/ 
-  xAOD::TruthParticle* getEgammaTruthParticle(const xAOD::TruthParticle *truth);
+  xAOD::TruthParticle* getEgammaTruthParticle(const xAOD::TruthParticle *truth) const;
   
   /** @brief Create egamma truth container? **/
   bool m_doEgammaTruthContainer;
@@ -92,7 +96,10 @@ class egammaTruthAssociationAlg : public AthAlgorithm {
   /** @brief Name of the input photon container **/
   std::string m_photonContainerName;  
 
-  /** @brief Name of the truth container **/
+  /** @brief Name of the truth event container **/
+  std::string m_truthEventContainerName;
+
+  /** @brief Name of the truth particle container **/
   std::string m_truthParticleContainerName;
 
   /** @brief Name of the output egamma truth container **/
