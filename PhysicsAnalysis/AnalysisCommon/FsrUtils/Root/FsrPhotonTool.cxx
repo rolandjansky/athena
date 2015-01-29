@@ -252,6 +252,7 @@ namespace FSR {
            c.topoEtcone40 = part_isolation;
            c.particle     = particle;
            c.deltaR       = FsrCandList.at(i).second;
+           c.Et           = particle->p4().Et();
            if(c.deltaR < 0.05) c.Et = particle->p4().Et()-(400./cosh(particle->eta()));
            c.eta = particle->eta();
            c.phi = particle->phi();
