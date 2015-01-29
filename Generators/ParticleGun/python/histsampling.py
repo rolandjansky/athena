@@ -41,12 +41,19 @@ def get_sampling_vars(h):
     globalbin_to_axisbin = {} # for reverse axis bin lookup to get edges
     globalbins = [] # because they aren't easily predicted, nor contiguous
     cheights = [0] # cumulative "histogram" from which to uniformly sample
-    for ix in xrange(1, h.GetNbinsX()+1):
-        for iy in xrange(1, h.GetNbinsY()+1):
-            iglobal = h.GetBin(ix, iy)
+    if issubclass(type(h), ROOT.TH1):
+        for ix in xrange(1, h.GetNbinsX()+1):
+            iglobal = h.GetBin(ix)
             globalbins.append(iglobal)
-            globalbin_to_axisbin[iglobal] = (ix, iy) if issubclass(type(h), ROOT.TH2) else tuple(ix,)
+            globalbin_to_axisbin[iglobal] = (ix,)
             cheights.append(cheights[-1] + h.GetBinContent(iglobal))
+    elif issubclass(type(h), ROOT.TH2):
+        for ix in xrange(1, h.GetNbinsX()+1):
+            for iy in xrange(1, h.GetNbinsY()+1):
+                iglobal = h.GetBin(ix, iy)
+                globalbins.append(iglobal)
+                globalbin_to_axisbin[iglobal] = (ix, iy)
+                cheights.append(cheights[-1] + h.GetBinContent(iglobal))
     return globalbins, globalbin_to_axisbin, cheights
 
 
@@ -74,7 +81,7 @@ def get_random_x(h, globalbins, cheights, globalbin_to_axisbin):
     irand = get_random_bin(globalbins, cheights)
     axisids = globalbin_to_axisbin.get(irand)
     assert axisids is not None
-    xrand = random.uniform(h2.GetXaxis().GetBinLowEdge(axisids[0]), h2.GetXaxis().GetBinUpEdge(axisids[0]))
+    xrand = random.uniform(h.GetXaxis().GetBinLowEdge(axisids[0]), h.GetXaxis().GetBinUpEdge(axisids[0]))
     return xrand
 
 
@@ -92,10 +99,17 @@ def get_random_xy(h2, globalbins, cheights, globalbin_to_axisbin):
 
 
 class TH1(object):
-    "Minimal wrapper for ROOT TH1, for consistency and easy loading"
+    "Minimal wrapper for ROOT TH1, for sampling consistency and easy loading"
 
     def __init__(self, *args):
         self.th1 = load_hist(*args)
+        self.globalbins, self.globalbin_to_axisbin, self.cheights = None, None, None
+
+    def GetRandom(self):
+        "A GetRandom that works for TH1s and uses Python random numbers"
+        if self.globalbins is None or self.globalbin_to_axisbin is None or self.cheights is None:
+            self.globalbins, self.globalbin_to_axisbin, self.cheights = get_sampling_vars(self.th1)
+        return get_random_x(self.th1, self.globalbins, self.cheights, self.globalbin_to_axisbin)
 
     def __getattr__(self, attr):
         "Forward all attributes to the contained TH1"
@@ -107,10 +121,12 @@ class TH2(object):
 
     def __init__(self, *args):
         self.th2 = load_hist(*args)
-        self.globalbins, self.globalbin_to_axisbin, self.cheights = get_sampling_vars(self.th2)
+        self.globalbins, self.globalbin_to_axisbin, self.cheights = None, None, None
 
     def GetRandom(self):
         "A GetRandom that works for TH2s"
+        if self.globalbins is None or self.globalbin_to_axisbin is None or self.cheights is None:
+            self.globalbins, self.globalbin_to_axisbin, self.cheights = get_sampling_vars(self.th2)
         return get_random_xy(self.th2, self.globalbins, self.cheights, self.globalbin_to_axisbin)
 
     def __getattr__(self, attr):
