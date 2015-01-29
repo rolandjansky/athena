@@ -82,7 +82,7 @@ PathResolver::PR_find( const std::string& logical_file_name, const string& searc
   for (vector<string>::const_iterator itr = spv.begin();
        itr != spv.end(); ++itr ) {
 
-   if( itr->find("http//")==0 && file_type==PR_regular_file ) { //only http download files, not directories
+   if( itr->find("http//")==0 && file_type==PR_regular_file && gSystem->Getenv("PATHRESOLVER_ALLOWHTTPDOWNLOAD") ) { //only http download files, not directories
       //try to do an http download to the local location
       //restore the proper http protocal (had to remove for sake of env var splitting) 
       std::string addr = "http://"; addr += itr->substr(6,itr->length());
@@ -106,7 +106,9 @@ PathResolver::PR_find( const std::string& logical_file_name, const string& searc
          if(m_enableDebugging) std::cerr << "PathResolver    DEBUG  Unable to download file : " << fileToDownload << std::endl;
       } else {
          std::cout << "PathResolver    INFO   Successfully downloaded " << fileToDownload << std::endl;
-         itr = spv.begin(); //reset to first element, which is where we downloaded to
+         //itr = spv.begin(); //reset to first element, which is where we downloaded to
+         result = (locationToDownloadTo+"/"+file.string());
+         return true;
       }
       gErrorIgnoreLevel=errLevel;
    } else if(locationToDownloadTo==".") {
