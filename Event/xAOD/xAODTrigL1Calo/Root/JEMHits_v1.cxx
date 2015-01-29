@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JEMHits_v1.cxx 579924 2014-01-24 10:26:51Z krasznaa $
+// $Id: JEMHits_v1.cxx 638578 2015-01-09 17:00:15Z morrisj $
 
 // System include(s):
 #include <cmath>
@@ -28,7 +28,7 @@ namespace xAOD{
   unsigned int JEMHits_v1::forward() const
   {
     unsigned int result(0);
-    int mod = this->module();
+    int mod = module();
     if( ((mod%8) == 0)  || ((mod%8) == 7) ){
       result = 1;
     }
@@ -37,7 +37,7 @@ namespace xAOD{
   
   unsigned int JEMHits_v1::jetHits() const
   {
-    return this->jetHitsVec()[ this->peak() ];
+    return jetHitsVec()[ peak() ];
   }
     
 } // namespace xAOD

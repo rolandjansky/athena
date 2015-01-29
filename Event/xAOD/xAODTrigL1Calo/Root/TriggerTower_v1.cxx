@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerTower_v1.cxx 579924 2014-01-24 10:26:51Z krasznaa $
+// $Id: TriggerTower_v1.cxx 638578 2015-01-09 17:00:15Z morrisj $
 
 // EDM includes(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -40,13 +40,13 @@ namespace xAOD{
                               const std::vector<int>& digits_bcid, const std::vector<int>& bcid, 
                               int error, int peak, int adc_peak)
   {
-    this->setEmADC( digits );
-    this->setEmLUT( et );
-    this->setEmBCIDvec( bcid );
-    this->setEmBCIDext( digits_bcid );
-    this->setEmError( error );
-    this->setEmPeak( peak );
-    this->setEmADCPeak( adc_peak );
+    setEmADC( digits );
+    setEmLUT( et );
+    setEmBCIDvec( bcid );
+    setEmBCIDext( digits_bcid );
+    setEmError( error );
+    setEmPeak( peak );
+    setEmADCPeak( adc_peak );
   }
   
   /// Fill HAD towers with digits, calibrated ET vectors and status flags
@@ -54,54 +54,54 @@ namespace xAOD{
                                const std::vector<int>& digits_bcid, const std::vector<int>& bcid, 
                                int error, int peak, int adc_peak)
   {
-    this->setHadADC( digits );
-    this->setHadLUT( et );
-    this->setHadBCIDvec( bcid );
-    this->setHadBCIDext( digits_bcid );
-    this->setHadError( error );
-    this->setHadPeak( peak );
-    this->setHadADCPeak( adc_peak );    
+    setHadADC( digits );
+    setHadLUT( et );
+    setHadBCIDvec( bcid );
+    setHadBCIDext( digits_bcid );
+    setHadError( error );
+    setHadPeak( peak );
+    setHadADCPeak( adc_peak );    
   }
   
   /// Specify the location of tower. Internally calls setEta();setPhi();
   void TriggerTower_v1::setCoord(double eta,double phi)
   {
-    this->setEta( eta );
-    this->setPhi( phi );
+    setEta( eta );
+    setPhi( phi );
   }
       
   /// Final EM energy value used by the algorithms
   int TriggerTower_v1::emEnergy() const
   {
-    return this->emLUT()[ this->emPeak() ];
+    return emLUT()[ emPeak() ];
   }
   
   /// Final HAD energy value used by the algorithms
   int TriggerTower_v1::hadEnergy() const
   {
-    return this->hadLUT()[ this->hadPeak() ];
+    return hadLUT()[ hadPeak() ];
   }
   
   /// get EM BCID at peak
   int TriggerTower_v1::emBCID() const
   {
     // Fix for misfilled MC TriggerTowers
-    if( ( this->emBCIDvec().size() != this->emLUT().size() ) &&
-        ( this->emBCIDvec().size() == this->emADC().size() ) ){      
-            return this->emBCIDvec()[ this->emADCPeak() ];
+    if( ( emBCIDvec().size() != emLUT().size() ) &&
+        ( emBCIDvec().size() == emADC().size() ) ){      
+            return emBCIDvec()[ emADCPeak() ];
     }
-    return this->emBCIDvec()[ this->emPeak() ];
+    return emBCIDvec()[ emPeak() ];
   }
   
   /// get HAD BCID at peak
   int TriggerTower_v1::hadBCID() const
   {
     // Fix for misfilled MC TriggerTowers
-    if( ( this->hadBCIDvec().size() != this->hadLUT().size() ) &&
-        ( this->hadBCIDvec().size() == this->hadADC().size() ) ){      
-            return this->hadBCIDvec()[ this->hadADCPeak() ];
+    if( ( hadBCIDvec().size() != hadLUT().size() ) &&
+        ( hadBCIDvec().size() == hadADC().size() ) ){      
+            return hadBCIDvec()[ hadADCPeak() ];
     }
-    return this->hadBCIDvec()[ this->hadPeak() ];    
+    return hadBCIDvec()[ hadPeak() ];    
   }
   
   /// Is EM saturated?
@@ -111,7 +111,7 @@ namespace xAOD{
     // i.e. it has an energy greater than the saturation threshold
     // otherwise, return false;
     
-    if( this->emEnergy() >= m_saturation ){
+    if( emEnergy() >= m_saturation ){
       return true;
     }
     return false;
@@ -124,7 +124,7 @@ namespace xAOD{
     // i.e. it has an energy greater than the saturation threshold
     // otherwise, return false;
     
-    if( this->hadEnergy() >= m_saturation ){
+    if( hadEnergy() >= m_saturation ){
       return true;
     }
     return false;    

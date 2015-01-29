@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CMMEtSums_v1.cxx 579924 2014-01-24 10:26:51Z krasznaa $
+// $Id: CMMEtSums_v1.cxx 638578 2015-01-09 17:00:15Z morrisj $
 
 // System include(s):
 #include <cmath>
@@ -32,50 +32,50 @@ namespace xAOD{
     
   void CMMEtSums_v1::addEt(const std::vector<unsigned int>& Et,const std::vector<int>& EtError)
   {
-    this->setEtVec( Et );
-    this->setEtErrorVec( EtError );
+    setEtVec( Et );
+    setEtErrorVec( EtError );
   }
   
   void CMMEtSums_v1::addEx(const std::vector<unsigned int>& Ex,const std::vector<int>& ExError)
   {
-    this->setExVec( Ex );
-    this->setExErrorVec( ExError );    
+    setExVec( Ex );
+    setExErrorVec( ExError );    
   }
   
   void CMMEtSums_v1::addEy(const std::vector<unsigned int>& Ey,const std::vector<int>& EyError)
   {
-    this->setEyVec( Ey );
-    this->setEyErrorVec( EyError );    
+    setEyVec( Ey );
+    setEyErrorVec( EyError );    
   }
 
   unsigned int CMMEtSums_v1::et() const
   {
-    return this->etVec()[ this->peak() ];
+    return etVec()[ peak() ];
   }
   
   unsigned int CMMEtSums_v1::ex() const
   {
-    return this->exVec()[ this->peak() ];
+    return exVec()[ peak() ];
   }
   
   unsigned int CMMEtSums_v1::ey() const
   {
-    return this->eyVec()[ this->peak() ];
+    return eyVec()[ peak() ];
   }
   
   int CMMEtSums_v1::etError() const
   {
-    return this->etErrorVec()[ this->peak() ];
+    return etErrorVec()[ peak() ];
   }
   
   int CMMEtSums_v1::exError() const
   {
-    return this->exErrorVec()[ this->peak() ];
+    return exErrorVec()[ peak() ];
   }
   
   int CMMEtSums_v1::eyError() const
   {
-   return this->eyErrorVec()[ this->peak() ]; 
+   return eyErrorVec()[ peak() ]; 
   }
   
 } // namespace xAOD

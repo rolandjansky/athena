@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CPMRoI_v1.cxx 579924 2014-01-24 10:26:51Z krasznaa $
+// $Id: CPMRoI_v1.cxx 638578 2015-01-09 17:00:15Z morrisj $
 
 // System include(s):
 #include <cmath>
@@ -25,49 +25,49 @@ namespace xAOD{
   /// Return crate number (0-1)
   int CPMRoI_v1::crate() const
   {
-    return (this->roiWord() >> s_crateBit) & s_crateMask;  
+    return (roiWord() >> s_crateBit) & s_crateMask;  
   }
   
   /// Return CPM number (1-14)
   int CPMRoI_v1::cpm() const
   {
-    return (this->roiWord() >> s_cpmBit) & s_cpmMask;  
+    return (roiWord() >> s_cpmBit) & s_cpmMask;  
   }
   
   /// Return CP chip number (0-7)
   int CPMRoI_v1::chip() const
   {
-    return (this->roiWord() >> s_chipBit) & s_chipMask;  
+    return (roiWord() >> s_chipBit) & s_chipMask;  
   }
   
   /// Return location (RoI local coords) (0-7)
   int CPMRoI_v1::location() const
   {
-    return (this->roiWord() >> s_locationBit) & s_locationMask;  
+    return (roiWord() >> s_locationBit) & s_locationMask;  
   }
   
   /// Return hit thresholds map
   int CPMRoI_v1::hits() const
   {
-    return (this->roiWord() >> s_hitsBit) & s_hitsMask; 
+    return (roiWord() >> s_hitsBit) & s_hitsMask; 
   }
   
   /// Return error flags (bit 0 Saturation, bit 1 Parity)
   int CPMRoI_v1::error() const
   {
-    return (this->parity() << 1) | this->saturation();  
+    return (parity() << 1) | saturation();  
   }
   
   /// Return parity error flag (0/1)
   int CPMRoI_v1::parity() const
   {
-    return (this->roiWord() >> s_parityBit) & s_parityMask;  
+    return (roiWord() >> s_parityBit) & s_parityMask;  
   }
   
   /// Return saturation flag (0/1)
   int CPMRoI_v1::saturation() const
   {
-    return (this->roiWord() >> s_saturationBit) & s_saturationMask;  
+    return (roiWord() >> s_saturationBit) & s_saturationMask;  
   }
   
 } // namespace xAOD

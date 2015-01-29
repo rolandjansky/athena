@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CMMCPHits_v1.cxx 579924 2014-01-24 10:26:51Z krasznaa $
+// $Id: CMMCPHits_v1.cxx 638578 2015-01-09 17:00:15Z morrisj $
 
 // EDM includes(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -30,30 +30,30 @@ namespace xAOD{
                              const std::vector<int>& error0,
                              const std::vector<int>& error1)
   {
-    this->setHitsVec0( hits0 );
-    this->setHitsVec1( hits1 );
-    this->setErrorVec0( error0 );
-    this->setErrorVec1( error1 );
+    setHitsVec0( hits0 );
+    setHitsVec1( hits1 );
+    setErrorVec0( error0 );
+    setErrorVec1( error1 );
   }
 
   unsigned int CMMCPHits_v1::hitWord0() const
   {
-    return this->hitsVec0()[ this->peak() ]; 
+    return hitsVec0()[ peak() ]; 
   }
 
   unsigned int CMMCPHits_v1::hitWord1() const
   {
-    return this->hitsVec1()[ this->peak() ];
+    return hitsVec1()[ peak() ];
   }
 
   int CMMCPHits_v1::error0() const
   {
-    return this->errorVec0()[ this->peak() ]; 
+    return errorVec0()[ peak() ]; 
   }
 
   int CMMCPHits_v1::error1() const
   {
-    return this->errorVec1()[ this->peak() ];
+    return errorVec1()[ peak() ];
   }  
 
 } // namespace xAOD

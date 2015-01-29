@@ -14,7 +14,7 @@ namespace xAOD {
    typedef CPMRoIContainer_v1 CPMRoIContainer;
 }
 
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::CPMRoIContainer, 1274067747 , 1 )
 
 #endif // XAODTRIGL1CALO_CPMROICONTAINER_H

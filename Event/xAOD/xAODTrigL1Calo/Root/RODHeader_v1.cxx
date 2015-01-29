@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RODHeader_v1.cxx 579924 2014-01-24 10:26:51Z krasznaa $
+// $Id: RODHeader_v1.cxx 638578 2015-01-09 17:00:15Z morrisj $
 
 // System include(s):
 #include <cmath>
@@ -33,145 +33,145 @@ namespace xAOD{
   // Header data
   int RODHeader_v1::majorVersion()  const
   {
-    return (this->version() >> 16) & 0xffff;
+    return (version() >> 16) & 0xffff;
   }
   
   int RODHeader_v1::minorVersion()  const  
   {
-    return this->version() & 0xffff;
+    return version() & 0xffff;
   }
   
   int RODHeader_v1::sourceID()      const
   {
-    return this->sourceId();
+    return sourceId();
   }
     
   int RODHeader_v1::subDetectorID() const  
   {
-    return (this->sourceId() >> 16) & 0xff;
+    return (sourceId() >> 16) & 0xff;
   }
   
   int RODHeader_v1::moduleID()      const  
   {
-    return this->sourceId() & 0xffff; 
+    return sourceId() & 0xffff; 
   }
   
   int RODHeader_v1::crate()         const  
   {
-    return this->sourceId() & 0xf; 
+    return sourceId() & 0xf; 
   }
   
   int RODHeader_v1::sLink()         const  
   {
-    return (this->sourceId() >> 4) & 0x3; 
+    return (sourceId() >> 4) & 0x3; 
   }
   
   int RODHeader_v1::dataType()      const  
   {
-   return (this->sourceId() >> 7) & 0x1; 
+   return (sourceId() >> 7) & 0x1; 
   }
   
   int RODHeader_v1::runType()       const  
   {
-    return (this->run() >> 24) & 0xff;  
+    return (run() >> 24) & 0xff;  
   }
   
   int RODHeader_v1::runNumber()     const  
   {
-    return this->run() & 0xffffff;  
+    return run() & 0xffffff;  
   }
   
   int RODHeader_v1::extendedL1ID()  const  
   {
-    return this->lvl1Id();
+    return lvl1Id();
   }
   
   int RODHeader_v1::ecrID()         const  
   {
-    return (this->lvl1Id() >> 24) & 0xff;  
+    return (lvl1Id() >> 24) & 0xff;  
   }
   
   int RODHeader_v1::l1ID()          const  
   {
-    return this->lvl1Id() & 0xffffff;  
+    return lvl1Id() & 0xffffff;  
   }
   
   int RODHeader_v1::bunchCrossing() const  
   {
-    return this->bcid();
+    return bcid();
   }
   
   int RODHeader_v1::l1TriggerType() const  
   {
-    return this->trigType();
+    return trigType();
   }
   
   int RODHeader_v1::detEventType()  const  
   {
-    return this->detType();
+    return detType();
   }
   
   int RODHeader_v1::orbitCount()    const  
   {
-    return (this->detType() >> 16) & 0xffff;  
+    return (detType() >> 16) & 0xffff;  
   }
   
   int RODHeader_v1::stepNumber()    const  
   {
-    return (this->detType() >> 4) & 0xfff;  
+    return (detType() >> 4) & 0xfff;  
   }
   
   int RODHeader_v1::stepType()      const  
   {
-    return this->detType() & 0xf;  
+    return detType() & 0xf;  
   }
   
 
   // Status bits - word 1
   bool RODHeader_v1::bcnMismatch()        const  
   {
-    return (this->statusWords().empty()) ? false : this->statusWords()[ 0 ] & 0x1;  
+    return (statusWords().empty()) ? false : statusWords()[ 0 ] & 0x1;  
   }
   
   bool RODHeader_v1::gLinkTimeout()       const  
   {
-    return (this->statusWords().empty()) ? false : this->statusWords()[ 0 ] & 0x4;  
+    return (statusWords().empty()) ? false : statusWords()[ 0 ] & 0x4;  
   }
   
   bool RODHeader_v1::dataTransportError() const  
   {
-    return (this->statusWords().empty()) ? false : this->statusWords()[ 0 ] & 0x8;  
+    return (statusWords().empty()) ? false : statusWords()[ 0 ] & 0x8;  
   }
   
   bool RODHeader_v1::rodFifoOverflow()    const  
   {
-    return (this->statusWords().empty()) ? false : this->statusWords()[ 0 ] & 0x10;  
+    return (statusWords().empty()) ? false : statusWords()[ 0 ] & 0x10;  
   }
   
   bool RODHeader_v1::lvdsLinkError()      const  
   {
-    return (this->statusWords().empty()) ? false : this->statusWords()[ 0 ] & 0x10000;  
+    return (statusWords().empty()) ? false : statusWords()[ 0 ] & 0x10000;  
   }
   
   bool RODHeader_v1::cmmParityError()     const  
   {
-    return (this->statusWords().empty()) ? false : this->statusWords()[ 0 ] & 0x20000;  
+    return (statusWords().empty()) ? false : statusWords()[ 0 ] & 0x20000;  
   }
   
   bool RODHeader_v1::gLinkError()         const  
   {
-    return (this->statusWords().empty()) ? false : this->statusWords()[ 0 ] & 0x40000;  
+    return (statusWords().empty()) ? false : statusWords()[ 0 ] & 0x40000;  
   }
   
   // Status bits - word 2
   bool RODHeader_v1::limitedRoISet()      const  
   {
-    return (this->statusWords().size() < 2) ? false : this->statusWords()[ 1 ] & 0x2;  
+    return (statusWords().size() < 2) ? false : statusWords()[ 1 ] & 0x2;  
   }
   
   bool RODHeader_v1::triggerTypeTimeout() const  
   {
-    return (this->statusWords().size() < 2) ? false : this->statusWords()[ 1 ] & 0x10000;  
+    return (statusWords().size() < 2) ? false : statusWords()[ 1 ] & 0x10000;  
   }
        
       

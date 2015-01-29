@@ -14,7 +14,7 @@ namespace xAOD {
    typedef CMMJetHits_v1 CMMJetHits;
 }
 
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::CMMJetHits, 207472471 , 1 )
 
 #endif // XAODTRIGL1CALO_CMMJETHITS_H

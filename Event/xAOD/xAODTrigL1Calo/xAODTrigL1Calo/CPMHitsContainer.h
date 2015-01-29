@@ -14,7 +14,7 @@ namespace xAOD {
    typedef CPMHitsContainer_v1 CPMHitsContainer;
 }
 
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::CPMHitsContainer, 1211912814 , 1 )
 
 #endif // XAODTRIGL1CALO_CPMHITSCONTAINER_H
