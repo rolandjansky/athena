@@ -3,7 +3,7 @@
 */
 
 // Framework
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/errorcheck.h"
 #include "StoreGate/StoreGateSvc.h"
 
 // Trigger
@@ -18,12 +18,10 @@
 
 //---------------------------------------------------------------------------------------
 Trig::TrigNtHltRTool::TrigNtHltRTool(const std::string &name,
-				     const std::string &type,
-				     const IInterface  *parent)
-  :AlgTool(name, type, parent),
+             const std::string &type,
+             const IInterface  *parent)
+  :AthAlgTool(name, type, parent),
    m_parentAlg(0),
-   m_log(0),
-   m_storeGate("StoreGateSvc", name),
    m_hltTool("HLT::HLTResultAccessTool/HLTResultAccessTool")
 {
   declareInterface<Trig::ITrigNtTool>(this);
@@ -39,23 +37,8 @@ StatusCode Trig::TrigNtHltRTool::initialize()
   //
   // Retrieve my tools and services
   //
-  m_log = new MsgStream(msgSvc(), name());
-  
-  if(m_storeGate.retrieve().isFailure()) {
-    log() << MSG::ERROR << "Could not retrieve StoreGateSvc!" << endreq;
-    return StatusCode::FAILURE;
-  }
-  else {
-    log() << MSG::DEBUG << "Retrieved " << m_storeGate << endreq;
-  }
-
-  if(m_hltTool.retrieve().isFailure()) {
-    log() << MSG::ERROR << "Failed to retreive: " << m_hltTool << endreq;
-    return StatusCode::FAILURE;
-  }
-  else {
-    log() << MSG::INFO << "Retrieved tool: " << m_hltTool << endreq;
-  }
+  CHECK(m_hltTool.retrieve());
+  ATH_MSG_DEBUG("Retrieved tool: " << m_hltTool );
 
   return StatusCode::SUCCESS;
 }
@@ -64,7 +47,7 @@ StatusCode Trig::TrigNtHltRTool::initialize()
 void Trig::TrigNtHltRTool::SetSteer(const HLT::TrigSteer *ptr)
 {
   if(!ptr) {
-    log() << MSG::WARNING << "Null HLT::TrigSteer pointer" << endreq;
+    ATH_MSG_WARNING("Null HLT::TrigSteer pointer" );
     return;
   }
 
@@ -77,9 +60,8 @@ StatusCode Trig::TrigNtHltRTool::finalize()
   //
   // Clean up
   //  
-  log() << MSG::DEBUG << "finalize()" << endreq;
+  ATH_MSG_DEBUG("finalize()" );
   
-  delete m_log; m_log = 0;
 
   return StatusCode::SUCCESS;
 }
@@ -108,30 +90,27 @@ bool Trig::TrigNtHltRTool::FillFromHLTResult(TrigMonEvent &event)
   // To use this again, might need to ask to re-order the steering, or just use FillFromSteering. It's just as good.
   //
   if(!m_hltTool) {
-    log() << MSG::WARNING << "Missing HLT tool: " << m_hltTool << endreq;
+    ATH_MSG_WARNING("Missing HLT tool: " << m_hltTool );
     return false;
   }
  
   //
   // Read and unpack HLT result
   //
-  if(!m_storeGate->contains<HLT::HLTResult>(m_keyResult)) {
-    log() << MSG::WARNING << "HLTResult does not exist: " << m_keyResult << endreq;
+  if(!evtStore()->contains<HLT::HLTResult>(m_keyResult)) {
+    ATH_MSG_WARNING("HLTResult does not exist: " << m_keyResult );
     return false;
   }
 
   const HLT::HLTResult *hlt_result = 0;
 
-  if(m_storeGate->retrieve<HLT::HLTResult>(hlt_result, m_keyResult).isFailure() || !hlt_result) {
-    log() << MSG::WARNING << "Failed to retrieve HLTResult: " << m_keyResult << endreq;
+  if(evtStore()->retrieve<HLT::HLTResult>(hlt_result, m_keyResult).isFailure() || !hlt_result) {
+    ATH_MSG_WARNING("Failed to retrieve HLTResult: " << m_keyResult );
     return false;
   }
 
-  if(outputLevel() <= MSG::DEBUG) {
-    log() << MSG::DEBUG << "Retrieved HLTResult: " << m_keyResult
-    << " containing " << hlt_result->getChainResult().size() << " chain(s)" << endreq;
-  }
-
+  ATH_MSG_DEBUG("Retrieved HLTResult: " << m_keyResult << " containing " << hlt_result->getChainResult().size() << " chain(s)" );
+  
   //
   // Determine HLT level
   //
@@ -141,7 +120,7 @@ bool Trig::TrigNtHltRTool::FillFromHLTResult(TrigMonEvent &event)
   else if(hlt_result->getHLTLevel() == HLT::EF)  { level = 3; }
   else if(hlt_result->getHLTLevel() == HLT::HLT) { level = 2; }
   else {
-    log() << MSG::WARNING << "Unknown level for HLTResult: " << hlt_result->getHLTLevel() << endreq;
+    ATH_MSG_WARNING("Unknown level for HLTResult: " << hlt_result->getHLTLevel() );
     return false;
   }
 
@@ -149,7 +128,7 @@ bool Trig::TrigNtHltRTool::FillFromHLTResult(TrigMonEvent &event)
   // Update hltAccessTool with new HLTResult:
   //
   if(m_hltTool->updateResult(*hlt_result, 0).isFailure()) {
-    log() << MSG::WARNING << "HLTResultAccessTool failed to update HLTResult" << endreq;
+    ATH_MSG_WARNING("HLTResultAccessTool failed to update HLTResult" );
     return false;
   }
 
@@ -179,9 +158,7 @@ bool Trig::TrigNtHltRTool::FillFromHLTResult(TrigMonEvent &event)
 
     TrigMonChain decis(level, chain.getChainCounter());
 
-    if(outputLevel() <= MSG::DEBUG) {
-      log() << MSG::DEBUG << "Saving TrigNtHltRTool HLTResult [HLTResult] : " << chain << endreq;
-    }
+    ATH_MSG_DEBUG("Saving TrigNtHltRTool HLTResult [HLTResult] : " << chain );
     
     for(std::vector<TrigMonChain::Decision>::const_iterator dit = dvec.begin(); dit != dvec.end(); ++dit) {
       decis.addDecision(*dit);
@@ -204,13 +181,13 @@ bool Trig::TrigNtHltRTool::FillFromSteering(TrigMonEvent &event)
   for(std::vector<const HLT::SteeringChain *>::const_iterator it = chains.begin(); it != chains.end(); ++it) {
     const HLT::SteeringChain *chain_steer = *it;
     if(!chain_steer) {
-      log() << MSG::WARNING << "Null HLT::SteeringChain pointer!" << endreq;
+      ATH_MSG_WARNING("Null HLT::SteeringChain pointer!" );
       continue;
     }
 
     const TrigConf::HLTChain *chain_confg = chain_steer -> getConfigChain();
     if(!chain_confg) {
-      log() << MSG::WARNING << "Null TrigConf::HLTChain pointer!" << endreq;
+      ATH_MSG_WARNING("Null TrigConf::HLTChain pointer!" );
       continue;
     }
 
@@ -233,9 +210,7 @@ bool Trig::TrigNtHltRTool::FillFromSteering(TrigMonEvent &event)
       decis.addDecision(*dit);
     }
     
-    if(outputLevel() <= MSG::DEBUG) {
-      log() << MSG::DEBUG << " TrigNtHltRTool Saving HLTResult [Steering] : " << chain_steer << endreq;
-    }
+    ATH_MSG_DEBUG(" TrigNtHltRTool Saving HLTResult [Steering] : " << chain_steer );
 
     event.add<TrigMonChain>(decis);
   }

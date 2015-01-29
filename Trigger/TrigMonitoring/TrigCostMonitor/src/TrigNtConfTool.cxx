@@ -10,8 +10,8 @@
 #include <sys/types.h>
 
 // Framework
-#include "GaudiKernel/MsgStream.h"
 #include "StoreGate/DataHandle.h"
+#include "AthenaKernel/errorcheck.h"
 
 // LV1 and HLT configuration
 #include "TrigConfHLTData/HLTFrame.h"
@@ -37,10 +37,9 @@
 
 //---------------------------------------------------------------------------------------
 Trig::TrigNtConfTool::TrigNtConfTool(const std::string &name,
-				     const std::string &type,
-				     const IInterface  *parent)
-  :AlgTool(name, type, parent),
-   m_log(0),
+             const std::string &type,
+             const IInterface  *parent)
+  :AthAlgTool(name, type, parent),
    m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name),
    m_storage(0),
    m_hltFrame(0),
@@ -76,22 +75,15 @@ Trig::TrigNtConfTool::~TrigNtConfTool()
 //---------------------------------------------------------------------------------------
 StatusCode Trig::TrigNtConfTool::initialize()
 {    
-  m_log = new MsgStream(msgSvc(), name());
   
   if(m_useConfSvc) {
-    if(m_configSvc.retrieve().isFailure()) {
-      log() << MSG::ERROR << "Could not retrieve TrigConfigSvc!" << endreq;
-      return StatusCode::FAILURE;
-    }
-    else {
-      log() << MSG::INFO << "Retrieved TrigConfigSvc " << m_configSvc << endreq;
-    }
+    CHECK(m_configSvc.retrieve());
+    ATH_MSG_INFO("Retrieved TrigConfigSvc " << m_configSvc);
   }
 
-  log() << MSG::INFO 
-	<< "printConfig  = " << m_printConfig  << endreq
-	<< "useDB        = " << m_useDB        << endreq
-  << "useConfSvc   = " << m_useConfSvc   << endreq;
+  ATH_MSG_INFO("printConfig  = " << m_printConfig);
+  ATH_MSG_INFO("useDB        = " << m_useDB      );
+  ATH_MSG_INFO("useConfSvc   = " << m_useConfSvc );
 
   return StatusCode::SUCCESS;
 }
@@ -102,9 +94,7 @@ StatusCode Trig::TrigNtConfTool::finalize()
   //
   // Clean up
   //
-  log() << MSG::DEBUG << "finalize()" << endreq; 
-
-  delete m_log; m_log = 0;
+  ATH_MSG_DEBUG("finalize()"); 
   
   if(m_storage) {
     delete m_storage;
@@ -123,17 +113,15 @@ bool Trig::TrigNtConfTool::Fill(TrigMonConfig *confg)
   // Fill current trigger configuration
   //
   if(!confg) {
-    log() << MSG::WARNING << "Null TrigMonConfig pointer" << endreq;
+    ATH_MSG_WARNING("Null TrigMonConfig pointer" );
     return false;
   }
 
-  if(outputLevel() <= MSG::DEBUG) {
-    log() << MSG::DEBUG << "Filling Trigger Configuration using Option: " << m_dbOrConfSvcPass << ". (1=ConfSvc, 2=DB)." << endreq;
-  }
+  ATH_MSG_DEBUG("Filling Trigger Configuration using Option: " << m_dbOrConfSvcPass << ". (1=ConfSvc, 2=DB)." );
 
   // Require each call of "Fill" to act on only one of DB or ConfSvc
   if(m_dbOrConfSvcPass < 1 && m_dbOrConfSvcPass > 2) {
-    log() << MSG::WARNING << "Set one of SetOption(1) for ConfSvc OR SetOption(2) for DB to true before calling Fill" << endreq;
+    ATH_MSG_WARNING("Set one of SetOption(1) for ConfSvc OR SetOption(2) for DB to true before calling Fill" );
     return false;
   }
 
@@ -141,7 +129,7 @@ bool Trig::TrigNtConfTool::Fill(TrigMonConfig *confg)
     m_dbOrConfSvcPass = 0;
 
     if(m_useDB == false) {
-      log() << MSG::WARNING << "Trying to run a Database pass (SetOption(2)), but m_useDB is false. Aborting"  << endreq;
+      ATH_MSG_WARNING("Trying to run a Database pass (SetOption(2)), but m_useDB is false. Aborting"  );
       return false;
     }
 
@@ -158,7 +146,7 @@ bool Trig::TrigNtConfTool::Fill(TrigMonConfig *confg)
     m_dbOrConfSvcPass = 0;
 
     if(m_useConfSvc == false) {
-      log() << MSG::WARNING << "Trying to run a Conf Service pass (SetOption(1)), but m_useConfSvc is false. Aborting"  << endreq;
+      ATH_MSG_WARNING("Trying to run a Conf Service pass (SetOption(1)), but m_useConfSvc is false. Aborting"  );
       return false;
     }
 
@@ -190,10 +178,10 @@ bool Trig::TrigNtConfTool::Fill(TrigMonEvent &event)
   if(ReadFromDB(*m_config_db, event.getRun(), event.getLumi())) {
     
     m_config_db->setEventID(event.getEvent(),
-			 event.getLumi(),
-			 event.getRun(),
-			 event.getSec(),
-			 event.getNanoSec());
+       event.getLumi(),
+       event.getRun(),
+       event.getSec(),
+       event.getNanoSec());
   }
 
   return true;
@@ -207,33 +195,32 @@ bool Trig::TrigNtConfTool::ReadFromSv(TrigMonConfig &confg)
   //
 
   if(!m_configSvc) { 
-    log() << MSG::WARNING << "Invalid TrigConfigSvc handle" << endreq;
+    ATH_MSG_WARNING("Invalid TrigConfigSvc handle" );
     return false;
   }
   else {
-    log() << MSG::INFO << "Filling TrigMonConfig using: " << m_configSvc << endreq;
+    ATH_MSG_INFO("Filling TrigMonConfig using: " << m_configSvc );
   }
 
   const TrigConf::CTPConfig *ctp_confg = m_configSvc->ctpConfig();
   if(!ctp_confg) {
-    log() << MSG::WARNING << "Failed to get CTPConfig or Menu" << endreq;
+    ATH_MSG_WARNING("Failed to get CTPConfig or Menu" );
     return false;
   }
 
   const TrigConf::HLTSequenceList *seq_confg = m_configSvc->sequenceList();
   if(!seq_confg) {
-    log() << MSG::WARNING << "Failed to get HLTSequenceList" << endreq;
+    ATH_MSG_WARNING("Failed to get HLTSequenceList" );
     return false;
   }
 
   const TrigConf::HLTChainList *chn_confg = m_configSvc->chainList();
   if(!chn_confg) {
-    log() << MSG::WARNING << "Failed to get HLTChainList" << endreq;
+    ATH_MSG_WARNING("Failed to get HLTChainList" );
     return false;
   }
 
-  log() << MSG::INFO << "Filling Keyset : " << m_configSvc->masterKey() << ","
-    << ctp_confg->prescaleSetId() << "," << m_configSvc->hltPrescaleKey() << endreq;
+  ATH_MSG_INFO("Filling Keyset : " << m_configSvc->masterKey() << "," << ctp_confg->prescaleSetId() << "," << m_configSvc->hltPrescaleKey() );
 
   std::stringstream _ss1, _ss2, _ss3;
   _ss1 << m_configSvc->masterKey();
@@ -256,18 +243,16 @@ bool Trig::TrigNtConfTool::ReadFromSv(TrigMonConfig &confg)
       conf.UpdateLV1(confg, *ctp_confg);
     }
 
-    if(outputLevel() <= MSG::DEBUG) {
-      log() << MSG::DEBUG << "SMK has not changed: " << confg.getMasterKey() << ", just reading in updates prescales." << endreq;
-    }
+    ATH_MSG_DEBUG("SMK has not changed: " << confg.getMasterKey() << ", just reading in updates prescales." );
     
     confg.setTriggerKeys(m_configSvc->masterKey(), 
-			 ctp_confg->prescaleSetId(), 
-			 m_configSvc->hltPrescaleKey());
+       ctp_confg->prescaleSetId(), 
+       m_configSvc->hltPrescaleKey());
 
     conf.FillVar(confg, m_triggerMenuSetup, m_L1PrescaleSet, m_HLTPrescaleSet);
 
     if(m_printConfig) {
-      log() << MSG::INFO << "Print TrigMonConfig filled from TrigConfigSvc" << endreq;
+      ATH_MSG_INFO("Print TrigMonConfig filled from TrigConfigSvc" );
       Trig::Print(confg, std::cout);
     }
 
@@ -295,9 +280,7 @@ bool Trig::TrigNtConfTool::ReadFromSv(TrigMonConfig &confg)
   // Fill config information from the CTP, starting with the BG info
   const std::vector<TrigConf::BunchGroup> _bunchGroups = ctp_confg->bunchGroupSet().bunchGroups();
   for (unsigned _bg = 0; _bg < _bunchGroups.size(); ++_bg) {
-    if (outputLevel() <= MSG::DEBUG) {
-      log() << MSG::DEBUG << " TrigConf::CTPConfig BunchGroup " << _bunchGroups.at(_bg).name() << " has size " << _bunchGroups.at(_bg).bunches().size() << endreq;
-    }
+    ATH_MSG_DEBUG(" TrigConf::CTPConfig BunchGroup " << _bunchGroups.at(_bg).name() << " has size " << _bunchGroups.at(_bg).bunches().size() );
     std::stringstream _ssNameKey, _ssSizeKey, _ssSizeVal;
     _ssNameKey << "CTPConfig:NAME:BGRP" << _bg;
     _ssSizeKey << "CTPConfig:SIZE:BGRP" << _bg;
@@ -314,28 +297,28 @@ bool Trig::TrigNtConfTool::ReadFromSv(TrigMonConfig &confg)
   confg.addValue("LV1Version", _l1Version.str() );  
 
   if(!conf.error().empty()) {
-    log() << MSG::INFO  << "FillConf error stream:" << endreq 
-	  << "-----------------------------------------------------------" << endreq
-	  << conf.error() 
-	  << "-----------------------------------------------------------" << endreq;
+    ATH_MSG_INFO("FillConf error stream:" );
+    ATH_MSG_INFO("-----------------------------------------------------------" );
+    ATH_MSG_INFO(conf.error() );
+    ATH_MSG_INFO("-----------------------------------------------------------" );
   }
 
   if(!conf.debug().empty()) {
-    log() << MSG::VERBOSE << "FillConf debug stream:" << endreq 
-	  << "-----------------------------------------------------------" << endreq
-	  << conf.debug() 
-	  << "-----------------------------------------------------------" << endreq;
+    ATH_MSG_VERBOSE("FillConf debug stream:");
+    ATH_MSG_VERBOSE("-----------------------------------------------------------");
+    ATH_MSG_VERBOSE(conf.debug() );
+    ATH_MSG_VERBOSE("-----------------------------------------------------------" );
   }
 
 
   confg.setTriggerKeys(m_configSvc->masterKey(), 
-		       ctp_confg->prescaleSetId(), 
-		       m_configSvc->hltPrescaleKey());
+           ctp_confg->prescaleSetId(), 
+           m_configSvc->hltPrescaleKey());
   
   confg.addValue("SOURCE", "CONFIG_SVC");
 
   if(m_printConfig) {
-    log() << MSG::INFO << "Print TrigMonConfig filled from TrigConfigSvc" << endreq;
+    ATH_MSG_INFO("Print TrigMonConfig filled from TrigConfigSvc" );
     Trig::Print(confg, std::cout);
   }
 
@@ -352,10 +335,10 @@ bool Trig::TrigNtConfTool::ReadFromDB(TrigMonConfig &confg, unsigned run, unsign
 
   if(m_run != run) {    
     if(ReadKeysDB(run)) {
-      log() << MSG::INFO << "Read keys for new run: " << run << endreq;      
+      ATH_MSG_INFO("Read keys for new run: " << run );      
     }
     else {
-      log() << MSG::WARNING << "No keys for new run: " << run << endreq;
+      ATH_MSG_WARNING("No keys for new run: " << run );
       return false;
     }
   }
@@ -363,19 +346,19 @@ bool Trig::TrigNtConfTool::ReadFromDB(TrigMonConfig &confg, unsigned run, unsign
   const std::map<unsigned, ConfigKeys>::const_iterator kit = m_keys.find(lumi);
 
   if(kit == m_keys.end()) {
-    log() << MSG::INFO << "No COOL trigger keys for run, lumi: " << run << ", " << lumi << endreq;
+    ATH_MSG_INFO("No COOL trigger keys for run, lumi: " << run << ", " << lumi );
     return false;
   }
 
   const Trig::ConfigKeys &key = kit->second;
 
   if(!key.isValid()) {
-    log() << MSG::WARNING << "Invalid COOL keys for run, lumi: " << run << ", " << lumi << endreq;
+    ATH_MSG_WARNING("Invalid COOL keys for run, lumi: " << run << ", " << lumi );
     return false;
   }
 
   if(key == m_currentKey) {
-    log() << MSG::DEBUG << "No configuration change for current lumi block: " << lumi << endreq;
+    ATH_MSG_DEBUG("No configuration change for current lumi block: " << lumi );
     return false;
   }
 
@@ -405,35 +388,32 @@ bool Trig::TrigNtConfTool::ReadFromDB(TrigMonConfig &confg, unsigned run, unsign
     confg.getVec<TrigConfChain>() = iconf->second.getVec<TrigConfChain>();
     confg.getVec<TrigConfSeq>()   = iconf->second.getVec<TrigConfSeq>();
 
-    log() << MSG::DEBUG << "Using earlier cached result: " << keyStr.str() << endreq;
+    ATH_MSG_DEBUG("Using earlier cached result: " << keyStr.str() );
     return true;
   } 
 
-  log() << MSG::INFO
-	<< "Reading new trigger configuration from DB: " << m_connectionTrig << endreq
-	<< "  run    = " << run             << endreq
-	<< "  lumi   = " << lumi            << endreq
-	<< "  SMK    = " << key.getSMK()    << endreq
-	<< "  BGK    = " << key.getBGK()    << endreq
-	<< "  LV1 PS = " << key.getLV1_PS() << endreq
-	<< "  HLT PS = " << key.getHLT_PS() << endreq;
+  ATH_MSG_INFO("Reading new trigger configuration from DB: " << m_connectionTrig );
+  ATH_MSG_INFO("  run    = " << run             );
+  ATH_MSG_INFO("  lumi   = " << lumi            );
+  ATH_MSG_INFO("  SMK    = " << key.getSMK()    );
+  ATH_MSG_INFO("  BGK    = " << key.getBGK()    );
+  ATH_MSG_INFO("  LV1 PS = " << key.getLV1_PS() );
+  ATH_MSG_INFO("  HLT PS = " << key.getHLT_PS() );
 
   //
   // Read configuration from trigger database
   //
   TrigConf::CTPConfig    ctp_conf;
   
-  log() << MSG::DEBUG << "Opening connection to TriggerDB..." << endreq;
+  ATH_MSG_DEBUG("Opening connection to TriggerDB..." );
   if(!m_storage) {
-    m_storage = new TrigConf::StorageMgr(m_connectionTrig,
-					 m_username,
-					 m_password);
+    m_storage = new TrigConf::StorageMgr(m_connectionTrig, m_username, m_password);
   }
 
   //
   // Load L1 configuration
   //
-  log() << MSG::INFO << "Retrieving Lvl1 CTP configuration from TriggerDB..." << endreq;
+  ATH_MSG_INFO("Retrieving Lvl1 CTP configuration from TriggerDB..." );
 
   ctp_conf.setSuperMasterTableId(key.getSMK());
   ctp_conf.setPrescaleSetId(key.getLV1_PS());
@@ -441,12 +421,12 @@ bool Trig::TrigNtConfTool::ReadFromDB(TrigMonConfig &confg, unsigned run, unsign
 
   m_storage->masterTableLoader().load(ctp_conf); 
 
-  log() << MSG::INFO << "Got " << ctp_conf.menu().items().size() << " L1 Items to fill" << endreq;
+  ATH_MSG_INFO("Got " << ctp_conf.menu().items().size() << " L1 Items to fill" );
 
   //
   // Load HLT configuration
   //
-  log() << MSG::INFO << "Loading HLT menu configuration from TriggerDB..." << endreq;
+  ATH_MSG_INFO("Loading HLT menu configuration from TriggerDB..." );
 
   //TrigConf::HLTFrame *hltFrame = TrigConf::HLTFrame::instance();
   
@@ -460,7 +440,7 @@ bool Trig::TrigNtConfTool::ReadFromDB(TrigMonConfig &confg, unsigned run, unsign
 
   m_storage->hltFrameLoader().load(*m_hltFrame);
 
-  log() << MSG::INFO << "Filling TrigMonConfig from DB..." << endreq;
+  ATH_MSG_INFO("Filling TrigMonConfig from DB..." );
 
   //
   // Clear TrigMonConfig
@@ -482,21 +462,21 @@ bool Trig::TrigNtConfTool::ReadFromDB(TrigMonConfig &confg, unsigned run, unsign
   
 
   if(!conf.error().empty()) {
-    log() << MSG::INFO  << "FillConf error stream:" << endreq 
-	  << "-----------------------------------------------------------" << endreq
-	  << conf.error() 
-	  << "-----------------------------------------------------------" << endreq;
+    ATH_MSG_INFO("FillConf error stream:" );
+    ATH_MSG_INFO("-----------------------------------------------------------" );
+    ATH_MSG_INFO(conf.error() );
+    ATH_MSG_INFO("-----------------------------------------------------------" );
   }
   if(!conf.debug().empty()) {
-    log() << MSG::VERBOSE << "FillConf debug stream:" << endreq 
-	  << "-----------------------------------------------------------" << endreq
-	  << conf.debug() 
-	  << "-----------------------------------------------------------" << endreq;
+    ATH_MSG_VERBOSE("FillConf debug stream:" ); 
+    ATH_MSG_VERBOSE("-----------------------------------------------------------" );
+    ATH_MSG_VERBOSE(conf.debug() );
+    ATH_MSG_VERBOSE("-----------------------------------------------------------" );
   }
 
 
   if(m_printConfig) {
-    log() << MSG::INFO << "Print TrigMonConfig filled from DB" << endreq;
+    ATH_MSG_INFO("Print TrigMonConfig filled from DB" );
     Trig::Print(confg, std::cout);
   }
 
@@ -507,7 +487,7 @@ bool Trig::TrigNtConfTool::ReadFromDB(TrigMonConfig &confg, unsigned run, unsign
   // Cache this configuration for future use
   //
   if(!m_configMap.insert(ConfigMap::value_type(m_currentKey, confg)).second) {
-    log() << MSG::WARNING << "Failed to cache current configuration: " << keyStr.str() << endreq;
+    ATH_MSG_WARNING("Failed to cache current configuration: " << keyStr.str() );
   }
 
   return true;
@@ -520,7 +500,7 @@ bool Trig::TrigNtConfTool::ReadKeysDB(unsigned run)
   // Read configuration keys from COOL
   // 
   if(run < 100000) {
-    log() << MSG::WARNING << "ReadKeysDB - skip invalid run: " << run << endreq;
+    ATH_MSG_WARNING("ReadKeysDB - skip invalid run: " << run );
     return false;
   }
   

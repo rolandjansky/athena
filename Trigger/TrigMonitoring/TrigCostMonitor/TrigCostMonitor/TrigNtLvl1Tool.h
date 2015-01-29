@@ -10,7 +10,7 @@
 //
 
 // Framework
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -27,7 +27,7 @@ namespace Trig
 {
   static const InterfaceID IID_TrigNtLvl1Tool("Trig::TrigNtLvl1Tool", 1, 0); 
   
-  class TrigNtLvl1Tool : virtual public Trig::ITrigNtTool, public AlgTool {
+  class TrigNtLvl1Tool : virtual public Trig::ITrigNtTool, public AthAlgTool {
   public:
     
     static const InterfaceID& interfaceID() { return IID_TrigNtLvl1Tool; }
@@ -42,9 +42,7 @@ namespace Trig
     bool Fill(TrigMonEvent &event);
     
   private:
-    
-    MsgStream& log() const { return *m_log; }       
-    
+        
     bool FillFromL1Result(TrigMonEvent &event);
     bool FillFromRBResult(TrigMonEvent &event);
 
@@ -56,9 +54,6 @@ namespace Trig
     std::string  m_keyL1Result;      // Key to retrieve the L1Result from SG
     std::string  m_keyRBResult;      // Key to retrieve the RoIBResult from SG
 
-    // Athena tools and services
-    MsgStream                              *m_log;
-    ServiceHandle<StoreGateSvc>             m_storeGate;
   };
 }
 

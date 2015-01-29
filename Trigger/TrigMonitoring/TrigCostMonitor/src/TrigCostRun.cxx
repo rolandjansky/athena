@@ -5,7 +5,7 @@
 // Framework
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/errorcheck.h"
 
 // Reconstruction
 #include "EventInfo/EventInfo.h"
@@ -33,12 +33,10 @@
 //---------------------------------------------------------------------------------------
 TrigCostRun::TrigCostRun(const std::string& name,
 			 ISvcLocator* pSvcLocator)
-  :Algorithm(name, pSvcLocator),
-   m_log(0),
+  :AthAlgorithm(name, pSvcLocator),
    m_timerExec(0),
    m_timerNavig(0),
    m_timerTotal(0),
-   m_storeGate("StoreGateSvc", name),
    m_timerSvc("TrigTimerSvc/TrigTimerSvc", name),
    m_navigation("HLT::Navigation/Navigation", this),
    m_tools(this),
@@ -77,18 +75,10 @@ TrigCostRun::~TrigCostRun()
 //---------------------------------------------------------------------------------------
 StatusCode TrigCostRun::initialize()
 {    
-  m_log = new MsgStream(msgSvc(), name()); 
   
-  if(m_storeGate.retrieve().isFailure()) {
-    log() << MSG::ERROR << "Could not retrieve StoreGateSvc!" << endreq;
-    return StatusCode::FAILURE;
-  }
 
   if(m_doTiming) { 
-    if(m_timerSvc.retrieve().isFailure()) {
-      log() << MSG::ERROR << "Failed to retrieve TrigTimerSvc" << endreq;
-      return  StatusCode::FAILURE;
-    }
+    CHECK(m_timerSvc.retrieve());
     
     m_timerExec  = m_timerSvc->addItem(name()+":ExecTime");
     m_timerNavig = m_timerSvc->addItem(name()+":NavigTime");
@@ -97,28 +87,15 @@ StatusCode TrigCostRun::initialize()
     m_timerTotal -> start(); 
   }
 
-  if(m_navigation.retrieve().isFailure()) {
-    log() << MSG::ERROR << "Failed to retrieve navigation tool: " << m_navigation << endreq;
-    return  StatusCode::FAILURE;
-  } 
+  CHECK(m_navigation.retrieve());
+  ATH_MSG_DEBUG("Retrieved navigation tool: " << m_navigation);
 
-  log() << MSG::DEBUG << "Retrieved navigation tool: " << m_navigation << endreq;
+  CHECK(m_tools.retrieve());
+  ATH_MSG_DEBUG("Retrieved : " << m_tools);
 
-  if(m_tools.retrieve().isFailure()) {
-    log() << MSG::ERROR << "Failed to retrieve " << m_tools << endreq;
-    return StatusCode::FAILURE;
-  }
-  else {
-    log() << MSG::INFO << "Retrieved " << m_tools << endreq;
-  }
-  
-  if(m_toolsSave.retrieve().isFailure()) {
-    log() << MSG::ERROR << "Failed to retrieve " << m_toolsSave << endreq;
-    return StatusCode::FAILURE;
-  }
-  else {
-    log() << MSG::INFO << "Retrieved " << m_toolsSave << endreq;
-  }
+  CHECK(m_toolsSave.retrieve());
+  ATH_MSG_DEBUG("Retrieved " << m_toolsSave << endreq);
+
 
   //
   // Pass global configuration pointer to sub-tools
@@ -132,21 +109,21 @@ StatusCode TrigCostRun::initialize()
   //
   m_readL2.hltLevel     = "L2";
   m_readL2.outputLevel  = outputLevel();
-  m_readL2.msgStream    = m_log;
+  m_readL2.msgStream    = &msg();
   m_readL2.globalConfig = &m_config;
   m_readL2.timerNavig   = m_timerNavig;
   m_readL2.PrintInit();
 
   m_readEF.hltLevel     = "EF";  
   m_readEF.outputLevel  = outputLevel();
-  m_readEF.msgStream    = m_log;
+  m_readEF.msgStream    = &msg();
   m_readEF.globalConfig = &m_config;
   m_readEF.timerNavig   = m_timerNavig;
   m_readEF.PrintInit();
   
   m_readHLT.hltLevel     = "HLT";  
   m_readHLT.outputLevel  = outputLevel();
-  m_readHLT.msgStream    = m_log;
+  m_readHLT.msgStream    = &msg();
   m_readHLT.globalConfig = &m_config;
   m_readHLT.timerNavig   = m_timerNavig;
   m_readHLT.PrintInit();
@@ -163,12 +140,12 @@ StatusCode TrigCostRun::execute()
   
   static int firstTwo = 0;
   if (firstTwo++ < 2) {
-	  log() << MSG::WARNING << m_storeGate->dump() << endreq;
+	  ATH_MSG_WARNING( evtStore()->dump() );
   }
   
   const DataHandle<EventInfo> event_handle;
-  if(m_storeGate -> retrieve(event_handle).isFailure()) {
-    log() << MSG::WARNING << "Failed to read EventInfo" << endreq;
+  if(evtStore() -> retrieve(event_handle).isFailure()) {
+    ATH_MSG_WARNING("Failed to read EventInfo");
     return StatusCode::SUCCESS;
   }
 
@@ -179,18 +156,18 @@ StatusCode TrigCostRun::execute()
   //
   TriggerInfo *trig = event_handle->trigger_info();
   if(!trig) {
-    log() << MSG::WARNING << "Failed to get TriggerInfo" << endreq;
+    ATH_MSG_WARNING("Failed to get TriggerInfo");
     return StatusCode::SUCCESS;
   }
 
   const std::vector<TriggerInfo::StreamTag> &streams = trig->streamTags();
 
   if(m_printEvent) {
-    log() << MSG::INFO << ">>>>>>>>>>>>>>>>"
+    ATH_MSG_INFO(">>>>>>>>>>>>>>>>"
 	  << " run #" << event_handle->event_ID()->run_number()
 	  << " lumi #" << event_handle->event_ID()->lumi_block()
 	  << " event #" << event_handle->event_ID()->event_number() 
-	  << " has " << streams.size() << " streams " << endreq;
+	  << " has " << streams.size() << " streams ");
   }
   
   bool found_stream = false;
@@ -202,12 +179,12 @@ StatusCode TrigCostRun::execute()
     }
 
     if(m_printEvent) {
-      log() << MSG::INFO << "  stream " << i << ": " << stag.name() << "/" << stag.type() << endreq;
+      ATH_MSG_INFO("  stream " << i << ": " << stag.name() << "/" << stag.type());
     }
   }
 
   if(!m_keyStream.empty() && !found_stream) {
-    log() << MSG::DEBUG << "Failed to find stream: " << m_keyStream << endreq;
+    ATH_MSG_WARNING("Failed to find stream: " << m_keyStream);
     return StatusCode::SUCCESS;
   }
 
@@ -219,9 +196,9 @@ StatusCode TrigCostRun::execute()
     m_navigation->reset();
   }
 
-  m_readL2.ProcessEvent(m_storeGate, m_navigation);
-  m_readEF.ProcessEvent(m_storeGate, m_navigation);
-  m_readHLT.ProcessEvent(m_storeGate, m_navigation);
+  m_readL2.ProcessEvent(evtStore(), m_navigation);
+  m_readEF.ProcessEvent(evtStore(), m_navigation);
+  m_readHLT.ProcessEvent(evtStore(), m_navigation);
 
   if(m_printEvent) {
     m_readL2.PrintEvent();
@@ -254,13 +231,13 @@ StatusCode TrigCostRun::execute()
   // Check if we have L2 and EF events for the same L1 event: 
   //
   if(m_readL2.vecEvent.size() && m_readEF.vecEvent.size() && MatchL2andEF(m_readL2.vecEvent, m_readEF.vecEvent)) {
-    log() << MSG::DEBUG << "L2 and EF events match - merge two events" << endreq;
+    ATH_MSG_DEBUG("L2 and EF events match - merge two events");
     //
     // Merge L2 into EF: use EF because it has correct (non-L1) event number
     //    
     const std::string msg = Trig::MergeEvent(m_readEF.vecEvent.front(), m_readL2.vecEvent.front(), 2);
     if(!msg.empty()) {
-      log() << MSG::WARNING << msg << endreq;
+      ATH_MSG_WARNING(msg);
     }
 
     //
@@ -274,7 +251,7 @@ StatusCode TrigCostRun::execute()
     }
   }
   else if (m_readL2.vecEvent.size() || m_readEF.vecEvent.size()) {
-    log() << MSG::DEBUG << "L2 and EF events do not match - record them separately" << endreq;
+    ATH_MSG_DEBUG("L2 and EF events do not match - record them separately");
 
     //
     // Run post-processing tools for TrigMonEvent
@@ -318,7 +295,7 @@ StatusCode TrigCostRun::finalize()
   //
   // Finalize state
   //
-  log() << MSG::INFO << "finalize()" << endreq;
+ ATH_MSG_INFO("finalize()");
 
   for(ToolHandleArray<Trig::ITrigNtTool>::iterator it = m_toolsSave.begin(); it != m_toolsSave.end(); ++it) {
     (*it)->Fill(&m_config);
@@ -333,13 +310,10 @@ StatusCode TrigCostRun::finalize()
     m_timerNavig->stop();
     m_timerTotal->stop();
 
-    log() << MSG::INFO 
-	  << m_timerExec ->name() << ": " << m_timerExec ->elapsed()/1000.0 << "s" << endreq
-	  << m_timerNavig->name() << ": " << m_timerNavig->elapsed()/1000.0 << "s" << endreq
-	  << m_timerTotal->name() << ": " << m_timerTotal->elapsed()/1000.0 << "s" << endreq;
+    ATH_MSG_INFO(m_timerExec ->name() << ": " << m_timerExec ->elapsed()/1000.0 << "s");
+	  ATH_MSG_INFO(m_timerNavig->name() << ": " << m_timerNavig->elapsed()/1000.0 << "s");
+	  ATH_MSG_INFO(m_timerTotal->name() << ": " << m_timerTotal->elapsed()/1000.0 << "s");
   }
-
-  delete m_log; m_log = 0;
 
   return StatusCode::SUCCESS;
 }
@@ -367,7 +341,6 @@ bool TrigCostRun::MatchL2andEF(const std::vector<TrigMonEvent> &events_l2,
 //---------------------------------------------------------------------------------------
 TrigCostRun::ReadHLTResult::ReadHLTResult()
   :outputLevel(3),
-   msgStream(0),
    globalConfig(0),
    timerNavig(0),
    appId(0),
@@ -427,7 +400,7 @@ bool TrigCostRun::ReadHLTResult::ReadResult(ServiceHandle<StoreGateSvc> &storeGa
   // Find HLTResult and extract application id
   //  
   if(!storeGate->contains<HLT::HLTResult>(keyResult)) {
-    log() << MSG::DEBUG << "StoreGate does not contain HLTResult: " << keyResult << endreq;
+    if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "StoreGate does not contain HLTResult: " << keyResult << endreq;
     return false;
   }
 
@@ -437,9 +410,7 @@ bool TrigCostRun::ReadHLTResult::ReadResult(ServiceHandle<StoreGateSvc> &storeGa
     return false;
   }
   else {
-    if(outputLevel <= MSG::DEBUG) {
-      log() << MSG::DEBUG << "Found HLTResult: " << keyResult << endreq;
-    }
+    if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Found HLTResult: " << keyResult << endreq;
   }
 
   if(hlt_result->isHLTResultTruncated()) {
@@ -531,9 +502,7 @@ bool TrigCostRun::ReadHLTResult::ReadConfig(ServiceHandle<StoreGateSvc> &storeGa
     ScopeResumePauseTimer scopeTimer(timerNavig, false);
 
     if(!storeGate->contains<TrigMonConfigCollection>(keyConfig)) {
-      if(outputLevel <= MSG::DEBUG) {
-	      log() << MSG::DEBUG  << "TrigMonConfigCollection does not exist: " << keyConfig << endreq;
-      }
+      if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG  << "TrigMonConfigCollection does not exist: " << keyConfig << endreq;
       return false;
     }
     
@@ -542,12 +511,8 @@ bool TrigCostRun::ReadHLTResult::ReadConfig(ServiceHandle<StoreGateSvc> &storeGa
       return false;
     }
     
-    if(outputLevel <= MSG::DEBUG) {
-      log() << MSG::DEBUG 
-	    << "Found TrigMonConfigCollection: " << keyConfig << " size=" << configCol->size() << endreq;
-    }
+    if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG << "Found TrigMonConfigCollection: " << keyConfig << " size=" << configCol->size() << endreq;
   }
-
 
   for(TrigMonConfigCollection::const_iterator it = configCol->begin(); it != configCol->end(); ++it) {
     TrigMonConfig *ptr = *it;
@@ -600,9 +565,7 @@ bool TrigCostRun::ReadHLTResult::ReadEvent(ServiceHandle<StoreGateSvc> &storeGat
     ScopeResumePauseTimer scopeTimer(timerNavig, false);
 
     if(!storeGate->contains<TrigMonEventCollection>(keyEvent)) {
-      if(outputLevel <= MSG::DEBUG) {
-	      log() << MSG::DEBUG  << "TrigMonEventCollection does not exist: " << keyEvent << endreq;
-      }
+      if(outputLevel <= MSG::DEBUG) log() << MSG::DEBUG  << "TrigMonEventCollection does not exist: " << keyEvent << endreq;
       return false;
     }
     

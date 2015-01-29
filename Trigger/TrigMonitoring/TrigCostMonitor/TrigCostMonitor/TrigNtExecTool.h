@@ -10,7 +10,7 @@
 //
 
 // Framework
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -28,7 +28,7 @@ namespace Trig
 {
   static const InterfaceID IID_TrigNtExecTool("Trig::TrigNtExecTool", 1, 0); 
   
-  class TrigNtExecTool : virtual public Trig::ITrigNtTool, public AlgTool {
+  class TrigNtExecTool : virtual public Trig::ITrigNtTool, public AthAlgTool {
   public:
     
     static const InterfaceID& interfaceID() { return IID_TrigNtExecTool; }
@@ -59,8 +59,8 @@ namespace Trig
     struct ReadEntry {
       
       ReadEntry() 
-	:  m_call(-1), m_palg(-1), m_value(0.0), 
-	   m_opiState(kBad), m_algState(kBadAlg), m_seqState(kBadSeq) {}
+  :  m_call(-1), m_palg(-1), m_value(0.0), 
+     m_opiState(kBad), m_algState(kBadAlg), m_seqState(kBadSeq) {}
       
       int       m_call;
       int       m_palg;
@@ -76,19 +76,17 @@ namespace Trig
     typedef std::vector<ReadEntry>::iterator ReadIter;
 
   private:
-
-    MsgStream& log() const { return *m_log; }
     
     void ReadOPI(TrigMonEvent &event, const TrigOperationalInfoCollection &rvec);
 
     void ReadSeq(TrigMonEvent &event, const TrigConfChain &chain, 
-		 std::vector<ReadEntry> &read_vec, int icurr);
+     std::vector<ReadEntry> &read_vec, int icurr);
     void SaveSeq(TrigMonEvent &event, const TrigMonSeq &seq);
     void ReadAlg(TrigMonSeq &entry, 
-		 std::vector<ReadEntry> &read_vec, int icurr, int istop);
+     std::vector<ReadEntry> &read_vec, int icurr, int istop);
     
     TrigMonAlg MakeAlg(unsigned int alg_position,
-		       std::vector<ReadEntry> &read_vec, int icurr, int istop, int icall);
+           std::vector<ReadEntry> &read_vec, int icurr, int istop, int icall);
     
     void ParseKey(std::vector<std::string>& ls, const std::string &key, int ibeg);
 
@@ -101,8 +99,6 @@ namespace Trig
 
     // Athena tool and service handles
     const HLT::TrigSteer        *m_parentAlg;
-    MsgStream                   *m_log;
-    ServiceHandle<StoreGateSvc>  m_storeGate;
 
     // Tool variables
     std::string                  m_keyExten;         // Key for extended TrigOperationalInfo

@@ -24,11 +24,9 @@
 
 //---------------------------------------------------------------------------------------
 Trig::TrigNtVarsTool::TrigNtVarsTool(const std::string &name,
-				     const std::string &type,
-				     const IInterface  *parent)
-  :AlgTool(name, type, parent),
-   m_log(0),
-   m_storeGate("StoreGateSvc", name),
+             const std::string &type,
+             const IInterface  *parent)
+  :AthAlgTool(name, type, parent),
    m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
    m_config(0)
 {
@@ -48,21 +46,9 @@ StatusCode Trig::TrigNtVarsTool::initialize()
   //
   // Get services
   //
-  m_log = new MsgStream(msgSvc(), name());
-  
-  // Get StoreGate
-  if(m_storeGate.retrieve().isFailure()) {
-    log() << MSG::ERROR << "Could not retrieve StoreGateSvc!" << endreq;
-    return StatusCode::FAILURE;
-  }
 
   // Get TrigDecisionTool
-  if(m_collectTD) {
-    if(m_trigDec.retrieve().isFailure()) {
-      log() << MSG::ERROR << "Could not retrieve TrigDecisionTool!" << endreq;
-      return StatusCode::FAILURE;
-    }
-  }
+  if(m_collectTD) CHECK(m_trigDec.retrieve());
 
   return StatusCode::SUCCESS;
 }
@@ -72,9 +58,8 @@ StatusCode Trig::TrigNtVarsTool::finalize()
   //
   // Clean up internal state
   //
-  log() << MSG::DEBUG << "finalize()" << endreq;
+  ATH_MSG_DEBUG("finalize()" );
 
-  delete m_log; m_log = 0;
   m_config = 0;
 
   return StatusCode::SUCCESS;
@@ -92,7 +77,7 @@ bool Trig::TrigNtVarsTool::Fill(TrigMonConfig *confg)
     m_config = confg;
   }
   else {
-    log() << MSG::WARNING << "Null TrigMonConfig pointer" << endreq;
+    ATH_MSG_WARNING("Null TrigMonConfig pointer" );
     return false;
   }
 
@@ -116,13 +101,13 @@ bool Trig::TrigNtVarsTool::Fill(TrigMonEvent &event)
 bool Trig::TrigNtVarsTool::CollectTD(TrigMonEvent& /*event*/)
 {
 
-  log() << MSG::ERROR << "This tool is depricated. It needs migrating if it is to function again." << endreq;
+  ATH_MSG_ERROR("This tool is depricated. It needs migrating if it is to function again." );
 
  //  //
  //  // Collect trigger deciions
  //  //
  //  if(!m_config) {
- //    log() << MSG::WARNING << "Missing internal trigger configuration" << endreq;
+ //    ATH_MSG_WARNING("Missing internal trigger configuration" );
  //    return false;
  //  }
   
@@ -141,7 +126,7 @@ bool Trig::TrigNtVarsTool::CollectTD(TrigMonEvent& /*event*/)
  //    //
  //    const unsigned ntrig = std::count(trig_list.begin(), trig_list.end(), chain.getName());
  //    if(ntrig != 1) {
- //      log() << MSG::WARNING << "Incorrect count " << chain.getName() << ": " << ntrig << endreq;
+ //      ATH_MSG_WARNING("Incorrect count " << chain.getName() << ": " << ntrig );
  //    }
 
  //    //
@@ -174,12 +159,12 @@ bool Trig::TrigNtVarsTool::CollectTD(TrigMonEvent& /*event*/)
  //    //
  //    // Save triggers which have at least one trigger bit set
  //    //
- //    if(!lv1.empty()) {	
+ //    if(!lv1.empty()) {  
  //      TrigMonL1Item trig;
  //      trig.setCtpId(chain.getCounter());
       
  //      for(unsigned j = 0; j < lv1.size(); ++j) {
-	// trig.addDecision(lv1.at(j));
+  // trig.addDecision(lv1.at(j));
  //      }
       
  //      event.add<TrigMonL1Item>(trig);
@@ -189,7 +174,7 @@ bool Trig::TrigNtVarsTool::CollectTD(TrigMonEvent& /*event*/)
  //      TrigMonChain trig(chain.getLevelId(), chain.getCounter());    
       
  //      for(unsigned j = 0; j < hlt.size(); ++j) {
-	// trig.addDecision(hlt.at(j));
+  // trig.addDecision(hlt.at(j));
  //      }
       
  //      event.add<TrigMonChain>(trig);
@@ -203,20 +188,20 @@ bool Trig::TrigNtVarsTool::CollectTD(TrigMonEvent& /*event*/)
 bool Trig::TrigNtVarsTool::CollectMC(TrigMonEvent& /*event*/)
 {  
 
-  log() << MSG::ERROR << "This tool is depricated. It needs migrating if it is to function again." << endreq;
+  ATH_MSG_ERROR("This tool is depricated. It needs migrating if it is to function again." );
 
   // //
   // // Collect MC truth informartion
   // //
 
   // if(!m_storeGate->contains<McEventCollection>(m_keyMCEvent)) {
-  //   log() << MSG::DEBUG << "McEventCollection not found" << endreq;
+  //   ATH_MSG_DEBUG("McEventCollection not found" );
   //   return false;
   // }
 
   // const McEventCollection* mcCollptr = 0;
   // if(m_storeGate->retrieve(mcCollptr, m_keyMCEvent).isFailure()) {
-  //   log() << MSG::WARNING << "Could not retrieve McEventCollection" << endreq;
+  //   ATH_MSG_WARNING("Could not retrieve McEventCollection" );
   //   return false;
   // }
 
@@ -232,9 +217,9 @@ bool Trig::TrigNtVarsTool::CollectMC(TrigMonEvent& /*event*/)
   //    float zi = (prodVtx->position()).z();
 
   //    log() << MSG::DEBUG
-	 //   << "Signal vertex is " << xi << " " << yi << " " << zi
-	 //   << " process ID = " << signal->signal_process_id()
-	 //   << " McEvent index = " << signal->event_number() << endreq;
+   //   << "Signal vertex is " << xi << " " << yi << " " << zi
+   //   << " process ID = " << signal->signal_process_id()
+   //   << " McEvent index = " << signal->event_number() );
   // }
 
   // // in-time minbias
@@ -251,9 +236,9 @@ bool Trig::TrigNtVarsTool::CollectMC(TrigMonEvent& /*event*/)
   //      float zi = (prodVtx->position()).z();
        
   //      log() << MSG::DEBUG
-	 //     << "Pileup vertex is " << xi << " " << yi << " " << zi
-	 //     << " process ID = " << (*ibeg_minb)->signal_process_id()
-	 //     << " McEvent index = " << (*ibeg_minb)->event_number() << endreq;
+   //     << "Pileup vertex is " << xi << " " << yi << " " << zi
+   //     << " process ID = " << (*ibeg_minb)->signal_process_id()
+   //     << " McEvent index = " << (*ibeg_minb)->event_number() );
   //   }
   // }
 
@@ -271,9 +256,9 @@ bool Trig::TrigNtVarsTool::CollectMC(TrigMonEvent& /*event*/)
   //      float zi = (prodVtx->position()).z();
        
   //      log() << MSG::DEBUG
-	 //     << "Pileup/signal vertex is " << xi << " " << yi << " " << zi
-	 //     << " process ID = " << (*ibeg_evt)->signal_process_id()
-	 //     << " McEvent index = " << (*ibeg_evt)->event_number() << endreq;
+   //     << "Pileup/signal vertex is " << xi << " " << yi << " " << zi
+   //     << " process ID = " << (*ibeg_evt)->signal_process_id()
+   //     << " McEvent index = " << (*ibeg_evt)->event_number() );
   //   }
   // }
 
@@ -301,7 +286,7 @@ bool Trig::TrigNtVarsTool::CollectMC(TrigMonEvent& /*event*/)
   // event.addVar(203, static_cast<float>(icount_event));
   // event.addVar(204, static_cast<float>(particleList.size()));
   
-  // log() << MSG::DEBUG << "Number of stable in-time pileup particles = " << particleList.size() << endreq;
+  // ATH_MSG_DEBUG("Number of stable in-time pileup particles = " << particleList.size() );
 
   return true;
 }
@@ -310,7 +295,7 @@ bool Trig::TrigNtVarsTool::CollectMC(TrigMonEvent& /*event*/)
 bool Trig::TrigNtVarsTool::CollectPU(TrigMonEvent& /*event*/)
 {
 
-  log() << MSG::ERROR << "This tool is depricated. It needs migrating if it is to function again." << endreq;
+  ATH_MSG_ERROR("This tool is depricated. It needs migrating if it is to function again." );
 
   //
   // Collect MC truth from PileupEventInfo
@@ -327,7 +312,7 @@ bool Trig::TrigNtVarsTool::CollectPU(TrigMonEvent& /*event*/)
  //  if(m_storeGate->contains<PileUpEventInfo>(m_keyPileUp) && 
  //     m_storeGate->retrieve(pevt, m_keyPileUp).isSuccess()) {
 
- //    log() << MSG::DEBUG << "Found PileUpEventInfo with key: " << m_keyPileUp << endreq;      
+ //    ATH_MSG_DEBUG("Found PileUpEventInfo with key: " << m_keyPileUp );      
     
  //    PileUpEventInfo::SubEvent::const_iterator it  = pevt->beginSubEvt();
  //    PileUpEventInfo::SubEvent::const_iterator end = pevt->endSubEvt();
@@ -336,45 +321,45 @@ bool Trig::TrigNtVarsTool::CollectPU(TrigMonEvent& /*event*/)
  //      const PileUpEventInfo::SubEvent &sube = *it;
  //      const EventInfo *sevt = sube.pSubEvt;
  //      if (sevt) {
-	// log() << MSG::DEBUG << "PileUp SubEvent Info:"
-	//       << " Time="     << sube.time()
-	//       << " Index="    << sube.index()
-	//       << " UserType=" << sevt->event_type()->user_type() << endreq;
-	
-	// if (sube.time() == 0) {
-	//   nevent_intime++;
-	  
-	//   if     (sube.type() == 0) ++nsignal_intime;
-	//   else if(sube.type() == 1) ++nminbias_intime;
-	//   else if(sube.type() == 2) ++ncavern_intime;
-	//   else if(sube.type() == 3) ++nbeamgas_intime;
-	// }
-	
-	// ++nevent;
-	
-	// if      ( sube.type()==1 ) ++nminbias;  // MIN BIAS
-	// else if ( sube.type()==2 ) ++ncavern;   // CAVERN BACKGROUND
-	// else if ( sube.type()==3 ) ++nbeamgas;  // BEAM GAS / HALO
-	// else if ( sube.type()==4 ) ++nzerobias; // ZERO BIAS 
+  // ATH_MSG_DEBUG("PileUp SubEvent Info:"
+  //       << " Time="     << sube.time()
+  //       << " Index="    << sube.index()
+  //       << " UserType=" << sevt->event_type()->user_type() );
+  
+  // if (sube.time() == 0) {
+  //   nevent_intime++;
+    
+  //   if     (sube.type() == 0) ++nsignal_intime;
+  //   else if(sube.type() == 1) ++nminbias_intime;
+  //   else if(sube.type() == 2) ++ncavern_intime;
+  //   else if(sube.type() == 3) ++nbeamgas_intime;
+  // }
+  
+  // ++nevent;
+  
+  // if      ( sube.type()==1 ) ++nminbias;  // MIN BIAS
+  // else if ( sube.type()==2 ) ++ncavern;   // CAVERN BACKGROUND
+  // else if ( sube.type()==3 ) ++nbeamgas;  // BEAM GAS / HALO
+  // else if ( sube.type()==4 ) ++nzerobias; // ZERO BIAS 
  //      }
  //      else { 
-	// log() << MSG::DEBUG << "Subevent is null ptr " << endreq;
+  // ATH_MSG_DEBUG("Subevent is null ptr " );
  //      }
  //    }
  //  }
  //  else {
- //    log() << MSG::DEBUG << "Failed to get PileUpEventInfo with key=" << m_keyPileUp << endreq;
+ //    ATH_MSG_DEBUG("Failed to get PileUpEventInfo with key=" << m_keyPileUp );
  //    return false;
  //  }
   
  //  log() << MSG::DEBUG 
-	// << "Number of minbias events  = " << nminbias        << endreq
-	// << "Number of cavern  events  = " << ncavern         << endreq
-	// << "Number of intime  events  = " << nevent_intime   << endreq
-	// << "Number of intime  signal  = " << nsignal_intime  << endreq
-	// << "Number of intime  minbias = " << nminbias_intime << endreq	
-	// << "Number of intime  cavern  = " << ncavern_intime  << endreq
-	// << "Number of intime beamgas  = " << nbeamgas_intime << endreq;
+  // << "Number of minbias events  = " << nminbias        << endreq
+  // << "Number of cavern  events  = " << ncavern         << endreq
+  // << "Number of intime  events  = " << nevent_intime   << endreq
+  // << "Number of intime  signal  = " << nsignal_intime  << endreq
+  // << "Number of intime  minbias = " << nminbias_intime << endreq  
+  // << "Number of intime  cavern  = " << ncavern_intime  << endreq
+  // << "Number of intime beamgas  = " << nbeamgas_intime );
 
  //  // Add event counts for all pileup events
  //  event.addVar(210, static_cast<float>(nevent));     // N of all pileup events

@@ -13,7 +13,7 @@
 #include <set>
 
 // Framework
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -28,7 +28,7 @@ namespace Trig
 {
   static const InterfaceID IID_TrigNtPostTool("Trig::TrigNtPostTool", 1, 0); 
   
-  class TrigNtPostTool : virtual public Trig::ITrigNtTool, public AlgTool {
+  class TrigNtPostTool : virtual public Trig::ITrigNtTool, public AthAlgTool {
   public:
     
     static const InterfaceID& interfaceID() { return IID_TrigNtPostTool; }
@@ -43,13 +43,6 @@ namespace Trig
     bool Fill(TrigMonEvent &event);
 
   private:
-
-    MsgStream& log() const { return *m_log; }
-    
-  private:
-
-    MsgStream                   *m_log;
-    ServiceHandle<StoreGateSvc>  m_storeGate;
 
     TrigMonConfig               *m_config;   // Current trigger configuration
 

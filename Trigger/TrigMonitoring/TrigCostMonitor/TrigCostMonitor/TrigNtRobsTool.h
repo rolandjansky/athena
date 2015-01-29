@@ -13,7 +13,7 @@
 #include <set>
 
 // Framework
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -33,7 +33,7 @@ namespace Trig
 {
   static const InterfaceID IID_TrigNtRobsTool("Trig::TrigNtRobsTool", 1, 0); 
   
-  class TrigNtRobsTool : virtual public Trig::ITrigNtTool, public AlgTool {
+  class TrigNtRobsTool : virtual public Trig::ITrigNtTool, public AthAlgTool {
   public:
     
     static const InterfaceID& interfaceID() { return IID_TrigNtRobsTool; }
@@ -47,10 +47,6 @@ namespace Trig
     bool Fill(TrigMonConfig *confg);
     bool Fill(TrigMonEvent &event);
     
-  private:
-
-    MsgStream& log() const { return *m_log; }
-    
     void CleanROB(TrigMonROB &data) const;
     void CheckROB(const TrigMonROB &data, robmonitor::ROBDataMonitorStruct &rob) const;
 
@@ -63,8 +59,6 @@ namespace Trig
     bool                         m_printDebug; // Print debugging information
 
     // Tool variables
-    MsgStream                   *m_log;
-    ServiceHandle<StoreGateSvc>  m_storeGate;
     TrigMonConfig               *m_config;
 
     std::set<uint32_t>           m_algIds;

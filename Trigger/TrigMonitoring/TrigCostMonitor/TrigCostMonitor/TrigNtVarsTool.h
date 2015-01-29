@@ -13,7 +13,7 @@
 //
 
 // Framework
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 // Trigger
@@ -26,7 +26,7 @@ namespace Trig
 {
   static const InterfaceID IID_TrigNtVarsTool("Trig::TrigNtVarsTool", 1, 0); 
   
-  class TrigNtVarsTool : virtual public Trig::ITrigNtTool, virtual public AlgTool {
+  class TrigNtVarsTool : virtual public Trig::ITrigNtTool, virtual public AthAlgTool {
   public:
     
     static const InterfaceID& interfaceID() { return IID_TrigNtVarsTool; }
@@ -46,8 +46,6 @@ namespace Trig
     bool CollectMC(TrigMonEvent &event);
     bool CollectPU(TrigMonEvent &event);
 
-    MsgStream& log() const { return *m_log; }
-
   private:
        
     // Tool properties
@@ -58,8 +56,6 @@ namespace Trig
     std::string   m_keyPileUp;
 
     // Athena tool and service handles
-    MsgStream                           *m_log;
-    ServiceHandle<StoreGateSvc>          m_storeGate;
     ToolHandle<Trig::TrigDecisionTool>   m_trigDec;
 
     // Tool variables

@@ -21,7 +21,7 @@
 
 // Framework
 #include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/errorcheck.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/FileIncident.h"
 
@@ -34,10 +34,9 @@
 
 //---------------------------------------------------------------------------------------
 Trig::TrigNtSaveTool::TrigNtSaveTool(const std::string& type,
-				     const std::string& name,
-				     const IInterface* parent)
-  :AlgTool(type, name, parent), 
-   m_log(0),
+             const std::string& name,
+             const IInterface* parent)
+  :AthAlgTool(type, name, parent), 
    m_histSvc("THistSvc/THistSvc", name),
    m_incSvc("IncidentSvc", name),
    m_file(0),
@@ -78,32 +77,26 @@ Trig::TrigNtSaveTool::~TrigNtSaveTool()
 //---------------------------------------------------------------------------------------
 StatusCode Trig::TrigNtSaveTool::initialize()
 {      
-  m_log = new MsgStream(msgSvc(), name());
 
-  log() << MSG::INFO << "Configuring output tree(s)..."   << endreq
-	<< "   writeFile        = " << m_writeFile        << endreq
-	<< "   fileName         = " << m_fileName         << endreq
-	<< "   filePath         = " << m_filePath         << endreq
-	<< "   writeCostOnly    = " << m_writeCostOnly    << endreq
-	<< "   writeRateOnly    = " << m_writeRateOnly    << endreq
-	<< "   printPostSummary = " << m_printPostSummary << endreq
-	<< "   streamConfig     = " << m_streamConfig     << endreq
-	<< "   streamEvent      = " << m_streamEvent      << endreq
-	<< "   treeNameEvent    = " << m_treeNameEvent    << endreq
-	<< "   treeNameConfig   = " << m_treeNameConfig   << endreq;
+  ATH_MSG_INFO("Configuring output tree(s)..."   );
+  ATH_MSG_INFO("   writeFile        = " << m_writeFile        );
+  ATH_MSG_INFO("   fileName         = " << m_fileName         );
+  ATH_MSG_INFO("   filePath         = " << m_filePath         );
+  ATH_MSG_INFO("   writeCostOnly    = " << m_writeCostOnly    );
+  ATH_MSG_INFO("   writeRateOnly    = " << m_writeRateOnly    );
+  ATH_MSG_INFO("   printPostSummary = " << m_printPostSummary );
+  ATH_MSG_INFO("   streamConfig     = " << m_streamConfig     );
+  ATH_MSG_INFO("   streamEvent      = " << m_streamEvent      );
+  ATH_MSG_INFO("   treeNameEvent    = " << m_treeNameEvent    );
+  ATH_MSG_INFO("   treeNameConfig   = " << m_treeNameConfig   );
 
   if(m_writeFile) {
     //
     // Write ROOT file diirectly (without HistSvc)
     // 
     if(m_fileName.empty()) {
-      if(m_incSvc.retrieve().isFailure()) {
-	log() << MSG::ERROR << "Failed to retrieve IncidentSvc" << endreq;
-	return StatusCode::FAILURE;
-      }
-      else {
-	log() << MSG::DEBUG << "Retrieved incident service: " << m_incSvc << endreq;
-      }
+      CHECK(m_incSvc.retrieve());
+      ATH_MSG_DEBUG("Retrieved incident service: " << m_incSvc );
       
       m_incSvc->addListener(this, "BeginInputFile");
       m_incSvc->addListener(this, "EndInputFile");
@@ -113,10 +106,7 @@ StatusCode Trig::TrigNtSaveTool::initialize()
     //
     // Save TTrees via THistSvc
     //
-    if(m_histSvc.retrieve().isFailure()) {
-      log() << MSG::ERROR << "Failed to retrieve THistSvc" << endreq;
-      return StatusCode::FAILURE;
-    }
+    CHECK(m_histSvc.retrieve());
 
     if(!m_treeConfig && !m_treeNameConfig.empty()) { 
       m_treeConfig = MakeTree(m_treeNameConfig, m_streamConfig);
@@ -142,15 +132,14 @@ StatusCode Trig::TrigNtSaveTool::finalize()
   //
   // Fill one last TrigMonConfig
   //
-  log() << MSG::INFO << "finalize()" << endreq;
+  ATH_MSG_INFO("finalize()" );
 
   //
   // Clean up
   //
   if(m_printPostSummary) {
-    log() << MSG::INFO
-	  << name() << " POST_COST: # TrigMonConfig = " << m_countConfig << endreq
-	  << name() << " POST_COST: # TrigMonEvent  = " << m_countEvent  << endreq;
+    ATH_MSG_INFO(name() << " POST_COST: # TrigMonConfig = " << m_countConfig );
+    ATH_MSG_INFO(name() << " POST_COST: # TrigMonEvent  = " << m_countEvent  );
   }
 
   //
@@ -161,7 +150,6 @@ StatusCode Trig::TrigNtSaveTool::finalize()
   if(m_config) { delete m_config; m_config = 0; }
   if(m_event)  { delete m_event;  m_event  = 0; }
 
-  delete m_log; m_log = 0;
 
   return StatusCode::SUCCESS;
 }
@@ -169,23 +157,21 @@ StatusCode Trig::TrigNtSaveTool::finalize()
 //-----------------------------------------------------------------------------
 void Trig::TrigNtSaveTool::handle(const Incident& inc)
 {
-  if(outputLevel() <= MSG::DEBUG) {
-    log() << MSG::DEBUG << "Incident source=" << inc.source() << " type=" << inc.type() << endreq;
-  }
+  ATH_MSG_DEBUG("Incident source=" << inc.source() << " type=" << inc.type() );
 
   if(!m_writeFile || !m_fileName.empty()) {
-    log() << MSG::DEBUG << "Nothing in handle() - output method does not use files" << endreq;
+    ATH_MSG_DEBUG("Nothing in handle() - output method does not use files" );
     return;
   }
 
   const FileIncident *finc = dynamic_cast<const FileIncident *>(&inc);
   if(!finc) {
-    log() << MSG::INFO << "Unabled to cast Incident to FileIncident" << endreq;
+    ATH_MSG_WARNING("Unabled to cast Incident to FileIncident" );
     return;
   }
 
-  log() << MSG::INFO << "Fired incident: " << inc.source() << ", " << inc.type() << endreq
-	<< "   file name: " << finc->fileName() << endreq;
+  ATH_MSG_INFO("Fired incident: " << inc.source() << ", " << inc.type() );
+  ATH_MSG_INFO("   file name: " << finc->fileName() );
 
   if(inc.type() == "BeginInputFile") {
     std::string fileName = finc->fileName();
@@ -221,15 +207,15 @@ void Trig::TrigNtSaveTool::handle(const Incident& inc)
     //
     std::stringstream file;
     file << "cost" 
-	 << "." << std::setw(2) << std::setfill('0') << year
-	 << "-" << std::setw(2) << std::setfill('0') << mon
-	 << "-" << std::setw(2) << std::setfill('0') << mday
-	 << "-" << std::setw(2) << std::setfill('0') << hour
-	 << "." << fileName
-	 << ".root";
+      << "." << std::setw(2) << std::setfill('0') << year
+      << "-" << std::setw(2) << std::setfill('0') << mon
+      << "-" << std::setw(2) << std::setfill('0') << mday
+      << "-" << std::setw(2) << std::setfill('0') << hour
+      << "." << fileName
+      << ".root";
     
     if(!TrigNtSaveTool::Open(file.str())) {
-      log() << MSG::WARNING << "Failed to open file: " << file.str() << endreq;
+      ATH_MSG_WARNING("Failed to open file: " << file.str() );
     }
   }
 
@@ -262,9 +248,7 @@ bool Trig::TrigNtSaveTool::Fill(TrigMonConfig *config)
     ++m_countConfig;    
   }
   else {
-    if(outputLevel() <= MSG::DEBUG) {
-      log() << MSG::DEBUG << "Fill - TrigMonConfig tree is NULL pointer" << endreq;
-    }
+    ATH_MSG_DEBUG("Fill - TrigMonConfig tree is NULL pointer" );
   }
 
   return true;
@@ -282,9 +266,7 @@ bool Trig::TrigNtSaveTool::Fill(TrigMonEvent &event)
   // Save event data to event tree
   //
   if(!m_treeEvent) {
-    if(outputLevel() <= MSG::DEBUG) {
-      log() << MSG::DEBUG << "Fill - TrigMonEvent tree is NULL pointer" << endreq;
-    }
+    ATH_MSG_DEBUG("Fill - TrigMonEvent tree is NULL pointer" );
     return true;
   }
 
@@ -338,7 +320,7 @@ bool Trig::TrigNtSaveTool::Open(const std::string &file)
   // Initialize new ROOT files
   //
   if(!m_writeFile) { 
-    log() << MSG::DEBUG << "Using HistSvc for output - nothing to do in Open()" << endreq;
+    ATH_MSG_DEBUG("Using HistSvc for output - nothing to do in Open()" );
     return false;
   }
 
@@ -346,11 +328,11 @@ bool Trig::TrigNtSaveTool::Open(const std::string &file)
   // Write data directly to ROOT file on local filesystem
   //    
   if(file.empty()) { 
-    log() << MSG::WARNING << "ROOT file name is empty" << endreq;
+    ATH_MSG_WARNING("ROOT file name is empty" );
     return false;
   }
   if(m_file) { 
-    log() << MSG::DEBUG << "ROOT file already exists: " << m_file->GetName() << endreq;
+    ATH_MSG_DEBUG("ROOT file already exists: " << m_file->GetName() );
     return false;
   }
 
@@ -365,12 +347,12 @@ bool Trig::TrigNtSaveTool::Open(const std::string &file)
   m_file = new TFile(path.c_str(), "RECREATE", "trigger cost", m_fileCompr);
   
   if(!m_file || !m_file->IsOpen()) {
-    log() << MSG::ERROR << "Failed to open ROOT file: " << path << endreq;
+    ATH_MSG_ERROR("Failed to open ROOT file: " << path );
     gDirectory = dir_cur;
     return false;
   }
   
-  log() << MSG::INFO << "Opened COST_FILE: " << path << endreq;
+  ATH_MSG_INFO("Opened COST_FILE: " << path );
   
   m_filenConfig = 0;
   m_filenEvent  = 0;
@@ -408,10 +390,9 @@ void Trig::TrigNtSaveTool::Close()
     m_file -> Close();
     gDirectory = dir_cur;
 
-    log() << MSG::INFO 
-	  << "Closed COST_FILE: " << filename << endreq
-	  << filename << " # TrigMonConfig = " << m_filenConfig << endreq
-	  << filename << " # TrigMonEvent  = " << m_filenEvent  << endreq;
+    ATH_MSG_INFO("Closed COST_FILE: " << filename );
+    ATH_MSG_INFO(filename << " # TrigMonConfig = " << m_filenConfig );
+    ATH_MSG_INFO(filename << " # TrigMonEvent  = " << m_filenEvent  );
 
     m_file        = 0;
     m_treeConfig  = 0;
@@ -424,7 +405,7 @@ void Trig::TrigNtSaveTool::Close()
 
 //---------------------------------------------------------------------------------------
 TTree* Trig::TrigNtSaveTool::MakeTree(const std::string &tree_name, 
-				      const std::string &stream_name)
+              const std::string &stream_name)
 {
   //
   // Make and register TTree via THistSvc
@@ -437,7 +418,7 @@ TTree* Trig::TrigNtSaveTool::MakeTree(const std::string &tree_name,
   TTree *tree = 0;
 
   if(m_histSvc->exists(tree_key) && m_histSvc->getTree(tree_key, tree).isSuccess()) {
-    log() << MSG::INFO << "Retrieved TTree from HistSvc: " << tree_key << endreq;    
+    ATH_MSG_INFO("Retrieved TTree from HistSvc: " << tree_key );    
     return tree;
   }
 
@@ -445,11 +426,11 @@ TTree* Trig::TrigNtSaveTool::MakeTree(const std::string &tree_name,
   tree -> SetDirectory(0);
   
   if(m_histSvc -> regTree(tree_key, tree).isFailure()) {
-    log() << MSG::WARNING << "Could not register TTree " << tree_name << endreq;
+    ATH_MSG_WARNING("Could not register TTree " << tree_name );
     delete tree; tree = 0;
   }
   else {
-    log() << MSG::INFO << "Registered new TTree " << tree_key << endreq;
+    ATH_MSG_INFO("Registered new TTree " << tree_key );
   }
 
   return tree;

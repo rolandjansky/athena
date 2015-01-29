@@ -12,7 +12,7 @@
 #include "TTree.h"
 
 // Framework
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/errorcheck.h"
 #include "StoreGate/DataHandle.h"
 #include "EventInfo/EventInfo.h" // OLD
 #include "EventInfo/EventID.h" // OLD
@@ -45,11 +45,9 @@
 TrigCostTool::TrigCostTool(const std::string& type,
          const std::string& name,
          const IInterface* parent)
-  :AlgTool(type, name, parent), 
+  :AthAlgTool(type, name, parent), 
    m_parentAlg(0),
-   m_log(0),
    m_timer(0),
-   m_storeGate("StoreGateSvc", name),
    m_timerSvc("TrigTimerSvc/TrigTimerSvc", name),
    m_toolBunchGroup("BunchGroupTool", this),
    m_scalerTool("HLT::RandomScaler/TrigCostScaler", this),
@@ -113,11 +111,10 @@ StatusCode TrigCostTool::initialize()
   //
   // Get services/tools and print out properties
   //
-  m_log = new MsgStream(msgSvc(), name());
 
   m_parentAlg = dynamic_cast<const HLT::TrigSteer*>(parent());
   if(!m_parentAlg) {
-    log() << MSG::ERROR << " Unable to cast the parent algorithm to HLT::TrigSteer!" << endreq;
+    ATH_MSG_ERROR(" Unable to cast the parent algorithm to HLT::TrigSteer!");
     return StatusCode::FAILURE;
   }
 
@@ -137,7 +134,7 @@ StatusCode TrigCostTool::initialize()
   }
 
   if(!m_active) {
-    log() << MSG::INFO << "Set inactive state. Disabling TrigCost." << endreq;
+    ATH_MSG_INFO("Set inactive state. Disabling TrigCost.");
     return StatusCode::SUCCESS;
   }
 
@@ -155,77 +152,36 @@ StatusCode TrigCostTool::initialize()
     m_keyTimer    = 100;
   }
 
-  if(m_storeGate.retrieve().isFailure()) {
-    log() << MSG::ERROR << "Could not retrieve: " << m_storeGate << endreq;
-    return StatusCode::FAILURE;
-  }
-
   // Only get this tool offline
   if (m_costForCAF == true) {
-    if(m_toolBunchGroup.retrieve().isFailure()) {
-      log() << MSG::ERROR << "Could not retrieve BunchGroupTool: " << m_toolBunchGroup << endreq;
-      return StatusCode::FAILURE;
-    }  else {
-      log() << MSG::INFO << "Retrieved " << m_toolBunchGroup << endreq;
-    }
+    CHECK(m_toolBunchGroup.retrieve());
+    ATH_MSG_INFO("Retrieved " << m_toolBunchGroup);
   }
 
-  if(m_toolConf.retrieve().isFailure()) {
-    log() << MSG::ERROR << "Could not retrieve TrigNtConfTool!" << endreq;
-    return StatusCode::FAILURE;
-  }
-  else {
-    log() << MSG::INFO << "Retrieved " << m_toolConf << endreq;
-  }
+  CHECK(m_toolConf.retrieve());
+  ATH_MSG_INFO("Retrieved " << m_toolConf);
 
-  if(m_toolEBWeight.retrieve().isFailure()) {
-    log() << MSG::ERROR << "Could not retrieve TrigNtEBWeightTool!" << endreq;
-    return StatusCode::FAILURE;
-  }
-  else {
-    log() << MSG::INFO << "Retrieved " << m_toolEBWeight << endreq;
-  }
+  CHECK(m_toolEBWeight.retrieve());
+  ATH_MSG_INFO("Retrieved " << m_toolEBWeight);
 
-  if(m_eventTools.retrieve().isFailure()) {
-    log() << MSG::ERROR << "Failed to retrieve tools: " << m_eventTools << endreq;
-    return StatusCode::FAILURE;
-  }
-  else {
-    log() << MSG::INFO << "Retrieved " << m_eventTools << endreq;
-  }
-  if(m_scaleTools.retrieve().isFailure()) {
-    log() << MSG::ERROR << "Failed to retrieve tools: " << m_scaleTools << endreq;
-    return StatusCode::FAILURE;
-  }
-  else {
-    log() << MSG::INFO << "Retrieved " << m_scaleTools << endreq;
-  }
-  if(m_alwaysTools.retrieve().isFailure()) {
-    log() << MSG::ERROR << "Failed to retrieve tools: " << m_alwaysTools << endreq;
-    return StatusCode::FAILURE;
-  }
-  else {
-    log() << MSG::INFO << "Retrieved " << m_alwaysTools << endreq;
-  }
+  CHECK(m_eventTools.retrieve());
+  ATH_MSG_INFO("Retrieved " << m_eventTools);
 
+  CHECK(m_scaleTools.retrieve());
+  ATH_MSG_INFO("Retrieved " << m_scaleTools);
+  
+  CHECK(m_alwaysTools.retrieve());
+  ATH_MSG_INFO("Retrieved " << m_alwaysTools);
+  
   if(m_doTiming) { 
-    if(m_timerSvc.retrieve().isFailure()) {
-      log() << MSG::ERROR << "Requested timing measurements but can't retrieve TrigTimerSvc" << endreq;
-      return  StatusCode::FAILURE;
-    }
-    log() << MSG::DEBUG << "Retrieved TrigTimerSvc" << endreq;
-
+    CHECK(m_timerSvc.retrieve());
+    ATH_MSG_INFO("Retrieved TrigTimerSvc");
     m_timer = m_timerSvc->addItem(m_parentAlg->name()+":CostMonitor:TotalTime");
   }
 
   if(m_execPrescale > 0.0) {
-    if(m_scalerTool.retrieve().isFailure()) {
-      log() << MSG::FATAL << "Failed to retrieve scaler tool: " << m_scalerTool << endreq;
-      return StatusCode::FAILURE;
-    }
-    else {
-      log() << MSG::INFO << "Retrieved " << m_scalerTool << endreq;
-    }
+    CHECK(m_scalerTool.retrieve());
+    ATH_MSG_INFO("Retrieved " << m_scalerTool);
   }
 
   m_toolConf -> SetSteer(m_parentAlg);
@@ -243,25 +199,24 @@ StatusCode TrigCostTool::initialize()
     }
   }
 
-  log() << MSG::INFO 
-  << "level            = " << m_level            << endreq
-  << "monitoringLogic  = " << m_monitoringLogic  << endreq
-  << "monitoringStream = " << m_monitoringStream << endreq
-  << "monitoringTarget = " << m_monitoringTarget << endreq
-  << "purgeCostStream  = " << m_purgeCostStream  << endreq
-  << "useConfDb        = " << m_useConfDb        << endreq
-  << "useConfSvc       = " << m_useConfSvc       << endreq
-  << "costForCAF       = " << m_costForCAF       << endreq 
-  << "doEBWeight       = " << m_doEBWeight       << endreq 
-  << "saveEventTimers  = " << m_saveEventTimers  << endreq
-  << "writeAlways      = " << m_writeAlways      << endreq
-  << "writeConfig      = " << m_writeConfig      << endreq
-  << "writeConfigDB    = " << m_writeConfigDB    << endreq
-  << "stopAfterNEvent  = " << m_stopAfterNEvent  << endreq
-  << "execPrescale     = " << m_execPrescale     << endreq
-  << "doOperationalInfo= " << m_doOperationalInfo<< endreq
-  << "keyTimer         = " << m_keyTimer         << endreq
-  << "printEvent       = " << m_printEvent       << endreq;
+  ATH_MSG_INFO("level            = " << m_level            );
+  ATH_MSG_INFO("monitoringLogic  = " << m_monitoringLogic  );
+  ATH_MSG_INFO("monitoringStream = " << m_monitoringStream );
+  ATH_MSG_INFO("monitoringTarget = " << m_monitoringTarget );
+  ATH_MSG_INFO("purgeCostStream  = " << m_purgeCostStream  );
+  ATH_MSG_INFO("useConfDb        = " << m_useConfDb        );
+  ATH_MSG_INFO("useConfSvc       = " << m_useConfSvc       );
+  ATH_MSG_INFO("costForCAF       = " << m_costForCAF       ); 
+  ATH_MSG_INFO("doEBWeight       = " << m_doEBWeight       ); 
+  ATH_MSG_INFO("saveEventTimers  = " << m_saveEventTimers  );
+  ATH_MSG_INFO("writeAlways      = " << m_writeAlways      );
+  ATH_MSG_INFO("writeConfig      = " << m_writeConfig      );
+  ATH_MSG_INFO("writeConfigDB    = " << m_writeConfigDB    );
+  ATH_MSG_INFO("stopAfterNEvent  = " << m_stopAfterNEvent  );
+  ATH_MSG_INFO("execPrescale     = " << m_execPrescale     );
+  ATH_MSG_INFO("doOperationalInfo= " << m_doOperationalInfo);
+  ATH_MSG_INFO("keyTimer         = " << m_keyTimer         );
+  ATH_MSG_INFO("printEvent       = " << m_printEvent       );
 
   return StatusCode::SUCCESS;
 }
@@ -272,14 +227,11 @@ StatusCode TrigCostTool::finalize()
   //
   // Clean up
   //
-  log() << MSG::DEBUG  << "finalize()" << endreq;
+  ATH_MSG_DEBUG("finalize()");
 
-  log() << MSG::INFO
-      << "Cost tool active? " << (m_active == true ? "YES" : "NO!!") << endreq
-      << "During run, attached to Navigation (exported): " << m_exportedConfig << " TrigMonConfigs" << endreq
-      << "During run, attached to Navigation (exported): " << m_exportedEvents << " TrigMonEvents" << endreq;
-
-  delete m_log; m_log = 0; 
+  ATH_MSG_INFO("Cost tool active? " << (m_active == true ? "YES" : "NO!!"));
+  ATH_MSG_INFO("During run, attached to Navigation (exported): " << m_exportedConfig << " TrigMonConfigs");
+  ATH_MSG_INFO("During run, attached to Navigation (exported): " << m_exportedEvents << " TrigMonEvents");
 
   return StatusCode::SUCCESS;
 }
@@ -292,7 +244,7 @@ StatusCode TrigCostTool::bookHists()
   //
   if(!m_active) return StatusCode::SUCCESS;
 
-  log() << MSG::DEBUG  << "bookHists()" << endreq;
+  ATH_MSG_DEBUG("bookHists()");
 
   //
   // Starting new online run or offline job: cleanup everything from previous state
@@ -307,7 +259,7 @@ StatusCode TrigCostTool::bookHists()
   //   //ProcessConfig(*event_handle);
   // }
   // else {
-  //   log() << MSG::DEBUG << "No EventInfo in bookHists()... will try again in fillHists()" << endreq;
+  //   ATH_MSG_DEBUG("No EventInfo in bookHists()... will try again in fillHists()");
   // }
 
   return StatusCode::SUCCESS;
@@ -330,15 +282,13 @@ StatusCode TrigCostTool::fillHists()
   ScopeTimer scopeTimer(m_timer);
 
   xAOD::EventInfo* eventInfo = 0;
-  if(m_storeGate -> retrieve(eventInfo).isFailure()) {
-    log() << MSG::WARNING << "Failed to read event info - set state to inactive. CostMon is now DISABLED." << endreq;
+  if(evtStore() -> retrieve(eventInfo).isFailure()) {
+    ATH_MSG_WARNING("Failed to read event info - set state to inactive. CostMon is now DISABLED.");
     m_active = false;
     return StatusCode::SUCCESS;
   }
 
-  if(outputLevel() <= MSG::DEBUG) {
-    log() << MSG::DEBUG << "---------------> starting new event #" << m_countEvent << " (online #" << eventInfo->eventNumber() << ")" << endreq; 
-  }
+  ATH_MSG_DEBUG( "---------------> starting new event #" << m_countEvent << " (online #" << eventInfo->eventNumber() << ")" );
 
   //
   // Sanity check: make sure that we are not in a new online run
@@ -361,10 +311,7 @@ StatusCode TrigCostTool::fillHists()
     delete m_bufferEvents.front();
     m_bufferEvents.erase(m_bufferEvents.begin());
 
-    if(outputLevel() <= MSG::WARNING) {
-      log() << MSG::WARNING << "Reached CostMon buffer limit... deleted 1st event. Lost statistics!! "
-      << " Event buffer size = " << m_bufferEvents.size() << endreq;
-    }
+    ATH_MSG_WARNING("Reached CostMon buffer limit... deleted 1st event. Lost statistics!! Event buffer size = " << m_bufferEvents.size());
   }
 
   TrigMonEvent *event = new TrigMonEvent();
@@ -379,7 +326,7 @@ StatusCode TrigCostTool::fillHists()
 
   // Run the per event tools
   for(unsigned i = 0; i < m_eventTools.size(); ++i) { 
-    if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << "Running EventTool " << i << ", " << m_eventTools[i]->type() << endreq;
+    ATH_MSG_DEBUG( "Running EventTool " << i << ", " << m_eventTools[i]->type() );
     m_eventTools[i]->Fill(*event); 
   }
   
@@ -389,23 +336,21 @@ StatusCode TrigCostTool::fillHists()
   if (m_execPrescale) {
     _prescaleDecision = m_scalerTool->decision(m_execPrescale);
   } 
-  if (outputLevel() <= MSG::DEBUG) {
-    log() << MSG::DEBUG << "Deciding if we run the ScaleTools on this event:"
+  ATH_MSG_DEBUG( "Deciding if we run the ScaleTools on this event:"
        << " doOperationalInfo=" << m_doOperationalInfo
        << " [descision=" << opiLevel << "]"
        << ". execPrescale=" << m_execPrescale 
-       << " [descision=" << _prescaleDecision << "]" << endreq;
-  }
+       << " [descision=" << _prescaleDecision << "]" );
   if(m_writeAlways || (opiLevel > 0 && m_execPrescale > 0.0 && _prescaleDecision == true)) {
     for(unsigned i = 0; i < m_scaleTools.size(); ++i) { 
-      if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << "Running Event ScaleTools " << i << ", " << m_scaleTools[i]->type() << endreq;
+      ATH_MSG_DEBUG( "Running Event ScaleTools " << i << ", " << m_scaleTools[i]->type() );
       m_scaleTools[i]->Fill(*event); 
     }
     // Also use the EB weight tool
     if (m_doEBWeight) m_toolEBWeight->Fill(*event);
     _ranSacleTools = 1;
   } else if (outputLevel() <= MSG::DEBUG) {
-    log() << MSG::DEBUG << "NOT Running ScaleTools on this event," << endreq;
+    ATH_MSG_DEBUG( "NOT Running ScaleTools on this event" );
   }
   event->addVar(47, _ranSacleTools);
 
@@ -425,7 +370,7 @@ StatusCode TrigCostTool::fillHists()
     //
     if(m_writeAlways) {
       for(unsigned i = 0; i < m_alwaysTools.size(); ++i) {
-        if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << "Running Event AlwaysTools " << i << ", " << m_alwaysTools[i]->type() << endreq;
+        ATH_MSG_DEBUG( "Running Event AlwaysTools " << i << ", " << m_alwaysTools[i]->type() );
         m_alwaysTools[i]->Fill(*event);
       }
     }
@@ -433,12 +378,11 @@ StatusCode TrigCostTool::fillHists()
     //
     // Write out data with monitoring event
     //
-    HLT::Navigation *navig =
-      const_cast<HLT::Navigation *>(m_parentAlg->getAlgoConfig()->getNavigation());
+    HLT::Navigation *navig = const_cast<HLT::Navigation *>(m_parentAlg->getAlgoConfig()->getNavigation());
     const std::string level = m_parentAlg->getAlgoConfig()->getInstance();
 
     if(!navig) {
-      log() << MSG::WARNING << "Failed to get HLT::Navigation pointer. Cannot save this cost event!" << endreq;
+      ATH_MSG_WARNING("Failed to get HLT::Navigation pointer. Cannot save this cost event!");
       return StatusCode::SUCCESS;
     }    
 
@@ -447,15 +391,15 @@ StatusCode TrigCostTool::fillHists()
       std::string config_key;
       std::string config_label = "OPI"+level+"_monitoring_config";
       
-      log() << MSG::DEBUG << "Write collection: " << config_label << endreq;
+      ATH_MSG_DEBUG( "Write collection: " << config_label );
 
       for(unsigned int i = 0; i < m_bufferConfig.size(); ++i) {
         navig -> attachFeature<TrigMonConfig>(navig->getInitialNode(),
                 m_bufferConfig[i],
                 HLT::Navigation::ObjectCreatedByNew,
                 config_key, config_label);
-        log() << MSG::DEBUG << "Attached Config " << config_key << ": keyset " << m_bufferConfig[i]->getMasterKey()
-          << "," << m_bufferConfig[i]->getLV1PrescaleKey() << "," << m_bufferConfig[i]->getHLTPrescaleKey() << endreq;
+        ATH_MSG_DEBUG( "Attached Config " << config_key << ": keyset " << m_bufferConfig[i]->getMasterKey()
+          << "," << m_bufferConfig[i]->getLV1PrescaleKey() << "," << m_bufferConfig[i]->getHLTPrescaleKey() );
 
       }
     }
@@ -465,23 +409,19 @@ StatusCode TrigCostTool::fillHists()
       std::string event_key;
       std::string event_label = "OPI"+level+"_monitoring_event";
 
-      log() << MSG::DEBUG << "Write collection: " << event_label << endreq;
+      ATH_MSG_DEBUG( "Write collection: " << event_label );
       
       for(unsigned int i = 0; i < m_bufferEvents.size(); ++i) {
         navig -> attachFeature<TrigMonEvent>(navig->getInitialNode(),
                m_bufferEvents[i],
                HLT::Navigation::ObjectCreatedByNew,
                event_key, event_label);
-        log() << MSG::DEBUG << "Attached Event " << event_key << ": event " << m_bufferEvents[i]->getEvent()
-          << " lumi " << m_bufferEvents[i]->getLumi() << endreq;
+        ATH_MSG_DEBUG( "Attached Event " << event_key << ": event " << m_bufferEvents[i]->getEvent() << " lumi " << m_bufferEvents[i]->getLumi() );
       }
     }
 
-    if(outputLevel() <= MSG::DEBUG) {
-      log() << MSG::DEBUG
-      << "Attached to Navigation " << m_bufferConfig.size() << " TrigMonConfigs" << endreq
-      << "Attached to Navigation " << m_bufferEvents.size()  << " TrigMonEvents" << endreq;
-    }
+    ATH_MSG_DEBUG("Attached to Navigation " << m_bufferConfig.size() << " TrigMonConfigs" );
+    ATH_MSG_DEBUG("Attached to Navigation " << m_bufferEvents.size()  << " TrigMonEvents" );
 
     m_exportedEvents += m_bufferEvents.size();
     m_exportedConfig += m_bufferConfig.size();
@@ -500,21 +440,18 @@ StatusCode TrigCostTool::fillHists()
   }
 
   if(outputLevel() <= MSG::DEBUG) { 
-    log() << MSG::DEBUG 
-    << "Processed run #" << eventInfo->runNumber()
-    << " lb #" << eventInfo->lumiBlock()
-    << " event #" << eventInfo->eventNumber() << endreq
-    << "  steeringOPILevel  = " << opiLevel << endreq
-    << "  isMonitoringEvent = " << monitoringEvent << endreq
-    << "  event buffer size = " << m_bufferEvents.size() << endreq
-    << "  elapsed time=" << event_timer << " ms" << endreq;
+    ATH_MSG_DEBUG("Processed run #" << eventInfo->runNumber() << " lb #" << eventInfo->lumiBlock() << " event #" << eventInfo->eventNumber() );
+    ATH_MSG_DEBUG("  steeringOPILevel  = " << opiLevel );
+    ATH_MSG_DEBUG("  isMonitoringEvent = " << monitoringEvent );
+    ATH_MSG_DEBUG("  event buffer size = " << m_bufferEvents.size() );
+    ATH_MSG_DEBUG("  elapsed time=" << event_timer << " ms" );
 
-    if(m_countEvent <= 1 && outputLevel() <= MSG::DEBUG) {
-      log() << MSG::DEBUG << "First two events StoreGate Dump:" << endreq;
-      log() << MSG::DEBUG << m_storeGate->dump() << endreq;
+    if(m_countEvent <= 1) {
+      ATH_MSG_DEBUG("First two events StoreGate Dump:" );
+      ATH_MSG_DEBUG( evtStore()->dump() );
     }
 
-    if(m_printEvent) Trig::Print(*event, m_config_sv, log(), MSG::DEBUG);
+    if(m_printEvent) Trig::Print(*event, m_config_sv, msg(), MSG::DEBUG);
   }
 
   return StatusCode::SUCCESS;
@@ -529,7 +466,7 @@ StatusCode TrigCostTool::finalHists()
 
   if(!m_active) return StatusCode::SUCCESS;
 
-  log() << MSG::DEBUG  << "finalHists()" << endreq;
+  ATH_MSG_DEBUG( "finalHists()" );
 
   //
   // Online run or offline job has ended: cleanup everything
@@ -561,25 +498,18 @@ void TrigCostTool::ProcessConfig(xAOD::EventInfo* info)
   // Process configuration
   //
   
-  if(outputLevel() <= MSG::DEBUG) {
-    log() << MSG::DEBUG << "Attempting to fill configuration..." << endreq;
-  }
+  ATH_MSG_DEBUG( "Attempting to fill configuration..." );
 
   // TimM - add LB check here too - we do want to be able to get different key sets in differnt LBs
   if(m_run == info->runNumber() && m_lumi == info->lumiBlock()) {
-    if(outputLevel() <= MSG::DEBUG) {
-      log() << MSG::DEBUG << "Trigger configuration for run " << m_run << " LB " << m_lumi << " already saved." << endreq;
-    }
+    ATH_MSG_DEBUG( "Trigger configuration for run " << m_run << " LB " << m_lumi << " already saved." );
     return;
   }
 
   m_run  = info->runNumber();
   m_lumi = info->lumiBlock();
 
-  if(outputLevel() <= MSG::DEBUG) {
-    log() << MSG::DEBUG
-    << "ProcessConfig - run number = " << m_run << " lumi block = " << m_lumi << " event number = " << info->eventNumber() << endreq;
-  }
+  ATH_MSG_DEBUG( "ProcessConfig - run number = " << m_run << " lumi block = " << m_lumi << " event number = " << info->eventNumber() );
 
   // Should we use the Config Service to collect the current keys for this LB and Run Number? (trying this one first)
   if (m_useConfSvc && m_toolConf) {
@@ -592,27 +522,26 @@ void TrigCostTool::ProcessConfig(xAOD::EventInfo* info)
                info->timeStamp(),
                info->timeStampNSOffset());
 
-    if(outputLevel() <= MSG::DEBUG) {
-      log() << MSG::DEBUG << "ProcessConfig - Attempting load from ConfService " << endreq;
-    }
+    ATH_MSG_DEBUG( "ProcessConfig - Attempting load from ConfService " );
 
     m_toolConf->SetOption(1); //1 = ConfSvc
     if(!m_toolConf->Fill(&m_config_sv)) {
-      log() << MSG::WARNING << "Failed to fill TrigMonConfig from ConfSvc... set inactive state. CostMon is now DISABLED." << endreq;
-      m_active = false; return;
+      ATH_MSG_WARNING( "Failed to fill TrigMonConfig from ConfSvc... set inactive state. CostMon is now DISABLED.");
+      m_active = false;
+      return;
     }
 
     for(unsigned i = 0; i < m_eventTools.size(); ++i) {
-      if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << "Running ConvSvc Config Tool " << i << ", " << m_eventTools[i]->type() << endreq;
+      ATH_MSG_DEBUG( "Running ConvSvc Config Tool " << i << ", " << m_eventTools[i]->type() );
       m_eventTools[i]->Fill(&m_config_sv);
     }
     for(unsigned i = 0; i < m_scaleTools.size(); ++i) {
-      if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << "Running ConvSvc Config Scale Tool " << i << ", " << m_scaleTools[i]->type() << endreq;
+      ATH_MSG_DEBUG( "Running ConvSvc Config Scale Tool " << i << ", " << m_scaleTools[i]->type() );
       m_scaleTools[i]->Fill(&m_config_sv);
     }
     if(m_writeAlways) {
       for(unsigned i = 0; i < m_alwaysTools.size(); ++i) {
-        if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << "Running ConvSvc Config Always Tool " << i << ", " << m_alwaysTools[i]->type() << endreq;
+        ATH_MSG_DEBUG( "Running ConvSvc Config Always Tool " << i << ", " << m_alwaysTools[i]->type() );
         m_alwaysTools[i]->Fill(&m_config_sv);
       }
     }
@@ -637,7 +566,7 @@ void TrigCostTool::ProcessConfig(xAOD::EventInfo* info)
         std::stringstream _ssKey, _ssVal;
         _ssKey << "DB:BGRP" << _bg;
         _ssVal << _bunchGroupLength[_bg];
-        if (outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << "Database DB:BGRP" << _bg << " size:" << _bunchGroupLength[_bg] << endreq;
+        ATH_MSG_DEBUG( "Database DB:BGRP" << _bg << " size:" << _bunchGroupLength[_bg] );
         m_config_sv.addValue(_ssKey.str(), _ssVal.str());
       }
     }
@@ -648,14 +577,12 @@ void TrigCostTool::ProcessConfig(xAOD::EventInfo* info)
     _ss2 << m_doOperationalInfo;
     m_config_sv.addValue("ExecPrescale", _ss1.str() );
     m_config_sv.addValue("doOperationalInfo", _ss2.str() );
-    if(outputLevel() <= MSG::DEBUG) {
-      log() << MSG::DEBUG << "ProcessConfig - Exporting the operational prescale " << m_execPrescale << endreq;
-      log() << MSG::DEBUG << "ProcessConfig - Exporting the operational info frequency " << m_doOperationalInfo << endreq;
-    }
+    ATH_MSG_DEBUG("ProcessConfig - Exporting the operational prescale " << m_execPrescale );
+    ATH_MSG_DEBUG("ProcessConfig - Exporting the operational info frequency " << m_doOperationalInfo );
 
     if(m_writeConfig || (m_writeAlways && m_level == "EF") || (m_writeAlways && m_level == "HLT")) {
       m_bufferConfig.push_back(new TrigMonConfig(m_config_sv));
-      log() << MSG::INFO << "ProcessConfig - writing out full svc configuration" << endreq;
+      ATH_MSG_INFO( "ProcessConfig - writing out full svc configuration" );
     }
 
   }
@@ -670,13 +597,11 @@ void TrigCostTool::ProcessConfig(xAOD::EventInfo* info)
                info->timeStamp(),
                info->timeStampNSOffset());
 
-    if(outputLevel() <= MSG::DEBUG) {
-      log() << MSG::DEBUG << "ProcessConfig - Attempting load from DB " << endreq;
-    }
+    ATH_MSG_DEBUG( "ProcessConfig - Attempting load from DB " );
 
     m_toolConf->SetOption(2); //2 = DBAccess
     if(!m_toolConf->Fill(&m_config_db)) {
-      log() << MSG::WARNING << "Failed to fill TrigMonConfig from DB..." << endreq;
+      ATH_MSG_WARNING( "Failed to fill TrigMonConfig from DB..." );
     } else {
 
       // Load into EBWeighting (this is assuming CAF style processing, NOT online)
@@ -684,7 +609,7 @@ void TrigCostTool::ProcessConfig(xAOD::EventInfo* info)
 
       if(m_writeConfigDB || (m_writeAlways && m_level == "EF") || (m_writeAlways && m_level == "HLT")) {
         m_bufferConfig.push_back(new TrigMonConfig(m_config_db));
-        log() << MSG::INFO << "ProcessConfig - writing out full DB configuration" << endreq; 
+        ATH_MSG_INFO("ProcessConfig - writing out full DB configuration");
       }
     }
   }
@@ -709,7 +634,7 @@ void TrigCostTool::ProcessConfig(xAOD::EventInfo* info)
     TFile file(nameS.str().c_str(), "RECREATE");
     
     if(file.IsOpen()) {
-      log() << MSG::INFO << "Opened ROOT file:\n" << nameS.str() << endreq;
+      ATH_MSG_INFO("Opened ROOT file:\n" << nameS.str());
       
       TTree *tree = new TTree("config", "config");
       tree -> SetDirectory(&file);
@@ -754,14 +679,12 @@ void TrigCostTool::ProcessEvent(TrigMonEvent &event)
   //
   float texec = 0.0, tproc = 0.0, tres = 0.0, tmon = 0.0;
 
-  if(m_storeGate->transientContains<TrigOperationalInfoCollection>(m_keySteerOPI)) {
+  if(evtStore()->transientContains<TrigOperationalInfoCollection>(m_keySteerOPI)) {
 
-    if(outputLevel() <= MSG::DEBUG) {
-      log() << MSG::DEBUG << "Found TrigOperationalInfoCollection " << m_keySteerOPI << endreq;
-    }    
+    ATH_MSG_DEBUG( "Found TrigOperationalInfoCollection " << m_keySteerOPI );
 
     const TrigOperationalInfoCollection *opi = 0;
-    if(m_storeGate->retrieve<TrigOperationalInfoCollection>(opi, m_keySteerOPI).isSuccess()) {
+    if(evtStore()->retrieve<TrigOperationalInfoCollection>(opi, m_keySteerOPI).isSuccess()) {
 
       for(TrigOperationalInfoCollection::const_iterator it = opi->begin(); it != opi->end(); ++it) {
         const TrigOperationalInfo *ptr = *it;
@@ -780,36 +703,34 @@ void TrigCostTool::ProcessEvent(TrigMonEvent &event)
       event.addVar(m_keyTimer+3, tres);
       event.addVar(m_keyTimer+4, tmon);
     }
-  } else if(outputLevel() <= MSG::DEBUG) {
-    log() << MSG::DEBUG << "Could not find TrigOperationalInfoCollection " << m_keySteerOPI << " did the HLT process anything?" << endreq;
+  } else {
+   ATH_MSG_DEBUG( "Could not find TrigOperationalInfoCollection " << m_keySteerOPI << " did the HLT process anything?" );
   }
 
   if(texec > 0.0) event.setTimer(texec);
   else            event.setTimer(tproc);
 
-  if(outputLevel() <= MSG::DEBUG) {
-    log() << MSG::DEBUG << "Timer check: texec:" << texec 
+  ATH_MSG_DEBUG( "Timer check: texec:" << texec 
       << ", tproc:" << tproc 
       << ", tres:" << tres 
       << ", tmon:" << tmon 
-      << ", event.getTimer():" << event.getTimer() << endreq;
-  }
+      << ", event.getTimer():" << event.getTimer() );
 
   //
   // Read the lumi block length, only for offline - obviously!
   //
   if (m_costForCAF) {
-    if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << "Reading lumi length" << endreq;
+    ATH_MSG_DEBUG( "Reading lumi length" );
     if (m_readLumiBlock.getTriedSetup() == false) {
-      log() << MSG::INFO << "LumiBlockReader not setup (tried="<<m_readLumiBlock.getTriedSetup()<<") - fetching lumiblock lengths from COOL" << endreq;
+      ATH_MSG_INFO( "LumiBlockReader not setup (tried="<<m_readLumiBlock.getTriedSetup()<<") - fetching lumiblock lengths from COOL" );
       m_readLumiBlock.updateLumiBlocks(event.getRun());
       std::string _msg = m_readLumiBlock.infos();
-      if (_msg.size()) log() << MSG::INFO << _msg;
+      if (_msg.size()) ATH_MSG_INFO(_msg);
       std::string _dbg = m_readLumiBlock.debug();
-      if (_dbg.size() && outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << _dbg;
+      if (_dbg.size()) ATH_MSG_DEBUG(_dbg);
       m_readLumiBlock.clearMsg();
     }
-    if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << "LB " << event.getLumi() << " is Length " << m_readLumiBlock.getLumiBlockLength(event.getLumi()) << endreq;
+    ATH_MSG_DEBUG( "LB " << event.getLumi() << " is Length " << m_readLumiBlock.getLumiBlockLength(event.getLumi()) );
     event.addVar(43, m_readLumiBlock.getLumiBlockLength(event.getLumi())); // 43 is lumi block length location
   }
 
@@ -828,9 +749,7 @@ void TrigCostTool::SavePrevLumi(TrigMonEvent &event)
     curr_count = icurr->second;
   }
   else {
-    if(outputLevel() <= MSG::DEBUG) {
-      log() << MSG::DEBUG << "Missing current event count for lumi: " << event.getLumi() << endreq;
-    }
+    ATH_MSG_DEBUG( "Missing current event count for lumi: " << event.getLumi() );
   }
 
   //
@@ -841,9 +760,7 @@ void TrigCostTool::SavePrevLumi(TrigMonEvent &event)
     // Ignore current lumi block
     //
     if(it->first == event.getLumi()) {
-      if(outputLevel() <= MSG::DEBUG) {
-        log() << MSG::DEBUG << "Current event lumi=" << event.getLumi() << " - still counting..." << endreq;
-      }
+      ATH_MSG_DEBUG("Current event lumi=" << event.getLumi() << " - still counting...");
       continue;
     }
     
@@ -852,10 +769,7 @@ void TrigCostTool::SavePrevLumi(TrigMonEvent &event)
 
     event.addVar(10000+lumi, nevt);
 
-    if(outputLevel() <= MSG::DEBUG) {
-      log() << MSG::DEBUG << "Current event lumi=" << event.getLumi() 
-      << ": prev lumi=" << lumi << " event count=" << nevt << endreq;
-    }
+    ATH_MSG_DEBUG("Current event lumi=" << event.getLumi() << ": prev lumi=" << lumi << " event count=" << nevt);
   }
   
   //
@@ -909,36 +823,31 @@ bool TrigCostTool::IsMonitoringEvent(xAOD::EventInfo* info)
 
   // OLD METHOD
   const DataHandle<EventInfo> event_handle_old;
-  m_storeGate -> retrieve(event_handle_old);
+  if (evtStore() -> retrieve(event_handle_old).isFailure()) {
+    ATH_MSG_ERROR("Cannot fetch old-style EventInfo. Maybe need to upgrade to xAOD now?");
+    return false;
+  }
   TriggerInfo* info_OLD = event_handle_old->trigger_info();
   const std::vector<TriggerInfo::StreamTag> &streams_OLD = info_OLD->streamTags();
   // OLD METHOD
 
   // LOOK @ NEW METHOD
   if(streams.empty()) {
+    ATH_MSG_DEBUG("[xAOD::EventInfo] Event has no trigger streams");
+  } else {
     if(outputLevel() <= MSG::DEBUG) {
-      log() << MSG::DEBUG << "[xAOD::EventInfo] Event has no trigger streams" << endreq;
-    }
-  }
-  else {
-    if(outputLevel() <= MSG::DEBUG) {
-      log() << MSG::DEBUG << "[xAOD::EventInfo] Event has " << streams.size() << " stream(s)" << endreq;
-      Cost::PrintStreams(info, log(), MSG::DEBUG);
+      ATH_MSG_DEBUG("[xAOD::EventInfo] Event has " << streams.size() << " stream(s)");
+      Cost::PrintStreams(info, msg(), MSG::DEBUG);
     }
   }
 
-  
   if(streams_OLD.empty()) {
-    if(outputLevel() <= MSG::DEBUG) {
-      log() << MSG::DEBUG << "[EventInfo] Event has no trigger streams" << endreq;
-    }
-
+    ATH_MSG_DEBUG("[EventInfo] Event has no trigger streams");
     return false;
-  }
-  else {
+  } else {
     if(outputLevel() <= MSG::DEBUG) {
-      log() << MSG::DEBUG << "[EventInfo] Event has " << streams_OLD.size() << " stream(s)" << endreq;
-      Cost::PrintStreams(*info_OLD, log(), MSG::DEBUG);
+      ATH_MSG_DEBUG("[EventInfo] Event has " << streams_OLD.size() << " stream(s)");
+      Cost::PrintStreams(*info_OLD, msg(), MSG::DEBUG);
     }
   }
 
@@ -959,32 +868,27 @@ bool TrigCostTool::IsMonitoringEvent(xAOD::EventInfo* info)
 
     if(noCalib && stag.type() == "calibration" && stag.name() != m_monitoringStream) {
       passLogic = false;
-      if(outputLevel() <= MSG::DEBUG)
-        log() << MSG::DEBUG << "Calibration case - ignoring event because of stream: " << stag.name() << endreq;
+      ATH_MSG_DEBUG("Calibration case - ignoring event because of stream: " << stag.name());
     }
 
     if(noDebug && stag.type() == "debug") {
       passLogic = false;
-      if(outputLevel() <= MSG::DEBUG)
-        log() << MSG::DEBUG << "Debug case       - ignoring event because of stream: " << stag.name() << endreq;
+      ATH_MSG_DEBUG("Debug case       - ignoring event because of stream: " << stag.name());
     }
 
     if(noPhysics && stag.type() == "physics") {
       passLogic = false;
-      if(outputLevel() <= MSG::DEBUG)
-        log() << MSG::DEBUG << "Physics case     - ignoring event because of stream: " << stag.name() << endreq;
+      ATH_MSG_DEBUG("Physics case     - ignoring event because of stream: " << stag.name());
     }
   
     if(calibOnly && stag.type() != "calibration") {
       passLogic = false;
-      if(outputLevel() <= MSG::DEBUG)
-        log() << MSG::DEBUG << "Calibration only - ignoring event because of stream: " << stag.name() << endreq;
+      ATH_MSG_DEBUG("Calibration only - ignoring event because of stream: " << stag.name());
     }
   
     if(stag.name() == m_monitoringStream) {
       costEvent = true;
-      if(outputLevel() <= MSG::DEBUG)
-        log() << MSG::DEBUG << "Event has monitoring stream: " << m_monitoringStream << endreq;
+      ATH_MSG_DEBUG("Event has monitoring stream: " << m_monitoringStream);
     }
     else {
       new_streams.push_back(stag);
@@ -993,15 +897,11 @@ bool TrigCostTool::IsMonitoringEvent(xAOD::EventInfo* info)
 
   if(oneStream && streams_OLD.size() != 1) {
     passLogic = false;
-    if(outputLevel() <= MSG::DEBUG)
-      log() << MSG::DEBUG << "Case 4 - ignoring event because of stream size=: " << streams_OLD.size() << endreq;
+    ATH_MSG_DEBUG("Case 4 - ignoring event because of stream size=: " << streams_OLD.size());
   }
 
-  if(outputLevel() <= MSG::DEBUG) {
-    log() << MSG::DEBUG 
-    << "  passLogic = " << passLogic << endreq
-    << "  costEvent = " << costEvent << endreq;
-  }
+  ATH_MSG_DEBUG("  passLogic = " << passLogic);
+  ATH_MSG_DEBUG("  costEvent = " << costEvent);
 
   if(m_purgeCostStream && costEvent && !passLogic) {
     
@@ -1011,9 +911,8 @@ bool TrigCostTool::IsMonitoringEvent(xAOD::EventInfo* info)
     //info->setStreamTags(new_streams_const); // New
 
     if(outputLevel() <= MSG::DEBUG) {
-      log() << MSG::DEBUG << "After stream purge event has " 
-      << info_OLD->streamTags().size() << " stream(s)" << endreq;
-      Cost::PrintStreams(*info_OLD, log(), MSG::DEBUG);
+      ATH_MSG_DEBUG("After stream purge event has " << info_OLD->streamTags().size() << " stream(s)");
+      Cost::PrintStreams(*info_OLD, msg(), MSG::DEBUG);
     }
   }
 
@@ -1032,9 +931,7 @@ void TrigCostTool::ClearBeforeNewRun(unsigned run)
   //
   if(run != 0 && run == m_run) return;
   
-  if(outputLevel() <= MSG::DEBUG) {
-    log() << MSG::DEBUG << "ClearBeforeNewRun: new run=" << run << " prev=" << m_run << endreq;
-  }
+  ATH_MSG_DEBUG("ClearBeforeNewRun: new run=" << run << " prev=" << m_run);
 
   //
   // Reset internal state

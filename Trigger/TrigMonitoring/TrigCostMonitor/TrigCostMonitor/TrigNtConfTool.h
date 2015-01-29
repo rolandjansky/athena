@@ -13,7 +13,7 @@
 #include <string>
 
 // Framework
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -36,7 +36,7 @@ namespace Trig
 {
   static const InterfaceID IID_TrigNtConfTool("Trig::TrigNtConfTool", 1, 0); 
 
-  class TrigNtConfTool : virtual public Trig::ITrigNtTool, public AlgTool {
+  class TrigNtConfTool : virtual public Trig::ITrigNtTool, public AthAlgTool {
   public:
     
     static const InterfaceID& interfaceID() { return IID_TrigNtConfTool; }
@@ -53,9 +53,7 @@ namespace Trig
     void SetOption(unsigned option) { m_dbOrConfSvcPass = option; }
     
   private:
-
-    MsgStream& log() const { return *m_log; }
-    
+   
     bool ReadFromSv(TrigMonConfig &confg);
 
     bool ReadFromDB(TrigMonConfig &confg, unsigned run, unsigned lumi);
@@ -67,7 +65,6 @@ namespace Trig
 
   private:
     
-    MsgStream                              *m_log;
     ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
     
     // Properties 

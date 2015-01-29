@@ -14,7 +14,7 @@
 //
 
 // Framework
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IIncidentListener.h"
 
 // Trigger
@@ -35,15 +35,15 @@ namespace Trig
   
   class TrigNtSaveTool 
     : public virtual Trig::ITrigNtTool, 
-      public virtual AlgTool,
+      public virtual AthAlgTool,
       public virtual IIncidentListener {
   public:
     
     static const InterfaceID& interfaceID() { return IID_TrigNtSaveTool; }    
 
     TrigNtSaveTool(const std::string &type,
-		   const std::string &name,
-		   const IInterface* parent);
+       const std::string &name,
+       const IInterface* parent);
     
     virtual ~TrigNtSaveTool();
     
@@ -61,8 +61,6 @@ namespace Trig
 
     void Close();
 
-    MsgStream& log() const { return *m_log; }
-    
     TTree* MakeTree(const std::string &tname, const std::string &sname);    
 
   private:
@@ -86,7 +84,6 @@ namespace Trig
     int                      m_fileCompr;        // ROOT file compression
 
     // Athena tool and service handles
-    MsgStream                  *m_log;
     ServiceHandle<ITHistSvc>    m_histSvc;
     ServiceHandle<IIncidentSvc> m_incSvc;
 

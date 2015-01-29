@@ -10,7 +10,7 @@
 //
 
 // Framework
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -165,7 +165,7 @@ namespace Trig
 
   static const InterfaceID IID_TrigNtEBWeightTool("Trig::TrigNtEBWeightTool", 1, 0); 
   
-  class TrigNtEBWeightTool : virtual public Trig::ITrigNtTool, public AlgTool {
+  class TrigNtEBWeightTool : virtual public Trig::ITrigNtTool, public AthAlgTool {
   public:
     
     static const InterfaceID& interfaceID() { return IID_TrigNtEBWeightTool; }
@@ -179,9 +179,6 @@ namespace Trig
     bool Fill(TrigMonConfig *confg);
     bool Fill(TrigMonEvent &event);
     
-  private:
-    
-    MsgStream& log() const { return *m_log; }          
     
   private:
 
@@ -200,7 +197,6 @@ namespace Trig
     std::map<unsigned, EBBunchGroupType> m_L1IDToBunchGroup; //!< Holds map of L1 item CTPID to the bunchgroup
 
     // Tools and services:
-    MsgStream *m_log;
     unsigned   m_isRun1;
     bool       m_isConfigured;
   };

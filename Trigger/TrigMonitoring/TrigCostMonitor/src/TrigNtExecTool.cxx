@@ -3,7 +3,8 @@
 */
 
 // Framework
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/errorcheck.h"
+#include "AthenaKernel/errorcheck.h"
 
 // Trigger
 #include "TrigInterfaces/AlgoConfig.h"
@@ -21,12 +22,10 @@ using namespace std;
 
 //---------------------------------------------------------------------------------------
 Trig::TrigNtExecTool::TrigNtExecTool(const std::string &name,
-				     const std::string &type,
-				     const IInterface  *parent)
-  :AlgTool(name, type, parent),
+             const std::string &type,
+             const IInterface  *parent)
+  :AthAlgTool(name, type, parent),
    m_parentAlg(0),
-   m_log(0),
-   m_storeGate("StoreGateSvc", name),
    m_timeAlg(0.0),
    m_timeSeq(0.0),
    m_config(0)
@@ -43,14 +42,8 @@ Trig::TrigNtExecTool::TrigNtExecTool(const std::string &name,
 StatusCode Trig::TrigNtExecTool::initialize()
 {
   // Get message service and print out properties
-  m_log = new MsgStream(msgSvc(), name());
   
-  log() << MSG::DEBUG << "initialize()" << endreq;
-
-  if(m_storeGate.retrieve().isFailure()) {
-    log() << MSG::ERROR << "Could not retrieve StoreGateSvc!" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_MSG_DEBUG("initialize()");
 
   return StatusCode::SUCCESS;
 }
@@ -61,9 +54,8 @@ StatusCode Trig::TrigNtExecTool::finalize()
   //
   // Clean up
   //  
-  log() << MSG::DEBUG << "finalize()" << endreq;
+  ATH_MSG_DEBUG("finalize()");
   
-  delete m_log; m_log = 0;
   m_config = 0;
 
   return StatusCode::SUCCESS;
@@ -73,7 +65,7 @@ StatusCode Trig::TrigNtExecTool::finalize()
 void Trig::TrigNtExecTool::SetSteer(const HLT::TrigSteer *ptr)
 {
   if(!ptr) {
-    log() << MSG::WARNING << "Null HLT::TrigSteer pointer" << endreq;
+    ATH_MSG_WARNING("Null HLT::TrigSteer pointer");
     return;
   }
 
@@ -92,12 +84,6 @@ void Trig::TrigNtExecTool::SetSteer(const HLT::TrigSteer *ptr)
     m_fallBackKey = "HLT_OPI_extended_HLT"; // Provide some backward compatability
   }
 
-  // Was HLT_OPI_extended_EF etc.
-  // Now
-  //flags: (  valid, UNLOCKED,  reset) --- data: 0x41d9d6e0 --- key: HLT_TrigOperationalInfoCollection
-  //flags: (  valid, UNLOCKED,  reset) --- data: 0x44aa5480 --- key: HLT_TrigOperationalInfoCollection_EXPRESS_OPI_HLT
-  //flags: (  valid, UNLOCKED,  reset) --- data: 0x4534b4a0 --- key: HLT_TrigOperationalInfoCollection_OPI_HLT
-  //flags: (  valid, UNLOCKED,  reset) --- data: 0x4343b920 --- key: HLT_TrigOperationalInfoCollection_OPI_extended_HLT
 }
 
 //---------------------------------------------------------------------------------------
@@ -107,13 +93,11 @@ bool Trig::TrigNtExecTool::Fill(TrigMonConfig *confg)
   // Make local copy of new configuration
   //
   if(!confg) {
-    log() << MSG::WARNING << "Null TrigMonConfig pointer" << endreq;
+    ATH_MSG_WARNING("Null TrigMonConfig pointer");
     return false;
   }
 
-  if(outputLevel() <= MSG::DEBUG) {
-    log() << MSG::DEBUG << "Filling the trig config into TrigNtExecTool NChains: " << confg->getVec<TrigConfChain>().size() << endreq;
-  }
+  ATH_MSG_DEBUG("Filling the trig config into TrigNtExecTool NChains: " << confg->getVec<TrigConfChain>().size());
 
   // Copy data
   m_config = confg;
@@ -122,11 +106,9 @@ bool Trig::TrigNtExecTool::Fill(TrigMonConfig *confg)
   m_TrigConfChain.clear();
   m_TrigConfSeq.clear();
 
-  m_TrigConfChain.insert(m_TrigConfChain.end(),
-			 m_config->begin<TrigConfChain>(), m_config->end<TrigConfChain>());
+  m_TrigConfChain.insert(m_TrigConfChain.end(), m_config->begin<TrigConfChain>(), m_config->end<TrigConfChain>());
   
-  m_TrigConfSeq.insert(m_TrigConfSeq.end(),
-		       m_config->begin<TrigConfSeq>(), m_config->end<TrigConfSeq>());
+  m_TrigConfSeq.insert(m_TrigConfSeq.end(), m_config->begin<TrigConfSeq>(), m_config->end<TrigConfSeq>());
 
   // Sort by name
   std::sort(m_TrigConfChain.begin(), m_TrigConfChain.end());
@@ -145,51 +127,41 @@ bool Trig::TrigNtExecTool::Fill(TrigMonEvent &event)
   m_timeAlg = 0.0; m_timeSeq = 0.0;
   unsigned ntoi = 0;
 
-  if(m_storeGate->transientContains<TrigOperationalInfoCollection>(m_keyExten)) { // Check primary
+  if(evtStore()->transientContains<TrigOperationalInfoCollection>(m_keyExten)) { // Check primary
 
-    if(outputLevel() <= MSG::DEBUG) {
-      log() << MSG::DEBUG << "Found TrigOperationalInfoCollection " << m_keyExten << endreq;
-    }
+    ATH_MSG_DEBUG("Found TrigOperationalInfoCollection " << m_keyExten );
     
     const TrigOperationalInfoCollection *toi_col = 0;
-    if(m_storeGate->retrieve<TrigOperationalInfoCollection>(toi_col, m_keyExten).isSuccess() && toi_col) {
+    if(evtStore()->retrieve<TrigOperationalInfoCollection>(toi_col, m_keyExten).isSuccess() && toi_col) {
       ntoi = toi_col->size();
-	  if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << "N Trig Op. Info " << ntoi << endreq;
+      ATH_MSG_DEBUG("N Trig Op. Info " << ntoi);
       ReadOPI(event, *toi_col);
     }
-  } else if(m_storeGate->transientContains<TrigOperationalInfoCollection>(m_fallBackKey)) { //Check fallback
+  } else if(evtStore()->transientContains<TrigOperationalInfoCollection>(m_fallBackKey)) { //Check fallback
 
-    if(outputLevel() <= MSG::DEBUG) {
-      log() << MSG::DEBUG << "Found TrigOperationalInfoCollection with FallBack key " << m_fallBackKey << endreq;
-    }
+    ATH_MSG_DEBUG("Found TrigOperationalInfoCollection with FallBack key " << m_fallBackKey );
     
     const TrigOperationalInfoCollection *toi_col = 0;
-    if(m_storeGate->retrieve<TrigOperationalInfoCollection>(toi_col, m_fallBackKey).isSuccess() && toi_col) {
+    if(evtStore()->retrieve<TrigOperationalInfoCollection>(toi_col, m_fallBackKey).isSuccess() && toi_col) {
       ntoi = toi_col->size();
-	  if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << "N Trig Op. Info BackupKey " << ntoi << endreq;
+      ATH_MSG_DEBUG("N Trig Op. Info BackupKey " << ntoi);
       ReadOPI(event, *toi_col);
     }
 
   } else {
-    if(outputLevel() <= MSG::DEBUG) {
-      log() << MSG::DEBUG << "Cannot Find TrigOperationalInfoCollection with key " << m_keyExten 
-      << " or with key " << m_fallBackKey << endreq;
-    }
+    ATH_MSG_DEBUG("Cannot Find TrigOperationalInfoCollection with key " << m_keyExten << " or with key " << m_fallBackKey);
   }
-	  
-  if(outputLevel() <= MSG::DEBUG) {
-    log() << MSG::DEBUG 
-	  << "Processed " << ntoi << " extended TrigOperationalInfo object(s)" << endreq
-	  << "  T_alg = " << m_timeAlg << endreq
-	  << "  T_seq = " << m_timeSeq << endreq;
-  }
+    
+  ATH_MSG_DEBUG("Processed " << ntoi << " extended TrigOperationalInfo object(s)" );
+  ATH_MSG_DEBUG("  T_alg = " << m_timeAlg );
+  ATH_MSG_DEBUG("  T_seq = " << m_timeSeq );
 
   return true;
 }
 
 //---------------------------------------------------------------------------------------
 void Trig::TrigNtExecTool::ReadOPI(TrigMonEvent &event,
-				   const TrigOperationalInfoCollection &ovec)
+           const TrigOperationalInfoCollection &ovec)
 {
   //
   // Extract timing information for one CHAIN step (single TrigOperationalInfo object)
@@ -199,7 +171,7 @@ void Trig::TrigNtExecTool::ReadOPI(TrigMonEvent &event,
     const TrigOperationalInfo *tinfo = ovec[itoi];
     if(!tinfo)
     {
-      log() << MSG::WARNING << "Null TrigOperationalInfo pointer" << endreq;
+      ATH_MSG_WARNING("Null TrigOperationalInfo pointer");
       continue;
     }
     
@@ -209,12 +181,12 @@ void Trig::TrigNtExecTool::ReadOPI(TrigMonEvent &event,
     
     if(svec.size() != fvec.size())
     {
-      log() << MSG::WARNING << "Mismatched vector sizes" << endreq;
+      ATH_MSG_WARNING("Mismatched vector sizes");
       continue;
     }
     
     if(m_printOPI)
-      log() << MSG::INFO << "Printing TOI with " << svec.size() << " entries" << endreq;
+      ATH_MSG_INFO("Printing TOI with " << svec.size() << " entries");
     
     //
     // define local variables for current TrigOperationalInfo object
@@ -234,7 +206,7 @@ void Trig::TrigNtExecTool::ReadOPI(TrigMonEvent &event,
       const        float val = fvec[ikey];  
   
       if(m_printOPI)
-        log() << MSG::INFO << ikey << ": TOI[" << key << "]=" << val << endreq;
+        ATH_MSG_INFO(ikey << ": TOI[" << key << "]=" << val);
             
       //
       // New entry, first extract entry type
@@ -249,14 +221,14 @@ void Trig::TrigNtExecTool::ReadOPI(TrigMonEvent &event,
       else continue;
       
       if(isep1+1 >= ksize) {
-        log() << MSG::WARNING << "Bad type format for: " << key << endreq;
+        ATH_MSG_WARNING("Bad type format for: " << key);
         return;
       }
 
       for(int i = isep1; i < ksize; ++i) {
         // Ignore character not equal to ':'
         if(key[i] != ':') continue;
-	
+  
         // Also ignore two '::' characters in row
         if(i+1 < ksize && key[i+1] == ':') continue;
         if(i-1 > 0     && key[i-1] == ':') continue;
@@ -275,15 +247,15 @@ void Trig::TrigNtExecTool::ReadOPI(TrigMonEvent &event,
         // Find chain configuration
         //
         if(chainIter != m_TrigConfChain.end()) {
-          log() << MSG::WARNING << "More than 1 chain entry for key: " << key << endreq;
+          ATH_MSG_WARNING("More than 1 chain entry for key: " << key);
         }
 
         chainIter = std::lower_bound(m_TrigConfChain.begin(), m_TrigConfChain.end(), myname);
         if(chainIter == m_TrigConfChain.end() || chainIter->getName() != myname) {
-          log() << MSG::WARNING << "No TrigConfChain for: " << key << "/" << myname << endreq;
-          log() << MSG::WARNING << "Options Are:" << endreq;
+          ATH_MSG_WARNING("No TrigConfChain for: " << key << "/" << myname);
+          ATH_MSG_WARNING("Options Are:");
           for (vector<TrigConfChain>::const_iterator _it = m_TrigConfChain.begin(); _it != m_TrigConfChain.end(); ++_it) {
-            log() << MSG::WARNING << " --- " << _it->getName() << endreq;
+            ATH_MSG_WARNING(" --- " << _it->getName());
           }
           return;
         }
@@ -304,7 +276,7 @@ void Trig::TrigNtExecTool::ReadOPI(TrigMonEvent &event,
         myseqIter = std::lower_bound(m_TrigConfSeq.begin(), m_TrigConfSeq.end(), myname);
 
         if(myseqIter == m_TrigConfSeq.end() || myseqIter->getName() != myname) {
-          log() << MSG::WARNING << "No TrigConfSeq for: " << key << "/" << myname << endreq;
+          ATH_MSG_WARNING( "No TrigConfSeq for: " << key << "/" << myname);
           continue;
         }
 
@@ -319,12 +291,12 @@ void Trig::TrigNtExecTool::ReadOPI(TrigMonEvent &event,
           else if(parsed_key[0] == "ElapsedTime") entry.m_seqState = kElapsedTime;
           else if(parsed_key[0] == "Previous")    entry.m_seqState = kPrevious;
           else {
-            log() << MSG::WARNING << "Bad SEQ state: " << key << "/" << parsed_key[0] << endreq;
+            ATH_MSG_WARNING("Bad SEQ state: " << key << "/" << parsed_key[0]);
             continue;
           }
-	      }
+        }
         else {
-          log() << MSG::WARNING << "Bad sequence string: " << key << endreq;
+          ATH_MSG_WARNING("Bad sequence string: " << key);
           continue;
         }
       }
@@ -332,13 +304,13 @@ void Trig::TrigNtExecTool::ReadOPI(TrigMonEvent &event,
         //
         // Fill algorithm data
         //
-	
+  
         if(curAlgName != myname) {
           // New algorithm
           curAlgName.clear();
           vector<TrigConfAlg>::const_iterator algIter = myseqIter -> findName(myname);
           if(algIter == myseqIter -> algEnd()) {
-            log() << MSG::WARNING << "Bad alg iterator " << endreq;
+            ATH_MSG_WARNING( "Bad alg iterator ");
             return;
           }
     
@@ -355,7 +327,7 @@ void Trig::TrigNtExecTool::ReadOPI(TrigMonEvent &event,
             entry.m_call = static_cast<int>(val);
           }
           else {
-            log() << MSG::WARNING << "Bad algorithm call: " << key << endreq;
+            ATH_MSG_WARNING("Bad algorithm call: " << key);
             continue;
           }
         }
@@ -371,7 +343,7 @@ void Trig::TrigNtExecTool::ReadOPI(TrigMonEvent &event,
           else if(parsed_key[1] == "StopUSec")   entry.m_algState = kStopUSec;
           else if(parsed_key[1] == "NOutputTEs") continue;
           else {
-            log() << MSG::WARNING << "Bad algorithm state: " << key << endreq;
+            ATH_MSG_WARNING("Bad algorithm state: " << key);
             continue;
           }
         }
@@ -382,12 +354,12 @@ void Trig::TrigNtExecTool::ReadOPI(TrigMonEvent &event,
           if     (parsed_key[1] == "RoiId")   entry.m_algState = kRoiId;
           else if(parsed_key[1] == "RoiWord") continue;
           else {
-            log() << MSG::WARNING << "Bad RoiId string: " << key << endreq;
+            ATH_MSG_WARNING("Bad RoiId string: " << key);
             continue;
           }
         }
         else {
-          log() << MSG::WARNING << "Bad algorithm string: " << key << endreq;
+          ATH_MSG_WARNING("Bad algorithm string: " << key);
           continue;
         }
       }
@@ -402,24 +374,23 @@ void Trig::TrigNtExecTool::ReadOPI(TrigMonEvent &event,
       ReadSeq(event, *chainIter, read_vec, 0);
     }
     else {
-      log() << MSG::WARNING << "Missing configiration for chain step" << endreq;
+      ATH_MSG_WARNING("Missing configiration for chain step");
     }
   }
 }
 
 //---------------------------------------------------------------------------------------
 void Trig::TrigNtExecTool::ReadSeq(TrigMonEvent &event,
-				   const TrigConfChain &chain,
-				   std::vector<ReadEntry> &read_vec,
-				   int icurr)
+           const TrigConfChain &chain,
+           std::vector<ReadEntry> &read_vec,
+           int icurr)
 {
   //
   // Process OPI entries from a single chain step
   //
   const int rsize = read_vec.size(); 
   if(!(icurr < rsize)) {
-    if(outputLevel() <= MSG::DEBUG && m_printOPI)
-       log() << MSG::DEBUG << "Reached end of recursion" << endreq;
+    if(m_printOPI) ATH_MSG_DEBUG("Reached end of recursion");
     return;
   }
 
@@ -427,7 +398,7 @@ void Trig::TrigNtExecTool::ReadSeq(TrigMonEvent &event,
   const ReadEntry &curr = read_vec[icurr];
 
   if(curr.m_opiState != kSeq) {
-    log() << MSG::WARNING << "ReadSeq must start with kSeq: " << curr.m_key << endreq;
+    ATH_MSG_WARNING("ReadSeq must start with kSeq: " << curr.m_key);
     return;
   }
 
@@ -466,7 +437,7 @@ void Trig::TrigNtExecTool::ReadSeq(TrigMonEvent &event,
         myseq.addState(TrigMonSeq::kStart);
       }
       else {
-        log() << MSG::WARNING << "Logic error for next entry" << endreq;
+        ATH_MSG_WARNING("Logic error for next entry");
         return;
       }
     }
@@ -502,7 +473,7 @@ void Trig::TrigNtExecTool::ReadSeq(TrigMonEvent &event,
     
     // This should be sequence which forced recursive previous call(s)
     if(!found_first) {
-      log() << MSG::WARNING << "Logic error for recursive sequence" << endreq;
+      ATH_MSG_WARNING("Logic error for recursive sequence");
       return;
     }
   }
@@ -526,7 +497,7 @@ void Trig::TrigNtExecTool::ReadSeq(TrigMonEvent &event,
     
     if(stop.m_seqState == kElapsedTime) {
       if(stop.m_seqIter != curr.m_seqIter) {
-        log() << MSG::WARNING << "stop and curr have different TrigConfSeq iterators" << endreq;
+        ATH_MSG_WARNING("stop and curr have different TrigConfSeq iterators");
       }
 
       if(m_saveSeqTimer) myseq.addTimer(stop.m_value);
@@ -534,7 +505,7 @@ void Trig::TrigNtExecTool::ReadSeq(TrigMonEvent &event,
     }
     
     if(stop.m_opiState != kAlg) {
-      log() << MSG::WARNING << "Logic error for kAlg at key: " << stop.m_key << endreq;
+      ATH_MSG_WARNING("Logic error for kAlg at key: " << stop.m_key);
       return;
     }
   }
@@ -560,32 +531,31 @@ void Trig::TrigNtExecTool::SaveSeq(TrigMonEvent &event, const TrigMonSeq &myseq)
 
   if(m_printSEQ) {
     vector<TrigConfSeq>::const_iterator iseq = std::find(m_TrigConfSeq.begin(),
-							 m_TrigConfSeq.end(), myseq);
+               m_TrigConfSeq.end(), myseq);
     if(iseq != m_TrigConfSeq.end()) {
       myseq.print(*iseq, std::cout);
     }
-    else {	
-      log() << MSG::WARNING << "No TrigConfSeq for SEQ at index=" << myseq.getSeqIndex() << endreq;
+    else {  
+      ATH_MSG_WARNING("No TrigConfSeq for SEQ at index=" << myseq.getSeqIndex());
     }
   }
 }
 
 //---------------------------------------------------------------------------------------
 void Trig::TrigNtExecTool::ReadAlg(TrigMonSeq &myseq,
-				   std::vector<ReadEntry> &read_vec,
-				   const int icurr, const int istop)
+           std::vector<ReadEntry> &read_vec,
+           const int icurr, const int istop)
 {
   //
   // Collect algorithm entries
   //
   const int rsize = read_vec.size();
   if(!(istop < rsize) || !(icurr < istop)) {
-    if(m_printOPI)
-      log() << MSG::DEBUG << "No algorithms in range: " << icurr << ", " << istop << endreq;
+    if(m_printOPI) ATH_MSG_DEBUG("No algorithms in range: " << icurr << ", " << istop);
     return;
   }
   if(istop < 0 || icurr < 0) {
-    log() << MSG::WARNING << "Negative index" << endreq;
+    ATH_MSG_WARNING("Negative index" );
     return;
   }
 
@@ -596,16 +566,16 @@ void Trig::TrigNtExecTool::ReadAlg(TrigMonSeq &myseq,
     const ReadEntry &entry = read_vec[i];
 
     if(entry.m_opiState != kAlg) {
-      log() << MSG::WARNING << "Range contains non kAlg entry: " << entry.m_key << endreq;
+      ATH_MSG_WARNING("Range contains non kAlg entry: " << entry.m_key);
       return;
     }
 
     if(entry.m_palg < 0) {
-      log() << MSG::WARNING << "Negative position" << endreq;
+      ATH_MSG_WARNING("Negative position");
       return;
     }
     if(entry.m_algState == kCall && entry.m_call < 0) {
-      log() << MSG::WARNING << "Bad alg state: " << entry.m_key << ":" << entry.m_value << endreq;
+      ATH_MSG_WARNING("Bad alg state: " << entry.m_key << ":" << entry.m_value);
       return;
     }
 
@@ -624,8 +594,8 @@ void Trig::TrigNtExecTool::ReadAlg(TrigMonSeq &myseq,
 
 //---------------------------------------------------------------------------------------
 TrigMonAlg Trig::TrigNtExecTool::MakeAlg(unsigned int alg_position,
-					 std::vector<ReadEntry> &read_vec,
-					 const int icurr, const int istop, const int icall)
+           std::vector<ReadEntry> &read_vec,
+           const int icurr, const int istop, const int icall)
 {
   //
   // Collect timing information for single algorithm call
@@ -678,17 +648,14 @@ TrigMonAlg Trig::TrigNtExecTool::MakeAlg(unsigned int alg_position,
   // Set start and stop times
   if(!cached) {        
     myalg.addTimer(TrigMonTimer(static_cast<int>(start_sec), static_cast<int>(start_usec)),
-		   TrigMonTimer(static_cast<int>(stop_sec),  static_cast<int>(stop_usec)));
+       TrigMonTimer(static_cast<int>(stop_sec),  static_cast<int>(stop_usec)));
     
-    if(icount_times != 4) {
-      if(outputLevel() <= MSG::DEBUG && m_printOPI)
-	log() << MSG::DEBUG << "Only found " << icount_times << " time entries" << endreq;
-    }
+    if(icount_times != 4 && m_printOPI) ATH_MSG_DEBUG("Only found " << icount_times << " time entries");
   }
   
   // Sanity check
   if(cached && total_time > 0.0) {
-    log() << MSG::WARNING << "Algorithm was cached but timer is positive" << endreq;
+    ATH_MSG_WARNING("Algorithm was cached but timer is positive");
   }
 
   return myalg;
@@ -696,7 +663,7 @@ TrigMonAlg Trig::TrigNtExecTool::MakeAlg(unsigned int alg_position,
 
 //-----------------------------------------------------------------------------
 void Trig::TrigNtExecTool::ParseKey(std::vector<std::string> &svec,
-				    const std::string& key, int ibeg)
+            const std::string& key, int ibeg)
 {
   // 
   // Split a long string using ':' into a set of shorter strings
