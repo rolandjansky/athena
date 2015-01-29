@@ -13,7 +13,7 @@ namespace xAOD {
    typedef JEMHitsAuxContainer_v1 JEMHitsAuxContainer;
 }
 
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::JEMHitsAuxContainer, 1238207395 , 1 ) 
 
 #endif // XAODTRIGL1CALO_JEMHITSAUXCONTAINER_H

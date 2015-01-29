@@ -14,7 +14,7 @@ namespace xAOD {
    typedef JEMHits_v1 JEMHits;
 }
 
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::JEMHits, 106316946 , 1 )
 
 #endif // XAODTRIGL1CALO_JEMHITS_H

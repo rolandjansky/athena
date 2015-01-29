@@ -13,7 +13,7 @@ namespace xAOD {
    typedef CMMRoIAuxInfo_v1 CMMRoIAuxInfo;
 }
 
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::CMMRoIAuxInfo , 43864765 , 1 ) 
 
 #endif // XAODTRIGL1CALO_CMMROIAUXINFO_H

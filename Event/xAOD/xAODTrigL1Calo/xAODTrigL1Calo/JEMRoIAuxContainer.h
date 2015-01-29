@@ -13,7 +13,7 @@ namespace xAOD {
    typedef JEMRoIAuxContainer_v1 JEMRoIAuxContainer;
 }
 
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::JEMRoIAuxContainer, 1206477288 , 1 ) 
 
 #endif // XAODTRIGL1CALO_JEMROIAUXCONTAINER_H

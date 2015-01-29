@@ -14,7 +14,7 @@ namespace xAOD {
    typedef CMMRoI_v1 CMMRoI;
 }
 
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::CMMRoI , 260993336 , 1 )
 
 #endif // XAODTRIGL1CALO_CMMROI_H

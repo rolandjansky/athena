@@ -7,14 +7,15 @@
 
 // Local include(s):
 #include "xAODTrigL1Calo/versions/JetElement_v1.h"
+#include "xAODTrigL1Calo/versions/JetElement_v2.h"
 
 /// Namespace holding all the xAOD EDM classes
 namespace xAOD {
    /// Define the latest version of the JetElement class
-   typedef JetElement_v1 JetElement;
+   typedef JetElement_v2 JetElement;
 }
 
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::JetElement , 165900946 , 1 )
 
 #endif // XAODTRIGL1CALO_JETELEMENT_H

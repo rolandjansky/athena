@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CMMJetHits_v1.cxx 579924 2014-01-24 10:26:51Z krasznaa $
+// $Id: CMMJetHits_v1.cxx 638578 2015-01-09 17:00:15Z morrisj $
 
 // System include(s):
 #include <cmath>
@@ -28,19 +28,19 @@ namespace xAOD{
   
   void CMMJetHits_v1::addHits(const std::vector<unsigned int>& hits,const std::vector<int>& error)
   {
-    this->setHitsVec( hits );
-    this->setErrorVec( error );
+    setHitsVec( hits );
+    setErrorVec( error );
 
   }
               
   unsigned int CMMJetHits_v1::hits() const
   {
-    return this->hitsVec()[ this->peak() ]; 
+    return hitsVec()[ peak() ]; 
   }
     
   int CMMJetHits_v1::error() const
   {
-    return this->errorVec()[ this->peak() ]; 
+    return errorVec()[ peak() ]; 
   }
     
 } // namespace xAOD

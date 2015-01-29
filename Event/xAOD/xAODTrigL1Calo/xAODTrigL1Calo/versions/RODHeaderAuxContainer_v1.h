@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RODHeaderAuxContainer_v1.h 631385 2014-11-26 21:27:40Z gwatts $
+// $Id: RODHeaderAuxContainer_v1.h 631511 2014-11-27 13:17:07Z gwatts $
 #ifndef XAODTRIGL1CALO_VERSIONS_RODHEADERAUXCONTAINER_V1_H
 #define XAODTRIGL1CALO_VERSIONS_RODHEADERAUXCONTAINER_V1_H
 
@@ -23,8 +23,8 @@ namespace xAOD{
   ///
   /// @author John Morris <john.morris@cern.ch>
   ///
-  /// $Revision: 631385 $
-  /// $Date: 2014-11-26 22:27:40 +0100 (Wed, 26 Nov 2014) $    
+  /// $Revision: 631511 $
+  /// $Date: 2014-11-27 14:17:07 +0100 (Thu, 27 Nov 2014) $    
 
   class RODHeaderAuxContainer_v1 : public AuxContainerBase {
   public:
@@ -45,7 +45,7 @@ namespace xAOD{
   }; // class RODHeaderAuxContainer_v1 
 } // namespace xAOD
 
-#include "SGTools/BaseInfo.h"
+#include "xAODCore/BaseInfo.h"
 SG_BASE( xAOD::RODHeaderAuxContainer_v1, xAOD::AuxContainerBase );
 
 #endif // XAODTRIGL1CALO_VERSIONS_RODHEADERAUXCONTAINER_V1_H

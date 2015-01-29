@@ -15,7 +15,7 @@ namespace xAOD {
    typedef TriggerTowerContainer_v2 TriggerTowerContainer;
 }
 
-#include "SGTools/CLASS_DEF.h"
+#include "xAODCore/CLASS_DEF.h"
 CLASS_DEF( xAOD::TriggerTowerContainer, 1174216566 , 1 )
 
 #endif // XAODTRIGL1CALO_TRIGGERTOWERCONTAINER_H

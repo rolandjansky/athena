@@ -6,12 +6,14 @@ public
 
 # Central package(s):
 use AtlasPolicy   AtlasPolicy-*
-use SGTools       SGTools-*       Control
 use AthContainers AthContainers-* Control
 use AthLinks      AthLinks-*	  Control
+use CxxUtils      CxxUtils-*      Control
 
 # EDM package(s):
+use xAODBase      xAODBase-*      Event/xAOD
 use xAODCore      xAODCore-*      Event/xAOD
+
 
 library xAODTrigL1Calo ../Root/*.cxx
 apply_pattern installed_library

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CPMHits_v1.cxx 579924 2014-01-24 10:26:51Z krasznaa $
+// $Id: CPMHits_v1.cxx 638578 2015-01-09 17:00:15Z morrisj $
 
 // System include(s):
 #include <cmath>
@@ -28,18 +28,18 @@ namespace xAOD{
   
   void CPMHits_v1::addHits(const std::vector<unsigned int>&  hits0,const std::vector<unsigned int>&  hits1)
   {
-    this->setHitsVec0( hits0 );
-    this->setHitsVec1( hits1 );
+    setHitsVec0( hits0 );
+    setHitsVec1( hits1 );
   }
           
   unsigned int CPMHits_v1::hitWord0() const
   {
-    return this->hitsVec0()[ this->peak() ]; 
+    return hitsVec0()[ peak() ]; 
   }
   
   unsigned int CPMHits_v1::hitWord1() const
   {
-    return this->hitsVec1()[ this->peak() ];
+    return hitsVec1()[ peak() ];
   }
   
 } // namespace xAOD
