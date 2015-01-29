@@ -2,55 +2,37 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMUONEVENTTPCNV_TRIGMUONEVENTTPCNVDICT1_H
-#define TRIGMUONEVENTTPCNV_TRIGMUONEVENTTPCNVDICT1_H
+#ifndef TRIGMUONEVENTTPCNV_TRIGMUONEVENTTPCNVDICT_H
+#define TRIGMUONEVENTTPCNV_TRIGMUONEVENTTPCNVDICT_H
 
 #include "TrigMuonEventTPCnv/MuonFeature_p1.h"
 #include "TrigMuonEventTPCnv/MuonFeatureContainer_p1.h"
 #include "TrigMuonEventTPCnv/MuonFeatureContainer_tlp1.h"
-#include "TrigMuonEventTPCnv/MuonFeatureContainerCnv_tlp1.h"
-#include "TrigMuonEventTPCnv/MuonFeatureCnv_p1.h"
 
 #include "TrigMuonEventTPCnv/MuonFeature_p2.h"
 #include "TrigMuonEventTPCnv/MuonFeatureContainer_p2.h"
 #include "TrigMuonEventTPCnv/MuonFeatureContainer_tlp2.h"
-#include "TrigMuonEventTPCnv/MuonFeatureContainerCnv_tlp2.h"
-#include "TrigMuonEventTPCnv/MuonFeatureCnv_p2.h"
 
 #include "TrigMuonEventTPCnv/MuonFeature_p3.h"
-#include "TrigMuonEventTPCnv/MuonFeatureCnv_p3.h"
 #include "TrigMuonEventTPCnv/MuonFeatureContainer_p3.h"
-#include "TrigMuonEventTPCnv/MuonFeatureContainerCnv_p3.h"
 
 #include "TrigMuonEventTPCnv/MuonFeatureDetails_p1.h"
 #include "TrigMuonEventTPCnv/MuonFeatureDetailsContainer_p1.h"
 #include "TrigMuonEventTPCnv/MuonFeatureDetailsContainer_tlp1.h"
-#include "TrigMuonEventTPCnv/MuonFeatureDetailsContainerCnv_tlp1.h"
-#include "TrigMuonEventTPCnv/MuonFeatureDetailsCnv_p1.h"
 
 #include "TrigMuonEventTPCnv/MuonFeatureDetailsContainer_p2.h"
-#include "TrigMuonEventTPCnv/MuonFeatureDetailsContainerCnv_p2.h"
 #include "TrigMuonEventTPCnv/MuonFeatureDetails_p2.h"
-#include "TrigMuonEventTPCnv/MuonFeatureDetailsCnv_p2.h"
 
 #include "TrigMuonEventTPCnv/CombinedMuonFeature_p1.h"
 #include "TrigMuonEventTPCnv/CombinedMuonFeature_p2.h"
 #include "TrigMuonEventTPCnv/CombinedMuonFeature_p3.h"
 #include "TrigMuonEventTPCnv/CombinedMuonFeature_p4.h"
 #include "TrigMuonEventTPCnv/CombinedMuonFeature_tlp1.h"
-#include "TrigMuonEventTPCnv/CombinedMuonFeatureCnv_p2.h"
-#include "TrigMuonEventTPCnv/CombinedMuonFeatureCnv_p3.h"
-#include "TrigMuonEventTPCnv/CombinedMuonFeatureCnv_p4.h"
-#include "TrigMuonEventTPCnv/CombinedMuonFeatureCnv_tlp1.h"
 #include "TrigMuonEventTPCnv/CombinedMuonFeatureContainer_p1.h"
 #include "TrigMuonEventTPCnv/CombinedMuonFeatureContainer_p2.h"
 #include "TrigMuonEventTPCnv/CombinedMuonFeatureContainer_p3.h"
 #include "TrigMuonEventTPCnv/CombinedMuonFeatureContainer_p4.h"
 #include "TrigMuonEventTPCnv/CombinedMuonFeatureContainer_tlp1.h"
-#include "TrigMuonEventTPCnv/CombinedMuonFeatureContainerCnv_p2.h"
-#include "TrigMuonEventTPCnv/CombinedMuonFeatureContainerCnv_p3.h"
-#include "TrigMuonEventTPCnv/CombinedMuonFeatureContainerCnv_p4.h"
-#include "TrigMuonEventTPCnv/CombinedMuonFeatureContainerCnv_tlp1.h"
 
 #include "TrigMuonEventTPCnv/IsoMuonFeature_tlp1.h"
 #include "TrigMuonEventTPCnv/IsoMuonFeature_p1.h"
@@ -60,57 +42,36 @@
 #include "TrigMuonEventTPCnv/IsoMuonFeatureContainer_p2.h"
 #include "TrigMuonEventTPCnv/IsoMuonFeatureContainer_p3.h"
 #include "TrigMuonEventTPCnv/IsoMuonFeatureContainer_tlp1.h"
-#include "TrigMuonEventTPCnv/IsoMuonFeatureContainerCnv_tlp1.h"
-#include "TrigMuonEventTPCnv/IsoMuonFeatureContainerCnv_p2.h"
-#include "TrigMuonEventTPCnv/IsoMuonFeatureContainerCnv_p3.h"
-#include "TrigMuonEventTPCnv/IsoMuonFeatureCnv_p1.h"
-#include "TrigMuonEventTPCnv/IsoMuonFeatureCnv_p2.h"
-#include "TrigMuonEventTPCnv/IsoMuonFeatureCnv_p3.h"
 
 #include "TrigMuonEventTPCnv/TrigMuonClusterFeature_tlp1.h"
 #include "TrigMuonEventTPCnv/TrigMuonClusterFeature_p1.h"
 #include "TrigMuonEventTPCnv/TrigMuonClusterFeatureContainer_p1.h"
 #include "TrigMuonEventTPCnv/TrigMuonClusterFeatureContainer_tlp1.h"
-#include "TrigMuonEventTPCnv/TrigMuonClusterFeatureContainerCnv_tlp1.h"
-#include "TrigMuonEventTPCnv/TrigMuonClusterFeatureCnv_p1.h"
 
 #include "TrigMuonEventTPCnv/TileMuFeature_p1.h"
 #include "TrigMuonEventTPCnv/TileMuFeature_p2.h"
 #include "TrigMuonEventTPCnv/TileMuFeatureContainer_p1.h"
 #include "TrigMuonEventTPCnv/TileMuFeatureContainer_p2.h"
 #include "TrigMuonEventTPCnv/TileMuFeatureContainer_tlp1.h"
-#include "TrigMuonEventTPCnv/TileMuFeatureContainerCnv_p2.h"
-#include "TrigMuonEventTPCnv/TileMuFeatureContainerCnv_tlp1.h"
-#include "TrigMuonEventTPCnv/TileMuFeatureCnv_p1.h"
-#include "TrigMuonEventTPCnv/TileMuFeatureCnv_p2.h"
 
 #include "TrigMuonEventTPCnv/TileTrackMuFeature_p1.h"
 #include "TrigMuonEventTPCnv/TileTrackMuFeature_p2.h"
 #include "TrigMuonEventTPCnv/TileTrackMuFeature_p3.h"
 #include "TrigMuonEventTPCnv/TileTrackMuFeature_tlp1.h"
-#include "TrigMuonEventTPCnv/TileTrackMuFeatureCnv_tlp1.h"
-#include "TrigMuonEventTPCnv/TileTrackMuFeatureCnv_p3.h"
 #include "TrigMuonEventTPCnv/TileTrackMuFeatureContainer_p1.h"
 #include "TrigMuonEventTPCnv/TileTrackMuFeatureContainer_p3.h"
 #include "TrigMuonEventTPCnv/TileTrackMuFeatureContainer_tlp1.h"
-#include "TrigMuonEventTPCnv/TileTrackMuFeatureContainerCnv_p3.h"
-#include "TrigMuonEventTPCnv/TileTrackMuFeatureContainerCnv_tlp1.h"
 
 #include "TrigMuonEventTPCnv/TrigMuonEFContainer_tlp1.h"
-#include "TrigMuonEventTPCnv/TrigMuonEFContainerCnv_tlp1.h"
 #include "TrigMuonEventTPCnv/TrigMuonEFContainer_p1.h"
 #include "TrigMuonEventTPCnv/TrigMuonEF_p1.h"
 
 #include "TrigMuonEventTPCnv/TrigMuonEFContainer_p2.h"
-#include "TrigMuonEventTPCnv/TrigMuonEFContainerCnv_p2.h"
-#include "TrigMuonEventTPCnv/TrigMuonEFCnv_p2.h"
 #include "TrigMuonEventTPCnv/TrigMuonEF_p2.h"
 
 #include "TrigMuonEventTPCnv/TrigMuonEFInfoContainer_tlp1.h"
-#include "TrigMuonEventTPCnv/TrigMuonEFInfoContainerCnv_tlp1.h"
 
 #include "TrigMuonEventTPCnv/TrigMuonEFInfoContainer_tlp2.h"
-#include "TrigMuonEventTPCnv/TrigMuonEFInfoContainerCnv_tlp2.h"
 
 #include "TrigMuonEventTPCnv/TrigMuonEFInfoContainer_p1.h"
 #include "TrigMuonEventTPCnv/TrigMuonEFInfoContainer_p2.h"
@@ -129,20 +90,14 @@
 #include "TrigMuonEventTPCnv/TrigMuonEFCbTrack_p4.h"
 #include "TrigMuonEventTPCnv/TrigMuonEFCbTrack_p6.h"
 #include "TrigMuonEventTPCnv/TrigMuonEFCbTrack_p7.h"
-#include "TrigMuonEventTPCnv/TrigMuonEFCbTrackCnv_p6.h"
-#include "TrigMuonEventTPCnv/TrigMuonEFCbTrackCnv_p7.h"
 
 #include "TrigMuonEventTPCnv/TrigMuonEFIsolationContainer_p1.h"
 #include "TrigMuonEventTPCnv/TrigMuonEFIsolation_p1.h"
-#include "TrigMuonEventTPCnv/TrigMuonEFIsolationCnv_p1.h"
-#include "TrigMuonEventTPCnv/TrigMuonEFIsolationContainerCnv_p1.h"
 #include "TrigMuonEventTPCnv/TrigMuonEFIsolationContainer_p2.h"
 #include "TrigMuonEventTPCnv/TrigMuonEFIsolation_p2.h"
-#include "TrigMuonEventTPCnv/TrigMuonEFIsolationCnv_p2.h"
-#include "TrigMuonEventTPCnv/TrigMuonEFIsolationContainerCnv_p2.h"
 
 //dummy instances of all objects using std::vector<TPObjRef> for the dictionary
-struct dummy_TrigMuonEventTPCnvDict1
+struct dummy_TrigMuonEventTPCnvDict
 {
 
   std::vector<MuonFeature_p1>	              m_dummyMuonFeat_p1;
