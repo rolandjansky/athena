@@ -13,7 +13,7 @@
  * @author Francesca Bucci  <F.Bucci@cern.ch>          - U. Geneva
  *
  * File and Version Information:
- * $Id: TrigSpacePointCountsCollectionCnv_p4.h 563350 2013-09-27 13:21:16Z masik $
+ * $Id: TrigSpacePointCountsCollectionCnv_p4.h 563349 2013-09-27 13:20:37Z masik $
  **********************************************************************************/
 #ifndef TRIGINDETEVENTTPCNV_TRIGSPACEPOINTCOUNTSCONTAINER_CNV_P4_H
 #define TRIGINDETEVENTTPCNV_TRIGSPACEPOINTCOUNTSCONTAINER_CNV_P4_H
