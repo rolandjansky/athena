@@ -262,12 +262,12 @@ void PMonSD::SemiDetHelper::specialAud(int stepidx,unsigned val_nevts)
     m_rss_sum_evtloop+=rss;
     if (val_nevts>=10) {
       double malloc(get_malloc_kb());
-      if (val_nevts<=49) {
-	m_fit_11to50_vmem.addPoint(val_nevts,vmem);
-	m_fit_11to50_malloc.addPoint(val_nevts,malloc);
+      if (val_nevts<=100) {
+	m_fit_11to100_vmem.addPoint(val_nevts,vmem);
+	m_fit_11to100_malloc.addPoint(val_nevts,malloc);
       } else {
-	m_fit_51plus_vmem.addPoint(val_nevts,vmem);
-	m_fit_51plus_malloc.addPoint(val_nevts,malloc);
+	m_fit_101plus_vmem.addPoint(val_nevts,vmem);
+	m_fit_101plus_malloc.addPoint(val_nevts,malloc);
       }
     }
     m_last_nevts=val_nevts;//important to only increment in evt steps (since interspersed with cbk steps)
@@ -729,8 +729,8 @@ void PMonSD::SemiDetHelper::actualReport(std::ostream&os,bool showall,const std:
   format(os,s,"snapshot_post_1stevt",m_meas_post_1stevt);
   format(os,s,"snapshot_post_lastevt",m_meas_post_lastevt);
   format(os,s,"snapshot_post_fin",m_meas_post_fin);
-  format(os,s,"leakperevt_evt11to50",m_fit_11to50_vmem,m_fit_11to50_malloc);
-  format(os,s,"leakperevt_evt51plus",m_fit_51plus_vmem,m_fit_51plus_malloc);
+  format(os,s,"leakperevt_evt11to100",m_fit_11to100_vmem,m_fit_11to100_malloc);
+  format(os,s,"leakperevt_evt101plus",m_fit_101plus_vmem,m_fit_101plus_malloc);
   os<<m_prefix<<"["<<s<<"] vmem_peak="<<int(m_vmpeak+0.5)
     <<" vmem_mean="<<(m_nevts_sum?int(m_vmem_sum_evtloop/m_nevts_sum+.5):0)
     <<" rss_mean="<< (m_nevts_sum?int( m_rss_sum_evtloop/m_nevts_sum+.5):0)<<"\n";
