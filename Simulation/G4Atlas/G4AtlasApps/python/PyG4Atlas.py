@@ -1592,6 +1592,9 @@ class MagneticField:
             self.DeltaOneStep = dict()
             self.MaximumEpsilonStep = dict()
             self.MinimumEpsilonStep = dict()
+        else:
+            raise ValueError(' PyG4Atlas.MagneticField not allowed field type: '+str(typefield))
+
         self.FieldStepper = stepper
 
 
@@ -2599,6 +2602,15 @@ class SimSkeleton(object):
         Do not overload this method.
         """
         G4AtlasEngine.log.verbose('SimSkeleton._do_PreInit :: starting')
+
+        # Add core services
+        from AthenaCommon.AppMgr import ServiceMgr
+        if not hasattr(ServiceMgr, "SensitiveDetectorSvc"):
+            from AthenaCommon.CfgGetter import getService
+            sensitiveDetectorService = getService("SensitiveDetectorSvc")
+        if not hasattr(ServiceMgr, "FastSimulationSvc"):
+            from AthenaCommon.CfgGetter import getService
+            sensitiveDetectorService = getService("FastSimulationSvc")
 
         # use some different methods for ISF and G4 standalone run
         from G4AtlasApps.SimFlags import simFlags

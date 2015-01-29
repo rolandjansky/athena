@@ -14,58 +14,57 @@ from SimFlags import simFlags
 class ForwardRegion(object):
     """Describes the whole forward region (outside the ATLAS boundaries)"""
 
-    def __init__(self):
+    def __init__(self,doDetFac=True):
         """Describes the geometry."""
-        self.atlas_ForwardRegion = PyG4Atlas.DetFacility("GeoDetector", "ForDetEnvelope:ForDetEnvelope")
+        if doDetFac:
+            self.atlas_ForwardRegion = PyG4Atlas.DetFacility("GeoDetector", "ForDetEnvelope:ForDetEnvelope")
 
     # Custom magnetic field
     def add_field( self , step_limitation = None ):
-        from G4AtlasApps import AtlasG4Eng
-
-        AtlasG4Eng.G4Eng._ctrl.load('ForwardRegionMgField')
 
         fieldVolumes = []
-        fieldVolumes += ['Q1', 'FwdRegion::LQXAA.1R1MagQ1']
-        fieldVolumes += ['Q2', 'FwdRegion::LQXBA.2R1MagQ2a']
-        fieldVolumes += ['Q2', 'FwdRegion::LQXBA.2R1MagQ2b']
-        fieldVolumes += ['Q3', 'FwdRegion::LQXAG.3R1MagQ3']
-        fieldVolumes += ['D1', 'FwdRegion::MBXW.A4R1MagD1a']
-        fieldVolumes += ['D1', 'FwdRegion::MBXW.B4R1MagD1b']
-        fieldVolumes += ['D1', 'FwdRegion::MBXW.C4R1MagD1c']
-        fieldVolumes += ['D1', 'FwdRegion::MBXW.D4R1MagD1d']
-        fieldVolumes += ['D1', 'FwdRegion::MBXW.E4R1MagD1e']
-        fieldVolumes += ['D1', 'FwdRegion::MBXW.F4R1MagD1f']
-        fieldVolumes += ['D2', 'FwdRegion::LBRCD.4R1MagD2']
-        fieldVolumes += ['Q4', 'FwdRegion::LQYCH.4R1MagQ4']
-        fieldVolumes += ['Q5', 'FwdRegion::LQNDC.5R1MagQ5']
-        fieldVolumes += ['Q6', 'FwdRegion::LQNDD.6R1MagQ6']
-        fieldVolumes += ['Q7', 'FwdRegion::LQNFD.7R1MagQ7a']
-        fieldVolumes += ['Q7', 'FwdRegion::LQNFD.7R1MagQ7b']
-        fieldVolumes += ['Q1HKick', 'FwdRegion::LQXAA.1R1MagQ1HKick']
-        fieldVolumes += ['Q1VKick', 'FwdRegion::LQXAA.1R1MagQ1VKick']
-        fieldVolumes += ['Q2HKick', 'FwdRegion::LQXBA.2R1MagQ2HKick']
-        fieldVolumes += ['Q2VKick', 'FwdRegion::LQXBA.2R1MagQ2VKick']
-        fieldVolumes += ['Q3HKick', 'FwdRegion::LQXAG.3R1MagQ3HKick']
-        fieldVolumes += ['Q3VKick', 'FwdRegion::LQXAG.3R1MagQ3VKick']
-        fieldVolumes += ['Q4VKickA', 'FwdRegion::LQYCH.4R1MagQ4VKickA']
-        fieldVolumes += ['Q4HKick', 'FwdRegion::LQYCH.4R1MagQ4HKick']
-        fieldVolumes += ['Q4VKickB', 'FwdRegion::LQYCH.4R1MagQ4VKickB']
-        fieldVolumes += ['Q5HKick', 'FwdRegion::LQNDC.5R1MagQ5HKick']
-        fieldVolumes += ['Q6VKick', 'FwdRegion::LQNDD.6R1MagQ6VKick']
+        fieldVolumes += [ ['Q1', 'FwdRegion::LQXAA.1R1MagQ1'] ]
+        fieldVolumes += [ ['Q2', 'FwdRegion::LQXBA.2R1MagQ2a'] ]
+        fieldVolumes += [ ['Q2', 'FwdRegion::LQXBA.2R1MagQ2b'] ]
+        fieldVolumes += [ ['Q3', 'FwdRegion::LQXAG.3R1MagQ3'] ]
+        fieldVolumes += [ ['D1', 'FwdRegion::MBXW.A4R1MagD1a'] ]
+        fieldVolumes += [ ['D1', 'FwdRegion::MBXW.B4R1MagD1b'] ]
+        fieldVolumes += [ ['D1', 'FwdRegion::MBXW.C4R1MagD1c'] ]
+        fieldVolumes += [ ['D1', 'FwdRegion::MBXW.D4R1MagD1d'] ]
+        fieldVolumes += [ ['D1', 'FwdRegion::MBXW.E4R1MagD1e'] ]
+        fieldVolumes += [ ['D1', 'FwdRegion::MBXW.F4R1MagD1f'] ]
+        fieldVolumes += [ ['D2', 'FwdRegion::LBRCD.4R1MagD2'] ]
+        fieldVolumes += [ ['Q4', 'FwdRegion::LQYCH.4R1MagQ4'] ]
+        fieldVolumes += [ ['Q5', 'FwdRegion::LQNDC.5R1MagQ5'] ]
+        fieldVolumes += [ ['Q6', 'FwdRegion::LQNDD.6R1MagQ6'] ]
+        fieldVolumes += [ ['Q7', 'FwdRegion::LQNFD.7R1MagQ7a'] ]
+        fieldVolumes += [ ['Q7', 'FwdRegion::LQNFD.7R1MagQ7b'] ]
+        fieldVolumes += [ ['Q1HKick', 'FwdRegion::LQXAA.1R1MagQ1HKick'] ]
+        fieldVolumes += [ ['Q1VKick', 'FwdRegion::LQXAA.1R1MagQ1VKick'] ]
+        fieldVolumes += [ ['Q2HKick', 'FwdRegion::LQXBA.2R1MagQ2HKick'] ]
+        fieldVolumes += [ ['Q2VKick', 'FwdRegion::LQXBA.2R1MagQ2VKick'] ]
+        fieldVolumes += [ ['Q3HKick', 'FwdRegion::LQXAG.3R1MagQ3HKick'] ]
+        fieldVolumes += [ ['Q3VKick', 'FwdRegion::LQXAG.3R1MagQ3VKick'] ]
+        fieldVolumes += [ ['Q4VKickA', 'FwdRegion::LQYCH.4R1MagQ4VKickA'] ]
+        fieldVolumes += [ ['Q4HKick', 'FwdRegion::LQYCH.4R1MagQ4HKick'] ]
+        fieldVolumes += [ ['Q4VKickB', 'FwdRegion::LQYCH.4R1MagQ4VKickB'] ]
+        fieldVolumes += [ ['Q5HKick', 'FwdRegion::LQNDC.5R1MagQ5HKick'] ]
+        fieldVolumes += [ ['Q6VKick', 'FwdRegion::LQNDD.6R1MagQ6VKick'] ]
 
         epsMin = 1e-9
         epsMax = 1e-8
         deltaIntersection = 1e-9
         deltaOneStep = 1e-8
 
-        for i in range(len(fieldVolumes)/2):
-            AtlasG4Eng.G4Eng._ctrl.fldMenu.assign(fieldVolumes[2*i], '*', fieldVolumes[2*i+1]) # assign fields to volumes
-
-            # demand higher precision
-            AtlasG4Eng.G4Eng._ctrl.fldMenu.setMinimumEpsilonStep(fieldVolumes[2*i+1],epsMin)
-            AtlasG4Eng.G4Eng._ctrl.fldMenu.setMaximumEpsilonStep(fieldVolumes[2*i+1],epsMax)
-            AtlasG4Eng.G4Eng._ctrl.fldMenu.setDeltaIntersection(fieldVolumes[2*i+1],deltaIntersection)
-            AtlasG4Eng.G4Eng._ctrl.fldMenu.setDeltaOneStep(fieldVolumes[2*i+1],deltaOneStep)
+        for i in fieldVolumes:
+            a_field = PyG4Atlas.MagneticField('ForwardRegionMgField',i[0],typefield='MapField')
+            a_field.add_Volume(i[1])
+            a_field.set_G4FieldTrackParameters('DeltaIntersection',  i[1], deltaIntersection)
+            a_field.set_G4FieldTrackParameters('DeltaOneStep',       i[1], deltaOneStep)
+            a_field.set_G4FieldTrackParameters('MaximumEpsilonStep', i[1], epsMax)
+            a_field.set_G4FieldTrackParameters('MinimumEpsilonStep', i[1], epsMin)
+            a_field.set_FieldMapFileName(i[0])
+            AtlasG4Eng.G4Eng.menu_Field.add_Field(a_field)
 
             # limit step length
             if step_limitation is not None:
@@ -135,7 +134,7 @@ class ForwardRegion(object):
 
         # properties of the field set according to the optics settings above
         from ForwardRegionProperties.ForwardRegionPropertiesConf import ForwardRegionProperties
-        fwdProperties = ForwardRegionProperties("ForwardRegionProperties")
+        fwdProperties = ForwardRegionProperties()
         fwdProperties.twissFileB1 = twiss_beam1
         fwdProperties.twissFileB2 = twiss_beam2
         fwdProperties.momentum = twiss_momentum
