@@ -6,7 +6,7 @@
 // JacobianPerigeeToCartesian.h, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#ifndef TRKEVENTPRINITIVES_JACOBIANPERIGEETOCARTESIAN_H
+#ifndef TRKEVENTPRIMITIVES_JACOBIANPERIGEETOCARTESIAN_H
 #define TRKEVENTPRIMITIVES_JACOBIANPERIGEETOCARTESIAN_H
 
 //Amg
