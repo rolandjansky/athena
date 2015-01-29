@@ -3,8 +3,8 @@
 */
 
 /**
- * @date      $Date: 2014-10-07 17:38:23 +0200 (Tue, 07 Oct 2014) $
- * @version   $Revision: 620455 $
+ * @date      $Date: 2015-01-29 16:12:13 +0100 (Thu, 29 Jan 2015) $
+ * @version   $Revision: 642732 $
  */
 
 /** @todo */
@@ -2488,12 +2488,12 @@ TrigEffJpsiTools::getRoiSizeRpc(const unsigned int roiWord,
   // ref: RPCRecRoiSvc::reconstruct()
   *etaSize = *phiSize = -1.e30;
   
-  m_rpcRoiService->reconstruct(roiWord);
+  double etaMin, etaMax, phiMin, phiMax;
+  m_rpcRoiService->RoIsize(roiWord, etaMin, etaMax, phiMin, phiMax);
   
-  *etaSize=fabs(m_rpcRoiService->etaMax()-m_rpcRoiService->etaMin());
-
-  *phiSize=getPhiDistance(m_rpcRoiService->phiMax(),m_rpcRoiService->phiMin());
-
+  *etaSize = fabs(etaMax - etaMin);
+  *phiSize = fabs(phiMax - phiMin);
+  
   return StatusCode::SUCCESS;
 }
 
