@@ -204,7 +204,7 @@ class RandomSeqSampler(DiscreteSampler):
             self.sequence = args
 
     def shoot(self):
-        return self.sequence.random()
+        return random.choice(self.sequence)
 # Alias:
 RndmSeq = RandomSeqSampler
 
@@ -841,6 +841,7 @@ class SampledParticle(object):
         self.pid = pid
         self.mom = mom
         self.pos = pos
+        self.mass = None
 
 
 class ParticleSampler(Sampler):
@@ -877,16 +878,20 @@ class ParticleSampler(Sampler):
 
     def shoot(self):
         "Return a vector of sampled particles"
-
         numparticles = self.n()
         rtn = []
         for i in xrange(numparticles):
-            ## Sample the particle ID and pass mass info to the v4 sampler
+            ## Sample the particle ID and create a particle
             pid = self.pid()
+            p = SampledParticle(pid)
+            ## Pass mass info to the v4 sampler and set same generated mass
             if self.mass_override and self.massdict.has_key(abs(pid)):
-                self.mom.mass = self.massdict[abs(pid)]
-            ## Sample momentum and vertex positions
-            mom = self.mom()
-            pos = self.pos()
-            rtn.append( SampledParticle(pid, mom, pos) )
+                m = self.massdict[abs(pid)]
+                self.mom.mass = m
+                p.mass = m
+            ## Sample momentum and vertex positions into the particle
+            p.mom = self.mom()
+            p.pos = self.pos()
+            ## Add particle to output list
+            rtn.append(p)
         return rtn

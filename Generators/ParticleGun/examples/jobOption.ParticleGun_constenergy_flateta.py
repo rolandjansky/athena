@@ -7,7 +7,8 @@ theApp.EvtMax = 100
 
 import ParticleGun as PG
 pg = PG.ParticleGun()
-pg.sampler.pid = 11
+pg.randomSeed = 123456
+pg.sampler.pid = {11,-11,211,111}
 pg.sampler.mom = PG.EEtaMPhiSampler(energy=10000, eta=[-2,2])
 topSeq += pg
 

@@ -15,12 +15,12 @@ class ParticleGun(EvgenAlg):
     A simple but flexible algorithm for generating events from simple distributions.
     """
 
-    def __init__(self, name="ParticleGun", randomSvcName="AtRndmGenSvc", randomStream="ParticleGun"):
+    def __init__(self, name="ParticleGun", randomSvcName="AtRndmGenSvc", randomStream="ParticleGun", randomSeed=None):
         super(ParticleGun, self).__init__(name=name)
         self.samplers = [ParticleSampler()]
         self.randomStream = randomStream
         self.randomSvcName = randomSvcName
-
+        self.randomSeed = randomSeed
 
     @property
     def sampler(self):
@@ -35,20 +35,29 @@ class ParticleGun(EvgenAlg):
     def initialize(self):
         """
         Pass the AtRndmGenSvc seed to Python's random module (or fall back to a fixed value for reproducibility).
-
-        TODO: Also allow directly specifying the seed as a constructor/Athena property -> self.randomSeed=None?
         """
-        seed = "123456"
-        randomSvc = getattr(svcMgr, self.randomSvcName, None)
-        if randomSvc is not None:
-            for seedstr in randomSvc.Seeds:
-                if seedstr.startswith(self.randomStream):
-                    seed = seedstr
-                    self.msg.info("ParticleGun: Using random seed '%s'" % seed)
+        seed = None
+        ## Use self.randomSeed directly, or if it's None find a seed string from the ATLAS random number service
+        if self.randomSeed is not None:
+            seed = self.randomSeed
         else:
-            self.msg.warning("ParticleGun: Failed to find random number service called '%s'" % self.randomSvcName)
-        random.seed(seed)
-        return StatusCode.Success
+            randomSvc = getattr(svcMgr, self.randomSvcName, None)
+            if randomSvc is not None:
+                for seedstr in randomSvc.Seeds:
+                    if seedstr.startswith(self.randomStream):
+                        seed = seedstr
+                        self.msg.info("ParticleGun: Using random seed '%s'" % seed)
+                        break
+                if seed is None:
+                    self.msg.warning("ParticleGun: Failed to find a seed for the random stream named '%s'" % self.randomStream)
+            else:
+                self.msg.warning("ParticleGun: Failed to find random number service called '%s'" % self.randomSvcName)
+        ## Apply the seed
+        if seed is not None:
+            random.seed(seed)
+            return StatusCode.Success
+        else:
+            return StatusCode.Failure
 
 
     def fillEvent(self, evt):
@@ -64,10 +73,10 @@ class ParticleGun(EvgenAlg):
             particles = s.shoot()
             for p in particles:
                 ## Debug printout of particle properties
-                #print p.pid, p.mom.E(), p.mom.M()
-                #print "(px,py,pz,E) = (%0.2e, %0.2e, %0.2e, %0.2e)" % (p.mom.Px(), p.mom.Py(), p.mom.Pz(), p.mom.E())
-                #print "(eta,phi,pt,m) = (%0.2e, %0.2e, %0.2e, %0.2e)" % (p.mom.Eta(), p.mom.Phi(), p.mom.Pt(), p.mom.M())
-                #print "(x,y,z,t) = (%0.2e, %0.2e, %0.2e, %0.2e)" % (p.pos.X(), p.pos.Y(), p.pos.Z(), p.pos.T())
+                #print DEBUG0, p.pid, p.mom.E(), p.mom.Pt(), p.mom.M()
+                #print "DEBUG1 (px,py,pz,E) = (%0.2e, %0.2e, %0.2e, %0.2e)" % (p.mom.Px(), p.mom.Py(), p.mom.Pz(), p.mom.E())
+                #print "DEBUG2 (eta,phi,pt,m) = (%0.2e, %0.2e, %0.2e, %0.2e)" % (p.mom.Eta(), p.mom.Phi(), p.mom.Pt(), p.mom.M())
+                #print "DEBUG3 (x,y,z,t) = (%0.2e, %0.2e, %0.2e, %0.2e)" % (p.pos.X(), p.pos.Y(), p.pos.Z(), p.pos.T())
 
                 ## Make particle-creation vertex
                 # TODO: do something cleverer than one vertex per particle?
@@ -79,9 +88,11 @@ class ParticleGun(EvgenAlg):
                 ## Make particle with status == 1
                 mom = HepMC.FourVector(p.mom.Px(), p.mom.Py(), p.mom.Pz(), p.mom.E())
                 gp = HepMC.GenParticle()
+                gp.set_status(1)
                 gp.set_pdg_id(p.pid)
                 gp.set_momentum(mom)
-                gp.set_status(1)
+                if p.mass is not None:
+                    gp.set_generated_mass(p.mass)
                 ROOT.SetOwnership(gp, False)
                 gv.add_particle_out(gp)
 

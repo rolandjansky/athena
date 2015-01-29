@@ -26,7 +26,7 @@ class PtEtaHistParticleSampler(PG.ParticleSampler):
             ptrand *= 1000 # NB. This _particular_ histogram is in GeV, but Athena needs MeV!
             # TODO: Provide 4-mom construction functions to avoid building this one-time sampler
             pid = self.pid()
-            mom = PG.PtEtaMPhiSampler(pt=ptrand, eta=etarand, mass=PG.MASSES[pid])
+            mom = PG.PtEtaMPhiSampler(pt=ptrand, eta=etarand, mass=PG.MASSES[abs(pid)])
             p = PG.SampledParticle(pid, mom())
             #print p.mom.Pt(), "\t", p.mom.Eta(), "\t", p.mom.Phi(), "\t", p.mom.M()
             particles.append(p)
