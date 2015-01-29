@@ -859,7 +859,10 @@ bool MuonTGC_CablingSvc::getOfflineIDfromOnlineID(Identifier & offlineId,
       case 21:
 	// T11S
 	channel -= OffsetForT11S;
-	if(channel<=0) return false;
+	if(channel<=0) {
+          delete asdin;
+          return false;
+        }
  	break;
       default:
 	break;

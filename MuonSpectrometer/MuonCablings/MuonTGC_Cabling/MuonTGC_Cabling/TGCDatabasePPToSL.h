@@ -27,6 +27,9 @@ public:
 private:
   virtual void readDB(void);
   TGCDatabasePPToSL(void) {}
+
+  /** hidden assignment operator */
+  TGCDatabasePPToSL & operator=(const TGCDatabasePPToSL &right);
 };
   
 } // end of namespace

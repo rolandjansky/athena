@@ -67,6 +67,9 @@ private:
   int NIndexDBIn;
   int maxIndexIn[NIndexIn];
   int minIndexIn[NIndexIn];
+
+  /** hidden assignment operator */
+  TGCDatabaseInPP & operator=(const TGCDatabaseInPP &right);
 };
   
 } // end of namespace

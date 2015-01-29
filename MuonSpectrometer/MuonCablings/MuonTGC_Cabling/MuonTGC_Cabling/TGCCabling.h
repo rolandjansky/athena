@@ -33,7 +33,13 @@ class TGCModuleSLB;
 
 class TGCCabling : public TGCCablingBase
 {
-public:
+ private: //hide default constructor, copy constructor and assignment
+  TGCCabling (void);
+  TGCCabling (const TGCCabling&);
+  TGCCabling& operator= (const TGCCabling&);
+
+
+ public:
   // Constructor & Destructor
   TGCCabling(std::string filenameASDToPP,
 	     std::string filenameInPP,
@@ -179,7 +185,6 @@ private:
   TGCCableHPBToSL*  cableHPBToSL;
   TGCCableSLBToSSW* cableSLBToSSW;
   TGCCableSSWToROD* cableSSWToROD;
-  TGCCabling(void) {}
 
   mutable std::map<int, TGCModuleId*> m_slbModuleIdMap; 
   int getIndexFromReadoutWithoutChannel(const TGCIdBase::SideType side,  

@@ -100,6 +100,9 @@ private:
 
   /** This bool variable is used to know the database is common or sector specific */
   bool m_isCommon; 
+
+  /** hidden assignment operator */
+  TGCDatabaseASDToPP & operator=(const TGCDatabaseASDToPP &right);
 };
   
 } // end of namespace
