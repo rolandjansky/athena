@@ -7,6 +7,8 @@
 #include "ISF_Interfaces/ITruthSvc.h"
 #include "ISF_Event/ISFParticle.h"
 #include "ISF_Geant4Tools/Geant4TruthIncident.h"
+#include "ISF_HepMC_Event/HepMC_TruthBinding.h"
+#include "HepMC/GenParticle.h"
 
 #include "FadsActions/TrackingAction.h"
 
@@ -68,10 +70,10 @@ void iGeant4::ISFTrajectory::AppendStep(const G4Step* aStep)
     AtlasDetDescr::AtlasRegion geoID = AtlasDetDescr::fUndefinedAtlasRegion;
 
     // get parent particle
-    TrackInformation* trackInfo = static_cast<TrackInformation*>(aStep->GetTrack()->GetUserInformation());
+    TrackInformation* trackInfo = static_cast<TrackInformation*>(track->GetUserInformation());
     if (!trackInfo) {  std::cerr<<"ISFTrajectory::AppendStep ERROR NULL TrackInformation pointer!"<<std::endl; }
 
-    const ISF::ISFParticle* parent = (trackInfo) ? trackInfo->GetISFParticle() : 0;
+    ISF::ISFParticle* parent = const_cast<ISF::ISFParticle*>( (trackInfo) ? trackInfo->GetISFParticle() : 0 );
     if (!parent) {
       G4ExceptionDescription description;
       description << G4String("AppendStep: ") + "NULL ISFParticle pointer for current G4Step (trackID "
@@ -87,6 +89,18 @@ void iGeant4::ISFTrajectory::AppendStep(const G4Step* aStep)
 
     if (m_truthRecordSvcQuick) {
       m_truthRecordSvcQuick->registerTruthIncident(truth);
+
+      // read the TrackInformation to determine whether the G4Track was
+      // returned to the ISF in this step
+      if ( trackInfo && trackInfo->GetReturnedToISF()==true ) {
+        // make sure that the TruthBinding of the ISFParticle points to the newest
+        // HepMC::GenParticle instance
+        HepMC::GenParticle *newGenPart = truth.primaryParticleAfterIncident(Barcode::fUndefinedBarcode, false);
+        ISF::ITruthBinding *newTruthBinding = new ISF::HepMC_TruthBinding(*newGenPart);
+        parent->setTruthBinding( newTruthBinding );
+        Barcode::ParticleBarcode newBarcode = newGenPart->barcode();
+        parent->setBarcode( newBarcode );
+      }
     }
     else {
       G4ExceptionDescription description;

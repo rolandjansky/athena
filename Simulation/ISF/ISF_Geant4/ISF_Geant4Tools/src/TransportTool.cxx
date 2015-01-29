@@ -516,11 +516,20 @@ G4PrimaryParticle* iGeant4::G4TransportTool::getPrimaryParticle(const ISF::ISFPa
         ATH_MSG_WARNING( "you are running with quasi-stable particle simulation enabled.  This is not" );
         ATH_MSG_WARNING( "yet validated - you'd better know what you're doing.  Will add the primary" );
         ATH_MSG_WARNING( "particle set on." );
-
+        ATH_MSG_WARNING( "ISF Particle: " << isp );
+        ATH_MSG_WARNING( "Primary Particle: " << *genpart );
+        ATH_MSG_WARNING("Number of daughters of "<<genpart->barcode()<<": " << genpart->end_vertex()->particles_out_size() );
         // Add all necessary daughter particles
         for (HepMC::GenVertex::particles_out_const_iterator iter=genpart->end_vertex()->particles_out_const_begin();
              iter!=genpart->end_vertex()->particles_out_const_end(); ++iter){
           G4PrimaryParticle * daught = getPrimaryParticle( **iter );
+          ATH_MSG_WARNING ( "Daughter Particle of "<<genpart->barcode()<<": " << **iter );
+          if(NULL==(*iter)->end_vertex()) {
+            ATH_MSG_WARNING ( "Number of daughters of "<<(*iter)->barcode()<<": 0 (NULL)." );
+          }
+          else {
+            ATH_MSG_WARNING ("Number of daughters of "<<(*iter)->barcode()<<": " << (*iter)->end_vertex()->particles_out_size() );
+          }
           particle->SetDaughter( daught );
         }
         // Set the lifetime appropriately - this is slow but rigorous, and we

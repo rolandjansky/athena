@@ -26,14 +26,18 @@ namespace ISF {
 }
 class G4LogicalVolume;
 
+namespace HepMC {
+  class GenParticle;
+}
+
 namespace iGeant4 {
 
   class TrackProcessorUserAction: virtual public ITrackProcessorUserAction, public AthAlgTool {
-    
+
   public:
     TrackProcessorUserAction(const std::string& type,
-				 const std::string& name,
-				 const IInterface* parent);
+                             const std::string& name,
+                             const IInterface* parent);
     virtual ~TrackProcessorUserAction() {}
 
     StatusCode initialize();
@@ -50,12 +54,14 @@ namespace iGeant4 {
 
     void PreUserTrackingAction(const G4Track* aTrack);
     void PostUserTrackingAction(const G4Track* aTrack);
-    
+
   private:
 
     ISF::EntryLayer entryLayer(const G4Step* aStep);
 
     ISF::ISFParticle* newISFParticle(G4Track* aTrack, const ISF::ISFParticle* parent, AtlasDetDescr::AtlasRegion  nextGeoID);
+
+    HepMC::GenParticle* findMatchingDaughter(HepMC::GenParticle* parent, bool verbose) const;
 
     AtlasDetDescr::AtlasRegion nextGeoId(const G4Step* aStep);
 
@@ -89,7 +95,7 @@ namespace iGeant4 {
     int                                 m_curTrackID;  //!< the TrackID of the currently processed G4Track
     ISF::ISFParticle                   *m_curISP;      //!< the corresponding ISFParticle to this G4Track
   };
-   
+
 }
 
 #endif // ISF_GEANT4TOOLS_TRACKPROCESSORUSERACTION_H

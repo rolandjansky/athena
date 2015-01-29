@@ -245,6 +245,12 @@ void iGeant4::TrackProcessorUserAction::SteppingAction(const G4Step* aStep)
 
     // kill this track in Geant4
     aTrack->SetTrackStatus(fStopAndKill);
+
+    // flag the track to let code downstream know, that this track was returned to ISF
+    TrackInformation* trackInfo=dynamic_cast<TrackInformation*>(aTrack->GetUserInformation());
+    if (trackInfo) {
+      trackInfo->SetReturnedToISF(true);
+    }
   }
   else {
 
@@ -394,6 +400,32 @@ void iGeant4::TrackProcessorUserAction::PreUserTrackingAction(const G4Track* aTr
   return;
 }
 
+//_______________________________________________________________________
+HepMC::GenParticle* iGeant4::TrackProcessorUserAction::findMatchingDaughter(HepMC::GenParticle* parent, bool verbose=false) const {
+  // Add all necessary daughter particles
+  if(NULL==parent->end_vertex()) {
+    if(verbose) ATH_MSG_INFO ( "Number of daughters of "<<parent->barcode()<<": 0" );
+    return parent;
+  }
+  const int pdgID(parent->pdg_id());
+  for (HepMC::GenVertex::particles_out_const_iterator iter=parent->end_vertex()->particles_out_const_begin();
+       iter!=parent->end_vertex()->particles_out_const_end(); ++iter){
+    if (verbose) ATH_MSG_INFO ( "Daughter Particle of "<<parent->barcode()<<": " << **iter );
+    if(NULL==(*iter)->end_vertex()) {
+      if(verbose) ATH_MSG_INFO ( "Number of daughters of "<<(*iter)->barcode()<<": 0 (NULL)." );
+    }
+    else {
+      if(verbose) ATH_MSG_INFO ("Number of daughters of "<<(*iter)->barcode()<<": " << (*iter)->end_vertex()->particles_out_size() );
+    }
+    if (pdgID == (*iter)->pdg_id()) {
+      if (verbose) ATH_MSG_INFO ( "Look for daughters of Particle: " << (*iter)->barcode() );
+      return this->findMatchingDaughter(*iter, verbose);
+    }
+  }
+  if(!verbose) (void) this->findMatchingDaughter(parent, true);
+  else {  ATH_MSG_ERROR ( "No matching Daughter Particles." ); }
+  return parent;
+}
 
 //________________________________________________________________________
 ISF::ISFParticle*
@@ -426,8 +458,12 @@ iGeant4::TrackProcessorUserAction::newISFParticle(G4Track* aTrack,
     barcode=trackInfo->GetParticleBarcode();
     HepMC::GenParticle* genpart= const_cast<HepMC::GenParticle*>(trackInfo->GetHepMCParticle());
     if (genpart) {
+      if (!m_geant4OnlyMode) {
+        //find the last particle of this type in the decay chain - this is the one that we should pass back to ISF
+        genpart = this->findMatchingDaughter(genpart);
+      }
       tBinding=new ISF::HepMC_TruthBinding(*genpart);
-      // particle should be already know to McTruth Tree
+      // particle should be already known to McTruth Tree
       tBinding->setPersistency( true);
     }
   }

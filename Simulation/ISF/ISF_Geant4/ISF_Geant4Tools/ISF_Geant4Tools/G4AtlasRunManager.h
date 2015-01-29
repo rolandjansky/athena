@@ -14,12 +14,17 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/MsgStreamMember.h"
 
 //#include "ISF_Geant4UserActions/TrackProcessor.h"
 
 #include "G4RunManager.hh"
 #include "G4VUserPhysicsList.hh"
 #include "G4UserSteppingAction.hh"
+
+#include "G4AtlasInterfaces/ISensitiveDetectorSvc.h"
+#include "G4AtlasInterfaces/IFastSimulationSvc.h"
+
 
 namespace ISF {
   class IParticleBroker;
@@ -39,7 +44,7 @@ namespace iGeant4
     friend class G4TransportTool;
     
   public:
-    virtual ~G4AtlasRunManager();
+    virtual ~G4AtlasRunManager() {}
     
     static G4AtlasRunManager* GetG4AtlasRunManager();
 
@@ -56,6 +61,11 @@ namespace iGeant4
     
     //void setParticleHelper(ToolHandle<ISF::IParticleHelper>* particleHelper) { m_trackProcessorUserAction->setParticleHelper(particleHelper); }
 
+    /// Log a message using the Athena controlled logging system
+    MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
+    /// Check whether the logging system is active at the provided verbosity level
+    bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
+
   protected:
     
     void InitializeGeometry();
@@ -67,8 +77,6 @@ namespace iGeant4
 
     void SetReleaseGeo(bool b) { m_releaseGeo = b; }
     
-    void SetLogLevel(int i) { log().setLevel(i); }
- 
     //    G4VUserPhysicsList * m_pl;
 
     std::vector<G4UserSteppingAction*> m_steppingActions;
@@ -77,9 +85,11 @@ namespace iGeant4
 
     bool m_releaseGeo;
 
-    MsgStream * m_log;
+    /// Private message stream member
+    mutable Athena::MsgStreamMember m_msg;
 
-    MsgStream log();
+    ISensitiveDetectorSvc* m_senDetSvc;
+    IFastSimulationSvc* m_fastSimSvc;
   };
 
 }

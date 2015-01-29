@@ -34,6 +34,7 @@
 #include "G4ThreeVector.hh"
 #include "G4VProcess.hh"
 
+#include "G4TrackStatus.hh"
 #include "G4ProcessType.hh"
 #include "G4EmProcessSubType.hh"
 
@@ -72,7 +73,8 @@ ISF::Geant4TruthIncident::Geant4TruthIncident(const G4Step *step, AtlasDetDescr:
   m_secondariesPrepared(false),
   m_secondaries(),
   m_checkLastSecondaryOnly(false),
-  m_passedFilters(numSecondaries, false)
+  m_passedFilters(numSecondaries, false),
+  m_primaryParticleAfterIncident(0)
 {
   // only intialisation
   //  static SecondaryTracksHelper sHelper(FADS::FadsTrackingAction::GetTrackingAction()->GetTrackingManager());
@@ -145,34 +147,41 @@ HepMC::GenParticle* ISF::Geant4TruthIncident::primaryParticle(bool /*setPersiste
 HepMC::GenParticle* ISF::Geant4TruthIncident::primaryParticleAfterIncident(Barcode::ParticleBarcode newBC,
                                                                                     bool /*setPersistent*/ ) {
   const G4Track * track = m_step->GetTrack();
+  G4TrackStatus  trackStatus =  track->GetTrackStatus();
   
-  if (track->GetTrackStatus()!=fAlive) {
-    // primary does not exist anymore after this step
-    return 0;
+  if ( trackStatus!=fAlive) {
+    TrackInformation* trackInfo=dynamic_cast<TrackInformation*>(track->GetUserInformation());
+    if ( !(trackInfo && trackInfo->GetReturnedToISF()==true) ) {
+      // primary does not exist anymore after this step
+      return 0;
+    }
   }
   
-  
-  // create new hepPartcle using momentum and energy from G4DynamicParticle (which should be equivalent to postStep)
-  HepMC::GenParticle *hepParticle = convert(track);
-  
-  EventInformation* evtInfo = static_cast<EventInformation*>
-    (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
-  
-  evtInfo->SetCurrentlyTraced(hepParticle);
-  
-  hepParticle->suggest_barcode(newBC);
-  
-  
-  // store (new) hepmc particle in tracks UserInformation
-  TrackHelper tHelper(track);
-  TrackInformation* tInfo=tHelper.GetTrackInformation();
-  int regenerationNr=tInfo->GetRegenerationNr();
-  regenerationNr++;
-  tInfo->SetRegenerationNr(regenerationNr);
-  if (tHelper.IsPrimary()) tInfo->SetClassification(RegeneratedPrimary);
+  if (!m_primaryParticleAfterIncident) {
+    // create new hepPartcle using momentum and energy from G4DynamicParticle (which should be equivalent to postStep)
+    HepMC::GenParticle *hepParticle = convert(track);
+    
+    EventInformation* evtInfo = static_cast<EventInformation*>
+      (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
+    
+    evtInfo->SetCurrentlyTraced(hepParticle);
+    
+    hepParticle->suggest_barcode(newBC);
+    
+    
+    // store (new) hepmc particle in tracks UserInformation
+    TrackHelper tHelper(track);
+    TrackInformation* tInfo=tHelper.GetTrackInformation();
+    int regenerationNr=tInfo->GetRegenerationNr();
+    regenerationNr++;
+    tInfo->SetRegenerationNr(regenerationNr);
+    if (tHelper.IsPrimary()) tInfo->SetClassification(RegeneratedPrimary);
+
+    m_primaryParticleAfterIncident = hepParticle;
+  }
 
   // retrun new hepParticle
-  return hepParticle;
+  return m_primaryParticleAfterIncident;
 }
 
 unsigned short ISF::Geant4TruthIncident::numberOfSecondaries() const {

@@ -21,28 +21,12 @@ iGeant4::G4AtlasRunManager::G4AtlasRunManager()
 //  m_pl(0),
 //  m_trackProcessorUserAction(0), 
   m_releaseGeo(false), 
-  m_log(0)
+  m_msg("G4AtlasRunManager"),
+  m_senDetSvc(nullptr),
+  m_fastSimSvc(nullptr)
 {
   //m_trackProcessorUserAction=new iGeant4::TrackProcessor("ISG_G4TrackProcessor");
   //std::cout<<"iGeant4::G4AtlasRunManager::G4AtlasRunManager() "<<this<<std::endl;
-}
-
-//________________________________________________________________________
-iGeant4::G4AtlasRunManager::~G4AtlasRunManager()
-{
-  delete m_log;
-}
-
-//________________________________________________________________________
-MsgStream iGeant4::G4AtlasRunManager::log()
-{
-  if (m_log) return *m_log;
-  ISvcLocator* svcLocator = Gaudi::svcLocator();
-  IMessageSvc* msgSvc = 0;
-  if (svcLocator->service("MessageSvc", msgSvc).isFailure() || !msgSvc)
-    std::cout << "G4AtlasRunManager: Trouble getting the message service.  Should never happen.  Will crash now." << std::endl;
-  m_log = new MsgStream(msgSvc,"G4AtlasRunManager");
-  return *m_log;
 }
 
 //________________________________________________________________________
@@ -58,8 +42,8 @@ void iGeant4::G4AtlasRunManager::InitializeGeometry()
 {
   G4LogicalVolumeStore *lvs = G4LogicalVolumeStore::GetInstance();
 
-  log() << MSG::INFO << "iGeant4::G4AtlasRunManager::InitializeGeometry()" << endreq;
-  log() << MSG::INFO << "found lvs-size()==" << lvs->size() << endreq;
+  ATH_MSG_INFO( "iGeant4::G4AtlasRunManager::InitializeGeometry()" );
+  ATH_MSG_INFO( "found lvs-size()==" << lvs->size() );
   
   G4LogicalVolumeStore::iterator volIt    = lvs->begin();
   G4LogicalVolumeStore::iterator volItEnd = lvs->end();
@@ -68,25 +52,36 @@ void iGeant4::G4AtlasRunManager::InitializeGeometry()
 
     if ( volName == "Muon::MuonSys" ) {
       (*volIt)->SetSmartless( 0.1 );
-      log() << MSG::INFO << "Set smartlessness for Muon::MuonSys to 0.1" << endreq;
+      ATH_MSG_INFO( "Set smartlessness for Muon::MuonSys to 0.1" );
     } 
     else if ( volName == "LArMgr::LAr::EMB::STAC") {
       (*volIt)->SetSmartless( 0.5 );
-      log() << MSG::INFO << "Set smartlessness for LArMgr::LAr::EMB::STAC to 0.5" << endreq;
+      ATH_MSG_INFO( "Set smartlessness for LArMgr::LAr::EMB::STAC to 0.5" );
     }
   }
   
   if (userDetector) 
     G4RunManager::InitializeGeometry();
   else 
-    log() << MSG::WARNING << " User Detector not set!!! Geometry NOT initialized!!!" << endreq;
-  
+    ATH_MSG_WARNING( " User Detector not set!!! Geometry NOT initialized!!!" );
+
+  ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
+  if (svcLocator->service("SensitiveDetectorSvc",m_senDetSvc).isFailure()){
+    ATH_MSG_ERROR ( "Could not retrieve the SD service" );
+    throw "CouldNotRetrieveSDService";
+  }
+  if (svcLocator->service("FastSimulationSvc",m_fastSimSvc).isFailure()){
+    ATH_MSG_ERROR ( "Could not retrieve the FastSim service" );
+    throw "CouldNotRetrieveFastSimService";
+  }
+
+
 }
 
 //________________________________________________________________________
 void iGeant4::G4AtlasRunManager::InitializePhysics() 
 {
-  log() << MSG::INFO << "iGeant4::G4AtlasRunManager::InitializePhysics()" << endreq;
+  ATH_MSG_INFO( "iGeant4::G4AtlasRunManager::InitializePhysics()" );
   kernel->InitializePhysics();
   physicsInitialized = true;
 
@@ -99,7 +94,7 @@ void iGeant4::G4AtlasRunManager::InitializePhysics()
 //________________________________________________________________________
 void iGeant4::G4AtlasRunManager::EndEvent() 
 {
-  log() << MSG::DEBUG << "G4AtlasRunManager::EndEvent" << endreq;
+  ATH_MSG_DEBUG( "G4AtlasRunManager::EndEvent" );
 }
 
 //________________________________________________________________________
@@ -147,8 +142,7 @@ bool iGeant4::G4AtlasRunManager::ProcessEvent(G4Event* event)
   eventManager->ProcessOneEvent(currentEvent);
   if (currentEvent->IsAborted())
     {
-      log()<<MSG::WARNING<<"G4AtlasRunManager::SimulateFADSEvent: "<<
-	"Event Aborted at Detector Simulation level"<<endreq;
+      ATH_MSG_WARNING( "G4AtlasRunManager::SimulateFADSEvent: Event Aborted at Detector Simulation level" );
       currentEvent=0;
       return true;
     }
@@ -156,8 +150,7 @@ bool iGeant4::G4AtlasRunManager::ProcessEvent(G4Event* event)
   // *AS* AnalyzeEvent(currentEvent);
   if (currentEvent->IsAborted())
     {
-      log()<<MSG::WARNING<<"G4AtlasRunManager::SimulateFADSEvent: "<<
-	"Event Aborted at Analysis level"<<endreq;
+      ATH_MSG_WARNING( "G4AtlasRunManager::SimulateFADSEvent: Event Aborted at Analysis level" );
       currentEvent=0;
       return true;
     }
