@@ -1,20 +1,20 @@
-//  DisambiguationIncl3.h
+//  DisambiguationDRIncl2.h
 //  TopoCore
 //  Created by Joerg Stelzer on 11/16/12.
 //  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 
-#ifndef __TopoCore__DisambiguationIncl3__
-#define __TopoCore__DisambiguationIncl3__
+#ifndef __TopoCore__DisambiguationDRIncl2__
+#define __TopoCore__DisambiguationDRIncl2__
 
 #include <iostream>
 #include "L1TopoInterfaces/DecisionAlg.h"
 
 namespace TCS {
    
-   class DisambiguationIncl3 : public DecisionAlg {
+   class DisambiguationDRIncl2 : public DecisionAlg {
    public:
-      DisambiguationIncl3(const std::string & name);
-      virtual ~DisambiguationIncl3();
+      DisambiguationDRIncl2(const std::string & name);
+      virtual ~DisambiguationDRIncl2();
 
       virtual StatusCode initialize();
 
@@ -28,17 +28,14 @@ namespace TCS {
 
       parType_t      p_NumberLeading1 = { 0 };
       parType_t      p_NumberLeading2 = { 0 };
-      parType_t      p_NumberLeading3 = { 0 };
-      parType_t      p_DisambDR[2] = {0, 0};
       parType_t      p_MinET1 = { 0 };
       parType_t      p_MinET2 = { 0 };
-      parType_t      p_MinET3 = { 0 };
       parType_t      p_EtaMin1 = { 0 };
       parType_t      p_EtaMax1 = { 0 };
       parType_t      p_EtaMin2 = { 0 };
       parType_t      p_EtaMax2 = { 0 };
-      parType_t      p_EtaMin3 = { 0 };
-      parType_t      p_EtaMax3 = { 0 };
+      parType_t      p_DRCutMin = { 0 };
+      parType_t      p_DRCutMax = { 0 };
 
 
    };

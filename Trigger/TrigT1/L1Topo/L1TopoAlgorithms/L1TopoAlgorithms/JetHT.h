@@ -29,7 +29,7 @@ namespace TCS {
       parType_t      p_MinET = { 0 };
       parType_t      p_EtaMin = { 0 };
       parType_t      p_EtaMax = { 49 };
-      parType_t      p_HT[2] = { 0 , 0 };
+      parType_t      p_HT[6] = { 0 , 0,0,0,0,0 };
 
    };
    

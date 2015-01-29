@@ -1,5 +1,5 @@
 /*********************************
- * DisambiguationDRIncl3.cpp
+ * DisambiguationDetaDPhiIncl3.cpp
  * Created by Joerg Stelzer / V Sorin on 9/16/14.
  * Copyright (c) 2012 Joerg Stelzer. All rights reserved.
  * 
@@ -11,21 +11,35 @@
 
 #include <cmath>
 
-#include "L1TopoAlgorithms/DisambiguationDRIncl3.h"
+#include "L1TopoAlgorithms/DisambiguationDetaDPhiIncl3.h"
 #include "L1TopoCommon/Exception.h"
 #include "L1TopoInterfaces/Decision.h"
 
-REGISTER_ALG_TCS(DisambiguationDRIncl3)
+REGISTER_ALG_TCS(DisambiguationDetaDPhiIncl3)
 
 using namespace std;
 
 // not the best solution but we will move to athena where this comes for free
-#define LOG cout << "TCS::DisambiguationDRIncl3:     "
-
+#define LOG cout << "TCS::DisambiguationDetaDPhiIncl3:     "
 
 
 
 namespace {
+   unsigned int
+   calcDeltaPhi(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+      double dphi = fabs( tob1->phiDouble() - tob2->phiDouble() );
+      if(dphi>M_PI)
+         dphi = 2*M_PI - dphi;
+      
+      return round( 10 * dphi );
+   }
+
+   unsigned int
+   calcDeltaEta(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
+      double deta = fabs( tob1->eta() - tob2->eta() );
+      return deta;
+   }
+
    unsigned int
    calcDeltaR2(const TCS::GenericTOB* tob1, const TCS::GenericTOB* tob2) {
       double deta = ( tob1->etaDouble() - tob2->etaDouble() );
@@ -36,10 +50,12 @@ namespace {
       return round ( 100 * ((dphi)*(dphi) + (deta)*(deta) )) ;
 
    }
+
 }
 
 
-TCS::DisambiguationDRIncl3::DisambiguationDRIncl3(const std::string & name) : DecisionAlg(name)
+
+TCS::DisambiguationDetaDPhiIncl3::DisambiguationDetaDPhiIncl3(const std::string & name) : DecisionAlg(name)
 {
    defineParameter("InputWidth1", 9);
    defineParameter("InputWidth2", 9);
@@ -57,18 +73,21 @@ TCS::DisambiguationDRIncl3::DisambiguationDRIncl3(const std::string & name) : De
    defineParameter("EtaMax2",49);
    defineParameter("EtaMin3",0);
    defineParameter("EtaMax3",49);
-   defineParameter("DRCutMin",0);
-   defineParameter("DRCutMax",0);
+   defineParameter("DeltaPhiMin", 0);
+   defineParameter("DeltaPhiMax", 64);
+   defineParameter("DeltaEtaMin",  0);
+   defineParameter("DeltaEtaMax", 99);
    defineParameter("DisambDR",0,0);
    defineParameter("DisambDR",0,1); 
    setNumberOutputBits(2);
 }
 
-TCS::DisambiguationDRIncl3::~DisambiguationDRIncl3(){}
+TCS::DisambiguationDetaDPhiIncl3::~DisambiguationDetaDPhiIncl3(){}
 
 
 TCS::StatusCode
-TCS::DisambiguationDRIncl3::initialize() {
+TCS::DisambiguationDetaDPhiIncl3::initialize() {
+   
    p_NumberLeading1 = parameter("InputWidth1").value();
    p_NumberLeading2 = parameter("InputWidth2").value();
    p_NumberLeading3 = parameter("InputWidth3").value();
@@ -87,8 +106,11 @@ TCS::DisambiguationDRIncl3::initialize() {
    p_EtaMax2 = parameter("EtaMax2").value();
    p_EtaMin3 = parameter("EtaMin3").value();
    p_EtaMax3 = parameter("EtaMax3").value();
-   p_DRCutMin = parameter("DRCutMin").value();
-   p_DRCutMax = parameter("DRCutMax").value();
+   p_DeltaPhiMin = parameter("DeltaPhiMin").value();
+   p_DeltaPhiMax = parameter("DeltaPhiMax").value();
+   p_DeltaEtaMin = parameter("DeltaEtaMin").value();
+   p_DeltaEtaMax = parameter("DeltaEtaMax").value();
+
 
    for(int i=0; i<2; ++i) {
       p_DisambDR[i] = parameter("DisambDR", i).value();
@@ -107,8 +129,11 @@ TCS::DisambiguationDRIncl3::initialize() {
    TRG_MSG_INFO("EtaMax3         : " << p_EtaMax3);
    TRG_MSG_INFO("DisambDR0         : " << p_DisambDR[0]);
    TRG_MSG_INFO("DisambDR1         : " << p_DisambDR[1]);
-   TRG_MSG_INFO("DRCutMin           : " << p_DRCutMin);
-   TRG_MSG_INFO("DRCutMax           : " << p_DRCutMax);
+   TRG_MSG_INFO("DeltaPhimin           : " << p_DeltaPhiMin);
+   TRG_MSG_INFO("DeltaPhimin           : " << p_DeltaPhiMax);
+   TRG_MSG_INFO("DeltaEtamin           : " << p_DeltaEtaMin);
+   TRG_MSG_INFO("DeltaEtamin           : " << p_DeltaEtaMax);
+
    TRG_MSG_INFO("number output : " << numberOutputBits());
 
 
@@ -118,7 +143,7 @@ TCS::DisambiguationDRIncl3::initialize() {
 
 
 TCS::StatusCode
-TCS::DisambiguationDRIncl3::process( const std::vector<TCS::TOBArray const *> & input,
+TCS::DisambiguationDetaDPhiIncl3::process( const std::vector<TCS::TOBArray const *> & input,
                              const std::vector<TCS::TOBArray *> & output,
                              Decision & decision )
 {
@@ -144,11 +169,14 @@ TCS::DisambiguationDRIncl3::process( const std::vector<TCS::TOBArray const *> & 
                if( parType_t(fabs((*tob2)->eta())) > p_EtaMax2 ) continue; // Eta cut
                if( parType_t(fabs((*tob2)->eta())) < p_EtaMin2 ) continue; // Eta cut
 
-               // test DeltaR2Min, DeltaR2Max
-               unsigned int deltaR2Cut = calcDeltaR2( *tob1, *tob2 );
-               if (deltaR2Cut > p_DRCutMax*p_DRCutMax) continue;
-               if (deltaR2Cut <= p_DRCutMin*p_DRCutMin) continue;
-               
+               // DeltaPhi cuts
+               unsigned int deltaPhi = calcDeltaPhi( *tob1, *tob2 );
+               // DeltaEta cuts
+               unsigned int deltaEta = calcDeltaEta( *tob1, *tob2 );
+
+               if(deltaPhi > p_DeltaPhiMax || deltaEta > p_DeltaEtaMax) continue;
+               if (deltaEta < p_DeltaEtaMin &&  deltaPhi < p_DeltaPhiMin ) continue;
+     
 	       for( TCS::TOBArray::const_iterator tob3 = input[2]->begin();
                  tob3 != input[2]->end() ;
                  ++tob3) {
@@ -181,7 +209,7 @@ TCS::DisambiguationDRIncl3::process( const std::vector<TCS::TOBArray const *> & 
 
    } else {
 
-      TCS_EXCEPTION("DisambiguationDRIncl3 alg must have  3 inputs, but got " << input.size());
+      TCS_EXCEPTION("DisambiguationDetaDPhiIncl3 alg must have  3 inputs, but got " << input.size());
 
    }
    return TCS::StatusCode::SUCCESS;

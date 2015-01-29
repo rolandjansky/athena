@@ -23,7 +23,8 @@ using namespace std;
 
 TCS::LAR::LAR(const std::string & name) : DecisionAlg(name)
 {
-   defineParameter("NumberLeading1", 3);
+   defineParameter("InputWidth", 3);
+   defineParameter("MaxTob", 0); 
    defineParameter("NumResultBits", 1);
    defineParameter("PhiMin",  0);
    defineParameter("PhiMax", 63);
@@ -38,7 +39,8 @@ TCS::LAR::~LAR(){}
 
 TCS::StatusCode
 TCS::LAR::initialize() {
-   p_NumberLeading1 = parameter("NumberLeading1").value();
+   p_NumberLeading1 = parameter("InputWidth").value();
+   if(parameter("MaxTob").value() > 0) p_NumberLeading1 = parameter("MaxTob").value();
    p_PhiMin = parameter("PhiMin").value();
    p_PhiMax = parameter("PhiMax").value();
    p_EtaMin = parameter("EtaMin").value();

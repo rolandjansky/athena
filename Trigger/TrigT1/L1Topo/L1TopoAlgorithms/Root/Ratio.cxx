@@ -25,6 +25,10 @@ using namespace std;
 
 TCS::Ratio::Ratio(const std::string & name) : DecisionAlg(name)
 {  
+   defineParameter("InputWidth1", 9);
+   defineParameter("InputWidth2", 9);
+   defineParameter("MaxTob1", 0); 
+   defineParameter("MaxTob2", 0);
    defineParameter("NumResultBits", 2);
    defineParameter("MinET1",0);
    defineParameter("MinET2",0);

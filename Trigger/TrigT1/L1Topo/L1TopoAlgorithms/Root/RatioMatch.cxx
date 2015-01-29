@@ -38,8 +38,10 @@ namespace {
 
 TCS::RatioMatch::RatioMatch(const std::string & name) : DecisionAlg(name)
 { 
-   defineParameter("NumberLeading1", 3); 
-   defineParameter("NumberLeading2", 3);
+   defineParameter("InputWidth1", 9);
+   defineParameter("InputWidth2", 9);
+   defineParameter("MaxTob1", 0); 
+   defineParameter("MaxTob2", 0);
    defineParameter("NumResultBits", 2);
    defineParameter("MinET1",0);
    defineParameter("MinET2",0);
@@ -57,13 +59,20 @@ TCS::RatioMatch::~RatioMatch()
 
 TCS::StatusCode
 TCS::RatioMatch::initialize() {
-   p_NumberLeading1 = parameter("NumberLeading1").value();
-   p_NumberLeading2 = parameter("NumberLeading2").value(); 
+   p_NumberLeading1 = parameter("InputWidth1").value();
+   p_NumberLeading2 = parameter("InputWidth2").value();
+   if(parameter("MaxTob1").value() > 0) p_NumberLeading1 = parameter("MaxTob1").value();
+   if(parameter("MaxTob2").value() > 0) p_NumberLeading2 = parameter("MaxTob2").value();
+
    p_MinET1  = parameter("MinET1").value();
    p_MinET2  = parameter("MinET2").value();
    p_EtaMin = parameter("EtaMin").value();
    p_EtaMax = parameter("EtaMax").value();
    p_DeltaR     = parameter("DeltaR").value();
+   
+
+   TRG_MSG_INFO("Maxtob 1          : " << p_NumberLeading1);
+   TRG_MSG_INFO("Maxtob 2          : " << p_NumberLeading2);
    TRG_MSG_INFO("MinET1          : " << p_MinET1);
    TRG_MSG_INFO("MinET2          : " << p_MinET2);
    TRG_MSG_INFO("EtaMin         : " << p_EtaMin);
@@ -122,10 +131,10 @@ TCS::RatioMatch::process( const std::vector<TCS::TOBArray const *> & input,
                    TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail") << " deltaR2 = " << deltaR2  );
 
                }
-                                                                                                                                                                                                               }
-   }
 
+            }
 
+        }
 
 
    return TCS::StatusCode::SUCCESS;

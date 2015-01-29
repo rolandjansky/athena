@@ -1,20 +1,20 @@
-//  DisambiguationIncl3.h
+//  DisambiguationDetaDPhiIncl3.h
 //  TopoCore
 //  Created by Joerg Stelzer on 11/16/12.
 //  Copyright (c) 2012 Joerg Stelzer. All rights reserved.
 
-#ifndef __TopoCore__DisambiguationIncl3__
-#define __TopoCore__DisambiguationIncl3__
+#ifndef __TopoCore__DisambiguationDetaDPhiIncl3__
+#define __TopoCore__DisambiguationDetaDPhiIncl3__
 
 #include <iostream>
 #include "L1TopoInterfaces/DecisionAlg.h"
 
 namespace TCS {
    
-   class DisambiguationIncl3 : public DecisionAlg {
+   class DisambiguationDetaDPhiIncl3 : public DecisionAlg {
    public:
-      DisambiguationIncl3(const std::string & name);
-      virtual ~DisambiguationIncl3();
+      DisambiguationDetaDPhiIncl3(const std::string & name);
+      virtual ~DisambiguationDetaDPhiIncl3();
 
       virtual StatusCode initialize();
 
@@ -39,6 +39,10 @@ namespace TCS {
       parType_t      p_EtaMax2 = { 0 };
       parType_t      p_EtaMin3 = { 0 };
       parType_t      p_EtaMax3 = { 0 };
+      parType_t      p_DeltaPhiMin = { 0 };
+      parType_t      p_DeltaPhiMax = { 0 };
+      parType_t      p_DeltaEtaMin = { 0 };
+      parType_t      p_DeltaEtaMax = { 0 };
 
 
    };

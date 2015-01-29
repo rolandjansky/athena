@@ -25,7 +25,10 @@ using namespace std;
 
 TCS::RatioSum::RatioSum(const std::string & name) : DecisionAlg(name)
 {  
-   defineParameter("NumberLeading1", 3);
+   defineParameter("InputWidth1", 9);
+   defineParameter("InputWidth2", 9);
+   defineParameter("MaxTob1", 0); 
+   defineParameter("MaxTob2", 0); 
    defineParameter("NumResultBits", 2);
    defineParameter("MinET1",0);
    defineParameter("MinET2",0);
@@ -48,7 +51,10 @@ TCS::RatioSum::~RatioSum()
 
 TCS::StatusCode
 TCS::RatioSum::initialize() {
-   p_NumberLeading1 = parameter("NumberLeading1").value();
+   p_NumberLeading1 = parameter("InputWidth1").value();
+   p_NumberLeading2 = parameter("InputWidth2").value();
+   if(parameter("MaxTob1").value() > 0) p_NumberLeading1 = parameter("MaxTob1").value();
+   if(parameter("MaxTob2").value() > 0) p_NumberLeading2 = parameter("MaxTob2").value();
    p_MinET1  = parameter("MinET1").value();
    p_MinET2  = parameter("MinET2").value();
    p_EtaMin1 = parameter("EtaMin1").value();
@@ -56,6 +62,9 @@ TCS::RatioSum::initialize() {
    p_EtaMin2 = parameter("EtaMin2").value();
    p_EtaMax2 = parameter("EtaMax2").value();
 
+
+   TRG_MSG_INFO("Maxtob 1          : " << p_NumberLeading1);
+   TRG_MSG_INFO("Maxtob 2          : " << p_NumberLeading2);
    TRG_MSG_INFO("MinET1          : " << p_MinET1);
    TRG_MSG_INFO("EtaMin1         : " << p_EtaMin1);
    TRG_MSG_INFO("EtaMax1         : " << p_EtaMax1);

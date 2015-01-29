@@ -40,9 +40,10 @@ namespace {
 
 TCS::DeltaRSqrIncl1::DeltaRSqrIncl1(const std::string & name) : DecisionAlg(name)
 {
-   defineParameter("NumberLeading1", 3);
-   defineParameter("NumberLeading2", 3); 
+   defineParameter("InputWidth", 9);
+   defineParameter("MaxTob", 0); 
    defineParameter("NumResultBits", 3);
+   defineParameter("RequireOneBarrel", 0);
    defineParameter("DeltaRMin",  0, 0);
    defineParameter("DeltaRMax",  0, 0);
    defineParameter("DeltaRMin",  0, 1);
@@ -59,8 +60,15 @@ TCS::DeltaRSqrIncl1::~DeltaRSqrIncl1(){}
 
 TCS::StatusCode
 TCS::DeltaRSqrIncl1::initialize() {
-   p_NumberLeading1 = parameter("NumberLeading1").value();
-   p_NumberLeading2 = parameter("NumberLeading2").value();
+   if(parameter("MaxTob").value() > 0) {
+    p_NumberLeading1 = parameter("MaxTob").value();
+    p_NumberLeading2 = parameter("MaxTob").value();
+   } else {
+    p_NumberLeading1 = parameter("InputWidth").value();
+    p_NumberLeading2 = parameter("InputWidth").value();
+   }
+   p_OneBarrel = parameter("RequireOneBarrel").value();
+
    for(int i=0; i<3; ++i) {
       p_DeltaRMin[i] = parameter("DeltaRMin", i).value();
       p_DeltaRMax[i] = parameter("DeltaRMax", i).value();
@@ -70,6 +78,8 @@ TCS::DeltaRSqrIncl1::initialize() {
 
    TRG_MSG_INFO("NumberLeading1 : " << p_NumberLeading1);
    TRG_MSG_INFO("NumberLeading2 : " << p_NumberLeading2);
+   TRG_MSG_INFO("RequireOneBarrel : " << p_OneBarrel);
+
    for(int i=0; i<3; ++i) {
     TRG_MSG_INFO("DeltaRMin   : " << p_DeltaRMin[i]);
     TRG_MSG_INFO("DeltaRMax   : " << p_DeltaRMax[i]);
@@ -99,15 +109,19 @@ TCS::DeltaRSqrIncl1::process( const std::vector<TCS::TOBArray const *> & input,
            ++tob1) 
          {
             
-            if( parType_t((*tob1)->Et()) <= p_MinET1 ) continue; // ET cut
+            if( parType_t((*tob1)->Et()) <= min(p_MinET1,p_MinET2)) continue; // ET cut
             
             TCS::TOBArray::const_iterator tob2 = tob1; ++tob2;      
             for( ;
                  tob2 != input[0]->end() && distance( input[0]->begin(), tob2) < p_NumberLeading2;
                  ++tob2) {
 
-               if( parType_t((*tob2)->Et()) <= p_MinET2) continue; // ET cut
+               if( parType_t((*tob2)->Et()) <= min(p_MinET1,p_MinET2)) continue; // ET cut
+               if( (parType_t((*tob1)->Et()) <= max(p_MinET1,p_MinET2)) && (parType_t((*tob2)->Et()) <= max(p_MinET1,p_MinET2))) continue;
 
+
+               // OneBarrel
+               if (p_OneBarrel && parType_t(abs((*tob1)->eta())) > 10 && parType_t(abs((*tob2)->eta())) > 10 ) continue;
                // DeltaR2 cuts
                unsigned int deltaR2 = calcDeltaR2( *tob1, *tob2 );
 
