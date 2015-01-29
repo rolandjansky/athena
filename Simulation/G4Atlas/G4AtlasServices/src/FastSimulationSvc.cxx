@@ -7,6 +7,7 @@
 
 FastSimulationSvc::FastSimulationSvc( const std::string& name, ISvcLocator* pSvcLocator )
   : AthService(name,pSvcLocator)
+  , m_FastSimList(this)
 {
   declareProperty( "FastSimulations" , m_FastSimList , "Tool handle array of fast simulation tools" );
 }
@@ -14,9 +15,8 @@ FastSimulationSvc::FastSimulationSvc( const std::string& name, ISvcLocator* pSvc
 StatusCode FastSimulationSvc::initialize(){
   // Loop through list of fast simulations and retrieve them
   //  This forces a call to initialize() for each of them
-  for (auto ifs : m_FastSimList){
-    CHECK(ifs.retrieve());
-  }
+  ATH_MSG_INFO( "Initializing list of " << m_FastSimList.size() << " fast simulation tools in " << name() );
+  CHECK( m_FastSimList.retrieve() );
   return StatusCode::SUCCESS;
 }
 
