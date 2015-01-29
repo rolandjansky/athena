@@ -31,12 +31,12 @@ use AtlasReflex		 AtlasReflex-*		    External
 # of transient classes.  If we make a single dictionary,
 # the compiler runs out of memory on the generated source.
 
-apply_pattern lcgdict dict=TrigMuonEventTPCnv1  \
-  selectionfile=selection1.xml \
-  headerfiles="../TrigMuonEventTPCnv/TrigMuonEventTPCnvDict1.h"
+apply_pattern lcgdict dict=TrigMuonEventTPCnv  \
+  selectionfile=selection.xml \
+  headerfiles="../TrigMuonEventTPCnv/TrigMuonEventTPCnvDict.h"
 
-apply_pattern lcgdict dict=OLD_TrigMuonEventTPCnv1  \
-  selectionfile=OLD_selection1.xml \
-  headerfiles="../TrigMuonEventTPCnv/TrigMuonEventTPCnvDict1.h"
+apply_pattern lcgdict dict=OLD_TrigMuonEventTPCnv  \
+  selectionfile=OLD_selection.xml \
+  headerfiles="../TrigMuonEventTPCnv/TrigMuonEventTPCnvDict.h"
 
 end_private
