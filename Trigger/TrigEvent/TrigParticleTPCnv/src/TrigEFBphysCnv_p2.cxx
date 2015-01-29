@@ -2,8 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#define private public
+#define protected public
 #include "TrigParticle/TrigEFBphys.h"
 #include "TrigParticleTPCnv/TrigEFBphys_p2.h"
+#undef private
+#undef protected
+ 
 #include "TrigParticleTPCnv/TrigEFBphysCnv_p2.h"
  
 
@@ -16,28 +21,25 @@ void TrigEFBphysCnv_p2::persToTrans( const TrigEFBphys_p2 *persObj,
 					     TrigEFBphys    *transObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "TrigEFBphysCnv_p2::persToTrans called " << endmsg;
+  log << MSG::DEBUG << "TrigEFBphysCnv_p2::persToTrans called " << endreq;
 
-  ElementLink<TrigEFBphysContainer> secondaryDecay;
-  m_elementLinkEFBphysCnv.persToTrans(&persObj->m_secondaryDecay, &secondaryDecay, log);
+  transObj->m_roiID    = persObj->m_roiID    ;
+  transObj->m_eta      = persObj->m_eta      ;
+  transObj->m_phi      = persObj->m_phi      ;
+  transObj->m_mass     = persObj->m_mass     ;
+  transObj->m_fitmass  = persObj->m_fitmass     ;
+  transObj->m_fitchi2  = persObj->m_fitchi2     ;
+  transObj->m_fitndof  = persObj->m_fitndof     ;
+  transObj->m_fitx  = persObj->m_fitx     ;
+  transObj->m_fity  = persObj->m_fity     ;
+  transObj->m_fitz  = persObj->m_fitz     ;
   
-  *transObj = TrigEFBphys (persObj->m_roiID,
-                           persObj->m_eta,
-                           persObj->m_phi,
-                           static_cast<TrigEFBphys::pType>(persObj->m_particleType),
-                           persObj->m_mass,
-                           secondaryDecay);
-  transObj->fitmass (persObj->m_fitmass)     ;
-  transObj->fitchi2 (persObj->m_fitchi2)     ;
-  transObj->fitndof (persObj->m_fitndof)     ;
-  transObj->fitx    (persObj->m_fitx)     ;
-  transObj->fity    (persObj->m_fity)     ;
-  transObj->fitz    (persObj->m_fitz)     ;
+  transObj->m_particleType    = static_cast<TrigEFBphys::pType>(persObj->m_particleType);  
 
-  ElementLinkVector<Rec::TrackParticleContainer> trackVector;
-  trackELVCnv.persToTrans(&persObj->m_trackVector, &trackVector, log);
-  for (const ElementLink<Rec::TrackParticleContainer>& el : trackVector)
-    transObj->addTrack (el);
+  trackELVCnv.persToTrans(&persObj->m_trackVector, &transObj->m_trackVector, log);
+
+  m_elementLinkEFBphysCnv.persToTrans(&persObj->m_secondaryDecay, &transObj->m_secondaryDecay, log);
+
 }
  
 //-----------------------------------------------------------------------------
@@ -47,22 +49,25 @@ void TrigEFBphysCnv_p2::transToPers( const TrigEFBphys    *transObj,
 					     TrigEFBphys_p2 *persObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "TrigEFBphysCnv_p2::transToPers called " << endmsg;
+  log << MSG::DEBUG << "TrigEFBphysCnv_p2::transToPers called " << endreq;
 
-  persObj->m_roiID    = transObj->roiId()    ;
-  persObj->m_eta      = transObj->eta()      ;
-  persObj->m_phi      = transObj->phi()      ;
-  persObj->m_mass     = transObj->mass()     ;
-  persObj->m_fitmass  = transObj->fitmass()  ;
-  persObj->m_fitchi2  = transObj->fitchi2()  ;
-  persObj->m_fitndof  = transObj->fitndof()  ;
-  persObj->m_fitx  = transObj->fitx()  ;
-  persObj->m_fity  = transObj->fity()  ;
-  persObj->m_fitz  = transObj->fitz()  ;
+  persObj->m_roiID    = transObj->m_roiID    ;
 
-  persObj->m_particleType   = static_cast<TrigEFBphys_p2::pType_p1>(transObj->particleType());
+  persObj->m_eta      = transObj->m_eta      ;
+  persObj->m_phi      = transObj->m_phi      ;
+  persObj->m_mass     = transObj->m_mass     ;
+  persObj->m_fitmass  = transObj->m_fitmass  ;
+  persObj->m_fitchi2  = transObj->m_fitchi2  ;
+  persObj->m_fitndof  = transObj->m_fitndof  ;
+  persObj->m_fitx  = transObj->m_fitx  ;
+  persObj->m_fity  = transObj->m_fity  ;
+  persObj->m_fitz  = transObj->m_fitz  ;
 
-  trackELVCnv.transToPers(&transObj->trackVector(), &persObj->m_trackVector, log);
+  persObj->m_particleType   = static_cast<TrigEFBphys_p2::pType_p1>(transObj->m_particleType);
 
-  m_elementLinkEFBphysCnv.transToPers(&transObj->secondaryDecayLink(), &persObj->m_secondaryDecay, log);
+  trackELVCnv.transToPers(&transObj->m_trackVector, &persObj->m_trackVector, log);
+
+  m_elementLinkEFBphysCnv.transToPers(&transObj->m_secondaryDecay, &persObj->m_secondaryDecay, log);
+
+  
 }

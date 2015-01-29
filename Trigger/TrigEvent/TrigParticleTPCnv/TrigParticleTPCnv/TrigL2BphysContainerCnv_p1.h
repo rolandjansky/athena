@@ -34,7 +34,7 @@ class TrigL2BphysContainerCnv_p1 : public T_AthenaPoolTPPtrVectorCnv< TrigL2Bphy
   //this part is implemented in T_AthenaPoolTPConverter.h. 
   //It is here temporarily to override and allow some extra debugging
   virtual void persToTrans(const  TrigL2BphysContainer_p1* persVect, TrigL2BphysContainer* transVect, MsgStream &log) {
-    log << MSG::DEBUG << "TrigL2BphysContainerCnv::persToTrans" << endmsg;
+    log << MSG::DEBUG << "TrigL2BphysContainerCnv::persToTrans" << endreq;
     if (persVect){
       transVect->clear();
       transVect->reserve( persVect->size() );
@@ -46,10 +46,10 @@ class TrigL2BphysContainerCnv_p1 : public T_AthenaPoolTPPtrVectorCnv< TrigL2Bphy
 	TrigL2Bphys *p = createTransFromPStore( &m_elementCnv, *it, log ); 
 	transVect->push_back( p);
 	if (!p)
-	  log << MSG::WARNING << "TrigL2BphysContainerCnv::persToTrans failed for an element " << endmsg;
+	  log << MSG::WARNING << "TrigL2BphysContainerCnv::persToTrans failed for an element " << endreq;
       }        
     } else {
-      log << MSG::WARNING << "TrigL2BphysContainerCnv::persToTrans cannot convert NULL persVect" << endmsg;
+      log << MSG::WARNING << "TrigL2BphysContainerCnv::persToTrans cannot convert NULL persVect" << endreq;
     }
   }
   
@@ -67,7 +67,7 @@ class TrigL2BphysContainerCnv_p1 : public T_AthenaPoolTPPtrVectorCnv< TrigL2Bphy
       persVect->push_back( a );
       if (a.isNull()){
 	log << MSG::WARNING << "TrigL2BphysContainerCnv::transToPers failed for an element " << *it << " "
-	    << m_elementCnv << endmsg;
+	    << m_elementCnv << endreq;
 	
       }
     }       

@@ -18,7 +18,10 @@
 #ifndef TRIGPARTICLETPCNV_TRIGELECTRONCONTAINERCNV_P1_H
 #define TRIGPARTICLETPCNV_TRIGELECTRONCONTAINERCNV_P1_H
 
+#define private public
 #include "TrigParticleTPCnv/TrigElectronContainer_p1.h"
+#undef private 
+
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 #include "TrigParticle/TrigElectronContainer.h"

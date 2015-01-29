@@ -18,6 +18,8 @@
 #ifndef TRIGPARTICLETPCNV_TRIGL2BPHYS_P1_H
 #define TRIGPARTICLETPCNV_TRIGL2BPHYS_P1_H
 
+#include <stdint.h>
+#include "TrigParticle/TrigL2Bphys.h"
 #include "AthenaPoolUtilities/TPObjRef.h"
 
 class TrigL2Bphys_p1 
@@ -28,18 +30,18 @@ class TrigL2Bphys_p1
   
   TrigL2Bphys_p1() {}
   virtual ~TrigL2Bphys_p1(){}
+  
+  enum pType_p1{PHIKK=0, DSPHIPI=1, BMUMU=2, BMUMUX=3, JPSIEE=4};
 
-  enum pType_p1{PHIKK=0, DSPHIPI=1, BMUMU=2, BMUMUX=3, JPSIEE=4, JPSIMUMU=5, MULTIMU=6, BKMUMU=7, BDKSTMUMU=8, BSPHIMUMU=9, LBLMUMU=10, BCDSMUMU=11};
+ private:
 
-  //private:
-
-  int   m_roiID = 0;
-  pType_p1   m_particleType = PHIKK;
-  float m_eta = 0; 
-  float m_phi = 0;
-  float m_mass = 0;
-  float m_dist = 0;
-  bool  m_valid = false;
+  int   m_roiID;
+  pType_p1   m_particleType;
+  float m_eta; 
+  float m_phi;
+  float m_mass;
+  float m_dist;
+  bool  m_valid;
   TPObjRef  m_pVertex;
   TPObjRef  m_secondaryDecay;
 

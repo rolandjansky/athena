@@ -2,8 +2,14 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#define private public
+#define protected public
 #include "TrigParticle/TrigElectron.h"
 #include "TrigParticleTPCnv/TrigElectron_p1.h"
+#undef private
+#undef protected
+
+
 #include "TrigParticleTPCnv/TrigElectronCnv_p1.h"
 
 
@@ -11,7 +17,7 @@ void TrigElectronCnv_p1::persToTrans(const TrigElectron_p1* persObj,
 				     TrigElectron* transObj, 
 				     MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigElectronCnv_p1::persToTrans called " << endmsg;
+   log << MSG::DEBUG << "TrigElectronCnv_p1::persToTrans called " << endreq;
 
 //    transObj->m_trackAlgo = persObj->m_trackAlgo; 
 //    transObj->m_roiID     = persObj->m_roiID    ; 
@@ -30,28 +36,19 @@ void TrigElectronCnv_p1::persToTrans(const TrigElectron_p1* persObj,
 //   fillTransFromPStore( &m_p4PtEtaPhiMCnv, persObj->m_p4PtEtaPhiM, transObj, log );
 
 
-   *transObj = TrigElectron (0, 0, 0,
-                             persObj->m_roiID,
-                             persObj->m_valid,
-                             -999.99,                    // trkEtaAtCalo
-                             -999.99,                    // trkPhiAtCalo
-                             persObj->m_etoverpt,        // EToverPT,
-                             ElementLink< TrigEMClusterContainer >(),
-                             -999.99,                    // caloEta
-                             -999.99,                    // caloPhi
-                             -999.99,                    // Rcore
-                             -999.99,                    // Eratio
-                             -999.99,                    // EThad
-                             0,                          // F0
-                             0,                          // F1
-                             0,                          // F2
-                             0,                          // F3
-                             ElementLink< TrigInDetTrackCollection >(),
-                             persObj->m_trackAlgo,
-                             persObj->m_Zvtx,
-                             0,
-                             0);
-
+   transObj->m_roiWord        = persObj->m_roiID     ; // meaning changed! 
+   transObj->m_valid          = persObj->m_valid     ; // meaning changed slightly (now also used for validating object construction)! 
+   transObj->m_tr_Algo        = persObj->m_trackAlgo   ; 
+   transObj->m_tr_Zvtx        = persObj->m_Zvtx   ; 
+   transObj->m_tr_eta_at_calo = -999.99;               // un-recoverable
+   transObj->m_tr_phi_at_calo = -999.99;               // un-recoverable
+   transObj->m_etoverpt       = persObj->m_etoverpt  ;
+   transObj->m_cl_eta         = -999.99;               // un-recoverable
+   transObj->m_cl_phi         = -999.99;               // un-recoverable
+   transObj->m_cl_Rcore       = -999.99;               // un-recoverable
+   transObj->m_cl_Eratio      = -999.99;               // un-recoverable
+   transObj->m_cl_EThad       = -999.99;               // un-recoverable
+   
 //    No way to re-create ElementLinks from TrigElectron_p1 
 //    without using Navigation (which may not work for ARA)
 //    transObj->m_cluster = ElementLink(...);
@@ -66,8 +63,8 @@ void TrigElectronCnv_p1::transToPers(const TrigElectron* /*transObj*/,
                                      TrigElectron_p1* /*persObj*/, 
 				       MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigElectronCnv_p1::transToPers called " << endmsg;
-   log << MSG::WARNING << "Trying to write TrigElectron to obsolete persistent class TrigElectron_p1!" << endmsg;
+   log << MSG::DEBUG << "TrigElectronCnv_p1::transToPers called " << endreq;
+   log << MSG::WARNING << "Trying to write TrigElectron to obsolete persistent class TrigElectron_p1!" << endreq;
 
 //    persObj->m_trackAlgo = transObj->m_trackAlgo; 
 //    persObj->m_roiID     = transObj->m_roiID    ; 

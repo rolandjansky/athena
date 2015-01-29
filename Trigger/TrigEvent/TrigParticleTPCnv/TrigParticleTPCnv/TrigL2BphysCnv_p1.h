@@ -23,7 +23,6 @@
 
 #include "TrigParticleTPCnv/TrigL2Bphys_p1.h"
 #include "TrigInDetEventTPCnv/TrigVertexCnv_p1.h"
-#include "TrigParticle/TrigL2Bphys.h"
 
 class MsgStream;
 

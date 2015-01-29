@@ -17,8 +17,11 @@
 #ifndef TRIGPARTICLETPCNV_TRIGL2BJET_P3_H
 #define TRIGPARTICLETPCNV_TRIGL2BJET_P3_H
 
-//#include "AthenaPoolUtilities/TPObjRef.h"
+#include <stdint.h>
+#include "TrigParticle/TrigL2Bjet.h"
+#include "AthenaPoolUtilities/TPObjRef.h"
 #include "EventCommonTPCnv/P4PtEtaPhiMCnv_p1.h"
+//#include "FourMom/P4PtEtaPhiM.h
 
 class TrigL2Bjet_p3 {
 
@@ -31,7 +34,7 @@ class TrigL2Bjet_p3 {
     {}
   virtual ~TrigL2Bjet_p3(){}
   
-  //private:
+ private:
 
   bool m_valid;
   

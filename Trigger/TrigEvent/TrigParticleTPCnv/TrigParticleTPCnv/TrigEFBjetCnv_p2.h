@@ -22,7 +22,6 @@
 
 #include "EventCommonTPCnv/P4PtEtaPhiMCnv_p1.h"
 #include "TrigParticleTPCnv/TrigEFBjet_p2.h"
-#include "TrigParticle/TrigEFBjet.h"
 
 class MsgStream;
 
