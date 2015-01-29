@@ -518,6 +518,10 @@ double PathLengthUtils::getPathLengthInTile(const CaloCell& cell, const Amg::Vec
     double CellDZB[9] = {282.99, 283., 282.99, 301.25, 301.25, 328.64, 337.76, 365.16, 336.96};
     double CellZC[9]  = {159.755, 483.83, 812.465, 1150.23, 1497.125, 1857.71, 2241.12, 2628.695,0};
     double CellDZC[9] = {319.51, 328.64, 328.63, 346.9, 346.89, 374.28, 392.54, 382.61,0};
+
+    // SPECIAL CASE: BC9
+    bool isBC9 = false;
+    if(SampleID==13 && ( fabs(cell.caloDDE()->eta()-0.85)<0.001 || fabs(cell.caloDDE()->eta()+0.85)<0.001 ) ) isBC9 = true;
     
     // OBTAIN TRACK AND CELL PARAMETERS
     double pathl = 0.;
@@ -556,7 +560,7 @@ double PathLengthUtils::getPathLengthInTile(const CaloCell& cell, const Amg::Vec
     int lBC(0);
     // LOOP IS USUALLY RUN ONCE, EXCEPT FOR LADDER SHAPED TILECAL CELLS
     while(compute){
-        if(lBC==1) break;
+        if(lBC==1 && isBC9) break;
         int Np = 0;
         if(sqrt((Layer1X-Layer2X)*(Layer1X-Layer2X)+(Layer1Y-Layer2Y)*(Layer1Y-Layer2Y)) < 3818.5){
             if(SampleID == 13 && lBC == 0){

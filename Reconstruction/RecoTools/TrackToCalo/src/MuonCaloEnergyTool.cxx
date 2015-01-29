@@ -30,9 +30,9 @@ namespace Rec {
     m_sigmasAboveNoise(4.),
     m_emEtCut(2.5*CLHEP::GeV),
     m_emF1Cut(0.15),
-    m_emipEM(0.78),
-    m_emipTile(0.86),
-    m_emipHEC(0.94)
+    m_emipEM(0.45), // 0.70
+    m_emipTile(0.84), // 0.90
+    m_emipHEC(0.75)  // 0.85
   {
     declareInterface<IMuonCaloEnergyTool>(this);
     declareProperty("ParticleCaloExtensionTool",      m_caloExtensionTool );
@@ -105,6 +105,13 @@ namespace Rec {
     E_FSR      = 0.;
     E_expected = 0.;
 
+    E_em_meas   = 0.;
+    E_em_exp    = 0.;      
+    E_tile_meas = 0.;
+    E_tile_exp  = 0.;
+    E_HEC_meas  = 0.;
+    E_HEC_exp   = 0.;
+    E_dead_exp  = 0.;
 //
 // For the expected Eloss in the dead or not instrumented material we will use the meanIonization loss
 //     this meanIoni is stored on the extended Eloss object
@@ -116,12 +123,15 @@ namespace Rec {
 //
 // To go to the  meanIonization loss one needs a scale factor scale_Ionization    
 //
+    int isign = 1;
+    if(meanIoni<0) isign = -1;
+    double mopIoni =  meanIoni - isign*3.59524*fabs(sigmaIoni);
     double scale_Ionization = 0.9;
-    if(fabs(deltaE)>0&&fabs(meanIoni)>0) scale_Ionization = meanIoni / deltaE;
+    if(fabs(deltaE)>0&&fabs(meanIoni)>0) scale_Ionization = mopIoni / deltaE;
     double error_ratio = 0.3;
     if(fabs(meanIoni)>0&&sigmaIoni>0) error_ratio = 3.59524*fabs(sigmaIoni/meanIoni);
 
-    ATH_MSG_DEBUG( " Inputs deltaE " << deltaE << " meanIoni " << meanIoni << " sigmaIoni " << sigmaIoni );
+    ATH_MSG_DEBUG( " Inputs deltaE " << deltaE << " meanIoni " << meanIoni << " sigmaIoni " << sigmaIoni << " scale_Ionization " << scale_Ionization << " error_ratio " << error_ratio );
     if(deltaE==0||meanIoni==0||sigmaIoni<0) ATH_MSG_WARNING( " Strange Inputs deltaE " << deltaE << " meanIoni " << meanIoni << " sigmaIoni " << sigmaIoni );
 
     // associate muon to calorimeter 
@@ -160,7 +170,7 @@ namespace Rec {
     if(!tp) return;
 
     const Rec::ParticleCellAssociation* association = 0;
-    m_caloCellAssociationTool->particleCellAssociation(*tp,association,0.1,NULL,true);
+    m_caloCellAssociationTool->particleCellAssociation(*tp,association,0.2,NULL,true);
 
     if(!association) return;
     ATH_MSG_DEBUG( " particleCellAssociation done  " << association );
@@ -180,19 +190,81 @@ namespace Rec {
     }   
 
     ATH_MSG_DEBUG( " nr of cell intersections " << cellIntersections.size() );
-    if( cellIntersections.size() < 3) ATH_MSG_WARNING( " Strange nr of calorimeter cell intersections " << cellIntersections.size() );
+    if( cellIntersections.size() < 3) ATH_MSG_DEBUG( " Strange nr of calorimeter cell intersections " << cellIntersections.size() );
 
     double theta = caloExtension.caloEntryLayerIntersection()->position().theta();
 
     double Eloss = 0.;
+    double scaleTG = 1.0;
     if(!caloExtension.muonEntryLayerIntersection()) {
       ATH_MSG_WARNING( " No muonEntryLayerIntersection found and therefore the expected Eloss is not calculated properly ");
     } else {     
       Eloss = caloExtension.caloEntryLayerIntersection()->momentum().mag() - caloExtension.muonEntryLayerIntersection()->momentum().mag();
       ATH_MSG_DEBUG( " Energy loss from CaloExtension " << Eloss << " R muon Entry " << caloExtension.muonEntryLayerIntersection()->position().perp() << " Z muon Entry " << caloExtension.muonEntryLayerIntersection()->position().z() << " R calo entry " << caloExtension.caloEntryLayerIntersection()->position().perp() << " Z calo entry " << caloExtension.caloEntryLayerIntersection()->position().z() );
+     if(Eloss>10000.) { 
+       ATH_MSG_WARNING( " Crazy Energy loss from CaloExtension " << Eloss << " p at CaloEntry " << caloExtension.caloEntryLayerIntersection()->momentum().mag() << " p at Muon Entry " << caloExtension.muonEntryLayerIntersection()->momentum().mag()); 
+       scaleTG = mopIoni/Eloss;
+     }
+  
     }
 
-    //auto cellcoll = association->data();
+    CaloExtensionHelpers::EntryExitLayerMap  entryExitLayerMap;
+    CaloExtensionHelpers::entryExitLayerMap( caloExtension, entryExitLayerMap );
+    ATH_MSG_DEBUG("EntryExitLayerMap " << entryExitLayerMap.size() );
+
+    CaloExtensionHelpers::ScalarLayerMap  eLossLayerMap;
+    CaloExtensionHelpers::eLossLayerMap( caloExtension, eLossLayerMap );
+    ATH_MSG_DEBUG("eLossLayerMap " << eLossLayerMap.size() );
+
+
+    double scale_em_expected   = 0.73;
+    double scale_tile_expected = 0.92;
+    double scale_HEC_expected  = 0.98;
+//   
+// TG expectations
+//   
+    double EE_emB  = 0.;
+    double EE_emE  = 0.;
+    double EE_HEC  = 0.;
+    double EE_tile = 0.;
+//
+//    const char* sampname[24] = {
+//    	"PreSamplerB", "EMB1", "EMB2", "EMB3",
+//    	"PreSamplerE", "EME1", "EME2", "EME3",
+//    	"HEC0", "HEC1","HEC2", "HEC3",
+//    	"TileBar0", "TileBar1", "TileBar2",
+//    	"TileExt0", "TileExt1", "TileExt2",
+//    	"TileGap1", "TileGap2", "TileGap3",
+//    	"FCAL0", "FCAL1", "FCAL2"};
+//
+    for(int i = CaloSampling::PreSamplerB ; i < CaloSampling::CaloSample::Unknown; i++) {
+      CaloSampling::CaloSample sample = static_cast<CaloSampling::CaloSample>(i);
+      auto pos = entryExitLayerMap.find(sample);
+      if( pos == entryExitLayerMap.end() ) continue;
+      auto eLossPair = eLossLayerMap.find(sample);
+      double eLoss = 0.;
+      if( eLossPair != eLossLayerMap.end() ){
+         eLoss = eLossPair->second;
+         ATH_MSG_DEBUG(" sample " << i  << " eLoss " <<  scale_Ionization*eLoss);
+         if(i<=3) {
+            EE_emB += scale_em_expected*scale_Ionization*eLoss;
+         } else if(i<=7) {        
+            EE_emE += scale_em_expected*scale_Ionization*eLoss;
+         } else if(i<=11) {        
+            EE_HEC += scale_HEC_expected*scale_Ionization*eLoss;
+        } else if(i<=20) {        
+            EE_tile += scale_tile_expected*scale_Ionization*eLoss;
+        } 
+      } 
+    }
+    if(caloExtension.caloEntryLayerIntersection()&&caloExtension.muonEntryLayerIntersection()) {
+      double  Eloss = caloExtension.caloEntryLayerIntersection()->momentum().mag() - caloExtension.muonEntryLayerIntersection()->momentum().mag();
+      ATH_MSG_DEBUG(" eta " << caloExtension.caloEntryLayerIntersection()->momentum().eta() << " expected energies from TG EE_emB " << EE_emB << " EE_emE " << EE_emE << " EE_tile " << EE_tile << " EE_HEC " << EE_HEC << " total Eloss " << Eloss);
+    }
+//
+// do not continue with crazy values for the Eloss from TG
+//
+    if(scaleTG!=1.0) return; 
 
     // measured and expected energies 
 
@@ -221,16 +293,6 @@ namespace Rec {
     int    nlay_tile = 0;
     double sigma_Noise_tile = 0.;
 
-//    const char* sampname[24] = {
-//    	"PreSamplerB", "EMB1", "EMB2", "EMB3",
-//    	"PreSamplerE", "EME1", "EME2", "EME3",
-//    	"HEC0", "HEC1","HEC2", "HEC3",
-//    	"TileBar0", "TileBar1", "TileBar2",
-//    	"TileExt0", "TileExt1", "TileExt2",
-//    	"TileGap1", "TileGap2", "TileGap3",
-//    	"FCAL0", "FCAL1", "FCAL2"};
-//    for(const auto& curr_cell : cellcoll ){
-   
     E_expected = 0.;
     double phiPos = caloExtension.caloEntryLayerIntersection()->position().phi();
     double thetaPos = caloExtension.caloEntryLayerIntersection()->position().theta();
@@ -274,34 +336,35 @@ namespace Rec {
         if(f_exp>0&&cellEn>m_sigmasAboveNoise*sigma_Noise&&!badCell)  E_em1 += cellEn; 
       }
       if(curr_cell->caloDDE()->getSubCalo() == CaloCell_ID::LAREM) {
-        E_em_exptot += scale_Ionization*f_exp*E_exp;
-        if(f_exp>0) E_em_expall += scale_Ionization*E_exp;
+        E_em_exptot += scale_Ionization*f_exp*E_exp*scale_em_expected;
+        if(f_exp>0) E_em_expall += scale_Ionization*E_exp*scale_em_expected;
         if(f_exp>0&&cellEn>m_sigmasAboveNoise*sigma_Noise&&!badCell) {
+//        if(f_exp>0&&cellEn>m_sigmasAboveNoise*sigma_Noise&&!badCell) {
           E_em  += cellEn;
-          E_em_expected += scale_Ionization*f_exp*E_exp;
+          E_em_expected += scale_Ionization*f_exp*E_exp*scale_em_expected;
           ATH_MSG_VERBOSE( " EM cell " << cellEn << " sigma_Noise " << sigma_Noise << " f_exp " << f_exp << " E_exp " << E_exp);
         }
         if(f_exp>0&&!badCell) nlay_em++; 
         if(f_exp>0&&!badCell) sigma_Noise_em += sigma_Noise; 
       } else if(curr_cell->caloDDE()->getSubCalo() == CaloCell_ID::TILE) {
-        E_tile_exptot += scale_Ionization*f_exp*E_exp;
-        if(f_exp>0) E_tile_expall += scale_Ionization*E_exp;
+        E_tile_exptot += scale_Ionization*f_exp*E_exp*scale_tile_expected;
+        if(f_exp>0) E_tile_expall += scale_Ionization*E_exp*scale_tile_expected;
         if(f_exp>0&&cellEn>m_sigmasAboveNoise*sigma_Noise&&!badCell) {
 //                       &&f_exp*E_exp>m_sigmasAboveNoise*sigma_Noise/4) {
           E_tile  += cellEn;
-          E_tile_expected += scale_Ionization*f_exp*E_exp;
+          E_tile_expected += scale_Ionization*f_exp*E_exp*scale_tile_expected;
           ATH_MSG_VERBOSE( " Tile cell " << cellEn << " sigma_Noise " << sigma_Noise << " f_exp " << f_exp << " E_exp " << E_exp);
         }
         if(f_exp>0&&!badCell) nlay_tile++; 
         if(f_exp>0&&!badCell) sigma_Noise_tile += sigma_Noise; 
       } else if(curr_cell->caloDDE()->getSubCalo() == CaloCell_ID::LARHEC) {
-        E_HEC_exptot += scale_Ionization*f_exp*E_exp;
-        if(f_exp>0) E_HEC_expall += scale_Ionization*E_exp;
+        E_HEC_exptot += scale_Ionization*f_exp*E_exp*scale_HEC_expected;
+        if(f_exp>0) E_HEC_expall += scale_Ionization*E_exp*scale_HEC_expected;
 // lower threshold for HEC 
         if(f_exp>0&&cellEn>m_sigmasAboveNoise*sigma_Noise/2.&&!badCell) {
 //                        &&f_exp*E_exp>m_sigmasAboveNoise*sigma_Noise/4) {
           E_HEC  += cellEn;
-          E_HEC_expected += scale_Ionization*f_exp*E_exp;
+          E_HEC_expected += scale_Ionization*f_exp*E_exp*scale_HEC_expected;
           ATH_MSG_VERBOSE( " HEC cell " << cellEn << " sigma_Noise " << sigma_Noise << " f_exp " << f_exp << " E_exp " << E_exp);
         } 
         if(f_exp>0&&!badCell) nlay_HEC++; 
@@ -322,16 +385,16 @@ namespace Rec {
     
 // go from e.m. scale to Muon Energy scale
 
-    E_em   /= m_emipEM;
-    E_tile /= m_emipTile;
-    E_HEC  /= m_emipHEC;
+    E_em   *= m_emipEM;
+    E_tile *= m_emipTile;
+    E_HEC  *= m_emipHEC;
     ATH_MSG_DEBUG( " e.m. to Muon scale measured Energies em " << E_em << " tile " << E_tile << " HEC " << E_HEC);
 
 // also for errors
 
-    sigma_em   /= m_emipEM;
-    sigma_tile /= m_emipTile;
-    sigma_HEC  /= m_emipHEC;
+    sigma_em   *= m_emipEM;
+    sigma_tile *= m_emipTile;
+    sigma_HEC  *= m_emipHEC;
 
 // Average Noise per layer 
 
@@ -384,13 +447,26 @@ namespace Rec {
 //
 //   E_em_meas,E_em_exp,E_tile_meas,E_tile_exp,E_HEC_meas,E_HEC_exp,E_dead_exp
 //
-     E_em_meas   = E_em + E_em_threshold;
-     E_em_exp    = E_em_expected;
-     E_tile_meas = E_tile + E_tile_threshold;
-     E_tile_exp  = E_tile_expected;
-     E_HEC_meas  = E_HEC + E_HEC_threshold;
-     E_HEC_exp   = E_HEC_expected;
-     E_dead_exp  = E_dead; 
+
+//     E_em_meas   = E_em + E_em_threshold;
+//     E_em_exp    = E_em_expected;
+//     E_tile_meas = E_tile + E_tile_threshold;
+//     E_tile_exp  = E_tile_expected;
+//     E_HEC_meas  = E_HEC + E_HEC_threshold;
+//     E_HEC_exp   = E_HEC_expected;
+//     E_dead_exp  = E_dead; 
+       
+     double EE_dead = E_expected - EE_emB - EE_emE - EE_tile - EE_HEC;
+//
+//   move expected (to match the TG expected Eloss) and measured energies
+//
+     E_em_meas   = E_em + E_em_threshold + EE_emB + EE_emE - E_em_expected;
+     E_em_exp    = EE_emB + EE_emE;      
+     E_tile_meas = E_tile + E_tile_threshold + EE_tile - E_tile_expected;
+     E_tile_exp  = EE_tile;
+     E_HEC_meas  = E_HEC + E_HEC_threshold + EE_HEC - E_HEC_expected;
+     E_HEC_exp   = EE_HEC;
+     E_dead_exp  = EE_dead;
 
   } // calculateMuonEnergies
 
@@ -399,13 +475,14 @@ namespace Rec {
 
 //
 // Total energy observed and expected in cells of LAr, Tile, or HEC after 4*sigma_Noise cut
+//                       for a resolution of dE/E of 20%
 //
 // returns a correction to the energy based on the expected energy
 //
 //   one should so use: Etotal = E_observed + E_dead + ThresholdCorrection(E_observed,E_expected,sigma_Noise)
 
-    Double_t par[5] = {1.33548e+00,-1.00854e+01,5.38111e+01,-9.33379e+00,5.32913e+01};
-
+    Double_t par[6] = {1.01431e+00,-2.26317e+01,1.80901e+02 ,-2.33105e+01, 1.82930e+02,1.11356e-02};
+ 
     double E = E_expected;
 
     if(E==0) return 0.;
@@ -415,7 +492,7 @@ namespace Rec {
 
   // formula is for a 4 sigma Noise cut and obtained by a small simulation programm
 
-    double fraction = (par[0]+par[1]*x+par[2]*x*x)/(1.+par[3]*x+par[4]*x*x);
+    double fraction = (par[0]+par[1]*x+par[2]*x*x)/(1.+par[3]*x+par[4]*x*x)+par[5]*x;
 
   // for low x values (low thresholds) the fraction is bigger than 1 
   // (1.33) because the observed energy overestimates

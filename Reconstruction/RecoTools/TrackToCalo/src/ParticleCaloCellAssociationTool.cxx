@@ -20,6 +20,7 @@
 #include "xAODTracking/TrackingPrimitives.h"
 #include <math.h>
 
+
 namespace Rec {
 
   ParticleCaloCellAssociationTool::ParticleCaloCellAssociationTool(const std::string& t, const std::string& n, const IInterface*  p )
@@ -34,8 +35,8 @@ namespace Rec {
     //Default data source for the calocells
     declareProperty("CaloCellContainer", m_cellContainerName="AllCalo");
 
-    //coneSize for including calo cells around track
-    declareProperty("ConeSize", m_coneSize = 0.1);
+    //coneSize for including calo cells around track below 0.2 we will loose cells energy in e.g. Tile HEC etc.
+    declareProperty("ConeSize", m_coneSize = 0.2);
 
   }
 
@@ -84,7 +85,7 @@ namespace Rec {
     CaloExtensionHelpers::ScalarLayerMap  eLossLayerMap, pathLenLayerMap;
     CaloExtensionHelpers::eLossLayerMap( extension, eLossLayerMap );
     CaloExtensionHelpers::pathLenLayerMap( extension, pathLenLayerMap );
-    
+
     ATH_MSG_DEBUG("Getting cells intersections using cells " << cells.size() );
     for( auto cell : cells ){
       // get sampling and look up entry/exit points
@@ -92,7 +93,14 @@ namespace Rec {
 
       auto pos = entryExitLayerMap.find(sample);
       if( pos == entryExitLayerMap.end() ) continue;
-
+//
+// pos2 and weight2 are introduced because the PreSamplerB has sometimes a very small size
+//         PresamplerB and EMB1 are merged 
+//
+      auto pos2 = pos;
+      if(sample== CaloSampling::PreSamplerB) {
+        pos2 = entryExitLayerMap.find(CaloSampling::EMB1);
+      } 
       //// calculate 3D path length
       double path = 0.;
 
@@ -106,32 +114,24 @@ namespace Rec {
       if(sample== CaloSampling::PreSamplerB ||  sample== CaloSampling::EMB1 ||  sample== CaloSampling::EMB2 || sample== CaloSampling::EMB3) barrel = true;
 
     
-     double drTG =  fabs((pos->second.first-pos->second.second).perp());
-     double dzTG =  fabs((pos->second.first-pos->second.second).z());
+     double drTG =  fabs((pos->second.first-pos2->second.second).perp());
+     double dzTG =  fabs((pos->second.first-pos2->second.second).z());
 
      if(barrel) ATH_MSG_VERBOSE(" barrel cell sampling " << cell->caloDDE()->getSampling() <<  " dr " << cell->caloDDE()->dr() << " drTG " << drTG ); 
      if(!barrel) ATH_MSG_VERBOSE(" endcap cell sampling " << cell->caloDDE()->getSampling() <<  " dz " << cell->caloDDE()->dz() << " dzTG " << dzTG ); 
-// 
-// always use fixed values that correspond to the Calorimeter Tracking Geometry
-// these are different from the CaloCell values
-//
-      if(!barrel) dzFix = dzTG;
-      if(barrel)  drFix = drTG;
-
 
       if(drFix==0.) { 
 // recalculate the r values from the other cells 
-// BUG: extract dr from cell container for sampling 4 5 6 7 needed EME 
-// BUG: extract dr from cell container for sampling 8 9 10 11 needed HEC 
+// BUG/FEATURE: extract dr from cell container for sampling 4 5 6 7 needed EME 
+// BUG/FEATURE: extract dr from cell container for sampling 8 9 10 11 needed HEC 
         if(cell->caloDDE()->deta()>0) {
-          double dtheta = cell->caloDDE()->deta();
           double theta = atan2(cell->caloDDE()->r(),cell->z());
+          double dtheta = 2*cell->caloDDE()->deta()*sin(theta/2.)*cos(theta/2);
           if( theta+dtheta < M_PI ) {
-            double deta = -log(tan((theta+dtheta)/2.)) + log(tan((theta)/2.));  
-            double scale = fabs(deta)/cell->caloDDE()->deta();
-            double dr = fabs(cell->z()*tan(theta+dtheta/scale) - cell->z()*tan(theta));
-            drFix = dr; 
-            ATH_MSG_VERBOSE(" FIX cell sampling " << cell->caloDDE()->getSampling() << " deta " << cell->caloDDE()->deta() << " drFix " << drFix);
+            double dr = fabs(cell->z()*tan(theta+dtheta) - cell->z()*tan(theta));
+            drFix = fabs(dr); 
+            double detaCheck = -log(tan((theta+dtheta)/2.)) + log(tan((theta)/2.));
+            ATH_MSG_VERBOSE(" FIX cell sampling " << cell->caloDDE()->getSampling() << " deta " << cell->caloDDE()->deta() << " detaCheck " << detaCheck << " drFix " << drFix);
           }else{
             ATH_MSG_WARNING(" FIXR cell sampling failed: theta " << theta << " dtheta " << dtheta << " sum/pi " << (theta+dtheta)/M_PI 
                             << " deta " << cell->caloDDE()->deta());
@@ -164,20 +164,19 @@ namespace Rec {
 
       if(dzFix==0.) { 
 // recalculate z values from the other cells 
-// BUG: extract dz from cell container for sampling 0 1 2 3 needed EMB  
+// BUG/FEATURE: extract dz from cell container for sampling 0 1 2 3 needed EMB  
         if(cell->caloDDE()->deta()>0) {
-          double dtheta = cell->caloDDE()->deta();
           double theta = atan2(cell->caloDDE()->r(),cell->z());
+          double dtheta = 2*cell->caloDDE()->deta()*sin(theta/2.)*cos(theta/2);
           if( theta+dtheta < M_PI ) {
-            double deta = -log(tan((theta+dtheta)/2.)) + log(tan((theta)/2.));  
-            double scale = fabs(deta)/cell->caloDDE()->deta();
-            double dz = fabs(cell->caloDDE()->r()/tan(theta+dtheta/scale) - cell->caloDDE()->r()/tan(theta));
+            double dz = fabs(cell->caloDDE()->r()/tan(theta+dtheta) - cell->caloDDE()->r()/tan(theta));
             dzFix = dz; 
           }else{
             ATH_MSG_WARNING(" FIXZ cell sampling failed: theta " << theta << " dtheta " << dtheta << " sum/pi " << (theta+dtheta)/M_PI 
                             << " deta " << cell->caloDDE()->deta());
           }
-          ATH_MSG_VERBOSE(" Fix cell sampling " << cell->caloDDE()->getSampling() << " deta " << cell->caloDDE()->deta() << " dzFix " << dzFix);
+          double detaCheck = -log(tan((theta+dtheta)/2.)) + log(tan((theta)/2.));
+          ATH_MSG_VERBOSE(" Fix cell sampling " << cell->caloDDE()->getSampling() << " deta " << cell->caloDDE()->deta() << " detaCheck  " << detaCheck  << " dtheta " << dtheta << " dzFix " << dzFix);
           //          ATH_MSG_VERBOSE(" FIX cell sampling deta " << deta << " dtheta " << dtheta  << "  scale " <<  scale << " theta " << theta );
         } else {
           double dzMin = 100000.;
@@ -203,18 +202,33 @@ namespace Rec {
           if(cellFound) ATH_MSG_VERBOSE(" cellFound sampling " << cellFound->caloDDE()->getSampling() << " x " << cellFound->caloDDE()->x() << " y " << cellFound->caloDDE()->y() << " z " << cellFound->caloDDE()->z() << " dz " << cellFound->caloDDE()->dz()  << " dscut " << dscut << " dzFix "  << dzFix );
         }    
       }
+// 
+// always use fixed values that correspond to the Calorimeter Tracking Geometry
+// these are different from the CaloCell values
+//
+      double ratioCheck = 1;
+      if(barrel)  ratioCheck = drFix/drTG;
+      if(!barrel) ratioCheck = dzFix/dzTG;
+      if(cell->energy()>50.) ATH_MSG_DEBUG(" cell sampling and size "  << cell->caloDDE()->getSampling() << " cell energy " << cell->energy() << " dzFix " << dzFix << " dzTG " << dzTG << " drFix " << drFix << " drTG " << drTG << " barrel " << barrel << " ratioCheck " << ratioCheck );
+     
+      if(!barrel) dzFix = dzTG;
+      if(barrel)  drFix = drTG;
 
       if(use3D) {
       //pathLenUtil.pathInsideCell( *cell, entryExitLayerMap);
-        double pathInMM = pathLenUtil.get3DPathLength(*cell, pos->second.first, pos->second.second,drFix,dzFix);
-        double totpath =  (pos->second.first-pos->second.second).mag();
+        double pathInMM = pathLenUtil.get3DPathLength(*cell, pos->second.first, pos2->second.second,drFix,dzFix);
+        double totpath =  (pos->second.first-pos2->second.second).mag();
         path = totpath!=0 ? pathInMM / totpath : 0.; 
+        if(path>0||cell->energy()>50.) { 
+          ATH_MSG_DEBUG(" cell sampling and size "  << cell->caloDDE()->getSampling() << " cell energy " << cell->energy() << " drFix " << drFix << " dzFix " << dzFix << " path " << path << " length TG " << totpath);
+          ATH_MSG_DEBUG(" cell dr "  << cell->caloDDE()->dr() << " cell dz " << cell->caloDDE()->dz() << " deta " << cell->caloDDE()->deta()); 
+        }
       }
 
       //// calculate 2D path length (method2)
       double path2 = 0.;
 
-      if(!use3D) path2 = pathInsideCell(*cell, pos->second.first, pos->second.second );
+      if(!use3D) path2 = pathInsideCell(*cell, pos->second.first, pos2->second.second );
 
       if( path2 <= 0. && path <= 0. ) continue;
 
@@ -222,13 +236,24 @@ namespace Rec {
       auto eLossPair = eLossLayerMap.find(sample);
       double eLoss = 0.;
 //
-// DO NOT scale eloss with tracklength in cell just store total expected eloss
+// Just store total expected eloss
 //
       if( eLossPair != eLossLayerMap.end() ){
         eLoss = eLossPair->second;
+        if(sample == CaloSampling::PreSamplerB) {
+          auto eLossPair2 = eLossLayerMap.find(CaloSampling::EMB1);
+          if( eLossPair2 != eLossLayerMap.end() ){
+            eLoss = 0.5*(eLossPair->second) +  0.5*(eLossPair2->second); 
+          }
+        } else if(sample == CaloSampling::EMB1) {
+          auto eLossPair2 = eLossLayerMap.find(CaloSampling::PreSamplerB);
+          if( eLossPair2 != eLossLayerMap.end() ){
+            eLoss = 0.5*(eLossPair->second) +  0.5*(eLossPair2->second); 
+          }
+        } 
       } // IF
 
-      ATH_MSG_DEBUG(" PATH3D = " << path << " PATH2D = " << path2 << " eLoss " << eLoss << " cell energy " << (cell)->energy() << " radius " << cell->caloDDE()->r() << " phi " << cell->caloDDE()->phi() << " dr " << cell->caloDDE()->dr() << " dphi " << cell->caloDDE()->dphi()  << " x " << cell->caloDDE()->x() << " y " << cell->caloDDE()->y() << " z " << cell->caloDDE()->z() << " dx " << cell->caloDDE()->dx() << " dy " << cell->caloDDE()->dy() << " dz " << cell->caloDDE()->dz() << " volume " << cell->caloDDE()->volume());
+      ATH_MSG_DEBUG(" PATH3D = " << path << " PATH2D = " << path2 << " eLoss " << eLoss << " cell energy " << (cell)->energy() << " radius " << cell->caloDDE()->r() << " phi " << cell->caloDDE()->phi() << " dr " << cell->caloDDE()->dr() << " dphi " << cell->caloDDE()->dphi()  << " x " << cell->caloDDE()->x() << " y " << cell->caloDDE()->y() << " z " << cell->caloDDE()->z() << " dx " << cell->caloDDE()->dx() << " dy " << cell->caloDDE()->dy() << " dz " << cell->caloDDE()->dz() << " volume " << cell->caloDDE()->volume() <<  " ratioCheck " << ratioCheck  );
 
       cellIntersections.push_back( std::make_pair(cell, new ParticleCellIntersection( *cell, eLoss, use3D?path:path2) ) );
       //cellIntersections.push_back( std::make_pair(cell, new ParticleCellIntersection( *cell, eLoss, path/pathLenLayerMap[sample]) ) );
@@ -353,8 +378,9 @@ namespace Rec {
     myList.select(eta,phi,dr);
     cells.reserve(myList.ncells());
     cells.insert(cells.end(),myList.begin(),myList.end());
-
+ 
     ATH_MSG_DEBUG("associated cells " << cells.size() << " using cone " << dr );
+    
   }
 
 } // end of namespace Trk
