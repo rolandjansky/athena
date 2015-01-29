@@ -5,7 +5,6 @@
 #ifndef TRIGMUONEVENTTPCNV_MUONFEATUREDETAILS_P2_H
 #define TRIGMUONEVENTTPCNV_MUONFEATUREDETAILS_P2_H
 
-#include "TrigMuonEvent/MuonFeatureDetails.h"
 #include <stdint.h>
 
 // transient side of this class is completely wrongly organized. it's all in separate vectors.
@@ -56,7 +55,7 @@ class MuonFeatureDetails_p2
   MuonFeatureDetails_p2() {}
   ~MuonFeatureDetails_p2(){}
 
-  // private:
+ private:
 
 /**********************************************
 * very important! don't change anything in this file.

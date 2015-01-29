@@ -2,8 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#define private public
+#define protected public
 #include "TrigMuonEvent/CombinedMuonFeature.h"
 #include "TrigMuonEventTPCnv/CombinedMuonFeature_p4.h"
+#undef private
+#undef protected
+ 
 #include "TrigMuonEventTPCnv/CombinedMuonFeatureCnv_p4.h"
  
 //-----------------------------------------------------------------------------
@@ -13,20 +18,14 @@ void CombinedMuonFeatureCnv_p4::persToTrans( const CombinedMuonFeature_p4 *persO
 					     CombinedMuonFeature    *transObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "CombinedMuonFeatureCnv_p4::persToTrans called " << endmsg;
+  log << MSG::DEBUG << "CombinedMuonFeatureCnv_p4::persToTrans called " << endreq;
 
-  ElementLink< MuonFeatureContainer> muFastTrack;  
-  m_elementLinkMuFeatCnv.persToTrans( &persObj->m_muFastTrack, &muFastTrack, log );
-
-  ElementLink< TrigInDetTrackCollection> IDTrack;
-  m_elementLinkInDetTrackCnv.persToTrans( &persObj->m_IDTrack, &IDTrack, log );
-
-  *transObj = CombinedMuonFeature (persObj->m_pt,
-                                   persObj->m_sigma_pt,
-                                   persObj->m_charge,
-                                   persObj->m_flag,
-                                   muFastTrack,
-                                   IDTrack);
+  transObj->m_pt          = persObj->m_pt;
+  transObj->m_sigma_pt    = persObj->m_sigma_pt;
+  transObj->m_charge      = persObj->m_charge;
+  transObj->m_flag        = persObj->m_flag,
+  m_elementLinkMuFeatCnv.persToTrans( &persObj->m_muFastTrack, &transObj->m_muFastTrack, log );
+  m_elementLinkInDetTrackCnv.persToTrans( &persObj->m_IDTrack, &transObj->m_IDTrack, log );
 }
  
 //-----------------------------------------------------------------------------
@@ -36,14 +35,13 @@ void CombinedMuonFeatureCnv_p4::transToPers( const CombinedMuonFeature    *trans
 					     CombinedMuonFeature_p4 *persObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "CombinedMuonFeatureCnv_p4::transToPers called " << endmsg;
+  log << MSG::DEBUG << "CombinedMuonFeatureCnv_p4::transToPers called " << endreq;
 
-  persObj->m_pt           = transObj->pt();
-  persObj->m_sigma_pt     = transObj->sigma_pt_raw();
-  persObj->m_charge       = transObj->charge();
-  persObj->m_flag         = transObj->getFlag(),
-
-  m_elementLinkMuFeatCnv.transToPers( &transObj->muFastTrackLink(), &persObj->m_muFastTrack, log );
-  m_elementLinkInDetTrackCnv.transToPers( &transObj->IDTrackLink(), &persObj->m_IDTrack, log );
+  persObj->m_pt           = transObj->m_pt;
+  persObj->m_sigma_pt     = transObj->m_sigma_pt;
+  persObj->m_charge       = transObj->m_charge;
+  persObj->m_flag         = transObj->m_flag,
+  m_elementLinkMuFeatCnv.transToPers( &transObj->m_muFastTrack, &persObj->m_muFastTrack, log );
+  m_elementLinkInDetTrackCnv.transToPers( &transObj->m_IDTrack, &persObj->m_IDTrack, log );
    
 }

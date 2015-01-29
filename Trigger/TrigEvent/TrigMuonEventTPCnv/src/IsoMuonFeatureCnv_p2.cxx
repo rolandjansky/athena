@@ -2,7 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#define private public
+#define protected public
 #include "TrigMuonEvent/IsoMuonFeature.h"
+#include "TrigMuonEventTPCnv/IsoMuonFeature_p2.h"
+#undef private
+#undef protected
+ 
 #include "TrigMuonEventTPCnv/IsoMuonFeatureCnv_p2.h"
  
 //-----------------------------------------------------------------------------
@@ -12,7 +18,7 @@ void IsoMuonFeatureCnv_p2::persToTrans( const IsoMuonFeature_p2 *persObj,
 					     IsoMuonFeature    *transObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "IsoMuonFeatureCnv_p2::persToTrans called " << endmsg;
+  log << MSG::DEBUG << "IsoMuonFeatureCnv_p2::persToTrans called " << endreq;
 
   transObj->m_EtInnerConeEC    = persObj->m_allTheFloats[0]    ;
   transObj->m_EtOuterConeEC    = persObj->m_allTheFloats[1]    ;
@@ -41,7 +47,7 @@ void IsoMuonFeatureCnv_p2::transToPers( const IsoMuonFeature    *transObj,
 					     IsoMuonFeature_p2 *persObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "IsoMuonFeatureCnv_p1::transToPers called " << endmsg;
+  log << MSG::DEBUG << "IsoMuonFeatureCnv_p1::transToPers called " << endreq;
 
   persObj->m_allTheFloats[0]  = transObj->m_EtInnerConeEC    ;
   persObj->m_allTheFloats[1]  = transObj->m_EtOuterConeEC    ;

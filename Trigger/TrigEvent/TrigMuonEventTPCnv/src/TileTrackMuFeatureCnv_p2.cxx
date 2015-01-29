@@ -2,8 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#define private public
+#define protected public
 #include "TrigMuonEvent/TileTrackMuFeature.h"
 #include "TrigMuonEventTPCnv/TileTrackMuFeature_p2.h"
+#undef private
+#undef protected
+ 
 #include "TrigMuonEventTPCnv/TileTrackMuFeatureCnv_p2.h"
  
 //-----------------------------------------------------------------------------
@@ -13,20 +18,15 @@ void TileTrackMuFeatureCnv_p2::persToTrans( const TileTrackMuFeature_p2 *persObj
 					     TileTrackMuFeature    *transObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "TileTrackMuFeatureCnv_p2::persToTrans called " << endmsg;
+  log << MSG::DEBUG << "TileTrackMuFeatureCnv_p2::persToTrans called " << endreq;
 
-  ElementLink< TileMuFeatureContainer> tileMuOutput;
-  m_ELink_TileMuCnv.persToTrans( &persObj->m_TileMu, &tileMuOutput, log);
+  transObj->m_PtTR_Trk          = persObj->m_PtTR_Trk;
+  transObj->m_EtaTR_Trk         = persObj->m_EtaTR_Trk;
+  transObj->m_PhiTR_Trk         = persObj->m_PhiTR_Trk;
+  transObj->m_Typ_IDTrk         = persObj->m_Typ_IDTrk;
 
-  ElementLink< TrigInDetTrackCollection> IDScanOutput;
-  m_ELink_IDTkCnv.persToTrans(   &persObj->m_Track,  &IDScanOutput,  log);
-
-  *transObj = TileTrackMuFeature (persObj->m_PtTR_Trk,
-                                  persObj->m_EtaTR_Trk,
-                                  persObj->m_PhiTR_Trk,
-                                  persObj->m_Typ_IDTrk,
-                                  tileMuOutput,
-                                  IDScanOutput);
+  m_ELink_TileMuCnv.persToTrans( &persObj->m_TileMu, &transObj->m_TileMuOutput, log);
+  m_ELink_IDTkCnv.persToTrans(   &persObj->m_Track,  &transObj->m_IDScanOutput,  log);
 }
  
 //-----------------------------------------------------------------------------
@@ -36,13 +36,14 @@ void TileTrackMuFeatureCnv_p2::transToPers( const TileTrackMuFeature    *transOb
 					     TileTrackMuFeature_p2 *persObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "TileTrackMuFeatureCnv_p2::transToPers called " << endmsg;
+  log << MSG::DEBUG << "TileTrackMuFeatureCnv_p2::transToPers called " << endreq;
 
-  persObj->m_PtTR_Trk   = transObj->PtTR_Trk();
-  persObj->m_EtaTR_Trk  = transObj->EtaTR_Trk();
-  persObj->m_PhiTR_Trk  = transObj->PhiTR_Trk();
-  persObj->m_Typ_IDTrk  = transObj->Typ_IDTrk();
+  persObj->m_PtTR_Trk   = transObj->m_PtTR_Trk;
+  persObj->m_EtaTR_Trk  = transObj->m_EtaTR_Trk;
+  persObj->m_PhiTR_Trk  = transObj->m_PhiTR_Trk;
+  persObj->m_Typ_IDTrk  = transObj->m_Typ_IDTrk;
 
-  m_ELink_TileMuCnv.transToPers( &transObj->TileMuLink(),  &persObj->m_TileMu, log);
-  m_ELink_IDTkCnv.transToPers(   &transObj->IDScanLink(), &persObj->m_Track,  log);
+  m_ELink_TileMuCnv.transToPers( &transObj->m_TileMuOutput,  &persObj->m_TileMu, log);
+  m_ELink_IDTkCnv.transToPers(   &transObj->m_IDScanOutput, &persObj->m_Track,  log);
+
 }
