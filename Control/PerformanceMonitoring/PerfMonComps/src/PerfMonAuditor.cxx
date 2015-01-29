@@ -51,7 +51,7 @@ PerfMonAuditor::PerfMonAuditor( const std::string& name,
 ///////////////
 PerfMonAuditor::~PerfMonAuditor()
 { 
-  //m_msg << MSG::DEBUG << "Calling destructor" << endmsg;
+  //m_msg << MSG::DEBUG << "Calling destructor" << endreq;
 }
 
 StatusCode PerfMonAuditor::initialize()
@@ -61,7 +61,7 @@ StatusCode PerfMonAuditor::initialize()
   if ( !m_monSvc.retrieve().isSuccess() ) {
     msg << MSG::ERROR
         << "Could not retrieve [" << m_monSvc.typeAndName() << "] !!"
-        << endmsg;
+        << endreq;
     return StatusCode::FAILURE;
   }
 

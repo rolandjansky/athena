@@ -20,7 +20,6 @@
 // STL includes
 #include <string>
 #include <iosfwd>
-#include <unordered_map>
 
 // FrameWork includes
 #include "GaudiKernel/INamedInterface.h"
@@ -29,6 +28,9 @@
 #include "GaudiKernel/StatEntity.h"
 #include "GaudiKernel/IIoComponent.h"
 #include "AthenaBaseComps/AthService.h"
+
+// SGTools includes
+#include "CxxUtils/unordered_map.h"
 
 // PerfMonKernel includes
 #include "PerfMonKernel/IPerfMonSvc.h"
@@ -46,11 +48,11 @@ struct _object; typedef _object PyObject;
 namespace PerfMon {
   struct Tuple
   {
-    typedef std::unordered_map<std::string,  PerfMon::Component> CompStore_t;
-    typedef std::unordered_map<std::string,PerfMon::IoContainer> IoCompStore_t;
+    typedef SG::unordered_map<std::string,  PerfMon::Component> CompStore_t;
+    typedef SG::unordered_map<std::string,PerfMon::IoContainer> IoCompStore_t;
   
-    typedef std::unordered_map<std::string,  CompStore_t> CompTuple_t;
-    typedef std::unordered_map<std::string,IoCompStore_t> IoCompTuple_t;
+    typedef SG::unordered_map<std::string,  CompStore_t> CompTuple_t;
+    typedef SG::unordered_map<std::string,IoCompStore_t> IoCompTuple_t;
 
     CompTuple_t comp;
     IoCompTuple_t iocomp;
@@ -326,7 +328,7 @@ private:
     StatEntity nalloc;
     StatEntity rt;
   };
-  typedef std::unordered_map<std::string, Stats_t>    StatStore_t;
+  typedef SG::unordered_map<std::string, Stats_t>    StatStore_t;
   StatStore_t m_stats;
 
   // a struct which shadows PerfMon::Mem to correct for double counting

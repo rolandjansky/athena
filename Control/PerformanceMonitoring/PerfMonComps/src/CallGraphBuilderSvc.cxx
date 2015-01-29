@@ -56,7 +56,7 @@ CallGraphBuilderSvc::CallGraphBuilderSvc( const std::string& name,
 ///////////////
 CallGraphBuilderSvc::~CallGraphBuilderSvc()
 { 
-  msg() << MSG::DEBUG << "Calling destructor" << endmsg;
+  msg() << MSG::DEBUG << "Calling destructor" << endreq;
 }
 
 // Athena Algorithm's Hooks
@@ -68,16 +68,16 @@ StatusCode CallGraphBuilderSvc::initialize()
 
   msg() << MSG::INFO 
       << "Initializing " << name() << "..." 
-      << endmsg;
+      << endreq;
 
-  msg() << MSG::DEBUG << "Initializing base class..." << endmsg;
+  msg() << MSG::DEBUG << "Initializing base class..." << endreq;
   if ( AthService::initialize().isFailure() ) {
     msg() << MSG::ERROR
         << "Could not initialize base class !!"
-        << endmsg;
+        << endreq;
     return StatusCode::FAILURE;
   } else {
-    msg() << MSG::VERBOSE << "Base class initialized" << endmsg;
+    msg() << MSG::VERBOSE << "Base class initialized" << endreq;
   }
   
   return StatusCode::SUCCESS;
@@ -87,7 +87,7 @@ StatusCode CallGraphBuilderSvc::finalize()
 {
   msg() << MSG::INFO 
 	<< "Finalizing " << name() << "..." 
-	<< endmsg;
+	<< endreq;
 
   return StatusCode::SUCCESS;
 }
@@ -135,7 +135,7 @@ void CallGraphBuilderSvc::openNode( const std::string& nodeName )
   msg() << MSG::VERBOSE 
 	<< "--> [" << nodeName << "] = " << nodeId << "\t"
 	<< "(parent = " << m_idToName[parentId] << ")"
-	<< endmsg;
+	<< endreq;
   return;
 }
 
@@ -145,7 +145,7 @@ void CallGraphBuilderSvc::closeNode( const std::string& nodeName )
   //boost::add_edge( nodeId, 1, m_graph);
   msg() << MSG::VERBOSE
 	<< "<-- [" << nodeName << "] = " << nodeId 
-	<< endmsg;
+	<< endreq;
 
   if ( !m_stack.empty() ) { 
     m_stack.pop();
