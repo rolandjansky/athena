@@ -25,6 +25,43 @@
 namespace MuonTGC_Cabling {
 
 // Constructor & Destructor
+TGCCabling::TGCCabling (void)
+  : TGCCablingBase(),
+    cableInASD(0),
+    cableASDToPP(0),
+    cableInPP(0),
+    cablePPToSLB(0),
+    cableInSLB(0),
+    cableSLBToHPB(0),
+    cableHPBToSL(0),
+    cableSLBToSSW(0),
+    cableSSWToROD(0)
+{
+  // do nothing
+}
+
+TGCCabling::TGCCabling (const TGCCabling&)
+  : TGCCablingBase(),
+    cableInASD(0),
+    cableASDToPP(0),
+    cableInPP(0),
+    cablePPToSLB(0),
+    cableInSLB(0),
+    cableSLBToHPB(0),
+    cableHPBToSL(0),
+    cableSLBToSSW(0),
+    cableSSWToROD(0)
+{
+  // do nothing
+}
+ 
+TGCCabling& TGCCabling::operator= (const TGCCabling&)
+{
+  // do nothing
+  return *this;
+}
+
+
 TGCCabling::TGCCabling(std::string filenameASDToPP,
 		       std::string filenameInPP,
 		       std::string filenamePPToSL,

@@ -17,6 +17,28 @@ TGCCableSSWToROD::TGCCableSSWToROD(std::string filename)
 {
   database = new TGCDatabaseSLBToROD(filename,"SSW ALL");
 }
+
+TGCCableSSWToROD::TGCCableSSWToROD (void)
+  : TGCCable(TGCCable::SSWToROD),
+    database(0)
+{
+}
+
+TGCCableSSWToROD::TGCCableSSWToROD (const TGCCableSSWToROD& right)
+  : TGCCable(TGCCable::SSWToROD),
+    database(0)
+{
+  database = new TGCDatabaseSLBToROD(*dynamic_cast<TGCDatabaseSLBToROD*>(right.database));
+}
+
+TGCCableSSWToROD& TGCCableSSWToROD::operator=(const TGCCableSSWToROD& right)
+{
+  if (this != &right) {
+    delete database;
+    database = new TGCDatabaseSLBToROD(*dynamic_cast<TGCDatabaseSLBToROD*>(right.database));
+  }
+  return *this;
+}
   
 TGCCableSSWToROD::~TGCCableSSWToROD(void)
 {

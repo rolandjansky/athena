@@ -28,6 +28,9 @@ public:
 private:
   virtual void readDB(void);
   TGCDatabaseSLBToROD(void) {}
+
+  /** hidden assignment operator */
+  TGCDatabaseSLBToROD & operator=(const TGCDatabaseSLBToROD &right);
 };
   
 } // end of namespace
