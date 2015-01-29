@@ -135,6 +135,10 @@ private:
 			   const DataVector<const TrackStateOnSurface>*	leadingTSOS = 0,
 			   const FitQuality*				perigeeQuality = 0) const;
 
+    
+    // print TSOS on a track (debugging aid)
+    void	printTSOS (const Track&) const;
+
     // configurables (tools and options)
     bool						m_aggregateMaterial;
     bool						m_asymmetricCaloEnergy;

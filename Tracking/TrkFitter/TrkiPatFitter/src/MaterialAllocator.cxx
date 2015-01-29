@@ -203,15 +203,15 @@ MaterialAllocator::addLeadingMaterial (std::list<FitMeasurement*>&	measurements,
     }
     
     // check if leading scatterer(s) already present or need to be added (up to delimiter)
-    bool energyGain				= false;
-    bool haveDelimiter				= false;
-    const TrackSurfaceIntersection* intersection= 0;
-    int leadingScatterers			= 0;
-    Trk::FitMeasurement* leadingScatterer	= 0;
+    bool energyGain					= false;
+    bool haveDelimiter					= false;
+    const TrackSurfaceIntersection* intersection	= 0;
+    int leadingScatterers				= 0;
+    Trk::FitMeasurement* leadingScatterer		= 0;
     for (std::list<Trk::FitMeasurement*>::const_iterator m = measurements.begin();
 	 m != measurements.end();
 	 ++m)
-    {	
+    {
 	if ((**m).isMaterialDelimiter())    
 	{
 	    haveDelimiter	= true;
@@ -250,6 +250,7 @@ MaterialAllocator::addLeadingMaterial (std::list<FitMeasurement*>&	measurements,
 	    {
 		haveDelimiter	= true;
 		endPosition	= (**m).position();
+		surface		= (**m).surface();
 	    }
 	    else if ((**m).isPositionMeasurement())
 	    {
@@ -261,12 +262,12 @@ MaterialAllocator::addLeadingMaterial (std::list<FitMeasurement*>&	measurements,
 		{
 		    if (! firstMeasurementSurface && ! intersection)
 		    {
-			firstMeasurementSurface	= (**m).surface();
-			intersection		=
-			    new TrackSurfaceIntersection((**m).intersection(FittedTrajectory));
+		    	firstMeasurementSurface	= (**m).surface();
+		    	intersection		=
+		    	    new TrackSurfaceIntersection((**m).intersection(FittedTrajectory));
 		    }
 		    if (! haveDelimiter) continue;
-		    surface	= (**m).surface();
+		    // surface	= (**m).surface();
 		}
 	    }
 	    else if ((**m).isScatterer())
@@ -285,15 +286,165 @@ MaterialAllocator::addLeadingMaterial (std::list<FitMeasurement*>&	measurements,
 			p*fitParameters.direction(),
 			charge,
 			fitParameters.vertex());
-	const std::vector<const TrackStateOnSurface*>* indetMaterial = 0;
+	bool haveMaterial						= false;
+	const std::vector<const TrackStateOnSurface*>* indetMaterial	= 0;
 	if (haveDelimiter && intersection && surface && m_indetVolume->inside(endPosition))
 	{
+	    // debug
+	    if (msgLvl(MSG::VERBOSE))
+	    {
+		Amg::Vector3D direction     = intersection->direction();
+		Amg::Vector3D startPosition = intersection->position();
+		ATH_MSG_VERBOSE( " addLeadingMaterial: using extrapolateM from distance "
+				 << direction.dot(fitParameters.position() - startPosition) );
+	    }
+	    
 	    // extrapolateM from perigee to get leading material
-	    indetMaterial = m_extrapolator->extrapolateM(perigee,
-							 *surface,
-							 alongMomentum,
-							 false,
-							 particleHypothesis);
+	    indetMaterial = extrapolatedMaterial(m_extrapolator,
+						 perigee,
+						 *surface,
+						 alongMomentum,
+						 false,
+						 particleHypothesis);
+
+	    // check material found (expected at least for leading measurement)
+	    if (indetMaterial && ! indetMaterial->empty())
+	    {
+		std::vector<const TrackStateOnSurface*>::const_reverse_iterator r = indetMaterial->rbegin();
+		for ( ; r != indetMaterial->rend(); ++r)
+		{
+		    // ignore trailing material
+		    if (! (**r).trackParameters()
+			|| ! (**r).materialEffectsOnTrack()
+			|| intersection->direction().dot(
+			    (**r).trackParameters()->position() - endPosition) > 0.)	continue;
+
+		    haveMaterial	= true;
+		}
+	    }
+	}
+	else
+	{
+	    haveDelimiter	= false;
+	}
+	
+	// try again with back extrapolation if no leading material found
+	if (haveDelimiter && ! haveMaterial)
+	{
+	    // debug
+	    ATH_MSG_VERBOSE("        no leading material found with forward extrapolation"
+			    << ", try again with back extrapolation ");
+
+	    // clean up after previous attempt
+	    deleteMaterial(indetMaterial);
+	    indetMaterial	= 0;
+	    
+	    std::vector<const TrackStateOnSurface*>*		indetMaterialF	= 0;
+	    const std::vector<const TrackStateOnSurface*>*	indetMaterialR	= 0;
+	    CurvilinearUVT uvt(intersection->direction());
+	    Amg::Vector2D localPos;
+	    PlaneSurface* plane	= new PlaneSurface(intersection->position(),uvt);
+	    if (plane->globalToLocal(intersection->position(),
+				     intersection->direction(),
+				     localPos))
+	    {
+		AtaPlane parameters(localPos[locR],
+				    localPos[locZ],
+				    intersection->direction().phi(),
+				    intersection->direction().theta(),
+				    qOverP,
+				    *plane);
+		
+		indetMaterialR = extrapolatedMaterial(m_extrapolator,
+						      parameters,
+						      perigee.associatedSurface(),
+						      oppositeMomentum,
+						      false,
+						      particleHypothesis);
+		
+		if (indetMaterialR && ! indetMaterialR->empty())
+		{
+		    indetMaterialF = new std::vector<const TrackStateOnSurface*>;
+		    indetMaterialF->reserve(indetMaterialR->size());
+		    
+		    std::vector<const TrackStateOnSurface*>::const_reverse_iterator r = indetMaterialR->rbegin();
+		    for ( ; r != indetMaterialR->rend(); ++r)
+		    {
+			indetMaterialF->push_back(*r);
+		    }
+		    
+		    for (r = indetMaterialF->rbegin(); r != indetMaterialF->rend(); ++r)
+		    {
+			// ignore trailing material
+			if (! (**r).trackParameters()
+			    || ! (**r).materialEffectsOnTrack()
+			    || intersection->direction().dot(
+				(**r).trackParameters()->position() - endPosition) > 0.)	continue;
+
+			haveMaterial	= true;
+		    }
+		    indetMaterial	= indetMaterialF;
+		    indetMaterialF	= 0;
+		}
+	    }
+	    delete indetMaterialF;
+	    delete indetMaterialR;
+	    delete plane;
+	}
+
+	// debug
+	if (haveDelimiter && msgLvl(MSG::VERBOSE))
+	{
+	    Amg::Vector3D direction     = intersection->direction();
+	    Amg::Vector3D startPosition = intersection->position();
+	    double p1 			= indetMaterial->front()->trackParameters()->momentum().mag();
+	    
+	    for (std::vector<const TrackStateOnSurface*>::const_iterator s = indetMaterial->begin();
+		 s != indetMaterial->end();
+		 ++s)
+	    {
+		if (! (**s).trackParameters()) continue;
+		double distance	= direction.dot((**s).trackParameters()->position() - startPosition);
+		double deltaE	= 0.;
+		double thickness= 0.;
+		const MaterialEffectsOnTrack* materialEffects =
+		    dynamic_cast<const MaterialEffectsOnTrack*>((**s).materialEffectsOnTrack());
+		if ((**s).materialEffectsOnTrack())
+		{
+		    if (materialEffects) deltaE = materialEffects->energyLoss()->deltaE();
+		    thickness = (**s).materialEffectsOnTrack()->thicknessInX0();
+		}
+		else
+		{
+		    ATH_MSG_VERBOSE( std::setiosflags(std::ios::fixed) << "        delimiter: RZ"
+				     << std::setw(9) << std::setprecision(3)
+				     << (**s).trackParameters()->position().perp()
+				     << std::setw(10) << std::setprecision(3)
+				     << (**s).trackParameters()->position().z()
+				     << "   distance " << std::setw(10) << std::setprecision(3)
+				     << distance
+				     << "   pt " << std::setw(8) << std::setprecision(3)
+				     << (**s).trackParameters()->momentum().perp()/Gaudi::Units::GeV);
+		    continue;
+		}
+		
+		double p2		= (**s).trackParameters()->momentum().mag();
+		ATH_MSG_VERBOSE( std::setiosflags(std::ios::fixed) << "         material: RZ"
+				 << std::setw(9) << std::setprecision(3)
+				 << (**s).trackParameters()->position().perp()
+				 << std::setw(10) << std::setprecision(3)
+				 << (**s).trackParameters()->position().z()
+				 << "   distance " << std::setw(10) << std::setprecision(3)
+				 << distance
+				 << "   pt " << std::setw(8) << std::setprecision(3)
+				 << (**s).trackParameters()->momentum().perp()/Gaudi::Units::GeV
+				 << "  X0thickness " << std::setw(8) << std::setprecision(4)
+				 << thickness
+				 << "  deltaE " << std::setw(8) << std::setprecision(4)
+				 << deltaE
+				 << " diffP " << std::setw(8) << std::setprecision(4) << p2 - p1 );
+		p1			= p2;
+	    }
 	}
     
 	// create scatterer FitMeasurement's corresponding to leading material
@@ -482,7 +633,7 @@ MaterialAllocator::addLeadingMaterial (std::list<FitMeasurement*>&	measurements,
     // debug
     if (msgLvl(MSG::DEBUG))
     {
-	ATH_MSG_VERBOSE(" addLeadingMaterial: " );
+	if (! haveDelimiter) ATH_MSG_VERBOSE(" addLeadingMaterial: " );
 	printMeasurements(measurements);
     }
 }
@@ -570,13 +721,27 @@ MaterialAllocator::initializeScattering (std::list<FitMeasurement*>&	measurement
 	    }
 	
 	    integrate		=  true;
-	    X0Integral		+= (**m).materialEffects()->thicknessInX0();
-	    double logTerm	=  1.0 + m_scatteringLogCoeff*std::log(X0Integral);
-	    double scattering	=  X0Integral*logTerm*logTerm;
-	    double angle	=  m_scatteringConstant * std::sqrt(scattering-previousScattering);
-	    previousScattering	=  scattering;
-	    (**m).numberDoF(2);
-	    (**m).scatteringAngle(angle,X0Integral);
+            double thicknessInX0 = (**m).materialEffects()->thicknessInX0();
+            if( (**m).materialEffects()->thicknessInX0() < 0. ){
+              ATH_MSG_WARNING("thicknessInX0 smaller or equal to zero " <<  (**m).materialEffects()->thicknessInX0()
+                              << " " << *(**m).materialEffects());
+              thicknessInX0 = 1e-6;
+            }
+	    X0Integral		+= thicknessInX0;
+            double logTerm = 1.;
+            if( X0Integral > 0. ){ 
+              logTerm	=  1.0 + m_scatteringLogCoeff*std::log(X0Integral);
+            }else{
+              ATH_MSG_WARNING("X0Integral smaller or equal to zero " << X0Integral 
+                              << " thicknessInX0 " <<  (**m).materialEffects()->thicknessInX0()
+                              << " " << *(**m).materialEffects());
+              X0Integral = 1e-6;
+            }
+            double scattering	=  X0Integral*logTerm*logTerm;
+            double angle	=  m_scatteringConstant * std::sqrt(scattering-previousScattering);
+            previousScattering	=  scattering;
+            (**m).numberDoF(2);
+            (**m).scatteringAngle(angle,X0Integral);
 	}
     }
 }
@@ -622,12 +787,13 @@ MaterialAllocator::leadingSpectrometerTSOS (const TrackParameters& spectrometerP
     }
     
     const Surface& entranceSurface	= entranceParameters->associatedSurface();
-    const std::vector<const TrackStateOnSurface*>* extrapolatedTSOS	=
-	m_spectrometerExtrapolator->extrapolateM(spectrometerParameters,
-						 entranceSurface,
-						 anyDirection,
-						 false,
-						 Trk::muon);
+    const std::vector<const TrackStateOnSurface*>* extrapolatedTSOS	= 
+	extrapolatedMaterial(m_spectrometerExtrapolator,
+			     spectrometerParameters,
+			     entranceSurface,
+			     anyDirection,
+			     false,
+			     Trk::muon);
     delete entranceParameters;
     if (! extrapolatedTSOS
 	|| ! extrapolatedTSOS->size()
@@ -818,11 +984,12 @@ MaterialAllocator::reallocateMaterial (std::list<FitMeasurement*>&	measurements,
     {
 	if (! (**r).isMaterialDelimiter())	continue;
 	const std::vector<const TrackStateOnSurface*>* spectrometerMaterial =
-	    m_spectrometerExtrapolator->extrapolateM(*trackParameters,
-						     *(**r).surface(),
-						     oppositeMomentum,
-						     false,
-						     Trk::muon);
+	    extrapolatedMaterial(m_spectrometerExtrapolator,
+				 *trackParameters,
+				 *(**r).surface(),
+				 oppositeMomentum,
+				 false,
+				 Trk::muon);
 
 	if (spectrometerMaterial && ! spectrometerMaterial->empty())
 	{
@@ -848,12 +1015,15 @@ MaterialAllocator::reallocateMaterial (std::list<FitMeasurement*>&	measurements,
 		 ++s)
 		delete *s;
 	}
-	ATH_MSG_INFO( " delete material " );
+	// ATH_MSG_INFO( " delete material " );
 	delete spectrometerMaterial;
+	delete trackParameters;
 
 	MsgStream log(msgSvc(), name());
 	trackParameters = parameters.trackParameters(log, **r);
     }
+    
+    delete trackParameters;
     
     // erase materialDelimiters
     for (m = measurements.begin(); m != measurements.end(); ++m)
@@ -999,18 +1169,73 @@ MaterialAllocator::deleteMaterial (const std::vector<const TrackStateOnSurface*>
 	delete material;
     }
 }
-     	
+
+const std::vector<const TrackStateOnSurface*>*
+MaterialAllocator::extrapolatedMaterial (ToolHandle<IExtrapolator>	extrapolator,
+					 const TrackParameters&		parameters,
+					 const Surface&			surface,
+					 PropDirection			dir,
+					 BoundaryCheck			boundsCheck,
+					 ParticleHypothesis		particleHypothesis) const
+{
+    // fix up material duplication appearing after recent TrackingGeometry speed-up
+    const std::vector<const TrackStateOnSurface*>* TGMaterial =
+    	extrapolator->extrapolateM(parameters,surface,dir,boundsCheck,particleHypothesis);
+    if (! TGMaterial || TGMaterial->empty()) return TGMaterial;
+
+    std::vector<const TrackStateOnSurface*>* duplicates	= 0;
+    std::vector<const TrackStateOnSurface*>* material	= new std::vector<const TrackStateOnSurface*>;
+    material->reserve(TGMaterial->size());
+    std::vector<const TrackStateOnSurface*>::const_iterator tg = TGMaterial->begin();
+    material->push_back(*tg);
+    ++tg;
+    for ( ;
+	  tg != TGMaterial->end();
+	  ++tg)
+    {
+	const TrackStateOnSurface* TSOS	= material->back();
+	double separation		= 0.;
+	if (TSOS->trackParameters())
+	    separation = (TSOS->trackParameters()->position() - (**tg).trackParameters()->position()).mag();
+	
+	if (separation > 0.001*Gaudi::Units::mm)
+	{
+	    material->push_back(*tg);
+	}
+	else
+	{
+	    ATH_MSG_VERBOSE( std::setiosflags(std::ios::fixed) << "        duplicate: RZ"
+			     << std::setw(9) << std::setprecision(3)
+			     << (**tg).trackParameters()->position().perp()
+			     << std::setw(10) << std::setprecision(3)
+			     << (**tg).trackParameters()->position().z());
+	    if (! duplicates) duplicates = new std::vector<const TrackStateOnSurface*>;
+	    duplicates->push_back(*tg);
+	}
+    }
+
+    delete TGMaterial;
+    if (duplicates) deleteMaterial(duplicates);
+    return material;
+}
+
 void
 MaterialAllocator::indetMaterial (std::list<FitMeasurement*>&	measurements,
 				  ParticleHypothesis		particleHypothesis,
 				  const TrackParameters&	startParameters) const
-{	
+{
+    // gather material between first and last measurements inside indet volume
+    // allow a few mm radial tolerance around first&last measurements for their associated material
+    double tolerance 	= 10.*Gaudi::Units::mm/startParameters.momentum().unit().perp();
+   
     // loop over measurements to define portions of track needing indet material
     double endIndetDistance		= 0.;
     FitMeasurement* endIndetMeasurement	= 0;
+    double qOverP			= startParameters.charge()/startParameters.momentum().mag();
     Amg::Vector3D startDirection	= startParameters.momentum().unit();
     Amg::Vector3D startPosition		= startParameters.position();
-   
+    const TrackParameters* parameters	= &startParameters;
+
     std::list<Trk::FitMeasurement*>::iterator m = measurements.begin();
     if ((**m).isVertex()) ++m;
     for ( ; m != measurements.end(); ++m)
@@ -1021,8 +1246,37 @@ MaterialAllocator::indetMaterial (std::list<FitMeasurement*>&	measurements,
 	    // quit if pre-existing indet material
 	    if ((**m).isScatterer()) return;
 
-	    // save the last indet measurement, signal any out-of-order meas
+	    // use first measurement at a plane surface to create starting parameters
 	    if (! (**m).isPositionMeasurement()) continue;
+	    if (! endIndetMeasurement
+		&& ((**m).surface()->type()	== Surface::SurfaceType::Plane
+		    || (**m).surface()->type()	== Surface::SurfaceType::Disc ))
+	    {
+		const TrackSurfaceIntersection*	intersection	= &(**m).intersection(FittedTrajectory);
+		Amg::Vector3D offset				=  intersection->direction()*tolerance;
+		CurvilinearUVT uvt(intersection->direction());
+		PlaneSurface plane(intersection->position() - offset,uvt);
+		intersection		= m_intersector->intersectSurface(plane,
+									  intersection,
+									  qOverP);
+		Amg::Vector2D localPos;
+		if (plane.globalToLocal(intersection->position(),
+					intersection->direction(),
+					localPos))
+		{
+		    parameters		= new AtaPlane(localPos[locR],
+						       localPos[locZ],
+						       intersection->direction().phi(),
+						       intersection->direction().theta(),
+						       qOverP,
+						       plane);
+		    startDirection	= intersection->direction();
+		    startPosition	= intersection->position();
+		}
+		delete intersection;
+	    }
+
+	    // save the last indet measurement, signal any out-of-order meas
 	    double distance		=
 		startDirection.dot((**m).intersection(FittedTrajectory).position() - startPosition);
 	    if (! endIndetMeasurement || distance > endIndetDistance)
@@ -1039,12 +1293,19 @@ MaterialAllocator::indetMaterial (std::list<FitMeasurement*>&	measurements,
     if (! endIndetMeasurement) return;
     
     // allocate indet material from TrackingGeometry
+    Amg::Vector3D endPosition	= endIndetMeasurement->intersection(FittedTrajectory).position();
+    startDirection		= (endPosition - startPosition).unit();
+    endIndetDistance		= startDirection.dot(endPosition - startPosition) + tolerance;
+    ATH_MSG_VERBOSE( " indetMaterial: using extrapolateM out to distance " << endIndetDistance );
     const std::vector<const TrackStateOnSurface*>* indetMaterial =
-	m_extrapolator->extrapolateM(startParameters,
-				     *endIndetMeasurement->surface(),
-				     alongMomentum,
-				     false,
-				     particleHypothesis);
+	extrapolatedMaterial(m_extrapolator,
+			     *parameters,
+			     *endIndetMeasurement->surface(),
+			     alongMomentum,
+			     false,
+			     particleHypothesis);
+
+    if (parameters != &startParameters)	delete parameters;
     if (! indetMaterial || indetMaterial->empty())
     {
 	deleteMaterial(indetMaterial);
@@ -1052,11 +1313,7 @@ MaterialAllocator::indetMaterial (std::list<FitMeasurement*>&	measurements,
     }
     
     // insert the material into the measurement list
-    // ignore trailing material - but allow few mm radial tolerance
-    Amg::Vector3D endPosition	= endIndetMeasurement->intersection(FittedTrajectory).position();
-    startDirection		= (endPosition - startPosition).unit();
-    endIndetDistance		= startDirection.dot(endPosition - startPosition);
-    double tolerance 		= 10.*Gaudi::Units::mm/startDirection.perp();
+    // ignore trailing material - with a few mm radial tolerance
     std::vector<const Surface*> surfaces;
     surfaces.reserve(indetMaterial->size());
     std::vector<const TrackStateOnSurface*>::const_iterator indetMaterialEnd =
@@ -1068,7 +1325,7 @@ MaterialAllocator::indetMaterial (std::list<FitMeasurement*>&	measurements,
     {
 	if ((**s).trackParameters())
 	{
-	    if (startDirection.dot((**s).trackParameters()->position()-startPosition) < endIndetDistance + tolerance)
+	    if (startDirection.dot((**s).trackParameters()->position()-startPosition) < endIndetDistance)
 	    {
 		indetMaterialEnd = s;
 		++indetMaterialEnd;
@@ -1094,7 +1351,6 @@ MaterialAllocator::indetMaterial (std::list<FitMeasurement*>&	measurements,
     // debug
     if (msgLvl(MSG::VERBOSE))
     {
-	ATH_MSG_VERBOSE( " indetMaterial: using extrapolateM out to distance " << endIndetDistance );
 	double p1 = indetMaterial->front()->trackParameters()->momentum().mag();
 	    
 	for (std::vector<const TrackStateOnSurface*>::const_iterator s = indetMaterial->begin();
@@ -1787,7 +2043,7 @@ MaterialAllocator::materialAggregation (std::list<FitMeasurement*>&	measurements
 
     // avoid possible leak
     delete measurement1;
-    delete measurement2;
+    // delete measurement2;	// redundant!
     
     // in case of aggregation: insert the aggregateScatterers into the measurement list
     // (second loop over measurements)
@@ -2182,20 +2438,22 @@ MaterialAllocator::spectrometerMaterial (std::list<FitMeasurement*>&	measurement
     if (entranceParameters)
     {
 	const Surface& entranceSurface	= entranceParameters->associatedSurface();
-	spectrometerMaterial		= m_spectrometerExtrapolator->extrapolateM(*endParameters,
-										   entranceSurface,
-										   anyDirection,
-										   false,
-										   Trk::muon);
+	spectrometerMaterial		= extrapolatedMaterial(m_spectrometerExtrapolator,
+							       *endParameters,
+							       entranceSurface,
+							       anyDirection,
+							       false,
+							       Trk::muon);
     }
     else
     {
 	const Surface& entranceSurface	= startParameters.associatedSurface();
-	spectrometerMaterial		= m_spectrometerExtrapolator->extrapolateM(*endParameters,
-										   entranceSurface,
-										   anyDirection,
-										   false,
-										   Trk::muon);
+	spectrometerMaterial		= extrapolatedMaterial(m_spectrometerExtrapolator,
+							       *endParameters,
+							       entranceSurface,
+							       anyDirection,
+							       false,
+							       Trk::muon);
     }
     
     // debug

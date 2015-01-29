@@ -473,6 +473,7 @@ iPatFitter::fit	(const Track&			indetTrack,
 	&& spectrometerPerigee)
     {
 	if (indetTrack.info().trackProperties(Trk::TrackInfo::StraightTrack)
+	    || ! indetPerigee
 	    || ! indetPerigee->covariance())
 	{
 	    m_parameters->qOverP(spectrometerPerigee->parameters()[Trk::qOverP]);
@@ -1073,4 +1074,54 @@ iPatFitter::performFit(std::list<FitMeasurement*>*			measurements,
     return fittedTrack;
 }
 
+void
+iPatFitter::printTSOS (const Track& track) const
+{
+    // debugging aid
+    MsgStream log(msgSvc(), name());
+    msg(MSG::INFO) << " track with " << track.trackStateOnSurfaces()->size() << " TSOS " << endreq;
+    int tsos = 0;
+    for (DataVector<const TrackStateOnSurface>::const_iterator t = track.trackStateOnSurfaces()->begin();
+	 t !=  track.trackStateOnSurfaces()->end();
+	 ++t, ++tsos)
+    {
+	msg() << std::setiosflags(std::ios::fixed|std::ios::right)
+	      << " TSOS# " << std::setw(3)	<< tsos
+	      << "   parameters:   "
+	      << std::setw(7) << std::setprecision(1)
+	      << (**t).trackParameters()->position().perp()
+	      << std::setw(8) << std::setprecision(4)
+	      << (**t).trackParameters()->position().phi()
+	      << std::setw(9) << std::setprecision(1)
+	      << (**t).trackParameters()->position().z()
+	      << " position  "
+	      << std::setw(8) << std::setprecision(4)
+	      << (**t).trackParameters()->momentum().phi()
+	      << " phi  "
+	      << std::setw(7) << std::setprecision(4)
+	      << (**t).trackParameters()->momentum().theta()
+	      << " theta  "
+	      << std::setw(9) << std::setprecision(4)
+	      << (**t).trackParameters()->momentum().mag()/Gaudi::Units::GeV << " GeV";
+
+	if ((**t).measurementOnTrack())
+	{
+	    msg() << "  meas ";
+	}
+	else
+	{
+	    msg() << "       ";
+	}
+	if ((**t).materialEffectsOnTrack())
+	{
+	    msg() << "  scat ";
+	}
+	else
+	{
+	    msg() << "       ";
+	}
+	msg() << (**t).dumpType() << endreq;
+    }
+}
+    
 } // end of namespace

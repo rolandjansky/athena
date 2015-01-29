@@ -86,8 +86,18 @@ public:
 private:
     // add material delimiters to control aggregation
     void	addSpectrometerDelimiters (std::list<FitMeasurement*>&	measurements) const;
-    
+
+    // memory management
     void	deleteMaterial (const std::vector<const TrackStateOnSurface*>* material) const;
+
+    // extrapolateM wrapper
+    const std::vector<const TrackStateOnSurface*>*	extrapolatedMaterial (
+	ToolHandle<IExtrapolator>	extrapolator,
+	const TrackParameters&		parameters,
+	const Surface&			surface,
+	PropDirection			dir,
+	BoundaryCheck			boundsCheck,
+	ParticleHypothesis		particleHypothesis) const;
 
     // allocate material in inner detector
     void	indetMaterial (std::list<FitMeasurement*>&		measurements,
