@@ -22,10 +22,15 @@ apply_pattern declare_runtime extras= "../test/TrigJetValidation_TestConfigurati
                                        ../python/helperFunctions.py \
                                        ../python/AtlasStyle.py \
                                        ../python/plottingMacro.py \
+                                       ../python/clustersAndCells.py \
  				       ../test/HLTChain_ref_devval.txt \
  				       ../test/HLTChain_ref_dev.txt \
  				       ../test/HLTTE_ref_devval.txt \
- 				       ../test/HLTTE_ref_dev.txt"
+ 				       ../test/HLTTE_ref_dev.txt \
+ 				       ../test/clusters_ref_devval.txt \
+ 				       ../test/clusters_ref_dev.txt \
+ 				       ../test/cells_ref_devval.txt \
+ 				       ../test/cells_ref_dev.txt"
 
 private
 use TestPolicy          TestPolicy-*
