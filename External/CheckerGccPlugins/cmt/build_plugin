@@ -45,10 +45,10 @@ build_config()
   cmtconfig=$1
   compiler=""
   case $cmtconfig in
-    x86_64-slc6-gcc48-opt|x86_64-slc6-gcc48-dbg)
+    i686-slc6-gcc48-opt|x86_64-slc6-gcc48-opt|x86_64-slc6-gcc48-dbg)
       compiler=/afs/cern.ch/sw/lcg/releases/LCG_71/gcc/4.8.1/x86_64-slc6
       ;;
-    x86_64-slc6-gcc49-opt|x86_64-slc6-gcc49-dbg)
+    i686-slc6-gcc49-opt|x86_64-slc6-gcc49-opt|x86_64-slc6-gcc49-dbg)
       compiler=/afs/cern.ch/sw/lcg/releases/LCG_71/gcc/4.9.1/x86_64-slc6
       ;;
   esac
@@ -73,8 +73,10 @@ build_config()
 if [ "$1" = "" ]; then
   $0 x86_64-slc6-gcc48-opt
   $0 x86_64-slc6-gcc48-dbg
+  $0 i686-slc6-gcc48-opt
   $0 x86_64-slc6-gcc49-opt
   $0 x86_64-slc6-gcc49-dbg
+  $0 i686-slc6-gcc49-opt
 else
   build_config $1
 fi

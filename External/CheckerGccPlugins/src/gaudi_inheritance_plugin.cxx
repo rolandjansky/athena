@@ -45,7 +45,7 @@ const char* type_name (tree t)
  */
 void type_callback (void* gcc_data, void* /*user_data*/)
 {
-  const char* url = "<https://twiki.cern.ch/twiki/bin/view/AtlasComputing/ImprovingSoftware>";
+  const char* url = "<https://twiki.cern.ch/twiki/bin/view/AtlasComputing/ImprovingSoftware> and <https://twiki.cern.ch/twiki/bin/view/AtlasComputing/AthenaBaseComps>";
 
   // Select complete named struct/class types.
   tree t = (tree)gcc_data;
@@ -76,7 +76,8 @@ void type_callback (void* gcc_data, void* /*user_data*/)
       name == "Algtest" ||
       name == "Algtooltest" ||
       name == "Servtest" ||
-      name == "ClassIDSvc")
+      name == "ClassIDSvc" ||
+      name == "TrigMessageSvc")
     return;
   if (name.substr (0, 12) == "__shadow__::")
     return;
@@ -95,7 +96,8 @@ void type_callback (void* gcc_data, void* /*user_data*/)
         location_t loc = DECL_SOURCE_LOCATION(TYPE_MAIN_DECL(tt));
         warning_at (loc, 0, 
                     "%<%D%> derives directly from %<Algorithm%>; "
-                    "should derive from %<AthAlgorithm%> instead.  (See %s.)",
+                    "should derive from %<AthAlgorithm%> instead and "
+                    "use its methods.  (See %s.)",
                     tt, url);
       }
 
@@ -103,7 +105,8 @@ void type_callback (void* gcc_data, void* /*user_data*/)
         location_t loc = DECL_SOURCE_LOCATION(TYPE_MAIN_DECL(tt));
         warning_at (loc, 0, 
                     "%<%D%> derives directly from %<AlgTool%>; "
-                    "should derive from %<AthAlgTool%> instead.  (See %s.)",
+                    "should derive from %<AthAlgTool%> instead and "
+                    "use its methods.  (See %s.)",
                     tt, url);
       }
 
@@ -111,7 +114,8 @@ void type_callback (void* gcc_data, void* /*user_data*/)
         location_t loc = DECL_SOURCE_LOCATION(TYPE_MAIN_DECL(tt));
         warning_at (loc, 0, 
                     "%<%D%> derives directly from %<Service%>; "
-                    "should derive from %<AthService%> instead.  (See %s.)",
+                    "should derive from %<AthService%> instead and "
+                    "use its methods.  (See %s.)",
                     tt, url);
       }
     }
