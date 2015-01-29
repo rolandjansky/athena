@@ -16,6 +16,9 @@
 #include "HepMC/GenEvent.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "CxxUtils/sincos.h"
+#include "xAODTruth/TruthParticle.h"
+#include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthParticleAuxContainer.h"
 
 namespace Muon {
 
@@ -101,26 +104,41 @@ namespace Muon {
       ATH_MSG_DEBUG("TruthMaps " << allNames );
     }
 
-    // initialize cuts
-    m_cutValues.resize(MuonStationIndex::StIndexMax);
-    m_cutValues[MuonStationIndex::BI] = 6.9;  //??? .9 is a curious value, should be commented
-    m_cutValues[MuonStationIndex::BM] = 7.9;
-    m_cutValues[MuonStationIndex::BO] = 4.9;
-    m_cutValues[MuonStationIndex::EI] = 6.9;
-    m_cutValues[MuonStationIndex::EM] = 7.9;
-    m_cutValues[MuonStationIndex::EO] = 4.9;
-    m_cutValues[MuonStationIndex::EE] = 4.9;
-    m_cutValues[MuonStationIndex::BE] = 5.9;
+    // initialize cuts, if only one cut, use make_pair to avoid compiler issues, format is (position, cut)
+    m_selectors.resize(MuonStationIndex::ChIndexMax);
+    m_selectors[MuonStationIndex::BIS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,5.9)}); // old values: 6.9
+    m_selectors[MuonStationIndex::BIL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,5.9)}); // old values: 6.9
+    m_selectors[MuonStationIndex::BMS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 7.9 
+    m_selectors[MuonStationIndex::BML] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 7.9 
+    m_selectors[MuonStationIndex::BOS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9
+    m_selectors[MuonStationIndex::BOL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9
+    m_selectors[MuonStationIndex::BEE] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,3.9)}); // old values: 5.9
+    m_selectors[MuonStationIndex::EIS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,5.9)}); // old values: 6.9
+    m_selectors[MuonStationIndex::EIL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,5.9)}); // old values: 6.9
+    m_selectors[MuonStationIndex::EMS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 7.9
+    m_selectors[MuonStationIndex::EML] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 7.9
+    m_selectors[MuonStationIndex::EOS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9
+    m_selectors[MuonStationIndex::EOL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9
+    m_selectors[MuonStationIndex::EES] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9
+    m_selectors[MuonStationIndex::EEL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,4.9)}); // old values: 4.9
 
-    m_cutValuesLoose.resize(MuonStationIndex::StIndexMax);
-    m_cutValuesLoose[MuonStationIndex::BI] = 2.9;
-    m_cutValuesLoose[MuonStationIndex::BM] = 4.9;
-    m_cutValuesLoose[MuonStationIndex::BO] = 2.9;
-    m_cutValuesLoose[MuonStationIndex::EI] = 4.9;
-    m_cutValuesLoose[MuonStationIndex::EM] = 5.9;
-    m_cutValuesLoose[MuonStationIndex::EO] = 2.9;
-    m_cutValuesLoose[MuonStationIndex::EE] = 2.9;
-    m_cutValuesLoose[MuonStationIndex::BE] = 3.9;
+    m_selectorsLoose.resize(MuonStationIndex::ChIndexMax);
+    m_selectorsLoose[MuonStationIndex::BIS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 2.9
+    m_selectorsLoose[MuonStationIndex::BIL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9
+    m_selectorsLoose[MuonStationIndex::BMS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 4.9
+    m_selectorsLoose[MuonStationIndex::BML] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 4.9
+    m_selectorsLoose[MuonStationIndex::BOS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 2.9
+    m_selectorsLoose[MuonStationIndex::BOL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9
+    m_selectorsLoose[MuonStationIndex::BEE] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 3.9
+    m_selectorsLoose[MuonStationIndex::EIS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 4.9
+    m_selectorsLoose[MuonStationIndex::EIL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)}); // old values: 4.9
+    m_selectorsLoose[MuonStationIndex::EMS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 5.9
+    m_selectorsLoose[MuonStationIndex::EML] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 5.9
+    m_selectorsLoose[MuonStationIndex::EOS] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9
+    m_selectorsLoose[MuonStationIndex::EOL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9
+    m_selectorsLoose[MuonStationIndex::EES] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9
+    m_selectorsLoose[MuonStationIndex::EEL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,2.9)}); // old values: 2.9
+
 
     // call handle in case of EndEvent
     if( m_incidentSvc.retrieve().isFailure() ) {
@@ -205,6 +223,36 @@ namespace Muon {
     if( m_doTruth ) getTruth();
     if( m_ntuple )  m_ntuple->reset();
 
+    if (m_doTruth && m_ntuple){
+      const xAOD::TruthParticleContainer* TruthMuons = evtStore()->tryConstRetrieve< xAOD::TruthParticleContainer >("MuonTruthParticles");
+      if (!TruthMuons) {
+        ATH_MSG_WARNING ("Couldn't retrieve TruthMuons container with key: ");
+	    
+      }
+      else{
+        ATH_MSG_DEBUG("Retrieved truth muons " << TruthMuons->size());
+        int nmuons = 0;
+        for (const auto truthMu: *TruthMuons){
+          m_ntuple->tpdgId[nmuons] = truthMu->pdgId();
+          m_ntuple->tbarcode[nmuons] = truthMu->barcode();
+          m_ntuple->tmuonIndex[nmuons] = nmuons;
+          m_ntuple->pt[nmuons] = truthMu->pt();
+          m_ntuple->eta[nmuons] = truthMu->eta();
+          m_ntuple->phi[nmuons] = truthMu->phi();
+          m_ntuple->nmdts[nmuons] = 0;
+          m_ntuple->nrpcs[nmuons] = 0;
+          m_ntuple->ntgcs[nmuons] = 0;
+          m_ntuple->ncscs[nmuons] = 0;
+          m_ntuple->ntmdts[nmuons] = 0;
+          m_ntuple->ntrpcs[nmuons] = 0;
+          m_ntuple->nttgcs[nmuons] = 0;
+          m_ntuple->ntcscs[nmuons] = 0;
+          ++nmuons;
+        }
+        m_ntuple->nmuons = nmuons;
+      }
+    }
+
     // create structure to hold data per sector and set the sector indices
     m_houghDataPerSectorVec.resize(16);
     for( unsigned int i=0;i<m_houghDataPerSectorVec.size();++i ) m_houghDataPerSectorVec[i].sector=i+1;
@@ -262,7 +310,7 @@ namespace Muon {
     return analyse();
   }
 
-
+  // Still used?
   MuonPatternCombinationCollection* MuonLayerHoughTool::analyse( const MdtPrepDataContainer*  mdtCont,
                                                                  const CscPrepDataContainer*  cscCont,
                                                                  const TgcPrepDataContainer*  tgcCont,
@@ -414,7 +462,6 @@ namespace Muon {
       }
     }
     
-    // ??? maybe move that
     if( m_ntuple ) {
       fillNtuple(m_houghDataPerSectorVec);
       m_tree->Fill();
@@ -1524,11 +1571,11 @@ namespace Muon {
     }
 
     
-    Muon::MuonStationIndex::StIndex stIndex = Muon::MuonStationIndex::toStationIndex(hough.m_descriptor.chIndex);
+//    Muon::MuonStationIndex::StIndex stIndex = Muon::MuonStationIndex::toStationIndex(hough.m_descriptor.chIndex);
     unsigned int nmaxima = 0;
     while( nmaxima < 5 ){
       MuonHough::MuonLayerHough::Maximum maximum;
-      if( hough.findMaximum( maximum, m_cutValuesLoose[stIndex] ) ) {
+      if( hough.findMaximum( maximum, m_selectorsLoose[hough.m_descriptor.chIndex] ) ) {
         hough.associateHitsToMaximum(maximum,hits);
         ATH_MSG_DEBUG("findMaxima: Found Eta Maximum " << nmaxima 
                         <<     "  "          << maximum.max 
@@ -1564,7 +1611,7 @@ namespace Muon {
         if( nmdt > 0) {
           maxima.push_back( new MuonHough::MuonLayerHough::Maximum(maximum) );
           // add to seed list if 
-          if( maximum.max > m_cutValues[stIndex] ) m_seedMaxima.push_back(maxima.back());        
+          if( maximum.max > m_selectors[hough.m_descriptor.chIndex].getCutValue(maximum.pos) ) m_seedMaxima.push_back(maxima.back());        
           ++nmaxima;
         }
         hough.fillLayer2(maximum.hits,true);
@@ -2257,5 +2304,4 @@ namespace Muon {
       for( RegionPhiHitVec::const_iterator rit = it->phiHitVec.begin();rit!=it->phiHitVec.end(); ++rit ) m_ntuple->fill(*rit);
     }
   }
-
 }

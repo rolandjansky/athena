@@ -76,7 +76,7 @@ namespace Muon {
     m_showerskipperc(0.3),
     m_use_histos(false),
     m_summary(false),
-    m_recordAllOutput(true),
+    m_recordAllOutput(false),
     m_cscAssoOutputLocation("MuonPatCscSegAssMap"), 
     m_phietahitassociation(0)
   {

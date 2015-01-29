@@ -33,6 +33,8 @@ use TrkTruthData	*	Tracking/TrkEvent
 use AtlasHepMC                 AtlasHepMC-*            External
 use EventPrimitives EventPrimitives-* Event
 
+use xAODTruth           xAODTruth-*             Event/xAOD
+
 public
 
 branches MuonHoughPatternTools src

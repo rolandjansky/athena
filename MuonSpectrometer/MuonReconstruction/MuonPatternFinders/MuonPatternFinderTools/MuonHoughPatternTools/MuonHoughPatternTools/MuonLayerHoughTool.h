@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef MUONHOUGHPATTERNTOOLS_MUOLAYERHOUGHTOOL_H
-#define MUONHOUGHPATTERNTOOLS_MUOLAYERHOUGHTOOL_H
+#ifndef MUONHOUGHPATTERNTOOLS_MUONLAYERHOUGHTOOL_H
+#define MUONHOUGHPATTERNTOOLS_MUONLAYERHOUGHTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -25,11 +25,14 @@
 #include "MuonLayerHough/MuonRegionHough.h"
 #include "MuonLayerHough/MuonLayerHough.h"
 #include "MuonLayerHough/MuonPhiLayerHough.h"
+#include "MuonLayerHough/MuonLayerHoughSelector.h"
+
 #include "TMath.h"
 #include <set>
 #include "GaudiKernel/IIncidentListener.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "MuonDetDescrUtils/MuonSectorMapping.h"
+
 
 class IIncidentSvc;
 
@@ -253,9 +256,8 @@ namespace Muon {
     ToolHandle<Muon::IMuonTruthSummaryTool>         m_truthSummaryTool;
     const MuonGM::MuonDetectorManager* m_detMgr;
 
-    std::vector<float> m_cutValues;
-    std::vector<float> m_cutValuesLoose;
-
+    std::vector<MuonHough::MuonLayerHoughSelector> m_selectors;
+    std::vector<MuonHough::MuonLayerHoughSelector> m_selectorsLoose;
     bool       m_doNtuple;
     TFile*     m_file;
     TTree*     m_tree;
