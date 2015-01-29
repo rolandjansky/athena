@@ -60,13 +60,9 @@ private:
     double m_dRConeMedium;
     /** dR cut for Narrow region (previously called Nar)  */
     double m_dRConeNarrow;
-    /** dR cut for EM region (previously called Normal)  */
-    double m_dRConeEM;  
 
     /** Variable to control noise substraction  */
     bool m_applyNoiseCut;
-    /** Switch to choose between square or linear radius */
-    bool m_squareRadius;
     /** Number of sigmas for noise cut  */
     double m_noiseNSigmaCut;
     /** int for hecQualityCut */
