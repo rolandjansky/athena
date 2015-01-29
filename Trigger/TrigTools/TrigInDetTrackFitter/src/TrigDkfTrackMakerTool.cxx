@@ -16,9 +16,6 @@
 
 #include <cmath>
 #include <iostream>
-#include "StoreGate/StoreGateSvc.h" 
-#include "GaudiKernel/ToolFactory.h"
-#include "StoreGate/DataHandle.h"
 
 #include "TrigInDetEvent/TrigSiSpacePoint.h"
 
@@ -32,6 +29,7 @@
 #include "TrigInDetTrackFitter/TrigDkfTrackMakerTool.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 #include "TrkDistributedKalmanFilter/TrkFilteringNodes.h"
 #include "TrkDistributedKalmanFilter/TrkTrackState.h"
@@ -47,47 +45,38 @@ TrigDkfTrackMakerTool::TrigDkfTrackMakerTool(const std::string& t,
 
 StatusCode TrigDkfTrackMakerTool::initialize()
 {
-  StatusCode sc = AthAlgTool::initialize();
-  MsgStream athenaLog(msgSvc(), name());
+  ATH_MSG_INFO("In initialize..."); 
 
-  athenaLog << MSG::INFO <<"In initialize..."<<endreq; 
 
-  StoreGateSvc* detStore;
-  sc = service("DetectorStore", detStore);
-  if ( sc.isFailure() ) { 
-    athenaLog << MSG::FATAL << "DetStore service not found" << endreq; 
-    return StatusCode::FAILURE; 
-  }
-
- if (detStore->retrieve(m_idHelper, "AtlasID").isFailure()) {
-    athenaLog << MSG::FATAL << "Could not get AtlasDetectorID helper AtlasID" << endreq;
+ if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
+    ATH_MSG_FATAL("Could not get AtlasDetectorID helper AtlasID");
     return StatusCode::FAILURE;
   }  
 
  // Get SCT & pixel Identifier helpers
 
-  if (detStore->retrieve(m_pixelId, "PixelID").isFailure()) { 
-     athenaLog << MSG::FATAL << "Could not get Pixel ID helper" << endreq;
+  if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) { 
+     ATH_MSG_FATAL("Could not get Pixel ID helper");
      return StatusCode::FAILURE;  
   }
-  if (detStore->retrieve(m_sctId, "SCT_ID").isFailure()) {  
-     athenaLog << MSG::FATAL << "Could not get SCT ID helper" << endreq;
+  if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) {  
+     ATH_MSG_FATAL("Could not get SCT ID helper");
      return StatusCode::FAILURE;
   }
-  sc = detStore->retrieve(m_pixelManager);  
+  StatusCode sc = detStore()->retrieve(m_pixelManager);  
   if( sc.isFailure() ) 
    {
-      athenaLog << MSG::ERROR << "Could not retrieve Pixel DetectorManager from detStore."<<endreq; 
+      ATH_MSG_ERROR("Could not retrieve Pixel DetectorManager from detStore."); 
       return sc;
    } 
-  sc = detStore->retrieve(m_SCT_Manager);
+  sc = detStore()->retrieve(m_SCT_Manager);
   if( sc.isFailure() ) 
     {
-      athenaLog << MSG::ERROR << "Could not retrieve SCT DetectorManager from detStore." << endreq;
+      ATH_MSG_ERROR("Could not retrieve SCT DetectorManager from detStore.");
       return sc;
     } 
 
-  athenaLog << MSG::INFO << "TrigDkfTrackMakerTool constructed "<< endreq;
+  ATH_MSG_INFO("TrigDkfTrackMakerTool constructed ");
   return sc;
 }
 
@@ -113,16 +102,13 @@ bool TrigDkfTrackMakerTool::createDkfTrack(std::vector<const TrigSiSpacePoint*>&
   double C[3],N[3],M[3][3];int i;
   Amg::Vector3D mx,my,mz;
 
-  MsgStream athenaLog(msgSvc(), name());
   int outputLevel = msgSvc()->outputLevel( name() );
 
   vpTrkNodes.clear();
 
   if(siSpacePoints.size()==0) 
   {
-    if (outputLevel <= MSG::WARNING) 
-      athenaLog << MSG::ERROR << "Cannot create a DKF track -- TrigInDetTrack has no hits" 
-		<< endreq;
+    ATH_MSG_WARNING("Cannot create a DKF track -- TrigInDetTrack has no hits");
     return false;
   }
   pSPIt=siSpacePoints.begin();lastSPIt=siSpacePoints.end();
@@ -278,7 +264,7 @@ bool TrigDkfTrackMakerTool::createDkfTrack(std::vector<const TrigSiSpacePoint*>&
 	}
     }
   if (outputLevel <= MSG::DEBUG) 
-    athenaLog << MSG::DEBUG << vpTrkNodes.size()<<" filtering nodes created"<<endreq;
+    ATH_MSG_DEBUG(vpTrkNodes.size());
 
   return true;
 }
@@ -329,24 +315,32 @@ bool TrigDkfTrackMakerTool::createDkfTrack(const Trk::Track& track,
 		if(m_idHelper->is_sct(id)) {
 			const InDetDD::SiDetectorElement* sctElement = dynamic_cast<const InDetDD::SiDetectorElement*> 
 				((*tMOT)->associatedSurface().associatedDetectorElement());
-			if(sctElement->design().shape()==InDetDD::Trapezoid) //SCT Endcap
-			{
-				ATH_MSG_DEBUG("SCT endcap node");
-				const Trk::SurfaceBounds& rBounds=rSurf.bounds();
-				const Trk::TrapezoidBounds& ecBounds=	dynamic_cast<const Trk::TrapezoidBounds&>(rBounds);
-				double R=(ecBounds.maxHalflengthX()+ecBounds.minHalflengthX())*
-					ecBounds.halflengthY()/(ecBounds.maxHalflengthX()-ecBounds.minHalflengthX());
-				vpTrkNodes.push_back(new Trk::TrkEndCapClusterNode(pS,DChi2,siCL,R));
-			}
-			else {//SCT Barrel 
-				ATH_MSG_DEBUG("SCT barrel node");
-				vpTrkNodes.push_back(new Trk::TrkClusterNode(pS,DChi2,siCL));
-			}
+      if (sctElement) {
+        if(sctElement->design().shape()==InDetDD::Trapezoid) //SCT Endcap
+        {
+          ATH_MSG_DEBUG("SCT endcap node");
+          const Trk::SurfaceBounds& rBounds=rSurf.bounds();
+          const Trk::TrapezoidBounds& ecBounds=	dynamic_cast<const Trk::TrapezoidBounds&>(rBounds);
+          double R=(ecBounds.maxHalflengthX()+ecBounds.minHalflengthX())*
+            ecBounds.halflengthY()/(ecBounds.maxHalflengthX()-ecBounds.minHalflengthX());
+          vpTrkNodes.push_back(new Trk::TrkEndCapClusterNode(pS,DChi2,siCL,R));
+        }
+        else {//SCT Barrel 
+          ATH_MSG_DEBUG("SCT barrel node");
+          vpTrkNodes.push_back(new Trk::TrkClusterNode(pS,DChi2,siCL));
+        }
+      }
+      else {
+        ATH_MSG_WARNING("Identifier is SCT but does not match endcap or barrel shape");
+      }
 		}
 		else if (m_idHelper->is_pixel(id)) {//Pixel 
 			ATH_MSG_DEBUG("Pixel node");
 			vpTrkNodes.push_back(new Trk::TrkPixelNode(pS,DChi2,siCL));
 		}
+    else {
+      ATH_MSG_WARNING("Identifier is neither SCT nor pixel");
+    }
 	}
 	ATH_MSG_DEBUG(vpTrkNodes.size()<<" filtering nodes created");
 

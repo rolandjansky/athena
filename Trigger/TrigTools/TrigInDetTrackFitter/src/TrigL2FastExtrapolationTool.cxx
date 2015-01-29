@@ -16,9 +16,6 @@
 
 #include <cmath>
 #include <iostream>
-#include "StoreGate/StoreGateSvc.h" 
-#include "GaudiKernel/ToolFactory.h"
-#include "StoreGate/DataHandle.h"
 #include "TrkDistributedKalmanFilter/TrkTrackState.h"
 #include "TrkDistributedKalmanFilter/TrkPlanarSurface.h"
 #include "MagFieldInterfaces/IMagFieldSvc.h"
@@ -42,13 +39,6 @@ StatusCode TrigL2FastExtrapolationTool::initialize()
   StatusCode sc = AthAlgTool::initialize();
   MsgStream athenaLog(msgSvc(), name());
    
-  StoreGateSvc* detStore;
-  sc = service("DetectorStore", detStore);
-  if ( sc.isFailure() ) { 
-    ATH_MSG_FATAL("DetStore service not found");
-    return StatusCode::FAILURE; 
-  }
-
 	ATH_MSG_INFO("Using Athena magnetic field service");
 	sc = m_MagFieldSvc.retrieve();
 	if(sc.isFailure()) 

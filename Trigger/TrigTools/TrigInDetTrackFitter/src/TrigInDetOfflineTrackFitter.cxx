@@ -17,10 +17,6 @@
 #include <cmath>
 #include <iostream>
 
-#include "StoreGate/StoreGateSvc.h" 
-#include "GaudiKernel/ToolFactory.h"
-#include "StoreGate/DataHandle.h"
-
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 
@@ -54,12 +50,6 @@ StatusCode TrigInDetOfflineTrackFitter::initialize()
 {
   StatusCode sc = AthAlgTool::initialize();
 
-  StoreGateSvc* detStore;
-  sc = service("DetectorStore", detStore);
-  if ( sc.isFailure() ) { 
-    ATH_MSG_FATAL("DetStore service not found"); 
-    return StatusCode::FAILURE; 
-  }
   
   sc=m_trackFitter.retrieve();
   if(sc.isFailure())
@@ -80,12 +70,12 @@ StatusCode TrigInDetOfflineTrackFitter::initialize()
       athenaLog << MSG::INFO << "Refit tool \""<<m_FitterName<<" "<<m_FitterInstance<<"\" booked."<< endreq;
     }
   */
-  if (detStore->retrieve(m_pixelId, "PixelID").isFailure()) {
+  if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) {
     ATH_MSG_FATAL("Could not get Pixel ID helper");
     return StatusCode::FAILURE;
   }
 
-  if (detStore->retrieve(m_sctId, "SCT_ID").isFailure()) {
+  if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) {
     ATH_MSG_FATAL("Could not get SCT ID helper");
     return StatusCode::FAILURE;
   }

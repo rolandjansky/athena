@@ -18,16 +18,14 @@
 
 #include <cmath>
 #include <iostream>
-#include "StoreGate/StoreGateSvc.h" 
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/SystemOfUnits.h"
-#include "StoreGate/DataHandle.h"
 
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 
-#include "TrkSurfaces/Surface.h"
-#include "TrkSurfaces/TrapezoidBounds.h"
+#include "TrkTrack/Track.h"
+#include "TrkTrack/TrackInfo.h"
+#include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkParameters/TrackParameters.h"
 
 #include "TrkDistributedKalmanFilter/TrkBaseNode.h"
@@ -36,14 +34,23 @@
 #include "TrkDistributedKalmanFilter/TrkTrackState.h"
 #include "TrkDistributedKalmanFilter/TrkPlanarSurface.h"
 
-#include "InDetPrepRawData/SCT_Cluster.h"
-#include "InDetPrepRawData/PixelCluster.h"
+#include "TrkToolInterfaces/IRIO_OnTrackCreator.h"
+
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
 #include "TrigInDetToolInterfaces/ITrigInDetTrackFitter.h"
 #include "TrigInDetTrackFitter/TrigInDetTrackFitter.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
+
+#include "TrkRIO_OnTrack/RIO_OnTrack.h"
+#include "TrkPrepRawData/PrepRawData.h"
+#include "TrkSurfaces/Surface.h"
+
+#include "TrkEventPrimitives/ParticleHypothesis.h"
+
+#include "TrkEventPrimitives/FitQuality.h"
+#include "TrkEventPrimitives/FitQualityOnSurface.h"
 
 TrigInDetTrackFitter::TrigInDetTrackFitter(const std::string& t, 
 					   const std::string& n,
@@ -58,6 +65,8 @@ TrigInDetTrackFitter::TrigInDetTrackFitter(const std::string& t,
   declareProperty( "doBremmCorrection", m_doBremm=false);  
   declareProperty( "Chi2Cut", m_DChi2 = 1000.0);
   declareProperty( "OfflineClusters", m_offlineClusters = true);
+  declareProperty( "correctClusterPos", m_correctClusterPos = false);
+  declareProperty( "ROTcreator", m_ROTcreator, "ROTcreatorTool" );
 }
 
 StatusCode TrigInDetTrackFitter::initialize()
@@ -77,6 +86,13 @@ StatusCode TrigInDetTrackFitter::initialize()
       ATH_MSG_ERROR("Could not retrieve "<<m_trackMaker);
       return sc;
     }
+  if (m_correctClusterPos) {
+    sc = m_ROTcreator.retrieve();
+    if (sc.isFailure()) {
+      ATH_MSG_ERROR("Could not get ROTcreator "<<m_ROTcreator);
+      return sc;
+    }
+  }
 
   ITrigTimerSvc* timerSvc;
   StatusCode scTime = service( "TrigTimerSvc", timerSvc);
@@ -106,20 +122,19 @@ StatusCode TrigInDetTrackFitter::initialize()
 
 StatusCode TrigInDetTrackFitter::finalize()
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO <<"=============================================================="<<endreq ;
-  log << MSG::INFO <<"TrigInDetTrackFitter::finalize() - LVL2 Track fit Statistics: "<<endreq ;
+  ATH_MSG_INFO("==============================================================");
+  ATH_MSG_INFO("TrigInDetTrackFitter::finalize() - LVL2 Track fit Statistics: ");
   for(std::vector<FitStatStruct>::iterator it=m_fitStats.begin();it!=m_fitStats.end();++it) {
     if((*it).m_nTracksTotal==0) continue;
-    log << MSG::INFO <<"Algorithm Id="<<(*it).m_algorithmId<<" N tracks = "<<(*it).m_nTracksTotal<<endreq ;
-    log << MSG::INFO <<"Problems detected: "<<endreq ;
-    log << MSG::INFO <<"Unresolved spacepoints :"<<(*it).m_fitErrors[0]<<endreq ;
-    log << MSG::INFO <<"Extrapolator divergence:"<<(*it).m_fitErrors[1]<<endreq ;
-    log << MSG::INFO <<"pT falls below 200 MeV :"<<(*it).m_fitErrors[2]<<endreq ;
+    ATH_MSG_INFO("Algorithm Id="<<(*it).m_algorithmId<<" N tracks = "<<(*it).m_nTracksTotal);
+    ATH_MSG_INFO("Problems detected: ");
+    ATH_MSG_INFO("Unresolved spacepoints :"<<(*it).m_fitErrors[0]);
+    ATH_MSG_INFO("Extrapolator divergence:"<<(*it).m_fitErrors[1]);
+    ATH_MSG_INFO("pT falls below 200 MeV :"<<(*it).m_fitErrors[2]);
   }
-  log << MSG::INFO <<"=============================================================="<<endreq ;
+  ATH_MSG_INFO("==============================================================");
   m_fitStats.clear();
-  StatusCode sc = AlgTool::finalize(); 
+  StatusCode sc = AthAlgTool::finalize(); 
   return sc;
 }
 
@@ -1049,7 +1064,6 @@ Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, const Tr
 		}
 		else
 		{
-
       AmgSymMatrix(5)* cov = new AmgSymMatrix(5);
       for(int i=0;i<5;i++) {
         for(int j=i;j<5;j++)
@@ -1059,28 +1073,43 @@ Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, const Tr
       }
       Trk::PerigeeSurface perigeeSurface;
       Trk::Perigee* perigee = new Trk::Perigee(d0, z0, phi0, theta, qOverP, perigeeSurface, cov);
+      ATH_MSG_VERBOSE("perigee: " << *perigee);
 
       std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
       typePattern.set(Trk::TrackStateOnSurface::Perigee);
       DataVector<const Trk::TrackStateOnSurface>* pParVec = new DataVector<const Trk::TrackStateOnSurface>;
-      pParVec->reserve(recoTrack.trackStateOnSurfaces()->size());
-      pParVec->push_back(new Trk::TrackStateOnSurface(0, perigee,0,0, typePattern));
-
-      for (auto tSOS = recoTrack.trackStateOnSurfaces()->begin(); tSOS != recoTrack.trackStateOnSurfaces()->end(); ++tSOS) {
-        //Don't store perigee - new perigee created above
-        if ((*tSOS)->type(Trk::TrackStateOnSurface::Perigee) == false) {
-          pParVec->push_back((*tSOS)->clone());
+      if (m_correctClusterPos) {
+        pParVec->reserve(vpTrkNodes.size()+1);
+        pParVec->push_back(new Trk::TrackStateOnSurface(0, perigee,0,0, typePattern));
+        for(auto pnIt = vpTrkNodes.begin(); pnIt!=vpTrkNodes.end(); ++pnIt) {
+          if((*pnIt)->m_isValidated()) {
+            Trk::TrackStateOnSurface* pTSS=createTrackStateOnSurface(*pnIt);
+            if(pTSS!=nullptr) {
+              pParVec->push_back(pTSS);
+            }
+          }
         }
       }
-      if(m_timers)
-      {
-        m_timer[3]->pause();
-        m_timer[4]->resume();
-      }
+      else {
+        pParVec->reserve(recoTrack.trackStateOnSurfaces()->size());
+        pParVec->push_back(new Trk::TrackStateOnSurface(0, perigee,0,0, typePattern));
 
-      ATH_MSG_VERBOSE("Total chi2 ="<<chi2tot<<" NDOF="<<ndoftot);
-      ATH_MSG_VERBOSE("Fitted parameters: d0="<<d0<<" phi0="<<phi0<<" z0="<<z0	
-          <<" eta0="<<eta<<" pt="<<pt);
+        for (auto tSOS = recoTrack.trackStateOnSurfaces()->begin(); tSOS != recoTrack.trackStateOnSurfaces()->end(); ++tSOS) {
+          //Don't store perigee - new perigee created above
+          if ((*tSOS)->type(Trk::TrackStateOnSurface::Perigee) == false) {
+            pParVec->push_back((*tSOS)->clone());
+          }
+        }
+        if(m_timers)
+        {
+          m_timer[3]->pause();
+          m_timer[4]->resume();
+        }
+
+        ATH_MSG_VERBOSE("Total chi2 ="<<chi2tot<<" NDOF="<<ndoftot);
+        ATH_MSG_VERBOSE("Fitted parameters: d0="<<d0<<" phi0="<<phi0<<" z0="<<z0	
+            <<" eta0="<<eta<<" pt="<<pt);
+      }
       Trk::FitQuality* pFQ=new Trk::FitQuality(chi2tot,ndoftot);
       Trk::TrackInfo info(recoTrack.info());
       info.setParticleHypothesis(matEffects);
@@ -1107,4 +1136,78 @@ Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, const Tr
 		m_timer[4]->pause();
 	}
 	return fittedTrack;
+}
+
+Trk::TrackStateOnSurface* TrigInDetTrackFitter::createTrackStateOnSurface(Trk::TrkBaseNode* pN) const
+{
+  Trk::TrackStateOnSurface* pTSS=nullptr;
+  char type=pN->m_getNodeType();
+  const Trk::TrackParameters* pTP=nullptr;
+
+  if(type==0) return pTSS;
+
+  Trk::TrkTrackState* pTS=pN->m_getTrackState();
+  const Trk::PrepRawData* pPRD=pN->m_getPrepRawData();
+
+  if((type==1)||(type==2))
+  {
+    const Trk::Surface& rS = pPRD->detectorElement()->surface();
+    const Trk::PlaneSurface* pPS = dynamic_cast<const Trk::PlaneSurface*>(&rS);
+    if(pPS==nullptr) return pTSS;
+
+    AmgSymMatrix(5)* pM = new AmgSymMatrix(5);
+
+    for(int i=0;i<5;i++) {
+      for(int j=0;j<5;j++) {
+        (*pM)(i,j)=pTS->m_getTrackCovariance(i,j);
+
+      }
+    }
+    pTP=new Trk::AtaPlane(pTS->m_getTrackState(0),
+        pTS->m_getTrackState(1),
+        pTS->m_getTrackState(2),
+        pTS->m_getTrackState(3),
+        pTS->m_getTrackState(4),*pPS,
+        pM);
+  }
+  else if(type==3)
+  {
+    const Trk::Surface& rS = pPRD->detectorElement()->surface(pPRD->identify()); 
+    const Trk::StraightLineSurface* pLS=dynamic_cast<const Trk::StraightLineSurface*>(&rS);
+    if(pLS==nullptr) return pTSS;
+
+    AmgSymMatrix(5)* pM = new AmgSymMatrix(5);
+
+    for(int i=0;i<5;i++) {
+      for(int j=0;j<5;j++) {
+        (*pM)(i,j)=pTS->m_getTrackCovariance(i,j);
+      }
+    }
+
+    if((pTS->m_getTrackState(2)<-M_PI) ||(pTS->m_getTrackState(2)>M_PI)) {
+      ATH_MSG_WARNING("Phi out of range when correcting Trk::TrackStateOnSurface");
+    }
+
+
+    pTP=new Trk::AtaStraightLine(pTS->m_getTrackState(0),
+        pTS->m_getTrackState(1),
+        pTS->m_getTrackState(2),
+        pTS->m_getTrackState(3),
+        pTS->m_getTrackState(4),
+        *pLS,
+        pM);
+  }
+  if(pTP==nullptr) return nullptr;
+  const Trk::RIO_OnTrack* pRIO=m_ROTcreator->correct(*pPRD,*pTP);
+  if(pRIO==nullptr) {
+    if(pTP!=nullptr) delete pTP;
+    return nullptr;
+  }
+  std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
+  typePattern.set(Trk::TrackStateOnSurface::Measurement);
+  typePattern.set(Trk::TrackStateOnSurface::Scatterer);
+  Trk::FitQualityOnSurface* pFQ=new Trk::FitQualityOnSurface(pN->m_getChi2(),pN->m_getNdof());
+  //pTSS = new Trk::TrackStateOnSurface(pRIO, pTP, pFQ, 0, typePattern);
+  pTSS = new Trk::TrackStateOnSurface(pRIO, 0, pFQ, 0, typePattern);
+  return pTSS;
 }
