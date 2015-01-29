@@ -44,7 +44,21 @@ apply_pattern poolcnv typesWithNamespace="xAOD::JEMHitsContainer \
                                           xAOD::RODHeaderContainer \
                                           xAOD::RODHeaderAuxContainer \  
                                           xAOD::TriggerTowerContainer \
-                                          xAOD::TriggerTowerAuxContainer" \                                            
+                                          xAOD::TriggerTowerAuxContainer \
+                                          xAOD::CMXCPHitsContainer \
+                                          xAOD::CMXCPHitsAuxContainer  \  
+                                          xAOD::CMXCPTobContainer \
+                                          xAOD::CMXCPTobAuxContainer \  
+                                          xAOD::CMXJetHitsContainer \
+                                          xAOD::CMXJetHitsAuxContainer  \  
+                                          xAOD::CMXJetTobContainer \
+                                          xAOD::CMXJetTobAuxContainer \   
+                                          xAOD::CMXEtSumsContainer \
+                                          xAOD::CMXEtSumsAuxContainer \  
+                                          xAOD::CPMTobRoIContainer \
+                                          xAOD::CPMTobRoIAuxContainer \   
+                                          xAOD::JEMTobRoIContainer \
+                                          xAOD::JEMTobRoIAuxContainer " \                                            
                       files="-s=${xAODTrigL1Calo_root}/xAODTrigL1Calo \
                              JEMHitsContainer.h \
                              JEMHitsAuxContainer.h \
@@ -71,14 +85,19 @@ apply_pattern poolcnv typesWithNamespace="xAOD::JEMHitsContainer \
                              RODHeaderContainer.h \
                              RODHeaderAuxContainer.h \ 
                              TriggerTowerContainer.h \
-                             TriggerTowerAuxContainer.h" \                              
+                             TriggerTowerAuxContainer.h \
+                             CMXCPHitsContainer.h \
+                             CMXCPHitsAuxContainer.h \  
+                             CMXCPTobContainer.h \
+                             CMXCPTobAuxContainer.h \  
+                             CMXJetHitsContainer.h \
+                             CMXJetHitsAuxContainer.h \  
+                             CMXJetTobContainer.h \
+                             CMXJetTobAuxContainer.h \ 
+                             CMXEtSumsContainer.h \
+                             CMXEtSumsAuxContainer.h \   
+                             CPMTobRoIContainer.h \
+                             CPMTobRoIAuxContainer.h \ 
+                             JEMTobRoIContainer.h \
+                             JEMTobRoIAuxContainer.h " \                               
                       cnv_pfx="xAOD"
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
-                      
