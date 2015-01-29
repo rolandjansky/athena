@@ -206,12 +206,12 @@ def drawCorrEvolution(detector):
 				if (doDebug): print "hCorrectionsEvolStruct[",dof,"][",struct,"].SetBinContent(",iter+1,",", value,")" 
                 # now draw the corrections for this structure
 			hCorrectionsEvolStruct[dof][struct].DrawCopy('same l')
-			if (dof == nUsedDofs-1): myLegend.AddEntry(hCorrectionsEvolStruct[dof][struct],detector[0].GetModule(struct).GetName(), "l")
+			#if (dof == nUsedDofs-1): myLegend.AddEntry(hCorrectionsEvolStruct[dof][struct],detector[0].GetModule(struct).GetName(), "l")
                 #gPad.Update()
-		if (dof == nUsedDofs-1):
-			print " myLegend.Draw() :)" 
-			myLegend.Draw()
-			gPad.Update()    
+                #if (dof == nUsedDofs-1):
+                #print " myLegend.Draw() :)" 
+                #myLegend.Draw()
+                #gPad.Update()    
         
 	return ThisCanvas
 

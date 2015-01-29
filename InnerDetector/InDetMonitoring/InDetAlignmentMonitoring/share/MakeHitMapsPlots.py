@@ -3,7 +3,7 @@ for i in range(nFiles):
 
     PIXBAR_HitMaps = MakeHitMaps(hitEffDir, legendTitles, rootFiles, i, "pixels", "BAR", True, 0, "measurements")
     DrawHitMaps(PIXBAR_HitMaps, outputDir+"/"+"PIXBAR_HitMaps_File_"+str(i+1)+"."+oFext, "#eta ring", "#phi stave", "Hits", 
-                0.2, 0.97, "#mum",canvasText,makeOutput)
+                0.2, 0.96, "#mum",canvasText,makeOutput)
 
     PIXECA_HitMaps = MakeHitMaps(hitEffDir, legendTitles, rootFiles, i, "pixels", "ECA")
     DrawHitMaps(PIXECA_HitMaps, outputDir+"/"+"PIXECA_HitMaps_File_"+str(i+1)+"."+oFext, "", "", "Hits", 
@@ -61,16 +61,16 @@ for i in range(nFiles):
         print " <MakeHitMapsPlots> Extended = True "
         PIXBAR_ExpectedHitMaps = MakeHitMaps(hitEffDir, legendTitles, rootFiles, i, "pixels", "BAR", True, 0, "hits")
         DrawHitMaps(PIXBAR_ExpectedHitMaps, outputDir+"/"+"PIXBAR_ExpectedHitMaps_File_"+str(i+1)+"."+oFext, "#eta ring", "#phi stave", "Expected hits", 
-                    0.2, 0.97, "#mum",canvasText,makeOutput)
+                    0.2, 0.96, "#mum",canvasText,makeOutput)
         
         PIXBAR_HoleMaps = MakeHitMaps(hitEffDir, legendTitles, rootFiles, i, "pixels", "BAR", True, 0, "holes")
         DrawHitMaps(PIXBAR_HoleMaps, outputDir+"/"+"PIXBAR_HoleMaps_File_"+str(i+1)+"."+oFext, "#eta ring", "#phi stave", "Holes", 
-                    0.2, 0.97, "#mum",canvasText,makeOutput)
-
+                    0.2, 0.96, "#mum",canvasText,makeOutput)
+        
         PIXBAR_OutliersMaps = MakeHitMaps(hitEffDir, legendTitles, rootFiles, i, "pixels", "BAR", True, 0, "outliers")
         DrawHitMaps(PIXBAR_OutliersMaps, outputDir+"/"+"PIXBAR_OutliersMaps_File_"+str(i+1)+"."+oFext, "#eta ring", "#phi stave", "Outliers", 
-                0.2, 0.97, "#mum",canvasText,makeOutput)
-    
+                    0.2, 0.96, "#mum",canvasText,makeOutput)
+
 
 # reset the plots style
 execfile("AtlasStyle.py")

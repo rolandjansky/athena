@@ -30,15 +30,17 @@ def optParsing():
 	from optparse import OptionParser
 	parser = OptionParser()
 	parser.add_option("--ALL", dest="inputALL", help="Do plot all categories", action="store_true", default = False)
+	parser.add_option("--Extended", dest="inputExtended", help="Draw more plots", action="store_true", default = False)
 	parser.add_option("--HitErrors", dest="inputHitErrors", help="Do hit error plots for all systems", action="store_true",default=False)
 	parser.add_option("--HitMaps", dest="inputHitMaps", help="Do hit maps plots for all systems layer by layer", action="store_true",default=False)
 	parser.add_option("--Hits", dest="inputHits", help="Do hit plots for all systems and layer by layer", action="store_true",default=False)
+	parser.add_option("--pdf", dest="inputPDF", help="output files saved as PDFs", action="store_true", default = False)
+	parser.add_option("--IBLresiduals", dest="inputIBL", help="print detailed residual distributions in IBL", action="store_true", default = False)
 	parser.add_option("--Pulls", dest="inputPulls", help="Do pulls plots for all systems and then layer by layer", action="store_true",default=False)
 	parser.add_option("--ResidualMaps", dest="inputResidualMaps", help="Do residuals plots for all systems layer by layer", action="store_true",default=False)
 	parser.add_option("--Residuals", dest="inputResiduals", help="Do residuals plots for all systems and then layer by layer", action="store_true",default=False)
 	parser.add_option("--TrackParams", dest="inputTrackParams", help="Do track parameter plots", action="store_true",default=False)
 	parser.add_option("--TrackSegments", dest="inputTrackSegments", help="Do track segment matching plots", action="store_true",default=False)
-	parser.add_option("--Extended", dest="inputExtended", help="Draw more plots", action="store_true", default = False)
     
 	(config, sys.argv[1:]) = parser.parse_args(sys.argv[1:])
 
@@ -51,17 +53,20 @@ config = optParsing()
 userHitErrors = config.inputHitErrors
 userHits = config.inputHits
 userHitMaps = config.inputHitMaps
+userIBL = config.inputIBL
 userPulls = config.inputPulls
 userResidualMaps = config.inputResidualMaps
 userResiduals = config.inputResiduals
 userTrackParams = config.inputTrackParams
 userTrackSegments = config.inputTrackSegments
 userExtended = config.inputExtended
+userPDF = config.inputPDF
 
 if (config.inputALL):
     userHitErrors = True
     userHitMaps = True
     userHits = True
+    userIBL = True
     userPulls = True
     userResidualMaps = True
     userResiduals = True
@@ -82,6 +87,7 @@ doHitMaps = False or userHitMaps
 doResidualMaps = False or userResidualMaps
 doHits = False or userHits
 doHitErrors = False or userHitErrors
+doIBL = False or userIBL
 doBeamSpot = False
 
 print "\n ****************************"
@@ -140,6 +146,7 @@ print " -- MakeMajorAlignMonPlots -- Using in total ",nFiles, " input files "
 # Basic Barrel Residual distributions
 if (doResiduals): execfile("MakeResidualPlots.py")
 if (doResidualProfiles): execfile("MakeResidualProfilesPlots.py") 
+if (doIBL): execfile("MakeResidualsIBL.py")
 if (doPulls): execfile("MakePullPlots.py") 
     
 # track parameters

@@ -407,9 +407,9 @@ def MakePlots(histogramDir,legendTitles,markerColors,markerStyles,histogramName,
 
     #first have to get all the histograms because they may be used to normalise each other etc 
     for i in range(nFiles):
-        if (debug): print " <MakePlots> retriveing ",histogramName," from file ",i," --> ",rootFiles[i]
-        histoGram[i] = GetHistogram(rootFiles[i],histogramDir[i],histogramName,markerColors[i],markerStyles[i])
         print " <MakePlots> ===  ",histogramName,"  ==="
+        if (debug): print " <MakePlots> retriveing ",histogramName," from file ",i," --> ",rootFiles[i]
+        histoGram[i] = GetHistogram(rootFiles[i],histogramDir[i],histogramName,markerColors[i],markerStyles[i], i)
         
     for i in range(nFiles):
         #normalise histograms to unit area if desired
@@ -472,7 +472,7 @@ def MakePlots(histogramDir,legendTitles,markerColors,markerStyles,histogramName,
 def MakeProfPlots(histogramDir,legendTitles,markerColors,markerStyles,histogramName, fitType, rootFiles, nFiles, symmetricRange=False):
 
     # this function takes as argument a TH2 and draws the mean profile or the rms profile 
-    debug = True
+    debug = False
     normaliseHistos = False # not normalization
     unitArea = False # not unit area
 
@@ -488,9 +488,9 @@ def MakeProfPlots(histogramDir,legendTitles,markerColors,markerStyles,histogramN
 
     #first have to get all the histograms because they may be used to normalise each other etc 
     for i in range(nFiles):
+        print " <MakeProfPlots> ===  ",histogramName,"  ==="
         if (debug): print " <MakeProfPlots> retriveing ",histogramName," from file ",i," --> ",rootFiles[i]
         histoGram[i] = GetHistogram(rootFiles[i],histogramDir[i],histogramName,markerColors[i],markerStyles[i])
-        print " <MakeProfPlots> ===  ",histogramName,"  ==="
         
     for i in range(nFiles):
         # make the profile
@@ -562,6 +562,111 @@ def MakeProfPlots(histogramDir,legendTitles,markerColors,markerStyles,histogramN
     if (debug): print "  <MakeProfPlots> for ",histogramName, " **  COMPLETED  ** "
     return totalTuple #returning histograms and fits
 
+###########################################################################################################################################        
+def MakeProfPlotsFrom3D(histogramDir,legendTitles,markerColors,markerStyles,histogramName, fitType, rootFiles, nFiles,  symmetricRange=False, binRangeLower=-1, binRangeUpper=-1):
+
+    # this function takes as argument a TH3 and obtains the profile in one of its axis. 
+    debug = False
+    normaliseHistos = False # not normalization
+    unitArea = False # not unit area
+
+    # in case we limit the range of bins
+    rangeLimit = False
+    if (binRangeLower > 0): rangeLimit = True
+    if (binRangeUpper >0 and binRangeUpper >= binRangeLower): rangeLimit = True     
+    #gets histograms from the files, normalises if desired and makes fits
+    #returns histograms and fits
+    maxval = 0.0
+    max_hist = 0
+    
+    histoGram = [TH3,TH3,TH3,TH3,TH3]
+    returnHistogram = [TH1, TH1, TH1, TH1, TH1]
+    myProfile = [TProfile2D,TProfile2D,TProfile2D,TProfile2D,TProfile2D]
+    Tuples = [tuple,tuple,tuple,tuple,tuple]
+
+    #first have to get all the histograms because they may be used to normalise each other etc 
+    for i in range(nFiles):
+        print " <MakeProfPlotsFrom3D> ===  ",histogramName,"  ==="
+        if (debug): print " <MakeProfPlotsFrom3D> retriveing ",histogramName," from file ",i," --> ",rootFiles[i]
+        histoGram[i] =GetHistogram3D(rootFiles[i],histogramDir[i],histogramName)
+
+    for i in range(nFiles):
+        # make the profile
+        if (rangeLimit): histoGram[i].GetYaxis().SetRange(binRangeLower,binRangeUpper);
+        myProfile[i] = histoGram[i].Project3D("ZX")
+        tempProf = myProfile[i].ProfileX()
+        
+        # sometimes ROOT likes to draw a negative portion of y-axis when no negative entries
+        #RemoveNegativeYAxis(histoGram[i],histogramName)
+
+        # find which histogram has largest y-value - this will be drawn first
+        if tempProf.GetMaximum() > maxval:
+            maxval = tempProf.GetMaximum()
+        if tempProf.GetMinimum() < -maxval:
+            maxval = -tempProf.GetMinimum()
+        maxval = 1.10 * maxval
+        #if (maxval < 0.45): maxval = 0.450
+        #if (maxval < 0.10): maxval = 0.100
+
+        # buld the returned histograms
+        returnHistogram[i] = TH1F("new_"+histoGram[i].GetName(), histoGram[i].GetTitle(),                                  
+                           histoGram[i].GetNbinsX(), histoGram[i].GetXaxis().GetXmin(), histoGram[i].GetXaxis().GetXmax())
+        returnHistogram[i].SetMarkerStyle(markerStyles[i])
+        returnHistogram[i].SetMarkerColor(markerColors[i])
+        returnHistogram[i].SetLineColor(markerColors[i])
+
+        for bin in range(histoGram[i].GetNbinsX()):
+            returnHistogram[i].SetBinContent(bin+1, tempProf.GetBinContent(bin+1))
+            returnHistogram[i].SetBinError(bin+1, tempProf.GetBinError(bin+1))
+        
+        # perform the deired fit to the histogram
+        fit = MakeFit(returnHistogram[i],fitType,markerColors[i])
+
+        # make a tuple object that can be passed to draw method
+        Tuples[i] = returnTuple(fit,returnHistogram[i],legendTitles[i])
+
+    #unify range
+    if (debug): print " <MakeProfPlotsFrom3D> maxval = ",maxval
+    for i in range(nFiles):
+        if (symmetricRange): 
+            if (debug): print " <MakeProfPlotsFrom3D> symmetric range with maxval = ",maxval
+            returnHistogram[i].GetYaxis().SetRangeUser(-maxval,maxval)
+        else:
+            if (debug): print " <MakeProfPlotsFrom3D> range from 0 --> maxval = ",maxval
+            returnHistogram[i].GetYaxis().SetRangeUser(0,maxval)
+        
+
+    if nFiles==1:
+        totalTuple = Tuples[0]
+    if nFiles==2:
+        if max_hist==0 or forceDrawOrder:
+            totalTuple = Tuples[0] + Tuples[1]
+        elif max_hist==1:
+            totalTuple = Tuples[1] + Tuples[0]
+    if nFiles==3:
+        if max_hist==0 or forceDrawOrder:
+            totalTuple = Tuples[0] + Tuples[1] + Tuples[2]
+        elif max_hist==1:
+            totalTuple = Tuples[1] + Tuples[0] + Tuples[2]
+        elif max_hist==2:
+            totalTuple = Tuples[2] + Tuples[0] + Tuples[1]
+
+    if nFiles==4:
+        if max_hist==0 or forceDrawOrder:
+            totalTuple = Tuples[0] + Tuples[1] + Tuples[2] + Tuples[3]
+        elif max_hist==1:
+            totalTuple = Tuples[1] + Tuples[0] + Tuples[2] + Tuples[3]
+        elif max_hist==2:
+            totalTuple = Tuples[2] + Tuples[0] + Tuples[1] + Tuples[3]
+        elif max_hist==3:
+            totalTuple = Tuples[3] + Tuples[0] + Tuples[1] + Tuples[2]
+
+
+
+    if (debug): print "  <MakeProfPlots> for ",histogramName, " **  COMPLETED  ** "
+    return totalTuple #returning histograms and fits
+
+##############################################################################################################
 def MakeTwoPlotsFromSameFile(histogramDir,legendTitles,markerColors,markerStyles,histogramNames, fitType, rootFiles, fileToUse, normaliseHistos, unitArea=False):
     
     #gets 2 histograms from same file, normalises if desired and makes fits
@@ -705,6 +810,7 @@ def FindCutBin(axis, cut, maxOrMin):
 
   return cutBin
 
+####################################################################
 def MakeResidualMean1dHisto(histogramName,histogramDir,rootFile):
 
     debug = False
@@ -930,8 +1036,7 @@ def MakeErrVsPtHisto(histogramName,histogramDir,rootFile):
 
     return newHist
 
-def GetHistogram(rootFile,histogramDir,histogramName,markerColor,markerStyle):
-
+def GetHistogram(rootFile,histogramDir,histogramName,markerColor,markerStyle, fileID=0):
 
     if histogramName=="pix_ec_residualx":
         histoGramECA = rootFile.Get(histogramDir + "pix_eca_residualx")
@@ -1079,14 +1184,40 @@ def GetHistogram(rootFile,histogramDir,histogramName,markerColor,markerStyle):
     else:
         histoGram = rootFile.Get(histogramDir + histogramName)
 
+    # IBL residuals    
+    if "IBL_residual" in histogramName:
+        if histogramName=="IBL_residualx_3DSensors":
+            histoGram3D = GetHistogram3D(rootFile, histogramDir, "pix_b0_xresvsmodetaphi_3d") # retrieve the 3D histogram
+            histoGram = getIBLResidualBySensorType(histoGram3D, 0, True, False, fileID)
+        if histogramName=="IBL_residualx_PlanarSensors":
+            histoGram3D = GetHistogram3D(rootFile, histogramDir, "pix_b0_xresvsmodetaphi_3d") # retrieve the 3D histogram
+            histoGram = getIBLResidualBySensorType(histoGram3D, 0, False, True, fileID)
+        if histogramName=="IBL_residualy_3DSensors":
+            histoGram3D = GetHistogram3D(rootFile, histogramDir, "pix_b0_yresvsmodetaphi_3d") # retrieve the 3D histogram
+            histoGram = getIBLResidualBySensorType(histoGram3D, 0, True, False, fileID)
+        if histogramName=="IBL_residualy_PlanarSensors":
+            histoGram3D = GetHistogram3D(rootFile, histogramDir, "pix_b0_yresvsmodetaphi_3d") # retrieve the 3D histogram
+            histoGram = getIBLResidualBySensorType(histoGram3D, 0, False, True, fileID)
+        if histogramName=="IBL_residualx_3DASensors":
+            histoGram3D = GetHistogram3D(rootFile, histogramDir, "pix_b0_xresvsmodetaphi_3d") # retrieve the 3D histogram
+            histoGram = getIBLResidualBySensorType(histoGram3D, 0, True, False, fileID, "ASide")
+        if histogramName=="IBL_residualx_3DCSensors":
+            histoGram3D = GetHistogram3D(rootFile, histogramDir, "pix_b0_xresvsmodetaphi_3d") # retrieve the 3D histogram
+            histoGram = getIBLResidualBySensorType(histoGram3D, 0, True, False, fileID, "CSide")
+        histoGram.SetMarkerColor(markerColor)
+        histoGram.SetMarkerStyle(markerStyle)
 
-    if not histoGram : #is None:#checking histograms exist
+
+    #
+    # - end of searching histograms
+    # - now... let's do some basic crosschecks
+    #    
+    if not histoGram : #is None:#checking histograms exist    
         print "EXITING because failed to find histogram ",histogramDir + histogramName
         sys.exit()
          
     if histoGram.Integral()==0:#checking for empty histos
         print "WARNING zero entries in histogram ",histogramDir + histogramName
-    
 
  #    if histogramName=="trt_b_residualR" or histogramName=="trt_ec_residualR_Endcap_A" or histogramName=="trt_ec_residualR_Endcap_C":
 #         histoGram.Sumw2()#so have errors for TRT histograms - all others already have errors defined
@@ -1177,7 +1308,7 @@ def GetHistogram(rootFile,histogramDir,histogramName,markerColor,markerStyle):
     if histogramName=="pix_b_yresvsmodphi" or histogramName=="pix_eca_yresvsmodphi" or histogramName=="pix_ecc_yresvsmodphi":
         histoGram.GetYaxis().SetRangeUser(-.05,.05) #pri
     if histogramName=="sct_b_xresvsmodeta" or histogramName=="pix_b_xresvsmodeta": 
-        histoGram.GetYaxis().SetRangeUser(-.005,.005) #pri
+        histoGram.GetYaxis().SetRangeUser(-.015,.015) #pri
     if histogramName=="sct_b_xresvsmodphi" or histogramName=="sct_eca_xresvsmodphi" or histogramName=="sct_ecc_xresvsmodphi":   
         histoGram.GetYaxis().SetRangeUser(-.01,.01) #pri
 
@@ -1284,8 +1415,17 @@ def GetHistogram(rootFile,histogramDir,histogramName,markerColor,markerStyle):
 
     #print "bin size for ",histogramName," = " , histoGram.GetBinWidth(50)        
 
-    return histoGram
+
     
+    return histoGram
+
+###########################################################################
+def GetHistogram3D(rootFile,histogramDir,histogramName):
+    histoGram = rootFile.Get(histogramDir + histogramName)
+    return histoGram
+
+    
+###########################################################################
 def RemoveNegativeYAxis(histoGram,histogramName):
 
     ## This is to ensure that the y-axis doesn't go negative for e.g. residuals plots
@@ -2095,7 +2235,7 @@ def MakeHitMaps(histogramDir, legendTitles, rootFiles, fileID, detecName="pixels
     if (detecName=="SCT" and barrelEndCap=="ECC"): shortName = "measurements_vs_Eta_Phi_sct_ecc_3d_s" 
         
         
-    #first have to get all the histograms because they may be used to normalise each other etc     
+    # first one has to retrieve all histograms because they may be used to normalise each other, etc.     
     if (detecName == "PIX" and barrelEndCap == "BAR"):
         for i in range(nLayers):
             myHistoName = shortName + str(i)
@@ -2144,6 +2284,7 @@ def MakeHitMaps(histogramDir, legendTitles, rootFiles, fileID, detecName="pixels
     if (nLayers == 9): totalTuple = (histoGram[0], histoGram[1], histoGram[2],  histoGram[3],  histoGram[4],  histoGram[5],  histoGram[6],  histoGram[7],  histoGram[8])
         
     return totalTuple #returning histograms and fits
+
 ######################################################################################################################################        
 def MakeHitEffMaps(histogramDir, legendTitles, rootFiles, fileID, detecName="pixels", barrelEndCap="BAR", unifiedScale = True, coordinate=0):
     # The hit maps have to be plotted for each track collection
@@ -2244,7 +2385,7 @@ def MakeResidualMaps(histogramDir, legendTitles, rootFiles, fileID, detecName="p
     # The hit maps have to be plotted for each track collection
     # this gets histograms from the files, normalises if desired and makes fits
     # and returns histograms and fits
-    debug = False
+    debug = True
     totalMax = -9999999
     totalMin = 99999999
     totalRange = totalMin #intialize to an arbitrary large value
@@ -2312,7 +2453,8 @@ def MakeResidualMaps(histogramDir, legendTitles, rootFiles, fileID, detecName="p
         if (debug): print " -- MakeResidualMaps -- computed Z range= ",totalMin, " --> ",totalMax
         totalRange = math.fabs(totalMax)
         if (math.fabs(totalMin) > totalRange): totalRange = math.fabs(totalMin)
-        if (totalRange > zAxisRange): totalRange = zAxisRange        
+        if (totalRange > zAxisRange): totalRange = zAxisRange
+        if (totalRange < zAxisRange): totalRange = zAxisRange
             
         # now set the common maximum & minimum
         for layer in range(nLayers):
@@ -2334,6 +2476,62 @@ def MakeResidualMaps(histogramDir, legendTitles, rootFiles, fileID, detecName="p
     if (nLayers == 9): totalTuple = (histoGram[0], histoGram[1], histoGram[2],  histoGram[3],  histoGram[4],  histoGram[5],  histoGram[6],  histoGram[7],  histoGram[8])
         
     return totalTuple #returning histograms and fits
+
+###########################################################################################################################
+def getIBLResidualBySensorType(inputHisto, layer, draw3DSensors, drawPlanarSensors, fileID=0, side = "all"):
+    sideFor3DSensors = side.upper()
+    sideFor3DSensors = sideFor3DSensors[0:3]
+    drawCSide = False
+    drawASise = False
+    if (draw3DSensors and sideFor3DSensors == "ALL"):
+        drawCSide = True
+        drawASide = True
+    if (draw3DSensors and sideFor3DSensors == "ASI"):
+        drawCSide = False
+        drawASide = True
+    if (draw3DSensors and sideFor3DSensors == "CSI"):
+        drawCSide = True
+        drawASide = False
+
+    # the input histo is a 3D
+    hname = inputHisto.GetName() + "_ResMean"
+    if (draw3DSensors): hname = hname + "_3D_F" + str(fileID) 
+    if (drawPlanarSensors): hname = hname + "_Planar" + str(fileID)     
+    htitle = " residual map " + "(mean)" 
+
+    # define the 2d map
+    outputHisto = TH2F(hname, htitle, inputHisto.GetXaxis().GetNbins(), 
+                       inputHisto.GetXaxis().GetXmin(),
+                       inputHisto.GetXaxis().GetXmax(),
+                       inputHisto.GetYaxis().GetNbins(), 
+                       inputHisto.GetYaxis().GetXmin(),
+                       inputHisto.GetYaxis().GetXmax());
+
+    outputHisto1D = TH1F(hname, htitle, inputHisto.GetZaxis().GetNbins(), 
+                       inputHisto.GetZaxis().GetXmin(),
+                       inputHisto.GetZaxis().GetXmax());
+    # fill the map
+    for i in range (outputHisto.GetXaxis().GetNbins()):
+        for j in range (outputHisto.GetYaxis().GetNbins()):
+            thisHisto = inputHisto.ProjectionZ(hname+"_zmean"+str(layer)+str(i)+str(j),i+1,i+1,j+1,j+1)
+            #if (i < 4 ): thisHisto = inputHisto.ProjectionZ(hname+"_zmean"+str(layer)+str(i)+str(j), 1, 4, 1, outputHisto.GetYaxis().GetNbins())
+            #if (4<= i and i <= 15): thisHisto = inputHisto.ProjectionZ(hname+"_zmean"+str(layer)+str(i)+str(j), 5, 16, 1, outputHisto.GetYaxis().GetNbins())
+            #if (16 <= i): thisHisto = inputHisto.ProjectionZ(hname+"_zmean"+str(layer)+str(i)+str(j), 17, 20, 1, outputHisto.GetYaxis().GetNbins())
+            if (thisHisto.GetEntries() >= MinEntriesPerModule): # min number of entries
+                outputHisto.SetBinContent(i+1,j+1,1000.*thisHisto.GetMean())
+
+
+    if (draw3DSensors): 
+        outputHisto1D = inputHisto.ProjectionZ(hname+"_zmean"+str(layer)+str(i)+str(j), 1, 4, 1, outputHisto.GetYaxis().GetNbins())
+        outputHisto1D_2 = inputHisto.ProjectionZ(hname+"_zmean2"+str(layer)+str(i)+str(j), 17, 20, 1, outputHisto.GetYaxis().GetNbins())
+        if ( not drawCSide): outputHisto1D.Reset()
+        if ( not drawASide): outputHisto1D_2.Reset()
+        outputHisto1D.Add(outputHisto1D_2)
+
+    if (drawPlanarSensors): 
+        outputHisto1D = inputHisto.ProjectionZ(hname+"_zmean"+str(layer)+str(i)+str(j), 5, 16, 1, outputHisto.GetYaxis().GetNbins())
+
+    return outputHisto1D
 
 ###########################################################################################################################
 def get2DResidualMap(inputHisto, layer):
@@ -2403,6 +2601,7 @@ def DrawHitMaps(inputTuple, outputName, xAxisTitle, yAxisTitle, zAxisTitle, lege
     gStyle.SetLabelOffset(0.015,"y")
     gStyle.SetLabelSize(0.045,"x")
     gStyle.SetLabelSize(0.045,"y")
+    gStyle.SetPadTickX(0) # no X axis ticks in the top 
     can.Divide(2,2)
     if (detecName == "PIX" and barrelEndCap != "BAR"): 
         del can

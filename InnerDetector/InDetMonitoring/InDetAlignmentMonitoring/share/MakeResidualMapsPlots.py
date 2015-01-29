@@ -4,14 +4,14 @@ MinEntriesPerModule = 15
 
 for i in range(nFiles):
     print " -- MakeResidualMapsPlots -- file ", i
-    PIXBAR_xResMeanMaps = MakeResidualMaps(residualsDir, legendTitles, rootFiles, i, "pixels", "BAR", 0, False, 300)
+    PIXBAR_xResMeanMaps = MakeResidualMaps(residualsDir, legendTitles, rootFiles, i, "pixels", "BAR", 0, True, 300)
     DrawHitMaps(PIXBAR_xResMeanMaps, outputDir+"/"+"PIXBAR_xResMeanMaps_File_"+str(i+1)+"."+oFext, "#eta id", "#phi id", "Local x residual [#mu m]", 
                 0.2, 0.96, "#mum",canvasText,makeOutput)
-
-    PIXBAR_yResMeanMaps = MakeResidualMaps(residualsDir, legendTitles, rootFiles, i, "pixels", "BAR", 1, False, 300)
+    PIXBAR_yResMeanMaps = MakeResidualMaps(residualsDir, legendTitles, rootFiles, i, "pixels", "BAR", 1, True, 250)
     DrawHitMaps(PIXBAR_yResMeanMaps, outputDir+"/"+"PIXBAR_yResMeanMaps_File_"+str(i+1)+"."+oFext, "#eta id", "#phi id", "Local y residual [#mu m]", 
                 0.2, 0.96, "#mum",canvasText,makeOutput)
 
+for i in range(nFiles):
     PIXECA_xResMeanMaps = MakeResidualMaps(residualsDir, legendTitles, rootFiles, i, "pixels", "ECA", 0)
     DrawHitMaps(PIXECA_xResMeanMaps, outputDir+"/"+"PIXECA_xResMeanMaps_File_"+str(i+1)+"."+oFext, "", "", "Local x residual [#mu m]", 
                 0.2, 0.96, "#mum",canvasText,makeOutput,"PIX","ECA")
