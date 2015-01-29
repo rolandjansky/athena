@@ -4,17 +4,17 @@ author Niels van Eldik
 author Yat Long Chan
 author Marco van Woerden
 
-use AtlasPolicy         AtlasPolicy-*
-use GaudiInterface      GaudiInterface-*        External 
-use RecoToolInterfaces  RecoToolInterfaces-*    Reconstruction/RecoTools
-use TrkCaloExtension    TrkCaloExtension-*      Tracking/TrkEvent
-use GeoPrimitives       GeoPrimitives-*         DetectorDescription
+use AtlasPolicy           AtlasPolicy-*
+use GaudiInterface        GaudiInterface-*        External 
+use RecoToolInterfaces    RecoToolInterfaces-*    Reconstruction/RecoTools
+use TrkCaloExtension      TrkCaloExtension-*      Tracking/TrkEvent
+use GeoPrimitives         GeoPrimitives-*         DetectorDescription
 use TrkParametersIdentificationHelpers TrkParametersIdentificationHelpers-* Tracking/TrkEvent
-use CaloEvent           CaloEvent-*             Calorimeter
-use CaloUtils           CaloUtils-*             Calorimeter
-use CaloGeoHelpers      CaloGeoHelpers-*        Calorimeter
-use ParticleCaloExtension ParticleCaloExtension-* Reconstruction/RecoEvent
+use CaloEvent             CaloEvent-*             Calorimeter
+use CaloGeoHelpers        CaloGeoHelpers-*        Calorimeter
 use xAODCaloEvent         xAODCaloEvent-*         Event/xAOD 
+use CaloUtils             CaloUtils-*             Calorimeter
+use ParticleCaloExtension ParticleCaloExtension-* Reconstruction/RecoEvent
 
 private
 use AthenaBaseComps       AthenaBaseComps-*       Control
@@ -31,7 +31,9 @@ use TrkToolInterfaces     TrkToolInterfaces-*     Tracking/TrkTools
 use TrkSurfaces           TrkSurfaces-*           Tracking/TrkDetDescr
 use AtlasDetDescr         AtlasDetDescr-*         DetectorDescription
 use ParticlesInConeTools  ParticlesInConeTools-*  Reconstruction/RecoTools
-use FourMomUtils           FourMomUtils-*         Event
+use FourMomUtils          FourMomUtils-*          Event
+use CaloIdentifier        CaloIdentifier-*        Calorimeter
+use CaloDetDescr          CaloDetDescr-*          Calorimeter
 public
 
 apply_pattern dual_use_library files=*.cxx

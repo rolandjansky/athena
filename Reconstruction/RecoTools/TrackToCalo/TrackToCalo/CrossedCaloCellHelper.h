@@ -15,17 +15,17 @@ namespace Rec {
 
   class CrossedCaloCellHelper {
   public:
-    
-    static xAOD::CaloCluster* crossedCells( const Rec::ParticleCellAssociation& association, 
-                                            const CaloCellContainer& cellContainer, 
+   
+    static xAOD::CaloCluster* crossedCells( const Rec::ParticleCellAssociation& association,
+                                            const CaloCellContainer& cellContainer,
                                             xAOD::CaloClusterContainer& clusterContainer ) {
-      
+     
       // create cluster
-      xAOD::CaloCluster* cluster = CaloClusterStoreHelper::makeCluster(&clusterContainer,&cellContainer); 
+      xAOD::CaloCluster* cluster = CaloClusterStoreHelper::makeCluster(&clusterContainer,&cellContainer);
       if( !cluster ){
         return nullptr;
       }
-      
+     
       // loop over intersections and add cells to cluster
       for( auto entry : association.cellIntersections() ){
         if( !entry.first || !entry.first->caloDDE() ) continue;
