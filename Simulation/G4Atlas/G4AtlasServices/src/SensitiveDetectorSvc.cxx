@@ -3,10 +3,10 @@
 */
 
 #include "SensitiveDetectorSvc.h"
-#include "G4AtlasInterfaces/ISensitiveDetector.h"
 
 SensitiveDetectorSvc::SensitiveDetectorSvc( const std::string& name, ISvcLocator* pSvcLocator )
   : AthService(name,pSvcLocator)
+  , m_SenDetList(this)
 {
   declareProperty( "SensitiveDetectors" , m_SenDetList , "Tool handle array of all sensitive detector tools" );
 }
@@ -14,9 +14,8 @@ SensitiveDetectorSvc::SensitiveDetectorSvc( const std::string& name, ISvcLocator
 StatusCode SensitiveDetectorSvc::initialize(){
   // Loop through all the sensitive detectors and retrieve them
   //  This fires initialize() for each of those tools
-  for (auto isd : m_SenDetList){
-    CHECK(isd.retrieve());
-  }
+  ATH_MSG_INFO( "Initializing list of " << m_SenDetList.size() << " sensitive detectors in " << name() );
+  CHECK( m_SenDetList.retrieve() );
   return StatusCode::SUCCESS;
 }
 

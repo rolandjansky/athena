@@ -29,7 +29,6 @@ class SensitiveDetectorSvc : public AthService , public virtual ISensitiveDetect
 
  private:
   ToolHandleArray<ISensitiveDetector> m_SenDetList; ///!< Private array of tool handles pointing to all SDs
-
 };
 
 #endif
