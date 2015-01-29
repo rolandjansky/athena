@@ -40,8 +40,10 @@ namespace {
 
 TCS::DeltaRSqrIncl2::DeltaRSqrIncl2(const std::string & name) : DecisionAlg(name)
 {
-   defineParameter("NumberLeading1", 3);
-   defineParameter("NumberLeading2", 3); 
+   defineParameter("InputWidth1", 9);
+   defineParameter("InputWidth2", 9);
+   defineParameter("MaxTob1", 0); 
+   defineParameter("MaxTob2", 0); 
    defineParameter("NumResultBits", 3);
    defineParameter("DeltaRMin",  0, 0);
    defineParameter("DeltaRMax",  0, 0);
@@ -59,8 +61,12 @@ TCS::DeltaRSqrIncl2::~DeltaRSqrIncl2(){}
 
 TCS::StatusCode
 TCS::DeltaRSqrIncl2::initialize() {
-   p_NumberLeading1 = parameter("NumberLeading1").value();
-   p_NumberLeading2 = parameter("NumberLeading2").value();
+   
+   p_NumberLeading1 = parameter("InputWidth1").value();
+   p_NumberLeading2 = parameter("InputWidth2").value();
+   if(parameter("MaxTob1").value() > 0) p_NumberLeading1 = parameter("MaxTob1").value();
+   if(parameter("MaxTob2").value() > 0) p_NumberLeading2 = parameter("MaxTob2").value();
+
    for(int i=0; i<3; ++i) {
       p_DeltaRMin[i] = parameter("DeltaRMin", i).value();
       p_DeltaRMax[i] = parameter("DeltaRMax", i).value();
@@ -98,13 +104,13 @@ TCS::DeltaRSqrIncl2::process( const std::vector<TCS::TOBArray const *> & input,
            ++tob1)
          {
 
-            if( parType_t((*tob1)->Et()) < p_MinET1) continue; // ET cut
+            if( parType_t((*tob1)->Et()) <= p_MinET1) continue; // ET cut
 
             for( TCS::TOBArray::const_iterator tob2 = input[1]->begin(); 
                  tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
                  ++tob2) {
 
-               if( parType_t((*tob2)->Et()) < p_MinET2) continue; // ET cut
+               if( parType_t((*tob2)->Et()) <= p_MinET2) continue; // ET cut
 
                // test DeltaR2Min, DeltaR2Max
                unsigned int deltaR2 = calcDeltaR2( *tob1, *tob2 );

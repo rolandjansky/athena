@@ -34,6 +34,7 @@ namespace {
 TCS::DeltaPhiIncl1::DeltaPhiIncl1(const std::string & name) : DecisionAlg(name)
 {
    defineParameter("InputWidth", 0);
+   defineParameter("MaxTob", 0);
    defineParameter("NumResultBits", 1);
    defineParameter("MinEt1",0);
    defineParameter("MinEt2",0);
@@ -47,8 +48,15 @@ TCS::DeltaPhiIncl1::~DeltaPhiIncl1(){}
 
 TCS::StatusCode
 TCS::DeltaPhiIncl1::initialize() {
-   p_NumberLeading1 = parameter("InputWidth").value();
-   p_NumberLeading2 = parameter("InputWidth").value();
+
+   if(parameter("MaxTob").value() > 0) {
+    p_NumberLeading1 = parameter("MaxTob").value();
+    p_NumberLeading2 = parameter("MaxTob").value();
+   } else {
+    p_NumberLeading1 = parameter("InputWidth").value();
+    p_NumberLeading2 = parameter("InputWidth").value();
+   }
+
    for(int i=0; i<1; ++i) {
       p_DeltaPhiMin[i] = parameter("MinDeltaPhi", i).value();
       p_DeltaPhiMax[i] = parameter("MaxDeltaPhi", i).value();
@@ -87,14 +95,15 @@ TCS::DeltaPhiIncl1::process( const std::vector<TCS::TOBArray const *> & input,
            ++tob1) 
          {
             
-            if( parType_t((*tob1)->Et()) <= p_MinET1 ) continue; // ET cut
-            
+            if( parType_t((*tob1)->Et()) <= min(p_MinET1,p_MinET2)) continue; // ET cut
+
             TCS::TOBArray::const_iterator tob2 = tob1; ++tob2;      
             for( ;
                  tob2 != input[0]->end() && distance( input[0]->begin(), tob2) < nLeading2;
                  ++tob2) {
 
-               if( parType_t((*tob2)->Et()) <= p_MinET2) continue; // ET cut
+               if( parType_t((*tob2)->Et()) <= min(p_MinET1,p_MinET2)) continue; // ET cut
+               if( (parType_t((*tob1)->Et()) <= max(p_MinET1,p_MinET2)) && (parType_t((*tob2)->Et()) <= max(p_MinET1,p_MinET2))) continue;
 
                // DeltaPhi cuts
                unsigned int deltaPhi = calcDeltaPhi( *tob1, *tob2 );

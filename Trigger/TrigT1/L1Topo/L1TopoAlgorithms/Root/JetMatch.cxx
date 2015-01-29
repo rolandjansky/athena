@@ -25,7 +25,8 @@ using namespace std;
 
 TCS::JetMatch::JetMatch(const std::string & name) : DecisionAlg(name)
 {  
-   defineParameter("NumberLeading1", 3);
+   defineParameter("InputWidth", 3);
+   defineParameter("MaxTob", 0); 
    defineParameter("NumResultBits", 1);
    defineParameter("MinET1",0);
    defineParameter("MinET2",0);
@@ -40,11 +41,14 @@ TCS::JetMatch::~JetMatch()
 
 TCS::StatusCode
 TCS::JetMatch::initialize() {
-   p_NumberLeading1 = parameter("NumberLeading1").value();
+   p_NumberLeading1 = parameter("InputWidth").value();
+   if(parameter("MaxTob").value() > 0) p_NumberLeading1 = parameter("MaxTob").value();
    p_MinET1  = parameter("MinET1").value();
    p_MinET2  = parameter("MinET2").value();
    p_EtaMin = parameter("EtaMin").value();
    p_EtaMax = parameter("EtaMax").value();
+   
+   TRG_MSG_INFO("MaxTob          : " << p_NumberLeading1);
    TRG_MSG_INFO("MinET1          : " << p_MinET1);
    TRG_MSG_INFO("MinET2          : " << p_MinET2);
    TRG_MSG_INFO("EtaMin         : " << p_EtaMin);

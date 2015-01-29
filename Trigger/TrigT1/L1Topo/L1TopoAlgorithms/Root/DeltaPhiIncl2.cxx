@@ -33,8 +33,10 @@ namespace {
 
 TCS::DeltaPhiIncl2::DeltaPhiIncl2(const std::string & name) : DecisionAlg(name)
 {
-   defineParameter("InputWidth1", 0);
-   defineParameter("InputWidth2", 0);
+   defineParameter("InputWidth1", 8);
+   defineParameter("InputWidth2", 8);
+   defineParameter("MaxTob1", 0); 
+   defineParameter("MaxTob2", 0); 
    defineParameter("NumResultBits", 1);
    defineParameter("MinEt1",0);
    defineParameter("MinEt2",0); 
@@ -50,6 +52,8 @@ TCS::StatusCode
 TCS::DeltaPhiIncl2::initialize() {
    p_NumberLeading1 = parameter("InputWidth1").value();
    p_NumberLeading2 = parameter("InputWidth2").value();
+   if(parameter("MaxTob1").value() > 0) p_NumberLeading1 = parameter("MaxTob1").value();
+   if(parameter("MaxTob2").value() > 0) p_NumberLeading2 = parameter("MaxTob2").value();
    for(int i=0; i<1; ++i) {
       p_DeltaPhiMin[i] = parameter("MinDeltaPhi", i).value();
       p_DeltaPhiMax[i] = parameter("MaxDeltaPhi", i).value();

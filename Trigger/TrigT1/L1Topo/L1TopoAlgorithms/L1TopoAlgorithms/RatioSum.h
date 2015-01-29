@@ -26,6 +26,7 @@ namespace TCS {
 
    private:
       parType_t      p_NumberLeading1 = { 0 };
+      parType_t      p_NumberLeading2 = { 0 };
       parType_t      p_MinET1 = { 0 };
       parType_t      p_EtaMin1 = { 0 };
       parType_t      p_EtaMax1 = { 49 };
