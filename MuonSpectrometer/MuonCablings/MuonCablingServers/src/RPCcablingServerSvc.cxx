@@ -18,6 +18,7 @@ RPCcablingServerSvc::RPCcablingServerSvc(const std::string& name, ISvcLocator* s
   m_pDetStore(0),
   m_tagInfoMgr(0)
 {
+// these JO are not effective anymore, kept temporarely to avoid to change the config. pythons
     declareProperty( "Atlas", m_atlas=false ); 
     // Atlas true/false will imply data-like cabling/RPCcablingSim otherwise
     declareProperty( "forcedUse", m_forcedUse=true ); 
@@ -120,23 +121,27 @@ RPCcablingServerSvc::giveCabling(const IRPCcablingSvc*& cabling) const {
 	//	return sc;
     }    
 
-    if(m_atlas) {
-        sc = service((m_useMuonRPC_CablingSvc ? "MuonRPC_CablingSvc" : "RPCcablingSvc"),cabling,true);
-	if ( sc != StatusCode::SUCCESS ) {
-	    MsgStream log(messageService(), name());
-	    log << MSG::ERROR << "Cannot retrieve the instance of RPCcabling"
-	        << endreq;
-            return sc; 
-        }
-    } else {
-	sc = service("RPCcablingSimSvc",cabling,true);
-	if ( sc != StatusCode::SUCCESS ) {
-	    MsgStream log(messageService(), name());
-	    log << MSG::ERROR << "Cannot retrieve the instance of RPCcablingSim"
-	        << endreq; 
-            return sc; 
-        }
+    
+    //if(m_atlas) {
+    //sc = service((m_useMuonRPC_CablingSvc ? "MuonRPC_CablingSvc" : "RPCcablingSvc"),cabling,true);
+    sc = service("MuonRPC_CablingSvc",cabling,true);
+    if ( sc != StatusCode::SUCCESS ) {
+        MsgStream log(messageService(), name());
+        log << MSG::ERROR << "Cannot retrieve the instance of RPCcabling"
+            << endreq;
+        return sc; 
     }
+
+    //} else {
+    //	sc = service("RPCcablingSimSvc",cabling,true);
+    //	if ( sc != StatusCode::SUCCESS ) {
+    //	    MsgStream log(messageService(), name());
+    //	    log << MSG::ERROR << "Cannot retrieve the instance of RPCcablingSim"
+    //	        << endreq; 
+    //       return sc; 
+    //   }
+    //}
+
     
     log << MSG::DEBUG <<"Retrieved RPC cabling svc "<<endreq;
     return StatusCode::SUCCESS;
@@ -153,7 +158,6 @@ RPCcablingServerSvc::compareTags(IOVSVC_CALLBACK_ARGS)
 {
     MsgStream log(messageService(), name());
     StatusCode sc;
-    bool tagMatch = true;  
     
     log << MSG::INFO << "compareTags() callback triggered" << endreq;
     
@@ -168,57 +172,23 @@ RPCcablingServerSvc::compareTags(IOVSVC_CALLBACK_ARGS)
         << "No TagInfo in DetectorStore while attempting to compare tags" 
         << endreq;
     } else {
-        tagInfo->findInputTag("RPC_CablingType", cablingType);
-        
+        tagInfo->findInputTag("RPC_CablingType", cablingType);        
         log << MSG::INFO 
         << "RPC_CablingType from TagInfo: " << cablingType << endreq;
 	
 	if(cablingType=="") {
             // assume it is SIM in case the call-back is active
-            cablingType="RPCcablingSim";
+            //            cablingType="RPCcablingSim";
+            cablingType="MuonRPC_Cabling";
         }
         
 	// check cablingType
-        if (m_atlas) {
-            tagMatch = (cablingType != "RPCcablingSim") ;
-	    if (!tagMatch) 
-	    {
-	      // expecting to run on real-atlas cabling maps and roads but input RDO file is produced with RPCcablingSim
-	      m_atlas = false;
-	      log << MSG::WARNING<<"Autoconfiguration of the RPC cabling Svc: Requested data-like cabling but tag info determine that cablingType must be "<<cablingType<<"; hence, resetting default"<<endreq;
-	    }
-	    else 
-	    {
-		log << MSG::INFO<<"Autoconfiguration of the RPC cabling Svc: Requested data-like cabling matches tag where cablingType is "<<cablingType<<"; hence, cablingType will be set to ";
-		if (m_useMuonRPC_CablingSvc) log<<"MuonRPC_Cabling"<<endreq;
-		else log<<"RPCcabling"<<endreq;	 
-	    }
-        } else {
-            tagMatch = (cablingType == "RPCcablingSim");
-	    if (!tagMatch) 
-	    {
-	     // expecting to run on NON REAL-atlas cabling maps and roads but input RDO file is produced with MuonRPC_Cabling
-	      m_atlas = true;
-	      log << MSG::WARNING<<"Autoconfiguration of the RPC cabling Svc: Requested SIM-like cabling but tag info determine that cablingType must be "<<cablingType<<"; hence, resetting default"<<endreq;
-	    }
-	    else
-	    {
-		log << MSG::INFO<<"Autoconfiguration of the RPC cabling Svc: Requested SIM-like cabling matches tag where cablingType is "<<cablingType<<endreq;
-	    }
-        } 
+        if (cablingType != "MuonRPC_Cabling"){
+            log<< MSG::ERROR <<"RPC_CablingType from TagInfo is "
+               << cablingType << "  , incompatible with present cabling package MuonRPC_Cabling"<<endreq;
+            return StatusCode::FAILURE;
+        }
     }
-    
-    //log << MSG::INFO << "compareTags() callback determined that the cabling is "<< cablingType << endreq;
-    log << MSG::INFO << "compareTags() callback determined that the cabling should be "<< cablingType << endreq;
-    if (!tagMatch) {
-	log << MSG::ERROR <<"Since an incompatible cabling gas been retrieved, stop here "<< endreq;
-	log << MSG::ERROR <<"In order to process this data set, please, use the options: from MuonCnvExample.MuonCnvFlags import muonCnvFlags; muonCnvFlags.RpcCablingMode=";
-	if (cablingType=="" || cablingType=="RPCcablingSim") log<<"\"sim\""<<endreq;
-	if (cablingType=="RPCcabling") log<<"\"old\""<<endreq;
-	if (cablingType=="MuonRPC_Cabling") log<<"\"new\""<<endreq;	
-	return StatusCode::FAILURE;
-    }
-    
     m_tagsCompared=true;
     return StatusCode::SUCCESS;
 }
