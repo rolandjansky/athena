@@ -17,10 +17,8 @@
 #include <cmath>
 #include <iostream>
 
-#include "StoreGate/StoreGateSvc.h" 
 #include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/SystemOfUnits.h"
-#include "StoreGate/DataHandle.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "InDetIdentifier/SCT_ID.h"
@@ -63,23 +61,17 @@ StatusCode TrigL2ResidualCalculator::initialize()
 {
   StatusCode sc = AthAlgTool::initialize();
 
-  StoreGateSvc* detStore;
-  sc = service("DetectorStore", detStore);
-  if ( sc.isFailure() ) { 
-    ATH_MSG_FATAL("DetStore service not found"); 
-    return StatusCode::FAILURE; 
-  }
 
-  if (detStore->retrieve(m_idHelper, "AtlasID").isFailure()) {
+  if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
     ATH_MSG_FATAL("Could not get AtlasDetectorID helper AtlasID");
     return StatusCode::FAILURE;
   } 
 
-  if (detStore->retrieve(m_pixelId, "PixelID").isFailure()) { 
+  if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) { 
     ATH_MSG_FATAL("Could not get Pixel ID helper");
     return StatusCode::FAILURE;  
   }
-  if (detStore->retrieve(m_sctId, "SCT_ID").isFailure()) {  
+  if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) {  
     ATH_MSG_FATAL("Could not get SCT ID helper");;
     return StatusCode::FAILURE;
   }

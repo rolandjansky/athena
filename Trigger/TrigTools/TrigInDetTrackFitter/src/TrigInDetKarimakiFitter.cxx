@@ -17,10 +17,6 @@
 #include <cmath>
 #include <iostream>
 
-#include "StoreGate/StoreGateSvc.h" 
-
-#include "GaudiKernel/ToolFactory.h"
-#include "StoreGate/DataHandle.h"
 
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
@@ -72,20 +68,14 @@ StatusCode TrigInDetKarimakiFitter::initialize() {
   }
  
   // Retrieve Detector Description
-  StoreGateSvc* detectorStore;
-  sc = service("DetectorStore", detectorStore);
-  if(sc.isFailure()) {
-    (*m_log) << MSG::FATAL << "unable to locate Detector Store" << endreq;
-    return StatusCode::FAILURE;
-  }
 
   // Get SCT & pixel Identifier helpers
-  if (detectorStore->retrieve(m_pixelId, "PixelID").isFailure()) { 
+  if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) { 
      (*m_log) << MSG::FATAL << "Could not get Pixel ID helper" << endreq;
      return StatusCode::FAILURE; 
   }
                                                                                                                                            
-  if (detectorStore->retrieve(m_sctId, "SCT_ID").isFailure()) {
+  if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) {
      (*m_log) << MSG::FATAL << "Could not get SCT ID helper" << endreq;
      return StatusCode::FAILURE;
   }

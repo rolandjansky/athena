@@ -1,5 +1,4 @@
 #include "TrigInDetTrackFitter/TrigInDetTrackFitter.h"
-#include "TrigInDetTrackFitter/TrigInDetPerigeeFitter.h"
 #include "TrigInDetTrackFitter/TrigInDetSctKFitter.h"
 #include "TrigInDetTrackFitter/TrigInDetKarimakiFitter.h"
 #include "TrigInDetTrackFitter/TrigInDetBremDetectionTool.h"
@@ -14,7 +13,6 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_TOOL_FACTORY(TrigInDetTrackFitter)
-DECLARE_TOOL_FACTORY(TrigInDetPerigeeFitter)
 DECLARE_TOOL_FACTORY(TrigInDetSctKFitter)
 DECLARE_TOOL_FACTORY(TrigInDetKarimakiFitter)
 DECLARE_TOOL_FACTORY(TrigInDetBremDetectionTool)
@@ -29,7 +27,6 @@ DECLARE_TOOL_FACTORY(TrigL2FastExtrapolationTool)
 DECLARE_FACTORY_ENTRIES(TrigInDetTrackFitter)
 {
   DECLARE_TOOL(TrigInDetTrackFitter)
-  DECLARE_TOOL(TrigInDetPerigeeFitter)
   DECLARE_TOOL(TrigInDetSctKFitter)
   DECLARE_TOOL(TrigInDetKarimakiFitter)
   DECLARE_TOOL(TrigInDetBremDetectionTool)

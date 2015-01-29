@@ -9,8 +9,6 @@
 // ATLAS Collaboration
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "GaudiKernel/ToolFactory.h"
-#include "GaudiKernel/MsgStream.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 #include "TrigInDetEvent/TrigInDetTrack.h"
