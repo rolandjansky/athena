@@ -6,9 +6,9 @@ author Fabrizio Salvatore  <P.F.Salvatore@sussex.ac.uk>
 use AtlasPolicy          AtlasPolicy-*
 use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*         Database/AthenaPOOL
 use AthenaPoolUtilities  AthenaPoolUtilities-*	    Database/AthenaPOOL
-use DataModel		     DataModel-*		        Control
+use DataModel		 DataModel-*		    Control
 use DataModelAthenaPool  DataModelAthenaPool-*      Control
-use TrigCaloEvent        TrigCaloEvent-*         Trigger/TrigEvent
+use TrigCaloEvent        TrigCaloEvent-*            Trigger/TrigEvent
 
 branches TrigCaloEventTPCnv src
 
@@ -32,12 +32,8 @@ apply_pattern UnitTest_run unit_test=TrigCaloClusterCnv_p3
 # of transient classes.  If we make a single dictionary,
 # the compiler runs out of memory on the generated source.
 
-apply_pattern lcgdict dict=TrigCaloEventTPCnv1  \
-  selectionfile=selection1.xml \
-  headerfiles="../TrigCaloEventTPCnv/TrigCaloEventTPCnvDict1.h"
-
-#apply_pattern lcgdict dict=OLD_TrigCaloEventTPCnv1  \
-#  selectionfile=OLD_selection1.xml \
-#  headerfiles="../TrigCaloEventTPCnv/TrigCaloEventTPCnvDict1.h"
+apply_pattern lcgdict dict=TrigCaloEventTPCnv  \
+  selectionfile=selection.xml \
+  headerfiles="../TrigCaloEventTPCnv/TrigCaloEventTPCnvDict.h"
 
 end_private
