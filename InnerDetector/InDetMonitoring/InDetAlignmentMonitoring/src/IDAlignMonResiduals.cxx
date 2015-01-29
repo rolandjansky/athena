@@ -255,8 +255,8 @@ IDAlignMonResiduals::IDAlignMonResiduals( const std::string & type, const std::s
 	m_doClusterSizeHistos   = false;
 	m_FinerBinningFactor    = 1;
 	
-	m_gap_pix = 5;
-	m_gap_sct = 5;
+	m_gap_pix = 4;
+	m_gap_sct = 4;
 	
 	declareProperty("tracksName"                , m_tracksName);
 	declareProperty("CheckRate"                 , m_checkrate=1000);
@@ -361,8 +361,6 @@ StatusCode IDAlignMonResiduals::initialize()
 
 StatusCode IDAlignMonResiduals::bookHistograms()
 {
-  std::cout << " -- SALVA -- IDAlignMonResiduals::bookHistograms() ** start ** m_extededPlots = " << m_extendedPlots << std::endl;
-
   if ( AthenaMonManager::environment() == AthenaMonManager::online ) {
     // book histograms that are only made in the online environment...
   }
@@ -1203,8 +1201,8 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	  m_pix_b_residualsy[layerDisk]-> Fill(residualY, hweight); 
 	  m_pix_b_pullsx[layerDisk]    -> Fill(pullX    , hweight); 
 	  m_pix_b_pullsy[layerDisk]    -> Fill(pullY    , hweight); 
-	  m_pix_b_xresvsmodetaphi_3ds[layerDisk] -> Fill(modEta,modPhi,residualX, hweight);
-	  m_pix_b_yresvsmodetaphi_3ds[layerDisk] -> Fill(modEta,modPhi,residualY, hweight);
+	  m_pix_b_xresvsmodetaphi_3ds[layerDisk] -> Fill(modEta, modPhi,residualX, hweight);
+	  m_pix_b_yresvsmodetaphi_3ds[layerDisk] -> Fill(modEta, modPhi,residualY, hweight);
 	  if (foundXOverlap) {
 	    m_pix_bec_Oxresx_mean -> Fill(layerDisk+1.1,overlapXResidualX, hweight);
 	    m_pix_bec_Oxresy_mean -> Fill(layerDisk+1.1,overlapXResidualY, hweight);
@@ -1409,8 +1407,6 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	      m_hiterror_x_ibl_b_WideRange      ->Fill(hitErrorX,hweight);
 	      m_hiterror_y_ibl_b_WideRange      ->Fill(hitErrorX,hweight);
 	    }
-	    if (false) std::cout << " -- SALVA -- ErrorScaling test: Pixel barrel layer " << layerDisk << "  hiterror (localX, localY)= "
-				 << "( " << hitErrorX << ", " << hitErrorY <<") " << std::endl;
 	    
 	  
 
@@ -2730,8 +2726,10 @@ void IDAlignMonResiduals::MakePIXBarrelHistograms(MonGroup& al_mon)
   int totalLayers = m_PIX_Mgr->numerology().numLayers();
   //I could use this global here. I defined global because I want to use in the histograms
   m_NPixLayers = totalLayers; 
+
   int totalEtaModules = m_gap_pix*(totalLayers-1);  //to allow separation between layers for profiles
   int totalPhiModules = m_gap_pix*(totalLayers-1);  //to allow separation between layers for profiles
+
   for (int iLayer=0; iLayer < totalLayers;++iLayer) 
     {
       if (!m_PIX_Mgr->numerology().useLayer(iLayer)){
@@ -2740,7 +2738,7 @@ void IDAlignMonResiduals::MakePIXBarrelHistograms(MonGroup& al_mon)
       m_siliconBarrelLayersLabels.push_back("PIXL"+intToString(iLayer));
       float EtaModules= m_PIX_Mgr->numerology().endEtaModuleForLayer(iLayer) - m_PIX_Mgr->numerology().beginEtaModuleForLayer(iLayer); //(i put float in order to divide by 2)
       totalEtaModules+=EtaModules;
-
+      
       float EtaModulesMin = -(EtaModules/2.);
       float EtaModulesMax =  (EtaModules/2.);
 
@@ -2763,10 +2761,12 @@ void IDAlignMonResiduals::MakePIXBarrelHistograms(MonGroup& al_mon)
       m_pix_b_xresvsmodetaphi_3ds.push_back( new TH3F(("pix_b"+intToString(iLayer)+"_xresvsmodetaphi_3d").c_str(),("X Residual Distbn vs Module Eta-Phi-ID Pixel Barrel "+intToString(iLayer)).c_str(),
 						      EtaModules*m_mapSplit, EtaModulesMin, EtaModulesMax, 
 						      maxPhiModulesPerLayer*m_mapSplit, -0.5, maxPhiModulesPerLayer-0.5,
-						      100*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange));  //I need a good idea for the x axis 
+						      50*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange));  //I need a good idea for the x axis 
       RegisterHisto(al_mon,m_pix_b_xresvsmodetaphi_3ds[iLayer]);
       m_pix_b_yresvsmodetaphi_3ds.push_back( new TH3F(("pix_b"+intToString(iLayer)+"_yresvsmodetaphi_3d").c_str(),("Y Residual Distbn vs Module Eta-Phi-ID Pixel Barrel "+intToString(iLayer)).c_str(),
-						      EtaModules*m_mapSplit, EtaModulesMin, EtaModulesMax, maxPhiModulesPerLayer*m_mapSplit,0,maxPhiModulesPerLayer,100*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange));  //I need a good idea for the x axis 
+						      EtaModules*m_mapSplit, EtaModulesMin, EtaModulesMax, 
+						      maxPhiModulesPerLayer*m_mapSplit,-0.5, maxPhiModulesPerLayer-0.5,
+						      50*m_FinerBinningFactor,m_minPIXResXFillRange, m_maxPIXResXFillRange));  //I need a good idea for the x axis 
       RegisterHisto(al_mon,m_pix_b_yresvsmodetaphi_3ds[iLayer]);
       
       
@@ -2900,49 +2900,79 @@ void IDAlignMonResiduals::MakePIXBarrelHistograms(MonGroup& al_mon)
 	    m_pix_b_clustersizeZ.push_back(new TH1F(("pix_b"+intToString(iLayer)+"_clustersizeZ").c_str(),("Cluster Z size Pixel Barrel Layer "+intToString(iLayer)).c_str(),m_ClusterSizeRange,0,m_ClusterSizeRange));
 	    RegisterHisto(al_mon,m_pix_b_clustersizeZ[iLayer]);
 	    
-	    m_pix_b_residualsx_clustersize.push_back( new TH2F(("pix_b"+intToString(iLayer)+"_residualx_clustersize").c_str(),("Unbiased X Residual Vs Cluster Size Pixel Barrel Layer "+intToString(iLayer)+";Cluster Size;PIX Res (mm)").c_str(),m_ClusterSizeRange,0,m_ClusterSizeRange,100*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange));
+	    m_pix_b_residualsx_clustersize.push_back( new TH2F(("pix_b"+intToString(iLayer)+"_residualx_clustersize").c_str(),("Unbiased X Residual Vs Cluster Size Pixel Barrel Layer "+intToString(iLayer)+";Cluster Size;PIX Res (mm)").c_str(),
+							       m_ClusterSizeRange+1, -0.5, m_ClusterSizeRange+0.5,
+							       100*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange));
 	    RegisterHisto(al_mon,m_pix_b_residualsx_clustersize[iLayer]);
-	    m_pix_b_residualsy_clustersize.push_back( new TH2F(("pix_b"+intToString(iLayer)+"_residualy_clustersize").c_str(),("Unbiased Y Residual Vs Cluster Size Pixel Barrel Layer "+intToString(iLayer)+";Cluster Size;PIX Res (mm)").c_str(),m_ClusterSizeRange,0,m_ClusterSizeRange,100*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange));
+	    m_pix_b_residualsy_clustersize.push_back( new TH2F(("pix_b"+intToString(iLayer)+"_residualy_clustersize").c_str(),("Unbiased Y Residual Vs Cluster Size Pixel Barrel Layer "+intToString(iLayer)+";Cluster Size;PIX Res (mm)").c_str(),
+							       m_ClusterSizeRange+1, -0.5, m_ClusterSizeRange+0.5,
+							       100*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange));
 	    RegisterHisto(al_mon,m_pix_b_residualsy_clustersize[iLayer]);
 
-	    m_pix_b_residualsx_clustersizeP.push_back( new TProfile(("pix_b"+intToString(iLayer)+"_residualx_clustersize_p").c_str(),("Unbiased X Residual Vs Cluster Size Pixel Barrel Layer "+intToString(iLayer)+";Cluster Size;PIX Res (mm)").c_str(),m_ClusterSizeRange,0,m_ClusterSizeRange,m_minPIXResXFillRange,m_maxPIXResXFillRange));
+	    m_pix_b_residualsx_clustersizeP.push_back( new TProfile(("pix_b"+intToString(iLayer)+"_residualx_clustersize_p").c_str(),("Unbiased X Residual Vs Cluster Size Pixel Barrel Layer "+intToString(iLayer)+";Cluster Size;PIX Res (mm)").c_str(),
+								    m_ClusterSizeRange+1,-0.5, m_ClusterSizeRange+0.5
+								    ,m_minPIXResXFillRange,m_maxPIXResXFillRange));
 	    RegisterHisto(al_mon,m_pix_b_residualsx_clustersizeP[iLayer]);
-	    m_pix_b_residualsy_clustersizeP.push_back( new TProfile(("pix_b"+intToString(iLayer)+"_residualy_clustersize_p").c_str(),("Unbiased Y Residual Vs Cluster Size Pixel Barrel Layer "+intToString(iLayer)+";Cluster Size;PIX Res (mm)").c_str(),m_ClusterSizeRange,0,m_ClusterSizeRange,m_minPIXResXFillRange,m_maxPIXResXFillRange));
+	    m_pix_b_residualsy_clustersizeP.push_back( new TProfile(("pix_b"+intToString(iLayer)+"_residualy_clustersize_p").c_str(),("Unbiased Y Residual Vs Cluster Size Pixel Barrel Layer "+intToString(iLayer)+";Cluster Size;PIX Res (mm)").c_str(),
+								    m_ClusterSizeRange+1, -0.5, m_ClusterSizeRange+0.5
+								    ,m_minPIXResXFillRange,m_maxPIXResXFillRange));
 	    RegisterHisto(al_mon,m_pix_b_residualsy_clustersizeP[iLayer]);
 	    
-	    m_pix_b_residualsx_clustersizePhi.push_back( new TH2F(("pix_b"+intToString(iLayer)+"_residualx_clustersizePhi").c_str(),("Unbiased X Residual Vs Cluster Phi Size Pixel Barrel Layer "+intToString(iLayer)+";Cluster Phi Size;PIX Res (mm)").c_str(),m_ClusterSizeRange,0,m_ClusterSizeRange,100*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange));
+	    m_pix_b_residualsx_clustersizePhi.push_back( new TH2F(("pix_b"+intToString(iLayer)+"_residualx_clustersizePhi").c_str(),("Unbiased X Residual Vs Cluster Phi Size Pixel Barrel Layer "+intToString(iLayer)+";Cluster Phi Size;PIX Res (mm)").c_str(),
+								  m_ClusterSizeRange+1, -0.5, m_ClusterSizeRange+0.5
+								  ,100*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange));
 	    RegisterHisto(al_mon,m_pix_b_residualsx_clustersizePhi[iLayer]);
-	    m_pix_b_residualsy_clustersizePhi.push_back( new TH2F(("pix_b"+intToString(iLayer)+"_residualy_clustersizePhi").c_str(),("Unbiased Y Residual Vs Cluster Phi Size Pixel Barrel Layer "+intToString(iLayer)+";Cluster Phi Size;PIX Res (mm)").c_str(),m_ClusterSizeRange,0,m_ClusterSizeRange,100*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange));
+	    m_pix_b_residualsy_clustersizePhi.push_back( new TH2F(("pix_b"+intToString(iLayer)+"_residualy_clustersizePhi").c_str(),("Unbiased Y Residual Vs Cluster Phi Size Pixel Barrel Layer "+intToString(iLayer)+";Cluster Phi Size;PIX Res (mm)").c_str(),
+								  m_ClusterSizeRange+1, -0.5, m_ClusterSizeRange+0.5,
+								  100*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange));
 	    RegisterHisto(al_mon,m_pix_b_residualsy_clustersizePhi[iLayer]);
 
-	    m_pix_b_residualsx_clustersizePhiP.push_back( new TProfile(("pix_b"+intToString(iLayer)+"_residualx_clustersizePhi_p").c_str(),("Unbiased X Residual Vs Cluster Phi Size Pixel Barrel Layer "+intToString(iLayer)+";Cluster Phi Size;PIX Res (mm)").c_str(),m_ClusterSizeRange,0,m_ClusterSizeRange,m_minPIXResXFillRange,m_maxPIXResXFillRange));
+	    m_pix_b_residualsx_clustersizePhiP.push_back( new TProfile(("pix_b"+intToString(iLayer)+"_residualx_clustersizePhi_p").c_str(),("Unbiased X Residual Vs Cluster Phi Size Pixel Barrel Layer "+intToString(iLayer)+";Cluster Phi Size;PIX Res (mm)").c_str(),
+								       m_ClusterSizeRange+1, -0.5, m_ClusterSizeRange+0.5,
+								       m_minPIXResXFillRange,m_maxPIXResXFillRange));
 	    RegisterHisto(al_mon,m_pix_b_residualsx_clustersizePhiP[iLayer]);
-	    m_pix_b_residualsy_clustersizePhiP.push_back( new TProfile(("pix_b"+intToString(iLayer)+"_residualy_clustersizePhi_p").c_str(),("Unbiased Y Residual Vs Cluster Phi Size Pixel Barrel Layer "+intToString(iLayer)+";Cluster Phi Size;PIX Res (mm)").c_str(),m_ClusterSizeRange,0,m_ClusterSizeRange,m_minPIXResXFillRange,m_maxPIXResXFillRange));
+	    m_pix_b_residualsy_clustersizePhiP.push_back( new TProfile(("pix_b"+intToString(iLayer)+"_residualy_clustersizePhi_p").c_str(),("Unbiased Y Residual Vs Cluster Phi Size Pixel Barrel Layer "+intToString(iLayer)+";Cluster Phi Size;PIX Res (mm)").c_str(),
+								       m_ClusterSizeRange+1, -0.5, m_ClusterSizeRange+0.5,
+								       m_minPIXResXFillRange,m_maxPIXResXFillRange));
 	    RegisterHisto(al_mon,m_pix_b_residualsy_clustersizePhiP[iLayer]);
 	    
 
-	    m_pix_b_residualsx_clustersizeZ.push_back( new TH2F(("pix_b"+intToString(iLayer)+"_residualx_clustersizeZ").c_str(),("Unbiased X Residual Vs Cluster Z Size Pixel Barrel Layer "+intToString(iLayer)+";Cluster Z Size;PIX Res (mm)").c_str(),m_ClusterSizeRange,0,m_ClusterSizeRange,100*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange));
+	    m_pix_b_residualsx_clustersizeZ.push_back( new TH2F(("pix_b"+intToString(iLayer)+"_residualx_clustersizeZ").c_str(),("Unbiased X Residual Vs Cluster Z Size Pixel Barrel Layer "+intToString(iLayer)+";Cluster Z Size;PIX Res (mm)").c_str(),
+								m_ClusterSizeRange+1, -0.5, m_ClusterSizeRange+0.5,
+								100*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange));
 	    RegisterHisto(al_mon,m_pix_b_residualsx_clustersizeZ[iLayer]);
-	    m_pix_b_residualsy_clustersizeZ.push_back( new TH2F(("pix_b"+intToString(iLayer)+"_residualy_clustersizeZ").c_str(),("Unbiased Y Residual Vs Cluster Z Size Pixel Barrel Layer "+intToString(iLayer)+";Cluster Z Size;PIX Res (mm)").c_str(),m_ClusterSizeRange,0,m_ClusterSizeRange,100*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange));
+	    m_pix_b_residualsy_clustersizeZ.push_back( new TH2F(("pix_b"+intToString(iLayer)+"_residualy_clustersizeZ").c_str(),("Unbiased Y Residual Vs Cluster Z Size Pixel Barrel Layer "+intToString(iLayer)+";Cluster Z Size;PIX Res (mm)").c_str(),
+								m_ClusterSizeRange+1, -0.5, m_ClusterSizeRange+0.5,
+								100*m_FinerBinningFactor,m_minPIXResXFillRange,m_maxPIXResXFillRange));
 	    RegisterHisto(al_mon,m_pix_b_residualsy_clustersizeZ[iLayer]);
 
-	    m_pix_b_residualsx_clustersizeZP.push_back( new TProfile(("pix_b"+intToString(iLayer)+"_residualx_clustersizeZ_p").c_str(),("Unbiased X Residual Vs Cluster Z Size Pixel Barrel Layer "+intToString(iLayer)+";Cluster Z Size;PIX Res (mm)").c_str(),m_ClusterSizeRange,0,m_ClusterSizeRange,m_minPIXResXFillRange,m_maxPIXResXFillRange));
+	    m_pix_b_residualsx_clustersizeZP.push_back( new TProfile(("pix_b"+intToString(iLayer)+"_residualx_clustersizeZ_p").c_str(),("Unbiased X Residual Vs Cluster Z Size Pixel Barrel Layer "+intToString(iLayer)+";Cluster Z Size;PIX Res (mm)").c_str(),
+								     m_ClusterSizeRange+1, -0.5, m_ClusterSizeRange+0.5,
+								     m_minPIXResXFillRange,m_maxPIXResXFillRange));
 	    RegisterHisto(al_mon,m_pix_b_residualsx_clustersizeZP[iLayer]);
-	    m_pix_b_residualsy_clustersizeZP.push_back( new TProfile(("pix_b"+intToString(iLayer)+"_residualy_clustersizeZ_p").c_str(),("Unbiased Y Residual Vs Cluster Z Size Pixel Barrel Layer "+intToString(iLayer)+";Cluster Z Size;PIX Res (mm)").c_str(),m_ClusterSizeRange,0,m_ClusterSizeRange,m_minPIXResXFillRange,m_maxPIXResXFillRange));
+	    m_pix_b_residualsy_clustersizeZP.push_back( new TProfile(("pix_b"+intToString(iLayer)+"_residualy_clustersizeZ_p").c_str(),("Unbiased Y Residual Vs Cluster Z Size Pixel Barrel Layer "+intToString(iLayer)+";Cluster Z Size;PIX Res (mm)").c_str(),
+								     m_ClusterSizeRange+1, -0.5, m_ClusterSizeRange+0.5,
+								     m_minPIXResXFillRange,m_maxPIXResXFillRange));
 	    RegisterHisto(al_mon,m_pix_b_residualsy_clustersizeZP[iLayer]);
 	    
-	    m_pix_b_clustersize_incidentAngle.push_back(new TProfile(("pix_b"+intToString(iLayer)+"_clustersize_incidentAngle").c_str(),("Cluster Size Pixel vs Incident Theta Angle Barrel Layer "+intToString(iLayer)+"Incident Theta Angle (rad);Cluster Size").c_str(),20,-m_IncidentThetaRange,m_IncidentThetaRange,0,m_ClusterSizeRange));
+	    m_pix_b_clustersize_incidentAngle.push_back(new TProfile(("pix_b"+intToString(iLayer)+"_clustersize_incidentAngle").c_str(),("Cluster Size Pixel vs Incident Theta Angle Barrel Layer "+intToString(iLayer)+"Incident Theta Angle (rad);Cluster Size").c_str(),
+								     20,-m_IncidentThetaRange,m_IncidentThetaRange, -0.5, m_ClusterSizeRange+0.5));
 	    RegisterHisto(al_mon,m_pix_b_clustersize_incidentAngle[iLayer]);
-	    m_pix_b_clustersizePhi_incidentAngle.push_back(new TProfile(("pix_b"+intToString(iLayer)+"_clustersizePhi_incidentAngle").c_str(),("Cluster Phi Size vs Incident Theta Angle Pixel Barrel Layer "+intToString(iLayer)+"Incident Theta Angle (rad);Cluster Phi Size").c_str(),20,-m_IncidentThetaRange,m_IncidentThetaRange,0,m_ClusterSizeRange));
+	    m_pix_b_clustersizePhi_incidentAngle.push_back(new TProfile(("pix_b"+intToString(iLayer)+"_clustersizePhi_incidentAngle").c_str(),("Cluster Phi Size vs Incident Theta Angle Pixel Barrel Layer "+intToString(iLayer)+"Incident Theta Angle (rad);Cluster Phi Size").c_str(),
+									20,-m_IncidentThetaRange,m_IncidentThetaRange, -0.5, m_ClusterSizeRange+0.5));
 	    RegisterHisto(al_mon,m_pix_b_clustersizePhi_incidentAngle[iLayer]);
-	    m_pix_b_clustersizeZ_incidentAngle.push_back(new TProfile(("pix_b"+intToString(iLayer)+"_clustersizeZ_incidentAngle").c_str(),("Cluster Size vs Incident Theta Angle Pixel Barrel Layer "+intToString(iLayer)+"Incident Theta Angle (rad);Cluster Z Size").c_str(),20,-m_IncidentThetaRange,m_IncidentThetaRange,0,m_ClusterSizeRange));
+	    m_pix_b_clustersizeZ_incidentAngle.push_back(new TProfile(("pix_b"+intToString(iLayer)+"_clustersizeZ_incidentAngle").c_str(),("Cluster Size vs Incident Theta Angle Pixel Barrel Layer "+intToString(iLayer)+"Incident Theta Angle (rad);Cluster Z Size").c_str(),
+								      20,-m_IncidentThetaRange,m_IncidentThetaRange, -0.5, m_ClusterSizeRange+0.5));
 	    RegisterHisto(al_mon,m_pix_b_clustersizeZ_incidentAngle[iLayer]);
 
-	    m_pix_b_clustersize_incidentAnglePhi.push_back(new TProfile(("pix_b"+intToString(iLayer)+"_clustersize_incidentAnglePhi").c_str(),("Cluster Size Pixel vs Incident Phi Angle Barrel Layer "+intToString(iLayer)+"Incident Phi Angle (rad);Cluster Size").c_str(),20,-m_IncidentPhiRange,m_IncidentPhiRange,0,m_ClusterSizeRange));
+	    m_pix_b_clustersize_incidentAnglePhi.push_back(new TProfile(("pix_b"+intToString(iLayer)+"_clustersize_incidentAnglePhi").c_str(),("Cluster Size Pixel vs Incident Phi Angle Barrel Layer "+intToString(iLayer)+"Incident Phi Angle (rad);Cluster Size").c_str(),
+									20,-m_IncidentPhiRange,m_IncidentPhiRange, -0.5, m_ClusterSizeRange+0.5));
 	    RegisterHisto(al_mon,m_pix_b_clustersize_incidentAnglePhi[iLayer]);
-	    m_pix_b_clustersizePhi_incidentAnglePhi.push_back(new TProfile(("pix_b"+intToString(iLayer)+"_clustersizePhi_incidentAnglePhi").c_str(),("Cluster Phi Size vs Incident Phi Angle Pixel Barrel Layer "+intToString(iLayer)+"Incident Phi Angle (rad);Cluster Phi Size").c_str(),20,-m_IncidentPhiRange,m_IncidentPhiRange,0,m_ClusterSizeRange));
+	    m_pix_b_clustersizePhi_incidentAnglePhi.push_back(new TProfile(("pix_b"+intToString(iLayer)+"_clustersizePhi_incidentAnglePhi").c_str(),("Cluster Phi Size vs Incident Phi Angle Pixel Barrel Layer "+intToString(iLayer)+"Incident Phi Angle (rad);Cluster Phi Size").c_str(),
+									   20,-m_IncidentPhiRange,m_IncidentPhiRange, -0.5, m_ClusterSizeRange+0.5));
 	    RegisterHisto(al_mon,m_pix_b_clustersizePhi_incidentAnglePhi[iLayer]);
-	    m_pix_b_clustersizeZ_incidentAnglePhi.push_back(new TProfile(("pix_b"+intToString(iLayer)+"_clustersizeZ_incidentAnglePhi").c_str(),("Cluster Size vs Incident Phi Angle Pixel Barrel Layer "+intToString(iLayer)+"Incident Phi Angle (rad);Cluster Z Size").c_str(),20,-m_IncidentPhiRange,m_IncidentPhiRange,0,m_ClusterSizeRange));
+	    m_pix_b_clustersizeZ_incidentAnglePhi.push_back(new TProfile(("pix_b"+intToString(iLayer)+"_clustersizeZ_incidentAnglePhi").c_str(),("Cluster Size vs Incident Phi Angle Pixel Barrel Layer "+intToString(iLayer)+"Incident Phi Angle (rad);Cluster Z Size").c_str(),
+									 20,-m_IncidentPhiRange,m_IncidentPhiRange, -0.5, m_ClusterSizeRange+0.5));
 	    RegisterHisto(al_mon,m_pix_b_clustersizeZ_incidentAnglePhi[iLayer]);
 	    
 	    
@@ -2978,13 +3008,17 @@ void IDAlignMonResiduals::MakePIXBarrelHistograms(MonGroup& al_mon)
   RegisterHisto(al_mon,m_pix_b_Oyresyvsmodphi);
   //These histograms are filled in post-processing - only initiated here such that they can be registered as "shift".    
   //PIXEL histograms for monitoring residual dependence on module eta/phi (stave/ring)
-  m_pix_b_xresvsmodeta = new TH1F("pix_b_xresvsmodeta","X Residual Mean vs (Modified) Module Eta Pixel Barrel;(Modified) Module Eta Identifier;Mean Residual X",totalEtaModules,0,totalEtaModules);
+  m_pix_b_xresvsmodeta = new TH1F("pix_b_xresvsmodeta","X Residual Mean vs (Modified) Module Eta Pixel Barrel;(Modified) Module Eta Identifier;Mean Residual X",
+				  totalEtaModules+2, -1.5, totalEtaModules+1.5);
   RegisterHisto(al_mon,m_pix_b_xresvsmodeta);  
-  m_pix_b_xresvsmodphi = new TH1F("pix_b_xresvsmodphi","X Residual Mean vs (Modified) Module Phi Pixel Barrel;(Modified) Module Phi Identifier;Mean Residual X",totalPhiModules,0,totalPhiModules);
+  m_pix_b_xresvsmodphi = new TH1F("pix_b_xresvsmodphi","X Residual Mean vs (Modified) Module Phi Pixel Barrel;(Modified) Module Phi Identifier;Mean Residual X",
+				  totalPhiModules+2, -1.5, totalPhiModules+1.5);
   RegisterHisto(al_mon,m_pix_b_xresvsmodphi);  
-  m_pix_b_yresvsmodeta = new TH1F("pix_b_yresvsmodeta","Y Residual Mean vs (Modified) Module Eta Pixel Barrel;(Modified) Module Eta Identifier;Mean Residual Y",totalEtaModules,0,totalEtaModules);
+  m_pix_b_yresvsmodeta = new TH1F("pix_b_yresvsmodeta","Y Residual Mean vs (Modified) Module Eta Pixel Barrel;(Modified) Module Eta Identifier;Mean Residual Y",
+				  totalEtaModules+2, -1.5, totalEtaModules+1.5);
   RegisterHisto(al_mon,m_pix_b_yresvsmodeta);  
-  m_pix_b_yresvsmodphi = new TH1F("pix_b_yresvsmodphi","Y Residual Mean vs (Modified) Module Phi Pixel Barrel;(Modified) Module Phi Identifier;Mean Residual Y",totalPhiModules,0,totalPhiModules);
+  m_pix_b_yresvsmodphi = new TH1F("pix_b_yresvsmodphi","Y Residual Mean vs (Modified) Module Phi Pixel Barrel;(Modified) Module Phi Identifier;Mean Residual Y",
+				  totalPhiModules+2, -1.5, totalPhiModules+1.5);
   RegisterHisto(al_mon,m_pix_b_yresvsmodphi); 
   
   if (m_extendedPlots){

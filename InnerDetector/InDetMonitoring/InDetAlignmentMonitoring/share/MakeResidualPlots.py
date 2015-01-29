@@ -1,7 +1,8 @@
+#--
+
 #
 # Basic Barrel Residual distributions
 #
-
 # Pixel
 PIXX = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos)#,unitArea)
 DrawPlots(PIXX, outputDir+"/"+"PIXX."+oFext, "Pixel barrel", "Hits on tracks / 10#mum",
@@ -28,7 +29,7 @@ DrawPlots(TRTR, outputDir+"/"+"TRTR."+oFext, "TRT barrel", "Hits on tracks / 22#
 ## Individual Barrel Layer Residual Distributions
 
 PIXX0 = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b0_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
-DrawPlots(PIXX0, outputDir+"/"+"PIXX0."+oFext, "Pixel Barrel IBL", "Number of hits on tracks",
+DrawPlots(PIXX0, outputDir+"/"+"PIXIBL_X."+oFext, "Pixel Barrel IBL", "Number of hits on tracks",
           "Local x residual [mm]", 0.15, 0.89, "#mum",canvasText,makeOutput,0.65,0.89)
 
 PIXX1 = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b1_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
@@ -45,7 +46,7 @@ DrawPlots(PIXX3, outputDir+"/"+"PIXX3."+oFext, "Pixel Barrel L2", "Number of hit
 
 # pixel barrel local y
 PIXY0 = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b0_residualy","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
-DrawPlots(PIXY0, outputDir+"/"+"PIXY0."+oFext, "Pixel Barrel IBL", "Number of hits on tracks",
+DrawPlots(PIXY0, outputDir+"/"+"PIXIBL_Y."+oFext, "Pixel Barrel IBL", "Number of hits on tracks",
           "Local y residual [mm]", 0.15, 0.89, "#mum",canvasText,makeOutput,0.65,0.89)
 
 PIXY1 = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b1_residualy","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
@@ -193,4 +194,62 @@ DrawPlots(TRTECC, outputDir+"/"+"TRTECC."+oFext, "TRT Endcap C", "Number of hits
 TRTEC = MakePlots(trtResidualsDir,legendTitles,markerColors,markerStyles,"trt_ec_residualR","noFitWithStats",rootFiles,nFiles,normaliseHistos)#,unitArea)
 DrawPlots(TRTEC, outputDir+"/"+"TRTEC."+oFext, "TRT end-caps", "Hits on tracks",
           "residual [mm]", 0.15, 0.89, "#mum",canvasText,makeOutput)
+
+#
+# -- Extended plots
+#
+if (userExtended or True):
+    # IBL split per 3D and planar sensors
+    # -- local x
+    PIXIBL_3DC_xRES = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"IBL_residualx_3DCSensors","noFitWithStats",rootFiles,nFiles,normaliseHistos)#,unitArea)
+    DrawPlots(PIXIBL_3DC_xRES, outputDir+"/"+"PIXIBL_3DC_xRES."+oFext, "IBL 3D sensors. C side", "Hits on track", "Local x residual [mm]", 0.16, 0.90, "#mum",
+              canvasText,makeOutput,0.64,0.89)
+
+    PIXIBL_3DA_xRES = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"IBL_residualx_3DASensors","noFitWithStats",rootFiles,nFiles,normaliseHistos)#,unitArea)
+    DrawPlots(PIXIBL_3DA_xRES, outputDir+"/"+"PIXIBL_3DA_xRES."+oFext, "IBL 3D sensors. A side", "Hits on track", "Local x residual [mm]", 0.16, 0.90, "#mum",
+              canvasText,makeOutput,0.64,0.89)
+
+    PIXIBL_3D_xRES = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"IBL_residualx_3DSensors","noFitWithStats",rootFiles,nFiles,normaliseHistos)#,unitArea)
+    DrawPlots(PIXIBL_3D_xRES, outputDir+"/"+"PIXIBL_3D_xRES."+oFext, "IBL 3D sensors", "Hits on track", "Local x residual [mm]", 0.16, 0.90, "#mum",
+              canvasText,makeOutput,0.64,0.89)
+    
+    PIXIBL_Planar_xRES = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"IBL_residualx_PlanarSensors","noFitWithStats",rootFiles,nFiles,normaliseHistos)#,unitArea)
+    DrawPlots(PIXIBL_Planar_xRES, outputDir+"/"+"PIXIBL_Planar_xRES."+oFext, "IBL Planar sensors", "Hits on track", "Local x residual [mm]", 0.16, 0.90, "#mum",
+              canvasText,makeOutput,0.64,0.89)
+    
+    # -- local y
+    PIXIBL_3D_yRES = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"IBL_residualy_3DSensors","noFitWithStats",rootFiles,nFiles,normaliseHistos)#,unitArea)
+    DrawPlots(PIXIBL_3D_yRES, outputDir+"/"+"PIXIBL_3D_yRES."+oFext, "IBL 3D sensors", "Hits on track", "Local y residual [mm]", 0.16, 0.90, "#mum",
+              canvasText,makeOutput,0.64,0.89)
+    
+    PIXIBL_Planar_yRES = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"IBL_residualy_PlanarSensors","noFitWithStats",rootFiles,nFiles,normaliseHistos)#,unitArea)
+    DrawPlots(PIXIBL_Planar_yRES, outputDir+"/"+"PIXIBL_Planar_yRES."+oFext, "IBL Planar sensors", "Hits on track", "Local y residual [mm]", 0.16, 0.90, "#mum",
+              canvasText,makeOutput,0.64,0.89)
+    
+
+if (userExtended):
+    PIXX0vsINCANG = MakeProfPlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b0_residualx_inciphi","noFit",rootFiles,nFiles,True)
+    
+    PIXX1vsINCANG = MakeProfPlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b1_residualx_inciphi","noFit",rootFiles,nFiles,True)
+    DrawPlots(PIXX1vsINCANG,outputDir+"/"+"PIXX1vsINCANG."+oFext,"","Local x residual [mm]","Incident angle [radians]",0.15,0.89,"#mum", canvasText,makeOutput, 0.60, 0.88, False);
+    
+    PIXX2vsINCANG = MakeProfPlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b2_residualx_inciphi","noFit",rootFiles,nFiles,True)
+    DrawPlots(PIXX2vsINCANG,outputDir+"/"+"PIXX2vsINCANG."+oFext,"","Local x residual [mm]","Incident angle [radians]",0.15,0.89,"#mum", canvasText,makeOutput, 0.60, 0.88, False);
+    
+    PIXX3vsINCANG = MakeProfPlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b3_residualx_inciphi","noFit",rootFiles,nFiles,True)
+    DrawPlots(PIXX3vsINCANG,outputDir+"/"+"PIXX3vsINCANG."+oFext,"","Local x residual [mm]","Incident angle [radians]",0.15,0.89,"#mum", canvasText,makeOutput, 0.60, 0.88, False);
+    
+    PIXX0vsCLUSIZ = MakeProfPlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b0_residualx_clustersizePhi","noFit",rootFiles,nFiles,True)
+    DrawPlots(PIXX0vsCLUSIZ,outputDir+"/"+"PIXX0vsCLUSIZE."+oFext,"","Local x residual [mm]","Cluster size",0.15,0.89,"#mum", canvasText,makeOutput, 0.60, 0.88, False);
+
+    PIXX1vsCLUSIZ = MakeProfPlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b1_residualx_clustersizePhi","noFit",rootFiles,nFiles,True)
+    DrawPlots(PIXX1vsCLUSIZ,outputDir+"/"+"PIXX1vsCLUSIZE."+oFext,"","Local x residual [mm]","Cluster size",0.15,0.89,"#mum", canvasText,makeOutput, 0.60, 0.88, False);
+    
+    PIXX2vsCLUSIZ = MakeProfPlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b2_residualx_clustersizePhi","noFit",rootFiles,nFiles,True)
+    DrawPlots(PIXX2vsCLUSIZ,outputDir+"/"+"PIXX2vsCLUSIZE."+oFext,"","Local x residual [mm]","Cluster size",0.15,0.89,"#mum", canvasText,makeOutput, 0.60, 0.88, False);
+    
+    PIXX3vsCLUSIZ = MakeProfPlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b3_residualx_clustersizePhi","noFit",rootFiles,nFiles,True)
+    DrawPlots(PIXX3vsCLUSIZ,outputDir+"/"+"PIXX3vsCLUSIZE."+oFext,"","Local x residual [mm]","Cluster size",0.15,0.89,"#mum", canvasText,makeOutput, 0.60, 0.88, False);
+
+
 print " -- MakeResidualPlots -- completed "

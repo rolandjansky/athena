@@ -109,11 +109,12 @@ if __name__ == '__main__':
 		for file in filelist:
 			detector[i] = f_utils.readConstants(file)
 			i = i+1
-	#writeCorr("alignment.txt",detector)
+	f_utils.writeCorr("alignment.txt",detector[0])
 	C,H = drawCorr(detector)
-	
-	wait()
 
+	f_utils.saveConstants(detector[0],"output.root")
+    
+	wait()
 	
 
 

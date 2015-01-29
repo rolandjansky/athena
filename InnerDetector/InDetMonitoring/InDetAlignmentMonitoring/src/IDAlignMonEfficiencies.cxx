@@ -873,23 +873,22 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	  isTubeHit=true;
       }
 
-
+      // fill histograms with all posible hit types: measurements, outliers & holes
       if ( (*TSOSItr)->type(Trk::TrackStateOnSurface::Measurement) || (*TSOSItr)->type(Trk::TrackStateOnSurface::Outlier) || (*TSOSItr)->type(Trk::TrackStateOnSurface::Hole) ){
 	
 	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"have a measurement/outlier/hole"<<endreq;
 
 	// all possible hits
-	// ----------- barrel
-	// --- pixel
+	// dealing with PIXEL tsos
 	if (detType==0){
-	  if (barrelEC==0)
-	    {
-	      m_hits_vs_layer_barrel -> Fill(layerDisk);
-	      m_hits_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta,modPhi);
-	      m_hits_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
-	      m_hits_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
-	      m_hits_vs_pT_pix_b[layerDisk] -> Fill(abs_trkpt);
-	    }//barrel
+	  // barrel
+	  if (barrelEC==0) {
+	    m_hits_vs_layer_barrel -> Fill(layerDisk);
+	    m_hits_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta, modPhi);
+	    m_hits_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
+	    m_hits_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
+	    m_hits_vs_pT_pix_b[layerDisk] -> Fill(abs_trkpt);
+	  } //barrel
 	  else if (barrelEC==2){ 
 	    m_hits_vs_layer_eca -> Fill(layerDisk); 
 	    m_hits_vs_Phi_pix_eca[layerDisk] -> Fill(modPhi);
@@ -900,19 +899,18 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    m_hits_vs_Phi_pix_ecc[layerDisk] -> Fill(modPhi);
 	    m_hits_vs_Eta_Phi_pix_ecc -> Fill(layerDisk, modPhi);
 	  }
-	} //pix
-	// --- sct
+	} // end of pix
+	// Let's treat SCT tsos
 	else if (detType==1){
-	  if (barrelEC==0)
-	    {
-	      m_hits_vs_layer_barrel -> Fill(m_NPixLayers + 2*layerDisk + sctSide);	      
-	      m_hits_vs_Eta_Phi_sct_b[layerDisk] -> Fill(modEta,modPhi);
-	      if (sctSide == 0) m_hits_vs_Eta_Phi_sct_s0_b[layerDisk] -> Fill(modEta,modPhi);
-	      if (sctSide == 1) m_hits_vs_Eta_Phi_sct_s1_b[layerDisk] -> Fill(modEta,modPhi);
-	      m_hits_vs_Eta_sct_b[layerDisk] -> Fill(modEta);
-	      m_hits_vs_Phi_sct_b[layerDisk] -> Fill(modPhi);
-	      m_hits_vs_pT_sct_b[layerDisk] -> Fill(abs_trkpt);
-	    }//barrel
+	  if (barrelEC==0) {
+	    m_hits_vs_layer_barrel -> Fill(m_NPixLayers + 2*layerDisk + sctSide);	      
+	    m_hits_vs_Eta_Phi_sct_b[layerDisk] -> Fill(modEta,modPhi);
+	    if (sctSide == 0) m_hits_vs_Eta_Phi_sct_s0_b[layerDisk] -> Fill(modEta,modPhi);
+	    if (sctSide == 1) m_hits_vs_Eta_Phi_sct_s1_b[layerDisk] -> Fill(modEta,modPhi);
+	    m_hits_vs_Eta_sct_b[layerDisk] -> Fill(modEta);
+	    m_hits_vs_Phi_sct_b[layerDisk] -> Fill(modPhi);
+	    m_hits_vs_pT_sct_b[layerDisk] -> Fill(abs_trkpt);
+	  }//barrel
 	  else if (barrelEC == 2){ 
 	    m_hits_vs_layer_eca -> Fill(3 + 2*layerDisk + sctSide);
 	    
@@ -924,17 +922,17 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    m_hits_vs_Phi_sct_ecc[layerDisk] -> Fill(modPhi);
 	    m_hits_vs_Eta_Phi_sct_ecc -> Fill(layerDisk,modPhi);
 	  } 
-	}//sct
+	}// end of sct
 	else if (detType==2){
 	  fillTRTTotalMeasurements(m_barrel_ec,m_layer_or_wheel,m_phi_module,m_straw_layer);
 	}
-      }
+      } // end of all type of hits
       
-      
+      // now, let's fill histograms only for hits on track = measurements
       if ( (*TSOSItr)->type(Trk::TrackStateOnSurface::Measurement) ){
-		
+	
 	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"starting to find overlaps"<<endreq;
-   
+	
 	bool foundXOverlap = false;
 	bool foundYOverlap = false;
 	//look for overlap hits if hit is pixel or SCT
@@ -953,8 +951,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	}
 
 
-	// meas per possible hit
-	// ----------- barrel
+	// measurements per possible hit
 	// --- pixel
 	if (detType==0){
 	  if(barrelEC == 0){ 	  
@@ -966,21 +963,22 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    if(foundXOverlap) m_overlapX_vs_layer_barrel-> Fill(layerDisk);
 	    if(foundYOverlap) m_overlapY_vs_layer_barrel-> Fill(layerDisk);
 	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found pixel barrel hit"<<endreq;
-	      m_measurements_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta,modPhi);
-	      m_measurements_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
-	      m_measurements_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
-	      m_measurements_vs_pT_pix_b[layerDisk] -> Fill(abs_trkpt);
-	      if(foundXOverlap){
-		m_overlapX_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
-		m_overlapX_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
-	      }
-	      if(foundYOverlap){
-		m_overlapY_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
-		m_overlapY_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
-	      } 
-	  }
-	  else if (barrelEC == 2){
+	    m_measurements_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta, modPhi);
+	    m_measurements_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
+	    m_measurements_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
+	    m_measurements_vs_pT_pix_b[layerDisk] -> Fill(abs_trkpt);
 	    
+	    if(foundXOverlap){
+	      m_overlapX_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
+	      m_overlapX_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
+	    }
+	    if(foundYOverlap){
+	      m_overlapY_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
+	      m_overlapY_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
+	    } 
+	  } // end of PIX barrel 
+	  
+	  else if (barrelEC == 2){	    
 	    //msg(MSG::WARNING) <<"Pix eca, layer_disk=" << m_pixelID->layer_disk(surfaceID) << ", eta=" << m_pixelID->eta_module(surfaceID) << ", phi=" << m_pixelID->phi_module(surfaceID) <<endreq;
 	    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"found pixel eca hit"<<endreq;
 	    m_measurements_vs_layer_eca -> Fill(layerDisk);
@@ -988,15 +986,12 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    if(foundXOverlap) m_overlapX_vs_layer_eca-> Fill(layerDisk);
 	    if(foundYOverlap) m_overlapY_vs_layer_eca-> Fill(layerDisk);
 	    m_measurements_vs_Phi_pix_eca[layerDisk] -> Fill(modPhi);
-	    if(foundXOverlap)
-	      m_overlapX_vs_Phi_pix_eca[layerDisk]-> Fill(modPhi);
 	    
-	    if(foundYOverlap)
-	      m_overlapY_vs_Phi_pix_eca[layerDisk] -> Fill(modPhi);
-	    
+	    if(foundXOverlap) m_overlapX_vs_Phi_pix_eca[layerDisk]-> Fill(modPhi);
+	    if(foundYOverlap) m_overlapY_vs_Phi_pix_eca[layerDisk] -> Fill(modPhi);
 	    
 	    m_measurements_vs_Eta_Phi_pix_eca -> Fill(layerDisk, modPhi);
-	  }//ECA
+	  } // ECA
 	  else if (detType==0 && barrelEC == -2){ 
 	    
 	    //msg(MSG::WARNING) <<"Pix ecc, layer_disk=" << layerDisk << ", eta=" << m_pixelID->eta_module(surfaceID) << ", phi=" << m_pixelID->phi_module(surfaceID) <<endreq;
@@ -1014,7 +1009,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    m_measurements_vs_Eta_Phi_pix_ecc -> Fill(layerDisk, modPhi);
 	  } //ECC
 	}// End of PIXELS
-
+	
 	// --- SCT ---- now dealing with SCT
 	else if (detType==1){
 	  if(barrelEC == 0){ 
@@ -1069,7 +1064,6 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    if(foundXOverlap) m_overlapX_vs_layer_ecc-> Fill(3 + 2*layerDisk + sctSide);
 	    if(foundYOverlap) m_overlapY_vs_layer_ecc-> Fill(3 + 2*layerDisk + sctSide);
 	    
-	   
 	    m_measurements_vs_Phi_sct_ecc[layerDisk] -> Fill(modPhi);
 	    if(foundXOverlap)
 	      m_overlapX_vs_Phi_sct_ecc[layerDisk] -> Fill(modPhi);  
@@ -1087,39 +1081,41 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	  fillTRTHits(m_barrel_ec,m_layer_or_wheel,m_phi_module,m_straw_layer,isTubeHit);
 	}
 	
-      }else if ( (*TSOSItr)->type(Trk::TrackStateOnSurface::Outlier) ){
-
+      } // end of measurements (hits on track)
+      
+      // Now filling outliers histograms
+      if ( (*TSOSItr)->type(Trk::TrackStateOnSurface::Outlier) ){
+	
 	// outlier per layer and per hit
-	// ----------- barrel
 	// --- pixel
 	if (detType==0){
-	  if (barrelEC == 0){ 
-	    
-	    //msg(MSG::WARNING) <<"Pix barrel outlier, layer_disk=" << layerDisk << ", eta=" << m_pixelID->eta_module(surfaceID) << ", phi=" << m_pixelID->phi_module(surfaceID) <<endreq;   
+	  if (barrelEC == 0){ 	    
+	    // msg(MSG::WARNING) << " ** OULIER FOUND ** Pix barrel layer_disk=" << layerDisk << ", eta=" << modEta << ", phi=" << modPhi <<endreq;   
 	    m_outliers_vs_layer_barrel -> Fill(layerDisk);
 	    m_noholes_vs_layer_barrel -> Fill(layerDisk);
-	    m_outliers_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta,modPhi);
+	    m_outliers_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta, modPhi);
 	    m_outliers_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
 	    m_outliers_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
 	    m_outliers_vs_pT_pix_b[layerDisk] -> Fill(abs_trkpt);
-	   
 	  }//barrel
+
 	  else if (barrelEC == 2){ 
 	    m_outliers_vs_layer_eca -> Fill(layerDisk);
 	    m_noholes_vs_layer_eca -> Fill(layerDisk);
 	    m_outliers_vs_Eta_Phi_pix_eca -> Fill(layerDisk, modPhi);
-	  }//Eca
-	  // ----------- ecc
+	  }//ECA
+
+	  // ECC
 	  else if (barrelEC == -2){ 
 	    m_outliers_vs_layer_ecc -> Fill(layerDisk);
 	    m_noholes_vs_layer_ecc -> Fill(layerDisk);
 	    m_outliers_vs_Eta_Phi_pix_ecc -> Fill(layerDisk, modPhi);
 	  }//ecc
-	}//pix
-	// --- sct
+	}//pixels
+
+	// --- sct -- outliers in SCT
 	else if (detType==1){
 	  if (barrelEC == 0){ 
-	    
 	    //msg(MSG::WARNING) <<"SCT barrel outlier, layer_disk=" << layerDisk << ", eta=" << m_sctID->eta_module(surfaceID) << ", phi=" << m_sctID->phi_module(surfaceID) << ", side=" << sctSide <<endreq;
 	    
 	    m_outliers_vs_layer_barrel -> Fill(m_NPixLayers + 2*layerDisk + sctSide);
@@ -1140,14 +1136,15 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    m_noholes_vs_layer_ecc -> Fill(3 + 2*layerDisk + sctSide);
 	    m_outliers_vs_Eta_Phi_sct_ecc -> Fill(layerDisk, modPhi);
 	  }
-	}
+	} // SCT
        
+	// TRT hits
 	if (detType==2){
 	  fillTRTOutliers(m_barrel_ec,m_layer_or_wheel,m_phi_module,m_straw_layer);
 	}
 	
-      } 
-    }
+      } // end of outliers 
+    } // TSOS on track 
     
     const Trk::TrackSummary* summary = m_trackSumTool->createSummary(**trksItr);
     if( !summary->get(Trk::numberOfPixelHits) && !summary->get(Trk::numberOfSCTHits) ){
@@ -1209,20 +1206,32 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
       
       
       if ( (*HTSOSItr)->type(Trk::TrackStateOnSurface::Measurement) || (*HTSOSItr)->type(Trk::TrackStateOnSurface::Outlier) || (*HTSOSItr)->type(Trk::TrackStateOnSurface::Hole) ){
-	
-	// all possible hits
-	// ----------- barrel
+
+	// all possible type of holes
 	// --- pixel
 	if (detType==0){
 	  if (barrelEC == 0){
-   
-	    //msg(MSG::WARNING) <<"Pix barrel hole, layer_disk=" << m_pixelID->layer_disk(surfaceID) << ", eta=" << m_pixelID->eta_module(surfaceID) << ", phi=" << m_pixelID->phi_module(surfaceID) << endreq;
+	    // msg(MSG::WARNING) << " ** HOLE FOUND ** Pixel barrel ** layer_disk=" << m_pixelID->layer_disk(surfaceID) << ", eta=" << m_pixelID->eta_module(surfaceID) << ", phi=" << m_pixelID->phi_module(surfaceID) << endreq;
 	  
 	    m_hits_vs_layer_barrel -> Fill(layerDisk);
 	    
 	    m_hits_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta,modPhi); 
-	    std::cout << " -- SALVA -- filling HTSOS as measurement. Layer: " << layerDisk << "  Eta: " << modEta << "  phi: " << modPhi << std::endl; 
-
+	    bool knownType = false;
+	    if ((*HTSOSItr)->type(Trk::TrackStateOnSurface::Measurement)) {
+	      knownType = true;
+	      std::cout << " Type: Measurement ";
+	    }
+	    if ((*HTSOSItr)->type(Trk::TrackStateOnSurface::Outlier)) {
+	      knownType = true;
+	      std::cout << " Type: Outlier ";
+	    }
+	    if ((*HTSOSItr)->type(Trk::TrackStateOnSurface::Hole)) {
+	      knownType = true;
+	      std::cout << " Type: Hole ";
+	    }
+	    if (!knownType)  std::cout << " Type: -- UNKNOWN -- ";
+	    std::cout << std::endl; 
+  
 	    m_hits_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
 	    m_hits_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
 	    m_hits_vs_pT_pix_b[layerDisk] -> Fill(abs_trkpt);
@@ -1233,14 +1242,15 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    m_hits_vs_layer_eca -> Fill(layerDisk);
 	    m_hits_vs_Phi_pix_eca[layerDisk] -> Fill(modPhi);
 	    m_hits_vs_Eta_Phi_pix_eca -> Fill(layerDisk, modPhi);
-	  }
+	  } // eca
 	  // ----------- ecc
 	  else if (barrelEC == -2){ 
 	    m_hits_vs_layer_ecc -> Fill(layerDisk);
 	    m_hits_vs_Phi_pix_ecc[layerDisk] -> Fill(modPhi);
 	    m_hits_vs_Eta_Phi_pix_ecc -> Fill(layerDisk, modPhi);
-	  }
-	}
+	  } // ecc
+	} // pixels
+
 	// --- sct
 	else if (detType==1){
 	  if (barrelEC == 0)
@@ -1268,23 +1278,20 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    m_hits_vs_Eta_Phi_sct_ecc -> Fill(layerDisk, modPhi);
 	  }
 	}//sct
-      }
+      } // all possible holes
 
+      // filling histograms for holes being holes
       if ( (*HTSOSItr)->type(Trk::TrackStateOnSurface::Hole) ){
 
 	// holes per layer and per hit
-	// ----------- barrel
 	// --- pixel
 	if (detType==0){
 	  if (barrelEC == 0){
-	  
 	    m_holes_vs_layer_barrel -> Fill(layerDisk);
-	    if(layerDisk == 0){
-	      m_holes_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta,modPhi);
-	      m_holes_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
-	      m_holes_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
-	      m_holes_vs_pT_pix_b[layerDisk] -> Fill(abs_trkpt);
-	    }  
+	    m_holes_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta,modPhi);
+	    m_holes_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
+	    m_holes_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
+	    m_holes_vs_pT_pix_b[layerDisk] -> Fill(abs_trkpt);
 	  }
 	  // ----------- eca
 	  else if (barrelEC == 2){ 
@@ -1296,8 +1303,8 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    m_holes_vs_layer_ecc -> Fill(layerDisk);
 	    m_holes_vs_Eta_Phi_pix_ecc -> Fill(layerDisk, modPhi);
 	  }
-	}
-	// --- sct
+	} // pix
+	// --- sct holes
 	else if (detType==1){
 	  if (barrelEC==0) {
 	    m_holes_vs_layer_barrel -> Fill(m_NPixLayers + 2*layerDisk +sctSide);
@@ -1317,8 +1324,102 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    m_holes_vs_layer_ecc -> Fill(3 + 2*layerDisk + sctSide);
 	    m_holes_vs_Eta_Phi_sct_ecc -> Fill(layerDisk, modPhi);
 	  }	
-	}
-      }     
+	} // sct
+      } // holes as holes     
+
+      // filling histograms for holes being outliers
+      if ( (*HTSOSItr)->type(Trk::TrackStateOnSurface::Outlier) ){
+	// holes per layer and per hit
+	// --- pixel
+	if (detType==0){
+	  if (barrelEC == 0){
+	    m_holes_vs_layer_barrel -> Fill(layerDisk);
+	    m_holes_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta,modPhi);
+	    m_holes_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
+	    m_holes_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
+	    m_holes_vs_pT_pix_b[layerDisk] -> Fill(abs_trkpt);
+	  }
+	  // ----------- eca
+	  else if (barrelEC == 2){ 
+	    m_holes_vs_layer_eca -> Fill(layerDisk);
+	    m_holes_vs_Eta_Phi_pix_eca -> Fill(layerDisk, modPhi);
+	  }
+	  // ----------- ecc
+	  else if (barrelEC == -2){ 
+	    m_holes_vs_layer_ecc -> Fill(layerDisk);
+	    m_holes_vs_Eta_Phi_pix_ecc -> Fill(layerDisk, modPhi);
+	  }
+	} // pix
+
+	// --- sct holes
+	else if (detType==1){
+	  if (barrelEC==0) {
+	    m_holes_vs_layer_barrel -> Fill(m_NPixLayers + 2*layerDisk +sctSide);
+	    
+	      m_holes_vs_Eta_Phi_sct_b[layerDisk] -> Fill(modEta,modPhi);
+	      m_holes_vs_Eta_sct_b[layerDisk] -> Fill(modEta);
+	      m_holes_vs_Phi_sct_b[layerDisk] -> Fill(modPhi);
+	      m_holes_vs_pT_sct_b[layerDisk] -> Fill(abs_trkpt);
+	   
+	  }
+	  else if (barrelEC == 2){ 
+	    m_holes_vs_layer_eca -> Fill(3 + 2*layerDisk + sctSide);
+	    m_holes_vs_Eta_Phi_sct_eca -> Fill(layerDisk, modPhi);
+	  }
+	  
+	  else if (detType==1 && barrelEC == -2){ 
+	    m_holes_vs_layer_ecc -> Fill(3 + 2*layerDisk + sctSide);
+	    m_holes_vs_Eta_Phi_sct_ecc -> Fill(layerDisk, modPhi);
+	  }	
+	} // sct
+      } // holes as outliers     
+
+      // filling histograms for holes being measurements 
+      if ( (*HTSOSItr)->type(Trk::TrackStateOnSurface::Measurement) ){
+	// holes per layer and per hit
+	// --- pixel
+	if (detType==0){
+	  if (barrelEC == 0){
+	    m_holes_vs_layer_barrel -> Fill(layerDisk);
+	    m_holes_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta,modPhi);
+	    m_holes_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
+	    m_holes_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
+	    m_holes_vs_pT_pix_b[layerDisk] -> Fill(abs_trkpt);
+	  }
+	  // ----------- eca
+	  else if (barrelEC == 2){ 
+	    m_holes_vs_layer_eca -> Fill(layerDisk);
+	    m_holes_vs_Eta_Phi_pix_eca -> Fill(layerDisk, modPhi);
+	  }
+	  // ----------- ecc
+	  else if (barrelEC == -2){ 
+	    m_holes_vs_layer_ecc -> Fill(layerDisk);
+	    m_holes_vs_Eta_Phi_pix_ecc -> Fill(layerDisk, modPhi);
+	  }
+	} // pix
+
+	// --- sct holes
+	else if (detType==1){
+	  if (barrelEC==0) {
+	    m_holes_vs_layer_barrel -> Fill(m_NPixLayers + 2*layerDisk +sctSide);
+	    
+	      m_holes_vs_Eta_Phi_sct_b[layerDisk] -> Fill(modEta,modPhi);
+	      m_holes_vs_Eta_sct_b[layerDisk] -> Fill(modEta);
+	      m_holes_vs_Phi_sct_b[layerDisk] -> Fill(modPhi);
+	      m_holes_vs_pT_sct_b[layerDisk] -> Fill(abs_trkpt);
+	   
+	  }
+	  else if (barrelEC == 2){ 
+	    m_holes_vs_layer_eca -> Fill(3 + 2*layerDisk + sctSide);
+	    m_holes_vs_Eta_Phi_sct_eca -> Fill(layerDisk, modPhi);
+	  }
+	  
+	  else if (detType==1 && barrelEC == -2){ 
+	    m_holes_vs_layer_ecc -> Fill(3 + 2*layerDisk + sctSide);
+	    m_holes_vs_Eta_Phi_sct_ecc -> Fill(layerDisk, modPhi);
+	  }	
+	} // sct
+      } // holes as measurements (?)    
     }   
     delete HTSOS;   
   } 
@@ -1375,6 +1476,7 @@ void IDAlignMonEfficiencies::makeEffHisto(TH1F_LW* h_num, TH1F_LW* h_denom, TPro
   return;
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////
 void IDAlignMonEfficiencies::makeOverlapFracHisto(TH1F* h_num, TH1F* h_denom, TProfile* h_eff) {
   int Nbins;
   Nbins = h_num->GetNbinsX();
@@ -1392,6 +1494,7 @@ void IDAlignMonEfficiencies::makeOverlapFracHisto(TH1F* h_num, TH1F* h_denom, TP
   SetMinWindow(h_eff, 0., .3); 
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////
 void IDAlignMonEfficiencies::makeEffHisto(TH2F* h_num, TH2F* h_denom, TProfile2D* h_eff) {
   int Nbins;
   int NbinsY;
@@ -1414,28 +1517,69 @@ void IDAlignMonEfficiencies::makeEffHisto(TH2F* h_num, TH2F* h_denom, TProfile2D
   SetMinWindow(h_eff, m_minSiliconEffWindow, m_maxSiliconEffWindow); 
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////
 void IDAlignMonEfficiencies::makeEffHisto(TH2F* h_num, TH2F* h_denom, TH2F* h_eff) {
   int Nbins = h_num->GetNbinsX();
   int NbinsY = h_num->GetNbinsY();
   float NSeenHits, NExpected;
-  float myEff = 1.; // default is 100%
+  float myEff = 0.; // default is 0%
   bool doComputeEff = false;
   for (int bin=0; bin!=Nbins; ++bin) {
     for (int binY=0; binY!=NbinsY; ++binY) {
       NSeenHits = h_num->GetBinContent(bin+1,binY+1);
       NExpected = h_denom->GetBinContent(bin+1,binY+1);
-      myEff = 0.0; // 
       doComputeEff = false; // check that there is a mimimum of entries
-      if (NExpected > 10) doComputeEff = true; 
+      if (NExpected >  10) doComputeEff = true; 
       if (NSeenHits >  5) doComputeEff = true;
       if (doComputeEff) {
 	myEff = NSeenHits / NExpected;
-	if (myEff < 0.01) myEff = 0.01; // trick to distinguish between few entries and not working modules
+	if (myEff < 0.01) myEff = 0.01; //trick to distinguish between few entries and not working modules or too low statistics (doComputeEff = false --> Eff = 0 % )
 	h_eff->SetBinContent(bin+1,binY+1, myEff);
+      }
+      // std::cout << " -- SALVA -- eff for module ( " << bin << ", " << binY << ")  Nseen= " << NSeenHits << "  NExpected= " << NExpected;
+      // std::cout << "  ComputeEff= " << doComputeEff;
+      if (doComputeEff) std::cout << "  Eff= " << myEff;
+      std::cout << std::endl;
+    }
+  }
+  return;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////
+void IDAlignMonEfficiencies::makeEffHistoWithCut(TH2F* h_num, TH2F* h_denom, TProfile2D* h_eff) {
+  int Nbins = h_num->GetNbinsX();
+  int NbinsY = h_num->GetNbinsY();
+  float NSeenHits, NExpected;
+  float myEff = 0.; // default is 0%
+  bool doComputeEff = false;
+
+  for (int bin=0; bin!=Nbins; ++bin) {
+    for (int binY=0; binY!=NbinsY; ++binY) {
+      NSeenHits = h_num->GetBinContent(bin+1,binY+1);
+      NExpected = h_denom->GetBinContent(bin+1,binY+1);
+      doComputeEff = false; // check that there is a mimimum of entries
+      if (NExpected > 10) doComputeEff = true; 
+      if (NSeenHits >  3) doComputeEff = true;
+      if (doComputeEff) {
+	myEff = NSeenHits / NExpected;
+	if (myEff < 0.01) myEff = 0.01; // trick to distinguish between few entries and not working modules (dead modules).
+	// h_eff->SetBinContent(bin+1,binY+1, myEff);
+	float this_x = h_denom->GetXaxis()->GetBinCenter(bin+1);
+	float this_y = h_denom->GetYaxis()->GetBinCenter(binY+1);
+
+	for (int i=0; i<NExpected; i++) {
+	  if (i < NSeenHits) {
+	    h_eff->Fill(this_x, this_y, 1.);
+	  }
+	  else {
+	    h_eff->Fill(this_x, this_y, 0.);
+	  }
+	}
       }
       std::cout << " -- SALVA -- eff for module ( " << bin << ", " << binY << ")  Nseen= " << NSeenHits << "  NExpected= " << NExpected;
       std::cout << "  ComputeEff= " << doComputeEff;
-      if (doComputeEff) std::cout << "  Eff= " << myEff;
+      // if (doComputeEff) std::cout << "  Eff= " << myEff;
+      if (doComputeEff) std::cout << "  Eff= " << h_eff->GetBinContent(bin, binY);
       std::cout << std::endl;
     }
   }
@@ -1457,48 +1601,44 @@ StatusCode IDAlignMonEfficiencies::procHistograms()
     // normalize: divide measurement / outliers / holes by number of possible hits
     //
     
-    for (int iLayer=0; iLayer < m_PIX_Mgr->numerology().numLayers();++iLayer) 
-      {
-	if (!m_PIX_Mgr->numerology().useLayer(iLayer)){
-	  msg(MSG::WARNING) << "Layer "<<iLayer<<" Not in Use. No efficiencies plots"<<endreq;
-	  continue;}
-	std::cout << std::endl << " -- SALVA -- compute eff for pix layer: " << iLayer << std::endl;
-	makeEffHisto(m_measurements_vs_Eta_Phi_pix_b[iLayer], m_hits_vs_Eta_Phi_pix_b[iLayer], m_measurements_eff_vs_Eta_Phi_pix_b[iLayer]);
-	makeEffHisto(m_measurements_vs_Eta_pix_b[iLayer],m_hits_vs_Eta_pix_b[iLayer],m_measurements_eff_vs_Eta_pix_b[iLayer]);
-	makeEffHisto(m_measurements_vs_Phi_pix_b[iLayer],m_hits_vs_Phi_pix_b[iLayer],m_measurements_eff_vs_Phi_pix_b[iLayer]);
-	makeEffHisto(m_measurements_vs_pT_pix_b[iLayer],m_hits_vs_pT_pix_b[iLayer],m_measurements_eff_vs_pT_pix_b[iLayer]);
-	makeEffHisto(m_outliers_vs_Eta_pix_b[iLayer],m_hits_vs_Eta_pix_b[iLayer],m_outliers_eff_vs_Eta_pix_b[iLayer]);
-	makeEffHisto(m_holes_vs_Eta_pix_b[iLayer],m_hits_vs_Eta_pix_b[iLayer],m_holes_eff_vs_Eta_pix_b[iLayer]);
-	makeEffHisto(m_outliers_vs_Phi_pix_b[iLayer],m_hits_vs_Phi_pix_b[iLayer],m_outliers_eff_vs_Phi_pix_b[iLayer]);
-	makeEffHisto(m_holes_vs_Phi_pix_b[iLayer],m_hits_vs_Phi_pix_b[iLayer],m_holes_eff_vs_Phi_pix_b[iLayer]);
-	makeOverlapFracHisto(m_overlapX_vs_Phi_pix_b[iLayer],m_measurements_vs_Phi_pix_b[iLayer],m_overlapX_eff_vs_Phi_pix_b[iLayer]);
-	makeOverlapFracHisto(m_overlapY_vs_Phi_pix_b[iLayer],m_measurements_vs_Phi_pix_b[iLayer],m_overlapY_eff_vs_Phi_pix_b[iLayer]);
-	makeOverlapFracHisto(m_overlapX_vs_Eta_pix_b[iLayer],m_measurements_vs_Eta_pix_b[iLayer],m_overlapX_eff_vs_Eta_pix_b[iLayer]);
-	makeOverlapFracHisto(m_overlapY_vs_Eta_pix_b[iLayer],m_measurements_vs_Eta_pix_b[iLayer],m_overlapY_eff_vs_Eta_pix_b[iLayer]);
-	makeEffHisto(m_outliers_vs_pT_pix_b[iLayer],m_hits_vs_pT_pix_b[iLayer],m_outliers_eff_vs_pT_pix_b[iLayer]);
-	makeEffHisto(m_holes_vs_pT_pix_b[iLayer],m_hits_vs_pT_pix_b[iLayer],m_holes_eff_vs_pT_pix_b[iLayer]);
-      }//Layer Loop
+    for (int iLayer=0; iLayer < m_PIX_Mgr->numerology().numLayers();++iLayer) {
+      if (!m_PIX_Mgr->numerology().useLayer(iLayer)){
+	msg(MSG::WARNING) << "Layer "<<iLayer<<" Not in Use. No efficiencies plots"<<endreq;
+	continue;}
+      makeEffHisto(m_measurements_vs_Eta_Phi_pix_b[iLayer], m_hits_vs_Eta_Phi_pix_b[iLayer], m_measurements_eff_vs_Eta_Phi_pix_b[iLayer]);
+      makeEffHisto(m_measurements_vs_Eta_pix_b[iLayer],m_hits_vs_Eta_pix_b[iLayer],m_measurements_eff_vs_Eta_pix_b[iLayer]);
+      makeEffHisto(m_measurements_vs_Phi_pix_b[iLayer],m_hits_vs_Phi_pix_b[iLayer],m_measurements_eff_vs_Phi_pix_b[iLayer]);
+      makeEffHisto(m_measurements_vs_pT_pix_b[iLayer],m_hits_vs_pT_pix_b[iLayer],m_measurements_eff_vs_pT_pix_b[iLayer]);
+      makeEffHisto(m_outliers_vs_Eta_pix_b[iLayer],m_hits_vs_Eta_pix_b[iLayer],m_outliers_eff_vs_Eta_pix_b[iLayer]);
+      makeEffHisto(m_holes_vs_Eta_pix_b[iLayer],m_hits_vs_Eta_pix_b[iLayer],m_holes_eff_vs_Eta_pix_b[iLayer]);
+      makeEffHisto(m_outliers_vs_Phi_pix_b[iLayer],m_hits_vs_Phi_pix_b[iLayer],m_outliers_eff_vs_Phi_pix_b[iLayer]);
+      makeEffHisto(m_holes_vs_Phi_pix_b[iLayer],m_hits_vs_Phi_pix_b[iLayer],m_holes_eff_vs_Phi_pix_b[iLayer]);
+      makeOverlapFracHisto(m_overlapX_vs_Phi_pix_b[iLayer],m_measurements_vs_Phi_pix_b[iLayer],m_overlapX_eff_vs_Phi_pix_b[iLayer]);
+      makeOverlapFracHisto(m_overlapY_vs_Phi_pix_b[iLayer],m_measurements_vs_Phi_pix_b[iLayer],m_overlapY_eff_vs_Phi_pix_b[iLayer]);
+      makeOverlapFracHisto(m_overlapX_vs_Eta_pix_b[iLayer],m_measurements_vs_Eta_pix_b[iLayer],m_overlapX_eff_vs_Eta_pix_b[iLayer]);
+      makeOverlapFracHisto(m_overlapY_vs_Eta_pix_b[iLayer],m_measurements_vs_Eta_pix_b[iLayer],m_overlapY_eff_vs_Eta_pix_b[iLayer]);
+      makeEffHisto(m_outliers_vs_pT_pix_b[iLayer],m_hits_vs_pT_pix_b[iLayer],m_outliers_eff_vs_pT_pix_b[iLayer]);
+      makeEffHisto(m_holes_vs_pT_pix_b[iLayer],m_hits_vs_pT_pix_b[iLayer],m_holes_eff_vs_pT_pix_b[iLayer]);
+    }// Loop on barrel layers
 
-    for (int iECIndex = 0; iECIndex < m_PIX_Mgr->numerology().numEndcaps(); ++iECIndex)
-      {
-	int iSide = m_PIX_Mgr->numerology().endcapId(iECIndex);
-	for (int iWheel=0; iWheel < m_PIX_Mgr->numerology().numDisks();++iWheel)
-	  {
-	    if (!m_SCT_Mgr->numerology().useDisk(iWheel)){//To check if the Wheel is in use.
-	      msg(MSG::WARNING) << "Wheel "<<iWheel<<" Not in Use"<<endreq;
-	      continue;}
-	    
-	    if (iSide>0)
-	      {
-		makeEffHisto(m_measurements_vs_Phi_pix_eca[iWheel],m_hits_vs_Phi_pix_eca[iWheel],m_measurements_eff_vs_Phi_pix_eca[iWheel]);
-	      }
-	    if (iSide<0)
-	      {
-		makeEffHisto(m_measurements_vs_Phi_pix_ecc[iWheel],m_hits_vs_Phi_pix_ecc[iWheel],m_measurements_eff_vs_Phi_pix_ecc[iWheel]);
-	      }
-	    
-	  }//Wheel loop
-      }//Endcap loop
+    for (int iECIndex = 0; iECIndex < m_PIX_Mgr->numerology().numEndcaps(); ++iECIndex) {
+      int iSide = m_PIX_Mgr->numerology().endcapId(iECIndex);
+      for (int iWheel=0; iWheel < m_PIX_Mgr->numerology().numDisks();++iWheel)
+	{
+	  if (!m_SCT_Mgr->numerology().useDisk(iWheel)){//To check if the Wheel is in use.
+	    msg(MSG::WARNING) << "Wheel "<<iWheel<<" Not in Use"<<endreq;
+	    continue;}
+	  
+	  if (iSide>0)
+	    {
+	      makeEffHisto(m_measurements_vs_Phi_pix_eca[iWheel],m_hits_vs_Phi_pix_eca[iWheel],m_measurements_eff_vs_Phi_pix_eca[iWheel]);
+	    }
+	  if (iSide<0)
+	    {
+	      makeEffHisto(m_measurements_vs_Phi_pix_ecc[iWheel],m_hits_vs_Phi_pix_ecc[iWheel],m_measurements_eff_vs_Phi_pix_ecc[iWheel]);
+	    }	  
+	}//Wheel loop
+    }//Endcap loop
 
 
     
@@ -1523,7 +1663,6 @@ StatusCode IDAlignMonEfficiencies::procHistograms()
 	makeEffHisto(m_holes_vs_pT_sct_b[iLayer],m_hits_vs_pT_sct_b[iLayer],m_holes_eff_vs_pT_sct_b[iLayer]);
 
 	// SCT barrel: module by module & plane by plane
-	std::cout << std::endl << " -- SALVA -- compute eff for sct layer: " << iLayer << std::endl;
 	makeEffHisto (m_measurements_vs_Eta_Phi_sct_s0_b[iLayer], m_hits_vs_Eta_Phi_sct_s0_b[iLayer], m_measurements_eff_vs_Eta_Phi_sct_s0_b[iLayer]);
 	makeEffHisto (m_measurements_vs_Eta_Phi_sct_s1_b[iLayer], m_hits_vs_Eta_Phi_sct_s1_b[iLayer], m_measurements_eff_vs_Eta_Phi_sct_s1_b[iLayer]);
       }

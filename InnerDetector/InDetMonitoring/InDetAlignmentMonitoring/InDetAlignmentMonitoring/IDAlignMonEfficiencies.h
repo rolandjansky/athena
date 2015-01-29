@@ -85,6 +85,7 @@ class IDAlignMonEfficiencies : public ManagedMonitorToolBase
   void makeOverlapFracHisto(TH1F* h_num, TH1F* h_denom, TProfile* h_eff);
   void makeEffHisto(TH2F* h_num, TH2F* h_denom, TProfile2D* h_eff);
   void makeEffHisto(TH2F* h_num, TH2F* h_denom, TH2F* h_eff);
+  void makeEffHistoWithCut(TH2F* h_num, TH2F* h_denom, TProfile2D* h_eff);
 
   void makeTRTHistograms(MonGroup& al_monitoring);
   void makeTRTBarrelHistograms(MonGroup& al_mon);
