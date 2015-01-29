@@ -306,8 +306,8 @@ private:
   float m_lastVmem;
 
   PerfMon::LinFitSglPass m_vmemfit_evt2to20;
-  PerfMon::LinFitSglPass m_vmemfit_evt21to50;
-  PerfMon::LinFitSglPass m_vmemfit_evt51plus;
+  PerfMon::LinFitSglPass m_vmemfit_evt21to100;
+  PerfMon::LinFitSglPass m_vmemfit_evt101plus;
 
   /// pmon-stream data file descriptor
   int m_stream;

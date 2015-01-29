@@ -91,10 +91,10 @@ namespace PMonSD {
     Meas m_meas_post_lastevt;
     Meas m_meas_post_fin;
     std::string m_starttime;
-    PerfMon::LinFitSglPass m_fit_11to50_vmem;
-    PerfMon::LinFitSglPass m_fit_11to50_malloc;
-    PerfMon::LinFitSglPass m_fit_51plus_vmem;
-    PerfMon::LinFitSglPass m_fit_51plus_malloc;
+    PerfMon::LinFitSglPass m_fit_11to100_vmem;
+    PerfMon::LinFitSglPass m_fit_11to100_malloc;
+    PerfMon::LinFitSglPass m_fit_101plus_vmem;
+    PerfMon::LinFitSglPass m_fit_101plus_malloc;
     int m_last_stepidx;
     unsigned m_last_nevts;
     unsigned m_nevts;

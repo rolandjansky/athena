@@ -186,8 +186,8 @@ class Svc(object):
                    evt10_vmem=0,
                    last_vmem=0,
                    vmem2to20_n=0,vmem2to20_slope=None,
-                   vmem21to50_n=0,vmem21to50_slope=None,
-                   vmem51plus_n=0,vmem51plus_slope=None):
+                   vmem21to100_n=0,vmem21to100_slope=None,
+                   vmem101plus_n=0,vmem101plus_slope=None):
         self.stats[name] = {'nentries': nentries,
                             'cpu': (cpu_mean, cpu_mean_err),
                             'cpu_user': (cpu_user_mean, cpu_user_mean_err),
@@ -199,8 +199,8 @@ class Svc(object):
                             'rt':     (rt_mean, rt_mean_err)}
         self._slope_data = {'developments': (nevts, first_vmem, evt10_vmem, last_vmem),
                             'fits':[(' 2-20',vmem2to20_n,vmem2to20_slope),
-                                    ('21-50',vmem21to50_n,vmem21to50_slope),
-                                    ('51+  ',vmem51plus_n,vmem51plus_slope)]}
+                                    ('21-100',vmem21to100_n,vmem21to100_slope),
+                                    ('101+  ',vmem101plus_n,vmem101plus_slope)]}
         
     def install_pmon_dso_logger(self):
         if self._pmon_flags['doDsoMonitoring']:
