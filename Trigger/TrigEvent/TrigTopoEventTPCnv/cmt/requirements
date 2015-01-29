@@ -19,12 +19,8 @@ use AthenaKernel         AthenaKernel-*         Control
 # of transient classes.  If we make a single dictionary,
 # the compiler runs out of memory on the generated source.
 
-apply_pattern lcgdict dict=TrigTopoEventTPCnv1  \
-  selectionfile=selection1.xml \
-  headerfiles="../TrigTopoEventTPCnv/TrigTopoEventTPCnvDict1.h"
-
-#apply_pattern lcgdict dict=OLD_TrigTopoEventTPCnv1  \
-#  selectionfile=OLD_selection1.xml \
-#  headerfiles="../TrigTopoEventTPCnv/TrigTopoEventTPCnvDict1.h"
+apply_pattern lcgdict dict=TrigTopoEventTPCnv \
+  selectionfile=selection.xml \
+  headerfiles="../TrigTopoEventTPCnv/TrigTopoEventTPCnvDict.h"
 
 end_private
