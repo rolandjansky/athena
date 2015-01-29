@@ -26,12 +26,19 @@ using namespace std;
 TCS::JetHT::JetHT(const std::string & name) : DecisionAlg(name)
 {  
    defineParameter("InputWidth", 0);
-   defineParameter("NumResultBits",1);
+   defineParameter("MaxTob", 0); 
+   defineParameter("NumResultBits",6);
+   defineParameter("NumRegisters", 2); 
    defineParameter("MinEt",0);
    defineParameter("MinEta",0);
    defineParameter("MaxEta",31);
    defineParameter("MinHt",0,0);
-   setNumberOutputBits(1);
+   defineParameter("MinHt",0,1);
+   defineParameter("MinHt",0,2);
+   defineParameter("MinHt",0,3);
+   defineParameter("MinHt",0,4);
+   defineParameter("MinHt",0,5);
+   setNumberOutputBits(6);
 }
 
 TCS::JetHT::~JetHT()
@@ -41,13 +48,16 @@ TCS::JetHT::~JetHT()
 TCS::StatusCode
 TCS::JetHT::initialize() {
    p_NumberLeading1 = parameter("InputWidth").value();
+   if(parameter("MaxTob").value() > 0) p_NumberLeading1 = parameter("MaxTob").value();
    p_MinET  = parameter("MinEt").value();
    p_EtaMin = parameter("MinEta").value();
    p_EtaMax = parameter("MaxEta").value();
+
+   TRG_MSG_INFO("MaxTob          : " << p_NumberLeading1);
    TRG_MSG_INFO("MinET          : " << p_MinET);
    TRG_MSG_INFO("EtaMin         : " << p_EtaMin);
    TRG_MSG_INFO("EtaMax         : " << p_EtaMax);
-   for(int i=0; i<1; ++i) {
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
       p_HT[i] = parameter("MinHt", i).value();
       TRG_MSG_INFO("HT " << i << " : " << p_HT[i]);
    }

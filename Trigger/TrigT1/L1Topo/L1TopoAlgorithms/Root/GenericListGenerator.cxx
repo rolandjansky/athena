@@ -10,6 +10,7 @@
 #include "L1TopoEvent/JetTOBArray.h"
 #include "L1TopoEvent/GenericTOB.h"
 #include <algorithm>
+#include <typeinfo>
 
 REGISTER_ALG_TCS(GenericListGenerator)
 

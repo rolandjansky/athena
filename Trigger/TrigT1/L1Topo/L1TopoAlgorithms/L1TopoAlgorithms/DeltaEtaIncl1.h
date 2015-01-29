@@ -28,10 +28,10 @@ namespace TCS {
 
       parType_t      p_NumberLeading1 = { 0 };
       parType_t      p_NumberLeading2 = { 0 };
-      parType_t      p_DeltaEtaMin[3] = {0, 0, 0};
-      parType_t      p_DeltaEtaMax[3] = {0, 0, 0};
-      parType_t      p_MinET1 = { 0 };
-      parType_t      p_MinET2 = { 0 };
+      parType_t      p_DeltaEtaMin[4] = {0, 0, 0,0};
+      parType_t      p_DeltaEtaMax[4] = {0, 0, 0,0};
+      parType_t      p_MinET1[4] = { 0,0,0,0 };
+      parType_t      p_MinET2[4] = { 0,0,0,0 };
 
 
    };

@@ -35,12 +35,27 @@ namespace {
 TCS::DeltaEtaIncl1::DeltaEtaIncl1(const std::string & name) : DecisionAlg(name)
 {
    defineParameter("InputWidth", 0);
-   defineParameter("NumResultBits", 1);
-   defineParameter("MinEt1",0);
-   defineParameter("MinEt2",0); 
+   defineParameter("MaxTob", 0);
+   defineParameter("NumResultBits", 4);
+   defineParameter("MinEt1",0,0);
+   defineParameter("MinEt2",0,0);
+   defineParameter("MinEt1",0,1);
+   defineParameter("MinEt2",0,1);
+   defineParameter("MinEt1",0,2);
+   defineParameter("MinEt2",0,2);
+   defineParameter("MinEt1",0,3);
+   defineParameter("MinEt2",0,3);
+
    defineParameter("MinDeltaEta",  0, 0);
    defineParameter("MaxDeltaEta", 127, 0);
-   setNumberOutputBits(1);
+   defineParameter("MinDeltaEta",  0, 1);
+   defineParameter("MaxDeltaEta", 127, 1);
+   defineParameter("MinDeltaEta",  0, 2);
+   defineParameter("MaxDeltaEta", 127, 2);
+   defineParameter("MinDeltaEta",  0, 3);
+   defineParameter("MaxDeltaEta", 127, 3);
+
+   setNumberOutputBits(4);
 }
 
 TCS::DeltaEtaIncl1::~DeltaEtaIncl1(){}
@@ -48,22 +63,31 @@ TCS::DeltaEtaIncl1::~DeltaEtaIncl1(){}
 
 TCS::StatusCode
 TCS::DeltaEtaIncl1::initialize() {
-   p_NumberLeading1 = parameter("InputWidth").value();
-   p_NumberLeading2 = parameter("InputWidth").value();
-   for(int i=0; i<1; ++i) {
+
+   if(parameter("MaxTob").value() > 0) {
+    p_NumberLeading1 = parameter("MaxTob").value();
+    p_NumberLeading2 = parameter("MaxTob").value();
+   } else {
+    p_NumberLeading1 = parameter("InputWidth").value();
+    p_NumberLeading2 = parameter("InputWidth").value();
+   }
+   
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
       p_DeltaEtaMin[i] = parameter("MinDeltaEta", i).value();
       p_DeltaEtaMax[i] = parameter("MaxDeltaEta", i).value();
+   
+      p_MinET1[i] = parameter("MinEt1",i).value();
+      p_MinET2[i] = parameter("MinEt2",i).value();
    }
-   p_MinET1 = parameter("MinEt1").value();
-   p_MinET2 = parameter("MinEt2").value();
-
 
    TRG_MSG_INFO("NumberLeading1 : " << p_NumberLeading1);  // note that the reading of generic parameters doesn't work yet
    TRG_MSG_INFO("NumberLeading2 : " << p_NumberLeading2);
-   TRG_MSG_INFO("DeltaEtaMin0   : " << p_DeltaEtaMin[0]);
-   TRG_MSG_INFO("DeltaEtaMax0   : " << p_DeltaEtaMax[0]);
-   TRG_MSG_INFO("MinET1          : " << p_MinET1);
-   TRG_MSG_INFO("MinET2          : " << p_MinET2);
+   for(unsigned int i=0; i<numberOutputBits(); ++i) {
+    TRG_MSG_INFO("DeltaEtaMin0   : " << p_DeltaEtaMin[i]);
+    TRG_MSG_INFO("DeltaEtaMax0   : " << p_DeltaEtaMax[i]);
+    TRG_MSG_INFO("MinET1          : " << p_MinET1[i]);
+    TRG_MSG_INFO("MinET2          : " << p_MinET2[i]);
+   }
    TRG_MSG_INFO("number output : " << numberOutputBits());
    
    return StatusCode::SUCCESS;
@@ -84,20 +108,24 @@ TCS::DeltaEtaIncl1::process( const std::vector<TCS::TOBArray const *> & input,
       unsigned int nLeading = p_NumberLeading1;
       unsigned int nLeading2 = p_NumberLeading2;
 
-      for( TOBArray::const_iterator tob1 = input[0]->begin(); 
+
+       for( TOBArray::const_iterator tob1 = input[0]->begin(); 
            tob1 != input[0]->end() && distance( input[0]->begin(), tob1) < nLeading;
            ++tob1) 
          {
             
-            if( parType_t((*tob1)->Et()) <= p_MinET1 ) continue; // ET cut
             
             TCS::TOBArray::const_iterator tob2 = tob1; ++tob2;      
             for( ;
                  tob2 != input[0]->end() && distance( input[0]->begin(), tob2) < nLeading2;
                  ++tob2) {
 
-               if( parType_t((*tob2)->Et()) <= p_MinET2) continue; // ET cut
+             bool accept[4];
+             for(unsigned int i=0; i < numberOutputBits(); ++i) {
 
+               if( parType_t((*tob1)->Et()) <= min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
+               if( parType_t((*tob2)->Et()) <= min(p_MinET1[i],p_MinET2[i])) continue; // ET cut
+               if( (parType_t((*tob1)->Et()) <= max(p_MinET1[i],p_MinET2[i])) && (parType_t((*tob2)->Et()) <= max(p_MinET1[i],p_MinET2[i]))) continue;
                // DeltaEta cuts
                unsigned int deltaEta = calcDeltaEta( *tob1, *tob2 );
 
@@ -105,19 +133,18 @@ TCS::DeltaEtaIncl1::process( const std::vector<TCS::TOBArray const *> & input,
                msgss << "Combination : " << distance( input[0]->begin(), tob1) << " x " << distance( input[0]->begin(), tob2) << " eta=" << (*tob1)->eta() << " , eta=" << (*tob2)->eta()
                      << ", DeltaEta = " << deltaEta << " -> ";
 
-               bool accept[1];
-               for(unsigned int i=0; i < numberOutputBits(); ++i) {
-                  accept[i] = deltaEta >= p_DeltaEtaMin[i] && deltaEta <= p_DeltaEtaMax[i];
-                  if( accept[i] ) {
+               
+               accept[i] = deltaEta >= p_DeltaEtaMin[i] && deltaEta <= p_DeltaEtaMax[i];
+               if( accept[i] ) {
                      decison.setBit(i, true);  
                      output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
-                  }
-                  msgss << (accept[i]?"pass":"fail") << "|";
                }
-               TRG_MSG_DEBUG(msgss.str());
-            }
+               msgss << (accept[i]?"pass":"fail") << "|";
+                 
+              TRG_MSG_DEBUG(msgss.str());
+             } 
          }
-      
+      }
 
    } else {
 

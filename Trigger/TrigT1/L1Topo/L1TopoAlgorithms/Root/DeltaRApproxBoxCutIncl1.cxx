@@ -39,8 +39,7 @@ namespace {
 
 TCS::DeltaRApproxBoxCutIncl1::DeltaRApproxBoxCutIncl1(const std::string & name) : DecisionAlg(name)
 {
-   defineParameter("NumberLeading1", 3);
-   defineParameter("NumberLeading2", 3); 
+   defineParameter("InputWidth", 3);
    defineParameter("NumResultBits", 3);
    defineParameter("DeltaPhiMin",  0, 0);
    defineParameter("DeltaPhiMax", 63, 0);
@@ -64,8 +63,8 @@ TCS::DeltaRApproxBoxCutIncl1::~DeltaRApproxBoxCutIncl1(){}
 
 TCS::StatusCode
 TCS::DeltaRApproxBoxCutIncl1::initialize() {
-   p_NumberLeading1 = parameter("NumberLeading1").value();
-   p_NumberLeading2 = parameter("NumberLeading2").value();
+   p_NumberLeading1 = parameter("InputWidth").value();
+   p_NumberLeading2 = parameter("InputWidth").value();
    for(int i=0; i<3; ++i) {
       p_DeltaPhiMin[i] = parameter("DeltaPhiMin", i).value();
       p_DeltaPhiMax[i] = parameter("DeltaPhiMax", i).value();
@@ -116,14 +115,15 @@ TCS::DeltaRApproxBoxCutIncl1::process( const std::vector<TCS::TOBArray const *> 
            ++tob1) 
          {
             
-            if( parType_t((*tob1)->Et()) <= p_MinET1 ) continue; // ET cut
-            
+            if( parType_t((*tob1)->Et()) <= min(p_MinET1,p_MinET2)) continue; // ET cut
+
             TCS::TOBArray::const_iterator tob2 = tob1; ++tob2;      
             for( ;
                  tob2 != input[0]->end() && distance( input[0]->begin(), tob2) < p_NumberLeading2;
                  ++tob2) {
 
-               if( parType_t((*tob2)->Et()) <= p_MinET2) continue; // ET cut
+               if( parType_t((*tob2)->Et()) <= min(p_MinET1,p_MinET2)) continue; // ET cut
+               if( (parType_t((*tob1)->Et()) <= max(p_MinET1,p_MinET2)) && (parType_t((*tob2)->Et()) <= max(p_MinET1,p_MinET2))) continue;
 
                // DeltaPhi cuts
                unsigned int deltaPhi = calcDeltaPhi( *tob1, *tob2 );

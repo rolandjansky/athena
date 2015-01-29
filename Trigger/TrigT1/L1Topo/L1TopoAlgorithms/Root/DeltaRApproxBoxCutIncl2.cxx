@@ -38,8 +38,8 @@ namespace {
 
 TCS::DeltaRApproxBoxCutIncl2::DeltaRApproxBoxCutIncl2(const std::string & name) : DecisionAlg(name)
 {
-   defineParameter("NumberLeading1", 3);
-   defineParameter("NumberLeading2", 3); 
+   defineParameter("InputWidth1", 5);
+   defineParameter("InputWidth2", 3); 
    defineParameter("NumResultBits", 3);
    defineParameter("DeltaPhiMin",  0, 0);
    defineParameter("DeltaPhiMax", 63, 0);
@@ -63,8 +63,8 @@ TCS::DeltaRApproxBoxCutIncl2::~DeltaRApproxBoxCutIncl2(){}
 
 TCS::StatusCode
 TCS::DeltaRApproxBoxCutIncl2::initialize() {
-   p_NumberLeading1 = parameter("NumberLeading1").value();
-   p_NumberLeading2 = parameter("NumberLeading2").value();
+   p_NumberLeading1 = parameter("InputWidth1").value();
+   p_NumberLeading2 = parameter("InputWidth2").value();
    for(int i=0; i<3; ++i) {
       p_DeltaPhiMin[i] = parameter("DeltaPhiMin", i).value();
       p_DeltaPhiMax[i] = parameter("DeltaPhiMax", i).value();

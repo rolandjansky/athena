@@ -28,6 +28,7 @@ namespace TCS {
 
       parType_t      p_NumberLeading1 = { 0 };
       parType_t      p_NumberLeading2 = { 0 };
+      parType_t      p_NumberLeading3 = { 0 };
       parType_t      p_DisambDR[2] = {0, 0};
       parType_t      p_MinET1 = { 0 };
       parType_t      p_MinET2 = { 0 };

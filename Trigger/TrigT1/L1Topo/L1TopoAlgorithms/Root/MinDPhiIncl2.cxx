@@ -39,8 +39,10 @@ namespace {
 
 TCS::MinDPhiIncl2::MinDPhiIncl2(const std::string & name) : DecisionAlg(name)
 {
-   defineParameter("NumberLeading1", 3);
-   defineParameter("NumberLeading2", 3); 
+   defineParameter("InputWidth1", 9);
+   defineParameter("InputWidth2", 9);
+   defineParameter("MaxTob1", 0); 
+   defineParameter("MaxTob2", 0); 
    defineParameter("NumResultBits", 3);
    defineParameter("DeltaPhiMin",  0, 0);
    defineParameter("DeltaPhiMin",  0, 1);
@@ -55,8 +57,11 @@ TCS::MinDPhiIncl2::~MinDPhiIncl2(){}
 
 TCS::StatusCode
 TCS::MinDPhiIncl2::initialize() {
-   p_NumberLeading1 = parameter("NumberLeading1").value();
-   p_NumberLeading2 = parameter("NumberLeading2").value();
+   p_NumberLeading1 = parameter("InputWidth1").value();
+   p_NumberLeading2 = parameter("InputWidth2").value();
+   if(parameter("MaxTob1").value() > 0) p_NumberLeading1 = parameter("MaxTob1").value();
+   if(parameter("MaxTob2").value() > 0) p_NumberLeading2 = parameter("MaxTob2").value();
+
    for(int i=0; i<3; ++i) {
       p_DeltaPhiMin[i] = parameter("DeltaPhiMin", i).value();
    }
