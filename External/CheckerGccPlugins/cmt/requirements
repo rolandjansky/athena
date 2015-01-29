@@ -4,7 +4,10 @@ author scott snyder
 
 use ExternalPolicy ExternalPolicy-* External
 
-macro CheckerGccPlugins_native_version "CheckerGccPlugins-00-01-08"
+# The version of the plugin that we run from externals.
+# This is not necessarily the same as the package version.
+macro CheckerGccPlugins_native_version "CheckerGccPlugins-00-01-12"
+
 macro CheckerGccPlugins_home "${ATLAS_EXTERNAL}/CheckerGccPlugins/$(CheckerGccPlugins_native_version)"
 
 
@@ -25,7 +28,9 @@ macro CheckerGccPlugins_args "" target-gcc " -fplugin=$(CheckerGccPlugins_plugin
 
 private
 
+
 ##### building checker_gccplugin
+
 
 use gmp v* LCG_Interfaces
 # gmp isn't available in experimental LCG
@@ -38,6 +43,7 @@ macro_remove cppflags "" target-icc "-wd383 -wd981 -wd1418 -wd1419 -we1011 -we11
 
 macro_prepend cppflags " -I$(gcc_home)/lib/gcc/x86_64-unknown-linux-gnu/$(gcc_native_version)/plugin/include -I$(gcc_home)/lib/gcc/x86_64-unknown-linux-gnu/$(gcc_native_version) -I$(gmp_home)/include -Wno-literal-suffix "
 macro_prepend cflags " -I$(gcc_home)/lib/gcc/x86_64-unknown-linux-gnu/$(gcc_native_version)/plugin/include  -I$(gcc_home)/lib/gcc/x86_64-unknown-linux-gnu/$(gcc_native_version)   -I$(gmp_home)/include "
+
 
 # Remove -m32 from compilation lines.  Need to build to match the compiler used.
 macro_remove cflags " -m32 "
@@ -53,6 +59,9 @@ macro_remove shlibbuilder "-m32
 macro cc_name "gcc" gcc "$(cc_name)"
 macro cpp_name "g++" gcc "$(cpp_name)"
 
+macro CheckerGccPlugins_export_paths "$(CheckerGccPlugins_home)/$(CMTCONFIG)"
+
 library checker_gccplugins ../src/*.cxx 
+
 
 apply_pattern declare_scripts files="../scripts/checker_gccplugins_args"
