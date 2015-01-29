@@ -1592,6 +1592,9 @@ class MagneticField:
             self.DeltaOneStep = dict()
             self.MaximumEpsilonStep = dict()
             self.MinimumEpsilonStep = dict()
+        else:
+            raise ValueError(' PyG4Atlas.MagneticField not allowed field type: '+str(typefield))
+
         self.FieldStepper = stepper
 
 
@@ -2143,9 +2146,17 @@ class SimSkeleton(object):
         stream1.ForceRead=True
         stream1.ItemList = ["EventInfo#*",
                             "McEventCollection#TruthEvent",
-                            "JetCollection#*",
-                            "xAOD::JetContainer_v1#*",
-                            "xAOD::JetAuxContainer_v1#*"]
+                            "JetCollection#*"]
+
+        from PyJobTransforms.trfUtils import releaseIsOlderThan
+        if releaseIsOlderThan(20,0):
+            #Hack to maintain compatibility of G4AtlasApps trunk with
+            #19.2.X.Y after EDM changes in release 20.0.0.
+            stream1.ItemList += ["xAOD::JetContainer_v1#*",
+                                 "xAOD::JetAuxContainer_v1#*"]
+        else:
+            stream1.ItemList += ["xAOD::JetContainer#*",
+                                 "xAOD::JetAuxContainer#*"]
 
         ## Make stream aware of aborted events
         stream1.AcceptAlgs = ["G4AtlasAlg"]
@@ -2591,6 +2602,15 @@ class SimSkeleton(object):
         Do not overload this method.
         """
         G4AtlasEngine.log.verbose('SimSkeleton._do_PreInit :: starting')
+
+        # Add core services
+        from AthenaCommon.AppMgr import ServiceMgr
+        if not hasattr(ServiceMgr, "SensitiveDetectorSvc"):
+            from AthenaCommon.CfgGetter import getService
+            sensitiveDetectorService = getService("SensitiveDetectorSvc")
+        if not hasattr(ServiceMgr, "FastSimulationSvc"):
+            from AthenaCommon.CfgGetter import getService
+            sensitiveDetectorService = getService("FastSimulationSvc")
 
         # use some different methods for ISF and G4 standalone run
         from G4AtlasApps.SimFlags import simFlags

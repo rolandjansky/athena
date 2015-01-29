@@ -216,6 +216,15 @@ class PhysicsList(JobProperty):
                 n_value = n_value.replace("_VALIDATION", "")
                 if n_value not in self.allowedValues:
                     self.allowedValues.append(n_value)
+        from AthenaCommon.Logging import logging
+        _sflog = logging.getLogger('SimFlags')
+        if n_value == 'FTFP_BERT_G4Precompound':
+            _sflog.warning( 'Setting G4CASCADE_USE_PRECOMPOUND for use of precompound model' )
+            os.environ['G4CASCADE_USE_PRECOMPOUND'] = '1'
+            n_value = 'FTFP_BERT'
+        elif 'G4CASCADE_USE_PRECOMPOUND' in os.environ:
+            _sflog.warning( 'Setting G4CASCADE_USE_PRECOMPOUND back to 0 (why was it set?)' )
+            os.environ['G4CASCADE_USE_PRECOMPOUND'] = '0'
         JobProperty.__setattr__(self, name, n_value)
 
 

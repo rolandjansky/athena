@@ -121,7 +121,7 @@ class AtlasSimSkeleton(SimSkeleton):
             AtlasG4Eng.G4Eng.log.info('AtlasSimSkeleton._do_jobproperties :: printing simulation flags simFlags')
             jobproperties.print_JobProperties('tree&value')
 
-        ## Lock the job properties if not running ISF.
+        # Lock the job properties if not running ISF.
         if not simFlags.ISFRun:
             jobproperties.lock_JobProperties()
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_jobproperties :: done')
@@ -133,7 +133,7 @@ class AtlasSimSkeleton(SimSkeleton):
            frozen showers, etc
         """
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_external :: starting')
-        from AthenaCommon.AppMgr import ServiceMgr
+        from AthenaCommon.AppMgr import ToolSvc,ServiceMgr
         from Geo2G4.Geo2G4Conf import Geo2G4Svc
         geo2G4Svc = Geo2G4Svc()
         theApp.CreateSvc += ["Geo2G4Svc"]
@@ -171,6 +171,15 @@ class AtlasSimSkeleton(SimSkeleton):
         from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
         from AthenaCommon.GlobalFlags import jobproperties
         from AtlasGeoModel import SetGeometryVersion
+
+        ## Forward Region Twiss files - needed before geometry setup!
+        if simFlags.ForwardDetectors.statusOn:
+            checkFwdRegion = getattr(DetFlags.geometry, 'FwdRegion_on', None) #back-compatibility
+            if checkFwdRegion is not None and checkFwdRegion(): #back-compatibility
+                from atlas_forward import ForwardRegion
+                atlasForwardRegion = ForwardRegion(False)
+                atlasForwardRegion.setupTwissFiles()
+
         from AtlasGeoModel import GeoModelInit
         from AtlasGeoModel import SimEnvelopes
         from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
@@ -193,7 +202,7 @@ class AtlasSimSkeleton(SimSkeleton):
                 if simFlags.SimulateNewSmallWheel():
                     AtlasG4Eng.G4Eng.log.info("Removing the original small wheel")
                     MuonDetectorTool.StationSelection  = 2
-                    MuonDetectorTool.SelectedStations  = [ "EIL1" ] 
+                    MuonDetectorTool.SelectedStations  = [ "EIL1" ]
                     MuonDetectorTool.SelectedStations  += [ "EIL2" ]
                     MuonDetectorTool.SelectedStations  += [ "EIL6" ]
                     MuonDetectorTool.SelectedStations  += [ "EIL7" ]
@@ -208,12 +217,27 @@ class AtlasSimSkeleton(SimSkeleton):
                     MuonDetectorTool.SelectedStations  += [ "T4F*" ]
 
             ## Additional material in the muon system
-            from AGDD2Geo.AGDD2GeoConf import AGDD2GeoSvc
-            agdd2GeoSvc = AGDD2GeoSvc()
-            if not hasattr(agdd2GeoSvc, 'OverrideConfiguration') or not agdd2GeoSvc.OverrideConfiguration :
-                agdd2GeoSvc.Locked = True
-            theApp.CreateSvc += ["AGDD2GeoSvc"]
-            ServiceMgr += agdd2GeoSvc
+            from AGDD2GeoSvc.AGDD2GeoSvcConf import AGDDtoGeoSvc
+            AGDD2Geo = AGDDtoGeoSvc()
+            if not "MuonAGDDTool/MuonSpectrometer" in AGDD2Geo.Builders:
+                from MuonAGDD.MuonAGDDConf import MuonAGDDTool
+                MuonAGDDTool = MuonAGDDTool('MuonSpectrometer')
+                MuonAGDDTool.BuildNSW = False
+                ToolSvc += MuonAGDDTool
+                AGDD2Geo.Builders += ["MuonAGDDTool/MuonSpectrometer"]
+            if hasattr(simFlags, 'SimulateNewSmallWheel'):
+                if simFlags.SimulateNewSmallWheel():
+                    if not "NSWAGDDTool/NewSmallWheel" in AGDD2Geo.Builders:
+                        from MuonAGDD.MuonAGDDConf import NSWAGDDTool
+                        NSWAGDDTool = NSWAGDDTool('NewSmallWheel')
+                        NSWAGDDTool.Locked=False
+                        NSWAGDDTool.XMLFiles += ["stations.v1.69.xml"]
+                        NSWAGDDTool.Volumes += ["NewSmallWheel"]
+                        NSWAGDDTool.DefaultDetector="Muon"
+                        ToolSvc += NSWAGDDTool
+                        AGDD2Geo.Builders += ["NSWAGDDTool/NewSmallWheel"]
+            theApp.CreateSvc += ["AGDDtoGeoSvc"]
+            ServiceMgr += AGDD2Geo
 
         ## Add configured GeoModelSvc to service manager
         ServiceMgr += gms
@@ -263,7 +287,7 @@ class AtlasSimSkeleton(SimSkeleton):
         """
         User actions: TrackProcessor
         """
-            
+
         # only setup those user actions if running within ISF
         from G4AtlasApps.SimFlags import simFlags
         if simFlags.ISFRun:
@@ -283,7 +307,7 @@ class AtlasSimSkeleton(SimSkeleton):
           actions.add_UserAction(ISF_MCTruthUserAction)
 
 
-          # SDActivateUserAction : deactivates SD classes so Begin/EndOfEvent 
+          # SDActivateUserAction : deactivates SD classes so Begin/EndOfEvent
           # won't be called by G4 (called by SimHitSvc instead)
           AtlasG4Eng.G4Eng.log.verbose('ISF_AtlasSimSkeleton::do_UserActions add SDActivateUserAction')
           ISF_SDActivateUserAction = PyG4Atlas.UserAction('ISF_Geant4Tools','ToolSvc.ISFSDActivateUserAction',['BeginOfEvent','EndOfEvent'])
@@ -441,26 +465,27 @@ class AtlasSimSkeleton(SimSkeleton):
 
         ## Forward Region
         if simFlags.ForwardDetectors.statusOn:
-            from atlas_forward import ForwardRegion
-            atlasForwardRegion = ForwardRegion()
-
-            # Set up Twiss Files
-            atlasForwardRegion.setupTwissFiles()
-
-            # Set up the field
-            if simFlags.FwdStepLimitation.statusOn:
-                atlasForwardRegion.add_field(simFlags.FwdStepLimitation())
-            else:
-                atlasForwardRegion.add_field()
-
-            fwdRegionEnvelope = atlasForwardRegion.atlas_ForwardRegion
-            AtlasG4Eng.G4Eng.add_DetFacility(fwdRegionEnvelope, atlas)
 
             checkFwdRegion = getattr(DetFlags.geometry, 'FwdRegion_on', None) #back-compatibility
             if checkFwdRegion is not None and checkFwdRegion(): #back-compatibility
+
+                from atlas_forward import ForwardRegion
+                atlasForwardRegion = ForwardRegion()
+                # Set up Twiss Files
+                atlasForwardRegion.setupTwissFiles()
+
+                fwdRegionEnvelope = atlasForwardRegion.atlas_ForwardRegion
+                AtlasG4Eng.G4Eng.add_DetFacility(fwdRegionEnvelope, atlas)
+
                 from atlas_forward import FwdRegion
                 atlasFwdRegion = FwdRegion()
                 AtlasG4Eng.G4Eng.add_DetFacility(atlasFwdRegion.atlas_FwdRegion, fwdRegionEnvelope)
+
+                # Set up the field
+                if simFlags.FwdStepLimitation.statusOn:
+                    atlasForwardRegion.add_field(simFlags.FwdStepLimitation())
+                else:
+                    atlasForwardRegion.add_field()
 
             ## ZDC
             if DetFlags.geometry.ZDC_on():
@@ -476,14 +501,14 @@ class AtlasSimSkeleton(SimSkeleton):
                 atlasalfa._initSD()
                 AtlasG4Eng.G4Eng.add_DetFacility(atlasalfa.alfa, fwdRegionEnvelope)
 
-            # AFP 
-            checkAFP = getattr(DetFlags.geometry, 'AFP_on', None) #back-compatibility 
-            if checkAFP is not None and checkAFP(): #back-compatibility 
-                from atlas_forward import AFP 
-                atlasAFP = AFP() 
-                atlasAFP._initSD() 
-                AtlasG4Eng.G4Eng.add_DetFacility(atlasAFP.AFP, fwdRegionEnvelope) 
-                atlasAFP._initOpProcess() 
+            # AFP
+            checkAFP = getattr(DetFlags.geometry, 'AFP_on', None) #back-compatibility
+            if checkAFP is not None and checkAFP(): #back-compatibility
+                from atlas_forward import AFP
+                atlasAFP = AFP()
+                atlasAFP._initSD()
+                AtlasG4Eng.G4Eng.add_DetFacility(atlasAFP.AFP, fwdRegionEnvelope)
+                atlasAFP._initOpProcess()
 
         ## Muon system
         if DetFlags.geometry.Muon_on():
@@ -582,8 +607,7 @@ class AtlasSimSkeleton(SimSkeleton):
         if simFlags.MagneticField.statusOn:
             if simFlags.MagneticField() == 'AtlasFieldSvc':
                 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-                from MagFieldServices.MagFieldServicesConf import MagField__AtlasFieldSvc
-                svcMgr += MagField__AtlasFieldSvc("AtlasFieldSvc");
+                import MagFieldServices.SetupField
                 # TODO: would be useful if the AthenaSvc name can be handed over to the PyG4Atlas.MagneticField somehow
                 # currently G4AtlasFieldSvc.cxx retrieves a field service with the default name 'AtlasFieldSvc'
                 atlasfield = PyG4Atlas.MagneticField('G4Field', 'G4AtlasFieldSvc', typefield='MapField')
@@ -602,7 +626,7 @@ class AtlasSimSkeleton(SimSkeleton):
                 atlasfield.set_G4FieldTrackParameters('DeltaIntersection',  'BeamPipe::BeamPipe', 0.00001)
                 atlasfield.set_G4FieldTrackParameters('DeltaOneStep',       'BeamPipe::BeamPipe', 0.0001)
                 atlasfield.set_G4FieldTrackParameters('MaximumEpsilonStep', 'BeamPipe::BeamPipe', 0.001)
-                atlasfield.set_G4FieldTrackParameters('MinimumEpsilonStep', 'BeamPipe::BeamPipe', 0.00001)  
+                atlasfield.set_G4FieldTrackParameters('MinimumEpsilonStep', 'BeamPipe::BeamPipe', 0.00001)
             if 'IDET' in AtlasG4Eng.G4Eng.Dict_DetFacility:
                 AtlasG4Eng.G4Eng.log.debug('AtlasSimSkeleton._do_MagField :: Increasing IDET Tracking Precision')
                 atlasfield.add_Volume('IDET::IDET')
@@ -616,7 +640,7 @@ class AtlasSimSkeleton(SimSkeleton):
                 atlasfield.set_G4FieldTrackParameters('DeltaIntersection', 'MUONQ02::MUONQ02', 0.00000002)
                 atlasfield.set_G4FieldTrackParameters('DeltaOneStep', 'MUONQ02::MUONQ02', 0.000001)
                 atlasfield.set_G4FieldTrackParameters('MaximumEpsilonStep', 'MUONQ02::MUONQ02', 0.0000009)
-                atlasfield.set_G4FieldTrackParameters('MinimumEpsilonStep', 'MUONQ02::MUONQ02', 0.000001)	
+                atlasfield.set_G4FieldTrackParameters('MinimumEpsilonStep', 'MUONQ02::MUONQ02', 0.000001)
             AtlasG4Eng.G4Eng.menu_Field.add_Field(atlasfield)
             if simFlags.EquationOfMotion.statusOn:
                 AtlasG4Eng.G4Eng.menu_Field.set_EquationOfMotion( simFlags.EquationOfMotion.get_Value() )
@@ -640,7 +664,7 @@ class AtlasSimSkeleton(SimSkeleton):
         if not simFlags.ISFRun:
             from atlas_utilities import G4SimTimer
             actions.add_UserAction(G4SimTimer)
-            
+
         actions.add_UserAction(G4TrackCounter)
         from G4AtlasApps.SimFlags import simFlags
         if jobproperties.Beam.beamType() == 'cosmics' and not simFlags.CavernBG.statusOn: # and not simFlags.ISFRun:
@@ -853,7 +877,7 @@ class AtlasSimSkeleton(SimSkeleton):
                 if simFlags.BeamEffectOptions.statusOn:
                     for opt in simFlags.BeamEffectOptions.get_Value().keys():
                         exec( 'beFilter.Set_'+opt+'(float('+str(simFlags.BeamEffectOptions.get_Value()[opt])+'))' )
-                        exec( 'new_value = beFilter.Get_'+opt+'()' ) 
+                        exec( 'new_value = beFilter.Get_'+opt+'()' )
                         AtlasG4Eng.G4Eng.log.info('Set BeamEffectTransformation option '+opt+' to '+str( new_value ) )
 
         if simFlags.VertexTimeOffset.statusOn and simFlags.VertexTimeOffset.get_Value() != 0:
@@ -868,4 +892,3 @@ class AtlasSimSkeleton(SimSkeleton):
             AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_EventFilter :: Setting vertex override event file '+str(simFlags.VertexOverrideEventFile()))
             AtlasG4Eng.G4Eng._ctrl.physicsMenu.SetVertexOverrideEventFile( simFlags.VertexOverrideEventFile() )
         AtlasG4Eng.G4Eng.log.verbose('AtlasSimSkeleton._do_EventFilter :: done')
-
