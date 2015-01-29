@@ -26,6 +26,12 @@ use     TrigInDetEvent          TrigInDetEvent-*                Trigger/TrigEven
 use 	TrigParticle         	TrigParticle-*          	Trigger/TrigEvent
 use 	TrigSteeringEvent	TrigSteeringEvent-*	 	Trigger/TrigEvent
 use 	TrigMuonEvent		TrigMuonEvent-*         	Trigger/TrigEvent
+#use     xAODJet                 xAODJet-*                       Event/xAOD
+use     xAODBTagging            xAODBTagging-*                  Event/xAOD
+#use     xAODCore                xAODCore-*                      Event/xAOD 
+#use     BTagging                BTagging-*                      PhysicsAnalysis/JetTagging/JetTagAlgs
+use     xAODTracking            xAODTracking-*                  Event/xAOD
+
 
 apply_tag ROOTGraphicsLibs
 apply_tag ROOTMathLibs
