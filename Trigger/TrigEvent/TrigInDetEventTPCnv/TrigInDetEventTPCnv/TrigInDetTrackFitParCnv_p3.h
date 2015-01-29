@@ -34,8 +34,7 @@ class TrigInDetTrackFitParCnv_p3 : public T_AthenaPoolTPCnvBase<TrigInDetTrackFi
         virtual void transToPers( const TrigInDetTrackFitPar    *transObj, TrigInDetTrackFitPar_p3 *persObj, MsgStream &log );
  private:
 	bool CholeskyDecomposition(double a[5][5], float L[5][5]);
-        std::unique_ptr<std::vector<double> >
-        restoreCovariance(const TrigInDetTrackFitPar_p3*);
+	bool restoreCovariance(const TrigInDetTrackFitPar_p3*, TrigInDetTrackFitPar*);
 	bool calculateSquareRoot(const TrigInDetTrackFitPar*, TrigInDetTrackFitPar_p3*);
 };
 

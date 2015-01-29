@@ -24,7 +24,6 @@
 //TrigSpacePointCounts persistent class
 #include "TrigInDetEventTPCnv/TrigSpacePointCounts_p1.h"
 
-#include "TrigInDetEvent/TrigSpacePointCounts.h"
 
 class MsgStream;
 

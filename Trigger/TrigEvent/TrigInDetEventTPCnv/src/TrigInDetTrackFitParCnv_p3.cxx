@@ -2,9 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#define private public
 #include "TrigInDetEvent/TrigInDetTrackFitPar.h"
+#undef private
+
 #include "TrigInDetEventTPCnv/TrigInDetTrackFitParCnv_p3.h"
-#include "CxxUtils/make_unique.h"
 #include <cstring>
 using std::memset;
 
@@ -46,15 +48,14 @@ bool TrigInDetTrackFitParCnv_p3 :: calculateSquareRoot(const TrigInDetTrackFitPa
   return true;
 }
 
-std::unique_ptr<std::vector<double> >
-TrigInDetTrackFitParCnv_p3 :: restoreCovariance(const TrigInDetTrackFitPar_p3* pP)
+bool TrigInDetTrackFitParCnv_p3 :: restoreCovariance(const TrigInDetTrackFitPar_p3* pP, TrigInDetTrackFitPar* p)
 {
 
   int i,j,k,idx=0;
   float L[5][5], LT[5][5];
   if(pP->m_cov[0]<0.0)
     {
-      return nullptr;
+      return false;
     }
 
   memset(&L[0][0],0,sizeof(L));memset(&LT[0][0],0,sizeof(LT));
@@ -64,7 +65,9 @@ TrigInDetTrackFitParCnv_p3 :: restoreCovariance(const TrigInDetTrackFitPar_p3* p
       L[i][j]=LT[j][i]=pP->m_cov[idx++];
     }
 
-  auto pV = CxxUtils::make_unique<std::vector<double> >();
+  if(p->cov()!=0) delete p->cov();
+
+  std::vector<double>* pV=new std::vector<double>;
 
   for(i=0;i<5;i++)
   
@@ -81,7 +84,10 @@ TrigInDetTrackFitParCnv_p3 :: restoreCovariance(const TrigInDetTrackFitPar_p3* p
       pV->push_back(C);
     }
 
-  return pV;
+  p->cov(pV);
+
+  return true;
+
 }
 
 bool TrigInDetTrackFitParCnv_p3 :: CholeskyDecomposition(double a[5][5], float L[5][5])
@@ -121,32 +127,35 @@ bool TrigInDetTrackFitParCnv_p3 :: CholeskyDecomposition(double a[5][5], float L
 void TrigInDetTrackFitParCnv_p3 :: persToTrans( const TrigInDetTrackFitPar_p3 *persObj, TrigInDetTrackFitPar *transObj, MsgStream& //log 
 ) {
 
-  // log << MSG::DEBUG << "TrigInDetTrackFitParCnv_p3::persToTrans" << endmsg;
+  // log << MSG::DEBUG << "TrigInDetTrackFitParCnv_p3::persToTrans" << endreq;
   
-  std::unique_ptr<std::vector<double> > cov  (restoreCovariance(persObj));
+  transObj->m_a0                = persObj->m_allDoubles[0];
+  transObj->m_phi0              = persObj->m_allDoubles[1];
+  transObj->m_z0                = persObj->m_allDoubles[2];
+  transObj->m_eta               = persObj->m_allDoubles[3];
+  transObj->m_pT                = persObj->m_allDoubles[4];
+  transObj->m_surfaceCoordinate = persObj->m_allDoubles[5];
 
-  double ea0 = -999;
-  double ephi0 = -999;
-  double ez0 = -999;
-  double eeta = -999;
-  double epT = -999;
-  if (cov) {
-    ea0   = sqrt((*cov)[0]);
-    ephi0 = sqrt((*cov)[5]);
-    ez0   = sqrt((*cov)[9]);
-    eeta  = sqrt((*cov)[12]);
-    epT   = sqrt((*cov)[14]);
-  }
-  
-  *transObj = TrigInDetTrackFitPar (persObj->m_allDoubles[0], // a0
-                                    persObj->m_allDoubles[1], // phi0
-                                    persObj->m_allDoubles[2], // z0
-                                    persObj->m_allDoubles[3], // eta
-                                    persObj->m_allDoubles[4], // pT
-                                    ea0, ephi0, ez0, eeta, epT,
-                                    (TrigInDetTrackFitPar::TrigSurfaceType) persObj->m_surfaceType,
-                                    persObj->m_allDoubles[5], // surfaceCoordinate
-                                    cov.release());
+  //restore param errors from the cov matrix
+  if(restoreCovariance(persObj,transObj))
+    {
+      transObj->m_ea0               = sqrt( (*(transObj->cov()))[0] ); 
+      transObj->m_ephi0             = sqrt( (*(transObj->cov()))[5] ); 
+      transObj->m_ez0               = sqrt( (*(transObj->cov()))[9] ); 
+      transObj->m_eeta              = sqrt( (*(transObj->cov()))[12] );
+      transObj->m_epT               = sqrt( (*(transObj->cov()))[14] );
+    }
+  else
+    {
+      transObj->cov(0);
+      transObj->m_ea0               = -999; 
+      transObj->m_ephi0             = -999; 
+      transObj->m_ez0               = -999; 
+      transObj->m_eeta              = -999;
+      transObj->m_epT               = -999;
+    }
+
+  transObj->m_surfaceType       = persObj->m_surfaceType;
 }
 
 
@@ -154,16 +163,16 @@ void TrigInDetTrackFitParCnv_p3 :: persToTrans( const TrigInDetTrackFitPar_p3 *p
 void TrigInDetTrackFitParCnv_p3 :: transToPers( const TrigInDetTrackFitPar    *transObj, TrigInDetTrackFitPar_p3 *persObj, MsgStream& //log 
 ) {
 
-  // log << MSG::DEBUG << "TrigInDetTrackFitParCnv_p3::transToPers" << endmsg;
+  // log << MSG::DEBUG << "TrigInDetTrackFitParCnv_p3::transToPers" << endreq;
 
 
-  persObj->m_allDoubles[0] = transObj->a0()    ;
-  persObj->m_allDoubles[1] = transObj->phi0()  ;
-  persObj->m_allDoubles[2] = transObj->z0()    ;
-  persObj->m_allDoubles[3] = transObj->eta()   ;
-  persObj->m_allDoubles[4] = transObj->pT()    ;
-  persObj->m_allDoubles[5] = transObj->surfaceCoordinate();
+  persObj->m_allDoubles[0] = transObj->m_a0    ;
+  persObj->m_allDoubles[1] = transObj->m_phi0  ;
+  persObj->m_allDoubles[2] = transObj->m_z0    ;
+  persObj->m_allDoubles[3] = transObj->m_eta   ;
+  persObj->m_allDoubles[4] = transObj->m_pT    ;
+  persObj->m_allDoubles[5] = transObj->m_surfaceCoordinate;
 
   calculateSquareRoot(transObj,persObj);
-  persObj->m_surfaceType       = transObj->surfaceType();
+  persObj->m_surfaceType       = transObj->m_surfaceType;
 }

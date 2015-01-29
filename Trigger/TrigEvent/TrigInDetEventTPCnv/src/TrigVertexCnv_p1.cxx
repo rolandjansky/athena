@@ -2,8 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#define private public
+#define protected public
 #include "TrigInDetEvent/TrigVertex.h"
 #include "TrigInDetEventTPCnv/TrigVertex_p1.h"
+#undef private
+#undef protected
+ 
 #include "TrigInDetEventTPCnv/TrigVertexCnv_p1.h"
 
 
@@ -14,7 +19,7 @@ void TrigVertexCnv_p1::persToTrans( const TrigVertex_p1 *persObj,
 				    TrigVertex    *transObj,
 				    MsgStream       &log )
 {
-  log << MSG::DEBUG << "TrigVertexCnv_p1::persToTrans called " << endmsg;
+  log << MSG::DEBUG << "TrigVertexCnv_p1::persToTrans called " << endreq;
   
   transObj->m_x                 = persObj->m_x                 ;
   transObj->m_y                 = persObj->m_y                 ;
@@ -59,7 +64,7 @@ void TrigVertexCnv_p1::persToTrans( const TrigVertex_p1 *persObj,
 
     }
   } else {
-    log << MSG::DEBUG << "TrigVertexCnv_p1::persToTrans: No tracks associated to the vertex" << endmsg;
+    log << MSG::DEBUG << "TrigVertexCnv_p1::persToTrans: No tracks associated to the vertex" << endreq;
   }
   
 }
@@ -71,7 +76,7 @@ void TrigVertexCnv_p1::transToPers( const TrigVertex    *transObj,
 				    TrigVertex_p1 *persObj ,
 				    MsgStream     &log      )
 {
-  log << MSG::DEBUG << "TrigVertexCnv_p1::transToPers called " << endmsg;
+  log << MSG::DEBUG << "TrigVertexCnv_p1::transToPers called " << endreq;
 
   persObj->m_x                 = transObj->m_x                 ;
   persObj->m_y                 = transObj->m_y                 ;
@@ -100,13 +105,13 @@ void TrigVertexCnv_p1::transToPers( const TrigVertex    *transObj,
       m_trackInVertexVector.push_back(*iBeg);
     }
 
-    //TrackInVertexVector::const_iterator iVBeg = m_trackInVertexVector.begin();
-    //TrackInVertexVector::const_iterator iVEnd = m_trackInVertexVector.end();
+    TrackInVertexVector::const_iterator iVBeg = m_trackInVertexVector.begin();
+    TrackInVertexVector::const_iterator iVEnd = m_trackInVertexVector.end();
     
     m_TrigInDetTrackVectorCnv.transToPers( &m_trackInVertexVector, &(persObj->m_tracks), log);
     
   } else {
-    log << MSG::DEBUG << "TrigVertexCnv_p1::transToPers: No tracks associated to the vertex" << endmsg;
+    log << MSG::DEBUG << "TrigVertexCnv_p1::transToPers: No tracks associated to the vertex" << endreq;
   }
   
 }

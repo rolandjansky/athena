@@ -17,6 +17,7 @@
 #ifndef TRIGINDETEVENTTPCNV_TRIGTRACKCOUNTS_P1_H
 #define TRIGINDETEVENTTPCNV_TRIGTRACKCOUNTS_P1_H
 
+#include "TrigInDetEvent/TrigTrackCounts.h"
 #include <vector>
 
 class TrigTrackCounts_p1 

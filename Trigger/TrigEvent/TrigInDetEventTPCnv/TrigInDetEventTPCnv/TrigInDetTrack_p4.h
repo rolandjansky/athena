@@ -21,6 +21,9 @@
 
 #include "AthenaPoolUtilities/TPObjRef.h"
 #include <vector>
+// #include "Identifier/Identifier.h" 
+
+#include "TrigInDetEvent/TrigInDetTrack.h"
 
 class TrigInDetTrack_p4 
 {
@@ -30,7 +33,7 @@ class TrigInDetTrack_p4
      TrigInDetTrack_p4() {}
      friend class TrigInDetTrackCnv_p4;
 
-     //private:
+ private:
 
      TPObjRef m_param;    //actual type is TrigInDetTrackFitPar*
      TPObjRef m_endParam; //actual type is TrigInDetTrackFitPar*

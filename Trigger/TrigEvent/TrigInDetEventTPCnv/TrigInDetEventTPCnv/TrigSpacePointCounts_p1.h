@@ -19,6 +19,8 @@
 #ifndef TRIGINDETEVENTTPCNV_TRIGSPACEPOINTCOUNTS_P1_H
 #define TRIGINDETEVENTTPCNV_TRIGSPACEPOINTCOUNTS_P1_H
 
+#include "TrigInDetEvent/TrigSpacePointCounts.h"
+
 class TrigSpacePointCounts_p1 
 {
   friend class TrigSpacePointCountsCnv_p1;
@@ -29,7 +31,7 @@ class TrigSpacePointCounts_p1
   TrigSpacePointCounts_p1() {}
   virtual ~TrigSpacePointCounts_p1(){}
   
-  //protected:
+ protected:
 
   int m_pixSPcnt; 
   int m_pixCL1cnt;
