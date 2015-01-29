@@ -46,16 +46,21 @@ if rec.doDetailedAuditor():
     from AthenaCommon import CfgMgr
     theAuditorSvc += CfgMgr.MemStatAuditor()
 
+    # Disable AthDsoLogger as it cannot work with any 
+    # multi-threaded libraries, such as the new xrootd
+    # client.
+    # See https://indico.cern.ch/event/363955/
+
     # trace memory increase through component library loading (note that this includes library loaded in cascade)
     # extract largest one
     #grep AthDsoLogger athenaddl.log | awk {'print $9,$11'\;} | tr ")" " " | sort -n | tail
     # sum all lib
     #grep AthDsoLogger athenaddl.log | awk {'print $9,$11'\;} | tr ")" " " | awk ' {sum += $1} END {print sum}'
-    try:
-        import AthenaServices.AthDsoLogger as ADL
-        dso = ADL.DsoLogger()
-    except Exception:
-        treatException ("Could not load AthDsoLogger")
+#    try:
+#        import AthenaServices.AthDsoLogger as ADL
+#        dso = ADL.DsoLogger()
+#    except Exception:
+#        treatException ("Could not load AthDsoLogger")
 
 try:
     from AthenaAuditors.AthenaAuditorsConf import FPEAuditor
