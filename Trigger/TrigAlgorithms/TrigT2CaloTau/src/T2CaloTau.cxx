@@ -321,14 +321,14 @@ HLT::ErrorCode T2CaloTau::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
 
     const TrigRoiDescriptor* _roi = roiDescriptor; 
 
-    TrigRoiDescriptor* roi   = new TrigRoiDescriptor( _roi->eta(), _roi->eta()-m_etaWidth, _roi->eta()+m_etaWidth,
-						      _roi->phi(), HLT::wrap_phi(_roi->phi()-m_phiWidth), HLT::wrap_phi(_roi->phi()+m_phiWidth) );
+    TrigRoiDescriptor roi( _roi->eta(), _roi->eta()-m_etaWidth, _roi->eta()+m_etaWidth,
+			   _roi->phi(), HLT::wrap_phi(_roi->phi()-m_phiWidth), HLT::wrap_phi(_roi->phi()+m_phiWidth) );
 
     /// this isn't needed 
     //  TrigRoiDescriptor* roiEM = new TrigRoiDescriptor( _roi->eta(), _roi->eta()-m_etaWidthEM, _roi->eta()+m_etaWidthE<,
     //	  					          _roi->phi(), HLT::wrap_phi(_roi->phi()-m_phiWidthEM), HLT::wrap_phi(_roi->phi()+m_phiWidthEM) );
 
-    msg() << MSG::DEBUG << "Using RoIs " << *roi << endreq;
+    msg() << MSG::DEBUG << "Using RoIs " << roi << endreq;
 
     ToolHandleArray<IAlgToolCalo>::iterator it = m_emAlgTools.begin();
     if(timerSvc()) m_timer[1]->start();
@@ -337,7 +337,7 @@ HLT::ErrorCode T2CaloTau::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
     {
         //        HLT::ErrorCode stat = (*it)->execute(*ptrigTauCluster, m_phiWidth, m_etaWidth, m_phiWidthEM, m_etaWidthEM, RoIeta, RoIphi);
         //       HLT::ErrorCode stat = (*it)->execute(*ptrigTauCluster, *roi, *roiEM );
-        HLT::ErrorCode stat = (*it)->execute(*ptrigTauCluster, *roi );
+        HLT::ErrorCode stat = (*it)->execute(*ptrigTauCluster, roi );
         if(stat.reason() == NEG_ENERGY_CLUSTER)
         {
             msg() << MSG::DEBUG << (*it)->name() << " Found a cluster with E~<=0. CONTINUE execution. " << endreq;

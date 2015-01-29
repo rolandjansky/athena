@@ -714,7 +714,6 @@ HLT::ErrorCode TauAllCaloDRFex::execute( TrigTauCluster &rtrigTauCluster,
 		 CaloSampling::TileExt2 == samp) {
 	idxsamp = 2;
       }else continue;
-      if( idxsamp<0 ) continue;
       
       // Count this cell
       numTotalCells=rtrigTauCluster.numTotCells();
@@ -914,7 +913,7 @@ double TauAllCaloDRFex::emRadiusAllSampl(const TrigTauClusterDetails* clusterDet
   double emRadAll = 0.0;
   double totEn    = 0.0;
   
-  double emEnergy[4];
+  double emEnergy[4] = {0.0, 0.0, 0.0, 0.0};
   
   for (int iS=0; iS<4 && iS < maxEmSamp; iS++) {
     switch (m_defaultWidth) {
@@ -948,8 +947,8 @@ double TauAllCaloDRFex::caloRadius(const TrigTauClusterDetails* clusterDetails)
   double caloRad  = 0.0;
   double totEn    = 0.0;
 
-  double emEnergy[4];
-  double hadEnergy[3];
+  double emEnergy[4] = {0.0, 0.0, 0.0, 0.0};
+  double hadEnergy[3] = {0.0, 0.0, 0.0};
 
   for (int iS=0; iS<4; iS++) {
     switch (m_defaultWidth) {
@@ -995,7 +994,7 @@ double TauAllCaloDRFex::hadRadius(const TrigTauClusterDetails* clusterDetails)
   double hadRad = 0.0;
   double totEn  = 0.0;
   
-  double hadEnergy[3];
+  double hadEnergy[3] = {0.0, 0.0, 0.0};
   
   for (int iS=0; iS<3; iS++) {
     switch (m_defaultWidth) {
