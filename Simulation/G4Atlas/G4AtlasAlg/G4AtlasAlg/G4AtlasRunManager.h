@@ -9,11 +9,14 @@
 #include "G4RunManager.hh"
 #include "G4VUserPhysicsList.hh"
 #include "GaudiKernel/MsgStream.h"
-
+#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaKernel/MsgStreamMember.h"
 #include <vector>
 
 class StoreGateSvc;
-class MsgStream;
+#include "G4AtlasInterfaces/ISensitiveDetectorSvc.h"
+#include "G4AtlasInterfaces/IFastSimulationSvc.h"
+
 
 class G4AtlasRunManager: public G4RunManager {
 
@@ -22,7 +25,7 @@ class G4AtlasRunManager: public G4RunManager {
 
 public:
 
-  virtual ~G4AtlasRunManager() { if (m_log) delete m_log; }
+  virtual ~G4AtlasRunManager() {}
 
   static G4AtlasRunManager* GetG4AtlasRunManager();
 
@@ -44,15 +47,23 @@ private:
 
   void SetStoreGatePtr( StoreGateSvc *sgs) { m_sgSvc = sgs; }
   void SetReleaseGeo(bool b) { m_releaseGeo = b; }
-  void SetLogLevel(int i) { log().setLevel(i); }
+  void SetLogLevel(int) { /* Not implemented */ }
+
+  /// Log a message using the Athena controlled logging system
+  MsgStream& msg( MSG::Level lvl ) const { return m_msg << lvl; }
+  /// Check whether the logging system is active at the provided verbosity level
+  bool msgLvl( MSG::Level lvl ) const { return m_msg.get().level() <= lvl; }
 
 private:
+  /// Private message stream member
+  mutable Athena::MsgStreamMember m_msg;
 
   G4VUserPhysicsList* m_pl;
   StoreGateSvc* m_sgSvc;
   bool m_releaseGeo;
-  MsgStream * m_log;
-  MsgStream log();
+
+  ISensitiveDetectorSvc* m_senDetSvc;
+  IFastSimulationSvc* m_fastSimSvc;
 };
 
 

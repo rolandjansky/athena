@@ -40,13 +40,19 @@
 #include "G4ProductionCutsTable.hh"
 #include "G4GeometryManager.hh"
 
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
+#include "G4AtlasInterfaces/ISensitiveDetectorSvc.h"
+#include "G4AtlasInterfaces/IFastSimulationSvc.h"
+
 
 G4AtlasRunManager::G4AtlasRunManager()
   : G4RunManager(),
+    m_msg("G4AtlasRunManager"),
     m_pl(NULL),
     m_sgSvc(NULL),
     m_releaseGeo(false),
-    m_log(0)
+    m_senDetSvc(nullptr),
+    m_fastSimSvc(nullptr)
 {  }
 
 
@@ -62,23 +68,35 @@ void G4AtlasRunManager::InitializeGeometry() {
   for (unsigned int i=0;i<lvs->size();++i){
     if ( (*lvs)[i]->GetName() == "Muon::MuonSys" ){
       (*lvs)[i]->SetSmartless( 0.1 );
-      log() << MSG::INFO << "Set smartlessness for Muon::MuonSys to 0.1" << endreq;
+      ATH_MSG_INFO( "Set smartlessness for Muon::MuonSys to 0.1" );
     } else if ( (*lvs)[i]->GetName() == "LArMgr::LAr::EMB::STAC") {
       (*lvs)[i]->SetSmartless( 0.5 );
-      log() << MSG::INFO << "Set smartlessness for LArMgr::LAr::EMB::STAC to 0.5" << endreq;
+      ATH_MSG_INFO( "Set smartlessness for LArMgr::LAr::EMB::STAC to 0.5" );
     }
   }
 
   if (userDetector) {
     G4RunManager::InitializeGeometry();
   } else {
-    log() << MSG::WARNING <<" User Detector not set!!! Geometry NOT initialized!!!"<<endreq;
+    ATH_MSG_WARNING( " User Detector not set!!! Geometry NOT initialized!!!" );
   }
+
+  // Geometry has been initialized.  Now get services to add some stuff to the geometry.
+  ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
+  if (svcLocator->service("SensitiveDetectorSvc",m_senDetSvc).isFailure()){
+    ATH_MSG_ERROR ( "Could not retrieve the SD service" );
+    throw "CouldNotRetrieveSDService";
+  }
+  if (svcLocator->service("FastSimulationSvc",m_fastSimSvc).isFailure()){
+    ATH_MSG_ERROR ( "Could not retrieve the FastSim service" );
+    throw "CouldNotRetrieveFastSimService";
+  }
+
 }
 
 
 void G4AtlasRunManager::EndEvent() {
-  log() << MSG::DEBUG << "G4AtlasRunManager::EndEvent" << endreq;
+  ATH_MSG_DEBUG( "G4AtlasRunManager::EndEvent" );
 }
 
 
@@ -115,20 +133,20 @@ bool G4AtlasRunManager::SimulateFADSEvent()
     StoreGateSvc* m_detStore;
     StatusCode sc=svcLocator->service("DetectorStore",m_detStore);
     if (sc.isFailure()){
-      log()<<MSG::ERROR<<"G4AtlasRunManager could not access the detector store - PANIC!!!!"<<endreq;
+      ATH_MSG_ERROR( "G4AtlasRunManager could not access the detector store - PANIC!!!!" );
       abort();
     }
 
     IGeoModelSvc* geoModel = 0;
     StatusCode status=svcLocator->service("GeoModelSvc",geoModel);
     if(status.isFailure()) {
-      log()<<MSG::WARNING<< " ----> Unable to retrieve GeoModelSvc" << endreq;
+      ATH_MSG_WARNING( " ----> Unable to retrieve GeoModelSvc" );
     } else {
       status = geoModel->clear();
       if(status.isFailure()) {
-        log()<<MSG::WARNING<< " ----> GeoModelSvc::clear() failed" << endreq;
+        ATH_MSG_WARNING( " ----> GeoModelSvc::clear() failed" );
       } else {
-        log()<<MSG::INFO<< " ----> GeoModelSvc::clear() succeeded " << endreq;
+        ATH_MSG_INFO( " ----> GeoModelSvc::clear() succeeded " );
       }
     }
     m_releaseGeo=false; // Don't do that again...
@@ -138,8 +156,7 @@ bool G4AtlasRunManager::SimulateFADSEvent()
   currentEvent = GenerateEvent(1);
   if (currentEvent->IsAborted())
     {
-      log()<<MSG::WARNING<<"G4AtlasRunManager::SimulateFADSEvent: "<<
-        "Event Aborted at Generator level"<<endreq;
+      ATH_MSG_WARNING( "G4AtlasRunManager::SimulateFADSEvent: Event Aborted at Generator level" );
       currentEvent=0;
       return true;
     }
@@ -147,8 +164,7 @@ bool G4AtlasRunManager::SimulateFADSEvent()
   eventManager->ProcessOneEvent(currentEvent);
   if (currentEvent->IsAborted())
     {
-      log()<<MSG::WARNING<<"G4AtlasRunManager::SimulateFADSEvent: "<<
-        "Event Aborted at Detector Simulation level"<<endreq;
+      ATH_MSG_WARNING( "G4AtlasRunManager::SimulateFADSEvent: Event Aborted at Detector Simulation level" );
       currentEvent=0;
       return true;
     }
@@ -156,8 +172,7 @@ bool G4AtlasRunManager::SimulateFADSEvent()
   AnalyzeEvent(currentEvent);
   if (currentEvent->IsAborted())
     {
-      log()<<MSG::WARNING<<"G4AtlasRunManager::SimulateFADSEvent: "<<
-        "Event Aborted at Analysis level"<<endreq;
+      ATH_MSG_WARNING( "G4AtlasRunManager::SimulateFADSEvent: Event Aborted at Analysis level" );
       currentEvent=0;
       return true;
     }
@@ -188,16 +203,16 @@ void  G4AtlasRunManager::RunTermination()
   currentRun = 0;
   runIDCounter++;
 
-  std::cout << "Changing the state..." << std::endl;
+  ATH_MSG_INFO( "Changing the state..." );
   G4StateManager* stateManager = G4StateManager::GetStateManager();
   stateManager->SetNewState(G4State_Idle);
 
-  std::cout << "Opening the geometry back up" << std::endl;
+  ATH_MSG_INFO( "Opening the geometry back up" );
   G4GeometryManager::GetInstance()->OpenGeometry();
 
-  std::cout << "Terminating the run...  State is " << stateManager->GetStateString( stateManager->GetCurrentState() ) << std::endl;
+  ATH_MSG_INFO( "Terminating the run...  State is " << stateManager->GetStateString( stateManager->GetCurrentState() ) );
   kernel->RunTermination();
-  std::cout << "All done..." << std::endl;
+  ATH_MSG_INFO( "All done..." );
 
   // std::cout<<" setting all pointers in G4AtlasRunManager to 0"<<std::endl;
   userRunAction=0;
@@ -217,13 +232,3 @@ void G4AtlasRunManager::SetCurrentG4Event(int iEvent)
   currentEvent=new G4Event(iEvent);
 }
 
-MsgStream G4AtlasRunManager::log()
-{
-  if (m_log) return *m_log;
-  ISvcLocator* svcLocator = Gaudi::svcLocator();
-  IMessageSvc* p_msgSvc = 0;
-  if (svcLocator->service("MessageSvc", p_msgSvc).isFailure() || !p_msgSvc)
-    std::cout << "G4AtlasRunManager: Trouble getting the message service.  Should never happen.  Will crash now." << std::endl;
-  m_log = new MsgStream(p_msgSvc,"G4AtlasRunManager");
-  return *m_log;
-}
