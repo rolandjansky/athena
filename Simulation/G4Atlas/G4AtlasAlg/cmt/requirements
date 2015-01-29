@@ -11,6 +11,7 @@ use GaudiInterface   GaudiInterface-*    External
 use Geant4           Geant4-*            External
 use FadsActions      FadsActions-*       Simulation/G4Sim/FADS
 use FadsKinematics   FadsKinematics-*    Simulation/G4Sim/FADS
+use G4AtlasInterfaces G4AtlasInterfaces*   Simulation/G4Atlas
 
 private
 use AtlasHepMC       AtlasHepMC-*        External
