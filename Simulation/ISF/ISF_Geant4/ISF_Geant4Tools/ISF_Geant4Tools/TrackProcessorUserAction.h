@@ -26,14 +26,18 @@ namespace ISF {
 }
 class G4LogicalVolume;
 
+namespace HepMC {
+  class GenParticle;
+}
+
 namespace iGeant4 {
 
   class TrackProcessorUserAction: virtual public ITrackProcessorUserAction, public AthAlgTool {
-    
+
   public:
     TrackProcessorUserAction(const std::string& type,
-				 const std::string& name,
-				 const IInterface* parent);
+                             const std::string& name,
+                             const IInterface* parent);
     virtual ~TrackProcessorUserAction() {}
 
     StatusCode initialize();
@@ -50,16 +54,18 @@ namespace iGeant4 {
 
     void PreUserTrackingAction(const G4Track* aTrack);
     void PostUserTrackingAction(const G4Track* aTrack);
-    
+
   private:
 
     ISF::EntryLayer entryLayer(const G4Step* aStep);
 
     ISF::ISFParticle* newISFParticle(G4Track* aTrack, const ISF::ISFParticle* parent, AtlasDetDescr::AtlasRegion  nextGeoID);
 
+    HepMC::GenParticle* findMatchingDaughter(HepMC::GenParticle* parent, bool verbose) const;
+
     AtlasDetDescr::AtlasRegion nextGeoId(const G4Step* aStep);
 
-    bool checkVolumeDepth( G4LogicalVolume * , int , int d=0 ) const;
+    bool checkVolumeDepth( G4LogicalVolume * , int , int d=0 );
 
     ServiceHandle<ISF::IParticleBroker>  m_particleBroker;
 
@@ -75,6 +81,7 @@ namespace iGeant4 {
     double m_cavernRmean, m_cavernZmean;
     int m_volumeOffset;
     int m_minHistoryDepth;
+    bool m_hasCavern;
 
     bool m_geant4OnlyMode;
 
@@ -83,8 +90,12 @@ namespace iGeant4 {
     std::map<std::string, int, std::less<std::string> > m_entryLayerMap;
 
     std::map<int, ISF::ISFParticle*> m_parentISPmap;
+
+    /** for keeping track of the currently processed G4Track and its corresponding ISFParticle */
+    int                                 m_curTrackID;  //!< the TrackID of the currently processed G4Track
+    ISF::ISFParticle                   *m_curISP;      //!< the corresponding ISFParticle to this G4Track
   };
-   
+
 }
 
 #endif // ISF_GEANT4TOOLS_TRACKPROCESSORUSERACTION_H

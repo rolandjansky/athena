@@ -54,7 +54,8 @@ iGeant4::TrackProcessorUserAction::TrackProcessorUserAction(const std::string& t
     m_muonRmean(0.), m_muonZmean(0.),
     m_cavernRmean(0.),  m_cavernZmean(0.),
     m_volumeOffset(1),
-    m_minHistoryDepth(0)
+    m_minHistoryDepth(0),
+    m_hasCavern(true)
 {
 
   ATH_MSG_DEBUG("create TrackProcessorUserAction name: "<<name);
@@ -121,7 +122,8 @@ void iGeant4::TrackProcessorUserAction::BeginOfEventAction(const G4Event*)
 {
   //std::cout<<"clearing ISFParticle map"<<std::endl;
   m_parentISPmap.clear();
-
+  m_curISP     =    0;
+  m_curTrackID = -999;
 }
 void iGeant4::TrackProcessorUserAction::EndOfEventAction(const G4Event*)
 {
@@ -134,27 +136,32 @@ void iGeant4::TrackProcessorUserAction::SteppingAction(const G4Step* aStep)
 
   G4Track* aTrack = aStep->GetTrack();
 
-  // Dirty trick to speed up the lookup
-  static int trackID=-999;
-  static ISF::ISFParticle* isp=0;
-  if (aTrack->GetTrackID()!=trackID){
-    trackID=aTrack->GetTrackID();
-    isp = m_parentISPmap[trackID];
-    if (!isp) ATH_MSG_ERROR("no ISFParticle!");
+  if (aTrack->GetTrackID()!=m_curTrackID){
+    m_curTrackID=aTrack->GetTrackID();
+
+    std::map<int, ISF::ISFParticle*>::iterator ispIt = m_parentISPmap.find(m_curTrackID);
+    if ( ispIt == m_parentISPmap.end() || ispIt->second==0 ) {
+      ATH_MSG_ERROR("no ISFParticle!");
+      m_curISP = 0;
+    } else {
+      m_curISP = ispIt->second;
+    }
+
   }
 
-  //std::cout<<"retrieved isp "<<isp<<" for trackID "<<trackID<<std::endl;
+  //std::cout<<"retrieved isp "<<m_curISP<<" for trackID "<<m_curTrackID<<std::endl;
 
   // reset nextGeoID for this particle so ISFTrajectory::AppendStep will have correct nextGeoID
   if (m_geant4OnlyMode) {
     AtlasDetDescr::AtlasRegion nextG4GeoID = nextGeoId(aStep);
-    if(!isp) {
+    if(!m_curISP) {
       G4ExceptionDescription description;
       description << G4String("SteppingAction: ") + "NULL ISFParticle pointer for current G4Step (trackID "
                   << aTrack->GetTrackID() << ", track pos: "<<aTrack->GetPosition() << ", mom: "<<aTrack->GetMomentum()
                   << ", parentID " << aTrack->GetParentID() << ")";
       G4Exception("iGeant4::TrackProcessorUserAction", "NoISFParticle", FatalException, description);
-    } else if (isp->nextGeoID()!=nextG4GeoID) { isp->setNextGeoID( AtlasDetDescr::AtlasRegion(nextG4GeoID) ); }
+      return; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
+    } else if (m_curISP->nextGeoID()!=nextG4GeoID) { m_curISP->setNextGeoID( AtlasDetDescr::AtlasRegion(nextG4GeoID) ); }
   }
 
   // check if dead track
@@ -184,15 +191,16 @@ void iGeant4::TrackProcessorUserAction::SteppingAction(const G4Step* aStep)
   //
 
 
-  if(!isp) {
+  if(!m_curISP) {
     G4ExceptionDescription description;
     description << G4String("SteppingAction: ") + "NULL ISFParticle pointer for current G4Step (trackID "
                 << aTrack->GetTrackID() << ", track pos: "<<aTrack->GetPosition() << ", mom: "<<aTrack->GetMomentum()
                 << ", parentID " << aTrack->GetParentID() << ")";
     G4Exception("iGeant4::TrackProcessorUserAction", "NoISFParticle2", FatalException, description);
+    return; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
   }
   // get geoID from parent
-  AtlasDetDescr::AtlasRegion curGeoID=isp?isp->nextGeoID():AtlasDetDescr::fUndefinedAtlasRegion;
+  AtlasDetDescr::AtlasRegion curGeoID=m_curISP?m_curISP->nextGeoID():AtlasDetDescr::fUndefinedAtlasRegion;
 
   ATH_MSG_DEBUG("got geoID = "<<curGeoID);
 
@@ -226,17 +234,23 @@ void iGeant4::TrackProcessorUserAction::SteppingAction(const G4Step* aStep)
   if (!m_geant4OnlyMode) {
 
     // push new ISFParticle on stack
-    ISF::ISFParticle* parent = isp;
-    isp = newISFParticle(aTrack, parent, nextGeoID);
+    ISF::ISFParticle *parent = m_curISP;
+    m_curISP = newISFParticle(aTrack, parent, nextGeoID);
 
     int trackID = aTrack->GetTrackID();
-    m_parentISPmap[trackID]=isp;
-    //std::cout<<"set ISPmap for trackID "<<trackID<<" to "<<isp<<std::endl;
+    m_parentISPmap[trackID]=m_curISP;
+    //std::cout<<"set ISPmap for trackID "<<trackID<<" to "<<m_curISP<<std::endl;
 
-    m_particleBroker->push(isp, parent);
+    m_particleBroker->push(m_curISP, parent);
 
     // kill this track in Geant4
     aTrack->SetTrackStatus(fStopAndKill);
+
+    // flag the track to let code downstream know, that this track was returned to ISF
+    TrackInformation* trackInfo=dynamic_cast<TrackInformation*>(aTrack->GetUserInformation());
+    if (trackInfo) {
+      trackInfo->SetReturnedToISF(true);
+    }
   }
   else {
 
@@ -257,21 +271,21 @@ void iGeant4::TrackProcessorUserAction::SteppingAction(const G4Step* aStep)
       if (layer!=ISF::fUnsetEntryLayer) {
 
         // easier to create a new ISF particle than update existing one
-        ISF::ISFParticle* parent = isp;
-        isp=newISFParticle(aTrack, parent, nextGeoID);
-        m_parentISPmap[trackID]=isp;
-
-        //std::cout<<"setting ISFParticle to "<<isp<<" for trackID "<<trackID<<" (G4-only  mode)"<<std::endl;
-
+        m_curISP=newISFParticle(aTrack, m_curISP, nextGeoID);
+        m_parentISPmap[m_curTrackID]=m_curISP;
+	
+        //std::cout<<"setting ISFParticle to "<<m_curISP<<" for trackID "<<m_curTrackID<<" (G4-only  mode)"<<std::endl;
+	
         newISP=true;
+	
+        m_particleBroker->registerParticle(m_curISP, layer, newISP);
 
-        m_particleBroker->registerParticle(isp, layer, newISP);
       }
-      isp->setNextGeoID( AtlasDetDescr::AtlasRegion(nextGeoID) );
+      m_curISP->setNextGeoID( AtlasDetDescr::AtlasRegion(nextGeoID) );
       const G4ThreeVector& particlePosition = aStep->GetPostStepPoint()->GetPosition();//Eigen compatibility HACK
-      isp->updatePosition(Amg::Vector3D(particlePosition.x(), particlePosition.y(), particlePosition.z()));//Eigen compatibility HACK
+      m_curISP->updatePosition(Amg::Vector3D(particlePosition.x(), particlePosition.y(), particlePosition.z()));//Eigen compatibility HACK
       const G4ThreeVector& particleMomentum = aStep->GetPostStepPoint()->GetMomentum();//Eigen compatibility HACK
-      isp->updateMomentum(Amg::Vector3D(particleMomentum.x(), particleMomentum.y(), particlePosition.z()));//Eigen compatibility HACK
+      m_curISP->updateMomentum(Amg::Vector3D(particleMomentum.x(), particleMomentum.y(), particlePosition.z()));//Eigen compatibility HACK
     }
 
   }
@@ -318,7 +332,13 @@ void iGeant4::TrackProcessorUserAction::PreUserTrackingAction(const G4Track* aTr
     //std::cout<<"no trackInfo or no ISFParticle"<<std::endl;
 
     int parentID=aTrack->GetParentID();
-    isp = m_parentISPmap[parentID];
+    std::map<int, ISF::ISFParticle*>::iterator ispIt = m_parentISPmap.find(parentID);
+    if ( ispIt == m_parentISPmap.end()) {
+      ATH_MSG_ERROR("no parent ISFParticle found with G4Track parentID "<<parentID<<"!");
+      isp = 0;
+    } else {
+      isp = ispIt->second;
+    }
 
     //std::cout<<"got isp from parentID "<<parentID<<std::endl;
 
@@ -355,11 +375,18 @@ void iGeant4::TrackProcessorUserAction::PreUserTrackingAction(const G4Track* aTr
   //
 
   PrimaryParticleInformation* ppInfo = dynamic_cast <PrimaryParticleInformation*> (aTrack->GetDynamicParticle()->GetPrimaryParticle()->GetUserInformation());
-
+  if (!ppInfo) {
+      G4ExceptionDescription description;
+      description << G4String("PreUserTrackingAction: ") + "NULL PrimaryParticleInformation pointer for current G4Step (trackID "
+                  << aTrack->GetTrackID() << ", track pos: "<<aTrack->GetPosition() << ", mom: "<<aTrack->GetMomentum()
+                  << ", parentID " << aTrack->GetParentID() << ")";
+      G4Exception("iGeant4::TrackProcessorUserAction", "NoPPInfo", FatalException, description);
+      return; //The G4Exception call above should abort the job, but Coverity does not seem to pick this up.
+  }
   // get parent
-  const ISF::ISFParticle* parent = ppInfo?ppInfo->GetISFParticle():0;
+  const ISF::ISFParticle *parent = ppInfo->GetISFParticle();
 
-  if (!parent) ATH_MSG_ERROR("no ISFParticle in PrimaryParticleInformation for "<<aTrack->GetTrackID()<<"!");
+  if (!parent) {ATH_MSG_ERROR("no ISFParticle in PrimaryParticleInformation for "<<aTrack->GetTrackID()<<"!");}
 
   // Set the event info properly
   eventInfo->SetCurrentISFPrimary(parent);
@@ -373,6 +400,32 @@ void iGeant4::TrackProcessorUserAction::PreUserTrackingAction(const G4Track* aTr
   return;
 }
 
+//_______________________________________________________________________
+HepMC::GenParticle* iGeant4::TrackProcessorUserAction::findMatchingDaughter(HepMC::GenParticle* parent, bool verbose=false) const {
+  // Add all necessary daughter particles
+  if(NULL==parent->end_vertex()) {
+    if(verbose) ATH_MSG_INFO ( "Number of daughters of "<<parent->barcode()<<": 0" );
+    return parent;
+  }
+  const int pdgID(parent->pdg_id());
+  for (HepMC::GenVertex::particles_out_const_iterator iter=parent->end_vertex()->particles_out_const_begin();
+       iter!=parent->end_vertex()->particles_out_const_end(); ++iter){
+    if (verbose) ATH_MSG_INFO ( "Daughter Particle of "<<parent->barcode()<<": " << **iter );
+    if(NULL==(*iter)->end_vertex()) {
+      if(verbose) ATH_MSG_INFO ( "Number of daughters of "<<(*iter)->barcode()<<": 0 (NULL)." );
+    }
+    else {
+      if(verbose) ATH_MSG_INFO ("Number of daughters of "<<(*iter)->barcode()<<": " << (*iter)->end_vertex()->particles_out_size() );
+    }
+    if (pdgID == (*iter)->pdg_id()) {
+      if (verbose) ATH_MSG_INFO ( "Look for daughters of Particle: " << (*iter)->barcode() );
+      return this->findMatchingDaughter(*iter, verbose);
+    }
+  }
+  if(!verbose) (void) this->findMatchingDaughter(parent, true);
+  else {  ATH_MSG_ERROR ( "No matching Daughter Particles." ); }
+  return parent;
+}
 
 //________________________________________________________________________
 ISF::ISFParticle*
@@ -405,8 +458,12 @@ iGeant4::TrackProcessorUserAction::newISFParticle(G4Track* aTrack,
     barcode=trackInfo->GetParticleBarcode();
     HepMC::GenParticle* genpart= const_cast<HepMC::GenParticle*>(trackInfo->GetHepMCParticle());
     if (genpart) {
+      if (!m_geant4OnlyMode) {
+        //find the last particle of this type in the decay chain - this is the one that we should pass back to ISF
+        genpart = this->findMatchingDaughter(genpart);
+      }
       tBinding=new ISF::HepMC_TruthBinding(*genpart);
-      // particle should be already know to McTruth Tree
+      // particle should be already known to McTruth Tree
       tBinding->setPersistency( true);
     }
   }
@@ -502,6 +559,7 @@ iGeant4::TrackProcessorUserAction::nextGeoId(const G4Step* aStep)
   //  an undefined region answer; since G4 works on a stack rather than a queue, this is safe-ish
   if (step.PostStepBranchDepth()<m_truthVolLevel){
     if (m_truthVolLevel>1 &&
+        step.PostStepBranchDepth()>m_truthVolLevel-1 && m_hasCavern &&
         step.GetPostStepLogicalVolumeName(m_truthVolLevel-1).find("CavernInfra") ) nextGeoID = AtlasDetDescr::fAtlasCavern;
     return nextGeoID;
   }
@@ -509,6 +567,7 @@ iGeant4::TrackProcessorUserAction::nextGeoId(const G4Step* aStep)
 
   static G4LogicalVolume * BPholder=0 , * IDholder=0 , * CALOholder=0 , * MUholder=0 , * TTRholder=0 ;
   if (BPholder==0){ // Initialize
+    m_hasCavern=false;
     G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
     for (size_t i=0;i<lvs->size();++i){
       if ( !(*lvs)[i] ) continue;
@@ -532,7 +591,7 @@ iGeant4::TrackProcessorUserAction::nextGeoId(const G4Step* aStep)
     nextGeoID = step.GetPostStepLogicalVolumeName(m_truthVolLevel+1)=="BeamPipe::BeamPipeCentral"?AtlasDetDescr::fAtlasID:AtlasDetDescr::fAtlasForward;
   } else if ( TTRholder==step.GetPostStepLogicalVolume(m_truthVolLevel) ){
     nextGeoID = AtlasDetDescr::fAtlasCavern;
-  } else if (step.GetPostStepLogicalVolumeName(m_truthVolLevel-1).find("CavernInfra")!=std::string::npos) {
+  } else if (m_hasCavern && step.GetPostStepLogicalVolumeName(m_truthVolLevel-1).find("CavernInfra")!=std::string::npos) {
     nextGeoID = AtlasDetDescr::fAtlasCavern;
   } else {
     // We are in trouble
@@ -544,7 +603,7 @@ iGeant4::TrackProcessorUserAction::nextGeoId(const G4Step* aStep)
   return nextGeoID;
 }
 
-bool iGeant4::TrackProcessorUserAction::checkVolumeDepth( G4LogicalVolume * lv , int volLevel , int d ) const {
+bool iGeant4::TrackProcessorUserAction::checkVolumeDepth( G4LogicalVolume * lv , int volLevel , int d ) {
   if (lv==0) return false;
   bool Cavern = false;
 
@@ -568,6 +627,7 @@ bool iGeant4::TrackProcessorUserAction::checkVolumeDepth( G4LogicalVolume * lv ,
       throw "WrongDepth";
     } // Check of volume level
   } else if ( lv->GetName().find("CavernInfra")!=std::string::npos ){ // Things that are supposed to be one shallower
+    m_hasCavern=true;
     if (d==volLevel-1){
       Cavern=true;
       ATH_MSG_DEBUG("Volume " << lv->GetName() << " is correctly registered at depth " << d);
