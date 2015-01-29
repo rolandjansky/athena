@@ -8,7 +8,7 @@
 
 // Framework
 #include "AthenaKernel/IClassIDSvc.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/errorcheck.h"
 #include "StoreGate/DataHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 
@@ -41,14 +41,12 @@
 
 //---------------------------------------------------------------------------------------
 Trig::TrigNtElemTool::TrigNtElemTool(const std::string &name,
-				     const std::string &type,
-				     const IInterface  *parent)
-  :AlgTool(name, type, parent),
+             const std::string &type,
+             const IInterface  *parent)
+  :AthAlgTool(name, type, parent),
    m_parentAlg(0),
    m_navig(0),
    m_clidSvc(0),
-   m_log(0),
-   m_storeGate("StoreGateSvc", name),
    m_elemTools(this),
    m_Config(0)
 {
@@ -67,28 +65,18 @@ Trig::TrigNtElemTool::TrigNtElemTool(const std::string &name,
 StatusCode Trig::TrigNtElemTool::initialize()
 {    
   // Get message service and print out properties
-  m_log = new MsgStream(msgSvc(), name());
   
-  // Get StoreGate
-  if(m_storeGate.retrieve().isFailure()) {
-    log() << MSG::ERROR << "Could not retrieve StoreGateSvc!" << endreq;
-    return StatusCode::FAILURE;
-  }
+
 
   // Get class id service
   if(m_printClid) { 
     if(service("ClassIDSvc", m_clidSvc).isFailure() || !m_clidSvc) {    
-      log() << MSG::WARNING << "Could not retrieve ClidSvc" << endreq;
+      ATH_MSG_WARNING("Could not retrieve ClidSvc" );
     }
   }
  
-  if(m_elemTools.retrieve().isFailure()) {
-    log() << MSG::ERROR << "Failed to retrieve elem tools: " << m_elemTools << endreq;
-    return StatusCode::FAILURE;
-  }
-  else {
-    log() << MSG::INFO << "Retrieved " << m_elemTools << endreq;
-  }
+  CHECK(m_elemTools.retrieve());
+  ATH_MSG_DEBUG("Retrieved " << m_elemTools );
  
   return StatusCode::SUCCESS;
 }
@@ -99,10 +87,7 @@ StatusCode Trig::TrigNtElemTool::finalize()
   //
   // Clean up
   //  
-  log() << MSG::DEBUG << "finalize()" << endreq;
-  
-  delete m_log;
-  m_log = 0;
+  ATH_MSG_DEBUG("finalize()" );
 
   return StatusCode::SUCCESS;
 }
@@ -112,9 +97,8 @@ void Trig::TrigNtElemTool::SetSteer(const HLT::TrigSteer *ptr)
 {
   if(ptr) { 
     m_parentAlg = ptr; 
-  }
-  else {
-    log() << MSG::WARNING << "Null HLT::TrigSteer pointer" << endreq;
+  } else {
+    ATH_MSG_WARNING("Null HLT::TrigSteer pointer" );
   }
 }
 
@@ -128,9 +112,8 @@ bool Trig::TrigNtElemTool::Fill(TrigMonConfig *confg)
 
   if(confg) {
     m_Config = confg;
-  }
-  else {
-    log() << MSG::WARNING << "Null TrigMonConfig pointer" << endreq;
+  } else {
+    ATH_MSG_WARNING("Null TrigMonConfig pointer" );
     return false;
   }
   
@@ -149,14 +132,14 @@ bool Trig::TrigNtElemTool::Fill(TrigMonEvent &event)
   m_Roi.clear();
 
   if(!m_parentAlg || !(m_parentAlg->getAlgoConfig())) {
-    log() << MSG::WARNING << "Null AlgoConfig pointer!" << endreq;
+    ATH_MSG_WARNING("Null AlgoConfig pointer!" );
     return false;
   }
 
   // Get current navigation pointer
   m_navig = m_parentAlg -> getAlgoConfig() -> getNavigation();
   if(!m_navig) {
-    log() << MSG::WARNING << "Failed to get HLT::Navigation pointer" << endreq;
+    ATH_MSG_WARNING("Failed to get HLT::Navigation pointer" );
     return false;
   } 
   
@@ -190,15 +173,14 @@ bool Trig::TrigNtElemTool::Fill(TrigMonEvent &event)
     }
   }
 
-  if(outputLevel() <= MSG::DEBUG)
-    log() << MSG::DEBUG << "# of TEs " << m_Map.size() << endreq;
+  ATH_MSG_DEBUG("# of TEs " << m_Map.size() );
 
   return true;
 }
 
 //---------------------------------------------------------------------------------------
 void Trig::TrigNtElemTool::CollectTEs(TrigMonTE &elem_parent,
-				      const std::vector<HLT::TriggerElement *> &te_vec)
+              const std::vector<HLT::TriggerElement *> &te_vec)
 {
   //
   // Recursive function to collect TEs below L1TH level
@@ -207,7 +189,7 @@ void Trig::TrigNtElemTool::CollectTEs(TrigMonTE &elem_parent,
   for(unsigned int i = 0; i < te_vec.size(); ++i) {
     HLT::TriggerElement *hlt_te = te_vec[i];
     if(!hlt_te) {
-      log() << MSG::DEBUG << "Null TE pointer" << endreq;
+      ATH_MSG_DEBUG("Null TE pointer" );
       continue;
     }
     
@@ -256,9 +238,9 @@ TrigMonTE& Trig::TrigNtElemTool::MakeElem(const HLT::TriggerElement *hlt_te)
     if(iseq != m_Config->end<TrigConfSeq>()) {
       ToolHandleArray<IElemNtTool>::iterator itElem = m_elemTools.begin();
       for( ; itElem != m_elemTools.end(); ++itElem ) {
-	if( (*itElem)->Fill(elem, *iseq, hlt_te) ) {
-	  log() << MSG::WARNING << "tool " << (*itElem).typeAndName() << " failed Fill()." << endreq;
-	}
+        if( (*itElem)->Fill(elem, *iseq, hlt_te) ) {
+          ATH_MSG_WARNING("tool " << (*itElem).typeAndName() << " failed Fill()." );
+        }
       }
     }
   }
@@ -276,27 +258,24 @@ TrigMonTE& Trig::TrigNtElemTool::MakeElem(const HLT::TriggerElement *hlt_te)
     // Set initial state and do nothing else
     //
     elem.setType(TrigMonTE::kINIT);  
-  }
-  else if(m_navig -> isRoINode(hlt_te)) {
+  } else if(m_navig -> isRoINode(hlt_te)) {
     //
     // Extract ROI data
     //
     ReadRoiId(elem, hlt_te);
     elem.setType(TrigMonTE::kROI);
-  }
-  else {
+  } else {
     //
     // Check if this is L1 threshold node: seeded by ROI node
     //
-    const std::vector<HLT::TriggerElement *> &parent_vec = 
-      hlt_te->getRelated(HLT::TriggerElement::seededByRelation);
+    const std::vector<HLT::TriggerElement *> &parent_vec = hlt_te->getRelated(HLT::TriggerElement::seededByRelation);
     
     for(unsigned int i = 0; i < parent_vec.size(); ++i) {
       const HLT::TriggerElement *parent_te = parent_vec[i];
       
       if(parent_te && m_navig -> isRoINode(parent_te)) {
-	elem.setType(TrigMonTE::kL1TH);
-	break;
+        elem.setType(TrigMonTE::kL1TH);
+        break;
       }
     }
     
@@ -322,8 +301,7 @@ TrigMonTE& Trig::TrigNtElemTool::MakeElem(const HLT::TriggerElement *hlt_te)
   // Colect features
   //
   if(m_collectClid) {
-    const std::vector<HLT::TriggerElement::FeatureAccessHelper> &fvec = 
-      hlt_te->getFeatureAccessHelpers();
+    const std::vector<HLT::TriggerElement::FeatureAccessHelper> &fvec = hlt_te->getFeatureAccessHelpers();
     
     for(unsigned int ifeat = 0; ifeat < fvec.size(); ++ifeat) {
       // Add feature's clid
@@ -331,11 +309,9 @@ TrigMonTE& Trig::TrigNtElemTool::MakeElem(const HLT::TriggerElement *hlt_te)
       elem.addClid(feat.getCLID());
       
       if(m_printClid && m_clidSvc) {
-	std::string tname;
-	m_clidSvc -> getTypeNameOfID(feat.getCLID(), tname).ignore();
-	
-	if(outputLevel() <= MSG::DEBUG)
-	  log() << MSG::DEBUG << "FeatureAccessHelper[" << ifeat << "] = " << tname << endreq;
+        std::string tname;
+        m_clidSvc -> getTypeNameOfID(feat.getCLID(), tname).ignore();
+        ATH_MSG_DEBUG("FeatureAccessHelper[" << ifeat << "] = " << tname );
       }
     }
   }
@@ -355,7 +331,7 @@ bool Trig::TrigNtElemTool::IsChainOutputTE(const HLT::TriggerElement *hlt_te, in
   for(unsigned int i = 0; i < act_vec.size(); ++i) {
     const HLT::SteeringChain *str_chain = act_vec[i];
     if(!str_chain) {
-      log() << MSG::WARNING << "Null HLT::SteeringChain pointer!" << endreq;
+      ATH_MSG_WARNING("Null HLT::SteeringChain pointer!" );
       continue;
     }
     
@@ -366,7 +342,7 @@ bool Trig::TrigNtElemTool::IsChainOutputTE(const HLT::TriggerElement *hlt_te, in
 
     const TrigConf::HLTChain *hlt_chain = str_chain -> getConfigChain();
     if(!hlt_chain) {
-      log() << MSG::WARNING << "Null TrigConf::HLTChain pointer!" << endreq;
+      ATH_MSG_WARNING("Null TrigConf::HLTChain pointer!" );
       continue;
     }
 
@@ -384,14 +360,14 @@ bool Trig::TrigNtElemTool::IsChainOutputTE(const HLT::TriggerElement *hlt_te, in
       //
       const std::vector<TrigConf::HLTTriggerElement*> &seq_vec = hsig->outputTEs();
       for(unsigned int iseq = 0; iseq < seq_vec.size(); ++iseq) {
-	const TrigConf::HLTTriggerElement *conf_te = seq_vec[iseq];
-	if(!conf_te) continue;
-	
-	// Compare HLTTriggerElem and TriggerElement by id
-	if(conf_te->id () == hlt_te->getId()) { 
-	  matched = true;
-	  break;
-	}
+        const TrigConf::HLTTriggerElement *conf_te = seq_vec[iseq];
+        if(!conf_te) continue;
+  
+        // Compare HLTTriggerElem and TriggerElement by id
+        if(conf_te->id () == hlt_te->getId()) { 
+          matched = true;
+          break;
+        }
       }
     }
   }
@@ -418,14 +394,11 @@ bool Trig::TrigNtElemTool::PassFilter(TrigMonTE &elem) const
   
   if(elem.getType() == TrigMonTE::kINIT) { 
     return false;
-  }
-  else if(elem.getType() == TrigMonTE::kROI) {
+  } else if(elem.getType() == TrigMonTE::kROI) {
     return false;
-  }
-  else if(elem.getType() == TrigMonTE::kL1TH) {
+  } else if(elem.getType() == TrigMonTE::kL1TH) {
     return true;
-  }
-  else if(elem.getType() == TrigMonTE::kELEM) {
+  } else if(elem.getType() == TrigMonTE::kELEM) {
     //
     // Select active nodes matching active chains
     //
@@ -480,66 +453,63 @@ void Trig::TrigNtElemTool::ReadRoiId(TrigMonTE &elem, const HLT::TriggerElement 
       data.roiValid = true;
 
       if(m_collectRoIData) {
-	data.roiMon.addWord(0);
-	data.roiMon.setRoiId(data.roiHlt->roiId());
-	data.roiMon.setNL1th(hlt_te->getRelated(HLT::TriggerElement::seedsRelation).size());
-	data.roiMon.setEtaPhi(data.roiHlt->eta(), data.roiHlt->phi());
+        data.roiMon.addWord(0);
+        data.roiMon.setRoiId(data.roiHlt->roiId());
+        data.roiMon.setNL1th(hlt_te->getRelated(HLT::TriggerElement::seedsRelation).size());
+        data.roiMon.setEtaPhi(data.roiHlt->eta(), data.roiHlt->phi());
 
 
-	double _etaHalfWidth = 0.5*std::fabs( data.roiHlt->etaPlus() - data.roiHlt->etaMinus() );
-	double _phiHalfWidth = 0.5*std::fabs( HLT::wrapPhi( data.roiHlt->phiPlus() - data.roiHlt->phiMinus() ) );
+        double _etaHalfWidth = 0.5*std::fabs( data.roiHlt->etaPlus() - data.roiHlt->etaMinus() );
+        double _phiHalfWidth = 0.5*std::fabs( HLT::wrapPhi( data.roiHlt->phiPlus() - data.roiHlt->phiMinus() ) );
 
-	//	data.roiMon.setRoIArea(data.roiHlt->etaHalfWidth(), data.roiHlt->phiHalfWidth());
-	data.roiMon.setRoIArea( _etaHalfWidth, _phiHalfWidth );
-	
-	if(data.roiEm)   data.roiMon.setType(TrigMonRoi::kEmTau);
-	if(data.roiJet)  data.roiMon.setType(TrigMonRoi::kJet);
-	if(data.roiMuon) data.roiMon.setType(TrigMonRoi::kMuon);
+        //  data.roiMon.setRoIArea(data.roiHlt->etaHalfWidth(), data.roiHlt->phiHalfWidth());
+        data.roiMon.setRoIArea( _etaHalfWidth, _phiHalfWidth );
+  
+        if(data.roiEm)   data.roiMon.setType(TrigMonRoi::kEmTau);
+        if(data.roiJet)  data.roiMon.setType(TrigMonRoi::kJet);
+        if(data.roiMuon) data.roiMon.setType(TrigMonRoi::kMuon);
       }
-    }
-    else if(data.roiEnergy) {
+    } else if(data.roiEnergy) {
       // Use 0 word (see Lvl1Converter.cxx)
       data.roiMon = TrigMonRoi(data.roiEnergy->roiWord0());
       data.roiValid = true;
 
       if(m_collectRoIData) {
-	data.roiMon.addWord(0);
-	data.roiMon.setNL1th(hlt_te->getRelated(HLT::TriggerElement::seedsRelation).size()); 
-	data.roiMon.setType(TrigMonRoi::kEnergy);
-	data.roiMon.setRoiId(Trig::getRoiId_Energy());
+        data.roiMon.addWord(0);
+        data.roiMon.setNL1th(hlt_te->getRelated(HLT::TriggerElement::seedsRelation).size()); 
+        data.roiMon.setType(TrigMonRoi::kEnergy);
+        data.roiMon.setRoiId(Trig::getRoiId_Energy());
       }
-    }
-    else if(data.roiJetEt) {
+    } else if(data.roiJetEt) {
       data.roiMon = TrigMonRoi(data.roiJetEt->roiWord());
       data.roiValid = true;
 
       if(m_collectRoIData) {
-	data.roiMon.addWord(0);
-	data.roiMon.setNL1th(hlt_te->getRelated(HLT::TriggerElement::seedsRelation).size()); 
-	data.roiMon.setType(TrigMonRoi::kJetEt);
-	data.roiMon.setRoiId(Trig::getRoiId_JetEt());
+        data.roiMon.addWord(0);
+        data.roiMon.setNL1th(hlt_te->getRelated(HLT::TriggerElement::seedsRelation).size()); 
+        data.roiMon.setType(TrigMonRoi::kJetEt);
+        data.roiMon.setRoiId(Trig::getRoiId_JetEt());
       }
-    }
-    else {
+    } else {
       if(m_printDebug) {
-	log() << MSG::INFO << "RoI TE without RoI descriptor: " << hlt_te->getId() << endreq;
-	std::string str;
-	m_navig->printASCIIArt(str, hlt_te);
-	std::cout << str << std::endl;
+        ATH_MSG_INFO("RoI TE without RoI descriptor: " << hlt_te->getId() );
+        std::string str;
+        m_navig->printASCIIArt(str, hlt_te);
+        std::cout << str << std::endl;
 
-	const std::vector<HLT::TriggerElement*> &stes = m_navig->getDirectSuccessors(hlt_te);
-	for(unsigned int i = 0; i < stes.size(); ++i) {
-	  HLT::TriggerElement *te = stes[i];
-	  if(!te) continue;
-	  
-	  std::string seqname = "unknown";
-	  std::vector<TrigConfSeq>::const_iterator sit = m_Config->findSeq(te->getId());
-	  if(sit != m_Config->end<TrigConfSeq>()) {
-	    seqname = sit->getName();
-	  }
-	  
-	  log() << MSG::INFO << "Successor TE: " << seqname << "/" << te->getId() << endreq;
-	}
+        const std::vector<HLT::TriggerElement*> &stes = m_navig->getDirectSuccessors(hlt_te);
+        for(unsigned int i = 0; i < stes.size(); ++i) {
+          HLT::TriggerElement *te = stes[i];
+          if(!te) continue;
+    
+          std::string seqname = "unknown";
+          std::vector<TrigConfSeq>::const_iterator sit = m_Config->findSeq(te->getId());
+          if(sit != m_Config->end<TrigConfSeq>()) {
+            seqname = sit->getName();
+         }
+    
+         ATH_MSG_INFO("Successor TE: " << seqname << "/" << te->getId() );
+        }
       }
     }
 
@@ -560,8 +530,7 @@ void Trig::TrigNtElemTool::ReadRoiId(TrigMonTE &elem, const HLT::TriggerElement 
     unsigned rword = 0;
     if(!roi.getWord().empty()) rword = roi.getWord().front();
 
-    log() << MSG::DEBUG << "Filling TrigMonRoi: id, eta, phi, word: " 
-	  << int(roi.getRoiId()) << ", " << eta << ", " << phi << ", " << rword << endreq;
+    ATH_MSG_DEBUG("Filling TrigMonRoi: id, eta, phi, word: " << int(roi.getRoiId()) << ", " << eta << ", " << phi << ", " << rword );
   }
 
   //

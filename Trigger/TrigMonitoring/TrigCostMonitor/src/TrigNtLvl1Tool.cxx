@@ -3,7 +3,7 @@
 */
 
 // Framework
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/errorcheck.h"
 #include "StoreGate/StoreGateSvc.h"
 
 // Trigger
@@ -16,11 +16,9 @@
 
 //---------------------------------------------------------------------------------------
 Trig::TrigNtLvl1Tool::TrigNtLvl1Tool(const std::string &name,
-				     const std::string &type,
-				     const IInterface  *parent)
-  :AlgTool(name, type, parent),
-   m_log(0),
-   m_storeGate("StoreGateSvc", name)
+             const std::string &type,
+             const IInterface  *parent)
+  :AthAlgTool(name, type, parent)
 {
   declareInterface<Trig::ITrigNtTool>(this);
 
@@ -34,16 +32,6 @@ StatusCode Trig::TrigNtLvl1Tool::initialize()
   //
   // Get my tools and services
   //
-  m_log = new MsgStream(msgSvc(), name());
-  
-  if(m_storeGate.retrieve().isFailure()) {
-    log() << MSG::ERROR << "Could not retrieve StoreGateSvc!" << endreq;
-    return StatusCode::FAILURE;
-  }
-  else {
-    if(outputLevel() <= MSG::DEBUG)
-      log() << MSG::DEBUG << "Retrieved " << m_storeGate << endreq;
-  }
 
   return StatusCode::SUCCESS;
 }
@@ -54,9 +42,7 @@ StatusCode Trig::TrigNtLvl1Tool::finalize()
   //
   // Clean up
   //  
-  log() << MSG::DEBUG << "finalize()" << endreq;
-  
-  delete m_log; m_log = 0;
+  ATH_MSG_DEBUG("finalize()" );
 
   return StatusCode::SUCCESS;
 }
@@ -89,29 +75,25 @@ bool Trig::TrigNtLvl1Tool::FillFromL1Result(TrigMonEvent &event)
   //
   // Second case: use Lvl1ResultAccessTool
   //
-  if(!m_storeGate->contains<LVL1CTP::Lvl1Result>(m_keyL1Result)) {
-    if(outputLevel() <= MSG::DEBUG)
-      log() << MSG::DEBUG << "Lvl1Result does not exist with key: " << m_keyL1Result << endreq;
+  if(!evtStore()->contains<LVL1CTP::Lvl1Result>(m_keyL1Result)) {
+    ATH_MSG_DEBUG("Lvl1Result does not exist with key: " << m_keyL1Result );
     return false;
   }
 
   const LVL1CTP::Lvl1Result* l1Result = 0;
 
-  if(m_storeGate->retrieve<LVL1CTP::Lvl1Result>(l1Result, m_keyL1Result).isFailure()) {
-    log() << MSG::WARNING << "Error retrieving Lvl1Result from StoreGate" << endreq;
+  if(evtStore()->retrieve<LVL1CTP::Lvl1Result>(l1Result, m_keyL1Result).isFailure()) {
+    ATH_MSG_WARNING("Error retrieving Lvl1Result from StoreGate" );
     return false;
-  }
-  else {
-    if(outputLevel() <= MSG::DEBUG)
-      log() << MSG::DEBUG << "Got Lvl1Result with key: " << m_keyL1Result << endreq;
+  } else {
+    ATH_MSG_DEBUG("Got Lvl1Result with key: " << m_keyL1Result );
   }
 
   //
   // Check status
   //
   if(!l1Result || !l1Result->isConfigured()) {
-    if(outputLevel() <= MSG::DEBUG)
-      log() << MSG::DEBUG << "L1Result is not configured" << endreq;
+    ATH_MSG_DEBUG("L1Result is not configured" );
     return false;
   }
     
@@ -124,22 +106,19 @@ bool Trig::TrigNtLvl1Tool::FillFromRBResult(TrigMonEvent &event)
   //
   // Second case: extract L1 decisons from ROIB fragment
   //
-  if(!m_storeGate->contains<ROIB::RoIBResult>(m_keyRBResult)) {
-    if(outputLevel() <= MSG::DEBUG)
-      log() << MSG::DEBUG << "RoIBResult does not exist with key: " << m_keyRBResult << endreq;
+  if(!evtStore()->contains<ROIB::RoIBResult>(m_keyRBResult)) {
+    ATH_MSG_DEBUG("RoIBResult does not exist with key: " << m_keyRBResult );
     return false;
   }
 
   const ROIB::RoIBResult* roIBResult = 0;
 
-  if(m_storeGate->retrieve(roIBResult, m_keyRBResult).isFailure() || !roIBResult) {
-    log() << MSG::ERROR << "Error retrieving RoIBResult from StoreGate" << endreq;
+  if(evtStore()->retrieve(roIBResult, m_keyRBResult).isFailure() || !roIBResult) {
+    ATH_MSG_ERROR("Error retrieving RoIBResult from StoreGate" );
     return false;
   }
   
-  if(outputLevel() <= MSG::DEBUG) {
-    log() << MSG::DEBUG << "Retrieved ROIBResult:" << m_keyRBResult << endreq;
-  }
+  ATH_MSG_DEBUG("Retrieved ROIBResult:" << m_keyRBResult );
 
   //
   // Copied code from Lvl1ResultAccessTool
@@ -183,9 +162,7 @@ bool Trig::TrigNtLvl1Tool::Fill(const LVL1CTP::Lvl1Result &l1Result, TrigMonEven
   //
   const unsigned int nitem = l1Result.nItems();
 
-  if(outputLevel() <= MSG::DEBUG) {
-    log() << MSG::DEBUG << "Reading decisions for " << nitem << " L1 item(s)" << endreq;
-  }
+  ATH_MSG_DEBUG("Reading decisions for " << nitem << " L1 item(s)" );
 
   for(unsigned i = 0; i < nitem; ++i) {
     //

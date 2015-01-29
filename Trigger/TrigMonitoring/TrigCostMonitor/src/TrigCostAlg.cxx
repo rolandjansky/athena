@@ -6,9 +6,8 @@
 #include <sys/time.h>
 
 // Framework
-#include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/errorcheck.h"
 
 // Reconstruction
 #include "xAODEventInfo/EventInfo.h"
@@ -31,10 +30,8 @@
 //---------------------------------------------------------------------------------------
 TrigCostAlg::TrigCostAlg(const std::string& name,
 			 ISvcLocator* pSvcLocator)
-   :Algorithm(name, pSvcLocator),
-    m_log(0),
+   :AthAlgorithm(name, pSvcLocator),
     m_timerTotal(0),
-    m_storeGate("StoreGateSvc", name),
     m_timerSvc("TrigTimerSvc/TrigTimerSvc", name),
     m_tools(this)
 {
@@ -58,34 +55,16 @@ TrigCostAlg::~TrigCostAlg()
 //---------------------------------------------------------------------------------------
 StatusCode TrigCostAlg::initialize()
 {    
-  // Get message service and print out properties
-  m_log = new MsgStream(msgSvc(), name()); 
-  
-  if(m_storeGate.retrieve().isFailure()) {
-    log() << MSG::ERROR << "Could not retrieve StoreGateSvc!" << endreq;
-    return StatusCode::FAILURE;
-  }
 
   if(m_doTiming) { 
-    if(m_timerSvc.retrieve().isFailure()) {
-      log() << MSG::ERROR << "Failed to retrieve TrigTimerSvc" << endreq;
-      return  StatusCode::FAILURE;
-    }
-    
+    CHECK(m_timerSvc.retrieve());
     m_timerTotal = m_timerSvc->addItem(name()+":TotalTime");
   }
 
-  if(m_tools.retrieve().isFailure()) {
-    log() << MSG::ERROR << "Failed to retrieve " << m_tools << endreq;
-    return StatusCode::FAILURE;
-  }
-  else {
-    log() << MSG::INFO << "Retrieved " << m_tools << endreq;
-  }
-  
+  CHECK(m_tools.retrieve());
 
   xAOD::EventInfo* eventInfo = 0;
-  if(m_storeGate -> retrieve(eventInfo).isSuccess()) {
+  if(evtStore() -> retrieve(eventInfo).isSuccess()) {
     
     m_config.setEventID(eventInfo->eventNumber(),
 			eventInfo->lumiBlock(),
@@ -98,14 +77,13 @@ StatusCode TrigCostAlg::initialize()
     }
   }
   else {
-    log() << MSG::INFO << "Missing xAOD::EventInfo in initialize()... will try again later" << endreq;
+    ATH_MSG_INFO("Missing xAOD::EventInfo in initialize()... will try again later");
   }
 
-  log() << MSG::INFO 
-	<< "mergeEvent    = " << m_mergeEvent    << endreq
-	<< "printEvent    = " << m_printEvent    << endreq
-	<< "keyEventL2    = " << m_keyEventL2    << endreq
-	<< "keyEventEF    = " << m_keyEventEF    << endreq;
+  ATH_MSG_INFO("mergeEvent    = " << m_mergeEvent);
+  ATH_MSG_INFO("printEvent    = " << m_printEvent);
+  ATH_MSG_INFO("keyEventL2    = " << m_keyEventL2);
+  ATH_MSG_INFO("keyEventEF    = " << m_keyEventEF);
   
   return StatusCode::SUCCESS;
 }
@@ -119,10 +97,7 @@ StatusCode TrigCostAlg::execute()
   if(m_timerTotal) m_timerTotal -> resume();
 
   xAOD::EventInfo* eventInfo = 0;
-  if(m_storeGate -> retrieve(eventInfo).isFailure()) {
-    log() << MSG::ERROR << "Faied to get xAOD::EventID" << endreq;
-    return StatusCode::FAILURE;
-  }
+  CHECK(evtStore() -> retrieve(eventInfo));
 
   m_event.clear();
   m_event.setEventID(eventInfo->eventNumber(),
@@ -132,10 +107,7 @@ StatusCode TrigCostAlg::execute()
       eventInfo->timeStamp(),
       eventInfo->timeStampNSOffset());
 
-  if(outputLevel() <= MSG::DEBUG) {
-    log() << MSG::DEBUG 
-	  << "run #" << m_event.getRun() << " event #" << m_event.getEvent() << endreq;
-  }
+  ATH_MSG_DEBUG("run #" << m_event.getRun() << " event #" << m_event.getEvent());
 
   //
   // Read configuration not filled before or reread configuration for new run 
@@ -160,7 +132,7 @@ StatusCode TrigCostAlg::execute()
   }
 
   if(outputLevel() <= MSG::DEBUG && m_printEvent) {
-    Trig::Print(m_event, m_config, log(), MSG::DEBUG);
+    Trig::Print(m_event, m_config, msg(), MSG::DEBUG);
   }
 
   if(m_timerTotal) m_timerTotal -> pause();
@@ -183,11 +155,8 @@ StatusCode TrigCostAlg::finalize()
   if(m_timerTotal) {
     m_timerTotal->stop();
 
-    log() << MSG::INFO 
-	  << m_timerTotal->name() << ": " << m_timerTotal->elapsed()/1000.0 << "s" << endreq;
+    ATH_MSG_INFO(m_timerTotal->name() << ": " << m_timerTotal->elapsed()/1000.0 << "s");
   }
-
-  delete m_log; m_log = 0;
 
   return StatusCode::SUCCESS;
 }
@@ -198,20 +167,18 @@ void TrigCostAlg::ExtractConfig(const std::string &key)
   //
   // Read TrigMonConfig
   //
-  if(!m_storeGate -> transientContains<TrigMonConfigCollection>(key)) {
-    if(outputLevel() <= MSG::DEBUG)
-      log() << MSG::DEBUG  << "TrigMonConfigCollection does not exist" << endreq;
+  if(!evtStore() -> transientContains<TrigMonConfigCollection>(key)) {
+    ATH_MSG_DEBUG("TrigMonConfigCollection does not exist");
     return;
   }
 
   const TrigMonConfigCollection *mon_col = 0;
-  if(m_storeGate->retrieve(mon_col, key).isFailure()) {
-    log() << MSG::WARNING << "failed retrieving TrigMonConfigCollection" << endreq;
+  if(evtStore()->retrieve(mon_col, key).isFailure()) {
+    ATH_MSG_WARNING("Failed to retrieve TrigMonConfigCollection at: " << key);
     return;
   }
 
-  log() << MSG::DEBUG 
-	<< "Found TrigMonConfigCollection: " << key << ", size=" << mon_col->size() << endreq;
+  ATH_MSG_DEBUG("Found TrigMonConfigCollection: " << key << ", size=" << mon_col->size());
     
   for(TrigMonConfigCollection::const_iterator it = mon_col->begin(); it != mon_col->end(); ++it) {
     TrigMonConfig *ptr = *it;
@@ -225,23 +192,18 @@ void TrigCostAlg::ExtractEvent(const std::string &key, const int level)
   //
   // Read TrigMonEvent
   //
-  if(!m_storeGate -> transientContains<TrigMonEventCollection>(key)) {
-    if(outputLevel() <= MSG::DEBUG) {
-      log() << MSG::DEBUG  << "TrigMonEventCollection does not exist at: " << key << endreq;
-    }
+  if(!evtStore() -> transientContains<TrigMonEventCollection>(key)) {
+    ATH_MSG_DEBUG("TrigMonEventCollection does not exist at: " << key);
     return;
   }
 
   const TrigMonEventCollection *mon_col = 0;
-  if(m_storeGate->retrieve(mon_col, key).isFailure()) {
-    log() << MSG::WARNING << "Failed to retrieve TrigMonEventCollection at: " << key << endreq;
+  if(evtStore()->retrieve(mon_col, key).isFailure()) {
+    ATH_MSG_WARNING("Failed to retrieve TrigMonEventCollection at: " << key);
     return;
   }
 
-  if(outputLevel() <= MSG::DEBUG) {
-    log() << MSG::DEBUG 
-	  << "Found TrigMonEventCollection: " << key << ", size=" << mon_col->size() << endreq; 
-  }
+  ATH_MSG_DEBUG("Found TrigMonEventCollection: " << key << ", size=" << mon_col->size() );
 
   for(TrigMonEventCollection::const_iterator it = mon_col->begin(); it != mon_col->end(); ++it) {
     const TrigMonEvent *ptr = *it;
@@ -250,10 +212,9 @@ void TrigCostAlg::ExtractEvent(const std::string &key, const int level)
     if(m_mergeEvent) {
       const std::string msg = Trig::MergeEvent(m_event, *ptr, level);
       if(!msg.empty()) {
-	log() << MSG::WARNING << msg << endreq;
+	      ATH_MSG_WARNING(msg);
       }
-    }
-    else {
+    } else {
       m_event = *ptr;
     }
   }

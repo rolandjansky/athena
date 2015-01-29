@@ -11,8 +11,7 @@
 
 // Framework
 #include "AthenaMonitoring/IMonitorToolBase.h"
-#include "GaudiKernel/AlgTool.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "CoolLumiUtilities/BunchGroupTool.h"
 
 // Trigger
@@ -32,7 +31,7 @@
 class TrigTimer;
 class TriggerInfo;
 
-class TrigCostTool : public AlgTool, virtual public IMonitorToolBase {
+class TrigCostTool : public AthAlgTool, virtual public IMonitorToolBase {
  public:
   
   TrigCostTool(const std::string &type,
@@ -57,8 +56,6 @@ class TrigCostTool : public AlgTool, virtual public IMonitorToolBase {
   StatusCode convertLWHists()  { return StatusCode::SUCCESS; }
 
  private:
-
-  MsgStream& log() const { return *m_log; }
   
   void ProcessConfig(xAOD::EventInfo* info);
 
@@ -101,9 +98,7 @@ class TrigCostTool : public AlgTool, virtual public IMonitorToolBase {
 
   // Athena tool and service handles
   const HLT::TrigSteer              *m_parentAlg;
-  MsgStream                         *m_log;
   TrigTimer                         *m_timer;
-  ServiceHandle<StoreGateSvc>        m_storeGate;
   ServiceHandle<ITrigTimerSvc>       m_timerSvc; 
   ToolHandle<IBunchGroupTool>        m_toolBunchGroup;
   ToolHandle<HLT::IReusableScaler>   m_scalerTool;

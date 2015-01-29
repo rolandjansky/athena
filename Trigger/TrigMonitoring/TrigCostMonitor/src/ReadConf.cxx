@@ -334,8 +334,8 @@ bool Trig::ReadConf::openDb( bool readOnly )
     return true;
   }
   catch(cool::DatabaseDoesNotExist& e) {
-    cout<< "ReadConf::openDb - COOL exception caught: " << e.what() << endl
-	<< "   could not open database: " << m_cool_id << endl;
+    cout << "ReadConf::openDb - COOL exception caught: " << e.what() << endl
+	    << "   could not open database: " << m_cool_id << endl;
     return false;
   }
 
@@ -350,10 +350,9 @@ void Trig::ReadConf::closeDb()
       cout << "ReadConf::closeDd - closing database '" << m_cool_id << endl;
       m_cool_ptr->closeDatabase();
     }
-  }
-  catch(std::exception& e) {
+  } catch(std::exception& e) {
     cout << "ReadConf::closeDB - COOL exception caught: " << e.what() << endl
-	 << "   could not close COOL database: " << m_cool_id << endl;
+      << "   could not close COOL database: " << m_cool_id << endl;
   }
   
   TrigConf::TrigConfCoolFolderSpec::resetSchemaVersion();

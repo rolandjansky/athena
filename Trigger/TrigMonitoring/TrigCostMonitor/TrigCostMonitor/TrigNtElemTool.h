@@ -10,7 +10,7 @@
 // Tool that collects trigger elements
 
 // Framework
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -43,7 +43,7 @@ namespace Trig
 {
   static const InterfaceID IID_TrigNtElemTool("Trig::TrigNtElemTool", 1, 0); 
   
-  class TrigNtElemTool : virtual public Trig::ITrigNtTool, public AlgTool {
+  class TrigNtElemTool : virtual public Trig::ITrigNtTool, public AthAlgTool {
   public:
     
     static const InterfaceID& interfaceID() { return IID_TrigNtElemTool; }
@@ -63,8 +63,8 @@ namespace Trig
     
     struct RoiData {
       RoiData() 
-	: roiEm(0), roiEnergy(0), roiJet(0), roiJetEt(0), roiMuon(0), 
-	   roiHlt(0), roiValid(false) {}
+  : roiEm(0), roiEnergy(0), roiJet(0), roiJetEt(0), roiMuon(0), 
+     roiHlt(0), roiValid(false) {}
 
       const LVL1::RecEmTauRoI      *roiEm;
       const LVL1::RecEnergyRoI     *roiEnergy;
@@ -82,10 +82,8 @@ namespace Trig
 
   private:
 
-    MsgStream& log() const { return *m_log; }       
-
     void CollectTEs(TrigMonTE &elem_parent,
-		    const std::vector<HLT::TriggerElement *> &te_vec);
+        const std::vector<HLT::TriggerElement *> &te_vec);
     
     TrigMonTE& MakeElem(const HLT::TriggerElement *hlt_te);
 
@@ -109,8 +107,6 @@ namespace Trig
     const HLT::TrigSteer               *m_parentAlg;
     HLT::Navigation                    *m_navig;
     IClassIDSvc                        *m_clidSvc;
-    MsgStream                          *m_log;
-    ServiceHandle<StoreGateSvc>         m_storeGate;
     ToolHandleArray<Trig::IElemNtTool>  m_elemTools;   
         
     // Tool variables

@@ -10,7 +10,7 @@
 //
 
 // Framework
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -25,7 +25,7 @@ namespace Trig
 {
   static const InterfaceID IID_TrigNtHltRTool("Trig::TrigNtHltRTool", 1, 0); 
   
-  class TrigNtHltRTool : virtual public Trig::ITrigNtTool, public AlgTool {
+  class TrigNtHltRTool : virtual public Trig::ITrigNtTool, public AthAlgTool {
   public:
     
     static const InterfaceID& interfaceID() { return IID_TrigNtHltRTool; }
@@ -43,8 +43,6 @@ namespace Trig
     
   private:
     
-    MsgStream& log() const { return *m_log; } 
-
     bool FillFromSteering(TrigMonEvent &event);
     bool FillFromHLTResult(TrigMonEvent &event);
 
@@ -57,8 +55,6 @@ namespace Trig
  
     // Tools and services:
     const HLT::TrigSteer                 *m_parentAlg;
-    MsgStream                            *m_log;
-    ServiceHandle<StoreGateSvc>           m_storeGate;    // StoreGate service
     ToolHandle<HLT::IHLTResultAccessTool> m_hltTool;      // Helper tool for unpacking HLTResult
   };
 }

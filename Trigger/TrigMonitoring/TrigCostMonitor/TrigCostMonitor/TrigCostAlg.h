@@ -17,7 +17,7 @@
 #include <set>
 
 // Framework
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -32,7 +32,7 @@
 
 class StoreGateSvc;
 
-class TrigCostAlg : public Algorithm
+class TrigCostAlg : public AthAlgorithm
 {
 public:
 
@@ -44,8 +44,6 @@ public:
    StatusCode finalize();
    
 private:
-   
-   MsgStream& log() const { return *m_log; }
    
    void ExtractConfig(const std::string &key);
    void ExtractEvent (const std::string &key, const int level);
@@ -65,10 +63,8 @@ private:
    std::string   m_keyEventEF;       // Key for EF TrigMonEventCollection
 
    // Tools and services
-   MsgStream                          *m_log;
    TrigTimer                          *m_timerTotal;
 
-   ServiceHandle<StoreGateSvc>         m_storeGate;
    ServiceHandle<ITrigTimerSvc>        m_timerSvc;
    ToolHandleArray<Trig::ITrigNtTool>  m_tools;
 

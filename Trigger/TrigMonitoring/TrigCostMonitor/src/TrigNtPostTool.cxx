@@ -7,7 +7,7 @@
 #include <sstream>
 
 // Framework
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/errorcheck.h"
 #include "StoreGate/DataHandle.h"
 
 // TDAQ
@@ -20,11 +20,9 @@ using namespace std;
 
 //---------------------------------------------------------------------------------------
 Trig::TrigNtPostTool::TrigNtPostTool(const std::string &type,
-				     const std::string &name,
-				     const IInterface  *parent)
-  :AlgTool(type, name, parent),
-   m_log(0),
-   m_storeGate("StoreGateSvc", name),
+             const std::string &name,
+             const IInterface  *parent)
+  :AthAlgTool(type, name, parent),
    m_config(0)
 {
   declareInterface<Trig::ITrigNtTool>(this);
@@ -34,23 +32,13 @@ Trig::TrigNtPostTool::TrigNtPostTool(const std::string &type,
 //---------------------------------------------------------------------------------------
 Trig::TrigNtPostTool::~TrigNtPostTool()
 {
-  delete m_log; m_log = 0;
 }
 
 //---------------------------------------------------------------------------------------
 StatusCode Trig::TrigNtPostTool::initialize()
 {    
-  m_log = new MsgStream(msgSvc(), name());
   
-  log() << MSG::DEBUG << "initialize()" << endreq;
-
-  if(m_storeGate.retrieve().isFailure()) {
-    log() << MSG::ERROR << "Could not retrieve: " << m_storeGate << endreq;
-    return StatusCode::FAILURE;
-  }
-  else {
-    log() << MSG::DEBUG << "Retrieved: " << m_storeGate << endreq;    
-  }
+  ATH_MSG_DEBUG("initialize()" );
 
   return StatusCode::SUCCESS;
 }
@@ -61,7 +49,7 @@ StatusCode Trig::TrigNtPostTool::finalize()
   //
   // Clean up
   //  
-  log() << MSG::DEBUG << "finalize()" << endreq; 
+  ATH_MSG_DEBUG("finalize()" ); 
 
   return StatusCode::SUCCESS;
 }
@@ -82,12 +70,10 @@ bool Trig::TrigNtPostTool::Fill(TrigMonEvent &event)
   //
   // Read ROB ids and match ids to Detector/subdetector
   //
-  if(outputLevel() <= MSG::VERBOSE) {
-    log() << MSG::VERBOSE << "Processing new event..." << endreq; 
-  }
+  ATH_MSG_VERBOSE("Processing new event..." ); 
   
   if(!m_config) {
-    log() << MSG::DEBUG << "Null TrigMonConfig pointer" << endreq; 
+    ATH_MSG_DEBUG("Null TrigMonConfig pointer" ); 
     return false;
   }
 
@@ -95,9 +81,9 @@ bool Trig::TrigNtPostTool::Fill(TrigMonEvent &event)
   std::vector<uint32_t>    &keys = m_config->getVarId();
 
   if(vars.size() != keys.size()) {
-    log() << MSG::WARNING << "Mismatch in number of keys and vars: " << endreq
-	  << " # vars: " << vars.size() << endreq
-	  << " # keys: " << keys.size() << endreq;
+    ATH_MSG_WARNING("Mismatch in number of keys and vars: " );
+    ATH_MSG_WARNING(" # vars: " << vars.size() );
+    ATH_MSG_WARNING(" # keys: " << keys.size() );
     return false;
   }
 
@@ -107,22 +93,16 @@ bool Trig::TrigNtPostTool::Fill(TrigMonEvent &event)
     const std::vector<TrigMonROBData> &dvec = rob.getData();
     const std::vector<TrigMonROBSum>   svec = rob.getSum();
     
-    if(outputLevel() <= MSG::VERBOSE) {
-      log() << MSG::VERBOSE << "TrigMonROB at " << i << endreq; 
-    }
+    ATH_MSG_VERBOSE("TrigMonROB at " << i ); 
 
     for(unsigned int d = 0; d < dvec.size(); ++d) {
       const TrigMonROBData &data = dvec.at(d);
       
-      if(outputLevel() <= MSG::DEBUG) {
-	      log() << MSG::DEBUG << "TrigMonROBData id, size=" << data.getROBId() << ", " << data.getROBSize() << endl;
-      }
+      ATH_MSG_DEBUG("TrigMonROBData id, size=" << data.getROBId() << ", " << data.getROBSize());
 
       if(!m_robIds.insert(data.getROBId()).second) continue; 
 
-      if(outputLevel() <= MSG::VERBOSE) {
-	      log() << MSG::VERBOSE << "TrigMonROBData at " << d << endreq; 
-      }
+      ATH_MSG_VERBOSE("TrigMonROBData at " << d ); 
 
       const eformat::helper::SourceIdentifier robS(data.getROBId());
             
@@ -130,14 +110,14 @@ bool Trig::TrigNtPostTool::Fill(TrigMonEvent &event)
       vars.push_back("ROB:SUBDET:"+robS.human_detector()+":GROUP:"+robS.human_group());
       
       if(outputLevel() <= MSG::DEBUG) {
-	      std::stringstream str;
-	      str <<"TrigMonROBData size/id/subdetector/group: " 
-    	    << std::setw(6) << std::setfill(' ') << std::dec << data.getROBSize() << "/" 
-    	    << std::hex << data.getROBId() << "/" 
-    	    << robS.human_detector() << "/" 
-    	    << robS.human_group();
+        std::stringstream str;
+        str <<"TrigMonROBData size/id/subdetector/group: " 
+          << std::setw(6) << std::setfill(' ') << std::dec << data.getROBSize() << "/" 
+          << std::hex << data.getROBId() << "/" 
+          << robS.human_detector() << "/" 
+          << robS.human_group();
 
-	      log() << MSG::DEBUG << str.str() << endreq;
+        ATH_MSG_DEBUG(str.str() );
       }
     }
 
@@ -146,9 +126,7 @@ bool Trig::TrigNtPostTool::Fill(TrigMonEvent &event)
 
       if(!m_detIds.insert(data.getSubDet()).second) continue; 
 
-      if(outputLevel() <= MSG::VERBOSE) {
-	      log() << MSG::VERBOSE << "TrigMonROBSum at " << s << endreq; 
-      }
+      ATH_MSG_VERBOSE("TrigMonROBSum at " << s ); 
 
       const eformat::SubDetector edet = static_cast<eformat::SubDetector>(data.getSubDet());
       const eformat::helper::SourceIdentifier robS(edet, 0, 0);
@@ -157,14 +135,14 @@ bool Trig::TrigNtPostTool::Fill(TrigMonEvent &event)
       vars.push_back("DET:SUBDET:"+robS.human_detector()+":GROUP:"+robS.human_group());
       
       if(outputLevel() <= MSG::DEBUG) {
-	      std::stringstream str;
-	      str << "TrigMonROBSum size/id/subdetector/group: " 
-    	    << std::setw(6) << std::setfill(' ') << std::dec << data.getSize() << "/" 
-    	    << std::hex << data.getSubDet() << "/" 
-    	    << robS.human_detector() << "/" 
-    	    << robS.human_group();
+        std::stringstream str;
+        str << "TrigMonROBSum size/id/subdetector/group: " 
+          << std::setw(6) << std::setfill(' ') << std::dec << data.getSize() << "/" 
+          << std::hex << data.getSubDet() << "/" 
+          << robS.human_detector() << "/" 
+          << robS.human_group();
 
-	      log() << MSG::DEBUG << str.str() << endreq;
+        ATH_MSG_DEBUG(str.str() );
       }
     }    
   }

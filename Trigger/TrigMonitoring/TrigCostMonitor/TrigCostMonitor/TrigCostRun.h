@@ -17,7 +17,7 @@
 #include <utility> //pair
 
 // Framework
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -39,7 +39,7 @@ namespace HLT {
   class Navigation;
 }
 
-class TrigCostRun : public Algorithm {
+class TrigCostRun : public AthAlgorithm {
 public:
 
    TrigCostRun(const std::string& name, ISvcLocator* pSvcLocator);
@@ -50,9 +50,7 @@ public:
    StatusCode finalize();
 
 private:
-   
-   MsgStream& log() const { return *m_log; }  
-   
+      
    bool MatchL2andEF(const std::vector<TrigMonEvent> &events_l2,
 		     const std::vector<TrigMonEvent> &events_ef);
 
@@ -127,12 +125,10 @@ private:
    std::string                        m_keyStream;        // Key for trigger stream name (optional)
 
    // Tools and services
-   MsgStream                          *m_log;
    TrigTimer                          *m_timerExec;
    TrigTimer                          *m_timerNavig;
    TrigTimer                          *m_timerTotal;
 
-   ServiceHandle<StoreGateSvc>         m_storeGate;
    ServiceHandle<ITrigTimerSvc>        m_timerSvc;
 
    ToolHandle<HLT::Navigation>         m_navigation;

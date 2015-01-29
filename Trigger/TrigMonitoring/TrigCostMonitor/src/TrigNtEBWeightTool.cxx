@@ -3,7 +3,7 @@
 */
 
 // Framework
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/errorcheck.h"
 #include "StoreGate/StoreGateSvc.h"
 
 // Trigger
@@ -32,15 +32,14 @@
 
 //---------------------------------------------------------------------------------------
 Trig::TrigNtEBWeightTool::TrigNtEBWeightTool(const std::string &name,
-				     const std::string &type,
-				     const IInterface  *parent)
-  :AlgTool(name, type, parent),
+             const std::string &type,
+             const IInterface  *parent)
+  :AthAlgTool(name, type, parent),
    m_randomSeedWeight(8), // XXX TODO CUSTOMISE
    m_filterInfo(),
    m_chainPrescale(),
    m_chainL1Seeds(),
    m_L1NameToCPTID(),
-   m_log(0),
    m_isRun1(1),
    m_isConfigured(0)
 {
@@ -54,7 +53,6 @@ StatusCode Trig::TrigNtEBWeightTool::initialize()
   //
   // Retrieve my tools and services
   //
-  m_log = new MsgStream(msgSvc(), name());
 
   return StatusCode::SUCCESS;
 }
@@ -65,9 +63,7 @@ StatusCode Trig::TrigNtEBWeightTool::finalize()
   //
   // Clean up
   //  
-  if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << "finalize()" << endreq;
-  
-  delete m_log; m_log = 0;
+  ATH_MSG_DEBUG("finalize()" );
 
   return StatusCode::SUCCESS;
 }
@@ -91,7 +87,7 @@ bool Trig::TrigNtEBWeightTool::Fill(TrigMonConfig *config)
 {
   m_isConfigured = false;
 
-  if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << "In Trig::TrigNtEBWeightTool::Fill(TrigMonConfig)" << endreq;
+  ATH_MSG_DEBUG("In Trig::TrigNtEBWeightTool::Fill(TrigMonConfig)" );
   m_chainL1Seeds.clear();
   m_chainPrescale.clear();
 
@@ -107,7 +103,7 @@ bool Trig::TrigNtEBWeightTool::Fill(TrigMonConfig *config)
   for (int _EB = 0; _EB < kEbTrggerType_SIZE; ++_EB) {
     EBTriggerType _EBEnum = static_cast<EBTriggerType>(_EB);
 
-    if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << "- Getting prescale for " << EBTriggerNameHLT[_EB] << endreq;
+    ATH_MSG_DEBUG("- Getting prescale for " << EBTriggerNameHLT[_EB] );
     m_chainEnabled[_EBEnum] = true; // Start off assuming enabled
     
     // Get the L1 chain
@@ -133,9 +129,9 @@ bool Trig::TrigNtEBWeightTool::Fill(TrigMonConfig *config)
     }
 
     if (_L1Chain == "") {
-      log() << MSG::ERROR << "-- Cannot find L1 item for " << _EBChain << " in the current menu" << endreq;
+      ATH_MSG_ERROR("-- Cannot find L1 item for " << _EBChain << " in the current menu" );
     } else {
-      if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << "-- Associated EBChain " << _EBChain << " with " << _L1Chain << endreq;
+      ATH_MSG_DEBUG("-- Associated EBChain " << _EBChain << " with " << _L1Chain );
     }
     m_chainL1Seeds[_EBEnum] = _L1Chain;
 
@@ -143,15 +139,15 @@ bool Trig::TrigNtEBWeightTool::Fill(TrigMonConfig *config)
     // Tabulate the total prescale
     float _totalPrescale = 1, _PS;
     if (m_isRun1 == true) {
-      _PS = Trig::GetPrescale(_configChains, EBTriggerNameEF[_EB], m_log); // Get EF level
+      _PS = Trig::GetPrescale(_configChains, EBTriggerNameEF[_EB], &msg()); // Get EF level
       if (_PS < 0) m_chainEnabled[_EBEnum] = false;
       _totalPrescale *= _PS;
       //
-      _PS = Trig::GetPrescale(_configChains, EBTriggerNameL2[_EB], m_log); // Get L2 level
+      _PS = Trig::GetPrescale(_configChains, EBTriggerNameL2[_EB], &msg()); // Get L2 level
       if (_PS < 0) m_chainEnabled[_EBEnum] = false;
       _totalPrescale *= _PS;
     } else {
-      _PS = Trig::GetPrescale(_configChains, EBTriggerNameHLT[_EB], m_log); // Get HLT level
+      _PS = Trig::GetPrescale(_configChains, EBTriggerNameHLT[_EB], &msg()); // Get HLT level
       if (_PS < 0) m_chainEnabled[_EBEnum] = false;
       _totalPrescale *= _PS;
     }
@@ -162,7 +158,7 @@ bool Trig::TrigNtEBWeightTool::Fill(TrigMonConfig *config)
          _EBEnum != kEb_physics_firstempty && // This should be PS=1!!!!
          _EBEnum != kEb_physics_unpaired_iso && // This should be PS=1!!!!
          _EBEnum != kEb_physics_unpaired_noniso ) { // This should be PS=1!!!!
-      _PS = Trig::GetPrescale(_configChains, m_chainL1Seeds[_EBEnum], m_log);
+      _PS = Trig::GetPrescale(_configChains, m_chainL1Seeds[_EBEnum], &msg());
       if (_PS < 0) m_chainEnabled[_EBEnum] = false;
       _totalPrescale *= _PS;
       
@@ -171,17 +167,17 @@ bool Trig::TrigNtEBWeightTool::Fill(TrigMonConfig *config)
       if ( m_chainL1Seeds[_EBEnum].find("RD0") != std::string::npos
            || m_chainL1Seeds[_EBEnum].find("RD1") != std::string::npos) {
         _totalPrescale *= m_randomSeedWeight;
-        if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << "---- Random Seeded: Including an addtional PS factor of " << m_randomSeedWeight << endreq;
+        ATH_MSG_DEBUG("---- Random Seeded: Including an addtional PS factor of " << m_randomSeedWeight );
       }
     } else {
-      if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << "---- noL1PS chain, not adding any additional PS for L1." << endreq;
+      ATH_MSG_DEBUG("---- noL1PS chain, not adding any additional PS for L1." );
     }
     
     m_chainPrescale[_EBEnum] = _totalPrescale;
     if (m_chainEnabled[_EBEnum] == true) {
-      log() << MSG::INFO << "==== Enhanced Bias Chain " << EBTriggerNameHLT[_EB] << " has total prescale " << m_chainPrescale[_EBEnum] << endreq;
+      ATH_MSG_INFO("==== Enhanced Bias Chain " << EBTriggerNameHLT[_EB] << " has total prescale " << m_chainPrescale[_EBEnum] );
     } else {
-      log() << MSG::INFO << "==== Enhanced Bias Chain " << EBTriggerNameHLT[_EB] << " is DISABLED (PS < 0 in chain)" << endreq;
+      ATH_MSG_INFO("==== Enhanced Bias Chain " << EBTriggerNameHLT[_EB] << " is DISABLED (PS < 0 in chain)" );
     }
   }
 
@@ -212,7 +208,7 @@ bool Trig::TrigNtEBWeightTool::Fill(TrigMonConfig *config)
       m_L1IDToBunchGroup[_chain.getCounter()] = kBG_FILLED;
     }
 
-    if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << "Recording L1Chain Name -> CPTID [" << _chain.getChainName() << " -> " << _chain.getCounter() << "], ID -> BG [" << _chain.getCounter() << " -> " << EBBunchGroupNames[ m_L1IDToBunchGroup[_chain.getCounter()] ] << "]" << endreq;
+    ATH_MSG_DEBUG("Recording L1Chain Name -> CPTID [" << _chain.getChainName() << " -> " << _chain.getCounter() << "], ID -> BG [" << _chain.getCounter() << " -> " << EBBunchGroupNames[ m_L1IDToBunchGroup[_chain.getCounter()] ] << "]" );
   }
 
   m_isConfigured = true;
@@ -226,7 +222,7 @@ void Trig::TrigNtEBWeightTool::readEBConfigFromXML(unsigned runNumber) {
 
   if (runNumber != 212967 
    && runNumber != 247110) {
-    log() << MSG::ERROR << "EB configuration for run " << runNumber << " is not available automatically. XML file needs to be supplied." << endreq;
+    ATH_MSG_ERROR("EB configuration for run " << runNumber << " is not available automatically. XML file needs to be supplied." );
   }
 
   // Load XML info
@@ -238,7 +234,7 @@ void Trig::TrigNtEBWeightTool::readEBConfigFromXML(unsigned runNumber) {
   ss >> _xmlName;
   const std::string _locAthena = PathResolverFindDataFile( _xmlName );
          
-  log() << MSG::INFO << "EB weighting XML: " << _xmlName << " at " << _locAthena << endreq;
+  ATH_MSG_INFO("EB weighting XML: " << _xmlName << " at " << _locAthena );
   
   TDOMParser* _xmlParser = new TDOMParser();
   _xmlParser->SetValidate(kFALSE);
@@ -274,12 +270,12 @@ void Trig::TrigNtEBWeightTool::readEBConfigFromXML(unsigned runNumber) {
     // Loop over all children of a single "filter"
     while (_filter != 0) {
       if (_filter->GetNodeName() == TString("filter_name")) {
-        if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << "Parsing an EB filter: " << _filter->GetText() << endreq;
+        if(outputLevel() <= MSG::DEBUG) ATH_MSG_DEBUG("Parsing an EB filter: " << _filter->GetText() );
         _currentFilter = _filter->GetText();
       } else if (_filter->GetNodeName() == TString("lv1_filter") && _currentFilter != "") {
         // Save mapping of this EB filter (e.g. EF_eb_physics) to this L1 Item (e.g. L1_RD1_FILLED)
         m_filterInfo.insert(std::make_pair( std::string(_currentFilter), std::string(_filter->GetText()) ));
-        if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << "Regular Filter: " <<  _currentFilter.Data() << " -> " << _filter->GetText() << endreq;
+        if(outputLevel() <= MSG::DEBUG) ATH_MSG_DEBUG("Regular Filter: " <<  _currentFilter.Data() << " -> " << _filter->GetText() );
       } else if (_filter->GetNodeName() == TString("eb_hlt_chains") ) {
         // Look into this node too
         TXMLNode* _eb_hlt_chains = 0;
@@ -291,7 +287,7 @@ void Trig::TrigNtEBWeightTool::readEBConfigFromXML(unsigned runNumber) {
             _currentFilter = TString("L1ItemNames ") + _eb_hlt_chains->GetText();
           } else if (_eb_hlt_chains->GetNodeName() == TString("lv1_ebtrigs") && _currentFilter != "") {
             m_filterInfo.insert(std::make_pair( std::string(_currentFilter), std::string(_eb_hlt_chains->GetText()) ));
-            if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << "EBTRIGS Filter: " << _currentFilter.Data() << " -> " << _eb_hlt_chains->GetText() << endreq;
+            if(outputLevel() <= MSG::DEBUG) ATH_MSG_DEBUG("EBTRIGS Filter: " << _currentFilter.Data() << " -> " << _eb_hlt_chains->GetText() );
           }
           _eb_hlt_chains = _eb_hlt_chains->GetNextNode();
         }
@@ -308,7 +304,7 @@ bool Trig::TrigNtEBWeightTool::Fill(TrigMonEvent &event)
 {
 
     if (m_isConfigured == false) {
-      log() << MSG::WARNING << "Cannot do Enhanced Bias weighting, tool failed to configure." << endreq;
+      ATH_MSG_WARNING("Cannot do Enhanced Bias weighting, tool failed to configure." );
       return false;
     }
 
@@ -318,19 +314,19 @@ bool Trig::TrigNtEBWeightTool::Fill(TrigMonEvent &event)
     for (unsigned i = 0; i < _eventL1Items.size(); ++i) {
       unsigned _ID = _eventL1Items.at(i).getCtpId();
       EBBunchGroupType _BG = m_L1IDToBunchGroup[ _ID ];
-      if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << "Event has L1 item " << m_CPTIDToL1Name[_ID] 
+      ATH_MSG_DEBUG("Event has L1 item " << m_CPTIDToL1Name[_ID] 
         << ", passes? " << _eventL1Items.at(i).isPassedBeforePrescale() 
-        << ", and is in BG " << EBBunchGroupNames[_BG] << endreq;
+        << ", and is in BG " << EBBunchGroupNames[_BG] );
       if (_BG == kBG_NONE) continue; 
       if (_eventL1Items.at(i).isPassedBeforePrescale() == false) continue;
       if (_eventBG != kBG_NONE && _eventBG != _BG) {
-        log() << MSG::ERROR << "Event has mismatched bunchgroups in it, both " 
+        ATH_MSG_ERROR("Event has mismatched bunchgroups in it, both " 
           << EBBunchGroupNames[_BG] << " and " 
-          << EBBunchGroupNames[_eventBG] << endreq;
+          << EBBunchGroupNames[_eventBG] );
         for (unsigned j = 0; j < _eventL1Items.size(); ++j) {
-          log() << MSG::ERROR << "-> L1 item " << m_CPTIDToL1Name[_eventL1Items.at(j).getCtpId()] 
+          ATH_MSG_ERROR("-> L1 item " << m_CPTIDToL1Name[_eventL1Items.at(j).getCtpId()] 
             << ", passes? " << _eventL1Items.at(j).isPassedBeforePrescale() 
-            << ", and is in BG " << EBBunchGroupNames[ m_L1IDToBunchGroup[ _eventL1Items.at(j).getCtpId() ] ] << endreq;
+            << ", and is in BG " << EBBunchGroupNames[ m_L1IDToBunchGroup[ _eventL1Items.at(j).getCtpId() ] ] );
         }
       }
       _eventBG = _BG;
@@ -338,11 +334,11 @@ bool Trig::TrigNtEBWeightTool::Fill(TrigMonEvent &event)
 
     // Check we could assign the BG
     if (_eventBG == kBG_NONE) {
-      log() << MSG::ERROR << "Unable to determine the bunch group for this event. L1 items were:";
+      ATH_MSG_ERROR("Unable to determine the bunch group for this event. L1 items were:");
       for (unsigned i = 0; i < _eventL1Items.size(); ++i) {
-        log() << MSG::ERROR << "-> L1 item " << m_CPTIDToL1Name[_eventL1Items.at(i).getCtpId()] 
+        ATH_MSG_ERROR("-> L1 item " << m_CPTIDToL1Name[_eventL1Items.at(i).getCtpId()] 
           << ", passes? " << _eventL1Items.at(i).isPassedBeforePrescale() 
-          << ", and is in BG " << EBBunchGroupNames[ m_L1IDToBunchGroup[ _eventL1Items.at(i).getCtpId() ] ] << endreq;
+          << ", and is in BG " << EBBunchGroupNames[ m_L1IDToBunchGroup[ _eventL1Items.at(i).getCtpId() ] ] );
       }
     }
 
@@ -384,7 +380,7 @@ bool Trig::TrigNtEBWeightTool::Fill(TrigMonEvent &event)
 
         // Get CTPID for this L1 item
         if (m_L1NameToCPTID.count( _L1Name ) == 0) {
-          log() << MSG::ERROR << "Cannot look up in stored menu the CTPID for chain " << _L1Name << endreq;
+          ATH_MSG_ERROR("Cannot look up in stored menu the CTPID for chain " << _L1Name );
           return false;
         }
         unsigned _L1CPTID = m_L1NameToCPTID[ _L1Name ];
@@ -398,7 +394,7 @@ bool Trig::TrigNtEBWeightTool::Fill(TrigMonEvent &event)
         for (unsigned i = 0; i < _eventL1Items.size(); ++i) {
           if (_eventL1Items.at(i).getCtpId() != _L1CPTID) continue;
           _passedL1Raw = _eventL1Items.at(i).isPassedBeforePrescale();
-          if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << "L1Item " << _L1Name << " considered for " << _EBMappingName << (_passedL1Raw ? " PASSED raw." : " did NOT pass raw.") << endreq;
+          ATH_MSG_DEBUG("L1Item " << _L1Name << " considered for " << _EBMappingName << (_passedL1Raw ? " PASSED raw." : " did NOT pass raw.") );
           break;
         }
         if ( _passedL1Raw == 0 ) continue;
@@ -410,25 +406,25 @@ bool Trig::TrigNtEBWeightTool::Fill(TrigMonEvent &event)
       // Based on this, assign the appropriate weight.
       if ( _passEBTrigBeforePS[_EBEnum] == true ) {
         _weight *= 1. - ( 1. / m_chainPrescale[_EBEnum] );
-        if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG <<_EBMappingName << " with PS " << m_chainPrescale[_EBEnum] << " included in weight. (weight = " << _weight <<" )" << endreq;
+        ATH_MSG_DEBUG(_EBMappingName << " with PS " << m_chainPrescale[_EBEnum] << " included in weight. (weight = " << _weight <<" )" );
       }
     }
     
     // Don't forget about random, this gives a constant weight
     if (_eventBG == kBG_FILLED &&  m_chainEnabled[kEb_random] == true) {
       _weight *= 1. - ( 1. / m_chainPrescale[kEb_random] );
-      if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << EBTriggerNameHLT[kEb_random] << " with PS " << m_chainPrescale[kEb_random] << " included in weight. (weight = " << _weight <<" )" << endreq;
+      ATH_MSG_DEBUG(EBTriggerNameHLT[kEb_random] << " with PS " << m_chainPrescale[kEb_random] << " included in weight. (weight = " << _weight <<" )" );
     } else if (_eventBG == kBG_FIRSTEMPTY &&  m_chainEnabled[kEb_random_firstempty] == true) {
       _weight *= 1. - ( 1. / m_chainPrescale[kEb_random_firstempty] );
-      if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << EBTriggerNameHLT[kEb_random_firstempty] << " with PS " << m_chainPrescale[kEb_random_firstempty] << " included in weight. (weight = " << _weight <<" )" << endreq;
+      ATH_MSG_DEBUG(EBTriggerNameHLT[kEb_random_firstempty] << " with PS " << m_chainPrescale[kEb_random_firstempty] << " included in weight. (weight = " << _weight <<" )" );
     } else if (_eventBG == kBG_EMPTY &&  m_chainEnabled[kEb_random_empty] == true) {
       _weight *= 1. - ( 1. / m_chainPrescale[kEb_random_empty] );
-      if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << EBTriggerNameHLT[kEb_random_empty] << " with PS " << m_chainPrescale[kEb_random_empty] << " included in weight. (weight = " << _weight <<" )" << endreq;
+      ATH_MSG_DEBUG(EBTriggerNameHLT[kEb_random_empty] << " with PS " << m_chainPrescale[kEb_random_empty] << " included in weight. (weight = " << _weight <<" )" );
     } else if (_eventBG == kBG_UNPAIRED_ISO &&  m_chainEnabled[kEb_random_unpaired_iso] == true) {
       _weight *= 1. - ( 1. / m_chainPrescale[kEb_random_unpaired_iso] );
-      if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << EBTriggerNameHLT[kEb_random_unpaired_iso] << " with PS " << m_chainPrescale[kEb_random_unpaired_iso] << " included in weight. (weight = " << _weight <<" )" << endreq;
+      ATH_MSG_DEBUG(EBTriggerNameHLT[kEb_random_unpaired_iso] << " with PS " << m_chainPrescale[kEb_random_unpaired_iso] << " included in weight. (weight = " << _weight <<" )" );
     } else {
-      if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << "Not including EB random, chain is disabled." << endreq;
+      ATH_MSG_DEBUG("Not including EB random, chain is disabled." );
     }
 
     // Invert to give the un-weighting factor, careful not to /0.
@@ -438,9 +434,9 @@ bool Trig::TrigNtEBWeightTool::Fill(TrigMonEvent &event)
       _weight = 1. / ( 1. - _weight );
     }
 
-    if(outputLevel() <= MSG::DEBUG) log() << MSG::DEBUG << "This event has final weight:" 
+    ATH_MSG_DEBUG("This event has final weight:" 
       << _weight << ", (float: " << (Float_t) _weight 
-      << ") and BG " << EBBunchGroupNames[_eventBG] <<" this will be stored in locations 45 and 46" << endreq;
+      << ") and BG " << EBBunchGroupNames[_eventBG] <<" this will be stored in locations 45 and 46" );
     event.addVar(45, (Float_t) _weight);
     event.addVar(46, (Float_t) _eventBG);
 

@@ -92,8 +92,7 @@ void Trig::ReadLumiBlock::updateLumiBlocks(const unsigned run)
   		        << "   End=" << _end
   		        << "   Length=" << _length << endl;
     }
-  }
-  else { 
+  } else { 
     m_infos << "ReadRunData - missing COOL folder: /TRIGGER/LUMI/LBLB in " << m_cool_id << endl; 
   }
 // more lumi info can be got from http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Trigger/TrigCost/TrigCostRate/src/ReadCool.cxx
@@ -151,8 +150,7 @@ bool Trig::ReadLumiBlock::openDb( bool readOnly )
     m_debug << "ReadLumiBlock::openDb - using schema version: " << schemaVersion << endl;
 
     return true;
-  }
-  catch(cool::DatabaseDoesNotExist& e) {
+  } catch(cool::DatabaseDoesNotExist& e) {
     m_infos << "ReadLumiBlock::openDb - COOL exception caught: " << e.what() << endl
 	          << "   could not open database: " << m_cool_id << endl;
     return false;
@@ -169,8 +167,7 @@ void Trig::ReadLumiBlock::closeDb()
       m_debug << "ReadLumiBlock::closeDd - closing database '" << m_cool_id << endl;
       m_cool_ptr->closeDatabase();
     }
-  }
-  catch(std::exception& e) {
+  } catch(std::exception& e) {
     m_infos << "ReadLumiBlock::closeDB - COOL exception caught: " << e.what() << endl
 	          << "   could not close COOL database: " << m_cool_id << endl;
   }

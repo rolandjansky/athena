@@ -8,7 +8,7 @@
 #include <sstream>
 
 // Framework
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaKernel/errorcheck.h"
 
 // Trigger and TDAQ
 #include "TrigConfHLTData/HLTUtils.h"
@@ -20,11 +20,9 @@
 
 //---------------------------------------------------------------------------------------
 Trig::TrigNtRobsTool::TrigNtRobsTool(const std::string &name,
-				     const std::string &type,
-				     const IInterface  *parent)
-  :AlgTool(name, type, parent),
-   m_log(0),
-   m_storeGate("StoreGateSvc", name),
+             const std::string &type,
+             const IInterface  *parent)
+  :AthAlgTool(name, type, parent),
    m_config(0)
 {
   declareInterface<Trig::ITrigNtTool>(this);
@@ -39,24 +37,17 @@ Trig::TrigNtRobsTool::TrigNtRobsTool(const std::string &name,
 //---------------------------------------------------------------------------------------
 Trig::TrigNtRobsTool::~TrigNtRobsTool()
 {
-  delete m_log; m_log = 0;
 }
 
 //---------------------------------------------------------------------------------------
 StatusCode Trig::TrigNtRobsTool::initialize()
 {    
-  m_log = new MsgStream(msgSvc(), name());
 
-  log() << MSG::DEBUG << "initialize()" << endreq;
-  
-  if (m_storeGate.retrieve().isFailure()) {
-    log() << MSG::ERROR << "Could not retrieve StoreGateSvc!" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_MSG_DEBUG("initialize()" );
 
-  log() << MSG::INFO << "TrigNtRobsTool::initialize()..." << endreq
-	<< "   cleanROBs  = " << m_cleanROBs  << endreq
-	<< "   keepSubDet = " << m_keepSubDet << endreq;
+  ATH_MSG_INFO("TrigNtRobsTool::initialize()..." );
+  ATH_MSG_INFO("   cleanROBs  = " << m_cleanROBs );
+  ATH_MSG_INFO("   keepSubDet = " << m_keepSubDet );
 
   return StatusCode::SUCCESS;
 }
@@ -79,7 +70,7 @@ bool Trig::TrigNtRobsTool::Fill(TrigMonConfig *confg)
   m_config = 0;
 
   if(!confg) {
-    log() << MSG::WARNING << "Null TrigMonConfig pointer" << endreq;
+    ATH_MSG_WARNING("Null TrigMonConfig pointer" );
     return false;
   }
   
@@ -93,16 +84,10 @@ bool Trig::TrigNtRobsTool::Fill(TrigMonEvent &event)
   //
   // Process current event
   //
-  if(outputLevel() <= MSG::VERBOSE) {
-    log() << MSG::VERBOSE << "TrigNtRobsTool::Fill - start function ..." << endreq;
-  }
+  ATH_MSG_VERBOSE("TrigNtRobsTool::Fill - start function ..." );
 
-  if(!m_storeGate) {
-    log() << MSG::WARNING << "Invalid StoreGateSvc" << endreq;
-    return false;
-  }
   if(!m_config) {
-    log() << MSG::WARNING << "Invalid TrigMonConfig" << endreq;
+    ATH_MSG_WARNING("Invalid TrigMonConfig" );
     return false;
   }
   
@@ -111,27 +96,20 @@ bool Trig::TrigNtRobsTool::Fill(TrigMonEvent &event)
   //
   std::string currROBKey;
 
-  if(!m_storeGate -> transientContains<ROBDataMonitorCollection>(currROBKey)) {
-    if(outputLevel() <= MSG::DEBUG) {
-      log() << MSG::DEBUG 
-	    << "ROBDataMonitorCollection does not exist with key=" << currROBKey << endreq;
-    }
+  if(!evtStore() -> transientContains<ROBDataMonitorCollection>(currROBKey)) {
+    ATH_MSG_DEBUG( "ROBDataMonitorCollection does not exist with key=" << currROBKey );
 
-    if(!m_storeGate -> transientContains<ROBDataMonitorCollection>(m_keyROB)) {
-      if(outputLevel() <= MSG::DEBUG) {
-	log() << MSG::DEBUG  
-	      << "ROBDataMonitorCollection does not exist with key=" << m_keyROB << endreq;
-      }
+    if(!evtStore() -> transientContains<ROBDataMonitorCollection>(m_keyROB)) {
+      ATH_MSG_DEBUG( "ROBDataMonitorCollection does not exist with key=" << m_keyROB );
       return false;
-    }
-    else {
+    } else {
       currROBKey = m_keyROB;
     }
   }
 
   const ROBDataMonitorCollection *robcol = 0;
-  if(m_storeGate -> retrieve<ROBDataMonitorCollection>(robcol, currROBKey).isFailure()) {
-    log() << MSG::WARNING  << "Failed to find ROBDataMonitorCollection" << endreq;
+  if(evtStore() -> retrieve<ROBDataMonitorCollection>(robcol, currROBKey).isFailure()) {
+    ATH_MSG_WARNING( "Failed to find ROBDataMonitorCollection" );
     return false;
   }
 
@@ -141,18 +119,14 @@ bool Trig::TrigNtRobsTool::Fill(TrigMonEvent &event)
   for(ROBDataMonitorCollection::const_iterator it = robcol->begin(); it != robcol->end(); ++it) {
     robmonitor::ROBDataMonitorStruct *rob = *it;
     if(!rob) {
-      if(outputLevel() <= MSG::DEBUG)
-	log() << MSG::DEBUG  << "Null ROBDataMonitorStruct pointer" << endreq;
+      ATH_MSG_DEBUG("Null ROBDataMonitorStruct pointer" );
       continue;
     }
     
     if(lvl1_id == 0) { 
       lvl1_id = rob->lvl1ID;
-    }
-    else if(lvl1_id != rob->lvl1ID) {
-      if(outputLevel() <= MSG::DEBUG) {
-	log() << MSG::DEBUG  << "Mismatch L1ID: " << lvl1_id << "!=" << rob->lvl1ID << endreq;
-      }
+    } else if(lvl1_id != rob->lvl1ID) {
+      ATH_MSG_DEBUG("Mismatch L1ID: " << lvl1_id << "!=" << rob->lvl1ID );
     }
 
     //
@@ -168,13 +142,13 @@ bool Trig::TrigNtRobsTool::Fill(TrigMonEvent &event)
       
       // iterate over algorithms
       for(unsigned int j = 0; j < avec.size(); ++j) {
-	const TrigConfAlg &alg = avec[j];
-
-	if(alg.getName() == rob->requestor_name) { 
-	  alg_id   = alg.getNameId();
-	  found_id = true;
-	  break;
-	}
+        const TrigConfAlg &alg = avec[j];
+        
+        if(alg.getName() == rob->requestor_name) { 
+          alg_id   = alg.getNameId();
+          found_id = true;
+          break;
+        }
       }
     }
 
@@ -182,29 +156,28 @@ bool Trig::TrigNtRobsTool::Fill(TrigMonEvent &event)
       alg_id = TrigConf::HLTUtils::string2hash(rob->requestor_name, "ALG");
       
       if(m_algIds.insert(alg_id).second) {
-	      log() << MSG::INFO << "Algorithm not in a menu: " << rob->requestor_name 
-	      << " use hash id=" << alg_id << endreq;
+        ATH_MSG_INFO("Algorithm not in a menu: " << rob->requestor_name << " use hash id=" << alg_id );
       }
     }
 
-    if(outputLevel() <= MSG::DEBUG && ++robDebug < 10) {
-      log() << MSG::DEBUG << "ROB requestor name/id: " << rob->requestor_name << "/" << alg_id << endreq;
-      if (robDebug == 9) log() << MSG::DEBUG << "Additional ROBs not shown..." << endreq;
+    if(++robDebug < 10) {
+      ATH_MSG_DEBUG("ROB requestor name/id: " << rob->requestor_name << "/" << alg_id );
+      if (robDebug == 9) ATH_MSG_DEBUG("Additional ROBs not shown unless VERBOSE level..." );
+    } else {
+      ATH_MSG_VERBOSE("ROB requestor name/id: " << rob->requestor_name << "/" << alg_id );
     }
+
 
     // create ntuple entry for ROB monitoring data
     TrigMonROB myrob(alg_id, 
-		     rob->start_time_of_ROB_request.tv_sec,
-		     rob->start_time_of_ROB_request.tv_usec,
-		     rob->end_time_of_ROB_request.tv_sec,
-		     rob->end_time_of_ROB_request.tv_usec);
+         rob->start_time_of_ROB_request.tv_sec,
+         rob->start_time_of_ROB_request.tv_usec,
+         rob->end_time_of_ROB_request.tv_sec,
+         rob->end_time_of_ROB_request.tv_usec);
     
-    if(outputLevel() <= MSG::DEBUG && m_printDebug) {
-      log() << MSG::DEBUG  << "ROBDataMonitorStruct: " 
-	    << rob->requestor_name << " request for " 
-	    << rob->requested_ROBs.size() << " ROB(s) took "
-	    << rob->elapsedTime() << " ?= " 
-	    << myrob.getTimer() << " ms" << endreq;
+    if(m_printDebug) {
+      ATH_MSG_DEBUG("ROBDataMonitorStruct: " << rob->requestor_name << " request for " << rob->requested_ROBs.size() << " ROB(s) took "
+        << rob->elapsedTime() << " ?= " << myrob.getTimer() << " ms" );
     }
 
     // iterator over requested robs
@@ -228,19 +201,15 @@ bool Trig::TrigNtRobsTool::Fill(TrigMonEvent &event)
 
       myrob.addData(mydata);
 
-      if(outputLevel() <= MSG::DEBUG && m_printDebug) {
-	      log() << MSG::DEBUG  
-	      << "ROBDataStruct:  id, size=" << data.rob_id       << ", " << data.rob_size       << endreq
-	      << "TrigMonROBData: id, size=" << mydata.getROBId() << ", " << mydata.getROBSize() << endreq;
+      if(m_printDebug) {
+        ATH_MSG_DEBUG("ROBDataStruct:  id, size=" << data.rob_id       << ", " << data.rob_size       );
+        ATH_MSG_DEBUG("TrigMonROBData: id, size=" << mydata.getROBId() << ", " << mydata.getROBSize() );
       }
     }   
 
     if(m_cleanROBs) { 
       CleanROB(myrob);
-
-      if(outputLevel() <= MSG::DEBUG) {
-	log() << MSG::DEBUG << "Executed CleanROB()" << endreq;
-      }   
+      ATH_MSG_DEBUG("Executed CleanROB()" );
     }
     
     event.add<TrigMonROB>(myrob);
@@ -248,9 +217,7 @@ bool Trig::TrigNtRobsTool::Fill(TrigMonEvent &event)
     CheckROB(myrob, *rob);
   }
 
-  if(outputLevel() <= MSG::VERBOSE) {
-    log() << MSG::VERBOSE << "TrigNtRobsTool::Fill - finished." << endreq;
-  }
+  ATH_MSG_VERBOSE("TrigNtRobsTool::Fill - finished." );
 
   return true;
 }
@@ -261,11 +228,9 @@ void Trig::TrigNtRobsTool::CleanROB(TrigMonROB &data) const
   //
   // Fill TrigMonRobSum and clear robs
   //
-  if(outputLevel() <= MSG::VERBOSE) {
-    log() << MSG::VERBOSE << "TrigNtRobsTool::CleanROB() - start..." << endreq
-	  << "  number ROBs  before cleaning: " << data.getData().size() << endreq
-	  << "  number words before cleaning: " << data.getWord().size() << endreq;
-  }
+  ATH_MSG_VERBOSE("TrigNtRobsTool::CleanROB() - start..." );
+  ATH_MSG_VERBOSE("  number ROBs  before cleaning: " << data.getData().size() );
+  ATH_MSG_VERBOSE("  number words before cleaning: " << data.getWord().size() );
 
   std::map<std::pair<TrigMonROBData::History, int>, TrigMonROBSum> smap;
   
@@ -305,18 +270,14 @@ void Trig::TrigNtRobsTool::CleanROB(TrigMonROB &data) const
   //
   // Record all collect summary objects
   //
-  for(std::map<std::pair<TrigMonROBData::History, int>, TrigMonROBSum>::iterator it = smap.begin(); 
-      it != smap.end(); ++it) {
+  for(std::map<std::pair<TrigMonROBData::History, int>, TrigMonROBSum>::iterator it = smap.begin(); it != smap.end(); ++it) {
     const TrigMonROBSum &sum = it->second;
     data.addWord(sum.getWord());
   }
   
-  if(outputLevel() <= MSG::VERBOSE) {
-    log() << MSG::VERBOSE 
-	  << "  number ROBs  after cleaning: " << data.getData().size() << endreq
-	  << "  number words after cleaning: " << data.getWord().size() << endreq
-	  << "TrigNtRobsTool::CleanROB() - done. " << endreq;
-  }
+  ATH_MSG_VERBOSE("  number ROBs  after cleaning: " << data.getData().size() );
+  ATH_MSG_VERBOSE("  number words after cleaning: " << data.getWord().size() );
+  ATH_MSG_VERBOSE("TrigNtRobsTool::CleanROB() - done. " );
 }
 
 //---------------------------------------------------------------------------------------
@@ -335,11 +296,11 @@ namespace Tmp
       str << "nrob=" << nrob << " size=" << size;
 
       for(unsigned i = 0; i < subs.size(); ++i) {
-	str << " sd=" << std::hex << subs.at(i);
+        str << " sd=" << std::hex << subs.at(i);
       }
       
       for(unsigned i = 0; i < rids.size(); ++i) {
-	str << " id=" << std::hex << rids.at(i);
+        str << " id=" << std::hex << rids.at(i);
       }
       
       return str.str();
@@ -349,16 +310,14 @@ namespace Tmp
 
 //---------------------------------------------------------------------------------------
 void Trig::TrigNtRobsTool::CheckROB(const TrigMonROB &data, 
-				    robmonitor::ROBDataMonitorStruct &rob) const
+            robmonitor::ROBDataMonitorStruct &rob) const
 {
   //
   // Check consistency between between two input structures
   //
   if(outputLevel() > MSG::DEBUG || !m_printDebug) return;
   
-  log() << MSG::DEBUG 
-	<< "TrigNtRobsTool::CheckROB() - start function:" 
-	<< " number of requested robs: " << rob.requested_ROBs.size() << endreq;
+  ATH_MSG_DEBUG("TrigNtRobsTool::CheckROB() - start function: number of requested robs: " << rob.requested_ROBs.size() );
 
   //
   // Sum data from cost monitoring structure
@@ -416,7 +375,7 @@ void Trig::TrigNtRobsTool::CheckROB(const TrigMonROB &data,
     //
     std::map<TrigMonROBData::History, Tmp::RobSum>::iterator cit = sum_cost.find(rit->first);
     if(cit == sum_cost.end()) {
-      log() << MSG::DEBUG << pref << "- error: missing history=: " << rit->first << endreq;
+      ATH_MSG_DEBUG(pref << "- error: missing history=: " << rit->first );
       continue;
     }
 
@@ -424,14 +383,14 @@ void Trig::TrigNtRobsTool::CheckROB(const TrigMonROB &data,
     // 2) Check for rob size
     //
     if(cit->second.size != rit->second.size) {
-      log() << MSG::DEBUG << pref << "- error: ROB size mismatch: " << cit->second.size << "!=" << rit->second.size << endreq;
+      ATH_MSG_DEBUG(pref << "- error: ROB size mismatch: " << cit->second.size << "!=" << rit->second.size );
       continue;
     }
     
     if(m_cleanROBs && m_keepSubDet) { 
-      log() << MSG::DEBUG << pref << "2: good match: " << endreq
-	    << "  cost: " << cit->second.print() << endreq
-	    << "  robs: " << rit->second.print() << endreq;
+      ATH_MSG_DEBUG(pref << "2: good match: " );
+      ATH_MSG_DEBUG("  cost: " << cit->second.print() );
+      ATH_MSG_DEBUG("  robs: " << rit->second.print() );
       continue;
     }
 
@@ -439,14 +398,14 @@ void Trig::TrigNtRobsTool::CheckROB(const TrigMonROB &data,
     // 3) Check for number of rob ids
     //
     if(cit->second.nrob != rit->second.nrob) {
-      log() << MSG::DEBUG << pref << "- error: ROB ids mismatch: " << cit->second.nrob << "!=" << rit->second.nrob << endreq;
+      ATH_MSG_DEBUG(pref << "- error: ROB ids mismatch: " << cit->second.nrob << "!=" << rit->second.nrob );
       continue;
     }
 
-    log() << MSG::DEBUG << pref << "3: good match: " << endreq
-	  << "  cost: " << cit->second.print() << endreq
-	  << "  robs: " << rit->second.print() << endreq;
+    ATH_MSG_DEBUG(pref << "3: good match: " );
+    ATH_MSG_DEBUG("  cost: " << cit->second.print() );
+    ATH_MSG_DEBUG("  robs: " << rit->second.print() );
   }
 
-  log() << MSG::DEBUG << "TrigNtRobsTool::CheckROB() - done." << endreq;
+  ATH_MSG_DEBUG("TrigNtRobsTool::CheckROB() - done." );
 }
