@@ -661,7 +661,7 @@ HLT::ErrorCode TrigMuGirl::hltExecute(const HLT::TriggerElement* inputTE, HLT::T
                msg() << MSG::DEBUG << "MuonFeature:: stau segments "<<stauSummary->muonSegmentList.size()
                                    << " Muon segments "<<m_pCandidate->vectorMuonSegments().size()<< endreq;
                const Trk::Track* RefittedTrack = 0;
-               RefittedTrack = m_pMuonFeatureGlobalFitTool->globalFit(stauSummary->muonSegmentList,summary_mf->qOverP,m_doNTuple);
+               //RefittedTrack = m_pMuonFeatureGlobalFitTool->globalFit(stauSummary->muonSegmentList,summary_mf->qOverP,m_doNTuple);
                //RefittedTrack = m_pMuonFeatureGlobalFitTool->globalFit(m_pCandidate->vectorMuonSegments(),summary_mf->qOverP,m_doNTuple);
 
                  if (RefittedTrack != NULL)
