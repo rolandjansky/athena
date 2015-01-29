@@ -73,7 +73,10 @@ def TrigBjetMonitoringConfig():
 
 
 # Used for MC
-	HLTBjetMon.TriggerChainBjet      = ["HLT_j55_bperf_EFID"]
+	HLTBjetMon.TriggerChainBjet      = ["HLT_j55_bperf"]
+#	HLTBjetMon.TriggerChainBjet      = ["HLT_j55_bperf_EFID"]
+#	HLTBjetMon.TriggerChainBjet      = ["HLT_j0_bperf_EFID"]
+#	HLTBjetMon.TriggerChainBjet      = ["HLT_j0_bperf"]
 
 #  Used in cosmics
 #	HLTBjetMon.TriggerChainBjet      = ["HLT_j0_perf_bperf_L1RD0_EMPTY"]
