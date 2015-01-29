@@ -5,8 +5,8 @@ use     AtlasPolicy             AtlasPolicy-*
 use     AtlasROOT               AtlasROOT-*              External
 use DataCollection      DataCollection-*             External
 #use     AtlasAIDA               AtlasAIDA-*             External
-#use    CLIDSvc CLIDSvc-00-*    Control
 use     GaudiInterface          GaudiInterface-*        External
+use AthenaBaseComps             AthenaBaseComps-*   Control
 
 private
 use     StoreGate               StoreGate-*             Control

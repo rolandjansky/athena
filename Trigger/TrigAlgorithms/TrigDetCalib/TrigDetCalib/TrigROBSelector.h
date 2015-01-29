@@ -18,11 +18,11 @@
 #ifndef TrigEgammaHypo_TrigROBSelector_H
 #define TrigEgammaHypo_TrigROBSelector_H
 
-#include "GaudiKernel/AlgTool.h"
 #include "TrigDetCalib/ITrigROBSelector.h"
 
 #include <vector>
 #include <string>
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "IRegionSelector/RegSelEnums.h"
@@ -43,7 +43,7 @@ namespace HLT {
  */
 
 
-class TrigROBSelector : public AlgTool, public virtual ITrigROBSelector
+class TrigROBSelector : public AthAlgTool, public virtual ITrigROBSelector
 {
   public:
 
@@ -63,16 +63,10 @@ class TrigROBSelector : public AlgTool, public virtual ITrigROBSelector
 
     bool reset();
     
-    inline MsgStream& msg() const { return *m_msg; }
-    inline unsigned int msgLvl() const { return m_msgLvl; }
-         
     StatusCode queryInterface( const InterfaceID& riid, void** ppvIf ); //!< Gaudi interface method
     static const InterfaceID& interfaceID() { return ITrigROBSelector::interfaceID(); }  //!< Gaudi interface method
      
   private:
-    
-    MsgStream* m_msg;
-    unsigned int m_msgLvl;
     
     ServiceHandle<IRegSelSvc> m_regionSelector;
     ServiceHandle<ITHistSvc> m_tHistSvc;

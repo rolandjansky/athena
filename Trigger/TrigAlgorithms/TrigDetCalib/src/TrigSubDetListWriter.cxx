@@ -283,11 +283,6 @@ HLT::ErrorCode TrigSubDetListWriter::hltInitialize()
 
 HLT::ErrorCode TrigSubDetListWriter::hltBeginRun()
 {
-  const double etamax=4.8;
-  const double etamin=-4.8;
-  const double phimin=-M_PI;
-  const double phimax=M_PI;
-  
   TrigRoiDescriptor roi(true); /// create a fullscan RoI 
 
   m_ttemrange.clear();
