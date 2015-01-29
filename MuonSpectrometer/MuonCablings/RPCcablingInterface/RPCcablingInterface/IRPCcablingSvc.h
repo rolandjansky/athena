@@ -160,12 +160,21 @@ class IRPCcablingSvc : virtual public IInterface
 			       Identifier& ID) const=0;
 
     
-    // provide the RegionSelector functionalities			     
-    //   virtual std::vector<uint32_t> getRobId (float etaMin, float etaMax,
-    //                             float phiMin,float phiMax) const=0;
-    //virtual std::vector<uint32_t> getPadHash (float etaMin, float etaMax,
-    //                                  float phiMin,float phiMax) const=0;
-   
+  //map a single PRD HashId into a vector of RDO HashIds
+  virtual StatusCode giveRDO_fromPRD(const IdentifierHash prdHashId,  
+                                     std::vector<IdentifierHash>& rdoHashVec) const=0;
+                                  
+  //map a vector of PRD HashIds into a vector of RDO HashIds
+  virtual StatusCode giveRDO_fromPRD(std::vector<IdentifierHash>& prdHashVec,  
+                                     std::vector<IdentifierHash>& rdoHashVec) const=0;
+                                  
+  //map a single PRD HashId into a list of corresponding ROB Ids
+  virtual StatusCode giveROB_fromPRD(const IdentifierHash prdHashId,
+                                     std::vector<uint32_t>& robIdVec) const=0;
+                                     
+  //map a vector of PRD HashIds into a list of corresponding ROB Ids
+  virtual StatusCode giveROB_fromPRD(std::vector<IdentifierHash>& prdHashVec,
+                                     std::vector<uint32_t>& robIdVec) const=0;
    
     //provide the full list of ROB id
     virtual std::vector<uint32_t> giveFullListOfRobIds() const=0;
