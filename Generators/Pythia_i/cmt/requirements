@@ -9,6 +9,7 @@ use GaudiInterface      GaudiInterface-*      External
 use GeneratorModules    GeneratorModules-*    Generators
 use Pythia              Pythia-*              External
 use Lhapdf              Lhapdf-*              External
+use Lhef_i     		Lhef_i-*              Generators
 use AcerMC_i            AcerMC_i-*            Generators
 use Tauola_i            Tauola_i-*            Generators
 
