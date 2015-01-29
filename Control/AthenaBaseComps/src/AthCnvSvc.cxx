@@ -131,7 +131,8 @@ StatusCode AthCnvSvc::finalize()
     }
     i->second.converter()->release();
   }
-  m_workers.clear();
+  //m_workers.clear();
+  Workers().swap (m_workers);
 
   if (m_addressCreator) m_addressCreator->addRef();
   if (m_dataSvc) m_dataSvc->addRef();
