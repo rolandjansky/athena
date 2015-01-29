@@ -37,12 +37,12 @@ private
 # of transient classes.  If we make a single dictionary,
 # the compiler runs out of memory on the generated source.
 
-apply_pattern lcgdict dict=TrigSteeringEventTPCnv1  \
-  selectionfile=selection1.xml \
-  headerfiles="../TrigSteeringEventTPCnv/TrigSteeringEventTPCnvDict1.h"
+apply_pattern lcgdict dict=TrigSteeringEventTPCnv \
+  selectionfile=selection.xml \
+  headerfiles="../TrigSteeringEventTPCnv/TrigSteeringEventTPCnvDict.h"
 
-apply_pattern lcgdict dict=OLD_TrigSteeringEventTPCnv1  \
-  selectionfile=OLD_selection1.xml \
-  headerfiles="../TrigSteeringEventTPCnv/TrigSteeringEventTPCnvDict1.h"
+apply_pattern lcgdict dict=OLD_TrigSteeringEventTPCnv \
+  selectionfile=OLD_selection.xml \
+  headerfiles="../TrigSteeringEventTPCnv/TrigSteeringEventTPCnvDict.h"
 
 end_private
