@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 #ifndef TRKEVENTPRIMITIVES_JACOBIANPHITHETALOCALANGLES_H
-#define TRKEVENTPRIMITIVES_JACOBIANLPHITHETAOCALANGLES_H
+#define TRKEVENTPRIMITIVES_JACOBIANPHITHETALOCALANGLES_H
 
 // Amg
 #include "EventPrimitives/EventPrimitives.h"
