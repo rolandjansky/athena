@@ -6,6 +6,7 @@
 #define TSPMAP_H
 
 #include "TrigFTKSim/FTKSSMap.h"
+#include "TrigFTKSim/FTKHit.h"
 
 #include <vector>
 
@@ -14,6 +15,9 @@
  */
 class TSPMap {
 private:
+  const FTKSSMap *m_amssmap;
+  const FTKSSMap *m_tspssmap;
+
   int m_nplanes; // number of planes
   int *m_nbits; // number of bits used do describe each layer
   int **m_nfactor; // it contains the number of positions per layer per dimension
@@ -54,5 +58,7 @@ public:
   int IEEE2GC(int, int);
   int GC2IEEE(int, int);
   int getPosition(int, int);
+
+  int getHighResSSPart(FTKHit&) const;
 };
 #endif // TSPMAP_H

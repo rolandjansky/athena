@@ -457,3 +457,35 @@ int TSPLevel::getPatternInfo(int ipatt, const FTKPattern *ampatt, bool readTSP)
 
   return nsubs;
 }
+
+/** Return the reference bitmask for the high precision part for the layer "patt"
+ * in the requestd "layer"
+ */
+unsigned int TSPLevel::getHBMask(int patt, int layer) const {
+  // retrieve the number of bits associated to this logical layer
+  const int &npos = m_tspmap.getNBits(layer);
+  // retrieve the offset of the mask to reach the given layer
+  const int &bitoffset = m_tspmap.getBitOffset(layer);
+
+  // retrieve the bitmask associated to the selected pattern
+  const int &curhbmask =  m_hbmask[patt][0];
+
+  // shift the word to have the bits for the layer in LSB position and set to bits after npos
+  return (curhbmask>>bitoffset)&(~(~0<<npos));
+}
+
+/** Return the DC mask for the high precision part for the layer "patt"
+ * in the requestd "layer"
+ */
+unsigned int TSPLevel::getDCMask(int patt, int layer) const {
+  // retrieve the number of bits associated to this logical layer
+  const int &npos = m_tspmap.getNBits(layer);
+  // retrieve the offset of the mask to reach the given layer
+  const int &bitoffset = m_tspmap.getBitOffset(layer);
+
+  // retrieve the bitmask associated to the selected pattern
+  const int &curdcmask =  m_dcmask[patt];
+
+  // shift the word to have the bits for the layer in LSB position and set to bits after npos
+  return (curdcmask>>bitoffset)&(~(~0<<npos));
+}

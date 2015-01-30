@@ -133,7 +133,7 @@ public:
 
   const int& getNPlanes() const { return m_nplanes; }
 
-  unsigned int getLocalModuleID(const FTKHit&, unsigned int);
+  unsigned int getLocalModuleID(const FTKHit&, unsigned int) const;
   void convertLocalID(unsigned int, int, int, int, int&, int&);
 
   bool isHitInRegion(const FTKHit&,int) const;

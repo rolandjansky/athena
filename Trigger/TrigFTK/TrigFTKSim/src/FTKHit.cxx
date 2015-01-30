@@ -9,14 +9,14 @@
 #include <iostream>
 
 FTKCoord::FTKCoord() :
-  m_dim(0), m_coord(0x0), m_includesGangedHits(false)
+  m_dim(0), m_coord(0x0), m_hw_word(0x0), m_includesGangedHits(false)
 {
    // nothing else to do
 }
 
 
 FTKCoord::FTKCoord(int dim) :
-   m_dim(dim), m_includesGangedHits(false)
+  m_dim(dim), m_hw_word(0x0), m_includesGangedHits(false)
 {
   if (m_dim) {
     m_coord = new float[m_dim];
@@ -29,7 +29,7 @@ FTKCoord::FTKCoord(int dim) :
 
 
 FTKCoord::FTKCoord(const FTKCoord &copy) :
-  m_dim(copy.m_dim)
+  m_dim(copy.m_dim), m_hw_word(copy.m_hw_word)
 {
   m_includesGangedHits = copy.m_includesGangedHits;
   if (m_dim!=0) {
@@ -55,6 +55,7 @@ FTKCoord& FTKCoord::operator=(const FTKCoord &copy)
       }
 
       m_includesGangedHits = copy.m_includesGangedHits;
+      m_hw_word = copy.m_hw_word;
 
       for (int i=0;i<m_dim;++i) {
         m_coord[i] = copy.m_coord[i];
@@ -84,15 +85,20 @@ bool operator==(const FTKCoord &left, const FTKCoord &right) {
   for(int i=0;i<right.getDim();i++) {
     if(left[i]!=right[i]) return false;
   }
+  if (left.m_hw_word != right.m_hw_word) return false;
   return true;
 }
 
 std::ostream &operator<<(std::ostream& out,const FTKCoord& coord)
 {
+  std::ios_base::fmtflags original_flags = out.flags();
+      
   out << '(';
   for (int i=0;i<coord.m_dim-1;++i)
     out << coord.m_coord[i] << ',';
   out << coord.m_coord[coord.m_dim-1];
+  out << std::hex << coord.m_hw_word;
+  out.flags(original_flags);
   out << ')';
   
   return out;

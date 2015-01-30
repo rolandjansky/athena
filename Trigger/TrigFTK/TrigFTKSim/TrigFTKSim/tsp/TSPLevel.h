@@ -27,9 +27,14 @@ public:
 	void simulate(FTKRoad& road);
 
 	const std::vector<std::vector<int> >& getSubPatternID() const { return m_subPatternID; }
+
 	const std::vector<std::vector<int> >& getHBMask() const { return m_hbmask; }
+	unsigned int getHBMask(int, int) const;
+
 	std::map<int,FTKSS>* getSplittedSSMap() const { return m_splitted_ssmap; }
 	const std::vector<int>& getDCMask() const { return m_dcmask; }
+	unsigned int getDCMask(int, int) const;
+
 	const std::vector< std::vector<unsigned int> >& getSubSSMasks() const { return m_subssmasks; }
 	const TSPMap& getTSPMap() const { return m_tspmap; }
 	const int& getNPatterns() const { return m_npatterns; }

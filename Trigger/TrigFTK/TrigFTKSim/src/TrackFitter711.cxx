@@ -1037,11 +1037,13 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
     // get the logical layer ID of the connected SCT layers
     const int &layerpos = m_idplanes_or[i];
 
+    // this is special hack for DC match, the first N bits should be ignored
+    int realSS = AMroad->getDCMatchMode()==1 ? (AMroad->getSSID(layerpos)>>AMroad->getHLID(layerpos)) : AMroad->getSSID(layerpos);
     // isEndcap? : condition.
-    bool isEndcap = (AMroad->getSSID(layerpos)%FTKSSMap::getPhiOffset(true))>=20;
+    bool isEndcap = (realSS%FTKSSMap::getPhiOffset(true))>=20;
 
     if (isEndcap)
-      missing_section[i] = AMroad->getSSID(layerpos)%10; // endcap section
+      missing_section[i] = realSS%10; // endcap section
     else
       missing_section[i] = 0; // barrel
 
@@ -2003,7 +2005,7 @@ TrackFitter711::compute_truth(const unsigned int& /*ibank*/,const FTKRoad& road,
     // dump all ssid coordinates and all track coordinates.
     cout << " FINAL ROAD SS DUMP: pl ssid c0" << endl;
     for( unsigned int i=0, f=road.getNPlanes(); i!=f; ++i ) {
-      const int ssid = road.getSSID(i);
+      const int ssid = road.getDCMatchMode()==1 ? road.getSSID(i)>>road.getHLID(i) : road.getSSID(i);
       const std::vector<FTKHit>& hits(road.getHits(i));
       for( std::vector<FTKHit>::const_iterator ihit=hits.begin(), fhit=hits.end(); ihit!=fhit; ++ihit ) {
         const FTKHit& hit = *ihit;
@@ -2146,7 +2148,7 @@ TrackFitter711::compute_truth_incomplete(const unsigned int& /*ibank*/,const FTK
     // dump all ssid coordinates and all track coordinates.
     cout << " FINAL ROAD SS DUMP: pl ssid c0" << endl;
     for( unsigned int i=0, f=road.getNPlanes(); i!=f; ++i ) {
-      const int ssid = road.getSSID(i);
+      const int ssid = road.getDCMatchMode()==1 ? road.getSSID(i)>>road.getHLID(i) : road.getSSID(i);
       const std::vector<FTKHit>& hits(road.getHits(i));
       for( std::vector<FTKHit>::const_iterator ihit=hits.begin(), fhit=hits.end(); ihit!=fhit; ++ihit ) {
         const FTKHit& hit = *ihit;
@@ -2275,10 +2277,11 @@ void TrackFitter711::processor_ResolutionMode(const FTKRoad &road,
     const int &layerpos = m_idplanes_or[i];
 
     // isEndcap? : condition.
-    bool isEndcap = (AMroad->getSSID(layerpos)%FTKSSMap::getPhiOffset(true))>=20;
+    int realSS = AMroad->getDCMatchMode()==1 ? AMroad->getSSID(layerpos)>>AMroad->getHLID(layerpos) : AMroad->getSSID(layerpos) ;
+    bool isEndcap = (realSS%FTKSSMap::getPhiOffset(true))>=20;
 
     if (isEndcap)
-      missing_section[i] = AMroad->getSSID(layerpos)%10; // endcap section
+      missing_section[i] = realSS%10; // endcap section
     else
       missing_section[i] = 0; // barrel
 
@@ -2878,10 +2881,11 @@ void TrackFitter711::setLayerInversions(const FTKRoad &road) {
     const int &layerpos = m_idplanes_or[i];
 
     // isEndcap? : condition.
-    bool isEndcap = (AMroad->getSSID(layerpos)%FTKSSMap::getPhiOffset(true))>=20;
+    const int realSS = AMroad->getDCMatchMode()==1 ? AMroad->getSSID(layerpos)>>AMroad->getHLID(layerpos) : AMroad->getSSID(layerpos);
+    bool isEndcap = (realSS%FTKSSMap::getPhiOffset(true))>=20;
 
     if (isEndcap)
-      m_section_of_exp_layers[i] = AMroad->getSSID(layerpos)%10; // endcap section
+      m_section_of_exp_layers[i] = realSS%10; // endcap section
     else
       m_section_of_exp_layers[i] = 0; // barrel
 

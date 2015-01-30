@@ -12,13 +12,14 @@
 #include "TrigFTKPool/FTKAthTrackContainer.h"
 #include "TrigFTKPool/FTKTrackFitterStats.h"
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 
-class FTK_SGTrackOutput : virtual public FTK_SGTrackOutputI, public AlgTool, 
+class FTK_SGTrackOutput : virtual public FTK_SGTrackOutputI, public AthAlgTool,
 			 public FTKTrackOutput {
 private:
   int m_nbanks;

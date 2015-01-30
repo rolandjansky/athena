@@ -21,7 +21,7 @@ FTKPattern::FTKPattern() :
   m_dcmask(-1), m_hbmask(-1),
   m_nsubpatterns(0)
 {
-  m_subpatterns = new TClonesArray("FTKPattern",10);
+  m_subpatterns = new TClonesArray("FTKPattern",1);
 }
 
 
@@ -35,7 +35,7 @@ FTKPattern::FTKPattern(int nplanes) :
   m_dcmask(-1), m_hbmask(-1),
   m_nsubpatterns(0)
 {
-  m_subpatterns = new TClonesArray("FTKPattern",10);
+  m_subpatterns = new TClonesArray("FTKPattern",1);
   // set the number of planes
   setNPlanes(nplanes);
 }

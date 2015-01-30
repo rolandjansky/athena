@@ -20,6 +20,8 @@
 
 class FTKRoad : public TObject {
 private:
+  int m_DCMatchMode; // comunicate the DC match mode, used by the FTKRoadStream to retrieve the hits
+
   int m_roadID; // global road ID for this bank
 
   int m_bankID; // bank ID, should be unique, formed as #SUBREG*100+#REG
@@ -165,6 +167,9 @@ public:
 
   int getNCombs(); // return the number of combinations
 
+  void setDCMatchMode(int v) { m_DCMatchMode = v; }
+  int getDCMatchMode() const { return m_DCMatchMode; }
+
   int computeTruthList();
   long int getEventIndex(int idx) const { return m_evtidx[idx];}
   long int getBarcode(int idx ) const { return m_barcode[idx]; }
@@ -186,7 +191,7 @@ public:
 
   void Print(Option_t* option = "") const;
 
-  ClassDef(FTKRoad,11)
+  ClassDef(FTKRoad,12)
 };
 
 #endif // FTKROAD_H

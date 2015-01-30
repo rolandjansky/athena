@@ -50,7 +50,7 @@
 using namespace std;
 
 FTK_SGHitInput::FTK_SGHitInput(const std::string& algname, const std::string &name, const IInterface *ifc) :
-  AlgTool(algname,name,ifc),
+  AthAlgTool(algname,name,ifc),
   FTKDataInput(), 
   m_log( msgSvc() , name ), 
   m_truthToTrack( "Trk::TruthToTrack/InDetTruthToTrack" ),  

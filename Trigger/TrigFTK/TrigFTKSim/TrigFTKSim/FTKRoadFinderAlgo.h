@@ -12,21 +12,26 @@
 #include "TrigFTKSim/FTK_RoadMarketTool.h"
 
 #include "TrigFTKSim/RoadFinder.h"
-#include "TrigFTKSim/FTK_AMBank.h"
-#include "TrigFTKSim/tsp/FTKTSPBank.h"
+#include "TrigFTKSim/FTKSSMap.h"
+#include "TrigFTKSim/FTKLogging.h"
 
 #include <string>
 #include <vector>
 #include <ostream>
 
 /////////////////////////////////////////////////////////////////////////////
-class FTKRoadFinderAlgo: public AthAlgorithm {
+class FTKRoadFinderAlgo: public AthAlgorithm, FTKLogger {
 public:
   FTKRoadFinderAlgo (const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~FTKRoadFinderAlgo ();
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();
+
+ protected:
+  // to forward messages from FTKLogging to athena
+  virtual void PostMessage(void);
+
 
 private:
 
@@ -68,6 +73,7 @@ private:
 
   // set the use of the TSP DB banks
   bool m_useTSPBank;
+  bool m_useCompressedBank;
   // if the TSP bank is used it is possible to ask a specific level
   int m_BankLevel;
   // set if the TSP simulation is performed, 0 not used
@@ -139,7 +145,12 @@ private:
 
   bool m_useMinimalAMIN; // flag to propagate to the FTK_AMBank to set the match method
 
+  int m_SectorAsPatterns; // flag to propagate the use of a list of sectors as pattern bank
+
+  int m_DCMatchMethod; // flag to propagate to the FTKTSPMap classes
+
   bool m_AutoDisable; // possibility to avoid internal algorithm execution in particular confitions
+
 };
 
 #endif // FTKRoadFinderAlgo_h

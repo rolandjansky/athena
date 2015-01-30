@@ -5,7 +5,8 @@
 #ifndef FTKDetectorTool_h
 #define FTKDetectorTool_h
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/MsgStream.h"
@@ -69,7 +70,7 @@ namespace HepMC {
 
 
 class FTKDetectorTool :  virtual public FTKDetectorToolI, 
-			 public AlgTool   {
+			 public AthAlgTool   {
   
  private: 
 

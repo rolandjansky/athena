@@ -57,6 +57,10 @@ std::ostream &FTKLogging::Info(const char *where) const {
    return GetStream(where,3);
 }
 
+std::ostream &FTKLogging::Debug(const char *where) const {
+   return GetStream(where,4);
+}
+
 void FTKLogging::ShowProgress(const char *text) {
    GetStream(0,4)<<text<<"\n";
 }

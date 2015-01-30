@@ -89,6 +89,9 @@ TSPMap::~TSPMap()
     is the TSP level, finer. */
 void TSPMap::generate(const FTKSSMap *amssmap, const FTKSSMap *tspssmap)
 {
+  m_amssmap = amssmap;
+  m_tspssmap = tspssmap;
+
   // get the plane maps
   const FTKPlaneMap *ampmap = amssmap->getPlaneMap();
   const FTKPlaneMap *tsppmap = tspssmap->getPlaneMap();
@@ -276,4 +279,30 @@ void TSPMap::generateGrayCodeTables()
       G2Bcur[gval1] = ivM;
     } // end mirrogin loop
   } // end bit loop
+}
+
+/** This method evaluate the high resolution part of a SS, in relation
+ * to the AM part. The Gray encoding.
+ */
+int TSPMap::getHighResSSPart(FTKHit &hit) const {
+  // retrieve constant values
+  const int iplane(hit.getPlane());
+  const int ndim(hit.getDim());
+
+  if (ndim==1) { // SCT case
+    // full precision local position
+    int ss = static_cast<int>(hit[0]/m_tspssmap->getSSPhiWidth(hit)) % m_nfactor[iplane][0];
+    // GC of the position
+    // TODO
+    return ss;
+  }
+  else if (ndim==2) { // Pixel case
+    // evaluate the high precision
+    int ss_x = static_cast<int>(hit[0]/m_tspssmap->getSSPhiWidth(hit)) % m_nfactor[iplane][0];
+    int ss_y = static_cast<int>(hit[1]/m_tspssmap->getSSEtaWidth(hit)) % m_nfactor[iplane][1];
+    // TODO GC for the  ss_?
+    return ss_y << m_internal_bitoffset[iplane][0] | ss_x;
+  }
+
+  return -1;
 }

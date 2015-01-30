@@ -339,7 +339,7 @@ const FTKRegionMapItem &FTKRegionMap::getRegionMapItem(int ireg, int ipl, int is
 
 
 /** return the local module ID for a module, assuming a tower index */
-unsigned int FTKRegionMap::getLocalModuleID(const FTKHit &hit, unsigned int TowerID)
+unsigned int FTKRegionMap::getLocalModuleID(const FTKHit &hit, unsigned int TowerID) const
 {
   int plane = hit.getPlane();
   int eta = hit.getEtaCode();

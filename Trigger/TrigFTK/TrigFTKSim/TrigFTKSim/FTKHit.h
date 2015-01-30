@@ -5,12 +5,14 @@
 #ifndef FTKHIT_H
 #define FTKHIT_H
 
+
 #include <Rtypes.h>
 
 #include <vector>
 #include <istream>
 #include <ostream>
 #include "MultiTruth.h"
+#include "FTKRawHit.h"
 
 /** class describing a generic coordinate */
 class FTKCoord {
@@ -18,6 +20,8 @@ class FTKCoord {
   int m_dim; // dimension
   
   float *m_coord; //[m_dim] coordinate
+  /* store SCT and Pixel cluster positions as integers using the same FTK_IM HW definition */
+  unsigned int m_hw_word;
   bool m_includesGangedHits;
   
  public:
@@ -34,6 +38,30 @@ class FTKCoord {
   
   float &operator[](int i) { return m_coord[i]; }
   float &operator[](int i) const { return m_coord[i]; }
+
+  void setHwWord(unsigned int hw_word) { m_hw_word = hw_word; }
+  void setHwCoord(int i, unsigned int v) {
+    if (m_dim==1 && i==0)
+      m_hw_word = (m_hw_word & ~FTKRawHit::strip_coord_mask) |
+	( (v<<FTKRawHit::strip_coord_bit) & FTKRawHit::strip_coord_mask);
+    if (m_dim==2 && i==0) 
+      m_hw_word = (m_hw_word & ~FTKRawHit::row_coord_mask) |
+	( (v<<FTKRawHit::row_coord_bit) & FTKRawHit::row_coord_mask);
+    if (m_dim==2 && i==1) 
+      m_hw_word = (m_hw_word & ~FTKRawHit::column_coord_mask) |
+	( (v<<FTKRawHit::column_coord_bit) & FTKRawHit::column_coord_mask);
+  }
+  unsigned int getHwCoord(int i) const { 
+    if (m_dim==1)
+      return (m_hw_word & FTKRawHit::strip_coord_mask) >> FTKRawHit::strip_coord_bit; 
+    else if (m_dim==2) {
+      if (i==0) 
+	return (m_hw_word & FTKRawHit::row_coord_mask) >> FTKRawHit::row_coord_bit;
+      else if (i==1) 
+	return (m_hw_word & FTKRawHit::column_coord_mask) >> FTKRawHit::column_coord_bit;
+      else return -9999;
+    } else return -9999;
+  }
 
   friend bool operator==(const FTKCoord &left, const FTKCoord &right);
   friend std::ostream &operator<<(std::ostream&,const FTKCoord&);
@@ -120,8 +148,17 @@ public:
   float &operator[](int i) { return m_coord[i]; }
   float &operator[](int i) const { return m_coord[i]; }
 
+  //  int getHwLocalCoord(int i) const;
+  void setHwWord(unsigned int hw_word) { m_coord.setHwWord(hw_word); }
+  void setHwCoord(int i, unsigned int v) { m_coord.setHwCoord(i, v); }
+  unsigned int getHwCoord(int i) const { return m_coord.getHwCoord(i); }
+
   friend bool operator==(const FTKHit &left, const FTKHit &right);
   friend std::ostream &operator<<(std::ostream&,const FTKHit&);
+
+  const static int single_pixel_row_size  = 8; // one pixel is 8 units of 6.25um
+  const static int single_pixel_col_size  = 16; // one nominal pixel is 16 units of 25um
+  const static int single_IBL_col_size  = 10; // one nominal IBL pixel is 10 units of 25um
 
   ClassDef(FTKHit,6)
 };

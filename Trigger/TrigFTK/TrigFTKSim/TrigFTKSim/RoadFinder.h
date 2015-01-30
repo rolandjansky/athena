@@ -15,7 +15,7 @@
 // in the future, relevant FTK_RawInput stuff can be moved to FTKDataInput
 #include "FTK_RawInput.h"
 
-class FTK_AMBank;
+class FTK_AMsimulation_base;
 
 class RoadFinder {
 private:
@@ -29,7 +29,7 @@ private:
   int m_nsubs; // # of subregions (gets from ${M})
   int m_sub; // current subregion
 
-  FTK_AMBank **m_banks; // array with the  AM banks
+  FTK_AMsimulation_base **m_banks; // array with the  AM banks
 
   bool *m_goodRegion; // array with a flag to check which region are really simulated
 
@@ -69,8 +69,8 @@ public:
    void setNBanks(int);
    int getNBanks() const { return  m_nbanks; }
 
-  void setAMBank(int, FTK_AMBank*);
-  FTK_AMBank* getAMBank(int id) {
+  void setAMBank(int, FTK_AMsimulation_base*);
+  FTK_AMsimulation_base* getAMBank(int id) {
     return m_banks[id];
   }
 

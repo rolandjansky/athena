@@ -99,8 +99,12 @@ public:
   
    const int& getSSOffset(const FTKHit& hit) const
      {  return m_ssm[hit.getPlane()][hit.getSection()][0].m_ssoff; }
+   const int& getSSOffset(int pl, int sec) const
+   { return m_ssm[pl][sec][0].m_ssoff; }
    const int& getSSOffsetInternal(const FTKHit& hit) const
      {  return m_ssm[hit.getPlane()][hit.getSection()][0].m_ssoff_int; }
+   const int& getSSOffsetInternal(int pl, int sec) const
+      { return m_ssm[pl][sec][0].m_ssoff_int; }
 
    const int& getSSDCX(const FTKHit& hit) const
      {  return m_ssm[hit.getPlane()][hit.getSection()][0].m_ndcx; }

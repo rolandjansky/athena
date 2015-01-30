@@ -4,7 +4,7 @@
 
 ## FTK Simulation Transform
 #  Specialist version to do sim x 4 subregions and merge in one job
-# @version $Id: TrigFTKSM4Un_tf.py 624387 2014-10-27 17:37:30Z jahreda $ 
+# @version $Id: TrigFTKSM4Un_tf.py 642440 2015-01-28 16:21:59Z jahreda $ 
 
 import sys
 import time
@@ -26,7 +26,7 @@ import PyJobTransforms.trfArgClasses as trfArgClasses
 
 subregions = 4
 
-ListOfDefaultPositionalKeys=['--AMI', '--CachePath', '--CachedBank', '--DBBankLevel', '--DoRoadFile', '--FTKDoGrid', '--FTKForceAllInput', '--FTKSetupTag', '--FTKUnmergedInputPath', '--HWNDiff', '--HitWarrior', '--IBLMode', '--MakeCache', '--NBanks', '--NSubRegions', '--PixelClusteringMode', '--RoadFilesDir', '--SSFAllowExtraMiss', '--SSFMultiConnection', '--SSFNConnections', '--SSFTRDefn', '--SSFTRMaxEta', '--SSFTRMinEta', '--SaveRoads', '--SctClustering', '--SecondStageFit', '--SetAMSize', '--TRACKFITTER_MODE', '--TSPMinCoverage', '--TSPSimulationLevel', '--UseTSPBank', '--badmap_path', '--badmap_path_for_hit', '--bankpatterns', '--bankregion', '--execOnly', '--fit711constantspath', '--fitconstantspath', '--ignoreErrors', '--inputNTUP_FTKIPFile', '--inputNTUP_FTKTMP_0File', '--inputNTUP_FTKTMP_1File', '--inputNTUP_FTKTMP_2File', '--inputNTUP_FTKTMP_3File', '--inputTXT_FTKIPFile', '--loadHWConf_path', '--maxEvents', '--omitFileValidation', '--outputNTUP_FTKTMPFile', '--outputNTUP_FTKTMP_0File', '--outputNTUP_FTKTMP_1File', '--outputNTUP_FTKTMP_2File', '--outputNTUP_FTKTMP_3File', '--patternbank0path', '--patternbank1path', '--patternbank2path', '--patternbank3path', '--pmap_path', '--pmapcomplete_path', '--pmapunused_path', '--reportName', '--rmap_path', '--sectorpath', '--showGraph', '--showPath', '--showSteps', '--ssmap_path', '--ssmaptsp_path', '--ssmapunused_path', '--uploadtoami', '--validation', '--saveTruthTree']
+ListOfDefaultPositionalKeys=['--AMI', '--CachePath', '--CachedBank', '--DBBankLevel', '--DoRoadFile', '--FTKDoGrid', '--FTKForceAllInput', '--FTKSetupTag', '--FTKUnmergedInputPath', '--HWNDiff', '--HitWarrior', '--IBLMode', '--MakeCache', '--NBanks', '--NSubRegions', '--PixelClusteringMode', '--RoadFilesDir', '--SSFAllowExtraMiss', '--SSFMultiConnection', '--SSFNConnections', '--SSFTRDefn', '--SSFTRMaxEta', '--SSFTRMinEta', '--SaveRoads', '--SctClustering', '--SecondStageFit', '--SetAMSize', '--TRACKFITTER_MODE', '--TSPMinCoverage', '--TSPSimulationLevel', '--UseTSPBank', '--badmap_path', '--badmap_path_for_hit', '--bankpatterns', '--bankregion', '--execOnly', '--fit711constantspath', '--fitconstantspath', '--ignoreErrors', '--inputNTUP_FTKIPFile', '--inputNTUP_FTKTMP_0File', '--inputNTUP_FTKTMP_1File', '--inputNTUP_FTKTMP_2File', '--inputNTUP_FTKTMP_3File', '--inputTXT_FTKIPFile', '--loadHWConf_path', '--maxEvents', '--omitFileValidation', '--outputNTUP_FTKTMPFile', '--outputNTUP_FTKTMP_0File', '--outputNTUP_FTKTMP_1File', '--outputNTUP_FTKTMP_2File', '--outputNTUP_FTKTMP_3File', '--patternbank0path', '--patternbank1path', '--patternbank2path', '--patternbank3path', '--pmap_path', '--pmapcomplete_path', '--pmapunused_path', '--reportName', '--rmap_path', '--sectorpath', '--showGraph', '--showPath', '--showSteps', '--ssmap_path', '--ssmaptsp_path', '--ssmapunused_path', '--uploadtoami', '--validation', '--saveTruthTree', '--postExec', '--postInclude', '--preExec', '--preInclude']
 
 
 @stdTrfExceptionHandler
@@ -141,6 +141,10 @@ def addFTKSimulationArgs(parser):
                         help='CachePath', group='TrigFTKSim')
     parser.add_argument("--CachedBank", type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help="Interpret the pattern bank has a cache", group="TrigFTKSim")
+    parser.add_argument("--SectorsAsPatterns", type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+                        help="If 1 allows to use a list of sectors as pattern bank, default 0")
+    parser.add_argument('--DCMatchMethod',type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+                        help="Set the DC matching method", group="TrigFTKSim")
     
     parser.add_argument('--DoRoadFile', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True), 
                         help='Enable roads file', group='TrigFTKSim')
@@ -244,6 +248,25 @@ def addFTKSimulationArgs(parser):
     parser.add_argument('--FTKDoGrid', 
                         type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help='Use the naming for the grid input', group='TrigFTKMerge')
+
+
+    parser.add_argument('--postExec', type=trfArgClasses.argFactory(trfArgClasses.argSubstepList), nargs='+',
+                        metavar='substep:POSTEXEC', group='TrigFTKSim',
+                        help='Python code to execute after main job options are included (can be optionally limited to a single substep)')
+
+    parser.add_argument('--postInclude', group = 'TrigFTKSim', type=trfArgClasses.argFactory(trfArgClasses.argSubstepList, splitter=','), nargs='+',
+                        metavar='substep:POSTINCLUDE',
+                        help='Python configuration fragment to include after main job options (can be optionally limited to a single substep). Will split on commas: frag1.py,frag2.py is understood.')
+
+    parser.add_argument('--preExec', group = 'TrigFTKSim', type=trfArgClasses.argFactory(trfArgClasses.argSubstepList), nargs='+',
+                        metavar='substep:PREEXEC',
+                        help='Python code to execute before main job options are included (can be optionally limited to a single substep)')
+
+    parser.add_argument('--preInclude', group = 'TrigFTKSim', type=trfArgClasses.argFactory(trfArgClasses.argSubstepList, splitter=','), nargs='+',
+                        metavar='substep:PREINCLUDE',
+                        help='Python configuration fragment to include before main job options (can be optionally limited to a single substep). Will split on commas: frag1.py,frag2.py is understood.')
+
+
     
 
 if __name__ == '__main__':

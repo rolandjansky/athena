@@ -726,6 +726,15 @@ void FTKSSMap::decodeSS(int SSid, const int &plane, const int &section,
 {
  
   /* start to decompose the information codified in the ID */
+  // SSid: Superstrip ID
+  // plane
+  // section
+
+  // OUTPUTS
+  // etaoff: eta module value
+  // phimod: phi module value
+  // phioff: offset for first phi superstrip within the module (note: in "phi SS units, meaning after eta part was separated)
+  // localX: lower edge of the superstrip in strip units within the module
 
   // extract eta offset
   etaoff = SSid%FTKSSMap::getPhiOffset(true);
@@ -736,6 +745,7 @@ void FTKSSMap::decodeSS(int SSid, const int &plane, const int &section,
   // evaluate the module width in SS
   const int& phiwidth = m_ssm[plane][section][0].m_phiwidth;
   const int& phiss = m_ssm[plane][section][0].m_phiss;
+  // number of SS in a module in phi direction (phiwidth/phiss rounded up)
   int SSwidth = (phiwidth-phiwidth%phiss+phiss)/phiss;
 
   // extract the phi ID of the module
@@ -758,6 +768,18 @@ void FTKSSMap::decodeSS(int SSid, const int &plane, const int &section,
 {
  
   /* start to decompose the information codified in the ID */
+  // SSid: Superstrip ID
+  // plane
+  // section
+
+  // OUTPUTS
+  // etamod: eta module value
+  // etaoff: offset for first eta pixel within the module (note: in "eta SS units, meaning after phi part was separated)
+  // localY: lower edge of the eta SS in pixel units within the module
+  // phimod: phi module value
+  // phioff: offset for first phi pixel within the module (note: in "phi SS units, meaning after eta part was separated)
+  // localX: lower edge of the phi SS in pixel units within the module
+
 
   // extract eta offset
   int SSid_y = SSid%FTKSSMap::getPhiOffset(false);
@@ -772,17 +794,19 @@ void FTKSSMap::decodeSS(int SSid, const int &plane, const int &section,
   const int& etass = m_ssm[plane][section][0].m_etass;
 
   // evaluate again the module sizes in SS unit
+  // number of SS in a module in phi direction (phiwidth/phiss rounded up)
   int SSwidth_x = (phiwidth-phiwidth%phiss+phiss)/phiss;
+  // number of SS in a module in eta direction (etawidth/etass rounded up)
   int SSwidth_y = (etawidth-etawidth%etass+etass)/etass;
   
   // extract the phi ID of the module
   phimod = SSid_x/SSwidth_x;
-  // use the SSwidth to calculate the phi offset for the given module
+  // use the SSwidth to calculate the phi offset for the given module (in phi ss units)
   phioff = phimod*SSwidth_x;
   // return the local ID
   localX = (SSid_x-phioff)*phiss;
 
-  // extract the phi ID of the module
+  // extract the eta ID of the module
   etamod = SSid_y/SSwidth_y;
   // use the SSwidth to calculate the phi offset for the given module
   etaoff = etamod*SSwidth_y;
@@ -851,7 +875,7 @@ FTKSSMap::get_lookup_table(const int plane,const int section, const int id) cons
           ssid = compressed_ssid_word_strip(tmp,0);//localModuleID=0
         }
       }
-      cout << " ix=" << ix << " iy=" << iy << " ilut=" << lut_offset << " ssid=" << ssid << endl;
+      //cout << " ix=" << ix << " iy=" << iy << " ilut=" << lut_offset << " ssid=" << ssid << endl;
       result.push_back(ssid);
     }
   }
@@ -867,9 +891,9 @@ FTKSSMap::getNumSuperstrips(const int plane, const int section, const int toweri
   //          in the ssm structure. (potential bug: if pixel SSs => zero offset?)
   int type = (bool)this_map.m_ssoff_int;
   //   maximum extent of local coordinates
-  int nx = this_map.m_phiwidth;
-  int ny = type ? this_map.m_etawidth : 1;
-  cout << " ssmap input address size: pl=" << plane << " sec: " << section << " tower: " << towerid << " nx: " << nx << " ny: " << ny << " size: " << (nx*ny) << endl;
+  //int nx = this_map.m_phiwidth;
+  //int ny = type ? this_map.m_etawidth : 1;
+  //cout << " ssmap input address size: pl=" << plane << " sec: " << section << " tower: " << towerid << " nx: " << nx << " ny: " << ny << " size: " << (nx*ny) << endl;
   // get ssid of maximum input strip. can't no funny business in ssid assignments (i.e., sequential ssids) because of the DC bit and gray encoding.
   if( type ) { // pixel
     const unsigned int total_localssid_bits = (m_nbitsssid-m_nbitsssid_module_pixel);

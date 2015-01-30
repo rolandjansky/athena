@@ -15,6 +15,10 @@
 #include <iostream>
 #include <fstream>
 
+#include "TrigFTKSim/FTK_AMBank.h"
+#include "TrigFTKSim/FTK_CompressedAMBank.h"
+#include "TrigFTKSim/tsp/FTKTSPBank.h"
+
 using namespace std;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -36,7 +40,8 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   m_SCTTrkMode(false), m_scttrk_tracklist(""),
   m_scttrk_roadlist(""), m_scttrk_sectormap_path(""),
   m_scttrk_nlayers(0), m_scttrk_nsubs(0), m_scttrk_lastlayer(0),
-  m_useTSPBank(0), m_BankLevel(1), m_doTSPSim(0), m_minTSPCoverage(0),
+  m_useTSPBank(0), m_useCompressedBank(0), 
+  m_BankLevel(1), m_doTSPSim(0), m_minTSPCoverage(0),
   m_setAMSize(0),
   m_doMakeCache(0), m_CachePath("bankcache.root"),
   m_SaveAllRoads(0),
@@ -57,6 +62,8 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   m_roadmarket(true),
   m_saveroads(true),
   m_useMinimalAMIN(false),
+  m_SectorAsPatterns(0),
+  m_DCMatchMethod(0),
   m_AutoDisable(false)
 {
   // number of banks
@@ -88,6 +95,7 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   declareProperty("bankpatterns",m_bankpatterns,"Max patterns for each bank, -1 means all patterns");
 
   declareProperty("UseTSPBank",m_useTSPBank,"If true the AM bank is the DB format");
+  declareProperty("UseCompressedBank",m_useCompressedBank,"If true the AM bank is the compressed format");
   declareProperty("TSPSimulationLevel",m_doTSPSim,"Level of the TSP simulation: 0 AM, 1 DC, 2 TSP");
   declareProperty("DBBankLevel",m_BankLevel,"ID of the bank, if simulation level is 0");
   declareProperty("TSPMinCoverage",m_minTSPCoverage,"Minimum coverage of the TSP patterns");
@@ -111,6 +119,10 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   declareProperty("MaxMissingSCTPairs",m_MaxMissingSCTPairs,"Increase the number of missing SCT modules, enable the transition region fix");
   declareProperty("RestrictSctPairModule",m_RestrictSctPairModule, "Restrict SCT pairs modules in the transition region");
   declareProperty("RestrictSctPairLayer",m_RestrictSctPairLayer,"Restrict SCT layers in the transition region");
+
+  declareProperty("SectorsAsPatterns",m_SectorAsPatterns,"When 1 allows to use a list of sectors as pattern bank");
+
+  declareProperty("DCMatchMethod",m_DCMatchMethod,"Set the DC matching method: 0 through TSP SS organization, 1 direct");
 }
 
 FTKRoadFinderAlgo::~FTKRoadFinderAlgo()
@@ -135,9 +147,15 @@ StatusCode FTKRoadFinderAlgo::initialize(){
 
   MsgStream log(msgSvc(), name());
   FTKSetup::getFTKSetup().setMsgStream(&log);
+  FTKLogger::SetLogger(this);
 
   log << MSG::INFO << "FTKRoadFinderAlgo::initialize()" << endreq;
   
+
+  ftkset.setSectorsAsPatterns(m_SectorAsPatterns);
+  if (m_SectorAsPatterns) {
+      log << MSG::INFO << "SectorsAsPatterns mode enabled with value " << m_SectorAsPatterns << endreq;
+  }
 
   log << MSG::INFO << "IBL mode value: " << m_IBLMode << endreq;
   ftkset.setIBLMode(m_IBLMode);
@@ -370,7 +388,7 @@ StatusCode FTKRoadFinderAlgo::initialize(){
   }
 
   for (unsigned int ib=0;ib!=nbanks;++ib) { // configuration banks loop
-    FTK_AMBank *curbank;
+    FTK_AMsimulation_base *curbank;
     int regid(m_bankregion[ib]);
     int subid(m_banksubreg[ib]);
 
@@ -383,9 +401,14 @@ StatusCode FTKRoadFinderAlgo::initialize(){
       tspbank->setMakeCache(m_doMakeCache);
       tspbank->setCachePath(m_CachePath.c_str());
       tspbank->setAMSize(m_setAMSize);
+      tspbank->setDCMatchMethod(m_DCMatchMethod);
       curbank = tspbank;
-    }
-    else {
+    }  else if(m_useCompressedBank) {
+       FTK_CompressedAMBank *compressedBank=
+          new FTK_CompressedAMBank(regid,subid);
+       compressedBank->setSSMapTSP(m_ssmap_tsp);
+       curbank=compressedBank;
+    } else {
       // configure a base AM bank
       curbank = new FTK_AMBank(regid,subid);
     }
@@ -503,6 +526,7 @@ StatusCode FTKRoadFinderAlgo::execute() {
   
   MsgStream log(msgSvc(), name());
   FTKSetup::getFTKSetup().setMsgStream(&log);
+  FTKLogger::SetLogger(this);
 
   log << MSG::INFO << "FTKRoadFinderAlgo::execute() start" << endreq;
   
@@ -541,3 +565,12 @@ StatusCode FTKRoadFinderAlgo::finalize() {
     // detach data input and output modules from RoadFinder to avoid its deletion
     return StatusCode::SUCCESS;
 }
+
+void FTKRoadFinderAlgo::PostMessage() {
+   if(fType==0)  ATH_MSG_FATAL(fBuffer->str());
+   else if(fType==1)  ATH_MSG_ERROR(fBuffer->str());
+   else if(fType==2)  ATH_MSG_WARNING(fBuffer->str());
+   else if(fType==3)  ATH_MSG_INFO(fBuffer->str());
+   else if(fType==4)  ATH_MSG_DEBUG(fBuffer->str());
+}
+
