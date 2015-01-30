@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DataVector.h 635856 2014-12-14 05:09:23Z ssnyder $
+// $Id: DataVector.h 642915 2015-01-30 03:23:50Z ssnyder $
 
 /**
  * @file  AthContainers/DataVector.h
@@ -1717,7 +1717,6 @@ public:
   //@{
 
 
-protected:
   /**
    * @brief Helper for @c baseOffset.
    * @param p Pointer to the start of the top-level object.
@@ -1733,7 +1732,6 @@ protected:
                    const std::type_info& ti);
 
 
-public:
   /**
    * @brief Reset indices / reorder aux data after elements have been permuted.
    * @param beg Start of the range of elements to process.
@@ -2899,7 +2897,6 @@ public:
   //@{
 
 
-protected:
   /**
    * @brief Helper for @c baseOffset.
    * @param p Pointer to the start of the top-level object.
@@ -2915,7 +2912,6 @@ protected:
                    const std::type_info& ti);
 
 
-public:
   /**
    * @brief Reset indices / reorder aux data after elements have been permuted.
    * @param beg Start of the range of elements to process.
