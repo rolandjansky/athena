@@ -179,7 +179,8 @@ namespace Rec
 	    DataVector<const Trk::TrackStateOnSurface>::const_iterator	begin,
 	    DataVector<const Trk::TrackStateOnSurface>::const_iterator	end) const;
 	Trk::Track*					createMuonTrack(
-	    const Trk::Track&	       				        muonTrack,
+	    const Trk::Track&	       				        spectrometerTrack,
+	    const Trk::Track&	       				        extrapolatedTrack,
 	    const Trk::TrackParameters*					parameters,
 	    const CaloEnergy*						caloEnergy,
 	    DataVector<const Trk::TrackStateOnSurface>::const_iterator	begin,
@@ -304,6 +305,7 @@ namespace Rec
 	bool                                            m_updateWithCaloTG;
 	bool                                            m_useCaloTG;
 	bool                                            m_iterateCombinedTrackFit;
+	bool                                            m_refineELossCombinedTrackFit;
     };
  
 }	// end of namespace
