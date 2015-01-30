@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/AlgTool.h"
 #include "SCT_TrigSpacePointTool.h"
 
 // For processing clusters
@@ -30,7 +29,7 @@ namespace InDet {
 SCT_TrigSpacePointTool::SCT_TrigSpacePointTool(const std::string &type,
 					       const std::string &name,
 					       const IInterface *parent) :
-  AlgTool(type,name,parent),
+  AthAlgTool(type,name,parent),
   m_overlapLimitOpposite(2.8),// overlap limit for opposite-neighbour.
   m_overlapLimitPhi(5.64),      // overlap limit for phi-neighbours.
   m_overlapLimitEtaMin(1.68),   // low overlap limit for eta-neighbours.
@@ -80,15 +79,14 @@ SCT_TrigSpacePointTool::~SCT_TrigSpacePointTool()
 {}
 //--------------------------------------------------------------------------
 StatusCode SCT_TrigSpacePointTool::initialize()  {
-  MsgStream log(msgSvc(), name());
   StatusCode sc;
-  sc = AlgTool::initialize();
+  sc = AthAlgTool::initialize();
 
   // check StoreGate service
   
   sc = service ("StoreGateSvc", m_storeGate);
   if (sc.isFailure()){
-    log<< MSG::FATAL<< "StoreGate service not found"<<endreq;
+    msg(MSG::FATAL) << "StoreGate service not found"<<endreq;
     return StatusCode::FAILURE;      
   }
     
@@ -96,20 +94,20 @@ StatusCode SCT_TrigSpacePointTool::initialize()  {
   StoreGateSvc* detStore(0);
   sc = service("DetectorStore", detStore);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "Detector service not found !" << endreq;
+    msg(MSG::FATAL) << "Detector service not found !" << endreq;
     return StatusCode::FAILURE;
   } 
   
   sc = detStore->retrieve(m_manager,"SCT"); 
   if (sc.isFailure()) {
-    log << MSG::FATAL << "Cannot retrieve SCT_DetectorManager!"      
+    msg(MSG::FATAL) << "Cannot retrieve SCT_DetectorManager!"      
 	  << endreq;
     return StatusCode::FAILURE;
   } 
   
   // Get the SCT Helper
   if (detStore->retrieve(m_idHelper, "SCT_ID").isFailure()){
-    log << MSG::FATAL << "Cannot retrieve SCT_ID helper"<< endreq;
+    msg(MSG::FATAL) << "Cannot retrieve SCT_ID helper"<< endreq;
     return StatusCode::FAILURE;
   }
 
@@ -123,7 +121,7 @@ StatusCode SCT_TrigSpacePointTool::initialize()  {
 						     *elements, 
 						     m_epsWidth);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "Cannot retrieve detector elements" 
+    msg(MSG::FATAL) << "Cannot retrieve detector elements" 
 	  << endreq;
     return StatusCode::FAILURE;
   } 
@@ -131,7 +129,7 @@ StatusCode SCT_TrigSpacePointTool::initialize()  {
   sc = toolSvc()->retrieveTool(m_SiSpacePointMakerToolName, 
 			       m_SiSpacePointMakerTool, this);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "Unable to locate SiSpacePointMakerTool " 
+    msg(MSG::FATAL) << "Unable to locate SiSpacePointMakerTool " 
 	  << m_SiSpacePointMakerToolName << endreq;
     return StatusCode::FAILURE;
   } 
@@ -139,10 +137,10 @@ StatusCode SCT_TrigSpacePointTool::initialize()  {
   if (!m_overrideBS){
     
     if ( m_iBeamCondSvc.retrieve().isFailure()){
-      log << MSG::ERROR << "Could not find BeamCondSvc." << m_iBeamCondSvc << endreq;
+      msg(MSG::ERROR) << "Could not find BeamCondSvc." << m_iBeamCondSvc << endreq;
       return sc;
     } else {
-      log << MSG::INFO << "Retrieved beam spot service " << m_iBeamCondSvc << endreq;
+      msg(MSG::INFO) << "Retrieved beam spot service " << m_iBeamCondSvc << endreq;
     }
   }
 
@@ -150,7 +148,7 @@ StatusCode SCT_TrigSpacePointTool::initialize()  {
 }
 //--------------------------------------------------------------------------
 StatusCode SCT_TrigSpacePointTool::finalize() {
-  StatusCode sc = AlgTool::finalize(); 
+  StatusCode sc = AthAlgTool::finalize(); 
   delete m_properties; m_properties=0;
   return sc;
 }
@@ -173,25 +171,22 @@ addSCT_SpacePoints(const SCT_ClusterCollection* clusCollection,
 		   SpacePointCollection* spacepointCollection,
 		   SpacePointOverlapCollection* overlapColl) {
 
-
-  MsgStream log(msgSvc(), name());
-
   m_Sct_clcontainer = clusterContainer;
   m_spacepointoverlapCollection = overlapColl;
 
   if(!m_Sct_clcontainer || m_Sct_clcontainer->size() <1){
-    log << MSG::ERROR << " Received an invalid cluster container " 
+    msg(MSG::ERROR) << " Received an invalid cluster container " 
 	<< endreq;
     return;
   }
 
   if(!clusCollection){
-    log << MSG::ERROR << " Received an invalid cluster collection " 
+    msg(MSG::ERROR) << " Received an invalid cluster collection " 
 	<< endreq;
     return;
   }
   if(clusCollection->size()==0){
-    log << MSG::ERROR << " Received empty cluster collection" << endreq;
+    msg(MSG::ERROR) << " Received empty cluster collection" << endreq;
     return;
   }
 

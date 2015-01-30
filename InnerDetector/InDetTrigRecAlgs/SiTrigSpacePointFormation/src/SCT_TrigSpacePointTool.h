@@ -26,7 +26,7 @@
 #ifndef SCT_TrigSpacePointTool_H
 #define SCT_TrigSpacePointTool_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/MsgStream.h"
 
 #include "Identifier/IdentifierHash.h"
@@ -63,7 +63,7 @@ namespace InDet {
 
 
   class SCT_TrigSpacePointTool : virtual public ITrigSCT_SpacePointTool,
-				 public AlgTool {
+				 public AthAlgTool {
 
   public:
 
