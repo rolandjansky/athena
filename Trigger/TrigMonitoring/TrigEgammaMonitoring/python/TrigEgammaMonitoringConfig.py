@@ -10,7 +10,7 @@ def HLTEgammaMonitoringTool():
 
   from TrigEgammaMonitoring.TrigEgammaMonitoringConf import HLTEgammaNavMonTool
   HLTEgammaNavMon = HLTEgammaNavMonTool(name = 'HLTEgammaNavMon', histoPathBase = "/Trigger/HLT")
-  HLTEgammaNavMon.signatures = ['e5_loose1','e24_medium_iloose','e28_tight_iloose','e28_tight_iloose_L2StarA','e24_medium_L1EM20V']
+  HLTEgammaNavMon.signatures = ['e0_perf_L1EM3','g0_perf_L1EM3','e5_loose1','e24_medium_iloose','e28_tight_iloose','e28_tight_iloose_L2StarA','e24_medium_L1EM20V']
   #HLTEgammaNavMon.signatures = ['e5_NoCut','e5_medium1','e10_loose','e20_loose_IdScan']
   #HLTEgammaNavMon.signatures +=['e5_NoCut_cosmic','e10_loose_cosmic','e10_medium_cosmic']
   #HLTEgammaNavMon.doExtrapol=False
@@ -22,7 +22,7 @@ def HLTEgammaMonitoringTool():
   HLTEgammaNavSigTEMon = HLTEgammaNavSigTEMonTool(name = 'HLTEgammaNavSigTEMon', histoPathBase = "/Trigger/HLT",doExtrapol=False)
   #---Electron Signatures for Collisions:
   #HLTEgammaNavSigTEMon.signatures = ['e28_tight_iloose']
-  HLTEgammaNavSigTEMon.signatures =['e5_loose1','e24_medium_iloose','e28_tight_iloose','e28_tight_iloose_L2StarA','e24_medium_L1EM20V','e24_medium1_L1EM20V','e28_lhtight_iloose']
+  HLTEgammaNavSigTEMon.signatures =['e0_perf_L1EM3','g0_perf_L1EM3','e5_loose1','e24_medium_iloose','e28_tight_iloose','e28_tight_iloose_L2StarA','e24_medium_L1EM20V','e24_medium1_L1EM20V','e28_lhtight_iloose']
   #HLTEgammaNavSigTEMon.signatures +=['e5_loose1','e24_medium_iloose','e28_tight_iloose','e28_tight_iloose_L2StarA']
   #HLTEgammaNavSigTEMon.signatures += ['e24vh_medium1']
   #HLTEgammaNavSigTEMon.signatures +=['e24vhi_medium1']

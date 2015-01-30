@@ -100,9 +100,29 @@ StatusCode HLTEgammaNavMonTool::book() {
 	}
 	
 	m_signatures.clear();
+	//loop through existing signatures, monitor only one signature of each trigger type
+	//there are 3 trigger types being monitored
+	//"single_e_no_iso","single_e_iso","photon"
+	bool e_no_iso_found = false; bool e_iso_found = false; bool g_found = false;
 	for(std::vector<std::string>::const_iterator i = signs_that_exist.begin();
 		i!=signs_that_exist.end();++i){
-		m_signatures.push_back((*i));
+	  HLTEgammaNavMonTool::trigger_description(*i,trigDesc);
+	  if(trigDesc=="single_e_no_iso" && !e_no_iso_found){
+	    e_no_iso_found = true;
+	    m_signatures.push_back((*i));
+	  }else if(trigDesc=="single_e_no_iso" && e_no_iso_found){
+	    ATH_MSG_INFO("Non-iso electron chain ignored due to redundancy: "<<*i);
+	  }else if(trigDesc=="single_e_iso" && !e_iso_found){
+	    e_iso_found = true;
+	    m_signatures.push_back((*i));
+	  }else if(trigDesc=="single_e_iso" && e_iso_found){
+	    ATH_MSG_INFO("Iso electron chain ignored due to redundancy: "<<*i);
+	  }else if(trigDesc=="photon" && !g_found){
+	    g_found = true;
+	    m_signatures.push_back((*i));
+	  }else if(trigDesc=="photon" && g_found){
+	    ATH_MSG_INFO("Photon chain ignored due to redundancy: "<<*i);
+	  }
 	}
 	signs_that_exist.clear();
 	for(std::vector<std::string>::const_iterator i = m_signatures.begin();
@@ -124,8 +144,9 @@ StatusCode HLTEgammaNavMonTool::book_per_signature(const std::string signature) 
 
     *m_log << MSG::DEBUG << "Configuring signature : " << signature << std::endl;
     
+    trigger_description(signature,trigDesc);
     std::string BasicPath("HLT/Egamma/");
-    BasicPath+=signature;
+    BasicPath+=trigDesc;
     addMonGroup(new MonGroup(this,BasicPath,run));
 
     addMonGroup(new MonGroup(this,BasicPath+"/L1",run));
@@ -252,8 +273,9 @@ StatusCode HLTEgammaNavMonTool::fill() {
 StatusCode HLTEgammaNavMonTool::fill_per_signature(const std::string signature) {
 
   // First prepare path
+  trigger_description(signature,trigDesc);
   std::string BasicPath("HLT/Egamma/");
-  BasicPath+=signature;
+  BasicPath+=trigDesc;
 
   Trig::FeatureContainer tmp_features = getTDT()->features("HLT_"+signature,m_fill_condition);
   if ( !tmp_features.getCombinations().size() ) return StatusCode::SUCCESS;
@@ -467,8 +489,9 @@ StatusCode HLTEgammaNavMonTool::rate_per_signature(const std::string signature) 
   }
 
   // First prepare path
+  trigger_description(signature,trigDesc);
   std::string BasicPathRates("HLT/Egamma/");
-  BasicPathRates+=signature;
+  BasicPathRates+=trigDesc;
   BasicPathRates+="/Rates";
   setCurrentMonGroup(BasicPathRates);
 
@@ -620,8 +643,9 @@ StatusCode HLTEgammaNavMonTool::proc_per_signature(const std::string signature) 
       float factor = 1.0/fabsf((float) (m_lastTimeStamp - m_firstTimeStamp)); // Get rates! (no idea of what happens to SIMULATED data! Should work well on real data)
 
       // First prepare path
+      trigger_description(signature,trigDesc);
       std::string BasicPathRates("HLT/Egamma/");
-      BasicPathRates+=signature;
+      BasicPathRates+=trigDesc;
       BasicPathRates+="/Rates";
       setCurrentMonGroup(BasicPathRates);
 
@@ -672,5 +696,16 @@ StatusCode HLTEgammaNavMonTool::proc_per_signature(const std::string signature) 
     
     PrintTable(false);
   return StatusCode::SUCCESS;
+}
+
+void HLTEgammaNavMonTool::trigger_description(const std::string signature, std::string& trigDesc) {
+  if(signature.find("_i") != std::string::npos){
+    trigDesc="single_e_iso";
+  }else if(signature.at(0) == 'g'){
+    trigDesc="photon";
+  }else{
+    trigDesc="single_e_no_iso";
+  }
+  return;
 }
 
