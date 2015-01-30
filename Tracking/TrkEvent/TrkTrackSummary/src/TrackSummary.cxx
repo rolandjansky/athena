@@ -147,6 +147,7 @@ std::ostream& Trk::operator<<( std::ostream& out, const TrackSummary& trackSum )
   out << " * Number of TRT TR outliers     : "<<trackSum.get(numberOfTRTHighThresholdOutliers)<<std::endl;
   out << " * Number of TRT holes           : "<<trackSum.get(numberOfTRTHoles)<<std::endl;
   out << " * Number of TRT tube hits       : "<<trackSum.get(numberOfTRTTubeHits)<<std::endl;
+  out << " * Number of TRT Shared hits     : "<<trackSum.get(numberOfTRTSharedHits)<<std::endl;
   out << " * Number of dead TRT straws     : "<<trackSum.get(numberOfTRTDeadStraws)<<std::endl;
   out << " * Number of MDT hits            : "<<trackSum.get(numberOfMdtHits)<<std::endl;
   out << " * Number of MDT holes           : "<<trackSum.get(numberOfMdtHoles)<<std::endl;
