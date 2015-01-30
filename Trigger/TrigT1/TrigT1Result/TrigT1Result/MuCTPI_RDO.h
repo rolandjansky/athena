@@ -10,7 +10,7 @@
 // STL include(s):
 #include <vector>
 #include <string>
-#include <inttypes.h>
+#include <cstdint>
 
 // Gaudi/Athena include(s):
 #include "CLIDSvc/CLASS_DEF.h"

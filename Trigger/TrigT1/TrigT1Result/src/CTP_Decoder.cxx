@@ -160,201 +160,215 @@ bool CTP_Decoder::checkTrigger(unsigned int itemNo,unsigned int pos)
   return getBunchCrossing(pos).getTAV().test(itemNo);
 }
 
-bool CTP_Decoder::checkTriggerAfterPrescale(unsigned int itemNo,unsigned int pos)
-{
-  if(pos >= m_BCs.size()) {
-    getlog() << MSG::WARNING << "Trying to access bunch crossing no "
-    << pos << ", but in the event are only " << m_BCs.size() << endreq;
-  }
-  if(itemNo >= getBunchCrossing(pos).getTAP().size()) {
-    getlog() << MSG::WARNING << "Checking item no " << itemNo 
-    << ", which is more than the maximum : " 
-    << getBunchCrossing(pos).getTAP().size() << endreq;
-  }
-  return getBunchCrossing(pos).getTAP().test(itemNo);
+bool CTP_Decoder::checkTriggerAfterPrescale(unsigned int itemNo,unsigned int pos) {
+   if(pos >= m_BCs.size()) {
+      getlog() << MSG::WARNING << "Trying to access bunch crossing no "
+               << pos << ", but in the event are only " << m_BCs.size() << endreq;
+   }
+   if(itemNo >= getBunchCrossing(pos).getTAP().size()) {
+      getlog() << MSG::WARNING << "Checking item no " << itemNo 
+               << ", which is more than the maximum : " 
+               << getBunchCrossing(pos).getTAP().size() << endreq;
+   }
+   return getBunchCrossing(pos).getTAP().test(itemNo);
 }
 
-std::vector<unsigned int> CTP_Decoder::getAllTriggers(unsigned int pos)
-{
-  if(pos >= m_BCs.size()) {
-    getlog() << MSG::WARNING << "Trying to access bunch crossing no "
-    << pos << ", but in the event are only " << m_BCs.size() << endreq;
-    return std::vector<unsigned int>();
-  }
-  std::vector<unsigned int> triggers;
-  const CTP_BC& bc = getBunchCrossing(pos);
-  if(bc.getTAV().any()) {
-    for(unsigned int i = 0; i < bc.getTAV().size() ; ++i) {
-      if(bc.getTAV().test(i)) {
-        triggers.push_back(i+1);
-      }
-    }  
-  }
-  return triggers;
+
+
+std::vector<unsigned int> CTP_Decoder::getAllTriggers(unsigned int pos) {
+   if(pos >= m_BCs.size()) {
+      getlog() << MSG::WARNING << "Trying to access bunch crossing no "
+               << pos << ", but in the event are only " << m_BCs.size() << endreq;
+      return std::vector<unsigned int>();
+   }
+   std::vector<unsigned int> triggers;
+   const CTP_BC& bc = getBunchCrossing(pos);
+   if(bc.getTAV().any()) {
+      for(unsigned int i = 0; i < bc.getTAV().size() ; ++i) {
+         if(bc.getTAV().test(i)) {
+            triggers.push_back(i+1);
+         }
+      }  
+   }
+   return triggers;
 }
 
-CTP_BC::CTP_BC(){}
-CTP_BC::~CTP_BC(){
-  if (m_ctpVersion) delete m_ctpVersion;
-  m_ctpVersion = NULL;
 
+
+
+/**
+ *
+ *    class CTP BC
+ *
+ */
+
+/**
+ * constructor
+ */
+CTP_BC::CTP_BC() :
+   m_ctpVersion(0)
+{}
+
+
+CTP_BC::~CTP_BC()
+{}
+
+
+void CTP_BC::dumpData() const {
+   dumpData(getlog());
 }
 
-void CTP_BC::dumpData() const
-{
-  dumpData(getlog());
-}
 
 void CTP_BC::dumpData(MsgStream& msglog) const
 {
-  if( msglog.level() <= MSG::DEBUG ){
-    msglog << MSG::DEBUG << "--------------------------------------------------" << endreq;
-    msglog << MSG::DEBUG << "BCID        : " << getBCID() << endreq;
-    msglog << MSG::DEBUG << "Random trig     : " << getRandomTrig()
-    << " (binary: " << printRandomTrig() << ")" << endreq;
-    msglog << MSG::DEBUG << "Prescaled clock : " << getPrescaledClock()
-    << " (binary: " << printPrescaledClock() << ")" << endreq;
-  }
+   if( msglog.level() <= MSG::DEBUG ){
+      msglog << MSG::DEBUG << "--------------------------------------------------" << endreq;
+      msglog << MSG::DEBUG << "BCID        : " << getBCID() << endreq;
+      msglog << MSG::DEBUG << "Random trig     : " << getRandomTrig()
+             << " (binary: " << printRandomTrig() << ")" << endreq;
+      msglog << MSG::DEBUG << "Prescaled clock : " << getPrescaledClock()
+             << " (binary: " << printPrescaledClock() << ")" << endreq;
+   }
   
-  if(m_tip.any()) {
-    std::ostringstream outstream;
-    outstream << "PIT with input (max 160): ";
-    int count = 0;
-    for(unsigned int i = 0; i<m_tip.size() ; ++i) {
-      if(m_tip.test(i)) {
-        if(count%20==0) outstream << "\n\t\t\t  ";
-        outstream << std::setw(3) << std::setfill('0') << (i+1) << " ";
-        ++count;
+   if(m_tip.any()) {
+      std::ostringstream outstream;
+      outstream << "PIT with input (max 160): ";
+      int count = 0;
+      for(unsigned int i = 0; i<m_tip.size() ; ++i) {
+         if(m_tip.test(i)) {
+            if(count%20==0) outstream << "\n\t\t\t  ";
+            outstream << std::setw(3) << std::setfill('0') << (i+1) << " ";
+            ++count;
+         }
       }
-    }
-    if( msglog.level() <= MSG::DEBUG )
-      msglog << MSG::DEBUG << outstream.str() << endreq;
-  } 
-  else {
-    if( msglog.level() <= MSG::DEBUG )
-      msglog << MSG::DEBUG << "No TIP!" << endreq;
-  }
+      if( msglog.level() <= MSG::DEBUG )
+         msglog << MSG::DEBUG << outstream.str() << endreq;
+   } 
+   else {
+      if( msglog.level() <= MSG::DEBUG )
+         msglog << MSG::DEBUG << "No TIP!" << endreq;
+   }
   
-  if(m_tbp.any()) {
-    std::ostringstream outstream;
-    outstream << "Fired TBP item number (max 256): ";
-    for(unsigned int i = 0; i<m_tbp.size() ; ++i) {
-      if(m_tbp.test(i)) outstream << (i+1) << " ";
-    }
-    if( msglog.level() <= MSG::DEBUG )
-      msglog << MSG::DEBUG << outstream.str() << endreq;
-  } 
-  else {
-    if( msglog.level() <= MSG::DEBUG )
-      msglog << MSG::DEBUG << "No TBP fired!" << endreq;
-  }
+   if(m_tbp.any()) {
+      std::ostringstream outstream;
+      outstream << "Fired TBP item number (max 256): ";
+      for(unsigned int i = 0; i<m_tbp.size() ; ++i) {
+         if(m_tbp.test(i)) outstream << (i+1) << " ";
+      }
+      if( msglog.level() <= MSG::DEBUG )
+         msglog << MSG::DEBUG << outstream.str() << endreq;
+   } 
+   else {
+      if( msglog.level() <= MSG::DEBUG )
+         msglog << MSG::DEBUG << "No TBP fired!" << endreq;
+   }
   
-  if(m_tap.any()) {
-    std::ostringstream outstream;
-    outstream << "Fired TAP item number (max 256): ";
-    for(unsigned int i = 0; i<m_tap.size() ; ++i) {
-      if(m_tap.test(i)) outstream << (i+1) << " ";
-    }
-    if( msglog.level() <= MSG::DEBUG )
-      msglog << MSG::DEBUG << outstream.str() << endreq;
-  } 
-  else {
-    if( msglog.level() <= MSG::DEBUG )
-      msglog << MSG::DEBUG << "No TAP fired!" << endreq;
-  }
+   if(m_tap.any()) {
+      std::ostringstream outstream;
+      outstream << "Fired TAP item number (max 256): ";
+      for(unsigned int i = 0; i<m_tap.size() ; ++i) {
+         if(m_tap.test(i)) outstream << (i+1) << " ";
+      }
+      if( msglog.level() <= MSG::DEBUG )
+         msglog << MSG::DEBUG << outstream.str() << endreq;
+   } 
+   else {
+      if( msglog.level() <= MSG::DEBUG )
+         msglog << MSG::DEBUG << "No TAP fired!" << endreq;
+   }
   
-  if(m_tav.any()) {
-    std::ostringstream outstream;
-    outstream << "Fired TAV item number (max 256): ";
-    for(unsigned int i = 0; i<m_tav.size() ; ++i) {
-      if(m_tav.test(i)) outstream << (i+1) << " ";
-    }
-    if( msglog.level() <= MSG::DEBUG )
-      msglog << MSG::DEBUG << outstream.str() << endreq;
-  } 
-  else {
-    if( msglog.level() <= MSG::DEBUG )
-      msglog << MSG::DEBUG << "No TAV fired!" << endreq;
-  }
+   if(m_tav.any()) {
+      std::ostringstream outstream;
+      outstream << "Fired TAV item number (max 256): ";
+      for(unsigned int i = 0; i<m_tav.size() ; ++i) {
+         if(m_tav.test(i)) outstream << (i+1) << " ";
+      }
+      if( msglog.level() <= MSG::DEBUG )
+         msglog << MSG::DEBUG << outstream.str() << endreq;
+   } 
+   else {
+      if( msglog.level() <= MSG::DEBUG )
+         msglog << MSG::DEBUG << "No TAV fired!" << endreq;
+   }
   
-  if( msglog.level() <= MSG::VERBOSE ){
-    msglog << MSG::VERBOSE << "TIP - total size: " << m_tip.size() << ", with input: " 
-    << m_tip.count() << ", pattern:" << std::endl << printTIP() << endreq;
-    msglog << MSG::VERBOSE << "TBP " << std::endl << printTBP() << endreq;
-    msglog << MSG::VERBOSE << "TAP " << std::endl << printTAP() << endreq;
-    msglog << MSG::VERBOSE << "TAV " << std::endl << printTAV() << endreq;
-  }
+   if( msglog.level() <= MSG::VERBOSE ){
+      msglog << MSG::VERBOSE << "TIP - total size: " << m_tip.size() << ", with input: " 
+             << m_tip.count() << ", pattern:" << std::endl << printTIP() << endreq;
+      msglog << MSG::VERBOSE << "TBP " << std::endl << printTBP() << endreq;
+      msglog << MSG::VERBOSE << "TAP " << std::endl << printTAP() << endreq;
+      msglog << MSG::VERBOSE << "TAV " << std::endl << printTAV() << endreq;
+   }
 }
 
 std::bitset<32> CTP_BC::getBCIDBitSet() const
 {
-  std::bitset<32> bcid = (m_pitAux >> m_ctpVersion->getBcidShift());
-  bcid &= m_ctpVersion->getBcidMask();
-  return bcid;
+   std::bitset<32> bcid = (m_pitAux >> m_ctpVersion.getBcidShift());
+   bcid &= m_ctpVersion.getBcidMask();
+   return bcid;
 }
 
 uint32_t CTP_BC::getBCID() const
 {
-  return getBCIDBitSet().to_ulong();
+   return getBCIDBitSet().to_ulong();
 }
 
 std::string CTP_BC::printBCID() const
 {
-  std::bitset<32> bcid = getBCIDBitSet();
-  return bcid.to_string<char, 
-  std::char_traits<char>, std::allocator<char> >();
+   std::bitset<32> bcid = getBCIDBitSet();
+   return bcid.to_string<char, 
+      std::char_traits<char>, std::allocator<char> >();
 }
 
 std::bitset<32> CTP_BC::getRandomTrigBitSet() const
 {
-  std::bitset<32> rnd = (m_pitAux >> m_ctpVersion->getRandomTrigShift());
-  rnd &= m_ctpVersion->getRandomTrigMask();
-  return rnd;
+   std::bitset<32> rnd = (m_pitAux >> m_ctpVersion.getRandomTrigShift());
+   rnd &= m_ctpVersion.getRandomTrigMask();
+   return rnd;
 }
 
 uint32_t CTP_BC::getRandomTrig() const
 {
-  return getRandomTrigBitSet().to_ulong();
+   return getRandomTrigBitSet().to_ulong();
 }
 
 std::string CTP_BC::printRandomTrig() const
 {
-  std::bitset<32> rnd = getRandomTrigBitSet();
-  return rnd.to_string<char, 
-  std::char_traits<char>, std::allocator<char> >();
+   std::bitset<32> rnd = getRandomTrigBitSet();
+   return rnd.to_string<char, 
+      std::char_traits<char>, std::allocator<char> >();
 }
 
 std::bitset<32> CTP_BC::getPrescaledClockBitSet() const
 {
-	std::bitset<32> prcl;
+   std::bitset<32> prcl;
 	
-	if (!m_ctpVersion->getNumPrescaledClocks()) {
-		getlog() << MSG::WARNING << "Trying to get prescaled clocks but there are none in this data format version. 0's will be returned." << endreq;
-		return prcl;
-	}
+   if (!m_ctpVersion.getNumPrescaledClocks()) {
+      getlog() << MSG::WARNING << "Trying to get prescaled clocks but there are none in this data format version. 0's will be returned." << endreq;
+      return prcl;
+   }
 	
-  prcl = (m_pitAux >> m_ctpVersion->getPrescaledClockShift());
-  prcl &= m_ctpVersion->getPrescaledClockMask();
-  return prcl;
+   prcl = (m_pitAux >> m_ctpVersion.getPrescaledClockShift());
+   prcl &= m_ctpVersion.getPrescaledClockMask();
+   return prcl;
 }
 
 uint32_t CTP_BC::getPrescaledClock() const
 {
-  return getPrescaledClockBitSet().to_ulong();
+   return getPrescaledClockBitSet().to_ulong();
 }
 
 std::string CTP_BC::printPrescaledClock() const
 {
-  std::bitset<32> prcl = getPrescaledClockBitSet();
-  return prcl.to_string<char, 
-  std::char_traits<char>, std::allocator<char> >();
+   std::bitset<32> prcl = getPrescaledClockBitSet();
+   return prcl.to_string<char, 
+      std::char_traits<char>, std::allocator<char> >();
 }
 
 
 
 //void CTP_BC::setPITWord( uint32_t word, uint32_t pos) 
 //{
-//  if(pos >= m_ctpVersion->getPITwords()) {
+//  if(pos >= m_ctpVersion.getPITwords()) {
 //    getlog() << MSG::ERROR <<"Invalid PIT position " << pos <<endreq;
 //    return;
 //  }
@@ -382,8 +396,8 @@ std::string CTP_BC::printPrescaledClock() const
 //    <<endreq;
 //  }
 //  
-//  //if( pos < (m_ctpVersion->getAuxTIPwordPos()-1) ) m_pit |= bs;
-//  if( pos < (m_ctpVersion->getPITwords()-1) ) m_pit |= bs;
+//  //if( pos < (m_ctpVersion.getAuxTIPwordPos()-1) ) m_pit |= bs;
+//  if( pos < (m_ctpVersion.getPITwords()-1) ) m_pit |= bs;
 //  else setPITWordAux(word);
 //  
 //  if( getlog().level() <= MSG::VERBOSE )
@@ -406,18 +420,18 @@ std::string CTP_BC::printPrescaledClock() const
 
 std::string CTP_BC::printPITWordAux() const
 {
-  return m_pitAux.to_string<char, 
-  std::char_traits<char>, std::allocator<char> >();
+   return m_pitAux.to_string<char, 
+      std::char_traits<char>, std::allocator<char> >();
 }
 
 
 
 //void CTP_BC::setFPIWord( uint32_t word, uint32_t pos) 
 //{
-//	if (!(m_ctpVersion->getFPIwords())) {
+//	if (!(m_ctpVersion.getFPIwords())) {
 //		getlog() << MSG::VERBOSE <<"No front panel inputs in this CTP version." <<endreq;
 //		return;
-//	}else if(pos >= m_ctpVersion->getFPIwords()) {
+//	}else if(pos >= m_ctpVersion.getFPIwords()) {
 //    getlog() << MSG::ERROR <<"Invalid FPI position " << pos <<endreq;
 //    return;
 //  }
@@ -440,41 +454,41 @@ std::string CTP_BC::printPITWordAux() const
 
 void CTP_BC::setTIPWord( uint32_t word, uint32_t pos) 
 {
-  if(pos >= m_ctpVersion->getTIPwords()) {
-    getlog() << MSG::ERROR <<"Invalid TIP position " << pos <<endreq;
-    return;
-  }
+   if(pos >= m_ctpVersion.getTIPwords()) {
+      getlog() << MSG::ERROR <<"Invalid TIP position " << pos <<endreq;
+      return;
+   }
   
-  if( getlog().level() <= MSG::VERBOSE )
-    getlog() << MSG::VERBOSE <<"TIP pos " << pos << " word 0x" << std::hex << word 
-    << std::dec << " (" << word << ")" <<endreq;
+   if( getlog().level() <= MSG::VERBOSE )
+      getlog() << MSG::VERBOSE <<"TIP pos " << pos << " word 0x" << std::hex << word 
+               << std::dec << " (" << word << ")" <<endreq;
   
-  std::bitset<512> bs = word;
+   std::bitset<512> bs = word;
   
-  if( getlog().level() <= MSG::VERBOSE )
-    getlog() << MSG::VERBOSE <<"bitset " 
-    << bs.to_string<char, std::char_traits<char>, std::allocator<char> >()
-    << std::endl << " (" << bs.to_ulong() << ")" <<endreq;
+   if( getlog().level() <= MSG::VERBOSE )
+      getlog() << MSG::VERBOSE <<"bitset " 
+               << bs.to_string<char, std::char_traits<char>, std::allocator<char> >()
+               << std::endl << " (" << bs.to_ulong() << ")" <<endreq;
   
-  bs <<= (pos * CTP_RDO::SIZEOF_WORDS);
+   bs <<= (pos * CTP_RDO::SIZEOF_WORDS);
   
-  if( getlog().level() <= MSG::VERBOSE ){
-    getlog() << MSG::VERBOSE <<"bitset shifted by " << (pos * CTP_RDO::SIZEOF_WORDS) << ": " << std::endl 
-    << bs.to_string<char, std::char_traits<char>, std::allocator<char> >()
-    <<endreq;
+   if( getlog().level() <= MSG::VERBOSE ){
+      getlog() << MSG::VERBOSE <<"bitset shifted by " << (pos * CTP_RDO::SIZEOF_WORDS) << ": " << std::endl 
+               << bs.to_string<char, std::char_traits<char>, std::allocator<char> >()
+               <<endreq;
     
-    getlog() << MSG::VERBOSE <<"TIP before " << std::endl 
-    << printTIP()
-    <<endreq;
-  }
+      getlog() << MSG::VERBOSE <<"TIP before " << std::endl 
+               << printTIP()
+               <<endreq;
+   }
   
-  if( pos < (m_ctpVersion->getTIPwords()-1) ) m_tip |= bs;
-  else setPITWordAux(word);
+   if( pos < (m_ctpVersion.getTIPwords()-1) ) m_tip |= bs;
+   else setPITWordAux(word);
   
-  if( getlog().level() <= MSG::VERBOSE )
-    getlog() << MSG::VERBOSE <<"TIP after  " << std::endl 
-    << printTIP()
-    <<endreq;
+   if( getlog().level() <= MSG::VERBOSE )
+      getlog() << MSG::VERBOSE <<"TIP after  " << std::endl 
+               << printTIP()
+               <<endreq;
   
 }
 
@@ -493,7 +507,7 @@ std::string CTP_BC::printTIP() const
 
 void CTP_BC::setTBPWord( uint32_t word, uint32_t pos) 
 {
-  if(pos >= m_ctpVersion->getTBPwords()) {
+  if(pos >= m_ctpVersion.getTBPwords()) {
     getlog() << MSG::ERROR <<"Invalid TBP position " << pos <<endreq;
     return;
   }
@@ -515,7 +529,7 @@ std::string CTP_BC::printTBP() const
 
 void CTP_BC::setTAPWord( uint32_t word, uint32_t pos) 
 {
-  if(pos >= m_ctpVersion->getTAPwords()) {
+  if(pos >= m_ctpVersion.getTAPwords()) {
     getlog() << MSG::ERROR <<"Invalid TAP position " << pos <<endreq;
     return;
   }
@@ -538,7 +552,7 @@ std::string CTP_BC::printTAP() const
 
 void CTP_BC::setTAVWord( uint32_t word, uint32_t pos) 
 {
-  if(pos >= m_ctpVersion->getTAVwords()) {
+  if(pos >= m_ctpVersion.getTAVwords()) {
     getlog() << MSG::ERROR <<"Invalid TAV position " << pos <<endreq;
     return;
   }

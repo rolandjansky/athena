@@ -22,165 +22,190 @@
 
 namespace ROIB {
 
-  CTPResult::CTPResult(unsigned int ctpVersion, const Header& head, const Trailer& trail, const std::vector<uint32_t>& v )
-    : m_CTPResultHeader( head ), m_CTPResultTrailer( trail ), m_ctpVersionNumber(ctpVersion)
-  {
-    std::copy(v.begin(), v.end(), back_inserter(m_CTPResultRoIVec));
-    m_ctpDataformat = new CTPdataformatVersion(m_ctpVersionNumber);
-  }
 
-  const std::string CTPResult::dump() const
-  {
-    std::ostringstream s;
+   CTPResult::CTPResult() :
+      m_CTPResultHeader(),
+      m_CTPResultTrailer(),
+      m_CTPResultRoIVec(),
+      m_ctpVersionNumber(0),
+      m_ctpDataformat(0)
+   {}
 
-    s << " [" << this->header().dump() << "] ";
-    s << " [";
+
+   CTPResult::CTPResult(unsigned int ctpVersion,  const Header& head, const Trailer& trail, const std::vector<CTPRoI>& rois) :
+      m_CTPResultHeader( head ),
+      m_CTPResultTrailer( trail ),
+      m_CTPResultRoIVec( rois ),
+      m_ctpVersionNumber( ctpVersion ),
+      m_ctpDataformat( ctpVersion )
+   {}
+
+
+   CTPResult::CTPResult(unsigned int ctpVersion, const Header& head, const Trailer& trail, const std::vector<uint32_t>& v ) :
+      m_CTPResultHeader( head ),
+      m_CTPResultTrailer( trail ),
+      m_ctpVersionNumber( ctpVersion ),
+      m_ctpDataformat( ctpVersion )
+   {
+      std::copy(v.begin(), v.end(), back_inserter(m_CTPResultRoIVec));
+   }
+
+
+   CTPResult::~CTPResult() {}
+
+
+   const std::string CTPResult::dump() const
+   {
+      std::ostringstream s;
+
+      s << " [" << this->header().dump() << "] ";
+      s << " [";
       for (std::vector<CTPRoI>::size_type i(0); i < roIVec().size(); ++i) {
-	s << LVL1CTP::convertToHex(roIVec()[i].roIWord());
+         s << LVL1CTP::convertToHex(roIVec()[i].roIWord());
       }
-    s << "] ";
-    s << " [" << this->trailer().dump() << "] ";
+      s << "] ";
+      s << " [" << this->trailer().dump() << "] ";
     
-    return s.str();
-  }
+      return s.str();
+   }
 
-  const std::string CTPResult::print(const bool longFormat) const
-  {
-    std::ostringstream s;
+   const std::string CTPResult::print(const bool longFormat) const
+   {
+      std::ostringstream s;
 
-    s << "header  [" << this->header().print(longFormat) << "] ";
-    if (longFormat) s << std::endl;
-    s << "data [" << convert(this->roIVec(), longFormat) << "] ";
-    if (longFormat) s << std::endl;
-    s << "trailer [" << this->trailer().print(longFormat) << "] ";
-
-    return s.str();
-  }
-
-  const std::string CTPResult::convert(std::vector<CTPRoI> data, const bool longFormat) const
-  {
-    std::ostringstream s;
-
-    // time
-    for (size_t i(0); (i < m_ctpDataformat->getNumberTimeWords()) && (i < data.size()); ++i) {
-      if (longFormat) s << "\n";
-      if (i == 0 || longFormat) s << " Time";
-      if (longFormat) s << std::setw(1) << i;
-      s << " " << std::setw(8) << data[i].roIWord();
+      s << "header  [" << this->header().print(longFormat) << "] ";
       if (longFormat) s << std::endl;
-    }
-
-    // TIP
-    for (size_t i(0), p(m_ctpDataformat->getTIPpos());
-	 (i < m_ctpDataformat->getTIPwords()) && (p < data.size()); 
-	 ++i, ++p) {
-      if (longFormat) s << "\n";
-      if (i == 0 || longFormat) s << " TIP";
-      if (longFormat) s << std::setw(1) << i;
-      s << LVL1CTP::convertToHex(data[p].roIWord());
+      s << "data [" << convert(this->roIVec(), longFormat) << "] ";
       if (longFormat) s << std::endl;
-    }
+      s << "trailer [" << this->trailer().print(longFormat) << "] ";
+
+      return s.str();
+   }
+
+   const std::string CTPResult::convert(std::vector<CTPRoI> data, const bool longFormat) const
+   {
+      std::ostringstream s;
+
+      // time
+      for (size_t i(0); (i < m_ctpDataformat.getNumberTimeWords()) && (i < data.size()); ++i) {
+         if (longFormat) s << "\n";
+         if (i == 0 || longFormat) s << " Time";
+         if (longFormat) s << std::setw(1) << i;
+         s << " " << std::setw(8) << data[i].roIWord();
+         if (longFormat) s << std::endl;
+      }
+
+      // TIP
+      for (size_t i(0), p(m_ctpDataformat.getTIPpos());
+           (i < m_ctpDataformat.getTIPwords()) && (p < data.size()); 
+           ++i, ++p) {
+         if (longFormat) s << "\n";
+         if (i == 0 || longFormat) s << " TIP";
+         if (longFormat) s << std::setw(1) << i;
+         s << LVL1CTP::convertToHex(data[p].roIWord());
+         if (longFormat) s << std::endl;
+      }
     
-    // FPI
-   // for (size_t i(0), p(m_ctpDataformat->getFPIpos());
-//         (i < m_ctpDataformat->getFPIwords()) && (p < data.size()); 
-//         ++i, ++p) {
-//      if (longFormat) s << "\n";
-//      if (i == 0 || longFormat) s << " FPI";
-//      if (longFormat) s << std::setw(1) << i;
-//      s << LVL1CTP::convertToHex(data[p].roIWord());
-//      if (longFormat) s << std::endl;
-//    }
+      // FPI
+      // for (size_t i(0), p(m_ctpDataformat.getFPIpos());
+      //         (i < m_ctpDataformat.getFPIwords()) && (p < data.size()); 
+      //         ++i, ++p) {
+      //      if (longFormat) s << "\n";
+      //      if (i == 0 || longFormat) s << " FPI";
+      //      if (longFormat) s << std::setw(1) << i;
+      //      s << LVL1CTP::convertToHex(data[p].roIWord());
+      //      if (longFormat) s << std::endl;
+      //    }
 
-    // TBP
-    for (size_t i(0), p(m_ctpDataformat->getTBPpos());
-	 (i < m_ctpDataformat->getTBPwords()) && (p < data.size()); 
-	 ++i, ++p) {
-      if (longFormat) s << "\n";
-      if (i == 0 || longFormat) s << " TBP";
-      if (longFormat) s << std::setw(1) << i;
-      s << LVL1CTP::convertToHex(data[p].roIWord());
-      if (longFormat) s << std::endl;
-    }
+      // TBP
+      for (size_t i(0), p(m_ctpDataformat.getTBPpos());
+           (i < m_ctpDataformat.getTBPwords()) && (p < data.size()); 
+           ++i, ++p) {
+         if (longFormat) s << "\n";
+         if (i == 0 || longFormat) s << " TBP";
+         if (longFormat) s << std::setw(1) << i;
+         s << LVL1CTP::convertToHex(data[p].roIWord());
+         if (longFormat) s << std::endl;
+      }
 
-    // TAP
-    for (size_t i(0), p(m_ctpDataformat->getTAPpos());
-	 (i < m_ctpDataformat->getTAPwords()) && (p < data.size()); 
-	 ++i, ++p) {
-      if (longFormat) s << "\n";
-      if (i == 0 || longFormat) s << " TAP";
-      if (longFormat) s << std::setw(1) << i;
-      s << LVL1CTP::convertToHex(data[p].roIWord());
-      if (longFormat) s << std::endl;
-    }
+      // TAP
+      for (size_t i(0), p(m_ctpDataformat.getTAPpos());
+           (i < m_ctpDataformat.getTAPwords()) && (p < data.size()); 
+           ++i, ++p) {
+         if (longFormat) s << "\n";
+         if (i == 0 || longFormat) s << " TAP";
+         if (longFormat) s << std::setw(1) << i;
+         s << LVL1CTP::convertToHex(data[p].roIWord());
+         if (longFormat) s << std::endl;
+      }
 
-    // TAV
-    for (size_t i(0), p(m_ctpDataformat->getTAVpos());
-	 (i < m_ctpDataformat->getTAVwords()) && (p < data.size()); 
-	 ++i, ++p) {
-      if (longFormat) s << "\n";
-      if (i == 0 || longFormat) s << " TAV";
-      if (longFormat) s << std::setw(1) << i;
-      s << LVL1CTP::convertToHex(data[p].roIWord());
-      if (longFormat) s << std::endl;
-    }
+      // TAV
+      for (size_t i(0), p(m_ctpDataformat.getTAVpos());
+           (i < m_ctpDataformat.getTAVwords()) && (p < data.size()); 
+           ++i, ++p) {
+         if (longFormat) s << "\n";
+         if (i == 0 || longFormat) s << " TAV";
+         if (longFormat) s << std::setw(1) << i;
+         s << LVL1CTP::convertToHex(data[p].roIWord());
+         if (longFormat) s << std::endl;
+      }
     
-    return s.str();
-  }
+      return s.str();
+   }
 
 
-  void CTPResult::dumpData() const
-  {
-    IMessageSvc*  msgSvc;
-    ISvcLocator* svcLoc = Gaudi::svcLocator( );
-    StatusCode sc = svcLoc->service( "MessageSvc", msgSvc );
-    if ( sc.isFailure() ) {
-      return;
-    }
-    MsgStream log(msgSvc, "CTPResult");
-    dumpData(log);
-  }
+   void CTPResult::dumpData() const
+   {
+      IMessageSvc*  msgSvc;
+      ISvcLocator* svcLoc = Gaudi::svcLocator( );
+      StatusCode sc = svcLoc->service( "MessageSvc", msgSvc );
+      if ( sc.isFailure() ) {
+         return;
+      }
+      MsgStream log(msgSvc, "CTPResult");
+      dumpData(log);
+   }
 
-  void CTPResult::dumpData(MsgStream& log) const
-  {
-    log << MSG::DEBUG << "*BEGIN* CTPResult" << endreq;
-    m_CTPResultHeader.dumpData(log);
-    int counter = 0;
-    std::vector< CTPRoI >::const_iterator it = m_CTPResultRoIVec.begin();
-    for(; it != m_CTPResultRoIVec.end(); ++it,++counter) {
-      log << MSG::DEBUG << "RoI word[" << counter << "]             : 0x"
-	  << MSG::hex << it->roIWord() << MSG::dec << endreq;
-    }
-    m_CTPResultTrailer.dumpData(log);
-    log << MSG::DEBUG << "*END* CTPResult" << endreq;
-  }
+   void CTPResult::dumpData(MsgStream& log) const
+   {
+      log << MSG::DEBUG << "*BEGIN* CTPResult" << endreq;
+      m_CTPResultHeader.dumpData(log);
+      int counter = 0;
+      std::vector< CTPRoI >::const_iterator it = m_CTPResultRoIVec.begin();
+      for(; it != m_CTPResultRoIVec.end(); ++it,++counter) {
+         log << MSG::DEBUG << "RoI word[" << counter << "]             : 0x"
+             << MSG::hex << it->roIWord() << MSG::dec << endreq;
+      }
+      m_CTPResultTrailer.dumpData(log);
+      log << MSG::DEBUG << "*END* CTPResult" << endreq;
+   }
 
-  // convert vector of ints into bitset
-  std::bitset<512> convertToBitset(const std::vector<uint32_t>& words) 
-  {
-    std::bitset<512> bitset;
+   // convert vector of ints into bitset
+   std::bitset<512> convertToBitset(const std::vector<uint32_t>& words) 
+   {
+      std::bitset<512> bitset;
 
-    for (size_t i(0); i < words.size(); ++i) {
-      std::bitset<512> bs = words[i];
-      bs <<= (i * 32);
-      bitset |= bs;
-    }
+      for (size_t i(0); i < words.size(); ++i) {
+         std::bitset<512> bs = words[i];
+         bs <<= (i * 32);
+         bitset |= bs;
+      }
 
-    return bitset;
-  }
+      return bitset;
+   }
 
-  // convert vector of CTPRoIs into bitset
-  std::bitset<512> convertToBitset(const std::vector<CTPRoI>& words) 
-  {  
-    std::bitset<512> bitset;
+   // convert vector of CTPRoIs into bitset
+   std::bitset<512> convertToBitset(const std::vector<CTPRoI>& words) 
+   {  
+      std::bitset<512> bitset;
 
-    for (size_t i(0); i < words.size(); ++i) {
-      std::bitset<512> bs = words[i].roIWord();
-      bs <<= (i * 32);
-      bitset |= bs;
-    }
+      for (size_t i(0); i < words.size(); ++i) {
+         std::bitset<512> bs = words[i].roIWord();
+         bs <<= (i * 32);
+         bitset |= bs;
+      }
 
-    return bitset;
-  }
+      return bitset;
+   }
 
 } // namespace ROIB

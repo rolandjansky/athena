@@ -22,6 +22,7 @@ Usually they are written to RDO or BS files.
   - ROIB::MuCTPIResult
   - ROIB::EMTauResult
   - ROIB::JetEnergyResult
+  - ROIB::L1TopoResult
 
   RDO classes:
 

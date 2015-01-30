@@ -8,7 +8,7 @@
 #define TRIGT1RESULT_MUCTPI_MULTIPLICITYWORD_DECODER_H
 
 // System include(s):
-#include <inttypes.h>
+#include <cstdint>
 
 /**
  *   $Date: 2007-09-27 15:22:34 $

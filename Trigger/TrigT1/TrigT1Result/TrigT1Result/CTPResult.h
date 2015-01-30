@@ -52,88 +52,82 @@ namespace ROIB {
   class CTPResult {
 
   public:
-    //! default constructor: empty object
-    CTPResult()     
-      : m_CTPResultHeader(), m_CTPResultTrailer(), m_CTPResultRoIVec() {}
+     //! default constructor: empty object
+     CTPResult();
 
-    //! full constructor with CTP version, header, trailer and vector of data
-    CTPResult(unsigned int ctpVersion,  const Header& h, const Trailer& t, const std::vector<CTPRoI>& d)
-      : m_CTPResultHeader( h ), m_CTPResultTrailer( t ), m_CTPResultRoIVec( d ), m_ctpVersionNumber(ctpVersion) {
-      
-        m_ctpDataformat = new CTPdataformatVersion(m_ctpVersionNumber);
-      
-      }
+     //! full constructor with CTP version, header, trailer and vector of data
+     CTPResult(unsigned int ctpVersion,  const Header&, const Trailer&, const std::vector<CTPRoI>& );
 
-    //! full constructor with CTP version header, trailer and vector of data
-    CTPResult(unsigned int ctpVersion, const Header&, const Trailer&, const std::vector<uint32_t>& );
+     //! full constructor with CTP version, header, trailer and vector of data
+     CTPResult(unsigned int ctpVersion, const Header&, const Trailer&, const std::vector<uint32_t>& );
 
-    //! empty default destructor
-    ~CTPResult() {};
+     //! empty default destructor
+     ~CTPResult();
 
-    /*
-     * Methods: 
-     *
-     * */
+     /*
+      * Methods: 
+      *
+      * */
 
-    /* status information */
+     /* status information */
 
-    //! returns true if header and trailer exist, data can be empty
-    bool isValid() const;
-    //! returns true if object isValid() and data has the expected length
-    bool isComplete() const;
+     //! returns true if header and trailer exist, data can be empty
+     bool isValid() const;
+     //! returns true if object isValid() and data has the expected length
+     bool isComplete() const;
 
-    /* raw data access */
+     /* raw data access */
 
-    //! return header
-    const Header& header() const;
-    //! return trailer
-    const Trailer& trailer() const;
-    //! return the RoI vector */
-    const std::vector<CTPRoI>& roIVec() const;
+     //! return header
+     const Header& header() const;
+     //! return trailer
+     const Trailer& trailer() const;
+     //! return the RoI vector */
+     const std::vector<CTPRoI>& roIVec() const;
 
-    /* access the trigger information */
+     /* access the trigger information */
 
-    //! get trigger result before prescale
-    const std::vector<CTPRoI> TBP() const;
-    //! get trigger result after prescale
-    const std::vector<CTPRoI> TAP() const;
-    //! get trigger result after veto
-    const std::vector<CTPRoI> TAV() const;
-    //! get trigger accept before prescale
-    bool acceptBP() const;
-    //! get trigger accept after prescale
-    bool acceptAP() const;
-    //! get trigger accept after veto
-    bool acceptAV() const;
-    //! get standard trigger accept
-    bool accept() const { return acceptAV(); }
+     //! get trigger result before prescale
+     const std::vector<CTPRoI> TBP() const;
+     //! get trigger result after prescale
+     const std::vector<CTPRoI> TAP() const;
+     //! get trigger result after veto
+     const std::vector<CTPRoI> TAV() const;
+     //! get trigger accept before prescale
+     bool acceptBP() const;
+     //! get trigger accept after prescale
+     bool acceptAP() const;
+     //! get trigger accept after veto
+     bool acceptAV() const;
+     //! get standard trigger accept
+     bool accept() const { return acceptAV(); }
 
-    /* debug object content */
+     /* debug object content */
 
-    //! dump raw object content to string
-    /** method used for read/write testing and T/P separation */
-    const std::string dump() const;    
-    //! print object content in a human readable format to string
-    const std::string print(const bool longFormat = false) const;
+     //! dump raw object content to string
+     /** method used for read/write testing and T/P separation */
+     const std::string dump() const;    
+     //! print object content in a human readable format to string
+     const std::string print(const bool longFormat = false) const;
 
-    //! print object content to default message stream
-    void dumpData() const;
-    //! print object content to given message stream
-    void dumpData(MsgStream&) const;
+     //! print object content to default message stream
+     void dumpData() const;
+     //! print object content to given message stream
+     void dumpData(MsgStream&) const;
 
   private:
 
-    /* Data members = header, trailer and RoI vector */
-    Header m_CTPResultHeader;                             //!< header fragment in LVL1 eformat
-    Trailer m_CTPResultTrailer;                           //!< trailer fragment in LVL1 eformat
-    std::vector<CTPRoI> m_CTPResultRoIVec;                //!< raw data content (RoIs)
+     /* Data members = header, trailer and RoI vector */
+     Header m_CTPResultHeader;                             //!< header fragment in LVL1 eformat
+     Trailer m_CTPResultTrailer;                           //!< trailer fragment in LVL1 eformat
+     std::vector<CTPRoI> m_CTPResultRoIVec;                //!< raw data content (RoIs)
 
-    //CTP version
-    unsigned int m_ctpVersionNumber;
-    CTPdataformatVersion * m_ctpDataformat;
+     //CTP version
+     unsigned int m_ctpVersionNumber;
+     CTPdataformatVersion m_ctpDataformat;
     
-    //! convert data content into string (used by dump and print)
-    const std::string convert(std::vector<CTPRoI> data, const bool longFormat = false) const;
+     //! convert data content into string (used by dump and print)
+     const std::string convert(std::vector<CTPRoI> data, const bool longFormat = false) const;
 
   }; // class CTPResult
 
