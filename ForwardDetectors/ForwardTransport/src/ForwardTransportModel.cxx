@@ -3,15 +3,13 @@
 */
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
-
 #include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/Bootstrap.h"
 #include "G4FastSimulation/FastSimModelProxy.h"
-
 #include "G4Proton.hh"
 #include "G4Neutron.hh"
 #include "G4Gamma.hh"
 #include "G4Lambda.hh"
-
 #include "ForwardTransport/ForwardTransportModel.h"
 #include "ForwardTracker/Point.h"
 

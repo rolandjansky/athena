@@ -6,10 +6,7 @@
 #define FORWARD_TRANSPORT_MODEL_H
 
 #include "AthenaKernel/MsgStreamMember.h"
-
 #include "G4FastSimulation/FastSimModel.h"
-
-#include "ForwardTransportSvc/ForwardTransportSvc.h"
 #include "ForwardTransportSvc/IForwardTransportSvc.h"
 #include "ForwardTracker/ForwardTrack.h"
 
