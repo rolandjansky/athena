@@ -1,4 +1,4 @@
-from PowhegControl.PowhegUtils import PowhegConfig_VBF_H
+from PowhegControl import PowhegConfig_VBF_H
 
 # Use the Powheg_VBF_H configuration
 if 'runArgs' in dir() :

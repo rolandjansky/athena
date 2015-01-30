@@ -1,4 +1,4 @@
-from PowhegControl.PowhegUtils import PowhegConfig_tt
+from PowhegControl import PowhegConfig_tt
 
 # Use the Powheg_tt configuration
 if 'runArgs' in dir() :

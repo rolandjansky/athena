@@ -1,4 +1,4 @@
-from PowhegControl.PowhegUtils import PowhegConfig_trijet
+from PowhegControl import PowhegConfig_trijet
 
 # Use the Powheg_trijet configuration
 if 'runArgs' in dir() :

@@ -12,6 +12,7 @@ PowhegConfig.generateEvents()
 #--------------------------------------------------------------
 include('MC12JobOptions/Pythia8_AU2_CTEQ6L1_Common.py')
 include('MC12JobOptions/Pythia8_Powheg_Main31.py')
+topAlg.Pythia8.UserModes += [ 'Main31:NFinal = 3' ]
 
 #--------------------------------------------------------------
 # EVGEN configuration
