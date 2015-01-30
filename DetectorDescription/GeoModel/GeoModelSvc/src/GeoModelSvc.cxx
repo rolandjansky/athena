@@ -612,6 +612,10 @@ GeoModelSvc::geoInit(IOVSVC_CALLBACK_ARGS)
 	m_geoConfig = GeoModel::GEO_RUN1;
       else if(configVal=="RUN2")
 	m_geoConfig = GeoModel::GEO_RUN2;
+      else if(configVal=="ITk")
+	m_geoConfig = GeoModel::GEO_ITk;
+      else if(configVal=="RUN4")
+	m_geoConfig = GeoModel::GEO_RUN4;
       else {
 	ATH_MSG_FATAL("Unexpected value for geometry config read from the database: " << configVal);
 	return StatusCode::FAILURE;
