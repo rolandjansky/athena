@@ -5,7 +5,6 @@
 #ifndef __TRIG_SPACEPOINT_CONVERSION_TOOL__
 #define __TRIG_SPACEPOINT_CONVERSION_TOOL__
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrigInDetToolInterfaces/ITrigSpacePointConversionTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"

@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "TrigSiSpacePointTool/ISpacePointProvider.h"
@@ -31,8 +31,6 @@
 
 class TrigSiSpacePoint;
 class IRoiDescriptor;
-
-class StoreGateSvc;
 
 class PixelSpacePointTool;
 class SCT_SpacePointTool;
@@ -43,7 +41,7 @@ class PixelID;
 class IROBDataProviderSvc;
 class TrigTimer;
 
-class OnlineSpacePointProviderTool: public AlgTool, virtual public ISpacePointProvider, virtual IIncidentListener
+class OnlineSpacePointProviderTool: public AthAlgTool, virtual public ISpacePointProvider, virtual IIncidentListener
 
 {
  public:
@@ -94,7 +92,6 @@ class OnlineSpacePointProviderTool: public AlgTool, virtual public ISpacePointPr
   ToolHandle<IPixelClusterCacheTool> m_pixelCacheTool;
   ToolHandle<ISCT_ClusterCacheTool>  m_sctCacheTool;
 
-  StoreGateSvc*        m_StoreGate;
   IROBDataProviderSvc* m_robDataProvider;
 
   const SCT_ID* m_sctId;

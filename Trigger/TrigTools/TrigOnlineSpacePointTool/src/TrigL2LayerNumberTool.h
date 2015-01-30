@@ -5,9 +5,7 @@
 #ifndef __TRIG_L2_LAYER_NUMBER_TOOL__
 #define __TRIG_L2_LAYER_NUMBER_TOOL__
 
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ToolHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigInDetToolInterfaces/ITrigL2LayerNumberTool.h"
 
 namespace InDetDD {
@@ -15,7 +13,7 @@ namespace InDetDD {
   class SCT_DetectorManager;
 }
 
-class TrigL2LayerNumberTool : virtual public ITrigL2LayerNumberTool, public AlgTool {
+class TrigL2LayerNumberTool : virtual public ITrigL2LayerNumberTool, public AthAlgTool {
  public:
 
   // standard AlgTool methods

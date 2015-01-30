@@ -4,21 +4,21 @@
 
 #ifndef PixelSpacePointTool_H
 #define PixelSpacePointTool_H
-#include "GaudiKernel/ToolHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigInDetToolInterfaces/ITrigL2LayerNumberTool.h"
 #include "TrigOnlineSpacePointTool/PixelGCBuilder.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
 #include "TrigInDetEvent/TrigSiSpacePointCollection.h"
-#include "GaudiKernel/AlgTool.h"
+#include "GaudiKernel/ToolHandle.h"
 #include <vector>
 
 class TrigSiSpacePoint;
-class StoreGateSvc;
 class PixelID;
 class TrigTimer;
 class IBeamCondSvc;
+class ITrigL2LayerNumberTool;
 
-class PixelSpacePointTool : public AlgTool {
+class PixelSpacePointTool : public AthAlgTool {
 public:
   typedef std::vector<const InDet::PixelClusterCollection*> ClusterCollectionData;
   typedef std::vector<TrigSiSpacePoint*> SiSpacePointData;
@@ -38,7 +38,6 @@ public:
 
 private:
 
-  StoreGateSvc* m_StoreGate;   
   PixelGCBuilder* m_builder;
   const PixelID* m_id_pixel;
   IdContext m_cntx_pixel;

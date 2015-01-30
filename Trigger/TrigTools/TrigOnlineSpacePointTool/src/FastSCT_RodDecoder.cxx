@@ -6,10 +6,9 @@
 #include "TrigOnlineSpacePointTool/FastSCT_Clusterization.h"
 #include "TrigOnlineSpacePointTool/FastSCT_RodDecoder.h"
 #include "GaudiKernel/ListItem.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "ByteStreamData/ROBData.h" 
 #include <algorithm> 
 
@@ -19,7 +18,7 @@ static const InterfaceID IID_IFastSCT_RodDecoder
 //constructor
 FastSCT_RodDecoder::FastSCT_RodDecoder
 ( const std::string& type, const std::string& name,const IInterface* parent )
-  :  AlgTool(type,name,parent)
+  :  AthAlgTool(type,name,parent)
 {
   declareInterface< FastSCT_RodDecoder  >( this );
 }
@@ -34,25 +33,17 @@ const InterfaceID& FastSCT_RodDecoder::interfaceID( )
 
 StatusCode FastSCT_RodDecoder::initialize() {
 
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << " initialize " <<endreq; 
-  StatusCode sc;
-  sc = AlgTool::initialize(); 
+  ATH_MSG_INFO(" initialize "); 
+  StatusCode sc = AthAlgTool::initialize(); 
 
-  StoreGateSvc* detStore(0);
-  sc = service("DetectorStore", detStore);
+  sc = detStore()->retrieve(m_indet_mgr,"SCT"); 
   if (sc.isFailure()) {
-    return StatusCode::FAILURE;
-  } 
-
-  sc = detStore->retrieve(m_indet_mgr,"SCT"); 
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "Cannot retrieve SCT_DetectorManager!" << endreq;
+    ATH_MSG_FATAL("Cannot retrieve SCT_DetectorManager!");
     return StatusCode::FAILURE;
   } 
   
-  if (detStore->retrieve(m_sct_id, "SCT_ID").isFailure()) {                       
-     log << MSG::FATAL << "Could not get SCT ID helper" << endreq;
+  if (detStore()->retrieve(m_sct_id, "SCT_ID").isFailure()) {                       
+     ATH_MSG_FATAL("Could not get SCT ID helper");
      return StatusCode::FAILURE;
   }  
 
@@ -62,8 +53,7 @@ StatusCode FastSCT_RodDecoder::initialize() {
 
 StatusCode FastSCT_RodDecoder::finalize() {
 
-  MsgStream log(msgSvc(),name());
-  log << MSG::INFO << "in FastSCT_RodDecoder::finalize" << endreq;
+  ATH_MSG_INFO("in FastSCT_RodDecoder::finalize");
   return StatusCode::SUCCESS;
 }
 
@@ -71,8 +61,6 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
 					ISCT_CablingSvc* cablingSvc,
 					std::vector<bool>& listOfIds, FastSCT_Clusterization* pClusterization) 
 {
-  MsgStream log(msgSvc(), "FastSCT_RodDecoder");
-  //  int outputLevel = msgSvc()->outputLevel( name() );
   m_pClusterization=pClusterization;
   m_cablingSvc=cablingSvc;
 
@@ -82,8 +70,8 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
   //  const uint16_t rodMinorVersion = rodVersion.minor() ;
   eformat::helper::SourceIdentifier sid_rob =  rob->rod_source_id() ;
   uint32_t detid = sid_rob.subdetector_id();
-  if(outputLevel <= MSG::DEBUG)
-    log<<MSG::DEBUG<<"The Det Id 0x"<<std::hex<<detid<<" robid 0x"<<robid<<" Rod version "<<rodMinorVersion
+  if(outputLevel <= MSG_DEBUG)
+    ATH_MSG_DEBUG<<"The Det Id 0x"<<std::hex<<detid<<" robid 0x"<<robid<<" Rod version "<<rodMinorVersion
        <<std::dec<<endreq ;
   */
   int nNewStrips=0;
@@ -128,8 +116,8 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
     {
       wordcount++;
       /*
-      if(outputLevel <= MSG::DEBUG)
-	log<<MSG::DEBUG<<"fillCollection() word no "<<std::dec<<wordcount<<", input rod : "<<std::hex<<*rob_it1
+      if(outputLevel <= MSG_DEBUG)
+	ATH_MSG_DEBUG<<"fillCollection() word no "<<std::dec<<wordcount<<", input rod : "<<std::hex<<*rob_it1
 	   <<" :-> robid 0x"<<robid<<endreq ;
       */
       // the data is 16-bits wide packed to a 32-bit word (rob_it1). So we unpack it here.
@@ -157,8 +145,8 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
 		  //tbin = 0x2 ; //assuming tbin is 010 in condensed mode
 		  if(chip>5)
 		    {
-		      log << MSG::ERROR<<"    Hit condensed : xxx Chip number = "<<chip<<" > 5 "
-			  <<" for hit "<<std::hex<<dataWord<<endreq ;
+		      ATH_MSG_ERROR("    Hit condensed : xxx Chip number = "<<chip<<" > 5 "
+			  <<" for hit "<<std::hex<<dataWord);
 		      continue ;
 		    }
 		  //------------ Search for redundancy only for the master chip 
@@ -169,8 +157,8 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
 		  //onlineId = (robid |(linkNb << 8));
 		  onlineId = ((robid & 0xFFFFFF)|(linkNb << 24));
 		  /*
-		    if(outputLevel <= MSG::DEBUG)
-		    log<<MSG::DEBUG<<"    Hit condensed ->hit: "<<std::hex<<dataWord<<" link "<<
+		    if(outputLevel <= MSG_DEBUG)
+		    ATH_MSG_DEBUG<<"    Hit condensed ->hit: "<<std::hex<<dataWord<<" link "<<
 		    linkNb<<" robid "<<robid<<" onlineId "<<onlineId<<std::dec<<endreq ;
 		  */
 		  if (groupSize == 0) 
@@ -180,8 +168,8 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
 		  if (!(dataWord&0x1))
 		    { // 1-hit
 		      /*
-		      if(outputLevel <= MSG::DEBUG)
-			log<<MSG::DEBUG<<"    Hit condensed -> 1-hit : "<<std::hex<<dataWord<<" side "<<side<<" link "<<
+		      if(outputLevel <= MSG_DEBUG)
+			ATH_MSG_DEBUG<<"    Hit condensed -> 1-hit : "<<std::hex<<dataWord<<" side "<<side<<" link "<<
 			  linkNb<<" chip "<<chip<<" strip "<<strip<<" groupSize "<<groupSize<<std::dec<<endreq ;
 		      */
 		      if (strip != oldstrip)
@@ -191,14 +179,14 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
 			  oldstrip = strip;
 			  groupSize = 0;	
 			  /*
-			    if(outputLevel <= MSG::DEBUG)
-			    log << MSG::DEBUG<< "    Hit condensed : New cluster, make RDO with the previous cluster" << 
+			    if(outputLevel <= MSG_DEBUG)
+			    ATH_MSG_DEBUG<< "    Hit condensed : New cluster, make RDO with the previous cluster" << 
 			    endreq;
 			  */
 			}
 		      if (dataWord&0x4)
 			{ // Error in the hit
-			  // log << MSG::ERROR << "    Hit condensed : xxx ERROR in 1-hit "<<std::hex<<dataWord<< endreq ;
+			  // ATH_MSG_ERROR << "    Hit condensed : xxx ERROR in 1-hit "<<std::hex<<dataWord<< endreq ;
 			  errorHit[groupSize] = 1;
 			  ERRORS = (ERRORS | 0x10);
 			}
@@ -207,8 +195,8 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
 		  else
 		    { //2-hits
 		      /*
-			if(outputLevel <= MSG::DEBUG)
-			log<<MSG::DEBUG<<"    Hit condensed -> 2-hits : "<<std::hex<<dataWord<<" side "<<side<<" link "<<
+			if(outputLevel <= MSG_DEBUG)
+			ATH_MSG_DEBUG<<"    Hit condensed -> 2-hits : "<<std::hex<<dataWord<<" side "<<side<<" link "<<
 			linkNb<<" chip "<<chip<<" strip "<<strip<<" groupSize "<<groupSize<<std::dec<<endreq ;
 		      */
 		      if (strip != oldstrip) 
@@ -218,21 +206,21 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
 			  oldstrip = strip;
 			  groupSize = 0;
 			  /*
-			    if(outputLevel <= MSG::DEBUG)		
-			    log<<MSG::DEBUG<<"Hit condensed : New cluster, make RDO with the previous cluster"
+			    if(outputLevel <= MSG_DEBUG)		
+			    ATH_MSG_DEBUG<<"Hit condensed : New cluster, make RDO with the previous cluster"
 			    <<endreq;
 			  */
 			}	    
 		      if (dataWord&0x4) 
 			{ // Error in the first hit
-			  // log << MSG::ERROR << "    Hit condensed : xxx ERROR in 1st hit"<<std::hex<<dataWord<< endreq ;
+			  // ATH_MSG_ERROR << "    Hit condensed : xxx ERROR in 1st hit"<<std::hex<<dataWord<< endreq ;
 			  errorHit[groupSize] = 1 ;
 			  ERRORS = (ERRORS | 0x10) ;
 			}
 		      groupSize++ ;	    
 		      if (dataWord&0x8) 
 			{ // Error in the second hit
-			  // log << MSG::ERROR << "    Hit condensed : xxx ERROR in 2nd hit "<<std::hex<<dataWord<< endreq ;
+			  // ATH_MSG_ERROR << "    Hit condensed : xxx ERROR in 2nd hit "<<std::hex<<dataWord<< endreq ;
 			  errorHit[groupSize] = 1 ;
 			  ERRORS = (ERRORS | 0x20) ;
 			}
@@ -251,8 +239,8 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
 		  if (!(dataWord&0x8)) 
 		    {  // 1st hit cluster expanded
 		      /*
-			if(outputLevel <= MSG::DEBUG)
-			log<<MSG::DEBUG<<" Expanded hit : -> First hit "<<endreq ;
+			if(outputLevel <= MSG_DEBUG)
+			ATH_MSG_DEBUG<<" Expanded hit : -> First hit "<<endreq ;
 		      */
 		      chip  = ((dataWord>>11)&0x7) ;  
 		      side = ((dataWord>>14)&0x1) ;
@@ -263,12 +251,12 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
 		      //assuming tbin is 010 i expanded mode for debugging purposes
 		      if(chip>5)
 			{
-			  log << MSG::ERROR << "\tExpanded hit: First hit xxx ERROR chip Nb = " <<chip<< " > 5" <<endreq;
+			  ATH_MSG_ERROR("\tExpanded hit: First hit xxx ERROR chip Nb = " <<chip<< " > 5");
 			  continue ;
 			}
 		      /*
-		      if(outputLevel <= MSG::DEBUG)
-			log<<MSG::DEBUG<<"\tExpanded hit: -> * side "<<side<<", Link "<<linkNb<<", chip "<<chip
+		      if(outputLevel <= MSG_DEBUG)
+			ATH_MSG_DEBUG<<"\tExpanded hit: -> * side "<<side<<", Link "<<linkNb<<", chip "<<chip
 			   <<", strip "<<strip<<endreq ;
 		      */
 		      //-------------- Search for redundancy only for the master chip 
@@ -279,8 +267,8 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
 		      //onlineId = (robid |(linkNb << 8)) ;
 		      onlineId =((robid & 0xFFFFFF)|(linkNb << 24)); 
 		      /*
-			if(outputLevel <= MSG::DEBUG)
-			log<<MSG::DEBUG<<"    Hit expanded ->hit: "<<std::hex<<dataWord<<" link "<<linkNb<<" robid "<<
+			if(outputLevel <= MSG_DEBUG)
+			ATH_MSG_DEBUG<<"    Hit expanded ->hit: "<<std::hex<<dataWord<<" link "<<linkNb<<" robid "<<
 			robid<<" online Id "<<onlineId<<std::dec<<endreq ;
 		      */
 		      groupSize =  1 ;
@@ -294,12 +282,12 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
 			{ // paired hits 
 			  // first hit from the pair
 			  /*
-			    if(outputLevel <= MSG::DEBUG)
-			    log << MSG::DEBUG<<"\tExpanded hit: -> Paired hits "<<endreq ;	
+			    if(outputLevel <= MSG_DEBUG)
+			    ATH_MSG_DEBUG<<"\tExpanded hit: -> Paired hits "<<endreq ;	
 			  */ 
 			  if(chip>5)
 			    {
-			      log<<MSG::ERROR<< "\tExpanded Hit: paired hits xxx ERROR chip Nb = "<<chip<<" > 5"<<endreq; 
+			      ATH_MSG_ERROR("\tExpanded Hit: paired hits xxx ERROR chip Nb = "<<chip<<" > 5"); 
 			      continue ;
 			    }
 			  strip++;
@@ -317,12 +305,12 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
 		      else 
 			{  // Last hit of the cluster
 			  /*
-			  if(outputLevel <= MSG::DEBUG)
-			    log<<MSG::DEBUG<<" Expanded hit: -> Last hits "<<endreq ;	
+			  if(outputLevel <= MSG_DEBUG)
+			    ATH_MSG_DEBUG<<" Expanded hit: -> Last hits "<<endreq ;	
 			  */ 
 			  if(chip>5)
 			    {
-			      log<<MSG::ERROR<<"\tExpanded Hit: last hit xxx ERROR chip Nb = "<<chip<<" > 5"<<endreq ;	  
+			      ATH_MSG_ERROR("\tExpanded Hit: last hit xxx ERROR chip Nb = "<<chip<<" > 5");	  
 			      continue ;
 			    }
 			  strip++;
@@ -338,17 +326,17 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
 	  else if (((dataWord>>13)&0x7) == 0x1)
 	    {
 	      /*
-	      if(outputLevel <= MSG::DEBUG)
-		log << MSG::DEBUG<<"HEADER   "<<std::hex<<dataWord<<endreq ;
+	      if(outputLevel <= MSG_DEBUG)
+		ATH_MSG_DEBUG<<"HEADER   "<<std::hex<<dataWord<<endreq ;
 	      */
 	      if (saved[strip]==0 && oldstrip>=0)
 		{
 		  /*
-		  if(outputLevel <= MSG::DEBUG)
+		  if(outputLevel <= MSG_DEBUG)
 		    {
-		      log<<MSG::DEBUG<<"    Header -> saved["<<strip<< "] = "<<saved[strip]
+		      ATH_MSG_DEBUG<<"    Header -> saved["<<strip<< "] = "<<saved[strip]
 			 <<" && oldstrip>=0 (hit) => Make RDO  "<<endreq ;
-		      log<<MSG::DEBUG<<"    Header -> 1-hit : "<<std::hex<<dataWord<<", GroupSize "<<
+		      ATH_MSG_DEBUG<<"    Header -> 1-hit : "<<std::hex<<dataWord<<", GroupSize "<<
 			groupSize<<", Link "<<linkNb<<", chip "<<chip<<std::dec<<" strip "<<strip<< endreq ;
 		    }
 		  */
@@ -371,27 +359,27 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
 	      // This is the real calculation	for the offline  
 	      linkNb  = ((( rodlinkNb >>4) & 0x7)*12+(rodlinkNb & 0xF));
 	      /*
-	      if(outputLevel <= MSG::DEBUG)
-		log<<MSG::DEBUG<<"Header: Link nb  "<<std::hex<<linkNb<<" ROD Link Number "<<rodlinkNb<<endreq ;
+	      if(outputLevel <= MSG_DEBUG)
+		ATH_MSG_DEBUG<<"Header: Link nb  "<<std::hex<<linkNb<<" ROD Link Number "<<rodlinkNb<<endreq ;
 	      */
 	      if (linkNb > 95) 
 		{
-		  log<<MSG::ERROR<<"Header: xxx Link nb out of range (skipping following data)"<<std::dec<<linkNb<<endreq ;
+		  ATH_MSG_ERROR("Header: xxx Link nb out of range (skipping following data)"<<std::dec<<linkNb);
 		  break;
 		}
 	      if (dataWord&0x100)
 		{
 		  /*
-		    if(outputLevel <= MSG::DEBUG)
-		    log << MSG::DEBUG<< "    Header: -oo- Condensed Mode " << endreq;
+		    if(outputLevel <= MSG_DEBUG)
+		    ATH_MSG_DEBUG<< "    Header: -oo- Condensed Mode " << endreq;
 		  */
 		  condensed = true;
 		} 
 	      else 
 		{
 		  /*
-		  if(outputLevel <= MSG::DEBUG)
-		    log << MSG::DEBUG << "    Header: -oo- Expanded Mode " << endreq;
+		  if(outputLevel <= MSG_DEBUG)
+		    ATH_MSG_DEBUG << "    Header: -oo- Expanded Mode " << endreq;
 		  */	
 		  condensed = false;
 		}
@@ -402,25 +390,25 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
 	      if (dataWord&0x1000)
 		{
 		  //  ErrorHeader = true ;
-		  log << MSG::ERROR << "    Header: xxx Preamble Error" << endreq ;
+		  ATH_MSG_ERROR("    Header: xxx Preamble Error");
 		  ERRORS = (ERRORS | 0x1);
 		}
 	      if (dataWord&0x400)
 		{ 
 		  // ErrorHeader = true;
-		  log << MSG::ERROR << "    Header: xxx LVL1 ID Error " << endreq ;
+		  ATH_MSG_ERROR("    Header: xxx LVL1 ID Error ");
 		  ERRORS = (ERRORS | 0x2);
 		}
 	      if (dataWord&0x200)
 		{
 		  // ErrorHeader = true;
-		  log << MSG::ERROR << "    Header: xxx BCID Error " << endreq ;
+		  ATH_MSG_ERROR("    Header: xxx BCID Error ");
 		  ERRORS = (ERRORS | 0x4);
 		}
 	      if ((dataWord&0xF) > 11) 
 		{
 		  // ErrorHeader = true;
-		  log << MSG::WARNING << "    Header: xxx Error in formatter " << endreq ;
+		  ATH_MSG_WARNING("    Header: xxx Error in formatter ");
 		  ERRORS = (ERRORS | 0x8);
 		}
 	      continue;	
@@ -434,12 +422,12 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
 	      if (dataWord&0x1000)
 		{
 		  //  ErrorTrailer = true;
-		  log << MSG::ERROR << "    Trailer: xxx Trailer ERROR " << std::hex << dataWord << endreq ;
+		  ATH_MSG_ERROR("    Trailer: xxx Trailer ERROR " << std::hex << dataWord);
 		}
 	      if (dataWord&0x800)
 		{
 		  // ErrorTrailer = true;	// no data should appear between header and trailer
-		  log << MSG::ERROR << "    Trailer: xxx Header-Trailer limit ERROR " << std::hex << dataWord << endreq ;
+		  ATH_MSG_ERROR("    Trailer: xxx Header-Trailer limit ERROR " << std::hex << dataWord);
 		}
 	      if (dataWord&0x400)
 		{
@@ -456,8 +444,8 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
 	      chip = ((dataWord>>3)&0x7) ;
 	      ABCerror = dataWord&0x7; 
 	      // no data should appear for that chip but how do we want to transmit this information ?
-	      log<<MSG::ERROR<<" xxx Flagged ERROR in chip "<<chip<<" Error code ABCerror "<<
-		ABCerror<<" Link Nb (or Stream) "<<linkNb<<endreq ;
+	      ATH_MSG_ERROR(" xxx Flagged ERROR in chip "<<chip<<" Error code ABCerror "<<
+		ABCerror<<" Link Nb (or Stream) "<<linkNb);
 	      continue;
 	    }
       
@@ -466,7 +454,7 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
 	  //---------------------------------------------------------------------
 	  else if (((dataWord>>13)&0x7) == 0x3)
 	    {
-	      log << MSG::ERROR << " xxx Raw Data Mode "<<std::hex<<dataWord<<endreq ;
+	      ATH_MSG_ERROR(" xxx Raw Data Mode "<<std::hex<<dataWord);
 	      // too many errors in the BS for the ROD to decode the data
 	      continue;
 	    }
@@ -475,7 +463,7 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
 	  //---------------------------------------------------------------------
 	  else 
 	    {
-	      log << MSG::ERROR << "Data word format unknown " << endreq;
+	      ATH_MSG_ERROR("Data word format unknown ");
 	    }
 	}
     } // end of 32-bit word loop
@@ -487,8 +475,8 @@ bool FastSCT_RodDecoder::fillCollections(const ROBFragment* rob, uint32_t robid,
       saved[strip] = 1;
     }
   /*
-  if(outputLevel <= MSG::DEBUG)
-    log << MSG::DEBUG << std::dec<<wordcount<<" datawords processed, total "<<nNewStrips
+  if(outputLevel <= MSG_DEBUG)
+    ATH_MSG_DEBUG << std::dec<<wordcount<<" datawords processed, total "<<nNewStrips
 	<< " strips are submitted for clusterization "<< endreq;
   */
   return (nNewStrips!=0);
@@ -498,15 +486,12 @@ int FastSCT_RodDecoder::addNewStrip(int Strip0, int groupSize, uint32_t onlineId
                                     int /*ERRORS*/, float /*errorHit*/[20], std::vector<bool>& listOfIds)
 
 {
-  //  MsgStream log(msgSvc(), "FastSCT_RodDecoder");
-  // int outputLevel = msgSvc()->outputLevel( name() );
-
   const IdentifierHash hashId = m_cablingSvc->getHashFromOnlineId(onlineId) ;
 
   if(!listOfIds[hashId]) 
     {
-      //  if(outputLevel <= MSG::DEBUG)
-      //	log << MSG::DEBUG<< "Hash "<<(int)hashId<<" is NOT requested "<<endreq ;
+      //  if(outputLevel <= MSG_DEBUG)
+      //	ATH_MSG_DEBUG<< "Hash "<<(int)hashId<<" is NOT requested "<<endreq ;
       return 0;
     }
 
@@ -514,7 +499,7 @@ int FastSCT_RodDecoder::addNewStrip(int Strip0, int groupSize, uint32_t onlineId
 
   if ( m_sct_id->get_id(hashId,idColl,&m_cntx_sct) ) 
     {
-      // log << MSG::ERROR<< "Unknown offlineId for OnlineId 0x" <<std::hex<<onlineId <<" -> cannot add strip"<<endreq ;
+      // ATH_MSG_ERROR<< "Unknown offlineId for OnlineId 0x" <<std::hex<<onlineId <<" -> cannot add strip"<<endreq ;
       return 0;
     }
 
@@ -522,16 +507,14 @@ int FastSCT_RodDecoder::addNewStrip(int Strip0, int groupSize, uint32_t onlineId
   int iStrip,strip;
   if (p_element->swapPhiReadoutDirection()) 
     {
-      // if(outputLevel <= MSG::DEBUG)
-      //	log << MSG::DEBUG<< "swapped readout" <<endreq;
       for(iStrip=0;iStrip<groupSize;iStrip++)
 	{
 	  strip=Strip0;
 	  strip = 767 - strip ;
 	  strip = strip-(groupSize-1)+iStrip;
 	  /*
-	  if(outputLevel <= MSG::DEBUG)
-	    log << MSG::DEBUG<< "add strip " <<strip<<" groupSize="<<groupSize<<" HashId "<<(int)hashId<<"  "<<
+	  if(outputLevel <= MSG_DEBUG)
+	    ATH_MSG_DEBUG<< "add strip " <<strip<<" groupSize="<<groupSize<<" HashId "<<(int)hashId<<"  "<<
 	      m_sct_id->print_to_string(idColl)<<endreq;
 	  */
 	  m_pClusterization->addHit(idColl, hashId,strip);
@@ -539,14 +522,14 @@ int FastSCT_RodDecoder::addNewStrip(int Strip0, int groupSize, uint32_t onlineId
     }
   else
     {
-      // if(outputLevel <= MSG::DEBUG)
-      //	log << MSG::DEBUG<< "nonswapped readout" <<endreq;
+      // if(outputLevel <= MSG_DEBUG)
+      //	ATH_MSG_DEBUG<< "nonswapped readout" <<endreq;
       for(iStrip=0;iStrip<groupSize;iStrip++)
 	{
 	  strip=Strip0+iStrip;
 	  /*
-	  if(outputLevel <= MSG::DEBUG)
-	    log << MSG::DEBUG<< "add strip " <<strip<<" groupSize="<<groupSize<<" HashId "<<(int)hashId<<"  "<<
+	  if(outputLevel <= MSG_DEBUG)
+	    ATH_MSG_DEBUG<< "add strip " <<strip<<" groupSize="<<groupSize<<" HashId "<<(int)hashId<<"  "<<
 	      m_sct_id->print_to_string(idColl)<<endreq;
 	  */
 	  m_pClusterization->addHit(idColl, hashId,strip);

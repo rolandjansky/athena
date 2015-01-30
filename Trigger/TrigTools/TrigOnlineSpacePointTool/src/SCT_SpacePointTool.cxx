@@ -6,9 +6,8 @@
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrigOnlineSpacePointTool/SCT_SpacePointTool.h"
 #include "GaudiKernel/ToolFactory.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "Identifier/IdentifierHash.h" 
-#include "StoreGate/StoreGate.h"
 #include <string>
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 
@@ -22,7 +21,7 @@ const InterfaceID& SCT_SpacePointTool::interfaceID() {
 SCT_SpacePointTool::SCT_SpacePointTool( const std::string& type, 
                                         const std::string& name, 
                                         const IInterface* parent )
-  : AlgTool(type, name, parent),
+  : AthAlgTool(type, name, parent),
     m_xVertex(0.0),
     m_yVertex(0.0),
     m_zVertex(0.0),
@@ -46,40 +45,24 @@ SCT_SpacePointTool::SCT_SpacePointTool( const std::string& type,
 }
 
 StatusCode SCT_SpacePointTool::initialize()  {
-  MsgStream log(msgSvc(), name());
 
-  log << MSG::DEBUG << name() << " in initialize" << endreq;
-  // Get StoreGate service
-  StatusCode sc=service("StoreGateSvc", m_StoreGate);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << name() <<" failed to get StoreGate" << endreq;
-    return sc;
-  }
+  ATH_MSG_DEBUG( name() << " in initialize" );
   
-  // get DetectorStore service
-  StoreGateSvc* detStore; 
-  sc=service("DetectorStore",detStore);
-  if (sc.isFailure()) { 
-    log << MSG::ERROR << name() <<" failed to get detStore" << endreq;
-    return sc;
-  }
-
-  
-  sc=detStore->retrieve(m_mgr, "SCT");
+  StatusCode sc=detStore()->retrieve(m_mgr, "SCT");
   if (sc.isFailure()) {
-    log << MSG::ERROR << name() << "failed to get SCT Manager" << endreq;
+    ATH_MSG_ERROR( name() << "failed to get SCT Manager" );
     return StatusCode::FAILURE;
   }
 
   // Get SCT  helpers                                                                                                                         
-  if (detStore->retrieve(m_id_sct, "SCT_ID").isFailure()) { 
-     log << MSG::FATAL << "Could not get SCT ID helper" << endreq; 
+  if (detStore()->retrieve(m_id_sct, "SCT_ID").isFailure()) { 
+     ATH_MSG_FATAL( "Could not get SCT ID helper" ); 
      return StatusCode::FAILURE; 
   }  
 
   sc=m_numberingTool.retrieve();
   if(sc.isFailure()) {
-    log << MSG::ERROR<<"Could not retrieve "<<m_numberingTool<<endreq;
+    ATH_MSG_ERROR("Could not retrieve "<<m_numberingTool);
     return sc;
   }
   
@@ -89,15 +72,15 @@ StatusCode SCT_SpacePointTool::initialize()  {
 
   m_cntx_sct = m_id_sct->wafer_context();
 
-  sc = AlgTool::initialize(); 
+  sc = AthAlgTool::initialize(); 
 
   if (m_unassociatedPhi) {
-    log << MSG::INFO << name() << "  Forming spacepoints from stereo pairs and unassociated phi clusters" << endreq;
+    ATH_MSG_INFO(name() << "  Forming spacepoints from stereo pairs and unassociated phi clusters" );
   } else {
-    log << MSG::INFO << name() << "  Forming spacepoints from stereo pairs only" << endreq;
+    ATH_MSG_INFO(name() << "  Forming spacepoints from stereo pairs only" );
   }
 
-  log << MSG::INFO << "SCT_SP_ContainerName: " << m_spacepointContainerName << endreq;
+  ATH_MSG_INFO("SCT_SP_ContainerName: " << m_spacepointContainerName );
   m_spacepointContainer = new TrigSiSpacePointContainer(m_id_sct->wafer_hash_max());
   m_spacepointContainer->addRef();
 
@@ -107,9 +90,9 @@ StatusCode SCT_SpacePointTool::initialize()  {
       if (scBS.isFailure() || m_iBeamCondSvc == 0) 
 	{
 	  m_iBeamCondSvc = 0;
-	  log << MSG::WARNING << "Could not retrieve Beam Conditions Service. " << endreq;
-	  log << MSG::WARNING << "Using origin at ( "<< m_xVertex <<" , "<< m_yVertex << " , " 
-	      << m_yVertex<< " ) "<< endreq;
+	  ATH_MSG_WARNING( "Could not retrieve Beam Conditions Service. " );
+	  ATH_MSG_WARNING( "Using origin at ( "<< m_xVertex <<" , "<< m_yVertex << " , " 
+	      << m_yVertex<< " ) ");
 	  m_xCenter = m_xVertex;
 	  m_yCenter = m_yVertex;
 	}
@@ -122,7 +105,7 @@ StatusCode SCT_SpacePointTool::initialize()  {
   ITrigTimerSvc* timerSvc;
   StatusCode scTime = service( "TrigTimerSvc", timerSvc);
   if( scTime.isFailure() ) {
-    log << MSG::INFO<< "Unable to locate Service TrigTimerSvc " << endreq;
+    ATH_MSG_INFO("Unable to locate Service TrigTimerSvc " );
     m_timers = false;
   } 
   else{
@@ -145,7 +128,7 @@ StatusCode SCT_SpacePointTool::finalize() {
   //delete m_spacepointContainer;
   m_spacepointContainer->release();
   delete m_builder;
-  StatusCode sc = AlgTool::finalize(); 
+  StatusCode sc = AthAlgTool::finalize(); 
   return sc;
 }
 
@@ -154,34 +137,30 @@ StatusCode SCT_SpacePointTool::fillCollections(ClusterCollectionVector& clusterC
 
   StatusCode sc;
 
-  MsgStream log(msgSvc(), name());
-  int outputLevel = msgSvc()->outputLevel( name() );
   std::map <Identifier,  PhiUVPair> phi_uv_table;
   std::map <Identifier,  PhiUVPair>::iterator iter_phiUV;
 
   int nSP=0;listOfIds.clear();
 
-  if(!m_StoreGate->contains<TrigSiSpacePointContainer>(m_spacepointContainerName))
+  if(!evtStore()->contains<TrigSiSpacePointContainer>(m_spacepointContainerName))
     {
       m_spacepointContainer->cleanup();
-      sc=m_StoreGate->record(m_spacepointContainer,m_spacepointContainerName,false);
+      sc=evtStore()->record(m_spacepointContainer,m_spacepointContainerName,false);
       if(sc.isFailure())
 	{
-	  log << MSG::WARNING << "SCT TrigSP Container " << m_spacepointContainerName 
-	      <<" cannot be recorded in StoreGate !"<< endreq;
+	  ATH_MSG_WARNING( "SCT TrigSP Container " << m_spacepointContainerName 
+	      <<" cannot be recorded in StoreGate !");
 	  return sc;
 	}
       else 
 	{
-	  if(outputLevel <= MSG::DEBUG)
-	    log << MSG::DEBUG << "SCT TrigSP Container " << m_spacepointContainerName
-		<< " is recorded in StoreGate" << endreq;
+    ATH_MSG_DEBUG( "SCT TrigSP Container " << m_spacepointContainerName
+        << " is recorded in StoreGate" );
 	}
       if (m_useBeamSpot && m_iBeamCondSvc)
 	{
 	  Amg::Vector3D vertex = m_iBeamCondSvc->beamPos();
-	  if(outputLevel <= MSG::DEBUG)
-	    log << MSG::DEBUG << "Beam spot position " << vertex << endreq;
+    ATH_MSG_DEBUG( "Beam spot position " << vertex );
 	  m_xCenter=vertex.x() - m_iBeamCondSvc->beamTilt(0)*vertex.z();
 	  m_yCenter=vertex.y() - m_iBeamCondSvc->beamTilt(1)*vertex.z();
 	}
@@ -192,13 +171,11 @@ StatusCode SCT_SpacePointTool::fillCollections(ClusterCollectionVector& clusterC
     }
   else 
     {    
-      if(outputLevel <= MSG::DEBUG)
-	log << MSG::DEBUG << "SCT TrigSP Container " <<m_spacepointContainerName 
-	    << " is found in StoreGate" << endreq;
+      ATH_MSG_DEBUG( "SCT TrigSP Container " <<m_spacepointContainerName 
+          << " is found in StoreGate" );
     }
 
-  if(outputLevel <= MSG::DEBUG)
-    log << MSG::DEBUG << "Center position:  " << m_xCenter <<"  "<<m_yCenter<< endreq;
+  ATH_MSG_DEBUG( "Center position:  " << m_xCenter <<"  "<<m_yCenter);
 
   // Loop over cluster collections 
   ClusterCollectionVector::iterator iter_coll = clusterCollData.begin();
@@ -223,18 +200,18 @@ StatusCode SCT_SpacePointTool::fillCollections(ClusterCollectionVector& clusterC
       if (m_id_sct->side(wafer_id) == 1) {
 	phi_wafer_found = true;   
 	if (module_id == wafer_id) {
-	  log << MSG::ERROR << " Failure of SCT_ID helper: module-id has side=1 !!" << endreq; 
-	  log << MSG::ERROR << " module-id: " <<  m_id_sct->print_to_string(module_id) << endreq;
-	  log << MSG::ERROR << " Stereo association failed " << endreq;
+	  ATH_MSG_ERROR( " Failure of SCT_ID helper: module-id has side=1 !!" ); 
+	  ATH_MSG_ERROR( " module-id: " <<  m_id_sct->print_to_string(module_id) );
+	  ATH_MSG_ERROR( " Stereo association failed " );
 	}
       } 
     } else {
       if (m_id_sct->side(wafer_id) == 0) {
 	phi_wafer_found = true;
       }	else if (module_id == wafer_id) {
-	log << MSG::ERROR << " Failure of SCT_ID helper: module-id has side=1 !!" << endreq; 
-	log << MSG::ERROR << " module-id: " <<  m_id_sct->print_to_string(module_id) << endreq;
-	log << MSG::ERROR << " Stereo association failed " << endreq;
+	ATH_MSG_ERROR( " Failure of SCT_ID helper: module-id has side=1 !!" ); 
+	ATH_MSG_ERROR( " module-id: " <<  m_id_sct->print_to_string(module_id) );
+	ATH_MSG_ERROR( " Stereo association failed " );
       }
     }
     */
@@ -255,8 +232,8 @@ StatusCode SCT_SpacePointTool::fillCollections(ClusterCollectionVector& clusterC
       } 
     else 
       {
-	//log << MSG::DEBUG << " got stereo wafer " <<  m_id_sct->print_to_string(wafer_id) << endreq;
-	//log << MSG::DEBUG << " module-id: " <<  m_id_sct->print_to_string(module_id) << endreq;
+	//ATH_MSG_DEBUG( " got stereo wafer " <<  m_id_sct->print_to_string(wafer_id) );
+	//ATH_MSG_DEBUG( " module-id: " <<  m_id_sct->print_to_string(module_id) );
 	iter_phiUV = phi_uv_table.find(module_id);
 	if (iter_phiUV == phi_uv_table.end()) 
 	  {
@@ -313,8 +290,8 @@ StatusCode SCT_SpacePointTool::fillCollections(ClusterCollectionVector& clusterC
 
     SiSpacePointData newSpacePointData; 
     // Space point formation
-    //    log << MSG::DEBUG  << " Form Space-points for a SCT Phi collection id " << 
-    //  m_id_sct->print_to_string(phiWaferId) << endreq;
+    //    ATH_MSG_DEBUG  << " Form Space-points for a SCT Phi collection id " << 
+    //  m_id_sct->print_to_string(phiWaferId) );
     if ( ((*iter_phiUV).second).uvWafer() == 0 ) 
       {
 	if (m_unassociatedPhi) 
@@ -325,8 +302,8 @@ StatusCode SCT_SpacePointTool::fillCollections(ClusterCollectionVector& clusterC
 	if ( m_timers ) m_timer[0]->resume();
 	/*
 	  const Identifier& uvWaferId = (((*iter_phiUV).second).uvWafer())->identify(); 
-	  log << MSG::DEBUG  << " and SCT uv collection id " << 
-	  m_id_sct->print_to_string(uvWaferId) << endreq;
+	  ATH_MSG_DEBUG  << " and SCT uv collection id " << 
+	  m_id_sct->print_to_string(uvWaferId) );
 	*/
 	m_builder->formSpacePoints( *(((*iter_phiUV).second).phiWafer()), 
 				    *(((*iter_phiUV).second).uvWafer()),
@@ -369,13 +346,12 @@ StatusCode SCT_SpacePointTool::fillCollections(ClusterCollectionVector& clusterC
 						spacePointColl->identifyHash());
 	if (sc.isFailure()) 
 	  {
-	    log << MSG::WARNING  << " Fail to store a TrigSiSpacePoint collection in SCT with hash "
-		<< hashId << endreq;
+	    ATH_MSG_WARNING(" Fail to store a TrigSiSpacePoint collection in SCT with hash "
+		<< hashId);
 	  } 
 	if ( m_timers ) m_timer[2]->pause();
       }
-    if(outputLevel<=MSG::DEBUG)
-      log << MSG::DEBUG  << newSpacePointData.size() << " SpacePoints formed for hashId="<<hashId << endreq; 
+      ATH_MSG_DEBUG(newSpacePointData.size() << " SpacePoints formed for hashId="<<hashId ); 
     }
 
   if ( m_timers ) 

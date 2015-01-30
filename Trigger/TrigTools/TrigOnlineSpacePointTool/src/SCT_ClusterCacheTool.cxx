@@ -9,10 +9,9 @@
 #include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
 #include "InDetPrepRawData/SiClusterContainer.h"
 #include "TrigOnlineSpacePointTool/SCT_ClusterCacheTool.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "Identifier/IdentifierHash.h" 
-#include "StoreGate/StoreGate.h"
 
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include <string>
@@ -33,7 +32,7 @@ using eformat::helper::SourceIdentifier;
 SCT_ClusterCacheTool::SCT_ClusterCacheTool( const std::string& type, 
 					    const std::string& name, 
 					    const IInterface* parent )
-  : AlgTool(type, name, parent), 
+  : AthAlgTool(type, name, parent), 
     m_offlineDecoder("SCT_RodDecoder",this), 
     m_byteStreamErrSvc("SCT_ByteStreamErrorsSvc",name),
     m_clusteringTool("InDet::SCT_ClusteringTool/InDetTrigSCT_ClusteringTool") 
@@ -50,37 +49,22 @@ SCT_ClusterCacheTool::SCT_ClusterCacheTool( const std::string& type,
 }
 
 StatusCode SCT_ClusterCacheTool::initialize()  {
-  MsgStream log(msgSvc(), name());
 
-  log << MSG::INFO << name() << " in initialize" << endreq;
-  StatusCode sc = AlgTool::initialize(); 
-  // get DetectorStore service
-  StoreGateSvc* detStore; 
-  sc=service("DetectorStore",detStore);
-  if (sc.isFailure()) { 
-    log << MSG::ERROR << name() <<" failed to get detStore" << endreq;
-    return sc;
-  }
+  ATH_MSG_INFO(name() << " in initialize");
+  StatusCode sc = AthAlgTool::initialize(); 
 
-  sc = service( "StoreGateSvc", m_StoreGate );
+  sc=detStore()->retrieve(p_indet_mgr, "SCT");
   if (sc.isFailure()) {
-    log << MSG::FATAL << "Unable to retrieve StoreGate service" << endreq;
-    return sc;
-  }
-
-  
-  sc=detStore->retrieve(p_indet_mgr, "SCT");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << name() << "failed to get SCT Manager" << endreq;
+    ATH_MSG_ERROR( name() << "failed to get SCT Manager");
     return sc;
   } else { 
-    log << MSG::DEBUG << name() << "Got SCT Manager" << endreq;
+    ATH_MSG_DEBUG( name() << "Got SCT Manager");
   }
  
   // Get SCT & pixel helpers
 
-  if (detStore->retrieve(m_sct_id, "SCT_ID").isFailure()) {
-     log << MSG::FATAL << "Could not get SCT ID helper" << endreq;
+  if (detStore()->retrieve(m_sct_id, "SCT_ID").isFailure()) {
+     ATH_MSG_FATAL("Could not get SCT ID helper");
      return StatusCode::FAILURE;
   } 
 
@@ -93,7 +77,7 @@ StatusCode SCT_ClusterCacheTool::initialize()  {
   sc=service("ToolSvc",toolSvc);
   if(sc.isFailure()) 
     {
-      log << MSG::ERROR << name() << "failed to get ToolSvc" << endreq;
+      ATH_MSG_ERROR( name() << "failed to get ToolSvc");
       return sc; 
     }  
 
@@ -102,35 +86,35 @@ StatusCode SCT_ClusterCacheTool::initialize()  {
     sc=service("SCT_CablingSvc",m_cablingSvc);
     if(sc.isFailure()) 
       {
-	log << MSG::ERROR << name() << "failed to get CablingSvc" << endreq;
+	ATH_MSG_ERROR( name() << "failed to get CablingSvc");
 	return sc; 
       }  
   }
-  log << MSG::INFO << "SCT_Cluster_CacheName: " << m_containerName << endreq;
+  ATH_MSG_INFO("SCT_Cluster_CacheName: " << m_containerName);
   m_clusterContainer = new InDet::SCT_ClusterContainer(m_sct_id->wafer_hash_max());
   m_clusterContainer->addRef();
 
-  sc = m_StoreGate->record(m_clusterContainer, m_containerName);
+  sc = evtStore()->record(m_clusterContainer, m_containerName);
 
   if (sc.isFailure()) { 
-    log << MSG::ERROR  << " Container " << m_containerName << " could not be recorded in StoreGate !" << endreq;
+    ATH_MSG_ERROR(" Container " << m_containerName << " could not be recorded in StoreGate !");
     return sc;
   }  
   else { 
-    log << MSG::INFO << "Container " << m_containerName << " registered  in StoreGate" << endreq;   
+    ATH_MSG_INFO("Container " << m_containerName << " registered  in StoreGate");   
   } 
 
   // symlink the container 
   const InDet::SiClusterContainer* symSiContainer(0); 
-  sc = m_StoreGate->symLink(m_clusterContainer,symSiContainer); 
+  sc = evtStore()->symLink(m_clusterContainer,symSiContainer); 
   if (sc.isFailure()) { 
-    log << MSG::ERROR << "SCT clusters could not be symlinked in StoreGate !"<< endreq;
+    ATH_MSG_ERROR( "SCT clusters could not be symlinked in StoreGate !");
     return sc;
   }  
-  else log << MSG::INFO  << "SCT clusters " << m_containerName << " symlinked in StoreGate" << endreq;
+  else ATH_MSG_INFO("SCT clusters " << m_containerName << " symlinked in StoreGate");
 
 
-  log << MSG::INFO << "SCT_RDO_CacheName: " << m_rdoContainerName << endreq;
+  ATH_MSG_INFO("SCT_RDO_CacheName: " << m_rdoContainerName);
 
   if(m_doBS) {
 
@@ -138,18 +122,18 @@ StatusCode SCT_ClusterCacheTool::initialize()  {
     m_rdoContainer->addRef();
 
     if(StatusCode::SUCCESS !=toolSvc->retrieveTool("FastSCT_RodDecoder",m_decoder)) {
-      log << MSG::ERROR << "initialize(): Can't get FastSCT_RodDecoder " << endreq;
+      ATH_MSG_ERROR( "initialize(): Can't get FastSCT_RodDecoder ");
       return StatusCode::FAILURE; 
     }
     
     if(StatusCode::SUCCESS !=m_offlineDecoder.retrieve()) {
-      log << MSG::ERROR << "initialize(): Can't get "<<m_offlineDecoder<< endreq;
+      ATH_MSG_ERROR( "initialize(): Can't get "<<m_offlineDecoder);
       return StatusCode::FAILURE; 
     } 
 
     if (m_byteStreamErrSvc.retrieve().isFailure()) 
       {
-	log<<MSG::ERROR <<"initialize(): Can't get "<<m_byteStreamErrSvc<<endreq;
+	ATH_MSG_ERROR("initialize(): Can't get "<<m_byteStreamErrSvc);
 	return StatusCode::FAILURE; 
       }
   }
@@ -157,17 +141,17 @@ StatusCode SCT_ClusterCacheTool::initialize()  {
     {
       if (m_clusteringTool.retrieve().isFailure()) 
 	{
-	  log<<MSG::ERROR <<"initialize(): Can't get "<<m_clusteringTool<<endreq;
+	  ATH_MSG_ERROR("initialize(): Can't get "<<m_clusteringTool);
 	  return StatusCode::FAILURE; 
 	}
       else 
-	log<<MSG::INFO <<"retrieved "<<m_clusteringTool<<endreq;
+	ATH_MSG_INFO("retrieved "<<m_clusteringTool);
     }
 
   ITrigTimerSvc* timerSvc;
   StatusCode scTime = service( "TrigTimerSvc", timerSvc);
   if( scTime.isFailure() ) {
-    log << MSG::INFO<< "Unable to locate Service TrigTimerSvc " << endreq;
+    ATH_MSG_WARNING("Unable to locate Service TrigTimerSvc ");
     m_timers = false;
   } 
   else{
@@ -192,7 +176,7 @@ StatusCode SCT_ClusterCacheTool::finalize()
     m_rdoContainer->cleanup();
     m_rdoContainer->release();
   }
-  StatusCode sc = AlgTool::finalize(); 
+  StatusCode sc = AthAlgTool::finalize(); 
   return sc;
 }
 
@@ -205,68 +189,62 @@ StatusCode SCT_ClusterCacheTool::m_convertBStoClusters(std::vector<const ROBF*>&
       m_timer[4]->start();
     }
 
-  MsgStream log(msgSvc(), name());
-  int outputLevel = msgSvc()->outputLevel( name() );
-
-  if(!m_StoreGate->contains<InDet::SCT_ClusterContainer>(m_containerName))
+  if(!evtStore()->contains<InDet::SCT_ClusterContainer>(m_containerName))
     {
       m_clusterContainer->cleanup();
-      StatusCode sc=m_StoreGate->record(m_clusterContainer,m_containerName,false);
+      StatusCode sc=evtStore()->record(m_clusterContainer,m_containerName,false);
       if(sc.isFailure())
 	{
-	  log << MSG::WARNING << "SCT Cluster Container " << m_containerName 
-	      <<" cannot be recorded in StoreGate !"<< endreq;
+	  ATH_MSG_WARNING("SCT Cluster Container " << m_containerName 
+	      <<" cannot be recorded in StoreGate !");
 	  return StatusCode::FAILURE;
 	}
       else 
 	{
-	  if(outputLevel <= MSG::DEBUG)
-	    log << MSG::DEBUG << "SCT Cluster Container " << m_containerName
-		<< " is recorded in StoreGate" << endreq;
+	    ATH_MSG_DEBUG( "SCT Cluster Container " << m_containerName
+		<< " is recorded in StoreGate");
 	}
       if(m_doBS) {
 	m_rdoContainer->cleanup();
-	sc=m_StoreGate->record(m_rdoContainer,m_rdoContainerName,false);
+	sc=evtStore()->record(m_rdoContainer,m_rdoContainerName,false);
 	if(sc.isFailure())
 	  {
-	    log << MSG::WARNING << "SCT RDO Container " << m_rdoContainerName 
-		<<" cannot be recorded in StoreGate !"<< endreq;
+	    ATH_MSG_WARNING("SCT RDO Container " << m_rdoContainerName 
+		<<" cannot be recorded in StoreGate !");
 	    return StatusCode::FAILURE;
 	  }
 	else 
 	  {
-	    if(outputLevel <= MSG::DEBUG)
-	      log << MSG::DEBUG << "SCT RDO Container " << m_rdoContainerName
-		  << " is recorded in StoreGate" << endreq;
+	      ATH_MSG_DEBUG( "SCT RDO Container " << m_rdoContainerName
+		  << " is recorded in StoreGate");
 	}
       }
     }
   else 
     {    
-      if(outputLevel <= MSG::DEBUG)
-	log << MSG::DEBUG << "SCT Cluster Container " <<m_containerName 
-	    << " is found in StoreGate" << endreq;
+	ATH_MSG_DEBUG( "SCT Cluster Container " <<m_containerName 
+	    << " is found in StoreGate");
     }
 
   if(!m_doBS) {
     //retrieve m_rdoContainer here 
 
-    if(!m_StoreGate->contains<SCT_RDO_Container>(m_rdoContainerName)) {
-      log << MSG::ERROR << "SCT RDO Container " << m_rdoContainerName
-	  <<" is not found in StoreGate !"<< endreq;
+    if(!evtStore()->contains<SCT_RDO_Container>(m_rdoContainerName)) {
+      ATH_MSG_ERROR( "SCT RDO Container " << m_rdoContainerName
+	  <<" is not found in StoreGate !");
       return StatusCode::FAILURE;
     }
     const SCT_RDO_Container* pCont = NULL; 
-    StatusCode sc = m_StoreGate->retrieve(pCont, m_rdoContainerName);
+    StatusCode sc = evtStore()->retrieve(pCont, m_rdoContainerName);
     if (sc.isFailure()) {
-      log << MSG::ERROR << "retrieval of SCT RDO Container " << m_rdoContainerName
-	  <<" failed"<< endreq;
+      ATH_MSG_ERROR( "retrieval of SCT RDO Container " << m_rdoContainerName
+	  <<" failed");
       return sc;
     }
     m_rdoContainer = const_cast<SCT_RDO_Container*>(pCont);
 
     if(m_rdoContainer==NULL) {
-      log << MSG::ERROR << "SCT RDO Container const_cast failed " << endreq;
+      ATH_MSG_ERROR( "SCT RDO Container const_cast failed ");
       return StatusCode::FAILURE;
     }
 
@@ -296,8 +274,7 @@ StatusCode SCT_ClusterCacheTool::m_convertBStoClusters(std::vector<const ROBF*>&
 
     if(robFrags.size() == 0) 
       {
-	if(outputLevel <= MSG::DEBUG)
-	  log<<MSG::DEBUG<<" There are NO ROB data " <<endreq;
+        ATH_MSG_DEBUG(" There are NO ROB data " );
 	if(m_timers) 
 	  {
 	    m_timer[0]->stop();
@@ -309,8 +286,7 @@ StatusCode SCT_ClusterCacheTool::m_convertBStoClusters(std::vector<const ROBF*>&
 	return StatusCode::SUCCESS;
       } 
       
-      if(outputLevel <= MSG::DEBUG)
-	log << MSG::DEBUG<<" There are SOME ROB data " <<endreq ;
+    ATH_MSG_DEBUG(" There are SOME ROB data " ) ;
       
       std::vector<IdentifierHash>::const_iterator sctIdBeginIter=listOfSCTIds.begin();
       std::vector<IdentifierHash>::const_iterator sctIdEndIter=listOfSCTIds.end();
@@ -334,12 +310,10 @@ StatusCode SCT_ClusterCacheTool::m_convertBStoClusters(std::vector<const ROBF*>&
 	  uint32_t rodid = (*rob_it)->rod_source_id() ; 
 	  eformat::helper::SourceIdentifier sid_rob(rodid) ;
 	  uint32_t detid = sid_rob.subdetector_id() ;
-	  if(outputLevel <= MSG::DEBUG)
-	    log <<MSG::DEBUG<<"  ROB source ID SID " <<std::hex<<rodid <<std::dec<<endreq ;
+	    ATH_MSG_DEBUG("  ROB source ID SID " <<std::hex<<rodid <<std::dec) ;
 	  const ROBFragment * robFrag = (*rob_it);
-	  if(outputLevel <= MSG::DEBUG)
-	    log<<MSG::DEBUG<<std::hex<<"Det ID 0x"<<detid<<" Rod version 0x"<<
-	      robFrag->rod_version()<<", Type="<<robFrag->rod_detev_type()<<std::dec<<endreq ;
+	    ATH_MSG_DEBUG(std::hex<<"Det ID 0x"<<detid<<" Rod version 0x"<<
+	      robFrag->rod_version()<<", Type="<<robFrag->rod_detev_type()<<std::dec) ;
 	  ++n_rob_count;
 	  if(!m_useOfflineDecoder)
 	    {
@@ -433,8 +407,7 @@ StatusCode SCT_ClusterCacheTool::m_convertBStoClusters(std::vector<const ROBF*>&
   std::vector<const InDet::SCT_ClusterCollection*>& vColl=m_clusterization.getClusterCollections();
   if(m_useOfflineClustering)
     vColl=offlineCollVector;
-  if(outputLevel <= MSG::DEBUG)
-    log<<MSG::DEBUG<< "No of collections found: " <<  vColl.size() << endreq ;
+    ATH_MSG_DEBUG( "No of collections found: " <<  vColl.size()) ;
       
   // Loop over cluster collections
   std::vector<const InDet::SCT_ClusterCollection*>::iterator iter_coll = vColl.begin();
@@ -444,8 +417,7 @@ StatusCode SCT_ClusterCacheTool::m_convertBStoClusters(std::vector<const ROBF*>&
       StatusCode sc=m_clusterContainer->addCollection((*iter_coll),hashId);
       if(sc.isFailure())
 	{
-	  if(outputLevel <= MSG::INFO)
-	    log<<MSG::INFO<< "IDC record failed"  << endreq;
+	    ATH_MSG_INFO("IDC record failed" );
 	}
     }
   if(m_timers) 
@@ -456,21 +428,14 @@ StatusCode SCT_ClusterCacheTool::m_convertBStoClusters(std::vector<const ROBF*>&
       m_timer[3]->stop();
       m_timer[4]->stop();
     }
-  if(outputLevel <= MSG::DEBUG)
-    {
-      if(bs_failure)
-	{
-	  log << MSG::DEBUG <<" FAILURE in SCT_RodDecoder"<<endreq;
-	}
-      else
-	log << MSG::DEBUG <<" number of ROBs used  "<<n_rob_count<< "Total number of recoverable errors "<<n_recov_errors<<endreq;
-    }
   if(bs_failure)
     {
+      ATH_MSG_DEBUG(" FAILURE in SCT_RodDecoder");
       return StatusCode::FAILURE;
     }
   else 
     {
+      ATH_MSG_DEBUG(" number of ROBs used  "<<n_rob_count<< "Total number of recoverable errors "<<n_recov_errors);
       if(n_recov_errors!=0)
 	{
 	  return StatusCode::RECOVERABLE;

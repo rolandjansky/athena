@@ -2,8 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "TrigL2LayerNumberTool.h"
@@ -11,7 +9,7 @@
 
 TrigL2LayerNumberTool::TrigL2LayerNumberTool(const std::string& t, 
 					     const std::string& n,
-					     const IInterface*  p ): AlgTool(t,n,p),
+					     const IInterface*  p ): AthAlgTool(t,n,p),
 								     m_MaxSiliconLayerNum(-1),
 								     m_OffsetEndcapPixels(-1),
 								     m_OffsetBarrelSCT(-1),
@@ -22,25 +20,18 @@ TrigL2LayerNumberTool::TrigL2LayerNumberTool(const std::string& t,
 
 StatusCode TrigL2LayerNumberTool::initialize() {
 
-  StatusCode sc = AlgTool::initialize();
-  MsgStream athenaLog(msgSvc(), name());
+  StatusCode sc = AthAlgTool::initialize();
 
-  athenaLog << MSG::INFO <<"In initialize..."<<endreq;
-  StoreGateSvc* detStore;
-  sc = service("DetectorStore", detStore);
-  if ( sc.isFailure() ) { 
-    athenaLog << MSG::FATAL << "DetStore service not found" << endreq; 
-    return StatusCode::FAILURE; 
-  }
+  ATH_MSG_INFO("In initialize...");
 
-  sc = detStore->retrieve(m_pixelManager);  
+  sc = detStore()->retrieve(m_pixelManager);  
   if( sc.isFailure() ) {
-    athenaLog << MSG::ERROR << "Could not retrieve Pixel DetectorManager from detStore."<<endreq; 
+    ATH_MSG_ERROR("Could not retrieve Pixel DetectorManager from detStore."); 
     return sc;
   } 
-  sc = detStore->retrieve(m_sctManager);
+  sc = detStore()->retrieve(m_sctManager);
   if( sc.isFailure() ) {
-    athenaLog << MSG::ERROR << "Could not retrieve SCT DetectorManager from detStore." << endreq;
+    ATH_MSG_ERROR("Could not retrieve SCT DetectorManager from detStore.");
     return sc;
   } 
 
@@ -56,7 +47,7 @@ StatusCode TrigL2LayerNumberTool::initialize() {
   m_OffsetEndcapSCT = pixSiNum.numLayers()+sctSiNum.numLayers()+pixSiNum.numDisks();
   
   
-  athenaLog << MSG::INFO << "TrigL2LayerNumberTool initialized "<< endreq;
+  ATH_MSG_INFO("TrigL2LayerNumberTool initialized ");
 
   report();
   return sc;
@@ -64,17 +55,15 @@ StatusCode TrigL2LayerNumberTool::initialize() {
 
 StatusCode TrigL2LayerNumberTool::finalize()
 {
-  StatusCode sc = AlgTool::finalize(); 
+  StatusCode sc = AthAlgTool::finalize(); 
   return sc;
 }
 
 void TrigL2LayerNumberTool::report() {
 
-  MsgStream athenaLog(msgSvc(), name());
-
-  athenaLog<<MSG::INFO<<"TrigL2 Layer numbering scheme:"<<endreq;
-  athenaLog<<MSG::INFO<<"Total number of layers = "<<maxSiliconLayerNum()<<endreq;
-  athenaLog<<MSG::INFO<<"OffsetEndcapPixels     = "<<offsetEndcapPixels()<<endreq;
-  athenaLog<<MSG::INFO<<"OffsetBarrelSCT        = "<<offsetBarrelSCT()<<endreq;
-  athenaLog<<MSG::INFO<<"OffsetEndcapSCT        = "<<offsetEndcapSCT()<<endreq;
+  ATH_MSG_INFO("TrigL2 Layer numbering scheme:");
+  ATH_MSG_INFO("Total number of layers = "<<maxSiliconLayerNum());
+  ATH_MSG_INFO("OffsetEndcapPixels     = "<<offsetEndcapPixels());
+  ATH_MSG_INFO("OffsetBarrelSCT        = "<<offsetBarrelSCT());
+  ATH_MSG_INFO("OffsetEndcapSCT        = "<<offsetEndcapSCT());
 }
