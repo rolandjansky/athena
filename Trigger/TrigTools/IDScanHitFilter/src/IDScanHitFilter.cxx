@@ -27,7 +27,7 @@
 IDScanHitFilter::IDScanHitFilter(const std::string& t, 
 		     const std::string& n,
 		     const IInterface*  p ): 
-  AlgTool(t,n,p),
+  AthAlgTool(t,n,p),
   m_numberingTool("TrigL2LayerNumberTool")
 {
   declareInterface< ITrigHitFilter >( this );
@@ -67,7 +67,7 @@ IDScanHitFilter::IDScanHitFilter(const std::string& t,
 
 StatusCode IDScanHitFilter::initialize()
 {
-  StatusCode sc = AlgTool::initialize();
+  StatusCode sc = AthAlgTool::initialize();
   MsgStream athenaLog(msgSvc(), name());
 
   m_dPhidRCut = 0.3/m_pTcutInMeV;
@@ -117,7 +117,7 @@ StatusCode IDScanHitFilter::initialize()
 
 StatusCode IDScanHitFilter::finalize()
 {
-  StatusCode sc = AlgTool::finalize(); 
+  StatusCode sc = AthAlgTool::finalize(); 
   return sc;
 }
 

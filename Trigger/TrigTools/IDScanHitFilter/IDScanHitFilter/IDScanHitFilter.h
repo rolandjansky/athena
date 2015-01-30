@@ -29,7 +29,7 @@
 #include <list>
 #include <string>
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "IDScanHitFilter/iHitFilter.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
@@ -47,7 +47,7 @@ class IdScanSpacePoint;
 ////    IDScanHitFilter
 ////////////////////////////////////////////////////////////////////////////////
 
-class IDScanHitFilter: public iHitFilter, public AlgTool, virtual public ITrigHitFilter
+class IDScanHitFilter: public iHitFilter, public AthAlgTool, virtual public ITrigHitFilter
 {
  public:
   

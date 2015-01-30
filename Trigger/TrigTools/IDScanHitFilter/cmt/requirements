@@ -8,6 +8,7 @@ public
 
 # General
 use AtlasPolicy			AtlasPolicy-*
+use AthenaBaseComps             AthenaBaseComps-*   Control
 use GaudiInterface		GaudiInterface-*     		External
 #use AtlasCLHEP			AtlasCLHEP-*			External
 
