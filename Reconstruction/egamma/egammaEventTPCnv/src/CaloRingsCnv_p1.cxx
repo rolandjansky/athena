@@ -13,7 +13,11 @@
 // STL includes
 
 // egammaEvent includes
+#define private public
+#define protected public
 #include "egammaEvent/CaloRings.h"
+#undef private
+#undef protected
 
 #include "GaudiKernel/GaudiException.h"
 

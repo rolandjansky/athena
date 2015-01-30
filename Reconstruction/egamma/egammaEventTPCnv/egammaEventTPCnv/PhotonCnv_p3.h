@@ -16,7 +16,6 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 // egammaEventTPCnv includes
-#include "egammaEventTPCnv/egammaCnv_p3.h"
 #include "egammaEventTPCnv/Photon_p3.h"
 
 // Forward declaration
@@ -47,21 +46,19 @@ class PhotonCnv_p3 : public T_AthenaPoolTPCnvBase<
    */
   virtual void persToTrans( const Photon_p3* persObj, 
                             Analysis::Photon* transObj, 
-                            MsgStream& msg ) override final;
+                            MsgStream& msg );
 
   /** Method creating the persistent representation @c Photon_p3
    *  from its transient representation @c Analysis::Photon
    */
   virtual void transToPers( const Analysis::Photon* transObj, 
                             Photon_p3* persObj, 
-                            MsgStream& msg ) override final;
+                            MsgStream& msg );
 
   /////////////////////////////////////////////////////////////////// 
   // Protected method: 
   /////////////////////////////////////////////////////////////////// 
  protected: 
- private:
-   egammaCnv_p3   m_egammaCnv;
 
 }; 
 

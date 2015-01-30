@@ -11,7 +11,11 @@
 /////////////////////////////////////////////////////////////////// 
 
 
+#define private public
+#define protected public
 #include "egammaEvent/egDetailContainer.h"
+#undef private
+#undef protected
 
 // egammaEventTPCnv includes
 #include "egammaEventTPCnv/egDetailContainerCnv_p1.h"
@@ -27,7 +31,7 @@
 #undef MSG_DEBUG
 #endif
 #define MSG_DEBUG(log, x) \
-     do { if (log.level()<=MSG::DEBUG) { log << MSG::DEBUG << x << endmsg; } } while (0)
+     do { if (log.level()<=MSG::DEBUG) { log << MSG::DEBUG << x << endreq; } } while (0)
 
 void egDetailContainerCnv_p1::persToTrans( const egDetailContainer_p1    *pers,
                                            egDetailContainer *trans,
@@ -52,7 +56,7 @@ void egDetailContainerCnv_p1::persToTrans( const egDetailContainer_p1    *pers,
 	}
 	else {
 	  msg << MSG::ERROR << "Read unknown parameter for " << it->m_className 
-	      << " Index " << egEnum[i] << endmsg;
+	      << " Index " << egEnum[i] << endreq;
 	  continue;
 	}
       }
@@ -74,7 +78,7 @@ void egDetailContainerCnv_p1::persToTrans( const egDetailContainer_p1    *pers,
 	}
 	else {
 	  msg << MSG::ERROR << "Read unknown parameter for " << it->m_className 
-	      << " Index " << key << endmsg;
+	      << " Index " << key << endreq;
 	  continue;
 	}
       }
@@ -91,7 +95,7 @@ void egDetailContainerCnv_p1::persToTrans( const egDetailContainer_p1    *pers,
 	}
 	else {
 	  msg << MSG::ERROR << "Read unknown parameter for " << it->m_className 
-	      << " Index " << egEnum[i] << endmsg;
+	      << " Index " << egEnum[i] << endreq;
 	  continue;
 	}
       }
@@ -108,7 +112,7 @@ void egDetailContainerCnv_p1::persToTrans( const egDetailContainer_p1    *pers,
 	}
 	else {
 	  msg << MSG::ERROR << "Read unknown parameter for " << it->m_className 
-	      << " Index " << egEnum[i] << endmsg;
+	      << " Index " << egEnum[i] << endreq;
 	  continue;
 	}
       }
@@ -124,7 +128,7 @@ void egDetailContainerCnv_p1::persToTrans( const egDetailContainer_p1    *pers,
           } 	
           else {
             msg << MSG::ERROR << "Read unknown parameter for " << it->m_className 
-		<< " Index " << egEnum[i] << endmsg;
+		<< " Index " << egEnum[i] << endreq;
 	    continue;
           }
 	}
@@ -141,7 +145,7 @@ void egDetailContainerCnv_p1::persToTrans( const egDetailContainer_p1    *pers,
           } 	
           else {
             msg << MSG::ERROR << "Read unknown parameter for " << it->m_className 
-		<< " Index " << egEnum[i] << endmsg;
+		<< " Index " << egEnum[i] << endreq;
 	    continue;
           }
 	}
@@ -150,7 +154,7 @@ void egDetailContainerCnv_p1::persToTrans( const egDetailContainer_p1    *pers,
 
     }
     else {
-      msg << MSG::ERROR << "Read unknown egDetail type: " << it->m_className << endmsg;
+      msg << MSG::ERROR << "Read unknown egDetail type: " << it->m_className << endreq;
       continue;
     }
     //  trans = (dynamic_cast<EMShower*>(trans));

@@ -14,10 +14,18 @@
 // STL includes
 
 // egammaEvent includes
+#define private public
+#define protected public
 #include "egammaEvent/Photon.h"
+#undef private
+#undef protected
 
 // egammaEventTPCnv includes
+#include "egammaEventTPCnv/egammaCnv_p1.h"
 #include "egammaEventTPCnv/PhotonCnv_p1.h"
+
+// pre-allocate converters
+static egammaCnv_p1   egammaCnv;
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
@@ -38,13 +46,13 @@ void PhotonCnv_p1::persToTrans( const Photon_p1* pers,
 				MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading Photon from persistent state..."
-//       << endmsg;
+//       << endreq;
 
   // base class
-  m_egammaCnv.persToTrans( &pers->m_egamma, trans, msg );
+  egammaCnv.persToTrans( &pers->m_egamma, trans, msg );
 
 //   msg << MSG::DEBUG << "Loaded Photon from persistent state [OK]"
-//       << endmsg;
+//       << endreq;
 
   return;
 }
@@ -54,12 +62,12 @@ void PhotonCnv_p1::transToPers( const Analysis::Photon* trans,
 				MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Creating persistent state of Photon..."
-//       << endmsg;
+//       << endreq;
 
   // base class
-  m_egammaCnv.transToPers( trans, &pers->m_egamma, msg );
+  egammaCnv.transToPers( trans, &pers->m_egamma, msg );
 
 //   msg << MSG::DEBUG << "Created persistent state of Photon [OK]"
-//       << endmsg;
+//       << endreq;
   return;
 }

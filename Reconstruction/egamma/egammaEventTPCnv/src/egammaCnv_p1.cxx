@@ -13,10 +13,40 @@
 
 // STL includes
 
+// egammaEvent includes
+#define private public
+#define protected public
+#include "egammaEvent/egamma.h"
+#undef private
+#undef protected
+
 #include "GaudiKernel/GaudiException.h"
+
+// DataModelAthenaPool includes
+#include "DataModelAthenaPool/ElementLinkCnv_p1.h"
+#include "DataModelAthenaPool/ElementLinkVectorCnv_p1.h"
+
+// EventCommonTPCnv includes
+#include "EventCommonTPCnv/P4ImplEEtaPhiMCnv_p1.h"
+
+// ParticleEventTPCnv includes
+#include "ParticleEventTPCnv/ParticleBaseCnv_p1.h"
 
 // egammaEventTPCnv includes
 #include "egammaEventTPCnv/egammaCnv_p1.h"
+
+typedef ElementLinkCnv_p1<ElementLink<CaloClusterContainer> > ClusterLinkCnv_t;
+typedef ElementLinkCnv_p1<ElementLink<Rec::TrackParticleContainer> > TrackLinkCnv_t;
+typedef ElementLinkCnv_p1<ElementLink<VxContainer> > ConversionLinkCnv_t;
+typedef ElementLinkVectorCnv_p1<ElementLinkVector<egDetailContainer> > EgDetailsCnv_t;
+
+// pre-allocate converters
+static P4ImplEEtaPhiMCnv_p1 momCnv;
+static ParticleBaseCnv_p1 partBaseCnv;
+static ClusterLinkCnv_t   clusterCnv;
+static TrackLinkCnv_t     trackCnv;
+static ConversionLinkCnv_t     conversionCnv;
+static EgDetailsCnv_t     egDetailsCnv;
 
 // some constants used to keep consistency over business of egPID conversion
 // --hack-hack-hack-- (ugly-ugly)
@@ -40,40 +70,35 @@ void egammaCnv_p1::persToTrans( const egamma_p1* pers,
 				MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading egamma from persistent state..."
-//       << endmsg;
+//       << endreq;
 
-  // Clear
-  *trans = egamma (pers->m_author);
+  trans->m_author = pers->m_author;
 
-  m_momCnv.persToTrans (&pers->m_momentum,
+  momCnv.persToTrans (&pers->m_momentum,
 		      &trans->momentumBase(), 
 		      msg);
-  m_partBaseCnv.persToTrans (&pers->m_particleBase, 
+  partBaseCnv.persToTrans (&pers->m_particleBase, 
 			   &trans->particleBase(), 
 			   msg);
     
   // element links
-  ElementLink<CaloClusterContainer> cluster;
-  m_clusterCnv.persToTrans( &pers->m_cluster, &cluster, msg );
-  trans->setClusterElementLink (cluster);
+  clusterCnv.persToTrans( &pers->m_cluster, &trans->m_cluster, msg );
 
   ElementLink<Rec::TrackParticleContainer> el;
-  m_trackCnv.persToTrans( &pers->m_trackParticle,    
+  trackCnv.persToTrans( &pers->m_trackParticle,    
 		        &el,
 			msg );
-  trans->setTrackParticleElementLink(el);
+  trans->m_trackParticle.push_back(el);   
 
-  ElementLink<VxContainer> vx;
-  m_conversionCnv.persToTrans( &pers->m_conversion,    
-			     &vx,
+  ElementLink<VxContainer> em;
+  conversionCnv.persToTrans( &pers->m_conversion,    
+			     &em,
 			     msg );
-  trans->setConversionElementLink(vx);
+  trans->m_conversion.push_back(em);
 
-  ElementLinkVector<egDetailContainer> egDetails;
-  m_egDetailsCnv.persToTrans( &pers->m_egDetails, 
-			    &egDetails, 
+  egDetailsCnv.persToTrans( &pers->m_egDetails, 
+			    &trans->m_egDetails, 
 			    msg );
-  trans->setDetailElementLinkVector (std::move (egDetails));
 
   // egPID filling (doubles)
   {
@@ -84,14 +109,14 @@ void egammaCnv_p1::persToTrans( const egamma_p1* pers,
     assert( egEnum.size() == egID.size() );
 
     for ( unsigned int i=0; i< egID.size(); i++ ) {
-      trans->set_egammaID( (egammaPIDObs::PID) egEnum[i],      egID[i] );
+      trans->set_egammaID( (egammaPID::PID) egEnum[i],      egID[i] );
     }
   }
   //Clearing Rings ElementLink:
   trans->resetRings(); 
 
 //   msg << MSG::DEBUG << "Loaded egamma from persistent state [OK]"
-//       << endmsg;
+//       << endreq;
   return;
 }
 
