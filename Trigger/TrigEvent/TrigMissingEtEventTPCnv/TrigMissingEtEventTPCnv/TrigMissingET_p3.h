@@ -12,7 +12,7 @@
  * @author Diego Casadei  <Diego.Casadei@cern.ch>  - NYU
  *
  * File and Version Information:
- * $Id: TrigMissingET_p3.h 778886 2016-10-17 20:44:41Z khamano $
+ * $Id: TrigMissingET_p3.h 363695 2011-05-04 14:46:32Z salvator $
  **********************************************************************************/
 #ifndef TRIGMISSINGETEVENTTPCNV_TRIGMISSINGET_p3_H
 #define TRIGMISSINGETEVENTTPCNV_TRIGMISSINGET_p3_H
@@ -31,14 +31,14 @@ class TrigMissingET_p3
   TrigMissingET_p3() : m_flag(0) {}
   virtual ~TrigMissingET_p3(){}
   
-  //private:
+ private:
   /** Basic information **/
 
   float m_allTheFloats[5];
   //float m_ex, m_ey, m_ez;  //<! components of the missing energy vector
   //float m_sum_et, m_sum_e; //<! sums of |Et| and |E|
-  int   m_flag = 0;            //<! event flag: 0 (default) means OK
-  long  m_roiWord = 0;         //<! RoI word
+  int   m_flag;            //<! event flag: 0 (default) means OK
+  long  m_roiWord;         //<! RoI word
 
   /** Auxiliary information **/
   /// transient class contains std::vector< TrigMissingEtComponent > m_compVec;
