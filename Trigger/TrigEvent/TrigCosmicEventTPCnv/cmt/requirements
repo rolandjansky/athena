@@ -24,11 +24,7 @@ use AthenaKernel         AthenaKernel-*             Control
 # the compiler runs out of memory on the generated source.
 
 apply_pattern lcgdict dict=TrigCosmicEventTPCnv  \
-  selectionfile=selection1.xml \
-  headerfiles="../TrigCosmicEventTPCnv/TrigCosmicEventTPCnvDict.h"
-
-apply_pattern lcgdict dict=OLD_TrigCosmicEventTPCnv  \
-  selectionfile=OLD_selection1.xml \
+  selectionfile=selection.xml \
   headerfiles="../TrigCosmicEventTPCnv/TrigCosmicEventTPCnvDict.h"
 
 end_private
