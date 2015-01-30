@@ -36,7 +36,6 @@ apply_pattern tpcnv_library
 # of transient classes
 private
 apply_pattern lcgdict dict=egammaEventTPCnv selectionfile=selection.xml headerfiles="../egammaEventTPCnv/egammaEventTPCnvDict.h"
-apply_pattern lcgdict dict=ARA_egammaEventTPCnv selectionfile=ARA_selection.xml headerfiles="../egammaEventTPCnv/egammaEventTPCnvDict.h"
 apply_pattern lcgdict dict=OLD_egammaEventTPCnv selectionfile=OLD_selection.xml headerfiles="../egammaEventTPCnv/egammaEventTPCnvDict.h"
 end_private
 

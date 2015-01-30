@@ -31,11 +31,4 @@ typedef T_AthenaPoolTPCnvVector<
             CaloRingsCnv_p1 
        > CaloRingsContainerCnv_p1;
 
-template<>
-class T_TPCnv<CaloRingsContainer, CaloRingsContainer_p1>
-  : public CaloRingsContainerCnv_p1
-{
-public:
-};
-
 #endif //> RECTPCNV_CALORINGSCONTAINERCNV_P1_H
