@@ -8,7 +8,7 @@
 #define TRIGT1RESULT_CTP_RDO_H
 
 // std includes
-#include <inttypes.h>
+#include <cstdint>
 
 // STL includes
 #include <vector>
@@ -63,7 +63,7 @@ class CTP_RDO {
   std::vector<uint32_t> getTAVWords() const;
   std::vector<uint32_t> getEXTRAWords() const;
 
-   CTPdataformatVersion* getCTPVersion() const;
+  const CTPdataformatVersion & getCTPVersion() const;
   void setCTPVersionNumber( unsigned int ctpVersion );
   unsigned int getCTPVersionNumber() const { return m_ctpVersionNumber; }
     
@@ -98,7 +98,7 @@ class CTP_RDO {
   // data members 
     
   unsigned int m_ctpVersionNumber {0};        //!< number of the CTP version to be used
-  CTPdataformatVersion* m_ctpDataFormat { nullptr };  //!< CTP data format for a specified version
+  CTPdataformatVersion m_ctpDataFormat;  //!< CTP data format for a specified version
   std::vector<uint32_t> m_dataWords;      //!< raw data words
   uint8_t  m_l1AcceptPosition {0};            //!< bunch position, from which the level1 accept was calculated
   uint32_t m_turnCounter {0};                //!< turn counter

@@ -8,7 +8,7 @@
 #define TRIGT1RESULT_MUCTPI_DATAWORD_DECODER_H
 
 // System include(s):
-#include <inttypes.h>
+#include <cstdint>
 
 // Local include(s):
 #include "TrigT1Result/MuCTPI_RDO.h"

@@ -7,7 +7,7 @@ use AtlasPolicy      AtlasPolicy-*
 use DataCollection   DataCollection-*   External
 use CLIDSvc          CLIDSvc-*          Control
 use TrigT1Interfaces TrigT1Interfaces-* Trigger/TrigT1
-
+use L1TopoRDO	     L1TopoRDO-*	Trigger/TrigT1/L1Topo
 use L1CommonCore L1CommonCore-* Trigger/TrigT1
 
 library TrigT1Result *.cxx

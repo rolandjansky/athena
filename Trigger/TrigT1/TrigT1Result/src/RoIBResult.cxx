@@ -25,7 +25,8 @@ namespace ROIB {
   RoIBResult::RoIBResult( const MuCTPIResult& muctpi, const CTPResult& ctp, const std::vector< JetEnergyResult >& jetEnergy,
                           const std::vector< EMTauResult >& emtau )
     : m_RoIBResultMuCTPI( muctpi ), m_RoIBResultCTP( ctp ),
-      m_RoIBResultJetEnergy( jetEnergy ), m_RoIBResultEMTau( emtau ) {
+      m_RoIBResultJetEnergy( jetEnergy ), m_RoIBResultEMTau( emtau ),
+      m_RoIBResultL1Topo() {
 
   }
 
@@ -33,25 +34,28 @@ namespace ROIB {
 			  const std::vector< EMTauResult >& emtau, 
 			  const std::vector< JetEnergyResult >& jetEnergy )
     : m_RoIBResultMuCTPI(), m_RoIBResultCTP( ctp ),
-      m_RoIBResultJetEnergy( jetEnergy ), m_RoIBResultEMTau( emtau ) {
+      m_RoIBResultJetEnergy( jetEnergy ), m_RoIBResultEMTau( emtau ),
+      m_RoIBResultL1Topo() {
 
   }
 
   RoIBResult::RoIBResult( const CTPResult& ctp, const std::vector< EMTauResult >& emtau )
     : m_RoIBResultMuCTPI(), m_RoIBResultCTP( ctp ),
-      m_RoIBResultJetEnergy(), m_RoIBResultEMTau( emtau ) {
-
+      m_RoIBResultJetEnergy(), m_RoIBResultEMTau( emtau ),
+      m_RoIBResultL1Topo() {
   }
 
   RoIBResult::RoIBResult( const CTPResult& ctp )
     : m_RoIBResultMuCTPI(), m_RoIBResultCTP( ctp ),
-      m_RoIBResultJetEnergy(), m_RoIBResultEMTau() {
+      m_RoIBResultJetEnergy(), m_RoIBResultEMTau(),
+      m_RoIBResultL1Topo() {
 
   }
 
   RoIBResult::RoIBResult()
     : m_RoIBResultMuCTPI(), m_RoIBResultCTP(),
-      m_RoIBResultJetEnergy(), m_RoIBResultEMTau() {
+      m_RoIBResultJetEnergy(), m_RoIBResultEMTau(),
+      m_RoIBResultL1Topo() {
 
   }
 
@@ -74,6 +78,14 @@ namespace ROIB {
     return m_RoIBResultEMTau;
   }
 
+  const std::vector< L1TopoResult >& RoIBResult::l1TopoResult() const{
+    return m_RoIBResultL1Topo;
+  }
+
+  void RoIBResult::l1TopoResult(const std::vector< L1TopoResult > vL1TopoResult){
+    m_RoIBResultL1Topo = vL1TopoResult;
+  }
+
   const std::string RoIBResult::dump() const
   {
     std::ostringstream s;
@@ -86,7 +98,9 @@ namespace ROIB {
     }
     s << "MuCTPIResult [ " << muCTPIResult().dump() << "] ";
     s << "CTPResult [ " << cTPResult().dump() << "] ";
-
+    for (auto & elem: l1TopoResult()){
+      s << "L1TopoResult [" << elem.dump() << "] ";
+    }
     return s.str();
   }
 
@@ -109,6 +123,10 @@ namespace ROIB {
     s << "\n MuCTPIResult " << muCTPIResult().print(longFormat);
     if (longFormat) s << std::endl;
     s << "\n CTPResult " << cTPResult().print(longFormat);
+    if (longFormat) s << std::endl;
+    for (auto & elem: l1TopoResult()){
+      s << "L1TopoResult [" << elem.dump() << "] ";
+    }
     if (longFormat) s << std::endl;
 
     return s.str();

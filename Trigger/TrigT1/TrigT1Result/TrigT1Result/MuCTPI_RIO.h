@@ -9,7 +9,7 @@
 
 // System include(s):
 #include <vector>
-#include <inttypes.h>
+#include <cstdint>
 
 // Gaudi/Athena include(s):
 #include "CLIDSvc/CLASS_DEF.h"

@@ -14,6 +14,7 @@
 #include "TrigT1Result/CTPResult.h"
 #include "TrigT1Result/EMTauResult.h"
 #include "TrigT1Result/JetEnergyResult.h"
+#include "TrigT1Result/L1TopoResult.h"
 
 // Forward declaration(s):
 class MsgStream;
@@ -35,6 +36,7 @@ namespace ROIB {
    *     @see ROIB::MuCTPIResult
    *     @see ROIB::EMTauResult
    *     @see ROIB::JetEnergyResult
+   *     @see ROIB::L1TopoResult
    *
    *  @author Thomas Schoerner-Sadenius <thomas.schoerner@cern.ch>
    *
@@ -70,6 +72,10 @@ namespace ROIB {
     const std::vector< JetEnergyResult >& jetEnergyResult() const;
     //! Gets the egamma part of the L1 RDO 
     const std::vector< EMTauResult >& eMTauResult() const;
+    //! Gets the L1Topo part of the L1 RDO 
+    const std::vector< L1TopoResult >& l1TopoResult() const;
+    //! Sets the L1Topo part of the L1 RDO 
+    void l1TopoResult(const std::vector< L1TopoResult >);
     
     //! dump raw object content to string
     /** method used for read/write testing and T/P separation */
@@ -135,6 +141,7 @@ namespace ROIB {
     CTPResult m_RoIBResultCTP;                               //!< result from CTP
     std::vector< JetEnergyResult > m_RoIBResultJetEnergy;    //!< result from calo system: JetEnergy
     std::vector< EMTauResult > m_RoIBResultEMTau;            //!< result from calo system: EmTauResult
+    std::vector< L1TopoResult> m_RoIBResultL1Topo;           //!< result from L1Topo
 
     unsigned int GetOverflowMask(bool setMu, bool setEM, bool setJE) const;
 

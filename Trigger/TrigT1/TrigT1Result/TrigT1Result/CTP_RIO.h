@@ -13,7 +13,7 @@
 #define TRIGT1RESULT_CTP_RIO_H
 
 #include <vector>
-#include <inttypes.h>
+#include <cstdint>
 
 #include "CLIDSvc/CLASS_DEF.h"
 
