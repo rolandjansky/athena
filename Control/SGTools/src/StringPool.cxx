@@ -128,7 +128,7 @@ void StringPoolImpl::dump() const
  * @brief Constructor.
  */
 StringPool::StringPool()
-  : m_impl (new StringPoolImpl)
+  : m_impl (nullptr)
 {
 }
 
@@ -138,7 +138,7 @@ StringPool::StringPool()
  */
 StringPool::~StringPool()
 {
-  delete m_impl;
+  clear();
 }
 
 
@@ -156,7 +156,7 @@ StringPool::sgkey_t StringPool::stringToKey (const std::string& str,
   uint64_t crc = crc64 (str);
   if (aux) crc = crc64addint (crc, aux);
   sgkey_t key = (crc & sgkey_t_max);
-  if (!m_impl->registerKey (key, str, aux))
+  if (!impl()->registerKey (key, str, aux))
     std::abort();
   return key;
 }
@@ -172,7 +172,7 @@ StringPool::sgkey_t StringPool::stringToKey (const std::string& str,
 const std::string* StringPool::keyToString (sgkey_t key) const
 {
   sgaux_t aux;
-  return m_impl->keyToString (key, aux);
+  return impl()->keyToString (key, aux);
 }
 
 
@@ -187,7 +187,7 @@ const std::string* StringPool::keyToString (sgkey_t key) const
 const std::string* StringPool::keyToString (sgkey_t key,
                                             sgaux_t& aux) const
 {
-  return m_impl->keyToString (key, aux);
+  return impl()->keyToString (key, aux);
 }
 
 
@@ -208,7 +208,7 @@ bool StringPool::registerKey (sgkey_t key,
 {
   // Make sure the primary mapping is registered first.
   stringToKey (str, aux);
-  return m_impl->registerKey (key, str, aux);
+  return impl()->registerKey (key, str, aux);
 }
 
 
@@ -217,7 +217,39 @@ bool StringPool::registerKey (sgkey_t key,
  */
 void StringPool::dump () const
 {
-  m_impl->dump();
+  impl()->dump();
+}
+
+
+/**
+ * @brief Empty the pool and release all allocated memory.
+ */
+void StringPool::clear()
+{
+  delete m_impl;
+  m_impl = nullptr;
+}
+
+
+/**
+ * @brief Helper to retrieve the impl object, creating it if needed.
+ */
+StringPoolImpl* StringPool::impl()
+{
+  if (!m_impl)
+    m_impl = new StringPoolImpl;
+  return m_impl;
+}
+
+
+/**
+ * @brief Helper to retrieve the impl object, creating it if needed.
+ */
+const StringPoolImpl* StringPool::impl() const
+{
+  if (!m_impl)
+    m_impl = new StringPoolImpl;
+  return m_impl;
 }
 
 

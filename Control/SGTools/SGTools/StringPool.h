@@ -97,10 +97,20 @@ public:
   /**
    * @brief Debugging dump.  Write to cout.
    */
-  void dump () const;
+  void dump() const;
+
+
+  /**
+   * @brief Empty the pool and release all allocated memory.
+   */
+  void clear();
 
 private:
-  StringPoolImpl* m_impl;
+  /// Helpers to retrieve the impl object, creating it if needed.
+  const StringPoolImpl* impl() const;
+  StringPoolImpl* impl();
+
+  mutable StringPoolImpl* m_impl;
 
   // Don't allow copying.
   StringPool (const StringPool&);
