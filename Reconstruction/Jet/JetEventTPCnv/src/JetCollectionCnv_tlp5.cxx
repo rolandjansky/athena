@@ -30,25 +30,3 @@ void JetCollectionCnv_tlp5::setPStorage (JetCollection_tlp5 *storage)
   m_jetAssCnv_p1.setPStorage(&storage->m_jetAssociationBase_p1);
 }
 
-/// CTor for the converter.
-T_TPCnv<JetCollection, JetCollection_tlp5>::T_TPCnv()
-{
-}
-
-void T_TPCnv<JetCollection, JetCollection_tlp5>::persToTrans (const JetCollection_tlp5 *pers,
-							      JetCollection *trans,
-							      MsgStream &msg)
-{
-  setPStorage (const_cast<JetCollection_tlp5*> (pers));
-  m_mainConverter.pstoreToTrans(0, trans, msg);
-}
-
-void T_TPCnv<JetCollection, JetCollection_tlp5>::transToPers (const JetCollection *trans,
-                                                              JetCollection_tlp5 *pers,
-                                                              MsgStream &msg){
- 
-  this->setTLPersObject( pers ) ;
-  m_mainConverter.virt_toPersistent(trans, msg);
-  this->clearTLPersObject();
-}
-

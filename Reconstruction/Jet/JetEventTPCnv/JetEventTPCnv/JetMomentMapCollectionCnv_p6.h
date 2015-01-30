@@ -12,9 +12,4 @@
 
 typedef T_AthenaPoolTPCnvVector< JetMomentMapCollection, JetMomentMapCollection_p6, JetMomentMapCnv_p6 > JetMomentMapCollectionCnv_p6;
 
-template<> class T_TPCnv<JetMomentMapCollection, JetMomentMapCollection_p6>: public JetMomentMapCollectionCnv_p6
-{
- public:
-};
-
 #endif

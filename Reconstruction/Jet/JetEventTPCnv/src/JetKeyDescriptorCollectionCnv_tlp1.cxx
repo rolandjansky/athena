@@ -28,32 +28,3 @@ void JetKeyDescriptorCollectionCnv_tlp1::setPStorage (JetKeyDescriptorCollection
   m_jetKeyDescriptorCnv_p1.setPStorage(&storage->m_jetKeyDescriptor_p1);
 }
 
-/// CTor for the converter.
-T_TPCnv<JetKeyDescriptorCollection, JetKeyDescriptorCollection_tlp1>::T_TPCnv()
-{
-}
-
-void T_TPCnv<JetKeyDescriptorCollection, JetKeyDescriptorCollection_tlp1>::persToTrans (const JetKeyDescriptorCollection_tlp1 *pers,
-							      JetKeyDescriptorCollection *trans,
-							      MsgStream &msg)
-{
-  setPStorage (const_cast<JetKeyDescriptorCollection_tlp1*> (pers));
-  m_mainConverter.pstoreToTrans(0, trans, msg);
-}
-
-void T_TPCnv<JetKeyDescriptorCollection, JetKeyDescriptorCollection_tlp1>::transToPers (const JetKeyDescriptorCollection *trans,
-                                                              JetKeyDescriptorCollection_tlp1 *pers,
-                                                              MsgStream &msg){
-
-
-  msg << MSG::DEBUG << "Creating persistent state of JetKeyDescriptorCollection (_tlp1)..."
-      << endreq;
-
-  this->setTLPersObject( pers ) ;
-  m_mainConverter.virt_toPersistent(trans, msg);
-  this->clearTLPersObject();
-
-  msg << MSG::DEBUG << "Creating persistent state of JetKeyDescriptorCollection (_tlp1)[OK]"
-      << endreq;
-
-}

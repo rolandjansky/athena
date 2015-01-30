@@ -35,21 +35,4 @@ class JetCollectionCnv_tlp5 : public AthenaPoolTopLevelTPConverter<JetCollection
   JetAssociationBaseCnv_p1 m_jetAssCnv_p1;
 };
 
-/// The converter for the continer itself (ARA)...
-template<>
-class T_TPCnv<JetCollection, JetCollection_tlp5>
-: public JetCollectionCnv_tlp5
-{
-public:
-  T_TPCnv ();
-  void persToTrans (const JetCollection_tlp5 *pers,
-		    JetCollection *trans,
-		    MsgStream &msg);
-  void transToPers (const JetCollection *trans,
-                    JetCollection_tlp5 *pers, 
-                    MsgStream &msg);
-
-
-};
-
 #endif
