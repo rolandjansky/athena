@@ -10,5 +10,6 @@ namespace Muon {
   double MuonSectorMapping::m_inverseOneEightsOfPi = 1./m_oneEightsOfPi;
   double MuonSectorMapping::m_sectorSize[2] = { 0.4*m_oneEightsOfPi,0.6*m_oneEightsOfPi }; // sector side 
   double MuonSectorMapping::m_sectorOverlap = 0.1*m_oneEightsOfPi;
+  bool MuonSectorMapping::m_debug = false;
   
 }

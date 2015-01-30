@@ -52,7 +52,8 @@ namespace Muon {
     static double m_oneEightsOfPi;  //  pi/8
     static double m_inverseOneEightsOfPi;  // 8/pi
     static double m_sectorSize[2]; // side of a sector in radiants 
-    static double m_sectorOverlap; // size of the overlap between small and large sectors 
+    static double m_sectorOverlap; // size of the overlap between small and large sectors
+    static bool m_debug; // if true addition cout is enabled
   };
 
   inline double MuonSectorMapping::sectorSize( int sector ) const {
@@ -120,7 +121,7 @@ namespace Muon {
       s1 = 16;
       s2 = 1;
     }else if( std::abs(s1-s2) > 1 ){
-      std::cout << " bad sector combination: not neighbouring " << s1 << "   " << s2 << std::endl;
+      if( m_debug ) std::cout << " bad sector combination: not neighbouring " << s1 << "   " << s2 << std::endl;
       return 0;
     }
 
@@ -133,7 +134,7 @@ namespace Muon {
 
   inline double MuonSectorMapping::transformRToSector( double r, double phi, int sector, bool toSector ) const {
     double dphi = transformPhiToSector(phi,sector); 
-    if( fabs(dphi) > 0.3 ){ 
+    if( fabs(dphi) > 0.3 && m_debug ){ 
       std::cout << " large dphi detected!!: phi " << phi 
                 << " sector " << sector << " phi "  << sectorPhi(sector) << " " << phi << " dphi " << dphi << std::endl; 
     } 
@@ -151,7 +152,7 @@ namespace Muon {
     double phi_sec = sectorPhi(sector);
     double dphi = phio-phi_sec;
     if( dphi < -M_PI ) dphi += 2* M_PI;
-    if( fabs(dphi) > 0.3 ){
+    if( fabs(dphi) > 0.3 && m_debug ){
       std::cout << " large dphi detected!!: sector " << sector << " of hit " << sectorHit << " phi ref sector "  << phi_sec
                 << " hit " << phi << " dphi " << dphi << std::endl;;
     }
