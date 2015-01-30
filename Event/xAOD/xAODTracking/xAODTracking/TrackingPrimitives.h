@@ -258,6 +258,7 @@ namespace xAOD {
     numberOfTRTDeadStraws           =37,  //!< number of dead TRT straws crossed [unit8_t].
     numberOfTRTTubeHits             =38,  //!< number of TRT tube hits [unit8_t].
     numberOfTRTXenonHits            =46,  //!< number of TRT hits on track in straws with xenon [unit8_t].
+    numberOfTRTSharedHits           =62,  //!< number of TRT hits used by more than one track
 
     // --- Muon Spectrometer
     numberOfPrecisionLayers = 7,       //!< layers with at least 3 hits [unit8_t].
@@ -277,7 +278,7 @@ namespace xAOD {
     eProbabilityBrem                = 50, //!< Electron probability from Brem fitting (DNA) [float].  
     pixeldEdx                       = 51, //!< the dE/dx estimate, calculated using the pixel clusters [?]
     // -- numbers...
-    numberOfTrackSummaryTypes       = 62
+    numberOfTrackSummaryTypes       = 63
   };
 
   /// Enumerates the different types of information stored in Summary. 

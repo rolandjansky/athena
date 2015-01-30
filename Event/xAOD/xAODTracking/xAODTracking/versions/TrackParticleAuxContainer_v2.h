@@ -134,6 +134,7 @@ namespace xAOD {
      std::vector< uint8_t >         numberOfTRTDeadStraws            ;
      std::vector< uint8_t >         numberOfTRTTubeHits              ;
      std::vector< uint8_t >         numberOfTRTXenonHits             ;
+     std::vector< uint8_t >         numberOfTRTSharedHits             ;
      
      std::vector< uint8_t >         numberOfPrecisionLayers;
      std::vector< uint8_t >         numberOfPrecisionHoleLayers;

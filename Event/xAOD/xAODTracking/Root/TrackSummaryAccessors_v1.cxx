@@ -95,6 +95,7 @@ namespace xAOD {
         DEFINE_ACCESSOR( uint8_t, numberOfTRTDeadStraws             );
         DEFINE_ACCESSOR( uint8_t, numberOfTRTTubeHits               );
         DEFINE_ACCESSOR( uint8_t, numberOfTRTXenonHits              );
+	DEFINE_ACCESSOR( uint8_t, numberOfTRTSharedHits              );
         DEFINE_ACCESSOR( uint8_t, numberOfPrecisionLayers );
         DEFINE_ACCESSOR( uint8_t, numberOfPrecisionHoleLayers );
         DEFINE_ACCESSOR( uint8_t, numberOfPhiLayers );
