@@ -22,17 +22,13 @@
 
 // TrigMonConfig headers
 #include "TrigMonitoringEventTPCnv/TrigMonConfig_p1.h"
-#include "TrigMonitoringEventTPCnv/TrigMonConfigCnv_p1.h"
 #include "TrigMonitoringEventTPCnv/TrigMonConfigCollection_p1.h"
 #include "TrigMonitoringEventTPCnv/TrigMonConfigCollection_tlp1.h"
-#include "TrigMonitoringEventTPCnv/TrigMonConfigCollectionCnv_tlp1.h"
 
 // TrigMonEvent headers
 #include "TrigMonitoringEventTPCnv/TrigMonEvent_p1.h"
-#include "TrigMonitoringEventTPCnv/TrigMonEventCnv_p1.h"
 #include "TrigMonitoringEventTPCnv/TrigMonEventCollection_p1.h"
 #include "TrigMonitoringEventTPCnv/TrigMonEventCollection_tlp1.h"
-#include "TrigMonitoringEventTPCnv/TrigMonEventCollectionCnv_tlp1.h"
 
 #ifdef __GCCXML__
 template class std::vector<TrigConfAlg_p1>;
