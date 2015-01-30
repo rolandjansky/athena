@@ -23,4 +23,3 @@ private
 use Geant4		Geant4-*		External
 use GaudiInterface      GaudiInterface-*        External
 use AthenaBaseComps     AthenaBaseComps-*       Control
-
