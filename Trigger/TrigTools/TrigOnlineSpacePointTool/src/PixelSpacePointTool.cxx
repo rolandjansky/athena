@@ -6,10 +6,9 @@
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrigOnlineSpacePointTool/PixelSpacePointTool.h"
 #include "GaudiKernel/ToolFactory.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "InDetIdentifier/PixelID.h"
 #include "Identifier/IdentifierHash.h" 
-#include "StoreGate/StoreGate.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include <string>
 #include "TrigTimeAlgs/TrigTimerSvc.h"
@@ -24,7 +23,7 @@ const InterfaceID& PixelSpacePointTool::interfaceID() {
 PixelSpacePointTool::PixelSpacePointTool( const std::string& type, 
                                           const std::string& name, 
                                           const IInterface* parent )
-  : AlgTool(type, name, parent),
+  : AthAlgTool(type, name, parent),
     m_xVertex(0.0),
     m_yVertex(0.0),
     m_zVertex(0.0),
@@ -44,54 +43,37 @@ PixelSpacePointTool::PixelSpacePointTool( const std::string& type,
 }
 
 StatusCode PixelSpacePointTool::initialize()  {
-  MsgStream log(msgSvc(), name());
-
-  log << MSG::DEBUG << name() << " in initialize" << endreq;
-
-  // Get StoreGate service
-  StatusCode sc=service("StoreGateSvc", m_StoreGate);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << name() <<" failed to get StoreGate" << endreq;
-     return sc;
-  }
-  
-  // get DetectorStore service
-  StoreGateSvc* detStore; 
-  sc=service("DetectorStore",detStore);
-  if (sc.isFailure()) { 
-    log << MSG::ERROR << name() <<" failed to get detStore" << endreq;
-    return sc;
-  }
+  ATH_MSG_DEBUG(name() << " in initialize");
 
   const InDetDD::SiDetectorManager * mgr;
-  sc=detStore->retrieve(mgr, "Pixel");
+  StatusCode sc=detStore()->retrieve(mgr, "Pixel");
   if (sc.isFailure()) {
-    log << MSG::ERROR << name() << "failed to get Pixel Manager" << endreq;
+    ATH_MSG_ERROR(name() << "failed to get Pixel Manager");
     return StatusCode::FAILURE;
   } else { 
-    log << MSG::DEBUG << name() << "Got Pixel Manager" << endreq;
+    ATH_MSG_DEBUG(name() << "Got Pixel Manager");
   }
  
   // Get SCT & pixel helpers
 
-  if (detStore->retrieve(m_id_pixel, "PixelID").isFailure()) {
-     log << MSG::FATAL << "Could not get Pixel ID helper" << endreq; 
+  if (detStore()->retrieve(m_id_pixel, "PixelID").isFailure()) {
+     ATH_MSG_FATAL("Could not get Pixel ID helper"); 
      return StatusCode::FAILURE;
   } 
 
   m_cntx_pixel = m_id_pixel->wafer_context();
 
-  sc = AlgTool::initialize(); 
+  sc = AthAlgTool::initialize(); 
 
   sc=m_numberingTool.retrieve();
   if(sc.isFailure()) {
-    log << MSG::ERROR<<"Could not retrieve "<<m_numberingTool<<endreq;
+    ATH_MSG_ERROR("Could not retrieve "<<m_numberingTool);
     return sc;
   }
 
   m_builder = new PixelGCBuilder(mgr, m_id_pixel, m_numberingTool->offsetEndcapPixels());
 
-  log << MSG::INFO << "PixelSP_ContainerName: " << m_spacepointContainerName << endreq;
+  ATH_MSG_INFO("PixelSP_ContainerName: " << m_spacepointContainerName);
   m_spacepointContainer = new TrigSiSpacePointContainer(m_id_pixel->wafer_hash_max());
   m_spacepointContainer->addRef();
 
@@ -101,9 +83,9 @@ StatusCode PixelSpacePointTool::initialize()  {
       if (scBS.isFailure() || m_iBeamCondSvc == 0) 
 	{
 	  m_iBeamCondSvc = 0;
-	  log << MSG::WARNING << "Could not retrieve Beam Conditions Service. " << endreq;
-	  log << MSG::WARNING << "Using origin at ( "<< m_xVertex <<" , "<< m_yVertex << " , " 
-	      << m_yVertex<< " ) "<< endreq;
+	  ATH_MSG_WARNING("Could not retrieve Beam Conditions Service. ");
+	  ATH_MSG_WARNING("Using origin at ( "<< m_xVertex <<" , "<< m_yVertex << " , " 
+	      << m_yVertex<< " ) ");
 	  m_xCenter = m_xVertex;
 	  m_yCenter = m_yVertex;
 	}
@@ -116,7 +98,7 @@ StatusCode PixelSpacePointTool::initialize()  {
   ITrigTimerSvc* timerSvc;
   StatusCode scTime = service( "TrigTimerSvc", timerSvc);
   if( scTime.isFailure() ) {
-    log << MSG::INFO<< "Unable to locate Service TrigTimerSvc " << endreq;
+    ATH_MSG_INFO("Unable to locate Service TrigTimerSvc ");
     m_timers = false;
   } 
   else{
@@ -141,40 +123,36 @@ StatusCode PixelSpacePointTool::finalize()
   m_spacepointContainer->release();
   delete m_builder;
 
-  StatusCode sc = AlgTool::finalize(); 
+  StatusCode sc = AthAlgTool::finalize(); 
   return sc;
 }
 
 StatusCode PixelSpacePointTool::fillCollections(ClusterCollectionData& clusterCollData) 
 { 
 
-  MsgStream log(msgSvc(), name());
-  int outputLevel = msgSvc()->outputLevel( name() );
   StatusCode sc;
   int nSP=0;
 
-  if(!m_StoreGate->contains<TrigSiSpacePointContainer>(m_spacepointContainerName))
+  if(!evtStore()->contains<TrigSiSpacePointContainer>(m_spacepointContainerName))
     {
       m_spacepointContainer->cleanup();
 
-      sc=m_StoreGate->record(m_spacepointContainer,m_spacepointContainerName,false);
+      sc=evtStore()->record(m_spacepointContainer,m_spacepointContainerName,false);
       if(sc.isFailure())
 	{
-	  log << MSG::WARNING << "Pixel TrigSP Container " << m_spacepointContainerName 
-	      <<" cannot be recorded in StoreGate !"<< endreq;
+	  ATH_MSG_WARNING("Pixel TrigSP Container " << m_spacepointContainerName 
+	      <<" cannot be recorded in StoreGate !");
 	  return sc;
 	}
       else 
 	{
-	  if(outputLevel <= MSG::DEBUG)
-	    log << MSG::DEBUG << "Pixel TrigSP Container " << m_spacepointContainerName
-		<< " is recorded in StoreGate" << endreq;
+	    ATH_MSG_DEBUG("Pixel TrigSP Container " << m_spacepointContainerName
+		<< " is recorded in StoreGate");
 	}
       if (m_useBeamSpot && m_iBeamCondSvc)
 	{
 	  Amg::Vector3D vertex = m_iBeamCondSvc->beamPos();
-	  if(outputLevel <= MSG::DEBUG)
-	    log << MSG::DEBUG << "Beam spot position " << vertex << endreq; 
+    ATH_MSG_DEBUG("Beam spot position " << vertex); 
 	  m_xCenter=vertex.x() - m_iBeamCondSvc->beamTilt(0)*vertex.z();
 	  m_yCenter=vertex.y() - m_iBeamCondSvc->beamTilt(1)*vertex.z();
 	}
@@ -185,9 +163,8 @@ StatusCode PixelSpacePointTool::fillCollections(ClusterCollectionData& clusterCo
     }
   else 
     {    
-      if(outputLevel <= MSG::DEBUG)
-	log << MSG::DEBUG << "Pixel TrigSP Container " <<m_spacepointContainerName 
-	    << " is found in StoreGate" << endreq;
+	ATH_MSG_DEBUG("Pixel TrigSP Container " <<m_spacepointContainerName 
+	    << " is found in StoreGate");
     }
 
   int nReq=0,nRec=0;
@@ -201,8 +178,7 @@ StatusCode PixelSpacePointTool::fillCollections(ClusterCollectionData& clusterCo
       m_timer[0]->pause();
     }
 
-  if(outputLevel <= MSG::DEBUG)
-    log << MSG::DEBUG << "Center position:  " << m_xCenter <<"  "<<m_yCenter<< endreq;
+  ATH_MSG_DEBUG("Center position:  " << m_xCenter <<"  "<<m_yCenter);
 
   ClusterCollectionData::iterator iter_coll = clusterCollData.begin();
 
@@ -261,14 +237,11 @@ StatusCode PixelSpacePointTool::fillCollections(ClusterCollectionData& clusterCo
 	  
 	  if (sc.isFailure()) 
 	    {
-	      log << MSG::WARNING  << " Fail to store a TrigSiSpacePoint collection in Pixel with hash "
-		  << hashId << endreq;
+	      ATH_MSG_WARNING(" Fail to store a TrigSiSpacePoint collection in Pixel with hash " << hashId);
 	    } 
 	  else 
 	    {
-	      if(outputLevel<=MSG::DEBUG)
-		log << MSG::DEBUG << " Pixel TrigSiSpacePoint collection is stored in IDC with hashId "
-		    <<spacePointColl->identifyHash()<<endreq;	      
+		ATH_MSG_DEBUG(" Pixel TrigSiSpacePoint collection is stored in IDC with hashId " <<spacePointColl->identifyHash());	      
 	    }
           if ( m_timers ) m_timer[2]->pause();    
 	}

@@ -2,9 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
-
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/PixelID.h" 
 
@@ -37,7 +34,7 @@ TrigSpacePointConversionTool::TrigSpacePointConversionTool(const std::string& t,
 
 StatusCode TrigSpacePointConversionTool::initialize() {
 
-  StatusCode sc = AlgTool::initialize();
+  StatusCode sc = AthAlgTool::initialize();
 
   ATH_MSG_INFO("In initialize...");
 
@@ -85,7 +82,7 @@ StatusCode TrigSpacePointConversionTool::initialize() {
 
 StatusCode TrigSpacePointConversionTool::finalize() {
 
-  StatusCode sc = AlgTool::finalize(); 
+  StatusCode sc = AthAlgTool::finalize(); 
   return sc;
 }
 

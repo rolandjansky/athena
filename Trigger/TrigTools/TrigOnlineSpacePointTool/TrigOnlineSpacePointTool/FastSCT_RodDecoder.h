@@ -20,8 +20,7 @@
 #include <vector>
 #include <string>
 
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
 #include "eformat/Version.h"
 
@@ -34,12 +33,11 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include <deque>
 
-class StoreGateSvc; 
 class FastSCT_Clusterization;
 
 using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
-class FastSCT_RodDecoder : public AlgTool 
+class FastSCT_RodDecoder : public AthAlgTool 
 {
 public: 
 

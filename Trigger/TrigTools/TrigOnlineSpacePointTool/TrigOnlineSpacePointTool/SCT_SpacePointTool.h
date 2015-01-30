@@ -4,22 +4,22 @@
 
 #ifndef SCT_SpacePointTool_H
 #define SCT_SpacePointTool_H
-#include "GaudiKernel/ToolHandle.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "TrigInDetToolInterfaces/ITrigL2LayerNumberTool.h"
 #include "TrigOnlineSpacePointTool/SCT_GCBuilder.h"
 #include "InDetPrepRawData/SCT_ClusterCollection.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ToolHandle.h"
 #include <vector>
 
 class TrigSiSpacePoint;
-class StoreGateSvc;
 class TrigTimer;
 class IBeamCondSvc;
+class ITrigL2LayerNumberTool;
 
 
-class SCT_SpacePointTool : public AlgTool {
+class SCT_SpacePointTool : public AthAlgTool {
 public:
   typedef std::vector<const InDet::SCT_ClusterCollection*> ClusterCollectionVector;
   typedef std::vector<TrigSiSpacePoint*> SiSpacePointData;
@@ -79,8 +79,6 @@ private:
      const InDet::SCT_ClusterCollection* m_wafer_uv;
   };
 
-  StoreGateSvc* m_StoreGate;
-  
   SCT_GCBuilder* m_builder;
 
   const SCT_ID* m_id_sct;

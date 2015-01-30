@@ -6,29 +6,27 @@
 #define __PIXEL_CLUSTER_CACHE_TOOL_H__
 
 #include "ByteStreamData/RawEvent.h"
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
-//#include "PixelCabling/PixelIdMapping.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "PixelCabling/IPixelCablingSvc.h"
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "TrigOnlineSpacePointTool/FastPixelClusterization.h"
 #include "TrigOnlineSpacePointTool/IPixelClusterCacheTool.h"
-#include "StoreGate/StoreGate.h"
 #include "InDetPrepRawData/PixelClusterCollection.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"
 #include "InDetRawData/PixelRDO_Container.h"
 #include "PixelRawDataByteStreamCnv/IPixelRodDecoder.h"
 #include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 #include "SiClusterizationTool/IPixelClusteringTool.h"
+#include "GaudiKernel/ToolHandle.h"
 #include <vector>
+#include <string>
 
 class FastPixelClusterization;
 
 
 typedef OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment         ROBF ;
 
-class PixelClusterCacheTool : public AlgTool, virtual public IPixelClusterCacheTool {
+class PixelClusterCacheTool : public AthAlgTool, virtual public IPixelClusterCacheTool {
 public:
 
   // Constructor 
@@ -45,7 +43,6 @@ public:
 
 private:
 
-  StoreGateSvc* m_StoreGate; 
   InDet::PixelClusterContainer* m_clusterContainer;
   std::string m_containerName;
   FastPixelClusterization m_clusterization;

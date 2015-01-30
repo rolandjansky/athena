@@ -2,7 +2,6 @@ package TrigOnlineSpacePointTool
 
 use AtlasPolicy 		AtlasPolicy-*
 use Identifier			Identifier-*	    		DetectorDescription
-use StoreGate             	StoreGate-*             	Control
 use GaudiInterface 		GaudiInterface-* 		External
 use IRegionSelector          	IRegionSelector-*                DetectorDescription
 
@@ -21,6 +20,7 @@ use ByteStreamData	        ByteStreamData-* 	        Event
 use DataCollection              DataCollection-*                External
 use SCT_ConditionsServices      SCT_ConditionsServices-*        InnerDetector/InDetConditions
 use PixelConditionsServices     PixelConditionsServices-*       InnerDetector/InDetConditions
+use AthenaBaseComps     AthenaBaseComps-*       Control
 
 
 use TrigSiSpacePointTool        TrigSiSpacePointTool-*          Trigger/TrigTools
@@ -39,10 +39,8 @@ private
 use AtlasDetDescr               AtlasDetDescr-*                 DetectorDescription
 use TrkSpacePoint               TrkSpacePoint-*                 Tracking/TrkEvent
 use ByteStreamCnvSvcBase        ByteStreamCnvSvcBase-*          Event
-use DataModel 			DataModel-* 			Control
 use InDetBeamSpotService        InDetBeamSpotService-*          InnerDetector/InDetConditions
 use TrigTimeAlgs		TrigTimeAlgs-*		        Trigger/TrigTools
 use SCT_RawDataByteStreamCnv    SCT_RawDataByteStreamCnv-*      InnerDetector/InDetEventCnv
 use TrigTimeAlgs		TrigTimeAlgs-*		        Trigger/TrigTools
 use TrigInDetToolInterfaces     TrigInDetToolInterfaces-*       Trigger/TrigTools
-use AthenaBaseComps     AthenaBaseComps-*       Control

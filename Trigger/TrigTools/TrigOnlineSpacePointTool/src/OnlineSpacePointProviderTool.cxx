@@ -12,9 +12,6 @@
 #include <vector>
 #include <algorithm>
 
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
-#include "DataModel/DataVector.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "ByteStreamData/RawEvent.h"
 
@@ -27,7 +24,7 @@
 #include "InDetPrepRawData/SCT_ClusterContainer.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 // SpacePoint creation
-//#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelSvc.h"
 #include "TrigInDetEvent/TrigSiSpacePoint.h"
 #include "TrigInDetEvent/TrigSiSpacePointCollection.h"
 #include "TrigOnlineSpacePointTool/PixelSpacePointTool.h"
@@ -35,14 +32,13 @@
 #include "TrigOnlineSpacePointTool/IPixelClusterCacheTool.h"
 #include "TrigOnlineSpacePointTool/ISCT_ClusterCacheTool.h"
 #include "TrigOnlineSpacePointTool/OnlineSpacePointProviderTool.h"
-//#include "GaudiKernel/IssueSeverity.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 #include "IRegionSelector/IRoiDescriptor.h"
 
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "StoreGate/StoreClearedIncident.h"
 
 
 typedef OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment         ROBF ; 
@@ -50,7 +46,7 @@ typedef OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment         ROBF ;
 OnlineSpacePointProviderTool::OnlineSpacePointProviderTool(const std::string& t, 
 							   const std::string& n,
 							   const IInterface*  p ): 
-  AlgTool(t,n,p), 
+  AthAlgTool(t,n,p), 
   m_isFullScan(false),
   m_pixelCacheTool("PixelClusterCacheTool"), 
   m_sctCacheTool("SCT_ClusterCacheTool") 
@@ -83,10 +79,9 @@ OnlineSpacePointProviderTool::OnlineSpacePointProviderTool(const std::string& t,
 
 StatusCode OnlineSpacePointProviderTool::finalize()
 {
-  MsgStream athenaLog(msgSvc(), name());
-  athenaLog << MSG::INFO << "Total " <<nColl[0]<<" PIX collections, "<<nColl[1]<<" are filled"<< endreq;
-  athenaLog << MSG::INFO << "Total " <<nColl[2]<<" SCT collections, "<<nColl[3]<<" are filled"<< endreq;
-  StatusCode sc = AlgTool::finalize(); 
+  ATH_MSG_INFO("Total " <<nColl[0]<<" PIX collections, "<<nColl[1]<<" are filled");
+  ATH_MSG_INFO("Total " <<nColl[2]<<" SCT collections, "<<nColl[3]<<" are filled");
+  StatusCode sc = AthAlgTool::finalize(); 
   return sc;
 }
  
@@ -94,58 +89,41 @@ StatusCode OnlineSpacePointProviderTool::finalize()
 StatusCode OnlineSpacePointProviderTool::initialize()
 {
   
-  StatusCode sc = AlgTool::initialize();
-  MsgStream athenaLog(msgSvc(), name());
-  athenaLog << MSG::DEBUG << "OnlineSpacePointProviderTool: in initialize" << endreq;
+  StatusCode sc = AthAlgTool::initialize();
+  ATH_MSG_DEBUG("OnlineSpacePointProviderTool: in initialize");
 
-  athenaLog << MSG::INFO << "RegionSelectorToolName: " << m_regionSelectorToolName << endreq;
-  athenaLog << MSG::INFO << "SctSpToolName: " <<  m_sctSpToolName << endreq;
-  athenaLog << MSG::INFO << "PixelSpToolName: " << m_pixelSpToolName << endreq;
+  ATH_MSG_INFO("RegionSelectorToolName: " << m_regionSelectorToolName);
+  ATH_MSG_INFO("SctSpToolName: " <<  m_sctSpToolName);
+  ATH_MSG_INFO("PixelSpToolName: " << m_pixelSpToolName);
   if(m_useSctClustThreshold)
-    athenaLog << MSG::INFO << "SctClusterThreshold= " << m_sctClustThreshold << endreq;
+    ATH_MSG_INFO("SctClusterThreshold= " << m_sctClustThreshold);
   if(m_usePixelClustThreshold)
-    athenaLog << MSG::INFO << "PixelClusterThreshold= " << m_pixClustThreshold << endreq;
+    ATH_MSG_INFO("PixelClusterThreshold= " << m_pixClustThreshold);
   if(m_useStoreGate)
     {
-      athenaLog << MSG::INFO << "using proxy-based BS converters " << endreq;
-      athenaLog << MSG::INFO << "SctClusterContainerName: " << m_sctClusterContainerName << endreq;
-      athenaLog << MSG::INFO << "PixelClusterContainerName: " << m_pixelClusterContainerName << endreq;
+      ATH_MSG_INFO("using proxy-based BS converters ");
+      ATH_MSG_INFO("SctClusterContainerName: " << m_sctClusterContainerName);
+      ATH_MSG_INFO("PixelClusterContainerName: " << m_pixelClusterContainerName);
     }
   else
     {
-      athenaLog << MSG::INFO << "using own BS conversion/cluster caching tools: " << endreq;
-      athenaLog << MSG::INFO << "SctCacheTool: " <<  m_sctCacheTool << endreq;
-      athenaLog << MSG::INFO << "PixelCacheTool: " << m_pixelCacheTool << endreq;
-      athenaLog << MSG::INFO << "SctClusterCacheName: " << m_sctClusterCacheName << endreq;
-      athenaLog << MSG::INFO << "PixelClusterCacheName: " << m_pixelClusterCacheName << endreq;
+      ATH_MSG_INFO("using own BS conversion/cluster caching tools: ");
+      ATH_MSG_INFO("SctCacheTool: " <<  m_sctCacheTool);
+      ATH_MSG_INFO("PixelCacheTool: " << m_pixelCacheTool);
+      ATH_MSG_INFO("SctClusterCacheName: " << m_sctClusterCacheName);
+      ATH_MSG_INFO("PixelClusterCacheName: " << m_pixelClusterCacheName);
     }
 
-  //   Get StoreGate service
-  //
-  sc = service( "StoreGateSvc", m_StoreGate );
-  if (sc.isFailure()) {
-    athenaLog << MSG::FATAL 
-	      << "Unable to retrieve StoreGate service" << endreq;
-    return sc;
-  }
-
- // Get DetectorStore service
-  StoreGateSvc * detStore;
-  sc = service("DetectorStore",detStore);
-  if (sc.isFailure()) {
-    athenaLog << MSG::FATAL << "DetectorStore service not found !" << endreq;
-    return StatusCode::FAILURE;
-  } 
 
   // Get SCT & pixel Identifier helpers
 
-  if (detStore->retrieve(m_pixelId, "PixelID").isFailure()) { 
-     athenaLog << MSG::FATAL << "Could not get Pixel ID helper" << endreq;
+  if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) { 
+     ATH_MSG_FATAL("Could not get Pixel ID helper");
      return StatusCode::FAILURE;
   }  
 
- if (detStore->retrieve(m_sctId, "SCT_ID").isFailure()) {
-   athenaLog << MSG::FATAL << "Could not get SCT ID helper" << endreq;
+ if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) {
+   ATH_MSG_FATAL("Could not get SCT ID helper");
    return StatusCode::FAILURE;  
  }
   
@@ -153,8 +131,7 @@ StatusCode OnlineSpacePointProviderTool::initialize()
 //
   sc = serviceLocator()->service( m_regionSelectorToolName,m_regionSelector);
   if ( sc.isFailure() ) {
-    athenaLog << MSG::FATAL 
-	      << "Unable to retrieve RegionSelector Service  " << m_regionSelectorToolName << endreq;
+    ATH_MSG_FATAL("Unable to retrieve RegionSelector Service  " << m_regionSelectorToolName);
     return sc;
   };
 
@@ -162,37 +139,35 @@ StatusCode OnlineSpacePointProviderTool::initialize()
 //
   sc = toolSvc()->retrieveTool( m_pixelSpToolName, m_pixelSpTool, this );
   if ( sc.isFailure() ) {
-    athenaLog << MSG::FATAL 
-	      << "Unable to locate PixelSpacePointTool " << m_pixelSpToolName  << endreq;
+    ATH_MSG_FATAL("Unable to locate PixelSpacePointTool " << m_pixelSpToolName );
     return sc;
   } 
   
   sc = toolSvc()->retrieveTool( m_sctSpToolName, m_sctSpTool, this );
   if ( sc.isFailure() ) {
-    athenaLog << MSG::FATAL << "Unable to locate SCT_SpacePointTool " << m_sctSpToolName << endreq;
+    ATH_MSG_FATAL("Unable to locate SCT_SpacePointTool " << m_sctSpToolName);
     return sc;
   } 
   if(!m_useStoreGate)
     {
-      athenaLog << MSG::INFO<< "StoreGate will not be used " << endreq;
+      ATH_MSG_INFO("StoreGate will not be used ");
       sc = m_pixelCacheTool.retrieve();
       if ( sc.isFailure() ) {
-	athenaLog << MSG::FATAL 
-		  << "Unable to locate PixelClusterCacheTool " << m_pixelCacheTool  << endreq;
+	ATH_MSG_FATAL("Unable to locate PixelClusterCacheTool " << m_pixelCacheTool );
 	return sc;
       }
       sc = m_sctCacheTool.retrieve();
       if ( sc.isFailure() ) {
-	athenaLog << MSG::FATAL << "Unable to locate SCT_ClusterCacheTool " << m_sctCacheTool << endreq;
+	ATH_MSG_FATAL("Unable to locate SCT_ClusterCacheTool " << m_sctCacheTool);
 	return sc;
       } 
     }
-  else athenaLog << MSG::INFO<< "using StoreGate ... " << endreq;
+  else ATH_MSG_INFO("using StoreGate ... ");
 
 //  Get ROBDataProvider
   sc = service( m_ROBDataProviderSvcName, m_robDataProvider );
   if( sc.isFailure() ) {
-    athenaLog << MSG::FATAL << " Can't get ROBDataProviderSvc " << endreq;
+    ATH_MSG_FATAL(" Can't get ROBDataProviderSvc ");
     return sc;
   }
 
@@ -201,7 +176,7 @@ StatusCode OnlineSpacePointProviderTool::initialize()
   sc = iincSvc.retrieve().isSuccess();
   if ( sc.isFailure() ) 
     {
-      athenaLog << MSG::FATAL << "Unable to locate IncidentSvc " << endreq;
+      ATH_MSG_FATAL("Unable to locate IncidentSvc ");
       return sc;
     }
   else
@@ -212,7 +187,7 @@ StatusCode OnlineSpacePointProviderTool::initialize()
   ITrigTimerSvc* timerSvc;
   StatusCode scTime = service( "TrigTimerSvc", timerSvc);
   if( scTime.isFailure() ) {
-    athenaLog << MSG::INFO<< "Unable to locate Service TrigTimerSvc " << endreq;
+    ATH_MSG_INFO("Unable to locate Service TrigTimerSvc ");
     m_timers = false;
   } 
   else{
@@ -254,9 +229,6 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(bool getPixelSP, bool g
 							 std::vector<int>& SCT_IDs)
 {
   StatusCode sc(StatusCode::SUCCESS);
-
-  MsgStream athenaLog(msgSvc(), name());
-  int outputLevel = msgSvc()->outputLevel( name() );
 
   int pix_bs_errors=0;
   bool bs_failure_pix=false;
@@ -302,13 +274,8 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(bool getPixelSP, bool g
      
      PixelIDs.clear();
      if(m_timers) m_timer[0]->pause();
-     if (outputLevel <= MSG::DEBUG) 
-       {
-	 athenaLog << MSG::DEBUG << "REGTEST / Pixel : Roi contains " 
-		   << listOfPixIds.size() << " det. Elements" << endreq;
-	 athenaLog << MSG::DEBUG << "Pixel : " 
-		   << uIntListOfPixelRobs.size() << " ROBs will be requested" << endreq;
-       }
+     ATH_MSG_DEBUG("REGTEST / Pixel : Roi contains " << listOfPixIds.size() << " det. Elements");
+     ATH_MSG_DEBUG("Pixel : " << uIntListOfPixelRobs.size() << " ROBs will be requested");
      std::vector<const InDet::PixelClusterCollection*> pixClusterColl;
      unsigned int nPixClusters=0; 
 
@@ -343,24 +310,24 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(bool getPixelSP, bool g
      if(m_timers) m_timer[2]->start();
      if(m_useStoreGate)
        {
-	 sc = m_StoreGate->retrieve(pixClusterContainer, m_pixelClusterContainerName);
+	 sc = evtStore()->retrieve(pixClusterContainer, m_pixelClusterContainerName);
 	 if(m_timers) m_timer[2]->stop();
 	 if (sc.isFailure())
 	   {
-	     athenaLog<<MSG::ERROR<<"Retrieval of pixel Cluster Container " 
-		      << m_pixelClusterContainerName << " failed" << endreq;
+	     ATH_MSG_ERROR("Retrieval of pixel Cluster Container " 
+		      << m_pixelClusterContainerName << " failed");
 	     if(m_timers) m_timer[8]->stop();
 	     return sc;
 	   }
        }
      else 
        {
-	 sc = m_StoreGate->retrieve(pixClusterContainer, m_pixelClusterCacheName);
+	 sc = evtStore()->retrieve(pixClusterContainer, m_pixelClusterCacheName);
 	 if(m_timers) m_timer[2]->stop();
 	 if (sc.isFailure())
 	   {
-	     athenaLog<<MSG::ERROR<<"Retrieval of pixel Cluster Cache " 
-		      << m_pixelClusterCacheName << " failed" << endreq;
+	     ATH_MSG_ERROR("Retrieval of pixel Cluster Cache " 
+		      << m_pixelClusterCacheName << " failed");
 	     if(m_timers) m_timer[8]->stop();
 	     return sc;
 	   }
@@ -385,32 +352,31 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(bool getPixelSP, bool g
 
 	 if ((m_usePixelClustThreshold  && (*clusterCollection)->size()>m_pixClustThreshold ) ) 
 	    { 
-	      athenaLog << MSG::DEBUG 
-			<<  "number of Pixel clusters, " << (*clusterCollection)->size() 
+	      ATH_MSG_DEBUG("number of Pixel clusters, " << (*clusterCollection)->size() 
 			<< " exceeded "<<m_pixClustThreshold<<" for id=" << listOfPixIds[iPix] 
-			<< ", skipping this module" << endreq;
+			<< ", skipping this module");
 	      continue;
 	    }
 
 	 PixelIDs.push_back(listOfPixIds[iPix]);
 
 	 nPixClusters += (*clusterCollection)->size();
-	 if (outputLevel <= MSG::DEBUG) 
+	 if (msgLvl(MSG::DEBUG)) 
 	    {
 	      Identifier id = (*clusterCollection)->identify();
-	      athenaLog << MSG::DEBUG <<  m_pixelId->print_to_string(id) << " with "
-			<< (*clusterCollection)->size() << " clusters" 	  <<endreq;
+	      ATH_MSG_DEBUG(m_pixelId->print_to_string(id) << " with "
+			<< (*clusterCollection)->size() << " clusters");
 	    }
 	 pixClusterColl.push_back( (*clusterCollection) );	  
 	
-	 if (outputLevel <= MSG::VERBOSE) {
+	 if (msgLvl(MSG::VERBOSE)) {
 	   InDet::PixelClusterCollection::const_iterator pPixClus = (*clusterCollection)->begin();
 	   
 	   for (int iPixClus=1; pPixClus != (*clusterCollection)->end(); pPixClus++, iPixClus++) {
 	     const Amg::Vector2D pos = (*pPixClus)->localPosition();
-	     athenaLog << MSG::VERBOSE <<  " cluster " << iPixClus << ": " 
+	     ATH_MSG_VERBOSE(" cluster " << iPixClus << ": " 
 		       << m_sctId->print_to_string((*pPixClus)->identify()) 
-		       << " locT " << pos[0] << " locL " << pos[1] << endreq;
+		       << " locT " << pos[0] << " locL " << pos[1]);
 	     
 	   }
 	 }
@@ -431,11 +397,11 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(bool getPixelSP, bool g
        }
      if(sc.isFailure())
        {
-	 athenaLog << MSG::WARNING << "Pixel SP tool failed"<<endreq;
+	 ATH_MSG_WARNING("Pixel SP tool failed");
 	 return sc;
        }
-     if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << "REGTEST / Pixel : Formed SP from " << 
-				      nPixClusters << "  clusters" << endreq;
+     ATH_MSG_DEBUG("REGTEST / Pixel : Formed SP from " << 
+				      nPixClusters << "  clusters");
     }
   if(getSCT_SP) 
     {
@@ -469,13 +435,10 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(bool getPixelSP, bool g
 	  m_timer[0]->stop();
 	  m_regSelTime=m_timer[0]->elapsed();
 	}
-      if (outputLevel <= MSG::DEBUG) 
-	{
-	  athenaLog << MSG::DEBUG << "REGTEST / SCT : Roi contains " 
-		    << listOfSctIds.size() << " det. Elements" << endreq;
-	  athenaLog << MSG::DEBUG << "SCT : " 
-		    << uIntListOfSctRobs.size() << " ROBs will be requested" << endreq;
-	}
+	  ATH_MSG_DEBUG("REGTEST / SCT : Roi contains " 
+		    << listOfSctIds.size() << " det. Elements");
+	  ATH_MSG_DEBUG("SCT : " << uIntListOfSctRobs.size() << " ROBs will be requested");
+
       std::vector<const InDet::SCT_ClusterCollection*> sctClusterColl;
       unsigned int nSctClusters=0;
 
@@ -507,23 +470,23 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(bool getPixelSP, bool g
 
       if(m_useStoreGate)
 	{
-	  sc = m_StoreGate->retrieve(sctClusterContainer, m_sctClusterContainerName);
+	  sc = evtStore()->retrieve(sctClusterContainer, m_sctClusterContainerName);
 	  if(m_timers) m_timer[3]->stop();
 	  if(sc.isFailure())
 	    {
-	      athenaLog<<MSG::ERROR<<" Retrieval of SCT Cluster Container " 
-		   << m_sctClusterContainerName << " failed" << endreq;
+	      ATH_MSG_ERROR(" Retrieval of SCT Cluster Container " 
+		   << m_sctClusterContainerName << " failed");
 	      if(m_timers) m_timer[8]->stop();
 	      return sc;
 	    }
 	}
       else
 	{
-	  sc = m_StoreGate->retrieve(sctClusterContainer, m_sctClusterCacheName);
+	  sc = evtStore()->retrieve(sctClusterContainer, m_sctClusterCacheName);
 	  if(m_timers) m_timer[3]->stop();
 	  if (sc.isFailure()){
-	    athenaLog<<MSG::ERROR<<" Retrieval of SCT Cluster Cache " << m_sctClusterCacheName 
-		     << " failed" << endreq;
+	    ATH_MSG_ERROR(" Retrieval of SCT Cluster Cache " << m_sctClusterCacheName 
+		     << " failed");
 	    if(m_timers) m_timer[8]->stop();
 	    return sc;
 	  }
@@ -546,10 +509,9 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(bool getPixelSP, bool g
 	  nColl[3]++;
 	  if ((m_useSctClustThreshold  && (*clusterCollection)->size()>m_sctClustThreshold ) ) 
 	    { 
-	      athenaLog << MSG::DEBUG 
-			<<  "number of SCT clusters, " << (*clusterCollection)->size() 
+	      ATH_MSG_DEBUG("number of SCT clusters, " << (*clusterCollection)->size() 
 			<< " exceeded "<<m_sctClustThreshold<<" for id=" << listOfSctIds[iSct] 
-			<< ", skipping this module" << endreq;
+			<< ", skipping this module");
 	      continue;
 	    }
 	  
@@ -557,18 +519,18 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(bool getPixelSP, bool g
 	 
 	  sctClusterColl.push_back( (*clusterCollection) );	  
 	  
-	  if (outputLevel <= MSG::VERBOSE) 
+	  if (msgLvl(MSG::VERBOSE)) 
 	    {
 	      Identifier id = (*clusterCollection)->identify();
-	      athenaLog << MSG::VERBOSE <<  m_sctId->print_to_string(id) << " with "
-			<< (*clusterCollection)->size() << " clusters" 	  <<endreq;
+	      ATH_MSG_VERBOSE(m_sctId->print_to_string(id) << " with "
+			<< (*clusterCollection)->size() << " clusters");
 	      InDet::SCT_ClusterCollection::const_iterator pSctClus = (*clusterCollection)->begin();
 	      for (int iSctClus=1; pSctClus != (*clusterCollection)->end(); pSctClus++, iSctClus++) 
 		{
 		  const Amg::Vector2D SCTpos = (*pSctClus)->localPosition();
-		  athenaLog << MSG::VERBOSE <<  " cluster " << iSctClus << ": " << 
+		  ATH_MSG_VERBOSE(" cluster " << iSctClus << ": " << 
 		    m_sctId->print_to_string((*pSctClus)->identify()) 
-			    << " locT " << SCTpos[0] << " locL " << SCTpos[1] << endreq;
+			    << " locT " << SCTpos[0] << " locL " << SCTpos[1]);
 		}
 	    }
 	}
@@ -583,7 +545,7 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(bool getPixelSP, bool g
 
       if(sc.isFailure())
        {
-	 athenaLog << MSG::WARNING << "SCT SP tool failed"<<endreq;
+	 ATH_MSG_WARNING("SCT SP tool failed");
 	 return sc;
        }
       if(m_timers) 
@@ -591,9 +553,7 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(bool getPixelSP, bool g
 	  m_timer[5]->stop();
 	  m_spformationSCTTime = m_timer[5]->elapsed();
 	}
-      if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << 
-				       "REGTEST / SCT : Formed SPs from " << nSctClusters 
-					       <<"  clusters"<< endreq;    
+      ATH_MSG_DEBUG("REGTEST / SCT : Formed SPs from " << nSctClusters << "  clusters");    
     }
   if(m_timers) 
     {
@@ -615,9 +575,6 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(const IRoiDescriptor& r
 							 std::vector<int>& SCT_IDs)
 {
   StatusCode sc(StatusCode::SUCCESS);
-
-  MsgStream athenaLog(msgSvc(), name());
-  int outputLevel = msgSvc()->outputLevel( name() );
 
   int pix_bs_errors=0;
   bool bs_failure_pix=false;
@@ -663,13 +620,10 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(const IRoiDescriptor& r
      
      PixelIDs.clear();
      if(m_timers) m_timer[0]->pause();
-     if (outputLevel <= MSG::DEBUG) 
-       {
-	 athenaLog << MSG::DEBUG << "REGTEST / Pixel : Roi contains " 
-		   << listOfPixIds.size() << " det. Elements" << endreq;
-	 athenaLog << MSG::DEBUG << "Pixel : " 
-		   << uIntListOfPixelRobs.size() << " ROBs will be requested" << endreq;
-       }
+     ATH_MSG_DEBUG("REGTEST / Pixel : Roi contains " 
+         << listOfPixIds.size() << " det. Elements");
+     ATH_MSG_DEBUG("Pixel : " 
+         << uIntListOfPixelRobs.size() << " ROBs will be requested");
      std::vector<const InDet::PixelClusterCollection*> pixClusterColl;
      unsigned int nPixClusters=0; 
 
@@ -704,24 +658,24 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(const IRoiDescriptor& r
      if(m_timers) m_timer[2]->start();
      if(m_useStoreGate)
        {
-	 sc = m_StoreGate->retrieve(pixClusterContainer, m_pixelClusterContainerName);
+	 sc = evtStore()->retrieve(pixClusterContainer, m_pixelClusterContainerName);
 	 if(m_timers) m_timer[2]->stop();
 	 if (sc.isFailure())
 	   {
-	     athenaLog<<MSG::ERROR<<"Retrieval of pixel Cluster Container " 
-		      << m_pixelClusterContainerName << " failed" << endreq;
+	     ATH_MSG_ERROR("Retrieval of pixel Cluster Container " 
+		      << m_pixelClusterContainerName << " failed");
 	     if(m_timers) m_timer[8]->stop();
 	     return sc;
 	   }
        }
      else 
        {
-	 sc = m_StoreGate->retrieve(pixClusterContainer, m_pixelClusterCacheName);
+	 sc = evtStore()->retrieve(pixClusterContainer, m_pixelClusterCacheName);
 	 if(m_timers) m_timer[2]->stop();
 	 if (sc.isFailure())
 	   {
-	     athenaLog<<MSG::ERROR<<"Retrieval of pixel Cluster Cache " 
-		      << m_pixelClusterCacheName << " failed" << endreq;
+	     ATH_MSG_ERROR("Retrieval of pixel Cluster Cache " 
+		      << m_pixelClusterCacheName << " failed");
 	     if(m_timers) m_timer[8]->stop();
 	     return sc;
 	   }
@@ -746,32 +700,31 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(const IRoiDescriptor& r
 
 	 if ((m_usePixelClustThreshold  && (*clusterCollection)->size()>m_pixClustThreshold ) ) 
 	    { 
-	      athenaLog << MSG::DEBUG 
-			<<  "number of Pixel clusters, " << (*clusterCollection)->size() 
+	      ATH_MSG_DEBUG("number of Pixel clusters, " << (*clusterCollection)->size() 
 			<< " exceeded "<<m_pixClustThreshold<<" for id=" << listOfPixIds[iPix] 
-			<< ", skipping this module" << endreq;
+			<< ", skipping this module");
 	      continue;
 	    }
 
 	 PixelIDs.push_back(listOfPixIds[iPix]);
 
 	 nPixClusters += (*clusterCollection)->size();
-	 if (outputLevel <= MSG::DEBUG) 
+	 if (msgLvl(MSG::DEBUG)) 
 	    {
 	      Identifier id = (*clusterCollection)->identify();
-	      athenaLog << MSG::DEBUG <<  m_pixelId->print_to_string(id) << " with "
-			<< (*clusterCollection)->size() << " clusters" 	  <<endreq;
+	      ATH_MSG_DEBUG(m_pixelId->print_to_string(id) << " with "
+			<< (*clusterCollection)->size() << " clusters");
 	    }
 	 pixClusterColl.push_back( (*clusterCollection) );	  
 	
-	 if (outputLevel <= MSG::VERBOSE) {
+	 if (msgLvl(MSG::VERBOSE)) {
 	   InDet::PixelClusterCollection::const_iterator pPixClus = (*clusterCollection)->begin();
 	   
 	   for (int iPixClus=1; pPixClus != (*clusterCollection)->end(); pPixClus++, iPixClus++) {
 	     const Amg::Vector2D pos = (*pPixClus)->localPosition();
-	     athenaLog << MSG::VERBOSE <<  " cluster " << iPixClus << ": " 
+	     ATH_MSG_VERBOSE(" cluster " << iPixClus << ": " 
 		       << m_sctId->print_to_string((*pPixClus)->identify()) 
-		       << " locT " << pos[0] << " locL " << pos[1] << endreq;
+		       << " locT " << pos[0] << " locL " << pos[1]);
 	     
 	   }
 	 }
@@ -792,11 +745,11 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(const IRoiDescriptor& r
        }
      if(sc.isFailure())
        {
-	 athenaLog << MSG::WARNING << "Pixel SP tool failed"<<endreq;
+	 ATH_MSG_WARNING("Pixel SP tool failed");
 	 return sc;
        }
-     if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << "REGTEST / Pixel : Formed SP from " << 
-				      nPixClusters << "  clusters" << endreq;
+     ATH_MSG_DEBUG("REGTEST / Pixel : Formed SP from " << 
+				      nPixClusters << "  clusters");
     }
   if(getSCT_SP) 
     {
@@ -830,13 +783,10 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(const IRoiDescriptor& r
 	  m_timer[0]->stop();
 	  m_regSelTime=m_timer[0]->elapsed();
 	}
-      if (outputLevel <= MSG::DEBUG) 
-	{
-	  athenaLog << MSG::DEBUG << "REGTEST / SCT : Roi contains " 
-		    << listOfSctIds.size() << " det. Elements" << endreq;
-	  athenaLog << MSG::DEBUG << "SCT : " 
-		    << uIntListOfSctRobs.size() << " ROBs will be requested" << endreq;
-	}
+      ATH_MSG_DEBUG("REGTEST / SCT : Roi contains " 
+        << listOfSctIds.size() << " det. Elements");
+      ATH_MSG_DEBUG("SCT : " 
+        << uIntListOfSctRobs.size() << " ROBs will be requested");
       std::vector<const InDet::SCT_ClusterCollection*> sctClusterColl;
       unsigned int nSctClusters=0;
 
@@ -868,23 +818,23 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(const IRoiDescriptor& r
 
       if(m_useStoreGate)
 	{
-	  sc = m_StoreGate->retrieve(sctClusterContainer, m_sctClusterContainerName);
+	  sc = evtStore()->retrieve(sctClusterContainer, m_sctClusterContainerName);
 	  if(m_timers) m_timer[3]->stop();
 	  if(sc.isFailure())
 	    {
-	      athenaLog<<MSG::ERROR<<" Retrieval of SCT Cluster Container " 
-		   << m_sctClusterContainerName << " failed" << endreq;
+	      ATH_MSG_ERROR(" Retrieval of SCT Cluster Container " 
+		   << m_sctClusterContainerName << " failed");
 	      if(m_timers) m_timer[8]->stop();
 	      return sc;
 	    }
 	}
       else
 	{
-	  sc = m_StoreGate->retrieve(sctClusterContainer, m_sctClusterCacheName);
+	  sc = evtStore()->retrieve(sctClusterContainer, m_sctClusterCacheName);
 	  if(m_timers) m_timer[3]->stop();
 	  if (sc.isFailure()){
-	    athenaLog<<MSG::ERROR<<" Retrieval of SCT Cluster Cache " << m_sctClusterCacheName 
-		     << " failed" << endreq;
+	    ATH_MSG_ERROR(" Retrieval of SCT Cluster Cache " << m_sctClusterCacheName 
+		     << " failed");
 	    if(m_timers) m_timer[8]->stop();
 	    return sc;
 	  }
@@ -907,10 +857,9 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(const IRoiDescriptor& r
 	  nColl[3]++;
 	  if ((m_useSctClustThreshold  && (*clusterCollection)->size()>m_sctClustThreshold ) ) 
 	    { 
-	      athenaLog << MSG::DEBUG 
-			<<  "number of SCT clusters, " << (*clusterCollection)->size() 
+	      ATH_MSG_DEBUG("number of SCT clusters, " << (*clusterCollection)->size() 
 			<< " exceeded "<<m_sctClustThreshold<<" for id=" << listOfSctIds[iSct] 
-			<< ", skipping this module" << endreq;
+			<< ", skipping this module");
 	      continue;
 	    }
 	  
@@ -918,18 +867,18 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(const IRoiDescriptor& r
 	 
 	  sctClusterColl.push_back( (*clusterCollection) );	  
 	  
-	  if (outputLevel <= MSG::VERBOSE) 
+	  if (msgLvl(MSG::VERBOSE)) 
 	    {
 	      Identifier id = (*clusterCollection)->identify();
-	      athenaLog << MSG::VERBOSE <<  m_sctId->print_to_string(id) << " with "
-			<< (*clusterCollection)->size() << " clusters" 	  <<endreq;
+	      ATH_MSG_VERBOSE(m_sctId->print_to_string(id) << " with "
+			<< (*clusterCollection)->size() << " clusters");
 	      InDet::SCT_ClusterCollection::const_iterator pSctClus = (*clusterCollection)->begin();
 	      for (int iSctClus=1; pSctClus != (*clusterCollection)->end(); pSctClus++, iSctClus++) 
 		{
 		  const Amg::Vector2D SCTpos = (*pSctClus)->localPosition();
-		  athenaLog << MSG::VERBOSE <<  " cluster " << iSctClus << ": " << 
+		  ATH_MSG_VERBOSE(" cluster " << iSctClus << ": " << 
 		    m_sctId->print_to_string((*pSctClus)->identify()) 
-			    << " locT " << SCTpos[0] << " locL " << SCTpos[1] << endreq;
+			    << " locT " << SCTpos[0] << " locL " << SCTpos[1]);
 		}
 	    }
 	}
@@ -944,7 +893,7 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(const IRoiDescriptor& r
 
       if(sc.isFailure())
        {
-	 athenaLog << MSG::WARNING << "SCT SP tool failed"<<endreq;
+	 ATH_MSG_WARNING("SCT SP tool failed");
 	 return sc;
        }
       if(m_timers) 
@@ -952,9 +901,8 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(const IRoiDescriptor& r
 	  m_timer[5]->stop();
 	  m_spformationSCTTime = m_timer[5]->elapsed();
 	}
-      if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << 
-				       "REGTEST / SCT : Formed SPs from " << nSctClusters 
-					       <<"  clusters"<< endreq;    
+      ATH_MSG_DEBUG("REGTEST / SCT : Formed SPs from " << nSctClusters 
+					       <<"  clusters");    
     }
   if(m_timers) 
     {
@@ -972,157 +920,8 @@ StatusCode OnlineSpacePointProviderTool::fillCollections(const IRoiDescriptor& r
 }
 
 
-
-/*
-  StatusCode sc;
-
-  MsgStream athenaLog(msgSvc(), name());
-  int outputLevel = msgSvc()->outputLevel( name() );
-  
-  if(m_timers) m_timer[8]->start();
-
-  PixelIDs.clear();SCT_IDs.clear();
-  if(getPixelSP) 
-    {
-     std::vector<const InDet::PixelClusterCollection*> pixClusterColl;
-     unsigned int nPixClusters=0; 
-     const InDet::PixelClusterContainer* pixClusterContainer;
-
-     if(m_timers) m_timer[2]->start();
-     sc = m_StoreGate->retrieve(pixClusterContainer, m_pixelClusterContainerName);
-     if(m_timers) m_timer[2]->stop();
-     if (sc.isFailure())
-       {
-	 athenaLog<<MSG::ERROR<<"Retrieval of pixel Cluster Container " 
-		  << m_pixelClusterContainerName << " failed" << endreq;
-	 if(m_timers) m_timer[8]->stop();
-	 return sc;
-       }
-     if(m_timers) 
-       {
-	 m_timer[6]->start();
-	 m_timer[6]->pause();
-       }
-     for(unsigned int pixId=0; pixId < m_pixelId->wafer_hash_max();pixId++) 
-       {
-	 nColl[0]++;
-	 if(m_timers) m_timer[6]->resume();
-	 InDet::PixelClusterContainer::const_iterator clusterCollection = pixClusterContainer->indexFind(pixId);
-	 if(m_timers) m_timer[6]->pause();
-	 if(clusterCollection==pixClusterContainer->end()) continue;
-	 if ((*clusterCollection)->size() == 0) continue;
-	 nColl[1]++;
-	 PixelIDs.push_back(pixId);
-	 nPixClusters +=(*clusterCollection)->size();
-	 if(outputLevel <= MSG::DEBUG) 
-	   {
-	     Identifier id = (*clusterCollection)->identify();
-	     athenaLog << MSG::DEBUG <<  m_pixelId->print_to_string(id) << " with "
-		       << (*clusterCollection)->size() << " clusters" 	  <<endreq;
-	   }
-	 pixClusterColl.push_back((*clusterCollection));	  
-	
-	 if (outputLevel <= MSG::DEBUG) {
-	   InDet::PixelClusterCollection::const_iterator pPixClus = (*clusterCollection)->begin();
-	   
-	   for (int iPixClus=1; pPixClus != (*clusterCollection)->end(); pPixClus++, iPixClus++) {
-	     const Trk::LocalPosition pos = (*pPixClus)->localPosition();
-	     athenaLog << MSG::DEBUG <<  " cluster " << iPixClus << ": " 
-		       << m_sctId->print_to_string((*pPixClus)->identify()) 
-		       << " locT " << pos[0] << " locL " << pos[1] << endreq;
-	     
-	   }
-	 }
-       }
-     if(m_timers) 
-       {
-	 m_timer[6]->propVal(PixelIDs.size());
-	 m_timer[6]->stop();
-       }
-     if(m_timers) m_timer[4]->start();
-     sc = m_pixelSpTool->fillCollections(pixClusterColl);
-     if(m_timers) m_timer[4]->stop();
-     if(sc.isFailure())
-       {
-	 athenaLog << MSG::WARNING << "Pixel SP tool failed"<<endreq;
-	 return sc;
-       }
-     if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << "REGTEST / Pixel : Formed SP from " << 
-				      nPixClusters << "  clusters" << endreq;
-    }
-  if(!getSCT_SP) 
-    {
-      if(m_timers) m_timer[8]->stop();
-      return sc;
-    }
-  
-  std::vector<const InDet::SCT_ClusterCollection*> sctClusterColl;
-  unsigned int nSctClusters=0;
-  const InDet::SCT_ClusterContainer* sctClusterContainer; 
-  if(m_timers) m_timer[3]->start();
-  sc = m_StoreGate->retrieve(sctClusterContainer, m_sctClusterContainerName);
-  if(m_timers) m_timer[3]->stop();
-  if(sc.isFailure())
-    {
-      athenaLog<<MSG::ERROR<<" Retrieval of SCT Cluster Container " 
-	       << m_sctClusterContainerName << " failed" << endreq;
-      if(m_timers) m_timer[8]->stop();
-      return sc;
-    }
-  if(m_timers) 
-    {
-      m_timer[7]->start();
-      m_timer[7]->pause();
-    }
-  for(unsigned int sctId=0;sctId<m_sctId->wafer_hash_max();sctId++) 
-    {
-      nColl[2]++;
-      if(m_timers) m_timer[7]->resume();
-      InDet::SCT_ClusterContainer::const_iterator clusterCollection = sctClusterContainer->indexFind(sctId);
-      if(m_timers) m_timer[7]->pause();
-      if(clusterCollection==sctClusterContainer->end()) continue;
-      if ((*clusterCollection)->size() == 0) continue;
-      nColl[3]++;
-      SCT_IDs.push_back(sctId);
-      nSctClusters += (*clusterCollection)->size();
-      sctClusterColl.push_back(*clusterCollection);	  
-      if(outputLevel <= MSG::DEBUG) 
-	{
-	  Identifier id = (*clusterCollection)->identify();
-	  athenaLog << MSG::DEBUG <<  m_sctId->print_to_string(id) << " with "
-		    << (*clusterCollection)->size() << " clusters" 	  <<endreq;
-	  InDet::SCT_ClusterCollection::const_iterator pSctClus = (*clusterCollection)->begin();
-	  for (int iSctClus=1; pSctClus != (*clusterCollection)->end(); pSctClus++, iSctClus++) 
-	    {
-	      const Trk::LocalPosition SCTpos = (*pSctClus)->localPosition();
-	      athenaLog << MSG::DEBUG <<  " cluster " << iSctClus << ": " << 
-		m_sctId->print_to_string((*pSctClus)->identify()) 
-			<< " locT " << SCTpos[0] << " locL " << SCTpos[1] << endreq;
-	    }
-	}
-    }
-  if(m_timers) 
-    {
-      m_timer[7]->propVal(SCT_IDs.size());
-      m_timer[7]->stop();
-    }
-  if(m_timers) m_timer[5]->start();
-  sc = m_sctSpTool->fillCollections(sctClusterColl);
-  if(m_timers) m_timer[5]->stop();
-  if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << 
-				   "REGTEST / SCT : Formed SPs from " << nSctClusters 
-					   <<"  clusters"<< endreq;    
-  if(m_timers) m_timer[8]->stop();
-  return sc;
-  
-}   
-*/
-
-
 spacePointVec OnlineSpacePointProviderTool::getSpacePoints(bool getPixelSP, bool getSctSP)
 {
-  MsgStream athenaLog(msgSvc(), name());
-  int outputLevel = msgSvc()->outputLevel( name() );
 
   spacePointVec spVec;
   std::vector<int> listOfPixIds;
@@ -1132,17 +931,17 @@ spacePointVec OnlineSpacePointProviderTool::getSpacePoints(bool getPixelSP, bool
 
   if(!(sc.isSuccess()||sc.isRecoverable()))
     {
-      athenaLog << MSG::WARNING << "SpacePoint formation failed " << endreq; 
+      ATH_MSG_WARNING("SpacePoint formation failed "); 
       return spVec;
     }
   if(getPixelSP) 
     {
       const TrigSiSpacePointContainer* pCont;
-      sc=m_StoreGate->retrieve(pCont,m_pixelSpContainerName);
+      sc=evtStore()->retrieve(pCont,m_pixelSpContainerName);
       if(sc.isFailure())
 	{
-	  athenaLog << MSG::WARNING << "Trig SP Pixel container " <<m_pixelSpContainerName
-		    <<" not found"<<endreq; 
+	  ATH_MSG_WARNING("Trig SP Pixel container " <<m_pixelSpContainerName
+		    <<" not found"); 
 	}
       else
 	{
@@ -1156,17 +955,16 @@ spacePointVec OnlineSpacePointProviderTool::getSpacePoints(bool getPixelSP, bool
 		  spVec.push_back((*spIt));
 		}
 	    }      
-	  if (outputLevel <= MSG::VERBOSE) 
+	  if (msgLvl(MSG::VERBOSE)) 
 	    {    
 	      for (unsigned int i=0; i<spVec.size(); i++) 
 		{
-		  athenaLog << MSG::VERBOSE << "pix (r,phi,z): " << spVec[i]->r() << " / " 
+		  ATH_MSG_VERBOSE("pix (r,phi,z): " << spVec[i]->r() << " / " 
 			    << spVec[i]->phi() << " / "
-			    << spVec[i]->z() << endreq; 
+			    << spVec[i]->z()); 
 		}
 	    }
-	  if(outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << "REGTEST / Pixel : Formed " << spVec.size()
-						  << "  SPs " << endreq;
+	  ATH_MSG_DEBUG("REGTEST / Pixel : Formed " << spVec.size() << "  SPs ");
 	}
     }
   if(!getSctSP) 
@@ -1176,11 +974,11 @@ spacePointVec OnlineSpacePointProviderTool::getSpacePoints(bool getPixelSP, bool
   spacePointVec spVecSCT;
 
   const TrigSiSpacePointContainer* pCont;
-  sc=m_StoreGate->retrieve(pCont,m_sctSpContainerName);
+  sc=evtStore()->retrieve(pCont,m_sctSpContainerName);
   if(sc.isFailure())
     {
-      athenaLog << MSG::WARNING << "Trig SCT Pixel container " <<m_sctSpContainerName
-		<<" not found"<<endreq; 
+      ATH_MSG_WARNING("Trig SCT Pixel container " <<m_sctSpContainerName
+		<<" not found"); 
     }
   else
     {
@@ -1194,17 +992,15 @@ spacePointVec OnlineSpacePointProviderTool::getSpacePoints(bool getPixelSP, bool
 	      spVecSCT.push_back((*spIt));
 	    }
 	}      
-      if (outputLevel <= MSG::VERBOSE) 
+      if (msgLvl(MSG::VERBOSE)) 
 	{    
 	  for (unsigned int i=0; i<spVecSCT.size(); i++) {
-	    athenaLog << MSG::VERBOSE << "SCT (r,phi,z): " << spVecSCT[i]->r() << " / " 
+	    ATH_MSG_VERBOSE("SCT (r,phi,z): " << spVecSCT[i]->r() << " / " 
 		      << spVecSCT[i]->phi() << " / " 
-		      << spVecSCT[i]->z() << endreq; 
+		      << spVecSCT[i]->z()); 
 	  }
 	}    
-      if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << 
-				       "REGTEST / SCT : Formed " << spVecSCT.size() << 
-				       "  SPs " << endreq;    
+      ATH_MSG_DEBUG("REGTEST / SCT : Formed " << spVecSCT.size() << "  SPs ");    
     }
   int nPixSP = spVec.size(); 
   spVec.resize(spVec.size()+spVecSCT.size());

@@ -3,9 +3,8 @@
 */
 
 #include <algorithm>
-
-#include "GaudiKernel/ToolFactory.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "GaudiKernel/IssueSeverity.h"
 #include "InDetIdentifier/PixelID.h"
 #include "Identifier/IdentifierHash.h" 
@@ -13,6 +12,8 @@
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 
 #include "InDetPrepRawData/SiClusterContainer.h"
+#include "InDetPrepRawData/PixelClusterCollection.h"
+#include "InDetPrepRawData/PixelClusterContainer.h"
 
 #include <string>
 #include <sstream>
@@ -31,7 +32,7 @@ using eformat::helper::SourceIdentifier;
 PixelClusterCacheTool::PixelClusterCacheTool( const std::string& type, 
 					    const std::string& name, 
 					    const IInterface* parent )
-  : AlgTool(type, name, parent), 
+  : AthAlgTool(type, name, parent), 
     m_IdMapping("PixelCablingSvc",name), 
     m_offlineDecoder("PixelRodDecoder",this), 
     m_bsErrorSvc("PixelByteStreamErrorsSvc",name),
@@ -48,37 +49,24 @@ PixelClusterCacheTool::PixelClusterCacheTool( const std::string& type,
 }
 
 StatusCode PixelClusterCacheTool::initialize()  {
-  MsgStream log(msgSvc(), name());
 
-  log << MSG::INFO << name() << " in initialize" << endreq;
-  StatusCode sc = AlgTool::initialize(); 
+  ATH_MSG_INFO(name() << " in initialize");
+  StatusCode sc = AthAlgTool::initialize(); 
   // get DetectorStore service
 
-  StoreGateSvc* detStore; 
-  sc=service("DetectorStore",detStore);
-  if (sc.isFailure()) { 
-    log << MSG::ERROR << name() <<" failed to get detStore" << endreq;
-    return sc;
-  }
-
-  sc = service( "StoreGateSvc", m_StoreGate );
-  if (sc.isFailure()) {
-    log << MSG::FATAL << "Unable to retrieve StoreGate service" << endreq;
-    return sc;
-  }
 
   const InDetDD::PixelDetectorManager * mgr;
-  sc=detStore->retrieve(mgr, "Pixel");
+  sc=detStore()->retrieve(mgr, "Pixel");
   if (sc.isFailure()) {
-    log << MSG::ERROR << name() << "failed to get Pixel Manager" << endreq;
+    ATH_MSG_ERROR(name() << "failed to get Pixel Manager");
     return StatusCode::FAILURE;
   } else { 
-    log << MSG::DEBUG << name() << "Got Pixel Manager" << endreq;
+    ATH_MSG_DEBUG(name() << "Got Pixel Manager");
   }
  
   // Get SCT & pixel helpers
-  if (detStore->retrieve(m_pixel_id, "PixelID").isFailure()) {
-    log << MSG::FATAL << "Could not get Pixel ID helper" << endreq;
+  if (detStore()->retrieve(m_pixel_id, "PixelID").isFailure()) {
+    ATH_MSG_FATAL("Could not get Pixel ID helper");
     return StatusCode::FAILURE;
   } 
 
@@ -91,7 +79,7 @@ StatusCode PixelClusterCacheTool::initialize()  {
   IToolSvc* toolSvc;
   sc=service("ToolSvc",toolSvc);
   if(sc.isFailure()) {
-    log << MSG::ERROR << " Can't get ToolSvc " << endreq;
+    ATH_MSG_ERROR(" Can't get ToolSvc ");
     return sc; 
   } 
 
@@ -99,51 +87,51 @@ StatusCode PixelClusterCacheTool::initialize()  {
 
     sc = m_IdMapping.retrieve();
     if(sc.isFailure()) {
-      log << MSG::ERROR << "cannot retrieve PixelCablingService " <<m_IdMapping<<endreq;  
+      ATH_MSG_ERROR("cannot retrieve PixelCablingService ");  
       return sc;
     }   
 
     if(StatusCode::SUCCESS !=m_offlineDecoder.retrieve()) {
-      log << MSG::ERROR << "initialize(): Can't get PixelRodDecoder " << endreq;
+      ATH_MSG_ERROR("initialize(): Can't get PixelRodDecoder ");
       return StatusCode::FAILURE; 
     }
 
     if(StatusCode::SUCCESS !=m_bsErrorSvc.retrieve()) {
-      log << MSG::ERROR << "initialize(): Can't get PixelByteStreamError service "<<m_bsErrorSvc<< endreq;
+      ATH_MSG_ERROR("initialize(): Can't get PixelByteStreamError service "<<m_bsErrorSvc);
       return StatusCode::FAILURE; 
     }
   }
 
   if(StatusCode::SUCCESS !=m_clusteringTool.retrieve()) {
-    log << MSG::ERROR << "initialize(): Can't get tool "<<m_clusteringTool<< endreq;
+    ATH_MSG_ERROR("initialize(): Can't get tool "<<m_clusteringTool);
     return StatusCode::FAILURE; 
   }
-  else log << MSG::INFO << "retrieved "<<m_clusteringTool<< endreq; 
+  else ATH_MSG_INFO("retrieved "<<m_clusteringTool); 
 
-  log << MSG::INFO << "PixelCluster_CacheName: " << m_containerName << endreq;
+  ATH_MSG_INFO("PixelCluster_CacheName: " << m_containerName);
   m_clusterContainer = new InDet::PixelClusterContainer(m_pixel_id->wafer_hash_max());
   m_clusterContainer->addRef();
 
-  sc = m_StoreGate->record(m_clusterContainer, m_containerName);
+  sc = evtStore()->record(m_clusterContainer, m_containerName);
 
   if (sc.isFailure()) { 
-    log << MSG::ERROR  << " Container " << m_containerName << " could not be recorded in StoreGate !" << endreq;
+    ATH_MSG_ERROR(" Container " << m_containerName << " could not be recorded in StoreGate !");
     return sc;
   }  
   else { 
-    log << MSG::INFO << "Container " << m_containerName << " registered  in StoreGate" << endreq;   
+    ATH_MSG_INFO("Container " << m_containerName << " registered  in StoreGate");   
   } 
 
   // symlink the container 
   const InDet::SiClusterContainer* symSiContainer(0); 
-  sc = m_StoreGate->symLink(m_clusterContainer,symSiContainer); 
+  sc = evtStore()->symLink(m_clusterContainer,symSiContainer); 
   if (sc.isFailure()) { 
-    log << MSG::ERROR << "Pixel clusters could not be symlinked in StoreGate !"<< endreq;
+    ATH_MSG_ERROR("Pixel clusters could not be symlinked in StoreGate !");
     return sc;
   }  
-  else log << MSG::INFO  << "Pixel clusters " << m_containerName << " symlinked in StoreGate" << endreq;
+  else ATH_MSG_INFO("Pixel clusters " << m_containerName << " symlinked in StoreGate");
 
-  log << MSG::INFO << "PixelRDO_CacheName: " << m_rdoContainerName << endreq;
+  ATH_MSG_INFO("PixelRDO_CacheName: " << m_rdoContainerName);
 
   if(m_doBS) {
     m_rdoContainer = new PixelRDO_Container(m_pixel_id->wafer_hash_max());
@@ -161,7 +149,7 @@ StatusCode PixelClusterCacheTool::finalize()
     m_rdoContainer->cleanup();
     m_rdoContainer->release();
   }
-  StatusCode sc = AlgTool::finalize(); 
+  StatusCode sc = AthAlgTool::finalize(); 
   return sc;
 }
 
@@ -169,70 +157,64 @@ StatusCode PixelClusterCacheTool::m_convertBStoClusters(std::vector<const ROBF*>
                                                   const std::vector<IdentifierHash> listOfPixIds,
 							std::vector<int>& errorVect, bool isFullScan)
 {
-  MsgStream log(msgSvc(), name()); 
-  int outputLevel = msgSvc()->outputLevel( name() );
-
-  if(!m_StoreGate->contains<InDet::PixelClusterContainer>(m_containerName))
+  if(!evtStore()->contains<InDet::PixelClusterContainer>(m_containerName))
     {
       m_clusterContainer->cleanup();
-      StatusCode sc=m_StoreGate->record(m_clusterContainer,m_containerName,false);
+      StatusCode sc=evtStore()->record(m_clusterContainer,m_containerName,false);
       if(sc.isFailure())
 	{
-	  log << MSG::WARNING << "Pixel Cluster Container " << m_containerName 
-	      <<" cannot be recorded in StoreGate !"<< endreq;
+	  ATH_MSG_WARNING("Pixel Cluster Container " << m_containerName 
+	      <<" cannot be recorded in StoreGate !");
 	  return StatusCode::FAILURE;
 	}
       else 
 	{
-	  if(outputLevel <= MSG::DEBUG)
-	    log << MSG::DEBUG << "Pixel Cluster Container " << m_containerName
-		<< " is recorded in StoreGate" << endreq;
+	    ATH_MSG_DEBUG("Pixel Cluster Container " << m_containerName
+		<< " is recorded in StoreGate");
 	}
       if(m_doBS) {
 	m_rdoContainer->cleanup();
-	sc=m_StoreGate->record(m_rdoContainer,m_rdoContainerName,false);
+	sc=evtStore()->record(m_rdoContainer,m_rdoContainerName,false);
 	if(sc.isFailure())
 	  {
-	    log << MSG::WARNING << "PixelRDO Container " << m_rdoContainerName 
-		<<" cannot be recorded in StoreGate !"<< endreq;
+	    ATH_MSG_WARNING("PixelRDO Container " << m_rdoContainerName 
+		<<" cannot be recorded in StoreGate !");
 	    return StatusCode::FAILURE;
 	  }
 	else 
 	  {
-	    if(outputLevel <= MSG::DEBUG)
-	      log << MSG::DEBUG << "PixelRDO Container " << m_rdoContainerName
-		  << " is recorded in StoreGate" << endreq;
+	      ATH_MSG_DEBUG("PixelRDO Container " << m_rdoContainerName
+		  << " is recorded in StoreGate");
 	  }
       }
     }
   else 
     {    
-      if(outputLevel <= MSG::DEBUG)
-	log << MSG::DEBUG << "Pixel Cluster Container " <<m_containerName 
-	    << " is found in StoreGate" << endreq;
+	ATH_MSG_DEBUG("Pixel Cluster Container " <<m_containerName 
+	    << " is found in StoreGate");
     }
 
   if(!m_doBS) {
 
     //retrieve m_rdoContainer here 
 
-    if(!m_StoreGate->contains<PixelRDO_Container>(m_rdoContainerName)) {
-      log << MSG::ERROR << "Pixel RDO Container " << m_rdoContainerName
-	  <<" is not found in StoreGate !"<< endreq;
+    if(!evtStore()->contains<PixelRDO_Container>(m_rdoContainerName)) {
+      ATH_MSG_ERROR("Pixel RDO Container " << m_rdoContainerName
+	  <<" is not found in StoreGate !");
       return StatusCode::FAILURE;
     }
     const PixelRDO_Container* pCont = NULL; 
-    StatusCode sc = m_StoreGate->retrieve(pCont, m_rdoContainerName);
+    StatusCode sc = evtStore()->retrieve(pCont, m_rdoContainerName);
     if (sc.isFailure()) {
-      log << MSG::ERROR << "retrieval of Pixel RDO Container " << m_rdoContainerName
-	  <<" failed"<< endreq;
+      ATH_MSG_ERROR("retrieval of Pixel RDO Container " << m_rdoContainerName
+	  <<" failed");
       return sc;
     }
 
     m_rdoContainer = const_cast<PixelRDO_Container*>(pCont);
 
     if(m_rdoContainer==NULL) {
-      log << MSG::ERROR << "Pixel RDO Container const_cast failed " << endreq;
+      ATH_MSG_ERROR("Pixel RDO Container const_cast failed ");
       return StatusCode::FAILURE;
     }
   }
@@ -252,12 +234,10 @@ StatusCode PixelClusterCacheTool::m_convertBStoClusters(std::vector<const ROBF*>
 
   if(m_doBS) {
     if(robFrags.size() == 0) {
-      if(outputLevel <= MSG::DEBUG)
-	log<<MSG::DEBUG<<" There are NO ROB data " <<endreq;
+	ATH_MSG_DEBUG(" There are NO ROB data ");
       return StatusCode::SUCCESS;
     }    
-    if(outputLevel <= MSG::DEBUG)
-      log << MSG::DEBUG<<" There are SOME ROB data " <<robFrags.size()<<endreq ;
+      ATH_MSG_DEBUG(" There are SOME ROB data " <<robFrags.size());
     
     std::vector<bool> idList(m_pixel_id->wafer_hash_max(), false);
     
@@ -271,13 +251,11 @@ StatusCode PixelClusterCacheTool::m_convertBStoClusters(std::vector<const ROBF*>
 	uint32_t rodid = (*rob_it)->rod_source_id() ; 
 	eformat::helper::SourceIdentifier sid_rob(rodid) ;
 	uint32_t detid = sid_rob.subdetector_id() ;
-	if(outputLevel <= MSG::DEBUG)
-	  log <<MSG::DEBUG<<"  ROB source ID SID " <<std::hex<<rodid <<std::dec<<endreq ;
+  ATH_MSG_DEBUG("  ROB source ID SID " <<std::hex<<rodid <<std::dec);
 	
 	const ROBFragment* robFrag = (*rob_it); 
-	if(outputLevel <= MSG::DEBUG)
-	  log<<MSG::DEBUG<<std::hex<<"Det ID 0x"<<detid<<" Rod version 0x"<<
-	    robFrag->rod_version()<<", Type="<<robFrag->rod_detev_type()<<std::dec<<endreq ;
+	  ATH_MSG_DEBUG(std::hex<<"Det ID 0x"<<detid<<" Rod version 0x"<<
+	    robFrag->rod_version()<<", Type="<<robFrag->rod_detev_type()<<std::dec);
 	
 	m_bsErrorSvc->resetCounts();
 	
@@ -349,8 +327,7 @@ StatusCode PixelClusterCacheTool::m_convertBStoClusters(std::vector<const ROBF*>
 
   if(m_useOfflineClustering) vColl=offlineCollVector;
 
-  if(outputLevel <= MSG::DEBUG)
-    log<<MSG::DEBUG<< "No of collections found: " <<  vColl.size() << endreq ;
+    ATH_MSG_DEBUG("No of collections found: " <<  vColl.size());
   
   // Loop over cluster collections
   std::vector<InDet::PixelClusterCollection*>::iterator iter_coll = vColl.begin();
@@ -360,25 +337,19 @@ StatusCode PixelClusterCacheTool::m_convertBStoClusters(std::vector<const ROBF*>
       StatusCode sc=m_clusterContainer->addCollection((*iter_coll),hashId);
       if(sc.isFailure())
 	{
-	  if(outputLevel <= MSG::INFO)
-	    log<<MSG::INFO<< "IDC record failed HashId="<<hashId<< endreq;
+	    ATH_MSG_INFO("IDC record failed HashId="<<hashId);
 	}
-    }
-  if(outputLevel <= MSG::DEBUG)
-    {
-      if(bs_failure) 
-	log << MSG::DEBUG <<" FAILURE in PixelRodDecoder"<<endreq;
-      else
-	log << MSG::DEBUG <<" number of ROBs used  "<<n_rob_count<< "Total number of recoverable errors "<<n_recov_errors<<endreq;
     }
   if(bs_failure)
     {
+      ATH_MSG_DEBUG(" FAILURE in PixelRodDecoder");
       return StatusCode::FAILURE;
     }
   else 
     {
       if(n_recov_errors!=0)
 	{
+    ATH_MSG_DEBUG(" number of ROBs used  "<<n_rob_count<< "Total number of recoverable errors "<<n_recov_errors);
 	  return StatusCode::RECOVERABLE;
 	}
       else return StatusCode::SUCCESS;

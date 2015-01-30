@@ -5,7 +5,7 @@
 #ifndef __SCT_CLUSTER_CACHE_TOOL_H__
 #define __SCT_CLUSTER_CACHE_TOOL_H__
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "ByteStreamData/RawEvent.h"
@@ -29,7 +29,7 @@ class TrigTimer;
 
 typedef OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment         ROBF ;
 
-class SCT_ClusterCacheTool : public AlgTool, virtual public ISCT_ClusterCacheTool  {
+class SCT_ClusterCacheTool : public AthAlgTool, virtual public ISCT_ClusterCacheTool  {
 public:
 
   // Constructor 
@@ -46,12 +46,10 @@ public:
 
 private:
 
-  StoreGateSvc* m_StoreGate; 
   InDet::SCT_ClusterContainer* m_clusterContainer;
   FastSCT_Clusterization m_clusterization;
 
   ISCT_CablingSvc* m_cablingSvc;
-  StoreGateSvc* m_detStore;
 
   const InDetDD::SCT_DetectorManager * p_indet_mgr;
   const SCT_ID* m_sct_id;
