@@ -8,6 +8,7 @@ from TrigJetHypo.TrigJetHypoConf import TrigL2HTFullScanHypo
 from TrigJetHypo.TrigJetHypoConf import TrigL2HTAllTE 
 from TrigJetHypo.TrigJetHypoConf import TrigEFJetHypo
 from TrigJetHypo.TrigJetHypoConf import TrigEFJetHypoNoise
+from LArCellRec.LArCellRecConf import LArNoisyROTool
 
 from AthenaCommon.SystemOfUnits import GeV
 
@@ -222,6 +223,8 @@ class EFJetHypoNoiseConfig (TrigEFJetHypoNoise):
 
         self.Etcut = ef_thr
         self.BadFEBCut=3
+        theLArNoisyROTool=LArNoisyROTool()
+        self.NoiseTool = theLArNoisyROTool
 
 
 
