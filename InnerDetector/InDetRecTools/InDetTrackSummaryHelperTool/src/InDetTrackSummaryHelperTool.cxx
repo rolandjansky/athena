@@ -40,6 +40,7 @@ InDet::InDetTrackSummaryHelperTool::InDetTrackSummaryHelperTool(
    m_testBLayerTool(""),
    m_TRTStrawSummarySvc("InDetTRTStrawStatusSummarySvc",n),
    m_doSharedHits(false),
+   m_doSharedHitsTRT(false), 
    m_doSplitPixelHits(true),
    m_runningTIDE_Ambi(false)
 {
@@ -50,6 +51,7 @@ InDet::InDetTrackSummaryHelperTool::InDetTrackSummaryHelperTool(
    declareProperty("TestBLayerTool",      m_testBLayerTool);
    declareProperty("TRTStrawSummarySvc",  m_TRTStrawSummarySvc);
    declareProperty("DoSharedHits",        m_doSharedHits);
+   declareProperty("DoSharedHitsTRT",     m_doSharedHitsTRT);
    declareProperty("DoSplitHits",         m_doSplitPixelHits);
    declareProperty("RunningTIDE_Ambi",    m_runningTIDE_Ambi);
    declareProperty("usePixel",            m_usePixel = true);
@@ -261,6 +263,7 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
         
    } else if (m_useTRT && m_trtId->is_trt(id) ) {
 
+     
       bool isArgonStraw = false;
       if (!m_TRTStrawSummarySvc.empty()) {
          if (m_TRTStrawSummarySvc->getStatusHT(id) != TRTCond::StrawStatus::Good) {
@@ -296,6 +299,15 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
          }
       }
    }
+
+   if (m_doSharedHitsTRT) {
+            // used in more than one track ?
+     if ( m_assoTool->isShared(*(rot->prepRawData())) ) {
+       if (msgLvl(MSG::DEBUG)) msg() << "shared TRT hit found" << endreq;
+       information[Trk::numberOfTRTSharedHits]++;
+     }
+   }
+
    return;
 }
 
@@ -397,6 +409,7 @@ void InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &
     summary.m_information[Trk::numberOfInnermostPixelLayerSharedHits] = 0;
      summary.m_information[Trk::numberOfNextToInnermostPixelLayerSharedHits] = 0;
     summary.m_information[Trk::numberOfSCTSharedHits]    = 0;
+     summary.m_information[Trk::numberOfTRTSharedHits]    = 0;
     if( m_runningTIDE_Ambi ) {
       summary.m_information[Trk::numberOfPixelSplitHits]   = 0;
       summary.m_information[Trk::numberOfBLayerSplitHits]   = 0;
@@ -455,8 +468,17 @@ void InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &
                        summary.m_information[Trk::numberOfSCTSharedHits]++;
                     }
                 }
-            } 
-        }
+            
+		if (m_doSharedHitsTRT && m_useTRT && m_trtId->is_trt(id)) {
+		  // used in more than one track ?
+		  if ( m_assoTool->isShared(*(rot->prepRawData())) ) {
+		    if (msgLvl(MSG::DEBUG)) msg() << "shared TRT hit found" << endreq;
+		    summary.m_information[Trk::numberOfTRTSharedHits]++;
+		  }
+		}
+		
+	    }
+	}
     }
     return;
 }
