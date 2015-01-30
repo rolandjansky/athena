@@ -112,6 +112,11 @@ if hasattr(runArgs,"pileupFinalBunch"):
         digilog.info( "Changing digitizationFlags.finalBunchCrossing from %s to %s", digitizationFlags.finalBunchCrossing.get_Value(),runArgs.pileupFinalBunch)
         digitizationFlags.finalBunchCrossing=runArgs.pileupFinalBunch
         PileUpConfigOverride=True
+if hasattr(runArgs,"digiSteeringConf"):
+    if not (digitizationFlags.digiSteeringConf.get_Value()==runArgs.digiSteeringConf+"PileUpToolsAlg"):
+        digilog.info( "Changing digitizationFlags.digiSteeringConf from %s to %s", digitizationFlags.digiSteeringConf.get_Value(),runArgs.digiSteeringConf)
+        digitizationFlags.digiSteeringConf=runArgs.digiSteeringConf+"PileUpToolsAlg"
+        PileUpConfigOverride=True
 if PileUpConfigOverride:
     digilog.info( "NB Some pile-up (re-)configuration was done on the command-line.")
 del PileUpConfigOverride

@@ -48,11 +48,17 @@ def addDigitizationArguments(parser):
     addPureDigitizationArguments(parser)
 
 ### Add Sub-step Methods
-def addSimulationSubstep(executorSet):
-    executorSet.add(athenaExecutor(name = 'EVNTtoHITS', skeletonFile = 'SimuJobTransforms/skeleton.EVGENtoHIT_ISF.py',
+## @brief Add ISF transform substep
+#  @param overlayTransform If @c True use the tweaked version of in/outData for an overlay job
+def addSimulationSubstep(executorSet, overlayTransform = False):
+    SimExe = athenaExecutor(name = 'EVNTtoHITS', skeletonFile = 'SimuJobTransforms/skeleton.EVGENtoHIT_ISF.py',
                                    substep = 'sim', tryDropAndReload = False, perfMonFile = 'ntuple.pmon.gz',
                                    inData=['NULL','EVNT','EVNT_CAVERN','EVNT_COSMICS'],
-                                   outData=['EVNT_CAVERNTR','EVNT_COSMICSTR','HITS','NULL'] ))
+                                   outData=['EVNT_CAVERNTR','EVNT_COSMICSTR','HITS','NULL'] )
+    if overlayTransform:
+        SimExe.inData = [('EVNT', 'BS_SKIM')]
+        SimExe.outData = ['HITS']
+    executorSet.add(SimExe)
 
 def addAtlasG4Substep(executorSet):
     executorSet.add(athenaExecutor(name = 'AtlasG4Tf', skeletonFile = 'SimuJobTransforms/skeleton.EVGENtoHIT_MC12.py',

@@ -54,6 +54,9 @@ def addBasicDigiArgs(parser):
     parser.add_argument('--digiRndmSvc',
                         type=argFactory(argString), ##STRING CHOICES ARG,
                         help='Random Number Service to use.', group='Digi' )
+    parser.add_argument('--digiSteeringConf',
+                        type=argFactory(argString),
+                        help='Required configuration fod the digitization job', group='Digi' )
     parser.add_argument('--samplingFractionDbTag',
                         type=argFactory(argString),
                         help='This argument can be used to override the PhysicsList retrieved from the Simulation metadata. This information is used in the LAr sampling fraction data base tag used by LArfSamplG4Phys.', group='Digi')
