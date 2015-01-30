@@ -446,11 +446,11 @@ class PerformanceUploader:
             
             alldata.append( s['values']['vmem_mean'] )
             alldata.append( s['values']['jobcfg_walltime'] )
-            alldata.append( s['leaks']['leakperevt_evt51plus']['malloc'] )
+            alldata.append( s['leaks']['leakperevt_evt101plus']['malloc'] )
             
             alldata.append( s['values']['vmem_peak'] )
             alldata.append( s['values']['rss_mean'] )
-            alldata.append( s['leaks']['leakperevt_evt51plus']['vmem'] )
+            alldata.append( s['leaks']['leakperevt_evt101plus']['vmem'] )
             
             alldata.append( s['nevts'] )
             
@@ -554,11 +554,11 @@ class PerformanceUploader:
             
             alldata.append( s['values']['vmem_mean'] )
             alldata.append( s['values']['jobcfg_walltime'] )
-            alldata.append( s['leaks']['leakperevt_evt51plus']['malloc'] )
+            alldata.append( s['leaks']['leakperevt_evt101plus']['malloc'] )
             
             alldata.append( s['values']['vmem_peak'] )
             alldata.append( s['values']['rss_mean'] )
-            alldata.append( s['leaks']['leakperevt_evt51plus']['vmem'] )
+            alldata.append( s['leaks']['leakperevt_evt101plus']['vmem'] )
             
             alldata.append( s['nevts'] )
             

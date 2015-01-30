@@ -5,7 +5,7 @@
 # @brief Transform execution functions
 # @details Standard transform executors
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfExe.py 636429 2014-12-17 09:48:38Z graemes $
+# @version $Id: trfExe.py 643045 2015-01-30 13:43:56Z graemes $
 
 import copy
 import math
@@ -355,6 +355,7 @@ class logscanExecutor(transformExecutor):
     def __init__(self, name = 'Logscan'):
         super(logscanExecutor, self).__init__(name=name)
         self._errorMaskFiles = None
+        self._logFileName = None
 
     def preExecute(self, input = set(), output = set()):
         msg.info('Preexecute for %s' % self._name)
@@ -543,18 +544,23 @@ class scriptExecutor(transformExecutor):
             msg.info('execOnly flag is set - execution will now switch, replacing the transform')
             os.execvp(self._cmd[0], self._cmd)
 
-        p = subprocess.Popen(self._cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1)
-        while p.poll() is None:
-            line = p.stdout.readline()
-            if line:
+        try:
+            p = subprocess.Popen(self._cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1)
+            while p.poll() is None:
+                line = p.stdout.readline()
+                if line:
+                    self._echologger.info(line.rstrip())
+            # Hoover up remaining buffered output lines
+            for line in p.stdout:
                 self._echologger.info(line.rstrip())
-        # Hoover up remaining buffered output lines
-        for line in p.stdout:
-            self._echologger.info(line.rstrip())
-
-        self._rc = p.returncode
-        msg.info('%s executor returns %d' % (self._name, self._rc))
-        self._exeStop = os.times()
+    
+            self._rc = p.returncode
+            msg.info('%s executor returns %d' % (self._name, self._rc))
+            self._exeStop = os.times()
+        except OSError as e:
+            errMsg = 'Execution of {0} failed and raised OSError: {1}'.format(self._cmd[0], e)
+            msg.error(errMsg)
+            raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_EXEC'), errMsg)
 
         
     def postExecute(self):
@@ -656,7 +662,7 @@ class athenaExecutor(scriptExecutor):
 
         # Setup JO templates
         if self._skeleton is not None:
-            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 636429 2014-12-17 09:48:38Z graemes $')
+            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 643045 2015-01-30 13:43:56Z graemes $')
         else:
             self._jobOptionsTemplate = None
 
