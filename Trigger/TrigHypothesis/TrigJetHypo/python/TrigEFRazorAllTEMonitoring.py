@@ -27,12 +27,12 @@ class TrigEFRazorAllTEOnlineMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('cutCounter',type='TH1F', title="EFRazor Cut Counter", xbins=10, xmin=0, xmax=10) ]
         
 
-        self.Histograms += [ defineHistogram('m_gaminvR', type='TH1F', title="EFRazor Razor variable - 1/gamR", xbins=200, xmin=0, xmax=10 )]
-        self.Histograms += [ defineHistogram('m_shatR', type='TH1F', title="EFRazor Razor variable - s_R hat", xbins=200, xmin=0, xmax=10000 )]
-        self.Histograms += [ defineHistogram('m_mdeltaR', type='TH1F', title="EFRazor Razor variable - m^Delta_R", xbins=200, xmin=0, xmax=10000 )]
-        self.Histograms += [ defineHistogram('m_cosptR', type='TH1F', title="EFRazor Razor variable - cos Theta_pt^R", xbins=200, xmin=0, xmax=10000 )]
-        self.Histograms += [ defineHistogram('m_Minv2', type='TH1F', title="EFRazor Razor variable - Minv2", xbins=200, xmin=0, xmax=10000 )]
-        self.Histograms += [ defineHistogram('m_Einv', type='TH1F', title="EFRazor Razor variable - Einv", xbins=200, xmin=0, xmax=10000 )]
+        self.Histograms += [ defineHistogram('gaminvRp1', type='TH1F', title="EFRazor Razor variable - 1/gamRp1", xbins=200, xmin=0, xmax=10 )]
+        self.Histograms += [ defineHistogram('shatR', type='TH1F', title="EFRazor Razor variable - s_R hat", xbins=200, xmin=0, xmax=10000 )]
+        self.Histograms += [ defineHistogram('mdeltaR', type='TH1F', title="EFRazor Razor variable - m^Delta_R", xbins=200, xmin=0, xmax=10000 )]
+        self.Histograms += [ defineHistogram('cosptR', type='TH1F', title="EFRazor Razor variable - cos Theta_pt^R", xbins=200, xmin=0, xmax=10000 )]
+        self.Histograms += [ defineHistogram('Minv2', type='TH1F', title="EFRazor Razor variable - Minv2", xbins=200, xmin=0, xmax=10000 )]
+        self.Histograms += [ defineHistogram('Einv', type='TH1F', title="EFRazor Razor variable - Einv", xbins=200, xmin=0, xmax=10000 )]
 
 
 class TrigEFRazorAllTEValidationMonitoring(TrigGenericMonitoringToolConfig):
@@ -58,7 +58,7 @@ class TrigEFRazorAllTEValidationMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('cutCounter',type='TH1F', title="EFRazor Cut Counter", xbins=10, xmin=0, xmax=10) ]
 
         
-        self.Histograms += [ defineHistogram('gaminvR', type='TH1F', title="EFRazor Razor variable - 1/gamR", xbins=200, xmin=0, xmax=10 )]
+        self.Histograms += [ defineHistogram('gaminvRp1', type='TH1F', title="EFRazor Razor variable - 1/gamRp1", xbins=200, xmin=0, xmax=10 )]
         self.Histograms += [ defineHistogram('shatR', type='TH1F', title="EFRazor Razor variable - s_R hat", xbins=200, xmin=0, xmax=10000 )]
         self.Histograms += [ defineHistogram('mdeltaR', type='TH1F', title="EFRazor Razor variable - m^Delta_R", xbins=200, xmin=0, xmax=10000 )]
         self.Histograms += [ defineHistogram('cosptR', type='TH1F', title="EFRazor Razor variable - cos Theta_pt^R", xbins=200, xmin=0, xmax=10000 )]
