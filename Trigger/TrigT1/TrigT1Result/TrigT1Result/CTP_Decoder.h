@@ -45,7 +45,7 @@ public:
   
   //!Set the CTP data format version (needed before extracting any information)
   void setCTPVersion(unsigned int ctpVersionNumber) {
-    m_ctpVersion = new CTPdataformatVersion(ctpVersionNumber);
+    m_ctpVersion = CTPdataformatVersion(ctpVersionNumber);
   }
   
   
@@ -166,8 +166,12 @@ private:
   //! Contains BCID, random trigger and prescaled clock
   std::bitset<32>  m_pitAux;
   
-  CTPdataformatVersion * m_ctpVersion;
+  CTPdataformatVersion m_ctpVersion;
 };
+
+
+
+
 
 class CTP_Decoder {
   
