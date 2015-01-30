@@ -16,7 +16,6 @@
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
 #include "xAODCaloEvent/CaloCluster.h"
-#include "PATInterfaces/CorrectionCode.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
 
 // tracking
@@ -91,6 +90,8 @@ StatusCode egammaMVATool::initialize(){
 StatusCode egammaMVATool::finalize(){
   ATH_MSG_DEBUG( "in finalize" );
 
+  delete m_mvaElectron;
+  delete m_mvaPhoton;
   return StatusCode::SUCCESS;
 }
 

@@ -18,14 +18,11 @@ class TestEgammaMVACalib(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         import urllib
-        urllib.urlretrieve("http://atlas.web.cern.ch/Atlas/GROUPS/DATABASE/GroupData/egammaMVACalib/v1/MVACalib_electron.weights.root", "MVACalib_electron.weights.root")
-        urllib.urlretrieve("http://atlas.web.cern.ch/Atlas/GROUPS/DATABASE/GroupData/egammaMVACalib/v1/MVACalib_convertedPhoton.weights.root", "MVACalib_convertedPhoton.weights.root")
-        urllib.urlretrieve("http://atlas.web.cern.ch/Atlas/GROUPS/DATABASE/GroupData/egammaMVACalib/v1/MVACalib_unconvertedPhoton.weights.root", "MVACalib_unconvertedPhoton.weights.root")
 
         ROOT.gROOT.ProcessLine(".x $ROOTCOREDIR/scripts/load_packages.C")
 
-        cls.photon_tool = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egPHOTON, True, ".")
-        cls.electron_tool = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egELECTRON, True, ".")
+        cls.photon_tool = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egPHOTON, True, "egammaMVACalib/v1")
+        cls.electron_tool = ROOT.egammaMVACalib(ROOT.egammaMVACalib.egELECTRON, True, "egammaMVACalib/v1")
 
         cls.photon_tool.useClusterIf0(False)
         cls.electron_tool.useClusterIf0(False)
@@ -66,6 +63,8 @@ class TestEgammaMVACalib(unittest.TestCase):
             else:
                 self.assertGreater(mva_energy, 0)
 
+    def test_tool_initialization(self):
+        tool = ROOT.egammaMVATool('the_tool')
 
 if __name__ == '__main__':
     unittest.main()

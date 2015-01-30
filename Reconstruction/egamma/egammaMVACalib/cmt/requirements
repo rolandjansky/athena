@@ -17,7 +17,6 @@ use AsgTools 	     AsgTools-*        Control/AthToolSupport
 use xAODEgamma 	     xAODEgamma-*      Event/xAOD
 use xAODCaloEvent    xAODCaloEvent-*   Event/xAOD
 use xAODTracking     xAODTracking-*    Event/xAOD
-use PATInterfaces    PATInterfaces-*   PhysicsAnalysis/AnalysisCommon
 
 # Add cmake compatibility (doesn't do anything on CMT side of things)
 apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Tree TreePlayer TMVA XMLIO)"
