@@ -39,9 +39,4 @@ class JetMomentMapConverterBase<JetMomentMap_p6>
 
 typedef JetMomentMapConverterBase<JetMomentMap_p6> JetMomentMapCnv_p6;
 
-template<>
-class T_TPCnv<JetMomentMap, JetMomentMap_p6>
-  : public JetMomentMapCnv_p6
-{ };
-
 #endif

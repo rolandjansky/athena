@@ -40,11 +40,4 @@ class JetKeyDescriptorCnv_p1 : public T_AthenaPoolTPCnvBase<JetKeyDescriptor, Je
   
 }; 
 
-template<>
-class T_TPCnv<JetKeyDescriptor, JetKeyDescriptor_p1>
-			  : public JetKeyDescriptorCnv_p1
-{
- public:
-};
-
 #endif

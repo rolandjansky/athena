@@ -80,11 +80,4 @@ class JetCollectionCnv_p3 : public T_AthenaPoolTPCnvBase<
 inline JetCollectionCnv_p3::JetCollectionCnv_p3()
 {}
 
-template<>
-class T_TPCnv<JetCollection, JetCollection_p3>
-  : public JetCollectionCnv_p3
-{
-public:
-};
-
 #endif //> JETEVENTTPCNV_JETCOLLECTIONCNV_P3_H

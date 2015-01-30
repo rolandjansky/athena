@@ -32,19 +32,4 @@ class JetKeyDescriptorCollectionCnv_tlp1 : public AthenaPoolTopLevelTPConverter<
   JetKeyDescriptorCnv_p1 m_jetKeyDescriptorCnv_p1;
 };
 
-/// The converter for the container itself (ARA)...
-template<>
-class T_TPCnv<JetKeyDescriptorCollection, JetKeyDescriptorCollection_tlp1>
-: public JetKeyDescriptorCollectionCnv_tlp1
-{
-public:
-  T_TPCnv ();
-  void persToTrans (const JetKeyDescriptorCollection_tlp1 *pers,
-		    JetKeyDescriptorCollection *trans,
-		    MsgStream &msg);
-  void transToPers (const JetKeyDescriptorCollection *trans,
-                    JetKeyDescriptorCollection_tlp1 *pers, 
-                    MsgStream &msg);
-};
-
 #endif

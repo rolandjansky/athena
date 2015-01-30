@@ -46,7 +46,6 @@ apply_pattern tpcnv_library
 # of transient classes
 private
 apply_pattern lcgdict dict=JetEventTPCnv selectionfile=selection.xml  headerfiles="../JetEventTPCnv/JetEventTPCnvDict.h"
-apply_pattern lcgdict dict=ARA_JetEventTPCnv selectionfile=ARA_selection.xml  headerfiles="../JetEventTPCnv/JetEventTPCnvDict.h"
 apply_pattern lcgdict dict=OLD_JetEventTPCnv selectionfile=OLD_selection.xml  headerfiles="../JetEventTPCnv/JetEventTPCnvDict.h"
 end_private
 

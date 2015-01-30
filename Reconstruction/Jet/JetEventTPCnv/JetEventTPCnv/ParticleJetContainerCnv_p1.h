@@ -31,12 +31,4 @@ typedef T_AthenaPoolTPCnvVector<
   ParticleJetCnv_p1
   > ParticleJetContainerCnv_p1;
 
-template<>
-class T_TPCnv<JetCollection, ParticleJetContainer_p1>
-  : public ParticleJetContainerCnv_p1
-{
-  
-public:
-};
-
 #endif //> PARTICLEEVENTTPCNV_PARTICLEJETCONTAINERCNV_P1_H

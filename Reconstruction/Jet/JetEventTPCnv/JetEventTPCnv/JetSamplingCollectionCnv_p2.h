@@ -81,11 +81,4 @@ class JetSamplingCollectionCnv_p2 : public T_AthenaPoolTPCnvBase<
 inline JetSamplingCollectionCnv_p2::JetSamplingCollectionCnv_p2()
 {}
 
-template<>
-class T_TPCnv<JetSamplingCollection, JetSamplingCollection_p2>
-  : public JetSamplingCollectionCnv_p2
-{
-public:
-};
-
 #endif //> JETEVENTTPCNV_JETSAMPLINGCOLLECTIONCNV_P2_H
