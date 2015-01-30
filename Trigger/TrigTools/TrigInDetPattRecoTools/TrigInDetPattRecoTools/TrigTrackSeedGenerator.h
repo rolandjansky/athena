@@ -110,31 +110,40 @@ typedef struct InternalSoA {
 
 public:
 
-InternalSoA(int max_size) : m_maxSize(max_size) {
-  m_sp = new const TrigSiSpacePointBase* [m_maxSize];
-  m_r = new double[m_maxSize];
-  m_u = new double[m_maxSize];
-  m_v = new double[m_maxSize];
-  m_t = new double[m_maxSize];
-  m_tCov = new double[m_maxSize];
-}
-
-  ~InternalSoA() {
-    delete[] m_sp;
-    delete[] m_r;
-    delete[] m_u;
-    delete[] m_v;
-    delete[] m_t;
-    delete[] m_tCov;
+  InternalSoA() {
   }
 
-  int m_maxSize;
-  const TrigSiSpacePointBase** m_sp;
-  double* m_r;
-  double* m_u;
-  double* m_v;
-  double* m_t;
-  double* m_tCov;
+  ~InternalSoA() {
+  }
+  
+  void reserveSpacePoints(const int spSize) {
+    m_sp.reserve(spSize);
+  }
+
+  void resizeComponents() {
+    size_t size = m_sp.size();
+    m_r.resize(size);
+    m_u.resize(size);
+    m_v.resize(size);
+    m_t.resize(size);
+    m_tCov.resize(size);
+  }
+
+  void clear() {
+    m_sp.clear();
+    m_r.clear();
+    m_u.clear();
+    m_v.clear();
+    m_t.clear();
+    m_tCov.clear();
+  }
+
+  std::vector<const TrigSiSpacePointBase*> m_sp;
+  std::vector<double> m_r;
+  std::vector<double> m_u;
+  std::vector<double> m_v;
+  std::vector<double> m_t;
+  std::vector<double> m_tCov;
 
 } INTERNAL_SOA;
 
@@ -170,7 +179,7 @@ private:
 
   PHI_R_STORAGE* m_pStore;
 
-  INTERNAL_SOA* m_pSoA;
+  INTERNAL_SOA m_SoA;
 
   double m_CovMS, m_ptCoeff, m_minPt2;
 

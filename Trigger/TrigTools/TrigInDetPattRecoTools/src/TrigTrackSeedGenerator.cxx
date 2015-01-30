@@ -22,8 +22,7 @@ TrigTrackSeedGenerator::TrigTrackSeedGenerator(const TrigCombinatorialSettings& 
     m_minDeltaRadius(10.0), 
     m_maxDeltaRadius(270.0),
     m_zTol(3.0), 
-    m_pStore(NULL),
-    m_pSoA(NULL) 
+    m_pStore(NULL)
 {
   m_radLayers.clear();
   m_radLayers.resize(1+(int)(m_maxRadius/m_radBinWidth));
@@ -31,7 +30,6 @@ TrigTrackSeedGenerator::TrigTrackSeedGenerator(const TrigCombinatorialSettings& 
   m_phiSlices.resize(m_settings.m_nMaxPhiSlice);
   m_nMaxRadBin = 1+(int)((m_maxRadius-m_minRadius)/m_radBinWidth);
   m_pStore = new PHI_R_STORAGE(m_settings.m_nMaxPhiSlice, m_nMaxRadBin);
-  m_pSoA = new INTERNAL_SOA(m_maxSoaSize);
 
   //mult scatt. variance for doublet matching
   const double radLen = 0.036;
@@ -46,7 +44,6 @@ TrigTrackSeedGenerator::~TrigTrackSeedGenerator() {
   }
   m_triplets.clear();
   delete m_pStore;
-  delete m_pSoA;
 }
 
 void TrigTrackSeedGenerator::loadSpacePoints(const std::vector<TrigSiSpacePointBase>& vSP) {
@@ -56,42 +53,38 @@ void TrigTrackSeedGenerator::loadSpacePoints(const std::vector<TrigSiSpacePointB
   for(auto l : m_radLayers) {
     l.clear();
   }
-  int nSP=0;
   for(std::vector<TrigSiSpacePointBase>::const_iterator it = vSP.begin();it != vSP.end();++it) {
     if((*it).r()>m_maxRadius) continue;
     unsigned int idx = (*it).r()/m_radBinWidth;
     m_radLayers[idx].push_back(&(*it));
-    nSP++;
   }
   for(auto s : m_phiSlices) {
     s.clear();
   }
-  nSP=0;
   for(std::vector<std::vector<const TrigSiSpacePointBase*> >::iterator lIt=m_radLayers.begin();lIt!=m_radLayers.end();++lIt) {
     if((*lIt).empty()) continue;
     for(std::vector<const TrigSiSpacePointBase*>::iterator rIt=(*lIt).begin();rIt!=(*lIt).end();++rIt) {
       int idx = ((*rIt)->phi()+M_PI)/m_phiSliceWidth;
       if(idx<0 || idx>=m_settings.m_nMaxPhiSlice) continue; 
       m_phiSlices[idx].push_back(*rIt);
-      nSP++;
     }
   }
-  nSP=0;
   for(std::vector<TrigSiSpacePointBase>::const_iterator it = vSP.begin();it != vSP.end();++it) {
     if((*it).r()>m_maxRadius || (*it).r() < m_minRadius) continue;
     int rIdx = ((*it).r()-m_minRadius)/m_radBinWidth;
     int phiIdx = ((*it).phi()+M_PI)/m_phiSliceWidth;
     m_pStore->addSpacePoint(phiIdx, rIdx, &(*it));
-    nSP++;
   }
   m_pStore->sortSpacePoints();
+
+  m_SoA.reserveSpacePoints(vSP.size());
 }
 
 void TrigTrackSeedGenerator::createSeeds() {
 
 
-  float zStart = -m_settings.m_doubletZ0Max - m_zTol;
-  float zEnd = m_settings.m_doubletZ0Max + m_zTol;
+  float zMinus = m_settings.roiDescriptor->zedMinus() - m_zTol;
+  float zPlus  = m_settings.roiDescriptor->zedPlus() + m_zTol;
   
   for(INTERNAL_TRIPLET_BUFFER::reverse_iterator it=m_triplets.rbegin();it!=m_triplets.rend();++it) {
     delete (*it).second;
@@ -145,8 +138,8 @@ void TrigTrackSeedGenerator::createSeeds() {
           if(dR<m_minDeltaRadius) continue;
           if(dR>m_maxDeltaRadius) break;
 
-          float minZ = zStart + refRad*(zm - zStart)/rm;
-          float maxZ = zEnd + refRad*(zm - zEnd)/rm;
+          float minZ = zMinus + refRad*(zm - zMinus)/rm;
+          float maxZ = zPlus + refRad*(zm - zPlus)/rm;
 
           for(auto& innPhiIdx : phiVec) {
 
@@ -174,11 +167,10 @@ void TrigTrackSeedGenerator::createSeeds() {
                 continue;
               }
 
-              m_pSoA->m_sp[nSP++] = *spIt;
-              if(nSP==m_maxSoaSize) break;
+              m_SoA.m_sp.push_back(*spIt);
+              nSP++;
             }
           }
-          if(nSP==m_maxSoaSize) break;
         }
 
         nInner = nSP;
@@ -194,8 +186,8 @@ void TrigTrackSeedGenerator::createSeeds() {
           if(dR<m_minDeltaRadius) continue;
           if(dR>m_maxDeltaRadius) break;
 
-          float maxZ = zStart + refRad*(zm - zStart)/rm;
-          float minZ = zEnd + refRad*(zm - zEnd)/rm;
+          float maxZ = zMinus + refRad*(zm - zMinus)/rm;
+          float minZ = zPlus + refRad*(zm - zPlus)/rm;
 
           for(auto& outPhiIdx : phiVec) {
 
@@ -212,32 +204,35 @@ void TrigTrackSeedGenerator::createSeeds() {
 
               if(deIds == (*spIt)->offlineSpacePoint()->elementIdList()) continue;
 
-              double tau = ((*spIt)->z() - zm)/((*spIt)->r() - rm);
+              double tau = (zm - (*spIt)->z())/(rm - (*spIt)->r());
               double z0  = zm - rm*tau;
 
               if (!m_settings.roiDescriptor->contains(z0, tau)) {
                 continue;
               }
 
-              m_pSoA->m_sp[nSP++] = *spIt;
-              if(nSP==m_maxSoaSize) break;
+              m_SoA.m_sp.push_back(*spIt);
+              nSP++;
             }
           }
-          if(nSP==m_maxSoaSize) break;
         }
 
         nOuter = nSP-nInner;
 
         //std::cout<<"middle sp : r="<<rm<<" phi="<<spm->phi()<<" z="<<zm<<" has "<<outerSPs.size()<<" outer neighbours"<<std::endl;
 
-        if(nInner == 0 || nOuter == 0) continue;
+        if(nInner != 0 && nOuter != 0) {
+          INTERNAL_TRIPLET_BUFFER tripletMap;
 
-        INTERNAL_TRIPLET_BUFFER tripletMap;
+          createTriplets(spm, nInner, nOuter, tripletMap);
 
-        createTriplets(spm, nInner, nOuter, tripletMap);
-
-        if(!tripletMap.empty()) storeTriplets(tripletMap);	
-        tripletMap.clear();
+          if(!tripletMap.empty()) storeTriplets(tripletMap);	
+          tripletMap.clear();
+        }
+        else {
+          m_SoA.m_sp.clear(); 
+          continue;
+        }
 
 
       }//loop over spacepoints in phi-r bin
@@ -268,8 +263,10 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
   double covZ = pS->dz()*pS->dz();
   double covR = pS->dr()*pS->dr();
 
+  m_SoA.resizeComponents();//Resize m_r, mu etc to m_sp size
+
   for(int idx=0;idx<nSP;idx++) {
-    const TrigSiSpacePointBase* pSP = m_pSoA->m_sp[idx];
+    const TrigSiSpacePointBase* pSP = m_SoA.m_sp[idx];
     
     //1. transform in the pS-centric c.s
 
@@ -284,17 +281,17 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
 
     //2. Conformal mapping
 
-    m_pSoA->m_r[idx] = Rinv;
-    m_pSoA->m_u[idx] = xn*R2inv;
-    m_pSoA->m_v[idx] = yn*R2inv;
+    m_SoA.m_r[idx] = Rinv;
+    m_SoA.m_u[idx] = xn*R2inv;
+    m_SoA.m_v[idx] = yn*R2inv;
     
     //3. cot(theta) estimation for the doublet
 
     double covZP = pSP->dz()*pSP->dz();
     double covRP = pSP->dr()*pSP->dr();
     
-    m_pSoA->m_t[idx] = t;
-    m_pSoA->m_tCov[idx] = R2inv*(covZ + covZP + t*t*(covR+covRP));
+    m_SoA.m_t[idx] = t;
+    m_SoA.m_tCov[idx] = R2inv*(covZ + covZP + t*t*(covR+covRP));
   }
 
   bool isPixel = (pS->isPixel());
@@ -305,25 +302,25 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
 
     //mult. scatt contribution due to the layer with middle SP
     
-    double dCov = m_CovMS*(1+m_pSoA->m_t[innIdx]*m_pSoA->m_t[innIdx]);
+    double dCov = m_CovMS*(1+m_SoA.m_t[innIdx]*m_SoA.m_t[innIdx]);
 
-    double z0 = pS->z() - m_pSoA->m_t[innIdx]*pS->r();
+    double z0 = pS->z() - m_SoA.m_t[innIdx]*pS->r();
 
     for(int outIdx=nInner;outIdx<nSP;outIdx++) {
       /*
-      std::cout<<"Tr: "<<m_pSoA->m_sp[innIdx]->offlineSpacePoint()->r()<<" "<<m_pSoA->m_sp[innIdx]->offlineSpacePoint()->phi()
-	       <<" "<<m_pSoA->m_sp[innIdx]->offlineSpacePoint()->globalPosition().z()<<" | ";
+      std::cout<<"Tr: "<<m_SoA.m_sp[innIdx]->offlineSpacePoint()->r()<<" "<<m_SoA.m_sp[innIdx]->offlineSpacePoint()->phi()
+	       <<" "<<m_SoA.m_sp[innIdx]->offlineSpacePoint()->globalPosition().z()<<" | ";
       std::cout<<pS->offlineSpacePoint()->r()<<" "<<pS->offlineSpacePoint()->phi()<<" "<<pS->offlineSpacePoint()->globalPosition().z()<<" | ";
-      std::cout<<m_pSoA->m_sp[outIdx]->offlineSpacePoint()->r()<<" "<<m_pSoA->m_sp[outIdx]->offlineSpacePoint()->phi()<<" "
-	       <<m_pSoA->m_sp[outIdx]->offlineSpacePoint()->globalPosition().z()<<std::endl;
+      std::cout<<m_SoA.m_sp[outIdx]->offlineSpacePoint()->r()<<" "<<m_SoA.m_sp[outIdx]->offlineSpacePoint()->phi()<<" "
+	       <<m_SoA.m_sp[outIdx]->offlineSpacePoint()->globalPosition().z()<<std::endl;
       */
 
       //1. rz doublet matching
 
-      double dt = m_pSoA->m_t[innIdx] - m_pSoA->m_t[outIdx];
+      double dt = m_SoA.m_t[innIdx] - m_SoA.m_t[outIdx];
 
-      double covdt = m_pSoA->m_tCov[innIdx] + m_pSoA->m_tCov[outIdx];
-      covdt += 2*m_pSoA->m_r[innIdx]*m_pSoA->m_r[outIdx]*(m_pSoA->m_t[innIdx]*m_pSoA->m_t[outIdx]*covR + covZ);
+      double covdt = m_SoA.m_tCov[innIdx] + m_SoA.m_tCov[outIdx];
+      covdt += 2*m_SoA.m_r[innIdx]*m_SoA.m_r[outIdx]*(m_SoA.m_t[innIdx]*m_SoA.m_t[outIdx]*covR + covZ);
 
       double dt2 = dt*dt/9.0;//i.e. 3-sigma cut
 
@@ -331,10 +328,10 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
 
       //2. pT estimate
 
-      double du = m_pSoA->m_u[outIdx] - m_pSoA->m_u[innIdx];
+      double du = m_SoA.m_u[outIdx] - m_SoA.m_u[innIdx];
       if(du==0.0) continue;
-      double A = (m_pSoA->m_v[outIdx] - m_pSoA->m_v[innIdx])/du;
-      double B = m_pSoA->m_v[innIdx] - A*m_pSoA->m_u[innIdx];
+      double A = (m_SoA.m_v[outIdx] - m_SoA.m_v[innIdx])/du;
+      double B = m_SoA.m_v[innIdx] - A*m_SoA.m_u[innIdx];
       double pT2 = m_ptCoeff*m_ptCoeff*(1+A*A)/(B*B);
 
       if(pT2 < m_minPt2) continue;
@@ -350,7 +347,7 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
 
       if(fabs(d0) > m_settings.m_tripletD0Max) continue;
       
-      if (m_pSoA->m_sp[outIdx]->isSCT() && isPixel) {
+      if (m_SoA.m_sp[outIdx]->isSCT() && isPixel) {
         if(fabs(d0) > m_settings.m_tripletD0_PPS_Max) continue;
       }
 
@@ -373,13 +370,14 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
         output.erase(it);
       }
 
-      TrigInDetTriplet* t = new TrigInDetTriplet(*m_pSoA->m_sp[innIdx], *pS, *m_pSoA->m_sp[outIdx], 
-						 m_pSoA->m_t[innIdx], phi0, z0, d0, sqrt(pT2), Q);
+      TrigInDetTriplet* t = new TrigInDetTriplet(*m_SoA.m_sp[innIdx], *pS, *m_SoA.m_sp[outIdx], 
+						 m_SoA.m_t[innIdx], phi0, z0, d0, sqrt(pT2), Q);
 
 
       output.insert(std::pair<double, TrigInDetTriplet*>(Q,t));
     }
   }
+  m_SoA.clear();
 }
 
 
