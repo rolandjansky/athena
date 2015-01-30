@@ -1,4 +1,4 @@
-from PowhegControl.PowhegUtils import PowhegConfig_ggHZ
+from PowhegControl import PowhegConfig_ggHZ
 
 # Use the PowhegConfig_ggHZ configuration
 if 'runArgs' in dir() :
