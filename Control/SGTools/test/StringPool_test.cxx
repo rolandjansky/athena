@@ -95,6 +95,10 @@ void test1()
   assert (sp.registerKey (keys[10], strings[10], aux[10]));
   assert (!sp.registerKey (keys[10], strings[11], aux[10]));
   assert (!sp.registerKey (keys[10], strings[10], aux[11]));
+
+  sp.clear();
+  std::cout << "pool dump2\n";
+  sp.dump();
 }
 
 

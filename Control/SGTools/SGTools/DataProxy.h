@@ -150,7 +150,7 @@ namespace SG {
     void resetOnly(const bool& flag) { m_resetFlag = flag; }
 
     /// Check reset only:
-    const bool& isResetOnly() const { return m_resetFlag; }
+    bool isResetOnly() const { return m_resetFlag; }
 
     bool bindHandle(IResetable* ir);
     void unbindHandle(IResetable* ir);
