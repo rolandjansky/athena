@@ -150,6 +150,12 @@ typedef DataVector<F> FVec;
 typedef DataVector<G> GVec;
 typedef DataVector<H> HVec;
 
+class EDer : public EVec
+{
+private:
+  int m_dummy[20];
+};
+
 
 } // namespace ARATest
 

@@ -70,6 +70,8 @@ void test1()
   do_test1<ARATest::EVec, ARATest::DVec> ("DataVector<ARATest::E>");
   do_test1<ARATest::GVec, ARATest::DVec> ("DataVector<ARATest::G>");
   do_test1<ARATest::GVec, ARATest::HVec> ("DataVector<ARATest::G>");
+
+  do_test1<ARATest::EDer, ARATest::DVec> ("ARATest::EDer");
 }
 
 
