@@ -5,7 +5,7 @@
 ## @Package test_trfAMI.py
 #  @brief Unittests for trfAMI.py
 #  @author bjorn.sarrazin@cern.ch
-#  @version $Id: test_trfAMI.py 626621 2014-11-06 13:47:51Z graemes $
+#  @version $Id: test_trfAMI.py 643045 2015-01-30 13:43:56Z graemes $
 
 import unittest
 
@@ -30,7 +30,7 @@ class trfAMIUnitTests(unittest.TestCase):
         self.assertTrue(isinstance(tag.trfs[0], TrfConfig))
         self.assertEqual(tag.isProdSys, False)
         self.assertEqual(tag.trfs[0].name, 'Reco_trf.py')
-        self.assertEqual(tag.trfs[0].release, '17.2.0.3')
+        self.assertEqual(tag.trfs[0].release, 'AtlasProduction,17.2.0.3')
         self.assertEqual(tag.trfs[0].physics, physics)
 
     # test multiple transforms tag from ProdSys
@@ -60,7 +60,7 @@ class trfAMIUnitTests(unittest.TestCase):
         self.assertTrue(isinstance(tag.trfs[0], TrfConfig))
         self.assertEqual(tag.isProdSys, False)
         self.assertEqual(tag.trfs[0].name, 'Reco_tf.py')
-        self.assertEqual(tag.trfs[0].release, '19.1.3.7')
+        self.assertEqual(tag.trfs[0].release, 'AtlasProduction,19.1.3.7')
         self.assertEqual(tag.trfs[0].physics, physics)
         
 

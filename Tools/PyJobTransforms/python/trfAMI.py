@@ -359,17 +359,23 @@ def getTrfConfigFromAMI(tag):
 
     msg.debug('Raw result from AMI is: %s ' % result)
 
-    trf = TrfConfig()
-    trf.name=result[0]['transformation']
-    trf.outputs=result[0].get('outputs', {})
-    trf.release=result[0]['SWReleaseCache'].replace('AtlasProduction-','')
-    trf.physics=deserialiseFromAMIString(result[0]['phconfig'])
-    if not isinstance(trf.physics, dict):
-        raise TransformAMIException(AMIerrorCode, "Bad result for tag's phconfig: {0}".format(trf.physics))
-    trf.inFiles=dict( (k, getInputFileName(k)) for k in deserialiseFromAMIString(result[0]['inputs']).iterkeys() )
-    outputs=deserialiseFromAMIString(result[0]['outputs'])
-    trf.outFiles=dict( (k, getOutputFileName(outputs[k]['dstype']) ) for k in outputs.iterkeys() )
-    trf.outfmts=[ outputs[k]['dstype'] for k in outputs.iterkeys() ]
+    try:
+        trf = TrfConfig()
+        trf.name=result[0]['transformationName']
+        trf.outputs=result[0].get('outputs', {})
+        trf.release=result[0]['groupName'] + "," + result[0]['cacheName']
+        trf.physics=deserialiseFromAMIString(result[0]['phconfig'])
+        if not isinstance(trf.physics, dict):
+            raise TransformAMIException(AMIerrorCode, "Bad result for tag's phconfig: {0}".format(trf.physics))
+        trf.inFiles=dict( (k, getInputFileName(k)) for k in deserialiseFromAMIString(result[0]['inputs']).iterkeys() )
+        outputs=deserialiseFromAMIString(result[0]['outputs'])
+        trf.outFiles=dict( (k, getOutputFileName(outputs[k]['dstype']) ) for k in outputs.iterkeys() )
+        trf.outfmts=[ outputs[k]['dstype'] for k in outputs.iterkeys() ]
+    except KeyError as e:
+        raise TransformAMIException(AMIerrorCode, "Missing key in AMI data: {0}".format(e))
+    except Exception as e:
+        raise TransformAMIException(AMIerrorCode, "Got a very unexpected exception while parsing AMI outputs!"
+                                    " Please report.\nParsing:\n{0}\nRaised:\n{1}".format(result, e))
 
     # Now fix up for command line in the case of a new transform:
     if '_tf.py' in trf.name:
