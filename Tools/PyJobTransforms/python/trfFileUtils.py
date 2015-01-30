@@ -4,7 +4,7 @@
 # @brief Transform utilities to deal with files.
 # @details Mainly used by argFile class.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfFileUtils.py 623865 2014-10-24 12:39:44Z graemes $
+# @version $Id: trfFileUtils.py 641956 2015-01-27 10:07:00Z graemes $
 # @todo make functions timelimited
 
 import logging
@@ -113,6 +113,7 @@ def AthenaFileInfo(fileNames, retrieveKeys = athFileInterestingKeys):
 #  @note Use this for now, but expect further evolution...
 def AthenaLiteFileInfo(filename, filetype, retrieveKeys = athFileInterestingKeys):
     msg.debug('Calling AthenaLiteFileInfo for {0} (type {1})'.format(filename, filetype))
+    from subprocess import CalledProcessError 
 
     if filetype == 'POOL':
         from PyUtils.AthFileLite import AthPoolFile as AthFileLite
@@ -175,7 +176,7 @@ def AthenaLiteFileInfo(filename, filetype, retrieveKeys = athFileInterestingKeys
                     metaDict[filename][key] = meta[key]
             except KeyError:
                 msg.warning('Missing key in athFile info: {0}'.format(key))
-    except ValueError, e:
+    except (CalledProcessError, ValueError) as e:
         msg.error('Problem in getting AthFile metadata for {0}'.format(filename))
         return None
     msg.debug('Returning {0}'.format(metaDict))
