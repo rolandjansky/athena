@@ -17,6 +17,11 @@
 
 #include "TrigInterfaces/HypoAlgo.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
+#include "CaloInterface/ILArNoisyROTool.h"
+
+#ifdef ONLINEIS
+#include "hltinterface/IInfoRegister.h"
+#endif
 
 class StoreGateSvc;
 class TriggerElement;
@@ -55,12 +60,6 @@ class TrigEFJetHypoNoise : public HLT::HypoAlgo {
   
   bool m_doMonitoring;
 
-  int m_cutCounter;
-  double m_njet;
-  double m_et;
-  double m_eta;
-  double m_phi;
-
   StoreGateSvc*                           m_storeGate;
 
   // Timing:
@@ -68,6 +67,16 @@ class TrigEFJetHypoNoise : public HLT::HypoAlgo {
   ITrigTimerSvc*            m_timersvc;
   std::vector<TrigTimer*>   m_timers;
   unsigned int m_MinBadFEB;
+
+#ifdef ONLINEIS
+  std::shared_ptr<hltinterface::GenericHLTContainer> m_IsObject;
+#endif
+  size_t m_evntPos;
+  size_t m_timeTagPos;
+  size_t m_timeTagPosns;
+  bool m_isInterface;
+
+  ToolHandle<ILArNoisyROTool> m_noisyROTool;
 
 };
 #endif

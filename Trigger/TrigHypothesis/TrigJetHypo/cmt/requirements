@@ -23,11 +23,18 @@ use     TrigInterfaces          TrigInterfaces-*        Trigger/TrigSteer
 
 #use     TrigSerializeResult     TrigSerializeResult-*   Trigger/TrigDataAccess
 #use     AnalysisTriggerEvent    AnalysisTriggerEvent-*  PhysicsAnalysis/AnalysisTrigger
+use	CaloInterface		CaloInterface-*		Calorimeter
+macro online_use  "" AtlasHLT_scripts "HLTtdaqcommon           HLTtdaqcommon-*         HLT/HLTExternal"
+use $(online_use)
+
 
 apply_pattern dual_use_library files=*.cxx
 apply_pattern declare_runtime
 apply_pattern declare_joboptions files="jobOfragment_*.py TriggerConfig_*.py"
 apply_pattern declare_python_modules files="*.py"
+
+macro_append TrigJetHypo_shlibflags ""		AtlasHLT_scripts	" -lhltinterface"
+macro_append    AtlasCxxPolicy_pp_cppflags      ""      AtlasHLT_scripts "-DONLINEIS"
 
 private
 use     AtlasCLHEP              AtlasCLHEP-*            External
@@ -36,6 +43,9 @@ use     FourMomUtils            FourMomUtils-*          Event
 use     TrigNavigation          TrigNavigation-*        Trigger/TrigEvent
 use     TrigMissingEtEvent      TrigMissingEtEvent-*    Trigger/TrigEvent
 use     JetUtils                JetUtils-*              Reconstruction/Jet
-use     CaloEvent               CaloEvent-*             Calorimeter
+#use     CaloEvent               CaloEvent-*             Calorimeter
 use     xAODJet                 xAODJet-*                Event/xAOD
 use     xAODCaloEvent           xAODCaloEvent-*          Event/xAOD
+use	xAODEventInfo		xAODEventInfo-*		Event/xAOD
+use	LArCellRec		LArCellRec-*		LArCalorimeter
+use	LArRecEvent		LArRecEvent-*		LArCalorimeter
