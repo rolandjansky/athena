@@ -63,6 +63,7 @@ class HLTEgammaNavMonTool : public HLTEgammaFEXBaseTool {
 	of the valid requested signatures. Only used for the rates */
   StatusCode proc(); // called by procHistograms
   StatusCode proc_per_signature(const std::string signature); // called by procHistograms
+  static void trigger_description(const std::string signature, std::string& trigDesc); //called by *_per_signature
 
   private:
   unsigned int m_lastTimeStamp; // last timestamp
@@ -71,6 +72,7 @@ class HLTEgammaNavMonTool : public HLTEgammaFEXBaseTool {
   unsigned int m_fill_condition;
   unsigned int m_rate_condition;
   std::map< std::string, std::vector<unsigned int> > m_counters;
+  std::string trigDesc;
 };
 
 #endif
