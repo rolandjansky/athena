@@ -242,8 +242,17 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF):
         L2Hypo = L2BMuMuHypo_DiMu_noVtx()
         EFFex  = EFBMuMuFex_DiMu_noOS()
         EFHypo = EFBMuMuHypo_DiMu_noVtx()
+        
+    elif ('bDimu' in topoAlgs) & ('noinvm' in topoAlgs) & ('novtx' in topoAlgs) & ('ss' in topoAlgs):
+        from TrigBphysHypo.TrigL2BMuMuFexConfig  import L2BMuMuFex_DiMu_noinvm_SS
+        from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_DiMu_noinvm_noVtx
+        from TrigBphysHypo.TrigEFBMuMuFexConfig  import EFBMuMuFex_DiMu_noinvm_SS
+        from TrigBphysHypo.TrigEFBMuMuHypoConfig import EFBMuMuHypo_DiMu_noinvm_noVtx
+        L2Fex  = L2BMuMuFex_DiMu_noinvm_SS() 
+        L2Hypo = L2BMuMuHypo_DiMu_noinvm_noVtx()
+        EFFex  = EFBMuMuFex_DiMu_noinvm_SS()
+        EFHypo = EFBMuMuHypo_DiMu_noinvm_noVtx()
 	
-
     elif ('bJpsimumu' in topoAlgs) & ('noid' in topoAlgs):
         from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_noId
         from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_Jpsi_noId
@@ -304,6 +313,14 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF):
         L2Fex = L2BMuMuXFex_BcMuMuDs()
         EFFex = EFBMuMuXFex_BcMuMuDs()
         EFHypo = EFBMuMuXHypo_BcMuMuDs()
+        
+    elif 'BpmumuKp' in topoAlgs:
+        from TrigBphysHypo.TrigL2BMuMuXFexConfig import L2BMuMuXFex_BplusMuMuKplus
+        from TrigBphysHypo.TrigEFBMuMuXFexConfig import EFBMuMuXFex_BplusMuMuKplus
+        from TrigBphysHypo.TrigEFBMuMuXHypoConfig import EFBMuMuXHypo_BplusMuMuKplus
+        L2Fex = L2BMuMuXFex_BplusMuMuKplus()
+        EFFex = EFBMuMuXFex_BplusMuMuKplus()
+        EFHypo = EFBMuMuXHypo_BplusMuMuKplus()
         
     elif 'bBmumuxv2' in topoAlgs:
         from TrigBphysHypo.TrigL2BMuMuXFexConfig import L2BMuMuXFex_1

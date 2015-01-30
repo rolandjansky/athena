@@ -111,8 +111,8 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
          self.setupL1CaloCalibrationChains()
       elif 'alfacalib' in self.chainPart['purpose']:
         self.setupL1ALFACalibrationChains()
-
-      #elif '
+      elif 'larnoiseburst' in self.chainPart['purpose']:
+        self.setupLarNoiseBurstChains()
       else:
          mlog.error('Chain %s could not be assembled' % (self.chainPartName))
          return False      
@@ -240,3 +240,33 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
        'L2_':     'L2_l1ALFAcalib',
        }
      
+   ###########################################################################
+   # LarNoiseBurst chains
+   ###########################################################################
+
+   def setupLarNoiseBurstChains(self):
+
+     from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo as DummyAlgo
+     theDummyRoiCreator = DummyAlgo('RoiCreator')
+     efht_thresh = '10'
+
+     from TrigCaloRec.TrigCaloRecConfig import TrigCaloCellMaker_jet_fullcalo
+     theTrigCaloCellMaker_jet_fullcalo = TrigCaloCellMaker_jet_fullcalo("CellMakerFullCalo_topo", doNoise=0, AbsE=True, doPers=True)
+
+     from TrigJetHypo.TrigJetHypoConfig import EFJetHypoNoiseConfig
+     theJetHypo = EFJetHypoNoiseConfig()
+
+
+     self.L2sequenceList += [['', [theDummyRoiCreator], 'EF_full']]
+     self.EFsequenceList += [[['EF_full'], [theTrigCaloCellMaker_jet_fullcalo ], 'EF_full_noise']]
+     self.EFsequenceList += [[['EF_full_noise'],[theJetHypo], 'jet_hypo']]
+
+     self.L2signatureList += [ [['EF_full']] ]
+     self.EFsignatureList += [ [['EF_full_noise']] ]
+     self.EFsignatureList += [ [['jet_hypo']] ]
+
+     antiktsize = 0
+     self.TErenamingDict = { 
+       'EF_full_noise' : mergeRemovingOverlap('HLT_full__cluster__', 'jr_antikt'+str(antiktsize)+'tc_had' ), 
+       'jet_hypo' : mergeRemovingOverlap('HLT_full__cluster__', 'jr_antikt'+str(antiktsize)+'tc_had_noiseHypo' ), 
+       }

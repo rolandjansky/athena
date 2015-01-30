@@ -12,7 +12,6 @@ logElectronDef = logging.getLogger("TriggerMenu.egamma.ElectronDef")
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from TriggerMenu.menu.HltConfig import L2EFChainDef, mergeRemovingOverlap
-from TriggerMenu.menu.Lvl1Flags import Lvl1Flags
 
 #from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_cells
 
@@ -346,6 +345,9 @@ class L2EFChain_e(L2EFChainDef):
         # EF Tracking
         from InDetTrigRecExample.EFInDetConfig import TrigEFIDInsideOut_Electron
         theEFElectronIDFex           = TrigEFIDInsideOut_Electron("Electron").getSequence()
+        # GSF refit
+        #from TrigEgammaHypo.TrigGSFTrackFexConfig import TrigGSFTrackFex_Electron
+        #theGSFtrackfex = TrigGSFTrackFex_Electron()
 
         # Ringer FEX for L2 Calo
         from TrigT2CaloEgamma.TrigT2CaloEgammaConfig        import T2CaloEgamma_Ringer
@@ -405,6 +407,11 @@ class L2EFChain_e(L2EFChainDef):
                                      [theTrigL2SiTrackFinder_eGammaB]+theL2StarxAOD+
                                      [theTrigL2SiTrackFinder_eGammaC]+theL2StarxAOD+theEFElectronIDFex,
                                      'EF_e_step3']]
+        elif 'gsf' in self.chainPart['addInfo']:
+            logElectronDef.error("GSF chains are not configured yet")
+        #    self.EFsequenceList += [[['EF_e_step2'], 
+        #                             trkseq + [theGSFTrackFex],
+        #                             'EF_e_step3']]
         else:
             self.EFsequenceList += [[['EF_e_step2'], 
                                      trkseq,
@@ -737,6 +744,10 @@ class L2EFChain_e(L2EFChainDef):
         
         # EF Tracking
         theEFElectronIDFex           = theTrigEFIDInsideOutMerged_Electron
+        
+        # GSF refit
+        #from TrigEgammaHypo.TrigGSFTrackFexConfig import TrigGSFTrackFex_Electron
+        #theGSFTrackFex = TrigGSFTrackFex_Electron()
         # EF Electron FEX
         #from TrigEgammaRec.TrigEgammaRecConfig       import TrigEgammaRec
         #theTrigEgammaRec_eGamma                  = TrigEgammaRec(name = "TrigEgammaRec_eGamma")
@@ -861,11 +872,16 @@ class L2EFChain_e(L2EFChainDef):
         self.EFsequenceList += [[['EF_e_step1'], 
                                  [theTrigEFCaloCalibFex,theTrigEFCaloHypo], 
                                  'EF_e_step2']]
-        
-        self.EFsequenceList += [[['EF_e_step2'], 
-                                 theEFElectronIDFex+[ theEFTrackHypo],
-                                 #trkcombfull+[ theEFTrackHypo],
-                                 'EF_e_step3']]
+        if 'gsf' in self.chainPart['addInfo']:
+            logElectronDef.error("GSF chains are not configured yet")
+        #    self.EFsequenceList += [[['EF_e_step2'], 
+        #                             theEFElectronIDFex+[ theGSFTrackFex],
+        #                             'EF_e_step3']]
+        else:
+            self.EFsequenceList += [[['EF_e_step2'], 
+                                     theEFElectronIDFex+[ theEFTrackHypo],
+                                     #trkcombfull+[ theEFTrackHypo],
+                                     'EF_e_step3']]
         
         self.EFsequenceList += [[['EF_e_step3'], 
                                  [theTrigEgammaFex, theEFElectronHypo], 

@@ -35,7 +35,6 @@ SliceIDDict = {
 #==========================================================
 ChainDictTemplate = {
     'chainName'    : '',
-    'chainCounter' : (int),
     'L1item'        : '',
     'topo'          : '',
     'signatures'    : '',
@@ -50,8 +49,8 @@ ChainDictTemplate = {
 #==========================================================
 # ----- Allowed HLT Topo Keywords (in addition to generic topos like DR, DETA, DPHI...)
 #==========================================================
-AllowedTopos_e = ["Jpsiee","Zeg"]
-AllowedTopos_mu = ['Jpsimumu', 'JpsimumuL2']
+AllowedTopos_e = ["Jpsiee","Zeg","Zee"]
+AllowedTopos_mu = ['Jpsimumu']
 AllowedTopos_xe = ['dphi1','razor140', 'razor170', 'razor200']
 # AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDiMu', 
 #                       'bJpsiMuMu', 'bUpsiMuMu', 
@@ -69,7 +68,8 @@ AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu',
                       'BcmumuDs' ,   'BcmumuDsloose' , 
                       '7invm9', 'noos', 'noid', 'novtx',
                       '11invm60','18invm60', 'bUpsi',
-                      'Trkloose', 'Zmumu']
+                      'Trkloose', 'Zmumu',
+                      'noinvm', 'ss', 'BpmumuKp']
 AllowedTopos_jet = ['muvtx',
                     'llp',
                     'deta2', 
@@ -89,7 +89,7 @@ JetChainParts = {
     'chainPartName': '',
     'threshold'    : '',
     'multiplicity' : '',
-    'etaRange'     : ['0eta320','0eta240', '240eta490','280eta320', '320eta490'],
+    'etaRange'     : ['0eta490','0eta320','0eta240', '240eta490','280eta320', '320eta490'],
     'trigType'     : ['j'],
     'extra'        : ['noL1',],
     'recoAlg'      : ["a4", "a10", "a10r"],
@@ -173,7 +173,7 @@ MuonChainParts = {
     'reccalibInfo'   : ['msonly', 'idperf','muoncalib'],
     'trkInfo'        : ['fasttr', 'hlttr', 'ftk', 'IDT'],
     'hypoInfo'       : [],
-    'FSinfo'         : ['ftkFS', 'nscan03', 'l2nscan03', 'nscan05', 'l2nscan05', 'JpsimumuFS'],
+    'FSinfo'         : ['ftkFS', 'nscan03', 'l2nscan03', 'nscan05', 'l2nscan05', 'JpsimumuFS', 'JpsimumuL2'],
     'L2IDAlg'        : ['L2Star','IdScan','FTK'],
     'L2SAAlg'        : ['muFast', 'l2muonSA',],
     'L2CBAlg'        : ['muComb',],
@@ -336,11 +336,8 @@ ElectronChainParts = {
     'caloInfo'       : ['L2EFCalo','HLTCalo'],
     'lhInfo'         : ['cutd0dphi','nod0','nodphi','nodphires'],
     'L2IDAlg'        : ['L2StarA','L2StarB','L2StarC','FTK','TRT','SiTrack','IdScan'],
-    'addInfo'        : ['etcut','etcutTrk','noCut','ringer','conv','etisem',
-                        'L2StarABrem',
-                        'L2Star', 
-                        'L2ET21', 'L2ET22', 'L2ET23', 'L2ET24','perf','IdTest'
-                        ],
+    'addInfo'        : ['etcut','ringer','conv','etisem','gsf',
+                        'L2Star','perf','IdTest'],
     }
 # ---- Egamma Dictinary of default Values ----
 ElectronChainParts_Default = {
@@ -498,6 +495,7 @@ MinBiasChainParts_Default = {
 # ---- CosmicDef chains -----
 #==========================================================
 AllowedCosmicChainIdentifiers = ['larps',
+                                 'larhec',
                                  'tilecalib', 
                                  'pixel', 'sct', 
                                  'id',]
@@ -570,7 +568,7 @@ StreamingChainParts_Default = {
 #==========================================================
 # ---- CalibDef chains -----
 #==========================================================
-AllowedCalibChainIdentifiers = ['csccalib','larcalib', 'idcalib', 'l1calocalib', 'tilelarcalib','alfacalib']
+AllowedCalibChainIdentifiers = ['csccalib','larcalib', 'idcalib', 'l1calocalib', 'tilelarcalib','alfacalib','larnoiseburst']
 
 # ---- Calib Chain Dictinary of all allowed Values ----
 CalibChainParts = {
@@ -705,15 +703,15 @@ BeamspotChainParts_Default = {
     'chainPartName'  : '',
     'L1item'       : '',
     'monType'        : [],
-    'addInfo'        : [],
+    'addInfo'        : ['activeTE'],
     'hypo'           : [],
-    'l2IDAlg'        : [],
+    'l2IDAlg'        : ['L2StarB'],
     'threshold'      : '',
     'multiplicity'   : '',
-    'location'   : '',
-    'trigType'       : '', 
+    'location'   : 'vtx',
+    'trigType'       : 'beamspot', 
     'extra'          : '',
-    'eventBuildType' : [],
+    'eventBuildType' : ['peb'],
     }
 
 #==========================================================

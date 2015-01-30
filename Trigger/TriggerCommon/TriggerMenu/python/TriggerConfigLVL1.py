@@ -57,19 +57,6 @@ class TriggerConfigLVL1:
             # registers all items ever defined
             self.registerMenu()
 
-    # remove prescale suffixes
-    def getMenuBaseName(self, menuName):
-        #import re 
-        #pattern = re.compile('_v\d+|DC14')
-        #patternPos = pattern.search(menuName)
-        #if m:
-        #    menuName=menuName[:patternPos.end()]
-        #else:
-        #    log.info('Can\'t find pattern to shorten menu name, either non-existent in name or not implemented.')
-        #return menuName 
-        
-        return menuName.replace("_tight_mc_prescale","").replace("_loose_mc_prescale","").replace("_special_mc_prescale","").replace("_no_prescale","")
-
 
     ## L1 Topo connection
     def getL1TopoTriggerLines(self, menu):
@@ -82,7 +69,7 @@ class TriggerConfigLVL1:
         else:
             triggerLines = None
             try:
-                tpcl1 = TriggerConfigL1Topo( menuName = self.getMenuBaseName(menu) )
+                tpcl1 = TriggerConfigL1Topo( menuName = TriggerConfigL1Topo.getMenuBaseName(menu) )
                 tpcl1.generateMenu()
                 triggerLines = tpcl1.menu.getTriggerLines()
                 #for tr in triggerLines:
@@ -198,9 +185,8 @@ class TriggerConfigLVL1:
         if not menuName:
             menuName = TriggerFlags.triggerMenuSetup()
 
-        #menuName=self.getMenuBaseName(menuName)
-        #menumodule = __import__('l1menu.Menu_%s' % menuName, globals(), locals(), ['defineMenu'], -1)
-        menumodule = __import__('l1menu.Menu_%s' % menuName.replace("_tight_mc_prescale","").replace("_loose_mc_prescale","").replace("_special_mc_prescale","").replace("_no_prescale",""), globals(), locals(), ['defineMenu'], -1) 
+        menuName=TriggerConfigL1Topo.getMenuBaseName(menuName)
+        menumodule = __import__('l1menu.Menu_%s' % menuName, globals(), locals(), ['defineMenu'], -1)
         menumodule.defineMenu()
         log = logging.getLogger('TriggerConfigLVL1.defineMenu')
         log.info("menu %s contains %i items and %i thresholds" % ( menuName, len(Lvl1Flags.items()), len(Lvl1Flags.thresholds()) ) )

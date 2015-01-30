@@ -74,6 +74,9 @@ class SortingAlgo(TopoAlgo):
         s+='    <Variable>\n'
 
         for (pos, variable) in enumerate(self.variables):
+            # scale MinEt if outputs match with EM or TAU
+            if variable.name=="MinEt" and (self.outputs.find("TAU")>=0 or self.outputs.find("EM")>=0):
+                variable.value = variable.value * 2
             s+='      <Parameter pos="%i" name="%s" value="%i"/>\n' % ( pos, variable.name, variable.value )
         s+='    </Variable>\n'    
         s+='  </SortAlgo>\n'
@@ -109,8 +112,14 @@ class DecisionAlgo(TopoAlgo):
             s += '      <Generic name="%s" value="%s"/>\n' % (gene.name, gene.value)
         s+='    </Fixed>\n'     
         s+='    <Variable>\n'
-        
+
         for (pos, variable) in enumerate(self.variables):
+            # scale MinET if inputs match with EM or TAU
+            if variable.name=="MinET1" or variable.name=="MinET2" or variable.name=="MinET3" or variable.name=="MinET":
+                for (tobid, _input) in enumerate(self.inputs):
+                    if (_input.find("TAU")>=0 or _input.find("EM")>=0):
+                        if (len(self.inputs)>1 and (variable.name=="MinET"+str(tobid+1) or (tobid==0 and variable.name=="MinET"))) or (len(self.inputs)==1 and (variable.name.find("MinET")>=0)):
+                            variable.value = variable.value * 2 
             s+='      <Parameter pos="%i" name="%s"%s value="%i"/>\n' % ( pos, variable.name, ((' selection="%i"'%variable.selection) if (variable.selection>=0) else ""), variable.value )
         s+='    </Variable>\n'    
         s+='  </DecisionAlgo>\n'

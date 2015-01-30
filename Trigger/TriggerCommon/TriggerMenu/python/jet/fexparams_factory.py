@@ -33,16 +33,19 @@ class _JetFexParams(object):
                  merge_param,
                  jet_calib,
                  fex_label,
+                 data_type,
+                 fex_alg_name,
                  **kargs):
 
         self._check_args(merge_param)
         self.merge_param = merge_param
-        
+        self.data_type = data_type  # input type: TT, tc etc
         # jet_calib:
         # string used by offline to determine which calibration to perform
         self.jet_calib = jet_calib 
         self.fex_label = fex_label
-
+        self.fex_alg_name = fex_alg_name  # from input dictionary
+        
     def __str__(self):
         s = ['%s: %s\n' % (k, str(v)) for k, v in self.__dict__.items()]
         return '\n'.join(s)

@@ -129,7 +129,7 @@ class JetSequencesBuilder(object):
             raise RuntimeError(msg)
 
         # add jet reclustering sequence if requested
-        if 'jr' in seq_order and menu_data.recluster_params is not None:
+        if menu_data.recluster_params is not None:
             seq_order.append('rc')
 
         # fex diagnostics are run before the hypo,

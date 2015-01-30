@@ -184,12 +184,15 @@ class L2EFChain_tau(L2EFChainDef):
 
             # Get the necessary fexes
             from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-            [trkcore, trkprec] = TrigInDetSequence("Tau", "tau", "IDTrig").getSequence()
-            ftracks = trkcore
+            [trkfast, trkprec] = TrigInDetSequence("Tau", "tau", "IDTrig").getSequence()
             
+            # Use cosmic-specific tracking algorithm
+            if selection == 'cosmic':
+                [trkfast] = TrigInDetSequence("Cosmics", "cosmics", "IDTrig", "FTF").getSequence()
+
             # Run fast-tracking
             self.EFsequenceList += [[[ self.currentItem ],
-                                     ftracks,
+                                     trkfast,
                                      self.continueChain('EF', 'trfast')]]
             
             # Run the track-based pre-selection
@@ -266,6 +269,7 @@ class L2EFChain_tau(L2EFChainDef):
             else:
                 from TrigTauRec.TrigTauRecConfig import TrigTauRecMerged_Tau2012
                 recmerged_2012    = TrigTauRecMerged_Tau2012()
+
 
             [trkcore, trkprec] = TrigInDetSequence("Tau", "tau", "IDTrig").getSequence()
 
@@ -411,22 +415,12 @@ class L2EFChain_tau(L2EFChainDef):
             theHLTTrackPre  = self.hypoProvider.GetHypo('L2', threshold, selection, 'id', preselection)
 
             # Get the necessary fexes
-            from InDetTrigRecExample.EFInDetConfig import  TrigEFIDSequence
             from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-            from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Tau
-    
-
-            theTrigFastTrackFinder_Tau = TrigFastTrackFinder_Tau()
-            theTrigEFIDDataPrep_Tau    = TrigEFIDSequence("Tau","tau","DataPrep").getSequence()
-            theFastTrackFinderxAOD     = TrigInDetSequence("Tau","tau","FastxAOD").getSequence()
-
-
-            ftracks = theTrigEFIDDataPrep_Tau+[theTrigFastTrackFinder_Tau]+theFastTrackFinderxAOD
-            
+            [trkfast, trkprec] = TrigInDetSequence("Tau", "tau", "IDTrig").getSequence()
             
             # Run fast-tracking
             self.EFsequenceList += [[[ self.currentItem ],
-                                     ftracks,
+                                     trkfast,
                                      self.continueChain('EF', 'trfast')]]
             
         # Here we're running the TrigTauRec based on all the stuff that ran before.  Uh-oh, this is dangerous...
@@ -452,9 +446,9 @@ class L2EFChain_tau(L2EFChainDef):
                 theEFHypo       = self.hypoProvider.GetHypo('EF', threshold, selection, '', 'r1')
 
             # Get the necessary fexes
-            from InDetTrigRecExample.EFInDetConfig import  TrigEFIDSequence
             from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-            from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Tau
+            [trkfast, trkprec] = TrigInDetSequence("Tau", "tau", "IDTrig").getSequence()
+
             from TrigTauDiscriminant.TrigTauDiscriGetter import TrigTauDiscriGetter2015
 
             # Change track selection if we're running on cosmics...
@@ -467,17 +461,9 @@ class L2EFChain_tau(L2EFChainDef):
 
             # Only run the fast-tracking if it wasn't run at pre-selection
             if preselection != 'track' and preselection != 'trackonly' and not idperf:
-                theTrigFastTrackFinder_Tau = TrigFastTrackFinder_Tau()
-                theTrigEFIDDataPrep_Tau            = TrigEFIDSequence("Tau","tau","DataPrep").getSequence()
-
-            theTrigEFIDInsideOutMerged_Tau     = TrigEFIDSequence("Tau","tau","InsideOutMerged").getSequence()
-            theFastTrackFinderxAOD             = TrigInDetSequence("Tau","tau","FastxAOD").getSequence()
-
-
-            if preselection != 'track' and preselection != 'trackonly' and not idperf:
-                efidinsideout     = theTrigEFIDDataPrep_Tau+[theTrigFastTrackFinder_Tau]+theFastTrackFinderxAOD+theTrigEFIDInsideOutMerged_Tau                
+                efidinsideout     = trkfast+trkprec
             else:
-                efidinsideout     = theTrigEFIDInsideOutMerged_Tau
+                efidinsideout     = trkprec
             
             efmv              = TrigTauDiscriGetter2015()
 

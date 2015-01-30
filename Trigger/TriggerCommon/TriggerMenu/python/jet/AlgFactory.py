@@ -88,7 +88,6 @@ class Alg(object):
         args.extend(self.kargs)
         args = [str(a) for a in args]
         args = ', '.join(args)
-        # import pdb; pdb.set_trace()
         s = '%s(%s)' % (self.factory, args)
         return s
 
@@ -102,6 +101,7 @@ class AlgFactory(object):
         self.cluster_params = self.menu_data.cluster_params
         self.fex_params = self.menu_data.fex_params
         self.recluster_params = self.menu_data.recluster_params
+        self.hypo_params = self.menu_data.hypo_params
 
     def tt_unpacker(self):
         return Alg('T2L1Unpacking_TT', (), {})
@@ -184,22 +184,34 @@ class AlgFactory(object):
         return Alg(factory, (), kwds)
 
     def jr_hypo_single(self):
+        """
+        Skype discussion RC/P Sherwood
+        [21/01/15, 18:44:50] Ricardo Goncalo:
+        hypo parameters: ET, eta min, eta max
 
-        hd = self.chain_config.menu_data.hypo_params
-        assert len(hd.jet_attributes) == 1
-        ja = hd.jet_attributes[0]
+        recoAlg:   'a4', 'a10', 'a10r'
+        dataType:  'TT', 'tc', 'cc'
+        calib:     'had', 'lcw', 'em'
+        jetCalob:  'jes', 'sub', 'subjes', 'nocalib'
+        scan:      'FS','PS'
 
-        chain_name = hd.chain_name
-        chain_name = chain_name.replace("_boffperf","")
-        chain_name = chain_name.replace("_bperf","")
-        chain_name = chain_name.replace("_split","")
-        chain_name = chain_name.replace("_EFID","")
+        j65_btight_split_3j65_L13J25.0ETA22 ->
+                        EFJetHypo_65000_0eta320_a4_tc_em_subjes_FS
+        """
+        
+        assert len(self.hypo_params.jet_attributes) == 1
+        ja = self.hypo_params.jet_attributes[0]
 
-        # make a new hypo instance by specifying a unique name
-        name = '"EFJetHypo_ef_%s"' % chain_name
-
-        # Gaudi does not allow '.' in instance names
-        name = name.replace('.', '_')
+        name_extension = '_'.join([str(e) for  e in
+                                   (int(ja.threshold * GeV),
+                                    ja.eta_range,
+                                    self.fex_params.fex_alg_name,
+                                    self.fex_params.data_type,
+                                    self.cluster_params.cluster_calib,
+                                    self.fex_params.jet_calib,
+                                    self.menu_data.scan_type)])
+        
+        name = '"EFJetHypo_j%s"' % name_extension
 
         etaMin = str(ja.eta_min)
         etaMax = str(ja.eta_max)
@@ -210,7 +222,38 @@ class AlgFactory(object):
         return Alg('EFJetHypo', args, kargs)
 
     def jr_hypo_multi(self):
+        """
+        Skype discussion RC/P Sherwood
+        [21/01/15, 18:44:50] Ricardo Goncalo:
+        hypo parameters: ET, eta min, eta max
 
+        recoAlg:   'a4', 'a10', 'a10r'
+        dataType:  'TT', 'tc', 'cc'
+        calib:     'had', 'lcw', 'em'
+        jetCalob:  'jes', 'sub', 'subjes', 'nocalib'
+        scan:      'FS','PS'
+
+        j65_btight_split_3j65_L13J25.0ETA22 ->
+                        EFJetHypo_65000_0eta320_a4_tc_em_subjes_FS
+        """
+
+        
+        mult = len(self.hypo_params.jet_attributes)
+        assert mult > 1
+        mult = str(mult)
+        
+        ja = self.hypo_params.jet_attributes[0]
+
+        name_extension = '_'.join([str(e) for  e in
+                                   (mult + 'j' + str(int(ja.threshold)),
+                                    ja.eta_range,
+                                    self.fex_params.fex_alg_name,
+                                    self.fex_params.data_type,
+                                    self.cluster_params.cluster_calib,
+                                    self.fex_params.jet_calib,
+                                    self.menu_data.scan_type)])
+        
+        name = '"EFCentFullScanMultiJetHypo_%s"' % name_extension
         hypo = self.menu_data.hypo_params
 
         etaMin = hypo.jet_attributes[0].eta_min
@@ -221,16 +264,6 @@ class AlgFactory(object):
                  'etaMin': etaMin,
                  'etaMax': etaMax,
              }
-
-        str_mult = hypo.jet_attributes_tostring()
-
-        # make a new hypo instance by specifying a unique name
-        name = '"EFCentFullScanMultiJetHypo_ef_%s"' % (
-            self.chain_config.chain_name)
-        
-
-        # Gaudi does not allow '.' in instance names
-        name = name.replace('.', '_')
 
         return Alg(
             'EFCentFullScanMultiJetHypo',
@@ -294,14 +327,14 @@ class AlgFactory(object):
         return Alg(factory, (), {})
 
     def jetRecDiagnostics(self):
-        chain_name = self.chain_config.chain_name
+        chain_name = self.chain_config.chain_name.replace('.', '_')
         factory = 'TrigHLTJetDiagnostics_named'
         kwds = {'name': "'TrigHLTJetDiagnostics_%s'" % chain_name,
                 'chain_name': "'%s'" % chain_name}
         return Alg(factory, (), kwds)
 
     def jetHypoDiagnostics(self):
-        chain_name = self.chain_config.chain_name
+        chain_name = self.chain_config.chain_name.replace('.', '_')
         factory = 'TrigHLTHypoDiagnostics_named'
         kwds = {'name': "'TrigHLTHypoDiagnostics_%s'" % chain_name,
                 'chain_name': "'%s'" % chain_name}
@@ -309,7 +342,7 @@ class AlgFactory(object):
 
 
     def clusterDiagnostics(self):
-        chain_name = self.chain_config.chain_name
+        chain_name = self.chain_config.chain_name.replace('.', '_')
         factory = 'TrigHLTClusterDiagnostics_named'
         kwds = {'name': "'TrigHLTClusterDiagnostics_%s'" % chain_name,
                 'chain_name': "'%s'" % chain_name}
@@ -317,7 +350,7 @@ class AlgFactory(object):
 
 
     def cellDiagnostics(self):
-        chain_name = self.chain_config.chain_name
+        chain_name = self.chain_config.chain_name.replace('.', '_')
         factory = 'TrigHLTCellDiagnostics_named'
         kwds = {'name': "'TrigHLTCellDiagnostics_%s'" % chain_name,
                 'chain_name': "'%s'" % chain_name}

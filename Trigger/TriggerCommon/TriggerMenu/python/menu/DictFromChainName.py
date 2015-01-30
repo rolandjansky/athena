@@ -27,33 +27,31 @@ class DictFromChainName(object):
         # ---- Loop over all chains (keys) in dictionary ----
         # ---- Then complete the dict with other info    ----
         # ---- of formate: # chainName :                ----
-        # ---- [chainName (str), chainCounter (int), L1item (str), Stream (str), EBstep (str)] ----   
+        # ----  chainCounter (int), L1item (str), Stream (str), EBstep (str)] ----   
         # ---- chainName = chainInfo[0]
         
         m_chainName = chainInfo[0]
-        m_chainCounter = chainInfo[1]
-        m_L1item = chainInfo[2]
-        m_L1items_chainParts = chainInfo[3]
-        m_stream = chainInfo[4]
-        m_groups = chainInfo[5]
-        m_EBstep = chainInfo[6]
-        if len(chainInfo) > 7:
-            m_mergingStrategy = chainInfo[7][0]
+        m_L1item = chainInfo[1]
+        m_L1items_chainParts = chainInfo[2]
+        m_stream = chainInfo[3]
+        m_groups = chainInfo[4]
+        m_EBstep = chainInfo[5]
+        if len(chainInfo) > 6:
+            m_mergingStrategy = chainInfo[6][0]
             if not (m_mergingStrategy == "parallel" or m_mergingStrategy == "serial"):
                 logDict.error("Merging strategy %s is not known." % m_mergingStrategy)
-            m_mergingOffset = chainInfo[7][1]
-            m_mergingOrder = chainInfo[7][2]
+            m_mergingOffset = chainInfo[6][1]
+            m_mergingOrder = chainInfo[6][2]
 
         logDict.info("Analysing chain with name: "+ m_chainName)
 
         chainProp = self.analyseShortName(m_chainName,  m_L1items_chainParts)
         logDict.debug('ChainProperties: '+ str(chainProp))
 
-        chainProp['chainCounter']= m_chainCounter
         chainProp['stream'] = m_stream
         chainProp['EBstep'] = m_EBstep
         chainProp['groups'] = m_groups
-        if len(chainInfo) > 7:
+        if len(chainInfo) > 6:
             chainProp['mergingStrategy'] = m_mergingStrategy
             chainProp['mergingOffset'] = m_mergingOffset
             chainProp['mergingOrder'] = m_mergingOrder

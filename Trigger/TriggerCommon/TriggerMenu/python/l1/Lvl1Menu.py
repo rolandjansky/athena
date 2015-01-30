@@ -2,7 +2,7 @@
 
 from Lvl1Thresholds import LVL1Thresholds, LVL1Threshold, ThresholdValue
 from Lvl1MenuItems import LVL1MenuItems, LVL1MenuItem
-from Lvl1MonCounters import Lvl1MonCounters, Lvl1CtpinCounter
+from Lvl1MonCounters import Lvl1MonCounters
 from CaloInfo import CaloInfo
 from MuctpiInfo import MuctpiInfo
 from CTPInfo import CTPInfo
@@ -62,13 +62,18 @@ class Lvl1Menu:
 
 
     def addCounters(self):
-        for thr in self.thresholds:
-            # this special check address the LUT size issue for the monitoring (see Cabling.py)
-            dontGenerateCounter = (thr.ttype=="JET" and (thr.mapping==8 or thr.mapping==9)) \
-                                  or thr.ttype=="TOPO"
-            if dontGenerateCounter: continue
-            for mult in range(1, 2**thr.cableinfo.bitnum):
-                self.counters.addCounter(Lvl1CtpinCounter(thr.name,mult))
+        from TriggerMenu.l1menu.MonitorDef import MonitorDef
+        # add the CTPIN counters
+        for counter in MonitorDef.ctpinCounters( self.thresholds ):
+            self.counters.addCounter( counter )
+
+        # add the CTPMon counters
+        for counter in MonitorDef.ctpmonCounters( self.thresholds ):
+            self.counters.addCounter( counter )
+
+        # mark the L1 Items that they should be monitored
+        MonitorDef.applyItemCounter( self.items )
+        
 
 
 

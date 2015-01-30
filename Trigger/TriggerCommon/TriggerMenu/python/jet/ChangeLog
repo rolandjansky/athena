@@ -1,3 +1,34 @@
+2015-01-28   Peter Sherwood  <peter@localhost>
+
+	* Reintate configuration of reclustered hjet chains - which
+	has stopped working.
+	M       JetSequencesBuilder.py
+
+2015-01-26   Peter Sherwood  <peter@localhost>
+
+	* Change Hypo names to reflect hypo and jet reco params rather
+	than the chainname (coarser granularity of hypo hists).
+	* Avoid usin gthe chain name in the final te name.
+
+	D       fex_factory.py
+	D       fex_factory_test.py
+
+	M       AlgFactory_test.py
+	M       fexparams_factory_test.py
+	M       ChainConfigMaker.py
+	M       SequenceTree.py
+	M       AlgFactory.py
+	M       clusterparams_factory.py
+	M       fexparams_factory.py
+
+
+2015-01-20   Peter Sherwood  <peter@localhost>
+
+	* AlgFactory.py (AlgFactory.clusterDiagnostics): 
+	The instance name constains the chain name for all the diagnostics
+	routines. Gaudi does not allow instance names with '.'
+	Replace '.' by '_' in the string used to name the instances.
+
 2015-01-14   Peter Sherwood  <peter@localhost>
 
 	* added config changes for JetDefFromJets (jet reclustering)
