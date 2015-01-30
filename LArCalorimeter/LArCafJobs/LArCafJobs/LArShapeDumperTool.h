@@ -8,7 +8,6 @@
 #include "LArCafJobs/ILArShapeDumperTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
 
@@ -39,10 +38,8 @@ class LArShapeDumperTool : public AthAlgTool, public virtual ILArShapeDumperTool
   
  private:
   
-  MsgStream* m_log; 
-   
   bool m_doShape, m_doAllShapes;
-  StoreGateSvc* m_detectorStore;
+  std::string m_shapeKey;
    
   const CaloDetDescrManager* m_caloDetDescrMgr;
   const LArOnlineID* m_onlineHelper;
