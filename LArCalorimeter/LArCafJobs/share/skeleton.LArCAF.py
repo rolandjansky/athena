@@ -18,17 +18,26 @@ topSequence = AlgSequence()
 #include("LArConditionsCommon/LArMinimalSetup.py")
 
 
+
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.GlobalFlags import globalflags
 globalflags.DetGeo.set_Value_and_Lock('atlas')
 #globalflags.Luminosity.set_Value_and_Lock('zero')
 globalflags.DataSource.set_Value_and_Lock('data')
 globalflags.InputFormat.set_Value_and_Lock('bytestream')
+#globalflags.DatabaseInstance.set_Value_and_Lock('CONDBR2')
+athenaCommonFlags.BSRDOInput.set_Value_and_Lock(runArgs.inputBSFile)
+
+from RecExConfig.RecFlags import rec
+from RecExConfig.AutoConfiguration import GetProjectName
+rec.projectName=GetProjectName()
+
 
 from AthenaCommon.JobProperties import jobproperties
 if hasattr(runArgs,'geometryVersion'):
     jobproperties.Global.DetDescrVersion = runArgs.geometryVersion
 else:
-    defaultGeoVersion="ATLAS-GEO-18-00-01"
+    defaultGeoVersion="ATLAS-R2-2015-02-00-00"
     print "No geometryVersion given, use default value of",defaultGeoVersion
     jobproperties.Global.DetDescrVersion = defaultGeoVersion
     
@@ -44,7 +53,7 @@ DetFlags.Print()
 
 
 
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+
 #from RecExConfig.RecFlags import rec
 
 #if hasattr(runArgs,"InputBSFile"):
@@ -60,8 +69,7 @@ from AtlasGeoModel import SetupRecoGeometry
 include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
 include( "LArIdCnv/LArIdCnv_joboptions.py" )
 
-include( "ByteStreamCnvSvc/BSEventStorageEventSelector_jobOptions.py" )
-
+from ByteStreamCnvSvc import ReadByteStream
 ###############################################################
 
 from LArConditionsCommon.LArCondFlags import larCondFlags 
@@ -69,7 +77,7 @@ include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
 
 
-if runArgs.conditionsTag=="CURRENT":
+if not hasattr(runArgs,"conditionsTag") or runArgs.conditionsTag=="CURRENT":
     print "Resolving 'CURRENT' express conditions tag ..."
     sys.path.append('/afs/cern.ch/user/a/atlcond/utils/python/')
     from AtlCoolBKLib import resolveAlias
@@ -78,13 +86,16 @@ if runArgs.conditionsTag=="CURRENT":
     print "Found ",currentGlobalES
     svcMgr.IOVDbSvc.GlobalTag=currentGlobalES
 else:
-        svcMgr.IOVDbSvc.GlobalTag=runArgs.conditionsTag
+    svcMgr.IOVDbSvc.GlobalTag=runArgs.conditionsTag
 #"COMCOND-BLKP-005-05"
 
 #Specify the input file(s)
 svcMgr.ByteStreamInputSvc.FullFileName=athenaCommonFlags.BSRDOInput()
-svcMgr.EventSelector.SkipEvents=runArgs.skipEvents
-theApp.EvtMax=runArgs.maxEvents
+if hasattr(runArgs,"skipEvents"):
+    svcMgr.EventSelector.SkipEvents=runArgs.skipEvents
+
+if hasattr(runArgs,"maxEvents"):
+    theApp.EvtMax=runArgs.maxEvents
 
 # Specify the object you want to read from ByteStream
 theByteStreamAddressProviderSvc = svcMgr.ByteStreamAddressProviderSvc
@@ -113,12 +124,11 @@ ToolSvc+=theLArRCBMasker
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
 ToolSvc+=LArBadChanTool()
 theLArRawChannelBuilderToolBadChannel.BadChannelMask=theLArRCBMasker
-theLArRawChannelBuilder.BuilderTools += [theLArRawChannelBuilderToolBadChannel.getFullName()]
+theLArRawChannelBuilder.BuilderTools += [theLArRawChannelBuilderToolBadChannel,]#[theLArRawChannelBuilderToolBadChannel.getFullName()]
 ToolSvc+=theLArRawChannelBuilderToolBadChannel
 
 from LArROD.LArRODConf import LArRawChannelBuilderToolOFCIter
 theLArRawChannelBuilderToolOFCIter=LArRawChannelBuilderToolOFCIter()
-theLArRawChannelBuilder.BuilderTools += [theLArRawChannelBuilderToolOFCIter.getFullName()]
 
 ## # look for max in this range
 theLArRawChannelBuilderToolOFCIter.minSample = 2 
@@ -127,13 +137,14 @@ theLArRawChannelBuilderToolOFCIter.minADCforIterInSigma=3 # ADCmax at least 3 si
 theLArRawChannelBuilderToolOFCIter.minADCforIter=15 # min adc for iteration (only if no pedestalRMS found)
 theLArRawChannelBuilderToolOFCIter.defaultPhase=12  # starting delay, also the fixed delay for ADC below min.
 theLArRawChannelBuilderToolOFCIter.StoreTiming=True
+theLArRawChannelBuilder.BuilderTools += [theLArRawChannelBuilderToolOFCIter,]#.getFullName()]
 ToolSvc += theLArRawChannelBuilderToolOFCIter
 
 
 from LArROD.LArRODConf import LArRawChannelBuilderPedestalDataBase
 theLArRawChannelBuilderPedestalDataBase=LArRawChannelBuilderPedestalDataBase()
 theLArRawChannelBuilderPedestalDataBase.LArPedestalKey = "Pedestal"
-theLArRawChannelBuilder.PedestalTools  = [theLArRawChannelBuilderPedestalDataBase.getFullName()]
+theLArRawChannelBuilder.PedestalTools  = [theLArRawChannelBuilderPedestalDataBase,]#.getFullName()]
 ToolSvc += theLArRawChannelBuilderPedestalDataBase
 
 from LArRecUtils.LArADC2MeVToolDefault import LArADC2MeVToolDefault
@@ -142,7 +153,7 @@ ToolSvc+=theLArADC2MeVTool
 
 from LArROD.LArRODConf import LArRawChannelBuilderADC2EDataBase
 theLArRawChannelBuilderADC2EDataBase=LArRawChannelBuilderADC2EDataBase()
-theLArRawChannelBuilder.ADCtoEnergyTools  = [theLArRawChannelBuilderADC2EDataBase.getFullName()]
+theLArRawChannelBuilder.ADCtoEnergyTools  = [theLArRawChannelBuilderADC2EDataBase,]#.getFullName()]
 theLArRawChannelBuilderADC2EDataBase.ADC2MeVTool = theLArADC2MeVTool
 ToolSvc += theLArRawChannelBuilderADC2EDataBase
 
@@ -201,8 +212,8 @@ svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
     "ROIB::RoIBResult/RoIBResult",
     "MuCTPI_RDO/MUCTPI_RDO",
     "CTP_RDO/CTP_RDO",
-    #'HLT::HLTResult/HLTResult_L2',
-    #'HLT::HLTResult/HLTResult_EF',
+    'HLT::HLTResult/HLTResult_L2',
+    'HLT::HLTResult/HLTResult_EF',
     ]
 
 theApp.HistogramPersistency = "ROOT"
@@ -230,7 +241,7 @@ svcMgr.ChronoStatSvc.PrintEllapsedTime = True
 
 #svcMgr.ChronoStatSvc.AsciiStatsOutputFile = "chronoStats.ascii"
 
-svcMgr.AthenaPoolCnvSvc.UseDetailChronoStat = True
+#svcMgr.AthenaPoolCnvSvc.UseDetailChronoStat = True
 
 theApp.AuditAlgorithms = True
 
@@ -246,3 +257,5 @@ svcMgr.MessageSvc.defaultLimit = 9999999  # all messages
 svcMgr.MessageSvc.useColors = False
 svcMgr.MessageSvc.defaultLimit=1000000
 #svcMgr.MessageSvc.OutputLevel=DEBUG
+
+#svcMgr.StoreGateSvc.Dump=True

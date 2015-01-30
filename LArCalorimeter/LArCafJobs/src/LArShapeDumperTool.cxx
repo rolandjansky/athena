@@ -3,26 +3,20 @@
 */
 
 #include "LArCafJobs/LArShapeDumperTool.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "LArRawEvent/LArDigit.h"
-#include "GaudiKernel/IToolSvc.h"
 #include "CaloIdentifier/CaloIdManager.h"
-#include "GaudiKernel/MsgStream.h"
 #include "LArElecCalib/ILArShape.h"
 
 #include "LArRawConditions/LArPhysWave.h"
 #include "LArRawConditions/LArShapeComplete.h"
 
 #include "CaloDetDescr/CaloDetDescrManager.h"
-#include "CaloDetDescr/CaloDetDescriptor.h"
 #include "CaloDetDescr/CaloDetDescrElement.h"
 #include "LArCafJobs/ShapeInfo.h"
 #include "LArCafJobs/CellInfo.h"
 
 #include <vector>
 #include <iostream>
-using std::cout;
 using std::endl;
 
 using namespace LArSamples;
@@ -36,6 +30,7 @@ LArShapeDumperTool::LArShapeDumperTool(const std::string& type, const std::strin
   declareInterface<ILArShapeDumperTool>(this);
   declareProperty("DoShape", m_doShape = true);
   declareProperty("DoAllShapes", m_doAllShapes = false);
+  declareProperty("ShapeKey",m_shapeKey="LArShape17phases");
 }
 
 
@@ -44,38 +39,21 @@ LArShapeDumperTool::~LArShapeDumperTool()
 }
 
 
-StatusCode LArShapeDumperTool::initialize()
-{
-  m_log = new MsgStream(msgSvc(), name());
-  (*m_log) << MSG::DEBUG << "in initialize()" << endreq;
-
-  StatusCode sc = service("DetectorStore", m_detectorStore);
-  if (sc.isFailure()) {
-    (*m_log) << MSG::FATAL << "Unable to locate Service DetectorStore" << endreq;
-    return sc;
-  }
-
-  sc = m_detectorStore->retrieve(m_caloDetDescrMgr);
-  if (sc.isFailure() || !m_caloDetDescrMgr) {
-    (*m_log) << MSG::FATAL << "Could not get CaloDetDescrMgr " << endl << m_detectorStore->dump() << endreq;
-    return sc;
-  }
+StatusCode LArShapeDumperTool::initialize() {
+  //ATH_MSG_DEBUG("in initialize()");
+  ATH_CHECK(detStore()->retrieve(m_caloDetDescrMgr));
 
   const CaloIdManager* caloIdMgr = CaloIdManager::instance() ;
   m_emId   = caloIdMgr->getEM_ID();
   m_hecId  = caloIdMgr->getHEC_ID();
   m_fcalId = caloIdMgr->getFCAL_ID();
 
-  sc = m_detectorStore->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure() || !m_onlineHelper) {
-    (*m_log) << MSG::FATAL << "Could not get LArOnlineID helper !" << endreq;
-    return sc;
-  }
+  ATH_CHECK(detStore()->retrieve(m_onlineHelper, "LArOnlineID"));
 
   if (m_doShape) {
-    sc = m_detectorStore->regHandle(m_shape, "LArShape5samples3bins17phases");
+    StatusCode sc = detStore()->regHandle(m_shape, m_shapeKey);
     if (sc.isFailure()) {
-      (*m_log) << MSG::ERROR << "Cannot register handle for LArShape" << endl << m_detectorStore->dump() << endreq;
+      msg(MSG::ERROR) << "Cannot register handle for LArShape with key " << m_shapeKey << endl << detStore()->dump() << endreq;
       return sc;
     }
   }
@@ -86,8 +64,6 @@ StatusCode LArShapeDumperTool::initialize()
 
 StatusCode LArShapeDumperTool::finalize()
 {
-  (*m_log) << MSG::DEBUG << "in finalize()" << endreq;
-  delete m_log;
   return StatusCode::SUCCESS;
 }
 
@@ -118,10 +94,10 @@ CellInfo* LArShapeDumperTool::makeCellInfo(const HWIdentifier& channelID, const 
     layer = m_fcalId->module(id);
   }
   else {
-    (*m_log) << MSG::WARNING << "LArDigit Id "<< MSG::hex << id.get_compact() << MSG::dec 
-        << " (FT: " << m_onlineHelper->feedthrough(channelID) << " FEBSlot: " 
-        << m_onlineHelper->slot(channelID) << " Chan: " << m_onlineHelper->channel(channelID)
-        << ") appears to be neither EM nor HEC nor FCAL." << endreq;
+    msg(MSG::WARNING) << "LArDigit Id "<< MSG::hex << id.get_compact() << MSG::dec 
+		      << " (FT: " << m_onlineHelper->feedthrough(channelID) << " FEBSlot: " 
+		      << m_onlineHelper->slot(channelID) << " Chan: " << m_onlineHelper->channel(channelID)
+		      << ") appears to be neither EM nor HEC nor FCAL." << endreq;
     return 0;
   }
 
@@ -150,12 +126,12 @@ ShapeInfo* LArShapeDumperTool::retrieveShape(const HWIdentifier& channelID, Calo
 {
   if (!m_shape) return 0;
   if (!m_shape.cptr()) {
-    (*m_log) << MSG::WARNING << "Could not retrieve shape object!" << endreq;
+    msg(MSG::WARNING) << "Could not retrieve shape object!" << endreq;
     return 0;
   }        
   const LArShapeComplete* shapeObj = dynamic_cast<const LArShapeComplete*>(m_shape.cptr());
   if (!shapeObj) {
-    (*m_log) << MSG::INFO << "Shape object is not of type LArShapeComplete!" << endreq;
+    msg(MSG::INFO) << "Shape object is not of type LArShapeComplete!" << endreq;
     return 0;
   }
   //const std::vector< std::vector<float> >& fullShape = shapeObj->get(channelID, gain).m_vShape;
@@ -164,7 +140,7 @@ ShapeInfo* LArShapeDumperTool::retrieveShape(const HWIdentifier& channelID, Calo
   ShapeInfo* shape = 0;
   const size_t nPhases=shapeObj->nTimeBins(channelID,gain);
   if (nPhases == 0) {
-    (*m_log) << MSG::WARNING << "Shape object for channel " << channelID << " and gain " << gain 
+    msg(MSG::WARNING) << "Shape object for channel " << channelID << " and gain " << gain 
              << " has 0 phases !" << endreq;
     return 0;
   }    
@@ -173,8 +149,8 @@ ShapeInfo* LArShapeDumperTool::retrieveShape(const HWIdentifier& channelID, Calo
      ILArShape::ShapeRef_t shape_i=shapeObj->Shape(channelID,gain,iPhase);
      //const std::vector<float>& shape_i = fullShape[iPhase];
      if (!(shape_i.valid() && shape_i.size()>0)) {
-       (*m_log) << MSG::WARNING << "Shape object for channel " << channelID << " and gain " << gain 
-                << " has no data in phase " << iPhase << " !" << endreq;
+       msg(MSG::WARNING) << "Shape object for channel " << channelID << " and gain " << gain 
+			 << " has no data in phase " << iPhase << " !" << endreq;
        delete shape;
        return 0;
      }

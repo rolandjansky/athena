@@ -2,6 +2,8 @@
 import sys,pickle
 
 patcharea="/afs/cern.ch/user/l/larcomm/w0/digitMon/LArCAF"
+setupScript="/afs/cern.ch/atlas/tzero/software/setup/setuptrf.sh"
+specialT0Setup="/afs/cern.ch/atlas/tzero/software/setup/specialsetup_tier0.sh"
 
 processConfigs = {}
 
@@ -9,7 +11,7 @@ processConfigs['reco'] = {
     'inputs': { 'inputBSFile': {} },
     'outputs': { 'outputNTUP_SAMPLESMONFile': {'dstype': 'NTUP_SAMPLESMON'}, }, 
     'tasktransinfo': { 'trfpath': 'LArCAF_trf.py',
-                       'trfsetupcmd': '/afs/cern.ch/atlas/tzero/prod1/inst/projects/data11/setup/setuptrf.sh '+patcharea+' RELEASE /afs/cern.ch/atlas/tzero/prod1/inst/projects/data11/setup/specialsetup_tier0.sh' },
+                       'trfsetupcmd': setupScript+ ' '+patcharea+' RELEASE ' + specialT0Setup},
     'phconfig': {}, 
     'description': 'Runs LAr Samples monitoring job on LArCells or LArCellsEmpty calibration streams. Uses RELEASE' 
     }
@@ -82,16 +84,22 @@ if __name__ == '__main__':
 
     #---------------------
     #Get pyAMI client
-    try:
-        import pyAMI.client
-    except ImportError:
-        print "WARNING unable to import AMI from pyAMI with standard $PYTHONPATH."
-        print "Will manually add pyAMI, then try again..."
-        import sys
-        sys.path.insert(0,'/afs/cern.ch/atlas/software/tools/pyAMI/5.0.0/lib')
-        import pyAMI.client
-    print "import pyAMI was succesful"
-    amiclient=pyAMI.client.Client('atlas')
+    #try:
+    #    import pyAMI.client
+    #except ImportError:
+    #    print "WARNING unable to import AMI from pyAMI with standard $PYTHONPATH."
+    #    print "Will manually add pyAMI, then try again..."
+    #    import sys
+    #    sys.path.insert(0,'/afs/cern.ch/atlas/software/tools/pyAMI/5.0.0/lib')
+    #    import pyAMI.client
+    #print "import pyAMI was succesful"
+    #amiclient=pyAMI.client.Client('atlas')
+
+
+    from pyAMI.client import Client
+    amiclient=Client('atlas')
+    #from pyAMI.client import AMIClient
+    #amiclient=Client(False)
 
     #------------------------
     #Build final AMI tag info
@@ -112,7 +120,7 @@ if __name__ == '__main__':
         c['ConditionsTag']='n/a'
     c['phconfig']=str(processConfigs[process]['phconfig'].__str__())
     c['transformation']=str(moreInfoDic['tasktransinfo']['trfpath'])
-    c['trfsetupcmd']=str(moreInfoDic['tasktransinfo']['trfsetupcmd'])
+    c['trfsetupcmd']="\""+str(moreInfoDic['tasktransinfo']['trfsetupcmd'])+"\""
     c['moreInfo']=str(moreInfoDic.__str__())
     c['description']=processConfigs[process]['description'].replace('RELEASE', str(release)) + description_var 
 
@@ -125,7 +133,7 @@ if __name__ == '__main__':
         for k in c.keys():
             l.append(k+'='+c[k])
             
-        #print "l=",l
+        print "l=",l
         result=amiclient.execute(l)
         print "\n\n###############################################"
         print "#  Successfully created new tag %s !!   :-)  #"%amiTag

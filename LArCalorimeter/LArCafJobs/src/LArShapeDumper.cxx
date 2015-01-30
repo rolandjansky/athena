@@ -240,7 +240,7 @@ StatusCode LArShapeDumper::execute()
   }
 
   m_count++;
-  StatusCode sc;
+
   ATH_MSG_VERBOSE ( "======== executing event "<< m_count << " ========" );
 
   const xAOD::EventInfo* eventInfo = 0;

@@ -6,17 +6,37 @@ from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
 
 triggersToCheck = [ 'EF_g[0-9].*',  'EF_.*_larcalib', 'EF_e[0-9].*', 'EF_j[0-9].*', 'EF_fj[0-9].*' ]
 
+#FIXME: Auto-check number of samples
+
 class DefaultShapeDumperTool(LArShapeDumperTool) :
   def __init__(self, name = 'LArShapeDumperTool', doShape = True) :
     super(LArShapeDumperTool, self).__init__(name)
 
     self.DoShape = doShape    
-    if doShape :
+    if doShape:
+      from LArConditionsCommon.LArCool import larcool
+      if larcool is not None:
+        nSamples=larcool.nSamples()
+      else:
+        print "WARNING, can't determine number of samples for this run! Assume 4"
+        nSamples=4
+        
       from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-      svcMgr.PoolSvc.ReadCatalog += ["prfile:poolcond/PoolCat_comcond_castor.xml"]
+      svcMgr.PoolSvc.ReadCatalog += ["apcfile:poolcond/PoolCat_comcond_castor.xml"]
       from IOVDbSvc.CondDB import conddb
-      conddb.addFolder('LAR_OFL', '/LAR/ElecCalibOfl/Shape/RTM/5samples3bins17phases<tag>LARElecCalibOflShapeRTM5samples3bins17phases-UPD3-00</tag><key>LArShape5samples3bins17phases</key>')
 
+      #Run 1 version:
+      #conddb.addFolder('LAR_OFL', '/LAR/ElecCalibOfl/Shape/RTM/5samples3bins17phases<tag>LARElecCalibOflShapeRTM5samples3bins17phases-RUN2-UPD3-00</tag><key>LArShape5samples3bins17phases</key>')
+      if (nSamples==5):
+        conddb.addFolder('LAR_OFL', '/LAR/ElecCalibOfl/Shape/RTM/5samples3bins17phases<tag>LARElecCalibOflShapeRTM5samples3bins17phases-UPD3-00</tag><key>LArShape17phases</key>')
+      elif (nSamples==4):
+        conddb.addFolder('LAR_OFL', '/LAR/ElecCalibOfl/Shape/RTM/4samples3bins17phases<tag>LARElecCalibOflShapeRTM4samples3bins17phases-RUN2-UPD3-00</tag><key>LArShape17phases</key>')
+      else:
+        print "ERROR: Unexpected number of samples, got ",nSamples
+        pass
+      pass
+    pass
+  pass
 
 class DefaultShapeDumper(LArShapeDumper) :
 
@@ -60,9 +80,9 @@ class DefaultShapeDumper(LArShapeDumper) :
 
     if doShape :
       from IOVDbSvc.CondDB import conddb
-      conddb.addFolder('LAR_OFL', '/LAR/ElecCalibOfl/AutoCorrs/AutoCorr<tag>LARElecCalibOflAutoCorrsAutoCorr-UPD3-00</tag>')
+      conddb.addFolder('LAR_OFL', '/LAR/ElecCalibOfl/AutoCorrs/AutoCorr<tag>LARElecCalibOflAutoCorrsAutoCorr-RUN2-UPD3-00</tag>')
       # use the shapes without residual corrections by default (makes it easier to compute new residuals)
-      conddb.addOverride('/LAR/ElecCalibOfl/Shape/RTM/5samples1phase','LARElecCalibOflShapeRTM5samples1phase-UPD1-04')
+      conddb.addOverride('/LAR/ElecCalibOfl/Shape/RTM/5samples1phase','LARElecCalibOflShapeRTM5samples1phase-RUN2-UPD1-04')
     masker = LArBadChannelMasker('LArBadChannelMasker')
     masker.DoMasking=True
     masker.ProblemsToMask=[
