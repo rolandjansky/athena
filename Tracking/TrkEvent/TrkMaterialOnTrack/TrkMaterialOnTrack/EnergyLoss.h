@@ -144,7 +144,7 @@ class EnergyLoss {
  { return m_sig_rad; }
  
  inline double EnergyLoss::length() const
- { assert( m_length>=0. ); return m_length; }
+ { return m_length;  } // length can be positive and negative like Eloss depending on (back)tracking
  
  inline void EnergyLoss::update(double ioni, double sigi, double rad, double sigr, bool mpv) const
  { m_mean_ioni += ioni;
