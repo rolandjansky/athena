@@ -102,7 +102,7 @@ StatusCode SiLorentzAngleSvc::initialize(){
   }
   // MagneticFieldSvc handles updates itself
 
-  if(!m_useMagFieldSvc) ATH_MSG_WARNING( "Not using MagneticFieldSvc - Will be using Nominal Field!" );
+  if(!m_useMagFieldSvc) ATH_MSG_DEBUG( "Not using MagneticFieldSvc - Will be using Nominal Field!" );
   else if (m_magFieldSvc.retrieve().isFailure()){
     ATH_MSG_WARNING( "Could not retrieve MagneticFieldSvc - Will be using Nominal Field!" );
     m_useMagFieldSvc = false;
