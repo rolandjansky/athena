@@ -17,7 +17,7 @@ using namespace std;
 int FTKRoad::m_verbose(0);
 
 FTKRoad::FTKRoad()
-  : TObject(), m_roadID(-1),
+  : TObject(), m_DCMatchMode(0), m_roadID(-1),
     m_bankID(-1), m_patternID(-1), m_patternDBID(0), m_sectorID(-1), 
     m_DCmask(ALLDCMASK), m_HLmask(0),
     m_HF_status(0), m_HF_rejected(0),
@@ -36,7 +36,7 @@ FTKRoad::FTKRoad()
 
 FTKRoad::FTKRoad(int uid, int bankid, int pattid, int nplanes,
 		 int nhits, unsigned int bitmask)
-  : TObject(), m_roadID(uid),
+  : TObject(), m_DCMatchMode(0), m_roadID(uid),
     m_bankID(bankid), m_patternID(pattid),
     m_patternDBID(0), m_sectorID(-1),
     m_DCmask(ALLDCMASK), m_HLmask(0),
@@ -57,6 +57,7 @@ FTKRoad::FTKRoad(int uid, int bankid, int pattid, int nplanes,
 
 FTKRoad::FTKRoad(const FTKRoad &copy) :
   TObject(copy), 
+  m_DCMatchMode(copy.m_DCMatchMode),
   m_roadID(copy.m_roadID),
   m_bankID(copy.m_bankID), m_patternID(copy.m_patternID),
   m_patternDBID(copy.m_patternDBID),

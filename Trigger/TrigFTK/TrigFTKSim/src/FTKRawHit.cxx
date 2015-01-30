@@ -345,6 +345,7 @@ FTKHit FTKRawHit::getFTKHit(const FTKPlaneMap *pmap) const {
   reshit.setIdentifierHash(getIdentifierHash());
   reshit.setPlane(plane);
   reshit.setSector(sector);
+  reshit.setHwWord(m_hw_word); 
   switch (m_hitType) {
   case ftk::PIXEL:
     reshit.setEtaWidth(getEtaWidth());

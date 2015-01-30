@@ -88,7 +88,7 @@ use TrigFTK_RawData	       TrigFTK_RawData-*	  Trigger/TrigFTK
 
 ################################################
 #Truth Algs
-apply_pattern declare_python_modules files="__init__.py TrigFTKTruthAlgsConfig.py QueryFTKdb.py findInputs.py"
+apply_pattern declare_python_modules files="__init__.py TrigFTKTruthAlgsConfig.py QueryFTKdb.py findInputs.py FTKSimOptions.py"
 
 #################################################
 
@@ -112,6 +112,7 @@ apply_pattern dual_use_library files="FTKRoadFinderAlgo.cxx FTKDumpCondAlgo.cxx 
         FTKTrackFileOutput.cxx FTKTrackFitterAlgo.cxx  \
         FTKLogging.cxx FTKPatternOneSector.cxx FTKPatternBySector.cxx \
         FTKPatternWithCoverage.cxx FTKRootFile.cxx FTKMergeRoot.cxx \
+        FTK_AMsimulation_base.cxx FTK_CompressedAMBank.cxx \
      	$(bin)TrigFTKSimRootDict.cxx"
 
 

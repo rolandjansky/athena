@@ -3695,8 +3695,6 @@ class SimpleOptions(DicBase):
             # create a minidom submission descriptor
             # this object will describe input and output files and datasets
             # for each job spawned under this submission
-            from dq2.clientapi.DQ2 import DQ2
-            dq2 = DQ2()
 
             # Prepare the cache of all dq2 files for all input & bank datasets
             # Note that we wrap dq2_cache object around a local cache, because
@@ -3722,7 +3720,10 @@ class SimpleOptions(DicBase):
                         s.cache[dsp]=s.fcache.findall(ds,pattern)
                     return s.cache[dsp]
                 def fullds(self,ds):
-                    vals = dq2.listDatasets(ds)
+                    from dq2.clientapi.DQ2 import DQ2
+                    dq2 = DQ2()
+
+                    vals = dq2.listDatasets2({'name': ds},False,False)
                     if len(vals.keys())==1:
                         return vals.keys()[0]
                      

@@ -1,5 +1,5 @@
 # FTK Simulation Transform Skeleton Job Options
-# $Id: skeleton.FTKStandaloneSim.py 617783 2014-09-19 18:47:33Z ponyisi $
+# $Id: skeleton.FTKStandaloneSim.py 643121 2015-01-30 15:46:51Z gvolpi $
 
 from AthenaCommon.AthenaCommonFlags import jobproperties as jp
 from AthenaCommon.Logging import logging
@@ -76,7 +76,9 @@ runArgsFromTrfOptionalRF = {'TSPMinCoverage': 0,
                             'SctClustering': 0,
                             'MaxMissingSCTPairs': 1,
                             'RestrictSctPairModule': True,
-                            'RestrictSctPairLayer': True
+                            'RestrictSctPairLayer': True,
+                            'SectorsAsPatterns' : 0,
+                            'DCMatchMethod': 0
                             }
 
 runArgsFromTrfOptionalTF = {'IBLMode': 0,
@@ -208,7 +210,12 @@ FTKTagOptions["TDAQTDRv2"] =  \
          'loadHWConf_path': 'raw_12L.hw','pmapcomplete_path': 'raw_12Libl.pmap','SetAMSize': 2, 'SecondStageFit': True, 'TRACKFITTER_MODE': 3, 'SSFMultiConnection': True, 'SSFNConnections': 4, \
          'SSFAllowExtraMiss': 1, 'SSFTRDefn': 1, 'SSFTRMaxEta': 1.4, 'SSFTRMinEta': 1.0, \
          'IBLMode': 1, 'PixelClusteringMode': 1}
-
+FTKTagOptions['SectorsAsPatterns'] = \
+    {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl123.pmap', 'rmap_path': 'raw_12Libl.tmap', 'ssmap_path': 'raw_30x32x72Ibl.ss', 'ssmapunused_path': 'raw_8LcIBL123_unusedmedium.ss', 'pmapunused_path': 'raw_8LcIbl123_unused.pmap', 'bankpatterns': [-1]*NumberOfSubregions, \
+         'ssmaptsp_path': 'raw_15x16x36Ibl.ss', 'UseTSPBank': False, \
+         'loadHWConf_path': 'raw_8Lc.hw','SecondStageFit': False, \
+         'IBLMode': 1, 'PixelClusteringMode': 1, 'SectorsAsPatterns': 1}
+    
 # enable the "Scenario" runarg that sets other runarg values as consequence
 if hasattr(runArgs, 'FTKSetupTag'):
     ftktag = getattr(runArgs,'FTKSetupTag')

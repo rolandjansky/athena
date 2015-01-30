@@ -141,7 +141,7 @@ void RoadFinder::setNBanks(int nbanks)
   m_roadoutput->setNBanks(m_nbanks);
 
   // allocate the array of the pointers
-  m_banks = new FTK_AMBank*[m_nbanks];
+  m_banks = new FTK_AMsimulation_base *[m_nbanks];
   // initialize it
   for (int ib=0;ib!=m_nbanks;++ib) {
     m_banks[ib] = 0x0;
@@ -150,7 +150,7 @@ void RoadFinder::setNBanks(int nbanks)
 
 
 /** add a bank into the RoadFinder */
-void RoadFinder::setAMBank(int id, FTK_AMBank *bank)
+void RoadFinder::setAMBank(int id, FTK_AMsimulation_base *bank)
 {
   if (id>=m_nbanks) {
     FTKSetup::PrintMessageFmt(ftk::sevr,"Region ID %d too large. Wrong number of regions (%d)",id,m_nbanks);
@@ -228,7 +228,7 @@ int RoadFinder::nextEvent()
   */
   // give as input of each AM the hit list
   for (int ibank=0;ibank!=m_nbanks;++ibank) { // loop on the AM banks
-     FTK_AMBank *pbank = m_banks[ibank];
+     FTK_AMsimulation_base *pbank = m_banks[ibank];
      
      // this happens when the RF is used in parrallel jobs
      if (!pbank) continue; 
@@ -237,7 +237,7 @@ int RoadFinder::nextEvent()
        // The hits are alread arranged per banks, read only the relevent hits
        pbank->passHits(m_datainput->getRegionalHitsList(ibank));
        if (m_SSsearch_unused) {
-	 pbank->passHitsUnused(m_datainput->getHitsListUnused());
+         pbank->passHitsUnused(m_datainput->getHitsListUnused());
        }
 
      }
@@ -245,7 +245,7 @@ int RoadFinder::nextEvent()
        // not regional input, send all the hits
        pbank->passHits(m_datainput->getHitsList());
        if (m_SSsearch_unused) {
-	 pbank->passHitsUnused(m_datainput->getHitsListUnused());
+         pbank->passHitsUnused(m_datainput->getHitsListUnused());
        }
      }
 
@@ -271,7 +271,7 @@ int RoadFinder::nextEvent()
 
        // default case: just save the road
        if (!FTKSetup::getFTKSetup().getSCTtrkMode()) {
-	 m_roadoutput->addRoad(pbank->getBankID(),*iroad);
+         m_roadoutput->addRoad(pbank->getBankID(),*iroad);
        }
 
        /*

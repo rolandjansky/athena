@@ -26,18 +26,24 @@ private:
   int m_setAMSize; // if 1 or 2 the number of patterns to load is at AM level, not TSP level
   int m_AMSplit;
 
+  int m_DCMatchMethod; // define the was the DC match
+
   FTKSSMap *m_ssmap_tsp; // this SS map describe the detector at TSP level
 
   std::map<int,FTKSS> *m_splitted_ssmap; // maps storing the fired SS after the TSP splitting
 
   std::vector<int> m_PatternDBID; // vector of the ID used by a pattern in the DB
 
-  bool m_makecache; // if tru save the local bank as cache
+  bool m_makecache; // if true save the local bank as cache
   std::string m_cachepath; // path of the cache file
 
+protected:
+  virtual void data_organizer();
+  void am_in_dc();
   virtual void am_in();
   virtual void am_output();
   virtual void attach_SS();
+  virtual void pattlookup_make_map();  // STL hashmap version
 
   void filterPattern(int);
 
@@ -73,6 +79,11 @@ public:
   
   void setAMSplit(int val){m_AMSplit = val;}
   const int &getAMSplit(){return m_AMSplit;}
+
+  void setDCMatchMethod(int v) { m_DCMatchMethod = v; }
+  const int& getDCMatchMethod() const { return m_DCMatchMethod; }
+
+  virtual const std::list<FTKRoad>& getRoads();
 };
 
 

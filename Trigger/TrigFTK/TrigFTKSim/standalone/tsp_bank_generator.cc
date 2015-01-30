@@ -40,6 +40,8 @@ static string out_bank_path;
 static int bank_maxpatts;
 // minimum coverage of the patterns to include in the TSP bank
 unsigned mincoverage;
+// mode of HW format
+static int HWModeID;
 // if !=0 ask to remove the original TSP bank
 int RemoveTSP(0);
 
@@ -76,6 +78,8 @@ int main(int argc, char *argv[]) {
 	std::vector<FTKSSMap*> ssmaps;
 	ssmaps.push_back(ssmap_TSP);
 	ssmaps.push_back(ssmap_AM);
+
+	FTKSetup::getFTKSetup().setHWModeSS(HWModeID);
 
 	TSPROOT::TSPROOTBankGenerator generator(&ftkset, ssmaps, bank_path, out_bank_path, rmap->getNPlanes(), bank_maxpatts, mincoverage);
 	generator.SetRemoveTSP(RemoveTSP);
@@ -126,6 +130,8 @@ int read_commands() {
 			replace_getline(cin, out_bank_path);
 		} else if (key == "MINCOVERAGE"){
 		  sline >> mincoverage;
+		} else if (key == "HWMODEID"){
+		  sline >> HWModeID;
 		} else if (key == "PMAP_FILE") {
 			string sval;
 			sline >> sval;

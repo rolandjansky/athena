@@ -39,7 +39,8 @@ FTKSIM_OBJS =   tmp/tsp/FTKTSPBank.o tmp/tsp/TSPMap.o tmp/tsp/TSPLevel.o \
         tmp/FTKCacheLookup.o tmp/FTK_SingleTrackInput.o \
         tmp/FTKLogging.o tmp/FTKSteering.o tmp/FTKRootFile.o tmp/FTKMergeRoot.o \
         tmp/FTKPatternBySector.o tmp/FTKPatternOneSector.o \
-        tmp/FTKPatternWithCoverage.o tmp/tsp/FTKAMSplit.o
+        tmp/FTKPatternWithCoverage.o tmp/tsp/FTKAMSplit.o \
+	tmp/FTK_CompressedAMBank.o tmp/FTK_AMsimulation_base.o
 
 SECWALK_OBJS = sectorwalk.o common_fcn.o \
                 $(DICT_OBJS)
@@ -77,7 +78,10 @@ QF_OBJS = quick_fit.o \
 PM_OBJS = patmerge.o \
         $(DICT_OBJS)
 
-MSB_OBJS = makesmallbank.o \
+MSB_OBJS = makecompressedbank.o \
+        $(DICT_OBJS)
+
+CFO_OBJS = compare_fitter_output.o \
         $(DICT_OBJS)
 
 PMR_OBJS = patmergeroot.o
@@ -172,10 +176,15 @@ patmerge: $(PM_OBJS) libTrigFTKSim.a
 patmerge.clean:
 	rm -f $(PM_OBJS) patmerge patmerge.o patmerge.d
 
-makesmallbank: $(MSB_OBJS) libTrigFTKSim.a
+makecompressedbank: $(MSB_OBJS) libTrigFTKSim.a
 	$(CXX) -o $@ $(MSB_OBJS) $(LIBS) libTrigFTKSim.a
-makesmallbank.clean:
-	rm -f $(PM_OBJS) makesmallbank makesmallbank.o makesmallbank.d
+makecompressedbank.clean:
+	rm -f $(MSB_OBJS) makecompressedbank makecompressedbank.o makecompressedbank.d
+
+compare_fitter_output: $(CFO_OBJS) libTrigFTKSim.a
+	$(CXX) -o $@ $(CFO_OBJS) $(LIBS) libTrigFTKSim.a
+compare_fitter_output.clean:
+	rm -f $(CFO_OBJS) compare_fitter_output compare_fitter_output.o compare_fitter_output.d
 
 patmergeroot: $(PMR_OBJS) libTrigFTKSim.a
 	$(CXX) -o $@ $(PMR_OBJS) $(LIBS) libTrigFTKSim.a
@@ -278,7 +287,7 @@ clean : pattvolume.clean convert_lookup.clean road_finder.clean road_merger.clea
         quick_fit.clean patmerge.clean patmergeroot.clean patmergetest.clean \
         sectorwalk.clean sectorfoam.clean \
         ftkascii2root.clean libftk_classes.so.clean libTrigFTKSim.a.clean \
-        ambankopt.clean \
+        ambankopt.clean makecompressedbank.clean compare_fitter_output.clean \
         # ftkamsplit.clean \
         ftk_DCBankStat.clean
 	rm -f tmp/TrigFTKSim_Dic.C tmp/TrigFTKSim_Dic.h tmp/*.d tmp/tsp/*.d common_fcn.d common_fcn.o

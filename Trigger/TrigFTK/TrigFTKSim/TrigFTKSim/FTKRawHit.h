@@ -46,24 +46,6 @@ class FTKRawHit : public TObject {
 
   /* store SCT and Pixel cluster positions as integers using the same FTK_IM HW definition */
   unsigned int m_hw_word;
-  const static int row_coord_mask    = 0x00000FFF;
-  const static int phi_width_mask    = 0x00007000;
-  const static int split_mask        = 0x00008000;
-  const static int column_coord_mask = 0x0FFF0000;
-  const static int eta_width_mask    = 0x70000000;
-  const static int row_coord_bit     = 0;
-  const static int phi_width_bit     = 12;
-  const static int split_bit         = 15;
-  const static int column_coord_bit  = 16;
-  const static int eta_width_bit     = 28;
-
-  const static int strip_coord_mask = 0x07FF;
-  const static int strip_coord_bit = 0;
-  const static int strip_width_mask = 0x7000;
-  const static int strip_width_bit = 12;
-  
-  unsigned int m_hw_row_coord; /* Pixel row coordinate or half strip coordinate for SCT */
-  unsigned int m_hw_column_coord; /* Pixel column coordinate */
   
   bool m_includesGangedHits; /* cluster includes one or more ganged pixel hits */
 
@@ -204,6 +186,23 @@ public:
 
   friend std::istream& clusterP( std::istream & , FTKRawHit& );
   friend std::istream& clusterC( std::istream & , FTKRawHit& );
+
+  // These are now public because they are needed by FTKHit and FTKCoord
+  const static int row_coord_mask    = 0x00000FFF;
+  const static int phi_width_mask    = 0x00007000;
+  const static int split_mask        = 0x00008000;
+  const static int column_coord_mask = 0x0FFF0000;
+  const static int eta_width_mask    = 0x70000000;
+  const static int row_coord_bit     = 0;
+  const static int phi_width_bit     = 12;
+  const static int split_bit         = 15;
+  const static int column_coord_bit  = 16;
+  const static int eta_width_bit     = 28;
+
+  const static int strip_coord_mask = 0x07FF;
+  const static int strip_coord_bit  = 0;
+  const static int strip_width_mask = 0x7000;
+  const static int strip_width_bit  = 12;
 
   ClassDef(FTKRawHit,3)
 };

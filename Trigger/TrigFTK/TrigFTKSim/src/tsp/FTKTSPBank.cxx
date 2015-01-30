@@ -25,6 +25,7 @@ FTKTSPBank::FTKTSPBank(int bankid, int subid) :
     m_TSPProcessor(0x0),
     m_SimulateTSP(0), m_npatternsTSP(0), m_TSPMinCoverage(0),
     m_setAMSize(0), m_AMSplit(0),
+    m_DCMatchMethod(0),
     m_ssmap_tsp(0x0), m_splitted_ssmap(0x0),
     m_cachepath("")
 {}
@@ -124,7 +125,7 @@ int FTKTSPBank::readROOTBank(const char *fname, int maxpatt)
 
             // get the first element to complete the information on the bank
             TSPBank->GetEntry(0);
-            m_nplanes = tsppatt->getNPlanes();
+            setNPlanes(tsppatt->getNPlanes());
 
             //get the half plane mask for the splitting algorithms
 
@@ -317,6 +318,24 @@ int FTKTSPBank::readROOTBank(const char *fname, int maxpatt)
     // initialize the AM data structures
     readBankInit();
 
+    // prepare the DC
+    if (m_SimulateTSP > 1)
+    {
+        ftksetup.usageStat("Read TSP patterns");
+
+        FTKSetup::PrintMessage(ftk::info, "TSPProcessor creation");
+        // prepare don't care data
+        m_splitted_ssmap = new map<int, FTKSS>[m_nplanes];
+        // nested TSP processor
+        m_TSPProcessor = new TSPLevel(m_file, 2,
+                                      this, AMPatternList,
+                                      m_nplanes - 1, m_ssmap, m_ssmap_tsp,
+                                      m_splitted_ssmap, m_SimulateTSP > 2);
+        if (!m_npatternsTSP) // if the number of patterns is missing it can be get from the TSP processor
+            m_npatternsTSP = m_TSPProcessor->getNPatterns();
+
+    }
+
     // define the step
     ipatt_step = (m_npatterns + 9) / 10;
     if (!ipatt_step) ipatt_step = 1;
@@ -349,24 +368,6 @@ int FTKTSPBank::readROOTBank(const char *fname, int maxpatt)
         m_patterns[_SSPOS(ipatt, m_nplanes)] = ampatt->getSectorID();
     }
     cout << "]" << endl;
-
-
-    if (m_SimulateTSP > 1)
-    {
-        ftksetup.usageStat("Read TSP patterns");
-
-        FTKSetup::PrintMessage(ftk::info, "TSPProcessor creation");
-        // prepare don't care data
-        m_splitted_ssmap = new map<int, FTKSS>[m_nplanes];
-        // nested TSP processor
-        m_TSPProcessor = new TSPLevel(m_file, 2,
-                                      this, AMPatternList,
-                                      m_nplanes - 1, m_ssmap, m_ssmap_tsp,
-                                      m_splitted_ssmap, m_SimulateTSP > 2);
-        if (!m_npatternsTSP) // if the number of patterns is missing it can be get from the TSP processor
-            m_npatternsTSP = m_TSPProcessor->getNPatterns();
-
-    }
 
     // can close the ROOT file, this
     m_file->Close();
@@ -401,7 +402,7 @@ int FTKTSPBank::readROOTBankCache(const char *fname)
 
     // uset the first pattern to setup global variables
     amtree->GetEntry(0);
-    m_nplanes = curpatt->getNPlanes();
+    setNPlanes(curpatt->getNPlanes());
 
     // initialize the AM data structures
     readBankInit();
@@ -458,46 +459,255 @@ int FTKTSPBank::readROOTBankCache(const char *fname)
 }
 
 
+void FTKTSPBank::pattlookup_make_map() {
+  if (!m_DCMatchMethod) {
+    FTK_AMBank::pattlookup_make_map();
+    return;
+  }
+
+  // create a LUT that is aware of the DC
+  FTKSetup::PrintMessage(info,"Creating the pattern LUT extracting the DC information");
+
+  // Main loop, over planes
+  for (int iplane=0; iplane!=m_nplanes; ++iplane) {
+    const int ndcbits(m_TSPProcessor->getTSPMap().getNBits(iplane));
+
+    // Count patterns for ss;
+    for (int i = 0; i < m_npatterns; ++i) {
+      if(!(i%ipatt_step)) cout << "Layer " << iplane << ": counting patterns per ss (" << i << ")" << endl;
+      // m_pattern content is an array, not a matrix
+      int basess = m_patterns[_SSPOS(i,iplane)];
+
+      // retrive the DC mask for this pattenr in this layer
+      unsigned int localdcmask(m_TSPProcessor->getDCMask(i,iplane));
+
+      // retrieve the reference high resolution position for this pattern
+      unsigned int localhbmask(m_TSPProcessor->getHBMask(i,iplane));
+      // set to zero all the bits intereseted by the DC
+      localhbmask &= ~localdcmask; // where the DC is set to 0 become 1 end viceversa
+
+      // the index is composed by the full SS, with highres part, and the DC
+      int iss = basess<<(ndcbits*2) | localhbmask<<ndcbits | localdcmask; // create the SS
+#if 0
+      if (i==0) {
+        cout << ">>> " << basess << " " << localdcmask << " " << m_TSPProcessor->getHBMask(i,iplane) << " " << localhbmask << " " << iss <<endl;
+      }
+#endif
+
+      if ( m_ss_patt_lookup_map[iplane].find(iss) == m_ss_patt_lookup_map[iplane].end() ) {
+        m_ss_patt_lookup_map[iplane][iss] = std::vector<int>();
+      }
+      m_ss_patt_lookup_map[iplane][iss].push_back(i);
+    }
+    cout << endl;
+
+    unsigned nsslayer =  m_ss_patt_lookup_map[iplane].size();
+    cout << "Number of SS in the map: " << nsslayer << endl;
+
+    // small study on the map
+    unsigned int npattsmax(0);
+    unsigned int npattsmin(m_npatterns);
+    for (auto ssdic: m_ss_patt_lookup_map[iplane]) {
+      unsigned int npatts = ssdic.second.size();
+      if (npatts>npattsmax) npattsmax = npatts;
+      if (npatts<npattsmin) npattsmin = npatts;
+    }
+
+    FTKSetup::PrintMessageFmt(info,"Layer %d dictionary statistic:\naverage connected patterns %.1f, min %u, max %u\n",iplane, 1.*m_npatterns/nsslayer,npattsmin,npattsmax);
+  }
+}
+
+/** This method organizes the hits in SSs, in case of two stages match the
+ * original implementation is called.*
+ */
+void FTKTSPBank::data_organizer() {
+  if (!m_DCMatchMethod) {
+    FTK_AMBank::data_organizer();
+    return;
+  }
+
+  /* if the DC matching method is enabled the hits need to be organized
+   * in SS accordin the 2 precision levels
+   */
+  //FTKSetup &ftkset = FTKSetup::getFTKSetup();
+  const FTKPlaneMap *pmap = m_ssmap->getPlaneMap();
+
+  for (int iplane=0; iplane<m_nplanes&&m_useWC; ++iplane) { // loop over the planes
+    // create the WC SS
+    FTKSS WCSS;
+
+    FTKHit fakehit(pmap->isSCT(iplane) ? 1 : 2);
+    // cout <<" WC plane=" <<iplane <<endl;
+    WCSS.addHit(fakehit);
+    // cout <<"WCSS.addHit(fakehit)"<<endl;
+
+    // add the WC SS to the map of fired WC
+    m_fired_ssmap[iplane][m_WCID] = WCSS;
+    if (m_useMinimalAMIN) m_fired_ss[iplane].insert(m_WCID);
+  }
+
+  // send real hits into the SS
+  for (int iplane=0; iplane!=m_nplanes; ++iplane) { // loop over the planes
+    for (vector<FTKHit>::iterator ihit = m_stlhit_sort[iplane].begin();
+        ihit!=m_stlhit_sort[iplane].end(); ++ihit ) { // hit loop
+
+      FTKHit &curhit(*ihit);
+
+      int ss(-1);
+      if (FTKSetup::getFTKSetup().getHWModeSS()==0) {
+        // First calculate the SS for the course resolution part
+        ss = m_ssmap->getSSGlobal(curhit) << m_TSPProcessor->getTSPMap().getNBits(iplane);
+
+
+        // then calculate the SS for the high resolution part
+        // The TSPMap object knows about the relation between the low and high resolution
+        // part of the SSs
+        ss |= m_TSPProcessor->getTSPMap().getHighResSSPart(curhit);
+#if 0
+        cout << ">>> " << iplane << " " << m_ssmap->getSSGlobal(curhit) << " " << m_TSPProcessor->getTSPMap().getHighResSSPart(curhit) << " " << ss << " " << curhit[0] << " " << curhit[1] << endl;
+#endif
+      }
+      else {
+        //TODO Add the HWmode claculation
+        FTKSetup::PrintMessage(sevr,"Direct DC matching method for HWMode!=0 not implemented");
+      }
+
+      //       cout<<"KAMA"<<endl;
+      if(m_WCSS2[iplane] != 0x0 ){
+        if(m_WCSS2[iplane]->find(ss) != m_WCSS2[iplane]->end() ){
+          // FlagAA 2013-11-27: commenting this out to avoid big printout for pileup events
+          //           cout <<"plane:"<<iplane<<" ss:"<<ss<<"  this hit is ignored"<<endl;
+          continue;
+        }
+      }
+
+      // try to add an empty SS objects
+      pair<unordered_map<int,FTKSS>::iterator, bool> res = m_fired_ssmap[iplane].insert(make_pair(ss,FTKSS()));
+      unordered_map<int,FTKSS>::iterator curss = res.first;
+      if ( res.second ) {
+        if (m_fired_ssmap[iplane].size() >= MAXSS)
+          FTKSetup::PrintMessage(sevr,"am_in:MAXSS exceeded");
+        if (m_useMinimalAMIN) m_fired_ss[iplane].insert(ss);
+      }
+      (*curss).second.addHit(curhit);
+    } // end loop over elms
+    m_nao_nss.push_back(m_fired_ssmap[iplane].size());
+  } // end loop over the layers
+
+}
+
+
+void FTKTSPBank::am_in_dc() {
+
+  FTKSetup &ftkset = FTKSetup::getFTKSetup();
+  unsigned int match_threshold = m_nplanes-ftkset.getMaxMissingPlanes()-FTKSetup::getFTKSetup().getMaxMissingSctPairs();
+  m_fired_patts.clear();
+
+  // send real hits into the SS
+  for (int iplane=0; iplane!=m_nplanes; ++iplane) { // loop over the planes
+    const unsigned int mask(1<<(iplane+m_matchword_maskshift));
+
+    // extract the infromations related to the DC
+    const unsigned int ndcbits(m_TSPProcessor->getTSPMap().getNBits(iplane));
+    const unsigned int ndcconf(1<<ndcbits);
+
+    unordered_map<int,FTKSS>::iterator ssiter = m_fired_ssmap[iplane].begin();
+    unordered_map<int,FTKSS>::iterator ssiter_end = m_fired_ssmap[iplane].end();
+    for (;ssiter!=ssiter_end;++ssiter) { // loop over the SS found in that layer
+      const int &basessid((*ssiter).first);
+
+      // the SS from the real hits is exploded, according the DC configuration
+      for (unsigned int dcconf=0;dcconf!=ndcconf;++dcconf) { // loop over the dc configurations
+        unsigned int curssid = basessid & (~dcconf); // mask to 0 all the hits where the dc is on
+        curssid <<= ndcbits; // shift to the left to make room for the dc as key
+        curssid |= dcconf; // add the DC configuration in the key
+
+#if 0
+        cout << ">>> " << iplane << " " << basessid << " " << dcconf << " " << curssid << endl;
+#endif
+        /* input one SuperStrip to AM */
+        hash_map<int,std::vector<int> >::iterator issmap = m_ss_patt_lookup_map[iplane].find(curssid);
+        if (issmap != m_ss_patt_lookup_map[iplane].end()) { // pattern match update block
+          vector<int>::const_iterator ipatt = (*issmap).second.begin();
+          vector<int>::const_iterator ipattE = (*issmap).second.end();
+          for(;ipatt!=ipattE;++ipatt) { // loop over the patterns with this SS
+            const int &patt = (*ipatt);
+
+            /* the ma<tch status for each pattern is store in an unsigned int word, the least significant 8 bits are reserved
+             * for the hitcounter (number of layer matched) while the bits 9-32 are for the bitsmask.
+             */
+            pattstatus_t &word = m_patterns_matchstatus[patt];
+            if(!(word & mask)) { // double check the layer has not been already marked as matched (can be overkilling)
+              word |= mask;
+              word +=1;
+
+              if ((word&m_matchword_countermask)==match_threshold)
+                m_fired_patts.push_back(patt);
+            }
+          } // end loop over the patterns
+        } // end pattern match update block
+      } // end loop over the dc configurations
+    } // end loop over the SS found in this layer
+
+  } // loop over planes
+
+  if (FTKSetup::getDBG()) {
+    for(int i=0;i!=m_nplanes;i++) {
+      cout << "DBG: Routed superstrips " << i << " = " << m_fired_ssmap[i].size() << endl;
+    }
+  }
+
+}
+
 /** This is a new version of am_in() method. The basic functionality
     is made in the FTK_AMBank::am_in() method. The following code emulates
     the prepare the SS within the fired roads to be used in the DC filter
     and in for the TSP simulation */
 void FTKTSPBank::am_in()
 {
-    /* the basic work of the AM is simulated in the base implementation
+  if (m_DCMatchMethod) {
+    am_in_dc();
+    return;
+  }
+
+  /* the basic work of the AM is simulated in the base implementation
        of the AM simulation */
-    FTK_AMBank::am_in();
+  FTK_AMBank::am_in();
 
-    // if the simulation is at level 0 or 1 only default AM simulation is performed
-    if (m_SimulateTSP < 2) return;
+  // for now when the DC LUT is created, the data_organizer() collects the hits in proper way
+  // and the LUT takes care of everyhin, so the orifinal am_in is enough.
+  if (m_DCMatchMethod) return;
 
-    // clear the splitted SS maps
-    for (int ip = 0; ip != m_nplanes; ++ip) // plane loop
-    {
-        m_splitted_ssmap[ip].clear();
-    } // end plane loop
+  // if the simulation is at level 0 or 1 only default AM simulation is performed
+  if (m_SimulateTSP < 2) return;
 
-    /* The TSP simulation works only on the list of fired roads */
-    vector<int>::iterator fpiter = m_fired_patts.begin();
-    for (; fpiter != m_fired_patts.end(); ++fpiter) // road loop
-    {
-        int ipatt = (*fpiter);
+  // clear the splitted SS maps
+  for (int ip = 0; ip != m_nplanes; ++ip) // plane loop
+  {
+    m_splitted_ssmap[ip].clear();
+  } // end plane loop
 
-        // look in more detail the fired pattern
-        filterPattern(ipatt);
-    } // end road loop
+  /* The TSP simulation works only on the list of fired roads */
+  vector<int>::iterator fpiter = m_fired_patts.begin();
+  for (; fpiter != m_fired_patts.end(); ++fpiter) // road loop
+  {
+    int ipatt = (*fpiter);
+
+    // look in more detail the fired pattern
+    filterPattern(ipatt);
+  } // end road loop
 
 #ifdef NEWSSLIST
-    // reassign the SS, the unsplitted SS are sub changed using the splitted version
-    for (int ip = 0; ip != m_nplanes; ++ip) // plane loop
+  // reassign the SS, the unsplitted SS are sub changed using the splitted version
+  for (int ip = 0; ip != m_nplanes; ++ip) // plane loop
+  {
+    map<int, FTKSS>::iterator iss = m_splitted_ssmap[ip].begin();
+    for (; iss != m_splitted_ssmap[ip].end(); ++iss) // ss loop
     {
-        map<int, FTKSS>::iterator iss = m_splitted_ssmap[ip].begin();
-        for (; iss != m_splitted_ssmap[ip].end(); ++iss) // ss loop
-        {
-            // substitute the unsplitted SS with the splitted version
-            m_fired_ssmap[ip][(*iss).first] = (*iss).second;
-        } // end ss loop
-    } // end plane loop
+      // substitute the unsplitted SS with the splitted version
+      m_fired_ssmap[ip][(*iss).first] = (*iss).second;
+    } // end ss loop
+  } // end plane loop
 #endif
 }
 
@@ -506,7 +716,7 @@ void FTKTSPBank::am_in()
     in the half layer vetoed by DC mask */
 void FTKTSPBank::filterPattern(int ipatt)
 {
-    unsigned int &matchstatus = m_patterns_matchstatus[ipatt];
+    pattstatus_t &matchstatus = m_patterns_matchstatus[ipatt];
 
     for (int ip = 0; ip != m_nplanes; ++ip) // layers loop
     {
@@ -673,6 +883,7 @@ void FTKTSPBank::attach_SS()
         const int &pattID = last_road.getPatternID();
 
         last_road.setPatternDBID(m_PatternDBID[pattID]);
+        last_road.setDCMatchMode(m_DCMatchMethod);
 
         if (m_SimulateTSP > 1)
         {
@@ -682,17 +893,35 @@ void FTKTSPBank::attach_SS()
             // set the mask of the *good* half bins
             last_road.setHLBitmask(m_TSPProcessor->getHBMask()[pattID][0]);
             // set the masks of the allowed sub-SS, one each lane
-            for (int iplane = 0; iplane != m_nplanes; ++iplane)
+            for (int iplane = 0; iplane != m_nplanes && !m_DCMatchMethod; ++iplane)
                 last_road.setSubSSMask(iplane, m_TSPProcessor->getSubSSMasks()[pattID][iplane]);
         }
 
         // retrieve the hits
         for (int ipl = 0; ipl < m_nplanes; ++ipl)
         {
+          // set the number of bits for each layer
+          if (m_SimulateTSP > 1) {
+            unsigned int ndcbits = m_TSPProcessor->getTSPMap().getNBits(ipl);
 
-            // set the number of bits for each layer
-            if (m_SimulateTSP > 1)
-                last_road.setHLID(ipl, m_TSPProcessor->getTSPMap().getNBits(ipl));
+            last_road.setHLID(ipl, ndcbits);
+
+            if (m_DCMatchMethod) { // if the direct match is used additional fields need to be reported
+              // change the SS accoring the specific convention
+              int basess = m_patterns[_SSPOS(pattID,ipl)];
+
+              // retrieve the DC mask for this pattenr in this layer
+              unsigned int localdcmask(m_TSPProcessor->getDCMask(pattID,ipl));
+              // retrieve the reference high resolution position for this pattern
+              unsigned int localhbmask(m_TSPProcessor->getHBMask(pattID,ipl));
+              // set to zero all the bits intereseted by the DC
+              localhbmask &= ~localdcmask; // where the DC is set to 0 become 1 end viceversa
+
+              // the SS is composed by the full SS, with highres part
+              last_road.setSSID(ipl,basess<<ndcbits | localhbmask);
+            }
+
+          }
 #ifdef VERBOSE_DEBUG
             cout << last_road << endl;
 #endif
@@ -700,6 +929,132 @@ void FTKTSPBank::attach_SS()
         }
     }
 
+}
+
+
+/** This function return the roads, it now returns the m_amout content
+    in a different format, then when m_roads list will active it
+    will use that */
+const std::list<FTKRoad>& FTKTSPBank::getRoads()
+{
+  if (!m_DCMatchMethod) return FTK_AMBank::getRoads();
+
+  // FlagJT: moved ~half of this function to attach_SS() so that we
+  // can take advantage of the KD Tree in road_warrior().
+  std::list<FTKRoad>::iterator iroad = m_roads.begin();
+  for (;iroad!=m_roads.end();++iroad) {
+    const FTKRoad& curroad(*iroad);
+
+    // retrive the DC information, obtain for all the layers
+    unsigned int dcmask = curroad.getDCBitmask();
+    unsigned int maskoffset(0); // offset to read the DC
+
+    const int pattID = curroad.getPatternID();
+
+    /* retrieve the hits connecting preparing the SS to be saved.
+       the connection is skipped if the whole map of SS is required for AUX-card related studies.
+    */
+    for (int ipl=0;(ipl!=m_nplanes)&&(!getStoreAllSS());++ipl) {
+      // number of DC bits for this layer
+      unsigned int ndcbits = curroad.getHLID(ipl);
+
+      if (!curroad.hasHitOnLayer(ipl)) {
+        maskoffset += ndcbits;
+        continue;
+      }
+
+      // return the super-strip for this plane, TO CLEAN
+      int ss = m_patterns[_SSPOS(pattID,ipl)];
+
+      // skip the ss map check if the SS ID is in this list
+      if( ss < 0 || ss == m_WCID || ss == m_VetoID) {
+        maskoffset += ndcbits;
+        continue;
+      }
+
+      // base full resolution SS for this layer, as written in the road
+      // this is done because slightly differnt convention can be used
+      // for the AM map and the format written on disk/memory
+      int basessid = curroad.getSSID(ipl);
+
+      // extract DC mask for this layer, reading only the related bits
+      unsigned int localdcmask = (dcmask>>maskoffset)&(~(~0<<ndcbits));
+      // in the basessid mask the bits involved by the DC placing them to 0
+      basessid &= ~localdcmask;
+
+      // check how many bits are set
+      unsigned int nuseddcbits(0);
+      for ( unsigned int ibit = 0; ibit!=ndcbits; ++ibit) {
+        if ((localdcmask>>ibit)&1) nuseddcbits += 1;
+      }
+
+      // check if there is at least 1 combination that is ok
+      bool hasHits(false);
+
+      // number of combination of SS to read, it is a power of 2
+      unsigned int ncombs(1<<nuseddcbits);
+      for ( unsigned int icomb=0;icomb!=ncombs;++icomb) { // loop over the bit combinations
+        int curssid(basessid); // initiaze the SS ID using the masked full resolution SS
+
+        // selector of the bit to be copied
+        unsigned int activepos(0);
+        for (unsigned ibit=0;ibit!=ndcbits;++ibit) { // loop over the DC bits
+          if (localdcmask&(1<<ibit)) {
+            // if this is one of the bits masked by the DC,
+            // copy the given bit content of the combination into the ssid
+            curssid |= ((icomb>>activepos)&1)<<ibit;
+            activepos += 1; // next position
+          }
+        } // end loop over the DC bits
+
+#if 0
+        cout << ">>> " << ipl << " " << curssid << " " << basessid << " " << localdcmask << " " << ndcbits << " ";
+#endif
+
+        // check if the SS was found during the event
+        unordered_map<int,FTKSS>::iterator item0 = m_fired_ssmap[ipl].find(curssid);
+        if (item0==m_fired_ssmap[ipl].end()) {
+#if 0
+          cout << 0 << endl;
+#endif
+          continue; // no hits
+        }
+
+#if 0
+        cout << 1 << endl;
+#endif
+
+        hasHits = true;
+
+        // map for this plane
+        unordered_map<int,FTKSS> &imap = m_usedssmap[ipl];
+        // find this ss is in the bank
+        unordered_map<int,FTKSS>::iterator item = imap.find(curssid);
+
+        if (item==imap.end()) { // not found
+          imap[curssid] = (*item0).second;
+        }
+        else {
+          // super-strip already in the map, skip this
+          continue;
+        }
+      } // end loop over the combination of DC configurations
+
+#if 1
+      if (!hasHits) {
+        FTKSetup::PrintMessage(sevr,"No SS found while storing SS maps");
+      }
+#endif
+#if 0
+      if (!hasHits) cout << "No SS found pattern " << pattID<< endl;
+#endif
+
+      maskoffset += ndcbits;
+    } // end loop over the layers
+
+  }
+
+  return m_roads;
 }
 
 

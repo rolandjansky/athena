@@ -9,13 +9,13 @@
 #include "TrigFTKSim/FTKRoadStream.h"
 #include "TrigFTKSim/FTK_SGRoadOutputI.h"
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 
-class FTK_SGRoadOutput : virtual public FTK_SGRoadOutputI, public AlgTool, 
+class FTK_SGRoadOutput : virtual public FTK_SGRoadOutputI, public AthAlgTool,
 			 public FTKRoadOutput {
 private:
   int m_nbanks;

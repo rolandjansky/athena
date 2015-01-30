@@ -68,7 +68,9 @@ FTKTagOptions["TDAQTDRv1"] =  \
 FTKTagOptions["TDAQTDRv2"] =  \
     {'NBanks': 64, 'NSubRegions': 4, 'pmap_path': 'raw_12Libl.pmap', \
          'loadHWConf_path': 'raw_12L.hw'}
-
+FTKTagOptions['SectorsAsPatterns'] = \
+    {'NBanks': 64, 'NSubRegions': 4, 'pmap_path': 'raw_8LcIbl123.pmap', 
+     'loadHWConf_path': 'raw_8Lc.hw'}
 
 # enable the "Scenario" runarg that sets other runarg values as consequence
 if hasattr(runArgs, 'FTKSetupTag'):

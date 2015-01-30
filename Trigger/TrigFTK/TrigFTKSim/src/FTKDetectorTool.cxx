@@ -13,7 +13,7 @@
 using namespace std;
 
 FTKDetectorTool::FTKDetectorTool(const std::string &algname,const std::string &name, const IInterface *ifc)
-  : AlgTool(algname,name,ifc) 
+  : AthAlgTool(algname,name,ifc)
   , m_log( msgSvc() , name )
   , m_dumppath("deadmap.dat")
   , m_storeGate( 0 )
@@ -367,7 +367,7 @@ void FTKDetectorTool::dumpGlobalToLocalModuleMap() {
           }
       } // end loop over the regions
 
-      m_log << MSG::WARNING << "The module with hash " << curmodhit.getIdentifierHash() << " and FTK ID (" << curmodhit.getPlane() << "," << curmodhit.getSector() << ") is not associated to a tower" << endreq;
+      if (!hasOneRegion) m_log << MSG::WARNING << "The module with hash " << curmodhit.getIdentifierHash() << " and FTK ID (" << curmodhit.getPlane() << "," << curmodhit.getSector() << ") is not associated to a tower" << endreq;
   } // end loop over the modules
 
   // Save the map into the output file and print at screen a small message

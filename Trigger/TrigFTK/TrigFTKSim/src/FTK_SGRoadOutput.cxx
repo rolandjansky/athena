@@ -8,7 +8,7 @@
 #include "TrigFTKPool/FTKTestData.h"
 
 FTK_SGRoadOutput::FTK_SGRoadOutput(const std::string& algname, const std::string &name, const IInterface *ifc) :
-  AlgTool(algname,name,ifc),
+  AthAlgTool(algname,name,ifc),
   m_nbanks(0), m_data(0x0),
   m_log( msgSvc() , name )
 {

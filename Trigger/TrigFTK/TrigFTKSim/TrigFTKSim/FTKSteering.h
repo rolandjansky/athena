@@ -17,7 +17,7 @@
  * After parsing, the parameters can be accessed
  *
  * For an instance of FTKSteering, one defines all valid parameters.
- * A parameter has a name tag, and (optional) array size, and a default value
+ * A parameter has a name tag, an (optional) array size, and a default value
  * the array size can be zero, in which case it is determined when parsing.
  *
  * Alternatively, the array size can be given in the code, then the exact 

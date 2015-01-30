@@ -771,10 +771,8 @@ void averageCluster(cluster &clu) {
     float pixelModuleActiveLength = ftk::lengthOfPixelModuleIn400umPixels*ftk::etaPitchPixel/ftk::micrometer;
     float pixYScaleFactor = 16.; //multiply by 16 to count in unit of 25um 
     float pixXScaleFactor;
-    if (PIXEL_CLUSTERING_MODE <= PIXEL_CLUSTERING_MIXED)
-        pixXScaleFactor = 10.; //count r-phi coordinate in units of 5um
-    else if (PIXEL_CLUSTERING_MODE >=PIXEL_CLUSTERING_REALISTIC)
-        pixXScaleFactor = 8.;
+    // FlagAA: 2015-01-29 making default the units of 6.25um for r-phi coordinates
+    pixXScaleFactor = 8.;
     float etaModule = first->getEtaModule()-6; 
     const float pixelEndCapRPhiCorrection = 25.4*ftk::micrometer/ftk::phiPitch; // Lorentz angle?
     const float pixelIblRPhiCorrection = 7*ftk::micrometer/ftk::phiPitch; // Lorentz angle?

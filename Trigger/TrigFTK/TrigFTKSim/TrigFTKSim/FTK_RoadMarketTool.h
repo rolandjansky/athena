@@ -12,7 +12,8 @@
 #include "TrigFTKSim/FTKRoadStream.h"
 
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/MsgStream.h"
@@ -28,7 +29,7 @@
     in memory, allowing to interface this array with an output and
     an input interface. This tool can be used to move roads from the
     road finder to the track fitter without the use of the SG */
-class FTK_RoadMarketTool : virtual public FTK_RoadMarketToolI, public AlgTool {
+class FTK_RoadMarketTool : virtual public FTK_RoadMarketToolI, public AthAlgTool {
 private:
   int m_nbanks;
 

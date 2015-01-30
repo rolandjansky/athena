@@ -60,7 +60,7 @@ private:
 
   int m_KeepRemoved; // it's true if the RW rejeceted tracks are just falgged
 
-  unsigned int m_HWModeSS; // check the format of the SS-ID: 0 Ï is global, 1 is local (tower based)
+  unsigned int m_HWModeSS; // check the format of the SS-ID: 0 is global, 1 is local (tower based), 2 is local compressed
 
   int m_event; // current event
 

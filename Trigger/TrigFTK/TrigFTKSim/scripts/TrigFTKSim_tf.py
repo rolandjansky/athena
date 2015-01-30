@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## FTK Simulation Transform
-# @version $Id: TrigFTKSim_tf.py 617233 2014-09-17 15:20:11Z ponyisi $ 
+# @version $Id: TrigFTKSim_tf.py 635507 2014-12-12 08:26:15Z gvolpi $ 
 
 import argparse
 import sys
@@ -100,6 +100,8 @@ def addFTKSimulationArgs(parser):
                         help='CachePath', group='TrigFTKSim')
     parser.add_argument("--CachedBank", type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help="Interpret the pattern bank has a cache", group="TrigFTKSim")
+    parser.add_argument("--SectorsAsPatterns", type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+                        help="If 1 allows to use a list of sectors as pattern bank, default 0")
     
     parser.add_argument('--DoRoadFile', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True), 
                         help='Enable roads file', group='TrigFTKSim')

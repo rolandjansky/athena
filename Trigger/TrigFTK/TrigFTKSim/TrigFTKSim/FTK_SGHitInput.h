@@ -16,7 +16,8 @@
 #include "TrigFTKSim/FTKPMap.h"
 
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
+
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/MsgStream.h"
@@ -49,7 +50,7 @@
 
 /** This class interface the ID hits with the FTK simulation
     implemented in Athena. Original code */   
-class FTK_SGHitInput : virtual public FTK_SGHitInputI, public AlgTool, 
+class FTK_SGHitInput : virtual public FTK_SGHitInputI, public AthAlgTool,
 		       public FTKDataInput {
 public:
   typedef std::map<Identifier,int> HitIndexMap;

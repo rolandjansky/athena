@@ -26,6 +26,7 @@ public:
    std::ostream &Error(const char *where) const;
    std::ostream &Warning(const char *where) const;
    std::ostream &Info(const char *where) const;
+   std::ostream &Debug(const char *where) const;
    void ShowProgress(const char *text);
    const std::string &GetName(void) const { return fName; }
    static void SetPrintLevel(int);

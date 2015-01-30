@@ -25,5 +25,8 @@ MINCOVERAGE 2
 # It is possible to remove the original TSP bank from the output file, value >0
 REMOVETSP 0
 
+# set the SS calculation method, 1 is used for the Vertical Slice SS format, 2 for the final HW format
+HWMODEID 0
+
 # Pattern banks to convert
 # The following lines will be added by ftk.py
