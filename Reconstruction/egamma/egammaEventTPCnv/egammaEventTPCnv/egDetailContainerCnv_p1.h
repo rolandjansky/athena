@@ -40,12 +40,4 @@ public:
 			    MsgStream                         &msg );
 };
 
-// Template for access to T/P converter from dictionary
-template<>
-class T_TPCnv<egDetailContainer, egDetailContainer_p1>
-  : public egDetailContainerCnv_p1
-{
-public:
-};
-
 #endif //> EGAMMAEVENTTPCNV_EGDETAILCONTAINERCNV_P1_H

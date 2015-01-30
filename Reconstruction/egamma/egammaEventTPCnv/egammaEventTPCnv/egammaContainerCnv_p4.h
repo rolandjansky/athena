@@ -30,11 +30,4 @@ typedef T_AthenaPoolTPCnvVector<
             egammaCnv_p4 
        > egammaContainerCnv_p4;
 
-template<>
-class T_TPCnv<egammaContainer, egammaContainer_p4>
-  : public egammaContainerCnv_p4
-{
-public:
-};
-
 #endif //> EGAMMAEVENTTPCNV_EGAMMACONTAINERCNV_P4_H

@@ -30,11 +30,4 @@ typedef T_AthenaPoolTPCnvVector<
             ElectronCnv_p2 
        > ElectronContainerCnv_p2;
 
-template<>
-class T_TPCnv<ElectronContainer, ElectronContainer_p2>
-  : public ElectronContainerCnv_p2
-{
-public:
-};
-
 #endif //> EGAMMAEVENTTPCNV_ELECTRONCONTAINERCNV_P2_H

@@ -30,11 +30,4 @@ typedef T_AthenaPoolTPCnvVector<
             PhotonCnv_p3 
        > PhotonContainerCnv_p3;
 
-template<>
-class T_TPCnv<PhotonContainer, PhotonContainer_p3>
-  : public PhotonContainerCnv_p3
-{
-public:
-};
-
 #endif //> EGAMMAEVENTTPCNV_PHOTONCONTAINERCNV_P3_H
