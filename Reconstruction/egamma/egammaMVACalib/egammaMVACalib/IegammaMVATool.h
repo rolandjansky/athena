@@ -16,7 +16,6 @@
 #include "xAODEgamma/PhotonFwd.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODTracking/VertexFwd.h"
-#include "PATInterfaces/CorrectionCode.h"
 
 class IegammaMVATool : virtual public asg::IAsgTool{
   /// Declare the interface that the class provides

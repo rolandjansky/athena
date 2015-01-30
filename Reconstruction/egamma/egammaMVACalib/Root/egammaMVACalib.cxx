@@ -178,17 +178,11 @@ egammaMVACalib::egammaMVACalib(int particle,
 
   ::Info("egammaMVACalib::egammaMVACalib", "Accessing calibration from %s", folder.Data());
   // initializa MVA electron / photon
-  std::string weightDir = PathResolver::find_directory((std::string)folder, "CALIBPATH");
-  folder = weightDir;
-  if (!m_useNewBDTs and folder.Length() == 0) {
-    // never executed because of previous test
-    // coverity expected to hit this
-    folder += Form("/weights_%s", (m_egammaType == egPHOTON ? "photon" : "electron"));
-  }
+
   ::Info("egammaMVACalib::egammaMVACalib", "Reading weights from %s", folder.Data());
 
   if (m_useNewBDTs) {
-    getBDTs(folder);
+    getBDTs(folder.Data());
   }
   else {
     getReaders(folder);  // setup m_readers and m_additional_infos
@@ -400,16 +394,16 @@ void egammaMVACalib::getReaders(const TString & folder)
   printReadersInfo();
 }
 
-void egammaMVACalib::getBDTs(const TString & folder)
+void egammaMVACalib::getBDTs(const std::string & folder)
 {
   if (m_debug) DEBUG("<getBDTs> in folder: " << folder);
   if (m_egammaType == egPHOTON)
   {
-    setupBDT(folder + "/MVACalib_unconvertedPhoton.weights.root");
-    setupBDT(folder + "/MVACalib_convertedPhoton.weights.root");
+    setupBDT(PathResolverFindCalibFile(folder + "/MVACalib_unconvertedPhoton.weights.root"));
+    setupBDT(PathResolverFindCalibFile(folder + "/MVACalib_convertedPhoton.weights.root"));
   }
   else
-    setupBDT(folder + "/MVACalib_electron.weights.root");
+    setupBDT(PathResolverFindCalibFile(folder + "/MVACalib_electron.weights.root"));
 
   m_binMultiplicity = 2; // just to print...
   printReadersInfo();
@@ -421,17 +415,18 @@ void egammaMVACalib::setupBDT(const TString& fileName)
   if (!parseFileName(fileName, key.particleType)) return;
   if (m_debug) DEBUG("Setup BDT for particle " << key.particleType);
 
-  unique_ptr<TFile> f(TFile::Open(fileName));
+  TString filePath = PathResolverFindCalibFile(fileName.Data());
+  unique_ptr<TFile> f(TFile::Open(filePath));
   if (!f || f->IsZombie())
   {
-    ::Warning("egammaMVACalib::setupBDT", "Invalid file, skipping %s", fileName.Data());
+    ::Warning("egammaMVACalib::setupBDT", "Invalid file, skipping %s", filePath.Data());
     return;
   }
 
   TH2Poly* hPoly = dynamic_cast<TH2Poly*> (f->Get("hPoly"));
   if (!hPoly)
   {
-    ::Warning("egammaMVACalib::setupBDT", "File does not contain hPoly, skipping %s", fileName.Data());
+    ::Warning("egammaMVACalib::setupBDT", "File does not contain hPoly, skipping %s", filePath.Data());
     return;
   }
   if (!m_hPoly) m_hPoly = (TH2Poly*) hPoly->Clone();
@@ -441,7 +436,7 @@ void egammaMVACalib::setupBDT(const TString& fileName)
   TObjArray *formulae = dynamic_cast<TObjArray*>(f->Get("formulae"));
   if (!formulae)
   {
-    ::Warning("egammaMVACalib::setupBDT", "File does not contain formulae, skipping %s", fileName.Data());
+    ::Warning("egammaMVACalib::setupBDT", "File does not contain formulae, skipping %s", filePath.Data());
     return;
   }
 
@@ -450,20 +445,32 @@ void egammaMVACalib::setupBDT(const TString& fileName)
   while ((formula = (TNamed*) nextFormula()))
     predefineFormula(formula->GetName(), formula->GetTitle(), "variable");
 
-  TObjArray *trees = dynamic_cast<TObjArray*>(f->Get("trees"));
-  if (!trees)
-  {
-    ::Warning("egammaMVACalib::setupBDT", "File does not contain BDTs, skipping %s", fileName.Data());
-    return;
-  }
-
   TObjArray *variables = dynamic_cast<TObjArray*>(f->Get("variables"));
   if (!variables)
   {
-    ::Warning("egammaMVACalib::setupBDT", "File does not contain variables, skipping %s", fileName.Data());
+    ::Warning("egammaMVACalib::setupBDT", "File does not contain variables, skipping %s", filePath.Data());
     return;
   }
 
+  TObjArray *trees = dynamic_cast<TObjArray*>(f->Get("trees"));
+  if (trees)
+    ::Info("egammaMVACalib::setupBDT", "BDTs read from TObjArray");
+  else
+  {
+    ::Info("egammaMVACalib::setupBDT", "Reading trees individually");
+    trees = new TObjArray();
+    for (int i = 0; i < variables->GetEntries(); ++i)
+      trees->AddAtAndExpand(f->Get(Form("BDT%d", i)), i);
+
+    if (!trees->GetEntries())
+    {
+      ::Warning("egammaMVACalib::setupBDT", "File does not contain BDTs, skipping %s", filePath.Data());
+      f->Close();
+      delete trees;
+      return;
+    }
+  }
+  
   assert(trees->GetEntries() == variables->GetEntries());
 
   // Loop simultaneously over trees, variables and shifts
@@ -501,7 +508,7 @@ void egammaMVACalib::setupBDT(const TString& fileName)
     if (shift) m_additional_infos[key]["Mean10"] = getString(shift);
   }
   f->Close();
-
+  delete trees; // should be NULL if trees taken from TFile
 }
 
 
@@ -1597,7 +1604,10 @@ void egammaMVACalib::writeROOTfile(const TString& directory, int particle)
 
   // Write and close
   int option = (TObject::kSingleKey | TObject::kOverwrite);
-  trees.Write("trees", option);
+//   trees.Write("trees", option);
+  ::Info("egammaMVACalib::writeROOTfile", "Ntrees: %d", trees.GetEntries());
+  trees.Print();
+  trees.Write();
   variables.Write("variables", option);
   formulae.Write("formulae", option);
   shifts.Write("shifts", option);
@@ -1619,7 +1629,7 @@ void egammaMVACalib::addReaderInfoToArrays(TMVA::Reader *reader,
   TMVA::MethodBDT* tbdt = dynamic_cast<TMVA::MethodBDT*>(reader->FindMVA("BDTG"));
   assert(tbdt);
   BDT *bdt = new BDT(tbdt);
-  TTree *tree = bdt->WriteTree();
+  TTree *tree = bdt->WriteTree(Form("BDT%d", index));
 
   variables->AddAtAndExpand(new TObjString(*vars), index);
   trees->AddAtAndExpand(tree, index);

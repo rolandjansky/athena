@@ -284,7 +284,7 @@ class egammaMVACalib : public TObject
     void getReaders(const TString & folder);
     
     /** Instantiate and setup one egammaMVACalibNmsp::BDT for each bin **/
-    void getBDTs(const TString & folder);
+    void getBDTs(const std::string& folder);
 
     struct XmlVariableInfo {
 	TString expression;

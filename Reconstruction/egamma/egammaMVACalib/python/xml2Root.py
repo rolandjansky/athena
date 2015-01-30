@@ -31,3 +31,5 @@ if __name__ == "__main__":
   m = ROOT.egammaMVACalib(options.particleType, False, inputXMLPath)
   m.InitTree(0)  # needed to create the formulae for the shifts
   m.writeROOTfile(outputPath)
+  del m
+
