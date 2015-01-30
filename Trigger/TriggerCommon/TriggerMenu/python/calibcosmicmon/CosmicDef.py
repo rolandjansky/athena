@@ -18,10 +18,16 @@ from TriggerJobOpts.TriggerFlags  import TriggerFlags
 
 ###################################################################################
 def getInputTEfromL1Item(item):
-    L1Map = {'L1_CALREQ2':        ['NIM30'],
-             #'L1_RD0_EMPTY':      [''],
-             'L1_TAU8_EMPTY':      ['HA8'],
-             }
+
+
+    L1Map = {#'L1_RD0_EMPTY':      [''],
+        'L1_TAU8_EMPTY':      ['HA8'],
+        }
+
+    if TriggerFlags.triggerMenuSetup() == 'LS1_v1':                
+        L1Map['L1_CALREQ2']=['NIM30']
+    else:
+        L1Map['L1_CALREQ2']=['CAL2']
 
     if item in L1Map:
         return L1Map[item]
@@ -75,6 +81,9 @@ class L2EFChain_CosmicTemplate(L2EFChainDef):
 
         elif 'larps' in self.chainPart['purpose']:
             self.setupCosmicLArPreSNoise()
+
+        elif 'larhec' in self.chainPart['purpose']:
+            self.setupCosmicLArHECNoise()
 
         elif ('pixel' in self.chainPart['purpose']) \
                 | ('sct' in self.chainPart['purpose']):
@@ -145,6 +154,7 @@ class L2EFChain_CosmicTemplate(L2EFChainDef):
             theTrigT2CaloEgammaFex = T2CaloEgamma_All()
             
         from TrigEgammaHypo.TrigL2CaloHypoConfig import TrigL2CaloLayersHypo_PreS_080
+
         self.L2sequenceList += [[ self.L2InputTE, 
                                   [theTrigT2CaloEgammaFex,
                                    TrigL2CaloLayersHypo_PreS_080('TrigL2CaloLayersHypo_'+self.chainName+'_080')],
@@ -155,10 +165,35 @@ class L2EFChain_CosmicTemplate(L2EFChainDef):
             'L2_step1': mergeRemovingOverlap('L2_','TrigL2CaloLayersHypo_'+self.chainName+'_080'),
             }
 
-
-
+    ##################################################################
+    def setupCosmicLArHECNoise(self):
+        
+        from TrigDetCalib.TrigDetCalibConfig import EtaHypo_HEC,LArL2ROBListWriter
+        
+        self.L2sequenceList += [[ '', 
+                                  [ EtaHypo_HEC('EtaHypo_HEC_' + self.chainPartName),],
+                                  'L2_step1']]
+        
+        self.L2sequenceList += [[ 'L2_step1',
+                                  [LArL2ROBListWriter('LArL2ROBListWriter_' + self.chainName, addCTPResult = True, addL2Result = True,etaWidth = 0.2, phiWidth = 0.2),],                                  
+                                  'L2_step2']]
+        
+        self.L2signatureList+=[ [['L2_step1']*self.mult] ]
+        self.L2signatureList+=[ [['L2_step2']*self.mult] ]
+        
+        self.TErenamingDict = {
+            'L2_step1': mergeRemovingOverlap('L2_','EtaHypo_HEC_'+self.chainName),
+            'L2_step2': mergeRemovingOverlap('L2_','LArL2ROBListWriter_'+self.chainName),
+            
+            }
+    
+        
+        
             
     ##################################################################
+
+
+
     def setupCosmicIDNoiseCalibration(self):
 
         from TrigDetCalib.TrigDetCalibConfig import TrigSubDetListWriter

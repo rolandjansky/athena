@@ -11,16 +11,15 @@
 <exceptions>
   <test name="ThrSeqMismatch">
     <ex name="HLT_.*xe.*->MU6"/>
-    <ex name="HLT_e5_etcut_L110MINDPHI-AJj15s2-XE0->EM3"/>
-    <ex name="HLT_e5_etcut_L120MINDPHI-AJjs6-XE0->EM3"/>
-    <ex name="HLT_e5_etcut_L120MINDPHI-AJj15s2-XE0->EM3"/>
-    <ex name="HLT_e5_etcut_L105RATIO-XE0-HT0-AJj15all.ETA49->EM3"/>
-    <ex name="HLT_e5_etcut_L108RATIO-XE0-HT0-AJj0all.ETA49->EM3"/>
-    <ex name="HLT_e5_etcut_L140RATIO-XE0-HT0-AJj15all.ETA49->EM3"/>
-    <ex name="HLT_e5_etcut_L190RATIO-XE0-HT0-AJj0all.ETA49->EM3"/>
-    <ex name="HLT_e5_etcut_L1HT20-AJj0all.ETA49->EM3"/>
-    <ex name="HLT_e5_etcut_L1NOT-02MATCH-EM9s1-AJj15all.ETA49->EM3"/>
-    <ex name="HLT_e5_etcut_L1NOT-02MATCH-EM9s1-AJj15all.ETA49_05RATIO-XE0-SUM0-EM9s1-HT0-AJj15all.ETA49->EM3"/>
+    <ex name="HLT_.*te.*->MU6"/>
+    <ex name="HLT_.*xs.*->MU6"/>
+    <ex name="HLT_e5_etcut_L110.*->EM3"/>
+    <ex name="HLT_e5_etcut_L120.*->EM3"/>
+    <ex name="HLT_e5_etcut_L10.*->EM3"/>
+    <ex name="HLT_e5_etcut_L14.*->EM3"/>
+    <ex name="HLT_e5_etcut_L19.*->EM3"/>
+    <ex name="HLT_e5_etcut_L1HT20.*->EM3"/>
+    <ex name="HLT_e5_etcut_L1NOT.*->EM3"/>
     <ex name="HLT_e12_loose_2mu10->EM8VH"/>
     <ex name="HLT_e12_medium_2mu10->EM8VH"/>
     <ex name="HLT_e12_lhloose_2mu10->EM8VH"/>

@@ -78,13 +78,14 @@ class ChainDef:
              'listOfTriggerElements': listOfTriggerElements})
 
  
-    def addSequence(self, listOfAlgorithmInstances, te_in, te_out):
+    def addSequence(self, listOfAlgorithmInstances, te_in, te_out, topo_starts_from=None):
         """add sequence data to the chain"""
 
         self.sequenceList.append(
             {'algorithm': listOfAlgorithmInstances,
              'input': te_in,
-             'output': te_out})
+             'output': te_out,
+             'topo_starts_from': topo_starts_from})
 
 
     def __str__(self):

@@ -43,6 +43,7 @@ class L2EFChain_Beamspot(L2EFChainDef):
       self.eventBuildType = self.chainPart['eventBuildType']
 
       self.L2InputTE = self.chainPartL1Item or self.chainL1Item
+      self.L2InputTE = self.L2InputTE.replace("L1_","")
 
       if ('trkFS' in self.chainPart['addInfo']) \
             or ('activeTE' in self.chainPart['addInfo'] )\
@@ -102,29 +103,33 @@ class L2EFChain_Beamspot(L2EFChainDef):
 
 
      #commenting out because of ATR-8976 (removal of package)
-     #if  ('L2StarB' in self.l2IDAlg):
-     #  from TrigSiTrack.TrigSiTrack_Config import TrigSiTrack_BeamSpot
-     #  TrigL2SiTrackFinder_Config = __import__('TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config', fromlist=[""])      
-     #  trk_alg = getattr(TrigL2SiTrackFinder_Config, "TrigL2SiTrackFinder_BeamSpotB") 
-     #  teaddition = 'L2StarB'
-     #else:
-     #  mlog.error('Cannot assemble chain %s - only configured for L2StarB' % (self.chainPartName))
-         
+     if  ('L2StarB' in self.l2IDAlg):
+       #from TrigSiTrack.TrigSiTrack_Config import TrigSiTrack_BeamSpot
+        TrigL2SiTrackFinder_Config = __import__('TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config', fromlist=[""])      
+        trk_alg = getattr(TrigL2SiTrackFinder_Config, "TrigL2SiTrackFinder_BeamSpotB") 
+        teaddition = 'L2StarB'
+     else:
+        mlog.error('Cannot assemble chain %s - only configured for L2StarB' % (self.chainPartName))
+     
+    
+     from TrigGenericAlgs.TrigGenericAlgsConf import  PESA__DummyUnseededAllTEAlgo
+     self.L2sequenceList += [ [[""], [PESA__DummyUnseededAllTEAlgo("L2DummyAlgo"), trk_alg()], 'L2_BeamSpottracks']]
 
-     self.L2sequenceList +=[[ self.L2InputTE, [theFex], 'L2_fex']]
+#     self.L2sequenceList +=[[ self.L2InputTE, [theFex], 'L2_fex']]
+#     self.L2sequenceList +=[[['L2_fex'], [theAlg], 'L2_']]  
+#
+     self.L2sequenceList +=[[['L2_BeamSpottracks'], [theFex], 'L2_fex']]
      self.L2sequenceList +=[[['L2_fex'], [theAlg], 'L2_']]  
 
-     #from TrigGenericAlgs.TrigGenericAlgsConf import  PESA__DummyUnseededAllTEAlgo
-     #self.L2sequenceList += [ [[""], [PESA__DummyUnseededAllTEAlgo("L2DummyAlgo"), trk_alg()], 'L2_BeamSpottracks']]
-     
+     self.L2signatureList += [ [['L2_BeamSpottracks']] ]     
      self.L2signatureList += [ [['L2_fex']] ]
      self.L2signatureList += [ [['L2_']] ]
-     #self.L2signatureList += [ [['L2_BeamSpottracks']] ]
+
      
      self.TErenamingDict = {
        'L2_fex'           : mergeRemovingOverlap('L2_', self.chainName+'_fex'),        
-       'L2_'              : mergeRemovingOverlap('L2_', self.chainName),        
-       #'L2_BeamSpottracks': mergeRemovingOverlap('L2_', 'BeamSpottracks'+teaddition),        
+       'L2_'              : mergeRemovingOverlap('L2_', self.chainName+self.chainPart['addInfo'][0]),        
+       'L2_BeamSpottracks': mergeRemovingOverlap('L2_', self.chainName+'_BeamSpottracks'),        
        }    
 
      

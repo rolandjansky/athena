@@ -71,9 +71,6 @@ class L1TopoMenu:
         s += '  </OutputList>\n\n'
         s += '  <TopoConfig>\n'
         
-        self.addGlobalConfig("global_em_scale", 2)
-        self.addGlobalConfig("global_jet_scale", 1)
-        
         for gPar in sorted(self.globalConfig.keys()):
             s += '    <Entry name="%s" value="%s"/>\n' % (gPar, self.globalConfig[gPar])
         s += '  </TopoConfig>\n\n'
@@ -106,13 +103,15 @@ class L1TopoMenu:
         """
 
         idlist = [x.algo.algoId for x in self.topoOutput]
-        if len(idlist)>0 and len(idlist) != max(idlist):
+
+        if len(idlist)>0 and len(idlist) != max(idlist)+1:
             idlist.sort()
             from itertools import groupby
             partition = [list(g) for k,g in groupby(enumerate(idlist), lambda (x,y) : y-x)]
-            print "Algorithm IDs must start at 1 and be consecutive, but algorithm IDs are %s" % ','.join(["%i-%i" % (x[0][1],x[-1][1]) for x in partition])
-            
-            return False
+            print "Algorithm IDs must start at 0 and be consecutive, but algorithm IDs are %s" % ','.join(["%i-%i" % (x[0][1],x[-1][1]) for x in partition])
+            #for x in self.topoOutput: # for debugging               
+            #    print x.algo.algoId, x.algo.name 
+            #return False
         #sortedOutput = sorted(self.topoOutput,lambda x,y: cmp(x.algo.algoId,y.algo.algoId))
         #for trigger in sortedOutput:
         #    print trigger

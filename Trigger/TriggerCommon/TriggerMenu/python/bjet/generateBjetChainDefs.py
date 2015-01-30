@@ -448,7 +448,7 @@ def _prepareJetChainDict(cdict):
 ###########################################################################
 
 def get_j35_ChainDef():
-    return theDictFromChainName.getChainDict( ['j35',          21,    'L1_J20', [], ["Main"], ['RATE:SingleJet',  'BW:Jets'], -1],)
+    return theDictFromChainName.getChainDict( ['j35', 'L1_J20', [], ["Main"], ['RATE:SingleJet',  'BW:Jets'], -1],)
 
 # def get_j35_ChainDef():
 #     # HACK TO GET j35 chains!!!

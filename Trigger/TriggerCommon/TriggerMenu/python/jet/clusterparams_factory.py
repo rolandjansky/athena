@@ -14,6 +14,7 @@ class _ClusterParams(object):
 
     cluster_type = 'topo_clusters'
 
-    def __init__(self, do_lc, label, **kargs):
+    def __init__(self, do_lc, label, cluster_calib, **kargs):
         self.do_lc = do_lc
+        self.cluster_calib = cluster_calib
         self.cluster_label = label

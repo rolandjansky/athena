@@ -1,8 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags  import TriggerFlags
-from TriggerMenu.menu.Lvl1        import Lvl1, L1Prescales_lumi_1E31, L1Prescales_lumi_1E32
-from TriggerMenu.menu.Lvl1Flags   import Lvl1Flags
 from TriggerMenu.menu.MenuUtil    import *
 import re
 
@@ -177,7 +175,6 @@ def applyPrescales(triggerPythonConfig, HLTPrescales):
     hlt_sigs = allSignatures()
 ##     print 'N hlt prescales: ', len(HLTPrescales)
 ##     print 'N hlt prescales: ', len(L1Prescales)
-    #applyLVL1Prescale(triggerPythonConfig, L1Prescales)
     
     if TriggerFlags.doHLT():
         applyHLTPrescale(triggerPythonConfig, HLTPrescales)

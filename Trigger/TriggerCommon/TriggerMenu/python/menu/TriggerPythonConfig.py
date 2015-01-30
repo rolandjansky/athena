@@ -472,6 +472,7 @@ items in BGRP1"""
         """ Adds HLT sequences to TPC """
         outTE = theHLTSequence.output
         inTE = theHLTSequence.input
+        topo_starts_from = theHLTSequence.topo_starts_from
         algolist = theHLTSequence.algs
         
         if outTE in self.theSeqDict.iterkeys():

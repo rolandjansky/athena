@@ -6,7 +6,8 @@ __doc__=""
 __version__="Implementation of Electron Slice single electron signatures"
 
 from AthenaCommon.Logging import logging
-logging.getLogger().info("Importing %s",__name__)
+log = logging.getLogger( 'TriggerMenu.egamma.generateElectronChainDefs' )
+log.info("Importing %s",__name__)
 
 
 from TriggerMenu.egamma.ElectronDef import L2EFChain_e as L2EFChain_e
@@ -89,6 +90,23 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
 
         EFFex = TrigEFDielectronMassFex_Zeg()
         EFHypo = TrigEFDielectronMassHypo_Zeg()
+
+        theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2ChainName)
+        theChainDef.addSignatureL2([L2ChainName])
+
+        theChainDef.addSequence([EFFex, EFHypo],inputTEsEF,EFChainName)
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
+
+    elif "Zee" in chainDict["topo"]:
+
+        from TrigEgammaHypo.TrigL2DielectronMassHypoConfig import TrigL2DielectronMassFex_Zee, TrigL2DielectronMassHypo_ZeeTight
+        from TrigEgammaHypo.TrigEFDielectronMassHypoConfig import TrigEFDielectronMassFex_Zee, TrigEFDielectronMassHypo_ZeeTight
+
+        L2Fex = TrigL2DielectronMassFex_Zee()
+        L2Hypo = TrigL2DielectronMassHypo_ZeeTight()
+
+        EFFex = TrigEFDielectronMassFex_Zee()
+        EFHypo = TrigEFDielectronMassHypo_ZeeTight()
 
         theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2ChainName)
         theChainDef.addSignatureL2([L2ChainName])

@@ -114,9 +114,12 @@ class ChainConfigMaker(object):
             'lcw': True,
             'had': False,
         }
-        
+
         cluster_do_lc = cluster_do_lcs.get(part['calib'])
         
+        self.check_and_set('cluster_calib', 'lcw' if
+                           cluster_do_lc else 'em')
+
         if cluster_do_lc is None:
             msg = '%s Unknown cluster calibration %s, possible values: %s' % (
                 err_hdr, p['calib'], str(cluster_do_lcs.keys())) 
@@ -124,12 +127,12 @@ class ChainConfigMaker(object):
             
         self.check_and_set('cluster_do_lc', cluster_do_lc)
 
-        cluster_calib = 'lc' if self.cluster_do_lc else 'em'
+        cluster_calib = 'lcw' if self.cluster_do_lc else 'em'
 
         # set up an identifier for the clutering algorithm
         cluster_label = reduce(lambda x, y: x + y,
                                (part['dataType'],
-                                cluster_calib,
+                                self.cluster_calib,
                                 part["scan"]))
         self.check_and_set('cluster_label', cluster_label)
 
@@ -190,19 +193,19 @@ class ChainConfigMaker(object):
         merge_param = int(reco_alg[1:])
         self.check_and_set('fex_name', 'antikt')
         self.check_and_set('merge_param', merge_param)
-
+        self.check_and_set('dataType', part['dataType'])
+        self.check_and_set('fex_alg_name', part["recoAlg"])
         # generate a string that will be used to label the fex
         # instance and associated entities.
         fex_label = reduce(lambda x, y: x + y,
-                           (part["recoAlg"],
-                            part["dataType"],
-                            cluster_calib,
+                           (self.fex_alg_name,
+                            self.data_type,
+                            self.cluster_calib,
                             part["jetCalib"],
                             part["scan"]))
 
-        self.check_and_set('fex_label',
-                           fex_label)
-                                          
+        self.check_and_set('fex_label', fex_label)
+        
         # check whether to run the hypo
         run_hypo =  'perf' not in part['addInfo']
         
@@ -275,13 +278,17 @@ class ChainConfigMaker(object):
         # parameters
 
         cluster_args = {'do_lc': self.cluster_do_lc,
+                        'cluster_calib': self.cluster_calib,
                         'label': self.cluster_label}
         
         cluster_params = clusterparams_factory(cluster_args)
 
         fex_args = {'merge_param': self.merge_param,
                     'jet_calib': self.jet_calib,
-                    'fex_label': self.fex_label}
+                    'fex_label': self.fex_label,
+                    'data_type': self.data_type,
+                    'fex_alg_name': self.fex_alg_name,  # for labelling
+                }
 
         fex_params = fexparams_factory(self.fex_name, fex_args)
 
@@ -296,13 +303,11 @@ class ChainConfigMaker(object):
 
         recluster_params = None
         if self.do_recluster:
-            recl_args = {
-                'ptMinCut': self.recl_ptMinCut,
-                'etaMaxCut': self.recl_etaMaxCut,
-                'merge_param': self.recl_merge_param,
-                'jet_calib': self.recl_jet_calib,
-                'fex_label': self.recl_fex_label,
-            }
+            recl_args = dict(fex_args)
+            recl_args.update({'ptMinCut': self.recl_ptMinCut,
+                              'etaMaxCut': self.recl_etaMaxCut,
+                              'fex_label': self.recl_fex_label})
+
             recluster_params = fexparams_factory(
                 'jetrec_recluster', recl_args)
             

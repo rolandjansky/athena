@@ -122,6 +122,8 @@ class LVL1Threshold(object):
             return self.addJetThresholdValue(value, *args, **kwargs)
         if self.ttype in ['JE', 'TE', 'XE', 'XS', 'CALREQ', 'MBTSSI', 'TRT', 'ZDC', 'BCM', 'BCMCMB', 'LUCID', 'NIM']:
             return self.addEnergyThresholdValue(value, *args, **kwargs)
+        
+
         raise RuntimeError("addThrValue() not defined for threshold type %s" % self.ttype)
 
 

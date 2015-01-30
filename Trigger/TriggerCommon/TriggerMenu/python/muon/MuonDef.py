@@ -67,6 +67,8 @@ class L2EFChain_mu(L2EFChainDef):
           and not self.chainPart['reccalibInfo'] \
           and "cosmicEF" not in self.chainPart['addInfo']:
       self.setup_muXX_ID()
+    elif "JpsimumuL2" in self.chainPart['FSinfo']:
+      self.setup_muXX_JPsiL2()
     elif "nscan" in self.chainPart['FSinfo']:
       self.setup_muXX_NS()
     elif self.chainPart['extra'] or "JpsimumuFS" in self.chainPart['FSinfo']:
@@ -379,6 +381,79 @@ class L2EFChain_mu(L2EFChainDef):
                                   'EF_mu_step4': mergeRemovingOverlap('EF_trkIso_',       chainPartNameNoMultNoDS+'_wOvlpRm')}) 
      
 
+
+                                      
+  #################################################################################################
+  #################################################################################################
+
+  def setup_muXX_JPsiL2(self):
+
+    L2AlgName = self.getL2AlgName()
+    muFastThresh = self.getMuFastThresh()
+		    
+    #--- L2 algos ---
+    if "l2muonSA" in self.chainPart['L2SAAlg']:
+      from TrigL2MuonSA.TrigL2MuonSAConfig import TrigL2MuonSAConfig
+      theL2StandAloneAlg  = TrigL2MuonSAConfig(L2AlgName)
+      from TrigMuonHypo.TrigMuonHypoConfig import MufastHypoConfig
+      theL2StandAloneHypo = MufastHypoConfig(L2AlgName, muFastThresh)
+    else:
+      logMuonDef.error("Chain built with %s but so far only l2muonSA is supported." % (self.chainPart['L2SAAlg']))
+      return False
+
+    from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Muon
+    theTrigFastTrackFinder_Muon = TrigFastTrackFinder_Muon()
+    from InDetTrigRecExample.EFInDetConfig import TrigEFIDSequence
+    theTrigEFIDDataPrep_Muon = TrigEFIDSequence("Muon","muon","DataPrep").getSequence()
+    
+    id_alg_output = "TrigFastTrackFinder_Muon" 
+    if "muComb" in self.chainPart['L2CBAlg']:
+      muCombThresh = self.getMuCombThresh()
+      from TrigmuComb.TrigmuCombConfig import TrigmuCombConfig
+      theL2CombinedAlg  = TrigmuCombConfig(L2AlgName, id_alg_output)
+      from TrigMuonHypo.TrigMuonHypoConfig import MucombHypoConfig
+      theL2CombinedHypo = MucombHypoConfig(L2AlgName, muCombThresh)
+    else:
+      logMuonDef.error("Chain built with %s but so far only muComb is supported." % (self.chainPart['L2CBAlg']))
+      return False
+                   
+    from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+    [theFastTrackFinderxAOD] = TrigInDetSequence("Muon","muon","FastxAOD").getSequence()
+    
+    from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_Jpsi
+    theL2JpsimumuAlgo = L2BMuMuFex_Jpsi()
+    from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_Jpsi
+    theL2JpsimumuHypo = L2BMuMuHypo_Jpsi()
+
+    #----Sequence list---
+    self.L2sequenceList += [[self.L2InputTE,
+                             [theL2StandAloneAlg , theL2StandAloneHypo],
+                             'L2_mu_step1']] 
+
+    EFinputTE = ''
+
+    self.L2sequenceList += [[['L2_mu_step1'],
+    			      theTrigEFIDDataPrep_Muon+
+    			     [theTrigFastTrackFinder_Muon]+theFastTrackFinderxAOD+
+    			     [theL2CombinedAlg,
+    			      theL2CombinedHypo],
+    			     'L2_mu_step2']]
+			     
+    self.L2sequenceList += [[['L2_mu_step2']*self.mult,
+                             [theL2JpsimumuAlgo,theL2JpsimumuHypo],
+                             'L2_mu_step3']]
+
+    #--- adding signatures ----
+    self.L2signatureList += [ [['L2_mu_step1']*self.mult] ]
+    self.L2signatureList += [ [['L2_mu_step2']*self.mult] ]
+    self.L2signatureList += [ [['L2_mu_step3']] ]
+      
+    #--- renaming TEs ---
+    self.TErenamingDict = {
+      'L2_mu_step1': mergeRemovingOverlap('L2_mu_SA_', L2AlgName+muFastThresh+'_'+self.L2InputTE),
+      'L2_mu_step2': mergeRemovingOverlap('L2_mucomb_',   self.chainPartNameNoMult.replace('_'+self.chainPart['isoInfo'], '')+'_'+self.L2InputTE),
+      'L2_mu_step3': mergeRemovingOverlap('L2_JPsimumu_',   self.chainPartNameNoMult.replace('_'+self.chainPart['isoInfo'], '')+'_'+self.L2InputTE),
+      }    
 
                                       
   #################################################################################################

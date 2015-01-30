@@ -80,7 +80,7 @@ class L2EFChain_met(L2EFChainDef):
         #--------------------------------------
         logMETDef.info("Creating muon sequence")
         
-        chain = ['mu8', 9100, 'L1_MU6',  [], ["Main"], ['RATE:SingleMuon', 'BW:Muon'], -1]
+        chain = ['mu8', 'L1_MU6',  [], ["Main"], ['RATE:SingleMuon', 'BW:Muon'], -1]
 
         from TriggerMenu.menu import DictFromChainName
         theDictFromChainName = DictFromChainName.DictFromChainName()
@@ -89,7 +89,7 @@ class L2EFChain_met(L2EFChainDef):
         listOfChainDicts = splitChainDict(muonChainDict)
         muDict = listOfChainDicts[0]
         from TriggerMenu.muon.MuonDef import L2EFChain_mu
-
+        muDict['chainCounter'] = 9150
         muonthing = L2EFChain_mu(muDict, False, ['8GeV']) 
         muonSeed = muonthing.EFsignatureList[-1][0][0]
 
