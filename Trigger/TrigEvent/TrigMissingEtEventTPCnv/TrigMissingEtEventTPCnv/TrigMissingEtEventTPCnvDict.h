@@ -2,24 +2,19 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGMISSINGETEVENTTPCNV_TRIGMISSINGETEVENTTPCNVDICT1_H
-#define TRIGMISSINGETEVENTTPCNV_TRIGMISSINGETEVENTTPCNVDICT1_H
+#ifndef TRIGMISSINGETEVENTTPCNV_TRIGMISSINGETEVENTTPCNVDICT_H
+#define TRIGMISSINGETEVENTTPCNV_TRIGMISSINGETEVENTTPCNVDICT_H
 
 #include "TrigMissingEtEventTPCnv/TrigMissingET_p1.h"
 #include "TrigMissingEtEventTPCnv/TrigMissingET_p2.h"
 #include "TrigMissingEtEventTPCnv/TrigMissingETContainer_tlp1.h"
-#include "TrigMissingEtEventTPCnv/TrigMissingETContainerCnv_tlp1.h"
 #include "TrigMissingEtEventTPCnv/TrigMissingETContainer_p1.h"
-#include "TrigMissingEtEventTPCnv/TrigMissingETCnv_p1.h"
-#include "TrigMissingEtEventTPCnv/TrigMissingETCnv_p2.h"
 
 #include "TrigMissingEtEventTPCnv/TrigMissingET_p3.h"
-#include "TrigMissingEtEventTPCnv/TrigMissingETCnv_p3.h"
 #include "TrigMissingEtEventTPCnv/TrigMissingETContainer_p3.h"
-#include "TrigMissingEtEventTPCnv/TrigMissingETContainerCnv_p3.h"
 
 //dummy instances of all objects using std::vector<TPObjRef> for the dictionary
-struct dummy_TrigMissingEtEventTPCnvDict1
+struct dummy_TrigMissingEtEventTPCnvDict
 {
 
   std::vector<TrigMissingET_p1>	              m_dummyMissingET_p1;
