@@ -64,9 +64,12 @@ DataBucketVoid::DataBucketVoid (TClass* cl, void* ptr)
     if (dvoffs > 0)
       m_dvptr = reinterpret_cast<char*> (ptr) + dvoffs;
 
-    m_baseOffsetMeth.InitWithPrototype (m_dvcl, "baseOffset", "const std::type_info&");
+    std::string proto = "const char*, const ";
+    proto += m_dvcl->GetName();
+    proto += "&, const std::type_info&";
+    m_baseOffsetMeth.InitWithPrototype (m_dvcl, "baseOffset1", proto.c_str());
     if (!m_baseOffsetMeth.IsValid()) {
-      ::Error ("AthenaROOTAccess::DataBucketVoid", "Can't find %s::baseOffset ",
+      ::Error ("AthenaROOTAccess::DataBucketVoid", "Can't find %s::baseOffset1 ",
                m_dvcl->GetName());
     }
   }
@@ -154,6 +157,8 @@ void* DataBucketVoid::cast (const std::type_info& tinfo,
     }
     else {
       m_baseOffsetMeth.ResetParam();
+      m_baseOffsetMeth.SetParam (reinterpret_cast<Long_t> (m_ptr));
+      m_baseOffsetMeth.SetParam (reinterpret_cast<Long_t> (m_dvptr));
       m_baseOffsetMeth.SetParam (reinterpret_cast<Long_t> (&tinfo));
       Long_t ret = 0;
       m_baseOffsetMeth.Execute (ret);
@@ -414,7 +419,7 @@ TClass* DataBucketVoid::findDVBase (TClass* cl)
     TClass* cc = bcl->GetClassPointer();
     TClass* dvbase = findDVBase (cc);
     if (dvbase)
-      break;
+      return dvbase;
   }
 
   return nullptr;

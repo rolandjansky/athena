@@ -42,5 +42,10 @@ transBranchRemap = {
     }
 
 # Pick up extra trigger remappings.
-from TrigEDMConfig.TriggerEDM import getARATypesRenaming
-transBranchRemap.update (getARATypesRenaming())
+try:
+    # Be tolerant of import failures, since we're in AtlasEvent
+    # and TrigEDMConfig is in AtlasTrigger.
+    from TrigEDMConfig.TriggerEDM import getARATypesRenaming
+    transBranchRemap.update (getARATypesRenaming())
+except ImportError:
+    print 'WARNING: Cannot import TrigEDMConfig.TriggerEDM.getARATypesRenaming'
