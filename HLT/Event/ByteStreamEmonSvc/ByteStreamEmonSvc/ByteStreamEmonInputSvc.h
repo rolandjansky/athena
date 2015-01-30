@@ -110,7 +110,9 @@ private:
    int                       m_frequency_counter;
 
    /// Reference to StoreGateSvc;
-   ServiceHandle<StoreGateSvc>         m_inputMetaDataStore;
+   ServiceHandle<StoreGateSvc>  m_inputMetaDataStore;
+   ServiceHandle<StoreGateSvc> m_sgSvc; //!< StoreGateSvc
+
 
    // internal: last update time
    int                                m_lastUpdate;

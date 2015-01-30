@@ -26,6 +26,8 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventType.h"
 #include "ByteStreamData/ByteStreamMetadata.h"
+#include "ByteStreamCnvSvcBase/ByteStreamAddress.h" 
+#include "PersistentDataModel/DataHeader.h"
 
 #include "rc/RunParamsNamed.h"
 
@@ -99,7 +101,9 @@ ByteStreamEmonInputSvc::ByteStreamEmonInputSvc(const std::string& name, ISvcLoca
     m_connect(false),
     m_histSvc(0),
     m_provider(0),
+    m_frequency_counter(60),
     m_inputMetaDataStore("StoreGateSvc/InputMetaDataStore", name ),
+    m_sgSvc("StoreGateSvc", name),
     m_lastUpdate(0)
 {
 
@@ -430,6 +434,30 @@ const RawEvent* ByteStreamEmonInputSvc::nextEvent()
             continue;
         }
         ++m_totalEventCounter;
+    }
+
+    // generate DataHeader
+    DataHeader* Dh = new DataHeader();
+    
+   // Declare header primary
+    Dh->setStatus(DataHeader::Primary);
+
+    // Now add ref to EventInfo objects
+    IOpaqueAddress* iop = new ByteStreamAddress(ClassID_traits<EventInfo>::ID(), "ByteStreamEventInfo", "");
+    StatusCode ioc = m_sgSvc->recordAddress("ByteStreamEventInfo",iop);
+    if (ioc.isSuccess()) {
+        const SG::DataProxy* ptmp = m_sgSvc->transientProxy(ClassID_traits<EventInfo>::ID(), "ByteStreamEventInfo");
+        if (ptmp !=0) {
+            DataHeaderElement DheEI(ptmp->transientAddress(),"ByteStreamEventInfo");
+            Dh->insert(DheEI);
+        }
+        //else ATH_MSG_ERROR("Failed to create EventInfo proxy " << ptmp);
+    }
+    // Record new data header.Boolean flags will allow it's deletion in case
+    // of skipped events.
+    StatusCode rec_sg = m_sgSvc->record<DataHeader>(Dh, "ByteStreamDataHeader", true, false, true);
+    if (rec_sg != StatusCode::SUCCESS) {
+        ATH_MSG_ERROR("Fail to record BS DataHeader in StoreGate. Skipping events?! " << rec_sg);
     }
 
     // we got an event, check if we have to publish

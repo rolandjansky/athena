@@ -13,6 +13,8 @@ use HLTtdaq             HLTtdaq-*                       HLT/HLTExternal
 private
 use EventInfo           EventInfo-*                     Event
 use StoreGate           StoreGate-*                     Control
+use ByteStreamCnvSvcBase ByteStreamCnvSvcBase-*         Event
+use PersistentDataModel PersistentDataModel-*           Database
 end_private
 
 macro_append ByteStreamEmonSvc_shlibflags "-lemon -lohroot"
