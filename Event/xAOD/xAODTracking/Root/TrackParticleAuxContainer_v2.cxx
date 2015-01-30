@@ -82,7 +82,7 @@ namespace xAOD {
       AUX_VARIABLE( numberOfTRTDeadStraws             );
       AUX_VARIABLE( numberOfTRTTubeHits               );
       AUX_VARIABLE( numberOfTRTXenonHits              );
-
+      AUX_VARIABLE( numberOfTRTSharedHits              );
       AUX_VARIABLE( numberOfPrecisionLayers );
       AUX_VARIABLE( numberOfPrecisionHoleLayers );
       AUX_VARIABLE( numberOfPhiLayers );

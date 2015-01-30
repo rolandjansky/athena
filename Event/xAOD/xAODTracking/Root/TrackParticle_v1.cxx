@@ -246,6 +246,7 @@ namespace xAOD {
   size_t TrackParticle_v1::numberOfParameters() const{
     ///@todo - Can we do this in a better way? Not great to force retrieval of one specific parameter - any would do.
     static Accessor< std::vector<float>  > acc( "parameterX" );
+    if(! acc.isAvailable( *this )) return 0;
     return acc(*this).size();
   }
 
