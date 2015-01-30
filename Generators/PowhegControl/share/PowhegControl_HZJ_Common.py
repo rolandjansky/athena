@@ -1,4 +1,4 @@
-from PowhegControl.PowhegUtils import PowhegConfig_HZJ
+from PowhegControl import PowhegConfig_HZJ
 
 # Use the PowhegConfig_HZJ configuration
 if 'runArgs' in dir() :
