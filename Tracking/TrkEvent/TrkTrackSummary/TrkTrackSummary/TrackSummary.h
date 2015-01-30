@@ -76,6 +76,7 @@ enum SummaryType {
         numberOfTRTDeadStraws           =37,  //!< number of dead TRT straws crossed
         numberOfTRTTubeHits             =38,  //!< number of TRT tube hits
         numberOfTRTXenonHits            =46,  //!< number of TRT hits on track in straws with xenon
+	numberOfTRTSharedHits           =62,  //!< number of TRT hits used by more than one track
          
     // --- Muon Spectrometer
         numberOfMdtHits                 = 7,       //!< number of mdt hits
@@ -106,7 +107,7 @@ enum SummaryType {
 	pixeldEdx_res                       = 51, //!< the dE/dx estimate, calculated using the pixel clusters [?]
 
  // -- numbers...
-        numberOfTrackSummaryTypes = 62
+        numberOfTrackSummaryTypes = 63
     };
 
 // Troels.Petersen@cern.ch:
