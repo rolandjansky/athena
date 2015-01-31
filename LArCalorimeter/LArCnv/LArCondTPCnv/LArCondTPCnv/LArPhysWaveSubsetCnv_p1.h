@@ -26,11 +26,4 @@ public:
 
 };
 
-template<>
-class T_TPCnv<LArPWTransType, LArPWPersType >
-    : public LArPhysWaveSubsetCnv_p1
-{
-public:
-};
-
 #endif

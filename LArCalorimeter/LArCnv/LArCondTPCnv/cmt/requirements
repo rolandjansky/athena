@@ -16,7 +16,6 @@ library LArCondTPCnv *.cxx
 apply_pattern tpcnv_library
 
 apply_pattern lcgdict dict=LArCondTPCnv selectionfile=selection.xml headerfiles="../LArCondTPCnv/LArCondTPCnvDict.h"
-apply_pattern lcgdict dict=ARA_LArCondTPCnv selectionfile=ARA_selection.xml headerfiles="../LArCondTPCnv/LArCondTPCnvDict.h"
 apply_pattern lcgdict dict=OLD_LArCondTPCnv selectionfile=OLD_selection.xml headerfiles="../LArCondTPCnv/LArCondTPCnvDict.h"
 
 private

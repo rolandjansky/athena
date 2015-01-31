@@ -25,11 +25,4 @@ public:
 
 };
 
-template<>
-class T_TPCnv<LArPedestalMC, LArPedestalMC_p1 >
-    : public LArPedestalMCCnv_p1
-{
-public:
-};
-
 #endif

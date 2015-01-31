@@ -26,11 +26,4 @@ public:
 
 };
 
-template<>
-class T_TPCnv<LArConditionsSubset<LArRampP1>, LArRampSubset_p1 >
-    : public LArRampSubsetCnv_p1
-{
-public:
-};
-
 #endif

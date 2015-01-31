@@ -26,11 +26,4 @@ public:
 
 };
 
-template<>
-class T_TPCnv<LArConditionsSubset<LArPedestalP1>, LArPedestalSubset_p1 >
-    : public LArPedestalSubsetCnv_p1
-{
-public:
-};
-
 #endif
