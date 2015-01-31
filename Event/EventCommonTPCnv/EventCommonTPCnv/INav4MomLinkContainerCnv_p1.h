@@ -70,10 +70,4 @@ public:
 };
 
 
-template <>
-class T_TPCnv< INav4MomLinkContainer, INav4MomLinkContainer_p1 >
-  : public INav4MomLinkContainerCnv_p1 
-{};
-
-
 #endif // EVENTCOMMONTPCNV_INAV4MOMLINKCONTAINERCNV_P1_H

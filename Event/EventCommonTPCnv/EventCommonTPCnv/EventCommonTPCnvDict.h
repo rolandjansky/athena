@@ -26,16 +26,12 @@
 #include "EventCommonTPCnv/HepLorentzVector_p1.h"
 
 #include "EventCommonTPCnv/INav4MomLinkContainer_p1.h"
-#include "EventCommonTPCnv/INav4MomLinkContainerCnv_p1.h"
 
 #include "EventCommonTPCnv/IParticleLinkContainer_p1.h"
-#include "EventCommonTPCnv/IParticleLinkContainerCnv_p1.h"
 
 #include "EventCommonTPCnv/INav4MomAssocs_p1.h"
 #include "EventCommonTPCnv/INav4MomAssocs_p2.h"
-#include "EventCommonTPCnv/INav4MomAssocsCnv_p2.h"
 #include "EventCommonTPCnv/INav4MomAssocs_p3.h"
-#include "EventCommonTPCnv/INav4MomAssocsCnv_p3.h"
 
 
 
@@ -52,18 +48,13 @@ namespace EventCommonTPCnvDict_tmp {
     std::vector<P4PtEtaPhiMFloat_p2>    m_p4ptetaphimvs;
     std::vector<P4PxPyPzE_p1>      m_p4pxpypzs;
 
-    T_TPCnv<INav4MomLinkContainer, INav4MomLinkContainer_p1> m_inav4momlinktpcnv_p1;
     INav4MomLinkContainer_p1 m_inav4momlink_p1;
 
-    T_TPCnv<IParticleLinkContainer, IParticleLinkContainer_p1> m_ipartlinktpcnv_p1;
     IParticleLinkContainer_p1 m_ipartlink_p1;
 
-    T_TPCnv<INav4MomAssocs, INav4MomAssocs_p2> m_assocscnv_p2;
     INav4MomAssocs_p2 m_assocs_p2;
     INav4MomAssocs_p2::Assocs_t m_assocs_assocs_p2;
     INav4MomAssocs_p2::AssocElem_t m_assocs_elems_p2;
-
-    T_TPCnv<INav4MomAssocs, INav4MomAssocs_p3> m_assocscnv_p3;
     INav4MomAssocs_p3 m_assocs_p3;
     INav4MomAssocs_p3::Assocs_t m_assocs_assocs_p3;
     INav4MomAssocs_p3::AssocElem_t m_assocs_elems_p3;

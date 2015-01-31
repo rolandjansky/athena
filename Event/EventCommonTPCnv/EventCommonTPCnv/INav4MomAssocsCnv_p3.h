@@ -108,10 +108,4 @@ inline INav4MomAssocsCnv_p3::INav4MomAssocsCnv_p3()
 inline INav4MomAssocsCnv_p3::~INav4MomAssocsCnv_p3()
 {}
 
-/// @class specialization for AthenaROOTAccess benefit
-template<>
-class T_TPCnv<INav4MomAssocs, INav4MomAssocs_p3>
-  : public INav4MomAssocsCnv_p3
-{};
-
 #endif //> EVENTCOMMONTPCNV_INAV4MOMASSOCSCNV_p3_H

@@ -31,7 +31,6 @@ apply_pattern tpcnv_library
 # dependencies
 private
 apply_pattern lcgdict dict=EventCommonTPCnv selectionfile=selection.xml headerfiles="../EventCommonTPCnv/EventCommonTPCnvDict.h"
-apply_pattern lcgdict dict=ARA_EventCommonTPCnv selectionfile=ARA_selection.xml headerfiles="../EventCommonTPCnv/EventCommonTPCnvDict.h"
 apply_pattern lcgdict dict=OLD_EventCommonTPCnv selectionfile=OLD_selection.xml headerfiles="../EventCommonTPCnv/EventCommonTPCnvDict.h"
 end_private
 
