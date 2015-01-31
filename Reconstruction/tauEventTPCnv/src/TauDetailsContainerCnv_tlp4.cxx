@@ -40,18 +40,3 @@ void TauDetailsContainerCnv_tlp4 :: setPStorage(TauDetailsContainer_tlp4 *storag
     m_TauPi0DetailsCnv.setPStorage(&storage->m_TauPi0Details);
 }
 
-T_TPCnv<Analysis::TauDetailsContainer, TauDetailsContainer_tlp4 >::T_TPCnv(){}
-
-T_TPCnv<Analysis::TauDetailsContainer, TauDetailsContainer_tlp4 >::~T_TPCnv(){}
-
-void T_TPCnv<Analysis::TauDetailsContainer,TauDetailsContainer_tlp4 >::persToTrans (const TauDetailsContainer_tlp4* pers,
-	     Analysis::TauDetailsContainer* trans, MsgStream& msg){
-    setPStorage (const_cast<TauDetailsContainer_tlp4*> (pers));
-    m_mainConverter.pstoreToTrans (0, trans, msg);
-}
-
-void T_TPCnv<Analysis::TauDetailsContainer, TauDetailsContainer_tlp4 >::transToPers (const Analysis::TauDetailsContainer* trans, TauDetailsContainer_tlp4* pers, MsgStream& msg){
-    this->setTLPersObject(pers) ;
-    m_mainConverter.virt_toPersistent(trans, msg);
-    this->clearTLPersObject();
-}

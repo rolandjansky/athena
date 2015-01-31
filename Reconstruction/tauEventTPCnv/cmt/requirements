@@ -29,7 +29,4 @@ private
 apply_pattern lcgdict dict=tauEventTPCnv  \
               selectionfile=selection.xml \
               headerfiles="../tauEventTPCnv/tauEventTPCnvDict.h"
-apply_pattern lcgdict dict=ARA_tauEventTPCnv \
-              selectionfile=ARA_selection.xml \
-              headerfiles="../tauEventTPCnv/tauEventTPCnvDict.h"
 end_private

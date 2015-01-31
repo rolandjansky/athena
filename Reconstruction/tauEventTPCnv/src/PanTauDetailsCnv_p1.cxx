@@ -25,6 +25,10 @@ void PanTauDetailsCnv_p1::persToTrans( const PanTauDetails_p1 *persObj, PanTau::
     transObj->m_Name_InputAlg                                    = persObj->m_Name_InputAlg;
     transObj->m_RecoMode_SubAlg                                  = persObj->m_RecoMode_SubAlg;
     transObj->m_RecoMode_PanTau                                  = persObj->m_RecoMode_PanTau;
+    transObj->m_BDTValue_1p0n_vs_1p1n                            = persObj->m_BDTValue_1p0n_vs_1p1n;
+    transObj->m_BDTValue_1p1n_vs_1pXn                            = persObj->m_BDTValue_1p1n_vs_1pXn;
+    transObj->m_BDTValue_3p0n_vs_3pXn                            = persObj->m_BDTValue_3p0n_vs_3pXn;
+    
     transObj->m_pantau_proto_pt                                  = persObj->m_pantau_proto_pt;
     transObj->m_pantau_proto_eta                                 = persObj->m_pantau_proto_eta;
     transObj->m_pantau_proto_phi                                 = persObj->m_pantau_proto_phi;
@@ -84,6 +88,11 @@ void PanTauDetailsCnv_p1::transToPers( const PanTau::PanTauDetails *transObj, Pa
     persObj->m_Name_InputAlg                                    = transObj->m_Name_InputAlg;
     persObj->m_RecoMode_SubAlg                                  = transObj->m_RecoMode_SubAlg;
     persObj->m_RecoMode_PanTau                                  = transObj->m_RecoMode_PanTau;
+    
+    persObj->m_BDTValue_1p0n_vs_1p1n                            = transObj->m_BDTValue_1p0n_vs_1p1n;
+    persObj->m_BDTValue_1p1n_vs_1pXn                            = transObj->m_BDTValue_1p1n_vs_1pXn;
+    persObj->m_BDTValue_3p0n_vs_3pXn                            = transObj->m_BDTValue_3p0n_vs_3pXn;
+    
     persObj->m_pantau_proto_pt                                  = transObj->m_pantau_proto_pt;
     persObj->m_pantau_proto_eta                                 = transObj->m_pantau_proto_eta;
     persObj->m_pantau_proto_phi                                 = transObj->m_pantau_proto_phi;

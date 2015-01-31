@@ -30,18 +30,3 @@ void TauDetailsContainerCnv_tlp2 :: setPStorage(TauDetailsContainer_tlp2 *storag
     m_tauCommonExtraDetailsCnv.setPStorage(&storage->m_tauCommonExtraDetails);
 }
 
-T_TPCnv<Analysis::TauDetailsContainer, TauDetailsContainer_tlp2 >::T_TPCnv(){}
-
-T_TPCnv<Analysis::TauDetailsContainer, TauDetailsContainer_tlp2 >::~T_TPCnv(){}
-
-void T_TPCnv<Analysis::TauDetailsContainer,TauDetailsContainer_tlp2 >::persToTrans (const TauDetailsContainer_tlp2* pers,
-	     Analysis::TauDetailsContainer* trans, MsgStream& msg){
-    setPStorage (const_cast<TauDetailsContainer_tlp2*> (pers));
-    m_mainConverter.pstoreToTrans (0, trans, msg);
-}
-
-void T_TPCnv<Analysis::TauDetailsContainer, TauDetailsContainer_tlp2 >::transToPers (const Analysis::TauDetailsContainer* trans, TauDetailsContainer_tlp2* pers, MsgStream& msg){
-    this->setTLPersObject(pers) ;
-    m_mainConverter.virt_toPersistent(trans, msg);
-    this->clearTLPersObject();
-}
