@@ -38,7 +38,8 @@ namespace CaloCell_ID_FCS {
     // Beware of MiniFCAL! We don't have it, so different numbers after FCAL2
     
     LastSample = CaloCell_ID::FCAL2,
-    MaxSample = LastSample+1
+    MaxSample = LastSample+1,
+    noSample = -1
   };
 }
 #endif
