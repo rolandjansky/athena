@@ -33,10 +33,4 @@ public:
  
 };
 
-// converter needed for ARA
-template<>
-class T_TPCnv< RawInfoSummaryForTag, RawInfoSummaryForTag_p1 > : public RawInfoSummaryForTagCnv_p1 {
- public:
-};
-
 #endif 
