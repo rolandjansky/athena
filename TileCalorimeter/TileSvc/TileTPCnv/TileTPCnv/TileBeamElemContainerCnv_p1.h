@@ -28,12 +28,5 @@ typedef T_TilePoolContainerCnv<
             TileBeamElemCnv_p1
        > TileBeamElemContainerCnv_p1;
 
-template<>
-class T_TPCnv<TileBeamElemContainer, TileBeamElemContainer_p1>
-  : public TileBeamElemContainerCnv_p1
-{
-public:
-};
-
 #endif //> TILETPCNV_TILEBEAMELEMCONTAINERCNV_P1_H
 

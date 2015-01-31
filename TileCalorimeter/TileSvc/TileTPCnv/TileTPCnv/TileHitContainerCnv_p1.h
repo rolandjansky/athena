@@ -28,12 +28,5 @@ typedef T_TilePoolContainerCnv<
             TileHitCnv_p1
        > TileHitContainerCnv_p1;
 
-template<>
-class T_TPCnv<TileHitContainer, TileHitContainer_p1>
-  : public TileHitContainerCnv_p1
-{
-public:
-};
-
 #endif //> TILETPCNV_TILEHITCONTAINERCNV_P1_H
 

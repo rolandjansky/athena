@@ -28,11 +28,4 @@ typedef T_AthenaPoolTPCnvVector<
             TileCosmicMuonCnv_p2
        > TileCosmicMuonContainerCnv_p2;
 
-template<>
-class T_TPCnv<TileCosmicMuonContainer, TileCosmicMuonContainer_p2>
-  : public TileCosmicMuonContainerCnv_p2
-{
-public:
-};
-
 #endif //> TILETPCNV_TILECOSMICMUONCONTAINERCNV_P2_H

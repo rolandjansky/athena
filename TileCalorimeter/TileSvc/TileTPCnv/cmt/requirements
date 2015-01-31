@@ -17,5 +17,4 @@ library TileTPCnv *.cxx
 apply_pattern tpcnv_library
 
 apply_pattern lcgdict dict=TileTPCnv  selectionfile=selection.xml headerfiles="../TileTPCnv/TileTPCnvDict.h"
-apply_pattern lcgdict dict=ARA_TileTPCnv  selectionfile=ARA_selection.xml headerfiles="../TileTPCnv/TileTPCnvDict.h"
 apply_pattern lcgdict dict=OLD_TileTPCnv  selectionfile=OLD_selection.xml headerfiles="../TileTPCnv/TileTPCnvDict.h"

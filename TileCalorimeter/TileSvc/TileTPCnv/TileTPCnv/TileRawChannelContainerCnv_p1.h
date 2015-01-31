@@ -28,12 +28,5 @@ typedef T_TilePoolContainerCnv<
             TileRawChannelCnv_p1
        > TileRawChannelContainerCnv_p1;
 
-template<>
-class T_TPCnv<TileRawChannelContainer, TileRawChannelContainer_p1>
-  : public TileRawChannelContainerCnv_p1
-{
-public:
-};
-
 #endif //> TILETPCNV_TILERAWCHANNELCONTAINERCNV_P1_H
 

@@ -28,11 +28,4 @@ typedef T_AthenaPoolTPCnvVector<
             TileMuonReceiverObjCnv_p1
        > TileMuonReceiverContainerCnv_p1;
 
-template<>
-class T_TPCnv<TileMuonReceiverContainer, TileMuonReceiverContainer_p1>
-  : public TileMuonReceiverContainerCnv_p1
-{
-public:
-};
-
 #endif
