@@ -24,7 +24,6 @@ use LArRecEvent          LArRecEvent-*          LArCalorimeter
 
 #use CBNT_Utils           CBNT_Utils-*           Reconstruction
 
-#use TruthHelper          TruthHelper-*          Generators/GenAnalysisTools
 #use  GeneratorObjects     GeneratorObjects-*    Generators
 use FastSimulationEvent  FastSimulationEvent-*  Simulation/FastSimulation
 
@@ -38,11 +37,17 @@ use TrkParameters        TrkParameters-*        Tracking/TrkEvent
 
 use AthenaBaseComps	AthenaBaseComps-*	Control
 
+public
+use TrkExInterfaces      TrkExInterfaces-*      Tracking/TrkExtrapolation
+use TrkEventPrimitives   TrkEventPrimitives-*   Tracking/TrkEvent
+#use TruthHelper          TruthHelper-*          Generators/GenAnalysisTools
+
 private
 use AtlasCLHEP_RandomGenerators AtlasCLHEP_RandomGenerators-* Simulation/Tools
 use AtlasCLHEP           AtlasCLHEP-*           External
 use TruthUtils  TruthUtils-*  Generators
 use GeneratorObjects     GeneratorObjects-*    Generators
+use TrkGeometry         TrkGeometry-*          Tracking/TrkDetDescr 
 end_private
 
 private
@@ -102,11 +107,9 @@ use CaloTrackingGeometry CaloTrackingGeometry-* Calorimeter
 use DataModel            DataModel-*            Control
 use EventKernel          EventKernel-*          Event
 #use ITrackToCalo         ITrackToCalo-*         Reconstruction/RecoTools
-#use RecoToolInterfaces  RecoToolInterfaces-*    Reconstruction/RecoTools
 use NavFourMom           NavFourMom-*           Event
 use PartPropSvc          v*
 use PathResolver         PathResolver-*         Tools
-use TrkExInterfaces      TrkExInterfaces-*      Tracking/TrkExtrapolation
 use TrkMaterialOnTrack   TrkMaterialOnTrack-*   Tracking/TrkEvent
 use TrkSurfaces          TrkSurfaces-*          Tracking/TrkDetDescr
 use GeoPrimitives               GeoPrimitives-*              DetectorDescription

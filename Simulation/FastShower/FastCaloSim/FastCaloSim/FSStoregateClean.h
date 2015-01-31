@@ -9,18 +9,19 @@
 #include <vector>
 
 // Gaudi
-#ifndef GAUDIKERNEL_ALGORITHM_H
-#include "GaudiKernel/Algorithm.h"
-#define GAUDIKERNEL_ALGORITHM_H
-#endif
+//#ifndef GAUDIKERNEL_ALGORITHM_H
+//#include "GaudiKernel/Algorithm.h"
+//#define GAUDIKERNEL_ALGORITHM_H
+//#endif
 
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/StoreGateSvc.h"
 
 class ISvcLocator;
 
 namespace FastCaloSim {
 
-  class FSStoregateClean : public Algorithm {
+  class FSStoregateClean : public AthAlgorithm {
 
   public:
     /** Standard Athena-Algorithm Constructor */
@@ -33,8 +34,6 @@ namespace FastCaloSim {
 
   private:
     std::vector< std::string > m_SG_keys;
-    /// a handle on Store Gate 
-    StoreGateSvc* m_storeGate;
   };
 
 } // end of namespace bracket
