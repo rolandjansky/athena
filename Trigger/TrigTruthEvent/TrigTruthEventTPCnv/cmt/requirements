@@ -36,10 +36,6 @@ apply_pattern lcgdict dict=TrigTruthEventTPCnv  \
   selectionfile=selection.xml \
   headerfiles="../TrigTruthEventTPCnv/TrigTruthEventTPCnvDict.h"
 
-apply_pattern lcgdict dict=ARA_TrigTruthEventTPCnv  \
-  selectionfile=ARA_selection.xml \
-  headerfiles="../TrigTruthEventTPCnv/TrigTruthEventTPCnvDict.h"
-
 apply_pattern lcgdict dict=OLD_TrigTruthEventTPCnv  \
   selectionfile=OLD_selection.xml \
   headerfiles="../TrigTruthEventTPCnv/TrigTruthEventTPCnvDict.h"

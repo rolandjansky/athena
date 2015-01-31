@@ -45,15 +45,4 @@ class TrigInDetTrackTruthMapCnv_tlp2 : public AthenaPoolTopLevelTPConverter<Trig
 };
 
 
-template <>
-class T_TPCnv<TrigInDetTrackTruthMap, TrigInDetTrackTruthMap_tlp2>
-  : public TrigInDetTrackTruthMapCnv_tlp2
-{
-public:
-  virtual void persToTrans (const TrigInDetTrackTruthMap_tlp2* pers,
-                            TrigInDetTrackTruthMap* trans,
-                            MsgStream& msg);
-};
-
-
 #endif
