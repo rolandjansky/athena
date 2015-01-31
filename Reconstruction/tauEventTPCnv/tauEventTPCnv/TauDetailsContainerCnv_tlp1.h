@@ -16,8 +16,8 @@
 ///
 /// $Id: TauDetailsContainerCnv_tlp1.h,v 1.7 2009-01-20 17:19:02 tburgess Exp $
 
-#ifndef TAUEVENTTPCNV_TAUDETAILSCONTAINERCNV_TLP1_Ha
-#define TAUEVENTTPCNV_TAUDETAILSCONTAINERCNV_TLP1_Ha
+#ifndef __tauEventTPCnv_TAU_DETAILS_CONTAINER_CNV_TLP1_H__
+#define __tauEventTPCnv_TAU_DETAILS_CONTAINER_CNV_TLP1_H__
 
 #include "AthenaPoolCnvSvc/AthenaPoolTopLevelTPConverter.h"
 #include "TauDetailsContainer_tlp1.h"
@@ -90,4 +90,4 @@ protected:
     ErrorMatrixCnv_p1 m_errorMatrixCnv;
 };
 
-#endif // TAUEVENTTPCNV_TAUDETAILSCONTAINERCNV_TLP1_Ha
+#endif // __tauEventTPCnv_TAU_DETAILS_CONTAINER_CNV_TLP1_H__

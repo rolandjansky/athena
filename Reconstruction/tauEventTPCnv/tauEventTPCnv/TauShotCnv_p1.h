@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef TAUEVENTTPCNV_TAUSHOTCNV_P1_H
-#define TAUEVENTTPCNV_TAUSHOTCNV_P1_H
+#ifndef __RECTPCNV_TAUSHOT_CNV_P1_H__
+#define __RECTPCNV_TAUSHOT_CNV_P1_H__
 
 /// pool converter
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"

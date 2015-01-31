@@ -16,7 +16,12 @@
 /// $Id: TauRecExtraDetailsCnv_p1.cxx,v 1.8 2009-01-20 17:19:01 tburgess Exp $
 
 //Trick to access private members in tau rec extra details
+#define private public
+#define protected public
 #include "tauEvent/TauRecExtraDetails.h"
+#undef private
+#undef protected
+
 #include "tauEventTPCnv/TauRecExtraDetailsCnv_p1.h"
 #include "tauEvent/TauJetParameters.h"
 #include "tauEvent/tauAnalysisHelperObject.h"
@@ -39,18 +44,17 @@ void TauRecExtraDetailsCnv_p1::persToTrans(
     Analysis::TauRecExtraDetails *trans,
     MsgStream &msg )
 {
-    trans->setNumEMCells (pers->m_numEMCells);
-    trans->setStripET (pers->m_stripET);
-    trans->setEMCentralityFraction (pers->m_emCentralityFraction);
-    trans->setETHadAtEMScale (pers->m_etHadAtEMScale);
-    trans->setETEMAtEMScale (pers->m_etEMAtEMScale);
-    trans->setEnergy (pers->m_sumCellE);
-    trans->setEMEnergy (pers->m_sumEMCellE);
-    trans->setSumPTTracks (pers->m_sumPTTracks);
-
-    trans->setAnalysisHelper (createTransFromPStore
-                              (&m_tauAnalysisHelperObjectCnv, pers->m_analysisHelper, msg ));
-    trans->setSeedType ((TauJetParameters::SeedTypes)pers->m_seedType);
+    trans->m_numEMCells=pers->m_numEMCells;
+    trans->m_stripET=pers->m_stripET;
+    trans->m_emCentralityFraction=pers->m_emCentralityFraction;
+    trans->m_etHadAtEMScale=pers->m_etHadAtEMScale;
+    trans->m_etEMAtEMScale=pers->m_etEMAtEMScale;
+    trans->m_sumCellE=pers->m_sumCellE;
+    trans->m_sumEMCellE=pers->m_sumEMCellE;
+    trans->m_sumPTTracks=pers->m_sumPTTracks;
+    trans->m_analysisHelper=createTransFromPStore( 
+	&m_tauAnalysisHelperObjectCnv, pers->m_analysisHelper, msg );
+    trans->m_seedType=(TauJetParameters::SeedTypes)pers->m_seedType;
 }
 
 void TauRecExtraDetailsCnv_p1::transToPers
@@ -59,6 +63,6 @@ void TauRecExtraDetailsCnv_p1::transToPers
     MsgStream &msg )
 {
     msg << MSG::WARNING << "TauRecDetailsCnv_p1::transToPers called "
-	"this should not happen, as this method is deprecated" << endmsg;
+	"this should not happen, as this method is deprecated" << endreq;
     return;
 }

@@ -9,8 +9,8 @@
 /// ////////////////////////////////////////////////////////////
 
 
-#ifndef TAUEVENTTPCNV_PANTAUDETAILS_P1_H
-#define TAUEVENTTPCNV_PANTAUDETAILS_P1_H
+#ifndef __tauEventTPCnv_PANTAUEVENT_PANTAUDETAILS_P1_H__
+#define __tauEventTPCnv_PANTAUEVENT_PANTAUDETAILS_P1_H__
 /********************************************************************
 
 NAME:     PanTauDetails_p1.h
@@ -25,6 +25,7 @@ PURPOSE:  PanTau::PanTauDetails persistent data class
 
 //!Header Files
 #include "DataModelAthenaPool/ElementLinkVector_p1.h"
+#include "DataModel/DataVector.h"
 
 #include <vector>
 

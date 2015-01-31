@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef TAUEVENTTPCNV_TAUPI0DETAILSCNV_P1_H
-#define TAUEVENTTPCNV_TAUPI0DETAILSCNV_P1_H
+#ifndef __tauEventTPCnv_TAUPI0DETAILS_CNV_P1_H__
+#define __tauEventTPCnv_TAUPI0DETAILS_CNV_P1_H__
 
 /// pool converter
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"

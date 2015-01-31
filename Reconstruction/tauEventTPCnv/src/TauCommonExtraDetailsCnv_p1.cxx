@@ -15,7 +15,13 @@
 ///
 /// $Id: TauCommonExtraDetailsCnv_p1.cxx,v 1.3 2009-01-20 17:19:01 tburgess Exp $
 
+//trick to access private members in tau common details
+#define private public
+#define protected public
 #include "tauEvent/TauCommonExtraDetails.h"
+#undef private
+#undef protected
+
 #include "tauEventTPCnv/VectorUtils.h"
 #include "tauEventTPCnv/TauCommonExtraDetailsCnv_p1.h"
 
@@ -36,13 +42,13 @@ void TauCommonExtraDetailsCnv_p1::persToTrans(
     Analysis::TauCommonExtraDetails *trans,
     MsgStream &msg )
 {
-    trans->setSumPtLooseTrk (pers->m_sumPtLooseTrk);
-    trans->setSumPtTrk (pers->m_sumPtTrk);   
-    trans->setSeedCalo_nEMCell (pers->m_seedCalo_nEMCell);
-    trans->setSeedCalo_stripEt (pers->m_seedCalo_stripEt);
-    trans->setSeedCalo_EMCentFrac (pers->m_seedCalo_EMCentFrac);
-    trans->setSeedCalo_sumCellEnergy (pers->m_seedCalo_sumCellEnergy);
-    trans->setSeedCalo_sumEMCellEnergy (pers->m_seedCalo_sumEMCellEnergy);
+    trans->m_sumPtLooseTrk=pers->m_sumPtLooseTrk;
+    trans->m_sumPtTrk=pers->m_sumPtTrk;   
+    trans->m_seedCalo_nEMCell=pers->m_seedCalo_nEMCell;
+    trans->m_seedCalo_stripEt=pers->m_seedCalo_stripEt;
+    trans->m_seedCalo_EMCentFrac=pers->m_seedCalo_EMCentFrac;
+    trans->m_seedCalo_sumCellEnergy=pers->m_seedCalo_sumCellEnergy;
+    trans->m_seedCalo_sumEMCellEnergy=pers->m_seedCalo_sumEMCellEnergy;
     m_cellCnv.resetForCnv( pers->m_linkNames );
     const unsigned int tracks = pers->m_tracks;
     if ( tracks == 0 ) return;
@@ -54,19 +60,19 @@ void TauCommonExtraDetailsCnv_p1::persToTrans(
         for( unsigned short int j = 0; j < samplings; ++j ) {
             m_cellCnv.persToTrans( 
 		pers->m_closestEtaTrkVertCell[ind], 
-		trans->closestEtaTrkVertCell()[i][j], msg );
+		trans->m_closestEtaTrkVertCell[i][j], msg );
             m_cellCnv.persToTrans( 
 		pers->m_closestEtaTrkCell[ind], 
-		trans->closestEtaTrkCell()[i][j], msg );
+		trans->m_closestEtaTrkCell[i][j], msg );
             m_cellCnv.persToTrans( 
 		pers->m_closestPhiTrkVertCell[ind],
-		trans->closestPhiTrkVertCell()[i][j], msg );
+		trans->m_closestPhiTrkVertCell[i][j], msg );
             m_cellCnv.persToTrans( 
 		pers->m_closestPhiTrkCell[ind], 
-		trans->closestPhiTrkCell()[i][j], msg );
-            trans->etaTrkCaloSamp()[i][j] = 
+		trans->m_closestPhiTrkCell[i][j], msg );
+            trans->m_etaTrkCaloSamp[i][j] = 
 		pers->m_etaTrkCaloSamp[ind];
-            trans->phiTrkCaloSamp()[i][j] = 
+            trans->m_phiTrkCaloSamp[i][j] = 
 		pers->m_phiTrkCaloSamp[ind];
                
             ++ind;
@@ -79,9 +85,9 @@ void TauCommonExtraDetailsCnv_p1::persToTrans(
     ind = 0; 
     for( unsigned short int i = 0; i < looseTracks; ++i ) {
         for( unsigned short int j = 0; j < looseSamplings; ++j ) {
-            trans->etaLooseTrkCaloSamp()[i][j] = 
+            trans->m_etaLooseTrkCaloSamp[i][j] = 
 		pers->m_etaLooseTrkCaloSamp[ind];
-            trans->phiLooseTrkCaloSamp()[i][j] = 
+            trans->m_phiLooseTrkCaloSamp[i][j] = 
 		pers->m_phiLooseTrkCaloSamp[ind];    
             ++ind;
      
@@ -96,20 +102,20 @@ void TauCommonExtraDetailsCnv_p1::transToPers(
     TauCommonExtraDetails_p1 *pers,
     MsgStream &msg )
 {
-    pers->m_sumPtLooseTrk=trans->sumPtLooseTrk();
-    pers->m_sumPtTrk=trans->sumPtTrk();   
-    pers->m_seedCalo_nEMCell=trans->seedCalo_nEMCell();
-    pers->m_seedCalo_stripEt=trans->seedCalo_stripEt();
-    pers->m_seedCalo_EMCentFrac=trans->seedCalo_EMCentFrac();
-    pers->m_seedCalo_sumCellEnergy=trans->seedCalo_sumCellEnergy();
-    pers->m_seedCalo_sumEMCellEnergy=trans->seedCalo_sumEMCellEnergy();
+    pers->m_sumPtLooseTrk=trans->m_sumPtLooseTrk;
+    pers->m_sumPtTrk=trans->m_sumPtTrk;   
+    pers->m_seedCalo_nEMCell=trans->m_seedCalo_nEMCell;
+    pers->m_seedCalo_stripEt=trans->m_seedCalo_stripEt;
+    pers->m_seedCalo_EMCentFrac=trans->m_seedCalo_EMCentFrac;
+    pers->m_seedCalo_sumCellEnergy=trans->m_seedCalo_sumCellEnergy;
+    pers->m_seedCalo_sumEMCellEnergy=trans->m_seedCalo_sumEMCellEnergy;
     m_cellCnv.resetForCnv( pers->m_linkNames );
-    const unsigned int tracks = trans->closestEtaTrkVertCell().size();
-    const unsigned int looseTracks = trans->etaLooseTrkCaloSamp().size();
+    const unsigned int tracks = trans->m_closestEtaTrkVertCell.size();
+    const unsigned int looseTracks = trans->m_etaLooseTrkCaloSamp.size();
     pers->m_tracks = tracks;
     pers->m_looseTracks = looseTracks;
     if ( tracks == 0 ) return;
-    const unsigned int colsize = trans->closestEtaTrkVertCell()[0].size();
+    const unsigned int colsize = trans->m_closestEtaTrkVertCell[0].size();
     const unsigned int size = tracks*colsize;
     const unsigned int loosesize = looseTracks*colsize;
     pers->m_closestEtaTrkVertCell.resize( size );
@@ -125,25 +131,25 @@ void TauCommonExtraDetailsCnv_p1::transToPers(
     for( unsigned short int i = 0; i < tracks; ++i ) {
         for( unsigned short int j = 0; j < colsize; ++j ) {
             m_cellCnv.transToPers( 
-                trans->closestEtaTrkVertCell()[i][j], 
+		trans->m_closestEtaTrkVertCell[i][j], 
 		pers->m_closestEtaTrkVertCell[ind], msg );
             m_cellCnv.transToPers( 
-		trans->closestEtaTrkCell()[i][j], 
+		trans->m_closestEtaTrkCell[i][j], 
 		pers->m_closestEtaTrkCell[ind], msg );
             m_cellCnv.transToPers( 
-		trans->closestPhiTrkVertCell()[i][j],
+		trans->m_closestPhiTrkVertCell[i][j],
 		pers->m_closestPhiTrkVertCell[ind], msg );
             m_cellCnv.transToPers( 
-		trans->closestPhiTrkCell()[i][j], 
+		trans->m_closestPhiTrkCell[i][j], 
 		pers->m_closestPhiTrkCell[ind], msg );
             pers->m_etaTrkCaloSamp[ind] = 
-		trans->etaTrkCaloSamp()[i][j];
+		trans->m_etaTrkCaloSamp[i][j];
             pers->m_phiTrkCaloSamp[ind] = 
-		trans->phiTrkCaloSamp()[i][j];
+		trans->m_phiTrkCaloSamp[i][j];
             pers->m_etaLooseTrkCaloSamp[ind] = 
-		trans->etaLooseTrkCaloSamp()[i][j];
+		trans->m_etaLooseTrkCaloSamp[i][j];
             pers->m_phiLooseTrkCaloSamp[ind] = 
-		trans->phiLooseTrkCaloSamp()[i][j];
+		trans->m_phiLooseTrkCaloSamp[i][j];
                 
             ++ind;
         }
@@ -154,9 +160,9 @@ void TauCommonExtraDetailsCnv_p1::transToPers(
     for( unsigned short int i = 0; i < looseTracks; ++i ) {
         for( unsigned short int j = 0; j < colsize; ++j ) {
             pers->m_etaLooseTrkCaloSamp[ind] = 
-              trans->etaLooseTrkCaloSamp()[i][j];
+		trans->m_etaLooseTrkCaloSamp[i][j];
             pers->m_phiLooseTrkCaloSamp[ind] = 
-              trans->phiLooseTrkCaloSamp()[i][j];
+		trans->m_phiLooseTrkCaloSamp[i][j];
                 
             ++ind;
     

@@ -18,7 +18,13 @@
 /// $Id: TauJetCnv_p4.cxx,v 1.5 2009-03-02 17:13:27 binet Exp $
 
 
+//trick to access private members in tau jet
+#define private public
+#define protected public
 #include "tauEvent/TauJet.h"
+#undef private
+#undef protected
+
 #include "DataModelAthenaPool/ElementLinkCnv_p3.h"
 #include "DataModelAthenaPool/ElementLinkVectorCnv_p1.h"
 
@@ -59,27 +65,31 @@ void TauJetCnv_p5::persToTrans( const TauJet_p5 *pers,
 {
     momCnv.persToTrans( &pers->m_momentum, &trans->momentumBase(), msg );
     partBaseCnv.persToTrans( &pers->m_particleBase, &trans->particleBase(), msg );
-    clusterCnv.persToTrans( &pers->m_cluster, &trans->clusterLink(), msg );
-    clusterCnv.persToTrans( &pers->m_cellCluster, &trans->cellClusterLink(), msg );
-    jetCnv.persToTrans( &pers->m_jet, &trans->jetLink(), msg );
-    tracksCnv.persToTrans( &pers->m_tracks, &trans->trackLinkVector(), msg );
-    detailsCnv.persToTrans( &pers->m_tauDetails, &trans->tauDetailLinkVector(), msg );
-    trans->setNumberOfTracks (pers->m_numberOfTracks);
-    trans->setROIWord (pers->m_roiWord);
+    clusterCnv.persToTrans( &pers->m_cluster, &trans->m_cluster, msg );
+    clusterCnv.persToTrans( &pers->m_cellCluster, &trans->m_cellCluster, msg );
+    jetCnv.persToTrans( &pers->m_jet, &trans->m_jet, msg );
+    tracksCnv.persToTrans( &pers->m_tracks, &trans->m_tracks, msg );
+    detailsCnv.persToTrans( &pers->m_tauDetails, &trans->m_tauDetails, msg );
+    trans->m_numberOfTracks = pers->m_numberOfTracks;
+    trans->m_roiWord = pers->m_roiWord;
 
     if( getBit( pers->m_flags, 0 ) ) {
-        std::vector<std::pair<TauJetParameters::TauID, double> > params; 
-        params.reserve(pers->m_params.size());
-        for (const auto& p : pers->m_params) {
-          params.emplace_back( static_cast<TauJetParameters::TauID>( p.first),
-                               p.second);
-                                                                       
-        }
+        if (trans->tauID() == 0)
+            trans->setTauID (new Analysis::TauPID);
 
-        Analysis::TauPID* tauID = new Analysis::TauPID (std::move(params),
-                                                        pers->m_isTauFlags,
-                                                        pers->m_vetoFlags);
-        trans->setTauID (tauID);
+        trans->m_tauID->m_vetoFlags = pers->m_vetoFlags;
+        trans->m_tauID->m_isTauFlags = pers->m_isTauFlags;
+
+        std::vector<std::pair<int, float> >::const_iterator it;
+        trans->m_tauID->m_params.clear();
+        trans->m_tauID->m_params.reserve(pers->m_params.size());
+        for( it = pers->m_params.begin(); 
+                it != pers->m_params.end(); ++it ) {
+            std::pair<TauJetParameters::TauID, double> param;
+            param.first = static_cast<TauJetParameters::TauID>( (*it).first );
+            param.second = (*it).second;
+            trans->m_tauID->m_params.push_back( param );
+        }
     } else {
         trans->setTauID( 0 );
     }
@@ -90,13 +100,13 @@ void TauJetCnv_p5::persToTrans( const TauJet_p5 *pers,
         trans->setAuthor( TauJetParameters::tau1P3P );
     conversionTracksCnv.persToTrans( 
             &pers->m_conversionTracks, 
-            &trans->conversionTrackLinkVector(), msg );
+            &trans->m_conversionTracks, msg );
     seedCalo_tracksCnv.persToTrans( 
             &pers->m_seedCalo_tracks, 
-            &trans->seedCalo_trackLinkVector(), msg );
+            &trans->m_seedCalo_tracks, msg );
     seedTrk_tracksCnv.persToTrans( 
             &pers->m_seedTrk_tracks, 
-            &trans->seedTrk_trackLinkVector(), msg );
+            &trans->m_seedTrk_tracks, msg );
 
 //     STILL NEED CONDITIONALS
     /*
@@ -114,18 +124,17 @@ void TauJetCnv_p5::persToTrans( const TauJet_p5 *pers,
            trans->m_tauHLVStorage.push_back( store );
      }
      */
-    trans->clearHLV();
     CLHEP::HepLorentzVector hlv;
     hepLorentzVectorCnv.persToTrans( &pers->m_tauHLV_jetseed, &hlv,msg);
-    trans->storeHLV ( TauJetParameters::JetSeed,hlv);
+    trans->m_tauHLVStorage.push_back ( std::make_pair(TauJetParameters::JetSeed,hlv) );
     hepLorentzVectorCnv.persToTrans( &pers->m_tauHLV_detaxis, &hlv,msg);
-    trans->storeHLV ( TauJetParameters::DetectorAxis,hlv);
+    trans->m_tauHLVStorage.push_back ( std::make_pair(TauJetParameters::DetectorAxis,hlv) );
     hepLorentzVectorCnv.persToTrans( &pers->m_tauHLV_intaxis, &hlv,msg);
-    trans->storeHLV ( TauJetParameters::IntermediateAxis,hlv);
+    trans->m_tauHLVStorage.push_back ( std::make_pair(TauJetParameters::IntermediateAxis,hlv) );
     hepLorentzVectorCnv.persToTrans( &pers->m_tauHLV_tesaxis, &hlv,msg);
-    trans->storeHLV ( TauJetParameters::TauEnergyScale,hlv);
+    trans->m_tauHLVStorage.push_back ( std::make_pair(TauJetParameters::TauEnergyScale,hlv) );
     hepLorentzVectorCnv.persToTrans( &pers->m_tauHLV_etaaxis, &hlv,msg);
-    trans->storeHLV ( TauJetParameters::TauEtaCalib,hlv);
+    trans->m_tauHLVStorage.push_back ( std::make_pair(TauJetParameters::TauEtaCalib,hlv) );
 }
 
 void TauJetCnv_p5::transToPers( const Analysis::TauJet *trans,
@@ -134,27 +143,30 @@ void TauJetCnv_p5::transToPers( const Analysis::TauJet *trans,
 {
     momCnv.transToPers( &trans->momentumBase(), &pers->m_momentum, msg );
     partBaseCnv.transToPers( &trans->particleBase(), &pers->m_particleBase, msg );
-    const ElementLink<CaloClusterContainer> clusterLink = trans->clusterLink();
-    clusterCnv.transToPers( &clusterLink, &pers->m_cluster, msg );
-    const ElementLink<CaloClusterContainer> cellClusterLink = trans->cellClusterLink();
-    clusterCnv.transToPers( &cellClusterLink, &pers->m_cellCluster, msg );
-    const ElementLink<JetCollection> jetLink = trans->jetLink();
-    jetCnv.transToPers( &jetLink, &pers->m_jet, msg );
-    tracksCnv.transToPers( &trans->trackLinkVector(), &pers->m_tracks, msg );
-    detailsCnv.transToPers( &trans->tauDetailLinkVector(), &pers->m_tauDetails, msg );
-    pers->m_numberOfTracks = trans->numberOfTracks();
-    pers->m_roiWord = trans->ROIWord();
+    clusterCnv.transToPers( &trans->m_cluster, &pers->m_cluster, msg );
+    clusterCnv.transToPers( &trans->m_cellCluster, &pers->m_cellCluster, msg );
+    jetCnv.transToPers( &trans->m_jet, &pers->m_jet, msg );
+    tracksCnv.transToPers( &trans->m_tracks, &pers->m_tracks, msg );
+    detailsCnv.transToPers( &trans->m_tauDetails, &pers->m_tauDetails, msg );
+    pers->m_numberOfTracks = trans->m_numberOfTracks;
+    pers->m_roiWord = trans->m_roiWord;
     pers->m_params.clear();
 
-    if( trans->tauID() ) {
+    if( trans->m_tauID ) {
         setBit( pers->m_flags, 0, true );
 
-        pers->m_vetoFlags = trans->tauID()->vetoFlags().to_ulong();
-        pers->m_isTauFlags = trans->tauID()->isTauFlags().to_ulong();
+        pers->m_vetoFlags = trans->m_tauID->m_vetoFlags.to_ulong();
+        pers->m_isTauFlags = trans->m_tauID->m_isTauFlags.to_ulong();
 
-        pers->m_params.reserve (trans->tauID()->params().size());
-        for (const auto& p : trans->tauID()->params()) {
-            pers->m_params.emplace_back (static_cast<int>( p.first ), p.second);
+        pers->m_params.reserve (trans->m_tauID->m_params.size());
+        std::vector<std::pair<
+            TauJetParameters::TauID, double> >::const_iterator it;
+        for( it = trans->m_tauID->m_params.begin(); 
+                it != trans->m_tauID->m_params.end(); ++it ) {
+            std::pair<int, float> param;
+            param.first = static_cast<int>( (*it).first );
+            param.second = (*it).second;
+            pers->m_params.push_back( param );
         }
     } else {
         setBit( pers->m_flags, 0, false );
@@ -164,13 +176,13 @@ void TauJetCnv_p5::transToPers( const Analysis::TauJet *trans,
     if( trans->hasAuthor( TauJetParameters::tau1P3P ) )
         setBit( pers->m_flags, 3, true );
     conversionTracksCnv.transToPers(
-            &trans->conversionTrackLinkVector(), 
+            &trans->m_conversionTracks, 
             &pers->m_conversionTracks, msg );
     seedCalo_tracksCnv.transToPers(
-            &trans->seedCalo_trackLinkVector(), 
+            &trans->m_seedCalo_tracks, 
             &pers->m_seedCalo_tracks, msg );
     seedTrk_tracksCnv.transToPers(
-            &trans->seedTrk_trackLinkVector(), 
+            &trans->m_seedTrk_tracks, 
             &pers->m_seedTrk_tracks, msg );
 
 
@@ -189,15 +201,18 @@ void TauJetCnv_p5::transToPers( const Analysis::TauJet *trans,
           pers->m_tauHLVStorage.push_back( store );
         }
         */
+    std::vector<std::pair<TauJetParameters::TauCalibType, CLHEP::HepLorentzVector> >::const_iterator it;
+    for( it = trans->m_tauHLVStorage.begin(); it != trans->m_tauHLVStorage.end(); ++it ) {
+        if ((*it).first==TauJetParameters::JetSeed)
+            hepLorentzVectorCnv.transToPers( &((*it).second), &pers->m_tauHLV_jetseed, msg);
+        else if ((*it).first==TauJetParameters::DetectorAxis)
+            hepLorentzVectorCnv.transToPers( &((*it).second), &pers->m_tauHLV_detaxis, msg);
+        else if ((*it).first==TauJetParameters::IntermediateAxis)
+            hepLorentzVectorCnv.transToPers( &((*it).second), &pers->m_tauHLV_intaxis, msg);
+        else if ((*it).first==TauJetParameters::TauEnergyScale)
+            hepLorentzVectorCnv.transToPers( &((*it).second), &pers->m_tauHLV_tesaxis, msg);
+        else if ((*it).first==TauJetParameters::TauEtaCalib)
+            hepLorentzVectorCnv.transToPers( &((*it).second), &pers->m_tauHLV_etaaxis, msg);
+    }
 
-    CLHEP::HepLorentzVector hlv = trans->getHLV(TauJetParameters::JetSeed);
-    hepLorentzVectorCnv.transToPers( &hlv, &pers->m_tauHLV_jetseed, msg);
-    hlv = trans->getHLV(TauJetParameters::DetectorAxis);
-    hepLorentzVectorCnv.transToPers( &hlv,  &pers->m_tauHLV_detaxis, msg);
-    hlv = trans->getHLV(TauJetParameters::IntermediateAxis);
-    hepLorentzVectorCnv.transToPers( &hlv, &pers->m_tauHLV_intaxis, msg);
-    hlv = trans->getHLV(TauJetParameters::TauEnergyScale);
-    hepLorentzVectorCnv.transToPers( &hlv, &pers->m_tauHLV_tesaxis, msg);
-    hlv = trans->getHLV(TauJetParameters::TauEtaCalib);
-    hepLorentzVectorCnv.transToPers( &hlv, &pers->m_tauHLV_etaaxis, msg);
 }
