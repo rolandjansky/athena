@@ -28,12 +28,5 @@ typedef T_TilePoolContainerCnv<
             TileDigitsCnv_p1
        > TileDigitsContainerCnv_p1;
 
-template<>
-class T_TPCnv<TileDigitsContainer, TileDigitsContainer_p1>
-  : public TileDigitsContainerCnv_p1
-{
-public:
-};
-
 #endif //> TILETPCNV_TILEDIGITSCONTAINERCNV_P1_H
 

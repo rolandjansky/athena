@@ -28,11 +28,4 @@ typedef T_AthenaPoolTPCnvVector<
             TileL2Cnv_p1
        > TileL2ContainerCnv_p1;
 
-template<>
-class T_TPCnv<TileL2Container, TileL2Container_p1>
-  : public TileL2ContainerCnv_p1
-{
-public:
-};
-
 #endif //> TILETPCNV_TILEL2CONTAINERCNV_P1_H
