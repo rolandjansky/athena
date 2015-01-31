@@ -34,4 +34,6 @@ macro icc_config_version  "11.1/072" \
       
 macro compiler_versions "gcc=$(gcc_config_version):icc=$(icc_config_version):llvm=$(clang_config_version)"
       
-
+#fix to find properly gcc on installed kit with the new LCG_71 layout
+macro gcc_home "$(gcc_home)" \
+              STANDALONE "`which gcc |sed "s=/bin/gcc==g"`"
