@@ -9,7 +9,7 @@
 /** @file AthenaHiveEventLoopMgr.h
     @brief The default ATLAS batch event loop manager.
 
-  * $Id: AthenaHiveEventLoopMgr.h 638639 2015-01-10 01:27:17Z calaf $
+  * $Id: AthenaHiveEventLoopMgr.h 638636 2015-01-10 01:07:07Z calaf $
 */
 
 #include <string>

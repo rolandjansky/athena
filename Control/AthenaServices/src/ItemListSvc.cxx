@@ -43,6 +43,11 @@ StatusCode ItemListSvc::finalize()
   ATH_MSG_INFO("-- OUTPUT STREAM ITEM OVERLAP SUMMARY --");
   while (it != m_streamItems.end()) {
     ATH_MSG_INFO("STREAM " << it->first << " has (" << it->second.size() << ") items");
+    std::set<std::string>::const_iterator iprint = it->second.begin();
+    while (iprint != it->second.end()) {
+      ATH_MSG_INFO("   - " << *iprint);
+      ++iprint;
+    }
     std::map<std::string, std::set<std::string> >::const_iterator it2 = m_streamItems.begin();
     while (it2 != m_streamItems.end()) {
       if (it2->first != it->first) {
@@ -68,13 +73,12 @@ StatusCode ItemListSvc::finalize()
 StatusCode ItemListSvc::addStreamItem(const std::string stream, const std::string itemname)
 {
   // Add to stream list
-  //std::map<std::string, unsigned int>::iterator sit = m_streams.find(stream);
-  //if (sit != m_streams.end()) sit->second++;
-  //else m_streams.insert(std::make_pair(stream,1));
   // Check if item is already present
   std::map<std::string, std::set<std::string> >::iterator it = m_streamItems.find(stream);
   // if so, then add stream name for that item
-  if (it != m_streamItems.end()) it->second.insert(itemname);
+  if (it != m_streamItems.end()) {
+     it->second.insert(itemname);
+  }
   // otherwise add item and stream
   else {
      std::set<std::string> start;

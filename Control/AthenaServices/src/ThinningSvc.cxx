@@ -123,6 +123,8 @@ StatusCode ThinningSvc::initialize()
 StatusCode ThinningSvc::finalize()
 {
   ATH_MSG_INFO ("Finalizing " << name() << "...");
+  SlimmingStore_t().swap (m_slimmingStore);
+  ThinningStore_t().swap (m_thinningStore);
   return StatusCode::SUCCESS;
 }
 

@@ -293,6 +293,8 @@ StatusCode AthenaOutputStream::finalize() {
    if (failed) {
       return(StatusCode::FAILURE);
    }
+   m_objects.clear();
+   m_objects.shrink_to_fit();
    return(StatusCode::SUCCESS);
 }
 
@@ -405,6 +407,7 @@ void AthenaOutputStream::collectAllObjects() {
    // Collect all objects that need to be persistified:
 //FIXME refactor: move this in folder. Treat as composite
    for (SG::IFolder::const_iterator i = m_p2BWritten->begin(), iEnd = m_p2BWritten->end(); i != iEnd; i++) {
+       //ATH_MSG_INFO("BLARG " << i->id() << " " << i->key());
       addItemObjects(*i);
    }
 }
@@ -506,6 +509,18 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                   ATH_MSG_DEBUG(" Added object " << item.id() << ",\"" << itemProxy->name() << "\"");
                }
 
+               // Build ItemListSvc string
+               std::string tn;
+               std::stringstream tns;
+               if (!m_pCLIDSvc->getTypeNameOfID(item.id(), tn).isSuccess()) {
+                  ATH_MSG_ERROR(" Could not get type name for id "
+                         << item.id() << ",\"" << itemProxy->name());
+                  tns << item.id() << '_' << itemProxy->name();
+               } else {
+                  tn += '_' + itemProxy->name();
+                  tns << tn;
+               }
+
                if (aux_attr.size()) {
                   SG::IAuxStoreIO* auxio(0);
                   try {
@@ -524,6 +539,12 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
                         std::string attr;
                         while( std::getline(ss, attr, '.') ) {
                            attributes.insert(attr);
+                           std::stringstream temp;
+                           temp << tns.str() << attr;
+                           //ATH_MSG_INFO("BLARG " << this->name() << " " << temp.str());
+                           if (m_itemSvc->addStreamItem(this->name(),temp.str()).isFailure()) {
+                              ATH_MSG_WARNING("Unable to record item " << temp.str() << " in Svc");
+                           }
                         }
                         // don't let keys with wildcard overwrite existing selections
                         if( auxio->getSelectedAuxIDs().size() == auxio->getDynamicAuxIDs().size()
@@ -535,27 +556,16 @@ void AthenaOutputStream::addItemObjects(const SG::FolderItem& item)
 
                added = true;
                if (!m_provideDef) {
-               //if (m_checkNumberOfWrites && !m_provideDef) {
-                  std::string tn;
-                  std::stringstream tns;
-                  if (!m_pCLIDSvc->getTypeNameOfID(item.id(), tn).isSuccess()) {
-                     ATH_MSG_ERROR(" Could not get type name for id "
-                             << item.id() << ",\"" << itemProxy->name());
-                     tns << item.id() << '_' << itemProxy->name();
-                  } else {
-                     tn += '_' + itemProxy->name();
-                     tns << tn;
-                     if (m_checkNumberOfWrites) {
-                        CounterMapType::iterator cit = m_objectWriteCounter.find(tn);
-                        if (cit == m_objectWriteCounter.end()) {
-                          // First time through
-                          //std::pair<CounterMapType::iterator, bool> result =
-                          m_objectWriteCounter.insert(CounterMapType::value_type(tn, 1));
-                        } else {
-                           // set to next iteration (to avoid double counting)
-                           // StreamTools will eliminate duplicates.
-                           (*cit).second = m_events + 1;
-                        }
+                  if (m_checkNumberOfWrites) {
+                     CounterMapType::iterator cit = m_objectWriteCounter.find(tn);
+                     if (cit == m_objectWriteCounter.end()) {
+                       // First time through
+                       //std::pair<CounterMapType::iterator, bool> result =
+                       m_objectWriteCounter.insert(CounterMapType::value_type(tn, 1));
+                     } else {
+                        // set to next iteration (to avoid double counting)
+                        // StreamTools will eliminate duplicates.
+                        (*cit).second = m_events + 1;
                      }
                   }
                   if (m_itemSvc->addStreamItem(this->name(),tns.str()).isFailure()) {
