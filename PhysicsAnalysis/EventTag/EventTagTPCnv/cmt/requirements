@@ -22,7 +22,5 @@ use AtlasReflex         AtlasReflex-*		    External
 
 apply_pattern lcgdict dict=EventTagTPCnv  selectionfile=selection.xml \
 	headerfiles="../EventTagTPCnv/EventTagTPCnvDict.h"
-apply_pattern lcgdict dict=ARA_EventTagTPCnv selectionfile=ARA_selection.xml \
-	headerfiles="../EventTagTPCnv/EventTagTPCnvDict.h"
 
 end_private
