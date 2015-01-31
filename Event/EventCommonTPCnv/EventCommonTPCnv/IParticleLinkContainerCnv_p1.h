@@ -70,10 +70,4 @@ public:
 };
 
 
-template <>
-class T_TPCnv< IParticleLinkContainer, IParticleLinkContainer_p1 >
-  : public IParticleLinkContainerCnv_p1 
-{};
-
-
 #endif // EVENTCOMMONTPCNV_IPARTICLELINKCONTAINERCNV_P1_H
