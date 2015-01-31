@@ -41,11 +41,3 @@ void TrigInDetTrackTruthMapCnv_tlp1::setPStorage( TrigInDetTrackTruthMap_tlp1* s
 
 
 
-void T_TPCnv<TrigInDetTrackTruthMap, TrigInDetTrackTruthMap_tlp1 >::
-persToTrans (const TrigInDetTrackTruthMap_tlp1* pers,
-             TrigInDetTrackTruthMap* trans,
-             MsgStream& msg)
-{
-  setPStorage (const_cast<TrigInDetTrackTruthMap_tlp1*> (pers));
-  m_mainConverter.pstoreToTrans (0, trans, msg);
-}
