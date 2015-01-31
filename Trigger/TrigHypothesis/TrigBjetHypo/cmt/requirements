@@ -36,6 +36,7 @@ use 	TrigNavigation		TrigNavigation-*		Trigger/TrigEvent
 use     xAODJet                 xAODJet-*                       Event/xAOD
 use     xAODBTagging            xAODBTagging-*              	Event/xAOD
 use 	xAODCore		xAODCore-*			Event/xAOD  
+use     BTagging                BTagging-*                      PhysicsAnalysis/JetTagging/JetTagAlgs
 
 
 # ============================================================================================

@@ -36,6 +36,9 @@
 #include "xAODBTagging/BTagVertex.h"
 #include "xAODBTagging/BTagVertexAuxContainer.h"
 
+#include "BTagging/BTagTrackAssociation.h"
+#include "BTagging/BTagSecVertexing.h"
+#include "BTagging/BTagTool.h"
 
 #include "TrigBjetHypo/TrigBjetTagger.h"			/* TO BE REMOVED AS SOON AS UNNECESSARY */ 
 #include "TrigBjetHypo/TuningLikelihood.h"			/* TO BE REMOVED AS SOON AS UNNECESSARY */ 
@@ -85,6 +88,9 @@
 
 TrigBtagFex::TrigBtagFex(const std::string& name, ISvcLocator* pSvcLocator) :
   HLT::FexAlgo(name, pSvcLocator),
+  m_bTagTrackAssocTool("Analysis::BTagTrackAssociation"),
+  m_bTagSecVtxTool("Analysis::BTagSecVertexing"),
+
   m_trackJetFinderTool("TrigTrackJetFinderTool",this),      	
   m_trigEFBjetColl(0),
   m_trigBjetTagger(0),
@@ -105,6 +111,12 @@ TrigBtagFex::TrigBtagFex(const std::string& name, ISvcLocator* pSvcLocator) :
   m_tuningLikelihoodNVtx(0),
   m_tuningLikelihoodSV(0)
 {
+  declareProperty("setupOfflineTools",  m_setupOfflineTools=false);
+
+  declareProperty("BTagTool",           m_bTagTool);
+  declareProperty("BTagTrackAssocTool", m_bTagTrackAssocTool);
+  declareProperty("BTagSecVertexing",   m_bTagSecVtxTool);
+
   declareProperty ("AlgoId",             m_algo);
   declareProperty ("Instance",           m_instance);
   declareProperty ("Taggers",            m_taggers);
@@ -302,6 +314,34 @@ HLT::ErrorCode TrigBtagFex::hltInitialize() {
     msg() << MSG::DEBUG << " uSV = "            << m_uSV << endreq;  
   }
 
+  if(m_setupOfflineTools) {
+
+    // Retrieve the offline track association tool
+    if(!m_bTagTrackAssocTool.empty()) {
+      if(m_bTagTrackAssocTool.retrieve().isFailure()) {
+	msg() << MSG::FATAL << "Failed to locate tool " << m_bTagTrackAssocTool << endreq;
+	return HLT::BAD_JOB_SETUP;
+      } else
+	msg() << MSG::INFO << "Retrieved tool " << m_bTagTrackAssocTool << endreq;
+    } else if(msgLvl() <= MSG::DEBUG)
+      msg() << MSG::DEBUG << "No track association tool to retrieve" << endreq;
+  
+    // Retrieve the bTagSecVtxTool
+    if(m_bTagSecVtxTool.retrieve().isFailure()) {
+      msg() << MSG::FATAL << "Failed to locate tool " << m_bTagSecVtxTool << endreq;
+      return HLT::BAD_JOB_SETUP;
+    } else
+      msg() << MSG::INFO << "Retrieved tool " << m_bTagSecVtxTool << endreq;
+  
+    // Retrieve the main BTagTool
+    if(m_bTagTool.retrieve().isFailure()) {
+      msg() << MSG::FATAL << "Failed to locate tool " << m_bTagTool << endreq;
+      return HLT::BAD_JOB_SETUP;
+    } else
+      msg() << MSG::INFO << "Retrieved tool " << m_bTagTool << endreq;
+
+  }
+  
   return HLT::OK;
 }
 
@@ -311,39 +351,27 @@ HLT::ErrorCode TrigBtagFex::hltInitialize() {
 
 HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElement* outputTE) {
 
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Executing TrigBjetFex" << endreq;
+  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Executing TrigBtagFex" << endreq;
 
+  // RETRIEVE INPUT CONTAINERS
 
-  //* Get RoI descriptor *// // TEMPORARY: will be removed as soon as we retrieve the jet directly
-  const TrigRoiDescriptor* roiDescriptor = 0;
-  if(getFeature(outputTE, roiDescriptor) == HLT::OK && roiDescriptor!=0) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - TrigRoiDescriptor: " << "Phi = " <<  roiDescriptor->phi() << ", Eta = " << roiDescriptor->eta() << endreq;
+  //* Get EF jet *//
+  const xAOD::JetContainer* jets = 0;
+  if(getFeature(inputTE, jets) == HLT::OK && jets!=0) {
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::JetContainer: " << "nJets = " << jets->size() << endreq;
   } else {
-    if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "INPUT - No TrigRoiDescriptor" << endreq;    
-    return HLT::NAV_ERROR;
-  }
-
-
-  //* Get EF jet info *// // TEMPORARY: will be removed as soon as we retrieve the jet directly
-  const TrigOperationalInfo* operationalInfo = 0;
-  if(getFeature(outputTE, operationalInfo, "EFJetInfo") == HLT::OK && operationalInfo!=0) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - TrigOperationalInfo: " << operationalInfo->get("EFJetEt") << endreq;
-  } else {
-    if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "INPUT - No TrigOperationalInfo" << endreq;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - No xAOD::JetContainer" << endreq;
     return HLT::MISSING_FEATURE;
   }
 
-
-  //* Get EF jet *// // TO-DO: no jet currently attached --> create a fake one
-  const xAOD::JetContainer* jets = 0;
-  if(getFeature(inputTE, jets) == HLT::OK && jets!=0) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::JetContainer: " << "SOME PRINTOUT" << endreq;
+  //* Get primary vertex *//
+  const xAOD::VertexContainer* vertexes = 0;
+  if(getFeature(outputTE, vertexes, "EFHistoPrmVtx") == HLT::OK && vertexes != 0) {
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - xAOD::VertexContainer: " << "nVertexes = " << vertexes->size() << endreq;
   } else {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "INPUT - No xAOD::JetContainer" << endreq;
-    //return HLT::MISSING_FEATURE; // TEMPORARY: uncomment as soon as we get a jet
+    if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "INPUT - No xAOD::VertexContainer" << endreq;
+    return HLT::MISSING_FEATURE;
   }
-  // TEMPORARY: CREATE FAKE JET HERE!!!
-
 
   //* Get tracks *// 
   const xAOD::TrackParticleContainer* tracks = 0;
@@ -354,83 +382,91 @@ HLT::ErrorCode TrigBtagFex::hltExecute(const HLT::TriggerElement* inputTE, HLT::
     return HLT::MISSING_FEATURE;
   }
 
+  // PREPARE PROCESSING AND OUTPUT CONTAINERS
 
-  //* Tag jet *//
-  // OFFLINE CODE HERE!!!
+  //* Prepare jet tagging - get primary vertex *//
+  //xAOD::VertexContainer::const_iterator vtxitr = vertexes->begin();
+  //const xAOD::Vertex* primaryVertex = *vtxitr;
 
+  //* Prepare jet tagging - create temporary jet copy *//
+  //xAOD::JetContainer::const_iterator jetitr=jets->begin();
+  //xAOD::Jet* jet = new xAOD::Jet(**jetitr);
 
-  //* Create xAOD output and attach as feature *//
-  xAOD::BTaggingAuxContainer trigBjetAuxContainer;
+  //* Prepare jet tagging - create SV output *//
+  xAOD::VertexAuxContainer trigVertexAuxContainer;
+  xAOD::VertexContainer* trigVertexContainer = new xAOD::VertexContainer();
+  trigVertexContainer->setStore(&trigVertexAuxContainer);
+  xAOD::Vertex* trigVertex = new xAOD::Vertex();
+  trigVertexContainer->push_back(trigVertex);
+
+  //* Prepare jet tagging - create JF output *//
+  xAOD::BTagVertexAuxContainer trigBTagVertexAuxContainer;
+  xAOD::BTagVertexContainer* trigBTagVertexContainer = new xAOD::BTagVertexContainer();
+  trigBTagVertexContainer->setStore(&trigBTagVertexAuxContainer);
+  xAOD::BTagVertex* trigBTagVertex = new xAOD::BTagVertex();
+  trigBTagVertexContainer->push_back(trigBTagVertex);
+
+  //* Prepare jet tagging - create BTagging output *//
+  xAOD::BTaggingAuxContainer trigBTaggingAuxContainer;
   xAOD::BTaggingContainer* trigBTaggingContainer = new xAOD::BTaggingContainer();
-  trigBTaggingContainer->setStore(&trigBjetAuxContainer);
-  xAOD::BTagging* newBTag = new xAOD::BTagging();
-  trigBTaggingContainer->push_back(newBTag);
+  trigBTaggingContainer->setStore(&trigBTaggingAuxContainer);
+  xAOD::BTagging* trigBTagging = new xAOD::BTagging();
+  trigBTaggingContainer->push_back(trigBTagging);
 
+  // EXECUTE OFFLINE TOOLS
 
-
-  newBTag->setIP2D_pu(1e9);
-  newBTag->setIP2D_pb(1);
-
-  newBTag->setIP3D_pu(1e9);
-  newBTag->setIP3D_pb(1);
-
-  newBTag->setSV1_pu(1e9);
-  newBTag->setSV1_pb(1);
-
-  if(attachFeature(outputTE, trigBTaggingContainer, "HLTBjetFex") == HLT::OK) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "OUTPUT - Attached xAOD::BTaggingContainer" << endreq;
-  } else {
-    if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "OUTPUT - Failed to attach xAOD::BTaggingContainer" << endreq;
-    return HLT::NAV_ERROR;
+  //* Execute track associator *// TODO: do this with offline track associator - temporarily done by hand
+  std::vector< ElementLink< xAOD::TrackParticleContainer > > associationLinks;
+  for(auto trkitr = tracks->begin(); trkitr != tracks->end(); ++trkitr) {
+    ElementLink<xAOD::TrackParticleContainer> EL;
+    EL.toContainedElement(*tracks, *trkitr);
+    associationLinks.push_back(EL);
   }
+  trigBTagging->auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >("BTagTrackToJetAssociator") = associationLinks;
 
+  // UNCOMMENT  //* Execute secondary vertexing *//
+  // UNCOMMENT  StatusCode sc = m_bTagSecVtxTool->BTagSecVtx_exec(*jet, trigBTagging, trigVertexContainer, trigBTagVertexContainer, primaryVertex);
+  // UNCOMMENT  if(sc.isFailure()) {
+  // UNCOMMENT    if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "#BTAG# Failed to reconstruct sec vtx" << endreq;
+  // UNCOMMENT  }
 
-  //* Create AOD output and attach as feature *// // TEMPORARY: will be dropped once TrigBjetHypo is migrated
-  TrigEFBjetContainer* trigEFBjetColl = new TrigEFBjetContainer();
-  TrigEFBjet* trigEFBjet = new TrigEFBjet();
-  trigEFBjet->validate(true);
-  trigEFBjetColl->push_back(trigEFBjet);
-  
-  //roiDescriptor->roiId(), m_trigBjetJetInfo->etaJet(), m_trigBjetJetInfo->phiJet(),
-  //0, 0, 0, m_trigBjetPrmVtxInfo->zPrmVtx(), m_trigBjetJetInfo->etJet(),
-  //m_trigBjetTagger->taggersXMap("COMB"),  m_trigBjetTagger->taggersXMap("IP1D"), 
-  //m_trigBjetTagger->taggersXMap("IP2D"),  m_trigBjetTagger->taggersXMap("IP3D"), 
-  //m_trigBjetTagger->taggersXMap("CHI2"), 
-  //m_trigBjetSecVtxInfo->decayLengthSignificance(), m_trigBjetSecVtxInfo->vtxMass(), 
-  //m_trigBjetSecVtxInfo->energyFraction(), m_trigBjetSecVtxInfo->n2TrkVtx()); 
-  
-  if(attachFeature(outputTE, trigEFBjetColl, "EFBjetFex") == HLT::OK) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "OUTPUT - Attached TrigEFBjetContainer" << endreq;
-  } else {
-    if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "OUTPUT - Failed to attach TrigEFBjetContainer" << endreq;
-    return HLT::NAV_ERROR;
-  }
+  // UNCOMMENT  //* Tag jet *//
+  // UNCOMMENT  sc = m_bTagTool->tagJet(*jet, trigBTagging, primaryVertex);
+  // UNCOMMENT  if(sc.isFailure()) {
+  // UNCOMMENT    if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "#BTAG# Failed in taggers call" << endreq;
+  // UNCOMMENT  }
 
-  //* Create xAOD SV output and attach as feature *//
-  xAOD::VertexAuxContainer trigBjetSecondaryVertexAuxContainer;
-  xAOD::VertexContainer* trigBjetSecondaryVertexContainer = new xAOD::VertexContainer();
-  trigBjetSecondaryVertexContainer->setStore(&trigBjetSecondaryVertexAuxContainer);
-  xAOD::Vertex* newBjetVrt = new xAOD::Vertex();
-  trigBjetSecondaryVertexContainer->push_back(newBjetVrt);
+  // DEBUG DUMPS
 
- if(attachFeature(outputTE, trigBjetSecondaryVertexContainer, "BjetSecondaryVertexFex") == HLT::OK) {
+  //* Dump results *//
+  msg() << MSG::DEBUG << "IP2D u/b: " << trigBTagging->IP2D_pu() << "/" << trigBTagging->IP2D_pb()
+	<< "   IP3D u/b: " << trigBTagging->IP3D_pu() << "/" << trigBTagging->IP3D_pb()
+	<< "   SV1 u/b: " << trigBTagging->SV1_pu() << "/" << trigBTagging->SV1_pb()
+	<< "   MV1 var: " << trigBTagging->MV1_discriminant() << endreq;
+
+  // ATTACH FEATURES
+
+  //* Attach SV output as feature *//
+  if(attachFeature(outputTE, trigVertexContainer, "BjetSecondaryVertexFex") == HLT::OK) {
     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "OUTPUT - Attached xAOD::VertexContainer" << endreq;
   } else {
     if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "OUTPUT - Failed to attach xAOD::VertexContainer" << endreq;
     return HLT::NAV_ERROR;
   }
 
-  //* Create xAOD JetFitter output and attach as feature *//
-  xAOD::BTagVertexAuxContainer trigBjetVertexAuxContainer;
-  xAOD::BTagVertexContainer* trigBTagVertexContainer = new xAOD::BTagVertexContainer();
-  trigBTagVertexContainer->setStore(&trigBjetVertexAuxContainer);
-  xAOD::BTagVertex* newBTagVrt = new xAOD::BTagVertex();
-  trigBTagVertexContainer->push_back(newBTagVrt);
-
- if(attachFeature(outputTE, trigBTagVertexContainer, "BjetVertexFex") == HLT::OK) {
+  //* Attach JF output as feature *//
+  if(attachFeature(outputTE, trigBTagVertexContainer, "BjetVertexFex") == HLT::OK) {
     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "OUTPUT - Attached xAOD::BTagVertexContainer" << endreq;
   } else {
     if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "OUTPUT - Failed to attach xAOD::BTagVertexContainer" << endreq;
+    return HLT::NAV_ERROR;
+  }
+
+  //* Attach BTagContainer as feature *//
+  if(attachFeature(outputTE, trigBTaggingContainer, "HLTBjetFex") == HLT::OK) {
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "OUTPUT - Attached xAOD::BTaggingContainer" << endreq;
+  } else {
+    if(msgLvl() <= MSG::ERROR) msg() << MSG::ERROR << "OUTPUT - Failed to attach xAOD::BTaggingContainer" << endreq;
     return HLT::NAV_ERROR;
   }
 
