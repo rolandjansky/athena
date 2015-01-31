@@ -18,7 +18,6 @@ use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
 use AtlasReflex          AtlasReflex-*          External
 
 apply_pattern lcgdict dict=IOVDbTPCnv  selectionfile=selection.xml headerfiles="../IOVDbTPCnv/IOVDbTPCnvDict.h"
-apply_pattern lcgdict dict=ARA_IOVDbTPCnv  selectionfile=ARA_selection.xml headerfiles="../IOVDbTPCnv/IOVDbTPCnvDict.h"
 apply_pattern lcgdict dict=OLD_IOVDbTPCnv  selectionfile=OLD_selection.xml headerfiles="../IOVDbTPCnv/IOVDbTPCnvDict.h"
 
 end_private
