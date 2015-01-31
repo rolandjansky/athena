@@ -174,13 +174,13 @@ class LArCellDeadOTXCorr : public AthAlgTool,
 		 *
 		 * Energy is first estimated with a Landau-Landau fit; then a calibration factor depending on eta and the energy is applied.
 		 */
-		double getL1Energy(const std::vector<int> & ADCsamples, int pedestal, double eta, int type);
+		double getL1Energy(const std::vector<uint_least16_t> & ADCsamples, int pedestal, double eta, int type);
 
-		void getInitialFitParameters(const std::vector<int> & ADCsamples, double & max, double& maxPos, unsigned int& TTADCMaxIndex);
+		void getInitialFitParameters(const std::vector<uint_least16_t> & ADCsamples, double & max, double& maxPos, unsigned int& TTADCMaxIndex);
 
 		double getEtaCalibration(double eta, int type);
 		double getEnergyCalibration(double eta, int type, double energy);
-		double getMaxOverSumRatio(const std::vector<int>& ADCsamples, int pedestal);
+		double getMaxOverSumRatio(const std::vector<uint_least16_t>& ADCsamples, int pedestal);
 
 		static const std::map<int,int> defineSizeType();
 

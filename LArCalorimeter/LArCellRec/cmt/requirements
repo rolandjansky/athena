@@ -48,7 +48,8 @@ use LArRecUtils      LArRecUtils-*          LArCalorimeter
 use LArTools         LArTools-*             LArCalorimeter
 # for deadOTX correction using L1 energies (These packages are in AtlasConditions and AtlasEvent)
 use TrigT1CaloCalibConditions TrigT1CaloCalibConditions-* Trigger/TrigT1
-use TrigT1CaloEvent  TrigT1CaloEvent-*      Trigger/TrigT1
+# use TrigT1CaloEvent  TrigT1CaloEvent-*      Trigger/TrigT1
+use xAODTrigL1Calo xAODTrigL1Calo-*      Event/xAOD
 use TrigT1CaloCondSvc TrigT1CaloCondSvc-* Trigger/TrigT1 
 end_private
 

@@ -58,7 +58,8 @@
 #include "LArTools/LArCablingService.h"
 #include "CaloTriggerTool/CaloTriggerTowerService.h" 
 // #include "TrigT1CaloCalibTools/L1CaloTTIdTools.h"
-#include "TrigT1CaloEvent/TriggerTowerCollection.h"
+//#include "TrigT1CaloEvent/TriggerTowerCollection.h"
+#include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "CaloIdentifier/CaloLVL1_ID.h"
 
 #include "TrigT1CaloCondSvc/L1CaloCondSvc.h"
@@ -125,7 +126,7 @@ LArCellDeadOTXCorr::LArCellDeadOTXCorr(
 :AthAlgTool(type, name, parent)
 {
 	declareInterface<ICaloCellMakerTool>(this); 
-	declareProperty("triggerTowerLocation", m_TTLocation  = "TriggerTowers");
+	declareProperty("triggerTowerLocation", m_TTLocation  = "xAODTriggerTowers");
 	declareProperty("badChannelTool",m_badChannelTool);
 	declareProperty("triggerNoiseCut", m_triggerNoiseCut);
 	declareProperty("useL1CaloDB", m_useL1CaloDB = false);
@@ -273,7 +274,8 @@ StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont ){
         }
 
 	//Retrieve Trigger Towers from SG
-	const TriggerTowerCollection* storedTTs = 0; 
+	//const TriggerTowerCollection* storedTTs = 0; 
+	const xAOD::TriggerTowerContainer* storedTTs = 0; 
 	ATH_CHECK( evtStore()->retrieve(storedTTs, m_TTLocation) );
 
 	bool getDBPedestal = m_useL1CaloDB;
@@ -402,7 +404,7 @@ StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont ){
 				bool ttFound = false;
 				unsigned int ttIndex = 0;
 				int ttType = -1;
-				const LVL1::TriggerTower* tt;
+				const xAOD::TriggerTower* tt;
 
 				// we first look if the index and type of this TT are already known and if this
 				// index corresponds to the TT we want
@@ -414,7 +416,7 @@ StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont ){
 
 					if(ttIndex<storedTTs->size() && (ttType==0 || ttType==1))
 					{
-						const LVL1::TriggerTower* tmpTT = storedTTs->at(ttIndex);
+						const xAOD::TriggerTower* tmpTT = storedTTs->at(ttIndex);
 						double eta = tmpTT->eta();
 						double phi = tmpTT->phi();
 
@@ -446,7 +448,7 @@ StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont ){
 
 					for(unsigned int iTT=0; iTT<storedTTs->size(); iTT++)
 					{ 
-						const LVL1::TriggerTower* tmpTT = storedTTs->at(iTT);
+						const xAOD::TriggerTower* tmpTT = storedTTs->at(iTT);
 						double eta = tmpTT->eta();
 						double phi = tmpTT->phi();
 
@@ -517,7 +519,7 @@ StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont ){
 					{
 						unsigned int lutPed = (getDBPedestal ? l1CaloPprLutContainer->pprLut(coolChannelId)->pedValue() : 32);
 
-						tt_energy = getL1Energy(tt->emADC(), (int)lutPed, eta, 0);
+						tt_energy = getL1Energy(tt->adc(), (int)lutPed, eta, 0);
 
 						if(tt_energy>0.)
 						{
@@ -535,7 +537,7 @@ StatusCode  LArCellDeadOTXCorr::process(CaloCellContainer * cellCont ){
 					double eta = tt->eta();
 					unsigned int lutPed = (getDBPedestal ? l1CaloPprLutContainer->pprLut(coolChannelId)->pedValue() : 32);
 
-					tt_energy = getL1Energy(tt->hadADC(), (int)lutPed, eta, 1);
+					tt_energy = getL1Energy(tt->adc(), (int)lutPed, eta, 1);
 					if(tt_energy>0.)
 					{
 						double thetaTT = 2.*atan(exp(-1.*eta));
@@ -772,12 +774,12 @@ double LArCellDeadOTXCorr::getC(double a, double b,
 
 
 
-void LArCellDeadOTXCorr::getInitialFitParameters(const std::vector<int> & ADCsamples, double & max, double& maxPos, unsigned int& TTADCMaxIndex)
+void LArCellDeadOTXCorr::getInitialFitParameters(const std::vector<uint_least16_t> & ADCsamples, double & max, double& maxPos, unsigned int& TTADCMaxIndex)
 {
 	max = -9999.;
 	maxPos = -1.;
 	TTADCMaxIndex = -1;
-	int maxADC = 0;
+	uint_least16_t maxADC = 0;
 	for(unsigned int ADCi = 0;ADCi<ADCsamples.size();ADCi++)
 	{
 		if(ADCsamples[ADCi]>maxADC)
@@ -808,7 +810,7 @@ void LArCellDeadOTXCorr::getInitialFitParameters(const std::vector<int> & ADCsam
 }
 
 
-double LArCellDeadOTXCorr::getL1Energy(const std::vector<int> & ADCsamples, int pedestal, double eta, int type)
+double LArCellDeadOTXCorr::getL1Energy(const std::vector<uint_least16_t> & ADCsamples, int pedestal, double eta, int type)
 {
 	double energy = 0;
 	int nbSamples = ADCsamples.size();
@@ -1078,9 +1080,9 @@ double LArCellDeadOTXCorr::getEnergyCalibration(double eta, int type, double ene
 }
 
 
-double LArCellDeadOTXCorr::getMaxOverSumRatio(const std::vector<int>& ADCsamples, int pedestal)
+double LArCellDeadOTXCorr::getMaxOverSumRatio(const std::vector<uint_least16_t>& ADCsamples, int pedestal)
 {
-	int max = -9999;
+	uint_least16_t max = -9999;
 	int sum = 0;
 	double ratio = -9999.;
 	unsigned int maxIndex = 0;
