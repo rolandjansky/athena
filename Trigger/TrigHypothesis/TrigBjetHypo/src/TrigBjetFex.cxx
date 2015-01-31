@@ -561,8 +561,8 @@ HLT::ErrorCode TrigBjetFex::getSecVtxInfo(const Trk::VxSecVertexInfoContainer*& 
           // const Trk::RecVertex& PrmVrt = PrmVtxCand->recVertex();
           //This is probably wrong, but I have no idea what to put
 	  // KL - this line crashes - reverting to what was in -19 tag
-          //pPrmVrt = PrmVtxCand;
-	  const xAOD::Vertex& pPrmVrt = *PrmVtxCand; 
+          pPrmVrt = PrmVtxCand;
+	  //const xAOD::Vertex& pPrmVrt = *PrmVtxCand; 
           //       pPrmVrt = &PrmVrt;
           //prmVtxFound = true; // UNUSED
         }
@@ -649,8 +649,8 @@ HLT::ErrorCode TrigBjetFex::getSecVtxInfo(const Trk::VxSecVertexInfoContainer*& 
       }
 
       //Clean up if I created a vertex object earlier which is not pointer to collection
-      if(m_histoPrmVtxAtEF && pPrmVrt)
-        delete pPrmVrt;
+      //if(m_histoPrmVtxAtEF && pPrmVrt)
+      //  delete pPrmVrt;
     } 
   }
 

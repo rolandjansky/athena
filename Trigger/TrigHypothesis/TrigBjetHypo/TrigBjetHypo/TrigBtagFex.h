@@ -50,13 +50,19 @@ namespace Rec {
   class TrackParticle;
 }
 
+namespace Analysis {
+  class IBTagTool;
+  class IBTagTrackAssociation;
+  class IBTagSecVertexing;
+}
+
 /**
- * @brief FEX class for the b-jet weight construction to be used by subsequent hypothesis algorithm.
+ * @brief FEX class for the b-jet weight construction using offline tools
  *
- * @author Andrea Coccaro <Andrea.Coccaro@ge.infn.it>
+ * @author Jeff Hetherly <jhetherly @ mail.smu.edu>
  *
  * This is the base feature extraction class for the HLT b-jet slice. 
- * It computes relevant quantities based on track impact parameters and secondary vertices, creates Bjet object and attaches it to TE.
+ * It computes jet light/charm/beauty probabilities using offline b-tagging tools.
  */
 
 
@@ -64,12 +70,12 @@ class TrigBtagFex: public HLT::FexAlgo {
   
  public:
 
-  /** @brief For monitoring purposes the TrigBjetTagger class has been declared as friend. */
+  /** @brief For monitoring purposes the TrigBjetTagger class has been declared as friend */
   friend class TrigBjetTagger;
 
-  /** @brief Constructor. */
+  /** @brief Constructor */
   TrigBtagFex(const std::string&, ISvcLocator*);
-  /** @brief Destructor. */
+  /** @brief Destructor */
   ~TrigBtagFex();
 
   HLT::ErrorCode hltInitialize();
@@ -77,6 +83,28 @@ class TrigBtagFex: public HLT::FexAlgo {
   HLT::ErrorCode hltFinalize(); 
 
  private:
+
+  // TOOLS
+  /** @brief Offline BTag tool */
+  ToolHandle< Analysis::IBTagTool > m_bTagTool;
+  /** @brief Offline TrackAssociation tool */
+  ToolHandle< Analysis::IBTagTrackAssociation > m_bTagTrackAssocTool;
+  /** @brief Offline SecondaryVertexing tool */
+  ToolHandle< Analysis::IBTagSecVertexing > m_bTagSecVtxTool;
+
+  // DATA
+  /** @brief Pointer to output xAOD::BTaggingContainer */
+  xAOD::BTaggingContainer* m_trigBTaggingContainer;
+  /** @brief Pointer to xAOD::BTagVertexContainer */
+  xAOD::BTagVertexContainer* m_trigBTaggingVertexContainer;
+
+  // PROPERTIES
+  /** @brief Switch for offline tools */
+  bool m_setupOfflineTools;
+
+
+
+  // MOSTLY OLD VARIABLES - needs cleanup
 
   /** @brief To retrieve track collections reconstructed at EF and stored in TrackParticleContainer. */
   HLT::ErrorCode getCollection(const xAOD::TrackParticleContainer*&, const HLT::TriggerElement*);
@@ -96,11 +124,7 @@ class TrigBtagFex: public HLT::FexAlgo {
   ToolHandle<ITrigTrackJetFinderTool> m_trackJetFinderTool;
   /** @brief Pointer to TrigEFBjet collection. */
   TrigEFBjetContainer* m_trigEFBjetColl;
-  /** @brief Pointer to xAOD::BTaggingContainer. */
-  xAOD::BTaggingContainer* m_trigBTaggingContainer;
 
-  /** @brief Pointer to xAOD::BTagVertexContainer. */
-  xAOD::BTagVertexContainer* m_trigBTaggingVertexContainer;
 
   /** @brief Pointer to TaggerHelper class. */ 
   TaggerHelper* m_taggerHelper;

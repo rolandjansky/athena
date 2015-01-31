@@ -155,7 +155,7 @@ HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::
       }
       
       if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Jet "<< i << "; Et " << jet_Et << "; eta "<< jet_Et << "; phi " << (*jet)->phi() << endreq;
+	msg() << MSG::DEBUG << "Jet "<< i << "; Et " << jet_Et << "; eta "<< (*jet)->eta() << "; phi " << (*jet)->phi() << endreq;
       
       // create RoI correspondinding to the jet
       double phiMin = HLT::wrapPhi((*jet)->phi()-m_phiHalfWidth); 
@@ -217,7 +217,7 @@ HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::
       }
       
       if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Jet "<< i << "; Et " << jet_Et << "; eta "<< jet_Et << "; phi " << (*jet)->phi() << endreq;
+	msg() << MSG::DEBUG << "Jet "<< i << "; Et " << jet_Et << "; eta "<< (*jet)->eta() << "; phi " << (*jet)->phi() << endreq;
       
       // Create an output TE seeded by an empty vector
       HLT::TriggerElement* initialTE = config()->getNavigation()->getInitialNode();

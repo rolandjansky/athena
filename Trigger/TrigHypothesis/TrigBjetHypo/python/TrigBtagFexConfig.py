@@ -138,3 +138,18 @@ class BtagFex (TrigBtagFex):
         time.TimerHistLimits = [0,2]
         
         self.AthenaMonTools = [ time, validation, online ]
+
+
+        # IMPORT OFFLINE TOOLS
+        self.setupOfflineTools = False
+        if self.setupOfflineTools :
+            from AthenaCommon.AppMgr import ToolSvc
+            from BTagging.BTaggingFlags import BTaggingFlags
+            BTaggingFlags.CalibrationTag = 'BTagCalibALL-07-09'
+            BTaggingFlags.DoNotSetupBTagging = True
+            from BTagging.BTaggingConfiguration import setupJetBTaggerTool
+            setupJetBTaggerTool(ToolSvc, "AntiKt4LCTopo")
+            from BTagging.BTaggingConfiguration import getJetCollectionTool, getJetCollectionSecVertexingTool, getJetCollectionMainAssociatorTool
+            self.BTagTrackAssocTool = getJetCollectionMainAssociatorTool("AntiKt4LCTopo")
+            self.BTagTool           = getJetCollectionTool("AntiKt4LCTopo")
+            self.BTagSecVertexing   = getJetCollectionSecVertexingTool("AntiKt4LCTopo")
