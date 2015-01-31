@@ -2,7 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#define private public
+#define protected public
+//maybe I should add TrigInDetTruthMapCnv as a friend to TrigInDetTrackTruthMap instead
 #include "TrigInDetTruthEvent/TrigInDetTrackTruthMap.h"
+#undef private
+#undef protected
+ 
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthMapCnv_p1.h" 
 #include "TrigTruthEventTPCnv/TrigInDetTrackTruthCnv_p1.h"
 
@@ -19,7 +25,7 @@ void TrigInDetTrackTruthMapCnv_p1::persToTrans( const TrigInDetTrackTruthMap_p1 
 					     TrigInDetTrackTruthMap    *transObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "TrigInDetTrackTruthMapCnv_p1::persToTrans called " << endmsg;
+  log << MSG::DEBUG << "TrigInDetTrackTruthMapCnv_p1::persToTrans called " << endreq;
 
   transObj->m_elink_vec.clear();
   trackVectCnv.persToTrans(&persObj->m_elink_vec, &transObj->m_elink_vec, log);
@@ -44,7 +50,7 @@ void TrigInDetTrackTruthMapCnv_p1::transToPers( const TrigInDetTrackTruthMap    
 					     TrigInDetTrackTruthMap_p1 *persObj,
 					     MsgStream       &log )
 {
-  log << MSG::DEBUG << "TrigInDetTrackTruthMapCnv_p1::transToPers called " << endmsg;
+  log << MSG::DEBUG << "TrigInDetTrackTruthMapCnv_p1::transToPers called " << endreq;
 
   trackVectCnv.transToPers(&transObj->m_elink_vec, &persObj->m_elink_vec, log);
 
