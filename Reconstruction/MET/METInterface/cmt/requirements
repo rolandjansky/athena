@@ -7,10 +7,13 @@ use AtlasPolicy 	AtlasPolicy-*
 
 ## framework dependencies
 use AsgTools            AsgTools-*              Control/AthToolSupport
+use PATInterfaces	PATInterfaces-*		PhysicsAnalysis/AnalysisCommon
+
 ## EDM
 use xAODBase		xAODBase-*		Event/xAOD
 use xAODMissingET	xAODMissingET-*		Event/xAOD
 use xAODJet		xAODJet-*		Event/xAOD
+use xAODEventInfo	xAODEventInfo-*		Event/xAOD
 ##
 
 branches METInterface doc
