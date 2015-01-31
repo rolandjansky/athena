@@ -50,11 +50,4 @@ private:
     std::vector<std::string>               m_attributeTypes;
 };
 
-template<>
-class T_TPCnv<IOVPayloadContainer, IOVPayloadContainer_p1>
-  : public IOVPayloadContainerCnv_p1
-{
-public:
-};
-
 #endif

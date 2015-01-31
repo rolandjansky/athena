@@ -27,11 +27,4 @@ private:
 };
 
 
-template<>
-class T_TPCnv<IOVMetaDataContainer, IOVMetaDataContainer_p1>
-  : public IOVMetaDataContainerCnv_p1
-{
-public:
-};
-
 #endif

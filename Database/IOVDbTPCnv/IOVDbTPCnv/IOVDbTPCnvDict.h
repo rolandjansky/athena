@@ -11,15 +11,8 @@
  *
  * @author  <R.D.Schaffer@cern.ch>
  */
-#include "IOVDbTPCnv/IOVMetaDataContainerCnv_p1.h"
-#include "IOVDbTPCnv/IOVPayloadContainerCnv_p1.h"
 #include "IOVDbTPCnv/IOVMetaDataContainer_p1.h"
 #include "IOVDbTPCnv/IOVPayloadContainer_p1.h"
 #include "IOVDbTPCnv/AttrListIndexes.h"
-
-struct GCCXML_DUMMY_INSTANTIATION_IOVDBTPCNV {
-    T_TPCnv<IOVMetaDataContainer, IOVMetaDataContainer_p1> m_iovmetadatacontainer_p1;
-    T_TPCnv<IOVPayloadContainer,  IOVPayloadContainer_p1>  m_iovpayloadcontainer_p1;
-};
 
 #endif
