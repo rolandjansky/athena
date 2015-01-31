@@ -34,11 +34,4 @@ class TauJetContainerCnv_p5 : public T_AthenaPoolTPCnvBase<Analysis::TauJetConta
                                   MsgStream                         &msg );
 };
 
-template<>
-class T_TPCnv<Analysis::TauJetContainer, TauJetContainer_p5>
-  : public TauJetContainerCnv_p5
-{
-public:
-};
-
 #endif

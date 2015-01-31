@@ -52,6 +52,9 @@ class PanTauDetails_p1
     std::string m_Name_InputAlg;
     int     m_RecoMode_SubAlg;
     int     m_RecoMode_PanTau;
+    double  m_BDTValue_1p0n_vs_1p1n;
+    double  m_BDTValue_1p1n_vs_1pXn;
+    double  m_BDTValue_3p0n_vs_3pXn;
     double  m_pantau_proto_pt;
     double  m_pantau_proto_eta;
     double  m_pantau_proto_phi;

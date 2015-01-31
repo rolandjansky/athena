@@ -53,31 +53,4 @@ protected:
     ErrorMatrixCnv_p1 m_errorMatrixCnv;
 };
 
-// ??? Maybe this should be moved up to AthenaPoolTopLevelTPConverter...
-template <>
-class T_TPCnv<Analysis::TauDetailsContainer, TauDetailsContainer_tlp2 >: public TauDetailsContainerCnv_tlp2{
-public:
-    ///Constructor
-    T_TPCnv();
-    
-    ///Destructor
-    virtual ~T_TPCnv();
-
-    ///Creates transient object from persistent object
-    ///
-    ///@param transObj Transient object
-    ///@param persObj Persistent object
-    ///@param msg Message stream
-    virtual void persToTrans (const TauDetailsContainer_tlp2* pers, Analysis::TauDetailsContainer* trans, MsgStream& msg);
-
-    ///Creates transient object from persistent object
-    ///
-    ///@param transObj Transient object
-    ///@param persObj Persistent object
-    ///@param msg Message stream
-    virtual void transToPers (const Analysis::TauDetailsContainer* trans, TauDetailsContainer_tlp2* pers, MsgStream& msg);
-};
-
-
-
 #endif 
