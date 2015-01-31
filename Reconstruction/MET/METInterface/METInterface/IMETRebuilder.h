@@ -31,15 +31,22 @@ class IMETRebuilder : virtual public asg::IAsgTool {
 
   virtual StatusCode execute() = 0;
 
+  virtual StatusCode copyMET(const std::string& metKey,
+			     xAOD::MissingETContainer* metCont,
+			     const xAOD::MissingETComponentMap* metMap) = 0;
+
   virtual StatusCode rebuildMET(const std::string& metKey,
 				xAOD::MissingETContainer* metCont,
 				const xAOD::IParticleContainer* collection,
 				const xAOD::MissingETComponentMap* metMap,
 				bool doTracks=true) = 0;
+
   virtual StatusCode rebuildMET(xAOD::MissingET* met,
 				const xAOD::IParticleContainer* collection,
 				const xAOD::MissingETComponent* component,
 				bool doTracks) = 0;
+
+  ///
 
   virtual StatusCode rebuildJetMET(const std::string& jetKey,
 				   const std::string& softKey,
@@ -47,12 +54,28 @@ class IMETRebuilder : virtual public asg::IAsgTool {
 				   const xAOD::JetContainer* jets,
 				   const xAOD::MissingETComponentMap* metMap,
 				   bool doTracks=true) = 0;
+
+  virtual StatusCode rebuildJetMET(const std::string& jetKey,
+				   const std::string& softKey,
+				   xAOD::MissingETContainer* metCont,
+				   const xAOD::JetContainer* jets,
+				   const xAOD::MissingETComponentMap* metMap,
+				   bool doTracks,
+				   bool doJvfCut,
+				   bool pureTrkSoft,
+				   const std::string& jetScale) = 0;
+
   virtual StatusCode rebuildJetMET(xAOD::MissingET* metJet,
 				   xAOD::MissingET* metSoft,
-				   const xAOD::MissingET* oldSoft,
 				   const xAOD::JetContainer* jets,
 				   const xAOD::MissingETComponent* component,
-				   bool doTracks) = 0;
+				   bool doTracks,
+				   bool doJvfCut,
+				   bool pureTrkSoft,
+				   const std::string& jetScale) = 0;
+
+  ///
+
   virtual StatusCode buildMETSum(const std::string& totalName,
 				 xAOD::MissingETContainer* metCont) = 0;
 };
