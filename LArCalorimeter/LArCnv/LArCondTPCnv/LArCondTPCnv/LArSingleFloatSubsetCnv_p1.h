@@ -33,12 +33,4 @@ public:
     
   
 
-template<>
-class T_TPCnv<LArConditionsSubset<LArSingleFloatP>, LArSingleFloatSubset_p1>
-    : public LArSingleFloatSubsetCnv_p1 
-{
-public:
-};
-
-
 #endif

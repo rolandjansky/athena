@@ -26,11 +26,4 @@ public:
 
 };
 
-template<>
-class T_TPCnv<LArConditionsSubset<LArOFCP1>, LArOFCSubset_p1 >
-    : public LArOFCSubsetCnv_p1
-{
-public:
-};
-
 #endif

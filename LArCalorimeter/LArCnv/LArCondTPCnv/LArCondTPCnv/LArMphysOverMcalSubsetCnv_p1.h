@@ -32,19 +32,4 @@ public:
 };
 
 
-template<>
-class T_TPCnv<LArConditionsSubset<LArSingleFloatP> ,LArMphysOverMcalSubset_p1>
-    : public LArMphysOverMcalSubsetCnv_p1
-{
-public:
-};
-
-template<>
-class T_TPCnv<LArConditionsSubset<LArMphysOverMcalP1> ,LArMphysOverMcalSubset_p1>
-    : public LArMphysOverMcalSubsetCnv_p1
-{
-public:
-};
-
-
 #endif

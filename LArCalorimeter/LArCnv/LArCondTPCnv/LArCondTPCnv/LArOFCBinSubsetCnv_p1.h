@@ -33,12 +33,4 @@ public:
     
   
 
-template<>
-class T_TPCnv<LArConditionsSubset<LArOFCBinP>, LArSingleIntSubset_p1>
-    : public LArOFCBinSubsetCnv_p1 
-{
-public:
-};
-
-
 #endif

@@ -25,11 +25,4 @@ public:
 
 };
 
-template<>
-class T_TPCnv<LArCWTransType, LArCaliWaveSubset_p2 >
-    : public LArCaliWaveSubsetCnv_p2
-{
-public:
-};
-
 #endif

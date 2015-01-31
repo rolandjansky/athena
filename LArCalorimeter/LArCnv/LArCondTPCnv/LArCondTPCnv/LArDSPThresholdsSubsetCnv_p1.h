@@ -33,12 +33,4 @@ public:
     
   
 
-template<>
-class T_TPCnv<LArConditionsSubset<LArDSPThresholdsP>, LArDSPThresholdsSubset_p1>
-    : public LArDSPThresholdsSubsetCnv_p1 
-{
-public:
-};
-
-
 #endif

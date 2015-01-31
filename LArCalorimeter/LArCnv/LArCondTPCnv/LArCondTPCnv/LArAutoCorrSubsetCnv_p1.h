@@ -26,11 +26,4 @@ public:
 
 };
 
-template<>
-class T_TPCnv<LArConditionsSubset<LArAutoCorrP1>, LArAutoCorrSubset_p1 >
-    : public LArAutoCorrSubsetCnv_p1
-{
-public:
-};
-
 #endif
