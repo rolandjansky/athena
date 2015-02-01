@@ -59,43 +59,43 @@ except:
 # Output Event Index file name
 #--------------------------------------------------------------
 try:
-    job.pool2ei.Out = Out
+  job.pool2ei.Out = Out
 except:
-    import os
-    job.pool2ei.Out = 'pool2ei.{:08i}.pkl'.format(os.getpid())
+  import os
+  job.pool2ei.Out = 'pool2ei.{:08i}.pkl'.format(os.getpid())
 
 
 #--------------------------------------------------------------
 # Output Provenance references flag
 #--------------------------------------------------------------
 try: 
-    job.pool2ei.DoProvenanceRef = DoProvenanceRef
+  job.pool2ei.DoProvenanceRef = DoProvenanceRef
 except:
-    job.pool2ei.DoProvenanceRef = False
+  job.pool2ei.DoProvenanceRef = False
 
 #--------------------------------------------------------------
 # Output Trigger Info flag
 #--------------------------------------------------------------
 try: 
-    job.pool2ei.DoTriggerInfo = DoTriggerInfo
+  job.pool2ei.DoTriggerInfo = DoTriggerInfo
 except:
-    job.pool2ei.DoTriggerInfo = True
+  job.pool2ei.DoTriggerInfo = True
 
 #--------------------------------------------------------------
 # Send to Broker flag
 #--------------------------------------------------------------
 try: 
-    job.pool2ei.SendToBroker = SendToBroker
+  job.pool2ei.SendToBroker = SendToBroker
 except:
-    job.pool2ei.SendToBroker = True
+  job.pool2ei.SendToBroker = True
 
 #--------------------------------------------------------------
 # Input dataset name. Overrrides value read for job options
 #--------------------------------------------------------------
 try: 
-    job.pool2ei.EiDsName = EiDsName
+  job.pool2ei.EiDsName = EiDsName
 except:
-    job.pool2ei.EiDsName = None
+  job.pool2ei.EiDsName = None
 
 #--------------------------------------------------------------
 # Tier0 job parameters
@@ -133,22 +133,33 @@ from RecExConfig.InputFilePeeker import inputFileSummary
 from AthenaCommon.GlobalFlags  import globalflags
 globalflags.InputFormat = 'pool'
 globalflags.DataSource = 'data' if inputFileSummary['evt_type'][0] == "IS_DATA" else 'geant4'
-rec.projectName = inputFileSummary['tag_info']['project_name']
 
-if "/TRIGGER/HLT/HltConfigKeys" in inputFileSummary['metadata'].keys():
+# set projectName from inputFileSummary
+try:
+  # in first place try to get it from tag_info
+  rec.projectName = inputFileSummary['tag_info']['project_name']
+except:
+  try: 
+    # in last place from metadata
+    rec.projectName = inputFileSummary['metadata']['/TagInfo']['project_name']
+  except:
+    pass
 
-    from TriggerJobOpts.TriggerFlags import TriggerFlags
-    TriggerFlags.configurationSourceList = ['ds']
-    #TriggerFlags.configurationSourceList = []
-    ##TriggerFlags.configForStartup = 'HLTonline'
-    TriggerFlags.configForStartup = 'HLToffline'
-    ##TriggerFlags.dataTakingConditions = 'FullTrigger'
+if inputFileSummary.has_key('metadata') and inputFileSummary['metadata'].has_key('/TRIGGER/HLT/HltConfigKeys'):
+  from AthenaCommon.AppMgr import ToolSvc
+  from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
+  tdt = Trig__TrigDecisionTool("TrigDecisionTool")
+  ToolSvc += tdt
 
-    from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-    cfg = TriggerConfigGetter("ReadPool")
+  # To read files with trigger config stored as in-file meta-data,
+  from TriggerJobOpts.TriggerFlags import TriggerFlags
+  TriggerFlags.configurationSourceList = ['ds']
+  TriggerFlags.configForStartup = 'HLToffline'
 
-    from AthenaCommon.AppMgr import ToolSvc
-    from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-    tdt = Trig__TrigDecisionTool("TrigDecisionTool")
-    ToolSvc += tdt
+  from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
+  cfg = TriggerConfigGetter("ReadPool")
+  
+  job.pool2ei.HaveHlt = True
+else:
+  job.pool2ei.HaveHlt = False
 

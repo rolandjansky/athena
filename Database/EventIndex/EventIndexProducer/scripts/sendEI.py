@@ -584,11 +584,11 @@ def eimrun(logger,opt):
 
     # check compatibility of options
     if opt.provenance and not eif['ProvenanceRef']:
-        log.error("Unable to send provenance information since it is missing from EI file")
+        log.info("Unable to send provenance information since it is missing from EI file")
         opt.provenance = False
 
     if opt.trigger and not eif['TriggerInfo']:
-        log.error("Unable to send trigger information since it is missing from EI file")
+        log.info("Unable to send trigger information since it is missing from EI file")
         opt.trigger = False
 
 
@@ -720,15 +720,18 @@ def eimrun(logger,opt):
         log.info("=========== sendEI summary ==========")
         log.info(" number of events:     {:10d}".format(stats.ntot))
         log.info(" Sun of message sizes: {:10d} bytes".format(stats.tot_size))
-        log.info(" mean size per evt:    {:10.1f} bytes".format((float(stats.tot_size)/int(stats.ntot))))
+        if int(stats.ntot) != 0:
+            log.info(" mean size per evt:    {:10.1f} bytes".format((float(stats.tot_size)/int(stats.ntot))))
         log.info(" number of messages:   {:10d} ".format(stats.nmsg))
-        log.info(" mean message size:    {:10.2f} Kbytes".format((float(stats.tot_size)/int(stats.nmsg)/1000.)))
-        log.info(" mean evts per msg:    {:10.2f}".format((float(stats.ntot)/int(stats.nmsg))))
+        if int(stats.nmsg) != 0:
+            log.info(" mean message size:    {:10.2f} Kbytes".format((float(stats.tot_size)/int(stats.nmsg)/1000.)))
+            log.info(" mean evts per msg:    {:10.2f}".format((float(stats.ntot)/int(stats.nmsg))))
         dt = int(stats.end_time - stats.start_time)
         log.info(" connected time:   {:d} ms".format(dt))
-        log.info(" BW {:10.2f} KB/s".format((float(stats.tot_size)/(dt))))
-        log.info(" BW {:10.2f} msg/s".format((float(stats.nmsg)/(dt)*1000)))
-        log.info(" BW {:10.2f} evt/s".format((float(stats.ntot)/(dt)*1000)))
+        if dt != 0:
+            log.info(" BW {:10.2f} KB/s".format((float(stats.tot_size)/(dt))))
+            log.info(" BW {:10.2f} msg/s".format((float(stats.nmsg)/(dt)*1000)))
+            log.info(" BW {:10.2f} evt/s".format((float(stats.ntot)/(dt)*1000)))
 
 
 if __name__ == '__main__':

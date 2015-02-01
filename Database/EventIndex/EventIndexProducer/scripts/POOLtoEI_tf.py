@@ -61,7 +61,7 @@ def getTransform():
 def addMyArgs(parser):
     # Use arggroup to get these arguments in their own sub-section (of --help)
     parser.defineArgGroup('Event Index', 'Options for event index generation')
-    parser.add_argument('--inputPOOLFile', required=True,  ## nargs='+',
+    parser.add_argument('--inputPOOLFile',  ## nargs='+',
                         type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, io='input'),
                         help='Input POOL file', group='Event Index')
     parser.add_argument('--outputEIFile',
