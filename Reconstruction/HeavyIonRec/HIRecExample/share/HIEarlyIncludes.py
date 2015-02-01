@@ -1,4 +1,4 @@
-os.system('get_files -data HIFlowWeight.root')
+#os.system('get_files -data HIFlowWeight.root')
 
 # turn off pp pilup noise suppression
 from CaloTools.CaloNoiseFlags import jobproperties
