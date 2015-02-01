@@ -2,9 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 #include "LumiBlockComps/CreateLumiBlockCollectionFromFile.h"
 #include "GaudiKernel/FileIncident.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "EventInfo/EventInfo.h"
@@ -13,8 +13,8 @@
 
 CreateLumiBlockCollectionFromFile::CreateLumiBlockCollectionFromFile(const std::string& name, ISvcLocator* pSvcLocator) :
 // ********************************************************************************************************************
-  Algorithm(name, pSvcLocator), m_lastRun(9999999), m_lastLumiBlock(9999999), m_lastIOVTime(0),
-  m_storeGate(0), m_metaStore(0)
+  AthAlgorithm(name, pSvcLocator), m_lastRun(9999999), m_lastLumiBlock(9999999), m_lastIOVTime(0),
+  m_metaStore("StoreGateSvc/MetaDataStore", name)
 {
   declareProperty("LBCollName",m_LBColl_name = "LumiBlocks");
   declareProperty("unfinishedLBCollName",m_unfinishedLBColl_name = "IncompleteLumiBlocks");
@@ -26,29 +26,19 @@ CreateLumiBlockCollectionFromFile::CreateLumiBlockCollectionFromFile(const std::
 StatusCode CreateLumiBlockCollectionFromFile::initialize(){
 //*******************************************************
 
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "initialize() and create listeners" << endreq;
+  ATH_MSG_INFO( "initialize() and create listeners" );
+
+  declareProperty ("EvtStore", m_evtStoreName);
+  declareProperty ("DetStore", m_detStoreName);
+  declareProperty ("UserStore", m_userStoreName);
                                                                                  
   // Locate the StoreGateSvc and initialize our local ptr
   // ****************************************************
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (!sc.isSuccess() || 0 == m_storeGate) {
-      log << MSG::ERROR << "Could not find StoreGateSvc" << endreq;
-      return StatusCode::FAILURE;
-  } 
-  sc = service("StoreGateSvc/MetaDataStore", m_metaStore);
-  if (!sc.isSuccess() || 0 == m_metaStore) {
-      log << MSG::ERROR << "Could not find MetaDataStore" << endreq;
-      return StatusCode::FAILURE;
-  } 
+  ATH_CHECK( m_metaStore.retrieve() );
 
   // Set to be listener for end of event
   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
-  sc = incSvc.retrieve();
-  if (!sc.isSuccess()) {
-    log << MSG::ERROR << "Unable to get the IncidentSvc" << endreq;
-    return(sc);
-  }
+  ATH_CHECK( incSvc.retrieve() );
   incSvc->addListener(this, "BeginInputFile", 60); // pri has to be < 100 
                                                  // to be after MetaDataSvc.
   incSvc->addListener(this, "EndInputFile", 50); // pri has to be > 10 to be 
@@ -65,24 +55,18 @@ StatusCode CreateLumiBlockCollectionFromFile::initialize(){
 StatusCode CreateLumiBlockCollectionFromFile::execute() {
 //*******************************************************
 
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "execute()" << endreq;
+  ATH_MSG_DEBUG( "execute()" );
 
   // Check for event header
   const DataHandle<EventInfo> evt;
-  StatusCode sc = m_storeGate->retrieve(evt);
-  if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not find event" << endreq;
-      return(StatusCode::FAILURE);
-  }
+  ATH_CHECK( evtStore()->retrieve(evt) );
    if (!evt.isValid()) {
-      log << MSG::FATAL << "Could not find event" << endreq;
+     ATH_MSG_FATAL( "Could not find event" );
       return(StatusCode::FAILURE);
    }
-   log << MSG::DEBUG << "EventInfo event: " << evt->event_ID()->event_number() 
-       << " run: " << evt->event_ID()->run_number() 
-       << " lumi block: " << evt->event_ID()->lumi_block() 
-       << endreq;
+   ATH_MSG_DEBUG( "EventInfo event: " << evt->event_ID()->event_number() 
+                  << " run: " << evt->event_ID()->run_number() 
+                  << " lumi block: " << evt->event_ID()->lumi_block() );
 
    if(m_lastRun!=evt->event_ID()->run_number() || 
       m_lastLumiBlock!=evt->event_ID()->lumi_block()) { 
@@ -96,7 +80,7 @@ StatusCode CreateLumiBlockCollectionFromFile::execute() {
        // ==============================================
        unsigned int expectedEvents = 0;
        if(m_checkEventsExpected) {
-         log << MSG::WARNING << "Database access to number of expected events not implemented" << endreq;
+         ATH_MSG_WARNING( "Database access to number of expected events not implemented" );
          expectedEvents = 8;  // JUST FOR TESTING
        }
        inOut lbInOut(expectedEvents,1);
@@ -122,10 +106,8 @@ StatusCode CreateLumiBlockCollectionFromFile::execute() {
 StatusCode CreateLumiBlockCollectionFromFile::finalize() {
 // *****************************************************
 
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "finalize()" << endreq;
-  StatusCode sc=StatusCode::SUCCESS;
-  return sc;
+  ATH_MSG_INFO( "finalize()" );
+  return StatusCode::SUCCESS;
 }
  
 
@@ -133,7 +115,6 @@ StatusCode CreateLumiBlockCollectionFromFile::finalize() {
 StatusCode CreateLumiBlockCollectionFromFile::fillLumiBlockCollection()
 // ********************************************************************
 {
-  MsgStream log(msgSvc(), name());
   // Create the LumiBlockCollection
   LumiBlockCollection* piovComplete = new LumiBlockCollection();
   LumiBlockCollection* piovUnfinished = new LumiBlockCollection();
@@ -162,23 +143,23 @@ StatusCode CreateLumiBlockCollectionFromFile::fillLumiBlockCollection()
     }
   }
 
-  log << MSG::INFO << "Summary of LumiBlock Info:"  << endreq ;
+  ATH_MSG_INFO( "Summary of LumiBlock Info:"  );
   if(piovComplete->size()>0) {
-    log << MSG::INFO << "Complete LumiBlocks:" << endreq;
+     ATH_MSG_INFO( "Complete LumiBlocks:" );
      piovComplete->dump(std::cout);
   }
 
   if(piovUnfinished->size()>0) {
-    log << MSG::INFO << "Unfinished LumiBlocks:" << endreq;
+    ATH_MSG_INFO( "Unfinished LumiBlocks:" );
     piovUnfinished->dump(std::cout);
   }
 
-  if(piovUnfinished->size()>0) {
-    log << MSG::INFO << "Suspect LumiBlocks:" << endreq;
+  if(piovSuspect->size()>0) {
+    ATH_MSG_INFO( "Suspect LumiBlocks:" );
     piovSuspect->dump(std::cout);
   }
 
-  /*
+ 
 
   // Store the LumiBlockCollection in the metadata store
   // =======================================================
@@ -186,36 +167,32 @@ StatusCode CreateLumiBlockCollectionFromFile::fillLumiBlockCollection()
   if(piovComplete->size()>0) {
     sc = m_metaStore->record(piovComplete, m_LBColl_name);
     if (sc.isFailure()) {
-       log << MSG::ERROR << "could not register complete LumiBlockCollection" << endreq;
-       return(StatusCode::FAILURE);
+      ATH_MSG_ERROR("could not register complete LumiBlockCollection");
     }
   }
 
   if(piovUnfinished->size()>0) {
     sc = m_metaStore->record(piovUnfinished,  m_unfinishedLBColl_name);
     if (sc.isFailure()) {
-       log << MSG::ERROR << "could not register incomplete  LumiBlockCollection" << endreq;
-       return(StatusCode::FAILURE);
+      ATH_MSG_ERROR("could not register incomplete LumiBlockCollection");
     }
   }
 
   if(piovSuspect->size()>0) {
     sc = m_metaStore->record(piovSuspect, m_suspectLBColl_name);
     if (sc.isFailure()) {
-       log << MSG::ERROR << "could not register suspect LumiBlockCollection" << endreq;
-       return(StatusCode::FAILURE);
+      ATH_MSG_ERROR("could not register suspect LumiBlockCollection");
     }
   }
   // Then clear m_LumiBlockInfo.  This is in case we decide to store the 
   // LBColl separately for each input or output file.
-  */
+ 
   m_LumiBlockInfo.clear();
   return StatusCode::SUCCESS;
 }
 // *******************************************************************
 void CreateLumiBlockCollectionFromFile::handle(const Incident& inc) {
 // ********************************************************************
-  MsgStream log(msgSvc(), name());
 
   // this incident serves the same purpose as BeginInputFile
   if (inc.type() == "BeginInputFile") {
@@ -223,9 +200,9 @@ void CreateLumiBlockCollectionFromFile::handle(const Incident& inc) {
     std::string fileName;
     if (fileInc == 0) { fileName = "Undefined "; }
     else { fileName = fileInc->fileName();}
-    log <<  MSG::DEBUG << "BeginInputFile: " << fileName << endreq;
+    ATH_MSG_DEBUG( "BeginInputFile: " << fileName );
     if(m_LumiBlockInfo.size()>0) {
-      log << MSG::WARNING << " BeginInputFile handle detects non-zero size Cached LumiBlockColl" << endreq;
+      ATH_MSG_WARNING( " BeginInputFile handle detects non-zero size Cached LumiBlockColl" );
     }
   }
   else if(inc.type() == "EndInputFile") {
@@ -233,13 +210,13 @@ void CreateLumiBlockCollectionFromFile::handle(const Incident& inc) {
     // We've hit EndInputFile, so we know that we have finished reading all the events for the LB
     // Therefore we can transfer the list of LB to the cached collection of good LB's
     // ***************************************************************************************************
-    log <<  MSG::DEBUG << "EndInputFile incident detected" << endreq;  
+    ATH_MSG_DEBUG( "EndInputFile incident detected" );
   }
   else if(inc.type() == "LastInputFile") {
     finishUp();
   }
   else {
-    log <<  MSG::INFO << "Unknown Incident: " << inc.type() << endreq;
+    ATH_MSG_INFO( "Unknown Incident: " << inc.type() );
   }
  
 }
@@ -248,12 +225,12 @@ void CreateLumiBlockCollectionFromFile::handle(const Incident& inc) {
 void CreateLumiBlockCollectionFromFile:: finishUp() {
 // ********************************************************************
 
-   MsgStream log(msgSvc(), name());
-   log << MSG::INFO <<  " finishUp: write lumiblocks to meta data store " << endreq;
+    ATH_MSG_INFO(  " finishUp: write lumiblocks to meta data store " );
+    ATH_MSG_INFO(  "LumiBlockInfo.size= "<< m_LumiBlockInfo.size() );
     if(m_LumiBlockInfo.size()>0) {
       StatusCode sc=fillLumiBlockCollection();
         if (sc.isFailure()) {
-            log << MSG::ERROR << "Could not fill lumiblock collections in finishUp()" << endreq;
+          ATH_MSG_ERROR( "Could not fill lumiblock collections in finishUp()" );
         }
     }
 }

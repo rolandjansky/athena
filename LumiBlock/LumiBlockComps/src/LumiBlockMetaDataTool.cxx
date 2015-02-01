@@ -20,7 +20,6 @@
 
 #include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/IIncidentSvc.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/FileIncident.h"
 
 #include "StoreGate/StoreGateSvc.h"
@@ -37,14 +36,12 @@
 
 //___________________________________________________________________________
 LumiBlockMetaDataTool::LumiBlockMetaDataTool(const std::string& type, const std::string& name, const IInterface* parent) : 
-   AlgTool(type, name, parent), 
+   AthAlgTool(type, name, parent), 
    m_pMetaDataStore ("StoreGateSvc/MetaDataStore",      name), 
    m_pInputStore    ("StoreGateSvc/InputMetaDataStore", name),
    m_tagDataStore   ("StoreGateSvc/TagMetaDataStore", name),
    m_nfiles(0),
    m_fileCurrentlyOpened(false),
-   m_lbc(0),
-   m_lbr(0),
    m_converter(new LumiBlockCollectionConverter()),
    m_grlcollection(new Root::TGRLCollection()),
    m_lcSvc("LumiCalcSvc/LumiCalcSvc",name),
@@ -57,7 +54,6 @@ LumiBlockMetaDataTool::LumiBlockMetaDataTool(const std::string& type, const std:
    declareProperty("LBCollName",m_LBColl_name = "LumiBlocks");
    declareProperty("unfinishedLBCollName",m_unfinishedLBColl_name = "IncompleteLumiBlocks");
    declareProperty("VersionString",m_version = "10");
-   declareProperty("createAANT",m_createAANT = false);
    declareProperty("calcLumi", m_calcLumi = false);
    declareProperty("storeXMLFiles", m_storexmlfiles = true);
    declareProperty("applyDQCuts", m_applydqcuts = true);
@@ -82,89 +78,32 @@ LumiBlockMetaDataTool::~LumiBlockMetaDataTool() {
 
 //___________________________________________________________________________
 StatusCode LumiBlockMetaDataTool::initialize() {
-   StatusCode sc = StatusCode::SUCCESS;
-   MsgStream log(msgSvc(), name());
-   log << MSG::INFO << "in initialize()" << endreq;
+   ATH_MSG_INFO( "in initialize()" );
 
-   // locate the DetectorStore and initialize our local ptr
-   sc = m_pMetaDataStore.retrieve();
-   if (!sc.isSuccess() || 0 == m_pMetaDataStore) {
-      log << MSG::ERROR << "Could not find MetaDataStore" << endreq;
-      return(StatusCode::FAILURE);
-   }
-   sc = m_pInputStore.retrieve();
-   if (!sc.isSuccess() || 0 == m_pInputStore) {
-      log << MSG::ERROR << "Could not find InputMetaDataStore" << endreq;
-      return(StatusCode::FAILURE);
-   }
-
-   sc = m_tagDataStore.retrieve();
-   if(!sc.isSuccess()) {
-      log << MSG::WARNING << "Could not find TagMetaDataStore" << endreq;
-   }
+   ATH_CHECK( m_pMetaDataStore.retrieve() );
+   ATH_CHECK( m_pInputStore.retrieve() );
+   ATH_CHECK( m_tagDataStore.retrieve() );
 
    // Set to be listener for end of event
    ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", this->name());
-   sc = incSvc.retrieve();
-   if (!sc.isSuccess()) {
-     log << MSG::ERROR << "Unable to get the IncidentSvc" << endreq;
-     return(sc);
-   }
+   ATH_CHECK( incSvc.retrieve() );
    incSvc->addListener(this, "BeginTagFile", 60); // pri has to be < 100 to be after MetaDataSvc.
    incSvc->addListener(this, "BeginInputFile", 60); // pri has to be < 100 to be after MetaDataSvc.
    incSvc->addListener(this, "EndTagFile", 50); // pri has to be > 10 to be before MetaDataSvc.
    // incSvc->addListener(this, "EndInputFile", 50); // pri has to be > 10 to be before MetaDataSvc.
    incSvc->addListener(this, "LastInputFile", 50); // pri has to be > 20 to be before MetaDataSvc and AthenaOutputStream.
+   
+   ATH_CHECK( m_lcSvc.retrieve() );
 
-   sc = m_lcSvc.retrieve();
-   if (sc.isFailure()) {
-     log << MSG::ERROR << "Cannot get ILumiCalcSvc interface." << endreq;
-     return(sc);
-   } else {
-     log << MSG::DEBUG << "Found ILumiCalcSvc." << endreq;
-   }
-
-   // Retrieve the GoodRunsListSelector tool using the ToolHandles
-   sc = m_GoodRunsListSelectorTool.retrieve();
-   if ( sc.isFailure() ) {
-     log << MSG::ERROR << m_GoodRunsListSelectorTool.propertyName() 
-         << ": Failed to retrieve tool " << m_GoodRunsListSelectorTool.type() << endreq;
-     return StatusCode::FAILURE;
-   } else {
-     log << MSG::DEBUG << m_GoodRunsListSelectorTool.propertyName() 
-         << ": Retrieved tool " << m_GoodRunsListSelectorTool.type() << endreq;
-   }
+   // Don't try to retrieve this during initialize().
+   // Otherwise, we induce a component initialization dependency
+   // loop that prevents address remappings from getting
+   // set up correctly.  The retrieval will be deferred
+   // until the handle is actually used.
+   //ATH_CHECK( m_GoodRunsListSelectorTool.retrieve() );
 
    // Retrieve the TriggerRegistry tool using the ToolHandles
-   sc = m_TriggerRegistryTool.retrieve();
-   if ( sc.isFailure() ) {
-     log << MSG::ERROR << m_TriggerRegistryTool.propertyName()
-         << ": Failed to retrieve tool " << m_TriggerRegistryTool.type() << endreq;
-     return StatusCode::FAILURE;
-   } else {
-     log << MSG::DEBUG << m_TriggerRegistryTool.propertyName()
-         << ": Retrieved tool " << m_TriggerRegistryTool.type() << endreq;
-   }
-
-   // Creating a TTree in the output AANT file, using the TTree::Bronch method
-   // see LumiBlockComps/CreateAANTFromLumiBlockCollection example Algorithm class
-   if(m_createAANT == true){
-     // Initialize histogram service
-     sc = serviceLocator()->service("THistSvc", tHistSvc);
-     if (sc.isFailure()) {
-       log << MSG::ERROR << "Unable to retrieve pointer to THistSvc!" << endreq;
-       return sc;
-     }
-     
-     // Create TTree
-     AANtree = new TTree("MetaData","MetaData");
-     sc=tHistSvc->regTree("/AANT/MetaData",AANtree);
-     if(sc.isFailure()){
-       log << MSG::ERROR << "Cannot register TTree" << endreq;
-     }
-     AANtree->Bronch("LumiBlockCollection_p1_LumiBlocks", "LumiBlockCollection_p1", &m_lbc);
-   }
-
+   ATH_CHECK( m_TriggerRegistryTool.retrieve() );
 
    m_cacheLBColl->clear();
    m_tempLBColl->clear();
@@ -174,21 +113,21 @@ StatusCode LumiBlockMetaDataTool::initialize() {
 }
 //___________________________________________________________________________
 StatusCode LumiBlockMetaDataTool::finalize() {
-   MsgStream log(msgSvc(), name());
-
    if(m_cacheLBColl->size() >0) {
-      log << MSG::INFO << " Luminosity Blocks Recorded in Metadata store: " << endreq;
+      ATH_MSG_INFO( " Luminosity Blocks Recorded in Metadata store: " );
       m_cacheLBColl->dump();
    }
-   else { log << MSG::INFO << "No Complete Luminosity Blocks read in this job" << endreq; }
+   else {
+     ATH_MSG_INFO( "No Complete Luminosity Blocks read in this job" );
+   }
 
    if(m_tempLBColl->size()>0 ) {
-     log << MSG::INFO << "Incomplete File Reading led to suspect LumiBlocks: " << endreq;
+     ATH_MSG_INFO( "Incomplete File Reading led to suspect LumiBlocks: " );
      m_tempLBColl->dump();
    }
 
    if(m_unfinishedLBColl->size()>0 ) {
-     log << MSG::INFO << "Transferring Incomplete LB metadata from input file for suspect LumiBlocks: " << endreq;
+     ATH_MSG_INFO( "Transferring Incomplete LB metadata from input file for suspect LumiBlocks: " );
      m_unfinishedLBColl->dump();
    }
 
@@ -199,12 +138,11 @@ StatusCode LumiBlockMetaDataTool::finalize() {
 }
 //__________________________________________________________________________
 void LumiBlockMetaDataTool::handle(const Incident& inc) {
-   MsgStream log(msgSvc(), name());
    const FileIncident* fileInc  = dynamic_cast<const FileIncident*>(&inc);
    std::string fileName;
    if (fileInc == 0) { fileName = "Undefined "; }
    else { fileName = fileInc->fileName(); }
-   log << MSG::INFO << "handle() " << inc.type() << " for file: " << fileName << endreq;
+   ATH_MSG_INFO( "handle() " << inc.type() << " for file: " << fileName );
 
    // This incident is called whether or not a Tag file is being read.  If there is no Tag file,
    // this incident serves the same purpose as BeginInputFile
@@ -216,7 +154,7 @@ void LumiBlockMetaDataTool::handle(const Incident& inc) {
       if(!m_tagDataStore->contains<CollectionMetadata>("CollectionMetadata")) return;
       StatusCode status = m_tagDataStore->retrieve(metadataMap, "CollectionMetadata");
       if (!status.isSuccess()) {
-         log << MSG::WARNING << "Cannot retrieve Metadata map from TagDataStore." << endreq;
+         ATH_MSG_WARNING( "Cannot retrieve Metadata map from TagDataStore." );
          return;
       }
       std::string myValue = "NotFound";
@@ -224,22 +162,22 @@ void LumiBlockMetaDataTool::handle(const Incident& inc) {
       if (iter != metadataMap->end()) {
          myValue = iter->second;
       }
-      log << MSG::DEBUG << "OutputLumirange: " << myValue << endreq;
+      ATH_MSG_DEBUG( "OutputLumirange: " << myValue );
       if (myValue != "NotFound") {
 
         StatusCode status = fillFromXML(m_tempLBColl, myValue);
         if (!status.isSuccess()) {
-          log << MSG::WARNING << "fillFromXML failed!" << endreq;
+          ATH_MSG_WARNING( "fillFromXML failed!" );
         }
 
-                  log << MSG::DEBUG << "This should now be parsed to get the GoodRunsList" << endreq;
-         log << MSG::DEBUG << " Size of CollectionMetadata is: " << metadataMap->size() << endreq;
+        ATH_MSG_DEBUG( "This should now be parsed to get the GoodRunsList" );
+        ATH_MSG_DEBUG( " Size of CollectionMetadata is: " << metadataMap->size() );
          for (iter = metadataMap->begin(); iter != metadataMap->end(); iter++) {
-            log << MSG::INFO << " first: " << iter->first << " second: "  << iter->second << endreq;
+           ATH_MSG_INFO( " first: " << iter->first << " second: "  << iter->second );
          }
       } else {
          for (CollectionMetadata::iterator cmit = metadataMap->begin(); cmit != metadataMap->end(); cmit++) {
-            log << MSG::DEBUG << "CollectionMetadata has " << cmit->first << ", " << cmit->second << endreq;
+           ATH_MSG_DEBUG( "CollectionMetadata has " << cmit->first << ", " << cmit->second );
          }
       }
    } else if (inc.type() == "BeginInputFile") {
@@ -252,7 +190,7 @@ void LumiBlockMetaDataTool::handle(const Incident& inc) {
 	 std::list<SG::ObjectWithVersion<LumiBlockCollection> > allVersions;
 	 StatusCode sc = m_pInputStore->retrieveAllVersions(allVersions, m_LBColl_name);
          if (!sc.isSuccess()) {
-            log << MSG::DEBUG << "Could not find LumiBlockColl in input metatdata store" << endreq;
+            ATH_MSG_DEBUG( "Could not find LumiBlockColl in input metatdata store" );
 	    return;
 	 }
          for(std::list<SG::ObjectWithVersion<LumiBlockCollection> >::const_iterator iter = allVersions.begin(); iter != allVersions.end(); iter++) {
@@ -265,7 +203,7 @@ void LumiBlockMetaDataTool::handle(const Incident& inc) {
            while (i != ie) {
 	     if(**i!=**ilast ) { m_tempLBColl->push_back(new LB_IOVRange(*(*i))); }
              else {
-	       log << MSG::DEBUG << "Remove duplicate with range " << **i << endreq;
+	       ATH_MSG_DEBUG( "Remove duplicate with range " << **i );
 	     }
              ilast = i;
              i++;
@@ -281,7 +219,7 @@ void LumiBlockMetaDataTool::handle(const Incident& inc) {
         std::list<SG::ObjectWithVersion<LumiBlockCollection> > allVersions;
 	StatusCode sc = m_pInputStore->retrieveAllVersions(allVersions, m_unfinishedLBColl_name);
         if (!sc.isSuccess()) {
-          log << MSG::DEBUG << "Could not find Incomplete LumiBlockColl in input metatdata store" << endreq;
+          ATH_MSG_DEBUG( "Could not find Incomplete LumiBlockColl in input metatdata store" );
 	  return;
         }
         for(std::list<SG::ObjectWithVersion<LumiBlockCollection> >::const_iterator iter = allVersions.begin(); iter != allVersions.end(); iter++) {
@@ -294,7 +232,7 @@ void LumiBlockMetaDataTool::handle(const Incident& inc) {
           while (i != ie) {
 	    if(**i!=**ilast ) { m_unfinishedLBColl->push_back(new LB_IOVRange(*(*i))); }
             else {
-	      log << MSG::DEBUG << "Remove duplicate in unfinished collection with range " << **i << endreq;
+	      ATH_MSG_DEBUG( "Remove duplicate in unfinished collection with range " << **i );
 	    }
             ilast = i;
             i++;
@@ -326,8 +264,7 @@ void  LumiBlockMetaDataTool::finishUp() {
 // 
 // stop() is called whenever the event loop is finished.
 // ======================================================
-   MsgStream log(msgSvc(), name());
-   log << MSG::INFO <<  " finishUp: write lumiblocks to meta data store " << endreq;
+   ATH_MSG_INFO(  " finishUp: write lumiblocks to meta data store " );
 
    //   if(m_nfiles >1 && m_cacheLBColl->size()>0) 
    if(m_cacheLBColl->size()>0) 
@@ -353,35 +290,29 @@ void  LumiBlockMetaDataTool::finishUp() {
         tmpColl->push_back(new LB_IOVRange(*(*i))); 
         i++;
       }
-
-      if(m_createAANT == true){
-	// try to persistify it
-	m_lbc = m_lbc_conv.createPersistent( tmpColl, log);
-      }
       if(tmpColl->size()>0) {
          if (m_pMetaDataStore->contains<LumiBlockCollection>(m_LBColl_name)) {
           DataHandle<LumiBlockCollection> tmp;
           StatusCode ss = m_pMetaDataStore->retrieve(tmp,m_LBColl_name);
           if(ss.isSuccess())  {m_pMetaDataStore->remove(tmp.ptr());}
-          else { log << MSG::ERROR <<"Error removing exisiting LB collection from  MetaDataStore " << endreq; }
+          else {
+            ATH_MSG_ERROR("Error removing exisiting LB collection from  MetaDataStore " );
+          }
          }
          StatusCode sc = m_pMetaDataStore->record(tmpColl, m_LBColl_name);
          if (!sc.isSuccess()) {
            delete tmpColl; tmpColl = 0;
-           log << MSG::ERROR << "Could not record LumiBlockColl : " << m_LBColl_name << endreq;
+           ATH_MSG_ERROR( "Could not record LumiBlockColl : " << m_LBColl_name );
 	   //return sc;
 	 }
          if (m_applydqcuts) {
            sc = this->AddDQCollections(*m_cacheLBColl,m_DQLBColl_name,"luminosity_");
            if (!sc.isSuccess()) { 
-             log << MSG::ERROR << "Could not apply DQ selection to LumiBlockColl : " << m_LBColl_name << endreq;
+             ATH_MSG_ERROR( "Could not apply DQ selection to LumiBlockColl : " << m_LBColl_name );
              //return sc; 
            }
          }
-	 if(m_createAANT == true){
-	   AANtree->Fill();
-	 }
-      } else {
+	} else {
          delete tmpColl; tmpColl = 0;
       }
    }
@@ -402,23 +333,16 @@ void  LumiBlockMetaDataTool::finishUp() {
       }
 
       StatusCode sc = m_pMetaDataStore->record(tmp2Coll, m_unfinishedLBColl_name);
-      if(m_createAANT == true){
-	// try to persistify it
-	m_lbc = m_lbc_conv.createPersistent( tmp2Coll, log);
-      }
       if (!sc.isSuccess()) {
-        log << MSG::ERROR << "Could not record Unfinished LumiBlockColl : " << m_unfinishedLBColl_name << endreq;
+        ATH_MSG_ERROR( "Could not record Unfinished LumiBlockColl : " << m_unfinishedLBColl_name );
         //return sc;
       }
       if (m_applydqcuts) {
         sc = this->AddDQCollections(*tmp2Coll,m_unfinishedDQLBColl_name,"incomplete_luminosity_");
         if (!sc.isSuccess()) { 
-          log << MSG::ERROR << "Could not apply DQ selection to LumiBlockColl : " << m_unfinishedLBColl_name << endreq;
+          ATH_MSG_ERROR( "Could not apply DQ selection to LumiBlockColl : " << m_unfinishedLBColl_name );
           //return sc; 
         }
-      }
-      if(m_createAANT == true){
-	AANtree->Fill();
       }
    }
 
@@ -442,7 +366,7 @@ void  LumiBlockMetaDataTool::finishUp() {
    if(m_calcLumi == true){
      StatusCode sc = m_lcSvc->calcLumi();
      if (!sc.isSuccess()) {
-       log << MSG::WARNING << "Couldn't calculate lumi!" << endreq;
+       ATH_MSG_WARNING( "Couldn't calculate lumi!" );
        //return sc;
      }
    }
@@ -506,16 +430,15 @@ LumiBlockMetaDataTool::FilterOnDQFlags( const LumiBlockCollection& lbc,
 
 StatusCode LumiBlockMetaDataTool::fillFromXML(LumiBlockCollection* lbc_target,
                                    const std::string& xmlString) {
-   MsgStream log(msgSvc(), name());
-   log << MSG::INFO << "Entering LumiBlockMetaDataTool::fillFromXML with xmlString " << xmlString << endreq;
-   log << MSG::INFO << "Try decoding it" << endreq;
+   ATH_MSG_INFO( "Entering LumiBlockMetaDataTool::fillFromXML with xmlString " << xmlString );
+   ATH_MSG_INFO( "Try decoding it" );
    std::string decoded_string;
    urldecode::decoder_state state;
    state.state = urldecode::ST_SYM;
    std::pair<std::string,int> decoded = urldecode::urldecode(&state, xmlString, xmlString.size());
    decoded_string = decoded.first;
    if (decoded.second < 0) {
-      log << MSG::INFO << "URL Decoding failed : " << decoded_string << " . Trying undecoded string instead." << endreq;
+      ATH_MSG_INFO( "URL Decoding failed : " << decoded_string << " . Trying undecoded string instead." );
       decoded_string = xmlString;
       //return StatusCode::FAILURE;
    }
@@ -523,14 +446,14 @@ StatusCode LumiBlockMetaDataTool::fillFromXML(LumiBlockCollection* lbc_target,
    // Use parser from GoodRunsLists package (Root based)
    Root::TGoodRunsListReader reader;
 
-   log << MSG::DEBUG << "Now parsing xml string " << decoded_string << endreq;
+   ATH_MSG_DEBUG( "Now parsing xml string " << decoded_string );
    reader.SetXMLString(decoded_string);
 
    if (!reader.Interpret()) {
-      log << MSG::WARNING << "GRL interpretation failed : " << decoded_string << " . Return Failure." << endreq;
+      ATH_MSG_WARNING( "GRL interpretation failed : " << decoded_string << " . Return Failure." );
       return StatusCode::FAILURE;
    } else {
-      log << MSG::DEBUG << "GRL interpretation successful." << endreq;
+     ATH_MSG_DEBUG( "GRL interpretation successful." );
    }
 
    // Since parse worked, get the good run list
@@ -542,7 +465,7 @@ StatusCode LumiBlockMetaDataTool::fillFromXML(LumiBlockCollection* lbc_target,
    for (std::map<Int_t,Root::TGoodRun>::const_iterator it = grl.begin(); it != grl.end(); it++) {
       int run = it->first;
       // Iterate over lumiblock ranges for that run and fill LumiBlockCollection argument
-      log << MSG::INFO << "About to fill LBCollection with " << it->second.size() << "items" << endreq;
+      ATH_MSG_INFO( "About to fill LBCollection with " << it->second.size() << "items" );
       for (std::vector<Root::TLumiBlockRange>::const_iterator lbrit = it->second.begin(); lbrit != it->second.end(); lbrit++) {
          lbc_target->push_back(new LB_IOVRange(IOVTime(run, lbrit->Begin()), IOVTime(run, lbrit->End())));
       }
@@ -555,11 +478,9 @@ StatusCode LumiBlockMetaDataTool::fillFromXML(LumiBlockCollection* lbc_target,
 StatusCode
 LumiBlockMetaDataTool::RecordInMetaDataStore( LumiBlockCollection* plbc, const TString& lbcname )
 {
-  MsgStream log(msgSvc(), name());
-
   StatusCode sc = StatusCode::SUCCESS;
   if (plbc->empty()) { 
-    log << MSG::DEBUG <<"RecordInMetaDataStore() : Input lbc is empty. Not storing in MetaDataStore " << endreq;
+    ATH_MSG_DEBUG("RecordInMetaDataStore() : Input lbc is empty. Not storing in MetaDataStore " );
     return sc;
   }
 
@@ -567,14 +488,16 @@ LumiBlockMetaDataTool::RecordInMetaDataStore( LumiBlockCollection* plbc, const T
    DataHandle<LumiBlockCollection> tmp;
    StatusCode ss = m_pMetaDataStore->retrieve(tmp,lbcname.Data());
    if(ss.isSuccess())  { m_pMetaDataStore->remove(tmp.ptr()); }
-   else { log << MSG::ERROR <<"Error removing exisiting LB collection <" << lbcname << "> from  MetaDataStore " << endreq; }
+   else {
+     ATH_MSG_ERROR("Error removing exisiting LB collection <" << lbcname << "> from  MetaDataStore " );
+   }
   }
 
   sc = m_pMetaDataStore->record(plbc, lbcname.Data());
   if (!sc.isSuccess()) {
-    log << MSG::ERROR << "Could not record LumiBlockColl : " << lbcname << endreq;
+    ATH_MSG_ERROR( "Could not record LumiBlockColl : " << lbcname );
   } else {
-    log << MSG::DEBUG << "RecordInMetaDataStore() : Stored lbc <" << lbcname << "> in MetaDataStore " << endreq;
+    ATH_MSG_DEBUG( "RecordInMetaDataStore() : Stored lbc <" << lbcname << "> in MetaDataStore " );
   }
 
   return sc;
@@ -584,10 +507,11 @@ LumiBlockMetaDataTool::RecordInMetaDataStore( LumiBlockCollection* plbc, const T
 StatusCode
 LumiBlockMetaDataTool::AddDQCollections( const LumiBlockCollection& lbc, const TString& lbcprefix, const TString& grlprefix )
 {
-  MsgStream log(msgSvc(), name());
   StatusCode sc = StatusCode::SUCCESS;
 
   if (lbc.empty()) return sc;
+
+  ATH_CHECK( m_GoodRunsListSelectorTool.retrieve() );
 
   /// construct metadata from triggers passed to lumicalcsvc
   /// may be overwritten below
@@ -624,7 +548,7 @@ LumiBlockMetaDataTool::AddDQCollections( const LumiBlockCollection& lbc, const T
       lbcname = lbcprefix + Form("%d",i);
       sc = this->RecordInMetaDataStore(iovc,lbcname); // iovc taken over by metadatastore
       if (!sc.isSuccess()) { 
-        log << MSG::ERROR << "Could not store in metadatastore LumiBlockColl: " << lbcname << endreq;
+        ATH_MSG_ERROR( "Could not store in metadatastore LumiBlockColl: " << lbcname );
         return sc; 
       }
 
@@ -686,7 +610,7 @@ LumiBlockMetaDataTool::AddDQCollections( const LumiBlockCollection& lbc, const T
     lbcname = lbcprefix + "0";
     sc = this->RecordInMetaDataStore(iovc,lbcname); // iovc taken over by metadatastore
     if (!sc.isSuccess()) { 
-      log << MSG::ERROR << "Could not store in metadatastore LumiBlockColl: " << lbcname << endreq;
+      ATH_MSG_ERROR( "Could not store in metadatastore LumiBlockColl: " << lbcname );
       return sc; 
     }
 
@@ -755,8 +679,7 @@ LumiBlockMetaDataTool::getGRLString( const TString& grlname ) const
   if (itr!=m_grlcollection->end())
     return m_converter->GetXMLString(*itr);
 
-  MsgStream log(msgSvc(), name());
-  log << MSG::WARNING <<"getGRLString() : GoodRunsList with name <" << grlname << "> not found. Return empty string." << endreq;
+  ATH_MSG_WARNING("getGRLString() : GoodRunsList with name <" << grlname << "> not found. Return empty string." );
 
   return "";
 }

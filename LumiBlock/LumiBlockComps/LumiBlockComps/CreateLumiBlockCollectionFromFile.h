@@ -16,7 +16,7 @@
 //
 // *********************************************************************
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "AthenaKernel/IOVTime.h"
 #include <vector>
 #include <map>
@@ -29,7 +29,7 @@
 
 class StoreGateSvc;
 
-class CreateLumiBlockCollectionFromFile:public Algorithm, virtual public IIncidentListener {
+class CreateLumiBlockCollectionFromFile:public AthAlgorithm, virtual public IIncidentListener {
 public:
   CreateLumiBlockCollectionFromFile (const std::string& name, ISvcLocator* pSvcLocator);
   StatusCode initialize();
@@ -55,12 +55,15 @@ protected:
   IOVTime m_lastIOVTime;        // could remake from the previous 2, but for efficiency save it
   bool m_checkEventsExpected;   
 
-  StoreGateSvc* m_storeGate;    //cache the StoreGateSvc ptr for efficiency
-  StoreGateSvc* m_metaStore;    //cache the StoreGateSvc ptr for efficiency
+  ServiceHandle<StoreGateSvc> m_metaStore;    //cache the StoreGateSvc ptr for efficiency
  
   StringProperty  m_LBColl_name;
   StringProperty  m_unfinishedLBColl_name;
   StringProperty  m_suspectLBColl_name;
+
+  StringProperty m_evtStoreName;
+  StringProperty m_detStoreName;
+  StringProperty m_userStoreName;
 };
 
 

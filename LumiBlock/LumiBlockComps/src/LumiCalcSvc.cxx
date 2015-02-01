@@ -46,8 +46,6 @@
 LumiCalcSvc::LumiCalcSvc(const std::string& name, 
 		       ISvcLocator* pSvcLocator ) : 
   AthService(name, pSvcLocator),
-  p_evtstore(0),
-  p_detstore(0),
   p_inputstore(0),
   p_metadatastore(0),
   tHistSvc(0),
@@ -96,22 +94,10 @@ StatusCode LumiCalcSvc::initialize(){
 
   log << MSG::DEBUG << "In LumiCalcSvc::initialize " << endreq;
 
-  // Storegate                                                                                                                                                                        
-  StatusCode sc = service("StoreGateSvc", p_evtstore);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to get the StoreGateSvc" << endreq;
-    return sc;
-  }
-
-  // locate the conditions store ptr to it.                                                                                                                                           
-  sc = service("DetectorStore", p_detstore);
-  if (!sc.isSuccess() || 0 == p_detstore) {
-    log <<MSG::ERROR <<"Could not find DetStore" <<endreq;
-    return StatusCode::FAILURE;
-  }
+  // locate the conditions store ptr to it.
 
   // locate input metadata store
-  sc = service("StoreGateSvc/InputMetaDataStore", p_inputstore);
+  StatusCode sc = service("StoreGateSvc/InputMetaDataStore", p_inputstore);
   //sc = m_pInputStore.retrieve();
   if (!sc.isSuccess() || 0 == p_inputstore) {
     log << MSG::ERROR << "Could not find InputMetaDataStore" << endreq;

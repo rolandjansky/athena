@@ -11,7 +11,7 @@
  *  $Id: LumiBlockMetaDataTool.h,v 1.4 2009-05-19 07:51:28 radbal Exp $
  **/
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -19,10 +19,6 @@
 #include "AthenaPoolKernel/IMetaDataTool.h"
 #include "LumiBlockComps/ILumiBlockMetaDataTool.h"
 #include "LumiBlockData/LumiBlockCollection.h"
-#include "LumiBlockTPCnv/LumiBlockCollection_p1.h"
-#include "LumiBlockTPCnv/LumiBlockCollectionCnv_p1.h"
-#include "LumiBlockTPCnv/LumiBlockRange_p1.h"
-#include "LumiBlockTPCnv/LumiBlockRangeCnv_p1.h"
 #include "GaudiKernel/ITHistSvc.h" 
 #include "TTree.h"
 #include "TString.h"
@@ -40,7 +36,7 @@ namespace Root {
   class TGRLCollection;
 }
 
-class LumiBlockMetaDataTool : public AlgTool, virtual public IMetaDataTool, virtual public ILumiBlockMetaDataTool, virtual public IIncidentListener {
+class LumiBlockMetaDataTool : public AthAlgTool, virtual public IMetaDataTool, virtual public ILumiBlockMetaDataTool, virtual public IIncidentListener {
 public: // Constructor and Destructor
    /// Standard Service Constructor
    LumiBlockMetaDataTool(const std::string& type, const std::string& name, const IInterface* parent);
@@ -95,20 +91,9 @@ private:
 
    int m_nfiles;
    bool m_fileCurrentlyOpened;
-   bool m_createAANT;
    bool m_calcLumi;
    bool m_storexmlfiles;
    bool m_applydqcuts;
-
-   TTree *AANtree;
-   ITHistSvc * tHistSvc;
-
-   LumiBlockCollectionCnv_p1 m_lbc_conv;
-   LumiBlockRangeCnv_p1 m_lbr_conv;
-
-   LumiBlockCollection_p1 *m_lbc;
-   LumiBlockRange_p1 *m_lbr;
-
    LumiBlockCollectionConverter* m_converter;
    Root::TGRLCollection* m_grlcollection;
 
