@@ -77,8 +77,6 @@ private:
   void doRecordTree(bool b){m_recordTTree = b;}
   void printTree();
 
-  StoreGateSvc* p_evtstore; // event store
-  StoreGateSvc* p_detstore; // detector store
   StoreGateSvc* p_inputstore; // input metadata store
   StoreGateSvc* p_metadatastore; // metadata store
   ITHistSvc * tHistSvc;

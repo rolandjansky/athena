@@ -10,7 +10,6 @@ use GaudiInterface              GaudiInterface-*     External
 use LumiBlockData               LumiBlockData-*      LumiBlock
 use AthenaPoolKernel            AthenaPoolKernel-*   Database/AthenaPOOL
 use AtlasROOT                   AtlasROOT-*          External
-use LumiBlockTPCnv		LumiBlockTPCnv-*     LumiBlock/LumiBlockPers
 use AthenaBaseComps             AthenaBaseComps-*       Control
 use AthenaKernel                AthenaKernel-*       Control
 use AtlasCORAL 			AtlasCORAL-* 	     External
