@@ -17,6 +17,7 @@
 #include "GeneratorObjectsTPCnv/McEventCollectionCnv_p2.h"
 #include "HepMcDataPool.h"
 
+#if 0
 namespace {
 // helper method to compute the number of particles and vertices in a
 // whole McEventCollection
@@ -35,6 +36,7 @@ nbrParticlesAndVertices( const McEventCollection* mcEvents ) {
   return std::make_pair( nParts, nVerts );
 }
 }
+#endif
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 

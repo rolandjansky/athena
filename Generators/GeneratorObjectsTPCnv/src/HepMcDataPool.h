@@ -20,8 +20,7 @@
 #undef private
 #undef protected
 
-// DataModel includes
-#include "DataModel/DataPool.h"
+#include "AthAllocators/DataPool.h"
 
 // specialization of the destruction functions for our various DataPools
 // these specializations are needed because we have to work-around the
