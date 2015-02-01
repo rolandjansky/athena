@@ -67,13 +67,14 @@ class POOL2EI(PyAthena.Alg):
         _info = self.msg.info
         _info("POOL2EI::initialize")
 
-        _info("## DoProvenanceRef: {}".format(self.DoProvenanceRef));
-        _info("## DoTriggerInfo: {}".format(self.DoTriggerInfo));
-        _info("## SendToBroker: {}".format(self.SendToBroker));
+        _info("## DoProvenanceRef: {}".format(self.DoProvenanceRef))
+        _info("## DoTriggerInfo: {}".format(self.DoTriggerInfo))
+        _info("## HaveHlt: {}".format(self.HaveHlt))
+        _info("## SendToBroker: {}".format(self.SendToBroker))
 
 
         if self.EiDsName is not None:
-            _info("## EiDsName: {}".format(self.EiDsName));
+            _info("## EiDsName: {}".format(self.EiDsName))
             self._dsname = self.EiDsName
         else:
             """ this code is not used. Just for reference in case dataset has to be
@@ -115,16 +116,19 @@ class POOL2EI(PyAthena.Alg):
 
 
         if "/TRIGGER/HLT/HltConfigKeys" in self.inputStore.keys():
-            # trigger decision tool
+            # load trigger decision tool
             from TriggerJobOpts.TriggerFlags import TriggerFlags
             TriggerFlags.configurationSourceList=['ds']
             import AthenaPython.PyAthena as PyAthena
             self.trigDec = PyAthena.py_tool('Trig::TrigDecisionTool/TrigDecisionTool')
             self.trigDec.ExperimentalAndExpertMethods().enable()
         else:
-            if self.DoTriggerInfo:
-                _info("Switch DoTriggerInfo to False")
-                self.DoTriggerInfo = False
+            if self.HaveHlt:
+                _info("Switch HaveHlt to False")
+                self.HaveHlt = False
+            #if self.DoTriggerInfo:
+            #    _info("Switch DoTriggerInfo to False")
+            #    self.DoTriggerInfo = False
 
         ## open output pkl file
         import os
@@ -319,8 +323,8 @@ class POOL2EI(PyAthena.Alg):
             ROOT = _import_ROOT()
             import os
             root_files = list(ROOT.gROOT.GetListOfFiles())
-            if len(root_files)!=1:
-                _info('could not find correct ROOT file (looking for [{}])'.format(self.infname))
+            if len(root_files)==0:
+                _info('could not find correct ROOT file')
                 return
             
             root_file = root_files[0]
@@ -334,7 +338,11 @@ class POOL2EI(PyAthena.Alg):
             guids = []
             for i in xrange(pool.GetEntries()):
                 if pool.GetEntry(i)>0:
-                    match = pool_token(pool.db_string)
+                    pool_string = pool.db_string
+                    # take string until \0 is found
+                    n=pool_string.find('\0')
+                    pool_string=pool_string[:n]
+                    match = pool_token(pool_string)
                     if not match:
                         continue
                     d = match.groupdict()
@@ -349,7 +357,7 @@ class POOL2EI(PyAthena.Alg):
         else:
             self.guid = None
 
-        if self.DoTriggerInfo:
+        if self.DoTriggerInfo and self.HaveHlt:
             ##/TRIGGER/HLT/HltConfigKeys
             (hltck_info, hltck_iovs) = self.process_metadata(self.inputStore,'/TRIGGER/HLT/HltConfigKeys')
             hltpsk_l = [ x['HltPrescaleConfigurationKey'] for x in hltck_info ]
@@ -440,7 +448,8 @@ class POOL2EI(PyAthena.Alg):
         _info = self.msg.info
         _info("POOL2EI::beginRun")
 
-        if self.DoTriggerInfo:
+        # get trigger chains
+        if self.DoTriggerInfo and self.HaveHlt:
             self.ccnameL1 = self.getChainCounter("L1_.*")
             self.ccnameL2 = self.getChainCounter("L2_.*")
             self.ccnameEF = self.getChainCounter("EF_.*")
@@ -558,6 +567,8 @@ class POOL2EI(PyAthena.Alg):
             eirec['HLTPSK'] = HLTPSK
 
 
+        # update trigger if TrigDecision info is available
+        if self.DoTriggerInfo and self.HaveHlt and 'TrigDecision' in self.evtStore.keys():
             L1_isPassedAfterPrescale  = 0x1 << 16
             L1_isPassedBeforePrescale = 0x1 << 17
             L1_isPassedAfterVeto      = 0x1 << 18
@@ -629,6 +640,10 @@ class POOL2EI(PyAthena.Alg):
             trigEF  = trigEF_PH+";"+trigEF_PT+";"+trigEF_RS
             trigEF2 = trigEF_PH+";"+trigEF_INC
 
+            _info("## trigL1*: {}".format(trigL1))
+            _info("## trigL2*: {}".format(trigL2))
+            _info("## trigEF*: {}".format(trigEF))
+
             # overwrite 
             eirec['L1PassedTrigMask'] = trigL1
             eirec['L2PassedTrigMask'] = trigL2
@@ -676,27 +691,31 @@ class POOL2EI(PyAthena.Alg):
                     prv += 1
     
         ## stream references
-        for dhe in dh:
-            key = dhe.getKey()
-            if key.startswith('Stream'):
-                _info("## Stream: "+key)
-            if key in [ procTag, 'StreamAOD' ]:
-                try:
-                    match = self._re_pool_token(dhe.getToken().toString())
-                except:
-                    match = self._re_pool_token(dhe.getToken())
-                if not match:
-                    continue
-                d = match.groupdict()
-                tk_guid = d['db']
-                stk = "[DB={}][CNT=POOLContainer(DataHeader)][CLID={}][TECH={}][OID={}]".format(
-                    tk_guid,d['clid'],d['tech'],d['oid'])
-                _info("## "+ key+"_ref: "+stk)
-                if "ProcTag_ref" in stream_refs:
-                    _info("Already inserted key ProcTag_ref in stream_refs with value "+stream_refs["ProcTag_ref"])
-                stream_refs["Sref0"]=stk
+        if dh.size() > 0:
+            dhe = dh.begin()
+            for i in range(0,dh.size()):
+                key = dhe.getKey()
+                if key.startswith('Stream'):
+                    _info("## Stream: "+key)
+                if key in [ procTag, 'StreamAOD' ]:
+                    try:
+                        match = self._re_pool_token(dhe.getToken().toString())
+                    except:
+                        match = self._re_pool_token(dhe.getToken())
+                    if not match:
+                        continue
+                    d = match.groupdict()
+                    tk_guid = d['db']
+                    stk = "[DB={}][CNT=POOLContainer(DataHeader)][CLID={}][TECH={}][OID={}]".format(
+                        tk_guid,d['clid'],d['tech'],d['oid'])
+                    _info("## "+ key+"_ref: "+stk)
+                    if "ProcTag_ref" in stream_refs:
+                        _info("Already inserted key ProcTag_ref in stream_refs with value "+stream_refs["ProcTag_ref"])
+                    stream_refs["Sref0"]=stk
+                dhe += 1
+
+        # Update ref token to handle fast merged files.
         try:
-            # Update ref token to handle fast merged files.
             stk = store.proxy(dh).address().par().c_str()
             stream_refs["Sref0"]=stk
             _info("Updated ref token "+stk)
