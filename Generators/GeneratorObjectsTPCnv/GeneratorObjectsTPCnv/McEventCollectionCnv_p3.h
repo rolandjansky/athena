@@ -129,12 +129,5 @@ class McEventCollectionCnv_p3 : public T_AthenaPoolTPCnvBase<
 /// Inline methods: 
 /////////////////////////////////////////////////////////////////// 
 
-template<>
-class T_TPCnv<McEventCollection, McEventCollection_p3>
-  : public McEventCollectionCnv_p3
-{
-public:
-};
-
 #endif //> GENERATOROBJECTSTPCNV_MCEVENTCOLLECTIONCNV_P3_H
 
