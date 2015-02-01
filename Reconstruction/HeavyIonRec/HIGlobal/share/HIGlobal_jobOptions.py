@@ -2,19 +2,24 @@
 # default set in HIGlobalFlags.py
 # it can be changed in your top jobOption
 
+
+print 'IN HIGLOBAL'
 from HIRecExample.HIRecExampleFlags import jobproperties
 
-if jobproperties.HIRecExampleFlags.doHIGlobal:            
-    from HIGlobal.HIGlobalFlags import jobproperties
-    
-    if jobproperties.HIGlobalFlags.doHIGlobalVars:
-        include( "HIGlobal/HIGlobalVars_jobOptions.py" )
-    if jobproperties.HIGlobalFlags.doHIGlobalNSiCluster:
-        include( "HIGlobal/HIGlobalNSiCluster_jobOptions.py" )
-    if jobproperties.HIGlobalFlags.doHIPixelTracklet:
-        include( "HIGlobal/HIGlobal_PixelTracklets_jobOptions.py" )
 
-    # === TRT ===
-    #from  RecExConfig.ObjKeyStore import  objKeyStore
-    #objKeyStore.addStreamESD("HITRTInfo", "myHI_TRTInfoObject" )
+from CaloRec.CaloTowerCmbGetter import CaloTowerCmbGetter
+CaloTowerCmbGetter()
 
+from HIGlobal.HIGlobalConf import HIEventShapeMaker
+theAlg=HIEventShapeMaker()
+from HIGlobal.HIGlobalFlags import jobproperties
+theAlg.OutputContainerKey=jobproperties.HIGlobalFlags.EventShapeKey.get_Value()
+#theAlg.NumFlowHarmonics=jobproperties.HIGlobalFlags.NumFlowHarmonics.get_Value()
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
+topSequence += theAlg
+
+rootStreamName = "MYSTREAM"
+rootFileName   = "myHistosAth.root"
+from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
+MyFirstHistoXAODStream = MSMgr.NewRootStream( rootStreamName, rootFileName )

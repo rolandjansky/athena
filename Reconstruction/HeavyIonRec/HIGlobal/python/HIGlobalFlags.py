@@ -81,6 +81,13 @@ class doHIGlobalNSiCluster(JobProperty):
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = True
+
+class EventShapeKey(JobProperty):
+    """ Name of EventShape object container
+    """
+    statusOn     = True
+    allowedTypes = ['string']
+    StoredValue  = "HIEventShape"
     
 # Defines the container for heavy ion reco flags  
 class HIGlobalFlags(JobPropertyContainer):
@@ -101,7 +108,8 @@ list_jobproperties = [
     doHIGlobalNSiCluster,
     FlowHarmonicMin,
     FlowHarmonicMax,
-    HIFlowContainerPrefix
+    HIFlowContainerPrefix,
+    EventShapeKey
     ]
 
 for i in list_jobproperties:
