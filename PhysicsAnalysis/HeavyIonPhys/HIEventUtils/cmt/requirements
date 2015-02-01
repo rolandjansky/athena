@@ -1,0 +1,12 @@
+package HIEventUtils
+
+author Aaron Angerami <angerami@cern.ch>
+
+#public
+
+
+#private
+
+#apply_pattern declare_joboptions files="*.py"
+#apply_pattern declare_python_modules files="*.py"
+#apply_pattern installed_library library HIEventUtils "../Root/*.cxx ../src/*.cxx"
