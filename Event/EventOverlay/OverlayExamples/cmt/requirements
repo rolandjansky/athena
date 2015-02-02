@@ -1,0 +1,21 @@
+package OverlayExamples
+
+author ketevi A. Assamagan <ketevi@bnl.gov>
+
+public
+use AtlasPolicy         AtlasPolicy-*
+
+use GaudiInterface      GaudiInterface-*       External
+
+private
+use AthenaBaseComps     AthenaBaseComps-*      Control
+use EventInfo           EventInfo-*            Event
+use LArRawEvent         LArRawEvent-*          LArCalorimeter
+use LArSimEvent         LArSimEvent-*          LArCalorimeter
+use PileUpTools         PileUpTools-*          Control
+end_private
+
+library OverlayExamples *.cxx components/*.cxx
+
+apply_pattern component_library
+apply_pattern declare_joboptions files="*.py *.C *.sh"
