@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CompositeParticle_v1.cxx 641075 2015-01-22 16:12:10Z kkoeneke $
+// $Id: CompositeParticle_v1.cxx 643631 2015-02-02 16:52:33Z kkoeneke $
 
 // standard includes
 #include <math.h>       /* remainder and M_PI */
@@ -76,7 +76,7 @@ namespace xAOD {
   }
 
   Type::ObjectType CompositeParticle_v1::type() const {
-    return Type::Other;
+    return Type::CompositeParticle;
   }
 
 
@@ -234,7 +234,7 @@ namespace xAOD {
   double CompositeParticle_v1::deltaEta( int constitAIdx, int constitBIdx ) const
   {
     // Check that we got valid indices
-    if ( constitAIdx <= 0 || constitBIdx <=0 ) {
+    if ( constitAIdx < 0 || constitBIdx < 0 ) {
       // This should not be... throw an error.
       throw std::runtime_error("Got a negative index... this should not happen");
       return 0.0;
@@ -271,7 +271,7 @@ namespace xAOD {
   double CompositeParticle_v1::deltaRapidity( int constitAIdx, int constitBIdx ) const
   {
     // Check that we got valid indices
-    if ( constitAIdx <= 0 || constitBIdx <=0 ) {
+    if ( constitAIdx < 0 || constitBIdx < 0 ) {
       // This should not be... throw an error.
       throw std::runtime_error("Got a negative index... this should not happen");
       return 0.0;
@@ -310,7 +310,7 @@ namespace xAOD {
   double CompositeParticle_v1::deltaR2( int constitAIdx, int constitBIdx, bool useRapidity ) const
   {
     // Check that we got valid indices
-    if ( constitAIdx <= 0 || constitBIdx <=0 ) {
+    if ( constitAIdx < 0 || constitBIdx < 0 ) {
       // This should not be... throw an error.
       throw std::runtime_error("Got a negative index... this should not happen");
       return 0.0;
@@ -350,7 +350,7 @@ namespace xAOD {
   double CompositeParticle_v1::deltaAbsP( int constitAIdx, int constitBIdx ) const
   {
     // Check that we got valid indices
-    if ( constitAIdx <= 0 || constitBIdx <=0 ) {
+    if ( constitAIdx < 0 || constitBIdx < 0 ) {
       // This should not be... throw an error.
       throw std::runtime_error("Got a negative index... this should not happen");
       return 0.0;
@@ -387,7 +387,7 @@ namespace xAOD {
   double CompositeParticle_v1::deltaAbsPt( int constitAIdx, int constitBIdx ) const
   {
     // Check that we got valid indices
-    if ( constitAIdx <= 0 || constitBIdx <=0 ) {
+    if ( constitAIdx < 0 || constitBIdx < 0 ) {
       // This should not be... throw an error.
       throw std::runtime_error("Got a negative index... this should not happen");
       return 0.0;
