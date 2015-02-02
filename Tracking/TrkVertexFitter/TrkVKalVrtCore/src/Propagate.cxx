@@ -132,9 +132,9 @@ extern void cfnewpm (double*, double*, double*, double*, double*, double*);
 //
    vkalPropagator::vkalPropagator() 
    {
-      m_functionProp  = Trk::PropagateSTD;
-      m_typePropagator = 0;
-      m_objectProp = 0;
+      functionProp  = Trk::PropagateSTD;
+      typePropagator = 0;
+      objectProp = 0;
    }
    vkalPropagator::~vkalPropagator() {}
 
@@ -142,31 +142,31 @@ extern void cfnewpm (double*, double*, double*, double*, double*, double*);
    basePropagator::~basePropagator() {}
 
    void vkalPropagator::setTypeProp(int Type){
-     m_typePropagator = Type;
-     if(m_typePropagator < 0) m_typePropagator=0;
-     if(m_typePropagator > 3) m_typePropagator=0;
+     typePropagator = Type;
+     if(typePropagator < 0) typePropagator=0;
+     if(typePropagator > 3) typePropagator=0;
    }
 
    void vkalPropagator::setPropagator(addrPropagator newProp) 
    {
-      m_functionProp = newProp;
-      m_objectProp = 0;
-      m_typePropagator = 2;
+      functionProp = newProp;
+      objectProp = 0;
+      typePropagator = 2;
    }
    
    void vkalPropagator::setPropagator(basePropagator* newProp) 
    {
-      m_functionProp = 0;
-      m_objectProp = newProp;
-      m_typePropagator = 3;
+      functionProp = 0;
+      objectProp = newProp;
+      typePropagator = 3;
    }
 
    bool vkalPropagator::checkTarget(double *RefNew) const 
    {
-      if ( m_typePropagator == 0 ) return  true;
-      if ( m_typePropagator == 1 ) return  true;
-      if ( m_typePropagator == 2 ) return  true;     
-      if ( m_typePropagator == 3 ) return m_objectProp->checkTarget(RefNew);
+      if ( typePropagator == 0 ) return  true;
+      if ( typePropagator == 1 ) return  true;
+      if ( typePropagator == 2 ) return  true;     
+      if ( typePropagator == 3 ) return objectProp->checkTarget(RefNew);
       return  true;
    }
  
@@ -180,10 +180,10 @@ extern void cfnewpm (double*, double*, double*, double*, double*, double*);
        if(CovOld != 0) { for (int i=0; i<15; i++) CovNew[i]=CovOld[i];}
        return;
      }
-     if ( m_typePropagator == 0 ) Trk::PropagateSTD( TrkID, Charge, ParOld, CovOld, RefOld, RefNew, ParNew, CovNew);
-     if ( m_typePropagator == 1 ) Trk::PropagateRKM( Charge, ParOld, CovOld, RefOld, RefNew, ParNew, CovNew);
-     if ( m_typePropagator == 2 ) m_functionProp( TrkID, Charge, ParOld, CovOld, RefOld, RefNew, ParNew, CovNew);     
-     if ( m_typePropagator == 3 ) {
+     if ( typePropagator == 0 ) Trk::PropagateSTD( TrkID, Charge, ParOld, CovOld, RefOld, RefNew, ParNew, CovNew);
+     if ( typePropagator == 1 ) Trk::PropagateRKM( Charge, ParOld, CovOld, RefOld, RefNew, ParNew, CovNew);
+     if ( typePropagator == 2 ) functionProp( TrkID, Charge, ParOld, CovOld, RefOld, RefNew, ParNew, CovNew);     
+     if ( typePropagator == 3 ) {
 	if( Charge == 0 ) {
 	  Trk::PropagateSTD( TrkID,Charge, ParOld, CovOld, RefOld, RefNew, ParNew, CovNew);
 	}else{
@@ -191,7 +191,7 @@ extern void cfnewpm (double*, double*, double*, double*, double*, double*);
 //Trk::PropagateRKM( Charge, ParOld, CovOld, RefOld, RefNew, ParNew, CovNew);// Test
 //std::cout<<" RKM ="<<ParNew[0]<<", "<<ParNew[1]<<", "<<ParNew[2]<<", "<<ParNew[3]<<", "<<ParNew[4]<<'\n';
 //std::cout<<" ATLrefn="<<RefNew[0]<<", "<<RefNew[1]<<", "<<RefNew[2]<<'\n';
-          m_objectProp->Propagate( TrkID, Charge, ParOld, CovOld, RefOld, RefNew, ParNew, CovNew);     
+          objectProp->Propagate( TrkID, Charge, ParOld, CovOld, RefOld, RefNew, ParNew, CovNew);     
 //std::cout<<" ATLpar ="<<ParNew[0]<<", "<<ParNew[1]<<", "<<ParNew[2]<<", "<<ParNew[3]<<", "<<ParNew[4]<<'\n';
                    // Protection against propagation fail
 	  if( ParNew[0]==0. && ParNew[1]==0. && ParNew[2]==0. && ParNew[3]==0. && ParNew[4]==0.){
@@ -215,14 +215,14 @@ extern void cfnewpm (double*, double*, double*, double*, double*, double*);
        return;
      }
      long int TrkID = trk->Id; long int Charge = trk->Charge;
-     if ( m_typePropagator == 0 ) Trk::PropagateSTD( TrkID, Charge, trk->refPerig, trk->refCovar, RefOld, RefNew, ParNew, CovNew);
-     if ( m_typePropagator == 1 ) Trk::PropagateRKM(        Charge, trk->refPerig, trk->refCovar, RefOld, RefNew, ParNew, CovNew);
-     if ( m_typePropagator == 2 ) m_functionProp(      TrkID, Charge, trk->refPerig, trk->refCovar, RefOld, RefNew, ParNew, CovNew);     
-     if ( m_typePropagator == 3 ) {
+     if ( typePropagator == 0 ) Trk::PropagateSTD( TrkID, Charge, trk->refPerig, trk->refCovar, RefOld, RefNew, ParNew, CovNew);
+     if ( typePropagator == 1 ) Trk::PropagateRKM(        Charge, trk->refPerig, trk->refCovar, RefOld, RefNew, ParNew, CovNew);
+     if ( typePropagator == 2 ) functionProp(      TrkID, Charge, trk->refPerig, trk->refCovar, RefOld, RefNew, ParNew, CovNew);     
+     if ( typePropagator == 3 ) {
 	if( Charge == 0 ) {
 	  Trk::PropagateSTD( TrkID,Charge, trk->refPerig, trk->refCovar, RefOld, RefNew, ParNew, CovNew);
 	}else{
-          m_objectProp->Propagate( TrkID, Charge, trk->refPerig, trk->refCovar, RefOld, RefNew, ParNew, CovNew);     
+          objectProp->Propagate( TrkID, Charge, trk->refPerig, trk->refCovar, RefOld, RefNew, ParNew, CovNew);     
 	  if( ParNew[0]==0. && ParNew[1]==0. && ParNew[2]==0. && ParNew[3]==0. && ParNew[4]==0.){
             Trk::PropagateRKM( Charge,trk->refPerig, trk->refCovar, RefOld, RefNew, ParNew, CovNew);
 	  }

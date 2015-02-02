@@ -236,8 +236,8 @@ extern DerivT derivt_;
 	       dzp[kt] -= zp; dphi[kt] -= phip;
         zp   += xyz[2];   //To gain precision
 	phip += phi_ini;  //To gain precision
-        while(dphi[kt] >  M_PI)dphi[kt]-=2.*M_PI;
-        while(dphi[kt] < -M_PI)dphi[kt]+=2.*M_PI;
+        while(dphi[kt] >  3.141592653589)dphi[kt]-=2.*3.141592653589;
+        while(dphi[kt] < -3.141592653589)dphi[kt]+=2.*3.141592653589;
 //std::cout.precision(11);
 //std::cout<<" newpar="<<deps[kt]<<", "<<dzp[kt]<<", "<<dtet[kt]<<", "<<dphi[kt]<<", "<<drho[kt]<<", "<<trk->Id<<'\n';
 
@@ -525,7 +525,7 @@ extern DerivT derivt_;
     for (kt = 0; kt < NTRK; ++kt) {                    /*   variation on PAR is  WCI * TT - (WBCI)t * DXYZ */
         for( int tpn=0; tpn<9; tpn++){
           if(tpn<6)twci[tpn]  = vk->tmpArr[kt]->wci[tpn];
-          twbci[tpn] = vk->tmpArr[kt]->wbci[tpn];
+                   twbci[tpn] = vk->tmpArr[kt]->wbci[tpn];
         }
         double tt1=vk->tmpArr[kt]->tt[0];
         double tt2=vk->tmpArr[kt]->tt[1];
@@ -688,14 +688,8 @@ extern DerivT derivt_;
 
     for (it = 0; it < NTRK; ++it) {    //Check if curvature sign is changed or change in Pt is too big
       if(vk->TrackList[it]->Id >= 0){
-        double Ratio=vk->TrackList[it]->fitP[2]/vk->TrackList[it]->Perig[4]; if(fabs(Ratio)<1.)Ratio=1./Ratio;
-        if(Ratio<0. || Ratio > vkalAllowedPtChange ){
-          if(fabs(vk->TrackList[it]->fitP[2])<fabs(vk->TrackList[it]->Perig[4]) || Ratio<0 ){	
-             vk->TrackList[it]->fitP[2]=vk->TrackList[it]->Perig[4]/vkalAllowedPtChange;
-          }else{
-             vk->TrackList[it]->fitP[2]=vk->TrackList[it]->Perig[4]*vkalAllowedPtChange;
-          }
-	}
+        double Ratio=vk->TrackList[it]->fitP[2]/vk->TrackList[it]->iniP[2]; if(fabs(Ratio)<1.)Ratio=1./Ratio;
+        if(Ratio<0. || Ratio > vkalAllowedPtChange ) return -21;
       }
     }
 
@@ -718,7 +712,7 @@ extern DerivT derivt_;
   long int NTRK=vk->TrackList.size();
   double dScale=1.e10, dScaleMax=1.e12;
   double alfLowLim=0.1;
-  double alfUppLim=1.1;  //Should be compatible with vkalAllowedPtChange - not causing 1/p shift up to zero.
+  double alfUppLim=1.5;
   double xyzt[3],xyztmp[3],chi2t[10]={0.,0.,0.,0.,0.,0.,0.,0.,0.,0.};
   double alf=1.,bet=0.;
   long int ii,j, icadd=0;
@@ -757,8 +751,6 @@ extern DerivT derivt_;
 	    t_trk->part[0]=trk->cnstP[0]= trk->iniP[0] + (alf+bet)*(trk->fitP[0] - trk->iniP[0]) + bet*dCoefNorm * t_trk->parf0[0];
 	    t_trk->part[1]=trk->cnstP[1]= trk->iniP[1] + (alf+bet)*(trk->fitP[1] - trk->iniP[1]) + bet*dCoefNorm * t_trk->parf0[1];
 	    t_trk->part[2]=trk->cnstP[2]= trk->iniP[2] + (alf+bet)*(trk->fitP[2] - trk->iniP[2]) + bet*dCoefNorm * t_trk->parf0[2];
-	    //Limit momentum change if too big
-	    if(bet!=0. && fabs(t_trk->part[2])<1.e-7)t_trk->part[2]=trk->cnstP[2]= trk->iniP[2] + (alf+bet)*(trk->fitP[2]-trk->iniP[2]);
 	    trk->Chi2 = cfchi2(xyzt, t_trk->part, trk );
 	    chi2t[jm1] += trk->Chi2 ;
 	}
@@ -787,15 +779,12 @@ extern DerivT derivt_;
 		          alf = alfLowLim;
 			  PostFitIteration=4;  //Something is wrong. Don't make second optimisation
 		       }
-                       if(NCNST && alf>vkalInternalStepLimit/totalShift)
-	                 { alf=vkalInternalStepLimit/totalShift; PostFitIteration=4; icadd=2; limitationMade=true; }
         }
 
 //Having 3 points (0,-0.02,0.02) find a pabolic minimum
 	if (j == 6) {  bet = finter(chi2t[4], chi2t[3], chi2t[5], -0.02, 0., 0.02);
 	               if (chi2t[3] == chi2t[4] && chi2t[4] == chi2t[5])  bet = 0.;
-	               if (bet >0.3)bet = 0.3;
-                       if (bet <-0.3)bet = -0.3;
+	               if (bet >0.3)bet = 0.3;if (bet <-0.3)bet = -0.3;
 	}
 //Check if minimum is really a minimum. Otherwise use bet=0. point
 	if (j == 7 &&  ContribC[6]>ContribC[3]) { bet = 0.; j--; /*repeat step 7*/}   
@@ -833,7 +822,7 @@ extern DerivT derivt_;
 
     dCoefNorm *= alf;   // Rescale normalisation according to found results
     ValForChk=vk->Chi2;  if (NCNST)ValForChk += ContribC[PostFitIteration-1];
-    } while ( ( ValForChk>chi2t[0]*1.000001 || ValForChk>chi2t[1]*1.000001 || alf==alfLowLim)  && (++icadd<=1) );   // 1 additional iterations now
+    } while ( ( ValForChk>chi2t[0]*1.000001 || ValForChk>chi2t[1]*1.000001 || alf==alfLowLim)  && (++icadd<=2) );   // 2 additional iterations now
 
 
 

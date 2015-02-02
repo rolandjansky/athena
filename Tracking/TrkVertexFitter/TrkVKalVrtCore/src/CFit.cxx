@@ -269,14 +269,14 @@ long int fitVertex(VKVertex * vk, long int iflag)
        savedExtrapVertices[it-1].Y=dxyzst[1];
        savedExtrapVertices[it-1].Z=dxyzst[2];
        if(it==1){
-         if(!myPropagator.checkTarget(dxyzst)) { IERR=-10; return IERR; }       // First guess is definitely outside working volume
+         if(!myPropagator.checkTarget(dxyzst)) { IERR=-6; return IERR; }       // First guess is definitely outside working volume
        }
 /* ---------------------------------------------------------------- */
 /*  Propagate parameters and errors at point dXYZST                 */
 /*   Also set up localBMAG in dXYZST if nonuniform field is used    */
 /* ---------------------------------------------------------------- */
         extrapolationDone=false;
-        if( vShift>vkalShiftToTrigExtrapolation || it==1 || forcedExtrapolation){
+        if( vShift>20. || it==1 || forcedExtrapolation){
           extrapolationDone=true;
           forcedExtrapolation=false;
           double oldX=0., oldY=0., oldZ=0.;
@@ -291,21 +291,19 @@ long int fitVertex(VKVertex * vk, long int iflag)
              double ddx=savedExtrapVertices[it-1].X - oldX;
              double ddy=savedExtrapVertices[it-1].Y - oldY;
              double ddz=savedExtrapVertices[it-1].Z - oldZ;
-             if( sqrt(ddx*ddx+ddy*ddy+ddz*ddz)<5.) { IERR=-11; return IERR; }       // Impossible to extrapolate
+             if( sqrt(ddx*ddx+ddy*ddy+ddz*ddz)<5.) { IERR=-6; return IERR; }       // Impossible to extrapolate
           }
 	  double targV[3]={dxyzst[0],dxyzst[1],dxyzst[2]};
 	  for (tk = 0; tk < NTRK; ++tk) {
             myPropagator.Propagate(vk->TrackList[tk], vk->refV,  targV, tmpPer, tmpCov);
             cfTrkCovarCorr(tmpCov);
             double eig5=cfSmallEigenvalue(tmpCov,5 );
- 	    if(eig5<1.e-15 ){ 
-                tmpCov[0]+=1.e-15; tmpCov[2]+=1.e-15; tmpCov[5]+=1.e-15;  tmpCov[9]+=1.e-15;  tmpCov[14]+=1.e-15; 
-	    }else if(tmpCov[0]>1.e9) {  //Bad propagation with material. Try without it.
+	    if(eig5<1.e-15 || tmpCov[0]>1.e9) {  //Bad propagation with material. Try without it.
                myPropagator.Propagate(-999, vk->TrackList[tk]->Charge,
                                        vk->TrackList[tk]->refPerig,vk->TrackList[tk]->refCovar,
 	             	               vk->refV,  targV, tmpPer, tmpCov);
 	       if(cfSmallEigenvalue(tmpCov,5 )<1.e-15){    //Final protection
- 	           tmpCov[1]=0.;tmpCov[3]=0.;tmpCov[6]=0.;tmpCov[10]=0.;
+	           tmpCov[1]=0.;tmpCov[3]=0.;tmpCov[6]=0.;tmpCov[10]=0.;
 		                tmpCov[4]=0.;tmpCov[7]=0.;tmpCov[11]=0.;
 		                             tmpCov[8]=0.;tmpCov[12]=0.;
 		                                          tmpCov[13]=0.;
@@ -367,7 +365,7 @@ long int fitVertex(VKVertex * vk, long int iflag)
           double ddz=savedExtrapVertices[it-1].Z-savedExtrapVertices[it-2].Z;
           double ddstep=sqrt(ddx*ddx+ddy*ddy+ddz*ddz);
 //std::cout<<" Huge degradation due to extrapolation. Limit step! it="<<it<<" step="<<ddstep<<'\n';
-          if( ddstep > 10.*vkalShiftToTrigExtrapolation) { 
+          if( ddstep > 20.) { 
             dxyzst[0]=(savedExtrapVertices[it-1].X + 2.*savedExtrapVertices[it-2].X)/3.;
             dxyzst[1]=(savedExtrapVertices[it-1].Y + 2.*savedExtrapVertices[it-2].Y)/3.;
             dxyzst[2]=(savedExtrapVertices[it-1].Z + 2.*savedExtrapVertices[it-2].Z)/3.;
@@ -377,7 +375,7 @@ long int fitVertex(VKVertex * vk, long int iflag)
         }
         chi21s = vk->Chi2;
 	chi22s = chi21s * 1.01 + 10.; //for safety 
-	if ( vShift < 10.*vkalShiftToTrigExtrapolation) {              // REASONABLE DISPLACEMENT - RECALCULATE
+	if ( vShift < 20.) {              // REASONABLE DISPLACEMENT (<14mm) - RECALCULATE
 /* ROBUSTIFICATION */
 	  if (forcft_1.irob != 0) {robtest(vk, 1);}  // ROBUSTIFICATION new data structure
 //Reset mag.field
@@ -424,12 +422,12 @@ long int fitVertex(VKVertex * vk, long int iflag)
 	//std::cout<<"-----------------------------------------------"<<'\n';
 /*  Test of convergence */
 	chi2df = fabs(chi21s - chi22s);
+	//std::cout<<"Convergence="<< chi2df <<" cnst="<<cnstRemnants<<'\n';
   /*---------------------Normal convergence--------------------*/
         double PrecLimit = min(chi22s*1.e-4, forcft_1.IterationPrecision);
-	//std::cout<<"Convergence="<< chi2df <<"<"<<PrecLimit<<" cnst="<<cnstRemnants<<"<"<<ConstraintAccuracy<<'\n';
 	if ((chi2df < PrecLimit) && (vShift < 0.001) && it>1 && (cnstRemnants<ConstraintAccuracy)){
 	   double dstFromExtrapPnt=sqrt(vk->fitV[0]*vk->fitV[0] + vk->fitV[1]*vk->fitV[1]+ vk->fitV[2]*vk->fitV[2]);
-	   if( dstFromExtrapPnt>vkalShiftToTrigExtrapolation/2. && it < forcft_1.IterationNumber-15){
+	   if( dstFromExtrapPnt>2. && it < forcft_1.IterationNumber){
 	     forcedExtrapolation=true;
 	     continue;          // Make another extrapolation exactly to found vertex position
            }

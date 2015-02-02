@@ -22,12 +22,12 @@ namespace Trk {
 extern VKalVrtBMag vkalvrtbmag;
 
 vkalMagFld::vkalMagFld() {
-   m_cnstBMAG=1.996;                    /* Const mag. field in Tesla */
-   m_functionHandler=0;
-   m_objectHandler=0;
+   cnstBMAG=1.996;                    /* Const mag. field in Tesla */
+   functionHandler=0;
+   objectHandler=0;
 
 //   vkalCnvMagFld = 0.0029979246;   /* For GeV and cm and Tesla*/
-   m_vkalCnvMagFld = 0.29979246;       /* For MeV and mm and Tesla*/
+   vkalCnvMagFld = 0.29979246;       /* For MeV and mm and Tesla*/
 
    vkalvrtbmag.bmag=1.996;            /* Initial mag. mield in Tesla */
    m_saveXpos=-10000000000.;
@@ -36,7 +36,7 @@ vkalMagFld::vkalMagFld() {
    m_saveBX=0.;
    m_saveBY=0.;
    m_saveBZ=0.;
-   m_mm=1.;
+   mm=1.;
 }
 
 vkalMagFld::~vkalMagFld() {}
@@ -46,35 +46,35 @@ baseMagFld::baseMagFld() {}
 baseMagFld::~baseMagFld() {}
 
 void vkalMagFld::setMagHandler(addrMagHandler addr) {
-   m_functionHandler=addr;
-   m_objectHandler=0;
+   functionHandler=addr;
+   objectHandler=0;
 }
 
 void vkalMagFld::setMagHandler(baseMagFld* addr) {
-   m_objectHandler=addr;
-   m_functionHandler=0;
+   objectHandler=addr;
+   functionHandler=0;
 }
 
 
 void vkalMagFld::getMagFld(const double X,const double Y,const double Z,
                            double& bx, double& by, double& bz)
 {
-     if ( m_functionHandler == 0 && m_objectHandler==0 ){
+     if ( functionHandler == 0 && objectHandler==0 ){
         bx=0.;
         by=0.;
-        bz=m_cnstBMAG;
+        bz=cnstBMAG;
      }
-     if ( m_functionHandler != 0){
-        m_functionHandler(X,Y,Z,bx,by,bz);
-     }else if ( m_objectHandler   != 0) {
-        m_objectHandler->getMagFld(X,Y,Z,bx,by,bz);
+     if ( functionHandler != 0){
+        functionHandler(X,Y,Z,bx,by,bz);
+     }else if ( objectHandler   != 0) {
+        objectHandler->getMagFld(X,Y,Z,bx,by,bz);
      }
 //   std::cout<<" Mag.field"<<bx<<", "<<by<<", "<<bz<<" Shift="<<Shift<<
-//                   " obj="<<m_objectHandler<<" func="<<m_functionHandler<<'\n';
+//                   " obj="<<objectHandler<<" func="<<functionHandler<<'\n';
 }
 
 double vkalMagFld::getCnvCst() {
-   return this->m_vkalCnvMagFld;
+   return this->vkalCnvMagFld;
 }
 
 
