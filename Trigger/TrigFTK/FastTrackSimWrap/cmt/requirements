@@ -58,10 +58,14 @@ use EventPrimitives            EventPrimitives-*          Event
 #use TrkParameters              TrkParameters-*            Tracking/TrkEvent
 use TrkRIO_OnTrack             TrkRIO_OnTrack-*           Tracking/TrkEvent
 use VxVertex                   VxVertex-*                 Tracking/TrkEvent
+
+use PixelCabling               PixelCabling-*             InnerDetector/InDetDetDescr
+use SCT_Cabling                SCT_Cabling-*              InnerDetector/InDetDetDescr
 end_private
 
 apply_pattern dual_use_library files=*.cxx
 apply_pattern declare_joboptions files="*jobOptions*.py"
+apply_pattern declare_runtime files="*.dat"
 
 # fix missing libboost_iostreams interface in LCGCMT in 13.0.40
 #macro Boost_linkopts_iostreams " -lboost_iostreams-gcc-mt-$(Boost_file_version) " \

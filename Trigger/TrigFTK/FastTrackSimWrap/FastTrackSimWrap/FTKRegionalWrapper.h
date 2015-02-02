@@ -16,6 +16,16 @@
 
 #include <string>
 
+#include <stdint.h>
+
+class IPixelCablingSvc; 
+class ISCT_CablingSvc;
+class StoreGateSvc; 
+class PixelID; 
+class SCT_ID;
+class SCT_OnlineId;
+class IdentifierHash;
+
 class FTKRegionalWrapper : public AthAlgorithm {
 public:
   FTKRegionalWrapper (const std::string& name, ISvcLocator* pSvcLocator);
@@ -26,6 +36,15 @@ public:
 
 private:
   ToolHandle<FTK_SGHitInputI> m_hitInputTool; // input handler
+  ServiceHandle<IPixelCablingSvc> m_pix_cabling_svc; 
+  ServiceHandle<ISCT_CablingSvc> m_sct_cabling_svc;
+
+  // Needed to retrieve m_pixelId in order to get the barrel_ec, phi/eta_modules etc.
+  StoreGateSvc*  m_storeGate;
+  StoreGateSvc*  m_detStore;
+  StoreGateSvc*  m_evtStore;
+  const PixelID * m_pixelId;
+  const SCT_ID * m_sctId;
 
   // variables to manage the distribution of the hits
   bool m_IBLMode; // global FTK setup variable to handle IBL
@@ -36,9 +55,13 @@ private:
   std::string m_rmap_path; // path of the region-map file
   FTKRegionMap *m_rmap; // pointer to the RMAP object
   int m_ntowers;
-
+  int m_nplanes;
+  
   bool m_SaveRawHits; // flag to allow to store FTKRawHit collections, pmap non applied
   bool m_SaveHits; // flag to allow to store FTKHit collections, pmap applied
+  bool m_SavePerPlane; // flag to allow to store per-plane TTree
+  
+  bool m_DumpTestVectors; // flag to allow to dump test vectors
 
   /* the following flags were copied from TrigFTKSim/FTKDataInput.h on 11/02/14 check they are still up to date. Thanks, Guido*/
   bool m_Clustering; // flag to enable the clustering
@@ -56,15 +79,27 @@ private:
   TFile *m_outfile; // ROOT file descriptor
   
   TTree *m_hittree; // TTree for the hit storage
+  TTree *m_hittree_perplane; // TTree for the hit storage  
+  
   std::vector<FTKRawHit> *m_original_hits; // variables related to the FTKRawHit storage
   std::vector<FTKHit> *m_logical_hits; // variables related to the FTKHit storage
-
+  
+  std::vector<FTKRawHit> **m_original_hits_per_plane; // variables related to the FTKRawHit storage
+  std::vector<FTKHit> **m_logical_hits_per_plane; // variables related to the FTKHit storage
+  
   TTree *m_evtinfo; // TTree with general event information
   int m_run_number; // event's run number
   int m_event_number; // event number
 
   TTree *m_trackstree;
   std::vector<FTKTruthTrack> m_truth_tracks;
+  // Variables created by dumpFTKTestvectors via initialize()
+  std::vector<IdentifierHash> m_identifierHashList;
+  std::vector<uint32_t> m_pix_rodIdlist;  
+  std::vector<uint32_t> m_sct_rodIdlist; 
+
+  bool dumpFTKTestVectors(FTKPlaneMap *pmap, FTKRegionMap *rmap);
+
 };
 
 #endif // FTKRegionalWrapper_h
