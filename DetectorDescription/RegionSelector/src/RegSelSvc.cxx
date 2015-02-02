@@ -9,9 +9,6 @@
 #include "RegionSelector/RegSelectorMap.h"
 #include "RegionSelector/RegSelectorHashMap.h"
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/SvcFactory.h"
-
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/DataHandle.h"
 #include "RegionSelector/StoreGateRS_ClassDEF.h"
@@ -48,8 +45,8 @@
 
 //! Constructor
 RegSelSvc::RegSelSvc(const std::string& name, ISvcLocator* sl)
-  : Service(name,sl),
-    m_detStore(0),
+  : base_class(name,sl),
+    m_detStore("DetectorStore", name),
     m_regionType("n/a"),
     m_geometryVersionProp("use_geomodel"),
     m_initOnlyID(false),
@@ -65,14 +62,12 @@ RegSelSvc::RegSelSvc(const std::string& name, ISvcLocator* sl)
     m_disableTRTFromConditions(true),
     m_roiFileName        ("RSOutputTable.txt"),
     m_LArFebRodMapKey    ("/LAR/Identifier/FebRodMap"),
-    m_msgOutputLevel(MSG::NIL),
     m_lutCreatorToolPixel("SiRegionSelectorTable/PixelRegionSelectorTable"),
     m_lutCreatorToolSCT  ("SiRegionSelectorTable/SCT_RegionSelectorTable"),
     m_lutCreatorToolTRT  ("TRT_RegionSelectorTable/TRT_RegionSelectorTable"),
     m_lutCreatorToolLAR  ("LArRegionSelectorTable"),
     m_lutCreatorToolTile ("TileRegionSelectorTable"),
     m_geoModelSvc("GeoModelSvc",name),
-    m_log(0),
     m_DeltaZ(168),
     m_initRPC(true),
     m_initMDT(true),
@@ -126,6 +121,7 @@ RegSelSvc::RegSelSvc(const std::string& name, ISvcLocator* sl)
 //! Standard destructor
 RegSelSvc::~RegSelSvc() { }
 
+
 //! queryInterface
 StatusCode 
 RegSelSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
@@ -135,22 +131,18 @@ RegSelSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
   }
   else  {
     // Interface is not directly available: try out a base class
-    return Service::queryInterface(riid, ppvInterface);
+    return AthService::queryInterface(riid, ppvInterface);
   }
   addRef();
   return StatusCode::SUCCESS;
 }
 
+
 StatusCode RegSelSvc::initialize() {
 
-  m_log = new MsgStream( msgSvc(), name() );
   m_errorFlag=false;
-  StatusCode sc;
-  sc = Service::initialize();
-  if (sc.isFailure()){
-    (*m_log) << MSG::ERROR << "Service base class initialization failed" << endreq;
-    return sc;
-  }
+  ATH_CHECK( AthService::initialize() );
+  ATH_CHECK (m_detStore.retrieve() );
   
   // set detector description directly from GeoModel by default
   if (m_geometryVersionProp.value() == "use_geomodel"){
@@ -159,22 +151,20 @@ StatusCode RegSelSvc::initialize() {
     m_geometryVersion = m_geometryVersionProp.value();
   }
 
-  (*m_log) << MSG::INFO << "Initializing " << name()
-      << " - package version " << PACKAGE_VERSION << endreq ;
-  (*m_log) << MSG::INFO
+  ATH_MSG_INFO( "Initializing " << name()
+                << " - package version " << PACKAGE_VERSION );
+  msg(MSG::INFO)
       << "DetectorDescription version " << m_geometryVersion;
   if (m_geometryVersionProp.value() == "use_geomodel"){
-    (*m_log) << " (obtained from GeoModelSvc)" << endreq;
+    msg() << " (obtained from GeoModelSvc)" << endreq;
   } else {
-    (*m_log) << " (supplied as property)" << endreq;
+    msg() << " (supplied as property)" << endreq;
   }
-  (*m_log) << MSG::DEBUG << "property value was " 
-      << m_geometryVersionProp.value() << ")" << endreq;
+  ATH_MSG_DEBUG( "property value was " 
+                 << m_geometryVersionProp.value() << ")" );
 
-  (*m_log) << MSG::INFO << "DeltaZ = " << m_DeltaZ << endreq; 
+  ATH_MSG_INFO( "DeltaZ = " << m_DeltaZ );
 
-  // cache message output level
-  m_msgOutputLevel = (*m_log).currentLevel();
 
   
   std::string sctflag("enabled");
@@ -204,25 +194,19 @@ StatusCode RegSelSvc::initialize() {
   }
   
   
-  (*m_log)                 << MSG::INFO << "detector switches:" 
-			   << " indet=" << (m_initOnlyID.value() ? "enabled":"disabled");
-  if( m_initOnlyID.value() )   (*m_log) << " ( sct=" << sctflag << " pixel=" << pixelflag << " trt=" << trtflag << " ftk=" << ftkflag << " )"; 
+  msg(MSG::INFO) << "detector switches:" 
+                 << " indet=" << (m_initOnlyID.value() ? "enabled":"disabled");
+  if( m_initOnlyID.value() )
+    msg() << " ( sct=" << sctflag << " pixel=" << pixelflag << " trt=" << trtflag << " ftk=" << ftkflag << " )"; 
 
-  (*m_log)                              << " calo="  << (m_initOnlyCalo.value() ? "enabled":"disabled") 
-				        << " muon="  << (m_initOnlyMuon.value() ? "enabled":"disabled");
+  msg() << " calo="  << (m_initOnlyCalo.value() ? "enabled":"disabled") 
+        << " muon="  << (m_initOnlyMuon.value() ? "enabled":"disabled");
 
-  if( m_initOnlyMuon.value() ) (*m_log) << " ( rpc=" << rpcflag << " mdt=" << mdtflag << " tgc=" << tgcflag << " csc=" << cscflag << " )";
-  (*m_log)                              << endreq;
+  if( m_initOnlyMuon.value() )
+    msg() << " ( rpc=" << rpcflag << " mdt=" << mdtflag << " tgc=" << tgcflag << " csc=" << cscflag << " )";
+  msg() << endreq;
   
      
-  //! Access StoreGateSvc 
-  // only needed for indet currently, but get it regardless of detector choice
-  sc = service("DetectorStore", m_detStore);
-  if (sc.isFailure()|| 0 == m_detStore ){
-    (*m_log) << MSG::ERROR << "Could not find DetectorStore Service" << endreq;
-    return StatusCode::FAILURE;
-  }
-
   bool errorFlag=false; // true indicates an error occured somewhere
   
   m_newpixel = NULL;
@@ -237,27 +221,24 @@ StatusCode RegSelSvc::initialize() {
     // Event handling LAr Only
     const DataHandle<AthenaAttributeList> febrodmap;
     std::string key(m_LArFebRodMapKey);
-    if ( m_detStore->regFcn(&IRegSelSvc::handle,
-			    (IRegSelSvc*)this,febrodmap, key.c_str(),true ).isFailure() ) {
-      (*m_log) << MSG::ERROR << " Can't regFcn for conditions"
-	       << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_detStore->regFcn(&IRegSelSvc::handle,
+                                  (IRegSelSvc*)this,febrodmap,
+                                  key.c_str(),true ) );
   }
   
 #endif
 
   // add the incident handler for the calo and id initialisation during BeginRun  
   ServiceHandle<IIncidentSvc> incidentSvc("IncidentSvc",name());
-  sc = incidentSvc.retrieve(); 	 
+  StatusCode sc = incidentSvc.retrieve(); 	 
   if (sc.isFailure() ) { 	 
-    (*m_log) << MSG::ERROR << " Failed to register Listener with IncidentSvc" << endreq; 	 
+    ATH_MSG_ERROR( " Failed to register Listener with IncidentSvc" );
     //    return StatusCode::FAILURE;
     errorFlag = true; 	 
   }  
   else { 	 
     incidentSvc->addListener( this , "BeginRun"); 	 
-    (*m_log) << MSG::INFO << " registered Listener with IncidentSvc" << endreq; 	 
+    ATH_MSG_INFO( " registered Listener with IncidentSvc" );
   } 	 
 
   // if we need to initialise from oks, then get the list of robs 
@@ -267,7 +248,7 @@ StatusCode RegSelSvc::initialize() {
   if ( m_readSiROBListFromOKS.value()==true ) { 
     // try to get the new list of rob ids to enable from OKS  
     if ( !GetEnabledROBsFromOKS() ) {
-      (*m_log) << MSG::ERROR << "Could not get rob list from OKS" << endreq;
+      ATH_MSG_ERROR( "Could not get rob list from OKS" );
       errorFlag = true;
     }
   }
@@ -304,7 +285,7 @@ void RegSelSvc::handle(const Incident& incident) {
     // only initialise if this is the first BeginRun
     //   if ( initialised ) return;
 
-    (*m_log) << MSG::INFO << " handle incident type " << incident.type() << endreq; 	 
+    ATH_MSG_INFO( " handle incident type " << incident.type() );
 
 
     // call Innr detector, Calo and Muon handlers 
@@ -313,10 +294,11 @@ void RegSelSvc::handle(const Incident& incident) {
     //    if ( m_initOnlyCalo )  handleCalo();
 
     if(!m_errorFlag){
-      (*m_log) << MSG::INFO << " >>>>> ";
+      msg(MSG::INFO) << " >>>>> ";
       std::vector<std::string>::const_iterator d;
-      for (d=m_enabledDetectors.begin(); d!=m_enabledDetectors.end(); ++d)  (*m_log) << " " << *d;
-      (*m_log) << " detectors have been initialized" << endreq; // " with Region Type " << m_regionType << endreq;
+      for (d=m_enabledDetectors.begin(); d!=m_enabledDetectors.end(); ++d)
+        msg() << " " << *d;
+      msg() << " detectors have been initialized" << endreq; // " with Region Type " << m_regionType << endreq;
     }
     
     if ( m_dumpTable ) { 
@@ -325,7 +307,7 @@ void RegSelSvc::handle(const Incident& incident) {
 	if ( tables[it] ) { 
 	  char table[64];
 	  std::sprintf( table, "table-%d.map", it ); 
-	  (*m_log) << MSG::INFO << "dumping table " << it << " to file: " << table << endreq;
+	  ATH_MSG_INFO( "dumping table " << it << " to file: " << table );
 	  tables[it]->write(table);
 	}
       }
@@ -343,10 +325,10 @@ void RegSelSvc::handle(const Incident& incident) {
 
 void RegSelSvc::disableIDFromConditions(RegSelSiLUT* detector, const std::string& serviceName) { 
 
-  (*m_log) << MSG::INFO << " reading detector conditions from " << serviceName << endreq;
+  ATH_MSG_INFO( " reading detector conditions from " << serviceName );
 
   if (serviceName.empty()){
-    (*m_log) << MSG::INFO << "Unspecified conditions summary service, skipping disableIDFromConditions" << endreq;
+    ATH_MSG_INFO( "Unspecified conditions summary service, skipping disableIDFromConditions" );
     return;
   }
 
@@ -357,7 +339,7 @@ void RegSelSvc::disableIDFromConditions(RegSelSiLUT* detector, const std::string
     ServiceHandle<IInDetConditionsSvc> condsummary(serviceName, name());
 
     if ( condsummary.retrieve().isFailure() ) { 
-      (*m_log) << MSG::ERROR << "failed to get " << serviceName << endreq;
+      ATH_MSG_ERROR( "failed to get " << serviceName );
       return;
     } 
 
@@ -396,15 +378,13 @@ void RegSelSvc::disableIDFromConditions(RegSelSiLUT* detector, const std::string
 	DisableList.push_back(*mitr);
 	disabled_modules++; 
       }
-      if(m_msgOutputLevel <= MSG::VERBOSE ) { 
-	(*m_log) << MSG::VERBOSE << serviceName << " module 0x" << std::hex << *mitr << std::dec 
-		 << " isActive()=" << condsummary->isActive(*mitr) << endreq;
-      }
+      ATH_MSG_VERBOSE( serviceName << " module 0x" << std::hex << *mitr << std::dec 
+                       << " isActive()=" << condsummary->isActive(*mitr) );
       mitr++;
     }
 
-    (*m_log) << MSG::INFO << serviceName << " Number of modules active   " << active_modules << endreq;
-    (*m_log) << MSG::INFO << serviceName << " Number of modules disabled " << disabled_modules << endreq;
+    ATH_MSG_INFO( serviceName << " Number of modules active   " << active_modules );
+    ATH_MSG_INFO( serviceName << " Number of modules disabled " << disabled_modules );
     
     // these methods have to be tidied up, since they 
     // each rebuild the Disabled module maps, I need 
@@ -428,7 +408,7 @@ bool RegSelSvc::handleID() {
 
   bool errorFlag = false;
 
-  (*m_log) << MSG::INFO << " Initialising Inner Detector maps" << endreq;
+  ATH_MSG_INFO( " Initialising Inner Detector maps" );
 
   // new region selector code, we make the (reasonably simple) 
   // structures in the SiRegionSelectorTable so we don't need to 
@@ -437,30 +417,27 @@ bool RegSelSvc::handleID() {
 
   if ( m_initFTK.value() ) { 
 
-    (*m_log) << MSG::INFO << "setting up the FTK tables " << endreq;
+    ATH_MSG_INFO( "setting up the FTK tables " );
 
     StatusCode sc = readFromSG(m_lutCreatorToolFTK, m_ftklut);
 
     if (sc.isFailure()){
-      if(m_msgOutputLevel <= MSG::WARNING ) 
-	(*m_log) << MSG::WARNING << "Failed to initialize ftk lut" << endreq;
+      ATH_MSG_WARNING( "Failed to initialize ftk lut" );
       errorFlag = true;
     } 
     else { 
       if ( m_ftklut ) {
-	if(m_msgOutputLevel <= MSG::INFO ) 
-	  (*m_log) << MSG::INFO << "retrieved ftk RegSelEtaPhiLUT" << endreq;
+        ATH_MSG_INFO( "retrieved ftk RegSelEtaPhiLUT" );
       }
       else { 
-	if(m_msgOutputLevel <= MSG::WARNING ) 
-	  (*m_log) << MSG::ERROR << "retrieved ftk RegSelEtaPhiLUT is NULL" << endreq;
+        ATH_MSG_ERROR( "retrieved ftk RegSelEtaPhiLUT is NULL" );
         errorFlag = true;
       }
     }
     
   }
   else { 
-    (*m_log) << MSG::INFO << "not setting up the FTK tables " << endreq;
+    ATH_MSG_INFO( "not setting up the FTK tables " );
   }
 
 
@@ -469,18 +446,15 @@ bool RegSelSvc::handleID() {
     StatusCode sc = readFromSG(m_lutCreatorToolPixel, m_newpixel);
     //     sc = m_detStore->retrieve(m_newpixel, "PixelRegSelSiLUT");
     if (sc.isFailure()){
-      if(m_msgOutputLevel <= MSG::WARNING ) 
-	(*m_log) << MSG::WARNING << "Failed to initialize pixel data" << endreq;
+      ATH_MSG_WARNING( "Failed to initialize pixel data" );
       errorFlag = true;
     } 
     else { 
       if ( m_newpixel ) { 
-	if(m_msgOutputLevel <= MSG::INFO ) 
-	  (*m_log) << MSG::INFO << "retrieved new pixel RegSelSiLUT map " << m_newpixel->getName() << endreq;
+        ATH_MSG_INFO( "retrieved new pixel RegSelSiLUT map " << m_newpixel->getName() );
       }
       else { 
-	if(m_msgOutputLevel <= MSG::ERROR )  
-	  (*m_log) << MSG::ERROR << "retrieved new pixel RegSelSiLUT map is NULL" << endreq;
+        ATH_MSG_ERROR( "retrieved new pixel RegSelSiLUT map is NULL" );
 	errorFlag = true;
       }
     }      
@@ -491,14 +465,14 @@ bool RegSelSvc::handleID() {
     StatusCode sc = readFromSG(m_lutCreatorToolSCT, m_newsct);
     //     sc = m_detStore->retrieve(m_newsct, "SCTRegSelSiLUT");
     if (sc.isFailure()){
-      (*m_log) <<  MSG::WARNING << "Failed to initialize SCT data" << endreq;
+      ATH_MSG_WARNING( "Failed to initialize SCT data" );
       errorFlag = true;
     }
     else { 
       if ( m_newsct ) 
-	(*m_log) << MSG::INFO << "retrieved new sct RegSelSiLUT map " << m_newsct->getName() << endreq;
+	ATH_MSG_INFO( "retrieved new sct RegSelSiLUT map " << m_newsct->getName() );
       else {
-	(*m_log) << MSG::ERROR << "retrieved new sct RegSelSiLUT map is NULL" << endreq;   
+	ATH_MSG_ERROR( "retrieved new sct RegSelSiLUT map is NULL" );
 	errorFlag = true;
       }
     }
@@ -511,14 +485,14 @@ bool RegSelSvc::handleID() {
     StatusCode sc = readFromSG(m_lutCreatorToolTRT, m_newtrt);
     //     sc = m_detStore->retrieve(m_newtrt, "TRTRegSelSiLUT");
     if (sc.isFailure()){
-      (*m_log) <<  MSG::WARNING << "Failed to initialize TRT data" << endreq;
+      ATH_MSG_WARNING( "Failed to initialize TRT data" );
       errorFlag = true;
     }
     else { 
       if ( m_newtrt ) 
-	(*m_log) << MSG::INFO << "retrieved new trt RegSelSiLUT map " << m_newtrt->getName() << endreq;
+	ATH_MSG_INFO( "retrieved new trt RegSelSiLUT map " << m_newtrt->getName() );
       else {  
-	(*m_log) << MSG::ERROR << "retrieved new trt RegSelSiLUT is NULL" << endreq;
+	ATH_MSG_ERROR( "retrieved new trt RegSelSiLUT is NULL" );
 	errorFlag = true;
       }
     }    
@@ -526,11 +500,11 @@ bool RegSelSvc::handleID() {
 
   // now enable/disable requested robs and modules from OKS 
   if ( !reinitialiseInternalFromOKS() )  { 
-    (*m_log) << MSG::WARNING << " could not enable robs from OKS " << endreq; 	 
+    ATH_MSG_WARNING( " could not enable robs from OKS " );
   }
   
   if ( !reinitialiseInternal() )  {
-    (*m_log) << MSG::WARNING << " could not disable requested detector elements " << endreq; 	 
+    ATH_MSG_WARNING( " could not disable requested detector elements " );
   }
 
   m_enabledDetectors.push_back("Inner");
@@ -548,7 +522,7 @@ bool RegSelSvc::handleMuon() {
 
   bool errorFlag = false;
 
-  (*m_log) << MSG::INFO << " Initialising Muon maps" << endreq;
+  ATH_MSG_INFO( " Initialising Muon maps" );
 
   // new region selector code, we make the (reasonably simple) 
   // structures in the Tables so we don't need to 
@@ -558,14 +532,14 @@ bool RegSelSvc::handleMuon() {
   if ( m_initRPC.value() ) {  
     StatusCode sc = readFromSG(m_lutCreatorToolRPC, m_newrpc);
     if (sc.isFailure()){
-      (*m_log) << MSG::WARNING << "Failed to initialize rpc data" << endreq;
+      ATH_MSG_WARNING( "Failed to initialize rpc data" );
       errorFlag = true;
     } 
     else { 
       if ( m_newrpc ) 
-	(*m_log) << MSG::INFO << "retrieved new rpc RegSelSiLUT map " << m_newrpc->getName() << endreq;
+	ATH_MSG_INFO( "retrieved new rpc RegSelSiLUT map " << m_newrpc->getName() );
       else { 
-	(*m_log) << MSG::ERROR << "retrieved new rpc RegSelSiLUT map is NULL" << endreq;
+	ATH_MSG_ERROR( "retrieved new rpc RegSelSiLUT map is NULL" );
 	errorFlag = true;
       }
     }      
@@ -576,14 +550,14 @@ bool RegSelSvc::handleMuon() {
   
     StatusCode sc = readFromSG(m_lutCreatorToolMDT, m_newmdt);
     if (sc.isFailure()){
-      (*m_log) <<  MSG::WARNING << "Failed to initialize MDT data" << endreq;
+      ATH_MSG_WARNING( "Failed to initialize MDT data" );
       errorFlag = true;
     }
     else { 
       if ( m_newmdt ) 
-	(*m_log) << MSG::INFO << "retrieved new mdt RegSelSiLUT map " << m_newmdt->getName() << endreq;
+	ATH_MSG_INFO( "retrieved new mdt RegSelSiLUT map " << m_newmdt->getName() );
       else {
-	(*m_log) << MSG::ERROR << "retrieved new mdt RegSelSiLUT map is NULL" << endreq;   
+	ATH_MSG_ERROR( "retrieved new mdt RegSelSiLUT map is NULL" );
 	errorFlag = true;
       }
     }
@@ -596,14 +570,14 @@ bool RegSelSvc::handleMuon() {
    
     StatusCode sc = readFromSG(m_lutCreatorToolTGC, m_newtgc);
     if (sc.isFailure()){
-      (*m_log) <<  MSG::WARNING << "Failed to initialize TGC data" << endreq;
+      ATH_MSG_WARNING( "Failed to initialize TGC data" );
       errorFlag = true;
     }
     else { 
       if ( m_newtgc ) 
-	(*m_log) << MSG::INFO << "retrieved new tgc RegSelSiLUT map " << m_newtgc->getName() << endreq;
+	ATH_MSG_INFO( "retrieved new tgc RegSelSiLUT map " << m_newtgc->getName() );
       else {  
-	(*m_log) << MSG::ERROR << "retrieved new tgc RegSelSiLUT is NULL" << endreq;
+	ATH_MSG_ERROR( "retrieved new tgc RegSelSiLUT is NULL" );
 	errorFlag = true;
       }
     }    
@@ -616,14 +590,14 @@ bool RegSelSvc::handleMuon() {
    
     StatusCode sc = readFromSG(m_lutCreatorToolCSC, m_newcsc);
     if (sc.isFailure()){
-      (*m_log) <<  MSG::WARNING << "Failed to initialize CSC data" << endreq;
+      ATH_MSG_WARNING( "Failed to initialize CSC data" );
       errorFlag = true;
     }
     else { 
       if ( m_newcsc ) 
-	(*m_log) << MSG::INFO << "retrieved new csc RegSelSiLUT map " << m_newcsc->getName() << endreq;
+	ATH_MSG_INFO( "retrieved new csc RegSelSiLUT map " << m_newcsc->getName() );
       else {  
-	(*m_log) << MSG::ERROR << "retrieved new csc RegSelSiLUT is NULL" << endreq;
+	ATH_MSG_ERROR( "retrieved new csc RegSelSiLUT is NULL" );
 	errorFlag = true;
       }
     }    
@@ -655,85 +629,85 @@ bool RegSelSvc::handleCalo() {
   // first use of tool puts all maps into SG, so subsequent map retrieval can be done directly.
   sc = readFromSG(m_lutCreatorToolLAR, detRSlut, "EM");
   if (sc.isFailure()){
-    (*m_log) << MSG::WARNING << "Failed to initialize LAr data" << endreq;
+    ATH_MSG_WARNING( "Failed to initialize LAr data" );
     errorFlag = true;
   } else {
     if (addLUT(LAR,detRSlut).isFailure()){
-      (*m_log) << MSG::WARNING << "Failed to mount LAr data" << endreq;
+      ATH_MSG_WARNING( "Failed to mount LAr data" );
       errorFlag = true;
     }
   }
   
   sc = readFromSG(TTEM, detRSlut);
   if (sc.isFailure()){
-    (*m_log) <<  MSG::WARNING << "Failed to initialize TTEM data" << endreq;
+    ATH_MSG_WARNING( "Failed to initialize TTEM data" );
     readCaloFromSG = false;
   } else {
     if (addLUT(TTEM,detRSlut).isFailure()){
-      (*m_log) << MSG::WARNING << "Failed to mount TTEM data" << endreq;
+      ATH_MSG_WARNING( "Failed to mount TTEM data" );
       errorFlag = true;
     }
   }
   sc = readFromSG(TTHEC, detRSlut);
   if (sc.isFailure()){
-    (*m_log) <<  MSG::WARNING << "Failed to initialize TTHEC data" << endreq;
+    ATH_MSG_WARNING( "Failed to initialize TTHEC data" );
     readCaloFromSG = false;
   } else {
     if (addLUT(TTHEC,detRSlut).isFailure()){
-      (*m_log) << MSG::WARNING << "Failed to mount TTHEC data" << endreq;
+      ATH_MSG_WARNING( "Failed to mount TTHEC data" );
       errorFlag = true;
     }
   }
   sc = readFromSG(FCALEM, detRSlut);
   if (sc.isFailure()){
-    (*m_log) <<  MSG::WARNING << "Failed to initialize FCALEM data" << endreq;
+    ATH_MSG_WARNING( "Failed to initialize FCALEM data" );
     readCaloFromSG = false;
   } else {
     if (addLUT(FCALEM,detRSlut).isFailure()){
-      (*m_log) << MSG::WARNING << "Failed to mount FCALEM data" << endreq;
+      ATH_MSG_WARNING( "Failed to mount FCALEM data" );
       errorFlag = true;
     }
   }
   sc = readFromSG(FCALHAD, detRSlut);
   if (sc.isFailure()){
-    (*m_log) <<  MSG::WARNING << "Failed to initialize FCALHAD data" << endreq;
+    ATH_MSG_WARNING( "Failed to initialize FCALHAD data" );
     readCaloFromSG = false;
   } else {
     if (addLUT(FCALHAD,detRSlut).isFailure()){
-      (*m_log) << MSG::WARNING << "Failed to mount FCALHAD data" << endreq;
+      ATH_MSG_WARNING( "Failed to mount FCALHAD data" );
       errorFlag = true;
     }
   }
   
   if ( !readCaloFromSG ) { // LAr not read from SG => from files
-    (*m_log) <<  MSG::WARNING << "Will try the files for LAr" << endreq;
+    ATH_MSG_WARNING( "Will try the files for LAr" );
     sc = initCalo();
     if (sc.isFailure()){
-      (*m_log) <<  MSG::WARNING << "Failed to initialize Calo data" << endreq;
+      ATH_MSG_WARNING( "Failed to initialize Calo data" );
       errorFlag = true;
     }
   } 
   
   sc = readFromSG(m_lutCreatorToolTile, detRSlut, "TILE");
   if (sc.isFailure()){
-    (*m_log) << MSG::WARNING << "Failed to initialize Tile data" << endreq;
+    ATH_MSG_WARNING( "Failed to initialize Tile data" );
     errorFlag = true;
     readTCaloFromSG = false;
   } else {
     if (addLUT(TILE,detRSlut).isFailure()){
-      (*m_log) << MSG::WARNING << "Failed to mount Tile data" << endreq;
+      ATH_MSG_WARNING( "Failed to mount Tile data" );
       errorFlag = true;
     }
     else{
-      (*m_log) <<  MSG::DEBUG << "Tile Read from SG" << endreq;
+      ATH_MSG_DEBUG( "Tile Read from SG" );
     }
   }
   
   if(!readTCaloFromSG) { // Tile Still needs file
-    (*m_log) <<  MSG::DEBUG << "Will try files for Tile" << endreq;
+    ATH_MSG_DEBUG( "Will try files for Tile" );
     sc = initTileCalo();
     if (sc.isFailure()){
-      (*m_log) <<  MSG::WARNING << "Failed to initialize Tile Calo data" << endreq;
+      ATH_MSG_WARNING( "Failed to initialize Tile Calo data" );
       errorFlag = true;
     }
   }
@@ -741,8 +715,7 @@ bool RegSelSvc::handleCalo() {
   
   
   if (m_dumpTable) {
-    (*m_log) << MSG::INFO << " >>>> Writing out all loaded tables." 
-	     << endreq;
+    ATH_MSG_INFO( " >>>> Writing out all loaded tables."  );
     dumpLoadedTables(m_enabledDetectors);
   }
     
@@ -762,9 +735,8 @@ bool RegSelSvc::handleCalo() {
 
 
 StatusCode RegSelSvc::finalize() {
-  (*m_log) << MSG::INFO << "Finalizing " << name() << endmsg;
-  delete m_log;
-  return Service::finalize();
+  ATH_MSG_INFO( "Finalizing " << name() );
+  return AthService::finalize();
 }
 
 
@@ -798,10 +770,8 @@ void RegSelSvc::getRoIData(DETID detectorID,
 			   std::vector<const RegSelModule*>& modules) 
 {
 
-  if(m_msgOutputLevel <= MSG::DEBUG && modules.size()!=0 ){
-    if(m_msgOutputLevel <= MSG::WARNING ){
-      (*m_log) << MSG::WARNING << " input module vector not empty for RegSelSvc call for " << detectorID << endreq; 
-    }
+  if(modules.size()!=0 ){
+    ATH_MSG_VERBOSE( " input module vector not empty for RegSelSvc call for " << detectorID );
   } 
   modules.clear();
 
@@ -843,11 +813,8 @@ void RegSelSvc::getRoIData(DETID detectorID,
     break;
   }  
 
-  if(m_msgOutputLevel <= MSG::DEBUG){
-    (*m_log) << MSG::DEBUG << "getRoIData for detector " << detectorID 
-	     << " got " << modules.size() << " modules" << endreq;
-  }
-  
+  ATH_MSG_DEBUG( "getRoIData for detector " << detectorID 
+                 << " got " << modules.size() << " modules" );
 }
 
 
@@ -873,9 +840,8 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
 
   if ( roi.isFullscan() ) return DetHashIDList( detectorID, IDList );
 
-  if(m_msgOutputLevel <= MSG::DEBUG && IDList.size()!=0 ){
-    if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+  if(IDList.size()!=0 ){
+    ATH_MSG_VERBOSE( " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID );
   }
 
 
@@ -953,11 +919,8 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
     break;
   }
 
-  if(m_msgOutputLevel <= MSG::DEBUG){
-    (*m_log) << MSG::DEBUG << "DetHashIDList for detector " << detectorID 
-	     << " got " << IDList.size() << " hash IDs" << endreq;
-  }
-  
+  ATH_MSG_DEBUG( "DetHashIDList for detector " << detectorID 
+                 << " got " << IDList.size() << " hash IDs" );
 }
 
 
@@ -977,9 +940,8 @@ void RegSelSvc::DetHashIDList(DETID detectorID, long layer,
 
   if ( roi.isFullscan() ) return DetHashIDList( detectorID, layer, IDList );
 
-  if(m_msgOutputLevel <= MSG::DEBUG && IDList.size()!=0 ){
-    if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+  if(IDList.size()!=0 ){
+    ATH_MSG_VERBOSE( " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID );
   }
 
 
@@ -1055,20 +1017,9 @@ void RegSelSvc::DetHashIDList(DETID detectorID, long layer,
     break;
   }
 
-  if(m_msgOutputLevel <= MSG::DEBUG){
-    (*m_log) << MSG::DEBUG << "DetHashIDList for detector " << detectorID 
-	<< " got " << IDList.size() << " hash IDs" << endreq;
-  }
-
+  ATH_MSG_DEBUG( "DetHashIDList for detector " << detectorID 
+                 << " got " << IDList.size() << " hash IDs" );
 }
-
-
-
-
-
-
-
-
 
 
 
@@ -1080,10 +1031,10 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
 { 
   //  std::cout << "RegSelSvc::DetHashIDList() new map " << detectorID << std::endl;   
   
-  if(m_msgOutputLevel <= MSG::DEBUG && IDList.size()!=0 ){
-    if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+  if(IDList.size()!=0 ){
+    ATH_MSG_VERBOSE( " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID );
   }
+
   IDList.clear();
 
   switch(detectorID){
@@ -1155,20 +1106,15 @@ void RegSelSvc::DetHashIDList(DETID detectorID,
 
 
 
-
-
-
-
-
 void RegSelSvc::DetHashIDList(DETID detectorID, long layer,
 			      std::vector<IdentifierHash>& IDList) 
 {
   //  std::cout << "RegSelSvc::DetHashIDList() new map " << detectorID << std::endl; 
 
-  if(m_msgOutputLevel <= MSG::DEBUG && IDList.size()!=0 ){
-    if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+  if(IDList.size()!=0 ){
+    ATH_MSG_VERBOSE( " input IDList vector not empty for RegSelSvc call for detectorID " << detectorID );
   }
+
   IDList.clear();
 
   long sampling = layer; 
@@ -1231,25 +1177,9 @@ void RegSelSvc::DetHashIDList(DETID detectorID, long layer,
     break;
   }
 
-  if(m_msgOutputLevel <= MSG::DEBUG){
-    (*m_log) << MSG::DEBUG << "DetHashIDList for detector " << detectorID 
-	<< " got " << IDList.size() << " hash IDs" << endreq;
-  }
-
+  ATH_MSG_DEBUG( "DetHashIDList for detector " << detectorID 
+                 << " got " << IDList.size() << " hash IDs" );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 void RegSelSvc::DetROBIDListUint(DETID detectorID,
@@ -1272,9 +1202,8 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
 
   //  std::cout << "RegSelSvc::DetROBIDListUint() new map " << detectorID << std::endl; 
 
-  if(m_msgOutputLevel <= MSG::DEBUG && outputROBIDList.size()!=0 ){
-    if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+  if(outputROBIDList.size()!=0 ){
+    ATH_MSG_VERBOSE( " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID );
   }
   //  outputROBIDList.clear();
 
@@ -1354,15 +1283,9 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
     break;
   }
   
-  if(m_msgOutputLevel <= MSG::DEBUG){
-    (*m_log) << MSG::DEBUG << "DetROBIDListUint for detector " << detectorID 
-	<< " got " << outputROBIDList.size() << " ROB IDs" << endreq;
-  }
-
+  ATH_MSG_DEBUG( "DetROBIDListUint for detector " << detectorID 
+                 << " got " << outputROBIDList.size() << " ROB IDs" );
 }
-
-
-
 
 
 void RegSelSvc::DetROBIDListUint(DETID detectorID, long layer,
@@ -1384,9 +1307,8 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID, long layer,
 
   if ( roi.isFullscan() ) return DetROBIDListUint( detectorID, layer, outputROBIDList );
 
-  if(m_msgOutputLevel <= MSG::DEBUG && outputROBIDList.size()!=0 ){
-    if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+  if(outputROBIDList.size()!=0 ){
+    ATH_MSG_VERBOSE( " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID );
   }
 
   /// for calorimeter tables
@@ -1459,15 +1381,9 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID, long layer,
     break;
   }
   
-  if(m_msgOutputLevel <= MSG::DEBUG){
-    (*m_log) << MSG::DEBUG << "DetROBIDListUint for detector " << detectorID 
-	<< " got " << outputROBIDList.size() << " ROB IDs" << endreq;
-  }
-
+  ATH_MSG_DEBUG( "DetROBIDListUint for detector " << detectorID 
+                 << " got " << outputROBIDList.size() << " ROB IDs" );
 }
-
-
-
 
 
 // inner detector full scan method
@@ -1475,9 +1391,8 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID, long layer,
 void RegSelSvc::DetROBIDListUint(DETID detectorID, 
 				 std::vector<uint32_t>&    outputROBIDList ) 
 { 
-  if(m_msgOutputLevel <= MSG::DEBUG && outputROBIDList.size()!=0 ){
-    if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+  if(outputROBIDList.size()!=0 ){
+    ATH_MSG_VERBOSE( " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID );
   }
   outputROBIDList.clear();
 
@@ -1546,20 +1461,13 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID,
 } 
 
 
-
-
-
-
-
-
 void RegSelSvc::DetROBIDListUint(DETID detectorID, long layer,
 				 std::vector<uint32_t>& outputROBIDList) 
 {
   //  std::cout << "RegSelSvc::DetROBIDListUint() new map " << detectorID << std::endl; 
 
-  if(m_msgOutputLevel <= MSG::DEBUG && outputROBIDList.size()!=0 ){
-    if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID << endreq; 
+  if(outputROBIDList.size()!=0 ){
+    ATH_MSG_VERBOSE( " input outputROBIDList vector not empty for RegSelSvc call for detectorID " << detectorID );
   }
   outputROBIDList.clear();
 
@@ -1623,20 +1531,9 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID, long layer,
     break;
   }
   
-  if(m_msgOutputLevel <= MSG::DEBUG){
-    (*m_log) << MSG::DEBUG << "DetROBIDListUint for detector " << detectorID 
-	<< " got " << outputROBIDList.size() << " ROB IDs" << endreq;
-  }
-
+  ATH_MSG_DEBUG( "DetROBIDListUint for detector " << detectorID 
+                 << " got " << outputROBIDList.size() << " ROB IDs" );
 }
-
-
-
-
-
-
-
-
 
 
 //
@@ -1646,20 +1543,20 @@ void RegSelSvc::DetROBIDListUint(DETID detectorID, long layer,
 StatusCode RegSelSvc::readFromSG( ToolHandle<IRegionLUT_Creator> p_lutCreatorTool, const RegionSelectorLUT*& detRSlut, const std::string lutName){
   // Use generic tool to create LUT - instance set via ToolHandle property
   if (!p_lutCreatorTool) {
-    (*m_log) << MSG::INFO << "LUT creator tool not configured " << p_lutCreatorTool << endreq;
+    ATH_MSG_INFO( "LUT creator tool not configured " << p_lutCreatorTool );
   } else {
     if ( p_lutCreatorTool.retrieve().isFailure() ) {
-      (*m_log) << MSG::FATAL << "Failed to retrieve tool " << p_lutCreatorTool << endreq;
+      ATH_MSG_FATAL( "Failed to retrieve tool " << p_lutCreatorTool );
       return StatusCode::FAILURE;
     } else {
-      (*m_log) << MSG::INFO << "Retrieved tool " << p_lutCreatorTool << endreq;
+      ATH_MSG_INFO( "Retrieved tool " << p_lutCreatorTool );
       // compute LUT - lutName is empty by default but for LAr tool, need to specify something like EM
       detRSlut = p_lutCreatorTool->getLUT(lutName);
       if (!detRSlut) {
-        (*m_log) << MSG::ERROR << "lookup table missing" << endreq;
+        ATH_MSG_ERROR( "lookup table missing" );
 	return StatusCode::FAILURE;
       } else {
-	//        (*m_log) << MSG::VERBOSE << "Test lookup table" << endreq;
+	//        ATH_MSG_VERBOSE( "Test lookup table" );
         printTable(detRSlut);
       }
     }
@@ -1669,26 +1566,25 @@ StatusCode RegSelSvc::readFromSG( ToolHandle<IRegionLUT_Creator> p_lutCreatorToo
 
 
 
-
 StatusCode RegSelSvc::readFromSG( ToolHandle<IRegionIDLUT_Creator> p_lutCreatorTool,  RegSelSiLUT*& detRSlut){
   // Use generic tool to create LUT - instance set via ToolHandle property
   // NB: this is *very* misleading, the test !p_lutCreatorTool *isn't* just a test, 
   //     it actually tries to create the tool if it doesn't already exist, and is 
   //     false if it fails to create it 
   if (!p_lutCreatorTool) {
-    (*m_log) << MSG::INFO << "LUT creator tool not configured " << p_lutCreatorTool << endreq;
+    ATH_MSG_INFO( "LUT creator tool not configured " << p_lutCreatorTool );
   } else {
     if ( p_lutCreatorTool.retrieve().isFailure() ) {
-      (*m_log) << MSG::FATAL << "Failed to retrieve tool " << p_lutCreatorTool << endreq;
+      ATH_MSG_FATAL( "Failed to retrieve tool " << p_lutCreatorTool );
       return StatusCode::FAILURE;
     } else {
-      (*m_log) << MSG::INFO << "Retrieved tool " << p_lutCreatorTool << endreq;
+      ATH_MSG_INFO( "Retrieved tool " << p_lutCreatorTool );
       detRSlut = p_lutCreatorTool->getLUT();
       if (detRSlut) {
-	(*m_log) << MSG::INFO << "retrieved new RegSelSiLUT map " << detRSlut->getName() << endreq;
+	ATH_MSG_INFO( "retrieved new RegSelSiLUT map " << detRSlut->getName() );
       }
       else {
-        (*m_log) << MSG::ERROR << "new lookup table missing" << endreq;
+        ATH_MSG_ERROR( "new lookup table missing" );
 	return StatusCode::FAILURE;
       }
     }
@@ -1697,27 +1593,25 @@ StatusCode RegSelSvc::readFromSG( ToolHandle<IRegionIDLUT_Creator> p_lutCreatorT
 }
 
 
-
-
 StatusCode RegSelSvc::readFromSG( ToolHandle<IRegionFTKLUT_Creator> p_lutCreatorTool,  RegSelEtaPhiLUT*& detRSlut){
   // Use generic tool to create LUT - instance set via ToolHandle property
   // NB: this is *very* misleading, the test !p_lutCreatorTool *isn't* just a test, 
   //     it actually tries to create the tool if it doesn't already exist, and is 
   //     false if it fails to create it 
   if (!p_lutCreatorTool) {
-    (*m_log) << MSG::INFO << "LUT creator tool not configured " << p_lutCreatorTool << endreq;
+    ATH_MSG_INFO( "LUT creator tool not configured " << p_lutCreatorTool );
   } else {
     if ( p_lutCreatorTool.retrieve().isFailure() ) {
-      (*m_log) << MSG::FATAL << "Failed to retrieve tool " << p_lutCreatorTool << endreq;
+      ATH_MSG_FATAL( "Failed to retrieve tool " << p_lutCreatorTool );
       return StatusCode::FAILURE;
     } else {
-      (*m_log) << MSG::INFO << "Retrieved tool " << p_lutCreatorTool << endreq;
+      ATH_MSG_INFO( "Retrieved tool " << p_lutCreatorTool );
       detRSlut = p_lutCreatorTool->getLUT();
       if (detRSlut) {
-	(*m_log) << MSG::INFO << "retrieved new RegSeletaPhiLUT map " << endreq;
+	ATH_MSG_INFO( "retrieved new RegSeletaPhiLUT map " );
       }
       else {
-        (*m_log) << MSG::ERROR << "new lookup table missing" << endreq;
+        ATH_MSG_ERROR( "new lookup table missing" );
 	return StatusCode::FAILURE;
       }
     }
@@ -1729,25 +1623,9 @@ StatusCode RegSelSvc::readFromSG( ToolHandle<IRegionFTKLUT_Creator> p_lutCreator
 
 //// const detRSlut is copied so pointer set but not returned.
 StatusCode RegSelSvc::readFromSG( DETID type, const RegionSelectorLUT*& detRSlut ){
-  std::string detKey;
-  StatusCode sc = StatusCode::SUCCESS;
-
-  //! Read DETID type RegionSelectorLUT from Detector Store
-  detKey = returnKeyString(type);
-  sc = m_detStore->contains< RegionSelectorLUT >(detKey);
-  //const DataHandle<RegionSelectorLUT> *detRSlutDH;
-  if (sc == StatusCode::SUCCESS ) {
-    sc = m_detStore->retrieve(detRSlut, detKey);
-    if( sc.isFailure() || detRSlut==0 ) {
-      (*m_log) << MSG::FATAL << "Could not retrieve RegionSelectorLUT " << detKey << " from detStore." << endreq;
-      return sc;
-    } else {
-      (*m_log) << MSG::DEBUG << "RegionSelectorLUT " << detKey << " successfully retrieved from Detector Store" << endreq;
-    }
-  } else {
-    (*m_log) << MSG::FATAL << " RegionSelectorLUT " << detKey << " doesn't exists " << endreq;
-  }
-  return sc;
+  std::string detKey = returnKeyString(type);
+  ATH_CHECK( m_detStore->retrieve(detRSlut, detKey) );
+  return StatusCode::SUCCESS;
 }
 
 
@@ -1811,53 +1689,42 @@ std::string RegSelSvc::returnKeyString(DETID type){
 
 
 
-StatusCode RegSelSvc::initCalo(void){
-
-  StatusCode sc;
-  int i;
-
+StatusCode RegSelSvc::initCalo(void)
+{
   //! Initialization (reading the data input files)
   char filename[50];
   m_larData.initvar();
   m_ttemData.initvar();
-  for(i=0; i < 4; i++){
+  for(int i=0; i < 4; i++){
     snprintf(filename,50,"TrigTowerMapEM_%i.txt",i);
-    sc = m_larData.read(filename);
-    sc = m_ttemData.read(filename);
-    if(sc == StatusCode::FAILURE){
-      (*m_log) << MSG::FATAL << " >>>>> Could't read " << filename << " data file" << endreq;
-      return sc;
-    }  
+    ATH_CHECK( m_larData.read(filename) );
+    ATH_CHECK( m_ttemData.read(filename) );
   }
+  StatusCode sc;
   openDataStatus(sc, TTEM , m_ttemData);
+  ATH_CHECK (sc);
   
   m_tthecData.initvar();
-  for(i=0; i < 4; i++){
+  for(int i=0; i < 4; i++){
     snprintf(filename,50,"TrigTowerMapHEC_%i.txt",i);
-    sc = m_larData.read(filename);
-    sc = m_tthecData.read(filename);
-    if(sc == StatusCode::FAILURE){
-      (*m_log) << MSG::FATAL << " >>>>> Could't read " << filename << " data file" << endreq;
-      return sc;
-    }  
+    ATH_CHECK( m_larData.read(filename) );
+    ATH_CHECK( m_tthecData.read(filename) );
   }
   openDataStatus(sc, LAR , m_larData);
   openDataStatus(sc, TTHEC , m_tthecData);
-  sc = initTileCalo();
-  return sc;
+  ATH_CHECK( initTileCalo() );
+  return StatusCode::SUCCESS;
 }
 
 
 
 StatusCode RegSelSvc::initTileCalo(void){
 
-  StatusCode sc;
-
   //! Initialization (reading the data input files)
   char filename[50];
 
   strcpy(filename,"TileMapIdAndHash.txt");
-  sc = m_tileData.read(filename,TILE);
+  StatusCode sc = m_tileData.read(filename,TILE);
   openDataStatus(sc,TILE, m_tileData);
 
   return sc;
@@ -1874,36 +1741,29 @@ void RegSelSvc::verifyInputs(DETID Type,
 				double &etaminIn, double &etamaxIn,
 				double &phiminIn, double &phimaxIn){
 
-  StatusCode sc;
-
   switch(Type){
   case LAR:
     m_larData.verifyInputs(etaminIn,etamaxIn,phiminIn,phimaxIn); 
-    if(sc == StatusCode::FAILURE) { } 
     break;
   case TTEM:
     m_ttemData.verifyInputs(etaminIn,etamaxIn,phiminIn,phimaxIn); 
-    if(sc == StatusCode::FAILURE) { } 
     break;
   case TTHEC:
     m_tthecData.verifyInputs(etaminIn,etamaxIn,phiminIn,phimaxIn); 
-    if(sc == StatusCode::FAILURE) { } 
     break;
   case FCALEM:
     m_ttfcalemData.verifyInputs(etaminIn,etamaxIn,phiminIn,phimaxIn); 
-    if(sc == StatusCode::FAILURE) { } 
     break;
   case FCALHAD:
     m_ttfcalhadData.verifyInputs(etaminIn,etamaxIn,phiminIn,phimaxIn); 
-    if(sc == StatusCode::FAILURE) { }
     break;
-  case TILE:
-    sc = m_tileData.verifyInputs(etaminIn,etamaxIn,phiminIn,phimaxIn); 
+  case TILE: {
+    StatusCode sc = m_tileData.verifyInputs(etaminIn,etamaxIn,phiminIn,phimaxIn); 
     if(sc == StatusCode::FAILURE) { 
-      if(m_msgOutputLevel <= MSG::DEBUG ) 
-	(*m_log) << MSG::DEBUG << " >>>>> TILE: Out of Eta Range (" << m_tileData.etaminValue() 
-		 << ", " << m_tileData.etamaxValue() << ")" << endreq;
+      ATH_MSG_DEBUG( " >>>>> TILE: Out of Eta Range (" << m_tileData.etaminValue() 
+                     << ", " << m_tileData.etamaxValue() << ")" );
     } 
+    }
     break;
   default:
     break;
@@ -1917,9 +1777,7 @@ void RegSelSvc::GetEtaPhi(DETID detectorID,
 			  double *phiMin, double *phiMax ) {
 
 
-  if (m_msgOutputLevel <= MSG::DEBUG){
-    (*m_log) << MSG::DEBUG << ">>>   RegSelSvc::getEtaPhi() " << endreq;
-  }
+  ATH_MSG_DEBUG( ">>>   RegSelSvc::getEtaPhi() " );
 	    
   switch(detectorID){
   case LAR: // Liquid Argon Calorimeter
@@ -1958,14 +1816,9 @@ void RegSelSvc::GetEtaPhi(DETID detectorID,
     break;
   }
 
-  if (m_msgOutputLevel <= MSG::DEBUG){
-    (*m_log) << MSG::DEBUG
-	<< ">>> HashId " << hashId 
-	<< " -> EtaMin " << etaMin << "| EtaMax " << etaMax
-	<< "| PhiMin " << phiMin  << "| PhiMax " << phiMax
-	<< endreq;
-  }
-
+  ATH_MSG_DEBUG( ">>> HashId " << hashId 
+                 << " -> EtaMin " << etaMin << "| EtaMax " << etaMax
+                 << "| PhiMin " << phiMin  << "| PhiMax " << phiMax );
 }
 
 void RegSelSvc::openDataStatus(StatusCode &sc, DETID type,
@@ -1996,15 +1849,12 @@ void RegSelSvc::openDataStatus(StatusCode &sc, DETID type,
     subDetData.mountDataStruct();
   }
   else{
-    if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " >>>>> Could't read " << strtmp << " data file"
-	       << endreq;
+    ATH_MSG_WARNING( " >>>>> Could't read " << strtmp << " data file" );
     sc = StatusCode::FAILURE;
   }
   
   if(flag)
-    if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " >>>>> OpenDataStatus no RegSelectorMap for " << strtmp << " detector" << endreq;
+    ATH_MSG_WARNING( " >>>>> OpenDataStatus no RegSelectorMap for " << strtmp << " detector" );
 }
 
 void RegSelSvc::openDataStatus(StatusCode &sc, DETID type,
@@ -2035,15 +1885,12 @@ void RegSelSvc::openDataStatus(StatusCode &sc, DETID type,
     if(flag)    subDetHashData.mountDataStruct();
   }
   else{
-    if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " >>>>> Could't read " << strtmp << " data file"
-	       << endreq;
+    ATH_MSG_WARNING( " >>>>> Could't read " << strtmp << " data file" );
     sc = StatusCode::FAILURE;
   }
 
   if(flag == false)
-    if(m_msgOutputLevel <= MSG::WARNING ) 
-      (*m_log) << MSG::WARNING << " >>>>> OpenDataStatus no RegSelectorHashMap for " << strtmp << " detector" << endreq;
+    ATH_MSG_WARNING( " >>>>> OpenDataStatus no RegSelectorHashMap for " << strtmp << " detector" );
   
 }
 
@@ -2104,8 +1951,7 @@ void RegSelSvc::dumpLoadedTables(const std::string& detTypeStr){
   for( i = 0; i < filenames.size(); i++){
     std::ofstream fileout;
     fileout.open(filenames[i].c_str());
-    (*m_log) << MSG::DEBUG << " >>>>> Writing table " << filenames[i] 
-        << endreq;
+    ATH_MSG_DEBUG( " >>>>> Writing table " << filenames[i] );
     if(detTypeStr == "Muon")
       fileout << "hashId sampling layer phimin phimax etamin etamax robId" << std::endl;
     else
@@ -2237,10 +2083,8 @@ void RegSelSvc::switchDetector(const std::string& detName, RegSelectorHashMap& r
 }
 
 void RegSelSvc::printTable(const RegionSelectorLUT * lut){
-  if(m_msgOutputLevel <= MSG::VERBOSE ) {
-    for (unsigned int idHash = 0; idHash < lut->maxHash(); idHash++) {
-      (*m_log) << MSG::VERBOSE << idHash << " " << lut->phiMin(idHash) << endreq;
-    }
+  for (unsigned int idHash = 0; idHash < lut->maxHash(); idHash++) {
+    ATH_MSG_VERBOSE( idHash << " " << lut->phiMin(idHash) );
   }
 }
 
@@ -2426,7 +2270,7 @@ bool RegSelSvc::GetEnabledROBsFromOKS()
 
   IJobOptionsSvc* p_jobOptionSvc;
   if (service("JobOptionSvc", p_jobOptionSvc).isFailure()) {
-    (*m_log) << MSG::ERROR << "Could not find JobOptionSvc" << endreq;
+    ATH_MSG_ERROR( "Could not find JobOptionSvc" );
     return robOKSconfigFound;
   } 
   
@@ -2440,16 +2284,15 @@ bool RegSelSvc::GetEnabledROBsFromOKS()
     if ( (*propp)->name() == "DF_Enabled_ROB_IDs" ) {
       if (m_enabledROBs.assign(**propp)) {
 	robOKSconfigFound = true;
-	(*m_log) << MSG::INFO << " ---> Read from OKS                       = " 
-	    << m_enabledROBs.value().size() << " enabled ROB IDs." << endreq;
+	ATH_MSG_INFO( " ---> Read from OKS                       = " 
+                      << m_enabledROBs.value().size() << " enabled ROB IDs." );
 
 	// is m_enabledROBs.value() a std::vector<uint32_t> ????
 	
 	//	std::vector<uint32_t>& r = m_enabledROBs.value();
 
       } else {
-	if(m_msgOutputLevel <= MSG::WARNING ) 
-	  (*m_log) << MSG::WARNING << " Could not set Property 'enabledROBs' from OKS." << endreq;
+        ATH_MSG_WARNING( " Could not set Property 'enabledROBs' from OKS." );
       }
     }
   }

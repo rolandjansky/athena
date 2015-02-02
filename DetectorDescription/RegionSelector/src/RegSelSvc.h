@@ -8,7 +8,7 @@
 #ifndef REGSELSVC_H
 #define REGSELSVC_H
 
-#include "GaudiKernel/Service.h"
+#include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/StatusCode.h"
 #include <string>
 #include <iostream>
@@ -53,7 +53,8 @@ class StoreGateSvc;
      @author Simon George
 */
 
-class RegSelSvc: public Service, virtual public IRegSelSvc, virtual public IIncidentListener {
+class RegSelSvc: public extends2<AthService, IRegSelSvc, IIncidentListener>
+{
  public:
   /** @method Standard constructor for Gaudi services.
    */
@@ -207,8 +208,8 @@ class RegSelSvc: public Service, virtual public IRegSelSvc, virtual public IInci
 
 private:
   //! %A private variable to read data from StoreGate.
-  StoreGateSvc* m_detStore; 
-  
+  ServiceHandle<StoreGateSvc> m_detStore; 
+
   //! Initialise lookup tables using tools provided for each detector
   /*!
      \param ToolHandle<IRegionLUT_Creator> \c \b p_lutCreatorTool, tool (from properties) to be used to initialise the LUT
@@ -419,9 +420,6 @@ private:
   //! LArConditions which should delay the RegionSelectorSvc
   StringProperty m_LArFebRodMapKey;
 
-  //! Cached message level
-  int m_msgOutputLevel;
-
   //! Data structure to hold Pixel data.
   RegSelSiLUT* m_newpixel;
 
@@ -466,7 +464,6 @@ private:
   ToolHandle<IRegionLUT_Creator> m_lutCreatorToolLAR;
   ToolHandle<IRegionLUT_Creator> m_lutCreatorToolTile;
   ServiceHandle< IGeoModelSvc > m_geoModelSvc;
-  MsgStream* m_log;
   std::vector<std::string> m_enabledDetectors;
   bool m_errorFlag;
   
