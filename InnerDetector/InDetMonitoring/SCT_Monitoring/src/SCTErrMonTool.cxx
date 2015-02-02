@@ -203,7 +203,10 @@ SCTErrMonTool::~SCTErrMonTool(){
 StatusCode SCTErrMonTool::bookHistograms()
 {  
   msg(MSG::INFO) << " initialize being called " << endreq;
-  if(newRun) numberOfEvents=0;
+  if(newRun){
+    numberOfEvents=0;
+    if(AthenaMonManager::dataType()==AthenaMonManager::cosmics)m_checkrate=100;
+  }
   if(ManagedMonitorToolBase::newLumiBlock) numberOfEventsLumi=0;
   m_dataObjectName = "SCT_RDOs";
   const InDetDD::SCT_DetectorManager* mgr; //confusingly this is in a dedicated namespace
@@ -600,7 +603,7 @@ StatusCode SCTErrMonTool::fillByteStreamErrors() {
     m_ModulesWithErrorsVsLB[reg]->Fill(current_lb,double (tot_mod_err[reg]));
   }
 
-  if(m_environment==AthenaMonManager::online){
+  //  if(m_environment==AthenaMonManager::online){
     // Time Dependent SP plots only online
     nErrors_buf[nErrors_pos] = total_errors;
     nErrors_pos++;
@@ -620,7 +623,7 @@ StatusCode SCTErrMonTool::fillByteStreamErrors() {
         if (latest_nErrors_pos == m_evtsbins) latest_nErrors_pos = 0;
       }
     }
-  }
+    //}5.12.2014
   numberOfEvents++;
   numberOfEventsLumi++;
   return StatusCode::SUCCESS;
@@ -681,6 +684,7 @@ StatusCode SCTErrMonTool::bookErrHistosHelper(MonGroup & mg, TString name, TStri
 //StatusCode SCTErrMonTool::bookErrHistos(bool newRun, bool newLumiBlock){
 StatusCode SCTErrMonTool::bookErrHistos(){
   const std::string m_errorsNames[] = {"ABCD","Raw","TimeOut","LVL1ID","BCID","Premable","Formatter","MaskedLink","RODClock","TruncROD","ROBFrag","BSParse","summary"};
+  std::string m_errorsNamesMG[] = {"SCT/SCTB/errors/ABCD","SCT/SCTB/errors/Raw","SCT/SCTB/errors/TimeOut","SCT/SCTB/errors/LVL1ID","SCT/SCTB/errors/BCID","SCT/SCTB/errors/Premable","SCT/SCTB/errors/Formatter","SCT/SCTB/errors/MaskedLink","SCT/SCTB/errors/RODClock","SCT/SCTB/errors/TruncROD","SCT/SCTB/errors/ROBFrag","SCT/SCTB/errors/BSParse","SCT/SCTB/errors/summary"};
   if(m_doPerLumiErrors) {
     MonGroup lumiErr(this,"SCT/SCTB/errors",lumiBlock,ATTRIB_UNMANAGED );
     if(ManagedMonitorToolBase::newLumiBlock) {
@@ -702,10 +706,11 @@ StatusCode SCTErrMonTool::bookErrHistos(){
       if(m_doErr2DPerLumiHists) {
         for (int layer(0); layer!=N_BARRELSx2;++layer) {
           for (int errType(0);errType!=N_ERRTYPES;++errType){
+	    MonGroup lumiErr2(this,m_errorsNamesMG[errType],lumiBlock,ATTRIB_UNMANAGED );
             std::string name1 = m_errorsNames[errType] + "ErrsPerLumi";
             std::string title = m_errorsNames[errType] + " errors per lumiblock layer ";
             std::string name2 = std::string("T") + m_errorsNames[errType] + "ErrsPerLumi_";
-            somethingFailed |=bookErrHistosHelper(lumiErr,name1,title,name2,m_allErrsPerLumi[errType][iBARREL][layer],m_pallErrsPerLumi[errType][iBARREL][layer],layer).isFailure();
+            somethingFailed |=bookErrHistosHelper(lumiErr2,name1,title,name2,m_allErrsPerLumi[errType][iBARREL][layer],m_pallErrsPerLumi[errType][iBARREL][layer],layer).isFailure();
           }
         }
       }
@@ -743,10 +748,11 @@ StatusCode SCTErrMonTool::bookErrHistos(){
       bool somethingFailed(false);
       for (int layer(0); layer!=N_BARRELSx2;++layer) {
         for (int errType(0);errType!=N_ERRTYPES;++errType){
+	  MonGroup err2(this,m_errorsNamesMG[errType],run,ATTRIB_UNMANAGED );
           std::string name1 = m_errorsNames[errType] + "Errs_";
           std::string title = m_errorsNames[errType] + " errors layer ";
           std::string name2 = std::string("T") + m_errorsNames[errType] + "Errs_";
-          somethingFailed |=bookErrHistosHelper(err,name1,title,name2,m_allErrs[errType][iBARREL][layer],m_pallErrs[errType][iBARREL][layer],layer).isFailure();
+          somethingFailed |=bookErrHistosHelper(err2,name1,title,name2,m_allErrs[errType][iBARREL][layer],m_pallErrs[errType][iBARREL][layer],layer).isFailure();
           m_allErrs[errType][iBARREL][layer]->GetXaxis()->SetTitle("Index in the direction of #eta"); 
           m_allErrs[errType][iBARREL][layer]->GetYaxis()->SetTitle("Index in the direction of #phi");
         }
@@ -763,13 +769,14 @@ StatusCode SCTErrMonTool::bookErrHistos(){
 //====================================================================================================
 StatusCode SCTErrMonTool::bookPositiveEndCapErrHistos(){
   std::string m_errorsNames[] = {"ABCD","Raw","TimeOut","LVL1ID","BCID","Preamble","Formatter","MaskedLink","RODClock","TruncROD","ROBFrag","BSParse", "summary"};
+  std::string m_errorsNamesMG[] = {"SCT/SCTEA/errors/ABCD","SCT/SCTEA/errors/Raw","SCT/SCTEA/errors/TimeOut","SCT/SCTEA/errors/LVL1ID","SCT/SCTEA/errors/BCID","SCT/SCTEA/errors/Premable","SCT/SCTEA/errors/Formatter","SCT/SCTEA/errors/MaskedLink","SCT/SCTEA/errors/RODClock","SCT/SCTEA/errors/TruncROD","SCT/SCTEA/errors/ROBFrag","SCT/SCTEA/errors/BSParse","SCT/SCTEA/errors/summary"};//07.01.2015
   if(m_doPerLumiErrors) {
     MonGroup lumiErr(this,"SCT/SCTEA/errors",lumiBlock,ATTRIB_UNMANAGED );
     if(ManagedMonitorToolBase::newLumiBlock) {
       std::string m_layerNames[N_DISKSx2] = {"0_0","0_1","1_0","1_1","2_0","2_1","3_0","3_1","4_0","4_1","5_0","5_1","6_0","6_1","7_0","7_1","8_0","8_1"};
-      m_numErrorsPerLumi[iECp] = new TH2F("NumErrsPerLumi","Total Number of Error Types for Layer per Lumi-Block",n_lumiErrBins,-0.5,n_lumiErrBins-0.5,N_ENDCAPSx2,-0.5,N_ENDCAPSx2-0.5);
+      m_numErrorsPerLumi[iECp] = new TH2F("NumErrsPerLumi","Total Number of Error Types for Disk per Lumi-Block",n_lumiErrBins,-0.5,n_lumiErrBins-0.5,N_ENDCAPSx2,-0.5,N_ENDCAPSx2-0.5);
       if(lumiErr.regHist(m_numErrorsPerLumi[iECp]).isFailure()) msg(MSG::WARNING) << "Couldn't book NumErrsPerLumi" << endreq;
-      m_rateErrorsPerLumi[iECp] = new TProfile2D("RateErrorsPerLumi","Rate of Error Types for Layers per Lumi-Block",n_lumiErrBins,-0.5,n_lumiErrBins-0.5,N_ENDCAPSx2,-0.5,N_ENDCAPSx2-0.5);
+      m_rateErrorsPerLumi[iECp] = new TProfile2D("RateErrorsPerLumi","Rate of Error Types for Disks per Lumi-Block",n_lumiErrBins,-0.5,n_lumiErrBins-0.5,N_ENDCAPSx2,-0.5,N_ENDCAPSx2-0.5);
       if(lumiErr.regHist(m_rateErrorsPerLumi[iECp]).isFailure())  msg(MSG::WARNING) << "Couldn't book RateErrorsPerLumi" << endreq;
       for (unsigned int bin(0); bin<n_lumiErrBins; bin++) {
         m_numErrorsPerLumi[iECp]->GetXaxis()->SetBinLabel(bin+1,m_errorsNames[bin].c_str());
@@ -783,10 +790,11 @@ StatusCode SCTErrMonTool::bookPositiveEndCapErrHistos(){
       if(m_doErr2DPerLumiHists) {
         for (int layer(0); layer!=N_DISKSx2;++layer) {
           for (int errType(0);errType!=N_ERRTYPES;++errType){
+	    MonGroup lumiErr2(this,m_errorsNamesMG[errType],lumiBlock,ATTRIB_UNMANAGED );//07.01.2015
             std::string name1 = m_errorsNames[errType] + "ErrsECpPerLumi_";
-            std::string title = m_errorsNames[errType] + " errors per lumiblock layer ";
+            std::string title = m_errorsNames[errType] + " errors per lumiblock Disk ";
             std::string name2 = std::string("T") + m_errorsNames[errType] + "ErrsECpPerLumi_";
-            failedBooking |=bookErrHistosHelper(lumiErr,name1,title,name2,m_allErrsPerLumi[errType][iECp][layer],m_pallErrsPerLumi[errType][iECp][layer],layer).isFailure();
+            failedBooking |=bookErrHistosHelper(lumiErr2,name1,title,name2,m_allErrsPerLumi[errType][iECp][layer],m_pallErrsPerLumi[errType][iECp][layer],layer).isFailure();
           }
         }
       }
@@ -809,15 +817,16 @@ StatusCode SCTErrMonTool::bookPositiveEndCapErrHistos(){
     bool failedBooking(false); 
     for (int layer(0); layer!=N_DISKSx2;++layer) {
       for (int errType(0);errType!=N_ERRTYPES;++errType){
+	MonGroup err2(this,m_errorsNamesMG[errType],lumiBlock,ATTRIB_UNMANAGED );//07.01.2015
         std::string name1 = m_errorsNames[errType] + "ErrsECp_";
-        std::string title = m_errorsNames[errType] + " errors layer ";
+        std::string title = m_errorsNames[errType] + " errors Disk ";
         std::string name2 = std::string("T") + m_errorsNames[errType] + "ErrsECp_";
-        failedBooking |=bookErrHistosHelper(err,name1,title,name2,m_allErrs[errType][iECp][layer],m_pallErrs[errType][iECp][layer],layer).isFailure();
+        failedBooking |=bookErrHistosHelper(err2,name1,title,name2,m_allErrs[errType][iECp][layer],m_pallErrs[errType][iECp][layer],layer).isFailure();
         m_allErrs[errType][iECp][layer]->GetXaxis()->SetTitle("Index in the direction of #eta"); 
         m_allErrs[errType][iECp][layer]->GetYaxis()->SetTitle("Index in the direction of #phi"); 
       }
 
-      if(m_environment==AthenaMonManager::online) failedBooking |= bookErrHistosHelper(err,"summaryErrsRecentECp_","summary recent Layer ",m_summaryErrsRecent[iECp][layer],layer,false).isFailure();
+      if(m_environment==AthenaMonManager::online) failedBooking |= bookErrHistosHelper(err,"summaryErrsRecentECp_","summary recent Disk ",m_summaryErrsRecent[iECp][layer],layer,false).isFailure();
     }
     if(failedBooking) if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Something went wrong in bookPositiveEndCapErrHistos" << endreq;
   }
@@ -831,14 +840,15 @@ StatusCode SCTErrMonTool::bookPositiveEndCapErrHistos(){
 //StatusCode SCTErrMonTool::bookNegativeEndCapErrHistos(bool isNewRun, bool isNewLumiBlock){
 StatusCode SCTErrMonTool::bookNegativeEndCapErrHistos(){
   std::string m_errorsNames[] = {"ABCD","Raw","TimeOut","LVL1ID","BCID","Preamble","Formatter","MaskedLink","RODClock","TruncROD","ROBFrag","BSParse", "summary"};
+  std::string m_errorsNamesMG[] = {"SCT/SCTEC/errors/ABCD","SCT/SCTEC/errors/Raw","SCT/SCTEC/errors/TimeOut","SCT/SCTEC/errors/LVL1ID","SCT/SCTEC/errors/BCID","SCT/SCTEC/errors/Premable","SCT/SCTEC/errors/Formatter","SCT/SCTEC/errors/MaskedLink","SCT/SCTEC/errors/RODClock","SCT/SCTEC/errors/TruncROD","SCT/SCTEC/errors/ROBFrag","SCT/SCTEC/errors/BSParse","SCT/SCTEC/errors/summary"};//07.01.2015
   if(m_doPerLumiErrors) {
     MonGroup lumiErr(this,"SCT/SCTEC/errors",lumiBlock,ATTRIB_UNMANAGED );
     if(ManagedMonitorToolBase::newLumiBlock) {
-      std::string m_errorsNames[] = {"ABCD","Raw","TimeOut","LVL1ID","BCID","Premable","Formatter","MaskedLink","RODClock","TruncROD","ROBFrag","BSParse"};
+      //std::string m_errorsNames[] = {"ABCD","Raw","TimeOut","LVL1ID","BCID","Premable","Formatter","MaskedLink","RODClock","TruncROD","ROBFrag","BSParse"};
       std::string m_layerNames[N_DISKSx2] = {"0_0","0_1","1_0","1_1","2_0","2_1","3_0","3_1","4_0","4_1","5_0","5_1","6_0","6_1","7_0","7_1","8_0","8_1"};
-      m_numErrorsPerLumi[iECm] = new TH2F("NumErrsPerLumi","Total Number of Error Types for Layer per Lumi-Block",n_lumiErrBins,-0.5,n_lumiErrBins-0.5,N_ENDCAPSx2,-0.5,N_ENDCAPSx2-0.5);
+      m_numErrorsPerLumi[iECm] = new TH2F("NumErrsPerLumi","Total Number of Error Types for Disk per Lumi-Block",n_lumiErrBins,-0.5,n_lumiErrBins-0.5,N_ENDCAPSx2,-0.5,N_ENDCAPSx2-0.5);
       if(lumiErr.regHist(m_numErrorsPerLumi[iECm]).isFailure()) msg(MSG::WARNING) << "Couldn't book NumErrsPerLumi" << endreq;
-      m_rateErrorsPerLumi[iECm] = new TProfile2D("RateErrorsPerLumi","Rate of Error Types for Layers per Lumi-Block",n_lumiErrBins,-0.5,n_lumiErrBins-0.5,N_ENDCAPSx2,-0.5,N_ENDCAPSx2-0.5);
+      m_rateErrorsPerLumi[iECm] = new TProfile2D("RateErrorsPerLumi","Rate of Error Types for Disks per Lumi-Block",n_lumiErrBins,-0.5,n_lumiErrBins-0.5,N_ENDCAPSx2,-0.5,N_ENDCAPSx2-0.5);
       if(lumiErr.regHist(m_rateErrorsPerLumi[iECm]).isFailure()) msg(MSG::WARNING) << "Couldn't book RateErrorsPerLumi" << endreq;
       for (unsigned int bin(0); bin<n_lumiErrBins; bin++) {
         m_numErrorsPerLumi[iECm]->GetXaxis()->SetBinLabel(bin+1,m_errorsNames[bin].c_str());
@@ -852,10 +862,11 @@ StatusCode SCTErrMonTool::bookNegativeEndCapErrHistos(){
       if(m_doErr2DPerLumiHists) {
         for (int layer(0); layer!=N_DISKSx2;++layer) {
           for (int errType(0);errType!=N_ERRTYPES;++errType){
+	    MonGroup lumiErr2(this,m_errorsNamesMG[errType],lumiBlock,ATTRIB_UNMANAGED );//07.01.2015
             std::string name1 = m_errorsNames[errType] + "ErrsECmPerLumi_";
             std::string title = m_errorsNames[errType] + " errors per lumiblock layer ";
             std::string name2 = std::string("T") + m_errorsNames[errType] + "ErrsECmPerLumi_";
-            failedBooking |=bookErrHistosHelper(lumiErr,name1,title,name2,m_allErrsPerLumi[errType][iECm][layer],m_pallErrsPerLumi[errType][iECm][layer],layer).isFailure();
+            failedBooking |=bookErrHistosHelper(lumiErr2,name1,title,name2,m_allErrsPerLumi[errType][iECm][layer],m_pallErrsPerLumi[errType][iECm][layer],layer).isFailure();
           }
         }
       }
@@ -877,18 +888,18 @@ StatusCode SCTErrMonTool::bookNegativeEndCapErrHistos(){
     bool failedBooking(false);
     for (int layer(0); layer!=N_DISKSx2;++layer) {
       for (int errType(0);errType!=N_ERRTYPES;++errType){
+	MonGroup err2(this,m_errorsNamesMG[errType],lumiBlock,ATTRIB_UNMANAGED );//07.01.2015
         std::string name1 = m_errorsNames[errType] + "ErrsECm_";
-        std::string title = m_errorsNames[errType] + " errors layer ";
+        std::string title = m_errorsNames[errType] + " errors Disk ";
         std::string name2 = std::string("T") + m_errorsNames[errType] + "ErrsECm_";
-        failedBooking |=bookErrHistosHelper(err,name1,title,name2,m_allErrs[errType][iECm][layer],m_pallErrs[errType][iECm][layer],layer).isFailure();
+        failedBooking |=bookErrHistosHelper(err2,name1,title,name2,m_allErrs[errType][iECm][layer],m_pallErrs[errType][iECm][layer],layer).isFailure();
         m_allErrs[errType][iECm][layer]->GetXaxis()->SetTitle("Index in the direction of #eta"); 
         m_allErrs[errType][iECm][layer]->GetYaxis()->SetTitle("Index in the direction of #phi");
       }
-      if(m_environment==AthenaMonManager::online) failedBooking |= bookErrHistosHelper(err,"summaryErrsRecentECm_","summary recent Layer ",m_summaryErrsRecent[iECm][layer],layer,false).isFailure();
+      if(m_environment==AthenaMonManager::online) failedBooking |= bookErrHistosHelper(err,"summaryErrsRecentECm_","summary recent Disk ",m_summaryErrsRecent[iECm][layer],layer,false).isFailure();
     }
     if(failedBooking) if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Something went wrong in bookNegativeEndCapErrHistos" << endreq;
      
-
   }
   return StatusCode::SUCCESS;
 }
@@ -908,7 +919,7 @@ StatusCode  SCTErrMonTool::bookConfMaps(){
     m_path = streamName.substr(0, streamName.rfind("SCT/GENERAL/Conf"));
     if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Global Path :" << m_path << endreq;
 
-    //std::string m_SummaryBinNames[] = {"Mod Out","Flagged Links","Masked Links","Errors","Inefficient","Noisy"}; 
+    std::string m_SummaryBinNames[] = {"Mod Out","Flagged Links","Masked Links","Errors","Inefficient","Noisy"}; 
     std::string m_ConfigurationBinNames[] = {"Modules","Link 0","Link 1","Chips","Strips (10^{2})"};
     std::string m_ConfigurationOnlineBinNames[] = {"Mod Out","Flagged Links","Masked Links","Errors"};
     std::string m_ConfigurationEffBinNames[] = {"Ineff B","Ineff EA","Ineff EC","ALL"};
@@ -948,7 +959,8 @@ StatusCode  SCTErrMonTool::bookConfMaps(){
         TString numerrors[4]={"SCTNumberOfErrorsBarrel","SCTNumberOfErrorsEndcapA","SCTNumberOfErrorsEndcapC","SCTNumberOfErrors"};
         TString moderrors[4]={"SCTModulesWithErrorsBarrel","SCTModulesWithErrorsEndcapA","SCTModulesWithErrorsEndcapC","SCTModulesWithErrors"};
         for(int reg=0; reg<4; reg++){
-          m_Conf[reg] = new TProfile(conftitle[reg],conflabel[reg],Confbins,-0.5,Confbins-0.5);//30.11.2014           for (int bin = 0; bin<Confbins; bin++) m_Conf[reg]->GetXaxis()->SetBinLabel(bin+1,m_SummaryBinNames[bin].c_str());
+          m_Conf[reg] = new TProfile(conftitle[reg],conflabel[reg],Confbins,-0.5,Confbins-0.5);//30.11.2014
+	  for (int bin = 0; bin<Confbins; bin++) m_Conf[reg]->GetXaxis()->SetBinLabel(bin+1,m_SummaryBinNames[bin].c_str());
           const int conf_online_bins = 4;
           if(m_environment==AthenaMonManager::online or testOffline){
             m_ConfOnline[reg]=new TH1F(confonlinetitle[reg],conflabel[reg]+" Online",conf_online_bins,-0.5,conf_online_bins-0.5);//30.11.2014 
@@ -1026,7 +1038,7 @@ SCTErrMonTool::bookPositiveEndCapConfMaps() {
       ostringstream stream2dmap;
       stream2dmap <<"modulemapECp_"<< i/2 << "_" << i%2 ;
       TH2F* hitsHisto_tmp = new TH2F(TString(stream2dmap.str()),         // path
-             Form("Module Out of Configuration : Disk %d Side +%d",i/2,i%2),  // title
+             Form("Module Out of Configuration : Disk %d Side %d",i/2,i%2),  // title
              N_ETA_BINS_EC, FIRST_ETA_BIN_EC-0.5, LAST_ETA_BIN_EC+0.5,              // X num bins, X_lo, X_hi
              N_PHI_BINS_EC, FIRST_PHI_BIN_EC-0.5, LAST_PHI_BIN_EC+0.5);             // Y num bins, Y_lo, Y_hi  
       hitsHisto_tmp->GetXaxis()->SetTitle("Index in the direction of #eta");
@@ -1051,7 +1063,7 @@ SCTErrMonTool::bookNegativeEndCapConfMaps(){
       ostringstream stream2dmap;
       stream2dmap <<"modulemapEcm_"<< i/2 << "_" << i%2 ;                
       TH2F* hitsHisto_tmp = new TH2F(TString(stream2dmap.str()),         // path
-             Form("Module Out of Configuration : Disk %d Side -%d",i/2,i%2),  // title
+             Form("Module Out of Configuration : Disk %d Side %d",i/2,i%2),  // title
              N_ETA_BINS_EC, FIRST_ETA_BIN_EC-0.5, LAST_ETA_BIN_EC+0.5,               
              N_PHI_BINS_EC, FIRST_PHI_BIN_EC-0.5, LAST_PHI_BIN_EC+0.5);  
       hitsHisto_tmp->GetXaxis()->SetTitle("Index in the direction of #eta"); 

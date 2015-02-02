@@ -237,8 +237,8 @@ SCTHitsNoiseMonTool::bookHistograms(){
     //book hits histogram
     MonGroup clu(this,"SCT/GENERAL/hits/summary",ManagedMonitorToolBase::run,ATTRIB_UNMANAGED);
     m_ncluHisto = new TH1F("sct_hits","Total SCT Hits",N_HIT_BINS*4,FIRST_HIT_BIN,LAST_HIT_BIN*150);
-    m_ncluHisto->GetXaxis()->SetTitle("Event Number");
-    m_ncluHisto->GetYaxis()->SetTitle("Num of Total SCT Hits");
+    m_ncluHisto->GetXaxis()->SetTitle("Total SCT Hits");
+    m_ncluHisto->GetYaxis()->SetTitle("Entries");
     if ( clu.regHist(m_ncluHisto).isFailure() ) msg(MSG::WARNING) << "Cannot book Histogram:" << stem+"sct_hits" << endreq;
     if (m_booltxscan) {
       if( newEventsBlock ) {
@@ -912,7 +912,7 @@ SCTHitsNoiseMonTool::bookGeneralCluSize(const unsigned int systemIndex){
     clusterSizeVectorRecent.clear();
     MonGroup clusterSize(this, paths[systemIndex], run,ATTRIB_UNMANAGED);
     for (unsigned int i(0); i!=limits[systemIndex];++i) {
-      LayerSideFormatter layerSide(i);
+      LayerSideFormatter layerSide(i,systemIndex);
       const string streamclusize ="clusize"+abbreviations[systemIndex]+"_"+layerSide.name();
       std::string histotitle="SCT "+names[systemIndex]+" Cluster size: "+layerSide.title();
       h1DFactory(streamclusize, histotitle, clusterSize, clusterSizeVector, 0., 200., 200);
@@ -955,7 +955,7 @@ SCTHitsNoiseMonTool::bookGeneralNoiseOccupancyMaps(const unsigned int systemInde
     (storageVectorsRecent[systemIndex])->clear();
     //book 2D "noise" maps, containing hits that aren't associated to tracks
     for (unsigned int i=0; i!=limits[systemIndex];++i) {
-      LayerSideFormatter layerSide(i);
+      LayerSideFormatter layerSide(i,systemIndex);
       const string streamhitmap ="noiseoccupancymap"+abbreviations[systemIndex]+"_"+layerSide.name();
       const string streamhitmaptrigger ="noiseoccupancymaptrigger"+abbreviations[systemIndex]+"_"+layerSide.name();
       const string streamhitmaprecent ="noiseoccupancymaprecent"+abbreviations[systemIndex]+"_"+layerSide.name();
@@ -1513,7 +1513,7 @@ StatusCode SCTHitsNoiseMonTool::bookGeneralTrackHits(const unsigned int systemIn
     (histoVecRecent[systemIndex])->clear();
     //book Hitmaps and hits per layer histograms
     for (unsigned int i(0); i!=limits[systemIndex];++i) {
-      LayerSideFormatter layerSide(i);
+      LayerSideFormatter layerSide(i,systemIndex);
       const string streamhitmap ="mapsOfHitsOnTracks"+abbreviations[systemIndex]+streamDelimiter+"trackhitsmap_"+layerSide.name() ;
       const string streamhitmaprecent ="mapsOfHitsOnTracksRecent"+abbreviations[systemIndex]+streamDelimiter+"trackhitsmap_"+layerSide.name() ;
       std::string histoName=stem+streamhitmap;
@@ -1603,6 +1603,10 @@ SCTHitsNoiseMonTool::bookGeneralTrackTimeHistos(const unsigned int systemIndex){
       histoNameRecent=stem+streamhitmaprecent;
       histoTitle="RDO Track TimeBin: layer " +streamlayer;
       histoTitleRecent="RDO Track TimeBin form recent events: layer " +streamlayer;
+      if(systemIndex!=1){
+	histoTitle="RDO Track TimeBin: disk " +streamlayer;
+	histoTitleRecent="RDO Track TimeBin form recent events: disk " +streamlayer;
+      }//16.12.2014
       h1DFactory(streamhitmap, histoTitle,timeGroup, *(tbinHistoVectorArray[systemIndex]),-0.5, 7.5, nBins);
       for (unsigned int bin(0); bin<nBins; bin++) tbinHistoVector[i]->GetXaxis()->SetBinLabel(bin+1,m_tbinsNames[bin].c_str());
       tbinHistoVector[i]->GetXaxis()->SetTitle("TimeBin");

@@ -176,6 +176,7 @@ private:
 
   boost::array < boost::array < TProfile2D *, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_effMap;
   boost::array < boost::array < TProfile2D *, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_ineffMap;
+  boost::array < boost::array < TProfile *, 2 >, SCT_Monitoring::N_LAYERS_TOTAL > m_effLumiBlock;
   boost::array < TProfile2D *, SCT_Monitoring::N_LAYERS_TOTAL > m_accMap;
   boost::array < TProfile2D *, SCT_Monitoring::N_LAYERS_TOTAL > m_accPhysMap;
   boost::array < boost::array < TProfile2D *, SCT_Monitoring::N_ENDCAPSx2 >, SCT_Monitoring::N_REGIONS > m_layerResidualHistos;

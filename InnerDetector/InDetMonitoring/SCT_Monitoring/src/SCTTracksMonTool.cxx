@@ -189,12 +189,24 @@ StatusCode SCTTracksMonTool::fillHistograms(){
 	m_psctpullsHistoVectorECm[mm]->GetYaxis()->SetTitle("Index in the derection of #phi");
 	m_psctpullsHistoVectorECp[mm]->GetXaxis()->SetTitle("Index in the derection of #eta");
 	m_psctpullsHistoVectorECp[mm]->GetYaxis()->SetTitle("Index in the derection of #phi");
+        m_psctresidualsRMSHistoVectorECm[mm]->GetXaxis()->SetTitle("Index in the derection of #eta");
+        m_psctresidualsRMSHistoVectorECm[mm]->GetYaxis()->SetTitle("Index in the derection of #phi");
+        m_psctresidualsRMSHistoVectorECp[mm]->GetXaxis()->SetTitle("Index in the derection of #eta");
+        m_psctresidualsRMSHistoVectorECp[mm]->GetYaxis()->SetTitle("Index in the derection of #phi");
+        m_psctpullsRMSHistoVectorECm[mm]->GetXaxis()->SetTitle("Index in the derection of #eta");
+        m_psctpullsRMSHistoVectorECm[mm]->GetYaxis()->SetTitle("Index in the derection of #phi");
+        m_psctpullsRMSHistoVectorECp[mm]->GetXaxis()->SetTitle("Index in the derection of #eta");
+        m_psctpullsRMSHistoVectorECp[mm]->GetYaxis()->SetTitle("Index in the derection of #phi");
       }
       for(int nn=0;nn<N_BARRELSx2;nn++){
 	m_psctresidualsHistoVector[nn]->GetXaxis()->SetTitle("Index in the derection of #eta");
 	m_psctresidualsHistoVector[nn]->GetYaxis()->SetTitle("Index in the derection of #phi");
 	m_psctpullsHistoVector[nn]->GetXaxis()->SetTitle("Index in the derection of #eta");
 	m_psctpullsHistoVector[nn]->GetYaxis()->SetTitle("Index in the derection of #phi");
+        m_psctresidualsRMSHistoVector[nn]->GetXaxis()->SetTitle("Index in the derection of #eta");
+        m_psctresidualsRMSHistoVector[nn]->GetYaxis()->SetTitle("Index in the derection of #phi");
+        m_psctpullsRMSHistoVector[nn]->GetXaxis()->SetTitle("Index in the derection of #eta");
+        m_psctpullsRMSHistoVector[nn]->GetYaxis()->SetTitle("Index in the derection of #phi");
       }
     } 
   }
@@ -709,6 +721,8 @@ StatusCode SCTTracksMonTool::bookTrackHistos(const SCT_Monitoring::Bec becVal){ 
   const string regionNames[N_REGIONS] = {"Negative Endcap", "Barrel", "Positive Endcap"};
   const string abbreviations[N_REGIONS] = {"ECm", "", "ECp"};
   const string localPaths[N_REGIONS] = {"SCT/SCTEC/tracks", "SCT/SCTB/tracks", "SCT/SCTEA/tracks"};
+  const string localPathsResi[N_REGIONS] = {"SCT/SCTEC/tracks/residuals", "SCT/SCTB/tracks/residuals", "SCT/SCTEA/tracks/residuals"};//07.01.2015
+  const string localPathsPull[N_REGIONS] = {"SCT/SCTEC/tracks/pulls", "SCT/SCTB/tracks/pulls", "SCT/SCTEA/tracks/pulls"};//07.01.2015
   const unsigned int limits[N_REGIONS] = {N_DISKSx2, N_BARRELSx2, N_DISKSx2};
   const unsigned int systemIndex(bec2Index(becVal));
 
@@ -719,11 +733,15 @@ StatusCode SCTTracksMonTool::bookTrackHistos(const SCT_Monitoring::Bec becVal){ 
   const string polarityString(regionNames[systemIndex]);
   const string abbreviation(abbreviations[systemIndex]);
   const string localPath(localPaths[systemIndex]);
+  const string localPathResi(localPathsResi[systemIndex]);
+  const string localPathPull(localPathsPull[systemIndex]);
   const unsigned int limit(limits[systemIndex]);
   VecH1_t * p_residualsSummary(residualsSummaryArray[systemIndex]), * p_pullsSummary(pullsSummaryArray[systemIndex]);
 
   //  MonGroup endCapTracks(this, m_path+localPath, expert, run);            // hidetoshi 14.01.21
   MonGroup endCapTracks(this, m_path+localPath, run, ATTRIB_UNMANAGED);      // hidetoshi 14.01.21
+  MonGroup endCapTracksResi(this, m_path+localPathResi, run, ATTRIB_UNMANAGED);//07.01.2015
+  MonGroup endCapTracksPull(this, m_path+localPathPull, run, ATTRIB_UNMANAGED);//07.01.2015
 
   p_residualsSummary->clear();
   p_pullsSummary->clear();
@@ -738,8 +756,8 @@ StatusCode SCTTracksMonTool::bookTrackHistos(const SCT_Monitoring::Bec becVal){ 
     string streamPull(string("pulls")+abbreviation+streamDelimiter+layerSide.name());
     string titleResidual(string("SCT Residuals for ")+polarityString+": "+layerSide.title());
     string titlePull(string("SCT Pulls: ")+layerSide.title());
-    CHECK(h1Factory(streamResidual + "_summary", "Summary " + titleResidual, 0.5, endCapTracks, *p_residualsSummary));
-    CHECK(h1Factory(streamPull + "_summary", "Summary " + titlePull, 5., endCapTracks, *p_pullsSummary));
+    CHECK(h1Factory(streamResidual + "_summary", "Summary " + titleResidual, 0.5, endCapTracksResi, *p_residualsSummary));
+    CHECK(h1Factory(streamPull + "_summary", "Summary " + titlePull, 5., endCapTracksPull, *p_pullsSummary));
   }
 
 
@@ -762,25 +780,26 @@ StatusCode SCTTracksMonTool::bookTrackHistos(const SCT_Monitoring::Bec becVal){ 
     p_pullsRms->clear();  
     
     for (unsigned int i(0); i != limit; ++i){
-      LayerSideFormatter layerSide(i);
+      LayerSideFormatter layerSide(i,systemIndex);
       string streamResidual(string("residuals")+abbreviation+streamDelimiter+layerSide.name());
       string streamPull(string("pulls")+abbreviation+streamDelimiter+layerSide.name());
       string titleResidual(string("SCT Residuals for ")+polarityString+": "+layerSide.title());
       string titlePull(string("SCT Pulls: ")+layerSide.title());
       
-      CHECK(p2Factory(streamResidual, titleResidual, becVal, endCapTracks, *p_residuals));
-      CHECK(p2Factory(streamPull, titlePull, becVal, endCapTracks, *p_pulls));
+      CHECK(p2Factory(streamResidual, titleResidual, becVal, endCapTracksResi, *p_residuals));
+      CHECK(p2Factory(streamPull, titlePull, becVal, endCapTracksPull, *p_pulls));
     } //27.11.2014
 
     for (unsigned int i(0); i != limit; ++i) {
+      LayerSideFormatter layerSide(i,systemIndex);
       const string layerString(lexical_cast<string>(i / 2));
       const string sideString(lexical_cast<string>(i % 2));
       string streamResidual("residualsRMS" +abbreviation+streamDelimiter+ layerString + streamDelimiter + sideString);
       string streamPull("pullsRMS"+abbreviation+streamDelimiter + layerString + streamDelimiter + sideString);
-      string titleResidual("SCT Residuals RMS for "+polarityString+": layer " + layerString + " side " + sideString);
-      string titlePull(string("SCT Pulls RMS for ")+polarityString+": layer " + layerString + " side " + sideString);
-      CHECK(h2Factory(streamResidual, titleResidual, becVal, endCapTracks, *p_residualsRms));
-      CHECK(h2Factory(streamPull ,titlePull, becVal, endCapTracks, *p_pullsRms));
+      string titleResidual("SCT Residuals RMS for "+polarityString+": " + layerSide.title());
+      string titlePull(string("SCT Pulls RMS for ")+polarityString+": " + layerSide.title());
+      CHECK(h2Factory(streamResidual, titleResidual, becVal, endCapTracksResi, *p_residualsRms));
+      CHECK(h2Factory(streamPull ,titlePull, becVal, endCapTracksPull, *p_pullsRms));
     }
   } //27.11.2014      
 
