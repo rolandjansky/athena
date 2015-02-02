@@ -10,18 +10,25 @@ use GaudiInterface  	GaudiInterface-* 	External
 
 ## framework dependencies
 use AsgTools            AsgTools-*              Control/AthToolSupport
+use AtlasROOT		AtlasROOT-*		External
+use PATInterfaces	PATInterfaces-*		PhysicsAnalysis/AnalysisCommon
 
 ## put here your package dependencies...
 use METInterface	METInterface-*		Reconstruction/MET
 use xAODJet             xAODJet-*               Event/xAOD
-
 use xAODTracking        xAODTracking-*          Event/xAOD
+use xAODMissingET	xAODMissingET-*		Event/xAOD
+
+use InDetTrackSelectionTool InDetTrackSelectionTool-* InnerDetector/InDetRecTools
 
 private
-use xAODMissingET	xAODMissingET-*		Event/xAOD
 use xAODEgamma          xAODEgamma-*            Event/xAOD
 use xAODMuon            xAODMuon-*              Event/xAOD
 use xAODTau             xAODTau-*               Event/xAOD
+use xAODCore		xAODCore-*		Event/xAOD
+use xAODBase		xAODBase-*		Event/xAOD
+
+use PathResolver	PathResolver-*		Tools
 
 # needed for track momentum errors
 use EventPrimitives	EventPrimitives-*	Event
@@ -34,11 +41,23 @@ use AthenaBaseComps     AthenaBaseComps-*       Control
 public
 branches src src/components doc python share METUtilities Root
 
+#library METUtilitiesLib ../Root/METHelper.cxx
+#apply_pattern named_installed_library library=METUtilitiesLib
+
+#todo probably remove when we get files in PathResolver space
+apply_pattern declare_calib files="../data/*.config ../data/*.root"
+
 private
-library METUtilities *.cxx ../Root/*.cxx -s=components *.cxx
+library METUtilities ../src/*.cxx ../Root/*.cxx -s=components *.cxx
 apply_pattern component_library
 
 apply_pattern declare_joboptions files="*.py"
 apply_pattern declare_python_modules files="*.py"
 
-end_private
+#end_private
+
+#macro_append METUtilities_dependencies " METUtilitiesLib"
+
+#private
+use AtlasReflex AtlasReflex-* External -no-auto-imports
+apply_pattern lcgdict dict=METUtilities selectionfile=selection.xml headerfiles="../METUtilities/METUtilitiesDict.h"

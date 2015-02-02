@@ -9,9 +9,10 @@ def getMETMakerAlg(suffix):
     from AthenaCommon.AlgSequence import AlgSequence
     topSequence = AlgSequence()
 
+    doPFlow = 'PFlow' in suffix
     metMaker = CfgMgr.met__METMaker('METMaker_'+suffix,
-                                    JetPtCut=0e3,
-                                    DoJetJvfCut=False);
+                                    DoPFlow=doPFlow,
+                                    JetPtCut=0e3);
     ToolSvc += metMaker
 
     makerAlg = CfgMgr.met__METMakerAlg('METMakerAlg_'+suffix,

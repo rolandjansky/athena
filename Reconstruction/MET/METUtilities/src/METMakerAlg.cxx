@@ -152,8 +152,6 @@ namespace met {
 
     // Electrons
     if(!m_eleColl.empty()) {
-      MissingET* metEle = new MissingET(0.,0.,0.,"RefEle",MissingETBase::Source::electron());
-      newMet->push_back(metEle);
       uniques.clear();
       ConstDataVector<ElectronContainer> metElectrons(SG::VIEW_ELEMENTS);
       for(const auto& el : *elCont) {
@@ -161,15 +159,17 @@ namespace met {
 	  metElectrons.push_back(el);
 	}
       }
-      ATH_CHECK( m_metmaker->rebuildMET(metEle, metElectrons.asDataVector(), metMap, uniques) );
+      if( m_metmaker->rebuildMET("RefEle", xAOD::Type::Electron, newMet,
+				 metElectrons.asDataVector(),
+				 metMap, uniques).isFailure() ) {
+	ATH_MSG_WARNING("Failed to build electron term.");
+      }
       ATH_MSG_DEBUG("Selected " << metElectrons.size() << " MET electrons. "
 		    << uniques.size() << " are non-overlapping.");
     }
 
     // Photons
     if(!m_gammaColl.empty()) {
-      MissingET* metGamma = new MissingET(0.,0.,0.,"RefGamma",MissingETBase::Source::photon());
-      newMet->push_back(metGamma);
       uniques.clear();
       ConstDataVector<PhotonContainer> metPhotons(SG::VIEW_ELEMENTS);
       for(const auto& ph : *phCont) {
@@ -177,15 +177,17 @@ namespace met {
 	  metPhotons.push_back(ph);
 	}
       }
-      ATH_CHECK( m_metmaker->rebuildMET(metGamma, metPhotons.asDataVector(), metMap, uniques) );
+      if( m_metmaker->rebuildMET("RefGamma", xAOD::Type::Photon, newMet,
+				 metPhotons.asDataVector(),
+				 metMap, uniques).isFailure() ) {
+	ATH_MSG_WARNING("Failed to build photon term.");
+      }
       ATH_MSG_DEBUG("Selected " << metPhotons.size() << " MET photons. "
 		    << uniques.size() << " are non-overlapping.");
     }
 
     // Taus
     if(!m_tauColl.empty()) {
-      MissingET* metTau = new MissingET(0.,0.,0.,"RefTau",MissingETBase::Source::tau());
-      newMet->push_back(metTau);
       uniques.clear();
       ConstDataVector<TauJetContainer> metTaus(SG::VIEW_ELEMENTS);
       for(const auto& tau : *tauCont) {
@@ -193,15 +195,17 @@ namespace met {
 	  metTaus.push_back(tau);
 	}
       }
-      ATH_CHECK( m_metmaker->rebuildMET(metTau, metTaus.asDataVector(), metMap, uniques) );
+      if( m_metmaker->rebuildMET("RefTau", xAOD::Type::Tau, newMet,
+				 metTaus.asDataVector(),
+				 metMap, uniques).isFailure() ){
+	ATH_MSG_WARNING("Failed to build tau term.");
+      }
       ATH_MSG_DEBUG("Selected " << metTaus.size() << " MET taus. "
 		    << uniques.size() << " are non-overlapping.");
     }
 
     // Muons
     if(!m_muonColl.empty()) {
-      MissingET* metMuon = new MissingET(0.,0.,0.,"Muons",MissingETBase::Source::muon());
-      newMet->push_back(metMuon);
       uniques.clear();
       ConstDataVector<MuonContainer> metMuons(SG::VIEW_ELEMENTS);
       for(const auto& mu : *muonCont) {
@@ -209,27 +213,28 @@ namespace met {
 	  metMuons.push_back(mu);
 	}
       }
-      ATH_CHECK( m_metmaker->rebuildMET(metMuon, metMuons.asDataVector(), metMap, uniques) );
+      if( m_metmaker->rebuildMET("Muons", xAOD::Type::Muon, newMet,
+				 metMuons.asDataVector(),
+				 metMap, uniques).isFailure() ) {
+	ATH_MSG_WARNING("Failed to build muon term.");
+      }
       ATH_MSG_DEBUG("Selected " << metMuons.size() << " MET muons. "
 		    << uniques.size() << " are non-overlapping.");
     }
 
-    MissingET* metJet = new MissingET(0.,0.,0.,"RefJet",MissingETBase::Source::jet());
-    MissingET* metSoftCl = new MissingET(0.,0.,0.,"SoftClus",
-					 MissingETBase::Source::softEvent()|MissingETBase::Source::cluster());
-    MissingET* metSoftTrk = new MissingET(0.,0.,0.,"PVSoftTrk",
-					  MissingETBase::Source::softEvent()|MissingETBase::Source::idTrack());
-    newMet->push_back(metJet);
-    newMet->push_back(metSoftTrk);
-    newMet->push_back(metSoftCl);
-    ATH_CHECK( m_metmaker->rebuildJetMET(metJet, jetCont, metMap, uniques,
-					 metSoftCl, (*coreMet)["SoftClusCore"],
-					 metSoftTrk, (*coreMet)["PVSoftTrkCore"]) );
+    if( m_metmaker->rebuildJetMET("RefJet", "SoftClus", "PVSoftTrk", newMet,
+				  jetCont, coreMet, metMap, false, uniques ).isFailure() ) {
+      ATH_MSG_WARNING("Failed to build jet and soft terms.");
+    }
     ATH_MSG_DEBUG("Of " << jetCont->size() << " jets, "
-		 << uniques.size() << " are non-overlapping.");    
+		  << uniques.size() << " are non-overlapping.");    
 
-    ATH_CHECK( m_metmaker->buildMETSum("FinalTrk", newMet, MissingETBase::Source::Track) );
-    ATH_CHECK( m_metmaker->buildMETSum("FinalClus", newMet, MissingETBase::Source::LCTopo) );
+    if( m_metmaker->buildMETSum("FinalTrk", newMet, MissingETBase::Source::Track).isFailure() ){
+      ATH_MSG_WARNING("Building MET FinalTrk sum failed.");
+    }
+    if( m_metmaker->buildMETSum("FinalClus", newMet, MissingETBase::Source::LCTopo).isFailure() ) {
+      ATH_MSG_WARNING("Building MET FinalClus sum failed.");
+    }
 
     return StatusCode::SUCCESS;
   }
