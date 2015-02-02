@@ -17,7 +17,8 @@
 // Author: Ketevi A. Assamagan - may 2007
 
 CSCcablingSvc::CSCcablingSvc(const std::string& name, ISvcLocator* sl)
-  : ::AthService(name,sl), m_side(2), m_rod(16), m_max(32) {
+  : ::AthService(name,sl), m_side(2), m_rod(16), m_max(32),
+    m_log(0), m_debug(false), m_verbose(false) {
 
   declareProperty("Run1Cabling", m_run1 = false);
 }
@@ -76,7 +77,7 @@ StatusCode CSCcablingSvc::initialize() {
         std::string configVal = (*atlasCommonRec)[0]->getString("CONFIG");
         if(configVal=="RUN1"){
           m_run1 = true;
-        } else if(configVal=="RUN2") {
+        } else if(configVal=="RUN2" || configVal=="RUN3" || configVal=="RUN4") {
           m_run1 = false;
         } else {
           ATH_MSG_FATAL("Unexpected value for geometry config read from the database: " << configVal);
