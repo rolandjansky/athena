@@ -53,7 +53,7 @@ namespace PESA
     HLT::ErrorCode hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& /*input*/,
 			      unsigned int output);
 
-    bool reset();
+    HLT::ErrorCode hltEndEvent();
     using HLT::AllTEAlgo::prepareRobRequests;
     HLT::ErrorCode prepareRobRequests(const std::vector<HLT::TEConstVec>& /* inputTE */ );
 
