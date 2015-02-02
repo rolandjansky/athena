@@ -277,6 +277,16 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
       log << MSG::WARNING << "Unable to release algtool TileROD_Decoder" << endreq;
   }
 
+  bool of2=true; // default for RUN1 data
+  if (nDataFrag[4]!=0) {
+    if ((flags & 0x3000) < 0x3000) // real data
+      of2 = ((flags & 0x400) != 0);
+  } else if (nDataFrag[5]!=0) {
+    if ((flags5 & 0x3000) < 0x3000) // real data
+      of2 = ((flags5 & 0x400) != 0);
+  }
+  log << MSG::DEBUG << "OF2 flag in data is " << ((of2)?"True":"False") << endreq;
+
   bool do_merge = ( (nDataFrag[0]+nDataFrag[1]+nDataFrag[2]+nDataFrag[3]+nDataFrag[4]+nDataFrag[5] == 0) ||
                     nDataFrag[1] > 0 || nDataFrag[4] > 0);
 
@@ -374,6 +384,8 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
           cellBuilder->m_correctAmplitude = false;
           cellBuilder->m_correctTime = true;
         }
+        log << " and of2=" << ((of2)?"True":"False");
+        cellBuilder->m_of2 = of2;
         log << endreq;
         if (channelBuilder && cellBuilder->m_noiseFilterTools.size() != channelBuilder->m_noiseFilterTools.size()) {
           log << MSG::INFO << " and number of NoiseFilterTools from " 
@@ -431,6 +443,11 @@ void TileHid2RESrcID::setROD2ROBmap (const eformat::FullEventFragment<const uint
         log << MSG::INFO << "Setting TimeMaxForAmpCorrection in TileROD_Decoder to " << cellBuilder->m_timeMaxThresh
             << " instead of " << rodDecoder->m_timeMaxThresh << endreq;
         rodDecoder->m_timeMaxThresh = cellBuilder->m_timeMaxThresh;
+      }
+      if (of2 != rodDecoder->m_of2) {
+        log << MSG::INFO << "Setting OF2 flag in in TileROD_Decoder to " << ((of2)?"True":"False")
+            << " instead of " << ((rodDecoder->m_of2)?"True":"False") << endreq;
+        rodDecoder->m_of2 = of2;
       }
     }
   
