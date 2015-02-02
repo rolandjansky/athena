@@ -1,4 +1,4 @@
-#include "OverlayExamples/HitRdoOverlayExample.h"
+#include "../HitRdoOverlayExample.h"
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
 

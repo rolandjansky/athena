@@ -15,18 +15,12 @@
 ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/ObjectVector.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "StoreGate/StoreGateSvc.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "StoreGate/StoreGateSvc.h"
 #include "PileUpTools/PileUpMergeSvc.h"
-
 #include <string>
 
-class HitRdoOverlayExample : public Algorithm {
+class HitRdoOverlayExample : public AthAlgorithm {
 
  public:
 
@@ -36,11 +30,8 @@ class HitRdoOverlayExample : public Algorithm {
    StatusCode initialize();
    StatusCode finalize();
    StatusCode execute();
- 
- private:
 
-   /// a handle on Store Gate 
-   StoreGateSvc* m_sgSvc;
+ private:
 
    /// a handle of PileUpMergwSvc
    PileUpMergeSvc* p_mergeSvc;
