@@ -85,6 +85,7 @@ TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& nam
   m_sizeOverhead = 2; // 2 extra words in every frag by default (frag id + frag size)
   // but for all data after 2005 it is set to 3 later in the code
   
+  m_of2 = true;
   m_rChType = TileFragHash::Digitizer;
   m_rChUnit = TileRawChannelUnit::ADCcounts;
   m_bsflags = 0;
@@ -3001,6 +3002,7 @@ void TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollection 
             
             if (DataType < 3) { // real data
               
+              m_of2 = ((idAndType & 0x4000000) != 0);
               int nIter = (idAndType & 0x3000000) >> 24;
               m_correctAmplitude = (!nIter); // automatic detection of nIter
               m_rChUnit = (TileRawChannelUnit::UNIT) (unit + TileRawChannelUnit::OnlineOffset); // Online units in real data
@@ -3022,6 +3024,7 @@ void TileROD_Decoder::fillCollectionHLT(const ROBData * rob, TileCellCollection 
             int unit = (idAndType & 0xC0000000) >> 30;
             m_rc2bytes5.setUnit(unit);
             
+            m_of2 = ((idAndType & 0x4000000) != 0);
             m_correctAmplitude = true; // fragment 5 will appear only if there is no iterations, so correction required
             m_rChUnit = (TileRawChannelUnit::UNIT) (unit + TileRawChannelUnit::OnlineOffset);
             
@@ -3111,7 +3114,7 @@ void TileROD_Decoder::make_copyHLT(pFRwChVec & pChannel, TileCellCollection & v,
         if (m_correctAmplitude
             && ener > m_ampMinThresh_MeV
             && time > m_timeMinThresh
-            && time < m_timeMaxThresh) ener *= TileRawChannelBuilder::correctAmp(time);
+            && time < m_timeMaxThresh) ener *= TileRawChannelBuilder::correctAmp(time,m_of2);
         
       } else {
         // ignore energy from bad channel
@@ -3163,7 +3166,7 @@ void TileROD_Decoder::make_copyHLT(pFRwChVec & pChannel, TileCellCollection & v,
           if (m_correctAmplitude
               && ener > m_ampMinThresh_MeV
               && time > m_timeMinThresh
-              && time < m_timeMaxThresh) ener *= TileRawChannelBuilder::correctAmp(time);
+              && time < m_timeMaxThresh) ener *= TileRawChannelBuilder::correctAmp(time,m_of2);
           
           if (pCell->time() != -100.0F) pCell->setTime(time, m_Rw2Pmt[sec][idxraw]);
           else pCell->setTime_nonvirt(time);
@@ -3215,7 +3218,7 @@ void TileROD_Decoder::make_copyHLT(pFRwChVec & pChannel, TileCellCollection & v,
           if (m_correctAmplitude
               && ener > m_ampMinThresh_pC
               && time > m_timeMinThresh
-              && time < m_timeMaxThresh) ener *= TileRawChannelBuilder::correctAmp(time);
+              && time < m_timeMaxThresh) ener *= TileRawChannelBuilder::correctAmp(time,m_of2);
         } else {
           // ignore energy from bad channel
           ener = 0.0F;

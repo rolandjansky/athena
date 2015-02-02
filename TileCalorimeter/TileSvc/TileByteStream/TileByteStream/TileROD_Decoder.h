@@ -420,6 +420,7 @@ class TileROD_Decoder: public AthAlgTool {
     TileFragHash::TYPE m_rChType;
     TileRawChannelUnit::UNIT m_rChUnit;
     uint32_t m_bsflags;
+    bool m_of2;
 
     bool m_D0Existneg[64];
     bool m_D0Existpos[64];
@@ -583,6 +584,12 @@ void TileROD_Decoder::make_copy(const ROBData * rob, pDigiVec & pDigits, pRwChVe
   v.setDetEvType(rob->rod_detev_type());
   v.setRODBCID(rob->rod_bc_id());
 
+  if (m_rChUnit < TileRawChannelUnit::OnlineOffset && m_rChType > TileFragHash::OptFilterDsp) { // set good status for BS from MC
+    m_rawchannelMetaData[0]->push_back(0);
+    m_rawchannelMetaData[0]->push_back(0xDEAD);
+    m_rawchannelMetaData[5]->push_back(0xFFFF);
+    m_rawchannelMetaData[5]->push_back(0xFFFF);
+  }
   for (unsigned int i = 0; i < 6; ++i) {
     for (size_t j=m_rawchannelMetaData[i]->size(); j<2; ++j) {
       m_rawchannelMetaData[i]->push_back(0);
@@ -848,6 +855,7 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
               //else                    m_rChType = TileFragHash::OF2Filter;
               // always set special type, which means now that OF is done inside DSP
               m_rChType = TileFragHash::OptFilterDsp;
+              m_of2 = ((idAndType & 0x4000000) != 0);
 
               // Attention! Switching to Online Units for release 14.2.0
               m_rChUnit = (TileRawChannelUnit::UNIT) (unit + TileRawChannelUnit::OnlineOffset); // Online units in real data
@@ -874,6 +882,7 @@ void TileROD_Decoder::fillCollection(const ROBData * rob, COLLECTION & v) {
 
             // always set special type, which means now that OF is done inside DSP
             m_rChType = TileFragHash::OptFilterDspCompressed;
+            m_of2 = ((idAndType & 0x4000000) != 0);
 
             m_rChUnit = (TileRawChannelUnit::UNIT) (unit + TileRawChannelUnit::OnlineOffset);
             unpack_frag5(version, p, pDigits, pChannel);
