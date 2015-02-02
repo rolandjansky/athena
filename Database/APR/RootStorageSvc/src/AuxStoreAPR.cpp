@@ -130,8 +130,7 @@ AuxStoreAPR::AuxStoreAPR(RootTreeContainer &container, long long entry, bool sta
           fac_class = TClass::GetClass (fac_class_name.c_str());
           if (fac_class)
 #else
-          std::string result;
-          if (TClassTable::Check(fac_class_name.c_str(),result))
+          if (TClass::HasDictionarySelection(fac_class_name.c_str()))
             fac_class = TClass::GetClass (fac_class_name.c_str());
           if (fac_class && fac_class->HasDictionary())
 #endif
@@ -141,7 +140,7 @@ AuxStoreAPR::AuxStoreAPR(RootTreeContainer &container, long long entry, bool sta
             base_class = TClass::GetClass ("SG::IAuxTypeVectorFactory");
             if (base_class) {
 #else
-            if (TClassTable::Check("SG::IAuxTypeVectorFactory",result))
+            if (TClass::HasDictionarySelection("SG::IAuxTypeVectorFactory"))
               base_class = TClass::GetClass ("SG::IAuxTypeVectorFactory");
             if (base_class && base_class->HasDictionary()) {
 #endif
