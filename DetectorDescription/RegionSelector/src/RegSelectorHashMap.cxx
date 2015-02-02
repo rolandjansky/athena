@@ -522,8 +522,7 @@ void RegSelectorHashMap::initvar(void){
 
 StatusCode RegSelectorHashMap::read(const char *filename){
   StatusCode sc = StatusCode::SUCCESS;
-  char  buffer_[256]; // only needs to be 128 long, but safety first!
-  char* buffer = buffer_;
+  char *buffer = new char[128];
   int samp, layer;
   unsigned int hashId;
   double emin, emax, pmin, pmax;
@@ -556,9 +555,9 @@ StatusCode RegSelectorHashMap::read(const char *filename){
       robId.clear();
       pch = strchr(buffer,' ');
       int test = sscanf(pch, " %u %d %d %lf %lf %lf %lf %s %s",  &hashId, &layer, &samp, &emin, &emax, &pmin, &pmax, robIdStr, robIdStr2);
-      robId.push_back(strtol(robIdStr,0,16));
+      robId.push_back(strtol(robIdStr,'\0',16));
       if ( test == 9 ) // this means that there are 2 ROBs in 1 TT
-        robId.push_back(strtol(robIdStr2,0,16));
+        robId.push_back(strtol(robIdStr2,'\0',16));
       pch=strchr(buffer,' ');
       stepPhi = fabs(pmax-pmin);// initial value for phi and eta step
       stepEta = fabs(emin-emax);
@@ -575,6 +574,7 @@ StatusCode RegSelectorHashMap::read(const char *filename){
   }
   // m_readFromFile = !( nlines == 0 );
   fin.close();
+  delete []buffer;
 
   return sc;
 }

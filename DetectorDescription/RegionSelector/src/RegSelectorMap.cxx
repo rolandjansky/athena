@@ -631,16 +631,14 @@ void RegSelectorMap::findMaxMinValues(std::list<RegSelectorMapElement> &dataList
 
 }
 
-RegSelectorMapElement RegSelectorMap::creatingElement( int&    positionIn, int&    numberIn, //????
-						       double& etaminIn,   double& etamaxIn,
-						       double& phiminIn,   double& phimaxIn,
-						       IdentifierHash& hashIdIn, uint32_t& robIdIn ){
+RegSelectorMapElement RegSelectorMap::creatingElement(int& positionIn,int& numberIn,//????
+						double& etaminIn, double& etamaxIn,
+						double& phiminIn, double& phimaxIn,
+						IdentifierHash& hashIdIn, uint32_t& robIdIn){
   RegSelectorMapElement newElement;
 
-  newElement.additem( hashIdIn, 
-		      etaminIn, etamaxIn,
-	      	      phiminIn, phimaxIn, 
-		      numberIn, positionIn, robIdIn );
+  newElement.additem( hashIdIn, etaminIn, etamaxIn,
+	      	      phiminIn, phimaxIn, numberIn, positionIn, robIdIn );
 
   return newElement;
 }
@@ -709,18 +707,17 @@ void RegSelectorMap::writeLine(int barORend, int layORdsk, IdentifierHash hashId
 
 StatusCode RegSelectorMap::readTILE(const char *filename){
   StatusCode sc = StatusCode::SUCCESS;
-  char  buffer_[256];
-  char *buffer = buffer_;
+  char *buffer = new char[128];
   int barORend =0, layORwhe =0;
   IdentifierHash  hashId;
   double emin, emax, pmin, pmax;
   uint32_t robid, collid;
 
   std::ifstream fin(filename);
-  if(fin.bad()){  //Test if the file failed:
-    sc = StatusCode::FAILURE;
-    return sc;
-  }
+   if(fin.bad()){  //Test if the file failed:
+     sc = StatusCode::FAILURE;
+     return sc;
+   }
   fin.getline(buffer,128,'\n');
   while (fin.getline(buffer, 128, '\n')){
     if (strncmp(buffer,"#",1)!=0){
@@ -729,14 +726,14 @@ StatusCode RegSelectorMap::readTILE(const char *filename){
     }
   }
   fin.close();
-  
+  delete []buffer;
+
   return sc;
 }
 
 StatusCode RegSelectorMap::readMuon(MDET mtype, const char *filename){
   StatusCode sc = StatusCode::SUCCESS;
-  char  buffer_[256];
-  char *buffer = buffer_;
+  char *buffer = new char[128];
   std::ifstream fin(filename);
    if(fin.bad()){  //Test if the file failed:
      sc = StatusCode::FAILURE;
@@ -760,6 +757,7 @@ StatusCode RegSelectorMap::readMuon(MDET mtype, const char *filename){
     break;
   }
   fin.close();
+  delete []buffer;
 
   return sc;
 }
@@ -769,8 +767,7 @@ void RegSelectorMap::readMDTData(std::ifstream &fin){
  int barORend, layORdsk;
  IdentifierHash hashId;
  double emin, emax, pmin, pmax;
- char  buffer_[256];
- char *buffer = buffer_;
+ char *buffer = new char[128];
  while (fin.getline(buffer, 128, '\n')){
    sscanf(buffer, "%d/%d/%d/%d/%d %u %lf %lf %lf %lf", &aux[0], &aux[1], &aux[2], &aux[3],&aux[4],(unsigned int*)&hashId, &emin, &emax, &pmin, &pmax);
    aux[1] += 1;
@@ -779,6 +776,7 @@ void RegSelectorMap::readMDTData(std::ifstream &fin){
    layORdsk = aux[1];
    writeLine(barORend, layORdsk, hashId, 0, emin, emax, pmin, pmax);
   }
+  delete []buffer;
 }
 
 void RegSelectorMap::readRPCData(std::ifstream &fin){
@@ -786,8 +784,7 @@ void RegSelectorMap::readRPCData(std::ifstream &fin){
   int barORend, layORdsk;
   IdentifierHash hashId;
   double emin, emax, pmin, pmax;
-  char buffer_[256];
-  char *buffer = buffer_;
+  char *buffer = new char[128];
 
   while (fin.getline(buffer, 128, '\n')){
     sscanf(buffer, "%d/%d/%d/%d/%d/%d %u %lf %lf %lf %lf", &aux[0], &aux[1], &aux[2],&aux[3],&aux[4],
@@ -798,6 +795,7 @@ void RegSelectorMap::readRPCData(std::ifstream &fin){
     layORdsk = aux[1];
     writeLine(barORend, layORdsk, hashId, 0, emin, emax, pmin, pmax);
   }
+  delete []buffer;
 }
 
 void RegSelectorMap::getEtaPhi(IdentifierHash hashId, 

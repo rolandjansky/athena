@@ -18,6 +18,7 @@
 #include <fstream>
 #include <cstdio>
 #include <cmath>
+#include <ext/hash_map>
 #include <iterator>
 #include <stdint.h>
 
