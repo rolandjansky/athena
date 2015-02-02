@@ -5,6 +5,7 @@
 #ifndef PATHRESOLVER_PATHRESOLVER_H
 #define PATHRESOLVER_PATHRESOLVER_H
 
+#include "AsgTools/AsgMessaging.h"
 
 #include <string>
 
@@ -33,12 +34,6 @@ public:
 
 
 
-/*
-  static std::string find_package_file ( const std::string& logical_file_name, const std::string& search_repo = "atlasoff",
-				SearchType search_type = LocalSearch) {
-      return find_file( search_repo + "/" + PACKAGE_OFFSET + "/" + PACKAGE_NAME + "/" + PACKAGE_VERSION + "/" + logical_file_name, "CALIBPATH", search_type );
-   }
-*/
   /**
 
     @arg @c logical_file_name the name of the file to locate in the search path
@@ -103,21 +98,35 @@ public:
    */
   static SearchPathStatus check_search_path (const std::string& search_path);
 
-   static void EnableDebugging(bool in) { m_enableDebugging=in; }
+
+   static std::string find_calib_file(const std::string& logical_file_name);
+   static std::string find_calib_directory(const std::string& logical_file_name);
+
+   static void setOutputLevel(MSG::Level level);
+
+       static bool m_coutLogging;
 
    private:
       static bool PR_find( const std::string& logical_file_name, const std::string& search_list, PR_file_type file_type, SearchType search_type,
          std::string& result );
 
 
-      static bool m_enableDebugging;
+       static bool m_setLevel; //flag to say if the msg level has been set. This is so we can default to info
 
+
+
+       static bool msgLvl( const MSG::Level lvl ) { return asgMsg().msgLvl(lvl); }
+       static MsgStream& msg() { return asgMsg().msg(); }
+       static MsgStream& msg( const MSG::Level lvl ) { return asgMsg().msg(lvl); }
+       static asg::AsgMessaging& asgMsg();
 };
 
 std::string PathResolverFindXMLFile (const std::string& logical_file_name);
 std::string PathResolverFindDataFile (const std::string& logical_file_name);
 std::string PathResolverFindCalibFile (const std::string& logical_file_name);
+std::string PathResolverFindCalibFilePython (const std::string& logical_file_name);
 std::string PathResolverFindCalibDirectory (const std::string& logical_file_name);
-
+std::string PathResolverFindCalibDirectoryPython (const std::string& logical_file_name);
+void PathResolverSetOutputLevel(int lvl);
 
 #endif
