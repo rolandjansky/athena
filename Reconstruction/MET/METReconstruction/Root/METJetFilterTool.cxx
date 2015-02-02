@@ -135,10 +135,13 @@ namespace met {
     vector<const IParticle*> dummyList; // jet constituents are already in the map
 
     // Loop over the jets and select only good ones
-    for( vector<const IParticle*>::const_iterator iJet=jetList.begin();
-	 iJet!=jetList.end(); ++iJet ) {
-      MissingETBase::Types::weight_t jetWeight = (*citer)->weight(*iJet);
-      const Jet* jet = dynamic_cast<const Jet*>(*iJet);
+    for( const auto& obj : jetList ) {
+      MissingETBase::Types::weight_t jetWeight = (*citer)->weight(obj);
+      if(obj->type() != xAOD::Type::Jet) {
+        ATH_MSG_WARNING("Retrieved an object of type " << obj->type() << " while expecting xAOD::Jet");
+        continue;
+      }
+      const Jet* jet = static_cast<const Jet*>(obj);
       ATH_MSG_VERBOSE("Filter jet with pt " << jet->pt());
       // Could/should use common implementation of addToMET here -- derive builder and refiner from a common base tool?
       bool passFilters = true;
@@ -148,7 +151,7 @@ namespace met {
 	metTerm->add(jet->px()*jetWeight.wpx(),
 		     jet->py()*jetWeight.wpy(),
 		     jet->pt()*jetWeight.wet());
-	MissingETComposition::insert(metMap,metTerm,*iJet,dummyList,jetWeight);
+	MissingETComposition::insert(metMap,metTerm,jet,dummyList,jetWeight);
       }
     }
 

@@ -120,19 +120,24 @@ namespace met {
 
     // Loop over the tracks and select only good ones
     MissingETBase::Types::weight_t unitWeight(1.,1.,1.);
-    for( vector<const IParticle*>::const_iterator iPar=muonList.begin();
-	 iPar!=muonList.end(); ++iPar ) {
-      const Muon* muon = dynamic_cast<const Muon*>(*iPar);
+    for( const auto& obj1 : muonList ) {
+      if(obj1->type() != xAOD::Type::Muon) {
+        ATH_MSG_WARNING("MuonEloss given an object of type " << obj1->type());
+        continue;
+      }
+      const Muon* muon = static_cast<const Muon*>(obj1);
       double clusterSum = 0.;
-      for( vector<const IParticle*>::const_iterator jPar=clusterList.begin();
-	   jPar!=clusterList.end(); ++jPar ) {
-	const CaloCluster* cl = dynamic_cast<const CaloCluster*>(*jPar);
+      for( const auto& obj2 : clusterList ) {
 	// search for clusters in the vicinity of the muon
 	// (really, we should use the track extrapolation)
 	// to place a cap on the correction.
-	if(cl->p4().DeltaR(muon->p4())<0.1) {
-	  clusterSum += cl->e();
-	}
+	if(obj2->type()==xAOD::Type::CaloCluster) {
+	const CaloCluster* cl = static_cast<const CaloCluster*>(obj2);
+	  if(cl->p4().DeltaR(muon->p4())<0.1) {
+	    clusterSum += cl->e();
+	  }
+        }
+        else { ATH_MSG_WARNING("MuonEloss given an object of type " << obj2->type()); }
       }
       ATH_MSG_DEBUG("Muon with pt " << muon->pt() << " passes through clusters with total E = " << clusterSum);
     }
@@ -140,7 +145,7 @@ namespace met {
     // not sure what to add here
     // for( vector<const IParticle*>::const_iterator iPar=filteredTrackList.begin();
     // 	 iPar!=filteredTrackList.end(); ++iPar ) {
-    //   MissingETComposition::insert(metMap,metTerm,*iPar,filteredTrackList,unitWeight);
+    //   MissingETComposition::insert(metMap,metTerm,muon,filteredTrackList,unitWeight);
     // }
     return StatusCode::SUCCESS;
   }

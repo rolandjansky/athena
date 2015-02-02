@@ -47,7 +47,8 @@ namespace met {
   ////////////////
   METRecoTool::METRecoTool(const std::string& name) : 
     AsgTool(name),
-    m_doMetSum(false)
+    m_doMetSum(false),
+    m_nevt(0)
   {
     declareProperty( "METBuilders",        m_metbuilders         );
     declareProperty( "METRefiners",        m_metrefiners         );
@@ -119,7 +120,6 @@ namespace met {
     for ( unsigned int itool=0; itool<ntool; ++itool ) {
       m_toolclocks[itool].Reset();
     }
-    m_nevt = 0;
     m_clock.Reset();
 
     return StatusCode::SUCCESS;

@@ -64,6 +64,13 @@ namespace met {
   StatusCode METSoftAssociator::executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap) 
   {
 
+    // Add MET terms to the container
+    // Always do this in order that the terms exist even if the method fails
+    MissingET* metCoreCl = new MissingET(0.,0.,0.,"SoftClusCore",MissingETBase::Source::softEvent() | MissingETBase::Source::cluster());
+    metCont->push_back(metCoreCl);
+    MissingET* metCoreTrk = new MissingET(0.,0.,0.,"PVSoftTrkCore",MissingETBase::Source::softEvent() | MissingETBase::Source::track());
+    metCont->push_back(metCoreTrk);
+
     ATH_MSG_VERBOSE ("In execute: " << name() << "...");
     const xAOD::CaloClusterContainer* tcCont;
     const xAOD::Vertex* pv;
@@ -74,15 +81,10 @@ namespace met {
       return StatusCode::FAILURE;
     }
 
-    // Create a MissingETContainer with its aux store
-    MissingET* metCoreCl = new MissingET(0.,0.,0.,"SoftClusCore",MissingETBase::Source::softEvent() | MissingETBase::Source::cluster());
-    metCont->push_back(metCoreCl);
-    MissingET* metCoreTrk = new MissingET(0.,0.,0.,"PVSoftTrkCore",MissingETBase::Source::softEvent() | MissingETBase::Source::track());
-    metCont->push_back(metCoreTrk);
     if (m_pflow) {
       const IParticleContainer* uniquePFOs = metMap->getUniqueSignals(pfoCont,MissingETBase::UsageHandler::Policy::ParticleFlow);
       for(const auto& sig : *uniquePFOs) {
-	const PFO *pfo = dynamic_cast<const PFO*>(sig);
+	const PFO *pfo = static_cast<const PFO*>(sig);
 	if (pfo->charge()!=0) {
 	  if (acceptChargedPFO(pfo->track(0),pv)) {
 	    *metCoreTrk += sig;
@@ -93,6 +95,7 @@ namespace met {
 	  if (pfo->eEM()>0) metCoreCl->add(corrected.Px(),corrected.Py(),corrected.Pt());
 	}
       }
+      delete uniquePFOs;
     } else {
       const IParticleContainer* uniqueClusters = metMap->getUniqueSignals(tcCont);
       for(const auto& cl : *uniqueClusters) {
@@ -102,11 +105,13 @@ namespace met {
       for(const auto& trk : *uniqueTracks) {
 	// if(acceptTrack(dynamic_cast<const TrackParticle*>(trk),pv) && isGoodEoverP(dynamic_cast<const TrackParticle*>(trk),tcCont)) {
 	ATH_MSG_VERBOSE("Test core track with pt " << trk->pt());
-	if(acceptTrack(dynamic_cast<const TrackParticle*>(trk),pv)) {
+	if(acceptTrack(static_cast<const TrackParticle*>(trk),pv)) {
 	  ATH_MSG_VERBOSE("Add core track with pt " << trk->pt());
 	  *metCoreTrk += trk;
 	}
       }
+      delete uniqueClusters;
+      delete uniqueTracks;
     }
     return StatusCode::SUCCESS;
   }

@@ -39,7 +39,7 @@ use AthenaBaseComps     AthenaBaseComps-*       Control
 ## EDM
 use AthContainers AthContainers-* Control
 use xAODTau		xAODTau-*		Event/xAOD
-use xAODEventInfo       xAODEventInfo-*         Event/xAOD
+#use xAODEventInfo       xAODEventInfo-*         Event/xAOD
 use CaloEvent           CaloEvent-*             Calorimeter
 
 ##
@@ -56,10 +56,14 @@ branches METReconstruction src src/components doc python share Root
 # Apply the cmake-specific command to access the private headers
 apply_pattern cmake_add_command command="include_directories(src)"
 
+# DRQ: Change to a dual_use library since the lcgdict pattern doesn't work with component libraries
+# when building with cmake, which (correctly) can't link against such a library. This slightly 
+# pollutes the linkages for clients, but is negated by the as-needed linkopt and is otherwise transparent. 
 ## default is to make component library
-library METReconstruction *.cxx ../Root/*.cxx -s=components *.cxx
+#library METReconstruction *.cxx ../Root/*.cxx -s=components *.cxx
+#apply_pattern component_library
+apply_pattern dual_use_library files="*.cxx ../Root/*.cxx"
 
-apply_pattern component_library
 apply_pattern declare_joboptions files="../share/*.py"
 apply_pattern declare_python_modules files="../python/*.py"
 

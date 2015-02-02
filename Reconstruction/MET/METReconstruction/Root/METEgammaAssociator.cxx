@@ -21,9 +21,6 @@
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
-// Calo helpers
-#include "xAODCaloEvent/CaloClusterChangeSignalState.h"
-
 // Tracking EDM
 #include "xAODTracking/Vertex.h"
 
@@ -84,7 +81,6 @@ namespace met {
   // Get Egamma constituents
   StatusCode METEgammaAssociator::extractTopoClusters(const xAOD::IParticle* obj,
 					std::vector<const xAOD::IParticle*>& tclist,
-					MissingETBase::Types::constvec_t& tcvec,
 				        const xAOD::CaloClusterContainer* tcCont)
   {
     const Egamma *eg = static_cast<const xAOD::Egamma*>(obj);
@@ -97,7 +93,6 @@ namespace met {
     // easier if it's sorted in descending pt order
     // we'll worry about optimisation later
     std::vector<const xAOD::CaloCluster*> nearbyTC;
-    CaloClusterChangeSignalStateList stateHelperList;
     nearbyTC.reserve(10);
     for(const auto& cl : *tcCont) {
       // this can probably be done more elegantly
@@ -105,7 +100,6 @@ namespace met {
       if(dR<m_tcMatch_dR && cl->e()>0) {
 	// could consider also requirements on the EM fraction or depth
 	nearbyTC.push_back(cl);
-	stateHelperList.add(cl, CaloCluster::State(m_signalstate));
       } // match TC in a cone around SW cluster
     }
     ATH_MSG_VERBOSE("Found " << nearbyTC.size() << " nearby topoclusters");
@@ -131,14 +125,12 @@ namespace met {
 	ATH_MSG_VERBOSE("Energy ratio of TC to eg: " << tcl_e / eg_cl_e);
 	tclist.push_back(cl);
 	sumE_tc += tcl_e;
-	tcvec += MissingETBase::Types::constvec_t(*cl);
       } // if we will retain the topocluster
     } // loop over nearby clusters
     if(sumE_tc<1e-9 && bestbadmatch) {
       ATH_MSG_VERBOSE("No better matches found -- add bad match topocluster with pt "
 		      << bestbadmatch->pt() << ", e " << bestbadmatch->e() << ".");
       tclist.push_back(bestbadmatch);
-      tcvec += MissingETBase::Types::constvec_t(*bestbadmatch);
     }
 
     return StatusCode::SUCCESS;

@@ -21,9 +21,6 @@
 // Tau EDM
 #include "xAODTau/TauJetContainer.h"
 
-// Calo helpers
-#include "xAODCaloEvent/CaloClusterChangeSignalState.h"
-
 // Tracking EDM
 #include "xAODTracking/Vertex.h"
 
@@ -94,13 +91,11 @@ namespace met {
   // Get tau constituents
   StatusCode METTauAssociator::extractTopoClusters(const xAOD::IParticle *obj,
 						   std::vector<const xAOD::IParticle*>& tclist,
-						   MissingETBase::Types::constvec_t& tcvec,
 				        	   const xAOD::CaloClusterContainer* /*tcCont*/)
   {  
     const TauJet* tau = static_cast<const TauJet*>(obj);
     const Jet* seedjet = *tau->jetLink();
     JetConstituentVector constit = seedjet->getConstituents();
-    CaloClusterChangeSignalStateList stateHelperList;
     ATH_MSG_VERBOSE("Current tau has " << constit.size() << " constituents.");
     // test for used topoclusters, and retrieve unused ones (ok until/unless we use PFlow taus)
     // only use clusters for computing the overlap removal relative to other objects
@@ -110,10 +105,12 @@ namespace met {
       double dR = seedjet->p4().DeltaR(cl->rawConstituent()->p4());
       if(dR>0.2) continue;
       // skip cluster if dR>0.2
-      const CaloCluster* pClus = dynamic_cast<const CaloCluster*>( cl->rawConstituent() );
-      stateHelperList.add(pClus, CaloCluster::State(m_signalstate));
-      tclist.push_back(pClus);
-      tcvec += MissingETBase::Types::constvec_t(*pClus);
+      if(cl->rawConstituent()->type() == xAOD::Type::CaloCluster) {
+	const CaloCluster* pClus = static_cast<const CaloCluster*>( cl->rawConstituent() );
+	tclist.push_back(pClus);
+      } else {
+	ATH_MSG_WARNING("Expected an object of type CaloCluster, received one of type " << cl->rawConstituent()->type());
+      }
     } // loop over jet constituents
     return StatusCode::SUCCESS;
   }
@@ -121,7 +118,6 @@ namespace met {
 
   StatusCode METTauAssociator::extractTracks(const xAOD::IParticle *obj,
 					     std::vector<const xAOD::IParticle*>& constlist,
-					     MissingETBase::Types::constvec_t& trkvec,
 					     const xAOD::CaloClusterContainer* /*tcCont*/,
 					     const xAOD::Vertex* pv)
   {
@@ -141,7 +137,6 @@ namespace met {
 	// if(!matchedmu) {
 	ATH_MSG_VERBOSE("Accept tau track " << tautrk << " px, py = " << tautrk->p4().Px() << ", " << tautrk->p4().Py());
 	constlist.push_back(tautrk);
-	trkvec += *tautrk;
 	// }
       }
     }
@@ -160,7 +155,6 @@ namespace met {
 	// if(!matchedmu) {
 	ATH_MSG_VERBOSE("Accept track " << tautrk << " px, py = " << tautrk->p4().Px() << ", " << tautrk->p4().Py());
 	constlist.push_back(tautrk);
-	trkvec += *tautrk;
 	// }
       }
     }
@@ -170,29 +164,41 @@ namespace met {
   // Get tau constituents
   StatusCode METTauAssociator::extractPFO(const xAOD::IParticle* obj,
 					  std::vector<const xAOD::IParticle*>& pfolist,
-					  MissingETBase::Types::constvec_t& pfovec,
-					  MissingETBase::Types::constvec_t& trkvec,
 					  const xAOD::PFOContainer* pfoCont,
+					  std::map<const IParticle*,MissingETBase::Types::constvec_t> &momenta,
 					  const xAOD::Vertex* pv)
   {  
     const TauJet* tau = static_cast<const TauJet*>(obj);
     const Jet* seedjet = *tau->jetLink();
     for(const auto& pfo : *pfoCont) {
       bool match = false;
-      if (pfo->charge()==0 && seedjet->p4().DeltaR(pfo->p4EM())<0.2) match = true;
-      for(size_t iTrk=0; iTrk<tau->nTracks(); ++iTrk) {
-	const TrackParticle* tautrk = tau->track(iTrk);
-	if(acceptChargedPFO(tautrk,pv) && pfo->charge()!=0 && tautrk==pfo->track(0)) match = true; 
+      if (pfo->charge()==0) {
+	if(seedjet->p4().DeltaR(pfo->p4EM())<0.2 && pfo->eEM()>0) {
+	match = true;
+	}
+      } else {
+	for(size_t iTrk=0; iTrk<tau->nTracks(); ++iTrk) {
+	  const TrackParticle* tautrk = tau->track(iTrk);
+	  if(tautrk==pfo->track(0)) {
+	    if(acceptChargedPFO(tautrk,pv)) match = true; 
+	  }
+	}
+	for(size_t iTrk=0; iTrk<tau->nOtherTracks(); ++iTrk) {
+	  const TrackParticle* tautrk = tau->otherTrack(iTrk);
+	  if(tautrk==pfo->track(0)) {
+	    double dR = seedjet->p4().DeltaR(tautrk->p4());
+	    if(dR<0.2 && acceptChargedPFO(tautrk,pv)) match = true;
+	  }
+	}
       }
-      for(size_t iTrk=0; iTrk<tau->nOtherTracks(); ++iTrk) {
-	const TrackParticle* tautrk = tau->otherTrack(iTrk);
-	double dR = seedjet->p4().DeltaR(tautrk->p4());
-	if(dR<0.2 && acceptChargedPFO(tautrk,pv) && pfo->charge()!=0 && tautrk==pfo->track(0)) match = true;
+      if(match) {
+	pfolist.push_back(pfo);
+	if(pfo->charge()==0) {
+	  TLorentzVector momentum = pfo->GetVertexCorrectedEMFourVec(*pv);
+	  momenta[pfo] = MissingETBase::Types::constvec_t(momentum.Px(),momentum.Py(),momentum.Pz(),
+						     momentum.E(),momentum.Pt());
+	}
       }
-      if (!match) continue; 
-      pfolist.push_back(pfo);
-      if (pfo->charge()) trkvec += MissingETBase::Types::constvec_t(*pfo);
-      pfovec += (pfo->charge()==0 ? MissingETBase::Types::constvec_t(pfo->ptEM()*cos(pfo->phiEM()),pfo->ptEM()*sin(pfo->phiEM()),pfo->ptEM()*cosh(pfo->etaEM()),pfo->eEM(),pfo->eEM()) : MissingETBase::Types::constvec_t(*pfo));
     }
     return StatusCode::SUCCESS;
   }

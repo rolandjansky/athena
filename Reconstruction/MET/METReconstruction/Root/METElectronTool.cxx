@@ -102,6 +102,10 @@ namespace met {
 				       std::vector<const xAOD::IParticle*>& acceptedSignals,
 				       MissingETBase::Types::weight_t& objWeight)
   {
+    if(object->type() != xAOD::Type::Electron) {
+      ATH_MSG_WARNING("METElectronTool::resolveOverlap given an object of type " << object->type());
+      return false;
+    }
     const Electron* el = dynamic_cast<const Electron*>(object);
 
     ATH_MSG_DEBUG("Identifying signals overlapping this electron");

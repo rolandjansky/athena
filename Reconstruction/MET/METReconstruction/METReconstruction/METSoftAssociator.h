@@ -54,19 +54,16 @@ namespace met{
     StatusCode executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap);
     StatusCode extractPFO(const xAOD::IParticle*,
 			  std::vector<const xAOD::IParticle*>&,
-			  MissingETBase::Types::constvec_t&,
-			  MissingETBase::Types::constvec_t&,
 			  const xAOD::PFOContainer*,
+			  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t>&,
 			  const xAOD::Vertex*){return StatusCode::FAILURE;} // should not be called
 
     StatusCode extractTracks(const xAOD::IParticle*,
 			     std::vector<const xAOD::IParticle*>&,
-			     MissingETBase::Types::constvec_t&, 
 			     const xAOD::CaloClusterContainer*,
 			     const xAOD::Vertex*){return StatusCode::FAILURE;} // should not be called
     StatusCode extractTopoClusters(const xAOD::IParticle*,
 				   std::vector<const xAOD::IParticle*>&,
-				   MissingETBase::Types::constvec_t&, 
 				   const xAOD::CaloClusterContainer*){return StatusCode::FAILURE;} // should not be called
 
     private:

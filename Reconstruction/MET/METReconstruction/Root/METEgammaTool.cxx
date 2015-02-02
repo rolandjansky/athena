@@ -59,7 +59,8 @@ namespace met {
   ////////////////
   METEgammaTool::METEgammaTool(const std::string& name) : 
     AsgTool(name),
-    METBuilderTool(name)
+    METBuilderTool(name),
+    m_tcCont(NULL)
   {
 
     declareProperty( "PIDSel",            m_eg_pid         = ""     ); // Selection string to be determined
@@ -109,7 +110,12 @@ namespace met {
 
   bool METEgammaTool::accept(const xAOD::IParticle* object) const
   {
-    const Egamma* eg = dynamic_cast<const Egamma*>(object);
+
+    if(object->type() != xAOD::Type::Electron && object->type() != xAOD::Type::Photon) {
+      ATH_MSG_WARNING("METEgammaTool::accept given an object of type " << object->type());
+      return false;
+    }
+    const Egamma* eg = static_cast<const Egamma*>(object);
 
     ATH_MSG_VERBOSE("Test egamma quality." 
 		    << " pT = " << eg->pt()

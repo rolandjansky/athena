@@ -128,22 +128,23 @@ namespace met {
 
       // first compute track and calo isolation variables
       float ptcone20 = 0;
-      for(std::vector<const IParticle*>::const_iterator iTrk=trkList.begin();
-	  iTrk!=trkList.end(); ++iTrk) {
-	const TrackParticle* testtrk = dynamic_cast<const TrackParticle*>(*iTrk);
-	if(testtrk==trk) continue;
-	if(testtrk->p4().DeltaR(trk->p4()) < 0.2) {
-	  ptcone20 += testtrk->pt();
-	}
+      for(const auto& obj : trkList) {
+        if(obj->type() == xAOD::Type::TrackParticle) {
+	  const TrackParticle* testtrk = static_cast<const TrackParticle*>(obj);
+	  if(testtrk==trk) continue;
+	  if(testtrk->p4().DeltaR(trk->p4()) < 0.2) {
+	    ptcone20 += testtrk->pt();
+	  } 
+        }
+        else {ATH_MSG_WARNING("METTrackFilterTool::isGoodEoveP given an object of type " << obj->type());}
       }
       float isolfrac = ptcone20 / trk->pt();
       ATH_MSG_VERBOSE( "Track isolation fraction: " << isolfrac );
 
       float etcone10 = 0.;
-      for(CaloClusterContainer::const_iterator iClus=clusters->begin();
-	  iClus!=clusters->end(); ++iClus) {
-	if((*iClus)->p4().DeltaR(trk->p4()) < 0.1) {
-	  etcone10 += (*iClus)->pt();
+      for(const auto& clus : *clusters) {
+	if(clus->p4().DeltaR(trk->p4()) < 0.1) {
+	  etcone10 += clus->pt();
 	}
       }
       float EoverP = etcone10/trk->pt();
@@ -172,23 +173,20 @@ namespace met {
     std::vector<const xAOD::Muon*> selMuons;
 
     if(m_doLepRecovery)
-    {
-      const ElectronContainer* elCont;
-      const MuonContainer* muCont;
-      ATH_CHECK(evtStore()->retrieve(elCont,m_el_inputkey));
-      ATH_CHECK(evtStore()->retrieve(muCont,m_mu_inputkey));
-
-      selectElectrons(*elCont, selElectrons);
-      selectMuons(*muCont, selMuons);
-    }     
-
-    // const CaloClusterContainer* cl_cont = 0;
-    // if(m_trk_doEoverPsel) {
-    //   if( evtStore()->retrieve( cl_cont, m_cl_inputkey).isFailure() ) {
-    //     ATH_MSG_WARNING("Unable to retrieve input calocluster container");
-    //     return StatusCode::FAILURE;
-    //   }
-    // }
+      {
+	const ElectronContainer* elCont(0);
+	const MuonContainer* muCont(0);
+	if(evtStore()->retrieve(elCont,m_el_inputkey).isFailure()) { 
+	  ATH_MSG_WARNING("Failed to retrieve electron container"); 
+	} else { 
+	  selectElectrons(*elCont, selElectrons); 
+	} 
+	if(evtStore()->retrieve(muCont,m_mu_inputkey).isFailure()) { 
+	  ATH_MSG_WARNING("Failed to retrieve muon container"); 
+	} else { 
+	  selectMuons(*muCont, selMuons); 
+	}
+      }     
 
     MissingETComponentMap::iterator iter = MissingETComposition::find(metMap,metTerm);
     if(iter==metMap->end()) {

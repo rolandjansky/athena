@@ -106,7 +106,12 @@ namespace met {
     // Apply cuts 
     ATH_MSG_VERBOSE("Check if truth particle is accepted");
 
-    const xAOD::TruthParticle* truth = dynamic_cast<const xAOD::TruthParticle*>(object);
+    if(!object->type() == xAOD::Type::TruthParticle) { 
+      ATH_MSG_WARNING("METTruthTool::accept given an object of type" << object->type());
+      return false;
+    }
+    const xAOD::TruthParticle* truth = static_cast<const xAOD::TruthParticle*>(object);
+
     if(truth->pt()<1e-9) return false; // reject particles with no pt
     ATH_MSG_VERBOSE("My truth type: " << m_truth_type);
     switch(m_truth_type) {

@@ -22,14 +22,14 @@
 #include "xAODMissingET/MissingETAuxContainer.h"
 #include "xAODMissingET/MissingETAuxComponentMap.h"
 
+#include "xAODCaloEvent/CaloClusterContainer.h"
+#include "xAODCaloEvent/CaloClusterChangeSignalState.h"
+
 #include <iomanip>
 
 namespace met {
 
-  using xAOD::MissingET;
-  using xAOD::MissingETContainer;
-  using xAOD::MissingETComposition;
-  using xAOD::MissingETAuxContainer;
+  using namespace xAOD;
   //
   using std::string;
   using std::setw;
@@ -45,8 +45,9 @@ namespace met {
   METAssociationTool::METAssociationTool(const std::string& name) : 
     AsgTool(name)
   {
-    declareProperty( "METAssociators", m_metassociators           );
-    declareProperty( "METSuffix",   m_metsuffix = "AntiKt4LCTopo" );
+    declareProperty( "METAssociators", m_metassociators              );
+    declareProperty( "METSuffix",      m_metsuffix = "AntiKt4LCTopo" );
+    declareProperty( "TCSignalState",  m_signalstate = 1             );
   }
 
   // Destructor
@@ -107,6 +108,7 @@ namespace met {
     }
     metMap->setStore(metAuxMap);
 
+    // Record the Core MET container
     if( evtStore()->contains<MissingETContainer>(m_corename) ) {
       ATH_MSG_WARNING("MET_Core container \"" << m_corename << "\" is already present, exiting.");
       return StatusCode::SUCCESS;
@@ -152,6 +154,22 @@ namespace met {
 
   StatusCode METAssociationTool::buildMET(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap) const
   {
+
+    // Set the topocluster signal states for the duration of this method
+    // Cluster signal states will revert upon the return.
+    CaloClusterChangeSignalStateList stateHelperList;    
+    if(m_signalstate>=0) { // can ignore this for PFlow
+      const CaloClusterContainer* clusters(0);
+      if( evtStore()->retrieve(clusters,"CaloCalTopoClusters").isFailure() ) {
+	ATH_MSG_WARNING("Failed to set topocluster signal states!");
+	return StatusCode::FAILURE;
+      } else {
+	for(const auto& clus : *clusters) {
+	  stateHelperList.add(clus,CaloCluster::State(m_signalstate));
+	}
+      }
+    }
+
     // Run the MET reconstruction tools in sequence
     for(ToolHandleArray<IMETAssocToolBase>::const_iterator iBuilder=m_metassociators.begin();
 	iBuilder != m_metassociators.end(); ++iBuilder) {

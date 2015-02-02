@@ -3,13 +3,16 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon import CfgMgr
 
-filelist = ["myAOD.pool.root"]
+include( "RecExCommon/ContainerRemapping.py" )
+
+#filelist = ["myAOD.pool.root"]
 from glob import glob
 #filelist = glob('/r03/atlas/khoo/Data_2014/DC14xAOD/mc14_8TeV.117050.PowhegPythia_P2011C_ttbar.merge.AOD.e1727_s1933_s1911_r5591_r5625/*')
-#filelist = glob('/r03/atlas/khoo/Data_2014/DC14xAOD/mc14_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.merge.AOD.e2928_s1982_s2008_r5787_r5853/*')
+filelist = glob('/r03/atlas/khoo/Data_2014/DC14xAOD/mc14_13TeV.110401.PowhegPythia_P2012_ttbar_nonallhad.merge.AOD.e2928_s1982_s2008_r5787_r5853/*')
+#filelist = ['/r03/atlas/khoo/Data_2014/DC14xAOD/mc14_8TeV.147804.PowhegPythia8_AU2CT10_Wminmunu.merge.AOD.e1169_s1933_s1911_r5591_r5625_tid01512180_00/AOD.01512180._000493.pool.root.1']
 ServiceMgr.EventSelector.InputCollections = filelist
 
-#import METReconstruction.METConfig_RefFinal
+import METReconstruction.METConfig_Associator
 
 from METReconstruction.METRecoFlags import metFlags
 
@@ -20,8 +23,31 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 ##############################################################################
+from JetRec.JetRecFlags import jetFlags
+jetFlags.useTruth = False
+jetFlags.usePFlow=True
 
-metFlags.DoPFlow.set_Value_and_Lock(False)
+from JetRec.JetRecStandard import jtm
+jtm.addJetFinder("AntiKt4EMPFlowJets",  "AntiKt", 0.4,  "empflow", "pflow",
+                 ghostArea=0.01, ptmin= 2000, ptminFilter= 5000, calibOpt="a:pflow")
+
+from JetRec.JetAlgorithm import addJetRecoToAlgSequence
+
+addJetRecoToAlgSequence()
+
+##############################################################################
+
+#from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAlg 
+#from JetRec.JetRecStandard import jtm
+#edTool=configEventDensityTool("EDTool40", jtm.lcget, 0.4)
+#edTool.OutputLevel = VERBOSE
+#ToolSvc += edTool
+#edAlg = EventDensityAlg( "EventDensityAlg"+edTool.name(), EventDensityTool = edTool , OutputLevel=VERBOSE)
+#topSequence += edAlg
+#
+###############################################################################
+
+metFlags.DoPFlow.set_Value_and_Lock(True)
 
 from AthenaCommon.Resilience import protectedInclude
 protectedInclude("METReconstruction/METReconstruction_jobOptions.py")
@@ -34,23 +60,67 @@ if write_xAOD:
     protectedInclude("METReconstruction/METReconstructionOutputAODList_jobOptions.py")
 
     from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-    xaodStream = MSMgr.NewPoolRootStream( "StreamAOD", "xAOD.8TeV.pool.root" )
+    xaodStream = MSMgr.NewPoolRootStream( "StreamAOD", "xAOD.pool.root" )
+    xaodStream.AddItem("xAOD::EventInfo#EventInfo")
+    xaodStream.AddItem("xAOD::EventAuxInfo#EventInfoAux.")
+    xaodStream.AddItem("xAOD::MuonContainer#Muons")
+    xaodStream.AddItem("xAOD::MuonAuxContainer#MuonsAux.")
+    xaodStream.AddItem("xAOD::ElectronContainer#ElectronCollection")
+    xaodStream.AddItem("xAOD::ElectronAuxContainer#ElectronCollectionAux.")
+    xaodStream.AddItem("xAOD::PhotonContainer#PhotonCollection")
+    xaodStream.AddItem("xAOD::PhotonAuxContainer#PhotonCollectionAux.")
+    xaodStream.AddItem("xAOD::TauJetContainer#TauRecContainer")
+    xaodStream.AddItem("xAOD::TauJetAuxContainer#TauRecContainerAux.")
+    xaodStream.AddItem("xAOD::JetContainer#AntiKt4TruthJets")
+    xaodStream.AddItem("xAOD::JetAuxContainer#AntiKt4TruthJetsAux.")
+    xaodStream.AddItem("xAOD::JetContainer#AntiKt4LCTopoJets")
+    xaodStream.AddItem("xAOD::JetAuxContainer#AntiKt4LCTopoJetsAux.")
+    xaodStream.AddItem("xAOD::JetContainer#AntiKt4EMTopoJets")
+    xaodStream.AddItem("xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.")
+    xaodStream.AddItem("xAOD::JetContainer#AntiKt4EMPFlowJets")
+    xaodStream.AddItem("xAOD::JetAuxContainer#AntiKt4EMPFlowJetsAux.")
+    xaodStream.AddItem("xAOD::CaloClusterContainer#CaloCalTopoCluster")
+    xaodStream.AddItem("xAOD::CaloClusterAuxContainer#CaloCalTopoClusterAux.")
+    xaodStream.AddItem("xAOD::CaloClusterContainer#egClusterCollection")
+    xaodStream.AddItem("xAOD::CaloClusterAuxContainer#egClusterCollectionAux.")
+    xaodStream.AddItem("xAOD::TrackParticleContainer#InDetTrackParticles")
+    xaodStream.AddItem("xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux.")
+    xaodStream.AddItem("xAOD::TrackParticleContainer#CombinedMuonTrackParticles")
+    xaodStream.AddItem("xAOD::TrackParticleAuxContainer#CombinedMuonTrackParticlesAux.")
+    xaodStream.AddItem("xAOD::TrackParticleContainer#ExtrapolatedMuonTrackParticles")
+    xaodStream.AddItem("xAOD::TrackParticleAuxContainer#ExtrapolatedMuonTrackParticlesAux.")
+    xaodStream.AddItem("xAOD::TrackParticleContainer#MuonSpectrometerTrackParticles")
+    xaodStream.AddItem("xAOD::TrackParticleAuxContainer#MuonSpectrometerTrackParticlesAux.")
+    xaodStream.AddItem("xAOD::TrackParticleContainer#GSFTrackParticles")
+    xaodStream.AddItem("xAOD::TrackParticleAuxContainer#GSFTrackParticlesAux.")
+    xaodStream.AddItem("xAOD::EventShape#*")
+    xaodStream.AddItem("xAOD::EventShapeAuxInfo#*")
     for item in MissingETAODList:
         xaodStream.AddItem(item)
 
 from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
 pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
 
-# assocRefAlg.OutputLevel=VERBOSE
 # topSequence.METAssociation.OutputLevel=VERBOSE
 # ToolSvc.MET_AssociationTool_AntiKt4LCTopo.OutputLevel=VERBOSE
 # ToolSvc.MET_LCJetAssocTool_AntiKt4LCTopo.OutputLevel=VERBOSE
+# ToolSvc.MET_ElectronAssociator_AntiKt4LCTopo.OutputLevel=VERBOSE
 # ToolSvc.MET_PhotonAssociator_AntiKt4LCTopo.OutputLevel=VERBOSE
+# ToolSvc.MET_TauAssociator_AntiKt4LCTopo.OutputLevel=VERBOSE
+# ToolSvc.MET_MuonAssociator_AntiKt4LCTopo.OutputLevel=VERBOSE
 # ToolSvc.MET_SoftAssociator_AntiKt4LCTopo.OutputLevel=VERBOSE
-# ToolSvc.MET_JetTool_RefFinal2.OutputLevel=VERBOSE
+# topSequence.METMakerAlg_AntiKt4LCTopo.OutputLevel=VERBOSE
 # ToolSvc.METMaker_AntiKt4LCTopo.OutputLevel=VERBOSE
-# ToolSvc.METMaker_Test.OutputLevel=VERBOSE
 
-theApp.EvtMax = 40
+# ToolSvc.MET_AssociationTool_AntiKt4EMTopo.OutputLevel=VERBOSE
+# topSequence.METMakerAlg_AntiKt4EMTopo.OutputLevel=VERBOSE
+# ToolSvc.METMaker_AntiKt4EMTopo.OutputLevel=VERBOSE
+
+# ToolSvc.MET_AssociationTool_AntiKt4EMPFlow.OutputLevel=VERBOSE
+# topSequence.METMakerAlg_AntiKt4EMPFlow.OutputLevel=VERBOSE
+# ToolSvc.METMaker_AntiKt4EMPFlow.OutputLevel=VERBOSE
+
+theApp.EvtMax = -1
 ServiceMgr.EventSelector.SkipEvents = 0
+#ServiceMgr.MessageSvc.OutputLevel = VERBOSE
 ServiceMgr.MessageSvc.defaultLimit = 99999
