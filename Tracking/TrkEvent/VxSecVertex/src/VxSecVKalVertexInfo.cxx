@@ -23,7 +23,11 @@
 namespace Trk {
 
   VxSecVKalVertexInfo::VxSecVKalVertexInfo() :
-    VxSecVertexInfo() {}
+    VxSecVertexInfo(), 
+    m_mass(0.),
+    m_energyFraction(0.),
+    m_energyTrkInJet(0.),
+    m_n2trackvertices(0){}
 
   VxSecVKalVertexInfo::VxSecVKalVertexInfo(const std::vector<xAOD::Vertex*> & vertices,
 					   double mass,double energyFraction,int n2trackvertices,double energyTrkInJet,
@@ -78,7 +82,7 @@ namespace Trk {
     m_badTracksIP(rhs.m_badTracksIP)
   {}
 
-  VxSecVKalVertexInfo VxSecVKalVertexInfo::operator= (const VxSecVKalVertexInfo & rhs) {
+  VxSecVKalVertexInfo & VxSecVKalVertexInfo::operator= (const VxSecVKalVertexInfo & rhs) {
     
     if (this!=&rhs) {
       this->operator=(rhs);

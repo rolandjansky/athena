@@ -79,8 +79,8 @@ namespace Trk {
 	  std::cout << " Warning in VxSecVertexInfo: tried in copy constructor to copy over a zero pointer Vertex " << std::endl;
 	}
       }   
+      m_SVOwnership=false;
     }
-    m_SVOwnership=false;
     return *this;
   }
   

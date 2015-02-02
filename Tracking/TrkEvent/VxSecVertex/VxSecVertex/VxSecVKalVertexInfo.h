@@ -63,7 +63,7 @@ namespace Trk {
     virtual VxSecVKalVertexInfo* clone() const;
 	
     /* assignment operator */
-    VxSecVKalVertexInfo operator= (const VxSecVKalVertexInfo &);
+    VxSecVKalVertexInfo& operator= (const VxSecVKalVertexInfo &);
     
     /* destructor */
     virtual ~VxSecVKalVertexInfo();
