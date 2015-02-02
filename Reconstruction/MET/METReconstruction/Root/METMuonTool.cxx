@@ -101,7 +101,12 @@ namespace met {
 
   bool METMuonTool::accept(const xAOD::IParticle* object) const
   {
-    const Muon* mu = dynamic_cast<const Muon*>(object);
+
+    if(!object->type() == xAOD::Type::Muon) {
+      ATH_MSG_WARNING("METMuonTool::accept given an object of type " << object->type());
+      return false;
+    }
+    const Muon* mu = static_cast<const Muon*>(object);
 
     ATH_MSG_VERBOSE( "Test muon with pt " << mu->pt() << " eta " << mu->eta() );
 
@@ -143,7 +148,12 @@ namespace met {
 				   std::vector<const xAOD::IParticle*>& acceptedSignals,
 				   MissingETBase::Types::weight_t& /*objWeight*/)
   {
-    const Muon* mu = dynamic_cast<const Muon*>(object);
+
+    if(!object->type() == xAOD::Type::Muon) {
+      ATH_MSG_WARNING("METMuonTool::resolveOverlap given an object of type " << object->type());
+      return false;
+    }
+    const Muon* mu = static_cast<const Muon*>(object);
 
     if(m_mu_doTracks) {
       // retrieve tracks associated to the electron

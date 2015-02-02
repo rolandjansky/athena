@@ -100,6 +100,9 @@ namespace met{
     std::string m_metsuffix;
     std::string m_mapname;
     std::string m_corename;
+
+    int m_signalstate;
+
     ToolHandleArray<IMETAssocToolBase> m_metassociators;
 
   }; 

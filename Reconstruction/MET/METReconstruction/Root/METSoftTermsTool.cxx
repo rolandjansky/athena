@@ -63,7 +63,8 @@ namespace met {
   METSoftTermsTool::METSoftTermsTool(const std::string& name) : 
     AsgTool(name),
     METBuilderTool(name),
-    m_st_objtype(0)
+    m_st_objtype(0),
+    m_pv_cont(NULL)
   {
     declareProperty( "InputComposition", m_inputType = "Clusters" ); // Options : Clusters (default) OR Tracks OR PFOs
     declareProperty( "InputPVKey",      m_pv_inputkey = "PrimaryVertices"    );
@@ -126,22 +127,34 @@ namespace met {
     if ( m_st_objtype==0 ) {
       ATH_MSG_VERBOSE("Check if cluster is accepted");
 
-      const xAOD::CaloCluster* clus = dynamic_cast<const xAOD::CaloCluster*>(object);
-      return accept(clus);
+      if(!object->type()==xAOD::Type::CaloCluster) {
+	ATH_MSG_WARNING("Expected CaloCluster, given " << object->type());
+	return false;
+      }
+      const xAOD::CaloCluster* clus = static_cast<const xAOD::CaloCluster*>(object);
+      return (clus) ? accept(clus) : false;
 
     } // end of if using clusters 
     else if (  m_st_objtype==1 ) {
       ATH_MSG_VERBOSE("Check if track is accepted");
 
-      const xAOD::TrackParticle* track = dynamic_cast<const xAOD::TrackParticle*>(object);
-      return accept(track);
+      if(!object->type()==xAOD::Type::TrackParticle) {
+	ATH_MSG_WARNING("Expected TrackParticle, given " << object->type());
+	return false;
+      }
+      const xAOD::TrackParticle* track = static_cast<const xAOD::TrackParticle*>(object);
+      return (track) ? accept(track) : false;
 
     } // end of if using tracks
     else if (  m_st_objtype==2 ) {
       ATH_MSG_VERBOSE("Check if PFO is accepted");
 
-      const xAOD::PFO* pfo = dynamic_cast<const xAOD::PFO*>(object);
-      return accept(pfo);
+      if(!object->type()==xAOD::Type::ParticleFlow) {
+	ATH_MSG_WARNING("Expected PFlow Object, given " << object->type());
+	return false;
+      }
+      const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>(object);
+      return (pfo) ? accept(pfo) : false;
 
     } // end of if using PFOs
     
@@ -187,17 +200,21 @@ namespace met {
   {
 
     // Check/Resolve overlap
+    bool objsused = false;
     if( m_st_objtype==0 ) {
       ATH_MSG_DEBUG("Check for used clusters");
-      metMap->checkUsage(acceptedSignals,MissingETBase::UsageHandler::OnlyCluster);
+      objsused = metMap->checkUsage(acceptedSignals,MissingETBase::UsageHandler::OnlyCluster);
     }
     else if( m_st_objtype==1 ) { 
       ATH_MSG_DEBUG("Check for used tracks");
-      metMap->checkUsage(acceptedSignals,MissingETBase::UsageHandler::OnlyTrack);
+      objsused = metMap->checkUsage(acceptedSignals,MissingETBase::UsageHandler::OnlyTrack);
     }
     else if( m_st_objtype==2 ) { 
       ATH_MSG_DEBUG("Check for used PFOs: DUMMY");
-      //      metMap->checkUsage(acceptedSignals,MissingETBase::UsageHandler::OnlyTrack);
+      //      objsused = metMap->checkUsage(acceptedSignals,MissingETBase::UsageHandler::OnlyTrack);
+    }
+    if(!objsused) {
+      ATH_MSG_DEBUG("No objects used.");
     }
 
     ATH_MSG_DEBUG( acceptedSignals.size() << " retained after overlap removal");
@@ -299,7 +316,7 @@ namespace met {
     else if( m_st_objtype == 2 ) {
       // Retrieve the pfo container
       pfoCont = m_pfotool->retrievePFO(CP::EM, CP::all);
-      if(pfoCont) {
+      if(!pfoCont) {
         ATH_MSG_WARNING("Unable to retrieve input pfo container");
         return StatusCode::SUCCESS;
       }
@@ -354,17 +371,19 @@ namespace met {
       for( vector<const IParticle*>::const_iterator iPart=signalList.begin();
 	   iPart!=signalList.end(); ++iPart) {
 	const PFO* pfo = dynamic_cast<const PFO*>(*iPart);
-	if(pfo->charge()==0) {
-	  metTerm->add(pfo->ptEM()*cos(pfo->phiEM()),
-		       pfo->ptEM()*sin(pfo->phiEM()),
-		       pfo->ptEM());
-	} else {
-	  metTerm->add(pfo->pt()*cos(pfo->phi()),
-		       pfo->pt()*sin(pfo->phi()),
-		       pfo->pt());
-	}
+        if(pfo) {
+	  if(pfo->charge()==0) {
+	    metTerm->add(pfo->ptEM()*cos(pfo->phiEM()),
+		         pfo->ptEM()*sin(pfo->phiEM()),
+		         pfo->ptEM());
+	  } else {
+	    metTerm->add(pfo->pt()*cos(pfo->phi()),
+		         pfo->pt()*sin(pfo->phi()),
+		         pfo->pt());
+	  }
 
-	MissingETComposition::insert(metMap,metTerm,pfo,dummyList,unitWeight);
+	  MissingETComposition::insert(metMap,metTerm,pfo,dummyList,unitWeight);
+        }
       }
     } else {
       for( vector<const IParticle*>::const_iterator iPart=signalList.begin();

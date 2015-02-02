@@ -53,7 +53,6 @@ namespace met{
 
     StatusCode extractTopoClusters(const xAOD::IParticle* obj,
 				   std::vector<const xAOD::IParticle*>& tclist,
-				   MissingETBase::Types::constvec_t& tcvec,
 				   const xAOD::CaloClusterContainer* tcCont);
     double m_tcMatch_dR;
     double m_tcMatch_maxRat;
@@ -64,9 +63,6 @@ namespace met{
  
     /// Default constructor: 
     METEgammaAssociator();
-
-    // track overlap removal
-    bool m_eg_doTracks;
 
   }; 
 

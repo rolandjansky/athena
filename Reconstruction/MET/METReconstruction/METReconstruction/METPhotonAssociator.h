@@ -54,13 +54,11 @@ namespace met{
     StatusCode executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap);
     StatusCode extractPFO(const xAOD::IParticle* obj,
 			  std::vector<const xAOD::IParticle*>& pfolist,
-			  MissingETBase::Types::constvec_t& pfovec,
-			  MissingETBase::Types::constvec_t& trkvec,
 			  const xAOD::PFOContainer* pfoCont,
+			  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta,
 			  const xAOD::Vertex* pv) final;
     StatusCode extractTracks(const xAOD::IParticle* obj,
 			     std::vector<const xAOD::IParticle*>& constlist,
-			     MissingETBase::Types::constvec_t& trkvec,
 			     const xAOD::CaloClusterContainer* tcCont,
 			     const xAOD::Vertex* pv) final;
 

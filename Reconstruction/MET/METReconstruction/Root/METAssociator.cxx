@@ -39,8 +39,7 @@ namespace met {
   // Constructors
   ////////////////
   METAssociator::METAssociator(const std::string& name) :
-    AsgTool(name),
-    m_signalstate(-1)
+    AsgTool(name)
   {
     declareProperty( "InputCollection",   m_input_data_key                    );
     declareProperty( "PrimVxColl",        m_pvcoll    = "PrimaryVertices"     );
@@ -79,17 +78,6 @@ namespace met {
     if(!metMap) {
       ATH_MSG_WARNING("Invalid pointer to MissingETAssociationMap supplied! Abort.");
       return StatusCode::FAILURE;
-    }
-
-    // will set the signal state for the first event with jets
-    if(m_signalstate<0) {
-      if(metMap->size()>0) { //allow for misc association
-	const MissingETAssociation* assoc = metMap->front();
-	if(!assoc->isMisc()) {
-	  m_signalstate = assoc->refJet()->getConstituentsSignalState();
-	  ATH_MSG_INFO("Configured METAssociator with signal state " << m_signalstate);
-	}
-      }
     }
 
     return this->executeTool(metCont, metMap);
@@ -182,25 +170,17 @@ namespace met {
     for(const auto& obj : hardObjs_tmp) {
       if(obj->pt()<5e3 && obj->type()!=xAOD::Type::Muon) continue;
       constlist.clear();
-      MissingETBase::Types::constvec_t tcvec,trkvec;
       ATH_MSG_VERBOSE( "Object type, pt, eta, phi = " << obj->type() << ", " << obj->pt() << ", " << obj->eta() << "," << obj->phi() );
       if (m_pflow) {
-	ATH_CHECK( this->extractPFO(obj,constlist,tcvec,trkvec,pfoCont,pv) );
+        std::map<const IParticle*,MissingETBase::Types::constvec_t> momentumOverride;
+	ATH_CHECK( this->extractPFO(obj,constlist,pfoCont,momentumOverride,pv) );
+        MissingETComposition::insert(metMap,obj,constlist,momentumOverride);
       } else {
-        ATH_CHECK( this->extractTopoClusters(obj,constlist,tcvec,tcCont) );
-        ATH_CHECK( this->extractTracks(obj,constlist,trkvec,tcCont,pv) );
+        ATH_CHECK( this->extractTopoClusters(obj,constlist,tcCont) );
+        ATH_CHECK( this->extractTracks(obj,constlist,tcCont,pv) );
+        MissingETComposition::insert(metMap,obj,constlist);
       }
-      bool inserted(false);
-      inserted = MissingETComposition::insert(metMap,obj,constlist,tcvec,trkvec);
-      if(inserted) {
-	const MissingETAssociation* assoc = MissingETComposition::getAssociation(metMap,obj);
-	ATH_MSG_VERBOSE( obj->type() << " is associated to jet " << assoc->refJet()->index() << " with pt " << assoc->refJet()->pt() );
-      } else {
-	ATH_MSG_VERBOSE( "Add " << obj->type() << " as miscellaneous object" );
-	if(!obj->type()==xAOD::Type::Tau)
-	  inserted = MissingETComposition::insertMisc(metMap,obj,constlist,tcvec,trkvec);
-      }
-    }  
+    }
     return StatusCode::SUCCESS;
   }
   

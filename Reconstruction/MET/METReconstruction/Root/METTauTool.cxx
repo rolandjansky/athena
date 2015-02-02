@@ -108,7 +108,11 @@ namespace met {
 
   bool METTauTool::accept(const xAOD::IParticle* object) const
   {
-    const TauJet* tau = dynamic_cast<const TauJet*>(object);
+    if(!object->type() == xAOD::Type::Tau) {
+      ATH_MSG_WARNING("METTauTool::accept given an object of type " << object->type());
+      return false;
+    }
+    const TauJet* tau = static_cast<const TauJet*>(object);
 
     ATH_MSG_VERBOSE("Testing tau with pt " << tau->pt() << ", eta " << tau->eta());
     ATH_MSG_VERBOSE("Tau ID discriminants:"
@@ -133,7 +137,11 @@ namespace met {
 				  std::vector<const xAOD::IParticle*>& acceptedSignals,
 				  MissingETBase::Types::weight_t& objWeight)
   {
-    const TauJet* tau = dynamic_cast<const TauJet*>(object);
+    if(!object->type() == xAOD::Type::Tau) {
+      ATH_MSG_WARNING("METTauTool::resolveOverlap given an object of type " << object->type());
+      return false;
+    }
+    const TauJet* tau = static_cast<const TauJet*>(object);
 
     ATH_MSG_VERBOSE("Retrieving tau constituents.");
     // first get the topoclusters
@@ -155,7 +163,11 @@ namespace met {
       if(dR>0.2) continue;
       // skip cluster if dR>0.2
       sumE_allclus += (*iClus)->e();
-      const CaloCluster* pClus = dynamic_cast<const CaloCluster*>( (*iClus)->rawConstituent() );
+      if((*iClus)->rawConstituent()->type() != xAOD::Type::CaloCluster) {
+	ATH_MSG_WARNING("Unexpected jet constituent type " << (*iClus)->rawConstituent()->type() << " received! Skip.");
+	continue;
+      }
+      const CaloCluster* pClus = static_cast<const CaloCluster*>( (*iClus)->rawConstituent() );
       // create a helper to change the signal state and retain it until the end of the execute
       // signal state will be reset when it goes out of scope
       //CaloClusterChangeSignalState stateHelper(pClus, CaloCluster::State(m_signalstate));

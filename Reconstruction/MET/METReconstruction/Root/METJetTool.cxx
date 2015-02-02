@@ -109,6 +109,11 @@ namespace met {
   bool METJetTool::accept(const xAOD::IParticle* object) const {
     const Jet* jet = dynamic_cast<const Jet*>(object);
 
+    if(!jet) {
+      ATH_MSG_WARNING("Jet accept given an object of type " << object->type());
+      return false;
+    }
+
     if( jet->pt() < m_jet_minPt ) return false;
     if( fabs(jet->eta()) > m_jet_maxEta) return false;
 
@@ -128,7 +133,11 @@ namespace met {
 				  MissingETBase::Types::weight_t& objWeight)
   {
 
-    const Jet* jet = dynamic_cast<const Jet*>(object);
+    if(object->type() != xAOD::Type::Jet) {
+      ATH_MSG_WARNING("Jet resolveOverlap given an object of type " << object->type());
+      return false;
+    }
+    const Jet* jet = static_cast<const Jet*>(object);
     m_signalstate = jet->getConstituentsSignalState();
 
     ATH_MSG_VERBOSE("Retrieving jet constituents.");
@@ -146,11 +155,13 @@ namespace met {
 	iClus!=constit.end(); ++iClus) {
       sumE_allclus += (*iClus)->e();
       const CaloCluster* pClus = dynamic_cast<const CaloCluster*>( (*iClus)->rawConstituent() );
-      stateHelperList.add(pClus, CaloCluster::State(m_signalstate));
-
-      ATH_MSG_VERBOSE("Constit E = " << pClus->e());
-
-      constit_vec.push_back(pClus);
+      if(pClus) {
+        stateHelperList.add(pClus, CaloCluster::State(m_signalstate));
+        ATH_MSG_VERBOSE("Constit E = " << pClus->e());
+        constit_vec.push_back(pClus);
+      } else {
+        ATH_MSG_WARNING("Cluster resolveOverlap given an object of type " << (*iClus)->type());
+      }
     } // loop over jet constituents
     ATH_MSG_VERBOSE( "Jet E = " << jet->e() << ", cluster energy sum = " << sumE_allclus );
     ATH_MSG_VERBOSE( "Check signal states" );

@@ -97,13 +97,7 @@ namespace met {
 
     // Create the container and push back the new MET terms 
     MissingETBase::Types::bitmask_t source = MissingETBase::Source::Calo | MissingETBase::Source::clusterEM();
-    MissingETContainer* metCont = dynamic_cast<MissingETContainer*>( metTerm_EMB->container() );
-
-    // Check dynamic_cast for coverity
-    if(!metCont) {
-      ATH_MSG_WARNING("Unsuccesful dynamic_cast");
-      return StatusCode::SUCCESS;
-    }
+    MissingETContainer* metCont = static_cast<MissingETContainer*>( metTerm_EMB->container() );
 
     // Push region terms to the container
     for( int i=0; i < REGIONS_TOTAL; ++i) {

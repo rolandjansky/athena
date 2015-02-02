@@ -124,7 +124,11 @@ namespace met {
     ATH_MSG_DEBUG("Set up region terms, " << metTerm_central->name() << ", " << metTerm_endcap->name() << ", " << metTerm_forward->name());
 
     // Add to the Container 
-    MissingETContainer* metCont = dynamic_cast<MissingETContainer*>( metTerm_central->container() );
+    MissingETContainer* metCont = static_cast<MissingETContainer*>( metTerm_central->container() );
+    if(!metCont) {
+      ATH_MSG_DEBUG("METRegionsTool expecting a MissingETContainer given an inconsistent type.");
+      return StatusCode::SUCCESS;
+    }
     metCont->push_back( metTerm_endcap  );
     metCont->push_back( metTerm_forward );
 

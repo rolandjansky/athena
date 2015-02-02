@@ -98,7 +98,12 @@ namespace met {
 				     std::vector<const xAOD::IParticle*>& acceptedSignals,
 				     MissingETBase::Types::weight_t& objWeight)
   {
-    const Photon* ph = dynamic_cast<const Photon*>(object);
+
+    if(!object->type() == xAOD::Type::Photon) {
+      ATH_MSG_WARNING("METPhotonTool::resolveOverlap given an object of type " << object->type());
+      return false;
+    }
+    const Photon* ph = static_cast<const Photon*>(object);
 
     ATH_MSG_DEBUG("Identifying signals overlapping this photon");
 

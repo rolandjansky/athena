@@ -104,8 +104,11 @@ namespace met {
       std::vector<const IParticle*> selectedTracks;
       if (m_pflow) {
         for (size_t consti = 0; consti < jet->numConstituents(); consti++) {
-          const xAOD::PFO *pfo = dynamic_cast<const xAOD::PFO*>(jet->rawConstituent(consti));
-          if (pfo->charge()!=0) trkvec += *pfo;
+          const xAOD::PFO *pfo = static_cast<const xAOD::PFO*>(jet->rawConstituent(consti));
+          if (pfo->charge()!=0) {
+	    trkvec += *pfo;
+	    selectedTracks.push_back(pfo->track(0));
+	  }
         }
       } else {
         std::vector<const IParticle*> jettracks;
@@ -113,7 +116,7 @@ namespace met {
 
 	selectedTracks.reserve(jettracks.size());
 	for(const auto& trk : jettracks) {
-	  const TrackParticle* pTrk = dynamic_cast<const TrackParticle*>(trk);
+	  const TrackParticle* pTrk = static_cast<const TrackParticle*>(trk);
 	  if( acceptTrack(pTrk,pv) ) {
 	    selectedTracks.push_back(trk);
 	    ATH_MSG_VERBOSE("Accept track " << trk << " px, py = " << trk->p4().Px() << ", " << trk->p4().Py());
@@ -121,7 +124,7 @@ namespace met {
 	}
       }
       MissingETComposition::add(metMap,jet,selectedTracks);
-      if (m_pflow) metMap->back()->setJetTrkVec(trkvec);
+      //if (m_pflow) metMap->back()->setJetTrkVec(trkvec);
       ATH_MSG_VERBOSE("Added association " << metMap->findIndex(jet) << " pointing to jet " << jet);
       ATH_MSG_VERBOSE("Jet pt, eta, phi = " << jet->pt() << ", " << jet->eta() << "," << jet->phi() );
 

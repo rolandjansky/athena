@@ -85,7 +85,6 @@ namespace met {
 
   StatusCode METPhotonAssociator::extractTracks(const xAOD::IParticle* obj,
 						std::vector<const xAOD::IParticle*>& constlist,
-						MissingETBase::Types::constvec_t& trkvec,
 						const xAOD::CaloClusterContainer* /*tcCont*/,
 					        const xAOD::Vertex* pv)
   {
@@ -100,13 +99,6 @@ namespace met {
 	const xAOD::TrackParticle* phtrk = xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(phvx->trackParticle(iTrk));
 	// if(acceptTrack(phtrk,pv) && isGoodEoverP(phtrk,tcCont)) {
 	if(acceptTrack(phtrk,pv)) {
-	  // bool matchedmu = false;
-	  // for(const auto& mutrk : mutracks) {
-	  //   if( (matchedmu = (phtrk == mutrk)) ) {
-	  // 	ATH_MSG_VERBOSE("Veto track matched to muon");
-	  // 	break;
-	  //   }
-	  // }
 	  bool duplicate = false;
 	  for(const auto& gamtrk : phtrks) {
 	    if( (duplicate = (phtrk == gamtrk)) ) {
@@ -114,12 +106,10 @@ namespace met {
 	      break;
 	    }
 	  }
-	  // if(!matchedmu && !duplicate) {
 	  if(!duplicate) {
 	    ATH_MSG_VERBOSE("Accept photon track " << phtrk << " px, py = " << phtrk->p4().Px() << ", " << phtrk->p4().Py());
 	    ATH_MSG_VERBOSE("              track eta, phi = " << phtrk->p4().Eta() << ", " << phtrk->p4().Phi());
 	    constlist.push_back(phtrk);
-	    trkvec += *phtrk;
 	    phtrks.push_back(phtrk);
 	  }
 	}
@@ -131,9 +121,8 @@ namespace met {
   // Get Egamma constituents
   StatusCode METPhotonAssociator::extractPFO(const xAOD::IParticle* obj,
 					     std::vector<const xAOD::IParticle*>& pfolist,
-					     MissingETBase::Types::constvec_t& pfovec,
-					     MissingETBase::Types::constvec_t& trkvec,
 					     const xAOD::PFOContainer* pfoCont,
+					     std::map<const IParticle*,MissingETBase::Types::constvec_t> &momenta,
 					     const xAOD::Vertex* pv)
   {
     const xAOD::Photon *ph = static_cast<const xAOD::Photon*>(obj);
@@ -149,24 +138,23 @@ namespace met {
     nearbyPFO.reserve(10);
     for(const auto& pfo : *pfoCont) {
       std::vector<const IParticle*> cls;
-      bool match = false;
       if (pfo->charge()==0) {
-        if (swclus->p4().DeltaR(pfo->p4EM())<0.1 && pfo->eEM()>0) match = true;
-        //pfo->associatedParticles(PFODetails::CaloCluster,cls);
-        //for(const auto& cl : cls) {
-        //  if (!cl) continue;
-        //  double dR = swclus->p4().DeltaR(cl->p4());
-        //  if(dR<0.1 && cl->e()>0) match = true;
-        //}
+        if (swclus->p4().DeltaR(pfo->p4EM())<0.1 && pfo->eEM()>0) {
+	  nearbyPFO.push_back(pfo);
+	}
+      } else {
+	for(size_t iVtx=0; iVtx<ph->nVertices(); ++iVtx) {
+	  const xAOD::Vertex* phvx = ph->vertex(iVtx);
+	  for(size_t iTrk=0; iTrk<phvx->nTrackParticles(); ++iTrk) {
+	    const xAOD::TrackParticle* phtrk = xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(phvx->trackParticle(iTrk));
+	    if(pfo->track(0) == phtrk) {
+	      if(acceptChargedPFO(phtrk,pv)) {
+		pfolist.push_back(pfo);
+	      }
+	    }
+	  }
+	}
       }
-      for(size_t iVtx=0; iVtx<ph->nVertices(); ++iVtx) {
-        const xAOD::Vertex* phvx = ph->vertex(iVtx);
-        for(size_t iTrk=0; iTrk<phvx->nTrackParticles(); ++iTrk) {
-          const xAOD::TrackParticle* phtrk = xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(phvx->trackParticle(iTrk));
-          if(pfo->charge()!=0 && acceptChargedPFO(phtrk,pv) && pfo->track(0) == phtrk) match = true; 
-        }
-      }
-      if (match) nearbyPFO.push_back(pfo);
     }
     ATH_MSG_VERBOSE("Found " << nearbyPFO.size() << " nearby pfos");
 
@@ -174,18 +162,21 @@ namespace met {
     double sumE_pfo = 0.;
     std::sort(nearbyPFO.begin(),nearbyPFO.end(),greaterPtPFO);
     for(const auto& pfo : nearbyPFO) {
-      double pfo_e = (pfo->charge()==0 ? pfo->eEM() : pfo->e());
+      // Handle neutral PFOs like topoclusters
+      double pfo_e = pfo->eEM();
       // skip cluster if it's above our bad match threshold
-      if(pfo->eEM()>m_tcMatch_maxRat*eg_cl_e) {
-        ATH_MSG_VERBOSE("Reject topocluster in sum. Ratio vs eg cluster: " << (pfo->eEM()/eg_cl_e));
+      if(pfo_e>m_tcMatch_maxRat*eg_cl_e) {
+        ATH_MSG_VERBOSE("Reject topocluster in sum. Ratio vs eg cluster: " << (pfo_e/eg_cl_e));
 	continue;
       }
 
-      if( (doSum = fabs(sumE_pfo+pfo->e()-eg_cl_e) < fabs(sumE_pfo - eg_cl_e)) ) {
+      if( (doSum = fabs(sumE_pfo+pfo_e-eg_cl_e) < fabs(sumE_pfo - eg_cl_e)) ) {
 	pfolist.push_back(pfo);
 	sumE_pfo += pfo_e;
-	pfovec += (pfo->charge()==0 ? MissingETBase::Types::constvec_t(pfo->ptEM()*cos(pfo->phiEM()),pfo->ptEM()*sin(pfo->phiEM()),pfo->ptEM()*cosh(pfo->etaEM()),pfo->eEM(),pfo->eEM()) : MissingETBase::Types::constvec_t(*pfo));
-        trkvec += MissingETBase::Types::constvec_t(*pfo);
+
+        TLorentzVector momentum = pfo->GetVertexCorrectedEMFourVec(*pv);
+	momenta[pfo] = MissingETBase::Types::constvec_t(momentum.Px(),momentum.Py(),momentum.Pz(),
+						   momentum.E(),momentum.Pt());
       } // if we will retain the topocluster
       else {break;}
     } // loop over nearby clusters
