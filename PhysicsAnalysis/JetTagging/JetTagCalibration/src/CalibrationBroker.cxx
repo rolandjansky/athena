@@ -318,7 +318,7 @@ namespace Analysis {
 	if((*itr)==folder) {
 	  ATH_MSG_DEBUG( "#BTAG# Key and actual folder match: " << (*itr));
 
-          for(uint i=0;i<m_folders.size();i++) {
+          for(uint i=0;i<m_folders.size();++i) {
 	    std::string tagger = this->taggerName(m_folders[i]);
 
 	    for(unsigned int j=0; j<m_originalChannels.size(); ++j){
@@ -548,9 +548,10 @@ namespace Analysis {
 	      ATH_MSG_DEBUG( "#BTAG#     histo name in physical file= " << hFullName );
 	      TObject* hPointer = 0;
 
-	      if(p_coolhistsvc->objectExists(folder, m_singleFolderName, hFullName)){
-		  StatusCode sc = p_coolhistsvc->getTObject(folder, m_singleFolderName, hFullName, hPointer);
-		  if(sc.isSuccess()) {
+	      //if(p_coolhistsvc->objectExists(folder, m_singleFolderName, hFullName)){
+	      if(p_coolhistsvc->getTObject(folder, m_singleFolderName, hFullName, hPointer).isSuccess()){
+		  //StatusCode sc = p_coolhistsvc->getTObject(folder, m_singleFolderName, hFullName, hPointer);
+		  //if(sc.isSuccess()) {
 		    if(hPointer) {
 		      ATH_MSG_DEBUG( "#BTAG# Cached pointer to histogram: " 
 				     << hPointer);
@@ -561,16 +562,14 @@ namespace Analysis {
 		      ATH_MSG_ERROR( "#BTAG# Could not cache pointer to histogram " 
 				     << fname );
 		    }
-		  } else {
-		    ATH_MSG_WARNING( "#BTAG# Problem getting histogram " << hFullName << " from COOL");
-		  }
+		  //} else {
+		  //  ATH_MSG_WARNING( "#BTAG# Problem getting histogram " << hFullName << " from COOL");
+		  //}
 		}
 		else{
 		  ATH_MSG_WARNING("#BTAG# error: histogram "<<hFullName
 				  <<" does not exist - you are probably using an old database tag");
 		}
-
-
 	    }
 	  }
         }
