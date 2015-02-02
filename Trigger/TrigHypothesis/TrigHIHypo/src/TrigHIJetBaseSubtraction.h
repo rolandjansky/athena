@@ -28,7 +28,7 @@ public:
   virtual ErrorCode hltFinalize();  
   virtual ErrorCode hltExecute(const TriggerElement* input, 
 			       TriggerElement* output);  
-  virtual bool reset();
+  virtual ErrorCode hltEndEvent();
 private:
 
   std::string m_label;

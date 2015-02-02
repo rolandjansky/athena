@@ -25,3 +25,4 @@ use TrigMissingEtEvent      TrigMissingEtEvent-*        Trigger/TrigEvent
 use TrigT1Interfaces    TrigT1Interfaces-*      Trigger/TrigT1
 use Particle Particle-* Reconstruction
 use TrkParameters TrkParameters-*   Tracking/TrkEvent
+use CaloEvent     CaloEvent-*    Calorimeter

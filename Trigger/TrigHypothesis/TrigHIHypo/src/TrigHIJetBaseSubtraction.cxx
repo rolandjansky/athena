@@ -52,10 +52,10 @@ ErrorCode TrigHIJetBaseSubtraction::hltFinalize() {
   return OK;
 }
 
-bool TrigHIJetBaseSubtraction::reset() {
+ErrorCode TrigHIJetBaseSubtraction::hltEndEvent() {
   m_jet_background = -1;
   m_lvl1_sumEt = -1;    
-  return FexAlgo::reset();
+  return OK;
 }
 
 
