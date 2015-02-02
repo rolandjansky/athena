@@ -1,0 +1,12 @@
+<lcgdict>
+   <class name="met::METRebuilder" />
+   <class name="met::METMaker" />
+   <class name="met::METSystematicsTool" />
+
+  <!-- Suppress the unwanted classes found by ROOT 6. -->
+  <!-- Hopefully we can remove these extra lines at one point... -->
+  <exclusion>
+    <class name="SG::IConstAuxStore" />
+    <class name="DataLink<SG::IConstAuxStore>" />
+  </exclusion>
+</lcgdict>
