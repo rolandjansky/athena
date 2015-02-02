@@ -41,6 +41,7 @@ def GetNumberOfProcessedEvents(server,RUN,stream,PROCESSING):
         if run in dic: 
             proc_events = int(dic[run])
 
+
     return proc_events
 
 # check for defects database name for get_defects_lb
@@ -61,6 +62,7 @@ def GetDefectsDBName(firstrun,lastrun=-1):
 def GetRunInfoFromDQM(RUN):
     run=str(RUN)
     data={};
+    data["ERROR"]=""; # error string init
 
     s = xmlrpclib.ServerProxy('https://'+dqmpass+'@atlasdqm.cern.ch')
     run_spec = {'stream': 'physics_IDCosmic', 'source': 'tier0', 'low_run': int(run), 'high_run': int(run)}
@@ -160,14 +162,42 @@ def GetRunInfoFromDQM(RUN):
             data["FINAL"]="DONE"
 
     #GetNumberOfProcessedCosmicCaloEvent2 
-    data["ESPROC"]=str(GetNumberOfProcessedEvents(s,run,"physics_CosmicCalo",1))
-    data["BULKPROC"]=str(GetNumberOfProcessedEvents(s,run,"physics_CosmicCalo",2))
+    try: 
+        data["ESPROC"]=str(GetNumberOfProcessedEvents(s,run,"physics_CosmicCalo",1))
+    except:
+        data["ESPROC"]=str(0)
+        data["ERROR"]+="ESPROC "
+    try: 
+        data["BULKPROC"]=str(GetNumberOfProcessedEvents(s,run,"physics_CosmicCalo",2))
+    except:
+        data["BULKPROC"]=str(0)
+        data["ERROR"]+="BULKPROC "
+
     #GetNumberOfProcessedExpressStreamEvents3
-    data["ESPROCEXPRESS"]=str(GetNumberOfProcessedEvents(s,run,"express_express",1))
-    data["BULKPROCEXPRESS"]=str(GetNumberOfProcessedEvents(s,run,"express_express",2))
+    try:
+        data["ESPROCEXPRESS"]=str(GetNumberOfProcessedEvents(s,run,"express_express",1))
+    except:
+        data["ESPROCEXPRESS"]=str(0)
+        data["ERROR"]+="ESPROCEXPRESS "
+        
+    try:
+        data["BULKPROCEXPRESS"]=str(GetNumberOfProcessedEvents(s,run,"express_express",2))
+    except:
+        data["BULKPROCEXPRESS"]=str(0)
+        data["ERROR"]+="BULKPROCEXPRESS "
+        
     #GetNumberOfProcessedJetTauEtmissEvents2
-    data["ESPROCJETTAU"]=str(GetNumberOfProcessedEvents(s,run,"physics_JetTauEtmiss",1))
-    data["BULKPROCJETTAU"]=str(GetNumberOfProcessedEvents(s,run,"physics_JetTauEtmiss",2))
+    try:
+        data["ESPROCJETTAU"]=str(GetNumberOfProcessedEvents(s,run,"physics_JetTauEtmiss",1))
+    except:
+        data["ESPROCJETTAU"]=str(0)
+        data["ERROR"]+="ESPROCJETTAU "
+    
+    try:
+        data["BULKPROCJETTAU"]=str(GetNumberOfProcessedEvents(s,run,"physics_JetTauEtmiss",2))
+    except:
+        data["BULKPROCJETTAU"]=str(0)
+        data["ERROR"]+="BULKPROCJETTAU "
 
     #dummy
     data["TEMPEXPRESS"]=""

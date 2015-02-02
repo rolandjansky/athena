@@ -46,14 +46,32 @@ def ShowListOfRuns(list_of_runs,number_limit):
 
 
 ########MAIN FUNCTION########
+
+# cgi input data purser 
+cgifields = cgi.FieldStorage()
+cgidata = {}
+for i in cgifields.keys():
+  cgidata[i] = str(cgifields[i].value)
+
+
 # html header
 print '''
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>LADIeS Page 1</title>
-<meta name="author" content="'''+config.get('dev', 'email')+''' ['''+config.get('dev', 'email')+''']"/> 
-<link rel="Stylesheet" href="'''+config.get('url','stylescss')+'''" type="text/css" />'''
+<meta name="author" content="'''+config.get('dev', 'email')+''' ['''+config.get('dev', 'email')+''']"/> '''
+
+#check for updatetime
+if not cgidata.has_key('updatetime'):
+  cgidata['updatetime']=str(config.get('html', 'defupdatetime'))
+# add updatetime
+if int(cgidata['updatetime'])>0:
+  print '''<meta http-equiv="refresh" content="'''+\
+      str(int(cgidata['updatetime'])*60)+'''" /> '''
+print '''<link rel="Stylesheet" href="'''+\
+    config.get('url','stylescss')+'''" type="text/css" />'''
+
 # js script
 print '''
 <script type="text/javascript">
@@ -94,7 +112,7 @@ function makeFrame(i,run) {
           if (!iframe) return;
           iframe.frameBorder = 0;
           iframe.width = 380;
-          iframe.height = 200;
+          iframe.height = 216;
           iframe.src = "'''+baseurl+'''LArPage1/iframe.py?run="+run
           iframe.setAttribute ("id", "testframe"+i);
           if(Obj2.value!='already') document.getElementById ("test"+i).appendChild(iframe);
@@ -185,11 +203,6 @@ if infos_shifters["FIRSTNAMESHIFTER2"]=="NONE" and infos_shifters["FIRSTNAMESHIF
 print '<b>To update info for a given run:</b> click on the "reload" button above the corresponding run number (No need to reload the full page)<br>'
 print '<b>Warning:</b> the CAF job status is not working yet.<br/>'
 
-# cgi input data purser 
-cgifields = cgi.FieldStorage()
-cgidata = {}
-for i in cgifields.keys():
-  cgidata[i] = str(cgifields[i].value)
 
 
 # check for lastrun
@@ -197,12 +210,12 @@ if (not cgidata.has_key('lastrun')) or  int(cgidata['lastrun']) <1:
   import urllib
   f = urllib.urlopen(LatestRunUrl)
   last_run_bytes = f.read()
-  last_run_str = last_run_bytes.decode("utf8")
+  last_run_str = str(int(last_run_bytes.decode("utf8")))
   cgidata['lastrun'] = last_run_str
   cgidata['nolastrun'] = 1
   # for the "Last Run" nruns has a default value in config.ini
-  if (not cgidata.has_key('nruns')) or cgidata.has_key('nruns') < 1:
-    cgidata['nruns'] = str(config.get('run', 'nruns'))
+#  if (not cgidata.has_key('nruns')) or cgidata.has_key('nruns') < 1:
+#    cgidata['nruns'] = str(config.get('run', 'nruns'))
 
 # check for firstrun
 defdelta=int(config.get('run', 'defdelta'))
@@ -229,9 +242,9 @@ if int(cgidata['firstrun']) > int(cgidata['lastrun']):
   cgidata['firstrun']=cgidata['lastrun']
   cgidata['lastrun']=tmp
 
-# check for maxrun
+# check for nruns
 if not cgidata.has_key('nruns'):
-  cgidata['nruns']=str(-1)
+  cgidata['nruns']=str(config.get('run', 'nruns'))
 
 #check for datatag
 if not cgidata.has_key('datatag'):
@@ -258,6 +271,7 @@ if not cgidata.has_key('minnevent'):
 if not cgidata.has_key('minnlb'):
   cgidata['minnlb']=str(config.get('run', 'defminnlb'))
 
+#print cgidata
   
 # options input
 print '''<FORM METHOD=GET ACTION="'''+baseurl+'''LArPage1/index.py" TARGET=_BLANK>
@@ -272,6 +286,7 @@ print '''<FORM METHOD=GET ACTION="'''+baseurl+'''LArPage1/index.py" TARGET=_BLAN
    <th>Min N event</th> <!--Number of events -->
    <th>Min NLB</th><!--Number of luminosity blocks (-1 if run ongoing)  -->
    <th>Max runs/page</th>
+   <th>Update (min)</th>
    <th><input type="reset" value="Reset"></th>
  </tr>
  <tr>
@@ -320,6 +335,7 @@ print      '''>Bulk</option>
    <td><INPUT type=text name="minnevent" value="'''+str(cgidata['minnevent'])+'''" size="10"></td>
    <td><INPUT type=text name="minnlb"  value="'''+str(cgidata['minnlb'])+'''" size="10"></td>
    <td><INPUT type=text name="nruns" value="'''+str(cgidata['nruns'])+'''" size="10"></td>
+   <td><INPUT type=text name="updatetime" value="'''+str(cgidata['updatetime'])+'''" size="10"></td>
    <td>&nbsp;&nbsp;<INPUT type="submit" value="Submit">&nbsp;&nbsp;</td>
  </tr>
 </table>
@@ -331,9 +347,13 @@ print      '''>Bulk</option>
 #making runlist
 import GetListOfRuns
 runlist= GetListOfRuns.makerunlist(cgidata)
-# presenting runs on the web page
-ShowListOfRuns(runlist,len(runlist))
 
+if len(runlist):
+  # presenting runs on the web page
+  ShowListOfRuns(runlist,len(runlist))
+else:
+  # empty runlist
+  print '''<br><P>No suitable runs found in ['''+cgidata['firstrun']+","+cgidata['lastrun']+'''] interval</P>'''
 
 ## Footer
 print '''</div>
@@ -343,8 +363,9 @@ print '''</div>
 <div class="footer">
 <hr>'''
 print '''Developer: <a href="mailto:'''+config.get('dev', 'email')+'''">'''+config.get('dev', 'name')+'''</a>&nbsp;
-DQ contact: <a href="mailto:'''+config.get('DQ', 'email')+'''">'''+config.get('DQ', 'name')+'''</a> &nbsp;<br />
-Last update: '''+config.get('dev', 'lastupdate')
+DQ contact: <a href="mailto:'''+config.get('DQ', 'email')+'''">'''+config.get('DQ', 'name')+'''</a>'''
+print '''<br /> Debug info: <A href="'''+config.get('url', 'logfiledir')+'''">Log files dir</A>'''
+print '''&nbsp;Last update: '''+config.get('dev', 'lastupdate')
 print'''
 </div>'''
 print '''</body>

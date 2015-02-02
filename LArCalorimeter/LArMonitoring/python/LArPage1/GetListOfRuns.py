@@ -110,14 +110,14 @@ if __name__ == "__main__":
     data['datatag'] = "data12_8TeV"
     data['beamcondition'] =1
 
-#    data['firstrun'] = 248000
-#    data['lastrun'] = 248371 
+    data['firstrun'] = 248362
+    data['lastrun'] = 248862
 #    data['firstrun'] = 248115
 #    data['lastrun'] = 248115 
-#    data['datatag'] = "data14_cos"
-#    data['beamcondition'] =0
+    data['datatag'] = "data14_cos"
+    data['beamcondition'] =0
 
-    data['nruns']=-1
+    data['nruns']=5
     data['minnevent'] = 10000
     data['dqstatus'] =0 
     data['minnlb'] =0 
