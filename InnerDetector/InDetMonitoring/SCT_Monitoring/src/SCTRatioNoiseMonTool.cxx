@@ -736,7 +736,6 @@ StatusCode SCTRatioNoiseMonTool::bookRatioNoiseHistos(){       // hidetoshi 14.0
     //      MonGroup RatioNoise(this,m_path+"SCT/GENERAL/RatioNoise",expert,run);   // hidetoshi 14.01.22
     MonGroup RatioNoise(this,m_path+"SCT/GENERAL/RatioNoise",run,ATTRIB_UNMANAGED); // hidetoshi 14.01.22
     
-    
     string hNumBarrel[N_BARRELS]={"0","1","2","3"};
     string hNumEndcap[N_DISKS]={"0","1","2","3","4","5","6","7","8"};
     
@@ -769,94 +768,6 @@ StatusCode SCTRatioNoiseMonTool::bookRatioNoiseHistos(){       // hidetoshi 14.0
     m_NZ1_vs_modnum->SetTitle("ModuleNumber vs Num of ZeroSide Hits; Module Number; Num of ZeroSide Hits");
     m_N11_vs_modnum = h1Factory("h_N11_vs_modnum", "Num of OneSide hits vs module number", RatioNoise, 0,4088, 4088);
     m_N11_vs_modnum->SetTitle("ModuleNumber vs Num of OneSide Hits; Module Number; Num of OneSide Hits");      
-    
-    for(int l=0;l< n_layers[BARREL_INDEX];l++){
-      //granularity set to one histogram/layer for now
-      m_NOEV_Barrel[l] = h1Factory("h_NOEV_Barrel"+hNumBarrel[l], "Event Noise Occupancy Barrel Layer"+hNumBarrel[l], RatioNoise, 0, 5,500);
-      m_NOEV_Barrel[l]->GetXaxis()->SetTitle("Event Noise Occupancy [10^{-5}]");
-      m_NOEV_Barrel[l]->GetYaxis()->SetTitle("Events");
-      m_numberHitsinBarrel[l] = h1Factory("h_numberHitsinBarrel"+hNumBarrel[l],"Number Hits in Barrel Layer"+hNumBarrel[l],RatioNoise, 0.,50.,50.);
-      m_numberHitsinBarrel[l]->GetXaxis()->SetTitle("Index in the direction of #phi");
-      m_numberHitsinBarrel[l]->GetYaxis()->SetTitle("Hits");
-      m_NZ1BAR[l]=h1Factory("h_NZ1BAR"+hNumBarrel[l], "Num of ZeroSide Hits in Barrel Layer"+hNumBarrel[l], RatioNoise, 0, 6000, 1000);
-      m_NZ1BAR[l]->GetXaxis()->SetTitle("Num of ZeroSide Hits");
-      m_NZ1BAR[l]->GetYaxis()->SetTitle("Num of Entries");
-      m_N11BAR[l]=h1Factory("h_N11BAR"+hNumBarrel[l], "Num of OneSide Hits in Barrel Layer"+hNumBarrel[l], RatioNoise, 0, 6000, 1000);
-      m_N11BAR[l]->GetXaxis()->SetTitle("Num of OneSide Hits");
-      m_N11BAR[l]->GetYaxis()->SetTitle("Num of Entries");
-      m_N21BAR[l]=h1Factory("h_N21BAR"+hNumBarrel[l], "Num of TwoSide Hits in Barrel Layer"+hNumBarrel[l], RatioNoise, 0, 6000, 1000);
-      m_N21BAR[l]->GetXaxis()->SetTitle("Num of TwoSide Hits");
-      m_N21BAR[l]->GetYaxis()->SetTitle("Num of Entries");
-      m_NOb_layer[l]=h1Factory("h_NOb_layer"+hNumBarrel[l], "Noise Occupancy Barrel Layer"+hNumBarrel[l],RatioNoise, 0, 100, 500);
-      m_NOb_layer[l]->GetXaxis()->SetTitle("Noise Occupancy [10^{-5}]");
-      m_NOb_layer[l]->GetYaxis()->SetTitle("Num of Modules");
-      m_NOb_layer_vsLB[l]=h1Factory("h_NOb_layer"+hNumBarrel[l]+"_vsLB", "Noise Occupancy Barrel Layer"+hNumBarrel[l]+" vs LB",RatioNoise, 0, NBINS_LBs, NBINS_LBs);
-      m_NOb_layer_vsLB[l]->GetXaxis()->SetTitle("LumiBlock");
-      m_NOb_layer_vsLB[l]->GetYaxis()->SetTitle("Noise Occupancy [10^{-5}]");
-      m_NZ1BAR_vsLB[l]=h1Factory("h_NZ1BAR"+hNumBarrel[l]+"_vsLB", "Num of ZeroSide Hits in Barrel Layer"+hNumBarrel[l]+" vs LB", RatioNoise, 0, NBINS_LBs, NBINS_LBs);
-      m_NZ1BAR_vsLB[l]->GetXaxis()->SetTitle("LumiBlock");
-      m_NZ1BAR_vsLB[l]->GetYaxis()->SetTitle("Num of ZeroSide Hits");
-      m_N11BAR_vsLB[l]=h1Factory("h_N11BAR"+hNumBarrel[l]+"_vsLB", "Num of OneSide Hits in Barrel Layer"+hNumBarrel[l]+" vs LB", RatioNoise, 0, NBINS_LBs, NBINS_LBs);
-      m_N11BAR_vsLB[l]->GetXaxis()->SetTitle("LumiBlock");
-      m_N11BAR_vsLB[l]->GetYaxis()->SetTitle("Num of OneSide Hits");	
-    } 
-    
-    for(int m=0; m<n_layers[ENDCAP_C_INDEX];m++){
-      m_NOEV_EndcapC[m] = h1Factory("h_NOEV_EndcapC"+hNumEndcap[m], "Event Noise Occupancy EndcapC Disk"+hNumEndcap[m], RatioNoise, 0, 5,500);
-      m_NOEV_EndcapC[m]->GetXaxis()->SetTitle("Event Noise Occupancy [10^{-5}]");
-      m_NOEV_EndcapC[m]->GetYaxis()->SetTitle("Events");
-      m_NZ1ECC[m]=h1Factory("h_NZ1ECC"+hNumEndcap[m], "Num of ZeroSide Hits in EndcapC Disk"+hNumEndcap[m], RatioNoise, 0, 6000, 1000);
-      m_NZ1ECC[m]->GetXaxis()->SetTitle("Num of ZeroSide Hits");
-      m_NZ1ECC[m]->GetYaxis()->SetTitle("Num of Entries");
-      m_N11ECC[m]=h1Factory("h_N11ECC"+hNumEndcap[m], "Num of OneSide Hits in EndcapC Disk"+hNumEndcap[m], RatioNoise, 0, 6000, 1000);
-      m_N11ECC[m]->GetXaxis()->SetTitle("Num of OneSide Hits");
-      m_N11ECC[m]->GetYaxis()->SetTitle("Num of Entries");
-      m_N21ECC[m]=h1Factory("h_N21ECC"+hNumEndcap[m], "Num of TwoSide Hits in EndcapC Disk"+hNumEndcap[m], RatioNoise, 0, 6000, 1000);
-      m_N21ECC[m]->GetXaxis()->SetTitle("Num of TwoSide Hits");
-      m_N21ECC[m]->GetYaxis()->SetTitle("Num of Entries");
-      m_NOECC_disk[m]=h1Factory("h_NOECC_disk"+hNumEndcap[m], "Noise Occupancy EndcapC Disk"+hNumEndcap[m],RatioNoise, 0, 100, 500);
-      m_NOECC_disk[m]->GetXaxis()->SetTitle("Noise Occupancy [10^{-5}]");	
-      m_NOECC_disk[m]->GetYaxis()->SetTitle("Num of Modules");	
-      
-      m_NOECC_disk_vsLB[m] = h1Factory("h_NOECC_disk"+hNumEndcap[m]+"_vsLB", "Noise Occupancy EndcapC Disk"+hNumEndcap[m]+" vs LB",RatioNoise, 0, NBINS_LBs, NBINS_LBs);
-      m_NOECC_disk_vsLB[m]->GetXaxis()->SetTitle("LumiBlock");
-      m_NOECC_disk_vsLB[m]->GetYaxis()->SetTitle("Noise Occupancy [10^{-5}]");	
-      m_NZ1ECC_vsLB[m]=h1Factory("h_NZ1ECC"+hNumEndcap[m]+"_vsLB", "Num of ZeroSide Hits in EndcapC Disk"+hNumEndcap[m]+" vs LB", RatioNoise, 0, NBINS_LBs, NBINS_LBs);
-      m_NZ1ECC_vsLB[m]->GetXaxis()->SetTitle("LumiBlock");	
-      m_NZ1ECC_vsLB[m]->GetYaxis()->SetTitle("Num of ZeroSide Hits");	
-      m_N11ECC_vsLB[m] = h1Factory("h_N11ECC"+hNumEndcap[m]+"_vsLB", "Num of OneSide Hits in EndcapC Disk"+hNumEndcap[m]+" vs LB", RatioNoise, 0, NBINS_LBs, NBINS_LBs);
-      m_N11ECC_vsLB[m]->GetXaxis()->SetTitle("LumiBlock");	
-      m_N11ECC_vsLB[m]->GetYaxis()->SetTitle("Num of OneSide Hits");	
-    }
-    
-    for(int p=0; p<n_layers[ENDCAP_A_INDEX];p++){
-      m_NOEV_EndcapA[p] = h1Factory("h_NOEV_EndcapA"+hNumEndcap[p], "Event Noise Occupancy EndcapA Disk"+hNumEndcap[p], RatioNoise, 0, 5,500);
-      m_NOEV_EndcapA[p]->GetXaxis()->SetTitle("Event Noise Occupancy [10^{-5}]");
-      m_NOEV_EndcapA[p]->GetYaxis()->SetTitle("Events");
-      m_NZ1ECA[p]=h1Factory("h_NZ1ECA"+hNumEndcap[p], "Num of ZeroSide Hits in EndcapA Disk"+hNumEndcap[p], RatioNoise, 0, 6000, 1000);
-      m_NZ1ECA[p]->GetXaxis()->SetTitle("Num of ZeroSide Hits");
-      m_NZ1ECA[p]->GetYaxis()->SetTitle("Num of Entries");
-      m_N11ECA[p]=h1Factory("h_N11ECA"+hNumEndcap[p], "Num of OneSide Hits in EndcapA Disk"+hNumEndcap[p], RatioNoise, 0, 6000, 1000);
-      m_N11ECA[p]->GetXaxis()->SetTitle("Num of OneSide Hits");
-      m_N11ECA[p]->GetYaxis()->SetTitle("Num of Entries");
-      m_N21ECA[p]=h1Factory("h_N21ECA"+hNumEndcap[p], "Num of TwoSide Hits in EndcapA Disk"+hNumEndcap[p], RatioNoise, 0, 6000, 1000);
-      m_N21ECA[p]->GetXaxis()->SetTitle("Num of TwoSide Hits");
-      m_N21ECA[p]->GetYaxis()->SetTitle("Num of Entries");
-      m_NOECA_disk[p]=h1Factory("h_NOECA_disk"+hNumEndcap[p], "Noise Occupancy EndcapA Disk"+hNumEndcap[p],RatioNoise, 0, 100, 500);
-      m_NOECA_disk[p]->GetXaxis()->SetTitle("Noise Occupancy [10^{-5}]");	
-      m_NOECA_disk[p]->GetYaxis()->SetTitle("Num of Modules");	
-      
-      m_NOECA_disk_vsLB[p]=h1Factory("h_NOECA_disk"+hNumEndcap[p]+"_vsLB", "Noise Occupancy Barrel Disk"+hNumEndcap[p]+" vs LB",RatioNoise, 0, NBINS_LBs, NBINS_LBs);
-      m_NOECA_disk_vsLB[p]->GetXaxis()->SetTitle("LumiBlock");		
-      m_NOECA_disk_vsLB[p]->GetYaxis()->SetTitle("Noise Occupancy [10^{-5}]");
-      m_NZ1ECA_vsLB[p]=h1Factory("h_NZ1ECA"+hNumEndcap[p]+"_vsLB", "Num of ZeroSide Hits in EndcapA Disk"+hNumEndcap[p]+" vs LB", RatioNoise, 0, NBINS_LBs, NBINS_LBs);
-      m_NZ1ECA_vsLB[p]->GetXaxis()->SetTitle("LumiBlock");	
-      m_NZ1ECA_vsLB[p]->GetYaxis()->SetTitle("Num of ZeroSide Hits");
-      m_N11ECA_vsLB[p]=h1Factory("h_N11ECA"+hNumEndcap[p]+"_vsLB", "Num of OneSide Hits in EndcapA Disk"+hNumEndcap[p]+" vs LB", RatioNoise, 0, NBINS_LBs, NBINS_LBs);
-      m_N11ECA_vsLB[p]->GetXaxis()->SetTitle("LumiBlock");	
-      m_N11ECA_vsLB[p]->GetYaxis()->SetTitle("Num of OneSide Hits");
-    }
-    
     // Module Level Noise Occupancy
     
     // For each type of endcap module
@@ -872,6 +783,7 @@ StatusCode SCTRatioNoiseMonTool::bookRatioNoiseHistos(){       // hidetoshi 14.0
 
     
     const string paths[]={"SCT/SCTEC/RatioNoise", "SCT/SCTB/RatioNoise", "SCT/SCTEA/RatioNoise"};
+    const string paths_hits[]={"SCT/SCTEC/RatioNoise/numOfHits", "SCT/SCTB/RatioNoise/numOfHits", "SCT/SCTEA/RatioNoise/numOfHits"};
     const unsigned int limits[]={N_DISKS, N_BARRELS, N_DISKS};
     VecProf2_t * storageVectors[]={&m_pnoiseoccupancymapHistoVectorECC, &m_pnoiseoccupancymapHistoVectorBar, &m_pnoiseoccupancymapHistoVectorECA};
     const int bec[]={-2,0,2};
@@ -879,9 +791,100 @@ StatusCode SCTRatioNoiseMonTool::bookRatioNoiseHistos(){       // hidetoshi 14.0
     
     for(int systemIndex=0; systemIndex<3; systemIndex++){
       (storageVectors[systemIndex])->clear();
-      for (unsigned int i=0; i!=limits[systemIndex];++i) {
 	//    MonGroup noiseOccMaps(this,m_path+paths[systemIndex],expert,run);      // hidetoshi 14.01.21
 	MonGroup noiseOccMaps(this,m_path+paths[systemIndex],run,ATTRIB_UNMANAGED);  // hidetoshi 14.01.21
+	MonGroup noiseOccHits(this,m_path+paths_hits[systemIndex],run,ATTRIB_UNMANAGED);  //07.01.2015
+	if(systemIndex==1){
+	for(int l=0;l< n_layers[BARREL_INDEX];l++){//24.12.2014
+      //granularity set to one histogram/layer for now
+      m_NOEV_Barrel[l] = h1Factory("h_NOEV_Barrel"+hNumBarrel[l], "Event Noise Occupancy Barrel Layer"+hNumBarrel[l], noiseOccMaps, 0, 5,500);
+      m_NOEV_Barrel[l]->GetXaxis()->SetTitle("Event Noise Occupancy [10^{-5}]");
+      m_NOEV_Barrel[l]->GetYaxis()->SetTitle("Events");
+      m_numberHitsinBarrel[l] = h1Factory("h_numberHitsinBarrel"+hNumBarrel[l],"Number Hits in Barrel Layer"+hNumBarrel[l],noiseOccMaps, 0.,50.,50.);
+      m_numberHitsinBarrel[l]->GetXaxis()->SetTitle("Index in the direction of #phi");
+      m_numberHitsinBarrel[l]->GetYaxis()->SetTitle("Hits");
+      m_NZ1BAR[l]=h1Factory("h_NZ1BAR"+hNumBarrel[l], "Num of ZeroSide Hits in Barrel Layer"+hNumBarrel[l], noiseOccHits, 0, 6000, 1000);
+      m_NZ1BAR[l]->GetXaxis()->SetTitle("Num of ZeroSide Hits");
+      m_NZ1BAR[l]->GetYaxis()->SetTitle("Num of Entries");
+      m_N11BAR[l]=h1Factory("h_N11BAR"+hNumBarrel[l], "Num of OneSide Hits in Barrel Layer"+hNumBarrel[l], noiseOccHits, 0, 6000, 1000);
+      m_N11BAR[l]->GetXaxis()->SetTitle("Num of OneSide Hits");
+      m_N11BAR[l]->GetYaxis()->SetTitle("Num of Entries");
+      m_N21BAR[l]=h1Factory("h_N21BAR"+hNumBarrel[l], "Num of TwoSide Hits in Barrel Layer"+hNumBarrel[l], noiseOccHits, 0, 6000, 1000);
+      m_N21BAR[l]->GetXaxis()->SetTitle("Num of TwoSide Hits");
+      m_N21BAR[l]->GetYaxis()->SetTitle("Num of Entries");
+      m_NOb_layer[l]=h1Factory("h_NOb_layer"+hNumBarrel[l], "Noise Occupancy Barrel Layer"+hNumBarrel[l],noiseOccMaps, 0, 100, 500);
+      m_NOb_layer[l]->GetXaxis()->SetTitle("Noise Occupancy [10^{-5}]");
+      m_NOb_layer[l]->GetYaxis()->SetTitle("Num of Modules");
+      m_NOb_layer_vsLB[l]=h1Factory("h_NOb_layer"+hNumBarrel[l]+"_vsLB", "Noise Occupancy Barrel Layer"+hNumBarrel[l]+" vs LB",noiseOccMaps, 0, NBINS_LBs, NBINS_LBs);
+      m_NOb_layer_vsLB[l]->GetXaxis()->SetTitle("LumiBlock");
+      m_NOb_layer_vsLB[l]->GetYaxis()->SetTitle("Noise Occupancy [10^{-5}]");
+      m_NZ1BAR_vsLB[l]=h1Factory("h_NZ1BAR"+hNumBarrel[l]+"_vsLB", "Num of ZeroSide Hits in Barrel Layer"+hNumBarrel[l]+" vs LB", noiseOccHits, 0, NBINS_LBs, NBINS_LBs);
+      m_NZ1BAR_vsLB[l]->GetXaxis()->SetTitle("LumiBlock");
+      m_NZ1BAR_vsLB[l]->GetYaxis()->SetTitle("Num of ZeroSide Hits");
+      m_N11BAR_vsLB[l]=h1Factory("h_N11BAR"+hNumBarrel[l]+"_vsLB", "Num of OneSide Hits in Barrel Layer"+hNumBarrel[l]+" vs LB", noiseOccHits, 0, NBINS_LBs, NBINS_LBs);
+      m_N11BAR_vsLB[l]->GetXaxis()->SetTitle("LumiBlock");
+      m_N11BAR_vsLB[l]->GetYaxis()->SetTitle("Num of OneSide Hits");	
+	} //24.12.2014
+	}
+	if(systemIndex==0){
+	  for(int m=0; m<n_layers[ENDCAP_C_INDEX];m++){
+	    m_NOEV_EndcapC[m] = h1Factory("h_NOEV_EndcapC"+hNumEndcap[m], "Event Noise Occupancy EndcapC Disk"+hNumEndcap[m], noiseOccMaps, 0, 5,500);
+	    m_NOEV_EndcapC[m]->GetXaxis()->SetTitle("Event Noise Occupancy [10^{-5}]");
+	    m_NOEV_EndcapC[m]->GetYaxis()->SetTitle("Events");
+	    m_NZ1ECC[m]=h1Factory("h_NZ1ECC"+hNumEndcap[m], "Num of ZeroSide Hits in EndcapC Disk"+hNumEndcap[m], noiseOccHits, 0, 6000, 1000);
+	    m_NZ1ECC[m]->GetXaxis()->SetTitle("Num of ZeroSide Hits");
+	    m_NZ1ECC[m]->GetYaxis()->SetTitle("Num of Entries");
+	    m_N11ECC[m]=h1Factory("h_N11ECC"+hNumEndcap[m], "Num of OneSide Hits in EndcapC Disk"+hNumEndcap[m], noiseOccHits, 0, 6000, 1000);
+	    m_N11ECC[m]->GetXaxis()->SetTitle("Num of OneSide Hits");
+	    m_N11ECC[m]->GetYaxis()->SetTitle("Num of Entries");
+	    m_N21ECC[m]=h1Factory("h_N21ECC"+hNumEndcap[m], "Num of TwoSide Hits in EndcapC Disk"+hNumEndcap[m], noiseOccHits, 0, 6000, 1000);
+	    m_N21ECC[m]->GetXaxis()->SetTitle("Num of TwoSide Hits");
+	    m_N21ECC[m]->GetYaxis()->SetTitle("Num of Entries");
+	    m_NOECC_disk[m]=h1Factory("h_NOECC_disk"+hNumEndcap[m], "Noise Occupancy EndcapC Disk"+hNumEndcap[m],noiseOccMaps, 0, 100, 500);
+	    m_NOECC_disk[m]->GetXaxis()->SetTitle("Noise Occupancy [10^{-5}]");	
+	    m_NOECC_disk[m]->GetYaxis()->SetTitle("Num of Modules");	
+	    
+	    m_NOECC_disk_vsLB[m] = h1Factory("h_NOECC_disk"+hNumEndcap[m]+"_vsLB", "Noise Occupancy EndcapC Disk"+hNumEndcap[m]+" vs LB",noiseOccMaps, 0, NBINS_LBs, NBINS_LBs);
+	    m_NOECC_disk_vsLB[m]->GetXaxis()->SetTitle("LumiBlock");
+	    m_NOECC_disk_vsLB[m]->GetYaxis()->SetTitle("Noise Occupancy [10^{-5}]");	
+	    m_NZ1ECC_vsLB[m]=h1Factory("h_NZ1ECC"+hNumEndcap[m]+"_vsLB", "Num of ZeroSide Hits in EndcapC Disk"+hNumEndcap[m]+" vs LB", noiseOccHits, 0, NBINS_LBs, NBINS_LBs);
+	    m_NZ1ECC_vsLB[m]->GetXaxis()->SetTitle("LumiBlock");	
+	    m_NZ1ECC_vsLB[m]->GetYaxis()->SetTitle("Num of ZeroSide Hits");	
+	    m_N11ECC_vsLB[m] = h1Factory("h_N11ECC"+hNumEndcap[m]+"_vsLB", "Num of OneSide Hits in EndcapC Disk"+hNumEndcap[m]+" vs LB", noiseOccHits, 0, NBINS_LBs, NBINS_LBs);
+	    m_N11ECC_vsLB[m]->GetXaxis()->SetTitle("LumiBlock");	
+	    m_N11ECC_vsLB[m]->GetYaxis()->SetTitle("Num of OneSide Hits");	
+	  }
+	}
+	if(systemIndex==2){
+    for(int p=0; p<n_layers[ENDCAP_A_INDEX];p++){
+      m_NOEV_EndcapA[p] = h1Factory("h_NOEV_EndcapA"+hNumEndcap[p], "Event Noise Occupancy EndcapA Disk"+hNumEndcap[p], noiseOccMaps, 0, 5,500);
+      m_NOEV_EndcapA[p]->GetXaxis()->SetTitle("Event Noise Occupancy [10^{-5}]");
+      m_NOEV_EndcapA[p]->GetYaxis()->SetTitle("Events");
+      m_NZ1ECA[p]=h1Factory("h_NZ1ECA"+hNumEndcap[p], "Num of ZeroSide Hits in EndcapA Disk"+hNumEndcap[p], noiseOccHits, 0, 6000, 1000);
+      m_NZ1ECA[p]->GetXaxis()->SetTitle("Num of ZeroSide Hits");
+      m_NZ1ECA[p]->GetYaxis()->SetTitle("Num of Entries");
+      m_N11ECA[p]=h1Factory("h_N11ECA"+hNumEndcap[p], "Num of OneSide Hits in EndcapA Disk"+hNumEndcap[p], noiseOccHits, 0, 6000, 1000);
+      m_N11ECA[p]->GetXaxis()->SetTitle("Num of OneSide Hits");
+      m_N11ECA[p]->GetYaxis()->SetTitle("Num of Entries");
+      m_N21ECA[p]=h1Factory("h_N21ECA"+hNumEndcap[p], "Num of TwoSide Hits in EndcapA Disk"+hNumEndcap[p], noiseOccHits, 0, 6000, 1000);
+      m_N21ECA[p]->GetXaxis()->SetTitle("Num of TwoSide Hits");
+      m_N21ECA[p]->GetYaxis()->SetTitle("Num of Entries");
+      m_NOECA_disk[p]=h1Factory("h_NOECA_disk"+hNumEndcap[p], "Noise Occupancy EndcapA Disk"+hNumEndcap[p],noiseOccMaps, 0, 100, 500);
+      m_NOECA_disk[p]->GetXaxis()->SetTitle("Noise Occupancy [10^{-5}]");	
+      m_NOECA_disk[p]->GetYaxis()->SetTitle("Num of Modules");	
+      
+      m_NOECA_disk_vsLB[p]=h1Factory("h_NOECA_disk"+hNumEndcap[p]+"_vsLB", "Noise Occupancy Barrel Disk"+hNumEndcap[p]+" vs LB",noiseOccMaps, 0, NBINS_LBs, NBINS_LBs);
+      m_NOECA_disk_vsLB[p]->GetXaxis()->SetTitle("LumiBlock");		
+      m_NOECA_disk_vsLB[p]->GetYaxis()->SetTitle("Noise Occupancy [10^{-5}]");
+      m_NZ1ECA_vsLB[p]=h1Factory("h_NZ1ECA"+hNumEndcap[p]+"_vsLB", "Num of ZeroSide Hits in EndcapA Disk"+hNumEndcap[p]+" vs LB", noiseOccHits, 0, NBINS_LBs, NBINS_LBs);
+      m_NZ1ECA_vsLB[p]->GetXaxis()->SetTitle("LumiBlock");	
+      m_NZ1ECA_vsLB[p]->GetYaxis()->SetTitle("Num of ZeroSide Hits");
+      m_N11ECA_vsLB[p]=h1Factory("h_N11ECA"+hNumEndcap[p]+"_vsLB", "Num of OneSide Hits in EndcapA Disk"+hNumEndcap[p]+" vs LB", noiseOccHits, 0, NBINS_LBs, NBINS_LBs);
+      m_N11ECA_vsLB[p]->GetXaxis()->SetTitle("LumiBlock");	
+      m_N11ECA_vsLB[p]->GetYaxis()->SetTitle("Num of OneSide Hits");
+    }
+    }//06.01.2015
+      for (unsigned int i=0; i!=limits[systemIndex];++i) {
 	const string streamhitmap ="noiseoccupancymap"+abbreviations[systemIndex]+"_"+hNumEndcap[i];
 	std::string histotitle="SCT Noise Occupancy map for "+names[systemIndex]+": "+hNumEndcap[i];
 	prof2Factory(streamhitmap,histotitle, bec[systemIndex], noiseOccMaps,*(storageVectors[systemIndex]));
