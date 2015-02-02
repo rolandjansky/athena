@@ -5,6 +5,7 @@
 from BTagging.BTaggingFlags import BTaggingFlags
 
 metaJetFitterTagNN = { 'IsATagger'         : True,
+                       'xAODBaseName'      : 'JetFitter',
                        'DependsOn'         : ['AtlasExtrapolator',
                                               'BTagTrackToVertexTool',
                                               'NewJetFitterVxFinder',
@@ -31,7 +32,6 @@ def toolJetFitterTagNN(name, useBTagFlagsDefaults = True, **options):
     SecVxFinderName                     default: "JetFitter"
     useForcedCalibration                default: False
     ipinfoTaggerName                    default: ""
-    xAODBaseName                        default: "JetFitter"
 
     input:             name: The name of the tool (should be unique).
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
@@ -46,7 +46,7 @@ def toolJetFitterTagNN(name, useBTagFlagsDefaults = True, **options):
 #                     'supplementalTaggers'              : [],
 #                     'storeOnlyBaseObject'              : True,
                      'ipinfoTaggerName'                 : "",
-                     'xAODBaseName'                     : 'JetFitter', }
+                     }
 #        if not BTaggingFlags.JetFitterTag:
 #            defaults['storeOnlyBaseObject'] = False
         for option in defaults:

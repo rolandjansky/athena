@@ -250,6 +250,11 @@ def cloneTool(ToolType, Suffix):
     try:
         exec 'tool'+ToolType+Suffix+' = tool'+ToolType in globals()
         exec 'meta'+ToolType+Suffix+' = deepcopy(meta'+ToolType+')' in globals()
+        # update xAODBaseNames if needed
+        if not getToolMetadata(ToolType, "VertexFinderxAODBaseName") is None:
+            changeToolMetadata(ToolType+Suffix, "VertexFinderxAODBaseName", str(getToolMetadata(ToolType, "VertexFinderxAODBaseName"))+Suffix)
+        if not getToolMetadata(ToolType, "xAODBaseName") is None:
+            changeToolMetadata(ToolType+Suffix, "xAODBaseName", str(getToolMetadata(ToolType, "xAODBaseName"))+Suffix)
     except:
         print '#BTAG# - ERROR - cloneToolCollection() called but one of the tools does not exist, is not implemented correctly, or does not allow cloning: '+ToolType
         raise
@@ -280,6 +285,11 @@ def cloneToolCollection(ToolCollection, Suffix):
         try:
             exec 'tool'+tool+Suffix+' = tool'+tool in globals()
             exec 'meta'+tool+Suffix+' = deepcopy(meta'+tool+')' in globals()
+            # update xAODBaseNames if needed
+            if not getToolMetadata(tool, "VertexFinderxAODBaseName") is None:
+                changeToolMetadata(tool+Suffix, "VertexFinderxAODBaseName", str(getToolMetadata(tool, "VertexFinderxAODBaseName"))+Suffix)
+            if not getToolMetadata(tool, "xAODBaseName") is None:
+                changeToolMetadata(tool+Suffix, "xAODBaseName", str(getToolMetadata(tool, "xAODBaseName"))+Suffix)
             # Update metadata
             PassByPointers = {}
             PassByNames = {}
@@ -306,7 +316,7 @@ def cloneToolCollection(ToolCollection, Suffix):
     return returnlist
 
 def updateBTaggers(JetCollection):
-    """Updates the JetBTaggerTool or tool for the selected JetCollection if they already exist. This is in order to keep
+    """Updates the JetBTaggerTool for the selected JetCollection if they already exist. This is in order to keep
     them up-to-date, as someone might set up a tool after these main tools already exist. And such a tool might require a new associator
     which we need to add to the main associator tool."""
     if JetCollection in _BTaggingConfig_JetBTaggerTools:
@@ -374,7 +384,9 @@ def setupJetBTaggerTools(ToolSvc=None, JetCollections=[], topSequence=None, Verb
         return returnlist
     for jetcol in JetCollections:
         # Make sure we have this jet collection; if not use defaults
-        SetupJetCollection(jetcol, TaggerList, SetupScheme)
+        if not SetupJetCollection(jetcol, TaggerList, SetupScheme):
+            returnlist.append(None)
+            continue
         if jetcol in _BTaggingConfig_JetBTaggerTools:
             returnlist.append(_BTaggingConfig_JetBTaggerTools.get(jetcol, None))
             print '#BTAG# - INFO - Updating JetBTaggerTool for '+jetcol
@@ -495,7 +507,7 @@ def registerTool(tool_type, tool, track = "", jetcol = "", ToolSvc = None, Verbo
         print '#BTAG# - DEBUG - Registering tool: '+getToolName(tool_type, track, jetcol)
     if ToolSvc is None:
         if BTaggingFlags.OutputLevel < 3:
-            print '#BTAG# - DEBUG - INFO: ToolSvc is None during registration. This could be on purpose if want to add the tool to ToolSvc yourself.'
+            print '#BTAG# - DEBUG - INFO: ToolSvc is None during registration. This could be on purpose if want to add the tool to ToolSvc yourself and in particular is normal for BTagCalibrationBrokerTool.'
     if not ToolSvc is None:
         setupPrerequisites(tool_type, ToolSvc, TrackCollection = track, JetCollection = jetcol, Verbose = Verbose,
                            MuonCollection=MuonCollection, ElectronCollection=ElectronCollection, PhotonCollection=PhotonCollection)
@@ -886,6 +898,7 @@ def setupMuonAssociator(MuonCollectionName, JetCollection, ToolSvc, options={}, 
         if len(ContainerName) == 0:
             ContainerName = BTaggingFlags.MuonCollectionName
         _BTaggingConfig_MuonConCol[(MuonCollectionName, JetCollection)] = (ContainerName, MuonCollectionName)
+        updateBTaggers(JetCollection)
     else:
         print '#BTAG# - WARNING - SetupMuonAssociator() called for combination which already exists: '+str((MuonCollectionName,JetCollection))
     return tool
@@ -941,6 +954,7 @@ def setupElectronAssociator(ElectronCollectionName, JetCollection, ToolSvc, opti
                     print '#BTAG# - ERROR - Photon collection name is not unique and default is also in use.'
                     raise ValueError
             _BTaggingConfig_PhotonConCol[(ElectronCollectionName, JetCollection)] = (PhotonContainerName, PhotonCollectionName)
+        updateBTaggers(JetCollection)
     else:
         print '#BTAG# - WARNING - SetupElectronAssociator() called for combination which already exists: '+str((ElectronCollectionName,JetCollection))
     return tool
@@ -973,6 +987,7 @@ def setupTrackAssociator(TrackCollection, JetCollection, ToolSvc, options={}, Ve
         if len(ContainerName) == 0:
             ContainerName = BTaggingFlags.TrackParticleCollectionName
         _BTaggingConfig_TrackConCol[(TrackCollection, JetCollection)] = (ContainerName, TrackCollection)
+        updateBTaggers(JetCollection)
     else:
         print '#BTAG# - WARNING - SetupTrackAssociator() called for combinations which already exists: '+str((TrackCollection,JetCollection))
     return tool
@@ -1309,6 +1324,9 @@ def setupDefaultTool(tool_type, ToolSvc, track="", jetcol="", Verbose = False, n
         name = getToolName(tool_type, track, jetcol)
     options = dict(options) # Make a new instance (otherwise we will change the actual dict)
     options['name'] = name
+    # xAODBaseName
+    if not getToolMetadata(tool_type, 'xAODBaseName') is None:
+        options.setdefault('xAODBaseName', getToolMetadata(tool_type, 'xAODBaseName'))
     # Add some dynamic settings to the options dictionary (this will raise a NotImplementedError is metadata is not found)
     PassByPointer = getToolMetadata(tool_type, 'PassByPointer')
     PassByName = getToolMetadata(tool_type, 'PassByName')
@@ -1477,16 +1495,16 @@ def checkFlagsUsingBTaggingFlags():
 
     output: Returns whether b-tagging is to be active or not."""
     if not BTaggingFlags.Active:
-        print '#BTAG# - Disabling whole b-tagging since BTaggingFlags.Active is False...'
+        print '#BTAG# - WARNING - Disabling whole b-tagging since BTaggingFlags.Active is False...'
         return False
-    print '#BTAG# - B-tagging descoping:  level = ',rec.ScopingLevel()
+    print '#BTAG# - INFO - B-tagging descoping:  level = ',rec.ScopingLevel()
     from AthenaCommon.BFieldFlags import jobproperties
     if not jobproperties.Beam.beamType == "collisions":
-        print '#BTAG# - Disabling whole b-tagging since beamType is not collisions...'
+        print '#BTAG# - WARNING - Disabling whole b-tagging since beamType is not collisions...'
         BTaggingFlags.Active = False
         return False
     if jobproperties.BField.solenoidOn() == False:
-        print '#BTAG# - Disabling whole b-tagging since solenoid is OFF...'
+        print '#BTAG# - WARNING - Disabling whole b-tagging since solenoid is OFF...'
         BTaggingFlags.Active = False
         return False
     if not IgnoreTaggerObstacles:
@@ -1518,7 +1536,7 @@ def taggerIsPossible(tagger):
         return False
     # disable all taggers if B-tagging is not active
     if not BTaggingFlags.Active:
-        print '#BTAG# - Disabling '+tagger+' tagger because B-tagging has been disabled...'
+        print '#BTAG# - WARNING - Disabling '+tagger+' tagger because B-tagging has been disabled...'
         return False
     # disable some taggers if we are running in reference mode
     if BTaggingFlags.Runmodus == 'reference':
@@ -1549,36 +1567,36 @@ def taggerIsPossible(tagger):
                       'MV2',
                       'MV1Flip',
                       'MV2Flip' ]:
-            print '#BTAG# - Disabling '+tagger+' tagger due to reference run modus...'
+            print '#BTAG# - WARNING - Disabling '+tagger+' tagger due to reference run modus...'
             return False
     # disable taggers accordingly to reconstruction scoping levels
     if rec.ScopingLevel() >= 2:
         if tagger in BTaggingFlags.LowPriorityTaggers:
-            print '#BTAG# - Disabling low priority '+tagger+' tagger due to scoping level >= 2'
+            print '#BTAG# - WARNING - Disabling low priority '+tagger+' tagger due to scoping level >= 2'
             return False
     if rec.ScopingLevel() >= 3:
         if tagger in BTaggingFlags.MediumPriorityTaggers:
-            print '#BTAG# - Disabling medium priority '+tagger+' tagger due to scoping level >= 3'
+            print '#BTAG# - WARNING - Disabling medium priority '+tagger+' tagger due to scoping level >= 3'
             return False
     if rec.ScopingLevel() >= 4:
         if tagger in BTaggingFlags.HighPriorityTaggers:
-            print '#BTAG# - Disabling high priority '+tagger+' tagger due to scoping level >= 4'
+            print '#BTAG# - WARNING - Disabling high priority '+tagger+' tagger due to scoping level >= 4'
             return False
     # disable specific taggers if geometry is not defined
     from AthenaCommon.DetFlags import DetFlags
     if not DetFlags.detdescr.ID_on():
-        print '#BTAG# - Disabling '+tagger+' tagger because ID detdescr. was not found'
+        print '#BTAG# - WARNING - Disabling '+tagger+' tagger because ID detdescr. was not found'
         return False
     if tagger in ['SoftEl']:
         if not DetFlags.detdescr.Calo_on():
-            print '#BTAG# - Disabling '+tagger+' tagger because calo detdescr. was not found'
+            print '#BTAG# - WARNING - Disabling '+tagger+' tagger because calo detdescr. was not found'
             return False
     if tagger in ['SoftMu',
                   'SoftMuChi2',
                   'SecondSoftMu',
                   'SecondSoftMuChi2']:
         if not DetFlags.detdescr.Muon_on():
-            print '#BTAG# - Disabling '+tagger+' tagger because muon detdescr. was not found'
+            print '#BTAG# - WARNING - Disabling '+tagger+' tagger because muon detdescr. was not found'
             return False
     return True
 

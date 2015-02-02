@@ -26,7 +26,7 @@ namespace Analysis
 
           StatusCode initialize();
           StatusCode finalize();
-          StatusCode BTagTrackAssociation_exec(jetcollection_t* theJets);
+	  StatusCode BTagTrackAssociation_exec(jetcollection_t* theJets, const xAOD::TrackParticleContainer* tracks = 0);
 
       private:
           bool m_BTagAssociation;

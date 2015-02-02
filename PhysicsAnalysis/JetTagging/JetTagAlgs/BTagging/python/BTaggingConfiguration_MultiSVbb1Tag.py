@@ -5,6 +5,7 @@
 from BTagging.BTaggingFlags import BTaggingFlags
 
 metaMultiSVbb1Tag = { 'IsATagger'         : True,
+                      'xAODBaseName'      : 'MSV',
                       'DependsOn'         : ['AtlasExtrapolator',
                                              'BTagTrackToVertexTool',
                                              'BTagCalibrationBrokerTool',
@@ -22,7 +23,6 @@ def toolMultiSVbb1Tag(name, useBTagFlagsDefaults = True, **options):
 
     OutputLevel                         default: BTaggingFlags.OutputLevel
     Runmodus                            default: BTaggingFlags.Runmodus
-    xAODBaseName                        default: "MSV"
     taggerNameBase                      default: "MultiSVbb1"
     SecVxFinderName                     default: "MSV"
 
@@ -33,7 +33,6 @@ def toolMultiSVbb1Tag(name, useBTagFlagsDefaults = True, **options):
     if useBTagFlagsDefaults:
         defaults = { 'OutputLevel'                      : BTaggingFlags.OutputLevel,
                      'Runmodus'                         : BTaggingFlags.Runmodus,
-                     'xAODBaseName'                     : 'MSV',
                      'taggerNameBase'                   : 'MultiSVbb1',
                      'SecVxFinderName'                  : 'MSV' }
         for option in defaults:

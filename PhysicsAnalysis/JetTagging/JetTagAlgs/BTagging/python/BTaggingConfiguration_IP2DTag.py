@@ -5,6 +5,7 @@
 from BTagging.BTaggingFlags import BTaggingFlags
 
 metaIP2DTag = { 'IsATagger'         : True,
+                'xAODBaseName'      : 'IP2D',
                 'DependsOn'         : ['AtlasExtrapolator',
                                        'BTagTrackToVertexTool',
                                        'InDetVKalVxInJetTool',
@@ -44,7 +45,6 @@ def toolIP2DTag(name, useBTagFlagsDefaults = True, **options):
     unbiasIPEstimation                  default: False (switch to true (better!) when creating new PDFs)
     SecVxFinderName                     default: "SV1"
     UseCHypo                            default: True
-    xAODBaseName                        default: "IP2D"
 
     input:             name: The name of the tool (should be unique).
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
@@ -60,7 +60,6 @@ def toolIP2DTag(name, useBTagFlagsDefaults = True, **options):
                      'originalTPCollectionName'         : BTaggingFlags.TrackParticleCollectionName,
                      'jetCollectionList'                : BTaggingFlags.Jets,
                      'unbiasIPEstimation'               : False,
-                     'xAODBaseName'                     : 'IP2D',
                      'UseCHypo'                         : True,
                      'SecVxFinderName'                  : 'SV1',
                      }

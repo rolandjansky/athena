@@ -5,6 +5,7 @@
 from BTagging.BTaggingFlags import BTaggingFlags
 
 metaMV1Tag = { 'IsATagger'          : True,
+               'xAODBaseName'       : "MV1",
                'DependsOn'          : ['AtlasExtrapolator',
                                        'BTagTrackToVertexTool',
                                        'BTagCalibrationBrokerTool',
@@ -24,7 +25,6 @@ def toolMV1Tag(name, useBTagFlagsDefaults = True, **options):
     Runmodus                            default: BTaggingFlags.Runmodus
     taggerName                          default: "MV1"
     taggerNameBase                      default: "MV1"
-    xAODBaseName                        default: "MV1"
     inputIP3DWeightName                 default: "IP3D"
     inputSV1WeightName                  default: "SV1"
     inputJetFitterWeightName            default: "JetFitterCombNN"
@@ -38,7 +38,6 @@ def toolMV1Tag(name, useBTagFlagsDefaults = True, **options):
                      'Runmodus'                         : BTaggingFlags.Runmodus,
                      'taggerName'                       : 'MV1',
                      'taggerNameBase'                   : 'MV1',
-                     'xAODBaseName'                     : 'MV1',
                      'inputIP3DWeightName'              : 'IP3D',
                      'inputSV1WeightName'               : 'SV1',
                      'inputJetFitterWeightName'         : 'JetFitterCombNN',
