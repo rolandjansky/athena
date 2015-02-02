@@ -654,7 +654,7 @@ def setAdditionalParticleParametrizationFileNames( FastShowerCellBuilderTool ):
     "DB=/GLOBAL/AtlfastII/FastCaloSimParam:2:ShapeResults/pdgid_211/EN_50000/calosample_16",
     "DB=/GLOBAL/AtlfastII/FastCaloSimParam:2:ShapeResults/pdgid_211/EN_50000/calosample_17",
     "DB=/GLOBAL/AtlfastII/FastCaloSimParam:2:ShapeResults/pdgid_211/EN_50000/calosample_4", 
-    ]
+  ]
 
 def getPunchThroughTool(name="ISF_PunchThroughTool", **kwargs):
     from G4AtlasApps.SimFlags import SimFlags,simFlags
@@ -680,24 +680,6 @@ def getEmptyCellBuilderTool(name="ISF_EmptyCellBuilderTool", **kwargs):
     from FastCaloSim.FastCaloSimConf import EmptyCellBuilderTool
     return EmptyCellBuilderTool(name, **kwargs )
 
-def getNIMatEffUpdator(name="ISF_NIMatEffUpdator", **kwargs):
-    from TrkExTools.TrkExToolsConf import Trk__NIMatEffUpdator as NIMatEffUpdator 
-    return NIMatEffUpdator(name, **kwargs )
-
-def getNIPropagator(name="ISF_NIPropagator", **kwargs):
-    kwargs.setdefault("MaterialEffects" , False )
- 
-    from TrkExSTEP_Propagator.TrkExSTEP_PropagatorConf import Trk__STEP_Propagator as STEP
-    return STEP(name, **kwargs )
-
-def getNITimedExtrapolator(name="ISF_NITimedExtrapolator", **kwargs):
-    kwargs.setdefault("MaterialEffectsUpdators" , [ getPublicTool('ISF_NIMatEffUpdator') ])
-    kwargs.setdefault("ApplyMaterialEffects"    , False )
-    kwargs.setdefault("STEP_Propagator"    , getPublicTool('ISF_NIPropagator') )
-
-    from TrkExTools.TrkExToolsConf import Trk__TimedExtrapolator as TimedExtrapolator 
-    return TimedExtrapolator(name, **kwargs )
-
 def getFastShowerCellBuilderTool(name="ISF_FastShowerCellBuilderTool", **kwargs):
     from G4AtlasApps.SimFlags import SimFlags,simFlags
     from FastCaloSim.FastCaloSimFactory import FastCaloSimFactory
@@ -715,17 +697,10 @@ def getFastShowerCellBuilderTool(name="ISF_FastShowerCellBuilderTool", **kwargs)
     FastShowerCellBuilderTool.use_Ekin_for_depositions             = True
     FastShowerCellBuilderTool.McLocation                           = ISF_FastCaloSimFlags.FastShowerInputCollection()
     FastShowerCellBuilderTool.ParticleParametrizationFileName      = ''
-    FastShowerCellBuilderTool.Extrapolator                         = 'ISF_NITimedExtrapolator'
-    
     setAdditionalParticleParametrizationFileNames( FastShowerCellBuilderTool )
     FastShowerCellBuilderTool.AdditionalParticleParametrizationFileNames.insert(0,"L1_L2_egamma_corr.config20.root")
     from IOVDbSvc.CondDB import conddb
     conddb.addFolder('GLOBAL_OFL','/GLOBAL/AtlfastII/FastCaloSimParam <tag>FastCaloSim_v2</tag>')
-    return FastShowerCellBuilderTool
-
-def getLegacyFastShowerCellBuilderTool(name="ISF_LegacyFastShowerCellBuilderTool", **kwargs):
-    FastShowerCellBuilderTool = getFastShowerCellBuilderTool(name,**kwargs)
-    FastShowerCellBuilderTool.Invisibles += [ 13 ]
     return FastShowerCellBuilderTool
 
 def getPileupFastShowerCellBuilderTool(name="ISF_PileupFastShowerCellBuilderTool", **kwargs):
@@ -843,8 +818,6 @@ def getFastCaloSimSvc(name="ISF_FastCaloSimSvc", **kwargs):
                                                              getPublicTool('ISF_CaloCellContainerFinalizerTool'),
                                                              getPublicTool('ISF_FastHitConvertTool')
                                                            ])
-    kwargs.setdefault("Extrapolator"                     , 'ISF_NITimedExtrapolator')
-
     # let the ISF FCS flags know that FCS is being used
     ISF_FastCaloSimFlags.FastCaloSimIsActive.set_Value_and_Lock(True)
 
@@ -854,6 +827,7 @@ def getFastCaloSimSvc(name="ISF_FastCaloSimSvc", **kwargs):
 
     from ISF_FastCaloSimServices.ISF_FastCaloSimServicesConf import ISF__FastCaloSimSvc
     return ISF__FastCaloSimSvc(name, **kwargs )
+
 
 #### Pileup FastCaloSim
 def getFastCaloSimPileupSvc(name="ISF_FastCaloSimPileupSvc", **kwargs):
@@ -891,10 +865,6 @@ def getFastCaloSimPileupSvc(name="ISF_FastCaloSimPileupSvc", **kwargs):
 def getLegacyAFIIFastCaloSimSvc(name="ISF_LegacyAFIIFastCaloSimSvc", **kwargs):
     from ISF_FastCaloSimServices.ISF_FastCaloSimJobProperties import ISF_FastCaloSimFlags
     kwargs.setdefault("BatchProcessMcTruth" , True )
-    kwargs.setdefault("ParticleBroker"                   , getService('ISF_AFIIParticleBrokerSvc')               )
-    kwargs.setdefault("CaloCellMakerTools_simulate"      , [
-                                                             getPublicTool('ISF_LegacyFastShowerCellBuilderTool'),
-                                                           ])
     return getFastCaloSimSvc(name, **kwargs)
 
 def getFastHitConvAlgFastCaloSimSvc(name="ISF_FastHitConvAlgFastCaloSimSvc",**kwargs):
