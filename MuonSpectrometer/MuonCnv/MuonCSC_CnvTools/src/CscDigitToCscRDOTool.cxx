@@ -5,8 +5,7 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include "StoreGate/StoreGate.h"
-#include "StoreGate/DataHandle.h"
+#include "StoreGate/ActiveStoreSvc.h"
 
 #include "CLHEP/Random/RandomEngine.h"
 //#include "CLHEP/Random/RandGauss.h"
