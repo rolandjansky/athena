@@ -4,6 +4,7 @@ author NLAA
 use AtlasPolicy AtlasPolicy-*
 use GaudiInterface GaudiInterface-* External
 
+use AsgTools AsgTools-* Control/AthToolSupport
 
 ##Define the CALIBPATH environment variable ... should be DATAPATH plus a few extra paths
 cmtpath_pattern \
