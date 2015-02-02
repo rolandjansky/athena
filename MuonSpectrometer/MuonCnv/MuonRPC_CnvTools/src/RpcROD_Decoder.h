@@ -713,11 +713,11 @@ namespace Muon
     
     char recField;
     unsigned short int PadID=99;
-    uint16_t slfel1id;
-    uint16_t slid;
-    uint16_t slbcid;
-    uint16_t slstatus;
-    uint16_t slcrc;
+    uint16_t slfel1id=0;
+    uint16_t slid=0;
+    uint16_t slbcid=0;
+    uint16_t slstatus=0;
+    uint16_t slcrc=0;
     unsigned int SLBodyWords = 0;
     unsigned int SL_data_sise = 500; //same value used for the size of SLBuff
     unsigned short int SLBuff[500];
@@ -2440,7 +2440,8 @@ namespace Muon
           matrixReadout.decodeFragment(cmaFooterFragment,cmaFooter);
           if (cmaFooter == 'F') {
             uint16_t crc = matrixReadout.crc();
-            coinMatrix->setCRC(crc);
+            if (coinMatrix) coinMatrix->setCRC(crc); // Added to try to "fix" CID 12374
+            else ATH_MSG_ERROR("Trying to call null coinMatrix - this should never happen!");
             word16Count += 1;
             if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) 
               << "Found a cma Footer " << MSG::hex << cmaFooterFragment 
