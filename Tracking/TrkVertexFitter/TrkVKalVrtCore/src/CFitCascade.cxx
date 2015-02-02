@@ -292,7 +292,7 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
 //
 //  Now standard fit without pointing in cascade but WITH pointing to PV if present
 //
-  double Chi2Old=0.,Chi2Cur; 
+  double Chi2Old=0.,Chi2Cur=0.; 
   for(Iter=0; Iter<100; Iter++){
      Chi2Cur=0.;
      for(iv=0; iv<cascadeEvent_.cascadeNV; iv++){
