@@ -26,6 +26,7 @@ text_for_next_steps = ""
 table= DB.GetRunInfoFromDQM(run)
 table.update(DB.GetRunInfoFromOracle(run))
 table.update(DB.GetCAFInfo(run))
+#print table
 
 
 

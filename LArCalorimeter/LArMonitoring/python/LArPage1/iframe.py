@@ -8,6 +8,7 @@ import os,re,time,sys,cgi,string
 import cgitb; cgitb.enable()
 import getopt,fileinput
 import xmlrpclib
+import GetNumberFromDB as DB
 #config reading for default url
 import ConfigParser 
 config = ConfigParser.RawConfigParser()
@@ -33,6 +34,7 @@ print '''<body onload="">
 ########################################################################
 f = cgi.FieldStorage()
 run = f["run"].value
+#run=str(239733)
 
 s = xmlrpclib.ServerProxy('https://'+dqmpass+'@atlasdqm.cern.ch')
 run_spec = {'stream': 'physics_IDCosmic', 'source': 'reproc', 'low_run': int(run), 'high_run': int(run)}
@@ -72,10 +74,15 @@ lumATLAS=beamluminfo[run][4]
 # past January 1 1970,
 # 1 is whether the loop has actually ended or not (1=ended, 0=still open) 
 endoflooptime=s.get_end_of_calibration_period(run_spec) 
-endofloop_time_str=time.asctime(time.localtime(endoflooptime[run][0]))
+
+if run in endoflooptime:
+    endofloop_time_str=time.asctime(time.localtime(endoflooptime[run][0]))
+else:
+    endofloop_time_str="Unknown"
+
+number_of_events=DB.GetNumberOfCosmicCaloEvents(run)
 
 print '''<b>More information about run: '''+str(run)+'''</b>'''
-
 print "<br/>Run start: "+run_start_time_str
 print "<br/>Run stop: "+run_stop_time_str
 print "<br/>End of calib loop: "+endofloop_time_str
@@ -83,6 +90,7 @@ curenttime_src=time.asctime(time.localtime(time.time()))
 print "<br/>Current time: "+curenttime_src
 
 print "<br/>Number of LB: "+str(number_of_lb)
+print "<br/>Number of Events: "+str(number_of_events)
 
 if stablebeamflag:
     print "<br/>Max beam Energy: %.2f TeV" % (maxenergy)

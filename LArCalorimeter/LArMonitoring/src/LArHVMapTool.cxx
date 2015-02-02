@@ -62,58 +62,89 @@ std::vector<int> LArHVMapTool::GetHVLines(const Identifier& id) {
   if (m_larem_id->is_lar_em(id) && m_larem_id->sampling(id)>0) {
     if (abs(m_larem_id->barrel_ec(id))==1) {
       const EMBDetectorElement* embElement = dynamic_cast<EMBDetectorElement*>(m_calodetdescrmgr->get_element(id));
-      const EMBCellConstLink cell = embElement->getEMBCell();
-      unsigned int nelec = cell->getNumElectrodes();
-      for (unsigned int i=0;i<nelec;i++) {
-        const EMBHVElectrodeConstLink electrode = cell->getElectrode(i);
-        for (unsigned int igap=0;igap<2;igap++) {
-           hv.insert(electrode->hvLineNo(igap));
-        }
+      if (embElement) {
+	const EMBCellConstLink cell = embElement->getEMBCell();
+	unsigned int nelec = cell->getNumElectrodes();
+	for (unsigned int i=0;i<nelec;i++) {
+	  const EMBHVElectrodeConstLink electrode = cell->getElectrode(i);
+	  for (unsigned int igap=0;igap<2;igap++) {
+	    hv.insert(electrode->hvLineNo(igap));
+	  }
+	}
+      }
+      else {
+	msg(MSG::ERROR) << "Failed d'cast to EMBDetectorElement" << std::endl;
       }
     } else { // LAr EMEC
       const EMECDetectorElement* emecElement = dynamic_cast<EMECDetectorElement*>(m_calodetdescrmgr->get_element(id));
-      const EMECCellConstLink cell = emecElement->getEMECCell();
-      unsigned int nelec = cell->getNumElectrodes();
-      for (unsigned int i=0;i<nelec;i++) {
-        const EMECHVElectrodeConstLink electrode = cell->getElectrode(i);
-        for (unsigned int igap=0;igap<2;igap++) hv.insert(electrode->hvLineNo(igap));
+      if (emecElement) {
+	const EMECCellConstLink cell = emecElement->getEMECCell();
+	unsigned int nelec = cell->getNumElectrodes();
+	for (unsigned int i=0;i<nelec;i++) {
+	  const EMECHVElectrodeConstLink electrode = cell->getElectrode(i);
+	  for (unsigned int igap=0;igap<2;igap++) hv.insert(electrode->hvLineNo(igap));
+	}
       }
-    }
+      else {
+	msg(MSG::ERROR) << "Failed d'cast to EMECDetectorElement" << std::endl;
+      }
+    } 
   } else if (m_larhec_id->is_lar_hec(id)) { // LAr HEC
     const HECDetectorElement* hecElement = dynamic_cast<HECDetectorElement*>(m_calodetdescrmgr->get_element(id));
-    const HECCellConstLink cell = hecElement->getHECCell();
-    unsigned int nsubgaps = cell->getNumSubgaps();
-    for (unsigned int igap=0;igap<nsubgaps;igap++) {
-      const HECHVSubgapConstLink subgap = cell->getSubgap(igap);
-      hv.insert(subgap->hvLineNo());
+    if (hecElement) {
+      const HECCellConstLink cell = hecElement->getHECCell();
+      unsigned int nsubgaps = cell->getNumSubgaps();
+      for (unsigned int igap=0;igap<nsubgaps;igap++) {
+	const HECHVSubgapConstLink subgap = cell->getSubgap(igap);
+	hv.insert(subgap->hvLineNo());
+      }
+    }
+    else {
+      msg(MSG::ERROR) << "Failed d'cast to HECDetectorElement" << std::endl;
     }
   } else if (m_larfcal_id->is_lar_fcal(id)) { // LAr FCAL
     const FCALDetectorElement* fcalElement = dynamic_cast<FCALDetectorElement*>(m_calodetdescrmgr->get_element(id));
-    const FCALTile* tile = fcalElement->getFCALTile();
-    unsigned int nlines = tile->getNumHVLines();
-    unsigned int nlines_found=0;
-    for (unsigned int i=0;i<nlines;i++) {
-      const FCALHVLineConstLink line = tile->getHVLine(i);
-      if (line) nlines_found++;
-    }
-    if ( nlines_found>0 ) {
+    if (fcalElement) {
+      const FCALTile* tile = fcalElement->getFCALTile();
+      unsigned int nlines = tile->getNumHVLines();
+      unsigned int nlines_found=0;
       for (unsigned int i=0;i<nlines;i++) {
-        const FCALHVLineConstLink line = tile->getHVLine(i);
-        if (!line) continue;
-        hv.insert(line->hvLineNo());
+	const FCALHVLineConstLink line = tile->getHVLine(i);
+	if (line) nlines_found++;
+      }
+      if ( nlines_found>0 ) {
+	for (unsigned int i=0;i<nlines;i++) {
+	  const FCALHVLineConstLink line = tile->getHVLine(i);
+	  if (!line) continue;
+	  hv.insert(line->hvLineNo());
+	}
       }
     }
+    else {
+      msg(MSG::ERROR) << "Failed d'cast to FCALDetectorElement" << std::endl;
+    }
+ 
   } else if (m_larem_id->is_lar_em(id) && m_larem_id->sampling(id)==0) { // Presamplers
     if (abs(m_larem_id->barrel_ec(id))==1) {
       const EMBDetectorElement* embElement = dynamic_cast<EMBDetectorElement*>(m_calodetdescrmgr->get_element(id));
-      const EMBCellConstLink cell = embElement->getEMBCell();
-      const EMBPresamplerHVModuleConstLink hvmodule = cell->getPresamplerHVModule();
-      for (unsigned int igap=0;igap<2;igap++) hv.insert(hvmodule->hvLineNo(igap));
+      if (embElement) {
+	const EMBCellConstLink cell = embElement->getEMBCell();
+	const EMBPresamplerHVModuleConstLink hvmodule = cell->getPresamplerHVModule();
+	for (unsigned int igap=0;igap<2;igap++) hv.insert(hvmodule->hvLineNo(igap));
+      }
+      else {
+	msg(MSG::ERROR) << "Failed d'cast to EMBDetectorElement (for presampler)" << std::endl;
+      }
     } else {
       const EMECDetectorElement* emecElement = dynamic_cast<EMECDetectorElement*>(m_calodetdescrmgr->get_element(id));
-      const EMECCellConstLink cell = emecElement->getEMECCell();
-      const EMECPresamplerHVModuleConstLink hvmodule = cell->getPresamplerHVModule ();
-      for (unsigned int igap=0;igap<2;igap++) hv.insert(hvmodule->hvLineNo(igap));
+      if (emecElement) {
+	const EMECCellConstLink cell = emecElement->getEMECCell();
+	const EMECPresamplerHVModuleConstLink hvmodule = cell->getPresamplerHVModule ();
+	for (unsigned int igap=0;igap<2;igap++) hv.insert(hvmodule->hvLineNo(igap));
+      }
+      else {
+	msg(MSG::ERROR) << "Failed d'cast to EMECDetectorElement (for presampler)" << std::endl;
+      }
     }
   }
 
