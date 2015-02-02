@@ -10,55 +10,34 @@ def FastCaloSimFactory():
     from CaloRec.CaloCellFlags import jobproperties
     from AthenaCommon.AppMgr import ToolSvc
 
+    #########################################################################################################
     mlog.info("now configure theFastShowerCellBuilderTool...")
     from FastCaloSim.FastCaloSimConf import FastShowerCellBuilderTool
     theFastShowerCellBuilderTool=FastShowerCellBuilderTool()
 
-    # FastShowerCellBuilderTool looks for the extrapolators with fixed names. Should be changed...
-    #########################################################################################################
-    mlog.info("now configure ExtrapolateToCaloTools...")
-    from TrackToCalo.ExtrapolateToCaloToolBase import ExtrapolateToCaloToolFactory
-    
-    theFSElectronExtrapolTrackToCaloTool        =ExtrapolateToCaloToolFactory(depth="middle",straightLine=False)
-    theFastShowerCellBuilderTool.electronExtrapolTool=theFSElectronExtrapolTrackToCaloTool.getFullName()
-    ToolSvc+=theFSElectronExtrapolTrackToCaloTool
-    
-    theFSElectronExtrapolTrackToCaloToolEntrance=ExtrapolateToCaloToolFactory(depth="entrance",straightLine=False)
-    theFastShowerCellBuilderTool.electronExtrapolToolEntrance=theFSElectronExtrapolTrackToCaloToolEntrance.getFullName()
-    ToolSvc+=theFSElectronExtrapolTrackToCaloToolEntrance
+    mlog.info("now configure the non-interacting propagator...")
+    from TrkExSTEP_Propagator.TrkExSTEP_PropagatorConf import Trk__STEP_Propagator
+    niPropagator = Trk__STEP_Propagator()
+    niPropagator.MaterialEffects = False 
+    ToolSvc+=niPropagator    
+    mlog.info("configure nono-interacting propagator finished")
 
-    theFSPhotonExtrapolTrackToCaloTool          =ExtrapolateToCaloToolFactory(depth="middle",straightLine=True)
-    theFastShowerCellBuilderTool.gammaExtrapolTool=theFSPhotonExtrapolTrackToCaloTool.getFullName()
-    ToolSvc+=theFSPhotonExtrapolTrackToCaloTool
+    mlog.info("now configure the TimedExtrapolator...")
+    from TrkExTools.TimedExtrapolator import TimedExtrapolator
+    timedExtrapolator=TimedExtrapolator()
+    timedExtrapolator.STEP_Propagator = niPropagator
+    timedExtrapolator.ApplyMaterialEffects = False
+    ToolSvc+=timedExtrapolator
+    theFastShowerCellBuilderTool.Extrapolator=timedExtrapolator
+    mlog.info("configure TimedExtrapolator finished")
 
-    theFSPhotonExtrapolTrackToCaloToolEntrance  =ExtrapolateToCaloToolFactory(depth="entrance",straightLine=True)
-    theFastShowerCellBuilderTool.gammaExtrapolToolEntrance=theFSPhotonExtrapolTrackToCaloToolEntrance.getFullName()
-    ToolSvc+=theFSPhotonExtrapolTrackToCaloToolEntrance
+    from CaloTrackingGeometry.CaloTrackingGeometryConf import CaloSurfaceHelper
+    caloSurfaceHelper = CaloSurfaceHelper()
+    ToolSvc+=caloSurfaceHelper
+    theFastShowerCellBuilderTool.CaloSurfaceHelper=caloSurfaceHelper  
 
-    mlog.info("configure ExtrapolateToCaloTools finished")
-
-    #########################################################################################################
-    mlog.info("now configure theExtrapolator...")
-    from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-    theExtrapolator=AtlasExtrapolator()
-    ToolSvc+=theExtrapolator
-    theFastShowerCellBuilderTool.ExtrapolatorName=theExtrapolator.getType()
-    theFastShowerCellBuilderTool.ExtrapolatorInstanceName=theExtrapolator.getName()
-    mlog.info("configure theExtrapolator finished")
-
-    #########################################################################################################
-    from CaloTrackingGeometry.CaloSurfaceBuilderBase import CaloSurfaceBuilderFactory
-    mlog.info("now configure theCaloSurfaceBuilderMiddle...")
-    theCaloSurfaceBuilderMiddle=CaloSurfaceBuilderFactory(depth="middle")
-    theFastShowerCellBuilderTool.CalosurfMiddleInstanceName=theCaloSurfaceBuilderMiddle.getName()
-    ToolSvc+=theCaloSurfaceBuilderMiddle
-    mlog.info("configure theCaloSurfaceBuilderMiddle finished")
-
-    mlog.info("now configure theCaloSurfaceBuilderEntrance...")
-    theCaloSurfaceBuilderEntrance=CaloSurfaceBuilderFactory(depth="entrance")
-    theFastShowerCellBuilderTool.CalosurfEntranceInstanceName=theCaloSurfaceBuilderEntrance.getName()
-    ToolSvc+=theCaloSurfaceBuilderEntrance
-    mlog.info("configure theCaloSurfaceBuilderEntrance finished")
+    from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags 
+    theFastShowerCellBuilderTool.CaloEntrance = TrkDetFlags.InDetContainerName()
 
     #########################################################################################################
     #theFastShowerCellBuilderTool.Invisibles=[12, 14, 16, 1000022]
@@ -81,7 +60,7 @@ def FastCaloSimFactory():
 
     theFastShowerCellBuilderTool.ParticleParametrizationFileName=ParticleParametrizationFileName     
     mlog.info("ParticleParametrizationFile=%s",ParticleParametrizationFileName)
-
+ 
     #from AthenaCommon.AppMgr import theApp
     #svcMgr = theApp.serviceMgr()
     #svcMgr.MessageSvc.debugLimit   = 100000000

@@ -24,8 +24,12 @@ public:
   TGraph* Graph() const {return fGraph;};
 };  
 
-TShape_Result::TShape_Result(const char* name, const char* title):TNamed(name,title),m_deta(0),m_reldeta_dist(0),m_dphi(0),m_fitsplines_EnergyDistribution(0),m_fitsplines_EtaPhiAspectRatio(0),
-                                                                                     m_cellbordersmearing(1),m_reletascale(0),m_cell_width_eta(0),m_cell_width_eta1(0),m_cell_width_eta2(0),m_cell_width_eta3(0),m_chi2(-1),m_errdef(0),m_flags(0),m_nevents(100),m_cputime(0),m_correction(0)
+TShape_Result::TShape_Result(const char* name, const char* title):TNamed(name,title),
+								  m_fitsplines_EnergyDistribution_maxx(0),m_fitsplines_EtaPhiAspectRatio_minx(0),m_fitsplines_EtaPhiAspectRatio_maxx(0), 
+								  m_deta(0),m_reldeta(0),m_reldeta_dist(0),m_dphi(0),m_fitsplines_EnergyDistribution(0),m_fitsplines_EtaPhiAspectRatio(0),m_pdgid(0),m_energy(0),m_eta(0),m_calosample(0), m_distmin(0), m_distmax(0),m_integral_eta_scale(0),m_integral_phi_scale(0),m_cutoff_eta(0),m_cutoff_phi(0),
+								  m_cellbordersmearing(1),m_reletascale(0),
+								  m_cell_width_eta(0),m_cell_width_eta1(0),m_cell_width_eta2(0),m_cell_width_eta3(0),
+								  m_chi2(-1),m_errdef(0),m_flags(0),m_nevents(100),m_cputime(0),m_correction(0)
 {
 }
 

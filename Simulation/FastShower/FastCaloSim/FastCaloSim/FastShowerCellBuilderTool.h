@@ -10,18 +10,23 @@
 //
 // Michael Duehrssen
 
+#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "FastCaloSim/BasicCellBuilderTool.h"
-#include "TruthHelper/GenAccessIO.h"
+//#include "TruthHelper/GenAccessIO.h"
 #include "FastSimulationEvent/GenParticleEnergyDepositMap.h"
+#include "HepPDT/ParticleDataTable.hh"
+#include "TrkExInterfaces/ITimedExtrapolator.h" 
+#include "TrkEventPrimitives/PdgToParticleHypothesis.h"
 
+/*
 #if FastCaloSim_project_release_v1 == 12
   #include "CLHEP/HepPDT/ParticleDataTable.hh"
 #else  
   #include "HepPDT/ParticleDataTable.hh"
 #endif  
-
+*/
 /*
 #include "AtlfastEvent/CollectionDefs.h"
 
@@ -43,8 +48,13 @@ namespace HepMC {
   class GenVertex;
 }
 
-class ICaloSurfaceBuilder;
+namespace Trk {
+  class TrackingVolume;
+}
+
+class ICaloSurfaceHelper;
 class ICaloCoordinateTool;
+class CaloDepthTool;
 class ParticleEnergyParametrization;
 class TShape_Result;
 class TDirectory;
@@ -56,10 +66,6 @@ class TLateralShapeCorrectionBase;
 
 #include "TrkParameters/TrackParameters.h"
 //#include "TrkParameters/Perigee.h"
-
-namespace Trk {
-  class IExtrapolator;
-}
 
 class FastShowerCellBuilderTool: public BasicCellBuilderTool
 {
@@ -79,7 +85,8 @@ public:
   StatusCode releaseEvent();
   // the actual simulation code for one particle can run standalone without process(CaloCellContainer* theCellContainer),
   // but setupEvent() should be called before the first particle and releaseEvent() after the last particle
-  StatusCode process_particle(CaloCellContainer* theCellContainer,const HepMC::GenParticle* part,BarcodeEnergyDepositMap* MuonEnergyMap=0);
+  StatusCode process_particle(CaloCellContainer* theCellContainer, std::vector<Trk::HitInfo>* hitVector,
+			      Amg::Vector3D initMom, double mass, int pdgId, int barcode );
   
   StatusCode callBack( IOVSVC_CALLBACK_ARGS );
 
@@ -119,17 +126,19 @@ private:
   ServiceHandle<IAtRndmGenSvc>   m_rndmSvc;
   CLHEP::HepRandomEngine*               m_randomEngine;
   std::string                    m_randomEngineName;         //!< Name of the random number stream
-  
-  Trk::IExtrapolator*            m_extrapolator;
-  ICaloCoordinateTool*           m_calo_tb_coord;
-  ICaloSurfaceBuilder*           m_calosurf_middle;
-  ICaloSurfaceBuilder*           m_calosurf_entrance;
 
-  std::string                    m_extrapolatorName;
-  std::string                    m_extrapolatorInstanceName;
+  CaloDepthTool*                 m_calodepth;
+  CaloDepthTool*                 m_calodepthEntrance;
+  
+  /** The Extrapolator setup */
+  ToolHandle<Trk::ITimedExtrapolator>   m_extrapolator;          
+
+  ToolHandle<ICaloSurfaceHelper>   m_caloSurfaceHelper;
+  ICaloCoordinateTool*           m_calo_tb_coord;
   
   std::string                    m_calosurf_middle_InstanceName;
   std::string                    m_calosurf_entrance_InstanceName;
+
   bool                           m_jo_interpolate; //ATA: make marjorie's iterpolation optional
   bool                           m_energy_eta_selection;//mwerner: make new selection of EnergyParam optional
   bool                           m_use_Ekin_for_depositions;//Use the kinetic energy of a particle to as measure of the energie to deposit in the calo
@@ -137,7 +146,6 @@ private:
   std::vector< float >           m_sampling_energy_reweighting;
   
   void                           CaloLocalPoint (const Trk::TrackParameters* parm, Amg::Vector3D* pt_ctb, Amg::Vector3D* pt_local);
-  const Trk::TrackParameters*    TrackSeenByCalo(ICaloSurfaceBuilder* m_calosurf,const Trk::TrackParameters* parm, const CaloCell_ID_FCS::CaloSample sample,const double offset, Amg::Vector3D* pt_ctb, Amg::Vector3D* pt_local);
   
   int                            m_n_surfacelist;
   CaloCell_ID_FCS::CaloSample    m_surfacelist[CaloCell_ID_FCS::MaxSample];
@@ -180,6 +188,9 @@ private:
   void init_shape_correction();
   typedef std::vector< TLateralShapeCorrectionBase* > t_shape_correction;
   t_shape_correction m_shape_correction;
+
+  // extrapolation through Calo
+  std::vector<Trk::HitInfo>* caloHits(const HepMC::GenParticle& part ) const;
 
   bool Is_ID_Vertex(HepMC::GenVertex* ver);
   std::vector< double >          m_ID_cylinder_r;
@@ -245,23 +256,26 @@ private:
   double dCalo[CaloCell_ID_FCS::MaxSample];
   double distetaCaloBorder[CaloCell_ID_FCS::MaxSample];
 
-public:
-  const Trk::TrackParameters* get_calo_surface(const Trk::Perigee& candidatePerigee,const double charge);
   CaloCell_ID_FCS::CaloSample sample_calo_surf;
-  bool get_calo_etaphi(const Trk::TrackParameters* params_on_surface,CaloCell_ID_FCS::CaloSample sample);
-  //access to internal variable. Use if you know what you do... Filled by get_calo_surface and get_calo_etaphi
+public:
+  bool get_calo_etaphi(std::vector<Trk::HitInfo>* hitVector,CaloCell_ID_FCS::CaloSample sample);
+  bool get_calo_surface(std::vector<Trk::HitInfo>* hitVector);
+
+  CaloCell_ID_FCS::CaloSample get_sample_calo_surf() const {return sample_calo_surf;};
   double get_eta_calo_surf() const {return eta_calo_surf;};
   double get_phi_calo_surf() const {return phi_calo_surf;};
   double get_d_calo_surf() const {return d_calo_surf;};
   double get_eta_calo_surf(int layer) const {return letaCalo[layer];};
   double get_phi_calo_surf(int layer) const {return lphiCalo[layer];};
   double get_d_calo_surf(int layer) const {return dCalo[layer];};
-
   
 private:
   std::string 	           m_FastShowerInfoContainerKey;
   bool 			   m_storeFastShowerInfo;
   FastShowerInfoContainer* m_FastShowerInfoContainer;
+  Trk::PdgToParticleHypothesis        m_pdgToParticleHypothesis;
+  mutable const Trk::TrackingVolume*  m_caloEntrance;
+  std::string                         m_caloEntranceName; 
 };
 
 #endif

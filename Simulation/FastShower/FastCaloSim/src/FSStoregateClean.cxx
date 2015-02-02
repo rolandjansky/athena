@@ -19,7 +19,7 @@
 namespace FastCaloSim {
 
   FSStoregateClean:: FSStoregateClean(const std::string& name, ISvcLocator* pSvcLocator):
-    Algorithm(name,pSvcLocator)
+    AthAlgorithm(name,pSvcLocator)
   {
     
     declareProperty("StoreGateKeys",      m_SG_keys);
@@ -27,32 +27,19 @@ namespace FastCaloSim {
   
   //__________________________________________________________________________
   FSStoregateClean::~FSStoregateClean(){
-    MsgStream m_log( messageService(), name() );
+    
   }
 
   //__________________________________________________________________________
   StatusCode FSStoregateClean::initialize()
   {
     
-    MsgStream m_log( messageService(), name() );
-
-    m_log << MSG::DEBUG << "initialize()" << endreq;
-
-    StatusCode sc = service("StoreGateSvc", m_storeGate);
-    if (sc.isFailure()) {
-       m_log << MSG::ERROR
-            << "Unable to retrieve pointer to StoreGateSvc"
-            << endreq;
-       return sc;
-    }
-
+    ATH_MSG_DEBUG("initialize()");
     return StatusCode::SUCCESS; 
   }
   
   StatusCode FSStoregateClean::finalize()
   {
-    
-    MsgStream m_log( messageService(), name() );
     return StatusCode::SUCCESS; 
   }
   
@@ -61,27 +48,27 @@ namespace FastCaloSim {
   {
     MsgStream m_log( messageService(), name() );
 
-    m_log << MSG::DEBUG << "execute()" << endreq;
+    ATH_MSG_DEBUG("execute()");
     
     StatusCode sc;
     
     for(unsigned int i=0;i<m_SG_keys.size();++i) {
-      m_log << MSG::INFO << "deleting : "<<m_SG_keys[i]<<" ..."<<endreq;
+      msg(MSG::INFO) << "deleting : "<<m_SG_keys[i]<<" ..."<<endreq;
       
       const INavigable4MomentumCollection* p = 0;
-      sc = m_storeGate->retrieve(p,m_SG_keys[i]);
+      sc = evtStore()->retrieve(p,m_SG_keys[i]);
 
       if (sc.isFailure()) {
-         m_log << MSG::ERROR << "Unable to retrieve pointer to Object "<<m_SG_keys[i]<< endreq;
+	msg(MSG::ERROR) << "Unable to retrieve pointer to Object "<<m_SG_keys[i]<< endreq;
       } else {
-        m_log << MSG::INFO <<m_SG_keys[i]<<" at "<<p<<endreq;
-        sc = m_storeGate->remove(p);
+        msg(MSG::INFO) <<m_SG_keys[i]<<" at "<<p<<endreq;
+        sc = evtStore()->remove(p);
         if (sc.isFailure()) {
-           m_log << MSG::ERROR << "Unable to delete pointer to Object "<<m_SG_keys[i]<< endreq;
+	  msg(MSG::ERROR) << "Unable to delete pointer to Object "<<m_SG_keys[i]<< endreq;
         } else {
           p=0;
-          sc = m_storeGate->retrieve(p,m_SG_keys[i]);
-          m_log << MSG::INFO << "deleting "<<m_SG_keys[i]<<" done, test p*="<<p<<endreq;
+          sc = evtStore()->retrieve(p,m_SG_keys[i]);
+          msg(MSG::INFO) << "deleting "<<m_SG_keys[i]<<" done, test p*="<<p<<endreq;
         }
       }
     }

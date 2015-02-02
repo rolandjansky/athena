@@ -6,7 +6,7 @@ use AtlasPolicy          AtlasPolicy-*
 use AthenaKernel         AthenaKernel-*         Control
 
 use GaudiInterface       GaudiInterface-*       External
-use AtlasCLHEP           AtlasCLHEP-*           External
+#use AtlasCLHEP           AtlasCLHEP-*           External
 use AtlasROOT            AtlasROOT-*            External
 use HepPDT               *                      LCG_Interfaces 
 #use AtlasReflex       AtlasReflex-00-*      External
@@ -24,8 +24,7 @@ use LArRecEvent          LArRecEvent-*          LArCalorimeter
 
 #use CBNT_Utils           CBNT_Utils-*           Reconstruction
 
-use TruthHelper          TruthHelper-*          Generators/GenAnalysisTools
-
+#use  GeneratorObjects     GeneratorObjects-*    Generators
 use FastSimulationEvent  FastSimulationEvent-*  Simulation/FastSimulation
 
 #use HepMC                HepMC-01-*             Simulation
@@ -38,8 +37,17 @@ use TrkParameters        TrkParameters-*        Tracking/TrkEvent
 
 use AthenaBaseComps	AthenaBaseComps-*	Control
 
+public
+use TrkExInterfaces      TrkExInterfaces-*      Tracking/TrkExtrapolation
+use TrkEventPrimitives   TrkEventPrimitives-*   Tracking/TrkEvent
+#use TruthHelper          TruthHelper-*          Generators/GenAnalysisTools
+
 private
 use AtlasCLHEP_RandomGenerators AtlasCLHEP_RandomGenerators-* Simulation/Tools
+use AtlasCLHEP           AtlasCLHEP-*           External
+use TruthUtils  TruthUtils-*  Generators
+use GeneratorObjects     GeneratorObjects-*    Generators
+use TrkGeometry         TrkGeometry-*          Tracking/TrkDetDescr 
 end_private
 
 private
@@ -47,10 +55,21 @@ apply_tag ROOTMathLibs
 apply_tag ROOTGraphicsLibs
 end_private
 
+# Specify the required ROOT components for cmake (gtransparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Gpad)"
+
 apply_pattern have_root_headers root_headers="ParticleEnergyParametrization.h ParticleEnergyParametrizationInDistbin.h TShape_Result.h TLateralShapeCorrection.h TSplineReweight.h TCellReweight.h LinkDef.h" \
                                 headers_lib=FastCaloSimLib
 
 ignore_pattern package_tag
+
+
+# DRQ: Note that the following two commented out lines have been removed from the list of files 
+# in the dual_use_library statement since they cause the cmt2cmake converter to ignore the remaining
+# lines in the list.
+
+#FastCaloSimIsGenSimulStable.cxx \
+#CBNTAA_DetailedCellInfo.cxx \
 
 apply_pattern dual_use_library files="\
 AddNoiseCellBuilderTool.cxx \
@@ -61,8 +80,6 @@ FastShowerCellBuilderTool.cxx \
 ParticleEnergyParametrization.cxx \
 ParticleEnergyParametrizationInDistbin.cxx \
 TShape_Result.cxx \
-FastCaloSimIsGenSimulStable.cxx \
-#CBNTAA_DetailedCellInfo.cxx \
 ParticleEnergyShape.cxx \
 TLateralShapeCorrection.cxx \
 TSplineReweight.cxx \
@@ -90,11 +107,9 @@ use CaloTrackingGeometry CaloTrackingGeometry-* Calorimeter
 use DataModel            DataModel-*            Control
 use EventKernel          EventKernel-*          Event
 #use ITrackToCalo         ITrackToCalo-*         Reconstruction/RecoTools
-#use RecoToolInterfaces  RecoToolInterfaces-*    Reconstruction/RecoTools
 use NavFourMom           NavFourMom-*           Event
 use PartPropSvc          v*
 use PathResolver         PathResolver-*         Tools
-use TrkExInterfaces      TrkExInterfaces-*      Tracking/TrkExtrapolation
 use TrkMaterialOnTrack   TrkMaterialOnTrack-*   Tracking/TrkEvent
 use TrkSurfaces          TrkSurfaces-*          Tracking/TrkDetDescr
 use GeoPrimitives               GeoPrimitives-*              DetectorDescription
