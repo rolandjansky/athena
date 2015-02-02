@@ -22,12 +22,14 @@
 #define __TRIG_FTK_UNCERTIANTY_TOOL_H__
 
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/AlgTool.h"
+
+#include "AthenaBaseComps/AthAlgTool.h"
+
 #include "TrigFTKSim/FTKTrack.h"
 #include "TrigFTKToolInterfaces/ITrigFTKUncertiantyTool.h"
 
 
-class TrigFTKUncertiantyTool : public AlgTool, virtual public ITrigFTKUncertiantyTool
+class TrigFTKUncertiantyTool : public AthAlgTool, virtual public ITrigFTKUncertiantyTool
 {
 
  private :

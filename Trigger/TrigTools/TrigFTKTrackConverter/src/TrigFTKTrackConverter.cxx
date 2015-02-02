@@ -284,21 +284,6 @@ StatusCode TrigFTKTrackConverter::convert(const std::vector<FTKTrack*>& vFT,
 	  pParVec->push_back(trackStateOnSurface); 
 	}
 
-	const IdentifierHash idHash = m_sctId->wafer_hash(m_sctId->wafer_id(pSctCL->identify())); 
-	InDet::SCT_ClusterOnTrack* pSC=new InDet::SCT_ClusterOnTrack(pSctCL,
-                                                               pSctCL->localPosition(),
-                                                               pSctCL->localCovariance(),
-                                                               idHash,
-                                                               pSctCL->globalPosition()); 
-      
-	std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;  
-	typePattern.set(Trk::TrackStateOnSurface::Measurement); 
-	
-	Trk::TrackStateOnSurface* trackStateOnSurface=new Trk::TrackStateOnSurface(pSC,  
-										   0,  
-										   0,   
-										   0, typePattern); 
-	pParVec->push_back(trackStateOnSurface); 
 	
       }
 	break; 
@@ -333,21 +318,6 @@ StatusCode TrigFTKTrackConverter::convert(const std::vector<FTKTrack*>& vFT,
 										     0, typePattern); 
 	  pParVec->push_back(trackStateOnSurface); 
 	}
-
-	const IdentifierHash idHash = m_pixelId->wafer_hash(m_pixelId->wafer_id(pPixCL->identify())); 
-	std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;  
-	typePattern.set(Trk::TrackStateOnSurface::Measurement); 
-	InDet::PixelClusterOnTrack* pSC=new InDet::PixelClusterOnTrack(pPixCL,
-                                                                 pPixCL->localPosition(),
-                                                                 pPixCL->localCovariance(),
-                                                                 idHash,
-                                                                 pPixCL->globalPosition(), 
-                                                                 pPixCL->gangedPixel()); 
-	Trk::TrackStateOnSurface* trackStateOnSurface=new Trk::TrackStateOnSurface(pSC,  
-										   0,  
-										   0,   
-										   0, typePattern); 
-	pParVec->push_back(trackStateOnSurface); 
       }
 	break;
       default:
