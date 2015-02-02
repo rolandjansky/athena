@@ -35,7 +35,6 @@ bool PathResolver::m_setLevel=false;
 bool PathResolver::m_coutLogging=false; 
 
 asg::AsgMessaging& PathResolver::asgMsg() {
-   std::cout << "aa" <<std::endl;
    static asg::AsgMessaging m_asgMsg("PathResolver");
    return m_asgMsg;
 }
@@ -123,7 +122,7 @@ PathResolver::PR_find( const std::string& logical_file_name, const string& searc
          return true;
       }
       gErrorIgnoreLevel=errLevel;
-   } else if(locationToDownloadTo==".") {
+   } else if(locationToDownloadTo=="." && itr->find("/afs/cern.ch/atlas/www/")==std::string::npos) { //don't let it ever download back to the www area!
       //prefer first non-pwd location for downloading to. But must be fully accessible. This should be the local InstallArea in cmt
      FILE *fp = std::fopen((*itr+"/._pathresolver_dummy").c_str(), "a+");
      if(fp!=NULL) {
