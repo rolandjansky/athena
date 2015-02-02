@@ -177,6 +177,18 @@ public:
 			       unsigned short int PADID,
 			       Identifier& ID) const;
     
+    StatusCode giveRDO_fromPRD(const IdentifierHash prdHashId,
+                               std::vector<IdentifierHash>& rdoHashVec) const;
+                                    
+    StatusCode giveRDO_fromPRD(std::vector<IdentifierHash>& prdHashVec,  
+                               std::vector<IdentifierHash>& rdoHashVec) const;
+                                    
+    StatusCode giveROB_fromPRD(const IdentifierHash prdHashId,
+                               std::vector<uint32_t>& robIdVec) const;
+                                       
+    StatusCode giveROB_fromPRD(std::vector<IdentifierHash>& prdHashVec,
+                               std::vector<uint32_t>& robIdVec) const;
+    
     std::vector<uint32_t> giveFullListOfRobIds() const;
 
     // METHOD USED BY RPCgeometry
@@ -187,6 +199,8 @@ public:
     RpcPadIdHash* m_padHashIdHelper;
     typedef std::map <Identifier,const RDOindex*,std::less < Identifier > > OfflineOnlineMap;
     typedef std::vector<const RDOindex*> OfflineOnlineHashMap;
+    typedef std::map <IdentifierHash, std::set<IdentifierHash> > PRD_RDO_Map;
+    typedef std::map <IdentifierHash, std::set<uint32_t> > PRD_ROB_Map;
     
     //    const std::string* RPCCorrMap;
     //    const std::string* RPCConfMap;
@@ -197,6 +211,8 @@ public:
     
     OfflineOnlineMap        m_RDOmap;
     OfflineOnlineHashMap    m_HashVec;
+    PRD_RDO_Map             m_PRD_RDO_map;
+    PRD_ROB_Map             m_PRD_ROB_map;
     std::vector<uint32_t>   m_fullListOfRobIds;
     Identifier              m_offline_id[2][32][10];
     const Identifier m_uninitialized_identifier;

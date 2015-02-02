@@ -578,96 +578,115 @@ MuonRPC_CablingSvc::getRPCCabling() const
 bool
 MuonRPC_CablingSvc::buildOfflineOnlineMap()
 {
-
-    msg(MSG::INFO) << "buildOfflineOnlineMap"<<endreq;
-    m_RDOmap.clear();
-    m_HashVec.clear();
+  ATH_MSG_INFO("buildOfflineOnlineMap");
+  m_RDOmap.clear();
+  m_HashVec.clear();
+  
+  std::set< uint32_t > ROBid;
+  
+  IdContext rpcModuleContext = m_pRpcIdHelper->module_context();
+  
+  const CablingRPCBase* cab = CablingRPC::instance();
+  ATH_MSG_DEBUG("cabling singleton at <"<<(uintptr_t)cab<<">");
+  const CablingRPC::RDOmap& map = cab->give_RDOs();
+  ATH_MSG_DEBUG("cabling singleton at <"<<(uintptr_t)cab<<"> hold an RDOmap of size "<<map.size());
+  CablingRPC::RDOmap::const_iterator it = map.begin();
+  unsigned int nEntries=0;
+  // reserve enough space in the hash-vector
+  m_HashVec.reserve(map.size());
+  while(it != map.end()) {
+    // get pointer to RDOindex class
+    const RDOindex* pRDOindex = &((*it).second);
+    m_HashVec.push_back(pRDOindex);
+    if( m_HashVec.size() != pRDOindex->hash()+1 ) return false;
+    ++nEntries;
+    ATH_MSG_DEBUG("RDO Hash Vect new entry  "<<nEntries<<" vector size is "<<m_HashVec.size()<<" this pRDOindex->hash() "<<pRDOindex->hash());
+	
+    const unsigned short int rob_id = pRDOindex->ROBid();
+    const unsigned short int rod_id = pRDOindex->RODid();
+    const unsigned short int sub_id = pRDOindex->side();
+    const unsigned short int sec_id = pRDOindex->SLid();
+    const unsigned short int pad_id = pRDOindex->PADid();
     
-    std::set< uint32_t > ROBid;
+    uint32_t ROD_ID = (sub_id << 16) | rod_id;
+    uint32_t ROB_ID = (sub_id << 16) | rob_id;
+    
+    ROBid.insert(ROB_ID); 
+    
+    unsigned short int sub_id_index = ((sub_id==0x65)? 1:0); // convert 0x65 -> 1 (side A) and 0x66 -> 0 (side C)
+    
+    Identifier id;
+    pRDOindex->pad_identifier( id );
 
-    const CablingRPCBase* cab = CablingRPC::instance();
-    msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cab<<">"<<endreq;
-    const CablingRPC::RDOmap& map = cab->give_RDOs();
-    msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cab<<"> hold an RDOmap of size "<<map.size()<<endreq;
-    CablingRPC::RDOmap::const_iterator it = map.begin();
-    unsigned int nEntries=0;
-    // reserve enough space in the hash-vector
-    m_HashVec.reserve(map.size());
-    while(it != map.end())
-    {
-        // get pointer to RDOindex class
-	const RDOindex* pRDOindex = &((*it).second);
-	m_HashVec.push_back(pRDOindex);
-	if( m_HashVec.size() != pRDOindex->hash()+1 ) return false;
-	++nEntries;
-        msg(MSG::DEBUG)<<"RDO Hash Vect new entry  "<<nEntries<<" vector size is "<<m_HashVec.size()<<" this pRDOindex->hash() "<<pRDOindex->hash()<<endreq;
-	
-	const unsigned short int rob_id = pRDOindex->ROBid();
-	const unsigned short int sub_id = pRDOindex->side();
-        const unsigned short int sec_id = pRDOindex->SLid();
-        const unsigned short int pad_id = pRDOindex->PADid();
-	
-	uint32_t ROB_ID = (sub_id << 16) | rob_id;
-	
-	ROBid.insert(ROB_ID); 
-        
-	
-	// get the set of offlineID identifing the RDO
-	//int name = 0;
-	//int Jtype = 0;
-	//int stationEta = 0;
-	//int stationPhi = 0;
-	//int DoubletR = 0;
-	//int DoubletZ = 0;
-	//int DoubletP = 0;
-	//int GasGap = 0;
-	//int MeasuresPhi = 0;
-	//int Strip = 0;
-
-//
-//	m_pRpcGeo->give_strip_index(pRDOindex->lvl1_code(),
-//	                            Jtype,stationEta,stationPhi,DoubletR,
-//                                    DoubletZ,DoubletP,GasGap,MeasuresPhi,
-//                                    Strip);
-//	name = Jtype - 1;
-//
-//        Identifier id = m_pRpcIdHelper->channelID(name,stationEta,stationPhi,
-//	                  DoubletR,DoubletZ,DoubletP,GasGap,MeasuresPhi,Strip);
-//
-        Identifier id;
-        pRDOindex->pad_identifier( id );
-
-        // build the map
-        std::pair < OfflineOnlineMap::iterator, bool> ins = 
-                    m_RDOmap.insert(OfflineOnlineMap::value_type(id,pRDOindex));
-        msg(MSG::DEBUG)<<"OfflineOnlineMap new entry: value  "<<m_pRpcIdHelper->show_to_string(id)
-                       <<" hash of the RDOindex (key) = "<<pRDOindex->hash()<<endreq;
-                    
-	if(!ins.second) return false;
-	
-        
-	//build the offline_id vector
-	m_offline_id[((sub_id==0x65)? 1:0)][sec_id][pad_id] = id;
-	
-	//increase the iterator            
-        ++it;
+    //build the offline_id vector
+    m_offline_id[sub_id_index][sec_id][pad_id] = id;
+    
+    // build the map
+    std::pair < OfflineOnlineMap::iterator, bool> ins = 
+                m_RDOmap.insert(OfflineOnlineMap::value_type(id,pRDOindex));
+    ATH_MSG_DEBUG("OfflineOnlineMap new entry: value  "<<m_pRpcIdHelper->show_to_string(id)
+                   <<" hash of the RDOindex (key) = "<<pRDOindex->hash());
+                
+    if(!ins.second) return false;
+    
+    //build the PRD->RDO map
+    ATH_MSG_VERBOSE("Looking for PRDs corresponding to this RDO");
+    std::list<Identifier> strip_id_list;
+    IdentifierHash rdoHashId( (IdentifierHash::value_type)pRDOindex->hash() );
+    ATH_MSG_VERBOSE("RDO HashId = " << (int)rdoHashId << " RDO Id = " << id.getString() 
+                    << " ROB Id = " << MSG::hex << ROB_ID << MSG::dec
+                    << " ROD Id = " << MSG::hex << ROD_ID << MSG::dec);
+    
+    for (unsigned short int CMAId : {2, 3, 6 ,7}) { //loop over phi CMA IDs
+      for (unsigned short int ijk : {1, 2, 3}) { //loop over IJK identifiers
+        strip_id_list.clear();
+        for (unsigned short int channel : {0, 31}) {//check for the first and the last channel
+          strip_id_list.splice(
+            strip_id_list.end(),
+            give_strip_id(sub_id_index, sec_id, pad_id, CMAId, ijk, channel)
+          );
+        }
+        for (Identifier strip_id : strip_id_list) {
+          Identifier idp = m_pRpcIdHelper->parentID(strip_id);
+          IdentifierHash prdHashId;
+          int gethash_code = m_pRpcIdHelper->get_hash(idp, prdHashId, &rpcModuleContext);
+          if (gethash_code != 0) {
+            ATH_MSG_DEBUG("Unable to get the PRD HashId! parentID(strip_id)=" << idp.getString());
+            continue;
+          }
+          
+          //fill the PRD->RDO map
+          std::pair<std::set<IdentifierHash>::iterator, bool> insertRDO_returnVal = m_PRD_RDO_map[prdHashId].insert(rdoHashId);
+          if (insertRDO_returnVal.second) {
+            ATH_MSG_DEBUG("A new RDO HashId = " << (int)rdoHashId << " registered for PRD HashId = " << (int)prdHashId);
+          } else {
+            ATH_MSG_VERBOSE("The RDO HashId = " << (int)rdoHashId << " was already registered for PRD HashId = " << (int)prdHashId);
+          }
+          
+          //fill the PRD->ROB map
+          std::pair<std::set<uint32_t>::iterator, bool> insertROB_returnVal = m_PRD_ROB_map[prdHashId].insert(ROB_ID);
+          if (insertROB_returnVal.second) {
+            ATH_MSG_DEBUG("A new ROB Id = " << MSG::hex << ROB_ID << MSG::dec << " registered for PRD HashId = " << (int)prdHashId);
+          } else {
+            ATH_MSG_VERBOSE("The ROB Id = " << MSG::hex << ROB_ID << MSG::dec << " was already registered for PRD HashId = " << (int)prdHashId);
+          }
+        }
+      }
     }
     
-    // log << MSG::DEBUG << m_RDOmap.size() << endreq; 
     
-    // reserve enough space
-    m_fullListOfRobIds.reserve(ROBid.size());
+    //increase the iterator            
+    ++it;
+  }
+  
+  // reserve enough space
+  m_fullListOfRobIds.reserve(ROBid.size());
+  
+  for(uint32_t robid : ROBid) {
+    m_fullListOfRobIds.push_back(robid);
+  }
 
-    for(std::set< uint32_t >::const_iterator 
-	  rob_itr=ROBid.begin(),
-	  rob_end=ROBid.end();
-	rob_itr != rob_end;
-	++rob_itr) {
-      m_fullListOfRobIds.push_back(*rob_itr);
-    }
-
-
-    return true;
+  return true;
 }
 
 
@@ -1224,6 +1243,100 @@ StatusCode MuonRPC_CablingSvc::initTrigRoadsModel(IOVSVC_CALLBACK_ARGS_P(I,keys)
     }   
     msg(MSG::INFO) << name() << " initialized succesfully" << endreq;
     return StatusCode::SUCCESS;
+}
+
+
+StatusCode MuonRPC_CablingSvc::giveRDO_fromPRD(const IdentifierHash prdHashId,
+                                               std::vector<IdentifierHash>& rdoHashVec) const
+{
+  StatusCode sc = StatusCode::SUCCESS;
+  
+  rdoHashVec.clear();
+  
+  PRD_RDO_Map::const_iterator it = m_PRD_RDO_map.find(prdHashId);
+  
+  if (it == m_PRD_RDO_map.cend()) return sc;
+  
+  for (IdentifierHash rdoId : (*it).second)
+    rdoHashVec.push_back(rdoId);
+  
+  return sc;
+}
+
+
+StatusCode MuonRPC_CablingSvc::giveRDO_fromPRD(std::vector<IdentifierHash>& prdHashVec,  
+                                               std::vector<IdentifierHash>& rdoHashVec) const
+{
+  ATH_MSG_VERBOSE("giveRDO_fromPRD called for a vector of " << prdHashVec.size() << " PRD HashIds");
+  
+  StatusCode sc = StatusCode::SUCCESS;
+  
+  rdoHashVec.clear();
+  std::set<IdentifierHash> requestedRdoHashSet;
+  
+  for (IdentifierHash prdHashId : prdHashVec) {
+    //find the requested PRD HashId in the map
+    PRD_RDO_Map::const_iterator it = m_PRD_RDO_map.find(prdHashId);
+    if (it == m_PRD_RDO_map.cend()) {
+      ATH_MSG_DEBUG("No RDOs associated with the requested PRD HashId = " << (int)prdHashId);
+      continue;
+    }
+    //if the PRD was found in the map, add the corresponding set of RDO HashIds to the set of requested RDO HashIds
+    requestedRdoHashSet.insert((*it).second.begin(), (*it).second.end());
+  }
+  
+  //convert set to vector
+  for (IdentifierHash rdoHashId : requestedRdoHashSet)
+    rdoHashVec.push_back(rdoHashId);
+  
+  return sc;
+}
+
+
+StatusCode MuonRPC_CablingSvc::giveROB_fromPRD(const IdentifierHash prdHashId,
+                                               std::vector<uint32_t>& robIdVec) const
+{
+  StatusCode sc = StatusCode::SUCCESS;
+  
+  robIdVec.clear();
+  
+  PRD_ROB_Map::const_iterator it = m_PRD_ROB_map.find(prdHashId);
+  
+  if (it == m_PRD_ROB_map.cend()) return sc;
+  
+  for (uint32_t robId : (*it).second)
+    robIdVec.push_back(robId);
+  
+  return sc;
+}
+
+
+StatusCode MuonRPC_CablingSvc::giveROB_fromPRD(std::vector<IdentifierHash>& prdHashVec,  
+                                               std::vector<uint32_t>& robIdVec) const
+{
+  ATH_MSG_VERBOSE("giveROB_fromPRD called for a vector of " << prdHashVec.size() << " PRD HashIds");
+  
+  StatusCode sc = StatusCode::SUCCESS;
+  
+  robIdVec.clear();
+  std::set<IdentifierHash> requestedRobIdSet;
+  
+  for (IdentifierHash prdHashId : prdHashVec) {
+    //find the requested PRD HashId in the map
+    PRD_ROB_Map::const_iterator it = m_PRD_ROB_map.find(prdHashId);
+    if (it == m_PRD_ROB_map.cend()) {
+      ATH_MSG_DEBUG("No ROBs associated with the requested PRD HashId = " << (int)prdHashId);
+      continue;
+    }
+    //if the PRD was found in the map, add the corresponding set of RDO HashIds to the set of requested RDO HashIds
+    requestedRobIdSet.insert((*it).second.begin(), (*it).second.end());
+  }
+  
+  //convert set to vector
+  for (IdentifierHash robId : requestedRobIdSet)
+    robIdVec.push_back(robId);
+  
+  return sc;
 }
 
 //method to be used by RPCgeometry
