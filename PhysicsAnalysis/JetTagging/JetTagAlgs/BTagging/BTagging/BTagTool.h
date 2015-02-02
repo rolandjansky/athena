@@ -17,7 +17,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "BTagging/IBTagTool.h"
-//#include "Particle/TrackParticle.h"
 
 #include <string>
 #include <vector>
@@ -74,7 +73,7 @@ namespace Analysis
 
       /** Main routines specific to an ATHENA algorithm */
       StatusCode initialize();
-      StatusCode tagJet(xAOD::Jet&, xAOD::BTagging*);
+      StatusCode tagJet(xAOD::Jet&, xAOD::BTagging*, const xAOD::Vertex* vtx = 0);
       StatusCode finalize();
       void finalizeHistos();
 

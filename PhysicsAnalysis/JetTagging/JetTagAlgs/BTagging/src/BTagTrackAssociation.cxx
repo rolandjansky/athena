@@ -109,8 +109,7 @@ namespace Analysis {
       return StatusCode::SUCCESS;
   }
 
-  StatusCode BTagTrackAssociation::BTagTrackAssociation_exec(jetcollection_t* theJets) {
-  //StatusCode BTagTrackAssociation::BTagTrackAssociation_exec(std::vector<xAOD::Jet*>* theJets) {
+  StatusCode BTagTrackAssociation::BTagTrackAssociation_exec(jetcollection_t* theJets, const xAOD::TrackParticleContainer* tracks) {
 
     /* ----------------------------------------------------------------------------------- */
     /*               Particle to Jet Associations                                          */
@@ -126,11 +125,15 @@ namespace Analysis {
 
     //if (MyjetBasis == "Cells" || (MyjetBasis == "Tracks" && m_BTagAssociation) ) {
       for (; tAssocIter!=tAssocEnd; ++tAssocIter) {
-        sc = evtStore()->retrieve( tpContainer, *tNameIter );
-        if ( sc.isFailure() || tpContainer==0) {
-          ATH_MSG_ERROR("#BTAG# Failed to retrieve TrackParticles " << *tNameIter);
-          return StatusCode::SUCCESS;
-        }
+	if (tracks) {
+	  tpContainer = tracks;
+	} else {
+	  sc = evtStore()->retrieve( tpContainer, *tNameIter );
+	  if ( sc.isFailure() || tpContainer==0) {
+	    ATH_MSG_ERROR("#BTAG# Failed to retrieve TrackParticles " << *tNameIter);
+	    return StatusCode::SUCCESS;
+	  }
+	}
         ATH_MSG_VERBOSE("#BTAG# Number of TrackParticles in event: " << tpContainer->size());
 
 	// compute the associations

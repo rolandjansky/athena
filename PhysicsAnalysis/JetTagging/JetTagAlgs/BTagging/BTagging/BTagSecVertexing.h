@@ -51,7 +51,7 @@ namespace Analysis
           virtual ~BTagSecVertexing();
 
           StatusCode initialize();
-          StatusCode BTagSecVtx_exec(xAOD::Jet& myJet, xAOD::BTagging*, xAOD::VertexContainer*, xAOD::BTagVertexContainer*);
+          StatusCode BTagSecVtx_exec(xAOD::Jet& myJet, xAOD::BTagging*, xAOD::VertexContainer*, xAOD::BTagVertexContainer*, const xAOD::Vertex* vtx=0);
           StatusCode finalize();
 
 

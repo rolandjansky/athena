@@ -5,6 +5,7 @@
 from BTagging.BTaggingFlags import BTaggingFlags
 
 metaIP2DNegTag = { 'IsATagger'         : True,
+                   'xAODBaseName'      : 'IP2DNeg',
                    'DependsOn'         : ['AtlasExtrapolator',
                                           'BTagTrackToVertexTool',
                                           'InDetVKalVxInJetTool',
@@ -45,7 +46,6 @@ def toolIP2DNegTag(name, useBTagFlagsDefaults = True, **options):
     flipIPSign                          default: True
     usePosIP                            default: True
     useNegIP                            default: False
-    xAODBaseName                        default: "IP2DNeg"
 
     input:             name: The name of the tool (should be unique).
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
@@ -64,7 +64,6 @@ def toolIP2DNegTag(name, useBTagFlagsDefaults = True, **options):
                      'flipIPSign'                       : True,
                      'usePosIP'                         : True,
                      'useNegIP'                         : False,
-                     'xAODBaseName'                     : 'IP2DNeg',
                      }
         for option in defaults:
             options.setdefault(option, defaults[option])
