@@ -21,6 +21,7 @@
 #include "MuonContainerManager/MuonRdoContainerAccess.h"
 
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
+#include "StoreGate/ActiveStoreSvc.h"
 
 
 //================ Constructor =================================================
@@ -257,7 +258,7 @@ StatusCode Muon::CSC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
   }
 
   m_activeStore->setStore( &*evtStore() );   
-  const DataHandle<EventInfo> thisEventInfo;
+  const EventInfo* thisEventInfo;
   if (evtStore()->retrieve(thisEventInfo).isFailure()) {
     ATH_MSG_ERROR ( "Could not retrieve event info from TDS. - abort ..." );
     return StatusCode::FAILURE;
