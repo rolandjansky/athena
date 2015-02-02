@@ -127,6 +127,41 @@ namespace Trk {
     for( int i=0; i<(int)src.TrackList.size(); i++) TrackList.push_back( new VKTrack(*(src.TrackList[i])) );
   }
 
+  VKVertex& VKVertex::operator= (const VKVertex & src)        //Assignment operator
+  {
+    if (this!=&src){
+      Chi2=src.Chi2;                         // vertex Chi2
+      useApriorVertex=src.useApriorVertex;    //for a priory vertex position knowledge usage
+      passNearVertex=src.passNearVertex;      // needed for "passing near vertex" constraint
+      passWithTrkCov=src.passWithTrkCov;      //  Vertex, CovVertex, Charge and derivatives 
+      FVC=src.FVC;
+      for( int i=0; i<6; i++) {
+        fitVcov[i]    =src.fitVcov[i];  // range[0:5]
+        apriorVWGT[i] =src.apriorVWGT[i];
+        if(i>=3) continue;
+        fitV[i]    =src.fitV[i];   // range[0:2]
+        iniV[i]    =src.iniV[i];
+        cnstV[i]   =src.cnstV[i];
+        refIterV[i]=src.refIterV[i];
+        refV[i]    =src.refV[i];
+        apriorV[i] =src.apriorV[i];
+        fitMom[i]  = src.fitMom[i];
+      }
+      for( int i=0; i<21; i++){
+        savedVrtMomCov[i]=src.savedVrtMomCov[i];
+        fitCovXYZMom[i]=src.fitCovXYZMom[i];
+      }
+      nextCascadeVrt = 0;
+    //----- Creation of track copies
+      TrackList.clear();
+      tmpArr.clear();
+      ConstraintList.clear();
+      for( int i=0; i<(int)src.TrackList.size(); i++) TrackList.push_back( new VKTrack(*(src.TrackList[i])) );
+    //for( int i=0; i<(int)src.ConstraintList.size(); i++) ConstraintList.push_back( new (*(src.TrackList[i])) );
+    }
+    return *this;
+  }
+
   TWRK::TWRK(){}
   TWRK::~TWRK(){}
 

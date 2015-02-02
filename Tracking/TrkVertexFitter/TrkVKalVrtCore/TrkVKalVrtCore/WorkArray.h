@@ -30,37 +30,22 @@ namespace Trk {
   
     public:
        vkalDynamicArrays(long int NTrkMax);
+       vkalDynamicArrays(const vkalDynamicArrays& );             //copy
+       vkalDynamicArrays& operator=(const vkalDynamicArrays& );  //assign
       ~vkalDynamicArrays();
-      double *get_tt() const;
-      double *get_part() const;
-      double *get_parf0() const;
-      double *get_scale() const;
       double *get_dphi() const;
-      double *get_eps() const;
       double *get_deps() const;
       double *get_drho() const;
       double *get_dtet() const;
-      double *get_phip() const;
-      double *get_phiv() const;
-      double *get_zp() const;
       double *get_dzp() const;
-      double *get_drdp() const;
 
     private:
-      double *tt;
-      double *part;
-      double *parf0;
-      double *scale;
       double *dphi;
-      double *eps;
       double *deps;
       double *drho;
       double *dtet;
-      double *phip;
-      double *phiv;
-      double *zp;
       double *dzp;
-      double *drdp;
+      long int NSIZE;
   };
 
 }

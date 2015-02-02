@@ -41,7 +41,7 @@ namespace Trk {
 //
 // temporary vertex in global ref.frame
     double vrtstp[3];        
-    long int kfrm, irob;
+    long int irob;
     double RobustScale;
     double robres[NTrkM];
     short int indtrkmc[NTrkM*8];	/* was [300][8] */
@@ -49,9 +49,12 @@ namespace Trk {
     double IterationPrecision;
  
     ForCFT(){
-      useMassCnst=0; usePhiCnst=0; useThetaCnst=0; usePointingCnst=0;
+      nmcnst=0;
+      useMassCnst=0; usePhiCnst=0; useThetaCnst=0; usePointingCnst=0; usePlaneCnst=0;
       useAprioriVrt=0; usePassNear=0; icht=0; Ap=Bp=Dp=Cp=0.;
-      IterationNumber = 100; IterationPrecision=1.e-3; RobustScale = 1.; irob=0;};
+      IterationNumber = 100; IterationPrecision=1.e-3; RobustScale = 1.; irob=0;
+      localbmag=2.0;   // Safety: standard magnetic field in ID 
+    };
     ~ForCFT(){};
   };
 

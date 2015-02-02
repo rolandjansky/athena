@@ -117,7 +117,8 @@ namespace Trk {
     public:
       VKVertex();
      ~VKVertex();
-      VKVertex(const VKVertex & src);  //copy
+      VKVertex(const VKVertex & src);              //copy
+      VKVertex& operator= (const VKVertex & src);  //assign
 
      public:        // Relative coordinates with respect to refIterV[]
        double Chi2;         // vertex Chi2

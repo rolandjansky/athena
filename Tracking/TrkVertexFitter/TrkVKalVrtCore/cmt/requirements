@@ -12,5 +12,4 @@ apply_pattern  installed_library
 
 private
 
-###macro_append cppflags "" Linux " -pg"
-###macro_append cpplinkflags "" Linux " -pg"
+#macro_append cppflags " -pedantic-errors"

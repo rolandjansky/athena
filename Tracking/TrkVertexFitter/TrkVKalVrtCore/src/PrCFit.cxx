@@ -107,7 +107,6 @@ void prcfit( long int *ntrk, double  *wm, double  *wmfit, double  *bmag, double 
     forcft_1.covvrt[3] = vrte[3];
     forcft_1.covvrt[4] = vrte[4];
     forcft_1.covvrt[5] = vrte[5];
-    forcft_1.kfrm = 0;
     forcft_1.irob = 0;
     forcft_1.IterationNumber    = 50;
     forcft_1.IterationPrecision = 1.e-3;
