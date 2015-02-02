@@ -78,7 +78,6 @@ public:
   static const InterfaceID& interfaceID() { return IMuonRdoToPrepDataTool::interfaceID(); }
   
 private:
-  ServiceHandle<IRPCConditionsSvc> m_rSummarySvc;   
   StatusCode getOfflineToOnlineMap(IOVSVC_CALLBACK_ARGS);
   //void getOfflineToOnlineMap();
   bool isRequested(std::vector<IdentifierHash>& idVect, IdentifierHash rpcHashId) const;
@@ -143,6 +142,8 @@ private:
   ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataProviderTool; 
   ToolHandle<Muon::IRPC_RDO_Decoder>         m_rpcRdoDecoderTool; 
 
+  ServiceHandle<IRPCConditionsSvc> m_rSummarySvc;
+  
   //keepTrackOfFullEventDecoding
   bool m_fullEventDone;
   

@@ -384,7 +384,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
   std::vector<IdentifierHash> rdoHashVec;
   if (sizeVectorRequested != 0) {
     ATH_MSG_DEBUG("Looking for pads IdHash to be decoded for the requested collection Ids");
-    StatusCode sc = getVectorOfRequestedPadHashes(idVectToBeDecoded, rdoHashVec, idWithDataVect);
+    StatusCode sc = m_rpcCabling->giveRDO_fromPRD(idVectToBeDecoded, rdoHashVec);
     if (StatusCode::SUCCESS != sc) return sc; //!< fix me - define a SW type of error 
   }
   
@@ -511,7 +511,7 @@ StatusCode Muon::RpcRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
           m_decodedOfflineHashIds.insert(*itAmbiColl);
         }
         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << endreq;
-        StatusCode sc = getVectorOfRequestedPadHashes(idVectToBeDecoded, rdoHashVec, idWithDataVect);
+        StatusCode sc = m_rpcCabling->giveRDO_fromPRD(idVectToBeDecoded, rdoHashVec);
         if (StatusCode::SUCCESS != sc) return sc;
         if (m_rawDataProviderTool->convert(rdoHashVec).isFailure()) {
           msg (MSG::FATAL) << "BS conversion into RDOs failed" << endreq;
