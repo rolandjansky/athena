@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id: T2VertexBeamSpotConfig.py 573926 2013-12-05 08:40:29Z jlove $
+# $Id: T2VertexBeamSpotConfig.py 643531 2015-02-02 12:40:50Z smh $
 #
 
 from TrigT2BeamSpot.TrigT2BeamSpotConf import PESA__T2VertexBeamSpot
@@ -134,56 +134,6 @@ class AlgoId :
     STRATEGY_A_ID=5
     STRATEGY_B_ID=6
     STRATEGY_F_ID=8
-
-#
-# IDScan
-#
-
-# Setup for using IDScan tracks
-class T2VertexBeamSpot_IDScan ( T2VertexBeamSpot ) :
-    __slots__ = []
-    def __init__ (self, name="T2VertexBeamSpot_IDScan"):
-        super(T2VertexBeamSpot_IDScan, self).__init__(name, detail=1)
-        self.TrackAlgoID    = AlgoId.IDSCANID
-
-# Setup for writing out all events seen by the BeamSpot algorithm with IDScan tracks
-class T2VertexBeamSpot_activeAllTE_IDScan ( T2VertexBeamSpot_activeAllTE ) :
-    __slots__ = []
-    def __init__ (self, name="T2VertexBeamSpot_activeAllTE_IDScan"):
-        super(T2VertexBeamSpot_activeAllTE_IDScan, self).__init__(name, detail=0)
-        self.TrackAlgoID    = AlgoId.IDSCANID
-
-# Setup for writing out events with a "good" vertex seen by the BeamSpot algorithm with IDScan tracks
-class T2VertexBeamSpot_activeTE_IDScan ( T2VertexBeamSpot_activeTE ) :
-    __slots__ = []
-    def __init__ (self, name="T2VertexBeamSpot_activeTE_IDScan"):
-        super(T2VertexBeamSpot_activeTE_IDScan, self).__init__(name, detail=0)
-        self.TrackAlgoID    = AlgoId.IDSCANID
-
-#
-# SiTrack
-#
-
-# Setup for using SiTrack tracks
-class T2VertexBeamSpot_SiTrack ( T2VertexBeamSpot ) :
-    __slots__ = []
-    def __init__ (self, name="T2VertexBeamSpot_SiTrack"):
-        super(T2VertexBeamSpot_SiTrack, self).__init__(name, detail=2)
-        self.TrackAlgoID    = AlgoId.SITRACKID
-
-# Setup for writing out all events seen by the BeamSpot algorithm with SiTrack tracks
-class T2VertexBeamSpot_activeAllTE_SiTrack ( T2VertexBeamSpot_activeAllTE ) :
-    __slots__ = []
-    def __init__ (self, name="T2VertexBeamSpot_activeAllTE_SiTrack"):
-        super(T2VertexBeamSpot_activeAllTE_SiTrack, self).__init__(name, detail=0)
-        self.TrackAlgoID    = AlgoId.SITRACKID
-
-# Setup for writing out events with a "good" vertex seen by the BeamSpot algorithm with SiTrack tracks
-class T2VertexBeamSpot_activeTE_SiTrack ( T2VertexBeamSpot_activeTE ) :
-    __slots__ = []
-    def __init__ (self, name="T2VertexBeamSpot_activeTE_SiTrack"):
-        super(T2VertexBeamSpot_activeTE_SiTrack, self).__init__(name, detail=0)
-        self.TrackAlgoID    = AlgoId.SITRACKID
 
 #
 # L2Star Strategy A

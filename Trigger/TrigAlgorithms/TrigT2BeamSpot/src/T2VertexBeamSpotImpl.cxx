@@ -4,7 +4,7 @@
 
 //============================================================
 //
-// $Id: T2VertexBeamSpotImpl.cxx 609022 2014-07-28 17:02:28Z sutt $
+// $Id: T2VertexBeamSpotImpl.cxx 641309 2015-01-23 15:45:50Z smh $
 //
 // T2VertexBeamSpot.cxx, (c) ATLAS Detector software
 // Trigger/TrigAlgorithms/TrigT2BeamSpot/T2VertexBeamSpot
@@ -29,7 +29,7 @@
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
 #include "TrigInDetEvent/TrigVertex.h"
 #include "TrigInDetEvent/TrigVertexCollection.h"
-#include "TrigVertexFitter/ITrigPrimaryVertexFitter.h"
+#include "TrigInDetToolInterfaces/ITrigPrimaryVertexFitter.h"
 
 // Generic Trigger tools
 #include "TrigNavigation/TriggerElement.h"

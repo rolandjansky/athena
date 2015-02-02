@@ -27,7 +27,7 @@
  * @author David W. Miller    <David.W.Miller@cern.ch>     - SLAC, Stanford University
  *
  * File and Version Information:
- * $Id: T2VertexBeamSpot.h 361213 2011-04-23 18:26:44Z bartoldu $
+ * $Id: T2VertexBeamSpot.h 643531 2015-02-02 12:40:50Z smh $
  **********************************************************************************/
 
 #ifndef TRIGT2BEAMSPOT_T2VERTEXBEAMSPOT_H
@@ -77,13 +77,6 @@ namespace PESA {
        */
       HLT::ErrorCode hltExecute( std::vector<std::vector<HLT::TriggerElement*> >& input,
                                  unsigned int output );
-
-      /**
-       * @brief This method overwrites the default one (doing nothing) in the algo.h class
-       *
-       * Currently, this does nothing. 
-       */
-      virtual bool reset();
 
     private:
 

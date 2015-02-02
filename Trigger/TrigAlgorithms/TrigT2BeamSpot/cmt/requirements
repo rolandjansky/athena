@@ -1,5 +1,5 @@
 #
-# $Id: requirements 361213 2011-04-23 18:26:44Z bartoldu $
+# $Id: requirements 641309 2015-01-23 15:45:50Z smh $
 #
 
 package TrigT2BeamSpot
@@ -31,9 +31,9 @@ use AtlasCLHEP              AtlasCLHEP-*              External
 use EventInfo               EventInfo-*               Event
 use InDetBeamSpotService    InDetBeamSpotService-*    InnerDetector/InDetConditions
 use TrigNavigation          TrigNavigation-*          Trigger/TrigEvent
-use TrigVertexFitter        TrigVertexFitter-*        Trigger/TrigTools
 use TrigTimeAlgs            TrigTimeAlgs-*            Trigger/TrigTools
 use DataModel               DataModel-*               Control
+use TrigInDetToolInterfaces     TrigInDetToolInterfaces-* Trigger/TrigTools
 
 #------------------------------------------------------------------
 
