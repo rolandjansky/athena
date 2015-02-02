@@ -26,8 +26,6 @@
 
 #include "SCT_ConditionsServices/ISCT_ConfigurationConditionsSvc.h"
 
-static const std::string databaseSignature("database");
-static const std::string coolFolderName("/SCT/Manual/BadModules"); //a single-channel folder in the DB
 
 template <class T> 
 static std::vector<T> 
@@ -43,75 +41,21 @@ string2Vector(const std::string & s){
 // Constructor
 SCT_RODVetoSvc::SCT_RODVetoSvc( const std::string& name, ISvcLocator* pSvcLocator ) : 
   AthService(name, pSvcLocator), 
-  m_sct_id(0),
   m_cabling("SCT_CablingSvc",name),
-  m_badElements(0),
+  //m_badElements(0),
   m_filled(false), 
-  m_pHelper(0), 
-  m_useDatabase(false),  
-  m_detStore("DetectorStore",name){
+  m_pHelper(0),
+  m_detStore("DetectorStore", name){
   declareProperty("BadRODIdentifiers",m_badRODElements);
-  declareProperty("CablingService",m_cabling);
 }
 
 //Initialize
 StatusCode 
 SCT_RODVetoSvc::initialize(){
-  StatusCode sc(StatusCode::SUCCESS);
-  //
-  sc = m_cabling.retrieve() ;
-  if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Cannot retrieve cabling!"  << endreq;
-    return StatusCode::SUCCESS;
-  } 
-  
-  msg(MSG::INFO)<<"Start getting list of RODs."<<endreq;
-
-  std::vector<boost::uint32_t> listOfRODs;
-  m_cabling->getAllRods(listOfRODs);
-  std::vector<boost::uint32_t>::iterator rodIter = listOfRODs.begin();
-  std::vector<boost::uint32_t>::iterator rodEnd = listOfRODs.end();
-
-  msg(MSG::INFO) << "listofRODS size: " << listOfRODs.size() << endreq;
-  int i_rod=0;
-  for (; rodIter != rodEnd; ++rodIter) {
-    std::vector<IdentifierHash> listOfHashes;
-    msg(MSG::INFO) << "rodIter number: " << (*rodIter)<<endreq;
-    if (std::find(m_badRODElements.value().begin(), m_badRODElements.value().end(), i_rod) != m_badRODElements.value().end()) {
-      msg(MSG::INFO)<<"Mask ROD:"<< (*rodIter)<<endreq;
-      m_cabling->getHashesForRod(listOfHashes,(*rodIter));
-      std::vector<IdentifierHash>::iterator hashIt = listOfHashes.begin();
-      std::vector<IdentifierHash>::iterator hashEnd = listOfHashes.end();
-      for (; hashIt != hashEnd; ++hashIt) {
-        msg(MSG::INFO)<<"In for hash."<<endreq;
-        Identifier wafId = m_sct_id->wafer_id(*hashIt);
-        msg(MSG::INFO)<<"a"<<endreq;
-        Identifier modId = m_sct_id->module_id(wafId);
-        msg(MSG::INFO)<<"b"<<endreq;
-        std::string modSt = modId.getString();
-        msg(MSG::INFO)<<"c"<<endreq;
-        m_badElements.push_back(modSt);
-        msg(MSG::INFO)<<"d"<<endreq;
-      }
-    }
-  i_rod++;
-  }
-
-  //
-  m_useDatabase=(std::find(m_badElements.begin(),m_badElements.end(),databaseSignature) != m_badElements.end());
-  if (not m_useDatabase){
-    if (fillData().isFailure()) return msg(MSG::ERROR)<<"Failed to fill data"<<endreq, StatusCode::FAILURE;
-  } else {
-    if (m_detStore->regFcn(&SCT_RODVetoSvc::fillData,this,m_dbList,coolFolderName).isFailure()) return msg(MSG::ERROR)<<"Failed to register callback"<<endreq, StatusCode::FAILURE;
-  }
-  //
-  const std::string databaseUseString(m_useDatabase?"":"not ");
-  msg(MSG::INFO)<<"Initialized veto service with data, "
-  <<(m_badElements.size() - int(m_useDatabase))
-  <<" elements declared bad. Database will "<<databaseUseString<<"be used."<<endreq;
-  //
-  if (m_detStore->retrieve(m_pHelper,"SCT_ID").isFailure()) return msg(MSG::ERROR)<<"SCT helper failed to retrieve"<<endreq, StatusCode::FAILURE;
-  return sc;
+  ATH_CHECK(m_detStore.retrieve());
+  ATH_CHECK(m_detStore->retrieve(m_pHelper, "SCT_ID"));
+  ATH_CHECK(m_cabling.retrieve());
+  return  StatusCode::SUCCESS;
 }
 
 //Finalize
@@ -143,58 +87,67 @@ SCT_RODVetoSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 
 bool 
 SCT_RODVetoSvc::canReportAbout(InDetConditions::Hierarchy h){
-  return ((h==InDetConditions::DEFAULT) or (h==InDetConditions::SCT_SIDE) );
+  return ((h==InDetConditions::DEFAULT) or (h==InDetConditions::SCT_SIDE));
 }
 
 bool 
 SCT_RODVetoSvc::isGood(const Identifier & elementId, InDetConditions::Hierarchy h){
   if (not canReportAbout(h)) return true;
+  if (not filled() and fillData().isFailure()) ATH_MSG_WARNING("Data structure could not be filled");
   bool result = (m_badIds.find(elementId) == m_badIds.end());
   return result;
 }
 
 bool 
 SCT_RODVetoSvc::isGood(const IdentifierHash & hashId){
+  if (not filled() and fillData().isFailure()) ATH_MSG_WARNING("Data structure could not be filled");
   Identifier elementId=m_pHelper->wafer_id(hashId);
   return isGood(elementId);
 }
 
 StatusCode 
 SCT_RODVetoSvc::fillData(){
-  StatusCode sc(StatusCode::SUCCESS);
-  if ((m_badElements.size() - int(m_useDatabase)) == 0){
-    msg(MSG::INFO)<<"No bad RODs in job options."<<endreq;
-    return sc;
-  } 
-  bool success(true);
-  std::vector<std::string>::const_iterator pId=m_badElements.begin();
-  std::vector<std::string>::const_iterator last=m_badElements.end();
-  for(;pId not_eq last;++pId){
-    if (*pId != databaseSignature) success &= m_badIds.insert(Identifier(atoi(pId->c_str()))).second;
+  if (m_badRODElements.value().empty()){
+    ATH_MSG_INFO("No bad RODs in job options.");
+    return StatusCode::SUCCESS;
   }
-  m_filled=true;
-  return success?sc:(StatusCode::FAILURE);
+  ATH_MSG_INFO(m_badRODElements.value().size() <<" RODs were declared bad");
+  bool success(true);
+  for(int thisRod: m_badRODElements.value()){
+    std::vector<IdentifierHash> listOfHashes;
+    m_cabling->getHashesForRod(listOfHashes,thisRod);
+    ATH_MSG_DEBUG("This rod is "<<thisRod);
+    //Two consecutive hashes may produce the same module id, since they will be two sides
+    //of the same module. We avoid invalid inserts by guarding against this.
+    Identifier previousId; //constructor produces an invalid one
+    for (IdentifierHash thisHash:listOfHashes){
+      Identifier wafId = m_pHelper->wafer_id(thisHash);
+      Identifier modId = m_pHelper->module_id(wafId);
+      const bool alreadyInserted(modId==previousId);
+      previousId=modId;
+      if (alreadyInserted) continue;
+      ATH_MSG_VERBOSE("This Id is "<<modId);
+      const bool thisInsertionOk=m_badIds.insert(modId).second;
+      if (not thisInsertionOk){
+      	ATH_MSG_WARNING("Insertion failed for rod "<<thisRod<<" and module (hash,id): "<<thisHash<<", "<<modId);
+      }
+      success &= thisInsertionOk;
+    }
+  }
+  m_filled=success;
+  if (m_filled) ATH_MSG_INFO("Structure successfully filled with "<<m_badIds.size()<<" modules.");
+  return success?(StatusCode::SUCCESS):(StatusCode::FAILURE);
 }
 
 StatusCode 
 SCT_RODVetoSvc::fillData(int& /*i*/ , std::list<std::string>& /*folderList*/){
-  StatusCode sc(fillData());
-  const StatusCode fail(StatusCode::FAILURE);
-  if (sc.isFailure() ) return fail;
-  if (m_detStore->retrieve(m_dbList,coolFolderName).isFailure())  return fail;
-  std::string badModuleString=m_dbList[0]["ModuleList"].data<std::string>();
-  std::vector<int> v=string2Vector<int>(badModuleString);
-  int numberInDb=v.size();
-  msg(MSG::INFO)<<numberInDb<<" elements were declared bad in the database."<<endreq;
-  for (std::vector<int>::const_iterator i(v.begin());i!=v.end();++i){
-    m_badIds.insert(Identifier(*i));
-  }
-  return sc;
+	ATH_MSG_WARNING("A database fill callback was triggered for the SCT_RODVetoSvc, which does not use the database");
+	return StatusCode::RECOVERABLE;
 }
 
 bool 
 SCT_RODVetoSvc::canFillDuringInitialize(){
-  return (not m_useDatabase);// can only fill during intialize if we don't use the database
+  return false;//uses the cabling, so cannot be filled in initialize
 }
 bool
 SCT_RODVetoSvc::filled() const{

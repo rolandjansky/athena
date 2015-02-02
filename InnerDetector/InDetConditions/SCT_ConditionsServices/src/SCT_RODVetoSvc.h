@@ -43,7 +43,7 @@ class ISCT_CablingSvc;
 
 /**
  * @class SCT_RODVetoSvc
- * Service allowing one to manually declare RODs as 'bad' in the joboptions file
+ * Service allowing one to manually declare detector elements as 'bad' in the joboptions file
 **/
 class SCT_RODVetoSvc: virtual public ISCT_ConditionsSvc, public AthService{
   friend class SvcFactory<SCT_RODVetoSvc>;
@@ -81,17 +81,14 @@ public:
   virtual bool canFillDuringInitialize();
   
 private:
-  const SCT_ID* m_sct_id;
 
   ServiceHandle<ISCT_CablingSvc> m_cabling;
 
-  std::vector<std::string> m_badElements; //list of bad detector elements (= module sides)
+  //std::vector<std::string> m_badElements; //list of bad detector elements (= module sides)
   IntegerArrayProperty m_badRODElements;
   std::set<Identifier> m_badIds;
   bool m_filled;
   const SCT_ID * m_pHelper;
-  bool m_useDatabase;
-  const DataHandle<AthenaAttributeList>   m_dbList;// implies single channel folder used
   ServiceHandle<StoreGateSvc> m_detStore;
 };
 

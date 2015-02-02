@@ -58,6 +58,11 @@ from AthenaCommon.AlgSequence import AlgSequence
 
 job = AlgSequence()
 
+
+from SCT_Cabling.SCT_CablingConf import SCT_CablingSvc
+ToolSvc = ServiceMgr.ToolSvc
+ServiceMgr+=SCT_CablingSvc()
+
 #--------------------------------------------------------------
 # Load IOVDbSvc
 #--------------------------------------------------------------
@@ -65,11 +70,7 @@ job = AlgSequence()
 IOVDbSvc = Service("IOVDbSvc")
 from IOVDbSvc.CondDB import conddb
 IOVDbSvc.GlobalTag="OFLCOND-FDR-01-02-00"
-'''
-DBname='<dbConnection>oracle://DEVDB10;schema=ATLAS_SCT_COMMCOND_DEV;dbname=ROE2;user=ATLAS_SCT_COMMCOND_DEV</dbConnection>'
 
-IOVDbSvc.Folders += [ DBname +' /SCT/Manual/BadModules']
-'''
 conddb.addFolder("SCT","/SCT/DAQ/Configuration/ROD")
 conddb.addFolder("SCT","/SCT/DAQ/Configuration/MUR")
 conddb.addFolder("SCT","/SCT/DAQ/Configuration/RODMUR")
@@ -78,30 +79,18 @@ conddb.addFolder("SCT","/SCT/DAQ/Configuration/Geog")
 
 
 
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ModuleVetoSvc
-ServiceMgr +=SCT_ModuleVetoSvc()
-
-SCT_ModuleVeto=ServiceMgr.SCT_ModuleVetoSvc
-SCT_ModuleVeto.BadModuleIdentifiers=["1","2"]
-SCT_ModuleVetoSvc.OutputLevel=DEBUG
-
-
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_RODVetoSvc
 ServiceMgr += SCT_RODVetoSvc()
 SCT_RODVeto=ServiceMgr.SCT_RODVetoSvc
-SCT_RODVeto.BadRODIdentifiers=[0,1]
+SCT_RODVeto.BadRODIdentifiers=[0x24010a,0x240100]
 
 from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_RODVetoTestAlg
 job+= SCT_RODVetoTestAlg()
 
-'''
-from SCT_ConditionsServices.SCT_ConditionsServicesConf import SCT_ModuleVetoTestAlg
-job+= SCT_ModuleVetoTestAlg()
-'''
-
 
 import AthenaCommon.AtlasUnixGeneratorJob
-
-
+ServiceMgr.SCT_CablingSvc.OutputLevel = INFO
+ServiceMgr.SCT_RODVetoSvc.OutputLevel=VERBOSE
+ServiceMgr.EventSelector.InitialTimeStamp = 1409756400
 ServiceMgr.EventSelector.RunNumber  = 0
 theApp.EvtMax                   = 1

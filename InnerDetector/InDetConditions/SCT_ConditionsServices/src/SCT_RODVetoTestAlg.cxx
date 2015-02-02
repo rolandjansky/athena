@@ -54,18 +54,13 @@ SCT_RODVetoTestAlg::execute(){
   // so the INFO level messages have no impact on performance of these services when used by clients
   StatusCode sc(StatusCode::SUCCESS);
   msg(MSG::INFO) << "Calling execute" << endreq;
-  msg(MSG::INFO) <<"Dummy call to ROD id 0: ROD is "<<endreq;
-  bool result=m_pRODVetoSvc->isGood(Identifier(0));
+  msg(MSG::INFO) <<"Call to module in ROD 0x240100: Module is "<<endreq;
+  bool result=m_pRODVetoSvc->isGood(0x807b00000000000);
   msg(MSG::INFO) << (result?"good":"bad") << endreq;
-  // msg(MSG::INFO) <<"Dummy call to ROD id 1: ROD is "<<endreq;
-  // result=m_pRODVetoSvc->isGood(Identifier(1));
-  // msg(MSG::INFO) << (result?"good":"bad") << endreq;
-  // msg(MSG::INFO) << "Using Identifier Hash method: with number 2137 "<<endreq;
-  result=m_pRODVetoSvc->isGood(IdentifierHash(2137));
+  IdentifierHash anyRandomHash(1000);
+  result=m_pRODVetoSvc->isGood(anyRandomHash);
   msg(MSG::INFO) << (result?"good":"bad") << endreq;
-  // msg(MSG::INFO) <<"Dummy call to ROD id 3: ROD is "<<endreq;
-  // result=m_pRODVetoSvc->isGood(Identifier(3));
-  //  msg(MSG::INFO) << (result?"good":"bad") << endreq;
+ 
   return sc;
 }
 
