@@ -15,17 +15,14 @@
 
 #include "BTagging/BTagTool.h"
 
-#include "VxVertex/VxContainer.h"
-#include "VxVertex/RecVertex.h"
-//#include "VxVertex/PrimaryVertexSelector.h" // new since rel 17.2
+//#include "VxVertex/VxContainer.h"
+//#include "VxVertex/RecVertex.h"
 
+#include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 #include "VxVertex/VxTrackAtVertex.h"
 
-// #include "JetEvent/Jet.h"
 #include "BTagging/BTagLabeling.h"
-// #include "BTagging/BTagSecVertexing.h"
-// #include "BTagging/BTagRemoving.h"
 #include "JetTagTools/ITagTool.h"
 
 namespace Analysis {
@@ -38,8 +35,6 @@ namespace Analysis {
     m_vxPrimaryName("PrimaryVertices"),
     m_runModus("analysis"),
     m_BTagLabelingTool("Analysis::BTagLabeling")
-    //m_BTagSecVertexingTool("Analysis::BTagSecVertexing"),
-    //m_BTagRemovingTool("Analysis::BTagRemoving")
   {
     declareInterface<IBTagTool>(this);
 
@@ -53,8 +48,6 @@ namespace Analysis {
 
     declareProperty("Runmodus"   ,                    m_runModus); // The run modus (reference/analysis)
     declareProperty("BTagLabelingTool",               m_BTagLabelingTool);
-    // declareProperty("BTagSecVertexingTool",           m_BTagSecVertexingTool);
-    // declareProperty("BTagRemovingTool",               m_BTagRemovingTool);
   }
 
   BTagTool::~BTagTool() {}
@@ -93,26 +86,6 @@ namespace Analysis {
       }
     }
     
-    // retrieve the secondary vertex reconsruction tool
-    // if ( !m_BTagSecVertexingTool.empty() ) {
-    //   if ( m_BTagSecVertexingTool.retrieve().isFailure() ) {
-    //     ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " << m_BTagSecVertexingTool);
-    //     return StatusCode::FAILURE;
-    //   } else {
-    //     ATH_MSG_DEBUG("#BTAG# Retrieved tool " << m_BTagSecVertexingTool);
-    //   }
-    // }
-
-    // retrieve the removing tool
-    // if ( !m_BTagRemovingTool.empty() ) {
-    //   if ( m_BTagRemovingTool.retrieve().isFailure() ) {
-    //     ATH_MSG_FATAL("#BTAG# Failed to retrieve tool " << m_BTagRemovingTool);
-    //     return StatusCode::FAILURE;
-    //   } else {
-    //     ATH_MSG_DEBUG("#BTAG# Retrieved tool " << m_BTagRemovingTool);
-    //   }
-    // }
-
     // JBdV for debugging
     m_nBeamSpotPvx = 0;
     m_nAllJets     = 0;
@@ -121,7 +94,7 @@ namespace Analysis {
   }
 
 
-  StatusCode BTagTool::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag) {
+  StatusCode BTagTool::tagJet(xAOD::Jet& jetToTag, xAOD::BTagging* BTag, const xAOD::Vertex* vtx) {
 
     ATH_MSG_VERBOSE("#BTAG# (p, E) of original Jet: (" << jetToTag.px() << ", " << jetToTag.py() << ", "
 		    << jetToTag.pz() << "; " << jetToTag.e() << ") MeV");
@@ -143,80 +116,43 @@ namespace Analysis {
     /* ----------------------------------------------------------------------------------- */
     /*               RETRIEVE PRIMARY VERTEX CONTAINER FROM STOREGATE                      */
     /* ----------------------------------------------------------------------------------- */
-    const xAOD::VertexContainer* vxContainer(0);
-    StatusCode sc = evtStore()->retrieve(vxContainer, m_vxPrimaryName);
-    // DO NOT TAG AN EVENT WITHOUT PRIMARY VERTEX FOR NOW
-    if (sc.isFailure()) {
-      ATH_MSG_WARNING("#BTAG# Primary vertex coll " << m_vxPrimaryName << " not found");
-      return StatusCode::SUCCESS;
-    }
-    /* --- Replaced by PrimaryVertexSelector from rel. 17.2 ---*/
-    //    const Trk::RecVertex& primaryVertex = (*fz)->recVertex();
-    //   if ((*fz)->vxTrackAtVertex()->size() == 0) {
-    //      ATH_MSG_DEBUG("#BTAG#  PV==BeamSpot: probably poor tagging");
-    //      m_nBeamSpotPvx++;
-    //    }
-
-    // Provent downstream code from crashing if the vertex container is empty
-    if (vxContainer->size()==0) {
-      ATH_MSG_DEBUG("#BTAG#  Vertex container is empty");
-      return StatusCode::SUCCESS;
-    }
-
     const xAOD::Vertex* primaryVertex(0);
-    for (xAOD::VertexContainer::const_iterator fz = vxContainer->begin(); fz != vxContainer->end(); ++fz) {
-      if ((*fz)->vertexType() == xAOD::VxType::PriVtx) {
-        primaryVertex = *fz;
-        break;
+    StatusCode sc = StatusCode::SUCCESS;
+
+    if (vtx) {
+      primaryVertex = vtx;
+    } else {
+      const xAOD::VertexContainer* vxContainer(0);
+      
+      sc = evtStore()->retrieve(vxContainer, m_vxPrimaryName);
+      
+      if (sc.isFailure()) {
+	ATH_MSG_WARNING("#BTAG# Primary vertex coll " << m_vxPrimaryName << " not found");
+	return StatusCode::SUCCESS;
       }
-    }
-    if (! primaryVertex) {
-      if (vxContainer->size() > 0) {
+    
+      if (vxContainer->size()==0) {
+	ATH_MSG_DEBUG("#BTAG#  Vertex container is empty");
+	return StatusCode::SUCCESS;
+      }
+
+      for (xAOD::VertexContainer::const_iterator fz = vxContainer->begin(); fz != vxContainer->end(); ++fz) {
+	if ((*fz)->vertexType() == xAOD::VxType::PriVtx) {
+	  primaryVertex = *fz;
+	  break;
+	}
+      }
+      
+      if (! primaryVertex) {
 	ATH_MSG_DEBUG("#BTAG#  No vertex labeled as VxType::PriVtx!");
 	xAOD::VertexContainer::const_iterator fz = vxContainer->begin();
-	primaryVertex = *fz;
+        primaryVertex = *fz;
 	if (primaryVertex->nTrackParticles() == 0) {
 	  ATH_MSG_DEBUG("#BTAG#  PV==BeamSpot: probably poor tagging");
 	  m_nBeamSpotPvx++;
-	}
+        }
       }
     }
-    // FF: commented out the PrimaryVertexSelector for now: simply retrieve the first vertex of "primary" type
-    // 
-    // if(PrimaryVertexSelector(*vxContainer) == 0){ // protection in case PV pointer is NULL
-    //   ATH_MSG_DEBUG("#BTAG#  PrimaryVertexSelector(*vxContainer) is NULL.");
-    //   tmp_vertex = (*fz)->recVertex();
-    //   if ((*fz)->vxTrackAtVertex()->size() == 0) {
-    // 	ATH_MSG_DEBUG("#BTAG#  PV==BeamSpot: probably poor tagging");
-    // 	m_nBeamSpotPvx++;
-    //   }
-    // }
-    // else{
-    //   tmp_vertex = (PrimaryVertexSelector(*vxContainer))->recVertex();
-    //   if((PrimaryVertexSelector(*vxContainer))->vxTrackAtVertex()->size() == 0){
-    // 	ATH_MSG_DEBUG("#BTAG#  PV==BeamSpot: probably poor tagging");
-    // 	m_nBeamSpotPvx++;
-    //   }
-    // }
-    // const xAOD::Vertex& primaryVertex = *tmp_vertex;
-
-    //jetToTag.set_origin(vxContainer, 0);
-
-    // ATH_MSG_VERBOSE("#BTAG# Going to start general secondary vertex finding ");
-
-
-    /* ----------------------------------------------------------------------------------- */
-    /*               Secondary vertex reconstruction                                       */
-    /* ----------------------------------------------------------------------------------- */
-
-    // StatusCode secVertIsReconst( StatusCode::SUCCESS );
-    // if (!m_BTagSecVertexingTool.empty()) {
-    //   secVertIsReconst = m_BTagSecVertexingTool->BTagSecVertexing_exec( jetToTag, primaryVertex);
-    // }
-    // if ( secVertIsReconst.isFailure() ) {
-    //   ATH_MSG_ERROR("#BTAG# Failed to reconstruct sec vtx");
-    //   return StatusCode::FAILURE;
-    // }
 
     /* ----------------------------------------------------------------------------------- */
     /*               Call all the tag tools specified in m_bTagToolHandleArray             */
@@ -242,18 +178,6 @@ namespace Analysis {
       jetToTag.setCombinedLikelihood(w);
     }
 */
-    /* ----------------------------------------------------------------------------------- */
-    /*               Do not store permanently sec vtx info for the moment                  */
-    /* ----------------------------------------------------------------------------------- */
-
-    // StatusCode assoscIsRemoved( StatusCode::SUCCESS );
-    // if (!m_BTagRemovingTool.empty()) {
-    //   assoscIsRemoved = m_BTagRemovingTool->BTagRemoving_exec( jetToTag );
-    // }
-    // if ( assoscIsRemoved.isFailure() ) {
-    //   ATH_MSG_ERROR("#BTAG# Failed to call removing tool");
-    //   return StatusCode::FAILURE;
-    // }
 
     // ----------------------------------------------------------------------------------
 

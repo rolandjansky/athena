@@ -17,6 +17,7 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "xAODJet/Jet.h"
 #include "xAODBTagging/BTagging.h"
+#include "xAODTracking/VertexFwd.h"
 
 namespace Analysis
 {
@@ -41,7 +42,7 @@ class IBTagTool : virtual public IAlgTool
        static const InterfaceID& interfaceID() { return IID_IBTagTool; };
 
        virtual StatusCode initialize() = 0;
-       virtual StatusCode tagJet(xAOD::Jet&, xAOD::BTagging*) = 0;
+       virtual StatusCode tagJet(xAOD::Jet&, xAOD::BTagging*, const xAOD::Vertex* vtx = 0) = 0;
        virtual StatusCode finalize() = 0;
        virtual void finalizeHistos() = 0;
 

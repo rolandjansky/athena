@@ -7,11 +7,9 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "xAODJet/Jet.h"
+#include "xAODTracking/TrackParticleContainerFwd.h"
 
 #include <vector>
-
-// class JetCollection;
-// class Jet;
 
 namespace Analysis
 {
@@ -33,7 +31,7 @@ namespace Analysis
 
        virtual StatusCode initialize() = 0;
        virtual StatusCode finalize() = 0;
-       virtual StatusCode BTagTrackAssociation_exec(std::vector<xAOD::Jet*>* theJets) = 0;
+       virtual StatusCode BTagTrackAssociation_exec(jetcollection_t* theJets, const xAOD::TrackParticleContainer* tracks = 0) = 0;
 
   };
 

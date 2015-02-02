@@ -7,6 +7,7 @@
 from BTagging.BTaggingFlags import BTaggingFlags
 
 metaJetFitterTagCOMBNNIP3DNeg = { 'IsATagger'         : True,
+                                  'xAODBaseName'      : 'JetFitterCombNNIP3DNeg',
                                   'DependsOn'         : ['AtlasExtrapolator',
                                                          'BTagTrackToVertexTool',
                                                          'JetFitterTagNNFlip',
@@ -32,7 +33,6 @@ def toolJetFitterTagCOMBNNIP3DNeg(name, useBTagFlagsDefaults = True, **options):
     jetCollectionList                   default: BTaggingFlags.Jets
     SecVxFinderName                     default: "JetFitter"
     useForcedCalibration                default: False
-    xAODBaseName                        default: "JetFitterCombNNIP3DNeg"
     ipinfoTaggerName                    default: "IP3DNeg"
 
     input:             name: The name of the tool (should be unique).
@@ -45,7 +45,6 @@ def toolJetFitterTagCOMBNNIP3DNeg(name, useBTagFlagsDefaults = True, **options):
                      'jetCollectionList'                : BTaggingFlags.Jets,
                      'SecVxFinderName'                  : 'JetFitter',
                      'useForcedCalibration'             : False,
-                     'xAODBaseName'                     : 'JetFitterCombNNIP3D',
                      'ipinfoTaggerName'                 : 'IP3DNeg',
                      }
         for option in defaults:
@@ -57,6 +56,7 @@ def toolJetFitterTagCOMBNNIP3DNeg(name, useBTagFlagsDefaults = True, **options):
 #------------------------------------------------------------------------------------
 
 metaJetFitterTagNNFlip = { 'IsATagger'         : True,
+                           'xAODBaseName'      : 'JetFitterFlip',
                            'DependsOn'         : ['AtlasExtrapolator',
                                                   'BTagTrackToVertexTool',
                                                   'NewJetFitterVxFinderFlip',
@@ -79,7 +79,6 @@ def toolJetFitterTagNNFlip(name, useBTagFlagsDefaults = True, **options):
     SecVxFinderName                     default: "JetFitterFlip"
     useForcedCalibration                default: False
     ipinfoTaggerName                    default: ""
-    xAODBaseName                        default: "JetFitterFlip"
 
     input:             name: The name of the tool (should be unique).
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
@@ -92,7 +91,7 @@ def toolJetFitterTagNNFlip(name, useBTagFlagsDefaults = True, **options):
                      'SecVxFinderName'                  : 'JetFitterFlip',
                      'useForcedCalibration'             : False,
                      'ipinfoTaggerName'                 : "",
-                     'xAODBaseName'                     : 'JetFitterFlip', }
+                     }
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name

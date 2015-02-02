@@ -5,6 +5,7 @@
 from BTagging.BTaggingFlags import BTaggingFlags
 
 metaMV2c00FlipTag = { 'IsATagger'          : True,
+                      'xAODBaseName'       : 'MV2c00Flip',
                       'DependsOn'          : ['AtlasExtrapolator',
                                               'BTagTrackToVertexTool',
                                               'BTagCalibrationBrokerTool',
@@ -26,7 +27,6 @@ def toolMV2c00FlipTag(name, useBTagFlagsDefaults = True, **options):
     Runmodus                            default: BTaggingFlags.Runmodus
     taggerName                          default: "MV2c00Flip"
     taggerNameBase                      default: "MV2c00"
-    xAODBaseName                        default: "MV2c00Flip"
     forceMV2CalibrationAlias            default: BTaggingFlags.ForceMV2CalibrationAlias
     MV2CalibAlias                       default: BTaggingFlags.MV2CalibAlias
     inputSV0SourceName                  default: "SV0"
@@ -45,7 +45,6 @@ def toolMV2c00FlipTag(name, useBTagFlagsDefaults = True, **options):
                      'Runmodus'                         : BTaggingFlags.Runmodus,
                      'taggerName'                       : 'MV2c00Flip',
                      'taggerNameBase'                   : 'MV2c00',
-                     'xAODBaseName'                     : 'MV2c00Flip',
                      'forceMV2CalibrationAlias'         : BTaggingFlags.ForceMV2CalibrationAlias,
                      'MV2CalibAlias'                    : BTaggingFlags.MV2CalibAlias,
                      'inputSV0SourceName'               : 'SV0',

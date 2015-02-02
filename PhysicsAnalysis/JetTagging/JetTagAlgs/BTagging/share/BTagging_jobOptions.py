@@ -99,6 +99,8 @@ if not BTaggingFlags.DoNotSetupBTagging: # Temporary measure so the JetRec peopl
   #
   #          ToolSvc += btagger
           btagger = setupJetBTaggerTool(ToolSvc, jet) #The [:-4] is not needed here; this function automatically removes trailing 'jets' or 'Jets'.
+          if btagger is None:
+            continue
           jet = jet.replace("Track", "PV0Track")
           jetname = getattr(jtm, jet)
           jetname.unlock()

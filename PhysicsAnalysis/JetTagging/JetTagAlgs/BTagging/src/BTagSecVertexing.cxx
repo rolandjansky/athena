@@ -117,39 +117,42 @@ namespace Analysis {
       return StatusCode::SUCCESS;
   }
 
-  StatusCode BTagSecVertexing::BTagSecVtx_exec(xAOD::Jet& myJet, xAOD::BTagging* newBTag, xAOD::VertexContainer* bTagVertexContainer, xAOD::BTagVertexContainer* bTagJFVertexContainer) {
-   //retrieve primary vertex 
-    const xAOD::VertexContainer* vxContainer(0);
-
-    StatusCode sc = evtStore()->retrieve(vxContainer, m_vxPrimaryName);
-
-    if (sc.isFailure()) {
-      ATH_MSG_WARNING("#BTAG# Primary vertex coll " << m_vxPrimaryName << " not found");
-      return StatusCode::SUCCESS;
-     }
+  StatusCode BTagSecVertexing::BTagSecVtx_exec(xAOD::Jet& myJet, xAOD::BTagging* newBTag, xAOD::VertexContainer* bTagVertexContainer, xAOD::BTagVertexContainer* bTagJFVertexContainer, const xAOD::Vertex* vtx) {
 
     const xAOD::Vertex* primaryVertex(0);
-
-    if(vxContainer->size()==0){
-      ATH_MSG_DEBUG("#BTAG# vertex container is empty");
-      return StatusCode::SUCCESS;
-    }
-
-    for (xAOD::VertexContainer::const_iterator fz = vxContainer->begin(); fz != vxContainer->end(); ++fz) {
-      if ((*fz)->vertexType() == xAOD::VxType::PriVtx) {
-        primaryVertex = *fz;
-        break;
-      }
-    }
+    StatusCode sc = StatusCode::SUCCESS;
     
-    if (! primaryVertex) {
-      if (vxContainer->size() > 0) {
-        ATH_MSG_DEBUG("#BTAG#  No vertex labeled as VxType::PriVtx!");
-        xAOD::VertexContainer::const_iterator fz = vxContainer->begin();
+    if (vtx) {
+      primaryVertex = vtx;
+    } else {
+      //retrieve primary vertex 
+      const xAOD::VertexContainer* vxContainer(0);
+      
+      sc = evtStore()->retrieve(vxContainer, m_vxPrimaryName);
+      
+      if (sc.isFailure()) {
+	ATH_MSG_WARNING("#BTAG# Primary vertex coll " << m_vxPrimaryName << " not found");
+	return StatusCode::SUCCESS;
+      }
+    
+      if (vxContainer->size()==0) {
+	ATH_MSG_DEBUG("#BTAG#  Vertex container is empty");
+	return StatusCode::SUCCESS;
+      }
+      
+      for (xAOD::VertexContainer::const_iterator fz = vxContainer->begin(); fz != vxContainer->end(); ++fz) {
+	if ((*fz)->vertexType() == xAOD::VxType::PriVtx) {
+	  primaryVertex = *fz;
+	  break;
+	}
+      }
+      
+      if (! primaryVertex) {
+	ATH_MSG_DEBUG("#BTAG#  No vertex labeled as VxType::PriVtx!");
+	xAOD::VertexContainer::const_iterator fz = vxContainer->begin();
         primaryVertex = *fz;
-          if (primaryVertex->nTrackParticles() == 0) {
-            ATH_MSG_DEBUG("#BTAG#  PV==BeamSpot: probably poor tagging");
-           // m_nBeamSpotPvx++;
+	if (primaryVertex->nTrackParticles() == 0) {
+	  ATH_MSG_DEBUG("#BTAG#  PV==BeamSpot: probably poor tagging");
         }
       }
     }
@@ -211,14 +214,14 @@ namespace Analysis {
 
       if (const Trk::VxSecVKalVertexInfo* myVertexInfoVKal = dynamic_cast<const Trk::VxSecVKalVertexInfo*>(myVertexInfo)) {
 	ATH_MSG_DEBUG("#BTAG# Found VKalVertexInfo information");
-	StatusCode sc = fillVkalVariables(myJet, newBTag, bTagVertexContainer, myVertexInfoVKal, theTrackParticleContainer, PrimaryVtx, basename);
+	sc = fillVkalVariables(myJet, newBTag, bTagVertexContainer, myVertexInfoVKal, theTrackParticleContainer, PrimaryVtx, basename);
 	if(sc.isFailure()){
 	  ATH_MSG_ERROR("#BTAG# error filling variables from VxSecVKalVertexInfo for tool " << *itSecVtxFinders);
 	  return sc;
 	}
       } else if (const Trk::VxJetFitterVertexInfo* myVertexInfoJetFitter = dynamic_cast<const Trk::VxJetFitterVertexInfo*>(myVertexInfo)) {
   	ATH_MSG_DEBUG("#BTAG# Found VxJetFitterVertexInfo information");
-  	StatusCode sc = fillJFVariables(myJet, newBTag, bTagJFVertexContainer, myVertexInfoJetFitter, theTrackParticleContainer, basename);
+  	sc = fillJFVariables(myJet, newBTag, bTagJFVertexContainer, myVertexInfoJetFitter, theTrackParticleContainer, basename);
   	if(sc.isFailure()){
   	  ATH_MSG_ERROR("#BTAG# error filling variables from VxJetFitterVertexInfo for tool " << *itSecVtxFinders);
   	  return sc;
@@ -259,7 +262,7 @@ namespace Analysis {
       npsec=0;
     }
     
-    if("MSV" == basename){
+    if(basename.find("MSV") == 0){
       StatusCode sc = m_MSVvarFactory->fillMSVVariables(myJet, newBTag, myVertexInfoVKal, bTagVertexContainer, PrimaryVtx ,basename);
       if(sc.isFailure()){
         ATH_MSG_ERROR("#BTAG# error filling variables in MSVVariablesFactory" );

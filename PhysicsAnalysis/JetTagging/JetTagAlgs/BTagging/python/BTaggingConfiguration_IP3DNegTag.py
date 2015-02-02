@@ -5,6 +5,7 @@
 from BTagging.BTaggingFlags import BTaggingFlags
 
 metaIP3DNegTag = { 'IsATagger'         : True,
+                   'xAODBaseName'      : 'IP3DNeg',
                    'DependsOn'         : ['AtlasExtrapolator',
                                           'BTagTrackToVertexTool',
                                           'InDetVKalVxInJetTool',
@@ -41,7 +42,6 @@ def toolIP3DNegTag(name, useBTagFlagsDefaults = True, **options):
     originalTPCollectionName            default: BTaggingFlags.TrackParticleCollectionName
     jetCollectionList                   default: BTaggingFlags.Jets
     unbiasIPEstimation                  default: False (switch to true (better!) when creating new PDFs)
-    xAODBaseName                        default: "IP3DNeg"
     UseCHypo                            default: True
     SecVxFinderName                     default: "SV1"
     flipIPSign                          default: True
@@ -65,7 +65,6 @@ def toolIP3DNegTag(name, useBTagFlagsDefaults = True, **options):
                      'flipIPSign'                       : True,
                      'usePosIP'                         : True,
                      'useNegIP'                         : False,
-                     'xAODBaseName'                     : 'IP3DNeg',
                      'UseCHypo'                         : True,
                      'SecVxFinderName'                  : 'SV1',
                      }

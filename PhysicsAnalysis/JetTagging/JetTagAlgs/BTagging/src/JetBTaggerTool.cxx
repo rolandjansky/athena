@@ -113,9 +113,9 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
     m_retag = true;
     bTaggingContainer = new xAOD::BTaggingContainer();
     bTaggingAuxContainer = new xAOD::BTaggingAuxContainer();
-    CHECK( evtStore()->overwrite(bTaggingAuxContainer, bTaggingContName+"Aux.") );
+    CHECK( evtStore()->overwrite(bTaggingAuxContainer, bTaggingContName+"Aux.", true, false) );
     bTaggingContainer->setStore(bTaggingAuxContainer);
-    CHECK( evtStore()->overwrite(bTaggingContainer, bTaggingContName) );
+    CHECK( evtStore()->overwrite(bTaggingContainer, bTaggingContName, true, false) );
     ATH_MSG_VERBOSE("#BTAG# BTagging container " << bTaggingContName << " overwritten in store");
   }
   else {
@@ -143,9 +143,9 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
     if (m_retag) {
       bTagSecVertexContainer = new xAOD::VertexContainer;
       xAOD::VertexAuxContainer * bTagSecVertexAuxContainer =  new xAOD::VertexAuxContainer;
-      CHECK( evtStore()->overwrite(bTagSecVertexAuxContainer, bTagSecVertexContName+"Aux.") );
+      CHECK( evtStore()->overwrite(bTagSecVertexAuxContainer, bTagSecVertexContName+"Aux.", true, false) );
       bTagSecVertexContainer->setStore(bTagSecVertexAuxContainer);
-      CHECK( evtStore()->overwrite(bTagSecVertexContainer, bTagSecVertexContName) );
+      CHECK( evtStore()->overwrite(bTagSecVertexContainer, bTagSecVertexContName, true, false) );
       ATH_MSG_VERBOSE("#BTAG# SV container " << bTagSecVertexContName << " overwritten in store");
     } else {
       const xAOD::VertexContainer *bTagSecVertexContainerAOD;
@@ -177,9 +177,9 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
     if (m_retag) {
       bTagJFVertexContainer = new xAOD::BTagVertexContainer();
       xAOD::BTagVertexAuxContainer * bTagJFVertexAuxContainer =  new xAOD::BTagVertexAuxContainer();
-      CHECK( evtStore()->overwrite(bTagJFVertexAuxContainer, bTagJFVertexContName+"Aux.") );
+      CHECK( evtStore()->overwrite(bTagJFVertexAuxContainer, bTagJFVertexContName+"Aux.",true, false) );
       bTagJFVertexContainer->setStore(bTagJFVertexAuxContainer);
-      CHECK( evtStore()->overwrite(bTagJFVertexContainer, bTagJFVertexContName) );
+      CHECK( evtStore()->overwrite(bTagJFVertexContainer, bTagJFVertexContName, true, false) );
       ATH_MSG_VERBOSE("#BTAG# JetFitter Vertex container " << bTagJFVertexContName << " overwritten in store");
     } else {
       const xAOD::BTagVertexContainer *bTagJFVertexContainerAOD;

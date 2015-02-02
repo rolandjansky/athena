@@ -5,6 +5,7 @@
 from BTagging.BTaggingFlags import BTaggingFlags
 
 metaSV1FlipTag = { 'IsATagger'         : True,
+                   'xAODBaseName'      : 'SV1Flip',
                    'DependsOn'         : ['AtlasExtrapolator',
                                           'BTagTrackToVertexTool',
                                           'InDetVKalVxNegativeTagInJetTool',
@@ -27,7 +28,6 @@ def toolSV1FlipTag(name, useBTagFlagsDefaults = True, **options):
     SecVxFinderName                     default: "SV1Flip"
     LikelihoodTool                      default: None
     UseCHypo                            default: True
-    xAODBaseName                        default: "SV1Flip"
 
     input:             name: The name of the tool (should be unique).
       useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
@@ -43,7 +43,6 @@ def toolSV1FlipTag(name, useBTagFlagsDefaults = True, **options):
                      'SecVxFinderName'                  : 'SV1Flip',
                      'LikelihoodTool'                   : None,
                      'UseCHypo'                         : True,
-                     'xAODBaseName'                     : 'SV1Flip',
                      }
         for option in defaults:
             options.setdefault(option, defaults[option])

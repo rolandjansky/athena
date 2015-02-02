@@ -5,6 +5,7 @@
 from BTagging.BTaggingFlags import BTaggingFlags
 
 metaSV1Tag = { 'IsATagger'         : True,
+               'xAODBaseName'      : 'SV1',
                'DependsOn'         : ['AtlasExtrapolator',
                                       'BTagTrackToVertexTool',
                                       'InDetVKalVxInJetTool',
@@ -25,7 +26,6 @@ def toolSV1Tag(name, useBTagFlagsDefaults = True, **options):
     SVAlgType                           default: "SV1"
     jetCollectionList                   default: BTaggingFlags.Jets
     LikelihoodTool                      default: None
-    xAODBaseName                        default: "SV1"
     SecVxFinderName                     default: "SV1"
     UseCHypo                            default: True
 
@@ -39,7 +39,6 @@ def toolSV1Tag(name, useBTagFlagsDefaults = True, **options):
                      'referenceType'                    : BTaggingFlags.ReferenceType,
                      'SVAlgType'                        : 'SV1',
                      'jetCollectionList'                : BTaggingFlags.Jets,
-                     'xAODBaseName'                     : 'SV1',
                      'SecVxFinderName'                  : 'SV1',
                      'UseCHypo'                         : True,
 #                     'originalTPCollectionName'         : BTaggingFlags.TrackParticleCollectionName,

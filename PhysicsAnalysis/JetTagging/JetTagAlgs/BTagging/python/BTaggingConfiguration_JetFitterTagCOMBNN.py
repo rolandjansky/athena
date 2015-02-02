@@ -5,6 +5,7 @@
 from BTagging.BTaggingFlags import BTaggingFlags
 
 metaJetFitterTagCOMBNN = { 'IsATagger'         : True,
+                           'xAODBaseName'      : 'JetFitterCombNN',
                            'DependsOn'         : ['AtlasExtrapolator',
                                                   'BTagTrackToVertexTool',
                                                   'JetFitterTagNN',
@@ -34,7 +35,6 @@ def toolJetFitterTagCOMBNN(name, useBTagFlagsDefaults = True, **options):
     jetCollectionList                   default: BTaggingFlags.Jets
     SecVxFinderName                     default: "JetFitter"
     useForcedCalibration                default: False
-    xAODBaseName                        default: "JetFitterCombNN"
     ipinfoTaggerName                    default: "IP3D"
 
     input:             name: The name of the tool (should be unique).
@@ -49,7 +49,6 @@ def toolJetFitterTagCOMBNN(name, useBTagFlagsDefaults = True, **options):
                      'useForcedCalibration'             : False,
 #                     'supplementalTaggers'              : ['IP3D'],
 #                     'storeOnlyBaseObject'              : True }
-                     'xAODBaseName'                     : 'JetFitterCombNN',
                      'ipinfoTaggerName'                 : 'IP3D',
                      }
         for option in defaults:
