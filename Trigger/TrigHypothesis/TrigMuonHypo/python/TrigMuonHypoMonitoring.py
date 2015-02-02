@@ -301,7 +301,6 @@ class MuisoHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
         self.defineTarget("Online")
 
         self.Histograms  = [ defineHistogram('CutCounter', type='TH1F', title="MuIsoHypo cut counter;cut; nevents", xbins=9, xmin=-1.5, xmax=7.5, opt="kCumulative") ]
-        self.Histograms += [ defineHistogram('StrategyFlag', type='TH1F', title="MuIsoHypo isolation Strategy; Strategy Code", xbins=6, xmin=-1.5, xmax=4.5) ]
 
 ##########   Create instance for validation (additional specific histograms)
 class MuisoHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
@@ -311,8 +310,6 @@ class MuisoHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
         self.defineTarget("Validation")
 
         self.Histograms  = [ defineHistogram('CutCounter', type='TH1F', title="MuIsoHypo cut counter;cut; nevents", xbins=9, xmin=-1.5, xmax=7.5, opt="kCumulative") ]
-        self.Histograms += [ defineHistogram('StrategyFlag', type='TH1F', title="MuIsoHypo isolation Strategy; Strategy Code", xbins=6, xmin=-1.5, xmax=4.5) ]
-        self.Histograms += [ defineHistogram('SumEtCone', type='TH1F', title="MuIsoHypo SumEt in cone around muon;E [GeV]; nevents", xbins=200, xmin=0., xmax=15.) ]
         self.Histograms += [ defineHistogram('SumPtCone', type='TH1F', title="MuIsoHypo SumPt in cone around muon;E [GeV/c]; nevents", xbins=200, xmin=0., xmax=15.) ]
 
 ##########   Create instance for cosmic run
@@ -323,7 +320,6 @@ class MuisoHypoCosmicMonitoring(TrigGenericMonitoringToolConfig):
         self.defineTarget("Cosmic")
 
         self.Histograms  = [ defineHistogram('CutCounter', type='TH1F', title="MuIsoHypo cut counter;cut; nevents", xbins=9, xmin=-1.5, xmax=7.5, opt="kCumulative") ]
-        self.Histograms += [ defineHistogram('StrategyFlag', type='TH1F', title="MuIsoHypo isolation Strategy; Strategy Code", xbins=6, xmin=-1.5, xmax=4.5) ]
 
 
 class TrigMooreHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
