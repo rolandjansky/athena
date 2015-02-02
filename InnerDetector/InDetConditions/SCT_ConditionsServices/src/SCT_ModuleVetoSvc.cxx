@@ -120,7 +120,8 @@ SCT_ModuleVetoSvc::fillData(){
   std::vector<std::string>::const_iterator pId=m_badElements.value().begin();
   std::vector<std::string>::const_iterator last=m_badElements.value().end();
   for(;pId not_eq last;++pId){
-    if (*pId != databaseSignature) success &= m_badIds.insert(Identifier(atoi(pId->c_str()))).second;
+    unsigned long long idToWrite = atoll(pId->c_str()); 
+    if (*pId != databaseSignature) success &= m_badIds.insert(Identifier(idToWrite)).second;
   }
   m_filled=true;
   return success?sc:(StatusCode::FAILURE);
