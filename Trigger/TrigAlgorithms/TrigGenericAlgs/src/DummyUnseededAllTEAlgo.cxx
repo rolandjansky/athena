@@ -82,10 +82,9 @@ HLT::ErrorCode DummyUnseededAllTEAlgo::hltExecute(std::vector<std::vector<HLT::T
   // everything's ok
   return HLT::OK;
 }
-
-bool DummyUnseededAllTEAlgo::reset() {
+HLT::ErrorCode DummyUnseededAllTEAlgo::hltEndEvent() {
   m_was_run = false;
-  return HLT::AllTEAlgo::reset();
+  return HLT::OK;
 }
 
 HLT::ErrorCode DummyUnseededAllTEAlgo::prepareRobRequests(const std::vector<HLT::TEConstVec>& /* inputTE */){

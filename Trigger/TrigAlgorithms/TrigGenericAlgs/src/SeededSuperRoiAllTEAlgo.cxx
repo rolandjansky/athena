@@ -146,9 +146,9 @@ HLT::ErrorCode SeededSuperRoiAllTEAlgo::hltExecute(std::vector<std::vector<HLT::
   return HLT::OK;
 }
 
-bool SeededSuperRoiAllTEAlgo::reset() {
+HLT::ErrorCode SeededSuperRoiAllTEAlgo::hltEndEvent() {
   m_was_run = false;
-  return HLT::AllTEAlgo::reset();
+  return HLT::OK;
 }
 
 HLT::ErrorCode SeededSuperRoiAllTEAlgo::prepareRobRequests(const std::vector<HLT::TEConstVec>& /* inputTE */){
