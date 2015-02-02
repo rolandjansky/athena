@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Particle_v1.cxx 599909 2014-06-02 14:25:44Z kkoeneke $
+// $Id: Particle_v1.cxx 643631 2015-02-02 16:52:33Z kkoeneke $
 
 // EDM include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -58,7 +58,7 @@ namespace xAOD {
   }
 
   Type::ObjectType Particle_v1::type() const {
-    return Type::Other;
+    return Type::Particle;
   }
 
 
