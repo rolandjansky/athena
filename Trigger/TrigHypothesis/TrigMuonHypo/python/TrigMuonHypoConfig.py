@@ -434,9 +434,7 @@ class MucombHypoConfig(MucombHypo) :
             self.PtThresholds = [ x * GeV for x in values[1] ]
         except LookupError:
             if (threshold=='passthrough'):
-                #self.AcceptAll = True
-                #self.PtBins = [-10000.,10000.]
-                #self.PtThresholds = [ -1. * GeV ]
+                self.AcceptAll = True
                 self.PtBins = [-10000.,10000.]
                 self.PtThresholds = [ -1. * GeV ]
                 self.ApplyStrategyDependentCuts = True
