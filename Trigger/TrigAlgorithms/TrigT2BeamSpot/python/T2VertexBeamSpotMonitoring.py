@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id: T2VertexBeamSpotMonitoring.py 529164 2012-12-06 12:47:21Z bartoldu $
+# $Id: T2VertexBeamSpotMonitoring.py 643531 2015-02-02 12:40:50Z smh $
 #
 
 ################# Validation, DQ checks
@@ -344,11 +344,9 @@ class T2VertexBeamSpotValidationMonitoring( TrigGenericMonitoringToolConfig ):
         self.defineTarget("Validation")
 
         # All Track algorithms
-        self.defineAlgoSpecificHistograms( 'IDScan'  )
-        self.defineAlgoSpecificHistograms( 'SiTrack' )
-        self.defineAlgoSpecificHistograms( 'L2StarA' )
+        #self.defineAlgoSpecificHistograms( 'L2StarA' )
         self.defineAlgoSpecificHistograms( 'L2StarB' )
-        self.defineAlgoSpecificHistograms( 'L2StarF' )
+        #self.defineAlgoSpecificHistograms( 'L2StarF' )
 
         # ACCEPTED Tracks
         self.Histograms += [ defineHistogram('TrackSiHitsPass', type='TH1I',
@@ -422,9 +420,9 @@ class T2VertexBeamSpotValidationMonitoring( TrigGenericMonitoringToolConfig ):
         self.Histograms += [ defineHistogram('VertexQual', type='TH1F',
                                              title="Vertex Qual; Vertex #chi^{2}/ndf; Number of vertices",
                                              xbins=50, xmin=0., xmax=50.) ]
-        self.Histograms += [ defineHistogram('VertexProb', type='TH1F',
-                                             title="Vertex Probability; Vertex #chi^{2} probability; Number of vertices",
-                                             xbins=70, xmin=-0.2, xmax=1.2) ]
+        #self.Histograms += [ defineHistogram('VertexProb', type='TH1F',
+        #                                     title="Vertex Probability; Vertex #chi^{2} probability; Number of vertices",
+        #                                     xbins=70, xmin=-0.2, xmax=1.2) ]
         self.Histograms += [ defineHistogram('VertexXerr', type='TH1F',
                                              title="Vertex Xerr; Vertex x error [mm]; Number of vertices",
                                              xbins=50, xmin=0., xmax=0.5) ]
@@ -466,9 +464,9 @@ class T2VertexBeamSpotValidationMonitoring( TrigGenericMonitoringToolConfig ):
         self.Histograms += [ defineHistogram('VertexQualPass', type='TH1F',
                                              title="Acc. Vertex Qual; Vertex #chi^{2}/ndf; Number of vertices",
                                              xbins=50, xmin=0., xmax=50.) ]
-        self.Histograms += [ defineHistogram('VertexProbPass', type='TH1F',
-                                             title="Acc. Vertex Probability; Vertex #chi^{2} probability; Number of vertices",
-                                             xbins=70, xmin=-0.2, xmax=1.2) ]
+        #self.Histograms += [ defineHistogram('VertexProbPass', type='TH1F',
+        #                                     title="Acc. Vertex Probability; Vertex #chi^{2} probability; Number of vertices",
+        #                                     xbins=70, xmin=-0.2, xmax=1.2) ]
         self.Histograms += [ defineHistogram('VertexXerrPass', type='TH1F',
                                              title="Acc. Vertex Xerr; Vertex X error [mm]; Number of vertices",
                                              xbins=50, xmin=0., xmax=0.5) ]

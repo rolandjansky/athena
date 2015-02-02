@@ -4,7 +4,7 @@
 
 //============================================================
 //
-// $Id: T2VertexBeamSpot.cxx 577881 2014-01-10 20:43:51Z masik $
+// $Id: T2VertexBeamSpot.cxx 643531 2015-02-02 12:40:50Z smh $
 //
 // T2VertexBeamSpot.cxx, (c) ATLAS Detector software
 // Trigger/TrigAlgorithms/TrigT2BeamSpot/T2VertexBeamSpot
@@ -43,7 +43,7 @@ using CLHEP::GeV;
 #include "TrigInDetEvent/TrigVertexCollection.h"
 
 // Related to TOOLS
-#include "TrigVertexFitter/ITrigPrimaryVertexFitter.h"
+#include "TrigInDetToolInterfaces/ITrigPrimaryVertexFitter.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
 // Timer service
@@ -437,8 +437,3 @@ T2VertexBeamSpot::hltFinalize()
   return HLT::OK;
 }
 
-
-bool T2VertexBeamSpot::reset()
-{
-  return true;
-}
