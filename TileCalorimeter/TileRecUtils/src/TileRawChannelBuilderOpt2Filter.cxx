@@ -419,8 +419,8 @@ double TileRawChannelBuilderOpt2Filter::Filter(int ros, int drawer, int channel
           && OptFilterTime > m_timeMinThresh
           && OptFilterTime < m_timeMaxThresh) {
 
-        OptFilterEne *= correctAmp(OptFilterTime);
-        ATH_MSG_VERBOSE( "Amplitude corrected by " << correctAmp(OptFilterTime)
+        OptFilterEne *= correctAmp(OptFilterTime, m_of2);
+        ATH_MSG_VERBOSE( "Amplitude corrected by " << correctAmp(OptFilterTime, m_of2)
                         << " new amplitude is " << OptFilterEne );
       }
 

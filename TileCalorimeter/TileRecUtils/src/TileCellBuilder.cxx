@@ -158,6 +158,9 @@ TileCellBuilder::TileCellBuilder(const std::string& type, const std::string& nam
   // apply parabolic amplitude correction (if not yet done in OF without iterations)
   declareProperty("correctAmplitude", m_correctAmplitude = false);
 
+  // use parabolic amplitude correction for OF2 or OF1 method
+  declareProperty("OF2", m_of2 = true);
+
   // merge DSP results with offline reco results
   declareProperty("mergeChannels", m_mergeChannels = false);
 
@@ -322,6 +325,11 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
     if (m_correctAmplitude || m_correctTime) {
       int DataType = (m_bsflags & 0x30000000) >> 28;
       if (DataType < 3) { // real data
+        bool of2 = ((m_bsflags & 0x4000000) != 0);
+        if (of2 != m_of2) {
+          m_of2 = of2;
+          ATH_MSG_WARNING( "OF2 flag in data is " << ((m_of2)?"True":"False"));
+        }
         m_maxTimeCorr = 63.9375; // 64-1/16 ns is hard limit in DSP
         if (m_correctAmplitude && ((m_bsflags & 0x3000000) != 0)) {
           ATH_MSG_WARNING( "Using results of Opt filter with interations from DSP, disabling amplitude correction" );
@@ -396,8 +404,10 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
         unsigned int dspFlags = dspChannels->get_bsflags();
         int DataType = (dspFlags & 0x30000000) >> 28;
         float dspTimeCut = m_maxTimeCorr;
-        bool dspCorrectAmplitude = false, dspCorrectTime = false;
+        bool dspCorrectAmplitude = false, dspCorrectTime = false, dspOf2 = true;
         if (DataType < 3) { // real data
+          dspOf2 = ((dspFlags & 0x4000000) != 0);
+          if (dspOf2 != m_of2) ATH_MSG_DEBUG( "OF2 flag in DSPcontainer is " << ((dspOf2)?"True":"False"));
           dspTimeCut = 63.9375; // 64-1/16 ns is hard limit in DSP
           dspCorrectAmplitude = ((dspFlags & 0x3000000) == 0);
           dspCorrectTime = ((dspFlags & 0x3000000) != 0);
@@ -466,11 +476,11 @@ StatusCode TileCellBuilder::process(CaloCellContainer * theCellContainer) {
 
         // build here with special iterator over 2 vectors
         DoubleVectorIterator<std::vector<const TileRawChannel *>, const TileRawChannel *> vecBeg(
-            &oflVec, m_RChType, m_RChUnit, m_maxTimeCorr, m_correctAmplitude, m_correctTime,
-            &dspVec, dspType, dspUnit, dspTimeCut, dspCorrectAmplitude, dspCorrectTime, this, 0);
+            &oflVec, m_RChType, m_RChUnit, m_maxTimeCorr, m_correctAmplitude, m_correctTime, m_of2,
+            &dspVec, dspType, dspUnit, dspTimeCut, dspCorrectAmplitude, dspCorrectTime, dspOf2, this, 0);
         DoubleVectorIterator<std::vector<const TileRawChannel *>, const TileRawChannel *> vecEnd(
-            &oflVec, m_RChType, m_RChUnit, m_maxTimeCorr, m_correctAmplitude, m_correctTime,
-            &dspVec, dspType, dspUnit, dspTimeCut, dspCorrectAmplitude, dspCorrectTime, this, 2);
+            &oflVec, m_RChType, m_RChUnit, m_maxTimeCorr, m_correctAmplitude, m_correctTime, m_of2,
+            &dspVec, dspType, dspUnit, dspTimeCut, dspCorrectAmplitude, dspCorrectTime, dspOf2, this, 2);
 
         if (msgLvl(MSG::DEBUG)) {
           msg(MSG::DEBUG) << " Calling build() method for rawChannels from two vectors" << endmsg;
