@@ -1,13 +1,7 @@
-# Enable xAOD making:
-from RecExConfig.RecFlags import rec
-rec.doWritexAOD = True
-rec.doTruth = True
-
 printMCOutput = False
- 
-# Set up the reading of a file:
-FNAME = "/afs/cern.ch/work/j/jcatmore/public/mc12_8TeV.117050.PowhegPythia_P2011C_ttbar.merge.AOD.e1728_s1975_s1776_r3925_r3549_tid01485606_00/AOD.01485606._002019.pool.root.1"
-include( "AthenaPython/iread_file.py" )
+
+import AthenaPoolCnvSvc.ReadAthenaPool
+svcMgr.EventSelector.InputCollections = ["evnt.pool.root"]
  
 # Access the algorithm sequence:
 from AthenaCommon.AlgSequence import AlgSequence
@@ -17,8 +11,9 @@ theJob = AlgSequence()
 from xAODTruthCnv.xAODTruthCnvConf import xAODMaker__xAODTruthCnvAlg
 alg = xAODMaker__xAODTruthCnvAlg()
 # Pile up options... default is no pile-up
-#alg.WriteInTimePileUpTruth = True
-#alg.WriteAllPileUpTruth = False
+alg.WriteInTimePileUpTruth = False
+alg.WriteAllPileUpTruth = False
+alg.AODContainerName = "GEN_EVENT"
 alg.OutputLevel = INFO  
 theJob += alg
 
@@ -53,8 +48,7 @@ if printMCOutput:
 
 # Do some additional tweaking:
 from AthenaCommon.AppMgr import theApp
-theApp.EvtMax = 2
+theApp.EvtMax = -1
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.defaultLimit = 1000000
-ServiceMgr.AthenaSealSvc.OutputLevel = VERBOSE
-
+ServiceMgr.AthenaSealSvc.OutputLevel = INFO 
