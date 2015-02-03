@@ -158,16 +158,8 @@ namespace xAODMaker {
 
       // (1) Build TruthEvents
       ATH_MSG_DEBUG("Number of GenEvents in this Athena event = " << mcColl->size());
-      // JRC: temporary hack 6th June 2014
-      // To avoid writing large numbers of pile-up events, for now we only write the first (signal)
-      // event. Once a more intelligent way of handling pile-up is developed this will be updated.
-
-      /// @todo Rewrite to fill the single signal event on cntr==0, and to copy one signal vtx (from
-      /// signal_vertex, else from the end vtx of a beam particle, else first vtx) into each PU event
       for (unsigned int cntr = 0; cntr < mcColl->size(); ++cntr) {
-        McEventCollection::const_iterator itr = mcColl->begin();
-        const HepMC::GenEvent* genEvt = *itr;
-
+        const HepMC::GenEvent* genEvt = (*mcColl)[cntr];
         bool isSignalProcess(false);
         if (cntr==0) isSignalProcess=true;
         if (cntr>0) {
@@ -247,23 +239,22 @@ namespace xAODMaker {
         VertexMap::iterator mapItr;
         vector<const HepMC::GenVertex*> vertices;
 
-        // Loop over GenParticles
-        unsigned int i(0);
         // Get the beam particles
         pair<HepMC::GenParticle*,HepMC::GenParticle*> beamParticles;
         if ( genEvt->valid_beam_particles() ) beamParticles = genEvt->beam_particles();
-        for (HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr, ++i) {
+        for (HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr) {
           // (a) create TruthParticle
           xAOD::TruthParticle* xTruthParticle = new xAOD::TruthParticle();
           xTruthParticleContainer->push_back( xTruthParticle );
           fillParticle(xTruthParticle, *pitr); // (b) Copy HepMC info into the new particle
           // (c) Put particle into container; Build Event<->Particle element link
-          const ElementLink<xAOD::TruthParticleContainer> eltp(*xTruthParticleContainer, i);
+          const ElementLink<xAOD::TruthParticleContainer> eltp(*xTruthParticleContainer, xTruthParticleContainer->size()-1);
           if (isSignalProcess) xTruthEvent->addTruthParticleLink(eltp);
 	  if (!isSignalProcess) xTruthPileupEvent->addTruthParticleLink(eltp);
 
           // Create link between HepMC and xAOD truth
-          truthLinkVec->push_back(new xAODTruthParticleLink(HepMcParticleLink((*pitr),genEvt->event_number()), eltp));
+          if (isSignalProcess) truthLinkVec->push_back(new xAODTruthParticleLink(HepMcParticleLink((*pitr),0), eltp));
+          if (!isSignalProcess) truthLinkVec->push_back(new xAODTruthParticleLink(HepMcParticleLink((*pitr),genEvt->event_number()), eltp));
 
           // Is this one of the beam particles?
           if (genEvt->valid_beam_particles()) {
@@ -327,6 +318,8 @@ namespace xAODMaker {
       } // end of loop over McEventCollection
 
     } else {
+
+      ATH_MSG_INFO("McEventCollection with name " << m_aodContainerName << " not found");  
 
       // Retrieve the xAOD Truth and recreate the TruthLinks
       if ( !evtStore()->contains<xAOD::TruthEventContainer>(m_xaodTruthEventContainerName) ) {
