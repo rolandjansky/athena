@@ -11,7 +11,6 @@
  * @author  : Manuel Proissl  <mproissl@cern.ch> - University of Edinburgh
  ***********************************************************************************/
 
-
 //Local includes
 #include "VP1TriggerSystems/VP1TriggerUISystem.h"
 #include "VP1TriggerSystems/VP1TriggerTool.h"

@@ -17,7 +17,7 @@
 #include "ui_tracksystemcontrollerform.h"
 
 //Track includes
-#include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/StoreGate.h"
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkParameters/TrackParameters.h"
@@ -41,8 +41,7 @@
 TrackSystemDisplay::TrackSystemDisplay()
   : IVP13DSystemSimple("TrackSystemDisplay",
                        "This is a temporary testing version of the basic 3D track display system.",
-                       "Manuel Proissl, mproissl@cern.ch"), m_ptcut(0*Gaudi::Units::GeV), m_multiselection(0),
-                       m_trackInfoDisplay(nullptr)
+                       "Manuel Proissl, mproissl@cern.ch"), m_ptcut(0*Gaudi::Units::GeV), m_multiselection(0)
 {
   std::cout << "INFO :: TrackSystemDisplay -> constructor" << std::endl;
 }//END: constructor
