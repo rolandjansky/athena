@@ -901,25 +901,37 @@ void EnergyCalculator::GetHVMap(const G4String fname){
 
 	G4String AtlasSide, EtaSection, ElectrodeSide;
 	for(G4int i = 0; i < NofAtlasSide; ++ i){
-		fscanf(lun, "%s", ch);
+                if (fscanf(lun, "%79s", ch) < 1) {
+                  (*m_msg) << MSG::ERROR << "GetHVMap: Error reading map file"
+                           << endreq;
+                }
 		AtlasSide = ch;
 		(*m_msg) << MSG::DEBUG << "AtlasSide = " << AtlasSide << endreq;
 		for(G4int j = 0; j < NofEtaSection; ++ j){
 			for(G4int k = 0; k < NofElectrodeSide; ++ k){
-				fscanf(lun, "%s%s", ch, ch1);
+                                if (fscanf(lun, "%79s%79s", ch, ch1) < 2) {
+                                  (*m_msg) << MSG::ERROR << "GetHVMap: Error reading map file"
+                                           << endreq;
+                                }
 				EtaSection   =ch;
 				ElectrodeSide=ch1;
 				(*m_msg) << MSG::DEBUG << "EtaSection = " << EtaSection
 				       << " ElectrodeSide = " << ElectrodeSide
 				       << endreq;
 
-				fscanf(lun, "%i", &HV_Start_phi[i][j][k]);
+				if (fscanf(lun, "%i", &HV_Start_phi[i][j][k]) < 1) {
+                                  (*m_msg) << MSG::ERROR << "GetHVMap: Error reading map file"
+                                           << endreq;
+                                }
 				(*m_msg) << MSG::DEBUG << "i, j, k = " << i << ", " << j << ", " << k
 				       << " " <<" HV_Start_phi = " << HV_Start_phi[i][j][k]
 				       << endreq;
 
 				for(G4int l = 0; l < NofPhiSections; ++ l){
-					fscanf(lun, "%lg", &HV_Values[i][j][k][l]);
+                                        if (fscanf(lun, "%lg", &HV_Values[i][j][k][l]) < 1) {
+                                          (*m_msg) << MSG::ERROR << "GetHVMap: Error reading map file"
+                                                   << endreq;
+                                        }
 					if(l == 0){
 						(*m_msg) << MSG::DEBUG << " HV_Values = " << HV_Values[i][j][k][l]
 						       << endreq;
@@ -944,12 +956,18 @@ void EnergyCalculator::GetHVMap(const G4String fname){
            printf("%s",s);
 	 }
           for(j=0; j<NofElectrodesOut; ++j){        //loop for electrodes
-             fscanf(lun,"%i",&electrodenumber);
+             if (fscanf(lun,"%i",&electrodenumber) < 1) {
+               (*m_msg) << MSG::ERROR << "GetHVMap: Error reading map file"
+                        << endreq;
+             }
              if(j<iprmx || j==NofElectrodesOut-1)  printf("%3i",electrodenumber);
              if(j==iprmx) printf("...\n");
              for(k=0;k<NofEtaSection;++k){          //loop for etasection
                 for(l=0;l<NofElectrodeSide;++l){    //loop for side
-                    fscanf(lun,"%lg", &HV_Values[i][k][l][j]);
+                    if (fscanf(lun,"%lg", &HV_Values[i][k][l][j]) < 1) {
+                      (*m_msg) << MSG::ERROR << "GetHVMap: Error reading map file"
+                               << endreq;
+                    }
                     if(j<iprmx || j==NofElectrodesOut-1) printf("%8.2f",HV_Values[i][k][l][j]);
 		}
 	     }
