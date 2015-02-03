@@ -17,7 +17,7 @@ rec.doAOD=False
 rec.doDPD=False 
 rec.doESD=False 
 doTAG=False
-rec.doTruth=True
+#rec.doTruth=True
 rec.readAOD=True
 
 # Parse the command line options.  You can set

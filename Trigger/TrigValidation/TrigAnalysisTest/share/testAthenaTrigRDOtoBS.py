@@ -34,7 +34,7 @@ rec.doDPD=False
 rec.doESD.set_Value_and_Lock(False)
 doTAG=False
 
-rec.doTruth=True
+#rec.doTruth=True
 
 #-----------------------------------------------------------
 include("RecExCond/RecExCommon_flags.py")

@@ -33,7 +33,7 @@ rec.doDPD=False
 rec.doESD=False 
 doTAG=False
 
-rec.doTruth=True
+#rec.doTruth=True
 
 
 #-----------------------------------------------------------
