@@ -50,7 +50,9 @@ StatusCode SGCollectionGetterTool<CONT>::initialize()
   {
     REPORT_MESSAGE (MSG::ERROR) << "TypeName property for tool "
                                 << this->type() << "/" << this->name()
-                                << " was changed; should be "
+                                << " was changed to "
+                                << this->getProperty ("TypeName").toString()
+                                << "; should be "
                                 << ClassID_traits<CONT>::typeName();
   }
 
