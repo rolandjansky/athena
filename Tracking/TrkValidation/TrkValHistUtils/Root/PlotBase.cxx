@@ -15,6 +15,8 @@
 
 #include "TrkValHistUtils/PlotBase.h"
 #include "TH1D.h"
+#include "TH2D.h"
+#include "TH3D.h"
 #include "TProfile.h"
 #include <algorithm>
 
@@ -79,6 +81,20 @@ TH2* PlotBase::Book2D(const std::string & name, TH2* refHist, const std::string 
                               refHist->GetNbinsY(), refHist->GetYaxis()->GetXmin(), refHist->GetYaxis()->GetXmax(),prependDir);
 }
 
+TH3* PlotBase::Book3D(const std::string & name, const std::string & labels, int nBinsX, float startX, float endX, int nBinsY, float startY, float endY, int nBinsZ, float startZ, float endZ, bool prependDir){
+  std::string prefix = ConstructPrefix(m_sDirectory, prependDir);
+  TH3* hist = new TH3D((prefix + name).c_str(), labels.c_str(), nBinsX, startX, endX, nBinsY, startY, endY, nBinsZ, startZ, endZ);
+  hist->Sumw2();
+  m_vBookedHistograms.push_back(HistData(hist,m_sDirectory));
+  return hist;
+}
+
+
+TH3* PlotBase::Book3D(const std::string & name, TH3* refHist, const std::string & labels, bool prependDir){
+  return Book3D(name, labels, refHist->GetNbinsX(), refHist->GetXaxis()->GetXmin(), refHist->GetXaxis()->GetXmax(),
+                              refHist->GetNbinsY(), refHist->GetYaxis()->GetXmin(), refHist->GetYaxis()->GetXmax(),
+                              refHist->GetNbinsZ(), refHist->GetZaxis()->GetXmin(), refHist->GetZaxis()->GetXmax(),prependDir);
+}
 
 TProfile* PlotBase::BookTProfile(const std::string &name, const std::string & labels, int nBinsX, float startX, float endX, float startY, float endY, bool prependDir)
 {
@@ -98,6 +114,16 @@ TProfile* PlotBase::BookTProfile(const std::string &name, const std::string & la
   std::string prefix = ConstructPrefix(m_sDirectory, prependDir);
   TProfile* hist(0);
   hist = new TProfile((prefix+name).c_str(), labels.c_str(), nBinsX, binsX);
+  m_vBookedHistograms.push_back(HistData(hist,m_sDirectory));
+  return hist;
+}
+
+
+TProfile* PlotBase::BookTProfileRangeY(const std::string &name, const std::string & labels, int nBinsX, double* binsX, double startY, double endY, bool prependDir)
+{
+  std::string prefix = ConstructPrefix(m_sDirectory, prependDir);
+  TProfile* hist(0);
+  hist = new TProfile((prefix+name).c_str(), labels.c_str(), (Int_t)nBinsX, binsX, startY, endY);
   m_vBookedHistograms.push_back(HistData(hist,m_sDirectory));
   return hist;
 }
