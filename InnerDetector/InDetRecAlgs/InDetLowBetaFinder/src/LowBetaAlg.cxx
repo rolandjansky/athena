@@ -40,6 +40,7 @@ namespace InDet
   LowBetaAlg::LowBetaAlg(const std::string& name, ISvcLocator* pSvcLocator) :
     AthAlgorithm(name, pSvcLocator),
     m_trtId(0),
+    m_TRTdetMgr(0),
     m_minTRThits(5),
     m_RcorrZero(11.0),
     m_RcorrOne(-3.0),
@@ -50,7 +51,10 @@ namespace InDet
     m_InDetLowBetaOutputName("InDetLowBetaCandidates"),
     m_trtconddbsvc("TRT_CalDbSvc",name),
     m_fieldServiceHandle("AtlasFieldSvc",name), 
-    m_TRTdEdxTool("TRT_ToT_dEdx")
+    m_TrtTool(0),
+    m_TRTdEdxTool("TRT_ToT_dEdx"),
+    m_TrtToolsSuccess(0),
+    m_TrtToolInitSuccess(0)
   {
     declareProperty("MinimumTRThitsForIDpid", m_minTRThits);
     declareProperty("TracksName",             m_trackParticleCollection);

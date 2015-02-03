@@ -1,3 +1,11 @@
+2015-02-3 Alex Alonso
+	* Fix Coverity report
+	* Tagged as InDetLowBetaFinder-02-00-05
+
+2015-01-19 Alex Alonso
+	* Fix Coverity report
+	* Tagged as InDetLowBetaFinder-02-00-04
+
 2015-01-08 Alex Alonso
 	* Fix Coverity report
 	* Tagged as InDetLowBetaFinder-02-00-03
