@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: VarHandle.icc 581262 2014-02-03 17:23:31Z tamartin $
+// $Id: VarHandle.icc 643871 2015-02-03 16:17:25Z ssnyder $
 #ifndef TRIGROOTANALYSIS_VARHANDLE_ICC
 #define TRIGROOTANALYSIS_VARHANDLE_ICC
 
@@ -78,8 +78,9 @@ namespace D3PDReaderPriv {
       if( ! fFromInput ) return fVariable;
 
       if( ! fInBranch ) {
-         if( ! ConnectVariable( &fVariable, TClass::GetClass( typeid( Type ) ),
-                                TDataType::GetType( typeid( Type ) ), kFALSE ) ) {
+         Bool_t stat = ConnectVariable( &fVariable, TClass::GetClass( typeid( Type ) ),
+                                        TDataType::GetType( typeid( Type ) ), kFALSE );
+         if (!stat || !fInBranch) {
             fParent->Error( ::TString( GetName() ) + "()", "Failed connecting to D3PD" );
             return fVariable;
          }
@@ -95,8 +96,9 @@ namespace D3PDReaderPriv {
       if( ! fFromInput ) return fVariable;
 
       if( ! fInBranch ) {
-         if( ! ConnectVariable( &fVariable, TClass::GetClass( typeid( Type ) ),
-                                TDataType::GetType( typeid( Type ) ), kFALSE ) ) {
+         Bool_t stat =  ConnectVariable( &fVariable, TClass::GetClass( typeid( Type ) ),
+                                         TDataType::GetType( typeid( Type ) ), kFALSE );
+         if (!stat || !fInBranch) {
             fParent->Error( ::TString( GetName() ) + "()", "Failed connecting to D3PD" );
             return fVariable;
          }
