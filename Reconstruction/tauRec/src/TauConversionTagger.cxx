@@ -129,7 +129,9 @@ StatusCode TauConversionTagger::execute(TauCandidateData *data) {
 
     m_TrkIsConv = false;
 
-    float Rconv = sqrt (fabs(d0)*pt/(0.15*2.));
+    double Rconv = sqrt(fabs(d0)*pt/(0.15*2.));
+    double auxprod= d0 * perigee->parameters()[Trk::qOverP];
+    double rconvii= auxprod > 0 ? Rconv : -Rconv;
 
     if ( m_ConvTaggerVer==0 ) {
 
@@ -137,10 +139,10 @@ StatusCode TauConversionTagger::execute(TauCandidateData *data) {
       m_a_cut[0][1]=0.0003;  m_b_cut[0][1]=0.2025;
 
       if ( nBLHits==0 && expectBLayerHit ){
-	      if( m_TRTHighTOutliersRatio > -m_a_cut[0][0]*Rconv + m_b_cut[0][0] ) m_TrkIsConv=true;
+	if( m_TRTHighTOutliersRatio > -m_a_cut[0][0]*Rconv + m_b_cut[0][0] && (-rconvii) > 40 && pt < 20000 ) m_TrkIsConv=true;
       }
       else {
-    	  if( m_TRTHighTOutliersRatio > -m_a_cut[0][1]*Rconv + m_b_cut[0][1] ) m_TrkIsConv=true;
+	if( m_TRTHighTOutliersRatio > -m_a_cut[0][1]*Rconv + m_b_cut[0][1] && (-rconvii) > 40 && pt < 20000 ) m_TrkIsConv=true;
     	}
     }
 
@@ -151,10 +153,10 @@ StatusCode TauConversionTagger::execute(TauCandidateData *data) {
 
 
       if(nBLHits==0 ){
-      	if( m_TRTHighTOutliersRatio > -m_a_cut[1][0]*Rconv + m_b_cut[1][0] ) m_TrkIsConv=true;
+      	if( m_TRTHighTOutliersRatio > -m_a_cut[1][0]*Rconv + m_b_cut[1][0] && (-rconvii) > 40 && pt < 20000 ) m_TrkIsConv=true;
       }
       else {
-      	if( m_TRTHighTOutliersRatio > -m_a_cut[1][1]*Rconv + m_b_cut[1][1] ) m_TrkIsConv=true;
+      	if( m_TRTHighTOutliersRatio > -m_a_cut[1][1]*Rconv + m_b_cut[1][1] && (-rconvii) > 40 && pt < 20000 ) m_TrkIsConv=true;
       }
     }
 

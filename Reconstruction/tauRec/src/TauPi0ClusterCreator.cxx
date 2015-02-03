@@ -65,7 +65,6 @@ StatusCode TauPi0ClusterCreator::eventInitialize(TauCandidateData * /*data*/)
     // create new CaloClusterContainer 
     // this container will later persistified
     // so it will get ownership of the objects
-    m_pOutputPi0CaloClusterContainer = new xAOD::CaloClusterContainer(SG::OWN_ELEMENTS);
     ATH_MSG_VERBOSE("record container " << m_outputPi0ClusterContainerName);
     //---------------------------------------------------------------------
     // Create container for Pi0
