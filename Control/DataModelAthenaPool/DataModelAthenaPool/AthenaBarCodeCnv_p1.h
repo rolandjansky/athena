@@ -20,6 +20,7 @@ class AthenaBarCodeCnv_p1 :
 {
 public:
 	AthenaBarCodeCnv_p1()
+          : m_UUIDHash(0)
 	{
 	}
 	

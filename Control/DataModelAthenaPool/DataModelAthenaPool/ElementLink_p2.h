@@ -27,7 +27,10 @@ template <class INDEXTYPE>
 class ElementLink_p2 {
 public:
 
-  ElementLink_p2() {}
+  ElementLink_p2()
+    : m_contIndex(0),
+      m_elementIndex()
+  {}
 
   uint32_t	m_contIndex;
   INDEXTYPE	m_elementIndex;
