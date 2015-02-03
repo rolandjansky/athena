@@ -213,8 +213,9 @@ LArRecoMaterialTool::ScanCRYO(CaloSubdetNames::ALIGNVOL alvol,
   // For EC, link to GeoModel does not exits (yet) : take barrel numbers
 
   // Shortcut : 
-  if ( !m_parseGeoModelForMaterial || alvol != CaloSubdetNames::LARCRYO_EC_POS
-       || alvol != CaloSubdetNames::LARCRYO_EC_NEG)
+  if ( !m_parseGeoModelForMaterial && 
+       (alvol== CaloSubdetNames::LARCRYO_EC_POS
+        && alvol == CaloSubdetNames::LARCRYO_EC_NEG))
     {
       if ( alvol == CaloSubdetNames::LARCRYO_B || alvol == CaloSubdetNames::SOLENOID) {
 	mass = 3.61158e+07  ;
@@ -230,6 +231,9 @@ LArRecoMaterialTool::ScanCRYO(CaloSubdetNames::ALIGNVOL alvol,
 	aveZ = 13.4253 ; 
       } 
     }
+#if 0
+  // Dead code as long as m_parseGeoModelForMaterial is false.
+  // Comment out to avoid coverity warnings.
   else {
 
     // Go for it : 
@@ -344,7 +348,8 @@ LArRecoMaterialTool::ScanCRYO(CaloSubdetNames::ALIGNVOL alvol,
     dEdx = childDeDx;
     aveA = childAverageA;
     aveZ = childAverageZ;
-  } 
+  }
+#endif 
 
   m_alignvol_number.push_back( alvol );
   m_alignvol_mass.push_back( mass );
