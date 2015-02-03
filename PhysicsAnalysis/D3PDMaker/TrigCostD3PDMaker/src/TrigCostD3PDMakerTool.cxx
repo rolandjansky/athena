@@ -497,6 +497,9 @@ namespace D3PD {
         continue;
       }
 
+      // Zero before new event
+      clear();
+	
       //////////////
       //BASIC DATA//
       //////////////
@@ -959,5 +962,192 @@ namespace D3PD {
 
     } // Loop over TrigMonEventCollection DataVector
   } // TrigCostD3PDMakerTool::handleNewEvent
+
+  void TrigCostD3PDMakerTool::clear() {
+    if (m_doBasic) {
+      *m_event = 0;
+      *m_lumi = 0;
+      *m_lumiLength = 0;
+      *m_bunch_id = 0;
+      *m_run = 0;
+      *m_sec = 0;
+      *m_nsec = 0;
+      *m_timer = 0;
+      *m_ebWeight = 0;
+      *m_ebWeightBG = 0;
+      *m_ranScaleTools= 0;
+      *m_appId = 0;
+      *m_costEvent = 0;
+      *m_costRunSec = 0;
+      *m_costRunNsec = 0;
+    }
+
+    if (m_doEB && !m_doBasic) {
+      *m_event = 0;
+      *m_ebWeight = 0;
+      *m_ebWeightBG = 0;
+    }
+
+    //////////////
+    //EXTRA DATA//
+    //////////////
+    if (m_doExtra) {
+      *m_timerTrigCost = 0;
+      *m_timerEndSteer = 0;
+      *m_timerChainProcess = 0;
+      *m_timerResultBuilder = 0;
+      *m_timerMon = 0;
+    }
+
+    //////////////
+    //CHAIN DATA//
+    //////////////
+    if (m_doChain) {
+      *m_chainN = 0;
+      m_chainCounter->clear();
+      m_chainLevel->clear();
+      m_chainTimer->clear();
+      m_chainIsPassed->clear();
+      m_chainIsPassedRaw->clear();
+      m_chainIsPassthrough->clear();
+      m_chainIsResurrected->clear();
+      m_chainIsPrescaled->clear();
+      m_chainWasL1AfterVeto->clear();
+      m_chainWasL1BeforePrescale->clear();
+      m_chainWasL1AfterPrescale->clear();
+      m_chainIsExpressStream->clear();
+    }
+
+    ///////////
+    //L1 DATA//
+    ///////////
+    if (m_doL1) {
+      *m_l1N = 0;
+      m_l1CtpId ->clear();
+      m_l1PassedBeforePrescale ->clear();
+      m_l1PassedAfterPrescale->clear();
+      m_l1PassedAfterVeto->clear();
+      m_l1Passed->clear();
+      m_l1Prescaled->clear();
+      m_l1Vetoed->clear();
+    }
+
+    ////////////
+    //ROS DATA//
+    ////////////
+    if (m_doROS) {
+      *m_robN = 0;
+      m_robRequestorId->clear();
+      m_robTimer->clear();
+      m_robTimeStartSec->clear();
+      m_robTimeStartMicroSec->clear();
+      m_robTimeStopSec->clear();
+      m_robTimeStopMicroSec->clear();
+      m_robDataN->clear();
+      m_robDataRobId->clear();
+      m_robDataRobSize->clear();
+      m_robDataIsUnclassified->clear();
+      m_robDataIsCached->clear();
+      m_robDataIsRetrieved->clear();
+      m_robDataIsIgnored->clear();
+      m_robDataIsDisabled->clear();
+      m_robDataIsStatusOk->clear();
+      m_robDataIsPrefetched->clear();
+    }
+
+    ////////////////
+    //ROS SUM DATA//
+    ////////////////
+    if (m_doROSSum) {
+      m_robSumDataN->clear();
+      m_robSumDataSize->clear();
+      m_robSumDataNRob->clear();
+      m_robSumDataSubDet->clear();
+      m_robSumDataIsUnclassified->clear();
+      m_robSumDataIsCached->clear();
+      m_robSumDataIsRetrieved->clear();
+      m_robSumDataIsIgnored->clear();
+      m_robSumDataIsDisabled->clear();
+    }
+
+
+    ////////////
+    //RoI DATA//
+    ////////////
+    if (m_doRoI) {
+      *m_roiN = 0;
+      m_roiIsNoneType->clear();
+      m_roiIsMuonType->clear();
+      m_roiIsEmTauType->clear();
+      m_roiIsJetType->clear();
+      m_roiIsJetEtType->clear();
+      m_roiIsEnergyType->clear();
+      m_roiId->clear();
+      m_roiNL1thresholds->clear();
+      m_roiEta->clear();
+      m_roiPhi->clear();
+      m_roiArea->clear();
+    }
+
+    ////////////////
+    //SEQ/ALG DATA//
+    ////////////////
+    if (m_doSeq) {
+      *m_seqN = 0;
+      m_seqIsInitial->clear();
+      m_seqIsExecuted->clear();
+      m_seqIsAlreadyExecuted->clear();
+      m_seqIsPrevious->clear();
+      m_seqLevel->clear();
+      m_seqChannelCounter->clear();
+      m_seqIndex->clear();
+      m_seqSequenceTimer->clear();
+      m_seqAlgTimerTot->clear();
+      m_seqAlgN->clear();
+      m_seqAlgPosition->clear();
+      m_seqAlgNRoIs->clear();
+      m_seqAlgRoIIndex->clear();
+      m_seqRoI->clear();
+      m_seqAlgIsCached->clear();
+      m_seqAlgIsCalled->clear();
+      m_seqAlgTimer->clear();
+      m_seqAlgTimeStartSec->clear();
+      m_seqAlgTimeStartMicroSec->clear();
+      m_seqAlgTimeStopSec->clear();
+      m_seqAlgTimeStopMicroSec->clear();
+    }
+
+    ///////////
+    //TE DATA//
+    ///////////
+    if (m_doTE) {
+      *m_teN = 0;
+      m_teId->clear();
+      m_teIndex->clear();
+      m_teIsRegularTE->clear();
+      m_teIsInitialTE->clear();
+      m_teIsRoITE->clear();
+      m_teIsL1ThreshTE->clear();
+      m_teActiveState->clear();
+      m_teErrorState->clear();
+      m_teIsTerminalNode->clear();
+      m_teIsOutputL2Node->clear();
+      m_teIsOutputEFNode->clear();
+      m_teIsTopologicalTE->clear();
+      m_teChildIndex->clear();
+      m_teParentIndex->clear();
+      m_teRoiId->clear();
+      m_teClid->clear(); 
+    }
+
+    ///////////
+    //DB DATA//
+    ///////////
+    if (m_doDBKey) {
+      *m_DB_SMK = 0;
+      *m_DB_L1PSK = 0;
+      *m_DB_HLTPSK = 0;
+    }
+  }
 
 } // namespace D3PD

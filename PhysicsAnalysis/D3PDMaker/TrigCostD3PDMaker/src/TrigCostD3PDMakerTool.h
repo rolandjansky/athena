@@ -63,6 +63,8 @@ namespace D3PD {
         /// Function handling new trigger configurations
         void handleNewEvent( const Incident& inc );
 
+        void clear();
+
         /// Directory in which to store the data
         std::string m_dir;
 
