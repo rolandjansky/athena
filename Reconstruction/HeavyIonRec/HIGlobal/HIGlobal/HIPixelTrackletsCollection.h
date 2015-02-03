@@ -5,7 +5,7 @@
 #ifndef HIPIXELTRACKLETSCOLLECTION_H
 #define HIPIXELTRACKLETSCOLLECTION_H
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 #include "HIGlobal/HIPixelTracklets.h"
 #include "CLIDSvc/CLASS_DEF.h"
 

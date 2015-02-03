@@ -37,9 +37,10 @@ class HIEtData
    /** Get function for m_Et */  
      float  Et() const {return m_Et; }
    /** Set function for m_Et_final */  
-     void   EtvsEta(float * et_vs_eta);
+     void   EtvsEta(const std::vector<float>& et_vs_eta);
+     void   EtvsEta(std::vector<float>&& et_vs_eta);
    /** Get function for m_Et_final */  
-     std::vector <float> EtvsEta() const {return m_Et_final;} 
+     const std::vector <float>& EtvsEta() const {return m_Et_final;} 
      ~HIEtData() {};
 
 

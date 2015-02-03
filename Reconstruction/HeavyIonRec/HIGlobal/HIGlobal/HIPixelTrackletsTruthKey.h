@@ -5,7 +5,7 @@
 #ifndef HIPIXELTRACKLETSTRUTHKEY_H
 #define HIPIXELTRACKLETSTRUTHKEY_H
 #include "HIGlobal/HIPixelTrackletsCollection.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 
 class HIPixelTrackletsTruthKey{
  public:
