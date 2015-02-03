@@ -28,6 +28,8 @@ done
 COINHOME=`cmt -quiet show macro_value AtlasCoinInventor_home` || COINHOME=""
 SOQTHOME=`cmt -quiet show macro_value AtlasSoQt_home` || SOQTHOME=""
 
+MOC_LOADED=0 # stores the info about the loading of the MOC, when we need to set optional MOC flags, below
+
 PACKAGENAME=`cmt show macro_value package`
 if [ $? != 0 -o "x$PACKAGENAME" == "x" ]; then
     echo "$APPNAME: ERROR - could not determine PACKAGENAME!"
@@ -118,6 +120,10 @@ echo "OBJECTS_DIR=tmpqt" >> temp.pro && \
 echo "RCC_DIR=tmpqt" >> temp.pro && \
 echo "QMAKE_CLEAN += ${CMTCONFIG}_Makefile.qmake" >> temp.pro && \
 echo "QMAKE_CLEAN += tmpqt" >> temp.pro && \
+### TEST ###
+#echo "load(moc)" >> temp.pro && \
+#echo "QMAKE_MOC += -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED" >> temp.pro && \
+############
 echo "DEFINES += VP1ATLREL=$VP1ATLREL" >> temp.pro && \
 SRCFILESCXX=`echo ../src/*.cxx` && if [ "x$SRCFILESCXX" == "x../src/*.cxx" ]; then SRCFILESCXX=""; fi && \
 SRCFILESCPP=`echo ../src/*.cpp`&& if [ "x$SRCFILESCPP" == "x../src/*.cpp" ]; then SRCFILESCPP=""; fi && \
@@ -153,15 +159,23 @@ if [ "x$SOQTHOME" != "x" -a -f $SOQTHOME/bin/soqt-config ]; then
 fi && \
 for arg in $*; do
     if [ "x${arg}" == "xnogui" ]; then
-	echo "QT -= gui" >> temp.pro
+	    echo "QT -= gui" >> temp.pro
     elif [ "x${arg}" == "xqtplugin" ]; then
-	echo "QT += plugin" >> temp.pro && PLUGIN=1
+	    echo "QT += plugin" >> temp.pro && PLUGIN=1
     elif [ "x${arg:0:11}" == "xinstsubdir:" ]; then
-	INSTSUBDIR=${arg:11:$((${#arg}-11))}
+	    INSTSUBDIR=${arg:11:$((${#arg}-11))}
     elif [ "x${arg:0:8}" == "xneedlib:" ]; then
-	echo 'LIBS += -l'"${arg:8:$((${#arg}-8))}" >> temp.pro
+	    echo 'LIBS += -l'"${arg:8:$((${#arg}-8))}" >> temp.pro
     elif [ "x${arg:0:5}" == "xneed:" ]; then
-	echo "QT += "${arg:5:$((${#arg}-5))} >> temp.pro
+	    echo "QT += "${arg:5:$((${#arg}-5))} >> temp.pro
+    elif [ "x${arg:0:9}" == "xmocflags:" ]; then
+        if [ $MOC_LOADED -eq 0 ]; then 
+            # even if the user specify N MOC options, "load(moc)" is printed only once
+            echo "# additional user options for MOC" >> temp.pro
+            echo "load(moc)" >> temp.pro
+            MOC_LOADED=1
+        fi
+	    echo "QMAKE_MOC += "${arg:9:$((${#arg}-9))} >> temp.pro
     else
 	echo "$APPNAME: WARNING - Unknown argument: $arg"
     fi
