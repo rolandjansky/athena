@@ -118,7 +118,7 @@ class TileRawChannelBuilder: public AthAlgTool {
      */
     static const InterfaceID& interfaceID();
 
-    static double correctAmp(double phase); //!< Amplitude correction factor according to the time when using weights for tau=0 without iterations
+    static double correctAmp(double phase, bool of2=true); //!< Amplitude correction factor according to the time when using weights for tau=0 without iterations
 
     static int CorruptedData(int ros, int drawer, int channel, int gain,
         const std::vector<float> & digits, float &dmin, float &dmax);
