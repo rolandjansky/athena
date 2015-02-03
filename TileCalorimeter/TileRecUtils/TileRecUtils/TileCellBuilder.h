@@ -147,6 +147,7 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
     int m_qualityCut;           //!< cut on channel quality (set energy to m_zeroEnergy for them)
     bool m_correctTime;          //!< should time be corrected (deltat added from CondDB)
     bool m_correctAmplitude; //!< If true, amplitude is corrected by parabolic function (needed for OF without iterations)
+    bool m_of2;              //!< If true, assume OF2 method for amplitude correction, otherwise - OF1
     bool m_mergeChannels;        //!< If true, missing raw channels are taken from DSP container
 
     // thresholds for parabolic amplitude correction
@@ -215,12 +216,14 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
         float cut1;
         bool amp1;
         bool tim1;
+        bool of21;
         T* second;
         TileFragHash::TYPE typ2;
         TileRawChannelUnit::UNIT uni2;
         float cut2;
         bool amp2;
         bool tim2;
+        bool of22;
         TileCellBuilder* ptr;
         int pos;
         typedef typename T::iterator itr_type;
@@ -228,11 +231,11 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
 
       public:
 
-        DoubleVectorIterator(T* f, TileFragHash::TYPE y1, TileRawChannelUnit::UNIT u1, float c1, bool a1, bool t1
-                           , T* s, TileFragHash::TYPE y2, TileRawChannelUnit::UNIT u2, float c2, bool a2, bool t2
+        DoubleVectorIterator(T* f, TileFragHash::TYPE y1, TileRawChannelUnit::UNIT u1, float c1, bool a1, bool t1, bool o1
+                           , T* s, TileFragHash::TYPE y2, TileRawChannelUnit::UNIT u2, float c2, bool a2, bool t2, bool o2
                            , TileCellBuilder* b, int p)
-            : first(f), typ1(y1), uni1(u1), cut1(c1), amp1(a1), tim1(t1)
-            , second(s), typ2(y2), uni2(u2), cut2(c2), amp2(a2), tim2(t2)
+            : first(f), typ1(y1), uni1(u1), cut1(c1), amp1(a1), tim1(t1), of21(o1)
+            , second(s), typ2(y2), uni2(u2), cut2(c2), amp2(a2), tim2(t2), of22(o2)
             , ptr(b), pos(p) {
 
           if (first->begin() != first->end() && pos < 1) {
@@ -247,6 +250,7 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
             ptr->m_maxTimeCorr = cut2;
             ptr->m_correctAmplitude = amp2;
             ptr->m_correctTime = tim2;
+            ptr->m_of2 = of22;
           } else {
             pos = 2;
             itr = second->end();
@@ -254,14 +258,14 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
         }
 
         DoubleVectorIterator(const DoubleVectorIterator& i)
-            : first(i.first), typ1(i.typ1), uni1(i.uni1), cut1(i.cut1), amp1(i.amp1), tim1(i.tim1)
-            , second(i.second), typ2(i.typ2), uni2(i.uni2), cut2(i.cut2), amp2(i.amp2), tim2(i.tim2)
+            : first(i.first), typ1(i.typ1), uni1(i.uni1), cut1(i.cut1), amp1(i.amp1), tim1(i.tim1), of21(i.of21)
+            , second(i.second), typ2(i.typ2), uni2(i.uni2), cut2(i.cut2), amp2(i.amp2), tim2(i.tim2), of22(i.of22)
             , ptr( i.ptr), pos(i.pos), itr(i.itr) {
         }
 
         DoubleVectorIterator& operator=(const DoubleVectorIterator& i) {
-          first = i.first; typ1 = i.typ1; uni1 = i.uni1; cut1 = i.cut1; amp1 = i.amp1; tim1 = i.tim1;
-          second = i.second; typ2 = i.typ2; uni2 = i.uni2; cut2 = i.cut2; amp2 = i.amp2; tim2 = i.tim2;
+          first = i.first; typ1 = i.typ1; uni1 = i.uni1; cut1 = i.cut1; amp1 = i.amp1; tim1 = i.tim1; of21 = i.of21;
+          second = i.second; typ2 = i.typ2; uni2 = i.uni2; cut2 = i.cut2; amp2 = i.amp2; tim2 = i.tim2; of22 = i.of22;
           ptr = i.ptr; pos = i.pos; itr = i.itr;
         }
 
@@ -286,6 +290,7 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
               ptr->m_maxTimeCorr = cut2;
               ptr->m_correctAmplitude = amp2;
               ptr->m_correctTime = tim2;
+              ptr->m_of2 = of22;
               if (itr != second->end()) break;
               pos = 2;
               // recover parameters for first vector
@@ -294,6 +299,7 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
               ptr->m_maxTimeCorr = cut1;
               ptr->m_correctAmplitude = amp1;
               ptr->m_correctTime = tim1;
+              ptr->m_of2 = of21;
               break;
             case 1:
               if (itr != second->end()) ++itr;
@@ -305,6 +311,7 @@ class TileCellBuilder: public AthAlgTool, virtual public ICaloCellMakerTool {
               ptr->m_maxTimeCorr = cut1;
               ptr->m_correctAmplitude = amp1;
               ptr->m_correctTime = tim1;
+              ptr->m_of2 = of21;
               break;
             default:
               break;

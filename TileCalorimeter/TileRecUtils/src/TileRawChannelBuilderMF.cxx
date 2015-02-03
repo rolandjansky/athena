@@ -131,8 +131,7 @@ StatusCode TileRawChannelBuilderMF::finalize() {
 TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits) {
 
   ++m_chCounter;
-  int i = 0;
-  int j = 0;
+  int i, j, row, col;
   unsigned int k = 0;
   double MFchi2 = 0.;
 
@@ -161,7 +160,7 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
   double amp_norm=0.;     // Normalization factor for MF method
   double amp_mf = 0.; 
   float ped_aux = 0;
-  //float rms_aux = 0;
+  float rms_aux = 0;
   float phase = 0;
   int err = 0;	//error for matrix handling
 
@@ -180,20 +179,11 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
 
     unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(ros, drawer);
     phase = (float) -m_tileToolTiming->getSignalPhase(drawerIdx, channel, gain);
+    rms_aux = m_tileToolNoiseSample->getHfn(drawerIdx, channel, gain);
 
     switch(m_pedestalMode) {
 
       case -1:
-        // use pedestal from conditions DB
-        ped_ch = m_tileToolNoiseSample->getPed(drawerIdx, channel, gain);
-        break;
-
-      case 0:
-        // use fixed pedestal from jobOptions
-        ped_ch = m_defPedestal;
-        break;
-
-      default:
         // use ped estimated from data based on the conditions value
         ped_aux = m_tileToolNoiseSample->getPed(drawerIdx, channel, gain);
         /*rms_aux = m_tileToolNoiseSample->getHfn(drawerIdx, channel, gain); */
@@ -215,158 +205,189 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
         }
         break;
 
+      case 0:
+        // use fixed pedestal from jobOptions
+        ped_ch = m_defPedestal;
+        break;
+
+      default:
+        // use pedestal from conditions DB
+        ped_ch = m_tileToolNoiseSample->getPed(drawerIdx, channel, gain);
+        break;
+
     }
 
-    // apply the Matched Filter
-    const TileOfcWeightsStruct* m_weights;
-    m_weights = m_tileCondToolOfcCool->getOfcWeights(drawerIdx, channel, gain, phase, true);
-
-    double g[9];
-    //double dg[9];
-    //double a[9];
-    double b[9];
-    double t_aux = 0;	//variable auxiliar to compute the MF time
-
-    for (k = 0; k < digits.size(); ++k) {
-      //a[k] = m_weights->w_a[k];
-      b[k] = m_weights->w_b[k];
-      g[k] = m_weights->g[k];
-      amp_mf += g[k]*(digits[k]-ped_ch);  // matched filter
-      amp_norm += g[k]*g[k];  // matched filter calibration for amp estimation
-      t_aux += b[k] * digits[k];
-      //dg[k] = m_weights->dg[k];
-    }
-
-    amp_mf = amp_mf/amp_norm;	// pure MF (for muon receiver board simulation)
-
-    // apply deconvolution for pileup handling
+    // begin COF iteration for amplitude greater than 15 ADC
     int n = 7;
     HepMatrix A(n, n, 0);
+    int t;
+    double signalModel[7];
+    bool goodEne;
+    t_ch = phase;
+    for (int it=0;it<4;it++){
 
-    int t = 4;
-    for (int row = 0; row < n; row++) {
-      t -= 1;
-      for (int col = 0; col < n; col++) {
-        if (((col + t) > 6) || ((col + t) < 0)) {
-          A[row][col] = 0.0;
-        } else {
-          A[row][col] = g[col + t];
-        }
+            const TileOfcWeightsStruct* m_weights;
+            m_weights = m_tileCondToolOfcCool->getOfcWeights(drawerIdx, channel, gain, -t_ch, true);
 
-      }
-    }
+            double g[9];
+            double b[9];
+            double t_aux = 0;	//variable auxiliar to compute the MF time
 
-    HepMatrix B(n, n, 0);
-    err = 0;
-    B = A;
-    B.invert(err);
+            for (k = 0; k < digits.size(); ++k) {
+              b[k] = m_weights->w_b[k];
+              g[k] = m_weights->g[k];
+              t_aux += b[k] * digits[k];
+              if (it==0){
+                amp_mf += g[k]*(digits[k]-ped_ch);  // matched filter
+                amp_norm += g[k]*g[k];  // matched filter calibration for amp estimation
+              }
+            }
 
-    double xDecon[7] = { 0, 0, 0, 0, 0, 0, 0 };
-    for (j = 0; j < n; ++j) {
-      for (i = 0; i < n; ++i) {
-        xDecon[j] += (digits[i] - ped_ch) * B[i][j];
-      }
-    }
+            if (it==0)  amp_mf = amp_mf/amp_norm;	// pure MF (for muon receiver board simulation)
 
-    // test whether pileup is present
-    int thr = 0;
-    if (gain == 0) {
-      thr = 4;
-    } else {
-      thr = 9;
-    }
+            // build deconvolution matrix (keep OOT signals "in-time")
+            if (it==0){
+                    t = 4;
+                    for (row = 0; row < n; row++) {
+                      t -= 1;
+                      for (col = 0; col < n; col++) {
+                        if (((col + t) > 6) || ((col + t) < 0)) {
+                          A[row][col] = 0.0;
+                        } else {
+                          A[row][col] = g[col + t];
+                        }
 
-    int pileupDet[7] = { 0, 0, 0, 1, 0, 0, 0 };
-    int constraint = 1;
-    for (i = 0; i < n; ++i) {
-      if (i == 3) continue;
-      if (xDecon[i] > thr) {
-        pileupDet[i] = 1;
-        constraint += 1;
-      }
+                      }
+                    }
+            }
+            else{
+                    for (col = 0; col < n; col++) {
+                        A[3][col]=g[col];
+                    }
+            }
 
-    }
+            // apply deconvolution for pileup handling
+            HepMatrix B(n, n, 0);
+            err = 0;
+            B = A;
+            B.invert(err);
 
-    // apply GOF
-    HepMatrix H(constraint, n, 0);
+            double xDecon[7] = { 0, 0, 0, 0, 0, 0, 0 };
+            for (j = 0; j < n; ++j) {
+              for (i = 0; i < n; ++i) {
+                xDecon[j] += (digits[i] - ped_ch) * B[i][j];
+              }
+            }
 
-    t = 4;
-    int rowAux = 0;
-    //int ind4 = 0;
-    for (int row = 0; row < n; row++) {
-      t -= 1;
-      if (pileupDet[row] == 0) continue;
-      //if (row == 3) ind4 = rowAux;
-      for (int col = 0; col < n; col++) {
-        if (((col + t) > 6) || ((col + t) < 0)) {
-          H[rowAux][col] = 0.0;
-        } else {
-          H[rowAux][col] = g[col + t];
-        }
+            // build the pile-up threshold based on deconvolution noise and test whether pileup is present
+            double thr[7] = { 0, 0, 0, 0, 0, 0, 0 };
+            for (j = 0; j < n; ++j) {
+              for (i = 0; i < n; ++i) {
+                thr[j] += (rms_aux * rms_aux)*(B[i][j] * B[i][j]);
+              }
+              thr[j] = sqrt(thr[j]);  
+            }
 
-      }
-      rowAux += 1;
-    }
+            // apply the pile-up threshold to detect OOT signals
+            int pileupDet[7] = { 0, 0, 0, 1, 0, 0, 0 };
+            int constraint = 1;
+            for (i = 0; i < n; ++i) {
+              if (i == 3) continue;
+              if ((ros==1) || (ros==2)){        // test 4*noise RMS from deconvolution matrix for barrel cells (low occupancy)
+                if (xDecon[i] > 4*thr[i]) {
+                        pileupDet[i] = 1;
+                        constraint += 1;
+                }
+              }else if ((ros==3) || (ros==4)){  // test 3*noise RMS from deconvolution matrix for extended barrel cells (higher occupancy)
+                if (xDecon[i] > 3*thr[i]) {
+                        pileupDet[i] = 1;
+                        constraint += 1;
+                }
+              }
 
-    HepMatrix tH(n, constraint, 0);
-    HepMatrix resultH(constraint, n, 0);
-    HepMatrix multH(constraint, constraint, 0);
-    tH = H.T();
-    multH = H * tH;
-    err = 0;
-    multH.invert(err);
-    resultH = multH * H;
-    double signalModel[7] = { 0., 0., 0., 0., 0., 0., 0. };	// signal model built from COF amplitude estimates
-    int r = 0;
-    if (m_MF == 1){
-	cof[3] = amp_mf;
-	for (j = 0; j< n; j++){ 
-		signalModel[j] += cof[3] * A[3][j];
-	}
-    }	
-    else{
-    	for (i = 0; i < n; ++i) {
+            }
 
-      	if (pileupDet[i] == 0) continue;
+            // apply second step COF
+            HepMatrix H(constraint, n, 0);
 
-      	for (j = 0; j < n; j++) {
-        	cof[i] += (digits[j] - ped_ch) * resultH[r][j];
-      	}
+            t = 4;
+            int rowAux = 0;
+            for (row = 0; row < n; row++) {
+              t -= 1;
+              if (pileupDet[row] == 0) continue;
+              for (col = 0; col < n; col++) {
+                if (((col + t) > 6) || ((col + t) < 0)) {
+                  H[rowAux][col] = 0.0;
+                } else {
+                  H[rowAux][col] = g[col + t];
+                }
 
-      	for (j = 0; j < n; j++) {
-        	signalModel[j] += cof[i] * A[i][j];
-      	}
+              }
+              rowAux += 1;
+            }
 
-      	r++;
+            HepMatrix tH(n, constraint, 0);
+            HepMatrix resultH(constraint, n, 0);
+            HepMatrix multH(constraint, constraint, 0);
+            tH = H.T();
+            multH = H * tH;
+            err = 0;
+            multH.invert(err);
+            resultH = multH * H;
+            for (j = 0; j< n; j++){    // initialize signal model to be built from COF amplitude estimates
+		signalModel[j] = 0.0;
+                cof[j] = 0.0;
+	    }	
+            int r = 0;
+            if (m_MF == 1){
+	        cof[3] = amp_mf;
+	        for (j = 0; j< n; j++){ 
+		        signalModel[j] += cof[3] * A[3][j];
+	        }
+            }	
+            else{
+            	for (i = 0; i < n; ++i) {
+                      	if (pileupDet[i] == 0) continue;
+                      	for (j = 0; j < n; j++) {
+                        	cof[i] += (digits[j] - ped_ch) * resultH[r][j];
+                      	}
+                      	for (j = 0; j < n; j++) {
+                        	signalModel[j] += cof[i] * A[i][j];
+                      	}
+                      	r++;
+            	}
+            }
+            amp_ch = cof[3];	// with COF, no need for the amp_ch variable anymore
+                
+            /*
+            // ped=0 means channel disconnect for physics runs/ work only for CIS runs
+            // digits =1023, drawer off
+            if ((ped_ch == 0) || (digits[0] == 1023)) {
+              amp_ch = 0;
+              for (i = 0; i < n; ++i) {
+                cof[i] = 0;
+              }
+            }
+            */
 
-    	}
-    }
-    amp_ch = cof[3];	// with COF, no need for the amp_ch variable anymore
-        
-    // ped=0 means channel disconnect for physics runs/ work only for CIS runs
-    // digits =1023, drawer off
-    if ((ped_ch == 0) || (digits[0] == 1023)) {
-      amp_ch = 0;
-      for (i = 0; i < n; ++i) {
-        cof[i] = 0;
-      }
-    }
+            goodEne = (fabs(cof[3]) > 1.0e-04);
+            if (goodEne) {
+              t_aux /= cof[3];
+              t_ch += t_aux;
+            } else {
+              t_ch = amp_ch = 0.0;
+              for (i = 0; i < n; ++i) {
+                cof[i] = 0.0;
+              }
+            }
 
-    //bool goodEne = (fabs(amp_ch) > 1.0e-04);
-    bool goodEne = (fabs(cof[3]) > 1.0e-04);
-    if (goodEne) {
-      //t_ch = t_aux/amp_ch;
-      t_ch = t_aux / cof[3];
-    } else {
-      t_ch = amp_ch = 0.0;
-      for (i = 0; i < n; ++i) {
-        cof[i] = 0.0;
-      }
-    }
+            if ((cof[3] < 15) || (t_ch < -15 || t_ch > 15)) break;
+            
+    } //end of COF iteration
 
     // If weights for tau=0 are used, deviations are seen in the amplitude =>
     // function to correct the amplitude
-    if (m_correctAmplitude && amp_ch > m_ampMinThresh && t_ch > m_timeMinThresh
+    /*if (m_correctAmplitude && amp_ch > m_ampMinThresh && t_ch > m_timeMinThresh
         && t_ch < m_timeMaxThresh) {
       amp_ch *= correctAmp(t_ch);
       for (i = 0; i < n; ++i) {
@@ -375,7 +396,7 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
 
       ATH_MSG_VERBOSE ( "Amplitude corrected by " << correctAmp(t_ch)
                        << " new amplitude is " << amp_ch );
-    }
+    }*/
 
     if (t_ch < m_minTime) t_ch = m_minTime;
     if (t_ch > m_maxTime) t_ch = m_maxTime;

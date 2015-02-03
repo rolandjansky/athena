@@ -582,20 +582,37 @@ void TileRawChannelBuilder::endLog() {
 
 }
 
-double TileRawChannelBuilder::correctAmp(double phase) {
-// estimation from Belen for rel 14.0.0
-  /*double a,b,c;
+double TileRawChannelBuilder::correctAmp(double phase, bool of2) {
+
+ double corr=1.0;
+ if (of2) {
+   // estimation from Belen for rel 14.0.0
+   /*double a,b,c;
    if(fabs(phase)<5.){
    a=0.137; b=0.0877; c=0.0865;
    }else{
    a=0.565; b=0.116; c=0.0751;
    }
-   double corr=(1+(a+b*phase+c*phase*phase)/100.);
+   corr=(1+(a+b*phase+c*phase*phase)/100.);
    */
 
-// estimation from Vakhtang for rel 14.4.0
+  // estimation from Vakhtang for rel 14.4.0
   double k = (phase < 0.0 ? 0.0009400 : 0.0010160);
-  double corr = (1.0 + k * phase * phase);
+  corr = (1.0 + k * phase * phase);
+
+ } else {
+  /*double a,b,c;
+  if(phase<0){
+     a=1.0002942; b=0.0003528; c=0.0005241;
+  }else{
+     a=1.0001841; b=-0.0004182; c=0.0006167;
+  }
+  corr = a + phase * ( b + c * phase);
+  */
+
+  double k = (phase < 0.0 ? 0.0005241 : 0.0006167);
+  corr = (1.0 + k * phase * phase);
+ }
 
   return corr;
 }
