@@ -46,7 +46,6 @@ InDetGlobalPixelTool::InDetGlobalPixelTool(
   : InDetGlobalMotherMonTool(type, name, parent),
     m_detector("ID"),
     m_tracks(0),
-    m_nExamplePlot(0),
     m_Pixel_track_clus_groupsize(0),
     m_Pixel_track_cluster_ToT(0),
     m_Pixel_track_res_phi(0),
@@ -79,7 +78,6 @@ StatusCode InDetGlobalPixelTool::bookHistogramsRecurrent()
   MonGroup monGr_exp   ( this, "InDetGlobal/Pixel", run);
 
   if (newRun){ 
-    // Example of plot registration per new run
     registerHist(monGr_exp,m_Pixel_track_clus_groupsize = new TH1F("m_Pixel_track_clus_groupsize","Number of pixels per cluster for clusters on track",10,0,10));
     registerHist(monGr_shift,m_Pixel_track_cluster_ToT = new TH1F("m_Pixel_track_cluster_ToT","Time over threshold for pixel clusters on track",100,0,300));
     registerHist(monGr_shift,m_Pixel_track_res_phi = new TH1F("m_Pixel_track_res_phi","Pixel Residual LocX",500,-5,5));
@@ -164,15 +162,18 @@ StatusCode InDetGlobalPixelTool::fillHistograms()
 	  if (RawDataClus->detectorElement()->isPixel())
 	    {
 	      nPixelHits++;//add another pixel hit 
-	      const InDet::PixelCluster * PixClus=dynamic_cast< const InDet::PixelCluster*>(RawDataClus);
 	      m_Pixel_track_clus_groupsize->Fill(RawDataClus->rdoList().size());  //cluster sizea
 	      for(unsigned int loopSize=0;loopSize < RawDataClus->rdoList().size(); loopSize++)
 		{
 		  myRDOIDs.push_back(RawDataClus->rdoList().at(loopSize));
 		}
-	      m_Pixel_track_cluster_ToT->Fill(PixClus->totalToT());         //cluster tot
-	      m_Pixel_track_Lvl1A->Fill(PixClus->LVL1A());         //cluster tot
 
+	      const InDet::PixelCluster * PixClus=dynamic_cast< const InDet::PixelCluster*>(RawDataClus);
+	      if ( PixClus )
+	      {
+		  m_Pixel_track_cluster_ToT->Fill(PixClus->totalToT());         //cluster tot
+		  m_Pixel_track_Lvl1A->Fill(PixClus->LVL1A());         //cluster tot
+	      }
 	      // Get track parameters for current surface
 	      trkParameters = (*trackStateOnSurfaceIterator)->trackParameters();
 	      if ( trkParameters && trkParameters->covariance() )

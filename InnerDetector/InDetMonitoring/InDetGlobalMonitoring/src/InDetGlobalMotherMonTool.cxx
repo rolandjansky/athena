@@ -58,8 +58,16 @@ InDetGlobalMotherMonTool::InDetGlobalMotherMonTool(
       m_trtID(0),
       m_sctID(0),
       m_pixelID(0),
+      m_pixRdoContainer(0),
       m_sctRdoContainer(0),
-      m_driftCircleContainer(0),
+      m_driftCircleContainer(0),   
+      m_pixLVL1IDContainer(0),
+      m_sctLVL1IDContainer(0),
+      m_trtLVL1IDContainer(0),
+      m_pixBCIDContainer(0),
+      m_sctBCIDContainer(0),
+      m_trtBCIDContainer(0),
+      m_trtPhase(0),
       m_trkSummaryTool("Trk::TrackSummaryTool/InDetTrackSummaryTool")
 {   
   declareProperty("checkRate",m_checkRate);  
