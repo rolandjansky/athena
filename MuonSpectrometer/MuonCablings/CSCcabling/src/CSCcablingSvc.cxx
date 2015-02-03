@@ -77,7 +77,7 @@ StatusCode CSCcablingSvc::initialize() {
         std::string configVal = (*atlasCommonRec)[0]->getString("CONFIG");
         if(configVal=="RUN1"){
           m_run1 = true;
-        } else if(configVal=="RUN2") {
+        } else if(configVal=="RUN2" || configVal=="RUN3" || configVal=="RUN4") {
           m_run1 = false;
         } else {
           ATH_MSG_FATAL("Unexpected value for geometry config read from the database: " << configVal);
@@ -87,6 +87,11 @@ StatusCode CSCcablingSvc::initialize() {
   }
   m_rod  = (m_run1 ? 8 : 16);
   m_max  = m_side * m_rod;
+
+  if(!rdbAccess->disconnect()) {
+     ATH_MSG_ERROR("Unable to disconnectfrom the Geometry DB");
+     return StatusCode::FAILURE;
+  } 
 
   return StatusCode::SUCCESS;
 }
