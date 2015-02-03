@@ -52,8 +52,8 @@ namespace InDet {
   public:
     SummaryAccessor(const asg::IAsgTool*);
     void setSummaryType(xAOD::SummaryType);
-    virtual StatusCode access( const xAOD::TrackParticle& track,
-			       const xAOD::Vertex* vertex = 0 );
+    StatusCode access( const xAOD::TrackParticle& track,
+		       const xAOD::Vertex* vertex = 0 );
 #ifndef XAOD_ANALYSIS
     StatusCode access( const Trk::Track& track,
 		       const Trk::TrackParameters* perigee = 0,
@@ -173,6 +173,57 @@ namespace InDet {
   private:
     Double_t m_p;
   };
+
+  // ---------------- UsedHitsdEdxAccessor ----------------                                      
+  class UsedHitsdEdxAccessor : public virtual TrackAccessor {
+  public:
+    UsedHitsdEdxAccessor(const asg::IAsgTool*);
+    StatusCode access ( const xAOD::TrackParticle& track,
+			const xAOD::Vertex* = 0 );
+#ifndef XAOD_ANALYSIS
+    StatusCode access ( const Trk::Track& track,
+                        const Trk::TrackParameters* perigee = 0,
+                        const Trk::TrackSummary* summary = 0 );
+#endif
+    uint8_t getValue() const {return m_n;}
+  private:
+    uint8_t m_n;
+  };
+
+  // ---------------- OverflowHitsdEdxAccessor ----------------                                  
+  class OverflowHitsdEdxAccessor : public virtual TrackAccessor {
+  public:
+    OverflowHitsdEdxAccessor(const asg::IAsgTool*);
+    StatusCode access ( const xAOD::TrackParticle& track,
+			const xAOD::Vertex* = 0 );
+#ifndef XAOD_ANALYSIS
+    StatusCode access ( const Trk::Track& track,
+                        const Trk::TrackParameters* perigee = 0,
+                        const Trk::TrackSummary* summary = 0 );
+#endif
+    uint8_t getValue() const {return m_n;}
+  private:
+    uint8_t m_n;
+  };
+
+#ifndef XAOD_ANALYSIS
+  // ---------------- SiHitsTopBottomAccessor ----------------
+
+  class SiHitsTopBottomAccessor : public virtual TrackAccessor {
+  public:
+    SiHitsTopBottomAccessor(const asg::IAsgTool*);
+    StatusCode access ( const xAOD::TrackParticle& track,
+			const xAOD::Vertex* = 0 );
+    StatusCode access ( const Trk::Track& track,
+                        const Trk::TrackParameters* perigee = 0,
+                        const Trk::TrackSummary* summary = 0 );
+    uint8_t getHitsTop() const {return m_top;}
+    uint8_t getHitsBottom() const {return m_bottom;}
+  private:
+    uint8_t m_top;
+    uint8_t m_bottom;
+  };
+#endif
 
 } // namespace InDet
 

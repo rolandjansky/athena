@@ -14,8 +14,6 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
 
-//#if ( ! defined(XAOD_STANDALONE) ) && (! defined(XAOD_ANALYSIS) )
-// anything defining XAOD_STANDALONe should also define XAOD_ANALYSIS
 #ifndef XAOD_ANALYSIS
 #include "TrkParameters/TrackParameters.h"
 #endif
@@ -41,7 +39,7 @@ namespace InDet {
   class
 #endif
   CutLevel {
-    NoCut=0, Loose=1, LoosePrimary=2, TightPrimary=3
+    NoCut=0, Loose=1, LoosePrimary=2, TightPrimary=3, LooseMuon, LooseElectron
       };
   
   /// Interface for track selection tools

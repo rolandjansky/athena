@@ -13,12 +13,13 @@
 
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
-#ifndef XAOD_STANDALONE
-#include "GaudiKernel/ToolHandle.h"
 #ifndef XAOD_ANALYSIS
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+// forward declares for these tools are insufficient
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
 #include "TrkExInterfaces/IExtrapolator.h"
-#endif
+//#include "MagFieldInterfaces/IMagFieldSvc.h"
 #endif
 
 #include <map>
@@ -85,11 +86,14 @@ namespace InDet {
     // the TrackCut needs to be able to add accessors to the tool in initialize()
     friend StatusCode TrackCut::initialize();
 
-    // TODO: make the accessor an enum instead of string. should only affect initialize(). (?)
     std::unordered_map< std::string, std::shared_ptr<TrackAccessor> > m_trackAccessors; //!< list of the accessors that need to be run for each track
 
     // first element is cut family, second is the set of cuts
     std::map< std::string, std::vector< std::unique_ptr<TrackCut> > > m_trackCuts; //!< First element is the name of the cut family, second element is the set of cuts
+
+    mutable ULong64_t m_numTracksProcessed; //!< a counter of the number of tracks proccessed
+    mutable ULong64_t m_numTracksPassed; //!< a counter of the number of tracks that passed all cuts
+    mutable std::vector<ULong64_t> m_numTracksPassedCuts; //!< tracks the number of tracks that passed each cut family
 
     Double_t m_minPt; //!< Minimum p_T of tracks
     Double_t m_maxAbsEta; //!< Maximum magnitude of pseudorapidity
@@ -102,8 +106,6 @@ namespace InDet {
     Double_t m_maxD0overSigmaD0; //!< Maximum |d0|/sigma_d0 of tracks
     Double_t m_maxZ0overSigmaZ0; //!< Maximum |z0|/sigma_z0 of tracks
     Double_t m_maxZ0SinThetaoverSigmaZ0SinTheta; //!< Maximum |z0*sin(theta)|/sigma_z0sinTheta
-    //Int_t m_minNBLayersHits; //!< Minimum number of B layer hits, including IBL (layers 0 and 1)
-    //Int_t m_maxNBLayersSharedHits; //!< Maximum number of shared B Layer hits
     Int_t m_minNInnermostLayerHits; //!< Minimum number of innermost pixel layer hits
     Int_t m_minNNextToInnermostLayerHits; //!< Minimum number of next to innermost pixel layer hits
     Int_t m_minNBothInnermostLayersHits; //!< Minimum number of two innermost pixel layer hits
@@ -127,16 +129,24 @@ namespace InDet {
     Int_t m_maxNSctHoles; //!< Maximum number of holes in SCT
     Int_t m_maxNSctDoubleHoles; //!< Maximum number of double holes in SCT
     Double_t m_maxTrtEtaAcceptance; //!< Pseudorapidity below which TRT hit cuts will not be applied
+    Double_t m_maxEtaForTrtHitCuts; //!< Pseudorapidity above which TRT hit cuts will not be applied
     Int_t m_minNTrtHits; //!< Minimum number of TRT hits
     Int_t m_minNTrtHitsPlusOutliers; //!< Minimum number of TRT hits plus outliers
     Int_t m_minNTrtHighThresholdHits; //!< Minimum number of high E TRT hits
     Int_t m_minNTrtHighThresholdHitsPlusOutliers; //!< Minimum number of high E TRT hits including outliers
     Double_t m_maxTrtHighEFraction; //!< Maximum fraction of TRT hits that are high threshold
     Double_t m_maxTrtHighEFractionWithOutliers; //!< Maximum fraction of TRT hits that are high threshold, including outliers
+    Double_t m_maxTrtOutlierFraction; //!< Maximum fraction of TRT outliers over TRT hits + outliers
     Double_t m_maxChiSq; //!< Maximum fit chi squared
     Double_t m_maxChiSqperNdf; //!< Maximum chi squared per degree of freedom
     Double_t m_minProb; //!< Minimum fit probability
-
+    Int_t m_minNUsedHitsdEdx; //!< Minimum number of dEdx hits used
+    Int_t m_minNOverflowHitsdEdx; //!< Minimum number of IBL overflow hits for dEdx
+#ifndef XAOD_ANALYSIS
+    Int_t m_minNSiHitsMod; //!< Minimum number of Si hits, with pixel hits counting twice
+    Int_t m_minNSiHitsModTop; //!< Min number of Si hits on top half (pixel counting twice)
+    Int_t m_minNSiHitsModBottom; //!< Min number of Si hits on bottom half (pixel counting twice)
+#endif
 
     /// Object used to store the last decision
     mutable Root::TAccept m_accept; //!< Object that stores detailed selection information
@@ -150,11 +160,12 @@ namespace InDet {
    
 #ifndef XAOD_ANALYSIS
     Bool_t m_initTrkTools; //!< Whether to initialize the Trk::Track tools
-
+    Bool_t m_trackSumToolAvailable; //!< Whether the summary tool is available    
     ToolHandle<Trk::ITrackSummaryTool> m_trackSumTool; //!< Track summary tool
-    Bool_t m_trackSumToolAvailable; //!< Whether the summary tool is available
-    
     ToolHandle<Trk::IExtrapolator> m_extrapolator; //!< Extrapolator tool
+
+    //Bool_t m_initMagFieldSvc; //!< Whether to initialize the MagField service
+    //ServiceHandle<MagField::IMagFieldSvc> m_magFieldSvc; //!< Magnetic field service
 #endif // XAOD_ANALYSIS
 
   }; // class InDetTrackSelectionTool

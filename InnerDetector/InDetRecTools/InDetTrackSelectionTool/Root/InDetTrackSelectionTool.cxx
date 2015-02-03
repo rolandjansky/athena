@@ -11,6 +11,10 @@
 #include "VxVertex/Vertex.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkEventPrimitives/FitQuality.h"
+// these needed to be included in the header file
+// #include "TrkToolInterfaces/ITrackSummaryTool.h"
+// #include "TrkExInterfaces/IExtrapolator.h"
+// #include "MagFieldInterfaces/IMagFieldSvc.h"
 #endif
 
 #include <memory>
@@ -23,12 +27,20 @@ namespace {
 
 InDet::InDetTrackSelectionTool::InDetTrackSelectionTool(const std::string& name)
   : asg::AsgTool(name)
+  , m_numTracksProcessed(0)
+  , m_numTracksPassed(0)
   , m_accept( "InDetTrackSelection" )
   , m_cutLevel("")
 #ifndef XAOD_ANALYSIS
   , m_initTrkTools(false)
+  , m_trackSumToolAvailable(false)
   , m_trackSumTool("Trk::TrackSummaryTool/TrackSummaryTool", this)
   , m_extrapolator("Trk::Extrapolator/Extrapolator", this)
+    //  May not need mag field svc - perhaps only to warn when P/Pt cut is set
+    //  (its purpose is to ignore pt cut if field is off.)
+    //    with no magnetic field?
+    //  , m_initMagFieldSvc(false)
+    //  , m_magFieldSvc("MagField::MagFieldSvc/MagFieldSvc", name)
 #endif // XAOD_ANALYSIS
 {
 
@@ -39,7 +51,9 @@ InDet::InDetTrackSelectionTool::InDetTrackSelectionTool(const std::string& name)
   declareInterface<IInDetTrackSelectionTool>(this);
 #endif
 
-  // TODO: make object that links cut values, strings, and TrackCuts.
+  declareProperty("CutLevel", m_cutLevel);
+
+  // TODO: make object that links cut values, strings, and TrackCuts ?
   declareProperty("minPt", m_minPt, "Minimum transverse momentum");
   declareProperty("minP", m_minP, "Minimum momentum");
   declareProperty("maxAbsEta", m_maxAbsEta, "Maximum magnitude of pseudorapidity");
@@ -54,10 +68,6 @@ InDet::InDetTrackSelectionTool::InDetTrackSelectionTool(const std::string& name)
   declareProperty("maxZ0SinThetaoverSigmaZ0SinTheta",
 		  m_maxZ0SinThetaoverSigmaZ0SinTheta,
 		  "Significance cut on |z0*sin(theta)|");
-  //declareProperty("minNBLayersHits", m_minNBLayersHits,
-  //		  "Required B layer hits (including IBL)");
-  //declareProperty("maxNBLayersSharedHits", m_maxNBLayersSharedHits,
-  //		  "Maximum shared hits in B layers");
   declareProperty("minNInnermostLayerHits", m_minNInnermostLayerHits,
 		  "Required hits on the innermost pixel layer");
   declareProperty("minNNextToInnermostLayerHits", m_minNNextToInnermostLayerHits,
@@ -95,6 +105,7 @@ InDet::InDetTrackSelectionTool::InDetTrackSelectionTool(const std::string& name)
   declareProperty("maxNSctDoubleHoles", m_maxNSctDoubleHoles, "Maximum SCT double holes");
   declareProperty("maxTrtEtaAcceptance", m_maxTrtEtaAcceptance,
 		  "Maximum eta that ignores TRT hit cuts");
+  declareProperty("maxEtaForTrtHitCuts", m_maxEtaForTrtHitCuts, "Eta above which TRT hit cuts are not applied.");
   declareProperty("minNTrtHits", m_minNTrtHits, "Minimum TRT hits");
   declareProperty("minNTrtHitsPlusOutliers", m_minNTrtHitsPlusOutliers,
 		  "Minimum TRT hits including outliers");
@@ -107,19 +118,28 @@ InDet::InDetTrackSelectionTool::InDetTrackSelectionTool(const std::string& name)
 		  "Maximum TRT hits that are above high energy threshold");
   declareProperty("maxTrtHighEFractionWithOutliers", m_maxTrtHighEFractionWithOutliers,
 		  "Maximum TRT hits that are above high energy threshold including outliers");
+  declareProperty("maxTrtOutlierFraction", m_maxTrtOutlierFraction,
+		  "Maximum fraction of TRT outliers over TRT hits plus outliers");
   declareProperty("maxChiSq", m_maxChiSq, "Maximum chi squared");
   declareProperty("minProb", m_minProb, "Minimum p(chi^2, Ndof)");
   declareProperty("maxChiSqperNdf", m_maxChiSqperNdf,
 		  "Maximum chi squared per degree of freedom");
-  // TODO: implement pt-dependent SCT cut
-
-  declareProperty("CutLevel", m_cutLevel);
+  declareProperty("minNUsedHitsdEdx", m_minNUsedHitsdEdx,
+		  "Minimum hits used for dEdx");
+  declareProperty("minNOverflowHitsdEdx", m_minNOverflowHitsdEdx,
+		  "Minimum overflow hits in IBL for dEdx");
 #ifndef XAOD_ANALYSIS
+  declareProperty("minNSiHitsMod", m_minNSiHitsMod);
+  declareProperty("minNSiHitsModTop", m_minNSiHitsModTop);
+  declareProperty("minNSiHitsModBottom", m_minNSiHitsModBottom);  
+
   declareProperty("UseTrkTrackTools", m_initTrkTools);
   declareProperty("TrackSummaryTool", m_trackSumTool);
   declareProperty("Extrapolator", m_extrapolator);
-  m_trackSumToolAvailable = false;
+  //declareProperty("MagFieldSvc", m_magFieldSvc);
 #endif
+  // TODO: implement pt-dependent SCT cut ?
+
 }
 
 
@@ -127,11 +147,6 @@ InDet::InDetTrackSelectionTool::InDetTrackSelectionTool(const std::string& name)
 /// 
 /// In athena, this is called automatically after the user has set the properties and so
 /// it must set the cut level without overwriting any additional cuts that have been set.
-/// Unfortunately there is not a clean way to unset a cut from a given pre-defined cut level
-/// in athena (though this is trivial in standalone root) - the user either select a pre-defined
-/// cut level that is less restrictive and then manually add the cuts, or, if it is a cut on a
-/// maximum value, set the cut to something less than LOCAL_MAX_[DOUBLE|INT] (defined above)
-/// but still greater than the range of phisical values.
 /// 
 /// In standalone root, the cut levels can be set in a more or less intuitive way. After setting
 /// the cut levels and providing any additional configuration, this initialize() function must
@@ -155,7 +170,7 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
 	ATH_MSG_WARNING( "\t" << opt.first );
       }
     } else {
-      ATH_MSG_INFO( "Cut level set to \"" << it_mapCutLevel->first << "\". This will not overwrite other cuts if they are otherwise set to something other than the default (no cut).");
+      ATH_MSG_INFO( "Cut level set to \"" << it_mapCutLevel->first << "\". This will not overwrite other cuts.");
       setCutLevel( it_mapCutLevel->second, false );
     }
   }
@@ -424,47 +439,83 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
     ASG_CHECK( siHits->initialize() );
     m_trackCuts["SiHits"].push_back(std::move(siHits));
   }
-  if (m_maxTrtEtaAcceptance < LOCAL_MAX_DOUBLE) {
+#ifndef XAOD_ANALYSIS
+  if (m_minNSiHitsMod > 0) {
+    ATH_MSG_INFO( "  Minimum modified Si hits (2*pix + sct) (does not include dead sensors)= "
+		  << m_minNSiHitsMod );
+    std::unique_ptr<MinSummaryValueCut> siHits(new MinSummaryValueCut(this));
+    siHits->setMinValue(m_minNSiHitsMod);
+    siHits->addSummaryType(xAOD::numberOfPixelHits);
+    siHits->addSummaryType(xAOD::numberOfPixelHits); // pixel hits count twice in this definition
+    siHits->addSummaryType(xAOD::numberOfSCTHits);
+    ASG_CHECK( siHits->initialize() );
+    m_trackCuts["SiHits"].push_back(std::move(siHits));
+  }
+  if (m_minNSiHitsModTop > 0 || m_minNSiHitsModBottom > 0) {
+    ATH_MSG_INFO( "  Minimum modified Si hits in top half = "
+		  << m_minNSiHitsModTop );
+    ATH_MSG_INFO( "  Minimum modified Si hits in bottom half = "
+		  << m_minNSiHitsModBottom );
+    std::unique_ptr<MinSiHitsModTopBottomCut> siHits(new MinSiHitsModTopBottomCut(this));
+    siHits->setMinTop(m_minNSiHitsModTop);
+    siHits->setMinBottom(m_minNSiHitsModBottom);
+    ASG_CHECK( siHits->initialize() );
+    m_trackCuts["SiHits"].push_back(std::move(siHits));
+  }
+#endif
+  if (m_maxEtaForTrtHitCuts > 0 && m_maxTrtEtaAcceptance < m_maxEtaForTrtHitCuts) {
+    ATH_MSG_INFO( "  -- TRT hit cuts applied above eta = " << m_maxTrtEtaAcceptance
+		  << " and below eta = " << m_maxEtaForTrtHitCuts << " --" );
     if (m_minNTrtHits > 0) {
-      ATH_MSG_INFO( "  Minimum TRT hits above eta acceptance: " << m_minNTrtHits );
+      ATH_MSG_INFO( "    Minimum TRT hits outside eta acceptance: " << m_minNTrtHits );
       std::unique_ptr<MinTrtHitCut> minTrtHits(new MinTrtHitCut(this));
       minTrtHits->setMinValue(m_minNTrtHits);
+      minTrtHits->setMaxEtaAcceptance(m_maxTrtEtaAcceptance);
+      minTrtHits->setMaxEtaForCut(m_maxEtaForTrtHitCuts);
       minTrtHits->addSummaryType( xAOD::numberOfTRTHits );
       ASG_CHECK( minTrtHits->initialize() );
       m_trackCuts["TrtHits"].push_back(std::move(minTrtHits));
     }
     if (m_minNTrtHitsPlusOutliers > 0) {
-      ATH_MSG_INFO( "  Minimum TRT hits above eta acceptance including outliers: " << m_minNTrtHitsPlusOutliers );
+      ATH_MSG_INFO( "    Minimum TRT hits outside eta acceptance including outliers: " << m_minNTrtHitsPlusOutliers );
       std::unique_ptr<MinTrtHitCut> minTrtHits(new MinTrtHitCut(this));
       minTrtHits->setMinValue(m_minNTrtHitsPlusOutliers);
+      minTrtHits->setMaxEtaAcceptance(m_maxTrtEtaAcceptance);
+      minTrtHits->setMaxEtaForCut(m_maxEtaForTrtHitCuts);
       minTrtHits->addSummaryType( xAOD::numberOfTRTHits );
       minTrtHits->addSummaryType( xAOD::numberOfTRTOutliers );
       ASG_CHECK( minTrtHits->initialize() );
       m_trackCuts["TrtHits"].push_back(std::move(minTrtHits));
     }
     if (m_minNTrtHighThresholdHits > 0) {
-      ATH_MSG_INFO( "  Minimum TRT hits above eta acceptance above high energy threshold: "
+      ATH_MSG_INFO( "    Minimum TRT hits outside eta acceptance above high energy threshold: "
 		    << m_minNTrtHighThresholdHits );
       std::unique_ptr<MinTrtHitCut> minTrtHits(new MinTrtHitCut(this));
       minTrtHits->setMinValue(m_minNTrtHighThresholdHits);
+      minTrtHits->setMaxEtaAcceptance(m_maxTrtEtaAcceptance);
+      minTrtHits->setMaxEtaForCut(m_maxEtaForTrtHitCuts);
       minTrtHits->addSummaryType( xAOD::numberOfTRTHighThresholdHits );
       ASG_CHECK( minTrtHits->initialize() );
       m_trackCuts["TrtHits"].push_back(std::move(minTrtHits));
     }
     if (m_minNTrtHighThresholdHitsPlusOutliers > 0) {
-      ATH_MSG_INFO( "  Minimum TRT hits above eta acceptance above high energy threshold including outliers: "
+      ATH_MSG_INFO( "    Minimum TRT hits outside eta acceptance above high energy threshold including outliers: "
 		    << m_minNTrtHighThresholdHitsPlusOutliers );
       std::unique_ptr<MinTrtHitCut> minTrtHits(new MinTrtHitCut(this));
       minTrtHits->setMinValue(m_minNTrtHighThresholdHitsPlusOutliers);
+      minTrtHits->setMaxEtaAcceptance(m_maxTrtEtaAcceptance);
+      minTrtHits->setMaxEtaForCut(m_maxEtaForTrtHitCuts);
       minTrtHits->addSummaryType( xAOD::numberOfTRTHighThresholdHits );
       minTrtHits->addSummaryType( xAOD::numberOfTRTHighThresholdOutliers );
       ASG_CHECK( minTrtHits->initialize() );
       m_trackCuts["TrtHits"].push_back(std::move(minTrtHits));
     }
     if (m_maxTrtHighEFraction < LOCAL_MAX_DOUBLE) {
-      ATH_MSG_INFO( "  Maximum ratio of high threshold to regular TRT hits above eta acceptance: " << m_maxTrtHighEFraction);
+      ATH_MSG_INFO( "    Maximum ratio of high threshold to regular TRT hits outside eta acceptance: "
+		    << m_maxTrtHighEFraction);
       std::unique_ptr<MaxTrtHitRatioCut> maxTrtRatio(new MaxTrtHitRatioCut(this));
       maxTrtRatio->setMaxEtaAcceptance(m_maxTrtEtaAcceptance);
+      maxTrtRatio->setMaxEtaForCut(m_maxEtaForTrtHitCuts);
       maxTrtRatio->setMaxValue(m_maxTrtHighEFraction);
       maxTrtRatio->addSummaryTypeNumerator( xAOD::numberOfTRTHighThresholdHits );
       maxTrtRatio->addSummaryTypeDenominator( xAOD::numberOfTRTHits );
@@ -472,12 +523,26 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
       m_trackCuts["TrtHits"].push_back(std::move(maxTrtRatio));
     }
     if (m_maxTrtHighEFractionWithOutliers < LOCAL_MAX_DOUBLE) {
-      ATH_MSG_INFO( "  Maximum ratio of high threshold to regular TRT hits above eta acceptance including outliers: " << m_maxTrtHighEFractionWithOutliers);
+      ATH_MSG_INFO( "    Maximum ratio of high threshold to regular TRT hits above eta acceptance including outliers: "
+		    << m_maxTrtHighEFractionWithOutliers);
       std::unique_ptr<MaxTrtHitRatioCut> maxTrtRatio(new MaxTrtHitRatioCut(this));
       maxTrtRatio->setMaxEtaAcceptance(m_maxTrtEtaAcceptance);
+      maxTrtRatio->setMaxEtaForCut(m_maxEtaForTrtHitCuts);
       maxTrtRatio->setMaxValue(m_maxTrtHighEFraction);
       maxTrtRatio->addSummaryTypeNumerator( xAOD::numberOfTRTHighThresholdHits );
       maxTrtRatio->addSummaryTypeNumerator( xAOD::numberOfTRTHighThresholdOutliers );
+      maxTrtRatio->addSummaryTypeDenominator( xAOD::numberOfTRTHits );
+      maxTrtRatio->addSummaryTypeDenominator( xAOD::numberOfTRTOutliers );
+      ASG_CHECK( maxTrtRatio->initialize() );
+      m_trackCuts["TrtHits"].push_back(std::move(maxTrtRatio));
+    }
+    if (m_maxTrtOutlierFraction < 1.0) {
+      ATH_MSG_INFO( "    Maximum fraction of TRT hits that are outliers: " << m_maxTrtOutlierFraction );
+      std::unique_ptr<MaxTrtHitRatioCut> maxTrtRatio(new MaxTrtHitRatioCut(this));
+      maxTrtRatio->setMaxEtaAcceptance(m_maxTrtEtaAcceptance);
+      maxTrtRatio->setMaxEtaForCut(m_maxEtaForTrtHitCuts);
+      maxTrtRatio->setMaxValue(m_maxTrtOutlierFraction);
+      maxTrtRatio->addSummaryTypeNumerator( xAOD::numberOfTRTOutliers );
       maxTrtRatio->addSummaryTypeDenominator( xAOD::numberOfTRTHits );
       maxTrtRatio->addSummaryTypeDenominator( xAOD::numberOfTRTOutliers );
       ASG_CHECK( maxTrtRatio->initialize() );
@@ -511,22 +576,46 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
     ASG_CHECK( prob->initialize() );
     m_trackCuts["FitQuality"].push_back(std::move(prob));
   }
+  if (m_minNUsedHitsdEdx > 0) {
+    ATH_MSG_INFO( "  Minimum used hits for dEdx: " << m_minNUsedHitsdEdx );
+    std::unique_ptr<MinUsedHitsdEdxCut> dEdx(new MinUsedHitsdEdxCut(this));
+    dEdx->setMinValue(m_minNUsedHitsdEdx);
+    ASG_CHECK( dEdx->initialize() );
+    m_trackCuts["dEdxHits"].push_back(std::move(dEdx));
+  }
+  if (m_minNOverflowHitsdEdx > 0) {
+    ATH_MSG_INFO( "  Minimum IBL overflow hits for dEdx: " << m_minNUsedHitsdEdx );
+    std::unique_ptr<MinOverflowHitsdEdxCut> dEdx(new MinOverflowHitsdEdxCut(this));
+    dEdx->setMinValue(m_minNOverflowHitsdEdx);
+    ASG_CHECK( dEdx->initialize() );
+    m_trackCuts["dEdxHits"].push_back(std::move(dEdx));
+  }
+
 
   // Set up the TAccept object:
   for (const auto& cutFamily : m_trackCuts) {
-    // TODO: this function returns the cut position. This could be stored so that
-    // the cuts can be set by number and not a string lookup.
-    m_accept.addCut( cutFamily.first, "Selection of tracks according to " + cutFamily.first );
-    ATH_MSG_INFO("Adding cut family " << cutFamily.first);
+    const std::string& cutFamilyName = cutFamily.first;
+    m_numTracksPassedCuts.push_back(0);
+    if (m_accept.addCut( cutFamilyName, "Selection of tracks according to " + cutFamilyName ) < 0) {
+      ATH_MSG_ERROR( "Failed to add cut family " << cutFamilyName << " because the TAccept object is full." );
+      return StatusCode::FAILURE;
+    }
+    ATH_MSG_INFO("Adding cut family " << cutFamilyName);
   }
 
-  // Return gracefully:
   return StatusCode::SUCCESS;
 }
   
 StatusCode InDet::InDetTrackSelectionTool::finalize()
 {
   ATH_MSG_INFO("Finalizing track selection tool.");
+  ATH_MSG_INFO( m_numTracksPassed << " / " << m_numTracksProcessed << " = "
+		<< m_numTracksPassed*100./m_numTracksProcessed << "% passed all cuts." );
+  for (const auto& cutFamily : m_trackCuts) {
+    ULong64_t numPassed = m_numTracksPassedCuts.at(m_accept.getCutPosition(cutFamily.first));
+    ATH_MSG_INFO( numPassed << " = " << numPassed*100./m_numTracksProcessed << "% passed "
+		  << cutFamily.first << " cut." );
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -602,6 +691,7 @@ const Root::TAccept& InDet::InDetTrackSelectionTool::accept( const xAOD::TrackPa
   // Reset the result:
   m_accept.clear();
 
+  bool passAll = true;
   // access all the track properties we will need
   for ( auto& accessor : m_trackAccessors ) {
     if(!accessor.second->access( trk, vtx ).isSuccess()) {
@@ -609,19 +699,26 @@ const Root::TAccept& InDet::InDetTrackSelectionTool::accept( const xAOD::TrackPa
     }
   }
   // loop over all cuts
+  UShort_t cutFamilyIndex = 0;
   for ( const auto& cutFamily : m_trackCuts ) {
     bool pass = true;
     for ( const auto& cut : cutFamily.second ) {
       if (! cut->result() ) {
 	pass = false;
+	passAll = false;
 	break;
       }
     }
-    // TODO: access by number of cut family, not by string lookup
-    m_accept.setCutResult( cutFamily.first, pass );
+    m_accept.setCutResult( cutFamilyIndex, pass );
+    if (pass)
+      m_numTracksPassedCuts.at(cutFamilyIndex)++; // number of tracks that pass each cut family
+    cutFamilyIndex++;
   }
 
-  // Return the result:
+  if (passAll)
+    m_numTracksPassed++;
+  m_numTracksProcessed++;
+  
   return m_accept;
 }
 
@@ -678,25 +775,35 @@ InDet::InDetTrackSelectionTool::accept( const Trk::Track& track,
     return m_accept;
   }
 
-
+  bool passAll = true;
   // access all the track properties we will need
   for ( auto& accessor : m_trackAccessors ) {
     if(!accessor.second->access( track, perigee, summary ).isSuccess()) {
       ATH_MSG_WARNING("Track access for " << accessor.first << " unsuccessful.");
     }
   }
+  // for faster lookup in setCutResult we will keep track of the index explicitly
+  UShort_t cutFamilyIndex = 0;
   for ( const auto& cutFamily : m_trackCuts ) {
     bool pass = true;
     for ( const auto& cut : cutFamily.second ) {
       if (! cut->result() ) {
 	pass = false;
+	passAll = false;
 	break;
       }
     }
-    m_accept.setCutResult( cutFamily.first, pass );
+    m_accept.setCutResult( cutFamilyIndex, pass );
+    if (pass)
+      m_numTracksPassedCuts.at(cutFamilyIndex)++; // increment the number of tracks that passed this cut family
+    cutFamilyIndex++;
   }
   
- return m_accept;
+  if (passAll)
+    m_numTracksPassed++;
+  m_numTracksProcessed++;
+
+  return m_accept;
 }
 
 #endif // XAOD_STANDALONE or XAOD_ANALYSIS
@@ -734,48 +841,57 @@ void InDet::InDetTrackSelectionTool::setCutLevel(InDet::CutLevel level, Bool_t o
       m_maxD0overSigmaD0 = LOCAL_MAX_DOUBLE;
       m_maxZ0overSigmaZ0 = LOCAL_MAX_DOUBLE;
       m_maxZ0SinThetaoverSigmaZ0SinTheta = LOCAL_MAX_DOUBLE;
-      m_minNInnermostLayerHits = 0;
-      m_minNNextToInnermostLayerHits = 0;
-      m_minNBothInnermostLayersHits = 0;
+      m_minNInnermostLayerHits = -1;
+      m_minNNextToInnermostLayerHits = -1;
+      m_minNBothInnermostLayersHits = -1;
       m_maxNInnermostLayerSharedHits = LOCAL_MAX_INT;
-      m_minNPixelHits = 0;
-      m_minNPixelHitsPhysical = 0;
+      m_minNPixelHits = -1;
+      m_minNPixelHitsPhysical = -1;
       m_maxNPixelSharedHits = LOCAL_MAX_INT;
       m_maxNPixelHoles = LOCAL_MAX_INT;
-      m_minNSctHits = 0;
+      m_minNSctHits = -1;
       m_maxNSctHoles = LOCAL_MAX_INT;
       m_maxNSctSharedHits = LOCAL_MAX_INT;
       m_maxNSctDoubleHoles = LOCAL_MAX_INT;
-      m_minNSiHits = 0;
-      m_minNSiHitsPhysical = 0;
+      m_minNSiHits = -1;
+      m_minNSiHitsPhysical = -1;
       m_maxNSiSharedHits = LOCAL_MAX_INT;
-      m_minNSiHitsIfSiSharedHits = 0;
+      m_minNSiHitsIfSiSharedHits = -1;
       m_maxNSiHoles = LOCAL_MAX_INT;
       m_minEtaForStrictNSiHitsCut = LOCAL_MAX_DOUBLE;
-      m_minNSiHitsAboveEtaCutoff = 0;
+      m_minNSiHitsAboveEtaCutoff = -1;
       m_maxOneSharedModule = false;
       m_maxTrtEtaAcceptance = LOCAL_MAX_DOUBLE;
-      m_minNTrtHits = 0;
-      m_minNTrtHitsPlusOutliers = 0;
-      m_minNTrtHighThresholdHits = 0;
-      m_minNTrtHighThresholdHitsPlusOutliers = 0;
+      m_maxEtaForTrtHitCuts = 0.; // this is really a minimum eta above which cuts are not applied
+      m_minNTrtHits = -1;
+      m_minNTrtHitsPlusOutliers = -1;
+      m_minNTrtHighThresholdHits = -1;
+      m_minNTrtHighThresholdHitsPlusOutliers = -1;
       m_maxTrtHighEFraction = LOCAL_MAX_DOUBLE;
       m_maxTrtHighEFractionWithOutliers = LOCAL_MAX_DOUBLE;
+      m_maxTrtOutlierFraction = LOCAL_MAX_DOUBLE;
       m_maxChiSq = LOCAL_MAX_DOUBLE;
       m_minProb = 0.;
       m_maxChiSqperNdf = LOCAL_MAX_DOUBLE;
       m_useEtaDependentMaxChiSq = false;
+      m_minNUsedHitsdEdx = -1;
+      m_minNOverflowHitsdEdx = -1;
+#ifndef XAOD_ANALYSIS
+      m_minNSiHitsMod = -1;
+      m_minNSiHitsModTop = -1;
+      m_minNSiHitsModBottom = -1;
+#endif
     }
     break;
   case CutLevel::Loose :
-    if (overwrite)
-      setCutLevel(CutLevel::NoCut, overwrite); // if hard overwrite, reset all cuts first
+    setCutLevel(CutLevel::NoCut, overwrite); // if hard overwrite, reset all cuts first. will do nothing if !overwrite
     // change the cuts if a hard overwrite is asked for or if the cuts are unset
-    if (overwrite || m_minPt <= 0)
-      m_minPt = 400.;
+    // the Pt cut should be left as a physics cut
+    // if (overwrite || m_minPt <= 0)
+    //   m_minPt = 400.;
     if (overwrite || m_maxAbsEta >= LOCAL_MAX_DOUBLE)
       m_maxAbsEta = 2.5;
-    if (overwrite || m_minNSiHits <= 0)
+    if (overwrite || m_minNSiHits < 0)
       m_minNSiHits = 7;
     m_maxOneSharedModule = true;
     if (overwrite || m_maxNSiHoles >= LOCAL_MAX_INT)
@@ -785,22 +901,45 @@ void InDet::InDetTrackSelectionTool::setCutLevel(InDet::CutLevel level, Bool_t o
     break;
   case CutLevel::LoosePrimary :
     setCutLevel(CutLevel::Loose, overwrite); // implement loose cuts first
-    if (overwrite || m_minNSiHitsIfSiSharedHits <= 0)
+    if (overwrite || m_minNSiHitsIfSiSharedHits < 0)
       m_minNSiHitsIfSiSharedHits = 10;
-    m_useEtaDependentMaxChiSq = true; // should get set regardless of "overwrite"
     break;
   case CutLevel::TightPrimary :
     setCutLevel(CutLevel::Loose, overwrite); // implement loose cuts first
-    if (overwrite || m_minNSiHits <= 0)
+    if (overwrite || m_minNSiHits < 0)
       m_minNSiHits = 9;
     if (overwrite || m_minEtaForStrictNSiHitsCut >= LOCAL_MAX_DOUBLE)
       m_minEtaForStrictNSiHitsCut = 1.65;
-    if (overwrite || m_minNSiHitsAboveEtaCutoff <= 0)
+    if (overwrite || m_minNSiHitsAboveEtaCutoff < 0)
       m_minNSiHitsAboveEtaCutoff = 11;
-    if (overwrite || m_minNBothInnermostLayersHits <= 0)
+    if (overwrite || m_minNBothInnermostLayersHits < 0)
       m_minNBothInnermostLayersHits = 1;
     if (overwrite || m_maxNPixelHoles >= LOCAL_MAX_INT)
       m_maxNPixelHoles = 0;
+    break;
+  case CutLevel::LooseMuon :
+    setCutLevel(CutLevel::NoCut, overwrite); // reset cuts unless we are doing a soft set
+    if (overwrite || m_minNPixelHits < 0)
+      m_minNPixelHits = 1;
+    if (overwrite || m_minNSctHits < 0)
+      m_minNSctHits = 5;
+    if (overwrite || m_maxNSiHoles >= LOCAL_MAX_INT)
+      m_maxNSiHoles = 2;
+    if (overwrite || m_maxTrtEtaAcceptance >= LOCAL_MAX_DOUBLE )
+      m_maxTrtEtaAcceptance = 0.1;
+    if (overwrite || m_maxEtaForTrtHitCuts <= 0.)
+      m_maxEtaForTrtHitCuts = 1.9;
+    if (overwrite || m_minNTrtHitsPlusOutliers < 0)
+      m_minNTrtHitsPlusOutliers = 6;
+    if (overwrite || m_maxTrtOutlierFraction < 1.)
+      m_maxTrtOutlierFraction = 0.9;
+    break;
+  case CutLevel::LooseElectron :
+    setCutLevel(CutLevel::NoCut, overwrite);
+    if (overwrite || m_minNSiHits < 0)
+      m_minNSiHits = 7;
+    if (overwrite || m_minNPixelHits < 0)
+      m_minNPixelHits = 1;
     break;
   default:
     ATH_MSG_WARNING("CutLevel not recognized. Cut selection will remain unchanged.");
@@ -815,5 +954,7 @@ InDet::InDetTrackSelectionTool::s_mapCutLevel =
     {"NoCut", InDet::CutLevel::NoCut},
     {"Loose", InDet::CutLevel::Loose},
     {"LoosePrimary", InDet::CutLevel::LoosePrimary},
-    {"TightPrimary", InDet::CutLevel::TightPrimary}
+    {"TightPrimary", InDet::CutLevel::TightPrimary},
+    {"LooseMuon", InDet::CutLevel::LooseMuon},
+    {"LooseElectron", InDet::CutLevel::LooseElectron}
   };
