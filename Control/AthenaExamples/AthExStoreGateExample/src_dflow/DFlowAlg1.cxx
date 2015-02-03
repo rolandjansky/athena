@@ -75,7 +75,7 @@ StatusCode DFlowAlg1::execute()
 {  
   ATH_MSG_DEBUG ("Executing " << name() << "...");
 
-  if (m_r_evtInfo.isValid()) {
+  if (!m_r_evtInfo.isValid()) {
     ATH_MSG_ERROR("Could not get the EventInfo object. Going to next event");
     return StatusCode::RECOVERABLE;
   }
