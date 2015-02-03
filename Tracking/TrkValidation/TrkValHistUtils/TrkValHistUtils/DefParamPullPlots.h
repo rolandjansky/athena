@@ -23,6 +23,13 @@ class DefParamPullPlots: public PlotBase {
     TH1* Pull_qOverP;
     TH1* Pull_P;
 
+    TH2* Pull_d0_vs_pt;
+    TH2* Pull_z0_vs_pt;
+    TH2* Pull_theta_vs_pt;
+    TH2* Pull_phi0_vs_pt;
+    TH2* Pull_qOverP_vs_pt;
+    TH2* Pull_P_vs_pt;
+
   private:
     void init();
     void initializePlots();

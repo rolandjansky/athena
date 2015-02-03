@@ -13,6 +13,7 @@
 #include <string>
 #include "TH1.h"
 #include "TH2.h"
+#include "TH3.h"
 #include "TProfile.h"
 
 typedef std::pair<TH1*, std::string> HistData;
@@ -42,9 +43,17 @@ public:
   /// Book a TH2D histogram using refHist as reference for number of bins and axis range
   TH2* Book2D(const std::string & name, TH2* refHist, const std::string & labels, bool prependDir = true);
 
+  /// Book a TH3D histogram
+  TH3* Book3D(const std::string & name, const std::string & labels, int nBinsX, float startX, float endX, int nBinsY, float startY, float endY, int nBinsZ, float startZ, float endZ, bool prependDir = true);
+  /// Book a TH3D histogram using refHist as reference for number of bins and axis range
+  TH3* Book3D(const std::string & name, TH3* refHist, const std::string & labels, bool prependDir = true);
+
   /// Book a TProfile histogram
   TProfile* BookTProfile(const std::string &name, const std::string & labels, int nBinsX, float startX, float endX, float startY=-1, float endY=-1, bool prependDir = true);
+  /// Book a TProfile histogram with variable binning in x-axis
   TProfile* BookTProfile(const std::string &name, const std::string & labels, int nBinsX, float* binsX, bool prependDir = true);
+  /// Book a TProfile histogram with variable binning in x-axis and limits in y-values
+  TProfile* BookTProfileRangeY(const std::string &name, const std::string & labels, int nBinsX, double* binsX, double startY, double endY, bool prependDir = true); //cannot overload, conflicts with previous definitions
 
   ///@}
   

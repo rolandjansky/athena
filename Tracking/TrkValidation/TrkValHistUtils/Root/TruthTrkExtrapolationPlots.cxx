@@ -10,18 +10,31 @@ void TruthTrkExtrapolationPlots::init(){
     CaloEntry_p=NULL;
     MuonEntry_p=NULL;
     MuonExit_p=NULL;
+    CaloEntry_pExtr=NULL;
+    MuonEntry_pExtr=NULL;
+    MuonExit_pExtr=NULL;
+    CaloEntry_dp=NULL;
+    MuonEntry_dp=NULL;
+    MuonExit_dp=NULL;
 }
 
 void TruthTrkExtrapolationPlots::initializePlots(){
-  CaloEntry_p = Book1D("CaloEntry_p","CaloEntry_p;p_{nom}- p_{ext} @CaloEntry;Entries",100,-10,10);
-  MuonEntry_p = Book1D("MuonEntry_p","MuonEntry_p;p_{nom}- p_{ext} @MuonEntry;Entries",100,-10,10);
-  MuonExit_p  = Book1D("MuonExit_p","MuonExit_p;p_{nom}- p_{ext} @MuonExit;Entries",100,-10,10);
+  CaloEntry_p = Book1D("CaloEntry_p","CaloEntry_p;p_{nom} @CaloEntry;Entries",100,0,400);
+  MuonEntry_p = Book1D("MuonEntry_p","MuonEntry_p;p_{nom} @MuonEntry;Entries",100,0,400);
+  MuonExit_p  = Book1D("MuonExit_p","MuonExit_p;p_{nom} @MuonExit;Entries",100,0,400);
+  CaloEntry_pExtr = Book1D("CaloEntry_pExtr","CaloEntry_p;p_{ext} @CaloEntry;Entries",100,0,400);
+  MuonEntry_pExtr = Book1D("MuonEntry_pExtr","MuonEntry_p;p_{ext} @MuonEntry;Entries",100,0,400);
+  MuonExit_pExtr  = Book1D("MuonExit_pExtr","MuonExit_p;p_p_{ext} @MuonExit;Entries",100,0,400);;
+  CaloEntry_dp = Book1D("CaloEntry_dp","CaloEntry_dp;p_{nom}- p_{ext} @CaloEntry;Entries",100,-10,10);
+  MuonEntry_dp = Book1D("MuonEntry_dp","MuonEntry_dp;p_{nom}- p_{ext} @MuonEntry;Entries",100,-10,10);
+  MuonExit_dp  = Book1D("MuonExit_dp","MuonExit_dp;p_{nom}- p_{ext} @MuonExit;Entries",100,-10,10);
+
 }
 
 void TruthTrkExtrapolationPlots::fill(const xAOD::TruthParticle& truthprt) {
-  FillPlots(CaloEntry_p, truthprt, "CaloEntryLayer");
-  FillPlots(MuonEntry_p, truthprt, "MuonEntryLayer");
-  FillPlots(MuonExit_p,  truthprt, "MuonExitLayer");  
+  FillPlots(CaloEntry_dp, truthprt, "CaloEntryLayer");
+  FillPlots(MuonEntry_dp, truthprt, "MuonEntryLayer");
+  FillPlots(MuonExit_dp,  truthprt, "MuonExitLayer");  
 }
 
 
@@ -41,7 +54,23 @@ void TruthTrkExtrapolationPlots::FillPlots(TH1* hist, const xAOD::TruthParticle&
                  truthprt.auxdata<float>(sNom + "_py_extr"), 
                  truthprt.auxdata<float>(sNom + "_pz_extr"));
 
-  hist->Fill((nomVec.Mag() - exVec.Mag())*0.001);  
+  float pNom = nomVec.Mag();
+  float pExt = exVec.Mag();
+  hist->Fill((pNom-pExt)*0.001);
+
+  if (sNom=="CaloEntryLayer") {
+    CaloEntry_p->Fill(pNom*0.001);
+    CaloEntry_pExtr->Fill(pExt*0.001);
+  }
+  else if (sNom=="MuonEntryLayer") {
+    MuonEntry_p->Fill(pNom*0.001);
+    MuonEntry_pExtr->Fill(pExt*0.001);
+  }
+  else if (sNom=="MuonExitLayer") {
+    MuonExit_p->Fill(pNom*0.001);
+    MuonExit_pExtr->Fill(pExt*0.001);
+  }
+
 }
 
 }

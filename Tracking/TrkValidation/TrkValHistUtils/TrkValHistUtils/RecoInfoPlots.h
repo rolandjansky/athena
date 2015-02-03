@@ -18,7 +18,8 @@ class RecoInfoPlots: public PlotBase {
     TH1* trackfitchi2;
     TH1* trackfitndof;
     TH1* trackcon;
-
+    TH1* trackchi2prob;
+    
   private:
     void init();
     void initializePlots();

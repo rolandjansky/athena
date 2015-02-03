@@ -20,6 +20,14 @@ class TruthTrkExtrapolationPlots: public PlotBase {
     TH1* MuonEntry_p;
     TH1* MuonExit_p;
 
+    TH1* CaloEntry_pExtr;
+    TH1* MuonEntry_pExtr;
+    TH1* MuonExit_pExtr;
+
+    TH1* CaloEntry_dp;
+    TH1* MuonEntry_dp;
+    TH1* MuonExit_dp;
+
   private:
     void init();
     void initializePlots();
