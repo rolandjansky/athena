@@ -186,13 +186,13 @@ int main( int argc, char* argv[] )
           static_cast< int >( iEntry ) );
 
     // Get container from the event:
-    CHECK( xEvent.retrieve( xTauJetContainer, "TauRecContainer" ) );
+    CHECK( xEvent.retrieve( xTauJetContainer, "TauJets" ) );
     CHECK( xEvent.retrieve( xTrackParticleContainer , "InDetTrackParticles" ) );
     CHECK( xEvent.retrieve( xVertexContainer , "PrimaryVertices" ) );
-    CHECK( xEvent.retrieve( xTruthParticleContainer , "TruthParticle" ) );
+    CHECK( xEvent.retrieve( xTruthParticleContainer , "TruthParticles" ) );
 
     // copy truth particles to get truthparticle link for truth taus to work
-    CHECK( xEvent.copy("TruthParticle") );
+    CHECK( xEvent.copy("TruthParticles") );
 
     Info( "TauAnalysisToolsExample", "Number of taus: %i",
           static_cast< int >( xTauJetContainer->size() ) );
