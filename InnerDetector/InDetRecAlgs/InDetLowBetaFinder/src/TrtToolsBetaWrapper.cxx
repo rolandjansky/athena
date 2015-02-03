@@ -124,9 +124,6 @@ StatusCode InDet::LowBetaAlg::update(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	      //	A = eta bin index (0 to 9)		["i" in TRT_LoadPriors]
 	      //	B = straw type, barrel(0) or endcap(1)	["k" in TRT_LoadPriors]
 	      //	C = radius bin index (0 to 9)		["l" in TRT_LoadPriors]
-	      int etaIndex;
-	      int barrelOrEndcap;
-	      int radiusIndex;
 /*
 
 	      if (channel >= 100000)
@@ -138,20 +135,31 @@ StatusCode InDet::LowBetaAlg::update(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	      }
 	      else
 */
+	      if (channel >= 1000)
+	      {
+		ATH_MSG_FATAL("Using an old verion of the channel (> 100000).");
+	  	return StatusCode::FAILURE;
+	      }
+
+
+
+
+	      int etaIndex		=  channel/100;
+	      int barrelOrEndcap	= (channel%100)/10;
+	      int radiusIndex		=  channel%10;
+
+
+
 	      if (channel >= 100000)
 	      {
-		ATH_MSG_ERROR("Using an old verion of the channel (> 100000).");
+		ATH_MSG_FATAL("Using an old verion of the channel (> 100000).");
+	  	return StatusCode::FAILURE;
 	      }
-	      else
-	      {
-	        etaIndex = channel/100;
-	        barrelOrEndcap = (channel%100)/10;
-	        radiusIndex = channel%10;
-	      }
-	      
-	      if (    (etaIndex >= 0 && etaIndex <= TrtToolBetaLiklihood::NETABINS)
-	           && ( barrelOrEndcap == 0 || barrelOrEndcap == 1)
-	           && (radiusIndex >= 0 && radiusIndex <= TrtToolBetaLiklihood::NRFEBINS) )
+
+	      if (    ( (etaIndex       >= 0) && (etaIndex       <= TrtToolBetaLiklihood::NETABINS) )
+	           && ( (barrelOrEndcap == 0) || (barrelOrEndcap == 1) )
+	           && ( (radiusIndex    >= 0) && (radiusIndex    <= TrtToolBetaLiklihood::NRFEBINS) ) 
+		)
 	      {
 	        const coral::AttributeList &list = iter->second;
 	        bitValues = (double*)malloc(sizeof(double)*24);
