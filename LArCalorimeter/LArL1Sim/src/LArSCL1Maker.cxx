@@ -97,6 +97,7 @@ LArSCL1Maker::LArSCL1Maker(const std::string& name, ISvcLocator* pSvcLocator) :
   , m_shapesKey("LArShapeSC")
   , m_noiseKey("LArNoiseSC")
   , m_pedestalKey("LArPedestalSC")
+  , m_sem_mgr(nullptr)
 // + -------------------------------------------------------------------- +
 // + Author ........: Denis O. Damazio                                    +
 // + Creation date .: 18/11/2013                                          +
@@ -452,9 +453,10 @@ StatusCode LArSCL1Maker::execute()
   std::vector<float> zeroSamp; 
   zeroSamp.assign(m_nSamples,0); // for empty channels 
   for( ; it != it_end; ++it){
-      std::vector< float > & vec = zeroSamp; 
-      if ( alreadyThere[it] ) vec= scFloatContainerTmp.at(it); 
+      std::vector< float > *vecPtr = &zeroSamp; 
+      if ( alreadyThere[it] ) vecPtr= &(scFloatContainerTmp.at(it)); 
       else {  cc++;  }
+      std::vector<float>& vec = *vecPtr;
 
       HWIdentifier id = hwid[it];
        if ( id == 0 ) { dd++; continue; } 
@@ -543,33 +545,33 @@ StatusCode LArSCL1Maker::updateConditions(){
 
 void LArSCL1Maker::printConditions(const HWIdentifier& hwSC){
 
-	  ATH_MSG_DEBUG("HW Identifier : " << hwSC.get_identifier32().get_compact() );
+	  ATH_MSG_VERBOSE("HW Identifier : " << hwSC.get_identifier32().get_compact() );
           if ( m_shapes ) {
                 ILArShape::ShapeRef_t shape = m_shapes->Shape(hwSC,0);
                 ILArShape::ShapeRef_t shapeder = m_shapes->ShapeDer(hwSC,0);
-                ATH_MSG_DEBUG( "shape0.size() : " << shape.size() );
+                ATH_MSG_VERBOSE( "shape0.size() : " << shape.size() );
                 for(unsigned int i=0;i<shape.size();i++)
-                   ATH_MSG_DEBUG("shape[" << i << "]=" << shape[i] << " - " << shapeder[i] << "; ");
+                   ATH_MSG_VERBOSE("shape[" << i << "]=" << shape[i] << " - " << shapeder[i] << "; ");
           }
           if ( m_fracS  ) {
-                ATH_MSG_DEBUG("fSample : " << m_fracS->FSAMPL(hwSC) );
+                ATH_MSG_VERBOSE("fSample : " << m_fracS->FSAMPL(hwSC) );
           }
           if ( m_adc2mevTool ) {
-                ATH_MSG_DEBUG("Ramp (gain0) : " << (m_adc2mevTool->ADC2MEV(hwSC,(CaloGain::CaloGain)0))[1] );
-                ATH_MSG_DEBUG("Ramp (gain1) : " << (m_adc2mevTool->ADC2MEV(hwSC,(CaloGain::CaloGain)1))[1] );
-                ATH_MSG_DEBUG("Ramp (gain2) : " << (m_adc2mevTool->ADC2MEV(hwSC,(CaloGain::CaloGain)2))[1] );
+                ATH_MSG_VERBOSE("Ramp (gain0) : " << (m_adc2mevTool->ADC2MEV(hwSC,(CaloGain::CaloGain)0))[1] );
+                ATH_MSG_VERBOSE("Ramp (gain1) : " << (m_adc2mevTool->ADC2MEV(hwSC,(CaloGain::CaloGain)1))[1] );
+                ATH_MSG_VERBOSE("Ramp (gain2) : " << (m_adc2mevTool->ADC2MEV(hwSC,(CaloGain::CaloGain)2))[1] );
           }
           if ( m_PedestalSC ) {
-                ATH_MSG_DEBUG("Pedestal : " << m_PedestalSC->pedestal(hwSC,0) );
+                ATH_MSG_VERBOSE("Pedestal : " << m_PedestalSC->pedestal(hwSC,0) );
           }
           if ( m_NoiseSC ) {
-                ATH_MSG_DEBUG("Noise : " << m_NoiseSC->noise(hwSC,0) );
+                ATH_MSG_VERBOSE("Noise : " << m_NoiseSC->noise(hwSC,0) );
           }
           if ( m_autoCorrNoiseTool ) {
 		const std::vector<float>* CorrGen = &(m_autoCorrNoiseTool->autoCorrSqrt(hwSC,0,m_nSamples));
                 std::stringstream ss; ss << "Auto : ";
 		for(size_t ii=0;ii<m_nSamples;++ii) ss << CorrGen->at(ii) << " ";
-                ATH_MSG_DEBUG(ss) ;
+                ATH_MSG_VERBOSE(ss) ;
 
 	  }
 }
