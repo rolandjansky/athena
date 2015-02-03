@@ -32,15 +32,18 @@ macro_append Readcards_cppflags    "-D_DIR_=$(shell pwd)/../Analysis/run "
 # Extend the files in the TIDA library in order to satisfy the unresolved references
 apply_pattern cmake_add_generated_files library=TIDA files=Analysis/src/rmain.cxx
 
-library TIDA      " ../Analysis/src/ConfAnalysis.cxx ../Analysis/src/PurityAnalysis.cxx"
+library TIDA          " ../Analysis/src/ConfAnalysis.cxx ../Analysis/src/PurityAnalysis.cxx"
+library TIDAcomputils " ../Analysis/src/computils.cxx"
 
-macro_append TIDA_cppflags      " -I../Readcards/src -I../Resplot/src "
+
+macro_append TIDA_cppflags           " -I../Readcards/src -I../Resplot/src "
+macro_append TIDAcomputils_cppflags  " -I../Readcards/src -I../Resplot/src "
 
 
-application  TIDAreader "../Analysis/src/reader.cxx
+application  TIDAreader          "../Analysis/src/reader.cxx
 macro_append TIDAreader_cppflags " -I../Readcards/src"
 
-application  TIDAskim   "../Analysis/src/skim.cxx"
+application  TIDAskim          "../Analysis/src/skim.cxx"
 macro_append TIDAskim_cppflags " -I../Readcards/src"
 
 application  TIDAfastadd   "../Analysis/src/fastadd.cxx"
@@ -49,23 +52,23 @@ application  TIDAchains   "../Analysis/src/chains.cxx"
 
 application  TIDArefit  "../Analysis/src/refit.cxx"
 macro_append TIDArefit_cppflags      " -I../Resplot/src "
-macro_append TIDArefitlinkopts       " -lResplot  -lTIDA "
+macro_append TIDArefitlinkopts       " -lResplot  -lTIDA"
 macro_append TIDArefit_dependencies  " Resplot TIDA "
 
-application  TIDArdict  "../Analysis/src/rmain.cxx"
+application  TIDArdict               "../Analysis/src/rmain.cxx"
 macro_append TIDArdict_cppflags      " -I../Resplot/src -I../Readcards/src"
 macro_append TIDArdictlinkopts       " -lResplot -lReadcards -lTIDA "
 macro_append TIDArdict_dependencies  " Resplot Readcards TIDA "
 
-application  TIDAcomparitor "../Analysis/src/comparitor.cxx ../Analysis/src/computils.cxx"
+application  TIDAcomparitor               "../Analysis/src/comparitor.cxx"
 macro_append TIDAcomparitor_cppflags      " -I../Resplot/src -I../Readcards/src"
-macro_append TIDAcomparitorlinkopts       " -lResplot -lReadcards -lTIDA "
-macro_append TIDAcomparitor_dependencies  " Resplot Readcards TIDA "
+macro_append TIDAcomparitorlinkopts       " -lResplot -lReadcards -lTIDA  -lTIDAcomputils "
+macro_append TIDAcomparitor_dependencies  " Resplot Readcards TIDA TIDAcomputils"
 
-application  TIDAcpucost "../Analysis/src/cpucost.cxx ../Analysis/src/computils.cxx"
+application  TIDAcpucost               "../Analysis/src/cpucost.cxx "
 macro_append TIDAcpucost_cppflags      " -I../Readcards/src"
-macro_append TIDAcpucostlinkopts       " -lReadcards -lTIDA "
-macro_append TIDAcpucost_dependencies  " Readcards TIDA "
+macro_append TIDAcpucostlinkopts       " -lReadcards -lTIDA   -lTIDAcomputils "
+macro_append TIDAcpucost_dependencies  " Readcards TIDA TIDAcomputils"
 
 
 apply_pattern declare_runtime extras="../share/TIDA*.dat ../share/Test_bin.dat"

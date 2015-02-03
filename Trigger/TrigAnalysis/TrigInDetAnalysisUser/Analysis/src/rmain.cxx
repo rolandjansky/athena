@@ -330,13 +330,13 @@ int main(int argc, char** argv)
 
   double Rmatch = 0.1;
 
-  double pTmatchLim_2 = 1.0;
 
   //bool printflag = false;  // JK removed (unused)
 
   bool truthMatch = false;
+  
+  if ( inputdata.isTagDefined("TruthMatch") )   truthMatch = ( inputdata.GetValue("TruthMatch") ? true : false );
 
-  bool pTMatch_2 = false;
 
   if ( inputdata.isTagDefined("pT") )   pT   = inputdata.GetValue("pT");
 
@@ -348,7 +348,7 @@ int main(int argc, char** argv)
   if ( inputdata.isTagDefined("zed") )  zed  = inputdata.GetValue("zed");
   if ( inputdata.isTagDefined("npix") ) npix = inputdata.GetValue("npix");
   if ( inputdata.isTagDefined("nsct") ) nsct = inputdata.GetValue("nsct");
-  if ( inputdata.isTagDefined("nbl") ) nbl = inputdata.GetValue("nbl");
+  if ( inputdata.isTagDefined("nbl") )  nbl  = inputdata.GetValue("nbl");
 
   /// only if not set from the command line
   if ( pdgId==0 && inputdata.isTagDefined("pdgId") ) pdgId = inputdata.GetValue("pdgId");
@@ -362,9 +362,6 @@ int main(int argc, char** argv)
 
   if ( inputdata.isTagDefined("a0") )           a0     = inputdata.GetValue("a0");
   if ( inputdata.isTagDefined("Rmatch") )       Rmatch = inputdata.GetValue("Rmatch");
-  if ( inputdata.isTagDefined("pTmatchLim_2") ) pTmatchLim_2 = inputdata.GetValue("pTmatchLim_2");
-  if ( inputdata.isTagDefined("pTMatch_2") )    pTMatch_2 = inputdata.GetValue("pTMatch_2");
-  if ( inputdata.isTagDefined("truthMatch") )    truthMatch = ( inputdata.GetValue("truthMatch") ? 1 : 0);
 
   std::string useMatcher = "DeltaR";
   if ( inputdata.isTagDefined("UseMatcher") ) useMatcher = inputdata.GetString("UseMatcher");  
@@ -599,14 +596,14 @@ int main(int argc, char** argv)
   else if ( refChain=="ElectronsMedium" )   refFilter = &filter_off;
   else if ( refChain=="Muons" )             refFilter = &filter_muon;
   else if ( refChain=="Taus" )              refFilter = &filter_off;
-  else if ( refChain=="Taus3" )              refFilter = &filter_off;
+  else if ( refChain=="Taus3" )             refFilter = &filter_off;
   else if ( refChain=="Truth" && pdgId!=0 ) refFilter = &filter_truth;
-  else if ( refChain=="Truth" && pdgId==0 )  refFilter = &filter_off;
+  else if ( refChain=="Truth" && pdgId==0 ) refFilter = &filter_off;
   else { 
     std::cerr << "unknown reference chain defined" << std::endl;
     return (-1);
   }
-
+  
   TrackFilter* testFilter = &filter_passthrough;
 
 
@@ -679,6 +676,8 @@ int main(int argc, char** argv)
   NtupleTrackSelector  offTracks( testFilter );
   NtupleTrackSelector testTracks( testFilter);
 
+  NtupleTrackSelector truthTracks( &filter_truth );
+
   //  	NtupleTrackSelector  refTracks( &filter_passthrough );
   //  	NtupleTrackSelector  testTracks( refFilter );
 
@@ -689,9 +688,11 @@ int main(int argc, char** argv)
   
   //NtupleTrackSelector testTracks(&filter_roi);
 
+  /// Determine what sort of matching is required ...
+
   TrackAssociator* _matcher = 0;
 
-  if      ( useMatcher == "Sigma" )  _matcher = new Associator_BestSigmaMatcher("sigma", Rmatch); 
+  if      ( useMatcher == "Sigma" )    _matcher = new Associator_BestSigmaMatcher("sigma", Rmatch); 
   else if ( useMatcher == "DeltaRZ" || useMatcher == "DeltaRZSinTheta" )  { 
     double deta = 0.05;
     double dphi = 0.05;
@@ -703,22 +704,28 @@ int main(int argc, char** argv)
     if ( useMatcher == "DeltaRZ" ) _matcher = new Associator_BestDeltaRZMatcher(         "deltaRZ", deta, dphi, dzed ); 
     else                           _matcher = new Associator_BestDeltaRZSinThetaMatcher( "deltaRZ", deta, dphi, dzed ); 
   }
+  else if ( useMatcher == "pT_2" ) { 
+    double pTmatchLim_2 = 1.0;
+    if ( inputdata.isTagDefined("Matcher_pTLim_2") ) pTmatchLim_2 = inputdata.GetValue("Matcher_pTLim_2");
+    _matcher = new Associator_SecondBestpTMatcher("SecpT", pTmatchLim_2);
+  }
+  else if ( useMatcher == "Truth" ) {  
+    _matcher = new Associator_TruthMatcher();
+  }
   else { 
-  /// track matcher for best fit deltaR matcher
+    /// default to deltaR matcher
+    /// track matcher for best fit deltaR matcher
     _matcher = new Associator_BestDeltaRMatcher("deltaR", Rmatch); 
   }
-
-  TrackAssociator& dRmatcher = *_matcher;
-
-  //  Associator_BestDeltaPhiMatcher matcher("deltaPhi", 0.1);
-  Associator_TruthMatcher truthMatcher;
-  //Associator_BestDeltaRMatcher_OLD matcher("deltaR", Rmatch); 
   
-  // track matcher for experimental pT matcher
-  Associator_SecondBestpTMatcher SecpTmatcher("SecpT", pTmatchLim_2);
+  /// extra matcher for additionally matching reference to truth 
+  TrackAssociator* truth_matcher = 0;
+  if ( truthMatch ) { 
+    truth_matcher = new Associator_BestDeltaRMatcher("deltaR_truth", Rmatch); 
+  }
+  
 
   //NtupleTrackSelector  roiTracks( refFilter );
-
 
 
   /// track selectors for purities
@@ -938,6 +945,19 @@ int main(int argc, char** argv)
 
     const std::vector<TrackChain>& chains = track_ev->chains();
 
+
+
+    //// get the truth tracks if required
+    if ( truthMatch ) { 
+      for (unsigned int ic=0 ; ic<chains.size() ; ic++ ) {
+	if ( chains[ic].name()=="Truth" ) {
+	  truthTracks.selectTracks( chains[ic].rois()[0].tracks() );
+	  break;
+	}
+      }
+    }
+
+    //// get the reference tracks
     for (unsigned int ic=0 ; ic<chains.size() ; ic++ ) {
       if ( chains[ic].name()==refChain ) {
         offTracks.selectTracks( chains[ic].rois()[0].tracks() );
@@ -945,6 +965,7 @@ int main(int argc, char** argv)
       }
     }
 
+  
     std::vector<TrackVertex> vertices;
     
     NvtxCount = 0;
@@ -1065,7 +1086,7 @@ int main(int argc, char** argv)
 
 
       for (unsigned int ir=0 ; ir<chain.size() ; ir++ ) { 
-
+	
 	//	std::cout << "\troi " << ir << std::endl;
 
 	TrackRoi& troi = chain.rois()[ir]; 
@@ -1082,26 +1103,26 @@ int main(int argc, char** argv)
             analy_track->setBeamTest( beamline[0], beamline[1] );
 	  }
 	}
-
+	
 	testTracks.clear();
-
+	
 	testTracks.selectTracks( troi.tracks() );
-
+	
 	/// trigger tracks already restricted by roi 
 	std::vector<TrigInDetAnalysis::Track*> testp = testTracks.tracks();
-
+	
 	/// here we set the roi for the filter so we can request only those tracks 
 	/// inside the roi 
-
+	
 	if ( select_roi ) dynamic_cast<Filter_Combined*>(refFilter)->setRoi(&roi);
-
+	
 	//	if ( debugPrintout ) { 
 	//	  std::cout << "refTracks.size() " << refTracks.size() << " before roi filtering" << std::endl; 
 	//	  std::cout << "filter with roi " << roi << std::endl; 
 	//	}	    
-
-  const std::vector<TrigInDetAnalysis::Track*>&  refp  = refTracks.tracks( refFilter );
-
+	
+	const std::vector<TrigInDetAnalysis::Track*>&  refp  = refTracks.tracks( refFilter );
+	
 	//	if ( debugPrintout ) { 
 	//	  std::cout << "refp.size() " << refp.size() << " after roi filtering" << std::endl; 
 	//	}	    
@@ -1112,44 +1133,58 @@ int main(int argc, char** argv)
 
 	groi = &roi;
 
-	if (truthMatch) {
-	  truthMatcher.match( refp, testp );
-	  analitr->second->execute( refp, testp, &truthMatcher );
-	}
-	else if (pTMatch_2) {
-	  SecpTmatcher.match(refp, testp);
-	  analitr->second->execute( refp, testp, &SecpTmatcher);
+	if ( truthMatch ) { 
+	  
+	  /// get the truth particles ...
+	  const std::vector<TrigInDetAnalysis::Track*>&  truth = truthTracks.tracks();
+
+	  /// dr match against current reference selection 
+	  truth_matcher->match( refp, truth );
+
+	  /// holder for reference with matches  
+	  std::vector<TrigInDetAnalysis::Track*>  _refp;
+	  
+	  /// which truth tracks have a matching reference track ?
+	  for ( unsigned i=0 ; i<refp.size() ; i++ ) { 
+	    if ( truth_matcher->matched( refp[i] ) ) _refp.push_back( refp[i] ); 
+	  }
+
+	  _matcher->match( _refp, testp);
+	  analitr->second->execute( _refp, testp, _matcher );
+
 	}
 	else {
-	  dRmatcher.match(refp, testp);
-	  analitr->second->execute( refp, testp, &dRmatcher );
+
+	  _matcher->match( refp, testp);
+	  analitr->second->execute( refp, testp, _matcher );
+	
 	}
 
-
-  if ( debugPrintout ) { 
-    //	std::cout << "-----------------------------------\n\nselected tracks:" << chain.name() << std::endl;
-    std::cout << "\nselected tracks:" << chain.name() << std::endl;
-    std::cout << "ref tracks refp.size() "    << refp.size() << "\n" << refp  << std::endl;
-    std::cout << "test tracks testp.size() " << testp.size() << "\n" << testp << std::endl;
-
-    TrackAssociator::track_map::const_iterator titr = dRmatcher.TrackAssociator::matched().begin();
-    TrackAssociator::track_map::const_iterator tend = dRmatcher.TrackAssociator::matched().end();
-    int im=0;
-    std::cout << "track matches:\n";
-    while (titr!=tend) { 
-      std::cout << "\t" << im++ << "\t" << *titr->first << " ->\n\t\t" << *titr->second << std::endl;
-      ++titr;
-    }
-
-
-    std::cout << "completed : " << chain.name() << "\n";
-    std::cout << "-----------------------------------" << std::endl;
-
-  }
-
+	
+	if ( debugPrintout ) { 
+	  //	std::cout << "-----------------------------------\n\nselected tracks:" << chain.name() << std::endl;
+	  std::cout << "\nselected tracks:" << chain.name() << std::endl;
+	  std::cout << "ref tracks refp.size() "    << refp.size() << "\n" << refp  << std::endl;
+	  std::cout << "test tracks testp.size() " << testp.size() << "\n" << testp << std::endl;
+	  
+	  TrackAssociator::track_map::const_iterator titr = _matcher->TrackAssociator::matched().begin();
+	  TrackAssociator::track_map::const_iterator tend = _matcher->TrackAssociator::matched().end();
+	  int im=0;
+	  std::cout << "track matches:\n";
+	  while (titr!=tend) { 
+	    std::cout << "\t" << im++ << "\t" << *titr->first << " ->\n\t\t" << *titr->second << std::endl;
+	    ++titr;
+	  }
+	  
+	  
+	  std::cout << "completed : " << chain.name() << "\n";
+	  std::cout << "-----------------------------------" << std::endl;
+	  
+	}
+	
 #if 0
-	if ( dRmatcher.size()<refp.size() ) { 
-
+	if ( _matcher->size()<refp.size() ) { 
+	  
 	  if ( refp.size()==1 && testp.size()==0 ) { 
 	    std::cout << track_ev->chains()[ic] <<std::endl;
 	    std::cout << "roi\n" << track_ev->chains()[ic].rois()[ir] << endl; 
@@ -1161,7 +1196,7 @@ int main(int argc, char** argv)
         /// run the analysis for this chain
 
 	if ( doPurity ) { 
-
+	  
 	  const std::vector<TrigInDetAnalysis::Track*>&  refpp = refPurityTracks.tracks( refFilter );
 
 	  testPurityTracks.clear();
@@ -1169,31 +1204,16 @@ int main(int argc, char** argv)
 	  testPurityTracks.selectTracks( troi.tracks() );
 	  std::vector<TrigInDetAnalysis::Track*> testpp = testPurityTracks.tracks();
 
-	  /// match the tracks	
-	  if (truthMatch) {
-	    truthMatcher.match( refp, testp );
-	  }
-	  else if (pTMatch_2){
-	    SecpTmatcher.match( refp, testp);
-	  }
-	  else {
-	    dRmatcher.match(refp, testp);
-	  }
+	  _matcher->match(refpp, testpp); /// ???
+	    
 
 	  std::map<std::string,TrackAnalysis*>::iterator analitrp = analysis.find(chain.name()+"-purity");
-
+	  
 	  if ( analitrp == analysis.end() ) continue;
 
-	  /// run the analysis for this chain
-	  if (truthMatch) {
-	    analitrp->second->execute( refpp, testpp, &truthMatcher );
-	  }
-	  else if (pTMatch_2) {
-	    analitrp->second->execute( refpp, testpp, &SecpTmatcher );
-	  }
-	  else {
-	    analitrp->second->execute( refpp, testpp, &dRmatcher );
-	  }
+
+	  analitrp->second->execute( refpp, testpp, _matcher );
+	  
 					
 
 
@@ -1206,9 +1226,9 @@ int main(int argc, char** argv)
     }
   }
 
-
+ 
   std::cout << "done " << time_str() << "\tprocessed " << event_counter << " events\ttimes " << mintime << " " << maxtime << std::endl;
-
+  
   //  hcorr->Finalise(Resplot::FitPoisson);
 
   hcorr->Finalise(); 
