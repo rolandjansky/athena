@@ -13,10 +13,11 @@ from D3PDMakerCoreComps.D3PDObject   import make_SGDataVector_D3PDObject
 
 # Create the configurable:
 TrackRecordD3PDObject = \
-           make_SGDataVector_D3PDObject ('AthenaHitsVector<TrackRecord>',
+           make_SGDataVector_D3PDObject ('TrackRecordCollection',
                                          'MuonEntryLayerFilter',
                                          'ms_entry_truth_',
-                                         'TrackRecordD3PDObject')
+                                         'TrackRecordD3PDObject',
+                                         default_getterClass = MuonD3PDMaker.TrackRecordCollectionGetterTool)
 
 # Add blocks to it:
 TrackRecordD3PDObject.defineBlock( 0, "BasicInfo",
