@@ -88,27 +88,17 @@ namespace InDet {
     std::vector< std::shared_ptr<SummaryAccessor> > m_summaryAccessorsDen;
   }; // class MaxSummaryValueCut
 
-  // // ---------------- MaxTrtHitCut ----------------
-  // class MaxTrtHitCut : public virtual MaxSummaryValueCut {
-  // public: 
-  //   MaxTrtHitCut(InDetTrackSelectionTool*);
-  //   void setMaxEtaAcceptance(Double_t eta) {m_maxTrtEtaAcceptance = eta;}
-  //   virtual StatusCode initialize();
-  //   virtual bool result() const;
-  // private:
-  //   Double_t m_maxTrtEtaAcceptance;
-  //   std::shared_ptr<EtaAccessor> m_etaAccessor;
-  // }; // class MaxTrtHitCut
-
   // ---------------- MinTrtHitCut ----------------
   class MinTrtHitCut : public virtual MinSummaryValueCut {
   public: 
     MinTrtHitCut(InDetTrackSelectionTool*);
     void setMaxEtaAcceptance(Double_t eta) {m_maxTrtEtaAcceptance = eta;}
+    void setMaxEtaForCut(Double_t eta) {m_maxEtaForCut = eta;}
     virtual StatusCode initialize();
     virtual bool result() const;
   private:
     Double_t m_maxTrtEtaAcceptance;
+    Double_t m_maxEtaForCut;
     std::shared_ptr<EtaAccessor> m_etaAccessor;
   }; // class MinTrtHitCut
 
@@ -117,12 +107,40 @@ namespace InDet {
   public: 
     MaxTrtHitRatioCut(InDetTrackSelectionTool*);
     void setMaxEtaAcceptance(Double_t eta) {m_maxTrtEtaAcceptance = eta;}
+    void setMaxEtaForCut(Double_t eta) {m_maxEtaForCut = eta;}
     virtual StatusCode initialize();
     virtual bool result() const;
   private:
     Double_t m_maxTrtEtaAcceptance;
+    Double_t m_maxEtaForCut;
     std::shared_ptr<EtaAccessor> m_etaAccessor;
   }; // class MaxTrtHitRatioCut
+
+  // ---------------- MinUsedHitsdEdxCut ----------------
+  class MinUsedHitsdEdxCut : public virtual TrackCut {
+  public:
+    MinUsedHitsdEdxCut(InDetTrackSelectionTool*);
+    void setMinValue(Int_t min) {m_minValue = min;}
+    virtual StatusCode initialize();
+    virtual bool result() const;
+  private:
+    Int_t m_minValue;
+    // will check the sum of all its accessors and compare to the max allowed value
+    std::shared_ptr<UsedHitsdEdxAccessor> m_accessor;
+  }; // class MinUsedHitsdEdxCut
+
+  // ---------------- MinOverflowHitsdEdxCut ----------------
+  class MinOverflowHitsdEdxCut : public virtual TrackCut {
+  public:
+    MinOverflowHitsdEdxCut(InDetTrackSelectionTool*);
+    void setMinValue(Int_t min) {m_minValue = min;}
+    virtual StatusCode initialize();
+    virtual bool result() const;
+  private:
+    Int_t m_minValue;
+    // will check the sum of all its accessors and compare to the max allowed value
+    std::shared_ptr<OverflowHitsdEdxAccessor> m_accessor;
+  }; // class MinOverflowHitsdEdxCut
 
   // ---------------- D0Cut ----------------
   class D0Cut : public virtual TrackCut {
@@ -178,7 +196,7 @@ namespace InDet {
   class Z0SigmaCut : public virtual TrackCut {
   public:
     Z0SigmaCut(InDetTrackSelectionTool*);
-    void setMaxValue(Double_t max) {m_maxValue = max*max;} // cut is on variance
+    void setMaxValue(Double_t max) {m_maxValue = max*max;} // cut is on variance so we will save the squared value
     virtual StatusCode initialize();
     virtual bool result() const;
   private:
@@ -371,6 +389,21 @@ namespace InDet {
     std::shared_ptr<FitQualityAccessor> m_accessor;
   };
 
+#ifndef XAOD_ANALYSIS
+  // ---------------- MinSiHitsModTopBottomCut ----------------
+  class MinSiHitsModTopBottomCut : public virtual TrackCut {
+  public:
+    MinSiHitsModTopBottomCut(InDetTrackSelectionTool*);
+    void setMinTop(uint8_t min) {m_minTop = min;}
+    void setMinBottom(uint8_t min) {m_minBottom = min;}
+    virtual StatusCode initialize();
+    virtual bool result() const;
+  private:
+    uint8_t m_minTop;
+    uint8_t m_minBottom;
+    std::shared_ptr<SiHitsTopBottomAccessor> m_accessor;
+  };
+#endif
 
   // // ---------------- PtDependentSctHitsCut ----------------
   // class PtDependentSctHitsCut : public virtual TrackCut;

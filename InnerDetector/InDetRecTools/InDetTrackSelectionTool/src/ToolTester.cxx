@@ -135,13 +135,12 @@ StatusCode InDet::ToolTester::execute() {
 #endif // XAOD_ANALYSIS
 
     // Print some info about the selected track:
-    ATH_MSG_INFO( "  Selected track: eta = " << track->eta()
-		  << ", phi = " << track->phi()
-		  << ", pt = " << track->pt() );
+    ATH_MSG_VERBOSE( "  Selected track: eta = " << track->eta()
+		     << ", phi = " << track->phi()
+		     << ", pt = " << track->pt() );
 
   }
 
-  ATH_MSG_INFO( "  Tracks that pass: " << numberOfGoodTracks << "/" << numberOfTracks );
 
   // Return gracefully:
   return StatusCode::SUCCESS;

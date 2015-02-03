@@ -9,6 +9,8 @@ use xAODEventInfo	   xAODEventInfo-*	    Event/xAOD
 use_ifndef pplist="XAOD_ANALYSIS" pkg="Tracking/TrkEvent/TrkTrack"
 use_ifndef pplist="XAOD_ANALYSIS" pkg="Tracking/TrkEvent/VxVertex"
 use_ifndef pplist="XAOD_ANALYSIS" pkg="Tracking/TrkEvent/TrkEventPrimitives"
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Tracking/TrkEvent/TrkRIO_OnTrack"
+use_ifndef pplist="XAOD_ANALYSIS" pkg="InnerDetector/InDetRecEvent/InDetRIO_OnTrack"
 
 public
 
@@ -21,6 +23,7 @@ use_ifndef pplist="XAOD_ANALYSIS" pkg="Tracking/TrkExtrapolation/TrkExInterfaces
 use_ifndef pplist="XAOD_ANALYSIS" pkg="Tracking/TrkTools/TrkToolInterfaces"
 use_ifndef pplist="XAOD_ANALYSIS" pkg="Tracking/TrkEvent/TrkParameters"
 use_ifndef pplist="XAOD_ANALYSIS" pkg="Tracking/TrkEvent/TrkTrackSummary"
+#use_ifndef pplist="XAOD_ANALYSIS" pkg="MagneticField/MagFieldInterfaces"
 
 
 # Declare the library:

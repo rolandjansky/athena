@@ -206,41 +206,12 @@ bool InDet::MaxSummaryValueRatioCut::result() const
   return numerator <= m_maxValue*denominator;
 }
 
-// // ---------------- MaxTrtHitCut ----------------
-// InDet::MaxTrtHitCut::MaxTrtHitCut(InDet::InDetTrackSelectionTool* tool)
-//   : InDet::MaxSummaryValueCut()
-//   , m_maxTrtEtaAcceptance(0)
-//   , m_etaAccessor(nullptr)
-// {
-// }
-
-// StatusCode InDet::MaxTrtHitCut::initialize()
-// {
-//   if (!MaxSummaryValueCut::initialize().isSuccess())
-//     return StatusCode::FAILURE;
-
-//   if (getAccessor("eta", m_etaAccessor).isFailure())
-//     return StatusCode::FAILURE;
-//   return StatusCode::SUCCESS;
-// }
-
-// bool InDet::MaxTrtHitCut::result() const
-// {
-//   if (!m_etaAccessor || !m_etaAccessor->isValid()) {
-//      ATH_MSG_WARNING( "Track eta accessor not valid. Track will not pass this cut." );
-//     return false;
-//   }
-//   if (std::fabs(m_etaAccessor->getValue()) <= m_maxTrtEtaAcceptance)
-//     return true;
-//   else
-//     return MaxSummaryValueCut::result();
-// }
-
 // ---------------- MinTrtHitCut ----------------
 InDet::MinTrtHitCut::MinTrtHitCut(InDet::InDetTrackSelectionTool* tool)
   : InDet::TrackCut(tool)
   , InDet::MinSummaryValueCut(tool)
   , m_maxTrtEtaAcceptance(0)
+  , m_maxEtaForCut(0)
   , m_etaAccessor(nullptr)
 {
 }
@@ -272,6 +243,7 @@ InDet::MaxTrtHitRatioCut::MaxTrtHitRatioCut(InDet::InDetTrackSelectionTool* tool
   : InDet::TrackCut(tool)
   , InDet::MaxSummaryValueRatioCut(tool)
   , m_maxTrtEtaAcceptance(0)
+  , m_maxEtaForCut(0)
   , m_etaAccessor(nullptr)
 {
 }
@@ -296,6 +268,60 @@ bool InDet::MaxTrtHitRatioCut::result() const
     return true;
   else
     return MaxSummaryValueRatioCut::result();
+}
+
+// ---------------- MinUsedHitsdEdxCut ----------------
+InDet::MinUsedHitsdEdxCut::MinUsedHitsdEdxCut(InDet::InDetTrackSelectionTool* tool)
+  : InDet::TrackCut(tool)
+  , m_minValue(0)
+{
+}
+
+StatusCode InDet::MinUsedHitsdEdxCut::initialize()
+{
+  // first run the base class version to get access to the tool's accessors
+  if (!TrackCut::initialize().isSuccess())
+    return StatusCode::FAILURE;
+  if (getAccessor("usedHitsdEdx", m_accessor).isFailure())
+    return StatusCode::FAILURE;
+
+  return StatusCode::SUCCESS;
+}
+
+bool InDet::MinUsedHitsdEdxCut::result() const
+{
+  if (!m_accessor || !m_accessor->isValid()) {
+    ATH_MSG_WARNING( "numberOfUsedHitsdEdx Accessor not valid. Track will not pass this cut." );
+    return false;
+  }
+  return m_accessor->getValue() >= m_minValue;
+}
+
+// ---------------- MinOverflowHitsdEdxCut ----------------
+InDet::MinOverflowHitsdEdxCut::MinOverflowHitsdEdxCut(InDet::InDetTrackSelectionTool* tool)
+  : InDet::TrackCut(tool)
+  , m_minValue(0)
+{
+}
+
+StatusCode InDet::MinOverflowHitsdEdxCut::initialize()
+{
+  // first run the base class version to get access to the tool's accessors
+  if (!TrackCut::initialize().isSuccess())
+    return StatusCode::FAILURE;
+  if (getAccessor("overflowHitsdEdx", m_accessor).isFailure())
+    return StatusCode::FAILURE;
+
+  return StatusCode::SUCCESS;
+}
+
+bool InDet::MinOverflowHitsdEdxCut::result() const
+{
+  if (!m_accessor || !m_accessor->isValid()) {
+    ATH_MSG_WARNING( "numberOfOverflowHitsdEdx Accessor not valid. Track will not pass this cut." );
+    return false;
+  }
+  return m_accessor->getValue() >= m_minValue;
 }
 
 // ---------------- D0Cut ----------------
@@ -748,6 +774,7 @@ bool InDet::EtaDependentChiSqCut::result() const
   //   chi squared per degree of freedom cut. The current implementation is a working
   //   definition: see https://twiki.cern.ch/twiki/bin/view/AtlasProtected/InDetTrackingPerformanceGuidelines
   // TODO: possibly let this cut own something like a TFormula that defines the cut, instead of hard-coding it in. Unfortunately this doesn't have a very clean TFormula expression. Possibly a lambda function/std::function, though that probably wouldn't be trivial in athena.
+  // UPDATE: this cut has been removed from the tracking CP recommendations.
   if (std::fabs(eta) < 1.9)
     return m_fitAccessor->getChiSq() <= m_fitAccessor->getNumberDoF() * ( 4.4 + 0.32*eta*eta );
   else
@@ -968,3 +995,35 @@ bool InDet::MinProb::result() const
   }
   return TMath::Prob(m_accessor->getChiSq(), m_accessor->getNumberDoF()) >= m_minValue;
 }
+
+#ifndef XAOD_ANALYSIS
+// ---------------- MinSiHitsModTopBottomCut ----------------
+InDet::MinSiHitsModTopBottomCut::MinSiHitsModTopBottomCut(InDet::InDetTrackSelectionTool* tool)
+  : InDet::TrackCut(tool)
+  , m_minTop(0)
+  , m_minBottom(0)
+{
+}
+
+StatusCode InDet::MinSiHitsModTopBottomCut::initialize()
+{
+  if (!TrackCut::initialize().isSuccess())
+    return StatusCode::FAILURE;
+
+  return getAccessor("siHitsMod", m_accessor);
+}
+
+bool InDet::MinSiHitsModTopBottomCut::result() const
+{
+  // note that this cut uses an alternate definition of Si hits,
+  // where pixel hits count twice (this is accounted for in the accessor).
+
+  if (!m_accessor || !m_accessor->isValid()) {
+    ATH_MSG_WARNING( "Top/bottom Si hits accessor not valid. Track will not pass this cut." );
+    return false;
+  }
+  return m_accessor->getHitsTop() >= m_minTop
+    && m_accessor->getHitsBottom() >= m_minBottom;
+}
+
+#endif
