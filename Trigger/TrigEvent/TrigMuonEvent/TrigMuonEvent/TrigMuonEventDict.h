@@ -6,9 +6,7 @@
 #ifndef TRIGMUONEVENT_TRIGMUONEVENTDICT_H
 #define TRIGMUONEVENT_TRIGMUONEVENTDICT_H
 
-#include "TrigMuonEvent/MuonFeature.h"
 #include "TrigMuonEvent/MuonFeatureContainer.h"
-#include "TrigMuonEvent/MuonFeatureDetails.h"
 #include "TrigMuonEvent/MuonFeatureDetailsContainer.h"
 #include "TrigMuonEvent/CombinedMuonFeature.h"
 #include "TrigMuonEvent/CombinedMuonFeatureContainer.h"
