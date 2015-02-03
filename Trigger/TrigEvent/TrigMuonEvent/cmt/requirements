@@ -37,6 +37,9 @@ use TrigSerializeUtils  TrigSerializeUtils-*    Trigger/TrigDataAccess
 
 use  AthenaKernel       AthenaKernel-*          Control         
 
+apply_pattern lcgdict dict=TrigMuonEvent_c selectionfile=selection_c.xml \
+	headerfiles="../TrigMuonEvent/TrigMuonEvent_cDict.h"
+
 apply_pattern lcgdict dict=TrigMuonEvent selectionfile=selection.xml \
 	headerfiles="../TrigMuonEvent/TrigMuonEventDict.h" \
     dataLinks="MuonFeature CombinedMuonFeature IsoMuonFeature TrigMuonClusterFeature TrigMuonEFContainer TileMuFeature TileTrackMuFeature TrigMuonEFIsolationContainer"  \
@@ -58,9 +61,9 @@ files="-s=${TrigMuonEvent_root}/TrigMuonEvent MuonFeature.h MuonFeatureContainer
 
 apply_pattern sercnv \
 libtag="xAOD" \
-typesWithNamespace="xAOD::MuonContainer xAOD::MuonAuxContainer xAOD::L2StandAloneMuonContainer xAOD::L2StandAloneMuonAuxContainer xAOD::L2CombinedMuonContainer xAOD::L2CombinedMuonAuxContainer" \
+typesWithNamespace="xAOD::MuonContainer xAOD::MuonAuxContainer xAOD::L2StandAloneMuonContainer xAOD::L2StandAloneMuonAuxContainer xAOD::L2CombinedMuonContainer xAOD::L2CombinedMuonAuxContainer xAOD::L2IsoMuonContainer xAOD::L2IsoMuonAuxContainer" \
 files="-s=${xAODMuon_root}/xAODMuon MuonContainer.h MuonAuxContainer.h \
-       -s=${xAODTrigMuon_root}/xAODTrigMuon L2StandAloneMuonContainer.h L2StandAloneMuonAuxContainer.h L2CombinedMuonContainer.h L2CombinedMuonAuxContainer.h"
+       -s=${xAODTrigMuon_root}/xAODTrigMuon L2StandAloneMuonContainer.h L2StandAloneMuonAuxContainer.h L2CombinedMuonContainer.h L2CombinedMuonAuxContainer.h L2IsoMuonContainer.h L2IsoMuonAuxContainer.h"
 
 use TestTools      TestTools-*         AtlasTest
 apply_pattern UnitTest_run unit_test=Operators extrapatterns=".*"

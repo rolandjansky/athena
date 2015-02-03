@@ -2,14 +2,12 @@
 
   <!-- muFast output -->
   <class name="MuonFeatureContainer" id="45225F26-A517-4E8B-BA93-DDFD1217B9A8" />
-  <class name="MuonFeature" id="295FBAFB-ED82-43EA-8B63-6E3D3F4D2A9F" />
   <class name="std::vector<MuonFeature*>" />
   <class name="std::vector<const MuonFeature*>" />
   <class name="DataVector<MuonFeature>" id="4F1C3C3D-A63A-4665-9F2C-00335D117721" />
 
   <!-- muFast debugging output -->
   <class name="MuonFeatureDetailsContainer" id="185B6FDB-B41A-4190-84F0-655FBE5590CB" />
-  <class name="MuonFeatureDetails" id="A230E508-FFDA-413D-AF84-572457C0067B" />
   <class name="std::vector<MuonFeatureDetails*>" />
   <class name="DataVector<MuonFeatureDetails>" id="ECB05793-1D8A-4D7C-977D-74CC6B58F039" />
 
