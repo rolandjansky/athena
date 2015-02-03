@@ -470,7 +470,7 @@ LArNumberHelper::prepare_arrays()
     m_dphi_fcal [i] = (double)  m_fcal_id->phiGranularity(i);
 
     int pos_neg = abs( m_fcal_id->pos_neg (id) );
-    m_sign_fcal[i] = m_fcal_id->pos_neg (id) /  pos_neg;
+    m_sign_fcal[i] = pos_neg ? m_fcal_id->pos_neg (id) /  pos_neg : 0;
   }
 
   // these will come from  geometry numbers
