@@ -798,13 +798,13 @@ const xAOD::TruthParticle* MCTruthClassifier::getGenPart(const xAOD::TrackPartic
  
   auto truthLink = tPL(*trk);
   if (!truthLink.isValid()){
-    ATH_MSG_INFO("Invalid link to truth particle");
+    ATH_MSG_DEBUG("Invalid link to truth particle");
     return 0;
   }
  
   const xAOD::TruthParticle* theGenParticle=(*truthLink);
   if (!theGenParticle){
-    ATH_MSG_INFO("Could not find truth matching for track"); 
+    ATH_MSG_DEBUG("Could not find truth matching for track"); 
     return 0;
   }
  
