@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ObjectMetadata.cxx 638778 2015-01-12 04:48:19Z ssnyder $
+// $Id: ObjectMetadata.cxx 638777 2015-01-12 04:48:15Z ssnyder $
 
 // Boost include(s):
 #include <boost/tokenizer.hpp>
