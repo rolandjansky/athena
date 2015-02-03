@@ -23,7 +23,7 @@ const unsigned int TileCalibUtils::DEFINITIONS_DRAWERIDX = 1; /**< @brief Drawer
 const unsigned int TileCalibUtils::BAD_DEFINITION_CHAN = 0;  /**< @brief Channel used for storing of bad channel definitions */
 const unsigned int TileCalibUtils::NOISY_DEFINITION_CHAN = 1; /**< @brief Channel used for storing of noisy channel definitions */
 const unsigned int TileCalibUtils::NOGAINL1_DEFINITION_CHAN = 2; /**< @brief Channel used for storing of NoGainLevel1 channel definitions */
-const unsigned int TileCalibUtils::BADTIMING_DEFINITION_CHAN = 3; /**< @brief Channel used for storing of NoGainLevel1 channel definitions */
+const unsigned int TileCalibUtils::BADTIMING_DEFINITION_CHAN = 3; /**< @brief Channel used for storing of bad timing channel definitions */
 
 //
 //_____________________________________________________________________________
@@ -37,15 +37,14 @@ TileCalibUtils::getFullTag(const std::string& folder, const std::string& tag)
 {
   std::string folderTag("");
   for (std::string::const_iterator i = folder.begin(); i != folder.end(); i++) {
-    if(*i=='/'){
-      i++;
-      folderTag+=char(std::toupper(*i));
-    }
-    else{
-      folderTag+=char(std::tolower(*i));
+    if(*i == '/'){
+      ++i;
+      folderTag += char(std::toupper(*i));
+    } else{
+      folderTag += char(std::tolower(*i));
     }
   }
-  return (folderTag+"-"+tag);
+  return (folderTag + "-" + tag);
 }
 
 //
@@ -53,10 +52,10 @@ TileCalibUtils::getFullTag(const std::string& folder, const std::string& tag)
 unsigned int 
 TileCalibUtils::getDrawerIdx(unsigned int ros, unsigned int drawer)
 {
-  if(ros>=MAX_ROS){                throw TileCalib::IndexOutOfRange("TileCalibUtils::getDrawerIdx",ros   ,MAX_ROS   );}
-  if(!ros){ if(drawer>=MAX_DRAWR0) throw TileCalib::IndexOutOfRange("TileCalibUtils::getDrawerIdx",drawer,MAX_DRAWR0);}
-  else    { if(drawer>=MAX_DRAWER) throw TileCalib::IndexOutOfRange("TileCalibUtils::getDrawerIdx",drawer,MAX_DRAWER);}
-  return (ros==0 ? 0 : MAX_DRAWR0+(ros-1)*MAX_DRAWER ) + drawer;
+  if(ros >= MAX_ROS){                throw TileCalib::IndexOutOfRange("TileCalibUtils::getDrawerIdx", ros   , MAX_ROS   );}
+  if(!ros){ if(drawer >= MAX_DRAWR0) throw TileCalib::IndexOutOfRange("TileCalibUtils::getDrawerIdx", drawer, MAX_DRAWR0);}
+  else    { if(drawer >= MAX_DRAWER) throw TileCalib::IndexOutOfRange("TileCalibUtils::getDrawerIdx", drawer, MAX_DRAWER);}
+  return (ros == 0 ? 0 : MAX_DRAWR0 + (ros - 1) * MAX_DRAWER) + drawer;
 }
 
 //
@@ -66,7 +65,7 @@ TileCalibUtils::getDrawerIdxFromFragId(unsigned int fragId)
 {
   unsigned int ros    = fragId >> 8;
   unsigned int drawer = fragId & 0xFF; 
-  return getDrawerIdx(ros,drawer);
+  return getDrawerIdx(ros, drawer);
 }
 
 //
@@ -74,8 +73,8 @@ TileCalibUtils::getDrawerIdxFromFragId(unsigned int fragId)
 unsigned int 
 TileCalibUtils::getChanIdx(unsigned int ros, unsigned int drawer, unsigned int channel)
 {
-  if(channel>=MAX_CHAN) throw TileCalib::IndexOutOfRange("TileCalibUtils::getChanIdx",channel,MAX_CHAN);
-  return getDrawerIdx(ros,drawer) * MAX_CHAN + channel;
+  if(channel >= MAX_CHAN) throw TileCalib::IndexOutOfRange("TileCalibUtils::getChanIdx", channel, MAX_CHAN);
+  return getDrawerIdx(ros, drawer) * MAX_CHAN + channel;
 }
 
 //
@@ -83,8 +82,8 @@ TileCalibUtils::getChanIdx(unsigned int ros, unsigned int drawer, unsigned int c
 unsigned int 
 TileCalibUtils::getChanIdx(unsigned int drawerIdx, unsigned int channel)
 {
-  if(drawerIdx>=MAX_DRAWERIDX) throw TileCalib::IndexOutOfRange("TileCalibUtils::getChanIdx(drawIdx)",channel,MAX_DRAWERIDX);
-  if(channel  >=MAX_CHAN     ) throw TileCalib::IndexOutOfRange("TileCalibUtils::getChanIdx(channel)",channel,MAX_CHAN);
+  if(drawerIdx >= MAX_DRAWERIDX) throw TileCalib::IndexOutOfRange("TileCalibUtils::getChanIdx(drawIdx)", channel, MAX_DRAWERIDX);
+  if(channel  >= MAX_CHAN     ) throw TileCalib::IndexOutOfRange("TileCalibUtils::getChanIdx(channel)", channel, MAX_CHAN);
   return drawerIdx * MAX_CHAN + channel;
 }
 
@@ -93,7 +92,7 @@ TileCalibUtils::getChanIdx(unsigned int drawerIdx, unsigned int channel)
 unsigned int 
 TileCalibUtils::getChanIdxFromFragId(unsigned int fragId, unsigned int channel)
 {
-  if(channel>=MAX_CHAN) throw TileCalib::IndexOutOfRange("TileCalibUtils::getChanIdx",channel,MAX_CHAN);
+  if(channel >= MAX_CHAN) throw TileCalib::IndexOutOfRange("TileCalibUtils::getChanIdx", channel, MAX_CHAN);
   return getDrawerIdxFromFragId(fragId) * MAX_CHAN + channel;
 }
 
@@ -102,8 +101,8 @@ TileCalibUtils::getChanIdxFromFragId(unsigned int fragId, unsigned int channel)
 unsigned int 
 TileCalibUtils::getAdcIdx(unsigned int ros, unsigned int drawer, unsigned int channel, unsigned int adc)
 {
-  if(adc>=MAX_GAIN) throw TileCalib::IndexOutOfRange("TileCalibUtils::getAdcIdx",adc,MAX_GAIN);
-  return getChanIdx(ros,drawer,channel) * MAX_GAIN + adc;
+  if(adc >= MAX_GAIN) throw TileCalib::IndexOutOfRange("TileCalibUtils::getAdcIdx", adc, MAX_GAIN);
+  return getChanIdx(ros, drawer, channel) * MAX_GAIN + adc;
 }
 
 //
@@ -111,8 +110,8 @@ TileCalibUtils::getAdcIdx(unsigned int ros, unsigned int drawer, unsigned int ch
 unsigned int 
 TileCalibUtils::getAdcIdx(unsigned int drawerIdx, unsigned int channel, unsigned int adc)
 {
-  if(adc>=MAX_GAIN) throw TileCalib::IndexOutOfRange("TileCalibUtils::getAdcIdx",adc,MAX_GAIN);
-  return getChanIdx(drawerIdx,channel) * MAX_GAIN + adc;
+  if(adc >= MAX_GAIN) throw TileCalib::IndexOutOfRange("TileCalibUtils::getAdcIdx", adc, MAX_GAIN);
+  return getChanIdx(drawerIdx, channel) * MAX_GAIN + adc;
 }
 
 //
@@ -120,8 +119,8 @@ TileCalibUtils::getAdcIdx(unsigned int drawerIdx, unsigned int channel, unsigned
 unsigned int 
 TileCalibUtils::getAdcIdxFromFragId(unsigned int fragId, unsigned int channel, unsigned int adc)
 {
-  if(adc>=MAX_GAIN) throw TileCalib::IndexOutOfRange("TileCalibUtils::getAdcIdx",adc,MAX_GAIN);
-  return getChanIdxFromFragId(fragId,channel) * MAX_GAIN + adc;
+  if(adc >= MAX_GAIN) throw TileCalib::IndexOutOfRange("TileCalibUtils::getAdcIdx", adc, MAX_GAIN);
+  return getChanIdxFromFragId(fragId, channel) * MAX_GAIN + adc;
 }
 
 //
@@ -129,8 +128,8 @@ TileCalibUtils::getAdcIdxFromFragId(unsigned int fragId, unsigned int channel, u
 unsigned int 
 TileCalibUtils::getMaxDrawer(unsigned int ros)
 {
-  if(ros>=MAX_ROS){throw TileCalib::IndexOutOfRange("TileCalibUtils::getMaxDrawer",ros,MAX_ROS);}
-  return   ros==0 ? MAX_DRAWR0 : MAX_DRAWER;
+  if(ros >= MAX_ROS){throw TileCalib::IndexOutOfRange("TileCalibUtils::getMaxDrawer", ros, MAX_ROS);}
+  return   ros == 0 ? MAX_DRAWR0 : MAX_DRAWER;
 }
 
 //
@@ -139,16 +138,16 @@ std::string
 TileCalibUtils::getDrawerString(unsigned int ros, unsigned int drawer)
 {
   //=== check for valid index
-  TileCalibUtils::getDrawerIdx(ros,drawer);
+  TileCalibUtils::getDrawerIdx(ros, drawer);
   //=== build ros name
   std::ostringstream name;
-  if     (ros==1){ name<<"LBA"; }
-  else if(ros==2){ name<<"LBC"; }
-  else if(ros==3){ name<<"EBA"; }
-  else if(ros==4){ name<<"EBC"; }
-  else{            name<<"AUX"; }
+  if     (ros == 1){ name << "LBA"; }
+  else if(ros == 2){ name << "LBC"; }
+  else if(ros == 3){ name << "EBA"; }
+  else if(ros == 4){ name << "EBC"; }
+  else{              name << "AUX"; }
   //=== add drawer number
-  name << std::setw(2) << std::setfill('0') << drawer+1;
+  name << std::setw(2) << std::setfill('0') << drawer + 1;
   return name.str();
 }
 
@@ -158,28 +157,81 @@ unsigned int
 TileCalibUtils::getDefaultDrawerIdx(unsigned int drawerIdx)
 {
   //=== Global Detector defaults in  0 -  3
-  //=== Defaults for LBA         in  4 -  7
-  //=== Defaults for LBC         in  8 - 11
-  //=== Defaults for EBA         in 12 - 15
-  //=== Defaults for EBC         in 16 - 19
+  //=== 
+  //===  Defaults for LBA         in  4 -  7
+  //===  Defaults for LBC         in  8 - 11
+  //===  Defaults for EBA         in 12 - 15
+  //===  Defaults for EBC         in 16 - 19
   //===
-  //=== Defaults are further subsegmented per sector (8 modules)
-  //--- i.e. defaults for LBA01,LBA02, LBA09,LBA10,... in 4
-  //---      defaults for LBA03,LBA04, LBA11,LBA12,... in 5
-  //--- etc... 
-  //=== default for eg. 5 is 4 (NOT 1 !)
-  //=== default for eg. 4 is 0
+  //===  Defaults per partition:
+  //===   LBA in  4
+  //===   LBC in  8
+  //===   EBA in 12
+  //===   EBC in 16
+  //===
+  //===  Defaults are further shifted in extended barrel: 
+  //---   + 1 for Inner MBTS and special C10
+  //---   + 2 for Outer MBTS
+  //---   + 3 for E4'
+  //
+  //---  e.g.:
 
-  //=== defaults for defaults
+  //---   EBA                            in 12 
+  //---   EBA (Inner MBTS + special C10) in 13 
+  //---   EBA (Outer MBTS)               in 14 
+
+  //---   EBC                            in 16 
+  //---   EBC (Inner MBTS + special C10) in 17 
+  //---   EBC (Outer MBTS)               in 18 
+  //---   EBC (E4')                      in 19
+
+
+    //=== defaults for defaults
   if(drawerIdx < MAX_DRAWR0){
     unsigned int mod = drawerIdx % 4;
-    return mod>0 ? drawerIdx-mod : 0;
+    return mod > 0 ? drawerIdx - mod : 0;
   }
-
+  
+  
   //=== defaults for existing drawers
   drawerIdx -= MAX_DRAWR0;
-  unsigned int mod = (drawerIdx % 8) / 2;
-  return  4*(drawerIdx/TileCalibUtils::MAX_DRAWER+1) + mod;
+  
+  if (drawerIdx < MAX_DRAWER) { // LBA
+    return 4;
+  } else if(drawerIdx < 2 * MAX_DRAWER) { // LBC
+    return 8; 
+  } else if (drawerIdx < 3 * MAX_DRAWER) { // EBA
+    
+    int  OffsetEBA[] = { 0, 0, 0, 0, 0, 0, 0, 2, // Outer MBTS: EBA08
+                         0, 0, 0, 0, 0, 0, 0, 0,
+                         0, 0, 0, 0, 0, 0, 0, 2, // Outer MBTS: EBA24
+                         0, 0, 0, 0, 0, 0, 0, 0,
+                         0, 0, 0, 0, 0, 0, 1, 1, // Inner MBTS + special C10: EBA39, EBA40
+                         1, 1, 2, 0, 0, 0, 0, 0, // Inner MBTS + special C10: EBA41, EBA42; Outer MBTS: EBA43
+                         0, 0, 0, 0, 0, 2, 1, 1, // Outer MBTS: EBA54; Inner MBTS + special C10: EBA55, EBA56
+                         1, 1, 0, 0, 0, 0, 0, 0  // Inner MBTS + special C10: EBA57, EBA58
+                         
+    };
+    
+    return 12 + OffsetEBA[drawerIdx % MAX_DRAWER];
+    
+  } else { // EBC
+    
+    int  OffsetEBC[] = { 0, 0, 0, 0, 0, 0, 0, 2, // Outer MBTS: EBC08
+                         0, 0, 0, 0, 0, 0, 0, 0,
+                         0, 0, 0, 0, 0, 0, 0, 2, // Outer MBTS: EBC24
+                         0, 0, 0, 0, 3, 0, 0, 3, // E4': EBC29, EBC32
+                         0, 3, 0, 0, 3, 0, 1, 1, // E4': EBC34, EBC37; Inner MBTS + special C10: EBC39, EBC40
+                         1, 1, 2, 0, 0, 0, 0, 0, // Inner MBTS + special C10: EBC41, EBC42; Outer MBTS: EBC43
+                         0, 0, 0, 0, 0, 2, 1, 1, // Outer MBTS: EBC54; Inner MBTS + special C10: EBC55, EBC56
+                         1, 1, 0, 0, 0, 0, 0, 0  // Inner MBTS + special C10: EBC57, EBC58
+    };
+    
+    return 16 + OffsetEBC[drawerIdx % MAX_DRAWER];
+    
+  }
+    
+  
 }
 
 //
@@ -187,7 +239,7 @@ TileCalibUtils::getDefaultDrawerIdx(unsigned int drawerIdx)
 unsigned int 
 TileCalibUtils::getDefaultDrawerIdx(unsigned int ros, unsigned int drawer)
 {
-  return getDefaultDrawerIdx(getDrawerIdx(ros,drawer));
+  return getDefaultDrawerIdx(getDrawerIdx(ros, drawer));
 }
 
 //
@@ -195,14 +247,14 @@ TileCalibUtils::getDefaultDrawerIdx(unsigned int ros, unsigned int drawer)
 unsigned int 
 TileCalibUtils::getFirstDrawerInPartitionIdx(unsigned int drawerIdx)
 {
-  if(drawerIdx>=MAX_DRAWERIDX) throw TileCalib::IndexOutOfRange("TileCalibUtils::getChanIdx(drawIdx)",0,MAX_DRAWERIDX);
+  if(drawerIdx >= MAX_DRAWERIDX) throw TileCalib::IndexOutOfRange("TileCalibUtils::getChanIdx(drawIdx)", 0, MAX_DRAWERIDX);
 
   unsigned int drawer0 = 0;
   if(drawerIdx < MAX_DRAWR0) return drawer0;
-  else if(drawerIdx < MAX_DRAWR0 + 1*MAX_DRAWER) return MAX_DRAWR0;
-  else if(drawerIdx < MAX_DRAWR0 + 2*MAX_DRAWER) return MAX_DRAWR0 + 1*MAX_DRAWER;
-  else if(drawerIdx < MAX_DRAWR0 + 3*MAX_DRAWER) return MAX_DRAWR0 + 2*MAX_DRAWER;
-  else return MAX_DRAWR0 + 3*MAX_DRAWER;
+  else if(drawerIdx < MAX_DRAWR0 + 1 * MAX_DRAWER) return MAX_DRAWR0;
+  else if(drawerIdx < MAX_DRAWR0 + 2 * MAX_DRAWER) return MAX_DRAWR0 + 1 * MAX_DRAWER;
+  else if(drawerIdx < MAX_DRAWR0 + 3 * MAX_DRAWER) return MAX_DRAWR0 + 2 * MAX_DRAWER;
+  else return MAX_DRAWR0 + 3 * MAX_DRAWER;
 }
 
 //
@@ -215,10 +267,10 @@ TileCalibUtils::fixedPointPrecision(float val, unsigned int nBits)
   //=== get scale
   int   scale  = 0;
   float absVal = std::fabs(val);
-  if(absVal!=0.){
-    scale = static_cast<int>( ::truncf(std::log((std::pow(2.,static_cast<int>(nBits))-1.)/absVal)/std::log(2.)) );
+  if(absVal != 0.){
+    scale = static_cast<int>( ::truncf(std::log((std::pow(2., static_cast<int>(nBits)) - 1.)/absVal)/std::log(2.)) );
   }
   //=== return input value with fixed point precision
-  return ::roundf(val * std::pow(2.,scale)) / std::pow(2.,scale);
+  return ::roundf(val * std::pow(2., scale)) / std::pow(2., scale);
 }
 
