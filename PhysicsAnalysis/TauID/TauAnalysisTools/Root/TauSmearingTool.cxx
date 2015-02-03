@@ -84,7 +84,7 @@ CP::CorrectionCode TauSmearingTool::applyCorrection( xAOD::TauJet& xTau )
   if (m_bIsData)
   {
     // apply TES shift only in data
-    xTau.setP4( getTESShift(xTau.pt(), xTau.nTracks()),
+    xTau.setP4( ( 1 + getTESShift(xTau.pt(), xTau.nTracks()) ) * xTau.pt(),
                 xTau.eta(), xTau.phi(), xTau.m());
   }
   else

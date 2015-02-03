@@ -107,7 +107,9 @@ private:
 
   int m_iSampleType;
   double m_dMaxDeltaR;
-
+  bool m_bOptimizeForReco;
+  bool m_bIncludeFSRPhotons;
+  
 }; // class TauTruthMatchingTool
 
 }

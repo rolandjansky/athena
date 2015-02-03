@@ -17,6 +17,8 @@ TauTruthMatchingTool::TauTruthMatchingTool( const std::string& name )
 {
   declareProperty( "SampleType", m_iSampleType = PYTHIA);
   declareProperty( "MaxDeltaR", m_dMaxDeltaR = .2);
+  declareProperty( "OptimizeForReco", m_bOptimizeForReco = false);
+  declareProperty( "IncludeFSRPhotons", m_bIncludeFSRPhotons = false);
 }
 
 //______________________________________________________________________________
@@ -29,6 +31,8 @@ TauTruthMatchingTool::~TauTruthMatchingTool( )
 StatusCode TauTruthMatchingTool::initialize()
 {
   ATH_MSG_INFO( "Initialising TauTruthMatchingTool" );
+  if (m_bIncludeFSRPhotons and m_bOptimizeForReco)
+    ATH_MSG_WARNING("Please consider to use either OptimizeForReco or IncludeFSRPhotons!");
   return StatusCode::SUCCESS;
 }
 
@@ -208,6 +212,46 @@ void TauTruthMatchingTool::examineTruthTau(const xAOD::TruthParticle& xTruthPart
   else
     xTruthParticle.auxdecor<bool>("IsHadronicTau") = true;
 
+  if (m_bIncludeFSRPhotons and xTruthParticle.hasProdVtx())
+  {
+    const xAOD::TruthVertex* xProdVertex = xTruthParticle.prodVtx();
+    for (size_t iIncomingParticle = 0; iIncomingParticle < xProdVertex->nIncomingParticles(); ++iIncomingParticle )
+    {
+      const xAOD::TruthParticle* xTruthDaughter = xProdVertex->outgoingParticle(iIncomingParticle);
+      // use stable fsr photons
+      if ( xTruthDaughter->absPdgId() == 22 and xTruthDaughter->status() == 1 )
+	// only in DR<0.2
+	if ( xTruthDaughter->p4().DeltaR(vTruthVisTLV) < 0.2 )
+	  vTruthVisTLV += xTruthDaughter->p4();
+    }
+  }
+
+  if (m_bOptimizeForReco)
+  {
+    // loop over whole truth particle container, search for status 1 particles in DR<0.2, rebuild TLV
+    TLorentzVector vtmpTruthVisTLV;
+    xAOD::TruthParticleContainer::const_iterator iItrTruthParticle = m_xTruthParticleContainer->begin();
+    xAOD::TruthParticleContainer::const_iterator iEndTruthParticle = m_xTruthParticleContainer->end();
+    for( ; iItrTruthParticle != iEndTruthParticle ; ++iItrTruthParticle)
+    {
+      // skip if unstable
+      if ( (*iItrTruthParticle)->status() != 1 ) continue;
+
+      // skip if it's a neutrino
+      int iAbsPdgId = (*iItrTruthParticle)->absPdgId();
+      if ( (iAbsPdgId == 12) or (iAbsPdgId == 14) or (iAbsPdgId == 16) ) continue;
+
+      // only some up particles in tau reco cone
+      if ( (*iItrTruthParticle)->p4().DeltaR(vTruthVisTLV) < 0.2 )
+	vtmpTruthVisTLV += (*iItrTruthParticle)->p4();
+    }
+    vTruthVisTLV.SetPtEtaPhiM(vtmpTruthVisTLV.Pt(),
+			      vtmpTruthVisTLV.Eta(),
+			      vtmpTruthVisTLV.Phi(),
+			      vtmpTruthVisTLV.M());
+  }
+
+  
   xTruthParticle.auxdecor<double>("pt_vis") = vTruthVisTLV.Pt();
   xTruthParticle.auxdecor<double>("eta_vis") = vTruthVisTLV.Eta();
   xTruthParticle.auxdecor<double>("phi_vis") = vTruthVisTLV.Phi();
