@@ -225,23 +225,35 @@ StatusCode TauCommonCalcVars::execute(TauCandidateData *data) {
 	    ATH_MSG_VERBOSE("set seedCalo_trkRmsDist " << tempfloat );
         }
 
-        if (ptSum > 0.0001) {
-	  // InnerTrkAvgDist
-	  pTau->setDetail( xAOD::TauJetParameters::innerTrkAvgDist, static_cast<float>( innerSumWeightedDR / innerPtSum ) );
-	  // FIXME!!! put pileup correction here once availabe
-	  // FIXME!!! for now set corrected version same as uncorrected
-	  pTau->setDetail( xAOD::TauJetParameters::innerTrkAvgDistCorrected, static_cast<float>( innerSumWeightedDR / innerPtSum ) );
-
-	  // SumPtTrkFrac
-	  pTau->setDetail( xAOD::TauJetParameters::SumPtTrkFrac, static_cast<float>( 1. - innerPtSum/ptSum ) );
-	  // FIXME!!! put pileup correction here once availabe
-	  // FIXME!!! for now set corrected version same as uncorrected
-	  pTau->setDetail( xAOD::TauJetParameters::SumPtTrkFracCorrected, static_cast<float>( 1. - innerPtSum/ptSum ) );
+         if (ptSum > 0.0) {
+	   
+     	  // SumPtTrkFrac
+     	  pTau->setDetail( xAOD::TauJetParameters::SumPtTrkFrac, static_cast<float>( 1. - innerPtSum/ptSum ) );
+     	  // FIXME!!! put pileup correction here once availabe
+     	  // FIXME!!! for now set corrected version same as uncorrected
+     	  pTau->setDetail( xAOD::TauJetParameters::SumPtTrkFracCorrected, static_cast<float>( 1. - innerPtSum/ptSum ) );
       
-       
+       	 } else {
 
-	}
+	   pTau->setDetail( xAOD::TauJetParameters::SumPtTrkFrac, static_cast<float>( 0.0 ) );
+	   pTau->setDetail( xAOD::TauJetParameters::SumPtTrkFracCorrected, static_cast<float>( 0.0 ) );
 
+	 }
+
+	 if (ptSum > 0.00 && innerPtSum > 0.0) {
+	   
+	   ATH_MSG_DEBUG("innerSumWeightedDR = " << innerSumWeightedDR << " innerPtSum = " << innerPtSum << " ptSum = " << ptSum );
+	   
+     	   // InnerTrkAvgDist
+     	   pTau->setDetail( xAOD::TauJetParameters::innerTrkAvgDist, static_cast<float>( innerSumWeightedDR / innerPtSum ) );
+     	   // FIXME!!! put pileup correction here once availabe
+     	   // FIXME!!! for now set corrected version same as uncorrected
+     	   pTau->setDetail( xAOD::TauJetParameters::innerTrkAvgDistCorrected, static_cast<float>( innerSumWeightedDR / innerPtSum ) );
+	   
+	 } else {
+     	   pTau->setDetail( xAOD::TauJetParameters::innerTrkAvgDist, static_cast<float>( 0.0 ));
+     	   pTau->setDetail( xAOD::TauJetParameters::innerTrkAvgDistCorrected, static_cast<float>( 0.0 ));
+	 }
 
     }
 

@@ -96,7 +96,7 @@ def getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix=''):
     
     from tauRec.tauRecConf import TauCalibrateLC
     TauCalibrateLC = TauCalibrateLC(name = _name,
-            calibrationFile = "EnergyCalibrationLC2012_retuned.root",
+            calibrationFile = "TES_Rel20.root",
             doEnergyCorrection = correctEnergy,
             doAxisCorrection = correctAxis)
             
