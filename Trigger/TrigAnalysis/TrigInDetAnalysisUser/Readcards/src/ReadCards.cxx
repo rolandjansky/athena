@@ -15,6 +15,8 @@
  **************************************************************************/ 
 
 #include <string>
+#include <algorithm>
+
 #include <stdio.h>
 
 #include "utils.h"
@@ -77,6 +79,15 @@ void ReadCards::Construct(const std::string& filename) {
 }
   
 
+int count( const std::string& s, const std::string& p ) {
+  if ( s.find(p)==std::string::npos ) return 0;
+  int count = 0;
+  for ( size_t i=0 ; i<s.size() ; i++ ) { 
+    if ( s.substr(i,p.size()) == p) count++;
+  }
+  return count;
+}
+
 
 /** remove comments and whitespace
  **/
@@ -98,11 +109,19 @@ void ReadCards::clean() {
     //    cout << ">> " << line << endl;
 
     if ( (pos=line.find("//")) != std::string::npos ) {
-      line = chop(line,"//");
+      std::string tmpline = chop(line,"//");
+      //      size_t n = std::count(tmpline.begin(), tmpline.end(), "\"");
+      //     size_t n = count( tmpline, "\""); 
+      //  if ( n%2==0 ) 
+      line = tmpline;
     }
 
     if ( (pos=line.find("#")) != std::string::npos ) {
-      line = chop(line,"#");
+      std::string tmpline = chop(line,"#");
+      //  size_t n = count( tmpline, "\"");
+      //      size_t n = std::count(tmpline.begin(), tmpline.end(), "\"");
+      // if ( n%2==0 ) 
+      line = tmpline;
     }
 
     // removespace(line);
@@ -132,10 +151,35 @@ void ReadCards::parse()
 
     if ( mString.size()<3 ) cout << "mString >" << mString << "<" << endl;
 
-    // break at semi colons
-    string input = choptoken(mString,";");
+    // break at semi colons that are not within "" pairs
+
+    size_t pos = mString.find(";");
+    
+    while ( pos != std::string::npos ) { 
+    
+      std::string duff =  mString.substr(0,pos);
+    
+      //      size_t n = std::count(duff.begin(), duff.end(), "\"");
+      size_t n = count( duff, "\"" );
+      
+      if ( n%2==0 ) { 
+	/* Make the replacement. */
+	mString.replace( pos, 1, "|");
+      }
+      else { 
+	mString.replace( pos, 1, "_");
+      }
+
+      //      std::cout << "duff: " << duff << " : " << n << " " << std::endl;
+
+
+      pos = mString.find(";");
+    }      
+
+
+    string input = choptoken(mString,"|");
     string line  = input;                 // copy the unparsed line
-    line         = chop(line,";");
+    line         = chop(line,"|");
     string sline = chop(line, "=");       // split at =
 
     // parse the line

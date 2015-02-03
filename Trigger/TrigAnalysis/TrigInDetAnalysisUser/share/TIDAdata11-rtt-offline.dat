@@ -76,6 +76,7 @@ testChains = {
     "EF_e24vh_medium1_IDTrkNoCut_IDT:TrigFastTrackFinder_eGamma",
     "EF_e24vh_medium1_IDTrkNoCut_IDT:InDetTrigParticleCreation_Electron_EFID",
     "EF_tau29_IDTrkNoCut_IDT:TrigFastTrackFinder_Tau",    
+    "EF_tau29_IDTrkNoCut_IDT:TrigFastTrackFinder_Tau_IDTrig",    
     "EF_tau29_IDTrkNoCut_IDT:InDetTrigParticleCreation_Tau_EFID",    
     "EF_mu22_IDTrkNoCut_tight_IDT:TrigFastTrackFinder_Muon",
     "EF_mu22_IDTrkNoCut_tight_IDT:InDetTrigParticleCreation_Muon_EFID",
@@ -121,6 +122,7 @@ testChains = {
     "HLT_mu6_idperf:InDetTrigTrackingxAODCnv_Muon_EFID",
 
     "HLT_tau29_idperf:TrigFastTrackFinder_Tau",
+    "HLT_tau29_idperf:TrigFastTrackFinder_Tau_IDTrig",
     "HLT_tau29_idperf:InDetTrigParticleCreation_Tau_EFID",
     "HLT_tau29_idperf:InDetTrigTrackingxAODCnv_Tau_EFID",
 
