@@ -52,7 +52,8 @@ jp.Rec.doAOD=False
 jp.Rec.doESD.set_Value_and_Lock(False)
 doTAG=False
 jp.Rec.doCBNT=False
-jp.Rec.doTruth=True
+#jp.Rec.doTruth=True
+jp.Rec.doTruth.set_Value_and_Lock(False)
 
 #-----------------------------------------------------------
 include("RecExCond/RecExCommon_flags.py")
