@@ -33,11 +33,30 @@ xAODMuonAuxContainerCnv::createTransient() {
    // Check which version of the container we're reading:
    if( compareClassGuid( v1_guid ) ) {
       // It's the latest version, read it directly:
-      return poolReadObject< xAOD::MuonAuxContainer >();
+
+     xAOD::MuonAuxContainer* aux = poolReadObject< xAOD::MuonAuxContainer >();
+     if( aux->charge.size() != aux->size() ) {
+       for( size_t i = 0; i < aux->size(); ++i ) {
+         // Figure out which link to take:
+         const ElementLink< xAOD::TrackParticleContainer >& link = getPrimaryTrackParticleLink(aux, i);
+         // Fill the charge:
+         aux->charge.push_back( ( *link )->charge() );
+       }
+     }
+	 return aux;
    }
+
 
    // If we didn't recognise the ID:
    throw std::runtime_error( "Unsupported version of "
                              "xAOD::MuonAuxContainer found" );
    return 0;
 }
+
+const ElementLink< xAOD::TrackParticleContainer >&
+xAODMuonAuxContainerCnv::getPrimaryTrackParticleLink(xAOD::MuonAuxContainer* aux,size_t i) {
+  if (aux->combinedTrackParticleLink.at(i).isValid()) return aux->combinedTrackParticleLink[i];
+  if (aux->inDetTrackParticleLink.at(i).isValid()) return aux->inDetTrackParticleLink[i];
+  if (aux->muonSpectrometerTrackParticleLink.at(i).isValid()) return aux->muonSpectrometerTrackParticleLink[i];
+}
+
