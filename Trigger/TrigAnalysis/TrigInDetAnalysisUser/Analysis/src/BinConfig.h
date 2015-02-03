@@ -15,12 +15,13 @@
 #include <iostream>
 #include <string>
 
+#include "ReadCards.h"
 
 struct BinConfig {
 
 public:
 
-  BinConfig(const std::string& n="") :
+  BinConfig(const std::string& n="" ) :
     _name(n),
     /// scale factors
     pt_NScale(1),
@@ -39,6 +40,20 @@ public:
   {   } 
 
   virtual ~BinConfig() { } 
+
+
+  void set( ReadCards& r, const std::string& n ) { 
+    r.Set( n+"ptNScale",  pt_NScale );
+    r.Set( n+"etaNScale", eta_NScale );
+    r.Set( n+"d0NScale",  d0_NScale );
+    r.Set( n+"a0NScale",  a0_NScale );
+    r.Set( n+"z0NScale",  z0_NScale );
+  }
+
+  void set( ReadCards& r ) { 
+    if ( _name!="" ) set ( r, _name+"_" );
+    else             set ( r, "" );
+  }
 
   std::string _name;
 
