@@ -87,13 +87,13 @@ private:
   G4float m_OOTcut;
 
   // RUN Options
-  bool IflCur;
-  bool IflMapTrans;
-  bool IflXtalk;
+  bool m_IflCur;
+  bool m_IflMapTrans;
+  bool m_IflXtalk;
 
   double m_dstep;
   
-  const LArG4BirksLaw *birksLaw;
+  const LArG4BirksLaw *m_birksLaw;
   bool  m_doHV;
 
 

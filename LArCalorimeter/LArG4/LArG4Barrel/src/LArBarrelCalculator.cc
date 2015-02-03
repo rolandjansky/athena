@@ -58,13 +58,14 @@ LArBarrelCalculator* LArBarrelCalculator::GetCalculator()
 
 // ================================================================================
 LArBarrelCalculator::LArBarrelCalculator()
-  : IflCur(true)
-    , IflMapTrans(true)
-    , IflXtalk(true)
+  : m_IflCur(true)
+    , m_IflMapTrans(true)
+    , m_IflXtalk(true)
     , m_dstep(.2*CLHEP::mm)
-    , birksLaw(NULL)
+    , m_birksLaw(NULL)
     , m_doHV(false)
     , m_detectorName("")
+    , m_nhits(0)
 {
   std::cout << "LArBarrelCalculator: Beginning initialisation " << std::endl;
 
@@ -84,9 +85,9 @@ LArBarrelCalculator::LArBarrelCalculator()
     if(status.isFailure())
       std::cout << "LArBarrelCalculator::LArBarrelCalculator() unable to get LArG4BarrelOptions! Using default values.\n";
     else {
-      IflCur = barrelOptions->EMBCurr();
-      IflMapTrans = barrelOptions->EMBEtaTrans();
-      IflXtalk = barrelOptions->EMBXtalk();
+      m_IflCur = barrelOptions->EMBCurr();
+      m_IflMapTrans = barrelOptions->EMBEtaTrans();
+      m_IflXtalk = barrelOptions->EMBXtalk();
 
       m_dstep = barrelOptions->EMBdstep();
 
@@ -94,7 +95,7 @@ LArBarrelCalculator::LArBarrelCalculator()
       if (IflBirks) {
 	const double Birks_LAr_density = 1.396;
 	const double Birks_k = barrelOptions->EMBBirksk();
-	birksLaw = new LArG4BirksLaw(Birks_LAr_density,Birks_k);
+	m_birksLaw = new LArG4BirksLaw(Birks_LAr_density,Birks_k);
       }
       m_doHV=barrelOptions->EMBHVEnable();
     }
@@ -149,16 +150,16 @@ LArBarrelCalculator::LArBarrelCalculator()
    m_geometry = LArG4::Barrel::Geometry::GetInstance();
 
 // access current maps if required
-    if (IflCur)
+    if (m_IflCur)
      std::cout << " LArBarrelCalculator: start reading of current maps" << std::endl;
-   if (IflCur) m_accmap = AccMap::GetAccMap();
+   if (m_IflCur) m_accmap = AccMap::GetAccMap();
    else        m_accmap = 0;
-   if (IflCur) {
+   if (m_IflCur) {
         m_etamap1 = CxxUtils::make_unique<MapEta>(1);
         m_etamap2 = CxxUtils::make_unique<MapEta>(2);
-        if (IflMapTrans) m_etamap3 = CxxUtils::make_unique<MapEta>(3);
+        if (m_IflMapTrans) m_etamap3 = CxxUtils::make_unique<MapEta>(3);
    } 
-   if (IflCur)
+   if (m_IflCur)
      std::cout << " LArBarrelCalculator: end of reading current maps" << std::endl;
 
 // Initialize HV values
@@ -173,13 +174,13 @@ LArBarrelCalculator::LArBarrelCalculator()
    std::cout << " LArBarrelCalculator: s_etaMaxBarrel   " << s_etaMaxBarrel << std::endl;
    std::cout << " LArBarrelCalculator: s_ThickAbs       " << s_ThickAbs << std::endl;
    std::cout << " LArBarrelCalculator: s_ThickEle       " << s_ThickEle << std::endl;
-   if(IflCur) std::cout <<" LArBarrelCalculator: Deposited Energy  dE/dX  Corrected ==> CURRENT Option ON"<<std::endl;
+   if(m_IflCur) std::cout <<" LArBarrelCalculator: Deposited Energy  dE/dX  Corrected ==> CURRENT Option ON"<<std::endl;
    else  std::cout << " LArBarrelCalculator: Crude Deposited Energy  dE/dX  NO CURRENT option"<< std::endl;
-   if (IflCur && IflMapTrans) std::cout<<" LArBarrelCalculator: Compute effect of E field around eta=0.8 " << std::endl;
+   if (m_IflCur && m_IflMapTrans) std::cout<<" LArBarrelCalculator: Compute effect of E field around eta=0.8 " << std::endl;
    else std::cout <<" LArBarrelCalculator: Ignore effect of E field around eta=0.8 " << std::endl;
-   if(birksLaw) {
+   if(m_birksLaw) {
      std::cout << " LArBarrelCalculator: Birks' law ON " << std::endl;
-     std::cout << " LArBarrelCalculator:   parameter k    " << birksLaw->k() << std::endl;
+     std::cout << " LArBarrelCalculator:   parameter k    " << m_birksLaw->k() << std::endl;
    }
    else
      std::cout << " LArBarrelCalculator: Birks' law OFF" << std::endl;	 
@@ -189,7 +190,7 @@ LArBarrelCalculator::LArBarrelCalculator()
 // ============================================================================
 LArBarrelCalculator::~LArBarrelCalculator()
 {
-  if (birksLaw) delete birksLaw;
+  if (m_birksLaw) delete m_birksLaw;
 }
 
 // =============================================================================
@@ -264,10 +265,10 @@ G4bool LArBarrelCalculator::Process(const G4Step* step)
 
   G4double energy = step->GetTotalEnergyDeposit(); // Despite the name, this is only ionization.
     
-  if (birksLaw) {
+  if (m_birksLaw) {
       const double EField = 10.;         // kV/cm, assume constant for now
       const double wholeStepLengthCm = step->GetStepLength() / CLHEP::cm;
-      energy = (*birksLaw)(energy, wholeStepLengthCm, EField);
+      energy = (*m_birksLaw)(energy, wholeStepLengthCm, EField);
   }
 
 
@@ -276,7 +277,7 @@ G4bool LArBarrelCalculator::Process(const G4Step* step)
 //   otherwise 200 microns (dstep) division
 
   G4int nsub_step=1;
-  if (IflCur) nsub_step=(int) (thisStepLength/m_dstep) + 1;
+  if (m_IflCur) nsub_step=(int) (thisStepLength/m_dstep) + 1;
 // delta is fraction of step between two sub steps
   G4double delta=1./((double) nsub_step);
 #ifdef DEBUGSTEP
@@ -313,7 +314,7 @@ G4bool LArBarrelCalculator::Process(const G4Step* step)
        continue;
     }
 
-     m_geometry->findCell(xloc,yloc,zloc,radloc,etaloc,philoc,IflCur,m_detectorName);
+     m_geometry->findCell(xloc,yloc,zloc,radloc,etaloc,philoc,m_IflCur,m_detectorName);
 
     if (m_geometry->cellID() == 0)
     {
@@ -394,7 +395,7 @@ G4bool LArBarrelCalculator::Process(const G4Step* step)
     G4double Current_xt1,Current_xt2;
     Current_xt1=0;
     Current_xt2=0;
-    if (!IflCur)  {
+    if (!m_IflCur)  {
 // no charge collection   Current=E from Geant
        Current=energy;
     }
@@ -523,7 +524,7 @@ G4bool LArBarrelCalculator::Process(const G4Step* step)
 // in y  distance from electrode in gap
        bool InTrans=false;
        //double Current_test=Current;
-       if (IflMapTrans) {
+       if (m_IflMapTrans) {
          float etaTrans=0.8;
          if (fabs(etaloc-etaTrans) < 0.025) {
            double x=std::fabs(zloc-radloc*sinh(etaTrans))/cosh(etaTrans);
@@ -535,7 +536,7 @@ G4bool LArBarrelCalculator::Process(const G4Step* step)
               InTrans=true;
            }
          }     // eta = 0.8 +- 0.025
-       }       // if IflMapTrans
+       }       // if m_IflMapTrans
 
 // simulate cross-talk effects and transitions in eta between cells
 // (only in region 0, samplings 1 and 2)
@@ -553,7 +554,7 @@ G4bool LArBarrelCalculator::Process(const G4Step* step)
                 << " " << resp << " " << xt0 << " " << xt1 << " " << xt2 << std::endl;
 #endif
             if (!InTrans) Current = Current*resp;
-            if (IflXtalk && etaBin > 1 && etaBin < 446) {
+            if (m_IflXtalk && etaBin > 1 && etaBin < 446) {
                Xtalk=true;
                if (deta>0) {
                  m_identifier_xt1.clear();
@@ -572,7 +573,7 @@ G4bool LArBarrelCalculator::Process(const G4Step* step)
                  Current_xt2 = Current*xt2;
                }
                Current = Current*xt0;
-            }    // IflXtalk = true
+            }    // m_IflXtalk = true
           }
           else if (sampling==2 && !InTrans) {
             deta=etaloc-0.025*((double)etaBin+0.5);
