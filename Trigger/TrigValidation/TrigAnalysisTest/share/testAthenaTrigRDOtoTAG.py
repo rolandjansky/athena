@@ -27,7 +27,7 @@ rec.doDPD=False
 rec.doESD=False 
 doTAG=True
 
-rec.doTruth=True
+#rec.doTruth=True
 
 #-----------------------------------------------------------
 include("RecExCond/RecExCommon_flags.py")
