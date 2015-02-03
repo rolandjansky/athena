@@ -71,18 +71,17 @@ float HIGlobalEt::GetEt(const CaloCellContainer * cCellc)
 }
 
  
-float* HIGlobalEt::GetEtvsEta(const CaloCellContainer * cccCellc)
+std::vector<float> HIGlobalEt::GetEtvsEta(const CaloCellContainer * cccCellc)
   {
-    float* et_vs_eta=new float[50]; 
-
-    std::fill (et_vs_eta, et_vs_eta+50, 0);
+    std::vector<float> et_vs_eta (50);
 
     for (const CaloCell* cell : *cccCellc)
       {
         float eta                  = cell->eta()           ;
         int etabin                 = (int)((eta+5.001)/0.2); 
         float et                   = cell->et()            ;
-        et_vs_eta[etabin] += et;
+        if (etabin >= 0 && etabin < 50)
+          et_vs_eta[etabin] += et;
       }
 
     for (int i = 0; i<50; i++)

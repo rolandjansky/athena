@@ -36,7 +36,7 @@ class HIGlobalEt : public AthAlgorithm
      /** Function which retrieve cell Et from CaloCellContainer */ 
      float GetEt(const CaloCellContainer * cCell);   
      /** Function which retrieve cell Et from CaloCellContainer and multiplicate it by proper calibration factor depending on cell's eta */
-     float* GetEtvsEta(const CaloCellContainer * cCell);
+     std::vector<float> GetEtvsEta(const CaloCellContainer * cCell);
            
      /** standard Athena-Algorithm method */
      StatusCode          initialize();

@@ -1474,7 +1474,7 @@ MakePixelTracklets::RetrieveTruth (const ClusterLayers_t& clusterLayers,
       //ATH_MSG_DEBUG( "primary:" << barcode );
     }
 
-  const PRD_MultiTruthCollection *truthCollectionPixel;
+  const PRD_MultiTruthCollection *truthCollectionPixel = nullptr;
   if( evtStore()->contains<PRD_MultiTruthCollection>(m_multiTruthCollectionPixelName)) 
     {
       StatusCode sc = evtStore()->retrieve(truthCollectionPixel, m_multiTruthCollectionPixelName);

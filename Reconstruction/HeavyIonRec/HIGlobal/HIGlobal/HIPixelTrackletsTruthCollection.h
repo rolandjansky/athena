@@ -8,7 +8,7 @@
 #include "HIGlobal/HIPixelTrackletsTruthKey.h"
 #include "GeneratorObjects/HepMcParticleLink.h"
 #include "HIGlobal/HIPixelTrackletsCollection.h"
-#include "DataModel/DataLink.h"
+#include "AthLinks/DataLink.h"
 #include "CLIDSvc/CLASS_DEF.h"
 
 class HIPixelTrackletsTruthCollection: public std::map<HIPixelTrackletsTruthKey,HepMcParticleLink>

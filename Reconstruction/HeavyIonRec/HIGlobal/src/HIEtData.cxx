@@ -10,11 +10,13 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "HIGlobal/HICaloUtil.h"
 //////////////////////////////////////////////////////////////////
-void HIEtData::EtvsEta(float * et_vs_eta)
-  {    
-	for(int i=0; i<50 ; i++)
-      {
-        m_Et_final.push_back(et_vs_eta[i]);      
-      }    
-  }
+void HIEtData::EtvsEta(const std::vector<float>& et_vs_eta)
+{
+  m_Et_final = et_vs_eta;
+}
 
+
+void HIEtData::EtvsEta(std::vector<float>&& et_vs_eta)
+{
+  m_Et_final = std::move (et_vs_eta);
+}

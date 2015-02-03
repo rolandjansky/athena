@@ -22,6 +22,7 @@
 
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "InDetPrepRawData/SiWidth.h"
+#include "CxxUtils/make_unique.h"
 
 #include "TMath.h"
 
@@ -121,11 +122,14 @@ StatusCode  HIGlobalNSiCluster::execute()
   float phi, theta, eta, r;
   int layer;
 
-  EtaPhiBins* cleta0 = new EtaPhiBins("NSiClusterL0", -3.0, 3.0, 60, 16);
+  std::unique_ptr<EtaPhiBins> cleta0 =
+    CxxUtils::make_unique<EtaPhiBins>("NSiClusterL0", -3.0, 3.0, 60, 16);
 //  TH2D *hcleta0 = cleta0->GetH2();
-  EtaPhiBins* cleta1 = new EtaPhiBins("NSiClusterL1", -3.0, 3.0, 60, 16);
+  std::unique_ptr<EtaPhiBins> cleta1 =
+    CxxUtils::make_unique<EtaPhiBins>("NSiClusterL1", -3.0, 3.0, 60, 16);
 //  TH2D *hcleta1 = cleta1->GetH2();
-  EtaPhiBins* cleta2 = new EtaPhiBins("NSiClusterL2", -3.0, 3.0, 60, 16);
+  std::unique_ptr<EtaPhiBins> cleta2 = 
+    CxxUtils::make_unique<EtaPhiBins>("NSiClusterL2", -3.0, 3.0, 60, 16);
 //  TH2D *hcleta2 = cleta2->GetH2();
 
   int collectionCount(0);
@@ -163,9 +167,9 @@ StatusCode  HIGlobalNSiCluster::execute()
       collectionCount++;
     }
 
-  ATH_CHECK( evtStore()->record(cleta0, "NSiClusterL0") );
-  ATH_CHECK( evtStore()->record(cleta1, "NSiClusterL1") );
-  ATH_CHECK( evtStore()->record(cleta2, "NSiClusterL2") );
+  ATH_CHECK( evtStore()->record(std::move(cleta0), "NSiClusterL0") );
+  ATH_CHECK( evtStore()->record(std::move(cleta1), "NSiClusterL1") );
+  ATH_CHECK( evtStore()->record(std::move(cleta2), "NSiClusterL2") );
 
   return StatusCode::SUCCESS;
 }

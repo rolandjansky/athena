@@ -12,9 +12,10 @@ use GaudiInterface	GaudiInterface-*	External
 use StoreGate		StoreGate-*		Control
 use CLIDSvc  		CLIDSvc-*		Control
 use AthenaKernel        AthenaKernel-*          Control
+use AthContainers       AthContainers-*         Control
+use AthLinks            AthLinks-*              Control
 
 use AthenaBaseComps     AthenaBaseComps-*       Control
-use DataModel           DataModel-*             Control
 use HepPDT              v*                      LCG_Interfaces
 
 use AtlasCLHEP       	AtlasCLHEP-*         	External
@@ -43,7 +44,7 @@ apply_pattern dual_use_library files=*.cxx
 
 ##Everything after this is private
 private
-use DataModel             DataModel-*           Control
+use CxxUtils            CxxUtils-*              Control
 use SGTools             SGTools-*               Control
 
 use CaloDetDescr        CaloDetDescr-*          Calorimeter
