@@ -52,7 +52,8 @@ SCT_ID::SCT_ID(void)
         m_dict(0),
         m_wafer_hash_max(0),
         m_strip_hash_max(0),
-        m_barrel_field(0)
+        m_barrel_field(0),
+        m_hasRows(false)
 {
 }
 
