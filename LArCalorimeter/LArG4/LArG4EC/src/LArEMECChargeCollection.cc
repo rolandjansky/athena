@@ -417,7 +417,10 @@ void EnergyCalculator::GetFieldMaps(const G4String fname){
    }
 
    if(FieldMapVersion != "v00"){
-	   fscanf(lun, "%s", fieldmapversion);
+           if (fscanf(lun, "%9s", fieldmapversion) < 1) {
+             (*m_msg) << MSG::ERROR
+                      << "GetFieldMaps Error reading field map" << endreq;
+           }
 	   (*m_msg) << MSG::INFO
 		  << "This file contains fieldmap of version '" << fieldmapversion
 		  << "'"
@@ -454,12 +457,20 @@ void EnergyCalculator::GetFieldMaps(const G4String fname){
        nlayer = ChCollWheelType->NumberOfRadialLayer; // should be the same for Fold0 and Fold1
 
 	 for(i=0; i<nlayer; ++i){
-	     fscanf(lun, "%lg%lg%lg%lg", &ChCollFoldType->MinZofLayer[i],
-			                 &ChCollFoldType->MaxZofLayer[i],
-			                 &ChCollFoldType->MinYofLayer[i],
-			                 &ChCollFoldType->MaxYofLayer[i]);
-	     fscanf(lun, "%i%i",         &ChCollFoldType->NofColofLayer[i],
-			                 &ChCollFoldType->NofRowofLayer[i]);
+             if (fscanf(lun, "%lg%lg%lg%lg", &ChCollFoldType->MinZofLayer[i],
+                                             &ChCollFoldType->MaxZofLayer[i],
+                                             &ChCollFoldType->MinYofLayer[i],
+                                             &ChCollFoldType->MaxYofLayer[i]) < 4)
+             {
+               (*m_msg) << MSG::ERROR
+                        << "GetFieldMaps Error reading field map" << endreq;
+             }
+	     if (fscanf(lun, "%i%i",         &ChCollFoldType->NofColofLayer[i],
+                                             &ChCollFoldType->NofRowofLayer[i]) < 2)
+             {
+               (*m_msg) << MSG::ERROR
+                        << "GetFieldMaps Error reading field map" << endreq;
+             }
 
 	     ChCollFoldType->NofColofLayer[i] ++;
 	     ChCollFoldType->NofRowofLayer[i] ++;
@@ -473,7 +484,10 @@ void EnergyCalculator::GetFieldMaps(const G4String fname){
 	     
 	     for(j=0;j<npoints;++j){
 	       G4double zdummy,ydummy,wdummy;
-	       fscanf(lun, "%lg%lg%lg", &zdummy,&ydummy,&wdummy);
+	       if (fscanf(lun, "%lg%lg%lg", &zdummy,&ydummy,&wdummy) < 3) {
+                 (*m_msg) << MSG::ERROR
+                          << "GetFieldMaps Error reading field map" << endreq;
+               }
 	     } // end for points
 	     }
 //	     std::cout
@@ -510,7 +524,12 @@ void EnergyCalculator::GetFieldMaps(const G4String fname){
     }   //end for foldtypes
 
     rewind(lun);
-    if(FieldMapVersion != "v00") fscanf(lun, "%s", fieldmapversion);
+    if(FieldMapVersion != "v00") {
+      if (fscanf(lun, "%9s", fieldmapversion) < 1) {
+        (*m_msg) << MSG::ERROR
+                 << "GetFieldMaps Error reading field map" << endreq;
+      }
+    }
 
 // now fill the coordinates and efield in the FieldMaps
 
@@ -528,15 +547,25 @@ void EnergyCalculator::GetFieldMaps(const G4String fname){
 
 	   G4double dummy1,dummy2,dummy3,dummy4;
 	   G4int    dummy5,dummy6;
-	   fscanf(lun, "%lg%lg%lg%lg", &dummy1, &dummy2, &dummy3, &dummy4);
-	   fscanf(lun, "%i%i",         &dummy5, &dummy6);
+	   if (fscanf(lun, "%lg%lg%lg%lg", &dummy1, &dummy2, &dummy3, &dummy4) < 4) {
+             (*m_msg) << MSG::ERROR
+                      << "GetFieldMaps Error reading field map" << endreq;
+           }
+	   if (fscanf(lun, "%i%i",         &dummy5, &dummy6) < 2) {
+             (*m_msg) << MSG::ERROR
+                      << "GetFieldMaps Error reading field map" << endreq;
+           }
 
            npoints = ChCollFoldType->NofPointsinLayer[i];
 	   if(npoints>0){
 	   for(j = 0; j < npoints; ++ j){
-	     fscanf(lun, "%lg%lg%lg", &ChCollFoldType->FieldMap[Index(ChCollFoldType,i,0,j)],
-		    &ChCollFoldType->FieldMap[Index(ChCollFoldType,i,1,j)],
-		    &ChCollFoldType->FieldMap[Index(ChCollFoldType,i,2,j)]);
+	     if (fscanf(lun, "%lg%lg%lg", &ChCollFoldType->FieldMap[Index(ChCollFoldType,i,0,j)],
+                        &ChCollFoldType->FieldMap[Index(ChCollFoldType,i,1,j)],
+                        &ChCollFoldType->FieldMap[Index(ChCollFoldType,i,2,j)]) < 3)
+             {
+               (*m_msg) << MSG::ERROR
+                        << "GetFieldMaps Error reading field map" << endreq;
+             }
 
 /*	     if(j<10) G4cout<<" z,y,weight="
 			    <<ChCollFoldType->FieldMap[Index(ChCollFoldType,i,0,j)]<<" "
