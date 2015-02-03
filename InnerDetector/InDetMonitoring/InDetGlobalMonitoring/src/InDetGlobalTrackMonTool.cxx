@@ -734,7 +734,6 @@ StatusCode InDetGlobalTrackMonTool::fillHistograms()
 	}
 	
 	// Skip tracks that are not inside out
-	
 	if ( m_dataType == AthenaMonManager::collisions && ! (track->info().patternRecoInfo( Trk::TrackInfo::SiSPSeededFinder ) ) )
 	    continue;
 
@@ -746,6 +745,10 @@ StatusCode InDetGlobalTrackMonTool::fillHistograms()
 	    ATH_MSG_DEBUG( "NULL pointer to track summary" );
 	    return StatusCode::SUCCESS;
 	}
+	
+	if ( m_dataType == AthenaMonManager::cosmics  && 
+	     summary->get(Trk::numberOfPixelHits) + summary->get(Trk::numberOfSCTHits) <= 0 )
+	    continue;
 
 	FillHits( track, summary );
 
@@ -767,43 +770,44 @@ StatusCode InDetGlobalTrackMonTool::fillHistograms()
 	// Delete our copy
 	delete summary;
     }
-
-    const TrackCollection * forward_tracks = 0;
-    if ( evtStore()->contains<TrackCollection>( m_ForwardTracksName ) ) 
-    {
-	if ( evtStore()->retrieve(forward_tracks,m_ForwardTracksName).isFailure() )
-	{
-	    ATH_MSG_DEBUG( "No combined tracks in StoreGate " + m_ForwardTracksName );
-	    return StatusCode::SUCCESS;
-	}
-	
-	TrackCollection::const_iterator iftrack = forward_tracks->begin();
-	TrackCollection::const_iterator iftrack_end = forward_tracks->end();
-	for ( ; iftrack!= iftrack_end; ++iftrack)
-	{
-	    const Trk::Track * track = (*iftrack);
-	    msg(MSG::INFO) << "GOT TRACKS!" << std::endl;
-	    if ( !track )
-	    {
-		ATH_MSG_DEBUG( "NULL track pointer in collection" );
-		return StatusCode::SUCCESS;
-	    }
-	    
-	    // Create a new summary or get copy of the cached one
-	    const Trk::TrackSummary * summary = m_trkSummaryTool->createSummary( * track );
-	    
-	    if ( !summary )
-	    {
-		ATH_MSG_DEBUG( "NULL pointer to track summary" );
-		return StatusCode::SUCCESS;
-	    }
-	    
-	    FillForwardTracks( track , summary );
-	    
-	    delete summary;
-	}
-    }
     
+    if ( m_dataType == AthenaMonManager::collisions )
+    {
+	const TrackCollection * forward_tracks = 0;
+	if ( evtStore()->contains<TrackCollection>( m_ForwardTracksName ) ) 
+	{
+	    if ( evtStore()->retrieve(forward_tracks,m_ForwardTracksName).isFailure() )
+	    {
+		ATH_MSG_DEBUG( "No combined tracks in StoreGate " + m_ForwardTracksName );
+		return StatusCode::SUCCESS;
+	    }
+	    
+	    TrackCollection::const_iterator iftrack = forward_tracks->begin();
+	    TrackCollection::const_iterator iftrack_end = forward_tracks->end();
+	    for ( ; iftrack!= iftrack_end; ++iftrack)
+	    {
+		const Trk::Track * track = (*iftrack);
+		if ( !track )
+		{
+		    ATH_MSG_DEBUG( "NULL track pointer in collection" );
+		    return StatusCode::SUCCESS;
+		}
+		
+		// Create a new summary or get copy of the cached one
+		const Trk::TrackSummary * summary = m_trkSummaryTool->createSummary( * track );
+		
+		if ( !summary )
+		{
+		    ATH_MSG_DEBUG( "NULL pointer to track summary" );
+		    return StatusCode::SUCCESS;
+		}
+		
+		FillForwardTracks( track , summary );
+		
+		delete summary;
+	    }
+	}
+    }	
     return StatusCode::SUCCESS;
 }
 
@@ -819,17 +823,45 @@ StatusCode InDetGlobalTrackMonTool::procHistograms()
 	m_ID_COMB_noBLayerHitRatio_eta_phi->Divide( m_ID_COMB_eta_phi );
     }
     
-    if ( endOfLumiBlock ) {}
+    if ( endOfLumiBlock )
+    {
+	if ( AthenaMonManager::environment() == AthenaMonManager::online )
+	{
+	    m_ID_COMB_noPIXhitsRatio_eta_phi->Reset("ICE");
+	    m_ID_COMB_noPIXhitsRatio_eta_phi->Add( m_ID_COMB_noPIXhits_eta_phi );
+	    m_ID_COMB_noPIXhitsRatio_eta_phi->Divide( m_ID_COMB_eta_phi );
+	    
+	    m_ID_COMB_noBLayerHitExpectedRatio_eta_phi->Reset("ICE");
+            m_ID_COMB_noBLayerHitExpectedRatio_eta_phi->Add( m_ID_COMB_noBLayerHitExpected_eta_phi );
+            m_ID_COMB_noBLayerHitExpectedRatio_eta_phi->Divide( m_ID_COMB_eta_phi );
+
+	    m_ID_COMB_noBLayerHitRatio_eta_phi->Reset("ICE");
+            m_ID_COMB_noBLayerHitRatio_eta_phi->Add( m_ID_COMB_noBLayerHit_eta_phi );
+            m_ID_COMB_noBLayerHitRatio_eta_phi->Divide( m_ID_COMB_eta_phi );
+
+	    m_COMB_goodPixTrkRatio_eta_phi->Reset("ICE");
+	    m_COMB_goodPixTrkRatio_eta_phi->Add( m_COMB_goodPixTrk_eta_phi );
+	    m_COMB_goodPixTrkRatio_eta_phi->Divide( m_ID_COMB_eta_phi );
+	 
+	    m_COMB_goodSctTrkRatio_eta_phi->Reset("ICE");
+	    m_COMB_goodSctTrkRatio_eta_phi->Add( m_COMB_goodSctTrk_eta_phi );
+	    m_COMB_goodSctTrkRatio_eta_phi->Divide( m_ID_COMB_eta_phi );
+	    
+
+	}
+    }
 
     return StatusCode::SUCCESS;
 }
 
 void InDetGlobalTrackMonTool::FillHits( const Trk::Track *track, const Trk::TrackSummary* summary )
 {
-    unsigned int pixHits = summary->get(Trk::numberOfPixelHits) + summary->get(Trk::numberOfPixelDeadSensors);
-    unsigned int sctHits = summary->get(Trk::numberOfSCTHits)   + summary->get(Trk::numberOfSCTDeadSensors);
-    unsigned int trtHits = summary->get(Trk::numberOfTRTHits);
-
+    int pixHits = ( summary->get(Trk::numberOfPixelHits) >= 0 ) ? summary->get(Trk::numberOfPixelHits) : 0 
+	+ ( summary->get(Trk::numberOfPixelDeadSensors) >= 0 ) ? summary->get(Trk::numberOfPixelDeadSensors ) : 0;
+    int sctHits = ( ( summary->get(Trk::numberOfSCTHits) >= 0 ) ? summary->get(Trk::numberOfSCTHits) : 0 )
+	+ ( ( summary->get(Trk::numberOfSCTDeadSensors) >= 0 ) ? summary->get(Trk::numberOfSCTDeadSensors) : 0 );
+    int trtHits = summary->get(Trk::numberOfTRTHits);
+    
     m_Trk_nPIXhits->Fill( pixHits );
     m_Trk_nSCThits->Fill( sctHits );
     m_Trk_nTRThits->Fill( trtHits );
@@ -839,9 +871,11 @@ void InDetGlobalTrackMonTool::FillHits( const Trk::Track *track, const Trk::Trac
 	return;
 
     m_Trk_nPIXhits_eta_phi->Fill( perigee->eta(), perigee->parameters()[Trk::phi0], pixHits );
-    m_Trk_nPIXDeadModules_eta_phi->Fill( perigee->eta(), perigee->parameters()[Trk::phi0], summary->get(Trk::numberOfPixelDeadSensors) );
+    m_Trk_nPIXDeadModules_eta_phi->Fill( perigee->eta(), perigee->parameters()[Trk::phi0], 
+					 ( summary->get(Trk::numberOfPixelDeadSensors) >= 0 ) ? summary->get(Trk::numberOfPixelDeadSensors) : 0 );
     m_Trk_nSCThits_eta_phi->Fill(  perigee->eta(), perigee->parameters()[Trk::phi0],sctHits );
-    m_Trk_nSCTDeadModules_eta_phi->Fill(  perigee->eta(), perigee->parameters()[Trk::phi0], summary->get(Trk::numberOfSCTDeadSensors) );
+    m_Trk_nSCTDeadModules_eta_phi->Fill( perigee->eta(), perigee->parameters()[Trk::phi0], 
+					 ( summary->get(Trk::numberOfSCTDeadSensors) >= 0 ) ? summary->get(Trk::numberOfSCTDeadSensors) : 0 );
     m_Trk_nTRThits_eta_phi->Fill( perigee->eta(), perigee->parameters()[Trk::phi0],trtHits );
 
     if ( perigee->eta() < - c_EndCapBoundary )
@@ -935,7 +969,7 @@ void InDetGlobalTrackMonTool::FillEtaPhi( const Trk::Track *track, const Trk::Tr
     }
 
     // Tracks with SCT hits and no Pixel hits
-    if ( summary->get(Trk::numberOfPixelHits) + summary->get(Trk::numberOfPixelDeadSensors) == 0 )
+    if ( summary->get(Trk::numberOfPixelHits) == 0 )
     {
 	m_ID_COMB_noPIXhits_eta_phi->Fill(eta, phi);
 	m_ID_COMB_noPIXhitsRatio_eta_phi->Fill(eta, phi);
@@ -943,7 +977,7 @@ void InDetGlobalTrackMonTool::FillEtaPhi( const Trk::Track *track, const Trk::Tr
     }
     
     // Tracks with Pixel hits and no SCT hits
-    if ( summary->get(Trk::numberOfSCTHits) + summary->get(Trk::numberOfSCTDeadSensors) == 0 )
+    if ( summary->get(Trk::numberOfSCTHits) == 0 )
 	m_ID_COMB_noSCThits_eta_phi->Fill(eta, phi);
     
     // Tracks with SCT and Pixel and no TRT extension
@@ -1003,21 +1037,22 @@ void InDetGlobalTrackMonTool::FillHitMaps( const Trk::Track *track )
 	
 	//TRT
 	const InDet::TRT_DriftCircleOnTrack *trtcircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(trackState->measurementOnTrack());
-	if ( !trtcircle ) continue;
-
-	switch ( m_trtID->barrel_ec( trtcircle->identify() ) ) {
-	case -2:
-	    m_ID_hitmap_x_y_ecc->Fill( trtcircle->globalPosition()[0], trtcircle->globalPosition()[1] );
-	    break;
-	case -1:
-	    m_ID_hitmap_x_y->Fill( trtcircle->globalPosition()[0], trtcircle->globalPosition()[1] );
-	    break;
-	case 1:
-	    m_ID_hitmap_x_y->Fill( trtcircle->globalPosition()[0], trtcircle->globalPosition()[1] );
-	    break;
-	case 2:
-	    m_ID_hitmap_x_y_eca->Fill( trtcircle->globalPosition()[0], trtcircle->globalPosition()[1] );
-	    break;
+	if ( trtcircle )
+	{
+	    switch ( m_trtID->barrel_ec( trtcircle->identify() ) ) {
+	    case -2:
+		m_ID_hitmap_x_y_ecc->Fill( trtcircle->globalPosition()[0], trtcircle->globalPosition()[1] );
+		break;
+	    case -1:
+		m_ID_hitmap_x_y->Fill( trtcircle->globalPosition()[0], trtcircle->globalPosition()[1] );
+		break;
+	    case 1:
+		m_ID_hitmap_x_y->Fill( trtcircle->globalPosition()[0], trtcircle->globalPosition()[1] );
+		break;
+	    case 2:
+		m_ID_hitmap_x_y_eca->Fill( trtcircle->globalPosition()[0], trtcircle->globalPosition()[1] );
+		break;
+	    }
 	}
 	
 	//SILICON (SCT + Pixel)
@@ -1025,8 +1060,8 @@ void InDetGlobalTrackMonTool::FillHitMaps( const Trk::Track *track )
 	if ( !clus ) continue;
 	
 	const InDet::SiCluster *RawDataClus = dynamic_cast<const InDet::SiCluster*>(clus->prepRawData());
-	if (RawDataClus==0) continue;
-	
+	if (!RawDataClus) continue;
+
 	if ( RawDataClus->detectorElement()->isSCT() ) {
 	    switch ( m_sctID->barrel_ec( RawDataClus->identify() ) ) {
 	    case -2:

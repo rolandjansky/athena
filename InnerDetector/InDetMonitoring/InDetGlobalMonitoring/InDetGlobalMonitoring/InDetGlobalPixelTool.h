@@ -55,8 +55,6 @@ class InDetGlobalPixelTool : public InDetGlobalMotherMonTool
       const TrackCollection *m_tracks;  //container for tracks
       std::string m_TracksName;
 
-      /// Example histogram
-      TH1F*  m_nExamplePlot;
       TH1F*   m_Pixel_track_clus_groupsize; 
       TH1F*   m_Pixel_track_cluster_ToT;            
       TH1F*   m_Pixel_track_res_phi;               
@@ -77,10 +75,6 @@ class InDetGlobalPixelTool : public InDetGlobalMotherMonTool
       TH1F*   m_Pixel_track_phi0;  
       TH1F*   m_Pixel_track_theta; 
       TH1F*   m_Pixel_track_eta;  
-
-      // Example variables 
-      int   m_nExampleInt; 
-
 };
 
 #endif

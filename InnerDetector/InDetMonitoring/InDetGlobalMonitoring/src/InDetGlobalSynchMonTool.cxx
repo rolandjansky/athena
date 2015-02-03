@@ -71,7 +71,31 @@ InDetGlobalSynchMonTool::InDetGlobalSynchMonTool(
       m_tracks(0),
       m_n_sct_robs_JO(90),
       m_n_trt_robs_JO(190),
-      m_n_pix_robs_JO(132)
+      m_n_pix_robs_JO(132),
+      m_diff_LVL1ID(0),
+      m_diff_Overview_LVL1ID(0),
+      m_diff_BCID(0),
+      m_diff_Pixel_SCT_TRT_BCID(0),
+      m_diff_Overview_BCID(0),
+      m_diff_SCT_BCID(0),
+      m_diff_TRT_BCID(0),
+      m_diff_PIX_BCID(0), 
+      m_diff_SCT_TRT_BCID(0),
+      m_diff_SCT_PIX_BCID(0),
+      m_diff_SCT_TRT_BCID_evt(0),
+      m_diff_SCT_PIX_BCID_evt(0),
+      m_BCID(0),
+      m_det_diff_BCID(0),
+      m_LVL1ID(0),
+      m_det_diff_LVL1ID(0),
+      m_SCT_BCID(0),
+      m_TRT_BCID(0),
+      m_PIX_BCID(0),
+      m_Pixel_Hits_BCID(0),
+      m_SCT_Hits_BCID(0),
+      m_TRT_Hits_BCID(0),
+      m_InDet_Hits_BCID(0),
+      m_Tracks_BCID(0)
 {
     // Get parameter values from jobOptions file 
     declareProperty("sct_robs_JO", m_n_sct_robs_JO);
@@ -550,12 +574,7 @@ unsigned int InDetGlobalSynchMonTool::getSctHits(const SCT_RDO_Container * colle
 	SCT_RDO_Container::const_iterator it_sctcol,it_sctcol_E(collection->end());
 	for (it_sctcol = collection->begin(); it_sctcol != it_sctcol_E; ++it_sctcol) {
 	    const InDetRawDataCollection<SCT_RDORawData> * SCT_Collection(*it_sctcol);
-	    if (!SCT_Collection) {
-		if ( msgLvl(MSG::WARNING) )
-		    msg(MSG::WARNING) << "SCT collection is 0"
-				      << endreq;
-		continue;
-	    }
+	    if (SCT_Collection == 0) continue;
 	    n_SCT_hits = n_SCT_hits + SCT_Collection->size();
 	}
     }
@@ -601,7 +620,6 @@ unsigned int InDetGlobalSynchMonTool::fillTimingHistos( const InDetTimeCollectio
 	}
 	else
 	{
-	    msg(MSG::WARNING) << "GOT ID: " << robid << endreq;
 	    return 0;
 	}
 	

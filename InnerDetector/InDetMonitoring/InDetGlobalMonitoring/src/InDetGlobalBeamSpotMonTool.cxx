@@ -242,6 +242,7 @@ StatusCode InDetGlobalBeamSpotMonTool::fillHistograms() {
 	extrapolatedPb = m_extrapolator->extrapolate(*innerPb, psf);
 	if ( extrapolatedPb ){
 	    perigee = dynamic_cast<const Trk::Perigee*>(extrapolatedPb);
+	    if (!perigee) continue;
 	} else {
 	    ATH_MSG_DEBUG ("Could not get extrapolated perigee, but the track perigee was not wrt (0,0,0) - DCA vs Phi may be not be what you expect!");
 	}
@@ -326,22 +327,20 @@ StatusCode InDetGlobalBeamSpotMonTool::fillHistograms() {
       m_hPvErrY->Fill( Amg::error( (*vxIter)->recVertex().covariancePosition(), Trk::y) );
       m_hPvErrZ->Fill( Amg::error( (*vxIter)->recVertex().covariancePosition(), Trk::z) );
       m_hPvChiSqDoF->Fill( (*vxIter)->recVertex().fitQuality().chiSquared() / (*vxIter)->recVertex().fitQuality().numberDoF() );
-      m_hPvNTracks->Fill( vxTrackAtVertex!=0 ? vxTrackAtVertex->size() : -1. );
+      m_hPvNTracks->Fill( vxTrackAtVertex->size() );
 
       m_hPvXZ->Fill(z,x);
       m_hPvYZ->Fill(z,y);
       m_hPvYX->Fill(x,y);
 
       // Histograms on original tracks used for primary vertex
-      if (vxTrackAtVertex!=0) {
-	std::vector<Trk::VxTrackAtVertex*>::iterator trkIter;
-	for (trkIter=vxTrackAtVertex->begin(); trkIter!=vxTrackAtVertex->end(); ++trkIter) {
-	    if ( !(*trkIter) ) continue;
+      std::vector<Trk::VxTrackAtVertex*>::iterator trkIter;
+      for (trkIter=vxTrackAtVertex->begin(); trkIter!=vxTrackAtVertex->end(); ++trkIter) {
+	  if ( !(*trkIter) ) continue;
 	  //const Trk::ITrackLink* trkLink = (*trkIter)->trackOrParticleLink();
 	  const Trk::Perigee* measuredPerigee = dynamic_cast<const Trk::Perigee*>((*trkIter)->initialPerigee());
 	  m_hPvTrackEta->Fill(measuredPerigee!=0 ? measuredPerigee->eta() : -999.);
 	  m_hPvTrackPt->Fill(measuredPerigee!=0 ? measuredPerigee->pT()/1000. : -999.);   // Histo is in GeV, not MeV
-	}
       }
     }
     m_hPvNPriVtx->Fill(nPriVtx);

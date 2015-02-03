@@ -545,9 +545,13 @@ void FillPulseHistos(TH1F* h1, TH1F* h2, TH1F* h3, TH1F* h4, int pulsepos, int p
 /****************************************************************************
  * Some methods one needs for the calculation of Delta t
  ***************************************************************************/
-deltat_data::deltat_data(){
-  bcid=0;
-  position=0;
+deltat_data::deltat_data():
+    bcid(0),
+    ecr(0),
+    position(0),
+    detector(0),
+    lvl1a(0)
+{
 }
 
 bool deltat_data::operator<(const deltat_data &data){

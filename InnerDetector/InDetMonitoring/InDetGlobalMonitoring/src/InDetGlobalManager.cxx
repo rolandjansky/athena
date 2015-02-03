@@ -43,6 +43,7 @@ InDetGlobalManager::InDetGlobalManager(
     const std::string &name, 
     ISvcLocator *pSvcLocator)
     : AthenaMonManager(name, pSvcLocator),
+      m_CombinedTracks(0),
       m_doTopBottom(false)
 {
     declareProperty("SCTTrackName",         m_SCTTracksName);
