@@ -146,7 +146,7 @@ class TileCalibUtils{
   static const unsigned int BAD_DEFINITION_CHAN;   /**< @brief Channel used for storing of bad channel definitions */
   static const unsigned int NOISY_DEFINITION_CHAN;   /**< @brief Channel used for storing of noisy channel definitions */
   static const unsigned int NOGAINL1_DEFINITION_CHAN;   /**< @brief Channel used for storing of NoGainLevel1 channel definitions */
-  static const unsigned int BADTIMING_DEFINITION_CHAN;   /**< @brief Channel used for storing of NoGainLevel1 channel definitions */
+  static const unsigned int BADTIMING_DEFINITION_CHAN;   /**< @brief Channel used for storing of bad timing channel definitions */
 
 };
 
