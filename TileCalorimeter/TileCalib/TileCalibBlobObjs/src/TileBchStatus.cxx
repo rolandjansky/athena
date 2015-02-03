@@ -119,7 +119,10 @@ TileBchStatus::initClassifierDefinitions()
   m_refNoGainL1.insert(TileBchPrbs::TrigNoisy);
   m_refNoGainL1.insert(TileBchPrbs::DisableForL1);
 
+  //=== define which problems trigger a bad timing
   m_refBadTiming.insert(TileBchPrbs::BadTiming);
+  //=== online
+  m_refBadTiming.insert(TileBchPrbs::OnlineBadTiming);
 
 }
 
