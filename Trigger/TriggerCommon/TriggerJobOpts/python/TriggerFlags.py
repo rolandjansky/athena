@@ -1026,7 +1026,7 @@ class triggerMenuSetup(JobProperty):
         'Physics_HI_v3', 'Physics_HI_v3_no_prescale', # for 2015 lead-lead menu 
         ]
 
-    _default_menu='MC_pp_v5'
+    _default_menu='MC_pp_v5_tight_mc_prescale'
     _default_cosmic_menu='Physics_pp_v4_cosmics_prescale'
     _default_InitialBeam_menu='MC_InitialBeam_v3_no_prescale'
     
