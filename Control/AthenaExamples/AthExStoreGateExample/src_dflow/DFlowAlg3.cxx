@@ -8,7 +8,6 @@
 // Implementation file for class DFlowAlg3
 // Author: S.Binet<binet@cern.ch>
 /////////////////////////////////////////////////////////////////// 
-#undef NDEBUG
 
 // AthExStoreGateExample includes
 #include "DFlowAlg3.h"
@@ -118,7 +117,7 @@ StatusCode DFlowAlg3::execute()
 
   // test that modification thru one handle is seen thru the other one
   std::vector<int> save = *m_rw_ints;
-  *m_rw_ints = std::vector<int>();
+  m_rw_ints = std::vector<int>();
   ATH_MSG_INFO("temporary r-handle[ints] - size: " << ints->size());
   if (m_r_int.isValid()) {
     ATH_MSG_INFO("data mbr  r-handle[ints] - size: " << m_r_ints->size());
@@ -126,7 +125,7 @@ StatusCode DFlowAlg3::execute()
   ATH_MSG_INFO("data mbr rw-handle[ints] - size: " << m_rw_ints->size());
 
   ATH_MSG_INFO("--restore--");
-  *m_rw_ints = save;
+  m_rw_ints = save;
   ATH_MSG_INFO("temporary r-handle[ints] - size: " << ints->size());
   if (m_r_int.isValid()) {
     ATH_MSG_INFO("data mbr  r-handle[ints] - size: " << m_r_ints->size());
@@ -170,7 +169,7 @@ StatusCode DFlowAlg3::execute()
     if (rw_int.isValid()) {
       ATH_MSG_INFO("temporary r/w-int: " << *rw_int);
     }
-    ATH_CHECK( m_r_int.setConst() );
+    m_r_int.setConst();
     if (!m_r_int.isConst()) {
       ATH_MSG_ERROR("ReadHandle<int>@[" << m_r_int.name() << "] should be CONST !");
       return StatusCode::FAILURE;
@@ -195,7 +194,7 @@ StatusCode DFlowAlg3::execute()
       return StatusCode::FAILURE;
     }
     try {
-      *o = 42;
+      o = 42;
       if (o.isValid()) {
         ATH_MSG_ERROR("should NOT be valid ! [line " << __LINE__ << "]" );
         return StatusCode::FAILURE;
@@ -221,7 +220,7 @@ StatusCode DFlowAlg3::execute()
       return StatusCode::FAILURE;
     }
     try {
-      *o = 42;
+      o = 42;
       if (o.isValid()) {
         ATH_MSG_ERROR("should NOT be valid ! [line " << __LINE__ << "]" );
         return StatusCode::FAILURE;

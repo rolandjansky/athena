@@ -8,7 +8,6 @@
 // Implementation file for class DFlowAlg1
 // Author: S.Binet<binet@cern.ch>
 /////////////////////////////////////////////////////////////////// 
-#undef NDEBUG
 
 // AthExStoreGateExample includes
 #include "DFlowAlg1.h"
@@ -105,7 +104,7 @@ StatusCode DFlowAlg1::execute()
     ATH_MSG_INFO("val: " << *m_w_int);
     
     ATH_MSG_INFO("modify myint by value...");
-    *m_w_int = m_r_evtInfo->event_ID()->event_number() + 20;
+    m_w_int = m_r_evtInfo->event_ID()->event_number() + 20;
 
     ATH_MSG_INFO("ptr: " << m_w_int.cptr());
     ATH_MSG_INFO("val: " << *m_w_int);

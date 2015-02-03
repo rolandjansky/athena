@@ -16,10 +16,10 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-#include "AthContainers/DataVector.h"
+#include "DataModel/DataVector.h"
 
 #include "StoreGate/SGIterator.h"
-#include "AthLinks/ElementLink.h"
+#include "DataModel/ElementLink.h"
 
 #include "AthenaKernel/DefaultKey.h"
 

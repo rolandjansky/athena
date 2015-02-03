@@ -2,13 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ATHEXSTOREGATEEXAMPLE_LINKOBJ_H
-#define ATHEXSTOREGATEEXAMPLE_LINKOBJ_H
+#ifndef _LinkObj_
+#define _LinkObj_
 
 #include <vector>
 
-#include "AthLinks/DataLink.h"
-#include "AthLinks/ElementLink.h"
+#include "DataModel/DataLink.h"
+#include "DataModel/ElementLink.h"
 #include "MyDataObj.h"
 #include "MyElement.h"
 

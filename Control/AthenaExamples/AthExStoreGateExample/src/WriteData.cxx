@@ -13,10 +13,10 @@
 #include "MapStringFloat.h"
 #include "StoreGateExample_ClassDEF.h"
 
-#include "AthContainers/DataVector.h"
+#include "DataModel/DataVector.h"
 #include "StoreGate/StoreGateSvc.h"
-#include "AthLinks/DataLink.h"
-#include "AthLinks/ElementLink.h"
+#include "DataModel/DataLink.h"
+#include "DataModel/ElementLink.h"
 
 #include "AthenaKernel/DefaultKey.h"
 #include "AthenaKernel/errorcheck.h"
