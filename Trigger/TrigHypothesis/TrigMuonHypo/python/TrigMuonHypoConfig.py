@@ -521,137 +521,16 @@ class MuisoHypoConfig(MuisoHypo):
         self.AthenaMonTools = [ validation, online, cosmic]
 
         # If configured with passthrough, set AcceptAll flag on
-        self.AcceptAll           = False
+        self.AcceptAll = False
         if len(args) == 2:
             if (args[1]=='passthrough'):
                 self.AcceptAll = True
                 print 'MuisoHypoConfig configured in pasthrough mode'
 
-        # Isolation Hypothesis configuration and cuts
-        self.UseCalo    = True
-        self.UseAbsCalo = True
-        self.UseID      = True
-        self.UseAbsID   = False
-
-        #Default cuts (more than 95% eff on Z->mumu) tuned on 2011 run 178044 data <beta>~6
-        self.CaloConeSize = 2;
         self.IDConeSize   = 2;
-        self.MaxCaloIso_1 = 5200.0
-        self.MaxCaloIso_2 = 4800.0
-        self.MaxCaloIso_3 = 4000.0
-        self.MaxIDIso_1   = 0.05
-        self.MaxIDIso_2   = 0.05
-        self.MaxIDIso_3   = 0.05
-
-        # Specific configurations
-        if len(args) == 2:
-            print 'MuisoHypoConfig configuration for: ', args[1]
-            if (args[1]=='OLD'):
-               print self.name,"OLD configuration not supported anymore, standard cuts used insetad)"
-            if (args[1]=='10GeV'):
-               print self.name,"Very LowPt muIsoHypo configuration set (thight to keep rate low)"
-               self.MaxCaloIso_1 = 4400.0
-               self.MaxCaloIso_2 = 4000.0
-               self.MaxCaloIso_3 = 3200.0
-               self.MaxIDIso_1   = 0.04
-               self.MaxIDIso_2   = 0.04
-               self.MaxIDIso_3   = 0.04
-            if (args[1]=='15GeV'):
-               print self.name,"LowPt muIsoHypo configuration set (tau/W/Z/top)"
-            if (args[1]=='18GeV'):
-               print self.name,"IntermediatePt muIsoHypo configuration set (tau/W/Z/top)"
-            if (args[1]=='20GeV'):
-               print self.name,"HighPt muIsoHypo configuration set (W/Z) (default)"
-            if (args[1]=='4GeV'):
-               print self.name,"Passthrough special muIsoHypo configuration for 4GeV muons test)"
-               self.AcceptAll = True
-            if (args[1]=='6GeV'):
-               print self.name,"Passthrough special muIsoHypo configuration for 6GeV muons test)"
-               self.AcceptAll = True
-            if (args[1]=='top'):
-               print self.name,"top physics muIsoHypo configuration set (dummy yet)"
-            if (args[1]=='ExoticLJ'):
-               print self.name,"Special Exotic non prompt LeptonJets configuration set"
-               self.UseHollowConeCalo = True;
-               self.HollowConeCaloInner = 2;
-               self.HollowConeCaloOuter = 4;
-               self.MaxCaloIso_1 = 5000.0;
-               self.MaxCaloIso_2 = 5000.0;
-               self.MaxCaloIso_3 = 5000.0;
-               self.MaxIDIso_1   = 5000.0;
-               self.MaxIDIso_2   = 5000.0;
-               self.MaxIDIso_3   = 5000.0;
-               self.UseCalo    = True
-               self.UseID      = True
-               self.UseAbsID   = True
-               self.UseAbsCalo = True
-            if (args[1]=='DY'):
-               print self.name,"Special configuration set for DY dimuon isolation (Eram)"
-               self.MaxCaloIso_1 = 99999999999.0
-               self.MaxCaloIso_2 = 99999999999.0
-               self.MaxCaloIso_3 = 99999999999.0
-               self.MaxIDIso_1   = 0.25
-               self.MaxIDIso_2   = 0.25
-               self.MaxIDIso_3   = 0.25
-               self.UseCalo = False
-               self.UseID = True
-            if (args[1]=='tight'):
-               print self.name,"Tight muIsoHypo configuration set for 3e33 chains (absolute cuts)"
-               self.MaxCaloIso_1 = 1400.0
-               self.MaxCaloIso_2 = 1400.0
-               self.MaxCaloIso_3 = 1400.0
-               self.MaxIDIso_1   = 5700.0
-               self.MaxIDIso_2   = 5700.0
-               self.MaxIDIso_3   = 5700.0
-               self.UseCalo = True
-               self.UseID = True
-               self.UseAbsID = True
-            if (args[1]=='tightRel'):
-               print self.name,"Tight muIsoHypo configuration set for 3e33 chains (relative cuts)"
-               self.MaxCaloIso_1 = 0.1
-               self.MaxCaloIso_2 = 0.1
-               self.MaxCaloIso_3 = 0.1
-               self.MaxIDIso_1   = 0.3
-               self.MaxIDIso_2   = 0.3
-               self.MaxIDIso_3   = 0.3
-               self.UseCalo = True
-               self.UseID = True
-               self.UseAbsID = False
-               self.UseAbsCalo = False
-            if (args[1]=='loose'):
-               print self.name,"Loose muIsoHypo configuration set for 3e33 chains (absolute cuts)" 
-               self.MaxCaloIso_1 = 2700.0
-               self.MaxCaloIso_2 = 2700.0
-               self.MaxCaloIso_3 = 2700.0
-               self.MaxIDIso_1   = 99999999999.0
-               self.MaxIDIso_2   = 99999999999.0
-               self.MaxIDIso_3   = 99999999999.0
-               self.UseCalo = True
-               self.UseID = False
-               self.UseAbsID = True
-            if (args[1]=='tauCP'):
-               print self.name,"muIsoHypo configuration set for Tau CP (absolute cuts)" 
-               self.MaxCaloIso_1 = 1400.0
-               self.MaxCaloIso_2 = 1400.0
-               self.MaxCaloIso_3 = 1400.0
-               self.MaxIDIso_1   = 99999999999.0
-               self.MaxIDIso_2   = 99999999999.0
-               self.MaxIDIso_3   = 99999999999.0
-               self.UseCalo = True
-               self.UseID = False
-               self.UseAbsID = True
-            if (args[1]=='looseRel'):
-               print self.name,"Loose muIsoHypo configuration set for 3e33 chains (relative cuts)" 
-               self.MaxCaloIso_1 = 0.1
-               self.MaxCaloIso_2 = 0.1
-               self.MaxCaloIso_3 = 0.1
-               self.MaxIDIso_1   = 99999999999.0
-               self.MaxIDIso_2   = 99999999999.0
-               self.MaxIDIso_3   = 99999999999.0
-               self.UseCalo = True
-               self.UseID = False
-               self.UseAbsID = False
-               self.UseAbsCalo = False
+        self.MaxIDIso_1   = 0.1
+        self.MaxIDIso_2   = 0.1
+        self.MaxIDIso_3   = 0.1
 
         print 'MuisoHypoConfig configuration done'
 
