@@ -1,5 +1,5 @@
 # FTK Simulation Transform Skeleton Job Options
-# $Id: skeleton.FTKStandaloneSim.py 643121 2015-01-30 15:46:51Z gvolpi $
+# $Id: skeleton.FTKStandaloneSim.py 643672 2015-02-02 22:02:23Z jahreda $
 
 from AthenaCommon.AthenaCommonFlags import jobproperties as jp
 from AthenaCommon.Logging import logging
@@ -20,6 +20,7 @@ alg = AlgSequence()
 
 from PerfMonComps.PerfMonFlags import jobproperties as pmjp
 pmjp.PerfMonFlags.doSemiDetailedMonitoring = True # to enable monitoring
+##pmjp.PerfMonFlags.doFullMon = True # to enable monitoring
 
 # --------------------------------------------------------------
 # FTK algorithm inclusions
@@ -99,7 +100,8 @@ runArgsFromTrfOptionalTF = {'IBLMode': 0,
                             'SSFAllowExtraMiss': 0,
                             'SSFTRDefn': 1,
                             'SSFTRMinEta': 1.0,
-                            'SSFTRMaxEta': 1.4
+                            'SSFTRMaxEta': 1.4,
+                            'Save1stStageTrks': False
                             }
 
 #JDC:Find files from ConstantsDir, use to set certain attributes
@@ -282,6 +284,8 @@ elif hasattr(runArgs, 'inputNTUP_FTKIPFile'):
   FTKRoadFinder.InputFromWrapper = True
   FTKRoadFinder.RegionalWrapper = True
   FTKRoadFinder.WrapperFiles = runArgs.inputNTUP_FTKIPFile
+  if hasattr(runArgs, "firstEvent"):
+    FTKRoadFinder.FirstEvent = runArgs.firstEvent
 elif hasattr(runArgs, 'inputRDOFile') :
   FTKRoadFinder.InputFromWrapper = False
   FTKSGInput = FTK_SGHitInput( maxEta= 3.2, minPt= 0.8*GeV)
@@ -323,6 +327,10 @@ else:
    ftkLog.warning('FTK Sim output filename was unset')
 
 skipArgs = [] # instance the list of parameters that can currently be ignored
+
+#check if we want to save 1st stage tracks
+if hasattr(runArgs,'Save1stStageTrks'):
+   FTKTrackFitter.Save1stStageTrks = runArgs.Save1stStageTrks
 
 # check if the second stage is going to be used
 if not hasattr(runArgs,'SecondStageFit') :

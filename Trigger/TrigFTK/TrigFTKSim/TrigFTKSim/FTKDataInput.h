@@ -77,6 +77,8 @@ protected:
   // Additional information for Naoki's studies
   int m_nao_nhits_tot;             // total number of hits per event
   int m_nao_nclus_tot;             // total number of hits per event
+
+  int m_firstEvent;
   
 protected:
   bool *m_goodRegions;
@@ -91,6 +93,8 @@ public:
   bool hasRegionalInput() const { return m_regional; }
 
   void setPlaneMaps(const FTKPlaneMap *pmap,const FTKPlaneMap *pmap_unused);
+
+
 
   virtual int addFile(const char*) {
     std::cerr << "Method not implemented";
@@ -159,6 +163,9 @@ public:
 
   void setReadClusters(bool flag=true) { m_read_clusters = flag; }
   bool getReadClusters() const { return m_read_clusters; }
+
+  void setFirstEvent(int firstEvent = -1) { m_firstEvent = firstEvent;}
+  int getFirstEvent() const {return m_firstEvent;}
 
   virtual int init(bool *good=0x0)=0;
   virtual void initRoadsTracks() {;}

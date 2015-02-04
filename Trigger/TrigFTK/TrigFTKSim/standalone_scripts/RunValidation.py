@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
@@ -9,7 +9,7 @@
 #Checks out the latest Dev version of the FTK simulation script and compares
 #it to the reference version to validate it.
 #Designed to run on lxplus
-#Assumes CompareFTKSimDirectories.sh is in TOPDIR
+#Assumes CompareFTKSimDirectories.py is in TOPDIR
 
 
 import sys, os, subprocess, time, glob
@@ -157,7 +157,7 @@ echo "====run==="
 outfile="NTUP_FTKTMP_${{LSB_JOBINDEX}}.root"
 cmd="TrigFTKSM4Un_tf.py --maxEvents 400 --FTKSetupTag TDAQTDRv2 \
   --bankpatterns 1000000 --ssmap_path raw_60x32a64p2x72Ibl.ss \
-  --bankregion $REGID --inputNTUP_FTKIPFile ${{FTKINFILE}} \
+  --bankregion ${{REGID}} --inputNTUP_FTKIPFile ${{FTKINFILE}} \
   --patternbank0path ${{pattfile[0]}} \
   --patternbank1path ${{pattfile[1]}} \
   --patternbank2path ${{pattfile[2]}} \

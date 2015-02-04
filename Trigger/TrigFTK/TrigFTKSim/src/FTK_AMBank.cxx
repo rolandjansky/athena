@@ -28,7 +28,7 @@ using namespace std;
 
 //#define USEAMIN2
 //#define PRINT_SS 1
-#define PRINT_ROADS_SECTOR 1
+//#define PRINT_ROADS_SECTOR 1
 
 #ifdef TESTTBB
 #include "tbb/parallel_for.h"
@@ -57,7 +57,7 @@ FTK_AMBank::FTK_AMBank(int id, int subid)
     m_CachedBank(false),
      //m_ssmap(0),
      //m_nplanes(0),
-    m_npatterns(0),
+     //m_npatterns(0),
     m_patterns(0),
     m_patternCoverage(0),
     m_sectorCoverage(0),
@@ -625,43 +625,6 @@ void FTK_AMBank::pattlookup_make_map()
     FTKSetup::PrintMessageFmt(info,"Layer %d dictionary statistic:\naverage connected patterns %.1f, min %u, max %u\n",iplane, 1.*m_npatterns/nsslayer,npattsmin,npattsmax);
   }
 }
-
-
-/** this function get the hit list and then populate the associative
-    memory */
-int FTK_AMBank::passHits(const vector<FTKHit> &hitlist)
-{
-   // this function partially replicate the structure of the old 
-   // ftksim main loop, sorting, organizing, and populatig the AM
-
-  // che if  the number of patterns is 0
-  if (!m_npatterns)
-    return 0;
-
-  clear();  
-  sort_hits(hitlist);
-    
-  //readout_hits();
-  
-  //routing();
-
-
-  FTKSetup &ftkset = FTKSetup::getFTKSetup();
-  
-  if (ftkset.getEnableFTKSim()) {
-      data_organizer();
-      am_in();
-  }
-  am_output();
-
-  if (FTKSetup::getFTKSetup().getRoadWarrior()>0)
-    road_warrior();
-
-  addTotStat(getNRoads());
-
-  return getNRoads();
-}
-
 
 void FTK_AMBank::attach_SS() {
   

@@ -117,13 +117,24 @@ class FTK_AMsimulation_base {
    // return list of the roads found by this simulation
    virtual const std::list<FTKRoad>& getRoads()=0;
    //
-   // run simulation by passing a list of FTKHit
-   virtual int passHits(const std::vector<FTKHit> &)=0;
-   //
    // decide whether two roads are identical
    //   this method is used by the default road_warrior() method below
    virtual int informationMatch(FTKRoad *r1,FTKRoad *r2)=0; // needed
-
+   //
+   // initialize data structures for this event (called by pass_hits)
+   virtual void clear(void)=0;
+   //
+   // sort hits into FTK internal structures (called by pass_hits)
+   virtual void sort_hits(const std::vector<FTKHit> &)=0;
+   //
+   // simulate the data organizer (called by pass_hits)
+   virtual void data_organizer(void)=0;
+   //
+   // simulate the AM input (called by pass_hits)
+   virtual void am_in(void)=0;
+   //
+   // simulate the AM output (called by pass_hits)
+   virtual void am_output(void)=0;
    //
    // virtual methods, defaulting to "do nothing"
    //   read pattern banks in various formats
@@ -144,6 +155,10 @@ class FTK_AMsimulation_base {
    //   (default is to do nothing)
    virtual void end();
    //
+   // run simulation by passing a list of FTKHit
+   //   calls other virtual methods:
+   virtual int passHits(const std::vector<FTKHit> &);
+   //
    // remove duplicate roads from the list of roads
    //   to be called by pass_hits()
    //   uses the method informationMatch()
@@ -162,6 +177,7 @@ class FTK_AMsimulation_base {
 
    int m_BankID; // id for this bank, used to select hits
    int m_SubID; // sub-region ID, if 0 has no effect
+   int m_npatterns; // number of patterns in this bank
    int m_do_pattern_stats; // flag for the pattern statistic
    bool m_StoreAllSS; // flag to ask to store all the fired SS in the output file
    int m_SaveAllRoads; // if >0 try to save as much road as possible for debug

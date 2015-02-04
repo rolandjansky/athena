@@ -33,56 +33,43 @@
 // #define PRINT_MULTIPLICITY
 #define SKIP_USELESS_SECTORS
 
+int const FTK_CompressedAMBank::MAX_NROAD=100000;
 
-/**
-   this is a helper class to expand the compressed list of patterns
-*/
-class DeltaExpander {
-public:
-   DeltaExpander(std::vector<uint8_t> const &data)
-      : ptr(data.data()),repeatCount(0),repeatDelta(0) { }
-   //
-   // this method iterates over the patterns
-   // it returns the delta whcih should be added to the present pattern ID
-   inline uint32_t nextDelta(void) {
-      if(repeatCount) {
-         repeatCount--;
-         return repeatDelta;
+template<class A> inline void FTK_CompressedAMBank::patternLoop
+(A &a,uint8_t const __restrict *ptr,uint32_t firstPattern,int nPattern)
+   const {
+   // first pattern ID is known
+   a.initialize(firstPattern);
+   a.process();
+   // loop over all compressed patterns
+   for(--nPattern;nPattern;nPattern--) {
+      uint8_t d=*(ptr++);
+      if(d>=0xf0) {
+         // process multiple patterns with delta=1
+         int di=d-0xef;
+         nPattern-=di;
+         do {
+            a.update(1);
+            a.process();
+            di--;
+         } while(di>=0);
       } else {
-         uint8_t d=*(ptr++);
-         if(d>=0xf0) {
-            // F0..FF
-            repeatDelta=1;
-            repeatCount = (d & 0xf)+1;
-            return repeatDelta;
-         } else if(d&0x80) {
-            // encode leading bits
-            // 8x ->  7..10  [x=1..f]
-            // 9x -> 11..14  [x=1..f]
-            //  ...
-            // Dx -> 27..30  [x=1..f]
-            // Ex -> 31      [x=1]
-            int delta=1;
-            do {
-               int shift=((d>>2)&0x3c)-25;
-               delta += ((uint32_t)(d&0xf))<<shift;
-               d=*(ptr++);
-            } while(d&0x80);
-            return delta+d;
-         } else {
-            return d+1;
+         // process one pattern
+         uint32_t delta=1;
+         while(d & 0x80) {
+            // pattern with more than 7 bits
+            //  add non-zero high bits in groups of 4 bits
+            int shift=((d>>2)&0x3c)-25;
+            delta += ((uint32_t)(d&0xf))<<shift;
+            d=*(ptr++);
          }
+         delta += d;
+         // process one pattern
+         a.update(delta);
+         a.process();
       }
    }
-private:
-   //
-   // pointer to compressed data
-   uint8_t const *ptr;
-   //
-   // counter to take care of encoded repetitions of the same delta
-   uint32_t repeatCount;
-   uint32_t repeatDelta;
-};
+}
 
 FTK_CompressedAMBank::FTK_CompressedAMBank
 (int bankID,int subID,FTKSSMap *ssMap,FTKSSMap *ssMapTSP,char const *name)
@@ -295,7 +282,7 @@ int FTK_CompressedAMBank::writeCachedBankFile
          // the base bit is the start bit of the next pattern
          // the planes are extracted in reverse order
          uint64_t baseBit=
-            ((uint64_t)(ipattern+1))*m_Bank.m_PatternBitsTotal;
+            ((uint64_t)(ipattern+1))*m_bank.m_PatternBitsTotal;
 #endif
          //
          // DC bits and HB mask are composed inside the loop 
@@ -307,41 +294,17 @@ int FTK_CompressedAMBank::writeCachedBankFile
             int nDCbits=m_TSPmap->getNBits(ipl);
             // number of DC+HB bits in this plane
             int nDCHBbits=2*nDCbits;
-#ifdef BIT_PACKED_BANK
-            // total number of bits used to encode the SSID+DC+HB in this layer
-            int nBitLayer=m_Bank.m_PatternByLayer[ipl].m_PatternBits;
-            // start position in bits
-            baseBit -= nBitLayer;
-            // start position in 64-bit words
-            uint64_t const *ptr=m_Bank.m_PatternBitData.data()+(baseBit>>6);
-            // start position bit shift
-            int shift=baseBit & 0x3f;
-            // extract data
-            unsigned dcSSID_with_DCbits=ptr[0]>>shift;
-            if(shift + nBitLayer>64) {
-               // if part of the bits are in the next word, add them
-               dcSSID_with_DCbits |= ptr[1]<<(64-shift);
-            }
-            // mask out unused bits
-            dcSSID_with_DCbits &=(1<<nBitLayer)-1;
-#else
             unsigned dcSSID_with_DCbits;
-            if(m_Bank.m_pattern8Data[ipl].size()) {
-               dcSSID_with_DCbits=m_Bank.m_pattern8Data[ipl][ipattern];
+            if(m_bank.m_pattern8Data[ipl].size()) {
+               dcSSID_with_DCbits=m_bank.m_pattern8Data[ipl][ipattern];
             } else {
-               dcSSID_with_DCbits=m_Bank.m_pattern16Data[ipl][ipattern];
+               dcSSID_with_DCbits=m_bank.m_pattern16Data[ipl][ipattern];
             }
-#endif
             // SSID index is encoded in teh upper bits
             int dcSSIDindex=dcSSID_with_DCbits >> nDCHBbits;
             // SSID index is converted to SSID using lookup-table
-            MAP<int,std::vector<int> >::const_iterator ssidLookup=
-               m_Bank.m_PatternByLayer[ipl].m_dcSSIDtable.find(sector);
-            if(ssidLookup==
-               m_Bank.m_PatternByLayer[ipl].m_dcSSIDtable.end()) {
-               Fatal("writeCachedBankFile")<<"sector not found\n";
-            }
-            int dcSSID=(*ssidLookup).second[dcSSIDindex];
+            int dcSSID=m_bank.m_PatternByLayer[ipl].m_dcSSIDbySectorIndex
+               [sector][dcSSIDindex];
             // DC and HB bits are encoded in the lower bits
             int dcBits=dcSSID_with_DCbits & ((1<<nDCHBbits)-1);
             // use looupb-table to translate and add these bits to the
@@ -805,10 +768,19 @@ int FTK_CompressedAMBank::readSectorOrderedFile
          }
       }
    }
-
    uint32_t ipattSector=0;
    int nSector=0;
-   m_Bank.m_PatternByLayer.resize(nLayer);
+   m_bank.m_PatternByLayer.resize(nLayer);
+   int maxSector=0;
+   // determine maximum sector number
+   for(int sector=reader->GetFirstSector();sector>=0;
+       sector=reader->GetNextSector(sector)) {
+      if(sector>maxSector) maxSector=sector;
+   }
+   for(int iLayer=0;iLayer<nLayer;iLayer++) {
+      m_bank.m_PatternByLayer[iLayer].
+         m_CompressedDeltaBySector.resize(maxSector);
+   }
    //
    // sector loop
    for(int sector=reader->GetFirstSector();sector>=0;
@@ -827,17 +799,39 @@ int FTK_CompressedAMBank::readSectorOrderedFile
          uint32_t m_lastPattern;
          //
          // current position when storing compressed data
-         uint32_t m_currentPosition;
+         uint32_t m_position;
          //
          // for compression: delta and repetition count
-         uint32_t m_repeatCount;
-         uint32_t m_repeatDelta;
+         uint32_t m_repeatDelta1;
       };
       //
       // adress auxillary information by layer and SSID
       std::vector<MAP<int,CompressionHelper> > compressionHelper(nLayer);
       for(int iLoop=0;iLoop<2;iLoop++) {
          ipatt=ipattSector;
+         if(iLoop) {
+            // allocate memory
+            for(unsigned iLayer=0;iLayer<compressionHelper.size();iLayer++) {
+               MAP<int,CompressionHelper>
+                  &helperThisLayer=compressionHelper[iLayer];
+               uint32_t nByte=0;
+               for(MAP<int,CompressionHelper>::const_iterator ssid=
+                      helperThisLayer.begin();ssid!=helperThisLayer.end();
+                   ssid++) {
+                  PatternBySector_t &sectorList
+                     (m_bank.m_PatternByLayer[iLayer].
+                      m_SSidData[(*ssid).first]);
+                  PatternBySector_t::iterator dataPtr=
+                     sectorList.find(sector);
+                  SectorData &data=(*dataPtr).second;
+                  data.m_offset=nByte;
+                  data.m_length=(*ssid).second.m_position;
+                  nByte+=data.m_length; 
+               }
+               m_bank.m_PatternByLayer[iLayer].
+                  m_CompressedDeltaBySector[sector].resize(nByte);
+            }
+         }
          // loop over all patterns in this sector
          for(FTKPatternOneSector::Ptr_t patternPointer=data->Begin();
              patternPointer!=data->End();patternPointer++) {
@@ -849,6 +843,8 @@ int FTK_CompressedAMBank::readSectorOrderedFile
             for(int iLayer=0;iLayer<nLayer;iLayer++) {
                MAP<int,CompressionHelper>
                   &helperThisLayer=compressionHelper[iLayer];
+               uint8_t *compressedDelta=m_bank.m_PatternByLayer[iLayer].
+                  m_CompressedDeltaBySector[sector].data();
                //  decode DC information
                int nBitsX=m_TSPmap->getNBits(iLayer,0);
                int nBitsY=0;
@@ -879,133 +875,86 @@ int FTK_CompressedAMBank::readSectorOrderedFile
                   // find auxillary information
                   CompressionHelper &helper=helperThisLayer[tspid];
                   // find target section of the pattern bank
-                  PatternBySectorMap_t &sectorList
-                     (m_Bank.m_PatternByLayer[iLayer].m_SSidData[tspid]);
-                  PatternBySectorMap_t::iterator dataPtr=
+                  PatternBySector_t &sectorList
+                     (m_bank.m_PatternByLayer[iLayer].m_SSidData[tspid]);
+                  PatternBySector_t::iterator dataPtr=
                      sectorList.find(sector);
-                  if(iLoop==0) {
-                     // first pass: count patterns and determine start pattern
-                     if(dataPtr==sectorList.end()) {
-                        // first pattern in this bank section, reset members
-                        SectorData &data=sectorList[sector];
-                        // store pattern ID
-                        data.m_FirstPattern=ipatt;
+                  if(dataPtr==sectorList.end()) {
+                     // first look, first pattern
+                     // initialize data structure
+                     SectorData &data=sectorList[sector];
+                     // first pattern in this bank section, reset members
+                     // store pattern ID
+                     data.m_FirstPattern=ipatt;
+                     // reset pattern counter
+                     data.m_NPattern=1;
+                     // reset compressed data counter
+                     helper.m_position=0;
+                     helper.m_repeatDelta1=0;
+                  } else {
+                     SectorData &data=(*dataPtr).second;
+                     if(ipatt==data.m_FirstPattern) {
+                        // second loop, first pattern
                         // reset pattern counter
                         data.m_NPattern=1;
-                        // reset compressed data counter
-                        helper.m_currentPosition=0;
+                        // reset position and count of repeated deltas
+                        helper.m_position=0;
+                        helper.m_repeatDelta1=0;
                      } else {
-                        // delta to previous pattern 
+                        // calculate delta to previous pattern 
                         uint32_t delta=ipatt-helper.m_lastPattern-1;
                         // number of bytes needed to store this delta
-                        uint32_t d=1;
+                        uint32_t d=(iLoop==0) ? 1 : helper.m_position;
                         uint32_t mask4=0x780;
+                        int shift=7;
                         // check whether some bits >=7 are nonzero
                         //  -> need extra bytes to store this delta
                         for(uint32_t mask=0xffffff80;mask;mask<<=4) {
                            if((delta & mask)==0) break;
-                           if(delta & mask4) {
+                           uint32_t bits=delta & mask4;
+                           if(bits) {
+                              if(iLoop) {
+                                 compressedDelta[data.m_offset+d]=
+                                    (bits>>shift)|((shift+25)<<2);
+                              }
                               d++;
                            }
                            mask4 <<=4;
+                           shift+=4;
                         }
                         // count number of patterns
                         (*dataPtr).second.m_NPattern++;
-                        // count number of data bytes needed 
-                        helper.m_currentPosition += d;
-                     }
-                  } else {
-                     // second pass: store data
-                     SectorData &data=(*dataPtr).second;
-                     if(data.m_FirstPattern==ipatt) {
-                        // first pattern in this bank section
-                        // allocate memory
-                        data.m_Data.resize(helper.m_currentPosition);
-                        /* if((data.m_NPattern>1)&&(data.m_Data.size()==0)) {
-                           Error("readSectorOrderedFile")
-                              <<"NPattern="<<data.m_NPattern
-                              <<" m_Data.size()="<<data.m_Data.size()
-                              <<" requested="<<helper.m_currentPosition
-                              <<"\n";
-                              } */
-                        // reset pattern counter
-                        data.m_NPattern=1;
-                        // reset position and count of repeated deltas
-                        helper.m_currentPosition=0;
-                        helper.m_repeatCount=0;
-                        helper.m_repeatDelta=0x7fffffff;
-                     } else {
-                        // delta to previous pattern
-                        uint32_t delta=ipatt-helper.m_lastPattern-1;
-                        // count patterns
-                        data.m_NPattern++;
-                        // position in array of compressed data
-                        uint32_t d=helper.m_currentPosition;
-                        if(delta) {
-                           // "normal" delta, can not be compressed
-                           // to less than one byte
-                           // if delta>127 need extra bytes to store bits>=7
-                           uint32_t mask4=0x780;
-                           int shift=7;
-                           for(uint32_t mask=0xffffff80;mask;mask<<=4) {
-                              if((delta & mask)==0) break;
-                              uint32_t bits=delta & mask4;
-                              if(bits) {
-                                 // extra data bytes to encode bits>=7
-                                 data.m_Data[d++]=
-                                    (bits>>shift)|((shift+25)<<2);
-                              }
-                              mask4<<=4;
-                              shift+=4;
-                           }
-                           // lower 7 bits of delta in one byte
-                           data.m_Data[d++]=delta&0x7f;
-                           // this delta can not be compressed further
-                           helper.m_repeatCount=0;
-                           helper.m_repeatDelta=delta;
-                        } else {
-                           // handle case where several deltas
-                           //   may go into one word
-                           if(helper.m_repeatCount&&
-                              (helper.m_repeatDelta==delta)) {
-                              helper.m_repeatCount++;
-                              if(helper.m_repeatCount<=17) {
-                                 unsigned n=data.m_Data.size();
-                                 /* if(n<=1) {
-                                    Fatal("readSectorOrderedFile")
-                                       <<"this is a bug layer="<<iLayer
-                                       <<" tspid="<<tspid<<" ssid="<<ssid
-                                       <<" n="<<n
-                                       <<" d="<<d
-                                       <<" nPattern="<<data.m_NPattern
-                                       <<" repeatCount="<<helper.m_repeatCount
-                                       <<"\n";
-                                       } */
-                                 data.m_Data.resize(n-1);
-                                 /* if(!data.m_Data.size()) {
-                                    Fatal("readSectorOrderedFile")
-                                       <<"out of memory n="<<n
-                                       <<" size="<<data.m_Data.size()<<"\n";
-                                       } */
-                                 data.m_Data[d-1]=
-                                    0xf0+(helper.m_repeatCount-2);
+                        // count number of data bytes needed
+                        if(!delta) {
+                           if((helper.m_repeatDelta1<1)||
+                              (helper.m_repeatDelta1>=16)) {
+                              helper.m_repeatDelta1=1;
+                              if(!iLoop) {
+                                 helper.m_position++;
                               } else {
-                                 helper.m_repeatCount=1;
-                                 helper.m_repeatDelta=delta;
-                                 data.m_Data[d++]=delta;
+                                 compressedDelta[data.m_offset+d]=0;
+                                 d++;
                               }
                            } else {
-                              // delta is different from previous one
-                              // terminate repetition
-                              helper.m_repeatCount=1;
-                              helper.m_repeatDelta=delta;
-                              data.m_Data[d++]=delta;
+                              helper.m_repeatDelta1++;
+                              if(iLoop) {
+                                 compressedDelta[data.m_offset+d-1]=
+                                    helper.m_repeatDelta1 + 0xee;
+                              }
+                           }
+                        } else {
+                           if(!iLoop) {
+                              helper.m_position += d;
+                           } else {
+                              compressedDelta[data.m_offset+d]=delta & 0x7f;
+                              d++;
                            }
                         }
-                        // update auxillary information
-                        helper.m_currentPosition=d;
+                        if(iLoop) {
+                           helper.m_position=d;
+                        }
                      }
-                  }   
+                  }
                   helper.m_lastPattern=ipatt;
                }
             }
@@ -1023,7 +972,7 @@ int FTK_CompressedAMBank::readSectorOrderedFile
       nSector++;
    }
    Info("ReadSectorOrderedFile")
-      <<"nLayer="<<m_Bank.m_PatternByLayer.size()<<" nSector="<<nSector
+      <<"nLayer="<<m_bank.m_PatternByLayer.size()<<" nSector="<<nSector
       <<" nPattern(DC-encoded)="<<ipattSector<<"\n";
    readBankPostprocessing("ReadSectorOrderedFile");
    delete reader;
@@ -1050,11 +999,11 @@ int FTK_CompressedAMBank::writeBinaryFile
     return 1;
   }
   // number of layers
-  int32_t layerCount=m_Bank.m_PatternByLayer.size();
+  int32_t layerCount=m_bank.m_PatternByLayer.size();
   ssidBinary.write((const char *)&layerCount,sizeof(int32_t));
   // loop over all layers
-  for(unsigned layer=0;layer<m_Bank.m_PatternByLayer.size();layer++) {
-     LayerData const &layerData=m_Bank.m_PatternByLayer[layer];
+  for(unsigned layer=0;layer<m_bank.m_PatternByLayer.size();layer++) {
+     LayerData const &layerData=m_bank.m_PatternByLayer[layer];
      int32_t ssidCount=layerData.m_SSidData.size();
      Debug("WriteBinaryFile")
         <<"layer="<<layer
@@ -1070,9 +1019,9 @@ int FTK_CompressedAMBank::writeBinaryFile
      }
      ssidCountTotal += ssidCount;
      // loop over all SSIDs in this layer
-     for(PatternBySectorSSidMap_t::const_iterator ssid=
-           layerData.m_SSidData.begin();
-	ssid!=layerData.m_SSidData.end();ssid++) {
+     for(PatternBySectorSSidMap_t::const_ptr ssid=
+           layerData.m_SSidData.beginPtr();
+	ssid!=layerData.m_SSidData.endPtr();++ssid) {
       int32_t ssidID=(*ssid).first;
       int32_t sectorCount = (*ssid).second.size();
       ssidBinary.write((const char *)&ssidID,sizeof(int32_t));
@@ -1084,20 +1033,24 @@ int FTK_CompressedAMBank::writeBinaryFile
            <<" ssid="<<ssidID<<" count="<<sectorCount<<"\n";
       }
       sectorCountTotal += sectorCount;
-      // loop over all sectors
-      for(PatternBySectorMap_t::const_iterator sector=
-	    (*ssid).second.begin();sector!=(*ssid).second.end();sector++) {
+      // loop over sectors with several patterns
+      for(PatternBySector_t::const_ptr sector=(*ssid).second.beginPtr();
+          sector!=(*ssid).second.endPtr();++sector) {
 	int32_t sectorID=(*sector).first;
 	ssidBinary.write((const char *)&sectorID,sizeof(int32_t));
 	SectorData const &data=(*sector).second;
-	ssidBinary.write((const char *)&data.m_FirstPattern,sizeof(int32_t));
+        int32_t firstPattern;
+        firstPattern=data.m_FirstPattern;
+	ssidBinary.write((const char *)&firstPattern,sizeof(int32_t));
 	ssidBinary.write((const char *)&data.m_NPattern,sizeof(int32_t));
-	uint32_t nData=data.m_Data.size();
+	uint32_t nData=data.m_length;
 	ssidBinary.write((const char *)&nData,sizeof(uint32_t));
 	if(nData>0)
            // here the bulk of the data is written
            //  dump all pattern data for this layer/ssid/sector
-           ssidBinary.write((const char *)data.m_Data.data(),
+           ssidBinary.write((const char *)
+                            m_bank.m_PatternByLayer[layer].
+                            m_CompressedDeltaBySector[sectorID].data(),
                             nData*sizeof(uint8_t));
         if(ssidBinary.fail()) {
            Error("WriteBinaryFile")
@@ -1128,13 +1081,9 @@ int FTK_CompressedAMBank::writeBinaryFile
 }
 
 void FTK_CompressedAMBank::erase(void) {
-   m_Bank.m_PatternByLayer.resize(0);
-#ifdef BIT_PACKED_BANK
-   m_Bank.m_PatternBitData.resize(0);
-#else
-   m_Bank.m_pattern8Data.resize(0);
-   m_Bank.m_pattern16Data.resize(0);
-#endif
+   m_bank.m_PatternByLayer.resize(0);
+   m_bank.m_pattern8Data.resize(0);
+   m_bank.m_pattern16Data.resize(0);
    setNPlanes(0);
 }
 
@@ -1163,7 +1112,7 @@ int FTK_CompressedAMBank::readBinaryFile
       nLayer=0;
    }
    Debug("ReadBinaryFile")<<"Number of layers: "<<nLayer<<"\n";
-   m_Bank.m_PatternByLayer.resize(nLayer);
+   m_bank.m_PatternByLayer.resize(nLayer);
    setNPlanes(nLayer);
    for(uint32_t layer=0;layer<nLayer;layer++) {
       int32_t ssidCount;
@@ -1177,7 +1126,7 @@ int FTK_CompressedAMBank::readBinaryFile
          error++;
          break;
       }
-      LayerData &layerData=m_Bank.m_PatternByLayer[layer];
+      LayerData &layerData=m_bank.m_PatternByLayer[layer];
       Debug("ReadBinaryFile")
          <<"layer="<<layer<<" number of SSIDs="<<ssidCount<<"\n";
     //PatternBySectorSSidMap_t &layerMap=ssidMap[layerId];
@@ -1198,15 +1147,32 @@ int FTK_CompressedAMBank::readBinaryFile
          }
          for(int iSector=0;iSector<sectorCount;iSector++) {
             int32_t sectorID=-1;
-            ssidBinary.read((char *)&sectorID,sizeof(int32_t));
-            SectorData &sectorData=layerData.m_SSidData[ssidID][sectorID];
-            ssidBinary.read((char *)&sectorData.m_FirstPattern,sizeof(int32_t));
-            ssidBinary.read((char *)&sectorData.m_NPattern,sizeof(int32_t));
+            int32_t firstPattern=-1;
+            int32_t nPattern=-1;
             uint32_t nData=-1;
+            ssidBinary.read((char *)&sectorID,sizeof(int32_t));
+            ssidBinary.read((char *)&firstPattern,sizeof(int32_t));
+            ssidBinary.read((char *)&nPattern,sizeof(int32_t));
             ssidBinary.read((char *)&nData,sizeof(int32_t));
-            sectorData.m_Data.resize(nData);
+            SectorData &sectorData=layerData.m_SSidData[ssidID][sectorID];
+            sectorData.m_FirstPattern=firstPattern;
+            sectorData.m_NPattern=nPattern;
+            if((int)m_bank.m_PatternByLayer[layer].
+               m_CompressedDeltaBySector.size()<sectorID+1) {
+               m_bank.m_PatternByLayer[layer].
+                  m_CompressedDeltaBySector.resize(sectorID+1);
+            }
+            sectorData.m_offset=
+               m_bank.m_PatternByLayer[layer].
+               m_CompressedDeltaBySector[sectorID].size();
+            sectorData.m_length=nData;
             if(nData) {
-               ssidBinary.read((char *)sectorData.m_Data.data(),
+               m_bank.m_PatternByLayer[layer].
+                  m_CompressedDeltaBySector[sectorID].resize
+                  (sectorData.m_offset+nData);
+               ssidBinary.read((char*)m_bank.m_PatternByLayer[layer].
+                               m_CompressedDeltaBySector
+                               [sectorID].data()+sectorData.m_offset,
                                nData*sizeof(uint8_t));
             }
             if(ssidBinary.fail()) {
@@ -1215,8 +1181,8 @@ int FTK_CompressedAMBank::readBinaryFile
                      <<"problem to read sector data #"<<iSector
                      <<" (layer="<<layer<<" ssid="<<ssidID
                      <<") ID="<<sectorID
-                     <<" firstPattern="<<sectorData.m_FirstPattern
-                     <<" nPattern="<<sectorData.m_NPattern
+                     <<" firstPattern="<<firstPattern
+                     <<" nPattern="<<nPattern
                      <<" nData="<<nData
                      <<"\n";
                }
@@ -1270,43 +1236,66 @@ void FTK_CompressedAMBank::readBankPostprocessing(char const *where) {
    //    for packing the bank data (local variable in this method):
    //      index=dcSSIDBySectorLayer[layer][sector][ssid]
    //    for unpacking bank data (data member):
-   //      ssid=m_Bank.m_PatternByLayer[layer].m_SSidData[sector][index
+   //      ssid=m_bank.m_PatternByLayer[layer].m_SSidData[sector][index
    std::vector<MAP<int,MAP<int,int> > >
-      dcSSIDBySectorLayer(m_Bank.m_PatternByLayer.size());
+      dcSSIDBySectorLayer(m_bank.m_PatternByLayer.size());
+
+   //
+   // pack data into VECTORMAP structures
+   for(unsigned layer=0;layer<m_bank.m_PatternByLayer.size();layer++) {
+      LayerData &layerData=m_bank.m_PatternByLayer[layer];
+      for(PatternBySectorSSidMap_t::iterator iSSID=
+             layerData.m_SSidData.begin();
+          iSSID!=layerData.m_SSidData.end();iSSID++) {
+         (*iSSID).second.pack();
+      }
+      layerData.m_SSidData.pack();
+   }
 
    //
    // table of delta data
    std::vector<uint32_t> deltaMultiplicity(0x100);
 
-   for(unsigned layer=0;layer<m_Bank.m_PatternByLayer.size();layer++) {
-      LayerData const &layerData=m_Bank.m_PatternByLayer[layer];
+   for(unsigned layer=0;layer<m_bank.m_PatternByLayer.size();layer++) {
+      LayerData const &layerData=m_bank.m_PatternByLayer[layer];
       ssidCountTotal += layerData.m_SSidData.size();
-      for(PatternBySectorSSidMap_t::const_iterator ssid=
-             layerData.m_SSidData.begin();
-          ssid!=layerData.m_SSidData.end();ssid++) {
+      for(PatternBySectorSSidMap_t::const_ptr ssid=
+             layerData.m_SSidData.beginPtr();
+          ssid!=layerData.m_SSidData.endPtr();++ssid) {
          sectorCountTotal += (*ssid).second.size();
          // get DC-level SSID
          int dcSSID=getDCssid(layer,(*ssid).first).first;
-         for(PatternBySectorMap_t::const_iterator sector=
-                (*ssid).second.begin();sector!=(*ssid).second.end();
-             sector++) {
+         for(PatternBySector_t::const_ptr sector=(*ssid).second.beginPtr();
+             sector!=(*ssid).second.endPtr();++sector) {
+            int sectorID=(*sector).first;
             // remember DC-level SSID for this sector
-            dcSSIDBySectorLayer[layer][(*sector).first][dcSSID]=-1;
+            // set index to -1 (undefined)
+            dcSSIDBySectorLayer[layer][sectorID][dcSSID]=-1;
             // unpack bank data to determine min/max pattern ID in this
             //  sector
             SectorData const &sectordata=(*sector).second;
             patternTSPcount[layer]+=sectordata.m_NPattern;
-            int minPatternId=sectordata.m_FirstPattern;
-            int maxPatternId=minPatternId;
-            DeltaExpander expander(sectordata.m_Data);
-            for(unsigned i=0;i<sectordata.m_Data.size();i++)
-               deltaMultiplicity[sectordata.m_Data[i]]++;
-            for(int i=sectordata.m_NPattern-1;i;i--) {
-               maxPatternId+=expander.nextDelta();
-            }
+            class GetMinMax {
+            public:
+               inline void initialize(int firstPattern) {
+                  minPatternId=firstPattern;
+                  maxPatternId=firstPattern;
+               }
+               inline void process(void) { }
+               inline void update(int delta) {
+                  maxPatternId+=delta;
+               }
+               int minPatternId,maxPatternId;
+            } getMinMax;
+            patternLoop(getMinMax,
+                        layerData.m_CompressedDeltaBySector[sectorID].data()+
+                        sectordata.m_offset,
+                        sectordata.m_FirstPattern,
+                        sectordata.m_NPattern);
+            int minPatternId=getMinMax.minPatternId;
+            int maxPatternId=getMinMax.maxPatternId;
             if(patternCountTotal<maxPatternId)
                patternCountTotal=maxPatternId;
-            int sectorID=(*sector).first;
             MAP<int,std::pair<int,int> >::iterator is=
                m_SectorFirstLastPattern.find(sectorID);
             if(is==m_SectorFirstLastPattern.end()) {
@@ -1320,20 +1309,30 @@ void FTK_CompressedAMBank::readBankPostprocessing(char const *where) {
                   (*is).second.second=maxPatternId;
             }
             // estimate memory consumption
-            memorySSIDlookup+=
-               sizeof(SectorData)+sizeof(uint8_t)*sectordata.m_Data.size()+
-               /* estimate for one node in the map*/
-               +3*sizeof(void *);
+            memorySSIDlookup+=sizeof(uint8_t)*sectordata.m_length;
          }
-         // estimate for one node in the map tree
-         //   [parent, previous,next]
-         memorySSIDlookup+=
-            3*sizeof(void *);
+         // memory for this SSID map
+         //   [parent, previous,next,child] plus vector [ptr,size]
+         memorySSIDlookup+= (*ssid).second.getMemoryEstimate();
+
       }
-      memorySSIDlookup += sizeof(LayerData);
+      memorySSIDlookup += sizeof(LayerData)
+         +layerData.m_SSidData.getMemoryEstimate();
    }
    // number of patterns = maximum patternID+1
    patternCountTotal++;
+   m_hitPatterns.resize(patternCountTotal);
+   m_roadCand.resize(MAX_NROAD);
+   //
+   // get sector number from pattern ID
+   //   m_PatternToSector.lower_bound(pattern) returns pointer to sector
+#ifdef CANDIDATES_WITHOUT_SECTORID
+   for(MAP<int,std::pair<int,int> >::const_iterator
+          iSector=m_SectorFirstLastPattern.begin();
+       iSector!=m_SectorFirstLastPattern.end();iSector++) {
+      m_patternToSector[(*iSector).second.second]=(*iSector).first;
+   }
+#endif
 #ifdef PRINT_MULTIPLICITY
    MAP<uint64_t,int> histogram;
    for(int i=0;i<0x100;i++) {
@@ -1363,31 +1362,29 @@ void FTK_CompressedAMBank::readBankPostprocessing(char const *where) {
          if(maxPattern<nPattern) maxPattern=nPattern;
       }
    }
+   int maxSector=(*m_SectorFirstLastPattern.rbegin()).first+1;
 
    // determine number of dc-SSIDs per layer/sector
    //   and set up translation tables
-#ifdef BIT_PACKED_BANK
-   unsigned patternBits=0;
-#else
-   m_Bank.m_pattern8Data.resize(getNPlanes());
-   m_Bank.m_pattern16Data.resize(getNPlanes());
-#endif
+   m_bank.m_pattern8Data.resize(getNPlanes());
+   m_bank.m_pattern16Data.resize(getNPlanes());
    for(unsigned layer=0;layer<dcSSIDBySectorLayer.size();layer++) {
       unsigned iMax=0;
       // layer loop
+      m_bank.m_PatternByLayer[layer].m_dcSSIDbySectorIndex.resize(maxSector);
       for(MAP<int,MAP<int,int> >::iterator sector=
              dcSSIDBySectorLayer[layer].begin();
           sector!=dcSSIDBySectorLayer[layer].end();sector++) {
          // sector loop
          //
-         std::vector<int> &dcSSIDtable=
-            m_Bank.m_PatternByLayer[layer].m_dcSSIDtable[(*sector).first];
+         VECTOR<int> &dcSSIDtable=
+            m_bank.m_PatternByLayer[layer].m_dcSSIDbySectorIndex
+            [(*sector).first];
          //
          // size of the table is the number of distinct SSIDs in this
          //     layer,sector
          dcSSIDtable.resize((*sector).second.size());
-         memoryPatternIDlookup += sizeof(int)*dcSSIDtable.size()
-            + sizeof(std::vector<int>);
+         memoryPatternIDlookup += sizeof(int)*dcSSIDtable.size();
          //
          // assign indexes for each SSID given (layer,sector)
          int i=0;
@@ -1401,54 +1398,33 @@ void FTK_CompressedAMBank::readBankPostprocessing(char const *where) {
          // maximum index in this layer
          if(dcSSIDtable.size()>iMax) iMax=dcSSIDtable.size();
       }
-      // estimate memory consumption for map tree
-      memoryPatternIDlookup +=
-         3*sizeof(void *)*m_Bank.m_PatternByLayer[layer].m_dcSSIDtable.size();
+      // estimate memory consumption for vector 
+      memoryPatternIDlookup += sizeof(std::vector<int>)*maxSector*getNPlanes();
       // determine nunber of bits neede to fit the maximum index
       int nbit;
       for(nbit=0;iMax>(1U<<nbit);nbit++);
       //
       // add space for ternary bits
       nbit+= 2*m_TSPmap->getNBits(layer);
-#ifdef BIT_PACKED_BANK
-      m_Bank.m_PatternByLayer[layer].m_PatternBits=nbit;
-      //std::cout<<"layer="<<layer<<" #dcSSID="<<iMax
-      //         <<" DC bits="<< m_TSPmap->getNBits(layer)
-      //         <<" nbit="<<nbit<<"\n";
-      patternBits+=nbit;
-#else
-      std::cout<<"layer="<<layer<<" #dcSSID="<<iMax
-               <<" DC bits="<< m_TSPmap->getNBits(layer)
-               <<" nbit="<<nbit<<"\n";
+      Info(where)<<"layer="<<layer<<" #dcSSID="<<iMax
+                 <<" DC bits="<< m_TSPmap->getNBits(layer)
+                 <<" nbit="<<nbit<<"\n";
       // pattern bank data is stored in 8-bit or 16-bit words per layer
       if(nbit<=8) {
-         m_Bank.m_pattern8Data[layer].resize(patternCountTotal);
+         m_bank.m_pattern8Data[layer].resize(patternCountTotal);
          memoryPatternIDlookup += sizeof(uint8_t)*patternCountTotal;
       } else {
-         m_Bank.m_pattern16Data[layer].resize(patternCountTotal);
+         m_bank.m_pattern16Data[layer].resize(patternCountTotal);
          memoryPatternIDlookup +=  sizeof(uint16_t)*patternCountTotal;
       }
-#endif
    }
-
-#ifdef BIT_PACKED_BANK
-   int n64=(patternCountTotal*patternBits+63)/64;
-   //std::cout<<"number of bits per pattern: "<<patternBits
-   //         <<" number of 64-bit words: "<<n64<<"\n";
-   m_Bank.m_PatternBitsTotal=patternBits;
-   m_Bank.m_PatternBitData.resize(n64);
-   memoryPatternIDlookup += n64*sizeof(uint64_t);
-   // repack pattern data to have indexing by pattern ID
-   int layerBaseBit=0;
-   int nBitTotal=m_Bank.m_PatternBitsTotal;
-#endif
 
    //
    // fill bank indexed by patternID
 
    // layer loop
-   for(unsigned layer=0;layer<m_Bank.m_PatternByLayer.size();layer++) {
-      LayerData const &layerData=m_Bank.m_PatternByLayer[layer];
+   for(unsigned layer=0;layer<m_bank.m_PatternByLayer.size();layer++) {
+      LayerData const &layerData=m_bank.m_PatternByLayer[layer];
       //
       // encoding table dcIndexTable[sector][SSID] for the given layer
       MAP<int,MAP<int,int> >
@@ -1462,9 +1438,6 @@ void FTK_CompressedAMBank::readBankPostprocessing(char const *where) {
       }
       int nPosX=1<<nBitsX;
       int nPosY=1<<nBitsY;
-#ifdef BIT_PACKED_BANK
-      int nBitLayer=m_Bank.m_PatternByLayer[layer].m_PatternBits;
-#endif
       // total number of ternary bits in this layer
       int hbBitsLayer=nBitsX+nBitsY;
       // total number of DC+HB bits in this layer
@@ -1536,111 +1509,95 @@ void FTK_CompressedAMBank::readBankPostprocessing(char const *where) {
       }
       //
       // loop over all SSIDs in this layer (in TSP space)
-      for(PatternBySectorSSidMap_t::const_iterator ssid=
-             layerData.m_SSidData.begin();
-          ssid!=layerData.m_SSidData.end();ssid++) {
+      for(PatternBySectorSSidMap_t::const_ptr ssid=
+             layerData.m_SSidData.beginPtr();
+          ssid!=layerData.m_SSidData.endPtr();++ssid) {
          //
          // get DC-level SSID
          //    dcSSIDxy.first  : SSID in DC-space
          //    dcSSIDxy.second : xy coordinate of TSP relative to DC
          //
          std::pair<int,int> dcSSIDxy=getDCssid(layer,(*ssid).first);
+
          //
-         // loop over all sectors
-         for(PatternBySectorMap_t::const_iterator sector=
-                (*ssid).second.begin();sector!=(*ssid).second.end();
-             sector++) {
-            //
-            // pattern data for this (layer,ssid,sector)
-            SectorData const &sectordata=(*sector).second;
-            //
-            // get encoded SSID information
-            MAP<int,MAP<int,int> >::const_iterator dcIndexThisSector=
-               dcIndexTable.find((*sector).first);
-            if(dcIndexThisSector==dcIndexTable.end()) {
-               Fatal(where)<<"problem with sector/SSID indexing (sector)\n";
+         // class to loop over all sectors
+         class DCBitExtractor {
+         public:
+            inline DCBitExtractor
+            (int _layer,std::pair<int,int> const &dcSSIDxy,int sector,
+             MAP<int,MAP<int,int> > const &dcIndexTable,int dcHbBitsLayer,
+             std::vector<uint64_t> const &dcBitsLookup1,
+             std::vector<uint64_t> const &dcBitsLookup2,
+             PatternBank &bank) : layer(_layer),m_bank(bank) {
+               //
+               // get encoded SSID information
+               ssidIndex=-1;
+               MAP<int,MAP<int,int> >::const_iterator dcIndexThisSector=
+                  dcIndexTable.find(sector);
+               if(dcIndexThisSector!=dcIndexTable.end()) {
+                  MAP<int,int>::const_iterator ssidIndexPtr=
+                     (*dcIndexThisSector).second.find(dcSSIDxy.first);
+                  if(ssidIndexPtr!=(*dcIndexThisSector).second.end()) {
+                     //
+                     // ssidIndex is a (small) number which identifies
+                     //  the (TSP-)SSID, given (layer,sector)
+                     //
+                     // it is stored together with the ternary bit information
+                     // ssidIndex is shifted by dcHbBitsLayer
+                     //  to leave space for the ternary bit inflrmation
+                     ssidIndex=(*ssidIndexPtr).second << dcHbBitsLayer;
+                  }
+               }
+               dcHbInitial=dcBitsLookup1[dcSSIDxy.second];
+               dcHbMask=(1<<dcHbBitsLayer)-1;
+               dcBitsLookup=dcBitsLookup2.data()
+                  +dcHbInitial*(1<<dcHbBitsLayer);
+               
             }
-            MAP<int,int>::const_iterator ssidIndexPtr=
-               (*dcIndexThisSector).second.find(dcSSIDxy.first);
-            if(ssidIndexPtr==(*dcIndexThisSector).second.end()) {
-               Fatal(where)<<"problem with sector/SSID indexing (SSID)\n";
+            inline int getSSIDindex(void) const { return ssidIndex; }
+            inline void initialize(int firstPattern) {
+               pattern=firstPattern;
             }
-            //
-            // ssidIndex is a (small) number which identifies
-            //  the (TSP-)SSID, given (layer,sector)
-            //
-            // it is stored together with the ternary bit information
-            // ssidIndex is shifted by dcHbBitsLayer
-            //  to leave space for the ternary bit inflrmation
-            uint32_t ssidIndex=(*ssidIndexPtr).second << dcHbBitsLayer;
-#ifdef BIT_PACKED_BANK
-            uint64_t ssidWithDCmask = (1<<nBitLayer)-1;
-            uint64_t *base=m_Bank.m_PatternBitData.data();
-#endif
-            //
-            // transform xy coordinate of TSP relative to DC
-            //   to DC+HB bits
-            // Here, the ternary information is encoded as follows:
-            //
-            //   MSB ................LSB
-            //  ------+-----+------+-----
-            //   ~DCY | HBY | ~DCX | HBX
-            //
-            // ~DCY : logical-not of don't-care bits, Y-coordinate
-            //  HBY : y-coordinate of TSP relative to DC
-            // ~DCX : logical-not of don't-care bits, Y-coordinate
-            //  HBX : y-coordinate of TSP relative to DC
-            //
-            // there is a special case:
-            //  if both ~DC and HB are zero, the pattern is "invalid"
-            //  (it has not been filled yet
-            //
-            // In the original "cached" Bank (Class FTKTSPBank),
-            // if DC=1 (corresponds to ~DC=0) then
-            //   HB could be zero or one
-            // The setting of HB is not relevant if DC is set,
-            // but it is stored anyway
-            //
-            // in the encoding used here, if ~DC=0 then HB=1 to indicate
-            // a valid pattern
-            //
-            uint32_t dcHbInitial=dcBitsLookup1[dcSSIDxy.second];
-#ifdef BIT_PACKED_BANK
-            uint64_t dcHbMask=(1<<dcHbBitsLayer)-1;
-#else
-            uint32_t dcHbMask=(1<<dcHbBitsLayer)-1;
-#endif
-            const uint64_t *dcBitsLookup=dcBitsLookup2.data()
-               +dcHbInitial*(1<<dcHbBitsLayer);
-            //
-            // loop over all patterns
-            int pattern=sectordata.m_FirstPattern;
-            DeltaExpander expander(sectordata.m_Data);
-            for(int i=sectordata.m_NPattern;i;i--) {
+            inline void process(void) {
+               //
+               // transform xy coordinate of TSP relative to DC
+               //   to DC+HB bits
+               // Here, the ternary information is encoded as follows:
+               //
+               //   MSB ................LSB
+               //  ------+-----+------+-----
+               //   ~DCY | HBY | ~DCX | HBX
+               //
+               // ~DCY : logical-not of don't-care bits, Y-coordinate
+               //  HBY : y-coordinate of TSP relative to DC
+               // ~DCX : logical-not of don't-care bits, Y-coordinate
+               //  HBX : y-coordinate of TSP relative to DC
+               //
+               // there is a special case:
+               //  if both ~DC and HB are zero, the pattern is "invalid"
+               //  (it has not been filled yet
+               //
+               // In the original "cached" Bank (Class FTKTSPBank),
+               // if DC=1 (corresponds to ~DC=0) then
+               //   HB could be zero or one
+               // The setting of HB is not relevant if DC is set,
+               // but it is stored anyway
+               //
+               // in the encoding used here, if ~DC=0 then HB=1 to indicate
+               // a valid pattern
+               //
                // here: calculate pattern address
                //  dcOld : ternary bits of presently stored pattern
                //  ssidWithDC : SSID index
-#ifdef BIT_PACKED_BANK
-               uint64_t baseBit=((uint64_t)pattern)*nBitTotal+layerBaseBit;
-               uint64_t *ptr=base+(baseBit>>6);
-               baseBit &=0x3f;
-               uint64_t dcOld=ptr[0]>>baseBit;
-               if(baseBit+dcHbBitsLayer>64) {
-                  dcOld |= ptr[1]<<(64-baseBit);
-               }
-               uint64_t ssidWithDC=ssidIndex;
-#else
                uint32_t dcOld;
                uint32_t ssidWithDC=ssidIndex;
-               if(m_Bank.m_pattern8Data[layer].size()) {
-                  dcOld=m_Bank.m_pattern8Data[layer][pattern];
+               if(m_bank.m_pattern8Data[layer].size()) {
+                  dcOld=m_bank.m_pattern8Data[layer][pattern];
                } else {
-                  dcOld=m_Bank.m_pattern16Data[layer][pattern];
+                  dcOld=m_bank.m_pattern16Data[layer][pattern];
                }
-#endif
                // mask out non-DC bits
                dcOld &= dcHbMask;
-
                if(!dcOld) {
                   //
                   // first-time this patttern is set
@@ -1652,26 +1609,44 @@ void FTK_CompressedAMBank::readBankPostprocessing(char const *where) {
                   // and the old DC bits
                   ssidWithDC |= dcBitsLookup[dcOld];
                }
-#ifdef BIT_PACKED_BANK
-               ptr[0] = (ptr[0] & ~(ssidWithDCmask<<baseBit)) |
-                  (ssidWithDC<<baseBit);
-               if(baseBit+nBitLayer>64) {
-                  // some data to be stored in next word
-                  int shift=64-baseBit;
-                  ptr[1] = (ptr[1] & ~ (ssidWithDCmask>>shift)) |
-                     (ssidWithDC>>shift);
-               }
-#else
                // 
                // store updated pattern information
-               if(m_Bank.m_pattern8Data[layer].size()) {
-                  m_Bank.m_pattern8Data[layer][pattern]=ssidWithDC;
+               if(m_bank.m_pattern8Data[layer].size()) {
+                  m_bank.m_pattern8Data[layer][pattern]=ssidWithDC;
                } else {
-                  m_Bank.m_pattern16Data[layer][pattern]=ssidWithDC;
+                  m_bank.m_pattern16Data[layer][pattern]=ssidWithDC;
                }
-#endif
-               if(i>1) pattern+=expander.nextDelta();
             }
+            inline void update(int delta) {
+               pattern+=delta;
+            }
+         protected:
+            uint32_t ssidIndex;
+            uint32_t dcHbInitial;
+            uint32_t dcHbMask;
+            int layer;
+            const uint64_t *dcBitsLookup;
+            int pattern;
+            PatternBank &m_bank;
+         };
+         //
+         // loop over all sectors with multiple patterns
+         for(PatternBySector_t::const_ptr sector=(*ssid).second.beginPtr();
+             sector!=(*ssid).second.endPtr();++sector) {
+            DCBitExtractor extractor
+               (layer,dcSSIDxy,(*sector).first,
+                dcIndexTable,dcHbBitsLayer,dcBitsLookup1,dcBitsLookup2,m_bank);
+            if(extractor.getSSIDindex()<0) {
+               Fatal(where)
+                  <<"problem with sector/SSID indexing (multi-pattern)\n";
+            }
+            //
+            // pattern data for this (layer,ssid,sector)
+            SectorData const &sectordata=(*sector).second;
+            patternLoop(extractor,
+                        layerData.m_CompressedDeltaBySector
+                        [(*sector).first].data()+sectordata.m_offset,
+                        sectordata.m_FirstPattern,sectordata.m_NPattern);
          }
       }
 #ifdef BIT_PACKED_BANK
@@ -1699,10 +1674,15 @@ void FTK_CompressedAMBank::readBankPostprocessing(char const *where) {
          <<"plane="<<i<<" number of TSP/pattern="
          <<patternTSPcount[i]/(double)patternCountTotal<<"\n";
    }
+   int memoryBuffers=2*sizeof(VECTOR<HitPattern_t>)+
+      (m_sectorUsage.size()+m_hitPatterns.size())*sizeof(HitPattern_t)+
+      sizeof(VECTOR<uint32_t>)+m_roadCand.size()*sizeof(uint32_t);
    Info(where)
       <<"memory: SSID="<<memorySSIDlookup/1024/1024
       <<" MB, patternID="<<memoryPatternIDlookup/1024/1024
-      <<" MB, total="<<(memorySSIDlookup+memoryPatternIDlookup)/1024/1024
+      <<" MB, buffers="<<(memoryBuffers)/1024/1024
+      <<" MB, total="<<(memorySSIDlookup+memoryPatternIDlookup+
+                        memoryBuffers)/1024/1024
       <<" MB\n";
    Info(where)
       <<"bytes per pattern and layer: SSID="<<memorySSIDlookup/
@@ -1721,17 +1701,17 @@ void FTK_CompressedAMBank::readBankPostprocessing(char const *where) {
 */
 int FTK_CompressedAMBank::compare(FTK_CompressedAMBank const *bank) const {
    int error=0;
-   for(unsigned layer=0;(layer<m_Bank.m_PatternByLayer.size())&&
-          (layer<bank->m_Bank.m_PatternByLayer.size());
+   for(unsigned layer=0;(layer<m_bank.m_PatternByLayer.size())&&
+          (layer<bank->m_bank.m_PatternByLayer.size());
        layer++) {
-      LayerData const &thisLayerData=m_Bank.m_PatternByLayer[layer];
-      LayerData const &otherLayerData=bank->m_Bank.m_PatternByLayer[layer];
-      PatternBySectorSSidMap_t::const_iterator ssid1,ssid2;
-      for(ssid1=thisLayerData.m_SSidData.begin(),
-             ssid2=otherLayerData.m_SSidData.begin();
-          (ssid1!=thisLayerData.m_SSidData.end())&&
-             (ssid2!=otherLayerData.m_SSidData.end());
-          ssid1++,ssid2++) {
+      LayerData const &thisLayerData=m_bank.m_PatternByLayer[layer];
+      LayerData const &otherLayerData=bank->m_bank.m_PatternByLayer[layer];
+      PatternBySectorSSidMap_t::const_ptr ssid1,ssid2;
+      for(ssid1=thisLayerData.m_SSidData.beginPtr(),
+             ssid2=otherLayerData.m_SSidData.beginPtr();
+          (ssid1!=thisLayerData.m_SSidData.endPtr())&&
+             (ssid2!=otherLayerData.m_SSidData.endPtr());
+          ++ssid1,++ssid2) {
          if((*ssid1).first != (*ssid2).first) {
             if((error & 0x0010)==0) {
                Info("Compare")
@@ -1741,9 +1721,44 @@ int FTK_CompressedAMBank::compare(FTK_CompressedAMBank const *bank) const {
             error |= 0x0010;
             continue;
          }
-         PatternBySectorMap_t::const_iterator sector1,sector2;
-         for(sector1=(*ssid1).second.begin(),sector2=(*ssid2).second.begin();
-             (sector1!=(*ssid1).second.end())&&(sector2!=(*ssid2).second.end());
+         
+         MAP<int,VECTOR<uint32_t> > patternData1,patternData2;
+
+         class PatternExtractor {
+         public:
+            inline PatternExtractor(VECTOR<uint32_t> &data) : m_data(data) { }
+            inline void initialize(uint32_t first) { pattern=first; }
+            inline void process(void) {
+               m_data.push_back(pattern);
+            }
+            inline void update(uint32_t delta) {
+               pattern+=delta;
+            }
+         protected:
+            VECTOR<uint32_t> &m_data;
+            uint32_t pattern;
+         };
+         for(PatternBySector_t::const_ptr sector1=(*ssid1).second.beginPtr();
+              sector1!=(*ssid1).second.endPtr();++sector1) {
+            PatternExtractor extractor(patternData1[(*sector1).first]);
+            patternLoop(extractor,
+                        thisLayerData.m_CompressedDeltaBySector
+                        [(*sector1).first].data()+(*sector1).second.m_offset,
+                        (*sector1).second.m_FirstPattern,
+                        (*sector1).second.m_NPattern);
+         }
+         for(PatternBySector_t::const_ptr sector2=(*ssid2).second.beginPtr();
+              sector2!=(*ssid2).second.endPtr();++sector2) {
+            PatternExtractor extractor(patternData2[(*sector2).first]);
+            patternLoop(extractor,
+                        otherLayerData.m_CompressedDeltaBySector
+                        [(*sector2).first].data()+(*sector2).second.m_offset,
+                        (*sector2).second.m_FirstPattern,
+                        (*sector2).second.m_NPattern);
+         }
+         MAP<int,VECTOR<uint32_t> >::const_iterator sector1,sector2;
+         for(sector1=patternData1.begin(),sector2=patternData2.begin();
+             (sector1!=patternData1.end())&&(sector2!=patternData2.end());
              sector1++,sector2++) {
             if((*sector1).first != (*sector2).first) {
                if((error & 0x0100)==0) {
@@ -1755,22 +1770,14 @@ int FTK_CompressedAMBank::compare(FTK_CompressedAMBank const *bank) const {
                error |= 0x0100;
                continue;
             }
-            SectorData const &sectordata1=(*sector1).second;
-            SectorData const &sectordata2=(*sector2).second;
+            VECTOR<uint32_t> const &sectordata1=(*sector1).second;
+            VECTOR<uint32_t> const &sectordata2=(*sector2).second;
             int errOld=error;
-            if(sectordata1.m_FirstPattern!=sectordata2.m_FirstPattern)
-               error |= 0x1000;
-            if(sectordata1.m_NPattern!=sectordata2.m_NPattern) error |= 0x2000;
-            if(sectordata1.m_FirstPattern!=sectordata2.m_FirstPattern) {
-               error |= 0x8000;
-            } else {
-               DeltaExpander expander1(sectordata1.m_Data);
-               DeltaExpander expander2(sectordata2.m_Data);
-               for(int i=sectordata1.m_NPattern-1;i;i--) {
-                  if(expander1.nextDelta()!=expander2.nextDelta()) {
-                     error |= 0x8000;
-                     break;
-                  }
+            if(sectordata1.size()!=sectordata2.size()) error |= 0x2000;
+            for(unsigned i=0;i<sectordata1.size();i++) {
+               if(sectordata1[i]!=sectordata2[i]) {
+                  error |= 0x8000;
+                  break;
                }
             }
             if(errOld != error) {
@@ -1781,8 +1788,8 @@ int FTK_CompressedAMBank::compare(FTK_CompressedAMBank const *bank) const {
                   <<std::setbase(10)<<"\n";
             }
          }
-         if(((error & 0x0200)==0) && ((sector1!=(*ssid1).second.end())||
-                                      (sector2!=(*ssid2).second.end()))) {
+         if(((error & 0x0200)==0) && ((sector1!=patternData1.end())||
+                                      (sector2!=patternData2.end()))) {
             Info("Compare")
                <<"different number of sectors (layer="<<layer
                <<" ssid="<<(*ssid1).first
@@ -1792,20 +1799,21 @@ int FTK_CompressedAMBank::compare(FTK_CompressedAMBank const *bank) const {
             error |= 0x0200;
          }
       }
-      if(((error & 0x0020)==0)&&((ssid1!=thisLayerData.m_SSidData.end())||
-                                 (ssid2!=otherLayerData.m_SSidData.end()))) {
-         Info("Compare")
-            <<"different number of ssids (layer="<<layer
-            <<") "<<thisLayerData.m_SSidData.size()
-            <<"!="<<otherLayerData.m_SSidData.size()
-            <<"\n";
-         error |= 0x0020;
-      }
+      if(((error & 0x0020)==0)&&((ssid1!=thisLayerData.m_SSidData.endPtr())||
+                                 (ssid2!=otherLayerData.m_SSidData.endPtr())))
+         {
+            Info("Compare")
+               <<"different number of ssids (layer="<<layer
+               <<") "<<thisLayerData.m_SSidData.size()
+               <<"!="<<otherLayerData.m_SSidData.size()
+               <<"\n";
+            error |= 0x0020;
+         }
    }
-   if((m_Bank.m_PatternByLayer.size()!=bank->m_Bank.m_PatternByLayer.size())) {
+   if((m_bank.m_PatternByLayer.size()!=bank->m_bank.m_PatternByLayer.size())) {
       Info("Compare")
-         <<"different number of layers "<<m_Bank.m_PatternByLayer.size()
-         <<"!="<<bank->m_Bank.m_PatternByLayer.size()<<"\n";
+         <<"different number of layers "<<m_bank.m_PatternByLayer.size()
+         <<"!="<<bank->m_bank.m_PatternByLayer.size()<<"\n";
       error |= 0x0001;
    }
    if(error) {
@@ -1842,7 +1850,7 @@ int FTK_CompressedAMBank::readRootFile(char const *filename) {
          if(layer>maxLayer) maxLayer=layer;
       }
    }
-   m_Bank.m_PatternByLayer.resize(maxLayer+1);
+   m_bank.m_PatternByLayer.resize(maxLayer+1);
    setNPlanes(maxLayer+1);
    next=in->GetListOfKeys();
    while((o=next())) {
@@ -1851,7 +1859,7 @@ int FTK_CompressedAMBank::readRootFile(char const *filename) {
       if(layer<0) {
          continue;
       }
-      LayerData &layerData=m_Bank.m_PatternByLayer[layer];
+      LayerData &layerData=m_bank.m_PatternByLayer[layer];
       if(name.BeginsWith("Layer")) {
          Info("readRootFile")
             <<"file="<<filename<<" read layer="<<layer<<" data\n";
@@ -1859,37 +1867,57 @@ int FTK_CompressedAMBank::readRootFile(char const *filename) {
          in->GetObject(name,tree);
          if(tree) {
             int nSector=tree->GetEntries();
+            //std::cout<<" nSector="<<nSector<<"\n";
             Int_t ssidVar,sectorVar,firstPatternVar,nPatternVar;
             Int_t nDataVar;
-            std::vector<Int_t> data;
             tree->SetBranchAddress("ssid",&ssidVar);
             tree->SetBranchAddress("sector",&sectorVar);
             tree->SetBranchAddress("firstPattern",&firstPatternVar);
             tree->SetBranchAddress("nPattern",&nPatternVar);
                tree->SetBranchAddress("nData",&nDataVar);
             int dataSize=0;
+            tree->SetBranchStatus("sector");
             tree->SetBranchStatus("nData");
+            MAP<int,int> sectorSize;
             for(int i=0;i<nSector;i++) {
+               //std::cout<<" "<<i;
                tree->GetEntry(i);
+               //std::cout<<" "<<nDataVar<<" "<<sectorVar<<"\n";
                if(nDataVar>dataSize) dataSize=nDataVar;
+               sectorSize[sectorVar]+=nDataVar;
             }
-            data.resize(dataSize);
+            int maxSector=(*sectorSize.rbegin()).first+1;
+            //std::cout<<" sectorVar="<<dataSize
+            //         <<" maxSector="<<maxSector<<"\n";
+            VECTOR<int> sectorOffset(maxSector);
+            std::vector<Int_t> data(dataSize);
+            layerData.m_CompressedDeltaBySector.resize(maxSector);
+            for(MAP<int,int>::const_iterator isector=sectorSize.begin();
+                isector!=sectorSize.end();isector++) {
+               layerData.m_CompressedDeltaBySector[(*isector).first].resize
+                  ((*isector).second);
+            }
             tree->SetBranchAddress("data",data.data());
             tree->SetBranchStatus("data");
             tree->SetBranchStatus("ssid");
-            tree->SetBranchStatus("sector");
             tree->SetBranchStatus("firstPattern");
             tree->SetBranchStatus("nPattern");
             Info("readRootFile")<<"nSector="<<nSector
                                   <<" buffer size="<<data.size()<<"\n";
             for(int i=0;i<nSector;i++) {
                tree->GetEntry(i);
-               SectorData &sectordata=
-                  layerData.m_SSidData[ssidVar][sectorVar];
+               SectorData &sectordata=layerData.m_SSidData[ssidVar][sectorVar];
                sectordata.m_FirstPattern=firstPatternVar;
                sectordata.m_NPattern=nPatternVar;
-               sectordata.m_Data.resize(nDataVar);
-               for(int i=0;i<nDataVar;i++) sectordata.m_Data[i]=data[i];
+               sectordata.m_offset=sectorOffset[sectorVar];
+               sectordata.m_length=nDataVar;
+               uint8_t __restrict *dest=
+                  layerData.m_CompressedDeltaBySector[sectorVar].data()+
+                  sectordata.m_offset;
+               for(int i=0;i<nDataVar;i++) {
+                  (*dest++)=data[i];
+               }
+               sectorOffset[sectorVar]+=nDataVar;
             }
          } else {
             Error("readRootFile")<<"TObject "<<name<<" is not a TTree\n";
@@ -1925,18 +1953,17 @@ int FTK_CompressedAMBank::readRootFile(char const *filename) {
 int FTK_CompressedAMBank::writeRootFile(char const *filename) const {
    int error=0;
    TDirectory *out=FTKRootFile::Instance()->CreateRootFile(filename);
-   for(unsigned layer=0;layer<m_Bank.m_PatternByLayer.size();layer++) {
-      LayerData const &layerData=m_Bank.m_PatternByLayer[layer];
+   for(unsigned layer=0;layer<m_bank.m_PatternByLayer.size();layer++) {
+      LayerData const &layerData=m_bank.m_PatternByLayer[layer];
       TString treeName(TString::Format("Layer%d",layer));
       TTree *ssidTree=new TTree(treeName,treeName);
       int maxDataSize=0;
-      for(PatternBySectorSSidMap_t::const_iterator ssid=
-             layerData.m_SSidData.begin();
-          ssid!=layerData.m_SSidData.end();ssid++) {
-         for(PatternBySectorMap_t::const_iterator sector=
-                (*ssid).second.begin();sector!=(*ssid).second.end();
-             sector++) {
-            int nword=(*sector).second.m_Data.size();
+      for(PatternBySectorSSidMap_t::const_ptr ssid=
+             layerData.m_SSidData.beginPtr();
+          ssid!=layerData.m_SSidData.endPtr();++ssid) {
+         for(PatternBySector_t::const_ptr sector=(*ssid).second.beginPtr();
+             sector!=(*ssid).second.endPtr();++sector) {
+            int nword=(*sector).second.m_length;
             if(nword>maxDataSize) maxDataSize=nword;
          }
       }
@@ -1953,19 +1980,21 @@ int FTK_CompressedAMBank::writeRootFile(char const *filename) const {
          ssidTree->Branch("nData",&nDataVar,"nData/I");
          ssidTree->Branch("data",data.data(),"data[nData]/I");
       }
-      for(PatternBySectorSSidMap_t::const_iterator ssid=
-             layerData.m_SSidData.begin();
-          ssid!=layerData.m_SSidData.end();ssid++) {
+      for(PatternBySectorSSidMap_t::const_ptr ssid=
+             layerData.m_SSidData.beginPtr();
+          ssid!=layerData.m_SSidData.endPtr();++ssid) {
          ssidVar=(*ssid).first;
-         for(PatternBySectorMap_t::const_iterator sector=
-                (*ssid).second.begin();sector!=(*ssid).second.end();
-             sector++) {
+         for(PatternBySector_t::const_ptr sector=(*ssid).second.beginPtr();
+             sector!=(*ssid).second.endPtr();++sector) {
             sectorVar=(*sector).first;
             firstPatternVar=(*sector).second.m_FirstPattern;
             nPatternVar=(*sector).second.m_NPattern;
-            nDataVar=(*sector).second.m_Data.size();
+            nDataVar=(*sector).second.m_length;
+            uint8_t __restrict const *compressedDeltaData=layerData.
+               m_CompressedDeltaBySector[sectorVar].data()+
+               (*sector).second.m_offset;
             for(int i=0;i<nDataVar;i++)
-               data[i]=(*sector).second.m_Data[i];
+               data[i]=compressedDeltaData[i];
             ssidTree->Fill();
          }
       }
@@ -1997,11 +2026,12 @@ void FTK_CompressedAMBank::init() {
    //   these accounts for a cut make on certain eta modules
    //   in the outermost plane
    //    (see FTK_AMbank::am_output)
+   FTK_AMsimulation_base::init();
    PatternBySectorSSidMap_t const &outerLayer=
-      m_Bank.m_PatternByLayer[getNPlanes()-1].m_SSidData;
+      m_bank.m_PatternByLayer[getNPlanes()-1].m_SSidData;
    MAP<int,int> sectorFlag;
-   for(PatternBySectorSSidMap_t::const_iterator iSSid=outerLayer.begin();
-       iSSid!=outerLayer.end();iSSid++) {
+   for(PatternBySectorSSidMap_t::const_ptr iSSid=outerLayer.beginPtr();
+       iSSid!=outerLayer.endPtr();++iSSid) {
       int ieta1 = abs((*iSSid).first) %100;
       int mask;
       if((ieta1==0 ) || (ieta1==12) || (ieta1==21) ||(ieta1==31)) {
@@ -2009,8 +2039,8 @@ void FTK_CompressedAMBank::init() {
       } else {
          mask=1;
       }
-      for(PatternBySectorMap_t::const_iterator sector=(*iSSid).second.begin();
-          sector!=(*iSSid).second.end();sector++) {
+      for(PatternBySector_t::const_ptr sector=(*iSSid).second.beginPtr();
+          sector!=(*iSSid).second.endPtr();++sector) {
          sectorFlag[(*sector).first] |= mask;
       }
    }
@@ -2036,57 +2066,12 @@ void FTK_CompressedAMBank::init() {
 }
 
 /**
-   passHits()
-
-   run pattern finding given a vector of FTKHit
-
-   use the methods
-      getRoads()
-      getStrips()
-   to obtain the results
-*/
-int FTK_CompressedAMBank::passHits(const std::vector<FTKHit> &hits) {
-
-   // clear results from previous event
-   clearDOandAM();
-
-   FTKSetup &ftkset = FTKSetup::getFTKSetup();
-
-   // this stores the TSP-space SSIDs ordered by plane
-   std::vector<std::list<int> > tspSSID(getNPlanes());
-
-   if (ftkset.getEnableFTKSim()) {
-
-      // fill vector<list<int> > for the given list<FTKHit>
-      simulateDOinput(hits,tspSSID);
-
-      // find roads, given the vector<list<int> >
-      simulateAM(tspSSID);
-   }
-
-   // remove duplicate roads
-   if (FTKSetup::getFTKSetup().getRoadWarrior()>0) {
-      road_warrior();
-   }
-   naoSetNroadsRW(getNRoads());
-
-   // fill "used" superstrips
-   // (superstrips connected to roads)
-   if (ftkset.getEnableFTKSim()) {
-      simulateDOoutput();
-   }
-
-   addTotStat(getNRoads());
-   return getNRoads();
-}
-
-/**
-   clearDOandAM()
+   clear()
 
    clear data structures representing the
    data-organizer and AM output
  */
-void FTK_CompressedAMBank::clearDOandAM(void) {
+void FTK_CompressedAMBank::clear(void) {
    naoClear();
    clearNRoads();
    // data organizer
@@ -2096,10 +2081,14 @@ void FTK_CompressedAMBank::clearDOandAM(void) {
    m_UsedSSmap.resize(getNPlanes());
    // AM output
    m_roads.clear();
+
+   m_MAX_MISSING_PLANES = FTKSetup::getFTKSetup().getMaxMissingPlanes();
+   m_MAX_MISSING_SCT_PAIRS = FTKSetup::getFTKSetup().getMaxMissingSctPairs();
+   m_nhWCmin=getNPlanes()-m_MAX_MISSING_PLANES-m_MAX_MISSING_SCT_PAIRS;
 }
 
 /**
-   simulateDOinput()
+   sort_hits()
 
    read vector<FKTHit>
    produce a list of (layer,TSPssid) stored as std::vector<std::list<int> >
@@ -2107,8 +2096,8 @@ void FTK_CompressedAMBank::clearDOandAM(void) {
    in addition, create a list of all superstrips (DC-space with subSS)
    store in m_FiredSSmap
 */
-void FTK_CompressedAMBank::simulateDOinput
-(const std::vector<FTKHit> &hits,std::vector<std::list<int> > &tspSSIDfired) {
+void FTK_CompressedAMBank::sort_hits
+(const std::vector<FTKHit> &hits) {
    // list of all hits, ordered by layer and TSP-SSID
    typedef std::list<FTKHit const *> SSinfo_t;
    typedef MAP<int,SSinfo_t> SSinfoBySSID_t;
@@ -2156,7 +2145,7 @@ void FTK_CompressedAMBank::simulateDOinput
          // this SSID has not been entered yet
          iSSID=hitList[iplane].insert
             (std::make_pair(tsp_ssid,std::list<FTKHit const *>())).first;
-         tspSSIDfired[iplane].push_back(tsp_ssid);
+         m_tspSSID[iplane].push_back(tsp_ssid);
       }
       // add hit
       (*iSSID).second.push_back(hit);
@@ -2198,263 +2187,271 @@ void FTK_CompressedAMBank::simulateDOinput
    }
 }
 
-/**
-   simulateAM()
-
-   take a list of (layer,TSP-SSID)
-   find valid patterns
-   Output: populate m_roads
- */
-
-void FTK_CompressedAMBank::simulateAM
-(std::vector<std::list<int> > const &tspSSIDfired) {
-   FiredSectorData_t firedSectorData;
-   simulateAMdistributeSSID(tspSSIDfired,firedSectorData);
-   simulateAMsectorloop(firedSectorData);
+void FTK_CompressedAMBank::data_organizer(void) {
+   data_organizer_r(m_tspSSID);
 }
 
-void FTK_CompressedAMBank::simulateAMdistributeSSID
-(std::vector<std::list<int> > const &tspSSIDfired,
- FiredSectorData_t &firedSectorData) const {
+void FTK_CompressedAMBank::data_organizer_r
+(std::vector<std::list<int> > const &tspSSIDfired) {
+   int maxSector=(*m_SectorFirstLastPattern.rbegin()).first+1;
+   m_sectorUsage.resize(maxSector);
+   memset(m_sectorUsage.data(),0,sizeof(HitPattern_t)*m_sectorUsage.size());
    //
    // loop over all input (layer,ssid)
    // locate the (layer,ssid) in the bank
    // store pointer to the pattern data in the sector-ordered structure
    //    patternDataBySectorLayerSSID[sector][layer][ssid]
-   firedSectorData.resize(getNPlanes());
-   int nSector=(*m_SectorFirstLastPattern.rbegin()).first+1;
    for(int iplane=0;iplane<getNPlanes();iplane++) {
-      LayerData const &bankDataThisLayer=m_Bank.m_PatternByLayer[iplane];
+      LayerData const &bankDataThisLayer=m_bank.m_PatternByLayer[iplane];
+      HitPattern_t mask=1<<iplane;
       for(std::list<int>::const_iterator iSSID=tspSSIDfired[iplane].begin();
           iSSID!=tspSSIDfired[iplane].end();iSSID++) {
-         PatternDataBySectorSSID_t &firedSector=firedSectorData[iplane];
-         firedSector.resize(nSector);
          int tsp_ssid=(*iSSID);
-         // locate the new SSID in the pattern bank
+         // locate the SSID in the pattern bank
          PatternBySectorSSidMap_t::const_iterator ssidInBank=
             bankDataThisLayer.m_SSidData.find(tsp_ssid);
          if(ssidInBank!=bankDataThisLayer.m_SSidData.end()) {
             // tsp_ssid is present in the pattern bank
-            //  loop over all its sectors and store pointers to the
-            //  pattern data for this (sector,layer,ssid)
-            for(PatternBySectorMap_t::const_iterator sector=
-                   (*ssidInBank).second.begin();
-                sector!=(*ssidInBank).second.end();sector++) {
-               firedSector[(*sector).first].push_back(&(*sector).second);
+            //  loop over all its sectors and set mask
+            for(PatternBySector_t::const_ptr sector=
+                   (*ssidInBank).second.beginPtr();
+                sector!=(*ssidInBank).second.endPtr();++sector) {
+               m_sectorUsage[(*sector).first]|=mask;
+            }
+         }
+      }
+   }
+   //
+   // loop over all sectors
+   // discard sectors with insufficient numnber of hits candidates
+   for(MAP<int,std::pair<int,int> >::const_iterator isector=
+          m_SectorFirstLastPattern.begin();
+       isector!=m_SectorFirstLastPattern.end();isector++) {
+      int sector=(*isector).first;
+      // determine wildcard for this sector
+      HitPattern_t sectorWildcard=0;
+      MAP<int,HitPattern_t>::const_iterator
+         iWC=m_SectorWildcard.find(sector);
+      if(iWC!=m_SectorWildcard.end()) sectorWildcard=(*iWC).second;
+      int hitPattern=m_sectorUsage[sector] | sectorWildcard;
+      int nhit=m_nHit16[hitPattern];
+      if(nhit>=m_nhWCmin) {
+         //
+         // reset hit pattern for this sector
+         int firstPattern=(*isector).second.first;
+         int lastPattern=(*isector).second.second;
+         if(firstPattern!=lastPattern) {
+            memset(m_hitPatterns.data()+firstPattern,0,
+                   lastPattern+1-firstPattern);
+         }
+      } else {
+         // skip this sector
+         m_sectorUsage[sector]=0;
+      }
+   }
+}
+
+/**
+   am_in()
+   am_in_r()
+
+   put hits into assiciated memory
+ */
+
+void FTK_CompressedAMBank::am_in(void) {
+   am_in_r(m_tspSSID);
+}
+
+void FTK_CompressedAMBank::am_in_r
+(std::vector<std::list<int> > const &tspSSIDfired) {
+   // first part of the AM emulation
+   //   corresponds to am_in()
+   //   the hits are fed into the assiciated memory
+   //   and road candidates are defined
+
+   class MaskUpdaterFast {
+      // fast update of hitpattern only
+   public:
+      inline MaskUpdaterFast(HitPattern_t *hits,HitPattern_t msk)
+         : patternPtr(hits), mask(msk) {
+      }
+      inline void process(void) {
+         *patternPtr |= mask;
+      }
+      inline void update(int delta) {
+         patternPtr += delta;
+      }
+      inline void initialize(int firstPattern) {
+         update(firstPattern);
+      }
+   protected:
+      HitPattern_t __restrict *patternPtr;
+      HitPattern_t mask;
+   };
+   class MaskUpdaterSlow {
+      // slow update:
+      // update hit pattern and
+      // determine road candidates
+      // a road candidate is store if:
+      //   (1) the pattern has hits in other layers
+      //   (2) the pattern has no hit in the present layer
+      //   (3) the updated mask has exactly the minimum number of hits
+      // condition (1) is to skip empty patterns (not needed?)
+      // condition (2) is to ensure a valid pattern is stored only once
+      // condition (3) is there to ensure the pattern is there and stored only
+      //   as the threshold is passed
+   public:
+      inline MaskUpdaterSlow(HitPattern_t *hits,HitPattern_t msk,
+#ifndef CANDIDATES_WITHOUT_SECTORID
+                             uint32_t sectorID,
+#endif
+                             uint8_t nhmin,uint8_t const *nh16,
+                             VECTOR<
+#ifdef CANDIDATES_WITHOUT_SECTORID
+                             uint32_t
+#else
+                             std::pair<uint32_t,uint32_t>
+#endif
+                             > &rc,unsigned &nrc)
+         : patternPtr(hits), mask(msk),notMask(~msk),roadCandidates(rc),
+           nRC(nrc),nhMin(nhmin),nhit16(nh16)
+#ifndef CANDIDATES_WITHOUT_SECTORID
+         ,sector(sectorID)
+#endif
+      {
+         base=patternPtr;
+      }
+      inline void process(void) {
+         HitPattern_t h0=*patternPtr;
+         HitPattern_t h1=h0|mask;
+         if((h0 & notMask)&&(!(h0 & mask))&&(nhit16[h1]==nhMin)) {
+            if(nRC<roadCandidates.size()) {
+               roadCandidates[nRC++] =
+#ifdef CANDIDATES_WITHOUT_SECTORID
+                  patternPtr-base
+#else
+                  std::make_pair(patternPtr-base,sector)
+#endif
+                  ;
+            }
+         }
+         *patternPtr =h1;
+      }
+      inline void update(int delta) {
+         patternPtr += delta;
+      }
+      inline void initialize(int firstPattern) {
+         update(firstPattern);
+      }
+   protected:
+      HitPattern_t __restrict *patternPtr,*base;
+      HitPattern_t mask;
+      HitPattern_t notMask;
+      VECTOR<
+#ifdef CANDIDATES_WITHOUT_SECTORID
+                             uint32_t
+#else
+                             std::pair<uint32_t,uint32_t>
+#endif
+         > &roadCandidates;
+      unsigned &nRC;
+      uint8_t nhMin;
+      uint8_t const *nhit16;
+#ifndef CANDIDATES_WITHOUT_SECTORID
+      uint32_t sector;
+#endif
+   };
+   m_nRoadCand=0;
+   for(int iplane=0;iplane<getNPlanes();++iplane) {
+      LayerData const &bankDataThisLayer=m_bank.m_PatternByLayer[iplane];
+      HitPattern_t mask= 1<<iplane;
+      for(std::list<int>::const_iterator iSSID=tspSSIDfired[iplane].begin();
+          iSSID!=tspSSIDfired[iplane].end();iSSID++) {
+         int tsp_ssid=(*iSSID);
+         // locate the SSID in the pattern bank
+         PatternBySectorSSidMap_t::const_iterator ssidInBank=
+            bankDataThisLayer.m_SSidData.find(tsp_ssid);
+         if(ssidInBank!=bankDataThisLayer.m_SSidData.end()) {
+            // tsp_ssid is present in the pattern bank
+            //  loop over all its sectors and set mask
+            for(PatternBySector_t::const_ptr isector=
+                   (*ssidInBank).second.beginPtr();
+                isector!=(*ssidInBank).second.endPtr();++isector) {
+               int sector=(*isector).first;
+               if(!m_sectorUsage[sector]) continue;
+               SectorData const &sectorData((*isector).second);
+               if(iplane<m_nhWCmin-1) {
+                  // first planes: no chance to form a road candidate
+                  // simply update bit mask
+                  MaskUpdaterFast updater(m_hitPatterns.data(),mask);
+                  patternLoop(updater,
+                              m_bank.m_PatternByLayer[iplane].
+                              m_CompressedDeltaBySector[sector].data()+
+                              sectorData.m_offset,
+                              sectorData.m_FirstPattern,sectorData.m_NPattern);
+               } else {
+                  // last planes, update bit mask and remember road candidates
+                  MaskUpdaterSlow updater
+                     (m_hitPatterns.data(),mask,
+#ifndef CANDIDATES_WITHOUT_SECTORID
+                      sector,
+#endif
+                      m_nhWCmin,m_nHit16.data(),
+                      m_roadCand,m_nRoadCand);
+                  patternLoop(updater,
+                              m_bank.m_PatternByLayer[iplane].
+                              m_CompressedDeltaBySector[sector].data()+
+                              sectorData.m_offset,
+                              sectorData.m_FirstPattern,sectorData.m_NPattern);
+               }
             }
          }
       }
    }
 }
 
-void FTK_CompressedAMBank::simulateAMsectorloop
-(FiredSectorData_t const &firedSectorData) {
-   int MAX_MISSING_PLANES = FTKSetup::getFTKSetup().getMaxMissingPlanes();
-   int MAX_MISSING_SCT_PAIRS = FTKSetup::getFTKSetup().getMaxMissingSctPairs();
-   if(firedSectorData.size()<(unsigned)getNPlanes()) return;
-   int nSector=firedSectorData[0].size();
-   // loop over sectors
-   for(int isector=0;isector<nSector;isector++) {
-      //
-      // the code executed in this loop
-      // emulates the AM chip for the given sector
+/**
+   am_output()
 
-      //
-      // wildcard (layer mask) for this sector
-      //   this is the wildcard bit-mask valid for this sector
-      //   e.g. if bit 3 is set, then all patterns are assumend to have
-      //   hits in plane#3 for this sector
-      uint32_t sectorWildcard=0;
-      MAP<int,uint32_t>::const_iterator
-         iWC=m_SectorWildcard.find(isector);
-      if(iWC!=m_SectorWildcard.end()) sectorWildcard=(*iWC).second;
-      //
-      // minimum number of hits (including wildcards)
-      int nhWCmin=getNPlanes()-MAX_MISSING_PLANES-MAX_MISSING_SCT_PAIRS;
+   Output: populate m_roads
+ */
 
-#ifdef SKIP_USELESS_SECTORS
-      // skip sectors which do not have SSIDs
-      //  in a sufficient number of planes
-      uint32_t hitmaskBigOr=sectorWildcard;
-      for(int iplane=getNPlanes()-1;iplane>=0;--iplane) {
-         if(!firedSectorData[iplane][isector].empty()) {
-            hitmaskBigOr|=(1<<iplane);
-         }
-      }
-      int nhit=m_nHit16[hitmaskBigOr & 0xffff]+
-         m_nHit16[(hitmaskBigOr>>16) & 0xffff];
-      if(nhit<nhWCmin) continue;
+void FTK_CompressedAMBank::am_output() {
+   for(unsigned iCand=0;iCand<m_nRoadCand;iCand++) {
+#ifdef CANDIDATES_WITHOUT_SECTORID
+      int patternID=m_roadCand[iCand];
+      MAP<int,int>::const_iterator sectorPtr=
+         m_patternToSector.lower_bound(patternID);
+      int sector=(*sectorPtr).second;
+#else
+      int patternID=m_roadCand[iCand].first;
+      int sector=m_roadCand[iCand].second;
 #endif
+      HitPattern_t hitmask=m_hitPatterns[patternID];
+      HitPattern_t sectorWildcard=0;
+      MAP<int,HitPattern_t>::const_iterator
+         iWC=m_SectorWildcard.find(sector);
+      if(iWC!=m_SectorWildcard.end()) sectorWildcard=(*iWC).second;
+      HitPattern_t hitmaskWithWC=hitmask|sectorWildcard;
+      uint8_t nhWC=m_nHit16[hitmaskWithWC];
       //
-      // determine the range of patterns in this sector
-      // reminder for this algorithm the patterns are ordered by seector
-      //  for a given sector there is a range of patterns
-      //  and that range does not overlap with other sectors
-      int firstPattern=0,lastPattern=0;
-      MAP<int,std::pair<int,int> >::const_iterator i=
-         m_SectorFirstLastPattern.find(isector);
-      if(i!=m_SectorFirstLastPattern.end()) {
-         firstPattern=(*i).second.first;
-         lastPattern=(*i).second.second;
-      }
-
-      //
-      // maximum number of patterns in this sector
-      int nPatternThisSector=lastPattern-firstPattern+1;
-      //
-      // use 8,16 or 32 bits depending on the number of planes
-      std::vector<uint8_t> hitPattern8;
-      std::vector<uint16_t> hitPattern16;
-      std::vector<uint32_t> hitPattern32;
-      if(getNPlanes()<=8) hitPattern8.resize(nPatternThisSector);
-      else if(getNPlanes()<=16) hitPattern16.resize(nPatternThisSector);
-      else hitPattern32.resize(nPatternThisSector);
-      //
-      // first part of the AM emulation
-      //   corresponds to am_in()
-      //   the hits are fed into the assiciated memory
-      // loop over all planes
-      for(int iplane=getNPlanes()-1;iplane>=0;--iplane) {
-         PatternDataBySSID_t const &patternDataBySSID=
-            firedSectorData[iplane][isector];
-         uint32_t mask=(1<<iplane);
-         //
-         // loop over all SSIDs which
-         //   (1) have fired
-         //   (2) have patterns in this (sector,plane)
-         for(PatternDataBySSID_t::const_iterator ssid=
-                patternDataBySSID.begin();ssid!=patternDataBySSID.end();
-             ssid++) {
-            //
-            // inner loop over all patterns for the given (sector,plane,ssid)
-            SectorData const *sectordata=*ssid;
-            DeltaExpander expander(sectordata->m_Data);
-            //
-            // the same code is replicated three times
-            // only one version is called, depending on the number of planes
-            if(hitPattern8.size()) {
-               uint8_t *patternPtr=hitPattern8.data()+
-                  sectordata->m_FirstPattern-firstPattern;
-               *patternPtr |=mask;
-               for(int i=sectordata->m_NPattern-1;i;i--) {
-                  patternPtr+=expander.nextDelta();
-                  *patternPtr |= mask;
-               }
-            } else if(hitPattern16.size()) {
-               uint16_t *patternPtr=hitPattern16.data()+
-                  sectordata->m_FirstPattern-firstPattern;
-               *patternPtr |=mask;
-               for(int i=sectordata->m_NPattern-1;i;i--) {
-                  patternPtr+=expander.nextDelta();
-                  *patternPtr |= mask;
-               }
-            } else {
-               uint32_t *patternPtr=hitPattern32.data()+
-                  sectordata->m_FirstPattern-firstPattern;
-               *patternPtr |=mask;
-               for(int i=sectordata->m_NPattern-1;i;i--) {
-                  patternPtr+=expander.nextDelta();
-                  *patternPtr |= mask;
-               }
-            }
-         }
-      }
-      //
-      // second part of the pattern finding
-      //  corresponds to am_output()
-      //  all patterns are parsed
-      //  the ones with a minimum number of matches are added to
-      //  the list of road_candidates
-      //==================================================================
-      // find valid roads
-      //
-      //  vector of road candidates
-      //    for CPU efficiency reasons, a vector is used
-      //    the vector size is set to the maximum possible number of candidates
-      //  the enries are organized as follows:
-      //    roadCandidates[icand] = make_pair(patternID,hitMask)
-      std::vector<std::pair<int,uint32_t> > roadCandidates(nPatternThisSector);
-      int nCandidate=0;
-      if(hitPattern8.size()) {
-         for(unsigned i=0;i<hitPattern8.size();i++) {
-            // hit-pattern (planes which have fired)
-            uint32_t hitmask=hitPattern8[i];
-            // check hit-patterns including wildcards
-            // the check is done using a lookup-table to convert
-            //   the bit pattern to a number of hits
-            if(m_nHit16[hitmask|sectorWildcard]>=nhWCmin) {
-               roadCandidates[nCandidate++]=std::make_pair(i,hitmask);
-            }
-         }
-      } else if(hitPattern16.size()) {
-         for(unsigned i=0;i<hitPattern16.size();i++) {
-            // hit-pattern (planes which have fired)
-            uint32_t hitmask=hitPattern16[i];
-            // check hit-patterns including wildcards
-            // the check is done using a lookup-table to convert
-            //   the bit pattern to a number of hits
-            if(m_nHit16[hitmask|sectorWildcard]>=nhWCmin) {
-               roadCandidates[nCandidate++]=std::make_pair(i,hitmask);
-            }
-         }
-      } else {
-         for(unsigned i=0;i<hitPattern32.size();i++) {
-            // hit-pattern (planes which have fired)
-            uint32_t hitmask=hitPattern32[i];
-            // hit-pattern including wildcards
-            uint32_t hitmaskWithWC= hitmask|sectorWildcard;
-            // the check is done using a lookup-table to convert
-            //   the bit pattern to a number of hits
-            // the lookup table is only 16 bit wide,
-            // so it is used twice if teh number of planes is larger than 16
-            int nhit=m_nHit16[hitmaskWithWC & 0xffff]+
-               m_nHit16[(hitmaskWithWC>>16) & 0xffff];
-            if(nhit>=nhWCmin) {
-               roadCandidates[nCandidate++]=std::make_pair(i,hitmask);
-            }
-         }
-      }
-      uint32_t lastPlaneMask= 1<<getNPlanes();
-
-      //
-      // final part of the pattern finding
-      // given the vector fo candidates, 
-      //   * refine the matching conditions
-      //   * construct the FTKRoad objects
-
-      //
-      // loop over all candidates
-      for(int irc=0;irc<nCandidate;irc++) {
-         std::pair<int,uint32_t> &rc=roadCandidates[irc];
-         //
-         // i is the local index of the pattern (in the given sector)
-         int i=rc.first;
-         //
-         // this is the bit-pattern of the planes which have fired
-         uint32_t hitmask=rc.second;
-         //
-         // this is the bit-pattern including wildcards
-         uint32_t hitmaskWithWC= hitmask|sectorWildcard;
-         int nhWC=m_nHit16[hitmaskWithWC & 0xffff]+
-            m_nHit16[(hitmaskWithWC>>16) & 0xffff];
+      // determine FTKRoads
+      if(nhWC>=m_nhWCmin) {
          //
          // extra checks
          // required hits in first or last plane 
+         uint32_t lastPlaneMask=1<<(getNPlanes()-1);
          bool first_check = !getRequireFirst() || (hitmaskWithWC & 1);
          bool missinglast = ! (hitmaskWithWC & lastPlaneMask);
          bool last_check = !getRequireLast() || !missinglast;
          if( first_check && last_check &&
-             (nhWC>= getNPlanes()-MAX_MISSING_PLANES)) {
+             (nhWC>= getNPlanes()-m_MAX_MISSING_PLANES)) {
             //
             // statistics
             countNRoads();
             //
             // number of hits
-            int nh=m_nHit16[hitmask & 0xffff]+
-               m_nHit16[(hitmask>>16) & 0xffff];
-            //
-            // global pattern ID
-            int patternID=i+firstPattern;
+            uint8_t nh=m_nHit16[hitmask];
             //
             // construct FTKRoad object
             //   see: FTK_AMBank::am_output
@@ -2471,13 +2468,9 @@ void FTK_CompressedAMBank::simulateAMsectorloop
             //
             // add missing information
             //   sector ID 
-            road.setSectorID(isector);  //attachSS[ 655 -> 662]
+            road.setSectorID(sector);  //attachSS[ 655 -> 662]
             //   DBID is set identical to ID
             road.setPatternDBID(patternID+1);
-#ifdef BIT_PACKED_BANK
-            uint64_t baseBit=
-               ((uint64_t)(patternID+1))*m_Bank.m_PatternBitsTotal;
-#endif
             //
             // unpack DC bits and DC-SSID fron pattern bank
             int dcMask=0,hbmask=0;
@@ -2494,35 +2487,18 @@ void FTK_CompressedAMBank::simulateAMsectorloop
                //  MSB..................LSB
                // ------------+-------------
                //   SSIDindex |   DCbits
-#ifdef BIT_PACKED_BANK
-               int nBitLayer=m_Bank.m_PatternByLayer[ipl].m_PatternBits;
-               baseBit -= nBitLayer;
-               uint64_t *ptr=m_Bank.m_PatternBitData.data()+(baseBit>>6);
-               int shift=baseBit & 0x3f;
-               unsigned dcSSID_with_DCbits=ptr[0]>>shift;
-               if(shift + nBitLayer>64) {
-                  dcSSID_with_DCbits |= ptr[1]<<(64-shift);
-               }
-               dcSSID_with_DCbits &=(1<<nBitLayer)-1;
-#else
                unsigned dcSSID_with_DCbits;
-               if(m_Bank.m_pattern8Data[ipl].size()) {
-                  dcSSID_with_DCbits=m_Bank.m_pattern8Data[ipl][patternID];
+               if(m_bank.m_pattern8Data[ipl].size()) {
+                  dcSSID_with_DCbits=m_bank.m_pattern8Data[ipl][patternID];
                } else {
-                  dcSSID_with_DCbits=m_Bank.m_pattern16Data[ipl][patternID];
+                  dcSSID_with_DCbits=m_bank.m_pattern16Data[ipl][patternID];
                }
-#endif
                //
                // decode SSID using index table:
-               //   m_Bank.m_PatternByLayer[ipl].m_dcSSIDtable[sector]
+               //   m_bank.m_PatternByLayer[ipl].m_dcSSIDtable[sector]
                int dcSSIDindex=dcSSID_with_DCbits >> nDCHBbits;
-               MAP<int,std::vector<int> >::const_iterator ssidLookup=
-                  m_Bank.m_PatternByLayer[ipl].m_dcSSIDtable.find(isector);
-               if(ssidLookup==
-                  m_Bank.m_PatternByLayer[ipl].m_dcSSIDtable.end()) {
-                  Fatal("passHits")<<"sector not found\n";
-               }
-               int dcSSID=(*ssidLookup).second[dcSSIDindex];
+               int dcSSID=m_bank.m_PatternByLayer[ipl].m_dcSSIDbySectorIndex
+                  [sector][dcSSIDindex];
                //
                // store SSID
                road.setSSID(ipl,dcSSID);  //attachSS[ 655 -> 670]
@@ -2546,39 +2522,6 @@ void FTK_CompressedAMBank::simulateAMsectorloop
       }
    }
    naoSetNroadsAM(getNRoads());
-}
-
-/**
-   simulateDOoutput()
-
-   this simulates the output from the data organizer
-
-   given the list<FTKRoad> build an vector<unordered_map<int,FTKSS> >
-   of superstrips which have fired
- */
-
-void FTK_CompressedAMBank::simulateDOoutput(void) {
-   // construct list of superstrips really used for the roads found
-   for(std::list<FTKRoad>::iterator iroad = m_roads.begin();
-       iroad!=m_roads.end();++iroad) {
-      // prepare list of all superstrips attached to any of the roads
-      for (int ipl=0;(ipl<getNPlanes())&&(!getStoreAllSS());++ipl) {
-         int dc_ssid=(*iroad).getSSID(ipl);
-         std::unordered_map<int,FTKSS>::iterator item0 =
-            m_FiredSSmap[ipl].find(dc_ssid);
-         if (item0==m_FiredSSmap[ipl].end()) 
-            continue; // no hits
-         // map for this plane
-         std::unordered_map<int,FTKSS> &imap = m_UsedSSmap[ipl];
-         // find this ss is in the bank
-         std::unordered_map<int,FTKSS>::iterator item = imap.find(dc_ssid);
-         if (item==imap.end()) { // not found
-            imap[dc_ssid] = (*item0).second;
-         } else {
-            continue;
-         }
-      } // end loop over the layers
-   }
 }
 
 /*******************************************
@@ -2656,6 +2599,27 @@ int FTK_CompressedAMBank::informationMatch(FTKRoad *r1,FTKRoad *r2) {
  */
 const std::list<FTKRoad>& FTK_CompressedAMBank::getRoads() {
    // return list of roads
+   // construct list of superstrips really used for the roads found
+   for(std::list<FTKRoad>::iterator iroad = m_roads.begin();
+       iroad!=m_roads.end();++iroad) {
+      // prepare list of all superstrips attached to any of the roads
+      for (int ipl=0;(ipl<getNPlanes())&&(!getStoreAllSS());++ipl) {
+         int dc_ssid=(*iroad).getSSID(ipl);
+         std::unordered_map<int,FTKSS>::iterator item0 =
+            m_FiredSSmap[ipl].find(dc_ssid);
+         if (item0==m_FiredSSmap[ipl].end()) 
+            continue; // no hits
+         // map for this plane
+         std::unordered_map<int,FTKSS> &imap = m_UsedSSmap[ipl];
+         // find this ss is in the bank
+         std::unordered_map<int,FTKSS>::iterator item = imap.find(dc_ssid);
+         if (item==imap.end()) { // not found
+            imap[dc_ssid] = (*item0).second;
+         } else {
+            continue;
+         }
+      } // end loop over the layers
+   }
 #ifdef PRINT_ROADS_SECTOR
   static int print=1;
   if(print) {

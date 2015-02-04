@@ -151,6 +151,8 @@ private:
 
   bool m_AutoDisable; // possibility to avoid internal algorithm execution in particular confitions
 
+  int m_firstEvent; // first event to run over
+
 };
 
 #endif // FTKRoadFinderAlgo_h

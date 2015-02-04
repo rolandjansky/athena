@@ -307,8 +307,10 @@ int main(int argc, char const *argv[]) {
 #endif
       }
       bank[0]->init();
-      bank[0]->clearDOandAM();
-      bank[0]->simulateAM(roadFinderInput);
+      bank[0]->clear();
+      bank[0]->data_organizer_r(roadFinderInput);
+      bank[0]->am_in_r(roadFinderInput);
+      bank[0]->am_output();
       bank[0]->printRoads(bank[0]->getRoads(),-1);
    }
 

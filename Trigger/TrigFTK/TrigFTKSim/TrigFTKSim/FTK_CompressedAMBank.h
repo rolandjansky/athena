@@ -12,7 +12,6 @@
 #include "TrigFTKSim/FTK_AMsimulation_base.h"
 #include <inttypes.h>
 #include <vector>
-#include <boost/container/map.hpp>
 #include <map>
 #include <list>
 
@@ -29,7 +28,70 @@
 class FTKSSMap;
 class TSPMap;
 
-#define MAP boost::container::map
+//#include <boost/container/map.hpp>
+//#include <boost/container/vector.hpp>
+//#include <boost/container/list.hpp>
+//#define MAP boost::container::map
+//#define VECTOR boost::container::vector
+//#define LIST boost::container::list
+#define MAP std::map
+#define VECTOR std::vector
+#define LIST std::list
+
+//#define CANDIDATES_WITHOUT_SECTORID
+#define OPTIMIZED_VECTORMAP
+
+#ifdef OPTIMIZED_VECTORMAP
+// this map has a parallel linear stucture for fast loops
+//   using "const_ptr" rather than const_iterator
+template<class T> class VECTORMAP : public MAP<int,T> {
+ public:
+   VECTORMAP() : fData(0),fSize(0) { }
+   virtual ~VECTORMAP() { if(fData) delete [] fData; }
+   class const_ptr {
+   public:
+      inline const_ptr(typename std::pair<const int,T> const **p=0) : ptr(p) {
+      }
+      inline typename std::pair<const int,T> const &operator*(void) {
+         return **ptr;
+      }
+      inline bool operator!=(const_ptr const &cp) { return ptr!=cp.ptr; }
+      inline const_ptr &operator++(void) { ++ptr; return *this; }
+   protected:
+      typename std::pair<const int,T> const **ptr;
+   };
+   int getMemoryEstimate(void) const {
+      return ((uint8_t const *)(this+1)-(uint8_t const *)this)+
+         (sizeof(typename std::pair<int, T>)+4*sizeof(void *))*
+         MAP<int,T>::size()+sizeof(void *)*fSize;
+   }
+   inline const_ptr beginPtr(void) const { return fData; }
+   inline const_ptr endPtr(void) const { return fData+fSize; }
+   inline void pack() {
+      if(fData) { delete [] fData; fData=0; }
+      fSize=MAP<int,T>::size();
+      if(fSize) {
+         fData=new typename std::pair<const int,T> const * [fSize];
+         unsigned k=0;
+         for(typename MAP<int,T>::const_iterator i=MAP<int,T>::begin();
+             i!=MAP<int,T>::end();i++) {
+            fData[k++]=&(*i);
+         }
+      }
+   }
+ protected:
+   typename std::pair<const int,T> const **fData;
+   unsigned fSize;
+};
+#else
+template<class T> class VECTORMAP : public MAP<int,T> {
+public:
+   typedef typename MAP<int,T>::const_iterator const_ptr;
+   inline const_ptr beginPtr(void) const { return MAP<int,T>::begin(); }
+   inline const_ptr endPtr(void) const {return MAP<int,T>::end(); }
+   inline void pack() { }
+};
+#endif
 
 class FTK_CompressedAMBank : public FTKLogging , public FTK_AMsimulation_base {
 public:
@@ -63,9 +125,6 @@ public:
    // read root file (reasonably fast)
    int readRootFile(char const *binaryLookup);
 
-   // erase all pattern data
-   void erase(void);
-
    // full comparison of two pattern banks
    int compare(FTK_CompressedAMBank const *bank) const;
 
@@ -73,7 +132,6 @@ public:
    // purely virtual methods from FTK_AMsimulation_base, to be implemented
    virtual const std::unordered_map<int,FTKSS>& getStrips(int plane);
    virtual const std::list<FTKRoad>& getRoads();
-   virtual int passHits(const std::vector<FTKHit> &);
    virtual int informationMatch(FTKRoad *r1,FTKRoad *r2);
 
    // set number of planes - also initializes various tables
@@ -84,12 +142,16 @@ public:
    // set up wildcards here
    virtual void init();
 
-   // methods used in the simulation
-   virtual void clearDOandAM(void);
-   virtual void simulateDOinput(const std::vector<FTKHit> &hits,
-                                std::vector<std::list<int> > &tspSSIDfired);
-   virtual void simulateAM(std::vector<std::list<int> > const &tspSSIDfired);
-   virtual void simulateDOoutput(void);
+   // methods requuired by passHits in the simulation
+   virtual void clear(void);
+   virtual void sort_hits(const std::vector<FTKHit> &);
+   virtual void data_organizer(void);
+   virtual void am_in(void);
+   virtual void am_output(void);
+
+   // for pattern finding in absence of FTKHit structures
+   void data_organizer_r(std::vector<std::list<int> > const &tspSSIDfired);
+   void am_in_r(std::vector<std::list<int> > const &tspSSIDfired);
 
    // translate SSID from DC to TSP and back
    // these functions could possibly be moved elsewhere
@@ -105,6 +167,24 @@ protected:
    void readBankPostprocessing(const char *where);
 
    // hold pattern data for a given layer,SSID,sector (all patterns)
+   //
+   // loop over packed pattern data
+   //
+   // packed pattern data - store delta to preceeding pattern
+   //   0x00-0x7f : delta=1..128
+   //   0x8x : store bit  7..10 if delta-1>0x0000007f
+   //   0x9x : store bit 11..14 if delta-1>0x000007ff
+   //    ...
+   //   0xDx : store bit 27..30 if delta-1>0x07ffffff
+   //   0xE1 : store bit 31     if delta-1>0x7fffffff
+   //   0xE4..0xE7 : store length (1..4 byte, big-endian)
+   //   0xE8..0xEB : store nPatterns (1..4 byte, big-endian)
+   //   0xEC..0xEF : store firstPattern address relative to sector start
+   //                  (1..4 byte, big-endian)
+   //   0xFx : encode repeated occurance of delta=1 (repeat=2..17)
+   template<class A>
+      inline void patternLoop(A &a,uint8_t const __restrict *ptr,
+                              uint32_t firstPattern,int nPattern) const;
    struct SectorData {
       //
       // first pattern ID
@@ -112,28 +192,16 @@ protected:
       //
       // number of patterns (unpacked)
       uint32_t m_NPattern;
-      //
-      // packed pattern data - store delta to preceeding pattern
-      //   0x00-0x7f : delta=1..128
-      //   0x8x : store bit  7..10 if delta-1>0x0000007f
-      //   0x9x : store bit 11..14 if delta-1>0x000007ff
-      //    ...
-      //   0xDx : store bit 27..30 if delta-1>0x07ffffff
-      //   0xE1 : store bit 31     if delta-1>0x7fffffff
-      //   0xFx : encode repeated occurance of (delta-1) = 0..3
-      //      binary=1111mmdd
-      //         dd ={00,01,10,11} corresponds to delta-1={1,2,3,4}
-      //         mm ={00,01,10,11} corresponds to repeat={4,16,64,256}
-      std::vector<uint8_t> m_Data;
+      uint32_t m_offset;
+      uint32_t m_length;
    };
 
-   // holds pattern data for a given layer,SSID (all sectors)
-   //    the index is the sector number
-   typedef MAP<int,SectorData> PatternBySectorMap_t;
    //
    // holds pattern data for a given layer (all SSIDs and all sectors)
    //    the index is the SSID number (in TSP space)
-   typedef MAP<int,PatternBySectorMap_t> PatternBySectorSSidMap_t;
+   typedef VECTORMAP<SectorData> PatternBySector_t;
+   typedef VECTORMAP<PatternBySector_t> PatternBySectorSSidMap_t;
+   //    the index is the sector number
    //
    // holds patterndata and auxillary data for a given layer
    struct LayerData {
@@ -145,63 +213,65 @@ protected:
       //
       // dcSSID IDs by sector (for unpacking pattern data)
       //    m_dcSSIDtable[sector][i]  is an SSID (in dc-space)
-      MAP<int,std::vector<int> > m_dcSSIDtable;
-#ifdef BIT_PACKED_BANK
+      VECTOR<VECTOR<int> > m_dcSSIDbySectorIndex;
       //
-      // number of bits per pattern for this layer
-      //    this is the number of bits
-      //    needed to encode SSID+DCbits for this layer
-      int m_PatternBits;
-#endif
+      // this holds the byte-compressed pattern delta data by sector
+      VECTOR<VECTOR<uint8_t> > m_CompressedDeltaBySector;
   };
    //
   // hold a full pattern bank
   struct PatternBank {
-#ifdef BIT_PACKED_BANK
-     //
-     // the total number of bits to encode the (dcSSID,DCbit) of all layers
-     //  for one pattern
-     int m_PatternBitsTotal;
-#endif
      //
      // this holds all layer-ordered information of the bank
      //   for example, to locate the patterns given a layer,tspSSID,sector:
      //     m_Bank.m_PatternByLayer[layer].m_SSidData[tspSSID][sector]
      //       returns the coresponding struct SectorData
-     std::vector<LayerData> m_PatternByLayer;
+     VECTOR<LayerData> m_PatternByLayer;
      //
      // this holds the Pattern data, ordered by patternID (bit-packed)
      //   the bit number is given by iPattern*m_PatternBitsTotal
-#ifdef BIT_PACKED_BANK
-     std::vector<uint64_t> m_PatternBitData;
-#else
-     std::vector<std::vector<uint8_t> > m_pattern8Data;
-     std::vector<std::vector<uint16_t> > m_pattern16Data;
-#endif
+     VECTOR<std::vector<uint8_t> > m_pattern8Data;
+     VECTOR<std::vector<uint16_t> > m_pattern16Data;
   };
+  void erase();
   //
   // holds all pattern data
-  PatternBank m_Bank;
+  PatternBank m_bank;
   MAP<int,std::pair<int,int> > m_SectorFirstLastPattern;
-
+#ifdef CANDIDATES_WITHOUT_SECTORID
+  MAP<int,int> m_patternToSector;
+#endif
   //
   // hold wildcards (layer mask) per sector
-  MAP<int,uint32_t> m_SectorWildcard;
+  typedef uint8_t HitPattern_t;
+  MAP<int,HitPattern_t> m_SectorWildcard;
 
-   // split up AM simulation into two pieces
-   //  list of all SSIDs
-   //  ordered by sector, layer, ssid
-  typedef std::list<SectorData const *> PatternDataBySSID_t;
-  typedef std::vector<PatternDataBySSID_t> PatternDataBySectorSSID_t;
-  typedef std::vector<PatternDataBySectorSSID_t> FiredSectorData_t;
+  //
+  // TSP-SSIDs 
+  std::vector<std::list<int> > m_tspSSID;
+  //
+  // used sectors
+  VECTOR<HitPattern_t> m_sectorUsage;
+  //
+  // hit patterns 
+  VECTOR<HitPattern_t> m_hitPatterns;
+  //
+  // road candidates
+  static int const MAX_NROAD;
+  unsigned m_nRoadCand;
+  VECTOR<
+#ifdef CANDIDATES_WITHOUT_SECTORID
+     uint32_t
+#else
+     std::pair<uint32_t,uint32_t>
+#endif
+     > m_roadCand;
+  //
+  // minimum number of hits
+  uint8_t m_nhWCmin;
+  int m_MAX_MISSING_PLANES;
+  int m_MAX_MISSING_SCT_PAIRS;
 
-  // distribute SSIDs to sectors
-  virtual void simulateAMdistributeSSID
-     (std::vector<std::list<int> > const &tspSSIDfired,
-      FiredSectorData_t &firedSectorData) const;
-  // loop over sectors and simulate AM
-  virtual void simulateAMsectorloop(FiredSectorData_t
-                                    const &firedSectorData);
  private:
   //
   // these methods are used to populate tables to translate
@@ -212,23 +282,25 @@ protected:
   void insertSSID(int layer,int tspSSID,int dcSSID);
   //
   // table to convert SSID and tspXY offsets to a TSP SSID
-  std::vector<MAP<int,std::vector<int> > > m_DCtoTSP;
+  VECTOR<MAP<int,std::vector<int> > > m_DCtoTSP;
   //
   // table to convert TSP SSID to SSID and index
-  std::vector<MAP<int,std::pair<int,int> > > m_TSPtoDC;
+  VECTOR<MAP<int,std::pair<int,int> > > m_TSPtoDC;
   //
   // lookup-tables to convert compressed DC bits to subSSmask,DC,HB
   //    m_subSSmask[layer][dcHBbits]  returns the subSSmask for this layer
   //    m_dcMaskLookup[layer][dcHBbits]  returns the DC bits for this layer
   //    m_hbMaskLookup[layer][dcHBbits]  returns the DC bits for this layer
   // here, dcHBbits is extracted from bits inside m_Bank.m_PatternBitData[]
-  std::vector<std::vector<int> > m_subSSmask;
-  std::vector<std::vector<int> > m_dcMaskLookup;
-  std::vector<std::vector<int> > m_hbMaskLookup;
+  VECTOR<VECTOR<int> > m_subSSmask;
+  VECTOR<VECTOR<int> > m_dcMaskLookup;
+  VECTOR<VECTOR<int> > m_hbMaskLookup;
+
   //
   // lookup-table to get the number of bits in a 16-bit word
   //    for example, m_nHit16[0x38]=3 because three bits ars set
-  std::vector<uint8_t> m_nHit16;
+  VECTOR<uint8_t> m_nHit16;
+
   //
   // data members required for the getStrips method
   //   m_FiredSSmap[layer] : list of all superstrips

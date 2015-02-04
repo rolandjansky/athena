@@ -30,17 +30,23 @@ DICT_OBJS = tmp/FTKRoad.o tmp/FTKHit.o tmp/FTKTrack.o \
 FTKSIM_OBJS =   tmp/tsp/FTKTSPBank.o tmp/tsp/TSPMap.o tmp/tsp/TSPLevel.o \
         tmp/PatternBank.o tmp/RoadFinder.o \
         tmp/FTK_AMBank.o tmp/atlClustering.o tmp/FTKRoadFileOutput.o \
-        tmp/FTKConstantBank.o tmp/FTKTrackInput.o tmp/FTKRoadFileInput.o \
+        tmp/FTKTrackInput.o tmp/FTKRoadFileInput.o \
         tmp/FTK_RawInput.o tmp/FTK_RegionalRawInput.o tmp/FTKDataInput.o \
-        tmp/FTKRegionMap.o tmp/TrackFitter.o tmp/FTKTrackFileOutput.o \
-        tmp/TrackFitter711.o tmp/FTKSector711DB.o \
+        tmp/FTKRegionMap.o tmp/FTKTrackFileOutput.o \
+        tmp/FTKSector711DB.o \
         tmp/FTKPMap.o tmp/FTKRegionMap.o tmp/FTKSectorMap.o \
         tmp/FTKSSMap.o tmp/ftk_dcap.o \
-        tmp/FTKCacheLookup.o tmp/FTK_SingleTrackInput.o \
+        tmp/FTKCacheLookup.o \
         tmp/FTKLogging.o tmp/FTKSteering.o tmp/FTKRootFile.o tmp/FTKMergeRoot.o \
         tmp/FTKPatternBySector.o tmp/FTKPatternOneSector.o \
         tmp/FTKPatternWithCoverage.o tmp/tsp/FTKAMSplit.o \
 	tmp/FTK_CompressedAMBank.o tmp/FTK_AMsimulation_base.o
+
+#         tmp/FTKConstantBank.o tmp/FTKTrackInput.o tmp/FTKRoadFileInput.o \
+#        tmp/FTKRegionMap.o tmp/TrackFitter.o tmp/FTKTrackFileOutput.o \
+#        tmp/TrackFitter711.o tmp/FTKSector711DB.o \
+#        tmp/FTKCacheLookup.o tmp/FTK_SingleTrackInput.o \
+
 
 SECWALK_OBJS = sectorwalk.o common_fcn.o \
                 $(DICT_OBJS)

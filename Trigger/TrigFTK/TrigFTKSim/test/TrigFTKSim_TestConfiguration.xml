@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!DOCTYPE unifiedTestConfiguration SYSTEM "http://www.hep.ucl.ac.uk/atlas/AtlasTesting/DTD/unifiedTestConfiguration.dtd">
+
+<unifiedTestConfiguration>
+  <atn/>
+  <kv/>
+  <rtt xmlns="http://www.hep.ucl.ac.uk/atlas/AtlasTesting/rtt">
+	
+    <rttContactPerson>Thor Taylor (pierre.thor.elliot.taylor@cern.ch)</rttContactPerson>
+    <mailto>pierre.thor.elliot.taylor@cern.ch</mailto>
+	
+    <jobList>
+      
+      <jobTransform userJobId="RunOneTower">
+        <jobTransformJobName>FTKSimTower1</jobTransformJobName>
+        <jobTransformCmd>RunATowerPU20 1</jobTransformCmd>
+        
+        <group>FTKSimValidation</group>
+               
+      </jobTransform>
+      
+    </jobList>
+    
+    <jobGroups>
+       <jobGroup name="FTKSimValidation" parent="Transform">
+	 <keepFilePattern info="Output Ntuple">NTUPFTKTMP_*.root</keepFilePattern>
+       </jobGroup>
+    </jobGroups>
+    
+  </rtt>
+</unifiedTestConfiguration>

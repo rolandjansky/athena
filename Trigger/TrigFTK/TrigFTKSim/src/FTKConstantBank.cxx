@@ -8,7 +8,7 @@
 #include "TrigFTKSim/ftk_dcap.h"
 
 //#include <TMatrixD.h>
-#include <TVectorD.h>
+//#include <TVectorD.h>
 #include <TMath.h>
 
 #include <iostream>
@@ -474,8 +474,13 @@ int FTKConstantBank::missing_point_guess(FTKTrack &track, int secid, float *newc
 #ifdef SIMPLEMJ_DBG
     FTKSetup::PrintMessage(ftk::warn,"Missing IDs combination not stored\n");
 #endif // SIMPLEMJ_DBG
-    TMatrixD coef(nmissing,nmissing);
-    TVectorD a(nmissing);
+
+//JAA try changing this
+    // TMatrixD coef(nmissing,nmissing);
+    // TVectorD a(nmissing);
+    Eigen::MatrixXd coef(nmissing,nmissing);
+    Eigen::VectorXd a(nmissing);
+
     if (cmDebug > 5) FTKSetup::PrintMessage(ftk::debg,"maybe\n");
 
     for (int i=0;i<nmissing;++i) { // loop to fill the coefficients
@@ -495,17 +500,24 @@ int FTKConstantBank::missing_point_guess(FTKTrack &track, int secid, float *newc
 	/* the coefficients don't depend from any measured
 	   quantity, depends by the the sector and the missing
 	   coordinates */
-	coef[i][j] = m_maj_kk[secid][m_missid[i]][m_missid[j]];
+    //	coef[i][j] = m_maj_kk[secid][m_missid[i]][m_missid[j]];
+         coef(i,j) = m_maj_kk[secid][m_missid[i]][m_missid[j]];
 
-	if (cmDebug > 8) printf("\tcoef[%d][%d] = %f\n",i,j,coef[i][j]);
+//	if (cmDebug > 8) printf("\tcoef[%d][%d] = %f\n",i,j,coef[i][j]);
+         if (cmDebug > 8) printf("\tcoef[%d][%d] = %f\n",i,j,coef(i,j));
       }
     } // end loop to fill the coefs
 
     //solves the linear problem evaluating the missing coords
+
     //coef.Print("Coefs");
-    if (coef.Determinant()==0) return -1;
-    coef.Invert();
-    TVectorD nomiss = coef*a;
+//    if (coef.Determinant()==0) return -1;
+//    coef.Invert();
+//    TVectorD nomiss = coef*a;
+
+    if (coef.determinant()==0) return -1;
+    Eigen::VectorXd nomiss = coef.inverse()*a;
+ 
 //     coef.Print("Invert Coefs");
 //     a.Print("Term");
 //     nomiss.Print("New coords");
@@ -542,27 +554,29 @@ int FTKConstantBank::missing_point_guess(FTKTrack &track, int secid, float *newc
 /** This method prepares the inverted constants used in the invlinfit() */
 void FTKConstantBank::prepareInvConstants()
 {
-  m_invfit_consts = new TMatrixD[m_nsectors];
+//  m_invfit_consts = new TMatrixD[m_nsectors];
+   m_invfit_consts = new std::vector<Eigen::MatrixXd>;
+   m_invfit_consts->resize(m_nsectors);
 
-  for (int isec=0;isec!=m_nsectors;++isec) { // loop over the sectors
-    m_invfit_consts[isec].ResizeTo(m_ncoords,m_ncoords);
-
-    // first the parameters, by row
-    for (int ip=0;ip!=m_npars;++ip) {
-      for (int ix=0;ix!=m_ncoords;++ix) {
-	m_invfit_consts[isec][ip][ix] = m_fit_pars[isec][ip][ix];
+   for (int isec=0;isec!=m_nsectors;++isec) { // loop over the sectors
+      Eigen::MatrixXd thisMatrix(m_ncoords,m_ncoords);
+      
+      // first the parameters, by row
+      for (int ip=0;ip!=m_npars;++ip) {
+         for (int ix=0;ix!=m_ncoords;++ix) {
+            thisMatrix(ip,ix)= m_fit_pars[isec][ip][ix];
+         }
       }
-    }
-    // The the constraints, by row
-    for (int ic=0;ic!=m_nconstr;++ic) {
-      for (int ix=0;ix!=m_ncoords;++ix) {
-	m_invfit_consts[isec][ic+m_npars][ix] = m_kernel[isec][ic][ix];
+      // The the constraints, by row
+      for (int ic=0;ic!=m_nconstr;++ic) {
+         for (int ix=0;ix!=m_ncoords;++ix) {
+            thisMatrix(ic+m_npars,ix) = m_kernel[isec][ic][ix];
+         }
       }
-    }
-
-    // Invert the matrix
-    m_invfit_consts[isec].Invert();
-  } // end loop over the sectors
+      
+      // Invert the matrix
+      m_invfit_consts->push_back(thisMatrix.inverse());
+   } // end loop over the sectors
 }
 
 
@@ -572,28 +586,30 @@ void FTKConstantBank::prepareInvConstants()
 int FTKConstantBank::invlinfit(int secid, FTKTrack &track, double *constr) const
 {
   // vector of the acutal parameters, it is zeroed
-  TVectorD pars(m_ncoords);
+//  TVectorD pars(m_ncoords);
+   Eigen::VectorXd pars(m_ncoords);
 
   for (int ip=0;ip!=m_npars;++ip) {
     // The first elements are the track parameters. The track are shifted using the sector constants
-    pars[ip] = track.getParameter(ip,true)-m_fit_const[secid][ip];
+     pars(ip) = track.getParameter(ip,true)-m_fit_const[secid][ip];
   }
   for (int ic=0;ic!=m_nconstr;++ic) {
     // The rest of the paramaters are the external cosntraints. The external constraint it is also shifted by the kAverage value
     if (!constr) {
-      pars[m_npars+ic] = -m_kaverage[secid][ic];
+       pars(m_npars+ic) = -m_kaverage[secid][ic];
     }
     else {
-      pars[m_npars+ic] = constr[ic]-m_kaverage[secid][ic];
+       pars(m_npars+ic) = constr[ic]-m_kaverage[secid][ic];
     }
   }
 
   // The raw hits are obtained multiplying the parameters to the inverted constants
-  TVectorD rawhits = m_invfit_consts[secid]*pars;
+//  TVectorD rawhits = m_invfit_consts[secid]*pars;
+  Eigen::VectorXd rawhits = ((*m_invfit_consts)[secid])*pars;
 
   // The raw hits are assigned to the original track
   for (int ix=0;ix!=m_ncoords;++ix) {
-    track.setCoord(ix,rawhits[ix]);
+     track.setCoord(ix,rawhits(ix));
   }
   return 0;
 }
@@ -610,18 +626,23 @@ void FTKConstantBank::extrapolate_coords(FTKTrack &track, int secid,
 {
   const int nmissing = track.getNMissing();
 
-  TMatrixD coef(nmissing,nmissing);
-  TVectorD guessed(nmissing);
-  TVectorD term(nmissing);
+  // TMatrixD coef(nmissing,nmissing);
+  // TVectorD guessed(nmissing);
+  // TVectorD term(nmissing);
+
+  Eigen::MatrixXd coef(nmissing,nmissing);
+  Eigen::VectorXd guessed(nmissing);
+  Eigen::VectorXd term(nmissing);
+
 
   // prepare the matrix and the vectors
   for (int imp=0;imp!=nmissing;++imp) {
     for (int imx=0;imx!=nmissing;++imx) {
-      coef[imp][imx] = m_fit_pars[secid][idpars[imp]][idmiss[imx]];
+       coef(imp,imx) = m_fit_pars[secid][idpars[imp]][idmiss[imx]];
     }
 
     // index to check if this coordinates is missing
-    term[imp] = track.getParameter(idpars[imp])-m_fit_const[secid][idpars[imp]];
+    term(imp) = track.getParameter(idpars[imp])-m_fit_const[secid][idpars[imp]];
     int imiss = 0;   
     for (int ix=0;ix!=m_ncoords;++ix) {
       if (ix==idmiss[imiss]) {
@@ -630,17 +651,19 @@ void FTKConstantBank::extrapolate_coords(FTKTrack &track, int secid,
       }
 
       // subtract the contribution of the measured hits
-      term[imp] -= m_fit_pars[secid][idpars[imp]][ix]*track.getCoord(ix);
+      term(imp) -= m_fit_pars[secid][idpars[imp]][ix]*track.getCoord(ix);
     }
   }
 
   // solve the problem
-  coef.Invert();
-  guessed = coef*term;
+  // coef.Invert();
+  // guessed = coef*term;
+  guessed = coef.inverse()*term;
+
 
   // fill the original track
   for (int im=0;im!=nmissing;++im) {
-    track.setCoord(idmiss[im],guessed[im]);
+     track.setCoord(idmiss[im],guessed(im));
   }
   
 } 

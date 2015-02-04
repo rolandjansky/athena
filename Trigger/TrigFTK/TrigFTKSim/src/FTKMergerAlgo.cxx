@@ -47,6 +47,7 @@ FTKMergerAlgo::FTKMergerAlgo(const std::string& name, ISvcLocator* pSvcLocator) 
   m_useStandalone(true),
   m_singleProces(false),
   m_doMerging(false),
+  m_MergeRoads(false),
   m_nregions(64), m_nsubregions(4),
   m_neventsUnmergedFiles(0),
   m_neventsMerged(0),
@@ -154,6 +155,8 @@ FTKMergerAlgo::FTKMergerAlgo(const std::string& name, ISvcLocator* pSvcLocator) 
   declareProperty("TruthTrackTreeName",m_truthTrackTreeName);
   declareProperty("EvtInfoTreeName",m_evtinfoTreeName);
   declareProperty("SaveTruthTree",m_saveTruthTree);
+
+  declareProperty("MergeRoads",m_MergeRoads,"if True the roads will be merged, if no roads are found an error will be raised");
 }
 
 FTKMergerAlgo::~FTKMergerAlgo()
@@ -2364,4 +2367,96 @@ void FTKMergerAlgo::printBits(unsigned int num, unsigned int length){
     num = num >> 1;
   }
   std::cout << std::endl;
+}
+
+
+void FTKMergerAlgo::merge_roads(FTKRoadStream * &newbank,FTKRoadStream **oldbanks, int nelements)
+{
+  // copy run and event number to the output, and check that the
+  // subregions are in sync.
+  unsigned long sr_run = 0ul;
+  unsigned long sr_event = 0ul;
+  for (int isr=0;isr!=nelements;++isr) { // subregions loop
+    unsigned long this_run = oldbanks[isr]->runNumber();
+    unsigned long this_event = oldbanks[isr]->eventNumber();
+    if( this_run==0 && this_event==0 ) { continue; }
+    sr_run = this_run;
+    sr_event = this_event;
+    break;
+  }
+  newbank->setRunNumber( sr_run );
+  newbank->setEventNumber( sr_event );
+  if( sr_run!=0 || sr_event!=0 ) {
+    bool event_sync = true;
+    for(int isr=0; isr!=nelements; ++isr) {
+      unsigned long this_run = oldbanks[isr]->runNumber();
+      unsigned long this_event = oldbanks[isr]->eventNumber();
+      if( this_run != sr_run || this_event != sr_event ) {
+        event_sync = false;
+        break;
+      }
+    }
+    if( !event_sync ) {
+      std::cout << "SUBREGION BANKS ARE OUT OF SYNC!!!" << std::endl;
+      std::cout << "Subregion\t\tRun\t\tEvent!" << std::endl;
+      for(int isr=0; isr!=nelements; ++isr) {
+        std::cout << isr << "\t\t" << oldbanks[isr]->runNumber() << "\t\t" << oldbanks[isr]->eventNumber() << std::endl;
+      }
+      return;
+    }
+  }
+
+  // merge together the roads from different regions or subregions
+  for (int isr=0;isr<nelements;++isr) { // subregions loop
+
+    // merge statistical informations
+    if(isr==0) {
+      // total # of hits and clusters is the same in each subregion, so we do it once
+      newbank->naoSetNhitsTot(oldbanks[isr]->naoGetNhitsTot());
+      newbank->naoSetNclusTot(oldbanks[isr]->naoGetNclusTot());
+      // initialize counters from the first subregion
+      newbank->naoSetNclus(oldbanks[isr]->naoGetNclus());
+      newbank->naoSetNss(oldbanks[isr]->naoGetNss());
+      newbank->naoSetNroadsAM(oldbanks[isr]->naoGetNroadsAM());
+      newbank->naoSetNroadsMOD(oldbanks[isr]->naoGetNroadsMOD());
+    }
+    else {
+      // increment counters from other subregions
+      newbank->naoAddNroadsAM(oldbanks[isr]->naoGetNroadsAM());
+      newbank->naoAddNroadsMOD(oldbanks[isr]->naoGetNroadsMOD());
+    }
+
+    int nroads = oldbanks[isr]->getNRoads();
+    for (int iroad=0;iroad<nroads;++iroad) {
+      FTKRoad *cur_road = oldbanks[isr]->getRoad(iroad);
+      FTKRoad *new_road = newbank->addRoad(*cur_road);
+      // the sub-region ID is hidden in this formula sub*100+reg
+      new_road->setBankID(/*100*isr*ENCODE_SUBREGION+*/cur_road->getBankID());
+    }
+    newbank->inc4LRoad(oldbanks[isr]->getN4LRoads());
+
+    // add the SS for all the layers
+    const FTKSS_container_t &strips_cont = oldbanks[isr]->getSSContainer();
+    int cont_nplanes = strips_cont.size();
+
+    for (int ipl=0;ipl!=cont_nplanes;++ipl) { // plane loop
+      const FTKSS_map_t &ssmap = strips_cont[ipl];
+
+      FTKSS_map_t::const_iterator iss = ssmap.begin();
+      for (;iss!=ssmap.end();++iss) { // SS loop
+        newbank->addSS(ipl,(*iss).first,(*iss).second);
+      } // end SS loop
+    } // end plane loop
+
+    // add te SS strips in the layers ignored in the RF step
+    const map< int, map<int,FTKSS> > &unusedStrips_cont = oldbanks[isr]->getUnusedSSMap();
+    map< int, map<int,FTKSS> >::const_iterator uSS_iplane = unusedStrips_cont.begin();
+    for (;uSS_iplane!=unusedStrips_cont.end();++uSS_iplane) { // unused plane loop
+      const int &plane_id = (*uSS_iplane).first;
+      map<int,FTKSS>::const_iterator uSS_iss = (*uSS_iplane).second.begin();
+      for (;uSS_iss!=(*uSS_iplane).second.end();++uSS_iss) { // SS loop
+        newbank->addUnusedSS(plane_id,(*uSS_iss).first,(*uSS_iss).second);
+      } // end SS loop
+    } // end unused planes loop
+  } // end subregions loop
 }
