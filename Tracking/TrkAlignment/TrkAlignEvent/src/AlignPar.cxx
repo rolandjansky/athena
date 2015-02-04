@@ -12,8 +12,8 @@ namespace Trk {
     sl << "alignPar type : " << std::setw(10) << ap.dumpType()
        << "(" << ap.paramType() << " ) : " << &ap << endreq;
     sl << "   init par: " << std::setw(6) << std::showpos << std::fixed 
-       <<ap.initPar()<<" +/- "<<std::noshowpos << ap.initErr() 
-       << endreq;
+       << ap.initPar()<<" +/- "<<std::noshowpos << ap.initErr() 
+       <<   resetiosflags(std::ios::floatfield) << endreq;
     sl << "        par: "<< std::showpos << ap.par() << " +/- "
        << std::noshowpos << ap.err() << endreq;
     sl << "  final par: "<< std::showpos << ap.finalPar() << " +/- "
@@ -24,7 +24,6 @@ namespace Trk {
        << std::noshowpos << endreq;
     sl << "  secnd drv: "<< std::showpos << ap.secndDeriv()
        << std::noshowpos << endreq;
-    sl.unsetf( std::ios::floatfield );
     return sl; 
   } 
   
