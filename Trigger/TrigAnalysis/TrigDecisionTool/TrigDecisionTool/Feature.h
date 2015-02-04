@@ -125,7 +125,7 @@ namespace Trig {
     #endif
 
     Feature() 
-      : m_feature((const T*)0), m_te(0), m_label("") { }
+      : m_feature((const T*)0), m_te(0), m_label(""), m_owned(false) { }
 
     /**
      * @brief constructor of valid Feature object 

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigDecisionTool.h 627046 2014-11-08 02:03:59Z ssnyder $
+// $Id: TrigDecisionTool.h 627045 2014-11-08 02:03:47Z ssnyder $
 #ifndef TrigDecision_TrigDecisionTool_h
 #define TrigDecision_TrigDecisionTool_h
 /**********************************************************************************
