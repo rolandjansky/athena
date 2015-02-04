@@ -89,7 +89,7 @@ private: // properties
 
    std::vector<std::string>::const_iterator m_itFullFile; //!< iter  for full filename
 
-   int                m_numFile;       //!< number of files to process.
+   bool               m_sequential;    //!< enable sequential reading.
    int                m_fileCount;     //!< number of files to process.
    std::string        m_fullFile;      //!< current full file name
 

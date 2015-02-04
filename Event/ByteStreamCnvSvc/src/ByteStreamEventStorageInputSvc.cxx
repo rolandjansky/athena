@@ -49,10 +49,10 @@ ByteStreamEventStorageInputSvc::ByteStreamEventStorageInputSvc(const std::string
 	m_mdSvc("StoreGateSvc/InputMetaDataStore", name),
 	m_incidentSvc("IncidentSvc", name),
         m_attlistsvc("ByteStreamAttListMetadataSvc", name),
-	m_numFile(10000),
+	m_sequential(false),
 	m_fileCount(0) {
    declareProperty("FullFileName", m_vExplicitFile);
-
+   declareProperty("EnableSequential", m_sequential);
    declareProperty("DumpFlag", m_dump = false);
    declareProperty("WaitSecs", m_wait = 0);
    declareProperty("ValidateEvent", m_valEvent = true);
@@ -578,7 +578,7 @@ long ByteStreamEventStorageInputSvc::getBlockIterator(const std::string fileName
    ++m_fileCount;
 
    // enable sequentialReading if multiple files
-   if (m_numFile > 1) {
+   if (m_sequential > 1) {
       bool test = setSequentialRead();
       if (!test) return -1;
    }
