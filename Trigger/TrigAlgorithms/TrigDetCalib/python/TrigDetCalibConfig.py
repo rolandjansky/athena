@@ -167,6 +167,15 @@ class CSCSubDetListWriter(TrigSubDetListWriter):
     self.MaxRoIsPerEvent = 1
     self.AthenaMonTools = [ time ]
     
+class IBLSubDetListWriter(TrigSubDetListWriter):
+  __slots__ = []
+  def __init__(self, name = 'IBLSubDetListWriter'):
+    super( IBLSubDetListWriter, self ).__init__( name )
+    from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+    time = TrigTimeHistToolConfig('IBLSubDetListWriter_Time')
+    self.SubdetId= ['IBL','DBM','TDAQ_CTP']
+    self.MaxRoIsPerEvent = 1
+    self.AthenaMonTools = [ time ]
 
 class PixelSubDetListWriter(TrigSubDetListWriter):
   __slots__ = []

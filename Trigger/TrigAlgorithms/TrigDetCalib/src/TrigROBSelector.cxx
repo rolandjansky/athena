@@ -8,6 +8,7 @@
 #include "TrigSteeringEvent/PartialEventBuildingInfo.h"
 #include "IRegionSelector/IRegSelSvc.h"
 #include "TrigInterfaces/IMonitoredAlgo.h"
+#include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "GaudiKernel/Algorithm.h"
 
 #include "TrigDetCalib/TrigROBSelector.h"
@@ -15,9 +16,7 @@
 
 TrigROBSelector::TrigROBSelector(const std::string& type, const std::string& name,
                                  const IInterface* parent)
-  : AlgTool(type, name, parent),
-    m_msg(0),
-    m_msgLvl(0),
+  : AthAlgTool(type, name, parent),
     m_regionSelector("RegSelSvc/RegSelSvc", name),
     m_tHistSvc("THistSvc/THistSvc", name)
 {
@@ -50,32 +49,33 @@ TrigROBSelector::TrigROBSelector(const std::string& type, const std::string& nam
 
 StatusCode TrigROBSelector::initialize()
 {
-  m_msg = new MsgStream( msgSvc(), name());
-  m_msgLvl = m_msg->level();
-
   const IMonitoredAlgo* parentMon = dynamic_cast<const IMonitoredAlgo*>(parent());
   if (!parentMon) {
-    msg() << MSG::WARNING << "Attached to algorithm which is not of type IMonitoredAlgo" << endreq;
+    ATH_MSG_WARNING("Attached to algorithm which is not of type IMonitoredAlgo");
     return StatusCode::FAILURE;
   }
   const Algorithm* parentAlg = dynamic_cast<const Algorithm*>(parent());
+  if (!parentAlg) {
+    ATH_MSG_WARNING("Attached to algorithm which is not of type Algorithm");
+    return StatusCode::FAILURE;
+  }
   std::string parentName =  parentAlg->name();
 
   if (m_outputPath == "") m_outputPath = "/EXPERT/" + parentName + "/";
   
 
   // The RegionSelector is being retrieved here
-  StatusCode sc;
+  StatusCode sc = StatusCode::SUCCESS;
   
   sc = m_regionSelector.retrieve();
   if (sc.isFailure()) {
-    msg() << MSG::FATAL << "Unable to retrieve RegionSelector Service" << endreq;
+    ATH_MSG_FATAL("Unable to retrieve RegionSelector Service");
     return sc;
   }
   
   sc = m_tHistSvc.retrieve();
   if (sc.isFailure()) {
-    msg() << MSG::ERROR << "Unable to retrieve pointer to THistSvc" << endreq;
+    ATH_MSG_ERROR("Unable to retrieve pointer to THistSvc");
     return sc;
   }
 
@@ -115,13 +115,14 @@ StatusCode TrigROBSelector::initialize()
     if (isIncluded[name->first]) m_detectors.push_back(name->first);
   }
   
-  msg() << MSG::INFO << "Selected subdetectors = ";
+  msg() << MSG::DEBUG << "Selected subdetectors = ";
   for (std::vector<DETID>::const_iterator det = m_detectors.begin(); 
-       det != m_detectors.end(); det++) msg() << *det << " ";
+       det != m_detectors.end(); det++) {
+        msg() << MSG::DEBUG << *det << " " << endreq; 
+  }
   msg() << endreq;
-  //msg() << MSG::INFO << "njpb " << m_outputPath << endreq;
 
-  return StatusCode::SUCCESS;
+  return sc;
 }
 
 
@@ -146,7 +147,7 @@ HLT::ErrorCode TrigROBSelector::fillPEBInfo(PartialEventBuildingInfo& pebInfo,
     allROBs.insert(allROBs.end(), detectorROBs.begin(), detectorROBs.end());
     msg() << MSG::DEBUG << "ROBs requested for detector " << *detector << " : ";
     
-    for (unsigned int i = 0; i < detectorROBs.size(); i++) msg() << "0x" << std::hex << detectorROBs[i] << std::dec << " ";
+    for (unsigned int i = 0; i < detectorROBs.size(); i++) msg() << MSG::DEBUG << "0x" << std::hex << detectorROBs[i] << std::dec << " ";
     msg() << endreq;
     
     if (dets) (*dets).push_back(*detector);
@@ -156,7 +157,7 @@ HLT::ErrorCode TrigROBSelector::fillPEBInfo(PartialEventBuildingInfo& pebInfo,
     static bool warnedAlready = false; 
     if (!robHist) {
       if (!warnedAlready) {
-        msg() << MSG::DEBUG << "Monitoring of detector " << *detector << " not implemented yet." << endreq;
+        ATH_MSG_DEBUG("Monitoring of detector " << *detector << " not implemented yet.");
         warnedAlready = true;
       }
       continue;
@@ -181,7 +182,7 @@ bool TrigROBSelector::reset()
 
 HLT::ErrorCode TrigROBSelector::setupMonitoring()
 {
-  msg() << MSG::INFO << "in setupMonitoring() " << endreq;
+  ATH_MSG_INFO("in setupMonitoring() ");
   
   for (std::vector<DETID>::const_iterator det = m_detectors.begin(); 
        det != m_detectors.end(); det++) {
@@ -191,7 +192,7 @@ HLT::ErrorCode TrigROBSelector::setupMonitoring()
     double phi = HLT::phiMean(m_phiMinMon, m_phiMaxMon); 
     TrigRoiDescriptor roi( eta, m_etaMinMon, m_etaMaxMon, phi, m_phiMinMon, m_phiMaxMon );
     m_regionSelector->DetROBIDListUint(*det, roi, range );
-    msg() << MSG::DEBUG << "Range for detId = " << *det << " = " << range.size() << std::endl;
+    ATH_MSG_DEBUG("Range for detId = " << *det << " = " << range.size());
     m_ranges[*det] = range;
         
     int bin = 0;
@@ -220,15 +221,14 @@ HLT::ErrorCode TrigROBSelector::setupMonitoring()
     }
   }
 
-  msg() << MSG::INFO << "done setupMonitoring() " << endreq;
+  ATH_MSG_INFO("done setupMonitoring() ");
   return HLT::OK;
 }
 
 
 HLT::ErrorCode TrigROBSelector::bookMonitoringHistograms()
 {
-  if (msgLvl() <= MSG::DEBUG) 
-    msg() << MSG::DEBUG << "Going to book and register monitoring histograms" << endreq;
+  ATH_MSG_DEBUG("Going to book and register monitoring histograms");
 
   for (std::vector<DETID>::const_iterator det = m_detectors.begin(); 
        det != m_detectors.end(); det++) {
@@ -247,7 +247,7 @@ HLT::ErrorCode TrigROBSelector::bookMonitoringHistograms()
     m_robHists[*det] = h;
   }
   
-  msg() << MSG::DEBUG << "done : book and register monitoring histograms" << endreq;
+  ATH_MSG_DEBUG("done : book and register monitoring histograms");
 
   return HLT::OK;
 }
@@ -256,14 +256,13 @@ HLT::ErrorCode TrigROBSelector::bookMonitoringHistograms()
 TH1I* TrigROBSelector::bookAndRegisterTH1I(std::string name, std::string outpath, int nBins, int minX, int maxX) 
 {
   // Say hello
-  if (msgLvl()<=MSG::DEBUG) 
-    msg() << MSG::DEBUG << "Now trying to register histogram: " << name << " (TH1I)" << endreq;
+  ATH_MSG_DEBUG("Now trying to register histogram: " << name << " (TH1I)");
   TH1I* h = new TH1I(name.c_str(), name.c_str(), nBins, minX, maxX); 
   if (m_tHistSvc->regHist(outpath + h->GetName(), h).isFailure()) {
-     msg() << MSG::WARNING << "Can't book " << outpath + h->GetName() << endreq;
+     ATH_MSG_WARNING("Can't book " << outpath + h->GetName());
      return 0;
   }
-  msg() << MSG::DEBUG << "done : register histograms" << endreq;
+  ATH_MSG_DEBUG("done : register histograms");
   return h;
 }
 
@@ -277,5 +276,5 @@ StatusCode TrigROBSelector::queryInterface( const InterfaceID& riid,
     return StatusCode::SUCCESS;
   }
   
-  return AlgTool::queryInterface( riid, ppvIf );
+  return AthAlgTool::queryInterface( riid, ppvIf );
 }

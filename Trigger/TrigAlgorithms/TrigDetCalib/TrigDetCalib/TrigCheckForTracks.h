@@ -42,8 +42,7 @@ class TrigCheckForTracks : public HLT::AllTEAlgo {
   
 
   HLT::ErrorCode hltBeginRun();
-  
-  bool reset();
+  HLT::ErrorCode hltEndEvent();
   
  private:
 
