@@ -64,7 +64,9 @@ class TrigROBListWriter : public HLT::FexAlgo
 
     HLT::ErrorCode hltBeginRun();
 
-    bool reset();
+    HLT::ErrorCode hltEndEvent();
+
+
     
   private:
     

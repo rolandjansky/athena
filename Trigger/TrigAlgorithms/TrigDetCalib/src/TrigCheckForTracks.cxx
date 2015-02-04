@@ -337,10 +337,8 @@ HLT::ErrorCode TrigCheckForTracks::hltExecute(std::vector<std::vector<HLT::Trigg
   return HLT::OK;
 }
 
-bool TrigCheckForTracks::reset() {
-  if ( !AllTEAlgo::reset() ) return false;
+HLT::ErrorCode TrigCheckForTracks::hltEndEvent() {
     m_executedEvent = false; 
-    AllTEAlgo::reset();   
     m_robSelector->reset();
     m_dets.clear();
     m_nROBs.clear();
@@ -351,6 +349,6 @@ bool TrigCheckForTracks::reset() {
     m_phi.clear();
     m_ROB_eta.clear();
     m_ROB_phi.clear();
-    return true;
+    return HLT::OK;
   }
 

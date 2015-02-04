@@ -81,7 +81,7 @@ class TrigSubDetListWriter : public HLT::AllTEAlgo
 
     StatusCode bookMonitoringHistograms();
 
-    bool reset();
+    HLT::ErrorCode hltEndEvent();
 
     void fillL1CaloRobs(std::vector<uint32_t>& roblist);
 
