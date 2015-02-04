@@ -192,8 +192,18 @@ ISF::EntryLayer ISF::EntryLayerTool::registerParticle(const ISF::ISFParticle& pa
   if ( layerHit != ISF::fUnsetEntryLayer) {
     ATH_MSG_VERBOSE( "Particle >>" << particle << "<< hit boundary surface, "
                      "adding it to '" << m_SGName[layerHit] << "' TrackRecord collection");
-    TrackRecord tRec = convert(particle, m_volumeName[layerHit]);
-    m_collection[layerHit]->push_back(tRec);
+    double mass            = particle.mass();
+    CLHEP::Hep3Vector      mom( particle.momentum().x(), particle.momentum().y(), particle.momentum().z() );// not optimal, but required by TrackRecord
+    CLHEP::Hep3Vector      pos( particle.position().x(), particle.position().y(), particle.position().z() );// not optimal, but required by TrackRecord
+    double energy          = sqrt(mass*mass + mom.mag2());
+
+    m_collection[layerHit]->Emplace(particle.pdgCode(),
+                    energy,
+                    mom,
+                    pos,
+                    particle.timeStamp(),
+                    particle.barcode(),
+                    m_volumeName[layerHit] );
   }
 
   return layerHit;
@@ -221,28 +231,5 @@ TrackRecordCollection *ISF::EntryLayerTool::setupSGCollection(const std::string 
   }
 
   return collection;
-}
-
-
-/** convert ISFParticle to TrackRecord */
-TrackRecord& ISF::EntryLayerTool::convert( const ISF::ISFParticle &p,
-                                               std::string &volumeName )
-{
-  // definitions for quick access:
-  double mass            = p.mass();
-  CLHEP::Hep3Vector      mom( p.momentum().x(), p.momentum().y(), p.momentum().z() );// not optimal, but required by TrackRecord
-  CLHEP::Hep3Vector      pos( p.position().x(), p.position().y(), p.position().z() );// not optimal, but required by TrackRecord
-  double energy          = sqrt(mass*mass + mom.mag2());
-  double time            = 0.; //!< @TODO: fix time
-
-  // finally create the TrackRecord
-  TrackRecord tRec( p.pdgCode(),
-                    energy,
-                    mom,
-                    pos,
-                    time,
-                    p.barcode(),
-                    volumeName );
-  return tRec;
 }
 
