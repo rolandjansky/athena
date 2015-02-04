@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ElementLink.h 594002 2014-04-24 03:20:32Z ssnyder $
+// $Id: ElementLink.h 644271 2015-02-04 18:20:42Z ssnyder $
 /**
  * @file AthLinks/ElementLink.h
  * @author scott snyder <snyder@bnl.gov>
@@ -48,6 +48,54 @@
  * However, it is possible to customize the policy used, if needed.
  * See the macros in DeclareIndexingPolicy.h; the interface
  * required of an indexing policy is summarized in tools/ElementLinkTraits.h.
+ *
+ * Forward declarations:
+ *
+ * Dealing with forward declarations has been a problem.  For example,
+ * you have a class @c MyCont which is a vector of pointers to @c MyElt,
+ * where @c MyElt contains an @c ElementLink<MyCont>.  Here is a way
+ * to get this to work.
+ *
+ * In your header for @c MyElt, make a forward declaration for @c MyCont.
+ * Then include the special macro @c ELEMENTLINK_FWD:
+ *
+ *@code
+ *  ELEMENTLINK_FWD(MyCont, MyElt);
+ @endcode
+ *
+ * where the first argument is the container type and the second argument
+ * is the base type of the (pointer) value type of the container.
+ * You can then write a data member
+ * of type @c ElementLink<MyCont>.  You will need to have the complete
+ * definition of @c MyCont available in order to actaully call methods
+ * on the link, so you'll likely need to include the header for @c MyCont
+ * within the implementation file for @c MyElt.  A more complete example
+ * of what the header for @c MyElt might look like:
+ *
+ *@code
+ *  #include "AthLinks/ElementLink.h"
+ *
+ *  class MyElt;
+ *  class MyCont;
+ *  ELEMENTLINK_FWD(MyCont, MyElt);
+ *
+ *  class MyElt { ...
+ *    ElementLink<MyCont> m_link;
+ *  };
+ @endcode
+ *
+ * Restrictions:
+ *  - This only works for containers that are vector-like and which
+ *    contain pointers (@c DataVector works.) 
+ *  - @c MyCont can't be a typedef.  In most cases, @c MyCont will
+ *    have to be a class that derives from the actual container class.
+ *  - The @c ELEMENTLINK_FWD macro must be used in the global scope
+ *    (outside of any namespace).
+ *  - The complete definition of the container must be visible
+ *    before calling any methods on the link.  The container header
+ *    can be included from the implementation file for the element;
+ *    however, this implies that anything touching the link cannot
+ *    be written as inline code in the element header.
  *
  * Implementation notes:
  *

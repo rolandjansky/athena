@@ -165,7 +165,7 @@ namespace SG {
 template <class STORABLE,
           class VALUE_TYPE = typename STORABLE::value_type,
           bool IS_SEQUENCE = IsSTLSequence<STORABLE>::value>
-class ElementLinkTraits
+class ElementLinkTraits1
 {
 public:
   typedef typename SG::GenerateIndexingPolicy<STORABLE>::type IndexingPolicy;
@@ -178,7 +178,7 @@ public:
  *        of pointers.
  */
 template <class STORABLE, class BASE_VALUE_TYPE>
-class ElementLinkTraits<STORABLE, BASE_VALUE_TYPE*, true>
+class ElementLinkTraits1<STORABLE, BASE_VALUE_TYPE*, true>
 {
 public:
   typedef ElementLinkBase Base;
@@ -187,7 +187,47 @@ public:
 
 
 
+/**
+ * @brief ElementLinkTraits class to specialize.
+ *
+ * This is split out from @c ElementLinkTraits1 to allow specializing
+ * this class on a container class with an incomplete definition.
+ */
+template <class STORABLE>
+class ElementLinkTraits
+  : public ElementLinkTraits1<STORABLE>
+{
+public:
+  typedef typename ElementLinkTraits1<STORABLE>::Base Base;
+  typedef typename ElementLinkTraits1<STORABLE>::IndexingPolicy IndexingPolicy;
+};
+
+
 } // namespace SG
+
+
+
+/**
+ * @brief Forward declaration helper for ElementLink.
+ *
+ * This macro helps in declaring an ElementLink to a container with
+ * an incomplete definition (that has been forward declared).
+ * Restriction: The container _must_ be a vector-like container of pointers.
+ * Must not be used inside a namespace.
+ *
+ * See comments in ElementLink.h for a usage example.
+ */
+#define ELEMENTLINK_FWD(TYPE, VALUE_TYPE)                               \
+namespace SG {                                                          \
+template<>                                                              \
+class ElementLinkTraits<TYPE>                                           \
+{                                                                       \
+public:                                                                 \
+  typedef ElementLinkBase Base;                                         \
+  typedef ForwardIndexingPolicy<TYPE, VALUE_TYPE*> IndexingPolicy;      \
+};                                                                      \
+}                                                                       \
+class elementlink_fwd_dummy
 
 
 

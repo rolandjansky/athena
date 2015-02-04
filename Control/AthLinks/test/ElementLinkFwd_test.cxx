@@ -1,0 +1,50 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+#undef NDEBUG
+#include "ELFElt.h"
+#include "ELFCont.h"
+#include "AthenaKernel/getMessageSvc.h"
+#include "TestStore.icc"
+#include <iostream>
+#include <cassert>
+
+
+void ELFElt::setLink (const std::string& key, int ndx)
+{
+  m_link.resetWithKeyAndIndex (key, ndx);
+}
+
+
+const ELFElt* ELFElt::ptr() const
+{
+  return *m_link;
+}
+
+
+void test1()
+{
+  std::cout << "test1\n";
+
+  const int nelt = 5;
+  ELFCont* cont = new ELFCont;
+  store.record (cont, "elf");
+  for (int i=0; i < nelt; i++) {
+    cont->push_back (new ELFElt(i));
+    (*cont)[i]->setLink ("elf", nelt-1-i);
+  }
+
+  for (int i=0; i < nelt; i++) {
+    assert ((*cont)[i]->ptr()->x() == nelt-1-i);
+  }
+}
+
+
+int main()
+{
+  Athena::getMessageSvcQuiet = true;
+  SG::getDataSourcePointerFunc = getTestDataSourcePointer;
+  test1();
+  return 0;
+}

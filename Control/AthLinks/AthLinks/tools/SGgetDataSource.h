@@ -85,6 +85,7 @@ getDataSourcePointerFromGaudi (const std::string& storeName);
 typedef IProxyDictWithPool** getDataSourcePointerFunc_t (const std::string&);
 
 
+#ifndef __CLING__
 /**
  * @brief Hook for data source function.
  *
@@ -94,6 +95,7 @@ typedef IProxyDictWithPool** getDataSourcePointerFunc_t (const std::string&);
  * this will be set to @c getDataSourcePointerFromGaudi.
  */
 extern getDataSourcePointerFunc_t* getDataSourcePointerFunc;
+#endif
 
 
 } // namespace SG

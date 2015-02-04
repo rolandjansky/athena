@@ -36,12 +36,11 @@ namespace SG {
  *
  * Indexes here are size_type, with -1 used to mark an invalid index.
  */
-template <class CONT>
+template <class CONT, class VALUE_TYPE=typename CONT::value_type>
 class ForwardIndexingPolicy
 {
 private:
-  typedef typename CONT::value_type value_type;
-  typedef typename CONT::const_iterator const_iterator;
+  typedef VALUE_TYPE value_type;
 
 
 public:

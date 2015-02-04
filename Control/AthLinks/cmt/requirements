@@ -35,6 +35,7 @@ apply_pattern UnitTest_run unit_test=DataLink
 apply_pattern UnitTest_run unit_test=ElementLinkBase
 apply_pattern UnitTest_run unit_test=GenericElementLinkBase
 apply_pattern UnitTest_run unit_test=ElementLink
+apply_pattern UnitTest_run unit_test=ElementLinkFwd
 apply_pattern UnitTest_run unit_test=DataPtr
 apply_pattern UnitTest_run unit_test=AssociationMap \
   extrapatterns="ClassIDSvc Initialized successfully|^HistogramPersis.* INFO"
