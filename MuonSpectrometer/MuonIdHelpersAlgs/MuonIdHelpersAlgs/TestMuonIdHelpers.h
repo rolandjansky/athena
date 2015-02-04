@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "GaudiKernel/Algorithm.h"
-#include "StoreGate/DataHandle.h"
 #include "Identifier/Identifier.h"
 
 class StoreGateSvc;
