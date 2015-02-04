@@ -119,6 +119,9 @@ StatusCode AthenaPoolCnvSvc::finalize() {
    if (!m_clidSvc.release().isSuccess()) {
       ATH_MSG_WARNING("Cannot release ClassIDSvc.");
    }
+
+   m_cnvs.clear();
+   m_cnvs.shrink_to_fit();
    return(::AthCnvSvc::finalize());
 }
 //_______________________________________________________________________
