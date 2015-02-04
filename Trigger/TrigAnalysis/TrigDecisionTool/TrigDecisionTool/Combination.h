@@ -53,11 +53,7 @@ namespace Trig {
     Combination(const std::vector<HLT::TriggerElement*>& tes, const Trig::CacheGlobalMemory* cgm);
 
 
-    /**
-     * @brief copy constructor
-     **/
-    Combination(const Combination& other) :  m_tes(other.m_tes), m_cgm(other.m_cgm) { }
-
+    // Use default copy constructor.
 
     /**
      * @brief Method used to get objects. 
