@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RoIBResultToxAOD.cxx 638077 2015-01-07 16:25:46Z watsona $
+// $Id: RoIBResultToxAOD.cxx 644158 2015-02-04 16:01:21Z ssnyder $
 
 // STL include(s):
 #include <algorithm>
@@ -669,7 +669,7 @@ StatusCode RoIBResultToxAOD::addJetEnergyRoI( const ROIB::RoIBResult* result ) {
             for( unsigned int i = 0; i < TrigT1CaloDefs::numOfJetEtSumThresholds; ++i ) {
                if( ( roIWord >> i ) & 0x1 ) {
                   std::string thrName = "NameNotFound";
-                  if (jeNames.find(i) != jfNames.end()) thrName = jeNames[i];
+                  if (jeNames.find(i) != jeNames.end()) thrName = jeNames[i];
                   jetet_xaod->addThreshold( thrName );
                   ATH_MSG_DEBUG( "JetEt Thr : " << thrName );
                }
@@ -678,6 +678,10 @@ StatusCode RoIBResultToxAOD::addJetEnergyRoI( const ROIB::RoIBResult* result ) {
          }
          // EnergySum ROI
          else if ( roiType == LVL1::TrigT1CaloDefs::EnergyRoIWordType0 ) {
+            // Temporary kludge: ignore truncated eta range ET RoI
+            if ( (roIWord & 0x4000000) != 0) continue;
+            
+            // Extract information and fill EnergySumRoI
             uint32_t roiWord0 = roIWord;
             ATH_MSG_DEBUG( "ET RoIWord 0 : " << MSG::hex << std::setw( 8 )
                            << roiWord0 << MSG::dec );
