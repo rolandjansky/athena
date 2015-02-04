@@ -5,8 +5,8 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ISvcLocator.h"
 
-#include "StoreGate/StoreGate.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ActiveStoreSvc.h"
 
 #include "GaudiKernel/PropertyMgr.h"
 #include "GaudiKernel/IToolSvc.h"
