@@ -18,9 +18,9 @@ namespace SG {
  * @brief Test to see if an index is valid.
  * @param index The index to test.
  */
-template <class CONT>
+template <class CONT, class VALUE_TYPE>
 inline
-bool ForwardIndexingPolicy<CONT>::isValid (stored_index_type index)
+bool ForwardIndexingPolicy<CONT, VALUE_TYPE>::isValid (stored_index_type index)
 {
   return index != static_cast<stored_index_type>(INVALID);
 }
@@ -30,10 +30,10 @@ bool ForwardIndexingPolicy<CONT>::isValid (stored_index_type index)
  * @brief Convert from stored to external index types.
  * @param index The stored index.
  */
-template <class CONT>
+template <class CONT, class VALUE_TYPE>
 inline
-typename ForwardIndexingPolicy<CONT>::index_type
-ForwardIndexingPolicy<CONT>::storedToExternal (stored_index_type index)
+typename ForwardIndexingPolicy<CONT, VALUE_TYPE>::index_type
+ForwardIndexingPolicy<CONT, VALUE_TYPE>::storedToExternal (stored_index_type index)
 {
   if (index == static_cast<stored_index_type>(INVALID))
     return INVALID;
@@ -45,9 +45,9 @@ ForwardIndexingPolicy<CONT>::storedToExternal (stored_index_type index)
  * @brief Make an index invalid.
  * @param index[out] The index to reset.
  */
-template <class CONT>
+template <class CONT, class VALUE_TYPE>
 inline
-void ForwardIndexingPolicy<CONT>::reset (stored_index_type& index)
+void ForwardIndexingPolicy<CONT, VALUE_TYPE>::reset (stored_index_type& index)
 {
   index = static_cast<stored_index_type>(INVALID);
 }
@@ -60,15 +60,16 @@ void ForwardIndexingPolicy<CONT>::reset (stored_index_type& index)
  *
  * Will throw SG::ExcBadForwardLink if the index is invalid.
  */
-template <class CONT>
+template <class CONT, class VALUE_TYPE>
 inline
-typename ForwardIndexingPolicy<CONT>::ElementType
-ForwardIndexingPolicy<CONT>::lookup (index_type index, const CONT& data)
+typename ForwardIndexingPolicy<CONT, VALUE_TYPE>::ElementType
+ForwardIndexingPolicy<CONT, VALUE_TYPE>::lookup (index_type index, const CONT& data)
 { 
   if (!isValid(index) || (data.size() <= index)) {
     SG::throwExcBadForwardLink (index, data.size());
   }
 
+  typedef typename CONT::const_iterator const_iterator;
   const_iterator iter = data.begin();
   std::advance(iter, index);
   return *iter;
@@ -83,10 +84,10 @@ ForwardIndexingPolicy<CONT>::lookup (index_type index, const CONT& data)
  *
  * Throws SG::ExcElementNotFound if the element is not in the container.
  */
-template <class CONT>
-void ForwardIndexingPolicy<CONT>::reverseLookup(const CONT& data,
-                                                ElementConstReference element,
-                                                index_type& index)
+template <class CONT, class VALUE_TYPE>
+void ForwardIndexingPolicy<CONT, VALUE_TYPE>::reverseLookup(const CONT& data,
+                                                            ElementConstReference element,
+                                                            index_type& index)
 {
   //compiler checks we can compare elements
   ::boost::function_requires<typename ::boost::EqualityComparableConcept<ElementType> >();
