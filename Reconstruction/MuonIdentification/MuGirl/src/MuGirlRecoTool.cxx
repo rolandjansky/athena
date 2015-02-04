@@ -316,8 +316,8 @@ StatusCode MuGirlRecoTool::MuGirlReco(const InDetCandidateCollection& InDetSeeds
 
 
     /** in order to fill the ntuple storing the MuGirl results */
-    if (m_pParticleCreatorTool->fillContainer(&summaryList, true).isFailure()) {
-        ATH_MSG_DEBUG("MuGirlReco: m_pParticleCreatorTool->fillContainer failed.");
+    if( m_doNTuple && m_pParticleCreatorTool->fillContainer(&summaryList, true).isFailure()) {
+      ATH_MSG_DEBUG("MuGirlReco: m_pParticleCreatorTool->fillContainer failed.");
     }
 
     /** empty caloParticles */

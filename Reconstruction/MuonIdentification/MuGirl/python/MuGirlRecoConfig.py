@@ -31,7 +31,10 @@ class MuGirlRecoConfig(MuGirlNS__MuGirlRecoTool):
         self.doStau             = doStau
 
         from MuGirlCandidate.MuGirlCandidateConfig import MuGirlNS__CandidateToolConfig
-        MuGirlCandidateTool = MuGirlNS__CandidateToolConfig(name = 'MuGirlCandidateTool')
+        if configureForTrigger:
+            MuGirlCandidateTool = MuGirlNS__CandidateToolConfig(name = 'TrigMuGirlCandidateTool')
+        else:
+            MuGirlCandidateTool = MuGirlNS__CandidateToolConfig(name = 'MuGirlCandidateTool')
         ToolSvc += MuGirlCandidateTool
         MuGirlCandidateTool.doCSC =  muonRecFlags.doCSCs()
         self.MuGirlCandidate = MuGirlCandidateTool
@@ -69,7 +72,12 @@ class MuGirlRecoConfig(MuGirlNS__MuGirlRecoTool):
 
         if doStau:
             from MuGirlStau.MuGirlStauConfig import MuGirlNS__StauToolConfig
-            StauTool = MuGirlNS__StauToolConfig(name = 'MuGirlStauTool')
+            if configureForTrigger:
+                StauTool = MuGirlNS__StauToolConfig(name = 'TrigMuGirlStauTool')
+            else:
+                StauTool = MuGirlNS__StauToolConfig(name = 'MuGirlStauTool')
+
+
             ToolSvc += StauTool
             self.MuGirlStauTool = StauTool
             StauTool.StauGlobalFitTool = GlobalFitTool
