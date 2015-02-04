@@ -22,8 +22,8 @@ class Tracklet {
   
  public:
   Tracklet() { }
-  Tracklet(TrackletSegment ML1seg, TrackletSegment ML2seg, Amg::Vector3D p, AmgSymMatrix(5) ErrorMatrix, float charge);
-  Tracklet(TrackletSegment ML1seg, Amg::Vector3D p, AmgSymMatrix(5) ErrorMatrix, float charge);
+  Tracklet(TrackletSegment ML1seg, TrackletSegment ML2seg, const Amg::Vector3D &p, const AmgSymMatrix(5) &ErrorMatrix, float charge);
+  Tracklet(TrackletSegment ML1seg, const Amg::Vector3D &p, const AmgSymMatrix(5) &ErrorMatrix, float charge);
 
   ~Tracklet();
 

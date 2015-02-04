@@ -18,6 +18,22 @@ MSVertex::MSVertex() :
   m_nTGC(-1)
 {}
 
+MSVertex::MSVertex(const MSVertex& vertex) :
+  m_author(vertex.getAuthor()),
+  m_position(vertex.getPosition()),
+  m_tracks(0),
+  m_chi2prob(vertex.getChi2Probability()),
+  m_chi2(vertex.getChi2()),
+  m_nMDT(vertex.getNMDT()), 
+  m_nRPC(vertex.getNRPC()), 
+  m_nTGC(vertex.getNTGC())
+{
+  for (std::vector<xAOD::TrackParticle*>::const_iterator i = vertex.getTracks()->begin(); 
+       i != vertex.getTracks()->end(); ++i) {
+    m_tracks.push_back( new xAOD::TrackParticle( **i ) );
+  }
+}
+
 MSVertex::MSVertex(int author, const Amg::Vector3D& position,
 		   float chi2prob, float chi2, int nMDT, int nRPC, int nTGC) : 
   m_author(author),
@@ -53,14 +69,11 @@ MSVertex::~MSVertex() {
 }
 
 MSVertex* MSVertex::clone() {
-  //copy the track vector
-  std::vector<xAOD::TrackParticle*> trkcopy;
-  trkcopy.reserve(m_tracks.size());
-  for (std::vector<xAOD::TrackParticle*>::iterator i = m_tracks.begin(); i != m_tracks.end(); ++i) {
-    trkcopy.push_back( new xAOD::TrackParticle( **i ) );
-  }
-  MSVertex* copy = new MSVertex(m_author,m_position,trkcopy,m_chi2prob,m_chi2,m_nMDT,m_nRPC,m_nTGC);
-  return copy;
+  std::vector<xAOD::TrackParticle*> trk; 
+  for (std::vector<xAOD::TrackParticle*>::iterator i = m_tracks.begin(); i != m_tracks.end(); ++i) { 
+    trk.push_back( new xAOD::TrackParticle( **i ) ); 
+  } 
+  return new MSVertex(m_author,m_position,trk,m_chi2prob,m_chi2,m_nMDT,m_nRPC,m_nTGC);
 }
 
 void MSVertex::setPosition(const Amg::Vector3D& position) { m_position=position; }

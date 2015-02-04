@@ -4,13 +4,13 @@
 
 #include "MSVertexUtils/Tracklet.h"
   
-Tracklet::Tracklet(TrackletSegment ML1seg, TrackletSegment ML2seg, Amg::Vector3D p, AmgSymMatrix(5) ErrorMatrix, float charge) {
+Tracklet::Tracklet(TrackletSegment ML1seg, TrackletSegment ML2seg, const Amg::Vector3D &p, const AmgSymMatrix(5) &ErrorMatrix, float charge) {
   m_ml1seg=ML1seg; m_ml2seg=ML2seg; m_momentum = p; m_ErrorMatrix = ErrorMatrix; m_charge = charge; 
   m_pos = ML1seg.globalPosition(); m_mdts = ML1seg.mdtHitsOnTrack();
   for(unsigned int i=0; i<m_ml2seg.mdtHitsOnTrack().size(); ++i) m_mdts.push_back(m_ml2seg.mdtHitsOnTrack().at(i));     
 }
 
-Tracklet::Tracklet(TrackletSegment ML1seg, Amg::Vector3D p, AmgSymMatrix(5) ErrorMatrix, float charge) {
+Tracklet::Tracklet(TrackletSegment ML1seg, const Amg::Vector3D &p, const AmgSymMatrix(5) &ErrorMatrix, float charge) {
   m_ml1seg=ML1seg; m_ml2seg=ML1seg; m_momentum = p; m_ErrorMatrix = ErrorMatrix; m_charge = charge;
   m_pos = ML1seg.globalPosition(); m_mdts = ML1seg.mdtHitsOnTrack();
 }
