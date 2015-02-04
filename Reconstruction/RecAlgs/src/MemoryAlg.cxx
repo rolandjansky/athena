@@ -69,8 +69,7 @@ StatusCode MemoryAlg::execute()
   
   char buffer[2048] = {0};
   int out_pipe[2];
-  int saved_stderr;
-  saved_stderr = dup (STDERR_FILENO);
+  int saved_stderr = dup (STDERR_FILENO);
   pipe (out_pipe);
   dup2 (out_pipe[1], STDERR_FILENO);
   close (out_pipe[1]);
@@ -80,11 +79,14 @@ StatusCode MemoryAlg::execute()
   int len = read (out_pipe[0], buffer, 2047);
   if (len >= 0)
     buffer[len] = '\0'; // Redundant, but keeps coverity happy.
+  else
+    buffer[0] = '\0';
   // close (STDERR_FILENO);
-  if (saved_stderr >= 0)
+  if (saved_stderr >= 0) {
     dup2 (saved_stderr, STDERR_FILENO);
+    close (saved_stderr);
+  }
   close (out_pipe[0]);
-  close (saved_stderr);
   
   ATH_MSG_DEBUG("ROLF " << buffer);  
   
