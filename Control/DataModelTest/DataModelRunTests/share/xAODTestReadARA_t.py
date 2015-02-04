@@ -19,7 +19,7 @@ tt = AthenaROOTAccess.transientTree.makeTree(f)
 reader = xAODTestRead()
 for i in range(tt.GetEntries()):
     tt.GetEntry(i)
-    print ('Entry', i)
+    print ('\nEntry', i)
     reader.execute(tt)
     print ('gvec')
     vec = getattr (tt, 'gvec')
