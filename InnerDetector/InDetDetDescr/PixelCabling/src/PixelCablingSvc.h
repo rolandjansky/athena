@@ -53,6 +53,12 @@ public:
   
   // constructor
   PixelCablingSvc(const std::string& name, ISvcLocator* svc ) ;
+
+  // Copy constructor
+  PixelCablingSvc(const PixelCablingSvc &other, const std::string& name, ISvcLocator*svc);
+
+  // Assignment operator
+  PixelCablingSvc& operator= (const PixelCablingSvc &other);
   
   // destructor	
   ~PixelCablingSvc();
