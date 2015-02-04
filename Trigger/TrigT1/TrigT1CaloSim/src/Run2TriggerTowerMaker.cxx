@@ -209,10 +209,10 @@ Run2TriggerTowerMaker::Run2TriggerTowerMaker(const std::string& name, ISvcLocato
   // BCID thresholds, ranges, decision criteria
   declareProperty("EnergyLow", m_EnergyLow=0);
   declareProperty("EnergyHigh", m_EnergyHigh=255);
-  declareProperty("DecisionSource", m_DecisionSource=1); // Use FIR for range decision
-  declareProperty("BcidDecision1", m_BcidDecision[0] = 0xF0);  // FIR+peakfinder
-  declareProperty("BcidDecision2", m_BcidDecision[1]= 0xF0); // FIR+peakfinder
-  declareProperty("BcidDecision3", m_BcidDecision[2]= 0xCC); // Saturated pulse BCID
+  declareProperty("DecisionSource", m_DecisionSource=1);    // Use FIR for range decision
+  declareProperty("BcidDecision1", m_BcidDecision[0]=0xF0); // FIR+peakfinder
+  declareProperty("BcidDecision2", m_BcidDecision[1]=0xF0); // FIR+peakfinder
+  declareProperty("BcidDecision3", m_BcidDecision[2]=0xCC); // Saturated pulse BCID
   declareProperty("SatOverride1", m_SatOverride[0]=0);
   declareProperty("SatOverride2", m_SatOverride[1]=0);
   declareProperty("SatOverride3", m_SatOverride[2]=1);
@@ -1306,7 +1306,7 @@ std::pair<float,float> LVL1::Run2TriggerTowerMaker::elementToEta(int element, in
     return std::make_pair(-eta, eta);
   }
 
-  // elements (everything in coolid maps) provided in 2-1,2-2,3-1,3-2 pattern,
+  // elements (everything in coolid maps) provided in 2-1,3-1,2-2,3-2 pattern,
   // but tower etap is: 2-1,3-1,2-2,3-2, etam is: 2-2,3-2,2-1,3-1 (left to right)
   switch(element) {
   case 25: return std::make_pair(-2.6f, 2.6f);
@@ -1314,8 +1314,8 @@ std::pair<float,float> LVL1::Run2TriggerTowerMaker::elementToEta(int element, in
   case 27: return std::make_pair(-3.0f, 3.0f);
   case 28: return std::make_pair(-3.15f, 3.15f);
   case 29: return layer ? std::make_pair(-4.2625f, 3.4125f) : std::make_pair(-3.4125f, 3.4125f);
-  case 30: return layer ? std::make_pair(-3.4125f, 4.2625f) : std::make_pair(-3.8375f, 3.8375f);
-  case 31: return layer ? std::make_pair(-4.6875f, 3.8375f) : std::make_pair(-4.2625f, 4.2625f);
+  case 30: return layer ? std::make_pair(-4.6875f, 3.8375f) : std::make_pair(-4.2625f, 4.2625f);
+  case 31: return layer ? std::make_pair(-3.4125f, 4.2625f) : std::make_pair(-3.8375f, 3.8375f);
   case 32: return layer ? std::make_pair(-3.8375f, 4.6875f) : std::make_pair(-4.6875f, 4.6875f);
   default:
     ATH_MSG_ERROR("element out of range");
@@ -1346,12 +1346,13 @@ int LVL1::Run2TriggerTowerMaker::etaToElement(float feta, int layer) const
       }
     }
   }
-  if      (layer == 1 && (element == 0 || element == 64)) element = 2; // FCal2-2
+  if      (layer == 1 && (element == 0 || element == 64)) element = 1; // FCal2-2
   else if (layer == 1 && (element == 1 || element == 65)) element = 0; // FCal3-2
   else if (layer == 1 && (element == 2 || element == 62)) element = 3; // FCal2-1
-  else if (layer == 1 && (element == 3 || element == 63)) element = 1; // FCal3-1
+  else if (layer == 1 && (element == 3 || element == 63)) element = 2; // FCal3-1
   else if (element > 32) element = 65-element;
 
+  // element 29 = FCal2-1, element 30 = FCal3-1, element 31 = FCal2-2, element 32 = FCal3-2
   element = s_NELEMENT-element-1;
 
   return element;
