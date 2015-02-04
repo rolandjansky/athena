@@ -145,12 +145,11 @@ HLT::ErrorCode TrigROBListWriter::hltExecute(const HLT::TriggerElement* te_in,
 }
 
 
-bool TrigROBListWriter::reset()
+HLT::ErrorCode TrigROBListWriter::hltEndEvent()
 {
-  if ( !FexAlgo::reset() ) return false;
   m_robSelector->reset();
   m_dets.clear();
   m_nROBs.clear();
   m_nRoIs = 0;
-  return true;
+  return HLT::OK;
 }

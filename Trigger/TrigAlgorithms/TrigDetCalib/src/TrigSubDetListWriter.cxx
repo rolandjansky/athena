@@ -124,6 +124,7 @@ HLT::ErrorCode TrigSubDetListWriter::hltInitialize()
          m_sourceid.push_back(eformat::TDAQ_L2SV);
      }
      if (*detit=="InnerDetector") {
+        m_sourceid.push_back(eformat::PIXEL_IBL);
         m_sourceid.push_back(eformat::PIXEL_BARREL);
         m_sourceid.push_back(eformat::PIXEL_DISK);
         m_sourceid.push_back(eformat::PIXEL_B_LAYER);
@@ -138,6 +139,7 @@ HLT::ErrorCode TrigSubDetListWriter::hltInitialize()
         m_sourceid.push_back(eformat::TRT_ENDCAP_C_SIDE);
      }
      if (*detit=="SiOnly") {
+        m_sourceid.push_back(eformat::PIXEL_IBL);
         m_sourceid.push_back(eformat::PIXEL_BARREL);
         m_sourceid.push_back(eformat::PIXEL_DISK);
         m_sourceid.push_back(eformat::PIXEL_B_LAYER);
@@ -146,7 +148,14 @@ HLT::ErrorCode TrigSubDetListWriter::hltInitialize()
         m_sourceid.push_back(eformat::SCT_ENDCAP_A_SIDE);
         m_sourceid.push_back(eformat::SCT_ENDCAP_C_SIDE);
      }
+     if (*detit=="DBM") {
+        m_sourceid.push_back(eformat::PIXEL_DBM);
+		 }
+     if (*detit=="IBL") {
+        m_sourceid.push_back(eformat::PIXEL_IBL);
+		 }
      if (*detit=="Pixel") {
+        m_sourceid.push_back(eformat::PIXEL_IBL);
         m_sourceid.push_back(eformat::PIXEL_BARREL);
         m_sourceid.push_back(eformat::PIXEL_DISK);
         m_sourceid.push_back(eformat::PIXEL_B_LAYER);
@@ -655,12 +664,11 @@ HLT::ErrorCode TrigSubDetListWriter::fillPEBInfo(PartialEventBuildingInfo& pebIn
 }
     
 
-bool TrigSubDetListWriter::reset()
+HLT::ErrorCode TrigSubDetListWriter::hltEndEvent()
 {
-  if ( !AllTEAlgo::reset() ) return false;
   m_nRoIs = 0;
   m_useCachedResult=false;
-  return true;
+  return HLT::OK;
 }
 
 TH1I* TrigSubDetListWriter::bookAndRegisterTH1I(const char* name, std::string outpath, int nBins, int minX, int maxX)
