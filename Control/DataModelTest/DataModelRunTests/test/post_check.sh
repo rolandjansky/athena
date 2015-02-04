@@ -171,6 +171,7 @@ PP="$PP"'|including file'
 PP="$PP"'|Environment initialised for data access|building of dictionaries now off|Cannot find any ShowMembers function'
 PP="$PP"'|^GUID: Class|^AthenaRootStr.* INFO|^Warning in .* found in .* is already in'
 PP="$PP"'|^GUID: Class|^WARNING: Cannot import TrigEDMConfig.TriggerEDM.getARATypesRenaming'
+PP="$PP"'|^...1034h$'
 
 test=$1
 if [ -z "$testStatus" ]; then
