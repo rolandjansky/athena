@@ -36,7 +36,24 @@ TrigT2HistoPrmVtxBase::TrigT2HistoPrmVtxBase(MsgStream& log, unsigned int logLvl
   m_totTracks(0),
   m_totTracks_All(0),
   m_totSelTracks(0),
-  m_totSelTracks_All(0)
+  m_totSelTracks_All(0),
+  m_algo(0),
+  m_nBins(0),
+  m_useBeamSpot(false),
+  m_useEtaPhiTrackSel(false),
+  m_l2TrkSelChi2(0.0),
+  m_l2TrkSelBLayer(0),
+  m_l2TrkSelSiHits(0),
+  m_l2TrkSelD0(0.0),
+  m_l2TrkSelPt(0.0),
+  m_efTrkSelChi2(0.0),
+  m_efTrkSelBLayer(0),
+  m_efTrkSelPixHits(0),
+  m_efTrkSelSiHits(0),
+  m_efTrkSelD0(0.0),
+  m_efTrkSelPt(0.0),
+  m_xBeamSpot(0.0), m_yBeamSpot(0.0), m_zBeamSpot(0.0),
+  m_xBeamSpotSigma(0.0), m_yBeamSpotSigma(0.0), m_zBeamSpotSigma(0.0)
 {
 
   m_hisVtx = new HistoVertexHelper(8000, -200, 200);
@@ -47,9 +64,62 @@ TrigT2HistoPrmVtxBase::TrigT2HistoPrmVtxBase(MsgStream& log, unsigned int logLvl
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
+TrigT2HistoPrmVtxBase::TrigT2HistoPrmVtxBase(const TrigT2HistoPrmVtxBase &other) :
+  m_log(other.m_log),
+  m_logLvl(other.m_logLvl),
+  zPrmVtx(other.zPrmVtx),
+  zPrmVtxSigmaAll(other.zPrmVtxSigmaAll),
+  zPrmVtxSigma2Trk(other.zPrmVtxSigma2Trk),
+  nTrackVtx(other.nTrackVtx),
+  nVtxFound(other.nVtxFound),
+  m_totTracks(other.m_totTracks),
+  m_totTracks_All(other.m_totTracks_All),
+  m_totSelTracks(other.m_totSelTracks),
+  m_totSelTracks_All(other.m_totSelTracks_All),
+  m_algo(other.m_algo),
+  m_nBins(other.m_nBins),
+  m_useBeamSpot(other.m_useBeamSpot),
+  m_useEtaPhiTrackSel(other.m_useEtaPhiTrackSel),
+  m_l2TrkSelChi2(other.m_l2TrkSelChi2),
+  m_l2TrkSelBLayer(other.m_l2TrkSelBLayer),
+  m_l2TrkSelSiHits(other.m_l2TrkSelSiHits),
+  m_l2TrkSelD0(other.m_l2TrkSelD0),
+  m_l2TrkSelPt(other.m_l2TrkSelPt),
+  m_efTrkSelChi2(other.m_efTrkSelChi2),
+  m_efTrkSelBLayer(other.m_efTrkSelBLayer),
+  m_efTrkSelPixHits(other.m_efTrkSelBLayer),
+  m_efTrkSelSiHits(other.m_efTrkSelSiHits),
+  m_efTrkSelD0(other.m_efTrkSelD0),
+  m_efTrkSelPt(other.m_efTrkSelPt),
+  m_xBeamSpot(other.m_xBeamSpot), 
+  m_yBeamSpot(other.m_yBeamSpot), 
+  m_zBeamSpot(other.m_zBeamSpot),
+  m_xBeamSpotSigma(other.m_xBeamSpotSigma), 
+  m_yBeamSpotSigma(other.m_yBeamSpotSigma), 
+  m_zBeamSpotSigma(other.m_zBeamSpotSigma)
+{
+
+  this->m_hisVtx = new HistoVertexHelper(*other.m_hisVtx);
+
+}
+
+
+//** ----------------------------------------------------------------------------------------------------------------- **//
+
+
 TrigT2HistoPrmVtxBase::~TrigT2HistoPrmVtxBase() {
 
   delete m_hisVtx;
+}
+
+
+//** ----------------------------------------------------------------------------------------------------------------- **//
+
+
+TrigT2HistoPrmVtxBase TrigT2HistoPrmVtxBase::operator=(const TrigT2HistoPrmVtxBase &rhs)
+{
+  TrigT2HistoPrmVtxBase temp(rhs);
+  return temp;
 }
 
 
