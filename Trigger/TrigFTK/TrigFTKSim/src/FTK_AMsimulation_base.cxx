@@ -23,7 +23,8 @@ using namespace std;
  */
 
 FTK_AMsimulation_base::FTK_AMsimulation_base(int id, int subid) :
-   m_BankID(id), m_SubID(subid), 
+   m_BankID(id), m_SubID(subid),
+   m_npatterns(0),
    m_do_pattern_stats(0),
    m_StoreAllSS(false),
    m_SaveAllRoads(0),
@@ -77,11 +78,47 @@ void FTK_AMsimulation_base::end() {
 void FTK_AMsimulation_base::addTotStat(long nRoads) {
    m_stat_totroads += nRoads;
    m_stat_nevents += 1;
+   //std::cout<<"nroad="<<m_stat_totroads<<" nevent="<<m_stat_nevents<<"\n";
 }
 
 const std::map< int, std::map<int,FTKSS> >&
 FTK_AMsimulation_base::getIgnoredStrips() {
    return m_usedssmap_ignored;
+}
+
+/** this function get the hit list and then populate the associative
+    memory */
+int FTK_AMsimulation_base::passHits(const vector<FTKHit> &hitlist)
+{
+   // this function partially replicate the structure of the old 
+   // ftksim main loop, sorting, organizing, and populatig the AM
+
+  // check if  the number of patterns is 0
+  if (!m_npatterns)
+    return 0;
+
+  clear();  
+  sort_hits(hitlist);
+    
+  //readout_hits();
+  
+  //routing();
+
+
+  FTKSetup &ftkset = FTKSetup::getFTKSetup();
+  
+  if (ftkset.getEnableFTKSim()) {
+      data_organizer();
+      am_in();
+  }
+  am_output();
+
+  if (FTKSetup::getFTKSetup().getRoadWarrior()>0)
+    road_warrior();
+
+  addTotStat(getNRoads());
+
+  return getNRoads();
 }
 
 /**

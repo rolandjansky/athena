@@ -34,6 +34,7 @@ use AtlasBoost		       AtlasBoost-*		  External
 use AtlasTBB        AtlasTBB-*     External
 
 use TrkTrack	TrkTrack-* Tracking/TrkEvent
+use AtlasEigen     AtlasEigen-*        External
 
 private
 use NavFourMom         NavFourMom-*            Event
@@ -115,6 +116,16 @@ apply_pattern dual_use_library files="FTKRoadFinderAlgo.cxx FTKDumpCondAlgo.cxx 
         FTK_AMsimulation_base.cxx FTK_CompressedAMBank.cxx \
      	$(bin)TrigFTKSimRootDict.cxx"
 
+#########################
+#Stuff for RTT
+#include the TestConfig file
+macro TrigFTKSim_TestConfiguration "../test/TrigFTKSim_TestConfiguration.xml" 
+apply_pattern declare_runtime extras= "../test/TrigFTKSim_TestConfiguration.xml"
+
+#add in script to run in RTT
+apply_pattern declare_scripts files="../scripts/RunATowerPU20.py
+
+#########################
 
 # the following two lines are required to enable the debug flags
 #macro cppdebugflags '$(cppdebugflags_s)'

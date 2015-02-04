@@ -28,6 +28,30 @@ def addTrigFTKSimOptions(parser,nsubregions=4):
                         nargs='+', metavar='substep:maxEvents',
                         help='Set maximum events for each processing step (default for this transform is to set for all substeps)')
 
+    parser.add_argument("--firstEvent", "--FirstEvent", group="TrigFTKSim",
+                        default=trfArgClasses.argInt(0, runarg=True),
+                        help="the number of the first event for processing",
+                        type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True))
+
+    parser.add_argument('--postExec', type=trfArgClasses.argFactory(trfArgClasses.argSubstepList), nargs='+',
+                        metavar='substep:POSTEXEC', group='TrigFTKSim',
+                        help='Python code to execute after main job options are included (can be optionally limited to a single substep)')
+
+    parser.add_argument('--postInclude', group = 'TrigFTKSim', type=trfArgClasses.argFactory(trfArgClasses.argSubstepList, splitter=','), nargs='+',
+                        metavar='substep:POSTINCLUDE',
+                        help='Python configuration fragment to include after main job options (can be optionally limited to a single substep). Will split on commas: frag1.py,frag2.py is understood.')
+
+    parser.add_argument('--preExec', group = 'TrigFTKSim', type=trfArgClasses.argFactory(trfArgClasses.argSubstepList), nargs='+',
+                        metavar='substep:PREEXEC',
+                        help='Python code to execute before main job options are included (can be optionally limited to a single substep)')
+
+    parser.add_argument('--preInclude', group = 'TrigFTKSim', type=trfArgClasses.argFactory(trfArgClasses.argSubstepList, splitter=','), nargs='+',
+                        metavar='substep:PREINCLUDE',
+                        help='Python configuration fragment to include before main job options (can be optionally limited to a single substep). Will split on commas: frag1.py,frag2.py is understood.')
+
+
+
+
     #JDC:    
     parser.add_argument('--ConstantsDir', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
                         help='Directory where input files are kept', group='TrigFTKSim')
@@ -77,6 +101,8 @@ def addTrigFTKSimRFOptions(parser):
     parser.add_argument('--TSPMinCoverage', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
                         help='TSPMinCoverage', group='TrigFTKRoadFinder')
 
+    parser.add_argument('--DCMatchMethod',type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
+                         help="Set the DC matching method", group="TrigFTKRoadFinder") 
     
     parser.add_argument("--PixelClusteringMode",type=trfArgClasses.argFactory(trfArgClasses.argInt,runarg=True),
                         help="Set the pixel clustering mode: 0 default, 1 ToT+pixel center",group="TrigFTKRoadFinder")
@@ -98,7 +124,6 @@ def addTrigFTKSimRFOptions(parser):
                         help='RoadFilesDir', group='TrigFTKRoadFinder')
     parser.add_argument('--SaveRoads', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True), 
                         help='Save roads file', group='TrigFTKRoadFinder')
-
     parser.add_argument('--SetAMSize',type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='This variable decides how to set the limit on the number of patterns: 0 TSP, 1 or 2 AM (as soon as limit reached, before exceeded)',
                         group='TrigFTKRoadFinder')
@@ -119,6 +144,8 @@ def addTrigFTKSimTFOptions(parser):
                         help="String format describing the generic path for the 2nd stage fit constants like: patterns_reg{0}.root.",
                         group="TrigFTKTrackFitter",nargs='+')
 
+    parser.add_argument('--Save1stStageTrks', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help='Save 1st stage tracks', group="TrigFTKTrackFitter")
 
     parser.add_argument('--loadHWConf_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
                         help='Location of HW configuration file', group='TrigFTKTrackFitter')
@@ -130,6 +157,9 @@ def addTrigFTKSimTFOptions(parser):
     parser.add_argument('--SecondStageFit', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help="Enables the second stage fitter", group='TrigFTKTrackFitter')
 
+    parser.add_argument("--Save1stStageTrks", type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help="Save the tracks after the first stage", group='TrigFTKTrackFitter')
+    
     parser.add_argument('--TRACKFITTER_MODE', type=trfArgClasses.argFactory(trfArgClasses.argIntList, runarg=True), 
                         help='track fitter mode', group='TrigFTKTrackFitter', nargs='+')
     parser.add_argument('--SSFMultiConnection', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True), 
@@ -153,6 +183,10 @@ def addTrigFTKSimMergeOptions(parser):
     parser.add_argument('--FTKUnmergedInputPath', 
                         type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Unmerged Input file path', group='TrigFTKMerge')
+
+    parser.add_argument('--SaveTruthTree',
+                        type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help='Save truth tree in merged output', group='TrigFTKMerge')
 
     parser.add_argument('--FTKForceAllInput', 
                         type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),

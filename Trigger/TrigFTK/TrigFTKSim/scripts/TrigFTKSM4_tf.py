@@ -4,7 +4,7 @@
 
 ## FTK Simulation Transform
 #  Specialist version to do sim x 4 subregions and merge in one job
-# @version $Id: TrigFTKSM4_tf.py 635507 2014-12-12 08:26:15Z gvolpi $ 
+# @version $Id: TrigFTKSM4_tf.py 643664 2015-02-02 19:48:36Z jahreda $ 
 
 import sys
 import time
@@ -87,12 +87,6 @@ def addFTKSimulationArgs(parser):
     # Here we set a default value as the merger wants this explicitly
     parser.add_argument('--NSubRegions', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
                         help='Number of sub-regions', group='TrigFTKSim', default=trfArgClasses.argInt(subregions, runarg=True))
-
-    # Cannot take maxEvents as an argument from addAthenaArguments() as it will have the wrong
-    # default ('first', but we need 'all')
-    #parser.add_argument('--maxEvents', group='TrigFTKSim', type=trfArgClasses.argFactory(trfArgClasses.argSubstepInt, runarg=True, defaultSubstep='all'), 
-    #                    nargs='+', metavar='substep:maxEvents',
-    #                    help='Set maximum events for each processing step (default for this transform is to set for all substeps)')
 
 
     parser.add_argument('--pmap_path', type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 

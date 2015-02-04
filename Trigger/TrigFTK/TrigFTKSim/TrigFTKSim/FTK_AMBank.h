@@ -39,7 +39,6 @@ protected:
   static int m_VetoID; // wildcard ID
 
    bool m_CachedBank; // true if the bank is cached, false (default) if not
-   int m_npatterns; // number of patterns in this bank
    int *m_patterns; // list of the patterns
    int *m_patternCoverage; // pattern coverage 
    std::map<int,int> *m_sectorCoverage; // sector coverage 
@@ -85,7 +84,7 @@ private:
    
    // STL internal structures to manage the hits
    std::vector<FTKHit> *m_stlhit_sort; // an array FTK hit vectors, one per plane
-   void sort_hits(const std::vector<FTKHit> &);
+   virtual void sort_hits(const std::vector<FTKHit> &);
    virtual void data_organizer();
    virtual void am_in();
    virtual void am_in_minimal();
@@ -109,7 +108,7 @@ private:
 
    virtual int informationMatch(FTKRoad *r1,FTKRoad *r2);
 
-   void clear();
+   virtual void clear();
 
    int which_SS(int,int);
 
@@ -139,8 +138,6 @@ public:
 
    virtual void init();
    virtual void end();
-
-   virtual int passHits(const std::vector<FTKHit> &);
 
    virtual const std::list<FTKRoad>& getRoads();
    virtual const std::unordered_map<int,FTKSS>& getStrips(int);

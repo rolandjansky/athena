@@ -26,6 +26,7 @@
 #include "TChain.h"
 
 #include "TrigFTKSim/FTKTrackStream.h"
+#include "TrigFTKSim/FTKRoadStream.h"
 #include "TrigFTKSim/FTKPMap.h"
 
 #include "TrigFTKPool/FTKAthTrack.h" 
@@ -74,6 +75,8 @@ private:
   bool m_singleProces; // assume the merger runs in a single process, after the trackfitter
   bool m_doMerging; // if "true" input is expected from regions/sub-regions and has to be merged
 
+  bool m_MergeRoads; // if true also the roads will be merged, if the road merging is required but the roads are not found an error will be raised
+
   unsigned int m_nregions; // number of regions
   unsigned int m_nsubregions; // number of sub-regions (in each region)
   unsigned int m_neventsUnmergedFiles;// number of events in unmerged files 
@@ -111,6 +114,12 @@ private:
   std::string m_ftktrack_mergeoutput;
   std::string m_ftktrack_mergeInputPath;
   std::string m_ftktrack_mergeFileRoot;
+
+  TBranch ***m_ftkroad_tomerge_branch;
+  FTKTrackStream ***m_ftkroad_tomerge_stream;
+  std::string m_ftkroad_mergeoutput;
+  std::string m_ftkroad_mergeInputPath;
+  std::string m_ftkroad_mergeFileRoot;
 
   //
   //  Require all inputs files to be present
@@ -153,6 +162,8 @@ private:
   int m_nfits_rej;
   void merge_tracks(FTKTrackStream *&, FTKTrackStream ***);
   std::list<FTKTrack>::iterator removeTrack(std::list<FTKTrack>&, std::list<FTKTrack>::iterator, FTKTrack&, const FTKTrack&,bool isnew=false);
+
+  void merge_roads(FTKRoadStream *&,FTKRoadStream **, int);
 
   //
   // Format the input file names

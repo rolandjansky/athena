@@ -290,24 +290,27 @@ void FTK_RegionalRawInput::initRoadsTracks()
 int FTK_RegionalRawInput::readData() {
   int res(0);
 
-  if (m_evtnum==m_evtnumE) { 
-    // reached last event go to the next file
-    if (nextFile()==-1) {
-      // read failed, attempt to use the next file
-      return -1;
-    }
-    res = 1;
-  }
-
-  for (int ireg=0;ireg!=m_nregions;++ireg) {
-    if (!m_goodRegions[ireg]) continue;
-    // read the hits related to this tower
-    m_hittree_branch[ireg]->GetEntry(m_evtnum);
-  }
-  // read the event info
-  m_evtinfo->GetEntry(m_evtnum);
-
-  m_evtnum += 1;
+  do {
+     if (m_evtnum==m_evtnumE) { 
+        // reached last event go to the next file
+        if (nextFile()==-1) {
+           // read failed, attempt to use the next file
+           return -1;
+        }
+        res = 1;
+     }
+     
+     for (int ireg=0;ireg!=m_nregions;++ireg) {
+        if (!m_goodRegions[ireg]) continue;
+        // read the hits related to this tower
+        m_hittree_branch[ireg]->GetEntry(m_evtnum);
+     }
+     // read the event info
+     m_evtinfo->GetEntry(m_evtnum);
+     
+     m_glob_event += 1;
+     m_evtnum += 1;
+  } while (m_glob_event < m_firstEvent);
 
   return res;
 }

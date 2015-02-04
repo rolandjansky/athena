@@ -6,7 +6,9 @@
 #define FTKCONSTANTBANK_H
 
 class FTKTrack;
-#include <TMatrixD.h>
+//#include <TMatrixD.h>
+#include <Eigen/Core>
+#include <Eigen/LU>
 
 class FTKConstantBank {
 private:
@@ -32,7 +34,8 @@ private:
   float ***m_kernel; //[m_nsectors][m_nconstr][m_ncoords] covariance matrix
   float **m_kaverage; //[m_nsectors][m_nconstr] 
 
-  TMatrixD *m_invfit_consts; // inverted constants for each sector
+//  TMatrixD *m_invfit_consts; // inverted constants for each sector
+   std::vector<Eigen::MatrixXd> *m_invfit_consts;
 
   /* The double precision for the following data is required because
      the code use TMatrixD */

@@ -340,7 +340,7 @@ StatusCode FTKTrackFitterAlgo::initialize(){
     if (m_SSF_TFMode == 3)
       dynamic_cast<TrackFitter711*>(m_tfpobj)->setSuperExtrapolateMode(true);
     if (m_save_1stStageTrks)
-      dynamic_cast<TrackFitter711*>(m_tfpobj)->setSaveIncompleteTracks(1);
+      dynamic_cast<TrackFitter711*>(m_tfpobj)->setSaveIncompleteTracks(true);
 
     dynamic_cast<TrackFitter711*>(m_tfpobj)->setUseSectorDB(true);
     dynamic_cast<TrackFitter711*>(m_tfpobj)->setUseMultipleConn(m_SSF_multiconn);

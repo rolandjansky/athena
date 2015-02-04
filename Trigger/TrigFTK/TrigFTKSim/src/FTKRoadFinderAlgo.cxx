@@ -64,7 +64,8 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   m_useMinimalAMIN(false),
   m_SectorAsPatterns(0),
   m_DCMatchMethod(0),
-  m_AutoDisable(false)
+  m_AutoDisable(false),
+  m_firstEvent(-1)
 {
   // number of banks
   declareProperty("NBanks",m_nbanks);
@@ -123,6 +124,8 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   declareProperty("SectorsAsPatterns",m_SectorAsPatterns,"When 1 allows to use a list of sectors as pattern bank");
 
   declareProperty("DCMatchMethod",m_DCMatchMethod,"Set the DC matching method: 0 through TSP SS organization, 1 direct");
+
+  declareProperty("FirstEvent",m_firstEvent,"First event to run over");
 }
 
 FTKRoadFinderAlgo::~FTKRoadFinderAlgo()
@@ -245,7 +248,9 @@ StatusCode FTKRoadFinderAlgo::initialize(){
       // set the pmap address to FTKDataInput to use in processEvent
       m_hitInputTool->reference()->setPlaneMaps(m_pmap,m_pmap_unused);
     }
+    m_hitInputTool->reference()->setFirstEvent(m_firstEvent);
     m_rfobj.setDataInputModule(m_hitInputTool->reference());
+    
   }
   else if (m_RegionalWrapper) {
     // the input comes from a wrapper file's format, prepare the standlone like input
@@ -263,6 +268,7 @@ StatusCode FTKRoadFinderAlgo::initialize(){
       log << MSG::INFO << "Loading " << m_wrapperpaths[ifile] << endreq;
       ftkrawinput->addFile(m_wrapperpaths[ifile].c_str());
     }
+    ftkrawinput->setFirstEvent(m_firstEvent);
     m_rfobj.setDataInputModule(ftkrawinput);
   }
   else {
@@ -281,6 +287,7 @@ StatusCode FTKRoadFinderAlgo::initialize(){
       log << MSG::INFO << "Loading " << m_wrapperpaths[ifile] << endreq;
       ftkrawinput->addFile(m_wrapperpaths[ifile].c_str());
     }
+    ftkrawinput->setFirstEvent(m_firstEvent);
     m_rfobj.setDataInputModule(ftkrawinput);
   }
 

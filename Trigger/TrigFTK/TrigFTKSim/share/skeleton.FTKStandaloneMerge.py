@@ -10,6 +10,7 @@ from AthenaCommon.AthenaCommonFlags import jobproperties as jp
 
 from PerfMonComps.PerfMonFlags import jobproperties as pmjp;
 pmjp.PerfMonFlags.doSemiDetailedMonitoring = True
+###pmjp.PerfMonFlags.doFullMon = True
 
 if hasattr(runArgs,"maxEvents"):
     ftkLog.info("Setting number of events: %d" % runArgs.maxEvents)
