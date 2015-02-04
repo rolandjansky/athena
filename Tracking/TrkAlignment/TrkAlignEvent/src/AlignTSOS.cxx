@@ -180,8 +180,8 @@ namespace Trk {
         sl << ires << ": res="
            << std::setw(11)     << std::showpos << std::scientific
            << itRes->residual() <<"  res/err="<<resnorm
-           << ", dchi2="<<std::noshowpos<<resnorm*resnorm;
-	sl.unsetf( std::ios::floatfield );
+           << ", dchi2="<<std::noshowpos<<resnorm*resnorm
+	   << resetiosflags(std::ios::floatfield);
         sl.flags(f);  
       }
     }
