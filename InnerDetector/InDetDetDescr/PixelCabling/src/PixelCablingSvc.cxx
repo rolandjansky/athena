@@ -83,6 +83,53 @@ PixelCablingSvc::PixelCablingSvc(const std::string& name, ISvcLocator*svc) :
     declareProperty("Key", m_key, "Key=/PIXEL/ReadoutSpeed");
 }
 
+
+////////////////////////
+// Copy constructor
+////////////////////////
+PixelCablingSvc::PixelCablingSvc(const PixelCablingSvc &other, const std::string& name, ISvcLocator*svc) :
+    AthService(name,svc),
+    m_cablingTool("PixelFillCablingData_Final"),
+    m_detStore("DetectorStore", name),
+    m_IBLParameterSvc("IBLParameterSvc",name),
+    m_dataString(""),m_key("/PIXEL/ReadoutSpeed"),
+    m_callback_calls(0),
+    m_idHelper(0),
+    m_cabling(0),
+    m_useIBLParameterSvc(true),
+    m_IBLpresent(false),
+    m_isHybrid(false),
+    m_DBMpresent(false),
+    m_dbm_columnsPerFE(0),
+    m_dbm_rowsPerFE(0),
+    m_dbm_FEsPerHalfModule(0),
+    m_eta_module_offset(0)
+{
+    // Copy everyzing
+    m_mappingType = other.m_mappingType;
+    m_final_mapping_file = other.m_final_mapping_file;
+    m_bandwidth = other.m_bandwidth;
+    m_coraldbconnstring = other.m_coraldbconnstring;
+    m_dictTag = other.m_dictTag;
+    m_connTag = other.m_connTag;
+    m_key = other.m_key;
+}
+
+////////////////////////
+// Assignment operator
+////////////////////////
+PixelCablingSvc& PixelCablingSvc::operator= (const PixelCablingSvc &other) {
+    m_mappingType = other.m_mappingType;
+    m_final_mapping_file = other.m_final_mapping_file;
+    m_bandwidth = other.m_bandwidth;
+    m_coraldbconnstring = other.m_coraldbconnstring;
+    m_dictTag = other.m_dictTag;
+    m_connTag = other.m_connTag;
+    m_key = other.m_key;
+    return *this;
+}
+
+
 ////////////////////////
 // destructor
 ////////////////////////
