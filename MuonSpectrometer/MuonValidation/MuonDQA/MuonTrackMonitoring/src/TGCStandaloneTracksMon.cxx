@@ -77,9 +77,10 @@ TGCStandaloneTracksMon::TGCStandaloneTracksMon( const std::string & type, const 
   mdtvstgclv1_mdt_tdc_adc_cut(NULL),//MDTTDC
   mdtvstgclv1_mdt_tdc_vs_adc(NULL),//MDTTDCvsADC
 
-  //mdtvstgclv1_adcsector{},//
+  mdtvstgclv1_adcsector{},//
 
   //correlation
+
   mdtvstgclv1_eta{},//etacorrelation
   mdtvstgclv1_eta3st{},//etacorrelation
   mdtvstgclv1_eta3st_sector{},//[side][sector]
@@ -2421,7 +2422,7 @@ bool TGCStandaloneTracksMon::LinearFitLoop2(std::vector<XYPosition>& positions,
     }
 
   }
-  if (largest == NULL) largest->usable(false);
+  if (largest == 0) largest->usable(false);
   if(m_debuglevel) m_log << MSG::DEBUG << "set usable flag to false" << endreq;
 
   return true;
