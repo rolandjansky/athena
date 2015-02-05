@@ -28,6 +28,7 @@ class ITRT_CalDbSvc;
 
 namespace Trk {
   class IResidualPullCalculator;
+  class ITrackHoleSearchTool;
   class PrepRawData;
 }
 
@@ -42,6 +43,8 @@ namespace DerivationFramework {
       virtual StatusCode addBranches() const;
 
     private:
+      
+      
       ElementLink< xAOD::TrackMeasurementValidationContainer > buildElementLink( const Trk::PrepRawData*, 
                                                                   const std::vector<unsigned int>*, 
                                                                   const xAOD::TrackMeasurementValidationContainer* ) const;
@@ -67,7 +70,8 @@ namespace DerivationFramework {
       const TRT_ID*          m_trtId;
 
       ToolHandle < Trk::IResidualPullCalculator > m_residualPullCalculator;
-      ServiceHandle<ITRT_CalDbSvc> m_trtcaldbSvc;
+      ToolHandle< Trk::ITrackHoleSearchTool >     m_holeSearchTool;
+      ServiceHandle<ITRT_CalDbSvc>                m_trtcaldbSvc;
       
       bool    m_storeHoles;
       bool    m_storeOutliers;
