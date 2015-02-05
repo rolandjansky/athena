@@ -175,7 +175,6 @@ StatusCode PixelDCSTool::initialize()
 
   itermin = m_pixman->getDetectorElementBegin(); 
   itermax = m_pixman->getDetectorElementEnd(); 
-  if(m_pixid&&msgLvl(MSG::INFO)) msg(MSG::INFO) << " Found all Pixel services " <<endreq; 
  
   // Check all detector elements in the present geometry setup 
   for( iter=itermin; iter !=itermax; ++iter){ 

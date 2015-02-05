@@ -35,16 +35,16 @@ from AtlasGeoModel import GeoModelInit
 from AtlasGeoModel import SetGeometryVersion
 
 # --- setup version
-from InDetIBL_Example.SLHC_JobProperties import SLHC_Flags
+#from InDetIBL_Example.SLHC_JobProperties import SLHC_Flags
 ## Leave commented out unless overriding with text file.
 ## Default is to use Geom DB only
 #SLHC_Flags.SLHC_Version = "IBL-01"
 
-print SLHC_Flags
+#print SLHC_Flags
 
 ## SLHC setup
-from InDetIBL_Example.SLHC_Setup import SLHC_Setup
-SLHC_Setup = SLHC_Setup()
+#from InDetIBL_Example.SLHC_Setup import SLHC_Setup
+#SLHC_Setup = SLHC_Setup()
 
 
 from AthenaCommon.AlgSequence import AlgSequence

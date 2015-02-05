@@ -136,7 +136,7 @@ regSvc.OverrideTypes = [ "string" ]
 IOVDbSvc=Service("IOVDbSvc")
 ################
 # this example is for a local SQlite file mysqlfile.db, COOL DB named COOLTEST:COMP200, OFLP200
-IOVDbSvc.dbConnection="impl=cool;techno=oracle;schema=ATLAS_COOLONL_PIXEL;ATONR_COOL:OFLP200:ATLAS_COOLONL_PIXEL_W:WCOOL4PIXEL11"
+IOVDbSvc.dbConnection="impl=cool;techno=oracle;schema=ATLAS_COOLONL_PIXEL;ATONR_COOL:OFLP200:ATLAS_COOLONL_PIXEL_W:xxxx"
 #IOVDbSvc.servername  = "ATLAS_COOLPROD"
 #IOVDbSvc.dbname      = "COMP130"
 #IOVDbSvc.userName    = "ATLAS_COOL_PIXEL_W"

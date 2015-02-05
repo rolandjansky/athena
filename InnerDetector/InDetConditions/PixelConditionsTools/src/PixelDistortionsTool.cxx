@@ -148,7 +148,7 @@ PixelDistortionsTool::generateConstantBow()
 {
   if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Using constant pixel distortions " << endreq;
   const int distosize=3; // dimension of distortion vector
-  float *data=new float[distosize];
+  std::vector<float> data(distosize);
   DetCondCFloat *disto=0;
   PixelID::const_id_iterator begin=m_pixelid->wafer_begin();
   PixelID::const_id_iterator end=m_pixelid->wafer_end();
@@ -156,11 +156,10 @@ PixelDistortionsTool::generateConstantBow()
   data[1]=m_R2 * CLHEP::meter; // convert to 1/mm
   data[2]=2.0*atan(m_twist) / CLHEP::degree; // convert to degree
   disto=new DetCondCFloat(distosize,getVersionName()); // create distortion container
-  int index = disto->add(*begin,data);
+  int index = disto->add(*begin,data.data());
   for ( PixelID::const_id_iterator id=(begin+1); id!=end; ++id) {
     disto->share(*id,index);
   }
-  delete[] data;
   return disto;
 }
 
@@ -183,7 +182,7 @@ PixelDistortionsTool::generateRandomBow()
   }
 
   const int distosize=3; // dimension of distortion vector
-  float *data=new float[distosize];
+  std::vector<float> data(distosize);
   DetCondCFloat *disto=0;
   PixelID::const_id_iterator begin=m_pixelid->wafer_begin();
   PixelID::const_id_iterator end=m_pixelid->wafer_end();
@@ -205,9 +204,8 @@ PixelDistortionsTool::generateRandomBow()
       data[1] *= CLHEP::meter; // convert to 1/mm
       data[2] = 2.0*atan(data[2]) / CLHEP::degree; // convert to degree
       if(msgLvl(MSG::VERBOSE))msg(MSG::VERBOSE) << "DATA0 = " << data[0] << " DATA1 = " << data[1] << " DATA2 = " << data[2] << endreq;	
-      disto->add(*id,data);
+      disto->add(*id,data.data());
  }
-  delete[] data;
   return disto;
 }
 
@@ -217,7 +215,7 @@ PixelDistortionsTool::readFromTextFile()
 {
   if(msgLvl(MSG::INFO))msg(MSG::INFO) << "Reading pixel distortions from file: " << m_textFileName << endreq;
   const int distosize=3; // dimension of distortion vector
-  float *data=new float[distosize];
+  std::vector<float> data(distosize);
   DetCondCFloat *disto=0;
 //  PixelID::const_id_iterator begin=m_pixelid->wafer_begin();
 //  PixelID::const_id_iterator end=m_pixelid->wafer_end();
@@ -242,7 +240,7 @@ PixelDistortionsTool::readFromTextFile()
     //data[2]=tan(0.5*data[2]*CLHEP::degree);   // twist angle in degree
     if(msgLvl(MSG::VERBOSE))msg(MSG::VERBOSE) << "DATA0 = " << data[0] << " DATA1 = " << data[1] << " DATA2 = " << data[2] << endreq;	
     if ( input.bad() || input.eof() ) break;
-    disto->add(Identifier(idmod),data);
+    disto->add(Identifier(idmod),data.data());
   }
   input.close();
 
