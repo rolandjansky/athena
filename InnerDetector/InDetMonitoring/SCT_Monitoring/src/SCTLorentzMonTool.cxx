@@ -227,13 +227,19 @@ StatusCode SCTLorentzMonTool::fillHistograms(){
 
               bool passesCuts = true;
 
-              if( (track->perigeeParameters()->parameters()[Trk::qOverP] < 0.) && // use negative track only
+              if( (AthenaMonManager::dataType() ==  AthenaMonManager::cosmics) &&		  
+		  (trkp->momentum().mag() > 500.) &&  // Pt > 500MeV 
+		 (summary->get(Trk::numberOfSCTHits) > 6 )// && // #SCTHits >6
+                  ){
+                passesCuts=true;	       
+	      }//01.02.2015
+
+              else if( (track->perigeeParameters()->parameters()[Trk::qOverP] < 0.) && // use negative track only
                 (fabs( perigee->parameters()[Trk::d0] ) < 1.) &&  // d0 < 1mm
-		  //                (fabs( perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta]) ) < 1.) &&  // d0 < 1mm
-                (trkp->momentum().mag() > 500.) &&  // Pt > 500MeV
-                (summary->get(Trk::numberOfSCTHits) > 6 ) && // #SCTHits >6
-                (summary->get(Trk::numberOfPixelHits) > 1 ) // #pixelHits >1
-		  
+		(fabs( perigee->parameters()[Trk::z0] * sin(perigee->parameters()[Trk::theta]) ) < 1.) && // d0 < 1mm 
+		  (trkp->momentum().mag() > 500.) &&  // Pt > 500MeV 
+		 (summary->get(Trk::numberOfSCTHits) > 6 )// && // #SCTHits >6
+                //(summary->get(Trk::numberOfPixelHits) > 1 ) // #pixelHits >1
               ){
                 passesCuts=true;	       
               }else{ 
