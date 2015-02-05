@@ -15,7 +15,7 @@
 #ifndef CHECKFLOWNEW_H
 #define CHECKFLOWNEW_H
 #include <math.h>
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "TruthHelper/GenAccessIO.h"
 
 #include "GaudiKernel/ITHistSvc.h"
@@ -26,7 +26,7 @@ class TH1D;                    //Forward declaration
 class TProfile;                    //Forward declaration
 
 
-class CheckFlow_New:public Algorithm {
+class CheckFlow_New:public AthAlgorithm {
 public:
   CheckFlow_New(const std::string& name, ISvcLocator* pSvcLocator);
   StatusCode initialize();
