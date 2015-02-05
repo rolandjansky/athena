@@ -181,7 +181,7 @@ IOVDbSvc=Service("IOVDbSvc")
 
 ################
 # this example is for a local SQlite file mysqlfile.db, COOL DB named COOLTEST
-IOVDbSvc.dbConnection="impl=cool;techno=oracle;schema=ATLAS_COOL_PIXEL;ATLAS_COOLPROD:COMP130:ATLAS_COOL_PIXEL_W:WCOOL4PIXEL11"
+IOVDbSvc.dbConnection="impl=cool;techno=oracle;schema=ATLAS_COOL_PIXEL;ATLAS_COOLPROD:COMP130:ATLAS_COOL_PIXEL_W:xxxx"
 #IOVDbSvc.servername  = "ATLAS_COOLPROD"
 #IOVDbSvc.dbname      = "COMP130"
 #IOVDbSvc.userName    = "ATLAS_COOL_PIXEL_W"

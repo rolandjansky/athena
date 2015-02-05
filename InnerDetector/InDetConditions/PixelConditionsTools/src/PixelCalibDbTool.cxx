@@ -125,8 +125,6 @@ StatusCode  PixelCalibDbTool::initialize()
   itermax = m_pixman->getDetectorElementEnd();
   if(m_pixid->wafer_hash_max()>1744)isIBL = true;
 
-  if(m_pixid&&msgLvl(MSG::INFO)) msg(MSG::INFO) << " Found all Pixel service " <<endreq; 
-
   // setup list of TDS objects from geometry description 
   
   m_calibobjs.clear(); 
@@ -461,74 +459,72 @@ StatusCode PixelCalibDbTool::writePixelCalibTextFiletoDB(std::string file) const
   bool lprint(0);
 
   FILE* f = fopen(file.c_str(), "rb"); 
+  if(f){
+    if(msgLvl(MSG::INFO))msg(MSG::INFO)<< "Cannot open file "<< file<<endreq;
+    return StatusCode::FAILURE;
+  }
   fseek (f, 0L, SEEK_END); 
   int size = ftell (f); 
   fseek(f, 0L, SEEK_SET); 
   
-  if( f !=NULL) {
-    if(msgLvl(MSG::INFO))msg(MSG::INFO)<< " Input file size is "<<size<<endreq; 
-    Identifier ident_save(0);
-    while(!feof(f)){ 
-      char header[4001];
-      char headerx[250]; 
-      lprint = k<10||(k%100==0); 
-      
-      fgets(headerx, 250, f);
+  if(msgLvl(MSG::INFO))msg(MSG::INFO)<< " Input file size is "<<size<<endreq; 
+  Identifier ident_save(0);
+  while(!feof(f)){ 
+    char header[4001];
+    char headerx[250]; 
+    lprint = k<10||(k%100==0); 
+    
+    fgets(headerx, 250, f);
 
-      if(lprint&&msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"ith "<<k<<" header: "<< headerx <<endreq;
+    if(lprint&&msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"ith "<<k<<" header: "<< headerx <<endreq;
 
-      // need to unpact for identifier or Hash 
-      char* pch;
+    // need to unpact for identifier or Hash 
+    char* pch;
 
-      pch = strtok(headerx, "NULL"); 
+    pch = strtok(headerx, "NULL"); 
 
-      if(lprint&&msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<" Write File to DB: Module Identifier "<<pch <<endreq; 
-      strcpy(header,pch);
-      int component, eta;
-      unsigned int layer,phi;
-      char c;
-      if(isIBL){
-	std::istringstream istr(pch);
-	istr>>component>>c>>layer>>c>>phi>>c>>eta;
-      }
-      else{
-	unsigned int identx = atoi(pch);
-	component = static_cast<int>((identx & (3 << 25)) / 33554432) * 2 - 2 ;
-	layer = (identx & (3 << 23)) / 8388608 ;
-	phi = (identx & (63 << 17)) / 131072 ;
-	eta = static_cast<int>((identx & (15 << 13)) / 8192) - 6;
-      }
-      Identifier ident = m_pixid->wafer_id(component, layer, phi, eta);
-      IdentifierHash id_hash = m_pixid->wafer_hash(ident);
-      if(ident==ident_save)continue; // make sure there are no two identical modules
-      if(lprint&&msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<" Write File to DB: Module Identifier ibc "<<component <<" layer-disk "<<layer<<" ph-module "<<phi<<" eta-module "<<eta<<endreq;
-      PixelCalib::PixelCalibData* datamod = getCalibPtr(ident);
-
-      for(int i=0; i<datamod->getNFEIX(); ++i){
-	char pack[250];
-	fgets(pack, 250, f); 
-	if(lprint&&msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"i "<<i<<" chip data: "<< pack<<endreq;
-	strcat(header, pack); 
-      }
-      std::string sdata = header; //strcat(header, " end"); 
-      // fill in the database 
-      AthenaAttributeList alist(*aspec);
-      if(lprint&&msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<" ident_hash "<<id_hash<<" [ " <<component<<","<<layer<<","<<phi<<","<<eta<<"] "<< " data string: "<< sdata<<endreq; 
-      alist["data"].setValue(sdata); 
-      CondAttrListCollection::ChanNum channum = id_hash; 
-      atrc->add(channum, alist); 
-      ident_save = ident;
-      k++; 
+    if(lprint&&msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<" Write File to DB: Module Identifier "<<pch <<endreq; 
+    strcpy(header,pch);
+    int component, eta;
+    unsigned int layer,phi;
+    char c;
+    if(isIBL){
+      std::istringstream istr(pch);
+      istr>>component>>c>>layer>>c>>phi>>c>>eta;
     }
+    else{
+      unsigned int identx = atoi(pch);
+      component = static_cast<int>((identx & (3 << 25)) / 33554432) * 2 - 2 ;
+      layer = (identx & (3 << 23)) / 8388608 ;
+      phi = (identx & (63 << 17)) / 131072 ;
+      eta = static_cast<int>((identx & (15 << 13)) / 8192) - 6;
+    }
+    Identifier ident = m_pixid->wafer_id(component, layer, phi, eta);
+    IdentifierHash id_hash = m_pixid->wafer_hash(ident);
+    if(ident==ident_save)continue; // make sure there are no two identical modules
+    if(lprint&&msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<" Write File to DB: Module Identifier ibc "<<component <<" layer-disk "<<layer<<" ph-module "<<phi<<" eta-module "<<eta<<endreq;
+    PixelCalib::PixelCalibData* datamod = getCalibPtr(ident);
+
+    for(int i=0; i<datamod->getNFEIX(); ++i){
+      char pack[250];
+      fgets(pack, 250, f); 
+      if(lprint&&msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"i "<<i<<" chip data: "<< pack<<endreq;
+      strcat(header, pack); 
+    }
+    std::string sdata = header; //strcat(header, " end"); 
+    // fill in the database 
+    AthenaAttributeList alist(*aspec);
+    if(lprint&&msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<" ident_hash "<<id_hash<<" [ " <<component<<","<<layer<<","<<phi<<","<<eta<<"] "<< " data string: "<< sdata<<endreq; 
+    alist["data"].setValue(sdata); 
+    CondAttrListCollection::ChanNum channum = id_hash; 
+    atrc->add(channum, alist); 
+    ident_save = ident;
+    k++; 
+  }
   
   fclose(f); 
   if(msgLvl(MSG::INFO))msg(MSG::INFO)<<" Write File to DB with modules "<< k <<endreq; 
-  } 
-  else{
-    if(msgLvl(MSG::INFO))msg(MSG::INFO)<< "Cannot open file "<< file<<endreq; 
-    return StatusCode::FAILURE; 
-  }
-   
+
   return StatusCode::SUCCESS; 
 }
 

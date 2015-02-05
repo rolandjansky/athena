@@ -1,4 +1,4 @@
-isIBL = 0
+isIBL = 1
 #import AthenaCommon.AtlasUnixStandardJob
 
 #MyOutPut = INFO
@@ -33,16 +33,16 @@ from AtlasGeoModel import GeoModelInit
 from AtlasGeoModel import SetGeometryVersion
 
 # --- setup version
-from InDetIBL_Example.SLHC_JobProperties import SLHC_Flags
+#from InDetIBL_Example.SLHC_JobProperties import SLHC_Flags
 ## Leave commented out unless overriding with text file.
 ## Default is to use Geom DB only
 #SLHC_Flags.SLHC_Version = "IBL-01"
 
-print SLHC_Flags
+#print SLHC_Flags
 
 ## SLHC setup
-from InDetIBL_Example.SLHC_Setup import SLHC_Setup
-SLHC_Setup = SLHC_Setup()
+#from InDetIBL_Example.SLHC_Setup import SLHC_Setup
+#SLHC_Setup = SLHC_Setup()
 
 
 from AthenaCommon.AlgSequence import AlgSequence
@@ -73,7 +73,8 @@ from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg
 myOCA=OutputConditionsAlg(outputFile="dummy.root")
 myOCA.ObjectList=[ "CondAttrListCollection#/PIXEL/PixCalib" ]
 myOCA.WriteIOV=True
-myOCA.IOVTagList=["PixCalib-Test-00"]
+myOCA.Run1=222222
+myOCA.IOVTagList=["PixCalib-IBL3D25DBM-04-02"]
 
 from RegistrationServices.RegistrationServicesConf import IOVRegistrationSvc
 ServiceMgr += IOVRegistrationSvc()
@@ -82,7 +83,7 @@ regSvc.OverrideNames = [ "data" ]
 regSvc.OverrideTypes = [ "String4k" ]
 
 from IOVDbSvc.IOVDbSvcConf import IOVDbSvc
-IOVDbSvc.GlobalTag = "OFLCOND-MC12-SIM-00"
+IOVDbSvc.GlobalTag = "OFLCOND-RUN1-SDR-06"
 #"DEFAULTCOND"
 
 if isIBL:

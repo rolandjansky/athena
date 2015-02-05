@@ -418,7 +418,7 @@ StatusCode PixelRecoDbTool::writePixelCalibTextFiletoDB() const{
       if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << " Created DetCondCFloat "<<par_calibfolder 
 					    << " with offline parameters" << endreq; 
     }
-    delete [] const1;
+    delete const1;
   }  
   delete [] constants;
   return StatusCode::SUCCESS; 
