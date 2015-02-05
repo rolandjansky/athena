@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ITRT_DETRAWDATABYTESTREAMCNV_TRT_RODENCODER_H
+#ifndef ITRT_RAWDATABYTESTREAMCNV_TRT_RODENCODER_H
 #define ITRT_RAWDATABYTESTREAMCNV_TRT_RODENCODER_H
 
 // #include <inttypes.h>

@@ -47,24 +47,24 @@
 
 TRT_RodDecoder::TRT_RodDecoder
 ( const std::string& type, const std::string& name,const IInterface* parent )
-  :  AthAlgTool     (type,name,parent),
-     m_CablingSvc ("TRT_CablingSvc", name ),
-     m_bsErrSvc ("TRT_ByteStream_ConditionsSvc", name),
-     m_incsvc    ("IncidentSvc",name),
-     m_recordBSErrors(true),
-     m_lookAtSidErrors(true),
-     m_lookAtErrorErrors(false),
-     m_lookAtL1idErrors(true),
-     m_lookAtBcidErrors(true),
-     m_lookAtMissingErrors(true),
-     m_loadCompressTableFile( false ),
-     m_loadCompressTableDB( true ),
-     m_compressTableFolder( "/TRT/Onl/ROD/Compress" ),
-     m_maxCompressionVersion(255),
-     m_forceRodVersion(-1),
-     //     m_Nsymbols(0),
-     m_escape_marker(0x8000000),
-     m_Nrdos(0)
+  :  AthAlgTool              ( type,name,parent ),
+     m_CablingSvc            ( "TRT_CablingSvc", name ),
+     m_bsErrSvc              ( "TRT_ByteStream_ConditionsSvc", name ),
+     m_incsvc                ( "IncidentSvc",name ),
+     m_recordBSErrors        ( true ),
+     m_lookAtSidErrors       ( true ),
+     m_lookAtErrorErrors     ( false ),
+     m_lookAtL1idErrors      ( true ),
+     m_lookAtBcidErrors      ( true ),
+     m_lookAtMissingErrors   ( true ),
+     m_loadCompressTableFile ( false ),
+     m_loadCompressTableDB   ( true ),
+     m_compressTableFolder   ( "/TRT/Onl/ROD/Compress" ),
+     m_maxCompressionVersion ( 255 ),
+     m_forceRodVersion       ( -1 ),
+     //     m_Nsymbols              ( 0 ),
+     m_escape_marker         ( 0x8000000 ),
+     m_Nrdos                 ( 0 )
 {
   declareProperty ( "TRT_Cabling", m_CablingSvc );
   declareProperty ( "BSCondSvc", m_bsErrSvc );
@@ -1318,6 +1318,12 @@ TRT_RodDecoder::int_fillFullCompress( const ROBFragment *robFrag,
 StatusCode
 TRT_RodDecoder::ReadCompressTableFile(  std::string TableFilename )
 {  
+   ATH_MSG_FATAL( "Reading Compression Table from File is not supported anymore!" );
+
+   return StatusCode::FAILURE;
+
+#ifdef TRT_READCOMPTABLE_FILE
+
   t_CompressTable *Ctable = new t_CompressTable;
 
   ATH_MSG_INFO( "Reading Compress Table File: " << TableFilename );
@@ -1329,6 +1335,9 @@ TRT_RodDecoder::ReadCompressTableFile(  std::string TableFilename )
   {
      ATH_MSG_FATAL( "Could not open Compression Table File " 
 		    << TableFilename );
+
+     delete Ctable;
+
      return StatusCode::FAILURE;
   }
 
@@ -1380,11 +1389,19 @@ TRT_RodDecoder::ReadCompressTableFile(  std::string TableFilename )
 	if( codewords )
 	  delete[] codewords;
 
+	delete Ctable;
+
 	return StatusCode::FAILURE;
       }
 
       Ctable->m_syms       = new unsigned int[ Ctable->m_Nsymbols ];
+
+      if ( lengths )
+	 delete[] lengths;
       lengths    = new int[ Ctable->m_Nsymbols ];
+
+      if ( codewords )
+	 delete[] codewords;
       codewords  = new int[ Ctable->m_Nsymbols ];
     }
 
@@ -1416,11 +1433,19 @@ TRT_RodDecoder::ReadCompressTableFile(  std::string TableFilename )
 	if( codewords )
 	  delete[] codewords;
 
+	delete Ctable;
+
 	return StatusCode::FAILURE;
       }
 
       Ctable->m_syms       = new unsigned int[ Ctable->m_Nsymbols ];
+
+      if ( lengths )
+	 delete[] lengths;
       lengths    = new int[ Ctable->m_Nsymbols ];
+
+      if ( codewords )
+	 delete[] codewords;
       codewords  = new int[ Ctable->m_Nsymbols ];
     }
 
@@ -1439,6 +1464,8 @@ TRT_RodDecoder::ReadCompressTableFile(  std::string TableFilename )
 
 	if( codewords )
 	  delete[] codewords;
+
+	delete Ctable;
 
 	return StatusCode::FAILURE;
       }
@@ -1472,6 +1499,8 @@ TRT_RodDecoder::ReadCompressTableFile(  std::string TableFilename )
 	if( codewords )
 	  delete[] codewords;
 
+	delete Ctable;
+
 	return StatusCode::FAILURE;
       }
     }
@@ -1487,8 +1516,7 @@ TRT_RodDecoder::ReadCompressTableFile(  std::string TableFilename )
 	if ( lengths )
 	  delete[] lengths;
 
-	if( codewords )
-	  delete[] codewords;
+	delete Ctable;
 
 	return StatusCode::FAILURE;
       }
@@ -1522,6 +1550,8 @@ TRT_RodDecoder::ReadCompressTableFile(  std::string TableFilename )
 
 	if( codewords )
 	  delete[] codewords;
+
+	delete Ctable;
 
 	return StatusCode::FAILURE;
       }
@@ -1561,6 +1591,8 @@ TRT_RodDecoder::ReadCompressTableFile(  std::string TableFilename )
 	if( codewords )
 	  delete[] codewords;
 
+	delete Ctable;
+
 	return StatusCode::FAILURE;
       }
 
@@ -1599,6 +1631,8 @@ TRT_RodDecoder::ReadCompressTableFile(  std::string TableFilename )
 	if( codewords )
 	  delete[] codewords;
 
+	delete Ctable;
+
 	return StatusCode::FAILURE;
       }
 
@@ -1612,11 +1646,10 @@ TRT_RodDecoder::ReadCompressTableFile(  std::string TableFilename )
 	ATH_MSG_WARNING( "Invalid file format Nsymbols must come first!" );
 	inFile.close();
 	
-	if ( lengths )
-	  delete[] lengths;
-
 	if( codewords )
 	  delete[] codewords;
+
+	delete Ctable;
 
 	return StatusCode::FAILURE;
       }
@@ -1650,6 +1683,8 @@ TRT_RodDecoder::ReadCompressTableFile(  std::string TableFilename )
 	if( codewords )
 	  delete[] codewords;
 
+	delete Ctable;
+
 	return StatusCode::FAILURE;
       }
 
@@ -1670,6 +1705,8 @@ TRT_RodDecoder::ReadCompressTableFile(  std::string TableFilename )
 
     if( codewords )
       delete[] codewords;
+
+    delete Ctable;
 
     return StatusCode::FAILURE;
   }
@@ -1729,6 +1766,9 @@ TRT_RodDecoder::ReadCompressTableFile(  std::string TableFilename )
   {
     ATH_MSG_WARNING( "Invalid Compression Table Version: " <<
 		     Ctable->m_TableVersion );
+
+    delete Ctable;
+
     return StatusCode::FAILURE;
   }
 
@@ -1749,6 +1789,9 @@ TRT_RodDecoder::ReadCompressTableFile(  std::string TableFilename )
 
 
   return StatusCode::SUCCESS;
+
+#endif /* TRT_READCOMPTABLE_FILE */
+
 }
 
 
@@ -1759,7 +1802,6 @@ TRT_RodDecoder::ReadCompressTableFile(  std::string TableFilename )
 StatusCode
 TRT_RodDecoder::update( IOVSVC_CALLBACK_ARGS_P(I,keys) )
 {  
-  t_CompressTable *Ctable = new t_CompressTable;
 
   ATH_MSG_INFO ("Updating TRT_RodDecoder Compression Table from DB");
  
@@ -1786,50 +1828,22 @@ TRT_RodDecoder::update( IOVSVC_CALLBACK_ARGS_P(I,keys) )
 
     while ( catrIt != last_catr )
     {
+       t_CompressTable *Ctable = new t_CompressTable;
+
        const AthenaAttributeList atrlist(catrIt->second);
      
 
        Ctable->m_TableVersion = (atrlist)["Version"].data<cool::Int32>();
-
-       Ctable->m_Nsymbols = (atrlist)["Nsymbols"].data<cool::Int32>();
-       ATH_MSG_DEBUG( "Nsymbols = " << Ctable->m_Nsymbols );
-
-
-       Ctable->m_syms       = new unsigned int[ Ctable->m_Nsymbols ];
-
-       const cool::Blob16M& blob = (atrlist)["syms"].data<cool::Blob16M> ();
-       const unsigned char* BlobStart =
-	  static_cast<const unsigned char*> (blob.startingAddress());
-       int j = 0;
-       for (int i = 0; i < blob.size(); i += sizeof(unsigned int))
-       {
-	  Ctable->m_syms[j++] = *((unsigned int*) (BlobStart + i));
-       }
-
-       std::istringstream 
-	  iss((atrlist)["firstcode"].data<cool::String4k>());
-       std::string tok;
-       int i = 1;
-       while (getline(iss, tok, ' ')) 
-       {
-	  Ctable->m_firstcode[i++] = atoi(tok.c_str());
-       }
-
-
-       std::istringstream 
-	  iss2((atrlist)["lengths_integral"].data<cool::String4k>());
-       i = 1;
-       while (getline(iss2, tok, ' ')) 
-       {
-	  Ctable->m_lengths_integral[i++] = atoi(tok.c_str());
-       }
 
 
        if ( Ctable->m_TableVersion  > m_maxCompressionVersion )
        {
 	 ATH_MSG_WARNING( "Invalid Compression Table Version: " <<
 			  Ctable->m_TableVersion );
-	 return StatusCode::FAILURE;
+
+	 delete Ctable;
+
+	 continue;
        }
 
 
@@ -1839,16 +1853,64 @@ TRT_RodDecoder::update( IOVSVC_CALLBACK_ARGS_P(I,keys) )
 			  << " already loaded!  Not overwriting" );
 	 delete Ctable;
 
-	 return StatusCode::SUCCESS;
+	 continue;
        }
-       else
+
+
+       Ctable->m_Nsymbols = (atrlist)["Nsymbols"].data<cool::Int32>();
+       ATH_MSG_DEBUG( "Nsymbols = " << Ctable->m_Nsymbols );
+
+
+       Ctable->m_syms       = new unsigned int[ Ctable->m_Nsymbols ];
+
+       const cool::Blob16M& blob = (atrlist)["syms"].data<cool::Blob16M> ();
+
+       if ( blob.size() != (Ctable->m_Nsymbols * sizeof(unsigned int)) )
        {
-	 m_CompressionTables[Ctable->m_TableVersion] = Ctable;
-	 ATH_MSG_INFO( "Loaded Compress Table Version: " << Ctable->m_TableVersion );
+	  ATH_MSG_ERROR( "Unexpected size of symbol table! ( " << blob.size()
+			 << " != " 
+			 << (Ctable->m_Nsymbols * sizeof(unsigned int))
+			 << " )" );
 
-	 m_compressTableLoaded[Ctable->m_TableVersion] = true;
+	  delete[] Ctable->m_syms;
+	  delete Ctable;
+
+	  return StatusCode::FAILURE;
        }
 
+       const unsigned char* BlobStart =
+	  static_cast<const unsigned char*> (blob.startingAddress());
+       int j = 0;
+       for (int i = 0; (i < blob.size()) && (i < Ctable->m_Nsymbols);
+	    i += sizeof(unsigned int))
+       {
+	  Ctable->m_syms[j++] = *((unsigned int*) (BlobStart + i));
+       }
+
+       std::istringstream 
+	  iss((atrlist)["firstcode"].data<cool::String4k>());
+       std::string tok;
+       int i = 1;
+       while ( getline(iss, tok, ' ') && (i < CTABLE_FC_LENGTH) ) 
+       {
+	  Ctable->m_firstcode[i++] = atoi(tok.c_str());
+       }
+
+
+       std::istringstream 
+	  iss2((atrlist)["lengths_integral"].data<cool::String4k>());
+       i = 1;
+       while ( getline(iss, tok, ' ') && (i < CTABLE_LI_LENGTH) ) 
+       {
+	  Ctable->m_lengths_integral[i++] = atoi(tok.c_str());
+       }
+
+
+       m_CompressionTables[Ctable->m_TableVersion] = Ctable;
+       ATH_MSG_INFO( "Loaded Compress Table Version: " <<
+		     Ctable->m_TableVersion );
+
+       m_compressTableLoaded[Ctable->m_TableVersion] = true;
 
 
 #ifdef NOTDEF
@@ -1883,15 +1945,12 @@ TRT_RodDecoder::update( IOVSVC_CALLBACK_ARGS_P(I,keys) )
 
     }
   }
-   else
-   {
+  else
+  {
      ATH_MSG_ERROR( "Could not read Compression Table from DB" );
+
      return StatusCode::FAILURE;
-   }
-
-
-
-
+  }
 
   return StatusCode::SUCCESS;
 }
