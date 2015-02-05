@@ -54,6 +54,9 @@
 #include "xAODTrigMuon/L2StandAloneMuonContainer.h"
 #include "xAODTrigMuon/L2StandAloneMuon.h"
 
+//#include "xAODTrigMuon/L2CombinedMuonContainer.h"
+//#include "xAODTrigMuon/L2CombinedMuon.h"
+
 // YY: adding vertex information
 #include "VxVertex/Vertex.h"
 #include "VxVertex/VxContainer.h"
@@ -2879,7 +2882,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
 	  hist(name, histdireffnumdenom)->Fill(rec_pt);
 	}
       }
-      // if (ES_lower_passed) {
+      // if (ES_lower_passed) {}
       // ES trigger-aware
       for (int i = 0; i <= m_maxESbr; i++) {
         if(!CB_mon_ESbr[i])continue; 
@@ -2998,6 +3001,23 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
 	  float combMf_pt = combMf[0].cptr()->pt() / CLHEP::GeV;
 	  float combMf_eta = combMf[0].cptr()->eta();
 	  float combMf_phi = combMf[0].cptr()->phi();
+
+//      std::vector< Feature<xAOD::L2CombinedMuonContainer> > combMf = fHLT.get<xAOD::L2CombinedMuonContainer>("MuonL2CBInfo",TrigDefs::alsoDeactivateTEs);
+//
+//      if( combMf.size() == 1 ) {
+//        combMf_active = combMf[0].te()->getActiveState();
+//        ATH_MSG_DEBUG("...combMF: label/active=" << getTEName(*combMf[0].te()) << " / " << combMf_active); 
+//      }
+//
+//
+//      if( combMf_active ) {
+//        const xAOD::L2CombinedMuonContainer* combMf_cont = combMf[0];
+//
+//	float combMf_pt  = combMf_cont->at(0)->pt();
+//	float combMf_eta = combMf_cont->at(0)->eta();
+//	float combMf_phi = combMf_cont->at(0)->phi();
+//
+
 	  
 	  if (EF_lower_passed) {
 	    name     = HistchainName + monalg2 + "_Turn_On_Curve_Numerator";
@@ -3247,7 +3267,7 @@ StatusCode HLTMuonMonTool::fillChainDQA_generic(const std::string& chainName, co
 	  
 	}
 
-	// if (ES_lower_passed) {
+	// if (ES_lower_passed) {}
 	// ES trigger-aware
 	for (int i = 0; i <= m_maxESbr; i++) {
           if(!CB_mon_ESbr[i])continue; 
