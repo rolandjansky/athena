@@ -329,11 +329,14 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 
 		layerSector_name  = sector_name + layer_name  ;
 
+		int stname_index = irpcstationName;
+		if (irpcstationName==53) stname_index=MuonGM::MuonDetectorManager::NRpcStatType-2;
+	        else stname_index = irpcstationName-2;
 		NetaStrips = 0 ;
 		for(int idbz=0; idbz!= 3; idbz++){
 		  ShiftEtaStripsDoubletZ[idbz] = NetaStrips;
 		  const MuonGM::RpcReadoutElement* rpc = 
-		    m_muonMgr->getRpcReadoutElement(irpcstationName-2, irpcstationEta+8, irpcstationPhi-1, irpcdoubletR-1, idbz);
+		    m_muonMgr->getRpcReadoutElement(stname_index, irpcstationEta+8, irpcstationPhi-1, irpcdoubletR-1, idbz);
 		  if(rpc != NULL ){
 		    NetaStrips +=  rpc->NetaStrips();
 		  } 
@@ -352,12 +355,14 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		  /////// NB !!!!!
 		  // the eta strip number increases going far away from IP
 		  // the phi strip numeber increases going from HV side to RO side
-	    
+		  int stname_index = irpcstationName;
+		  if (irpcstationName==53) stname_index=MuonGM::MuonDetectorManager::NRpcStatType-2;
+		  else stname_index = irpcstationName-2;
 		  stripzmin   =      0 ;
 		  stripzmax   = -10000 ;
 		  for(int ieta=0; ieta!= 17; ieta++){
 		    for(int idbz=0; idbz!= 3; idbz++){
-		      const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(irpcstationName-2, ieta, irpcstationPhi-1, irpcdoubletR-1, idbz);
+		      const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(stname_index, ieta, irpcstationPhi-1, irpcdoubletR-1, idbz);
 		      if(rpc != NULL ){
 			const Amg::Vector3D r1 = rpc-> globalPosition();
 			pitch = rpc-> StripPitch(0)  ;
@@ -379,8 +384,10 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		  wirezmin     = +10000. ;
 		  foundmin     =      0  ;	
 				  
+		  if (irpcstationName == 53) stname_index = MuonGM::MuonDetectorManager::NMdtStatType-2;
+		  else stname_index = irpcstationName;
 		  for(int eta=0; eta!=17; eta++){ 
-		    const MuonGM::MdtReadoutElement* lastdescr = m_muonMgr->getMdtReadoutElement(irpcstationName, eta, irpcstationPhi-1, imdt_multi_near-1);
+		    const MuonGM::MdtReadoutElement* lastdescr = m_muonMgr->getMdtReadoutElement(stname_index, eta, irpcstationPhi-1, imdt_multi_near-1);
 		    if(lastdescr==NULL)continue;
 		
 		    const Amg::Vector3D lastelc = lastdescr->globalPosition();
@@ -469,6 +476,7 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 		    
  		    
 			//get mdt information from geomodel to book and fill mdtvsrpc histos with the right min and max range
+			if (imdt_station == 53) imdt_station = MuonGM::MuonDetectorManager::NMdtStatType-2;
 			const MuonGM::MdtReadoutElement* mdt = m_muonMgr->getMdtReadoutElement( imdt_station,  imdt_eta+8, imdt_phi-1,  imdt_multi-1);
 			NetaTubes = mdt->getNtubesperlayer() ;			    	      
 			const Amg::Vector3D elc =  mdt->globalPosition();
@@ -490,6 +498,7 @@ StatusCode MdtVsRpcRawDataValAlg::fillHistograms()
 			    imdt_eta     = irpcstationEta ;
 			    imdt_phi     = irpcstationPhi ;
 			    NetaTubes = 0;
+			    if (imdt_station == 53) imdt_station = MuonGM::MuonDetectorManager::NMdtStatType-2;
 			    const MuonGM::MdtReadoutElement* mdt = m_muonMgr->getMdtReadoutElement( imdt_station,  imdt_eta+8, imdt_phi-1,  imdt_multi_near-1);
 			    if(mdt==NULL)continue; // protection
 			    NetaTubes = mdt->getNtubesperlayer();
