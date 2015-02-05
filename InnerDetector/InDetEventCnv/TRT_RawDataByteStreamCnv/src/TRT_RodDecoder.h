@@ -140,11 +140,13 @@ public:
 
    uint32_t m_escape_marker;           // Straw word that means escaped literal
 
+#define CTABLE_FC_LENGTH 33
+#define CTABLE_LI_LENGTH 33
    typedef struct {
      int m_TableVersion;
-     int m_firstcode[33];
-     int m_lengths_integral[33];    // ..[i] = Sum(numl[0,i-1])
-     unsigned int *m_syms;          // Array of symbols (straw data words)
+     int m_firstcode[CTABLE_FC_LENGTH];
+     int m_lengths_integral[CTABLE_FC_LENGTH];    // ..[i] = Sum(numl[0,i-1])
+     unsigned int *m_syms;              // Array of symbols (straw data words)
      int m_Nsymbols;
    } t_CompressTable;
 

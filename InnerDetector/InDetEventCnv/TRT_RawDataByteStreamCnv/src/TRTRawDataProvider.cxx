@@ -10,13 +10,14 @@
 
 TRTRawDataProvider::TRTRawDataProvider(const std::string& name,
 				       ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-  m_robDataProvider ("ROBDataProviderSvc", name),
-  m_rawDataTool     ("TRTRawDataProviderTool",this),
-  m_CablingSvc      ("TRT_CablingSvc", name)
+  AthAlgorithm      ( name, pSvcLocator ),
+  m_robDataProvider ( "ROBDataProviderSvc", name ),
+  m_rawDataTool     ( "TRTRawDataProviderTool",this ),
+  m_CablingSvc      ( "TRT_CablingSvc", name ),
+  m_trt_id          ( nullptr )
 {
-  declareProperty ("RDOKey"      , m_RDO_Key = "TRT_RDOs");
-  declareProperty ("ProviderTool", m_rawDataTool);
+  declareProperty ( "RDOKey"      , m_RDO_Key = "TRT_RDOs" );
+  declareProperty ( "ProviderTool", m_rawDataTool );
   m_first_event = true;
 }
 

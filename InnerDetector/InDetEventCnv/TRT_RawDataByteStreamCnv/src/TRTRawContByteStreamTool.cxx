@@ -164,6 +164,11 @@ TRTRawContByteStreamTool::convert(TRT_RDO_Container* cont, RawEventWrite* re )
        sc = theEncoder.fillROD( *theROD ) ;  // fill ROD data
     else if ( 3 == m_RodBlockVersion )
        sc = theEncoder.fillROD3( *theROD ) ;  // fill ROD data
+    else
+    {
+      ATH_MSG_WARNING( "Unsupported TRT Rod Block Version Number" );
+      sc = StatusCode::RECOVERABLE;
+    }
    } 
 
    if ( sc == StatusCode::FAILURE )

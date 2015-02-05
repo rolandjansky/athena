@@ -21,7 +21,9 @@
 /** constructor 
 */ 
 TRT_RodEncoder::TRT_RodEncoder()
-  :m_CablingSvc ("TRT_CablingSvc", "TRT_RodEncoder" )
+   :m_trt_id          ( nullptr ),
+    m_CablingSvc      ( "TRT_CablingSvc", "TRT_RodEncoder" ),
+    m_RodBlockVersion ( 0 )
 {}
 
 /** destructor 
