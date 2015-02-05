@@ -30,7 +30,9 @@
 #include "TrkCompetingRIOsOnTrack/CompetingRIOsOnTrack.h"
 
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
+#include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TrkEventPrimitives/ResidualPull.h"
+#include "TrkEventUtils/TrackStateOnSurfaceComparisonFunction.h"
 
 #include "TRT_ConditionsServices/ITRT_CalDbSvc.h"
 
@@ -61,6 +63,7 @@ namespace DerivationFramework {
     m_sctMsosName("SCT_MSOSs"),
     m_trtMsosName("TRT_MSOSs"),
     m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
+    m_holeSearchTool("InDet::InDetTrackHoleSearchTool/InDetHoleSearchTool"),
     m_trtcaldbSvc("TRT_CalDbSvc",n)  
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
@@ -76,6 +79,7 @@ namespace DerivationFramework {
     declareProperty("SctMsosName",            m_sctMsosName);
     declareProperty("TrtMsosName",            m_trtMsosName);    
     declareProperty("ResidualPullCalculator", m_residualPullCalculator);
+    declareProperty("HoleSearch",             m_holeSearchTool);
     declareProperty("TRT_CalDbSvc",           m_trtcaldbSvc);
     declareProperty("StoreHoles",             m_storeHoles =true);
     declareProperty("StoreOutliers",          m_storeOutliers = true);
@@ -128,6 +132,11 @@ namespace DerivationFramework {
       CHECK(m_residualPullCalculator.retrieve());
     }
     
+    if( m_storeHoles ) {
+      CHECK( m_holeSearchTool.retrieve() );
+    }
+
+
     return StatusCode::SUCCESS;
   }
 
@@ -247,9 +256,32 @@ namespace DerivationFramework {
 
       // We now have a valid Trk::Track
       const Trk::Track* trkTrack = track->track();
+      
+      //
+      std::vector<const Trk::TrackStateOnSurface*> tsoss;
+      for (const auto& trackState: *(trkTrack->trackStateOnSurfaces())){
+        //Get rid of any holes that already exist  --  we are doing the search again
+        if( trackState->types()[Trk::TrackStateOnSurface::Outlier] )
+          continue;
+        tsoss.push_back(trackState);
+      } 
+
+      std::unique_ptr<const DataVector<const Trk::TrackStateOnSurface>>  holes; 
+      if(m_storeHoles){
+        holes =  std::unique_ptr<const DataVector<const Trk::TrackStateOnSurface>>( m_holeSearchTool->getHolesOnTrack(*trkTrack, trkTrack->info().particleHypothesis()) ); 
+        for (auto hole: *holes){
+          tsoss.push_back(hole);
+        }
+        if(trkTrack->perigeeParameters()){
+          Trk::TrackStateOnSurfaceComparisonFunction CompFunc( trkTrack->perigeeParameters()->momentum() );
+          stable_sort( tsoss.begin(), tsoss.end(), CompFunc );
+        } else {
+          ATH_MSG_ERROR("Track has not perigee parameters");
+        }
+      }
 
       //Loop over the TrkStateOnSurfaces
-      for (const auto& trackState: *(trkTrack->trackStateOnSurfaces())){
+      for (const auto& trackState: tsoss){
 
         //Only store Holes, Measurement &  Outliers 
         if( !trackState->types()[Trk::TrackStateOnSurface::Hole] && 
@@ -265,7 +297,7 @@ namespace DerivationFramework {
 
         if(!m_storeHoles && trackState->types()[Trk::TrackStateOnSurface::Hole] )
           continue;
-
+                
         // Check that the surface has detector element
         if(!trackState->surface().associatedDetectorElement()){
           continue;
@@ -352,9 +384,34 @@ namespace DerivationFramework {
         msos->setDetElementId(  surfaceID.get_compact() );
 
 
+        const Trk::TrackParameters* tp = trackState->trackParameters();       
+        if(!tp){
+          continue;
+        }
+
+        // Set local positions on the surface
+        msos->setLocalPosition( tp->parameters()[0], tp->parameters()[1] );
+
+        // Set calculate local incident angles
+        const Trk::TrkDetElementBase *de = trackState->surface().associatedDetectorElement();
+        const InDetDD::SiDetectorElement *side = dynamic_cast<const InDetDD::SiDetectorElement *>(de);
+        if ( side && (isSCT || isPixel) ) {
+          Amg::Vector3D mytrack = tp->momentum();
+          Amg::Vector3D mynormal = side->normal();
+          Amg::Vector3D myphiax = side->phiAxis();
+          Amg::Vector3D myetaax = side->etaAxis();
+          float trketacomp = mytrack.dot(myetaax);
+          float trkphicomp = mytrack.dot(myphiax);
+          float trknormcomp = mytrack.dot(mynormal);  
+          msos->setLocalAngles( atan2(trketacomp,trknormcomp), atan2(trkphicomp,trknormcomp) );
+        } 
+
  
         //Get the measurement base object
         const Trk::MeasurementBase* measurement=trackState->measurementOnTrack();
+        if(!measurement)
+          continue;
+        
         const Trk::RIO_OnTrack* hit = measurement ? dynamic_cast<const Trk::RIO_OnTrack*>(measurement) : 0;
 
         if(!hit){
@@ -397,27 +454,8 @@ namespace DerivationFramework {
 //        }
         
         
-        const Trk::TrackParameters* tp = trackState->trackParameters();       
-        if(!tp){
-          continue;
-        }
 
-        // Set local positions on the surface
-        msos->setLocalPosition( tp->parameters()[0], tp->parameters()[1] );
  
-        // Set calculate local incident angles
-        const Trk::TrkDetElementBase *de = hit->detectorElement();
-        const InDetDD::SiDetectorElement *side = dynamic_cast<const InDetDD::SiDetectorElement *>(de);
-        if ( side && (isSCT || isPixel) ) {
-          Amg::Vector3D mytrack = tp->momentum();
-          Amg::Vector3D mynormal = side->normal();
-          Amg::Vector3D myphiax = side->phiAxis();
-          Amg::Vector3D myetaax = side->etaAxis();
-          float trketacomp = mytrack.dot(myetaax);
-          float trkphicomp = mytrack.dot(myphiax);
-          float trknormcomp = mytrack.dot(mynormal);  
-          msos->setLocalAngles( atan2(trketacomp,trknormcomp), atan2(trkphicomp,trknormcomp) );
-        } 
  
         // Add the drift time for the tracks position -- note the position is biased 
         if(isTRT){
