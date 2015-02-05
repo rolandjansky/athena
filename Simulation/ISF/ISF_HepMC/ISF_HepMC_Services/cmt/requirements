@@ -9,25 +9,21 @@ manager Wolfgang Lukas <Wolfgang.Lukas@cern.ch>
 # public use statements
 use AtlasPolicy                   AtlasPolicy-*
 use GaudiInterface                GaudiInterface-*        External
-use AthenaBaseComps               AthenaBaseComps-*       Control
-
-use GeneratorObjects              GeneratorObjects-*      Generators
-
-use ISF_Interfaces                ISF_Interfaces-*        Simulation/ISF/ISF_Core
-
-use AtlasDetDescr                 AtlasDetDescr-*         DetectorDescription
 
 #################################################################
 # private use statements
 private
+use AthenaBaseComps               AthenaBaseComps-*       Control
+use AtlasDetDescr                 AtlasDetDescr-*         DetectorDescription
 use AtlasHepMC                    AtlasHepMC-*            External
 use AtlasCLHEP                    AtlasCLHEP-*            External
-use StoreGate                     StoreGate-*             Control
-
-use ISF_Event                     ISF_Event-*             Simulation/ISF/ISF_Core
-use ISF_HepMC_Interfaces          ISF_HepMC_Interfaces-*  Simulation/ISF/ISF_HepMC
 use BarcodeInterfaces             BarcodeInterfaces-*     Simulation/Barcode
 use G4TruthStrategies             G4TruthStrategies-*     Simulation/G4Utilities
+use GeneratorObjects              GeneratorObjects-*      Generators
+use ISF_Event                     ISF_Event-*             Simulation/ISF/ISF_Core
+use ISF_HepMC_Interfaces          ISF_HepMC_Interfaces-*  Simulation/ISF/ISF_HepMC
+use ISF_Interfaces                ISF_Interfaces-*        Simulation/ISF/ISF_Core
+use StoreGate                     StoreGate-*             Control
 
 public
 library ISF_HepMC_Services *.cxx components/*.cxx

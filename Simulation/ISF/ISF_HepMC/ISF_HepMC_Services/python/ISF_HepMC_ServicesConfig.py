@@ -42,9 +42,9 @@ def getMC12TruthService(name="ISF_MC12TruthService", **kwargs):
     kwargs.setdefault('McEventCollection'       , 'TruthEvent')
     kwargs.setdefault('SkipIfNoSecondaries'     , True)
     kwargs.setdefault('SkipIfNoPrimaryBarcode'  , True)
-    kwargs.setdefault('BeamPipeTruthStrategies' , [ getPublicTool('ISF_MCTruthStrategyGroupID') ] ) # this is used for beam pipe but not BeamPipeCentral which uses same as ID
-    kwargs.setdefault('IDTruthStrategies'       , [ getPublicTool('ISF_MCTruthStrategyGroupID'), getPublicTool('ISF_MCTruthStrategyGroupIDHadInt') ] )
-    kwargs.setdefault('CaloTruthStrategies'     , [ getPublicTool('ISF_MCTruthStrategyGroupCaloMuBrem') ])
+    kwargs.setdefault('BeamPipeTruthStrategies' , [ 'ISF_MCTruthStrategyGroupID' ] ) # this is used for beam pipe but not BeamPipeCentral which uses same as ID
+    kwargs.setdefault('IDTruthStrategies'       , [ 'ISF_MCTruthStrategyGroupID', 'ISF_MCTruthStrategyGroupIDHadInt' ] )
+    kwargs.setdefault('CaloTruthStrategies'     , [ 'ISF_MCTruthStrategyGroupCaloMuBrem' ])
     kwargs.setdefault('MSTruthStrategies'       , [])
     kwargs.setdefault('IgnoreUndefinedBarcodes' , False)
     kwargs.setdefault('StoreExtraBarcodes'      , False)
@@ -59,8 +59,8 @@ def getValidationTruthService(name="ISF_ValidationTruthService", **kwargs):
     kwargs.setdefault('SkipIfNoSecondaries'     , True)
     kwargs.setdefault('SkipIfNoPrimaryBarcode'  , True)
     kwargs.setdefault('BeamPipeTruthStrategies' , [])
-    kwargs.setdefault('IDTruthStrategies'       , [ getPublicTool('ISF_ValidationTruthStrategy') ] )
-    kwargs.setdefault('CaloTruthStrategies'     , [ getPublicTool('ISF_ValidationTruthStrategy') ] )
+    kwargs.setdefault('IDTruthStrategies'       , [ 'ISF_ValidationTruthStrategy' ] )
+    kwargs.setdefault('CaloTruthStrategies'     , [ 'ISF_ValidationTruthStrategy' ] )
     kwargs.setdefault('MSTruthStrategies'       , [])
     kwargs.setdefault('IgnoreUndefinedBarcodes' , True)
     kwargs.setdefault('StoreExtraBarcodes'      , False)

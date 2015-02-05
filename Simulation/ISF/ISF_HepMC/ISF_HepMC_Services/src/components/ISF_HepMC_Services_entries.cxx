@@ -1,5 +1,5 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
-#include "ISF_HepMC_Services/HepMC_TruthSvc.h"
+#include "../HepMC_TruthSvc.h"
 
 DECLARE_NAMESPACE_SERVICE_FACTORY( ISF , HepMC_TruthSvc )
 
