@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header
-#include "ISF_HepMC_Services/HepMC_TruthSvc.h"
+#include "HepMC_TruthSvc.h"
 // other ISF_HepMC includes
 #include "ISF_HepMC_Interfaces/ITruthStrategy.h"
 // ISF includes
