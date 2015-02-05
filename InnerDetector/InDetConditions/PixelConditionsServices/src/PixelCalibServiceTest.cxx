@@ -186,6 +186,8 @@ StatusCode PixelCalibServiceTest::execute() {
     int nchips = 0;
     int nobj = 0;
     bool lfst = true;
+    bool lfstA = true;
+    bool lfstC = true;
     for( iter=itermin; iter !=itermax; ++iter){
       const InDetDD::SiDetectorElement* element = *iter;
       if(element !=0){
@@ -201,6 +203,24 @@ StatusCode PixelCalibServiceTest::execute() {
 	  if(m_dummy){
 	    unsigned int dl = 0;
 	    if(!isIBL){
+              if(m_pixid->barrel_ec(ident)==-2&&lfstA){ // making DBM dummy -4                                                                                                                           
+                lfstA = false;
+                for(int i = 0; i<3; ++i){
+                  for(int j = 0; j<4; ++j){
+                    *outfile<<-4<<","<<i<<","<<j<<","<<0<<std::endl;
+                    *outfile<<"I"<<0<<" "<<"1200 69 192 1200 1200 69 192 1200 0 0 0 0 941 -1200 800000 941 -1200 800000 0.03 0.025"<<std::endl;
+                  }
+                }
+              }
+              if(m_pixid->barrel_ec(ident)==2&&lfstC){// making DBM dummy 4                                                                                                                              
+                lfstC =false;
+                for(int i = 0; i<3; ++i){
+                  for(int j = 0; j<4; ++j){
+                    *outfile<<4<<","<<i<<","<<j<<","<<0<<std::endl;
+                    *outfile<<"I"<<0<<" "<<"1200 69 192 1200 1200 69 192 1200 0 0 0 0 941 -1200 800000 941 -1200 800000 0.03 0.025"<<std::endl;
+                  }
+                }
+              }
 	      if(m_pixid->barrel_ec(ident)==0)dl =1;
 	      if(m_pixid->barrel_ec(ident)==0&&m_pixid->layer_disk(ident)==0&&lfst){ // making dummy of IBL
 		lfst = false;
@@ -211,12 +231,9 @@ StatusCode PixelCalibServiceTest::execute() {
 		    if(j<-6||j>5)mx = 1; 
 		    *outfile<<m_pixid->barrel_ec(ident)<<","<<0<<","<<i<<","<<j<<std::endl;
 		    for(int ichip=0; ichip<mx; ++ichip){
-		      if(mx==1){
-			*outfile<<"I"<<ichip<<" "<<"4160 69 192 5090 4160 69 192 5090 0 0 0 0 499 -1501 294329 499 -1501 294329 0.03 0.025"<<std::endl;
-		      }
-		      else{
-			*outfile<<"I"<<ichip<<" "<<"4160 69 192 5090 4310 165 300 5330 0 0 0 0 499 -1501 294329 499 -1501 294329 0.03 0.025"<<std::endl;
-		      }
+		      //*outfile<<"I"<<ichip<<" "<<"4160 69 192 5090 4310 165 300 5330 0 0 0 0 499 -1501 294329 499 -1501 294329 0.03 0.025"<<std::endl;
+		      //*outfile<<"I"<<ichip<<" "<<"1500 69 192 1500 1500 69 192 1500 0 0 0 0 883 -1500 1600000 883 -1500 1600000 0.03 0.025"<<std::endl;
+		      *outfile<<"I"<<ichip<<" "<<"2550 75 120 2550 2550 75 135 2550 0 0 0 0 18 -1445 10000 18 -1445 10000 0.25 0.000025"<<std::endl; // turned from M7 cosmic
 		    }
 		  }
 		}

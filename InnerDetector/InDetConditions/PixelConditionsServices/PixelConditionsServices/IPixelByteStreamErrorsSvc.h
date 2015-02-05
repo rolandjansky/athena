@@ -44,7 +44,8 @@ class IPixelByteStreamErrorsSvc: virtual public IInterface {
 
 public:
 
-  enum ErrorType {TimeOut=0, firstErrType=TimeOut, BCID=1, LVL1ID=2, Preamble=3, Trailer=4, Flagged=5, DisableFE=6, ROD=7, Decoding=8, Invalid=9, lastErrType=Invalid };
+  enum ErrorType {TimeOut=0, firstErrType=TimeOut, BCID=1, LVL1ID=2, Preamble=3, Trailer=4,
+                  Flagged=5, DisableFE=6, ROD=7, Decoding=8, Invalid=9, LinkMaskedByPPC=10, Limit=11, lastErrType=Limit };
 
   virtual ~IPixelByteStreamErrorsSvc(){}
   static const InterfaceID & interfaceID();
@@ -79,6 +80,13 @@ public:
   virtual unsigned int getBadFE(IdentifierHash hashID)=0;
   virtual StatusCode readData()=0;
   virtual StatusCode recordData()=0;
+
+  // FE-I4B
+  virtual void addLinkMaskedByPPC() = 0;
+  virtual void addLimitError() = 0;
+  virtual void updateServiceRecords(int code, unsigned int count) = 0;
+  virtual unsigned int getServiceRecordCount(int code) = 0;
+
 
 };
 

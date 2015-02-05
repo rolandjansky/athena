@@ -1,4 +1,4 @@
-isIBL = 1
+isIBL = 0
 mySQ = 0
 if isIBL:
   myOutput= "pixelcalibsvcIBL3D_dumpdb.txt"
@@ -47,7 +47,7 @@ from IOVDbSvc.CondDB import conddb
 #conddb.setGlobalTag('OFLCOND-CSC-00-00-00')
 #conddb.setGlobalTag('OFLCOND-MC12-SIM-00')
 #conddb.setGlobalTag('OFLCOND-RUN1-SDR-06') 
-conddb.setGlobalTag('OFLCOND-RUN12-SDR-07')
+conddb.setGlobalTag('OFLCOND-RUN12-SDR-22')
 
 #conddb.iovdbsvc.dbConnection = "sqlite://;schema=pixmapibl.db;dbname=OFLP200"
 
@@ -71,8 +71,8 @@ from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibSvc
 PixelCalibSvc = PixelCalibSvc()
 
 
-ServiceMgr.EventSelector.RunNumber = 222222
-#ServiceMgr.EventSelector.RunNumber = 198222
+#ServiceMgr.EventSelector.RunNumber = 222222
+ServiceMgr.EventSelector.RunNumber = 200805
 
 ### define the job
 
@@ -82,7 +82,7 @@ job = AlgSequence()
 
 from PixelConditionsServices.PixelConditionsServicesConf import PixelCalibServiceTest
 
-job +=PixelCalibServiceTest(OutputTextFile =myOutput, MakeDummy = FALSE ) 
+job +=PixelCalibServiceTest(OutputTextFile =myOutput, MakeDummy = TRUE ) 
 
 ServiceMgr += PixelCalibSvc
 
