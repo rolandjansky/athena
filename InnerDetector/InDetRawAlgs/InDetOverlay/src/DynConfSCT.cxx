@@ -24,8 +24,7 @@
 
 //================================================================
 DynConfSCT::DynConfSCT(const std::string &name, ISvcLocator *pSvcLocator) :
-  Algorithm(name, pSvcLocator)
-  , AthMessaging( msgSvc(), name)
+  AthAlgorithm(name, pSvcLocator)
   , m_inputFormatDetermined(false)
   , m_storeGateData("", name)
   , m_digiAlgTool(0)
