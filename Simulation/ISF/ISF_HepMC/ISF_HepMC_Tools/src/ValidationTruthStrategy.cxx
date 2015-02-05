@@ -7,14 +7,14 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header include
-#include "ISF_HepMC_Tools/ValidationTruthStrategy.h"
+#include "ValidationTruthStrategy.h"
 
 // ISF includes
 #include "ISF_Event/ITruthIncident.h"
 #include "ISF_Event/ISFParticle.h"
 
 /** Constructor **/
-ISF::ValidationTruthStrategy::ValidationTruthStrategy(const std::string& t, const std::string& n, const IInterface* p) : 
+ISF::ValidationTruthStrategy::ValidationTruthStrategy(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
   m_minPrimaryP2(0.)
 {
@@ -54,4 +54,3 @@ bool ISF::ValidationTruthStrategy::pass( const ITruthIncident& ti) const {
 
   return pass;
 }
-

@@ -46,7 +46,7 @@ def getLongBeamspotVertexPositioner(name="ISF_LongBeamspotVertexPositioner", **k
 
 def getGenEventVertexPositioner(name="ISF_GenEventVertexPositioner", **kwargs):
     # GenEventVertexPositioner
-    kwargs.setdefault("VertexShifters"          , [ getPublicTool('ISF_VertexBeamCondPositioner') ])
+    kwargs.setdefault("VertexShifters"          , [ 'ISF_VertexBeamCondPositioner' ])
 
     from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenEventVertexPositioner
     return ISF__GenEventVertexPositioner(name, **kwargs)
@@ -66,7 +66,7 @@ def getParticleSimWhiteList(name="ISF_ParticleSimWhiteList", **kwargs):
 
 def getParticlePositionFilter(name="ISF_ParticlePositionFilter", **kwargs):
     # ParticlePositionFilter
-    kwargs.setdefault('GeoIDService' , getService('ISF_GeoIDSvc'))
+    kwargs.setdefault('GeoIDService' , 'ISF_GeoIDSvc')
 
     from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenParticlePositionFilter
     return ISF__GenParticlePositionFilter(name, **kwargs)
@@ -85,7 +85,7 @@ def getEtaPhiFilter(name="ISF_EtaPhiFilter", **kwargs):
     from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenParticleGenericFilter
     return ISF__GenParticleGenericFilter(name, **kwargs)
 
-
+## Stack Fillers
 def getLongLivedStackFiller(name="ISF_LongLivedStackFiller", **kwargs):
     kwargs.setdefault("GenParticleFilters"      , [ 'ISF_ParticleSimWhiteList',
                                                     'ISF_ParticlePositionFilter',
@@ -100,27 +100,29 @@ def getStackFiller(name="ISF_StackFiller", **kwargs):
     kwargs.setdefault("UseGeneratedParticleMass"                        , False        )
     from AthenaCommon.BeamFlags import jobproperties
     if jobproperties.Beam.beamType() == "cosmics":
-        kwargs.setdefault("GenEventManipulators"                        , [ 
-                                                                           getPublicTool('ISF_GenEventValidityChecker'),
+        kwargs.setdefault("GenEventManipulators"                        , [
+                                                                           'ISF_GenEventValidityChecker',
                                                                           ])
         kwargs.setdefault("GenParticleFilters"                          , [
-                                                                           getPublicTool('ISF_ParticleFinalStateFilter'),
+                                                                           'ISF_ParticleFinalStateFilter',
                                                                           ])
     else:
-        kwargs.setdefault("GenEventManipulators"                        , [ 
-                                                                           getPublicTool('ISF_GenEventValidityChecker'),
-                                                                           getPublicTool('ISF_GenEventVertexPositioner'),
+        kwargs.setdefault("GenEventManipulators"                        , [
+                                                                           'ISF_GenEventValidityChecker',
+                                                                           'ISF_GenEventVertexPositioner',
                                                                           ])
         kwargs.setdefault("GenParticleFilters"                          , [
-                                                                           getPublicTool('ISF_ParticleFinalStateFilter'),
-                                                                           getPublicTool('ISF_ParticlePositionFilter'),
-                                                                           getPublicTool('ISF_EtaPhiFilter'),
+                                                                           'ISF_ParticleFinalStateFilter',
+                                                                           'ISF_ParticlePositionFilter',
+                                                                           'ISF_EtaPhiFilter',
                                                                           ])
     kwargs.setdefault("BarcodeService"                                  , ISF_Flags.BarcodeService() )
     kwargs.setdefault("PileUpMergeService"                                  , '')
 
     from ISF_HepMC_Tools.ISF_HepMC_ToolsConf import ISF__GenEventStackFiller
     return ISF__GenEventStackFiller(name, **kwargs)
+
+## Truth Strategies
 
 # Brems: fBremsstrahlung (3) 
 # Conversion: fGammaConversion (14), fGammaConversionToMuMu (15), fPairProdByCharged (4)

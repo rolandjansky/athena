@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header include
-#include "ISF_HepMC_Tools/VertexBeamCondPositioner.h"
+#include "VertexBeamCondPositioner.h"
 
 // CLHEP includes
 #include "CLHEP/Vector/LorentzVector.h"
