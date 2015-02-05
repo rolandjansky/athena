@@ -14,14 +14,13 @@
  * @author Andrei Gaponenko, 2008-2009
  */
 
-#ifndef DYNCONFSCT_H
-#define DYNCONFSCT_H
+#ifndef INDETOVERLAY_DYNCONFSCT_H
+#define INDETOVERLAY_DYNCONFSCT_H
 
 #include <string>
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "AthenaBaseComps/AthMessaging.h"
 
 // forward declaring template typedefs is unwieldy
 #include "InDetRawData/SCT_RDO_Container.h"
@@ -29,8 +28,7 @@
 class StoreGateSvc;
 class AlgTool;
 
-class DynConfSCT : public Algorithm,
-                   public AthMessaging
+class DynConfSCT : public AthAlgorithm
 {
 public:
 
@@ -61,4 +59,4 @@ private:
   const SCT_RDORawData *getRDO(const SCT_RDO_Container *cont) const;
 };
 
-#endif/*DYNCONFSCT_H*/
+#endif/*INDETOVERLAY_DYNCONFSCT_H*/
