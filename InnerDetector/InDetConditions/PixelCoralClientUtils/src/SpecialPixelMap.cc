@@ -1332,25 +1332,6 @@ unsigned int ModuleSpecialPixelMap::pixelType(unsigned int column, unsigned int 
 }
 */
 
-
-std::vector<unsigned int> ModuleSpecialPixelMap::decodePixelID(unsigned int pixelID, unsigned int typeFE){
-  
-  unsigned int chip = (pixelID & 0xF);
-  pixelID >>=4;
-  unsigned int column = (pixelID & 0x1F);
-  (typeFE == 0) ? pixelID >>=5 : pixelID >>=8; //typeFE = 0 for FEI3 and 1 for FEI4
-  unsigned int row = pixelID;
-
-  std::vector<unsigned int> ChipColRow;
-  ChipColRow.push_back(chip);
-  ChipColRow.push_back(column);
-  ChipColRow.push_back(row);
-  
-  return ChipColRow;
-
-}
-
-
 unsigned int ModuleSpecialPixelMap::encodePixelID(unsigned int chip, unsigned int column, unsigned int row, unsigned int mchips){
   int i = mchips%10; // type of module 
   unsigned int pixelID = row;
@@ -1386,7 +1367,7 @@ unsigned int ModuleSpecialPixelMap::encodePixelID(int component, unsigned int mo
 	 chip = pixel_eta_index / mcolumns + mch/2;
 	 column = pixel_eta_index % mcolumns;
 	 if(pixel_phi_index < mrowsrdo)row = pixel_phi_index;
-	 else if(ng>0){
+	 else{
 	   for(int k=0; k<ng; ++k){ 
 	     if(pixel_phi_index ==(mrowsrdo+k))row = mrowsrdo+1 -2*(ng-k);
 	   }
@@ -1396,7 +1377,7 @@ unsigned int ModuleSpecialPixelMap::encodePixelID(int component, unsigned int mo
 	 chip = mch/2 - (1 + pixel_eta_index / mcolumns);
 	 column = mcolumns - (1+pixel_eta_index % mcolumns);
 	 if(pixel_phi_index > (mrows+ng-1))row = 2*mrows-1 - pixel_phi_index;
-	 else if(ng>0){
+	 else{
 	   for(int k = 0; k<ng; ++k){
 	     if(pixel_phi_index ==(mrows+k))row =mrowsrdo-1-2*k;
 	   }
@@ -1415,7 +1396,7 @@ unsigned int ModuleSpecialPixelMap::encodePixelID(int component, unsigned int mo
 	 chip = mch/2 - (1+pixel_eta_index / mcolumns);
 	 column = mcolumns - (1+pixel_eta_index % mcolumns);
 	 if(pixel_phi_index < mrowsrdo)row = pixel_phi_index;
-	 else if(ng>0){
+	 else{
 	   for(int k=0; k<ng; ++k){ 
 	     if(pixel_phi_index ==(mrowsrdo+k)) row = mrowsrdo+1 -2*(ng-k);
 	   }
@@ -1425,7 +1406,7 @@ unsigned int ModuleSpecialPixelMap::encodePixelID(int component, unsigned int mo
 	 chip = pixel_eta_index / mcolumns + mch/2;
 	 column = pixel_eta_index % mcolumns;
 	 if(pixel_phi_index > (mrows+ng-1))row = 2*mrows - 1 - pixel_phi_index;
-	 else if(ng>0){
+	 else{
 	   for(int k = 0; k<ng; ++k){
 	     if(pixel_phi_index ==(mrows+k))row =mrowsrdo-1-2*k;
 	   }
@@ -1437,7 +1418,7 @@ unsigned int ModuleSpecialPixelMap::encodePixelID(int component, unsigned int mo
 	 chip = mch/2 -(1 + pixel_eta_index / mcolumns);
 	 column = mcolumns - (1 + pixel_eta_index % mcolumns);
 	 if(pixel_phi_index > (mrows+ng-1))row = 2*mrows - 1 - pixel_phi_index;
-	 else if(ng>0){
+	 else{
 	   for(int k = 0; k<ng; ++k){
 	     if(pixel_phi_index ==(mrows+k))row =mrowsrdo-1-2*k;
 	   }
@@ -1447,7 +1428,7 @@ unsigned int ModuleSpecialPixelMap::encodePixelID(int component, unsigned int mo
 	 chip = pixel_eta_index / mcolumns + mch/2;
 	 column = pixel_eta_index % mcolumns;
 	 if(pixel_phi_index < mrowsrdo)row = pixel_phi_index;
-	 else if(ng>0){ 
+	 else{ 
 	   for(int k=0; k<ng; ++k){ 
 	     if(pixel_phi_index ==(mrowsrdo+k)) row = mrowsrdo+1 -2*(ng-k);
 	   }
