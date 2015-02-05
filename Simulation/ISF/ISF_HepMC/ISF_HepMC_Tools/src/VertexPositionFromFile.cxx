@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header include
-#include "ISF_HepMC_Tools/VertexPositionFromFile.h"
+#include "VertexPositionFromFile.h"
 
 // HepMC includes
 #include "HepMC/GenEvent.h"
@@ -45,9 +45,9 @@ ISF::VertexPositionFromFile::~VertexPositionFromFile()
 /** Athena algtool's Hooks */
 StatusCode  ISF::VertexPositionFromFile::initialize()
 {
-    
+
     ATH_MSG_VERBOSE("Initializing ...");
-    
+
     // read-in and cache the content of the VertexPositionsFile, throw error if:
     //  * no VertexPositionsFile is given
     //  * or something goes wrong in the file read-in
@@ -81,7 +81,7 @@ StatusCode  ISF::VertexPositionFromFile::finalize()
 StatusCode ISF::VertexPositionFromFile::readVertexPosFile()
 {
   ATH_MSG_INFO("Will read in vertex positions from file.");
- 
+
   FILE *vfile = fopen( m_vertexPositionFile.c_str(),"r");
   if (!vfile) {
     ATH_MSG_ERROR("Could not open vertex position file: " << m_vertexPositionFile);
@@ -126,7 +126,7 @@ StatusCode ISF::VertexPositionFromFile::readVertexPosFile()
 
       ++numReadIn;
     }
-    
+
     // nothing read-in
     else{
       ATH_MSG_VERBOSE("Got "<<r<<" from fscanf, stopping");
@@ -181,7 +181,7 @@ StatusCode ISF::VertexPositionFromFile::readRunEventNumFile()
 
       ++numReadIn;
     }
-      
+
     // nothing read-in
     else{
       ATH_MSG_VERBOSE("Got "<<r<<" from fscanf, stopping");
@@ -240,11 +240,10 @@ CLHEP::HepLorentzVector *ISF::VertexPositionFromFile::generate()
 
   // store the actual vertex offset
   CLHEP::HepLorentzVector *vertexOffset = new CLHEP::HepLorentzVector(
-                                                              updatedVertexPosition[0], 
+                                                              updatedVertexPosition[0],
                                                               updatedVertexPosition[1],
                                                               updatedVertexPosition[2],
                                                               0. );
   // and return it
   return vertexOffset;
 }
-

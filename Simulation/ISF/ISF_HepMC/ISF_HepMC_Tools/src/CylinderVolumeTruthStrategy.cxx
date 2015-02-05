@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header include
-#include "ISF_HepMC_Tools/CylinderVolumeTruthStrategy.h"
+#include "CylinderVolumeTruthStrategy.h"
 
 // ISF includes
 #include "ISF_Event/ITruthIncident.h"
@@ -16,7 +16,7 @@
 #include "HepMC/SimpleVector.h"
 
 /** Constructor **/
-ISF::CylinderVolumeTruthStrategy::CylinderVolumeTruthStrategy(const std::string& t, const std::string& n, const IInterface* p) : 
+ISF::CylinderVolumeTruthStrategy::CylinderVolumeTruthStrategy(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
   m_ri(0.),
   m_ro(1148.)
@@ -60,4 +60,3 @@ bool ISF::CylinderVolumeTruthStrategy::pass( const ITruthIncident& ti) const
 
   return onSurf;
 }
-

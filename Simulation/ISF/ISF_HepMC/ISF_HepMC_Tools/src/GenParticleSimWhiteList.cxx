@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header include
-#include "ISF_HepMC_Tools/GenParticleSimWhiteList.h"
+#include "GenParticleSimWhiteList.h"
 
 // HepMC includes
 #include "HepMC/GenParticle.h"

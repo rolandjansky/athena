@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header include
-#include "ISF_HepMC_Tools/LongBeamspotVertexPositioner.h"
+#include "LongBeamspotVertexPositioner.h"
 
 // CLHEP includes
 #include "CLHEP/Vector/LorentzVector.h"
