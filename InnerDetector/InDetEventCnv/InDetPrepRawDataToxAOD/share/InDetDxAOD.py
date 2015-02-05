@@ -21,7 +21,7 @@ if idDxAOD_doTrt:
     xAOD_TRT_PrepDataToxAOD = TRT_PrepDataToxAOD( name = "xAOD_TRT_PrepDataToxAOD")
     xAOD_TRT_PrepDataToxAOD.OutputLevel=INFO
     xAOD_TRT_PrepDataToxAOD.UseTruthInfo=DumpTruthInfo
-    print "Add TRT xAOD PrepRawData:"
+    print "Add TRT xAOD TrackMeasurementValidation:"
     print xAOD_TRT_PrepDataToxAOD
     topSequence += xAOD_TRT_PrepDataToxAOD
 
@@ -30,7 +30,7 @@ if idDxAOD_doSct:
     xAOD_SCT_PrepDataToxAOD = SCT_PrepDataToxAOD( name = "xAOD_SCT_PrepDataToxAOD")
     xAOD_SCT_PrepDataToxAOD.OutputLevel=INFO
     xAOD_SCT_PrepDataToxAOD.UseTruthInfo=DumpTruthInfo
-    print "Add SCT xAOD PrepRawData:"
+    print "Add SCT xAOD TrackMeasurementValidation:"
     print xAOD_SCT_PrepDataToxAOD
     topSequence += xAOD_SCT_PrepDataToxAOD
 
@@ -39,7 +39,7 @@ if idDxAOD_doPix:
     xAOD_PixelPrepDataToxAOD = PixelPrepDataToxAOD( name = "xAOD_PixelPrepDataToxAOD")
     xAOD_PixelPrepDataToxAOD.OutputLevel=INFO
     xAOD_PixelPrepDataToxAOD.UseTruthInfo=DumpTruthInfo
-    print "Add SCT xAOD PrepRawData:"
+    print "Add SCT xAOD TrackMeasurementValidation:"
     print xAOD_PixelPrepDataToxAOD
     topSequence += xAOD_PixelPrepDataToxAOD
 
@@ -85,14 +85,25 @@ topSequence += DerivationFrameworkJob
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
 fileName   = "InDetDxAOD.pool.root"
 TestStream = MSMgr.NewPoolRootStream( streamName, fileName)
+excludedAuxData = ".-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
 TestStream.AddItem("xAOD::EventInfo#*")
 TestStream.AddItem("xAOD::EventAuxInfo#*")
 TestStream.AddItem("xAOD::TrackParticleContainer#InDetTrackParticles")
-TestStream.AddItem("xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux.")
+TestStream.AddItem("xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux"+excludedAuxData)
 TestStream.AddItem("xAOD::VertexContainer#PrimaryVertices")
-TestStream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.")
-TestStream.AddItem("xAOD::PrepRawDataContainer#*")
-TestStream.AddItem("xAOD::PrepRawDataAuxContainer#*")
-TestStream.AddItem("xAOD::MeasurementStateOnSurfaceContainer#*")
-TestStream.AddItem("xAOD::MeasurementStateOnSurfaceAuxContainer#*")
+TestStream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex")
+TestStream.AddItem("xAOD::TrackStateValidationContainer#*")
+TestStream.AddItem("xAOD::TrackStateValidationAuxContainer#*")
+TestStream.AddItem("xAOD::TrackMeasurementValidationContainer#*")
+TestStream.AddItem("xAOD::TrackMeasurementValidationAuxContainer#*")
+if DumpTruthInfo:
+  TestStream.AddItem("xAOD::TruthParticleContainer#*")
+  TestStream.AddItem("xAOD::TruthParticleAuxContainer#TruthParticlesAux.-caloExtension")
+  TestStream.AddItem("xAOD::TruthVertexContainer#*")
+  TestStream.AddItem("xAOD::TruthVertexAuxContainer#*")
+  TestStream.AddItem("xAOD::TruthEventContainer#*")
+  TestStream.AddItem("xAOD::TruthEventAuxContainer#*")
+
+
+
 
