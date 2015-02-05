@@ -24,17 +24,3 @@ void MuonCaloEnergyContainerCnv_tlp1 :: setPStorage( MuonCaloEnergyContainer_tlp
 }
 
 
-T_TPCnv<MuonCaloEnergyContainer, MuonCaloEnergyContainer_tlp1 >::T_TPCnv()
-{
-}
-
-
-void T_TPCnv<MuonCaloEnergyContainer, MuonCaloEnergyContainer_tlp1 >::
-persToTrans (const MuonCaloEnergyContainer_tlp1* pers,
-             MuonCaloEnergyContainer* trans,
-             MsgStream& msg)
-{
-  setPStorage (const_cast<MuonCaloEnergyContainer_tlp1*> (pers));
-  m_mainConverter.pstoreToTrans (0, trans, msg);
-}
-

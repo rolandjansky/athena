@@ -29,11 +29,5 @@ class MissingEtTruthCnv_p3 : public T_AthenaPoolTPCnvBase<MissingEtTruth, Missin
                                   MsgStream                  &msg );
 };
 
-template <>
-class T_TPCnv<MissingEtTruth, MissingEtTruth_p3 >: public MissingEtTruthCnv_p3 {
-public:
-};
-
-
 
 #endif

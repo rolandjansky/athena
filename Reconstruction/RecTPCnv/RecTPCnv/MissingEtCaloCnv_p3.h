@@ -33,13 +33,5 @@ class MissingEtCaloCnv_p3: public T_AthenaPoolTPCnvBase<MissingEtCalo, MissingEt
 
 };
 
-template <>
-class T_TPCnv<MissingEtCalo, MissingEtCalo_p3 >
-  : public MissingEtCaloCnv_p3
-{
-public:
-};
-
-
 
 #endif 

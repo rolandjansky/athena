@@ -50,12 +50,5 @@ private:
     MuonSpShowerCnv_p1          m_cnv;
 };
 
-template<>
-class T_TPCnv<Rec::MuonSpShowerContainer, MuonSpShowerContainer_p1>
-  : public MuonSpShowerContainerCnv_p1
-{
-public:
-};
-
 
 #endif //> RECTPCNV_MUONSPSHOWERCONTAINERCNV_P1_H

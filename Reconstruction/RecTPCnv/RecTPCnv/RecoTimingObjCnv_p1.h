@@ -24,9 +24,5 @@ class RecoTimingObjCnv_p1 : public T_AthenaPoolTPCnvBase<RecoTimingObj, RecoTimi
 			    MsgStream             &msg );
 };
 
-template <>
-class T_TPCnv<RecoTimingObj, RecoTimingObj_p1 >
-  : public RecoTimingObjCnv_p1
-{ };
 
 #endif

@@ -31,12 +31,5 @@ typedef T_AthenaPoolTPCnvVector<
             MuonCnv_p6 
        > MuonContainerCnv_p6;
 
-template<>
-class T_TPCnv<Analysis::MuonContainer, MuonContainer_p6>
-  : public MuonContainerCnv_p6
-{
-public:
-};
-
 
 #endif //> RECTPCNV_MUONCONTAINERCNV_P6_H
