@@ -17,9 +17,9 @@ from MdtVsRpcRawDataMonitoring.MdtVsRpcRawDataMonitoringConf import MdtVsRpcRawD
 MdtVsRpcRawDataValAlg = MdtVsRpcRawDataValAlg(name='MdtVsRpcRawDataValAlg',
                                               DoMdtvsRpcEsd = True,
                                               MdtvsRpcChamberHist = False, ## True,
-                                              MdtvsRpcSectorHist = False, ## True
-                                              MdtvsRpcReduceRpcNbins = 8,
-                                              MdtvsRpcReduceMdtNbins = 8,
+                                              MdtvsRpcSectorHist = True, ## True
+                                              MdtvsRpcReduceRpcNbins = 1,
+                                              MdtvsRpcReduceMdtNbins = 1,
                                               MdtvsRpcReduceMdtTDCNbins = 10,
                                               # temporary fix RpcClusterization not used
                                               # ClusterContainer="rpcClusters",
