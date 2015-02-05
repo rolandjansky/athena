@@ -39,12 +39,6 @@ class MuonContainerCnvARA_p1 : public MuonContainerCnvBase_p1
     MuonCnvARA_p1 m_cnv;
 };
 
-template<>
-class T_TPCnv<Analysis::MuonContainer, MuonContainer_p1>
-  : public MuonContainerCnvARA_p1
-{
-public:
-};
 
 inline void  MuonContainerCnvARA_p1::persToTrans(const MuonContainer_p1* persColl, Analysis::MuonContainer* transColl, MsgStream &log)
 {

@@ -35,13 +35,4 @@ class MissingETCnv_p1 : public T_AthenaPoolTPCnvBase<MissingET, MissingET_p1>
                                   MsgStream             &msg );
 };
 
-template <>
-class T_TPCnv<MissingET, MissingET_p1 >
-  : public MissingETCnv_p1
-{
-public:
-};
-
-
-
 #endif // RECTPCNV_MISSINGETCNV_P1_H

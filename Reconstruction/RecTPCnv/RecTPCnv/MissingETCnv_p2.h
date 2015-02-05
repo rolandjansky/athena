@@ -36,13 +36,5 @@ class MissingETCnv_p2 : public T_AthenaPoolTPCnvBase<MissingET, MissingET_p2>
 		virtual void transToPers( const MissingET* trans,  std::vector<float> &all);
 };
 
-template <>
-class T_TPCnv<MissingET, MissingET_p2 >
-  : public MissingETCnv_p2
-{
-public:
-};
-
-
 
 #endif // RECTPCNV_MISSINGETCNV_P2_H

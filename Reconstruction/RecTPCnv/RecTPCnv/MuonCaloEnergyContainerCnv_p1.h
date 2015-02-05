@@ -31,12 +31,5 @@ typedef T_AthenaPoolTPCnvVector<
             CaloEnergyCnv_p2 
        > MuonCaloEnergyContainerCnv_p1;
 
-template<>
-class T_TPCnv<MuonCaloEnergyContainer, MuonCaloEnergyContainer_p1>
-  : public MuonCaloEnergyContainerCnv_p1
-{
-public:
-};
-
 
 #endif //> RECTPCNV_MUON_CSLOENERGY_CONTAINERCNV_P1_H

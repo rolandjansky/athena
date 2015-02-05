@@ -35,17 +35,4 @@ class MuonCaloEnergyContainerCnv_tlp1:
 };
 
 
-template <>
-class T_TPCnv<MuonCaloEnergyContainer, MuonCaloEnergyContainer_tlp1 >
-  : public MuonCaloEnergyContainerCnv_tlp1
-{
-public:
-  T_TPCnv();
-
-  // ??? Maybe this should be moved up to AthenaPoolTopLevelTPConverter...
-  virtual void persToTrans (const MuonCaloEnergyContainer_tlp1* pers,
-                            MuonCaloEnergyContainer* trans,
-                            MsgStream& msg);
-};
-
 #endif

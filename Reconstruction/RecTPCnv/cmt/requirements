@@ -42,7 +42,6 @@ apply_pattern tpcnv_library
 # of transient classes
 private
 apply_pattern lcgdict dict=RecTPCnv selectionfile=selection.xml headerfiles="../RecTPCnv/RecTPCnvDict.h"
-apply_pattern lcgdict dict=ARA_RecTPCnv selectionfile=ARA_selection.xml headerfiles="../RecTPCnv/RecTPCnvDict.h"
 apply_pattern lcgdict dict=OLD_RecTPCnv selectionfile=OLD_selection.xml headerfiles="../RecTPCnv/RecTPCnvDict.h"
 end_private
 

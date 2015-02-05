@@ -33,9 +33,5 @@ class MissingETCompositionConverterBase<MissingETComposition_p2>
 
 typedef MissingETCompositionConverterBase<MissingETComposition_p2> MissingETCompositionCnv_p2;
 
-template<>
-class T_TPCnv<MissingETComposition, MissingETComposition_p2>
-  : public MissingETCompositionCnv_p2
-{ };
 
 #endif
