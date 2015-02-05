@@ -1461,7 +1461,8 @@ const RpcReadoutElement* MuonDetectorManager::getRpcReadoutElement(int i1, int i
   {
       std::cerr<<"ERROR MuonDetectorManager::getRpcReadoutElement stEtaindex out of range "
                <<i2<<" 0-"<<NRpcStatEta-1<<std::endl;
-      throw;
+      return 0;
+      //throw;
   }
   if (i3<0 ||  i3 >= NRpcStatPhi) 
   {
@@ -1479,7 +1480,8 @@ const RpcReadoutElement* MuonDetectorManager::getRpcReadoutElement(int i1, int i
   {
       std::cerr<<"ERROR MuonDetectorManager::getRpcReadoutElement dbz_index out of range "
                <<i5<<" 0-" <<NDoubletZ-1<<std::endl;
-      throw;
+      return 0;
+      //throw;
   }
     return _rpcArray[i1][i2][i3][i4][i5];
 }
