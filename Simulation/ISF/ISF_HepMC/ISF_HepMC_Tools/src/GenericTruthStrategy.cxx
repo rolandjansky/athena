@@ -7,14 +7,14 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header include
-#include "ISF_HepMC_Tools/GenericTruthStrategy.h"
+#include "GenericTruthStrategy.h"
 
 // ISF includes
 #include "ISF_Event/ITruthIncident.h"
 #include "ISF_Event/ISFParticle.h"
 
 /** Constructor **/
-ISF::GenericTruthStrategy::GenericTruthStrategy(const std::string& t, const std::string& n, const IInterface* p) : 
+ISF::GenericTruthStrategy::GenericTruthStrategy(const std::string& t, const std::string& n, const IInterface* p) :
   AthAlgTool(t,n,p),
   m_usePrimaryPt(true),
   m_primaryPt2(-1.),
@@ -145,29 +145,29 @@ bool ISF::GenericTruthStrategy::pass( const ITruthIncident& ti) const {
     // check whether primary particle passes cut or not
     bool primFail = (m_usePrimaryPt) ? (ti.primaryPt2()<m_primaryPt2)
       : (ti.primaryEkin()<m_primaryEkin) ;
-    
-    
+
+
     // if primary particle failed and strategy does not
     // allow for secondary-only pass -> failed
     if ( ( primFail && (!m_allowSecondaryOrPrimaryPass) ) ) return false;
-    //	 ( (!primFail) && m_allowSecondaryOrPrimaryPass) )
+    //   ( (!primFail) && m_allowSecondaryOrPrimaryPass) )
     //return false;
-    
-    
+
+
     // check secondaries
     bool secPass =  m_useSecondaryPt ? ti.secondaryPt2Pass(m_secondaryPt2)
       : ti.secondaryEkinPass(m_secondaryEkin) ;
-    
-    
+
+
     // if secondary particles do not pass cuts (either)
     if (!secPass && (!m_allowSecondaryOrPrimaryPass))
       return false;
-    
+
     if (m_allowSecondaryOrPrimaryPass && primFail && !secPass) return false;
-    
+
   }
-  
-  
+
+
   // (2.) primary PDG code check
   // ----
   // check whether primary PDG code matches with any of the given ones
@@ -185,7 +185,7 @@ bool ISF::GenericTruthStrategy::pass( const ITruthIncident& ti) const {
     int vxtype = ti.physicsProcessCode();
 
     // (3.1) vxtype in given range?: this is a small performance trick (only one comparison operator to check if within range)
-    //  -> exactly equivalent to:  m_doVertexRangeCheck  && (m_vertexTypeLow<=vxtype) && (vxtype<=m_vertexTypeRangeHigh) 
+    //  -> exactly equivalent to:  m_doVertexRangeCheck  && (m_vertexTypeLow<=vxtype) && (vxtype<=m_vertexTypeRangeHigh)
     bool vtxTypeRangePassed = m_doVertexRangeCheck && ( unsigned(vxtype-m_vertexTypeRangeLow) < m_vertexTypeRangeLength );
     // (3.2) if not in range or range check disabled, check whether vxtype
     //       std::set contains the given vertex type
@@ -198,4 +198,3 @@ bool ISF::GenericTruthStrategy::pass( const ITruthIncident& ti) const {
   // all cuts passed
   return true;
 }
-

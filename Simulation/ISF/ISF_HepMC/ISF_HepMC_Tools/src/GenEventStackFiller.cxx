@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header include
-#include "ISF_HepMC_Tools/GenEventStackFiller.h"
+#include "GenEventStackFiller.h"
 
 // framework
 #include "GaudiKernel/IPartPropSvc.h"

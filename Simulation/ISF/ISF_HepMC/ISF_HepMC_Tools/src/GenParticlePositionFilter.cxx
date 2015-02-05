@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header include
-#include "ISF_HepMC_Tools/GenParticlePositionFilter.h"
+#include "GenParticlePositionFilter.h"
 
 // HepMC includes
 #include "HepMC/GenParticle.h"

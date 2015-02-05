@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header include
-#include "ISF_HepMC_Tools/GenEventVertexPositioner.h"
+#include "GenEventVertexPositioner.h"
 
 // HepMC includes
 #include "HepMC/GenEvent.h"

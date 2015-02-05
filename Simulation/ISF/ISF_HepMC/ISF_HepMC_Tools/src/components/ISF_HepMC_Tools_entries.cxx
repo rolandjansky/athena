@@ -1,17 +1,17 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
-#include "ISF_HepMC_Tools/GenEventValidityChecker.h"
-#include "ISF_HepMC_Tools/GenEventVertexPositioner.h"
-#include "ISF_HepMC_Tools/VertexBeamCondPositioner.h"
-#include "ISF_HepMC_Tools/LongBeamspotVertexPositioner.h"
-#include "ISF_HepMC_Tools/VertexPositionFromFile.h"
-#include "ISF_HepMC_Tools/GenEventStackFiller.h"
-#include "ISF_HepMC_Tools/GenParticleGenericFilter.h"
-#include "ISF_HepMC_Tools/GenParticleFinalStateFilter.h"
-#include "ISF_HepMC_Tools/GenParticlePositionFilter.h"
-#include "ISF_HepMC_Tools/GenericTruthStrategy.h"
-#include "ISF_HepMC_Tools/CylinderVolumeTruthStrategy.h"
-#include "ISF_HepMC_Tools/ValidationTruthStrategy.h"
-#include "ISF_HepMC_Tools/GenParticleSimWhiteList.h"
+#include "../GenEventValidityChecker.h"
+#include "../GenEventVertexPositioner.h"
+#include "../VertexBeamCondPositioner.h"
+#include "../LongBeamspotVertexPositioner.h"
+#include "../VertexPositionFromFile.h"
+#include "../GenEventStackFiller.h"
+#include "../GenParticleGenericFilter.h"
+#include "../GenParticleFinalStateFilter.h"
+#include "../GenParticlePositionFilter.h"
+#include "../GenericTruthStrategy.h"
+#include "../CylinderVolumeTruthStrategy.h"
+#include "../ValidationTruthStrategy.h"
+#include "../GenParticleSimWhiteList.h"
 
 DECLARE_NAMESPACE_TOOL_FACTORY( ISF , GenEventValidityChecker      )
 DECLARE_NAMESPACE_TOOL_FACTORY( ISF , GenEventVertexPositioner     )
@@ -41,4 +41,4 @@ DECLARE_FACTORY_ENTRIES( ISF_HepMC_Tools ) {
   DECLARE_NAMESPACE_TOOL( ISF ,  CylinderVolumeTruthStrategy  )
   DECLARE_NAMESPACE_TOOL( ISF ,  ValidationTruthStrategy      )
   DECLARE_NAMESPACE_TOOL( ISF ,  GenParticleSimWhiteList      )
-}   
+}

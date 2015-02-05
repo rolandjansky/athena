@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header include
-#include "ISF_HepMC_Tools/GenEventValidityChecker.h"
+#include "GenEventValidityChecker.h"
 
 // HepMC includes
 #include "HepMC/GenEvent.h"
@@ -32,7 +32,7 @@ ISF::GenEventValidityChecker::GenEventValidityChecker( const std::string& t,
 /** Athena algtool's Hooks */
 StatusCode  ISF::GenEventValidityChecker::initialize()
 {
-    
+
     ATH_MSG_VERBOSE("Initializing ...");
     ATH_MSG_VERBOSE("Initialize successful");
     return StatusCode::SUCCESS;
@@ -76,4 +76,3 @@ StatusCode ISF::GenEventValidityChecker::manipulate(HepMC::GenEvent& ge)
   ATH_MSG_ERROR("At least one vertex in the given GenEvent has an invalid position value (NaN or inf).");
   return StatusCode::FAILURE;
 }
-

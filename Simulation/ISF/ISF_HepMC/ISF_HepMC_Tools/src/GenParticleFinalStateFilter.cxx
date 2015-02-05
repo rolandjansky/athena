@@ -7,7 +7,7 @@
 ///////////////////////////////////////////////////////////////////
 
 // class header include
-#include "ISF_HepMC_Tools/GenParticleFinalStateFilter.h"
+#include "GenParticleFinalStateFilter.h"
 
 // TruthUtils include
 #include "TruthUtils/HepMCHelpers.h"
