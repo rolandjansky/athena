@@ -411,11 +411,9 @@ class TrigSteer_HLT( TrigSteer_baseClass ):
         # include("TrigSteering/pureNewSteering_menu.py")
 
         # add all PESA algorithms (of the correct lvl) to this instance of TrigSteer :
-        l2algs,efalgs = ServiceMgr.HLTConfigSvc.getAlgorithmsByLevel()
+        hltalgs = ServiceMgr.HLTConfigSvc.getAlgorithmsRun2()
         log.info( "will add HLT algorithms to: "+name)
 
-
-        hltalgs=l2algs+efalgs
         from AthenaCommon.Configurable import Configurable
         for alg in hltalgs:
             instance = getConfigurableByConfigName(alg)

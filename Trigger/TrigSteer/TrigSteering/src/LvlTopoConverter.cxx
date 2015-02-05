@@ -12,7 +12,7 @@
  * @author Ingrid Deigaard - Nikhef, The Netherlands
  *
  * File and Version Information:
- * $Id: LvlTopoConverter.cxx 637123 2014-12-19 18:40:21Z fwinkl $
+ * $Id: LvlTopoConverter.cxx 641540 2015-01-25 13:39:47Z stelzer $
  **********************************************************************************/
 
 #include "TrigSteering/LvlTopoConverter.h"
@@ -48,21 +48,31 @@ ErrorCode LvlTopoConverter::hltExecute(std::vector<HLT::SteeringChain*>&) {
    return HLT::OK;
 }
 
+namespace {
+   StatusCode max(StatusCode x, StatusCode y) {
+      return StatusCode ( x.getCode() >= y.getCode() ? x.getCode() : y.getCode() );
+   }
+}
+
 StatusCode
 LvlTopoConverter::FillInputEvent(TCS::TopoInputEvent & inputEvent) {
    // EM TAU
-   CHECK(m_emtauInputProvider->fillTopoInputEvent(inputEvent));
+   StatusCode sc = m_emtauInputProvider->fillTopoInputEvent(inputEvent);
 
    // JET
-   CHECK(m_jetInputProvider->fillTopoInputEvent(inputEvent));
+   sc = max( sc, m_jetInputProvider->fillTopoInputEvent(inputEvent) );
 
    // ET sum, ET miss
-   CHECK(m_energyInputProvider->fillTopoInputEvent(inputEvent));
+   sc = max( sc, m_energyInputProvider->fillTopoInputEvent(inputEvent) );
 
-   // ET sum, ET miss
-   CHECK(m_muonInputProvider->fillTopoInputEvent(inputEvent));
+   // muons
+   sc = max( sc, m_muonInputProvider->fillTopoInputEvent(inputEvent) );
 
-   return StatusCode::SUCCESS;
+   if(sc.isRecoverable()) {
+      ATH_MSG_WARNING("One or more inputs to L1Topo simulation at the HLT are not available");
+   }
+
+   return sc == StatusCode::FAILURE ? StatusCode::FAILURE : StatusCode::SUCCESS; // if recoverable, then success
 }
 
 ErrorCode
