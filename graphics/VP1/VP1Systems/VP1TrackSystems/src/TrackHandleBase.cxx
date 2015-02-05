@@ -1006,7 +1006,11 @@ void TrackHandleBase::Imp::ensureInitPointsRaw()
     } else if (points_raw->empty()) {
       theclass->collHandle()->systemBase()->message("TrackHandleBase ERROR: No points on track.");
     }
+    
+    std:: cout << "firstmomentum: " << firstmomentum << std::endl;
+    firstmomentum = 0;
     delete firstmomentum;
+    
     return;
   }
   if (pathInfo_Points)
