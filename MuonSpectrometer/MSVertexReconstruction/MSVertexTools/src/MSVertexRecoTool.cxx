@@ -229,15 +229,19 @@ namespace Muon {
       MSVxFinder(BarrelClusters[i].tracks, barvertex);
       if(!barvertex) continue;
       if(barvertex->getChi2Probability() > 0.05) {
-	HitCounter(barvertex);
-	if(barvertex->getNMDT() > 250 && (barvertex->getNRPC()+barvertex->getNTGC()) > 200) {
-	  ATH_MSG_DEBUG( "Vertex found in the barrel with n_trk = " << barvertex->getNTracks() 
-			 << " located at (eta,phi) = (" << barvertex->getPosition().eta() 
-			 << ", " << barvertex->getPosition().phi() << ")" );	  
-	  if(BarrelClusters[i].isSystematic) barvertex->setAuthor(3);
-	  vertices.push_back(barvertex);
-	}//end minimum good vertex criteria
-      }    
+        HitCounter(barvertex);
+        if(barvertex->getNMDT() > 250 && (barvertex->getNRPC()+barvertex->getNTGC()) > 200) {
+          ATH_MSG_DEBUG( "Vertex found in the barrel with n_trk = " << barvertex->getNTracks() 
+                         << " located at (eta,phi) = (" << barvertex->getPosition().eta() 
+                         << ", " << barvertex->getPosition().phi() << ")" );	  
+          if(BarrelClusters[i].isSystematic) barvertex->setAuthor(3);
+          vertices.push_back(barvertex);
+        }//end minimum good vertex criteria
+        else
+          delete barvertex;
+      }
+      else
+        delete barvertex;
     }//end loop on barrel tracklet clusters
 
     //find vertices in the endcap MS (vertices using endcap tracklets)
@@ -258,11 +262,14 @@ namespace Muon {
 	if(endvertex->getNMDT() > 250 && (endvertex->getNRPC()+endvertex->getNTGC()) > 200) {
 	  ATH_MSG_DEBUG( "Vertex found in the endcap with n_trk = " << endvertex->getNTracks() << " located at (eta,phi) = (" 
 			   << endvertex->getPosition().eta() << ", " << endvertex->getPosition().phi() << ")" );	  
-	  if(EndcapClusters[i].isSystematic) endvertex->setAuthor(4);
+	  if(EndcapClusters[i].isSystematic) 
+            endvertex->setAuthor(4);
 	  vertices.push_back(endvertex);
 	}//end minimum good vertex criteria
+        else
+          delete endvertex;
       }
-      else 
+      else
         delete endvertex;
 
     }//end loop on endcap tracklet clusters
@@ -316,6 +323,11 @@ namespace Muon {
           ++ncluster;
           if(ncluster >= 99) {
               TrkCluster emptycluster;
+              emptycluster.ntrks=0;
+              emptycluster.eta=-99999.;
+              emptycluster.phi=-99999.;
+              for(unsigned int i=0; i<tracks.size(); ++i) emptycluster.trks[i]=0;
+              emptycluster.isSystematic = false;
               return emptycluster;
           }
       }

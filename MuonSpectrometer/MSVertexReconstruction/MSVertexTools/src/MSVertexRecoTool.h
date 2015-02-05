@@ -54,6 +54,8 @@ namespace Muon {
 	eta = 0;
 	phi = 0;
 	ntrks = 0;
+        for(unsigned int i=0; i<100; ++i) trks[i]=0;
+        isSystematic = 0;
       }
     }; 
     
