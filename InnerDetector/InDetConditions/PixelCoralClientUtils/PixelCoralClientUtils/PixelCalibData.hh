@@ -332,7 +332,20 @@ inline void PixelCalibData::print() const {
    }
  }
 
-inline PixelCalibData::PixelChipSummaryData::PixelChipSummaryData(){}
+inline PixelCalibData::PixelChipSummaryData::PixelChipSummaryData(){
+  // initialised to zero for all members 
+  m_chip=0; 
+  for(int i = 0; i<4; ++i){
+    m_threshold[i] = 0; 
+    m_thresholdlong[i] = 0;
+    m_thresholdganged[i] = 0;
+    if(i<3){
+      m_q2tot[i] = 0.; 
+      m_q2totganged[i] = 0.;
+    }
+    if(i<2)m_totres[i] = 0.;
+  }
+}
 
 //================ Destructor =================================================
 inline PixelCalibData::~PixelCalibData(){}
