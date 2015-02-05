@@ -1284,8 +1284,7 @@ bool ModuleSpecialPixelMap::fill_from_blob(const coral::Blob& blob){
 }
 
 unsigned int ModuleSpecialPixelMap::pixelType(unsigned int column, unsigned int row, unsigned int mchips){
-  int i = (int)mchips%10;
-  if(i>(int)nmtype)i = (int)nmtype-1;
+  unsigned int i = std::min(mchips%10, nmtype-1);
   int mch = (int)mchips/10;
   unsigned int mcolumns = columnsPerFEIX[i];
   unsigned int mrowsrdo = rowsRdoPerFEIX[i];
@@ -1335,7 +1334,6 @@ unsigned int ModuleSpecialPixelMap::pixelType(unsigned int column, unsigned int 
 
 unsigned int ModuleSpecialPixelMap::encodePixelID(unsigned int chip, unsigned int column, unsigned int row, unsigned int mchips){
   int i = mchips%10; // type of module 
-  if(i>(int)nmtype)i = (int)nmtype-1; 
   unsigned int pixelID = row;
   pixelID = (i==0) ? pixelID << 5 : pixelID << 8;
   pixelID += column;
@@ -1354,9 +1352,7 @@ unsigned int ModuleSpecialPixelMap::encodePixelID(unsigned int chip, unsigned in
 
 unsigned int ModuleSpecialPixelMap::encodePixelID(int component, unsigned int module_phi_index, 
 						  unsigned int pixel_eta_index, unsigned int pixel_phi_index, unsigned int mchips){
-
-  int i = (int)mchips%10;
-  if(i>(int)nmtype)i = (int)nmtype-1;
+  unsigned int i = std::min(mchips%10, nmtype-1);
   int mch = (int)mchips/10;
   unsigned int mcolumns = columnsPerFEIX[i];
   unsigned int mrowsrdo = rowsRdoPerFEIX[i];
@@ -1370,18 +1366,18 @@ unsigned int ModuleSpecialPixelMap::encodePixelID(int component, unsigned int mo
        if(pixel_phi_index < mrows){
 	 chip = pixel_eta_index / mcolumns + mch/2;
 	 column = pixel_eta_index % mcolumns;
-	 if(pixel_phi_index < mrowsrdo) row = pixel_phi_index;
-	 else if(ng>0){
+	 if(pixel_phi_index < mrowsrdo)row = pixel_phi_index;
+	 else{
 	   for(int k=0; k<ng; ++k){ 
-	     if(pixel_phi_index ==(mrowsrdo+k)) row = mrowsrdo+1 -2*(ng-k);
+	     if(pixel_phi_index ==(mrowsrdo+k))row = mrowsrdo+1 -2*(ng-k);
 	   }
 	 }
        }
        else if(pixel_phi_index >= mrows && pixel_phi_index < 2*mrows){
 	 chip = mch/2 - (1 + pixel_eta_index / mcolumns);
 	 column = mcolumns - (1+pixel_eta_index % mcolumns);
-	 if(pixel_phi_index > (mrows+ng-1)) row = 2*mrows-1 - pixel_phi_index;
-	 else if(ng>0){
+	 if(pixel_phi_index > (mrows+ng-1))row = 2*mrows-1 - pixel_phi_index;
+	 else{
 	   for(int k = 0; k<ng; ++k){
 	     if(pixel_phi_index ==(mrows+k))row =mrowsrdo-1-2*k;
 	   }
@@ -1399,8 +1395,8 @@ unsigned int ModuleSpecialPixelMap::encodePixelID(int component, unsigned int mo
        if(pixel_phi_index < mrows){
 	 chip = mch/2 - (1+pixel_eta_index / mcolumns);
 	 column = mcolumns - (1+pixel_eta_index % mcolumns);
-	 if(pixel_phi_index < mrowsrdo) row = pixel_phi_index;
-	 else if(ng>0){
+	 if(pixel_phi_index < mrowsrdo)row = pixel_phi_index;
+	 else{
 	   for(int k=0; k<ng; ++k){ 
 	     if(pixel_phi_index ==(mrowsrdo+k)) row = mrowsrdo+1 -2*(ng-k);
 	   }
@@ -1409,8 +1405,8 @@ unsigned int ModuleSpecialPixelMap::encodePixelID(int component, unsigned int mo
        else if(pixel_phi_index > (mrows-1) && pixel_phi_index < 2*mrows){
 	 chip = pixel_eta_index / mcolumns + mch/2;
 	 column = pixel_eta_index % mcolumns;
-	 if(pixel_phi_index > (mrows+ng-1)) row = 2*mrows - 1 - pixel_phi_index;
-	 else if(ng>0){
+	 if(pixel_phi_index > (mrows+ng-1))row = 2*mrows - 1 - pixel_phi_index;
+	 else{
 	   for(int k = 0; k<ng; ++k){
 	     if(pixel_phi_index ==(mrows+k))row =mrowsrdo-1-2*k;
 	   }
@@ -1421,8 +1417,8 @@ unsigned int ModuleSpecialPixelMap::encodePixelID(int component, unsigned int mo
        if(pixel_phi_index > (mrows+ng-1) && pixel_phi_index < 2*mrows){
 	 chip = mch/2 -(1 + pixel_eta_index / mcolumns);
 	 column = mcolumns - (1 + pixel_eta_index % mcolumns);
-	 if(pixel_phi_index > (mrows+ng-1)) row = 2*mrows - 1 - pixel_phi_index;
-	 else if(ng>0){
+	 if(pixel_phi_index > (mrows+ng-1))row = 2*mrows - 1 - pixel_phi_index;
+	 else{
 	   for(int k = 0; k<ng; ++k){
 	     if(pixel_phi_index ==(mrows+k))row =mrowsrdo-1-2*k;
 	   }
@@ -1431,8 +1427,8 @@ unsigned int ModuleSpecialPixelMap::encodePixelID(int component, unsigned int mo
        else if(pixel_phi_index < mrows){
 	 chip = pixel_eta_index / mcolumns + mch/2;
 	 column = pixel_eta_index % mcolumns;
-	 if(pixel_phi_index < mrowsrdo) row = pixel_phi_index;
-	 else if(ng>0){ 
+	 if(pixel_phi_index < mrowsrdo)row = pixel_phi_index;
+	 else{ 
 	   for(int k=0; k<ng; ++k){ 
 	     if(pixel_phi_index ==(mrowsrdo+k)) row = mrowsrdo+1 -2*(ng-k);
 	   }

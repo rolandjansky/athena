@@ -280,8 +280,7 @@ inline unsigned int ModuleSpecialPixelMap::chipStatus(unsigned int chip) const{
 }
 
 inline unsigned int ModuleSpecialPixelMap::columnPairStatus(unsigned int chip, unsigned int column_pair) const{
-  int itype = (int)m_chipsPerModule%10;
-  if(itype>(int)nmtype)itype=(int)nmtype-1;
+  unsigned int itype = std::min(m_chipsPerModule%10,nmtype-1);
   if(chip < (m_chipsPerModule/10) && column_pair < (columnsPerFEIX[itype]/2)){
     if(m_column_pair_status.size() != 0 && m_column_pair_status[chip].size() != 0){
       return m_column_pair_status[chip][column_pair];
@@ -322,14 +321,12 @@ inline bool ModuleSpecialPixelMap::validPixelID(unsigned int pixelID) const{
 }
 
 inline bool ModuleSpecialPixelMap::validPixelID(unsigned int chip, unsigned int column, unsigned int row) const{
-  int itype = (int)m_chipsPerModule%10;
-  if(itype>(int)nmtype)itype=(int)nmtype-1;
+  unsigned int itype = std::min(m_chipsPerModule%10,nmtype-1);
   return (chip<(m_chipsPerModule/10)&&column<columnsPerFEIX[itype]&&row<rowsPerFEIX[itype]) ? true : false;
 } 
 
 inline bool ModuleSpecialPixelMap::validPixelID(unsigned int pixel_eta_index, unsigned int pixel_phi_index) const{
-  int i = m_chipsPerModule%10;
-  if(i>(int)nmtype)i = (int)nmtype-1;
+  unsigned int i = std::min(m_chipsPerModule%10,nmtype-1);
   int m =  m_chipsPerModule/10;
   unsigned int rowsMax = m>2 ? 2*rowsPerFEIX[i] : rowsPerFEIX[i];
   unsigned int columnsMax = m>2 ? m/2*columnsPerFEIX[i] : m*columnsPerFEIX[i]; 
@@ -348,16 +345,19 @@ inline void ModuleSpecialPixelMap::setchipsPerModule(unsigned int chipsPerModule
   m_chipsPerModule = chipsPerModule;
 }
 
-inline unsigned int ModuleSpecialPixelMap::columnsPerChip() const{  
-  return (m_chipsPerModule%10)<nmtype?columnsPerFEIX[m_chipsPerModule%10]:columnsPerFEIX[nmtype-1]; 
+inline unsigned int ModuleSpecialPixelMap::columnsPerChip() const{ 
+  unsigned int itype = std::min(m_chipsPerModule%10,nmtype-1);
+  return columnsPerFEIX[itype]; 
 }
 
-inline unsigned int ModuleSpecialPixelMap::rowsPerChip() const{  
-  return (m_chipsPerModule%10)<nmtype?rowsPerFEIX[m_chipsPerModule%10]:rowsPerFEIX[nmtype-1]; 
+inline unsigned int ModuleSpecialPixelMap::rowsPerChip() const{ 
+  unsigned int itype = std::min(m_chipsPerModule%10,nmtype-1); 
+  return rowsPerFEIX[itype]; 
 }
 
 inline unsigned int ModuleSpecialPixelMap::rowsrdoPerChip() const{
-  return (m_chipsPerModule%10)<nmtype?rowsRdoPerFEIX[m_chipsPerModule%10]:rowsRdoPerFEIX[nmtype-1]; 
+  unsigned int itype = std::min(m_chipsPerModule%10,nmtype-1);
+  return rowsRdoPerFEIX[itype]; 
 }
 
 } // namespace PixelCoralClientUtils
