@@ -63,7 +63,6 @@ HLT::ErrorCode TrigHLTJetDSSelector::hltInitialize() {
   ATH_MSG_DEBUG("pT threshold for output jet collection: " << m_jetCollectionName );
   ATH_MSG_DEBUG("Maximum number of jets kept " << m_maxNJets );
 
-
   return HLT::OK;
 }
 
@@ -123,7 +122,7 @@ HLT::ErrorCode TrigHLTJetDSSelector::hltExecute(const HLT::TriggerElement* input
   std::vector<const xAOD::Jet*>::iterator it_maxJetBound;
   
   //make sure we don't go out of bounds in the following vectors
-  if (m_maxNJets > 0) it_maxJetBound = m_maxNJets < originalJets.size() ? originalJets.begin()+m_maxNJets : originalJets.end();
+  if (m_maxNJets > 0) it_maxJetBound = m_maxNJets < int(originalJets.size()) ? originalJets.begin()+m_maxNJets : originalJets.end();
   //sanity check
   else if (m_maxNJets == 0) {
     ATH_MSG_INFO( "This algorithm will keep no jets." );
@@ -146,12 +145,15 @@ HLT::ErrorCode TrigHLTJetDSSelector::hltExecute(const HLT::TriggerElement* input
   std::vector<const xAOD::Jet*>::iterator ptThresholdBound;
   ptThresholdBound  = std::partition(originalJets.begin(), it_maxJetBound, HasPtAboveThreshold(m_jetPtThreshold));
 
-  //make a new VIEW container for the pointers of the jets that are selected
+  //make a new container for the pointers of the jets that are selected
   xAOD::JetContainer* outputJets = make_empty_jetcontainer();
 
   //push back pointers to selected jets
   for (auto it = originalJets.begin(); it != ptThresholdBound; ++it) {
-     outputJets->push_back( const_cast<xAOD::Jet*>(*it) );
+     
+    xAOD::Jet* newJet = new xAOD::Jet(*(*it));
+    outputJets->push_back(newJet);
+
   }
   
   /*ATH_MSG_DEBUG("List of output jets");
