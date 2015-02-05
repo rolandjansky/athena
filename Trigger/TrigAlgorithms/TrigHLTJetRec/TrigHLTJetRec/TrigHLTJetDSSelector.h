@@ -44,10 +44,8 @@ private:
   //this code is duplicated - but unused in TrigHLTJetRec
   xAOD::JetContainer*  make_empty_jetcontainer(){
     
-    //QUESTION: should this be a VIEW container?
-    xAOD::JetContainer* j_container = new xAOD::JetContainer(SG::VIEW_ELEMENTS);
-    //in case it shouldn't be, just remove SG::VIEW_ELEMENTS and uncomment line below
-    //j_container->setStore(new xAOD::JetTrigAuxContainer);
+    xAOD::JetContainer* j_container = new xAOD::JetContainer();
+    j_container->setStore(new xAOD::JetTrigAuxContainer);
     return j_container;
   }
 
