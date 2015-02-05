@@ -53,7 +53,7 @@ public:
  
   virtual bool isGood(const IdentifierHash & elementIdHash);  
 
-  virtual unsigned int getModuleErrors(IdentifierHash hashID) {return m_module_errors[(int) hashID];};
+  virtual unsigned int getModuleErrors(IdentifierHash hashID) {return m_module_errors[(int) hashID];}
 
   virtual void setModuleErrors(IdentifierHash hashID, unsigned int errorcode) {
     if( static_cast<unsigned int>(hashID) < m_max_hashes ){
@@ -82,24 +82,30 @@ public:
   virtual void addDisabledFEError(){m_numDisabledFEErrors++;};
   virtual void addDecodingError(){m_numDecodingErrors++;};
   virtual void addRODError(){m_numRODErrors++;};
-  virtual void addRead(IdentifierHash hashID){
-
-    if( static_cast<unsigned int>(hashID) < m_max_hashes ){
+  virtual void addRead(IdentifierHash hashID) {
+    if (static_cast<unsigned int>(hashID) < m_max_hashes) {
       m_event_read[static_cast<unsigned int>(hashID)]++;
       m_module_isread[static_cast<unsigned int>(hashID)]=true;
     }
+  }
+  // FE-I4B trailer errors
+  virtual void addLinkMaskedByPPC() {++m_numLinkMaskedByPPC;}
+  virtual void addLimitError() {++m_numLimitError;}
 
-  };
-  virtual unsigned int getReadEvents(IdentifierHash hashID){return m_event_read[(int)hashID];};
-  virtual bool isActive(IdentifierHash hashID){return m_module_isread[(int)hashID];};
+  virtual unsigned int getReadEvents(IdentifierHash hashID){return m_event_read[(int)hashID];}
+  virtual bool isActive(IdentifierHash hashID){return m_module_isread[(int)hashID];}
   virtual void addBadFE(IdentifierHash hashID, int badFE){
     if( static_cast<unsigned int>(hashID) < m_max_hashes ){
       m_FE_errors[static_cast<unsigned int>(hashID)] |= (1<<badFE);
     }
   };
-  virtual unsigned int getBadFE(IdentifierHash hashID) {return m_FE_errors[(int)hashID];};
+  virtual unsigned int getBadFE(IdentifierHash hashID) {return m_FE_errors[(int)hashID];}
   virtual StatusCode readData();
   virtual StatusCode recordData();
+
+  // FE-I4B service records
+  virtual void updateServiceRecords(int code, unsigned int count) {m_ServiceRecords[code] = count;}
+  virtual unsigned int getServiceRecordCount(int code) {return m_ServiceRecords[code];}
 
 private:
   const PixelID* m_pixel_id;
@@ -124,6 +130,14 @@ private:
   int m_numDisabledFEErrors;
   int m_numDecodingErrors;
   int m_numRODErrors;
+  int m_numLinkMaskedByPPC;
+  int m_numLimitError;
+
+  // FE-I4B service record codes
+  // Array of counters for each code, i.e. m_ServiceRecords[0] is the
+  // count for code 0 (BCID counter error)
+  unsigned int m_ServiceRecords[32];
+
 
   //  int m_numRawErrors;
   
