@@ -62,6 +62,7 @@ SpecialPixelMapSvc::SpecialPixelMapSvc(const std::string& name, ISvcLocator* sl)
   m_connectivityTag("PIT-ALL-V39"),
   m_aliasTag("PIT-ALL-V39"),
   m_fileListFileName("filelist"),
+  m_fileListFileDir("filelistdir"),
   m_pixelID(0),
   m_pixman(0)
 {
@@ -90,6 +91,8 @@ SpecialPixelMapSvc::SpecialPixelMapSvc(const std::string& name, ISvcLocator* sl)
   declareProperty("ConnectivityTag", m_connectivityTag, "Connectivity tag"); 
   declareProperty("AliasTag", m_aliasTag, "Alias tag"); 
   declareProperty("FileList", m_fileListFileName, "list of text files"); 
+  declareProperty("FileListDir", m_fileListFileDir, "directory of list of text files");
+  declareProperty("KillingModules", m_killingModule, "Probability of Killing module");
 }
 
 
@@ -922,8 +925,8 @@ StatusCode SpecialPixelMapSvc::createFromTextfiles( bool fillMissing ) const{
        }
      }
    }
-
-   std::ifstream filelist(m_fileListFileName.c_str(), std::ios_base::in);
+   std::string mydir = m_fileListFileDir+"/";
+   std::ifstream filelist((mydir+m_fileListFileName).c_str(), std::ios_base::in);
 
    while(filelist.good()){
     std::string filename;
@@ -951,7 +954,7 @@ StatusCode SpecialPixelMapSvc::createFromTextfiles( bool fillMissing ) const{
 
 	unsigned int serialNumber = std::atoi(filename.substr(offset + 1,6).c_str()); // need to fix ?
 
-	ATH_MSG_INFO( "Reading file " << filename );
+	ATH_MSG_INFO( "Reading file " << mydir+filename );
       
 	if(moduleIDMap.empty()){
 	  ATH_MSG_ERROR( "moduleIDMap is empty " );
@@ -970,8 +973,23 @@ StatusCode SpecialPixelMapSvc::createFromTextfiles( bool fillMissing ) const{
 	  Identifier id( m_pixelID->wafer_id( component, layer, phi, eta ) );
 	  unsigned int idhash = m_pixelID->wafer_hash(id);
 	  if(idhash < m_pixelID->wafer_hash_max()){
-            delete (*spm)[idhash];
-            (*spm)[idhash] = new ModuleSpecialPixelMap(filename.c_str(), getChips(idhash));
+	    if(m_moduleLevelOverlay){
+	      std::ifstream in((mydir+filename).c_str(), std::ios_base::in);
+              if(in.good()){
+                unsigned int status;
+                in>>status;
+                if(status){
+                  if( (*spm)[idhash] == 0 ){
+                    (*spm)[idhash] = new ModuleSpecialPixelMap();
+                    (*spm)[idhash]->setchipsPerModule( getChips(idhash) );
+                    (*spm)[idhash]->setModuleStatus(status);
+                  }
+                }
+              }
+            }
+            else{
+              (*spm)[idhash] = new ModuleSpecialPixelMap((mydir+filename).c_str(), getChips(idhash));
+            }
 	  }
 	}
       }
@@ -994,14 +1012,29 @@ StatusCode SpecialPixelMapSvc::createFromTextfiles( bool fillMissing ) const{
         }
 	else{
 
-	  ATH_MSG_INFO( "Reading file " << filename );
+	  ATH_MSG_INFO( "Reading file " << mydir+filename );
 
           Identifier id( m_pixelID->wafer_id( component, layer, phi, eta ) );
 	  unsigned int idhash = m_pixelID->wafer_hash(id);
           if(idhash < m_pixelID->wafer_hash_max()){
-            delete (*spm)[idhash] ;
-            (*spm)[idhash] = new ModuleSpecialPixelMap(filename.c_str(), getChips(idhash) );
-          }
+	    if(m_moduleLevelOverlay){
+	      std::ifstream in((mydir+filename).c_str(), std::ios_base::in);
+              if(in.good()){
+                unsigned int status;
+                in>>status;
+                if(status){
+                  if( (*spm)[idhash] == 0 ){
+                    (*spm)[idhash] = new ModuleSpecialPixelMap();
+                    (*spm)[idhash]->setchipsPerModule( getChips(idhash) );
+                    (*spm)[idhash]->setModuleStatus(status);
+                  }
+                }
+              }
+            }
+            else{
+              (*spm)[idhash] = new ModuleSpecialPixelMap((mydir+filename).c_str(), getChips(idhash) );
+            }
+	  }
         }
 	//
       }
@@ -1048,12 +1081,68 @@ StatusCode SpecialPixelMapSvc::createFromDetectorStore( bool fillMissing ) const
   return StatusCode::SUCCESS;
 }
 
+//
+StatusCode SpecialPixelMapSvc::createDeadModuleList() const{
+
+  if(m_specialPixelMapKeys.size() == 0){
+    ATH_MSG_FATAL( "No StoreGate keys for special pixel map specified" );
+    return StatusCode::FAILURE;
+  }
+  else if(m_specialPixelMapKeys.size() > 1){
+    ATH_MSG_INFO( "Multiple StoreGate keys for special pixel map specified" );
+    ATH_MSG_INFO( "Trying to store pixel map at " << m_specialPixelMapKeys[0] );
+  }
+
+  DetectorSpecialPixelMap* spm = new DetectorSpecialPixelMap;
+
+  spm->resize(m_pixelID->wafer_hash_max());
+
+  StatusCode sc = m_detStore->record(spm, m_specialPixelMapKeys[0]);
+  if (sc.isFailure()) {
+    ATH_MSG_FATAL( "Unable to record SpecialPixelMap" );
+    return StatusCode::FAILURE;
+  }
+  if(m_condAttrListCollectionKeys.size() == 0){
+    ATH_MSG_FATAL( "No database folder specified" );
+    return StatusCode::FAILURE;
+  }
+  else if(m_condAttrListCollectionKeys.size() > 1){
+    ATH_MSG_INFO( "Multiple database folders specified" );
+    ATH_MSG_INFO( "Trying to store special pixel map at "
+                  << m_condAttrListCollectionKeys[0] );
+  }
+  int mk(0);
+  for(unsigned int i = 0; i < m_pixelID->wafer_hash_max(); i++){
+    if( (*spm)[i] == 0 ){
+      (*spm)[i] = new ModuleSpecialPixelMap();
+      (*spm)[i]->setchipsPerModule( getChips(i) );
+      if(m_killingModule > ((double)rand() / RAND_MAX)){ // kill the modules
+        Identifier mID( m_pixelID->wafer_id(i) );
+        ATH_MSG_INFO( "List of modules killed "<<mk<<" hash "<<i<<" ["<<m_pixelID->barrel_ec(mID)<<","<< m_pixelID->layer_disk(mID)<<","<<
+                      m_pixelID->phi_module(mID)<<","<<m_pixelID->eta_module(mID)<<"]");
+        (*spm)[i]->setModuleStatus(1);
+        ++mk;
+      }
+    }
+  }
+
+  sc = registerCondAttrListCollection(spm);
+
+  if( !sc.isSuccess() ){
+    ATH_MSG_FATAL( "Unable to create and register CondAttrListCollection" );
+    return StatusCode::FAILURE;
+  }
+
+  return StatusCode::SUCCESS;
+}
 
 //============================//
 
 StatusCode SpecialPixelMapSvc::create() const{
 
   StatusCode sc(StatusCode::SUCCESS);
+
+  if(m_killingModule>0) sc = createDeadModuleList();
 
   if(m_dataSource == "Textfiles"){
     sc = createFromTextfiles();

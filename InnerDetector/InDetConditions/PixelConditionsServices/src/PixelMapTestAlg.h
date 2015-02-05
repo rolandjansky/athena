@@ -48,6 +48,7 @@ class PixelMapTestAlg: public AthAlgorithm{
   bool m_useSummarySvc;
   bool m_writeTextfile;
   bool m_dummy;
+  bool m_overlay;
   
   const PixelID* m_pixelID;
   const InDetDD::PixelDetectorManager* m_pixman;

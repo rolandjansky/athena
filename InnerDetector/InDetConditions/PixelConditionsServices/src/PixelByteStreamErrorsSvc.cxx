@@ -28,7 +28,8 @@ PixelByteStreamErrorsSvc::PixelByteStreamErrorsSvc( const std::string& name,
 										 m_event_read(0),
 										 m_FE_errors(0),
 										 m_module_isread(0),
-										 m_readESD(false)
+                                         m_ServiceRecords(),
+                                         m_readESD(false)
 { 
   declareProperty("ReadingESD",m_readESD,"Get summary of BS errors from StoreGate, if available"); 
 }
@@ -155,6 +156,8 @@ PixelByteStreamErrorsSvc::finalize(){
   msg(MSG::INFO) << " - Number of Trailer Errors: " << m_numTrailerErrors << endreq;
   msg(MSG::INFO) << " - Number of Disabled FE Errors: " << m_numDisabledFEErrors << endreq;
   msg(MSG::INFO) << " - Number of ROD Errors: " << m_numRODErrors << endreq;
+  msg(MSG::INFO) << " - Number of links masked by PPC: " << m_numLinkMaskedByPPC << endreq;
+  msg(MSG::INFO) << " - Number of header/trailer limit errors: " << m_numLimitError << endreq;
   msg(MSG::INFO) << " - Number of Unknown word Errors: " << m_numDecodingErrors << endreq;
   msg(MSG::INFO) << " --------------------------------------------- " << endreq;
   
@@ -250,6 +253,12 @@ PixelByteStreamErrorsSvc::resetCounts() {
   m_numDisabledFEErrors=0;
   m_numDecodingErrors=0;
   m_numRODErrors=0;
+  m_numLinkMaskedByPPC=0;
+  m_numLimitError=0;
+
+  // Also reset FE-I4B service records
+  for (int i = 0; i < 32; ++i) m_ServiceRecords[i] = 0;
+
 }
 
   
@@ -285,7 +294,11 @@ PixelByteStreamErrorsSvc::getNumberOfErrors(int errorType) {
       return m_numDecodingErrors;
     case Invalid:
       return m_numInvalidIdentifiers;
-    }
+    case LinkMaskedByPPC:
+      return m_numLinkMaskedByPPC;
+    case Limit:
+      return m_numLimitError;
+  }
   return 0;
 }
 

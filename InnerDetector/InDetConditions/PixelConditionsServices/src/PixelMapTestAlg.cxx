@@ -42,6 +42,7 @@ PixelMapTestAlg::PixelMapTestAlg(const std::string& name, ISvcLocator* pSvcLocat
   m_useSummarySvc(true),
   m_writeTextfile(false),
   m_dummy(false),
+  m_overlay(false),
   m_pixelID(0),
   m_pixman(0)
 {
@@ -49,6 +50,7 @@ PixelMapTestAlg::PixelMapTestAlg(const std::string& name, ISvcLocator* pSvcLocat
   declareProperty("SpecialPixelMapSvc", m_specialPixelMapSvc); 
   declareProperty("WriteTextFile", m_writeTextfile);
   declareProperty("MakeDummy",m_dummy);
+  declareProperty("MakeOverlay", m_overlay);
 }
 
 PixelMapTestAlg::~PixelMapTestAlg(){}
@@ -195,6 +197,8 @@ StatusCode PixelMapTestAlg::execute(){
 	}
       }  
       bool lfst = true;
+      bool lfstA = true;
+      bool lfstC = true;
       for(unsigned int i = 0; i < m_pixelID->wafer_hash_max(); i ++){
 
 	Identifier moduleID = m_pixelID->wafer_id(IdentifierHash(i));
@@ -211,20 +215,50 @@ StatusCode PixelMapTestAlg::execute(){
 	  s<<"["<<2<<","<<1<<","<<m_pixelID->barrel_ec(moduleID)<<","<<(m_pixelID->layer_disk(moduleID)+dl)
 	   <<","<<m_pixelID->phi_module(moduleID)<<","<<m_pixelID->eta_module(moduleID)<<","<<0<<"]";
 	  mydir = "SpecialMapIBL3D/";
-	  if(m_pixelID->barrel_ec(moduleID)==0&&m_pixelID->layer_disk(moduleID)==0&&lfst){
-	    lfst = false;
-	    for(int iv=0; iv<14; ++iv){
-	      for(int jv=-10; jv<10; ++jv){
-		// int mx = 2;
-		// if(jv<-6||jv>5) mx = 1;
-		std::ostringstream sx;
-		sx<<"["<<2<<","<<1<<","<<0<<","<<0<<","<<iv<<","<<jv<<","<<0<<"]";
-		std::string rfilex =mydir+sx.str();
-		std::ofstream* outfilex = new std::ofstream(rfilex.c_str());
-		//for(int kv = 0; kv<mx; ++kv){
-		//  *outfilex<<kv<<" "<<kv*40+iv<<" "<<iv*10<<" "<<3<<std::endl;
-		//}
-		outfilex->close();
+          if(m_overlay){
+            mydir = "SpecialMapIBL3D_overlay/";
+            lfst = false;
+          }
+          else{
+            if(m_pixelID->barrel_ec(moduleID)==-2&&lfstA){
+              lfstA = false;
+              for(int iv=0; iv<3; ++iv){
+                for(int jv=0; jv<4; ++jv){
+		  std::ostringstream sx;
+                  sx<<"["<<2<<","<<1<<","<<-4<<","<<iv<<","<<jv<<","<<0<<","<<0<<"]";
+		  std::string rfilex =mydir+sx.str();
+		  std::ofstream* outfilex = new std::ofstream(rfilex.c_str());
+                  outfilex->close();
+                }
+              }
+            }
+            if(m_pixelID->barrel_ec(moduleID)==2&&lfstC){
+              lfstC = false;
+              for(int iv=0; iv<3; ++iv){
+                for(int jv=0; jv<4; ++jv){
+		  std::ostringstream sx;
+                  sx<<"["<<2<<","<<1<<","<<4<<","<<iv<<","<<jv<<","<<0<<","<<0<<"]";
+		  std::string rfilex =mydir+sx.str();
+		  std::ofstream* outfilex = new std::ofstream(rfilex.c_str());
+                  outfilex->close();
+                }
+              }
+            }
+	    if(m_pixelID->barrel_ec(moduleID)==0&&m_pixelID->layer_disk(moduleID)==0&&lfst){
+	      lfst = false;
+	      for(int iv=0; iv<14; ++iv){
+		for(int jv=-10; jv<10; ++jv){
+		  // int mx = 2;
+		  // if(jv<-6||jv>5) mx = 1;
+		  std::ostringstream sx;
+		  sx<<"["<<2<<","<<1<<","<<0<<","<<0<<","<<iv<<","<<jv<<","<<0<<"]";
+		  std::string rfilex =mydir+sx.str();
+		  std::ofstream* outfilex = new std::ofstream(rfilex.c_str());
+		  //for(int kv = 0; kv<mx; ++kv){
+		  //  *outfilex<<kv<<" "<<kv*40+iv<<" "<<iv*10<<" "<<3<<std::endl;
+		  //}
+		  outfilex->close();
+		}
 	      }
 	    }
 	  }
@@ -234,19 +268,28 @@ StatusCode PixelMapTestAlg::execute(){
 	  mydir = "SpecialMap/";
 	}
 	std::string rfile =mydir+s.str();
-	std::ofstream* outfile = new std::ofstream(rfile.c_str());
-        for(ModuleSpecialPixelMap::const_iterator pixel = (*spm)[i]->begin();
-            pixel != (*spm)[i]->end(); ++pixel){
-          unsigned int pixelID = pixel->first;
-          int chip = pixelID%16;
-          pixelID /=16;
-          int column = pixelID%32;
-          pixelID /=32;
-          int stax =pixel->second;
-          if(stax&(1<<16))stax -=(1<<16); //reset bit 16 "unknown dead"
-          *outfile<<chip<<" "<<column<<" "<<pixelID<<" "<<stax<<std::endl;
+        if(m_overlay){
+          if((*spm)[i]->moduleStatus()){
+	    std::ofstream* outfile = new std::ofstream(rfile.c_str());
+            *outfile<<(*spm)[i]->moduleStatus()<<std::endl;
+            outfile->close();
+          }
         }
-        outfile->close();
+        else{
+	  std::ofstream* outfile = new std::ofstream(rfile.c_str());
+	  for(ModuleSpecialPixelMap::const_iterator pixel = (*spm)[i]->begin();
+	      pixel != (*spm)[i]->end(); ++pixel){
+	    unsigned int pixelID = pixel->first;
+	    int chip = pixelID%16;
+	    pixelID /=16;
+	    int column = pixelID%32;
+	    pixelID /=32;
+	    int stax =pixel->second;
+	    if(stax&(1<<16))stax -=(1<<16); //reset bit 16 "unknown dead"
+	    *outfile<<chip<<" "<<column<<" "<<pixelID<<" "<<stax<<std::endl;
+	  }
+	  outfile->close();
+	}
       }
       delete db;
     }
@@ -258,20 +301,31 @@ StatusCode PixelMapTestAlg::execute(){
 	s<<"["<<2<<","<<1<<","<<m_pixelID->barrel_ec(moduleID)<<","<<m_pixelID->layer_disk(moduleID)
 	 <<","<<m_pixelID->phi_module(moduleID)<<","<<m_pixelID->eta_module(moduleID)<<","<<0<<"]";
 	std::string rfile =isITK? "SpecialMapSLHC/" : "SpecialMapIBL3D/";
+        if(m_overlay)rfile =isITK? "SpecialMapSLHC_overlay/" : "SpecialMapIBL3D_overlay/";
 	rfile +=s.str();
-	std::ofstream* outfile = new std::ofstream(rfile.c_str());
-	unsigned int ityp =(*spm)[i]->chipType();
-        for(ModuleSpecialPixelMap::const_iterator pixel = (*spm)[i]->begin();
-            pixel != (*spm)[i]->end(); ++pixel){  
-          unsigned int pixelID = pixel->first;
-	  unsigned int chip = pixelID % 16;
-	  unsigned int column = ityp==0 ? ((pixelID /16) % 32) : ((pixelID / 16) % 256);
-	  unsigned int row = ityp==0 ? (pixelID / 512) : (pixelID / 4096);
-          int stax =pixel->second;
-          if(stax&(1<<16))stax -=(1<<16); // reset bit=16 "unknown dead"
-          *outfile<<chip<<" "<<column<<" "<<row<<" "<<stax<<std::endl;
+
+        if(m_overlay){
+          if((*spm)[i]->moduleStatus()){
+	    std::ofstream* outfile = new std::ofstream(rfile.c_str());
+            *outfile<<(*spm)[i]->moduleStatus()<<std::endl;
+            outfile->close();
+          }
         }
-        outfile->close();
+        else{
+	  std::ofstream* outfile = new std::ofstream(rfile.c_str());
+	  unsigned int ityp =(*spm)[i]->chipType();
+	  for(ModuleSpecialPixelMap::const_iterator pixel = (*spm)[i]->begin();
+	      pixel != (*spm)[i]->end(); ++pixel){  
+	    unsigned int pixelID = pixel->first;
+	    unsigned int chip = pixelID % 16;
+	    unsigned int column = ityp==0 ? ((pixelID /16) % 32) : ((pixelID / 16) % 256);
+	    unsigned int row = ityp==0 ? (pixelID / 512) : (pixelID / 4096);
+	    int stax =pixel->second;
+	    if(stax&(1<<16))stax -=(1<<16); // reset bit=16 "unknown dead"
+	    *outfile<<chip<<" "<<column<<" "<<row<<" "<<stax<<std::endl;
+	  }
+	  outfile->close();
+	}
       }
     }
     //

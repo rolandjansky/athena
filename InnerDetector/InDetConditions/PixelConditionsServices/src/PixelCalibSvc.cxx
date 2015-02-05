@@ -136,7 +136,6 @@ StatusCode PixelCalibSvc::initialize()
     return StatusCode::FAILURE;
   }
   // locate PixelID service
-  if(m_pixid) msg(MSG::INFO) << " Found all Pixel service " <<endreq; 
   if(m_pixid->wafer_hash_max()>3000)isITK = true;
   // locate PixelCalibTools  
   if(m_dbTool.retrieve().isFailure()){
