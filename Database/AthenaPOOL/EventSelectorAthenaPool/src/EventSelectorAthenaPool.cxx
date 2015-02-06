@@ -254,7 +254,7 @@ StatusCode EventSelectorAthenaPool::reinit() {
    // reset markers
    m_numEvt.resize(m_inputCollectionsProp.value().size(), -1);
    m_firstEvt.resize(m_inputCollectionsProp.value().size(), -1);
-   m_guid == Guid::null();
+   m_guid = Guid::null();
 
    // Initialize InputCollectionsIterator
    m_inputCollectionsIterator = m_inputCollectionsProp.value().begin();
