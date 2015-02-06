@@ -17,7 +17,7 @@ FixHepMC::FixHepMC(const string& name, ISvcLocator* pSvcLocator)
   declareProperty("KillLoops", m_killLoops = true, "Remove particles in loops?");
   declareProperty("KillPDG0", m_killPDG0 = true, "Remove particles with PDG ID 0?");
   declareProperty("CleanDecays", m_cleanDecays = true, "Clean decay chains from non-propagating particles?");
-  declareProperty("LoopsByBarcode", m_loopByBC = true, "Detect loops based on barcodes as well as vertices?");
+  declareProperty("LoopsByBarcode", m_loopByBC = false, "Detect loops based on barcodes as well as vertices?");
 }
 
 
