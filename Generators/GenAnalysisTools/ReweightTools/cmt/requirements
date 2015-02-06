@@ -1,0 +1,26 @@
+package ReweightTools
+############################################################# 
+## TruthSelector: tool to select reconstructable GenParticles
+############################################################# 
+
+author Alan Poppleton <Alan.Poppleton@cern.ch>
+author Sven Vahsen <SEVahsen@lbl.gov>
+
+use AtlasPolicy		       AtlasPolicy-*
+use GaudiInterface	       GaudiInterface-*		     External
+use AtlasHepMC		       AtlasHepMC-*                  External
+use Lhapdf            	       Lhapdf-*                      External
+use AthenaBaseComps            AthenaBaseComps-*             Control
+
+private
+use GeneratorObjects           GeneratorObjects-*            Generators
+use StoreGate                  StoreGate-*                   Control
+use DataModel                  DataModel-*                   Control
+
+apply_pattern dual_use_library files='*.cxx'
+
+apply_pattern declare_joboptions files="*.py"
+
+private
+
+	     
