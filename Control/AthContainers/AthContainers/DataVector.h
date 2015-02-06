@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DataVector.h 642915 2015-01-30 03:23:50Z ssnyder $
+// $Id: DataVector.h 642914 2015-01-30 03:23:46Z ssnyder $
 
 /**
  * @file  AthContainers/DataVector.h

@@ -14,6 +14,7 @@
 #undef NDEBUG
 #include "AthContainers/AuxStoreStandalone.h"
 #include "AthContainers/AuxTypeRegistry.h"
+#include "AthContainers/tools/error.h"
 #include <iostream>
 #include <cassert>
 
@@ -36,5 +37,8 @@ void test1()
 
 int main()
 {
+#ifndef XAOD_STANDALONE
+  errorcheck::ReportMessage::hideErrorLocus();
+#endif
   test1();
 }
