@@ -461,12 +461,12 @@ ClassIDSvc::processCLIDDB(const char* fileName) {
 	string massTok(*iToken++);
 	massage(massTok);
 	try {
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
 	  id = boost::lexical_cast<long>(massTok);
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
 	  //	  cout << "id " << id << endl;
