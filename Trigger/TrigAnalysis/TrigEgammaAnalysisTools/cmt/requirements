@@ -1,0 +1,33 @@
+package TrigEgammaAnalysisTools
+
+public
+use AtlasPolicy                AtlasPolicy-*                   
+use AsgTools                   AsgTools-*                      Control/AthToolSupport
+use AtlasROOT                   AtlasROOT-*                     External
+
+
+use TrigDecisionTool            TrigDecisionTool-*              Trigger/TrigAnalysis
+use TrigConfHLTData             TrigConfHLTData-*               Trigger/TrigConfiguration
+#use TrigNavigation              TrigNavigation-*                Trigger/TrigEvent
+use TrigSteeringEvent           TrigSteeringEvent-*             Trigger/TrigEvent
+
+use xAODEgamma                  xAODEgamma-*                    Event/xAOD
+use xAODTrigEgamma              xAODTrigEgamma-*                Event/xAOD
+use xAODTracking                xAODTracking-*                  Event/xAOD
+use xAODTrigCalo                xAODTrigCalo-*                  Event/xAOD
+use ElectronPhotonSelectorTools ElectronPhotonSelectorTools-* PhysicsAnalysis/ElectronPhotonID
+use egammaMVACalib              egammaMVACalib-*                Reconstruction/egamma
+
+private
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  GaudiInterface             GaudiInterface-*                External
+use StoreGate                   StoreGate-*                     Control
+use TrigConfxAOD                TrigConfxAOD-*                  Trigger/TrigConfiguration
+use AtlasBoost                  AtlasBoost-*                    External
+end_private
+
+apply_pattern declare_joboptions files="test*.py"
+apply_pattern declare_python_modules files="TrigEgamma*.py"
+
+library TrigEgammaAnalysisTools *.cxx ../Root/*.cxx -s=components *.cxx
+apply_pattern component_library
