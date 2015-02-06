@@ -33,6 +33,7 @@
 //#include "InDetReadoutGeometry/SiDetectorElement.h"
 //#include "TrkTrackSummary/TrackSummary.h"
 #include "PixelMonitoring/PixelMon2DMaps.h"
+#include "PixelMonitoring/DBMMon2DMaps.h"
 #include "PixelMonitoring/PixelMonModules.h"
 #include "PixelMonitoring/PixelMonProfiles.h"
 
@@ -273,6 +274,8 @@ StatusCode PixelMainMon::BookClustersMon(void)
    {
       m_cluster_occupancy = new PixelMon2DMaps("Cluster_Occupancy", ("Cluster occupancy" + m_histTitleExt).c_str());
       sc = m_cluster_occupancy->regHist(clusterShift);
+      m_clusocc_DBM = new DBMMon2DMaps("Cluster_Occupancy_DBM", ("Cluster occupancy" + m_histTitleExt).c_str());
+      sc = m_clusocc_DBM->regHist(clusterShift);
       m_average_cluster_occupancy = new PixelMon2DMaps("Average_Cluster_Occupancy", ("Average cluster occupancy" + m_histTitleExt).c_str());
       sc = m_average_cluster_occupancy->regHist(clusterShift);
       m_cluster_LVL1A_mod = new PixelMonProfiles("Cluster_LVL1A_Mod", ("Cluster Level 1 Accept" + m_histTitleExt).c_str());
@@ -605,6 +608,7 @@ StatusCode PixelMainMon::FillClustersMon(void)
          if(m_cluster_row_width)m_cluster_row_width->Fill(clusWidth.colRow().x());                         
          if(m_clusterSize_eta && m_pixelid->barrel_ec(clusID)==0 )m_clusterSize_eta->Fill(m_pixelid->eta_module(clusID),cluster.rdoList().size());    
          if(m_cluster_occupancy)m_cluster_occupancy->Fill(clusID,m_pixelid,m_doIBL);
+         if(m_clusocc_DBM && m_doIBL)m_clusocc_DBM->Fill(clusID,m_pixelid);
          if(m_average_cluster_occupancy)m_average_cluster_occupancy->Fill(clusID,m_pixelid,m_doIBL);
 	 if(cluster.rdoList().size()>1 && m_clusocc_sizenot1)m_clusocc_sizenot1->Fill(clusID,m_pixelid,m_doIBL); 
 

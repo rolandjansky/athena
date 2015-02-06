@@ -23,6 +23,7 @@ class PixelMonModules1D;
 class PixelMonModulesProf;
 class PixelMonModules2D;
 class PixelMon2DMaps;
+class DBMMon2DMaps;
 class PixelMon2DMapsLW;
 class PixelMonProfiles;
 class PixelMon2DLumiProfiles;
@@ -246,6 +247,7 @@ class PixelMainMon:public ManagedMonitorToolBase
       TH2I_LW*              m_diff_ROD_BCID;         
       TH1I_LW*              m_diff_ROD_vs_Module_BCID;
       PixelMon2DMaps*       m_occupancy;
+      DBMMon2DMaps*         m_occupancyDBM;
       PixelMon2DMaps*       m_average_occupancy;
       PixelMonModules1D*    m_FE_chip_hit_summary;
       TH1F_LW*              m_ecA_occupancy_summary_low;    
@@ -483,6 +485,7 @@ class PixelMainMon:public ManagedMonitorToolBase
       TH2F_LW*              m_clussize_vs_eta_ECC;
       TH2F_LW*              m_clussize_vs_eta_ECA;
       PixelMon2DMaps*       m_cluster_occupancy;
+      DBMMon2DMaps  *       m_clusocc_DBM;
       PixelMon2DMaps*       m_clusocc_sizenot1; 
       PixelMon2DMaps*       m_average_cluster_occupancy;
       PixelMonModulesProf*  m_cluseff_mod;

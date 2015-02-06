@@ -30,6 +30,7 @@
 #include "InDetRawData/InDetRawDataContainer.h"
 #include "InDetRawData/InDetRawDataCLASS_DEF.h" 
 #include "PixelMonitoring/PixelMon2DMaps.h"
+#include "PixelMonitoring/DBMMon2DMaps.h"
 #include "PixelMonitoring/PixelMonModules.h"
 #include "PixelMonitoring/PixelMon2DLumiProfiles.h"
 
@@ -119,12 +120,15 @@ StatusCode PixelMainMon::BookHitsMon(void)
    }
    if(m_do2DMaps)
    {
-      m_occupancy = new PixelMon2DMaps("Occupancy", ("hit occupancy" + m_histTitleExt).c_str());
-      sc = m_occupancy->regHist(rdoShift);
-      m_average_occupancy = new PixelMon2DMaps("Average_Occupancy", ("average hit occupancy" + m_histTitleExt).c_str());
-      sc = m_average_occupancy->regHist(rdoShift);
-      m_Lvl1ID_diff_mod_ATLAS_per_LB = new PixelMon2DLumiProfiles("Lvl1ID_diff_ATLAS_mod_per_LB", ("ATLAS_{Level 1 ID} - Module_{Level 1 ID} per LB" + m_histTitleExt).c_str(),"#Delta Level 1 ID");
-      sc = m_Lvl1ID_diff_mod_ATLAS_per_LB->regHist(timeExpert);
+     m_occupancy = new PixelMon2DMaps("Occupancy", ("hit occupancy" + m_histTitleExt).c_str());
+     sc = m_occupancy->regHist(rdoShift);
+     m_average_occupancy = new PixelMon2DMaps("Average_Occupancy", ("average hit occupancy" + m_histTitleExt).c_str());
+     sc = m_average_occupancy->regHist(rdoShift);
+     m_occupancyDBM = new DBMMon2DMaps("OccupancyDBM", ("hit occupancy DBM" + m_histTitleExt).c_str());
+     sc = m_occupancyDBM->regHist(rdoShift);
+     
+     m_Lvl1ID_diff_mod_ATLAS_per_LB = new PixelMon2DLumiProfiles("Lvl1ID_diff_ATLAS_mod_per_LB", ("ATLAS_{Level 1 ID} - Module_{Level 1 ID} per LB" + m_histTitleExt).c_str(),"#Delta Level 1 ID");
+     sc = m_Lvl1ID_diff_mod_ATLAS_per_LB->regHist(timeExpert);
    }
    if(m_doModules)
    {
@@ -394,8 +398,9 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
          //be sure to check each histo exists before filling it
 
 	 if(m_occupancy) m_occupancy->Fill(rdoID, m_pixelid, m_doIBL);
+	 if(m_occupancyDBM && m_doIBL) m_occupancyDBM->Fill(rdoID, m_pixelid);
          if(m_average_occupancy) m_average_occupancy->Fill(rdoID, m_pixelid, m_doIBL);
-	 
+   
 	 if(m_Lvl1A){ 
 	   m_Lvl1A->Fill((*p_rdo)->getLVL1A());                  
 	   if(m_pixelid->barrel_ec(rdoID)==2) m_Lvl1A_ECA->Fill((*p_rdo)->getLVL1A()); 
@@ -418,7 +423,7 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
 	   if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "No EventInfo object found" << endreq;
          }else{         
 	   if(m_Lvl1ID_diff_mod_ATLAS) m_Lvl1ID_diff_mod_ATLAS->Fill((int)(((thisEventInfo->trigger_info()->extendedLevel1ID())&0xf) - (*p_rdo)->getLVL1ID()));
-	   int lvl1id = (thisEventInfo->trigger_info()->extendedLevel1ID())&0xf;
+	   //	   int lvl1id = (thisEventInfo->trigger_info()->extendedLevel1ID())&0xf;
 	   if(m_Lvl1ID_diff_mod_ATLAS_per_LB) m_Lvl1ID_diff_mod_ATLAS_per_LB->Fill(m_lumiBlockNum,rdoID,m_pixelid,(int)(((thisEventInfo->trigger_info()->extendedLevel1ID())&0xf) - (*p_rdo)->getLVL1ID()));
          }
          
