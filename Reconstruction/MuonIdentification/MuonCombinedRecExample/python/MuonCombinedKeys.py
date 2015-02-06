@@ -51,13 +51,13 @@ class ExtrapolatedMSTracks(JobProperty):
     """StoreGate key for tracks from MS standalone tracking expressed at IP and eventually refined using IP constraint"""
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = 'ExtrapolatedMuonSpectrometerTracks'
+    StoredValue  = 'ExtrapolatedMuonTracks'
 
 class CombinedFitTracks(JobProperty):
     """StoreGate key for tracks from ID+Calo+MS combined fit"""
     statusOn     = True
     allowedTypes = ['str']
-    StoredValue  = 'CombinedFitMuonTracks'
+    StoredValue  = 'CombinedMuonTracks'
 
 class RefittedExtrapolatedMSTracks(JobProperty):
     """StoreGate key for tracks with refitted extrapolation using the MS part of the combined track"""
