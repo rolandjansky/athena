@@ -67,6 +67,8 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
 
     if ('bBmumux' in topoAlgs) | ('bBmumuxv2' in topoAlgs):
         theChainDef = bBmumuxTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF)
+    elif ('Trkloose' in topoAlgs):
+        theChainDef = bMuTrack(theChainDef, chainDict, inputTEsL2, inputTEsEF)
     elif (ntopos ==1) & (topoAlgs[0] in SameConfigTopos):
         theChainDef = bSingleOptionTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF)
     else:
@@ -263,15 +265,6 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF):
         EFFex  = EFBMuMuFex_noId()
         EFHypo = EFBMuMuHypo_Jpsi()
         
-    elif ('bJpsi' in topoAlgs) & ('Trkloose' in topoAlgs):
-        from TrigBphysHypo.TrigL2TrkMassFexConfig  import L2TrkMassFex_Jpsimumu_loose
-        from TrigBphysHypo.TrigL2TrkMassHypoConfig import L2TrkMassHypo_Jpsimumu_loose
-        from TrigBphysHypo.TrigEFTrkMassFexConfig  import EFTrkMassFex_Jpsimumu_loose
-        from TrigBphysHypo.TrigEFTrkMassHypoConfig import EFTrkMassHypo_Jpsimumu_loose        
-        L2Fex  = L2TrkMassFex_Jpsimumu_loose()
-        L2Hypo = L2TrkMassHypo_Jpsimumu_loose()
-        EFFex  = EFTrkMassFex_Jpsimumu_loose()
-        EFHypo = EFTrkMassHypo_Jpsimumu_loose()
 
     else:
         logBphysDef.error('Bphysics Chain %s can not be constructed, the given topo algs are not known: %s  ' %(chainDict['chainName'], topoAlgs ))
@@ -286,6 +279,58 @@ def bMultipleOptionTopos(theChainDef, chainDict, inputTEsL2, inputTEsEF):
 
 
 
+def bMuTrack(theChainDef,chainDict, inputTEsL2, inputTEsEF):
+    L2ChainName = "L2_" + chainDict['chainName']
+    EFChainName = "EF_" + chainDict['chainName']
+    HLTChainName = "HLT_" + chainDict['chainName']   
+    topoAlgs = chainDict["topo"]
+
+    from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+    [trkfast, trkprec] = TrigInDetSequence("Bphysics", "bphysics", "IDTrig").getSequence()
+
+
+    if ('bJpsi' in topoAlgs) & ('Trkloose' in topoAlgs):
+        from TrigBphysHypo.TrigL2TrkMassFexConfig  import L2TrkMassFex_Jpsimumu_loose
+        from TrigBphysHypo.TrigL2TrkMassHypoConfig import L2TrkMassHypo_Jpsimumu_loose
+        from TrigBphysHypo.TrigEFTrkMassFexConfig  import EFTrkMassFex_Jpsimumu_loose
+        from TrigBphysHypo.TrigEFTrkMassHypoConfig import EFTrkMassHypo_Jpsimumu_loose        
+        L2Fex  = L2TrkMassFex_Jpsimumu_loose()
+        L2Hypo = L2TrkMassHypo_Jpsimumu_loose()
+        EFFex  = EFTrkMassFex_Jpsimumu_loose()
+        EFHypo = EFTrkMassHypo_Jpsimumu_loose()
+
+    else:
+        logBphysDef.error('Bphysics Chain %s can not be constructed, the given topo algs are not known: %s  ' %(chainDict['chainName'], topoAlgs ))
+
+
+    L2TEcount = 0; L2outTEs = []
+    for L2inputTE in inputTEsL2:
+        L2TEcount = L2TEcount+1
+        L2outputTE = L2inputTE+'_idl2fast_'+str(L2TEcount)
+        L2outTEs.append(L2outputTE)
+        #theChainDef.addSequence([theTrigIdscan],L2inputTE, L2outputTE)            
+        theChainDef.addSequence(trkfast,L2inputTE, L2outputTE)            
+    theChainDef.addSignatureL2(L2outTEs)
+        
+    theChainDef.addSequence( [L2Fex,  L2Hypo], L2outTEs, L2ChainName)
+##    theChainDef.addSequence( [L2Fex,  L2Hypo], inputTEsL2, L2ChainName)
+    theChainDef.addSignatureL2([L2ChainName])
+
+
+
+    EFTEcount = 0; EFoutTEsprec = []; 
+    for EFinputTE in inputTEsEF:
+        EFTEcount = EFTEcount + 1        
+        EFoutputTEprec = EFinputTE+'_idefprec_'+str(EFTEcount)
+        EFoutTEsprec.append(EFoutputTEprec)
+        theChainDef.addSequence(trkprec,EFinputTE, EFoutputTEprec)
+    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, EFoutTEsprec)
+
+
+    theChainDef.addSequence([EFFex, EFHypo],EFoutTEsprec,EFChainName)
+    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])       
+
+    return theChainDef
 
 
 
@@ -297,12 +342,15 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF):
     HLTChainName = "HLT_" + chainDict['chainName']   
     topoAlgs = chainDict["topo"]
     
-    from TrigIDSCAN.TrigIDSCAN_Config import TrigIDSCAN_Bphysics
-    theTrigIdscan = TrigIDSCAN_Bphysics()
+    #from TrigIDSCAN.TrigIDSCAN_Config import TrigIDSCAN_Bphysics
+    #theTrigIdscan = TrigIDSCAN_Bphysics()
     
-    from InDetTrigRecExample.EFInDetConfig import *
-    theTrigEFIDInsideOut = TrigEFIDInsideOut_Bphysics().getSequence()
+    #from InDetTrigRecExample.EFInDetConfig import *
+    #theTrigEFIDInsideOut = TrigEFIDInsideOut_Bphysics().getSequence()
     
+    from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+    [trkfast, trkprec] = TrigInDetSequence("Bphysics", "bphysics", "IDTrig").getSequence()
+
     from TrigBphysHypo.TrigL2BMuMuXHypoConfig import L2BMuMuXHypo_1
     L2Hypo = L2BMuMuXHypo_1()
 
@@ -323,10 +371,14 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF):
         EFHypo = EFBMuMuXHypo_BplusMuMuKplus()
         
     elif 'bBmumuxv2' in topoAlgs:
-        from TrigBphysHypo.TrigL2BMuMuXFexConfig import L2BMuMuXFex_1
+###        from TrigBphysHypo.TrigL2BMuMuXFexConfig import L2BMuMuXFex_1
+        from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_1
+        from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_1
         from TrigBphysHypo.TrigEFBMuMuXFexConfig import EFBMuMuXFex_1
         from TrigBphysHypo.TrigEFBMuMuXHypoConfig import EFBMuMuXHypo_1
-        L2Fex = L2BMuMuXFex_1()
+###        L2Fex = L2BMuMuXFex_1()
+        L2Fex  = L2BMuMuFex_1()
+        L2Hypo = L2BMuMuHypo_1()
         EFFex  =  EFBMuMuXFex_1()
         EFHypo = EFBMuMuXHypo_1()
         
@@ -337,35 +389,56 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF):
         L2Fex = L2BMuMuXFex_1()
         EFFex = EFBMuMuFex_Jpsi()
         EFHypo = EFBMuMuHypo_Jpsi()
-        
+       
+    # JWW Use simple di-muon fex/hypo for L2
+    # Note - may need to change oppsign and vtx requirements
+    from TrigBphysHypo.TrigL2BMuMuFexConfig import L2BMuMuFex_1
+    from TrigBphysHypo.TrigL2BMuMuHypoConfig import L2BMuMuHypo_1
+    L2Fex  = L2BMuMuFex_1()
+    L2Hypo = L2BMuMuHypo_1()
+
     #------- L2 Sequences -------
     # create the individual outputTEs together with the first sequences that are run
-    L2TEcount = 0; L2outTEs = []
-    for L2inputTE in inputTEsL2:
-        L2TEcount = L2TEcount+1
-        L2outputTE = L2inputTE+'_id_'+str(L2TEcount)
-        L2outTEs.append(L2outputTE)
-        theChainDef.addSequence([theTrigIdscan],L2inputTE, L2outputTE)            
-
-    theChainDef.addSignatureL2(L2outTEs)
-        
-    theChainDef.addSequence( [L2Fex,  L2Hypo], L2outTEs, L2ChainName)
+    theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2ChainName)
     theChainDef.addSignatureL2([L2ChainName])
     
+
+#    L2TEcount = 0; L2outTEs = []
+#    for L2inputTE in inputTEsL2:
+#        L2TEcount = L2TEcount+1
+#        L2outputTE = L2inputTE+'_id_'+str(L2TEcount)
+#        L2outTEs.append(L2outputTE)
+#        theChainDef.addSequence([theTrigIdscan],L2inputTE, L2outputTE)            
+###        theChainDef.addSequence(trkfast,L2inputTE, L2outputTE)            
+#
+#    theChainDef.addSignatureL2(L2outTEs)
+#        
+#    theChainDef.addSequence( [L2Fex,  L2Hypo], L2outTEs, L2ChainName)
+###    theChainDef.addSequence( [L2Fex,  L2Hypo], inputTEsL2, L2ChainName)
+#    theChainDef.addSignatureL2([L2ChainName])
+    
     #------- EF Sequences -------
-    EFTEcount = 0; EFoutTEs = []
+    EFTEcount = 0; EFoutTEsfast = []; 
     for EFinputTE in inputTEsEF:
         EFTEcount = EFTEcount + 1
-        EFoutputTE = EFinputTE+'_id_'+str(EFTEcount)
-        EFoutTEs.append(EFoutputTE)
-        ##print 'MOOOO 1 inputTE', EFinputTE
-        ##print 'MOOOO 1outputTE', EFoutputTE           
-        theChainDef.addSequence(theTrigEFIDInsideOut,EFinputTE, EFoutputTE)  
-    ##print 'MOOOO 2 outTEs', EFoutTEs          
-    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, EFoutTEs)
+        EFoutputTEfast = EFinputTE+'_idfast_'+str(EFTEcount)
+        EFoutTEsfast.append(EFoutputTEfast)
+        theChainDef.addSequence(trkfast,EFinputTE, EFoutputTEfast)
 
-    theChainDef.addSequence([EFFex, EFHypo], EFoutTEs, EFChainName)
+    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, EFoutTEsfast)
+    
+    EFTEcount = 0; EFoutTEsprec = []; 
+    for EFinputTE in inputTEsEF:
+        EFTEcount = EFTEcount + 1        
+        EFinputTEprec  = EFinputTE+'_idfast_'+str(EFTEcount)
+        EFoutputTEprec = EFinputTE+'_idprec_'+str(EFTEcount)
+        EFoutTEsprec.append(EFoutputTEprec)
+        theChainDef.addSequence(trkprec,EFinputTEprec, EFoutputTEprec)
+    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, EFoutTEsprec)
+
+    theChainDef.addSequence([EFFex, EFHypo], EFoutTEsprec, EFChainName)
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
+
 
     return theChainDef
     

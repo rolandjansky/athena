@@ -18,10 +18,16 @@ from TriggerJobOpts.TriggerFlags  import TriggerFlags
 
 ###################################################################################
 def getInputTEfromL1Item(item):
-    L1Map = {'L1_CALREQ2':        ['NIM30'],
-             #'L1_RD0_EMPTY':      [''],
-             'L1_TAU8_EMPTY':      ['HA8'],
-             }
+
+
+    L1Map = {#'L1_RD0_EMPTY':      [''],
+        'L1_TAU8_EMPTY':      ['HA8'],
+        }
+
+    if TriggerFlags.triggerMenuSetup() == 'LS1_v1':                
+        L1Map['L1_CALREQ2']=['NIM30']
+    else:
+        L1Map['L1_CALREQ2']=['CAL2']
 
     if item in L1Map:
         return L1Map[item]
@@ -148,6 +154,7 @@ class L2EFChain_CosmicTemplate(L2EFChainDef):
             theTrigT2CaloEgammaFex = T2CaloEgamma_All()
             
         from TrigEgammaHypo.TrigL2CaloHypoConfig import TrigL2CaloLayersHypo_PreS_080
+
         self.L2sequenceList += [[ self.L2InputTE, 
                                   [theTrigT2CaloEgammaFex,
                                    TrigL2CaloLayersHypo_PreS_080('TrigL2CaloLayersHypo_'+self.chainName+'_080')],

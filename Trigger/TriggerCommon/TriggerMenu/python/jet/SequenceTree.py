@@ -33,7 +33,7 @@ class SequenceTree(object):
         # use te_in and the seuquence alias to form te_out.
         # the formeer defines the input, the latter defines
         # the sequence state (alg parameters).Both are needed to
-        # specify what the sequence calculates. 
+        # specify what the sequence calculates.
         if te_in:
             te_out = te_in + '__' + alglist.alias
         else:
@@ -87,7 +87,10 @@ class SequenceLinear(SequenceTree):
 
     def _make_sequences(self, alglist, te_in):
         SequenceTree._make_sequences(self, alglist, te_in)
-        self._rename_last_te()
+
+        # 22/01/2015 PS by request of the menu group
+        # do not rename the last te to the chain name
+        # self._rename_last_te()
 
     def _check(self):
         SequenceTree._check(self)

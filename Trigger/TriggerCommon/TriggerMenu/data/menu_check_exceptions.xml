@@ -11,6 +11,8 @@
 <exceptions>
   <test name="ThrSeqMismatch">
     <ex name="HLT_.*xe.*->MU6"/>
+    <ex name="HLT_.*te.*->MU6"/>
+    <ex name="HLT_.*xs.*->MU6"/>
     <ex name="HLT_e5_etcut_L110.*->EM3"/>
     <ex name="HLT_e5_etcut_L120.*->EM3"/>
     <ex name="HLT_e5_etcut_L10.*->EM3"/>

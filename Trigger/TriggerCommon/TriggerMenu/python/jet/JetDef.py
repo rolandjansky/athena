@@ -92,7 +92,7 @@ def _check_chainpart_consistency(chain_parts):
     check_chain_parts = [copy.deepcopy(c) for c in chain_parts]
     def remove_hypodata(d):
         to_remove = ['multiplicity', 'etaRange', 'threshold', 'chainPartName',
-                     'addInfo', 'bTag', 'bTracking', 'bConfig', ] 
+                     'addInfo', 'bTag', 'bTracking', 'bConfig']
         for tr in to_remove: 
             try:
                 del d[tr]

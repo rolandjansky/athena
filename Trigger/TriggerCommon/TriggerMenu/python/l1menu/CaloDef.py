@@ -54,7 +54,7 @@ class CaloDef:
         caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="EM", ptmin=3) ]
         caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="TAU", ptmin=4) ]
         caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="JETS", ptmin=8, window=4) ]
-        caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="JETL", ptmin=12, window=8) ]
+        caloInfo.minTOBPt += [ MinimumTOBPt(thrtype="JETL", ptmin=5, window=8) ]
 
         # jet weights
         if len( tc.menu.thresholds.allThresholdsOf('JET') ) <= 8:

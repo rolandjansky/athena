@@ -96,6 +96,23 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
 
         theChainDef.addSequence([EFFex, EFHypo],inputTEsEF,EFChainName)
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
+
+    elif "Zee" in chainDict["topo"]:
+
+        from TrigEgammaHypo.TrigL2DielectronMassHypoConfig import TrigL2DielectronMassFex_Zee, TrigL2DielectronMassHypo_ZeeTight
+        from TrigEgammaHypo.TrigEFDielectronMassHypoConfig import TrigEFDielectronMassFex_Zee, TrigEFDielectronMassHypo_ZeeTight
+
+        L2Fex = TrigL2DielectronMassFex_Zee()
+        L2Hypo = TrigL2DielectronMassHypo_ZeeTight()
+
+        EFFex = TrigEFDielectronMassFex_Zee()
+        EFHypo = TrigEFDielectronMassHypo_ZeeTight()
+
+        theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2ChainName)
+        theChainDef.addSignatureL2([L2ChainName])
+
+        theChainDef.addSequence([EFFex, EFHypo],inputTEsEF,EFChainName)
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
     
     return theChainDef
 

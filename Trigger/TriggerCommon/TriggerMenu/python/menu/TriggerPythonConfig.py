@@ -383,6 +383,7 @@ items in BGRP1"""
             self.theEFHLTChains.append(chain)
         elif chain.isHLT():
             self.theHLTChains.append(chain)
+                        
         else:
             raise Exception( 'ERROR: Chain: ' + chain.chain_name + 'has incorrectly defined level')
 
@@ -472,6 +473,7 @@ items in BGRP1"""
         """ Adds HLT sequences to TPC """
         outTE = theHLTSequence.output
         inTE = theHLTSequence.input
+        topo_starts_from = theHLTSequence.topo_starts_from
         algolist = theHLTSequence.algs
         
         if outTE in self.theSeqDict.iterkeys():

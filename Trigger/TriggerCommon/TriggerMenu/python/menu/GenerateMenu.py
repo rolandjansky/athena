@@ -22,6 +22,7 @@ from TriggerMenu.test.TestSliceFlags                   import TestSliceFlags
 
 # hlt
 from TriggerMenu.menu.TriggerPythonConfig  import TriggerPythonConfig
+from TriggerMenu.menu.CPS  import addCPS
 
 from TriggerMenu.menu.Lumi                 import lumi, applyPrescales
 from TriggerMenu.menu.MenuUtil             import checkTriggerGroupAssignment, checkStreamConsistency 
@@ -615,8 +616,9 @@ class GenerateMenu:
 
     def generateHLTSequences(self,theChainDef):
         theHLTSequences = []
+        
         for sequence in theChainDef.sequenceList:
-            theHLTSequences += [HLTSequence(inputTEs=sequence["input"], algos=sequence["algorithm"], outputTE=sequence["output"], topo_starts_from=None)]
+            theHLTSequences += [HLTSequence(inputTEs=sequence["input"], algos=sequence["algorithm"], outputTE=sequence["output"], topo_starts_from=sequence["topo_starts_from"])]
         return theHLTSequences
 
 
@@ -901,6 +903,12 @@ class GenerateMenu:
         #checkTriggerGroupAssignment(self.triggerPythonConfig)
 
 
+
+        cpsMenus = ['Physics_pp_v5']
+        if TriggerFlags.triggerMenuSetup() in cpsMenus:
+            log.info('Assigning CPS groups now')
+            addCPS(self.triggerPythonConfig)
+
         # (*)
         #log.info('GenerateMenu: generate: applyPrescales')
         applyPrescales(self.triggerPythonConfig, HLTPrescales)
@@ -961,30 +969,30 @@ class GenerateMenu:
                 log.error('%s -> add the threshold explicitly' % line.split()[-1])
 
 
-        # PRINT available chain chounters
-        physics_menu = ['Physics_pp_v4', 'MC_pp_v4', ]
-        for ppmenu in physics_menu:
-            countersL2_physics = []
-            countersEF_physics = []
-            if TriggerFlags.triggerMenuSetup() in ppmenu:
-                for c in self.triggerPythonConfig.theL2HLTChains:
-                    countersL2_physics.append(int(c.chain_counter))
-                for c in self.triggerPythonConfig.theEFHLTChains:
-                    countersEF_physics.append(int(c.chain_counter))
-                    countersL2_physics.sort()
-                    countersEF_physics.sort()
-                    maxL2_physics = max(countersL2_physics)
-                    maxEF_physics = max(countersEF_physics)
+        # # PRINT available chain chounters
+        # physics_menu = ['Physics_pp_v4', 'MC_pp_v4', ]
+        # for ppmenu in physics_menu:
+        #     countersL2_physics = []
+        #     countersEF_physics = []
+        #     if TriggerFlags.triggerMenuSetup() in ppmenu:
+        #         for c in self.triggerPythonConfig.theL2HLTChains:
+        #             countersL2_physics.append(int(c.chain_counter))
+        #         for c in self.triggerPythonConfig.theEFHLTChains:
+        #             countersEF_physics.append(int(c.chain_counter))
+        #             countersL2_physics.sort()
+        #             countersEF_physics.sort()
+        #             maxL2_physics = max(countersL2_physics)
+        #             maxEF_physics = max(countersEF_physics)
                 
-                if not TriggerFlags.readHLTconfigFromXML() and not TriggerFlags.readMenuFromTriggerDb():
-                    log.info("L2 available chain counters for " +\
-                             ppmenu +\
-                             " \n" +\
-                             self.chainCounterAvailability(countersL2_physics))
-                    log.info("EF available chain counters for " +\
-                             ppmenu +\
-                             " \n" +\
-                             self.chainCounterAvailability(countersEF_physics))
+        #         if not TriggerFlags.readHLTconfigFromXML() and not TriggerFlags.readMenuFromTriggerDb():
+        #             log.info("L2 available chain counters for " +\
+        #                      ppmenu +\
+        #                      " \n" +\
+        #                      self.chainCounterAvailability(countersL2_physics))
+        #             log.info("EF available chain counters for " +\
+        #                      ppmenu +\
+        #                      " \n" +\
+        #                      self.chainCounterAvailability(countersEF_physics))
 
 
         for name, chains in self.triggerPythonConfig.allChains.iteritems():

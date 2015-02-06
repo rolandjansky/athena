@@ -1,3 +1,38 @@
+2015-02-05   Peter Sherwood  <peter@localhost>
+
+	* JetDef.py (_check_chainpart_consistency.remove_hypodata): 
+	remove btag entries in ChainParts dict before checking
+	chain part equality
+
+	* Add in data scouting changes from C Doglioni
+	* Return types for the AlgFactory methods are now lists.
+	* Update JobSequencesBuilder.py to accomadate for this change
+	* Update Algfactory_test.py for these changes
+
+2015-01-28   Peter Sherwood  <peter@localhost>
+
+	* Reintate configuration of reclustered hjet chains - which
+	has stopped working.
+	M       JetSequencesBuilder.py
+
+2015-01-26   Peter Sherwood  <peter@localhost>
+
+	* Change Hypo names to reflect hypo and jet reco params rather
+	than the chainname (coarser granularity of hypo hists).
+	* Avoid usin gthe chain name in the final te name.
+
+	D       fex_factory.py
+	D       fex_factory_test.py
+
+	M       AlgFactory_test.py
+	M       fexparams_factory_test.py
+	M       ChainConfigMaker.py
+	M       SequenceTree.py
+	M       AlgFactory.py
+	M       clusterparams_factory.py
+	M       fexparams_factory.py
+
+
 2015-01-20   Peter Sherwood  <peter@localhost>
 
 	* AlgFactory.py (AlgFactory.clusterDiagnostics): 
@@ -471,99 +506,4 @@
 
 2014-03-10   Peter Sherwood  <peter@peter-8.home>
 
-	* KnownChains.py (KnownChains.__init__): added new label jetdef_2015_j30_had
-
-	* KnownChains_test.py (TestKnownChains.setUp): update for new input dictionary format
-
-	* JetDef.py (_decode): 
-	addede new chain label  'jetdef_2015_j30_had'
-
-	* JetDef_test.py (TestJetDef.setUp):
-	updated incoming dictionary format to include 'signature'
-
-2014-03-06   Peter Sherwood  <peter@peter-8.home>
-
-	* JetDef.py (generateHLTChainDef): add default argument
-	to select instantiator type 
-
-	* InstantiatorFactory.py: new module - allows selction of
-	instantiator type - provides way to explicity request the "heavy" 
-	instantiation of jetDefInstatiator, or use lighter alternatives.
-
-	* InstantiatorFactory_test.py: unit test module for the above
-2014-03-05   Peter Sherwood  <peter@peter-8.home>
-
-	* Added JEtDef_test module. Writing the test caused mods
-	to be made to JEtDef.py, algFactories.py, KnownChains.py
-
-	* algFactories.py (ef_hypo_implicit0): fix broken unit test
-
-	* KnownChains.py (KnownChains.__init__): set up j30_em with
-	2015 sequences - to play.
-
-	* JetSequenceRouter.py (_make_ef_algs): remove _<region from the
-	key to the implicit0 ef hypos to bring into line with 
-	the l2 impicit hypos naming scheme.
-
-	* algFactories.py (ef_hypo_implicit0): remove the _<region>
-	from the function name. (was ...cit0_j) to bring in line
-	with naming convention of other implcit hypos.
-
-	* dispatch table: point the jr hypos labels to ef rather than
-	l2 hypos. 
-
-	* have the partial scan labels point to EF CellMaker
-	while waiting for the Partial Scan alg
-
-	*  'topocluster' label points to the ef topo cluster alg
-
-	* JetDef.py (_decode): allow j30_em to be set up as a 2015
-	chain: tt-partial scan - topo - jetrec - hypo
-
-2014-03-01   Peter Sherwood  <peter@peter-8.home>
-
-	* JetSequenceRouter.py (_make_router_key): simplified logic
-
-	* JetSequenceRouter_test.py: new test module
-
-	* jetDefInstantiator.py: commented out many failing imports
-	in  AtlasP1HLT,18.1.X.Y-VAL,here,rel_1
-
-	* Sequence_test.py: new test module
-
-	* jetDefAlgToString_test.py: new test module
-
-	* run_testsuite.py: set up and run test suite for jetDef
-
-	* algFactories_test.py: started work on test case for algFactories
-
-	* KnownChains.py (KnownChains.get_label): remove test()
-	method
-
-	* KnownChains_test.py: adding a unittest TestCase
-
-2014-03-01   Peter Sherwood  <peter@pb-d-128-141-139-190.cern.ch>
-
-	* KnownChains.py: New module to determine whether the chain
-	is known to JetDef. Does so by examining ChainPart[0] and
-	comparing it to known chain parts. Cannot use incoming labels
-	like chainName or chainCounter as these may change without notice.
-
-2014-02-28   Peter Sherwood  <peter@pb-d-128-141-139-190.cern.ch>
-
-	* jetDefInstantiator.py: Module that is used to convert JetDef 
-	Algorithms to C++ config Algorithm instances. Contains all the
-	necessary imports needed for this purpose.
-
-	* jetDefAlgToString.py: new class: converts a JetDef Algorithm
-	to a string, which is the name of the factory function that 
-	is used to create the C++  config Algorithm instance.
-	
-
-	* JetDef.py: Small changes after first import of package into SVN
-	to adapt to most recent version of ChainDef. Added in "instantiation"
-	of JetDef Algs which converts a JetDef Alg to s string
-	for testing with the central menu. Calls to ChainDef.addSignature
-	now passes a list rather than a tuple. Trigger Element names
-	are now based on the ChainName rather than the seed.
-
+	* KnownChains.py (KnownChains.__init__): added new label jetdef_2015_j30_ha

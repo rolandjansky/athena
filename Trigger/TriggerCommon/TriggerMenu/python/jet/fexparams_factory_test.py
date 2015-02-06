@@ -23,7 +23,8 @@ class Test_fexparams_factory(unittest.TestCase):
             'jet_calib': 'subjes',
             'fex_label': 'fex_label',
             'level': 'tc',
-            'fex_input': 'tc',
+            'data_type': 'tc',
+            'fex_alg_name': 'a4',
             }
 
     def test_20(self):

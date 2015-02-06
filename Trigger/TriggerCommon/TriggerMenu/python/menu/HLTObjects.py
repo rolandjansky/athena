@@ -337,7 +337,7 @@ class HLTChain:
 
 
 #
-# EOF Chain classes
+# EF Chain classes
 #########################################################################################
 
 
@@ -347,13 +347,11 @@ class HLTChain:
 class HLTSequence:
     def __init__(self, inputTEs, algos, outputTE, topo_starts_from=None):
         """HLT Steering Sequence class constructor
-
-
         inputTEs argument is a one or list of names TEs for the sequence,
         if empty string is passed then sequence is considered as UNSEEDED
         algos is one or list of algo instances
-
         """
+
         if type(inputTEs) == type(""):
             self.input  = [ inputTEs ]
         else:

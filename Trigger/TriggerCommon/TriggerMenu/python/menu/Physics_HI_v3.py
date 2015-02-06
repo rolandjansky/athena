@@ -56,6 +56,9 @@ def setupMenu():
 
     TriggerFlags.EgammaSlice.signatures = [
 	['e15_etcut',                  'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+       	['g15_etcut',                  'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+	['g20_etcut',                  'L1_EM14', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+
 	#Run 1 PID
 	['e15_loose1',                 'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
 	['e15_medium1',                'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
@@ -63,6 +66,29 @@ def setupMenu():
         ['e15_medium',                 'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
 	['e15_lhloose',                'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
 	['e15_lhmedium',               'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+
+	#heavy ion instances
+        ['e15_etcut_ion',              'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+        ['g15_etcut_ion',              'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+	['g20_etcut_ion',              'L1_EM14', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+
+	['e15_loose1_ion',             'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+        ['e15_medium1_ion',            'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+        ['e15_loose_ion',              'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+        ['e15_medium_ion',             'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+        ['e15_lhloose_ion',            'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+        ['e15_lhmedium_ion',           'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+ 
+	['g15_loose',                  'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+	['g15_medium',                 'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+	['g20_loose',                  'L1_EM14', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+        ['g20_medium',                 'L1_EM14', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+
+	['g15_loose_ion',              'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+        ['g15_medium_ion',             'L1_EM10', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+        ['g20_loose_ion',              'L1_EM14', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+        ['g20_medium_ion',             'L1_EM14', [], ['Egamma'], ['RATE:SingleElectron', 'BW:Egamma'], -1],
+
         ]
 
     TriggerFlags.BphysicsSlice.signatures = [

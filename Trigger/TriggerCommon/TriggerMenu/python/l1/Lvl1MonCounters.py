@@ -53,7 +53,7 @@ class Lvl1CtpmonCounter(Lvl1MonCounter):
 
     def __init__(self, name, multiplicity):
         super(Lvl1CtpmonCounter, self).__init__(name, multiplicity, 'CTPMON')
-        print 'Initialize ctpmon counter name="%i%s" triggerthreshold="%s" multi="%i"' % (self.multiplicity, self.name, self.name, self.multiplicity)
+        #print 'Initialize ctpmon counter name="%i%s" triggerthreshold="%s" multi="%i"' % (self.multiplicity, self.name, self.name, self.multiplicity)
 
     def xml(self, ind=1, step=2):
         s  = ind * step * ' ' + '<TriggerCounter name="%i%s" type="CTPMON">\n' % (self.multiplicity, self.name)

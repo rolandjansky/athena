@@ -12,12 +12,12 @@ log = logging.getLogger( 'TriggerMenu.menu.HltConfig.py' )
 # log.setLevel(logging.DEBUG)
 
 class HltSeq:
-    def __init__(self, inputTEs, algos, outputTE):
+    def __init__(self, inputTEs, algos, outputTE, topo_starts_from=None):
         self.inputTEs = inputTEs
         if type(inputTEs)==type(''): self.inputTEs = [inputTEs]
         self.algos = algos
         self.outputTE = outputTE
-
+        self.topo_starts_from = topo_starts_from
 
 def mergeRemovingOverlap(x, y, r=''):
     if r=='':
@@ -92,8 +92,8 @@ class HltChainDef:
         except:
             return te_name
 
-    def addSequence(self, inputTEs, algos, outputTE):
-        self.sequences.append(HltSeq(inputTEs, algos, outputTE))
+    def addSequence(self, inputTEs, algos, outputTE, topo_starts_from=None):
+        self.sequences.append(HltSeq(inputTEs, algos, outputTE, topo_starts_from))
 
     def addSignature(self, TElist=[]):
         self.signatures.append(TElist)
@@ -243,11 +243,11 @@ class L2EFChainDef(HltChainDef):
         self.setConfigToL2EF()
         pass
 
-    def addL2Sequence(self, inputTEs, algos, outputTE):
-        self.l2chain.addSequence(inputTEs, algos, outputTE)
+    def addL2Sequence(self, inputTEs, algos, outputTE, topo_starts_from=None):
+        self.l2chain.addSequence(inputTEs, algos, outputTE, topo_starts_from)
 
-    def addEFSequence(self, inputTEs, algos, outputTE):
-        self.efchain.addSequence(inputTEs, algos, outputTE)
+    def addEFSequence(self, inputTEs, algos, outputTE, topo_starts_from=None):
+        self.efchain.addSequence(inputTEs, algos, outputTE, topo_starts_from)
         
     def addL2Signature(self, tes):
         self.l2chain.addSignature(tes)

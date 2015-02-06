@@ -146,8 +146,10 @@ def generateLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF):
 
     from TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config import TrigL2SiTrackFinder_muonIsoB
     fex_SiTrackFinder_muonIsoB = TrigL2SiTrackFinder_muonIsoB()
-    from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import L2HVJetHypo
-    fex_llp_jet_hypo = L2HVJetHypo('L2HVJetHypo_j30', l2_thr=30*GeV, l2_lrat=1.2)
+    from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import CaloRatioHypo
+    fex_llp_jet_hypo = CaloRatioHypo('TrigCaloRatioHypo_j30', threshold=30*GeV, logratio=1.2)
+    #from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import L2HVJetHypo
+    #fex_llp_jet_hypo = L2HVJetHypo('L2HVJetHypo_j30', l2_thr=30*GeV, l2_lrat=1.2)
     from TrigEFLongLivedParticles.TrigEFLongLivedParticlesConfig import TrigLoFRemovalConfig
     fex_LoF = TrigLoFRemovalConfig()
     from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import TrigLoFRemovalHypoConfig

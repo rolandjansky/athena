@@ -55,12 +55,14 @@ def readMenuFromXML(l1menu, filename):
     for x in reader.getL1Thresholds():
         seed = seed_type = ''
         seed_multi = bcdelay = 0
-
+        
         if x['type']=='ZB':
             seed       = x['seed']
             seed_multi = x['seed_multi']
             bcdelay    = x['bcdelay']
+            
             seed_type  = [t for t in reader.getL1Thresholds() if t['name']==seed][0]['type']
+            
 
         thr = LVL1Threshold( name=x['name'], ttype=x['type'], mapping = x['mapping'], active = x['active'],
                              seed_type = seed_type, seed = seed, seed_multi = seed_multi, bcdelay = bcdelay)
