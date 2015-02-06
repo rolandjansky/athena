@@ -2,9 +2,9 @@
 
 # Ricardo Abreu <ricardo.abreu@cern.ch>
 import eformat
+from eformat import EventStorage
 from libpyeformat import FullEventFragment, convert_old 
 import libpyeformat_helper as helper
-import libpyevent_storage as EventStorage # this lib comes actually from eformat
 import logging
 
 
@@ -66,6 +66,10 @@ class pausable_istream(eformat.istream):
         self.f = 0
         self.dr = EventStorage.pickDataReader(self.filelist[self.f])
         
+    def current_filename(self):
+      """ Obtain the file name of the current file"""
+      return self.dr.fileName()
+        
     def current_run_number(self):
         """ Obtain the run number that is present in the metadata of the file 
         that contains that last event returned (or the first, in case no event
@@ -84,77 +88,20 @@ class pausable_istream(eformat.istream):
         """
         return self.dr.detectorMask()
 
-    def datawriter(self, directory, core_name, compression=0, raw_file_name=[]):
-      """Creates a new eformat.ostream with the same meta data of the current
-      istream, but using the directory and core_name as given."""
-      if eformat.EventStorage.RawFileName(self.dr.fileName()).hasValidCore() and len(raw_file_name) == 1:
-          file_name=eformat.EventStorage.RawFileName(
-              self.dr.projectTag(),
-              self.dr.runNumber(),
-              eformat.EventStorage.RawFileName(self.dr.fileName()).streamType(),
-              eformat.EventStorage.RawFileName(self.dr.fileName()).streamName(),
-              self.dr.lumiblockNumber(),
-              self.app_name,
-              raw_file_name[0]).fileNameCore()
-      elif len(raw_file_name) == 6:
-          projectTag = 'UNKNOWN'
-          if eformat.EventStorage.RawFileName(self.dr.fileName()).hasValidCore() and raw_file_name[0] == '':
-              projectTag = self.dr.projectTag()
-          elif raw_file_name[0] != '':
-              projectTag = raw_file_name[0]
-
-          runNumber=0
-          if eformat.EventStorage.RawFileName(self.dr.fileName()).hasValidCore() and raw_file_name[1] == -1:
-              runNumber = self.dr.runNumber()
-          elif raw_file_name[1] != -1:
-              runNumber = raw_file_name[1]
-
-          streamType='UNKNOWN'
-          if eformat.EventStorage.RawFileName(self.dr.fileName()).hasValidCore() and raw_file_name[2] == '':
-              streamType = eformat.EventStorage.RawFileName(self.dr.fileName()).streamType()
-          elif raw_file_name[2] != '':
-              streamType = raw_file_name[2]
-
-          streamName='UNKNOWN'
-          if eformat.EventStorage.RawFileName(self.dr.fileName()).hasValidCore() and raw_file_name[3] == '':
-              streamName = eformat.EventStorage.RawFileName(self.dr.fileName()).streamName()
-          elif raw_file_name[3] != '':
-              streamName = raw_file_name[3]
-
-          lumiblockNumber=0
-          if eformat.EventStorage.RawFileName(self.dr.fileName()).hasValidCore() and raw_file_name[4] == -1:
-              lumiblockNumber = self.dr.lumiblockNumber()
-          elif raw_file_name[4] != -1:
-              lumiblockNumber = raw_file_name[4]
-
-          productionStep='UNKNOWN'
-          if eformat.EventStorage.RawFileName(self.dr.fileName()).hasValidCore() and raw_file_name[5] == '':
-              productionStep = eformat.EventStorage.RawFileName(self.dr.fileName()).productionStep()
-          elif raw_file_name[5] != '':
-              productionStep = raw_file_name[5]
-
-          file_name=eformat.EventStorage.RawFileName(
-              projectTag,
-              runNumber,
-              streamType,
-              streamName,
-              lumiblockNumber,
-              self.app_name,
-              productionStep).fileNameCore()
-      else:
-          file_name=core_name
-          
-      if (hasattr(eformat,'compstream') and (compression in range(1,6))) : # compression is available in eformat and should be switched on
-          return eformat.compstream(core_name=file_name, directory=directory,                                    
-                                    run_number=self.dr.runNumber(), trigger_type=self.dr.triggerType(),
-                                    detector_mask=self.dr.detectorMask(), beam_type=self.dr.beamType(),
-                                    beam_energy=self.dr.beamEnergy(),
-                                    compression=eformat.EventStorage.CompressionType.ZLIB,complevel=compression)
-      else:
-          return eformat.ostream(core_name=file_name, directory=directory,
-                                 run_number=self.dr.runNumber(), trigger_type=self.dr.triggerType(),
-                                 detector_mask=self.dr.detectorMask(), beam_type=self.dr.beamType(),
-                                 beam_energy=self.dr.beamEnergy())
+    def datawriter(self, directory, core_name, compression=0):
+      """ Creates and returns a new eformat.ostream with the same meta data of 
+      the current input stream, but using the directory and core_name as given.
+      """
+      
+      compargs = {}
+      if compression in range(1,6):
+        compargs['compression'] = EventStorage.CompressionType.ZLIB
+        compargs['complevel'] = compression
+        
+      return eformat.ostream(directory, core_name, self.dr.runNumber(),
+                             self.dr.triggerType(), self.dr.detectorMask(),
+                             self.dr.beamType(), self.dr.beamEnergy(),
+                             **compargs)
             
     class _iterator:
         def __init__(self, stream, raw):
@@ -202,9 +149,9 @@ class pausable_istream(eformat.istream):
 #                                   Tests                                      #
 ################################################################################
 
-import unittest
+import unittest, string, random, glob, os
 
-class dif_pausable_istream_test_case(unittest.TestCase):
+class dif_pausable_istream_tests(unittest.TestCase):
     def setUp(self):
         self.stream = pausable_istream(datafiles)
     
@@ -220,9 +167,8 @@ class dif_pausable_istream_test_case(unittest.TestCase):
                 pass
         except PauseIterationException:
             pass
-            
         
-class fixed_pausable_istream_test_case(unittest.TestCase):
+class fixed_pausable_istream_tests(unittest.TestCase):
     def setUp(self):
         self.f = datafiles[0]
         self.rnum = 177531
@@ -264,7 +210,7 @@ class fixed_pausable_istream_test_case(unittest.TestCase):
                 break
         self.assertRaises(StopIteration, self.stream.__iter__().next)
 
-class pausable_istream_test_case(unittest.TestCase):
+class some_pausable_istream_tests(unittest.TestCase):
     def setUp(self):
         self.stream = pausable_istream(datafiles)
     def testIterSimple(self):
@@ -292,6 +238,72 @@ class pausable_istream_test_case(unittest.TestCase):
                 pass
         except PauseIterationException:
             self.auxTestIter()
+            
+class pausable_istream_files_tests(unittest.TestCase):
+  def setUp(self):
+    self.tmpdir = "/tmp"
+    self.tmpbasefilename = "tmpoutfile_athenaHLT_pausable_istream_test_"
+    self.stream = pausable_istream(datafiles)
+  def tearDown(self):
+    for f in glob.glob("%s/%s*" % (self.tmpdir, self.tmpbasefilename)):
+      os.remove(f)
+  def test_advance_file_once(self):
+    self._test_advance_file_multiple(1)
+  def test_advance_file_twice(self):
+    self._test_advance_file_multiple(2)
+  def test_advance_file_thrice(self):
+    self._test_advance_file_multiple(3)
+  def test_advance_file_5times(self):
+    self._test_advance_file_multiple(5)
+  def test_data_writer_config_plain_fst(self):
+    self._test_advance_data_writer_config_plain(0)
+  def test_data_writer_config_plain_snd(self): 
+    self._test_advance_data_writer_config_plain(1)
+  def test_data_writer_config_plain_trd(self):
+    self._test_advance_data_writer_config_plain(2)
+  def _advance_file(self):
+    try:
+      self.stream._updateDataReader()
+    except PauseIterationException:
+      pass
+    except IndexError:
+      self.stream.f = -1
+      try:
+        self.stream._updateDataReader()
+      except PauseIterationException:
+        pass
+  def _test_advance_file_multiple(self, n):
+    oldf = self.stream.f
+    for _ in range(n):
+      self._advance_file()
+    numf = len(self.stream.filelist)
+    expect = (n + oldf) % numf
+    self.assertEqual(self.stream.f, expect,
+                     "Got unexpected file index %d after advancing %d times on "
+                     "a stream with original file index %d and a total of %d "
+                     "files (expected to end with file index %d)" 
+                     % (self.stream.f, n, oldf, numf, expect))
+  def _test_data_writer_config_plain(self):
+    outf = EventStorage.pickDataReader(self._create_unique_outfile())
+    for item in ["runNumber", "triggerType", "detectorMask", "beamType", 
+                 "beamEnergy"]:
+      r, w = getattr(self.stream.dr, item)(), getattr(outf, item)()
+      self.assertEqual(r, w, "%s different in input (%s) and output (%s) "
+                             "streams" % (item, str(r), str(w)))
+  def _test_advance_data_writer_config_plain(self, findex):
+    for _ in range(findex):
+      self._advance_file()
+    self._test_data_writer_config_plain()
+  def _create_unique_outfile(self):
+    ost = self.stream.datawriter(self.tmpdir, self._unique_filename(), 0)
+    # get the final file name (ostream adds stuff to the name)
+    ret = ost.last_filename() # current_filename would give the ".writable" name
+    ost.writer.closeFile()
+    del ost
+    return ret
+  def _unique_filename(self):
+    return self.tmpbasefilename + ''.join([random.choice(string.ascii_letters) 
+                                           for _ in range(8)])
             
 if __name__ == '__main__':
     from HLTTestApps import test_main

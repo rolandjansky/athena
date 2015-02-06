@@ -20,7 +20,8 @@ auto_options = ["help", 'expert-help', 'option-file', 'dump-options',
 # put options here as they become supported
 supported =  ['file', 'number-of-events', 'perfmon', 'verbosity', 
               'event-modifier', 'precommand', 'postcommand', 'log-level', 
-              'appmgrdll', 'rewind', 'run-number', 'save-output', 
+              'appmgrdll', 'rewind', 'run-number', 
+              'save-output', 'save-output-conventional', 
               'ers-debug-level', 'tcmalloc', 'stdcmalloc', 'msgsvc-type', 
               'joboptionsvc-type', 'interactive', 'show-includes', 
               'use-database', 'db-type', 'db-server', 'db-smkey', 'db-hltpskey',
@@ -30,9 +31,9 @@ supported =  ['file', 'number-of-events', 'perfmon', 'verbosity',
               'user-ipc', 'info-service', 'histogram-include',
               'histogram-exclude', 'histogram-publishing-interval', 
               'appmgrfactory', 'python-setup', 'timeout', 
-              'use-compression', 'use-raw-file-convention', 'trace', 
+              'use-compression', 'trace', 'extra-l1r-robs', 'skip-events',
               'muoncal-buffername', 'muoncal-buffersize', 'max-result-size', 
-              'debug', 'extra-l1r-robs', 'skip-events']
+              'debug']
 
 def sor_as_nanos(sorv):
   sor = sor_as_datetime(sorv)
@@ -90,19 +91,27 @@ common['save-output'] = \
    'arg': True, 
    'default': '',
    'group': 'Data',
-   'description': 'Output events with the HLT result. This parameter only sets the filename core.  If multiple input files are given, multiple output files are generated with sequenced numbers.'}
-common['use-raw-file-convention'] = \
-  {'short': '', 
-   'arg': True, 
-   'default' : [], 
-   'group': 'Data', 
-   'description': 'If this option is set in conjunction with the "--save-output" option an output file following the Atlas RAW data file naming convention will be generated. A tuple with the following fields can be provided: [ string ProjectTag (""), int RunNumber (-1), string StreamType (""), string StreamName (""), int LumiBlockNumber (-1), string ProductionStep ("")]. In case the default value is provided for a field the corresponding field will be copied from the input file. The user needs to specify either a tuple with only the ProductionStep name, in which case all other parameters are copied from the input file, if it follows the RAW data file name convention, or a tuple with all 6 output file parameters. The application name in the filename will be always replaced by "athenaHLT". From the option "--save-output" only the directory path will be used. In this way the project tag, the stream tag, the run number and the LB number can be preserved in the output file name. If the input file name does not follow the Atlas naming convention an output file, which complies to the Atlas RAW file convention is generated, when a tuple with all 6 parameters is provided. Otherwise the file name specified with the "-o" option will be used.'}
+   'description': 'Output events with the HLT result to the specified file. This parameter only sets the filename core (a sequence number and extension is still appended). If multiple input files are given, multiple output files are generated. This option cannot be used simultaneously with --save-output-conventional.'}
+convallowed = {'dir': '.',
+               'ProjectTag': 'UNKNOWN',
+               'RunNumber': 0,
+               'StreamType': 'UNKNOWN',
+               'StreamName': 'UNKNOWN',
+               'LumiBlockNumber': 0,
+               'ProductionStep': 'UNKNOWN'}
+common['save-output-conventional'] = \
+  {'short': 'O',
+   'arg': True,
+   'default': {},
+   'group': 'Data',
+   'description': 'Output events with the HLT result to files whose full names are derived from the specified dictionary, following the Atlas RAW data file naming convention. The dictionary can have between 0 and 7 items (inclusive). The only keys allowed are: %s. The default values for these keys are, respectively: %s. The specified values must have the same type as these defaults, that is, respectively: %s. Properties that are not specified are derived, for each output file, from the corresponding input file if it follows Atlas RAW naming convention. Otherwise, they the default values are used.' % (convallowed.keys(), convallowed.values(), [type(v) for v in convallowed.values()]), 
+   'allowed': convallowed}
 common['use-compression'] = \
   {'short': 'z', 
    'arg': True, 
    'default': 0,
    'group': 'Data',
-   'description': 'If set, output data are written in compressed form (if supported by event format library). In addition the compression level (1-5) can be specified. Recommended value -z1. -z0 means no compression applied. '}
+   'description': 'If set, written output data are compressed with the specified compression level. The compression level should be specified as an integer value between 0 and 5 (inclusive). Recommended value -z1. -z0 means no compression applied. This option requires either --save-output or --save-output-conventional.'}
 common['verbosity'] = \
   {'short': 'V', 
    'arg': True, 
@@ -262,18 +271,22 @@ common['leak-check-execute'] = \
    'default': None, 
    'group': 'Run mode',
    'description': 'Perform leak checking during execute. Equivalent to: --leak-check="execute".'}
+checkallowed = ['all', 'initialize', 'start', 'beginrun', 'execute', 'finalize',
+               'endrun', 'stop' ]
 common['leak-check'] = \
   {'short': '', 
    'arg': True,
    'default' : None, 
    'group': 'Run mode',
-   'description': 'Perform leak checking during the stage you specify (all, initialize, start, beginrun, execute, finalize, endrun, stop). Syntax: --leak-check="<stage>" Example: --leak-check="all"'}
+   'description': 'Perform leak checking during the stage you specify (all, initialize, start, beginrun, execute, finalize, endrun, stop). Syntax: --leak-check="<stage>" Example: --leak-check="all"',
+   'allowed': checkallowed}
 common['delete-check'] = \
   {'short': '', 
    'arg': True,
   'default' : None, 
   'group': 'Run mode',
-  'description': 'Perform double delete checking at the stage you specify (all, initialize, start, beginrun, execute, finalize, endrun, stop). Syntax: --delete-check="<stage>" Example: --delete-check="all"'}
+  'description': 'Perform double delete checking at the stage you specify (all, initialize, start, beginrun, execute, finalize, endrun, stop). Syntax: --delete-check="<stage>" Example: --delete-check="all"',
+  'allowed': checkallowed}
 common['perfmon'] = \
   {'short': 'H', 
    'arg': False,

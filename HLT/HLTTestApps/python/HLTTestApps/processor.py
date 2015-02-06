@@ -21,7 +21,6 @@ def keep_processing(config, processed, total, skipped):
     return processed + skipped < total
   else:
     return processed < config
-#  return processed < (total if config < 0 else config)
 
 class FSMTransitionError(RuntimeError): pass
 
@@ -48,9 +47,9 @@ class Processor:
     self.infrastructure = build_infrastructure(config)
     
     # for easiness sake
-    self.raw_file_name = self.use_raw_file_convention
     self.stream = config.stream
     self.debug_stage = config['debug']
+    self.datawriter = None
     
     logging.info('Current HLT processor state is "%s"' % (self.state,))
   
@@ -143,41 +142,19 @@ class Processor:
       logging.info('Running HLT')
       skipped, processed = 0, 0
       total = len(self.stream)
-      # setup the output, if required
-      self.datawriter = None
 
-      if len(self.save_output) != 0:
-        self.core_name = self.save_output 
-        self.directory = '.'
-        self.file_in_sequence = 1
-        if self.save_output.find(os.sep) != -1:
-          self.directory = os.path.dirname(self.core_name)
-          self.core_name = os.path.basename(self.core_name)
-        self.datawriter = self.stream.datawriter(
-                            self.directory, 
-                            self.core_name + '-%d' % self.file_in_sequence, 
-                            self.use_compression, 
-                            self.raw_file_name)
+      self._try_save_output()
         
       try:
-          while keep_processing(self.number_of_events, processed, total, skipped):
+          while keep_processing(self.number_of_events,processed,total,skipped):
               try:
                   skipped, processed = self._run_aux(skipped, processed, total)
               except PauseIterationException, upd_proc: # we can still update
                   skipped, processed = upd_proc.args    # skipped and processed
                   self.stopRun()
                   self.prepareForRun()
-                  if len(self.save_output):
-                    # we need a new output file now and unfortunately we cannot
-                    # just close this one with nextFile() because that would 
-                    # copy the old metadata. so, has to be brand new...
-                    self.file_in_sequence += 1
-                    self.datawriter = self.stream.datawriter(
-                                self.directory,
-                                self.core_name + '-%d' % self.file_in_sequence, 
-                                self.use_compression, 
-                                self.raw_file_name)
-
+                  self._try_save_output()
+                  
       except KeyboardInterrupt, upd_proc: # we can still update processed
           skipped, processed = upd_proc.args
           logging.info("Keyboard interruption caught. Stopping "
@@ -313,6 +290,13 @@ class Processor:
           act = 'backward' if action[0][0] == 'b' else 'forward'
           logging.warning('Moving %s is not allowed from state %s.' % 
                           (act, self.state))
+  
+  def _try_save_output(self):
+    if self.config.do_save_output():
+      dir, fncore = self.config.parsed_out_data_filename()
+      self.datawriter = self.stream.datawriter(dir,fncore,self.use_compression)
+    else:
+      self.datawriter = None
 
   def _try_debug(self, stage):
     if not self.interactive and self.debug_stage == stage:
@@ -380,7 +364,7 @@ class Processor:
 #                                   Tests                                      #
 ################################################################################
 
-import unittest
+import unittest, string, random, glob, os, re
 from pausable_istream import pausable_istream
 from infrastructure import infrastructure as dummy_infrastructure
 from configuration import configuration, run_number_error, dummy_configuration
@@ -403,6 +387,7 @@ class dummy_processor(Processor):
   def _add_config_specific_stuff(self):
     self.config = dummy_configuration()
     self.config.event_modifiers = []
+    self.config.do_save_output = lambda: False
   def _check_fatal(self):
     pass
   def prepareForRun(self):
@@ -449,43 +434,164 @@ class dummy_stream:
     return 0
 
 class processor_tests(unittest.TestCase):
+  jops = 'TrigExMTHelloWorld/MTHelloWorldOptions.py'
   def setUp(self):
-    cli_args = ["-n", '10', "-f", repr(filelist), 
-                'TrigExMTHelloWorld/MTHelloWorldOptions.py']
-    self.processor = Processor(configuration(file_opt_spec, cli_args))
+    self._setup_cli_args()
+    self._init_proc()
   def tearDown(self):
     self.processor.tearDown()
-    self.assertState('LOADED')
+    self._assertState('LOADED')
   def test_run_number_required(self):
     self.processor.config['run-number'] = 0
     self.processor.config.stream = dummy_stream()
     self.assertRaises(run_number_error, self.processor.prepareForRun, "0")
   def testStopStart(self):
-    self.__test_init()
-    self.__test_configure()
-    self.__test_connect()
-    self.__test_prepare("177531")
-    self.__test_run()
+    self._test_init()
+    self._test_configure()
+    self._test_connect()
+    self._test_prepare("177531")
+    self._test_run()
     self.processor.stopRun()
-    self.__test_prepare("105200")
-    self.__test_run()
-  def assertState(self, state):
+    self._test_prepare("105200")
+    self._test_run()
+  def _setup_cli_args(self):
+    self.cli_args = ["-n", '10'] + self._typical_cli_args()
+  def _typical_cli_args(self):
+    return ["-f", repr(filelist), self.jops]
+  def _assertState(self, state):
     self.assertEquals(self.processor.state, state)
-  def __test_init(self):
-    self.assertState('LOADED')
-  def __test_configure(self):
+  def _init_proc(self):
+    self.processor = Processor(configuration(file_opt_spec, self.cli_args))
+  def _test_init(self):
+    self._assertState('LOADED')
+  def _test_configure(self):
     self.processor.configure()
-    self.assertState('CONFIGURED')
-  def __test_connect(self):
+    self._assertState('CONFIGURED')
+  def _test_connect(self):
     self.processor.connect()
-    self.assertState('CONNECTED')
-  def __test_prepare(self, run_number):
+    self._assertState('CONNECTED')
+  def _test_prepare(self, run_number=-1):
     self.processor.prepareForRun(run_number)
-    self.assertState('PREPARED')
-  def __test_run(self):
+    self._assertState('PREPARED')
+  def _test_run(self):
     self.processor.run()
-    self.assertState('PREPARED')
+    self._assertState('PREPARED')
+    
+class datawriter_plain_processor_tests(processor_tests):
+  def setUp(self):
+    self.tmpdir = "/tmp"
+    self.tmpbasefilename = "tmpoutfile_athenaHLT_processor_test_"
+    self.fname = self._unique_filename()
+    super(datawriter_plain_processor_tests, self).setUp()
+  def tearDown(self):
+    super(datawriter_plain_processor_tests, self).tearDown()
+    for f in glob.glob("%s/%s*" % (self.tmpdir, self.tmpbasefilename)):
+      os.remove(f)
+  def test_save_output_attr(self):
+    regexp = "^%s/%s[a-zA-Z]*$" % (self.tmpdir, self.tmpbasefilename)
+    self.assertRegexpMatches(self.processor.save_output, regexp)
+  def test_save_output(self):
+    # test we get the expected output files after running
+    self._test_init()
+    self._test_configure()
+    self._test_connect()
+    self._test_prepare()
+    self._test_run()
+    self.processor.tearDown()
+    fre = "%s*" % self.fname
+    noutfiles = len(glob.glob(fre))
+    self.assertEqual(noutfiles, 2,
+                     "Expected to find 2 files matching '%s' but found %d"
+                     % (fre, noutfiles))
+  def _setup_cli_args(self):
+    self.cli_args = (["-o", self.fname,
+                      "-C", "HltEventLoopMgr.ForceHltAccept=True", # accept&save
+                      "-k", "295", "-n", "10"] # to move through all files
+                     + self._typical_cli_args())
+  def _unique_filename(self):
+    return "%s/%s%s" % (self.tmpdir, self.tmpbasefilename, 
+                        ''.join([random.choice(string.ascii_letters) 
+                                 for _ in range(8)]))
+
+class datawriter_conventional_processor_tests(processor_tests):
+  def setUp(self):
+    self.tmpdir = "/tmp"
+    self.tmpbasefilename = "tmpprojtag_processor_test"
+    super(datawriter_conventional_processor_tests, self).setUp()
+  def tearDown(self):
+    super(datawriter_conventional_processor_tests, self).tearDown()
+    for f in glob.glob("%s/%s*" % (self.tmpdir, self.tmpbasefilename)):
+      os.remove(f)
+  def _setup_cli_args(self):
+    self.cli_args = (["-O", ("{'dir': '%s', 'ProjectTag': '%s'}" 
+                             % (self.tmpdir, self.tmpbasefilename)),
+                      "-C", "HltEventLoopMgr.ForceHltAccept=True", # accept&save
+                      "-k", "140", "-n", "20", # to move through both files
+                      "-f", repr(extra_datafiles), self.jops])
+  def test_save_output_conventional(self):
+    # test we get the expected output files after running
+    self._test_init()
+    self._test_configure()
+    self._test_connect()
+    self._test_prepare()
+    self._test_run()
+    self.processor.tearDown()
+    # build expected substrings 
+    # we discard whatever comes before the first 8 digit sequence (run number)
+    # and everything after the lumiblock (_lb followed by 4 digits)
+    rexp = r"\d{8}.+_lb\d{4}"
+    expect_sub1 = re.search(rexp, os.path.basename(extra_datafiles[0])).group()
+    expect_sub2 = re.search(rexp, os.path.basename(extra_datafiles[1])).group()
+    # find actual filenames
+    actual_files = glob.glob("%s/%s*" % (self.tmpdir, self.tmpbasefilename))
+    self.assertEquals(len(actual_files), 2, "Expected to find 2 output files, "
+                                            "but found %d" % len(actual_files))
+    for f in actual_files:
+      self.assert_(expect_sub1 in f or expect_sub2 in f,
+                   "Found file '%s' which does not contain any of the expected "
+                   "substrings ('%s' and '%s')" % (f, expect_sub1, expect_sub2))
+
+
+def _test_in_subprocesss(test, headmsg, spanwmsg):
+  # announce spawning clearly
+  print ("\n%s\n%s %s\n%s %s\n%s\n" % (headmsg, headmsg, spawnmsg, headmsg, 
+                                     test, headmsg))
+  p = Process(target=test_main, args=([test],))
+  try: # spawn, run, join, etc.
+    p.start(); p.join()
+  except KeyboardInterrupt:
+    # unittest messes with Ctrl-C and we don't want child to go on alone
+    while p.is_alive():
+      try:
+        print '\nExplicitly terminating child\n'
+        p.terminate(); p.join()          
+      except KeyboardInterrupt: 
+        pass
+  # If this test  failed, exit already (otherwise go on)
+  if p.exitcode:
+    print "%s Test(s) failed in child process" % headmsg
+    sys.exit(p.exitcode)
+
 
 if __name__ == '__main__':
+  import sys
+  from multiprocessing import Process
   from HLTTestApps import test_main
-  test_main()
+  # we want to execute these test sets in separate processes, to ensure a clean
+  # athena/gaudi slate (otherwise things fail the second time around)
+  separate_tests = ('pausable_istream_tests',
+                    'processor_tests',
+                    'datawriter_plain_processor_tests.test_save_output_attr',
+                    'datawriter_plain_processor_tests.test_save_output',
+                    'datawriter_conventional_processor_tests.' # no comma 
+                    + 'test_save_output_conventional') # explicit same string
+  
+  spawnmsg = ("Spawning process for the test(s) below (to ensure a clean "
+              "athena/gaudi slate):")
+  headmsg = "!!!!!!"
+  
+  print "%s Running multiple tests in separate processes\n" % headmsg
+  for test in separate_tests:
+    _test_in_subprocesss(test, headmsg, spawnmsg)
+      
+  print "\n%s Successfully run multiple tests in separate processes\n" % headmsg
