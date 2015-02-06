@@ -315,7 +315,7 @@ void PixelMonModules1D::formatHist(std::string opt, bool doIBL)
     }
 }
 
-void PixelMonModulesProf::formatHist(std::string opt, bool doIBL)                                                                              
+void PixelMonModulesProf::formatHist(std::string /*opt*/, bool doIBL)
 {
   for(int i=0; i < 1744+280*doIBL; i++)
     {

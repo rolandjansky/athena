@@ -194,7 +194,6 @@ void PixelMon2DMaps::formatHist()
       B2->GetYaxis()->SetBinLabel( i+1, stave2[i] ); 
    }
 
-
    //Make the text smaller
    IBL2D->GetYaxis()->SetLabelSize(0.03);
    IBL3D->GetYaxis()->SetLabelSize(0.03);

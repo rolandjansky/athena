@@ -28,6 +28,7 @@
 #include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 #include "TH2S.h"
 #include "TProfile2D.h"
+#include "PixelMonitoring/DBMMon2DMaps.h"
 #include "PixelMonitoring/PixelMon2DMaps.h"
 #include "PixelMonitoring/PixelMonProfiles.h"
 #include "LWHists/TH1F_LW.h"
@@ -117,6 +118,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_newLowStatInterval = false;
 
    //initalize all the histograms to 0 to start
+   m_storegate_errors = 0;
    m_mu_vs_lumi = 0;
    m_hiteff_mod = 0;
    m_hits_per_lumi = 0;
@@ -160,6 +162,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_diff_ROD_BCID = 0;         
    m_diff_ROD_vs_Module_BCID = 0;
    m_occupancy = 0;
+   m_occupancyDBM = 0;
    m_average_occupancy = 0;
    m_FE_chip_hit_summary = 0;
    m_ecA_occupancy_summary_low = 0;    
@@ -377,6 +380,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_clussize_vs_eta_ECC = 0;
    m_clussize_vs_eta_ECA = 0;
    m_cluster_occupancy = 0;
+   m_clusocc_DBM = 0;
    m_clusocc_sizenot1 = 0; 
    m_average_cluster_occupancy = 0;
    m_cluseff_mod = 0;
