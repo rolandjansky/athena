@@ -34,6 +34,8 @@
 
 /////#define controlAlines 111111
 
+//#define TESTBLINES
+
 namespace MuonGM {
 
 MuonDetectorManager::MuonDetectorManager() {
@@ -1461,7 +1463,8 @@ const RpcReadoutElement* MuonDetectorManager::getRpcReadoutElement(int i1, int i
   {
       std::cerr<<"ERROR MuonDetectorManager::getRpcReadoutElement stEtaindex out of range "
                <<i2<<" 0-"<<NRpcStatEta-1<<std::endl;
-      throw;
+      return 0;
+      //throw;
   }
   if (i3<0 ||  i3 >= NRpcStatPhi) 
   {
@@ -1479,7 +1482,8 @@ const RpcReadoutElement* MuonDetectorManager::getRpcReadoutElement(int i1, int i
   {
       std::cerr<<"ERROR MuonDetectorManager::getRpcReadoutElement dbz_index out of range "
                <<i5<<" 0-" <<NDoubletZ-1<<std::endl;
-      throw;
+      return 0;
+      //throw;
   }
     return _rpcArray[i1][i2][i3][i4][i5];
 }
@@ -1592,6 +1596,24 @@ MuonDetectorManager::initABlineContainers() const
 StatusCode
 MuonDetectorManager::updateAlignment(const ALineMapContainer *  m_alineData) const
 {
+#ifdef TESTBLINES
+  {
+    for (std::map< std::string, MuonStation *>::const_iterator it(_MuonStationMap.begin()), end(_MuonStationMap.end());
+	it!=end; ++it) {
+      MuonStation* station = it->second;
+      station->setDelta_fromAline( 0., 0., 0., 0., 0., 0.); //double tras, double traz, double trat, double rots, double rotz, double rott
+      if (cacheFillingFlag()) 
+      {
+	station->clearCache();
+	station->fillCache();
+      }
+      else 
+      {
+	station->refreshCache();
+      }
+    }
+  }
+#endif
     //    IMessageSvc* m_msgSvc = Athena::getMessageSvc();
     MsgStream log(m_msgSvc, "MGM::MuonDetectorManager::updateAlignment");
     //log<<MSG::INFO<<"In updateAlignment()  --- pointer to the container is <"<<m_alineData<<">"<<endreq;
@@ -1653,6 +1675,10 @@ MuonDetectorManager::updateAlignment(const ALineMapContainer *  m_alineData) con
 		if  (m_controlAlines!=111111) ALine->setParameters(s,z,t,ths,thz,tht);
                 if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"Setting delta transform for Station "<<stType<<" "<<jzz<<" "<<jff<<" "<<" params are = "<<s<<" "<<z<<" "<<t<<" "<<ths<<" "<<thz<<" "<<tht<<endreq;
                 thisStation->setDelta_fromAline( s,z,t,ths,thz,tht );
+#ifdef TESTBLINES
+		ALine->setParameters( 0., 0., 0., 0., 0., 0.);
+                thisStation->setDelta_fromAline( 0., 0., 0., 0., 0., 0.);
+#endif
                 if (cacheFillingFlag()) 
 		  {
 		    thisStation->clearCache();
@@ -1769,6 +1795,21 @@ MuonDetectorManager::updateAlignment(const ALineMapContainer *  m_alineData) con
 StatusCode
 MuonDetectorManager::updateDeformations(const BLineMapContainer * m_blineData) const
 {
+#ifdef TESTBLINES
+  {
+    for (std::map< std::string, MuonStation *>::const_iterator it(_MuonStationMap.begin()), end(_MuonStationMap.end());
+	it!=end; ++it) {
+      MuonStation* station = it->second;
+      station->clearBLineCache();
+      BLinePar* BLine = new BLinePar();
+      //ine->setParameters(bz,bp,bn,sp,sn,tw,pg,tr,eg,ep,en)
+      BLine->setParameters(0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.);
+      station->setBline(BLine);
+      if (cacheFillingFlag()) station->fillBLineCache();
+    }
+  }
+#endif
+
     MsgStream log(m_msgSvc, "MGM::MuonDetectorManager::updateDeformations");
     log<<MSG::INFO<<"In updateDeformations()"<<endreq;
     if (!applyMdtDeformations()){
@@ -1804,7 +1845,7 @@ MuonDetectorManager::updateDeformations(const BLineMapContainer * m_blineData) c
         int job = 0;
 #ifdef TESTBLINES
       //BLine->setParameters(bz,bp,bn,sp,sn,tw,pg,tr,eg,ep,en)
-	BLine->setParameters(0.,0.,0.,0.,0.,0.,0.,0.,0.,1.,0.);
+	BLine->setParameters(0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.);
 #endif	
 	if (mdtDeformationFlag()>999999) 
 	  {

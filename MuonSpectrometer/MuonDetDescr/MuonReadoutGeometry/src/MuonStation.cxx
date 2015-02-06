@@ -111,47 +111,65 @@ HepGeom::Point3D<double>  MuonStation::getUpdatedBlineFixedPointInAmdbLRS() cons
 {
   if (!m_firstRequestBlineFixedP) return _BlineFixedPointInAmdbLRS;
 
-  if (barrel()) 
-    {
-      // apply 17.5 micron shift y navigating to the tube position of the first layer, first multilayer
-      std::map< int, pairRE_AlignTransf >::const_iterator it=m_REwithAlTransfInStation->begin();
-      for (; it!=m_REwithAlTransfInStation->end(); ++it)
-	{
-	  const MuonReadoutElement* muonRE =  ((*it).second).first;
-	  //std::cout<<" tech = "<<muonRE->getTechnologyType()<<std::endl;
-	  if (muonRE->getTechnologyType()=="MDT") 
-	    {
-	      const MdtReadoutElement* mdtRE = dynamic_cast<const MdtReadoutElement*> (muonRE);
-	      if (mdtRE)
-		{
-		  //std::cout<<" ml = "<<mdtRE->getMultilayer()<<std::endl;
-		  if (mdtRE->getMultilayer()==1)
-		    {
-		      // here get nondef-local-tubepos to correct for the 17.5 micron shift
-		      double shiftInZ = 0.;
-		      bool wellDefined = mdtRE->getWireFirstLocalCoordAlongZ(1,shiftInZ);
-		      if (!wellDefined) continue;
-		      //std::cout<<" shift in z after 1st tube layer = "<<shiftInZ<<std::endl;
-		      if (shiftInZ >30.)  wellDefined = mdtRE->getWireFirstLocalCoordAlongZ(2,shiftInZ);
-		      if (!wellDefined) continue;
-		      //std::cout<<" shift in z after 2nd tube layer = "<<shiftInZ<<std::endl;
-		      shiftInZ = shiftInZ - mdtRE->outerTubeRadius();
-		      //std::cout<<" shift in z after tube-radius subtraction  = "<<shiftInZ<<" outer radius = "<<mdtRE->outerTubeRadius()<<std::endl;
-		      _BlineFixedPointInAmdbLRS.setY(_BlineFixedPointInAmdbLRS.y()+shiftInZ);
-		      if ( reLog().level() <= MSG::DEBUG ) 
-			{
-			  reLog()<<MSG::DEBUG<<"getUpdatedBlineFixedPointInAmdbLRS: stationName/Jff/Jzz "
-				 <<getStationType()<<" "<<getPhiIndex()<<" "<<getEtaIndex()<<" re-set B-line fixed point "<<_BlineFixedPointInAmdbLRS<<endreq;
-			}
-		    }
-		}
-	      else 
-		{
-		  reLog()<<MSG::WARNING<<"getUpdatedBlineFixedPointInAmdbLRS: stationName/Jff/Jzz "<<getStationType()<<" "<<getPhiIndex()<<" "<<getEtaIndex()<<" failing to cast to const MdtReadoutElement* the RE named "<<muonRE->getStationName()<<" with tech="<<muonRE->getTechnologyName()<<endreq;
-		}
+  // Before correction _BlineFixedPointInAmdbLRS has a z set at the edge of
+  // lowest-z tube of the first layer of one of the two multilayers.
+  // For endcap A, endcap C, and barrel A, this is correct, given the tube staggering
+  // For barrel side C, given the tube staggering, the z should be at the
+  // edge at the second layer, i.e. the z should be corrected by a half tube
+  // pitch. Correction is thus computed only for barrel side C.
+  if (barrel() && (getEtaIndex()<0)) {
+    std::map< int, pairRE_AlignTransf >::const_iterator it=m_REwithAlTransfInStation->begin();
+    for (; it!=m_REwithAlTransfInStation->end(); ++it) {
+      const MuonReadoutElement* muonRE =  ((*it).second).first;
+      if (muonRE->getTechnologyType()=="MDT") {
+	const MdtReadoutElement* mdtRE = dynamic_cast<const MdtReadoutElement*> (muonRE);
+	if (mdtRE) {
+	  // Correct for tube staggering on barrel side C
+	  double shiftInZ = -0.5 * mdtRE->tubePitch();
+
+	  // in addition, correct for 35µm glue width incorrectly applied
+	  double multilayerRealSize;
+	  for (int ilayer=1; ilayer<=2; ++ilayer) {
+	    double val;
+	    bool wellDefined = mdtRE->getWireFirstLocalCoordAlongZ(ilayer,val);
+	    if (!wellDefined) {
+	      reLog() << MSG::WARNING
+		<< "getUpdatedBlineFixedPointInAmdbLRS: stationName/Jff/Jzz "
+		<< getStationType() << " " << getPhiIndex() << " " << getEtaIndex()
+		<< " cannot get wire coordinates for second tube layer" << endreq;
+	      val = 0.;
 	    }
+	    if ((ilayer==1) || (val > multilayerRealSize))
+	      multilayerRealSize = val;
+	  }
+	  multilayerRealSize += (mdtRE->getNtubesperlayer()-1) * mdtRE->tubePitch();
+	  multilayerRealSize += mdtRE->outerTubeRadius(); // last tube: no glue width
+	  shiftInZ += mdtRE->getZsize() - multilayerRealSize;
+
+	  _BlineFixedPointInAmdbLRS.setY(_BlineFixedPointInAmdbLRS.y()+shiftInZ);
+	  if ( reLog().level() <= MSG::DEBUG ) {
+	    reLog() << MSG::DEBUG
+	      << "getUpdatedBlineFixedPointInAmdbLRS: stationName/Jff/Jzz "
+	      << getStationType() << " " << getPhiIndex() << " " << getEtaIndex()
+	      << " shiftInZ = " << shiftInZ
+	      << " re-set B-line fixed point "
+	      << _BlineFixedPointInAmdbLRS.x() << ","
+	      << _BlineFixedPointInAmdbLRS.y() << ","
+	      << _BlineFixedPointInAmdbLRS.z() << endreq;
+	  }
+	  break;
+	} else {
+	  reLog() << MSG::WARNING
+	    << "getUpdatedBlineFixedPointInAmdbLRS: stationName/Jff/Jzz "
+	    << getStationType() << " " << getPhiIndex() << " " << getEtaIndex()
+	    << " failing to cast to const MdtReadoutElement* the RE named "
+	    << muonRE->getStationName()
+	    << " with tech=" << muonRE->getTechnologyName() << endreq;
 	}
+      }
     }
+  }
+
 
   m_firstRequestBlineFixedP = false;
   return _BlineFixedPointInAmdbLRS;

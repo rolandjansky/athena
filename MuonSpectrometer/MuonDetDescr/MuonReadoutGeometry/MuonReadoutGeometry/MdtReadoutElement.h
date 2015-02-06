@@ -195,10 +195,10 @@ private:
 
     double getTubeLengthForCaching(int tubeLayer, int tube) const;
 
-    Amg::Vector3D posOnDefChamStraightWire(const Amg::Vector3D& locAMDBPos, double, double, double, double, 
-					    double, double, double, double, double, double, double, double,
-					double, double, double, const Amg::Vector3D fixedPoint) const;
-    Amg::Vector3D posOnDefChamStraightWire(const Amg::Vector3D& locAMDBPos, const BLinePar* bLine, const Amg::Vector3D fixedPoint) const;
+    Amg::Vector3D posOnDefChamWire(const Amg::Vector3D& locAMDBPos, double, double, double, double, 
+	double, double, double, double, double, double, double, double,
+	double, double, double, const Amg::Vector3D fixedPoint) const;
+    Amg::Vector3D posOnDefChamWire(const Amg::Vector3D& locAMDBPos, const BLinePar* bLine, const Amg::Vector3D fixedPoint) const;
     Amg::Vector3D positionOnDeformedChamber(const Amg::Vector3D& locAMDBPos, double, double, double, double, 
 					    double, double, double, double, double, double, double, double,
                                             double, double, double, const Amg::Vector3D fixedPoint) const;
@@ -226,6 +226,8 @@ private:
     bool   m_inBarrel;
     double m_firstwire_x[maxnlayers];
     double m_firstwire_y[maxnlayers];
+    double m_innerRadius;
+    double m_tubeWallThickness;
     mutable int _zsignRO_tubeFrame; // comes from AMDB CRO location in the station
 
     mutable std::vector<Amg::Transform3D*> * m_deformTransfs;
