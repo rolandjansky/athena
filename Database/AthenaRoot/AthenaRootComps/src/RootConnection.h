@@ -72,15 +72,15 @@ public:
   ///////////////////////////////////////////////////////////////////
 private:
   /// file descriptor
-  IIoSvc::Fd m_fd;
+  //IIoSvc::Fd m_fd;
   /// File ID of the connection
   std::string m_fid;
   /// Physical file name of the connection
   std::string m_pfn;
   /// Age counter
-  int m_age;
+  //int m_age;
   /// Owner pointer
-  const IInterface* m_owner;
+  //const IInterface* m_owner;
 
   /// Pointer to the Root event data file
   TFile* m_file;
