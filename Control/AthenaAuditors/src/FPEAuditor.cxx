@@ -49,7 +49,7 @@ FPEAuditor::FPEAuditor( const std::string& name,
   m_fpe_stack(),
   m_NstacktracesOnFPE(0),
   m_SigHandInstalled(false),
-  m_flagp(),
+  //m_flagp(),
   m_env()
 {
   //

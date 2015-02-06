@@ -1,34 +1,29 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
+//   --*- c++ -*--
 
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// FPEAuditor.h 
-// Header file for class FPEAuditor
-// Author: S.Binet<binet@cern.ch>
-/////////////////////////////////////////////////////////////////// 
-#ifndef ATHENASERVICES_FPEAUDITOR_H 
-#define ATHENASERVICES_FPEAUDITOR_H 1
-
-// STL includes
+#ifndef ATHENAAUDITORS_COWAUDITOR
+#define ATHENAAUDITORS_COWAUDITOR
+#include <fstream>
+#include <sstream>
 #include <string>
-#include <list>
-#include <utility> // for std::pair
-
-// FrameWork includes
+#include <unordered_map>
+#include <functional>
+#include <unordered_set>
+#include "CoWTools/CoWLibrary.h"
 #include "GaudiKernel/Auditor.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/MsgStream.h"
 #include "AthenaBaseComps/AthMessaging.h"
+#include "GaudiKernel/IIncidentListener.h"
+#include "TTree.h"
 
-#include <signal.h>
-#include <fenv.h>
-
-// Forward declaration
 class INamedInterface;
+class Incident;
 
-class FPEAuditor : virtual public Auditor, public AthMessaging
+class CoWAuditor : virtual public Auditor, public AthMessaging,public IIncidentListener
 { 
   using Auditor::before;
   using Auditor::after;
@@ -40,10 +35,10 @@ class FPEAuditor : virtual public Auditor, public AthMessaging
  public: 
 
   /// Constructor
-  FPEAuditor(const std::string& name, ISvcLocator* pSvcLocator);
+  CoWAuditor(const std::string& name, ISvcLocator* pSvcLocator);
 
   /// Destructor
-  virtual ~FPEAuditor();
+  virtual ~CoWAuditor();
 
   /// Gaudi hooks
   virtual StatusCode initialize();
@@ -75,7 +70,7 @@ class FPEAuditor : virtual public Auditor, public AthMessaging
 
   /// Audit the start of a custom "event".
   virtual void before(IAuditor::CustomEventTypeRef evt, 
-		      INamedInterface* caller)
+              INamedInterface* caller)
   { return this->before (evt, caller->name()); }
 
   /**
@@ -83,12 +78,12 @@ class FPEAuditor : virtual public Auditor, public AthMessaging
    * the @c INamedInterface.
    */
   virtual void before (IAuditor::CustomEventTypeRef evt, 
-		       const std::string& caller);
+               const std::string& caller);
   
   /// Audit the end of a custom "event".
   virtual void after (IAuditor::CustomEventTypeRef evt, 
-		      INamedInterface* caller, 
-		      const StatusCode& sc)
+              INamedInterface* caller, 
+              const StatusCode& sc)
   { return this->after (evt, caller->name(), sc); }
   
   /**
@@ -96,54 +91,34 @@ class FPEAuditor : virtual public Auditor, public AthMessaging
    * the @c INamedInterface.
    */
   virtual void after  (CustomEventTypeRef evt, const std::string& caller,
-		       const StatusCode& sc);
+               const StatusCode& sc);
+
+  virtual void handle(const Incident&);
 
   /////////////////////////////////////////////////////////////////// 
   // Private data: 
   /////////////////////////////////////////////////////////////////// 
  private: 
-
-  /** report fpes which happened during step 'step' on behalf of 'caller'
-   */
-  void report_fpe(const std::string& step, const std::string& caller);
-
-  /** add an fpe node
-   */
-  void add_fpe_node();
-
-  /** pop an fpe node
-   */
-  void pop_fpe_node();
-
-  typedef std::pair<int,int>   FpeNode_t;
-  typedef std::list<FpeNode_t> FpeStack_t;
-  /** a stack of FPE exceptions which have been raised
-   */
-  FpeStack_t m_fpe_stack;
-  
-  enum { FPEAUDITOR_OVERFLOW=0, FPEAUDITOR_INVALID=1, FPEAUDITOR_DIVBYZERO=2, FPEAUDITOR_ARRAYSIZE=3 };
-  
-  unsigned int m_CountFPEs[FPEAUDITOR_ARRAYSIZE];
-  
-  unsigned int m_NstacktracesOnFPE;
-  
-  void InstallHandler();
-
-  void UninstallHandler();
-  
-  bool m_SigHandInstalled;
-  
-  //fexcept_t m_flagp;
-  
-  /// The FP environment before we initialize.
-  fenv_t m_env;
+  bool m_dumpFinalize,m_dumpInfo;
+  std::string m_streamName;
+  typedef std::unordered_map<std::string,std::shared_ptr<CoWTools::CoWLibrary> > LibMap_t;
+  LibMap_t m_libMap;
+  std::vector<std::shared_ptr<CoWTools::CoWLibrary> > m_summaryStack;
+  std::vector<std::shared_ptr<LibMap_t> > m_detailedStack;
+  bool pushStats(const std::string&);
+  bool popStats(const std::string&);
+  std::shared_ptr<LibMap_t> parseDetailedSmaps();
+  std::shared_ptr<CoWTools::CoWLibrary> parseSmaps();
+  std::unordered_map<std::string,CoWTools::CoWRecordStats> m_runTotals;
+  std::unordered_set<std::size_t> m_existingHashes;//for potential collisions
+  std::unordered_map<std::string,std::size_t> m_algHashes;
+  TTree *m_hashTree;
+  TTree *m_snapshotTree;
+  std::size_t m_algId;
+  long m_vmem,m_rss,m_pss,m_shared,m_private,m_anon,m_swap;
+  ULong64_t m_currTime;
+  std::hash<std::string> m_hasher;
+  CoWTools::CoWRecordStats m_ms;
 }; 
 
-// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
-
-#endif //> ATHENASERVICES_FPEAUDITOR_H
+#endif
