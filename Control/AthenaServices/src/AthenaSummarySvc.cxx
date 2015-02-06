@@ -64,7 +64,7 @@ public:
     if (m_dat.find(a) == m_dat.end()) {
       m_dat[a] = vector<string>();
     }
-    m_dat[a].push_back( (string) p );
+    m_dat[a].push_back(  p.dump() );
   }
   template <typename T>
   void add(const string& a, const T t) {
@@ -80,8 +80,12 @@ public:
     m_dat[a].push_back( m_ofs.str() );
   }
 
-  string dump() { return string (*this); }
-  operator const string () const {
+  operator const string () const
+  {
+    return dump();
+  }
+
+  string dump() const {
     string x("{");
     map<string,vector<string> >::const_iterator itr;
     vector<string>::const_iterator itv;
@@ -798,6 +802,6 @@ AthenaSummarySvc::createDict( std::ofstream& ofd) {
   p.add("exit",m_status);
   p.add("bad_alloc",s_badalloc);
 
-  ofd << (string) p << endl;
+  ofd <<  p.dump() << endl;
 
 }
