@@ -13,6 +13,7 @@
 //FIXME CLID is a tdef and can't be forward declared 
 #include "GaudiKernel/ClassID.h"
 #include <memory>
+#include <type_traits>
 
 /** @class DataBucket
  *  @brief a wrapper inheriting from DataObject (via DataBucketBase)
@@ -47,7 +48,11 @@ namespace SG {
     static const CLID& classID();
 
     // return the pointer as a void*
-    virtual void* object() ATH_OVERRIDE { return m_ptr; }
+    virtual void* object() ATH_OVERRIDE
+    {
+      typedef typename std::remove_const<T>::type T_nc;
+      return const_cast<T_nc*>(m_ptr);
+    }
 
     // Serialize the object for reading
     //  StreamBuffer& serialize(StreamBuffer& s);

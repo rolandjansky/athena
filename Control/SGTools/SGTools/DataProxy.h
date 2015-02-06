@@ -102,8 +102,9 @@ namespace SG {
 
     /// Other methods of DataProxy (not in Interface IRegistry):
 
-    /// Reset DataObject and IOpaqueAddress:
-    void reset();
+    /// Reset DataObject, Handles and IOpaqueAddress:
+    virtual void reset();
+    virtual void finalReset(); ///called by destructor
 
     ///release or reset according to resetOnly flag
     ///If force is true, then always release.

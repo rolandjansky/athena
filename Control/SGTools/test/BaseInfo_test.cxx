@@ -248,11 +248,11 @@ int test1()
 
   assert (typeid(SG::BaseType<SG::Bases<BB>::Base1>::type) == typeid(AA));
   assert (typeid(SG::BaseType<SG::Bases<BB>::Base1>::is_virtual) ==
-          typeid(boost::false_type));
+          typeid(std::false_type));
 
   assert (typeid(SG::BaseType<SG::Bases<N>::Base1>::type) == typeid(M));
   assert (typeid(SG::BaseType<SG::Bases<N>::Base1>::is_virtual) ==
-          typeid(boost::true_type));
+          typeid(std::true_type));
 
   std::vector<CLID> exp3 = list_of
     (ClassID_traits<AA>::ID());
