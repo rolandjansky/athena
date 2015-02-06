@@ -40,6 +40,11 @@ public:
    * @return Boolean indicating the presence of new products
    */
   virtual bool newDataObjectsPresent()=0; 
+
+  /** make newly recorded DataObjects know to the WhiteBoard, by copying
+   *    from thread local storag
+   */
+  virtual void commitNewDataObjects() = 0;
   
   virtual ~IHiveStoreMgr() {}
 

@@ -116,6 +116,7 @@ std::string munge_names (const std::string& s_in)
     do_replace (s_in, "SG::DataProxyStorageData::pointer", "void*");
   s = do_replace (s, "DPSD::pointer", "void*");
   s = do_replace (s, "SG::auxid_t", "unsigned long");
+  s = do_replace (s, "auxid_t", "unsigned long");
   s = do_replace (s, " void* ", " void*");
   s = do_replace (s, "CLID", "unsigned int");
 

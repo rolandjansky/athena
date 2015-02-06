@@ -14,6 +14,7 @@
 
 
 #include "AthenaKernel/Chrono.h"
+#include "GaudiKernel/ChronoEntity.h"
 #include <iostream>
 #include <stdexcept>
 #include <cstdlib>
