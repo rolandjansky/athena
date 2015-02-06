@@ -318,7 +318,6 @@ def TMEF_MuonCandidateTool(name="TMEF_MuonCandidateTool",**kwargs):
 def TMEF_MuonCreatorTool(name="TMEF_MuonCreatorTool",**kwargs):
     kwargs.setdefault('TrackParticleCreator','TMEF_TrkToTrackParticleConvTool')
     kwargs.setdefault('MakeTrackAtMSLink',True)
-    kwargs.setdefault('ParticleCaloClusterAssociationTool',None)
     return CfgMgr.MuonCombined__MuonCreatorTool(name,**kwargs)
 
 # TrigMuonEF classes
