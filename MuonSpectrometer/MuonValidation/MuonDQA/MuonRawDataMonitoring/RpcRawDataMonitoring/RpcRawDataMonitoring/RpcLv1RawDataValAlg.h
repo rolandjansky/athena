@@ -75,7 +75,10 @@ class RpcLv1RawDataValAlg: public ManagedMonitorToolBase {
   StatusCode  bookRPCLV1cmatimevschHistograms(std::string m_sectorlogic_name, std::string m_tower_name, std::string m_cma_name);    
   StatusCode bookRPCLV1TriggerRoadHistograms(std::string m_sectorlogic_name, std::string m_tower_name, std::string m_cma_name, std::string m_thr_name);
   StatusCode bookRPCLV1ProfilesHistograms(int m_i_sector, std::string m_sectorlogic_name, std::string m_cma_name,  int m_i_ijk, std::string m_ijk_name) ;  
-	
+
+   
+  std::vector<int>	     	 RpcStripShift    (Identifier prdcoll_id, int  irpctriggerInfo);
+  std::vector<std::string>   	 RpcLayerSectorSideName(Identifier prdcoll_id, int  irpctriggerInfo);	
   
   MuonDQAHistMap m_stationHists;
 
@@ -118,7 +121,17 @@ class RpcLv1RawDataValAlg: public ManagedMonitorToolBase {
   
   const IRPCcablingSvc* m_cabling;
     
-  //Declare Properties  
+  //Declare Properties
+  
+  // cool
+  void  bookRPCCoolHistograms(std::vector<std::string>::const_iterator &m_iter, int, int, std::string m_layer);
+  bool m_doCoolDB		       ;
+  char histName_char[100]	       ;
+  std::string histName   	       ;
+  std::vector<std::string> DB_list     ;
+  
+  TH1* rpcCool_StripProfile            ;
+  TH1* rpcCool_PanelIdHist             ;
   
   std::string m_chamberName;
   std::string m_StationSize;
@@ -178,6 +191,7 @@ class RpcLv1RawDataValAlg: public ManagedMonitorToolBase {
   char ijk_name_char[1000]              ;
   char cma_name_p_char[1000]		;
   char ijk_name_p_char[1000]            ;
+   
   
   int  i_sector       ;	   // pad sector Id
   int  i_padId        ;    // pad Id
@@ -228,6 +242,35 @@ class RpcLv1RawDataValAlg: public ManagedMonitorToolBase {
   int  IJKtriggerLowPtEta   ;
   int  IJKtriggerHighPtPhi  ;
   int  IJKtriggerHighPtEta  ;
+     
+   
+  int istatPhi                         	;
+  int iName                            	; 
+  int ir                               	;
+  
+  
+
+  //string variable
+  std::string layeronly_name            ;
+  std::string layer_name                ;
+  std::string layervslayer_name         ;
+  std::string layerPhivsEta_name        ;
+  std::string layerPhivsEtaSector_name  ;
+  std::string sector_name               ;
+  std::string layer0_name               ;
+  std::string layer1_name               ;
+  std::string layer2_name               ;
+  std::string layertodraw1_name         ;
+  std::string layertodraw2_name         ;
+  std::string layer_name_panel          ;
+  std::string sector_dphi_layer         ;
+  
+  std::string SideSector    ;
+  int  side                 ; 
+  int  sector               ;
+  char sector_char[1000]    ;
+  char dblZ_char[100]       ;
+  char dblPhi_char[100]     ;
   
   const RpcPadContainer* rpcRDO ;  
   const RpcPad*          rdoColl;

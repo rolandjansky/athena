@@ -58,9 +58,9 @@ using namespace std;
 static const   int maxColl	      =  1200;
 static const   int maxPRD 	      = 50000;
 static const   int maxClus	      =  1000;
-static const   int timeminrange	      =	    0;
+static const   int timeminrange	      =	 -200;
 static const   int timemaxrange	      =	  200;
-static const   int timeNbin	      =	   64;
+static const   int timeNbin	      =	  128;
 static const   int nstripfiducial     =     0;
 static const   int nstripfiduceff     =     3;
 static const   int MergePointDistance =    50;
@@ -5764,12 +5764,15 @@ std::vector<int>  RpcRawDataValAlg::RpcStripShift(Identifier prdcoll_id, int  ir
    
   //get information from geomodel to book and fill rpc histos with the right max strip number
   
+  //std::cout<<" from RpcStripShift name/Eta/Phi/dbR/dbZ/dbP/gg/mphi/stip = "<<irpcstationName<<"/"<<irpcstationEta<<"/"<<irpcstationPhi<<"/"<<irpcdoubletR<<"/"<<irpcdoubletZ<<"/"<<irpcdoubletPhi<<"/"<<irpcgasGap<<"/"<<irpcmeasuresPhi<<"/"<<irpcstrip<<std::endl;
+  
+  std::vector<int>  rpcstriptot  ;
+  
   const MuonGM::RpcReadoutElement* descriptor = m_muonMgr->getRpcReadoutElement(prdcoll_id);
   
   // const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(irpcstationName-2, irpcstationEta  + 8,  irpcstationPhi-1, irpcdoubletR -1,irpcdoubletZ   -1);
   // const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields( irpcstationName, irpcstationEta, irpcstationPhi, irpcdoubletR, irpcdoubletZ, irpcdoubletPhi  );
   
-  std::vector<int>  rpcstriptot  ;
   
   int NphiStrips	    = descriptor -> NphiStrips()* 2		     ;
   int ShiftPhiStrips        = descriptor -> NphiStrips()*(irpcdoubletPhi-1)  ;
@@ -6024,6 +6027,7 @@ std::vector<int>  RpcRawDataValAlg::RpcStripShift(Identifier prdcoll_id, int  ir
       lastname    = irpcstationName ;
     }
     for(int iname=      2; iname!=       10*0+lastname+1 ; iname++){
+      if (iname>10 && iname!=53) continue;
 
       laststationEta = 7 ;
    
@@ -6034,7 +6038,9 @@ std::vector<int>  RpcRawDataValAlg::RpcStripShift(Identifier prdcoll_id, int  ir
    
       for(int ieta = -7; ieta != 8*0+laststationEta+1; ieta++ ){
    
+
 	krpcdoubletR   =  irpcdoubletR;   
+	
 	if( iname==2||iname==8 ){    
     
 	  if(PlaneTipo!=1&&abs(ieta)>=6&&iphi==7)continue;
@@ -6071,9 +6077,7 @@ std::vector<int>  RpcRawDataValAlg::RpcStripShift(Identifier prdcoll_id, int  ir
 	}    
  
 	for(int iz   =      1; iz   !=      3*0+lastdoubletZ+1; iz++	){ 
-	  
 	  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(iname, ieta, iphi, krpcdoubletR, iz, 1);
-	  //if(irpcstationPhi<=1)std::cout <<iname << " "<< ieta <<" "<< iphi<<" "<< iz<<" z "<< panel_dbindex<< std::endl; 
     
 	  if(rpc == NULL )continue;
 	  
