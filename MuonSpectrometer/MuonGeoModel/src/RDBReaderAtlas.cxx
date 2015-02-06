@@ -236,7 +236,7 @@ StatusCode RDBReaderAtlas::ProcessDB()
     mysql->setNovaReadVersion(dbam[0].nvrs);
 
     // Process Stations and components
-    MuonGM::ProcessStations(dhalmn, almn, dhatyp, atyp);
+    MuonGM::ProcessStations(dhalmn, almn, dhatyp, atyp, dhwmdt, wmdt);
     
     // Process Technologies
     ProcessTechnologies();

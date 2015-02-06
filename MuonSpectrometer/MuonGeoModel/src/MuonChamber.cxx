@@ -105,8 +105,9 @@ MuonChamber::build(MuonDetectorManager* m_manager, int zi,
                            << " is assembly = " << isAssembly << endreq;
   std::string stname(station->GetName(), 0, 3);
   MYSQL* mysql=MYSQL::GetPointer();
-  MDT* mdtobj = (MDT*)mysql->GetATechnology("MDT0");
-  double halfpitch = (mdtobj->pitch)/2.;
+  //MDT* mdtobj = (MDT*)mysql->GetATechnology("MDT0");
+  //double halfpitch = (mdtobj->pitch)/2.;
+  double halfpitch = station->mdtHalfPitch();
     
   std::string stName = station->GetName();
   const MdtIdHelper* mdt_id  = m_manager->mdtIdHelper();
@@ -1781,6 +1782,8 @@ void MuonChamber::setMdtReadoutGeom(MdtReadoutElement* re, const MdtComponent* c
   re->m_tubelayerpitch = thism->y[1]-thism->y[0];
   re->m_endpluglength = thism->tubeEndPlugLength;
   re->m_deadlength = cc->deadx; //thism->tubeDeadLength;
+  re->m_innerRadius = thism->innerRadius;
+  re->m_tubeWallThickness = thism->tubeWallThickness;
 
   if (re->m_inBarrel) {
     re->m_ntubesperlayer = int(re->m_Zsize/re->m_tubepitch);
