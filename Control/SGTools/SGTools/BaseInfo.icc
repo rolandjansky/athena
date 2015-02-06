@@ -13,7 +13,7 @@
  */
 
 
-#include "boost/type_traits/is_polymorphic.hpp"
+#include <type_traits>
 
 
 namespace SG {
@@ -62,7 +62,7 @@ template <class T>
 struct BaseType
 {
   typedef T type;
-  typedef boost::false_type is_virtual;
+  typedef std::false_type is_virtual;
 };
 
 
@@ -72,7 +72,7 @@ template <class T>
 struct BaseType<Virtual<T> >
 {
   typedef T type;
-  typedef boost::true_type is_virtual;
+  typedef std::true_type is_virtual;
 };
 
 
@@ -128,7 +128,9 @@ private:
   template <class B>
   static void* converter (void* p)
   {
-    B* b = reinterpret_cast<T*> (p);
+    typedef typename std::remove_const<B>::type B_nc;
+    typedef typename std::remove_const<T>::type T_nc;
+    B_nc* b = reinterpret_cast<T_nc*> (p);
     return b;
   }
 
@@ -150,22 +152,24 @@ private:
   template <class B>
   static void* converterTo (void* p)
   {
-    return converterToHelper<B> (p, boost::is_polymorphic<B>());
+    return converterToHelper<B> (p, std::is_polymorphic<B>());
   }
 
 
   // B has a vtable.  Use dynamic_cast.
   template <class B>
-  static void* converterToHelper (void* p, boost::true_type)
+  static void* converterToHelper (void* p, std::true_type)
   {
-    T* b = dynamic_cast<T*> (reinterpret_cast<B*> (p));
+    typedef typename std::remove_const<B>::type B_nc;
+    typedef typename std::remove_const<T>::type T_nc;
+    T_nc* b = dynamic_cast<T_nc*> (reinterpret_cast<B_nc*> (p));
     return b;
   }
 
 
   // B doesn't have a vtable.  Don't try to convert.
   template <class B>
-  static void* converterToHelper (void* /*p*/, boost::false_type)
+  static void* converterToHelper (void* /*p*/, std::false_type)
   {
     return 0;
   }
@@ -262,7 +266,8 @@ BaseInfoImpl<T>::BaseInfoImpl ()
 template <class T>
 void* BaseInfo<T>::cast (T* p, CLID clid)
 {
-  return instance().cast (p, clid);
+  typedef typename std::remove_const<T>::type T_nc;
+  return instance().cast (const_cast<T_nc*>(p), clid);
 }
 
 
@@ -277,7 +282,8 @@ void* BaseInfo<T>::cast (T* p, CLID clid)
 template <class T>
 void* BaseInfo<T>::cast (T* p, const std::type_info& tinfo)
 {
-  return instance().cast (p, tinfo);
+  typedef typename std::remove_const<T>::type T_nc;
+  return instance().cast (const_cast<T_nc*>(p), tinfo);
 }
 
 

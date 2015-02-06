@@ -610,6 +610,12 @@ const BaseInfoBase* BaseInfoBase::find (const std::type_info& tinfo)
       bib = find1 (*i->second);
   }
 
+  if (bib) {
+    BaseInfoBaseImpl& impl = *bib->m_impl;
+    if (impl.m_clid == CLID_NULL)
+      impl.m_clid = CLIDRegistry::typeinfoToCLID (*impl.m_typeinfo);
+  }
+
   return bib;
 }
 

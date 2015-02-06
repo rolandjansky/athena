@@ -59,8 +59,9 @@ void db_free_ptr (T* ptr, type_tools::false_tag)
 template <class T>
 void db_free_ptr (T* ptr, type_tools::true_tag)
 {
+  typedef typename std::remove_const<T>::type T_nc;
   //  std::cout << "db_free_ptr: releasing ptr @" << ptr << " of type " << ClassID_traits<T>::typeName() << std::endl;
-  ptr->release();
+  const_cast<T_nc*>(ptr)->release();
 }
 
 // if T is abstract just return NULL and let clients deal with that
@@ -236,7 +237,8 @@ namespace {
 template <class T>
 void call_lock (T* p, SG_STD_OR_BOOST::true_type)
 {
-  ILockable* l = dynamic_cast<ILockable*> (p);
+  typedef typename std::remove_const<T>::type T_nc;
+  ILockable* l = dynamic_cast<ILockable*> (const_cast<T_nc*>(p));
   if (l) l->lock();
 }
 

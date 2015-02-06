@@ -2,24 +2,27 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#include <algorithm> 
+using std::find;
+
 #include <cassert>
+#include <stdexcept>
 
 #include "AthenaKernel/IResetable.h"
 #include "AthenaKernel/getMessageSvc.h"
-#include "GaudiKernel/MsgStream.h"
 
 #include "GaudiKernel/DataObject.h"
 #include "GaudiKernel/IConversionSvc.h"
 #include "GaudiKernel/GenericAddress.h"
+#include "GaudiKernel/MsgStream.h"
+
 #include "SGTools/TransientAddress.h"
 #include "SGTools/T2pMap.h"
 #include "SGTools/DataBucketBase.h"
-#include <stdexcept>
-using SG::TransientAddress;
-
 
 #include "SGTools/DataProxy.h"
 using SG::DataProxy;
+using SG::TransientAddress;
 
 
 namespace {
@@ -97,8 +100,7 @@ DataProxy::DataProxy(DataObject* dObject,
 // Destructor
 DataProxy::~DataProxy()
 {  
-  resetGaudiRef(m_dataLoader);
-  resetGaudiRef(m_dObject);
+  finalReset();
   delete m_tAddress;
 }
 
@@ -121,6 +123,7 @@ void DataProxy::setConst()
 }
 
 bool DataProxy::bindHandle(IResetable* ir) {
+  assert(ir);
   if (ir->isSet()) {
     return false;
   } else {
@@ -142,18 +145,39 @@ void DataProxy::reset()
 
 }
 
-/// don't need a comment
+void DataProxy::finalReset()
+{
+  m_const=false; //hack to force the resetting of proxy ptr in VarHandleBase
+
+  for (auto ih: m_handles) {
+    if (0 != ih) ih->finalReset();
+  }
+
+  resetGaudiRef(m_dObject);
+  resetGaudiRef(m_dataLoader);
+}
+
+/// don't need no comment
 void DataProxy::resetBoundHandles() {
-  std::list<IResetable*>::iterator itre=m_handles.end();
-  for (std::list<IResetable*>::iterator itr=m_handles.begin();
-       itr != itre; ++itr) {
-    (*itr)->reset();
+  auto i = m_handles.begin();
+  auto iEnd = m_handles.end();
+  while (i != iEnd) {
+    //    std::cout << "resetBoundHandles loop " << *i << std::endl;
+    if (0 == *i) {
+      i = m_handles.erase(i); //NULL IResetable* means handle was unbound
+    } else {
+      (*(i++))->reset();
+    }
   }
 }
 
 void DataProxy::unbindHandle(IResetable *ir) {
-  if( m_handles.empty() ) { return; }
-  m_handles.remove( ir );
+  assert(ir);
+  //  std::cout << "unbindHandle " << ir << std::endl;
+  auto ifr = find(m_handles.begin(), m_handles.end(), ir );
+  //reset the entry for ir instead of deleting it, so this can be called
+  //within a m_handles loop
+  if (ifr != m_handles.end()) *ifr=0; 
 }
   
 /// return refCount
@@ -179,6 +203,10 @@ unsigned long DataProxy::release()
 
 ///request to release the instance (may just reset it)
 bool DataProxy::requestRelease(bool force /*= false*/) {
+
+  //this needs to happen no matter what
+  if (! m_handles.empty()) { resetBoundHandles(); }
+
   bool canRelease = !isResetOnly() || force;
 #ifndef NDEBUG
   MsgStream gLog(m_ims, "DataProxy");
@@ -252,7 +280,7 @@ DataObject* DataProxy::accessData()
       const SG::BaseInfoBase* bi = SG::BaseInfoBase::find (m_tAddress->clID());
       if (bi) {
         std::vector<CLID> base_clids = bi->get_bases();
-        for (unsigned i=0; i < base_clids.size(); i++) {
+        for (unsigned i=0; i < base_clids.size(); ++i) {
           void* bobj = SG::DataProxy_cast (this, base_clids[i]);
           if (bobj && bobj != payload)
             m_t2p->t2pRegister (bobj, this);
