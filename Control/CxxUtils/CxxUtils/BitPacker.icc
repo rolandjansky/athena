@@ -27,6 +27,7 @@ BitPacker<STREAM>::BitPacker (uint8_t nbits, STREAM& stream)
     m_nbits(nbits),
     m_stream (stream)
 {
+  assert (m_nbits > 0 && m_nbits <= 32);
 }
 
 

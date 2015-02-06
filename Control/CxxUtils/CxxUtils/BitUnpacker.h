@@ -17,6 +17,10 @@
 #define CXXUTILS_BITUNPACKER_H
 
 
+#include <stdint.h>
+#include <cassert>
+
+
 namespace CxxUtils {
 
 

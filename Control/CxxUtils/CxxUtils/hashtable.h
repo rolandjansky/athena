@@ -476,7 +476,12 @@ namespace CxxUtils_Internal // sss Internal
       void
       m_incr_bucket();
 
+      template <class T>
+      void erase_node (T& t) { t.erase_node (m_cur_node, m_cur_bucket); } // sss
+
       hash_node<Value, cache>* m_cur_node;
+
+    protected: // sss
       hash_node<Value, cache>** m_cur_bucket;
     };
 
@@ -581,7 +586,7 @@ namespace CxxUtils_Internal // sss Internal
   
       hashtable_const_iterator(const hashtable_iterator<Value,
 			       constant_iterators, cache>& x)
-      : hashtable_iterator_base<Value, cache>(x.m_cur_node, x.m_cur_bucket) { }
+        : hashtable_iterator_base<Value, cache>(x/*x.m_cur_node, x.m_cur_bucket*/) { } // sss
 
       reference
       operator*() const
@@ -1423,6 +1428,7 @@ namespace SG // tr1  sss
       iterator
       insert(const value_type&, CxxUtils_Internal/*std::tr1*/::false_type); // sss
 
+      friend struct CxxUtils_Internal::hashtable_iterator_base<Value, cache_hash_code>; // sss
       void
       erase_node(node*, node**);
 
@@ -1984,7 +1990,8 @@ namespace SG // tr1  sss
     {
       iterator result = i;
       ++result;
-      erase_node(i.m_cur_node, i.m_cur_bucket);
+      //erase_node(i.m_cur_node, i.m_cur_bucket);
+      i.erase_node(*this); // sss
       return result;
     }
   
@@ -1998,7 +2005,8 @@ namespace SG // tr1  sss
     {
       const_iterator result = i;
       ++result;
-      erase_node(i.m_cur_node, i.m_cur_bucket);
+      //erase_node(i.m_cur_node, i.m_cur_bucket);
+      i.erase_node (*this); // sss
       return result;
     }
 
