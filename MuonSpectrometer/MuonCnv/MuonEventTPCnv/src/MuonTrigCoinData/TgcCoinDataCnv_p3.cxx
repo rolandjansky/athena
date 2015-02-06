@@ -67,9 +67,10 @@ transToPers( const Muon::TgcCoinData *transObj, Muon::TgcCoinData_p3 *persObj, M
   log << MSG::DEBUG << "TgcCoinDataCnv_p3::transToPers" << endreq;
   
    // Tracklet and HiPt should have valid channelIdIn  
-   if(transObj->m_type==Muon::TgcCoinData::TYPE_TRACKLET || 
+  if((transObj->m_type==Muon::TgcCoinData::TYPE_TRACKLET || 
       transObj->m_type==Muon::TgcCoinData::TYPE_HIPT || 
-      transObj->m_type==Muon::TgcCoinData::TYPE_TRACKLET_EIFI) {
+      transObj->m_type==Muon::TgcCoinData::TYPE_TRACKLET_EIFI)&&
+     (!transObj->m_isInner)) {
         if(!transObj->m_channelIdIn.get_identifier32().is_valid()) {
           log << MSG::ERROR << "TgcCoinDataCnv_p3::transToPers - invalid trans channelIdIn!! " 
               << (transObj->m_type==Muon::TgcCoinData::TYPE_TRACKLET ? "(TRACKLET)" : 
@@ -78,9 +79,10 @@ transToPers( const Muon::TgcCoinData *transObj, Muon::TgcCoinData_p3 *persObj, M
      }
    }
    // Tracklet, HiPt and SL should have valid channelIdOut 
-   if(transObj->m_type==Muon::TgcCoinData::TYPE_TRACKLET ||
+  if((transObj->m_type==Muon::TgcCoinData::TYPE_TRACKLET ||
       transObj->m_type==Muon::TgcCoinData::TYPE_HIPT || 
-      transObj->m_type==Muon::TgcCoinData::TYPE_SL) {
+      transObj->m_type==Muon::TgcCoinData::TYPE_SL) &&
+     (!transObj->m_isInner)) {
         if(!transObj->m_channelIdOut.get_identifier32().is_valid()) {
           log << MSG::ERROR << "TgcCoinDataCnv_p3::transToPers - invalid trans channelIdOut!! " 
               << (transObj->m_type==Muon::TgcCoinData::TYPE_TRACKLET ? "(TRACKLET)" : 
