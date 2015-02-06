@@ -10,6 +10,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "TrkAlignInterfaces/IAlignTrackPreProcessor.h"
+#include "InDetAlignGenTools/IInDetAlignHitQualSelTool.h"
 
 #include <vector>
 
@@ -46,11 +47,16 @@ namespace Trk {
     /** creates AlignTrack containing all TSOS on track */
     DataVector<Track> * processTrackCollection(const DataVector<Track>* trks);
    
+
   private:
     ToolHandle<IGlobalTrackFitter> m_trackFitterTool;
     ToolHandle<IGlobalTrackFitter> m_SLTrackFitterTool;
 
     ToolHandle<ITrackSelectorTool> m_trackSelectorTool;
+    ToolHandle<IInDetAlignHitQualSelTool> m_hitQualityTool;
+    
+    /** select silicon hits by quality. keep all the rest **/
+    Track * performSiliconHitSelection(Track *, ToolHandle<Trk::IGlobalTrackFitter> );
 
     bool m_refitTracks; //!> flag to refit tracks
     bool m_storeFitMatricesAfterRefit; //!> flag to store derivative and covariance matrices after refit
@@ -61,6 +67,7 @@ namespace Trk {
     bool m_useSingleFitter;    //!< only use 1 fitter for refitting track
 
     bool m_selectTracks;       //!< do the track selection
+    bool m_selectHits;         //!< perform the hit InnerDetector selection
 
   }; // end class
 
