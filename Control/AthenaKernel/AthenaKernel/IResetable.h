@@ -16,6 +16,8 @@ class IResetable {
 public:
   virtual ~IResetable() {}
   virtual void reset() = 0;    
+  ///optional special action on final reset call (e.g. in caller destructor)
+  virtual void finalReset() {};
   virtual bool isSet() const = 0;
   virtual const std::string& key() const = 0;
 };
