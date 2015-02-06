@@ -22,7 +22,7 @@
 namespace MuonGM {
 
 CscDetectorElement::CscDetectorElement(GeoVFullPhysVol* pv, MuonDetectorManager* mgr,Identifier id, IdentifierHash 
-idHash) : MuonDetectorElement(pv,mgr,id,idHash)
+idHash) : MuonDetectorElement(pv,mgr,id,idHash), _cscre(NULL)
 {
     //m_MsgStream = new MsgStream(mgr->msgSvc(),"MuGM:CscDetectorElement");
   _nREinDetectorElement=1; 

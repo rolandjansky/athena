@@ -26,7 +26,6 @@
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/RotatedTrapezoidBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
-#include <cassert>
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 #define sTgcReadout_verbose false
 
@@ -91,9 +90,17 @@ namespace MuonGM {
 			  // std::cout<<" \tType "<<pc->getLogVol()->getShape()->type()<<std::endl;
 			  if (pc->getLogVol()->getShape()->type()=="Shift") {
 			  	const GeoShapeShift* myshift = dynamic_cast<const GeoShapeShift*> (pc->getLogVol()->getShape());
+				if(!myshift) {
+				  std::cerr<<"sTgcReadoutElement : even though the shape is of type shift it's not a shift - better crashing ..."<< std::endl;
+				  throw;
+				}
 				//std::cout<<" \t\ttype "<<myshift->getOp()->type()<<std::endl;
 				//std::cout<<" \t\t translation "<<myshift->getX().getTranslation()<<" "<<std::endl;
 				const GeoSimplePolygonBrep* poly=dynamic_cast<const GeoSimplePolygonBrep*>(myshift->getOp());
+				if(!poly) {
+				  std::cerr<<"sTgcReadoutElement : the sTGC is no polygon even though it should - better crashing ..."<< std::endl;
+				  throw;
+				}
 				//std::cout<<" \t\t\t\t GeoPolygonBrep: dz: "<<poly->getDZ()<<std::endl;
 				//for (int i=0;i<poly->getNVertices();i++)
 				//{

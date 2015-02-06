@@ -25,7 +25,7 @@ TgcReadoutParams::TgcReadoutParams(std::string name, int iCh, int Version, float
                                      const float* IWGS3, const float* ROFFST, const float* NSPS,
 				   const float* POFFST, IMessageSvc* msgSvc )
   :m_chamberName(name), m_chamberType(iCh), m_readoutVersion(Version),
-   m_wirePitch(WireSp), m_nPhiChambers((int)NCHRNG)
+   m_wirePitch(WireSp), m_nPhiChambers((int)NCHRNG), m_physicalDistanceFromBase(-9999.)
 {
   m_MsgStream = new MsgStream(msgSvc,"MuGM:TgcReadoutParams");
 

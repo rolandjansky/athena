@@ -21,14 +21,15 @@
 #include "TrkSurfaces/CylinderBounds.h"
 #include "TrkSurfaces/StraightLineSurface.h"
 
-#include <cassert>
-
 namespace MuonGM {
 
   MuonReadoutElement::MuonReadoutElement(GeoVFullPhysVol* pv,
 					 int zi, int fi, bool is_mirrored,
 					 MuonDetectorManager* mgr)
-    : TrkDetElementBase(pv),m_absTransform(0),m_defTransform(0)
+    : TrkDetElementBase(pv),
+      m_Ssize(-9999.), m_Rsize(-9999.), m_Zsize(-9999.), m_LongSsize(-9999.),
+      m_LongRsize(-9999.), m_LongZsize(-9999.), m_caching(-1), m_MsgStream(NULL),
+      m_eta(-1), m_phi(-1), m_id_max_init_field(-1), m_absTransform(NULL),m_defTransform(NULL)
   {
     //m_msgSvc = Athena::getMessageSvc();
     m_stationS = 0.;
@@ -151,8 +152,7 @@ namespace MuonGM {
   //   PVConstLink par = parentStationPV();
   //   if (par == PVConstLink(0)) {
   //     std::cerr<<"MuonReadoutElement::parentStationPos() *** parent not found"<<std::endl;
-  //     assert(0);
-  //     return pos;
+  //     throw;
   //   }
     
   //   Query<unsigned int > c = parentStationPV()->indexOf(getMaterialGeom());
@@ -178,8 +178,7 @@ namespace MuonGM {
     PVConstLink par = parentStationPV();
     if (par == PVConstLink(0)) {
       std::cerr<<"MuonReadoutElement::setIndexOfREinMuonStation() *** parent station not found"<<std::endl;
-      assert(0);
-      return;
+      throw;
     }
     Query<unsigned int > c = par->indexOf(getMaterialGeom());
     if (c.isValid())
@@ -196,8 +195,7 @@ namespace MuonGM {
     PVConstLink par = parentStationPV();
     if (par == PVConstLink(0)) {
       std::cerr<<"MuonReadoutElement::parentStationPos() *** parent not found"<<std::endl;
-      assert(0);
-      return Amg::CLHEPTransformToEigen(xf);
+      throw;
     }
     
     HepGeom::Transform3D par_to_child = HepGeom::Transform3D::Identity;    

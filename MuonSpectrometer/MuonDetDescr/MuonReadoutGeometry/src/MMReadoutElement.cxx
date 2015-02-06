@@ -25,7 +25,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 //#include "StoreGate/DataHandle.h"
-#include <cassert>
 
 #define MMReadout_verbose false
 
@@ -35,7 +34,7 @@ namespace MuonGM {
   MMReadoutElement::MMReadoutElement(GeoVFullPhysVol* pv, std::string stName,
 				     int zi, int fi, int mL, bool is_mirrored,
 				     MuonDetectorManager* mgr)
-    : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr)
+    : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr), m_storeGate(NULL)
   {
     _ml = mL;
     m_MsgStream = new MsgStream(mgr->msgSvc(),"MuGM:MMReadoutElement");

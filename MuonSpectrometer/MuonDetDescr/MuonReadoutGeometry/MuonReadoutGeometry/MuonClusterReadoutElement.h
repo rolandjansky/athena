@@ -162,7 +162,8 @@ namespace MuonGM {
 
   inline const Trk::PlaneSurface&    MuonClusterReadoutElement::surface(int hash) const {   
     if( !m_surfaceData ){
-      reLog()<<MSG::WARNING<<"requesting surface but cache is empty" << endreq;
+      reLog()<<MSG::ERROR<<"requesting surface but cache is empty" << endreq;
+      throw;
       //fillCache();
     }
     if( hash == -1 || hash >= (int)m_surfaceData->m_layerSurfaces.size() ){
@@ -175,7 +176,8 @@ namespace MuonGM {
 
   inline const Amg::Transform3D& MuonClusterReadoutElement::transform(int hash) const { 
     if( !m_surfaceData ){
-      reLog()<<MSG::WARNING<<"requesting transform but cache is empty" << endreq;
+      reLog()<<MSG::ERROR<<"requesting transform but cache is empty" << endreq;
+      throw;
       //fillCache();
     }
     if( hash == -1 || hash >= (int)m_surfaceData->m_layerTransforms.size() ){
@@ -187,7 +189,8 @@ namespace MuonGM {
 
   inline const Amg::Vector3D&  MuonClusterReadoutElement::center(int hash) const { 
     if( !m_surfaceData ){
-      reLog()<<MSG::WARNING<<"requesting center but cache is empty" << endreq;
+      reLog()<<MSG::ERROR<<"requesting center but cache is empty" << endreq;
+      throw;
       //fillCache();
     }
     if( hash == -1 || hash >= (int)m_surfaceData->m_layerCenters.size() ){
@@ -199,7 +202,8 @@ namespace MuonGM {
 
   inline const Amg::Vector3D& MuonClusterReadoutElement::normal(int hash) const { 
     if( !m_surfaceData ){
-      reLog()<<MSG::WARNING<<"requesting normal but cache is empty" << endreq;
+      reLog()<<MSG::ERROR<<"requesting normal but cache is empty" << endreq;
+      throw;
       //fillCache();
     }
     if( hash == -1 || hash >= (int)m_surfaceData->m_layerNormals.size() ){
@@ -211,7 +215,8 @@ namespace MuonGM {
   
   inline const Trk::SurfaceBounds&   MuonClusterReadoutElement::bounds(int hash) const { 
     if( !m_surfaceData ){
-      reLog()<<MSG::WARNING<<"requesting bounds but cache is empty" << endreq;
+      reLog()<<MSG::ERROR<<"requesting bounds but cache is empty" << endreq;
+      throw;
       //fillCache();
     }    
     if( hash == -1 || hash >= (int)m_surfaceData->m_surfBounds.size() ){

@@ -31,9 +31,10 @@
 #include "MuonAlignmentData/ALinePar.h"
 #include "MuonAlignmentData/BLinePar.h"
 #include "MuonAlignmentData/CscInternalAlignmentPar.h"
-//
-#include <cassert>
+
 /////#define controlAlines 111111
+
+//#define TESTBLINES
 
 namespace MuonGM {
 
@@ -432,7 +433,7 @@ void MuonDetectorManager::addRpcReadoutElement (const RpcReadoutElement* x, Iden
 	   <<m_rpcIdHelper->show_to_string(id)
 	   <<" not matching the id assigned to the RpcReadoutElement "
 	   <<m_rpcIdHelper->show_to_string(x->identify())<<endreq;
-	assert(0);
+	throw;
 	return;
     }
     
@@ -444,7 +445,7 @@ void MuonDetectorManager::addRpcReadoutElement (const RpcReadoutElement* x, Iden
 	log<<MSG::ERROR<<"Trying to add RpcReadoutElement with detector-element-hash id "
 	   <<(unsigned int)Idhash
 	   <<" outside boundaries 0-"<<RpcRElMaxHash<<endreq;	
-	assert(0);
+	throw;
 	return;
     }
     else
@@ -457,7 +458,7 @@ void MuonDetectorManager::addRpcReadoutElement (const RpcReadoutElement* x, Iden
 	       <<" at location already taken by "
 	       <<m_rpcIdHelper->show_to_string(_rpcArrayByHash[Idhash]->identify())
 	       <<endreq;
-	    assert(0);
+	    throw;
 	    return;
 	}
 	_rpcArrayByHash[Idhash] = x;
@@ -512,31 +513,31 @@ void MuonDetectorManager::addRpcReadoutElement (const RpcReadoutElement* x, Iden
   {
       std::cerr<<"ERROR MuonDetectorManager::addRpcReadoutElement stNameindex out of range "
                <<stname_index<<" 0-"<<NRpcStatType-1<<std::endl;
-      assert(0);
+      throw;
   }
   if (steta_index<0 || steta_index >= NRpcStatEta) 
   {
       std::cerr<<"ERROR MuonDetectorManager::addRpcReadoutElement stEtaindex out of range "
                <<steta_index<<" 0-"<<NRpcStatEta-1<<std::endl;
-      assert(0);
+      throw;
   }
   if (stphi_index<0 ||  stphi_index>= NRpcStatPhi) 
   {
       std::cerr<<"ERROR MuonDetectorManager::addRpcReadoutElement stPhiindex out of range "
                <<stphi_index<<" 0-"<<NRpcStatPhi-1<<std::endl;
-      assert(0);
+      throw;
   }
   if (dbr_index < 0 || dbr_index >= NDoubletR)
   {
       std::cerr<<"ERROR MuonDetectorManager::addRpcReadoutElement dbr_index out of range "
                <<dbr_index<<" 0-" <<NDoubletR-1<<std::endl;
-      assert(0);
+      throw;
   }
   if (dbz_index < 0 || dbz_index >= NDoubletZ)
   {
       std::cerr<<"ERROR MuonDetectorManager::addRpcReadoutElement dbz_index out of range "
                <<dbz_index<<" 0-" <<NDoubletZ-1<<std::endl;
-      assert(0);
+      throw;
   }
 
 
@@ -557,7 +558,7 @@ void MuonDetectorManager::addRpcReadoutElement (const RpcReadoutElement* x, Iden
 	log<<MSG::ERROR<<"Trying to add RpcDetectorElement with data-collection-hash id "
 	   <<(unsigned int)idh
 	   <<" outside boundaries 0-"<<RpcDetElMaxHash<<endreq;	
-	assert(0);
+	throw;
 	return;
     }
 
@@ -654,26 +655,26 @@ const MMReadoutElement* MuonDetectorManager::getMMRElement_fromIdFields   (int i
   {
       std::cerr<<"ERROR MuonDetectorManager::getMMRElement stNameindex out of range "
                <<stname_index<<" 0(=Large)-"<<NMMcStatType<<"(=Small)"<<std::endl;
-      assert(0);
+      throw;
   }
   stname_index = 0;
   if (steta_index<0 || steta_index >= NMMcStatEta) 
   {
       std::cerr<<"ERROR MuonDetectorManager::getMMRElement stEtaindex out of range "
                <<steta_index<<" 0-"<<NMMcStatEta-1<<std::endl;
-      assert(0);
+      throw;
   }
   if (stphi_index<0 ||  stphi_index>= NMMcStatPhi) 
   {
       std::cerr<<"ERROR MuonDetectorManager::getMMRElement stPhiindex out of range "
                <<stphi_index<<" 0-"<<NMMcStatPhi-1<<std::endl;
-      assert(0);
+      throw;
   }
   if (ml_index < 0 || ml_index >= NMMcChamberLayer)
   {
       std::cerr<<"ERROR MuonDetectorManager::getMMRElement ml_index out of range "
                <<ml_index<<" 0-" <<NMMcChamberLayer-1<<std::endl;
-      assert(0);
+      throw;
   }
     
   return _mmcArray[stname_index][steta_index][stphi_index][ml_index];
@@ -692,26 +693,26 @@ void MuonDetectorManager::addMMReadoutElement_withIdFields   (const MMReadoutEle
   {
       std::cerr<<"ERROR MuonDetectorManager::addMMReadoutElement stNameindex out of range "
                <<stname_index<<" 0(=Large)-"<<NMMcStatType<<"(=Small)"<<std::endl;
-      assert(0);
+      throw;
   }
   stname_index = 0;
   if (steta_index<0 || steta_index >= NMMcStatEta) 
   {
       std::cerr<<"ERROR MuonDetectorManager::addMMReadoutElement stEtaindex out of range "
                <<steta_index<<" 0-"<<NMMcStatEta-1<<std::endl;
-      assert(0);
+      throw;
   }
   if (stphi_index<0 ||  stphi_index>= NMMcStatPhi) 
   {
       std::cerr<<"ERROR MuonDetectorManager::addMMReadoutElement stPhiindex out of range "
                <<stphi_index<<" 0-"<<NMMcStatPhi-1<<std::endl;
-      assert(0);
+      throw;
   }
   if (ml_index < 0 || ml_index >= NMMcChamberLayer)
   {
       std::cerr<<"ERROR MuonDetectorManager::addMMReadoutElement ml_index out of range "
                <<ml_index<<" 0-" <<NMMcChamberLayer-1<<std::endl;
-      assert(0);
+      throw;
   }
     
   //  _mdtArray[stName][stEta+8][stPhi+8][ml] = x;
@@ -749,26 +750,26 @@ void MuonDetectorManager::addsTgcReadoutElement_withIdFields   (const sTgcReadou
   {
       std::cerr<<"ERROR MuonDetectorManager::addsTgcReadoutElement stNameindex out of range "
                <<stname_index<<" 0(=Large)-"<<NsTgStatType<<"(=Small)"<<std::endl;
-      assert(0);
+      throw;
   }
   stname_index = 0;
   if (steta_index<0 || steta_index >= NsTgStatEta) 
   {
       std::cerr<<"ERROR MuonDetectorManager::addsTgcReadoutElement stEtaindex out of range "
                <<steta_index<<" 0-"<<NsTgStatEta-1<<std::endl;
-      assert(0);
+      throw;
   }
   if (stphi_index<0 ||  stphi_index>= NsTgStatPhi) 
   {
       std::cerr<<"ERROR MuonDetectorManager::addsTgcReadoutElement stPhiindex out of range "
                <<stphi_index<<" 0-"<<NsTgStatPhi-1<<std::endl;
-      assert(0);
+      throw;
   }
   if (ml_index < 0 || ml_index >= NsTgChamberLayer)
   {
       std::cerr<<"ERROR MuonDetectorManager::addsTgcReadoutElement ml_index out of range "
                <<ml_index<<" 0-" <<NsTgChamberLayer-1<<std::endl;
-      assert(0);
+      throw;
   }
     
 
@@ -805,26 +806,26 @@ const sTgcReadoutElement* MuonDetectorManager::getsTgcRElement_fromIdFields   (i
   {
       std::cerr<<"ERROR MuonDetectorManager::getsTgcRElement stNameindex out of range "
                <<stname_index<<" 0(=Large)-"<<NsTgStatType<<"(=Small)"<<std::endl;
-      assert(0);
+      throw;
   }
   stname_index = 0;
   if (steta_index<0 || steta_index >= NsTgStatEta) 
   {
       std::cerr<<"ERROR MuonDetectorManager::getsTgcRElement stEtaindex out of range "
                <<steta_index<<" 0-"<<NsTgStatEta-1<<std::endl;
-      assert(0);
+      throw;
   }
   if (stphi_index<0 ||  stphi_index>= NsTgStatPhi) 
   {
       std::cerr<<"ERROR MuonDetectorManager::getsTgcRElement stPhiindex out of range "
                <<stphi_index<<" 0-"<<NsTgStatPhi-1<<std::endl;
-      assert(0);
+      throw;
   }
   if (ml_index < 0 || ml_index >= NsTgChamberLayer)
   {
       std::cerr<<"ERROR MuonDetectorManager::getsTgcRElement ml_index out of range "
                <<ml_index<<" 0-" <<NsTgChamberLayer-1<<std::endl;
-      assert(0);
+      throw;
   }    
   return _stgArray[stname_index][steta_index][stphi_index][ml_index];
 }
@@ -838,7 +839,7 @@ void MuonDetectorManager::addMMReadoutElement (const MMReadoutElement* x, Identi
 	   <<m_mmIdHelper->show_to_string(id)
 	   <<" not matching the id assigned to the MMReadoutElement "
 	   <<m_mmIdHelper->show_to_string(x->identify())<<endreq;
-	assert(0);
+	throw;
 	return;
     }
     // do nothing for the moment 
@@ -853,7 +854,7 @@ void MuonDetectorManager::addsTgcReadoutElement (const sTgcReadoutElement* x, Id
 	   <<m_stgcIdHelper->show_to_string(id)
 	   <<" not matching the id assigned to the sTgcReadoutElement "
 	   <<m_stgcIdHelper->show_to_string(x->identify())<<endreq;
-	assert(0);
+	throw;
 	return;
     }
     // do nothing for the moment 
@@ -868,7 +869,7 @@ void MuonDetectorManager::addMdtReadoutElement (const MdtReadoutElement* x, Iden
 	   <<m_mdtIdHelper->show_to_string(id)
 	   <<" not matching the id assigned to the MdtReadoutElement "
 	   <<m_mdtIdHelper->show_to_string(x->identify())<<endreq;
-	assert(0);
+	throw;
 	return;
     }
     
@@ -888,7 +889,7 @@ void MuonDetectorManager::addMdtReadoutElement (const MdtReadoutElement* x, Iden
 	log<<MSG::ERROR<<"Trying to add MdtReadoutElement with detector-element-hash id "
 	   <<(unsigned int)Idhash
 	   <<" outside boundaries 0-"<<MdtRElMaxHash<<endreq;	
-	assert(0);
+	throw;
 	return;
     }
     else
@@ -901,7 +902,7 @@ void MuonDetectorManager::addMdtReadoutElement (const MdtReadoutElement* x, Iden
 	       <<" at location already taken by "
 	       <<m_mdtIdHelper->show_to_string(_mdtArrayByHash[Idhash]->identify())
 	       <<endreq;
-	    assert(0);
+	    throw;
 	    return;
 	}
 	_mdtArrayByHash[Idhash] = x;
@@ -924,7 +925,7 @@ void MuonDetectorManager::addMdtReadoutElement (const MdtReadoutElement* x, Iden
 	log<<MSG::ERROR<<"Trying to add MdtDetectorElement with data-collection-hash id "
 	   <<(unsigned int)idh
 	   <<" outside boundaries 0-"<<MdtDetElMaxHash<<endreq;	
-	assert(0);
+	throw;
 	return;
     }
 
@@ -959,25 +960,25 @@ void MuonDetectorManager::addMdtReadoutElement (const MdtReadoutElement* x, Iden
   {
       std::cerr<<"ERROR MuonDetectorManager::addMdtReadoutElement stNameindex out of range "
                <<stname_index<<" 0-"<<NMdtStatType-1<<std::endl;
-      assert(0);
+      throw;
   }
   if (steta_index<0 || steta_index >= NMdtStatEta) 
   {
       std::cerr<<"ERROR MuonDetectorManager::addMdtReadoutElement stEtaindex out of range "
                <<steta_index<<" 0-"<<NMdtStatEta-1<<std::endl;
-      assert(0);
+      throw;
   }
   if (stphi_index<0 ||  stphi_index>= NMdtStatPhi) 
   {
       std::cerr<<"ERROR MuonDetectorManager::addMdtReadoutElement stPhiindex out of range "
                <<stphi_index<<" 0-"<<NMdtStatPhi-1<<std::endl;
-      assert(0);
+      throw;
   }
   if (ml_index < 0 || ml_index >= NMdtMultilayer)
   {
       std::cerr<<"ERROR MuonDetectorManager::addMdtReadoutElement ml_index out of range "
                <<ml_index<<" 0-" <<NMdtMultilayer-1<<std::endl;
-      assert(0);
+      throw;
   }
     
   //  _mdtArray[stName][stEta+8][stPhi+8][ml] = x;
@@ -1026,8 +1027,7 @@ void MuonDetectorManager::addCscReadoutElement (const CscReadoutElement* x, Iden
 	   <<m_cscIdHelper->show_to_string(id)
 	   <<" not matching the id assigned to the CscReadoutElement "
 	   <<m_cscIdHelper->show_to_string(x->identify())<<endreq;
-	assert(0);
-	return;
+	throw;
     }
     
     // add here RE to array by hash 
@@ -1038,8 +1038,7 @@ void MuonDetectorManager::addCscReadoutElement (const CscReadoutElement* x, Iden
 	log<<MSG::ERROR<<"Trying to add CscReadoutElement with detector-element-hash id "
 	   <<(unsigned int)Idhash
 	   <<" outside boundaries 0-"<<CscRElMaxHash<<endreq;	
-	assert(0);
-	return;
+	throw;
     }	
     else
     {
@@ -1051,8 +1050,7 @@ void MuonDetectorManager::addCscReadoutElement (const CscReadoutElement* x, Iden
 	       <<" at location already taken by "
 	       <<m_cscIdHelper->show_to_string(_cscArrayByHash[Idhash]->identify())
 	       <<endreq;
-	    assert(0);
-	    return;
+	    throw;
 	}
 	_cscArrayByHash[Idhash] = x;
     }
@@ -1074,8 +1072,7 @@ void MuonDetectorManager::addCscReadoutElement (const CscReadoutElement* x, Iden
 	log<<MSG::ERROR<<"Trying to add CscDetectorElement with data-collection-hash id "
 	   <<(unsigned int)idh
 	   <<" outside boundaries 0-"<<CscDetElMaxHash<<endreq;	
-	assert(0);
-	return;
+	throw;
     }
 
 
@@ -1094,25 +1091,25 @@ void MuonDetectorManager::addCscReadoutElement (const CscReadoutElement* x, Iden
     {
         std::cerr<<"ERROR MuonDetectorManager::addCscReadoutElement stNameindex out of range "
                  <<stname_index<<" 0-"<<NCscStatType-1<<std::endl;
-        assert(0);
+        throw;
     }
     if (steta_index<0 || steta_index >= NCscStatEta) 
     {
         std::cerr<<"ERROR MuonDetectorManager::addCscReadoutElement stEtaindex out of range "
                  <<steta_index<<" 0-"<<NCscStatEta-1<<std::endl;
-        assert(0);
+        throw;
     }
     if (stphi_index<0 ||  stphi_index>= NCscStatPhi) 
     {
         std::cerr<<"ERROR MuonDetectorManager::addCscReadoutElement stPhiindex out of range "
                  <<stphi_index<<" 0-"<<NCscStatPhi-1<<std::endl;
-        assert(0);
+        throw;
     }
     if (ml_index < 0 || ml_index >= NCscChamberLayer)
     {
         std::cerr<<"ERROR MuonDetectorManager::addCscReadoutElement ml_index out of range "
                  <<ml_index<<" 0-" <<NCscChamberLayer-1<<std::endl;
-        assert(0);
+        throw;
     }
     
     //  _cscArray[stName][stEta+8][stPhi+8][ml] = x;
@@ -1163,8 +1160,7 @@ void MuonDetectorManager::addTgcReadoutElement (const TgcReadoutElement* x, Iden
 	   <<m_tgcIdHelper->show_to_string(id)
 	   <<" not matching the id assigned to the TgcReadoutElement "
 	   <<m_tgcIdHelper->show_to_string(x->identify())<<endreq;
-	assert(0);
-	return;
+	throw;
     }
 
     // add RE to array by RE hash
@@ -1175,8 +1171,7 @@ void MuonDetectorManager::addTgcReadoutElement (const TgcReadoutElement* x, Iden
 	log<<MSG::ERROR<<"Trying to add TgcReadoutElement with detector-element-hash id "
 	   <<(unsigned int)Idhash
 	   <<" outside boundaries 0-"<<TgcRElMaxHash<<endreq;	
-	assert(0);
-	return;
+	throw;
     }		
     else
     {
@@ -1189,8 +1184,7 @@ void MuonDetectorManager::addTgcReadoutElement (const TgcReadoutElement* x, Iden
 	       <<" at location already taken by "
 	       <<m_tgcIdHelper->show_to_string(_tgcArrayByHash[Idhash]->identify())
 	       <<endreq;
-	    assert(0);
-	    return;
+	    throw;
 	}
 	_tgcArrayByHash[Idhash] = x;
 	//log<<MSG::DEBUG<<"Adding TgcReadoutElement at loc. detector-element-hash id "<<(unsigned int)Idhash<<" for ext id = "<<m_tgcIdHelper->show_to_string(id)<<endreq;
@@ -1213,8 +1207,7 @@ void MuonDetectorManager::addTgcReadoutElement (const TgcReadoutElement* x, Iden
 	log<<MSG::ERROR<<"Trying to add TgcDetectorElement with data-collection-hash id "
 	   <<(unsigned int)idh
 	   <<" outside boundaries 0-"<<TgcDetElMaxHash<<endreq;	
-	assert(0);
-	return;
+	throw;
     }
     
 
@@ -1228,19 +1221,19 @@ void MuonDetectorManager::addTgcReadoutElement (const TgcReadoutElement* x, Iden
     {
         std::cerr<<"ERROR MuonDetectorManager::addTgcReadoutElement stNameindex out of range "
                  <<stname_index<<" 0-"<<NTgcStatType-1<<std::endl;
-        assert(0);
+        throw;
     }
     if (steta_index<0 || steta_index >= NTgcStatEta) 
     {
         std::cerr<<"ERROR MuonDetectorManager::addTgcReadoutElement stEtaindex out of range "
                  <<steta_index<<" 0-"<<NTgcStatEta-1<<std::endl;
-        assert(0);
+        throw;
     }
     if (stphi_index<0 ||  stphi_index>= NTgcStatPhi) 
     {
         std::cerr<<"ERROR MuonDetectorManager::addTgcReadoutElement stPhiindex out of range "
                  <<stphi_index<<" 0-"<<NTgcStatPhi-1<<std::endl;
-        assert(0);
+        throw;
     }
     if (_tgcArray[stname_index][steta_index][stphi_index] != NULL)
         std::cerr<<"addTgcReadoutElement - this place is taken ]"
@@ -1325,29 +1318,25 @@ const MdtReadoutElement* MuonDetectorManager::getMdtReadoutElement(int i1, int i
   {
       std::cerr<<"ERROR MuonDetectorManager::getMdtReadoutElement stNameindex out of range "
                <<i1<<" 0-"<<NMdtStatType-1<<std::endl;
-      assert(0);
-      return NULL;
+      throw;
   }
   if (i2<0 || i2 >= NMdtStatEta) 
   {
       std::cerr<<"ERROR MuonDetectorManager::getMdtReadoutElement stEtaindex out of range "
                <<i2<<" 0-"<<NMdtStatEta-1<<std::endl;
-      assert(0);
-      return NULL;
+      throw;
   }
   if (i3<0 ||  i3 >= NMdtStatPhi) 
   {
       std::cerr<<"ERROR MuonDetectorManager::getMdtReadoutElement stPhiindex out of range "
                <<i3<<" 0-"<<NMdtStatPhi-1<<std::endl;
-      assert(0);
-      return NULL;
+      throw;
   }
   if (i4 < 0 || i4 >= NMdtMultilayer)
   {
       std::cerr<<"ERROR MuonDetectorManager::getMdtReadoutElement ml_index out of range "
                <<i4<<" 0-" <<NMdtMultilayer-1<<std::endl;
-      assert(0);
-      return NULL;
+      throw;
   }    
 
     return _mdtArray[i1][i2][i3][i4];
@@ -1373,29 +1362,25 @@ const CscReadoutElement* MuonDetectorManager::getCscReadoutElement(int i1, int i
   {
       std::cerr<<"ERROR MuonDetectorManager::getCscReadoutElement stNameindex out of range "
                <<i1<<" 0-"<<NCscStatType-1<<std::endl;
-      assert(0);
-      return NULL;
+      throw;
   }
   if (i2<0 || i2 >= NCscStatEta) 
   {
       std::cerr<<"ERROR MuonDetectorManager::getCscReadoutElement stEtaindex out of range "
                <<i2<<" 0-"<<NCscStatEta-1<<std::endl;
-      assert(0);
-      return NULL;
+      throw;
   }
   if (i3<0 ||  i3 >= NCscStatPhi) 
   {
       std::cerr<<"ERROR MuonDetectorManager::getCscReadoutElement stPhiindex out of range "
                <<i3<<" 0-"<<NCscStatPhi-1<<std::endl;
-      assert(0);
-      return NULL;
+      throw;
   }
   if (i4 < 0 || i4 >= NCscChamberLayer)
   {
       std::cerr<<"ERROR MuonDetectorManager::getCscReadoutElement ml_index out of range "
                <<i4<<" 0-" <<NCscChamberLayer-1<<std::endl;
-      assert(0);
-      return NULL;
+      throw;
   }    
 
     return _cscArray[i1][i2][i3][i4];
@@ -1472,36 +1457,33 @@ const RpcReadoutElement* MuonDetectorManager::getRpcReadoutElement(int i1, int i
   {
       std::cerr<<"ERROR MuonDetectorManager::getRpcReadoutElement stNameindex out of range "
                <<i1<<" 0-"<<NRpcStatType-1<<std::endl;
-      assert(0);
-      return NULL;
+      throw;
   }
   if (i2<0 || i2 >= NRpcStatEta) 
   {
       std::cerr<<"ERROR MuonDetectorManager::getRpcReadoutElement stEtaindex out of range "
                <<i2<<" 0-"<<NRpcStatEta-1<<std::endl;
-      assert(0);
-      return NULL;
+      return 0;
+      //throw;
   }
   if (i3<0 ||  i3 >= NRpcStatPhi) 
   {
       std::cerr<<"ERROR MuonDetectorManager::getRpcReadoutElement stPhiindex out of range "
                <<i3<<" 0-"<<NRpcStatPhi-1<<std::endl;
-      assert(0);
-      return NULL;
+      throw;
   }
   if (i4 < 0 || i4 >= NDoubletR)
   {
       std::cerr<<"ERROR MuonDetectorManager::getRpcReadoutElement dbr_index out of range "
                <<i4<<" 0-" <<NDoubletR-1<<std::endl;
-      assert(0);
-      return NULL;
+      throw;
   }
   if (i5 < 0 || i5 >= NDoubletZ)
   {
       std::cerr<<"ERROR MuonDetectorManager::getRpcReadoutElement dbz_index out of range "
                <<i5<<" 0-" <<NDoubletZ-1<<std::endl;
-      assert(0);
-      return NULL;
+      return 0;
+      //throw;
   }
     return _rpcArray[i1][i2][i3][i4][i5];
 }
@@ -1524,22 +1506,19 @@ const TgcReadoutElement* MuonDetectorManager::getTgcReadoutElement(int i1, int i
     {
         std::cerr<<"ERROR MuonDetectorManager::getTgcReadoutElement stNameindex out of range "
                  <<i1<<" 0-"<<NTgcStatType-1<<std::endl;
-        assert(0);
-        return NULL;
+        throw;
     }
     if (i2<0 || i2 >= NTgcStatEta) 
     {
         std::cerr<<"ERROR MuonDetectorManager::getTgcReadoutElement stEtaindex out of range "
                  <<i2<<" 0-"<<NTgcStatEta-1<<std::endl;
-        assert(0);
-        return NULL;
+        throw;
     }
     if (i3<0 ||  i3>= NTgcStatPhi) 
     {
         std::cerr<<"ERROR MuonDetectorManager::getTgcReadoutElement stPhiindex out of range "
                  <<i3<<" 0-"<<NTgcStatPhi-1<<std::endl;
-        assert(0);
-        return NULL;
+        throw;
     }
 //     std::cout<<" getting the array component ..."<<std::endl;
     return _tgcArray[i1][i2][i3];
@@ -1617,6 +1596,24 @@ MuonDetectorManager::initABlineContainers() const
 StatusCode
 MuonDetectorManager::updateAlignment(const ALineMapContainer *  m_alineData) const
 {
+#ifdef TESTBLINES
+  {
+    for (std::map< std::string, MuonStation *>::const_iterator it(_MuonStationMap.begin()), end(_MuonStationMap.end());
+	it!=end; ++it) {
+      MuonStation* station = it->second;
+      station->setDelta_fromAline( 0., 0., 0., 0., 0., 0.); //double tras, double traz, double trat, double rots, double rotz, double rott
+      if (cacheFillingFlag()) 
+      {
+	station->clearCache();
+	station->fillCache();
+      }
+      else 
+      {
+	station->refreshCache();
+      }
+    }
+  }
+#endif
     //    IMessageSvc* m_msgSvc = Athena::getMessageSvc();
     MsgStream log(m_msgSvc, "MGM::MuonDetectorManager::updateAlignment");
     //log<<MSG::INFO<<"In updateAlignment()  --- pointer to the container is <"<<m_alineData<<">"<<endreq;
@@ -1678,6 +1675,10 @@ MuonDetectorManager::updateAlignment(const ALineMapContainer *  m_alineData) con
 		if  (m_controlAlines!=111111) ALine->setParameters(s,z,t,ths,thz,tht);
                 if (log.level()<=MSG::DEBUG) log<<MSG::DEBUG<<"Setting delta transform for Station "<<stType<<" "<<jzz<<" "<<jff<<" "<<" params are = "<<s<<" "<<z<<" "<<t<<" "<<ths<<" "<<thz<<" "<<tht<<endreq;
                 thisStation->setDelta_fromAline( s,z,t,ths,thz,tht );
+#ifdef TESTBLINES
+		ALine->setParameters( 0., 0., 0., 0., 0., 0.);
+                thisStation->setDelta_fromAline( 0., 0., 0., 0., 0., 0.);
+#endif
                 if (cacheFillingFlag()) 
 		  {
 		    thisStation->clearCache();
@@ -1794,6 +1795,21 @@ MuonDetectorManager::updateAlignment(const ALineMapContainer *  m_alineData) con
 StatusCode
 MuonDetectorManager::updateDeformations(const BLineMapContainer * m_blineData) const
 {
+#ifdef TESTBLINES
+  {
+    for (std::map< std::string, MuonStation *>::const_iterator it(_MuonStationMap.begin()), end(_MuonStationMap.end());
+	it!=end; ++it) {
+      MuonStation* station = it->second;
+      station->clearBLineCache();
+      BLinePar* BLine = new BLinePar();
+      //ine->setParameters(bz,bp,bn,sp,sn,tw,pg,tr,eg,ep,en)
+      BLine->setParameters(0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.);
+      station->setBline(BLine);
+      if (cacheFillingFlag()) station->fillBLineCache();
+    }
+  }
+#endif
+
     MsgStream log(m_msgSvc, "MGM::MuonDetectorManager::updateDeformations");
     log<<MSG::INFO<<"In updateDeformations()"<<endreq;
     if (!applyMdtDeformations()){
@@ -1829,7 +1845,7 @@ MuonDetectorManager::updateDeformations(const BLineMapContainer * m_blineData) c
         int job = 0;
 #ifdef TESTBLINES
       //BLine->setParameters(bz,bp,bn,sp,sn,tw,pg,tr,eg,ep,en)
-	BLine->setParameters(0.,0.,0.,0.,0.,0.,0.,0.,0.,1.,0.);
+	BLine->setParameters(0.,0.,0.,0.,0.,0.,0.,0.,0.,0.,0.);
 #endif	
 	if (mdtDeformationFlag()>999999) 
 	  {

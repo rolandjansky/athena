@@ -21,7 +21,6 @@
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
 
 #include <vector>
-#include <cassert>
 
 #define TgcReadout_verbose false
 
@@ -30,7 +29,8 @@ namespace MuonGM {
 TgcReadoutElement::TgcReadoutElement(GeoVFullPhysVol* pv, std::string stName,
                                      int zi, int fi, bool is_mirrored,
                                      MuonDetectorManager* mgr)
-  : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr)
+  : MuonClusterReadoutElement(pv, stName, zi, fi, is_mirrored, mgr),
+    m_readout_type(-1), m_readoutParams(NULL)
 {
     m_MsgStream = new MsgStream(mgr->msgSvc(),"MuGM:TgcReadoutElement");
     //std::string gVersion = manager()->geometryVersion();
@@ -386,19 +386,19 @@ int TgcReadoutElement::nVolumes() const
 
 int TgcReadoutElement::nGangs(int gasGap) const
 {
-    assert(validGap(gasGap));
+    if(! validGap(gasGap) ) throw;
     return m_readoutParams->nGangs(gasGap) + 1;
 }
 
 int TgcReadoutElement::nWires(int gasGap, int gang) const
 {
-    assert(validGang(gasGap, gang));
+    if( ! validGang(gasGap, gang) ) throw;
     return getNWires(gasGap,gang);
 }
 
 int TgcReadoutElement::nWiresTotal(int gasGap) const
 {
-    assert(validGap(gasGap));
+    if(! validGap(gasGap) ) throw;
     int total = 0;
     for (int i = 1; i <= nGangs(gasGap); ++i)
     {
@@ -409,13 +409,13 @@ int TgcReadoutElement::nWiresTotal(int gasGap) const
 
 int TgcReadoutElement::gangOffset(int gasGap) const
 {
-    assert(validGap(gasGap));
+    if(! validGap(gasGap) ) throw;
     return (int)WireOffset(gasGap);
 }
 
 float TgcReadoutElement::wireCoverage(int gasGap) const
 {
-    assert(validGap(gasGap));
+    if(! validGap(gasGap) ) throw;
     return wirePitch()*nWiresTotal(gasGap);
 }
 
@@ -423,7 +423,7 @@ float TgcReadoutElement::gangCtrZ(int gasGap, int gang) const
 {
     // recursively calculates position of gang in local Z coordinate
 
-    assert(validGang(gasGap, gang));
+    if( ! validGang(gasGap, gang) ) throw;
     float z;
     if (1 == gang)
     {
@@ -441,13 +441,13 @@ float TgcReadoutElement::gangCtrZ(int gasGap, int gang) const
 
 float TgcReadoutElement::gangMinZ(int gasGap, int gang) const
 {
-    assert(validGang(gasGap, gang));
+    if( ! validGang(gasGap, gang) ) throw;
     return gangCtrZ(gasGap, gang) - gangLength(gasGap, gang)/2;
 }
 
 float TgcReadoutElement::gangMaxZ(int gasGap, int gang) const
 {
-    assert(validGang(gasGap, gang));
+    if( ! validGang(gasGap, gang) ) throw;
     return gangCtrZ(gasGap, gang) + gangLength(gasGap, gang)/2;
 }
 
@@ -455,19 +455,19 @@ float TgcReadoutElement::gangMaxZ(int gasGap, int gang) const
 
 float TgcReadoutElement::gangLength(int gasGap, int gang) const
 {
-    assert(validGang(gasGap, gang));
+    if( ! validGang(gasGap, gang) ) throw;
     return wirePitch()*nWires(gasGap, gang);
 }
 
 float TgcReadoutElement::gangShortWidth(int gasGap, int gang) const
 {
-    assert(validGang(gasGap, gang));
+    if( ! validGang(gasGap, gang) ) throw;
     return chamberWidth(gangMinZ(gasGap, gang))-frameXwidth()*2.;
 }
 
 float TgcReadoutElement::gangLongWidth(int gasGap, int gang) const
 {
-    assert(validGang(gasGap, gang));
+    if( ! validGang(gasGap, gang) ) throw;
     return chamberWidth(gangMaxZ(gasGap, gang))-frameXwidth()*2.;
 }
 
@@ -485,7 +485,7 @@ float TgcReadoutElement::gangThickness(int gasGap, int gang) const
 
 int TgcReadoutElement::nStrips(int gasGap) const
 {
-    assert(validGap(gasGap));
+    if(! validGap(gasGap) ) throw;
     return m_readoutParams->nStrips(gasGap);
 }
 
@@ -497,10 +497,10 @@ float TgcReadoutElement::stripDeltaPhi(int gasGap) const
 {
   assert(validGap(gasGap));
 
-    if (reLog().level()<=MSG::DEBUG) {
-      reLog()<<MSG::DEBUG<< "stripDeltaPhi WARINIG delta phi varies according to strip # for layout Q and following" <<endreq;
-      reLog()<< "therefore stripDeltaPhi does NOT correctly return delta phi."<<endreq;
-    }
+  if (reLog().level()<=MSG::DEBUG) {
+    reLog()<<MSG::DEBUG<< "stripDeltaPhi WARINIG delta phi varies according to strip # for layout Q and following" <<endreq;
+    reLog()<< "therefore stripDeltaPhi does NOT correctly return delta phi."<<endreq;
+  }
 
   // number of strips in exclusive phi coverage of a chamber in T[1-3] and T4
   const float nDivInChamberPhi[4] = {29.5, 29.5, 29.5, 31.5};
@@ -535,7 +535,7 @@ float TgcReadoutElement::stripStaggerPhi(int gasGap) const
 {
     // strips in first gap are staggered by one-half pitch angle
 
-    assert(validGap(gasGap));
+    if(! validGap(gasGap) ) throw;
     float stagger = 0.0;
     if ((1 == gasGap && 0 < getStationEta()) || (1 != gasGap && 0 > getStationEta()))
     {
@@ -548,7 +548,7 @@ float TgcReadoutElement::stripMinPhi(int gasGap, int strip) const
 {
   // angle of lower edge of strip wrt center of chamber
 
-  assert(validStrip(gasGap, strip));
+  if( ! validStrip(gasGap, strip) ) throw;
   float stripMinPhi;
 
   // layout Q and following 
@@ -569,7 +569,7 @@ float TgcReadoutElement::stripMaxPhi(int gasGap, int strip) const
 {
     // angle of upper edge of strip wrt center of chamber
 
-    assert(validStrip(gasGap, strip));
+    if( ! validStrip(gasGap, strip) ) throw;
     float stripMaxPhi;
 
     // layout Q and following 
@@ -589,7 +589,7 @@ float TgcReadoutElement::stripCtrPhi(int gasGap, int strip) const
 {
     // angle of center of strip wrt center of chamber
 
-    assert(validStrip(gasGap, strip));
+    if( ! validStrip(gasGap, strip) ) throw;
     float stripCtrPhi;
 
     stripCtrPhi = (stripMaxPhi(gasGap,strip) + stripMinPhi(gasGap,strip))/2.;
@@ -598,13 +598,13 @@ float TgcReadoutElement::stripCtrPhi(int gasGap, int strip) const
 
 float TgcReadoutElement::stripCtrX(int gasGap, int strip, float z) const
 {
-    assert(validStrip(gasGap, strip));
+    if( ! validStrip(gasGap, strip) ) throw;
     return (stripMinX(gasGap,strip,z)+stripMaxX(gasGap,strip,z))/2.;
 }
 
 float TgcReadoutElement::stripMinX(int gasGap, int strip, float z) const
 {
-    assert(validStrip(gasGap, strip));
+    if( ! validStrip(gasGap, strip) ) throw;
     if ((getStationEta() > 0 && gasGap == 1) ||
 	(getStationEta() < 0 && gasGap != 1)   )
       {
@@ -620,7 +620,7 @@ float TgcReadoutElement::stripMinX(int gasGap, int strip, float z) const
 
 float TgcReadoutElement::stripMaxX(int gasGap, int strip, float z) const
 {
-    assert(validStrip(gasGap, strip));
+      if( ! validStrip(gasGap, strip) ) throw;
       if ((getStationEta() > 0 && gasGap == 1) ||
 	  (getStationEta() < 0 && gasGap != 1)   )
       {
@@ -676,7 +676,7 @@ float TgcReadoutElement::stripShortWidth(int gasGap, int strip) const
 {
     // projection of strip on local X axis at min(Z)
 
-    assert(validStrip(gasGap, strip));
+    if( ! validStrip(gasGap, strip) ) throw;
     if ((getStationEta() > 0 && gasGap == 1) ||
 	(getStationEta() < 0 && gasGap != 1)   )
       {
@@ -692,7 +692,7 @@ float TgcReadoutElement::stripLongWidth(int gasGap, int strip) const
 {
     // projection of strip on local X axis at max(Z)
 
-    assert(validStrip(gasGap, strip));
+    if( ! validStrip(gasGap, strip) ) throw;
     if ((getStationEta() > 0 && gasGap == 1) ||
 	(getStationEta() < 0 && gasGap != 1)   )
       {
@@ -708,7 +708,7 @@ float TgcReadoutElement::stripSkew(int gasGap, int strip) const
 {
     // angle of center of strip wrt center of chamber
 
-    assert(validStrip(gasGap, strip));
+    if( ! validStrip(gasGap, strip) ) throw;
     return stripCtrPhi(gasGap, strip);
 }
 
@@ -723,7 +723,7 @@ double TgcReadoutElement::StripPitch(int gasGap, int strip, float z) const
 {
     //!< strip pitch depending on local z position (R in global coordinate)
 
-   assert(validStrip(gasGap, strip));
+   if( ! validStrip(gasGap, strip) ) throw;
    if (1 < strip && strip < 32 )
    {
      double pitchlow = (double) stripCtrX(gasGap,strip+1,z)-stripCtrX(gasGap,strip,z);
@@ -753,7 +753,7 @@ double TgcReadoutElement::StripPitch(int gasGap, int strip, float z) const
 int TgcReadoutElement::findChannel(int gasGap, int isStrip,
                                    Amg::Vector3D localPos) const
 {
-    assert(validGap(gasGap));
+    if(! validGap(gasGap) ) throw;
     float x = localPos.x();
     float z = localPos.z();
     //float phi = atan2(x, globalPosition().x() + z);
@@ -775,14 +775,12 @@ int TgcReadoutElement::findChannel(int gasGap, int isStrip,
       return getNStrips(gasGap);
     }
 
-    assert(0);
-    return -1;
 }
 
 
 int TgcReadoutElement::findGang(int gasGap, Amg::Vector3D localPos) const
 {
-    assert(validGap(gasGap));
+    if(! validGap(gasGap) ) throw;
     float z = localPos.z();
     for (int gang = 1; gang <= getNGangs(gasGap); ++gang)
     {
@@ -794,7 +792,7 @@ int TgcReadoutElement::findGang(int gasGap, Amg::Vector3D localPos) const
 int TgcReadoutElement::findStrip(int gasGap,
                                  Amg::Vector3D localPos, Amg::Vector3D /*globalPos*/) const
 {
-    assert(validGap(gasGap));
+    if(! validGap(gasGap) ) throw;
 
     float x = localPos.x();
 
@@ -811,17 +809,17 @@ int TgcReadoutElement::gapVolume(int gasGap) const
 {
     // returns the volume index corresponding to the gas gap index
 
-    assert(validGap(gasGap));
+    if(! validGap(gasGap) ) throw;
     int gap_index =  0;
-    int vol_index = -1;
+    // int vol_index = -1;
     const GenericTGCCache* tgc = manager()->getGenericTgcDescriptor();
     for (int i = 0; i < tgc->nlayers; ++i)
     {
         if (isAgap(tgc->materials[i])) ++gap_index;
         if (gasGap == gap_index) return i;
     }
-    assert(0);
-    return vol_index;
+
+    throw;
 }
 
 bool TgcReadoutElement::isAgap(std::string volumeMaterial) const
@@ -838,14 +836,14 @@ bool TgcReadoutElement::validGap(int gasGap) const
 
 bool TgcReadoutElement::validGang(int gasGap, int gang) const
 {
-    assert(validGap(gasGap));
+    if(! validGap(gasGap) ) throw;
     bool isValid =  (1 <= gang && gang <= (getNGangs(gasGap) + 1));
     return isValid;
 }
 
 bool TgcReadoutElement::validStrip(int gasGap, int strip) const
 {
-    assert(validGap(gasGap));
+    if(! validGap(gasGap) ) throw;
     bool isValid = (1 <= strip && strip <= getNStrips(gasGap));
     if (!isValid) std::cerr<<"TgcReadoutElement::validStrip("<<gasGap<<","<<strip
                            <<") is false: strip out of range; limits are 1-"<<getNStrips(gasGap)<<std::endl;

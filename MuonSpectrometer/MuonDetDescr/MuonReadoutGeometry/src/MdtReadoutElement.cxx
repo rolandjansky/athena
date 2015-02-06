@@ -28,7 +28,7 @@
 #include "MuonAlignmentData/BLinePar.h"
 
 #include "GaudiKernel/MsgStream.h"
-#include <cassert>
+#include <limits>
 
 // From Dan Levin: MDT 
 // linear density of wire: lambda=wireLinearDensity=19.3 [gm/cm^3] * PI*
@@ -57,6 +57,9 @@ MdtReadoutElement::MdtReadoutElement(GeoVFullPhysVol* pv, std::string stName,
                                      int zi, int fi, bool is_mirrored,
                                      MuonDetectorManager* mgr)
   : MuonReadoutElement(pv, zi, fi, is_mirrored, mgr),
+    m_nlayers(-1), m_tubepitch(-9999.), m_tubelayerpitch(-9999.), m_ntubesperlayer(-1),
+    m_nsteps(-1), m_ntubesinastep(-1), m_tubelenStepSize(-9999.), m_cutoutShift(-9999.),
+    m_endpluglength(-9999.), m_deadlength(-9999.),
     m_deformTransfs(0),
     m_BLinePar(0),
     m_elemNormal(0),
@@ -156,13 +159,14 @@ bool MdtReadoutElement::getWireFirstLocalCoordAlongR(int tubeLayer, double& coor
 
 double MdtReadoutElement::innerTubeRadius() const 
 {
-  return manager()->getGenericMdtDescriptor()->innerRadius;
+  return m_innerRadius;
 }
 double MdtReadoutElement::outerTubeRadius() const 
 {
   //  std::cout<<" asking for outer radius; inner first "<<manager()->getGenericMdtDescriptor()->innerRadius<<std::endl;
   //  std::cout<<" asking for outer radius; outer first "<<manager()->getGenericMdtDescriptor()->outerRadius<<std::endl;
-  return manager()->getGenericMdtDescriptor()->outerRadius;
+  //return manager()->getGenericMdtDescriptor()->outerRadius;
+  return m_innerRadius + m_tubeWallThickness;
 }
 
 
@@ -371,8 +375,9 @@ double MdtReadoutElement::RODistanceFromTubeCentre(int multilayer, int tubelayer
 {
     // it is a un-signed quantity:
     if (multilayer != m_multilayer) {
-        assert(0);
-        return -99999.;
+        reLog()<<MSG::ERROR<<"MdtReadoutElement::RODistanceFromTubeCentre "
+               <<"inserted multilayer is not the multilayer of the RE." <<endreq;
+        throw;
     }
     
     return getWireLength(tubelayer, tube)/2.;
@@ -383,8 +388,9 @@ double MdtReadoutElement::signedRODistanceFromTubeCentre(int multilayer, int tub
     // the sign corresponds to the sign of the z coordinate of the RO endplug in the tube
     // reference frame 
     if (multilayer != m_multilayer) {
-        assert(0);
-        return -99999.;
+        reLog()<<MSG::ERROR<<"MdtReadoutElement::signedRODistanceFromTubeCentre "
+               <<"inserted multilayer is not the multilayer of the RE." <<endreq;
+        throw;
     }
 
     int amdb_plus_minus1 = 1;
@@ -622,7 +628,11 @@ const Amg::Vector3D MdtReadoutElement::nodeform_localTubePos(Identifier id) cons
 const Amg::Vector3D MdtReadoutElement::nodeform_tubePos(int multilayer, int tubelayer, int tube) const
 {
     //MsgStream log(m_msgSvc, "MuGM:MdtReadout");
-    if (multilayer != m_multilayer) assert(0);
+    if (multilayer != m_multilayer) {
+        reLog()<<MSG::ERROR<<"MdtReadoutElement::nodeform_tubePos "
+               <<"inserted multilayer is not the multilayer of the RE." <<endreq;
+        throw;
+    }
 
     //reLog()<<MSG::DEBUG<<" MdtReadoutElement::tubePos(ml,tl,t) going to look for local coord.s"<<endreq;
     const Amg::Vector3D lp = nodeform_localTubePos(multilayer, tubelayer, tube);
@@ -636,7 +646,11 @@ const Amg::Vector3D MdtReadoutElement::nodeform_tubePos(int multilayer, int tube
 }
 const Amg::Vector3D MdtReadoutElement::tubePos(int multilayer, int tubelayer, int tube) const
 {
-    if (multilayer != m_multilayer) assert(0);
+    if (multilayer != m_multilayer) {
+        reLog()<<MSG::ERROR<<"MdtReadoutElement::tubePos "
+               <<"inserted multilayer is not the multilayer of the RE." <<endreq;
+        throw;
+    }
 
     if ( reLog().level() <= MSG::VERBOSE ) {
       reLog()<<MSG::VERBOSE<<"in tubePos-- id "<<(manager()->mdtIdHelper())->show_to_string(identify())
@@ -817,7 +831,11 @@ const Amg::Vector3D MdtReadoutElement::AmdbLRStubePos(int multilayer,
                                                    int tubelayer,
                                                    int tube) const
 {
-   if (multilayer != m_multilayer) assert(0);
+   if (multilayer != m_multilayer) {
+        reLog()<<MSG::ERROR<<"MdtReadoutElement::AmdbLRStubePos "
+               <<"inserted multilayer is not the multilayer of the RE." <<endreq;
+        throw;
+   }
    const Amg::Vector3D tp = localTubePos(multilayer, tubelayer, tube);
 
    //Have the position in local(GM) MDT coords.
@@ -852,10 +870,6 @@ MdtReadoutElement::fromIdealToDeformed(const Identifier& id) const
 
 const Amg::Transform3D & MdtReadoutElement::fromIdealToDeformed(int multilayer, int tubelayer, int tube) const
 {
-  //MsgStream log(m_msgSvc, "MuGM:MdtReadout");
-  //std::cerr<<"fromIdealToDeformed for MdtReadoutElement "
-  //<<idh->show_to_string(identify())<<" ml, tl, t = "<<multilayer<<" "<<tubelayer<<" "<<tube<<std::endl;
-
   const MdtIdHelper* idh = manager()->mdtIdHelper();
   const MuonStation*  ms = parentMuonStation();
   HepGeom::Point3D<double> fpp = ms->getUpdatedBlineFixedPointInAmdbLRS();
@@ -901,7 +915,6 @@ const Amg::Transform3D & MdtReadoutElement::fromIdealToDeformed(int multilayer, 
 						 <<" reusing deform-trasf for tLayer, tube "<<tubelayer<<" "<<tube<<" globalIndex = "<<itube<<endreq;
       return *transf;
   }
-  //std::cerr<<"create here the transform in the HEP for m_deformTransf "<<m_deformTransf<<std::endl;
   
 
   // Chamber parameters
@@ -917,6 +930,9 @@ const Amg::Transform3D & MdtReadoutElement::fromIdealToDeformed(int multilayer, 
 	    <<"Different ML and MDTStation length in the precision coord.direction  ---  MultiLayerHeight, MDTstationHeigh "
 	    <<heightML<<" "<<height<<" MultiLayerThickness, MDTstationThickness "<<thicknessML<<" "<<thickness<<endreq;
 									        
+  // Chamber dimension in Z is defined with extraneous glue width. Correct for it
+  double glue = (tubePitch() - 2.*outerTubeRadius());
+  height -= glue;
 
   // Deformation parameters. This needs to be replaced by the info from the B-line object
   //
@@ -946,12 +962,13 @@ const Amg::Transform3D & MdtReadoutElement::fromIdealToDeformed(int multilayer, 
   // Get positions of the wire center and end without deformations
 
   Amg::Vector3D pt_center   = nodeform_localTubePos(multilayer, tubelayer, tube);
-  Amg::Vector3D pt_end_tube = tubeFrame_localROPos(multilayer, tubelayer, tube);
-  Amg::Vector3D pt_end = Amg::Vector3D(pt_center.x()+pt_end_tube.x(),
-				 pt_center.y()-pt_end_tube.z(),
-				 pt_center.z()+pt_end_tube.y());
-
-
+  double halftubelen = 0.5*getTubeLength(tubelayer, tube);
+  Amg::Vector3D pt_end = Amg::Vector3D(pt_center.x(),
+				 pt_center.y()-halftubelen,
+				 pt_center.z());
+  Amg::Vector3D pt_end2 = Amg::Vector3D(pt_center.x(),
+				 pt_center.y()+halftubelen,
+				 pt_center.z());
   
 #ifdef TESTBLINES
   {
@@ -969,59 +986,60 @@ const Amg::Transform3D & MdtReadoutElement::fromIdealToDeformed(int multilayer, 
 #endif  
 
   // Get positions after the deformations applied
-   Amg::Vector3D localInAmdbFrameCenter_afterAllCorr = Amg::Vector3D(0.,0.,0.);
+   //Amg::Vector3D localInAmdbFrameCenter_afterAllCorr = Amg::Vector3D(0.,0.,0.);
    Amg::Vector3D localInAmdbFrameEnd_afterAllCorr    = Amg::Vector3D(0.,0.,0.);
-   /////////// wire centre 
-   Amg::Vector3D localInAmdbFrameCenter_afterBline = 
-       posOnDefChamStraightWire(toAMDB*pt_center,width_narrow,width_wide,height,thickness,
- 			       bz, bp, bn, sp, sn, tw, pg, tr, eg, ep, en, fixedPoint);
-   localInAmdbFrameCenter_afterAllCorr = localInAmdbFrameCenter_afterBline;
-   // if there are as built parameters ... apply them here 
-   localInAmdbFrameCenter_afterAllCorr = afterAsBuiltParamsInAmdbFrame(localInAmdbFrameCenter_afterBline,multilayer,tubelayer,tube);
-   Amg::Vector3D my_pt_center_new = fromAMDB*localInAmdbFrameCenter_afterAllCorr;
+   Amg::Vector3D localInAmdbFrameEnd2_afterAllCorr    = Amg::Vector3D(0.,0.,0.);
  
    /////////// wire end point  
    Amg::Vector3D localInAmdbFrameEnd_afterBline = 
-       posOnDefChamStraightWire(toAMDB*pt_end,width_narrow,width_wide,height,thickness,
+       posOnDefChamWire(toAMDB*pt_end,width_narrow,width_wide,height,thickness,
  			       bz, bp, bn, sp, sn, tw, pg, tr, eg, ep, en, fixedPoint);
    localInAmdbFrameEnd_afterAllCorr = localInAmdbFrameEnd_afterBline;
    // if there are as built parameters ... apply them here 
    localInAmdbFrameEnd_afterAllCorr = afterAsBuiltParamsInAmdbFrame(localInAmdbFrameEnd_afterBline,multilayer,tubelayer,tube);
    Amg::Vector3D my_pt_end_new = fromAMDB*localInAmdbFrameEnd_afterAllCorr; 
 
+   /////////// second wire end point
+   Amg::Vector3D localInAmdbFrameEnd2_afterBline = 
+       posOnDefChamWire(toAMDB*pt_end2,width_narrow,width_wide,height,thickness,
+ 			       bz, bp, bn, sp, sn, tw, pg, tr, eg, ep, en, fixedPoint);
+   localInAmdbFrameEnd2_afterAllCorr = localInAmdbFrameEnd2_afterBline;
+   // if there are as built parameters ... apply them here 
+   localInAmdbFrameEnd2_afterAllCorr = afterAsBuiltParamsInAmdbFrame(localInAmdbFrameEnd2_afterBline,multilayer,tubelayer,tube);
+   Amg::Vector3D my_pt_end2_new = fromAMDB*localInAmdbFrameEnd2_afterAllCorr; 
 
-  Amg::Vector3D pt_center_new;
   Amg::Vector3D pt_end_new;
+  Amg::Vector3D pt_end2_new;
    
   
-  if (verbose_Bline)
-  {
-      std::cerr<<"my_pt_center_new = "<<my_pt_center_new<<std::endl;
-      std::cerr<<"my_pt_end_new    = "<<my_pt_end_new<<std::endl;
+  //if (verbose_Bline)
+  //{
+      //std::cerr<<"my_pt_center_new = "<<my_pt_center_new<<std::endl;
+      //std::cerr<<"my_pt_end_new    = "<<my_pt_end_new<<std::endl;
 
-      const Amg::Vector3D pt_center_amdb(-pt_center.y(), pt_center.x(), pt_center.z()+height/2);
-      //std::cerr<<" pt_center_amdb "<<pt_center_amdb<<" going to positionOnDeformedChamber "<<std::endl;
-      //const Amg::Vector3D pt_center_new_amdb = positionOnDeformedChamber(pt_center_amdb,width_narrow,width_wide,height,thickness,bz, bp, bn, sp, sn, tw, pg, tr, eg, ep, en);
-      const Amg::Vector3D pt_center_new_amdb = posOnDefChamStraightWire(pt_center_amdb,width_narrow,width_wide,height,thickness,
-								     bz, bp, bn, sp, sn, tw, pg, tr, eg, ep, en, fixedPoint);
-      //std::cerr<<" pt_center_new_amdb "<<pt_center_new_amdb<<std::endl;
-      pt_center_new = Amg::Vector3D(pt_center_new_amdb.y(), -pt_center_new_amdb.x(), pt_center_new_amdb.z()-height/2);  
-      //std::cerr<<" pt_center_new "<<pt_center_new<<std::endl;
+      //const Amg::Vector3D pt_center_amdb(-pt_center.y(), pt_center.x(), pt_center.z()+height/2);
+      ////std::cerr<<" pt_center_amdb "<<pt_center_amdb<<" going to positionOnDeformedChamber "<<std::endl;
+      ////const Amg::Vector3D pt_center_new_amdb = positionOnDeformedChamber(pt_center_amdb,width_narrow,width_wide,height,thickness,bz, bp, bn, sp, sn, tw, pg, tr, eg, ep, en);
+      //const Amg::Vector3D pt_center_new_amdb = posOnDefChamWire(pt_center_amdb,width_narrow,width_wide,height,thickness,
+								     //bz, bp, bn, sp, sn, tw, pg, tr, eg, ep, en, fixedPoint);
+      ////std::cerr<<" pt_center_new_amdb "<<pt_center_new_amdb<<std::endl;
+      //pt_center_new = Amg::Vector3D(pt_center_new_amdb.y(), -pt_center_new_amdb.x(), pt_center_new_amdb.z()-height/2);  
+      ////std::cerr<<" pt_center_new "<<pt_center_new<<std::endl;
   
-      const Amg::Vector3D pt_end_amdb(-pt_end.y(), pt_end.x(), pt_end.z()+height/2);
-      //std::cerr<<" pt_end_amdb "<<pt_end_amdb<<" going to positionOnDeformedChamber"<<std::endl;
-      //const Amg::Vector3D pt_end_new_amdb = positionOnDeformedChamber(pt_end_amdb,width_narrow,width_wide,height,thickness,
-      //								   bz, bp, bn, sp, sn, tw, pg, tr, eg, ep, en);
-      const Amg::Vector3D pt_end_new_amdb = posOnDefChamStraightWire(pt_end_amdb,width_narrow,width_wide,height,thickness,
-								  bz, bp, bn, sp, sn, tw, pg, tr, eg, ep, en, fixedPoint);
-      //std::cerr<<" pt_end_new_amdb "<<pt_end_new_amdb<<std::endl;
-      pt_end_new = Amg::Vector3D(pt_end_new_amdb.y(), -pt_end_new_amdb.x(), pt_end_new_amdb.z()-height/2);
-      std::cerr<<" BY HAND pt_center_new "<<pt_center_new<<std::endl;
-      std::cerr<<" BY HAND pt_end_new    "<<pt_end_new<<std::endl;
-  }
+      //const Amg::Vector3D pt_end_amdb(-pt_end.y(), pt_end.x(), pt_end.z()+height/2);
+      ////std::cerr<<" pt_end_amdb "<<pt_end_amdb<<" going to positionOnDeformedChamber"<<std::endl;
+      ////const Amg::Vector3D pt_end_new_amdb = positionOnDeformedChamber(pt_end_amdb,width_narrow,width_wide,height,thickness,
+      ////								   bz, bp, bn, sp, sn, tw, pg, tr, eg, ep, en);
+      //const Amg::Vector3D pt_end_new_amdb = posOnDefChamWire(pt_end_amdb,width_narrow,width_wide,height,thickness,
+								  //bz, bp, bn, sp, sn, tw, pg, tr, eg, ep, en, fixedPoint);
+      ////std::cerr<<" pt_end_new_amdb "<<pt_end_new_amdb<<std::endl;
+      //pt_end_new = Amg::Vector3D(pt_end_new_amdb.y(), -pt_end_new_amdb.x(), pt_end_new_amdb.z()-height/2);
+      //std::cerr<<" BY HAND pt_center_new "<<pt_center_new<<std::endl;
+      //std::cerr<<" BY HAND pt_end_new    "<<pt_end_new<<std::endl;
+  //}
   
-  pt_center_new = my_pt_center_new;
   pt_end_new = my_pt_end_new;
+  pt_end2_new = my_pt_end2_new;
   
 
   /*
@@ -1044,50 +1062,36 @@ const Amg::Transform3D & MdtReadoutElement::fromIdealToDeformed(int multilayer, 
   // Move to the coordinate system originated at the wire center, then rotate the wire, then 
   // move wire center to the new position
 
+  const Amg::Vector3D pt_center_new = 0.5*(pt_end_new + pt_end2_new);
   const Amg::Translation3D to_center(-pt_center.x(),
 				 -pt_center.y(),
 				 -pt_center.z());
-//   std::cerr<<"to_center "<<to_center[0][0]<<" "<<to_center[0][1]<<" "<<to_center[0][2]<<std::endl;
-//   std::cerr<<"to_center "<<to_center[1][0]<<" "<<to_center[1][1]<<" "<<to_center[1][2]<<std::endl;
-//   std::cerr<<"to_center "<<to_center[2][0]<<" "<<to_center[2][1]<<" "<<to_center[2][2]<<std::endl;
   const Amg::Translation3D from_center(pt_center_new.x(),
 				   pt_center_new.y(),
 				   pt_center_new.z());
-//   std::cerr<<"from_center "<<from_center[0][0]<<" "<<from_center[0][1]<<" "<<from_center[0][2]<<std::endl;
-//   std::cerr<<"from_center "<<from_center[1][0]<<" "<<from_center[1][1]<<" "<<from_center[1][2]<<std::endl;
-//   std::cerr<<"from_center "<<from_center[2][0]<<" "<<from_center[2][1]<<" "<<from_center[2][2]<<std::endl;
-  //std::cerr<<"from_center "<<from_center<<std::endl;
-  const Amg::Vector3D old_direction(pt_end.x()-pt_center.x(),
-				 pt_end.y()-pt_center.y(),
-				 pt_end.z()-pt_center.z());
-  //  std::cerr<<"old_direction "<<old_direction<<std::endl;
-    const Amg::Vector3D new_direction(pt_end_new.x()-pt_center_new.x(),
-				 pt_end_new.y()-pt_center_new.y(),
-				 pt_end_new.z()-pt_center_new.z());
-  //  std::cerr<<"new_direction "<<new_direction<<std::endl;
+  const Amg::Vector3D old_direction(pt_end2.x()-pt_end.x(),
+				 pt_end2.y()-pt_end.y(),
+				 pt_end2.z()-pt_end.z());
+  const Amg::Vector3D new_direction(pt_end2_new.x()-pt_end_new.x(),
+				 pt_end2_new.y()-pt_end_new.y(),
+				 pt_end2_new.z()-pt_end_new.z());
   const Amg::Vector3D rotation_vector = old_direction.unit().cross(new_direction.unit());
-  //  std::cerr<<"rotation_vector "<<rotation_vector <<std::endl;
-  const Amg::AngleAxis3D wire_rotation(asin(rotation_vector.mag()),rotation_vector);
-//   std::cerr<<"wire_rotation "<<wire_rotation[0][0]<<" "<<wire_rotation[0][1]<<" "<<wire_rotation[0][2]<<std::endl;
-//   std::cerr<<"wire_rotation "<<wire_rotation[1][0]<<" "<<wire_rotation[1][1]<<" "<<wire_rotation[1][2]<<std::endl;
-//   std::cerr<<"wire_rotation "<<wire_rotation[2][0]<<" "<<wire_rotation[2][1]<<" "<<wire_rotation[2][2]<<std::endl;
-  
+  Amg::Vector3D rotation_vector_unit(1., 0., 0.);
+  if (rotation_vector.mag() > 10.*std::numeric_limits<double>::epsilon())
+    rotation_vector_unit = rotation_vector.unit();
+  const Amg::AngleAxis3D wire_rotation(asin(rotation_vector.mag()),rotation_vector_unit);
 
-  transf=new Amg::Transform3D(from_center*wire_rotation*to_center);
+  transf = new Amg::Transform3D(from_center*wire_rotation*to_center);
   (*m_deformTransfs)[itube] = transf;
   if ( reLog().level() <= MSG::DEBUG ) 
     reLog() << MSG::DEBUG <<"RE "<< idh->show_to_string(identify())
 	    <<" created deform-trasf for tLayer, tube "<<tubelayer<<" "<<tube<<" globalIndex = "<<itube<<endreq;
 
-//   std::cerr<<"(*m_deformTransf) "<<(*m_deformTransf)[0][0]<<" "<<(*m_deformTransf)[0][1]<<" "<<(*m_deformTransf)[0][2]<<std::endl;
-//   std::cerr<<"(*m_deformTransf) "<<(*m_deformTransf)[1][0]<<" "<<(*m_deformTransf)[1][1]<<" "<<(*m_deformTransf)[1][2]<<std::endl;
-//   std::cerr<<"(*m_deformTransf) "<<(*m_deformTransf)[2][0]<<" "<<(*m_deformTransf)[2][1]<<" "<<(*m_deformTransf)[2][2]<<std::endl;
-  
   return *transf;
 }
 
 Amg::Vector3D
-MdtReadoutElement::posOnDefChamStraightWire( const Amg::Vector3D& locAMDBPos, const BLinePar* bLine, const Amg::Vector3D fixedPoint) const
+MdtReadoutElement::posOnDefChamWire( const Amg::Vector3D& locAMDBPos, const BLinePar* bLine, const Amg::Vector3D fixedPoint) const
 {
   //MsgStream log(m_msgSvc, "MuGM:MdtReadout:posOnDefCh");
   //reLog() << MSG::ERROR << "This method is supposed to compute " 
@@ -1098,7 +1102,7 @@ MdtReadoutElement::posOnDefChamStraightWire( const Amg::Vector3D& locAMDBPos, co
   double height = m_inBarrel ? m_Zsize : m_Rsize;
   double thickness = m_inBarrel ? m_Rsize : m_Zsize;
 
-  return posOnDefChamStraightWire( locAMDBPos, 
+  return posOnDefChamWire( locAMDBPos, 
 				    m_Ssize, m_LongSsize, height, thickness, 
 				    bLine->bz(), bLine->bp(), bLine->bn(), 
 				    bLine->sp(),bLine->sn(),
@@ -1155,15 +1159,18 @@ MdtReadoutElement::positionOnDeformedChamber( const Amg::Vector3D& locAMDBPos, c
 //   */
 
 Amg::Vector3D
-MdtReadoutElement::posOnDefChamStraightWire( const Amg::Vector3D& locAMDBPos, 
-					     double width_narrow, double width_wide, double height, double thickness,
-					     double /*bz*/, double /*bp*/, double /*bn*/, double sp, double sn, double tw,
-					     double /*pg*/, double /*tr*/, double eg, double ep, double en, 
-					     const Amg::Vector3D fixedPoint) const
+MdtReadoutElement::posOnDefChamWire( const Amg::Vector3D& locAMDBPos, 
+    double width_narrow, double width_wide, double height, double thickness,
+    double /*bz*/, double /*bp*/, double /*bn*/, double sp, double sn, double tw,
+    double /*pg*/, double /*tr*/, double eg, double ep, double en, 
+    const Amg::Vector3D fixedPoint) const
 {
-  // S.Spagnolo Feb.6, 2011
-  // this version do not implement the effects irrelevant for the wire geometry; used to correct the tube transform
-  // the wire is, a part from gravitational sagging effect, a straight line.  
+  // S.Spagnolo Feb.6, 2011, modified by P.F Giraud, 2015-01-17
+  // This version does not implement deformations modifying only the second
+  // coordinate, or leaving the end-plug positions unchanged.
+  // This version should be called only with the coordinates of the end-plugs
+  // as argument, as is done in fromIdealToDeformed
+
   // MDT deformations like tube bow: bz,bp,bn bend the tube while the wire endpoints are not affected 
   //                                 => the wire keeps it's nominal straight line trajectory but it is not concentric to the tube
   //                                 ==> in this function bz, bp and bn are ignored or set to 0
@@ -1190,8 +1197,8 @@ MdtReadoutElement::posOnDefChamStraightWire( const Amg::Vector3D& locAMDBPos,
   double z0 = locAMDBPos.y();
   double t0 = locAMDBPos.z();
 #ifdef TESTBLINES
-  std::cerr<<"** In posOnDefChamStraightWire - width_narrow, width_wide, length, thickness, "<<width_narrow<<" "<<width_wide<<" "<<height<<" "<<thickness<<" "<<std::endl;
-  std::cerr<<"** In posOnDefChamStraightWire - going to correct for B-line the position of Point at "<<s0<<" "<<z0<<" "<<t0<<" in the amdb-szt frame"<<std::endl;
+  std::cerr<<"** In posOnDefChamWire - width_narrow, width_wide, length, thickness, "<<width_narrow<<" "<<width_wide<<" "<<height<<" "<<thickness<<" "<<std::endl;
+  std::cerr<<"** In posOnDefChamWire - going to correct for B-line the position of Point at "<<s0<<" "<<z0<<" "<<t0<<" in the amdb-szt frame"<<std::endl;
 #endif
 
   double s0mdt = s0; // always I think ! 
@@ -1206,7 +1213,7 @@ MdtReadoutElement::posOnDefChamStraightWire( const Amg::Vector3D& locAMDBPos,
 				 <<"local point: szt="<<s0<<" "<<z0<<" "<<t0
 				 <<" fixedPoint "<<fixedPoint<<endreq; 
 #ifdef TESTBLINES  
-  std::cerr<<"** In posOnDefChamStraightWire - correct for offset of B-line fixed point "<<s0mdt<<" "<<z0mdt<<" "<<t0mdt<<" "<<std::endl;
+  std::cerr<<"** In posOnDefChamWire - correct for offset of B-line fixed point "<<s0mdt<<" "<<z0mdt<<" "<<t0mdt<<" "<<std::endl;
 #endif
 
   double ds = 0.;
@@ -1218,7 +1225,7 @@ MdtReadoutElement::posOnDefChamStraightWire( const Amg::Vector3D& locAMDBPos,
   double z_rel=(z0mdt-height/2.)/(height/2.);
   double t_rel=(t0mdt-thickness/2.)/(thickness/2.);
 #ifdef TESTBLINES  
-  std::cerr<<"** In posOnDefChamStraightWire - width_actual, s_rel, z_rel, t_rel  "<<width_actual<<" "<<s_rel<<" "<<z_rel<<" "<<t_rel<<std::endl;
+  std::cerr<<"** In posOnDefChamWire - width_actual, s_rel, z_rel, t_rel  "<<width_actual<<" "<<s_rel<<" "<<z_rel<<" "<<t_rel<<std::endl;
 #endif
   
 
@@ -1233,7 +1240,7 @@ MdtReadoutElement::posOnDefChamStraightWire( const Amg::Vector3D& locAMDBPos,
     dt -= tw*s_rel*z_rel;
     dz += tw*s_rel*t_rel*thickness/height;
 #ifdef TESTBLINES
-    std::cerr<<"** In posOnDefChamStraightWire: tw="<<tw<<" dt, dz "<<dt<<" "<<dz<<std::endl;
+    std::cerr<<"** In posOnDefChamWire: tw="<<tw<<" dt, dz "<<dt<<" "<<dz<<std::endl;
 #endif
   }
 
@@ -1254,41 +1261,12 @@ MdtReadoutElement::posOnDefChamStraightWire( const Amg::Vector3D& locAMDBPos,
   if( (ep!=0) || (en!=0) ) {
     ep = ep/1000.;
     en = en/1000.;   
-      //double phi = 0.5*(ep+en)*s_rel*s_rel + 0.5*(ep-en)*s_rel;
-      //ds += s0*phi;
-      //dz += z0*phi-0.5*phi*height;
-      //dt += t0*phi-0.5*phi*thickness;
-      // compute position of wire end at s> and <0 in the szt frame s,z,tEP,N
-    //double s_rel2 = s_rel2*s_rel2;
-    //double s_rel3 = s_rel2*s_rel;    
-    //double phi   =  0.5*(ep+en)*s_rel2 + 0.5*(ep-en)*s_rel;   
-    //double delta =  (ep+en)*s_rel3/6. + 0.25*(ep-en)*s_rel2;   
-      double phiEP   =  0.5*(ep+en) + 0.5*(ep-en);    
-      double deltaEP =  (ep+en)/6.  + 0.25*(ep-en);
-      double phiEN   =  0.5*(ep+en) - 0.5*(ep-en);
-      double deltaEN = -(ep+en)/6.  + 0.25*(ep-en);
-      double sEP =  0.5*width_actual + 0.5*deltaEP*width_actual;
-      double tEP = t0mdt*(1.+phiEP) - 0.5*phiEP*thickness; //assuming t0=0
-      double zEP = z0mdt*(1.+phiEP) - 0.5*phiEP*height; //assuming z0=0
-      double sEN = -0.5*width_actual + 0.5*deltaEN*width_actual;
-      double tEN = t0mdt*(1.+phiEN) - 0.5*phiEN*thickness; //assuming t0=0
-      double zEN = z0mdt*(1.+phiEN) - 0.5*phiEN*height; //assuming z0=0
-      // compute position of wire at generic s coordinate expanded_srel [0,1] range
-      // from linear interpolation of s,z,tEP and s,z,tEN 
-      //double delta = s_rel*s_rel*s_rel*(ep+en)/6.  + s_rel*s_rel*0.25*(ep-en);
-      //double sNew = s0mdt+0.5*delta*width_actual - sEN; /// this would be where the physical point of the wire at s0mdt in the undeformed case is moved by ep,en
-      // Jun23rd, 2011 However for the purpose of defining dt and dz for a point on the wire (straight track connecting two deformed end-points) it is more convenient to define sNew in a different way 
-      double sNew = (s_rel+1.)*(sEP-sEN)/2.; // i.e. if the original point was at fraction = distance from EN / (EP-EN), sNew keep fraction unchanged !
-      double expanded_srel = sNew/(sEP-sEN);
-      double localT = tEN + expanded_srel*(tEP-tEN);
-      double localZ = zEN + expanded_srel*(zEP-zEN);
-      // compute delta w.r.t. nominal position is t and z 
-      double localDt = localT-t0mdt;
-      double localDz = localZ-z0mdt;
-      dt += localDt;
-      dz += localDz;      
+    double phi = 0.5*(ep+en)*s_rel*s_rel + 0.5*(ep-en)*s_rel;
+    double localDt = phi * (t0mdt-thickness/2.);
+    double localDz = phi * (z0mdt-height/2.);
+    dt += localDt;
+    dz += localDz;
   }
-  
 
 #ifdef TESTBLINES
   std::cerr<<"posOnDefChamStraighWire: ds,z,t = "<<ds<<" "<<dz<<" "<<dt<<std::endl;

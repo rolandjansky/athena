@@ -25,7 +25,7 @@ RpcDetectorElement::RpcDetectorElement(GeoVFullPhysVol* pv,
                                        MuonDetectorManager* mgr,
                                        Identifier id,
                                        IdentifierHash idHash) :
-   MuonDetectorElement(pv, mgr, id, idHash)
+   MuonDetectorElement(pv, mgr, id, idHash), _ndbz(0)
 {
     //m_MsgStream = new MsgStream(mgr->msgSvc(),"MuGM:RpcDetectorElement");
   //std::cerr<<"Costruttore di RpcDetectorElement per idhash = "<<idHash<<std::endl;
@@ -38,18 +38,23 @@ RpcDetectorElement::RpcDetectorElement(GeoVFullPhysVol* pv,
 void RpcDetectorElement::addRpcReadoutElement(const RpcReadoutElement* rpc, int index)
 {
   //std::cout << "index: " << index << std::endl;
-  if (index < NDoubletZ && _rpcVector[index] == NULL) {
-    _rpcVector[index] = rpc;
-    // everything ok
-    _nREinDetectorElement++;
-    //std::cerr<<" This is rpcDE with hashID = "<<identifyHash();
-    //std::cerr<<" index "<<index<<" _rpcVector[index] filled with RpcReadoutElement @ "
-    //         <<rpc<<std::endl;
-
+  if (index < NDoubletZ) {
+    if (_rpcVector[index] == NULL) {
+      _rpcVector[index] = rpc;
+      // everything ok
+      _nREinDetectorElement++;
+      //std::cerr<<" This is rpcDE with hashID = "<<identifyHash();
+      //std::cerr<<" index "<<index<<" _rpcVector[index] filled with RpcReadoutElement @ "
+      //         <<rpc<<std::endl;
+    } else {
+      std::cerr << "RpcDetectorElement::add -- problems for idhash " << identifyHash()
+                << " index " << index << " is taken." << std::endl;
+      throw;
+    }
   } else {
     std::cerr << "RpcDetectorElement::add -- problems for idhash " << identifyHash()
-              << " index " << index << " is taken " << _rpcVector[index]
-              << " or it is >= " << NDoubletZ << std::endl;
+              << " index " << index << " is >= " << NDoubletZ << std::endl;
+    throw;
   }
 }
 
