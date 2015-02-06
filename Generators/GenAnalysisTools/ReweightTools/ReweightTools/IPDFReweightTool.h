@@ -6,6 +6,7 @@
 #define IPDFREWEIGHTTOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
+//#include "AthenaBaseComps/AthAlgTool.h"
 
 static const InterfaceID IID_IPDFReweightTool("IPDFReweightTool", 1, 0);
 
