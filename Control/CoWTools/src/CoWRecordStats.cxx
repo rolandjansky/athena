@@ -67,8 +67,8 @@ namespace CoWTools{
   std::ostream & operator<<(std::ostream &out, const CoWRecordStats &m){
     if(m.m_summary){
       char buff[2048];
-      snprintf(buff,2048,"VMem= %8lld, RSS= %8lld, PSS= %8lld, Shared= %8lld, Private= %8lld Anon= %8lld",
-	       m.vals[0],m.vals[1],m.vals[2],m.vals[3]+m.vals[4],m.vals[5]+m.vals[6],m.vals[8]);
+      snprintf(buff,2048,"VMem= %8lld, RSS= %8lld, PSS= %8lld, Shared= %8lld, Private= %8lld, Swap= %8lld Anon= %8lld",
+	       m.vals[0],m.vals[1],m.vals[2],m.vals[3]+m.vals[4],m.vals[5]+m.vals[6],m.vals[10],m.vals[8]);
       out<<buff;
     }else{
       char buff[4000];

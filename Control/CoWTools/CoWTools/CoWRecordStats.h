@@ -85,6 +85,7 @@ namespace CoWTools{
     }
     void parseRecord(std::istream &in);
     long long *  getValueArray(){return vals;}
+    const long long *  getValueArray() const {return vals;}
   private:
     long long vals[20]={0,0,0,0,0,
 			0,0,0,0,0,

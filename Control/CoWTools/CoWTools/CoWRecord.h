@@ -11,7 +11,7 @@
 namespace CoWTools{
   class CoWRecord{
   public:
-    CoWRecord(bool summary=true):ms(summary),m_summary(summary){}
+    CoWRecord(bool summary=true):ms(summary)/*,_summary(summary)*/{}
     unsigned long addrStart,addrEnd;
     short perms;
     unsigned long long offset;
@@ -20,7 +20,7 @@ namespace CoWTools{
     unsigned int dmin,dmaj;
     void parseRecord(std::istream& in);
   private:
-    bool m_summary;
+    //bool m_summary;
   };
 }//end namespace
 
