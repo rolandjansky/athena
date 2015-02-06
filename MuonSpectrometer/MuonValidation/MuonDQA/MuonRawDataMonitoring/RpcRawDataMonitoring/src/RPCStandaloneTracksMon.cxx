@@ -50,9 +50,9 @@ using namespace std;
 static const   int maxColl	      =  1200;
 static const   int maxPRD 	      = 50000;
 static const   int maxClus	      =  1000;
-static const   int timeminrange	      =	    0;
+static const   int timeminrange	      =	 -200;
 static const   int timemaxrange	      =	  200;
-static const   int timeNbin	      =	   64;
+static const   int timeNbin	      =	  128;
 static const   int nstripfiducial     =     0;
 static const   int nstripfiduceff     =    80;
 static const   int MergePointDistance =    50;
@@ -2701,6 +2701,8 @@ StatusCode RPCStandaloneTracksMon::bookHistogramsRecurrent( )
 	    indexplane = 0   ;
 	    // Identifier gapId ;
 	    Identifier panelId ;
+	    //std::cout<<" before the loop"<<std::endl;
+	    
 	    for (int iname=2; iname!=10+1; iname++ ){
 	      if ( (i_sec%2 == 1) && (iname==2 || iname==4) ) continue;  /* small sectors */
 	      if ( (i_sec%2 == 0) && (iname!=2 && iname!=4) ) continue;  /* large sectors */
@@ -2710,6 +2712,7 @@ StatusCode RPCStandaloneTracksMon::bookHistogramsRecurrent( )
 		    for (int idbphi=0; idbphi!=2; idbphi++) {
 		      for ( int imeasphi=0; imeasphi!=2; imeasphi++ ) {
 			for (int igap=0; igap!=2; igap++) {
+			  // need to pay attention to BME case - not yet considered here .... 
 			  const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcReadoutElement(iname-2, ieta, int(i_sec/2), ir, idbz);
 			  if ( rpc != NULL ) {
 			    // Identifier gapID(int stationName, int stationEta, int stationPhi, int doubletR, int doubletZ, int doubletPhi,int gasGap, bool check=false, bool* isValid=0) const;
@@ -2737,6 +2740,7 @@ StatusCode RPCStandaloneTracksMon::bookHistogramsRecurrent( )
 		}
 	      }
 	    }
+	    //std::cout<<" after the loop"<<std::endl;
 	  
 	    // 1) panel efficiency distribution per sector
 	    std::string m_generic_path_SummaryEffDistriPerSector = m_generic_path_rpcmonitoring+"/Summary";
@@ -4755,6 +4759,8 @@ std::vector<int>  RPCStandaloneTracksMon::RpcStripShift(Identifier prdcoll_id, i
 	irpcdoubletRn=2;
       }
  
+      //      int stname_index = irpcstationName;
+      //      if (irpcstationName==53) stname_index=MuonGM::MuonDetectorManager::NRpcStatType-2;
       for(int idbz=1; idbz!= 4; idbz++){
 	const MuonGM::RpcReadoutElement* rpc = m_muonMgr->getRpcRElement_fromIdFields(irpcstationName, ieta, irpcstationPhi, irpcdoubletRn, idbz, 1 );
         if(rpc != NULL ){
