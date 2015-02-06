@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 #include "TrigSerializeCnvSvc/TrigSerializeConvHelper.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ClassID.h"
@@ -139,10 +140,9 @@ StatusCode TrigSerializeConvHelper::createObj(const std::string &clname, IOpaque
   if (m_doTP and !isxAOD)
     cl = m_TPTool->persClassName(clname);
 
-  msg(MSG::DEBUG) << "cl (persistent classname) is " << cl << endreq;
-
-  
   uint32_t guid[4];
+
+  std::string xAODOldVersion = "";
 
   if (cl!=""){
     StatusCode scid;
@@ -171,27 +171,42 @@ StatusCode TrigSerializeConvHelper::createObj(const std::string &clname, IOpaque
 	if (msgLvl(MSG::DEBUG))
 	  msg(MSG::DEBUG) << "Got hint of " << cl
 			  << " different persistent class from the BS payload. Name from GUID: " << nclass << endreq;
+
+	if(isxAOD){
+	  msg(MSG::DEBUG) << "This is an xAOD so probably the BS version is an older version of the xAOD type. Remember the version in BS so that we can do conversion" << endreq;
+	  xAODOldVersion = nclass;
+	}
       }
     }
-    
-    ptr = serializer->deserialize(cl, v);
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << cl << " deserialized to " << ptr << endreq;
+
+    if(xAODOldVersion.empty()){
+      ptr = serializer->deserialize(cl, v);
+    }
+    else{
+      msg(MSG::DEBUG) << "xAOD version change detected. Deserializing first to old version" << endreq;
+      ptr = serializer->deserialize(xAODOldVersion, v);
+    }
+
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << (xAODOldVersion.empty() ? cl : xAODOldVersion) << " deserialized to " << ptr << endreq;
   }
    
   // T/P separation
-  if (m_doTP and !isxAOD){
+  if (m_doTP and (!isxAOD or !xAODOldVersion.empty())){
     std::string transclass;
-									   
-    void *persObj = m_TPTool->convertPT(cl,ptr, transclass);
 
+    std::string toconvert = xAODOldVersion.empty() ? cl : xAODOldVersion;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "converting with pername " << toconvert << endreq;
+    
+    void *transObj = m_TPTool->convertPT(toconvert,ptr, transclass);
 
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "was converted to " << transclass << " at " << transObj << endreq;
 
     //persistent object not needed anymore
-    TClass *persClObj = gROOT->GetClass(cl.c_str());
+    TClass *persClObj = gROOT->GetClass(toconvert.c_str());
     if (persClObj)
       persClObj->Destructor(ptr);
 
-    ptr = persObj;
+    ptr = transObj;
   }
 
   return StatusCode::SUCCESS;
