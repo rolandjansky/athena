@@ -51,13 +51,13 @@ namespace {
 
 namespace Athena {
 
-RootConnection::RootConnection(const IInterface* own,
+RootConnection::RootConnection(const IInterface* /*own*/,
                                IIoSvc::Fd fd) :
-  m_fd(fd),
+  //m_fd(fd),
   m_fid(),
   m_pfn(),
-  m_age(0),
-  m_owner(own),
+  //m_age(0),
+  //m_owner(own),
   m_file(NULL),
   m_tree(NULL),
   m_branch(NULL),
