@@ -47,7 +47,7 @@ use PileUpTools             PileUpTools-*             Control
 use AtlasROOT			AtlasROOT-*		External
 
 use PixelConditionsTools    PixelConditionsTools-*    InnerDetector/InDetConditions
-use PixelConditionsServices PixelConditionsServices-* InnerDetector/InDetConditions
+
 use  AtlasCLHEP               AtlasCLHEP-*            External
 use  InDetSimEvent            InDetSimEvent-*         InnerDetector
 use SiDigitization          SiDigitization-*          InnerDetector/InDetDigitization
@@ -58,8 +58,9 @@ use AthenaKernel            AthenaKernel-*            Control
 use CommissionEvent         CommissionEvent-*         Commission
 use SiPropertiesSvc	    SiPropertiesSvc-*	      InnerDetector/InDetConditions
 use  PixelCabling             PixelCabling-*          InnerDetector/InDetDetDescr
-use  PixelGeoModel             PixelGeoModel-*          InnerDetector/InDetDetDescr
 use  Identifier               Identifier-*            DetectorDescription
 use  InDetConditionsSummaryService InDetConditionsSummaryService-* InnerDetector/InDetConditions
+use PixelConditionsServices PixelConditionsServices-* InnerDetector/InDetConditions
+use  PixelGeoModel             PixelGeoModel-*          InnerDetector/InDetDetDescr
 public
 use  AthenaBaseComps          AthenaBaseComps-*       Control

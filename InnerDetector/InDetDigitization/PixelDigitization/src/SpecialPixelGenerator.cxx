@@ -12,7 +12,6 @@
 #include "PixelDigitizationTool.h"
 #include "SpecialPixelGenerator.h"
 #include "TimeSvc.h"
-#include "CalibSvc.h"
 
 #include "SiDigitization/SiChargedDiodeCollection.h"
 #include "SiDigitization/SiHelper.h"
