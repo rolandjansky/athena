@@ -11,7 +11,7 @@
 using namespace boost::interprocess;
 
 
-const std::size_t MAX_MSG_SIZE = 4096;
+//const std::size_t MAX_MSG_SIZE = 4096;
 
 namespace AthenaInterprocess {   
 
