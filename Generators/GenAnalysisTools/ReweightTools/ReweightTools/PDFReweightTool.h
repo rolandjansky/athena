@@ -5,7 +5,8 @@
 #ifndef PDFREWEIGHTTOOL_H
 #define PDFREWEIGHTTOOL_H
 
-#include "GaudiKernel/AlgTool.h"
+//#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "ReweightTools/IPDFReweightTool.h"
 #include "HepMC/GenEvent.h"
 #include <string>
@@ -42,7 +43,7 @@ extern "C" {
 
 	May, 2008  
 */
-class PDFReweightTool : virtual public IPDFReweightTool, public AlgTool {
+class PDFReweightTool : virtual public IPDFReweightTool, public AthAlgTool {
 
 public:
 
