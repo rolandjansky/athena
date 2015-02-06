@@ -31,6 +31,7 @@ BitUnpacker<STREAM>::BitUnpacker (uint8_t nbits, STREAM& stream)
     m_stream (stream),
     m_mask (CxxUtils::ones<uint32_t>(nbits))
 {
+  assert (m_nbits > 0 && m_nbits <= 32);
 }
 
 
@@ -57,7 +58,10 @@ uint32_t BitUnpacker<STREAM>::unpack()
     m_nbuf = totbits - nleft;
   }
   else {
-    m_buf >>= m_nbits;
+    if (m_nbits >= 32)
+      m_buf = 0;
+    else
+      m_buf >>= m_nbits;
     m_nbuf -= m_nbits;
   }
 
