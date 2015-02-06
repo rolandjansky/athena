@@ -23,14 +23,14 @@ apply_pattern declare_runtime extras= "../test/TrigJetValidation_TestConfigurati
                                        ../python/AtlasStyle.py \
                                        ../python/plottingMacro.py \
                                        ../python/clustersAndCells.py \
- 				       ../test/HLTChain_ref_devval.txt \
- 				       ../test/HLTChain_ref_dev.txt \
- 				       ../test/HLTTE_ref_devval.txt \
- 				       ../test/HLTTE_ref_dev.txt \
- 				       ../test/clusters_ref_devval.txt \
- 				       ../test/clusters_ref_dev.txt \
- 				       ../test/cells_ref_devval.txt \
- 				       ../test/cells_ref_dev.txt"
+ 				       /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigJetValidation/HLTChain_ref_devval.txt \
+ 				       /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigJetValidation/HLTChain_ref_dev.txt \
+ 				       /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigJetValidation/HLTTE_ref_devval.txt \
+ 				       /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigJetValidation/HLTTE_ref_dev.txt \
+ 				       /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigJetValidation/clusters_ref_devval.txt \
+ 				       /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigJetValidation/clusters_ref_dev.txt \
+ 				       /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigJetValidation/cells_ref_devval.txt \
+ 				       /afs/cern.ch/atlas/project/trigger/pesa-sw/validation/references/RTT/TrigJetValidation/cells_ref_dev.txt"
 
 private
 use TestPolicy          TestPolicy-*
