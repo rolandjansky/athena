@@ -994,9 +994,6 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
 	if (pixelId->is_dbm(collection->element()->identify())) {
 	  // ATH_MSG_INFO ("Flers: in dbm tot conversion");
 	  nToT = 8*((*i_chargedDiode).second.charge() - 1200. )/(8000. - 1200.);
-	} else {
-//ATH_MSG_INFO ("Flers: NOT in dbm, barrel_ec = " << barrel_ec);
-	  nToT = 8*((*i_chargedDiode).second.charge()-m_CalibSvc->getCalThreshold(diodeID,collection->element()->isBlayer()))/(16000.-m_CalibSvc->getCalThreshold(diodeID,collection->element()->isBlayer()))+1;
 	}
         if ( nToT<=0 ) nToT=1;
 	else if ( nToT>13 ) nToT=14;

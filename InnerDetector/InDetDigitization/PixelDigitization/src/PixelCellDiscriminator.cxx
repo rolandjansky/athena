@@ -113,8 +113,8 @@ void PixelCellDiscriminator::process(SiChargedDiodeCollection &collection) const
     //    noise    : actually a noise level that logically should be added to
     //               the charge <- TODO!
     //
-    double th0  = m_CalibSvc->getCalThreshold(diodeID,collection.element()->isBlayer());
-    double ith0 = m_CalibSvc->getCalIntimeThreshold(diodeID,collection.element()->isBlayer());
+    double th0  = m_CalibSvc->getCalThreshold(diodeID);
+    double ith0 = m_CalibSvc->getCalIntimeThreshold(diodeID);
     // Flers: here I rely on CalibSvc providing correct values for th0, ith0
     // if that's not true, need to figure out if we are in dbm and set
     // th0, ith0, e.g.

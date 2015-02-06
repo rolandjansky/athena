@@ -100,7 +100,6 @@
 // Base class
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "PileUpTools/PileUpToolBase.h"
-#include "CalibSvc.h"
 #include "HitManagement/TimedHitCollection.h"
 #include "InDetSimEvent/SiHitCollection.h"
 

@@ -64,7 +64,6 @@
 
 class Identifier;
 class PixelID;
-class CalibSvc;
 
 namespace CLHEP {
   class HepRandomEngine;
