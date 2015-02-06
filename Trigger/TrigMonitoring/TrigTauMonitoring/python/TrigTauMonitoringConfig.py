@@ -5,12 +5,17 @@ def TrigTauMonitoringTool():
         from TrigTauMonitoring.TrigTauMonitoringConf import HLTTauMonTool
         HLTTauMon = HLTTauMonTool(name                   = 'HLTTauMon',
                                   histoPathBase          = "/Trigger/HLT",
-                                  tauTriggItem           = ["tauNoCut",
-                                                            "tauNoCut_L1TAU40",
-							    "tau20_medium1",
+                                  monitoring_tau         = ["Dump",
+							    #"tauNoCut",
+                                                            #"tauNoCut_L1TAU40",
+							    #"tau20_medium1",
+							    "tau25_medium1_calo",
+							    "tau25_perf",
                                                             #ccuenca: for cosmics mon, not useless ;)
-                                                            "tauNoCut_cosmic"
+                                                            #"tauNoCut_cosmic"
                                                             ],
+				  primary_tau            = [],
+				  prescaled_tau          = [],
                                   FakeJetEff             = False,
                                   OfflineEff             = True,
 				  OfflineEffBDTMedium    = True,

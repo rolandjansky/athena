@@ -9,21 +9,21 @@ private
 apply_tag ROOTGraphicsLibs
 apply_tag ROOTMathLibs
 
-use AnalysisTriggerEvent  AnalysisTriggerEvent-*  PhysicsAnalysis/AnalysisTrigger
+##use AnalysisTriggerEvent  AnalysisTriggerEvent-*  PhysicsAnalysis/AnalysisTrigger
 use AnalysisUtils         AnalysisUtils-*         PhysicsAnalysis/AnalysisCommon
 use AthenaMonitoring      AthenaMonitoring-*      Control
 use AtlasROOT             AtlasROOT-*             External
 use EventInfo             EventInfo-*             Event
 use GaudiInterface       GaudiInterface-*         External
-use JetEvent              JetEvent-*              Reconstruction/Jet
-use JetTagEvent           JetTagEvent-*           PhysicsAnalysis/JetTagging
-use Particle              Particle-*              Reconstruction
 use StoreGate             StoreGate-*             Control
 use TrigDecisionInterface TrigDecisionInterface-* Trigger/TrigEvent
 use TrigDecisionTool      TrigDecisionTool-*      Trigger/TrigAnalysis
 use TrigHLTMonitoring     TrigHLTMonitoring-*     Trigger/TrigMonitoring
 use tauEvent              tauEvent-*              Reconstruction
 use VxVertex              VxVertex-*              Tracking/TrkEvent
+
+use xAODTau		  xAODTau-*		  Event/xAOD
+use xAODTrigger		  xAODTrigger-*		  Event/xAOD
 
 public
 
