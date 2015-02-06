@@ -78,7 +78,7 @@ namespace pool {
       m_fragmentName = rhs.m_fragmentName;
       m_maxSize = rhs.m_maxSize;
       m_sizeIsFixed = rhs.m_sizeIsFixed;
-      m_isUnique = m_isUnique;
+      m_isUnique = rhs.m_isUnique;
       m_id = rhs.m_id; 
    
       return *this;
