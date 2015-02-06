@@ -27,24 +27,27 @@ public:
                            const std::string& name,
                            const IInterface* parent);
   /// Initialize
-  StatusCode initialize();
+  StatusCode initialize() override final;
   ///called before the subevts loop. Not (necessarily) able to access
   ///SubEvents
-  virtual StatusCode prepareEvent(unsigned int nInputEvents);
+  virtual StatusCode prepareEvent(unsigned int nInputEvents) override final;
   ///called at the end of the subevts loop. Not (necessarily) able to access
   ///SubEvents
-  virtual StatusCode mergeEvent();
+  virtual StatusCode mergeEvent() override final;
   ///called for each active bunch-crossing to process current SubEvents
   /// bunchXing is in ns
   virtual StatusCode
     processBunchXing(int bunchXing,
                      PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-                     PileUpEventInfo::SubEvent::const_iterator eSubEvents);
+                     PileUpEventInfo::SubEvent::const_iterator eSubEvents) override final;
   ///Merge the Truth JetContainers using the PileUpMergeSvc
-  virtual StatusCode processAllSubEvents();
+  virtual StatusCode processAllSubEvents() override final;
+
+  ///implementation of passing filter
+  virtual bool filterPassed() const override final { return (!m_vetoOnInTime || m_filterPassed); }
 
   ///implementation of filter reset
-  virtual void resetFilter() { m_first_event=true; m_signal_max_pT=-1.;  m_pileup_max_pT=-1.; m_filterPassed=true; }
+  virtual void resetFilter() override final { m_first_event=true; m_signal_max_pT=-1.;  m_pileup_max_pT=-1.; m_filterPassed=true; }
 
 private:
   /// JetContainer Loop

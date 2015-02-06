@@ -22,9 +22,9 @@ class PileUpMergeSvc;
 class MergeHijingPars : public AthAlgorithm {
 public:
   MergeHijingPars(const std::string& name, ISvcLocator* svcLoc);
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  StatusCode initialize() override final;
+  StatusCode execute() override final;
+  StatusCode finalize() override final;
 private:
   ToolHandle<IPileUpTool> m_mergeTool;
 };

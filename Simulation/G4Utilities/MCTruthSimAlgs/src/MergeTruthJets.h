@@ -16,9 +16,9 @@ class IPileUpTool;
 class MergeTruthJets : public AthAlgorithm {
 public:
   MergeTruthJets(const std::string& name, ISvcLocator* svcLoc);
-  StatusCode initialize();
-  StatusCode execute();
-  StatusCode finalize();
+  StatusCode initialize() override final;
+  StatusCode execute() override final;
+  StatusCode finalize() override final;
 private:
   ToolHandle<IPileUpTool> m_mergeTool;
 };
