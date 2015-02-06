@@ -10,12 +10,13 @@ Created on Jun 14, 2013
 from pausable_istream import pausable_istream
 from HLTTestApps import ptree, ers_debug_level, get_ers_debug_level
 from HLTTestApps import tdaq_time_str_from_microsec
-from HLTTestApps import set_ros2rob_map as set_dc_ros2rob, set_l1r_robs 
+from HLTTestApps import set_ros2rob_map as set_dc_ros2rob, set_l1r_robs
+from eformat import EventStorage as ES
 from TrigConfStorage.TriggerCoolUtil import TriggerCoolUtil as CoolUtil
 from CoolConvUtilities import AtlCoolLib
 from PyCool import cool
 from ast import literal_eval
-from os import path
+from os import path, sep
 from re import match
 import logging
 import option
@@ -64,7 +65,8 @@ class configuration(dict):
   
   def __init__(self, option_spec, cli_args):
     self.dbconn = None
-    self.defaults = {k:option_spec.get_default(k) for k in option_spec}
+    self.defaults = {k: option_spec.get_default(k) for k in option_spec}
+    self.default_convention = option_spec['save-output-conventional']['allowed']
     self.parse_sor = option_spec['sor-time']['parse']
 
     if not cli_args or not cli_args[0]:
@@ -85,6 +87,28 @@ class configuration(dict):
     raise AttributeError, ("%s instance has no attribute '%s'" 
                            % (type(self), attr))
     
+  def do_save_output(self):
+    return self['save-output'] or self['save-output-conventional']
+  
+  def parsed_out_data_filename(self):
+    if self['save-output']:
+      return self.__parse_filename()
+    else: # do conventional output
+      # get the conventional properties
+      convention = {k: self._derive_conventional_property(k)
+                    for k in self.default_convention}
+      # find our returns
+      dir = convention.pop('dir') # popped - this is for our own use only
+      # the rest go here - would like to use kwargs, but not supported in ES
+      fncore = ES.RawFileName(convention['ProjectTag'],
+                              convention['RunNumber'],
+                              convention['StreamType'],
+                              convention['StreamName'],
+                              convention['LumiBlockNumber'],
+                              appName,
+                              convention['ProductionStep']).fileNameCore() 
+      return dir, fncore
+  
   def get_config_ptree(self):
     pt = ptree()
     self.__add_config_ptree(pt)
@@ -132,6 +156,32 @@ class configuration(dict):
       pt['appName'] = appName
     logging.debug('OH prepareWorker ptree:\n%s' % pt)
     return pt
+  
+  def _derive_conventional_property(self, k):
+    try:
+      return self['save-output-conventional'][k] # try planA
+    except KeyError:
+      # fall back to planB
+      d, core = self.__parse_filename(self.stream.current_filename()) 
+      rf = ES.RawFileName(core)
+      if rf.hasValidCore():
+        if k == 'ProjectTag': # special case for this one (attr name and return)
+          return path.basename(rf.project())
+        attr = k[:1].lower() + k[1:] # lower the first letter of the key
+        if hasattr(rf, attr):
+          return getattr(rf, attr)() # call the corresponding function
+    # fall back to planC
+    return self.default_convention[k]
+  
+  def __parse_filename(self, fullname=None):
+    if not fullname:
+      fullname = self['save-output']
+    dir, core = ((path.dirname(fullname), 
+                  path.basename(fullname)) if fullname.find(sep) != -1
+                                           else ('.', fullname))
+    if core.endswith('.data'):
+      core = core[:-5]
+    return dir, core
   
   def __set_verbosity(self):
     option.warn_verbosity(self['verbosity'])
@@ -511,6 +561,7 @@ class configuration(dict):
 
 import unittest
 from datetime import datetime as dt
+from HLTTestApps import random_sub_dict
 
 # this is used in other modules
 class dummy_configuration(dict):
@@ -527,7 +578,6 @@ class configuration_tests(unittest.TestCase):
                          'save-output': 'fakeoutfile',
                          'timeout': '{"timeout": 123, '
                                     '"warn_fraction": 0.125}',
-                         'use-raw-file-convention': '["fake-step"]',
                          'perfmon': '',
                          'tcmalloc': '',
                          'use-compression': '4',
@@ -847,6 +897,136 @@ class file_based_configuration_tests(configuration_tests):
     self.assertRaises(option.BadOptionSet, configuration,
                       option.file_opt_spec, 
                       self._gen_complete_args(['--skip-events', '10e20']))
+    
+class save_output_configuration_tests(file_based_configuration_tests):
+  # we need these to make things work
+  special_cli_args = ['fake_joboptions_needed_for_successful_config']
+  ptree_extension = 'needed_but_irrelevant_since_no_ptree_tests'
+  
+  # To be used by the configuration, so that we don't need a valid file
+  class MockPausableIstream(pausable_istream):
+    # we also need a data reader for invalid file
+    class MockDataReader(object):
+      # we only care about the filename
+      def __init__(self, fname):
+        self.fname = fname
+      # our mock istream will need these in inherited current_* methods
+      def fileName(self):
+        return self.fname
+      def runNumber(self):
+        return 1234567890
+    def __init__(self, filelist):
+      # the data reader is the only thing we do need
+      self.dr = self.MockDataReader(filelist[0])
+      # the rest is just so that our mock works with the configuration
+      self.total_events = 1000
+  
+  def setUp(self):
+    super(save_output_configuration_tests, self).setUp()
+    self.convd1 = {'ProjectTag': 'ptag',
+                  'LumiBlockNumber': 333,
+                  'StreamName': 'sname',
+                  'StreamType': 'stype',
+                  'RunNumber': 999999999,
+                  'ProductionStep': 'pstep',
+                  'dir': '/tmp'}
+    self.convd2 = {'ProjectTag': 'testcase',
+                  'LumiBlockNumber': 1,
+                  'StreamName': 'FakeStream',
+                  'StreamType': 'debug',
+                  'RunNumber': 123,
+                  'ProductionStep': 'imagine',
+                  'dir': '/fakedir'}
+    self._setup_cli_args()
+    # we replace the global pausable_istream with our mock
+    self._replace_pausable_istream()
+  def tearDown(self):
+    # restore the global pausable_istream for other tests
+    super(save_output_configuration_tests, self).tearDown()
+    self._restore_pausable_istream()
+    
+  def test_save_output_plain(self):
+    intended_dir = '/a/b/c'
+    intended_fncore = 'd'
+    outfile = '%s/%s' % (intended_dir, intended_fncore)
+    cli_args = self._gen_complete_args(['--save-output', outfile])
+    c = configuration(self.opt_spec, cli_args)
+    actual_dir, actual_fncore = c.parsed_out_data_filename()
+    self.assertEquals(actual_dir, intended_dir, 
+                      'Wrong output directory: "%s". Expected "%s"'
+                      % (actual_dir, intended_dir))
+    self.assertEquals(actual_fncore, intended_fncore,
+                      'Wrong output filename core: "%s". Expected "%s"'
+                      % (actual_fncore, intended_fncore))
+  def test_save_output_conventional_all(self):
+    # build expected stuff
+    expect_dir = self.convd1['dir']
+    # should generate "ptag.999999999.stype_sname.pstep.RAW._lb0333._athenaHLT"
+    expect_fncore = self._gen_filename_core(self.convd1)
+    # ask the configuration what it produces
+    cli_args = self._gen_complete_args(['--save-output-conventional', 
+                                        str(self.convd1)])
+    c = configuration(self.opt_spec, cli_args)
+    actual_dir, actual_fncore = c.parsed_out_data_filename()
+    # compare results with expected
+    self.assertEquals(actual_dir, expect_dir, 
+                      'Wrong output directory: "%s". Expected "%s".'
+                      % (actual_dir, expect_dir))
+    self.assertEquals(actual_fncore, expect_fncore, 
+                      'Wrong output filename core: "%s". Expected "%s"'
+                      % (actual_fncore, expect_fncore))
+  def test_save_output_conventional_some(self, default=None):
+    # input and default dicts
+    subconvd = random_sub_dict(self.convd1)
+    if not default:
+      default = self.convd2
+      # the directory should be taken from the default and not the input file
+      default['dir']=self.opt_spec['save-output-conventional']['allowed']['dir']
+    # take from default all the values not provided in the option
+    expectd = default.copy()
+    expectd.update(subconvd)
+    # generate expected dict taking defaults from input filename
+    
+    # the expected filename and directory derive from this
+    expect_fncore = self._gen_filename_core(expectd)
+    expect_dir = expectd['dir']
+    # ask the configuration what it produces
+    cli_args = self._gen_complete_args(['--save-output-conventional',
+                                        str(subconvd)])
+    c = configuration(self.opt_spec, cli_args)
+    actual_dir, actual_fncore = c.parsed_out_data_filename()
+    # compare results with expected
+    self.assertEquals(actual_dir, expect_dir, 
+                      'Wrong output directory: "%s". Expected "%s".'
+                      % (actual_dir, expect_dir))
+    self.assertEquals(actual_fncore, expect_fncore, 
+                      'Wrong output filename core: "%s". Expected "%s"'
+                      % (actual_fncore, expect_fncore))
+  def test_save_output_conventional_some_bad_input(self):
+    # when the input filename has a invalid core
+    self._setup_cli_args(bad_input=True)
+    default = self.opt_spec['save-output-conventional']['allowed']
+    self.test_save_output_conventional_some(default)
+  def _replace_pausable_istream(self):
+    global pausable_istream
+    pausable_istream, self.real_pausable_istream = (self.MockPausableIstream, 
+                                                    pausable_istream)
+  def _restore_pausable_istream(self):
+    global pausable_istream
+    pausable_istream = self.real_pausable_istream
+  def _setup_cli_args(self, bad_input=False):
+    # fake file, with good or bad core name
+    fncore = 'foobar' if bad_input else self._gen_filename_core(self.convd2)
+    self.cli_base_args = ["-f", "%s/%s" % (self.convd2['dir'], fncore)]
+  def _gen_filename_core(self, conventional_dict):
+    return ('%s.%08d.%s_%s.%s.RAW._lb%04d._%s' 
+            % (conventional_dict['ProjectTag'],
+               conventional_dict['RunNumber'],
+               conventional_dict['StreamType'],
+               conventional_dict['StreamName'],
+               conventional_dict['ProductionStep'],
+               conventional_dict['LumiBlockNumber'],
+               appName))
 
 class emon_based_configuration_tests(configuration_tests):
   def setUp(self):
@@ -1071,6 +1251,6 @@ class dbpy_configuration_tests(file_based_configuration_tests, pcommands_tests):
 if __name__ == '__main__':
   from HLTTestApps import test_main
   test_main(['jo_configuration_tests',  
-             'dbpy_configuration_tests'],
-            ) # False)
+             'dbpy_configuration_tests',
+             'save_output_configuration_tests'])
   

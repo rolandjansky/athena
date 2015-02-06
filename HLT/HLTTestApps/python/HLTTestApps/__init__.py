@@ -5,11 +5,35 @@
 # Created by Andre DOS ANJOS <Andre.dos.Anjos@cern.ch>, 30-Mar-2007 
 
 from libpyhlttestapps import *
-import option, processor, application
-import sys, os
+import random, sys, os
 
 # avoids the duplication of ERS exception types...
 sys.setdlopenflags(0x100|0x2)
+
+def random_sub_dict(basedict):
+  return random_sub_dict_num(basedict, random.randint(1,len(basedict)))
+
+def random_sub_dict_num(basedict, numitems):
+  #  Get a sub-dictionary of basedict with a length corresponding to the minimum
+  # of numitems and the length of basedict (negative length converted to 0).
+  
+  basekeys = basedict.keys()
+  n = min(len(basekeys), numitems) if numitems > 0 else 0
+  
+  # create the sub-dictionary
+  ret = {}
+  for i in range(n):
+    k = basekeys.pop(random.randint(0, len(basekeys)-1))
+    ret[k] = basedict[k]
+    
+  # make sure this is properly implemented
+  assert len(ret) <= len(basedict)
+  assert len(ret) <= numitems
+  assert len(ret) == numitems or numitems > len(basedict)
+  for k, v in ret.items():
+    assert k in basedict and v == basedict[k]
+    
+  return ret
 
 def hook_debugger():
   """
@@ -29,8 +53,13 @@ def get_test_files():
   
   f1 = d + '2013-05-22VALAllPT_mcV2-1._0001.data' # 100 events, run 177531
   f2 = d + '2012-05-04VALAllPT_physicsV4-1._0001.data' # 99 events, run 200863
+  f3 = d + ('data14_cos.00233343.physics_L1Muon.merge.'
+            'RAW._lb0002._SFO-ALL.M4._0001.1.') # 34716 events
+  f4 = d + ('data14_cos.00248112.physics_CosmicMuons.merge.'
+            'RAW._lb0003._SFO-11._150ev.1') # 150 events
   files['datafiles'] = [f1, f2]
   files['default_filelist'] = [f1, f1, f1, f2] # total of 399 events
+  files['extra_files_with_valid_core_filename'] = [f4, f3] # start with smaller
   
   files['verbose_config_tree'] = d + "hltconf.xml"
   files['quiet_config_tree'] = d + "hltconf_quiet.xml"
@@ -60,6 +89,7 @@ def test_setup(mod):
   files = get_test_files()
   globs['filelist'] = files['default_filelist']
   globs['datafiles'] = files['datafiles']
+  globs['extra_datafiles'] = files['extra_files_with_valid_core_filename']
   globs['configxml'] = (files['verbose_config_tree'] if '-d' in sys.argv 
                         else files['quiet_config_tree'])
   # have stuff declared here available to the tests 
@@ -89,7 +119,9 @@ def test_main(include_names=[],
     suite = unittest.TestSuite(remove_duplicate_tests(suite)) 
   
   result = unittest.TextTestRunner(verbosity=2).run(suite)
-  sys.exit(not result.wasSuccessful()) # exit with 0(success)/1(failure)
+  # exit with 0(success)/1(failure)
+  # need an explicit int for now: see http://bugs.python.org/issue13854
+  sys.exit(int(not result.wasSuccessful()))
   
 def script_prepare():
   from AthenaCommon.Logging import log

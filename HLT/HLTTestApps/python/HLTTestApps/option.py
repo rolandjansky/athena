@@ -9,46 +9,17 @@ import logging, types
 from ast import literal_eval
 from EventApps.myopt import Parser
 from optspec import * 
+from HLTTestApps import random_sub_dict
 
 def file_optcheck(option_spec, kwargs, extra):
   """Checks if the options passed make sense all together."""
   
-  # do checks that are common to both emon and file based runs
-  common_optcheck(option_spec, kwargs, extra)
-  
   if len(kwargs['file']) == 0:
     raise BadOptionSet, 'Cannot process without any input files.'
-
-  if kwargs['timeout']['timeout'] < 0:
-    raise BadOptionSet, 'You cannot set the timeout value to a negative integer'
-
-  if kwargs['timeout']['warn_fraction'] < 0 or kwargs['timeout']['warn_fraction'] > 1:
-    raise BadOptionSet, 'The warn_fraction should be a number in the interval [0,1]'
-
-  if kwargs['interactive'] and kwargs['debug']:
-    raise BadOptionSet, 'You cannot run GDB over an interactive session'
-
-  if kwargs['leak-check']:
-    allowed = [ 'all', 'initialize', 'start', 'beginrun', 'execute', 'finalize', 'endrun', 'stop' ]
-    if not kwargs['leak-check'].lower() in allowed:
-      raise BadOptionSet, 'Allowed values for leak-check are %s' % allowed
-
-  if kwargs['delete-check']:
-    allowed = [ 'all', 'initialize', 'start', 'beginrun', 'execute', 'finalize', 'endrun', 'stop' ]
-    if not kwargs['delete-check'].lower() in allowed:
-      raise BadOptionSet, 'Allowed values for delete are %s' % allowed
-
-  if ((kwargs['use-compression'] not in range(1,6)) and (kwargs['use-compression'] != 0)):
-    raise BadOptionSet, 'Invalid range for output compression level. Needs to be in range [1-5]'
   
-  if ((len(kwargs['save-output']) == 0) and (kwargs['use-compression'] in range(1,6))):
-    raise BadOptionSet, 'Option to write compressed output file given, but no output file name specified'
-
-  if ((len(kwargs['save-output']) == 0) and (len(kwargs['use-raw-file-convention']) != 0)):
-    raise BadOptionSet, 'Option to write Atlas compliant output file names can only be specified together with the --save-output option'
-
-  if ((len(kwargs['use-raw-file-convention']) != 0) and (len(kwargs['use-raw-file-convention']) != 1) and (len(kwargs['use-raw-file-convention']) != 6)):
-    raise BadOptionSet, 'For the option --use-raw-file-convention either only the production step name has to be specified or the full set of all 6 parameters has to be provided'
+  # do checks that are common to both emon and file based runs
+  common_optcheck(option_spec, kwargs, extra)
+    
 
 def emon_optcheck(option_spec, kwargs, extra):
   """Checks if the options passed make sense all together."""
@@ -64,7 +35,65 @@ def common_optcheck(option_spec, kwargs, extra):
   db_optcheck(option_spec, kwargs, extra)
   oh_optcheck(option_spec, kwargs)
   skip_events_optcheck(option_spec, kwargs)
+  save_output_optcheck(option_spec, kwargs)
+  diverse_optcheck(option_spec, kwargs)
   
+def diverse_optcheck(option_spec, kwargs):
+  if kwargs['timeout']['timeout'] < 0:
+    raise BadOptionSet, 'You cannot set the timeout value to a negative integer'
+
+  if (kwargs['timeout']['warn_fraction'] < 0 or 
+      kwargs['timeout']['warn_fraction'] > 1):
+    raise BadOptionSet, ('The warn_fraction should be a number in the interval '
+                         '[0,1]')
+
+  if kwargs['interactive'] and kwargs['debug']:
+    raise BadOptionSet, 'You cannot run GDB over an interactive session'
+
+  if kwargs['leak-check']:
+    allowed = option_spec['leak-check']['allowed']
+    if kwargs['leak-check'].lower() not in allowed:
+      raise BadOptionSet, 'Allowed values for leak-check are %s' % allowed
+
+  if kwargs['delete-check']:
+    allowed = option_spec['delete-check']['allowed']
+    if not kwargs['delete-check'].lower() in allowed:
+      raise BadOptionSet, 'Allowed values for delete are %s' % allowed
+
+  if kwargs['use-compression']:
+    # check compression level meaningful
+    if kwargs['use-compression'] not in range(1,6):
+      raise BadOptionSet, ('Invalid range for output compression level. Needs '
+                           'to be in range [1-5]')
+    # compression requires saving output
+    elif not (kwargs['save-output'] or kwargs['save-output-conventional']):
+      raise BadOptionSet, ('Cannot --use-compression without '
+                           '--save-output(-conventional)')
+      
+def save_output_optcheck(option_spec, kwargs):
+  # check not both saves
+  if kwargs['save-output'] and kwargs['save-output-conventional']:
+    raise BadOptionSet, ('Cannot simultaneously --save-output and '
+                         '--save-output-conventional')
+  
+  # convenience
+  convd = kwargs['save-output-conventional']
+  allowedd = option_spec['save-output-conventional']['allowed']
+  convkset = set(convd.keys())
+  allowedkset = set(allowedd.keys())
+  
+  # check save-output-conventional keys are a subset of allowed keys
+  if not convkset.issubset(allowedkset):
+    raise BadOptionSet, ('Unsupported keys in --save-output-conventional: %s'
+                         % list(convkset - allowedkset))
+  
+  # check save-output-conventional values have proper type
+  for k in convkset:
+    required_type = type(allowedd[k])
+    if not isinstance(convd[k], required_type):
+      raise BadOptionSet, ('Value for key "%s" in --save-output-conventional '
+                           'must be an instance of %s' % (k, required_type))
+        
 def skip_events_optcheck(option_spec, kwargs):
   skip = kwargs['skip-events']
   if skip:
@@ -78,17 +107,26 @@ def skip_events_optcheck(option_spec, kwargs):
 def oh_optcheck(option_spec, kwargs):
   if not kwargs['oh-monitoring']:
     if kwargs['oh-display']:
-      raise BadOptionSet, 'You cannot launch an OH display if OH monitoring is not enabled.'
+      raise BadOptionSet, ('You cannot launch an OH display if OH monitoring '
+                           'is not enabled.')
     if kwargs['user-ipc']:
-      raise BadOptionSet, 'You cannot use the user ipc ref file if OH monitoring is not enabled.'
+      raise BadOptionSet, ('You cannot use the user ipc ref file if OH '
+                           'monitoring is not enabled.')
     if kwargs['info-service'] != option_spec['info-service']['default']:
-      raise BadOptionSet, 'You cannot choose an IInfoRegister if OH monitoring is not enabled.'
-    if kwargs['histogram-publishing-interval'] != option_spec['histogram-publishing-interval']['default']:
-      raise BadOptionSet, 'You cannot choose a histogram publishing interval if OH monitoring is not enabled.'
-    if kwargs['histogram-include'] != option_spec['histogram-include']['default']:
-      raise BadOptionSet, 'You cannot choose the histogram inclusion regexp if OH monitoring is not enabled.'
-    if kwargs['histogram-exclude'] != option_spec['histogram-exclude']['default']:
-      raise BadOptionSet, 'You cannot choose the histogram exclusion regexp if OH monitoring is not enabled.'
+      raise BadOptionSet, ('You cannot choose an IInfoRegister if OH '
+                           'monitoring is not enabled.')
+    if (kwargs['histogram-publishing-interval'] != 
+        option_spec['histogram-publishing-interval']['default']):
+      raise BadOptionSet, ('You cannot choose a histogram publishing interval '
+                           'if OH monitoring is not enabled.')
+    if (kwargs['histogram-include'] != 
+        option_spec['histogram-include']['default']):
+      raise BadOptionSet, ('You cannot choose the histogram inclusion regexp '
+                           'if OH monitoring is not enabled.')
+    if (kwargs['histogram-exclude'] != 
+        option_spec['histogram-exclude']['default']):
+      raise BadOptionSet, ('You cannot choose the histogram exclusion regexp '
+                           'if OH monitoring is not enabled.')
 
 def db_optcheck(option_spec, kwargs, extra):
   if kwargs['use-database']:
@@ -222,7 +260,7 @@ emon_opt_spec.constants = common_constants
 #                                   Tests                                      #
 ################################################################################
 
-import unittest
+import unittest, random, sys
 
 def get_arg_list_from_option_dict(d):
   #  Get a list with the command line options that would generate the dictionary 
@@ -241,18 +279,18 @@ class option_tests_base(unittest.TestCase):
     self.option_spec = file_opt_spec
     self.__setup_unsupported()
     self.parser = gen_parser(file_opt_spec, True)
-  def check_arg_set(self, kwargs):
+  def _check_arg_set(self, kwargs):
     diff = set(kwargs.keys()) - set(self.option_spec.keys())
     self.assert_(diff.issubset(self.diff), "%s is not a subset of %s" 
                                            % (diff, self.diff))
-  def check_arg_values(self, kwargs, overwritten={}):
+  def _check_arg_values(self, kwargs, overwritten={}):
     for k, v in kwargs.iteritems():
       if not k in self.diff:
         expect = (overwritten[k] if k in overwritten 
                                  else self.option_spec.get_default(k))
-        self.assertEquals(str(v), str(expect), 
-                          "Option '%s' has a wrong value: expected '%s' but "
-                          "got '%s'" % (k, expect, v))
+        self.assert_(v == expect or str(v) == str(expect),
+                     "Option '%s' has a wrong value: expected '%s' but "
+                     "got '%s'" % (k, expect, v))
   def __setup_unsupported(self):
     self.option_spec['unsupported'] = {'short': '', 'arg': True, 
                                        'default': None, 'group': 'Test', 
@@ -264,28 +302,28 @@ class option_tests_base(unittest.TestCase):
 class option_basic_tests(option_tests_base):
   def test_default(self):
     kwargs, extra = self.parser.parse([])
-    self.check_arg_set(kwargs)
-    self.check_arg_values(kwargs)
+    self._check_arg_set(kwargs)
+    self._check_arg_values(kwargs)
   def test_explicit_maintain(self):
     kwargs, extra = self.parser.parse(["-z", "0"])
-    self.check_arg_set(kwargs)
-    self.check_arg_values(kwargs)
+    self._check_arg_set(kwargs)
+    self._check_arg_values(kwargs)
   def test_explicit(self):
     kwargs, extra = self.parser.parse(["-z", "1"])
-    self.check_arg_set(kwargs)
-    self.check_arg_values(kwargs, {"use-compression": 1})
+    self._check_arg_set(kwargs)
+    self._check_arg_values(kwargs, {"use-compression": 1})
   def test_explicit_flag(self):
     kwargs, extra = self.parser.parse(["-H"])
-    self.check_arg_set(kwargs)
-    self.check_arg_values(kwargs, {"perfmon": True})
+    self._check_arg_set(kwargs)
+    self._check_arg_values(kwargs, {"perfmon": True})
   def test_no_extra(self):
     parser = gen_parser(self.option_spec, False)
     self.assertRaises(SyntaxError, parser.parse, ["extra_argument"])
   def test_extra(self):
     argv = ["extra_arg1", "extra_arg2"]
     kwargs, extra = self.parser.parse(argv)
-    self.check_arg_set(kwargs)
-    self.check_arg_values(kwargs)
+    self._check_arg_set(kwargs)
+    self._check_arg_values(kwargs)
     self.assertEquals(set(extra), set(argv))
     
 class option_consistency_tests(option_tests_base):
@@ -319,13 +357,16 @@ class option_consistency_tests(option_tests_base):
     kwargs, extra = self.parser.parse(self._get_required_args() + 
                                       ["--%s" % optn, 'True' if optv is None 
                                                              else str(optv)])
-    self.check_arg_set(kwargs)
+    self._check_arg_set(kwargs)
     d = dict(self.required.items() + [(optn,True if optv is None else optv)])
-    self.check_arg_values(kwargs, d)
+    self._check_arg_values(kwargs, d)
     self.option_spec.optcheck(kwargs, extra)
   def _check_opt_disallowed(self, optn, optv=None):
     # we don't check the value when the option is not allowed to begin with
-    self.assertRaises(BadOptionSet, self._check_opt_allowed, optn, optv)
+    with self.assertRaises(BadOptionSet):
+      self._check_opt_allowed(optn, optv)
+      print >> sys.stderr, ("We did not raise exception with optn='%s' and "
+                            "optv='%s'" % (optn, optv))  
   def _aux_test_explicitly_supported(self, sup_args=[], cmd_args=None):
     # sup_args are extra arguments, but they are also added to the list of 
     # supported arguments, so that currently unsupported options can still be
@@ -338,7 +379,7 @@ class option_consistency_tests(option_tests_base):
   def _get_required_args(self):
     return get_arg_list_from_option_dict(self.required)
 
-class option_specific_tests(option_consistency_tests):
+class option_diverse_specific_tests(option_consistency_tests):
   def test_oh_display_requires_oh(self):
     self._check_opt_disallowed('oh-display')
   def test_user_ipc_requires_oh(self):
@@ -392,6 +433,52 @@ class option_specific_tests(option_consistency_tests):
                   ('db-extra', {'a':'b'}), ('use-frontier',)]
     for args in disallowed:
       self._check_opt_disallowed(*args)
+
+class option_save_output_tests(option_consistency_tests):
+  def setUp(self):
+    super(option_save_output_tests, self).setUp()
+  def test_save_output_allowed(self):
+    self._check_opt_allowed('save-output', '/tmp/somedir/somefile')
+  def test_save_output_conventional_allowed(self):
+    # allowed is a dictionary of the allowed keys mapped to their default values
+    optvbase = self.option_spec['save-output-conventional']['allowed']
+    # create a random combination out of optvbase
+    d = random_sub_dict(optvbase)
+    # check that this combination is acceptable
+    self._check_opt_allowed('save-output-conventional', d)
+  def test_save_output_conventional_disallowed_keys(self):
+    wrong_dict = {123: 321, 'abc': 'cba'}
+    for k, v in wrong_dict.items():
+      self._check_opt_disallowed('save-output-conventional', {k: v})
+  def test_save_output_conventional_disallowed_values(self):
+    # allowed keys
+    goodkeys = self.option_spec['save-output-conventional']['allowed'].keys()
+    # values with wrong type (None):
+    wrong_dict_base = {k: None for k in goodkeys}
+    # get a random combination of wrong items
+    wrongd = random_sub_dict(wrong_dict_base)
+    # check that this combination is not acceptable
+    self._check_opt_disallowed('save-output-conventional', wrongd)
+  def test_save_output_and_conventional_disallowed(self):
+    # allowed is a dictionary of the allowed keys mapped to their default values
+    optv = self.option_spec['save-output-conventional']['allowed']
+    # this will also be parsed
+    self.required['save-output'] = '/tmp/somedir/somefile'
+    self._check_opt_disallowed('save-output-conventional', optv)
+  def test_compression_requires_save_output_somehow(self):
+    compv = random.randint(1,5)
+    # conv is a dictionary of the allowed keys mapped to their default values
+    conv = self.option_spec['save-output-conventional']['allowed']
+    # compression allowed with save-output:
+    self.required['save-output'] = '/tmp/somedir/somefile'
+    self._check_opt_allowed('use-compression', compv)
+    # compression allowed with save-output-conventional
+    del self.required['save-output']
+    self.required['save-output-conventional'] = conv
+    self._check_opt_allowed('use-compression', compv)
+    # compression disallowed without save-output or save-output-conventional
+    del self.required['save-output-conventional']
+    self._check_opt_disallowed('use-compression', compv)
 
 class option_skip_events_tests(option_consistency_tests):
   def setUp(self):
