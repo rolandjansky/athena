@@ -43,13 +43,13 @@ bool interpretSeeds(const std::string& buffer,
     getOffset(token, offset);
 
     try {
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
       seed1 = boost::lexical_cast<uint32_t>(*token++);
       seed2 = boost::lexical_cast<uint32_t>(*token++);
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
     } catch (boost::bad_lexical_cast e) {
@@ -75,12 +75,12 @@ bool interpretSeeds(const std::string& buffer,
     try {
       if (nToks == 32) nToks=30; //ranlux (FIXME NEEDED?)
       for (int i=0; i<nToks; i++) {
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
 	seeds.push_back(boost::lexical_cast<uint32_t>(*token++));
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic pop
 #endif
       }
