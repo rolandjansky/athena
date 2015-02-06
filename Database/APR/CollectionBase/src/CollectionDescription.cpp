@@ -1805,7 +1805,7 @@ pool::CollectionDescription::collectionFragment( int fragmentId, const std::stri
 
   if ( iFragment == m_fragmentForFragmentId.end() )
   {
-    std::string errorMsg = "Not using a collection fragment with ID " + fragmentId;
+    std::string errorMsg = "Not using a collection fragment with ID " + std::to_string(fragmentId);
     throw pool::Exception( errorMsg,
                            "CollectionDescription::" + method,
                            "CollectionBase" );
