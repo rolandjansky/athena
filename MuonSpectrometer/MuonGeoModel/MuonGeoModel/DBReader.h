@@ -908,7 +908,8 @@ namespace MuonGM {
         MYSQL* mysql=MYSQL::GetPointer();
 
         MDT       *mdtobj= (MDT *)mysql->GetATechnology("MDT0");
-        double halfpitch = (mdtobj->pitch)/2.;
+        double default_halfpitch = 0.5*(mdtobj->pitch);
+	double halfpitch = default_halfpitch;
     
         std::string oldname = "XXX0";
         std::string oldnamejtyp = "XXX";
@@ -978,7 +979,23 @@ namespace MuonGM {
                 continue;
             }
             bool hasMdts = stat->hasMdts();
-                            
+
+	    if (hasMdts) {
+	      halfpitch = default_halfpitch;
+	      for (int icomp = 0; icomp<stat->GetNrOfComponents(); ++icomp) {
+		const Component* c = stat->GetComponent(icomp);
+		if (c->name.substr(0,3) != "MDT") continue;
+		MDT* mdtobj= (MDT *)mysql->GetATechnology(c->name);
+		if (!mdtobj) {
+		  log << MSG::ERROR << "Cannot find MDT definition for component " << c->name << std::endl;
+		  continue;
+		}
+		halfpitch = 0.5 * (mdtobj->pitch);
+		log << MSG::DEBUG << "Setting halfpitch " << halfpitch << " for station " << name << std::endl;
+		break;
+	      }
+	    }
+
             Position p;
             p.zindex=aptp[ipos].iz;
             for (int phiindex=0; phiindex<8; ++phiindex)
@@ -1286,9 +1303,10 @@ namespace MuonGM {
         }
     }
 
-    template <class TYPEdnalmn, class TYPEalmn, class TYPEdnatyp, class TYPEatyp>
+    template <class TYPEdnalmn, class TYPEalmn, class TYPEdnatyp, class TYPEatyp, class TYPEdhwmdt, class TYPEwmdt>
     static void ProcessStations(const TYPEdnalmn dnalmn, const TYPEalmn * almn,
-                         const TYPEdnatyp dnatyp, const TYPEatyp * atyp)
+                         const TYPEdnatyp dnatyp, const TYPEatyp * atyp,
+			 const TYPEdhwmdt dhwmdt , const TYPEwmdt * wmdt)
     {
         MsgStream log(Athena::getMessageSvc(), "MuGM:ProcStations");
         log<<MSG::INFO<<" Processing Stations and Components"<<endreq;
@@ -1305,17 +1323,19 @@ namespace MuonGM {
         int nstat = 0;
         std::string name = "XXX0", type_name="XXX";
 
-        double halfpitch = 1.55*CLHEP::cm;
+        double default_halfpitch = 1.55*CLHEP::cm;
         if ( mysql->getGeometryVersion() == "CTB2004" || (mysql->getGeometryVersion()).substr(0,1) == "Q" ||
             (mysql->getGeometryVersion()).substr(0,1) == "R" )
         {
-            halfpitch = 15.0175*CLHEP::mm;
+            default_halfpitch = 15.0175*CLHEP::mm;
         }
         else if ((mysql->getGeometryVersion()).substr(0,3) == "P03")
         {
-            halfpitch = 15.0*CLHEP::mm;
+            default_halfpitch = 15.0*CLHEP::mm;
         }
         
+	double halfpitch = default_halfpitch;
+	
         // loop over the banks of station components: ALMN
         for (unsigned int icomp=0; icomp<dnalmn->size(); ++icomp)
         {
@@ -1381,8 +1401,29 @@ namespace MuonGM {
                 nstat++;
                 log<<MSG::DEBUG<<" a new station has been built with name "<<name<<" nstat = "<<nstat<<endreq;
                 
-            }
-            
+		// ahead loop to determine halfpitch
+		halfpitch = default_halfpitch;
+		for (unsigned int ic=icomp; ic<dnalmn->size(); ++ic)
+		{
+		  if (almn[icomp].jtyp != almn[ic].jtyp || almn[icomp].indx != almn[ic].indx) break;
+		  int jtech = almn[ic].iw;
+		  cartec = std::string(almn[ic].tec,0,3);
+		  if (cartec == "MDT") {
+		    if (((unsigned int) (jtech-1)) > dhwmdt->size()) {
+		      log << MSG::ERROR
+		       	<< "MDT jtech index not found in W MDT table, cannot determine half pitch" 
+			<< " for " << name << std::endl;
+		      continue;
+		    }
+		    halfpitch = 0.5*wmdt[jtech-1].tubpit*CLHEP::cm;
+		    log << MSG::DEBUG
+		      << "Found new halfpitch: " << halfpitch
+		      << " for " << name << std::endl;
+		    break;
+		  }
+		}
+	    }
+
             bool known_comp = true;
             int jtech = almn[icomp].iw;
             cartec = std::string(almn[icomp].tec,0,3);
