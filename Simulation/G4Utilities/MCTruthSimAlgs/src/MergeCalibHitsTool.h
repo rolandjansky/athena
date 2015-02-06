@@ -28,18 +28,18 @@ public:
                      const std::string& name,
                      const IInterface* parent);
   ///called before the event loop
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override final;
   ///called before the subevts loop. Not (necessarily) able to access
   ///SubEvents
-  virtual StatusCode prepareEvent(unsigned int nInputEvents);
+  virtual StatusCode prepareEvent(unsigned int nInputEvents) override final;
   ///called at the end of the subevts loop. Not (necessarily) able to access
   ///SubEvents
-  virtual StatusCode mergeEvent();
+  virtual StatusCode mergeEvent() override final;
   ///called for each active bunch-crossing to process current SubEvents
   /// bunchXing is in ns
   virtual StatusCode processBunchXing(int bunchXing,
                                       PileUpEventInfo::SubEvent::const_iterator bSubEvents,
-                                      PileUpEventInfo::SubEvent::const_iterator eSubEvents);
+                                      PileUpEventInfo::SubEvent::const_iterator eSubEvents) override final;
   /// return false if not interested in  certain xing times (in ns)
   /// implemented by default in PileUpToolBase as FirstXing<=bunchXing<=LastXing
   // virtual bool toProcess(int bunchXing) const;
@@ -47,7 +47,7 @@ public:
   /**  @brief Propagate the Calib Hit Containers to the output
        StoreGate
   */
-  virtual StatusCode processAllSubEvents();
+  virtual StatusCode processAllSubEvents() override final;
 
 private:
   bool m_firstSubEvent;
