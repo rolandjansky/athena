@@ -25,6 +25,7 @@ namespace Trk {
     , m_runOutlierRemoval(false)
     , m_particleHypothesis(Trk::nonInteracting)
     , m_useSingleFitter(false)
+    , m_selectHits(false)
   {
     declareInterface<IAlignTrackPreProcessor>(this);
 
@@ -41,6 +42,9 @@ namespace Trk {
 
     declareProperty("ParticleHypothesis", m_particleHypothesis);
     declareProperty("RunOutlierRemoval",  m_runOutlierRemoval = false);
+
+    declareProperty("HitQualityTool", m_hitQualityTool);
+    declareProperty("SelectHits", m_selectHits);
 
     m_logStream = 0;
   }
@@ -84,6 +88,19 @@ namespace Trk {
       ATH_MSG_INFO("Retrieved " << m_trackSelectorTool);
     }
 
+    if (m_selectHits) {
+      if(m_hitQualityTool.empty()) {
+	msg(MSG::FATAL) << "HitQualityTool not specified : " << m_hitQualityTool << endreq;
+	return StatusCode::FAILURE;
+      }
+      else if(m_hitQualityTool.retrieve().isFailure())
+	{
+	  msg(MSG::FATAL) << "Could not get " << m_trackSelectorTool << endreq;
+	  return StatusCode::FAILURE;
+	}
+      ATH_MSG_INFO("Retrieved " << m_hitQualityTool);
+    }
+  
     return StatusCode::SUCCESS;
   }
 
@@ -97,79 +114,128 @@ namespace Trk {
   DataVector<Track>* AlignTrackPreProcessor::processTrackCollection(const DataVector<Track>* tracks) 
   {
     ATH_MSG_DEBUG("AlignTrackPreProcessor::processTrackCollection()");
-
+    
     if (!tracks || tracks->size()==0)
       return 0;
-
+    
     // the output collection of AlignTracks
     // we define it as collection of Tracks but fill AlignTracks inside
     DataVector<Track> * newTracks = new DataVector<Track>;
-
+    
     int itrk(0);
     // loop over tracks and create AlignTracks
     TrackCollection::const_iterator it     = tracks->begin();
     TrackCollection::const_iterator it_end = tracks->end();
-
+    
     for ( ; it != it_end ; ++it, ++itrk) {
-
-      ATH_MSG_DEBUG("Processing track "<<itrk);
+      
+      ATH_MSG_INFO(" ** processTrackCollection ** Processing track "<<itrk);
       Track * origTrack = *it;
       Track * newTrack = *it;
       AlignTrack* at;
-
-      // check whether the track passes selection
-      if (m_selectTracks)
+      
+      // check whether the original track passes selection
+      if (m_selectTracks) {
         if(!m_trackSelectorTool->decision(*origTrack)) {
-          ATH_MSG_DEBUG("Track did not pass the selection.");
+          ATH_MSG_INFO("Track did not pass the selection.");
           continue;
         }
-
-      // refit track
-      if (m_refitTracks) {
-
-        ToolHandle<Trk::IGlobalTrackFitter> fitter=m_trackFitterTool;
-        if (!m_useSingleFitter && AlignTrack::isSLTrack(origTrack) )
-          fitter = m_SLTrackFitterTool;
-
-        newTrack=fitter->fit(*origTrack,m_runOutlierRemoval,ParticleHypothesis(m_particleHypothesis));
-        if (!newTrack) {
-          ATH_MSG_DEBUG("Track refit yielded no track. Skipping the track.");
-          continue;
-        }
-
-        at = new AlignTrack(*newTrack);
-
-        if (msgLvl(MSG::DEBUG) && !msgLvl(MSG::VERBOSE)) {
-          msg(MSG::DEBUG)<<"before refit: "<<endreq;
-          AlignTrack::dumpLessTrackInfo(*origTrack,msg(MSG::DEBUG));
-          msg(MSG::DEBUG)<<"after refit: "<<endreq;
-          AlignTrack::dumpLessTrackInfo(*newTrack,msg(MSG::DEBUG));
-          msg(MSG::DEBUG)<<endreq;
-        }
-
-        // store fit matrices
-        if (m_storeFitMatricesAfterRefit) {
-          at->setFullCovarianceMatrix(fitter->FullCovarianceMatrix());
-          at->setDerivativeMatrix(fitter->DerivMatrix());
-        }
-
-        // delete newTrack since it's copied in AlignTrack
-        delete newTrack;
+	
+	ToolHandle<Trk::IGlobalTrackFitter> fitter=m_trackFitterTool;
+	if (!m_useSingleFitter && AlignTrack::isSLTrack(origTrack) )
+	  fitter = m_SLTrackFitterTool;
+	
+	if (m_selectHits) {
+	  /** select silicon hits by quality. keep all the rest **/
+	  newTrack = performSiliconHitSelection(origTrack, fitter);
+	  
+	  if (!newTrack) {
+	    ATH_MSG_DEBUG("Track refit yielded no track. Skipping the track.");
+	    continue;
+	  }
+	  
+	  // check whether the track passes selection
+	  if(!m_trackSelectorTool->decision(*newTrack)) {
+	    ATH_MSG_DEBUG(" ** processTrackCollection ** Track did not pass the selection.");
+	    continue;
+	  }
+	}
+	  
+	// refit track
+	if (m_refitTracks &!m_selectHits) {
+	  
+	  newTrack=fitter->fit(*origTrack,m_runOutlierRemoval,ParticleHypothesis(m_particleHypothesis));
+	  if (!newTrack) {
+	    ATH_MSG_DEBUG("Track refit yielded no track. Skipping the track.");
+	    continue;
+	  }
+	  // check that the refitted track satisfies the aligntrack selection
+	  if(!m_trackSelectorTool->decision(*origTrack)) {
+	    ATH_MSG_INFO("Track did not pass the selection.");
+	    continue;
+	  }
+	}
+	
+	at = new AlignTrack(*newTrack);
+	
+	if (msgLvl(MSG::DEBUG) && !msgLvl(MSG::VERBOSE)) {
+	  msg(MSG::DEBUG)<<"before refit: "<<endreq;
+	  AlignTrack::dumpLessTrackInfo(*origTrack,msg(MSG::DEBUG));
+	  msg(MSG::DEBUG)<<"after refit: "<<endreq;
+	  AlignTrack::dumpLessTrackInfo(*newTrack,msg(MSG::DEBUG));
+	  msg(MSG::DEBUG)<<endreq;
+	}
+	
+	// store fit matrices
+	if (m_storeFitMatricesAfterRefit) {
+	  at->setFullCovarianceMatrix(fitter->FullCovarianceMatrix());
+	  at->setDerivativeMatrix(fitter->DerivMatrix());
+	}
+	
+	// delete newTrack since it's copied in AlignTrack
+	delete newTrack;
       }
-
-      else
-        at=new AlignTrack(*newTrack);
-
+      else { // in case no selection is performed, keep all tracks
+	at=new AlignTrack(*newTrack);
+      }
+      
       newTracks->push_back(at);
-
-    }
-
+    } 
+    
+    
     if (newTracks->size()==0) {
       delete newTracks;
       return 0;
     }
-
+    
     return newTracks;
   }
 
+   //________________________________________________________________________
+  Track * AlignTrackPreProcessor::performSiliconHitSelection(Track * inputTrack, ToolHandle<Trk::IGlobalTrackFitter> fitter)
+  {
+    /** select silicon hits by quality. keep all the rest **/
+    ATH_MSG_DEBUG("** performSiliconHitSelection ** before removing bad Silicon hits, this track has "<< inputTrack->trackStateOnSurfaces()->size()<< " tsos");
+    Track * newTrack;
+
+    std::vector<const Trk::MeasurementBase*> selectedMeasurementSet;
+
+    // loop on track hits
+    int nhits = 0;
+    for (std::vector<const Trk::TrackStateOnSurface*>::const_iterator tsos=inputTrack->trackStateOnSurfaces()->begin();
+	 tsos!=inputTrack->trackStateOnSurfaces()->end(); ++tsos) {
+      nhits++;
+      if (m_hitQualityTool->isGoodSiHit(*tsos)) {
+	selectedMeasurementSet.push_back( (*tsos)->measurementOnTrack() );
+      }
+      else {
+	ATH_MSG_DEBUG(" -- performSiliconHitSelection -- hit # "<< nhits << " status = BAD HIT ");
+      }
+    }
+    ATH_MSG_DEBUG("-- performSiliconHitSelection -- after removing bad Silicon hits, the selected measurement collection has "<< selectedMeasurementSet.size()<< " elements");
+
+    newTrack = fitter->fit(selectedMeasurementSet,*inputTrack->perigeeParameters(),m_runOutlierRemoval,ParticleHypothesis(m_particleHypothesis));
+    
+    return newTrack;
+  }
 }

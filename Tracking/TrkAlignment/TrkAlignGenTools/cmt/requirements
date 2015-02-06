@@ -1,3 +1,4 @@
+
 package TrkAlignGenTools
 
 author Robert Harrington <roberth@bu.edu>
@@ -17,6 +18,7 @@ use  TrkFitterUtils             TrkFitterUtils-*                Tracking/TrkFitt
 use  muonEvent                  muonEvent-*                     Reconstruction/MuonIdentification
 use EventPrimitives             EventPrimitives-*               Event
 use GeoPrimitives	              GeoPrimitives-*	                DetectorDescription
+use  InDetAlignGenTools         InDetAlignGenTools-*            InnerDetector/InDetAlignTools
 
 private
 use StoreGate                   StoreGate-*                     Control

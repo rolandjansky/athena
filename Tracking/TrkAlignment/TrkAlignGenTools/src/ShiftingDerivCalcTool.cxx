@@ -889,7 +889,7 @@ bool ShiftingDerivCalcTool::setResidualCovMatrix(AlignTrack* alignTrack) const
   Amg::MatrixX& W = *pW;
   
   if (alignTrack->localErrorMatrixInv()) {
-    ATH_MSG_ERROR("Need to assign this matrix correctly: ShiftingDerivCalcTool.cxx:893");
+    ATH_MSG_ERROR("Need to assign this matrix correctly: ShiftingDerivCalcTool.cxx:888");
     W = *(alignTrack->localErrorMatrixInv());
     //W.assign(*(alignTrack->localErrorMatrixInv()));
   } else{ 
@@ -916,12 +916,13 @@ bool ShiftingDerivCalcTool::setResidualCovMatrix(AlignTrack* alignTrack) const
     }
   }
 
-  if (Wisvalid) 
-  
+  if (Wisvalid)   
   alignTrack->setWeightMatrix(pW);
+
   Amg::MatrixX* pWfirst=new Amg::MatrixX(*pW);
-  alignTrack->setWeightMatrixFirstDeriv(pWfirst);
-  
+  alignTrack->setWeightMatrixFirstDeriv(pWfirst);  
+  delete pW;
+
   return true;
 }
     
