@@ -106,8 +106,8 @@ private:
   /// output store
   StoreGateSvc* p_SGOver;              // overlaid (output) event store 
 
-  unsigned int m_nInputs;
-  unsigned int m_nStores;
+  //unsigned int m_nInputs;
+  //unsigned int m_nStores;
 
   /// @name Properties
   //@{
