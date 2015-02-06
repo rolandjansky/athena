@@ -7,6 +7,9 @@
 #include <fstream>
 #include <iostream>
 #include <iterator>
+#ifndef HAVE_NEW_IOSTREAMS      /*gnu-specific*/
+#define BOOST_NO_STRINGSTREAM 1 /*FIXME should come from boost config */
+#endif
 #include <boost/lexical_cast.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/algorithm/string/trim.hpp>
@@ -18,7 +21,6 @@
 #include "GaudiKernel/System.h"
 #include "GaudiKernel/MsgStream.h"
 #include "SGTools/CLIDRegistry.h"
-#include "AthenaKernel/errorcheck.h"
 
 #include "ClassIDSvc.h"
 using namespace std;
@@ -86,15 +88,21 @@ ClassIDSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 StatusCode 
 ClassIDSvc::initialize()
 {
-  ATH_MSG_VERBOSE( "Initializing " << name() << " - package version " <<
-                   PACKAGE_VERSION ) ;
+  ATH_MSG_INFO( "Initializing " << name() << " - package version " <<
+		PACKAGE_VERSION ) ;
 
-  CHECK( Service::initialize() );
+  if (!(Service::initialize().isSuccess())) {
+    msg() << MSG::FATAL << "Could not initialize base class" << endmsg;
+    return StatusCode::FAILURE;
+  }
 
   // set up the incident service:
   IIncidentSvc* pIncSvc(0);
   const bool CREATEIF(true);
-  CHECK( service("IncidentSvc", pIncSvc, CREATEIF) );
+  if (!(service("IncidentSvc", pIncSvc, CREATEIF)).isSuccess()) {
+    msg() << MSG::FATAL << "Could not locate IncidentSvc" << endmsg;
+    return StatusCode::FAILURE;
+  }
   assert( 0 != pIncSvc );
 
   const int PRIORITY = 100;
@@ -361,7 +369,7 @@ ClassIDSvc::uncheckedSetTypePackageForID(const CLID& id,
       msg() << MSG::FATAL 
 	    << " It was set by " << existInfo;
     }
-    msg() << MSG::ERROR << endmsg;
+    msg() << MSG::ERROR << endreq;
     sc = StatusCode::FAILURE;
   } else if (procName == knownName) {
 #ifndef NDEBUG		
@@ -386,7 +394,7 @@ ClassIDSvc::uncheckedSetTypePackageForID(const CLID& id,
       msg() << MSG::ERROR 
 	    << " It was set by " << existInfo; 
     }
-    msg() << MSG::ERROR << endmsg;
+    msg() << MSG::ERROR << endreq;
     sc = StatusCode::FAILURE;
   } else if (id == knownID) {
 #ifndef NDEBUG		
@@ -404,13 +412,13 @@ ClassIDSvc::uncheckedSetTypePackageForID(const CLID& id,
 //     msg() << MSG::ERROR 
 // 	<< "uncheckedSetTypePackageForID: can not set package info <" << info
 // 	<< "> for CLID " << id
-// 	<< ": Known info for this CLID <" << knownInfo << '>' << endmsg;
+// 	<< ": Known info for this CLID <" << knownInfo << '>' << endreq;
 //     sc = StatusCode::FAILURE;
 //   } else if (info == knownInfo) {
 // #ifndef NDEBUG		
 //     msg() << MSG::VERBOSE
 // 	<< "uncheckedSetTypePackageForID: package info <" << info
-// 	<< "> already set for CLID " << id<< endmsg;
+// 	<< "> already set for CLID " << id<< endreq;
 // #endif			
 //   } else {
     const std::string procTiName = typeInfoName.empty() 
