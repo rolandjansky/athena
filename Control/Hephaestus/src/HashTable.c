@@ -110,7 +110,7 @@ struct hhh_HashTable *hhh_HashTable_new( unsigned long minsize )
 static int hhh_HashTable_expand( struct hhh_HashTable *ht )
 {
    unsigned long i, index;
-   unsigned long size;
+   unsigned long size = 0;
    struct hhh_Cell **newtable;
    struct hhh_Cell *cell;
 

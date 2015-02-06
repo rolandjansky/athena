@@ -118,7 +118,7 @@ static void hhh_NameSet_print( FILE* out, struct hhh_NameSet *nameset, const cha
    unsigned int i;
 
    if ( nameset->size && preamb )
-      fprintf( out, preamb );
+      fprintf( out, "%s", preamb );
 
    for ( i = 0; i < nameset->size; ++i )
       fprintf( out, " \"%s\"", nameset->names[i] );
