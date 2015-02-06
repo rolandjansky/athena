@@ -23,7 +23,9 @@
 
 namespace MuonGM {
 
-CscMultiLayer::CscMultiLayer(std::string n): DetectorElement(n)
+CscMultiLayer::CscMultiLayer(std::string n): DetectorElement(n),
+  width(0.), longWidth(0.), upWidth(0.), excent(0.),
+  length(0.), physicalLength(0.), maxwLength(0.)
 {
   MYSQL* amdb = MYSQL::GetPointer();	
   CSC* md =(CSC*)amdb->GetTechnology(name);

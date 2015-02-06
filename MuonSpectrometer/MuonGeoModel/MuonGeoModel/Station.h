@@ -92,13 +92,18 @@ public:
     bool hasMdts() const {return m_hasMdts;} 
     void setHasMdts(bool x) {m_hasMdts = x;} 
     
+    double mdtHalfPitch() const;
+
 private:
+    double getYMin() const;
+
 	mutable double thickness;
 	mutable double length;
         mutable double amdbOrigine_along_length;
         mutable double amdbOrigine_along_thickness;
 	mutable double width1;
 	mutable double width2;
+	mutable double mdthalfpitch;
 	std::string name;
         bool m_hasMdts;
 	std::vector<Component *> components;
@@ -106,6 +111,7 @@ private:
 	PositionMap positions;
 	AlignPosMap alignpositions;
 	IMessageSvc*    m_msgSvc;
+	Station & operator=(const Station &right);
 };
 } // namespace MuonGM
 

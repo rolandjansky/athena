@@ -13,7 +13,7 @@ namespace MuonGM {
 
 class MMSpacer_Technology: public Technology {
 public:
-    double thickness;
+	double thickness;
 	
 	// constructor
 	inline MMSpacer_Technology(std::string s);
@@ -27,7 +27,9 @@ public:
 	double highZCutOutDZ;
 };
 
-MMSpacer_Technology::MMSpacer_Technology(std::string s): Technology(s)
+MMSpacer_Technology::MMSpacer_Technology(std::string s): Technology(s),
+  thickness(0.), lowZCutOuts(0), lowZCutOutWidth(0.), lowZCutOutDZ(0.),
+  highZCutOuts(0), highZCutOutWidth(0.), highZCutOutDZ(0.)
 {
 }
 

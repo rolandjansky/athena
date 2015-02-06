@@ -38,7 +38,9 @@ using namespace GeoXF;
 
 namespace MuonGM {
 
-MultiLayer::MultiLayer(std::string n): DetectorElement(n)
+MultiLayer::MultiLayer(std::string n): DetectorElement(n),
+  nrOfLayers(0), nrOfTubes(0), tubePitch(0.), width(0.), length(0.), thickness(0.),
+  mdtthickness(0.), longWidth(0.), nrOfSteps(0), cutoutNsteps(0), cutoutAtAngle(false)
 {
    m_geo_version = 400;
    MYSQL* mysql = MYSQL::GetPointer();

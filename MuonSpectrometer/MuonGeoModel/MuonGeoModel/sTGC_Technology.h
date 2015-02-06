@@ -13,7 +13,7 @@ namespace MuonGM {
 
 class sTGC_Technology: public Technology {
 public:
-    double thickness;
+	double thickness;
 	int nlayers;
 	double gasThickness;
 	double pcbThickness;
@@ -32,7 +32,10 @@ public:
 	inline double Thickness() ;
 };
 
-sTGC_Technology::sTGC_Technology(std::string s): Technology(s),geoLevel(0)
+sTGC_Technology::sTGC_Technology(std::string s): Technology(s),
+  thickness(0.), nlayers(0), gasThickness(0.), pcbThickness(0.),
+  f4Thickness(0.), f5Thickness(0.), f6Thickness(0.),
+  geoLevel(0)
 {
 }
 

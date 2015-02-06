@@ -30,6 +30,9 @@ public:
     double thickness;
 
     friend std::ostream& operator<<(std::ostream &os, const Cutout& p);
+
+private:
+    Cutout & operator=(const Cutout &right);
 };
 } // namespace MuonGM
 

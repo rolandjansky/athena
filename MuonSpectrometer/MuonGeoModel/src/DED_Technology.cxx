@@ -28,7 +28,7 @@
 namespace MuonGM {
 
 DED::DED(std::string s)
-    :Technology(s)
+    :Technology(s), AlThickness(0.), HoneyCombThickness(0.)
 {
 }
 

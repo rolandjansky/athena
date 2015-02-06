@@ -24,7 +24,8 @@
 namespace MuonGM {
 
 
-RpcLayer::RpcLayer(std::string s, Rpc* t): DetectorElement(s) 
+RpcLayer::RpcLayer(std::string s, Rpc* t): DetectorElement(s),
+  lwidth(0.), llength(0.), thickness(0.), llongWidth(0.)
 {
   m = t;
 }

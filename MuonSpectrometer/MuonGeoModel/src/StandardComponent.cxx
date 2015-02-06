@@ -22,6 +22,7 @@ StandardComponent::StandardComponent():Component()
     excent = 0.;
     iswap = 0;
     index = 0;
+    dead3 = 0.;
 }
 
 StandardComponent::StandardComponent(const StandardComponent& c):Component(c)
@@ -32,8 +33,25 @@ StandardComponent::StandardComponent(const StandardComponent& c):Component(c)
 	deadx=c.deadx;
 	deady=c.deady;
 	excent=c.excent;
-        iswap=c.iswap;
+	iswap=c.iswap;
 	index=c.index;
+	dead3=c.dead3;
+}
+
+StandardComponent& StandardComponent::operator=(const StandardComponent& c){
+	if (this!=&c) {
+		Component::operator=(c);
+		posx=c.posx;
+		posy=c.posy;
+		posz=c.posz;
+		deadx=c.deadx;
+		deady=c.deady;
+		excent=c.excent;
+		iswap=c.iswap;
+		index=c.index;
+		dead3=c.dead3;
+	}
+	return *this;
 }
 
 std::ostream& operator<<(std::ostream& os,const StandardComponent& c)

@@ -12,7 +12,7 @@ std::string Technology::GetName()
 	return name;
 }
 
-Technology::Technology(std::string s): name(s)
+Technology::Technology(std::string s): name(s), thickness(0.)
 {
 	MYSQL *mysql=MYSQL::GetPointer();
         mysql->StoreTechnology(this);

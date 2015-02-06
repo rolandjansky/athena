@@ -30,5 +30,14 @@ double Component::GetThickness() const
 	return 0;
 }
 
+Component& Component::operator=(const Component& c) {
+	if (this!=&c) {
+		name=c.name;
+		dx1=c.dx1;
+		dx2=c.dx2;
+		dy=c.dy;     
+	}
+	return *this;
+}
 
 } // namespace MuonGM

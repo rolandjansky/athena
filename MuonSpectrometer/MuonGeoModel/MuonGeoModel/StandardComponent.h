@@ -14,6 +14,7 @@ class StandardComponent: public Component  {
 public:
     StandardComponent();
     StandardComponent(const StandardComponent& c);
+    StandardComponent& operator=(const StandardComponent& c);
 
     double posx;
     double posy;

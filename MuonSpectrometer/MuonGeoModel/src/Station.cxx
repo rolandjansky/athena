@@ -26,6 +26,7 @@ Station::Station(std::string s):name(s)
     thickness=width1=width2=length=0;
     amdbOrigine_along_length = 0;
     amdbOrigine_along_thickness = 0;
+    mdthalfpitch = 0.;
     MYSQL *mysql=MYSQL::GetPointer();
     m_hasMdts = false;
     mysql->StoreStation(this);
@@ -38,6 +39,7 @@ Station::Station()
     thickness=width1=width2=length=0;
     amdbOrigine_along_length = 0;
     amdbOrigine_along_thickness = 0;
+    mdthalfpitch = 0.;
     name = "unknown";
     m_hasMdts = false;
     MsgStream log(m_msgSvc, "MuonGeoModel");
@@ -52,6 +54,7 @@ Station::Station(const Station& s)
 	thickness=width1=width2=length=0;
         amdbOrigine_along_length = 0;
         amdbOrigine_along_thickness = 0;
+	mdthalfpitch = 0.;
         m_hasMdts = s.m_hasMdts;
 	name=s.name;
 	for (unsigned int i=0;i<s.components.size();i++)
@@ -277,6 +280,8 @@ double Station::GetExtraTopThickness() const
     if (name[0] != 'B') return 0.;
 
     return 0.;
+/* COMMENTING IS JUST TO MAKE COVERITY HAPPY 
+   WHY THIS CODE WAS NEVER ENTERED HAS TO BE FIGURED OUT
     double xupsup = 0.;
     double deltaup = 0.;
     int nsup=0;
@@ -309,6 +314,7 @@ double Station::GetExtraTopThickness() const
     }
     
     return 0.;
+*/
 }
 double Station::GetExtraBottomThickness() const
 {
@@ -317,6 +323,8 @@ double Station::GetExtraBottomThickness() const
     if (name[0] != 'B') return 0.;
 
     return 0.;
+/* COMMENTING IS JUST TO MAKE COVERITY HAPPY 
+   WHY THIS CODE WAS NEVER ENTERED HAS TO BE FIGURED OUT
     double xdownsup = 0.;
     double deltadown = 0.;
     int nsup =0;
@@ -347,6 +355,7 @@ double Station::GetExtraBottomThickness() const
         return dbottom;
     }
     return 0.;
+*/
 }
 double Station::GetLength() const 
 {
@@ -400,10 +409,10 @@ double Station::GetLength() const
                 if (mysql->getGeometryVersion().substr(0,3) != "P03" ) {
                     // std::cout<<"station "<<name<<" ystart "<<ystart<<" redefining len "<<len<<" "<< len - ystart<<std::endl;
                     len = len - ystart;
-                    amdbOrigine_along_length = -ystart;
+		    amdbOrigine_along_length = -ystart;
                     //if (name == "EIL8" || name == "EIL9")
                     if (log.level()<=MSG::VERBOSE) log<<MSG::VERBOSE<<"Station "<<name<<" redefining len = "<<len<<" because ystart = "
-                       <<ystart<<"; then amdbOrigine_along_length = "<<amdbOrigine_along_length<<endreq;
+                       <<ystart<<endreq;
                 }
             }
         }
@@ -456,6 +465,19 @@ double Station::GetLength() const
         return len;
     }
 }
+
+double Station::getYMin() const {
+  if (name[0] != 'T') {
+    double ystart = 999999.;
+    for (unsigned int i=0; i<components.size(); i++) {
+      StandardComponent* sc = (StandardComponent*) components[i];
+      if (i==0 || sc->posy < ystart ) ystart = sc->posy;
+    }
+    return ystart;
+  }
+  return 0.;
+}
+
 double Station::GetWidth1() const 
 {
 	MsgStream log(m_msgSvc, "MuonGeoModel");
@@ -463,7 +485,7 @@ double Station::GetWidth1() const
 	else
 	{
             double maxdxmin = -99999.;
-            double ymin= -getAmdbOrigine_along_length();
+            double ymin= getYMin();
             //double ymax= GetLength()-getAmdbOrigine_along_length();
 	  //            log << MSG::DEBUG<<" building width1"<<endreq;
 	        double w=0;
@@ -550,7 +572,7 @@ double Station::GetWidth2() const
     else
     {
         //double ymin= -getAmdbOrigine_along_length();
-        double ymax= GetLength()-getAmdbOrigine_along_length();
+        double ymax= getYMin() + GetLength();
         double maxdxmax = -99999.;
         double w=0;
         for (unsigned int i=0;i<components.size();i++)
@@ -636,6 +658,29 @@ std::ostream& operator<<(std::ostream& os,const Station& s)
 }
 
 
+double Station::mdtHalfPitch() const {
+  if (mdthalfpitch) return mdthalfpitch;
+
+  MsgStream log(m_msgSvc, "mdtHalfPitch");
+  MYSQL* mysql=MYSQL::GetPointer();
+  MDT       *mdtobj= (MDT *)mysql->GetATechnology("MDT0");
+  mdthalfpitch = 0.5 * (mdtobj->pitch);
+  if (hasMdts()) {
+    for (int icomp = 0; icomp<GetNrOfComponents(); ++icomp) {
+      const Component* c = GetComponent(icomp);
+      if (c->name.substr(0,3) != "MDT") continue;
+      MDT* mdtobj= (MDT *)mysql->GetATechnology(c->name);
+      if (!mdtobj) {
+	log << MSG::ERROR << "Cannot find MDT definition for component " << c->name << std::endl;
+	continue;
+      }
+      mdthalfpitch = 0.5 * (mdtobj->pitch);
+      log << MSG::DEBUG << "Setting halfpitch " << mdthalfpitch << " for station " << name << std::endl;
+      break;
+    }
+  }
+  return mdthalfpitch;
+}
 
 
 //this is really needed 
@@ -669,15 +714,15 @@ HepGeom::Transform3D Station::native_to_tsz_frame( const Position & p ) const {
     HepGeom::Translate3D AMDBorgTranslation;
     if ( (name[0]=='B' || p.isBarrelLike) && p.zindex<0 && (!p.isMirrored) && hasMdts())
     {
-        MYSQL* mysql=MYSQL::GetPointer();
-        MDT       *mdtobj= (MDT *)mysql->GetATechnology("MDT0");
-        double halfpitch = (mdtobj->pitch)/2.;
-        //halfpitch =0.; 
+        //MYSQL* mysql=MYSQL::GetPointer();
+        //MDT       *mdtobj= (MDT *)mysql->GetATechnology("MDT0");
+        //double halfpitch = (mdtobj->pitch)/2.;
+	double halfpitch = mdtHalfPitch();
         AMDBorgTranslation =
             HepGeom::Translate3D(GetThickness()/2.-getAmdbOrigine_along_thickness(),
                            0.,
-//                      GetLength()/2.-(getAmdbOrigine_along_length()+halfpitch));
-                           GetLength()/2.-(halfpitch));
+			   GetLength()/2.-(getAmdbOrigine_along_length()+halfpitch));
+                           //GetLength()/2.-(halfpitch));
         if (vLvl)
 		log<<MSG::VERBOSE<<" GetThickness / getAmdbO_thick / GetLength() / getAmdbO_length "
            <<GetThickness()<<" "
@@ -776,10 +821,12 @@ HepGeom::Transform3D Station::tsz_to_global_frame( const Position & p ) const {
     {
         if ( (p.isBarrelLike) || (name[0]=='B' && p.zindex<0 && hasMdts()) )
         {
-            MYSQL* mysql=MYSQL::GetPointer();
-            MDT       *mdtobj= (MDT *)mysql->GetATechnology("MDT0");
-            double halfpitch = (mdtobj->pitch)/2.;
-            vec.setZ(p.z + (-getAmdbOrigine_along_length()+halfpitch));
+            //MYSQL* mysql=MYSQL::GetPointer();
+            //MDT       *mdtobj= (MDT *)mysql->GetATechnology("MDT0");
+            //double halfpitch = (mdtobj->pitch)/2.;
+	    double halfpitch = mdtHalfPitch();
+            //vec.setZ(p.z + (-getAmdbOrigine_along_length()+halfpitch));
+            vec.setZ(p.z + halfpitch);
         }
         else
             vec.setZ(p.z);
@@ -936,15 +983,14 @@ HepGeom::Transform3D Station::getDeltaTransform(const AlignPos & ap, const Posit
 
 double Station::getAmdbOrigine_along_length() const 
 {
-    if (length)
-        return amdbOrigine_along_length;
-    else {
-        length = GetLength();
-        return amdbOrigine_along_length;
-    }
-//     if (amdbOrigine_along_length) return amdbOrigine_along_length;
-//     else return 0.;
+  if (length) 
+    return amdbOrigine_along_length; 
+  else { 
+    length = GetLength(); 
+    return amdbOrigine_along_length; 
+  } 
 }
+
 double Station::getAmdbOrigine_along_thickness() const 
 {
     if (thickness) return amdbOrigine_along_thickness;

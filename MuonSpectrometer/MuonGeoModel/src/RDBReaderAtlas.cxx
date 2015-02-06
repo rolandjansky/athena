@@ -199,8 +199,16 @@ RDBReaderAtlas::RDBReaderAtlas(StoreGateSvc *pDetStore, IRDBAccessSvc* pRDBAcces
         dhwlbi = new DblQ00Wlbi(dbdata);
 	delete dbdata;
         wlbi= dhwlbi->data();
-    }
-
+    } else {
+        dhwchv = NULL;
+        wchv = NULL;
+        dhwcro = NULL;
+        wcro = NULL;
+        dhwcmi = NULL;
+        wcmi = NULL;
+        dhwlbi = NULL;
+        wlbi = NULL;
+    } 
     
     
     // everything fetched 
@@ -228,7 +236,7 @@ StatusCode RDBReaderAtlas::ProcessDB()
     mysql->setNovaReadVersion(dbam[0].nvrs);
 
     // Process Stations and components
-    MuonGM::ProcessStations(dhalmn, almn, dhatyp, atyp);
+    MuonGM::ProcessStations(dhalmn, almn, dhatyp, atyp, dhwmdt, wmdt);
     
     // Process Technologies
     ProcessTechnologies();

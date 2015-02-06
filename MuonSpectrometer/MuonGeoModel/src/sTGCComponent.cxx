@@ -8,7 +8,7 @@
 namespace MuonGM {
 
 
-sTGCComponent:: sTGCComponent():StandardComponent(),subType("")
+sTGCComponent:: sTGCComponent():StandardComponent(), yCutout(0.), subType("")
 {
 }
 
