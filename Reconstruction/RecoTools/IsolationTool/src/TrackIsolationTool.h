@@ -39,13 +39,14 @@ namespace xAOD {
       struct TrackIsolationInput {
 	TrackIsolationInput(const IParticle* particle_,TrackCorrection corrections_,
 			    const Vertex* vertex_,
-			    const std::set<const TrackParticle*>* exclusionSet_ ) :
-	  particle(particle_),
+			    const std::set<const TrackParticle*>* exclusionSet_ , float maxRadius_=0.4) :
+	particle(particle_),
+	  maxRadius(maxRadius_),  
 	  corrections(corrections_),
 	  vertex(vertex_),
 	  exclusionSet(exclusionSet_),
 	  ptvarconeRadiusSquared( pow( 10000. / particle->pt() , 2 ) ) 
-          {}
+	{}
 	
 	const IParticle* particle;                     /// input IParticle
 	std::vector<float>  coneSizesSquared;          /// cone sizes squared
