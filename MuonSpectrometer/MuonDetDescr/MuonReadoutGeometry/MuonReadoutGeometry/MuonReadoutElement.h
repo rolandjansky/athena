@@ -206,7 +206,7 @@ private:
    int m_eta, m_phi;
    bool m_mirrored;
    int m_id_max_init_field;
-   int m_id_fields[maxfieldindex];
+   //int m_id_fields[maxfieldindex];
    PVConstLink _parentStationPV;
    const MuonStation* _parentMuonStation; 
    MuonDetectorManager* m_muon_mgr;
