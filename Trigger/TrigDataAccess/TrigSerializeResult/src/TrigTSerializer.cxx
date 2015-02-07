@@ -125,6 +125,14 @@ void TrigTSerializer::add_previous_streamerinfos(){
   TIter nextinfo(a);
   TStreamerInfo *inf;
   while ((inf = (TStreamerInfo *)nextinfo()) != 0){
+
+    TString t_name=inf->GetName();
+
+    if (t_name.BeginsWith("listOfRules")){
+    	*m_log << MSG::WARNING << "Could not re-load  class " << t_name<< endreq;
+    	continue;
+    }
+
     inf->BuildCheck();
     //this triggers a crash on lcg60
     TClass *cl = inf->GetClass();
