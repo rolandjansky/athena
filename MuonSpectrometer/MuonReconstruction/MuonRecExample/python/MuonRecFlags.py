@@ -565,12 +565,14 @@ class MuonRec(JobPropertyContainer):
                 setDefault(self.doCalibNtuple,self.doCalib())
                 setDefault(self.calibNtupleSegments,True)
                 setDefault(self.calibNtupleTracks,True)
-                setDefault(self.calibNtupleTrigger,True)
+                if rec.doTrigger: setDefault(self.calibNtupleTrigger,True)
+                else: setDefault(self.calibNtupleTrigger,False)
             elif muonCalibFlags.Mode == 'ntuple' or (muonCalibFlags.Mode == 'trackNtuple' and not doTracks):
                 setDefault(self.doCalibNtuple,self.doCalib())
                 setDefault(self.calibNtupleSegments,True)
                 setDefault(self.calibNtupleTracks,False)
-                setDefault(self.calibNtupleTrigger,True)
+                if rec.doTrigger: setDefault(self.calibNtupleTrigger,True)
+                else: setDefault(self.calibNtupleTrigger,False)
             else:
                 setDefault(self.doCalibNtuple,False)
                 setDefault(self.calibNtupleSegments,False)
