@@ -5,7 +5,7 @@
 # @author Sebastien Binet
 # @date February 2010
 
-__version__ = "$Revision: 543921 $"
+__version__ = "$Revision: 637362 $"
 __doc__ = "check that 2 ROOT files have same content (containers and sizes)."
 __author__ = "Sebastien Binet"
 
@@ -91,6 +91,9 @@ def main(args):
     import PyUtils.Logging as L
     msg = L.logging.getLogger('diff-root')
     msg.setLevel(L.logging.INFO)
+
+    from PyUtils.Helpers import ShutUp, ROOT6Setup
+    ROOT6Setup()
 
     if args.entries == '':
         args.entries = -1

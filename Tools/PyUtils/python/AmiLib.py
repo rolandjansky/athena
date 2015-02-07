@@ -323,18 +323,16 @@ class Client(object):
         raw_result_list = amijsontodict(result)
         self.msg.debug(pprint.pformat(raw_result_list))
         
-        #import code
-        #code.interact(local=locals())
-
-        results = []
+        # Use a set to remove duplicated results in the key we're interested in
+        results = set()
         for res in raw_result_list:
             if filterRelease:
                 if res.get("releaseName") != release:
                     continue
             if resultKey in res:
-                results.append(res[resultKey])
+                results.add(res[resultKey])
 
-        return results
+        return list(results)
 
     ## @brief retrieve the package version from AMI taking into account project dependencies
     def get_version_of_pkg_with_deps(self, pkg, project, release):        

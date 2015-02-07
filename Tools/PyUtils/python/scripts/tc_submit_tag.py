@@ -5,7 +5,7 @@
 # @author Sebastien Binet
 # @date February 2010
 
-__version__ = "$Revision: 636803 $"
+__version__ = "$Revision: 636895 $"
 __doc__ = "Submit one or more TAGs to TagCollector."
 __author__ = "Sebastien Binet, Frank Winklmeier"
 
@@ -59,7 +59,7 @@ def query_project(projects, release, pkg):
 
     readline.clear_history()
     for r in reversed(projects):
-        readline.add_history(p)
+        readline.add_history(r)
 
     choice = raw_input("Select (comma separated or '*' for all): ")
 
@@ -221,7 +221,7 @@ def main(args):
                 if len(proj)==0:
                     _projects.append(None)
                     continue
-                v = query_project(proj, rel, pkg)
+                v = query_project(proj, rel, pkg['packageName'])
                 _projects.append(v)
                 pass # pkgs
             if not args.project:

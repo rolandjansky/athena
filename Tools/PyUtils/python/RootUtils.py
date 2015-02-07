@@ -8,7 +8,7 @@
 from __future__ import with_statement
 
 __doc__ = "a few utils to ease the day-to-day work with ROOT"
-__version__ = "$Revision: 632456 $"
+__version__ = "$Revision: 644959 $"
 __author__ = "Sebastien Binet"
 
 __all__ = [
@@ -38,7 +38,7 @@ def import_root(batch=True):
     ROOT.gROOT.SetBatch(batch)
     if batch:
         ROOT.PyConfig.IgnoreCommandLineOptions = True
-    #import PyCintex;    PyCintex.Cintex.Enable()
+    import cppyy
     return ROOT
 
 def root_compile(src=None, fname=None, batch=True):
