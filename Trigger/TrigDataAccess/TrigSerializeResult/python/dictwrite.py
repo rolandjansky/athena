@@ -1,14 +1,19 @@
 #!/usr/bin/env pyroot.py 
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
+import sys
 import StreamerInfoGenerator
 
 doEDM=False
 #doEDM=True
+
+doxAODonly=False
+
+import ROOT
 from ROOT import Cintex, TClass, TFile
 Cintex.Enable()
 #Cintex.SetDebug(7)
+
 
 from TriggerJobOpts.TriggerEDM import EDMDetails
 file = TFile('bs-streamerinfos.root','UPDATE')
@@ -42,8 +47,83 @@ objects = ['TrigTauClusterContainer_tlp1']
 objects = []
 objects = ['ElementLinkVector_p1<unsigned int>::ElementRef']
 objects += ['ElementLinkVector_p1<std::string>::ElementRef']
-objects = ['MuonFeature_p3']
-
+objects += ['MuonFeature_p3']
+objects = []
+objects = ['xAOD::TrigTrackCountsAuxContainer']
+objects = [
+'xAOD::TrigEMCluster',
+'xAOD::TrigEMClusterContainer',
+'xAOD::TrigEMClusterAuxContainer',
+'xAOD::TrigRingerRings',
+'xAOD::TrigRingerRingsContainer',
+'xAOD::TrigRingerRingsAuxContainer',
+'xAOD::TrigRNNOutput',
+'xAOD::TrigRNNOutputContainer',
+'xAOD::TrigRNNOutputAuxContainer',
+'xAOD::CaloClusterContainer',
+'xAOD::CaloClusterAuxContainer',
+'xAOD::L2StandAloneMuonContainer',
+'xAOD::L2StandAloneMuonAuxContainer',
+'xAOD::L2CombinedMuonContainer',
+'xAOD::L2CombinedMuonAuxContainer',
+'xAOD::L2IsoMuonContainer',
+'xAOD::L2IsoMuonAuxContainer',
+'xAOD::MuonContainer',
+'xAOD::MuonAuxContainer',
+'xAOD::TrackParticleContainer',
+'xAOD::TrackParticleAuxContainer',
+'xAOD::TauJetContainer',
+'xAOD::TauJetAuxContainer',
+'xAOD::TrackParticleContainer',
+'xAOD::TrackParticleAuxContainer',
+'xAOD::VertexContainer',
+'xAOD::VertexAuxContainer',
+'xAOD::TrigCompositeContainer',
+'xAOD::TrigCompositeAuxContainer',
+'xAOD::MuonRoIContainer',
+'xAOD::MuonRoIAuxContainer',
+'xAOD::EmTauRoIContainer',
+'xAOD::EmTauRoIAuxContainer',
+'xAOD::JetRoIContainer',
+'xAOD::JetRoIAuxContainer',
+'xAOD::JetEtRoI',
+'xAOD::JetEtRoIAuxInfo',
+'xAOD::EnergySumRoI',
+'xAOD::EnergySumRoIAuxInfo',
+'xAOD::TriggerTowerContainer',
+'xAOD::TriggerTowerAuxContainer',
+'xAOD::ElectronContainer',
+'xAOD::ElectronAuxContainer',
+'xAOD::PhotonContainer',
+'xAOD::PhotonAuxContainer',
+'xAOD::TrigBphysContainer',
+'xAOD::TrigBphysAuxContainer',
+'xAOD::TrigT2MbtsBits',
+'xAOD::TrigT2MbtsBitsAuxContainer',
+'xAOD::TrigSpacePointCounts',
+'xAOD::TrigSpacePointCountsAuxContainer',
+'xAOD::TrigVertexCounts',
+'xAOD::TrigVertexCountsAuxContainer',
+'xAOD::TrigTrackCounts',
+'xAOD::TrigTrackCountsAuxContainer',
+'xAOD::TrigMissingETContainer',
+'xAOD::TrigMissingETAuxContainer',
+'xAOD::TrigPhotonContainer',
+'xAOD::TrigPhotonAuxContainer',
+'xAOD::TrigElectronContainer',
+'xAOD::TrigElectronAuxContainer',
+'xAOD::JetContainer',
+'xAOD::JetTrigAuxContainer',
+'xAOD::TrigDecision',
+'xAOD::TrigDecisionAuxInfo',
+'xAOD::TrigConfKeys',
+'xAOD::TrigNavigation',
+'xAOD::TrigNavigationAuxInfo',
+'xAOD::BTaggingContainer',
+'xAOD::BTaggingAuxContainer',
+'xAOD::BTagVertexContainer',
+'xAOD::BTagVertexAuxContainer'
+]
 
 if doEDM:
   for item in EDMDetails.keys():
@@ -57,14 +137,31 @@ for item in objects:
   a.inspect(pers)
 
 print '*******************************'
-  
+
+
+from CLIDComps.clidGenerator import clidGenerator
+cgen = clidGenerator("")
+
 fulllist = a.classlist + objects
 fulllist = list(set(fulllist))
 #for item in a.classlist:  
 for item in fulllist:  
-  cls = ROOT.gROOT.GetClass(item)
-  print cls
   
+  if doxAODonly and not 'xAOD' in item: continue # current issues seen because of missing xAOD libs not being loaded
+
+  print "Trying to fill item",item,"to root file"
+  c_clid=cgen.genClidFromName(item)
+  c_typeinfo=cgen.getTidFromClid(c_clid)
+  print "CLID", c_clid
+  print "TypeInfo",cgen.getTidFromClid(c_clid)
+  try:
+   cls = ROOT.gROOT.GetClass(item)
+  except:
+   cls = ROOT.gROOT.GetClass(c_typeinfo)    
+  
+  cls = ROOT.gROOT.GetClass(c_typeinfo) 
+  print cls
+
   if cls!=None:
     streamerinfo = cls.GetStreamerInfo()
     print 'jmasik: ', cls.GetName(), streamerinfo.Sizeof(), streamerinfo.GetCheckSum()
@@ -76,6 +173,8 @@ for item in fulllist:
       
   else:
     print 'skipping ', item
+    
+    #sys.exit()
 
 
 #print 'experimental'
