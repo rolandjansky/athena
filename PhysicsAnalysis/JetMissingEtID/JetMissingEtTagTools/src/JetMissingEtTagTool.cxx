@@ -218,25 +218,27 @@ StatusCode JetMetTagTool::execute(TagFragmentCollection& jetMissingEtTagColl, co
          
          
          /** get JVF */
-         std::vector<float> jvf_v = jet->getAttribute<std::vector<float> >(xAOD::JetAttribute::JVF);
-         double jetVertFrac = -1;
-         if(!jvf_v.empty()) jetVertFrac= jvf_v[0];
-         if (jetVertFrac > 0.0)  pid |= 1<<8;
-         if (jetVertFrac > 0.5)  pid |= 1<<9;
-         if (jetVertFrac > 0.75) pid |= 1<<10;
-         if (jetVertFrac > 0.9)  pid |= 1<<11;
-         
+         std::vector<float> jvf_v;
+         bool hasjvf = jet->getAttribute<std::vector<float> >(xAOD::JetAttribute::JVF, jvf_v);
+         if(hasjvf){
+           double jetVertFrac = -1;
+           if(!jvf_v.empty()) jetVertFrac= jvf_v[0];
+           if (jetVertFrac > 0.0)  pid |= 1<<8;
+           if (jetVertFrac > 0.5)  pid |= 1<<9;
+           if (jetVertFrac > 0.75) pid |= 1<<10;
+           if (jetVertFrac > 0.9)  pid |= 1<<11;
+         }
          /** B-tagging */
          const xAOD::BTagging* btag =  (*jetItr)->btagging();
-	 if( bool(btag) )
-	   {
-	     double mv1 = btag->MV1_discriminant();
-	     
-	     if (mv1 >  0.9827)  pid |= 1<< 12; 	 // MV1 @ 60% 
-	     if (mv1 >  0.7892)  pid |= 1<< 13; 	 // MV1 @ 70% 
-	     if (mv1 >  0.6073)  pid |= 1<< 14; 	 // MV1 @ 75% 
-	     if (mv1 >  0.1340)  pid |= 1<< 15; 	 // MV1 @ 85% 
-	   }
+         if( bool(btag) )
+           {
+             double mv1 = btag->MV1_discriminant();
+             
+             if (mv1 >  0.9827)  pid |= 1<< 12; 	 // MV1 @ 60% 
+             if (mv1 >  0.7892)  pid |= 1<< 13; 	 // MV1 @ 70% 
+             if (mv1 >  0.6073)  pid |= 1<< 14; 	 // MV1 @ 75% 
+             if (mv1 >  0.1340)  pid |= 1<< 15; 	 // MV1 @ 85% 
+           }
          jetMissingEtTagColl.insert( m_pidStr[i], pid);
          
       }
@@ -250,22 +252,22 @@ StatusCode JetMetTagTool::execute(TagFragmentCollection& jetMissingEtTagColl, co
         if (jetP4.pt() > 100.0*CLHEP::GeV) ij100++;
 
         const xAOD::BTagging* btag =  (*jetItr)->btagging();
-	if( bool(btag) )
-	  {
-	    double mv1 = btag->MV1_discriminant();
-	    if (fabs(jetP4.eta()) < 2.5 &&  mv1 >  0.6073){
-	      if (jetP4.pt() > 40.0*CLHEP::GeV) iBj40++;
-	      if (jetP4.pt() > 50.0*CLHEP::GeV) iBj50++;
-	      if (jetP4.pt() > 55.0*CLHEP::GeV) iBj55++;
-	      if (jetP4.pt() > 80.0*CLHEP::GeV) iBj80++;
-	      if (jetP4.pt() > 100.0*CLHEP::GeV) iBj100++;
-	    }
-	  }
+        if( bool(btag) )
+          {
+            double mv1 = btag->MV1_discriminant();
+            if (fabs(jetP4.eta()) < 2.5 &&  mv1 >  0.6073){
+              if (jetP4.pt() > 40.0*CLHEP::GeV) iBj40++;
+              if (jetP4.pt() > 50.0*CLHEP::GeV) iBj50++;
+              if (jetP4.pt() > 55.0*CLHEP::GeV) iBj55++;
+              if (jetP4.pt() > 80.0*CLHEP::GeV) iBj80++;
+              if (jetP4.pt() > 100.0*CLHEP::GeV) iBj100++;
+            }
+          }
       }
 
       /** count the total number of jets */
       i++;
-
+      
     }
     else
       ATH_MSG_DEBUG(  "Did not select jet with pt=" << jetP4.pt() );
