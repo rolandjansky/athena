@@ -133,8 +133,6 @@ namespace MuonGM {
     double m_minHalfY;
     double m_maxHalfY;
 
-    StoreGateSvc* m_storeGate;
-
     // transforms (RE->layer)
     Amg::Transform3D _Xlg[4];
   };
