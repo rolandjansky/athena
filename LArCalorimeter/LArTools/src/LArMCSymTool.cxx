@@ -3,7 +3,7 @@
 */
 
 #include "LArTools/LArMCSymTool.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 #include "AthenaKernel/errorcheck.h"
 #include "CaloIdentifier/LArID.h"
 
@@ -12,12 +12,7 @@ LArMCSymTool::LArMCSymTool(const std::string& type,
                                const IInterface* parent) 
   : AthAlgTool(type, name, parent), 
     m_cablingService("LArCablingService"),
-    m_ncellem(0),
-    m_ncellhec(0),
-    m_ncellfcal(0),
-    m_lar_em_id(nullptr),
-    m_lar_hec_id(nullptr),
-    m_lar_fcal_id(nullptr)
+    m_validCache(false)
 {
 declareInterface<ILArMCSymTool>(this);
 }
@@ -33,6 +28,14 @@ StatusCode LArMCSymTool::initialize()  {
  CHECK(detStore()->retrieve(m_lar_fcal_id,"LArFCAL_ID"));
   
 
+ StatusCode sc = detStore()->regFcn(&LArCablingService::iovCallBack,&(*m_cablingService),
+				   &LArMCSymTool::iovCallBack,
+				   this,true) ;
+  if(sc.isFailure()){
+    msg(MSG::ERROR) << "Unable to regFcn with LArCablingService " << endreq;
+    return sc;
+  }
+
   m_ncellem=m_lar_em_id->channel_hash_max();
   m_ncellhec=m_lar_hec_id->channel_hash_max();
   m_ncellfcal=m_lar_fcal_id->channel_hash_max();
@@ -43,10 +46,6 @@ StatusCode LArMCSymTool::initialize()  {
 
   m_listOnline.resize(larHashMax);
   ATH_MSG_DEBUG("total number of cells " << larHashMax);
-
- CHECK( detStore()->regFcn(&LArCablingService::iovCallBack,&(*m_cablingService),
-                           &LArMCSymTool::iovCallBack,
-                           this,true) );
 
   ATH_MSG_DEBUG("end of initialize of LArMCSymTool");
 
@@ -116,6 +115,7 @@ StatusCode LArMCSymTool::initData() {
   }
   ATH_MSG_DEBUG("end of initData of LArMCSymTool ");
 
+  m_validCache=true;
   return StatusCode::SUCCESS;
 }
 
@@ -124,7 +124,7 @@ StatusCode LArMCSymTool::finalize()
  return StatusCode::SUCCESS;
 }
 
-HWIdentifier LArMCSymTool::symOnline(const HWIdentifier & id)  const
+HWIdentifier LArMCSymTool::symOnline(const HWIdentifier & id)  
 {
   if (id == m_hwid) {
    return m_hwid_sym;
@@ -138,10 +138,14 @@ HWIdentifier LArMCSymTool::symOnline(const HWIdentifier & id)  const
   return m_hwid_sym;
 }
 
-HWIdentifier LArMCSymTool::symOnline(const Identifier & id) const
+HWIdentifier LArMCSymTool::symOnline(const Identifier & id) 
 {
  if (id == m_offid) {
    return m_hwid_sym2;
+ }
+
+ if(!m_validCache) {
+   initData().ignore() ;
  }
 
  IdentifierHash idHash;
@@ -161,7 +165,7 @@ HWIdentifier LArMCSymTool::symOnline(const Identifier & id) const
     idHash=m_lar_fcal_id->channel_hash(id);
     offset = m_ncellem+m_ncellhec;
  }
- if (offset <0) ATH_MSG_ERROR( "problem offset " << offset  );
+ if (offset <0) msg(MSG::ERROR) << "problem offset " << offset << endreq;
  const unsigned int index = idHash+offset;
  m_offid = id;
  m_hwid_sym2 = m_listOnline[index];
@@ -171,7 +175,7 @@ HWIdentifier LArMCSymTool::symOnline(const Identifier & id) const
 
 StatusCode LArMCSymTool::iovCallBack(IOVSVC_CALLBACK_ARGS) {
   ATH_MSG_INFO("IOV callback");
-  ATH_CHECK( initData() );
+  m_validCache=false; 
 
   return StatusCode::SUCCESS;
 
