@@ -2,25 +2,16 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/SvcFactory.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IToolSvc.h"
-
-#include "AthenaPoolUtilities/AthenaAttributeList.h"
-
 #include "TrigT1CaloCondSvc/L1CaloCondSvc.h"
-
+#include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include <list>
 #include <set>
 
 
 L1CaloCondSvc::L1CaloCondSvc(const std::string& name, ISvcLocator* svc) :
-  Service(name, svc),
-  m_detStore(0),
-  m_regSvc(0),
-  m_streamer(0)
+  AthService(name, svc),
+  m_detStore ("DetectorStore", name),
+  m_regSvc ("IOVRegistrationSvc", name)
 {
     // declare properties
 	declareProperty("StreamName", m_streamName = "COOLStream");
@@ -36,73 +27,32 @@ L1CaloCondSvc::L1CaloCondSvc(const std::string& name, ISvcLocator* svc) :
 
 L1CaloCondSvc::~L1CaloCondSvc() {}
 
-const InterfaceID& L1CaloCondSvc::type() const
-{
-	return this->interfaceID();
-}
-
 StatusCode L1CaloCondSvc::queryInterface(const InterfaceID& riid, void** ppvInterface)
 {
-  MsgStream log(msgSvc(),name());
-  log << MSG::DEBUG << "in queryInterface()" << endreq;
+  ATH_MSG_DEBUG("in queryInterface()");
 
   if (L1CaloCondSvc::interfaceID().versionMatch(riid)) {
-    log << MSG::DEBUG << "matched L1CaloCondSvc" << endreq;
+    ATH_MSG_DEBUG("matched L1CaloCondSvc");
     *ppvInterface=(L1CaloCondSvc*)this;
   } else {
-    log << MSG::DEBUG << "Default to Service interface" << endreq;
-    return Service::queryInterface(riid,ppvInterface);
+    ATH_MSG_DEBUG("Default to Service interface");
+    return AthService::queryInterface(riid,ppvInterface);
   }
   return StatusCode::SUCCESS;
 }
 
+
 StatusCode L1CaloCondSvc::initialize()
 {
-  // service initialisation
-  MsgStream log(msgSvc(),name());
-
-  if (StatusCode::SUCCESS!=Service::initialize()) log << MSG::ERROR <<
-	    "Service initialisation failed" << endreq;
-
-  log << MSG::DEBUG << "in initialize()" << endreq;
-
-  // get detector store
-  if (StatusCode::SUCCESS!=service("DetectorStore", m_detStore)) {
-    log << MSG::FATAL << "Detector store not found" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-	// get IOV registration service
-	StatusCode sc = service("IOVRegistrationSvc", m_regSvc);
-	if (sc.isFailure()) {
-	    log << MSG::INFO << "Unable to find IOVRegistrationSvc " << endreq;
-	    return StatusCode::FAILURE;
-	} else {
-	 log << MSG::DEBUG << "Found IOVRegistrationSvc "  << endreq;
-	}
-
-	ISvcLocator* svcLoc = Gaudi::svcLocator( );
-	IToolSvc* toolSvc = 0;
-
-	sc = svcLoc->service( "ToolSvc",toolSvc  );
-	if(sc.isSuccess()) {
-		sc = toolSvc->retrieveTool("AthenaPoolOutputStreamTool", m_streamName, m_streamer);
-		if (sc.isFailure()) {
-		    log << MSG::INFO << "Unable to find AthenaOutputStreamTool" << endreq;
-		    return StatusCode::FAILURE;
-		}
-
-	} else {
-		log << MSG::FATAL << "Could not retrieve ToolSvc" << endreq;
-	}
-
+  ATH_CHECK( AthService::initialize() );
+  ATH_CHECK( m_detStore.retrieve() );
+  ATH_CHECK( m_regSvc.retrieve() );
   return StatusCode::SUCCESS;
 }
 
 StatusCode L1CaloCondSvc::finalize()
 {
-	MsgStream log(msgSvc(),name());
-	log << MSG::DEBUG << "in finalize()" << endreq;
+	ATH_MSG_DEBUG("in finalize()");
 
 	std::map<std::string, const DataHandle<AthenaAttributeList>* >::iterator it_AttrList = m_mDataHandleAttrList.begin();
 	for(;it_AttrList!=m_mDataHandleAttrList.end();++it_AttrList) {
@@ -118,9 +68,9 @@ StatusCode L1CaloCondSvc::finalize()
 }
 
 StatusCode L1CaloCondSvc::updateConditions(IOVSVC_CALLBACK_ARGS_K(keys)) {
-	MsgStream log(msgSvc(),name());
 
-	log<<MSG::VERBOSE<<"updateConditions()"<<endreq;
+
+	ATH_MSG_VERBOSE("updateConditions()");
 
 	// set to store the list of objects to be updated.
 	std::set<IL1CaloPersistenceCapable*> vToBeUpdated;
@@ -129,7 +79,7 @@ StatusCode L1CaloCondSvc::updateConditions(IOVSVC_CALLBACK_ARGS_K(keys)) {
 	std::list<std::string>::const_iterator itr;
 	for(itr=keys.begin(); itr!=keys.end(); ++itr) {
 		std::string key = *itr;
-		log << MSG::VERBOSE << "key = " << key << endreq;
+		ATH_MSG_VERBOSE("key = " << key);
 
 		// find the current key in the map
 		std::map<std::string, std::vector<IL1CaloPersistenceCapable*> >::const_iterator it_map = m_mConditions.find(key);
@@ -181,7 +131,7 @@ StatusCode L1CaloCondSvc::updateConditions(IOVSVC_CALLBACK_ARGS_K(keys)) {
 			pobj->makeTransient(athenaAttributeList);
 */
 		} else {
-			log << MSG::ERROR << "Condition type " << conditionType<< "not recognized by L1CaloCondSvc" << endreq;
+			ATH_MSG_ERROR("Condition type " << conditionType<< "not recognized by L1CaloCondSvc");
 			return StatusCode::FAILURE;
 		}
 
@@ -218,7 +168,7 @@ StatusCode L1CaloCondSvc::updateConditions(IOVSVC_CALLBACK_ARGS_K(keys)) {
 */
 
 
-	log << MSG::VERBOSE << "end of L1CaloCondSvc::updateConditions(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))" << endreq;
+	ATH_MSG_VERBOSE("end of L1CaloCondSvc::updateConditions(IOVSVC_CALLBACK_ARGS_P(/*I*/, keys))");
 	return StatusCode::SUCCESS;
 }
 
