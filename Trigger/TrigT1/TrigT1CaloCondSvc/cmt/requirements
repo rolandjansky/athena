@@ -7,6 +7,7 @@ use GaudiInterface  GaudiInterface-*  External
 use StoreGate       StoreGate-*       Control
 use AthenaKernel AthenaKernel-* Control
 use SGTools SGTools-* Control
+use AthenaBaseComps AthenaBaseComps-* Control
 
 use AthenaPoolUtilities  AthenaPoolUtilities-*   Database/AthenaPOOL
 use RegistrationServices RegistrationServices-* Database

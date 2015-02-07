@@ -5,8 +5,7 @@
 #ifndef TRIGT1CALOCONDSVC_L1CALOCONDSVC_H
 #define TRIGT1CALOCONDSVC_L1CALOCONDSVC_H
 
-#include "GaudiKernel/Service.h"
-#include "StoreGate/StoreGate.h"
+#include "AthenaBaseComps/AthService.h"
 
 #include "StoreGate/DataHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
@@ -30,10 +29,8 @@
  *  @author Damien Prieur <damien.prieur@cern.ch>
  */
 
-class L1CaloCondSvc :  virtual public IInterface, virtual public Service
+class L1CaloCondSvc :  public AthService
 {
-    template <class TYPE> class SvcFactory;
-
 public:
     L1CaloCondSvc(const std::string& name, ISvcLocator* svc);
     virtual ~L1CaloCondSvc();
@@ -41,8 +38,6 @@ public:
     virtual StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
 
     static const InterfaceID& interfaceID();
-
-    virtual const InterfaceID& type() const;
 
     virtual StatusCode initialize();
     virtual StatusCode finalize();
@@ -81,12 +76,8 @@ public:
 
 
 private:
-
-    // services
-    StoreGateSvc* m_detStore;
-
-    IIOVRegistrationSvc*  m_regSvc;
-    IAthenaOutputStreamTool* m_streamer;
+    ServiceHandle<StoreGateSvc> m_detStore;
+    ServiceHandle<IIOVRegistrationSvc> m_regSvc;
 
     // properties
     std::string m_streamName;
