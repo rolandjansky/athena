@@ -70,7 +70,7 @@ def svn_tag_equals_trunk(pkg,tag):
    pkg_url = os.path.join(svnroot, pkg)
    if pkg.startswith('Gaudi'):
       env['GAUDISVN'] = env.get('GAUDISVN',
-                                'http://svnweb.cern.ch/guest/gaudi')
+                                'http://svn.cern.ch/guest/gaudi')
       svnroot = env['SVNROOT'] = '${GAUDISVN}/Gaudi'
       env['SVNTRUNK'] = 'trunk'
       env['SVNTAGS'] = 'tags'
@@ -111,7 +111,7 @@ def checkout(pkg, head, doCheckOut=True, showRecent=False):
    if pkg.startswith('Gaudi'):
       env = dict(os.environ)
       env['GAUDISVN'] = env.get('GAUDISVN',
-                                'http://svnweb.cern.ch/guest/gaudi')
+                                'http://svn.cern.ch/guest/gaudi')
       env['SVNROOT'] = '%(GAUDISVN)s/Gaudi' % env
       env['SVNTRUNK'] = 'trunk'
       env['SVNTAGS'] = 'tags'

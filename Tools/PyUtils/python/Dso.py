@@ -17,6 +17,9 @@ __all__ = [
 import os
 import re
 
+from PyUtils.Helpers import ROOT6Setup
+ROOT6Setup()
+
 def _libName(lib):
     import platform
     if platform.system() == "Linux":
@@ -172,7 +175,8 @@ def gen_typeregistry_dso(oname=_dflt_typereg_fname):
     import cppyy
     _load_lib = cppyy.loadDict
 
-    if not hasattr(cppyy, 'hasFakeCintex '):
+    if int(cppyy.get_version().split('.')[0]) < 6:
+        # load reflex for ROOT ver<6
         msg.debug("::: loading reflex")
         _load_lib('libReflexRflx.so')
         rflx = cppyy.makeNamespace('Reflex')
@@ -324,8 +328,8 @@ class CxxDsoDb(object):
         import PyUtils.RootUtils as ru
         ROOT = ru.import_root()
         self._cxx = ROOT.Ath.DsoDb.instance()
-        if not hasattr(cppyy, 'hasFakeCintex '):
-           # load reflex
+        if int(cppyy.get_version().split('.')[0]) < 6:
+           # load reflex for ROOT ver<6
            _load_dict = cppyy.loadDict
            _load_dict('ReflexRflx')
            self._rflx = cppyy.makeNamespace('Reflex')
