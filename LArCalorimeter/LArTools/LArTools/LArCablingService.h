@@ -60,7 +60,7 @@ public:
 private:
   std::vector<std::vector<HWIdentifier> > m_onlHashToCalibLines;
   const uint32_t* m_pFebHashtoROD;
-  unsigned  m_nFebRod;
+  //unsigned  m_nFebRod;
   std::vector<HWIdentifier> m_readoutModuleIDVec;
   const std::vector<HWIdentifier> m_vecEmpty; 
 
