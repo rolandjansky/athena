@@ -18,6 +18,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <memory>
 #include "GaudiKernel/SystemOfUnits.h"
 
 #include "TrigInDetEvent/TrigInDetTrack.h"
@@ -134,7 +135,7 @@ StatusCode TrigInDetTrackFitter::finalize()
   }
   ATH_MSG_INFO("==============================================================");
   m_fitStats.clear();
-  StatusCode sc = AlgTool::finalize(); 
+  StatusCode sc = AthAlgTool::finalize(); 
   return sc;
 }
 
@@ -1057,22 +1058,31 @@ Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, const Tr
 		double eta = -log(tan(0.5*theta));
 		double z0 = pTS->m_getTrackState(1);
 		double d0 = pTS->m_getTrackState(0);
+    bool bad_cov = false;
+    auto cov = std::unique_ptr<AmgSymMatrix(5)>(new AmgSymMatrix(5));
+    for(int i=0;i<5;i++) {
+      for(int j=i;j<5;j++)
+      {
+        double cov_val = pTS->m_getTrackCovariance(i,j);
+        if (i==j) {
+          if (cov_val < 0) {
+            bad_cov = true;//Diagonal elements must be positive
+		        ATH_MSG_DEBUG("REGTEST: cov(" << i << "," << j << ") =" << cov_val << " < 0, reject track");
+          }
+          
+        }
+        cov->fillSymmetric(i, j, cov_val);
+      }
+    }
 
-		if((ndoftot<0) || (fabs(pt)<100.0) || (std::isnan(pt)))
+		if((ndoftot<0) || (fabs(pt)<100.0) || (std::isnan(pt)) || bad_cov)
 		{
 		  ATH_MSG_DEBUG("Fit failed - possibly floating point problem");
 		}
 		else
 		{
-      AmgSymMatrix(5)* cov = new AmgSymMatrix(5);
-      for(int i=0;i<5;i++) {
-        for(int j=i;j<5;j++)
-        {
-          cov->fillSymmetric(i, j, pTS->m_getTrackCovariance(i,j));
-        }
-      }
       Trk::PerigeeSurface perigeeSurface;
-      Trk::Perigee* perigee = new Trk::Perigee(d0, z0, phi0, theta, qOverP, perigeeSurface, cov);
+      Trk::Perigee* perigee = new Trk::Perigee(d0, z0, phi0, theta, qOverP, perigeeSurface, cov.release());
       ATH_MSG_VERBOSE("perigee: " << *perigee);
 
       std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
@@ -1161,14 +1171,14 @@ Trk::TrackStateOnSurface* TrigInDetTrackFitter::createTrackStateOnSurface(Trk::T
       for(int j=0;j<5;j++) {
         (*pM)(i,j)=pTS->m_getTrackCovariance(i,j);
 
-        pTP=new Trk::AtaPlane(pTS->m_getTrackState(0),
-            pTS->m_getTrackState(1),
-            pTS->m_getTrackState(2),
-            pTS->m_getTrackState(3),
-            pTS->m_getTrackState(4),*pPS,
-            pM);
       }
     }
+    pTP=new Trk::AtaPlane(pTS->m_getTrackState(0),
+        pTS->m_getTrackState(1),
+        pTS->m_getTrackState(2),
+        pTS->m_getTrackState(3),
+        pTS->m_getTrackState(4),*pPS,
+        pM);
   }
   else if(type==3)
   {
