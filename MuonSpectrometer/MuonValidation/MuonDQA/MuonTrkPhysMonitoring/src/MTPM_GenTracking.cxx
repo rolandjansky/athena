@@ -32,7 +32,7 @@ void MuonTrkPhysMonitoring::fillHistograms_GenTracking(const xAOD::Muon *Muon){
   if (!pMuExTrk) return;
 
   // Muon Extrapolated Track Pointer
-  const  Trk::MuonTrackSummary* pMuExTrkSummary = pMuExTrk->trackSummary()->muonTrackSummary();
+  const  Trk::MuonTrackSummary* pMuExTrkSummary = (pMuExTrk && pMuExTrk->trackSummary()) ? pMuExTrk->trackSummary()->muonTrackSummary() : 0;
   if(!pMuExTrkSummary){
     ATH_MSG_WARNING(" Muon Extrapolated Track Summary is not avaliable! GenTracking Histograms not filled!");
     return; 
@@ -147,7 +147,7 @@ void MuonTrkPhysMonitoring::fillT0Plots(const xAOD::MuonSegmentContainer* MuonSe
                                                 
     if (segment->t0error() > 5.0)  continue;
     int region = getDetectorRegion(muon->eta(),muon->phi());
-    m_oOnlinePlots.fill(region, t0);
+    if (m_oOnlinePlots.m_Good_t0) m_oOnlinePlots.fill(region, t0);
   }
   
   m_oGenTrackingPlots.m_N_Segment_Trk->Fill(nSegments);

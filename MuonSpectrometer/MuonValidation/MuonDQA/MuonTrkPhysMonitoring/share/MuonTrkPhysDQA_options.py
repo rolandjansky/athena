@@ -1,4 +1,4 @@
-# $Id: MuonTrkPhysDQA_options.py 611517 2014-08-13 05:08:12Z rrosten $
+# $Id: MuonTrkPhysDQA_options.py 645045 2015-02-08 17:21:25Z tcorneli $
 #======================================================================
 # Offline Athena Muon Monitoring configuration
 #======================================================================
@@ -23,7 +23,7 @@ from MuonTrkPhysMonitoring.MuonTrkPhysMonitoringConf import MuonTrkPhysMonitorin
 MuonTrkPhysMon_NoTrig = MuonTrkPhysMonitoring(name = "MuonTrkPhysMon_NoTrig",
                                               UseTriggerVector     = False,
                                               MuonTriggerChainName = "NoMuonTriggerSelection",
-                                              OutputLevel          = DEBUG,
+                                              OutputLevel          = INFO,
                                               MuonTrackCollections = "Muons",
                                               InnerTrackContainer  = "InDetTrackParticles",
                                               isoConeMax           = 0.3,
