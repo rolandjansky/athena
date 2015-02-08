@@ -89,18 +89,20 @@ public:
   /// Default constructor: 
   WriteHandle();
 
-  /// Copy constructor: 
+  /// Copy constructors: 
   WriteHandle( const WriteHandle& rhs );
+  WriteHandle( WriteHandle&& rhs );
 
-  /// Assignment operator: 
+  /// Assignment operators: 
   WriteHandle& operator=( const WriteHandle& rhs ); 
+  WriteHandle& operator=( WriteHandle&& rhs ); 
   WriteHandle& operator=( const T& data );
   /// take over the object
   WriteHandle& operator=( std::unique_ptr<T> data );
 
   /// Constructor with parameters: 
 
-  //WriteHandle(SG::DataProxy* proxy); ///< 
+  //explicit WriteHandle(SG::DataProxy* proxy); ///< 
 
   //why? /// retrieve a proxy of name `name` from evtStore
   // WriteHandle(const IInterface* component,
@@ -112,11 +114,11 @@ public:
   //      const std::string& store);
   
   /// retrieve a proxy of name `name` from evtStore
-  WriteHandle(const std::string& name);
+  explicit WriteHandle(const std::string& name);
 
   /// retrieve a proxy of name `name` from store `store`
   WriteHandle(const std::string& name, 
-       const std::string& store);
+	      const std::string& store);
 
   /// retrieve a proxy of name `name` from store `store`
   //WriteHandle(const std::string& name, IProxyDict* store);
@@ -152,6 +154,12 @@ public:
   /// the mode of the underlying handle (reader|writer|updater)
   virtual Mode mode() const { return SG::VarHandleBase::Writer; }
 
+  /// is the proxy state valid for this handle?
+  virtual bool isValid() const 
+  { 
+    const bool QUIET=true;
+    return 0 != const_cast<WriteHandle<T>*>(this)->typeless_ptr(QUIET); //non-const access
+  }
 }; 
 
 /////////////////////////////////////////////////////////////////// 

@@ -17,6 +17,7 @@
 // fwk includes
 #include "AthenaKernel/IProxyDict.h"
 #include "AthenaKernel/IResetable.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 // SGTools includes
 #include "SGTools/DataProxy.h"
@@ -26,18 +27,26 @@
 #include "SGTools/StlVectorClids.h"
 #include "SGTools/StlMapClids.h"
 
-// StoreGate includes
-#include "StoreGate/StoreGateSvc.h"
-
 // Forward declaration
 //namespace AthenaInternal { class AthAlgorithmAccessor; }
+class IProxyDictWithPool;
 class VarHandleProperty;
 namespace SG { class VarHandleBase; }
 namespace Gaudi { namespace Parsers {
     StatusCode parse(SG::VarHandleBase&, const std::string&);
   }
 }
+namespace Athena_test {
+  void varHandleTest(void);
+  void resetableTest(void);
+  void refCountTest(void);
+}
 namespace SG {
+#ifdef NDEBUG
+  const bool __defaultQuiet__(true);
+#else
+  const bool __defaultQuiet__(false);
+#endif
 /**
  * @class SG::VarHandleBase
  * @brief a smart pointer to an object of a given type in an @c IProxyDict (such
@@ -51,6 +60,9 @@ class VarHandleBase : public IResetable
   friend class VarHandleProperty;
   friend StatusCode Gaudi::Parsers::parse(SG::VarHandleBase&, 
                                           const std::string&);
+  friend void Athena_test::varHandleTest(void);
+  friend void Athena_test::resetableTest(void);
+  friend void Athena_test::refCountTest(void);
   friend std::ostream& operator<<( std::ostream&, const VarHandleBase&);
   /////////////////////////////////////////////////////////////////// 
   // Public enums: 
@@ -75,16 +87,18 @@ public:
 
   /// Copy constructor: 
   VarHandleBase( const VarHandleBase& rhs );
+  VarHandleBase( VarHandleBase&& rhs );
 
   /// Assignment operator: 
   VarHandleBase& operator=( const VarHandleBase& rhs ); 
+  VarHandleBase& operator=( VarHandleBase&& rhs ); 
 
   /// Constructor with parameters: 
 
-  //VarHandleBase(SG::DataProxy* proxy); ///< 
+  //explicit VarHandleBase(SG::DataProxy* proxy); ///< 
 
-  VarHandleBase(const std::string& sgkey,
-                const std::string& storename = "StoreGateSvc");
+  explicit VarHandleBase(const std::string& sgkey,
+			 const std::string& storename = "StoreGateSvc");
 
   /// Destructor: 
   virtual ~VarHandleBase(); 
@@ -93,8 +107,9 @@ public:
   // Const methods: 
   ///////////////////////////////////////////////////////////////////
 
-  /// \name validity checks
+  /// \name Proxy validity checks
   //@{
+  /// refers to the state of the proxy, not of the handle
   bool isConst() const;
   bool isInitialized() const;    ///<weaker test but it does not touch the disk!
   bool isSet() const { return isInitialized(); }
@@ -103,23 +118,10 @@ public:
   /// \name validity checks
   //@{
   /// retrieves the @c DataObject to check it is valid and locked
-  bool isValid() const 
-  { 
-    const bool QUIET=true;
-    return 0 != typeless_dataPointer(QUIET); 
-  }
-
-  /// retrieves the @c DataObject to check it is valid and unlocked
-  bool isValid()
-  {
-    const bool QUIET=true;
-    return (0 != typeless_ptr(QUIET));
-  }
+  virtual bool isValid() const = 0;
 
 #ifdef ATHENA_USE_CXX11
-  explicit operator bool() const  { return isValid(); }
-  explicit operator bool()        { return isValid(); }
-#else
+  explicit operator bool() const { return isValid(); }
 #endif
   //@}
 
@@ -135,7 +137,7 @@ public:
   virtual Mode mode() const =0;
 
   /// name of the store holding the object we are proxying
-  const std::string& store() const { return m_store; }
+  std::string store() const { return m_store.name(); }
 
   ///get the data object key (proxy name) - IResetable iface
   const std::string& key() const { return this->name(); }
@@ -150,9 +152,8 @@ public:
   // Non-const methods: 
   /////////////////////////////////////////////////////////////////// 
 
-  void reset() { m_ptr = 0; }        ///< reset pointer
-
-  StatusCode setState();
+  virtual void reset();  ///< reset cached pointers as needed
+  virtual void finalReset();  ///< reset cached pointers no matter what
 
   /// set the 'const' bit for the bound proxy in the store
   void setConst() { m_proxy->setConst(); }
@@ -164,9 +165,6 @@ protected:
 
   StatusCode setState(SG::DataProxy* proxy) const;
   StatusCode setState(IProxyDict* store, const std::string& name) const;
-
-  StatusCode setState(SG::DataProxy* proxy);
-  StatusCode setState(IProxyDict* store, const std::string& name);
 
   /// helper functions to bind ourselves to a DataProxy
   static bool bindToProxy(      SG::VarHandleBase* v);
@@ -189,10 +187,10 @@ protected:
   /// storegate key we will be bound to
   std::string m_sgkey;
   
-  /// name of the store which holds the object
-  std::string m_store;
+  /// handle to the store which holds the object
+  ServiceHandle<IProxyDictWithPool> m_store;
 
-  void* typeless_dataPointer(bool quiet=false) const
+  void* typeless_dataPointer(bool quiet=__defaultQuiet__) const
   {
     if (m_ptr) { return m_ptr; }
     return typeless_dataPointer_impl(quiet);
@@ -200,7 +198,7 @@ protected:
 
   void* typeless_dataPointer_impl(bool quiet) const;
   const void* typeless_cptr() const { return typeless_dataPointer(); }
-  void* typeless_ptr(bool quiet=false)
+  void* typeless_ptr(bool quiet=__defaultQuiet__)
   {
     void* p = typeless_dataPointer(quiet);
     return 0 != p && !isConst() ? p : 0;
@@ -221,6 +219,18 @@ std::ostream& operator<<( std::ostream& out, const VarHandleBase& o ) {
       << ", proxy@" << o.m_proxy 
       << ", DataObject@" << o.m_proxy->object();
   return out;
+}
+
+inline 
+bool operator==(const VarHandleBase& l, const VarHandleBase& r) {
+  return (l.clid() == r.clid() &&
+	  l.mode() == r.mode() &&
+	  l.name() == r.name() &&
+	  l.store() == r.store());
+}
+inline 
+bool operator!=(const VarHandleBase& l, const VarHandleBase& r) {
+  return !(l==r);
 }
 
 

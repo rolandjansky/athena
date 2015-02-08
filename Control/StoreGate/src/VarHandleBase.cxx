@@ -6,6 +6,7 @@
 
 // VarHandleBase.cxx 
 // Implementation file for class VarHandleBase
+// Author: Paolo Calafiura
 // Author: S.Binet<binet@cern.ch>
 /////////////////////////////////////////////////////////////////// 
 
@@ -21,12 +22,7 @@
 
 // fwk includes
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/getMessageSvc.h"
-
-// #ifdef NDEBUG
-// #undef NDEBUG
-// #endif
 
 namespace SG {
 
@@ -57,11 +53,15 @@ VarHandleBase::bindToProxy(SG::VarHandleBase* v)
 /// Default constructor: 
 VarHandleBase::VarHandleBase() :
   IResetable(),
-  m_ptr(NULL),
-  m_proxy(NULL),
+  m_ptr(0),
+  m_proxy(0),
   m_sgkey(""),
-  m_store("")
-{}
+  m_store("", "VarHandleBase")
+{
+#ifdef DEBUG_VHB
+   std::cerr << "VarHandleBase() " << this << std::endl;
+#endif
+}
 
 /// Copy constructor: 
 VarHandleBase::VarHandleBase( const VarHandleBase& rhs ) :
@@ -71,6 +71,13 @@ VarHandleBase::VarHandleBase( const VarHandleBase& rhs ) :
   m_sgkey(rhs.m_sgkey),
   m_store(rhs.m_store)
 {
+#ifdef DEBUG_VHB
+  std::cerr << "::VHB::copy constr from " << &rhs
+	    << " to " << this << ", "
+	    << "proxy=" << this->m_proxy << ", "
+	    << "key=" <<this->m_sgkey
+	    << std::endl;
+#endif
   if (m_proxy) {
     m_proxy->addRef();
     bindToProxy(this);
@@ -82,6 +89,7 @@ VarHandleBase::VarHandleBase( const VarHandleBase& rhs ) :
 VarHandleBase& 
 VarHandleBase::operator=( const VarHandleBase& rhs )
 {
+
   if (this != &rhs) {
     if (m_proxy) {
       m_proxy->release();
@@ -98,6 +106,68 @@ VarHandleBase::operator=( const VarHandleBase& rhs )
     }
 
   }
+#ifdef DEBUG_VHB
+  std::cerr << "::VHB::assignment from " << &rhs
+	    << " to " << this << ", "
+	    << "proxy=" << this->m_proxy << ", "
+	    << "key=" <<this->m_sgkey
+	    << std::endl;
+#endif
+  return *this;
+}
+/// Copy constructor: 
+VarHandleBase::VarHandleBase( VarHandleBase&& rhs ) :
+  IResetable(),
+  m_ptr(rhs.m_ptr),
+  m_proxy(rhs.m_proxy),
+  m_sgkey(rhs.m_sgkey),
+  m_store(rhs.m_store)
+{
+  rhs.m_ptr=0;
+  rhs.m_proxy=0; //no release: this has the ref now
+
+  if (m_proxy) {
+    bindToProxy(this);
+  }
+#ifdef DEBUG_VHB
+  std::cerr << "::VHB:: move constr from " << &rhs
+	    << "to " << this << ", "
+	    << "proxy=" << this->m_proxy << ", "
+	    << "key=" <<this->m_sgkey
+	    << std::endl;
+#endif
+}
+
+
+/// Assignment operator: 
+VarHandleBase& 
+VarHandleBase::operator=( VarHandleBase&& rhs )
+{
+  if (this != &rhs) {
+    if (m_proxy) {
+      m_proxy->release();
+    }
+
+    m_ptr =    rhs.m_ptr;
+    m_proxy =  rhs.m_proxy;
+    m_sgkey =  rhs.m_sgkey;
+    m_store =  rhs.m_store;
+
+    rhs.m_ptr=0;
+    rhs.m_proxy=0; //no release: this has the ref now
+
+    if (m_proxy) {
+      bindToProxy(this);
+    }
+
+  }
+#ifdef DEBUG_VHB
+  std::cerr << "::VHB:: move assign from " << &rhs
+	    << " to " << this << ", "
+	    << "proxy=" << this->m_proxy << ", "
+	    << "key=" <<this->m_sgkey
+	    << std::endl;
+#endif
   return *this;
 }
 
@@ -107,12 +177,23 @@ VarHandleBase::VarHandleBase(const std::string& sgkey,
   m_ptr(NULL),
   m_proxy(NULL),
   m_sgkey(sgkey),
-  m_store(storename)
+  m_store(storename, "VarHandleBase")
 {}
 
 /// Destructor: 
 VarHandleBase::~VarHandleBase()
 {
+#ifdef DEBUG_VHB
+  std::cerr << "~VarHandleBase(" << this
+             << ",ptr=" << this->m_ptr 
+             << ",proxy=" << this->m_proxy << ", ";
+   if (m_proxy) {
+     std::cerr << " -- isValid: " << m_proxy->isValid()
+	       << " -- isConst: " << m_proxy->isConst();
+   }
+   std::cerr << ", key=" <<this->m_sgkey << ")...\n";
+#endif
+
   if (m_proxy != 0) {
     m_proxy->unbindHandle(this);
     m_proxy->release();
@@ -131,20 +212,15 @@ VarHandleBase::~VarHandleBase()
 StatusCode 
 VarHandleBase::setState() const
 {
-  //std::cerr << "::VHB::setState() const...\n"; 
-  if (m_sgkey.empty() || m_store.empty()) {
-    return StatusCode::FAILURE;
-  }
-  ServiceHandle<IProxyDictWithPool> hStore(m_store, "VarHandleBase");
-  return (hStore.retrieve().isSuccess()) ? 
-    this->setState(hStore->proxy(this->clid(), m_sgkey)):
+  return (!m_sgkey.empty() && m_store.retrieve().isSuccess()) ? 
+    this->setState(m_store->proxy(this->clid(), m_sgkey)):
     StatusCode::FAILURE;
 }
 
 StatusCode 
 VarHandleBase::setState(SG::DataProxy* proxy) const
 {
-#ifdef DEBUG_HVB
+#ifdef DEBUG_VHB
    std::cerr << "::VHB::setState(" 
              << proxy 
              << " -- isValid: " << proxy->isValid()
@@ -155,16 +231,13 @@ VarHandleBase::setState(SG::DataProxy* proxy) const
     return StatusCode::FAILURE;
   }
 
-  SG::VarHandleBase *self = const_cast<SG::VarHandleBase*>(this);
-
   if (m_proxy != proxy) {
     if (m_proxy) m_proxy->release();
     m_proxy = proxy;
     m_proxy->addRef();
-    bindToProxy(self);
+    bindToProxy(const_cast<SG::VarHandleBase*>(this));
+    m_ptr=0;
   }
-
-  self->reset();
 
   return StatusCode::SUCCESS;
 }
@@ -190,6 +263,17 @@ VarHandleBase::setState(IProxyDict* store, const std::string& key) const
 bool 
 VarHandleBase::isConst() const
 {
+#ifdef DEBUG_VHB
+   std::cerr << "::VHB::isConst(" 
+	     << this
+	     << ", proxy" << m_proxy; 
+   if (m_proxy) {
+     std::cerr
+             << " -- isValid: " << m_proxy->isValid()
+             << " -- isConst: " << m_proxy->isConst();
+   }
+   std::cerr << ") const\n";
+#endif
   return 0 != m_proxy 
     ? m_proxy->isConst() 
     : false;
@@ -201,6 +285,11 @@ VarHandleBase::isConst() const
 bool 
 VarHandleBase::isInitialized() const
 {
+#ifdef DEBUG_VHB
+   std::cerr << "::VHB::isInitialized(" 
+	     << this
+	     << ", proxy" << m_proxy << ") const\n";
+#endif
   return (0 != m_proxy);
 }
 
@@ -208,65 +297,35 @@ VarHandleBase::isInitialized() const
 // Non-const methods: 
 /////////////////////////////////////////////////////////////////// 
 
-StatusCode 
-VarHandleBase::setState()
-{
-  // std::cerr << "::VHB::setState()...\n"; 
-  if (m_sgkey.empty() || m_store.empty()) {
-    return StatusCode::FAILURE;
-  }
-
-  typedef ServiceHandle<StoreGateSvc> Store_t;
-  Store_t store(m_store, "VarHandle");
-  if (!store.retrieve().isSuccess()) {
-    return StatusCode::FAILURE;
-  }
-
-  SG::DataProxy * proxy = store->proxy(this->clid(), m_sgkey);
-  return this->setState(proxy);
-}
-
-StatusCode 
-VarHandleBase::setState(SG::DataProxy* proxy)
-{
+void 
+VarHandleBase::reset() {
 #ifdef DEBUG_VHB
-  std::cerr << "::VHB::setState(" 
-             << proxy 
-             << " -- isValid: " << proxy->isValid()
-             << " -- isConst: " << proxy->isConst()
-             << ")\n";
+  std::cerr << "::VHB::reset("
+	    << "ptr=" << this->m_ptr << ", "
+	    << "proxy=" << this->m_proxy << ", "
+	    << "key=" <<this->m_sgkey
+	    << ")..." 
+	    << std::endl;
 #endif
-  if (0 == proxy || !proxy->isValid() || proxy->isConst()) {
-    return StatusCode::FAILURE;
+  m_ptr = 0; 
+  //if the proxy is not resetOnly then release it as it will become invalid
+  if (0 != m_proxy && !m_proxy->isResetOnly()) {
+    m_proxy->unbindHandle(this);
+    m_proxy->release();
+    m_proxy = 0;
   }
-
-  if (m_proxy != proxy) {
-    if (m_proxy) m_proxy->release();
-    m_proxy = NULL;
-    m_proxy = proxy;
-    m_proxy->addRef();
-    bindToProxy(this);
-  }
-  this->reset();
-  return StatusCode::SUCCESS;
 }
-
-StatusCode 
-VarHandleBase::setState(IProxyDict* store, const std::string& key)
-{
-  if (0 == store) {
-    return StatusCode::FAILURE;
-  }
+void VarHandleBase::finalReset() {
 #ifdef DEBUG_VHB
-  std::cerr << "::VHB::setState(" 
-           << store->name() << ", "
-             << key
-             << ")\n";
+  std::cerr << "::VHB::finalReset("
+	    << "ptr=" << this->m_ptr << ", "
+	    << "proxy=" << this->m_proxy << ", "
+	    << "key=" <<this->m_sgkey
+	    << ")..." 
+	    << std::endl;
 #endif
-  CLID cid = this->clid();
-  SG::DataProxy* proxy = store->proxy(cid, key);
-  // std::cerr << "::VHB:: -- clid=[" << cid << "] proxy=[" << proxy << "]\n";
-  return this->setState(proxy);
+  m_ptr = 0; 
+  m_proxy = 0;
 }
 
 /////////////////////////////////////////////////////////////////// 
@@ -275,30 +334,42 @@ VarHandleBase::setState(IProxyDict* store, const std::string& key)
 
 #define SG_VARHANDLE_NAME "SG::VarHandleBase::typeless_dataPointer"
 void* 
-VarHandleBase::typeless_dataPointer_impl(bool
-#ifndef NDEBUG
-   quiet
-#endif
-) const
+VarHandleBase::typeless_dataPointer_impl(bool quiet) const
 {
 #ifdef DEBUG_VHB
-   std::cerr << "::VHB::typeless_dataPointer("
-             << "ptr=" << this->m_ptr << ", "
-             << "proxy=" << this->m_proxy << ", "
-             << "key=" <<this->m_sgkey
-             << ")...\n";
+   std::cerr << "::VHB::typeless_dataPointer_impl("
+	     << this
+             << ",ptr=" << this->m_ptr 
+             << ",proxy=" << this->m_proxy << ", ";
+   if (m_proxy) {
+     std::cerr << " -- isValid: " << m_proxy->isValid()
+	       << " -- isConst: " << m_proxy->isConst();
+   }
+   std::cerr << ", key=" <<this->m_sgkey << ")...\n";
 #endif
-  if (m_ptr) {
+  if (0 != m_ptr) {
     return m_ptr;
   }
 
-  m_ptr = 0;
   if (0 == m_proxy) {
-    setState().ignore();
-  }
+    if (!(this->setState().isSuccess())) {
+      if (!quiet) {
+	MsgStream msg(Athena::getMessageSvc(), SG_VARHANDLE_NAME);
+	if (msg.level() <= MSG::WARNING) {
+	  msg << MSG::WARNING 
+	      << "could not get proxy for key " << m_sgkey
+	      << endmsg;
+	  //FIXME this mode() check does not appear to work
+	  if (this->mode() != Reader) {
+	    msg << MSG::WARNING << " try using a ReadHandle" <<endmsg;
+	  }
+	} //msg.level
+      } //quiet
+      return 0;
+    } //setstate
+  } //m_proxy
   if (!m_proxy || !m_proxy->isValid()) {
     // invalid proxy
-#ifndef NDEBUG
     if (!quiet) {
       MsgStream msg(Athena::getMessageSvc(), SG_VARHANDLE_NAME);
       if (msg.level() <= MSG::WARNING) {
@@ -310,16 +381,14 @@ VarHandleBase::typeless_dataPointer_impl(bool
 		       ? m_proxy->name() 
 		       : std::string("<N/A>"))
 	    << "] is in an invalid state" << endreq;
-      }
-    }
-#endif
+      } //msg.level
+    } //quiet
     return m_ptr;
   }
 
   DataObject* dobj = m_proxy->accessData();
   if (!dobj) {
     // invalid dobj
-#ifndef NDEBUG
     if (!quiet) {
       MsgStream msg(Athena::getMessageSvc(), SG_VARHANDLE_NAME);
       if (msg.level() <= MSG::WARNING) {
@@ -329,7 +398,6 @@ VarHandleBase::typeless_dataPointer_impl(bool
 	    << endreq;
       }
     }
-#endif
     return m_ptr;
   }
 
@@ -349,7 +417,6 @@ VarHandleBase::typeless_dataPointer_impl(bool
     // Let's hard cast (and keep our fingers Xed)
     m_ptr = static_cast<void*>(dbb->object());
   } else {
-#ifndef NDEBUG
     if (!quiet) {
       MsgStream msg(Athena::getMessageSvc(), SG_VARHANDLE_NAME);
       if (msg.level() <= MSG::WARNING) {
@@ -360,7 +427,6 @@ VarHandleBase::typeless_dataPointer_impl(bool
 	    << endreq;
       }
     }
-#endif
   } // try symlink -- endif
   return m_ptr;
 }
@@ -371,8 +437,8 @@ VarHandleBase::typeless_dataPointer_impl(bool
 //                                       const std::string& name,
 //                                       const std::string& store_name)
 // {
-//   ServiceHandle<IProxyDict> store(store_name, "SG::VarHandleBase");
-//   return store->proxy(clid, name);
+//   
+//   return m_store->proxy(clid, name);
 // }
 
 } /* namespace SG */

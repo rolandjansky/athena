@@ -23,6 +23,7 @@
 
 // StoreGate includes
 #include "StoreGate/VarHandleBase.h"
+#include "StoreGate/StoreGateSvc.h"
 
 namespace SG {
 
@@ -56,6 +57,23 @@ WriteHandle<T>::WriteHandle::operator= (const WriteHandle& h)
   return *this;
 }
 
+/// Move constructor: 
+template <class T> 
+WriteHandle<T>::WriteHandle(WriteHandle&& h):
+  VarHandleBase(std::move(h))
+{}
+
+/// Assignment move operator: 
+template <class T>
+WriteHandle<T>& 
+WriteHandle<T>::WriteHandle::operator= (WriteHandle&& h)
+{
+  if (this != &h) {
+    this->VarHandleBase::operator=(std::move(h));
+  }
+  return *this;
+}
+
 template <class T>
 WriteHandle<T>& 
 WriteHandle<T>::WriteHandle::operator= (const T& data)
@@ -80,14 +98,11 @@ WriteHandle<T>::WriteHandle::operator= (std::unique_ptr<T> data)
 {
   if (!isInitialized()) {
     // record into storegate
-    ServiceHandle<StoreGateSvc> svc(this->store(), "SG::WriteHandle<T>");
-    StatusCode sc(svc.retrieve());
-    if (sc.isSuccess()) {
-      T* dataPtr(data.release());
-      m_ptr=(void*)dataPtr;
-      sc = svc->record<T>(dataPtr, this->name());
-      if (sc.isSuccess()) sc = setState();
-    }
+    StoreGateSvc& svc(dynamic_cast<StoreGateSvc&>(*m_store));
+    T* dataPtr(data.release());
+    m_ptr=(void*)dataPtr;
+    StatusCode sc = svc.record<T>(dataPtr, this->name());
+    if (sc.isSuccess()) sc = setState();
     if (!(sc.isSuccess())) throw
       std::runtime_error("WriteHandle<T>::operator=(unique_ptr) error initializing");
   } else {

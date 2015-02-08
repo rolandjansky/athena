@@ -90,31 +90,33 @@ public:
 
   /// Copy constructor: 
   UpdateHandle( const UpdateHandle& rhs );
+  UpdateHandle( UpdateHandle&& rhs );
 
   /// Assignment operator: 
   UpdateHandle& operator=( const UpdateHandle& rhs ); 
+  UpdateHandle& operator=( UpdateHandle&& rhs ); 
   UpdateHandle& operator=( const T& data );
   //UpdateHandle& operator=(       T* data );
 
   /// Constructor with parameters: 
 
-  //UpdateHandle(SG::DataProxy* proxy); ///< 
+  //explicit UpdateHandle(SG::DataProxy* proxy); ///< 
 
   /// retrieve a proxy of name `name` from evtStore
   UpdateHandle(const IInterface* component,
-            const std::string& name);
-
+	       const std::string& name);
+  
   /// retrieve a proxy of name `name` from store `store`
   UpdateHandle(const IInterface* component,
-        const std::string& name, 
-        const std::string& store);
+	       const std::string& name, 
+	       const std::string& store);
 
   /// retrieve a proxy of name `name` from evtStore
-  UpdateHandle(const std::string& name);
+  explicit UpdateHandle(const std::string& name);
 
   /// retrieve a proxy of name `name` from store `store`
   UpdateHandle(const std::string& name, 
-        const std::string& store);
+	       const std::string& store);
 
   /// retrieve a proxy of name `name` from store `store`
   //UpdateHandle(const std::string& name, IProxyDict* store);
@@ -149,7 +151,12 @@ public:
 
   /// the mode of the underlying handle (reader|writer|updater)
   virtual Mode mode() const { return SG::VarHandleBase::Updater; }
-
+  /// is the proxy state valid for this handle?
+  virtual bool isValid() const 
+  { 
+    const bool QUIET=true;
+    return 0 != const_cast<UpdateHandle<T>*>(this)->typeless_ptr(QUIET); //non-const access
+  }
 }; 
 
 /////////////////////////////////////////////////////////////////// 

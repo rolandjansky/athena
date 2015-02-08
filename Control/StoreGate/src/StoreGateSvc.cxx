@@ -92,7 +92,7 @@ struct RemapImpl
 /// Standard Constructor
 StoreGateSvc::StoreGateSvc(const string& name,ISvcLocator* svc)
   : Service(name, svc), m_pIncSvc(0), m_pCLIDSvc(0), m_pDataLoader(0), 
-    m_pPPS(0), m_pHistorySvc(0), m_pStore(new DataStore (*this)), 
+    m_pPPS(0), m_pHistorySvc(0), m_pStore(new DataStore(*this)), 
     m_DumpStore(false), m_ActivateHistory(false), m_pIOVSvc(0),
     m_storeLoaded(false),
     m_remap_impl (new SG::RemapImpl),
@@ -108,17 +108,11 @@ StoreGateSvc::StoreGateSvc(const string& name,ISvcLocator* svc)
 		  "unused data objects (SLOW, debug only)");
   //add handler for Service base class property
   m_outputLevel.declareUpdateHandler(&StoreGateSvc::msg_update_handler, this);
-  
-  SG::ArenaHeader* header = SG::ArenaHeader::defaultHeader();
-  header->addArena (&m_arena);
 }
 
 
 /// Standard Destructor
 StoreGateSvc::~StoreGateSvc()  {
-  SG::ArenaHeader* header = SG::ArenaHeader::defaultHeader();
-  header->delArena (&m_arena);
-
   delete m_pStore;
   delete m_remap_impl;
 }
@@ -129,6 +123,11 @@ StatusCode StoreGateSvc::initialize()    {
 
   msg() << MSG::INFO << "Initializing " << name() 
       << " - package version " << PACKAGE_VERSION << endreq ;
+
+  if (!m_pStore)
+    m_pStore = new DataStore (*this);
+  if (!m_remap_impl)
+    m_remap_impl = new SG::RemapImpl;
 
   if(!(Service::initialize()).isSuccess()) {
     msg() << MSG::ERROR << "Could not initialize base Service !!" << endreq;
@@ -273,6 +272,11 @@ void StoreGateSvc::handle(const Incident &inc) {
       msg() << MSG::INFO 
 	  << '\n' << dump() << endl 
 	  << endreq;
+
+      msg() << MSG::INFO 
+            << '\n' << SG::ArenaHeader::defaultHeader()->reportStr() << endl 
+	  << endreq;
+
     }
     if (m_monitorPageAccess.value()) {
       msg() << MSG::INFO << "handle(EndEvent): looking for transient dobj pointers in " << name() << " that were never accessed after being recorded/read from disk"  << endmsg;
@@ -378,6 +382,13 @@ StatusCode StoreGateSvc::finalize()    {
     m_pHistorySvc->release();
     m_pHistorySvc = 0;
   }
+
+  m_stringpool.clear();
+  delete m_pStore;
+  m_pStore = nullptr;
+  delete m_remap_impl;
+  m_remap_impl = 0;
+  m_arena.erase();
 
   return Service::finalize();
 }
