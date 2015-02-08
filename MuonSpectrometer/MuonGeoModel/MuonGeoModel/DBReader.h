@@ -190,7 +190,6 @@ namespace MuonGM {
     private:
 
         // data 
-        StoreGateSvc *  _pDetStore;
 	IMessageSvc*    m_msgSvc;
         std::string version;
 
