@@ -32,7 +32,7 @@ MuonCreatorAlg::MuonCreatorAlg(const std::string& name, ISvcLocator* pSvcLocator
   declareProperty("MuonCandidateLocation", m_muonCandidateCollectionName = "MuonCandidates" );
   declareProperty("SegmentContainerName", m_segContainerName = "MuonSegments" );
   declareProperty("BuildSlowMuon",m_buildSlowMuon=false);
-  declareProperty("ClusterContainerName",m_clusterContainerName="");
+  declareProperty("ClusterContainerName",m_clusterContainerName="MuonClusterCollection");
 }
 
 MuonCreatorAlg::~MuonCreatorAlg()
