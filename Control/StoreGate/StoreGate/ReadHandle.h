@@ -85,31 +85,33 @@ public:
   /// Default constructor: 
   ReadHandle();
 
-  /// Copy constructor: 
+  /// Copy constructors: 
   ReadHandle( const ReadHandle& rhs );
+  ReadHandle( ReadHandle&& rhs );
 
-  /// Assignment operator: 
+  /// Assignment operators: 
   ReadHandle& operator=( const ReadHandle& rhs ); 
+  ReadHandle& operator=( ReadHandle&& rhs ); 
 
   /// Constructor with parameters: 
 
-  //ReadHandle(SG::DataProxy* proxy); ///< 
+  //explicit ReadHandle(SG::DataProxy* proxy); ///< 
 
   /// retrieve a proxy of name `name` from evtStore (via component `component`)
   ReadHandle(const IInterface* component,
-       const std::string& name);
+	     const std::string& name);
 
   /// retrieve a proxy of name `name` from store `store`
   ReadHandle(const IInterface* component,
-       const std::string& name, 
-       const std::string& store);
+	     const std::string& name, 
+	     const std::string& store);
 
   /// retrieve a proxy of name `name` from evtStore
-  ReadHandle(const std::string& name);
+  explicit ReadHandle(const std::string& name);
 
   /// retrieve a proxy of name `name` from store `store`
   ReadHandle(const std::string& name, 
-       const std::string& store);
+	     const std::string& store);
 
   /// retrieve a proxy of name `name` from store `store`
   //ReadHandle(const std::string& name, IProxyDict* store);
@@ -141,6 +143,13 @@ public:
 
   /// the mode of the underlying handle (reader|writer|updater)
   virtual Mode mode() const { return SG::VarHandleBase::Reader; }
+
+  /// is the proxy state valid for this handle?
+  virtual bool isValid() const
+  { 
+    return 0 != this->typeless_cptr(); 
+  }
+
 
 }; 
 

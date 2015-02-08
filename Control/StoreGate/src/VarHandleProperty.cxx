@@ -34,11 +34,13 @@ parse(SG::VarHandleBase& v, const std::string& s)
     tokenizer tokens(prop, sep);
     int nToks(distance(tokens.begin(), tokens.end()));    
     if (nToks == 1) {
-      v.m_store = "StoreGateSvc";
+      v.m_store = 
+	ServiceHandle<IProxyDictWithPool>("StoreGateSvc","VarHandleBase");
       v.m_sgkey = *(tokens.begin());
     } else if (nToks == 2) {
       auto tok = tokens.begin();
-      v.m_store = *tok;
+      v.m_store = 
+	ServiceHandle<IProxyDictWithPool>(*tok,"VarHandleBase");
       v.m_sgkey = *(++tok);
     } else {
       sc = StatusCode::FAILURE;

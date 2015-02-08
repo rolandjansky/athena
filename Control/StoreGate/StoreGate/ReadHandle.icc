@@ -57,6 +57,23 @@ ReadHandle<T>::ReadHandle::operator= (const ReadHandle& h)
   return *this;
 }
 
+/// Copy constructor: 
+template <class T> 
+ReadHandle<T>::ReadHandle(ReadHandle&& h):
+  VarHandleBase(std::move(h))
+{}
+
+/// Assignment operator: 
+template <class T>
+ReadHandle<T>& 
+ReadHandle<T>::ReadHandle::operator= (ReadHandle&& h)
+{
+  if (this != &h) {
+    this->VarHandleBase::operator=(std::move(h));
+  }
+  return *this;
+}
+
 /// retrieve a proxy of name `name` from evtStore
 template <class T>
 ReadHandle<T>::ReadHandle(const IInterface* /*iface*/,

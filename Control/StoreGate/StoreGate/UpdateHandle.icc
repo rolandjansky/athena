@@ -57,6 +57,23 @@ UpdateHandle<T>::UpdateHandle::operator= (const UpdateHandle& h)
   return *this;
 }
 
+/// Move constructor: 
+template <class T> 
+UpdateHandle<T>::UpdateHandle(UpdateHandle&& h):
+  VarHandleBase(h)
+{}
+
+/// Assignment move operator: 
+template <class T>
+UpdateHandle<T>& 
+UpdateHandle<T>::UpdateHandle::operator= (UpdateHandle&& h)
+{
+  if (this != &h) {
+    this->VarHandleBase::operator=(h);
+  }
+  return *this;
+}
+
 template <class T>
 UpdateHandle<T>& 
 UpdateHandle<T>::UpdateHandle::operator= (const T& data)
