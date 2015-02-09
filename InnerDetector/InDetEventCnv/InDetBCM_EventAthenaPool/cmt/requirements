@@ -7,9 +7,8 @@ use AtlasPolicy          AtlasPolicy-*
 use AthenaPoolUtilities  AthenaPoolUtilities-*     Database/AthenaPOOL
 use AtlasReflex          AtlasReflex-*             External
 
-use InDetBCM_RawData     InDetBCM_RawData-*        InnerDetector/InDetRawEvent
-
 private
+use InDetBCM_RawData     InDetBCM_RawData-*        InnerDetector/InDetRawEvent
 use GaudiInterface 	 GaudiInterface-*          External
 use StoreGate 		 StoreGate-*               Control
 use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*        Database/AthenaPOOL
