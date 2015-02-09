@@ -5,7 +5,6 @@
 #ifndef TRIG_INDET_DICT_H
 #define TRIG_INDET_DICT_H
 
-#include "TrigInDetEvent/TrigInDetTrackFitPar.h"
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrigInDetEvent/TrigTauTracksInfo.h"
 #include "TrigInDetEvent/TrigTauTracksInfoCollection.h"

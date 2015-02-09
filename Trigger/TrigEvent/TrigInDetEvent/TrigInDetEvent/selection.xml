@@ -12,12 +12,6 @@
  
   <class name="DataVector<TrigInDetTrackCollection>" id="D5A94D82-EB3C-4224-BD52-BD86F4DF578E" />
   <class name="std::vector<TrigInDetTrackCollection*>" />
-  
-
-
-  <class name="TrigInDetTrackFitPar" id="D47C2A8F-4FCD-4E70-93B2-7A1E4EE9B264" >
-    <field name="m_cov" transient="false" />
-  </class>
 
   <class name="DataVector<TrigInDetTrackFitPar>" id="28D972D0-B985-4017-A7B8-4FCF5E281936" />
   <class name="std::vector<TrigInDetTrackFitPar*>" />

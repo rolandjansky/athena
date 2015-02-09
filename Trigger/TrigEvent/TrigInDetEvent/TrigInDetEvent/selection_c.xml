@@ -1,0 +1,6 @@
+<lcgdict>
+  <class name="TrigInDetTrackFitPar" id="D47C2A8F-4FCD-4E70-93B2-7A1E4EE9B264" >
+    <field name="m_cov" transient="false" />
+  </class>
+
+</lcgdict>
