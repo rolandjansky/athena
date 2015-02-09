@@ -58,7 +58,9 @@ class MuonMCData {
 #include <utility>
 #include <vector>
 #include "GeneratorObjects/HepMcParticleLink.h"
+#ifndef __CLING__
 #include "GeoPrimitives/GeoPrimitives.h"
+#endif
 //<<<<<< PUBLIC DEFINES                                                 >>>>>>
 //<<<<<< PUBLIC CONSTANTS                                               >>>>>>
 //<<<<<< PUBLIC TYPES                                                   >>>>>>
@@ -79,8 +81,10 @@ public:
     int word() const;                       // Get the packed simdata word
     void deposits(std::vector<Deposit>& deposits) const; // Get the Deposits
     const std::vector< Deposit >& getdeposits() const;
+#ifndef __CLING__
     void setPosition(Amg::Vector3D& pos);
     const Amg::Vector3D globalPosition() const;
+#endif
 private:
     int m_word;  
     std::vector<Deposit> m_deposits;
@@ -110,6 +114,7 @@ inline void MuonSimData::deposits(std::vector< MuonSimData::Deposit>& deposits) 
 }
 
 
+#ifndef __CLING__
 inline void MuonSimData::setPosition(Amg::Vector3D& pos)
 {
   x = pos.x();
@@ -122,6 +127,7 @@ inline const Amg::Vector3D MuonSimData::globalPosition() const
   Amg::Vector3D globPos(x,y,z);
   return globPos;
 }
+#endif
 
 
 #endif // MUONSIMDATA_MuonSimData_H
