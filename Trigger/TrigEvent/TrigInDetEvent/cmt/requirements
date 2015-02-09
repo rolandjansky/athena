@@ -57,6 +57,9 @@ use     TrigSerializeUtils      TrigSerializeUtils-*    Trigger/TrigDataAccess
 # selection.xml.
 #macro_append reflex_dict_options --debug 
 
+apply_pattern lcgdict dict=TrigInDetEvent_c selectionfile=selection_c.xml \
+	headerfiles="../TrigInDetEvent/TrigInDetEvent_cDict.h"
+
 apply_pattern lcgdict dict=TrigInDetEvent selectionfile=selection.xml \
 	headerfiles="../TrigInDetEvent/TrigInDetEventDict.h" \
 	elementLinks="TrigInDetTrackCollection" \
