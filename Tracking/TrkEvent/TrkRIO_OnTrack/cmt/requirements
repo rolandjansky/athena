@@ -16,7 +16,6 @@ library TrkRIO_OnTrack *.cxx
 private
 use TrkPrepRawData       TrkPrepRawData-*          Tracking/TrkEvent
 use GaudiInterface       GaudiInterface-*          External
-use AtlasReflex          AtlasReflex-*             External
 
 # Pattern to build the dict lib. User should create a single header
 # file: <package>Dict.h which includes all other .h files. See MissingETDict
