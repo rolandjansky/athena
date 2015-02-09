@@ -209,38 +209,16 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
         return HLT::TOOL_FAILURE;
     }
 
-    xAOD::CaloClusterAuxContainer* aux = new xAOD::CaloClusterAuxContainer();
-    if (store()->record (aux, clusterCollKey + "Aux.").isFailure()) {
-        msg() << MSG::ERROR << "recording CaloClusterAuxContainer with key <" << clusterCollKey << "Aux.> failed" << endreq;
-        delete aux;
-        return HLT::TOOL_FAILURE;
-    }
-    m_pCaloClusterContainer->setStore (aux);
+    xAOD::CaloClusterAuxContainer aux;
+    m_pCaloClusterContainer->setStore (&aux);
 
    
     // Now setup the Photon container for selection at EFCaloHypo
     //
     m_egContainer = new xAOD::PhotonContainer();
-    xAOD::PhotonAuxContainer *egAux = new xAOD::PhotonAuxContainer();
+    xAOD::PhotonAuxContainer egAux;
     std::string egKey = "TrigEFCaloCalibFex"; 
-    std::string egContSGKey = "";
-    sc = getUniqueKey( m_egContainer, egContSGKey, egKey);
-    if (sc != HLT::OK) { 
-        msg() << MSG::DEBUG << "Could not retrieve the photon container key" << endreq;
-        return sc;                                                                       
-    } 
-    std::string egContSGName = egContSGKey; //if you put no empty string here you'll get an alias in SG
-    
-    if ( store()->record(m_egContainer, egContSGKey).isFailure()) {
-        msg() << MSG::ERROR << "REGTEST: trigger PhotonContainer registration failed" << endreq;
-        return HLT::ERROR;
-    }
-    if ( store()->record(egAux, egContSGKey + "Aux.").isFailure() ) {
-        msg() << MSG::ERROR << "REGTEST: trigger PhotonAuxContainer registration failed" << endreq;
-        delete egAux;
-        return HLT::ERROR;
-    }
-    m_egContainer->setStore(egAux);
+    m_egContainer->setStore(&egAux);
     //==============================================================================================
     
     
@@ -301,7 +279,12 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
         
         //Now fill position in calo-frame
         fillPositionsInCalo(newClus);
-         //Now set the calibrated energy from MVA
+        double tmpeta = -999.;
+        newClus->retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,tmpeta);
+        double tmpphi = -999.;
+        newClus->retrieveMoment(xAOD::CaloCluster::PHICALOFRAME,tmpphi);
+        ATH_MSG_DEBUG("Calo frame vars eta, phi = " << tmpeta << " " << tmpphi);
+        //Now set the calibrated energy from MVA
         if(m_applyMVACalib){
             ATH_MSG_DEBUG("Applying MVA Calib");
 
@@ -341,10 +324,6 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
         m_EBE0.push_back(newClus->energyBE(2));
         m_EBE0.push_back(newClus->energyBE(3));
         m_Eta.push_back(newClus->eta());
-        double tmpeta = -999.;
-        newClus->retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,tmpeta);
-        double tmpphi = -999.;
-        newClus->retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,tmpphi);
         m_EtaCalo.push_back(tmpeta);
         m_PhiCalo.push_back(tmpphi);
         m_E.push_back(clus->e());
@@ -416,25 +395,14 @@ HLT::ErrorCode TrigEFCaloCalibFex::hltExecute(const HLT::TriggerElement* inputTE
     }
 
     // attach photon container to the TE
-    stat = reAttachFeature( outputTE, m_egContainer, egContSGName, egKey);
+    stat = attachFeature( outputTE, m_egContainer,egKey);
     if (stat != HLT::OK){
         ATH_MSG_ERROR("REGTEST: trigger xAOD::PhotonContainer attach to TE and record into StoreGate failed");
         return status;
     } else{
         ATH_MSG_DEBUG( "egKey for photon container: " << egKey);
-        ATH_MSG_DEBUG( "REGTEST: xAOD::PhotonContainer created and attached to TE: " <<egContSGName 
-                << " with alias: " << egContSGKey);
     }
 
-    // lock the photon collection
-    if ( (store()->setConst(m_egContainer)).isFailure() ) {
-        ATH_MSG_ERROR(" REGTEST: cannot set m_photon_container to const ");
-        return HLT::OK;
-    } else {
-        // debug message
-        ATH_MSG_DEBUG("photon container locked with key: " << egContSGName 
-                << " and address: " << m_egContainer);
-    }
     // set output TriggerElement unless acceptAll is set
     if (!m_acceptAll) pass = result;
 
