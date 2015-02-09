@@ -394,60 +394,62 @@ jtm += JetCaloEnergies("jetens")
 
 # Read in missing cell map (needed for the following)
 
-def missingCellFileReader(): 
-  import os
-  dataPathList = os.environ[ 'DATAPATH' ].split(os.pathsep)
-  dataPathList.insert(0, os.curdir)
-  from AthenaCommon.Utils.unixtools import FindFile
-  RefFileName = FindFile( "JetBadChanCorrTool.root" ,dataPathList, os.R_OK )
-  from AthenaCommon.AppMgr import ServiceMgr
-  if not hasattr(ServiceMgr, 'THistSvc'):
-    from GaudiSvc.GaudiSvcConf import THistSvc
-    ServiceMgr += THistSvc()
-  ServiceMgr.THistSvc.Input += ["JetBadChanCorrTool DATAFILE=\'%s\' OPT=\'READ\'" % RefFileName]
-  missingCellFileReader.called = True 
+## def missingCellFileReader(): 
+##   import os
+##   dataPathList = os.environ[ 'DATAPATH' ].split(os.pathsep)
+##   dataPathList.insert(0, os.curdir)
+##   from AthenaCommon.Utils.unixtools import FindFile
+##   RefFileName = FindFile( "JetBadChanCorrTool.root" ,dataPathList, os.R_OK )
+##   from AthenaCommon.AppMgr import ServiceMgr
+##   if not hasattr(ServiceMgr, 'THistSvc'):
+##     from GaudiSvc.GaudiSvcConf import THistSvc
+##     ServiceMgr += THistSvc()
+##   ServiceMgr.THistSvc.Input += ["JetBadChanCorrTool DATAFILE=\'%s\' OPT=\'READ\'" % RefFileName]
+##   missingCellFileReader.called = True 
 
-missingCellFileReader()
+## missingCellFileReader()
 
-jtm += MissingCellListTool(
-  "missingcells",
-  AddCellList = [],
-  RemoveCellList = [],
-  AddBadCells = True,
-  DeltaRmax = 1.0,
-  AddCellFromTool = False,
-  LArMaskBit = 608517,
-  TileMaskBit = 1,
-  MissingCellMapName = "MissingCaloCellsMap"
-)
+## jtm += MissingCellListTool(
+##   "missingcells",
+##   AddCellList = [],
+##   RemoveCellList = [],
+##   AddBadCells = True,
+##   DeltaRmax = 1.0,
+##   AddCellFromTool = False,
+##   LArMaskBit = 608517,
+##   TileMaskBit = 1,
+##   MissingCellMapName = "MissingCaloCellsMap"
+## )
 
-# Bad channel corrections from cells
-jtm += JetBadChanCorrTool(
-  "bchcorrcell",
-  NBadCellLimit = 10000,
-  StreamName = "/JetBadChanCorrTool/",
-  ProfileName = "JetBadChanCorrTool.root",
-  ProfileTag = "",
-  UseCone = True,
-  UseCalibScale = False,
-  MissingCellMap = "MissingCaloCellsMap",
-  ForceMissingCellCheck = False,
-  UseClusters = False,
-)
+## # Bad channel corrections from cells
+## jtm += JetBadChanCorrTool(
+##   "bchcorrcell",
+##   NBadCellLimit = 10000,
+##   StreamName = "/JetBadChanCorrTool/",
+##   ProfileName = "JetBadChanCorrTool.root",
+##   ProfileTag = "",
+##   UseCone = True,
+##   UseCalibScale = False,
+##   MissingCellMap = "MissingCaloCellsMap",
+##   ForceMissingCellCheck = False,
+##   UseClusters = False,
+## )
   
-# Bad channel corrections from clusters
-jtm += JetBadChanCorrTool(
-  "bchcorrclus",
-  NBadCellLimit = 0,
-  StreamName = "",
-  ProfileName = "",
-  ProfileTag = "",
-  UseCone = True,
-  UseCalibScale = False,
-  MissingCellMap = "",
-  ForceMissingCellCheck = False,
-  UseClusters = True
-)
+## # Bad channel corrections from clusters
+## jtm += JetBadChanCorrTool(
+##   "bchcorrclus",
+##   NBadCellLimit = 0,
+##   StreamName = "",
+##   ProfileName = "",
+##   ProfileTag = "",
+##   UseCone = True,
+##   UseCalibScale = False,
+##   MissingCellMap = "",
+##   ForceMissingCellCheck = False,
+##   UseClusters = True
+## )
+
+
 
 # Jet vertex fraction.
 jtm += JetVertexFractionTool(

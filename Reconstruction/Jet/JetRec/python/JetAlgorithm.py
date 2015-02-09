@@ -80,8 +80,8 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
 
   # Add the tool runner. It runs the jetrec tools.
   rtools = []
-  if jetFlags.useCells():
-    rtools += [jtm.missingcells]
+  ## if jetFlags.useCells():
+  ##   rtools += [jtm.missingcells]
   if jetFlags.useTracks:
     rtools += [jtm.tracksel]
     rtools += [jtm.tvassoc]
