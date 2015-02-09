@@ -10,6 +10,7 @@
 
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
+#include "InDetReadoutGeometry/PixelModuleDesign.h"
 
 #include "StoreGate/StoreGate.h"
 #include "GaudiKernel/SystemOfUnits.h"
@@ -41,9 +42,12 @@ SiLorentzAngleSvc::SiLorentzAngleSvc( const std::string& name, ISvcLocator* pSvc
   // Temperature and voltages from job options only used if SiConditionsServices is None or
   // if value read from database is out of range.
   declareProperty("Temperature",m_temperature = -7., "Default temperature in Celcius.");
+  declareProperty("TemperaturePixels",m_temperaturePix = -13., "Default temperature in Celcius for Pixels (incl. IBL).");
   declareProperty("TemperatureMin",m_temperatureMin = -80., "Minimum temperature allowed in Celcius.");
   declareProperty("TemperatureMax",m_temperatureMax = 100., "Maximum temperature allowed in Celcius.");
   declareProperty("BiasVoltage", m_biasVoltage = 150., "Default bias voltage in Volt.");
+  declareProperty("BiasVoltageIBLPl", m_biasVoltageIBLPl = 80., "Default bias voltage for IBL SiPl in Volt.");
+  declareProperty("BiasVoltageIBL3D", m_biasVoltageIBL3D = 20., "Default bias voltage for IBL Si3D in Volt.");
   declareProperty("DepletionVoltage", m_deplVoltage = 70., "Default depletion voltage in Volt.");
   declareProperty("CorrectionFactor", m_correctionFactor = 1.);
   declareProperty("UseMagFieldSvc", m_useMagFieldSvc = true);
@@ -405,18 +409,73 @@ SiLorentzAngleSvc::updateCache(const IdentifierHash & elementHash, const Amg::Ve
 
   if (!useLocPos) m_cacheValid[elementHash] = true;
   const InDetDD::SiDetectorElement * element = m_detManager->getDetectorElement(elementHash);
+
+  bool IBL_DBM_Present = false;
+  bool isIBL = false;
+  bool is3D = false;
+  int forceLorentzToZero = 1;
+
+  if(m_isPixel){
+    const PixelID * idHelper;
+    if (m_detStore->retrieve(idHelper, "PixelID").isFailure()) {
+      ATH_MSG_FATAL("Could not get Pixel ID helper" );
+      return;
+    }
+    unsigned int maxHash = idHelper->wafer_hash_max();
+    ATH_MSG_DEBUG( "maxHash: "<< maxHash);
+    ///
+
+    const PixelID* pixelID =(dynamic_cast<const PixelID*>(element->getIdHelper()));
+    if (not pixelID){
+      ATH_MSG_ERROR("Dynamic cast failed at line "<<__LINE__<<" of SiLorentzAngleSvc");
+      return;
+    }
+
+    int barrelec = pixelID->barrel_ec(element->identify());
+    int layer = pixelID->layer_disk(element->identify());
+    //int phimodule = pixelID->phi_module(element->identify()); //phi module not needed.
+    int etamodule = pixelID->eta_module(element->identify());
+
+    ATH_MSG_DEBUG("m_isPixel: "<< m_isPixel <<" Hash = "<< elementHash <<" Barrel EC = "<< barrelec <<" Layer_Disk = " <<layer<< " etamodule = "
+    << etamodule );   
+
+    if(pixelID->wafer_hash_max()>1744)IBL_DBM_Present = true;
+    
+    if(IBL_DBM_Present){
+      if (barrelec == 0 && layer == 0) isIBL = true;
+      if (isIBL) {
+        if(etamodule < -6 || etamodule > 5) is3D = true;
+      }
+      if (is3D) forceLorentzToZero = 0;
+    }    
+  }
+  
   double temperature;
   double deplVoltage;
   double biasVoltage;
-  if (!m_conditionsSvcValid) {
-    temperature = m_temperature + 273.15;
-    deplVoltage = m_deplVoltage * CLHEP::volt;
-    biasVoltage = m_biasVoltage * CLHEP::volt;
+  //if (!m_conditionsSvcValid) {
+  if (true) {
+    //temperature = m_temperature + 273.15;
+    //deplVoltage = m_deplVoltage * CLHEP::volt;
+    //biasVoltage = m_biasVoltage * CLHEP::volt;
+    if(m_isPixel){
+      temperature = m_temperaturePix + 273.15;
+    }else{
+      temperature = m_temperature + 273.15;
+    }
+    if (isIBL && !is3D) deplVoltage = 40. * CLHEP::volt; 
+    if (isIBL &&  is3D) deplVoltage =  10. * CLHEP::volt; 
+    if (!isIBL) deplVoltage = m_deplVoltage * CLHEP::volt;
+    if (isIBL && !is3D) biasVoltage = m_biasVoltageIBLPl * CLHEP::volt; 
+    if (isIBL &&  is3D) biasVoltage = m_biasVoltageIBL3D * CLHEP::volt; 
+    if (!isIBL) biasVoltage = m_biasVoltage * CLHEP::volt;
+    ATH_MSG_DEBUG("Hash = " << elementHash << " Temperature = " << temperature << " BiasV = " << biasVoltage << " DeplV = " << deplVoltage);
   } else {
     temperature = m_siConditionsSvc->temperature(elementHash) + 273.15;
     deplVoltage = m_siConditionsSvc->depletionVoltage(elementHash) * CLHEP::volt;
     biasVoltage = m_siConditionsSvc->biasVoltage(elementHash) * CLHEP::volt;
-  }
+    ATH_MSG_DEBUG("Hash = " << elementHash << " Temperature = " << temperature << " BiasV = " << biasVoltage << " DeplV = " << deplVoltage);
+ }
 
   // Protect against invalid temperature
   double temperatureC = temperature -  273.15;
@@ -456,7 +515,7 @@ SiLorentzAngleSvc::updateCache(const IdentifierHash & elementHash, const Amg::Ve
   // gives a more physical sign of the angle (ie dosen't flip sign when the detector is flipped).
   // The hit depth axis is pointing from the readout side to the backside if  m_design->readoutSide() < 0
   // The hit depth axis is pointing from the backside to the readout side if  m_design->readoutSide() > 0  
-  double tanLorentzAnglePhi = element->design().readoutSide() * mobility  * element->hitDepthDirection() * element->hitPhiDirection() 
+  double tanLorentzAnglePhi = forceLorentzToZero*element->design().readoutSide() * mobility  * element->hitDepthDirection() * element->hitPhiDirection() 
     * (element->normal().cross(magneticField)).dot(element->phiAxis());
   m_tanLorentzAngle[elementHash]    = m_correctionFactor * tanLorentzAnglePhi;
 
@@ -473,12 +532,15 @@ SiLorentzAngleSvc::updateCache(const IdentifierHash & elementHash, const Amg::Ve
   // In the SCT its largest in the stereo side of the barrel modules where it is about 0.3 micron along the strip. 
   //
   if (m_calcEta) {
-    double tanLorentzAngleEta = element->design().readoutSide() * mobility  * element->hitDepthDirection() * element->hitEtaDirection() 
+    double tanLorentzAngleEta = forceLorentzToZero*element->design().readoutSide() * mobility  * element->hitDepthDirection() * element->hitEtaDirection() 
       * (element->normal().cross(magneticField)).dot(element->etaAxis());
     m_tanLorentzAngleEta[elementHash] = m_correctionFactor * tanLorentzAngleEta;
     double lorentzCorrectionEta = -0.5 * element->hitPhiDirection() * tanLorentzAngleEta * depletionDepth;
     m_lorentzShiftEta[elementHash] = m_correctionFactor * lorentzCorrectionEta;
   }
+
+  ATH_MSG_DEBUG(" Hash = " << elementHash << " tanPhi = " << lorentzCorrectionPhi << " shiftPhi = " << m_lorentzShift[elementHash]
+  << " Factor = " << m_correctionFactor << "Depletion depth = " << depletionDepth);
 
   if (msgLvl(MSG::VERBOSE)) {
     ATH_MSG_VERBOSE("Temperature (C), bias voltage, depletion voltage: "
