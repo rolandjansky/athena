@@ -18,7 +18,7 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
-#include "GaudiKernel/ToolHandle.h"
+#include "AsgTools/ToolHandle.h"
 #include "AthContainers/ConstDataVector.h"
 
 class JetTrackSelectionTool

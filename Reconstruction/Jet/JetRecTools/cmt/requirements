@@ -13,7 +13,6 @@ use CaloDetDescr        CaloDetDescr-*          Calorimeter
 
 public
 
-#use AthenaBaseComps     AthenaBaseComps-*       Control
 use AtlasPolicy		AtlasPolicy-*
 use GaudiInterface	GaudiInterface-* 	External
 use AthContainers       AthContainers-*         Control
