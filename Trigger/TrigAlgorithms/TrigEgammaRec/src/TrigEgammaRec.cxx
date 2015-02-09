@@ -97,15 +97,20 @@ namespace {
 
 TrigEgammaRec::TrigEgammaRec(const std::string& name,ISvcLocator* pSvcLocator):
     HLT::FexAlgo(name, pSvcLocator),
+    m_electronContainerName("egamma_Electrons"),
+    m_photonContainerName("egamma_Photons"),
     m_lumiTool("LuminosityTool")
 {
 
-    // The following default propertiesare configured in TrigEgammaRecConfig using Factories
+    // The following default properties are configured in TrigEgammaRecConfig using Factories
     // Specific configurations are found in TriggerMenu
 
-    declareProperty("ElectronContainerAliasSuffix", m_electronContainerAliasSuffix="egamma_electron");
-    declareProperty("PhotonContainerAliasSuffix",   m_photonContainerAliasSuffix="egamma_photon");
-
+    // Container names for persistency
+    declareProperty("ElectronContainerName", m_electronContainerName="egamma_Electrons");
+    declareProperty("PhotonContainerName",   m_photonContainerName="egamma_Photons");
+    // Additional property to retrieve slw and topo containers from TE
+    declareProperty("SlwCaloClusterContainerName",m_slwClusterContName="TrigEFCaloCalibFex");
+    declareProperty("TopoCaloClusterContainerName",m_topoClusterContName="TrigCaloClusterMaker_topo");
     // ShowerBuilder (trigger specific)
     declareProperty("ShowerBuilderTool",  m_showerBuilder, "Handle to Shower Builder");
     // FourMomBuilder (trigger specific)
@@ -135,8 +140,8 @@ TrigEgammaRec::TrigEgammaRec(const std::string& name,ISvcLocator* pSvcLocator):
 
     /** @brief Track to track assoc after brem, set to false. If true and no GSF original track in cone */
     declareProperty("useBremAssoc",                    m_useBremAssoc          = false, "use track to track assoc after brem"); 
-    
-    declareProperty("IsoTypes", m_egisoInts, "The isolation types to do for egamma: vector of vector of enum type Iso::IsolationType, stored as float");
+    /** @brief isolation type */
+    declareProperty("IsoTypes", m_egisoInts, "Isolation types: vector of vector of enum type Iso::IsolationType, stored as float");
     // Set flag for track matching
     declareProperty("doTrackMatching",m_doTrackMatching = false, "run TrackMatchBuilder");
     // Set flag for conversions 
@@ -219,6 +224,7 @@ TrigEgammaRec::TrigEgammaRec(const std::string& name,ISvcLocator* pSvcLocator):
     declareMonitoredCollection("D0sig",	                 *my_pp_cast <xAODElectronDV_type>(&m_electron_container), &getD0sig);
 
     declareMonitoredStdContainer("LHValue", m_lhval);
+    declareMonitoredStdContainer("LHCaloValue", m_lhcaloval);
 
     //Vertex-related monitoring for Photons
     //TBD
@@ -347,10 +353,10 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
     }
     
     if (m_electronCaloPIDBuilder.empty()) {
-        ATH_MSG_ERROR("ElectronPIDBuilder is empty");
+        ATH_MSG_ERROR("ElectronCaloPIDBuilder is empty");
         return HLT::BAD_JOB_SETUP;
     }
-    if((m_electronPIDBuilder.retrieve()).isFailure()) {
+    if((m_electronCaloPIDBuilder.retrieve()).isFailure()) {
         ATH_MSG_ERROR("Unable to retrieve "<<m_electronCaloPIDBuilder);
         return HLT::BAD_JOB_SETUP;
     }
@@ -371,10 +377,6 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
         ATH_MSG_DEBUG("Retrieved Tool "<<m_photonPIDBuilder);
         if (timerSvc()) m_timerPIDTool3 = addTimer("PhotonPIDBuilder");
     }
-
-    // No longer required with Two-step Calo
-    ATH_MSG_DEBUG("Obtain CaloCellDetPos tool for calo-frame variables");
-    m_caloCellDetPos = new CaloCellDetPos();
 
     // For now, we don't try to retrieve the lumi tool
     if (m_lumiTool.retrieve().isFailure()) {                                     
@@ -509,8 +511,8 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
     ATH_MSG_DEBUG("REGTEST: Do TopoIsolation: "     << m_doTopoIsolation);
     ATH_MSG_DEBUG("REGTEST: Use BremAssoc: "        << m_useBremAssoc);
 
-    ATH_MSG_INFO("REGTEST: suffix added to ElectronContainer alias: " << m_electronContainerAliasSuffix );
-    ATH_MSG_INFO("REGTEST: suffix added to PhotonContainer alias: " << m_photonContainerAliasSuffix );
+    ATH_MSG_INFO("REGTEST: ElectronContainerName: " << m_electronContainerName );
+    ATH_MSG_INFO("REGTEST: PhotonContainerName: " << m_photonContainerName );
     return HLT::OK;
 }
 
@@ -518,7 +520,6 @@ HLT::ErrorCode TrigEgammaRec::hltInitialize() {
 // FINALIZE METHOD:
 
 HLT::ErrorCode TrigEgammaRec::hltFinalize() {
-    delete m_caloCellDetPos;
    
     // Delete pointers to decorators
     std::map<std::string,CaloIsoHelp>::iterator itc = m_egCaloIso.begin(), itcE = m_egCaloIso.end();
@@ -559,7 +560,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     // Time total TrigEgammaRec execution time.
     if (timerSvc()) m_timerTotal->start();
 
-    //m_eg_container = 0;
+    m_eg_container = 0;
     m_electron_container = 0;
     m_photon_container = 0;
 
@@ -609,88 +610,32 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
 
     //**********************************************************************
     // Create an EgammaRec container  
-    // should this be a pointer in the class?
-    EgammaRecContainer *eg_container = new EgammaRecContainer();
+    m_eg_container = new EgammaRecContainer();
+    std::string electronContSGKey="";
+    std::string electronKey="";
+    HLT::ErrorCode sc = getUniqueKey( m_electron_container, electronContSGKey, electronKey);
+    if (sc != HLT::OK) {
+        msg() << MSG::DEBUG << "Could not retrieve the electron container key" << endreq;
+        return sc;
+    }
 
+    electronContSGKey+="egammaRec";
+    //    // just store the thing now!
+    if ( store()-> record(m_eg_container,electronContSGKey).isFailure() ) {
+        msg() << MSG::ERROR << "REGTEST: Could not register the EgammaRecContainer" << endreq;
+        return HLT::ERROR;
+    }
     // Create collections used in the navigation
     // Electrons
     m_electron_container = new xAOD::ElectronContainer();
-    xAOD::ElectronAuxContainer *electronAux = new xAOD::ElectronAuxContainer();
-    
-    // Get into egKey userfriendly key given by jobOptions property (if any)
-    // Expanding to have separate Electron / Photon keys
-    std::string electronKey="";
-    std::string electronContSGKey = "";
-    if (m_electronContainerAliasSuffix.size() > 0 ) {
-        electronKey = m_electronContainerAliasSuffix;
-        if(msgLvl() <= MSG::VERBOSE) 
-            msg() << MSG::VERBOSE << "REGTEST: electronKey for Electron container: " << electronKey << endreq;
-    }
-    
-    HLT::ErrorCode sc = getUniqueKey( m_electron_container, electronContSGKey, electronKey);
-    if (sc != HLT::OK) { 
-        msg() << MSG::DEBUG << "Could not retrieve the electron container key" << endreq;
-        return sc;                                                                       
-    } 
-
-    // Attach to TE and write to StoreGate (needed only for POOL persistency)
-    //3rd argument:  always will return the name used to store the container
-    //             if no empty as input will give this alias in SG to the container
-    //4th argument: will add customs' key to container name
-    
-    std::string electronContSGName = electronContSGKey; //if you put no empty string here you'll get an alias in SG
-    
-    if ( store()->record(m_electron_container, electronContSGKey).isFailure()) {
-        msg() << MSG::ERROR << "REGTEST: trigger ElectronContainer registration failed" << endreq;
-        delete electronAux;
-        delete eg_container;
-        return HLT::ERROR;
-    }
-    
-    if ( store()->record(eg_container, electronContSGKey+"EgammaRecContainer").isFailure()) {
-        msg() << MSG::ERROR << "REGTEST: trigger EgammaRecContainer registration failed" << endreq;
-        delete electronAux;
-        delete eg_container;
-        return HLT::ERROR;
-    }
-    if ( store()->record(electronAux,electronContSGKey + "Aux.").isFailure() ) {
-        msg() << MSG::ERROR << "REGTEST: trigger ElectronAuxContainer registration failed" << endreq;
-        delete electronAux;
-        delete eg_container;
-        return HLT::ERROR;
-    }
-    m_electron_container->setStore(electronAux);
+    xAOD::ElectronAuxContainer electronAux;
+    m_electron_container->setStore(&electronAux);
 
     // Photons
     m_photon_container = new xAOD::PhotonContainer();
-    xAOD::PhotonAuxContainer *photonAux = new xAOD::PhotonAuxContainer();
-
-    std::string photonKey = "";
-    std::string photonContSGKey = "";
-    if (m_photonContainerAliasSuffix.size() > 0 ) {
-        photonKey = m_photonContainerAliasSuffix;
-        if(msgLvl() <= MSG::VERBOSE) 
-            msg() << MSG::VERBOSE << "REGTEST: egKey for egamma container: " << photonKey << endreq;
-    }
-   
-    sc = getUniqueKey( m_photon_container, photonContSGKey, photonKey);
-    if (sc != HLT::OK) { 
-        msg() << MSG::DEBUG << "Could not retrieve the photon container key" << endreq;
-        return sc;                                                                       
-    } 
-
-
-    std::string photonContSGName = photonContSGKey; //if you put no empty string here you'll get an alias in SG
-    if ( store()->record(m_photon_container, photonContSGKey).isFailure()) {
-        msg() << MSG::ERROR << "REGTEST: trigger PhotonContainer registration failed" << endreq;
-        return HLT::ERROR;
-    }
-    if ( store()->record(photonAux, photonContSGKey + "Aux.").isFailure() ) {
-        msg() << MSG::ERROR << "REGTEST: trigger PhotonAuxContainer registration failed" << endreq;
-        delete photonAux;
-        return HLT::ERROR;
-    }
-    m_photon_container->setStore(photonAux);
+    xAOD::PhotonAuxContainer photonAux;
+    m_photon_container->setStore(&photonAux);
+    
     //***************************************************************************************************************
     // Retrieve from TE containers needed for tool execution, set corresponding flag to be used in execution
     //***************************************************************************************************************
@@ -699,6 +644,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     const CaloCellContainer* pCaloCellContainer = 0;
 
     // Get vector of pointers to all CaloCellContainers from TE
+    std::string clusCollKey="";
     std::vector<const CaloCellContainer*> vectorCellContainer;
 
     stat = getFeatures(inputTE, vectorCellContainer);
@@ -711,7 +657,12 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     } else{
         if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " REGTEST: Got " << vectorCellContainer.size()
             << " CaloCellContainers associated to the TE " << endreq;
-
+        
+        if ( getStoreGateKey( clusContainer, clusCollKey) != HLT::OK) {
+            ATH_MSG_ERROR("Failed to get key for ClusterContainer");
+        }
+        else ATH_MSG_DEBUG("Cluster Collection key in SG: " << clusCollKey);
+             
         // Check that there is only one CellContainer in the RoI
         if (vectorCellContainer.size() != 1){
             //m_showerBuilderToExec = false;
@@ -743,10 +694,10 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     // get pointer to TrackParticleContainer from the trigger element and set flag for execution
 
     const xAOD::TrackParticleContainer* pTrackParticleContainer = 0;
+    std::string TrkCollKey="";
     if (m_doTrackMatching){
         std::vector<const xAOD::TrackParticleContainer*> vectorTrackParticleContainer;
         stat = getFeatures(inputTE, vectorTrackParticleContainer);
-
         // in case a TrackParticleContainer is retrieved from the TE
         if (stat != HLT::OK) {
             m_doTrackMatching=false;
@@ -769,7 +720,11 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
                         << " REGTEST: Retrieval of TrackParticleContainer from vector failed"
                         << endreq;
                 }
-                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "m_doTrackMatching: " << m_doTrackMatching << endreq;
+                ATH_MSG_DEBUG("m_doTrackMatching: " << m_doTrackMatching);
+                if ( getStoreGateKey( pTrackParticleContainer, TrkCollKey) != HLT::OK) {
+                    ATH_MSG_ERROR("Failed to get key for TrackContainer");
+                }
+                else ATH_MSG_DEBUG("Track Collection key in SG: " << TrkCollKey);
             }                
         }
     }//m_trackMatching
@@ -817,7 +772,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         const std::vector< ElementLink<xAOD::CaloClusterContainer> > elClusters {clusterLink}; 
         egammaRec* egRec = new egammaRec(); 
         egRec->setCaloClusters( elClusters );
-        eg_container->push_back( egRec );
+        m_eg_container->push_back( egRec );
     } // End attaching clusters to egammaRec
     //
     // Conversions
@@ -826,7 +781,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     if(m_doConversions){
         ATH_MSG_DEBUG("REGTEST:: Run Conversion Builder for egContainer");
         if (timerSvc()) m_timerTool2->start(); //timer
-        for(auto egRec : *eg_container) {
+        for(auto egRec : *m_eg_container) {
             ATH_MSG_DEBUG( "REGTEST:: Running ConversionBuilder");
             if(m_conversionBuilder->hltExecute(egRec,pVxContainer).isFailure())
                 ATH_MSG_DEBUG("REGTEST: no Conversion");
@@ -837,7 +792,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     // Check for Track Match. 
     
     if(m_doTrackMatching){
-        for(auto egRec : *eg_container) {
+        for(auto egRec : *m_eg_container) {
             if (timerSvc()) m_timerTool1->start(); //timer
             if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG 
                 << "REGTEST:: Running TrackMatchBuilder" << endreq;
@@ -876,13 +831,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     } else{
         ATH_MSG_DEBUG(" REGTEST: Got VertexLinks from TE");
     }
-    // Decorators for aux data
-    // Calorimeter frame variables
-    static SG::AuxElement::Decorator<float> etaCalo ("etaCalo");
-    static SG::AuxElement::Decorator<float> phiCalo ("phiCalo");
-    double tmp_etaCalo=-999.;
-    double tmp_phiCalo=-999.;
-    for(const auto egRec : *eg_container){
+    for(const auto& egRec : *m_eg_container){
         // For now set author as Electron
         ATH_MSG_DEBUG("REGTEST:: Running AmbiguityTool");
         if (timerSvc()) m_timerTool3->start(); //timer
@@ -914,12 +863,6 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
                     ATH_MSG_DEBUG("REGTEST:: MVA      Cluster e,eta,phi " << clus->e() << " " <<  clus->eta() << " " << clus->phi());
                 }
 
-                bool isBarrel = xAOD::EgammaHelpers::isBarrel(clus);
-                CaloCell_ID::CaloSample sample = isBarrel ? CaloCell_ID::EMB2 : CaloCell_ID::EME2;
-                m_caloCellDetPos->getDetPosition(sample, clus->eta(), clus->phi0(), tmp_etaCalo, tmp_phiCalo); 
-                ATH_MSG_DEBUG("Decorate the CaloClusters with Calo-frame coords.");
-                etaCalo(*clus) = tmp_etaCalo;
-                phiCalo(*clus) = tmp_phiCalo;
                 ATH_MSG_DEBUG("Try to find ElementLink for CC with pT = " << clus->pt());
                 for(const auto cl_link : clusterLinks){
                     if(!cl_link.isValid()) continue;
@@ -999,13 +942,6 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
                     ATH_MSG_DEBUG("REGTEST:: Original Cluster e,eta,phi" << origClus->e() << " " <<  origClus->eta() << " " << origClus->phi());
                     ATH_MSG_DEBUG("REGTEST:: MVA      Cluster e,eta,phi" << clus->e() << " " <<  clus->eta() << " " << clus->phi());
                 }
-                ATH_MSG_DEBUG("Decorate the CaloClusters with Calo-frame coords.");
-                bool isBarrel = xAOD::EgammaHelpers::isBarrel(clus);
-                CaloCell_ID::CaloSample sample = isBarrel ? CaloCell_ID::EMB2 : CaloCell_ID::EME2;
-                m_caloCellDetPos->getDetPosition(sample, clus->eta(), clus->phi0(), tmp_etaCalo, tmp_phiCalo); 
-                ATH_MSG_DEBUG("Decorate the CaloClusters with Calo-frame coords.");
-                etaCalo(*clus) = tmp_etaCalo;
-                phiCalo(*clus) = tmp_phiCalo;
                 ATH_MSG_DEBUG("Try to find ElementLink for CC with pT = " << clus->pt());
                 for(const auto cl_link : clusterLinks){
                     if(!cl_link.isValid()) continue;
@@ -1125,6 +1061,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         if (timerSvc()) m_timerPIDTool2->start(); //timer
         if( m_electronCaloPIDBuilder->execute(eg)){
             ATH_MSG_DEBUG("Computed PID and dressed");
+            m_lhcaloval.push_back(eg->likelihoodValue("LHCaloValue"));
         }
         else ATH_MSG_DEBUG("Problem in electron PID");
         if (timerSvc()) m_timerPIDTool2->stop(); //timer
@@ -1208,59 +1145,21 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     }
 
     // attach electron container to the TE
-    stat = reAttachFeature( outputTE, m_electron_container, electronContSGName, electronKey);
-    if (stat != HLT::OK){
-        msg() << MSG::ERROR << "REGTEST: trigger xAOD::ElectronContainer attach to TE and record into StoreGate failed" << endreq;
-        return stat;
-    } else{
-        if(msgLvl() <= MSG::DEBUG) {
-            msg() << MSG::VERBOSE << "electronKey for electron container: " << electronKey << endreq;
-            msg() << MSG::DEBUG << "REGTEST: xAOD::ElectronContainer created and attached to TE: " << electronContSGName 
-                << " with alias: " << electronContSGKey
-                << endreq;
-        }
+    if (HLT::OK != attachFeature( outputTE, m_electron_container, m_electronContainerName) ){
+        ATH_MSG_ERROR("REGTEST: trigger xAOD::ElectronContainer attach to TE and record into StoreGate failed");
+        return HLT::NAV_ERROR;
+    } 
+    else{
+        ATH_MSG_DEBUG("REGTEST: xAOD::ElectronContainer created and attached to TE: " << m_electronContainerName); 
     }
 
-    // lock the electron collection
-    if ( (store()->setConst(m_electron_container)).isFailure() ) {
-        msg() << MSG::ERROR
-            << " REGTEST: cannot set m_electron_container to const "
-            << endreq;
-        return HLT::OK;
-    } else {
-        // debug message
-        if(msgLvl() <= MSG::VERBOSE) {
-           msg() << MSG::VERBOSE << "electron container locked with key: " << electronContSGName 
-                << " and address: " << m_electron_container << endreq;
-        }
-    }
-    
     // attach photon container to the TE
-    stat = reAttachFeature( outputTE, m_photon_container, photonContSGName, photonKey);
-    if (stat != HLT::OK){
-        msg() << MSG::ERROR << "REGTEST: trigger xAOD::PhotonContainer attach to TE and record into StoreGate failed" << endreq;
-        return stat;
-    } else{
-        if(msgLvl() <= MSG::DEBUG) {
-            msg() << MSG::VERBOSE << "photonKey for photon container: " << photonKey << endreq;
-            msg() << MSG::DEBUG << "REGTEST: xAOD::PhotonContainer created and attached to TE: " << photonContSGName 
-                << " with alias: " << photonContSGKey
-                << endreq;
-        }
-    }
-
-    // lock the photon collection
-    if ( (store()->setConst(m_photon_container)).isFailure() ) {
-        msg() << MSG::ERROR
-            << " REGTEST: cannot set m_photon_container to const "
-            << endreq;
-        return HLT::OK;
-    } else {
-        // debug message
-        if(msgLvl() <= MSG::VERBOSE) {
-           msg() << MSG::VERBOSE << "photon container locked with key: " << photonContSGName 
-                << " and address: " << m_photon_container << endreq;
-        }
+    if (HLT::OK != attachFeature( outputTE, m_photon_container, m_photonContainerName) ){
+        ATH_MSG_ERROR("REGTEST: trigger xAOD::PhotonContainer attach to TE and record into StoreGate failed");
+        return HLT::NAV_ERROR;
+    } 
+    else{
+        ATH_MSG_DEBUG("REGTEST: xAOD::PhotonContainer created and attached to TE: " << m_photonContainerName); 
     }
 
     ATH_MSG_DEBUG("HLTAlgo Execution of xAOD TrigEgammaRec completed successfully");
@@ -1285,12 +1184,18 @@ void TrigEgammaRec::PrintElectron(xAOD::Electron *eg){
     ATH_MSG_DEBUG("isEMTight bit " << std::hex << isEMbit); 
 
     ATH_MSG_DEBUG("LHValue " << eg->likelihoodValue("LHValue"));
+    ATH_MSG_DEBUG("LHCaloValue " << eg->likelihoodValue("LHCaloValue"));
 
     ATH_MSG_DEBUG("LHVLoose " << eg->passSelection("LHVLoose"));
     ATH_MSG_DEBUG("LHLoose " << eg->passSelection("LHLoose"));
     ATH_MSG_DEBUG("LHMedium " << eg->passSelection("LHMedium"));
     ATH_MSG_DEBUG("LHTight " << eg->passSelection("LHTight"));
 
+    ATH_MSG_DEBUG("LHCaloVLoose " << eg->passSelection("LHCaloVLoose"));
+    ATH_MSG_DEBUG("LHCaloLoose " << eg->passSelection("LHCaloLoose"));
+    ATH_MSG_DEBUG("LHCaloMedium " << eg->passSelection("LHCaloMedium"));
+    ATH_MSG_DEBUG("LHCaloTight " << eg->passSelection("LHCaloTight"));
+    
     ATH_MSG_DEBUG("isEMLHVLoose " << eg->selectionisEM(isEMbit,"isEMLHVLoose"));
     ATH_MSG_DEBUG("isEMLHVLoose bit " << std::hex << isEMbit); 
     ATH_MSG_DEBUG("isEMLHLoose " << eg->selectionisEM(isEMbit,"isEMLHLoose"));
@@ -1317,8 +1222,12 @@ void TrigEgammaRec::PrintElectron(xAOD::Electron *eg){
         msg() << MSG::DEBUG << " REGTEST: egamma cluster transverse energy: " << eg->caloCluster()->et() << endreq;
         msg() << MSG::DEBUG << " REGTEST: egamma cluster eta: " << eg->caloCluster()->eta() << endreq;
         msg() << MSG::DEBUG << " REGTEST: egamma cluster phi: " << eg->caloCluster()->phi() << endreq;
-        ATH_MSG_DEBUG(" REGTEST: egamma Calo-frame coords. etaCalo = " << eg->caloCluster()->auxdata<float>("etaCalo"));
-        ATH_MSG_DEBUG(" REGTEST: egamma Calo-frame coords. phiCalo = " << eg->caloCluster()->auxdata<float>("phiCalo"));
+        double tmpeta = -999.;
+        double tmpphi = -999.;
+        eg->caloCluster()->retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,tmpeta);
+        eg->caloCluster()->retrieveMoment(xAOD::CaloCluster::PHICALOFRAME,tmpphi); 
+        ATH_MSG_DEBUG(" REGTEST: egamma Calo-frame coords. etaCalo = " << tmpeta); 
+        ATH_MSG_DEBUG(" REGTEST: egamma Calo-frame coords. phiCalo = " << tmpphi);
     } else{
         msg() << MSG::DEBUG << " REGTEST: problems with egamma cluster pointer" << endreq;
     }
@@ -1387,8 +1296,12 @@ void TrigEgammaRec::PrintPhoton(xAOD::Photon *eg){
         msg() << MSG::DEBUG << " REGTEST: egamma cluster transverse energy: " << eg->caloCluster()->et() << endreq;
         msg() << MSG::DEBUG << " REGTEST: egamma cluster eta: " << eg->caloCluster()->eta() << endreq;
         msg() << MSG::DEBUG << " REGTEST: egamma cluster phi: " << eg->caloCluster()->phi() << endreq;
-        ATH_MSG_DEBUG(" REGTEST: egamma Calo-frame coords. etaCalo = " << eg->caloCluster()->auxdata<float>("etaCalo"));
-        ATH_MSG_DEBUG(" REGTEST: egamma Calo-frame coords. phiCalo = " << eg->caloCluster()->auxdata<float>("phiCalo"));
+        double tmpeta = -999.;
+        double tmpphi = -999.;
+        eg->caloCluster()->retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,tmpeta);
+        eg->caloCluster()->retrieveMoment(xAOD::CaloCluster::PHICALOFRAME,tmpphi); 
+        ATH_MSG_DEBUG(" REGTEST: egamma Calo-frame coords. etaCalo = " << tmpeta); 
+        ATH_MSG_DEBUG(" REGTEST: egamma Calo-frame coords. phiCalo = " << tmpphi); 
     } else{
         msg() << MSG::DEBUG << " REGTEST: problems with egamma cluster pointer" << endreq;
     }
