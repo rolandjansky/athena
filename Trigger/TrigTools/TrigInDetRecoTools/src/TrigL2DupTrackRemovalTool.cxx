@@ -8,7 +8,6 @@
 //#include "GaudiKernel/PropertyMgr.h"
 //#include "GaudiKernel/MsgStream.h"
 //#include "GaudiKernel/IssueSeverity.h"
-//#include "StoreGate/StoreGateSvc.h"
 
 //#include "AthenaKernel/Timeout.h"
 
@@ -45,7 +44,7 @@
 
 
 TrigL2DupTrackRemovalTool::TrigL2DupTrackRemovalTool(const std::string& t, const std::string& n, const IInterface*  p ): 
-  AlgTool(t,n,p)
+  AthAlgTool(t,n,p)
 {
   declareInterface< ITrigL2DupTrackRemovalTool >( this ); 
   
@@ -60,7 +59,7 @@ TrigL2DupTrackRemovalTool::~TrigL2DupTrackRemovalTool() {
 
 StatusCode TrigL2DupTrackRemovalTool::initialize()
 {
-  StatusCode sc = AlgTool::initialize();
+  StatusCode sc = AthAlgTool::initialize();
   MsgStream athenaLog(msgSvc(), name());
 
   athenaLog << MSG::INFO << "TrigL2DupTrackRemovalTool initialized "<< endreq;
@@ -70,7 +69,7 @@ StatusCode TrigL2DupTrackRemovalTool::initialize()
 
 StatusCode TrigL2DupTrackRemovalTool::finalize() {
 
-  StatusCode sc = AlgTool::finalize(); 
+  StatusCode sc = AthAlgTool::finalize(); 
 
   //athenaLog << MSG::INFO << "TrigL2DupTrackRemovalTool finalized "<< endreq;
   return sc;

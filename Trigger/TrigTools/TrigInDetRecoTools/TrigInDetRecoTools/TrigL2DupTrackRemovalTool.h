@@ -11,7 +11,7 @@
 //#include "TrigSteeringEvent/Enums.h"
 #include "TrigInDetRecoTools/ITrigL2DupTrackRemovalTool.h"
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -39,7 +39,7 @@ class ITrigHitFilter;*/
 //#include "EventInfo/EventID.h"
 
   
-class TrigL2DupTrackRemovalTool: public AlgTool, virtual public ITrigL2DupTrackRemovalTool { 
+class TrigL2DupTrackRemovalTool: public AthAlgTool, virtual public ITrigL2DupTrackRemovalTool { 
   
  public: 
   TrigL2DupTrackRemovalTool(const std::string&, const std::string&, const IInterface* );

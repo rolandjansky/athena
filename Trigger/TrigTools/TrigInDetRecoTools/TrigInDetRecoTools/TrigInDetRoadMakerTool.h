@@ -9,7 +9,7 @@
 #include "TrigInDetToolInterfaces/ITrigL2LayerNumberTool.h"
 #include "TrigInDetToolInterfaces/ITrigInDetRoadMakerTool.h"
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -17,7 +17,7 @@ class IRoiDescriptor;
 class IRegSelSvc;
 
   
-class TrigInDetRoadMakerTool: public AlgTool, virtual public ITrigInDetRoadMakerTool { 
+class TrigInDetRoadMakerTool: public AthAlgTool, virtual public ITrigInDetRoadMakerTool { 
   
  public: 
 

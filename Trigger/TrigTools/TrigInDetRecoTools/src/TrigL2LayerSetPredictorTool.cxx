@@ -4,7 +4,6 @@
 
 #include <cmath>
 #include <iostream>
-#include "StoreGate/StoreGateSvc.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/PixelID.h"
 
@@ -18,7 +17,7 @@
 TrigL2LayerSetPredictorTool::TrigL2LayerSetPredictorTool(const std::string& t, 
 							 const std::string& n,
 							 const IInterface*  p ): 
-  AlgTool(t,n,p),
+  AthAlgTool(t,n,p),
   //m_regionSelector("RegSelSvc", n), 
   m_numberingTool("TrigL2LayerNumberTool"),
   m_pLUT(NULL) {
@@ -33,14 +32,9 @@ TrigL2LayerSetPredictorTool::TrigL2LayerSetPredictorTool(const std::string& t,
 
 StatusCode TrigL2LayerSetPredictorTool::initialize() {
 
-  StatusCode sc = AlgTool::initialize();
+  StatusCode sc = AthAlgTool::initialize();
   MsgStream athenaLog(msgSvc(), name());
 
-  sc = service("DetectorStore", m_detectorStore);
-  if(sc.isFailure()) {
-    athenaLog << MSG::FATAL << "unable to locate Detector Store"<<endreq;
-    return sc;
-  }
   sc=m_numberingTool.retrieve(); 
 
   if(sc.isFailure()) {
@@ -55,28 +49,28 @@ StatusCode TrigL2LayerSetPredictorTool::initialize() {
   }
   */
   //Get ID helpers
-  if (m_detectorStore->retrieve(m_idHelper, "AtlasID").isFailure()) {
+  if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
     athenaLog << MSG::FATAL << "Could not get AtlasDetectorID helper AtlasID"<<endreq;
     return StatusCode::FAILURE;
   }
   
-  if (m_detectorStore->retrieve(m_pixelId, "PixelID").isFailure()) {
+  if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) {
     athenaLog << MSG::FATAL << "Could not get Pixel ID helper"<<endreq;
     return StatusCode::FAILURE;
   }
   
-  if (m_detectorStore->retrieve(m_sctId, "SCT_ID").isFailure()) { 
+  if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) { 
     athenaLog << MSG::FATAL << "Could not get Pixel ID helper"<<endreq;
     return StatusCode::FAILURE;
   }
 
-  sc = m_detectorStore->retrieve(m_pixelManager);  
+  sc = detStore()->retrieve(m_pixelManager);  
   if( sc.isFailure() ) {
     athenaLog << MSG::FATAL << "Could not retrieve Pixel DetectorManager from detStore."<<endreq; 
     return sc;
   }
 
-  sc = m_detectorStore->retrieve(m_SCT_Manager);
+  sc = detStore()->retrieve(m_SCT_Manager);
   if( sc.isFailure() ) {
     athenaLog << MSG::ERROR << "Could not retrieve SCT DetectorManager from detStore." << endreq;
     return sc;
@@ -89,7 +83,7 @@ StatusCode TrigL2LayerSetPredictorTool::initialize() {
 
 StatusCode TrigL2LayerSetPredictorTool::finalize() {
 
-  StatusCode sc = AlgTool::finalize(); 
+  StatusCode sc = AthAlgTool::finalize(); 
   delete m_pLUT;
   return sc;
 }

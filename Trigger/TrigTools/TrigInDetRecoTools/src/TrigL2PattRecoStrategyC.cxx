@@ -20,7 +20,6 @@
 #include <cmath>
 #include <iostream>
 #include <list>
-#include "StoreGate/StoreGateSvc.h" 
 //#include "GaudiKernel/ToolFactory.h"
 //#include "StoreGate/DataHandle.h"
 
@@ -64,7 +63,7 @@
 TrigL2PattRecoStrategyC::TrigL2PattRecoStrategyC(const std::string& t, 
 						 const std::string& n,
 						 const IInterface*  p ): 
-  AlgTool(t,n,p),
+  AthAlgTool(t,n,p),
 
   m_useZvertexTool(true),
   m_nfreeCut(5)         ,
@@ -90,7 +89,7 @@ TrigL2PattRecoStrategyC::TrigL2PattRecoStrategyC(const std::string& t,
 
 StatusCode TrigL2PattRecoStrategyC::initialize()
 {
-  StatusCode sc = AlgTool::initialize();
+  StatusCode sc = AthAlgTool::initialize();
   MsgStream athenaLog(msgSvc(), name());
 
   // Get tool for space points seed maker
@@ -135,41 +134,26 @@ StatusCode TrigL2PattRecoStrategyC::initialize()
     return sc;
   }
 
-  sc = service( "StoreGateSvc", m_StoreGate );
-  if (sc.isFailure()) {
-    athenaLog << MSG::FATAL 
-	      << "Unable to retrieve StoreGate service" << endreq;
-    return sc;
-  }
-
-  // Get DetectorStore service
-  StoreGateSvc * detStore;
-  sc = service("DetectorStore",detStore);
-  if (sc.isFailure()) {
-    athenaLog << MSG::FATAL << "DetectorStore service not found !" << endreq;
-    return StatusCode::FAILURE;
-  } 
-
   // Get SCT & pixel Identifier helpers
 
-  if (detStore->retrieve(m_pixelId, "PixelID").isFailure()) { 
+  if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) { 
      athenaLog << MSG::FATAL << "Could not get Pixel ID helper" << endreq;
      return StatusCode::FAILURE;
   }  
 
-  if (detStore->retrieve(m_sctId, "SCT_ID").isFailure()) {
+  if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) {
     athenaLog << MSG::FATAL << "Could not get SCT ID helper" << endreq;
     return StatusCode::FAILURE;  
   }
   // register the IdentifiableContainers into StoreGate 
   // ------------------------------------------------------ 
   
-  if( !m_StoreGate->transientContains<SpacePointContainer>(m_pixelSpacePointsName)){ 
+  if( !evtStore()->transientContains<SpacePointContainer>(m_pixelSpacePointsName)){ 
   
     m_pixelSpacePointsContainer = new SpacePointContainer(m_pixelId->wafer_hash_max());  
     m_pixelSpacePointsContainer->addRef();  //preventing SG from deleting object: 
 
-     if (m_StoreGate->record(m_pixelSpacePointsContainer, m_pixelSpacePointsName).isFailure()) { 
+     if (evtStore()->record(m_pixelSpacePointsContainer, m_pixelSpacePointsName).isFailure()) { 
        athenaLog << MSG::WARNING << " Container " << m_pixelSpacePointsName
              << " could not be recorded in StoreGate !" << endreq; 
      }  
@@ -179,7 +163,7 @@ StatusCode TrigL2PattRecoStrategyC::initialize()
      } 
   }
   else {     
-    sc = m_StoreGate->retrieve(m_pixelSpacePointsContainer, m_pixelSpacePointsName); 
+    sc = evtStore()->retrieve(m_pixelSpacePointsContainer, m_pixelSpacePointsName); 
     if (sc.isFailure()) { 
       athenaLog << MSG::ERROR << "Failed to get Pixel space point Container" << endreq; 
       return sc; 
@@ -191,11 +175,11 @@ StatusCode TrigL2PattRecoStrategyC::initialize()
     } 
   }
   
-  if( !m_StoreGate->transientContains<SpacePointContainer>(m_sctSpacePointsName)){ 
+  if( !evtStore()->transientContains<SpacePointContainer>(m_sctSpacePointsName)){ 
     m_sctSpacePointsContainer = new SpacePointContainer(m_sctId->wafer_hash_max());  
     m_sctSpacePointsContainer->addRef();  //preventing SG from deleting object: 
 
-    if (m_StoreGate->record(m_sctSpacePointsContainer, m_sctSpacePointsName).isFailure()) { 
+    if (evtStore()->record(m_sctSpacePointsContainer, m_sctSpacePointsName).isFailure()) { 
        athenaLog << MSG::WARNING << " Container " << m_sctSpacePointsName
 		 << " could not be recorded in StoreGate !" << endreq; 
     }  
@@ -205,7 +189,7 @@ StatusCode TrigL2PattRecoStrategyC::initialize()
     } 
   }
   else {     
-    sc = m_StoreGate->retrieve(m_sctSpacePointsContainer, m_sctSpacePointsName); 
+    sc = evtStore()->retrieve(m_sctSpacePointsContainer, m_sctSpacePointsName); 
     if (sc.isFailure()) { 
       athenaLog << MSG::ERROR << "Failed to get SCT space point Container" << endreq; 
       return sc; 
@@ -255,7 +239,7 @@ StatusCode TrigL2PattRecoStrategyC::finalize() {
   m_pixelSpacePointsContainer->cleanup();
   m_pixelSpacePointsContainer->release();
 
-  StatusCode sc = AlgTool::finalize(); 
+  StatusCode sc = AthAlgTool::finalize(); 
   return sc;
 }
 
@@ -672,10 +656,10 @@ MsgStream athenaLog(msgSvc(), name());
   
   StatusCode sc(StatusCode::SUCCESS);
 
-  if( !m_StoreGate->transientContains<SpacePointContainer>(m_pixelSpacePointsName)){   
+  if( !evtStore()->transientContains<SpacePointContainer>(m_pixelSpacePointsName)){   
     m_pixelSpacePointsContainer->cleanup();
 
-     if (m_StoreGate->record(m_pixelSpacePointsContainer, m_pixelSpacePointsName).isFailure()) { 
+     if (evtStore()->record(m_pixelSpacePointsContainer, m_pixelSpacePointsName).isFailure()) { 
        athenaLog << MSG::WARNING << " Container " << m_pixelSpacePointsName
              << " could not be recorded in StoreGate !" << endreq; 
      }  
@@ -687,7 +671,7 @@ MsgStream athenaLog(msgSvc(), name());
      } 
   }
   else {     
-    sc = m_StoreGate->retrieve(m_pixelSpacePointsContainer, m_pixelSpacePointsName); 
+    sc = evtStore()->retrieve(m_pixelSpacePointsContainer, m_pixelSpacePointsName); 
     if (sc.isFailure()) { 
       athenaLog << MSG::ERROR << "Failed to get Pixel space point Container" << endreq; 
       return sc; 
@@ -700,11 +684,11 @@ MsgStream athenaLog(msgSvc(), name());
     } 
   }
   
-  if( !m_StoreGate->transientContains<SpacePointContainer>(m_sctSpacePointsName)){ 
+  if( !evtStore()->transientContains<SpacePointContainer>(m_sctSpacePointsName)){ 
 
     m_sctSpacePointsContainer->cleanup();
 
-    if (m_StoreGate->record(m_sctSpacePointsContainer, m_sctSpacePointsName).isFailure()) { 
+    if (evtStore()->record(m_sctSpacePointsContainer, m_sctSpacePointsName).isFailure()) { 
        athenaLog << MSG::WARNING << " Container " << m_sctSpacePointsName
 		 << " could not be recorded in StoreGate !" << endreq; 
     }  
@@ -716,7 +700,7 @@ MsgStream athenaLog(msgSvc(), name());
     } 
   }
   else {     
-    sc = m_StoreGate->retrieve(m_sctSpacePointsContainer, m_sctSpacePointsName); 
+    sc = evtStore()->retrieve(m_sctSpacePointsContainer, m_sctSpacePointsName); 
     if (sc.isFailure()) { 
       athenaLog << MSG::ERROR << "Failed to get SCT space point Container" << endreq; 
       return sc; 
@@ -729,7 +713,7 @@ MsgStream athenaLog(msgSvc(), name());
     } 
   }
  
-  sc = m_StoreGate->retrieve(m_pixelOnlineSpacePointsContainer, m_pixelOnlineSpacePointsName); 
+  sc = evtStore()->retrieve(m_pixelOnlineSpacePointsContainer, m_pixelOnlineSpacePointsName); 
   if (sc.isFailure()) { 
     athenaLog << MSG::ERROR << "Failed to get Pixel SpacePoints Container " <<m_pixelOnlineSpacePointsName<< endreq; 
     return sc; 
@@ -741,7 +725,7 @@ MsgStream athenaLog(msgSvc(), name());
     */
   } 
 
-  sc = m_StoreGate->retrieve(m_sctOnlineSpacePointsContainer, m_sctOnlineSpacePointsName); 
+  sc = evtStore()->retrieve(m_sctOnlineSpacePointsContainer, m_sctOnlineSpacePointsName); 
   if (sc.isFailure()) { 
     athenaLog << MSG::ERROR << "Failed to get SCT SpacePoints Container " <<m_sctOnlineSpacePointsName<< endreq; 
     return sc; 

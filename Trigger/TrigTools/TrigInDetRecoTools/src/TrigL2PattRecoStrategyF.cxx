@@ -20,9 +20,7 @@
 #include <cmath>
 #include <iostream>
 #include <list>
-#include "StoreGate/StoreGateSvc.h" 
 //#include "GaudiKernel/ToolFactory.h"
-//#include "StoreGate/DataHandle.h"
 
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
@@ -50,7 +48,7 @@
 TrigL2PattRecoStrategyF::TrigL2PattRecoStrategyF(const std::string& t, 
 						 const std::string& n,
 						 const IInterface*  p ): 
-  AlgTool(t,n,p),
+  AthAlgTool(t,n,p),
 
   m_regionSelector("RegSelSvc", n),
   m_ftkTracksName ("FTK_LVL2_Tracks"), 
@@ -66,7 +64,7 @@ TrigL2PattRecoStrategyF::TrigL2PattRecoStrategyF(const std::string& t,
 
 StatusCode TrigL2PattRecoStrategyF::initialize()
 {
-  StatusCode sc = AlgTool::initialize();
+  StatusCode sc = AthAlgTool::initialize();
   MsgStream athenaLog(msgSvc(), name());
 
   sc = m_regionSelector.retrieve();
@@ -75,29 +73,14 @@ StatusCode TrigL2PattRecoStrategyF::initialize()
     return sc;
   }
 
-  sc = service( "StoreGateSvc", m_StoreGate );
-  if (sc.isFailure()) {
-    athenaLog << MSG::FATAL 
-	      << "Unable to retrieve StoreGate service" << endreq;
-    return sc;
-  }
-
-  // Get DetectorStore service
-  StoreGateSvc * detStore;
-  sc = service("DetectorStore",detStore);
-  if (sc.isFailure()) {
-    athenaLog << MSG::FATAL << "DetectorStore service not found !" << endreq;
-    return StatusCode::FAILURE;
-  } 
-
   // Get SCT & pixel Identifier helpers
 
-  if (detStore->retrieve(m_pixelId, "PixelID").isFailure()) { 
+  if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) { 
      athenaLog << MSG::FATAL << "Could not get Pixel ID helper" << endreq;
      return StatusCode::FAILURE;
   }  
 
-  if (detStore->retrieve(m_sctId, "SCT_ID").isFailure()) {
+  if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) {
     athenaLog << MSG::FATAL << "Could not get SCT ID helper" << endreq;
     return StatusCode::FAILURE;  
   }
@@ -122,7 +105,7 @@ StatusCode TrigL2PattRecoStrategyF::initialize()
 
 StatusCode TrigL2PattRecoStrategyF::finalize() {
 
-  StatusCode sc = AlgTool::finalize(); 
+  StatusCode sc = AthAlgTool::finalize(); 
   return sc;
 }
 
@@ -320,13 +303,13 @@ StatusCode TrigL2PattRecoStrategyF::retrieveIDC() {
 
   int outputLevel = msgSvc()->outputLevel( name() );
 
-  if( !m_StoreGate->transientContains<TrigInDetTrackCollection>(m_ftkTracksName)){  
+  if( !evtStore()->transientContains<TrigInDetTrackCollection>(m_ftkTracksName)){  
     if (outputLevel <= MSG::DEBUG) 
       athenaLog<< MSG::DEBUG<< " FTK tracks  " << m_ftkTracksName << " not found in StoreGate !" << endreq;
     return sc;
   }  
   else { 
-    sc = m_StoreGate->retrieve(m_ftkTracksContainer, m_ftkTracksName); 
+    sc = evtStore()->retrieve(m_ftkTracksContainer, m_ftkTracksName); 
     if (sc.isFailure()) { 
       athenaLog << MSG::ERROR << "Failed to get FTK Tracks Container" << endreq; 
       return sc; 

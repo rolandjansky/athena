@@ -13,7 +13,7 @@
 #include "InDetRecToolInterfaces/ITRT_TrackSegmentsMaker.h"
 #include "TrigInDetToolInterfaces/ITrigTRT_DriftCircleProvider.h"
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -47,7 +47,7 @@ namespace InDet {
 #include "InDetPrepRawData/TRT_DriftCircleContainer.h"
 //#include "InDetPrepRawData/TRT_DriftCircleCollection.h"
 
-class TrigL2PattRecoStrategyT: public AlgTool, virtual public ITrigL2SeededPattRecoStrategy { 
+class TrigL2PattRecoStrategyT: public AthAlgTool, virtual public ITrigL2SeededPattRecoStrategy { 
   
  public: 
   TrigL2PattRecoStrategyT(const std::string&, const std::string&, const IInterface* );

@@ -11,7 +11,7 @@
 #include "TrigInDetRecoTools/ITrigL2PattRecoStrategy.h"
 #include "TrigInDetRecoTools/StrBTrack.h"
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -25,7 +25,7 @@ class IRegSelSvc;
 
 
   
-class TrigL2PattRecoStrategyB: public AlgTool, virtual public ITrigL2PattRecoStrategy { 
+class TrigL2PattRecoStrategyB: public AthAlgTool, virtual public ITrigL2PattRecoStrategy { 
   
  public: 
   TrigL2PattRecoStrategyB(const std::string&, const std::string&, const IInterface* );

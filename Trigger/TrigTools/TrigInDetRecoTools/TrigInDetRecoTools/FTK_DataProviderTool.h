@@ -11,7 +11,7 @@
 //#include "GaudiKernel/IAlgTool.h"
 #include "TrigInDetToolInterfaces/IFTK_DataProviderTool.h"
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 //#include "GaudiKernel/ToolHandle.h"
 //#include "GaudiKernel/ServiceHandle.h"
 
@@ -23,7 +23,7 @@ class IRoiDescriptor;
 class TrigFTK_TrackSeed;
 
 
-class FTK_DataProviderTool: public AlgTool, virtual public IFTK_DataProviderTool { 
+class FTK_DataProviderTool: public AthAlgTool, virtual public IFTK_DataProviderTool { 
   
 public: 
   

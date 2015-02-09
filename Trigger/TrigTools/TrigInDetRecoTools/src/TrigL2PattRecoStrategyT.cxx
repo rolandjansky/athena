@@ -20,9 +20,7 @@
 #include <cmath>
 #include <iostream>
 #include <list>
-#include "StoreGate/StoreGateSvc.h" 
 //#include "GaudiKernel/ToolFactory.h"
-//#include "StoreGate/DataHandle.h"
 
 #include "TrigInDetEvent/TrigInDetTrack.h"
 #include "TrigInDetEvent/TrigInDetTrackCollection.h"
@@ -71,7 +69,7 @@
 TrigL2PattRecoStrategyT::TrigL2PattRecoStrategyT(const std::string& t, 
 						 const std::string& n,
 						 const IInterface*  p ): 
-  AlgTool(t,n,p),
+  AthAlgTool(t,n,p),
 
   m_nfreeCut(5),
   m_minTrtHits(10),
@@ -96,7 +94,7 @@ TrigL2PattRecoStrategyT::TrigL2PattRecoStrategyT(const std::string& t,
 
 StatusCode TrigL2PattRecoStrategyT::initialize()
 {
-  StatusCode sc = AlgTool::initialize();
+  StatusCode sc = AthAlgTool::initialize();
   MsgStream athenaLog(msgSvc(), name());
 
   // Get track-finding tool
@@ -112,13 +110,6 @@ StatusCode TrigL2PattRecoStrategyT::initialize()
   sc = m_regionSelector.retrieve();
   if ( sc.isFailure() ) {
     athenaLog << MSG::FATAL<< "Unable to retrieve RegionSelector tool "<< m_regionSelector.type() << endreq;
-    return sc;
-  }
-
-  sc = service( "StoreGateSvc", m_StoreGate );
-  if (sc.isFailure()) {
-    athenaLog << MSG::FATAL 
-	      << "Unable to retrieve StoreGate service" << endreq;
     return sc;
   }
 
@@ -140,22 +131,14 @@ StatusCode TrigL2PattRecoStrategyT::initialize()
     return sc;
   }
 
-  // Get DetectorStore service
-  StoreGateSvc * detStore;
-  sc = service("DetectorStore",detStore);
-  if (sc.isFailure()) {
-    athenaLog << MSG::FATAL << "DetectorStore service not found !" << endreq;
-    return StatusCode::FAILURE;
-  } 
-
   // Get SCT & pixel Identifier helpers
 
-  if (detStore->retrieve(m_pixelId, "PixelID").isFailure()) { 
+  if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) { 
      athenaLog << MSG::FATAL << "Could not get Pixel ID helper" << endreq;
      return StatusCode::FAILURE;
   }  
 
-  if (detStore->retrieve(m_sctId, "SCT_ID").isFailure()) {
+  if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) {
     athenaLog << MSG::FATAL << "Could not get SCT ID helper" << endreq;
     return StatusCode::FAILURE;  
   }
@@ -200,7 +183,7 @@ StatusCode TrigL2PattRecoStrategyT::finalize() {
   m_filteredDriftCircleContainer->cleanup();
   m_filteredDriftCircleContainer->release();
 
-  StatusCode sc = AlgTool::finalize(); 
+  StatusCode sc = AthAlgTool::finalize(); 
   return sc;
 }
 
@@ -706,9 +689,9 @@ StatusCode TrigL2PattRecoStrategyT::getFilteredTRT_Hits(const TrigInDetTrackColl
   //1. Collect used TRT hits
 
   m_filteredDriftCircleContainer->cleanup();
-  if(!m_StoreGate->contains<InDet::TRT_DriftCircleContainer>(m_trtFilteredContName))
+  if(!evtStore()->contains<InDet::TRT_DriftCircleContainer>(m_trtFilteredContName))
     {
-      StatusCode sc=m_StoreGate->record(m_filteredDriftCircleContainer,m_trtFilteredContName,false);
+      StatusCode sc=evtStore()->record(m_filteredDriftCircleContainer,m_trtFilteredContName,false);
       if(sc.isFailure())
 	{
 	  athenaLog << MSG::WARNING << "TRT DriftCircleContainer " << m_trtFilteredContName <<
@@ -780,7 +763,7 @@ StatusCode TrigL2PattRecoStrategyT::getFilteredTRT_Hits(const TrigInDetTrackColl
   // 3. Retrieve IDC
 
   const InDet::TRT_DriftCircleContainer* trtContainer;
-  sc=m_StoreGate->retrieve(trtContainer,m_trtDataProvider->trtContainerName());
+  sc=evtStore()->retrieve(trtContainer,m_trtDataProvider->trtContainerName());
   if(sc.isFailure())
     {
       athenaLog<<MSG::WARNING<<"TRT DriftCircle container is not found: name "
@@ -855,9 +838,9 @@ StatusCode TrigL2PattRecoStrategyT::getFilteredTRT_Hits(const TrigInDetTrackColl
   //1. Collect used TRT hits
 
   m_filteredDriftCircleContainer->cleanup();
-  if(!m_StoreGate->contains<InDet::TRT_DriftCircleContainer>(m_trtFilteredContName))
+  if(!evtStore()->contains<InDet::TRT_DriftCircleContainer>(m_trtFilteredContName))
     {
-      StatusCode sc=m_StoreGate->record(m_filteredDriftCircleContainer,m_trtFilteredContName,false);
+      StatusCode sc=evtStore()->record(m_filteredDriftCircleContainer,m_trtFilteredContName,false);
       if(sc.isFailure())
 	{
 	  athenaLog << MSG::WARNING << "TRT DriftCircleContainer " << m_trtFilteredContName <<
@@ -928,7 +911,7 @@ StatusCode TrigL2PattRecoStrategyT::getFilteredTRT_Hits(const TrigInDetTrackColl
   // 3. Retrieve IDC
 
   const InDet::TRT_DriftCircleContainer* trtContainer;
-  sc=m_StoreGate->retrieve(trtContainer,m_trtDataProvider->trtContainerName());
+  sc=evtStore()->retrieve(trtContainer,m_trtDataProvider->trtContainerName());
   if(sc.isFailure())
     {
       athenaLog<<MSG::WARNING<<"TRT DriftCircle container is not found: name "
@@ -996,7 +979,7 @@ StatusCode TrigL2PattRecoStrategyT::getIDCs() {
   
   StatusCode sc(StatusCode::SUCCESS);
 
-  sc = m_StoreGate->retrieve(m_pixelOnlineSpacePointsContainer, m_pixelOnlineSpacePointsName); 
+  sc = evtStore()->retrieve(m_pixelOnlineSpacePointsContainer, m_pixelOnlineSpacePointsName); 
   if (sc.isFailure()) { 
     athenaLog << MSG::ERROR << "Failed to get Pixel SpacePoints Container " <<m_pixelOnlineSpacePointsName<< endreq; 
     return sc; 
@@ -1008,7 +991,7 @@ StatusCode TrigL2PattRecoStrategyT::getIDCs() {
     */
   } 
 
-  sc = m_StoreGate->retrieve(m_sctOnlineSpacePointsContainer, m_sctOnlineSpacePointsName); 
+  sc = evtStore()->retrieve(m_sctOnlineSpacePointsContainer, m_sctOnlineSpacePointsName); 
   if (sc.isFailure()) { 
     athenaLog << MSG::ERROR << "Failed to get SCT SpacePoints Container " <<m_sctOnlineSpacePointsName<< endreq; 
     return sc; 

@@ -7,7 +7,7 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "TrigInDetRecoTools/ITrigL2LayerSetPredictorTool.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 //#include "GaudiKernel/ServiceHandle.h"
 
@@ -47,7 +47,7 @@ private:
 LayerImpactPoint() : m_layerId(-100), m_L(0.0){};
 } LAYER_IMPACT_POINT;
 
-class TrigL2LayerSetPredictorTool: public AlgTool, virtual public ITrigL2LayerSetPredictorTool { 
+class TrigL2LayerSetPredictorTool: public AthAlgTool, virtual public ITrigL2LayerSetPredictorTool { 
   
  public: 
   TrigL2LayerSetPredictorTool(const std::string&, const std::string&, const IInterface* );
@@ -69,7 +69,6 @@ class TrigL2LayerSetPredictorTool: public AlgTool, virtual public ITrigL2LayerSe
   const PixelID* m_pixelId;
   const SCT_ID* m_sctId;
   const AtlasDetectorID* m_idHelper;
-  StoreGateSvc*  m_detectorStore;
   const InDetDD::PixelDetectorManager* m_pixelManager;
   const InDetDD::SCT_DetectorManager* m_SCT_Manager;
 };
