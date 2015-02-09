@@ -27,6 +27,9 @@
 #include "../TrigEFMultiMuFex.h"
 #include "../TrigEFTrkMassFex.h"
 
+#include "../TrigBphysL1DiMuComboFex.h"
+
+
 //DECLARE_ALGORITHM_FACTORY( TrigL2DiMuXHypo )
 //DECLARE_ALGORITHM_FACTORY( TrigL2DiMuXFex )
 DECLARE_ALGORITHM_FACTORY( TrigL2BMuMuXHypo )
@@ -52,6 +55,7 @@ DECLARE_TOOL_FACTORY( TrigBphysHelperUtilsTool )
 DECLARE_ALGORITHM_FACTORY( TrigEFBMuMuFex   )
 DECLARE_ALGORITHM_FACTORY( TrigEFMultiMuFex )
 DECLARE_ALGORITHM_FACTORY( TrigEFTrkMassFex )
+DECLARE_ALGORITHM_FACTORY( TrigBphysL1DiMuComboFex )
 
 
 DECLARE_FACTORY_ENTRIES( TrigBphysHypo ) {
@@ -80,5 +84,7 @@ DECLARE_FACTORY_ENTRIES( TrigBphysHypo ) {
     DECLARE_ALGORITHM( TrigEFBMuMuFex   )
     DECLARE_ALGORITHM( TrigEFMultiMuFex )
     DECLARE_ALGORITHM( TrigEFTrkMassFex )
+    DECLARE_ALGORITHM( TrigBphysL1DiMuComboFeX )
+
 }
 

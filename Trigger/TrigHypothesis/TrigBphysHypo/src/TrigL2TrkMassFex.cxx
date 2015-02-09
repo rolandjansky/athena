@@ -52,12 +52,15 @@ TrigL2TrkMassFex::TrigL2TrkMassFex(const std::string & name, ISvcLocator* pSvcLo
   m_vertexingTool("TrigVertexingTool",this)
 /*------------------------------------------------------------------------------------*/
 {
-
+    
   // Read properties - boolean switches
   declareProperty("AcceptAll"     , m_acceptAll      = false);
   declareProperty("OppositeCharge", m_oppositeCharge = true );
   declareProperty("doVertexFit"   , m_doVertexFit    = true );
 
+    // Input list of tracks for second leg
+    declareProperty("TrackCollection",m_input_trackCollectionKey="InDetTrigTrackingxAODCnv_Bphysics_FTF");
+    
   // Read properties - cuts
   declareProperty("MatchL1"     , m_matchL1    = false );
   declareProperty("MuonPTthr"   , m_muonPtthr    = 4000 );
@@ -360,7 +363,33 @@ HLT::ErrorCode TrigL2TrkMassFex::hltExecute(const HLT::TriggerElement*, HLT::Tri
 
     std::vector<const xAOD::TrackParticleContainer*> vectorOfTrackCollections;
 
-  HLT::ErrorCode status = getFeatures(outputTE, vectorOfTrackCollections);
+    //    typedef  ElementLinkVector<xAOD::TrackParticleContainer> ELVTrackParticles;
+    //    ELVTrackParticles elvtps;
+    //
+    //    if(getFeaturesLinks<xAOD::TrackParticleContainer,xAOD::TrackParticleContainer>(outputTE, elvtps,m_input_trackCollectionKey)!=HLT::OK ) {
+    //        if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to get TrackParticleContainers feature, exiting" << endreq;
+    //        if ( timerSvc() ) m_TotTimer->stop();
+    //        mon_Errors.push_back( ERROR_No_TrackColl );
+    //        return HLT::MISSING_FEATURE; // was HLT::OK
+    //    }
+    //
+    //    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found TrackParticleContainer, size: " << elvtps.size() << endreq;
+    //    if(msgLvl() <= MSG::DEBUG) { // print debug
+    //        for ( const auto eltp: elvtps) {
+    //            if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "ELLink: "
+    //                << " index: "  << eltp.index()
+    //                << " sgkey: "  << eltp.dataID()
+    //                << " hashkey: "<< eltp.key()
+    //                << " valid: "  << eltp.isValid()
+    //                << " ptr: "    << (eltp.isValid() ? *eltp : nullptr)
+    //                << endreq;
+    //        }
+    //        
+    //    } // if debug
+
+    
+    
+  HLT::ErrorCode status = getFeatures(outputTE, vectorOfTrackCollections,m_input_trackCollectionKey);
 
   // Were the track-collections read out ?
   if ( status != HLT::OK ) {
