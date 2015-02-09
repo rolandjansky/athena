@@ -1,9 +1,9 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
-from AthenaCommon.Logging import logging  # loads logger
+from AthenaCommon.Logging import logging
 from AthenaCommon.Include import include
-from AthenaCommon.GlobalFlags import GlobalFlags
+from AthenaCommon.GlobalFlags import globalflags
 from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
 
 from AthenaCommon.AppMgr import ServiceMgr, ToolSvc, theApp
@@ -28,48 +28,26 @@ def  EDMDecodingVersion():
     from RecExConfig.AutoConfiguration import ConfigureInputType
     #ConfigureInputType()
     from RecExConfig.InputFilePeeker import inputFileSummary
-    print  inputFileSummary
     
-
-    inputIsPool = False
-    from AthenaCommon.GlobalFlags import globalflags
-    inputFormat = globalflags.InputFormat()
-    if inputFormat.__contains__('pool'):
-        #for BS search for 'bytestream'
-        inputIsPool = True
-        pass
-    
- 
-    if inputIsPool is False:
-        log.info("FPP This is a ByteStream file")
-        # BYTESTREAM: decide Run1/Run1 based on Run number
+    if globalflags.InputFormat.is_bytestream():
+        # BYTESTREAM: decide Run1/Run2 based on Run number
         from RecExConfig.AutoConfiguration  import GetRunNumber
         runNumber = GetRunNumber()
-
-        from AthenaCommon import CfgMgr
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
         #Run1 data
         if runNumber > 0 and runNumber < 230000 :            
             TriggerFlags.EDMDecodingVersion = 1
-            log.info("FPP decoding version set to 1, because running on BS file from Run1")
+            log.info("decoding version set to 1, because running on BS file from Run1")
             pass
     else:
         #Pool files
-        log.info("FPP This is a pool file")
         from RecExConfig.ObjKeyStore import cfgKeyStore
         ItemDic=inputFileSummary.get("eventdata_itemsDic")
         ItemList=inputFileSummary.get('eventdata_itemsList')
 
-        print ItemDic
-        print "FPP"
-        print ItemList
-        
-
-            
         if cfgKeyStore.isInInputFile( "HLTResult", "HLTResult_EF" ):          
             TriggerFlags.EDMDecodingVersion = 1
-            log.info("FPP decoding version set to 1, because HLTResult_EF found in pool file")
+            log.info("Decoding version set to 1, because HLTResult_EF found in pool file")
         elif cfgKeyStore.isInInputFile( "HLTResult", "HLTResult_HLT"):          
             TriggerFlags.EDMDecodingVersion = 2
         else:
@@ -106,7 +84,7 @@ def  EDMDecodingVersion():
     # ESD/AOD files:
     
 
-    log.info("FPP EDMDecoding set to %s"%TriggerFlags.EDMDecodingVersion )
+    log.info("EDMDecoding set to %s"%TriggerFlags.EDMDecodingVersion )
   
     return  True
         
@@ -124,7 +102,7 @@ class xAODConversionGetter(Configured):
         
         from TrigNavigation.TrigNavigationConfig import HLTNavigationOffline
         xaodconverter.Navigation = HLTNavigationOffline()
-        #FPP
+
         from TrigEDMConfig.TriggerEDM import getPreregistrationList,getL2PreregistrationList,getEFPreregistrationList#,getHLTPreregistrationList
         xaodconverter.Navigation.ClassesToPreregister = getPreregistrationList(TriggerFlags.EDMDecodingVersion())
         ## if TriggerFlags.EDMDecodingVersion() == 2:
@@ -205,7 +183,7 @@ class ByteStreamUnpackGetter(Configured):
         from AthenaCommon.AppMgr import ToolSvc
         ToolSvc += TrigSerToolTP
         from TrigEDMConfig.TriggerEDM import getTPList
-        TrigSerToolTP.TPMap = getTPList((TriggerFlags.EDMDecodingVersion())) #FPP
+        TrigSerToolTP.TPMap = getTPList((TriggerFlags.EDMDecodingVersion()))
         
         from TrigSerializeCnvSvc.TrigSerializeCnvSvcConf import TrigSerializeConvHelper
         TrigSerializeConvHelper = TrigSerializeConvHelper(doTP = True)
@@ -354,10 +332,8 @@ class HLTTriggerResultGetter(Configured):
 
         log.info("AOD content set according to the AODEDMSet flag: %s and EDM version %d" % (TriggerFlags.AODEDMSet(),TriggerFlags.EDMDecodingVersion()) )
 
-        log.info("FPP ESD list is:")
-        print _TriggerESDList
-        log.info("FPP AOD list is:")
-        print _TriggerAODList
+        log.debug("ESD EDM list: %s", _TriggerESDList)
+        log.debug("AOD EDM list: %s", _TriggerAODList)
         
         # Highlight what is in AOD list but not in ESD list, as this can cause
         # the "different number of entries in branch" problem, when it is in the
