@@ -217,14 +217,14 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
 
     }
 
-    // begin COF iteration for amplitude greater than 15 ADC
+    // begin COF iteration for amplitude greater than 100 ADC
     int n = 7;
     HepMatrix A(n, n, 0);
     int t;
     double signalModel[7];
     bool goodEne;
-    t_ch = phase;
-    for (int it=0;it<4;it++){
+    t_ch = -phase;
+    for (int it=0;it<5;it++){
 
             const TileOfcWeightsStruct* m_weights;
             m_weights = m_tileCondToolOfcCool->getOfcWeights(drawerIdx, channel, gain, -t_ch, true);
@@ -381,7 +381,8 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
               }
             }
 
-            if ((cof[3] < 15) || (t_ch < -15 || t_ch > 15)) break;
+            // condition for amplitude and time correction
+            if ((cof[3] < 15) || (t_ch < -25 || t_ch > 25)) break;
             
     } //end of COF iteration
 
@@ -413,7 +414,7 @@ TileRawChannel* TileRawChannelBuilderMF::rawChannel(const TileDigits* tiledigits
       double dqf = (signalModel[k] - (digits[k] - ped_ch));
       MFchi2 += dqf * dqf;
     }
-    chisq_ch = sqrt(MFchi2 / 7);
+    chisq_ch = sqrt(MFchi2);
 
     if (fabs(chisq_ch) > 1.0e-04 || goodEne) {
       if (msgLvl(MSG::VERBOSE)) {
