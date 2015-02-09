@@ -38,10 +38,12 @@ import os
 try:
    # try to touch ROOT5-only attribute
    cppyy.Cintex.Debug
+   _root5 = True
 except AttributeError:
    # ROOT 6
    from PyUtils.Helpers import ROOT6Setup
    ROOT6Setup()
+   _root5 = False
 
 # Turn off annoying dict auto-generation --- it doesn't work anyway.
 ROOT.gInterpreter.ProcessLine(".autodict")
@@ -55,7 +57,7 @@ cppyy.loadDictionary('libAtlasSTLAddReflexDict')
 # Otherwise, we can get crashes from TTree::Scan.
 
 def _loadStreamerInfo(cname):
-    if hasattr(ROOT,cname): ROOT.gROOT.GetClass(cname).GetStreamerInfo()
+    if _root5 and hasattr(ROOT,cname): ROOT.gROOT.GetClass(cname).GetStreamerInfo()
 _loadStreamerInfo('Analysis::TauCommonDetails')
 _loadStreamerInfo('JetINav4MomAssociation')
 _loadStreamerInfo('Analysis::BaseTagInfo')
@@ -1023,13 +1025,9 @@ ROOT.RootConversions.VectorConverters.initialize()
 cppyy.loadDictionary('libDataModelAthenaPool')
 ROOT.DataModelAthenaPool.CLHEPConverters
 ROOT.DataModelAthenaPool.installPackedContainerConverters()
-if hasattr(ROOT, 'CaloEnergyCnv_p2'):
-    ROOT.CaloEnergyCnv_p2 # side-effect: loads the right dict + lib
-    try:
-        ROOT.caloenergy_cnv_p2_register_streamer()
-        ROOT.CaloEnergyCnv_p2.registerStreamerConverter = ROOT.caloenergy_cnv_p2_register_streamer
-    except AttributeError: #bwd compat
-        ROOT.CaloEnergyCnv_p2.registerStreamerConverter()
+if hasattr(ROOT, 'CaloEnergy_p2'):
+    ROOT.CaloEnergy_p2 # side-effect: loads the right dict + lib
+    ROOT.caloenergy_cnv_p2_register_streamer()
 
 ROOT.TConvertingBranchElement.SetDoDel (True)
 

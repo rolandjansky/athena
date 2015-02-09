@@ -12,7 +12,6 @@
 
 #include "AthenaROOTAccess/TTreeTrans.h"
 #include "AthenaROOTAccess/ProxyMap.h"
-#include "AthAllocators/ArenaHeaderGaudiClear.h"
 #include "AthLinks/tools/SGgetDataSource.h"
 #include "AthLinks/tools/DataProxyHolder.h"
 #include "PersistentDataModel/Token.h"
@@ -140,9 +139,6 @@ TTreeTrans::TTreeTrans (TTree* pers_tree,
   // Register the data source function with SG.
   SG::getDataSourcePointerFunc = getRootTreeDataSourcePointer;
   SG::DataProxyHolder::resetCachedSource();
-
-  // Tell the memory pool code not to use Gaudi.
-  SG::ArenaHeaderGaudiClear::disable();
 
   // Set up to clean up proxies on the persistent tree when it gets deleted.
   m_pers_tree->GetUserInfo()->Add (new TreeCleaner (m_pers_tree) );

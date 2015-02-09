@@ -174,6 +174,8 @@ _typedefs = {'AthenaHitsVector<TrackRecord>' : 'TrackRecordCollection',
              'DataVector<xAOD::L2CombinedMuon_v1>':'xAOD::L2CombinedMuonContainer',
              'DataVector<xAOD::TrackParticleClusterAssociation_v1>' : 'xAOD::TrackParticleClusterAssociationContainer_v1',
              'DataVector<xAOD::TrackParticleClusterAssociation_v1>' : 'xAOD::TrackParticleClusterAssociationContainer',
+             'DataVector<xAOD::L2IsoMuon_v1>' : 'xAOD::L2IsoMuonContainer_v1',
+             'DataVector<xAOD::L2IsoMuon_v1>' : 'xAOD::L2IsoMuonContainer',
              
              'xAOD::MissingETContainer_v1'    : 'xAOD::MissingETContainer',
              'xAOD::MissingETComponentMap_v1' : 'xAOD::MissingETComponentMap',
