@@ -41,7 +41,7 @@ void CscSimDataCollectionCnv_p1::transToPers(const CscSimDataCollection* transCo
    log << MSG::DEBUG << " Preparing " << persCol->m_cscsimdata.size() << " Collections" << endreq;
 
    for(int collIdx=0; it_Coll != it_CollEnd; it_Coll++, collIdx++){
-      (persCol->m_cscsimdata[collIdx]).first = (*it_Coll).first.get_compact();
+      (persCol->m_cscsimdata[collIdx]).first = (*it_Coll).first.get_identifier32().get_compact();
       const CscSimData &transsimData = (*it_Coll).second;
       Muon::CscSimData_p1 &perssimData = persCol->m_cscsimdata[collIdx].second;
       m_cscsimdataCnv.transToPers(&transsimData, &perssimData, log);

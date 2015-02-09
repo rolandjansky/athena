@@ -32,11 +32,4 @@ class ChamberT0sCnv_p1
 };
 
 
-template<>
-class T_TPCnv<Muon::ChamberT0s, Muon::ChamberT0s_p1>
- : public ChamberT0sCnv_p1
-{
-};
-
-
 #endif

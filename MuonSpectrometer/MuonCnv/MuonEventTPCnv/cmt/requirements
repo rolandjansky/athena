@@ -59,7 +59,6 @@ use AtlasReflex        AtlasReflex-*        External -no_auto_imports
 # file: <package>Dict.h which includes all other .h files. See EventInfoDict
 apply_pattern lcgdict dict=MuonEventTPCnv  selectionfile=selection.xml headerfiles="../MuonEventTPCnv/MuonEventTPCnvDict.h"
 apply_pattern lcgdict dict=OLD_MuonEventTPCnv  selectionfile=OLD_selection.xml headerfiles="../MuonEventTPCnv/OLD_MuonEventTPCnvDict.h"
-apply_pattern lcgdict dict=ARA_MuonEventTPCnv  selectionfile=ARA_selection.xml headerfiles="../MuonEventTPCnv/ARA_MuonEventTPCnvDict.h"
 
 #private
 # macro cppdebugflags '$(cppdebugflags_s)'
