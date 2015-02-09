@@ -21,7 +21,6 @@
 #include <list>
 #include <algorithm>
 #include <iterator>
-#include "StoreGate/StoreGateSvc.h" 
 //#include "GaudiKernel/ToolFactory.h"
 
 #include "TrigInDetEvent/TrigInDetTrack.h"
@@ -52,7 +51,7 @@ StrBTrack* TrigL2PattRecoStrategyB::m_full_trks=0;
 
 
 TrigL2PattRecoStrategyB::TrigL2PattRecoStrategyB(const std::string& t, const std::string& n, const IInterface* p) : 
-  AlgTool(t,n,p),
+  AthAlgTool(t,n,p),
   m_regionSelector("RegSelSvc", n),
   m_numberingTool("TrigL2LayerNumberTool")
 {
@@ -149,7 +148,7 @@ TrigL2PattRecoStrategyB::TrigL2PattRecoStrategyB(const std::string& t, const std
 
 StatusCode TrigL2PattRecoStrategyB::initialize() {
 
-  StatusCode sc = AlgTool::initialize();
+  StatusCode sc = AthAlgTool::initialize();
   MsgStream athenaLog(msgSvc(), name());
   int outputLevel = msgSvc()->outputLevel( name() );
 
@@ -524,7 +523,7 @@ StatusCode TrigL2PattRecoStrategyB::finalize() {
   delete [] m_geoR; delete [] m_geoRmin; delete [] m_geoRmax;
   delete [] m_geoZ; delete [] m_geoZmin; delete [] m_geoZmax;
 
-  StatusCode sc = AlgTool::finalize(); 
+  StatusCode sc = AthAlgTool::finalize(); 
   return sc;
 }
 

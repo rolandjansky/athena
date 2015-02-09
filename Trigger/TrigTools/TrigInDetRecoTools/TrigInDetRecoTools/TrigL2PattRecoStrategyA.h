@@ -11,7 +11,7 @@
 #include "TrigSteeringEvent/Enums.h"
 #include "TrigInDetRecoTools/ITrigL2PattRecoStrategy.h"
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -27,7 +27,7 @@ class EventID;
 //#include "EventInfo/EventID.h"
 
   
-class TrigL2PattRecoStrategyA: public AlgTool, virtual public ITrigL2PattRecoStrategy { 
+class TrigL2PattRecoStrategyA: public AthAlgTool, virtual public ITrigL2PattRecoStrategy { 
   
  public: 
   TrigL2PattRecoStrategyA(const std::string&, const std::string&, const IInterface* );

@@ -4,7 +4,6 @@
 
 #include <bitset>
 #include "TrigInDetRecoTools/FTK_DataProviderTool.h"
-#include "StoreGate/StoreGateSvc.h" 
 #include "TrkParameters/TrackParameters.h"
 //#include "TrkParameters/Perigee.h"
 //#include "TrkParameters/MeasuredPerigee.h"
@@ -14,9 +13,8 @@
 
 
 FTK_DataProviderTool::FTK_DataProviderTool(const std::string& t, const std::string& n, const IInterface* p) : 
-  AlgTool(t,n,p),
+  AthAlgTool(t,n,p),
   m_ftkTracksName("FTK_Trk_Tracks"),
-  m_StoreGate(0),
   m_ftkTrackContainer(0)
 {
 
@@ -36,14 +34,8 @@ FTK_DataProviderTool::~FTK_DataProviderTool()
 StatusCode FTK_DataProviderTool::initialize() 
 {
 
-  StatusCode sc = AlgTool::initialize();
+  StatusCode sc = AthAlgTool::initialize();
   MsgStream athenaLog(msgSvc(), name());
-
-  sc = service( "StoreGateSvc", m_StoreGate );
-  if (sc.isFailure()) {
-    athenaLog << MSG::FATAL << "Unable to retrieve StoreGate service" << endreq;
-    return sc;
-  }
 
   athenaLog << MSG::INFO << "FTK_DataProviderTool initialized" << endreq;
 
@@ -56,7 +48,7 @@ StatusCode FTK_DataProviderTool::initialize()
 StatusCode FTK_DataProviderTool::finalize() 
 {
 
-  StatusCode sc = AlgTool::finalize(); 
+  StatusCode sc = AthAlgTool::finalize(); 
 
   return sc;
 
@@ -424,12 +416,12 @@ StatusCode FTK_DataProviderTool::getTrackCollection()
 
   m_ftkTrackContainer = nullptr;
 
-  if (!m_StoreGate->transientContains<TrackCollection>(m_ftkTracksName)) {  
+  if (!evtStore()->transientContains<TrackCollection>(m_ftkTracksName)) {  
     athenaLog << MSG::WARNING << " FTK tracks  " << m_ftkTracksName << " not found in StoreGate !" << endreq;
     return sc;
   }  
   else { 
-    sc = m_StoreGate->retrieve(m_ftkTrackContainer, m_ftkTracksName); 
+    sc = evtStore()->retrieve(m_ftkTrackContainer, m_ftkTracksName); 
     if (sc.isFailure()) { 
       athenaLog << MSG::ERROR << "Failed to get FTK Tracks Container" << endreq; 
       return sc; 

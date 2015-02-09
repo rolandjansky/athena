@@ -11,7 +11,7 @@
 #include "TrigSteeringEvent/Enums.h"
 #include "TrigInDetRecoTools/ITrigL2PattRecoStrategy.h"
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -44,7 +44,7 @@ namespace InDet {
   class ISiTrackMaker; 
 }  
   
-class TrigL2PattRecoStrategyC: public AlgTool, virtual public ITrigL2PattRecoStrategy { 
+class TrigL2PattRecoStrategyC: public AthAlgTool, virtual public ITrigL2PattRecoStrategy { 
   
  public: 
   TrigL2PattRecoStrategyC(const std::string&, const std::string&, const IInterface* );

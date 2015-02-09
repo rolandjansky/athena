@@ -19,7 +19,6 @@
 #include <cmath>
 //#include <iostream>
 //#include <list>
-#include "StoreGate/StoreGateSvc.h" 
 //#include "GaudiKernel/ToolFactory.h"
 //#include "StoreGate/DataHandle.h"
 #include "AthenaKernel/Timeout.h"
@@ -46,7 +45,7 @@
 TrigL2PattRecoStrategyA::TrigL2PattRecoStrategyA(const std::string& t, 
 						 const std::string& n,
 						 const IInterface*  p ): 
-  AlgTool(t,n,p),
+  AthAlgTool(t,n,p),
   m_regionSelector("RegSelSvc", n),
   m_zFinder("IDScanZFinder",this),
   m_findMultipleZ(false),
@@ -72,15 +71,8 @@ TrigL2PattRecoStrategyA::TrigL2PattRecoStrategyA(const std::string& t,
 
 StatusCode TrigL2PattRecoStrategyA::initialize()
 {
-  StatusCode sc = AlgTool::initialize();
+  StatusCode sc = AthAlgTool::initialize();
   MsgStream athenaLog(msgSvc(), name());
-
-  sc = service( "StoreGateSvc", m_StoreGate );
-  if (sc.isFailure()) {
-    athenaLog << MSG::FATAL 
-	      << "Unable to retrieve StoreGate service" << endreq;
-    return sc;
-  }
 
   if ( m_adjustLayerThreshold ) { 
     athenaLog << MSG::INFO << "will adjust layer threshold depending on disabled modules" << endreq;
@@ -101,7 +93,7 @@ StatusCode TrigL2PattRecoStrategyA::initialize()
   /*  
   if(m_detector_mask_not_checked) {
     const EventInfo* pEventInfo(0);
-    if ( m_StoreGate->retrieve(pEventInfo).isFailure() ) {
+    if ( evtStore()->retrieve(pEventInfo).isFailure() ) {
       athenaLog << MSG::FATAL << "Failed to get EventInfo for detector mask info in BeginRun()" << endreq;
       return StatusCode::FAILURE;
     }
@@ -170,7 +162,7 @@ StatusCode TrigL2PattRecoStrategyA::initialize()
 
 StatusCode TrigL2PattRecoStrategyA::finalize() {
 
-  StatusCode sc = AlgTool::finalize(); 
+  StatusCode sc = AthAlgTool::finalize(); 
   return sc;
 }
 
@@ -218,7 +210,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyA::findTracks(const std::vector<const TrigS
 
   if ( m_timers ) m_ZFinderTimer->start();
   if ( m_zFinderMode == 1 ){ // true Z
-    if ( m_StoreGate->retrieve(zTrueVertexColl, m_TrueVertexLocation).isFailure() ) {
+    if ( evtStore()->retrieve(zTrueVertexColl, m_TrueVertexLocation).isFailure() ) {
       if (outputLevel <= MSG::DEBUG) athenaLog << MSG::DEBUG << "Failed to get trueZvCollection" << endreq; 
       m_nZvertices = 0;
     } 
@@ -272,7 +264,7 @@ HLT::ErrorCode TrigL2PattRecoStrategyA::findTracks(const std::vector<const TrigS
   const EventInfo* pEventInfo;
   unsigned int IdRun=0;
   unsigned int IdEvent=0;
-  if ( m_StoreGate->retrieve(pEventInfo).isFailure() ) {
+  if ( evtStore()->retrieve(pEventInfo).isFailure() ) {
     if(m_detector_mask_not_checked && m_detector_mask_on_event) {
       athenaLog << MSG::ERROR << "Could not find EventInfo object for detector mask info" << endreq;
       return HLT::SG_ERROR;

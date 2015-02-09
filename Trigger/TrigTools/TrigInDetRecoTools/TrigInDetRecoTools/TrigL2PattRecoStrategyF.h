@@ -11,7 +11,7 @@
 #include "TrigSteeringEvent/Enums.h"
 #include "TrigInDetRecoTools/ITrigL2PattRecoStrategy.h"
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -37,7 +37,7 @@ class PixelID;
 class TrigTimer; 
 //class IRegSelSvc;
   
-class TrigL2PattRecoStrategyF: public AlgTool, virtual public ITrigL2PattRecoStrategy { 
+class TrigL2PattRecoStrategyF: public AthAlgTool, virtual public ITrigL2PattRecoStrategy { 
   
  public: 
   TrigL2PattRecoStrategyF(const std::string&, const std::string&, const IInterface* );

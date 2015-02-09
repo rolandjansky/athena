@@ -5,7 +5,6 @@
 #include <cmath>
 #include <iostream>
 #include <list>
-//#include "StoreGate/StoreGateSvc.h" 
 //#include "GaudiKernel/ToolFactory.h"
 #include "IRegionSelector/IRoiDescriptor.h"
 //#include "InDetIdentifier/PixelID.h" 
@@ -17,7 +16,7 @@
 
 
 TrigInDetRoadMakerTool::TrigInDetRoadMakerTool(const std::string& t, const std::string& n, const IInterface* p) : 
-  AlgTool(t,n,p),
+  AthAlgTool(t,n,p),
   m_numberingTool("TrigL2LayerNumberTool"),
   m_regionSelector("RegSelSvc", n)
 {
@@ -55,7 +54,7 @@ TrigInDetRoadMakerTool::~TrigInDetRoadMakerTool() {
 
 StatusCode TrigInDetRoadMakerTool::initialize() {
 
-  StatusCode sc = AlgTool::initialize();
+  StatusCode sc = AthAlgTool::initialize();
   MsgStream athenaLog(msgSvc(), name());
   //int outputLevel = msgSvc()->outputLevel( name() );
 
@@ -75,7 +74,7 @@ StatusCode TrigInDetRoadMakerTool::initialize() {
 
 StatusCode TrigInDetRoadMakerTool::finalize() {
 
-  StatusCode sc = AlgTool::finalize(); 
+  StatusCode sc = AthAlgTool::finalize(); 
   return sc;
 
 }
