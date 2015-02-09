@@ -6,16 +6,10 @@
 ##  from RecExConfig.RecFlags  import jobproperties
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
-
-
 from AthenaCommon.Logging import logging
-
-
-
 from AthenaCommon.AppMgr import ServiceMgr
 
 log = logging.getLogger( "T0TriggerGetter.py" )
-
 
 try:
     from TriggerMenu import useNewTriggerMenu
@@ -50,6 +44,9 @@ class T0TriggerGetter(Configured):
             log.info("configuration already done, who is calling it again?")
             return True
         self._done=True
+
+        # make sure we write the full AOD EDM
+        TriggerFlags.AODEDMSet = "AODFULL"
         
         # setup configuration services
         from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter

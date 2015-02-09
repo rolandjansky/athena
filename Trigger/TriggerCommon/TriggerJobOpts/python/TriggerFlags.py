@@ -365,7 +365,7 @@ class AODEDMSet(JobProperty):
     """ Define which sets of object go to AOD """
     statusOn=True
     allowedType=['list']
-    StoredValue='AODFULL'
+    StoredValue='AODSLIM'
 
 _flags.append(AODEDMSet)
 
