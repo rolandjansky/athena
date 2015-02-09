@@ -9,6 +9,7 @@ from AthenaCommon.SystemOfUnits import GeV
 thresholdsStartSequence = {
     '0GeV'   : 0,
     '15GeV'  : 15,
+    '30GeV'  : 30,
     '35GeV'  : 35,
 }
 
@@ -17,7 +18,8 @@ thresholdsBtagging = {
     '10GeV'  : 10,
     '15GeV'  : 15,
     '25GeV'  : 25,
-    '35GeV'  : 35,
+    '30GeV'  : 30,
+    '35GeV'  : 35,    
     '45GeV'  : 45,
     '50GeV'  : 50,
     '55GeV'  : 55,

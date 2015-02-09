@@ -29,9 +29,12 @@ TrigBjetTrackInfo::TrigBjetTrackInfo() :
   m_ez0(0.),
   m_d0Corr (0.),
   m_z0Corr (0.),
+  m_dummyPix(0), m_dummySct(0),
   m_pixHits(0.),
   m_sctHits(0.),
-  m_siHits (0.)
+  m_siHits (0.),
+  m_chi2(0.0),
+  m_Blayer(0)
 {}
 
 #ifndef VALIDATION_TOOL
@@ -46,9 +49,12 @@ TrigBjetTrackInfo::TrigBjetTrackInfo(const TrigInDetTrack*& track) :
   m_ez0 (track->param()->ez0()),
   m_d0Corr (-1),
   m_z0Corr (-1),
+  m_dummyPix(0), m_dummySct(0),
   m_pixHits(-1),
   m_sctHits(-1),
-  m_siHits (track->NPixelSpacePoints()+track->NSCT_SpacePoints())
+  m_siHits (track->NPixelSpacePoints()+track->NSCT_SpacePoints()),
+  m_chi2(0.0),
+  m_Blayer(0)
 {}
 
 TrigBjetTrackInfo::TrigBjetTrackInfo(const xAOD::TrackParticle*& track) :
@@ -63,7 +69,11 @@ TrigBjetTrackInfo::TrigBjetTrackInfo(const xAOD::TrackParticle*& track) :
   m_z0Corr (-1),
   m_dummyPix( track->summaryValue( m_pixHits, xAOD::numberOfPixelHits) ),
   m_dummySct( track->summaryValue( m_sctHits, xAOD::numberOfSCTHits  ) ),
-  m_siHits (m_pixHits+m_sctHits)
+  m_pixHits(-1),
+  m_sctHits(-1),
+  m_siHits (m_pixHits+m_sctHits),
+  m_chi2(0.0),
+  m_Blayer(0)
 {}
 
 #endif

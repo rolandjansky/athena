@@ -292,10 +292,10 @@ HLT::ErrorCode TrigLeptonJetFexAllTE::hltFinalize() {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-bool TrigLeptonJetFexAllTE::reset() {
+HLT::ErrorCode TrigLeptonJetFexAllTE::hltEndEvent() {
 
-  if ( !AllTEAlgo::reset() ) return false;
-  AllTEAlgo::reset();
+  if ( !AllTEAlgo::hltEndEvent() ) return false;
+  AllTEAlgo::hltEndEvent();
 
   return true;
 }

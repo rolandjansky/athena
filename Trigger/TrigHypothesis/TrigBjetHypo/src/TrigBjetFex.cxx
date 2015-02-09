@@ -561,8 +561,8 @@ HLT::ErrorCode TrigBjetFex::getSecVtxInfo(const Trk::VxSecVertexInfoContainer*& 
           // const Trk::RecVertex& PrmVrt = PrmVtxCand->recVertex();
           //This is probably wrong, but I have no idea what to put
 	  // KL - this line crashes - reverting to what was in -19 tag
-          //pPrmVrt = PrmVtxCand;
-	  const xAOD::Vertex& pPrmVrt = *PrmVtxCand; 
+          pPrmVrt = PrmVtxCand;
+	  //const xAOD::Vertex& pPrmVrt = *PrmVtxCand; 
           //       pPrmVrt = &PrmVrt;
           //prmVtxFound = true; // UNUSED
         }
@@ -649,8 +649,8 @@ HLT::ErrorCode TrigBjetFex::getSecVtxInfo(const Trk::VxSecVertexInfoContainer*& 
       }
 
       //Clean up if I created a vertex object earlier which is not pointer to collection
-      if(m_histoPrmVtxAtEF && pPrmVrt)
-        delete pPrmVrt;
+      //if(m_histoPrmVtxAtEF && pPrmVrt)
+      //  delete pPrmVrt;
     } 
   }
 
@@ -877,6 +877,7 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
     double etajet = aJet->p4().Eta();
 
     msg() << MSG::DEBUG << "et  " << etjet << " and eta " << etajet << endreq;
+
   }
 
   // -----------------------------------
@@ -944,11 +945,14 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
   // -----------------------------------
   //HLT::ErrorCode status = getFeature(outputTE, pointerToEFTrackCollections, "");
   HLT::ErrorCode status = getFeature(outputTE, pointerToEFTrackCollections);
+
   if (status != HLT::OK) {
     msg() << MSG::DEBUG << "No HLT track collection retrieved" << endreq;
   } 
   else if (msgLvl() <= MSG::DEBUG)
     msg() << MSG::DEBUG << "HLT track collection retrieved" << endreq;
+
+  std::cout << "GOOSEY: BjetFex: Size of track container = " << m_taggerHelper->getTrackNumber(pointerToEFTrackCollections) << std::endl;
 
   // -----------------------------------
   // Get secondary vertex collection 
