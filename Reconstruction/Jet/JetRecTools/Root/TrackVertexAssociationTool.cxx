@@ -63,7 +63,7 @@ int TrackVertexAssociationTool::execute() const {
   }
 
   // Build the TVA
-  const jet::TrackVertexAssociation* tva;
+  jet::TrackVertexAssociation* tva;
   
   if(m_tvaTool.empty() )
     tva = buildTrackVertexAssociation_custom(trackContainer,vertexContainer);
@@ -91,7 +91,7 @@ int TrackVertexAssociationTool::execute() const {
 
 
 //////////////////////////////////////////////////////////////
-const jet::TrackVertexAssociation* TrackVertexAssociationTool::buildTrackVertexAssociation_withTool(const xAOD::TrackParticleContainer* trackContainer, const xAOD::VertexContainer* vertexContainer) const
+jet::TrackVertexAssociation* TrackVertexAssociationTool::buildTrackVertexAssociation_withTool(const xAOD::TrackParticleContainer* trackContainer, const xAOD::VertexContainer* vertexContainer) const
 {
 
   ATH_MSG_DEBUG("Building track-vertex association USING InDet tool. trk size="<< trackContainer->size() 
@@ -112,7 +112,7 @@ const jet::TrackVertexAssociation* TrackVertexAssociationTool::buildTrackVertexA
 }
 
 //////////////////////////////////////////////////////////////
-const jet::TrackVertexAssociation* TrackVertexAssociationTool::buildTrackVertexAssociation_custom(const xAOD::TrackParticleContainer* trackContainer, const xAOD::VertexContainer* vertexContainer) const
+jet::TrackVertexAssociation* TrackVertexAssociationTool::buildTrackVertexAssociation_custom(const xAOD::TrackParticleContainer* trackContainer, const xAOD::VertexContainer* vertexContainer) const
 {
   ATH_MSG_DEBUG("Building track-vertex association trk size="<< trackContainer->size() 
                 << "  vtx size="<< vertexContainer->size());
@@ -122,47 +122,47 @@ const jet::TrackVertexAssociation* TrackVertexAssociationTool::buildTrackVertexA
   for (size_t iTrack = 0; iTrack < trackContainer->size(); ++iTrack)
     {
       const xAOD::TrackParticle* track = trackContainer->at(iTrack);
+      
+      // Apply track transverse distance cut
+      const float transverseDistance = track->d0();//perigeeParameters().parameters()[Trk::d0];
+      if (transverseDistance > m_transDistMax) continue;
+        
+      
+      // Get track longitudinal distance offset
+      const float longitudinalDistance = track->z0()+track->vz();
+      
+      double sinTheta = std::sin(track->theta());
 
-        // Apply track transverse distance cut
-        const float transverseDistance = track->perigeeParameters().parameters()[Trk::d0];
-        if (transverseDistance > m_transDistMax)
+      // For each track, find the vertex with highest sum pt^2 within z0 cut
+      size_t matchedIndex = 0;
+      bool foundMatch = false;
+      for (size_t iVertex = 0; iVertex < vertexContainer->size(); ++iVertex)
+        {
+          const xAOD::Vertex* vertex = vertexContainer->at(iVertex);
+            
+          double deltaz = longitudinalDistance - vertex->z();
+
+          // Check longitudinal distance between track and vertex
+          if ( fabs(deltaz)  > m_longDistMax)
             continue;
 
-        // Get track longitudinal distance offset
-        const float longitudinalDistance = track->z0()+track->vz();
+          // Check z0*sinThetha between track and vertex
+          if (fabs(deltaz*sinTheta) > m_maxZ0SinTheta)
+            continue;
 
-        double sinTheta = std::sin(track->theta());
-
-        // For each track, find the vertex with highest sum pt^2 within z0 cut
-        size_t matchedIndex = 0;
-        bool foundMatch = false;
-        for (size_t iVertex = 0; iVertex < vertexContainer->size(); ++iVertex)
-          {
-            const xAOD::Vertex* vertex = vertexContainer->at(iVertex);
-            
-            double deltaz = longitudinalDistance - vertex->z();
-
-            // Check longitudinal distance between track and vertex
-            if ( fabs(deltaz)  > m_longDistMax)
-                continue;
-
-            // Check z0*sinThetha between track and vertex
-            if (fabs(deltaz*sinTheta) > m_maxZ0SinTheta)
-                continue;
-
-            // If it passed the cuts, then this is the vertex we want
-            // This does make the assumption that the container is sorted in sum pT^2 order
-            foundMatch = true;
-            matchedIndex = iVertex;
-            break;
+          // If it passed the cuts, then this is the vertex we want
+          // This does make the assumption that the container is sorted in sum pT^2 order
+          foundMatch = true;
+          matchedIndex = iVertex;
+          break;
         }
 
-        // If we matched a vertex, then associate that vertex to the track
-        if (foundMatch)
-            tva->associate(trackContainer->at(iTrack),vertexContainer->at(matchedIndex));
+      // If we matched a vertex, then associate that vertex to the track
+      if (foundMatch)
+        tva->associate(trackContainer->at(iTrack),vertexContainer->at(matchedIndex));
     }
 
 
-    // Return the TVA object
-    return tva;
+  // Return the TVA object
+  return tva;
 }

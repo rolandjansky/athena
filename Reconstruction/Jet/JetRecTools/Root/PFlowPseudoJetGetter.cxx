@@ -8,8 +8,6 @@
 #include "xAODTracking/VertexContainer.h" 
 #include <cmath>
 
-#include "xAODPFlow/PFO.h"
-
 namespace PFlowPJHelper{
 
   // We can not use the PseudoJetGetter::append method for PFlow object because the neutral component
@@ -53,7 +51,7 @@ namespace PFlowPJHelper{
 }
 
 PFlowPseudoJetGetter::PFlowPseudoJetGetter(const std::string &name)
-: PseudoJetGetter(name), m_retrievePFOTool("RetrievePFOTool",this) {
+: PseudoJetGetter(name), m_retrievePFOTool("RetrievePFOTool") {
   declareProperty("RetrievePFOTool", m_retrievePFOTool,  "Name of tool that builds the PFO collection.");
   declareProperty("InputIsEM",       m_inputIsEM =false, "True if neutral PFOs are EM scale clusters.");
   declareProperty("CalibratePFO",    m_calibrate =true,  "True if LC calibration should be applied to EM PFOs.");
