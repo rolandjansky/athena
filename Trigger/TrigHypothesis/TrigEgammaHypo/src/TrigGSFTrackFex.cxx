@@ -224,8 +224,8 @@ HLT::ErrorCode TrigGSFTrackFex::hltExecute(const HLT::TriggerElement* inputTE,
 
     // Record the final Track Particle container in StoreGate
     m_finalTrkPartContainer = new xAOD::TrackParticleContainer();
-    xAOD::TrackParticleAuxContainer* aux = new xAOD::TrackParticleAuxContainer();
-    m_finalTrkPartContainer->setStore( aux );
+    xAOD::TrackParticleAuxContainer aux;
+    m_finalTrkPartContainer->setStore( &aux );
     
     std::string trkCollKey = "";
     std::string persKey = "TrigGSFTrackFex";
@@ -239,16 +239,9 @@ HLT::ErrorCode TrigGSFTrackFex::hltExecute(const HLT::TriggerElement* inputTE,
     if (store()->record (m_finalTrkPartContainer, trkCollKey).isFailure()) {
         msg() << MSG::ERROR << "recording TrackParticleContainer with key <" << trkCollKey << "> failed" << endreq;
         delete m_finalTrkPartContainer; // meber of class, need a delete?
-        delete aux;
         return HLT::TOOL_FAILURE;
     }
     else  ATH_MSG_DEBUG("recording TrackParticleContainer with key " << trkCollKey);
-    if (store()->record (aux, trkCollKey + "Aux.").isFailure()) {
-        msg() << MSG::ERROR << "recording TrackParticleAuxContainer with key <" << trkCollKey << "Aux. failed" << endreq;
-        delete aux;
-        return HLT::TOOL_FAILURE;
-    }
-    else  ATH_MSG_DEBUG("recording TrackParticleAuxContainer with key " << trkCollKey << "Aux.");
     //
     //create container for slimmed tracks
     //Is this required?
