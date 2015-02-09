@@ -233,6 +233,15 @@ AthenaInterprocess::ScheduledWork* SharedEvtQueueConsumer::bootstrap_func()
   // reported in the master proces
   // ...
 
+  // ________________________ Get IncidentSvc and fire PostFork ________________________
+  IIncidentSvc* p_incidentSvc(0);
+  if(!serviceLocator()->service("IncidentSvc", p_incidentSvc).isSuccess()) {
+    msg(MSG::ERROR) << "Unable to retrieve IncidentSvc" << endreq;
+    return outwork;
+  }
+  p_incidentSvc->fireIncident(Incident(name(),"PostFork"));
+
+
   // ________________________ Get RankID ________________________
   //
   if(!m_sharedRankQueue->receive_basic<int>(m_rankId)) {
@@ -339,11 +348,6 @@ AthenaInterprocess::ScheduledWork* SharedEvtQueueConsumer::bootstrap_func()
   }
 
   // ___________________ Fire UpdateAfterFork incident _________________
-  IIncidentSvc* p_incidentSvc(0);
-  if(!serviceLocator()->service("IncidentSvc", p_incidentSvc).isSuccess()) {
-    msg(MSG::ERROR) << "Unable to retrieve IncidentSvc" << endreq;
-    return outwork;
-  }
   p_incidentSvc->fireIncident(AthenaInterprocess::UpdateAfterFork(m_rankId,getpid(),name()));
 
   // Declare success and return
