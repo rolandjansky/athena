@@ -34,7 +34,7 @@ unsigned int TrigHisto::findBin(unsigned int nbins,
 				float h_min, 
 				float h_max, 
 				float binSize, 
-				float value) const {
+				float value) {
   unsigned int ibin = 0;
   
   if(value < h_min) { // Underflow

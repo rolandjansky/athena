@@ -40,7 +40,7 @@ TrigHisto1D::TrigHisto1D(unsigned int nbins_x,
 TrigHisto1D::TrigHisto1D(unsigned int nbins_x, 
 			 float min_x, 
 			 float max_x, 
-			 const std::vector<float>& contents) {
+			 std::vector<float> contents) {
   m_nbins_x = nbins_x;
   m_min_x = min_x;
   m_max_x = max_x;
@@ -73,43 +73,15 @@ TrigHisto1D::TrigHisto1D(const TrigHisto1D& trigHisto): TrigHisto() {
 
 //---------------------------------------------------------------
 
-TrigHisto1D::TrigHisto1D(TrigHisto1D&& trigHisto): TrigHisto() {
+TrigHisto1D& TrigHisto1D::operator=(const TrigHisto1D& trigHisto) {
   m_nbins_x = trigHisto.m_nbins_x;
   m_min_x = trigHisto.m_min_x;
   m_max_x = trigHisto.m_max_x;
-  m_contents = std::move(trigHisto.m_contents);
+  m_contents = trigHisto.m_contents;
   m_binSize_x = trigHisto.m_binSize_x;
   m_underflowBin_x = trigHisto.m_underflowBin_x;
   m_overflowBin_x = trigHisto.m_overflowBin_x;
-}
-
-//---------------------------------------------------------------
-
-TrigHisto1D& TrigHisto1D::operator=(const TrigHisto1D& trigHisto) {
-  if (this != &trigHisto) {
-    m_nbins_x = trigHisto.m_nbins_x;
-    m_min_x = trigHisto.m_min_x;
-    m_max_x = trigHisto.m_max_x;
-    m_contents = trigHisto.m_contents;
-    m_binSize_x = trigHisto.m_binSize_x;
-    m_underflowBin_x = trigHisto.m_underflowBin_x;
-    m_overflowBin_x = trigHisto.m_overflowBin_x;
-  }
-  return *this;
-}
-
-//---------------------------------------------------------------
-
-TrigHisto1D& TrigHisto1D::operator=(TrigHisto1D&& trigHisto) {
-  if (this != &trigHisto) {
-    m_nbins_x = trigHisto.m_nbins_x;
-    m_min_x = trigHisto.m_min_x;
-    m_max_x = trigHisto.m_max_x;
-    m_contents = std::move(trigHisto.m_contents);
-    m_binSize_x = trigHisto.m_binSize_x;
-    m_underflowBin_x = trigHisto.m_underflowBin_x;
-    m_overflowBin_x = trigHisto.m_overflowBin_x;
-  }
+  
   return *this;
 }
 
@@ -125,7 +97,7 @@ void TrigHisto1D::fill(float value_x, float weight) {
 
 //---------------------------------------------------------------
 
-double TrigHisto1D::sumEntries(float value_x, int cutType) const {
+double TrigHisto1D::sumEntries(float value_x, int cutType) {
   unsigned int ibin_x, ibin_x_selected;
   double entries;
   

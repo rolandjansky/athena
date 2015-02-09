@@ -20,7 +20,7 @@
 #include "ParticleTruth/TrackParticleTruthCollectionContainer.h"
 #include "VxSecVertex/VxSecVertexInfo.h" 
 
-typedef DataVector<TrackExtensionMap> TrackExtensionMapContainer;
+typedef DataVector<struct TrackExtensionMap> TrackExtensionMapContainer;
 CLASS_DEF( TrackExtensionMapContainer , 1280217485 , 1 )
 
 #include "TrigNavigation/TypeRegistration.h"

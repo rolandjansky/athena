@@ -24,24 +24,14 @@ class TrigSpacePointCounts {
   TrigSpacePointCounts();
 
   /** Standard constructor used by FEX algorithms. */ 
-  TrigSpacePointCounts(const TrigHisto2D& pixelClusEndcapC,
-		       const TrigHisto2D& pixelClusBarrel,
-		       const TrigHisto2D& pixelClusEndcapA,
-		       const std::vector<Identifier>& droppedPixelModules,
+  TrigSpacePointCounts(TrigHisto2D pixelClusEndcapC,
+		       TrigHisto2D pixelClusBarrel,
+		       TrigHisto2D pixelClusEndcapA,
+		       std::vector<Identifier> droppedPixelModules,
 		       unsigned int sctSpEndcapC,
 		       unsigned int sctSpBarrel,
 		       unsigned int sctSpEndcapA,
-		       const std::vector<Identifier>& droppedSctModules);
-  
-  /** Constructor passing arguments by move. */
-  TrigSpacePointCounts(TrigHisto2D&& pixelClusEndcapC,
-		       TrigHisto2D&& pixelClusBarrel,
-		       TrigHisto2D&& pixelClusEndcapA,
-		       std::vector<Identifier>&& droppedPixelModules,
-		       unsigned int sctSpEndcapC,
-		       unsigned int sctSpBarrel,
-		       unsigned int sctSpEndcapA,
-		       std::vector<Identifier>&& droppedSctModules);
+		       std::vector<Identifier> droppedSctModules);
   
   /** Copy Constructor */
   TrigSpacePointCounts(const TrigSpacePointCounts& trigSpacePointCounts);
@@ -49,13 +39,13 @@ class TrigSpacePointCounts {
   /** Destructor */
   ~TrigSpacePointCounts(void);
 
-  const TrigHisto2D& pixelClusEndcapC(void) const;
+  TrigHisto2D pixelClusEndcapC(void) const;
 
-  const TrigHisto2D& pixelClusBarrel(void) const;
+  TrigHisto2D pixelClusBarrel(void) const;
 
-  const TrigHisto2D& pixelClusEndcapA(void) const;
+  TrigHisto2D pixelClusEndcapA(void) const;
 
-  const std::vector<Identifier>& droppedPixelModules(void) const;
+  std::vector<Identifier> droppedPixelModules(void) const;
 
   unsigned int sctSpEndcapC(void) const;
 
@@ -63,7 +53,7 @@ class TrigSpacePointCounts {
  
   unsigned int sctSpEndcapA(void) const;
 
-  const std::vector<Identifier>& droppedSctModules(void) const;
+  std::vector<Identifier> droppedSctModules(void) const;
 
  private:
   

@@ -74,8 +74,7 @@ class TrigVertex{
     m_tracks(NULL), m_algId(id),
     m_ownTracks(false)
     {
-      for(int i=0;i<5;i++) m_cov[i]=0.0;
-      m_cov[5]=cv;
+      for(int i=0;i<5;i++) m_cov[i]=0.0; m_cov[5]=cv;
       m_mass=0.0;m_massVar=0.0;m_P=NULL;m_energyFraction=0.0;
       m_nTwoTracksSecVtx=0;
       m_decayLength = m_decayLengthSignificance = 0;
@@ -96,7 +95,7 @@ class TrigVertex{
              double mass, double energyFraction, int n2trkvtx,
              double decayLength, double decayLengthSignificance,
              AlgoId algo_id) :
-    m_x(x), m_y(y), m_z(z), m_mass(mass), m_massVar(0),
+    m_x(x), m_y(y), m_z(z), m_mass(mass),
     m_energyFraction(energyFraction),
     m_nTwoTracksSecVtx(n2trkvtx),
     m_decayLength(decayLength),
@@ -139,7 +138,7 @@ class TrigVertex{
 
   double mass() const   { return m_mass; }//!< vertex mass estimated after the vertex fit
   double massVariance() const { return m_massVar; }//!< variance of the vertex mass estimate 
-  const TrigInDetTrackFitPar* getMotherTrack() const { return m_P;} //!< parameters of a mother particle reconstructed after the vertex fit 
+  const TrigInDetTrackFitPar* getMotherTrack() { return m_P;} //!< parameters of a mother particle reconstructed after the vertex fit 
 
   double energyFraction() const { return m_energyFraction; } //!< energy ratio E(secondary vertex)/E(jet)
   int nTwoTracksSecVtx() const { return m_nTwoTracksSecVtx; }//!<  number of 2-track vertices
@@ -159,8 +158,6 @@ class TrigVertex{
   void setDecayLengthSignificance (double v) {m_decayLengthSignificance = v;}
  
  private:
-  friend class TrigVertexCnv_p1;
-  friend class TrigVertexCnv_p2;
   
 
   double m_x,m_y,m_z,m_mass,m_massVar;

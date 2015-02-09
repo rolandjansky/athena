@@ -23,25 +23,24 @@ class TrigTrtHitCounts {
   TrigTrtHitCounts(void);
 
   /** Standard constructor used by FEX algorithms. */
-  TrigTrtHitCounts(const TrigHisto1D& endcapC,
-		   const TrigHisto1D& barrel,
-		   const TrigHisto1D& endcapA);
+  TrigTrtHitCounts(TrigHisto1D endcapC,
+		   TrigHisto1D barrel,
+		   TrigHisto1D endcapA);
 
-  TrigTrtHitCounts(TrigHisto1D&& endcapC,
-		   TrigHisto1D&& barrel,
-		   TrigHisto1D&& endcapA);
+  /** Copy Constructor */
+  TrigTrtHitCounts(const TrigTrtHitCounts& trigTrtHitCounts);
 
   /** Destructor */
   ~TrigTrtHitCounts(void);
 
   /** Return a histogram of time over threshold for endcap C pixel clusters */
-  const TrigHisto1D& endcapC(void) const;
+  TrigHisto1D endcapC(void) const;
   
   /** Return a histogram of time over threshold for barrel pixel clusters */
-  const TrigHisto1D& barrel(void) const; 
+  TrigHisto1D barrel(void) const; 
   
   /** Return a histogram of time over threshold for endcap A pixel clusters */
-  const TrigHisto1D& endcapA(void) const;
+  TrigHisto1D endcapA(void) const;
 
 private:
   TrigHisto1D m_endcapC;
