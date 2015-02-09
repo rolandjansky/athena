@@ -31,8 +31,6 @@
  *   e.bouhova@cern.ch, r.henderson@lancaster.ac.uk
  */
 
-class V0HypothesisCnv_p1;
-
 namespace Trk
 {
 
@@ -97,7 +95,6 @@ class V0Hypothesis : public ExtendedVxCandidate
   int hypothesisID(void) const;
 
   private:
-   friend class ::V0HypothesisCnv_p1;
 
    int    m_positiveTrackID;
    int    m_negativeTrackID;
