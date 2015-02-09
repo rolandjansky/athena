@@ -114,10 +114,13 @@ private:
   // Properties
   std::string              m_detectorName;
   double                   m_temperature;
+  double                   m_temperaturePix;
   double                   m_temperatureMin;
   double                   m_temperatureMax;
   double                   m_deplVoltage;
   double                   m_biasVoltage;
+  double                   m_biasVoltageIBLPl;
+  double                   m_biasVoltageIBL3D;
   double                   m_correctionFactor;
   double                   m_nominalField;
   bool                     m_useFixedValue;
