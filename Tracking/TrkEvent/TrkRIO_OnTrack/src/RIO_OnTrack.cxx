@@ -70,18 +70,18 @@ Trk::RIO_OnTrack& Trk::RIO_OnTrack::operator=(const RIO_OnTrack& rot)
 
 MsgStream& Trk::RIO_OnTrack::dump( MsgStream& sl ) const
 {
-    sl << "Trk::RIO_OnTrack { "<< endmsg;
-    sl << "\t  identifier = "<< identify() << endmsg;
+    sl << "Trk::RIO_OnTrack { "<< endreq;
+    sl << "\t  identifier = "<< identify() << endreq;
     sl << "\t  position = (" 
        << localParameters() 
-       << endmsg;
-    sl << "\t  has Error Matrix: "<< endmsg;
-    sl<< localCovariance() <<"}"<< endmsg; 
+       << endreq;
+    sl << "\t  has Error Matrix: "<< endreq;
+    sl<< localCovariance() <<"}"<< endreq; 
 
     if (prepRawData()!=0) {
-        sl<<"PrepRawData: "<< (*prepRawData()) << endmsg;
+        sl<<"PrepRawData: "<< (*prepRawData()) << endreq;
     }else{
-        sl<<"PrepRawData: NULL"<<endmsg;
+        sl<<"PrepRawData: NULL"<<endreq;
     }
     return sl;
 }

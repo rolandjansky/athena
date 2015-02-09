@@ -20,8 +20,6 @@
 #include "Identifier/IdentifierHash.h"
 #include <ostream>
 class MsgStream;
-class RIO_OnTrackCnv_p1;
-class RIO_OnTrackCnv_p2;
 
 
 namespace Trk {
@@ -108,8 +106,6 @@ namespace Trk {
       static unsigned int numberOfInstantiations() ;
      
     protected:
-      friend class ::RIO_OnTrackCnv_p1;
-      friend class ::RIO_OnTrackCnv_p2;
       /** ONLY for use in custom convertor
       Allows the custom convertor to reset values when persistying/reading back RoTs*/
       virtual void setValues(
