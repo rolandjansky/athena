@@ -32,15 +32,13 @@ conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/ENDCAP/SIDEA','/MUON
 conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/MDT/ENDCAP/SIDEC','/MUONALIGN/MDT/ENDCAP/SIDEC')
 conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/TGC/SIDEA','/MUONALIGN/TGC/SIDEA')
 conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/TGC/SIDEC','/MUONALIGN/TGC/SIDEC')
-conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/CSC/ILINES','/MUONALIGN/CSC/ILINES')
 from MuonCondTool.MuonCondToolConf import MuonAlignmentDbTool
 MuonAlignmentDbTool = MuonAlignmentDbTool("MGM_AlignmentDbTool")
 MuonAlignmentDbTool.ParlineFolders = ["/MUONALIGN/MDT/BARREL",
                                       "/MUONALIGN/MDT/ENDCAP/SIDEA",
                                       "/MUONALIGN/MDT/ENDCAP/SIDEC",
                                       "/MUONALIGN/TGC/SIDEA",
-                                      "/MUONALIGN/TGC/SIDEC",
-                                      "/MUONALIGN/CSC/ILINES"]
+                                      "/MUONALIGN/TGC/SIDEC"]
 ToolSvc += MuonAlignmentDbTool
 MGM_AlignmentDbTool = ToolSvc.MGM_AlignmentDbTool
 
@@ -65,6 +63,14 @@ if not (muonAlignFlags.UseAlines=='none' and muonAlignFlags.UseBlines=='none'):
 # here define if I-lines (CSC internal alignment) are enabled
 if muonAlignFlags.UseIlines: 
     MuonDetectorTool.EnableCscInternalAlignment = True
-    MuonDetectorTool.UseIlinesFromGM = False
-    MuonAlignmentDbTool.ILinesFromCondDB = True
-    
+    if conddb.dbdata == 'COMP200' and 'HLT' in globalflags.ConditionsTag() :
+        logMuon.info("Reading CSC I-Lines from layout - special configuration for COMP200 in HLT setup.")
+        MuonDetectorTool.UseIlinesFromGM = True
+        MuonAlignmentDbTool.ILinesFromCondDB = False
+    else :
+        logMuon.info("Reading CSC I-Lines from conditions database.")
+        conddb.addFolderSplitOnline('MUONALIGN','/MUONALIGN/Onl/CSC/ILINES','/MUONALIGN/CSC/ILINES')
+        MuonAlignmentDbTool.ParlineFolders += ["/MUONALIGN/CSC/ILINES"]
+        MuonDetectorTool.UseIlinesFromGM = False
+        MuonAlignmentDbTool.ILinesFromCondDB = True
+        
