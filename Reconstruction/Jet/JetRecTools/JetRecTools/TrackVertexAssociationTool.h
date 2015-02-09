@@ -57,9 +57,9 @@ class TrackVertexAssociationTool :  virtual public asg::AsgTool,
 private:
 
   // Constuct a TrackVertexAssociation using a ITrackVertexAssociationTool object
-  const jet::TrackVertexAssociation* buildTrackVertexAssociation_withTool(const xAOD::TrackParticleContainer*, const xAOD::VertexContainer*) const;
+  jet::TrackVertexAssociation* buildTrackVertexAssociation_withTool(const xAOD::TrackParticleContainer*, const xAOD::VertexContainer*) const;
   // Constuct a TrackVertexAssociation using the older custom method
-  const jet::TrackVertexAssociation* buildTrackVertexAssociation_custom(const xAOD::TrackParticleContainer*, const xAOD::VertexContainer*) const;
+  jet::TrackVertexAssociation* buildTrackVertexAssociation_custom(const xAOD::TrackParticleContainer*, const xAOD::VertexContainer*) const;
 
 
   ToolHandle<CP::ITrackVertexAssociationTool> m_tvaTool;
