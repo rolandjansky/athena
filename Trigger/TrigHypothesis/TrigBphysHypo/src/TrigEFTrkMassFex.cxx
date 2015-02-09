@@ -67,6 +67,9 @@ HLT::FexAlgo(name, pSvcLocator)
     declareProperty("Mass_high_cut", m_mass_high_cut=0.);
     declareProperty("doVertexFit", m_doVertexFit=true);
     
+    // Input list of tracks for second leg
+    declareProperty("TrackCollection",m_input_trackCollectionKey="InDetTrigTrackingxAODCnv_Bphysics_IDTrig");
+
     
     // Variables for monitoring histograms
     declareMonitoredStdContainer("Errors"           , mon_Errors                                    , AutoClear);
@@ -376,17 +379,18 @@ HLT::ErrorCode TrigEFTrkMassFex::hltExecute(const HLT::TriggerElement*  inputTE 
     }
     
     // now get the tracks
-    // #FIXME - how does this get the vector of track collections, rather than just one vector?
     ELVTrackParticles elvtps;
     if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Try to retrieve TrackParticleContainers " << endreq;
-    if(getFeaturesLinks<xAOD::TrackParticleContainer,xAOD::TrackParticleContainer>(outputTE, elvtps)!=HLT::OK ) {
+    //if(getFeaturesLinks<xAOD::TrackParticleContainer,xAOD::TrackParticleContainer>(outputTE, elvtps)!=HLT::OK ) {
+    if(getFeaturesLinks<xAOD::TrackParticleContainer,xAOD::TrackParticleContainer>(inputTE, elvtps,m_input_trackCollectionKey)!=HLT::OK ) {
         if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to get TrackParticleContainers feature, exiting" << endreq;
         if ( timerSvc() ) m_TotTimer->stop();
         mon_Errors.push_back( ERROR_No_TrackColl );
         return HLT::MISSING_FEATURE; // was HLT::OK
     }
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found TrackParticleContainer, size: " << elvtps.size() << endreq;
+
     if(msgLvl() <= MSG::DEBUG) { // print debug
+        msg() << MSG::DEBUG << "Found TrackParticleContainer, size: " << elvtps.size() << endreq;
         for ( const auto eltp: elvtps) {
             if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "ELLink: "
                 << " index: "  << eltp.index()
@@ -398,6 +402,33 @@ HLT::ErrorCode TrigEFTrkMassFex::hltExecute(const HLT::TriggerElement*  inputTE 
         }
 
     } // if debug
+
+    //    // some debug stuff re tracks - previously used vector of track collections
+    //    // now want to use ElementLinkVector. Add some extra checks here to compare the two approaches
+    //    std::vector<const xAOD::TrackParticleContainer*> vectorOfTrackCollections;
+    //    HLT::ErrorCode status = getFeatures(inputTE, vectorOfTrackCollections);
+    //    //    HLT::ErrorCode status = getFeatures(outputTE, vectorOfTrackCollections);
+    //    if(status != HLT::OK ) {
+    //        msg() << MSG::WARNING << "Error when getting vec TrackParticleContainer's from the trigger element" << endreq;
+    //        return HLT::MISSING_FEATURE;
+    //    } else {
+    //        if ( msgLvl() <= MSG::DEBUG )msg() << MSG::DEBUG << " Got vec Track Collections, size " << vectorOfTrackCollections.size() << endreq;
+    //    }
+    //    for (const auto trkcol : vectorOfTrackCollections) {
+    //        if (!trkcol) continue;
+    //        if ( msgLvl() <= MSG::DEBUG )msg() << MSG::DEBUG << " This track collection has: " << trkcol->size() << " tracks " << endreq;
+    //    } // vec loop
+    //
+    //    const xAOD::TrackParticleContainer* ptlcont(nullptr);
+    //    status = getFeature(inputTE, ptlcont,m_input_trackCollectionKey);
+    //    if(status != HLT::OK || !ptlcont ) {
+    //        msg() << MSG::WARNING << "Error when getting 1 TrackParticleContainer's from the trigger element" << endreq;
+    //        return HLT::MISSING_FEATURE;
+    //    } else {
+    //        if ( msgLvl() <= MSG::DEBUG )msg() << MSG::DEBUG << " Got 1 Track Collections, size " << ptlcont->size() << endreq;
+    //    }
+
+    
     mon_Acceptance.push_back( ACCEPT_Got_TrackColl );
     if (elvtps.size() == 0) {
         if ( timerSvc() ) m_TotTimer->stop();
@@ -406,21 +437,6 @@ HLT::ErrorCode TrigEFTrkMassFex::hltExecute(const HLT::TriggerElement*  inputTE 
     }
     mon_Acceptance.push_back( ACCEPT_Full_TrackColl );
 
-    // some debug stuff re tracks - previously used vector of track collections
-    // now want to use ElementLinkVector. Add some extra checks here to compare the two approaches
-    std::vector<const xAOD::TrackParticleContainer*> vectorOfTrackCollections;
-    HLT::ErrorCode status = getFeatures(outputTE, vectorOfTrackCollections);
-    if(status != HLT::OK ) {
-        msg() << MSG::WARNING << "Error when getting vec TrackParticleContainer's from the trigger element" << endreq;
-        return HLT::MISSING_FEATURE;
-    } else {
-        if ( msgLvl() <= MSG::DEBUG )msg() << MSG::DEBUG << " Got vec Track Collections, size " << vectorOfTrackCollections.size() << endreq;
-    }
-    for (const auto trkcol : vectorOfTrackCollections) {
-        if (!trkcol) continue;
-        if ( msgLvl() <= MSG::DEBUG )msg() << MSG::DEBUG << " This track collection has: " << trkcol->size() << " tracks " << endreq;
-    } // vec loop
-    
     
     // Loop over tracks (Particles)
     if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Now loop over tracks " << endreq;

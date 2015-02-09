@@ -644,7 +644,27 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
         } // loop over any tracks
     } // for loop over muons
     
-    
+    // build a map of the tracks and corresponding muons
+    std::map<const Trk::Track*, const xAOD::Muon*> mapTrkToMuons;
+    for (auto& muCont: muonContainerEF1) {
+        for (auto mu : *muCont) {
+            auto idtp  = mu->inDetTrackParticleLink();
+            if (!idtp.isValid()) continue;
+            if (!*idtp) continue;
+            if (!(*idtp)->track()) continue;
+            mapTrkToMuons[(*idtp)->track()] = mu;
+        } // muCont
+    } // muonContainerEF1
+    for (auto& muCont: muonContainerEF2) {
+        for (auto mu : *muCont) {
+            auto idtp  = mu->inDetTrackParticleLink();
+            if (!idtp.isValid()) continue;
+            if (!*idtp) continue;
+            if (!(*idtp)->track()) continue;
+            mapTrkToMuons[(*idtp)->track()] = mu;
+        } // muCont
+    } // muonContainerEF2
+
     //    std::vector<const TrigMuonEFInfoContainer*> MuEFTracksEF2;
     //  if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Try to retrieve EFInfo container of muon 2" << endreq;
     //  status = getFeatures(inputTE.back(), MuEFTracksEF2);
@@ -807,98 +827,198 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                     bool Found1Track=false;
                     bool Found2Track=false;
                     
-                    ///////////////// Get vector of tracks /////////////////
-                    //std::vector<const Rec::TrackParticleContainer *> vectorTrkParticleCollections;
-                    std::vector<const xAOD::TrackParticleContainer *> vectorxAODTrkParticleCont;
-                    
-                    HLT::ErrorCode status = getFeatures(outputTE, vectorxAODTrkParticleCont);
-                    //HLT::ErrorCode status = getFeatures(inputTE.front(), vectorTrkParticleCollections);
-                    if(status != HLT::OK/* or vectorTrkParticleCont==NULL*/) {
-                        msg() << MSG::WARNING << "Failed to get xAOD::TrackParticleCollections from the trigger element" << endreq;
+                    // test for new method of track retrieval
+                    const xAOD::TrackParticleContainer *tracksRoiI1(nullptr);
+                    const xAOD::TrackParticleContainer *tracksRoiI2(nullptr);
+                    //get the tracks for each roi
+                    HLT::ErrorCode status = getFeature(inputTE.front(), tracksRoiI1); // Need to insert the correct label
+                    if(status != HLT::OK) {
+                        msg() << MSG::WARNING << "Failed to get xAOD::TrackParticleCollection from the trigger element" << endreq;
                         mon_Errors.push_back(ERROR_No_TrackColl);
-                        if ( timerSvc() ) m_TotTimer->stop();
-                        // delete m_trigBphysColl_b;
-                        // delete m_trigBphysColl_X;
                         delete mTrigBphysColl_b;
                         delete mTrigBphysColl_X;
                         mTrigBphysColl_b = NULL;
                         mTrigBphysColl_X = NULL;
                         delete muMuVxCandidate;
                         return HLT::MISSING_FEATURE;
-                    } else {
-                        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Got " << vectorxAODTrkParticleCont.size()
-                            << " TrackParticle Collections" << endreq;
                     }
-                    //const Rec::TrackParticleContainer* TrkParticleCont = vectorTrkParticleCollections.front();
-                    const xAOD::TrackParticleContainer* xAODTrkParticleCont = vectorxAODTrkParticleCont.front();
-                    
-                    // JK If more than 1 track collection then this is FullScan instance. Find collection with most tracks
-                    unsigned int Ntracks=0;
-                    for (std::vector<const xAOD::TrackParticleContainer*>::const_iterator pTrackColl = vectorxAODTrkParticleCont.begin();
-                         pTrackColl != vectorxAODTrkParticleCont.end();
-                         ++pTrackColl) {
-                        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "  InDetTrackCollections size, " << (*pTrackColl)->size() << endreq;
-                        if ((*pTrackColl)->size() > Ntracks) {
-                            if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Largest collection so far, assume it is FullScan " << endreq;
-                            Ntracks= (*pTrackColl)->size();
-                            xAODTrkParticleCont = *pTrackColl;
-                        }
+                    status = getFeature(inputTE.back() , tracksRoiI2); // Need to insert the correct label
+                    if(status != HLT::OK) {
+                        msg() << MSG::WARNING << "Failed to get xAOD::TrackParticleCollection from the trigger element" << endreq;
+                        mon_Errors.push_back(ERROR_No_TrackColl);
+                        delete mTrigBphysColl_b;
+                        delete mTrigBphysColl_X;
+                        mTrigBphysColl_b = NULL;
+                        mTrigBphysColl_X = NULL;
+                        delete muMuVxCandidate;
+                        return HLT::MISSING_FEATURE;
+                    }
+                    ATH_MSG(DEBUG) << "Ntracks RoI1: " << ( tracksRoiI1 ? tracksRoiI1->size() : -1) << endreq;
+                    ATH_MSG(DEBUG) << "Ntracks RoI2: " << ( tracksRoiI2 ? tracksRoiI2->size() : -1) << endreq;
+                    if (!tracksRoiI1 || !tracksRoiI2) {
+                        msg() << MSG::WARNING << "Null track pointer" << endreq;
+                        mon_Errors.push_back(ERROR_No_TrackColl);
+                        delete mTrigBphysColl_b;
+                        delete mTrigBphysColl_X;
+                        mTrigBphysColl_b = NULL;
+                        mTrigBphysColl_X = NULL;
+                        delete muMuVxCandidate;
+                        return HLT::MISSING_FEATURE;
                     }
                     
-                    // Now prepare to outer loop over tracks
-                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Now loop over TrackParticles to find tracks " << endreq;
-                    xAOD::TrackParticleContainer::const_iterator trkIt =  xAODTrkParticleCont->begin();
-                    xAOD::TrackParticleContainer::const_iterator lastTrkIt = xAODTrkParticleCont->end();
-                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found tracks, ntrack= " << xAODTrkParticleCont->size() << endreq;
+                    std::vector<const xAOD::TrackParticle*> merged_tracks;
+                    merged_tracks.reserve(tracksRoiI1->size() + tracksRoiI2->size());
                     
-                    //           ElementLink<Rec::TrackParticleContainer> trackELmu1;
-                    //           ElementLink<Rec::TrackParticleContainer> trackELmu2;
+                    // in order to use the element links, create a map of the particle pointer, and the corresponding container, and index
+                    struct ElIndex{
+                        int roi;
+                        int index;
+                    };
+                    std::map<const xAOD::TrackParticle*, ElIndex> mapTrackToIndex;
+                    int idCounter(0);
+                    for (auto trk: *tracksRoiI1) {
+                        merged_tracks.push_back(trk);
+                        ElIndex tmp;
+                        tmp.roi = 1;
+                        tmp.index = idCounter;
+                        mapTrackToIndex.insert( std::make_pair(trk,tmp));
+                        ++idCounter;
+                    }
+                    idCounter = 0;
+                    for (auto trk: *tracksRoiI2) {
+                        merged_tracks.push_back(trk);
+                        ElIndex tmp;
+                        tmp.roi = 1;
+                        tmp.index = idCounter;
+                        mapTrackToIndex.insert(std::make_pair(trk,tmp));
+                        ++idCounter;
+                    }
                     
+                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Merged Counts: " << merged_tracks.size() << endreq;
+
+                    
+                    
+                    //                    ///////////////// Get vector of tracks /////////////////
+                    //                    //std::vector<const Rec::TrackParticleContainer *> vectorTrkParticleCollections;
+                    //                    std::vector<const xAOD::TrackParticleContainer *> vectorxAODTrkParticleCont;
+                    //
+                    //                    /*HLT::ErrorCode*/ status = getFeatures(outputTE, vectorxAODTrkParticleCont);
+                    //                    //HLT::ErrorCode status = getFeatures(inputTE.front(), vectorTrkParticleCollections);
+                    //                    if(status != HLT::OK/* or vectorTrkParticleCont==NULL*/) {
+                    //                        msg() << MSG::WARNING << "Failed to get xAOD::TrackParticleCollections from the trigger element" << endreq;
+                    //                        mon_Errors.push_back(ERROR_No_TrackColl);
+                    //                        if ( timerSvc() ) m_TotTimer->stop();
+                    //                        // delete m_trigBphysColl_b;
+                    //                        // delete m_trigBphysColl_X;
+                    //                        delete mTrigBphysColl_b;
+                    //                        delete mTrigBphysColl_X;
+                    //                        mTrigBphysColl_b = NULL;
+                    //                        mTrigBphysColl_X = NULL;
+                    //                        delete muMuVxCandidate;
+                    //                        return HLT::MISSING_FEATURE;
+                    //                    } else {
+                    //                        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Got " << vectorxAODTrkParticleCont.size()
+                    //                            << " TrackParticle Collections" << endreq;
+                    //                    }
+                    //                    //const Rec::TrackParticleContainer* TrkParticleCont = vectorTrkParticleCollections.front();
+                    //                    const xAOD::TrackParticleContainer* xAODTrkParticleCont = vectorxAODTrkParticleCont.front();
+                    //
+                    //                    // JK If more than 1 track collection then this is FullScan instance. Find collection with most tracks
+                    //                    unsigned int Ntracks=0;
+                    //                    for (std::vector<const xAOD::TrackParticleContainer*>::const_iterator pTrackColl = vectorxAODTrkParticleCont.begin();
+                    //                         pTrackColl != vectorxAODTrkParticleCont.end();
+                    //                         ++pTrackColl) {
+                    //                        if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "  InDetTrackCollections size, " << (*pTrackColl)->size() << endreq;
+                    //                        if ((*pTrackColl)->size() > Ntracks) {
+                    //                            if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Largest collection so far, assume it is FullScan " << endreq;
+                    //                            Ntracks= (*pTrackColl)->size();
+                    //                            xAODTrkParticleCont = *pTrackColl;
+                    //                        }
+                    //                    }
+                    
+                    //                    // Now prepare to outer loop over tracks
+                    //                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Now loop over TrackParticles to find tracks " << endreq;
+                    //                    xAOD::TrackParticleContainer::const_iterator trkIt =  xAODTrkParticleCont->begin();
+                    //                    xAOD::TrackParticleContainer::const_iterator lastTrkIt = xAODTrkParticleCont->end();
+                    //                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found tracks, ntrack= " << xAODTrkParticleCont->size() << endreq;
+                    //
+                    //
+                    //                    int piTrk(-1),miTrk(-1);
+                    //                    // First - a little loop to get muon trackELs to store in trigPartBMuMuX
+                    //                    for (int itrk=0 ; trkIt != lastTrkIt; itrk++, trkIt++)
+                    //                    {
+                    //                        const Trk::Track* track = (*trkIt)->track();
+                    //                        const Trk::Perigee* perigee = track->perigeeParameters();
+                    //                        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "original track " << track << ", pt/eta/phi = " << perigee->pT() << " / " << perigee->eta() << " / " << perigee->parameters()[Trk::phi0] << endreq;
+                    //                        //             if (track == *pItr && !Found1Track)
+                    //                        //FIXME - correct the dphi problem, and pT?
+                    //                        if ( fabs(perigee->pT() - (*pItr)->perigeeParameters()->pT())<100. && fabs(perigee->eta() - (*pItr)->perigeeParameters()->eta())<0.02 && fabs(perigee->parameters()[Trk::phi0] - (*pItr)->perigeeParameters()->parameters()[Trk::phi0])<0.02 && !Found1Track)
+                    //                        {
+                    //                            //                 ElementLink<Rec::TrackParticleContainer> trackELmu1(*TrkParticleCont,itrk);
+                    //                            piTrk = itrk;
+                    //                            //                 trigPartBMuMuX->addTrack(trackEL);
+                    //                            if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "track matches muon track 1, will store in EFBPhys " << endreq;
+                    //                            Found1Track=true;
+                    //                        }
+                    //                        //             if (track == *mItr && !Found2Track)
+                    //                        //FIXME - correct the dphi problem, and pT?
+                    //                        if ( fabs(perigee->pT() - (*mItr)->perigeeParameters()->pT())<100. && fabs(perigee->eta() - (*mItr)->perigeeParameters()->eta())<0.02 && fabs(perigee->parameters()[Trk::phi0] - (*mItr)->perigeeParameters()->parameters()[Trk::phi0])<0.02 && !Found2Track)
+                    //                        {
+                    //                            //                 ElementLink<Rec::TrackParticleContainer> trackELmu2(*TrkParticleCont,itrk);
+                    //                            miTrk = itrk;
+                    //                            //                 trigPartBMuMuX->addTrack(trackEL);
+                    //                            if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "track matches muon track 2, will store in EFBPhys " << endreq;
+                    //                            Found2Track=true;
+                    //                        }
+                    //                    } // end of a little loop over tracks
+                    //
+                    //                    // TODO
+                    //                    // Doesn't work now - the check commented out until solved...
+                    //                    if(!Found1Track || !Found2Track) {
+                    //                        ATH_MSG(DEBUG) << "No ID track found for one or both muons. Found1Track = " << Found1Track << ", Found2Track = " << Found2Track << endreq;
+                    //                        mon_Errors.push_back(ERROR_No_MuonTrackMatch);
+                    //                        //             delete m_trigBphysColl_b;
+                    //                        //             delete m_trigBphysColl_X;
+                    //                        //             delete muMuVxCandidate;
+                    //                        //             if ( timerSvc() ) m_TotTimer->stop();
+                    //                        //             return(HLT::OK);
+                    //                    }
+                    //                    ElementLink<xAOD::TrackParticleContainer> trackELmu1(*xAODTrkParticleCont,piTrk);
+                    //                    ElementLink<xAOD::TrackParticleContainer> trackELmu2(*xAODTrkParticleCont,miTrk);
+                    
+                    
+                    // loop to find the muon associated withthe trk::track. can be optimised
                     int piTrk(-1),miTrk(-1);
-                    // First - a little loop to get muon trackELs to store in trigPartBMuMuX
-                    for (int itrk=0 ; trkIt != lastTrkIt; itrk++, trkIt++)
-                    {
-                        const Trk::Track* track = (*trkIt)->track();
-                        const Trk::Perigee* perigee = track->perigeeParameters();
-                        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "original track " << track << ", pt/eta/phi = " << perigee->pT() << " / " << perigee->eta() << " / " << perigee->parameters()[Trk::phi0] << endreq;
-                        //             if (track == *pItr && !Found1Track)
-                        //FIXME - correct the dphi problem, and pT?
-                        if ( fabs(perigee->pT() - (*pItr)->perigeeParameters()->pT())<100. && fabs(perigee->eta() - (*pItr)->perigeeParameters()->eta())<0.02 && fabs(perigee->parameters()[Trk::phi0] - (*pItr)->perigeeParameters()->parameters()[Trk::phi0])<0.02 && !Found1Track)
-                        {
-                            //                 ElementLink<Rec::TrackParticleContainer> trackELmu1(*TrkParticleCont,itrk);
-                            piTrk = itrk;
-                            //                 trigPartBMuMuX->addTrack(trackEL);
-                            if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "track matches muon track 1, will store in EFBPhys " << endreq;
-                            Found1Track=true;
-                        }
-                        //             if (track == *mItr && !Found2Track)
-                        //FIXME - correct the dphi problem, and pT?
-                        if ( fabs(perigee->pT() - (*mItr)->perigeeParameters()->pT())<100. && fabs(perigee->eta() - (*mItr)->perigeeParameters()->eta())<0.02 && fabs(perigee->parameters()[Trk::phi0] - (*mItr)->perigeeParameters()->parameters()[Trk::phi0])<0.02 && !Found2Track)
-                        {
-                            //                 ElementLink<Rec::TrackParticleContainer> trackELmu2(*TrkParticleCont,itrk);
-                            miTrk = itrk;
-                            //                 trigPartBMuMuX->addTrack(trackEL);
-                            if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "track matches muon track 2, will store in EFBPhys " << endreq;
-                            Found2Track=true;
-                        }
-                    } // end of a little loop over tracks
+                    ElementLink<xAOD::TrackParticleContainer> trackELmu1;
+                    ElementLink<xAOD::TrackParticleContainer> trackELmu2;
+                    auto trkmuit = mapTrkToMuons.find(*pItr);
+                    if (trkmuit != mapTrkToMuons.end()) {
+                        trackELmu1 = trkmuit->second->inDetTrackParticleLink();
+                        Found1Track = true;
+                    } // if
+                    trkmuit = mapTrkToMuons.find(*mItr);
+                    if (trkmuit != mapTrkToMuons.end()) {
+                        trackELmu2 = trkmuit->second->inDetTrackParticleLink();
+                        Found2Track = true;
+                    } // if
+
                     
-                    // TODO
-                    // Doesn't work now - the check commented out until solved...
-                    if(!Found1Track || !Found2Track) {
-                        ATH_MSG(DEBUG) << "No ID track found for one or both muons. Found1Track = " << Found1Track << ", Found2Track = " << Found2Track << endreq;
-                        mon_Errors.push_back(ERROR_No_MuonTrackMatch);
-                        //             delete m_trigBphysColl_b;
-                        //             delete m_trigBphysColl_X;
-                        //             delete muMuVxCandidate;
-                        //             if ( timerSvc() ) m_TotTimer->stop();
-                        //             return(HLT::OK);
-                    }
-                    ElementLink<xAOD::TrackParticleContainer> trackELmu1(*xAODTrkParticleCont,piTrk);
-                    ElementLink<xAOD::TrackParticleContainer> trackELmu2(*xAODTrkParticleCont,miTrk);
+                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Matching summary: " << Found1Track<<Found2Track << endreq;
+
+                    
+                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Now loop over TrackParticles to find tracks " << endreq;
+                    //                    xAOD::TrackParticleContainer::const_iterator trkIt =  merged_tracks.begin();
+                    //                    xAOD::TrackParticleContainer::const_iterator lastTrkIt = merged_tracks.end();
+                    std::vector<const xAOD::TrackParticle*>::const_iterator trkIt     = merged_tracks.begin();
+                    std::vector<const xAOD::TrackParticle*>::const_iterator lastTrkIt = merged_tracks.end();
+                    
+                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found tracks, ntrack= " << merged_tracks.size() << endreq;
+
                     
                     // Main outer loop over tracks
-                    xAOD::TrackParticleContainer::const_iterator trkIt1 =  xAODTrkParticleCont->begin();
+                    //xAOD::TrackParticleContainer::const_iterator trkIt1 =  merged_tracks.begin();
+                    std::vector<const xAOD::TrackParticle*>::const_iterator trkIt1     = merged_tracks.begin();
+
                     for (int itrk1=0 ; trkIt1 != lastTrkIt; itrk1++, trkIt1++)
                     {
                         const Trk::Track* track1 = (*trkIt1)->track();
@@ -945,7 +1065,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                 delete trigPartBplusMuMuKplus; // done with the old object now.
                                 trigPartBplusMuMuKplus =0;
                                 
-                                ElementLink<xAOD::TrackParticleContainer> trackEL3(*xAODTrkParticleCont,itrk1);
+                                //ElementLink<xAOD::TrackParticleContainer> trackEL3(*xAODTrkParticleCont,itrk1);
+                                ElementLink<xAOD::TrackParticleContainer> trackEL3( mapTrackToIndex[*trkIt1].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt1].index);
                                 xaodObj->addTrackParticleLink(trackEL3);
                                 if(Found1Track) xaodObj->addTrackParticleLink(trackELmu1);
                                 if(Found2Track) xaodObj->addTrackParticleLink(trackELmu2);
@@ -979,7 +1100,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                         }
                         
                         // Inner loop over tracks
-                        xAOD::TrackParticleContainer::const_iterator trkIt2 = trkIt1 + 1;
+                        //xAOD::TrackParticleContainer::const_iterator trkIt2 = trkIt1 + 1;
+                        std::vector<const xAOD::TrackParticle*>::const_iterator trkIt2 = trkIt1 + 1;
                         for (int itrk2=itrk1+1 ; trkIt2 != lastTrkIt; itrk2++, trkIt2++)
                         {
                             //If timeout has happened in spite of the protection
@@ -1054,8 +1176,11 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         trigPartKstar =0;
                                         
                                         
-                                        ElementLink<xAOD::TrackParticleContainer> trackEL3(*xAODTrkParticleCont,itrk1);
-                                        ElementLink<xAOD::TrackParticleContainer> trackEL4(*xAODTrkParticleCont,itrk2);
+                                        //ElementLink<xAOD::TrackParticleContainer> trackEL3(*xAODTrkParticleCont,itrk1);
+                                        //ElementLink<xAOD::TrackParticleContainer> trackEL4(*xAODTrkParticleCont,itrk2);
+                                        ElementLink<xAOD::TrackParticleContainer> trackEL3( mapTrackToIndex[*trkIt1].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt1].index);
+                                        ElementLink<xAOD::TrackParticleContainer> trackEL4( mapTrackToIndex[*trkIt2].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt2].index);
+
                                         xaod_trigPartKstar->addTrackParticleLink(trackEL3);
                                         xaod_trigPartKstar->addTrackParticleLink(trackEL4);
                                         //m_trigBphysColl_X->push_back(trigPartKstar);
@@ -1122,8 +1247,11 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 
                                         //                     trigPartBdMuMuKstar->addTrack(trackELmu1);
                                         //                     trigPartBdMuMuKstar->addTrack(trackELmu2);
-                                        ElementLink<xAOD::TrackParticleContainer> trackEL3(*xAODTrkParticleCont,itrk2);
-                                        ElementLink<xAOD::TrackParticleContainer> trackEL4(*xAODTrkParticleCont,itrk1);
+                                        //ElementLink<xAOD::TrackParticleContainer> trackEL3(*xAODTrkParticleCont,itrk2);
+                                        //ElementLink<xAOD::TrackParticleContainer> trackEL4(*xAODTrkParticleCont,itrk1);
+                                        ElementLink<xAOD::TrackParticleContainer> trackEL3( mapTrackToIndex[*trkIt1].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt1].index);
+                                        ElementLink<xAOD::TrackParticleContainer> trackEL4( mapTrackToIndex[*trkIt2].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt2].index);
+
                                         xaod_trigPartKstar->addTrackParticleLink(trackEL3);
                                         xaod_trigPartKstar->addTrackParticleLink(trackEL4);
                                         //m_trigBphysColl_X->push_back(trigPartKstar);
@@ -1194,8 +1322,11 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         delete trigPartPhi; // done with the old object now.
                                         trigPartPhi =0;
 
-                                        ElementLink<xAOD::TrackParticleContainer> trackEL3(*xAODTrkParticleCont,itrk1);
-                                        ElementLink<xAOD::TrackParticleContainer> trackEL4(*xAODTrkParticleCont,itrk2);
+                                        //ElementLink<xAOD::TrackParticleContainer> trackEL3(*xAODTrkParticleCont,itrk1);
+                                        //ElementLink<xAOD::TrackParticleContainer> trackEL4(*xAODTrkParticleCont,itrk2);
+                                        ElementLink<xAOD::TrackParticleContainer> trackEL3( mapTrackToIndex[*trkIt1].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt1].index);
+                                        ElementLink<xAOD::TrackParticleContainer> trackEL4( mapTrackToIndex[*trkIt2].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt2].index);
+
                                         xaod_trigPartPhi->addTrackParticleLink(trackEL3);
                                         xaod_trigPartPhi->addTrackParticleLink(trackEL4);
                                         //m_trigBphysColl_X->push_back(trigPartPhi);
@@ -1270,8 +1401,11 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         trigPartLambda =0;
 
                                         
-                                        ElementLink<xAOD::TrackParticleContainer> trackEL3(*xAODTrkParticleCont,itrk1);
-                                        ElementLink<xAOD::TrackParticleContainer> trackEL4(*xAODTrkParticleCont,itrk2);
+                                        //ElementLink<xAOD::TrackParticleContainer> trackEL3(*xAODTrkParticleCont,itrk1);
+                                        //ElementLink<xAOD::TrackParticleContainer> trackEL4(*xAODTrkParticleCont,itrk2);
+                                        ElementLink<xAOD::TrackParticleContainer> trackEL3( mapTrackToIndex[*trkIt1].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt1].index);
+                                        ElementLink<xAOD::TrackParticleContainer> trackEL4( mapTrackToIndex[*trkIt2].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt2].index);
+
                                         xaod_trigPartLambda->addTrackParticleLink(trackEL3);
                                         xaod_trigPartLambda->addTrackParticleLink(trackEL4);
                                         // m_trigBphysColl_X->push_back(trigPartLambda);
@@ -1337,8 +1471,11 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         trigPartLambda =0;
 
                                         
-                                        ElementLink<xAOD::TrackParticleContainer> trackEL3(*xAODTrkParticleCont,itrk2);
-                                        ElementLink<xAOD::TrackParticleContainer> trackEL4(*xAODTrkParticleCont,itrk1);
+                                        //ElementLink<xAOD::TrackParticleContainer> trackEL3(*xAODTrkParticleCont,itrk2);
+                                        //ElementLink<xAOD::TrackParticleContainer> trackEL4(*xAODTrkParticleCont,itrk1);
+                                        ElementLink<xAOD::TrackParticleContainer> trackEL3( mapTrackToIndex[*trkIt1].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt1].index);
+                                        ElementLink<xAOD::TrackParticleContainer> trackEL4( mapTrackToIndex[*trkIt2].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt2].index);
+
                                         xaod_trigPartLambda->addTrackParticleLink(trackEL3);
                                         xaod_trigPartLambda->addTrackParticleLink(trackEL4);
                                         // m_trigBphysColl_X->push_back(trigPartLambda);
@@ -1378,7 +1515,9 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                         if ( xPhiMuMuMass < m_upperBc_DsMuMuMassCut - PIMASS ) {
                                             
                                             // 3rd loop over tracks
-                                            xAOD::TrackParticleContainer::const_iterator trkIt3 =  xAODTrkParticleCont->begin();
+                                            //xAOD::TrackParticleContainer::const_iterator trkIt3 =  xAODTrkParticleCont->begin();
+                                            std::vector<const xAOD::TrackParticle*>::const_iterator trkIt3 = merged_tracks.begin();
+
                                             for (int itrk3=0 ; trkIt3 != lastTrkIt; itrk3++, trkIt3++)
                                             {
                                                 const Trk::Track* track3 = (*trkIt3)->track();
@@ -1438,9 +1577,13 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 
                                                     
                                                     
-                                                    ElementLink<xAOD::TrackParticleContainer> trackEL3(*xAODTrkParticleCont,itrk1);
-                                                    ElementLink<xAOD::TrackParticleContainer> trackEL4(*xAODTrkParticleCont,itrk2);
-                                                    ElementLink<xAOD::TrackParticleContainer> trackEL5(*xAODTrkParticleCont,itrk3);
+                                                    //ElementLink<xAOD::TrackParticleContainer> trackEL3(*xAODTrkParticleCont,itrk1);
+                                                    //ElementLink<xAOD::TrackParticleContainer> trackEL4(*xAODTrkParticleCont,itrk2);
+                                                    //ElementLink<xAOD::TrackParticleContainer> trackEL5(*xAODTrkParticleCont,itrk3);
+                                                    ElementLink<xAOD::TrackParticleContainer> trackEL3( mapTrackToIndex[*trkIt1].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt1].index);
+                                                    ElementLink<xAOD::TrackParticleContainer> trackEL4( mapTrackToIndex[*trkIt2].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt2].index);
+                                                    ElementLink<xAOD::TrackParticleContainer> trackEL5( mapTrackToIndex[*trkIt3].roi == 1 ? *tracksRoiI1 : *tracksRoiI2, mapTrackToIndex[*trkIt3].index);
+
                                                     xaod_trigPartDs->addTrackParticleLink(trackEL3);
                                                     xaod_trigPartDs->addTrackParticleLink(trackEL4);
                                                     xaod_trigPartDs->addTrackParticleLink(trackEL5);

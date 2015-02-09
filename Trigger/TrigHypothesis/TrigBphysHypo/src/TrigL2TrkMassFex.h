@@ -53,6 +53,9 @@ class TrigL2TrkMassFex: public HLT::FexAlgo {
   private:
     ToolHandle <TrigBphysHelperUtilsTool> m_bphysHelperTool;
 
+    // container inputs names
+    std::string m_input_trackCollectionKey; //! list of tracks to search for second leg
+    
     // Configurable properties - cuts
     float m_matchL1;
     float m_trackPtthr;
@@ -69,7 +72,7 @@ class TrigL2TrkMassFex: public HLT::FexAlgo {
     bool  m_oppositeCharge;
 
     // Configurable properties - vertexing tools
-    ToolHandle<ITrigVertexFitter>   m_vertFitter;  // TODO: is this really needed ?
+    ToolHandle<ITrigVertexFitter>   m_vertFitter;
     ToolHandle<ITrigL2VertexFitter> m_L2vertFitter;
     ToolHandle<ITrigVertexingTool>  m_vertexingTool;
 
