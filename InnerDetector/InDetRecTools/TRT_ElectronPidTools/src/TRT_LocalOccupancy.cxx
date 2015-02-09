@@ -649,7 +649,7 @@ std::vector<float> TRT_LocalOccupancy::LocalOccupancy(const Trk::Track track ){
   }
 
   int TRT_LocalOccupancy::findArrayTotalIndex(const int det, const int lay){
-    int arrayindex = 9; // to be reset below
+    int arrayindex = 0; // to be reset below
     // NOTE: Below, arrayindex starts at 1 
     // because index 0 is filled with TOTAL value.
     if      (det == -1) arrayindex = 1; // barrel side C

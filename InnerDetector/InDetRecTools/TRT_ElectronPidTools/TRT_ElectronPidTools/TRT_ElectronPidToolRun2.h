@@ -153,6 +153,8 @@ namespace InDet
     Trk::ParticleMasses        m_particlemasses;      // Particle masses. (initalized in default constructor)
     unsigned int               m_minTRThits;          // Minimum number of TRT hits to give PID.
     bool                       m_bremFitterEnabled;   // jobOption whether or not brem Chi2 fitter is enabled.
+    bool                       m_OccupancyUsedInPID;  // jobOption whether occupancy is used in pHT calculation and thus PID.
+                                                      // Should be used offline but NOT for Triggering...
 
     //Some constants about the Bitpattern:
     static const unsigned int LTbits=0x3FDFEFF;

@@ -65,6 +65,7 @@ InDet::TRT_ElectronPidToolRun2::TRT_ElectronPidToolRun2(const std::string& t,
   m_trtId(0),
   m_minTRThits(5),
   m_bremFitterEnabled(false),
+  m_OccupancyUsedInPID(false),              // Set to "false" as default, though most likely wanted offline.
   ToTcalc(*(new ToTcalculator(*this))),
   HTcalc(*(new HTcalculator(*this))),
   m_TRTdEdxTool("TRT_ToT_dEdx"),
@@ -79,6 +80,7 @@ InDet::TRT_ElectronPidToolRun2::TRT_ElectronPidToolRun2(const std::string& t,
 
   declareProperty("MinimumTRThitsForIDpid", m_minTRThits);
   declareProperty("BremfitterEnabled", m_bremFitterEnabled);
+  declareProperty("OccupancyUsedInPID", m_OccupancyUsedInPID);
   declareProperty("TRT_ToT_dEdx_Tool", m_TRTdEdxTool);
   declareProperty("TRT_LocalOccupancyTool", m_LocalOccTool);
   declareProperty("isData", m_DATA = true);
@@ -204,9 +206,9 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability_old(const
 //  ATH_MSG_DEBUG("Local occ2: " << i << "\t" << occ2.at(i) );
 //  }
   std::vector<float>  occ = m_LocalOccTool->LocalOccupancy(track);
-  for (unsigned int i = 0; i < occ.size() ; i++){
-  ATH_MSG_DEBUG("Local occ: " << i << "\t" << occ.at(i) );
-  }
+//  for (unsigned int i = 0; i < occ.size() ; i++){
+//  ATH_MSG_DEBUG("Local occ: " << i << "\t" << occ.at(i) );
+//  }
 
   // Intialize the return vector
   // m_timingProfile->chronoStart("Tool::electronProb_new");
@@ -404,9 +406,9 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk
 //  ATH_MSG_DEBUG("Local occ2: " << i << "\t" << occ2.at(i) );
 //  }
   std::vector<float>  occ = m_LocalOccTool->LocalOccupancy(track);
-  for (unsigned int i = 0; i < occ.size() ; i++){
-    ATH_MSG_DEBUG("Local occ: " << i << "\t" << occ.at(i) );
-  }
+//  for (unsigned int i = 0; i < occ.size() ; i++){
+//    ATH_MSG_DEBUG("Local occ: " << i << "\t" << occ.at(i) );
+//  }
 
   //ATH_MSG_INFO("started electronProbabaility");
   //Intialize the return vector
@@ -538,7 +540,8 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk
     }
 
 
-    // Occupancy:
+    // Occupancy (0: TRT, 1: Barrel C-side, 2: EndcapA C-side, 3: EndcapB C-side, 4: Barrel A-side, 5: EndcapA A-side, 6: EndcapB A-side)
+    // (...to be settled between Alex Alonso and Leigh...!!!):
     double occB = occ.at(1);
     double occE = occ.at(1);
 
@@ -598,8 +601,8 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk
       pHTel = pHTel_Argon[TrtPart];
       pHTpi = pHTpi_Argon[TrtPart];
     } else {
-      pHTel = HTcalc.getProbHT( pTrk, Trk::electron, TrtPart, SL[TrtPart], ZRpos[TrtPart], rTrkWire, Occ[TrtPart]);
-      pHTpi = HTcalc.getProbHT( pTrk, Trk::pion,     TrtPart, SL[TrtPart], ZRpos[TrtPart], rTrkWire, Occ[TrtPart]);
+      pHTel = HTcalc.getProbHT( pTrk, Trk::electron, TrtPart, SL[TrtPart], ZRpos[TrtPart], rTrkWire, Occ[TrtPart], m_OccupancyUsedInPID);
+      pHTpi = HTcalc.getProbHT( pTrk, Trk::pion,     TrtPart, SL[TrtPart], ZRpos[TrtPart], rTrkWire, Occ[TrtPart], m_OccupancyUsedInPID);
     }
 
     if (pHTel > 0.999 || pHTpi > 0.999 || pHTel < 0.001 || pHTpi < 0.001) {
@@ -607,8 +610,8 @@ std::vector<float> InDet::TRT_ElectronPidToolRun2::electronProbability(const Trk
       continue;
     }
       
-    if (pHTel > 0.80 || pHTpi > 0.50 || pHTel < 0.04 || pHTpi < 0.016) {
-      ATH_MSG_INFO("  pHT has abnormal value!  pHTel = " << pHTel << "  pHTpi = " << pHTpi << "     TrtPart: " << TrtPart << "  SL: " << SL[TrtPart] << "  ZRpos: " << ZRpos[TrtPart] << "  TWdist: " << rTrkWire << "  Occ: " << Occ[TrtPart]);
+    if (pHTel > 0.80 || pHTpi > 0.50 || pHTel < 0.035 || pHTpi < 0.015) {
+      ATH_MSG_DEBUG("  pHT has abnormal value!  pHTel = " << pHTel << "  pHTpi = " << pHTpi << "     TrtPart: " << TrtPart << "  SL: " << SL[TrtPart] << "  ZRpos: " << ZRpos[TrtPart] << "  TWdist: " << rTrkWire << "  Occ: " << Occ[TrtPart]);
       continue;
     }
       
