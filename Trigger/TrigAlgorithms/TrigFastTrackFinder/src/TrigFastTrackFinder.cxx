@@ -1033,11 +1033,11 @@ void TrigFastTrackFinder::convertToTrigInDetTrack(const TrackCollection& offline
   for (auto offlineTrack : offlineTracks) {
     const Trk::TrackParameters* trackPars = offlineTrack->perigeeParameters();
     if(trackPars==nullptr) {
-      return;
+      continue;
     }
 
     if(trackPars->covariance()==nullptr) {
-      return;
+      continue;
     }
     
     float d0 = trackPars->parameters()[Trk::d0]; 
@@ -1147,9 +1147,7 @@ void TrigFastTrackFinder::convertToTrigInDetTrack(const TrackCollection& offline
     }
     pTrack->HitPattern(hitPattern);
 	
-
-    //TODO: algoId for FastTrackFinder
-    pTrack->algorithmId(TrigInDetTrack::NULLID);
+    pTrack->algorithmId(TrigInDetTrack::FTF);
     trigInDetTracks.push_back(pTrack);
   }
 }
