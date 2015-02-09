@@ -38,7 +38,6 @@
 #include "egammaInterfaces/IEMShowerBuilder.h"
 #include "egammaInterfaces/IEMBremCollectionBuilder.h"
 #include "egammaInterfaces/IEMFourMomBuilder.h"
-#include "CaloUtils/CaloCellDetPos.h"
 #include "LumiBlockComps/ILuminosityTool.h" 
 
 #include "xAODPrimitives/IsolationType.h"
@@ -80,9 +79,12 @@ private:
   TrigTimer *m_timerTool1, *m_timerTool2, *m_timerTool3, *m_timerTool4, *m_timerTool5;
   TrigTimer *m_timerIsoTool1, *m_timerIsoTool2, *m_timerIsoTool3;
   TrigTimer *m_timerPIDTool1, *m_timerPIDTool2, *m_timerPIDTool3;
-  // suffix to be added to the egamma container name in TDS as an alias
-  std::string m_electronContainerAliasSuffix;
-  std::string m_photonContainerAliasSuffix;
+  // Container names for persistency 
+  std::string m_electronContainerName;
+  std::string m_photonContainerName;
+  // Cluster Container names for slw and topo
+  std::string m_slwClusterContName;
+  std::string m_topoClusterContName;
 
   ToolHandle<IEMTrackMatchBuilder> m_trackMatchBuilder;
   ToolHandle<IEMConversionBuilder> m_conversionBuilder;
@@ -117,16 +119,13 @@ private:
   bool m_doCaloCellIsolation;
   bool m_doTopoIsolation;
   bool m_useBremAssoc;
-  //CaloUtil
-  CaloCellDetPos *m_caloCellDetPos;
   
-  //needed for monitoring to work
+  // Allows delete
+  EgammaRecContainer *m_eg_container; 
+  // needed for monitoring to work
   xAOD::ElectronContainer* m_electron_container;
   xAOD::PhotonContainer* m_photon_container;
 
-  // Methods to dump reconstruction info for debugging 
-  void PrintElectron(xAOD::Electron *); 
-  void PrintPhoton(xAOD::Photon *); 
 
   //Now for isolation
   /** @brief Isolation types (for the alg. properties, only vector<vector<double>> available */
@@ -152,5 +151,10 @@ private:
 
   //Monitoring vectors
   std::vector<float> m_lhval;
+  std::vector<float> m_lhcaloval;
+
+  // Methods to dump reconstruction info for debugging 
+  void PrintElectron(xAOD::Electron *); 
+  void PrintPhoton(xAOD::Photon *); 
 };
 #endif // TRIGEGAMMAREC_H

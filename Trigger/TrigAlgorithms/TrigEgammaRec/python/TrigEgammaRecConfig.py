@@ -80,8 +80,8 @@ def configureTrigEgammaMonitoring(tool):
 
 TrigEgammaRec = ToolFactory(TrigEgammaRecConf.TrigEgammaRec, name="TrigEgammaRec",
     # Keys
-    ElectronContainerAliasSuffix="egamma_Electrons", 
-    PhotonContainerAliasSuffix="egamma_Photons",
+    ElectronContainerName="egamma_Electrons", 
+    PhotonContainerName="egamma_Photons",
     
     
     # Tools with non-default configuration
