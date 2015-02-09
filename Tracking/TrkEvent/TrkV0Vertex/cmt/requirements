@@ -10,7 +10,6 @@ use  DataModel                  DataModel-*                     Control
 use  EventKernel                EventKernel-*                   Event
 use  VxVertex                   VxVertex-*                      Tracking/TrkEvent
 private
-use  AthLinks                   AthLinks-*                      Control
 end_private
 
 library TrkV0Vertex *.cxx
