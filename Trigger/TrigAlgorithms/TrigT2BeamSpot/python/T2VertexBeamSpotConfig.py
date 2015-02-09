@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id: T2VertexBeamSpotConfig.py 643531 2015-02-02 12:40:50Z smh $
+# $Id: T2VertexBeamSpotConfig.py 645251 2015-02-09 17:06:50Z smh $
 #
 
 from TrigT2BeamSpot.TrigT2BeamSpotConf import PESA__T2VertexBeamSpot
@@ -134,6 +134,7 @@ class AlgoId :
     STRATEGY_A_ID=5
     STRATEGY_B_ID=6
     STRATEGY_F_ID=8
+    FTF=14
 
 #
 # L2Star Strategy A
@@ -209,3 +210,24 @@ class T2VertexBeamSpot_activeTE_L2StarF ( T2VertexBeamSpot_activeTE ) :
     def __init__ (self, name="T2VertexBeamSpot_activeTE_L2StarF"):
         super(T2VertexBeamSpot_activeTE_L2StarF, self).__init__(name, detail=0)
         self.TrackAlgoID    = AlgoId.STRATEGY_F_ID
+
+# Setup for using FTF tracks
+class T2VertexBeamSpot_FTF ( T2VertexBeamSpot ) :
+    __slots__ = []
+    def __init__ (self, name="T2VertexBeamSpot_FTF"):
+        super(T2VertexBeamSpot_FTF, self).__init__(name, detail=2)
+        self.TrackAlgoID    = AlgoId.FTF
+
+# Setup for writing out all events seen by the BeamSpot algorithm with FTF tracks
+class T2VertexBeamSpot_activeAllTE_FTF ( T2VertexBeamSpot_activeAllTE ) :
+    __slots__ = []
+    def __init__ (self, name="T2VertexBeamSpot_activeAllTE_FTF"):
+        super(T2VertexBeamSpot_activeAllTE_FTF, self).__init__(name, detail=0)
+        self.TrackAlgoID    = AlgoId.FTF
+
+# Setup for writing out events with a "good" vertex seen by the BeamSpot algorithm with FTF tracks
+class T2VertexBeamSpot_activeTE_FTF ( T2VertexBeamSpot_activeTE ) :
+    __slots__ = []
+    def __init__ (self, name="T2VertexBeamSpot_activeTE_FTF"):
+        super(T2VertexBeamSpot_activeTE_FTF, self).__init__(name, detail=0)
+        self.TrackAlgoID    = AlgoId.FTF
