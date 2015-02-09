@@ -175,6 +175,16 @@ double InDet::TRT_ElectronPidTool::GetToT(unsigned int bitpattern, double HitZ, 
   return  ToTcalc.GetToT( bitpattern, HitZ, HitR, BEC, Layer, Strawlayer);
 }
 
+
+
+
+
+/*****************************************************************************\
+|*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
+|*%%%  The PID Tool  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
+|*%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*|
+\*****************************************************************************/
+
 std::vector<float> InDet::TRT_ElectronPidTool::electronProbability(const Trk::Track& track){
 
   //Intialize the return vector
@@ -186,6 +196,7 @@ std::vector<float> InDet::TRT_ElectronPidTool::electronProbability(const Trk::Tr
   float & prob_El_Brem         = PIDvalues[3] = 0.5;
   //float & prob_El_ToT          = PIDvalues[4] = 0.5;
   float prob_El_ToT   = 0.5;
+
    // Check for perigee:
    const Trk::TrackParameters* perigee = track.perigeeParameters();
    if (!perigee) {
@@ -200,19 +211,20 @@ std::vector<float> InDet::TRT_ElectronPidTool::electronProbability(const Trk::Tr
    double theta  = parameterVector[Trk::theta];
    //double phi    = parameterVector[Trk::phi];
    //check the parameters are reasonable;
-   if(tan(theta/2.0) < 0.0001){
+   if (tan(theta/2.0) < 0.0001){
      ATH_MSG_DEBUG ("  Track has negative theta or is VERY close to beampipe! (tan(theta/2) < 0.0001). Returning default Pid values.");
      //m_timingProfile->chronoStop("Tool::electronProb_new");
      return PIDvalues;
    }
  
-   if(qOverP == 0.0){
+   if (qOverP == 0.0) {
      ATH_MSG_DEBUG ("  Track momentum infinite! (i.e. q/p = 0). Returning default Pid values.");
      //m_timingProfile->chronoStop("Tool::electronProb_new");
      return PIDvalues;
    }
 
    double pTrk = fabs(1.0 / qOverP);
+
 
    // ------------------------------------------------------------------------------------
    // Loop over TRT hits on track, and calculate HT and R-ToT probability:
@@ -335,6 +347,8 @@ std::vector<float> InDet::TRT_ElectronPidTool::electronProbability(const Trk::Tr
     //   m_timingProfile->chronoStop("Tool::electronProb_new");
   return PIDvalues;  
 }
+
+
 
 
 

@@ -33,7 +33,7 @@ class InDet::TRT_ElectronPidToolRun2::HTcalculator : public InDet::BaseTRTPIDCal
   //bool FillBlob(const unsigned char*);
 
 
-  double getProbHT( double pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int StrawLayer, double ZRpos, double rTrkAnode, double Occupancy); 
+  double getProbHT( double pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int StrawLayer, double ZRpos, double rTrkAnode, double Occupancy, bool UseOccupancy);
   double pHTvsP(int etaBin, double p, double mass) ;
   double Corr_el_SL(int part, double SL) ;
   double Corr_el_SP(int part, double SP) ;
