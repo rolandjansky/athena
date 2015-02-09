@@ -19,7 +19,11 @@ class IGeoModelTool;
 namespace GeoModel {
   enum GeoConfig {
     GEO_RUN1,
-    GEO_RUN2
+    GEO_RUN2,
+    GEO_RUN3,
+    GEO_RUN4,
+    GEO_ITk,
+    GEO_TESTBEAM
   };
 }  
 
