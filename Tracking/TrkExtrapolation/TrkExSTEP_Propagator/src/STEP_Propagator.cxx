@@ -207,6 +207,7 @@ const Trk::TrackParameters*
                                    const Trk::TrackingVolume*          tVol) const
 {
   double Jacobian[25];
+  clearCache(); 
 
   //Check for tracking volume (materialproperties)
   m_trackingVolume = tVol;
@@ -244,6 +245,7 @@ const Trk::TrackParameters*
 				              bool                     returnCurv,
 				   const Trk::TrackingVolume*          tVol) const
 {
+  clearCache(); 
 
   //Check for tracking volume (materialproperties)
   m_trackingVolume = tVol;
@@ -296,6 +298,7 @@ const Trk::TrackParameters*
 				    const Trk::TrackingVolume*          tVol,
 				    std::vector<Trk::HitInfo>*&         hitVector) const
 {
+  clearCache(); 
   // cache particle mass
   m_particleMass = s_particleMasses.mass[particle]; //Get particle mass from ParticleHypothesis
 
@@ -380,6 +383,7 @@ const Trk::TrackParameters*
 				    const Trk::TrackingVolume*          tVol,
                                     Trk::ExtrapolationCache*  cache) const
 {
+  clearCache(); 
 
   //Check for tracking volume (materialproperties)
   m_trackingVolume = tVol;
@@ -431,6 +435,7 @@ const Trk::TrackParameters*
 				   const Trk::TrackingVolume*     tVol) const
 {
   double Jacobian[25];
+  clearCache(); 
 
   //Check for tracking volume (materialproperties)
   m_trackingVolume = tVol;
@@ -474,6 +479,7 @@ const Trk::TrackParameters*
 					     const Trk::TrackingVolume*          tVol) const
 {
   double Jacobian[25];
+  clearCache(); 
 
   //Check for tracking volume (materialproperties)
   m_trackingVolume = tVol;
@@ -506,6 +512,7 @@ const Trk::TrackParameters*
 					     const Trk::TrackingVolume*          tVol) const
 {
   double Jacobian[25];
+  clearCache(); 
 
   //Check for tracking volume (materialproperties)
   m_trackingVolume = tVol;
@@ -1178,8 +1185,8 @@ bool
       double bp2 = beta*mom*mom;
       m_stragglingVariance += sigTot2/(bp2*bp2)*distanceStepped*fabs(distanceStepped);  // keep trace of sign
     }
-    if (m_matstates || errorPropagation) m_combinedEloss.update(m_delIoni*distanceStepped,m_sigmaIoni*distanceStepped,
-					    m_delRad *distanceStepped,m_sigmaRad *distanceStepped,m_MPV);
+    if (m_matstates || errorPropagation) m_combinedEloss.update(m_delIoni*distanceStepped,m_sigmaIoni*fabs(distanceStepped),
+					    m_delRad *distanceStepped,m_sigmaRad *fabs(distanceStepped),m_MPV);
     if (m_material && m_material->x0()!=0.) m_combinedThickness += distanceStepped/m_material->x0(); 
 
     //Calculate new distance to target
@@ -1388,8 +1395,8 @@ bool
 	double bp2 = beta*mom*mom;
 	m_stragglingVariance += sigTot2/(bp2*bp2)*distanceStepped*fabs(distanceStepped);  // keep trace of sign
       }
-      if (m_matstates||errorPropagation) m_combinedEloss.update(m_delIoni*distanceStepped,m_sigmaIoni*distanceStepped,
-					      m_delRad *distanceStepped,m_sigmaRad *distanceStepped,m_MPV);
+      if (m_matstates||errorPropagation) m_combinedEloss.update(m_delIoni*distanceStepped,m_sigmaIoni*fabs(distanceStepped),
+					      m_delRad *distanceStepped,m_sigmaRad *fabs(distanceStepped),m_MPV);
       
       if (m_material && m_material->x0()!=0.) {
 	m_combinedThickness += distanceStepped/m_material->x0(); 
@@ -1413,8 +1420,8 @@ bool
       double bp2 = beta*mom*mom;
       m_stragglingVariance += sigTot2/(bp2*bp2)*distanceStepped*fabs(distanceStepped);  // keep trace of sign
     }
-    if (m_matstates||errorPropagation) m_combinedEloss.update(m_delIoni*distanceStepped,m_sigmaIoni*distanceStepped,
-					    m_delRad *distanceStepped,m_sigmaRad *distanceStepped,m_MPV);
+    if (m_matstates||errorPropagation) m_combinedEloss.update(m_delIoni*distanceStepped,m_sigmaIoni*fabs(distanceStepped),
+					    m_delRad *distanceStepped,m_sigmaRad *fabs(distanceStepped),m_MPV);
     if (m_material && m_material->x0()!=0.) {
       m_combinedThickness += distanceStepped/m_material->x0(); 
     }
@@ -2443,15 +2450,15 @@ const Trk::TrackParameters* Trk::STEP_Propagator::createStraightLine( const Trk:
   AmgVector(5) lp = inputTrackParameters->parameters();
   lp[Trk::qOverP] = 1./1e10;
 
-  // curvi
+  ATH_MSG_WARNING("STEP propagator detects invalid input parameters (q/p=0 ), resetting momentum to 1.e10");
+
   if (dynamic_cast<const Trk::CurvilinearParameters*>(inputTrackParameters)) {
     return new Trk::CurvilinearParameters(  inputTrackParameters->position(), lp[2], lp[3], lp[4], 
 					    (inputTrackParameters->covariance() ? new AmgSymMatrix(5)(*inputTrackParameters->covariance()) : 0 ) );
-  } else if(inputTrackParameters) 
+  } else 
     return inputTrackParameters->associatedSurface().createTrackParameters(lp[0], lp[1], lp[2], lp[3], lp[4],
-									   (inputTrackParameters->covariance() ? new AmgSymMatrix(5)(*inputTrackParameters->covariance()) : 0 ) );
+		   (inputTrackParameters->covariance() ? new AmgSymMatrix(5)(*inputTrackParameters->covariance()) : 0 ) );
 
-  else return 0;
 }
 
 
@@ -2587,4 +2594,12 @@ const Trk::TrackParameters*
   }
   
   return 0;
+}
+
+void Trk::STEP_Propagator::clearCache() const
+{
+  m_delIoni=0.;
+  m_delRad=0.;
+  m_sigmaIoni=0.;
+  m_sigmaRad=0.;
 }

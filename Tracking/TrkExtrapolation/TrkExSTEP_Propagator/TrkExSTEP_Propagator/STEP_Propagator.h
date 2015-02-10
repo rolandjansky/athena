@@ -424,6 +424,7 @@ namespace Trk {
     const Trk::TrackParameters*
       createStraightLine( const Trk::TrackParameters*  inputTrackParameters) const;
 
+    void clearCache() const;
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     // Calculate energy loss in MeV/mm. The radiative effects are scaled by m_radiationScale (1=mean, 0.5=mean(log10), 0.1=mpv)
