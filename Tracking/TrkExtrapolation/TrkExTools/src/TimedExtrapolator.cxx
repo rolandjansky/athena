@@ -1333,25 +1333,28 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::transportToVolumeWithPathLi
   }
     
   // resolve current position
-  Amg::Vector3D gp = parm.position();
-  if ( !m_currentStatic || !m_currentStatic->inside(gp,m_tolerance) ) {
-    m_currentStatic =  m_navigator->trackingGeometry()->lowestStaticTrackingVolume(gp);    
-    ATH_MSG_DEBUG( "  [+] current static volume resolved by navigator (inside): "<< 
-		   positionOutput(currPar->position())<<":"<<m_currentStatic->volumeName() );
-  }
+  if (m_parametersAtBoundary.nextParameters==currPar) m_currentStatic=m_parametersAtBoundary.nextVolume;
+  else {
 
-  if ( m_navigator->atVolumeBoundary(currPar,m_currentStatic,dir,nextVol,m_tolerance) && nextVol != m_currentStatic ) {
-    // no next volume found --- end of the world
-    if ( !nextVol ) {
-      ATH_MSG_DEBUG( "  [+] Word boundary reached        - at " << positionOutput(currPar->position()) );
-      nextGeoID = Trk::GeometrySignature(Trk::Unsigned);
-      return currPar;
+    Amg::Vector3D gp = parm.position();
+    if ( !m_currentStatic || !m_currentStatic->inside(gp,m_tolerance) ) {
+      m_currentStatic =  m_navigator->trackingGeometry()->lowestStaticTrackingVolume(gp);    
+      ATH_MSG_DEBUG( "  [+] current static volume resolved by navigator (inside): "<< 
+		     positionOutput(currPar->position())<<":"<<m_currentStatic->volumeName() );
     }
-    ATH_MSG_DEBUG( "  [+] current static volume resolved by navigator at boundary: "<< positionOutput(currPar->position())
-		   <<m_currentStatic->volumeName()<<"->"<< nextVol->volumeName()<<" with tolerance " << m_tolerance );
-    m_currentStatic = nextVol;
-  }
 
+    if ( m_navigator->atVolumeBoundary(currPar,m_currentStatic,dir,nextVol,m_tolerance) && nextVol != m_currentStatic ) {
+      // no next volume found --- end of the world
+      if ( !nextVol ) {
+	ATH_MSG_DEBUG( "  [+] Word boundary reached        - at " << positionOutput(currPar->position()) );
+	nextGeoID = Trk::GeometrySignature(Trk::Unsigned);
+	return currPar;
+      }
+      ATH_MSG_DEBUG( "  [+] current static volume resolved by navigator at boundary: "<< positionOutput(currPar->position())
+		     <<m_currentStatic->volumeName()<<"->"<< nextVol->volumeName()<<" with tolerance " << m_tolerance );
+      m_currentStatic = nextVol;
+    }
+  }
   // current frame volume known-retrieve geoID
   nextGeoID = m_currentStatic->geometrySignature(); 
 
@@ -1432,7 +1435,8 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::transportToVolumeWithPathLi
     else {
 	    ATH_MSG_DEBUG( "  [+] World boundary reached        - at " << positionOutput(currPar->position())<<", timed at " << m_time );
 	    nextGeoID = Trk::GeometrySignature(Trk::Unsigned);
-	    if (!destVol) { return currPar;}
+	    //if (!destVol) { return currPar;}
+	    return currPar;
     }
   }
   
@@ -1813,7 +1817,8 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::transportToVolumeWithPathLi
 	 if ( !nextVol ) {
 	   ATH_MSG_DEBUG( "  [+] World boundary reached        - at " << positionOutput(nextPar->position())<<", timed at " << m_time );
 	   nextGeoID = Trk::GeometrySignature(Trk::Unsigned);
-	   if (!destVol) { return nextPar->clone();}
+	   //if (!destVol) { return nextPar->clone();}
+	   return nextPar->clone();
 	 }
 	 // next volume found and parameters are at boundary
 	 if ( nextVol && nextPar ){ 
@@ -1822,6 +1827,7 @@ const Trk::TrackParameters*  Trk::TimedExtrapolator::transportToVolumeWithPathLi
 	   if (!destVol && m_currentStatic->geometrySignature()!=nextVol->geometrySignature())
 	     { nextGeoID=nextVol->geometrySignature(); return nextPar->clone(); }   
 	 }     
+         m_parametersAtBoundary.boundaryInformation(nextVol,nextPar,nextPar);             
 	 return transportToVolumeWithPathLimit(*nextPar, timeLim, dir, particle, nextGeoID, destVol);
        }
        //if (dist>0.) return transportToVolumeWithPathLimit(*nextPar, timeLim, dir, particle, nextGeoID, destVol);
@@ -2007,9 +2013,35 @@ Trk::BoundaryTrackParameters Trk::TimedExtrapolator::transportInAlignableTV(cons
     Amg::Vector3D gp = currPar->position()+dist*dir*currPar->momentum().normalized();
     if ( surf.isOnSurface(gp,true,m_tolerance,m_tolerance) ) {
       const Trk::TrackingVolume* attachedVol =  (bounds[ib].getPtr())->attachedVolume(gp,currPar->momentum(),dir);
-      if ( attachedVol != m_currentStatic )   { //exit  
+
+      if ( attachedVol && !(attachedVol->inside(gp+0.01*dir*currPar->momentum().normalized(),m_tolerance) ) ) {
+	ATH_MSG_WARNING( "  [!] WARNING: wrongly assigned exit volume ?"<< m_currentStatic->volumeName()<<"->" << attachedVol->volumeName() );
+	attachedVol = m_navigator->trackingGeometry()->lowestStaticTrackingVolume(gp+0.01*dir*currPar->momentum().normalized());
+	if (attachedVol) ATH_MSG_DEBUG( "  new search yields: "<< attachedVol->volumeName() );          
+      }
+   
+      //Amg::Vector3D gp1 = currPar->position()+distSol.first()*dir*currPar->momentum().normalized();
+      //const Trk::TrackingVolume* at1 =  (bounds[ib].getPtr())->attachedVolume(gp1,currPar->momentum(),dir);
+      //if (at1) std::cout << "bounds:first:"<< ib<<","<<distSol.first()<<","<<at1->volumeName()<< std::endl;
+      //if (distSol.numberOfSolutions()>1) {
+      //  Amg::Vector3D gp2 = currPar->position()+distSol.second()*dir*currPar->momentum().normalized();
+      //  const Trk::TrackingVolume* at2 =  (bounds[ib].getPtr())->attachedVolume(gp2,currPar->momentum(),dir);
+      //  if (at2) std::cout << "bounds:second:"<< ib<<","<<distSol.second()<<","<<at2->volumeName()<< std::endl;
+      //}
+
+      if ( attachedVol != m_currentStatic && dist>m_tolerance)   { //exit  
         nextVol = attachedVol;
 	m_trStaticBounds.insert(m_trStaticBounds.begin(),Trk::DestBound(&surf,dist,ib));
+      } else if (dist>m_tolerance) {
+        const Trk::TrackingVolume* testVol =  (bounds[ib].getPtr())->attachedVolume(gp,currPar->momentum(),Trk::oppositeMomentum);
+        ATH_MSG_DEBUG("gluing problem at the boundary of alignable volume? distance,R,z, current and attached volume: "<<dist<<","<<
+		      gp.perp()<<","<<gp.z()<<":"<<m_currentStatic->volumeName());
+        if (testVol) ATH_MSG_DEBUG("attached in inverted direction:"<< testVol->volumeName());
+	if (testVol && testVol->inside(gp+0.01*dir*currPar->momentum().normalized(),m_tolerance) && testVol!=m_currentStatic ) {
+	  ATH_MSG_DEBUG("next volume resolved to:"<< testVol->volumeName()<<" at the position(R,Z):"<<gp.perp()<<","<<gp.z() );
+          nextVol = testVol;  
+	  m_trStaticBounds.insert(m_trStaticBounds.begin(),Trk::DestBound(&surf,dist,ib));        
+	}
       }   
     }
   } // end loop over boundaries
@@ -2022,6 +2054,7 @@ Trk::BoundaryTrackParameters Trk::TimedExtrapolator::transportInAlignableTV(cons
   } else if (m_trStaticBounds.size()>1) {  // hit edge ?
     Amg::Vector3D gp = currPar->position()+(m_trStaticBounds[0].distance+1.)*dir*currPar->momentum().normalized();
     nextVol =  m_navigator->trackingGeometry()->lowestStaticTrackingVolume(gp); 
+    ATH_MSG_DEBUG("exit volume reassigned:"<<nextVol->volumeName());
   }
 
   // exit from the volume may coincide with the last bin boundary - leave 10 microns marge  
@@ -2129,15 +2162,15 @@ Trk::BoundaryTrackParameters Trk::TimedExtrapolator::transportInAlignableTV(cons
   throwIntoGarbageBin(nextPar);
        
   // static volume boundary; return to the main loop : TODO move from misaligned to static
-  unsigned int index = m_trStaticBounds[0].bIndex;
+  //unsigned int index = m_trStaticBounds[0].bIndex;
   // use global coordinates to retrieve attached volume (just for static!)
-  nextVol = (m_currentStatic->boundarySurfaces())[index].getPtr()->attachedVolume(nextPar->position(),nextPar->momentum(),dir);
+  //nextVol = (m_currentStatic->boundarySurfaces())[index].getPtr()->attachedVolume(nextPar->position(),nextPar->momentum(),dir);
   // double check the next volume
-  if ( nextVol && !(nextVol->inside(nextPar->position()+0.01*nextPar->momentum().normalized(),m_tolerance) ) ) {
-    ATH_MSG_DEBUG( "  [!] WARNING: wrongly assigned static volume ?"<< m_currentStatic->volumeName()<<"->" << nextVol->volumeName() );
-    nextVol = m_navigator->trackingGeometry()->lowestStaticTrackingVolume(nextPar->position()+0.01*nextPar->momentum().normalized());
-    if (nextVol) ATH_MSG_DEBUG( "  new search yields: "<< nextVol->volumeName() );          
-  }
+  //if ( nextVol && !(nextVol->inside(nextPar->position()+0.01*nextPar->momentum().normalized(),m_tolerance) ) ) {
+  //  ATH_MSG_DEBUG( "  [!] WARNING: wrongly assigned static volume ?"<< m_currentStatic->volumeName()<<"->" << nextVol->volumeName() );
+  //  nextVol = m_navigator->trackingGeometry()->lowestStaticTrackingVolume(nextPar->position()+0.01*nextPar->momentum().normalized());
+  //  if (nextVol) ATH_MSG_DEBUG( "  new search yields: "<< nextVol->volumeName() );          
+  //}
 
   ATH_MSG_DEBUG("  [+] StaticVol boundary reached of '" <<m_currentStatic->volumeName() << "'.");
 
@@ -2149,8 +2182,10 @@ Trk::BoundaryTrackParameters Trk::TimedExtrapolator::transportInAlignableTV(cons
     ATH_MSG_DEBUG( "  [+] Crossing to next volume '" << nextVol->volumeName() << "'");
     ATH_MSG_DEBUG( "  [+] Crossing position is         - at " <<  positionOutput(nextPar->position()) );
   }     
+  
+  m_parametersAtBoundary.boundaryInformation(nextVol,nextPar,nextPar); 
 
-  return Trk::BoundaryTrackParameters(nextPar,m_currentStatic,nextVol);    
+  return Trk::BoundaryTrackParameters(nextPar,nextVol, m_currentStatic);    
 }
 
 
@@ -2335,7 +2370,7 @@ Trk::BoundaryTrackParameters Trk::TimedExtrapolator::extrapolateInAlignableTV(co
 	     ATH_MSG_DEBUG( "  [+] Crossing position is         - at " <<  positionOutput(nextPar->position()) );
 	   }     
 	   
-	   return Trk::BoundaryTrackParameters(nextPar,m_currentStatic,nextVol);    
+	   return Trk::BoundaryTrackParameters(nextPar,nextVol,m_currentStatic);    
 	 }
        }
      }
