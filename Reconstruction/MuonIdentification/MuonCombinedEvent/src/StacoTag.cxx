@@ -7,14 +7,13 @@
 
 namespace MuonCombined {
 
-  StacoTag::StacoTag( const MuonCandidate& muonCandidate, const Trk::Perigee* combinedParameters, double chi2 ) : 
+  StacoTag::StacoTag( const MuonCandidate& muonCandidate, std::unique_ptr<const Trk::Perigee>& combinedParameters, double chi2 ) : 
     TagBase(TagBase::Author::STACO,TagBase::Type::Combined), 
     m_muonCandidate(&muonCandidate), 
-    m_combinedParameters(combinedParameters),
+    m_combinedParameters(std::move(combinedParameters)),
     m_chi2(chi2){}
 
   StacoTag::~StacoTag() {
-    delete m_combinedParameters;
   }
 
   std::string StacoTag::toString() const { 
