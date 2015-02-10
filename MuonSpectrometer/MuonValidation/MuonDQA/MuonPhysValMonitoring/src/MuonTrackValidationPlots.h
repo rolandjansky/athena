@@ -13,12 +13,13 @@
 
 class MuonTrackValidationPlots:public PlotBase {
   public:
-    MuonTrackValidationPlots(PlotBase* pParent, std::string sDir);
+    MuonTrackValidationPlots(PlotBase* pParent, std::string sDir, bool isData=false);
+    ~MuonTrackValidationPlots();
 
     // Reco only information
-    RecoMuonTrackPlots          m_oRecoMuonTrackPlots;
+    RecoMuonTrackPlots          *m_oRecoMuonTrackPlots;
     // Truth related plots
-    TruthRelatedMuonTrackPlots  m_oMatchedMuonTrackPlots;
+    TruthRelatedMuonTrackPlots  *m_oMatchedMuonTrackPlots;
 
     void fill(const xAOD::TrackParticle& muTP);
     void fill(const xAOD::TruthParticle* truthMu, const xAOD::TrackParticle* muTP);

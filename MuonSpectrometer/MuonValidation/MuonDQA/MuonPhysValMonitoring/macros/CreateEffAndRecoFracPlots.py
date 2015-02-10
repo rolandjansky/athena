@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #Written by Dan Mori
@@ -89,10 +87,9 @@ def CreateRatioPlot( numHist, denHist, var, eta1=None, eta2=None, xtitle = '', p
             PlotName = numNamePrefix+'_'+plottype+'_'+var.split('_')[1]+'_etaRange_{0}_{1}'.format(eta1,eta2).replace('-','m').replace('.','p')
             PlotTitle = PlotTitle + ' ({0}<eta<{1})'.format(eta1,eta2)
 
-    # --- not good for segment plots
-    # if not num.IsA().InheritsFrom(ROOT.TH2.Class()):
-    #     num = num.Rebin(2,"num")
-    #     den = den.Rebin(2,"den")
+    if not num.IsA().InheritsFrom(ROOT.TH2.Class()):
+        num = num.Rebin(2,"num")
+        den = den.Rebin(2,"den")
 
     ratio = num.Clone()
     ratio.Divide(num,den,1,1,"B")
@@ -145,9 +142,8 @@ def main( argv ):
         print( 'Cannot open file: {0}'.format( filename ) )
         exit(1)
 
-    muonTypesEff = [ 'All', 'Prompt', 'InFlight', 'NonIsolated' ]
+    muonTypesEff  = [ 'All', 'Prompt', 'InFlight', 'NonIsolated' ]
     muonTypesReco = [ 'Prompt', 'InFlight', 'NonIsolated' ]
-    Authors = [ 'MuidCombined', 'AllAuthors', 'MuTagIMO' , 'CaloTag', 'MuGirl', 'MuidStandalone' ]
     Variables = [ 'pt', 'eta', 'phi', 'eta_phi', 'eta_pt' ]
 
     Xtitles = {
@@ -157,97 +153,74 @@ def main( argv ):
       'eta_phi' : 'eta',
       'eta_pt' : 'eta' }
 
-
     #Efficiency plots
-    for muType, author, var in itertools.product( muonTypesEff, Authors, Variables ):
-        truthAll='all'
-        if author=='MuonSegments':
-            truthAll='MuonSegments'
-        truthDirName = 'Muons/{0}/truth/{1}'.format( muType, truthAll )
-        matchDirName = 'Muons/{0}/matched/{1}'.format( muType, author )
-        truthDir = infile.GetDirectory( truthDirName )
-        matchDir = infile.GetDirectory( matchDirName )
-        if not truthDir:
-            print( 'WARNING Directory not found: '+truthDirName )
+    for muType in muonTypesEff:
+        if not infile.Get( 'Muons/' + muType ):
+            print( 'INFO TDirectory not found: Muons/' + muType )
             continue
-        if not matchDir:
-            print( 'WARNING Directory not found: '+truthDirName )
-            continue
-        truthHistName = 'Muons_{0}_truth_{1}_{2}'.format( muType, truthAll, var )
-        truthHist = truthDir.Get( truthHistName )
-        matchHistName = 'Muons_{0}_matched_{1}_{2}'.format( muType, author, var )
-        matchHist = matchDir.Get( matchHistName )
-        if not truthHist:
-            print( 'WARNING histogram not found: '+truthHistName+' in '+truthDirName)
-            continue
-        if not matchHist:
-            print( 'WARNING histogram not found: '+matchHistName+' in '+matchDirName )
-            continue
-        CreateRatioPlot( matchHist, truthHist, var, xtitle = muType+' Muon '+Xtitles[var], plottype = 'Eff' )
-        if var == 'eta_phi' or var == 'eta_pt':
-            CreateRatioPlot( matchHist, truthHist, var, -0.1, 0.1, muType+' Muon '+Xtitles[var], 'Eff' )
-            CreateRatioPlot( matchHist, truthHist, var, 0.1, 1.05, muType+' Muon '+Xtitles[var], 'Eff' )
-            CreateRatioPlot( matchHist, truthHist, var, 1.05, 2.0, muType+' Muon '+Xtitles[var], 'Eff' )
-            CreateRatioPlot( matchHist, truthHist, var, 2.0, 2.5, muType+' Muon '+Xtitles[var], 'Eff' )
+        #get list of authors from matched dir
+        AuthDir = infile.Get( 'Muons/{0}/matched'.format( muType ) )
+        Authors = [ i.GetName() for i in AuthDir.GetListOfKeys() if AuthDir.Get( i.GetName() ).InheritsFrom( 'TDirectory' ) ]
+        for author in Authors:
+            truthDirName = 'Muons/{0}/truth/all'.format( muType )
+            matchDirName = 'Muons/{0}/matched/{1}'.format( muType, author )
+            truthDir = infile.GetDirectory( truthDirName )
+            matchDir = infile.GetDirectory( matchDirName )
+            if not truthDir:
+                print( 'WARNING Directory not found: '+truthDirName )
+                continue
+            if not matchDir:
+                print( 'WARNING Directory not found: '+matchDirName )
+                continue
+            for var in Variables:
+                truthHistName = 'Muons_{0}_truth_all_{1}'.format( muType, var )
+                truthHist = truthDir.Get( truthHistName )
+                matchHistName = 'Muons_{0}_matched_{1}_{2}'.format( muType, author, var )
+                matchHist = matchDir.Get( matchHistName )
+                if not truthHist:
+                    print( 'WARNING histogram not found: '+truthHistName )
+                    continue
+                if not matchHist:
+                    print( 'WARNING histogram not found: '+matchHistName )
+                    continue
+                CreateRatioPlot( matchHist, truthHist, var, xtitle = muType+' Muon '+Xtitles[var], plottype = 'Eff' )
+                if var == 'eta_phi' or var == 'eta_pt':
+                    CreateRatioPlot( matchHist, truthHist, var, -0.1, 0.1, muType+' Muon '+Xtitles[var], 'Eff' )
+                    CreateRatioPlot( matchHist, truthHist, var, 0.1, 1.05, muType+' Muon '+Xtitles[var], 'Eff' )
+                    CreateRatioPlot( matchHist, truthHist, var, 1.05, 2.0, muType+' Muon '+Xtitles[var], 'Eff' )
+                    CreateRatioPlot( matchHist, truthHist, var,  2.0, 2.5, muType+' Muon '+Xtitles[var], 'Eff' )
 
-    #Segment Efficiency plots
-    SegmentVariables = ['sector','sector_perStation','nPrecisionHits']
-    for muType, segmVar in itertools.product( muonTypesEff, SegmentVariables ):
-        if muType!='All':
-            continue; ## fix
-
-        truthDirName = 'Muons/{0}/truth/MuonSegments'.format( muType )
-        matchDirName = 'Muons/{0}/matched/MuonSegments'.format( muType )
-        truthDir = infile.GetDirectory( truthDirName )
-        matchDir = infile.GetDirectory( matchDirName )
-        if not truthDir:
-            print( 'WARNING Directory not found: '+truthDirName )
-            continue
-        if not matchDir:
-            print( 'WARNING Directory not found: '+truthDirName )
-            continue
-        truthHistName = 'Muons_{0}_truth_MuonSegments_{1}'.format( muType, segmVar )
-        matchHistName = 'Muons_{0}_matched_MuonSegments_{1}'.format( muType, segmVar )
-        truthHist = truthDir.Get( truthHistName )
-        matchHist = matchDir.Get( matchHistName )
-        if not truthHist:
-            print( 'WARNING histogram not found: '+truthHistName+' in '+truthDirName)
-            continue
-        if not matchHist:
-            print( 'WARNING histogram not found: '+matchHistName+' in '+matchDirName )
-            continue        
-        CreateRatioPlot( matchHist, truthHist, segmVar, xtitle = 'muon segment '+segmVar, plottype = 'Eff' )
-        #if segmVar == 'sector_perStation':
-            #CreateRatioPlot( matchHist, truthHist, var, 0, 1, 'muon segment '+segmVar , 'Eff' )
     #Reco Fraction plots
-    for muType, author, var in itertools.product( muonTypesReco, Authors, Variables ):
-        typedir = 'Muons/{0}/reco/{1}'.format( muType, author )
-        typeplot = 'Muons_{0}_reco_{1}_{2}'.format( muType, author, var )
-        alldir = 'Muons/All/reco/{0}'.format( author )
-        allplot = 'Muons_All_reco_{0}_{1}'.format( author, var )
-
-        typeRecoDir = infile.GetDirectory( typedir )
-        allRecoDir = infile.GetDirectory( alldir )
-
-        if not typeRecoDir:
-            print( 'ERROR TDirectory not found: '+typedir )
+    for muType in muonTypesReco:
+        if not infile.Get( 'Muons/' + muType ):
+            print( 'INFO TDirectory not found: Muons/' + muType )
             continue
-
-        if not allRecoDir:
-            print( 'ERROR TDirectory not found: '+alldir )
-            continue
-
-        typeRecoHist = typeRecoDir.Get( typeplot )
-        allRecoHist = allRecoDir.Get( allplot )
-
-        if not typeRecoHist:
-            print( 'WARNING plot not found: ' + typeplot )
-            continue
-        if not allRecoHist:
-            print( 'WARNING plot not found: ' + allplot )
-            continue
-
-        CreateRatioPlot( typeRecoHist, allRecoHist, var, xtitle = muType+' Muon '+Xtitles[var], plottype = 'RecoFrac' )
+        #get list of authors from matched dir
+        AuthDir = infile.Get( 'Muons/{0}/matched'.format( muType ) )
+        Authors = [ i.GetName() for i in AuthDir.GetListOfKeys() if AuthDir.Get( i.GetName() ).InheritsFrom( 'TDirectory' ) ]
+        for author in Authors:
+            typedir = 'Muons/{0}/reco/{1}'.format( muType, author )
+            alldir = 'Muons/All/reco/{0}'.format( author )
+            typeRecoDir = infile.Get( typedir )
+            allRecoDir = infile.Get( alldir )
+            if not typeRecoDir:
+                print( 'ERROR TDirectory not found: '+typedir )
+                continue
+            if not allRecoDir:
+                print( 'ERROR TDirectory not found: '+alldir )
+                continue
+            for var in Variables:
+                typeplot = 'Muons_{0}_reco_{1}_{2}'.format( muType, author, var )
+                allplot = 'Muons_All_reco_{0}_{1}'.format( author, var )
+                typeRecoHist = typeRecoDir.Get( typeplot )
+                allRecoHist = allRecoDir.Get( allplot )
+                if not typeRecoHist:
+                    print( 'WARNING plot not found: ' + typeplot )
+                    continue
+                if not allRecoHist:
+                    print( 'WARNING plot not found: ' + allplot )
+                    continue
+                CreateRatioPlot( typeRecoHist, allRecoHist, var, xtitle = muType+' Muon '+Xtitles[var], plottype = 'RecoFrac' )
 
     #unmatched muon reco fraction
     muType = 'UnmatchedRecoMuons'

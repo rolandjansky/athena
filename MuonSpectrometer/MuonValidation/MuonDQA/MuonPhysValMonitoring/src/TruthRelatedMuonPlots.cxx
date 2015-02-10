@@ -3,6 +3,10 @@
 */
 
 #include "TruthRelatedMuonPlots.h"
+#include "xAODTruth/TruthParticleContainer.h"
+#include "xAODTruth/TruthParticleAuxContainer.h"
+#include "xAODTracking/TrackParticleContainer.h"
+#include "xAODTracking/TrackParticleAuxContainer.h"
 
 TruthRelatedMuonPlots::TruthRelatedMuonPlots(PlotBase* pParent, std::string sDir,bool doBinnedResolutionPlots):
     PlotBase(pParent, sDir),
@@ -16,11 +20,14 @@ TruthRelatedMuonPlots::TruthRelatedMuonPlots(PlotBase* pParent, std::string sDir
     m_oMuonIDResolutionPlots(this, "/resolutionID/",doBinnedResolutionPlots),
     m_oDefParamPullPlots(this, "/Pulls/"),
     m_oMSDefParamPullPlots(this, "/PullsMS/"),
-    m_oIDDefParamPullPlots(this, "/PullsID/"){}
+    m_oIDDefParamPullPlots(this, "/PullsID/"),
+
+    m_oMomentumDiffPlots(this,"/resolution/")
+{}
 
 TruthRelatedMuonPlots::~TruthRelatedMuonPlots() {}
 
-void TruthRelatedMuonPlots::fill(const xAOD::TruthParticle& truthMu, const xAOD::Muon& mu){
+void TruthRelatedMuonPlots::fill(const xAOD::TruthParticle& truthMu, const xAOD::Muon& mu, const xAOD::TrackParticleContainer* MSTracks){
     m_oMatchedPlots.fill( truthMu );
     m_oMuonHitDiffSummaryPlots.fill(mu, truthMu);
 
@@ -42,4 +49,34 @@ void TruthRelatedMuonPlots::fill(const xAOD::TruthParticle& truthMu, const xAOD:
         m_oMuonMSResolutionPlots.fill(*msTrk,truthMu);
         m_oMSDefParamPullPlots.fill(*msTrk, truthMu);
     }
+
+
+    const xAOD::TrackParticle *msTrkIP(0);    
+    //if (mu) {
+    typedef ElementLink< xAOD::TruthParticleContainer > TruthLink;
+
+    ElementLink<xAOD::TrackParticleContainer> muTrk = mu.muonSpectrometerTrackParticleLink();
+    if (muTrk.isValid()) {
+      TruthLink truthLink_muTrk;
+      if( (*muTrk)->isAvailable<TruthLink>("truthParticleLink") ) {
+	truthLink_muTrk = (*muTrk)->auxdata<TruthLink>("truthParticleLink");
+      }
+      if (truthLink_muTrk.isValid()) {
+	for (const auto trk: *MSTracks) {
+	  TruthLink truthLink_msTrk;
+	  if( trk->isAvailable<TruthLink>("truthParticleLink") ) {
+	    truthLink_msTrk = trk->auxdata<TruthLink>("truthParticleLink");
+	    if (truthLink_msTrk.isValid()) {
+	      if (truthLink_msTrk == truthLink_muTrk) {
+		msTrkIP = trk;
+		break;
+	      }
+	    }
+	  }
+	}
+      }
+    }
+    // }  
+    m_oMomentumDiffPlots.fill(mu, msTrkIP, truthMu);
+    
 }
