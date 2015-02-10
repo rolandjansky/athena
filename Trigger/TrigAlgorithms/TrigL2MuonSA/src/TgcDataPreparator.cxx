@@ -44,7 +44,7 @@ TrigL2MuonSA::TgcDataPreparator::TgcDataPreparator(const std::string& type,
    m_msg(0),
    m_storeGateSvc( "StoreGateSvc", name ),
    m_tgcPrepDataProvider("Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool"),
-   m_tgcRawDataProvider("Muon__TGC_RawDataProviderTool"),
+   m_tgcRawDataProvider("Muon::TGC_RawDataProviderTool"),
    m_regionSelector(0), m_robDataProvider(0),
    m_options(), m_recMuonRoIUtils()
 {
@@ -252,13 +252,18 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
      return StatusCode::FAILURE;
    }
    
-   StatusCode sc_read = (*m_activeStore)->retrieve( tgcPrepContainer, "TGC_Measurements" );
-   if (sc_read.isFailure()){
-     msg() << MSG::ERROR << "Could not retrieve PrepDataContainer." << endreq;
-     return sc_read;
-   }
-   msg() << MSG::DEBUG << "Retrieved PrepDataContainer: " << tgcPrepContainer->numberOfCollections() << endreq;
-   
+   if ( m_activeStore ) {
+     StatusCode sc_read = (*m_activeStore)->retrieve( tgcPrepContainer, "TGC_Measurements" );
+     if (sc_read.isFailure()){
+       msg() << MSG::ERROR << "Could not retrieve PrepDataContainer." << endreq;
+       return sc_read;
+     }
+     msg() << MSG::DEBUG << "Retrieved PrepDataContainer: " << tgcPrepContainer->numberOfCollections() << endreq;
+   } else {
+     msg() << MSG::ERROR << "Null pointer to ActiveStore" << endreq;
+     return StatusCode::FAILURE;;
+   }  
+ 
    Muon::TgcPrepDataContainer::const_iterator it = tgcPrepContainer->begin();
    Muon::TgcPrepDataContainer::const_iterator it_end = tgcPrepContainer->end();
    for( ; it!=it_end; ++it ) { // loop over collections

@@ -35,8 +35,8 @@ const InterfaceID& TrigL2MuonSA::RpcDataPreparator::interfaceID() { return IID_R
 // --------------------------------------------------------------------------------
 
 TrigL2MuonSA::RpcDataPreparator::RpcDataPreparator(const std::string& type, 
-						   const std::string& name,
-						   const IInterface*  parent): 
+                                                   const std::string& name,
+                                                   const IInterface*  parent): 
    AthAlgTool(type,name,parent),
    m_msg(0),
    m_storeGateSvc( "StoreGateSvc", name ),
@@ -132,8 +132,8 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
 // --------------------------------------------------------------------------------
 
 StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*    p_roids,
-							TrigL2MuonSA::RpcHits&      rpcHits,
-							TrigL2MuonSA::RpcPatFinder* rpcPatFinder)
+                                                        TrigL2MuonSA::RpcHits&      rpcHits,
+                                                        TrigL2MuonSA::RpcPatFinder* rpcPatFinder)
 {
   // RPC data extraction referring TrigMuonEFStandaloneTrackTool and MuonHoughPatternFinderTool
    rpcHits.clear();
@@ -159,14 +159,18 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
      const RpcPrepDataContainer* rpcPrds = 0;
      std::string rpcKey = "RPC_Measurements";
      
-     StatusCode sc = (*m_activeStore)->retrieve(rpcPrds, rpcKey);
-     if ( sc.isFailure() ) {
-       msg() << MSG::ERROR << " Cannot retrieve RPC PRD Container " << rpcKey << endreq;
+     if (m_activeStore) {
+       StatusCode sc = (*m_activeStore)->retrieve(rpcPrds, rpcKey);
+       if ( sc.isFailure() ) {
+         msg() << MSG::ERROR << " Cannot retrieve RPC PRD Container " << rpcKey << endreq;
+         return StatusCode::FAILURE;;
+       } else {       
+         msg()<< MSG::DEBUG << " RPC PRD Container retrieved with key " << rpcKey << endreq;
+       }
+     } else {
+       msg() << MSG::ERROR << "Null pointer to ActiveStore" << endreq;
        return StatusCode::FAILURE;;
-     }  else {       
-       msg()<< MSG::DEBUG << " RPC PRD Container retrieved with key " << rpcKey << endreq;
      }
-
      // Get RPC collections
 
      RpcPrepDataContainer::const_iterator RPCcoll;
@@ -175,12 +179,12 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
        RPCcoll = rpcPrds->indexFind(*idit);
 
        if( RPCcoll == rpcPrds->end() ) {
-	 continue;
+         continue;
        }
 
        if( (*RPCcoll)->size() == 0)    {
-	 msg() << MSG::DEBUG << "Empty RPC list" << endreq;
-	 continue;
+         msg() << MSG::DEBUG << "Empty RPC list" << endreq;
+         continue;
        }
 
        rpcHashList_cache.push_back(*idit);
@@ -188,7 +192,7 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
        rpcCols.push_back(*RPCcoll);
 
        if (rpcCols.empty()) {
-	 msg() << MSG::DEBUG << "No Rpc data collections selected" << endreq;
+         msg() << MSG::DEBUG << "No Rpc data collections selected" << endreq;
        }
      }
    }
@@ -229,11 +233,11 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
        const double hitz=globalpos.z();
        
        msg() << MSG::DEBUG << "Selected Rpc Collection: "
-	     << " station name:" << stationName
-	     << " global positions x/y/z=" << hitx << "/" << hity << "/" << hitz
-	     << " doubletR: " << doubletR << " doubletZ: " << doubletZ << " doubletPhi " << doubletPhi
-	     << " gasGap " << gasGap << " layer " << layer
-	     << endreq;
+             << " station name:" << stationName
+             << " global positions x/y/z=" << hitx << "/" << hity << "/" << hitz
+             << " doubletR: " << doubletR << " doubletZ: " << doubletZ << " doubletPhi " << doubletPhi
+             << " gasGap " << gasGap << " layer " << layer
+             << endreq;
        
        
        TrigL2MuonSA::RpcHitData lutDigit;

@@ -39,7 +39,7 @@ class TgcRoadDefiner
   
   inline MSG::Level msgLvl() const { return  (m_msg != 0) ? m_msg->level() : MSG::NIL; }
 
-  bool defineRoad(const LVL1::RecMuonRoI*    p_roi,
+  bool defineRoad(const LVL1::RecMuonRoI*      p_roi,
 		  const TrigL2MuonSA::TgcHits& tgcHits,
 		  TrigL2MuonSA::MuonRoad&      muonRoad,
 		  TrigL2MuonSA::TgcFitResult&  tgcFitResult);
