@@ -12,10 +12,8 @@
 #include "AthenaKernel/IAthenaOutputStreamTool.h"
 
 // Gaudi includes
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/GaudiException.h" 
-#include "GaudiKernel/IToolSvc.h"
 
 // Event Info 
 #include "EventInfo/EventIncident.h"
@@ -29,25 +27,23 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
+#include "AthenaBaseComps/AthCheckMacros.h"
+
 #include <fstream>
 
 #include "PathResolver/PathResolver.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
-PixeldEdxTestAlg::PixeldEdxTestAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-        Algorithm(name, pSvcLocator),
-        m_streamName("CondStream1"),
+PixeldEdxTestAlg::PixeldEdxTestAlg(const std::string& the_name, ISvcLocator* pSvcLocator) :
+        AthAlgorithm(the_name, pSvcLocator),
         m_tagID(""),
-        m_sgSvc(0),
-        m_detStore(0),
-        m_regSvc(0),
-        m_streamer(0)
-
+        m_regSvc("IOVRegistrationSvc", name() ),
+        m_streamer("CondStream1")
 {
     declareProperty("CalibrationFile", m_filename = "mcpar_signed_234.txt");
     declareProperty("TagID",             m_tagID);
-    declareProperty("StreamName",        m_streamName);
+    declareProperty("StreamName",        m_streamer);
 
 }
 
@@ -57,78 +53,43 @@ PixeldEdxTestAlg::~PixeldEdxTestAlg()
 { }
 
 
+namespace {
+  MsgStream &operator << (MsgStream &log, const std::list<std::string> &keys) {
+    for (std::list<std::string>::const_iterator itr=keys.begin(); itr!=keys.end(); ++itr) {
+      log << *itr << " ";
+    }
+    return log;
+  }
+}
+
 StatusCode PixeldEdxTestAlg::testCallBack( IOVSVC_CALLBACK_ARGS_P( /*I*/,keys) ) { 
   // print out the keys we were given (for info)
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "PixeldEdxTestAlg::testCallBack callback invoked for keys:";
-  for (std::list<std::string>::const_iterator itr=keys.begin(); itr!=keys.end(); ++itr) {
-    log << *itr << " ";
-  }
-  log << endreq;
+  ATH_MSG_INFO(  "PixeldEdxTestAlg::testCallBack callback invoked for keys:" << keys );
   return  StatusCode::SUCCESS;
 }
 
 
 StatusCode PixeldEdxTestAlg::initialize(){
+    ATH_CHECK( AthAlgorithm::initialize() );
     //StatusCode sc;
-    MsgStream log(msgSvc(), name());
-    log <<MSG::DEBUG <<"in initialize()" <<endreq;
+    ATH_MSG_DEBUG ( "in initialize()"  );
 
-    // Storegate
-    StatusCode sc = service("StoreGateSvc", m_sgSvc);
-    if (sc.isFailure()) {
-	log << MSG::ERROR << "Unable to get the StoreGateSvc" << endreq;
-	return sc;
-    }
-
-    // locate the conditions store ptr to it.
-    sc = service("DetectorStore", m_detStore);
-    if (!sc.isSuccess() || 0 == m_detStore)  {
-	log <<MSG::ERROR <<"Could not find DetStore" <<endreq;
-	return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_regSvc.retrieve() );
+    ATH_MSG_DEBUG ( "Found IOVRegistrationSvc "   );
 
     // Get Output Stream tool for writing
-	IToolSvc* toolSvc = 0;// Pointer to Tool Service
-	sc = service("ToolSvc", toolSvc);
-	if (sc.isFailure()) {
-	    log << MSG::ERROR
-		<< " Tool Service not found "
-		<< endreq;
-	    return StatusCode::FAILURE;
-	}
-	sc = toolSvc->retrieveTool("AthenaPoolOutputStreamTool", m_streamName, m_streamer);
-	if (sc.isFailure()) {
-	    log << MSG::INFO
-		<< "Unable to find AthenaOutputStreamTool" 
-		<< endreq;
-	    return StatusCode::FAILURE;
-	}  
-sc = service("IOVRegistrationSvc", m_regSvc);
-	        if (sc.isFailure()) {
-	            log << MSG::INFO
-                << "Unable to find IOVRegistrationSvc "
-	                << endreq;
-	            return StatusCode::FAILURE;
-	        } 
-	        else {
-	            log << MSG::DEBUG << "Found IOVRegistrationSvc "  << endreq;
-	        }
-	        log  << MSG::INFO
-	             << "Tag to be used: " << m_tagID
-	             << endreq;
-    
-	sc = readWithBeginRun();
-	if (sc.isFailure()) {
-	    log << MSG::INFO
-		<< "Unable to find read with BeginRun "
-		<< endreq;
-	    return StatusCode::FAILURE;
-	}  
-	else {
-	    log << MSG::DEBUG << "Read with BeginRun "  << endreq;
-	}
+    ATH_CHECK( m_streamer.retrieve() );
 
+    ATH_MSG_INFO ( "Tag to be used: " << m_tagID  );
+    
+    StatusCode sc( readWithBeginRun() );
+    if (sc.isFailure()) {
+      ATH_MSG_INFO ( "Unable to find read with BeginRun "  );
+      return StatusCode::FAILURE;
+    }  
+    else {
+      ATH_MSG_DEBUG ( "Read with BeginRun "   );
+    }
     
     return StatusCode::SUCCESS;
 }
@@ -137,29 +98,20 @@ sc = service("IOVRegistrationSvc", m_regSvc);
 
 StatusCode PixeldEdxTestAlg::readWithBeginRun(){
     StatusCode status;
-    MsgStream log(msgSvc(), name());
-    log <<MSG::INFO <<"in readWithBeginRun()" <<endreq;
+    ATH_MSG_INFO ( "in readWithBeginRun()"  );
 
     // Get Run/Event/Time from EventSelector
 
-    IProperty* propertyServer(0); 
     // Access EventSelector to check if run/event/time are being
     // explicitly set. This may be true for simulation
-    status = serviceLocator()->service("EventSelector", propertyServer); 
-    if (status != StatusCode::SUCCESS ) {
-	log << MSG::ERROR 
-	    << " Cannot get EventSelector " 
-	    << endreq; 
-	return status ;
-    }
+    ServiceHandle<IProperty> propertyServer("EventSelector",name() );
+    ATH_CHECK( propertyServer.retrieve() );
 
     // Get run/event/time if OverrideRunNumber flag is set
     BooleanProperty 	boolProperty("OverrideRunNumber", false);
     status = propertyServer->getProperty(&boolProperty);
     if (!status.isSuccess()) {
-	log << MSG::ERROR << "unable to get OverrideRunNumber flag: found " 
-	    << boolProperty.value()
-	    << endreq;
+	ATH_MSG_ERROR ( "unable to get OverrideRunNumber flag: found "  << boolProperty.value()  );
 	return status;
     }
 
@@ -170,9 +122,7 @@ StatusCode PixeldEdxTestAlg::readWithBeginRun(){
 	IntegerProperty  intProp("RunNumber", 0);
 	status = propertyServer->getProperty(&intProp);
 	if (!status.isSuccess()) {
-	    log << MSG::ERROR << "unable to get RunNumber: found " 
-		<< intProp.value()
-		<< endreq;
+	    ATH_MSG_ERROR ( "unable to get RunNumber: found " << intProp.value()  );
 	    return status;
 	}
 	else {
@@ -181,9 +131,7 @@ StatusCode PixeldEdxTestAlg::readWithBeginRun(){
 	intProp = IntegerProperty("FirstEvent", 0);
 	status = propertyServer->getProperty(&intProp);
 	if (!status.isSuccess()) {
-	    log << MSG::ERROR << "unable to get event number: found " 
-		<< intProp.value()
-		<< endreq;
+	    ATH_MSG_ERROR ( "unable to get event number: found "  << intProp.value()  );
 	    return status;
 	}
 	else {
@@ -192,9 +140,7 @@ StatusCode PixeldEdxTestAlg::readWithBeginRun(){
 	intProp = IntegerProperty("InitialTimeStamp", 0);
 	status = propertyServer->getProperty(&intProp);
 	if (!status.isSuccess()) {
-	    log << MSG::ERROR << "unable to get time stamp: found " 
-		<< intProp.value()
-		<< endreq;
+	    ATH_MSG_ERROR ( "unable to get time stamp: found "  << intProp.value()  );
 	    return status;
 	}
 	else {
@@ -202,17 +148,13 @@ StatusCode PixeldEdxTestAlg::readWithBeginRun(){
 	}
     }
     else {
-	log << MSG::DEBUG << "Override run number NOT set" << endreq;
+	ATH_MSG_DEBUG ( "Override run number NOT set"  );
 	return StatusCode::SUCCESS;
     }
 
     // Now send BeginRun incident
-    IIncidentSvc* incSvc;
-    status = service( "IncidentSvc", incSvc );
-    if (status.isFailure()) {
-	log << MSG::ERROR << "Unable to get the IncidentSvc" << endreq;
-	return status;
-    }
+    ServiceHandle<IIncidentSvc> incSvc("IncidentSvc", name() );
+    ATH_CHECK( incSvc.retrieve() );
 
     EventInfo evt(new EventID(run, event, time), new EventType);
     EventIncident evtInc(evt, name(), "BeginRun");
@@ -224,13 +166,11 @@ StatusCode PixeldEdxTestAlg::readWithBeginRun(){
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode PixeldEdxTestAlg::createCondObjects(){
-    StatusCode sc;
-    MsgStream log(msgSvc(), name());
-    log <<MSG::INFO <<"in createCondObjects()" <<endreq;
+    ATH_MSG_INFO ( "in createCondObjects()"  );
 
       std::string file_name = PathResolver::find_file (m_filename, "DATAPATH");
   if (file_name.size()==0) {
-    log << MSG::FATAL << "Could not find dEdx calibration file" << m_filename << endreq;
+    ATH_MSG_FATAL ( "Could not find dEdx calibration file" << m_filename  );
     return StatusCode::FAILURE;
   }
   std::ifstream f(file_name.c_str());
@@ -276,14 +216,12 @@ StatusCode PixeldEdxTestAlg::createCondObjects(){
     //attrListColl->add(1, attrList0);
 
 
-    sc = m_detStore->record(attrList0, "/PIXEL/PixdEdx");
+    StatusCode sc = detStore()->record(attrList0, "/PIXEL/PixdEdx");
     if (sc.isFailure()) {
-	log <<MSG::ERROR <<"Could not record PixeldEdxCalib" <<endreq;
+	ATH_MSG_ERROR ( "Could not record PixeldEdxCalib"  );
 	return( StatusCode::FAILURE);
     }
     
-
-
     return StatusCode::SUCCESS;
 }
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -291,30 +229,29 @@ StatusCode PixeldEdxTestAlg::createCondObjects(){
 
 StatusCode PixeldEdxTestAlg::printCondObjects(){
     StatusCode sc;
-    MsgStream log(msgSvc(), name());
-    log <<MSG::INFO <<"in printCondObjects()" <<endreq;
+    ATH_MSG_INFO ( "in printCondObjects()"  );
 
 
     const AthenaAttributeList*    attrList     = 0;
 
 	// AttrList
-	sc = m_detStore->retrieve(attrList, "/PIXEL/PixdEdx");
+        sc = detStore()->retrieve(attrList, "/PIXEL/PixdEdx");
 	if (sc.isFailure()) {
-	    log <<MSG::ERROR <<"Could not retrieve PixdEdx" <<endreq;
+	    ATH_MSG_ERROR ( "Could not retrieve PixdEdx"  );
 	    // Using COOL, is failure
 	    return( StatusCode::FAILURE);
 	}
 	if (0 == attrList) {
-	    log <<MSG::ERROR <<"IOVDbTestAttrList ptr is 0" <<endreq;
+	    ATH_MSG_ERROR ( "IOVDbTestAttrList ptr is 0"  );
 	    return( StatusCode::FAILURE);
 	}
 	else {
-	    log <<MSG::DEBUG <<"Retrieved IOVDbTestAttrList" <<endreq;
+	    ATH_MSG_DEBUG ( "Retrieved IOVDbTestAttrList"  );
 	}
   
 	std::ostringstream attrStr1;
 	attrList->print( attrStr1 );
-	log << MSG::DEBUG << "Attribute list " << attrStr1.str() << endreq;
+	ATH_MSG_DEBUG ( "Attribute list " << attrStr1.str()  );
 
 
 
@@ -350,22 +287,21 @@ StatusCode PixeldEdxTestAlg::execute() {
     //       the DetectorStore.
 
 
-    MsgStream log(msgSvc(), name());
-    log <<MSG::DEBUG <<" in execute()" <<endreq;
+    ATH_MSG_DEBUG ( " in execute()"  );
 
 
 		
-        log << MSG::DEBUG << "Creating condtions objects " << endreq;
+        ATH_MSG_DEBUG ( "Creating condtions objects "  );
         StatusCode sc = createCondObjects();
         if (sc.isFailure()) {
-            log <<MSG::ERROR <<"Could not create cond objects" <<endreq;
+            ATH_MSG_ERROR ( "Could not create cond objects"  );
             return( StatusCode::FAILURE);
         }
 
         //  Read objects from DetectorStore
         sc = printCondObjects();
         if (sc.isFailure()) {
-            log <<MSG::ERROR <<"Could not print out cond objects" <<endreq;
+            ATH_MSG_ERROR ( "Could not print out cond objects"  );
             return( StatusCode::FAILURE);
         }
     
@@ -375,23 +311,22 @@ StatusCode PixeldEdxTestAlg::execute() {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode PixeldEdxTestAlg::finalize(){
-    MsgStream log(msgSvc(), name());
-    log <<MSG::INFO <<"in finalize()" <<endreq;
+    ATH_MSG_INFO ( "in finalize()"  );
 
         // Stream out and register objects here
-        log << MSG::DEBUG << "Stream out objects directly " << endreq;
+        ATH_MSG_DEBUG ( "Stream out objects directly "  );
         StatusCode sc = streamOutCondObjects();
         if (sc.isFailure()) {
-            log <<MSG::ERROR <<"Could not stream out objects" <<endreq;
+            ATH_MSG_ERROR ( "Could not stream out objects"  );
             return( StatusCode::FAILURE);
         }
-        log << MSG::DEBUG << "Streamed out OK " << endreq;
+        ATH_MSG_DEBUG ( "Streamed out OK "  );
         sc = registerCondObjects();
        if (sc.isFailure()) {
-        log <<MSG::ERROR <<"Could not register objects" <<endreq;
+        ATH_MSG_ERROR ( "Could not register objects"  );
         return( StatusCode::FAILURE);
      }
-    log << MSG::DEBUG << "Register OK " << endreq;  
+    ATH_MSG_DEBUG ( "Register OK "  );  
     return StatusCode::SUCCESS;
 }
 
@@ -402,12 +337,11 @@ StatusCode PixeldEdxTestAlg::finalize(){
 StatusCode 
 PixeldEdxTestAlg::streamOutCondObjects(){
     // Get the messaging service, print where you are
-    MsgStream log(messageService(), name());
 
-    log << MSG::DEBUG << "entering streamOutCondObjects "  << endreq;
+    ATH_MSG_DEBUG ( "entering streamOutCondObjects "   );
     StatusCode sc = m_streamer->connectOutput();
     if (sc.isFailure()) {
-	log <<MSG::ERROR <<"Could not connect stream to output" <<endreq;
+	ATH_MSG_ERROR ( "Could not connect stream to output"  );
 	return( StatusCode::FAILURE);
     }
 
@@ -418,21 +352,20 @@ PixeldEdxTestAlg::streamOutCondObjects(){
 	typeKeys[index] = dedxPair;
 	++index;
 
-    log << MSG::DEBUG <<"Stream out for pairs:" <<endreq;
+    ATH_MSG_DEBUG ( "Stream out for pairs:"  );
     for (unsigned int i = 0; i < typeKeys.size(); ++i) {
-        log << MSG::DEBUG << typeKeys[i].first << " " << typeKeys[i].second << " " 
-            << endreq;
+        ATH_MSG_DEBUG ( typeKeys[i].first << " " << typeKeys[i].second << " "  );
     }
     
     sc = m_streamer->streamObjects(typeKeys);
     if (sc.isFailure()) {
-	log <<MSG::ERROR <<"Could not stream out PixeldEdxCalib" <<endreq;
+	ATH_MSG_ERROR ( "Could not stream out PixeldEdxCalib"  );
 	return( StatusCode::FAILURE);
     }
   */  
     sc = m_streamer->commitOutput();
     if (sc.isFailure()) {
-	log <<MSG::ERROR <<"Could not commit output stream" <<endreq;
+	ATH_MSG_ERROR ( "Could not commit output stream"  );
 	return( StatusCode::FAILURE);
     }
 
@@ -443,13 +376,12 @@ PixeldEdxTestAlg::streamOutCondObjects(){
 StatusCode
 PixeldEdxTestAlg::registerCondObjects(){
     // Get the messaging service, print where you are
-    MsgStream log(messageService(), name());
-
-    log << MSG::DEBUG << "entering registerCondObject "  << endreq;
+    ATH_MSG_DEBUG ( "entering registerCondObject "   );
 
     // Register the IOV DB with the conditions data written out
     StatusCode sc;
 
+            ATH_CHECK( m_regSvc.retrieve() );
 
             // Using COOL, write out attrlist and collection of attrlists
             std::string tag = "no tag";
@@ -461,10 +393,10 @@ PixeldEdxTestAlg::registerCondObjects(){
             }
 
             if (sc.isFailure()) {
-                log <<MSG::ERROR <<"Could not register in IOV DB for AthenaAttributeList" <<endreq;
+                ATH_MSG_ERROR ( "Could not register in IOV DB for AthenaAttributeList"  );
                 return( StatusCode::FAILURE);
             }
-            log << MSG::DEBUG << "registered AthenaAttributeList with " << tag << endreq;
+            ATH_MSG_DEBUG ( "registered AthenaAttributeList with " << tag  );
 
     return StatusCode::SUCCESS;
 
