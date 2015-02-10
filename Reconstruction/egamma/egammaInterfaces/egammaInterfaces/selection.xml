@@ -25,5 +25,6 @@
   <class name="Iegammaqweta2c" />
   <class name="IegammaTopoClusterMap" />
   <class name="IegammaSuperClusterBuilder" />
+  <class name="IegammaClusterOverlapMarker" />
 </lcgdict>
 
