@@ -9,6 +9,8 @@
 
 #include "TrigInDetAnalysis/TrackVertex.h"
 
+#include "TDirectory.h"
+
 /// default simple filter which accepts all tracks
 
 class Filter_True : public TrackFilter {  
