@@ -19,10 +19,7 @@ loadInDetRec_Options = {"detectorDescription" : ""
                         ,"GoodRunList":""
                         # 7 TeV Simulation Data
                         ,"inputFiles":["root://castoratlas//castor/cern.ch/atlas/atlascerngroupdisk/perf-idtracking/InDetRecExample/mc09_7TeV.105200.T1_McAtNlo_Jimmy.digit.RDO.e510_s624_s633_d287_tid112426_00/RDO.112426._000007.pool.root.1"]
-                        # Real ESD Cosmics
-                        #,"inputFiles":["root://castoratlas//castor/cern.ch/atlas/atlascerngroupdisk/perf-idtracking/InDetRecExample/data10_cos.00151040.physics_IDCosmic.recon.ESD.f220/data10_cos.00151040.physics_IDCosmic.recon.ESD.f220._lb0002._0001.1"]
-                        }
-
+                       }
 # If the variables are defined use thier values.
 # If not defined the defaults given above are used
 for var in loadInDetRec_Options:
@@ -37,11 +34,9 @@ if len(loadInDetRec_Options["detectorDescription"])!=0:
 	from AthenaCommon.GlobalFlags import globalflags
 	globalflags.DetDescrVersion.set_Value_and_Lock(loadInDetRec_Options["detectorDescription"])
 
-
-
+# OUT
 from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 GeoModelSvc.IgnoreTagDifference=True
-
 
 
 # Good run list
@@ -79,13 +74,12 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 athenaCommonFlags.FilesInput = loadInDetRec_Options["inputFiles"]
 
+
 import AthenaPython.ConfigLib as apcl
 cfg = apcl.AutoCfg(name = 'InDetRecExampleAutoConfig',
                    input_files = athenaCommonFlags.FilesInput())
 cfg.configure_job()
-    
-
-
+   
 
 theApp.EvtMax = loadInDetRec_Options["numberOfEvents"]
 
@@ -137,14 +131,13 @@ if Cosmics:
 else:
     rec.Commissioning = False
 
-
  
 from AthenaCommon.DetFlags import DetFlags 
 # --- switch on InnerDetector
 DetFlags.ID_setOn()
 #DetFlags.makeRIO.pixel_setOff()
-#DetFlags.makeRIO.SCT_setOff()
-#DetFlags.makeRIO.TRT_setOff()
+DetFlags.makeRIO.SCT_setOff()
+DetFlags.makeRIO.TRT_setOff()
 
 # --- and switch off all the rest
 DetFlags.Calo_setOff()
@@ -153,22 +146,22 @@ DetFlags.Muon_setOff()
 # ---- switch parts of ID off/on as follows (always use both lines)
 #DetFlags.pixel_setOff()
 #DetFlags.detdescr.pixel_setOn()
-#DetFlags.SCT_setOff()
-#DetFlags.detdescr.SCT_setOn()
-if not loadInDetRec_Options["useTRT"]:
-  DetFlags.TRT_setOff()
-  DetFlags.detdescr.TRT_setOn()
+DetFlags.SCT_setOff()
+DetFlags.detdescr.SCT_setOn()
+#if not loadInDetRec_Options["useTRT"]:
+DetFlags.TRT_setOff()
+DetFlags.detdescr.TRT_setOn()
 
 # --- switch off DCS
 #DetFlags.dcs.pixel_setOff()
-#DetFlags.dcs.SCT_setOff()
-#DetFlags.dcs.TRT_setOff()
+DetFlags.dcs.SCT_setOff()
+DetFlags.dcs.TRT_setOff()
 
 # --- printout
 DetFlags.Print()
 
 # --- output level
-#OutputLevel          = DEBUG
+OutputLevel          = DEBUG
 
   
 #--------------------------------------------------------------
@@ -180,15 +173,15 @@ from AthenaCommon.GlobalFlags import globalflags
 from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.doTruth       = (globalflags.DataSource == 'geant4' and globalflags.InputFormat() == 'pool')
 #InDetFlags.doTruth = False
-if globalflags.InputFormat() == 'pool' and not globalflags.DataSource == 'geant4':
+#if globalflags.InputFormat() == 'pool' and not globalflags.DataSource == 'geant4':
   # ---- run over ESD files
-  #  InDetFlags.preProcessing=True
-  InDetFlags.doPRDFormation = False
-else:
-  InDetFlags.doPRDFormation = True
+InDetFlags.preProcessing=True
+InDetFlags.doPRDFormation = True
+#else:
+#  InDetFlags.doPRDFormation = True
 
 # --- uncomment to change the default of one of the following options:
-#InDetFlags.doNewTracking          = False
+InDetFlags.doNewTracking          = True
 #InDetFlags.doLowPt                = True
 #InDetFlags.doBeamGas              = True
 #InDetFlags.doBeamHalo             = True
@@ -217,6 +210,7 @@ InDetFlags.doMonitoringPixel     = False
 InDetFlags.doMonitoringSCT       = False
 InDetFlags.doMonitoringTRT       = False
 InDetFlags.doMonitoringAlignment = False
+#InDetFlags.doMonitoringAlignment.set_Value_and_Lock(True)
 
 # --- activate (memory/cpu) monitoring
 #InDetFlags.doPerfMon        = True
@@ -226,10 +220,11 @@ InDetFlags.doMonitoringAlignment = False
 #InDetFlags.doSGDeletion  = True
 
 # --- produce various ntuples (all in one root file)
-InDetFlags.doTrkNtuple      = loadInDetRec_Options["doTrkNtuple"]
-InDetFlags.doPixelTrkNtuple = loadInDetRec_Options["doTrkNtuple"]
-InDetFlags.doSctTrkNtuple   = loadInDetRec_Options["doTrkNtuple"]
-InDetFlags.doTrtTrkNtuple   = loadInDetRec_Options["doTrkNtuple"]
+#InDetFlags.doTrkNtuple      = loadInDetRec_Options["doTrkNtuple"]
+#InDetFlags.doTrkNtuple.set_Value_and_Lock( False )
+#InDetFlags.doPixelTrkNtuple = loadInDetRec_Options["doTrkNtuple"]
+#InDetFlags.doSctTrkNtuple   = loadInDetRec_Options["doTrkNtuple"]
+#InDetFlags.doTrtTrkNtuple   = loadInDetRec_Options["doTrkNtuple"]
 #InDetFlags.doPixelClusterNtuple = True
 #InDetFlags.doSctClusterNtuple   = True
 #InDetFlags.doTrtDriftCircleNtuple = True
@@ -248,7 +243,30 @@ InDetFlags.doPrintConfigurables = True
 # load master joboptions file
 #--------------------------------------------------------------
 
+InDetFlags.doPixelClusterSplitting=False
+#if (hasattr(InDetFlags,"doPixelClusterSplitting")) :
+InDetFlags.doPixelClusterSplitting.set_Value_and_Lock( False )
+
+from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
+TrkDetFlags.MaterialDatabaseLocal =False
+
+#--------------------------------------------------------------
+# configure IBL reco
+#--------------------------------------------------------------
+
+include("InDetIBL_Example/InDetIBLRecoPreInclude.py")
+
+#--------------------------------------------------------------
+# load master joboptions file
+#--------------------------------------------------------------
+
 include("InDetRecExample/InDetRec_all.py")
+ 
+#--------------------------------------------------------------
+# configure IBL reco
+#--------------------------------------------------------------
+
+include("InDetIBL_Example/InDetIBLRecoPostInclude.py")
 
 if loadInDetRec_Options["siPoolFile"]:
     include ("DetDescrCondAthenaPool/DetDescrCondAthenaPool_joboptions.py" )

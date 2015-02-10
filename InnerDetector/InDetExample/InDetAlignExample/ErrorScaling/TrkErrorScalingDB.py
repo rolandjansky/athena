@@ -10,20 +10,24 @@
 # Made into a module (GG 14/11/07)
 #
 
-#tag = "IndetTrkErrorScaling_nominal"
-#dataset=[ ("PixPhi Barrel",1.0,0.0),
-#          ("PixEta Barrel",1.0,0.0),
-#          ("PixPhi Endcap",1.0,0.0),
-#          ("PixEta Endcap",1.0,0.0),
-#          ("SCT Barrel",1.0,0.0),
-#          ("SCT Endcap",1.0,0.0),
-#          ("TRT Barrel",1.0,0.0),
-#          ("TRT Endcap",1.0,0.0)
-#          ]
+tag = "IndetTrkErrorScaling_nominal"
+dataset=[ ("PixPhi Barrel",1.0,0.2),
+          ("PixEta Barrel",1.0,0.2),
+          ("PixPhi Endcap",1.0,0.2),
+          ("PixEta Endcap",1.0,0.2),
+          ("PixPhi IBL",1.0,1.0),
+          ("PixEta IBL",1.0,1.0), 
+          ("SCT Barrel",1.0,0.1),
+          ("SCT Endcap",1.0,0.2),
+          ("TRT Barrel",1.0,1.0),
+          ("TRT Endcap",1.0,1.0)
+          ]
 
 # database and folder name
 #connect="sqlite://X;schema=mycool.db;dbname=OFLP200"
 #foldername="/Indet/TrkErrorScaling"
+# database and folder name
+
 
 default_connect="sqlite://X;schema=mycool.db;dbname=OFLP200"
 
@@ -85,3 +89,9 @@ def make(dataset, tag, foldername, connect = default_connect):
         chan+=1
     print "All done"
     db.closeDatabase()
+
+
+###############################################################
+connect="sqlite://X;schema=IBLErrorScaling.db;dbname=CONDBR2"
+foldername="/Indet/TrkErrorScaling"
+make(dataset, tag, foldername, connect) 

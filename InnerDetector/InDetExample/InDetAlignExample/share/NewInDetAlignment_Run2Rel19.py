@@ -12,6 +12,78 @@
 #
 # author: Daniel Kollar <daniel.kollar@cern.ch>
 #
+## ===================================================================                                                                               
+## ===================================================================
+## ==                                                               ==                                                                               
+## ==        Parse some inputs to make running simpler            ==
+## ==                                                               ==
+
+
+if 'eventType' in dir():
+    if eventType=="cosmics":
+        print "Config: Alignment is performed on Cosmics: "
+
+
+        Cosmics = True
+    elif eventType=="collisions":
+        print "Config: Alignment is performed on Collisions: "
+        Cosmics = False
+else:
+    Cosmics = False
+    eventType = "collisions"
+    print "Config: Alignment is performed on Collisions and as EventType is not specified, and Cosmics-flag is set to: ",Cosmics
+
+if 'inputConstantsFile' in dir():
+    print "Config: Read alignment constants from Pool-file instead of DB: "
+    readConstantsFromPool = True
+    readTRT = False   # this is for now important as the pool file does not contain TRT     
+    print "Config: inputConstantsFile is specified as: ", inputConstantsFile
+else:
+    inputConstantsFile = ""
+    readConstantsFromPool = False
+    readTRT = True
+    print "Config: Reading alignment constants from DB. "
+
+if 'nEvents' in dir():
+    print "Config: nEvents = ",nEvents
+else:
+    nEvents = -1
+    print "Config: setting nEvents to: ",nEvents
+
+if 'preIBLgeometry' in dir():
+    print "Config: You configured to run on pre-IBL geometry. Make sure all conditions are set correctly! "
+    print "Config: This is especially important when running on MC"
+else:
+    print "Config: Running geometry including IBL"
+    preIBLgeometry=False
+
+
+if 'inputFileDir' in dir():
+    print  "Config: Data directory for files is configured to: ",inputFileDir
+    print  "Config: !!Note!! All root files within this directory will be used as input"
+    oldFileDefault=False
+else:
+    if preIBLgeometry == False:
+        oldFileDefault=False
+        inputFileDir='/afs/cern.ch/user/m/mdanning/hias/public/OUT'
+    else:
+        #inputFileDir='/afs/cern.ch/user/m/mdanning/eos/atlas/user/s/shuli/Alignment_DATA/data12_8TeV.00200863.physics_Muons.recon.DESD_ZMUMU.r4644_p1559_r4644_tid01296318_00/DESD_ZMUMU.01296318._000001.pool.root.1'
+        oldFileDefault=True
+        inputFileDir='root://eosatlas//eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369//RDO.197117._000005.pool.root.1'
+    print  "Config: !!Note!! You have not specified an inputFileDir -- Default sample is chosen!"
+
+if 'doMonitoring' in dir():
+    print "Config: Monitoring is enabled"
+else:
+    doMonitoring = False;
+
+if 'isData' in dir():
+    print "Config: Running on real data"
+    realData = True    
+else:
+    print "Config: Running on MC"
+    realData = False;
+
 ## ===================================================================
 ## ===================================================================
 ## ==                                                               ==
@@ -30,18 +102,16 @@ trackCollection = "Tracks"
 ## are read in from the pool file, otherwise they are taken from the DB
 ## according to the global tag
 ##
-readConstantsFromPool = False
+#readConstantsFromPool = False  ## is set as input to the script
 readSilicon = True
-readTRT = True
-#inputPoolFiles = [ "alignment_input.pool.root" ]
-#inputPoolFiles = [ "IDalignment_nominal.pool.root" ]
+#readTRT = False  ## is also set as input to the script for now 
+inputPoolFiles = [ inputConstantsFile ]
 ErrorScaling = False
-#
 ##
 ## write final alignment constants to pool file
 writeConstantsToPool = True
 writeSilicon = True
-writeTRT = True
+writeTRT = False
 outputPoolFile = "alignment_output.pool.root"
 tagSi = "IndetAlign_test"
 tagTRT = "TRTAlign_test"
@@ -58,7 +128,7 @@ alignInDet = True
 alignSilicon = True
 alignPixel = True
 alignSCT = True
-alignTRT = True
+alignTRT = False
 
 #
 ##
@@ -91,14 +161,14 @@ trtAlignEndcaps = True
 ## alignment parameters Barrel
 trtAlignBarrelX = True
 trtAlignBarrelY = True
-trtAlignBarrelZ = True
+trtAlignBarrelZ = False
 trtAlignBarrelRotX = True
 trtAlignBarrelRotY = True
 trtAlignBarrelRotZ = True
 ## alignment parameters Endcap
 trtAlignEndcapX = True
 trtAlignEndcapY = True
-trtAlignEndcapZ = True
+trtAlignEndcapZ = False
 trtAlignEndcapRotX = True
 trtAlignEndcapRotY = True
 trtAlignEndcapRotZ = True
@@ -106,10 +176,14 @@ trtAlignEndcapRotZ = True
 #
 ## Pixel alignment
 ##  -1 - unknown, take setup from barrel and endcaps
+##  11 - L11 IBL subdetector as one structure + all "old" pixel subdetector as one structure  
 ##   1 - L1
 ##   2 - L2
 ##   3 - L3
-pixelAlignmentLevel = 1
+pixelAlignmentLevel = 11
+pixelAlignDBM = False
+# if pixelAlignDBM is configured to "True" the pixelAlignmentLevel is used for DBM alignment
+# Note, only levels 1, 2, and 3 ar epossible. If set to "False" DBM is ignored (default)
 #
 ## Pixel barrel alignment
 ## overwrite pixelAlignmentLevel if present
@@ -127,6 +201,7 @@ pixelAlignmentLevelBarrel = -1
 ##   2 - L2
 ##   3 - L3
 pixelAlignmentLevelEndcaps = -1
+
 #
 ## Pixel alignment DoFs
 pixelAlignBarrel  = True
@@ -141,9 +216,9 @@ pixelAlignBarrelRotZ = True
 ## alignment parameters Endcap
 pixelAlignEndcapX = True
 pixelAlignEndcapY = True
-pixelAlignEndcapZ = True
-pixelAlignEndcapRotX = True
-pixelAlignEndcapRotY = True
+pixelAlignEndcapZ = False
+pixelAlignEndcapRotX = False
+pixelAlignEndcapRotY = False
 pixelAlignEndcapRotZ = True
 #
 ## SCT alignment
@@ -171,7 +246,7 @@ sctAlignmentLevelEndcaps = -1
 #
 ## SCT alignment DoFs
 sctAlignBarrel  = True
-sctAlignEndcaps = True
+sctAlignEndcaps = False
 ## alignment parameters Barrel
 sctAlignBarrelX = True
 sctAlignBarrelY = True
@@ -224,6 +299,7 @@ moduleSelection = []
 ##
 runAccumulate = True
 runSolving = True
+
 #
 ## if we only run solving we need the list of files from
 ## which to accumulate
@@ -235,7 +311,7 @@ inputVectorFiles = [ "vector.bin" ]
 # by default the global method is run
 # if you want to include the full local method
 # set runLocal to True
-runLocal = False
+runLocal = True
 #
 # for full local method one can also setup different kinds of residuals
 # (will be ignored if runLocal==False)
@@ -260,13 +336,14 @@ solvingOption = 1
 ####
 ## run local solving
 ## this option is automatically set to True if runLocal is selected
-solveLocal = True
+solveLocal = False
 #
 ## if diagonalization is set to false the matrix inversion is run
 ## only applies to CLHEP
 runDiagonalization = True
 ## number of smallest eigenvalues (global movements) to cut
-ModCut = 7
+ModCut = 0
+#softModeCut = 1
 ## cut on eigenvalue for diagonalization
 eigenvalueCut = 0.
 #
@@ -286,55 +363,87 @@ runOutlier     = True
 particleNumber = 0
 #
 ## write special alignment ntuple
-#writeAlignNtuple = True
+writeAlignNtuple = True
 ##
 ## store derivatives of residuals wrt. alignment parameters
 ## in the ntuple
-#writeDerivatives = True
+writeDerivatives = True
 ##
 ## ==                                                               ==
 ## ==            End of settings for the alignment                  ==
 ## ==                                                               ==
 ## ===================================================================
 ## ===================================================================
+#
+
+Cosmics=True
+doMonitoring=True
+realData=True
+doReadBS=True
+BField=False
+projectName='data14_cos'
+dataSource='data'
+
 
 ## ===================================================================
 ## ===================================================================
 ## ==                                                               ==
 ## ==             Settings for the Reconstruction                   ==
 ## ==                                                               ==
-
-# The following options are the defaults for configuring InnerDetector reconstruction.
-# They may be changed by uncommenting the lines and specifying the appropriate input.
-# ========================================
-
 # ID Reconstruction  Options
 # ==========================
-detectorDescription = "ATLAS-GEO-16-00-00"
-realData = False
-globalTag = "OFLCOND-SDR-BS7T-04-02"
+
+
+if preIBLgeometry == True:
+    detectorDescription = "ATLAS-GEO-21-02-01"
+    ## This tag is an example tag for MC
+    ## Please check AMI DB for each MC sample when using old preIBLgeometry
+    globalTag = "OFLCOND-SDR-BS7T-04-02"
+    ## This is the data tag which should be used for Run1
+    #globalTag = "COMCOND-BLKPA-RUN1-06"
+else:
+    #detectorDescription = "ATLAS-IBL3D25-04-00-01"
+    #if eventType == "collisions":
+    #    globalTag = "OFLCOND-MC12-IBL-20-30-25" 
+    #else: 
+    #    globalTag = "OFLCOND-MC12-IBL-20-30-50" #Cosmics
+    # detectorDescription = "ATLAS-R2-2015-01-01-00"  --> IBL not rotated 
+    detectorDescription = "ATLAS-R2-2015-02-00-00" # --> IBL Rotated geometry 
+    globalTag ="CONDBR2-ES1PA-2014-01"
+
+        
+
 #doTrkNtuple = False
-doMonitoring = False
+#doMonitoring = True
 #siPoolFile = ""
-#siAlignmentTag = "InDet_Cosmic_2008_6"
-#errorScalingTag = ""
+if not preIBLgeometry == True:
+    #siAlignmentTag = "InDetAlign_R2_Nominal"
+    siAlignmentTag=""
+errorScalingTag = ""
 #TRTCalibTextFile = ""
-numberOfEvents = 250
-# MC09 multimuon Monte Carlo
-inputFiles = [ "root://eosatlas//eos/atlas/atlascerngroupdisk/perf-idtracking/rtt/mc10_7TeV.107233.singlepart_mu100.digit.RDO.e605_s933_s946_d369//RDO.197117._000005.pool.root.1" ]
+numberOfEvents = nEvents
 
-# Run cosmic reconstruction
-# =============================
-# (Cosmic Specific Options)
-#BField = True
-#Cosmics = True
-#include("InDetAlignExample/loadInDetRec_cosmics.py")
+# Input Files
+import glob
 
-# Run collision reconstruction
-# ==========================
-# (Collision Specific Options)
+if oldFileDefault == True:
+    inputFiles = [str(inputFileDir)]
+else:
+    inputFiles = glob.glob(str(inputFileDir)+'*')
+
+print inputFiles
+#x-check the files I read in  
+
+# Run cosmic reconstruction or Collision: This is the same script now. 
+# Important flag is Cosmics true/false, which will be picked up by the loadInDetRec script,
+# and will set all options accordingly 
+
 #doReadBS = False
-include("InDetAlignExample/loadInDetRec_new.py")
+
+include ("PyJobTransforms/UseFrontier.py")
+#include("loadInDetRec_Run2Rel19.py")
+include("InDetAlignExample/jobOption_RecExCommon.py")
+include("InDetAlignExample/jobOption_ConditionsOverrider.py")
 
 # Run Alignment
 # ========================

@@ -16,32 +16,32 @@ import sys
 # ===============================
 FirstIteration = 0
 #Iterations = 11
-Iterations = 1 1 
+Iterations = 5
 
 global GridOptions
 GridOptions = {}
 GridOptions["userIDnum"           ] = "user"
 # use NICK NAME be here! See twiki: https://twiki.cern.ch/twiki/bin/view/AtlasProtected/RunIDAlignmentOnGrid to know more
-GridOptions["userIDname"          ] = "spedraza"
+GridOptions["userIDname"          ] = "jwang"
 # Unless you really know how to select a Site by yourself, you would better leave here to be empty
-GridOptions["siteName"            ] = ""
+GridOptions["siteName"            ] = "ANALY_BNL"
 GridOptions["siteName"            ] = ""
 GridOptions["accumulateLibDS"     ] = ""
 GridOptions["solveLibDS"          ] = ""
 GridOptions["fileList"            ] = ""
 # You should make sure the directory GridOptions["TmpWorkDir"] really exist
-GridOptions["TmpWorkDir"          ] = "/tmp/spedraza"
+GridOptions["TmpWorkDir"          ] = "/tmp/jwang"
 GridOptions["dbRelease"           ] = "LATEST"
-GridOptions["excludedSite"        ] = ""
+GridOptions["excludedSite"        ] = "ANALY_BNL"
 #GridOptions["removeFileList"      ] = "list.txt"
 GridOptions["reUseSolveLibDS"     ] = False
 GridOptions["reUseAccumulateLibDS"] = False
 GridOptions["doNFilesPerJobSplit" ] = True
 GridOptions["getMonitoringFiles"  ] = False
 # you could chose from "Grid","Local","Batch","Prun"
-GridOptions["runSolveMode"        ] = "Local"
-GridOptions["runSolveInTmpDir"    ] = True
-GridOptions["debugLevel"          ] = 1
+GridOptions["runSolveMode"        ] = "Prun"
+GridOptions["runSolveInTmpDir"    ] = False
+GridOptions["debugLevel"          ] = 0
 GridOptions["nEventsPerJob"       ] = 100
 GridOptions["submitOnlyOneJobset" ] = True
 GridOptions['autoRetry'		  ] = True
@@ -67,8 +67,8 @@ GridOptions["successRatioCut"     ] = 0.95
 
 # athena paths
 HOME        = os.environ['HOME']
-ATHENAREL   = '17.8.0'
-TAGS        = 'opt,slc6,AtlasProduction'
+ATHENAREL   = '16.0.3.6'
+TAGS        = 'opt,slc5,AtlasProduction'
 QUEUE       = '8nh'
 #CMTDIR = HOME+"/cmthome/"
 CMTDIR      = "/afs/cern.ch/user/j/jwang/scratch0/IDAlignmentOnGrid/16.0.3.6_Grid/cmthome/"

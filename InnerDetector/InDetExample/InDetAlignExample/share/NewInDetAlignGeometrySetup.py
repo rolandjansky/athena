@@ -27,6 +27,7 @@ newInDetAlignGeo_Options = {
 	,"alignInDet" :  True                #  whether to align the full Inner Detector
 	,"alignSilicon" :  True              #  whether to align Si
 	,"alignPixel" :  True                #  whether to align Pixel
+	,"pixelAlignDBM" :  False            #  whether to align DBM instead of actual Pixel detector
 	,"alignSCT" :  True                  #  whether to align SCT
 	,"alignTRT" :  True                  #  whether to align TRT
 	,"doModuleSelection" : False         #  whether to align only selected modules
@@ -122,7 +123,8 @@ pixelAlignment_Options = {
 	"pixelAlignmentLevelBarrel" : -1
 	,"pixelAlignmentLevelEndcaps": -1
 	,"pixelAlignmentLevel" : -1
-	,"pixelAlignBarrel" : True
+#	,"pixelAlignDBM" :  False            #  whether to align DBM instead of actual Pixel detector  
+        ,"pixelAlignBarrel" : True
 	,"pixelAlignEndcaps" : True
 	,"pixelAlignBarrelX" : True
 	,"pixelAlignBarrelY" : True
@@ -326,6 +328,7 @@ if newInDetAlignGeo_Options["alignPixel"]:
 	pixelGeometryManagerTool.AlignmentLevel = pixelAlignment_Options["pixelAlignmentLevel"]
 	pixelGeometryManagerTool.AlignmentLevelBarrel = pixelAlignment_Options["pixelAlignmentLevelBarrel"]
 	pixelGeometryManagerTool.AlignmentLevelEndcaps = pixelAlignment_Options["pixelAlignmentLevelEndcaps"]
+	pixelGeometryManagerTool.AlignmentDBM = newInDetAlignGeo_Options["pixelAlignDBM"]
 	# Pixel alignment degrees of freedom
 	# Barrel
 	pixelGeometryManagerTool.AlignBarrel = pixelAlignment_Options["pixelAlignBarrel"]
@@ -625,7 +628,8 @@ if (newInDetAlignGeo_Options["alignInDet"] or newInDetAlignGeo_Options["alignSil
 	siTrkDBTool.WriteTextFile = newInDetAlignGeo_Options["writeTextFiles"]
 	siTrkDBTool.OutputTextFile = newInDetAlignGeo_Options["siliconTextFile"]
 	siTrkDBTool.WriteOldConstants = newInDetAlignGeo_Options["writeOldConstants"]
-
+	siTrkDBTool.AlignmentDBM = newInDetAlignGeo_Options["pixelAlignDBM"]
+	
 	ToolSvc += siTrkDBTool
 	print      siTrkDBTool
 

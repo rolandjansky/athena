@@ -162,11 +162,14 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
 		for subJob in range(0, data.getCPUs(iteration)):
 			RecoOptions = {}
 			# Get the Reconstruction Options
+			RecoOptions["ClusteringAlgo"] = ClusteringAlgo
 			if ErrorScaling[iteration]:
 				RecoOptions["errorScalingTag"] = errorScalingTag
 
 			JOBNAME="%s_Iter%d_%s_Part%02d.py" % (preName,iteration,data.getName(),subJob)
-			RecoScript = "InDetAlignExample/loadInDetRec_Run2Rel17.py"
+			RecoScript = "InDetAlignExample/jobOption_RecExCommon.py"
+			ConditionsScript = "InDetAlignExample/jobOption_ConditionsOverrider.py"
+
 			if not doDetailedSplitting:
 				RecoOptions["inputFiles"] = dataFiles.getCPU(subJob)
 				RecoOptions["numberOfEvents"] = data.getEventsPerCPU(iteration)
@@ -257,6 +260,7 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
 					      extraOptions = extraOptions,
 					      AlignmentOptions = AlignmentOptions,
 					      RecoScript = RecoScript,
+					      ConditionsScript = ConditionsScript,
 					      AlignmentLevels = alignLevels,
 					      #MonitoringScript = MonitoringScript,
 					      QUEUE = QUEUE,
@@ -382,7 +386,8 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
 				if len(data.getDetDescrVersion()) != 0:
 					RecoOptions["detectorDescription"] = data.getDetDescrVersion()
 
-				RecoScript = "InDetAlignExample/loadInDetRec_Run2Rel17.py"
+				RecoScript = "InDetAlignExample/jobOption_RecExCommon.py"
+				ConditionsScript = "InDetAlignExample/jobOption_ConditionsOverrider.py"
 				constantsFile = ""
 				if ReadAlignmentConstants:	
 					if iteration == 0:
@@ -404,6 +409,7 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
 				  extraOptions = extraOptions,
 				  AlignmentOptions = AlignmentOptions,
 				  RecoScript = RecoScript,
+				  ConditionsScript = ConditionsScript,
 				  AlignmentLevels = alignLevels,
 				  #MonitoringScript = MonitoringScript,
 				  QUEUE = QUEUE,
@@ -426,9 +432,9 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
 			currentjob.wait()
 		
 	else:
-		print "-----------------------------------------------------\n"
-		print " WARNING: Skipping the solving due to low statistics\n"
-		print "-----------------------------------------------------\n"
+		print "---------------------------------------------------------------\n"
+		print " WARNING: Skipping the solving because the flag doSolve is OFF\n"
+		print "---------------------------------------------------------------\n"
 	for data in DataToRun:
 		if "doMonitoring" in extraOptions and extraOptions["doMonitoring"]==True:
 			OutputPaths = OutputPath+'/'
@@ -445,8 +451,8 @@ for iteration in range(FirstIteration,Iterations+FirstIteration):
 					      ,SCRIPTNAME = MERGESCRIPTNAME
 					      ,JOBNAME = MERGEJOBNAME)
 
-		monitoringMerge.write()
-		monitoringMerge.send(runMode)
+			monitoringMerge.write()
+			monitoringMerge.send(runMode)
 
 #	print "  Iteration %d finished: %5.3f seconds \n" % (iteration,(time.time()-IterStartTime))
 #	print "----------------------------------------------"
