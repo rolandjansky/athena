@@ -34,7 +34,7 @@ void TrigMonL1Item::setCtpId(unsigned int ctpid)
   //
   // Set ctp id
   //
-  if(ctpid < 256) {
+  if(ctpid < 4096) {
     m_encoded  = m_encoded & (~L1Bits::maskCtpId);
     m_encoded |= ctpid;
   }
