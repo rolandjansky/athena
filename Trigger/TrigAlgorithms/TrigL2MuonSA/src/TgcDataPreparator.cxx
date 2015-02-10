@@ -44,7 +44,7 @@ TrigL2MuonSA::TgcDataPreparator::TgcDataPreparator(const std::string& type,
    m_msg(0),
    m_storeGateSvc( "StoreGateSvc", name ),
    m_tgcPrepDataProvider("Muon::TgcRdoToPrepDataTool/TgcPrepDataProviderTool"),
-   m_tgcRawDataProvider("Muon__TGC_RawDataProviderTool"),
+   m_tgcRawDataProvider("Muon::TGC_RawDataProviderTool"),
    m_regionSelector(0), m_robDataProvider(0),
    m_options(), m_recMuonRoIUtils()
 {

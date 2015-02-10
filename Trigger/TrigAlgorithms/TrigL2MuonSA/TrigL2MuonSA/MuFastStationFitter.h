@@ -45,7 +45,7 @@ class MuFastStationFitter: public AthAlgTool
     
    public:
       StatusCode findSuperPoints(const LVL1::RecMuonRoI*    p_roi,
-      TrigL2MuonSA::RpcFitResult rpcFitResult,
+      TrigL2MuonSA::RpcFitResult& rpcFitResult,
       std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns);
       StatusCode findSuperPoints(const LVL1::RecMuonRoI*    p_roi,
       TrigL2MuonSA::TgcFitResult& tgcFitResult,

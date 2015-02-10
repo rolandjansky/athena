@@ -119,7 +119,7 @@ StatusCode TrigL2MuonSA::MuFastStationFitter::setMCFlag(BooleanProperty use_mcLU
 // --------------------------------------------------------------------------------
 
 StatusCode TrigL2MuonSA::MuFastStationFitter::findSuperPoints(const LVL1::RecMuonRoI*    p_roi,
-                                                              TrigL2MuonSA::RpcFitResult rpcFitResult,
+                                                              TrigL2MuonSA::RpcFitResult& rpcFitResult,
                                                               std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns)
 {
 

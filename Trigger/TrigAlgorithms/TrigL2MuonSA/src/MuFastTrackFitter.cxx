@@ -153,7 +153,7 @@ StatusCode TrigL2MuonSA::MuFastTrackFitter::findTracks(const LVL1::RecMuonRoI*  
 StatusCode TrigL2MuonSA::MuFastTrackFitter::findTracks(const LVL1::RecMuonRoI*     p_roi,
 						       TrigL2MuonSA::TgcFitResult& tgcFitResult,
 						       std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns,
-                                                       const TrigL2MuonSA::MuonRoad muonRoad)
+                                                       const TrigL2MuonSA::MuonRoad& muonRoad)
 {
    StatusCode sc = StatusCode::SUCCESS;
 

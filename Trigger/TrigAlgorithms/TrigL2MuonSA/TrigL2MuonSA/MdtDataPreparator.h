@@ -9,12 +9,16 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/IMessageSvc.h"
 
+#include "MuonCnvToolInterfaces/IMuonRdoToPrepDataTool.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "RegionSelector/IRegSelSvc.h"
 #include "Identifier/IdentifierHash.h"
 #include "MuonRDO/MdtCsmContainer.h"
+
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "MuonIdHelpers/MdtIdHelper.h"
 
 #include "TrigL2MuonSA/TgcData.h"
 #include "TrigL2MuonSA/MdtData.h"
@@ -73,6 +77,7 @@ namespace TrigL2MuonSA {
 			   TrigL2MuonSA::MdtHits&            mdtHits_overlap);
 
     void setRpcGeometry(bool use_rpc);
+    void setMdtDataCollection(bool use_mdtcsm);
 
   private:
     
@@ -101,7 +106,12 @@ namespace TrigL2MuonSA {
     bool decodeMdtCsm(const MdtCsm* csm, TrigL2MuonSA::MdtHits& mdtHits, const TrigL2MuonSA::MuonRoad& muonRoad);
     uint32_t get_system_id (unsigned short int SubsystemId) const;
     
-  public:
+    StatusCode collectMdtHitsFromPrepData(const std::vector<IdentifierHash>& v_idHash,
+					  std::vector<uint32_t>& v_robIds,
+					  TrigL2MuonSA::MdtHits& mdtHits,
+					  const TrigL2MuonSA::MuonRoad& muonRoad);
+
+      public:
     
     inline MSG::Level msgLvl() const { return  (m_msg != 0) ? m_msg->level() : MSG::NIL; }
     
@@ -109,6 +119,7 @@ namespace TrigL2MuonSA {
 
     // Reference to StoreGateSvc;
     ServiceHandle<StoreGateSvc>    m_storeGateSvc;
+    ActiveStoreSvc* m_activeStore;
     
     // Tools for the Raw data conversion
     ToolHandle<Muon::IMuonRawDataProviderTool>  m_mdtRawDataProvider;
@@ -134,6 +145,11 @@ namespace TrigL2MuonSA {
    
     //
     TrigL2MuonSA::MdtRegionDefiner*  m_mdtRegionDefiner;
+
+    // handles to data access
+    ToolHandle<Muon::IMuonRdoToPrepDataTool> m_mdtPrepDataProvider;
+
+    bool m_use_mdtcsm;
   };
   
 } // namespace TrigL2MuonSA

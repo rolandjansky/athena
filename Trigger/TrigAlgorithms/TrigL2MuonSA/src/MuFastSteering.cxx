@@ -72,6 +72,7 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
   declareProperty("R_WIDTH_TGC_FAILED",m_rWidth_TGC_Failed=200);
 
   declareProperty("USE_RPC", m_use_rpc = true);
+  declareProperty("USE_MDTCSM", m_use_mdtcsm = true);
 
   declareProperty("USE_NEW_SEGMENTFIT", m_use_new_segmentfit = true);
 
@@ -184,6 +185,7 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
   //StatusCode sc;
 
   m_dataPreparator->setRpcGeometry(m_use_rpc);
+  m_dataPreparator->setMdtDataCollection(m_use_mdtcsm);
 
   // set data or MC flag
   sc = m_dataPreparator->setMCFlag(m_use_mcLUT);

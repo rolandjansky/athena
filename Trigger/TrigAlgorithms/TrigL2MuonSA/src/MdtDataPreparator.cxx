@@ -14,6 +14,10 @@
 
 #include "Identifier/IdentifierHash.h"
 #include "MuonContainerManager/MuonRdoContainerAccess.h"
+#include "MuonPrepRawData/MuonPrepDataContainer.h"
+#include "MuonPrepRawData/MdtPrepDataContainer.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include "MuonReadoutGeometry/MdtReadoutElement.h"
 
 #include "TrigL2MuonSA/MdtRegionDefiner.h"
 
@@ -35,6 +39,9 @@
 
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
+using namespace Muon;
+using namespace MuonGM;
+
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
@@ -51,13 +58,16 @@ TrigL2MuonSA::MdtDataPreparator::MdtDataPreparator(const std::string& type,
    AthAlgTool(type,name,parent),
    m_msg(0),
    m_storeGateSvc( "StoreGateSvc", name ),
-   m_mdtRawDataProvider("Muon__MDT_RawDataProviderTool"),
+   m_mdtRawDataProvider("Muon::MDT_RawDataProviderTool"),
    m_regionSelector(0), m_robDataProvider(0), m_recMuonRoIUtils(),
-   m_mdtRegionDefiner(0)
+   m_mdtRegionDefiner(0),
+   m_mdtPrepDataProvider("Muon::MdtRdoToPrepDataTool/MdtPrepDataProviderTool"),
+   m_use_mdtcsm(true)
 {
    declareInterface<TrigL2MuonSA::MdtDataPreparator>(this);
 
    declareProperty("MDT_RawDataProvider", m_mdtRawDataProvider);
+   declareProperty("MdtPrepDataProvider", m_mdtPrepDataProvider);
 }
 
 // --------------------------------------------------------------------------------
@@ -98,20 +108,6 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::initialize()
    }
    msg() << MSG::DEBUG << "Retrieved tool " << m_mdtRawDataProvider << endreq;
 
-   // retrieve the mdtidhelper
-   StoreGateSvc* detStore(0);
-   sc = serviceLocator()->service("DetectorStore", detStore);
-   if (sc.isFailure()) {
-     msg() << MSG::ERROR << "Could not retrieve DetectorStore." << endreq;
-     return sc;
-   }
-   msg() << MSG::DEBUG << "Retrieved DetectorStore." << endreq;
-   
-   sc = detStore->retrieve( m_muonMgr,"Muon" );
-   if (sc.isFailure()) return sc;
-   msg() << MSG::DEBUG << "Retrieved GeoModel from DetectorStore." << endreq;
-   m_mdtIdHelper = m_muonMgr->mdtIdHelper();
-   
    //
    std::string serviceName;
 
@@ -150,13 +146,56 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::initialize()
    }
    msg() << MSG::DEBUG << "Retrieved the new cabling service " << endreq;
    
+   // retrieve the mdtidhelper
+   StoreGateSvc* detStore(0);
+   sc = serviceLocator()->service("DetectorStore", detStore);
+   if (sc.isFailure()) {
+     msg() << MSG::ERROR << "Could not retrieve DetectorStore." << endreq;
+     return sc;
+   }
+   msg() << MSG::DEBUG << "Retrieved DetectorStore." << endreq;
+   
+   sc = detStore->retrieve( m_muonMgr,"Muon" );
+   if (sc.isFailure()) return sc;
+   msg() << MSG::DEBUG << "Retrieved GeoModel from DetectorStore." << endreq;
+   m_mdtIdHelper = m_muonMgr->mdtIdHelper();
+   
+   sc = m_mdtPrepDataProvider.retrieve();
+   if (sc.isSuccess()) {
+     msg() << MSG::DEBUG << "Retrieved " << m_mdtPrepDataProvider << endreq;
+   } else {
+     msg() << MSG::FATAL << "Could not get " << m_mdtPrepDataProvider << endreq;
+     return sc;
+   }
+
+   // Retrieve ActiveStore
+   sc = serviceLocator()->service("ActiveStoreSvc", m_activeStore);
+   if (sc.isFailure() || m_activeStore == 0) {
+     msg() << MSG::ERROR << " Cannot get ActiveStoreSvc." << endreq;
+     return sc ;
+   }
+   msg() << MSG::DEBUG << "Retrieved ActiveStoreSvc." << endreq; 
+   
    // 
    return StatusCode::SUCCESS; 
 }
 
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
 void TrigL2MuonSA::MdtDataPreparator::setRpcGeometry(bool use_rpc)
 {
   m_mdtRegionDefiner->setRpcGeometry(use_rpc);
+  return;
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+void TrigL2MuonSA::MdtDataPreparator::setMdtDataCollection(bool use_mdtcsm)
+{
+  m_use_mdtcsm = use_mdtcsm;
+  return;
 }
 
 // --------------------------------------------------------------------------------
@@ -266,78 +305,88 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtHits(const LVL1::RecMuonRoI* p
   }
   
   msg() << MSG::DEBUG << "size of the rob Ids " << v_robIds.size() << endreq;
-  
-  // get MdtCsmContainer
-  const MdtCsmContainer* pMdtCsmContainer =
-    Muon::MuonRdoContainerAccess::retrieveMdtCsm("MDTCSM");
-  if( pMdtCsmContainer==0 ) {
-    if ( msgLvl() <= MSG::DEBUG ) {
-      msg() << MSG::DEBUG << "MDT CSM container not registered by "
-	    << "MuonRdoContainerManager; retrieving it "
-	    << "from the store! " << endreq;
-    }
-    StatusCode sc = m_storeGateSvc->retrieve(pMdtCsmContainer, "MDTCSM");
-    if (sc.isFailure()) {
-      msg() << MSG::WARNING << "Retrieval of MdtCsmContainer failed" << endreq;
-      return sc;
-    }
-  }
-  
+    
   mdtHits_normal.clear();
   mdtHits_overlap.clear();
-  
-  // get IdHashes
-  std::vector<IdentifierHash> v_idHash_normal;
-  std::vector<IdentifierHash> v_idHash_overlap;
-  
-   // get hashIdlist by using region selector
-   if (muonRoad.isEndcap) getMdtIdHashesEndcap(mdtRegion, v_idHash_normal,v_idHash_overlap);
-   else getMdtIdHashesBarrel(mdtRegion, v_idHash_normal,v_idHash_overlap);
 
-   msg() << MSG::DEBUG << ">>> hash id size normal: " << v_idHash_normal.size() << " overlap: " << v_idHash_overlap.size() << endreq;
-
-   msg() << MSG::DEBUG << "List of MDT Chambers (normal)..." << v_idHash_normal.size() << endreq;
-   for (unsigned int i=0;i<v_idHash_normal.size();i++) {
+  if (m_use_mdtcsm) {
+    // get MdtCsmContainer
+    const MdtCsmContainer* pMdtCsmContainer =
+      Muon::MuonRdoContainerAccess::retrieveMdtCsm("MDTCSM");
+    if( pMdtCsmContainer==0 ) {
+      if ( msgLvl() <= MSG::DEBUG ) {
+	msg() << MSG::DEBUG << "MDT CSM container not registered by "
+	      << "MuonRdoContainerManager; retrieving it "
+	      << "from the store! " << endreq;
+      }
+      StatusCode sc = m_storeGateSvc->retrieve(pMdtCsmContainer, "MDTCSM");
+      if (sc.isFailure()) {
+	msg() << MSG::WARNING << "Retrieval of MdtCsmContainer failed" << endreq;
+	return sc;
+      }
+    }
+    
+    // get IdHashes
+    std::vector<IdentifierHash> v_idHash_normal;
+    std::vector<IdentifierHash> v_idHash_overlap;
+    
+    // get hashIdlist by using region selector
+    if (muonRoad.isEndcap) getMdtIdHashesEndcap(mdtRegion, v_idHash_normal,v_idHash_overlap);
+    else getMdtIdHashesBarrel(mdtRegion, v_idHash_normal,v_idHash_overlap);
+    
+    msg() << MSG::DEBUG << ">>> hash id size normal: " << v_idHash_normal.size() << " overlap: " << v_idHash_overlap.size() << endreq;
+    
+    msg() << MSG::DEBUG << "List of MDT Chambers (normal)..." << v_idHash_normal.size() << endreq;
+    for (unsigned int i=0;i<v_idHash_normal.size();i++) {
       msg() << MSG::DEBUG << "MDT chamber n.  " << i << ": hash id " << v_idHash_normal[i] << endreq;
-   }
-   msg() << MSG::DEBUG << "List of MDT Chambers (overlap)..." << v_idHash_overlap.size() << endreq;
-   for (unsigned int i=0;i<v_idHash_overlap.size();i++) {
+    }
+    msg() << MSG::DEBUG << "List of MDT Chambers (overlap)..." << v_idHash_overlap.size() << endreq;
+    for (unsigned int i=0;i<v_idHash_overlap.size();i++) {
       msg() << MSG::DEBUG << "MDT chamber n.  " << i << ": hash id " << v_idHash_overlap[i] << endreq;
-   }
-
-   // get MdtCsm
-   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> v_robFragments;
-   m_robDataProvider->getROBData(v_robIds,v_robFragments);
-   std::vector<const MdtCsm*> v_mdtCsms_normal;
-   std::vector<const MdtCsm*> v_mdtCsms_overlap;
-   msg() << MSG::DEBUG << "getting MdtCsm (normal)..." << endreq;
-   StatusCode sc = getMdtCsm(pMdtCsmContainer, v_robFragments, v_idHash_normal, v_mdtCsms_normal);
-   if( sc!= StatusCode::SUCCESS ) {
+    }
+    
+    // get MdtCsm
+    std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> v_robFragments;
+    m_robDataProvider->getROBData(v_robIds,v_robFragments);
+    std::vector<const MdtCsm*> v_mdtCsms_normal;
+    std::vector<const MdtCsm*> v_mdtCsms_overlap;
+    msg() << MSG::DEBUG << "getting MdtCsm (normal)..." << endreq;
+    StatusCode sc = getMdtCsm(pMdtCsmContainer, v_robFragments, v_idHash_normal, v_mdtCsms_normal);
+    if( sc!= StatusCode::SUCCESS ) {
       msg() << MSG::WARNING << "Error in getting MdtCsm (normal)" << endreq;
       return sc;
-   }
-   msg() << MSG::DEBUG << "getting MdtCsm (overlap)..." << endreq;
-   sc = getMdtCsm(pMdtCsmContainer, v_robFragments, v_idHash_overlap,v_mdtCsms_overlap);
-   if( sc!= StatusCode::SUCCESS ) {
+    }
+    msg() << MSG::DEBUG << "getting MdtCsm (overlap)..." << endreq;
+    sc = getMdtCsm(pMdtCsmContainer, v_robFragments, v_idHash_overlap,v_mdtCsms_overlap);
+    if( sc!= StatusCode::SUCCESS ) {
       msg() << MSG::WARNING << "Error in getting MdtCsm (overlap)" << endreq;
       return sc;
-   }
+    }
+    
+    msg() << MSG::DEBUG << "Found csm normal : " << v_mdtCsms_normal.size() << endreq;
+    msg() << MSG::DEBUG << "Found csm overlap: " << v_mdtCsms_overlap.size() << endreq;
+    
+    // decode 
+    msg() << MSG::DEBUG << "decoding MdtCsm (normal)..." << endreq;
+    for(unsigned int i=0; i<v_mdtCsms_normal.size(); i++) {
+      if (!decodeMdtCsm(v_mdtCsms_normal[i], mdtHits_normal, muonRoad)) return StatusCode::FAILURE;
+    }
+    msg() << MSG::DEBUG << "decoding MdtCsm (overlap)..." << endreq;
+    for(unsigned int i=0; i<v_mdtCsms_overlap.size(); i++) {
+      if (!decodeMdtCsm(v_mdtCsms_overlap[i],mdtHits_overlap, muonRoad)) return StatusCode::FAILURE;
+    }
 
-   msg() << MSG::DEBUG << "Found csm normal : " << v_mdtCsms_normal.size() << endreq;
-   msg() << MSG::DEBUG << "Found csm overlap: " << v_mdtCsms_overlap.size() << endreq;
+  } else { // use MdtPrepData
 
-   // decode 
-   msg() << MSG::DEBUG << "decoding MdtCsm (normal)..." << endreq;
-   for(unsigned int i=0; i<v_mdtCsms_normal.size(); i++) {
-     if (!decodeMdtCsm(v_mdtCsms_normal[i], mdtHits_normal, muonRoad)) return StatusCode::FAILURE;
-   }
-   msg() << MSG::DEBUG << "decoding MdtCsm (overlap)..." << endreq;
-   for(unsigned int i=0; i<v_mdtCsms_overlap.size(); i++) {
-     if (!decodeMdtCsm(v_mdtCsms_overlap[i],mdtHits_overlap, muonRoad)) return StatusCode::FAILURE;
-   }
+    StatusCode sc = collectMdtHitsFromPrepData(mdtHashList, v_robIds, mdtHits_normal, muonRoad);
+    if( sc!= StatusCode::SUCCESS ) {
+      msg() << MSG::WARNING << "Error in getting collection of MDT hit from prep data" << endreq;
+      return sc;
+    }
 
-   //
-   return StatusCode::SUCCESS;
+  }
+  //
+  return StatusCode::SUCCESS;
 }
 
 // --------------------------------------------------------------------------------
@@ -348,35 +397,79 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::getMdtCsm(const MdtCsmContainer* pMd
 						      const std::vector<IdentifierHash>& v_idHash,
 						      std::vector<const MdtCsm*>& v_mdtCsms)
 {
-
-  //  std::cout << " In getMdtCsm " << std::endl;
-  //  std::cout << "Size of the rob fragments: " << v_robFragments.size() << std::endl;
- 
-   if( m_mdtRawDataProvider->convert(v_robFragments, v_idHash).isFailure() ) {
-      msg() << MSG::WARNING << "Failed to convert MDT CSM hash Ids: " << endreq;
-      for(unsigned int i=0; i < v_idHash.size(); i++) {
-	 msg() << MSG::WARNING << v_idHash[i] << endreq;
-      }
-      return StatusCode::FAILURE;
-   }
-
-   //   std::cout << " size of the hash Ids:  " << v_idHash.size() << std::endl;
+  if( m_mdtRawDataProvider->convert(v_robFragments, v_idHash).isFailure() ) {
+    msg() << MSG::WARNING << "Failed to convert MDT CSM hash Ids: " << endreq;
+    for(unsigned int i=0; i < v_idHash.size(); i++) {
+      msg() << MSG::WARNING << v_idHash[i] << endreq;
+    }
+    return StatusCode::FAILURE;
+  }
   
-   
-   for(unsigned int i=0; i < v_idHash.size(); i++) {
-      MdtCsmContainer::const_iterator pCsmIt = pMdtCsmContainer->indexFind(v_idHash[i]);
-      if( pCsmIt!=pMdtCsmContainer->end() ) {
-	 v_mdtCsms.push_back(*pCsmIt);
-	 msg() << MSG::DEBUG << "MDT Collection hash " << v_idHash[i]
-	       << " associated to:  SubDet 0x" << MSG::hex
-	       << (*pCsmIt)->SubDetId() << " MRod 0x"
-	       << (*pCsmIt)->MrodId() << " Link 0x"
-	       << (*pCsmIt)->CsmId() << MSG::dec << endreq;
-	 msg() << MSG::DEBUG << "Number of digit in  MDT Collection "
-	       << v_idHash[i] << ": " << (*pCsmIt)->size() << endreq;
+  // Modificaiton provided by Jochen Meyer
+  unsigned int i=0;
+  int processingDetEl = 1;
+  bool BMEpresent = m_mdtIdHelper->stationNameIndex("BME") != -1;
+  while( i < v_idHash.size() ) {
+    IdentifierHash v_idHash_corr = v_idHash[i];
+    if( BMEpresent ) {
+      // if there are BMEs the RDOs are registered with the detectorElement hash
+      Identifier tmp_id;
+      IdContext tmp_context = m_mdtIdHelper->module_context();
+       m_mdtIdHelper->get_id(v_idHash[i], tmp_id, &tmp_context);
+       // for BMEs the 2 CSMs are registered with the hashes of the 2 multilayers
+       Identifier ml_id = m_mdtIdHelper->multilayerID(tmp_id, processingDetEl);
+       m_mdtIdHelper->get_detectorElement_hash(ml_id, v_idHash_corr);
+    }
+    MdtCsmContainer::const_iterator pCsmIt = pMdtCsmContainer->indexFind(v_idHash_corr);
+    
+    if( pCsmIt==pMdtCsmContainer->end() ) {
+      if(processingDetEl == 1) ++i;
+      continue;
+    }
+    if( BMEpresent ){
+      Identifier elementId = ((*pCsmIt)->identify());
+      // if there are BMEs it's also required to process there 2nd CSM
+      if( m_mdtIdHelper->stationName(elementId) == 53 ) { // is BME chamber
+        // do the loop once again with the SAME iterator, but for the 2nd multilayer
+	if( processingDetEl == 2 ) {
+          // reset to CSM/multilayer 1 and go to next chamber
+	  processingDetEl = 1;
+        } else {
+          // the 1st CSM was done, do the 2nd in the same chamber
+	  processingDetEl = 2;
+	}
       }
-   }
-   return StatusCode::SUCCESS;
+    }
+    
+    v_mdtCsms.push_back(*pCsmIt);
+    msg() << MSG::DEBUG << "MDT Collection hash " << v_idHash_corr
+       << " associated to:  SubDet 0x" << MSG::hex
+       << (*pCsmIt)->SubDetId() << " MRod 0x"
+       << (*pCsmIt)->MrodId() << " Link 0x"
+       << (*pCsmIt)->CsmId() << MSG::dec << endreq;
+    msg() << MSG::DEBUG << "Number of digit in  MDT Collection "
+	  << v_idHash_corr << ": " << (*pCsmIt)->size() << endreq;
+    
+    if(processingDetEl == 1) ++i;
+  }
+
+  /* old code kept for the moment
+  for(unsigned int i=0; i < v_idHash.size(); i++) {
+    MdtCsmContainer::const_iterator pCsmIt = pMdtCsmContainer->indexFind(v_idHash[i]);
+    if( pCsmIt!=pMdtCsmContainer->end() ) {
+      v_mdtCsms.push_back(*pCsmIt);
+      msg() << MSG::DEBUG << "MDT Collection hash " << v_idHash[i]
+	    << " associated to:  SubDet 0x" << MSG::hex
+	    << (*pCsmIt)->SubDetId() << " MRod 0x"
+	    << (*pCsmIt)->MrodId() << " Link 0x"
+	    << (*pCsmIt)->CsmId() << MSG::dec << endreq;
+      msg() << MSG::DEBUG << "Number of digit in  MDT Collection "
+	    << v_idHash[i] << ": " << (*pCsmIt)->size() << endreq;
+    }
+  }
+  */
+
+  return StatusCode::SUCCESS;
 }
 
 // --------------------------------------------------------------------------------
@@ -431,9 +524,6 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
      }
      bool offlineID = amtMap->offlineId(ChannelId, StationName, StationEta, StationPhi, MultiLayer, Layer, Tube);	   
      
-     //       std::cout << "new hit: " << "phi: " << StationPhi << " eta: " << StationEta << " name: " << StationName
-     //		 << " ml: " << MultiLayer << " layer: " << Layer << " Tube: " << Tube << std::endl;
-     
      if(!offlineID) {
        msg() << MSG::WARNING << "problem getting info from amtMap" << endreq;
        ++amt;
@@ -476,7 +566,6 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
      double Z = m_mdtReadout->center(TubeLayer, Tube).z();
      
      Amg::Transform3D trans = Amg::CLHEPTransformToEigen(*m_muonStation->getNominalAmdbLRSToGlobal());
-     //       HepGeom::Transform3D* trans = m_muonStation->getNominalAmdbLRSToGlobal();
      if(m_muonStation->endcap()==0){
        cXmid = (trans*Amg::Vector3D(0.,0.,0.)).z();
        double halfRadialThicknessOfMultilayer = m_muonStation->RsizeMdtStation()/2.;
@@ -510,7 +599,6 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
      
      Amg::Vector3D OrigOfMdtInAmdbFrame = 
        Amg::Hep3VectorToEigen( m_muonStation->getBlineFixedPointInAmdbLRS() );	    
-     //       HepPoint3D OrigOfMdtInAmdbFrame = m_muonStation->getBlineFixedPointInAmdbLRS();
      double Rmin =(trans*OrigOfMdtInAmdbFrame).perp();	
 
      float cInCo = 1./cos(fabsf(atan(OrtoRadialPos/Rmin)));
@@ -524,8 +612,10 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
      uint16_t coarseTime = (*amt)->coarse();
      uint16_t fineTime   = (*amt)->fine();
      
-     msg() << MSG::DEBUG << " ...MDT hit ChannelId/Z/R/Tube/Layer="
-	   << ChannelId << "/" << Z << "/" << R << "/" << Tube << "/" << Layer << endreq;
+     msg() << MSG::DEBUG << " ...MDT hit Z/R/chamber/MultiLater/TubeLayer/Tube/Layer/adc/tdc = "
+	   << Z << "/" << R << "/" << chamber << "/" << MultiLayer << "/" << TubeLayer << "/" 
+	   << Tube << "/" << Layer << "/" << adc << "/" << drift << endreq;
+     
      
      // no residual check for the moment
      // (residual check at pattern finder)
@@ -591,8 +681,8 @@ uint32_t TrigL2MuonSA::MdtDataPreparator::get_system_id (unsigned short int Subs
 // --------------------------------------------------------------------------------
 
 void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesBarrel(const TrigL2MuonSA::MdtRegion& mdtRegion,
-						   std::vector<IdentifierHash>& mdtIdHashes_normal,
-						   std::vector<IdentifierHash>& mdtIdHashes_overlap)
+							   std::vector<IdentifierHash>& mdtIdHashes_normal,
+							   std::vector<IdentifierHash>& mdtIdHashes_overlap)
 {
    std::vector<IdentifierHash> idList;
 
@@ -611,14 +701,6 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesBarrel(const TrigL2MuonSA::M
 	       << mdtRegion.etaMax[chamber][i_sector] << "/"
 	       << mdtRegion.phiMin[chamber][i_sector] << "/"
 	       << mdtRegion.phiMax[chamber][i_sector] << endreq;
-
-
-	 //	 std::cout << "chamber/i_sector=" << chamber << "/" << i_sector << std::endl;
-	 //	 std::cout << "...etaMin/etaMax/phiMin/phiMax="
-	 //		   << mdtRegion.etaMin[chamber][i_sector] << "/"
-	 //		   << mdtRegion.etaMax[chamber][i_sector] << "/"
-	 //	   << mdtRegion.phiMin[chamber][i_sector] << "/"
-	 //	   << mdtRegion.phiMax[chamber][i_sector] << std::endl;
 
 	 TrigRoiDescriptor _roi( 0.5*(mdtRegion.etaMin[chamber][i_sector]+mdtRegion.etaMax[chamber][i_sector]),
 				 mdtRegion.etaMin[chamber][i_sector],
@@ -644,9 +726,12 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesBarrel(const TrigL2MuonSA::M
    }
 }
 
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
 void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesEndcap(const TrigL2MuonSA::MdtRegion& mdtRegion,
-						   std::vector<IdentifierHash>& mdtIdHashes_normal,
-						   std::vector<IdentifierHash>& mdtIdHashes_overlap)
+							   std::vector<IdentifierHash>& mdtIdHashes_normal,
+							   std::vector<IdentifierHash>& mdtIdHashes_overlap)
 {
    std::vector<IdentifierHash> idList;
 
@@ -691,6 +776,219 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesEndcap(const TrigL2MuonSA::M
      }
    }
 }
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
+StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std::vector<IdentifierHash>& v_idHash,
+								       std::vector<uint32_t>& v_robIds,
+								       TrigL2MuonSA::MdtHits& mdtHits,
+								       const TrigL2MuonSA::MuonRoad& muonRoad)
+{    
+  if (m_mdtPrepDataProvider->decode(v_robIds).isSuccess()) {
+    msg() << MSG::DEBUG << "Calling ROB based decoding with "<< v_robIds.size() << " ROB's" << endreq;
+  }
+  else{
+    msg() << MSG::WARNING << "Error in ROB based decoding" << endreq;
+    return StatusCode::FAILURE;
+  }
+  
+  // Get MDT container                                                                                                                                    
+  if (v_idHash.empty()) {
+    msg() << MSG::DEBUG << "Hash list is empty" << endreq;
+    return StatusCode::SUCCESS;
+  }
+  
+  const MdtPrepDataContainer* mdtPrds = 0;
+  std::string mdtKey = "MDT_DriftCircles";
+  
+  if (m_activeStore) {
+    if((*m_activeStore)->retrieve(mdtPrds, mdtKey).isFailure()) {
+      msg() << MSG::ERROR << " Cannot retrieve MDT PRD Container " << mdtKey << endreq;
+      return StatusCode::FAILURE;
+    } else {
+      msg()<< MSG::DEBUG << " MDT PRD Container retrieved with key " << mdtKey << endreq;	 
+    }
+  } else {
+    msg() << MSG::ERROR << "Null pointer to ActiveStore" << endreq;
+    return StatusCode::FAILURE;
+  }
+  
+  // Get MDT collections                                                                                                                                
+  ///// Vectors of prep data collections
+  std::vector<const Muon::MdtPrepDataCollection*> mdtCols;
+  
+  MdtPrepDataContainer::const_iterator MDTcoll;
+  for(std::vector<IdentifierHash>::const_iterator idit = v_idHash.begin(); idit != v_idHash.end(); ++idit) {
+    
+    MDTcoll = mdtPrds->indexFind(*idit);
+    
+    if( MDTcoll == mdtPrds->end() ) {
+      msg() << MSG::DEBUG << "MDT prep data collection not found in Hash ID" << (int)*idit << endreq;
+      continue;
+    }
+    
+    if( (*MDTcoll)->size() == 0 ) {
+      msg() << MSG::DEBUG << "MDT prep data collection is empty in Hash ID" << (int)*idit << endreq;
+      continue;
+    }
+    
+    mdtCols.push_back(*MDTcoll);
+    
+    msg() << MSG::DEBUG << "Selected Mdt Collection: "
+	  << m_mdtIdHelper->show_to_string((*MDTcoll)->identify())
+	  << " with size " << (*MDTcoll)->size()
+	  << "in Hash ID" << (int)*idit << endreq;
+  }
+  
+  std::vector< const MdtPrepDataCollection*>::const_iterator it = mdtCols.begin();
+  std::vector< const MdtPrepDataCollection*>::const_iterator it_end = mdtCols.end();
+  
+  for( ;it!=it_end;++it ){
+    
+    Muon::MdtPrepDataCollection::const_iterator cit_begin = (*it)->begin();
+    Muon::MdtPrepDataCollection::const_iterator cit_end = (*it)->end();
+    
+    if (cit_begin == cit_end) return StatusCode::SUCCESS;
+    
+    Muon::MdtPrepDataCollection::const_iterator cit = cit_begin;   
+    for( ; cit!=cit_end;++cit ) {
+      
+      const Muon::MdtPrepData* mdt = (*cit);
+      
+      m_mdtReadout = mdt->detectorElement();
+      if (!m_mdtReadout) continue;	
+      
+      m_muonStation = m_mdtReadout->parentMuonStation();
+      
+      int StationPhi = m_mdtReadout->getStationPhi();
+      int StationEta = m_mdtReadout->getStationEta();
+      int MultiLayer = m_mdtReadout->getMultilayer();
+      double cXmid;
+      double cYmid;
+      double cAmid = 0;
+      double cPhip;   
+      
+      Identifier id = mdt->identify();
+      int adc       = mdt->adc();
+      int drift     = mdt->tdc();
+      
+      int TubeLayers = m_mdtReadout->getNLayers();
+      int TubeLayer = m_mdtIdHelper->tubeLayer(id);
+      if(TubeLayer > TubeLayers) TubeLayer -= TubeLayers;
+      int Layer = (MultiLayer-1)*TubeLayers + TubeLayer;
+      int Tube = m_mdtIdHelper->tube(id);
+      
+      double OrtoRadialPos = m_mdtReadout->getStationS();
+      std::string chamberType = m_mdtReadout->getStationType();
+      char st = chamberType[1];
+      
+      int chamber = 0;
+      if (chamberType[0]=='E') {
+	/// Endcap
+	if (st=='I') chamber = xAOD::L2MuonParameters::Chamber::EndcapInner;
+	if (st=='M') chamber = xAOD::L2MuonParameters::Chamber::EndcapMiddle;
+	if (st=='O') chamber = xAOD::L2MuonParameters::Chamber::EndcapOuter;
+	if (st=='E') chamber = xAOD::L2MuonParameters::Chamber::EndcapExtra;
+      } else {
+	/// Barrel
+	if (st=='I') chamber = xAOD::L2MuonParameters::Chamber::BarrelInner;
+	if (st=='M') chamber = xAOD::L2MuonParameters::Chamber::BarrelMiddle;
+	if (st=='O') chamber = xAOD::L2MuonParameters::Chamber::BarrelOuter;
+      }
+      
+      double R = m_mdtReadout->center(TubeLayer, Tube).perp();
+      double Z = m_mdtReadout->center(TubeLayer, Tube).z();
+      
+      Amg::Transform3D trans = Amg::CLHEPTransformToEigen(*m_muonStation->getNominalAmdbLRSToGlobal());
+      if(m_muonStation->endcap()==0){
+	cXmid = (trans*Amg::Vector3D(0.,0.,0.)).z();
+	double halfRadialThicknessOfMultilayer = m_muonStation->RsizeMdtStation()/2.;
+	cYmid = ((trans*Amg::Vector3D(0.,0.,0.)).perp()+halfRadialThicknessOfMultilayer);
+      }
+      else{
+	cXmid = (trans*Amg::Vector3D(0.,0.,0.)).perp();
+	double halfZThicknessOfMultilayer = m_muonStation->ZsizeMdtStation()/2.;
+	cYmid = (trans*Amg::Vector3D(0.,0.,0.)).z();
+	if(cYmid>0) cYmid += halfZThicknessOfMultilayer;
+	else cYmid -= halfZThicknessOfMultilayer;
+      }
+      cPhip = (trans*Amg::Vector3D(0.,0.,0.)).phi();
+      
+      double dphi  = 0;
+      double cphi  = muonRoad.phi[chamber][0];
+      if( cPhip*cphi>0 ) {
+	dphi = fabsf(cPhip - cphi);
+      } else {
+	if(fabs(cphi) > CLHEP::pi/2.) {
+	  double phi1 = (cPhip>0.)? cPhip-CLHEP::pi : cPhip+CLHEP::pi;
+	  double phi2 = (cphi >0.)? cphi -CLHEP::pi : cphi +CLHEP::pi;
+	  dphi = fabsf(phi1) + fabsf(phi2); 
+	}
+	else {
+	  dphi = fabsf(cPhip) + fabsf(cphi);
+	}
+      }
+      
+      if(m_muonStation->endcap()==1)
+	R = sqrt(R*R+R*R*tan(dphi)*tan(dphi));
+      
+      Amg::Vector3D OrigOfMdtInAmdbFrame = 
+	Amg::Hep3VectorToEigen( m_muonStation->getBlineFixedPointInAmdbLRS() );      
+      double Rmin =(trans*OrigOfMdtInAmdbFrame).perp();  
+      
+      float cInCo = 1./cos(fabsf(atan(OrtoRadialPos/Rmin)));
+      float cPhi0 = cPhip - atan(OrtoRadialPos/Rmin);
+      if(cPhi0 > CLHEP::pi) cPhip -= 2*CLHEP::pi;
+      if(cPhip<0. && (fabs(CLHEP::pi+cPhip) < 0.05) ) cPhip = acos(0.)*2.;
+      
+      msg() << MSG::DEBUG << " ...MDT hit Z/R/chamber/MultiLater/TubeLayer/Tube/Layer/adc/tdc = "
+	    << Z << "/" << R << "/" << chamber << "/" << MultiLayer << "/" << TubeLayer << "/" 
+	    << Tube << "/" << Layer << "/" << adc << "/" << drift << endreq;
+      
+      // no residual check for the moment
+      // (residual check at pattern finder)
+      if(Layer!=0 && Tube !=0) {
+	
+	// create the new digit
+	TrigL2MuonSA::MdtHitData tmp;
+	tmp.name       = 0;
+	tmp.StationEta = StationEta;
+	tmp.StationPhi = StationPhi;
+	tmp.Multilayer = MultiLayer;
+	tmp.Layer      = Layer - 1;
+	tmp.TubeLayer  = TubeLayer;
+	tmp.Tube       = Tube;
+	tmp.cYmid      = cYmid;
+	tmp.cXmid      = cXmid;
+	tmp.cAmid      = cAmid;
+	tmp.cPhip      = cPhip;
+	tmp.cInCo      = cInCo;
+	tmp.cPhi0      = cPhi0;
+	for(unsigned int i=0; i<4; i++) { tmp.cType[i] = chamberType[i]; }
+	tmp.Z          = Z;
+	tmp.R          = R;
+	tmp.DriftTime  = drift;
+	tmp.DriftSpace = 0.;
+	tmp.DriftSigma = 0;
+	tmp.Adc        = adc;
+	tmp.OnlineId   = 0;
+	tmp.LeadingCoarseTime  = 0;
+	tmp.LeadingFineTime    = 0;
+	tmp.TrailingCoarseTime = 0;
+	tmp.TrailingFineTime   = 0;
+	tmp.Residual  = 0;
+	tmp.isOutlier = 0;
+	tmp.Chamber = chamber;
+        
+	mdtHits.push_back(tmp);
+      }	  
+    } // end of MdtPrepDataCollection loop
+  } // end of MdtPrepDataCollection vector loop
+
+  return StatusCode::SUCCESS;
+}
+
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 

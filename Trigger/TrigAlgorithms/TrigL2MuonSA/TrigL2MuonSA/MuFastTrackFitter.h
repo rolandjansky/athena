@@ -54,7 +54,7 @@ namespace TrigL2MuonSA {
     StatusCode findTracks(const LVL1::RecMuonRoI*     p_roi,
 			  TrigL2MuonSA::TgcFitResult& tgcFitResult,
 			  std::vector<TrigL2MuonSA::TrackPattern>& v_trackPatterns,
-                          const TrigL2MuonSA::MuonRoad muonRoad);
+                          const TrigL2MuonSA::MuonRoad& muonRoad);
     
     StatusCode setMCFlag(BooleanProperty  use_mcLUT);
 

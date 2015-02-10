@@ -149,6 +149,7 @@ class MuFastSteering : public HLT::FexAlgo,
   BooleanProperty  m_use_mcLUT;
   BooleanProperty  m_use_new_segmentfit;
   BooleanProperty  m_use_rpc;
+  BooleanProperty  m_use_mdtcsm;
   BooleanProperty  m_doCalStream;
   BooleanProperty  m_calDataScouting;
   
