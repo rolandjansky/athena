@@ -7,6 +7,8 @@
 #ifndef TRIGT1RESULTBYTESTREAM_ROIBRESULTBYTESTREAMTOOL_ICC
 #define TRIGT1RESULTBYTESTREAM_ROIBRESULTBYTESTREAMTOOL_ICC
 
+#include <exception>
+
 // Gaudi/Athena include(s):
 #include "GaudiKernel/MsgStream.h"
 
@@ -57,6 +59,28 @@ StatusCode RoIBResultByteStreamTool::convert( const std::vector< ROBF >& robs,
     uint32_t rodFragSize = rob.rod_fragment_size_word();
     uint32_t robId = rob.source_id();
 
+    /* Check for errors */
+    bool error_rob(false);
+    bool error_rod(false);
+    try{
+      if (rob.check_rob()){
+	ATH_MSG_VERBOSE( "ROB fragment checked ok" );
+      }
+    }
+    catch (std::exception const & ex){
+      ATH_MSG_WARNING( "ROB fragment not valid: " << ex.what() );
+      error_rob=true;
+    }
+    try{
+      if (rob.check_rod()){
+	ATH_MSG_VERBOSE( "ROD fragment checked ok");
+      }
+    }
+    catch (std::exception const & ex){
+      ATH_MSG_WARNING( "ROD fragment not valid: " << ex.what() );
+      error_rod=true;
+    }
+
     /* get ROD source ID */
     uint32_t rodId = rob.rod_source_id();
     DataType status;
@@ -85,9 +109,9 @@ StatusCode RoIBResultByteStreamTool::convert( const std::vector< ROBF >& robs,
     /* CTP ROB */
     eformat::helper::SourceIdentifier helpCTPID( eformat::TDAQ_CTP, m_ctpModuleID );
     eformat::helper::SourceIdentifier helpCTPID_II( eformat::TDAQ_CTP, 0 );
-
-	 log << MSG::DEBUG << "Check ROD ID against CTP 0x" << MSG::hex 
-		  << helpCTPID.code() << MSG::dec << endreq;
+    
+    log << MSG::DEBUG << "Check ROD ID against CTP 0x" << MSG::hex 
+	<< helpCTPID.code() << MSG::dec << endreq;
     if( rodId == helpCTPID.code() || 
         // this is a hack to catch the early data with the old CTP
         // firmware, which assigns 0x770000 to both DAQ and LVL2 ROD
@@ -258,7 +282,7 @@ StatusCode RoIBResultByteStreamTool::convert( const std::vector< ROBF >& robs,
     eformat::helper::SourceIdentifier helpL1TopoID_0( eformat::TDAQ_CALO_TOPO_PROC, m_l1TopoModuleID[0] );
     eformat::helper::SourceIdentifier helpL1TopoID_1( eformat::TDAQ_CALO_TOPO_PROC, m_l1TopoModuleID[1] );
 
-    log << MSG::DEBUG << "Check ROD ID against L1Topo 0x" << MSG::hex 
+    log << MSG::DEBUG << "Check ROD ID " << rodId << " against L1Topo 0x" << MSG::hex 
         << helpL1TopoID_0.code() << " 0x" << helpL1TopoID_1.code() << MSG::dec << endreq;
 
     if( rodId == helpL1TopoID_0.code() || rodId == helpL1TopoID_1.code() ) {
@@ -285,13 +309,30 @@ StatusCode RoIBResultByteStreamTool::convert( const std::vector< ROBF >& robs,
       // the two status words
       words.push_back( errorStat );         // error status
       words.push_back( statInfo );          // status info
-      l1TopoContent.setStatusWords(words);  // add status words to RDO
+      l1TopoContent.setStatusWords(words);  // copy 2 status words to RDO
       //
       words.push_back( 2 );                 // number of status words
       words.push_back( ndata );             // number of data words
       words.push_back( 1 );                 // status block position
       ROIB::Trailer l1TopoTrail( words );
-     
+
+      /* Check for non-zero status word */
+      bool error_status(false);
+      if (errorStat!=0){
+	ATH_MSG_WARNING( "non-zero first status word, payload may not be valid" );
+	error_status=true;
+      }
+      /* Flag errors in RDO */
+      if (error_status) {
+	l1TopoContent.setError(L1Topo::Error::SLINK_STATUS_ERROR);
+      }
+      if (error_rob){
+	l1TopoContent.setError(L1Topo::Error::ROB_ERROR);
+      }
+      if (error_rod){
+	l1TopoContent.setError(L1Topo::Error::ROD_ERROR);
+      }
+
       /* Create L1TopoResult object */
       l1TopoResult.push_back( ROIB::L1TopoResult(l1TopoHead, l1TopoTrail, l1TopoContent) );
       /* Flag that at least one ROD was found */
