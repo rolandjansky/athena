@@ -297,7 +297,7 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 	  }
 
 	  if (prev_offlineId != 0x0) {
-	    v32rod.push_back(packLinkTrailer_IBL(prev_FE, timing_error, condensedMode, linkMasked)); // Trailer for IBL
+	    v32rod.push_back(packLinkTrailer_IBL(prev_n5, timing_error, condensedMode, linkMasked)); // Trailer for IBL
 	    condensedMode = false;
 #ifdef PIXEL_DEBUG
 	    log << MSG::DEBUG << "IBL Module trailer (because prev_offlineId != 0x0)" << endreq;
@@ -312,7 +312,7 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 	    while ((fake_BCID < max_BCID) && !timing_error) {
 	      fake_BCID++;
 	      v32rod.push_back(packLinkHeader_IBL(n5, fake_BCID, LVL1ID, 0x0)); // Header for IBL
-	      v32rod.push_back(packLinkTrailer_IBL(FE, timing_error, condensedMode, linkMasked)); // Trailer for IBL
+	      v32rod.push_back(packLinkTrailer_IBL(n5, timing_error, condensedMode, linkMasked)); // Trailer for IBL
 
 #ifdef PIXEL_DEBUG
 	      log << MSG::DEBUG << "(after) empty IBL Module header/trailer pair written for BCID " << fake_BCID << endreq;
@@ -327,7 +327,7 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 
 	  while ((fake_BCID < BCID) && !timing_error) {
 	    v32rod.push_back(packLinkHeader_IBL(n5, fake_BCID, LVL1ID, 0x0)); // Header for IBL
-	    v32rod.push_back(packLinkTrailer_IBL(FE, timing_error, condensedMode, linkMasked)); // Trailer for IBL
+	    v32rod.push_back(packLinkTrailer_IBL(n5, timing_error, condensedMode, linkMasked)); // Trailer for IBL
 #ifdef PIXEL_DEBUG
 	    log << MSG::DEBUG << "(before) empty IBL Module header/trailer pair written for BCID " << fake_BCID << endreq;
 #endif
@@ -559,7 +559,7 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
 	if (vRows.size() != 0) { // packing remaining non-condensed IBL hit words
 	  //	  int cycleCounter(0);
       	  for (; vRows.size() != 0; ) {	  
-	    v32rod.push_back(packRawDataWord_IBL(vRows.at(0), vCols.at(0), vTots.at(0), FE));	    
+	    v32rod.push_back(packRawDataWord_IBL(vRows.at(0), vCols.at(0), vTots.at(0), n5));	    
      	    vRows.erase(vRows.begin());
 	    vCols.erase(vCols.begin());
 	    vTots.erase(vTots.begin());
@@ -579,7 +579,7 @@ void PixelRodEncoder::fillROD(std::vector<uint32_t>& v32rod, MsgStream& log, int
     } // end WHILE cycle " while  (rdo_it!=rdo_it_end) "    
 
     if (m_is_ibl_module || m_is_dbm_module) {
-      v32rod.push_back(packLinkTrailer_IBL(FE, timing_error, condensedMode, linkMasked));
+      v32rod.push_back(packLinkTrailer_IBL(n5, timing_error, condensedMode, linkMasked));
       condensedMode = false;
 #ifdef PIXEL_DEBUG
       log << MSG::DEBUG << "Module IBL/DBM trailer (at end of the loop)" << endreq;

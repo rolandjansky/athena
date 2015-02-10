@@ -86,8 +86,8 @@ static const uint32_t PRB_COLUMNmask_IBL     = 0x7F; // column not-condensed hit
 static const uint32_t PRB_TOTskip_IBL        = 16; // TOT not-condensed hit word skip => need to skip the Row and the Column
 static const uint32_t PRB_TOTmask_IBL        = 0xFF; // TOT non-condensed hit word mask
 static const uint32_t PRB_LINKNUMHITskip_IBL = 24;
-//static const uint32_t PRB_LINKNUMHITmask_IBL = 0x1F; // link number for the IBl, containing the SLink (2 MSB) and the FE w.r.t. the SLink (3 LSB)
-static const uint32_t PRB_LINKNUMHITmask_IBL = 0x7; // link number for the IBL (= number of the FE w.r.t. the SLink)
+static const uint32_t PRB_LINKNUMHITmask_IBL = 0x1F; // link number for the IBl, containing the SLink (2 MSB) and the FE w.r.t. the SLink (3 LSB)
+//static const uint32_t PRB_LINKNUMHITmask_IBL = 0x7; // link number for the IBL (= number of the FE w.r.t. the SLink)
 
 // Pixel module trailer word
 static const uint32_t PRB_TRAILERERRORSmask  = 0x7;   // trailer errors trailer word mask
@@ -101,14 +101,14 @@ static const uint32_t PRB_SKIPPEDTRIGGERTRAILERmask_IBL = 0x3FF; // IBL L1IDskip
 static const uint32_t PRB_TRAILERERRORSskip_IBL         = 15; // IBL skipped trigger counter skip in the trailer word. In the data format, they're called z,h and v.
 static const uint32_t PRB_TRAILERERRORSmask_IBL         = 0x1FF; // IBL skipped trigger counter mask in the trailer word
 static const uint32_t PRB_LINKNUMTRAILERskip_IBL        = 24;  // IBL link number (= number of the FE chip linked to the S-Link that is sending the stream, and corresponding SLink) in the trailer word
-//static const uint32_t PRB_LINKNUMTRAILERmask_IBL        = 0x1F; // IBL link number (= number of the FE chip linked to the S-Link that is sending the stream) in the trailer word
-static const uint32_t PRB_LINKNUMTRAILERmask_IBL        = 0x7; // IBL link number (= number of the FE chip linked to the S-Link that is sending the stream) in the trailer word
+static const uint32_t PRB_LINKNUMTRAILERmask_IBL        = 0x1F; // IBL link number (= number of the FE chip linked to the S-Link that is sending the stream) in the trailer word
+//static const uint32_t PRB_LINKNUMTRAILERmask_IBL        = 0x7; // IBL link number (= number of the FE chip linked to the S-Link that is sending the stream) in the trailer word
 static const uint32_t PRB_BITFLIPSTRAILERskip_IBL       = 0; // IBL bitflips skip in the trailer word
 static const uint32_t PRB_BITFLIPSTRAILERmask_IBL       = 0x1F; // IBL bitflips mask in the trailer word
 // the following words at the moment are used for the encoder, but not for the decoder. 
 //In the decoder, no separate classification of the errors has been done yet.
-static const uint32_t PRB_BCIDSKIPTRAILERskip_IBL      = 18; // IBL BCIDskip in trailer word skip
-static const uint32_t PRB_BCIDSKIPTRAILERmask_IBL      = 0x1; // IBL BCIDskip in trailer word mask
+static const uint32_t PRB_BCIDSKIPTRAILERskip_IBL      = 0x0; // IBL BCIDskip in trailer word skip
+static const uint32_t PRB_BCIDSKIPTRAILERmask_IBL      = 0x1F; // IBL BCIDskip in trailer word mask
 static const uint32_t PRB_L1IDSKIPTRAILERskip_IBL      = 19; // IBL L1IDskip in trailer word skip
 static const uint32_t PRB_L1IDSKIPTRAILERmask_IBL      = 0x1; // IBL L1IDskip in trailer word mask
 static const uint32_t PRB_PREAMBLEERRORTRAILERskip_IBL = 20; // IBL L1IDskip in trailer word skip
