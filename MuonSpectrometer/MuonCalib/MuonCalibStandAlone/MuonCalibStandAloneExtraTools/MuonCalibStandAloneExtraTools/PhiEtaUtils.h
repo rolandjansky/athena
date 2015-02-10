@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 #ifndef SRC_PHIETAUTIL_H
 #define SRC_PHIETAUTIL_H
 
@@ -56,16 +55,17 @@
     if(station==1||station==3||station==5
        || station==8   //BIR
        || station==13  //BIM
+       || station==12  //BME
         ){
       return phi8*2-1;
     }
     //small. BIS,BMS,BOS
     if(station==2||station==4||station==6
-      || station==7 //BEE
+      || station==7  //BEE
       || station==9  //BMF
-      || station==10//BOF
-      || station==11//BOG
-      || station==12//BOH
+      || station==10 //BOF
+      || station==11 //BOG
+      || station==35 //BMG
        ){
       return phi8*2;  
     }   
@@ -80,6 +80,7 @@
     if(station==1||station==3||station==5
        || station==8   //BIR
        || station==13  //BIM
+       || station==12  //BME
       ){
       return (phi16+1)/2;
     }
@@ -88,7 +89,7 @@
       || station==9  //BMF
       || station==10 //BOF   
       || station==11 //BOG   
-      || station==12 //BOH
+      || station==35 //BMG
         ){
       return phi16/2;  
     }   
