@@ -61,17 +61,18 @@
 
 //________________________________________________________________________
 iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
-				      const std::string& n,
-				      const IInterface*  p )
-: AthAlgTool(t,n,p),
-  m_rndmGenSvc("AtDSFMTGenSvc",n),
-  m_g4RunManagerHelper("iGeant4::G4RunManagerHelper/G4RunManagerHelper"),
-  m_physicsValidationUserAction("iGeant4::PhysicsValidationUserAction/PhysicsValidationUserAction"),
-  m_trackProcessorUserAction("iGeant4::TrackProcessorUserAction/TrackProcessorUserAction"),
-  m_mcTruthUserAction("iGeant4::MCTruthUserAction/ISF_MCTruthUserAction"),
-  m_sdActivateUserAction("iGeant4::SDActivateUserAction/SDActivateUserAction"),
-  m_storeGate(0),
-  m_mcEventCollectionName("TruthEvent")
+                                          const std::string& n,
+                                          const IInterface*  p )
+  : AthAlgTool(t,n,p),
+    m_rndmGenSvc("AtDSFMTGenSvc",n),
+    m_g4RunManagerHelper("iGeant4::G4RunManagerHelper/G4RunManagerHelper"),
+    m_physicsValidationUserAction("iGeant4::PhysicsValidationUserAction/PhysicsValidationUserAction"),
+    m_trackProcessorUserAction("iGeant4::TrackProcessorUserAction/TrackProcessorUserAction"),
+    m_mcTruthUserAction("iGeant4::MCTruthUserAction/ISF_MCTruthUserAction"),
+    m_sdActivateUserAction("iGeant4::SDActivateUserAction/SDActivateUserAction"),
+    m_storeGate(0),
+    m_mcEventCollectionName("TruthEvent"),
+    m_quasiStableParticlesIncluded(false)
     //, m_particleBroker("ISF_ParticleParticleBroker",n)
     //, m_particleHelper("ISF::ParticleHelper/ParticleHelper")
     //, m_configTool("PyAthena::Tool/G4ConfigTool")
@@ -117,15 +118,15 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
   if (p_runMgr) {
 
     G4VUserPhysicsList *thePL=FADS::PhysicsListCatalog::GetInstance()->GetMainPhysicsList();
-    
+
     //  p_runMgr->SetPhysicsList(thePL);  //*AS* should be obsolete, line below is actually used
     p_runMgr->SetUserInitialization(thePL);
     p_runMgr->SetUserInitialization(new FADS::FadsDetectorConstruction);
-    
-    
+
+
     //trackingAction =new AthenaTrackingAction;
     m_stackingAction =new AthenaStackingAction;  // *AS* is this the same as below?
-    
+
     p_runMgr->SetUserAction(FADS::FadsRunAction::GetRunAction());
     p_runMgr->SetUserAction(FADS::FadsEventAction::GetEventAction());
     p_runMgr->SetUserAction(FADS::FadsSteppingAction::GetSteppingAction());
@@ -173,7 +174,7 @@ StatusCode iGeant4::G4TransportTool::initialize()
     ATH_MSG_WARNING("AthenaHitsCollectionHelper: could not accessStoreGateSvc!");
     return StatusCode::FAILURE;
   }
-  
+
   G4UImanager *ui = G4UImanager::GetUIpointer();
 
   if (!m_libList.empty()) {
@@ -206,7 +207,7 @@ StatusCode iGeant4::G4TransportTool::initialize()
   // *AS* but this is a good place
 
 
-  
+
 
   ATH_MSG_VERBOSE("++++++++++++  ISF G4 G4TransportTool initialized  ++++++++++++");
 
@@ -229,29 +230,29 @@ StatusCode iGeant4::G4TransportTool::initialize()
 
   ATH_MSG_DEBUG("initalize");
   /*
-  if (m_particleBroker.retrieve().isSuccess())
+    if (m_particleBroker.retrieve().isSuccess())
     ATH_MSG_DEBUG("retrieved "<<m_particleBroker);
-  else {
+    else {
     ATH_MSG_FATAL("Could not get "<<m_particleBroker);
     return StatusCode::FAILURE;
-  }
-  //p_runMgr->setParticleBroker(&m_particleBroker);
+    }
+    //p_runMgr->setParticleBroker(&m_particleBroker);
 
-  if (m_particleHelper.retrieve().isSuccess())
+    if (m_particleHelper.retrieve().isSuccess())
     ATH_MSG_DEBUG("retrieved "<<m_particleHelper);
-  else {
+    else {
     ATH_MSG_FATAL("Could not get "<<m_particleHelper);
     return StatusCode::FAILURE;
-  }
-  //p_runMgr->setParticleHelper(&m_particleHelper);
-  */
+    }
+    //p_runMgr->setParticleHelper(&m_particleHelper);
+    */
   /*
-  if (m_configTool.retrieve().isSuccess())
+    if (m_configTool.retrieve().isSuccess())
     ATH_MSG_DEBUG("retrieved "<<m_configTool);
-  else {
+    else {
     ATH_MSG_FATAL("Could not get "<<m_configTool);
     return StatusCode::FAILURE;
-  }
+    }
   */
   return StatusCode::SUCCESS;
 }
@@ -271,7 +272,7 @@ StatusCode iGeant4::G4TransportTool::finalize()
 //________________________________________________________________________
 StatusCode iGeant4::G4TransportTool::process(const ISF::ISFParticle& isp) const
 {
-  
+
   static PreEventActionManager *preEvent=PreEventActionManager::
     GetPreEventActionManager();
   ATH_MSG_VERBOSE("++++++++++++  ISF G4 G4TransportTool execute  ++++++++++++");
@@ -325,7 +326,7 @@ StatusCode iGeant4::G4TransportTool::processVector(const ISF::ConstISFParticleVe
   G4Event* inputEvent=ISF_to_G4Event(particles);
   if (inputEvent) {
     bool abort = p_runMgr->ProcessEvent(inputEvent);
-    
+
     if (abort) {
       ATH_MSG_WARNING("Event was aborted !! ");
       //ATH_MSG_WARNING("Simulation will now go on to the next event ");
@@ -359,14 +360,14 @@ G4Event* iGeant4::G4TransportTool::ISF_to_G4Event(const ISF::ConstISFParticleVec
 
   ISF::ConstISFParticleVector::const_iterator partIt    = particles.begin();
   ISF::ConstISFParticleVector::const_iterator partItEnd = particles.end();
-    
+
   int n_pp=0;
   for ( ; partIt != partItEnd; partIt++) {
 
     const ISF::ISFParticle& isp = (**partIt);
-    
+
     addPrimaryVertex(g4evt,isp);
-    
+
     n_pp++;
   }
 
@@ -375,7 +376,7 @@ G4Event* iGeant4::G4TransportTool::ISF_to_G4Event(const ISF::ConstISFParticleVec
   eventInfo->SetNrOfPrimaryVertices(n_pp); // special case for ISF batches of particles
   eventInfo->SetHepMCEvent(genEvent());
   g4evt->SetUserInformation(eventInfo);
-  
+
   return g4evt;
 }
 
@@ -383,7 +384,7 @@ G4Event* iGeant4::G4TransportTool::ISF_to_G4Event(const ISF::ConstISFParticleVec
 G4Event* iGeant4::G4TransportTool::ISF_to_G4Event(const ISF::ISFParticle& isp) const
 {
   G4Event * g4evt=new G4Event();
-  
+
   addPrimaryVertex(g4evt,isp);
 
   EventInformation *eventInfo=new EventInformation();
@@ -512,23 +513,47 @@ G4PrimaryParticle* iGeant4::G4TransportTool::getPrimaryParticle(const ISF::ISFPa
       ppi->SetRegenerationNr(0); // // *AS* this may not be true if this is not a real primary particle
 
       if (genpart->end_vertex()){
-        ATH_MSG_WARNING( "Detected primary particle with end vertex. This should only be the case if" );
-        ATH_MSG_WARNING( "you are running with quasi-stable particle simulation enabled.  This is not" );
-        ATH_MSG_WARNING( "yet validated - you'd better know what you're doing.  Will add the primary" );
-        ATH_MSG_WARNING( "particle set on." );
-        ATH_MSG_WARNING( "ISF Particle: " << isp );
-        ATH_MSG_WARNING( "Primary Particle: " << *genpart );
-        ATH_MSG_WARNING("Number of daughters of "<<genpart->barcode()<<": " << genpart->end_vertex()->particles_out_size() );
+        if(m_quasiStableParticlesIncluded) {
+          ATH_MSG_VERBOSE( "Detected primary particle with end vertex." );
+          ATH_MSG_VERBOSE( "Will add the primary particle set on." );
+          ATH_MSG_VERBOSE( "ISF Particle: " << isp );
+          ATH_MSG_VERBOSE( "Primary Particle: " << *genpart );
+          ATH_MSG_VERBOSE("Number of daughters of "<<genpart->barcode()<<": " << genpart->end_vertex()->particles_out_size() );
+        }
+        else {
+          ATH_MSG_WARNING( "Detected primary particle with end vertex. This should only be the case if" );
+          ATH_MSG_WARNING( "you are running with quasi-stable particle simulation enabled.  This is not" );
+          ATH_MSG_WARNING( "yet validated - you'd better know what you're doing.  Will add the primary" );
+          ATH_MSG_WARNING( "particle set on." );
+          ATH_MSG_WARNING( "ISF Particle: " << isp );
+          ATH_MSG_WARNING( "Primary Particle: " << *genpart );
+          ATH_MSG_WARNING("Number of daughters of "<<genpart->barcode()<<": " << genpart->end_vertex()->particles_out_size() );
+        }
         // Add all necessary daughter particles
         for (HepMC::GenVertex::particles_out_const_iterator iter=genpart->end_vertex()->particles_out_const_begin();
              iter!=genpart->end_vertex()->particles_out_const_end(); ++iter){
           G4PrimaryParticle * daught = getPrimaryParticle( **iter );
-          ATH_MSG_WARNING ( "Daughter Particle of "<<genpart->barcode()<<": " << **iter );
-          if(NULL==(*iter)->end_vertex()) {
-            ATH_MSG_WARNING ( "Number of daughters of "<<(*iter)->barcode()<<": 0 (NULL)." );
+          if(m_quasiStableParticlesIncluded) {
+            ATH_MSG_VERBOSE ( "Daughter Particle of "<<genpart->barcode()<<": " << **iter );
           }
           else {
-            ATH_MSG_WARNING ("Number of daughters of "<<(*iter)->barcode()<<": " << (*iter)->end_vertex()->particles_out_size() );
+            ATH_MSG_WARNING ( "Daughter Particle of "<<genpart->barcode()<<": " << **iter );
+          }
+          if(NULL==(*iter)->end_vertex()) {
+            if(m_quasiStableParticlesIncluded) {
+              ATH_MSG_VERBOSE ( "Number of daughters of "<<(*iter)->barcode()<<": 0 (NULL)." );
+            }
+            else {
+              ATH_MSG_WARNING ( "Number of daughters of "<<(*iter)->barcode()<<": 0 (NULL)." );
+            }
+          }
+          else {
+            if(m_quasiStableParticlesIncluded) {
+              ATH_MSG_VERBOSE ( "Number of daughters of "<<(*iter)->barcode()<<": " << (*iter)->end_vertex()->particles_out_size() );
+            }
+            else {
+              ATH_MSG_WARNING ( "Number of daughters of "<<(*iter)->barcode()<<": " << (*iter)->end_vertex()->particles_out_size() );
+            }
           }
           particle->SetDaughter( daught );
         }
@@ -584,20 +609,20 @@ HepMC::GenEvent* iGeant4::G4TransportTool::genEvent() const
 {
 
   // collect last GenEvent from McEventCollection
-  
+
   HepMC::GenEvent* mcEvent(0);
 
-  McEventCollection* mcEventCollection; 
+  McEventCollection* mcEventCollection;
 
   // retrieve McEventCollection from storegate
   if (m_storeGate->contains<McEventCollection>(m_mcEventCollectionName)) {
     StatusCode status = m_storeGate->retrieve( mcEventCollection, m_mcEventCollectionName);
     if (status.isFailure())
       ATH_MSG_WARNING( "Unable to retrieve McEventCollection with name=" << m_mcEventCollectionName
-		       << ". Will create new collection.");
+                       << ". Will create new collection.");
     else {
       ATH_MSG_DEBUG( "Sucessfully retrieved McEventCollection with name=" << m_mcEventCollectionName);
-      
+
       mcEvent = mcEventCollection->back();
     }
   }

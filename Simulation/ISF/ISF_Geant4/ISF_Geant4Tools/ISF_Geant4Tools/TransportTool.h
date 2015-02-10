@@ -42,14 +42,14 @@ namespace HepMC {
 
 namespace iGeant4
 {
-  
-    /** @class G4TransportTool 
-      
+
+  /** @class G4TransportTool
+
       Geant4 AlgTool to create a ISFParticle at a volume entry/exit
       - universal transport tool
-      
+
       @author Robert Harrington
-  */  
+  */
 
   class G4AtlasRunManager;
   class IPhysicsValidationUserAction;
@@ -60,18 +60,18 @@ namespace iGeant4
   class G4TransportTool : virtual public ITransportTool, public AthAlgTool
   {
 
-  public:					
+  public:
     /** Constructor */
     G4TransportTool(const std::string&,const std::string&,const IInterface*);
 
     /** Destructor */
     virtual ~G4TransportTool ();
-    
+
     /** AlgTool initialize method */
     virtual StatusCode initialize();
     /** AlgTool finalize method */
     virtual StatusCode finalize();
-    
+
     /** Creates a new ParticleState from a given ParticleState, universal transport tool */
     StatusCode process(const ISF::ISFParticle& isp) const;
 
@@ -85,9 +85,9 @@ namespace iGeant4
     G4Event* ISF_to_G4Event(const std::vector<const ISF::ISFParticle*>& isp) const;
 
   private:
-	G4PrimaryParticle* getPrimaryParticle(const HepMC::GenParticle& gp) const;
+    G4PrimaryParticle* getPrimaryParticle(const HepMC::GenParticle& gp) const;
 
-	G4PrimaryParticle* getPrimaryParticle(const ISF::ISFParticle& isp) const;
+    G4PrimaryParticle* getPrimaryParticle(const ISF::ISFParticle& isp) const;
 
     void addPrimaryVertex(G4Event* g4evt, const ISF::ISFParticle& isp) const;
 
@@ -110,21 +110,23 @@ namespace iGeant4
 
     //ToolHandle<PyAthena::Tool> m_configTool;
 
-    StoreGateSvc* m_storeGate; 
+    StoreGateSvc* m_storeGate;
 
-    std::string m_libList;					
+    std::string m_libList;
     std::string m_physList;
     std::string m_fieldMap;
     std::string m_rndmGen;
-    
+
     std::string m_mcEventCollectionName;
 
     bool   m_KillAllNeutrinos;
     double m_KillLowEPhotons;
     bool   m_releaseGeoModel;
-
+    bool   m_quasiStableParticlesIncluded; //<! will quasi-stable
+                                           //particles be included in
+                                           //simulation
   };
-  
+
 
 }
 
