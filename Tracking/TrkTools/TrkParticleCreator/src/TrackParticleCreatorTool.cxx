@@ -370,18 +370,15 @@ namespace Trk
           parsToBeDeleted = result; 
         }
         else{
-          ATH_MSG_DEBUG ("Could not extrapolate to 0,0,0. No TrackParticle created.");
+          ATH_MSG_WARNING ("Could not extrapolate to 0,0,0. No TrackParticle created.");
           return 0;
         }
       }
     }else if (m_perigeeExpression == "BeamSpot"){ //Express parameters at beamspot 
       const Trk::Perigee* result = m_trackToVertex->perigeeAtBeamspot(track); 
       if(!result){ 
-        ATH_MSG_WARNING("Failed to extrapolate to first Beamspot"); 
-        if( !track.perigeeParameters() ){ 
-          return 0;       
-        } 
-        aPer = track.perigeeParameters();   
+        ATH_MSG_WARNING("Failed to extrapolate to first Beamspot - No TrackParticle created."); 
+	return 0;         
       }else{ 
         parsToBeDeleted = result; 
         aPer = result; 
@@ -393,30 +390,26 @@ namespace Trk
           parsToBeDeleted = result;
           aPer = result ;
         }else{
-          ATH_MSG_DEBUG ("Could not extrapolate track to vertex region! No TrackParticle created.");
-          return 0;
-        }
-      } else {
-        if( !castPerigeeAndCheck(&track, aPer) ) {
-          ATH_MSG_DEBUG ("No vertex given and track has no perigee either! No TrackParticle created.");
+          ATH_MSG_WARNING ("Could not extrapolate track to vertex region! No TrackParticle created.");
           return 0;
         }
       }
+      else{
+	ATH_MSG_WARNING ("Perigee expression at Vertex, but no vertex found! No TrackParticle created.");
       }
-     else if (m_perigeeExpression == "BeamLine"){
-       const Trk::Perigee* result = m_trackToVertex->perigeeAtBeamline(track); 
-       if(!result){ 
-	 ATH_MSG_WARNING("Failed to extrapolate to Beamline"); 
-	 if( !track.perigeeParameters() ){ 
-	   return 0;       
-	 } 
-	 aPer = track.perigeeParameters();   
-       }else{ 
-	 parsToBeDeleted = result; 
-	 aPer = result; 
-       }
-     } 
-
+    }
+    else if (m_perigeeExpression == "BeamLine"){
+      const Trk::Perigee* result = m_trackToVertex->perigeeAtBeamline(track); 
+      if(!result){ 
+	ATH_MSG_WARNING("Failed to extrapolate to Beamline - No TrackParticle created."); 
+	return 0;        
+      }
+      else{ 
+	parsToBeDeleted = result; 
+	aPer = result; 
+      }
+    } 
+    
     const Trk::TrackSummary* summary;
     if (m_trackSummaryTool!=0 && m_useTrackSummaryTool) {
       if(m_forceTrackSummaryUpdate){
