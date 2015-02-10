@@ -213,7 +213,7 @@ StatusCode Herwig::genInitialize() {
     int myint1 = mystring.intpiece(2);
     double  myfl1 = mystring.numpiece(2);
     string myvar2 = mystring.piece(2);
-    myvar2.resize(8, ' ');
+    myvar2.resize(7, ' ');
     if(myvar=="iproc") {
       gHwproc->iproc = myint1;
     }
@@ -227,10 +227,10 @@ StatusCode Herwig::genInitialize() {
       m_itopd = myint1;
     }
     else if(myvar=="beam1type") {
-      strncpy(gHwbmch->part1,myvar2.c_str(),8);
+      strncpy(gHwbmch->part1,myvar2.c_str(),7);
    }
     else if(myvar=="beam2type") {
-      strncpy(gHwbmch->part2,myvar2.c_str(),8);
+      strncpy(gHwbmch->part2,myvar2.c_str(),7);
     }
     ic++;
   } while (ic != m_herwigCommandVector.end());
