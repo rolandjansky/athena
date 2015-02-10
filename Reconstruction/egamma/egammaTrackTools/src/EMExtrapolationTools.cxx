@@ -257,6 +257,7 @@ EMExtrapolationTools::getMatchAtCalo (const xAOD::CaloCluster*      cluster,
   bool flipSign = false; 
   if(trkPB->charge() > 0) flipSign = true; 
 
+  //Layers to calculate intersections
   CaloExtensionHelpers::LayersToSelect layersToSelect;  
   if ( xAOD::EgammaHelpers::isBarrel( cluster )  ) {
     // Barrel
@@ -271,20 +272,25 @@ EMExtrapolationTools::getMatchAtCalo (const xAOD::CaloCluster*      cluster,
     layersToSelect.insert(CaloSampling::EME2 );  
     layersToSelect.insert(CaloSampling::EME3 );        
   }
-  
+
+  //------------------- Extrapolate -----------------------------//  
   const Trk::CaloExtension* extension = 0;      
-
-
   double atPerigeePhi(-999);
   double PerigeeTrkParPhi(-999);
-  //TRT  only track. Could be in the standard or GSF container.
-  //Extrapolate from last measurement and use caching (std cache container)
-  if (isTRT){
-    m_defaultParticleCaloExtensionTool->caloExtension(*trkPB,extension,m_useCaching);
-  }
-  //Perigee Rescaled
-  else if (fromPerigeeRescaled == extrapFrom) {
 
+
+  //TRT  only track. Could be in the standard or GSF container.
+  //Use the std tool/cache
+  if (isTRT){
+    if(!m_defaultParticleCaloExtensionTool->caloExtension(*trkPB,extension,m_useCaching)){
+      ATH_MSG_WARNING("Could not create an extension for "<< " Track Pt "
+		      <<trkPB->pt()<< " Track Eta " << trkPB->eta()<<" Track Fitter " 
+		      << trkPB->trackFitter() << " isTRT " << isTRT<<" Extrapolate From " <<  extrapFrom); 
+      return StatusCode::SUCCESS;
+    }
+  }
+  //Perigee Rescaled , not caching possible for trk parameters
+  else if (fromPerigeeRescaled == extrapFrom) {
     const Trk::TrackParameters*  trkPar = getRescaledPerigee(trkPB, cluster);    
     if(!trkPar){
       ATH_MSG_ERROR("getMatchAtCalo: Cannot access track parameters"); 
@@ -296,15 +302,26 @@ EMExtrapolationTools::getMatchAtCalo (const xAOD::CaloCluster*      cluster,
     PerigeeTrkParPhi=trkPar->momentum().phi();
     delete trkPar;    
   }
-  //GSF track Particles, from perigee , using the egamma cache
+  //GSF track Particles, from perigee , using the egamma tool/cache
   else if( trkPB->trackFitter() == xAOD::GaussianSumFilter){
-    m_perigeeParticleCaloExtensionTool->caloExtension(*trkPB,extension,m_useCaching);  
+    if(!m_perigeeParticleCaloExtensionTool->caloExtension(*trkPB,extension,m_useCaching)){
+      ATH_MSG_WARNING("Could not create an extension for "<< " Track Pt "
+		      <<trkPB->pt()<< " Track Eta " << trkPB->eta()<<" Track Fitter " 
+		      << trkPB->trackFitter() << " isTRT " << isTRT<<" Extrapolate From " <<  extrapFrom); 
+      return StatusCode::SUCCESS;
+    }
   }
-  //Else track Particles beofre GSF or if failed GSF
+  //Else track Particles before GSF or if they failed GSF, use the std tool/cache
   else {
-    m_defaultParticleCaloExtensionTool->caloExtension(*trkPB,extension,m_useCaching);
+    if(!m_defaultParticleCaloExtensionTool->caloExtension(*trkPB,extension,m_useCaching)){
+      ATH_MSG_WARNING("Could not create an extension for "<< " Track Pt "
+		      <<trkPB->pt()<< " Track Eta " << trkPB->eta()<<" Track Fitter " 
+		      << trkPB->trackFitter() << " isTRT " << isTRT<<" Extrapolate From " <<  extrapFrom); 
+      return StatusCode::SUCCESS;
+    }
   }
 
+  //------------------------------------------------//
   if(!extension){
     ATH_MSG_WARNING("Could not create an extension for "<< " Track Pt "
 		    <<trkPB->pt()<< " Track Eta " << trkPB->eta()<<" Track Fitter " 
@@ -485,8 +502,6 @@ bool EMExtrapolationTools::getEtaPhiAtCalo (const xAOD::Vertex* vertex,
 
   return success;   
 }
-//////////////////////////////////////////////////////////////////////
-
 
 // =================================================================
 bool EMExtrapolationTools::getHackEtaPhiAtCalo (const Trk::TrackParameters* trkPar, 
@@ -527,11 +542,60 @@ bool EMExtrapolationTools::getHackEtaPhiAtCalo (const Trk::TrackParameters* trkP
 }
 
 // =================================================================
+Amg::Vector3D EMExtrapolationTools::getMomentumAtVertex(const xAOD::Vertex& vertex, unsigned int index) const
+{
+  Amg::Vector3D momentum(0., 0., 0.);
+  if (vertex.nTrackParticles() <= index)
+  {
+    ATH_MSG_WARNING("Invalid track index");
+  }
+  else if (vertex.vxTrackAtVertexAvailable() && vertex.vxTrackAtVertex().size()){
+    // Use the parameters at the vertex 
+    // (the tracks should be parallel but we will do the sum anyway)
+    ATH_MSG_DEBUG("getMomentumAtVertex : getting from vxTrackAtVertex");
+    const auto& trkAtVertex = vertex.vxTrackAtVertex()[index];
+    const Trk::TrackParameters* paramAtVertex = trkAtVertex.perigeeAtVertex();
+    if (!paramAtVertex)
+      ATH_MSG_WARNING("VxTrackAtVertex does not have perigee at vertex");
+    else
+      return paramAtVertex->momentum();
+  }
+  else if (vertex.nTrackParticles() == 1){
+    // Use the first measurement
+    ATH_MSG_DEBUG("getMomentumAtVertex : 1 track only, getting from first measurement");
+    const xAOD::TrackParticle *tp = vertex.trackParticle(0);
+    unsigned int index(0);
+    if (!tp || !tp->indexOfParameterAtPosition(index, xAOD::FirstMeasurement)){
+      ATH_MSG_WARNING("No TrackParticle or no have first measurement");
+    }
+    else
+      momentum += tp->curvilinearParameters(index).momentum();
+    // OR last 3 values of trackParameters(index)
+  }
+  else{
+    // Extrapolate track particle to vertex
+    ATH_MSG_DEBUG("getMomentumAtVertex : extrapolating to perigee surface");
+    const xAOD::TrackParticle* tp = vertex.trackParticle( index );
+    if (!tp) ATH_MSG_WARNING("NULL pointer to TrackParticle in vertex");
+    else
+    {
+      const Trk::PerigeeSurface *surface = new Trk::PerigeeSurface(vertex.position());
+      const Trk::TrackParameters* params = m_extrapolator->extrapolate(*tp, *surface, Trk::alongMomentum);
+      delete surface;
+      if (!params) ATH_MSG_DEBUG("Extrapolation to vertex (perigee) failed");
+      else momentum += params->momentum();
+      delete params;
+    }
+  }
+  return momentum;  
+}
+
+// =================================================================
 Amg::Vector3D EMExtrapolationTools::getMomentumAtVertex(const xAOD::Vertex& vertex, bool reuse /* = true */) const
 {
   
-  Amg::Vector3D momentum(0., 0., 0.);  
-
+  Amg::Vector3D momentum(0., 0., 0.);
+  
   static SG::AuxElement::Accessor<float> accPx("px");
   static SG::AuxElement::Accessor<float> accPy("py");
   static SG::AuxElement::Accessor<float> accPz("pz");
@@ -552,57 +616,16 @@ Amg::Vector3D EMExtrapolationTools::getMomentumAtVertex(const xAOD::Vertex& vert
 			 accPy(vertex),  
 			 accPz(vertex)); 
   }
-  else if (vertex.vxTrackAtVertexAvailable() && vertex.vxTrackAtVertex().size()){
-    // Use the parameters at the vertex 
-      // (the tracks should be parallel but we will do the sum anyway)
-    ATH_MSG_DEBUG("getMomentumAtVertex : getting from vxTrackAtVertex");
-    for (const auto& trkAtVertex : vertex.vxTrackAtVertex()){
-      const Trk::TrackParameters* paramAtVertex = trkAtVertex.perigeeAtVertex();
-      if (!paramAtVertex)
-	ATH_MSG_WARNING("VxTrackAtVertex does not have perigee at vertex");
-      else
-	momentum += paramAtVertex->momentum();
-    }
+  else
+  {
+    for (unsigned int i = 0; i < vertex.nTrackParticles(); ++i)
+      momentum += getMomentumAtVertex(vertex, i);
   }
-  else if (vertex.nTrackParticles() == 1){
-    // Use the first measurement
-    ATH_MSG_DEBUG("getMomentumAtVertex : 1 track only, getting from first measurement");
-    const xAOD::TrackParticle *tp = vertex.trackParticle(0);
-    unsigned int index(0);
-    if (!tp || !tp->indexOfParameterAtPosition(index, xAOD::FirstMeasurement)){
-      ATH_MSG_WARNING("No TrackParticle or no have first measurement");
-    }
-      else
-	momentum += tp->curvilinearParameters(index).momentum();
-    // OR last 3 values of trackParameters(index)
-  }
-  else{
-    // Extrapolate track particles to vertex
-    // (the tracks should be parallel but we will do the sum anyway)
-    ATH_MSG_DEBUG("getMomentumAtVertex : extrapolating to perigee surface");    
-    const Trk::PerigeeSurface *surface = new Trk::PerigeeSurface(vertex.position());
-    for (unsigned int i = 0; i < vertex.nTrackParticles(); ++i){
-      const xAOD::TrackParticle* tp = vertex.trackParticle( i );
-      if (!tp){
-	ATH_MSG_WARNING("NULL pointer to TrackParticle in vertex");
-	continue;
-      }
-      const Trk::TrackParameters* params = m_extrapolator->extrapolate(*tp, *surface, Trk::alongMomentum);
-      if (!params)
-	ATH_MSG_DEBUG("Extrapolation to vertex (perigee) failed");
-      else{
-	momentum += params->momentum();
-	delete params;
-      }
-    }
-      delete surface;
-  }
-  
   return momentum;	
 }
-// ========================================================================================================================
+// =================================================================
 
-// ======================= HELPERS
+// ======================= HELPERS==============================================
 const Trk::TrackParameters* 
 EMExtrapolationTools::getRescaledPerigee(const xAOD::TrackParticle* trkPB, const xAOD::CaloCluster* cluster) const {
   const Trk::TrackParameters* oldPerigee = &trkPB->perigeeParameters();
@@ -634,7 +657,7 @@ EMExtrapolationTools::getRescaledPerigee(const xAOD::TrackParticle* trkPB, const
 					       covariance);
   return (result);
 }
-
+// =================================================================
 Trk::CurvilinearParameters EMExtrapolationTools::getLastMeasurement(const xAOD::TrackParticle* trkPB) const{
   // Get last measurement for TRT check
   Trk::CurvilinearParameters temp;
