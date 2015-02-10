@@ -177,6 +177,9 @@ class HLTEgammaNavSigTEMonTool : public HLTEgammaFEXNavSigTEBaseTool {
 
   //signatures to run the monitoring off
   vector<string> m_signatures;
+
+  //string to store trigger description
+  string trigDesc;
   
   //trigger conditions
   //TODO think about removing them

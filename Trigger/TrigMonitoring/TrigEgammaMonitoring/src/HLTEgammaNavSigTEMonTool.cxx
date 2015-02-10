@@ -3,6 +3,7 @@
 */
 
 #include "TrigEgammaMonitoring/HLTEgammaNavSigTEMonTool.h"
+#include "TrigEgammaMonitoring/HLTEgammaNavMonTool.h"
 
 //check whether these might be inherited
 #include "GaudiKernel/MsgStream.h"
@@ -66,8 +67,8 @@ HLTEgammaNavSigTEMonTool::HLTEgammaNavSigTEMonTool(const string & type, const st
   declareProperty("UsePreConditionalPassThroughChain", m_usePreConditionalPassThroughChain = false);
   declareProperty("PassThroughChainEF", m_passThroughChainEF = "EF_e10_NoCut");
   declareProperty("PassThroughChainL2", m_passThroughChainL2 = "L2_e10_NoCut");
-  declareProperty("egammaContainer", m_electronContainerName="ElectronCollection");
-  declareProperty("egammaContainer", m_photonContainerName="PhotonCollection");
+  declareProperty("egammaContainer", m_electronContainerName="Electrons");
+  declareProperty("egammaContainer", m_photonContainerName="Photons");
   declareProperty("DoOffline", m_doOfflineComparisons=true);
   declareProperty("OfflineEleMinPTCut", m_offEle_minptcut= 2.);//GeV
   declareProperty("OfflinePhoMinPTCut", m_offPho_minptcut= 2.);//GeV
@@ -206,6 +207,34 @@ StatusCode HLTEgammaNavSigTEMonTool::book()
         ++monSigIt;
       }
     }//done looping through monitored signatures
+
+    //loop through monitored signatures to keep only one signature of each trigger type
+    //there are 3 trigger types being monitored
+    //"single_e_no_iso","single_e_iso","photon"
+    // - note: reusing iterator from above
+    bool e_no_iso_found = false; bool e_iso_found = false; bool g_found = false;
+    for(monSigIt = m_signatures.begin(); monSigIt != m_signatures.end(); ){
+      HLTEgammaNavMonTool::trigger_description(*monSigIt,trigDesc);
+      if(trigDesc=="single_e_no_iso" && !e_no_iso_found){
+    	e_no_iso_found = true;
+	++monSigIt;
+      }else if(trigDesc=="single_e_no_iso" && e_no_iso_found){
+	ATH_MSG_INFO("Non-iso electron chain ignored due to redundancy: "<<*monSigIt);
+    	m_signatures.erase(monSigIt);
+      }else if(trigDesc=="single_e_iso" && !e_iso_found){
+    	e_iso_found = true;
+	++monSigIt;
+      }else if(trigDesc=="single_e_iso" && e_iso_found){
+	ATH_MSG_INFO("Iso electron chain ignored due to redundancy: "<<*monSigIt);
+    	m_signatures.erase(monSigIt);
+      }else if(trigDesc=="photon" && !g_found){
+    	g_found = true;
+	++monSigIt;
+      }else if(trigDesc=="photon" && g_found){
+	ATH_MSG_INFO("Photon chain ignored due to redundancy: "<<*monSigIt);
+    	m_signatures.erase(monSigIt);
+      }
+    }
 
     //loop through monitored signatures to book histograms
     // - note: reusing iterator from above
@@ -913,7 +942,8 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
 
 
   //set path based on pass-state
-  string path = m_histoBasePath + "/" + signature + "/";
+  HLTEgammaNavMonTool::trigger_description(signature,trigDesc);
+  string path = m_histoBasePath + "/" + trigDesc + "/"; 
   bool skipActiveTE = false;
   if(onlyActiveTe && condition==TrigDefs::alsoDeactivateTEs){ path += m_activeTePath; skipActiveTE = m_skipActiveTe;}
   else if(!onlyActiveTe && condition==TrigDefs::alsoDeactivateTEs){ path += m_allTePath; }
@@ -1005,7 +1035,8 @@ StatusCode HLTEgammaNavSigTEMonTool::fillCombination(Trig::Combination comb, con
     //OVERLAPTEST
     // - fill L1 histograms depending on whether this chains sent to ES
     if(condition==TrigDefs::Physics){
-      string overlapTestPath = m_histoBasePath+"/"+signature+"/OverlapTest";
+      HLTEgammaNavMonTool::trigger_description(signature,trigDesc);
+      string overlapTestPath = m_histoBasePath+"/"+trigDesc+"/OverlapTest";
       ATH_MSG_VERBOSE("Filling OVERLAPTEST histograms at path "<<overlapTestPath);
       if(chainToEs){
 	hist("l1pt_this",overlapTestPath)->Fill((emTauRoi.cptr())->emClus()/CLHEP::GeV);

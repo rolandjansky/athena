@@ -12,6 +12,7 @@
  *   - helper functions
  */
 #include "TrigEgammaMonitoring/HLTEgammaFEXNavSigTEBaseTool.h"
+#include "TrigEgammaMonitoring/HLTEgammaNavMonTool.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ITHistSvc.h"
@@ -170,7 +171,8 @@ StatusCode HLTEgammaFEXNavSigTEBaseTool::book_per_signature(const string signatu
 
   //OVERLAPTEST
   // - book histograms to store L1 EMClus for events sent to ES by this/other chain
-  addMonGroup(new MonGroup(this, m_histoBasePath+"/"+signature+"/OverlapTest",run));
+  HLTEgammaNavMonTool::trigger_description(signature,trigDesc);
+  addMonGroup(new MonGroup(this, m_histoBasePath+"/"+trigDesc+"/OverlapTest",run));
   addHistogram(new TH1F("l1pt_this","L1 E_{T} (this chain sent to ES);E_{T}[GeV];",100,0,100.));
   addHistogram(new TH1F("l1pt_other","L1 E_{T} (other chain sent to ES);E_{T}[GeV];",100,0,100.));
   //OVERLAPTEST
@@ -199,7 +201,8 @@ StatusCode HLTEgammaFEXNavSigTEBaseTool::book_per_signature_sel(const string sig
   fetchPassStates(paths);
 
   //prepend base + signature
-  combineStrings(string(m_histoBasePath + "/" + signature + "/"), paths);
+  HLTEgammaNavMonTool::trigger_description(signature,trigDesc);
+  combineStrings(string(m_histoBasePath + "/" + trigDesc + "/"), paths); 
 
   //loop through paths
   vector<string>::iterator pathIt = paths.begin();
@@ -317,7 +320,8 @@ StatusCode HLTEgammaFEXNavSigTEBaseTool::book_per_signature_res(const string sig
   //paths upto pass-state
   vector<string> paths;
   fetchPassStates(paths);
-  combineStrings(string(m_histoBasePath + "/" + signature + "/"), paths);
+  HLTEgammaNavMonTool::trigger_description(signature,trigDesc);
+  combineStrings(string(m_histoBasePath + "/" + trigDesc + "/"), paths); 
 
   //loop through paths
   vector<string>::iterator pathIt = paths.begin();
@@ -394,7 +398,8 @@ StatusCode HLTEgammaFEXNavSigTEBaseTool::book_per_signature_reject(const string 
   //assemble paths up to pass-state
   vector<string> paths;
   fetchPassStates(paths);
-  combineStrings(string(m_histoBasePath+"/"+signature+"/"), paths);
+  HLTEgammaNavMonTool::trigger_description(signature,trigDesc);
+  combineStrings(string(m_histoBasePath + "/" + trigDesc + "/"), paths); 
 
   //loop through paths (essentially looping through pass-states)
   vector<string>::iterator pathIt = paths.begin();
@@ -472,7 +477,8 @@ StatusCode HLTEgammaFEXNavSigTEBaseTool::book_per_signature_eff(const string sig
   fetchPassStates(tmp_paths);
 
   //prepend by basePath and signature and add trailing slash
-  combineStrings(string(m_histoBasePath+"/"+signature+"/"), tmp_paths);
+  HLTEgammaNavMonTool::trigger_description(signature,trigDesc);
+  combineStrings(string(m_histoBasePath + "/" + trigDesc + "/"), tmp_paths); 
   combineStrings(tmp_paths, string("/"));
 
   //fetch stages
@@ -529,7 +535,8 @@ StatusCode HLTEgammaFEXNavSigTEBaseTool::book_per_signature_lumi(const string si
   fetchPassStates(paths);
 
   //prepend with base + signature
-  combineStrings(string(m_histoBasePath+"/"+signature+"/"), paths);
+  HLTEgammaNavMonTool::trigger_description(signature,trigDesc);
+  combineStrings(string(m_histoBasePath + "/" + trigDesc + "/"), paths); 
   //append "/Lumi"
   combineStrings(paths, string("/Lumi"));
 
@@ -591,7 +598,8 @@ StatusCode HLTEgammaFEXNavSigTEBaseTool::book_offline(bool isPhoton, string sign
     fetchPassStates(tmp_paths);
 
     //prepend them with base and signature
-    combineStrings(string(m_histoBasePath + "/" + signature + "/"), tmp_paths);
+    HLTEgammaNavMonTool::trigger_description(signature,trigDesc);
+    combineStrings(string(m_histoBasePath + "/" + trigDesc + "/"), tmp_paths); 
 
     //collect all appropriate stages and add a slash in front
     vector<string> stages;
@@ -670,7 +678,8 @@ StatusCode HLTEgammaFEXNavSigTEBaseTool::book_match(bool isPhoton, string signat
     fetchPassStates(tmp_paths);
 
     //prepend them with base and signature
-    combineStrings(string(m_histoBasePath + "/" + signature + "/"), tmp_paths);
+    HLTEgammaNavMonTool::trigger_description(signature,trigDesc);
+    combineStrings(string(m_histoBasePath + "/" + trigDesc + "/"), tmp_paths); 
 
     //collect all appropriate stages and add a slash in front
     vector<string> stages;
@@ -1903,7 +1912,8 @@ StatusCode HLTEgammaFEXNavSigTEBaseTool::proc_per_signature(const string signatu
   fetchPassStates(subPaths);
 
   //prepend with base + signature and append slash
-  combineStrings(string(m_histoBasePath+"/"+signature+"/"), subPaths);
+  HLTEgammaNavMonTool::trigger_description(signature,trigDesc);
+  combineStrings(string(m_histoBasePath + "/" + trigDesc + "/"), subPaths); 
   combineStrings(subPaths, string("/"));
 
   //fetch stages

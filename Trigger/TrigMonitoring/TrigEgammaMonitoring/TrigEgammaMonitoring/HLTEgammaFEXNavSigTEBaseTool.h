@@ -431,6 +431,9 @@ class HLTEgammaFEXNavSigTEBaseTool : public IHLTMonTool {
   string m_BasicPathActiveTEs;
   string m_BasicPathActiveChain;
 
+  //string to store trigger description
+  string trigDesc;
+
   //TODO check that at least one of these is true at init()
   bool m_doActiveChain;
   bool m_doActiveTe;
