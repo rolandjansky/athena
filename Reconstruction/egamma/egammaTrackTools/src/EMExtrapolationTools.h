@@ -7,7 +7,7 @@
 /** 
   @class EMExtrapolationTools
           Tools for track extrapolation to the calorimeter
-  @author Thomas Koffas
+  @author Thomas Koffas, Christos Anastopoulos
 */
 
 /********************************************************************
@@ -15,13 +15,11 @@
 NAME:     EMExtrapolationTools.h
 PACKAGE:  offline/Reconstruction/egammaTrackTools
 
-AUTHORS:  T. Koffas
-CREATED:  Mar , 2009
+AUTHORS:  T. Koffas, C.Anastopoulos
 
 PURPOSE:  Tool which propagate track to 
              - calorimeter
              - cluster
-UPDATED:
 ********************************************************************/
 
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -70,8 +68,8 @@ class EMExtrapolationTools : virtual public IEMExtrapolationTools, public AthAlg
 
 
   /**  test for cluster/extrapolated track match, from xAOD::TrackParticle,
-   *   returns true for good match, and
-   *           the values for eta/phi, deltaEta/deltaPhi for sampling 2
+   * returns true for good match using sampling 2, and
+   *  the values for eta/phi, deltaEta/deltaPhi 
    */
   virtual bool  matchesAtCalo(const xAOD::CaloCluster*      cluster, 
                               const xAOD::TrackParticle*    trkPB, 
@@ -119,12 +117,21 @@ class EMExtrapolationTools : virtual public IEMExtrapolationTools, public AthAlg
   virtual bool getEtaPhiAtCalo (const xAOD::Vertex* vertex, 
                                 float *etaAtCalo,
                                 float *phiAtCalo) const;
+
+  /** get the momentum of the i-th at the vertex (designed for conversions) **/
+  Amg::Vector3D getMomentumAtVertex(const xAOD::Vertex&, unsigned int) const;
   
   /** get sum of the momenta at the vertex (designed for conversions). Retrieve from auxdata if available and <reuse> is true **/
   Amg::Vector3D getMomentumAtVertex(const xAOD::Vertex&, bool reuse = true) const;
 
     
  private:
+
+  /** @Perform the Rescaling of the perigee parameters with the cluster energy **/
+  const Trk::TrackParameters*  getRescaledPerigee(const xAOD::TrackParticle* trkPB, const xAOD::CaloCluster* cluster) const;
+
+  /** @Get Last measurement  **/
+  Trk::CurvilinearParameters getLastMeasurement(const xAOD::TrackParticle* trkPB) const;    
 
   /** @brief Return +/- 1 (2) if track is in positive/negative TRT barrel (endcap) **/
   int getTRTsection(const xAOD::TrackParticle* trkPB) const;
@@ -137,10 +144,6 @@ class EMExtrapolationTools : virtual public IEMExtrapolationTools, public AthAlg
 			    CaloExtensionHelpers::LayersToSelect& layersToSelect
 			    ) const;
 
-  const Trk::TrackParameters*  getRescaledPerigee(const xAOD::TrackParticle* trkPB, const xAOD::CaloCluster* cluster) const;
-
-
-  Trk::CurvilinearParameters getLastMeasurement(const xAOD::TrackParticle* trkPB) const;    
   
   ToolHandle<Trk::IParticleCaloExtensionTool>     m_defaultParticleCaloExtensionTool;
   ToolHandle<Trk::IParticleCaloExtensionTool>     m_perigeeParticleCaloExtensionTool;
@@ -148,8 +151,6 @@ class EMExtrapolationTools : virtual public IEMExtrapolationTools, public AthAlg
        
   /** @brief */
   CaloPhiRange                           m_phiHelper;
-
-  
 
   // Track-to-cluster match cuts
   double                                m_broadDeltaEta;
