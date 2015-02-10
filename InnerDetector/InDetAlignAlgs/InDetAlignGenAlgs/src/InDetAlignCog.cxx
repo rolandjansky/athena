@@ -24,9 +24,55 @@
 #include "InDetIdentifier/TRT_ID.h"
 
 #include "AthenaKernel/IOVTime.h"
+#include "AthenaBaseComps/AthCheckMacros.h"
 
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
+namespace {
+  inline
+  Amg::AngleAxis3D _rotationX(double angle) {
+    return Amg::AngleAxis3D(angle, Amg::Vector3D(1., 0.,0.));
+  }
+
+  inline
+  Amg::AngleAxis3D _rotationY(double angle) {
+    return Amg::AngleAxis3D(angle, Amg::Vector3D(0.,1.,0.));
+  }
+
+  inline
+  Amg::AngleAxis3D _rotationZ(double angle) {
+    return Amg::AngleAxis3D(angle, Amg::Vector3D(0.,0.,1.));
+  }
+
+  inline Amg::Transform3D makeAffine3d(double angle_x, double angle_y, double angle_z, const Amg::Vector3D &translation_vector) {
+    Amg::Translation3D temp_translation(translation_vector);
+    Amg::Transform3D affine = temp_translation * _rotationX(angle_x);
+    affine *= _rotationY(angle_y);
+    affine *= _rotationZ(angle_z);
+    return affine;
+  }
+  inline Amg::Transform3D makeAffine3d(const AmgVector(6) &trans) {
+    return makeAffine3d(trans[3],trans[4],trans[5],Amg::Vector3D(trans[0],trans[1],trans[2]));
+  }
+  typedef double DoubleArray6_t[6];
+  inline Amg::Transform3D makeAffine3d(const DoubleArray6_t &trans) {
+    return makeAffine3d(trans[3],trans[4],trans[5],Amg::Vector3D(trans[0],trans[1],trans[2]));
+  }
+
+  
+  template <class T_Matrix, class T_Vector>
+  bool solve(T_Matrix &A, T_Vector &x, const T_Vector &b) {
+    Eigen::LDLT< T_Matrix > llt;
+    // Eigen::LLT< T_Matrix > llt;
+    llt.compute(A);
+    if (llt.info() != Eigen::Success) return false;
+    x=b;
+    llt.solveInPlace(x);
+    return true;
+  }
+
+
+}
 
 #include <iostream>
 #include <iomanip>
@@ -148,58 +194,35 @@ StatusCode InDetAlignCog::initialize(){
   ATH_MSG_DEBUG( "initialize()" );
   
   // Get DetectorStore service 
-  if (detStore().retrieve().isFailure())
-    {
-      msg(MSG::FATAL) << "DetectorStore service not found !" << endreq;
-      return StatusCode::FAILURE;  
-    }
-   
+  ATH_CHECK( detStore().retrieve() );
+
   // get Pixel manager and helper
-  if(StatusCode::SUCCESS!=detStore()->retrieve(m_Pixel_Manager, "Pixel")){
-    msg(MSG::ERROR) << "Could not get Pixel manager !" << endreq;
-    return StatusCode::FAILURE;
-  }      
-  if(StatusCode::SUCCESS!=detStore()->retrieve(m_pixid)){
-    msg(MSG::ERROR) << "Could not get Pixel helper !" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve(m_Pixel_Manager, "Pixel"));
+
+  ATH_CHECK(  detStore()->retrieve(m_pixid));
   
   // get SCT manager and helper
-  if(StatusCode::SUCCESS!=detStore()->retrieve(m_SCT_Manager, "SCT")){
-    msg(MSG::ERROR) << "Could not get SCT manager !" << endreq;
-    return StatusCode::FAILURE;
-  }
-  if(StatusCode::SUCCESS!=detStore()->retrieve(m_sctid)){
-    msg( MSG::ERROR) << "Could not get SCT helper !" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve(m_SCT_Manager, "SCT"));
+
+  ATH_CHECK( detStore()->retrieve(m_sctid));
   
   // get TRT manager and helper
-  if(StatusCode::SUCCESS!=detStore()->retrieve(m_TRT_Manager, "TRT")){
-    msg(MSG::ERROR) << "Could not get TRT manager !" << endreq;
-    return StatusCode::FAILURE;
-  }
-  if(StatusCode::SUCCESS!=detStore()->retrieve(m_trtid)){
-    msg(MSG::ERROR) << "Could not get TRT helper !" << endreq;
-    return StatusCode::FAILURE;
-  }
-  
+  ATH_CHECK( detStore()->retrieve(m_TRT_Manager, "TRT"));
+
+  ATH_CHECK( detStore()->retrieve(m_trtid));
+
   // Get InDetAlignDBTool
-  if(m_IDAlignDBTool.retrieve().isFailure()){
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_IDAlignDBTool << endreq;
-    return StatusCode::FAILURE;
-  } else 
-    ATH_MSG_DEBUG ( "Retrieved tool " << m_IDAlignDBTool );
+  ATH_CHECK( m_IDAlignDBTool.retrieve() );
+  ATH_MSG_DEBUG ( "Retrieved tool " << m_IDAlignDBTool );
   
   // Get TRTAlignDBTool
-  if(m_TRTAlignDbTool.retrieve().isFailure()){
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_TRTAlignDbTool << endreq;
-    return StatusCode::FAILURE;
-  } else 
-    ATH_MSG_DEBUG ( "Retrieved tool " << m_TRTAlignDbTool );
+  ATH_CHECK( m_TRTAlignDbTool.retrieve() );
+
+  ATH_MSG_DEBUG ( "Retrieved tool " << m_TRTAlignDbTool );
   
   return StatusCode::SUCCESS;
 }
+
 
 //===================================================
 // execute
@@ -215,12 +238,8 @@ StatusCode InDetAlignCog::execute() {
       // m_TRTAlignDbTool->printCondObjects(); // displacements are printed in microns...
     }
 
-    V1 = new CLHEP::HepVector(6,0);
-    A1 = new CLHEP::HepVector(6,0);
-    M1 = new CLHEP::HepSymMatrix(6,0);
-    V2 = new CLHEP::HepVector(6,0);
-    A2 = new CLHEP::HepVector(6,0);
-    M2 = new CLHEP::HepSymMatrix(6,0);
+    // create vectors and matrices Vi,Ai,Mi :
+    Params_t params;
 
     // initialize transforms to identity
     for( int i=0; i<6; m_cog[i++]){ m_cog[i++]=0.0;} 
@@ -229,12 +248,12 @@ StatusCode InDetAlignCog::execute() {
     m_ResGlob.setIdentity();
     
     // first loop to calculate cog
-    StatusCode sc;
-    if(m_det==99 || m_det==1 || m_det==12) sc=getSiElements(m_Pixel_Manager,false);
-    if(m_det==99 || m_det==2 || m_det==12) sc=getSiElements(m_SCT_Manager,false);
-    if(m_det==99 || m_det==3) sc=getTRT_Elements(false);
-	if(sc.isFailure())
-		msg(MSG::ERROR) << "Problem getting elements from managers" << endreq;
+    //StatusCode sc;
+    if(m_det==99 || m_det==1 || m_det==12) ATH_CHECK( getSiElements(m_Pixel_Manager,false,params) );
+    if(m_det==99 || m_det==2 || m_det==12) ATH_CHECK( getSiElements(m_SCT_Manager,false,params) );
+    if(m_det==99 || m_det==3) ATH_CHECK( getTRT_Elements(false, params) );
+    //if(sc.isFailure())
+    //  ATH_MSG_ERROR( "Problem getting elements from managers" );
     if( !m_useChi2 ) {
 
 
@@ -243,42 +262,38 @@ StatusCode InDetAlignCog::execute() {
 
 
       // convert to HepGeom::Transform3D:
-      m_CoG = HepGeom::Transform3D(CLHEP::HepRotationX(m_cog[3])*CLHEP::HepRotationY(m_cog[4])*CLHEP::HepRotationZ(m_cog[5]),
-	 			      HepGeom::Vector3D<double>(m_cog[0],m_cog[1],m_cog[2]));
+      m_CoG = makeAffine3d(m_cog);
 
       // scaling by -1 translation and rotation angles
       scaleTransform(m_CoG,-1.);
 
       // show results
-      if (msgLvl(MSG::DEBUG)) {
-        msg(MSG::DEBUG) << "+++++++++++++++++++++++++++++++++++++++++++++" << endreq;
-        msg(MSG::DEBUG) << "Processed " << m_counter << " elements" << endreq;
-        msg(MSG::DEBUG) << "Center-of-gravity : " << printTransform(m_CoG) << endreq;
-        msg(MSG::DEBUG) << "+++++++++++++++++++++++++++++++++++++++++++++" << endreq;
-      }
+      ATH_MSG_DEBUG( "+++++++++++++++++++++++++++++++++++++++++++++" );
+      ATH_MSG_DEBUG( "Processed " << m_counter << " elements" );
+      ATH_MSG_DEBUG( "Center-of-gravity : " << printTransform(m_CoG) );
+      ATH_MSG_DEBUG( "+++++++++++++++++++++++++++++++++++++++++++++" );
 
     } else {
       
-      msg(MSG::INFO) << "+++++++++++++++++++++++++++++++++++++++++++++" << endreq;
-      msg(MSG::INFO) << "Processed " << m_counter << " elements" << endreq;
-      msg(MSG::INFO) << "+++++++++++++++++++++++++++++++++++++++++++++" << endreq;
+      ATH_MSG_INFO( "+++++++++++++++++++++++++++++++++++++++++++++" );
+      ATH_MSG_INFO( "Processed " << m_counter << " elements" );
+      ATH_MSG_INFO( "+++++++++++++++++++++++++++++++++++++++++++++" );
 
       // solve for the CoG correction:
-      int fail;
-      M1->invert(fail);
-      if( fail==0 ) {
-        (*A1) = (*M1)*(*V1);
-        // convert to HepGeom::Transform3D:
-        m_CoG = HepGeom::Transform3D(CLHEP::HepRotationX((*A1)[3])*CLHEP::HepRotationY((*A1)[4])*CLHEP::HepRotationZ((*A1)[5]),
-	 			      HepGeom::Vector3D<double>((*A1)[0],(*A1)[1],(*A1)[2]));
-        msg(MSG::INFO) << "+++++++++++++++++++++++++++++++++++++++++++++" << endreq;
-        msg(MSG::INFO) << "Inversion of matrix M1 successful." << endreq;
-        msg(MSG::INFO) << "Residual global transformation : " << printTransform(m_CoG) << endreq;
-        msg(MSG::INFO) << "+++++++++++++++++++++++++++++++++++++++++++++" << endreq;
+      // solve M1 * A1 = V1 for A1
+      bool success = solve(params.m_M1,params.m_A1, params.m_V1 );
+      if( success ) {
+        //        (params.m_A1) = (params.m_M1)*(params.m_V1);
+        m_CoG = makeAffine3d(params.m_A1);
+
+        ATH_MSG_INFO( "+++++++++++++++++++++++++++++++++++++++++++++" );
+        ATH_MSG_INFO( "Inversion of matrix M1 successful." );
+        ATH_MSG_INFO( "Residual global transformation : " << printTransform(m_CoG) );
+        ATH_MSG_INFO( "+++++++++++++++++++++++++++++++++++++++++++++" );
        } else {
-        msg(MSG::ERROR) << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endreq;
-        msg(MSG::ERROR) << "Inversion of matrix M1 failed!!!" << endreq;
-        msg(MSG::ERROR) << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endreq;
+        ATH_MSG_ERROR( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        ATH_MSG_ERROR( "Inversion of matrix M1 failed!!!");
+        ATH_MSG_ERROR( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
       }
     }
 
@@ -291,60 +306,48 @@ StatusCode InDetAlignCog::execute() {
     m_counter=0;
 
     // second loop to compute residual transform after substracting cog
-    if(m_det==99 || m_det==1 || m_det==12) sc = getSiElements(m_Pixel_Manager,true);
-    if(m_det==99 || m_det==2 || m_det==12) sc = getSiElements(m_SCT_Manager,true);
-    if(m_det==99 || m_det==3) sc = getTRT_Elements(true);
-	if(sc.isFailure())
-		msg(MSG::ERROR) << "Problem getting elements from managers" << endreq;
+    if(m_det==99 || m_det==1 || m_det==12) ATH_CHECK( getSiElements(m_Pixel_Manager,true, params) );
+    if(m_det==99 || m_det==2 || m_det==12) ATH_CHECK( getSiElements(m_SCT_Manager,true, params) );
+    if(m_det==99 || m_det==3) ATH_CHECK( getTRT_Elements(true, params) );
+    // if(sc.isFailure())
+    //          ATH_MSG_ERROR( "Problem getting elements from managers" );
     if( !m_useChi2 ) {
-
+      if (m_counter==0) throw std::logic_error("No Si-elements.");
       // normalization of m_resglob
       for( int i=0; i<6; m_resglob[i++]){m_resglob[i++]/=(double) m_counter;}
 
       // convert to HepGeom::Transform3D:
-      m_ResGlob = HepGeom::Transform3D(CLHEP::HepRotationX(m_resglob[3])*CLHEP::HepRotationY(m_resglob[4])*CLHEP::HepRotationZ(m_resglob[5]),
-	 			      HepGeom::Vector3D<double>(m_resglob[0],m_resglob[1],m_resglob[2]));
+      m_ResGlob = makeAffine3d(m_resglob);
+
 
       // show results
-      if (msgLvl(MSG::DEBUG)) {
-        msg(MSG::DEBUG) << "+++++++++++++++++++++++++++++++++++++++++++++" << endreq;
-        msg(MSG::DEBUG) << "Processed " << m_counter << " elements" << endreq;
-        msg(MSG::DEBUG) << "Residual global transformation : " << printTransform(m_ResGlob) << endreq;
-        msg(MSG::DEBUG) << "+++++++++++++++++++++++++++++++++++++++++++++" << endreq;
-      }
+      ATH_MSG_DEBUG( "+++++++++++++++++++++++++++++++++++++++++++++" );
+      ATH_MSG_DEBUG( "Processed " << m_counter << " elements" );
+      ATH_MSG_DEBUG( "Residual global transformation : " << printTransform(m_ResGlob) );
+      ATH_MSG_DEBUG( "+++++++++++++++++++++++++++++++++++++++++++++" );
 
     } else {
       
-      msg(MSG::INFO) << "+++++++++++++++++++++++++++++++++++++++++++++" << endreq;
-      msg(MSG::INFO) << "Processed " << m_counter << " elements" << endreq;
-      msg(MSG::INFO) << "+++++++++++++++++++++++++++++++++++++++++++++" << endreq;
+      ATH_MSG_INFO( "+++++++++++++++++++++++++++++++++++++++++++++" );
+      ATH_MSG_INFO( "Processed " << m_counter << " elements" );
+      ATH_MSG_INFO( "+++++++++++++++++++++++++++++++++++++++++++++" );
 
       // solve for the CoG correction:
-      int fail;
-      M2->invert(fail);
-      if( fail==0 ) {
-        (*A2) = (*M2)*(*V2);
-        // convert to HepGeom::Transform3D:
-        m_ResGlob = HepGeom::Transform3D(CLHEP::HepRotationX((*A2)[3])*CLHEP::HepRotationY((*A2)[4])*CLHEP::HepRotationZ((*A2)[5]),
-	 			      HepGeom::Vector3D<double>((*A2)[0],(*A2)[1],(*A2)[2]));
-        msg(MSG::INFO) << "+++++++++++++++++++++++++++++++++++++++++++++" << endreq;
-        msg(MSG::INFO) << "Inversion of matrix M2 successful." << endreq;
-        msg(MSG::INFO) << "Residual global transformation : " << printTransform(m_ResGlob) << endreq;
-        msg(MSG::INFO) << "+++++++++++++++++++++++++++++++++++++++++++++" << endreq;
+      // solve M2 * A2 = V2 for A2
+      bool success = solve(params.m_M2,params.m_A2, params.m_V2 );
+      if( success ) {
+        m_ResGlob = makeAffine3d(params.m_A2);
+        ATH_MSG_INFO(  "+++++++++++++++++++++++++++++++++++++++++++++" );
+        ATH_MSG_INFO( "Inversion of matrix M2 successful." );
+        ATH_MSG_INFO( "Residual global transformation : " << printTransform(m_ResGlob));
+        ATH_MSG_INFO( "+++++++++++++++++++++++++++++++++++++++++++++" );
        } else {
-        msg(MSG::ERROR) << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endreq;
-        msg(MSG::ERROR) << "Inversion of matrix M2 failed!!!" << endreq;
-        msg(MSG::ERROR) << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endreq;
+        ATH_MSG_ERROR( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
+        ATH_MSG_ERROR( "Inversion of matrix M2 failed!!!" );
+        ATH_MSG_ERROR( "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" );
       }
     }
 
-    // necessary garbage collection:
-    delete V1;
-    delete A1;
-    delete M1;
-    delete V2;
-    delete A2;
-    delete M2;
 
 
     // check if remaining global transformation is small enough
@@ -353,20 +356,20 @@ StatusCode InDetAlignCog::execute() {
      {
        // Decide which CoG DoF's are to be actually corrected:  
        if( m_doCoG ) {
-         msg(MSG::INFO) << "<<< CoG correction will be applied. >>>" << endreq;
+         ATH_MSG_INFO( "<<< CoG correction will be applied. >>>" );
          enableCoG(m_CoG,      m_doTX, m_doTY, m_doTZ, m_doRX, m_doRY, m_doRZ);
        } else {
-         msg(MSG::INFO) << "<<< CoG correction will be skipped. >>>" << endreq;
+         ATH_MSG_INFO( "<<< CoG correction will be skipped. >>>" );
          m_CoG.setIdentity();
        }
        // Decide if an arbitrary L1 is to be done:
        if( m_doL1 ) {
-         msg(MSG::INFO) << "<<< Predefined L1 transformation will be added. >>>" << endreq;
+         ATH_MSG_INFO( "<<< Predefined L1 transformation will be added. >>>" );
          addL1();
        }
        // Update the CoG:
        if(shiftIDbyCog().isFailure()){
-	 msg(MSG::ERROR) << "Problem updating ID level 1 constants !!!" << endreq;
+	 ATH_MSG_ERROR( "Problem updating ID level 1 constants !!!" );
 	 return StatusCode::FAILURE;
        }
      }
@@ -383,7 +386,7 @@ StatusCode InDetAlignCog::finalize() {
   
   // output new si constants to root file
   if(m_IDAlignDBTool->outputObjs().isFailure()){
-    msg( MSG::ERROR) << "Write of silicon alignableTransforms fails" << endreq;
+    ATH_MSG_ERROR( "Write of silicon alignableTransforms fails" );
     return StatusCode::FAILURE;
   }
 
@@ -399,14 +402,14 @@ StatusCode InDetAlignCog::finalize() {
   
   // output new TRT constants to root file
   if(m_TRTAlignDbTool->streamOutAlignObjects().isFailure()){
-    msg( MSG::ERROR) << "Write of TRT alignableTransforms fails" << endreq;
+    ATH_MSG_ERROR( "Write of TRT alignableTransforms fails" );
     return StatusCode::FAILURE;
   }
 
   // Save a text file with TRT new constants
   if(m_TRT_TxtOutput) 
   	if(m_TRTAlignDbTool->writeAlignTextFile(m_trt_txtfile).isFailure())
-  		msg( MSG::ERROR) << "Write of TRT new constants txt file fails" << endreq;;
+          ATH_MSG_ERROR( "Write of TRT new constants txt file fails" );
 
   // Fill the SQLite file (TRT)
   if(m_TRTAlignDbTool->registerAlignObjects(m_SQLiteTag+"_TRT",
@@ -414,7 +417,7 @@ StatusCode InDetAlignCog::finalize() {
 					 IOVTime::MINEVENT,
 					 IOVTime::MAXRUN,
 					 IOVTime::MAXEVENT).isFailure())
-		msg( MSG::ERROR) << "Write of TRT new constants db file fails" << endreq;;
+    ATH_MSG_ERROR( "Write of TRT new constants db file fails" );
   return StatusCode::SUCCESS;
 }
 
@@ -422,15 +425,17 @@ StatusCode InDetAlignCog::finalize() {
 // getSiElements
 //===================================================
 StatusCode InDetAlignCog::getSiElements(const InDetDD::SiDetectorManager *manager,
-					bool cog_already_calculated){
+					bool cog_already_calculated,
+                                        InDetAlignCog::Params_t &params
+                                        ){
  
   InDetDD::SiDetectorElementCollection::const_iterator iter;  
   for(iter=manager->getDetectorElementBegin(); iter!=manager->getDetectorElementEnd(); ++iter){
 
     const InDetDD::SiDetectorElement *element = *iter; 
-    Identifier id = element->identify();
-
-    if (element) {        
+    // @TODO can element be null ?
+    if (element) {
+      Identifier id = element->identify();
       int det = 0;
       int bec = 0;
       int layer_disk = 0;
@@ -487,19 +492,19 @@ StatusCode InDetAlignCog::getSiElements(const InDetDD::SiDetectorManager *manage
       m_counter++;
 
       // default Local-to-global transform (i.e. without misalignments)
-      const HepGeom::Transform3D defTransform = Amg::EigenTransformToCLHEP(element->defModuleTransform());
+      const Amg::Transform3D defTransform(element->defModuleTransform());
       ATH_MSG_VERBOSE( "defTransform " << 2 << " " << det << " " << bec << " " << layer_disk << " " 
 		       << phi_module << " " << eta_module << " "  << side << " " 
-		       << printTransform(defTransform));
+		       << printTransform(defTransform) );
 
       // Local-to-global module transform
-      const HepGeom::Transform3D transform  = Amg::EigenTransformToCLHEP(element->moduleTransform());
+      const Amg::Transform3D transform(element->moduleTransform());
       ATH_MSG_VERBOSE("transform     " << 2 << " " << det << " " << bec << " " << layer_disk << " " 
 		      << phi_module << " " << eta_module << " "  << side << " " 
-		      << printTransform(transform));   
+		      << printTransform(transform) );  
 
       // corrections in local frame
-      const HepGeom::Transform3D localDelta  = defTransform.inverse()*transform;
+      const Amg::Transform3D localDelta  = defTransform.inverse()*transform;
       
       ATH_MSG_VERBOSE("localDelta    " << 2 << " " << det << " " << bec << " " << layer_disk << " " 
 		      << phi_module << " " << eta_module << " "  << side << " " 
@@ -508,7 +513,7 @@ StatusCode InDetAlignCog::getSiElements(const InDetDD::SiDetectorManager *manage
       prepareDerivative(defTransform, m_useChi2);
       
       if(!cog_already_calculated){
-        m_useChi2 ?  accumulateChi2(localDelta,*M1,*V1,sigmas) : accumulate(localDelta,m_cog);
+        m_useChi2 ?  accumulateChi2(localDelta,params.m_M1,params.m_V1,sigmas) : accumulate(localDelta,m_cog);
       }
       else{	
         // coglocalDelta : local transform corresponding to global cog transform
@@ -516,12 +521,12 @@ StatusCode InDetAlignCog::getSiElements(const InDetDD::SiDetectorManager *manage
         if((m_det==1 || m_det==2) && det!=m_det) continue;    
         if(m_Si_bec!=99 && bec!=m_Si_bec) continue;
         if(m_Si_layer!=99 && layer_disk!=m_Si_layer) continue;
-        HepGeom::Transform3D coglocalDelta = defTransform.inverse() * m_CoG * defTransform;
+        Amg::Transform3D coglocalDelta = defTransform.inverse() * m_CoG * defTransform;
 
         // newlocalDelta : localDelta (alignment corrections) + coglocalDelta
-        HepGeom::Transform3D newlocalDelta = sumTransforms(localDelta, coglocalDelta);
+        Amg::Transform3D newlocalDelta = sumTransforms(localDelta, coglocalDelta);
 	
-        m_useChi2 ?  accumulateChi2(newlocalDelta,*M2,*V2,sigmas) : accumulate(newlocalDelta,m_resglob);
+        m_useChi2 ?  accumulateChi2(newlocalDelta,params.m_M2,params.m_V2,sigmas) : accumulate(newlocalDelta,m_resglob);
       }      
     } 
   } 
@@ -544,7 +549,7 @@ StatusCode InDetAlignCog::getSiElements(const InDetDD::SiDetectorManager *manage
 // 
 // The 'level-1' transform is a transform per module.
 //===================================================
-StatusCode InDetAlignCog::getTRT_Elements(bool cog_already_calculated){
+StatusCode InDetAlignCog::getTRT_Elements(bool cog_already_calculated, InDetAlignCog::Params_t &params){
   ATH_MSG_DEBUG( "in getTRT_Elements " );
  
   TRT_ID::const_id_iterator moduleIter;
@@ -581,30 +586,30 @@ StatusCode InDetAlignCog::getTRT_Elements(bool cog_already_calculated){
 
 
       // Get Default Transform (of module in barrel, layer in endcap)
-      const HepGeom::Transform3D defTransform = element->defTransform();    
+      const Amg::Transform3D defTransform = Amg::CLHEPTransformToEigen( element->defTransform() );
       ATH_MSG_VERBOSE("defTransform 2 3" << " " << bec << " " << phi_module << " " 
 		      << layer_wheel << " " << straw_layer << " " << printTransform(defTransform));    
            
       // retrieve level 1 transform (module level)
-      const HepGeom::Transform3D t1 = getL1Transform(bec);
+      const Amg::Transform3D t1 = getL1Transform(bec);
 
       //      const HepGeom::Transform3D t1 = m_TRTAlignDbTool->getTrans(id);
       ATH_MSG_VERBOSE( "t1    2 3" << " " << bec << " " << phi_module << " " 
 		       << layer_wheel << " " << straw_layer << " " << printTransform(t1));   
      
       // retrieve level 2 transform (barrel/endcaps)
-      const HepGeom::Transform3D t2 = Amg::EigenTransformToCLHEP(m_TRTAlignDbTool->getAlignmentTransform(id,2));
+      const Amg::Transform3D t2 = m_TRTAlignDbTool->getAlignmentTransform(id,2);
       //      const HepGeom::Transform3D t2 = m_TRTAlignDbTool->getGlobalTrans(bec);
       ATH_MSG_VERBOSE( "t2    2 3" << " " << bec << " " << phi_module << " " 
       		       << layer_wheel << " " << straw_layer << " " << printTransform(t2));    
       
       // build up globalDelta, i.e, the combination in GLOB of t2 and t1
-      const HepGeom::Transform3D globalDelta = (t2)*(t1);
+      const Amg::Transform3D globalDelta = (t2)*(t1);
       ATH_MSG_VERBOSE("globalDelta    2 3" << " " << bec << " " << phi_module << " " 
       		      << layer_wheel << " " << straw_layer << " " << printTransform(globalDelta));  
      
       // equivalent 'local' transform (at the module level)
-      const HepGeom::Transform3D localDelta  = defTransform.inverse() * globalDelta * defTransform;      
+      const Amg::Transform3D localDelta  = defTransform.inverse() * globalDelta * defTransform;      
 
       ATH_MSG_VERBOSE("localDelta    2 3" << " " << bec << " " << phi_module << " " 
       		      << layer_wheel << " " << straw_layer << " " << printTransform(localDelta));     
@@ -612,7 +617,7 @@ StatusCode InDetAlignCog::getTRT_Elements(bool cog_already_calculated){
       prepareDerivative(defTransform, m_useChi2);
       
       if(!cog_already_calculated){
-        m_useChi2 ?  accumulateChi2(localDelta,*M1,*V1,sigmas) : accumulate(localDelta,m_cog);
+        m_useChi2 ?  accumulateChi2(localDelta,params.m_M1,params.m_V1,sigmas) : accumulate(localDelta,m_cog);
       }
       else{	
         // coglocalDelta : local transform corresponding to global cog transform
@@ -620,10 +625,10 @@ StatusCode InDetAlignCog::getTRT_Elements(bool cog_already_calculated){
         if(m_TRT_bec!=99 && bec!=m_TRT_bec) continue;
         if(m_TRT_layer!=99 && layer_wheel!=m_TRT_layer) continue;
 
-        HepGeom::Transform3D coglocalDelta = defTransform.inverse() * m_CoG * defTransform;	
-        HepGeom::Transform3D newlocalDelta = sumTransforms(localDelta, coglocalDelta);	
+        Amg::Transform3D coglocalDelta = defTransform.inverse() * m_CoG * defTransform;	
+        Amg::Transform3D newlocalDelta = sumTransforms(localDelta, coglocalDelta);	
 
-        m_useChi2 ?  accumulateChi2(newlocalDelta,*M2,*V2,sigmas) : accumulate(newlocalDelta,m_resglob);
+        m_useChi2 ?  accumulateChi2(newlocalDelta,params.m_M2,params.m_V2,sigmas) : accumulate(newlocalDelta,m_resglob);
       }      
     } 
   }
@@ -633,18 +638,18 @@ StatusCode InDetAlignCog::getTRT_Elements(bool cog_already_calculated){
 //=====================================================================
 //  get the correct L1 id for the COG
 //=====================================================================
-const HepGeom::Transform3D InDetAlignCog::getL1Transform(int bec){
+const Amg::Transform3D InDetAlignCog::getL1Transform(int bec){
   
   Identifier thisL1Identifier = m_trtid->module_id(bec,0,0);
   
-  const HepGeom::Transform3D t1 = Amg::EigenTransformToCLHEP(m_TRTAlignDbTool->getAlignmentTransform(thisL1Identifier,1));
+  const Amg::Transform3D t1 = m_TRTAlignDbTool->getAlignmentTransform(thisL1Identifier,1);
   return t1;
 }
 
 //=====================================================================
 //  accumulate
 //=====================================================================
-void InDetAlignCog::accumulate(const HepGeom::Transform3D &trans, 
+void InDetAlignCog::accumulate(const Amg::Transform3D &trans, 
 			       double* val){
 
   // ATH_MSG_DEBUG("in accumulate for transform " << printransform(trans));
@@ -659,38 +664,44 @@ void InDetAlignCog::accumulate(const HepGeom::Transform3D &trans,
 
   // extract parameters from input transform
   double x,y,z,a,b,g;  
-  x = trans.getTranslation().x();
-  y = trans.getTranslation().y();
-  z = trans.getTranslation().z();
+
+  const int x_i=0;
+  const int y_i=1;
+  const int z_i=2;
+
+  const Amg::Vector3D translation_part(trans.translation());
+  x = translation_part[x_i];
+  y = translation_part[y_i];
+  z = translation_part[z_i];
   
-  Amg::Transform3D transAMG = Amg::CLHEPTransformToEigen( trans );
+  const Amg::Transform3D &transAMG = trans ;
   
   m_IDAlignDBTool->extractAlphaBetaGamma(transAMG,a,b,g);
 
-  const HepGeom::Vector3D<double> glob_x_trans = m_glob_x.getTranslation();
-  const HepGeom::Vector3D<double> glob_y_trans = m_glob_y.getTranslation();
-  const HepGeom::Vector3D<double> glob_z_trans = m_glob_z.getTranslation();
+  const Amg::Vector3D glob_x_trans = m_glob_x.translation();
+  const Amg::Vector3D glob_y_trans = m_glob_y.translation();
+  const Amg::Vector3D glob_z_trans = m_glob_z.translation();
 
-  const HepGeom::Vector3D<double> grot_x_trans = m_grot_x.getTranslation();
-  const HepGeom::Vector3D<double> grot_y_trans = m_grot_y.getTranslation();
-  const HepGeom::Vector3D<double> grot_z_trans = m_grot_z.getTranslation();
+  const Amg::Vector3D grot_x_trans = m_grot_x.translation();
+  const Amg::Vector3D grot_y_trans = m_grot_y.translation();
+  const Amg::Vector3D grot_z_trans = m_grot_z.translation();
 
-  val[0] += glob_x_trans.x()/tenmu*x   + glob_y_trans.x()/tenmu*y   + glob_z_trans.x()/tenmu*z;  
-  val[0] += grot_x_trans.x()/onemrad*a + grot_y_trans.x()/onemrad*b + grot_z_trans.x()/onemrad*g;
+  val[0] += glob_x_trans[x_i]/tenmu*x   + glob_y_trans[x_i]/tenmu*y   + glob_z_trans[x_i]/tenmu*z;  
+  val[0] += grot_x_trans[x_i]/onemrad*a + grot_y_trans[x_i]/onemrad*b + grot_z_trans[x_i]/onemrad*g;
 
-  val[1] += glob_x_trans.y()/tenmu*x   + glob_y_trans.y()/tenmu*y   + glob_z_trans.y()/tenmu*z;
-  val[1] += grot_x_trans.y()/onemrad*a + grot_y_trans.y()/onemrad*b + grot_z_trans.y()/onemrad*g;
+  val[1] += glob_x_trans[y_i]/tenmu*x   + glob_y_trans[y_i]/tenmu*y   + glob_z_trans[y_i]/tenmu*z;
+  val[1] += grot_x_trans[y_i]/onemrad*a + grot_y_trans[y_i]/onemrad*b + grot_z_trans[y_i]/onemrad*g;
 
-  val[2] += glob_x_trans.z()/tenmu*x   + glob_y_trans.z()/tenmu*y   + glob_z_trans.z()/tenmu*z;
-  val[2] += grot_x_trans.z()/onemrad*a + grot_y_trans.z()/onemrad*b + grot_z_trans.z()/onemrad*g;
+  val[2] += glob_x_trans[z_i]/tenmu*x   + glob_y_trans[z_i]/tenmu*y   + glob_z_trans[z_i]/tenmu*z;
+  val[2] += grot_x_trans[z_i]/onemrad*a + grot_y_trans[z_i]/onemrad*b + grot_z_trans[z_i]/onemrad*g;
   
   // extract alpha, beta and gamma from each of the 6 global transformation
-  m_IDAlignDBTool->extractAlphaBetaGamma(Amg::CLHEPTransformToEigen(m_glob_x), alpha[0], beta[0], gamma[0]);
-  m_IDAlignDBTool->extractAlphaBetaGamma(Amg::CLHEPTransformToEigen(m_glob_y), alpha[1], beta[1], gamma[1]);
-  m_IDAlignDBTool->extractAlphaBetaGamma(Amg::CLHEPTransformToEigen(m_glob_z), alpha[2], beta[2], gamma[2]);
-  m_IDAlignDBTool->extractAlphaBetaGamma(Amg::CLHEPTransformToEigen(m_grot_x), alpha[3], beta[3], gamma[3]);
-  m_IDAlignDBTool->extractAlphaBetaGamma(Amg::CLHEPTransformToEigen(m_grot_y), alpha[4], beta[4], gamma[4]);
-  m_IDAlignDBTool->extractAlphaBetaGamma(Amg::CLHEPTransformToEigen(m_grot_z), alpha[5], beta[5], gamma[5]);
+  m_IDAlignDBTool->extractAlphaBetaGamma(m_glob_x, alpha[0], beta[0], gamma[0]);
+  m_IDAlignDBTool->extractAlphaBetaGamma(m_glob_y, alpha[1], beta[1], gamma[1]);
+  m_IDAlignDBTool->extractAlphaBetaGamma(m_glob_z, alpha[2], beta[2], gamma[2]);
+  m_IDAlignDBTool->extractAlphaBetaGamma(m_grot_x, alpha[3], beta[3], gamma[3]);
+  m_IDAlignDBTool->extractAlphaBetaGamma(m_grot_y, alpha[4], beta[4], gamma[4]);
+  m_IDAlignDBTool->extractAlphaBetaGamma(m_grot_z, alpha[5], beta[5], gamma[5]);
 
   val[3] += alpha[0]/tenmu*x   + alpha[1]/tenmu*y   + alpha[2]/tenmu*z;
   val[3] += alpha[3]/onemrad*a + alpha[4]/onemrad*b + alpha[5]/onemrad*g;
@@ -706,7 +717,7 @@ void InDetAlignCog::accumulate(const HepGeom::Transform3D &trans,
 //=====================================================================
 //  accumulate Chi2 derivatives
 //=====================================================================
-void InDetAlignCog::accumulateChi2(const HepGeom::Transform3D &trans, CLHEP::HepSymMatrix& M, CLHEP::HepVector& V, const double* sigmas){
+void InDetAlignCog::accumulateChi2(const Amg::Transform3D &trans, AmgSymMatrix(6)& M, AmgVector(6)& V, const double* sigmas){
 
   ATH_MSG_DEBUG("in accumulateChi2 for transform " << printTransform(trans));
  
@@ -714,63 +725,70 @@ void InDetAlignCog::accumulateChi2(const HepGeom::Transform3D &trans, CLHEP::Hep
   /** Extract parameters from input transform */
   double delta[6];  
 
-  delta[0] = trans.getTranslation().x();
-  delta[1] = trans.getTranslation().y();
-  delta[2] = trans.getTranslation().z();
-  m_IDAlignDBTool->extractAlphaBetaGamma(Amg::CLHEPTransformToEigen( trans ),delta[3],delta[4],delta[5]);
+  Amg::Vector3D translation_part(trans.translation());
+  delta[0] = translation_part[0];
+  delta[1] = translation_part[1];
+  delta[2] = translation_part[2];
+  m_IDAlignDBTool->extractAlphaBetaGamma(trans ,delta[3],delta[4],delta[5]);
 
   /** Extract Jacobian partial derivatives (dl/dG): */
 
-  CLHEP::HepMatrix jacobian(6,6,0);
+  AmgMatrix(6,6) jacobian;
+  // jacobian.setZero();
 
   // extract the translations
-  const HepGeom::Vector3D<double> glob_x_trans = m_glob_x.getTranslation();
-  const HepGeom::Vector3D<double> glob_y_trans = m_glob_y.getTranslation();
-  const HepGeom::Vector3D<double> glob_z_trans = m_glob_z.getTranslation();
+  const Amg::Vector3D glob_x_trans = m_glob_x.translation();
+  const Amg::Vector3D glob_y_trans = m_glob_y.translation();
+  const Amg::Vector3D glob_z_trans = m_glob_z.translation();
 
-  const HepGeom::Vector3D<double> grot_x_trans = m_grot_x.getTranslation();
-  const HepGeom::Vector3D<double> grot_y_trans = m_grot_y.getTranslation();
-  const HepGeom::Vector3D<double> grot_z_trans = m_grot_z.getTranslation();
+  const Amg::Vector3D grot_x_trans = m_grot_x.translation();
+  const Amg::Vector3D grot_y_trans = m_grot_y.translation();
+  const Amg::Vector3D grot_z_trans = m_grot_z.translation();
 
   // extract alpha, beta and gamma from each of the 6 global transformation
   double  alpha[6], beta[6], gamma[6];
-  m_IDAlignDBTool->extractAlphaBetaGamma(Amg::CLHEPTransformToEigen(m_glob_x), alpha[0], beta[0], gamma[0]);
-  m_IDAlignDBTool->extractAlphaBetaGamma(Amg::CLHEPTransformToEigen(m_glob_y), alpha[1], beta[1], gamma[1]);
-  m_IDAlignDBTool->extractAlphaBetaGamma(Amg::CLHEPTransformToEigen(m_glob_z), alpha[2], beta[2], gamma[2]);
-  m_IDAlignDBTool->extractAlphaBetaGamma(Amg::CLHEPTransformToEigen(m_grot_x), alpha[3], beta[3], gamma[3]);
-  m_IDAlignDBTool->extractAlphaBetaGamma(Amg::CLHEPTransformToEigen(m_grot_y), alpha[4], beta[4], gamma[4]);
-  m_IDAlignDBTool->extractAlphaBetaGamma(Amg::CLHEPTransformToEigen(m_grot_z), alpha[5], beta[5], gamma[5]);
+  m_IDAlignDBTool->extractAlphaBetaGamma(m_glob_x, alpha[0], beta[0], gamma[0]);
+  m_IDAlignDBTool->extractAlphaBetaGamma(m_glob_y, alpha[1], beta[1], gamma[1]);
+  m_IDAlignDBTool->extractAlphaBetaGamma(m_glob_z, alpha[2], beta[2], gamma[2]);
+  m_IDAlignDBTool->extractAlphaBetaGamma(m_grot_x, alpha[3], beta[3], gamma[3]);
+  m_IDAlignDBTool->extractAlphaBetaGamma(m_grot_y, alpha[4], beta[4], gamma[4]);
+  m_IDAlignDBTool->extractAlphaBetaGamma(m_grot_z, alpha[5], beta[5], gamma[5]);
 
   // local translations:
-  jacobian[0][0] = glob_x_trans.x()/tenmu;
-  jacobian[0][1] = glob_y_trans.x()/tenmu;
-  jacobian[0][2] = glob_z_trans.x()/tenmu;
-  jacobian[0][3] = grot_x_trans.x()/onemrad;
-  jacobian[0][4] = grot_y_trans.x()/onemrad;
-  jacobian[0][5] = grot_z_trans.x()/onemrad;
-  jacobian[1][0] = glob_x_trans.y()/tenmu;
-  jacobian[1][1] = glob_y_trans.y()/tenmu;
-  jacobian[1][2] = glob_z_trans.y()/tenmu;
-  jacobian[1][3] = grot_x_trans.y()/onemrad;
-  jacobian[1][4] = grot_y_trans.y()/onemrad;
-  jacobian[1][5] = grot_z_trans.y()/onemrad;
-  jacobian[2][0] = glob_x_trans.z()/tenmu;
-  jacobian[2][1] = glob_y_trans.z()/tenmu;
-  jacobian[2][2] = glob_z_trans.z()/tenmu;
-  jacobian[2][3] = grot_x_trans.z()/onemrad;
-  jacobian[2][4] = grot_y_trans.z()/onemrad;
-  jacobian[2][5] = grot_z_trans.z()/onemrad;
+  jacobian(0,0) = glob_x_trans[0]/tenmu;
+  jacobian(0,1) = glob_y_trans[0]/tenmu;
+  jacobian(0,2) = glob_z_trans[0]/tenmu;
+  jacobian(0,3) = grot_x_trans[0]/onemrad;
+  jacobian(0,4) = grot_y_trans[0]/onemrad;
+  jacobian(0,5) = grot_z_trans[0]/onemrad;
+  jacobian(1,0) = glob_x_trans[1]/tenmu;
+  jacobian(1,1) = glob_y_trans[1]/tenmu;
+  jacobian(1,2) = glob_z_trans[1]/tenmu;
+  jacobian(1,3) = grot_x_trans[1]/onemrad;
+  jacobian(1,4) = grot_y_trans[1]/onemrad;
+  jacobian(1,5) = grot_z_trans[1]/onemrad;
+  jacobian(2,0) = glob_x_trans[2]/tenmu;
+  jacobian(2,1) = glob_y_trans[2]/tenmu;
+  jacobian(2,2) = glob_z_trans[2]/tenmu;
+  jacobian(2,3) = grot_x_trans[2]/onemrad;
+  jacobian(2,4) = grot_y_trans[2]/onemrad;
+  jacobian(2,5) = grot_z_trans[2]/onemrad;
 
   // local rotations:
-  jacobian[3][3] = alpha[3]/onemrad;
-  jacobian[3][4] = alpha[4]/onemrad;
-  jacobian[3][5] = alpha[5]/onemrad;
-  jacobian[4][3] =  beta[3]/onemrad;
-  jacobian[4][4] =  beta[4]/onemrad;
-  jacobian[4][5] =  beta[5]/onemrad;
-  jacobian[5][3] = gamma[3]/onemrad;
-  jacobian[5][4] = gamma[4]/onemrad;
-  jacobian[5][5] = gamma[5]/onemrad;
+  for (unsigned int i=3; i<6; ++i) {
+    for (unsigned int j=0; j<3; ++j) {
+      jacobian(i,j)=0;
+    }
+  }
+  jacobian(3,3) = alpha[3]/onemrad;
+  jacobian(3,4) = alpha[4]/onemrad;
+  jacobian(3,5) = alpha[5]/onemrad;
+  jacobian(4,3) =  beta[3]/onemrad;
+  jacobian(4,4) =  beta[4]/onemrad;
+  jacobian(4,5) =  beta[5]/onemrad;
+  jacobian(5,3) = gamma[3]/onemrad;
+  jacobian(5,4) = gamma[4]/onemrad;
+  jacobian(5,5) = gamma[5]/onemrad;
   
   // and the other six are null by construction.
 
@@ -778,9 +796,9 @@ void InDetAlignCog::accumulateChi2(const HepGeom::Transform3D &trans, CLHEP::Hep
 
   for (int i=0; i<6; i++) {
     for (int k=0; k<3; k++) {
-      V[i] -= 2./(sigmas[k]*sigmas[k])*jacobian[k][i]*delta[k];
+      V[i] -= 2./(sigmas[k]*sigmas[k])*jacobian(k,i)*delta[k];
       for (int j=0; j<=i; j++) {
-        M[i][j] += 2./(sigmas[k]*sigmas[k])*jacobian[k][i]*jacobian[k][j];
+        M(i,j) += 2./(sigmas[k]*sigmas[k])*jacobian(k,i)*jacobian(k,j);
       }
     }
   }
@@ -790,34 +808,37 @@ void InDetAlignCog::accumulateChi2(const HepGeom::Transform3D &trans, CLHEP::Hep
 //===================================================
 // prepareDerivative
 //===================================================
-void InDetAlignCog::prepareDerivative(const HepGeom::Transform3D &trans, const bool dLdG){
+void InDetAlignCog::prepareDerivative(const Amg::Transform3D &trans, const bool dLdG){
 
   ATH_MSG_DEBUG("in prepareDerivative for transform "  << printTransform(trans));
   
-  const HepGeom::Transform3D epsilon_x = HepGeom::Transform3D(CLHEP::HepRotation(),HepGeom::Vector3D<double>(tenmu,0,0));
-  const HepGeom::Transform3D epsilon_y = HepGeom::Transform3D(CLHEP::HepRotation(),HepGeom::Vector3D<double>(0,tenmu,0));
-  const HepGeom::Transform3D epsilon_z = HepGeom::Transform3D(CLHEP::HepRotation(),HepGeom::Vector3D<double>(0,0,tenmu));
+  Amg::Transform3D id = Amg::Transform3D::Identity();
 
-  const HepGeom::Transform3D epsilon_a = HepGeom::Transform3D(CLHEP::HepRotationX(onemrad),HepGeom::Vector3D<double>());
-  const HepGeom::Transform3D epsilon_b = HepGeom::Transform3D(CLHEP::HepRotationY(onemrad),HepGeom::Vector3D<double>());
-  const HepGeom::Transform3D epsilon_g = HepGeom::Transform3D(CLHEP::HepRotationZ(onemrad),HepGeom::Vector3D<double>());
+  const Amg::Transform3D epsilon_x =  Amg::Translation3D(tenmu,0,0) * id ; 
+  const Amg::Transform3D epsilon_y =  Amg::Translation3D(0,tenmu,0) * id ; 
+  const Amg::Transform3D epsilon_z =  Amg::Translation3D(0,0,tenmu) * id ; 
 
+  const Amg::Transform3D epsilon_a = id * _rotationX(onemrad);
+  const Amg::Transform3D epsilon_b = id * _rotationY(onemrad);
+  const Amg::Transform3D epsilon_g = id * _rotationZ(onemrad);
+
+  Amg::Transform3D inv_trans = trans.inverse();
   if( !dLdG ) {
     /** These represent small Local frame transformations transformed into Global: */
-    m_glob_x = trans * epsilon_x * trans.inverse();
-    m_glob_y = trans * epsilon_y * trans.inverse();
-    m_glob_z = trans * epsilon_z * trans.inverse();
-    m_grot_x = trans * epsilon_a * trans.inverse();
-    m_grot_y = trans * epsilon_b * trans.inverse();
-    m_grot_z = trans * epsilon_g * trans.inverse();  
+    m_glob_x = trans * epsilon_x * inv_trans;
+    m_glob_y = trans * epsilon_y * inv_trans;
+    m_glob_z = trans * epsilon_z * inv_trans;
+    m_grot_x = trans * epsilon_a * inv_trans;
+    m_grot_y = trans * epsilon_b * inv_trans;
+    m_grot_z = trans * epsilon_g * inv_trans;  
   } else {
     /** These represent small Global frame transformations transformed into Local: */
-    m_glob_x = trans.inverse() * epsilon_x * trans;
-    m_glob_y = trans.inverse() * epsilon_y * trans;
-    m_glob_z = trans.inverse() * epsilon_z * trans;
-    m_grot_x = trans.inverse() * epsilon_a * trans;
-    m_grot_y = trans.inverse() * epsilon_b * trans;
-    m_grot_z = trans.inverse() * epsilon_g * trans;  
+    m_glob_x = inv_trans * epsilon_x * trans;
+    m_glob_y = inv_trans * epsilon_y * trans;
+    m_glob_z = inv_trans * epsilon_z * trans;
+    m_grot_x = inv_trans * epsilon_a * trans;
+    m_grot_y = inv_trans * epsilon_b * trans;
+    m_grot_z = inv_trans * epsilon_g * trans;  
   }
 
 }
@@ -828,7 +849,7 @@ void InDetAlignCog::prepareDerivative(const HepGeom::Transform3D &trans, const b
 StatusCode InDetAlignCog::shiftIDbyCog(){
   ATH_MSG_DEBUG("in ShiftIDbyCog with det = " << m_det );
 
-  Amg::Transform3D cogAMG  = Amg::CLHEPTransformToEigen(m_CoG);
+  const Amg::Transform3D &cogAMG  = m_CoG;
     
   // update level 1 silicon constants
   if(m_det==99 || m_det==12 || m_det==1 || m_det==2) {
@@ -840,11 +861,11 @@ StatusCode InDetAlignCog::shiftIDbyCog(){
        !(m_IDAlignDBTool->tweakTrans(m_sctid->wafer_id(-2,0,0,0,0),level,cogAMG)) || // SCT EC-C
        !(m_IDAlignDBTool->tweakTrans(m_sctid->wafer_id(0,0,0,0,0),level,cogAMG)) || // SCT barrel
        !(m_IDAlignDBTool->tweakTrans(m_sctid->wafer_id(2,0,0,0,0),level,cogAMG))){ // SCT EC-A
-      msg(MSG::ERROR) << "Could not update level 1 silicon constants !!" << endreq;
+      ATH_MSG_ERROR( "Could not update level 1 silicon constants !!" );
       return StatusCode::FAILURE;
     } 
     else{
-      msg(MSG::DEBUG) << "Successful update of level 1 silicon constants " << endreq;
+      ATH_MSG_DEBUG( "Successful update of level 1 silicon constants " );
     }
   }
 
@@ -858,11 +879,11 @@ StatusCode InDetAlignCog::shiftIDbyCog(){
        StatusCode::SUCCESS!=m_TRTAlignDbTool->tweakAlignTransform(m_trtid->module_id(2,0,0),cogAMG,1) ||  // TRT pos. end-cap
        //StatusCode::SUCCESS!=m_TRTAlignDbTool->tweakTrans2(m_trtid->module_id(-2,0,0),cogAMG)){ // TRT neg. end-cap
        StatusCode::SUCCESS!=m_TRTAlignDbTool->tweakAlignTransform(m_trtid->module_id(-2,0,0),cogAMG,1)){ // TRT neg. end-cap
-      msg( MSG::ERROR) << "Could not update level 1 TRT constants !!" << endreq;
+      ATH_MSG_ERROR("Could not update level 1 TRT constants !!" );
       return StatusCode::FAILURE;
     } 
     else{
-      msg(MSG::DEBUG) << "Successful update of level 1 TRT constants " << endreq;
+      ATH_MSG_DEBUG( "Successful update of level 1 TRT constants " );
     }  
   }
   return StatusCode::SUCCESS;
@@ -871,23 +892,23 @@ StatusCode InDetAlignCog::shiftIDbyCog(){
 //=====================================================================
 //  enableCog
 //=====================================================================
-StatusCode InDetAlignCog::enableCoG(HepGeom::Transform3D & trans,
+StatusCode InDetAlignCog::enableCoG(Amg::Transform3D & trans,
                                     bool dotx, bool doty, bool dotz, bool dorx, bool dory, bool dorz){
   ATH_MSG_DEBUG("in enableCoG with decisions " << dotx << doty << dotz << dorx << dory << dorz  );
 
 
-  HepGeom::Vector3D<double> vec = trans.getTranslation();
-  if( !dotx ) vec.setX(0.0);
-  if( !doty ) vec.setY(0.0);
-  if( !dotz ) vec.setZ(0.0);
+  Amg::Vector3D vec = trans.translation();
+  if( !dotx ) vec[0]=0.0;
+  if( !doty ) vec[1]=0.0;
+  if( !dotz ) vec[2]=0.0;
 
   double a,b,g;
-  m_IDAlignDBTool->extractAlphaBetaGamma(Amg::CLHEPTransformToEigen(trans),a,b,g);
+  m_IDAlignDBTool->extractAlphaBetaGamma(trans,a,b,g);
   if( !dorx ) a=0.0;
   if( !dory ) b=0.0;
   if( !dorz ) g=0.0;
 
-  trans = HepGeom::Transform3D(CLHEP::HepRotationX(a)*CLHEP::HepRotationY(b)*CLHEP::HepRotationZ(g),vec);
+  trans = makeAffine3d( a, b, g, vec);
 
   return StatusCode::SUCCESS;
 }
@@ -899,18 +920,15 @@ StatusCode InDetAlignCog::addL1(){
   ATH_MSG_DEBUG("in addL1... " );
 
 
-  HepGeom::Vector3D<double> L1vec = HepGeom::Vector3D<double>(m_traX, m_traY, m_traZ);
-  CLHEP::HepRotation L1rot = CLHEP::HepRotation(CLHEP::HepRotationX(m_rotX)*CLHEP::HepRotationY(m_rotY)*CLHEP::HepRotationZ(m_rotZ));
+  Amg::Transform3D L1transform(makeAffine3d(m_rotX, m_rotY, m_rotZ, Amg::Vector3D(m_traX, m_traY, m_traZ) ));
 
-  HepGeom::Transform3D L1transform(L1rot,L1vec);
-
-        msg(MSG::INFO) << "+++++++++++++++++++++++++++++++++++++++++++++" << endreq;
-        msg(MSG::INFO) << "An L1 transformation will be added:" << endreq;
-        msg(MSG::INFO) <<  printTransform(L1transform)          << endreq;
-        msg(MSG::INFO) << "+++++++++++++++++++++++++++++++++++++++++++++" << endreq;
+  ATH_MSG_INFO( "+++++++++++++++++++++++++++++++++++++++++++++" );
+  ATH_MSG_INFO( "An L1 transformation will be added:" );
+  ATH_MSG_INFO(  printTransform(L1transform) );
+  ATH_MSG_INFO( "+++++++++++++++++++++++++++++++++++++++++++++" );
 
   // add the two contributions:
-  HepGeom::Transform3D trans = sumTransforms( m_CoG, L1transform );
+  Amg::Transform3D trans = sumTransforms( m_CoG, L1transform );
   
   // substitute the original m_CoG:
   m_CoG = trans;
@@ -921,25 +939,25 @@ StatusCode InDetAlignCog::addL1(){
 //=====================================================================
 //  normalizeCog
 //=====================================================================
-StatusCode InDetAlignCog::normalizeTransform(HepGeom::Transform3D & trans,
+StatusCode InDetAlignCog::normalizeTransform(Amg::Transform3D & trans,
 					     const int norm){
   ATH_MSG_DEBUG("in normalizeTransform with factor " << norm );
 
   if(norm==0){
-    msg(MSG::ERROR) << "norm factor is null !!!" << endreq;
+    ATH_MSG_ERROR( "norm factor is null !!!" );
     return StatusCode::FAILURE;
   }
 
-  HepGeom::Vector3D<double> vec = trans.getTranslation();
+  Amg::Vector3D vec = trans.translation();
   vec /= (double) norm;
 
   double a,b,g;
-  m_IDAlignDBTool->extractAlphaBetaGamma(Amg::CLHEPTransformToEigen(trans),a,b,g);
+  m_IDAlignDBTool->extractAlphaBetaGamma(trans,a,b,g);
   a /= (double) norm;
   b /= (double) norm;
   g /= (double) norm;
 
-  trans = HepGeom::Transform3D(CLHEP::HepRotationX(a)*CLHEP::HepRotationY(b)*CLHEP::HepRotationZ(g),vec);
+  trans = makeAffine3d( a, b, g, vec);
 
   return StatusCode::SUCCESS;
 }
@@ -947,74 +965,73 @@ StatusCode InDetAlignCog::normalizeTransform(HepGeom::Transform3D & trans,
 //=====================================================================
 //  scaleTransform
 //=====================================================================
-void InDetAlignCog::scaleTransform(HepGeom::Transform3D & trans,
+void InDetAlignCog::scaleTransform(Amg::Transform3D & trans,
 				   const float scale){
 
-  HepGeom::Vector3D<double> vec = trans.getTranslation();
+  Amg::Vector3D vec = trans.translation();
   vec *= scale;
 
   double a,b,g;
-  m_IDAlignDBTool->extractAlphaBetaGamma(Amg::CLHEPTransformToEigen(trans),a,b,g);
+  m_IDAlignDBTool->extractAlphaBetaGamma(trans,a,b,g);
   a *= scale;
   b *= scale;
   g *= scale;
 
-  trans = HepGeom::Transform3D(CLHEP::HepRotationX(a)*CLHEP::HepRotationY(b)*CLHEP::HepRotationZ(g),vec);
+  trans = makeAffine3d(a,b,g,vec);
 }
 
 //=====================================================================
 //  sumTransform
 //=====================================================================
-HepGeom::Transform3D InDetAlignCog::sumTransforms(const HepGeom::Transform3D & trans1,
-					    const HepGeom::Transform3D & trans2) const {
+Amg::Transform3D InDetAlignCog::sumTransforms(const Amg::Transform3D & trans1,
+                                                  const Amg::Transform3D & trans2) const {
   double a1,b1,g1;
   double a2,b2,g2;
 
-  HepGeom::Vector3D<double> vec1 = trans1.getTranslation();
-  HepGeom::Vector3D<double> vec2 = trans2.getTranslation();
+  Amg::Vector3D vec1 = trans1.translation();
+  Amg::Vector3D vec2 = trans2.translation();
 
-  m_IDAlignDBTool->extractAlphaBetaGamma(Amg::CLHEPTransformToEigen(trans1),a1,b1,g1);
-  m_IDAlignDBTool->extractAlphaBetaGamma(Amg::CLHEPTransformToEigen(trans2),a2,b2,g2);
+  m_IDAlignDBTool->extractAlphaBetaGamma(trans1,a1,b1,g1);
+  m_IDAlignDBTool->extractAlphaBetaGamma(trans2,a2,b2,g2);
 
-  HepGeom::Vector3D<double> sumvec = vec1+vec2;
-  CLHEP::HepRotation sumrot = CLHEP::HepRotation(CLHEP::HepRotationX(a1+a2)*CLHEP::HepRotationY(b1+b2)*CLHEP::HepRotationZ(g1+g2));
-
-  return (HepGeom::Transform3D(sumrot,sumvec));
+  Amg::Vector3D sumvec = vec1+vec2;
+  return makeAffine3d(a1+a2,b1+b2,g1+g2,sumvec);
 }
 
 //===================================================
 // printTransform
 //===================================================
-std::string InDetAlignCog::printTransform(const HepGeom::Transform3D &trans) const{
+std::string InDetAlignCog::printTransform(const Amg::Transform3D &trans) const{
   std::ostringstream ostr;
 
+  AmgMatrix(3,3) rotation( trans.rotation());
+  Amg::Vector3D    translation( trans.translation());
   if(m_fullMatrix) {    
     ostr.setf(std::ios::fixed);
     ostr.setf(std::ios::showpoint);
 
     ostr << std::endl << std::endl;
+    ostr << std::setw(10) << std::setprecision(6) << rotation(0,0)
+	 << std::setw(12) << std::setprecision(6) << rotation(0,1) 
+	 << std::setw(12) << std::setprecision(6) << rotation(0,2) 
+	 << "    Tx = " << std::setw(10) << std::setprecision(6) << translation[0] << std::endl;
 
-    ostr << std::setw(10) << std::setprecision(6) << trans.xx() 
-	 << std::setw(12) << std::setprecision(6) << trans.xy() 
-	 << std::setw(12) << std::setprecision(6) << trans.xz() 
-	 << "    Tx = " << std::setw(10) << std::setprecision(6) << trans.dx() << std::endl;
+    ostr << std::setw(10) << std::setprecision(6) << rotation(1,0)
+	 << std::setw(12) << std::setprecision(6) << rotation(1,1)
+	 << std::setw(12) << std::setprecision(6) << rotation(1,2)
+	 << "    Ty = " << std::setw(10) << std::setprecision(6) << translation[1] << std::endl;
 
-    ostr << std::setw(10) << std::setprecision(6) << trans.yx() 
-	 << std::setw(12) << std::setprecision(6) << trans.yy() 
-	 << std::setw(12) << std::setprecision(6) << trans.yz() 
-	 << "    Ty = " << std::setw(10) << std::setprecision(6) << trans.dy() << std::endl;
-
-    ostr << std::setw(10) << std::setprecision(6) << trans.zx() 
-	 << std::setw(12) << std::setprecision(6) << trans.zy() 
-	 << std::setw(12) << std::setprecision(6) << trans.zz() 
-	 << "    Tz = " << std::setw(10) << std::setprecision(6) << trans.dz();
+    ostr << std::setw(10) << std::setprecision(6) << rotation(2,0)
+	 << std::setw(12) << std::setprecision(6) << rotation(2,1)
+	 << std::setw(12) << std::setprecision(6) << rotation(2,2)
+	 << "    Tz = " << std::setw(10) << std::setprecision(6) << translation[2];
 
     ostr << std::endl;
   }
   else{ 
-    ostr << "(" << trans.dx() << "," << trans.dy() << "," << trans.dz() << ")mm ";
+    ostr << "(" << translation[0] << "," << translation[1] << "," << translation[2] << ")mm ";
     double alpha=0, beta=0, gamma=0;
-    m_IDAlignDBTool->extractAlphaBetaGamma(Amg::CLHEPTransformToEigen(trans), alpha, beta, gamma);
+    m_IDAlignDBTool->extractAlphaBetaGamma(trans, alpha, beta, gamma);
     ostr << "( A=" << 1000*alpha << ", B=" << 1000*beta << ", G=" << 1000*gamma << ")mrad";
   }
   return ostr.str();
@@ -1026,7 +1043,7 @@ std::string InDetAlignCog::printTransform(const HepGeom::Transform3D &trans) con
 //=====================================================================
 //  testIdentity
 //=====================================================================
-bool InDetAlignCog::testIdentity(const HepGeom::Transform3D &transform, 
+bool InDetAlignCog::testIdentity(const Amg::Transform3D &transform, 
 				 double errRot, 
 				 double errTrans) const {
   ATH_MSG_DEBUG ("in testIdentity for transform " << printTransform(transform));
@@ -1034,8 +1051,8 @@ bool InDetAlignCog::testIdentity(const HepGeom::Transform3D &transform,
 
   bool pass = true;
 
-  const HepGeom::Transform3D & t1 = transform;
-  const HepGeom::Transform3D t2; // identity
+  const Amg::Transform3D & t1 = transform;
+  const Amg::Transform3D t2(Amg::Transform3D::Identity()); // identity
   
   // Rotation/Scale
   for (int i=0; i<3; i++){
@@ -1050,9 +1067,13 @@ bool InDetAlignCog::testIdentity(const HepGeom::Transform3D &transform,
     if (diff > errTrans) pass = false;
   }
 
-  pass ? msg( MSG::DEBUG) << "Remaining global transform within tolerances. Ok." << endreq
-    : msg(MSG::WARNING) << "Remaining global transform outside tolerances." 
-			 << " No level 1 updates will be done" << endreq;
+  if (pass) {
+    ATH_MSG_DEBUG( "Remaining global transform within tolerances. Ok." );
+  }
+  else {
+    ATH_MSG_WARNING( "Remaining global transform outside tolerances." 
+                     " No level 1 updates will be done" );
+  }
   return pass;
 }
 

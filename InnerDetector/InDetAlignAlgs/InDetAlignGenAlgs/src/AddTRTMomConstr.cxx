@@ -31,6 +31,8 @@
 
 AddTRTMomConstr::AddTRTMomConstr( const std::string& name, ISvcLocator* pSvcLocator )
   : AthAlgorithm   (name, pSvcLocator)
+  , m_idHelper(nullptr)
+  , m_trtid(nullptr)
   , m_trackListInput("ExtendedTracks")
   , m_trackListOutput("SiTracksWithTRTMomConstr")
   , m_trackSummaryTool("Trk::ITrackSummaryTool/ITrackSummaryTool")

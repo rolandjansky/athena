@@ -8,6 +8,7 @@
 // it to conditions database
 //
 #include <fstream>
+#include "AthenaBaseComps/AthCheckMacros.h" 	
 #include "GaudiKernel/SmartDataPtr.h"
 #include "GaudiKernel/IIncidentSvc.h"
 #include "AthenaKernel/IOVTime.h"
@@ -19,10 +20,12 @@
 #include "InDetAlignGenAlgs/InDetAlignWrt.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
+
 InDetAlignWrt::InDetAlignWrt(const std::string& name, ISvcLocator* pSvcLocator)
   :AthAlgorithm   (name, pSvcLocator),
    m_beamcondsvc("BeamCondSvc",name),      
-  p_migratetool(0),
+   p_iddbtool("InDetAlignDBTool"),
+   p_migratetool("InDetAlignDBTool/InDetAlignMigrate"),
    p_eventinfo (0),
    m_setup     (false),
    par_create(true),
@@ -94,6 +97,9 @@ InDetAlignWrt::InDetAlignWrt(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("WriteBeamPos",par_wrtbeam);
   declareProperty("WriteTopTrans",par_writetop);
   declareProperty("TopTransFile",par_topname);
+
+  declareProperty("InDetAlignDBTool",p_iddbtool);
+  declareProperty("InDetAlignMigrateTool",p_migratetool);
 }
 
 
@@ -109,24 +115,12 @@ StatusCode InDetAlignWrt::initialize() {
     return StatusCode::FAILURE;
   }
 
-  if (StatusCode::SUCCESS!=service("ToolSvc",p_toolsvc)) {
-    msg(MSG::FATAL) << "ToolSvc not found" << endreq;
-    return StatusCode::FAILURE;
-  }
 
-  if (StatusCode::SUCCESS!= p_toolsvc->retrieveTool("InDetAlignDBTool",
-                par_dbtoolinst,p_iddbtool)) {
-    msg(MSG::FATAL) << "InDetAlignDBTool instance " << par_dbtoolinst << " not found" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( p_iddbtool.retrieve() );
 
   // get second InDetAlignDBTool for migration if needed
   if (par_migrate) {
-    if (StatusCode::SUCCESS!= p_toolsvc->retrieveTool("InDetAlignDBTool","InDetAlignMigrate",
-                  p_migratetool)) {
-      msg(MSG::FATAL) << "InDetAlignDBTool instance InDetAlignMigrate not found" << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK (p_migratetool.retrieve() );
   }
   // get BeamCondSvc if needed
   if (par_wrtbeam) {

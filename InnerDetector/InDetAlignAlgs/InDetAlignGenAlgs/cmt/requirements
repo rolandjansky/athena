@@ -18,6 +18,8 @@ use TrkFitterUtils              TrkFitterUtils-*              Tracking/TrkFitter
 use TrkParameters               TrkParameters-*               Tracking/TrkEvent
 use TRT_ConditionsServices      TRT_ConditionsServices-*      InnerDetector/InDetConditions
 use xAODEventInfo               xAODEventInfo-*               Event/xAOD
+use GeoPrimitives               GeoPrimitives-*               DetectorDescription 
+use EventPrimitives             EventPrimitives-*             Event
 
 private
 use AthenaKernel                AthenaKernel-*                Control
@@ -35,7 +37,6 @@ use TrkPseudoMeasurementOnTrack TrkPseudoMeasurementOnTrack-* Tracking/TrkEvent
 use TrkFitterInterfaces         TrkFitterInterfaces-*         Tracking/TrkFitter
 use TrkExInterfaces             TrkExInterfaces-*             Tracking/TrkExtrapolation
 use TrkToolInterfaces           TrkToolInterfaces-*           Tracking/TrkTools
-use GeoPrimitives               GeoPrimitives-*               DetectorDescription 
 use InDetBeamSpotService        InDetBeamSpotService-*        InnerDetector/InDetConditions
 use InDetReadoutGeometry        InDetReadoutGeometry-*        InnerDetector/InDetDetDescr
 

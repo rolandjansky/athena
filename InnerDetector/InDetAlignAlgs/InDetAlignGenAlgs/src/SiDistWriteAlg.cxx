@@ -85,7 +85,7 @@ bool SiDistWriteAlg::readFile() {
   // create structure in TDS
   ATH_MSG_DEBUG ( "Create new DetCondCFloat of size " << par_size
   << " in TDS" );
-  DetCondCFloat* pdist=new DetCondCFloat(par_size,par_distkey);
+  std::unique_ptr<DetCondCFloat> pdist(new DetCondCFloat(par_size,par_distkey));
   // read data from text file
   ATH_MSG_DEBUG ( "Opening text file " << par_readfile << 
     " to get distortion data" );
@@ -128,7 +128,8 @@ bool SiDistWriteAlg::readFile() {
   ATH_MSG_DEBUG ( "Read distortions for " << nline << " modules" << 
       " of which " << nadd << " successfully added" );
   // record in StoreGate
-  if (StatusCode::SUCCESS==detStore()->record(pdist,par_distkey)) {
+  if (StatusCode::SUCCESS==detStore()->record(pdist.get(),par_distkey)) {
+    pdist.release();
     ATH_MSG_DEBUG ( "Recorded DetCondCFloat " << par_distkey << " in TDS" );
   } else {
     msg(MSG::ERROR) << "Failed to record DetCondCFloat " << par_distkey << " in TDS"

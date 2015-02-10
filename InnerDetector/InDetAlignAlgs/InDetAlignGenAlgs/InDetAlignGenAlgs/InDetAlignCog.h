@@ -19,10 +19,9 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "InDetAlignGenTools/IInDetAlignDBTool.h"
 #include "TRT_ConditionsServices/ITRT_AlignDbSvc.h"
-#include "CLHEP/Geometry/Transform3D.h"
-#include "CLHEP/Matrix/Vector.h"
-#include "CLHEP/Matrix/Matrix.h"
-#include "CLHEP/Matrix/SymMatrix.h"
+
+#include <GeoPrimitives/GeoPrimitives.h>
+#include <EventPrimitives/EventPrimitives.h>
 
 class PixelID;
 class SCT_ID;
@@ -45,25 +44,46 @@ class InDetAlignCog : public AthAlgorithm {
   StatusCode finalize();
   
  private:
-  StatusCode getSiElements(const InDetDD::SiDetectorManager*,const bool);  
-  StatusCode getTRT_Elements(const bool);  
+  class Params_t 
+  {
+  public:
+    Params_t () {
+      m_V1.setZero();
+      m_V2.setZero();
+      m_A1.setZero();
+      m_A2.setZero();
+      m_M1.setZero();
+      m_M2.setZero();
+    }
+
+    AmgVector(6) m_V1;
+    AmgVector(6) m_V2;
+    AmgVector(6) m_A1;
+    AmgVector(6) m_A2;
+    AmgSymMatrix(6) m_M1;
+    AmgSymMatrix(6) m_M2;
+  };
+
+
+  StatusCode getSiElements(const InDetDD::SiDetectorManager*,const bool, InDetAlignCog::Params_t &params);  
+  StatusCode getTRT_Elements(const bool, InDetAlignCog::Params_t &params);  
   StatusCode shiftIDbyCog();
   StatusCode addL1();
 
-  StatusCode enableCoG(HepGeom::Transform3D&, bool, bool, bool, bool, bool, bool);
-  StatusCode normalizeTransform(HepGeom::Transform3D&, const int);
-  void scaleTransform(HepGeom::Transform3D&, const float);
+  StatusCode enableCoG(Amg::Transform3D&, bool, bool, bool, bool, bool, bool);
+  StatusCode normalizeTransform(Amg::Transform3D&, const int);
+  void scaleTransform(Amg::Transform3D&, const float);
   
-  HepGeom::Transform3D sumTransforms(const HepGeom::Transform3D&,
-			       const HepGeom::Transform3D&) const;
+  Amg::Transform3D sumTransforms(const Amg::Transform3D&,
+			       const Amg::Transform3D&) const;
 
-  void prepareDerivative(const HepGeom::Transform3D&, const bool=false);
-  void accumulate(const HepGeom::Transform3D&, double* );
-  void accumulateChi2(const HepGeom::Transform3D&, CLHEP::HepSymMatrix&, CLHEP::HepVector&, const double* );
+  void prepareDerivative(const Amg::Transform3D&, const bool=false);
+  void accumulate(const Amg::Transform3D&, double* );
+  void accumulateChi2(const Amg::Transform3D&, AmgSymMatrix(6)&, AmgVector(6)&, const double* );
 
-  std::string printTransform(const HepGeom::Transform3D&) const;
-  bool testIdentity(const HepGeom::Transform3D&,double,double) const;
-  const HepGeom::Transform3D getL1Transform(int bec);
+  std::string printTransform(const Amg::Transform3D&) const;
+  bool testIdentity(const Amg::Transform3D&,double,double) const;
+  const Amg::Transform3D getL1Transform(int bec);
  
  private:
 
@@ -146,28 +166,24 @@ class InDetAlignCog : public AthAlgorithm {
   std::string m_SQLiteTag; //!< SQLite tag name
 
   // infinitesimal global transformations used to calculate derivatives
-  HepGeom::Transform3D m_glob_x;
-  HepGeom::Transform3D m_glob_y;
-  HepGeom::Transform3D m_glob_z;
-  HepGeom::Transform3D m_grot_x;
-  HepGeom::Transform3D m_grot_y;
-  HepGeom::Transform3D m_grot_z;
+  Amg::Transform3D m_glob_x;
+  Amg::Transform3D m_glob_y;
+  Amg::Transform3D m_glob_z;
+  Amg::Transform3D m_grot_x;
+  Amg::Transform3D m_grot_y;
+  Amg::Transform3D m_grot_z;
 
   // Center-of-gravity 
   double         m_cog[6];
-  HepGeom::Transform3D m_CoG;
+  Amg::Transform3D m_CoG;
 
   // residual global transformation
   double         m_resglob[6];
-  HepGeom::Transform3D m_ResGlob;
+  Amg::Transform3D m_ResGlob;
 
   // Chi2 specific stuff:
-  CLHEP::HepVector*    V1;
-  CLHEP::HepVector*    V2;
-  CLHEP::HepVector*    A1;
-  CLHEP::HepVector*    A2;
-  CLHEP::HepSymMatrix* M1;
-  CLHEP::HepSymMatrix* M2;
+
+
 };
 
 #endif // INDETALIGNGENALGS_INDETALIGNCOG_H
