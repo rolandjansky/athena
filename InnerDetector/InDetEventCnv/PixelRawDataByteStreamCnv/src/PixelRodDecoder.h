@@ -69,7 +69,7 @@ public:
   
   
   ////// decode IBL-only module (not-condensed) hit word
-  //   uint32_t decodeLinkNumHit_IBL(const uint32_t word); // decode Link Number in the IBL not-condensed Hit word // At least temporarily not used, because IBL data format is not clear (Franconi, 17.06.2014)
+  uint32_t decodeLinkNumHit_IBL(const uint32_t word); // decode Link Number in the IBL not-condensed Hit word // At least temporarily not used, because IBL data format is not clear (Franconi, 17.06.2014)
   //   uint32_t decodeHitBitflips_IBL(const uint32_t word); // search for bitflips in wordparts supposed to be empty
   
   
@@ -82,7 +82,7 @@ public:
   ////// decode IBL module trailer word
   uint32_t decodeSkippedTrigTrailer_IBL(const uint32_t word); // decode the skipped trigger counter in the IBL trailer
   uint32_t decodeTrailerErrors_IBL (const uint32_t word); // decode IBL trailer errors, all together 
-  //   uint32_t decodeLinkNumTrailer_IBL(const uint32_t word); // decode the link number in the IBL trailer // At least temporarily not used, because IBL data format is not clear (Franconi, 17.06.2014)
+  uint32_t decodeLinkNumTrailer_IBL(const uint32_t word); // decode the link number in the IBL trailer // At least temporarily not used, because IBL data format is not clear (Franconi, 17.06.2014)
   //   uint32_t decodeTimeOutErrorBit_IBL(const uint32_t word); // decode the Time out error bit in the IBL trailer
   uint32_t decodeCondensedModeBit_IBL(const uint32_t word); // decode the Condensed mode bit in the IBL trailer
   //   uint32_t decodeTrailerBitflips_IBL(const uint32_t word); // decode IBL bitflips in the trailer word // At least temporarily not used, because IBL data format is not clear (Franconi, 17.06.2014)
@@ -91,6 +91,7 @@ public:
   ////// decode Pixel module trailer word
   uint32_t decodeTrailerErrors(const uint32_t word);   // decode trailer errors from trailer word 
   uint32_t decodeTrailerBitflips(const uint32_t word);   // search for bitflips in wordparts supposed to be empty
+  uint32_t decodeBcidTrailer_IBL(const uint32_t word);
   
   
   ////// decode Pixel module FE flags
@@ -104,7 +105,7 @@ public:
   ////// decode IBL module FE flags
   uint32_t decodeServiceCodeCounter_IBL(const uint32_t word); // decode the Service Code Counter from the "non-short" IBL FE flag word
   uint32_t decodeServiceCode_IBL(const uint32_t word); // decode the Service code from the "non-short" IBL FE Flag word
-  //   uint32_t decodeLinkNumFEFlag_IBL(const uint32_t word); // decode the Link Number present in the IBL FE Flag word // At least temporarily not used, because IBL data format is not clear (Franconi, 17.06.2014)
+  uint32_t decodeLinkNumFEFlag_IBL(const uint32_t word); // decode the Link Number present in the IBL FE Flag word // At least temporarily not used, because IBL data format is not clear (Franconi, 17.06.2014)
   //   uint32_t decodeFEFlagBitFlips_IBL(const uint32_t word); // search for bitflips in word partes supposed to be empty // At least temporarily not used, because IBL data format is not clear (Franconi, 17.06.2014)
   
   
