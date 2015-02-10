@@ -9,7 +9,9 @@
  *
  * Authors       : Martin Woudstra, Zdenko van Kesteren, Peter Kluit
  * Creation Date: 21 March 2005
- * Last Update  : 03 December 2007
+ * Updated : 03 December 2007
+ * Updated : 16 January  2015 E. Diehl Add BME/BOE/BMG chambers 
+ *   Note: BOE=BOL in offline, so do not need to explicitly add BOE, it will be handled as BOL
  ***************************************************************************/
 
 
@@ -446,7 +448,7 @@ private:
    static const unsigned int kStationPhiShift         = 13;
    static const unsigned int kStationPhiMin           = 1;
 
-   static const int kNumberOfStationNames = 34;
+   static const int kNumberOfStationNames = 35;
    static const char kStationNameStrings[kNumberOfStationNames][4];
 
    // the full station information for making a station identifier
@@ -736,98 +738,19 @@ inline int MuonFixedId::phiMax(){
    return kStationPhiMin + kStationPhiMask; 
 }
 
-inline int MuonFixedId::stationStringToFixedStationNumber(const std::string& station )
-{
+inline int MuonFixedId::stationStringToFixedStationNumber(const std::string& station ) {
   for ( int i = 0; i < kNumberOfStationNames; ++i ) {
     if ( station == kStationNameStrings[i] ) return i + kStationNameMin;
   }
-  // not found
-  return -1;
-
-/*// old stuff
-  if(station == "BIL" ) return 1;
-  if(station == "BIS" ) return 2;
-  if(station == "BML" ) return 3;
-  if(station == "BMS" ) return 4;
-  if(station == "BOL" ) return 5;
-  if(station == "BOS" ) return 6;
-  if(station == "BEE" ) return 7;
-  if(station == "BIR" ) return 8;
-  if(station == "BMF" ) return 9;
-  if(station == "BOF" ) return 10;
-  if(station == "BOG" ) return 11;
-  if(station == "BOH" ) return 12;
-  if(station == "BIM" ) return 13;
-  if(station == "EIC" ) return 14;
-  if(station == "EIL" ) return 15;
-  if(station == "EEL" ) return 16;
-  if(station == "EES" ) return 17;
-  if(station == "EMC" ) return 18;
-  if(station == "EML" ) return 19;
-  if(station == "EMS" ) return 20;
-  if(station == "EOC" ) return 21;
-  if(station == "EOL" ) return 22;
-  if(station == "EOS" ) return 23;
-  if(station == "EIS" ) return 24;
-  if(station == "T1F" ) return 25;
-  if(station == "T1E" ) return 26;
-  if(station == "T2F" ) return 27;
-  if(station == "T2E" ) return 28;
-  if(station == "T3F" ) return 29;
-  if(station == "T3E" ) return 30;
-  if(station == "T4F" ) return 31;
-  if(station == "T4E" ) return 32;
-  if(station == "CSS" ) return 33;
-  if(station == "CSL" ) return 34;
-  if(station == "XXX" ) return -1;
-  return -1; */
+  return -1;  // signal error if not found
 }
 
-inline std::string MuonFixedId::stationNumberToFixedStationString(const int station)
-{
+inline std::string MuonFixedId::stationNumberToFixedStationString(const int station) {
   int index = station - kStationNameMin;
-  if ( index < 0 || index >= kNumberOfStationNames ) {
-    return "XXX";
-  } else {
+  if ( index >= 0 && index < kNumberOfStationNames ) {
     return kStationNameStrings[index];
   }
-
-/*// old stuff
-  if(station ==  1 ) return "BIL" ;
-  if(station ==  2 ) return "BIS" ;
-  if(station ==  3 ) return "BML" ;
-  if(station ==  4 ) return "BMS" ;
-  if(station ==  5 ) return "BOL" ;
-  if(station ==  6 ) return "BOS" ;
-  if(station ==  7 ) return "BEE" ;
-  if(station ==  8 ) return "BIR" ;
-  if(station ==  9 ) return "BMF" ;
-  if(station == 10 ) return "BOF" ;
-  if(station == 11 ) return "BOG" ;
-  if(station == 12 ) return "BOH" ;
-  if(station == 13 ) return "BIM" ;
-  if(station == 14 ) return "EIC" ;
-  if(station == 15 ) return "EIL" ;
-  if(station == 16 ) return "EEL" ;
-  if(station == 17 ) return "EES" ;
-  if(station == 18 ) return "EMC" ;
-  if(station == 19 ) return "EML" ;
-  if(station == 20 ) return "EMS" ;
-  if(station == 21 ) return "EOC" ;
-  if(station == 22 ) return "EOL" ;
-  if(station == 23 ) return "EOS" ;
-  if(station == 24 ) return "EIS" ;
-  if(station == 25 ) return "T1F" ;
-  if(station == 26 ) return "T1E" ;
-  if(station == 27 ) return "T2F" ;
-  if(station == 28 ) return "T2E" ;
-  if(station == 29 ) return "T3F" ;
-  if(station == 30 ) return "T3E" ;
-  if(station == 31 ) return "T4F" ;
-  if(station == 32 ) return "T4E" ;
-  if(station == 33 ) return "CSS" ;
-  if(station == 34 ) return "CSL" ;
-  else return "XXX" ; */
+  return "XXX";   // signal error if not found
 }
 
 // Mdt specific methods
@@ -874,8 +797,6 @@ inline int MuonFixedId::mdtMezzanine() const {
    return Imezz ;
 }
 
-
-
 inline bool MuonFixedId::setMdtTubeLayerIndex( unsigned int idx ) {
   if ( idx > kMdtTubeLayerMask ) {
       clear();
@@ -897,7 +818,6 @@ inline int MuonFixedId::mdtTubeLayerIndex() const {
 inline int MuonFixedId::mdtTubeLayer() const {
    return mdtTubeLayerIndex() + kMdtTubeLayerMin;
 }
-
 
 inline bool MuonFixedId::setMdtMultilayerIndex( unsigned int idx ) {
   if ( idx > kMdtMultilayerMask ) {
@@ -1003,7 +923,6 @@ inline int MuonFixedId::cscWireLayer() const {
    return cscWireLayerIndex() + kCscWireLayerMin;
 }
 
-
 inline bool MuonFixedId::setCscMeasuresPhiIndex( unsigned int idx ) {
   if ( idx > kCscMeasuresPhiMask ) {
       clear();
@@ -1025,7 +944,6 @@ inline int MuonFixedId::cscMeasuresPhiIndex() const {
 inline int MuonFixedId::cscMeasuresPhi() const {
    return cscMeasuresPhiIndex() + kCscMeasuresPhiMin;
 }
-
 
 inline bool MuonFixedId::setCscStripIndex( unsigned int idx ) {
   if ( idx > kCscStripMask ) {
@@ -1080,8 +998,8 @@ inline int MuonFixedId::cscStripMin(){
 inline int MuonFixedId::cscStripMax(){
   return kCscStripMin + kCscStripMask;
 }
-// Rpc specific methods
 
+// Rpc specific methods
 inline bool MuonFixedId::setRpcDoubletRIndex( unsigned int idx ) {
   if ( idx > kRpcDoubletRMask ) {
       clear();
@@ -1103,7 +1021,6 @@ inline int MuonFixedId::rpcDoubletRIndex() const {
 inline int MuonFixedId::rpcDoubletR() const {
    return rpcDoubletRIndex() + kRpcDoubletRMin;
 }
-
 
 inline bool MuonFixedId::setRpcDoubletZIndex( unsigned int idx ) {
   if ( idx > kRpcDoubletZMask ) {
@@ -1127,7 +1044,6 @@ inline int MuonFixedId::rpcDoubletZ() const {
    return rpcDoubletZIndex() + kRpcDoubletZMin;
 }
 
-
 inline bool MuonFixedId::setRpcDoubletPhiIndex( unsigned int idx ) {
   if ( idx > kRpcDoubletPhiMask ) {
       clear();
@@ -1149,7 +1065,6 @@ inline int MuonFixedId::rpcDoubletPhiIndex() const {
 inline int MuonFixedId::rpcDoubletPhi() const {
    return rpcDoubletPhiIndex() + kRpcDoubletPhiMin;
 }
-
 
 inline bool MuonFixedId::setRpcGasGapIndex( unsigned int idx ) {
   if ( idx > kRpcGasGapMask ) {
@@ -1173,7 +1088,6 @@ inline int MuonFixedId::rpcGasGap() const {
    return rpcGasGapIndex() + kRpcGasGapMin;
 }
 
-
 inline bool MuonFixedId::setRpcMeasuresPhiIndex( unsigned int idx ) {
   if ( idx > kRpcMeasuresPhiMask ) {
       clear();
@@ -1195,7 +1109,6 @@ inline int MuonFixedId::rpcMeasuresPhiIndex() const {
 inline int MuonFixedId::rpcMeasuresPhi() const {
    return rpcMeasuresPhiIndex() + kRpcMeasuresPhiMin;
 }
-
 
 inline bool MuonFixedId::setRpcStripIndex( unsigned int idx ) {
   if ( idx > kRpcStripMask ) {
@@ -1221,7 +1134,6 @@ inline int MuonFixedId::rpcStrip() const {
 
 
 //  Tgc specific methods
-
 inline bool MuonFixedId::setTgcGasGapIndex( unsigned int idx ) {
   if ( idx > kTgcGasGapMask ) {
       clear();
@@ -1303,5 +1215,3 @@ inline std::istream& operator>>( std::istream& is, MuonCalib::MuonFixedId& id){
 }
 */
 #endif // MUONCALIBIDENTIFIER_MUONFIXEDID_H
-
-

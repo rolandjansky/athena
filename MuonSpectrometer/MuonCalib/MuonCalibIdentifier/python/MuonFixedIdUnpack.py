@@ -121,12 +121,8 @@ class MuonFixedIdUnpack:
 	__kStationPhiMin           = 1;
 	
 	
-	__kStationNameStrings = [ "BIL", "BIS", "BML", "BMS", "BOL", "BOS", "BEE", "BIR", "BMF", "BOF", "BOG", "BOH", "BIM", "EIC", "EIL", "EEL", "EES", "EMC", "EML", "EMS", "EOC", "EOL", "EOS", "EIS", "T1F", "T1E", "T2F", "T2E", "T3F", "T3E", "T4F", "T4E", "CSS", "CSL" ]
+	__kStationNameStrings = [ "BIL", "BIS", "BML", "BMS", "BOL", "BOS", "BEE", "BIR", "BMF", "BOF", "BOG", "BME", "BIM", "EIC", "EIL", "EEL", "EES", "EMC", "EML", "EMS", "EOC", "EOL", "EOS", "EIS", "T1F", "T1E", "T2F", "T2E", "T3F", "T3E", "T4F", "T4E", "CSS", "CSL", "BMG" ]
 	
 	
-	__kStationNameStringsMap = { "BIL" : 0,"BIS" : 1,"BML" : 2,"BMS" : 3,"BOL" : 4,"BOS" : 5,"BEE" : 6,"BIR" : 7,"BMF" : 8,"BOF" : 9,"BOG" : 10,"BOH" : 11,"BIM" : 12,"EIC" : 13,"EIL" : 14,"EEL" : 15,"EES" : 16,"EMC" : 17,"EML" : 18,"EMS" : 19,"EOC" : 20,"EOL" : 21,"EOS" : 22,"EIS" : 23,"T1F" : 24,"T1E" : 25,"T2F" : 26,"T2E" : 27,"T3F" : 28,"T3E" : 29,"T4F" : 30,"T4E" : 31,"CSS" : 32,"CSL" : 33 }
-
-	
-	
-
+	__kStationNameStringsMap = { "BIL" : 0,"BIS" : 1,"BML" : 2,"BMS" : 3,"BOL" : 4,"BOS" : 5,"BEE" : 6,"BIR" : 7,"BMF" : 8,"BOF" : 9,"BOG" : 10,"BME" : 11,"BIM" : 12,"EIC" : 13,"EIL" : 14,"EEL" : 15,"EES" : 16,"EMC" : 17,"EML" : 18,"EMS" : 19,"EOC" : 20,"EOL" : 21,"EOS" : 22,"EIS" : 23,"T1F" : 24,"T1E" : 25,"T2F" : 26,"T2E" : 27,"T3F" : 28,"T3E" : 29,"T4F" : 30,"T4E" : 31,"CSS" : 32,"CSL" : 33, "BMG" : 34 }
 
