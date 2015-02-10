@@ -34,7 +34,7 @@ except:
 # flags for RecExCommon
 doTrigger=True
 TriggerModernConfig=True
-rec.doWriteAOD=False
+rec.doWriteAOD=True
 rec.doWriteESD=False
 rec.doWriteTAG=False
 rec.doAOD=False 
