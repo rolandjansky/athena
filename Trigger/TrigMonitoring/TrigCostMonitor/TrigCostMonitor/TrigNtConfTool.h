@@ -51,8 +51,13 @@ namespace Trig
     bool Fill(TrigMonEvent &);
 
     void SetOption(unsigned option) { m_dbOrConfSvcPass = option; }
+
+
     
   private:
+
+    bool GetKeysChangedFromSv(TrigMonConfig &confg);
+    bool GetKeysChangedFromDB(unsigned run, unsigned lumi);
    
     bool ReadFromSv(TrigMonConfig &confg);
 

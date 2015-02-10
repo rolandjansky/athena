@@ -188,39 +188,77 @@ bool Trig::TrigNtConfTool::Fill(TrigMonEvent &event)
 }
 
 //---------------------------------------------------------------------------------------
-bool Trig::TrigNtConfTool::ReadFromSv(TrigMonConfig &confg)
-{
-  //
-  // Fill trigger configuration from config service
-  //
+bool Trig::TrigNtConfTool::GetKeysChangedFromSv(TrigMonConfig &confg) {
 
-  if(!m_configSvc) { 
-    ATH_MSG_WARNING("Invalid TrigConfigSvc handle" );
-    return false;
-  }
-  else {
-    ATH_MSG_INFO("Filling TrigMonConfig using: " << m_configSvc );
+  // First call
+  if (m_countConfig_sv == 0) {
+     ATH_MSG_DEBUG("First call to TrigNtConfTool for the ConfSvc - need to do initial read of menu." );
+     return true;
   }
 
+  // Latter calls
+  // Get if any of the keys have changed 
+  //
   const TrigConf::CTPConfig *ctp_confg = m_configSvc->ctpConfig();
   if(!ctp_confg) {
     ATH_MSG_WARNING("Failed to get CTPConfig or Menu" );
     return false;
   }
 
+   if ( m_configSvc->masterKey() != confg.getMasterKey() ) {
+     ATH_MSG_DEBUG("Master key has changed from " << confg.getMasterKey() << " to " << m_configSvc->masterKey() << " - (re)fill " );
+     return true;
+   } else if ( ctp_confg->prescaleSetId() != confg.getLV1PrescaleKey() ) {
+     ATH_MSG_DEBUG("L1 key has changed from " << confg.getMasterKey() << " to " << ctp_confg->prescaleSetId() << " - (re)fill " );
+     return true;
+   } else  if ( m_configSvc->hltPrescaleKey() != confg.getHLTPrescaleKey() ) {
+     ATH_MSG_DEBUG("HLT key has changed from " << confg.getHLTPrescaleKey() << " to " << m_configSvc->hltPrescaleKey() << " - (re)fill " );
+     return true;
+   }
+   ATH_MSG_DEBUG("No kyes have changed from ConfigSvc - no need to fetch config again " );
+   return false;
+
+}
+
+//---------------------------------------------------------------------------------------
+bool Trig::TrigNtConfTool::ReadFromSv(TrigMonConfig &confg)
+{
+  //
+  // Fill trigger configuration from config service
+  //
+
+  // Do we need to update?
+  if (GetKeysChangedFromSv(confg) == false) {
+    return false; // Nothing to do
+  }
+
+  if(!m_configSvc) { 
+    ATH_MSG_ERROR("Invalid TrigConfigSvc handle" );
+    return false;
+  }
+  else {
+    ATH_MSG_DEBUG("Filling TrigMonConfig using: " << m_configSvc );
+  }
+
+  const TrigConf::CTPConfig *ctp_confg = m_configSvc->ctpConfig();
+  if(!ctp_confg) {
+    ATH_MSG_ERROR("Failed to get CTPConfig or Menu" );
+    return false;
+  }
+
   const TrigConf::HLTSequenceList *seq_confg = m_configSvc->sequenceList();
   if(!seq_confg) {
-    ATH_MSG_WARNING("Failed to get HLTSequenceList" );
+    ATH_MSG_ERROR("Failed to get HLTSequenceList" );
     return false;
   }
 
   const TrigConf::HLTChainList *chn_confg = m_configSvc->chainList();
   if(!chn_confg) {
-    ATH_MSG_WARNING("Failed to get HLTChainList" );
+    ATH_MSG_ERROR("Failed to get HLTChainList" );
     return false;
   }
 
-  ATH_MSG_INFO("Filling Keyset : " << m_configSvc->masterKey() << "," << ctp_confg->prescaleSetId() << "," << m_configSvc->hltPrescaleKey() );
+  ATH_MSG_INFO("Exporting a new TrigConf from ConfigSvc for : SMK,L1,HLT=" << m_configSvc->masterKey() << "," << ctp_confg->prescaleSetId() << "," << m_configSvc->hltPrescaleKey() );
 
   std::stringstream _ss1, _ss2, _ss3;
   _ss1 << m_configSvc->masterKey();
@@ -304,10 +342,10 @@ bool Trig::TrigNtConfTool::ReadFromSv(TrigMonConfig &confg)
   }
 
   if(!conf.debug().empty()) {
-    ATH_MSG_VERBOSE("FillConf debug stream:");
-    ATH_MSG_VERBOSE("-----------------------------------------------------------");
-    ATH_MSG_VERBOSE(conf.debug() );
-    ATH_MSG_VERBOSE("-----------------------------------------------------------" );
+    ATH_MSG_DEBUG("FillConf debug stream:");
+    ATH_MSG_DEBUG("-----------------------------------------------------------");
+    ATH_MSG_DEBUG(conf.debug() );
+    ATH_MSG_DEBUG("-----------------------------------------------------------" );
   }
 
 
@@ -327,8 +365,8 @@ bool Trig::TrigNtConfTool::ReadFromSv(TrigMonConfig &confg)
 }
 
 //---------------------------------------------------------------------------------------
-bool Trig::TrigNtConfTool::ReadFromDB(TrigMonConfig &confg, unsigned run, unsigned lumi)
-{
+bool Trig::TrigNtConfTool::GetKeysChangedFromDB(unsigned run, unsigned lumi) {
+
   //
   // Read configuration keys from COOL
   // 
@@ -336,8 +374,7 @@ bool Trig::TrigNtConfTool::ReadFromDB(TrigMonConfig &confg, unsigned run, unsign
   if(m_run != run) {    
     if(ReadKeysDB(run)) {
       ATH_MSG_INFO("Read keys for new run: " << run );      
-    }
-    else {
+    } else {
       ATH_MSG_WARNING("No keys for new run: " << run );
       return false;
     }
@@ -358,19 +395,33 @@ bool Trig::TrigNtConfTool::ReadFromDB(TrigMonConfig &confg, unsigned run, unsign
   }
 
   if(key == m_currentKey) {
-    ATH_MSG_DEBUG("No configuration change for current lumi block: " << lumi );
+    ATH_MSG_DEBUG("No DB configuration change for current lumi block: " << lumi );
     return false;
   }
 
+  ATH_MSG_DEBUG("There are DB changes for the LB - refill " << lumi );
   m_currentKey = key;
-  confg.setTriggerKeys(key.getSMK(), key.getLV1_PS(), key.getHLT_PS());
+  return true;
+}
+
+
+//---------------------------------------------------------------------------------------
+bool Trig::TrigNtConfTool::ReadFromDB(TrigMonConfig &confg, unsigned run, unsigned lumi)
+{
+  
+  // Do we need to update? (note that if we do, this also sets m_currentKey)
+  if (GetKeysChangedFromDB(run, lumi) == false) {
+    return false; // Nothing to do
+  }
+
+  confg.setTriggerKeys(m_currentKey.getSMK(), m_currentKey.getLV1_PS(), m_currentKey.getHLT_PS());
 
   std::stringstream _ss1, _ss2, _ss3;
-  _ss1 << key.getSMK();
+  _ss1 << m_currentKey.getSMK();
   _ss1 >> m_triggerMenuSetup;
-  _ss2 << key.getLV1_PS();
+  _ss2 << m_currentKey.getLV1_PS();
   _ss2 >> m_L1PrescaleSet;
-  _ss3 << key.getHLT_PS();
+  _ss3 << m_currentKey.getHLT_PS();
   _ss3 >> m_HLTPrescaleSet;
 
   std::stringstream keyStr;
@@ -395,10 +446,10 @@ bool Trig::TrigNtConfTool::ReadFromDB(TrigMonConfig &confg, unsigned run, unsign
   ATH_MSG_INFO("Reading new trigger configuration from DB: " << m_connectionTrig );
   ATH_MSG_INFO("  run    = " << run             );
   ATH_MSG_INFO("  lumi   = " << lumi            );
-  ATH_MSG_INFO("  SMK    = " << key.getSMK()    );
-  ATH_MSG_INFO("  BGK    = " << key.getBGK()    );
-  ATH_MSG_INFO("  LV1 PS = " << key.getLV1_PS() );
-  ATH_MSG_INFO("  HLT PS = " << key.getHLT_PS() );
+  ATH_MSG_INFO("  SMK    = " << m_currentKey.getSMK()    );
+  ATH_MSG_INFO("  BGK    = " << m_currentKey.getBGK()    );
+  ATH_MSG_INFO("  LV1 PS = " << m_currentKey.getLV1_PS() );
+  ATH_MSG_INFO("  HLT PS = " << m_currentKey.getHLT_PS() );
 
   //
   // Read configuration from trigger database
@@ -415,9 +466,9 @@ bool Trig::TrigNtConfTool::ReadFromDB(TrigMonConfig &confg, unsigned run, unsign
   //
   ATH_MSG_INFO("Retrieving Lvl1 CTP configuration from TriggerDB..." );
 
-  ctp_conf.setSuperMasterTableId(key.getSMK());
-  ctp_conf.setPrescaleSetId(key.getLV1_PS());
-  ctp_conf.setBunchGroupSetId(key.getBGK());
+  ctp_conf.setSuperMasterTableId(m_currentKey.getSMK());
+  ctp_conf.setPrescaleSetId(m_currentKey.getLV1_PS());
+  ctp_conf.setBunchGroupSetId(m_currentKey.getBGK());
 
   m_storage->masterTableLoader().load(ctp_conf); 
 
@@ -434,9 +485,9 @@ bool Trig::TrigNtConfTool::ReadFromDB(TrigMonConfig &confg, unsigned run, unsign
     m_hltFrame = new TrigConf::HLTFrame();
   }
 
-  m_hltFrame->setSMK(key.getSMK());
+  m_hltFrame->setSMK(m_currentKey.getSMK());
   m_hltFrame->thePrescaleSetCollection().clear(); // TimM - need to clear here when calling this multiple times in a run.
-  m_hltFrame->thePrescaleSetCollection().set_prescale_key_to_load(key.getHLT_PS());
+  m_hltFrame->thePrescaleSetCollection().set_prescale_key_to_load(m_currentKey.getHLT_PS());
 
   m_storage->hltFrameLoader().load(*m_hltFrame);
 

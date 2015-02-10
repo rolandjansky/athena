@@ -349,7 +349,7 @@ StatusCode TrigCostTool::fillHists()
     // Also use the EB weight tool
     if (m_doEBWeight) m_toolEBWeight->Fill(*event);
     _ranSacleTools = 1;
-  } else if (outputLevel() <= MSG::DEBUG) {
+  } else {
     ATH_MSG_DEBUG( "NOT Running ScaleTools on this event" );
   }
   event->addVar(47, _ranSacleTools);
@@ -523,68 +523,67 @@ void TrigCostTool::ProcessConfig(xAOD::EventInfo* info)
                info->timeStampNSOffset());
 
     ATH_MSG_DEBUG( "ProcessConfig - Attempting load from ConfService " );
+    m_toolConf->SetOption(1); //1 = ConfSvc  
 
-    m_toolConf->SetOption(1); //1 = ConfSvc
+
     if(!m_toolConf->Fill(&m_config_sv)) {
-      ATH_MSG_WARNING( "Failed to fill TrigMonConfig from ConfSvc... set inactive state. CostMon is now DISABLED.");
-      m_active = false;
-      return;
-    }
+      ATH_MSG_DEBUG( "Failed to fill TrigConf from ConfigSvc - but this could have been because it did not change.");
+    } else { // FILL WAS SUCCESSFULL
 
-    for(unsigned i = 0; i < m_eventTools.size(); ++i) {
-      ATH_MSG_DEBUG( "Running ConvSvc Config Tool " << i << ", " << m_eventTools[i]->type() );
-      m_eventTools[i]->Fill(&m_config_sv);
-    }
-    for(unsigned i = 0; i < m_scaleTools.size(); ++i) {
-      ATH_MSG_DEBUG( "Running ConvSvc Config Scale Tool " << i << ", " << m_scaleTools[i]->type() );
-      m_scaleTools[i]->Fill(&m_config_sv);
-    }
-    if(m_writeAlways) {
-      for(unsigned i = 0; i < m_alwaysTools.size(); ++i) {
-        ATH_MSG_DEBUG( "Running ConvSvc Config Always Tool " << i << ", " << m_alwaysTools[i]->type() );
-        m_alwaysTools[i]->Fill(&m_config_sv);
+      for(unsigned i = 0; i < m_eventTools.size(); ++i) {
+        ATH_MSG_DEBUG( "Running ConvSvc Config Tool " << i << ", " << m_eventTools[i]->type() );
+        m_eventTools[i]->Fill(&m_config_sv);
+      }
+      for(unsigned i = 0; i < m_scaleTools.size(); ++i) {
+        ATH_MSG_DEBUG( "Running ConvSvc Config Scale Tool " << i << ", " << m_scaleTools[i]->type() );
+        m_scaleTools[i]->Fill(&m_config_sv);
+      }
+      if(m_writeAlways) {
+        for(unsigned i = 0; i < m_alwaysTools.size(); ++i) {
+          ATH_MSG_DEBUG( "Running ConvSvc Config Always Tool " << i << ", " << m_alwaysTools[i]->type() );
+          m_alwaysTools[i]->Fill(&m_config_sv);
+        }
+      }
+
+      // Online EBWeighting
+      if (m_costForCAF == false && m_doEBWeight == true) {
+        m_toolEBWeight->Fill(&m_config_sv);
+      }
+
+      //Offline, get the BunchGroup info at this point. TODO: Migrate to 16x BGs when the tool updates
+      if (m_costForCAF == true) {
+        unsigned _bunchGroupLength[8] = {0};
+        _bunchGroupLength[0] = m_toolBunchGroup->nBunchGroup0();
+        _bunchGroupLength[1] = m_toolBunchGroup->nBunchGroup1();
+        _bunchGroupLength[2] = m_toolBunchGroup->nBunchGroup2();
+        _bunchGroupLength[3] = m_toolBunchGroup->nBunchGroup3();
+        _bunchGroupLength[4] = m_toolBunchGroup->nBunchGroup4();   
+        _bunchGroupLength[5] = m_toolBunchGroup->nBunchGroup5();
+        _bunchGroupLength[6] = m_toolBunchGroup->nBunchGroup6();
+        _bunchGroupLength[7] = m_toolBunchGroup->nBunchGroup7();
+        for (unsigned _bg = 0; _bg < 8; ++_bg) {
+          std::stringstream _ssKey, _ssVal;
+          _ssKey << "DB:BGRP" << _bg;
+          _ssVal << _bunchGroupLength[_bg];
+          ATH_MSG_DEBUG( "Database DB:BGRP" << _bg << " size:" << _bunchGroupLength[_bg] );
+          m_config_sv.addValue(_ssKey.str(), _ssVal.str());
+        }
+      }
+
+      // Save the OPI prescale
+      std::stringstream _ss1, _ss2;
+      _ss1 << m_execPrescale;
+      _ss2 << m_doOperationalInfo;
+      m_config_sv.addValue("ExecPrescale", _ss1.str() );
+      m_config_sv.addValue("doOperationalInfo", _ss2.str() );
+      ATH_MSG_DEBUG("ProcessConfig - Exporting the operational prescale " << m_execPrescale );
+      ATH_MSG_DEBUG("ProcessConfig - Exporting the operational info frequency " << m_doOperationalInfo );
+
+      if(m_writeConfig || (m_writeAlways && m_level == "EF") || (m_writeAlways && m_level == "HLT")) {
+        m_bufferConfig.push_back(new TrigMonConfig(m_config_sv));
+        ATH_MSG_DEBUG( "ProcessConfig - writing out full svc configuration" );
       }
     }
-
-    // Online EBWeighting
-    if (m_costForCAF == false && m_doEBWeight == true) {
-      m_toolEBWeight->Fill(&m_config_sv);
-    }
-
-    //Offline, get the BunchGroup info at this point. TODO: Migrate to 16x BGs when the tool updates
-    if (m_costForCAF == true) {
-      unsigned _bunchGroupLength[8] = {0};
-      _bunchGroupLength[0] = m_toolBunchGroup->nBunchGroup0();
-      _bunchGroupLength[1] = m_toolBunchGroup->nBunchGroup1();
-      _bunchGroupLength[2] = m_toolBunchGroup->nBunchGroup2();
-      _bunchGroupLength[3] = m_toolBunchGroup->nBunchGroup3();
-      _bunchGroupLength[4] = m_toolBunchGroup->nBunchGroup4();   
-      _bunchGroupLength[5] = m_toolBunchGroup->nBunchGroup5();
-      _bunchGroupLength[6] = m_toolBunchGroup->nBunchGroup6();
-      _bunchGroupLength[7] = m_toolBunchGroup->nBunchGroup7();
-      for (unsigned _bg = 0; _bg < 8; ++_bg) {
-        std::stringstream _ssKey, _ssVal;
-        _ssKey << "DB:BGRP" << _bg;
-        _ssVal << _bunchGroupLength[_bg];
-        ATH_MSG_DEBUG( "Database DB:BGRP" << _bg << " size:" << _bunchGroupLength[_bg] );
-        m_config_sv.addValue(_ssKey.str(), _ssVal.str());
-      }
-    }
-
-    // Save the OPI prescale
-    std::stringstream _ss1, _ss2;
-    _ss1 << m_execPrescale;
-    _ss2 << m_doOperationalInfo;
-    m_config_sv.addValue("ExecPrescale", _ss1.str() );
-    m_config_sv.addValue("doOperationalInfo", _ss2.str() );
-    ATH_MSG_DEBUG("ProcessConfig - Exporting the operational prescale " << m_execPrescale );
-    ATH_MSG_DEBUG("ProcessConfig - Exporting the operational info frequency " << m_doOperationalInfo );
-
-    if(m_writeConfig || (m_writeAlways && m_level == "EF") || (m_writeAlways && m_level == "HLT")) {
-      m_bufferConfig.push_back(new TrigMonConfig(m_config_sv));
-      ATH_MSG_INFO( "ProcessConfig - writing out full svc configuration" );
-    }
-
   }
 
   // Should we use the DB to collect the online keys for this LB and Run Number?
@@ -601,15 +600,14 @@ void TrigCostTool::ProcessConfig(xAOD::EventInfo* info)
 
     m_toolConf->SetOption(2); //2 = DBAccess
     if(!m_toolConf->Fill(&m_config_db)) {
-      ATH_MSG_WARNING( "Failed to fill TrigMonConfig from DB..." );
+      ATH_MSG_DEBUG( "Failed to fill TrigMonConfig from DB... but this could be because it did not change" );
     } else {
-
       // Load into EBWeighting (this is assuming CAF style processing, NOT online)
       m_toolEBWeight->Fill(&m_config_db);
 
       if(m_writeConfigDB || (m_writeAlways && m_level == "EF") || (m_writeAlways && m_level == "HLT")) {
         m_bufferConfig.push_back(new TrigMonConfig(m_config_db));
-        ATH_MSG_INFO("ProcessConfig - writing out full DB configuration");
+        ATH_MSG_DEBUG("ProcessConfig - writing out full DB configuration");
       }
     }
   }
