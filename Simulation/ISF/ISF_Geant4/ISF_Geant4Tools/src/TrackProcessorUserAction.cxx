@@ -237,10 +237,6 @@ void iGeant4::TrackProcessorUserAction::SteppingAction(const G4Step* aStep)
     ISF::ISFParticle *parent = m_curISP;
     m_curISP = newISFParticle(aTrack, parent, nextGeoID);
 
-    int trackID = aTrack->GetTrackID();
-    m_parentISPmap[trackID]=m_curISP;
-    //std::cout<<"set ISPmap for trackID "<<trackID<<" to "<<m_curISP<<std::endl;
-
     m_particleBroker->push(m_curISP, parent);
 
     // kill this track in Geant4
@@ -267,18 +263,11 @@ void iGeant4::TrackProcessorUserAction::SteppingAction(const G4Step* aStep)
       // update nextGeoID using Geant4 boundary definition
       nextGeoID = nextGeoId(aStep);
 
-      bool newISP=false;
       if (layer!=ISF::fUnsetEntryLayer) {
 
         // easier to create a new ISF particle than update existing one
         m_curISP=newISFParticle(aTrack, m_curISP, nextGeoID);
-        m_parentISPmap[m_curTrackID]=m_curISP;
-	
-        //std::cout<<"setting ISFParticle to "<<m_curISP<<" for trackID "<<m_curTrackID<<" (G4-only  mode)"<<std::endl;
-	
-        newISP=true;
-	
-        m_particleBroker->registerParticle(m_curISP, layer, newISP);
+        m_particleBroker->registerParticle(m_curISP, layer, true);
 
       }
       m_curISP->setNextGeoID( AtlasDetDescr::AtlasRegion(nextGeoID) );
@@ -588,7 +577,7 @@ iGeant4::TrackProcessorUserAction::nextGeoId(const G4Step* aStep)
   } else if ( MUholder==step.GetPostStepLogicalVolume(m_truthVolLevel) ){
     nextGeoID = AtlasDetDescr::fAtlasMS;
   } else if ( BPholder==step.GetPostStepLogicalVolume(m_truthVolLevel) ){
-    nextGeoID = step.GetPostStepLogicalVolumeName(m_truthVolLevel+1)=="BeamPipe::BeamPipeCentral"?AtlasDetDescr::fAtlasID:AtlasDetDescr::fAtlasForward;
+    nextGeoID = (step.PostStepBranchDepth()>m_truthVolLevel && step.GetPostStepLogicalVolumeName(m_truthVolLevel+1)=="BeamPipe::BeamPipeCentral")?AtlasDetDescr::fAtlasID:AtlasDetDescr::fAtlasForward;
   } else if ( TTRholder==step.GetPostStepLogicalVolume(m_truthVolLevel) ){
     nextGeoID = AtlasDetDescr::fAtlasCavern;
   } else if (m_hasCavern && step.GetPostStepLogicalVolumeName(m_truthVolLevel-1).find("CavernInfra")!=std::string::npos) {
