@@ -250,7 +250,7 @@ bool Trig::FillConf::FillSeq(TrigMonConfig &confg,
   //
   // Insert sequence sorted by name, first 300 index values are used by L1
   //
-  unsigned icountSeq = 300;
+  unsigned icountSeq = 600;
   
   for(std::map<std::string, TrigConf::HLTSequence *>::const_iterator sit = seqmap.begin();
       sit != seqmap.end(); ++sit) {
