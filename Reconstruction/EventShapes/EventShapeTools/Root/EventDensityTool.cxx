@@ -22,7 +22,10 @@ using fastjet::VoronoiAreaSpec;
 
 EventDensityTool::EventDensityTool(const std::string& name)
 : asg::AsgTool(name),
-  m_rhoDec(""), m_sigmaDec(""), m_areaDec("") {
+  m_useAreaFourMom(false),
+  m_rhoDec(""), 
+  m_sigmaDec(""), 
+  m_areaDec("") {
   declareProperty("JetAlgorithm",    m_jetalg  = "Kt");
   declareProperty("JetRadius",       m_jetrad  = 0.4);
   declareProperty("JetInput",        m_pjgetter);
@@ -58,7 +61,7 @@ StatusCode EventDensityTool::initialize() {
   m_fjjetdef = JetDefinition(fjalg, m_jetrad);
 
   // Build area definition.
-  m_useAreaFourMom = m_areadef == "ActiveFourVector";
+  m_useAreaFourMom = (m_areadef == "ActiveFourVector");
   if ( m_areadef == "Voronoi" ) {
     m_fjareadef = AreaDefinition(fastjet::voronoi_area, VoronoiAreaSpec(m_vrfact));
   } else if ( m_areadef == "Active" || m_useAreaFourMom ) {

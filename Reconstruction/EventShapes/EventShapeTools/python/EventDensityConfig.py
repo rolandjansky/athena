@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from EventShapeTools.EventShapeToolsConf import EventDensityTool
+from EventShapeTools.EventShapeToolsConf import EventDensityTool, EventShapeCopier
 
 def configEventDensityTool( name, pjGetter, radius, **options ):
     """ options can be used to pass any EventDensityTool properties 
@@ -21,6 +21,22 @@ def configEventDensityTool( name, pjGetter, radius, **options ):
     # Build the tool :
     return EventDensityTool(name, **toolProperties)
 
+
+def configEventShapeCopierAlg( input ):
+    """ Returns an Athena alg copying EventShape objects with old key/names to objects with new key/names
+    """
+    def buildTool( alg):         
+        from AthenaCommon.AppMgr import ToolSvc
+        t= EventShapeCopier( input+alg+"EvtShapeCopier",
+                                 InputEventShape=input+"EventShape",
+                                 OutputEventShape=alg+input+"EventShape",
+                                 EventDensityName = "DensityForJetsR" + alg[-1])
+        ToolSvc +=t
+        return t
+    return EventDensityAlg(input+"EventShapeCopierAlg", EventDensityTool = [ buildTool("Kt4"), buildTool("Kt6") ] )
+
+
+
 ## EventDensity Alg for Athena
 import AthenaCommon.SystemOfUnits as Units
 import AthenaPython.PyAthena as PyAthena
@@ -39,12 +55,23 @@ class EventDensityAlg (PyAthena.Alg):
 
     def initialize(self):
         self.msg.info('==> initialize...')
-        self.edTool = PyAthena.py_tool(self.EventDensityTool.getFullName(), iface='IEventShapeTool')
+        tools = self.EventDensityTool
+        if not isinstance( tools, list):
+            tools = [tools]
+
+        self.edTools = [PyAthena.py_tool(t.getFullName(), iface='IEventShapeTool') for t in  tools ]
+        self.msg.info(" using density tools : %s"%( self.edTools, ) )
+
         return StatusCode.Success
 
     def execute(self):
         self.msg.debug('==> executing ...')
-        return self.edTool.fillEventShape()
+        for t in self.edTools:
+            sc = t.fillEventShape()
+            if not sc.isSuccess():
+                self.msg.error(" Error while computing density with tool %s "%(t.name(),))
+                return StatusCode.Recoverable
+        return StatusCode.Success
 
 
     def finalize(self):

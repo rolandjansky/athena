@@ -9,7 +9,8 @@ use EventShapeInterface EventShapeInterface-*   Reconstruction/EventShapes
 use JetInterface        JetInterface-*          Reconstruction/Jet
 
 private
-use xAODEventShape       xAODEventShape-*         Event/xAOD
+use xAODEventShape       xAODEventShape-*       Event/xAOD
+use AtlasReflex          AtlasReflex-*          External
 end_private
 
 apply_pattern dual_use_library files="../Root/*.cxx *.cxx"
@@ -18,3 +19,8 @@ apply_pattern declare_joboptions files="*.txt *.py"
 
 apply_pattern declare_python_modules files="*.py"
 
+#
+# Create a dictionary for the persistent representation
+# of transient classes
+private
+apply_pattern lcgdict dict=EventShapeTools selectionfile=selection.xml headerfiles="../EventShapeTools/EventShapeToolsDict.h"
