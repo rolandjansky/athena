@@ -153,6 +153,22 @@ bool RDBAccessSvc::disconnect(const std::string& connName)
 
 bool RDBAccessSvc::shutdown(const std::string& connName)
 {
+  if(connName=="*Everything*") {
+    for(const auto& ii : m_openConnections) {
+      if(ii.second != 0) {
+	msg(MSG::WARNING) << "Close everything: Connection: " << ii.first 
+			  << " with reference count = " << ii.second << " will be closed." <<endreq;
+	return shutdown_connection(ii.first);
+      }
+    }
+    return true;
+  }
+  
+  return shutdown_connection(connName);
+}
+
+bool RDBAccessSvc::shutdown_connection(const std::string& connName)
+{
   if(m_openConnections.find(connName)==m_openConnections.end())
   {
     msg(MSG::ERROR) << "Wrong name for the connection: " << connName << endreq;

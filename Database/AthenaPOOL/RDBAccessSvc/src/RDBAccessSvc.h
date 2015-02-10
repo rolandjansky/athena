@@ -160,6 +160,8 @@ private:
   RDBRecordset m_empty;
 
   GlobalTagLookupMap m_globalTagLookup;
+
+  bool shutdown_connection(const std::string& connName);
 };
 
 #endif 
