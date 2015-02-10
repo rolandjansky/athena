@@ -203,12 +203,12 @@ StatusCode L1TopoByteStreamTool::convert( const ROBF* rob, L1TopoRDO*& result ) 
       ATH_MSG_VERBOSE( "     0x" << MSG::hex << std::setfill ('0') << std::setw( 8 )  << *it_status << MSG::dec );
     }
     // for definition of first status word see:
-    // - bits 00-15: https://edms.cern.ch/document/445840/4.0c section 5.8 
+    // - bits 00-15: https://edms.cern.ch/document/445840/5.0a section 5.8 
     // - bits 16-31: bits 16-31: https://twiki.cern.ch/twiki/bin/viewauth/Atlas/ROBINFragmentErrors
     // Can do something more specific eventually.
     bool error_status(false);
     if (vStatusWords[0]!=0){
-      ATH_MSG_WARNING( "non-zero status word, payload may not be valid" );
+      ATH_MSG_WARNING( "non-zero first status word, payload may not be valid" );
       error_status=true;
     }
 
@@ -228,7 +228,15 @@ StatusCode L1TopoByteStreamTool::convert( const ROBF* rob, L1TopoRDO*& result ) 
     result = new L1TopoRDO();
     result->setDataWords(vDataWords);
     result->setStatusWords(vStatusWords);
-    result->setError(error_status<<2 | error_rob<<1 | error_rod);
+    if (error_status) {
+      result->setError(L1Topo::Error::SLINK_STATUS_ERROR);
+    }
+    if (error_rob){
+      result->setError(L1Topo::Error::ROB_ERROR);
+    }
+    if (error_rod){
+      result->setError(L1Topo::Error::ROD_ERROR);
+    }
     result->setSourceID(rodId);
 
     return StatusCode::SUCCESS;
