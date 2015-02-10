@@ -13,33 +13,40 @@ TrigEMClusterD3PDObject = make_SGDataVector_D3PDObject('DataVector<xAOD::TrigEMC
 TrigEMClusterD3PDObject.defineBlock (
     0, 'Basics',
     D3PDMakerCoreComps.AuxDataFillerTool,
-    Vars = ['quality = clusterQuality'])
+    Vars = ['quality = clusterQuality < float: 0'])
 TrigEMClusterD3PDObject.defineBlock (
     0, 'Basics1',
     D3PDMakerCoreComps.AuxDataFillerTool,
-    Vars = ['E = energy', 'Et = et', 'eta', 'phi'])
+    Vars = ['E = energy < float: 0',
+            'Et = et < float:0',
+            'eta < float:0',
+            'phi < float:0'])
 
 # Level 1
 TrigEMClusterD3PDObject.defineBlock (
     1, 'HypoVars1',
     D3PDMakerCoreComps.AuxDataFillerTool,
-    Vars = ['E237 = e237',
-            'E277 = e277',
-            'fracs1',
-            'weta2',
-            'Ehad1 = ehad1',
-            'eta1',
-            'emaxs1',
-            'e2tsts1',
-            'E233 = e233',
-            'wstot'])
+    Vars = ['E237 = e237 < float:0',
+            'E277 = e277 < float:0',
+            'fracs1 < float:0',
+            'weta2 < float:0',
+            'Ehad1 = ehad1 < float:0',
+            'eta1 < float:0',
+            'emaxs1 < float:0',
+            'e2tsts1 < float:0',
+            'E233 = e233 < float:0',
+            'wstot < float:0'])
 
 # Level 2
 TrigEMClusterD3PDObject.defineBlock (
     2, 'Details',
     D3PDMakerCoreComps.AuxDataFillerTool,
-    Vars = ['rawEnergy', 'rawEta', 'rawPhi', 'RoIWord = RoIword', 'nCells'])
-TrigEMClusterD3PDObject.defineBlock (
-    2, 'Details1',
-    D3PDMakerCoreComps.AuxDataFillerTool,
-    Vars = ['energyInSample = energySample'])
+    Vars = ['rawEnergy < float:0',
+            'rawEta < float:0',
+            'rawPhi < float:0',
+            'RoIWord = RoIword < int: 0',
+            'nCells < int: 0'])
+#TrigEMClusterD3PDObject.defineBlock (
+#    2, 'Details1',
+#    D3PDMakerCoreComps.AuxDataFillerTool,
+#    Vars = ['energyInSample = energySample'])
