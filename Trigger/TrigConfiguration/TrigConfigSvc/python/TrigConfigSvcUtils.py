@@ -235,7 +235,7 @@ def interpretConnection(connection, debug=False, resolveAlias=True):
             break
         elif server=='atlas_dd': continue
         else:
-            oracleconnections = [conn for conn in connectionServices if conn.startswith("oracle://%s/" % server)]
+            oracleconnections = [conn for conn in connectionServices if conn.lower().startswith("oracle://%s/" % server.lower())]
             if len(oracleconnections) == 0:
                 log.debug("Oracle connection not defined for server %s in dblookup" % server )
                 continue
@@ -369,6 +369,45 @@ def getAlgorithmsForMenu(connection, smk):
 
     return l2algs, efalgs
 
+
+
+
+def getAlgorithmsForMenuRun2(connection, smk):
+    cursor,schemaname = getTriggerDBCursor(connection)
+
+    output = [ 'C.HCP_NAME', 'C.HCP_ALIAS' ]
+    
+    tables = {}
+    tables['SM']    = 'SUPER_MASTER_TABLE'
+    tables['HM']    = 'HLT_MASTER_TABLE'
+    tables['TM']    = 'HLT_TRIGGER_MENU'
+    tables['M2C']   = 'HLT_TM_TO_TC'
+    tables['TC']    = 'HLT_TRIGGER_CHAIN'
+    tables['C2S']   = 'HLT_TC_TO_TS'
+    tables['S2TE']  = 'HLT_TS_TO_TE'
+    tables['TE2C']  = 'HLT_TE_TO_CP'
+    tables['TE2TE'] = 'HLT_TE_TO_TE'
+    tables['C']     = 'HLT_COMPONENT'
+
+    condition = [ "SM.SMT_ID = '%i'" % smk,
+                  'SM.SMT_HLT_MASTER_TABLE_ID = HM.HMT_ID',
+                  'HM.HMT_TRIGGER_MENU_ID = M2C.HTM2TC_TRIGGER_MENU_ID',
+                  'M2C.HTM2TC_TRIGGER_CHAIN_ID = TC.HTC_ID',
+                  'M2C.HTM2TC_TRIGGER_CHAIN_ID = C2S.HTC2TS_TRIGGER_CHAIN_ID',
+                  'C2S.HTC2TS_TRIGGER_SIGNATURE_ID = S2TE.HTS2TE_TRIGGER_SIGNATURE_ID',
+                  'S2TE.HTS2TE_TRIGGER_ELEMENT_ID = TE2C.HTE2CP_TRIGGER_ELEMENT_ID',
+                  'TE2C.HTE2CP_COMPONENT_ID = C.HCP_ID' ]
+
+    res = executeQuery(cursor, output, condition, schemaname, tables)
+
+    allalgs=[]
+    for x in res:        
+        allalgs += ["%s/%s" % (x[0],x[1])]
+
+    return allalgs
+
+
+
 def getPropertyFromDB(connection, smk, component, parameter):
     """Get property value from DB. smk can be a single SMK or a list/tuple of SMKs.
     SQL wildcards (%) can be used in both component and parameter names.
@@ -418,6 +457,8 @@ def getMenuNameFromDB(connection, hltprescalekey):
     res = executeQuery(cursor, output, condition, schemaname, tables)
 
     # now we need to do some logic, related to the 
+
+    print res
 
     hltpsName = str(res[0][0])
 
@@ -743,10 +784,21 @@ def test():
     
 
 
-#if __name__ == "__main__":
-#    print "Prescales and pass-throughs for PSK 7417\n",getHLTPrescales("TRIGGERDB",7417)
-#    print "Express stream prescales for PSK 7417\n",getExpressStreamPrescales("TRIGGERDB",7417)
+
+def test2():
+    log = logging.getLogger( "TrigConfigSvcUtils.py" )
+    log.setLevel(logging.DEBUG)
+
+    connection = "TRIGGERDB_JOERG"
+    hltpsk = 1
+    
+    #connection = "TRIGGERDBMC"
+    #hltpsk = 1
+    
+
+    getMenuNameFromDB(connection,hltpsk)
+
 
 if __name__=="__main__":
     import sys
-    sys.exit(test())
+    sys.exit(test2())
