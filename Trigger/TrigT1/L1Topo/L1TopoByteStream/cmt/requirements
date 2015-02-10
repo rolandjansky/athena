@@ -11,7 +11,6 @@ use  DataCollection             DataCollection-*        External
 use  ByteStreamCnvSvcBase       ByteStreamCnvSvcBase-*  Event
 use  ByteStreamData             ByteStreamData-*        Event
 use  AthenaBaseComps		AthenaBaseComps-*	Control
-use  TrigT1Result               TrigT1Result-*          Trigger/TrigT1
 use  L1TopoRDO			L1TopoRDO-*		Trigger/TrigT1/L1Topo
 use  SGTools                    SGTools-*               Control
 end_private
