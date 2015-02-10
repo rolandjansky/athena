@@ -13,7 +13,7 @@ def TrigIDpvtxMonitoringTool():
 	from AthenaCommon.AppMgr import ToolSvc
 	
 
-	# DumpTool
+	# VtxTool
 	from TrigIDtrkMonitoring.TrigIDtrkMonitoringConf import HLTIDpvtxTool
 	HLTIDpvtx = HLTIDpvtxTool(name               = 'HLTIDpvtx',
 				  histoPathBase      = "/Trigger/HLT");
