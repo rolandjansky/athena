@@ -371,7 +371,8 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createMdtFragment(TrigL2MuonSA::MdtH
 //
 StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(LVL2_MUON_CALIBRATION::RpcCalibFragment& rpcFragment)
 {
-  
+
+  /*  
   // access the pad ( to be replaced by the usage of RpcDataPreparator
   unsigned short int subsystemID =  m_roi->subsysID();
   //  unsigned short int sectorID    =  m_roi->sectorID();
@@ -435,7 +436,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(LVL2_MUON_CALIBRAT
 
   }
      
-
+  */
   return StatusCode::SUCCESS;
 }
 

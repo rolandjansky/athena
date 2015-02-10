@@ -16,8 +16,12 @@
 
 TrigL2MuonSA::TgcRoadDefiner::TgcRoadDefiner(MsgStream* msg)
    : m_msg(), 
+     m_backExtrapolatorTool(0),
+     m_ptEndcapLUT(0),
      m_tgcFit(msg,10), // chi2 value 10 given by hand for now
-     m_rWidth_TGC_Failed(0)
+     m_rWidth_TGC_Failed(0),
+     m_regionSelector(0),
+     m_mdtIdHelper(0)
 {
   if ( msg ) m_msg = msg; 
 }
@@ -251,7 +255,7 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
       double phi;
       double sigma_phi;
 
-      if (m_backExtrapolatorTool) {
+      if (m_backExtrapolatorTool && muonSA) {
         StatusCode sc
           = (*m_backExtrapolatorTool)->give_eta_phi_at_vertex(muonSA, eta,sigma_eta,phi,sigma_phi,0.);
         if (sc.isSuccess() ){

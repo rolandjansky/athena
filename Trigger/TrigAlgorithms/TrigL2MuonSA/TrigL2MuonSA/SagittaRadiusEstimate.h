@@ -53,8 +53,8 @@ class SagittaRadiusEstimate
   
   BooleanProperty  m_use_mcLUT;
 
-  const TrigL2MuonSA::AlignmentBarrelLUTSvc* m_alignmentBarrelLUTSvc;
   const TrigL2MuonSA::AlignmentBarrelLUT*    m_alignmentBarrelLUT;
+  const TrigL2MuonSA::AlignmentBarrelLUTSvc* m_alignmentBarrelLUTSvc;
 
   float f(float x, float c0, float c1, float c2, float c3) const;
   float fp(float x, float c33, float c22, float c1) const;

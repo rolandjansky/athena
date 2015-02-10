@@ -113,7 +113,7 @@ StatusCode TrigL2MuonSA::MuFastTrackExtrapolator::extrapolateTrack(std::vector<T
 
     double eptinv = getMuFastRes(m_muFastRes_barrel, (itTrack->pt)*(itTrack->charge), itTrack->s_address, itTrack->etaMap, itTrack->phiMS);
 
-    if (m_backExtrapolatorTool) {
+    if (m_backExtrapolatorTool && muonSA) {
 
       sc = (*m_backExtrapolatorTool)->give_eta_phi_at_vertex(muonSA, etaVtx, sigEta, phiVtx, sigPhi, winPt);
     

@@ -13,7 +13,8 @@
 
 TrigL2MuonSA::RpcRoadDefiner::RpcRoadDefiner(MsgStream* msg)
   : m_msg(), m_roadData(0),
-    m_rWidth_RPC_Failed(0), m_use_rpc(0)
+    m_rWidth_RPC_Failed(0), m_use_rpc(true),
+    m_regionSelector(0), m_mdtIdHelper(0)
 {
   if ( msg ) m_msg = msg; 
 }

@@ -100,6 +100,7 @@ class MuFastDataPreparator: public AthAlgTool
 
   StatusCode setGeometry(bool use_new_geometry);
   void setRpcGeometry(bool use_rpc);
+  void setMdtDataCollection(bool use_mdtcsm);
 
   StatusCode setMCFlag(BooleanProperty  use_mcLUT);
 

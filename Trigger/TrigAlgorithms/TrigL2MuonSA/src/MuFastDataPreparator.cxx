@@ -202,6 +202,14 @@ void TrigL2MuonSA::MuFastDataPreparator::setRpcGeometry(bool use_rpc)
 }
 
 // --------------------------------------------------------------------------------
+
+void TrigL2MuonSA::MuFastDataPreparator::setMdtDataCollection(bool use_mdtcsm)
+{
+  m_mdtDataPreparator->setMdtDataCollection(use_mdtcsm);
+  return;
+}
+
+// --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
 void TrigL2MuonSA::MuFastDataPreparator::setExtrapolatorTool(ToolHandle<ITrigMuonBackExtrapolator>* backExtrapolator)

@@ -16,7 +16,8 @@
 // --------------------------------------------------------------------------------
 
 TrigL2MuonSA::MdtRegionDefiner::MdtRegionDefiner(MsgStream* msg) :
-  m_msg(0)
+  m_msg(0), m_mdtIdHelper(0), m_muonMgr(0), m_mdtReadout(0), m_muonStation(0),
+  m_use_rpc(true)
 {
   if ( msg ) m_msg = msg; 
 }
