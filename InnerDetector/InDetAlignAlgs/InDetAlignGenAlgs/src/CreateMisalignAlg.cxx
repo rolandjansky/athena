@@ -45,7 +45,7 @@
 #include "InDetAlignGenAlgs/CreateMisalignAlg.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
-
+#include "AthenaBaseComps/AthCheckMacros.h"
 
 namespace InDetAlignment
 {
@@ -53,6 +53,13 @@ namespace InDetAlignment
 	// Constructor
 	CreateMisalignAlg::CreateMisalignAlg(const std::string& name, ISvcLocator* pSvcLocator):
 	AthAlgorithm(name,pSvcLocator),
+        m_idHelper(nullptr),
+        m_pixelIdHelper(nullptr),
+        m_sctIdHelper(nullptr),
+        m_trtIdHelper(nullptr),
+        m_pixelManager(nullptr),
+        m_SCT_Manager(nullptr),
+        m_TRT_Manager(nullptr),
 	m_IDAlignDBTool("InDetAlignDBTool"),
 	m_trtaligndbservice("TRT_AlignDbSvc",name),
 	m_asciiFileNameBase("MisalignmentSet"),
@@ -74,7 +81,10 @@ namespace InDetAlignment
 	m_ScaleSCTBarrel(1.),
 	m_ScaleSCTEndcap(1.),
 	m_ScaleTRTBarrel(1.),
-	m_ScaleTRTEndcap(1.)
+	m_ScaleTRTEndcap(1.),
+        m_VisualizationLookupTree(nullptr),
+        m_AthenaHashedID(-1),
+        m_HumanReadableID(-1)
 	{
 		declareProperty("ASCIIFilenameBase"             ,     m_asciiFileNameBase);
 		declareProperty("SQLiteTag"                     ,     m_SQLiteTag);
@@ -108,22 +118,24 @@ namespace InDetAlignment
 	//__________________________________________________________________________
 	StatusCode CreateMisalignAlg::initialize()
 	{
+
 		if (msgLvl(MSG::DEBUG)) msg() <<"CreateMisalignAlg initialize()" << endreq;
 		
-		StatusCode sc;
-		
+
 		if (m_IDAlignDBTool.retrieve().isFailure()) {
 			msg(MSG::FATAL) << "Can not retrieve InDetAlignDBTool "
 			<< m_IDAlignDBTool << endreq;
 			return StatusCode::FAILURE;
 		} else msg(MSG::INFO) << "Retrieved InDetAlignDBTool " << m_IDAlignDBTool << endreq;
 		
+
 		if (m_trtaligndbservice.retrieve().isFailure()) {
 			msg(MSG::FATAL) << "Can not retrieve TRTAlignDbService "
 			<< m_trtaligndbservice << endreq;
 			return StatusCode::FAILURE;
 		} else msg(MSG::INFO) << "Retrieved TRTAlignDbService " << m_trtaligndbservice << endreq;
 		
+
 		//ID helper
 		// Pixel
 		if (detStore()->retrieve(m_pixelIdHelper, "PixelID").isFailure()) {
@@ -148,6 +160,8 @@ namespace InDetAlignment
 			return StatusCode::FAILURE;
 		}
 		
+		StatusCode sc(StatusCode::SUCCESS);
+
 		//pixel and SCT  TRT manager
 		sc = detStore()->retrieve(m_pixelManager, "Pixel");
 		if (sc.isFailure()) {
@@ -165,6 +179,7 @@ namespace InDetAlignment
 			return sc;
 		}
 		
+
 		// Retrieve the Histo Service
 		ITHistSvc* hist_svc;
 		sc=service("THistSvc",hist_svc);
@@ -186,6 +201,7 @@ namespace InDetAlignment
 		m_VisualizationLookupTree->Branch ("AthenaHashedID", &m_AthenaHashedID, "AthenaID/i");
 		m_VisualizationLookupTree->Branch ("HumanReadableID", &m_HumanReadableID, "HumanID/I");
 		
+
 		// initialize generated Initial Alignment NTuple
 		
 		NTupleFilePtr file1(ntupleSvc(), "/NTUPLES/CREATEMISALIGN");
@@ -196,23 +212,27 @@ namespace InDetAlignment
 			if ( nt ) {
 				msg(MSG::INFO) << "InitialAlignment ntuple booked." << endreq;
 				
-				sc = nt->addItem("x"         ,m_AlignResults_x);
-				sc = nt->addItem("y"         ,m_AlignResults_y);
-				sc = nt->addItem("z"         ,m_AlignResults_z);
-				sc = nt->addItem("alpha"     ,m_AlignResults_alpha);
-				sc = nt->addItem("beta"      ,m_AlignResults_beta);
-				sc = nt->addItem("gamma"     ,m_AlignResults_gamma);
-				sc = nt->addItem("ID"        ,m_AlignResults_Identifier_ID);
-				sc = nt->addItem("PixelSCT"  ,m_AlignResults_Identifier_PixelSCT);
-				sc = nt->addItem("BarrelEC"  ,m_AlignResults_Identifier_BarrelEC);
-				sc = nt->addItem("LayerDisc" ,m_AlignResults_Identifier_LayerDisc);
-				sc = nt->addItem("Phi"       ,m_AlignResults_Identifier_Phi);
-				sc = nt->addItem("Eta"       ,m_AlignResults_Identifier_Eta);
+				ATH_CHECK( nt->addItem("x"         ,m_AlignResults_x) );
+				ATH_CHECK(  nt->addItem("y"         ,m_AlignResults_y) );
+				ATH_CHECK(  nt->addItem("z"         ,m_AlignResults_z) );
+				ATH_CHECK(  nt->addItem("alpha"     ,m_AlignResults_alpha) );
+				ATH_CHECK(  nt->addItem("beta"      ,m_AlignResults_beta) );
+				ATH_CHECK(  nt->addItem("gamma"     ,m_AlignResults_gamma) );
+				ATH_CHECK(  nt->addItem("ID"        ,m_AlignResults_Identifier_ID) );
+				ATH_CHECK(  nt->addItem("PixelSCT"  ,m_AlignResults_Identifier_PixelSCT) );
+				ATH_CHECK(  nt->addItem("BarrelEC"  ,m_AlignResults_Identifier_BarrelEC) );
+				ATH_CHECK(  nt->addItem("LayerDisc" ,m_AlignResults_Identifier_LayerDisc) );
+				ATH_CHECK(  nt->addItem("Phi"       ,m_AlignResults_Identifier_Phi) );
+				ATH_CHECK(  nt->addItem("Eta"       ,m_AlignResults_Identifier_Eta) );
 				
-				sc = nt->addItem("center_x"         ,m_AlignResults_center_x);
-				sc = nt->addItem("center_y"         ,m_AlignResults_center_y);
-				sc = nt->addItem("center_z"         ,m_AlignResults_center_z);
+				ATH_CHECK(  nt->addItem("center_x"         ,m_AlignResults_center_x) );
+				ATH_CHECK(  nt->addItem("center_y"         ,m_AlignResults_center_y) );
+                                ATH_CHECK(  nt->addItem("center_z"         ,m_AlignResults_center_z) );
 				
+				if (sc.isFailure()) {
+				  msg(MSG::ERROR) << "Problems creating InitialAlignment ntuple structure !" << endreq;
+				  return sc;
+				}
 			} else {  // did not manage to book the N tuple....
 				msg(MSG::ERROR) << "Failed to book InitialAlignment ntuple." << endreq;
 			}
@@ -234,13 +254,13 @@ namespace InDetAlignment
 			msg(MSG::INFO) << "Dry run, no misalignment will be generated." << endreq;
 		}
 		
-		return StatusCode::SUCCESS;
+		return sc;
 	}
 	
 	//__________________________________________________________________________
 	StatusCode CreateMisalignAlg::execute()
 	{
-		if (msgLvl(MSG::DEBUG)) msg() << "AlignAlg execute()" << endreq;
+                ATH_MSG_DEBUG( "AlignAlg execute()" );
 		++m_nEvents;
 		
 		if (m_firstEvent) {
@@ -257,14 +277,17 @@ namespace InDetAlignment
 			setupSCT_AlignModule(nSCT);
 			setupTRT_AlignModule(nTRT);
 			
-			msg(MSG::INFO) << "Back from AlignModuleObject Setup. " << endreq ;
-			msg(MSG::INFO) << nPixel << " Pixel modules found." << endreq;
-			msg(MSG::INFO) << nSCT   << "  SCT  modules found," << endreq;
-			msg(MSG::INFO) << nTRT   << "  TRT  modules found." << endreq;
+			ATH_MSG_INFO( "Back from AlignModuleObject Setup. " );
+			ATH_MSG_INFO(  nPixel << " Pixel modules found." );
+			ATH_MSG_INFO(  nSCT   << "  SCT  modules found," );
+			ATH_MSG_INFO(  nTRT   << "  TRT  modules found." );
 			
-			msg(MSG::INFO) << m_ModuleList.size() << " entries in identifier list" << endreq;
+			ATH_MSG_INFO( m_ModuleList.size() << " entries in identifier list" );
 			
-			GenerateMisaligment();
+			if (StatusCode::SUCCESS!=GenerateMisaligment()) {
+                          msg(MSG::ERROR) << "GenerateMisalignment failed!" << endreq;
+			  return StatusCode::FAILURE;
+			};
 			
 			m_firstEvent = false;
 		}
@@ -472,14 +495,15 @@ namespace InDetAlignment
 	}
 	
 	//__________________________________________________________________________
-	void CreateMisalignAlg::GenerateMisaligment()
+	StatusCode  CreateMisalignAlg::GenerateMisaligment()
 	{
+
 		IRndmGenSvc* randsvc;
 		if (StatusCode::SUCCESS!=service("RndmGenSvc",randsvc,true)) {
 			msg(MSG::WARNING) << "Cannot find RndmGenSvc" << endreq;
 		}
 		else {
-			msg(MSG::DEBUG) << "Got RndmGenSvc" << endreq;
+                  ATH_MSG_DEBUG( "Got RndmGenSvc" );
 		}
 		
 		int i = 0;
@@ -560,7 +584,7 @@ namespace InDetAlignment
 			HepGeom::Transform3D parameterizedTrafo;
 			HepGeom::Transform3D alignmentTrafo;
 			
-			msg(MSG::INFO)  << "ID Module " << i << " with ID " << m_idHelper->show_to_string(ModuleID,0,'/') << endreq;
+			ATH_MSG_INFO(  "ID Module " << i << " with ID " << m_idHelper->show_to_string(ModuleID,0,'/') );
 			if (msgLvl(MSG::DEBUG)) {
 				msg() << "radius "  << r / CLHEP::cm << " centimeter" << endreq;
 				msg() << "phi "  << phi << endreq;
@@ -937,8 +961,7 @@ namespace InDetAlignment
 			}
 			
 			// Write out AlignResults ntuple
-			StatusCode sc = ntupleSvc()->writeRecord("NTUPLES/CREATEMISALIGN/InitialAlignment");
-			if (sc.isFailure()) {
+			if (StatusCode::SUCCESS!=ntupleSvc()->writeRecord("NTUPLES/CREATEMISALIGN/InitialAlignment")) {
 				msg(MSG::ERROR) << "Could not write InitialAlignment ntuple." << endreq;
 			}
 			
@@ -959,14 +982,21 @@ namespace InDetAlignment
 		}
 		
 		if (StatusCode::SUCCESS!=m_trtaligndbservice->streamOutAlignObjects()) {
-			msg(MSG::ERROR) << "Write of AlignableTransforms (TRT) fails" << endreq;
+			msg(MSG::ERROR) << "Write of AlignableTransforms (TRT) failed" << endreq;
 		} else {
 			msg(MSG::INFO) << "AlignableTransforms for TRT were written" << endreq;
 			msg(MSG::INFO) << "Writing TRT database to textfile" << endreq;
-			m_trtaligndbservice->writeAlignTextFile(m_asciiFileNameBase+"_TRT.txt") ;
+			if ( StatusCode::SUCCESS != m_trtaligndbservice->writeAlignTextFile(m_asciiFileNameBase+"_TRT.txt") ) {
+                          ATH_MSG_ERROR( "Failed to write AlignableTransforms (TRT) to txt file " << m_asciiFileNameBase+"_TRT.txt" );
+                        }
 			msg(MSG::INFO) << "Writing IoV information for TRT to mysql file" << endreq;
-			m_trtaligndbservice->registerAlignObjects(m_SQLiteTag+"_TRT",IOVTime::MINRUN,IOVTime::MINEVENT,IOVTime::MAXRUN,IOVTime::MAXEVENT);
+			if ( StatusCode::SUCCESS
+                             != m_trtaligndbservice->registerAlignObjects(m_SQLiteTag+"_TRT",IOVTime::MINRUN,IOVTime::MINEVENT,IOVTime::MAXRUN,IOVTime::MAXEVENT)) {
+                          ATH_MSG_ERROR( "Write of AIoV information (TRT) to mysql failed (tag=" << m_SQLiteTag << "_TRT)");
+                        }
 		}
+
+		return StatusCode::SUCCESS;               
 		
 	}
 	

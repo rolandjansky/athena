@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ToolHandle.h"
 
 #include "xAODEventInfo/EventInfo.h"
 class IBeamCondSvc;
@@ -24,9 +25,8 @@ public:
 
 private: 
   ServiceHandle<IBeamCondSvc> m_beamcondsvc; 
-  IToolSvc* p_toolsvc;
-  IInDetAlignDBTool* p_iddbtool;
-  IInDetAlignDBTool* p_migratetool;
+  ToolHandle<IInDetAlignDBTool> p_iddbtool;
+  ToolHandle<IInDetAlignDBTool> p_migratetool;
   const xAOD::EventInfo* p_eventinfo;
   bool m_setup;
 

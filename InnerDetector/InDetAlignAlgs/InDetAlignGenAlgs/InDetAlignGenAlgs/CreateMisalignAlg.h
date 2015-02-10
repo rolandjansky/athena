@@ -143,7 +143,7 @@ private:
     const Identifier reduceTRTID(IdentifierHash &hash);
 
     /// the main function which calculates and applies a transformation to each detector element
-    void GenerateMisaligment();
+    StatusCode GenerateMisaligment();
     
 
 
