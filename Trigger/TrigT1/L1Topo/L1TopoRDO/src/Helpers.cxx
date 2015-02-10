@@ -16,53 +16,96 @@
 #include "L1TopoRDO/L1TopoRDOCollection.h"
 #include "L1TopoRDO/Helpers.h"
 #include "L1TopoRDO/Header.h"
+#include "L1TopoRDO/Fibre.h"
+#include "L1TopoRDO/Status.h"
 #include "L1TopoRDO/L1TopoTOB.h"
+#include "L1TopoRDO/BlockTypes.h"
 
 // Print function
 std::ostream& operator<<(std::ostream& os, const L1TopoRDO& rdo) {
   os << "L1TopoRDO:\n";
-  os << "     SourceID 0x" << std::hex << std::setfill ('0') << std::setw( 8 ) <<rdo.getSourceID() << std::dec << "\n";
-  os << "     BS Tool error flags 0b" << std::bitset<8>(rdo.getError()) << "\n";
-  os << "     Status words\n";
+  os << "     SourceID: " << L1Topo::formatHex8(rdo.getSourceID()) << "\n";
+  os << "     Errors: " << rdo.getErrors() << "\n";
+  os << "     Status words:\n";
   std::vector<uint32_t> status = rdo.getStatusWords();
-  for(auto & elem: status){
-    os << L1Topo::formatHex8(elem) << "\n";
+  for(auto & word: status){
+    os << "     " << L1Topo::formatHex8(word) << "\n";
   }
-  os << "     Data words\n";
+  os << "     Data words:\n";
   std::vector<uint32_t> data = rdo.getDataWords();
-  for(auto & elem: data){
-    os << L1Topo::formatHex8(elem) << " ";
-    switch (L1Topo::blockType(elem)){
+  for(auto & word: data){
+    os << "     " << L1Topo::formatHex8(word) << " ";
+    switch (L1Topo::blockType(word)){
     case L1Topo::BlockTypes::HEADER:
       {
-	  os << L1Topo::Header(elem);
-	  break;
+	os << L1Topo::Header(word) << "\n";
+	break;
+      }
+    case L1Topo::BlockTypes::FIBRE:
+      {
+	os << L1Topo::Fibre(word) << "\n";
+	break;
+      }
+    case L1Topo::BlockTypes::STATUS:
+      {
+	os << L1Topo::Status(word) << "\n";
+	break;
+      }
+    case L1Topo::BlockTypes::EM_TOB:
+      {
+	os << "     EM TOB\n";
+	break;
+      }
+    case L1Topo::BlockTypes::TAU_TOB:
+      {
+	os << "     TAU TOB\n";
+	break;
+      }
+    case L1Topo::BlockTypes::MUON_TOB:
+      {
+	os << "     MUON TOB\n";
+	break;
+      }
+    case L1Topo::BlockTypes::JET1_TOB:
+      {
+	os << "     JET TOB crate 1\n";
+	break;
+      }
+    case L1Topo::BlockTypes::JET2_TOB:
+      {
+	os << "     JET TOB crate 2\n";
+	break;
+      }
+    case L1Topo::BlockTypes::ENERGY_TOB:
+      {
+	os << "     Energy TOB\n";
+	break;
       }
     case L1Topo::BlockTypes::L1TOPO_TOB:
-	{
-	  os << L1Topo::L1TopoTOB(elem);
-	  break;
-	}
-    default:
-	//os << L1Topo::formatHex8(elem) << "\n";
-      os << "\n";
+      {
+	os << L1Topo::L1TopoTOB(word);
 	break;
+      }
+    default:
+      os << "\n";
+      break;
     }
   }
   return os;
 }
 
-
 namespace L1Topo{
- 
+  
   std::string formatHex8(uint32_t word){
     std::ostringstream s;
-    s << "     0x" << std::hex << std::setfill ('0') << std::setw( 8 ) << word << std::dec;
+    s << std::showbase << std::hex << std::internal << std::setfill ('0') << std::setw(10) << word << std::dec << std::noshowbase;
     return s.str();
   }
 
-  unsigned int blockType(const uint32_t word){
-    return (word>>28 & 0x0f);
+  std::string formatHex4(uint32_t word){
+    std::ostringstream s;
+    s << std::showbase << std::hex << std::internal << std::setfill ('0') << std::setw( 6 ) << word << std::dec << std::noshowbase;
+    return s.str();
   }
 
   unsigned int triggerBitIndex(uint32_t moduleId, L1Topo::L1TopoTOB c){

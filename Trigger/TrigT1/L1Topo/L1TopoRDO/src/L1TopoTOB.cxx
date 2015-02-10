@@ -7,6 +7,7 @@
 #include <bitset>
 #include "L1TopoRDO/L1TopoTOB.h"
 #include "L1TopoRDO/Helpers.h"
+#include "L1TopoRDO/BlockTypes.h"
 
 namespace L1Topo {
 
@@ -18,8 +19,21 @@ namespace L1Topo {
     : m_word(word){
     this->decode();
   }
+
+  bool operator==(const L1Topo::L1TopoTOB& lhs, const  L1Topo::L1TopoTOB& rhs){
+    return (lhs.word()==rhs.word());
+  }
+  bool operator!=(const L1Topo::L1TopoTOB& lhs, const  L1Topo::L1TopoTOB& rhs){
+    return (lhs.word()!=rhs.word());
+  }
+  bool operator<(const L1Topo::L1TopoTOB& lhs, const  L1Topo::L1TopoTOB& rhs){
+    return (lhs.word()<rhs.word());
+  }
+  bool operator>(const L1Topo::L1TopoTOB& lhs, const  L1Topo::L1TopoTOB& rhs){
+    return (lhs.word()>rhs.word());
+  }
   
-  /* See https://twiki.cern.ch/twiki/pub/Atlas/L1CaloUpgrade/ROD_data_format_v1.0.3.xlsx */
+  /* See https://twiki.cern.ch/twiki/pub/Atlas/L1CaloUpgrade/ROD_data_format_v1.0.4.xlsx */
 
   void L1TopoTOB::decode(){
     // assert (L1Topo::blockType(m_word)==L1Topo::BlockTypes::L1TOPO_TOB);
@@ -30,7 +44,7 @@ namespace L1Topo {
   }
 
   void L1TopoTOB::encode(){
-    m_word = L1Topo::BlockTypes::L1TOPO_TOB << 28;
+    m_word = static_cast<int>(L1Topo::BlockTypes::L1TOPO_TOB) << 28;
     m_word |= (m_trigger_bits & 0xff);
     m_word |= (m_overflow_bits & 0xff) << 8;
     m_word |= (m_ctp_signal & 0xf) << 24; 
@@ -72,3 +86,17 @@ std::ostream& operator<<(std::ostream& os, const L1Topo::L1TopoTOB& c) {
      << std::dec << "\n";
   return os;
 }
+
+bool operator==(const L1Topo::L1TopoTOB& lhs, const  L1Topo::L1TopoTOB& rhs){
+  return (lhs.word()==rhs.word());
+}
+bool operator!=(const L1Topo::L1TopoTOB& lhs, const  L1Topo::L1TopoTOB& rhs){
+  return (lhs.word()!=rhs.word());
+}
+bool operator<(const L1Topo::L1TopoTOB& lhs, const  L1Topo::L1TopoTOB& rhs){
+  return (lhs.word()<rhs.word());
+}
+bool operator>(const L1Topo::L1TopoTOB& lhs, const  L1Topo::L1TopoTOB& rhs){
+  return (lhs.word()>rhs.word());
+}
+  
