@@ -10,6 +10,8 @@
 #include "GaudiKernel/Property.h"
 #include "PathResolver/PathResolver.h"
 
+#include "boost/lexical_cast.hpp"
+
 // Local includes:
 #include "TrigConfigSvc/HLTJobOptionsSvc.h"
 #include "TrigConfBase/TrigDBConnectionConfig.h"
@@ -20,6 +22,7 @@
 #include "TrigConfStorage/StorageMgr.h"
 
 using namespace std;
+using namespace boost;
 
 TrigConf::HLTJobOptionsSvc::HLTJobOptionsSvc( const std::string& name, ISvcLocator* pSvcLocator ) :
    base_class( name, pSvcLocator ),
@@ -144,10 +147,6 @@ TrigConf::HLTJobOptionsSvc::readDbWithMasterKey()
       return StatusCode::FAILURE;
    }
 
-
-
-
-
    return StatusCode::SUCCESS;
 }
 
@@ -270,64 +269,58 @@ TrigConf::HLTJobOptionsSvc::setMyProperties( const std::string& client, IPropert
 
    StatusCode sc;
 
-   std::vector<Property*>::const_iterator propIt;
-   //   cout << "The following properties are defined for IProperty myInt" << endl;
-   //   for( propIt = myInt->getProperties().begin() ; propIt != myInt->getProperties().end(); propIt++ )   {
-   //     cout << " --- " << (*propIt)->name() << endl;
-   //   }
-
-
-
    // now the list of job options for the client is sorted as it appears in the database
    // but we need it in the order as it is defined in the client (myInt->getProperties())
    // that is of particular importance for the ApplicationMgr, where the dll-jobOption needs to be set
    // before the services
 
    // define a sorted list of properties, which will be used from now on
-   std::vector<const Property*> myListSorted;
-   std::vector<const Property*>::const_iterator iter;
+   std::vector<const Property*> propertiesFromDBSorted;
    {
+
       // Get the list of available (in the DB) options for this client
-      std::vector<const Property*>* myList;
-      sc = m_catalogue.optionsOf( client, myList );
+      std::vector<const Property*>* propertiesFromDB;
+      sc = m_catalogue.optionsOf( client, propertiesFromDB );
       if( !sc.isSuccess() ) return StatusCode::SUCCESS;  // Algorithm has no options
 
-      for( propIt = myInt->getProperties().begin(); propIt != myInt->getProperties().end(); propIt++ )   {
-         for( iter = myList->begin(); iter != myList->end(); iter++ ) {
-            if( (*iter)->name() == (*propIt)->name() ) {
-               myListSorted.push_back(*iter);
+      // now bring those properties in the order that is specified by the client
+      for( const Property * clientProp : myInt->getProperties() )   {
+
+         for( const Property * dbProp : *propertiesFromDB ) {
+            if( dbProp->name() == clientProp->name() ) {
+               propertiesFromDBSorted.push_back( dbProp );
                break;
             }
          }
+
       }
 
-      if( myListSorted.size() != myList->size() ) {
+      // check if the DB and the client agree in size
+      if( propertiesFromDBSorted.size() != propertiesFromDB->size() ) {
          //find the properties that differ between the two lists
-         std::vector<const Property*> myListDiffer;
-         for( iter = myList->begin(); iter != myList->end(); iter++ ) {
-            int getAmatch=0;
-            for(const Property* differ: myListSorted ) {
-               if( (*iter)->name() == differ->name() ) {
-                  getAmatch++;
-               }
+         std::vector<const Property*> propertiesFromDBDiffer;
+         for( const Property * dbProp : *propertiesFromDB ) {
+            int gotAmatch(0);
+            for(const Property* differ: propertiesFromDBSorted ) {
+
+               if( dbProp->name() == differ->name() )
+                  gotAmatch++;
+
             }
-            if(getAmatch!=1){
-               myListDiffer.push_back(*iter);
+            if(gotAmatch!=1){
+               propertiesFromDBDiffer.push_back(dbProp);
             }
          }
-         ATH_MSG_WARNING(client << " asks for " << myListSorted.size() << " properties while the database knows about "
-                        << myList->size() << ", properties that differ are: ");
-         for(const Property*  differ: myListDiffer ) {
+         ATH_MSG_WARNING( client << " asks for " << propertiesFromDBSorted.size() << " properties while the database knows about "
+                          << propertiesFromDB->size() << ", properties that differ are: ");
+
+         for(const Property*  differ : propertiesFromDBDiffer )
             ATH_MSG_WARNING( "   " << differ->name() );
-         }
+
       }
 
    }
 
-   //   cout << "The following properties are found in the DB" << endl;
-   //   for(auto prop: myListSorted.begin() )   {
-   //     cout << prop->name() << endl;
-   //   }
 
    bool fail = false;
 
@@ -343,79 +336,71 @@ TrigConf::HLTJobOptionsSvc::setMyProperties( const std::string& client, IPropert
    }
 
    // Iterate over the sorted list to set the options
-   for( iter = myListSorted.begin(); iter != myListSorted.end(); iter++ ) {
+   for( const Property * dbprop : propertiesFromDBSorted ) {
 
       // some exceptions
       // Go and Exit are used by LHCb
       // They are bound to an updateHandler which starts the
       // ApplicationMgr as soon as Go is set, and exits as soon as Exit
       // is modified -- we don't want that
-      if(client=="ApplicationMgr" && (*iter)->name()=="Go") continue;
-      if(client=="ApplicationMgr" && (*iter)->name()=="Exit") continue;
+      if(client=="ApplicationMgr" && dbprop->name()=="Go") continue;
+      if(client=="ApplicationMgr" && dbprop->name()=="Exit") continue;
 
 
       sc = StatusCode::FAILURE;
 
-      const StringProperty* sp = dynamic_cast<const StringProperty*>(*iter);
+      const StringProperty* sp = dynamic_cast<const StringProperty*>(dbprop);
       if( 0 != sp ) {
 
          std::string spval = sp->value();
 
-         ATH_MSG_DEBUG("Attempt to set property " << (*iter)->name() << " to " << spval);
+         ATH_MSG_DEBUG("Attempt to set property " << dbprop->name() << " to " << spval);
       
          // now we have to intervene to get the HLTMenu and the Level 1 menu
          // and thresholds from the database and not from the xml files
          if(client=="HLTConfigSvc") {
-            if ((*iter)->name()=="ConfigSource") spval = m_dbconfig->m_type;
-            if ((*iter)->name()=="DBServer")     spval = m_dbconfig->m_server;
-            if ((*iter)->name()=="DBUser")       spval = m_dbconfig->m_user;
-            if ((*iter)->name()=="DBPassword")   spval = m_dbconfig->m_password;
-            if ((*iter)->name()=="DBTable")      spval = m_dbconfig->m_schema;
-            if ((*iter)->name()=="DBSMKey") {
-               std::ostringstream keystream;
-               keystream << m_dbconfig->m_smkey;
-               spval = keystream.str();
-            }
-            if ((*iter)->name()=="DBHLTPSKey") {
-               std::ostringstream keystream;
-               keystream << m_dbconfig->m_hltkey;
-               spval = keystream.str();
-            }
-            if ((*iter)->name()=="DBHLTPSKeySet") spval = m_dbconfig->hltKeysToString();
+            if (dbprop->name()=="ConfigSource")  spval = m_dbconfig->typeToString();
+            if (dbprop->name()=="DBServer")      spval = m_dbconfig->m_server;
+            if (dbprop->name()=="DBUser")        spval = m_dbconfig->m_user;
+            if (dbprop->name()=="DBPassword")    spval = m_dbconfig->m_password;
+            if (dbprop->name()=="DBTable")       spval = m_dbconfig->m_schema;
+            if (dbprop->name()=="DBSMKey")       spval = lexical_cast<string,int>(m_dbconfig->m_smkey);
+            if (dbprop->name()=="DBHLTPSKey")    spval = lexical_cast<string,int>(m_dbconfig->m_hltkey);
+            if (dbprop->name()=="DBHLTPSKeySet") spval = m_dbconfig->hltKeysToString();
          }
-
-
 
          if(m_dbconfig->m_lvl1key && client=="LVL1ConfigSvc") {
-            if ((*iter)->name()=="ConfigSource") spval = m_dbconfig->m_type;
-            if ((*iter)->name()=="DBServer")     spval = m_dbconfig->m_server;
-            if ((*iter)->name()=="DBAccount")    spval = m_dbconfig->m_schema;
-            if ((*iter)->name()=="DBUser")       spval = m_dbconfig->m_user;
-            if ((*iter)->name()=="DBPass")       spval = m_dbconfig->m_password;
-            if ((*iter)->name()=="DBSMKey") {
-               std::ostringstream keystream;
-               keystream << m_dbconfig->m_smkey;
-               spval = keystream.str();
-            }
-            if ((*iter)->name()=="DBLVL1PSKey") {
-               std::ostringstream keystream;
-               keystream << m_dbconfig->m_lvl1key;
-               spval = keystream.str();
-            }
+            if (dbprop->name()=="ConfigSource") spval = m_dbconfig->typeToString();
+            if (dbprop->name()=="DBServer")     spval = m_dbconfig->m_server;
+            if (dbprop->name()=="DBAccount")    spval = m_dbconfig->m_schema;
+            if (dbprop->name()=="DBUser")       spval = m_dbconfig->m_user;
+            if (dbprop->name()=="DBPass")       spval = m_dbconfig->m_password;
+            if (dbprop->name()=="DBSMKey")      spval = lexical_cast<string,int>(m_dbconfig->m_smkey);
+            if (dbprop->name()=="DBLVL1PSKey")  spval = lexical_cast<string,int>(m_dbconfig->m_lvl1key);
          }
 
-         sc = myInt->setProperty( (*iter)->name(), spval );
+         if(m_dbconfig->m_lvl1key && client=="L1TopoConfigSvc") {
+            if (dbprop->name()=="ConfigSource") spval = m_dbconfig->typeToString();
+            if (dbprop->name()=="DBServer")     spval = m_dbconfig->m_server;
+            if (dbprop->name()=="DBAccount")    spval = m_dbconfig->m_schema;
+            if (dbprop->name()=="DBUser")       spval = m_dbconfig->m_user;
+            if (dbprop->name()=="DBPass")       spval = m_dbconfig->m_password;
+            if (dbprop->name()=="DBSMKey")      spval = lexical_cast<string,int>(m_dbconfig->m_smkey);
+         }
+
+
+         sc = myInt->setProperty( dbprop->name(), spval );
          if( !sc.isSuccess() ) {
-            ATH_MSG_ERROR("Unable to set StringProperty " << (*iter)->name() << " to " << spval);
+            ATH_MSG_ERROR("Unable to set StringProperty " << dbprop->name() << " to " << spval);
             fail = true;
          } else {
-            ATH_MSG_DEBUG("Set property " << (*iter)->name() << " to " << spval);
+            ATH_MSG_DEBUG("Set property " << dbprop->name() << " to " << spval);
          }
          continue;
       }
 
 
-      const StringArrayProperty* sap = dynamic_cast<const StringArrayProperty*>(*iter);
+      const StringArrayProperty* sap = dynamic_cast<const StringArrayProperty*>(dbprop);
       if( 0 != sap ) {
          std::string prop = "[";
          const std::vector<std::string>& vals = sap->value();
@@ -425,19 +410,19 @@ TrigConf::HLTJobOptionsSvc::setMyProperties( const std::string& client, IPropert
          }
          prop += "]";
 
-         ATH_MSG_DEBUG("Attempt to set property " << (*iter)->name() << " to " << prop);
+         ATH_MSG_DEBUG("Attempt to set property " << dbprop->name() << " to " << prop);
 
-         sc = myInt->setProperty( (*iter)->name(), prop );
+         sc = myInt->setProperty( dbprop->name(), prop );
          if( !sc.isSuccess() ) {
-            ATH_MSG_ERROR("Unable to set StringArrayProperty " << (*iter)->name() << " of " << client << " to " << prop);
+            ATH_MSG_ERROR("Unable to set StringArrayProperty " << dbprop->name() << " of " << client << " to " << prop);
             fail = true;
          } else {
-            ATH_MSG_DEBUG("Set Property " << (*iter)->name() << " to :" << prop << ":");
+            ATH_MSG_DEBUG("Set Property " << dbprop->name() << " to :" << prop << ":");
          }
          continue;
       }
 
-      ATH_MSG_ERROR("Unable to set property " << (*iter)->name() << " of " << client << "\n Neither String nor StringArray");
+      ATH_MSG_ERROR("Unable to set property " << dbprop->name() << " of " << client << "\n Neither String nor StringArray");
       fail = true;
    }
 

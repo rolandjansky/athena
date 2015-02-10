@@ -104,6 +104,10 @@ ConfigSvcBase::initStorageMgr() {
 
       sm->setUseFrontier(m_dbconfig->m_useFrontier);
 
+      sm->setRetrialPeriod( m_dbconfig->m_retrialPeriod );
+      sm->setRetrialTimeout( m_dbconfig->m_retrialPeriod * (m_dbconfig->m_maxRetrials + 1) );
+      sm->setConnectionTimeout( 5 );
+
       m_storageMgr = sm;
    } else {
       if (m_xmlFile == "") {

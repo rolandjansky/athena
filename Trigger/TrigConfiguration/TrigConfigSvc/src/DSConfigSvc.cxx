@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DSConfigSvc.cxx 592654 2014-04-11 18:33:06Z fpastore $
+// $Id: DSConfigSvc.cxx 645890 2015-02-11 00:40:56Z stelzer $
 
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
@@ -280,20 +280,19 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
       ATH_MSG_INFO( "Updating trigger configuration: HLT keys" );
 
       uint32_t old_masterkey = m_masterKey;
-      //uint32_t old_hltPsKey = m_hltPsKey;
 
-      readHltConfigKeys( *keysAtrList,
-                                                           m_masterKey, m_hltPsKey, m_configSrc );
+      readHltConfigKeys( *keysAtrList, m_masterKey, m_hltPsKey, m_configSrc );
 
       ATH_MSG_INFO( "  Configuration key : " << m_masterKey );
       ATH_MSG_INFO( "  Run-bound HLT prescale key (old style): " << m_hltPsKey );
       ATH_MSG_INFO( "  Original source   : " << m_configSrc );
 
       updated_HLTMenu |= ( old_masterkey != m_masterKey );
-      //updated_HLTPs = ( old_hltPsKey != m_hltPsKey );
       if( m_masterKey == 0 ) updated_HLTMenu = true;
-      //if( m_hltPsKey == 0 )  updated_HLTPs   = true;
    }
+
+
+
 
    // read the LVL1 Menu object
    if( update_LVL1MENU ) {
@@ -327,6 +326,7 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
          m_ctpConfig.print();
       }
    }
+
 
    // read the LVL1 PITs
    if( update_LVL1PIT ) {
@@ -379,21 +379,6 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
 
          nChains++;;
       }
-//       CondAttrListCollection::size_type nCh = hltMenuAtrColl->size();
-//       for( CondAttrListCollection::ChanNum ch = 0; ch != nCh; ++ch ) {
-
-//          // the attributeList for this channel (a channel corresponds to a chain)
-
-//          CondAttrListCollection::const_iterator attrListIt = hltMenuAtrColl->chanAttrListPair( ch );
-
-//          if( attrListIt == hltMenuAtrColl->end() )
-//             continue;
-
-//          CondAttrListCollection::AttributeList atrList =
-//             hltMenuAtrColl->chanAttrListPair( ch )->second;
-//          m_hltFrame.theHLTChainList().addHLTChain( createHLTChain( atrList, &m_hltFrame.theHLTSequenceList() ) );
-         
-//       }
       ATH_MSG_INFO( "  Number of chains: " << nChains );
       ATH_MSG_DEBUG( m_hltFrame.chains() );
 
@@ -449,9 +434,9 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
          float ps, pt, rrps;
          readHltPrescale( atrList, ps, pt, rrps);
          TrigConf::HLTLevel level = (mergedHLT ? HLT :( ( ch % 2 ==0 ) ? L2 : EF));
-	 unsigned int cc = ch;
-	 if (! mergedHLT ) cc /= 2;
-	 else cc -= 20000;
+         unsigned int cc = ch;
+         if (! mergedHLT ) cc /= 2;
+         else cc -= 20000;
 
          if( ( level == L2 ) && ( ps > 0.0 ) ) ++npositivepsL2;
          if( ( level == EF ) && ( ps > 0.0 ) ) ++npositivepsEF;
@@ -470,7 +455,7 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
 
       updated_newHLTPs = true;
       if( msgLvl( MSG::DEBUG ) ) {
-	  m_prescaleSet->print();
+         m_prescaleSet->print();
       }
    }
 
@@ -545,6 +530,7 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
       ATH_MSG_INFO( "  Number of groups: " << nGroups );
    }
 
+
    if( update_LVL1THR ) {
 
       const DataHandle< CondAttrListCollection > l1thrAtrColl;
@@ -555,10 +541,36 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
 
       ATH_MSG_INFO( "  Number of thresholds: " << nCh );
       
+      vector<TriggerThreshold*> tmpThrVector;
+
+
       for( CondAttrListCollection::ChanNum ch = 0; ch != nCh; ++ch ) {
-         CondAttrListCollection::AttributeList atrList =
-            l1thrAtrColl->chanAttrListPair( ch )->second;
-         TrigConf::TriggerThreshold* thr = createLvl1Threshold( atrList );
+
+         CondAttrListCollection::AttributeList atrList = l1thrAtrColl->chanAttrListPair( ch )->second;
+         tmpThrVector.push_back(createLvl1Threshold( atrList ) );
+      }
+
+
+      /**
+       * a unpleasant hack so we can figure out if this Run1 (CTPVersion 3) or Run2 (CTPVersion 4)
+       * we use the fact that in Run2 the cable names were different
+       */
+      bool isRun2 = false;
+      for(TriggerThreshold * thr : tmpThrVector) {
+         if( thr->cableName()=="EM1" || thr->cableName()=="EM2" || 
+             thr->cableName()=="JET1" || thr->cableName()=="JET2" || 
+             thr->cableName()=="TOPO1" || thr->cableName()=="TOPO2" || 
+             thr->cableName()=="TAU1" || thr->cableName()=="TAU2") {
+            isRun2 = true;
+            break;
+         }
+      }
+      m_ctpConfig.setCTPVersion(isRun2 ? 4 : 3);
+      m_ctpConfig.setL1Version(isRun2 ? 1 : 0);
+      L1DataDef::setMaxThresholdsFromL1Version( m_ctpConfig.l1Version() );
+      ATH_MSG_INFO( "  Determined format " << (isRun2 ? "Run 2" : "Run 1") );
+
+      for(TriggerThreshold * thr : tmpThrVector) {
 
          // special cases of JetWeights and METSigParams
          if( thr->name() == "METSigParams" ) {
@@ -575,15 +587,16 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
                const_cast< TrigConf::CaloInfo& >( thresholdConfig()->caloInfo() );
             caloInfo.metSigParam().setValues( xsSigmaScale, xsSigmaOffset,
                                               xeMin, xeMax, teSqrtMin, teSqrtMax );
-
+            
          } else if( thr->name() == "JetWeights" ) {
-
-            string jws = thr->cableName();
-            std::vector< std::string > jwv = TrigConf::split( jws, "," );
-            TrigConf::CaloInfo& caloInfo =
-               const_cast< TrigConf::CaloInfo& >( thresholdConfig()->caloInfo() );
-            for(const string& s: jwv)
-               caloInfo.addJetWeight( lexical_cast< int, std::string >( s ) );
+            if(!isRun2) { // only run 1 has JetWeights, for run2 this will crash
+               string jws = thr->cableName();
+               std::vector< std::string > jwv = TrigConf::split( jws, "," );
+               TrigConf::CaloInfo& caloInfo =
+                  const_cast< TrigConf::CaloInfo& >( thresholdConfig()->caloInfo() );
+               for(const string& s: jwv)
+                  caloInfo.addJetWeight( lexical_cast< int, std::string >( s ) );
+            }
 
          } else {
             m_ctpConfig.menu().addTriggerThreshold( thr );
@@ -616,6 +629,8 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
       ATH_MSG_INFO( "  Number of items: " << l1itemdefAtrColl->size() );
    }
 
+
+
    // Bunchgroup keys
    if( update_LVL1BGK ) {
 
@@ -628,9 +643,11 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
       ATH_MSG_INFO( "  LVL1 bunchgroup key : " << m_lvl1BgKey );
       m_bunchGroupSet->setId( m_lvl1BgKey ); // Update the BunchGroupSet object with the ID
       updated_LVL1BG |= ( old_lvl1BgKey != m_lvl1BgKey );
-
       if( ! m_lvl1BgKey ) updated_LVL1BG = true;
    }
+
+
+
 
    // Bunchgroup description
    if( update_LVL1BGD ) {
@@ -644,15 +661,13 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
          readLvl1BGDesc( *bgdesclist );
 
       // A little sanity check:
-      if( bgdesc.first.size() != 8 ) {
-         REPORT_MESSAGE( MSG::FATAL )
-            << "The bunchgroup descriptions are not in the expected format";
-         return StatusCode::FAILURE;
-      }
+      ATH_MSG_INFO( "  Number of bunch groups : " << bgdesc.first.size() );
 
-      // the 8 BG names
+      
+      // the 8 or 16 BG names
       std::vector< std::string >& m_bgnames = bgdesc.first;
 
+      // TODO
       for( int i = 0; i < 8; ++i ) {
          m_bunchGroupSet->setBGName( i, m_bgnames[ i ] );
       }

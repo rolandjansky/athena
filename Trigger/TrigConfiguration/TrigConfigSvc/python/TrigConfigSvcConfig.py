@@ -62,6 +62,33 @@ class DefaultHLTConfigSvc( TrigConf__HLTConfigSvc ):
     def __init__( self, name="HLTConfigSvc" ):
         super( DefaultHLTConfigSvc, self ).__init__( name )  #
 
+    def getAlgorithmsRun2(self):
+        """Produces pair of lists with algorithms scheduled for  L2 and EF"""
+
+        mlog = logging.getLogger("TrigConfigSvcConfig.py")
+        from TriggerJobOpts.TriggerFlags import TriggerFlags
+        if TriggerFlags.readMenuFromTriggerDb():
+            from TrigConfigSvc.TrigConfigSvcUtils import getAlgorithmsForMenuRun2
+            mlog.info("Will load algos from DB")
+            allalgs = getAlgorithmsForMenuRun2(TriggerFlags.triggerDbConnection(),TriggerFlags.triggerDbKeys()[0])
+        else:
+            mlog.info("Will load algos from xml")
+            allalgs = []
+            doc = ET.parse(self.XMLMenuFile)
+            algs = self.getAllAlgorithms(doc)
+            l2TEs, efTEs = self.getTEsByLevel(doc)
+            
+            for te in l2TEs:
+                if te in algs.keys():
+                    allalgs += algs[te]
+
+            for te in efTEs:
+                if te in algs.keys():
+                    allalgs += algs[te]
+                    
+        return allalgs
+
+
 
     def getAlgorithmsByLevel(self):
         """Produces pair of lists with algorithms scheduled for  L2 and EF"""
