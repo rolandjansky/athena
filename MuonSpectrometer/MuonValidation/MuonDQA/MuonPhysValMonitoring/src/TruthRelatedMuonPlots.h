@@ -19,8 +19,8 @@ class TruthRelatedMuonPlots:public PlotBase {
  public:
   TruthRelatedMuonPlots(PlotBase* pParent, std::string sDir,bool doBinnedResolutionPlots);
   ~TruthRelatedMuonPlots();
-  void fill(const xAOD::TruthParticle& truthMu, const xAOD::Muon& mu);
-
+  void fill(const xAOD::TruthParticle& truthMu, const xAOD::Muon& mu, const xAOD::TrackParticleContainer* MSTrack);
+    
   // Truth related plots
   Trk::ParamPlots                 m_oMatchedPlots;
   Trk::MSHitDiffPlots             m_oMSHitDiffPlots;
@@ -31,6 +31,8 @@ class TruthRelatedMuonPlots:public PlotBase {
   Trk::DefParamPullPlots          m_oDefParamPullPlots;
   Trk::DefParamPullPlots          m_oMSDefParamPullPlots;
   Trk::DefParamPullPlots          m_oIDDefParamPullPlots;
+
+  Muon::MomentumDiffPlots         m_oMomentumDiffPlots;
 };
 
 #endif

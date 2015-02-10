@@ -9,29 +9,20 @@ import ROOT
 import sys
 import os
 import itertools
-from ROOT import TLatex
+
 #---------------------------------------------------------------------------
 
 def AddGaussian( infile, HistDir, HistName ):
     hist = infile.GetDirectory(HistDir).Get(HistName)
-    if hist.Integral() < 10:
-        print('INFO Skipping - Integral < 10: '+HistName)
+    if hist.GetEntries() < 10:
+        print('INFO Skipping Fit. NumEntries = {0}: '.format(hist.GetEntries()) + HistName)
         return
-    hist.Fit("gaus")
-    func = hist.GetFunction('gaus')
-    func.SetLineColor(ROOT.kRed)    
+    f = ROOT.TF1( "gaus", "gaus", -5, 5 )
+    hist.Fit(f,"RQ")
+    f1 = hist.GetFunction("gaus")
+    f1.SetLineColor(ROOT.kRed)
     print('INFO Overwriting histogram: ' + HistDir+'/'+HistName )
     hist.GetDirectory().WriteTObject( hist, HistName, "Overwrite" )
-    
-    can = ROOT.TCanvas()
-    hist.Draw()
-    t = TLatex()
-    t.SetNDC(); t.SetTextColor(1);
-    
-    resultMeanLab ='#mu = {0} #pm {1}'.format( format(func.GetParameter(1),'.2g'), format(func.GetParError(1),'.2g') )
-    resultSigmaLab ='#sigma = {0} #pm {1}'.format( format(func.GetParameter(2),'.2g'),format(func.GetParError(2),'.2g') )
-    t.DrawLatex(0.2,0.85,'#splitline{'+resultMeanLab+'}{'+resultSigmaLab+'}')
-    can.SaveAs( HistName + '.pdf' )
 
 #---------------------------------------------------------------------------
 
@@ -40,33 +31,33 @@ def main( args ):
         filename = args[1]
         if len( args ) > 2:
             PlotDir = os.path.dirname( args[2] )
-            print('INFO Plots will be saved to {0}'.format( PlotDir ))
+            print( 'INFO Plots will be saved to {0}'.format( PlotDir ) )
             if not os.path.exists(PlotDir):
                 os.makedirs(PlotDir)
         else:
             PlotDir = ''
 
     else:
-        print('Usage: python {0} filename [plot directory]'.format( args[0] ))
+        print( 'Usage: python {0} filename [plot directory]'.format( args[0] ) )
         return
 
     if not os.path.exists( filename ):
         print ( 'File not found: ' + filename )
         return
 
+    print( 'Opening file: ' + filename )
     infile = ROOT.TFile.Open( filename, 'update' )
 
-    #MuonTypes = [ 'All', 'Prompt', 'InFlight', 'NonIsolated' ]
-    MuonTypes = [ 'Prompt']
-    Authors = [ 'MuidCombined' ] #, 'AllAuthors', 'CaloTag', 'MuGirl', 'MuidStandalone' ]
-    PullTypes = [ 'Pulls' ] #, 'PullsID', 'PullsMS' ]
+    MuonTypes = [ 'All', 'Prompt', 'InFlight', 'NonIsolated' ]
+    PullTypes = [ 'Pulls', 'PullsID', 'PullsMS' ]
     Variables = [ 'phi0', 'theta', 'qOverP', 'P', 'd0', 'z0' ]
-    #Variables = [ 'qOverP' ]
 
     for MuonType in MuonTypes:
         if not infile.Get( 'Muons/' + MuonType ):
 #            print( 'INFO TDirectory not found: Muons/' + MuonType )
             continue
+        AuthDir = infile.Get( 'Muons/{0}/matched'.format( MuonType ) )
+        Authors = [ i.GetName() for i in AuthDir.GetListOfKeys() if AuthDir.Get( i.GetName() ).InheritsFrom( 'TDirectory' ) ]
         for Author in Authors:
             if not infile.Get( 'Muons/{0}/matched/{1}'.format( MuonType, Author ) ):
 #                print( 'INFO TDirectory not found: ' + 'Muons/{0}/matched/{1}'.format( MuonType, Author ) )
@@ -87,12 +78,12 @@ def main( args ):
 
     infile.Close()
 
-    # if PlotDir != '':
-    #     infile = ROOT.TFile.Open( filename )
-    #     can = ROOT.TCanvas()
-    #     infile.GetDirectory(HistDir).Get(HistName).Draw()
-    #     can.SaveAs( PlotDir + '/' + HistName + '.pdf' )
-    #     infile.Close()
+    if PlotDir != '':
+        infile = ROOT.TFile.Open( filename )
+        can = ROOT.TCanvas()
+        infile.GetDirectory(HistDir).Get(HistName).Draw()
+        can.SaveAs( PlotDir + '/' + HistName + '.pdf' )
+        infile.Close()
 
 #---------------------------------------------------------------------------
 

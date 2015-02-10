@@ -10,6 +10,7 @@ typedef ElementLink< xAOD::MuonContainer > MuonLink;
 RecoMuonPlots::RecoMuonPlots(PlotBase* pParent, std::string sDir):PlotBase(pParent, sDir),
 
 m_oAllPlots(this, "/", "Reco Muon"),
+m_oMuonParamPlots(this,"/"),
 m_oMuRecoInfoPlots(this, "/"),
 m_oImpactPlots(this, "/"),
 m_oMomentumPullPlots(this, "/"),
@@ -22,6 +23,7 @@ m_oMuonIsolationPlots(this,"/")
 void RecoMuonPlots::fill(const xAOD::Muon& mu) {
   //General Plots
   m_oAllPlots.fill(mu);
+  m_oMuonParamPlots.fill(mu);
   m_oMuRecoInfoPlots.fill(mu);
   m_oMomentumPullPlots.fill(mu);
   m_oMuonHitSummaryPlots.fill(mu);

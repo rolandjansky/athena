@@ -85,7 +85,8 @@ class Validator(object):
       return
 
     if self.CompareFunc(refHist, testHist): print path + refHist.GetName() + " looks ok"
-    else: self.MakeComparisonPlot(refHist, testHist, path)
+    #else:
+    self.MakeComparisonPlot(refHist, testHist, path)
   
   def MakeComparisonPlot(self,refHist, testHist, path):
     def SetBounds(refHist, testHist, setMinToZero):
