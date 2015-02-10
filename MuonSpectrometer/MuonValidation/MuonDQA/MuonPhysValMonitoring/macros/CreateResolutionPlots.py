@@ -19,6 +19,8 @@ from array import array
 ROOT.gROOT.SetBatch( True )
 ROOT.gROOT.Macro("rootlogon.C")
 
+DEBUG=False
+
 #--------------------------------------------------------------------------
 
 def createResolutionPlotsFromProfile( directory ):
@@ -27,10 +29,11 @@ def createResolutionPlotsFromProfile( directory ):
         obj=key.ReadObj()
         if not obj.IsA().InheritsFrom(ROOT.TProfile.Class()):
             continue
-        #print obj.GetName()
+        if DEBUG:
+            print '--- DEBUG obj name ', obj.GetName()
         namePrefix = directory.GetPath()[directory.GetPath().index(':')+2:].replace('/','_')
-        #print '   ',namePrefix
-
+        if DEBUG:
+            print '--- DEBUG namePrefix ', namePrefix
         binVar=''
         if '_vs_eta' in obj.GetName() :
             binVar='eta'
@@ -198,19 +201,26 @@ def main( argv ):
   ## ROOT.gROOT.Macro("~/rootlogon.C")
 
   #muonTypes = [ 'All', 'Prompt', 'InFlight', 'Rest' ]
-  #Authors = [ 'MuidCombined', 'MuTagIMO', 'MuidStandalone', 'MuGirl', 'CaloTag', 'CaloLikelihood', 'AllAuthors' ]
+  #Authors = [ 'MuidCo', 'MuTagIMO', 'MuidSA', 'MuGirl', 'CaloTag', 'CaloLikelihood', 'AllMuons' ]
   muonTypes = [ 'Prompt' ]
-  Authors = [ 'MuidCombined' ]
+  Authors = [ 'MuidCo' ]
   resolutionTypes = [ 'MS','ID','' ]
   resolutionTypesStr = [ 'MS','ID','CB' ]
   colors = [ ROOT.kRed, 8 , ROOT.kBlack ]
 
   momentumParameters = ['PtResol','PtScale']
-  binVariables = [ 'pT', 'eta', 'phi' ]
+  #binVariables = [ 'pT', 'eta', 'phi' ]
+  binVariables = [ 'pT' ]
 
   for muType, author, resolType in itertools.product( muonTypes, Authors, resolutionTypes):
       resolutionHistDirName = 'Muons/{0}/matched/{1}/resolution{2}'.format( muType,author,resolType )
       resolutionHistDir = infile.GetDirectory( resolutionHistDirName )
+      if DEBUG:
+          print '--- DEBUG opening directory ', resolutionHistDirName
+      if not resolutionHistDir:
+          if DEBUG:
+              print '--- DEBUG directory does not exist'
+          continue  
       createResolutionPlotsFromProfile( resolutionHistDir )
       for binVar in binVariables:
           outputDir = resolutionHistDir

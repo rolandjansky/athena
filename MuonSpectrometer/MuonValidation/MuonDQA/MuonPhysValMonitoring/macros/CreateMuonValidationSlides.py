@@ -40,7 +40,7 @@ def MakeComparisonPlot( refHist, testHist, plotName, path, doNorm = False, doRat
     if not testHist:
         print('WARNING Test histogram not found: '+plotName)
         print('        Creating empty plot')
-        CreateEmptyPlot( path+'/'+plotName+'.pdf' )
+        CreateEmptyPlot( path+'/'+plotName+'.png' )
         return
 
     #if doNorm set, scale hists to area = 1
@@ -52,18 +52,14 @@ def MakeComparisonPlot( refHist, testHist, plotName, path, doNorm = False, doRat
 
     if doNorm:
         if refint != 0:
-            refHist.Scale( 1./refint )
-            for i in range( 1, refHist.GetNbinsX() + 1 ):
-                refHist.SetBinError( i, refHist.GetBinError( i )/refint )
+           refHist.Scale( 1./refint )
         elif refHist:
-            print( 'WARNING empty ref plot ' + plotName )
+           print( 'WARNING empty ref plot ' + plotName )
 
         if testint != 0:
-            testHist.Scale( 1./testint )
-            for i in range( 1, refHist.GetNbinsX() + 1 ):
-                testHist.SetBinError( i, testHist.GetBinError( i )/testint )
+           testHist.Scale( 1./testint )
         else:
-            print( 'WARNING empty test plot ' + plotName )
+           print( 'WARNING empty test plot ' + plotName )
 
     canvas = ROOT.TCanvas( "", "", 860, 900 )
     canvas.SetLeftMargin( 0 )
@@ -93,30 +89,31 @@ def MakeComparisonPlot( refHist, testHist, plotName, path, doNorm = False, doRat
     testHist.GetYaxis().SetTitleSize( labelsize*0.4 )
     testHist.SetLabelSize( labelsize*0.4, 'Y' )
 
-    testHist.Draw("P")
-    if refint>0:
+    testHist.Draw("PE")
+    if refint > 0:
         refHist.SetMarkerColor(ROOT.kBlack)
         refHist.SetLineColor(ROOT.kBlack)
         leg.AddEntry(refHist, "ref", 'P')
         if 'cone' not in plotName:
             refHist = SetBounds(refHist, testHist)
 
-        refHist.Draw("PSAME")
-        testHist.Draw("PSAME")
+        refHist.Draw("PESAME")
+        testHist.Draw("PESAME")
     leg.Draw()
 
-    #ks & chi^2 values
-#    if refint > 0 and testint > 0:
-#        ks = testHist.KolmogorovTest( refHist, 'WW' )
-#        kstext = ROOT.TLatex( 0.18, .955, 'KS = %0.3f'%(ks))
-#        kstext.SetNDC(ROOT.kTRUE)
-#        kstext.SetTextSize(0.055)
-#        kstext.Draw()
-#        chi = testHist.Chi2Test( refHist, 'WW' )
-#        chitext = ROOT.TLatex( 0.35, .955, '#chi^{2} = %0.3f'%(chi))
-#        chitext.SetNDC(ROOT.kTRUE)
-#        chitext.SetTextSize(0.055)
-#        chitext.Draw()
+    # #ks & chi^2 values
+    # if refint > 0 and testint > 0:
+    #     ks = testHist.KolmogorovTest( refHist, 'WW' )
+    #     kstext = ROOT.TLatex( 0.18, .955, 'KS = %0.3f'%(ks))
+    #     kstext.SetNDC(ROOT.kTRUE)
+    #     kstext.SetTextSize(0.055)
+    #     kstext.Draw()
+    #     chi = testHist.Chi2Test( refHist, 'WW' )
+    #     #print(chi)
+    #     chitext = ROOT.TLatex( 0.4, .955, 'p(#chi^{2}) = %0.3f'%(chi))
+    #     chitext.SetNDC(ROOT.kTRUE)
+    #     chitext.SetTextSize(0.055)
+    #     chitext.Draw()
 
     if refint == 0 or testint == 0:
         print( 'WARNING No ratio plot available: '+ plotName )
@@ -128,14 +125,6 @@ def MakeComparisonPlot( refHist, testHist, plotName, path, doNorm = False, doRat
         ratioHist.Divide( refHist )
         ratioHist.SetMarkerColor( ROOT.kBlack )
         ratioHist = SetBounds( ratioHist, ratioHist )
-        for i in range( ratioHist.GetNbinsX() ):
-            nref = refHist.GetBinContent(i)
-            ntest = testHist.GetBinContent(i)
-            if nref == 0 or ntest == 0:
-                ratioHist.SetBinError( i, 0 )
-            else:
-                error = nref/ntest*math.sqrt((refHist.GetBinError(i)/nref)**2 + (testHist.GetBinError(i)/ntest)**2)
-                ratioHist.SetBinError( i, error )
         ratioHist.SetLineColor( ROOT.kBlack )
         ratioHist.GetYaxis().SetTitle( "test / ref" )
         xtitle = ratioHist.GetXaxis().GetTitle()
@@ -147,7 +136,7 @@ def MakeComparisonPlot( refHist, testHist, plotName, path, doNorm = False, doRat
         ratioHist.SetLabelSize( labelsize, 'XY' )
         ratioHist.GetXaxis().SetTitleOffset( 1.0 )
         ratioHist.GetYaxis().SetTitleOffset( .4 )
-        ratioHist.Draw("E")
+        ratioHist.Draw("PE")
 
         lineRatio = ROOT.TLine( ratioHist.GetXaxis().GetXmin(), 1,
                                 ratioHist.GetXaxis().GetXmax(), 1 )
@@ -156,7 +145,7 @@ def MakeComparisonPlot( refHist, testHist, plotName, path, doNorm = False, doRat
         lineRatio.Draw("same")
 
     canvas.cd()
-    canvas.SaveAs( path + '/' + plotName + '.pdf' )
+    canvas.SaveAs( path + '/' + plotName + '.png' )
     canvas.Close()
 
 #############################################################################
@@ -185,22 +174,20 @@ def main():
     for PlotList in PlotPages.values():
         for PlotPath in PlotList:
             HistDir, HistName = os.path.split( PlotPath )
+            if testfile.GetDirectory( HistDir ):
+                testhist = testfile.GetDirectory( HistDir ).Get( HistName )
+            else:
+                testhist = False
             if reffile.GetDirectory( HistDir ):
                 refhist = reffile.GetDirectory( HistDir ).Get( HistName )
             else:
                 refhist = False
 
-            if testfile.GetDirectory( HistDir ):
-                testhist = testfile.GetDirectory( HistDir ).Get( HistName )
-            else:
-                testhist = False
-
             doNorm = not sum([ HistName.__contains__(i) for i in specialTypes ])
             #doRatio = not (plot.__contains__('PtRes') or plot.__contains__('PtScale'))
             MakeComparisonPlot( refhist, testhist, HistName, outdir, doNorm = doNorm, doRatio = True )
 
-
-##### create Beamer file #####
+    ##### create Beamer file #####
 
     endl = '\n'
     output  = r'\documentclass{beamer}' + endl
@@ -259,9 +246,6 @@ def main():
     output += 'Test:' + endl*2
     output += '{0}: {1}'.format(TestVersion, TestDescription) + endl*2
     output += TestDataset + endl*2
-    #output += r'\begin{itemize}' + endl
-    #output += r'\item '+ Intro + endl
-    #output += r'\end{itemize}' + endl
     output += r'\vspace{12pt}' + Intro + endl
     output += r'\end{frame}' + endl*2
 
@@ -272,7 +256,7 @@ def main():
         output += r'\hspace*{-4pt}\makebox[\linewidth][c]{' + endl
         output += r'\begin{tabular}{c%s}'%(r'@{\hspace{1pt}}c'*(len(plotlist)-1)) + endl
         for n, plotpath in enumerate(plotlist):
-            output += r'\includegraphics[width=%0.2f\textwidth]{%s/%s.pdf}'%( 0.35, outdir.replace( args.directory+'/', '' ), os.path.split(plotpath)[1] )
+            output += r'\includegraphics[width=%0.2f\textwidth]{%s/%s.png}'%( 0.35, outdir.replace( args.directory+'/', '' ), os.path.split(plotpath)[1] )
             if n+1 < len(plotlist):
                 output += ' &'
             output += endl

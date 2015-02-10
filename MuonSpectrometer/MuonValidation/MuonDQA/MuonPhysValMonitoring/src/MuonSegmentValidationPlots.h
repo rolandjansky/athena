@@ -10,14 +10,15 @@
 
 class MuonSegmentValidationPlots: public PlotBase {
   public:
-    MuonSegmentValidationPlots(PlotBase* pParent, std::string sDir);
-
+    MuonSegmentValidationPlots(PlotBase* pParent, std::string sDir, bool isData);
+    ~MuonSegmentValidationPlots();
+    
     // Reco only information
-    Muon::MuonSegmentPlots                 m_oRecoSegmPlots;
+    Muon::MuonSegmentPlots                 *m_oRecoSegmPlots;
     // Truth related plots
-    Muon::MuonSegmentPlots                 m_oMatchedMuonSegmPlots;
-    Muon::MuonSegmentTruthRelatedPlots     m_oMatchedMuonSegmDiffPlots;
-    Muon::MuonSegmentPlots                 m_oTruthMuonSegmPlots;
+    Muon::MuonSegmentPlots                 *m_oMatchedMuonSegmPlots;
+    Muon::MuonSegmentTruthRelatedPlots     *m_oMatchedMuonSegmDiffPlots;
+    Muon::MuonSegmentPlots                 *m_oTruthMuonSegmPlots;
 
     void fill(const xAOD::MuonSegment* truthMuSeg, const xAOD::MuonSegment* muSeg);
     void fill(const xAOD::MuonSegment* muSeg);
