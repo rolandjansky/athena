@@ -6,12 +6,14 @@
 #define IOVDBTESTALG_PIXELDEDXTESTALG_H
 
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #define NCLASS 5
 #define NPAR   9
 
 #include "StoreGate/DataHandle.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 
 class StoreGateSvc;
@@ -23,7 +25,7 @@ class IAthenaOutputStreamTool;
  ** Algorithm to test writing conditions data and reading them back.
  **/
 
-class PixeldEdxTestAlg: public Algorithm 
+class PixeldEdxTestAlg: public AthAlgorithm 
 {
 public:
     PixeldEdxTestAlg (const std::string& name, ISvcLocator* pSvcLocator);
@@ -42,12 +44,9 @@ private:
     StatusCode readWithBeginRun();
 	StatusCode testCallBack(  IOVSVC_CALLBACK_ARGS  );
 
-    StringProperty            m_streamName;
     std::string               m_tagID;    
-    StoreGateSvc*             m_sgSvc;
-    StoreGateSvc*             m_detStore;
-IIOVRegistrationSvc*      m_regSvc;
-    IAthenaOutputStreamTool*  m_streamer;
+  ServiceHandle<IIOVRegistrationSvc>   m_regSvc;
+  ToolHandle<IAthenaOutputStreamTool>  m_streamer;
   std::string m_filename;
 };
 
