@@ -27,7 +27,7 @@ namespace MuonCombined {
 	Users should ensure that the life time of the MuonCandidate 
 	The class takes ownership of the combined perigee 
     */
-    StacoTag( const MuonCandidate& muonCandidate, const Trk::Perigee* perigee, double chi2 );
+    StacoTag( const MuonCandidate& muonCandidate, std::unique_ptr<const Trk::Perigee> &perigee, double chi2 );
 
     /** destructor */
     ~StacoTag();
@@ -60,7 +60,7 @@ namespace MuonCombined {
 
     /** data content */
     const MuonCandidate* m_muonCandidate;  /// MuonCandidate 
-    const Trk::Perigee*  m_combinedParameters;  /// combined parameters 
+    std::unique_ptr<const Trk::Perigee>  m_combinedParameters;  /// combined parameters 
     double m_chi2;
     
   };
@@ -70,14 +70,10 @@ namespace MuonCombined {
   }
 
 
-  inline const Trk::Perigee& StacoTag::combinedParameters() const { return *m_combinedParameters; }
+  inline const Trk::Perigee& StacoTag::combinedParameters() const { return *m_combinedParameters.get(); }
 
-  inline const Trk::Perigee* StacoTag::releaseCombinedParameters() { 
-    const Trk::Perigee* tmp = m_combinedParameters;   
-    m_combinedParameters=0;
-    return tmp;
-  }
-  
+  inline const Trk::Perigee* StacoTag::releaseCombinedParameters() { return m_combinedParameters.release(); }
+
   inline const MuonCandidate& StacoTag::muonCandidate() const { return *m_muonCandidate; }
 
   inline double StacoTag::matchChi2() const { return m_chi2; }
