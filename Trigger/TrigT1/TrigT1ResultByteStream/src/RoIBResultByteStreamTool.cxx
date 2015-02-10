@@ -232,7 +232,7 @@ StatusCode RoIBResultByteStreamTool::convert( ROIB::RoIBResult* result, RawEvent
   log << MSG::VERBOSE << "   Dumping L1Topo RoI words for " << l1TopoResultVector.size() << " RODs:" << endreq;
   unsigned int slink(0);
   for (auto & l1tr : l1TopoResultVector){
-    unsigned int sourceID = l1tr.rdo().getSourceID();
+    uint32_t sourceID = l1tr.rdo().getSourceID();
     log << MSG::VERBOSE << "  for L1Topo source ID "  << MSG::hex << std::setw(8) << std::showbase << sourceID << std::noshowbase << std::dec << endreq;
     if (sourceID == 0){
       sourceID = m_l1TopoModuleID[slink];
