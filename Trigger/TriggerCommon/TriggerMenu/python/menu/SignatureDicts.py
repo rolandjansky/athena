@@ -458,14 +458,14 @@ MinBiasChainParts = {
     'multiplicity'   : '',    
     'trigType'       : ['mb'],
     'threshold'      : '',
-    'extra'          : ['noisesup', ],
+    'extra'          : ['noisesup', 'ion',],
     'IDinfo'         : [],
     'trkInfo'        : ['hlttr', 'ftk', 'costr'],
     'hypoL2Info'     : ['sp1800', 'sp2000', 'sp2500', 'sp3000', ],
     'pileupInfo'     : ['pusup600', 'pusup700', 'pusup750', 'pusup800',],
     'hypoEFInfo'     : ['trk50', 'trk60', 'trk70', 'trk90', 'trk120',],
     'hypoEFsumEtInfo': ['sumet70', 'sumet110', 'sumet150',],
-    'recoAlg'        : ['mbts', 'sptrk', 'noalg', 'perf', 'hmt', 'hmtperf', 'idperf'],
+    'recoAlg'        : ['mbts', 'sptrk', 'sp', 'noalg', 'perf', 'hmt', 'hmtperf', 'idperf'],
     'addInfo'        : [ ],
     }
 # ---- MinBiasDictinary of default Values ----

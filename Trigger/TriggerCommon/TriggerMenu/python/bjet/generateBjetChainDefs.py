@@ -136,6 +136,7 @@ def buildBjetChains(jchaindef,bjetdict,doAtL2AndEF=True,numberOfSubChainDicts=1)
 ###################################################################################
 
 def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=1):
+    
     L2ChainName = "L2_" + chainDict['chainName']
     EFChainName = "EF_" + chainDict['chainName']
     HLTChainName = "HLT_" + chainDict['chainName']   
@@ -147,16 +148,23 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     btagcut = btagcut[1:]
     btracking = chainParts['bTracking']
 
-
     #-----------------------------------------------------------------------------------
     # Import of algs
     #-----------------------------------------------------------------------------------
 
+    #--------------------
+    
     # jet hypo (can re-use their code)
     from TrigJetHypo.TrigJetHypoConfig import EFJetHypo
-    theJetHypo = EFJetHypo(btagthresh, 0.0, 2.5)
+    theJetHypo = EFJetHypo("30", 0.0, 2.5)
 
-    ################
+    #--------------------
+
+    # Et hypo (doesn't work in superROI mode)
+    from TrigBjetHypo.TrigBjetEtHypoConfig import getBjetEtHypoInstance
+    theBjetEtHypo   = getBjetEtHypoInstance("EF", "Btagging", btagthresh+"GeV")
+
+    #--------------------
 
     #jet splitting
     from TrigBjetHypo.TrigJetSplitterAllTEConfig import getJetSplitterAllTEInstance
@@ -171,31 +179,12 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     #--------------------
 
     # tracking
-    from InDetTrigRecExample.EFInDetConfig import TrigEFIDSequence
-    if 'EFID' in btracking:
-        theBjet_tracks = TrigEFIDSequence("Bjet","bjet","InsideOut").getSequence()        
-    else:
-        from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Jet
-        theTrigFastTrackFinder_Jet = [TrigFastTrackFinder_Jet()]
-        from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-        [theFastTrackFinderxAOD] = TrigInDetSequence("Bjet","bjet","FastxAOD").getSequence()
-        theBjet_tracks = TrigEFIDSequence("Bjet","bjet","DataPrep").getSequence()            
-        theBjet_tracks += theTrigFastTrackFinder_Jet
-        theBjet_tracks += theFastTrackFinderxAOD
-        theBjet_tracks += TrigEFIDSequence("Bjet","bjet","InsideOutMerged").getSequence()            
-
-    #--------------------
-    # vertex tracking
-    # The fast part of the new tracking (no precision stuff)
-    from TrigFastTrackFinder.TrigFastTrackFinder_Config import TrigFastTrackFinder_Jet
-    theTrigFastTrackFinder_Jet = [TrigFastTrackFinder_Jet()]
-    from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-    [theFastTrackFinderxAOD] = TrigInDetSequence("BjetPrmVtx","bjet","FastxAOD").getSequence()
-    theVertex_tracks = TrigEFIDSequence("BjetPrmVtx","bjet","DataPrep").getSequence()            
-    theVertex_tracks += theTrigFastTrackFinder_Jet
-    theVertex_tracks += theFastTrackFinderxAOD # does this convert to xAOD?
-
-    #theVertex_tracks = TrigEFIDSequence("Bjet","bjet","InsideOut").getSequence()        
+    from TrigInDetConf.TrigInDetSequence import TrigInDetSequence # new
+    [trkvtx, trkftf, trkprec] = TrigInDetSequence("Bjet", "bjet", "IDTrig", "2step").getSequence() # new
+    # for b-tagging
+    theBjetTracks = trkftf+trkprec
+    # for vertexing
+    theVertexTracks = trkvtx  
 
     #--------------------
 
@@ -230,38 +219,33 @@ def myBjetConfig_split(theChainDef, chainDict, inputTEsEF,numberOfSubChainDicts=
     # TE naming
     #-----------------------------------------------------------------------------------
     
-    if ('EFID' in chainParts['bTracking']): tracking = 'EFID'
-    else: tracking = "IDTrig"
+    tracking = "IDTrig"
 
-    jetHypoTE = "HLT_j"+btagthresh+"_eta"
-    jetSplitTE = jetHypoTE+"_jsplit"
-    jetTrackTE = jetSplitTE+"_"+tracking
-    superTE = "HLT_super"
+    jetEtHypoTE     = "HLT_j"+btagthresh
+    jetHypoTE       = "HLT_j"+btagthresh+"_eta"
+    jetSplitTE      = jetHypoTE+"_jsplit"
+    jetTrackTE      = jetSplitTE+"_"+tracking
+    superTE         = "HLT_super"
     superTrackingTE = superTE+tracking
-    prmVertexTE = superTrackingTE+"_prmVtx"
-    comboPrmVtxTE = prmVertexTE+"Combo"
-    secVtxTE = jetTrackTE+"__"+"superVtx"
-    lastTEout = "HLT_"+chainParts['chainPartName'] if numberOfSubChainDicts>1 else EFChainName
-
-    #if (btagmult == '1'):
-    #    ef7 = 'HLT_b%s_%s_%s_VxSecondaryAndBTagHypo' % (btagthresh, btagcut, chainParts['chainPartName'].replace("_"+chainParts['bTracking'],""), )
-    #else:
-    #    ef7 = 'HLT_%sb%s_%s_%s_VxSecondaryAndBTagHypo' % (btagmult, btagthresh, btagcut, chainParts['chainPartName'].replace("_"+chainParts['bTracking'],""))
+    prmVertexTE     = superTrackingTE+"_prmVtx"
+    comboPrmVtxTE   = prmVertexTE+"Combo"
+    secVtxTE        = jetTrackTE+"__"+"superVtx"
+    lastTEout       = "HLT_"+chainParts['chainPartName'] if numberOfSubChainDicts>1 else EFChainName
  
     #-----------------------------------------------------------------------------------
     # sequence assembling
     #-----------------------------------------------------------------------------------
 
-    #theChainDef.addSequence(theJetHypo,     inputTEsEF, jetHypoTE)
-    #theChainDef.addSequence(theJetSplit,    jetHypoTE,  jetSplitTE)
-    theChainDef.addSequence(theJetSplit,    inputTEsEF, jetSplitTE)
-    theChainDef.addSequence(theBjet_tracks, jetSplitTE, jetTrackTE)
-    
-    theChainDef.addSequence(theSuperRoi,      inputTEsEF, superTE)
-    theChainDef.addSequence(theVertex_tracks, superTE,    superTrackingTE)
-
+    # Vertexing part of the chain
+    theChainDef.addSequence(theSuperRoi,      inputTEsEF,   superTE)
+    theChainDef.addSequence(theVertexTracks,  superTE,      superTrackingTE) # old
     theChainDef.addSequence([EFHistoPrmVtxAllTE_Jet()], superTrackingTE, prmVertexTE)
-    theChainDef.addSequence([EFHistoPrmVtxCombo_Jet()], [superTrackingTE,prmVertexTE], comboPrmVtxTE)    
+    theChainDef.addSequence([EFHistoPrmVtxCombo_Jet()], [superTrackingTE,prmVertexTE], comboPrmVtxTE)
+
+    # b-tagging part of the chain (requires PV)
+    theChainDef.addSequence(theJetSplit,    [inputTEsEF, comboPrmVtxTE], jetSplitTE)
+    theChainDef.addSequence(theBjetEtHypo,  jetSplitTE,  jetEtHypoTE)  # new
+    theChainDef.addSequence(theBjetTracks,  jetEtHypoTE, jetTrackTE)   # new
     theChainDef.addSequence(theVxSecondary, [jetTrackTE, comboPrmVtxTE], secVtxTE)
     theChainDef.addSequence([theBjetFex, theBtagReq], secVtxTE, lastTEout)
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [lastTEout]*int(btagmult))
@@ -448,7 +432,7 @@ def _prepareJetChainDict(cdict):
 ###########################################################################
 
 def get_j35_ChainDef():
-    return theDictFromChainName.getChainDict( ['j35', 'L1_J20', [], ["Main"], ['RATE:SingleJet',  'BW:Jets'], -1],)
+    return theDictFromChainName.getChainDict( ['j35', 'L1_J20', [], ["Main"], ['RATE:SingleJet',  'BW:Jets'], -1],) 
 
 # def get_j35_ChainDef():
 #     # HACK TO GET j35 chains!!!

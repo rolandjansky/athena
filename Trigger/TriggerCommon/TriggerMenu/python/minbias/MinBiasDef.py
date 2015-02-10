@@ -32,6 +32,7 @@ from InDetTrigRecExample.EFInDetConfig import TrigEFIDSequence
 
 efiddataprep = TrigEFIDSequence("minBias","minBias","DataPrep").getSequence()
 efid = TrigEFIDSequence("minBias","minBias","InsideOut").getSequence()
+efid_heavyIon = TrigEFIDSequence("heavyIonFS","heavyIonFS","InsideOut").getSequence()
 efid2P = TrigEFIDSequence("minBias2P","minBias2","InsideOutLowPt").getSequence()
 
 from TrigMinBias.TrigMinBiasConfig import *
@@ -89,6 +90,8 @@ class L2EFChain_MB(L2EFChainDef):
 
         if "sptrk" in self.chainPart['recoAlg']:
             self.setup_mb_sptrk()
+        elif "sp" in self.chainPart['recoAlg']:
+            self.setup_mb_sptrk()
         elif "mbts" in self.chainPart['recoAlg']:
             self.setup_mb_mbts()
         elif "perf" in self.chainPart['recoAlg']:
@@ -126,35 +129,52 @@ class L2EFChain_MB(L2EFChainDef):
 
 ############################### HELPER FUNCTIONS ##############################
     def setup_mb_sptrk(self):
-        ########## L2 algos ##################
-        if "sptrk" in self.chainPart['recoAlg']:
-            if "noisesup" in self.chainPart['extra']:
-                chainSuffix = "sptrk_noisesup"
-                theL2Fex  = L2MbSpFex_SCTNoiseSup
-            else:
-                chainSuffix = "sptrk"
-                theL2Fex  = L2MbSpFex
+        doHeavyIon=False
+        if 'ion' in self.chainPart['extra']:
+            doHeavyIon=True
 
-            theL2Hypo = L2MbSpHypo
+        if "sptrk" in self.chainPart['recoAlg']: #do EFID
+            doSptrk=True
+        else:       # don't do EFID
+            doSptrk=False
+
+        ########## L2 algos ##################
+        #if "sptrk" or "sp" in self.chainPart['recoAlg']:
+        if "noisesup" in self.chainPart['extra']:
+            chainSuffix = "sptrk_noisesup"
+            theL2Fex  = L2MbSpFex_SCTNoiseSup
+        else:
+            theL2Fex  = L2MbSpFex
+            if doSptrk:
+                chainSuffix = "sptrk"
+            else:
+                chainSuffix = "sp"
+        
+        theL2Hypo = L2MbSpHypo
+
         ########## EF algos ##################
-        if "sptrk" in self.chainPart['recoAlg']:
-            if "costr" in self.chainPart['trkInfo']:
-                chainSuffix = chainSuffix+"_costr"
+        #if "sptrk" in self.chainPart['recoAlg']:
+        if "costr" in self.chainPart['trkInfo']:
+            chainSuffix = chainSuffix+"_costr"
                 
-                from InDetTrigRecExample.EFInDetConfig import TrigEFIDInsideOut_CosmicsN
-                efid_costr=TrigEFIDInsideOut_CosmicsN()
-                theEFFex1 = efid_costr.getSequence()
-                from TrigMinBias.TrigMinBiasConfig import MbTrkFex_1, MbTrkHypo_1
-                theEFFex2 =  MbTrkFex_1("MbTrkFex_"+chainSuffix)
-                theEFFex2.InputTrackContainerName = "InDetTrigTrackSlimmerIOTRT_CosmicsN_EFID"
-                theEFHypo = MbTrkHypo_1("MbTrkHypo_"+chainSuffix)
-                theEFHypo.AcceptAll_EF=False
-                theEFHypo.Required_ntrks=1
-                theEFHypo.Max_z0=1000.0
-            else:    
+            from InDetTrigRecExample.EFInDetConfig import TrigEFIDInsideOut_CosmicsN
+            efid_costr=TrigEFIDInsideOut_CosmicsN()
+            theEFFex1 = efid_costr.getSequence()
+            from TrigMinBias.TrigMinBiasConfig import MbTrkFex_1, MbTrkHypo_1
+            theEFFex2 =  MbTrkFex_1("MbTrkFex_"+chainSuffix)
+            theEFFex2.InputTrackContainerName = "InDetTrigTrackSlimmerIOTRT_CosmicsN_EFID"
+            theEFHypo = MbTrkHypo_1("MbTrkHypo_"+chainSuffix)
+            theEFHypo.AcceptAll_EF=False
+            theEFHypo.Required_ntrks=1
+            theEFHypo.Max_z0=1000.0
+        else:
+            if not doHeavyIon:
                 theEFFex1 =  efid
-                theEFFex2 =  EFMbTrkFex
-                theEFHypo =  EFMbTrkHypo
+            else:
+                theEFFex1 =  efid_heavyIon
+
+            theEFFex2 =  EFMbTrkFex
+            theEFHypo =  EFMbTrkHypo
 
         ########### Sequence List ##############
 
@@ -166,27 +186,37 @@ class L2EFChain_MB(L2EFChainDef):
                                  [theL2Fex, theL2Hypo],
                                  'L2_mb_step1']]
 
-        self.EFsequenceList += [[['L2_mb_step1'],
-                                  theEFFex1+[theEFFex2, theEFHypo],
-                                 'EF_mb_step1']]
+        if doSptrk:
+            self.EFsequenceList += [[['L2_mb_step1'],
+                                     theEFFex1+[theEFFex2, theEFHypo],
+                                     'EF_mb_step1']]
 
         ########### Signatures ###########
         self.L2signatureList += [ [['L2_mb_iddataprep']] ]
         self.L2signatureList += [ [['L2_mb_step1']] ]
-        self.EFsignatureList += [ [['EF_mb_step1']] ]
+        if doSptrk:
+            self.EFsignatureList += [ [['EF_mb_step1']] ]
 
         self.TErenamingDict = {
             'L2_mb_iddataprep': mergeRemovingOverlap('L2_iddataprep_', chainSuffix),
             'L2_mb_step1': mergeRemovingOverlap('L2_', chainSuffix),
             'EF_mb_step1': mergeRemovingOverlap('EF_', chainSuffix),
                 }
+
 ###########################
     def setup_mb_idperf(self):
+        doHeavyIon=False
+        if 'ion' in self.chainPart['extra']:
+            doHeavyIon=True
+
         ########## EF algos ##################
         if "idperf" in self.chainPart['recoAlg']:
             chainSuffix = "idperf"
-            theEFFex1 =  efid
-            theEFFex2 =  efid2P
+            if not doHeavyIon:
+                theEFFex1 =  efid
+                theEFFex2 =  efid2P
+            else:
+                theEFFex1 =  efid_heavyIon
 
         ########### Sequence List ##############
 
@@ -209,6 +239,10 @@ class L2EFChain_MB(L2EFChainDef):
 
 ###########################
     def setup_mb_perf(self):
+        doHeavyIon=False
+        if 'ion' in self.chainPart['extra']:
+            doHeavyIon=True
+
         ########## L2 algos ##################
         if "perf" in self.chainPart['recoAlg']:
             chainSuffix = "perf"
@@ -247,6 +281,10 @@ class L2EFChain_MB(L2EFChainDef):
 
 ###########################
     def setup_mb_mbts(self):
+        doHeavyIon=False
+        if 'ion' in self.chainPart['extra']:
+            doHeavyIon=True
+
         ########## L2 algos ##################
         if "mbts" in self.chainPart['recoAlg']:
             l2hypo = self.chainName
@@ -490,39 +528,6 @@ class L2EFChain_MB(L2EFChainDef):
         shortName=chainName.strip('mb_')
         self.chainName       = shortName
         
-###########################################################################
-# HLT_noalg L1 streamers
-###########################################################################
-class L2EFChain_MB_NoAlg(L2EFChainDef):
-    class L2Config:
-        def __init__(self):
-            self.suffix = ''
-
-    class EFConfig:
-        def __init__(self):
-            self.suffix = ''
-
-    class Config:
-        def __init__(self, L2Config, EFConfig):
-            self.L2Config = L2Config
-            self.EFConfig = EFConfig
-            
-    def __init__(self, chainDict):
-
-        self.chainPart = chainDict['chainParts']
-        self.chainL1Item = chainDict['L1item']        
-        self.chainPartL1Item = self.chainPart['L1item']
-        self.chainCounter = chainDict['chainCounter'] 
-        self.chainName       = 'noalg_'+self.chainL1Item
-
-        self.L2Name = 'L2_'+self.chainName
-        self.EFName = 'EF_'+self.chainName
-        self.L2InputTE = self.chainL1Item
-
-        L2EFChainDef.__init__(self, self.chainName, self.L2Name, self.chainCounter, 
-                              self.chainL1Item, self.EFName, self.chainCounter, self.L2InputTE)
-
-
 #####################################################################
     
 #if __name__ == '__main__':

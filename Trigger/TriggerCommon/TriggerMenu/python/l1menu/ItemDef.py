@@ -605,9 +605,9 @@ class ItemDef:
         LVL1MenuItem('L1_MLZ_C', ctpid=-1).setLogic( (MBTS_C|ZDC_C|LUCID_C) & physcond).setTriggerType(TT.minb) 
         LVL1MenuItem('L1_MBLZ',  ctpid=-1).setLogic( ( (MBTS_A|ZDC_A|LUCID_A) & (MBTS_C|ZDC_C|LUCID_C) | BCM_Wide) & physcond ).setTriggerType(TT.minb)  
 
-        LVL1MenuItem('L1_CALREQ0', ctpid=0xfd).setLogic( CAL0 & calibcond).setTriggerType(TT.calreq0)
-        LVL1MenuItem('L1_CALREQ1', ctpid=0xfe).setLogic( CAL1 & calibcond).setTriggerType(TT.calreq1)
-        LVL1MenuItem('L1_CALREQ2', ctpid=0xff).setLogic( CAL2 & calibcond).setTriggerType(TT.calreq2)   
+        LVL1MenuItem('L1_CALREQ0', ctpid=0x1fd).setLogic( CAL0 & calibcond).setTriggerType(TT.calreq0) 
+        LVL1MenuItem('L1_CALREQ1', ctpid=0x1fe).setLogic( CAL1 & calibcond).setTriggerType(TT.calreq1)
+        LVL1MenuItem('L1_CALREQ2', ctpid=0x1ff).setLogic( CAL2 & calibcond).setTriggerType(TT.calreq2)   
 
         # TRT
         LVL1MenuItem('L1_TRT', ctpid=0x4e).setLogic(NIMTRT & BGRP0).setTriggerType(TT.rpcout)
@@ -795,7 +795,10 @@ class ItemDef:
 
         LVL1MenuItem.currentPartition = 3
 
-
         LVL1MenuItem.currentPartition = 1
+
+
+
+
 
         LVL1MenuItem.l1configForRegistration = None

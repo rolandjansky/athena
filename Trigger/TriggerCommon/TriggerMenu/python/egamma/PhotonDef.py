@@ -263,6 +263,9 @@ class L2EFChain_g(L2EFChainDef):
         from TrigEgammaHypo.TrigL2PhotonFexConfig import L2PhotonFex_1
         theL2PhotonFex = L2PhotonFex_1()
 
+        from TrigCaloRec.TrigCaloRecConfig import TrigCaloCellMaker_fullcalo
+        theFSCellMaker                   = TrigCaloCellMaker_fullcalo("TrigCaloCellMakerFullCalo_eGamma_heavyIon")
+
         from TrigCaloRec.TrigCaloRecConfig import  TrigCaloCellMaker_eGamma, TrigCaloTowerMaker_eGamma, TrigCaloClusterMaker_slw
         theTrigCaloCellMaker_eGamma      = TrigCaloCellMaker_eGamma("TrigCaloCellMaker_eGamma_heavyIon")
         theTrigCaloTowerMaker_eGamma     = TrigCaloTowerMaker_eGamma("TrigCaloTowerMaker_eGamma_heavyIon")
@@ -336,8 +339,11 @@ class L2EFChain_g(L2EFChainDef):
         self.L2sequenceList += [[['L2_g_step1'],    
                                  [theL2PhotonFex, theL2PhotonHypo], 
                                  'L2_g_step2']]
-        
+
         self.EFsequenceList += [[['L2_g_step2'], 
+                                 [theFSCellMaker], 'EF_g_step1_fs']]
+
+        self.EFsequenceList += [[['EF_g_step1_fs'], 
                                  [theTrigCaloCellMaker_eGamma, theTrigCaloTowerMaker_eGamma, theTrigCaloClusterMaker_slw], 
                                  'EF_g_step1']]
         
@@ -353,6 +359,7 @@ class L2EFChain_g(L2EFChainDef):
 
         self.L2signatureList += [ [['L2_g_step1']*self.mult] ]
         self.L2signatureList += [ [['L2_g_step2']*self.mult] ]
+        self.EFsignatureList += [ [['EF_g_step1_fs']*self.mult] ]
         self.EFsignatureList += [ [['EF_g_step1']*self.mult] ]
         self.EFsignatureList += [ [['EF_g_step2']*self.mult] ]
         self.EFsignatureList += [ [['EF_g_step3']*self.mult] ]
@@ -362,6 +369,7 @@ class L2EFChain_g(L2EFChainDef):
         self.TErenamingDict = {
             'L2_g_step1': mergeRemovingOverlap('L2_', self.chainPartNameNoMult+'_calo'),
             'L2_g_step2': mergeRemovingOverlap('L2_', self.chainPartNameNoMult),
+            'EF_g_step1_fs': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_fs'),
             'EF_g_step1': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_calo'),
             'EF_g_step2': mergeRemovingOverlap('EF_', self.chainPartNameNoMult+'_calocalib'),
             'EF_g_step3': mergeRemovingOverlap('EF_', self.chainPartNameNoMult),

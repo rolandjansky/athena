@@ -103,6 +103,10 @@ def setupMenu():
         ['mb_mbts_L1MBTS_2_2',  'L1_MBTS_2_2', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
         ['mb_mbts_L1MBTS_3_3',  'L1_MBTS_3_3', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
         ['mb_mbts_L1MBTS_4_4',  'L1_MBTS_4_4', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
+
+        ['mb_sp',  'L1_RD0_FILLED', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_sptrk_ion_L1ZDC_A_C_VTE50',  'L1_ZDC_A_C_VTE50', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
+        ['mb_idperf_ion_L1MBTS_1', 'L1_MBTS_1', [], ['MinBias'],["BW:MinBias", "RATE:MinBias"], 1],
         ]
 
     TriggerFlags.CalibSlice.signatures   = []
