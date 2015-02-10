@@ -59,6 +59,7 @@ if DetFlags.readRDOBS.LVL1_on():
         "ROIB::RoIBResult/RoIBResult",
         "MuCTPI_RDO/MUCTPI_RDO",        
         "CTP_RDO/CTP_RDO",
+        "L1TopoRDOCollection/L1TopoRDOCollection"
         ] 
 
 #if ATLASCosmicFlags.doLVL1Calo:
