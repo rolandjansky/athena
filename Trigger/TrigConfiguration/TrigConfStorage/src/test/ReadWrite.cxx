@@ -422,7 +422,7 @@ int main( int argc, char* argv[] ) {
       if(sm->hasLVL1()) {
          ctpc = new CTPConfig();
          log << "Retrieving Lvl1 CTP configuration from " << sm->m_xmlL1File << lineend;
-         DBLoader::setEnv(DBLoader::CTP);
+         //         DBLoader::setEnv(DBLoader::CTP);
          sm->masterTableLoader().setLevel(gConfig.outputlevel);
          sm->masterTableLoader().load(*ctpc);
          sm->masterTableLoader().load(ctpc->muCTPi());

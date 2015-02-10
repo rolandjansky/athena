@@ -38,71 +38,31 @@ SessionMgr::SessionMgr() :
    TrigConfMessaging("SessionMgr")
 {}
 
-// SessionMgr::SessionMgr( const std::string& connectionString,
-//                         const std::string& user,
-//                         const std::string& pass) :
-//    TrigConfMessaging("SessionMgr"),
-//    m_connectionString( connectionString ),
-//    m_user( user),
-//    m_password( pass )
-// {}
-
-// SessionMgr::SessionMgr( const std::string& type,
-//                         const std::string& server,
-//                         const std::string& name,
-//                         const std::string& user,
-//                         const std::string& pass) :
-//    TrigConfMessaging("SessionMgr"),
-//    m_dbtype( boost::to_lower_copy(type) ),
-//    m_dbserver( server ),
-//    m_dbname( name ),
-//    m_user( user ),
-//    m_password( pass )
-// {
-//    if(m_dbserver=="") { 
-//       m_connectionString = m_dbname; 
-//    } else if(m_dbtype == "dblookup") { 
-//       m_connectionString = m_dbserver; 
-//    } else { 
-//       m_connectionString = m_dbtype + "://" + m_dbserver + "/" + m_dbname;     
-//    }
-// }
-
 SessionMgr::~SessionMgr() {
    closeSession();
-   delete m_replicaSorter;
+   // never delete the m_replicaSorter, we will have to live with that
+   // one-time memory leak. The problem is the CORAL interface that
+   // does keeps a reference to the replicaSorter and keeps using it
+   // but doesn't clean it up. And if we delete it too early, then
+   // later access leads to a crash
 }
 
 void
-TrigConf::SessionMgr::setDbType(const std::string & s) {
-   m_dbtype = boost::to_lower_copy(s);
-   m_connectionString = "";
-}
+SessionMgr::closeSession() {
 
-void
-TrigConf::SessionMgr::setDbServer(const std::string & s) {
-   m_dbserver = s;
-   m_connectionString = "";
-}
+   if(m_sessionproxy) {
+      try{
+         delete m_sessionproxy;
+         m_sessionproxy = nullptr;
+         TRG_MSG_INFO("Closing session " << m_connectionString);
+      }
+      catch ( coral::Exception& e ) {
+         TRG_MSG_WARNING("CORAL exception " << e.what());
+         throw;
+      }
+   }
 
-void
-TrigConf::SessionMgr::setDbName(const std::string & s) { 
-   m_dbname = s;
-   m_connectionString = "";
 }
-
-void
-TrigConf::SessionMgr::setDbUser(const std::string & s) {
-   m_user = s;
-   m_connectionString = "";
-}
-
-void
-TrigConf::SessionMgr::setDbPassword(const std::string & s) {
-   m_password = s;
-   m_connectionString = "";
-}
-
 
 void
 TrigConf::SessionMgr::buildConnectionString() {
@@ -134,31 +94,46 @@ TrigConf::SessionMgr::createSession() {
    
    if(csc.replicaSortingAlgorithm() == nullptr) { // likely to be standalone, create our own
       TRG_MSG_INFO("Create own ReplicaSortingAlgorithm");
-      m_replicaSorter = new ReplicaSorter();
+      m_replicaSorter = new TrigConf::ReplicaSorter();
       csc.setReplicaSortingAlgorithm(*m_replicaSorter);
    }
 
    buildConnectionString();
+   TRG_MSG_INFO("Connecting to " << m_connectionString);
    m_sessionproxy = connSvc.connect(m_connectionString, coral::AccessMode::ReadOnly);
-   TRG_MSG_INFO("Opening session " << m_connectionString);
+   TRG_MSG_INFO("Opening session " << m_connectionString << " with " << m_retrialPeriod << "/" << m_retrialTimeout << "/" << m_connectionTimeout);
 
    return *m_sessionproxy;   
 }
 
 
 void
-SessionMgr::closeSession() {
-
-   if(m_sessionproxy) {
-      try{
-         delete m_sessionproxy;
-         m_sessionproxy = nullptr;
-         TRG_MSG_INFO("Closing session " << m_connectionString);
-      }
-      catch ( coral::Exception& e ) {
-         TRG_MSG_WARNING("CORAL exception " << e.what());
-         throw;
-      }
-   }
-
+TrigConf::SessionMgr::setDbType(const std::string & s) {
+   m_dbtype = boost::to_lower_copy(s);
+   m_connectionString = "";
 }
+
+void
+TrigConf::SessionMgr::setDbServer(const std::string & s) {
+   m_dbserver = s;
+   m_connectionString = "";
+}
+
+void
+TrigConf::SessionMgr::setDbName(const std::string & s) { 
+   m_dbname = s;
+   m_connectionString = "";
+}
+
+void
+TrigConf::SessionMgr::setDbUser(const std::string & s) {
+   m_user = s;
+   m_connectionString = "";
+}
+
+void
+TrigConf::SessionMgr::setDbPassword(const std::string & s) {
+   m_password = s;
+   m_connectionString = "";
+}
+

@@ -49,21 +49,18 @@ void TrigConf::DBLoader::startSession()
    }
 }
 
-void TrigConf::DBLoader::commitSession()
+void TrigConf::DBLoader::commitSession() const
 {
-   //if ( m_session.transaction().isActive() && m_sessionOwner && !m_session.transaction().isReadOnly()) {
    if ( m_session.transaction().isActive() && m_sessionOwner) {
-      //std::cout << "DBLoader: commitSession()" << std::endl;
       m_session.transaction().commit();
    }
 }
 
 
 bool
-DBLoader::isRun2() const {
-   if(s_run==0) {
-      throw std::runtime_error( "DBLoader::isRun2() schema has not been checked yet" );
-   }
+DBLoader::isRun2() {
+   if(s_run==0)
+      loadSchemaVersion();
    return s_run == 2;
 }
 
@@ -85,7 +82,7 @@ DBLoader::setLevel(MSGTC::Level lvl) {
 
 
 void
-DBLoader::loadSchemaVersion()
+DBLoader::loadSchemaVersion() const
 {
    bool mySession = false;
    if ( ! m_session.transaction().isActive() ) {
@@ -93,24 +90,21 @@ DBLoader::loadSchemaVersion()
       mySession = true;
    }
 
-   coral::ITable& table = m_session.nominalSchema().tableHandle( "TRIGGER_SCHEMA");
-   coral::IQuery* query = table.newQuery();
-   query->setRowCacheSize( 1 );
+   std::unique_ptr< coral::IQuery > q( m_session.nominalSchema().tableHandle( "TRIGGER_SCHEMA").newQuery() );
+   q->setRowCacheSize( 1 );
 
    //Output data and types
    coral::AttributeList attList;
    attList.extend<int>( "TS_ID" );
-   query->defineOutput(attList);
-   query->addToOutputList( "TS_ID" );
+   q->defineOutput(attList);
+   q->addToOutputList( "TS_ID" );
 
-   query->addToOrderList("TS_ID desc");
-   //query->limitReturnedRows(1); doesn't work with the proxy?
-   coral::ICursor& cursor = query->execute();
+   q->addToOrderList("TS_ID desc");
+   coral::ICursor& cursor = q->execute();
 
    if ( ! cursor.next() ) {
       TRG_MSG_ERROR("Table TRIGGER_SCHEMA is not filled");
-      delete query;
-      commitSession();
+      if ( mySession ) m_session.transaction().commit();
       throw std::runtime_error( "DBLoader::loadSchemaVersion() >> Table TRIGGER_SCHEMA is not filled" );
    }
 
@@ -119,14 +113,8 @@ DBLoader::loadSchemaVersion()
 
    TRG_MSG_INFO("TriggerDB schema version: " << s_triggerDBSchemaVersion);
 
-
-   delete query;
-
    s_run = m_session.nominalSchema().existsTable( "ACTIVE_MASTERS" ) ? 2 : 1;
 
-//    for( const std::string & s : m_session.nominalSchema().listTables() ) {
-//       cout << " Existing table " << s << endl;
-//    }
    TRG_MSG_INFO("Database has Run " << s_run << " schema");
    TRG_MSG_INFO("Total number of tables : " <<  m_session.nominalSchema().listTables().size());
 

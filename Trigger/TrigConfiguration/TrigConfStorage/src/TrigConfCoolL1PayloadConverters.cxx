@@ -552,7 +552,7 @@ TrigConfCoolL1PayloadConverters::readLvl1BGDesc(const coral::AttributeList & al)
       throw runtime_error("Read BLOB for ItemToBunchGroupMap of unexpected size!");
 
    const unsigned char* p = static_cast<const unsigned char*>(blob.startingAddress());
-   for (size_t i = 0; i < blob.size(); ++i,++p) {
+   for (long i = 0; i < blob.size(); ++i,++p) {
       unsigned char mask = (*p);
       codes.insert( make_pair(i,mask) );
    }

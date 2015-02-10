@@ -663,21 +663,21 @@ int main( int argc, char* argv[] ) {
    // ========================================
    // DROPPING a schema from the COOL db (DO NOT USE ON THE ONLINE COOL DATABASE !!!!!)
    // ========================================
-   if(gConfig.DropDBSchema()) {
-      try {
-         if( gConfig.CoolConnection().find("atonr") == std::string::npos &&
-             gConfig.CoolConnection().find("ATONR") == std::string::npos ) {
-            TrigConf::TrigConfCoolWriter coolWriter(gConfig.CoolConnection());
-            coolWriter.recreateSchema();
-         }
-      }
-      catch(std::exception & e) {
-         log << e.what() << lineend;
-         if(outf) outf->close();
-         if(errf) errf->close();
-         return 1;
-      }
-   }
+//    if(gConfig.DropDBSchema()) {
+//       try {
+//          if( gConfig.CoolConnection().find("atonr") == std::string::npos &&
+//              gConfig.CoolConnection().find("ATONR") == std::string::npos ) {
+//             TrigConf::TrigConfCoolWriter coolWriter(gConfig.CoolConnection());
+//             coolWriter.recreateSchema();
+//          }
+//       }
+//       catch(std::exception & e) {
+//          log << e.what() << lineend;
+//          if(outf) outf->close();
+//          if(errf) errf->close();
+//          return 1;
+//       }
+//    }
 
    // ========================================
    // CREATING a new schema on the COOL db
@@ -1024,6 +1024,30 @@ int main( int argc, char* argv[] ) {
       if(errf) errf->close();
       return 0;
    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
    // ========================================
    // READING information from the COOL DB for

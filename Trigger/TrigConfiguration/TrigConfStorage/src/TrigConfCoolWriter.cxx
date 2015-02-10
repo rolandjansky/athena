@@ -41,6 +41,7 @@
 
 #include "boost/lexical_cast.hpp"
 
+#include <iomanip>
 #include <stdexcept>
 #include <sstream>
 #include <set>
@@ -712,8 +713,9 @@ TrigConf::TrigConfCoolWriter::writeL1MonPayload( const RunRangeVec& runRanges,
    }
 }
 
+
 // ------------------------------------------------------------
-// writeLVL1RunPayload()
+// writeL1MenuPayload()
 // ------------------------------------------------------------
 void
 TrigConf::TrigConfCoolWriter::writeL1MenuPayload( ValidityRange vr,
@@ -746,12 +748,16 @@ TrigConf::TrigConfCoolWriter::writeL1MenuPayload( ValidityRange vr,
             lvl1ThresholdFolder->storeObject(vr.since(), vr.until(), payloadThr, thrChannel++);
          }
 
-         m_ostream << "Writing (to buffer) LVL1 threshold 'JetWeights':";
-         const std::vector<int>& jetweights = lvl1Menu.caloInfo().jetWeights();
-         std::copy(jetweights.begin(), jetweights.end(), std::ostream_iterator<int>(m_ostream, ", "));
-         m_ostream << endl;
-         Record payloadJW = TrigConfCoolL1PayloadConverters::createLvl1JetWeightPayload( lvl1ThresholdFolder, lvl1Menu.caloInfo().jetWeights() );
-         lvl1ThresholdFolder->storeObject(vr.since(), vr.until(), payloadJW, thrChannel++);
+
+         // TODO
+         if( lvl1Menu.thresholdConfig().l1Version() == 0 ) {
+            m_ostream << "Writing (to buffer) LVL1 threshold 'JetWeights':";
+            const std::vector<int>& jetweights = lvl1Menu.caloInfo().jetWeights();
+            std::copy(jetweights.begin(), jetweights.end(), std::ostream_iterator<int>(m_ostream, ", "));
+            m_ostream << endl;
+            Record payloadJW = TrigConfCoolL1PayloadConverters::createLvl1JetWeightPayload( lvl1ThresholdFolder, lvl1Menu.caloInfo().jetWeights() );
+            lvl1ThresholdFolder->storeObject(vr.since(), vr.until(), payloadJW, thrChannel++);
+         }
 
          m_ostream << "Writing (to buffer) LVL1 threshold 'MET Significance parameters':";
          lvl1Menu.caloInfo().metSigParam().print();
@@ -819,43 +825,11 @@ TrigConf::TrigConfCoolWriter::writeL1MenuPayload( ValidityRange vr,
       throw;
    }
 
-   if( shouldFolderBeUpdated("/TRIGGER/LVL1/CTPCoreInputMapping") ) {
-      // now write PIT mapping
-      try {
-
-         cool::IFolderPtr tipFolder = TrigConfCoolFolderSpec::getLvl1InputMapFolder(m_dbPtr);
-         tipFolder->setupStorageBuffer();
-
-         for ( const TIP * tip : lvl1Menu.tipVector() ) {
-
-            cool::ChannelId tipNum = static_cast<cool::ChannelId>(tip->tipNumber());
-
-            stringstream tipName;
-            tipName << "name:" << tip->thresholdName();
-            tipName << "|thresh bit:" << tip->thresholdBit();
-            tipName << "|pos:" << tip->thresholdMapping();
-            tipName << "|active:" << tip->thresholdActive();
-            tipName << "|ctpin slot:" << tip->slot();
-            tipName << "|con:" << tip->connector();
-            tipName << "|cable bit:" << tip->cableBit();
-            m_ostream << "Write TIP / channel " << tipNum << " : " << tipName.str() << endl;
-
-            Record payload = TrigConfCoolL1PayloadConverters::createLvl1InputMapPayload( tipFolder, *tip );
-            tipFolder->storeObject(vr.since(), vr.until(), payload, tipNum);
-         }
-         m_ostream << "Flushing LVL1 CTPInputMap buffer to /TRIGGER/LVL1/CTPCoreInputMapping" << endl;
-         tipFolder->flushStorageBuffer();
-      } catch( cool::Exception & e) {
-         m_ostream << "Caught cool::Exception: " << e.what() << endl;
-         m_ostream << "Failed to write LVL1 TIP mapping to COOL" << endl;
-         throw;
-      } catch( exception & e) {
-         m_ostream << "<writeLVL1RunPayload> Caught std::exception: " << e.what() << endl;
-         throw;
-      }
-   }
+   writeL1CTPCoreInputMapping( vr, lvl1Menu );
 
 }
+
+
 
 void
 TrigConf::TrigConfCoolWriter::writeL1MenuPayload( const RunRangeVec& runRanges,
@@ -865,6 +839,70 @@ TrigConf::TrigConfCoolWriter::writeL1MenuPayload( const RunRangeVec& runRanges,
    for ( RunRange rr : runRanges)
       writeL1MenuPayload( rr, lvl1Menu );
 }
+
+
+
+
+
+
+
+void
+TrigConf::TrigConfCoolWriter::writeL1CTPCoreInputMapping( ValidityRange vr,
+                                                          const Menu& lvl1Menu)
+{
+   if( ! shouldFolderBeUpdated("/TRIGGER/LVL1/CTPCoreInputMapping") )
+      return;
+
+   AutoDBOpen db(this, READ_WRITE);
+
+   // now write PIT mapping
+   try {
+
+      cool::IFolderPtr tipFolder = TrigConfCoolFolderSpec::getLvl1InputMapFolder(m_dbPtr);
+      tipFolder->setupStorageBuffer();
+
+      for ( const TIP * tip : lvl1Menu.tipVector() ) {
+
+         cool::ChannelId tipNum = static_cast<cool::ChannelId>(tip->tipNumber());
+
+         stringstream tipName;
+         tipName << "name:" << tip->thresholdName();
+         tipName << "|thresh bit:" << tip->thresholdBit();
+         tipName << "|pos:" << tip->thresholdMapping();
+         tipName << "|active:" << tip->thresholdActive();
+         tipName << "|ctpin slot:" << tip->slot();
+         tipName << "|con:" << tip->connector();
+         tipName << "|cable bit:" << tip->cableBit();
+         m_ostream << "Write TIP / channel " << tipNum << " : " << tipName.str() << endl;
+
+         Record payload = TrigConfCoolL1PayloadConverters::createLvl1InputMapPayload( tipFolder, *tip );
+         tipFolder->storeObject(vr.since(), vr.until(), payload, tipNum);
+      }
+      m_ostream << "Flushing LVL1 CTPInputMap buffer to /TRIGGER/LVL1/CTPCoreInputMapping" << endl;
+      tipFolder->flushStorageBuffer();
+   } catch( cool::Exception & e) {
+      m_ostream << "Caught cool::Exception: " << e.what() << endl;
+      m_ostream << "Failed to write LVL1 TIP mapping to COOL" << endl;
+      throw;
+   } catch( exception & e) {
+      m_ostream << "<writeLVL1RunPayload> Caught std::exception: " << e.what() << endl;
+      throw;
+   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // ------------------------------------------------------------
 // writeLVL1BunchGroups()
@@ -1238,9 +1276,6 @@ TrigConfCoolWriter::readL1Payload( unsigned int run,
     */
 
    readL1Menu( run, ctpc );
-
-   
-
 }
 
 void 
@@ -1406,7 +1441,6 @@ TrigConfCoolWriter::readL1Menu(unsigned int run, CTPConfig & ctpc)
 
    Menu & menu = ctpc.menu();
 
-
    // thresholds
    vector<TriggerThreshold*> thrs;
    readL1Thresholds(run, thrs);
@@ -1441,11 +1475,14 @@ TrigConfCoolWriter::readL1Menu(unsigned int run, CTPConfig & ctpc)
    readL1ItemDef(run, items, thrs);
 
    CaloInfo ci;
+
    for(TriggerThreshold* thr: thrs) {
 
       if ( thr->name()=="JetWeights" ) {
-         for ( const string& weights : split( thr->cableName(),",")  )
-            ci.addJetWeight( boost::lexical_cast<int, string>(weights) );
+         if(!isRun2) {
+            for ( const string& weights : split( thr->cableName(),",")  )
+               ci.addJetWeight( boost::lexical_cast<int, string>(weights) );
+         }
       }
       else if ( thr->name()=="METSigParams" ) {
          vector<string> metvals = split( thr->cableName(),",");
@@ -1462,7 +1499,6 @@ TrigConfCoolWriter::readL1Menu(unsigned int run, CTPConfig & ctpc)
          // trigger thresholds sorted by type
          menu.thresholdConfig().addTriggerThreshold(thr);
       }
-
    }
    menu.setCaloInfo(ci);
 
@@ -1580,4 +1616,52 @@ bool
 TrigConf::TrigConfCoolWriter::HLTPrescaleFolderExists() {
    AutoDBOpen db(this, READ_ONLY);
    return m_dbPtr->existsFolder( "/TRIGGER/HLT/Prescales" );
+}
+
+
+vector<string>
+TrigConf::TrigConfCoolWriter::checkPayloadSize(unsigned int run, unsigned int lb) {
+   AutoDBOpen db(this, READ_ONLY);
+
+   ValidityRange vr(run, lb);
+   m_ostream << "Checking for run " << run << " and lb range " << (vr.since() & 0xFFFFFFFF) << " - " << ( (vr.until()-1) & 0xFFFFFFFF) << endl
+             << endl
+             << "    Folder                                     Payload Size" << endl
+             << "================================================================================" << endl;
+
+   vector<string> foldersToFix;
+
+   vector<string>  folderList = { 
+      "/TRIGGER/LVL1/Menu",
+      "/TRIGGER/LVL1/ItemDef",
+      "/TRIGGER/LVL1/Thresholds",
+      "/TRIGGER/LVL1/Lvl1ConfigKey",
+      "/TRIGGER/LVL1/Prescales",
+      "/TRIGGER/LVL1/BunchGroupKey",
+      "/TRIGGER/LVL1/BunchGroupContent",
+      "/TRIGGER/LVL1/BunchGroupDescription",
+      "/TRIGGER/HLT/HltConfigKeys",
+      "/TRIGGER/HLT/Menu",
+      "/TRIGGER/HLT/Groups",
+      "/TRIGGER/HLT/PrescaleKey",
+      "/TRIGGER/HLT/Prescales"
+   };
+   
+   for(const string & folderName : folderList) {
+      IFolderPtr folder = m_dbPtr->getFolder( folderName );
+      unsigned int size = folder->countObjects( vr.since(), vr.until(), ChannelSelection() );
+      bool isSingleVersion = folder->versioningMode()==FolderVersioning::SINGLE_VERSION;
+      bool needsFixing = (size == 0);
+      string fn = folderName + (isSingleVersion ? " (sv)" : " (mv)");
+      if(needsFixing) {
+         m_ostream << setw(2) << foldersToFix.size()+1 << ") ";
+         foldersToFix.push_back(folderName);
+      } else {
+         m_ostream << "    ";
+      }
+      m_ostream << left << setw(40) << fn << right << setw(15) << size << "            " << ( needsFixing ? "NEEDS FIX" : "       OK") << endl;
+   }
+
+   return foldersToFix;
+
 }

@@ -17,9 +17,10 @@ namespace coral {
    class ISessionProxy;
 }
 
-class ReplicaSorter;
 
 namespace TrigConf {
+
+   class ReplicaSorter;
   
    /**@brief Manager of the database session
     * 

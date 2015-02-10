@@ -48,7 +48,9 @@ TrigConf::StorageMgr::StorageMgr( const std::string& cs,
    , m_user( user )
    , m_password( pass )
    , m_ostream( o )
-{}
+{
+   cout << "LLLLLLLLLL SM " << sizeof(*this) << endl;
+}
 
 TrigConf::StorageMgr::StorageMgr( const std::string& type,
                                   const std::string& server,
@@ -100,11 +102,12 @@ StorageMgr::sessionMgr() {
          m_sessionMgr->setDbPassword(m_password);
       }
       m_sessionMgr->setUseFrontier(useFrontier()); 
+      m_sessionMgr->setRetrialPeriod(m_retrialPeriod);
+      m_sessionMgr->setRetrialTimeout(m_retrialTimeout);
+      m_sessionMgr->setConnectionTimeout(m_connectionTimeout);
    }
    return * m_sessionMgr;
 }
-
-
 
 
 

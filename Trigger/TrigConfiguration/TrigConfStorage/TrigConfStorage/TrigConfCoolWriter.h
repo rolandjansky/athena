@@ -169,6 +169,9 @@ namespace TrigConf {
       void writeL1MenuPayload( ValidityRange vr, const TrigConf::Menu& lvl1Menu);
       void writeL1MenuPayload( const RunRangeVec& runRanges, const TrigConf::Menu& lvl1Menu);
 
+      void writeL1CTPCoreInputMapping( ValidityRange vr, const Menu& lvl1Menu);
+
+
       /**@brief Writing L1 run-wise monitoring configuration to COOL
        *
        * @param runNumber run number
@@ -359,6 +362,8 @@ namespace TrigConf {
        */
       void readL1Menu(unsigned int runNumber, CTPConfig & ctpc);
 
+      std::vector<std::string> checkPayloadSize(unsigned int run, unsigned int lb=1);
+
       void addWriteFolder(const std::string& fname) { m_writeFolderList.push_back( fname ); }
 
       void setVerbosityLevel(unsigned int level) { m_verbosityLevel = level; }
@@ -367,6 +372,8 @@ namespace TrigConf {
       bool checkDbConnection(bool readonly);
 
       bool HLTPrescaleFolderExists();
+
+
   
    private:
       friend class AutoDBOpen;
