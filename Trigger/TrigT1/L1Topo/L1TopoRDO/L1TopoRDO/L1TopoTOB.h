@@ -51,4 +51,13 @@ namespace L1Topo {
 //! Helper for printing
 std::ostream& operator<<(std::ostream&, const L1Topo::L1TopoTOB&);
 
+//! Comparison operators, based on word
+bool operator==(const L1Topo::L1TopoTOB&, const L1Topo::L1TopoTOB&);
+//! Comparison operators, based on word
+bool operator!=(const L1Topo::L1TopoTOB&, const L1Topo::L1TopoTOB&);
+//! Comparison operators, based on word
+bool operator< (const L1Topo::L1TopoTOB&, const L1Topo::L1TopoTOB&);
+//! Comparison operators, based on word
+bool operator> (const L1Topo::L1TopoTOB&, const L1Topo::L1TopoTOB&);
+
 #endif // L1TOPORDO_L1TOPOTOB_H

@@ -6,8 +6,12 @@
 #include "L1TopoRDO/L1TopoRDO.h"
 #include "L1TopoRDO/L1TopoRDOCollection.h"
 #include "L1TopoRDO/Header.h"
+#include "L1TopoRDO/Fibre.h"
+#include "L1TopoRDO/Status.h"
 #include "L1TopoRDO/L1TopoTOB.h"
 #include "L1TopoRDO/Helpers.h"
+#include "L1TopoRDO/Error.h"
+#include "L1TopoRDO/BlockTypes.h"
 #include <iostream>
 #include <cassert>
 #include <cstdint>
@@ -105,7 +109,7 @@ void test6()
 // check round trip decoding othen encoding of example L1TopoTOB word
 void test7()
 {
-  std::cout << "** test7: L1Topo::L1TopoTOB encode + decode **\n";
+  std::cout << "** test7: L1Topo::L1TopoTOB encode+decode **\n";
   uint32_t word(0x82000112); 
   L1Topo::L1TopoTOB c1(word);
   L1Topo::L1TopoTOB c2(c1.ctp_signal(),c1.overflow_bits(),c1.trigger_bits());
@@ -207,6 +211,63 @@ void test10()
   }
 }
 
+void test11()
+{
+    std::cout << "** test11: L1Topo::Error **\n";
+    L1Topo::Error e1(L1Topo::Error::ROB_ERROR);
+    L1Topo::Error e2 = L1Topo::Error::ROD_ERROR;
+    std::vector<L1Topo::Error> v1 = {L1Topo::Error::ROB_ERROR, L1Topo::Error::SLINK_STATUS_ERROR};
+    std::cout << static_cast<int>(e1) << " " << e1 << std::endl;
+    std::cout << static_cast<int>(e2) << " " << e2 << std::endl;
+    std::cout << v1 << std::endl;
+    L1Topo::Error e3( static_cast<L1Topo::Error>(99));
+    std::cout << static_cast<int>(e3) << " " << e3 << std::endl;
+
+    L1TopoRDO r;
+    r.setError(L1Topo::Error::ROB_ERROR);
+    r.setError(L1Topo::Error::SLINK_STATUS_ERROR);
+    assert(r.checkError(L1Topo::Error::ROB_ERROR));
+    assert(! r.checkError(L1Topo::Error::ROD_ERROR));
+    auto v2 = r.getErrors();
+    std::cout << v2 << std::endl;
+    assert(v2.size()==2);
+}
+
+void test12()
+{
+  std::cout << "** test12: L1Topo::Fibre encode+decode **\n";
+  std::vector<uint32_t> status = { 0, 1, 0, 0, 0  }; 
+  std::vector<uint32_t>  count = { 0, 1, 0, 6, 13 };
+  uint32_t word(0xd0440668); // word that matches the above values 0x1101 0000 0100 0100 0000 0110 0110 1000 = 0xd0440668
+  L1Topo::Fibre f1(status,count);
+  std::cout << "Fibre with status and sizes" << f1 << std::endl;  
+  std::cout << "Fibre word encoded from these" << L1Topo::formatHex8(f1.word()) << std::endl;
+  std::cout << "Compare to word" << L1Topo::formatHex8(word) << std::endl;
+  assert (f1.word()==word);
+  L1Topo::Fibre f2(word);
+  L1Topo::Fibre f3(f2.status(),f2.count());
+  std::cout << "L1Topo::Fibre  decoded from word" << L1Topo::formatHex8(f2.word()) << std::endl;
+  std::cout << "L1Topo::Fibre re-encoded to word" << L1Topo::formatHex8(f3.word()) << std::endl;
+  assert (f3.word() == f2.word());
+}
+
+void test13()
+{
+  std::cout << "** test13: L1Topo::Status encode+decode **\n";
+  ; // word that matches the above values 0x1101 0000 0100 0100 0000 0110 0110 1000 = 0xd0440668
+  assert (L1Topo::Status(1,1).word()==uint32_t(0xec000000));
+  assert (L1Topo::Status(1,0).word()==uint32_t(0xe8000000));
+  assert (L1Topo::Status(0,1).word()==uint32_t(0xe4000000));
+  assert (L1Topo::Status(0,0).word()==uint32_t(0xe0000000));
+  L1Topo::Status s1(0xe8000000);
+  L1Topo::Status s2(s1.overflow(),s1.crc());
+  std::cout << "L1Topo::Status  decoded from word" << L1Topo::formatHex8(s1.word()) << std::endl;
+  std::cout << "L1Topo::Status re-encoded to word" << L1Topo::formatHex8(s2.word()) << std::endl;
+  assert (s1.word() == s2.word());
+
+}
+
+
 int main()
 { 
   test1();
@@ -219,5 +280,8 @@ int main()
   test8();
   test9();
   test10();
+  test11();
+  test12();
+  test13();
   return 0;
 }

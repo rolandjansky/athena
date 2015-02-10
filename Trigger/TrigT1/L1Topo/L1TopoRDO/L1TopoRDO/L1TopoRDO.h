@@ -8,6 +8,7 @@
 #include <cstdint>
 #include <vector>
 #include <string>
+#include "L1TopoRDO/Error.h"
 
 /**
  * @short The class that represents the raw data received from an L1Topo board.
@@ -25,8 +26,9 @@
  */
 
 class L1TopoRDO {
+  
+public:
 
- public:
   //! Constructor
   L1TopoRDO();
   //! Destructor
@@ -36,18 +38,24 @@ class L1TopoRDO {
   const std::vector<uint32_t>& getDataWords () const;
   //! set the data words 
   void setDataWords (const std::vector<uint32_t>);
+
   //! get the status words
   const std::vector<uint32_t>& getStatusWords () const;
   //! set the status words
   void setStatusWords (const std::vector<uint32_t>);
-  //! get an integer used to report errors found during RAW to RDO conversion; to be documented...
-  unsigned int getError() const;
-  //! set the error value
-  void setError(const unsigned int);
+
+  //! get a vector of Errors found during RAW to RDO conversion; see enum and print helpers
+  std::vector<L1Topo::Error> getErrors() const;
+  //! check if a certain error flag has been set
+  bool checkError(L1Topo::Error) const;
+  //! set a flag to record an error
+  void setError(L1Topo::Error);
+
   //! get the source identifier, i.e. the module ID, of the ROD from which this RDO was filled
-  unsigned int getSourceID() const;
+  uint32_t getSourceID() const;
   //! set the source identifier
-  void setSourceID(const unsigned int);
+  void setSourceID(const uint32_t);
+
   //! terse printout method used by RoIBResult
   const std::string dump() const;
 
@@ -55,8 +63,8 @@ class L1TopoRDO {
   std::vector<uint32_t> m_dataWords;
   std::vector<uint32_t> m_statusWords;
   //unsigned int m_versionNumber;
-  unsigned int m_error;
-  unsigned int m_sourceID;
+  uint32_t  m_error;
+  uint32_t m_sourceID;
 };
 
 #include "CLIDSvc/CLASS_DEF.h"

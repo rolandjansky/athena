@@ -10,16 +10,16 @@ L1Topo::Header re-encoded to word     0xc0460023
 ** test5: L1Topo::L1TopoTOB encoding **
 L1Topo::L1TopoTOB created from word     0x83001037
 ** test6: L1Topo::L1TopoTOB decoding **
-** test7: L1Topo::L1TopoTOB encode + decode **
+** test7: L1Topo::L1TopoTOB encode+decode **
 L1Topo::L1TopoTOB encoded from word     0x82000112
 L1Topo::L1TopoTOB decoded   to word     0x82000112
 ** test8: L1Topo::L1TopoTOB index, clock and fpga decoding **
 ** test9: L1Topo::getCTPbits **
 L1TopoRDO:
-     SourceID 0x00910080
-     BS Tool error flags 0b00000000
-     Status words
-     Data words
+     SourceID: 0x00910080
+     Errors: []
+     Status words:
+     Data words:
      0x80000100      L1Topo TOB:  ctp_signal 0x0 ( index 0 clock 0 fpga 0 ) overflow bits 0b00000001 trigger bits 0b00000000
      0x81000201      L1Topo TOB:  ctp_signal 0x1 ( index 1 clock 0 fpga 0 ) overflow bits 0b00000010 trigger bits 0b00000001
      0x82000330      L1Topo TOB:  ctp_signal 0x2 ( index 0 clock 1 fpga 0 ) overflow bits 0b00000011 trigger bits 0b00110000
@@ -29,10 +29,10 @@ L1TopoRDO:
      0x860007b0      L1Topo TOB:  ctp_signal 0x6 ( index 0 clock 1 fpga 1 ) overflow bits 0b00000111 trigger bits 0b10110000
      0x87000800      L1Topo TOB:  ctp_signal 0x7 ( index 1 clock 1 fpga 1 ) overflow bits 0b00001000 trigger bits 0b00000000
 L1TopoRDO:
-     SourceID 0x00910090
-     BS Tool error flags 0b00000000
-     Status words
-     Data words
+     SourceID: 0x00910090
+     Errors: []
+     Status words:
+     Data words:
      0x800010d1      L1Topo TOB:  ctp_signal 0x0 ( index 0 clock 0 fpga 0 ) overflow bits 0b00010000 trigger bits 0b11010001
      0x810020ab      L1Topo TOB:  ctp_signal 0x1 ( index 1 clock 0 fpga 0 ) overflow bits 0b00100000 trigger bits 0b10101011
      0x82003002      L1Topo TOB:  ctp_signal 0x2 ( index 0 clock 1 fpga 0 ) overflow bits 0b00110000 trigger bits 0b00000010
@@ -66,3 +66,18 @@ module, ROIword, (index clock fpga), index, multiple of 8?
 1 0x0x85000000 ( 1 0 1 ) -> 104 true
 1 0x0x86000000 ( 0 1 1 ) -> 112 true
 1 0x0x87000000 ( 1 1 1 ) -> 120 true
+** test11: L1Topo::Error **
+0 ROB Error
+1 ROD Error
+[ROB Error, S-Link Status Error]
+99 Unknown Error
+[ROB Error, S-Link Status Error]
+** test12: L1Topo::Fibre encode+decode **
+Fibre with status and sizes     Fibre status,sizes: (0,0) (1,1) (0,0) (0,6) (0,13) 
+Fibre word encoded from these     0xd0440668
+Compare to word     0xd0440668
+L1Topo::Fibre  decoded from word     0xd0440668
+L1Topo::Fibre re-encoded to word     0xd0440668
+** test13: L1Topo::Status encode+decode **
+L1Topo::Status  decoded from word     0xe8000000
+L1Topo::Status re-encoded to word     0xe8000000

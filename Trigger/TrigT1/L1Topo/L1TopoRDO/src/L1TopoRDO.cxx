@@ -41,23 +41,34 @@ void L1TopoRDO::setStatusWords (const std::vector<uint32_t> statusWords)
   m_statusWords = statusWords;
 }
 
-unsigned int L1TopoRDO::getError() const
+std::vector<L1Topo::Error> L1TopoRDO::getErrors() const
 {
-  return m_error;
+  std::vector<L1Topo::Error> errors;
+  // bit of a hack: use the map of error enum to string as a way to iterate over all the errors that are defined
+  for (auto it : L1Topo::errorText){
+    auto e = it.first;
+    if (checkError(e)){
+      errors.push_back(e);
+    }
+  }
+  return errors;
 }
 
-void L1TopoRDO::setError(const unsigned int error)
-{
-  m_error=error;
+
+bool L1TopoRDO::checkError(L1Topo::Error e) const{
+  return (m_error>>static_cast<unsigned int>(e) & 1);
 }
 
+void L1TopoRDO::setError(L1Topo::Error e){
+  m_error |= (1 << static_cast<unsigned int>(e));
+}
 
-unsigned int L1TopoRDO::getSourceID() const
+uint32_t L1TopoRDO::getSourceID() const
 {
   return m_sourceID;
 }
 
-void L1TopoRDO::setSourceID(const unsigned int id)
+void L1TopoRDO::setSourceID(const uint32_t id)
 {
   m_sourceID=id;
 }
@@ -73,3 +84,4 @@ const std::string L1TopoRDO::dump() const
   }
   return s.str();
 }
+
