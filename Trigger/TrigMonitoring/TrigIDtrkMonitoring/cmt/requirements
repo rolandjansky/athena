@@ -5,6 +5,10 @@ author Denis Oliveira Damazio <damazio@mail.cern.ch>
 author Jay Howarth <jhowarth@cern.ch> #Tag and Probe only
 
 # ===================================================================
+
+
+
+
 public
 
 use AtlasPolicy           	AtlasPolicy-*
@@ -19,16 +23,14 @@ use tauEvent              	tauEvent-*              	Reconstruction
 
 use TrigHLTMonitoring	  	TrigHLTMonitoring-*	  	Trigger/TrigMonitoring
 use TrigDecisionTool      	TrigDecisionTool-*      	Trigger/TrigAnalysis
-use TrigInDetAnalysis           TrigInDetAnalysis-*             Trigger/TrigAnalysis
-use TrigInDetAnalysisUtils      TrigInDetAnalysisUtils-*        Trigger/TrigAnalysis
+# use TrigInDetAnalysis           TrigInDetAnalysis-*             Trigger/TrigAnalysis
+# use TrigInDetAnalysisUtils      TrigInDetAnalysisUtils-*        Trigger/TrigAnalysis
 use TrigInDetAnalysisExample    TrigInDetAnalysisExample-*      Trigger/TrigAnalysis
 use TrigInDetEvent        	TrigInDetEvent-*        	Trigger/TrigEvent
 use TrigSteeringEvent     	TrigSteeringEvent-*     	Trigger/TrigEvent
 use TrigParticle          	TrigParticle-*          	Trigger/TrigEvent
 use TrigCaloEvent         	TrigCaloEvent-*         	Trigger/TrigEvent
 use TrigInDetToolInterfaces 	TrigInDetToolInterfaces-* 	Trigger/TrigTools
-
-use InDetBeamSpotService    	InDetBeamSpotService-*          InnerDetector/InDetConditions
 
 use CaloEvent         	    CaloEvent-*               Calorimeter
 use CaloGeoHelpers         	CaloGeoHelpers-*         	Calorimeter
@@ -37,6 +39,8 @@ use RecoToolInterfaces     	RecoToolInterfaces-*    	Reconstruction/RecoTools
 
 use egammaEvent           	egammaEvent-*           	Reconstruction/egamma
 use egammaInterfaces      	egammaInterfaces-*      	Reconstruction/egamma
+
+use InDetBeamSpotService    	InDetBeamSpotService-*          InnerDetector/InDetConditions
 
 # =======================================================================
 
