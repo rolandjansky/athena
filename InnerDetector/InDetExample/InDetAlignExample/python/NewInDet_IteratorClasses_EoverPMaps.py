@@ -180,15 +180,13 @@ class mergeScriptEoverPMaps:
 		else:
 			script.write("source %s/scripts/asetup.sh %s --testarea=%s --tags=%s \n" % (self.ATHENACFG.AtlasSetupPath(),self.ATHENACFG.Release(),self.ATHENACFG.TestArea(), self.ATHENACFG.Tags()))
 		script.write("cd %s \n" % (self.OutputPath))
-		#script.write("DQHistogramMerge.py %s ./eoverpValidationMerge.root True\n" %(mergeFilesName))
-		script.write("DQHistogramMerge.py %s ./ZmumuValidationMerge.root True\n" %(mergeFilesName))
+		script.write("DQHistogramMerge.py %s ./eoverpValidationMerge.root True\n" %(mergeFilesName))
 		script.write("cd -")
 		script.close()
 		
 		mergeFiles=open(mergeFilesName,"w")
 		os.chdir(self.OutputPath)
-		#files = os.popen("find -name 'eoverpValidationOut.root'").readlines()
-		files = os.popen("find -name 'ZmumuValidationOut.root'").readlines()
+		files = os.popen("find -name 'eoverpValidationOut.root'").readlines()
 		for line in files:
 			mergeFiles.write("%s" % line)
 		mergeFiles.close()

@@ -202,7 +202,7 @@ extraOptions["sctAlignBarrelRotY"] = True
 extraOptions["sctAlignBarrelRotZ"] = True
 ## alignment parameters Endcap
 extraOptions["sctAlignEndcapX"] = True
-extraOptions["sctAlignEndcapY"] = True
+extraOptions["sctlAlignEndcapY"] = True
 extraOptions["sctAlignEndcapZ"] = False
 extraOptions["sctAlignEndcapRotX"] = False
 extraOptions["sctAlignEndcapRotY"] = False

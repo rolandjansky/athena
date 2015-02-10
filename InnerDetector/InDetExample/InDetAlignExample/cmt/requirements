@@ -9,7 +9,7 @@ use AtlasReconstructionRunTime AtlasReconstructionRunTime-* -no_auto_imports
 
 include_path none
 
-apply_pattern declare_scripts        files = "RunIterator.py"
+apply_pattern declare_scripts        files = "RunIterator_Run2Rel19.py"
 
 # the txt files are not jobOs but if they are not here get_files does not find them
 apply_pattern declare_joboptions     files = "*.py InDetAlignExampleFlags/*.py  Data/*.txt"

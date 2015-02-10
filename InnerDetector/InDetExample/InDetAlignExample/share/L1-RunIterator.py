@@ -12,7 +12,7 @@ import sys
 # Number of Iterations
 # ===============================
 FirstIteration = 0 
-Iterations     = 2 
+Iterations     = 4 
 
 # ===============================
 # Basic running options
@@ -51,14 +51,14 @@ DataToRun = []
 Data1 = setupData('2010Test') # Name for the dataset, the output subpaths will have this name
 #Data1.setDataType("MC10_Singlemuons") # Type of data: IDTracks, MinBias, IDCosmics or MC09_Multimuons by now
 Data1.setDataType("IDTracks") # Type of data: IDTracks, MinBias, IDCosmics or MC09_Multimuons by now
-#Data1.setRuns([159224]) # Run number, you can provide a list of runs
+Data1.setRuns([159224]) # Run number, you can provide a list of runs
 Data1.setCPUs([300,250,250,300,150,150]) # Number of CPUs per iteration to process this data
 Data1.setEvents([-1,-1,-1,-1,3000000,3000000]) # Number of total events to process
 #Data1.setLimitFiles(20) # Limit the number of files to use (useful when runing in local a subset of data)
 Data1.CreateFileList() # Creates the file list
 ## Data1.setCustomFileList("filelist") # Use your own filelist, WARNING: comment the CreateFileList line
-Data1.setGlobalTag("") # Use custom Global Tag, if not given it will use the data default one
-Data1.setDetDescrVersion("") # Use custom DetDescrVersion Tag, if not given it will use the data default one
+Data1.setGlobalTag("COMCOND-BLKPA-006-10") # Use custom Global Tag, if not given it will use the data default one
+Data1.setDetDescrVersion("ATLAS-GEO-20-19-01") # Use custom DetDescrVersion Tag, if not given it will use the data default one
 DataToRun.append(Data1) # always add this line to process the defined data
 ### Duplicate the previous lines to have as many datasets that you want
 
@@ -96,11 +96,11 @@ extraOptions = {}
 extraOptions["doMonitoring"] = True
 extraOptions["doTrkNtuple"] = False
 
-extraOptions["PtCut"]               = 10000 #Pt in MeV, comment the line to use default value (10000)
-extraOptions["lorentzAngleTag"]     = ""#"PIXELLorentzAngleScale-Data-001"
-extraOptions["siAlignmentTag"]      = ""
-extraOptions["trtAlignmentTag"]     = ""
-extraOptions["trtAlignmentTagL3"]   = ""
+extraOptions["PtCut"]               = 5000 #Pt in MeV, comment the line to use default value (10000)
+extraOptions["lorentzAngleTag"]     ="PIXELLorentzAngleScale-Data-001"
+extraOptions["siAlignmentTag"]      = "InDetAlign_Repro2012_d0z0p_constrained"
+extraOptions["trtAlignmentTag"]     = "TRTAlign_Repro2012_d0z0p_constrained"
+extraOptions["trtAlignmentTagL3"]   = "TRTCalibDX_EoverP_189598_189845v1"
 
 #extraOptions["beamSpotTag"] = "IndetBeampos-ES1-UPD2-04"
 #extraOptions["particleNumber"] = 0
@@ -130,12 +130,13 @@ extraOptions["pixelAlignBarrelRotX"] = False
 extraOptions["pixelAlignBarrelRotY"] = False
 extraOptions["pixelAlignBarrelRotZ"] = False
 ## alignment parameters Endcap
-extraOptions["pixelAlignEndcapX"] = False
-extraOptions["pixelAlignEndcapY"] = False
+extraOptions["pixelAlignEndcapX"] = True
+extraOptions["pixelAlignEndcapY"] = True
 extraOptions["pixelAlignEndcapZ"] = False
 extraOptions["pixelAlignEndcapRotX"] = False
 extraOptions["pixelAlignEndcapRotY"] = False
-extraOptions["pixelAlignEndcapRotZ"] = False
+extraOptions["pixelAlignEndcapRotZ"] = True
+
 ## SCT
 extraOptions["sctAlignBarrelX"] = True
 extraOptions["sctAlignBarrelY"] = True
@@ -145,7 +146,7 @@ extraOptions["sctAlignBarrelRotY"] = True
 extraOptions["sctAlignBarrelRotZ"] = True
 ## alignment parameters Endcap
 extraOptions["sctAlignEndcapX"] = True
-extraOptions["sctAlignEndcapY"] = True
+extraOptions["sctlAlignEndcapY"] = True
 extraOptions["sctAlignEndcapZ"] = True
 extraOptions["sctAlignEndcapRotX"] = True
 extraOptions["sctAlignEndcapRotY"] = True
@@ -165,7 +166,7 @@ AlignPixelBarrel           = [True,True,True,True,True,True,True,True,True,True,
 AlignPixelEndcaps          = [True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True]
 
 # alignment level for the full Pixel
-PixelAlignmentLevel        = [ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] # see InDetAlignGeometryLevel wiki for more info
+PixelAlignmentLevel        = [ 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1] # see InDetAlignGeometryLevel wiki for more info
 # alignment level for the Pixel barrel. If set to -1 uses PixelAlignmentLevel, otherwise it overwrites it
 PixelAlignmentLevelBarrel  = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1] # see InDetAlignGeometryLevel wiki for more info
 # alignment level for the Pixel endcaps. If set to -1 uses PixelAlignmentLevel, otherwise it overwrites it

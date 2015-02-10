@@ -111,7 +111,7 @@ class setupData:
 			if "castor" in path:
 				inputfiles = os.popen("rfdir "+ path).read().splitlines()
 			elif "eos" in path:
-				inputfiles = os.popen("/afs/cern.ch/project/eos/installation/atlas/bin/eos.select ls " + path).read().splitlines()
+				inputfiles = os.popen("/afs/cern.ch/project/eos/installation/0.2.31/bin/eos.select ls " + path).read().splitlines()
 				print "Reading input files from eos"
 				print inputfiles 
 			files = 0

@@ -8,8 +8,6 @@
 from threading import Thread
 import os
 import time
-import multiprocessing
-
 
 class getAthenaConfig:
 	def __init__(self, options):
@@ -74,6 +72,7 @@ class manageJob:
 		     extraOptions={},
 		     AlignmentOptions={},
 		     RecoScript="InDetAlignExample/NewTopOptions.py",
+		     ConditionsScript="InDetAlignExample/jobOption_ConditionsOverrider.py",
 		     AlignmentScript="InDetAlignExample/NewInDetAlignAlgSetup.py",
 		     AlignmentLevels = "InDetAlignExample/NewInDetAlignLevels.py",
 		     #MonitoringScript = "InDetRecExample/InDetMonitoringAlignment.py", 
@@ -91,6 +90,7 @@ class manageJob:
 		self.inputPoolFiles = inputPoolFiles
 		self.JOBNAME=JOBNAME
 		self.RecoOptions = RecoOptions
+		self.ConditionsScript = ConditionsScript
 		self.extraOptions = extraOptions
 		self.RecoScript = RecoScript
 		self.AlignmentOptions = AlignmentOptions
@@ -163,7 +163,9 @@ class manageJob:
 		job.write("\n")
 		job.write('##-------- Load Reconstruction --------------------\n')
 		job.write('include("'+str(self.RecoScript)+'") \n')
-
+		job.write("\n")
+		job.write('##-------- Load Conditions Overrider --------------------\n')
+		job.write('include("'+str(self.ConditionsScript)+'") \n')
 		job.write("\n")
 		job.write('##-------- Load Alignment --------------------\n')
 		job.write('include("'+str(self.AlignmentScript)+'") \n')
@@ -183,13 +185,16 @@ class manageJob:
 			script.write("#BSUB -e %s/Iter%d/logs/Iter%dSolve.err \n" % (self.OutputPath,self.i,self.i))
 			
 		script.write("#BSUB -q %s \n" % self.QUEUE)
-		script.write("#BSUB -C 200 \n")
 		script.write("\n")
 		script.write("#   setup the environment \n")
 		if self.ATHENACFG.atlasSetup() == "CMTHOME":
 			script.write("source %s/setup.sh -tag=%s,%s \n" % (self.CMTDIR, self.ATHENACFG.Release(), self.ATHENACFG.Tags()))
 		elif "single" in self.ATHENACFG.AtlasSetupOptions():
 			script.write("source %s/scripts/asetup.sh %s --testarea=%s --tags=%s --single \n" % (self.ATHENACFG.AtlasSetupPath(),self.ATHENACFG.Release(),self.ATHENACFG.TestArea(), self.ATHENACFG.Tags()))
+
+		elif "nightlies" in self.ATHENACFG.AtlasSetupOptions():
+			script.write("source /afs/cern.ch/atlas/software/dist/AtlasSetup/scripts/asetup.sh 19.1.X rel1 --testarea=%s --single \n" % (self.ATHENACFG.TestArea()))
+
 		else:
 			script.write("source %s/scripts/asetup.sh %s --testarea=%s --tags=%s \n" % (self.ATHENACFG.AtlasSetupPath(),self.ATHENACFG.Release(),self.ATHENACFG.TestArea(), self.ATHENACFG.Tags()))
 		for file in self.inputPoolFiles:
@@ -238,8 +243,7 @@ class manageJob:
 		elif runmode == "local":
 			if self.j!=-1:
 				print "  Running %s_Iter%d_%s_Part%02d job" % (self.preName,self.i,self.dataName,self.j)
-				#os.system("sh %s | tee %s/Iter%d/logs/Iter%d_%s_Part%02d.log & \n" % (self.SCRIPTNAME, self.OutputPath,self.i,self.i,self.dataName,self.j))
-				os.system("sh %s > %s/Iter%d/logs/Iter%d_%s_Part%02d.log & \n" % (self.SCRIPTNAME, self.OutputPath,self.i,self.i,self.dataName,self.j))
+				os.system("sh %s | tee %s/Iter%d/logs/Iter%d_%s_Part%02d.log \n" % (self.SCRIPTNAME, self.OutputPath,self.i,self.i,self.dataName,self.j))
 			else:
 				print "  Running %s_Iter%dSolve job" % (self.preName,self.i)
 				os.system("sh %s | tee %s/Iter%d/logs/Iter%dSolve.log \n" % (self.SCRIPTNAME, self.OutputPath,self.i,self.i))
@@ -252,68 +256,7 @@ class manageJob:
 		time.sleep(30)
 		while os.popen('bjobs -w').read().find(self.preName)!=-1:
 			time.sleep(30)
-
-	def wait_local(self, thisjob, nusedcpus):
-		print "Processing in local... job: %d " % thisjob
-		nprocessors = multiprocessing.cpu_count()
-		print " ** wait_local ** NProcessors = %d " % nprocessors
-		print " ** wait_local ** NUsedCPUs = %d " % nusedcpus
-		print " ** wait_local ** subJob= %d %% %d = %d" % ( thisjob, nprocessors, (thisjob+1) % nprocessors)
-		if (((thisjob+1) % nprocessors) == 0):
-			print " ** wait_local ** %d jobs already sent is the same as number of available processors (%d). WAIT ! " % (thisjob+1, nprocessors)
-		else:                   
-			print " ** wait_local ** %d jobs already sent. Still processors (%d) available. KEEP GOING ! " % (thisjob+1, nprocessors-thisjob-1)
-		if ((thisjob+1) == nusedcpus):
-			print " ** wait_local ** %d jobs already sent is the same as number of available cpus (%d). WAIT ! " % (thisjob+1, nusedcpus)
-		else:                   
-			print " ** wait_local ** %d jobs already sent. Still cpus (%d) available. KEEP GOING ! " % (thisjob+1, nusedcpus-thisjob-1)
-
-		time.sleep(2) #wait 2 second between jobs
-            
-		#if ( ((thisjob+1) % nprocessors == 0) or ((thisjob+1) == nusedcpus) ):
-		if ((thisjob+1) >= nprocessors) :
-			print " ** wait_local ** %d jobs sent >= as available CPUs (%d) ==>  WAIT ! " % ((thisjob+1), nprocessors)		           # fisrt time sleep 60 seconds to allow all jobs to start
-			os.system("sleep 60")
-			loopcount = 0
-			njobspending = int(os.popen("ps -f | grep _Part | wc -l").read())
-			print " ** wait_local ** N jobs pending= %d (available CPUS %d)" % (njobspending, nprocessors) 
-			#while njobspending > 0: # loop to check there are jobs running
-			while njobspending >= nprocessors: # loop to check if there are free slots
-				#print " Sleeping 60 seconds..... "
-				os.system("sleep 60")
-				#os.system("ps -f | grep _Part ")
-				njobspending = (int(os.popen("ps -f | grep _Part | wc -l").read())/2)
-				# discount the ps process, which increments +1 the number of jobs running 
-				njobspending -= 1 
-				loopcount += 1
-				print " ** wait_local ** Loop: %d  --> N jobs pending= %d" % (loopcount, njobspending)
-			# print " ** wait_local ** Jobs completed --> exiting wait loop"
-			print " ** wait_local ** some jobs already completed --> free slot --> exiting wait loop"
-		else:   
-			print " ** wait_local ** Free CPUS --> submit another job"
-
-		if ( (thisjob+1) == nusedcpus ):
-			print " ** wait_local ** all jobs already submited. Wait for completion"
-			# fisrt time sleep 60 seconds to allow all jobs to start
-			os.system("sleep 60")
-			loopcount = 0
-			njobspending = int(os.popen("ps -f | grep _Part | wc -l").read())
-			print " ** wait_local ** N jobs pending= %d" % njobspending
-			while njobspending > 0: # loop to check if there are jobs running
-				#print " Sleeping 60 seconds..... "
-				os.system("sleep 60")
-				#os.system("ps -f | grep _Part ")
-				njobspending = (int(os.popen("ps -f | grep _Part | wc -l").read())/2)
-				# discount the ps process, which increments +1 the number of jobs running 
-				njobspending -= 1 
-				loopcount += 1
-				print " ** wait_local ** Loop: %d  --> N jobs pending= %d" % (loopcount, njobspending)
-			# print " ** wait_local ** Jobs completed --> exiting wait loop"
-			print " ** wait_local ** some jobs still running  -->  keep waiting "
-		else:   
-			print " ** wait_local ** ALL JOBS COMPLETED ** proceed to next step "
-
-
+			
 import os
 class SortCpus:
 	def __init__(self, TOTALCPUS, LOCALDIR, FILELIST, OutputLevel,doDetailedSplitting = False, nEventsPerFile=-1):
@@ -704,10 +647,10 @@ class mergeScript:
 		script.write("#   setup the environment \n")
 		if self.ATHENACFG.atlasSetup() == "CMTHOME":
 			script.write("source %s/setup.sh -tag=%s,%s \n" % (self.CMTDIR, self.ATHENACFG.Release(), self.ATHENACFG.Tags()))
-
 		elif "single" in self.ATHENACFG.AtlasSetupOptions():
 			script.write("source %s/scripts/asetup.sh %s --testarea=%s --tags=%s --single \n" % (self.ATHENACFG.AtlasSetupPath(),self.ATHENACFG.Release(),self.ATHENACFG.TestArea(), self.ATHENACFG.Tags()))
-
+		elif "nightlies" in self.ATHENACFG.AtlasSetupOptions():
+			script.write("source /afs/cern.ch/atlas/software/dist/AtlasSetup/scripts/asetup.sh 19.1.X rel1 --testarea=%s --single \n" % (self.ATHENACFG.TestArea()))
 		else:
 			script.write("source %s/scripts/asetup.sh %s --testarea=%s --tags=%s \n" % (self.ATHENACFG.AtlasSetupPath(),self.ATHENACFG.Release(),self.ATHENACFG.TestArea(), self.ATHENACFG.Tags()))
 		script.write("cd %s/Iter%d/ \n" % (self.OutputPath,self.i))

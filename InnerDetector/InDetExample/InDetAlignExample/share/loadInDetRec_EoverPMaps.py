@@ -59,7 +59,7 @@ seq = AthSequencer("AthFilterSeq")
 
 from GoodRunsListsUser.GoodRunsListsUserConf import *
 seq += GRLTriggerSelectorAlg('GRLTriggerAlg1')
-seq.GRLTriggerAlg1.GoodRunsListArray = ['PHYS_StandardGRL_All_Good']#'Eg_standard']        ## pick up correct name from inside xml file!
+seq.GRLTriggerAlg1.GoodRunsListArray = ['Eg_standard']        ## pick up correct name from inside xml file!
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput=PoolInput
@@ -172,29 +172,12 @@ from GaudiSvc.GaudiSvcConf import THistSvc
 #ServiceMgr += THistSvc()
 #ServiceMgr.THistSvc.Output += ["egTestOutPut DATAFILE='ElectronExtrapolationOut.root' OPT='RECREATE'"]
 ServiceMgr += THistSvc()
-#ServiceMgr.THistSvc.Output += ["eoverpValidation DATAFILE='eoverpValidationOut.root' OPT='RECREATE'"]
-#ServiceMgr.THistSvc.Output += ["eoverpValidation2 DATAFILE='eoverpValidationOut.root' OPT='RECREATE'"]
-ServiceMgr.THistSvc.Output += ["ZmumuValidation DATAFILE='ZmumuValidationOut.root' OPT='RECREATE'"]
+ServiceMgr.THistSvc.Output += ["eoverpValidation DATAFILE='eoverpValidationOut.root' OPT='RECREATE'"]
+ServiceMgr.THistSvc.Output += ["eoverpValidation2 DATAFILE='eoverpValidationOut.root' OPT='RECREATE'"]
 
 
 include ("InDetAlignExample/ElectronEoverPTracking.py")
-
-
-from InDetPerformanceMonitoring.InDetPerformanceMonitoringConf import IDPerfMonZmumu
-iDPerfMonZmumu = IDPerfMonZmumu(name = 'IDPerfMonZmumu',
-                                     ReFitterTool1 = MuonRefitterTool,
-                                     ReFitterTool2 = MuonRefitterTool2,
-				                             OutputTracksName =  "SelectedMuons", 
-							                       isMC = False,
-				                             doIsoSelection = False,
-                                     OutputLevel =3)
-
-
-#ToolSvc += funIDPerfMonZmumu
-job += iDPerfMonZmumu
-
-
-'''from InDetPerformanceMonitoring.InDetPerformanceMonitoringConf import IDPerfMonEoverP
+from InDetPerformanceMonitoring.InDetPerformanceMonitoringConf import IDPerfMonEoverP
 funIDPerfMonEoverP = IDPerfMonEoverP(name = 'IDPerfMonEoverP',
                                      ReFitterTool = ElectronRefitterTool,
                                      ReFitterTool2 = ElectronRefitterTool2,
@@ -206,7 +189,7 @@ funIDPerfMonEoverP = IDPerfMonEoverP(name = 'IDPerfMonEoverP',
                                      isDATA = True,
                                      OutputLevel =INFO)
 
-job += funIDPerfMonEoverP'''
+job += funIDPerfMonEoverP
 #from ElectronRefit.ElectronRefitConf import ElectronExtrapolation
 #ElectronRefitter = ElectronExtrapolation(name = 'ElectronRefitter',
 #                                    ReFitterTool = ElectronRefitterTool,

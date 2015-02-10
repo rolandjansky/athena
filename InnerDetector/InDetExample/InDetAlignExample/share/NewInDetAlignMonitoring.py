@@ -15,14 +15,18 @@ InDetAlignMonManager = AthenaMonManager( name                = "InDetAlignMonMan
 # track collection to monitor
 
 tracks = "ExtendedTracks"
+    
 if Cosmics:
 	tracks = "CombinedInDetTracks"
+	trackCollections = [tracks]
+
 # if we're running Si only (TRT is off) we need to use different track collection
 if not newInDetAlignAlg_Options["useTRT"]:
 	tracks = "ResolvedTracks"
 
 if newInDetAlignAlg_Options["doBSConstraint"] == False and newInDetAlignAlg_Options["doPVConstraint"] == False:
-	trackCollections = [tracks,"AlignTracks","AlignTracksNormalRefitted"]
+	#trackCollections = [tracks,"AlignTracks","AlignTracksNormalRefitted"]
+    trackCollections  = [tracks,"AlignTracks"]
 elif newInDetAlignAlg_Options["doBSConstraint"] == True and newInDetAlignAlg_Options["doPVConstraint"] == False:
 	trackCollections = [tracks,"AlignTracks","AlignTracksNormalRefitted","AlignTracksBeamspotConstrained"]
 elif newInDetAlignAlg_Options["doBSConstraint"] == False and newInDetAlignAlg_Options["doPVConstraint"] == True:
@@ -38,6 +42,24 @@ allSelection = InDetAlignMon__TrackSelectionTool(
 )
 ToolSvc += allSelection
 
+#Track selector: Defined in NewInDetAlignAlgSetup
+#trackSelector = The cuts are:
+#				pTMin = newInDetAlignAlg_Options["PtCut"],
+#				IPd0Max = 500.,
+#				IPz0Max = 500.,
+#				#nHitSct = 4,
+#				nHitPix = 1,
+#				nHitPixPhysical = 1,
+#				nHitBLayerPlusPix = 0,
+#				nHitBLayer = 0,
+#				nHitSi = 9,
+#				nHitSiPhysical = 7,
+#				nHitTrt = 0,
+#				TrtDCCutTool = trtDCtool,
+#				addToMinHitTrt = -3
+
+
+
 # Align tracks selection
 if newInDetAlignAlg_Options["useTrackSelector"]:
 	alignTrackSelection = InDetAlignMon__TrackSelectionTool(
@@ -52,31 +74,30 @@ from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import IDAlignMonResi
 from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import IDAlignMonGenericTracks
 from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import IDAlignMonEfficiencies
 
+print " <NewInDetAlignMonitoring> setting up " 
 for trackCollection in trackCollections:
 	# Selected tracks
-	print "Loading monitoring"
+	print " <NewInDetAlignMonitoring> Loading monitor for track Collection", trackCollection
 	InDetAlignMonResiduals = IDAlignMonResiduals(
 		name = "InDetAlignMonResiduals_"+trackCollection,
 		trackSelection = allSelection,
 		tracksName = trackCollection,
 		useExtendedPlots = True,
+		doClusterSizeHistos = True,
 		triggerChainName = "all",
 		Pixel_Manager = InDetKeys.PixelManager(),
 		SCT_Manager = InDetKeys.SCT_Manager(),
 		TRT_Manager = InDetKeys.TRT_Manager(),
-		minPIXResXFillRange = -0.1,
-		maxPIXResXFillRange =  0.1,
-		#minPIXResXFillRange = -0.5,
-		#maxPIXResXFillRange =  0.5,
-		minPIXResYFillRange = -0.5,
-		maxPIXResYFillRange =  0.5,
-		minSCTResFillRange  = -0.2,
-		maxSCTResFillRange =   0.2,
-		#minSCTResFillRange  = -0.5,
-		#maxSCTResFillRange =   0.5,
-		NSplitMap = 4,
-		RangeOfPullHistos  =   5
-
+        minPIXResXFillRange = -0.6,
+		maxPIXResXFillRange =  0.6,
+		minPIXResYFillRange = -0.80,
+		maxPIXResYFillRange =  0.80,
+		minSCTResFillRange  = -0.4,
+		maxSCTResFillRange =   0.4,
+        minTRTResidualWindow =-2.5,
+        maxTRTResidualWindow = 2.5,
+		NSplitMap  = 1,
+		RangeOfPullHistos  =   5.0
 	)
 	print InDetAlignMonResiduals
 	
@@ -89,6 +110,9 @@ for trackCollection in trackCollections:
 		tracksName = trackCollection,
 		useExtendedPlots = True,
 		triggerChainName = "all",
+        d0Range = 1000,
+        z0Range = 1000,
+        #NTracksRange = 10,
 		VxPrimContainerName = InDetKeys.PrimaryVertices()
 	)
 	ToolSvc += InDetAlignMonGenericTracks
@@ -104,9 +128,11 @@ for trackCollection in trackCollections:
 		SCT_Manager = InDetKeys.SCT_Manager(),
 		TRT_Manager = InDetKeys.TRT_Manager()
 	)
+
 	ToolSvc += InDetAlignMonSelectedTracksEfficiencies
 	InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonSelectedTracksEfficiencies ]
 
+#TriggerChainName is only the name passed to the monitoring folder
 
 if newInDetAlignAlg_Options["useTrackSelector"]:
 	InDetAlignMonResiduals = IDAlignMonResiduals(
@@ -114,22 +140,11 @@ if newInDetAlignAlg_Options["useTrackSelector"]:
 		trackSelection = alignTrackSelection,
 		tracksName = tracks,
 		useExtendedPlots = True,
-		triggerChainName = "alignSelection",
+		doClusterSizeHistos = True,
+		triggerChainName = "alignSelection",  
 		Pixel_Manager = InDetKeys.PixelManager(),
 		SCT_Manager = InDetKeys.SCT_Manager(),
 		TRT_Manager = InDetKeys.TRT_Manager(),
-		minPIXResXFillRange = -0.1,
-		maxPIXResXFillRange =  0.1,
-		#minPIXResXFillRange = -0.5,
-		#maxPIXResXFillRange =  0.5,
-		minPIXResYFillRange = -0.5,
-		maxPIXResYFillRange =  0.5,
-		minSCTResFillRange  = -0.2,
-		maxSCTResFillRange =   0.2,
-		#minSCTResFillRange  = -0.5,
-		#maxSCTResFillRange =   0.5,
-		NSplitMap = 4,
-		RangeOfPullHistos  =   5
 	)
 	ToolSvc += InDetAlignMonResiduals
 	InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonResiduals ]
@@ -167,26 +182,126 @@ if not Cosmics:
 	ToolSvc += InDetAlignMonBeamSpot_noTrig
 	InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonBeamSpot_noTrig ]
 
+
+
+#include("InDetPerformanceMonitoring/ElectronEoverPTracking.py")
+#from InDetPerformanceMonitoring.InDetPerformanceMonitoringConf import IDPerfMonZmumu
+#funIDPerfMonZmumu = IDPerfMonZmumu(name = 'IDPerfMonZmumu',
+#				   ReFitterTool1 = MuonRefitterTool,
+#				   ReFitterTool2 = MuonRefitterTool2,
+#				   OutputTracksName =  "SelectedMuons", 
+#				   isMC = True,
+#				   doIsoSelection = False,
+#				   OutputLevel =1)
+# I hope is correct
+#job+= funIDPerfMonZmumu
+
+
+#RefitTrackCollections= ["SelectedMuonsRefit1","SelectedMuonsRefit2"]
+#RefitTrackSelector  = InDet__InDetDetailedTrackSelectorTool(
+#	name= "RefitTrackSelector",
+#	OutputLevel=INFO,
+#	TrackSummaryTool=InDetTrackSummaryTool,
+#	pTMin = 10000.,
+#	IPd0Max = 500.,
+#	IPz0Max = 500.,
+#	nHitPix = 1,
+#	nHitPixPhysical = 1,
+#	nHitBLayerPlusPix = 0,
+#	nHitBLayer = 0,
+#	nHitSi = 9,
+#	nHitSiPhysical = 7,
+#	nHitTrt = 0,
+#	addToMinHitTrt=-3
+#	)
+#RefitTrackSelector.useEtaDepententMinHitTrt = True
+#ToolSvc += RefitTrackSelector
+'''
+RefitAlignTrackSelection = InDetAlignMon__TrackSelectionTool(
+	name = "InDetAlignMonAlignTrackSelectionTool",
+	TrackSelectorTool = RefitTrackSelector)
+ToolSvc+= RefitAlignTrackSelection
+
+
+for trackCollection in RefitTrackCollections:
+	InDetAlignMonResiduals = IDAlignMonResiduals(
+                name = "InDetAlignMonResiduals_"+trackCollection,
+                trackSelection = RefitAlignTrackSelection,
+                tracksName = trackCollection,
+                useExtendedPlots = True,
+                triggerChainName = "all",
+                Pixel_Manager = InDetKeys.PixelManager(),
+                SCT_Manager = InDetKeys.SCT_Manager(),
+                TRT_Manager = InDetKeys.TRT_Manager(),
+                minPIXResXFillRange = -0.1,
+                maxPIXResXFillRange =  0.1,
+                #minPIXResXFillRange = -0.5,
+                #maxPIXResXFillRange =  0.5,
+                minPIXResYFillRange = -0.5,
+                maxPIXResYFillRange =  0.5,
+                minSCTResFillRange  = -0.2,
+                maxSCTResFillRange =   0.2,
+                #minSCTResFillRange  = -0.5,
+                #maxSCTResFillRange =   0.5,
+                NSplitMap = 1,
+                RangeOfPullHistos  =   5
+		)
+	ToolSvc += InDetAlignMonResiduals
+	InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonResiduals ]
+	InDetAlignMonGenericTracks = IDAlignMonGenericTracks(
+                name = "InDetAlignMonGenericTracks_"+trackCollection,
+                trackSelection = RefitAlignTrackSelection,#allSelection,
+                tracksName = trackCollection,
+                useExtendedPlots = True,
+                triggerChainName = "all",
+                VxPrimContainerName = InDetKeys.PrimaryVertices()
+		)
+	ToolSvc += InDetAlignMonGenericTracks
+	InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonGenericTracks ]
+
+	InDetAlignMonSelectedTracksEfficiencies = IDAlignMonEfficiencies (
+                name = "InDetAlignMonEfficiencies_"+trackCollection,
+                trackSelection = RefitAlignTrackSelection,#allSelection,
+                tracksName = trackCollection,
+                triggerChainName = "all",
+                #HoleSearch = InDetExtendedHoleSearchTool,
+                Pixel_Manager = InDetKeys.PixelManager(),
+                SCT_Manager = InDetKeys.SCT_Manager(),
+                TRT_Manager = InDetKeys.TRT_Manager()
+		)
+	ToolSvc += InDetAlignMonSelectedTracksEfficiencies
+	InDetAlignMonManager.AthenaMonTools += [ InDetAlignMonSelectedTracksEfficiencies ]
+
+'''
+
 if Cosmics:		
+	print " <NewInDetAlignMonitoring> Setting track segment monitoring for various collections"
 	InDetAlignMonManager.DataType = "cosmics"
 	m_alignMonTrackSelectorTool  = []
 	m_alignMonTrackSelectionTool = []
 	# Cosmic running   
 	#
 
-	m_trackSelectorToolName		  = ["InDetAlignCosmicTrackSelectorTool","InDetAlignCosmicTrackSelector_Half","PixTrackSelectorTool",
-										"PixUpLowTrackSelectorTool","SCTTrackSelectorTool","SCTUpLowTrackSelectorTool","SiTrackSelectorTool",
-										"SiUpSiLowTrackSelectorTool","TRTonlyTrackSelectorTool","TRTUpTRTLowTrackSelectorTool"]
-	m_nHitBLayer					 = [ 0, 1,2,1, 0,0, 2,1, 0, 0]
-	m_nHitPix						= [ 3, 3,5,3, 0,0, 5,3, 0, 0]
-	m_nHitSct						= [ 8, 8,0,0,14,8,14,8, 0, 0]
-	m_nHitTrt						= [30,25,0,0, 0,0, 0,0,30,30]
+	m_trackSelectorToolName		  = ["AlignTracksTrackSelectorTool","AlignTracksTrackSelectorTool_Half",
+                                     "InDetAlignCosmicTrackSelectorTool", "InDetAlignCosmicTrackSelector_Half",
+                                     "PixTrackSelectorTool", "PixUpLowTrackSelectorTool",
+                                     "SCTTrackSelectorTool", "SCTUpLowTrackSelectorTool",
+                                     "SiTrackSelectorTool", "SiUpSiLowTrackSelectorTool",
+                                     "TRTonlyTrackSelectorTool","TRTUpTRTLowTrackSelectorTool"]
+	m_nHitBLayer					= [ 0,  0,  0,  1,  2,  1,  0,  0,  2,  1,  0,  0]
+	m_nHitPix						= [ 1,  1,  1,  3,  5,  3,  0,  0,  5,  3,  0,  0]
+	m_nHitSct						= [ 8,  8,  8,  8,  0,  0, 14,  8, 14,  8,  0,  0]
+	m_nHitTrt						= [24, 24, 24, 24,  0,  0,  0,  0,  0,  0, 24, 24]
 
-	m_alignMonTrackSelectionToolName = ["InDetAlignMonCosmicsTrackSelectionTool","InDetAlignMonTrackSelectionTool_Half","PixTrackSelectionTool",
-										"PixUpLowTrackSelectionTool","SCTTrackSelectionTool","SCTUpLowTrackSelectionTool","SiTrackSelectionTool",
-										"SiUpSiLowTrackSelectionTool","TRTonlyTrackSelectionTool","TRTUpTRTLowTrackSelectionTool" ]
+	m_alignMonTrackSelectionToolName = ["AlignTracksTrackSelectionTool","AlignTracksTrackSelectionTool_Half",
+                                        "InDetAlignMonCosmicsTrackSelectionTool","InDetAlignMonTrackSelectionTool_Half",
+                                        "PixTrackSelectionTool", "PixUpLowTrackSelectionTool",
+                                        "SCTTrackSelectionTool","SCTUpLowTrackSelectionTool",
+                                        "SiTrackSelectionTool", "SiUpSiLowTrackSelectionTool",
+                                        "TRTonlyTrackSelectionTool","TRTUpTRTLowTrackSelectionTool" ]
+
 	from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
-	for i in range(10):	   
+	for i in range(len(m_alignMonTrackSelectionToolName)):	   
 		m_alignMonTrackSelectorTool.append(InDet__InDetDetailedTrackSelectorTool(name			 = m_trackSelectorToolName[i],
 																				pTMin			= 0,#1 GeV
 																				IPd0Max		  = 1000.0,#no cut on d0 yet
@@ -203,7 +318,7 @@ if Cosmics:
 		if (InDetFlags.doPrintConfigurables()):
 			print m_alignMonTrackSelectorTool[i]
 	
-	   
+	       
 		m_alignMonTrackSelectionTool.append(InDetAlignMon__TrackSelectionTool(name				= m_alignMonTrackSelectionToolName[i],
 																			  ## Uncomment this line to bypass track slection
 																			  #PassAllTracks	  = True,
@@ -212,33 +327,34 @@ if Cosmics:
 
 		ToolSvc += m_alignMonTrackSelectionTool[i]
 		if (InDetFlags.doPrintConfigurables()):
+			print " <NewInDetAlignMonitoring> m_alignMonTrackSelectionTool[",i,"] =",  m_alignMonTrackSelectionToolName[i]
 			print m_alignMonTrackSelectionTool[i]
-	
+	    
 	# Upper Vs Lower
 	#
 	from InDetTrackSplitterTool.InDetTrackSplitterToolConf import InDet__InDetTrackSplitterTool
 	from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import IDAlignMonTrackSegments
 
 	m_trackSplitter		  = []
-	m_trackSplitterName	  = ["TrackSplitterTool_Combined","TrackSplitterTool_Pixel","TrackSplitterTool_SCT","TrackSplitterTool_Si","TrackSplitterTool_TRT"]
-	m_upperTracksName		= ["Combined_Upper","Pixel_Upper","SCT_Upper","Si_Upper","TRT_Upper"]
-	m_lowerTracksName		= ["Combined_Lower","Pixel_Lower","SCT_Lower","Si_Lower","TRT_Lower"]
+	m_trackSplitterName	  = ["TrackSplitterTool_AlignTracks","TrackSplitterTool_Combined","TrackSplitterTool_Pixel","TrackSplitterTool_SCT","TrackSplitterTool_Si","TrackSplitterTool_TRT"]
+	m_upperTracksName	  = ["AlignTracks_Upper", "Combined_Upper", "Pixel_Upper","SCT_Upper","Si_Upper","TRT_Upper"]
+	m_lowerTracksName	  = ["AlignTracks_Lower", "Combined_Lower","Pixel_Lower","SCT_Lower","Si_Lower","TRT_Lower"]
 
 	m_trackSegmentsUpLow	 = []
-	m_trackSegmentsUpLowName = ["InDetAlignMonTrackSegments_Combined","InDetAlignMonTrackSegments_PixUpLow","InDetAlignMonTrackSegments_SCTUpLow",
-								"InDetAlignMonTrackSegments_SiUpLow","InDetAlignMonTrackSegments_TRTUpLow"]
+	m_trackSegmentsUpLowName = ["InDetAlignMonTrackSegments_AlignTracks", "InDetAlignMonTrackSegments_Combined","InDetAlignMonTrackSegments_PixUpLow",
+								"InDetAlignMonTrackSegments_SCTUpLow", "InDetAlignMonTrackSegments_SiUpLow","InDetAlignMonTrackSegments_TRTUpLow"]
 	
-	m_inputTracksUpLow	   = [InDetKeys.Tracks(),InDetKeys.PixelTracks(),InDetKeys.SCTTracks(),"ResolvedTracks",InDetKeys.TRTTracks()]
+	m_inputTracksUpLow	   = ["AlignTracks", "CombinedInDetTracks",InDetKeys.Tracks(),InDetKeys.PixelTracks(),InDetKeys.SCTTracks(),"ResolvedTracks",InDetKeys.TRTTracks()]
 
-	m_d0Range				= [   100,   100,   100,   100, 800]
-	m_deltaD0				= [  0.2,  0.8,  0.8,  0.2,   8]
-	m_deltaD02D			  = [	5,	5,	5,	5,  10]
-	m_deltaPhi			   = [0.002,0.005,0.005,0.002,0.01]
-	m_deltaPhi2D			 = [ 0.02, 0.02, 0.02, 0.02,0.05]
-	m_deltaQoverPt		   = [ 0.02,  0.2, 0.05, 0.02, 0.1]
-	m_deltaQoverPt2D		 = [ 0.05,  0.2, 0.05, 0.04, 0.1]
+	m_d0Range				= [  1000,   1000,    100,    100,    100,    100, 800]
+	m_deltaD0				= [     0.5,    0.5,    0.5,    0.8,   0.8,   0.5,   8]
+	m_deltaD02D			    = [	    1.0,    1.0,    1.0,    1.0,   1.0,   1.0,   10]
+	m_deltaPhi			    = [     0.01,   0.01,   0.002,  0.005, 0.005, 0.002, 0.01]
+	m_deltaPhi2D			= [     0.05,   0.05,   0.02,   0.02,  0.02,  0.02,  0.05]
+	m_deltaQoverPt		    = [     0.1,    0.1,    0.02,   0.2,   0.05,  0.02,  0.1]
+	m_deltaQoverPt2D		= [     0.1,    0.1,    0.05,   0.2,   0.05,  0.04,  0.1]
 
-	for i in range(5):
+	for i in range(len(m_trackSplitterName)):
 		m_trackSplitter.append(InDet__InDetTrackSplitterTool(name				  = m_trackSplitterName[i],
 															 TrackFitter		   = InDetTrackFitter,
 															 OutputUpperTracksName = m_upperTracksName[i],
@@ -248,6 +364,7 @@ if Cosmics:
 		if (InDetFlags.doPrintConfigurables()):
 			print m_trackSplitter[i]
 
+		print " <NewInDetAlignMonitoring> step ",i," -> define track segment monitoring for",m_trackSegmentsUpLowName[i],"using", m_upperTracksName[i],"and",  m_lowerTracksName[i], "   2*i+1=",2*i+1," m_alignMonTrackSelectionTool ? length=",len(m_alignMonTrackSelectionTool)
 		m_trackSegmentsUpLow.append(IDAlignMonTrackSegments(name				   = m_trackSegmentsUpLowName[i],
 															InputTracksName		= m_inputTracksUpLow[i],
 															UpperTracksName		= m_upperTracksName[i],
@@ -317,7 +434,8 @@ if not hasattr(ServiceMgr, 'THistSvc'):
 
 THistSvc         = Service( "THistSvc" )
 
-histOutput       = DQMonFlags.monManFileKey()+" DATAFILE='monitoring.root' OPT='RECREATE'" 
+histOutput       = DQMonFlags.monManFileKey()+" DATAFILE='monitoring.root' OPT='RECREATE'"
+#histOutput       = "CUSTOM"+" DATAFILE='NewInDetMonitoring.root' OPT='RECREATE'"
 THistSvc.Output += [histOutput]
 #InDetAlignMonManager.FileKey = "IDAlignMon"
 topSequence += InDetAlignMonManager

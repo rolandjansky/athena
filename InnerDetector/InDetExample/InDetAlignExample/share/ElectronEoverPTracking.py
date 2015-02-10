@@ -339,24 +339,6 @@ ElectronRefitterTool2 = egammaTrkRefitterTool(name = 'ElectronRefitterTool2',
                                               OutputLevel =4)
 ToolSvc += ElectronRefitterTool2
 
-MuonRefitterTool = egammaTrkRefitterTool(name = 'MuonRefitterTool',
-                                            FitterTool = GX2TrackFitter,
-                                            matEffects = 2,
-                                            minNoSiHits = -1,
-																						useBeamSpot = False,
-                                            OutputLevel =4)
-ToolSvc += MuonRefitterTool
-
-
-MuonRefitterTool2 = egammaTrkRefitterTool(name = 'MuonRefitterTool2',
-                                            FitterTool = GX2TrackFitter,
-                                            matEffects = 2,
-                                            minNoSiHits = -1,
-					    RemoveTRTHits = True,
-																						useBeamSpot = False,
-                                            OutputLevel =4)
-ToolSvc += MuonRefitterTool2
-
 
 GSFTrackCollection = "GSFTracks"
 DNATrackCollection = "DNATracks"
