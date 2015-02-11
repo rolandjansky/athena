@@ -126,7 +126,7 @@ class TileLaserDefaultCalibTool : public AthAlgTool, virtual public ITileCalibTo
   RunningStat* m_rs_PMT_signal[2];
   RunningStat* m_rs_ratio[4][4][64][48][2];
 
-  float m_meantime[4];                  // Mean time computed for this run per partition (to remove 25ns jitter) 
+  float m_meantime[4][2];               // Mean time computed for this run per partition (to remove 25ns jitter) 
   float m_time[4][64][48][2];           // Mean time computed for this run
   float m_time_S[4][64][48][2];         // Corresponding RMS
   float m_mean[4][64][48][2];           // Mean signal computed for this run
@@ -148,7 +148,7 @@ class TileLaserDefaultCalibTool : public AthAlgTool, virtual public ITileCalibTo
   bool m_LASERII;
   long long m_evtNr;
 
-  RunningStat* m_rs_meantime[4];
+  RunningStat* m_rs_meantime[4][2];
   RunningStat* m_rs_time[4][64][48][2];
   RunningStat* m_rs_signal[4][64][48][2];
   RunningStat* m_rs_raw_signal[4][64][48][2];

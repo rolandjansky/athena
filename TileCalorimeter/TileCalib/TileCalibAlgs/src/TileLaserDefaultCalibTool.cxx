@@ -195,8 +195,10 @@ StatusCode TileLaserDefaultCalibTool::initialize(){
   } // FOR
   
   for(int part=0; part<4; ++part){
-    m_rs_meantime[part] = new RunningStat();
-    m_meantime[part] =0.;
+    for(int gain=0;gain<2;++gain){
+      m_rs_meantime[part][gain] = new RunningStat(); 
+      m_meantime[part][gain] =0.;
+    } // FOR
     for(int drawer=0; drawer<64; ++drawer){
       for(int gain=0; gain<2; ++gain){
         
@@ -462,20 +464,23 @@ StatusCode TileLaserDefaultCalibTool::execute(){
   for(int couple=0; couple<22; ++couple) Q1Q2[couple]=1;
   int currentDrawer=0;
   
-  RunningStat* avg_time[4];
-  for(int ros=0; ros<4; ros++) avg_time[ros] = new RunningStat();
+  RunningStat* avg_time[4][2];
+  for(int ros=0; ros<4; ros++) for(int gain=0; gain<2; gain++) avg_time[ros][gain] = new RunningStat();
   
   // LOOP OVER TILERAWCHANNELCOLLECTIONS
   for(itColl=rawCnt->begin(); itColl != itCollEnd; ++itColl){
     HWIdentifier drawer_id = m_tileHWID->drawer_id((*itColl)->identify());
     
-    int ros = m_tileHWID->ros(drawer_id)-1;     // LBA=0 LBC=1 EBA=2 EBC=3
+    int ros  = m_tileHWID->ros(drawer_id)-1;     // LBA=0 LBC=1 EBA=2 EBC=3
     
     // LOOP OVER TILERAWCHANNELS IN COLLECTION
     for(TileRawChannelCollection::const_iterator it = (*itColl)->begin(); it != (*itColl)->end(); ++it){
+      HWIdentifier hwid=(*it)->adc_HWID();  
+      int gain   = m_tileHWID->adc(hwid);      // low=0 high=1    
+
       float ofctime = (*it)->time();
       if(ofctime!=0.0 and abs(ofctime-15.0)<30.)
-        avg_time[ros]->Push(ofctime);
+        avg_time[ros][gain]->Push(ofctime);
     } // FOR
   } // FOR
   
@@ -496,7 +501,7 @@ StatusCode TileLaserDefaultCalibTool::execute(){
       //log << MSG::DEBUG << "ROS=" << ros << " DRAWER=" << drawer << " CHAN=" << chan << " GAIN=" << gain << endreq;
       float amp = (*it)->amplitude();
       float ofctime = (*it)->time();
-      if(ofctime!=0.0) ofctime-=avg_time[ros]->Mean();
+      if(ofctime!=0.0) ofctime-=avg_time[ros][gain]->Mean();
       const TileDQstatus *theDQstatus = m_beamInfo->getDQstatus();
       
       // CHECK WHETHER CHANNEL IS CONNECTED
@@ -586,9 +591,11 @@ StatusCode TileLaserDefaultCalibTool::execute(){
   } // End of the loop over the TileRawChannelContainer
   
   for(int ros=0; ros<4; ros++){
-    m_rs_meantime[ros]->Push(avg_time[ros]->Mean());
-    //    printf("%6.2f %6.2f\n",avg_time[ros]->Mean(), meantime[ros]->Mean());
-    delete(avg_time[ros]);
+    for(int gain=0;gain<2;++gain){
+      m_rs_meantime[ros][gain]->Push(avg_time[ros][gain]->Mean());
+    //    printf("%6.2f %6.2f\n",avg_time[ros][gain]->Mean(), meantime[ros][gain]->Mean());
+      delete(avg_time[ros][gain]);
+    } // FOR
   } // FOR
   
   return StatusCode::SUCCESS;
@@ -625,7 +632,7 @@ StatusCode TileLaserDefaultCalibTool::finalizeCalculations(){
   
   // LOOP OVER BARRELS, MODULES AND GAINS
   for(int i=0; i<4; ++i){
-    m_meantime[i] = m_rs_meantime[i]->Mean();
+    for(int gain=0;gain<2;++gain) m_meantime[i][gain] = m_rs_meantime[i][gain]->Mean();
     for(int drawer=0; drawer<64; ++drawer){
       for(int gain=0; gain<2; ++gain){
         // COMPUTE THE AVERAGE KAPPA CORRECTION FACTOR FOR ALL EVENT AND ODD PMTS
@@ -769,7 +776,7 @@ StatusCode TileLaserDefaultCalibTool::writeNtuple(int runNumber, int runType, TF
     t->Branch("Sigma_Ratio",*m_ratio_S,"signal_cor_s[4][4][64][48][2]/F");
   } // ELSE
   
-  t->Branch("MeanTime",m_meantime,"meantime[4]/F");
+  t->Branch("MeanTime",m_meantime,"meantime[4][2]/F");
   t->Branch("Time",*m_time,"time[4][64][48][2]/F");
   t->Branch("Sigma_Time",*m_time_S,"time_s[4][64][48][2]/F");
   t->Branch("Signal",*m_mean,"signal[4][64][48][2]/F");
