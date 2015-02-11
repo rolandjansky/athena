@@ -9,6 +9,7 @@ use ByteStreamData        ByteStreamData-*         Event
 use TrigT1Result          TrigT1Result-*           Trigger/TrigT1
 
 private
+use AthenaBaseComps	  AthenaBaseComps-*	   Control
 use AtlasROOT             AtlasROOT-*              External
 use AthenaKernel          AthenaKernel-*           Control
 use TrigROBDataProviderSvc TrigROBDataProviderSvc-* Trigger/TrigDataAccess
@@ -16,8 +17,15 @@ use EventInfo             EventInfo-*              Event
 use ByteStreamCnvSvcBase  ByteStreamCnvSvcBase-*   Event
 use StoreGate             StoreGate-*              Control
 use TrigMonitorBase       TrigMonitorBase-*        Trigger/TrigMonitoring
+use L1TopoRDO		  L1TopoRDO-*		   Trigger/TrigT1/L1Topo
+use TrigSteering          TrigSteering-*           Trigger/TrigSteer
 
 library TrigOnlineMonitor *.cxx -s=components *.cxx
 apply_pattern component_library
 
 apply_pattern declare_joboptions files="*.py"
+
+# REMOVE BEFORE COMMIT!!!
+#private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
