@@ -31,7 +31,7 @@ namespace xAOD {
   }
   
   TrackParticle_v1::TrackParticle_v1(const TrackParticle_v1& tp ) 
-  : IParticle( tp ) {
+  : IParticle( tp ), m_p4(tp.m_p4), m_perigeeCached(tp.m_perigeeCached) {
     makePrivateStore( tp );
     #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
     m_perigeeParameters = tp.m_perigeeParameters;
@@ -216,7 +216,21 @@ namespace xAOD {
     // for (size_t irow = 0; irow<5; ++irow)
     //   for (size_t icol =0; icol<=irow; ++icol)
     //       cov->fillSymmetric(irow,icol,*it++) ;
-    m_perigeeParameters = new Trk::Perigee(acc1(*this),acc2(*this),acc3(*this),acc4(*this),acc5(*this),Trk::PerigeeSurface(Amg::Vector3D(vx(),vy(),vz())),cov);    
+    static Accessor< float > acc7( "beamlineTiltX" );
+    static Accessor< float > acc8( "beamlineTiltY" );
+    
+    if(!acc7.isAvailable( *this ) || !acc8.isAvailable( *this )){
+      m_perigeeParameters = new Trk::Perigee(acc1(*this),acc2(*this),acc3(*this),acc4(*this),acc5(*this),Trk::PerigeeSurface(Amg::Vector3D(vx(),vy(),vz())),cov);
+       return *m_perigeeParameters;
+    }
+    
+    Amg::Transform3D * amgTransf = new Amg::Transform3D();	
+    Amg::Translation3D amgtranslation(vx(),vy(),vz());
+    *amgTransf = amgtranslation * Amg::RotationMatrix3D::Identity();
+    *amgTransf *= Amg::AngleAxis3D(acc8(*this), Amg::Vector3D(0.,1.,0.));
+    *amgTransf *= Amg::AngleAxis3D(acc7(*this), Amg::Vector3D(1.,0.,0.));
+    m_perigeeParameters = new Trk::Perigee(acc1(*this),acc2(*this),acc3(*this),acc4(*this),acc5(*this),Trk::PerigeeSurface(amgTransf),cov);
+    
     return *m_perigeeParameters;
   }
 #endif // not XAOD_STANDALONE and not XAOD_MANACORE
@@ -458,7 +472,7 @@ namespace xAOD {
    const ElementLink< TrackCollection >& TrackParticle_v1::trackLink() const {
 
       // The accessor:
-      static Accessor< ElementLink< TrackCollection > > acc( "trackLink" );
+      static ConstAccessor< ElementLink< TrackCollection > > acc( "trackLink" );
 
       // Check if one of them is available:
       if( acc.isAvailable( *this ) ) {
@@ -484,7 +498,7 @@ namespace xAOD {
    const Trk::Track* TrackParticle_v1::track() const{
 
       // The accessor:
-      static Accessor< ElementLink< TrackCollection > > acc( "trackLink" );
+      static ConstAccessor< ElementLink< TrackCollection > > acc( "trackLink" );
 
       if( ! acc.isAvailable( *this ) ) {
          return 0;
@@ -492,6 +506,7 @@ namespace xAOD {
       if( ! acc( *this ).isValid() ) {
          return 0;
       }
+
       return *( acc( *this ) );
    }
    
