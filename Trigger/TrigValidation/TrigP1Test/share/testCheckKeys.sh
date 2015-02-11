@@ -39,15 +39,17 @@ hltmenu1=`find ../"${type}"_menu/ -name outputHLTconfig_\*.xml`
 
 
 ConvertHLTSetup_txt2xml.py ../"${type}"_menu/ef_Default_setup.txt ../"${type}"_menu/ef_Default_setup_setup.txt > convertHLT1
-ef__setup1=../"${type}"_menu/ef_Default_setup.xml
+hlt__setup1=../"${type}"_menu/ef_Default_setup.xml
 
 
 #upload the first key
 echo "upload the first key"
 
+cmd1="java -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release 'P1HLT' --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'P1HLTtest' -l FINE --dbConn $DBConn -w_n 25 -w_t 60  >& uploadSMK1"
 
-echo 'java -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release "P1HLT" -l1_menu $l1menu -topo_menu $l1topo -hlt_menu $hltmenu1 -hlt_ef_setup $ef__setup1 -name "P1HLTtest" -l FINE -dbConn $DBConn -w_n 25 -w_t 60  >& uploadSMK1'
-java -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release "P1HLT" -l1_menu $l1menu -topo_menu $l1topo -hlt_menu $hltmenu1 -hlt_ef_setup $ef__setup1 -name "P1HLTtest" -l FINE -dbConn $DBConn -w_n 25 -w_t 60  >& uploadSMK1
+echo $cmd1
+eval $cmd1 &> uploadSMK1.log
+
 
 if [ ! -f MenusKeys.txt ]
 then
@@ -61,13 +63,21 @@ mv MenusKeys.txt MenusKeys1.txt
 hltmenu2=`find ../"${type}"_rerun/ -name outputHLTconfig_\*.xml`
 
 ConvertHLTSetup_txt2xml.py ../"${type}"_rerun/ef_Default_setup.txt ../"${type}"_rerun/ef_Default_setup_setup.txt > convertHLT2
-ef__setup2=../"${type}"_rerun/ef_Default_setup.xml
+hlt__setup2=../"${type}"_rerun/ef_Default_setup.xml
 
 
 #upload the second key
 echo "upload the second key"
 echo "java -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release "P1HLT" -l1_menu $l1menu -topo_menu $l1topo -hlt_menu $hltmenu2 -hlt_ef_setup $ef__setup2 -name "P1HLTtest" -l FINE -dbConn $DBConn -w_n 25 -w_t 60  >& uploadSMK2"
 java -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release "P1HLT" -l1_menu $l1menu -topo_menu $l1topo -hlt_menu $hltmenu2 -hlt_ef_setup $ef__setup2 -name "P1HLTtest" -l FINE -dbConn $DBConn -w_n 25 -w_t 60  >& uploadSMK2
+
+
+cmd2="java -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release 'P1HLT' --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu2 --hlt_setup $hlt__setup2 --name 'P1HLTtest' -l FINE --dbConn $DBConn -w_n 25 -w_t 60  >& uploadSMK2"
+
+echo $cmd2
+eval $cmd2 &> uploadSMK2.log
+
+
 
 if [ ! -f MenusKeys.txt ]
 then

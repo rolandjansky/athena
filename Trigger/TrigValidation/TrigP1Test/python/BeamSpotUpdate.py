@@ -16,7 +16,6 @@ import logging
 import eformat
 from TrigByteStreamTools import trigbs_replaceLB
 from TrigByteStreamTools import CTPfragment
-from TrigByteStreamTools.CTPfragment import CTP
 
 class Config:
   """Configuration options for this module"""
@@ -68,7 +67,6 @@ def addFolderUpdate(event):
 
    
 def modify(event):
-
    event = eformat.write.FullEventFragment(event)
     
    # Modify LB and HLT counter in CTP fragment
@@ -82,7 +80,7 @@ def modify(event):
                   lb/100.0, 1+lb/100.0, -4-lb/10.0,
                   status)
 
-      fe = CTP.FolderEntry()
+      fe = CTPfragment.FolderEntry()
       fe.folderIndex = 0  # /Indet/Onl/Beampos
       fe.lumiBlock = lb_for_update
       folderList.append(fe)
