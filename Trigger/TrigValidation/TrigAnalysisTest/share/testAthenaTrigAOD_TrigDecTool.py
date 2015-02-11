@@ -18,8 +18,8 @@ if not ('OutputLevel' in dir()):
 if not ('fileList' in dir()) and not ('RunningRTT' in dir()):
     #just for now take the DC14 as default input
     #
-    default = "../AthenaTrigRDOtoAOD_Physics/AOD.pool.root"
-    summary = "../AthenaTrigRDOtoAOD_Physics/summary.log"
+    default = "../AthenaTrigRDOtoAOD_MC/AOD.pool.root"
+    summary = "../AthenaTrigRDOtoAOD_MC/summary.log"
     RDOtoAODokay = False
     from os.path import exists
     if exists(summary):
@@ -73,7 +73,7 @@ rec.doDPD=False
 rec.doESD=False 
 doTAG=False
 
-rec.doTruth=True
+#rec.doTruth=True
 
 
 #-----------------------------------------------------------

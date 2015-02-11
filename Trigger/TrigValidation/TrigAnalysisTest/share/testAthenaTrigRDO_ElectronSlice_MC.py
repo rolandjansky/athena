@@ -22,7 +22,7 @@ rec.doAOD=True
 rec.doESD.set_Value_and_Lock(False) 
 doTAG=False
 rec.doCBNT=False 
-rec.doTruth=True
+#rec.doTruth=True
 
 #-----------------------------------------------------------
 include("RecExCond/RecExCommon_flags.py")
@@ -46,6 +46,7 @@ else:
     TriggerFlags.triggerMenuSetup = 'MC_pp_v5' 
 
 TriggerFlags.doHLT=True
+TriggerFlags.AODEDMSet="AODFULL"
 
 def egammaOnly():
     TriggerFlags.Slices_all_setOff()
