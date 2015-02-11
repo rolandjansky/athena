@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
 
 #include "PathResolver/PathResolver.h"
@@ -24,9 +23,10 @@
 
 class ISvcLocator;
 
-TBPlaneTrackingAlgo::TBPlaneTrackingAlgo(const std::string& name, ISvcLocator* pSvcLocator) : Algorithm(name, pSvcLocator)
+TBPlaneTrackingAlgo::TBPlaneTrackingAlgo(const std::string& name, ISvcLocator* pSvcLocator) 
+  : AthAlgorithm(name, pSvcLocator),
+    m_runnumber(0)
 {
-  MsgStream log(msgSvc(), "TBPlaneTrackingAlgo" );
   declareProperty("TestAlgo",m_testAlgo=false);
   declareProperty("CalibFileName",  m_calib_filename="H6HitCalib.txt");
   declareProperty("BPCnames",  m_bpc_names);
@@ -47,18 +47,6 @@ TBPlaneTrackingAlgo::TBPlaneTrackingAlgo(const std::string& name, ISvcLocator* p
 StatusCode TBPlaneTrackingAlgo::initialize()
 ////////////////////////////////////////////
 {
-  MsgStream log(msgSvc(), name());
-  StatusCode sc;
-  
-  sc = service( "StoreGateSvc", m_StoreGate);
-  
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << name() 
-  	<< ": Unable to locate Service StoreGateSvc" << endreq;
-    return sc;
-  } 
-  
-
   return StatusCode::SUCCESS;
 }
 
@@ -66,29 +54,25 @@ StatusCode TBPlaneTrackingAlgo::initialize()
 StatusCode TBPlaneTrackingAlgo::execute()
 /////////////////////////////////////////
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "Executing TBPlaneTracking algorithm" << endreq;
+  ATH_MSG_DEBUG ("Executing TBPlaneTracking algorithm");
   
   if(m_testAlgo == true){
-    log << MSG::WARNING << "TBPlaneTrackingAlgo: "
-	<< "Using FillRandomHit method to get data" 
-	<< endreq;
+    ATH_MSG_WARNING ("TBPlaneTrackingAlgo: " <<
+                     "Using FillRandomHit method to get data");
     FillRandomHit();
   }
 
   // Check if this is not a physics event and exit OK
   // retrieve Event Info
   const TBEventInfo* theEventInfo;
-  StatusCode checkOut = m_StoreGate->retrieve(theEventInfo,"TBEventInfo");
+  StatusCode checkOut = evtStore()->retrieve(theEventInfo,"TBEventInfo");
   if ( checkOut.isFailure() )
     {
-      log << MSG::ERROR
-	  << "cannot retrieve TBEventInfo from StoreGate"
-	  << endreq;
+      ATH_MSG_ERROR ("cannot retrieve TBEventInfo from StoreGate");
       return StatusCode::FAILURE;
     }
   int evtType = theEventInfo->getEventType();
-  log << MSG::DEBUG << "Event Type found " << evtType << endreq;
+  ATH_MSG_DEBUG ("Event Type found " << evtType);
   if (evtType != 1)  return StatusCode::SUCCESS;
 
   StatusCode sc1;
@@ -97,10 +81,10 @@ StatusCode TBPlaneTrackingAlgo::execute()
   unsigned int thisrun=0;
   EventID *thisEvent;           //EventID is a part of EventInfo
   const EventInfo* thisEventInfo;
-  sc1=m_StoreGate->retrieve(thisEventInfo);
+  sc1=evtStore()->retrieve(thisEventInfo);
   if (sc1!=StatusCode::SUCCESS){
-    log << MSG::WARNING << "No EventInfo object found! Can't read run number!" << endreq;
-    log << MSG::WARNING << "     => can't get calib constant. Exit" << endreq;
+    ATH_MSG_WARNING ("No EventInfo object found! Can't read run number!");
+    ATH_MSG_WARNING ("     => can't get calib constant. Exit");
     setFilterPassed(false);
     return StatusCode::SUCCESS;
   }
@@ -125,8 +109,7 @@ StatusCode TBPlaneTrackingAlgo::execute()
 //   sc2 = m_StoreGate->retrieve(m_hitPlaneCont_v,"HitPlaneCont_V");
   
   if(sc1.isFailure()){
-    log << MSG::WARNING << "TBPlaneTrackingAlgo: Retrieval of HitPlane failed" 
-	<< endreq;
+    ATH_MSG_WARNING ("TBPlaneTrackingAlgo: Retrieval of HitPlane failed");
     setFilterPassed(false);
     return StatusCode::SUCCESS;
   } else {
@@ -136,10 +119,9 @@ StatusCode TBPlaneTrackingAlgo::execute()
     hitPlaneNumV = m_hitPlaneCont_v.size();
     
     if( (hitPlaneNumU < 2) || (hitPlaneNumV < 2) ){
-      log << MSG::WARNING << "TBPlaneTrackingAlgo: "
-	  << "Not enough hits in one or both planes, " 
-	  << "Cannot make track."
-	  << endreq;
+      ATH_MSG_WARNING ("TBPlaneTrackingAlgo: "
+                       << "Not enough hits in one or both planes, " 
+                       << "Cannot make track.");
       
       setFilterPassed(false);
       return StatusCode::SUCCESS;
@@ -157,24 +139,20 @@ StatusCode TBPlaneTrackingAlgo::execute()
 
     check = fitPlane(&m_hitPlaneCont_u, a1_u, a2_u, chi2_u, residual_u);
     if(check == false){
-      log << MSG::ERROR << "TBPlaneTrackingAlgo: "
-	  << "Fit failure." 
-	  << endreq;
+      ATH_MSG_ERROR ("TBPlaneTrackingAlgo: " << "Fit failure.");
       setFilterPassed(false);
       return StatusCode::SUCCESS;
     }
     
     check = fitPlane(&m_hitPlaneCont_v, a1_v, a2_v, chi2_v, residual_v);
     if(check == false){
-      log << MSG::ERROR << "TBPlaneTrackingAlgo: "
-	  << "Fit failure." 
-	  << endreq;
+      ATH_MSG_ERROR ("TBPlaneTrackingAlgo: " << "Fit failure.");
       setFilterPassed(false);
       return StatusCode::SUCCESS;
     } 
  
     // Setting the slopes & intercepts for each track //
-    log << MSG::DEBUG << "Setting fit parameters of track." << endreq;
+    ATH_MSG_DEBUG ("Setting fit parameters of track.");
    
     TBTrack *track = new TBTrack(hitPlaneNumU, hitPlaneNumV);
     track->setUintercept(a1_u);
@@ -192,18 +170,18 @@ StatusCode TBPlaneTrackingAlgo::execute()
       track->setResidualv(i, residual_v[i]);
     }
     
-    log << MSG::DEBUG << "chi2 in u: " << chi2_u << endreq;
-    log << MSG::DEBUG << "chi2 in v: " << chi2_v << endreq;
-    log << MSG::DEBUG << "Setting chi2s of track." << endreq;
+    ATH_MSG_DEBUG ("chi2 in u: " << chi2_u);
+    ATH_MSG_DEBUG ("chi2 in v: " << chi2_v);
+    ATH_MSG_DEBUG ("Setting chi2s of track.");
 
     track->setChi2_u(chi2_u);
     track->setChi2_v(chi2_v);
    
     // Record track info. into storeGate //
-    StatusCode sc = m_StoreGate->record(track,"Track");
+    StatusCode sc = evtStore()->record(track,"Track");
     
     if ( sc.isFailure( ) ) {
-      log << MSG::FATAL << "Cannot record Track" << endreq;
+      ATH_MSG_FATAL ("Cannot record Track");
     }
   }
   
@@ -215,8 +193,7 @@ StatusCode TBPlaneTrackingAlgo::execute()
 StatusCode TBPlaneTrackingAlgo::finalize()
 //////////////////////////////////////////
 {
-  MsgStream log(msgSvc(), name());	
-  log << MSG::INFO << "Finalizing TBTracking algorithm" << endreq;
+  ATH_MSG_INFO ("Finalizing TBTracking algorithm");
   return StatusCode::SUCCESS; 
 }
 
@@ -225,14 +202,10 @@ bool TBPlaneTrackingAlgo::fitPlane(const TBHitPlaneCont * hitPlaneCont,
 double &a1, double &a2,double &chi2, std::vector<double> &residual)
 ///////////////////////////////////////////////////////////////////////////
 {
-  MsgStream log(msgSvc(), name());
-
   // Get number of hits in plane //
   int hitPlaneNum = hitPlaneCont->size();
   
-  log << MSG::DEBUG << "The hit plane container size is: "
-      << hitPlaneNum 
-      << endreq;
+  ATH_MSG_DEBUG ("The hit plane container size is: " << hitPlaneNum);
   
   TBHitPlaneCont::const_iterator it_hit = hitPlaneCont->begin();
   TBHitPlaneCont::const_iterator last_hit = hitPlaneCont->end();
@@ -243,10 +216,10 @@ double &a1, double &a2,double &chi2, std::vector<double> &residual)
   std::vector<double> err_vec_w;
 
   for (; it_hit!=last_hit; it_hit++) { 
-    log << MSG::DEBUG << "Position in u: " << (*it_hit)->getPosu() <<endreq;
-    log << MSG::DEBUG << "Position in w: " << (*it_hit)->getPosw() <<endreq;
-    log << MSG::DEBUG << "Error in u: " << (*it_hit)->getErroru() <<endreq;
-    log << MSG::DEBUG << "Error in w: " << (*it_hit)->getErrorw() << endreq;
+    ATH_MSG_DEBUG ("Position in u: " << (*it_hit)->getPosu());
+    ATH_MSG_DEBUG ("Position in w: " << (*it_hit)->getPosw());
+    ATH_MSG_DEBUG ("Error in u: " << (*it_hit)->getErroru());
+    ATH_MSG_DEBUG ("Error in w: " << (*it_hit)->getErrorw());
     vec_u.push_back((*it_hit)->getPosu());
     vec_w.push_back((*it_hit)->getPosw());
     err_vec_u.push_back((*it_hit)->getErroru());
@@ -254,7 +227,7 @@ double &a1, double &a2,double &chi2, std::vector<double> &residual)
   }
   
   if(vec_u.size() != vec_w.size()){
-    log << MSG::ERROR << "TBPlaneTrackingAlgo: Invalid hits" << endreq;
+    ATH_MSG_ERROR ("TBPlaneTrackingAlgo: Invalid hits");
     return false;
   }
 
@@ -262,17 +235,16 @@ double &a1, double &a2,double &chi2, std::vector<double> &residual)
 //  check = fitHits(vec_u, vec_w, err_vec_u, err_vec_w, a1, a2);
   check = fitHits(vec_u, vec_w, err_vec_u, a1, a2);
   if(check == false){
-    log << MSG::ERROR << "TBPlaneTrackingAlgo: Invalid denumerator" << endreq;
+    ATH_MSG_ERROR ("TBPlaneTrackingAlgo: Invalid denumerator");
     return false;
   }
 
 //  chi2 = getChi2(vec_u, vec_w, err_vec_u, err_vec_w, a1, a2);
   chi2 = getChi2(vec_u, vec_w, err_vec_u, a1, a2);
 
-  log << MSG::DEBUG << "Fit results:" 
-      << " intercept = " << a1 
-      << " and slope = " << a2 
-      << endreq;
+  ATH_MSG_DEBUG ("Fit results:" 
+                 << " intercept = " << a1 
+                 << " and slope = " << a2);
   
   // Must be wrong //
   for (int i = 0; i < hitPlaneNum; i++) {
@@ -363,9 +335,7 @@ void TBPlaneTrackingAlgo::FillRandomHit()
 /////////////////////////////////////////
 {
 
-  MsgStream log(msgSvc(), name());
-
-  log << MSG::DEBUG << "Starting FillRandom" <<endreq;
+  ATH_MSG_DEBUG ("Starting FillRandom");
  
   TBHitPlaneCont * hitPlaneCont_U = new TBHitPlaneCont(); 
   TBHitPlaneCont * hitPlaneCont_V = new TBHitPlaneCont();
@@ -379,9 +349,9 @@ void TBPlaneTrackingAlgo::FillRandomHit()
   hitPaneU2->setPosu(2);  hitPaneU2->setPosw(2);
   hitPlaneCont_U->push_back(hitPaneU2);
 
-  StatusCode sc1 = m_StoreGate->record(hitPlaneCont_U,"HitPlaneCont_U");
+  StatusCode sc1 = evtStore()->record(hitPlaneCont_U,"HitPlaneCont_U");
   if ( sc1.isFailure( ) ) {
-    log << MSG::FATAL << "Cannot record HitPlaneCont_U" << endreq;
+    ATH_MSG_FATAL ("Cannot record HitPlaneCont_U");
   }
 
   TBHitPlane *hitPaneV1 = new TBHitPlane();
@@ -392,12 +362,12 @@ void TBPlaneTrackingAlgo::FillRandomHit()
   hitPaneV2->setPosu(2);  hitPaneV2->setPosw(2);
   hitPlaneCont_V->push_back(hitPaneV2);
 
-  StatusCode sc2 = m_StoreGate->record(hitPlaneCont_V,"HitPlaneCont_V");
+  StatusCode sc2 = evtStore()->record(hitPlaneCont_V,"HitPlaneCont_V");
   if ( sc2.isFailure( ) ) {
-    log << MSG::FATAL << "Cannot record HitPlaneCont_V" << endreq;
+    ATH_MSG_FATAL ("Cannot record HitPlaneCont_V");
   }
  
-  log << MSG::DEBUG << "FillRandom Done" <<endreq;
+  ATH_MSG_DEBUG ("FillRandom Done");
  
 }
 
@@ -405,17 +375,15 @@ void TBPlaneTrackingAlgo::FillRandomHit()
 StatusCode TBPlaneTrackingAlgo::buildHits()
 /////////////////////////////////////////
 {
-
-  MsgStream log(messageService(),name());
   StatusCode sc;
-  log << MSG::DEBUG << " In buildHits() " << endreq;
+  ATH_MSG_DEBUG (" In buildHits() ");
   m_hitPlaneCont_u.clear();
   m_hitPlaneCont_v.clear();
 
   TBBPCCont * bpcCont;
-  sc = m_StoreGate->retrieve(bpcCont, "BPCCont");
+  sc = evtStore()->retrieve(bpcCont, "BPCCont");
   if (sc.isFailure()){
-    log << MSG::DEBUG << "Retrieval of BPCCont failed" << endreq;
+    ATH_MSG_DEBUG ("Retrieval of BPCCont failed");
     
   }else {
 
@@ -426,7 +394,7 @@ StatusCode TBPlaneTrackingAlgo::buildHits()
   for(;it_bc != last_bc;it_bc++){
     const TBBPC * bpc = (*it_bc);
     std::string name = bpc->getDetectorName();
-    log << MSG::DEBUG << " Hits in BPC "<< name << endreq;
+    ATH_MSG_DEBUG (" Hits in BPC "<< name);
     // Find calibration index for this BPC
     unsigned int ind=0;
     while(ind<m_bpc_names.size()) 
@@ -434,9 +402,12 @@ StatusCode TBPlaneTrackingAlgo::buildHits()
 	  if(name==m_bpc_names[ind]) break; 
 	  else ind++;
 	}
-    if(ind==m_bpc_names.size()){log<<MSG::ERROR<< "No calibrations for BPC" <<name<<endreq;continue;}
+    if(ind==m_bpc_names.size()){
+      ATH_MSG_ERROR ("No calibrations for BPC" << name);
+      continue;
+    }
     
-    log << MSG::DEBUG << " BPC number "<< ind << endreq;
+    ATH_MSG_DEBUG (" BPC number "<< ind);
    
     
     if(!(bpc->isXPosOverflow()||bpc->isXPulseOverflow())){
@@ -444,7 +415,7 @@ StatusCode TBPlaneTrackingAlgo::buildHits()
       float w = m_bpc_posZX[ind];
       //      float u =m_bpc_posX[ind] + m_bpc_invX[ind]*bpc->getXPos();
       float u =m_bpc_posX[ind] + bpc->getXPos();
-      log << MSG::DEBUG << "BPC" << ind << "X =" << u << endreq;
+      ATH_MSG_DEBUG ("BPC" << ind << "X =" << u);
       hitu->setPosu(u);  hitu->setPosw(w);
       float uerr=sqrt(m_bpc_errposX[ind]*m_bpc_errposX[ind]+m_bpc_errmeasX[ind]*m_bpc_errmeasX[ind]);
       hitu->setErroru(uerr);  hitu->setErrorw(m_bpc_errposZX[ind]);
@@ -457,7 +428,7 @@ StatusCode TBPlaneTrackingAlgo::buildHits()
       float w = m_bpc_posZY[ind];
       //      float v =m_bpc_posY[ind] + m_bpc_invY[ind]*bpc->getYPos();
       float v =m_bpc_posY[ind] + bpc->getYPos();
-      log << MSG::DEBUG << "BPC" << ind << "Y =" << v << endreq;
+      ATH_MSG_DEBUG ("BPC" << ind << "Y =" << v);
       hitv->setPosu(v);  hitv->setPosw(w);
       float verr=sqrt(m_bpc_errposY[ind]*m_bpc_errposY[ind]+m_bpc_errmeasY[ind]*m_bpc_errmeasY[ind]);
       hitv->setErroru(verr);  hitv->setErrorw(m_bpc_errposZY[ind]);
@@ -489,8 +460,7 @@ StatusCode TBPlaneTrackingAlgo::getnewcalib()
   // coeff must have the following order :
   // bpcnumber posX posY posZX posZY errposX errposY errposZX errposZY errmeasX errmeasY
 
-  MsgStream log(messageService(),name());
-  log << MSG::DEBUG << "Get new calibs for run " << m_runnumber<< endreq;
+  ATH_MSG_DEBUG ("Get new calibs for run " << m_runnumber);
   
   int bpcnumber= m_bpc_names.size();
 
@@ -511,15 +481,15 @@ StatusCode TBPlaneTrackingAlgo::getnewcalib()
   std::string filename = PathResolver::find_file (m_calib_filename.c_str(), "DATAPATH");
   calibfile.open(filename.c_str());
   if(!calibfile.good()){
-    log << MSG::WARNING << " Problem with file named "<< m_calib_filename << " in $DATAPATH" << endreq;
+    ATH_MSG_WARNING (" Problem with file named "<< m_calib_filename << " in $DATAPATH");
     return StatusCode::FAILURE;
   } else {
-     log << MSG::DEBUG << " File: "<< filename << " opened" << endreq;
+    ATH_MSG_DEBUG (" File: "<< filename << " opened");
   }
   unsigned int runnumber;
   calibfile >> runnumber;
   pos = calibfile.tellg();
-  log << MSG::DEBUG << " Run number "<< runnumber << endreq;
+  ATH_MSG_DEBUG (" Run number "<< runnumber);
   while((runnumber<m_runnumber)&&(!calibfile.eof()))
     {
       runnumber=0;
@@ -528,15 +498,19 @@ StatusCode TBPlaneTrackingAlgo::getnewcalib()
       for(int j=0;j<bpcnumber+1;j++) calibfile.ignore(5000,'\n');
       // check next runnumber
       calibfile >> runnumber;
-      if(runnumber==0) { log << MSG::DEBUG << "empty line"<<endreq;calibfile.clear();break;} // reached an empty line : exit.
-      log << MSG::DEBUG << " Run number "<< runnumber << endreq;
+      if(runnumber==0) {  // reached an empty line : exit.
+        ATH_MSG_DEBUG ("empty line");
+        calibfile.clear();
+        break;
+      }
+      ATH_MSG_DEBUG (" Run number "<< runnumber);
     }
   
   // Now we found the good set of constant (the ones following pos)
   if(runnumber==m_runnumber)  pos = calibfile.tellg();
-  log << MSG::DEBUG << " Pos = "<< pos << endreq;
+  ATH_MSG_DEBUG (" Pos = "<< pos);
   calibfile.seekg(pos);
-  log << MSG::DEBUG << " Will use the following constants :" << endreq;
+  ATH_MSG_DEBUG (" Will use the following constants :");
   for(int j=0;j<bpcnumber;j++) 
     {
       int bpcn;
@@ -552,21 +526,16 @@ StatusCode TBPlaneTrackingAlgo::getnewcalib()
       calibfile >> m_bpc_errmeasX[j];
       calibfile >> m_bpc_errmeasY[j];
 
-      log << MSG::DEBUG << bpcn << " "<<m_bpc_posX[j];    
-      log << MSG::DEBUG << " "<< m_bpc_posY[j];    
-      log << MSG::DEBUG << " "<< m_bpc_posZX[j];   
-      log << MSG::DEBUG << " "<< m_bpc_posZY[j];   
-      log << MSG::DEBUG << " "<< m_bpc_errposX[j]; 
-      log << MSG::DEBUG << " "<< m_bpc_errposY[j]; 
-      log << MSG::DEBUG << " "<< m_bpc_errposZX[j];  
-      log << MSG::DEBUG << " "<< m_bpc_errposZY[j];
-      log << MSG::DEBUG << " "<< m_bpc_errmeasX[j];
-      log << MSG::DEBUG << " "<< m_bpc_errmeasY[j]<<endreq;
-
-				    
-
-				    
-	
+      ATH_MSG_DEBUG (bpcn << " "<<m_bpc_posX[j]
+                     << " "<< m_bpc_posY[j]    
+                     << " "<< m_bpc_posZX[j]   
+                     << " "<< m_bpc_posZY[j]   
+                     << " "<< m_bpc_errposX[j] 
+                     << " "<< m_bpc_errposY[j] 
+                     << " "<< m_bpc_errposZX[j]  
+                     << " "<< m_bpc_errposZY[j]
+                     << " "<< m_bpc_errmeasX[j]
+                     << " "<< m_bpc_errmeasY[j]);
     }
   
   calibfile.close();

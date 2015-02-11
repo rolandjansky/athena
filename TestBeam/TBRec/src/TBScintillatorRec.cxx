@@ -5,7 +5,6 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 
 #include "TBRec/TBScintillatorRec.h"
@@ -21,8 +20,7 @@
 
 TBScintillatorRec::TBScintillatorRec(const std::string& name,
 				 ISvcLocator* pSvcLocator) :
-  Algorithm(name,pSvcLocator),
-  m_StoreGate(0)
+  AthAlgorithm(name,pSvcLocator)
  {
   // job options
 
@@ -42,42 +40,19 @@ TBScintillatorRec::~TBScintillatorRec()
 StatusCode
 TBScintillatorRec::initialize()
 {
-  ///////////////////////
-  // Allocate Services //
-  ///////////////////////
-
-  // message service
-  MsgStream log(messageService(),name());
-  StatusCode sc;
-
-  sc = service( "StoreGateSvc", m_StoreGate);
-  
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << name() 
-  	<< ": Unable to locate Service StoreGateSvc" << endreq;
-    return sc;
-  } 
-  
-  log << MSG::DEBUG << "Size of knowns scintillator list = " <<m_scint_names.size() << endreq;
-  return sc;
+  ATH_MSG_DEBUG ( "Size of knowns scintillator list = " <<m_scint_names.size() );
+  return StatusCode::SUCCESS;
 }
 
 StatusCode
 TBScintillatorRec::execute()
 {
-
-  ////////////////////////////
-  // Re-Allocating Services //
-  ////////////////////////////
-  MsgStream log(messageService(),name());
-  StatusCode sc;
-
-    log << MSG::DEBUG << "In execute()" << endreq;
+  ATH_MSG_DEBUG ( "In execute()" );
 
   TBScintillatorRawCont * scintrawCont;
-  sc = m_StoreGate->retrieve(scintrawCont, m_SGkey);
+  StatusCode sc = evtStore()->retrieve(scintrawCont, m_SGkey);
   if (sc.isFailure()){
-    log << MSG::DEBUG << "TBObjectReco: Retrieval of "<<m_SGkey<<" failed" << endreq;
+    ATH_MSG_DEBUG ( "TBObjectReco: Retrieval of "<<m_SGkey<<" failed" );
     
   }else {
 
@@ -98,7 +73,7 @@ TBScintillatorRec::execute()
 	  else ind++;
 	}
       if(ind==m_scint_names.size()) {
-	log<<MSG::DEBUG<< "No calibrations for Scintillator " <<name<<endreq;
+	ATH_MSG_DEBUG( "No calibrations for Scintillator " <<name);
 	continue;
       }
       
@@ -107,7 +82,7 @@ TBScintillatorRec::execute()
       scint->setSignal(1.*scintraw->getADCSignal());
       scint->setTimeSignal(m_scint_timecalib[ind]*(scintraw->getTDCSignal()-m_scint_ped[ind]));
       
-      log << MSG::DEBUG << name << "  ADC=" << scintraw->getADCSignal() << "  TDC="<<scintraw->getTDCSignal()<< "  ADCOf=" << scintraw->isADCOverflow()<< "  TDCOf=" << scintraw->isTDCOverflow()<<endreq;
+      ATH_MSG_DEBUG ( name << "  ADC=" << scintraw->getADCSignal() << "  TDC="<<scintraw->getTDCSignal()<< "  ADCOf=" << scintraw->isADCOverflow()<< "  TDCOf=" << scintraw->isTDCOverflow());
       
       scint->setSignalOverflow(scintraw->isADCOverflow());
       scint->setTimeOverflow(scintraw->isTDCOverflow());
@@ -117,9 +92,9 @@ TBScintillatorRec::execute()
     }
     
     
-    sc = m_StoreGate->record(scintCont,m_SGrecordkey);
+    sc = evtStore()->record(scintCont,m_SGrecordkey);
     if ( sc.isFailure( ) ) {
-      log << MSG::FATAL << "Cannot record ScintCont" << endreq;
+      ATH_MSG_FATAL ( "Cannot record ScintCont" );
     }
   }
 
@@ -138,11 +113,5 @@ TBScintillatorRec::execute()
 StatusCode 
 TBScintillatorRec::finalize()
 {
-
-  ////////////////////////////
-  // Re-Allocating Services //
-  ////////////////////////////
-
-
   return StatusCode::SUCCESS;
 }

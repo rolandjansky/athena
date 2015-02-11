@@ -7,7 +7,6 @@
 #include "GaudiKernel/AlgFactory.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/INTupleSvc.h"
-#include "GaudiKernel/MsgStream.h"
 
 
 // hack that will allow to read the private and protected data members
@@ -29,7 +28,7 @@
 #undef protected
 
 
-CBNTAA_TBTPValidation::CBNTAA_TBTPValidation(const std::string & name, ISvcLocator * pSvcLocator) : CBNT_TBRecBase(name, pSvcLocator), m_eventStore(0)
+CBNTAA_TBTPValidation::CBNTAA_TBTPValidation(const std::string & name, ISvcLocator * pSvcLocator) : CBNT_TBRecBase(name, pSvcLocator)
 {
   declareProperty("NeverReturnFailure", m_neverReturnFailure=false);
 	
@@ -135,8 +134,6 @@ CBNTAA_TBTPValidation::CBNTAA_TBTPValidation(const std::string & name, ISvcLocat
 	m_cPosOverflow=NULL;
 	m_tbDetectorName_TBMWPCCont=NULL;
 	m_overflow_TBMWPCCont=NULL;
-
-        m_eventStore = 0;
 }
 
 
@@ -239,34 +236,10 @@ CBNTAA_TBTPValidation::~CBNTAA_TBTPValidation()
 
 StatusCode CBNTAA_TBTPValidation::CBNT_initialize()
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG 
-      << "in initialize()" 
-      << endreq;
+  ATH_MSG_DEBUG ( "in initialize()" );
 
- StatusCode sc = service("StoreGateSvc", m_eventStore);
-  if (sc.isFailure())
-    {
-      log << MSG::ERROR
-	  << "Unable to retrieve pointer to StoreGate Service"
-	  << endreq;
-      return sc;
-    }
-
-  IToolSvc* toolSvc;
-  sc=service( "ToolSvc",toolSvc  );
-  if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve ToolSvc" << endreq;
-      return StatusCode::FAILURE;
-    }
-
-  StoreGateSvc* detStore;
-  sc = service("DetectorStore", detStore);
-  if (sc.isFailure()) 
-    {
-      log << MSG::FATAL << " Cannot locate DetectorStore " << std::endl;
-      return StatusCode::FAILURE;
-    } 
+  IToolSvc* toolSvc = nullptr;
+  ATH_CHECK( service( "ToolSvc",toolSvc  ) );
 
   // TBADCRawCont
   addBranch("TBTPValid_TBADCRaw_m_adc",m_adc);
@@ -366,75 +339,69 @@ StatusCode CBNTAA_TBTPValidation::CBNT_initialize()
 
 StatusCode CBNTAA_TBTPValidation::CBNT_execute()
 {
-  /// Print an informatory message:
-  MsgStream log(msgSvc(), name());
-  
-  StatusCode sc;
-  
-
   // ----------------------------------------------------------------------------------------------------
   // TBADCRawCont  
   // ----------------------------------------------------------------------------------------------------
   const TBADCRawCont * adcCont;
-	sc = m_eventStore->retrieve(adcCont,m_containerKey1);
+  StatusCode sc = evtStore()->retrieve(adcCont,m_containerKey1);
   if (sc.isFailure()) {
-    log << MSG::ERROR << "\033[31m" << "- Can not read TBADCRawCont from StoreGate! key= " << m_containerKey1 << "\033[0m" << endreq;
+    ATH_MSG_ERROR ( "\033[31m" << "- Can not read TBADCRawCont from StoreGate! key= " << m_containerKey1 << "\033[0m" );
   }  else  {
-    log << MSG::DEBUG << "\033[34m" << "- Going over TBADCRawCont ( StoreGate key =" << m_containerKey1 << " ) ..."<< "\033[0m" <<endreq;
+    ATH_MSG_DEBUG ( "\033[34m" << "- Going over TBADCRawCont ( StoreGate key =" << m_containerKey1 << " ) ..."<< "\033[0m" );
 
-		const unsigned nADC = (TBADCRawCont::size_type)adcCont->size();
-		m_adc->resize(nADC);
-		m_tbDetectorName_TBADCRawCont->resize(nADC);
-		m_overflow_TBADCRawCont->resize(nADC);
+    const unsigned nADC = (TBADCRawCont::size_type)adcCont->size();
+    m_adc->resize(nADC);
+    m_tbDetectorName_TBADCRawCont->resize(nADC);
+    m_overflow_TBADCRawCont->resize(nADC);
 
-		unsigned NtupleVectorIndex = 0;
-     TBADCRawCont::const_iterator it_adc   = adcCont->begin();
-     TBADCRawCont::const_iterator last_adc = adcCont->end();
-     for(;it_adc!=last_adc;it_adc++,NtupleVectorIndex++) {
-			const TBADCRaw * adc = (*it_adc);
-			(*m_adc)[NtupleVectorIndex]                          = adc-> getADC();
+    unsigned NtupleVectorIndex = 0;
+    TBADCRawCont::const_iterator it_adc   = adcCont->begin();
+    TBADCRawCont::const_iterator last_adc = adcCont->end();
+    for(;it_adc!=last_adc;it_adc++,NtupleVectorIndex++) {
+      const TBADCRaw * adc = (*it_adc);
+      (*m_adc)[NtupleVectorIndex]                          = adc-> getADC();
       (*m_tbDetectorName_TBADCRawCont)[NtupleVectorIndex]  = adc-> getDetectorName();	
       (*m_overflow_TBADCRawCont)[NtupleVectorIndex]        = adc-> isOverflow();
-		}  
+    }  
   }
 
   // ----------------------------------------------------------------------------------------------------
   // TBTDCRawCont  
   // ----------------------------------------------------------------------------------------------------
   const TBTDCRawCont * tdcCont;
-	sc = m_eventStore->retrieve(tdcCont,m_containerKey2);
+  sc = evtStore()->retrieve(tdcCont,m_containerKey2);
   if (sc.isFailure()) {
-    log << MSG::ERROR << "\033[31m" << "- Can not read TBTDCRawCont from StoreGate! key= " << m_containerKey2 << "\033[0m" << endreq;
+    ATH_MSG_ERROR ( "\033[31m" << "- Can not read TBTDCRawCont from StoreGate! key= " << m_containerKey2 << "\033[0m" );
   }  else  {
-    log << MSG::DEBUG << "\033[34m" << "- Going over TBTDCRawCont ( StoreGate key =" << m_containerKey2 << " ) ..."<< "\033[0m" <<endreq;
+    ATH_MSG_DEBUG ( "\033[34m" << "- Going over TBTDCRawCont ( StoreGate key =" << m_containerKey2 << " ) ..."<< "\033[0m" );
 
-	  const unsigned nTDC = (TBTDCRawCont::size_type)tdcCont->size();
-		m_tdc_raw->resize(nTDC);
-		m_underThreshold_raw->resize(nTDC);
-		m_tbDetectorName_TBTDCRawCont->resize(nTDC);
-		m_overflow_TBTDCRawCont->resize(nTDC);
+    const unsigned nTDC = (TBTDCRawCont::size_type)tdcCont->size();
+    m_tdc_raw->resize(nTDC);
+    m_underThreshold_raw->resize(nTDC);
+    m_tbDetectorName_TBTDCRawCont->resize(nTDC);
+    m_overflow_TBTDCRawCont->resize(nTDC);
 
-		unsigned NtupleVectorIndex = 0;
+    unsigned NtupleVectorIndex = 0;
     TBTDCRawCont::const_iterator it_tdc   = tdcCont->begin();
     TBTDCRawCont::const_iterator last_tdc = tdcCont->end();
     for(;it_tdc!=last_tdc;it_tdc++,NtupleVectorIndex++) {
-			const TBTDCRaw * tdc = (*it_tdc);
-			(*m_tdc_raw)[NtupleVectorIndex]                      = tdc-> getTDC();
-			(*m_underThreshold_raw)[NtupleVectorIndex]           = tdc-> isUnderThreshold();
-     	(*m_tbDetectorName_TBTDCRawCont)[NtupleVectorIndex]  = tdc-> getDetectorName();
-     	(*m_overflow_TBTDCRawCont)[NtupleVectorIndex]        = tdc-> isOverflow();
-		}
+      const TBTDCRaw * tdc = (*it_tdc);
+      (*m_tdc_raw)[NtupleVectorIndex]                      = tdc-> getTDC();
+      (*m_underThreshold_raw)[NtupleVectorIndex]           = tdc-> isUnderThreshold();
+      (*m_tbDetectorName_TBTDCRawCont)[NtupleVectorIndex]  = tdc-> getDetectorName();
+      (*m_overflow_TBTDCRawCont)[NtupleVectorIndex]        = tdc-> isOverflow();
+    }
   }
 
   // ----------------------------------------------------------------------------------------------------
   // TBPhase  
   // ----------------------------------------------------------------------------------------------------
-  const TBPhase * phase;
-	sc = m_eventStore->retrieve(phase,m_containerKey3);
+  const TBPhase * phase = nullptr;
+  sc = evtStore()->retrieve(phase,m_containerKey3);
   if (sc.isFailure()) {
-    log << MSG::ERROR << "\033[31m" << "- Can not read TBPhase from StoreGate! key= " << m_containerKey3 << "\033[0m" << endreq;
+    ATH_MSG_ERROR ( "\033[31m" << "- Can not read TBPhase from StoreGate! key= " << m_containerKey3 << "\033[0m" );
   }  else  {	
-    log << MSG::DEBUG << "\033[34m" << "- Going over TBPhase ( StoreGate key =" << m_containerKey3 << " ) ..."<< "\033[0m" <<endreq;
+    ATH_MSG_DEBUG ( "\033[34m" << "- Going over TBPhase ( StoreGate key =" << m_containerKey3 << " ) ..."<< "\033[0m" );
 
     m_phase     ->resize(1);
     m_phaseind  ->resize(1);
@@ -448,12 +415,12 @@ StatusCode CBNTAA_TBTPValidation::CBNT_execute()
   // ----------------------------------------------------------------------------------------------------
   // TBEventInfo  
   // ----------------------------------------------------------------------------------------------------
-  const TBEventInfo * EventInfo;
-	sc = m_eventStore->retrieve(EventInfo,m_containerKey4);
+  const TBEventInfo * EventInfo = nullptr;
+  sc = evtStore()->retrieve(EventInfo,m_containerKey4);
   if (sc.isFailure()) {
-    log << MSG::ERROR << "\033[31m" << "- Can not read EventInfo from StoreGate! key= " << m_containerKey4 << "\033[0m" << endreq;
+    ATH_MSG_ERROR ( "\033[31m" << "- Can not read EventInfo from StoreGate! key= " << m_containerKey4 << "\033[0m" );
   }  else  {
-    log << MSG::DEBUG << "\033[34m" << "- Going over EventInfo ( StoreGate key =" << m_containerKey4 << " ) ..."<< "\033[0m" <<endreq;
+    ATH_MSG_DEBUG ( "\033[34m" << "- Going over EventInfo ( StoreGate key =" << m_containerKey4 << " ) ..."<< "\033[0m" );
 
     m_ev_number   ->resize(1);
     m_ev_clock    ->resize(1);
@@ -480,14 +447,14 @@ StatusCode CBNTAA_TBTPValidation::CBNT_execute()
   // ----------------------------------------------------------------------------------------------------
   // TBBPCCont  
   // ----------------------------------------------------------------------------------------------------
-  const TBBPCCont * BPCCont;
-	sc = m_eventStore->retrieve(BPCCont,m_containerKey5);
+  const TBBPCCont * BPCCont = nullptr;
+  sc = evtStore()->retrieve(BPCCont,m_containerKey5);
   if (sc.isFailure()) {
-    log << MSG::ERROR << "\033[31m" << "- Can not read TBBPCCont from StoreGate! key= " << m_containerKey5 << "\033[0m" << endreq;
+    ATH_MSG_ERROR ( "\033[31m" << "- Can not read TBBPCCont from StoreGate! key= " << m_containerKey5 << "\033[0m" );
   }  else  {
-		log << MSG::DEBUG << "\033[34m" << "- Going over TBBPCCont ( StoreGate key =" << m_containerKey5 << " ) ..."<< "\033[0m" <<endreq;
+    ATH_MSG_DEBUG ( "\033[34m" << "- Going over TBBPCCont ( StoreGate key =" << m_containerKey5 << " ) ..."<< "\033[0m" );
 
-		const unsigned nBPCCont = (TBBPCCont::size_type)BPCCont->size();
+    const unsigned nBPCCont = (TBBPCCont::size_type)BPCCont->size();
     m_xPos                      ->resize(nBPCCont);
     m_yPos                      ->resize(nBPCCont);
     m_xErr                      ->resize(nBPCCont);
@@ -503,11 +470,11 @@ StatusCode CBNTAA_TBTPValidation::CBNT_execute()
     m_tbDetectorName_TBBPCCont  ->resize(nBPCCont);
     m_overflow_TBBPCCont        ->resize(nBPCCont);
      
-		unsigned NtupleVectorIndex = 0;
+    unsigned NtupleVectorIndex = 0;
     TBBPCCont::const_iterator it_TBBPCCont  = BPCCont->begin();
     TBBPCCont::const_iterator last_BBPCCont = BPCCont->end();
     for(;it_TBBPCCont!=last_BBPCCont;it_TBBPCCont++,NtupleVectorIndex++) {
-			const TBBPC * bpc = (*it_TBBPCCont);
+       const TBBPC * bpc = (*it_TBBPCCont);
      	(*m_xPos)[NtupleVectorIndex]                      = bpc-> getXPos();
      	(*m_yPos)[NtupleVectorIndex]                      = bpc-> getYPos();
      	(*m_xErr)[NtupleVectorIndex]                      = bpc-> getXErr();
@@ -524,66 +491,66 @@ StatusCode CBNTAA_TBTPValidation::CBNT_execute()
      	(*m_overflowSetFlag)[NtupleVectorIndex]           = bpc-> m_overflowSetFlag ;
      	(*m_tbDetectorName_TBBPCCont)[NtupleVectorIndex]  = bpc-> getDetectorName();
      	(*m_overflow_TBBPCCont)[NtupleVectorIndex]        = bpc-> isOverflow();
-		}
+    }
   }
 
 
   // ----------------------------------------------------------------------------------------------------
   // TBLArDigitContainer    // FIXME !!!  probably does not work right.... //
   // ----------------------------------------------------------------------------------------------------
-  const TBLArDigitContainer * LArDigitContainer;
-	sc = m_eventStore->retrieve(LArDigitContainer,m_containerKey6);
+  const TBLArDigitContainer * LArDigitContainer = nullptr;
+  sc = evtStore()->retrieve(LArDigitContainer,m_containerKey6);
   if (sc.isFailure()) {
-      log << MSG::ERROR << "\033[31m" << "- Can not read LArDigitContainer from StoreGate! key= " << m_containerKey6 << "\033[0m" << endreq;
+    ATH_MSG_ERROR ( "\033[31m" << "- Can not read LArDigitContainer from StoreGate! key= " << m_containerKey6 << "\033[0m" );
     }  else  {
-			log << MSG::DEBUG << "\033[34m" << "- Going over LArDigitContainer ( StoreGate key =" << m_containerKey6 << " ) ..."<< "\033[0m" <<endreq;
+    ATH_MSG_DEBUG ( "\033[34m" << "- Going over LArDigitContainer ( StoreGate key =" << m_containerKey6 << " ) ..."<< "\033[0m" );
 
-			const unsigned nLArDigits = (TBLArDigitContainer::size_type)LArDigitContainer->size();
-    	m_channelID->resize(nLArDigits);
-    	m_gain->resize(nLArDigits);
-    	m_nSamples->resize(nLArDigits);
-      if (nLArDigits) 
-        m_samples->reserve( ( (*(LArDigitContainer->begin()))->m_samples.size() ) * nLArDigits);
+    const unsigned nLArDigits = (TBLArDigitContainer::size_type)LArDigitContainer->size();
+    m_channelID->resize(nLArDigits);
+    m_gain->resize(nLArDigits);
+    m_nSamples->resize(nLArDigits);
+    if (nLArDigits) 
+      m_samples->reserve( ( (*(LArDigitContainer->begin()))->m_samples.size() ) * nLArDigits);
 
-			unsigned NtupleVectorIndex = 0;
-      TBLArDigitContainer::const_iterator it_LArDigitContainer   = LArDigitContainer->begin();
-      TBLArDigitContainer::const_iterator last_LArDigitContainer = LArDigitContainer->end();
-      for(;it_LArDigitContainer!=last_LArDigitContainer;it_LArDigitContainer++,NtupleVectorIndex++) {
-				const LArDigit * larDigit = (*it_LArDigitContainer);
-      	(*m_channelID)[NtupleVectorIndex] = larDigit->m_hardwareID.get_identifier32().get_compact() ;
-      	(*m_gain)[NtupleVectorIndex] = (unsigned char)larDigit->m_gain;
+    unsigned NtupleVectorIndex = 0;
+    TBLArDigitContainer::const_iterator it_LArDigitContainer   = LArDigitContainer->begin();
+    TBLArDigitContainer::const_iterator last_LArDigitContainer = LArDigitContainer->end();
+    for(;it_LArDigitContainer!=last_LArDigitContainer;it_LArDigitContainer++,NtupleVectorIndex++) {
+      const LArDigit * larDigit = (*it_LArDigitContainer);
+      (*m_channelID)[NtupleVectorIndex] = larDigit->m_hardwareID.get_identifier32().get_compact() ;
+      (*m_gain)[NtupleVectorIndex] = (unsigned char)larDigit->m_gain;
 
-        unsigned nM_samples = larDigit->m_samples.size();
-        (*m_nSamples)[NtupleVectorIndex] = nM_samples;
+      unsigned nM_samples = larDigit->m_samples.size();
+      (*m_nSamples)[NtupleVectorIndex] = nM_samples;
         
-        std::vector<short>::const_iterator it_dig   = larDigit->m_samples.begin();
-        std::vector<short>::const_iterator it_dig_e = larDigit->m_samples.end();
-        for(;it_dig!=it_dig_e;it_dig++)
-          (*m_samples).push_back(*it_dig);
-			}
+      std::vector<short>::const_iterator it_dig   = larDigit->m_samples.begin();
+      std::vector<short>::const_iterator it_dig_e = larDigit->m_samples.end();
+      for(;it_dig!=it_dig_e;it_dig++)
+        (*m_samples).push_back(*it_dig);
     }
+  }
 
 
   // ----------------------------------------------------------------------------------------------------
   // TBScintillatorCont  
   // ----------------------------------------------------------------------------------------------------
-  const TBScintillatorCont * ScintillatorCont;
-	sc = m_eventStore->retrieve(ScintillatorCont,m_containerKey7);
+  const TBScintillatorCont * ScintillatorCont = nullptr;
+  sc = evtStore()->retrieve(ScintillatorCont,m_containerKey7);
   if (sc.isFailure()) {
-    log << MSG::ERROR << "\033[31m" << "- Can not read TBScintillatorCont from StoreGate! key= " << m_containerKey7 << "\033[0m" << endreq;
+    ATH_MSG_ERROR ( "\033[31m" << "- Can not read TBScintillatorCont from StoreGate! key= " << m_containerKey7 << "\033[0m" );
   }  else  {
-		log << MSG::DEBUG << "\033[34m" << "- Going over TBScintillatorCont ( StoreGate key =" << m_containerKey7 << " ) ..."<< "\033[0m" <<endreq;
+    ATH_MSG_DEBUG ( "\033[34m" << "- Going over TBScintillatorCont ( StoreGate key =" << m_containerKey7 << " ) ..."<< "\033[0m" );
 
-		const unsigned nScintillators = (TBScintillatorCont::size_type)ScintillatorCont->size();
-	  m_signal_scint                        ->resize(nScintillators);
-   	m_time_signal_scint                   ->resize(nScintillators);
-   	m_signal_overflow_scint               ->resize(nScintillators);
-   	m_time_overflow_scint                 ->resize(nScintillators);
-   	m_tbDetectorName_TBScintillatorCont   ->resize(nScintillators);
-   	m_overflow_TBScintillatorCont         ->resize(nScintillators);
+    const unsigned nScintillators = (TBScintillatorCont::size_type)ScintillatorCont->size();
+    m_signal_scint                        ->resize(nScintillators);
+    m_time_signal_scint                   ->resize(nScintillators);
+    m_signal_overflow_scint               ->resize(nScintillators);
+    m_time_overflow_scint                 ->resize(nScintillators);
+    m_tbDetectorName_TBScintillatorCont   ->resize(nScintillators);
+    m_overflow_TBScintillatorCont         ->resize(nScintillators);
 
 
-		unsigned NtupleVectorIndex = 0;
+    unsigned NtupleVectorIndex = 0;
     TBScintillatorCont::const_iterator it_TBScintillatorCont   = ScintillatorCont->begin();
     TBScintillatorCont::const_iterator last_TBScintillatorCont = ScintillatorCont->end();
     for(;it_TBScintillatorCont!=last_TBScintillatorCont;++it_TBScintillatorCont,NtupleVectorIndex++) {
@@ -592,39 +559,39 @@ StatusCode CBNTAA_TBTPValidation::CBNT_execute()
       // since for a const TBScintillator all methods need to be const as well...
       const TBScintillator * scint = (*it_TBScintillatorCont);
 
-	    (*m_signal_scint)[NtupleVectorIndex]                        = scint-> getSignal();
-     	(*m_time_signal_scint)[NtupleVectorIndex]                   = scint-> getTimeSignal();
-     	(*m_signal_overflow_scint)[NtupleVectorIndex]               = scint-> isSignalOverflow();
-     	(*m_time_overflow_scint)[NtupleVectorIndex]                 = scint-> isTimeOverflow();
-    	(*m_tbDetectorName_TBScintillatorCont)[NtupleVectorIndex]   = scint-> getDetectorName();
-    	(*m_overflow_TBScintillatorCont)[NtupleVectorIndex]         = scint-> isOverflow();
-		}
+      (*m_signal_scint)[NtupleVectorIndex]                        = scint-> getSignal();
+      (*m_time_signal_scint)[NtupleVectorIndex]                   = scint-> getTimeSignal();
+      (*m_signal_overflow_scint)[NtupleVectorIndex]               = scint-> isSignalOverflow();
+      (*m_time_overflow_scint)[NtupleVectorIndex]                 = scint-> isTimeOverflow();
+      (*m_tbDetectorName_TBScintillatorCont)[NtupleVectorIndex]   = scint-> getDetectorName();
+      (*m_overflow_TBScintillatorCont)[NtupleVectorIndex]         = scint-> isOverflow();
+    }
   }
 
 
   // ----------------------------------------------------------------------------------------------------
   // TBTailCatcher  
   // ----------------------------------------------------------------------------------------------------
-  const TBTailCatcher * TailCatcher;
-	sc = m_eventStore->retrieve(TailCatcher,m_containerKey8);
+  const TBTailCatcher * TailCatcher = nullptr;
+  sc = evtStore()->retrieve(TailCatcher,m_containerKey8);
   if (sc.isFailure()) {
-    log << MSG::ERROR << "\033[31m" << "- Can not read TBTailCatcher from StoreGate! key= " << m_containerKey8 << "\033[0m" << endreq;
+    ATH_MSG_ERROR ( "\033[31m" << "- Can not read TBTailCatcher from StoreGate! key= " << m_containerKey8 << "\033[0m" );
   }  else  {
-		log << MSG::DEBUG << "\033[34m" << "- Going over TBTailCatcher ( StoreGate key =" << m_containerKey8 << " ) ..."<< "\033[0m" <<endreq;
+    ATH_MSG_DEBUG ( "\033[34m" << "- Going over TBTailCatcher ( StoreGate key =" << m_containerKey8 << " ) ..."<< "\033[0m" );
 
-		const unsigned nTailCatchers = (TBTailCatcher::size_type)TailCatcher->size();
-   	m_signals                         ->resize(nTailCatchers);
-   	m_signal_tCatch                   ->resize(nTailCatchers);
-	  m_time_signal_tCatch              ->resize(nTailCatchers);
-   	m_signal_overflow_tCatch          ->resize(nTailCatchers);
-   	m_time_overflow_tCatch            ->resize(nTailCatchers);
-   	m_tbDetectorName_TBTailCatcher    ->resize(nTailCatchers);
-   	m_overflow_TBTailCatcher          ->resize(nTailCatchers);
+    const unsigned nTailCatchers = (TBTailCatcher::size_type)TailCatcher->size();
+    m_signals                         ->resize(nTailCatchers);
+    m_signal_tCatch                   ->resize(nTailCatchers);
+    m_time_signal_tCatch              ->resize(nTailCatchers);
+    m_signal_overflow_tCatch          ->resize(nTailCatchers);
+    m_time_overflow_tCatch            ->resize(nTailCatchers);
+    m_tbDetectorName_TBTailCatcher    ->resize(nTailCatchers);
+    m_overflow_TBTailCatcher          ->resize(nTailCatchers);
 
     // m_signals has no access method so just copy it over ...
     (*m_signals) = TailCatcher->m_signals;
 
-		unsigned NtupleVectorIndex = 0;
+    unsigned NtupleVectorIndex = 0;
     TBTailCatcher::const_iterator it_TailCatcher   = TailCatcher->begin();
     TBTailCatcher::const_iterator last_TailCatcher = TailCatcher->end();
     for(;it_TailCatcher!=last_TailCatcher;++it_TailCatcher,NtupleVectorIndex++) {
@@ -633,30 +600,30 @@ StatusCode CBNTAA_TBTPValidation::CBNT_execute()
       // since for a const TBScintillator all methods need to be const as well...
       const TBScintillator * scint = (*it_TailCatcher);
 
-	    (*m_signal_tCatch)[NtupleVectorIndex]                   = scint-> getSignal();
-     	(*m_time_signal_tCatch)[NtupleVectorIndex]              = scint-> getTimeSignal();
-     	(*m_signal_overflow_tCatch)[NtupleVectorIndex]          = scint-> isSignalOverflow();
-     	(*m_time_overflow_tCatch)[NtupleVectorIndex]            = scint-> isTimeOverflow();
-    	(*m_tbDetectorName_TBTailCatcher)[NtupleVectorIndex]    = scint-> getDetectorName();
-    	(*m_overflow_TBTailCatcher)[NtupleVectorIndex]          = scint-> isOverflow();
-		}
+      (*m_signal_tCatch)[NtupleVectorIndex]                   = scint-> getSignal();
+      (*m_time_signal_tCatch)[NtupleVectorIndex]              = scint-> getTimeSignal();
+      (*m_signal_overflow_tCatch)[NtupleVectorIndex]          = scint-> isSignalOverflow();
+      (*m_time_overflow_tCatch)[NtupleVectorIndex]            = scint-> isTimeOverflow();
+      (*m_tbDetectorName_TBTailCatcher)[NtupleVectorIndex]    = scint-> getDetectorName();
+      (*m_overflow_TBTailCatcher)[NtupleVectorIndex]          = scint-> isOverflow();
+    }
   }
 
 
   // ----------------------------------------------------------------------------------------------------
   // TBTDC  
   // ----------------------------------------------------------------------------------------------------
-  const TBTDC * TDC;
-	sc = m_eventStore->retrieve(TDC,m_containerKey9);
+  const TBTDC * TDC = nullptr;
+  sc = evtStore()->retrieve(TDC,m_containerKey9);
   if (sc.isFailure()) {
-    log << MSG::ERROR << "\033[31m" << "- Can not read TBTDC from StoreGate! key= " << m_containerKey9 << "\033[0m" << endreq;
+    ATH_MSG_ERROR ( "\033[31m" << "- Can not read TBTDC from StoreGate! key= " << m_containerKey9 << "\033[0m" );
   }  else  {
-		log << MSG::DEBUG << "\033[34m" << "- Going over TBTDC ( StoreGate key =" << m_containerKey9 << " ) ..."<< "\033[0m" <<endreq;
+    ATH_MSG_DEBUG ( "\033[34m" << "- Going over TBTDC ( StoreGate key =" << m_containerKey9 << " ) ..."<< "\033[0m" );
 
     m_tdc_TBTDC      ->resize(1);
-  	m_tdcmin_TBTDC   ->resize(1);
-   	m_scale_TBTDC    ->resize(1);
-   	m_phase_TBTDC    ->resize(1);
+    m_tdcmin_TBTDC   ->resize(1);
+    m_scale_TBTDC    ->resize(1);
+    m_phase_TBTDC    ->resize(1);
 
     (*m_tdc_TBTDC)[0]    = TDC-> m_tdc;
     (*m_tdcmin_TBTDC)[0] = TDC-> m_tdcmin;
@@ -668,41 +635,41 @@ StatusCode CBNTAA_TBTPValidation::CBNT_execute()
   // ----------------------------------------------------------------------------------------------------
   // TBTrack  
   // ----------------------------------------------------------------------------------------------------
-  const TBTrack * Track;
-	sc = m_eventStore->retrieve(Track,m_containerKey10);
+  const TBTrack * Track = nullptr;
+  sc = evtStore()->retrieve(Track,m_containerKey10);
   if (sc.isFailure()) {
-    log << MSG::ERROR << "\033[31m" << "- Can not read TBTrack from StoreGate! key= " << m_containerKey10 << "\033[0m" << endreq;
+    ATH_MSG_ERROR ( "\033[31m" << "- Can not read TBTrack from StoreGate! key= " << m_containerKey10 << "\033[0m" );
   }  else  {
-		log << MSG::DEBUG << "\033[34m" << "- Going over TBTrack ( StoreGate key =" << m_containerKey10 << " ) ..."<< "\033[0m" <<endreq;
+    ATH_MSG_DEBUG ( "\033[34m" << "- Going over TBTrack ( StoreGate key =" << m_containerKey10 << " ) ..."<< "\033[0m" );
 
-   	m_hitNumberU      ->resize(1);
-   	m_hitNumberV      ->resize(1);
-   	m_chi2            ->resize(1);
-   	m_chi2u           ->resize(1);
-   	m_chi2v           ->resize(1);
-   	m_angle           ->resize(1);
-   	m_uslope          ->resize(1);
-   	m_vslope          ->resize(1);
-   	m_uintercept      ->resize(1);
-   	m_vintercept      ->resize(1);
-   	m_cryou           ->resize(1);
-   	m_cryov           ->resize(1);
-   	m_cryow           ->resize(1);
+    m_hitNumberU      ->resize(1);
+    m_hitNumberV      ->resize(1);
+    m_chi2            ->resize(1);
+    m_chi2u           ->resize(1);
+    m_chi2v           ->resize(1);
+    m_angle           ->resize(1);
+    m_uslope          ->resize(1);
+    m_vslope          ->resize(1);
+    m_uintercept      ->resize(1);
+    m_vintercept      ->resize(1);
+    m_cryou           ->resize(1);
+    m_cryov           ->resize(1);
+    m_cryow           ->resize(1);
 
-   	(*m_hitNumberU)[0]    = Track->  m_hitNumberU;
-   	(*m_hitNumberV)[0]    = Track->  m_hitNumberV;
-   	(*m_chi2)[0]          = Track->  m_chi2;
-   	(*m_chi2u)[0]         = Track->  m_chi2u;
-   	(*m_chi2v)[0]         = Track->  m_chi2v;
-   	(*m_angle)[0]         = Track->  m_angle;
-   	(*m_uslope)[0]        = Track->  m_uslope;
-   	(*m_vslope)[0]        = Track->  m_vslope;
-   	(*m_uintercept)[0]    = Track->  m_uintercept;
-   	(*m_vintercept)[0]    = Track->  m_vintercept;
-   	(*m_cryou)[0]         = Track->  m_cryou;
-   	(*m_cryov)[0]         = Track->  m_cryov;
-   	(*m_cryow)[0]         = Track->  m_cryow;
-
+    (*m_hitNumberU)[0]    = Track->  m_hitNumberU;
+    (*m_hitNumberV)[0]    = Track->  m_hitNumberV;
+    (*m_chi2)[0]          = Track->  m_chi2;
+    (*m_chi2u)[0]         = Track->  m_chi2u;
+    (*m_chi2v)[0]         = Track->  m_chi2v;
+    (*m_angle)[0]         = Track->  m_angle;
+    (*m_uslope)[0]        = Track->  m_uslope;
+    (*m_vslope)[0]        = Track->  m_vslope;
+    (*m_uintercept)[0]    = Track->  m_uintercept;
+    (*m_vintercept)[0]    = Track->  m_vintercept;
+    (*m_cryou)[0]         = Track->  m_cryou;
+    (*m_cryov)[0]         = Track->  m_cryov;
+    (*m_cryow)[0]         = Track->  m_cryow;
+    
     unsigned int nResidualus = Track->m_residualu.size();
     m_residualv->reserve(nResidualus);
     (*m_residualu) = Track->  m_residualu;
@@ -716,53 +683,53 @@ StatusCode CBNTAA_TBTPValidation::CBNT_execute()
   // ----------------------------------------------------------------------------------------------------
   // TBTriggerPatternUnit  
   // ----------------------------------------------------------------------------------------------------
-  const TBTriggerPatternUnit * TriggerPatternUnit;
-	sc = m_eventStore->retrieve(TriggerPatternUnit,m_containerKey11);
+  const TBTriggerPatternUnit * TriggerPatternUnit = nullptr;
+  sc = evtStore()->retrieve(TriggerPatternUnit,m_containerKey11);
   if (sc.isFailure()) {
-    log << MSG::ERROR << "\033[31m" << "- Can not read TBTriggerPatternUnit from StoreGate! key= " << m_containerKey11 << "\033[0m" << endreq;
+    ATH_MSG_ERROR ( "\033[31m" << "- Can not read TBTriggerPatternUnit from StoreGate! key= " << m_containerKey11 << "\033[0m" );
   }  else  {
-		log << MSG::DEBUG << "\033[34m" << "- Going over TBTriggerPatternUnit ( StoreGate key =" << m_containerKey11 << " ) ..."<< "\033[0m" <<endreq;
+    ATH_MSG_DEBUG ( "\033[34m" << "- Going over TBTriggerPatternUnit ( StoreGate key =" << m_containerKey11 << " ) ..."<< "\033[0m" );
 
-   	m_triggerWord->resize(1);
-   	(*m_triggerWord)[0] = TriggerPatternUnit->  m_triggerWord;
+    m_triggerWord->resize(1);
+    (*m_triggerWord)[0] = TriggerPatternUnit->  m_triggerWord;
 
     unsigned int nM_triggers = TriggerPatternUnit->m_triggers.size();
     m_triggers->reserve(nM_triggers);
-  	(*m_triggers)       = TriggerPatternUnit->  m_triggers;
+    (*m_triggers)       = TriggerPatternUnit->  m_triggers;
   }
 
 
   // ----------------------------------------------------------------------------------------------------
   // TBMWPCCont  
   // ----------------------------------------------------------------------------------------------------
-  const TBMWPCCont * MWPCCont;
-	sc = m_eventStore->retrieve(MWPCCont,m_containerKey12);
+  const TBMWPCCont * MWPCCont = nullptr;
+  sc = evtStore()->retrieve(MWPCCont,m_containerKey12);
   if (sc.isFailure()) {
-    log << MSG::ERROR << "\033[31m" << "- Can not read TBMWPCCont from StoreGate! key= " << m_containerKey12 << "\033[0m" << endreq;
+    ATH_MSG_ERROR ( "\033[31m" << "- Can not read TBMWPCCont from StoreGate! key= " << m_containerKey12 << "\033[0m" );
   }  else  {
-		log << MSG::DEBUG << "\033[34m" << "- Going over TBMWPCCont ( StoreGate key =" << m_containerKey12 << " ) ..."<< "\033[0m" <<endreq;
+    ATH_MSG_DEBUG ( "\033[34m" << "- Going over TBMWPCCont ( StoreGate key =" << m_containerKey12 << " ) ..."<< "\033[0m" );
 
-		const unsigned nMWPCCont = (TBMWPCCont::size_type)MWPCCont->size();
-   	m_cPos                        ->resize(nMWPCCont);
-   	m_cErr                        ->resize(nMWPCCont);
-   	m_isX                         ->resize(nMWPCCont);
-   	m_clusterSize_c               ->resize(nMWPCCont);
-   	m_cPosOverflow                ->resize(nMWPCCont);
-   	m_tbDetectorName_TBMWPCCont   ->resize(nMWPCCont);
-   	m_overflow_TBMWPCCont         ->resize(nMWPCCont);
+    const unsigned nMWPCCont = (TBMWPCCont::size_type)MWPCCont->size();
+    m_cPos                        ->resize(nMWPCCont);
+    m_cErr                        ->resize(nMWPCCont);
+    m_isX                         ->resize(nMWPCCont);
+    m_clusterSize_c               ->resize(nMWPCCont);
+    m_cPosOverflow                ->resize(nMWPCCont);
+    m_tbDetectorName_TBMWPCCont   ->resize(nMWPCCont);
+    m_overflow_TBMWPCCont         ->resize(nMWPCCont);
 
-		unsigned NtupleVectorIndex = 0;
+    unsigned NtupleVectorIndex = 0;
     TBMWPCCont::const_iterator it_TBMWPCCont   = MWPCCont->begin();
     TBMWPCCont::const_iterator last_TBMWPCCont = MWPCCont->end();
     for(;it_TBMWPCCont!=last_TBMWPCCont;++it_TBMWPCCont,NtupleVectorIndex++) {
-			const TBMWPC * mwpc = (*it_TBMWPCCont);
+      const TBMWPC * mwpc = (*it_TBMWPCCont);
 
-     	(*m_cPos)[NtupleVectorIndex]                      = mwpc-> getCPos();
-     	(*m_cErr)[NtupleVectorIndex]                      = mwpc-> getCErr();
-     	(*m_isX)[NtupleVectorIndex]                       = mwpc-> isX();
-   	  (*m_clusterSize_c)[NtupleVectorIndex]             = mwpc-> getClusterSizeC();
-   	  (*m_tbDetectorName_TBMWPCCont)[NtupleVectorIndex] = mwpc-> getDetectorName();
-   	  (*m_overflow_TBMWPCCont)[NtupleVectorIndex]       = mwpc-> isOverflow();
+      (*m_cPos)[NtupleVectorIndex]                      = mwpc-> getCPos();
+      (*m_cErr)[NtupleVectorIndex]                      = mwpc-> getCErr();
+      (*m_isX)[NtupleVectorIndex]                       = mwpc-> isX();
+      (*m_clusterSize_c)[NtupleVectorIndex]             = mwpc-> getClusterSizeC();
+      (*m_tbDetectorName_TBMWPCCont)[NtupleVectorIndex] = mwpc-> getDetectorName();
+      (*m_overflow_TBMWPCCont)[NtupleVectorIndex]       = mwpc-> isOverflow();
 
       // ------------------------------------------------------------------------------------------------
       // for some reason a stright forward definition of m_cPosOverflow as
@@ -782,10 +749,8 @@ StatusCode CBNTAA_TBTPValidation::CBNT_execute()
       (*m_cPosOverflow)[NtupleVectorIndex] =  m_cPosOverflowNow;
       m_cPosOverflowNow.clear();
       // ------------------------------------------------------------------------------------------------
-		}
+    }
   }
-
-
 
   return StatusCode::SUCCESS;
 }  
@@ -891,12 +856,7 @@ StatusCode CBNTAA_TBTPValidation::CBNT_clear()
 
 StatusCode CBNTAA_TBTPValidation::CBNT_finalize()
 {
-  /// Print an informatory message:
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG 
-      << "in finalize()" 
-      << endreq;
-  
+  ATH_MSG_DEBUG ( "in finalize()" );
   return StatusCode::SUCCESS;
 }
 

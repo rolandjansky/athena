@@ -16,7 +16,6 @@
 #define TBBEAMQUALITYEMFRACTIONTOOL_H
 
 #include "TBRec/TBBeamQualityTool.h"
-#include "GaudiKernel/AlgTool.h"
 
 //#include "LArDetDescr/LArDetDescrManager.h"
 

@@ -5,7 +5,7 @@
 #ifndef TBPLANETRACKINGALGO_H
 #define TBPLANETRACKINGALGO_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/StoreGateSvc.h"
 
 #include "TBEvent/TBHitPlaneCont.h"
@@ -18,7 +18,7 @@ This algorithm is used to fit a collection of TBHitPlane (TBHitPlaneCont)
 and create a TBTrack data object.
 */
 
-class TBPlaneTrackingAlgo : public Algorithm {
+class TBPlaneTrackingAlgo : public AthAlgorithm {
  public:
   
   /////////////////////////////
@@ -33,9 +33,6 @@ class TBPlaneTrackingAlgo : public Algorithm {
   StatusCode finalize();
 
  private:
-  //Pointer to StoreGate service.
-  StoreGateSvc* m_StoreGate;	
-
   void FillRandomHit();
   StatusCode getnewcalib();
 

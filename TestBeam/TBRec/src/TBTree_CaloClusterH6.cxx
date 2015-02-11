@@ -9,7 +9,6 @@
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ListItem.h"
 
@@ -49,7 +48,7 @@
 
 TBTree_CaloClusterH6::TBTree_CaloClusterH6(const std::string& name, 
 				   ISvcLocator* pSvcLocator) : 
-  Algorithm(name, pSvcLocator), m_suffix(""), 
+  AthAlgorithm(name, pSvcLocator), m_suffix(""), 
   m_nEvent(0),
   m_nEventRejected(0),
   m_nEventAccepted(0),
@@ -127,8 +126,6 @@ TBTree_CaloClusterH6::TBTree_CaloClusterH6(const std::string& name,
   m_rootfile_name("tbh6tree.root"),
   m_rootfile(0),
   m_tree(0),
-  m_eventStore(0),
-  m_detStore(0),
   m_calo_id(0),
   m_calo_dd_man(0),
   m_noiseTool(0),
@@ -160,9 +157,7 @@ TBTree_CaloClusterH6::~TBTree_CaloClusterH6()
 
 StatusCode TBTree_CaloClusterH6::initialize()
 {
-  
-  MsgStream log(messageService(), name());
-  log << MSG::INFO << "in initialize()" << endreq;
+  ATH_MSG_INFO ( "in initialize()" );
 
   // Cluster vectors
   m_nCellCluster = new std::vector<int>;
@@ -206,7 +201,7 @@ StatusCode TBTree_CaloClusterH6::initialize()
   // Open file and create TTree
   m_rootfile = new TFile(m_rootfile_name.data(), "RECREATE");
   if (!m_rootfile->IsOpen()) {
-    log << MSG::FATAL << "Cann't open Root file" << endreq;
+    ATH_MSG_FATAL ( "Cann't open Root file" );
     return StatusCode::FAILURE;
   }
   m_tree = new TTree(m_TBTreeName.c_str(), m_TBTreeName.c_str());
@@ -309,92 +304,45 @@ StatusCode TBTree_CaloClusterH6::initialize()
   // pointer to detector manager:
   m_calo_dd_man = CaloDetDescrManager::instance(); 
   m_calo_id   = m_calo_dd_man->getCaloCell_ID();
-  // Get StoreGateSvc //
-  StatusCode sc = service ( "StoreGateSvc" , m_eventStore ) ;  
-  if( sc.isFailure() ) {
-    log<<MSG::FATAL<<" Cannot locate StoreGateSvc " << endreq ;
-    sc = StatusCode::FAILURE ;
-    return sc ;
-  }
-
-  if (m_addNoise) {
-    sc= service("DetectorStore",m_detStore);
-    if(sc.isFailure()) {
-      log << MSG::ERROR << "DetectorStore service not found" << endreq;
-      return StatusCode::FAILURE;
-    }
-  }
 
   // allocate ToolSvc
   IToolSvc* toolSvc;
-  sc = service("ToolSvc", toolSvc);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "cannot allocate ToolSvc" << endreq;
-    return sc;
-  }
+  ATH_CHECK( service("ToolSvc", toolSvc) );
 
   if (m_addNoise) {
     IAlgTool* algtool;
-    sc = toolSvc->retrieveTool("LArADC2MeVTool", algtool);
-    if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to find tool for LArADC2MeV" << endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( toolSvc->retrieveTool("LArADC2MeVTool", algtool) );
     m_adc2mevTool=dynamic_cast<ILArADC2MeVTool*>(algtool);
     if (!m_adc2mevTool) {
-      log << MSG::ERROR << "Unable to d-cast LArADC2MeV" << endreq;
+      ATH_MSG_ERROR ( "Unable to d-cast LArADC2MeV" );
       return StatusCode::FAILURE;
     }
   }
 
   ListItem ntool(m_noiseToolName);	  
-  sc = toolSvc->retrieveTool(ntool.type(), ntool.name(), m_noiseTool);
-  if (sc.isFailure()) {
-    log << MSG::ERROR
-	<< "Unable to find tool for " << m_noiseToolName
-	<< endreq;
-    return sc;
-  }
-  else {
-    log << MSG::INFO << "Noise Tool "
-	<< m_noiseToolName << " is selected!" << endreq;
-  }
+  ATH_CHECK( toolSvc->retrieveTool(ntool.type(), ntool.name(), m_noiseTool) );
+  ATH_MSG_INFO ( "Noise Tool " << m_noiseToolName << " is selected!" );
   
   if (m_addNoise) {
     ListItem ntool(m_OFNoiseSuppToolName);
-    sc = toolSvc->retrieveTool(ntool.type(), ntool.name(), m_OFNoiseSupp);
-    if (sc.isFailure()) {
-      log << MSG::ERROR
-	  << "Unable to find tool for " << m_OFNoiseSuppToolName
-	  << endreq;
-      return sc;
-    }
-    else {
-      log << MSG::INFO << "Noise Tool "
-	  << m_OFNoiseSuppToolName << " is selected!" << endreq;
-    }
+    ATH_CHECK( toolSvc->retrieveTool(ntool.type(), ntool.name(), m_OFNoiseSupp) );
+    ATH_MSG_INFO ("Noise Tool " << m_OFNoiseSuppToolName << " is selected!" );
     // Translate offline ID into online ID
-    sc = toolSvc->retrieveTool("LArCablingService",m_larCablingSvc);
-    if(sc.isFailure()){
-      log<<MSG::ERROR<<"Could not retrieve LArCablingService Tool"<<endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( toolSvc->retrieveTool("LArCablingService",m_larCablingSvc) );
   }
   
-  log << MSG::INFO << "end of initialize()" << endreq;
+  ATH_MSG_INFO ( "end of initialize()" );
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode TBTree_CaloClusterH6::finalize()
 {
-  MsgStream log( messageService(), name() );
-
   m_tree->AutoSave();
-  log << MSG::INFO << "finalize(): (invoked/accept/reject/random) ("<< m_nEvent
+  ATH_MSG_INFO ( "finalize(): (invoked/accept/reject/random) ("<< m_nEvent
       << "/" << m_nEventAccepted << "/" << m_nEventRejected 
-      << "/" << m_nEventRandomTrigger << ")" << endreq;
-  log << MSG::INFO << "Print contents of " << m_TBTreeName << endreq;
+                 << "/" << m_nEventRandomTrigger << ")" );
+  ATH_MSG_INFO ( "Print contents of " << m_TBTreeName );
   m_rootfile->Print();
   m_rootfile->Close();
   return StatusCode::SUCCESS;
@@ -456,31 +404,28 @@ StatusCode TBTree_CaloClusterH6::execute()
 {
   const int lastScintInLayer[] = {11, 23, 29, 35, 41, 47};
   m_nEvent++;
-  MsgStream log( messageService(), name() );
-  log << MSG::DEBUG << "Executing TBTree_CaloClusterH6 for "
-      << m_clusterContainerName 
-      << endreq;
+  ATH_MSG_DEBUG ( "Executing TBTree_CaloClusterH6 for "
+                  << m_clusterContainerName );
 
-  StatusCode sc;
   // Retrieve Event Info
   const TBEventInfo* theEventInfo;
-  sc = m_eventStore->retrieve(theEventInfo,"TBEventInfo");
+  StatusCode sc = evtStore()->retrieve(theEventInfo,"TBEventInfo");
   if ( sc.isFailure() ) {
-    log << MSG::ERROR
-	<< "Cannot retrieve TBEventInfo from StoreGate" << endreq;
+    ATH_MSG_ERROR
+      ( "Cannot retrieve TBEventInfo from StoreGate" );
     m_nEventRejected++;
     return StatusCode::FAILURE;
   }
   m_evType = theEventInfo->getEventType();
-  log << MSG::DEBUG << "Event Type found " << m_evType << endreq;
+  ATH_MSG_DEBUG ( "Event Type found " << m_evType );
   if (m_evType != 1 && m_evType != 3 && m_evType != 0) {
     m_nEventRejected++;
     return StatusCode::FAILURE;
   }
   if (m_evType == 3) {                               // Random trigger
     if (m_cell_id->size() == 0) {
-      log << MSG::WARNING 
-	  << "No filled cell_id vector for random trigger event" << endreq;
+      ATH_MSG_WARNING 
+        ( "No filled cell_id vector for random trigger event" );
       m_nEventRejected++;
       return StatusCode::FAILURE;
     }
@@ -509,14 +454,13 @@ StatusCode TBTree_CaloClusterH6::execute()
     if (m_addNoise) m_cell_noise->clear();
     // Get cell information
     const CaloCellContainer* cellContainer;
-    sc = m_eventStore->retrieve(cellContainer, m_caloCellContainerName);
+    sc = evtStore()->retrieve(cellContainer, m_caloCellContainerName);
     if (sc.isFailure()) {
       m_nEventRejected++;
-      log << MSG::ERROR
-	  << "cannot allocate CaloCellContainer with key <"
+      ATH_MSG_ERROR
+        ( "cannot allocate CaloCellContainer with key <"
 	  << m_caloCellContainerName
-	  << "> for random trigger event"
-	  << endreq;
+	  << "> for random trigger event");
       return sc;
     }
     // Cell loop
@@ -548,13 +492,13 @@ StatusCode TBTree_CaloClusterH6::execute()
     m_beamMom = theEventInfo->getBeamMomentum();
     // Get xcryo and ytable from a file
     if (!this->getXcryoYtable(m_xCryo, m_yTable, m_beamMom)) {
-      log << MSG::ERROR << "xCryo and yTable are not found for run " <<
-	m_nRun << " in file " << m_txtFileWithXY << endreq;
+      ATH_MSG_ERROR ( "xCryo and yTable are not found for run " <<
+                      m_nRun << " in file " << m_txtFileWithXY );
       if (m_addBeamTrack) return StatusCode::FAILURE;
     }
-    log << MSG::INFO << "nRun = " << m_nRun << ", beamMomentum = "
+    ATH_MSG_INFO ( "nRun = " << m_nRun << ", beamMomentum = "
 	<< m_beamMom << " GeV, CryoX = " << m_xCryo << ", tableY = "
-	<< m_yTable << endreq;
+                   << m_yTable );
     
     // Fill the run header and attach it to the tree
     TBH6RunHeader* rh = new TBH6RunHeader(m_nRun);
@@ -564,23 +508,14 @@ StatusCode TBTree_CaloClusterH6::execute()
     rh->SetZCalo(m_zCalo);
     
     // Get cell information
-    const CaloCellContainer* cellContainer;
-    sc = m_eventStore->retrieve(cellContainer, m_caloCellContainerName);
-    if (sc.isFailure()) {
-      log << MSG::ERROR
-	  << "cannot allocate CaloCellContainer with key <"
-	  << m_caloCellContainerName
-	  << ">"
-	  << endreq;
-      return sc;
-    }
+    const CaloCellContainer* cellContainer = 0;
+    ATH_CHECK( evtStore()->retrieve(cellContainer, m_caloCellContainerName) );
     m_nCells = cellContainer->size();
-    log << MSG::DEBUG << "CaloCellContainer container size = " <<  
-      m_nCells << endreq;
+    ATH_MSG_DEBUG ( "CaloCellContainer container size = " <<  m_nCells );
     
     if (m_nCells > CELLMAX) {
-      log << MSG::ERROR << "CaloCellContainer container size = " <<
-	m_nCells << " > CELLMAX = " << CELLMAX << endreq;
+      ATH_MSG_ERROR ( "CaloCellContainer container size = " <<
+                      m_nCells << " > CELLMAX = " << CELLMAX );
       return StatusCode::FAILURE;
     }
     
@@ -625,9 +560,9 @@ StatusCode TBTree_CaloClusterH6::execute()
   // Get beam coordinates
   if (m_addBeamTrack && (m_evType == 1 || m_evType == 0)) {
     TBTrack *track;
-    sc = m_eventStore->retrieve(track, "Track");
+    sc = evtStore()->retrieve(track, "Track");
     if (sc.isFailure()){
-      log << MSG::ERROR << "Retrieval of beam track failed" << endreq;
+      ATH_MSG_ERROR ( "Retrieval of beam track failed" );
       m_nEventRejected++;
       return StatusCode::FAILURE;
     }
@@ -644,20 +579,20 @@ StatusCode TBTree_CaloClusterH6::execute()
   // Warm TailCatcher data
   if (m_addWTC) {
     TBTailCatcher * wtc;
-    sc = m_eventStore->retrieve(wtc, m_WTCContainerName);
+    sc = evtStore()->retrieve(wtc, m_WTCContainerName);
     if (sc.isFailure()){
-      log << MSG::ERROR << "Retrieval of WTC data failed" << endreq;
+      ATH_MSG_ERROR ( "Retrieval of WTC data failed" );
       m_nEventRejected++;
       return StatusCode::FAILURE;
     }
     DataVector< TBScintillator >::const_iterator its = wtc->begin();
-    log<<MSG::VERBOSE<<"scint name/signal/overflow flag:"<<endreq;
+    ATH_MSG_VERBOSE("scint name/signal/overflow flag:");
     short novflow = 0;
     float signal = 0;
     int nScint = 0; int nLayer = 0;
     for (; its != wtc->end(); its++) {
-      log<<MSG::VERBOSE<<(*its)->getDetectorName()<<"/"<<(*its)->getSignal()<<
-	"/"<<(*its)->isSignalOverflow()<<" "<<endreq;
+      ATH_MSG_VERBOSE((*its)->getDetectorName()<<"/"<<(*its)->getSignal()<<
+                      "/"<<(*its)->isSignalOverflow()<<" ");
       if ((*its)->isSignalOverflow()) novflow++;
       signal += (*its)->getSignal();
       if (nScint == lastScintInLayer[nLayer]) {
@@ -668,26 +603,28 @@ StatusCode TBTree_CaloClusterH6::execute()
       }
       nScint++;
     }
-    log<<MSG::VERBOSE<<"nOverflow: ";
-    for (int i=0; i<nLayer; i++) {
-      log<<MSG::VERBOSE<<(*m_wtcNOverflow)[i]<<" ";
-    }
-    log<<MSG::VERBOSE<<endreq;
-    log<<MSG::VERBOSE<<"Signals: ";
-    for (int i=0; i<nLayer; i++) {
-      log<<MSG::VERBOSE<<(*m_wtcSignal)[i]<<" ";
-    }
-    log<<MSG::VERBOSE<<endreq;
+    if (msgLvl(MSG::VERBOSE)) {
+        msg()<<MSG::VERBOSE<<"nOverflow: ";
+        for (int i=0; i<nLayer; i++) {
+          msg()<<MSG::VERBOSE<<(*m_wtcNOverflow)[i]<<" ";
+        }
+        msg()<<MSG::VERBOSE<<endreq;
+        msg()<<MSG::VERBOSE<<"Signals: ";
+        for (int i=0; i<nLayer; i++) {
+          msg()<<MSG::VERBOSE<<(*m_wtcSignal)[i]<<" ";
+        }
+        msg()<<MSG::VERBOSE<<endreq;
+      }
   }
 
   // Reject hadrons in 10 GeV electron beam
   if (m_useEMTBCluster && fabs(m_beamMom-10.) < 0.5) {
     const CaloClusterContainer* clusterContainer;
-    sc = m_eventStore->retrieve(clusterContainer, "EMTBClusters");
+    sc = evtStore()->retrieve(clusterContainer, "EMTBClusters");
     if (sc.isFailure()) {
-      log << MSG::ERROR
-	  << "cannot allocate CaloClusterContainer with key <"
-	  << "EMTBClusters"  << ">" << endreq;
+      ATH_MSG_ERROR
+        ( "cannot allocate CaloClusterContainer with key <"
+	  << "EMTBClusters"  << ">" );
       m_nEventRejected++;
       return sc;
     }
@@ -706,11 +643,11 @@ StatusCode TBTree_CaloClusterH6::execute()
   // Reject muons in 40 GeV pion beam
   if (m_useEMTBCluster && fabs(m_beamMom-40.) < 0.5) {
     const CaloClusterContainer* clusterContainer;
-    sc = m_eventStore->retrieve(clusterContainer, "EMTBClusters");
+    sc = evtStore()->retrieve(clusterContainer, "EMTBClusters");
     if (sc.isFailure()) {
-      log << MSG::ERROR
-	  << "cannot allocate CaloClusterContainer with key <"
-	  << "EMTBClusters"  << ">" << endreq;
+      ATH_MSG_ERROR
+        ( "cannot allocate CaloClusterContainer with key <"
+	  << "EMTBClusters"  << ">" );
       m_nEventRejected++;
       return sc;
     }
@@ -728,22 +665,21 @@ StatusCode TBTree_CaloClusterH6::execute()
   }
   // Clusters
   const CaloClusterContainer* clusterContainer;
-  sc = m_eventStore->retrieve(clusterContainer, m_clusterContainerName);
+  sc = evtStore()->retrieve(clusterContainer, m_clusterContainerName);
   if (sc.isFailure()) {
-    log << MSG::ERROR
-	<< "cannot allocate CaloClusterContainer with key <"
+    ATH_MSG_ERROR
+      ( "cannot allocate CaloClusterContainer with key <"
 	<< m_clusterContainerName
-	<< ">"
-	<< endreq;
+	<< ">");
     m_nEventRejected++;
     return sc;
   }
   m_nClusters = clusterContainer->size();
-  log << MSG::DEBUG << "CaloClusterContainer container size = " <<  
-    m_nClusters << endreq;
+  ATH_MSG_DEBUG ( "CaloClusterContainer container size = " <<  
+                  m_nClusters );
   if ( clusterContainer->size() < 1) {
-    log << MSG::ERROR << " wrong CaloClusterContainer container size = " <<
-      m_nClusters << endreq;
+    ATH_MSG_ERROR ( " wrong CaloClusterContainer container size = " <<
+                    m_nClusters );
     m_nEventRejected++;
     return StatusCode::FAILURE;
   }
@@ -798,11 +734,7 @@ StatusCode TBTree_CaloClusterH6::execute()
     }
     // Add noise vector
     if (m_addNoise) {
-      sc = this->getNoise(cluster);
-      if (sc.isFailure()) {
-	log << MSG::ERROR << "Can not get noise for a cluster" << endreq;
-	return sc;
-      }
+      ATH_CHECK( this->getNoise(cluster) );
     }
     
     // Add cluster moments
@@ -922,16 +854,14 @@ StatusCode TBTree_CaloClusterH6::execute()
 
 StatusCode TBTree_CaloClusterH6::getXcryoYtable(float &x, float &y, float &e) {
 
-  MsgStream log(messageService(),name());
-  log << MSG::DEBUG << "in getXcryoYtable(float x, float y)" << endreq;
+  ATH_MSG_DEBUG ( "in getXcryoYtable(float x, float y)" );
 
   std::ifstream xyFile;
   std::string line;
   std::string filename = PathResolver::find_file(m_txtFileWithXY, "DATAPATH");
   xyFile.open(filename.c_str());
   if (!xyFile.is_open()) {
-    log << MSG::ERROR << "File " << m_txtFileWithXY << " fail to open in $DATAPATH" 
-	<< endreq;
+    ATH_MSG_ERROR ( "File " << m_txtFileWithXY << " fail to open in $DATAPATH");
     return StatusCode::FAILURE;
   }
 
@@ -940,7 +870,7 @@ StatusCode TBTree_CaloClusterH6::getXcryoYtable(float &x, float &y, float &e) {
     std::istringstream buf(line);
     e = 0;
     buf >> run >> x >> y >> e;
-    log << MSG::DEBUG << "run,x,y,e= "<<run<<" "<<x<<" "<<y<<" "<<e<<endreq;
+    ATH_MSG_DEBUG ( "run,x,y,e= "<<run<<" "<<x<<" "<<y<<" "<<e);
     if (run == m_nRun && xyFile.good()) return StatusCode::SUCCESS;
   }
 
@@ -957,23 +887,17 @@ StatusCode TBTree_CaloClusterH6::getNoise(CaloCluster const * const cluster) {
   float ramp_corr(1.045); float ramp_corr_eta1=2.8; float ramp_corr_eta2=2.9;
   float EMEC_rescale=1.215;
 
-  MsgStream log(msgSvc(), name());
   const LArDigitContainer* digitContainer = 0;
   const ILArPedestal* larPedestal = 0;
 
-  StatusCode sc=m_eventStore->retrieve(digitContainer,m_digitContainerName);
+  StatusCode sc=evtStore()->retrieve(digitContainer,m_digitContainerName);
   if(sc.isFailure()) {
-    log << MSG::ERROR << "Can't retrieve LArDigitContainer with key " <<
-      m_digitContainerName << "from StoreGate." << endreq;
+    ATH_MSG_ERROR ( "Can't retrieve LArDigitContainer with key " <<
+                    m_digitContainerName << "from StoreGate." );
     return StatusCode::FAILURE;
   }
   
-  sc=m_detStore->retrieve(larPedestal);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Can't retrieve LArPedestal from Conditions Store" <<
-      endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve(larPedestal) );
 
   // Loop over cluster cells
   CaloCluster::cell_iterator itc=cluster->cell_begin();
@@ -988,7 +912,7 @@ StatusCode TBTree_CaloClusterH6::getNoise(CaloCluster const * const cluster) {
       chid = m_larCablingSvc->createSignalChannelID(id);
     }
     catch ( LArID_Exception except) {
-      log<<MSG::ERROR<<"HWId not found: "<<(std::string)except<<endreq;
+      ATH_MSG_ERROR("HWId not found: "<<(std::string)except);
       return StatusCode::FAILURE;
     }
     // Find the cell data in the DigitContainer
@@ -1000,8 +924,8 @@ StatusCode TBTree_CaloClusterH6::getNoise(CaloCluster const * const cluster) {
       break;
     }
     if (cont_it == digitContainer->end()) {
-      log<<MSG::ERROR<<"Samples are not found for cell with HWId = "<<
-          chid.get_identifier32().get_compact()<<endreq;
+      ATH_MSG_ERROR("Samples are not found for cell with HWId = "<<
+                    chid.get_identifier32().get_compact());
       return StatusCode::FAILURE;
     }
     // Get pedestal
@@ -1010,9 +934,9 @@ StatusCode TBTree_CaloClusterH6::getNoise(CaloCluster const * const cluster) {
       float val = m_noiseTool->
       getNoise(cell,ICalorimeterNoiseTool::ELECTRONICNOISE);
       noise = m_rndm.Gaus(0,val);
-      log<<MSG::WARNING<<"No pedestal found for HWId = "<< chid.get_identifier32().get_compact() <<
-	" gain = "<<(int)gain<<". Generated(sigma="<<val<<
-	") noise taken: "<<noise<<endreq;
+      ATH_MSG_WARNING("No pedestal found for HWId = "<< chid.get_identifier32().get_compact() <<
+                      " gain = "<<(int)gain<<". Generated(sigma="<<val<<
+                      ") noise taken: "<<noise);
       return StatusCode::SUCCESS;
     }
     noise -= pedestal;
@@ -1022,8 +946,8 @@ StatusCode TBTree_CaloClusterH6::getNoise(CaloCluster const * const cluster) {
     // Apply ADCtoMeV factor
     const std::vector<float>& ramp=m_adc2mevTool->ADC2MEV(chid,gain);
     if (ramp.size()==0) {
-      log<<MSG::ERROR<<"No ADC2MeV data found for channel HWId = "
-	 << chid.get_identifier32().get_compact() <<", gain = "<<(int)gain<<endreq;
+      ATH_MSG_ERROR("No ADC2MeV data found for channel HWId = "
+                    << chid.get_identifier32().get_compact() <<", gain = "<<(int)gain);
       return StatusCode::FAILURE;
     }
     noise *= ramp[1];

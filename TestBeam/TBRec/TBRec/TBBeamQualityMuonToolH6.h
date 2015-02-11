@@ -16,7 +16,6 @@
 #define TBBEAMQUALITYMUONTOOLH6_H
 
 #include "TBRec/TBBeamQualityTool.h"
-#include "GaudiKernel/AlgTool.h"
 
 #include <string>
 #include <vector>

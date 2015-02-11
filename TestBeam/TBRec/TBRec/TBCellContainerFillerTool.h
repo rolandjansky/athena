@@ -5,7 +5,7 @@
 #ifndef CALOREC_TBCellContainerFillerTool_H
 #define CALOREC_TBCellContainerFillerTool_H
 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 //#include "CaloUtils/ICaloCellMakerTool.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -17,7 +17,7 @@ class CaloCell_ID;
 class LArCablingService;
 class LArOnlineID;
 
-class TBCellContainerFillerTool: public AlgTool, virtual public ICaloCellMakerTool 
+class TBCellContainerFillerTool: public AthAlgTool, virtual public ICaloCellMakerTool 
 {
     
    public:    
@@ -31,10 +31,6 @@ class TBCellContainerFillerTool: public AlgTool, virtual public ICaloCellMakerTo
         virtual StatusCode process( CaloCellContainer * theCellContainer) ;
 
     private:
-
-        StoreGateSvc * m_storeGate;
-        StoreGateSvc* m_detStore;
-        MsgStream  *m_log;
         const CaloDetDescrManager *m_theCaloDDM;
         const CaloCell_ID * m_theCaloCCIDM;
         ToolHandle<LArCablingService> m_cablingService;

@@ -7,7 +7,6 @@
 
 #include "CLHEP/Units/SystemOfUnits.h"
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 
 #include "EventInfo/EventInfo.h"
@@ -32,8 +31,7 @@ using CLHEP::ns;
 
 TBPhaseRec::TBPhaseRec(const std::string& name,
 				 ISvcLocator* pSvcLocator) :
-  Algorithm(name,pSvcLocator)
-  , m_StoreGate(0)
+  AthAlgorithm(name,pSvcLocator)
   , m_delta(25.0*ns)
   , m_timeBins(25)
   , m_TBPhaseKey("TBPhase")
@@ -65,22 +63,6 @@ TBPhaseRec::~TBPhaseRec()
 StatusCode
 TBPhaseRec::initialize()
 {
-
-  ///////////////////////
-  // Allocate Services //
-  ///////////////////////
-
-  // message service
-  MsgStream log(messageService(),name());
-  StatusCode sc;
-
-  sc = service( "StoreGateSvc", m_StoreGate);
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << name() 
-  	<< ": Unable to locate Service StoreGateSvc" << endreq;
-    return sc;
-  } 
-
   // check consistency of jobOptions, set defaults if required
   float default_tdc2time = 0.050*ns;
   float default_tdcwac   = 0.;
@@ -88,7 +70,7 @@ TBPhaseRec::initialize()
 
   m_nTDC = m_tdcNames.size() ;
   if ( m_nTDC == 0 ) {
-    log << MSG::ERROR << "Empty list of TDC names" << endreq ;
+    ATH_MSG_ERROR ( "Empty list of TDC names" );
     return StatusCode::FAILURE ;
   }
 
@@ -101,7 +83,7 @@ TBPhaseRec::initialize()
       float tdc2time = m_tdcToTime[0];
       for (int k = 0; k < m_nTDC; k++) m_tdcToTime[k] = tdc2time;
     } else {
-      log << MSG::FATAL << "Nunber of TDCs not equal to nunber of tdc2time constants" << endreq ;
+      ATH_MSG_FATAL ( "Nunber of TDCs not equal to nunber of tdc2time constants" );
       return StatusCode::FAILURE ;
     }
   }
@@ -115,7 +97,7 @@ TBPhaseRec::initialize()
       float tdcwac = m_tdcwac[0];
       for (int k = 0; k < m_nTDC; k++) m_tdcwac[k] = tdcwac;
     } else {
-      log << MSG::FATAL << "Nunber of TDCs not equal to nuunber of wac constants" << endreq ;
+      ATH_MSG_FATAL ( "Nunber of TDCs not equal to nuunber of wac constants" );
       return StatusCode::FAILURE ;
     }
   }
@@ -129,51 +111,42 @@ TBPhaseRec::initialize()
       float tdcMin = m_tdcMin[0];
       for (int k = 0; k < m_nTDC; k++) m_tdcMin[k] = tdcMin;
     } else {
-      log << MSG::FATAL << "Nunber of TDCs not equal to nuunber of tdcMin constants" << endreq ;
+      ATH_MSG_FATAL ( "Nunber of TDCs not equal to nuunber of tdcMin constants" );
       return StatusCode::FAILURE ;
     }
   }
 
-  log << MSG::INFO
-      << "TTCClockPeriod = " << m_delta/ns << " ns"
-      << endreq;
+  ATH_MSG_INFO
+    ( "TTCClockPeriod = " << m_delta/ns << " ns" );
   for (int k = 0; k < m_nTDC; k++) {
-    log << MSG::INFO
-        << "\042" + m_tdcNames[k] + "\042"
+    ATH_MSG_INFO
+      ( "\042" + m_tdcNames[k] + "\042"
         << "  PhaseTDCToTime = " << m_tdcToTime[k]/ns << " ns/TDC"
         << "  PhaseTDCwac    = " << m_tdcwac[k]
-        << "  PhaseTDCMin    = " << m_tdcMin[k]
-        << endreq;
+        << "  PhaseTDCMin    = " << m_tdcMin[k] );
   }
 
   m_phaseReco.resize(m_nTDC);
   m_tdcRaw.resize(m_nTDC);
   
   if ( m_guardValue > 0. )
-    log << MSG::INFO <<  " Cut events using guard value: " << m_guardValue << endreq ;
+    ATH_MSG_INFO (  " Cut events using guard value: " << m_guardValue );
   
   return StatusCode::SUCCESS ;
 }
 
 StatusCode TBPhaseRec::execute()
 {
-
-  ////////////////////////////
-  // Re-Allocating Services //
-  ////////////////////////////
-  MsgStream log(messageService(),name());
-  StatusCode sc;
-
-  log << MSG::VERBOSE << "In execute()" << endreq;
+  ATH_MSG_VERBOSE ( "In execute()" );
 
   // Get run number...
   unsigned int thisrun=0;
   EventID *thisEvent;           
   const EventInfo* thisEventInfo;
-  sc=m_StoreGate->retrieve(thisEventInfo);
+  StatusCode sc=evtStore()->retrieve(thisEventInfo);
   if (sc!=StatusCode::SUCCESS){
-    log << MSG::WARNING << "No EventInfo object found! Can't read run number!" << endreq;
-    log << MSG::WARNING << "     => can't get calib constant. Exit" << endreq;
+    ATH_MSG_WARNING ( "No EventInfo object found! Can't read run number!" );
+    ATH_MSG_WARNING ( "     => can't get calib constant. Exit" );
     setFilterPassed(false);
     return StatusCode::SUCCESS;
   } else {
@@ -191,9 +164,9 @@ StatusCode TBPhaseRec::execute()
   }
   
   TBTDCRawCont * tdcRawCont;
-  sc = m_StoreGate->retrieve(tdcRawCont, "TDCRawCont");
+  sc = evtStore()->retrieve(tdcRawCont, "TDCRawCont");
   if (sc.isFailure()) {
-    log << MSG::ERROR << "TBObjectReco: Retrieval of TDCRawCont failed" << endreq;
+    ATH_MSG_ERROR ( "TBObjectReco: Retrieval of TDCRawCont failed" );
     if (!m_neverReturnFailure) {
        setFilterPassed(false);
     }
@@ -230,11 +203,11 @@ StatusCode TBPhaseRec::execute()
       if (m_tdcRaw[tdcIndex] <= 0 || tdcRaw->isOverflow() || tdcRaw->isUnderThreshold()) {
         // bad tdc
         if (m_tdcRaw[tdcIndex] <= 0) 
-          log << MSG::DEBUG << "Bad TDC" << tdcIndex << "; value = " << m_tdcRaw[tdcIndex] << endreq;
+          ATH_MSG_DEBUG ( "Bad TDC" << tdcIndex << "; value = " << m_tdcRaw[tdcIndex] );
         if (tdcRaw->isOverflow()) 
-          log << MSG::DEBUG << "Bad TDC" << tdcIndex << " is overflow" << endreq;
+          ATH_MSG_DEBUG ( "Bad TDC" << tdcIndex << " is overflow" );
         if (tdcRaw->isUnderThreshold()) 
-          log << MSG::DEBUG << "Bad TDC" << tdcIndex << " is underthreshold" << endreq;
+          ATH_MSG_DEBUG ( "Bad TDC" << tdcIndex << " is underthreshold" );
       } else {  
         // found andvalid tdc 
         tdcFoundAndOK++;
@@ -250,22 +223,21 @@ StatusCode TBPhaseRec::execute()
         tdcQuality[tdcIndex] = (dtemp < dTotdcwac) ? dtemp : dTotdcwac;
         tdcdTtoWAC[tdcIndex] = m_tdcRaw[tdcIndex] - m_tdcwac[tdcIndex];
         
-        log << MSG::DEBUG
-            << "TDC" << tdcIndex << " value = " << m_tdcRaw[tdcIndex]
+        ATH_MSG_DEBUG
+          ( "TDC" << tdcIndex << " value = " << m_tdcRaw[tdcIndex]
             << "; tdc quality"
             << ": to tdcMin = " << dTotdcMin
             << "; to tdcMax = " << dTotdcMax
             << "; to tdcwac = " << dTotdcwac
-            << "; final = " << tdcQuality[tdcIndex]
-            << endreq;
+            << "; final = " << tdcQuality[tdcIndex] );
         
         // compute the phase
         m_phaseReco[tdcIndex] = computePhase(tdcIndex);
 
-        log << MSG::DEBUG
-            << "TDC" << tdcIndex << " value = " << m_tdcRaw[tdcIndex]
+        ATH_MSG_DEBUG
+          ( "TDC" << tdcIndex << " value = " << m_tdcRaw[tdcIndex]
             << "; reconstructed phase = " << m_phaseReco[tdcIndex]/ns << " ns"
-            << endreq;
+            );
       }
 
       if (tdcFound == m_nTDC) break ; // exit container loop if all TDCs found
@@ -276,40 +248,36 @@ StatusCode TBPhaseRec::execute()
     // Check if this is a random trigger and set tdc=12.5 ns
     // retrieve Event Info
     const TBEventInfo* theEventInfo;
-    StatusCode checkOut = m_StoreGate->retrieve(theEventInfo,"TBEventInfo");
+    StatusCode checkOut = evtStore()->retrieve(theEventInfo,"TBEventInfo");
     if ( checkOut.isFailure() )
       {
-	log << MSG::ERROR
-	    << "cannot retrieve TBEventInfo from StoreGate"
-	    << endreq;
+	ATH_MSG_ERROR ( "cannot retrieve TBEventInfo from StoreGate" );
         setFilterPassed(false);
 	return StatusCode::SUCCESS;
       }
     else
       {
-	log << MSG::DEBUG
-	    << "TBEventInfo object found in TDS"
-	    << endreq;
+	ATH_MSG_DEBUG ( "TBEventInfo object found in TDS" );
       }
     int evtType = theEventInfo->getEventType();
-    log << MSG::DEBUG << "Event Type found " << evtType << endreq;
+    ATH_MSG_DEBUG ( "Event Type found " << evtType );
     if (evtType != 1) {    // Not a physics trigger found
       float phase = 12.5;
       short phaseInd = (short)floor(phase/m_delta * (float)m_timeBins);
       float tdc_to_wac = 100.;
       TBPhase* theTBPhase = new TBPhase(phase, phaseInd, tdc_to_wac);
-      sc = m_StoreGate->record(theTBPhase, m_TBPhaseKey);
+      sc = evtStore()->record(theTBPhase, m_TBPhaseKey);
       if (sc.isFailure( )) {
-	log << MSG::FATAL << "Cannot record TBPhase" << endreq;
+	ATH_MSG_FATAL ( "Cannot record TBPhase" );
         setFilterPassed(false); // always return failure for this one!
         return StatusCode::SUCCESS;
       }
       return StatusCode::SUCCESS;
     }
     if (tdcFound == 0) {
-      log << MSG::ERROR << "no TDCs found in StoreGate" << endreq;
+      ATH_MSG_ERROR ( "no TDCs found in StoreGate" );
     } else {
-      log << MSG::ERROR << "no valid TDC data found" << endreq;
+      ATH_MSG_ERROR ( "no valid TDC data found" );
     }
     if (!m_neverReturnFailure) {
        setFilterPassed(false);
@@ -318,9 +286,9 @@ StatusCode TBPhaseRec::execute()
   }
   if (tdcFound < m_nTDC || tdcFoundAndOK < m_nTDC) {
     if (tdcFound < m_nTDC) {
-      log << MSG::WARNING << "not all the requested TDCs were found in StoreGate" << endreq;
+      ATH_MSG_WARNING ( "not all the requested TDCs were found in StoreGate" );
     } else {
-      log << MSG::WARNING << "not all the requested TDCs contained valid data" << endreq;
+      ATH_MSG_WARNING ( "not all the requested TDCs contained valid data" );
     }
   }
   
@@ -335,18 +303,16 @@ StatusCode TBPhaseRec::execute()
   }
   float bestPhase = m_phaseReco[tdcBestIndex];
 
-  log << MSG::DEBUG
-      << "best quality for TDC" << tdcBestIndex
-      << ", with reconstructed phase = " << bestPhase/ns << " ns"
-      << endreq;
+  ATH_MSG_DEBUG
+    ( "best quality for TDC" << tdcBestIndex
+      << ", with reconstructed phase = " << bestPhase/ns << " ns" );
 
   // If the tdc is working properly and if the TBPhaseRec jobOptions correctly calibrate the tdc,
   // then this timeSampleShift should be zero always.
   int timeSampleShift = (int)floor(bestPhase/m_delta);
   if (timeSampleShift != 0) {
-    log << MSG::WARNING
-        << "TBPhaseRec time sample shift non zero: " << timeSampleShift
-        << endreq;
+    ATH_MSG_WARNING
+      ( "TBPhaseRec time sample shift non zero: " << timeSampleShift );
   }
   
   // the phase is between 0 and the ttcClockPeriod
@@ -355,11 +321,10 @@ StatusCode TBPhaseRec::execute()
   // the phase index must be between 0 and m_timeBins-1
   short phaseInd = (short)floor(phase/m_delta * (float)m_timeBins);
   if (phaseInd < 0 || phaseInd > m_timeBins - 1) {
-    log << MSG::ERROR
-        << "Phase " << phase/ns << " ns "
+    ATH_MSG_ERROR
+      ( "Phase " << phase/ns << " ns "
         << "has phase index " << phaseInd 
-        << " outside of the bounds [0," << m_timeBins-1 << "]"
-        << endreq;
+        << " outside of the bounds [0," << m_timeBins-1 << "]" );
     if (!m_neverReturnFailure) {
        setFilterPassed(false);
     }
@@ -368,29 +333,27 @@ StatusCode TBPhaseRec::execute()
 
   // guard region cut
   if ( m_guardValue > 0. && fabs(tdcdTtoWAC[tdcBestIndex]) < m_guardValue ) {
-    log << MSG::ERROR
-        << "Phase " << phase/ns << " ns "
+    ATH_MSG_ERROR
+      ( "Phase " << phase/ns << " ns "
         << "has TDC-WAC " << tdcdTtoWAC[tdcBestIndex]
-        << " inside the guard region [0," << m_guardValue  << "]"
-        << endreq;
+        << " inside the guard region [0," << m_guardValue  << "]" );
     if (!m_neverReturnFailure) {
        setFilterPassed(false);
     }
     return StatusCode::SUCCESS;
   } 
 
-  log << MSG::DEBUG
-      << "Phase = " << phase/ns << " ns; "
-      << "phase index = " << phaseInd
-      << endreq;
+  ATH_MSG_DEBUG
+    ( "Phase = " << phase/ns << " ns; "
+      << "phase index = " << phaseInd );
 
   // create and store the TBPhase
   // TBPhase* theTBPhase = new TBPhase(phase, phaseInd);
   TBPhase* theTBPhase = new TBPhase(phase, phaseInd, tdcdTtoWAC[tdcBestIndex] );
   
-  sc = m_StoreGate->record(theTBPhase, m_TBPhaseKey);
+  sc = evtStore()->record(theTBPhase, m_TBPhaseKey);
   if (sc.isFailure( )) {
-    log << MSG::FATAL << "Cannot record TBPhase" << endreq;
+    ATH_MSG_FATAL ( "Cannot record TBPhase" );
     setFilterPassed(false);  // always return failure for this one!
     return StatusCode::SUCCESS;
   }
@@ -425,8 +388,7 @@ StatusCode TBPhaseRec::getnewcalib() {
   // tdcnumber TDCToTime TDCwac TDCMin
   // ...
 
-  MsgStream log(messageService(),name());
-  log << MSG::INFO << "Get TDC calibration constants for run " << m_runnumber<< endreq;
+  ATH_MSG_INFO ( "Get TDC calibration constants for run " << m_runnumber);
   
   int tdcnumber= m_tdcNames.size();
 
@@ -440,7 +402,7 @@ StatusCode TBPhaseRec::getnewcalib() {
   std::ifstream calibfile;
   calibfile.open(m_calib_filename.c_str());
   if (!calibfile.good()) {
-    log << MSG::INFO << "Problem with calibration file "<< m_calib_filename << endreq;
+    ATH_MSG_INFO ( "Problem with calibration file "<< m_calib_filename );
     return StatusCode::FAILURE;
   }
 
@@ -467,7 +429,7 @@ StatusCode TBPhaseRec::getnewcalib() {
      runnumber = -1 ;     
      calibfile >> runnumber;
      if ( runnumber==-1 ) { // reached an empty line
-       log << MSG::WARNING << "Empty line found in " << m_calib_filename << endreq; 
+       ATH_MSG_WARNING ( "Empty line found in " << m_calib_filename );
        calibfile.clear();
        runnumber = prevrunnumber ;
        break ;
@@ -484,14 +446,14 @@ StatusCode TBPhaseRec::getnewcalib() {
      prevrunnumber = runnumber ;
   }
   // Now we should have found a good set of constant (the ones following pos)
-  log << MSG::DEBUG << "Position in file stream = "<< pos << endreq;  
+  ATH_MSG_DEBUG ( "Position in file stream = "<< pos );
   calibfile.seekg(pos);
   
-  log << MSG::INFO << "TDC calibration constants obtained from run " << prevrunnumber << endreq;
+  ATH_MSG_INFO ( "TDC calibration constants obtained from run " << prevrunnumber );
   if ( prevrunnumber != runnumber ) {
-     log << MSG::INFO << "valid for run interval " << prevrunnumber << " - "  << runnumber << endreq; 
+    ATH_MSG_INFO ( "valid for run interval " << prevrunnumber << " - "  << runnumber );
   } else {
-     log << MSG::WARNING << "TDC calibration constants could not be optimal... "<< endreq; 
+    ATH_MSG_WARNING ( "TDC calibration constants could not be optimal... ");
   }
   
   for(int j=0;j<tdcnumber;j++) {
@@ -500,10 +462,10 @@ StatusCode TBPhaseRec::getnewcalib() {
       calibfile >> m_tdcToTime[j];
       calibfile >> m_tdcwac[j];  
       calibfile >> m_tdcMin[j];  
-      log << MSG::INFO << " * TDC n. " << tdcn << endreq;   
-      log << MSG::INFO << "   - TDCToTime = " << m_tdcToTime[j] << endreq;    
-      log << MSG::INFO << "   - TDCwac    = " << m_tdcwac[j] << endreq;	 
-      log << MSG::INFO << "   - TDCMin    = " << m_tdcMin[j] << endreq;      
+      ATH_MSG_INFO ( " * TDC n. " << tdcn );
+      ATH_MSG_INFO ( "   - TDCToTime = " << m_tdcToTime[j] );
+      ATH_MSG_INFO ( "   - TDCwac    = " << m_tdcwac[j] );
+      ATH_MSG_INFO ( "   - TDCMin    = " << m_tdcMin[j] );
   }
   
   calibfile.close();

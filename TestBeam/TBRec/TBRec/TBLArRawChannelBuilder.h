@@ -5,7 +5,7 @@
 #ifndef TBLARRAWCHANNELBUILDER
 #define TBLARRAWCHANNELBUILDER
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "LArRawUtils/LArRoI_Map.h"
@@ -23,7 +23,7 @@
 
 class LArOnlineID;
 
-class TBLArRawChannelBuilder : public Algorithm
+class TBLArRawChannelBuilder : public AthAlgorithm
 {
 
 public:
@@ -35,8 +35,6 @@ public:
 
 private:
   //Services & Tools 
-  StoreGateSvc* m_storeGateSvc;
-  StoreGateSvc* m_detStore;
   LArRoI_Map* m_roiMap;
   LArCablingService *m_larCablingSvc;
   const LArEM_ID*   m_emId;

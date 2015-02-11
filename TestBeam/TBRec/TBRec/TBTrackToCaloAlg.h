@@ -14,7 +14,7 @@
 #define TESTLARDETDESCR_TESTTRACKTOCALO_H
 
 // Base class
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
 //#include "TrkTrack/Track.h"
@@ -62,7 +62,7 @@ This Algorithm is meant to be an example of use of the TrackToCalo tools :
 
 */
 
-class TBTrackToCaloAlg : public Algorithm  {
+class TBTrackToCaloAlg : public AthAlgorithm  {
 
 public:
 
@@ -110,9 +110,6 @@ private:
   // Private data:
   ///////////////////////////////////////////////////////////////////
 private:
-
-  StoreGateSvc* m_StoreGate;
-
   // Tracking variables :
   std::string m_TrackName;
   const TrackCollection *m_tracks; 

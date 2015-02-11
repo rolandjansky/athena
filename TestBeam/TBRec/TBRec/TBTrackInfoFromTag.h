@@ -27,7 +27,7 @@
 #define MSG_ERROR_WHITEONBLACK(string)	log << MSG::ERROR << coutWhiteOnBlack << string << coutDefault << endreq;
 
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "DataModel/DataVector.h"
 
 #include "EventInfo/EventInfo.h"
@@ -49,7 +49,7 @@ class TString;
 #include "TBRec/TB_tree.h"
 
 
-class TBTrackInfoFromTag : public Algorithm
+class TBTrackInfoFromTag : public AthAlgorithm
 {
 
 
@@ -70,8 +70,6 @@ class TBTrackInfoFromTag : public Algorithm
   ////////////////
 
 	
-  StoreGateSvc* m_StoreGate;
-  
 	std::string m_SGrecordkey, m_SGkey1;
 	std::string m_inputRootFileName;
 

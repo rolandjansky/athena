@@ -13,7 +13,6 @@
 //#####################################################
 
 
-#include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Service.h"
 
@@ -27,8 +26,7 @@
 TBBeamQualityTool::TBBeamQualityTool(const std::string& name,
 				     const std::string& type,
 				     const IInterface* parent)
-  : AlgTool(name,type,parent),
-    m_storegate(0)
+  : AthAlgTool(name,type,parent)
 { }
 
 TBBeamQualityTool::~TBBeamQualityTool()
@@ -37,19 +35,8 @@ TBBeamQualityTool::~TBBeamQualityTool()
 StatusCode TBBeamQualityTool::initialize()
   
 {
-  MsgStream log(msgSvc(),name());
-  
-  StatusCode sc = service("StoreGateSvc",m_storegate);
-  if ( sc.isFailure() )
-    {
-      log << MSG::ERROR
-	  << "Can't assign StoreGateSvc"
-	  <<endreq;
-    }
-  
   this->initializeTool();
-  
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TBBeamQualityTool::initializeTool()

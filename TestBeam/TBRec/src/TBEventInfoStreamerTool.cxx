@@ -33,9 +33,6 @@ TBEventInfoStreamerTool::~TBEventInfoStreamerTool()
 
 StatusCode TBEventInfoStreamerTool::initializeTool()
 {
-  // messages
-  MsgStream report(msgSvc(),name());
-
   m_selected_events = 0;
 
   for ( unsigned int i=0; i<m_acceptTypes.size(); i++ )
@@ -62,30 +59,21 @@ StatusCode TBEventInfoStreamerTool::initializeTool()
 	}
       else
 	{
-	     
-	  report << MSG::FATAL
-		 << "Detector event type not existing "
-		 << m_acceptTypes << endreq;
-	  report << MSG::FATAL
-		 << "Possible types are: Special, Physics, f/e_calibration, Random, BPC_Calibration"
-		 << endreq;
+	  ATH_MSG_FATAL ( "Detector event type not existing " << m_acceptTypes );
+	  ATH_MSG_FATAL ( "Possible types are: Special, Physics, f/e_calibration, Random, BPC_Calibration" );
 	  return StatusCode::FAILURE;
 	}
      
     }
 
   if (m_acceptCodes.size()==0) {
-    report << MSG::ERROR
-		 << "No detector event type specified! Please specify at least one in the JobOptions" << endreq;
-	  report << MSG::ERROR
-		 << "Possible types are: Special, Physics, f/e_Calibration, Random, BPC_Calibration"
-		 << endreq;
-  } else {
+    ATH_MSG_ERROR ( "No detector event type specified! Please specify at least one in the JobOptions" );
+    ATH_MSG_ERROR ( "Possible types are: Special, Physics, f/e_Calibration, Random, BPC_Calibration");
+  }
+  else {
     for ( unsigned int i=0; i<m_acceptCodes.size(); i++ )
       {
-	report << MSG::DEBUG
-	       << "Detector event code  found "
-	       << m_acceptCodes[i] << endreq;
+	ATH_MSG_DEBUG ( "Detector event code  found " << m_acceptCodes[i] );
       }
   }
 
@@ -98,28 +86,12 @@ StatusCode TBEventInfoStreamerTool::initializeTool()
 
 StatusCode TBEventInfoStreamerTool::accept()
 {
-  // messaging
-  MsgStream report(msgSvc(),name());
- 
-
   // retrieve Event Info
   const TBEventInfo* theEventInfo;
-  StatusCode checkOut = m_storeGate->retrieve(theEventInfo,"TBEventInfo");
-  if ( checkOut.isFailure() )
-    {
-      report << MSG::ERROR
-	     << "cannot retrieve TBEventInfo from StoreGate"
-	     << endreq;
-      return StatusCode::FAILURE;
-    }
-  else
-    {
-      report << MSG::DEBUG
-	     << "TBEventInfo object found in TDS"
-	     << endreq;
-    }
+  ATH_CHECK( evtStore()->retrieve(theEventInfo,"TBEventInfo") );
+
   int evtType = theEventInfo->getEventType();
-  report << MSG::DEBUG << "Event Type found " << evtType << endreq;
+  ATH_MSG_DEBUG ( "Event Type found " << evtType );
 
   return (std::find(m_acceptCodes.begin(),m_acceptCodes.end(),evtType) != 
 	  m_acceptCodes.end())  

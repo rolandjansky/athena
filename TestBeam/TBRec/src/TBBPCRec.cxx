@@ -5,7 +5,6 @@
 
 #include "StoreGate/StoreGateSvc.h"
 
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 
 #include "PathResolver/PathResolver.h"
@@ -28,9 +27,8 @@
 
 
 TBBPCRec::TBBPCRec(const std::string& name,
-				 ISvcLocator* pSvcLocator) :
-  Algorithm(name,pSvcLocator),
-  m_StoreGate(0)
+                   ISvcLocator* pSvcLocator) :
+  AthAlgorithm(name,pSvcLocator)
  {
   // job options
 
@@ -63,44 +61,22 @@ TBBPCRec::~TBBPCRec()
 StatusCode
 TBBPCRec::initialize()
 {
-  ///////////////////////
-  // Allocate Services //
-  ///////////////////////
-
-  // message service
-  MsgStream log(messageService(),name());
-  StatusCode sc;
-  
-  sc = service( "StoreGateSvc", m_StoreGate);
-  
-  if( sc.isFailure() ) {
-    log << MSG::FATAL << name() 
-  	<< ": Unable to locate Service StoreGateSvc" << endreq;
-    return sc;
-  } 
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode
 TBBPCRec::execute()
 {
-
-  ////////////////////////////
-  // Re-Allocating Services //
-  ////////////////////////////
-  MsgStream log(messageService(),name());
-  StatusCode sc;
-  
-  log << MSG::DEBUG << "In execute()" << endreq;
+  ATH_MSG_DEBUG ( "In execute()" );
 
   // Get run number and get new calib constants -----------------------------
   unsigned int thisrun=0;
   EventID *thisEvent;           //EventID is a part of EventInfo
   const EventInfo* thisEventInfo;
-  sc=m_StoreGate->retrieve(thisEventInfo);
+  StatusCode sc=evtStore()->retrieve(thisEventInfo);
   if (sc!=StatusCode::SUCCESS){
-    log << MSG::WARNING << "No EventInfo object found! Can't read run number!" << endreq;
-    log << MSG::WARNING << "     => can't get calib constant. Exit" << endreq;
+    ATH_MSG_WARNING ( "No EventInfo object found! Can't read run number!" );
+    ATH_MSG_WARNING ( "     => can't get calib constant. Exit" );
     setFilterPassed(false);
     return StatusCode::SUCCESS;
   }
@@ -119,11 +95,11 @@ TBBPCRec::execute()
 
   // Reconstruct BPC :
   TBBPCRawCont * bpcrawCont;
-  sc = m_StoreGate->retrieve(bpcrawCont, m_SGkey);
+  sc = evtStore()->retrieve(bpcrawCont, m_SGkey);
   if (sc.isFailure()){
-    log << MSG::DEBUG << "TBObjectReco: Retrieval of "<<m_SGkey<<" failed" << endreq;
+    ATH_MSG_DEBUG ( "TBObjectReco: Retrieval of "<<m_SGkey<<" failed" );
   }else {
-    log << MSG::DEBUG << "TBBPCRec : Retrieval of "<<m_SGkey<<" succeed : cont size=" << bpcrawCont->size()<< endreq;
+    ATH_MSG_DEBUG ( "TBBPCRec : Retrieval of "<<m_SGkey<<" succeed : cont size=" << bpcrawCont->size());
 
     TBBPCCont * bpcCont = new TBBPCCont();
     TBBPCRawCont::const_iterator it_bc   = bpcrawCont->begin();
@@ -140,7 +116,10 @@ TBBPCRec::execute()
 	  if(name==m_bpc_names[ind]) break; 
 	  else ind++;
 	}
-      if(ind==m_bpc_names.size()){log<<MSG::ERROR<< "No calibrations for BPC" <<name<<endreq;continue;}
+      if(ind==m_bpc_names.size()){
+        ATH_MSG_ERROR( "No calibrations for BPC" <<name);
+        continue;
+      }
 
       // build new BPC
       TBBPC * bpc = new TBBPC(name);
@@ -164,8 +143,8 @@ TBBPCRec::execute()
 	 yposR = ypos;
       }
 
-      log << MSG::DEBUG << "BPC " << name << " PosX  = " << xpos  << " PosY  = " <<ypos   << endreq;
-      log << MSG::DEBUG << "BPC " << name << " PosXR = " << xposR << " PosYR = " << yposR << endreq;
+      ATH_MSG_DEBUG ( "BPC " << name << " PosX  = " << xpos  << " PosY  = " <<ypos   );
+      ATH_MSG_DEBUG ( "BPC " << name << " PosXR = " << xposR << " PosYR = " << yposR );
 
       bpc->setXPos(xposR);
       bpc->setYPos(yposR);
@@ -202,10 +181,10 @@ TBBPCRec::execute()
       }
 
       if (xcut == true)
-	log << MSG::INFO << "TDC left/right out of range " << endreq;
+	ATH_MSG_INFO ( "TDC left/right out of range " );
   
       if (ycut == true)
-        log << MSG::INFO << "TDC up/down out of range " << endreq;
+        ATH_MSG_INFO ( "TDC up/down out of range " );
  
       //PWK 29/06/05 set xcut, ycut true only if TDClrcut, TDCudcut properties set 
 
@@ -213,14 +192,14 @@ TBBPCRec::execute()
 	if (bpcraw->getTDCLeft()+bpcraw->getTDCRight() < m_tdccutlr[ind]) 
 	  {
 	    xcut = true;
-	    log << MSG::INFO << "TDC left+right sum below cutoff for BPC " << ind << endreq;
+	    ATH_MSG_INFO ( "TDC left+right sum below cutoff for BPC " << ind );
 	  }
       }
       if (m_tdccutud.size()>0) {
 	if (bpcraw->getTDCUp()+bpcraw->getTDCDown() < m_tdccutud[ind]) 
 	  {
 	    ycut = true;
-	    log << MSG::INFO << "TDC up+down sum below cutoff for BPC " << ind << endreq;
+	    ATH_MSG_INFO ( "TDC up+down sum below cutoff for BPC " << ind );
 	  }
       }
 
@@ -234,9 +213,9 @@ TBBPCRec::execute()
       bpcCont->push_back(bpc);
     }
 
-    sc = m_StoreGate->record(bpcCont,m_SGrecordkey);
+    sc = evtStore()->record(bpcCont,m_SGrecordkey);
     if ( sc.isFailure( ) ) {
-      log << MSG::FATAL << "Cannot record BPCCont" << endreq;
+      ATH_MSG_FATAL ( "Cannot record BPCCont" );
     }
   }
 
@@ -254,12 +233,6 @@ TBBPCRec::execute()
 StatusCode 
 TBBPCRec::finalize()
 {
-
-  ////////////////////////////
-  // Re-Allocating Services //
-  ////////////////////////////
-
-
   return StatusCode::SUCCESS;
 }
 
@@ -278,8 +251,7 @@ StatusCode TBBPCRec::getnewcalib()
   // coeff must have the following order :
   // bpcnumber calibX calibY leftright updown lroffset udoffset invX invY
 
-  MsgStream log(messageService(),name());
-  log << MSG::DEBUG << "Get new calibs for run " << m_runnumber<< endreq;
+  ATH_MSG_DEBUG ( "Get new calibs for run " << m_runnumber);
   
   int bpcnumber= m_bpc_names.size();
 
@@ -298,15 +270,15 @@ StatusCode TBBPCRec::getnewcalib()
   std::string filename = PathResolver::find_file (m_calib_filename.c_str(), "DATAPATH");
   calibfile.open(filename.c_str());
   if(!calibfile.good()){
-    log << MSG::WARNING << " Problem with file named "<< m_calib_filename << " in $DATAPATH" << endreq;
+    ATH_MSG_WARNING ( " Problem with file named "<< m_calib_filename << " in $DATAPATH" );
     return StatusCode::FAILURE;
   } else {
-     log << MSG::DEBUG << " file " << filename << " opened" << endreq;
+    ATH_MSG_DEBUG ( " file " << filename << " opened" );
   }
   unsigned int runnumber;
   calibfile >> runnumber;
   pos = calibfile.tellg();
-  log << MSG::DEBUG << " Run number "<< runnumber << endreq;
+  ATH_MSG_DEBUG ( " Run number "<< runnumber );
   while((runnumber<m_runnumber)&&(!calibfile.eof()))
     {
       runnumber=0;
@@ -315,15 +287,19 @@ StatusCode TBBPCRec::getnewcalib()
       for(int j=0;j<bpcnumber+1;j++) calibfile.ignore(5000,'\n');
       // check next runnumber
       calibfile >> runnumber;
-      if(runnumber==0) { log << MSG::DEBUG << "empty line"<<endreq;calibfile.clear();break;} // reached an empty line : exit.
-      log << MSG::DEBUG << " Run number "<< runnumber << endreq;
+      if(runnumber==0) {
+        ATH_MSG_DEBUG ( "empty line");
+        calibfile.clear();
+        break;
+      } // reached an empty line : exit.
+      ATH_MSG_DEBUG ( " Run number "<< runnumber );
     }
   
   // Now we found the good set of constant (the ones following pos)
   if(runnumber==m_runnumber)  pos = calibfile.tellg();
-  log << MSG::DEBUG << " Pos = "<< pos << endreq;
+  ATH_MSG_DEBUG ( " Pos = "<< pos );
   calibfile.seekg(pos);
-  log << MSG::DEBUG << " Will use the following constants :" << endreq;
+  ATH_MSG_DEBUG ( " Will use the following constants :" );
   for(int j=0;j<bpcnumber;j++) 
     {
       int bpcn;
@@ -336,14 +312,14 @@ StatusCode TBBPCRec::getnewcalib()
       calibfile >> m_bpc_udoffset[j];
       calibfile >> m_bpc_invX[j];
       calibfile >> m_bpc_invY[j];      
-      log << MSG::DEBUG << bpcn << " "<<m_bpc_calibX[j];    
-      log << MSG::DEBUG << " "<<  m_bpc_calibY[j];    
-      log << MSG::DEBUG << " "<< m_bpc_leftright[j]; 
-      log << MSG::DEBUG << " "<< m_bpc_updown[j];    
-      log << MSG::DEBUG << " "<< m_bpc_lroffset[j];  
-      log << MSG::DEBUG << " "<< m_bpc_udoffset[j];  
-      log << MSG::DEBUG << " "<< m_bpc_invX[j];      
-      log << MSG::DEBUG << " "<< m_bpc_invY[j] << endreq;      
+      ATH_MSG_DEBUG ( bpcn << " "<<m_bpc_calibX[j]
+                      << " "<<  m_bpc_calibY[j]
+                      << " "<< m_bpc_leftright[j] 
+                      << " "<< m_bpc_updown[j]    
+                      << " "<< m_bpc_lroffset[j]  
+                      << " "<< m_bpc_udoffset[j]  
+                      << " "<< m_bpc_invX[j]      
+                      << " "<< m_bpc_invY[j] );
 
     }
   

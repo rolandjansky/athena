@@ -15,66 +15,34 @@
 CBNTAA_TBADCRaw::CBNTAA_TBADCRaw(const std::string & name, ISvcLocator * pSvcLocator) : CBNT_TBRecBase(name, pSvcLocator)
 {
   declareProperty("NeverReturnFailure", m_neverReturnFailure=false);
-	declareProperty("ContainerKey1",m_containerKey1="ADCRawCont");
-	m_adc=NULL;
-        m_eventStore=0;
+  declareProperty("ContainerKey1",m_containerKey1="ADCRawCont");
+  m_adc=NULL;
 }
 
 CBNTAA_TBADCRaw::~CBNTAA_TBADCRaw() 
 {//Clean up arrays of ntuple entries (if they have been booked)
-	if (m_adc)
-    delete m_adc;
+  delete m_adc;
 }
 
 StatusCode CBNTAA_TBADCRaw::CBNT_initialize()
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG 
-      << "in initialize()" 
-      << endreq;
+  ATH_MSG_DEBUG ( "in initialize()" );
 
- StatusCode sc = service("StoreGateSvc", m_eventStore);
-  if (sc.isFailure())
-    {
-      log << MSG::ERROR
-	  << "Unable to retrieve pointer to StoreGate Service"
-	  << endreq;
-      return sc;
-    }
-
-  IToolSvc* toolSvc;
-  sc=service( "ToolSvc",toolSvc  );
-  if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve ToolSvc" << endreq;
-      return StatusCode::FAILURE;
-    }
-
-  StoreGateSvc* detStore;
-  sc = service("DetectorStore", detStore);
-  if (sc.isFailure()) 
-    {
-      log << MSG::FATAL << " Cannot locate DetectorStore " << std::endl;
-      return StatusCode::FAILURE;
-    } 
+  IToolSvc* toolSvc = nullptr;
+  ATH_CHECK( service( "ToolSvc",toolSvc  ) );
 
   addBranch("TBADCRaw",m_adc);
-
   return StatusCode::SUCCESS; 
   
 }
 
 StatusCode CBNTAA_TBADCRaw::CBNT_execute()
 {
-  /// Print an informatory message:
-  MsgStream log(msgSvc(), name());
-  
-  StatusCode sc;
-  
   const TBADCRawCont * adcCont;
-	sc = m_eventStore->retrieve(adcCont,m_containerKey1);
+  StatusCode sc = evtStore()->retrieve(adcCont,m_containerKey1);
   if (sc.isFailure()) 
     {
-      log << MSG::ERROR << "\033[31m" << " Cannot read TBADCRawCont from StoreGate! key= " << m_containerKey1 << "\033[0m" << endreq;
+      ATH_MSG_ERROR ( "\033[31m" << " Cannot read TBADCRawCont from StoreGate! key= " << m_containerKey1 << "\033[0m" );
       if (m_neverReturnFailure) {
 	return StatusCode::SUCCESS;
       } else {
@@ -83,18 +51,18 @@ StatusCode CBNTAA_TBADCRaw::CBNT_execute()
     }
   else
     {
-			log << MSG::DEBUG << "\033[31m" << "Going over TBADCRawCont channels ..."<< "\033[0m" <<endreq;
+      ATH_MSG_DEBUG ( "\033[31m" << "Going over TBADCRawCont channels ..."<< "\033[0m" );
 
-			const unsigned nADC = (TBADCRawCont::size_type)adcCont->size();
-			m_adc->resize(nADC);
+      const unsigned nADC = (TBADCRawCont::size_type)adcCont->size();
+      m_adc->resize(nADC);
 
-			unsigned NtupleVectorIndex = 0;
+      unsigned NtupleVectorIndex = 0;
       TBADCRawCont::const_iterator it_adc = adcCont->begin();
       TBADCRawCont::const_iterator last_adc = adcCont->end();
       for(;it_adc!=last_adc;it_adc++,NtupleVectorIndex++) {
-				const TBADCRaw * adc = (*it_adc);
-				(*m_adc)[NtupleVectorIndex] = adc->getADC();
-			}
+        const TBADCRaw * adc = (*it_adc);
+        (*m_adc)[NtupleVectorIndex] = adc->getADC();
+      }
     }
 
   return StatusCode::SUCCESS;
@@ -110,12 +78,7 @@ StatusCode CBNTAA_TBADCRaw::CBNT_clear()
 
 StatusCode CBNTAA_TBADCRaw::CBNT_finalize()
 {
-  /// Print an informatory message:
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG 
-      << "in finalize()" 
-      << endreq;
-  
+  ATH_MSG_DEBUG ( "in finalize()" );
   return StatusCode::SUCCESS;
 }
 

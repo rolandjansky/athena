@@ -147,16 +147,7 @@ StatusCode TBPatternUnitStreamerToolH8::accept()
   
   // retrieve pattern unit
   const TBTriggerPatternUnit* theTrigger;
-  StatusCode checkOut = m_storeGate->retrieve(theTrigger,m_patternUnitKey);
-  if ( checkOut.isFailure() )
-    {
-      report << MSG::ERROR
-	     << "cannot retrieve TBTriggerPatternUnit object with key <"
-	     << m_patternUnitKey
-	     << "> from StoreGate"
-	     << endreq;
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK( evtStore()->retrieve(theTrigger,m_patternUnitKey) );
 
   //
   bit_mask thePattern = theTrigger->getTriggerWord() & 0x00ffffff;

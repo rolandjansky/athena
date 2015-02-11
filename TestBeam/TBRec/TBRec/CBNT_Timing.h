@@ -5,7 +5,6 @@
 #ifndef CBNT_TIMING_H
 #define CBNT_TIMING_H
 
-#include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/NTuple.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CBNT_TBRecBase.h"
@@ -40,8 +39,6 @@ class CBNT_Timing : public CBNT_TBRecBase
   int NOTIME;
   int NOENERGY;
 
-  StoreGateSvc* m_eventStore;
-  StoreGateSvc* m_detectorStore;
   ToolHandle<LArCablingService> m_cablingService;
   const LArOnlineID* m_onlineHelper;
   const LArEM_ID* m_emId;

@@ -5,7 +5,6 @@
 #ifndef CBNTAA_TBSCINT_H
 #define CBNTAA_TBSCINT_H
 
-#include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/NTuple.h"
 #include "GaudiKernel/SmartDataPtr.h"
 #include "CBNT_TBRecBase.h"
@@ -33,8 +32,6 @@ class CBNTAA_TBScint : public CBNT_TBRecBase
   std::vector<float> *m_scint_en; 
   std::vector<int> *m_scint_trackid; 
   std::vector<int> *m_scint_pdg; 
-
-  StoreGateSvc* m_eventStore;
 
   StatusCode CBNT_clear();
 };

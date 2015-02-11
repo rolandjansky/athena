@@ -5,7 +5,6 @@
 #include "TBRec/TBBeamQualityMC.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/AlgFactory.h"
-#include "GaudiKernel/MsgStream.h"
 
 #include "TBEvent/TBEventInfo.h"
 #include "TBEvent/TBTrack.h"
@@ -18,7 +17,7 @@
 
 
 TBBeamQualityMC::TBBeamQualityMC(const std::string & name, ISvcLocator * pSvcLocator) :
-  Algorithm(name, pSvcLocator),
+  AthAlgorithm(name, pSvcLocator),
   m_readFileforXcryo(true),
   m_nRun(0)
 {
@@ -32,40 +31,20 @@ TBBeamQualityMC::TBBeamQualityMC(const std::string & name, ISvcLocator * pSvcLoc
    declareProperty("CheckClusters",m_check_clus=false);
    declareProperty("CheckTrackReco",m_check_trackreco=false);
    declareProperty("ClusterCollectionName",m_clusterCollName="CaloTopoCluster");
-
-   m_eventStore = 0;
 }
 
 StatusCode TBBeamQualityMC::initialize() {
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in initialize()"  << endreq;
-
-  StatusCode sc = service("StoreGateSvc", m_eventStore);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to retrieve pointer to StoreGate Service" << endreq;
-    return sc;
-  }
-
+  ATH_MSG_DEBUG ( "in initialize()"  );
   return StatusCode::SUCCESS; 
 }
 
 StatusCode TBBeamQualityMC::execute() {
   /// Print an informatory message:
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in execute()" << endreq;
-  
-  StatusCode sc;
+  ATH_MSG_DEBUG ( "in execute()" );
   
   // Retrieve Event Info
-  const TBEventInfo* theEventInfo;
-  sc = m_eventStore->retrieve(theEventInfo,"TBEventInfo");
-  if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Cannot retrieve TBEventInfo from StoreGate" << endreq;
-    return StatusCode::FAILURE;
-  }
-  else {
-    log << MSG::VERBOSE << "retrieved theEventInfo" << endreq;
-  }
+  const TBEventInfo* theEventInfo = nullptr;
+  ATH_CHECK( evtStore()->retrieve(theEventInfo,"TBEventInfo") );
 
   // Fill run header
   m_nRun = theEventInfo->getRunNum();
@@ -74,27 +53,23 @@ StatusCode TBBeamQualityMC::execute() {
   float yTable  = -9999;
   if(m_readFileforXcryo) {
     if (!this->getXcryoYtable(xCryo, yTable, beamMom)) {
-      log << MSG::ERROR << "xCryo and yTable are not found" << endreq;
+      ATH_MSG_ERROR ( "xCryo and yTable are not found" );
       return StatusCode::FAILURE;
     }
   } else {
      xCryo = theEventInfo->getCryoX();
      yTable = theEventInfo->getTableY();
   }
-  log << MSG::VERBOSE << "xCryo   = " << xCryo   << endreq;
-  log << MSG::VERBOSE << "yTable  = " << yTable  << endreq;
-  log << MSG::VERBOSE << "nRun    = " << m_nRun    << endreq;
-  log << MSG::VERBOSE << "beamMom = " << beamMom << endreq;
+  ATH_MSG_VERBOSE ( "xCryo   = " << xCryo   );
+  ATH_MSG_VERBOSE ( "yTable  = " << yTable  );
+  ATH_MSG_VERBOSE ( "nRun    = " << m_nRun    );
+  ATH_MSG_VERBOSE ( "beamMom = " << beamMom );
 
 
   if(m_check_trackpar) { // check for track parameters
      
-     TBTrack *track;
-     sc = m_eventStore->retrieve(track,"Track");
-     if (sc.isFailure()){
-       log << MSG::ERROR << "Retrieval of beam track failed" << endreq;
-       return StatusCode::FAILURE;
-     }
+     TBTrack *track = nullptr;
+     ATH_CHECK( evtStore()->retrieve(track,"Track") );
 
      const float zCalo = 30000.;
      float beam_coor_x = track->getUslope()*zCalo + track->getUintercept() + xCryo;
@@ -109,7 +84,7 @@ StatusCode TBBeamQualityMC::execute() {
      bool sy3 = (beam_coor_y!=0 || track->getVintercept()!=0 || track->getVslope()!=0 );
 
      if(! (sx1 && sx2 && sx3 && sy1 && sy2 && sy3)) {
-        log << MSG::DEBUG << "CheckTrackParams failed: "<<sx1<<" "<<sx2<<" "<<sx3<<" / "<<sy1<<" "<<sy2<<" "<<sy3<<endreq; 
+       ATH_MSG_DEBUG ( "CheckTrackParams failed: "<<sx1<<" "<<sx2<<" "<<sx3<<" / "<<sy1<<" "<<sy2<<" "<<sy3);
         //return StatusCode::FAILURE;
         //return StatusCode::RECOVERABLE;
         setFilterPassed(false);
@@ -124,11 +99,8 @@ StatusCode TBBeamQualityMC::execute() {
 
      //LArG4H6FrontHitCollection *frontcoll;
      const DataHandle<LArG4H6FrontHitCollection> frontcoll;
-     sc = m_eventStore->retrieve(frontcoll,"Front::Hits");
-     if (sc.isFailure()){
-       log << MSG::ERROR << "Retrieval of FrontHits failed" << endreq;
-       return StatusCode::FAILURE;
-     }
+     ATH_CHECK( evtStore()->retrieve(frontcoll,"Front::Hits") );
+
      int scnum;
      unsigned i;
      LArG4H6FrontHitConstIterator f_it = frontcoll->begin();
@@ -138,7 +110,7 @@ StatusCode TBBeamQualityMC::execute() {
          scnum = hit->GetSC();
          if(scnum  <= 0) continue; // not a scintilator hit
          for(i=0; i<m_scint_prim.size(); ++i) {
-            log << MSG::DEBUG << "Scint: "<<scnum<<", track: "<<hit->GetTrackID()<<", energy: "<<hit->GetEdep()<<endreq;
+           ATH_MSG_DEBUG ( "Scint: "<<scnum<<", track: "<<hit->GetTrackID()<<", energy: "<<hit->GetEdep());
             if( (scnum==m_scint_prim[i]) && (hit->GetTrackID() == 1) && (hit->GetEdep() > 0.)) {
                has_energy[i] = true;
             }
@@ -147,11 +119,7 @@ StatusCode TBBeamQualityMC::execute() {
 
      //LArG4H6FrontHitCollection *movecoll;
      const DataHandle<LArG4H6FrontHitCollection> movecoll;
-     sc = m_eventStore->retrieve(movecoll,"Movable::Hits");
-     if (sc.isFailure()){
-       log << MSG::ERROR << "Retrieval of MovableHits failed" << endreq;
-       return StatusCode::FAILURE;
-     }
+     ATH_CHECK( evtStore()->retrieve(movecoll,"Movable::Hits") );
      LArG4H6FrontHitConstIterator m_it = movecoll->begin();
      LArG4H6FrontHitConstIterator m_end = movecoll->end();
      for ( ; m_it!=m_end; ++m_it) {
@@ -159,7 +127,7 @@ StatusCode TBBeamQualityMC::execute() {
          scnum = hit->GetSC();
          if(scnum  <= 0) continue; // not a scintilator hit
          for(i=0; i<m_scint_prim.size(); ++i) {
-            log << MSG::DEBUG << "Scint: "<<scnum<<", track: "<<hit->GetTrackID()<<", energy: "<<hit->GetEdep()<<endreq;
+           ATH_MSG_DEBUG ( "Scint: "<<scnum<<", track: "<<hit->GetTrackID()<<", energy: "<<hit->GetEdep());
             if( (scnum==m_scint_prim[i]) && (hit->GetTrackID() == 1) && (hit->GetEdep() > 0.)) {
                has_energy[i] = true;
             }
@@ -167,7 +135,7 @@ StatusCode TBBeamQualityMC::execute() {
      }
      for(int ll=0; ll<(int)m_scint_prim.size(); ++ll) has_energy[0] = has_energy[0] && has_energy[ll];      
      if(!has_energy[0]) {
-        log << MSG::DEBUG << "CheckPrimaryTrack failed, no energy deposit in all asked scint." <<endreq; 
+       ATH_MSG_DEBUG ( "CheckPrimaryTrack failed, no energy deposit in all asked scint." );
         //return StatusCode::FAILURE;
         //return StatusCode::RECOVERABLE;
         setFilterPassed(false);
@@ -179,11 +147,7 @@ StatusCode TBBeamQualityMC::execute() {
      int scnum;
      // LArG4H6FrontHitCollection *movecoll;
      const DataHandle<LArG4H6FrontHitCollection> movecoll;
-     sc = m_eventStore->retrieve(movecoll,"Movable::Hits");
-     if (sc.isFailure()){
-       log << MSG::ERROR << "Retrieval of FrontHits failed" << endreq;
-       return StatusCode::FAILURE;
-     }
+     ATH_CHECK( evtStore()->retrieve(movecoll,"Movable::Hits") );
      LArG4H6FrontHitConstIterator m_it = movecoll->begin();
      LArG4H6FrontHitConstIterator m_end = movecoll->end();
      for ( ; m_it!=m_end; ++m_it) {
@@ -191,7 +155,7 @@ StatusCode TBBeamQualityMC::execute() {
          scnum = hit->GetSC();
          if(scnum  <= 0) continue; 
          if(hit->GetSC() == 5 &&  (hit->GetTrackID() == 1)) {
-            log << MSG::DEBUG << "CheckVeto failed "<<endreq; 
+            ATH_MSG_DEBUG ( "CheckVeto failed ");
             //return StatusCode::FAILURE;
             //return StatusCode::RECOVERABLE;
             setFilterPassed(false);
@@ -202,12 +166,7 @@ StatusCode TBBeamQualityMC::execute() {
 
   if(m_check_clus) { // Rejected if no good cluster
      const DataHandle<CaloClusterContainer> cc ;
-     sc = m_eventStore->retrieve(cc,m_clusterCollName);
-     if(sc != StatusCode::SUCCESS) {
-            log << MSG::ERROR << "Could not retrieve ClusterContainer " 
-                << m_clusterCollName << " from StoreGate" << endreq;
-            return sc;
-     }
+     ATH_CHECK( evtStore()->retrieve(cc,m_clusterCollName) );
      bool haveit=false;
      CaloClusterContainer::const_iterator clusIter = cc->begin();
      CaloClusterContainer::const_iterator clusIterEnd = cc->end();
@@ -222,9 +181,9 @@ StatusCode TBBeamQualityMC::execute() {
            }
      }
      if (!haveit) {
-        log << MSG::DEBUG << "CheckClusters failed "<<endreq; 
+        ATH_MSG_DEBUG ( "CheckClusters failed ");
         setFilterPassed(false);
-         return StatusCode::SUCCESS;
+        return StatusCode::SUCCESS;
      }
   }
 
@@ -232,27 +191,19 @@ StatusCode TBBeamQualityMC::execute() {
   if(m_check_trackreco) { // Rejected if bad track reco
       const DataHandle< TBTrack > mytrack;
       const DataHandle< TBEventInfo > mytbeinfo;
-      sc = m_eventStore->retrieve(mytrack,"Track" ) ;
-      if (sc.isFailure()){
-          log << MSG::WARNING << "Retrieval of TBTrack failed" << endreq; 
-          return sc;
-      }
-      sc = m_eventStore->retrieve(mytbeinfo,"TBEventInfo" ) ;
-      if (sc.isFailure()){
-          log << MSG::WARNING << "Retrieval of TBEventInfo failed" << endreq; 
-          return sc;
-      }
+      ATH_CHECK( evtStore()->retrieve(mytrack,"Track" ) );
+      ATH_CHECK( evtStore()->retrieve(mytbeinfo,"TBEventInfo" ) );
       double chi2 = mytrack->getChi2_u();
       if(chi2 <= 0 ||  std::log(chi2)<=-10 || chi2  == 1000 || mytrack->getUslope() == 0 || mytrack->getUintercept() == 0 || mytbeinfo->getCryoX() == mytrack->getCryoHitu()) {
-        log << MSG::DEBUG << "CheckTrackReco in X failed "<<endreq; 
-        log << MSG::DEBUG << chi2 << " / " << std::log(chi2) <<  " :: " << mytrack->getUslope() <<  " / " << mytrack->getUintercept()  <<  " / " << mytbeinfo->getCryoX()  <<  " / " << mytrack->getCryoHitu() << endreq;
+        ATH_MSG_DEBUG ( "CheckTrackReco in X failed ");
+        ATH_MSG_DEBUG ( chi2 << " / " << std::log(chi2) <<  " :: " << mytrack->getUslope() <<  " / " << mytrack->getUintercept()  <<  " / " << mytbeinfo->getCryoX()  <<  " / " << mytrack->getCryoHitu() );
          setFilterPassed(false);
          return StatusCode::SUCCESS;
       }       
       chi2 = mytrack->getChi2_v();
       if(chi2 <= 0 ||  std::log(chi2)<=-10 || chi2  == 1000 || mytrack->getVslope() == 0 || mytrack->getVintercept() == 0 || mytbeinfo->getTableY() == mytrack->getCryoHitv()) {
-        log << MSG::DEBUG << "CheckTrackReco in Y failed "<<endreq; 
-        log << MSG::DEBUG << chi2 << " / " << std::log(chi2) <<  " :: " << mytrack->getVslope() <<  " / " << mytrack->getVintercept()  <<  " / " << mytbeinfo->getTableY()  <<  " / " << mytrack->getCryoHitv() << endreq;
+        ATH_MSG_DEBUG ( "CheckTrackReco in Y failed ");
+        ATH_MSG_DEBUG ( chi2 << " / " << std::log(chi2) <<  " :: " << mytrack->getVslope() <<  " / " << mytrack->getVintercept()  <<  " / " << mytbeinfo->getTableY()  <<  " / " << mytrack->getCryoHitv() );
          setFilterPassed(false);
          return StatusCode::SUCCESS;
       }       
@@ -263,8 +214,7 @@ StatusCode TBBeamQualityMC::execute() {
 }
 
 StatusCode TBBeamQualityMC::finalize() {
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "in finalize()" << endreq;
+  ATH_MSG_DEBUG ( "in finalize()" );
   return StatusCode::SUCCESS;
 }
 
@@ -274,15 +224,13 @@ StatusCode TBBeamQualityMC::getXcryoYtable(float &x, float &y, float &e) {
   // not good to put here (just a workaround) - joh
   std::string m_txtFileWithXY = "xcryo_ytable.txt";
 
-  MsgStream log(messageService(),name());
-  log << MSG::DEBUG << "in getXcryoYtable(float x, float y)" << endreq;
+  ATH_MSG_DEBUG ( "in getXcryoYtable(float x, float y)" );
   std::ifstream xyFile;
   std::string line;
   std::string filename = PathResolver::find_file(m_txtFileWithXY, "DATAPATH");
   xyFile.open(filename.c_str());
   if (!xyFile.is_open()) {
-    log << MSG::ERROR << "File " << m_txtFileWithXY << " fail to open in $DATAPATH" 
-	<< endreq;
+    ATH_MSG_ERROR ( "File " << m_txtFileWithXY << " fail to open in $DATAPATH");
     return StatusCode::FAILURE;
   }
   while ( getline(xyFile, line, '\n') ) {
@@ -290,7 +238,7 @@ StatusCode TBBeamQualityMC::getXcryoYtable(float &x, float &y, float &e) {
     std::istringstream buf(line);
     e = 0;
     buf >> run >> x >> y >> e;
-    log << MSG::DEBUG << "m_nRun,run,x,y,e= "<<m_nRun<<" "<<run<<" "<<x<<" "<<y<<" "<<e<<endreq;
+    ATH_MSG_DEBUG ( "m_nRun,run,x,y,e= "<<m_nRun<<" "<<run<<" "<<x<<" "<<y<<" "<<e);
     if (run==m_nRun && xyFile.good()) return StatusCode::SUCCESS;
   }
   return StatusCode::FAILURE;

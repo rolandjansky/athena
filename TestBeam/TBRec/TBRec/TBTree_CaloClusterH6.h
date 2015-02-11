@@ -9,7 +9,7 @@
 // TBTree_CaloClusterH6:
 // Make ROOT TTree for CaloClusters for H6 CBT
 //
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include <TRandom.h>
 
 class StoreGateSvc;
@@ -25,7 +25,7 @@ class ILArPedestal;
 class ILArADC2MeVTool;
 class LArCablingService;
 
-class TBTree_CaloClusterH6: public Algorithm {
+class TBTree_CaloClusterH6: public AthAlgorithm {
  public:    
   
   TBTree_CaloClusterH6(const std::string& name, ISvcLocator* pSvcLocator);
@@ -140,8 +140,6 @@ class TBTree_CaloClusterH6: public Algorithm {
   TFile* m_rootfile;                      // and its pointer
   TTree* m_tree;                          // TBTree pointer
 
-  StoreGateSvc* m_eventStore;
-  StoreGateSvc* m_detStore;
   const CaloCell_ID* m_calo_id;
   const CaloDetDescrManager* m_calo_dd_man; 
   ICaloNoiseTool* m_noiseTool;

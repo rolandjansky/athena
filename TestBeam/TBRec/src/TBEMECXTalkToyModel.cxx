@@ -19,7 +19,6 @@ PURPOSE:  A simple toy model to simulate longitudinal cross-talk
 #include "TBRec/TBEMECXTalkToyModel.h"
 
 #include "GaudiKernel/Service.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ListItem.h"
 
@@ -42,7 +41,7 @@ TBEMECXTalkToyModel::TBEMECXTalkToyModel(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  :AlgTool(type, name, parent),
+  :AthAlgTool(type, name, parent),
    m_caloSelection(false)
 {
   declareInterface<ICaloCellMakerTool>(this);
@@ -65,41 +64,29 @@ TBEMECXTalkToyModel::TBEMECXTalkToyModel(
 
 StatusCode TBEMECXTalkToyModel::initialize()
 {
-  MsgStream  log(msgSvc(),name());
- 
-  // Cache pointer to storegate:
-
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure())
-  {
-    log << MSG::ERROR
-	<< "Unable to retrieve pointer to StoreGate Service"
-	<< endreq;
-    return sc;
-  }
   unsigned int nSubCalo=static_cast<unsigned int>(CaloCell_ID::NSUBCALO) ;
 
   //check calo number specified
   m_caloSelection = true ;
   if (m_caloNums.size()==0) {
-    log << MSG::WARNING << " no calo specified for correction. Will do nothing. " << endreq;
+    ATH_MSG_WARNING (" no calo specified for correction. Will do nothing. ");
     return StatusCode::SUCCESS;
   } else if  (m_caloNums.size()>nSubCalo ) {
-    log << MSG::ERROR << " More than " 
-	<< nSubCalo << " calo specified. Must be wrong. Stop." << endreq;
+    ATH_MSG_ERROR (" More than " 
+                   << nSubCalo << " calo specified. Must be wrong. Stop.");
     return StatusCode::FAILURE;
   }  else if  (m_caloNums.size()==1 && m_caloNums[0]==static_cast<int>(nSubCalo)) {
     m_caloSelection = false ;
-    log << MSG::INFO << " Correction will be applied on all calo." << endreq;
+    ATH_MSG_INFO (" Correction will be applied on all calo.");
   } else {
     for (unsigned int index=0; index < m_caloNums.size() ; ++index) {
       if (m_caloNums[index]<0 || m_caloNums[index]>=static_cast<int>(nSubCalo) ) {
-	log << MSG::ERROR << "Invalid calo specification:" 
-	    << m_caloNums[index] << "Stop." << endreq ;
+        ATH_MSG_ERROR ("Invalid calo specification:" 
+                       << m_caloNums[index] << "Stop.");
 	return StatusCode::FAILURE;
       } else {
-	log << MSG::INFO << " Correction will be applied on calo:" 
-	    << static_cast<int>(m_caloNums[index]) << endreq;
+        ATH_MSG_INFO (" Correction will be applied on calo:" 
+                      << static_cast<int>(m_caloNums[index]));
       }
     }
   }
@@ -107,24 +94,10 @@ StatusCode TBEMECXTalkToyModel::initialize()
   m_calo_dd_man = CaloDetDescrManager::instance(); 
   m_calo_id = m_calo_dd_man->getCaloCell_ID();	
 
-  log << MSG::INFO
-      << "XTalkScaleLong     = "
-      << m_xtalkScaleLong
-      << endreq;
-  log << MSG::INFO
-      << "XTalkScaleEta      = "
-      << m_xtalkScaleEta
-      << endreq;
-  log << MSG::INFO
-      << "XTalkScaleEMEC2Eta = "
-      << m_xtalkScaleEMEC2Eta
-      << endreq;
-
-  log << MSG::INFO 
-      << "Initialization completed successfully" 
-      << endreq;
-
-
+  ATH_MSG_VERBOSE ("XTalkScaleLong     = " << m_xtalkScaleLong);
+  ATH_MSG_VERBOSE ("XTalkScaleEta      = " << m_xtalkScaleEta);
+  ATH_MSG_VERBOSE ("XTalkScaleEMEC2Eta = " << m_xtalkScaleEMEC2Eta);
+  ATH_MSG_VERBOSE ("Initialization completed successfully" );
 
   return StatusCode::SUCCESS;
 
@@ -132,11 +105,7 @@ StatusCode TBEMECXTalkToyModel::initialize()
 
 StatusCode TBEMECXTalkToyModel::process(CaloCellContainer * theCont )
 {
-  MsgStream  log(msgSvc(),name());
-
-
   StatusCode sc;
-
 
   if (!m_caloSelection) {
     // no selection mode (faster)
@@ -145,7 +114,7 @@ StatusCode TBEMECXTalkToyModel::process(CaloCellContainer * theCont )
     
     sc = processOnCellIterators(itrCellBeg, itrCellEnd );
     if (sc.isFailure()) 
-      log << MSG::WARNING << "Failure from processOnCellIterators" << endreq ;
+      ATH_MSG_WARNING ("Failure from processOnCellIterators");
   }else {
     // selection mode 
 
@@ -159,32 +128,23 @@ StatusCode TBEMECXTalkToyModel::process(CaloCellContainer * theCont )
 
       if (!theCont->hasCalo(caloNum))
       {
-	log << MSG::WARNING << " Attempt to apply correction but CaloCellContainer has not been filled for this calo : " 
-	    << *itrCalo << endreq ;
+        ATH_MSG_WARNING (" Attempt to apply correction but CaloCellContainer has not been filled for this calo : " 
+                         << *itrCalo);
       } else 
       {
 	sc=processOnCellIterators(itrCellBeg, itrCellEnd );
 	if (sc.isFailure()) 
-	  log << MSG::WARNING << "Failure from processOnCellIterators for calo "
-	      << static_cast<int> (caloNum)
-	      << endreq ;
-
+          ATH_MSG_WARNING ("Failure from processOnCellIterators for calo "
+                           << static_cast<int> (caloNum));
       }
-	  
-
     } 
-
   }
-
-  
 
   return StatusCode::SUCCESS ;
 }
 
 StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::iterator &  itrCellBeg, const CaloCellContainer::iterator & itrCellEnd )
 {
-  MsgStream log(msgSvc(), name());
-
   CaloCell_ID::SUBCALO mySubDet;
   unsigned int myCellHashOffset[CaloCell_ID::NSUBCALO];
   std::set<int> m_validCalos;
@@ -217,7 +177,7 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
       if (sample==6) { // this is the EMEC2
 	std::map<Identifier,float>::iterator cellItEng = energyMap.find(theCell->ID());
 	if (cellItEng==energyMap.end()) {
-	  log << MSG::ERROR << "Identifier not found in energyMap" << endreq;
+          ATH_MSG_ERROR ("Identifier not found in energyMap");
 	  return StatusCode::FAILURE;
 	}
 	double e = (*cellItEng).second;
@@ -231,18 +191,18 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
 
 	// longitudinal neighbor (N1)
 	m_calo_id->get_neighbours(myHashId+myCellHashOffset[mySubDet],LArNeighbours::nextInSamp,theNeighbors);
-	log << MSG::DEBUG << "N1 theNeighbors.size() = " << theNeighbors.size() << endreq;
+        ATH_MSG_DEBUG ("N1 theNeighbors.size() = " << theNeighbors.size());
 	IdentifierHash nId = theNeighbors.at(0)-myCellHashOffset[mySubDet];
 	myId = m_calo_id->cell_id(mySubDet,nId);
 	std::map<Identifier,CaloCell*>::iterator cellIt = cellMap.find(myId);
 	CaloCell * theCellN1 = (*cellIt).second;
 	if (cellIt==cellMap.end()) {
-	  log << MSG::ERROR << "neighbor CaloCell object not found in cellMap" << endreq;
+	  ATH_MSG_ERROR ("neighbor CaloCell object not found in cellMap");
 	  return StatusCode::FAILURE;
 	}
 	cellItEng = energyMap.find(theCellN1->ID());
 	if (cellItEng==energyMap.end()) {
-	  log << MSG::ERROR << "Identifier not found in energyMap" << endreq;
+	  ATH_MSG_ERROR ( "Identifier not found in energyMap" );
 	  return StatusCode::FAILURE;
 	}
 	double eN1 = (*cellItEng).second;
@@ -252,7 +212,7 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
 	myHashId = m_calo_id->subcalo_cell_hash(theCellN1->ID(),otherSubDet);
 	//
 	m_calo_id->get_neighbours(myHashId+myCellHashOffset[mySubDet],LArNeighbours::nextInEta,theNeighbors);
-	log << MSG::DEBUG << "N2 theNeighbors.size() = " << theNeighbors.size() << endreq;
+	ATH_MSG_DEBUG ( "N2 theNeighbors.size() = " << theNeighbors.size() );
 	CaloCell * theCellN2 = 0x0;
 	double eN2 = 0.;
 	if (theNeighbors.size()>0) {
@@ -263,7 +223,7 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
 	  if (cellIt!=cellMap.end()) {
 	    cellItEng = energyMap.find(theCellN2->ID());
 	    if (cellItEng==energyMap.end()) {
-	      log << MSG::ERROR << "Identifier not found in energyMap" << endreq;
+	      ATH_MSG_ERROR ( "Identifier not found in energyMap" );
 	      return StatusCode::FAILURE;
 	    }
 	    eN2 = (*cellItEng).second;
@@ -272,7 +232,7 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
 	}
 	//
 	m_calo_id->get_neighbours(myHashId+myCellHashOffset[mySubDet],LArNeighbours::prevInEta,theNeighbors);
-	log << MSG::DEBUG << "N3 theNeighbors.size() = " << theNeighbors.size() << endreq;
+	ATH_MSG_DEBUG ( "N3 theNeighbors.size() = " << theNeighbors.size() );
 	CaloCell * theCellN3 = 0x0;
 	double eN3 = 0.;
 	if (theNeighbors.size()>0) {
@@ -283,7 +243,7 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
 	  if (cellIt!=cellMap.end()) {
 	    cellItEng = energyMap.find(theCellN3->ID());
 	    if (cellItEng==energyMap.end()) {
-	      log << MSG::ERROR << "Identifier not found in energyMap" << endreq;
+	      ATH_MSG_ERROR ( "Identifier not found in energyMap" );
 	      return StatusCode::FAILURE;
 	    }
 	    eN3 = (*cellItEng).second;
@@ -296,7 +256,7 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
 	myHashId = m_calo_id->subcalo_cell_hash(theCell->ID(),otherSubDet);
 	//
 	m_calo_id->get_neighbours(myHashId+myCellHashOffset[mySubDet],LArNeighbours::nextInEta,theNeighbors);
-	log << MSG::DEBUG << "N4 theNeighbors.size() = " << theNeighbors.size() << endreq;
+	ATH_MSG_DEBUG ( "N4 theNeighbors.size() = " << theNeighbors.size() );
 	CaloCell * theCellN4 = 0x0;
 	double eN4 = 0.;
 	if (theNeighbors.size()>0) {
@@ -307,7 +267,7 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
 	  if (cellIt!=cellMap.end()) {
 	    cellItEng = energyMap.find(theCellN4->ID());
 	    if (cellItEng==energyMap.end()) {
-	      log << MSG::ERROR << "Identifier not found in energyMap" << endreq;
+	      ATH_MSG_ERROR ( "Identifier not found in energyMap" );
 	      return StatusCode::FAILURE;
 	    }
 	    eN4 = (*cellItEng).second;
@@ -316,7 +276,7 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
 	}
 	//
 	m_calo_id->get_neighbours(myHashId+myCellHashOffset[mySubDet],LArNeighbours::prevInEta,theNeighbors);
-	log << MSG::DEBUG << "N5 theNeighbors.size() = " << theNeighbors.size() << endreq;
+	ATH_MSG_DEBUG ( "N5 theNeighbors.size() = " << theNeighbors.size() );
 	CaloCell * theCellN5 = 0x0;
 	double eN5 = 0.;
 	if (theNeighbors.size()>0) {
@@ -327,7 +287,7 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
 	  if (cellIt!=cellMap.end()) {
 	    cellItEng = energyMap.find(theCellN5->ID());
 	    if (cellItEng==energyMap.end()) {
-	      log << MSG::ERROR << "Identifier not found in energyMap" << endreq;
+	      ATH_MSG_ERROR ( "Identifier not found in energyMap" );
 	      return StatusCode::FAILURE;
 	    }
 	    eN5 = (*cellItEng).second;
@@ -350,33 +310,33 @@ StatusCode TBEMECXTalkToyModel::processOnCellIterators(const CaloCellContainer::
 	if (theCellN5) rescaled_eN5 = (1.-m_xtalkScaleEMEC2Eta)*eN5 + m_xtalkScaleEMEC2Eta*e + (theCellN5->energy()-eN5);
 	*/
 
-	log << MSG::DEBUG << endreq;
-	log << MSG::DEBUG << "neighbors of cell [" << m_calo_id->show_to_string(theCell  ->ID(),0,'/') << "] : " << endreq;
-	log << MSG::DEBUG << "             N1 = [" << m_calo_id->show_to_string(theCellN1->ID(),0,'/') << "]" << endreq;
-	if (theCellN2) log << MSG::DEBUG << "             N2 = [" << m_calo_id->show_to_string(theCellN2->ID(),0,'/') << "]" << endreq;
-	if (theCellN3) log << MSG::DEBUG << "             N3 = [" << m_calo_id->show_to_string(theCellN3->ID(),0,'/') << "]" << endreq;
-	if (theCellN4) log << MSG::DEBUG << "             N4 = [" << m_calo_id->show_to_string(theCellN4->ID(),0,'/') << "]" << endreq;
-	if (theCellN5) log << MSG::DEBUG << "             N5 = [" << m_calo_id->show_to_string(theCellN5->ID(),0,'/') << "]" << endreq;
+	ATH_MSG_DEBUG ("");
+	ATH_MSG_DEBUG ( "neighbors of cell [" << m_calo_id->show_to_string(theCell  ->ID(),0,'/') << "] : " );
+	ATH_MSG_DEBUG ( "             N1 = [" << m_calo_id->show_to_string(theCellN1->ID(),0,'/') << "]" );
+	ATH_MSG_DEBUG ( "             N2 = [" << m_calo_id->show_to_string(theCellN2->ID(),0,'/') << "]" );
+	ATH_MSG_DEBUG ( "             N3 = [" << m_calo_id->show_to_string(theCellN3->ID(),0,'/') << "]" );
+	ATH_MSG_DEBUG ( "             N4 = [" << m_calo_id->show_to_string(theCellN4->ID(),0,'/') << "]" );
+	ATH_MSG_DEBUG ( "             N5 = [" << m_calo_id->show_to_string(theCellN5->ID(),0,'/') << "]" );
 	
-	log << MSG::DEBUG << "EMEC2 cell     : energy before = " << e   << " | energy after rescaling = " << rescaled_e   << endreq;
-	log << MSG::DEBUG << "                                 "
-	    << (1.-m_xtalkScaleLong-EMEC3neighbors*m_xtalkScaleEta-EMEC2neighbors*m_xtalkScaleEMEC2Eta)*e
-	    << " | " << m_xtalkScaleLong*eN1 
-	    << " | " << m_xtalkScaleEta*(eN2+eN3)
-	    << " | " << m_xtalkScaleEMEC2Eta*(eN4+eN5)
-	    << " | " << (theCell->energy()-e) << endreq;
-	log << MSG::DEBUG << "EMEC3 cell (N1): energy before = " << eN1 << " | energy after rescaling = " << rescaled_eN1 << endreq;
-	log << MSG::DEBUG << "                                 " << (1.-m_xtalkScaleLong)*eN1 + m_xtalkScaleLong*e
-	    << " | " << (theCellN1->energy()-eN1) << endreq;
+	ATH_MSG_DEBUG ( "EMEC2 cell     : energy before = " << e   << " | energy after rescaling = " << rescaled_e   );
+	ATH_MSG_DEBUG ( "                                 "
+                        << (1.-m_xtalkScaleLong-EMEC3neighbors*m_xtalkScaleEta-EMEC2neighbors*m_xtalkScaleEMEC2Eta)*e
+                        << " | " << m_xtalkScaleLong*eN1 
+                        << " | " << m_xtalkScaleEta*(eN2+eN3)
+                        << " | " << m_xtalkScaleEMEC2Eta*(eN4+eN5)
+                        << " | " << (theCell->energy()-e) );
+	ATH_MSG_DEBUG ( "EMEC3 cell (N1): energy before = " << eN1 << " | energy after rescaling = " << rescaled_eN1 );
+	ATH_MSG_DEBUG ( "                                 " << (1.-m_xtalkScaleLong)*eN1 + m_xtalkScaleLong*e
+                        << " | " << (theCellN1->energy()-eN1) );
 	if (theCellN2) {
-	  log << MSG::DEBUG << "EMEC3 cell (N2): energy before = " << eN2 << " | energy after rescaling = " << rescaled_eN2 << endreq;
-	  log << MSG::DEBUG << "                                 " << (1.-m_xtalkScaleEta)*eN2 + m_xtalkScaleEta*e
-	      << " | " << (theCellN2->energy()-eN2) << endreq;
+	  ATH_MSG_DEBUG ( "EMEC3 cell (N2): energy before = " << eN2 << " | energy after rescaling = " << rescaled_eN2 );
+	  ATH_MSG_DEBUG ( "                                 " << (1.-m_xtalkScaleEta)*eN2 + m_xtalkScaleEta*e
+                          << " | " << (theCellN2->energy()-eN2) );
 	}
 	if (theCellN3) {
-	  log << MSG::DEBUG << "EMEC3 cell (N3): energy before = " << eN3 << " | energy after rescaling = " << rescaled_eN3 << endreq;
-	  log << MSG::DEBUG << "                                 " << (1.-m_xtalkScaleEta)*eN3 + m_xtalkScaleEta*e
-	      << " | " << (theCellN3->energy()-eN3) << endreq;
+	  ATH_MSG_DEBUG ( "EMEC3 cell (N3): energy before = " << eN3 << " | energy after rescaling = " << rescaled_eN3 );
+	  ATH_MSG_DEBUG ( "                                 " << (1.-m_xtalkScaleEta)*eN3 + m_xtalkScaleEta*e
+                          << " | " << (theCellN3->energy()-eN3) );
 	}
 	/*
 	if (theCellN4) {

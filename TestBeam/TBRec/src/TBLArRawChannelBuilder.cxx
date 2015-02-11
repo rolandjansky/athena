@@ -14,9 +14,7 @@ using CLHEP::nanosecond;
 
 
 TBLArRawChannelBuilder::TBLArRawChannelBuilder (const std::string& name, ISvcLocator* pSvcLocator):
-  Algorithm(name, pSvcLocator),
-  m_storeGateSvc(0),
-  m_detStore(0),
+  AthAlgorithm(name, pSvcLocator),
   m_roiMap(0),
   m_larCablingSvc(0),
   m_emId(0),
@@ -41,40 +39,16 @@ TBLArRawChannelBuilder::TBLArRawChannelBuilder (const std::string& name, ISvcLoc
 }
 
 StatusCode TBLArRawChannelBuilder::initialize(){
-  MsgStream log(msgSvc(), name());
-  StatusCode sc;
-  IToolSvc* toolSvc;
-  IAlgTool* algtool;
+  ATH_MSG_DEBUG ( "In Initialize." );
+
+  IToolSvc* toolSvc = 0;
+  ATH_CHECK( service("ToolSvc", toolSvc) );
   
-  log << MSG::DEBUG << "In Initialize." << endreq;
-
-  //Initialize stores, services & tools:
-  sc= service("StoreGateSvc",m_storeGateSvc);
-  if(sc.isFailure()) {
-    log << MSG::ERROR << "StoreGate service not found" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  sc= service("DetectorStore",m_detStore);
-  if(sc.isFailure()) {
-    log << MSG::ERROR << "DetectorStore service not found" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  sc = service("ToolSvc", toolSvc);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << " Tool Service not found " << endreq; 
-    return StatusCode::FAILURE;
-  }
-  
-  sc = toolSvc->retrieveTool("LArRoI_Map",algtool);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to find tool LArRoI_Map" << endreq;
-    return StatusCode::FAILURE; 
-  }
+  IAlgTool* algtool = 0;
+  ATH_CHECK( toolSvc->retrieveTool("LArRoI_Map",algtool) );
   m_roiMap=dynamic_cast<LArRoI_Map*>(algtool);
   if (!m_roiMap) {
-    log << MSG::ERROR << "Unable to d-cast LArRoI_Map" << endreq;
+    ATH_MSG_ERROR ( "Unable to d-cast LArRoI_Map" );
     return StatusCode::FAILURE;
   }
 
@@ -83,17 +57,9 @@ StatusCode TBLArRawChannelBuilder::initialize(){
   m_fcalId=caloIdMgr->getFCAL_ID();
   m_hecId=caloIdMgr->getHEC_ID();
 
-  sc=toolSvc->retrieveTool("LArCablingService",m_larCablingSvc);
-  if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve LArCablingService" << endreq;
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK( toolSvc->retrieveTool("LArCablingService",m_larCablingSvc) );
 
-  sc = m_detStore->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    log << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
   
   m_ADCtoMeVFCAL[0]      =   87.0 * MeV;  // FCAL1 High gain
   m_ADCtoMeVFCAL[1]      =  117.0 * MeV;  // FCAL2 High gain
@@ -112,40 +78,29 @@ StatusCode TBLArRawChannelBuilder::initialize(){
 
 
 StatusCode TBLArRawChannelBuilder::execute() {
-  StatusCode sc;
-  MsgStream log(msgSvc(), name());
-
-  log << MSG::DEBUG << "In execute" << endreq;
+  ATH_MSG_DEBUG ( "In execute" );
   
   //Pointer to input data container
   const LArDigitContainer* digitContainer;//Pointer to LArDigitContainer
 
   //Retrieve Digit Container
-  log << MSG::DEBUG << "About to retrieve LArDigitContainer with key " << m_DataLocation << endreq;
-  sc=m_storeGateSvc->retrieve(digitContainer,m_DataLocation);
-  log << MSG::DEBUG << "1) LArDigitContainer container size = " <<  digitContainer->size() << endreq;
-  if(sc.isFailure()) {
-    log << MSG::ERROR << "Can't retrieve LArDigitContainer with key " <<m_DataLocation << "from StoreGate." << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( evtStore()->retrieve(digitContainer,m_DataLocation) );
+  ATH_MSG_DEBUG ( "1) LArDigitContainer container size = " <<  digitContainer->size() );
 
-  log << MSG::DEBUG << "2) LArDigitContainer container size = " <<  digitContainer->size() << endreq;
+  ATH_MSG_DEBUG ( "2) LArDigitContainer container size = " <<  digitContainer->size() );
   if( digitContainer->size() < 1 ) {
-    log << MSG::INFO << "Empty LArDigitContainer container." << endreq;
+    ATH_MSG_INFO ( "Empty LArDigitContainer container." );
     return StatusCode::SUCCESS;
   }
   
   //Prepare LArRawChannelContainer
-  log << MSG::DEBUG << "Making new LArRawChannelContainer " <<  digitContainer->size() << endreq;
+  ATH_MSG_DEBUG ( "Making new LArRawChannelContainer " <<  digitContainer->size() );
   LArRawChannelContainer* larRawChannelContainer=new LArRawChannelContainer();
   larRawChannelContainer->reserve(digitContainer->size());
-  sc = m_storeGateSvc->record(larRawChannelContainer,m_ChannelContainerName);
-  if(sc.isFailure()) {
-    log << MSG::ERROR << "Can't record LArRawChannelContainer in StoreGate" << endreq;
-  }
+  ATH_CHECK( evtStore()->record(larRawChannelContainer,m_ChannelContainerName) );
   
   //Now all data is available, start loop over Digit Container
-  log << MSG::DEBUG << "Loop over Digit Container " << endreq;
+  ATH_MSG_DEBUG ( "Loop over Digit Container " );
 
   LArDigitContainer::const_iterator cont_it=digitContainer->begin();
   LArDigitContainer::const_iterator cont_it_e=digitContainer->end();
@@ -179,7 +134,7 @@ StatusCode TBLArRawChannelBuilder::execute() {
       GainFactor = 1.0;
     } else {
       GainFactor = 1.0;
-      log << MSG::ERROR << "Channel " << chid << "unknown gain: " << gain << endreq;
+      ATH_MSG_ERROR ( "Channel " << chid << "unknown gain: " << gain );
     }
     
     // Find peak time sample
@@ -256,8 +211,8 @@ StatusCode TBLArRawChannelBuilder::execute() {
 	      }
 	  }
       }
-    log << MSG::DEBUG
-	<< "Flag: "
+    ATH_MSG_DEBUG
+      ( "Flag: "
 	<< CubicFailed
 	<< " Mode: "
 	<< m_mode
@@ -265,7 +220,7 @@ StatusCode TBLArRawChannelBuilder::execute() {
 	<<  ADCPeak
 	<< " Peak: "
 	<< maxADCPeak
-	<< endreq;
+	);
 
     // fixed time slice or insufficient signal for cubic fit    
     if(m_mode == "FIXED" || CubicFailed ) 
@@ -281,29 +236,29 @@ StatusCode TBLArRawChannelBuilder::execute() {
     if (m_emId->is_em_barrel(id)) {
       // m_emId->sampling(id);
       ADCtoMeV = m_ADCtoMeVEMB[0];
-      log << MSG::DEBUG << " in EMB s="<<m_emId->sampling(id)<<", using ADCtoMeV = " << ADCtoMeV << endreq;
+      ATH_MSG_DEBUG ( " in EMB s="<<m_emId->sampling(id)<<", using ADCtoMeV = " << ADCtoMeV );
     } else if (m_emId->is_em_endcap_inner(id)) {
       int samp = m_emId->sampling(id);
       if (samp > 0) {
         ADCtoMeV = m_ADCtoMeVEMECInner[samp-1];
-        log << MSG::DEBUG << " in EMEC inner s="<<m_emId->sampling(id)<<", using ADCtoMeV = " << ADCtoMeV << endreq;
+        ATH_MSG_DEBUG ( " in EMEC inner s="<<m_emId->sampling(id)<<", using ADCtoMeV = " << ADCtoMeV );
       }
     } else if (m_emId->is_em_endcap_outer(id)) {
       int samp = m_emId->sampling(id);
       if (samp > 0) {
         ADCtoMeV = m_ADCtoMeVEMECOuter[samp-1];
-        log << MSG::DEBUG << " in EMEC outer s="<<m_emId->sampling(id)<<", using ADCtoMeV = " << ADCtoMeV << endreq;
+        ATH_MSG_DEBUG ( " in EMEC outer s="<<m_emId->sampling(id)<<", using ADCtoMeV = " << ADCtoMeV );
       }
     } else if (m_fcalId->is_lar_fcal(id)) {
       int module = m_fcalId->module(id);
       if (module > 0) {
         ADCtoMeV = m_ADCtoMeVFCAL[module-1];
-        log << MSG::DEBUG << " in FCAL m=" << m_fcalId->module(id)<<", using ADCtoMeV = " << ADCtoMeV << endreq;
+        ATH_MSG_DEBUG ( " in FCAL m=" << m_fcalId->module(id)<<", using ADCtoMeV = " << ADCtoMeV );
       }
     } else if (m_hecId->is_lar_hec(id)) {
       // m_layer[m_cellIndex]=m_hecId->sampling(id);
       ADCtoMeV = m_ADCtoMeVHEC[0];
-      log << MSG::DEBUG << " in HEC s="<<m_hecId->sampling(id)<<", using ADCtoMeV = " << ADCtoMeV << endreq;
+      ATH_MSG_DEBUG ( " in HEC s="<<m_hecId->sampling(id)<<", using ADCtoMeV = " << ADCtoMeV );
     }
     
     float Energy  = ADCPeak * ADCtoMeV * GainFactor;
@@ -316,20 +271,16 @@ StatusCode TBLArRawChannelBuilder::execute() {
     
   }// End loop over LArDigits
 
-  log << MSG::DEBUG << "Finished loop over Digit Container " << endreq;
+  ATH_MSG_DEBUG ( "Finished loop over Digit Container " );
 
   //  larRawChannelContainer->print();
   
   //Organize Collections  
   //  sortChannels(larRawChannelContainer);
 
-  log << MSG::DEBUG << "sorted RawChannelContainer, now lock it " << endreq;
+  ATH_MSG_DEBUG ( "sorted RawChannelContainer, now lock it " );
   // lock raw channel container
-  sc = m_storeGateSvc->setConst(larRawChannelContainer);
-  if (sc.isFailure()) {
-    log << MSG::ERROR << " Cannot lock RawChannel Container " << endreq;
-    return(StatusCode::FAILURE);
-  }
+  ATH_CHECK( evtStore()->setConst(larRawChannelContainer) );
 
   return StatusCode::SUCCESS;
 }
@@ -379,10 +330,7 @@ void TBLArRawChannelBuilder::sortChannels(LArRawChannelContainer* container)
 */
 
 StatusCode TBLArRawChannelBuilder::finalize()
-{//Error and Warning Summary for this job:
-  MsgStream log(msgSvc(), name());
-  
-  log << MSG::INFO << "TBLArRawChannelBuilder finished." << endreq;
-
+{
+  ATH_MSG_INFO ( "TBLArRawChannelBuilder finished." );
   return StatusCode::SUCCESS;
 }

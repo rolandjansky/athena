@@ -6,7 +6,7 @@
 #define CALOREC_TBEMECXTALKTOYMODEL_H
 
 class StoreGateSvc; 
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "CaloInterface/ICaloCellMakerTool.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloUtils/CaloCellCorrection.h"
@@ -17,7 +17,7 @@ class StoreGateSvc;
 class CaloDetDescrManager;
 
 
-class TBEMECXTalkToyModel: public AlgTool,
+class TBEMECXTalkToyModel: public AthAlgTool,
 	             virtual public ICaloCellMakerTool 
 
 {
@@ -49,8 +49,6 @@ public:
   float m_xtalkScaleLong;
   float m_xtalkScaleEta;
   float m_xtalkScaleEMEC2Eta;
-
-  StoreGateSvc * m_storeGate;
 
   StatusCode processOnCellIterators(const CaloCellContainer::iterator  &  itrCellBeg, const CaloCellContainer::iterator & itrCellEnd );
   

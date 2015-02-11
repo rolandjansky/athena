@@ -5,7 +5,7 @@
 #ifndef TBECLARRAWCHANNELBUILDER
 #define TBECLARRAWCHANNELBUILDER
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "LArElecCalib/ILArOFCTool.h"
 #include "LArElecCalib/ILArADC2MeVTool.h"
@@ -27,9 +27,8 @@
 class CaloCell_ID;
 class CaloDetDescrManager;
 
-class TBECLArRawChannelBuilder : public Algorithm
+class TBECLArRawChannelBuilder : public AthAlgorithm
 {
-
 public:
   TBECLArRawChannelBuilder (const std::string& name, ISvcLocator* pSvcLocator);
   StatusCode initialize();
@@ -38,8 +37,6 @@ public:
 
 private:
   //Services & Tools 
-  StoreGateSvc* m_storeGateSvc;
-  StoreGateSvc* m_detStore;
   ToolHandle<ILArOFCTool> m_OFCTool;
   ToolHandle<ILArADC2MeVTool> m_adc2mevTool;
   ToolHandle<ILArHVCorrTool> m_hvCorrTool;

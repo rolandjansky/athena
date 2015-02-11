@@ -5,7 +5,6 @@
 #ifndef CBNTAA_TBTRACK_H
 #define CBNTAA_TBTRACK_H
 
-#include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/NTuple.h"
 #include "GaudiKernel/SmartDataPtr.h"
 #include "CBNT_TBRecBase.h"
@@ -41,8 +40,6 @@ class CBNTAA_TBTrack : public CBNT_TBRecBase
   float m_beam_intercept_y;
   float m_beam_slope_x;
   float m_beam_slope_y;
-
-  StoreGateSvc* m_eventStore;
 
   // taken from CBNTAA_BeamInstrumentation
   //Private function to build names for ntuple entries. Concatinates strings

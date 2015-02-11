@@ -4,7 +4,6 @@
 
 
 // Gaudi
-#include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ListItem.h"
@@ -31,10 +30,9 @@
 
 TBXMLWriter::TBXMLWriter(const std::string& name, 
 			 ISvcLocator* pSvcLocator)
-  : Algorithm(name,pSvcLocator)
+  : AthAlgorithm(name,pSvcLocator)
     , m_outputFrequency(1)
     , m_eventCounter(0)
-    , m_storeGate(0)
     , m_beginRun(0)
     , m_runNumber((unsigned int)-1)
     , m_eventNumber(0)
@@ -57,30 +55,9 @@ StatusCode TBXMLWriter::initialize()
   // Services //
   //////////////
 
-  // -- message service
-  MsgStream log(messageService(), name());
-
-  // -- event store services
-  StatusCode checkOut = service("StoreGateSvc",m_storeGate);
-  if ( checkOut.isFailure() )
-    {
-      log << MSG::FATAL
-	  << "Cannot allocate StoreGate service"
-	  << endreq;
-      return StatusCode::FAILURE;
-    }
-
   // tool service
   IToolSvc* toolSvcPtr = 0;
-  checkOut = service("ToolSvc",toolSvcPtr);
-
-  if ( checkOut.isFailure() ) 
-    {
-      log << MSG::FATAL 
-	  << "Tool Service not found" 
-	  << endreq;
-      return StatusCode::FAILURE;
-    }
+  ATH_CHECK( service("ToolSvc",toolSvcPtr) );
 
   /////////////////////////
   // Current Job Options //
@@ -100,20 +77,20 @@ StatusCode TBXMLWriter::initialize()
       ListItem writerAlgoTool(*firstTool);
 
       // pick up tool
-      checkOut = toolSvcPtr->retrieveTool(writerAlgoTool.type(),
-					  writerAlgoTool.name(),
-					  algToolPtr, 
-					  this);
+      StatusCode checkOut = toolSvcPtr->retrieveTool(writerAlgoTool.type(),
+                                                     writerAlgoTool.name(),
+                                                     algToolPtr, 
+                                                     this);
       // not found
       if ( checkOut.isFailure() )
 	{
-	  log << MSG::ERROR
-	      << "failed to pick up tool of type \042"
+	  ATH_MSG_ERROR
+            ( "failed to pick up tool of type \042"
 	      << writerAlgoTool.type()
 	      << "\042 with name <"
 	      << writerAlgoTool.name()
 	      << ">"
-	      << endreq;
+	      );
 	  return StatusCode::FAILURE;
 	}
 
@@ -130,17 +107,15 @@ StatusCode TBXMLWriter::initialize()
   // check tools
   if ( m_writerTools.size() == 0 )
     {
-      log << MSG::ERROR
-	  << "no tools found!"
-	  <<endreq;
+      ATH_MSG_ERROR ( "no tools found!" );
       return StatusCode::FAILURE;
     }
 
   // print out list of tools
-  log << MSG::INFO << " " << endreq;
-  log << MSG::INFO << "List of tools in execution sequence:" << endreq;
-  log << MSG::INFO << "------------------------------------" << endreq;
-  log << MSG::INFO << " " << endreq;
+  ATH_MSG_INFO ( " " );
+  ATH_MSG_INFO ( "List of tools in execution sequence:" );
+  ATH_MSG_INFO ( "------------------------------------" );
+  ATH_MSG_INFO ( " " );
   unsigned int toolCtr = 0;
   std::vector<TBXMLWriterToolBase*>::iterator fTool = m_writerTools.begin();
   std::vector<TBXMLWriterToolBase*>::iterator lTool = m_writerTools.end();
@@ -171,9 +146,6 @@ StatusCode TBXMLWriter::initialize()
 
 StatusCode TBXMLWriter::execute()
 {
-
-  MsgStream log(messageService(),name());
-
   /////////////////
   // Check Tools //
   /////////////////
@@ -193,14 +165,7 @@ StatusCode TBXMLWriter::execute()
   /////////////////////////
 
   const EventInfo* eventHeader;
-  StatusCode checkOut = m_storeGate->retrieve(eventHeader);
-  if ( checkOut.isFailure() )
-    {
-      log << MSG::WARNING
-	  << "cannot find EventInfo object."
-	  << endreq;
-      return StatusCode::SUCCESS;
-    }
+  ATH_CHECK( evtStore()->retrieve(eventHeader) );
 
   const EventID* theEvent = eventHeader->event_ID();
 
@@ -242,7 +207,7 @@ StatusCode TBXMLWriter::execute()
     m_writerTools.end();
   for ( ; firstTool != lastTool; firstTool++ )
     {
-      checkOut = (*firstTool)->writeOut(thisFileStream);
+      StatusCode checkOut = (*firstTool)->writeOut(thisFileStream);
       m_toolInvoke[(*firstTool)->name()]++;
       if ( checkOut.isFailure() )
 	{
@@ -268,18 +233,16 @@ StatusCode TBXMLWriter::finalize()
   // Re-allocate Services //
   //////////////////////////
 
-  MsgStream log(messageService(),name());
-
   ////////////////
   // Tool Stats //
   ////////////////
 
-  log << MSG::INFO
-      << "\n"
+  ATH_MSG_INFO
+    ( "\n"
       << "Summary of Tool invocation: (invoked/success/failure)"
       << "\n"
       << "---------------------------"
-      << endreq;
+      );
 
   std::map<std::string,unsigned int>::const_iterator 
     firstName = m_toolInvoke.begin();

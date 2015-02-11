@@ -23,8 +23,8 @@ TBCellContainerFillerTool::TBCellContainerFillerTool(
 			     const std::string& type, 
 			     const std::string& name, 
 			     const IInterface* parent)
-  :AlgTool(type, name, parent) ,
-  m_storeGate(0),m_detStore(0), m_log(0), m_theCaloDDM(0), m_theCaloCCIDM(0), m_onlineHelper(0)
+  :AthAlgTool(type, name, parent) ,
+   m_theCaloDDM(0), m_theCaloCCIDM(0), m_onlineHelper(0)
 { 
   declareInterface<ICaloCellMakerTool>(this); 
 }
@@ -34,8 +34,6 @@ TBCellContainerFillerTool::TBCellContainerFillerTool(
 
 StatusCode TBCellContainerFillerTool::initialize()
 {
-  m_log = new MsgStream(msgSvc(),name());
- 
   // Cache pointers:
 
   m_theCaloDDM = CaloDetDescrManager::instance() ;
@@ -45,34 +43,10 @@ StatusCode TBCellContainerFillerTool::initialize()
 
   m_hashMax = m_theCaloCCIDM->calo_cell_hash_max();
 
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) {
-    *m_log << MSG::ERROR
-	<< "Unable to retrieve pointer to StoreGate Service"
-	<< endreq;
-  }
+  ATH_CHECK( m_cablingService.retrieve() );
+  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
 
-  sc= service("DetectorStore",m_detStore);
-  if(sc.isFailure()) {
-    *m_log << MSG::ERROR << "DetectorStore service not found" << endreq;
-    return StatusCode::FAILURE;
-  }
-  
-  sc = m_cablingService.retrieve();
-  if (sc.isFailure()){
-    *m_log << MSG::ERROR << "cannot allocate LArCablingService" << endreq;
-    return sc;
-  }
-
-  sc = m_detStore->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    *m_log << MSG::ERROR << "Could not get LArOnlineID helper !" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-
-  return sc;
-
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TBCellContainerFillerTool::process(CaloCellContainer * theCont )
@@ -82,14 +56,14 @@ StatusCode TBCellContainerFillerTool::process(CaloCellContainer * theCont )
 
   unsigned int index = 0;
   CaloCellContainer::const_iterator itrCell;
-  if (m_log->level() <= MSG::VERBOSE) {
+  if (msgLvl(MSG::VERBOSE)) {
       for (itrCell=theCont->begin();itrCell!=theCont->end();++itrCell){
 	const CaloDetDescrElement * theDDE=(*itrCell)->caloDDE();
-	*m_log << MSG::VERBOSE << index << " " << (*itrCell) 
-	    << " hash id " << theDDE->calo_hash()
-	    << " eta " << theDDE->eta()
-	    << " phi " << theDDE->phi()
-	    << "e " << (*itrCell)->e() << endreq ;
+	ATH_MSG_VERBOSE ( index << " " << (*itrCell) 
+                          << " hash id " << theDDE->calo_hash()
+                          << " eta " << theDDE->eta()
+                          << " phi " << theDDE->phi()
+                          << "e " << (*itrCell)->e() );
 	++index;
       }
   }	
@@ -98,8 +72,8 @@ StatusCode TBCellContainerFillerTool::process(CaloCellContainer * theCont )
   // fill holes with 0 energy cells
   
   unsigned int added = 0;
-  *m_log << MSG::DEBUG << " Now check all cells give meaningfull answer " << endreq ;
-  *m_log << MSG::DEBUG << " Size of original container: "<<theCont->size() << endreq ;
+  ATH_MSG_DEBUG ( " Now check all cells give meaningfull answer " );
+  ATH_MSG_DEBUG ( " Size of original container: "<<theCont->size() );
   for (unsigned int theHash=0;theHash<m_hashMax;++theHash){
     const CaloCell * theCell = theCont->findCell(IdentifierHash(theHash)) ;
     CaloCell *nCell;
@@ -114,7 +88,7 @@ StatusCode TBCellContainerFillerTool::process(CaloCellContainer * theCont )
              nCell = new CaloCell(cDDE,0.,0.,0.,CaloGain::LARMEDIUMGAIN);
           else
              nCell = new CaloCell(cDDE,0.,0.,0.,CaloGain::LARHIGHGAIN);
-          *m_log << MSG::VERBOSE << "Adding 0. energy cell: " << m_theCaloCCIDM->cell_id(theHash)<<endreq;
+          ATH_MSG_VERBOSE ( "Adding 0. energy cell: " << m_theCaloCCIDM->cell_id(theHash));
           theCont->push_back(nCell);
           ++added;
 //       }

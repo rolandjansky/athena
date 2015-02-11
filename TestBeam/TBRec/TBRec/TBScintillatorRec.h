@@ -11,20 +11,16 @@
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 
 #include <string>
 #include <vector>
 
 class StoreGateSvc;
 
-class TBScintillatorRec : public Algorithm
+class TBScintillatorRec : public AthAlgorithm
 {
-
-
-
  public:
-
   TBScintillatorRec(const std::string& name, ISvcLocator* pSvcLocator);
   ~TBScintillatorRec();
 
@@ -40,7 +36,6 @@ class TBScintillatorRec : public Algorithm
   ////////////////
   // Properties //
   ////////////////
-  StoreGateSvc* m_StoreGate;
   std::string m_SGkey,m_SGrecordkey;
 
   //////////////////

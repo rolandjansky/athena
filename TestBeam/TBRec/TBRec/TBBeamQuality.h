@@ -17,7 +17,7 @@
 
 /* The TBBeamQuality algorithm takes a particle type as input and returns a success or failurs based on different tests. The different tests are tools which run until a failure occurs. */
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
 class TBBeamQualityTool;
@@ -28,7 +28,7 @@ class TBBeamQualityTool;
 
 class StoreGateSvc;
 
-class TBBeamQuality : public Algorithm
+class TBBeamQuality : public AthAlgorithm
 {
  public:
   TBBeamQuality(const std::string& name, ISvcLocator* pService);
@@ -40,9 +40,6 @@ class TBBeamQuality : public Algorithm
   StatusCode finalize();
   
  protected:
-  
-  StoreGateSvc* m_storegate;
-  
   /* Properties*/
   std::vector<std::string> m_bqparticle;  //particles to select
 //  std::vector<std::string> m_bqtoolNames;

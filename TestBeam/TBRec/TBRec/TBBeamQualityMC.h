@@ -5,12 +5,12 @@
 #ifndef TBBEAMQUALITYMC_H
 #define TBBEAMQUALITYMC_H
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include <vector>
 
 class StoreGateSvc;
 
-class TBBeamQualityMC : public Algorithm
+class TBBeamQualityMC : public AthAlgorithm
 {
  public:
   TBBeamQualityMC(const std::string & name, ISvcLocator * pSvcLocator);
@@ -40,8 +40,6 @@ class TBBeamQualityMC : public Algorithm
   bool m_check_trackreco;
 
   std::string m_clusterCollName;
-  StoreGateSvc* m_eventStore;
-
 };
 
 #endif

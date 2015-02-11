@@ -144,17 +144,8 @@ TBXMLCaloCellWriterTool::writeEvent(std::ostream& outStream,
   // Retrieve Data from StoreGate //
   //////////////////////////////////
 
-  const CaloCellContainer* theContainer;
-  StatusCode checkOut = m_storeGate->retrieve(theContainer,m_cellContainer);
-  if ( checkOut.isFailure() )
-    {
-      log << MSG::WARNING
-	  << "cannot allocate CaloCellContainer with key <"
-	  << m_cellContainer
-	  << ">"
-	  << endreq;
-      return StatusCode::SUCCESS;
-    }
+  const CaloCellContainer* theContainer = 0;
+  ATH_CHECK( evtStore()->retrieve(theContainer,m_cellContainer) );
 
   //////////////////////////////////
   // Loop Individual Calorimeters //

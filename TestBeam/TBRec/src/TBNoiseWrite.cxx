@@ -10,7 +10,6 @@
 
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ListItem.h"
 
@@ -31,7 +30,7 @@
 
 TBNoiseWrite::TBNoiseWrite(const std::string& name, 
 				   ISvcLocator* pSvcLocator) : 
-  Algorithm(name, pSvcLocator),
+  AthAlgorithm(name, pSvcLocator),
   m_nEvent(0), m_nEventRandomTrigger(0), m_first(true),
   m_cell_id(0),
   m_cell_energy(0),
@@ -42,8 +41,6 @@ TBNoiseWrite::TBNoiseWrite(const std::string& name,
   m_rootfile(0),
   m_header_tree(0),
   m_tree(0),
-  m_eventStore(0),
-  m_detStore(0),
   m_calo_id(0),
   m_calo_dd_man(0),
   m_larCablingSvc(0),
@@ -64,10 +61,6 @@ TBNoiseWrite::~TBNoiseWrite()
 
 StatusCode TBNoiseWrite::initialize()
 {
-  
-  MsgStream log(messageService(), name());
-  log << MSG::INFO << "in initialize()" << endreq;
-
   // Cell vectors
   m_cell_id = new std::vector<unsigned int>;
   m_cell_energy = new std::vector<float>;
@@ -75,7 +68,7 @@ StatusCode TBNoiseWrite::initialize()
   // Open file and create TTrees
   m_rootfile = new TFile(m_rootfile_name.data(), "RECREATE");
   if (!m_rootfile->IsOpen()) {
-    log << MSG::FATAL << "Cann't open Root file" << endreq;
+    ATH_MSG_FATAL ( "Cann't open Root file" );
     return StatusCode::FAILURE;
   }
   m_header_tree = 
@@ -90,26 +83,16 @@ StatusCode TBNoiseWrite::initialize()
   m_tree->Branch("cell_id", &m_cell_id);
   m_tree->Branch("cell_ener", &m_cell_energy);
   
-  // Get StoreGateSvc //
-  StatusCode sc = service ( "StoreGateSvc" , m_eventStore ) ;  
-  if( sc.isFailure() ) {
-    log<<MSG::FATAL<<" Cannot locate StoreGateSvc " << endreq ;
-    sc = StatusCode::FAILURE ;
-    return sc ;
-  }
-
-  log << MSG::INFO << "end of initialize()" << endreq;
+  ATH_MSG_INFO ( "end of initialize()" );
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode TBNoiseWrite::finalize()
 {
-  MsgStream log( messageService(), name() );
-
-  log << MSG::INFO << "finalize(): (invoked/random) ("<< m_nEvent
-      << "/" << m_nEventRandomTrigger << ")" << endreq;
-  log << MSG::INFO << "Print contents of " << m_noiseTreeName << endreq;
+  ATH_MSG_INFO ( "finalize(): (invoked/random) ("<< m_nEvent
+                 << "/" << m_nEventRandomTrigger << ")" );
+  ATH_MSG_INFO ( "Print contents of " << m_noiseTreeName );
   m_rootfile->Print();
   m_rootfile->Write();
   m_rootfile->Close();
@@ -125,20 +108,13 @@ void TBNoiseWrite::clear()
 StatusCode TBNoiseWrite::execute()
 {
   m_nEvent++;
-  MsgStream log( messageService(), name() );
-  log << MSG::DEBUG << "Executing TBNoiseWrite " << endreq;
+  ATH_MSG_DEBUG ( "Executing TBNoiseWrite " );
 
-  StatusCode sc;
   // Retrieve Event Info
   const TBEventInfo* theEventInfo;
-  sc = m_eventStore->retrieve(theEventInfo,"TBEventInfo");
-  if ( sc.isFailure() ) {
-    log << MSG::ERROR
-	<< "Cannot retrieve TBEventInfo from StoreGate" << endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( evtStore()->retrieve(theEventInfo,"TBEventInfo") );
   unsigned short evType = theEventInfo->getEventType();
-  log << MSG::DEBUG << "Event Type found " << evType << endreq;
+  ATH_MSG_DEBUG ( "Event Type found " << evType );
   if (evType != 3) return StatusCode::FAILURE;
 
   // Do first event initialization (run header filling)
@@ -150,29 +126,22 @@ StatusCode TBNoiseWrite::execute()
     // Get xcryo and ytable from a file
     if (!this->getXcryoYtable(m_header.m_xCryo,m_header.m_yTable,
 			      m_header.m_beamMom)) {
-      log << MSG::ERROR << "xCryo and yTable are not found for run " <<
-	m_header.m_nRun << " in file " << m_txtFileWithXY << endreq;
+      ATH_MSG_ERROR ( "xCryo and yTable are not found for run " <<
+                      m_header.m_nRun << " in file " << m_txtFileWithXY );
       return StatusCode::FAILURE;
     }
-    log << MSG::INFO << "nRun = " << m_header.m_nRun << ", beamMomentum = "
+    ATH_MSG_INFO ( "nRun = " << m_header.m_nRun << ", beamMomentum = "
 	<< m_header.m_beamMom << " GeV, CryoX = " << m_header.m_xCryo 
-	<< ", tableY = " << m_header.m_yTable << endreq;
+                   << ", tableY = " << m_header.m_yTable );
     m_header_tree->Fill();
   }  
 
   this->clear();
 
   // Get cell information
-  const CaloCellContainer* cellContainer;
-  sc = m_eventStore->retrieve(cellContainer, m_caloCellContainerName);
-  if (sc.isFailure()) {
-    log << MSG::ERROR
-	<< "cannot allocate CaloCellContainer with key <"
-	<< m_caloCellContainerName
-	<< "> for random trigger event"
-	<< endreq;
-    return sc;
-  }
+  const CaloCellContainer* cellContainer = 0;
+  ATH_CHECK( evtStore()->retrieve(cellContainer, m_caloCellContainerName) );
+
   // Cell loop
   CaloCellContainer::const_iterator itc = cellContainer->begin();
   for (;itc!=cellContainer->end(); itc++) {
@@ -190,16 +159,14 @@ StatusCode TBNoiseWrite::execute()
 
 StatusCode TBNoiseWrite::getXcryoYtable(float &x, float &y, float &e) {
 
-  MsgStream log(messageService(),name());
-  log << MSG::DEBUG << "in getXcryoYtable(float x, float y)" << endreq;
+  ATH_MSG_DEBUG ( "in getXcryoYtable(float x, float y)" );
 
   std::ifstream xyFile;
   std::string line;
   std::string filename = PathResolver::find_file(m_txtFileWithXY, "DATAPATH");
   xyFile.open(filename.c_str());
   if (!xyFile.is_open()) {
-    log << MSG::ERROR << "File " << m_txtFileWithXY << " fail to open in $DATAPATH" 
-	<< endreq;
+    ATH_MSG_ERROR ( "File " << m_txtFileWithXY << " fail to open in $DATAPATH");
     return StatusCode::FAILURE;
   }
 
@@ -208,7 +175,7 @@ StatusCode TBNoiseWrite::getXcryoYtable(float &x, float &y, float &e) {
     std::istringstream buf(line);
     e = 0;
     buf >> run >> x >> y >> e;
-    log << MSG::DEBUG << "run,x,y,e= "<<run<<" "<<x<<" "<<y<<" "<<e<<endreq;
+    ATH_MSG_DEBUG ( "run,x,y,e= "<<run<<" "<<x<<" "<<y<<" "<<e);
     if (run == m_header.m_nRun && xyFile.good()) return StatusCode::SUCCESS;
   }
 

@@ -15,7 +15,6 @@
 #ifndef CBNT_CALOH6_H
 #define CBNT_CALOH6_H
 
-#include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/NTuple.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "CBNT_TBRecBase.h"
@@ -47,8 +46,6 @@ class CBNT_CaloH6 : public CBNT_TBRecBase
   virtual StatusCode CBNT_clear();
   
  private:
-  StoreGateSvc* m_StoreGate;
-  StoreGateSvc* m_detStore;
   // LArDetDescrManager* m_larMgr;
 
   // Identifier Pointers

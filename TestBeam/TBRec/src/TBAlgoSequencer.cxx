@@ -8,7 +8,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Property.h"
 #include "GaudiKernel/ListItem.h"
-#include "GaudiKernel/Algorithm.h"
 
 #include "TBRec/TBAlgoSequencer.h"
 
@@ -22,7 +21,7 @@
 
 TBAlgoSequencer::TBAlgoSequencer(const std::string& name,
 				 ISvcLocator* pSvcLocator) :
-  Algorithm(name,pSvcLocator)
+  AthAlgorithm(name,pSvcLocator)
   , m_timingOn(true)
   , m_eventPrintFreq(100)
   , m_eventCounter(0)
@@ -33,7 +32,6 @@ TBAlgoSequencer::TBAlgoSequencer(const std::string& name,
   declareProperty("SubAlgorithms",  m_subAlgoNames);
   declareProperty("PrintFrequency", m_eventPrintFreq);
   declareProperty("TimingOn", m_timingOn);
-  m_storeGate = 0;
 }
 
 TBAlgoSequencer::~TBAlgoSequencer()
@@ -46,25 +44,7 @@ TBAlgoSequencer::~TBAlgoSequencer()
 StatusCode
 TBAlgoSequencer::initialize()
 {
-  ///////////////////////
-  // Allocate Services //
-  ///////////////////////
-
-  // message service
-  MsgStream log(messageService(),name());
-  log << MSG::INFO
-      << "initialize..."
-      << endreq;
-
-  // StoreGate
-  StatusCode checkOut =service("StoreGateSvc",m_storeGate);
-  if ( checkOut.isFailure() )
-    {
-      log << MSG::ERROR
-	  << "unable to retrieve pointer to StoreGate service."
-	  << endreq;
-      return checkOut;
-    }
+  ATH_MSG_INFO ( "initialize..." );
 
   /////////////////////////////////////////////
   // Register and Initialize (Sub)Algorithms //
@@ -90,15 +70,14 @@ TBAlgoSequencer::initialize()
 	  std::string myName             = theAlgItem.name(); 
 	  m_subAlgos[acceptedAlgos]      = theAlgo;
 	  m_algoNameStore[acceptedAlgos] = myName;
-	  log << MSG::INFO
-	      << "Subalgorithm ("
+	  ATH_MSG_INFO
+            ( "Subalgorithm ("
 	      << std::setw(2)
 	      << acceptedAlgos
 	      << ") ... created type/name ... "
 	      << theAlgItem.type()
 	      << "/"
-	      << theAlgItem.name()
-	      << endreq;
+	      << theAlgItem.name() );
 	  // set common properties
 	  //	  theAlgo->
 	  //	    setProperty(StringProperty("EventHeaderKey",m_eventHeaderKey));
@@ -131,12 +110,6 @@ TBAlgoSequencer::initialize()
 StatusCode
 TBAlgoSequencer::execute()
 {
-
-  ////////////////////////////
-  // Re-Allocating Services //
-  ////////////////////////////
-
-  MsgStream log(messageService(),name());
   IChronoStatSvc* theTicker = chronoSvc();
 
   m_timingOn = theTicker != 0 && m_timingOn;
@@ -149,11 +122,10 @@ TBAlgoSequencer::execute()
 
   if ( m_eventCounter == 1 || m_eventCounter % m_eventPrintFreq == 0 )
     {
-      log << MSG::INFO
-	  << "Number of events processed: "
+      ATH_MSG_INFO
+        ( "Number of events processed: "
 	  << std::setw(9)
-	  << m_eventCounter
-	  << endreq;
+	  << m_eventCounter );
       //	  << ", this event: Run "
       //	  << setw(6)
       //	  << theEvent->getRunNumber()
@@ -202,13 +174,6 @@ TBAlgoSequencer::execute()
 StatusCode
 TBAlgoSequencer::finalize()
 {
-
-  ////////////////////////////
-  // Re-Allocating Services //
-  ////////////////////////////
-
-  MsgStream log(messageService(),name());
-
   ////////////////////////////////
   // Summary on Accepts/Rejects //
   ////////////////////////////////  
@@ -220,37 +185,34 @@ TBAlgoSequencer::finalize()
     ? ((double)m_rejectNoEvent)/((double)m_eventCounter)*100.
     : 100;
 
-  log << MSG::INFO
-      << "======================================================== " << endreq;
-  log << MSG::INFO
-      << "Total events analyzed .................: "
+  ATH_MSG_INFO
+    ( "======================================================== " );
+  ATH_MSG_INFO
+    ( "Total events analyzed .................: "
       << std::setw(6)
-      << m_eventCounter
-      << endreq;
-  log << MSG::INFO 
-      << "Total events rejected .................: "
+      << m_eventCounter );
+  ATH_MSG_INFO 
+    ( "Total events rejected .................: "
       << std::setw(6)
       << m_rejectCounter
       << " ("
     //      << fixed()
       << allReject
-      << " %)"
-      << endreq;
-  log << MSG::INFO
-      << "Events without EventHeader (rejected) .: "
+      << " %)" );
+  ATH_MSG_INFO
+    ( "Events without EventHeader (rejected) .: "
       << std::setw(6)
       << m_rejectNoEvent
       << " ("
     //      << fixed()
       << noEvtReject
-      << " %)"
-      << endreq;
-  log << MSG::INFO
-      << "-------------------------------------------------------- " << endreq;
-  log << MSG::INFO
-      << "Reject patterns: " << endreq;
-  log << MSG::INFO
-      << "-------------------------------------------------------- " << endreq;
+      << " %)" );
+  ATH_MSG_INFO
+    ( "-------------------------------------------------------- " );
+  ATH_MSG_INFO
+    ( "Reject patterns: " );
+  ATH_MSG_INFO
+    ( "-------------------------------------------------------- " );
   
   std::map<std::string,unsigned int>::iterator 
     firstReject = m_rejectPattern.begin();
@@ -262,50 +224,50 @@ TBAlgoSequencer::finalize()
       double percentReject = m_eventCounter > 0
 	? ((double)(*firstReject).second)/((double)m_eventCounter)*100.
 	: 100;
-      log << MSG::INFO
+      msg() << MSG::INFO
 	  << "Algorithm ";
-      log.width(20);
-      log << MSG::INFO
+      msg().width(20);
+      msg() << MSG::INFO
 	  << (*firstReject).first
 	  << " rejected "
 	  << std::setw(6)
 	  << (*firstReject).second
 	  << " events (";
-      log << MSG::INFO
+      msg() << MSG::INFO
 	  << std::setprecision(5)
 	  << percentReject
 	  << " %)"
 	  << endreq;
     }
-  log << MSG::INFO
-      << "-------------------------------------------------------- " << endreq;
-  log << MSG::INFO
-      << "Accept patterns: " << endreq;
-  log << MSG::INFO
-      << "-------------------------------------------------------- " << endreq;
+  ATH_MSG_INFO
+    ( "-------------------------------------------------------- " );
+  ATH_MSG_INFO
+    ( "Accept patterns: " );
+  ATH_MSG_INFO
+    ( "-------------------------------------------------------- " );
   for ( ; firstAccept != m_acceptPattern.end() ; firstAccept++ )
     {
       double percentAccept = m_eventCounter > 0
 	? ((double)(*firstAccept).second)/((double)m_eventCounter)*100.
 	: 100;
-      log << MSG::INFO
+      msg() << MSG::INFO
 	  << "Algorithm ";
-      log.width(20);
-      log << MSG::INFO
+      msg().width(20);
+      msg() << MSG::INFO
 	  << (*firstAccept).first
 	  << " accepted "
 	  << std::setw(6)
 	  << (*firstAccept).second
 	  << " events (";
-      log.setf(std::ios::fixed);
-      log << MSG::INFO
+      msg().setf(std::ios::fixed);
+      msg() << MSG::INFO
 	  << std::setprecision(5)
 	  << percentAccept
 	  << " %)"
 	  << endreq;
     }
-  log << MSG::INFO
-      << "======================================================== " << endreq;
+  ATH_MSG_INFO
+    ( "======================================================== " );
 
   return StatusCode::SUCCESS;
 
