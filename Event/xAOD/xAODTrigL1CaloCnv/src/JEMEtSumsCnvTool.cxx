@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JEMEtSumsCnvTool.cxx 576052 2013-12-18 09:13:50Z morrisj $
+// $Id: JEMEtSumsCnvTool.cxx 646317 2015-02-11 23:31:39Z morrisj $
 
 // EDM include(s):
 #include "TrigT1CaloEvent/JEMEtSumsCollection.h"
@@ -11,6 +11,28 @@
 
 // Local include(s):
 #include "JEMEtSumsCnvTool.h"
+
+namespace {
+  template <typename T>
+  std::vector<T> convertVector(const std::vector<int>& in) {
+    std::vector<T> result;
+    for(auto i : in) {
+      result.push_back(static_cast<T>(i));
+    }
+    return result;
+  }
+}
+
+namespace {
+  template <typename T>
+  std::vector<T> convertVector(const std::vector<unsigned int>& in) {
+    std::vector<T> result;
+    for(auto i : in) {
+      result.push_back(static_cast<T>(i));
+    }
+    return result;
+  }
+}
 
 namespace xAODMaker {
 
@@ -58,12 +80,12 @@ namespace xAODMaker {
         xAOD::JEMEtSums* x = new xAOD::JEMEtSums();
         xaod->push_back( x );
         
-        x->setCrate( (*itr)->crate() );
-        x->setModule( (*itr)->module() );
-        x->setPeak( (*itr)->peak() );
-        x->setEtVec( (*itr)->EtVec() );
-        x->setExVec( (*itr)->ExVec() );
-        x->setEyVec( (*itr)->EyVec() );  
+        x->initialize( (uint_least8_t)(*itr)->crate() ,
+                       (uint_least8_t)(*itr)->module() ,
+                       convertVector<uint_least16_t>((*itr)->EtVec()) ,
+                       convertVector<uint_least16_t>((*itr)->ExVec()) ,
+                       convertVector<uint_least16_t>((*itr)->EyVec()) ,
+                       (uint_least8_t)(*itr)->peak() ); 
       }
       
       // Return gracefully:

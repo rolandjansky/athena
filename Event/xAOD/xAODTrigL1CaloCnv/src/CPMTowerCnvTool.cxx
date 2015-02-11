@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CPMTowerCnvTool.cxx 576327 2013-12-19 16:08:56Z morrisj $
+// $Id: CPMTowerCnvTool.cxx 646317 2015-02-11 23:31:39Z morrisj $
 
 // EDM include(s):
 #include "TrigT1CaloEvent/CPMTowerCollection.h"
@@ -11,6 +11,17 @@
 
 // Local include(s):
 #include "CPMTowerCnvTool.h"
+
+namespace {
+  template <typename T>
+  std::vector<T> convertVector(const std::vector<int>& in) {
+    std::vector<T> result;
+    for(auto i : in) {
+      result.push_back(static_cast<T>(i));
+    }
+    return result;
+  }
+}
 
 namespace xAODMaker {
 
@@ -58,13 +69,14 @@ namespace xAODMaker {
         xAOD::CPMTower* x = new xAOD::CPMTower();
         xaod->push_back( x );
         
-        x->setEmEnergyVec( (*itr)->emEnergyVec() );
-        x->setHadEnergyVec( (*itr)->hadEnergyVec() );
-        x->setEmErrorVec( (*itr)->emErrorVec() );
-        x->setHadErrorVec( (*itr)->hadErrorVec() );
-        x->setEta( (*itr)->eta() );
-        x->setPhi( (*itr)->phi() );
-        x->setPeak( (*itr)->peak() );
+        x->initialize( (float)(*itr)->eta() ,
+                       (float)(*itr)->phi() ,
+                       convertVector<uint_least8_t>((*itr)->emEnergyVec() ) ,
+                       convertVector<uint_least8_t>((*itr)->hadEnergyVec() ) ,
+                       convertVector<uint_least8_t>((*itr)->emErrorVec() ) ,
+                       convertVector<uint_least8_t>((*itr)->hadErrorVec() ) , 
+                       (uint_least8_t)(*itr)->peak() );
+
       }
       
       // Return gracefully:
