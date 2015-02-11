@@ -73,7 +73,8 @@ VP1MainWindow::VP1MainWindow(VP1ExecutionScheduler*sched,VP1AvailEvents * ae,QWi
   m_userRequestedExit(false),
   m_streamMenuUpdater(0),
   m_mutex(new QMutex()),
-  m_view(new QWebView(0))
+  m_view(new QWebView(0)),
+  edEditor(0)
 {
 	setupUi(this); // this sets up the GUI
 
@@ -490,16 +491,27 @@ void VP1MainWindow::setupStatusBar()  {
 //_________________________________________________________________________________
 VP1MainWindow::~VP1MainWindow() 
 { 
-	delete edEditor;
+	if (edEditor) {
+		VP1Msg::messageDebug("deleting the editor");
+		delete edEditor;
+	}
+	VP1Msg::messageDebug("deleting the tab manager");
 	delete tabmanager;
+	VP1Msg::messageDebug("deleting the channel manager");
 	delete channelmanager;
+	VP1Msg::messageDebug("deleting the events");
 	delete availEvents;
+
 	if(m_streamMenuUpdater) {
+		VP1Msg::messageDebug("deleting the streamupdater");
 		m_streamMenuUpdater->quit();
 		m_streamMenuUpdater->deleteLater();
 	}
+
+	VP1Msg::messageDebug("deleting the mutex");
 	delete m_mutex;
 
+	VP1Msg::messageDebug("deleting the view");
 	delete m_view;
 	m_view = 0;
 }
@@ -804,6 +816,8 @@ void VP1MainWindow::goToNextEvent() {
 //_________________________________________________________________________________
 void VP1MainWindow::closeEvent(QCloseEvent * event)
 {
+	VP1Msg::messageDebug("VP1MainWindow::closeEvent()");
+
 	if (VP1QtUtils::environmentVariableIsOn("VP1_ENABLE_ASK_ON_CLOSE")) {
 		int ret = QMessageBox::warning(this,
 				"Close VP1?",
@@ -818,8 +832,13 @@ void VP1MainWindow::closeEvent(QCloseEvent * event)
 	}
 
 	hide();
+
+	VP1Msg::messageDebug("calling tabmanager->setSelectedDockWidget(0)...");
 	tabmanager->setSelectedDockWidget(0);
-	mustquit=true;
+	VP1Msg::messageDebug("tabmanager->setSelectedDockWidget(0) called.");
+
+	mustquit=true; // this will inform VP1Alg that we want to quit VP1 (then we'll quit the Athena algorithm)
+	VP1Msg::messageDebug("calling qApp->quit()...");
 	qApp->quit();
 }
 
@@ -955,6 +974,8 @@ void VP1MainWindow::makeAllChannelsEventDisplay()
 	edEditor->show();
 
 }
+
+
 
 
 
@@ -1528,6 +1549,7 @@ void VP1MainWindow::quickSetupTriggered()
 		plugfile = plugfile.left(plugfile.count()-3)+".dylib";
 #endif
 
+
 	//Check that the plugin is available:
 	QMap<QString,QString> plugins2fullpath = availablePluginFiles();
 	if (!plugins2fullpath.contains(plugfile)) {
@@ -1537,6 +1559,7 @@ void VP1MainWindow::quickSetupTriggered()
 		return;
 	}
 	QString plugfile_fullpath = plugins2fullpath[plugfile];
+
 
 	//Load plugin
 	if (!channelmanager->currentPluginFiles().contains(plugfile_fullpath)) {
@@ -1549,6 +1572,7 @@ void VP1MainWindow::quickSetupTriggered()
 		}
 	}
 
+
 	//Check that plugin contains necessary channel:
 	if (!channelmanager->channelsInPluginFile(plugfile_fullpath).contains(channelname)) {
 		QMessageBox::critical(0, "Error - did not find necessary channel: "+channelname,
@@ -1559,6 +1583,7 @@ void VP1MainWindow::quickSetupTriggered()
 
 	bool save = updatesEnabled();
 	setUpdatesEnabled(false);
+
 
 	//Add tab:
 	QString newtabname = tabmanager->suggestNewTabName(tabname);
@@ -1571,6 +1596,7 @@ void VP1MainWindow::quickSetupTriggered()
 		return;
 	}
 
+
 	//Finally, add channel:
 
 	if (!tabmanager->addChannelToTab( channelname, newtabname )) {
@@ -1581,8 +1607,12 @@ void VP1MainWindow::quickSetupTriggered()
 		return;
 	}
 
+
 	tabmanager->showTab(newtabname);
+
+
 	setUpdatesEnabled(save);
+
 
 }
 

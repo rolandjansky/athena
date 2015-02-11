@@ -89,6 +89,8 @@ public:
 
   QStringList userRequestedFiles();
 
+  QString saveSnaphsotToFile(IVP1System* s, bool batch = false);
+
 signals:
   void refreshingStatusChanged(bool);
 
