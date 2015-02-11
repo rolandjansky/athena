@@ -16,7 +16,7 @@ apply_pattern tpcnv_library
 
 private
 
-use AtlasReflex		       AtlasReflex-*		          External
+use AtlasReflex		 AtlasReflex-*		    External
 use AthenaKernel         AthenaKernel-*             Control
 use TrigDecisionEvent    TrigDecisionEvent-*        Trigger/TrigEvent
 
@@ -24,12 +24,12 @@ use TrigDecisionEvent    TrigDecisionEvent-*        Trigger/TrigEvent
 # of transient classes.  If we make a single dictionary,
 # the compiler runs out of memory on the generated source.
 
-apply_pattern lcgdict dict=TrigDecisionEventTPCnv1  \
-  selectionfile=selection1.xml \
+apply_pattern lcgdict dict=TrigDecisionEventTPCnv \
+  selectionfile=selection.xml \
   headerfiles="../TrigDecisionEventTPCnv/TrigDecisionEventTPCnvDict.h"
 
-apply_pattern lcgdict dict=OLD_TrigDecisionEventTPCnv1  \
-  selectionfile=OLD_selection1.xml \
+apply_pattern lcgdict dict=OLD_TrigDecisionEventTPCnv \
+  selectionfile=OLD_selection.xml \
   headerfiles="../TrigDecisionEventTPCnv/TrigDecisionEventTPCnvDict.h"
 
 end_private
