@@ -1122,7 +1122,8 @@ sub run_test($){
 	} else {
 	    print "=== $name: mergecheck: the test passed successfully. \n";
 	}
-	systemcall("grep -A 7 'Summary' $checkmergeout");
+	systemcall("grep 'ERROR' $checkmergeout");
+	systemcall("grep 'WARNING' $checkmergeout");
     }
     
    # EDM tests

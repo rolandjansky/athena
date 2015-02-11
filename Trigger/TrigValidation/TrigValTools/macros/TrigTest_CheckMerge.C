@@ -373,7 +373,7 @@ void checkROSAccess( TDirectory *mergedir){
 
   c1->SaveAs("checkROSAccess.gif");
 
-  printf("CheckROSAccess for %d  algorithms: \n", h1->GetNbinsX());
+  printf("checkROSAccess for %d  algorithms: \n", h1->GetNbinsX());
   printf("    %-65s   REQ   |   MISS     |   MISS    |  MISS     |    MISS    |\n","");
   printf("    %-65s   ROS   |   ALLEXE   |   EXE     |  ALLPREF  |    PREF    |\n","");
   printf("    %-65s-----------------------------------------------------------|\n","");
@@ -384,12 +384,12 @@ void checkROSAccess( TDirectory *mergedir){
     if (h2->GetBinContent(i) != 0 ) {
       if  (h2->GetBinContent(i) ==  h1->GetBinContent(i)) {// all the ROBs are missed
 	missAllROSRequest[n_missAllROSRequest]=label;
-	if (debug) printf("   %-5d  |           |", h2->GetBinContent(i) );
+	printf("   %-5d  |           |", h2->GetBinContent(i) );
 	n_missAllROSRequest++;
       }
       else {
 	missROSRequest[n_missROSRequest]=label;
-	if (debug) printf("          |   %-5d   |", h2->GetBinContent(i) );
+	printf("          |   %-5d   |", h2->GetBinContent(i) );
 	n_missROSRequest++;
       }
     }
@@ -398,12 +398,12 @@ void checkROSAccess( TDirectory *mergedir){
     if (h3->GetBinContent(i) != 0 ) {
       if  (h3->GetBinContent(i) ==  h1->GetBinContent(i)) {// all the ROBs are missed
 	missAllROSPrefetch[n_missAllROSPrefetch]=label;
-	if (debug) printf("   %-5d   |            |", h3->GetBinContent(i)  );
+	printf("   %-5d   |            |", h3->GetBinContent(i)  );
 	n_missAllROSPrefetch++;
       }
       else {
 	missROSPrefetch[n_missROSPrefetch]=label;
-	if (debug) printf("           |     %-5d  |", h3->GetBinContent(i) );
+	printf("           |     %-5d  |", h3->GetBinContent(i) );
 	n_missROSPrefetch++;
       }
     }
@@ -413,14 +413,14 @@ void checkROSAccess( TDirectory *mergedir){
   printf("    %-65s-----------------------------------------------------------|\n","");
 
   printf("\n");
-  printf("# algos with missed ROB fragments during the execution:  %d \n", n_missROSRequest);    
-  printf("# algos with missed ROS requests  during the execution:  %d \n", n_missAllROSRequest);    
-  printf("# algos with missed ROB fragments during the prefetch:   %d \n", n_missROSPrefetch);    
-  printf("# algos with missed ROS requests  during the prefetch:   %d \n", n_missAllROSPrefetch);  
+  printf("# algos with missed ROB fragments during the execution:  %d %s \n", n_missROSRequest,     (n_missROSRequest!=0? " --> WARNING":"") );    
+  printf("# algos with missed ROS requests  during the execution:  %d %s \n", n_missAllROSRequest,  (n_missAllROSRequest!=0? " --> WARNING":""));    
+  printf("# algos with missed ROB fragments during the prefetch:   %d %s \n", n_missROSPrefetch,    (n_missROSPrefetch!=0? " --> WARNING":""));    
+  printf("# algos with missed ROS requests  during the prefetch:   %d %s \n", n_missAllROSPrefetch, (n_missAllROSPrefetch!=0? " --> WARNING":""));  
   printf("\n");
 
   if (n_missROSRequest || n_missAllROSRequest || n_missROSPrefetch || n_missAllROSPrefetc){
-    printf("ERRORS Found\n");
+    printf("WARNING Found in TrigTest_CheckMerg.C\n");
   }
 
 }
