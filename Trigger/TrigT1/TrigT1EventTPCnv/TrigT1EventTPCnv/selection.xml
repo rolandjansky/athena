@@ -3,39 +3,14 @@
    <!-- Dictionary for the persistent MuCTPI_RDO object -->
    <class name="MuCTPI_RDO_p1" id="406BC4C7-56B6-4956-A66A-B749BCD35009" />
 
-   <!-- Converter(s) for the MuCTPI_RDO object -->
-   <class name="MuCTPI_RDOCnv_p1" />
-   <class name="T_AthenaPoolTPCnvBase<MuCTPI_RDO,MuCTPI_RDO_p1>" />
-   <class name="T_AthenaPoolTPPolyCnvBase<MuCTPI_RDO,MuCTPI_RDO,MuCTPI_RDO_p1>" />
-   <class name="T_AthenaPoolTPAbstractPolyCnvBase<MuCTPI_RDO,MuCTPI_RDO,MuCTPI_RDO_p1>" />
-   <class name="ITPConverterFor<MuCTPI_RDO>" />
-
    <!-- Dictionary for the persistent CTP_RDO object -->
    <class name="CTP_RDO_p1" id="5E6D3E52-952F-4144-BC68-83ACE605AA45" />
    <class name="CTP_RDO_p2" id="12717F15-E516-4ECD-BC07-82C72B524AD5" />
-
-   <!-- Converter(s) for the CTP_RDO object -->
-   <class name="CTP_RDOCnv_p1" />
-   <class name="T_AthenaPoolTPCnvBase<CTP_RDO,CTP_RDO_p1>" />
-   <class name="T_AthenaPoolTPPolyCnvBase<CTP_RDO,CTP_RDO,CTP_RDO_p1>" />
-   <class name="T_AthenaPoolTPAbstractPolyCnvBase<CTP_RDO,CTP_RDO,CTP_RDO_p1>" />
-   <class name="CTP_RDOCnv_p2" />
-   <class name="T_AthenaPoolTPCnvBase<CTP_RDO,CTP_RDO_p2>" />
-   <class name="T_AthenaPoolTPPolyCnvBase<CTP_RDO,CTP_RDO,CTP_RDO_p2>" />
-   <class name="T_AthenaPoolTPAbstractPolyCnvBase<CTP_RDO,CTP_RDO,CTP_RDO_p2>" />
-   <class name="ITPConverterFor<CTP_RDO>" />
 
    <!-- Dictionary for the persistent ROIB::RoIBResult object -->
    <class name="RoIBResult_p1" id="A9FF18A0-E5A2-4F24-82C7-605CAA9EA1F8" />
    <class name="SubSysResult_p1" />
    <class name="std::vector<SubSysResult_p1>" />
-
-   <!-- Converter(s) for the ROIB::RoIBResult object -->
-   <class name="RoIBResultCnv_p1" />
-   <class name="T_AthenaPoolTPCnvBase<ROIB::RoIBResult,RoIBResult_p1>" />
-   <class name="T_AthenaPoolTPPolyCnvBase<ROIB::RoIBResult,ROIB::RoIBResult,RoIBResult_p1>" />
-   <class name="T_AthenaPoolTPAbstractPolyCnvBase<ROIB::RoIBResult,ROIB::RoIBResult,RoIBResult_p1>" />
-   <class name="ITPConverterFor<ROIB::RoIBResult>" />
 
    <!-- Dictionary for the persistent LVL1::TriggerTower container  -->
    <class name="TriggerTowerCollection_tlp1" id="CDF34B04-7594-4A52-8EE0-FE85CF2C2A18" />

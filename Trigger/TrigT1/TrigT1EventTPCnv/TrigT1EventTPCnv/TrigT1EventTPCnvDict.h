@@ -6,21 +6,17 @@
 // Includes for MuCTPI_RDO:
 //
 #include "TrigT1EventTPCnv/MuCTPI_RDO_p1.h"
-#include "TrigT1EventTPCnv/MuCTPI_RDOCnv_p1.h"
 
 //
 // Includes for CTP_RDO:
 //
 #include "TrigT1EventTPCnv/CTP_RDO_p1.h"
-#include "TrigT1EventTPCnv/CTP_RDOCnv_p1.h"
 #include "TrigT1EventTPCnv/CTP_RDO_p2.h"
-#include "TrigT1EventTPCnv/CTP_RDOCnv_p2.h"
 
 //
 // Includes for ROIB::RoIBResult:
 //
 #include "TrigT1EventTPCnv/RoIBResult_p1.h"
-#include "TrigT1EventTPCnv/RoIBResultCnv_p1.h"
 
 //
 // Includes for LVL1::TriggerTower
