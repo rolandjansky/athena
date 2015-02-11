@@ -47,6 +47,7 @@ use  TrigMonitorBase            TrigMonitorBase-*               Trigger/TrigMoni
 use  TrigNavigation             TrigNavigation-*                Trigger/TrigEvent
 use  TrigSerializeResult        TrigSerializeResult-*           Trigger/TrigDataAccess
 use  TrigT1Interfaces           TrigT1Interfaces-*              Trigger/TrigT1
+use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
 use  L1TopoCommon               L1TopoCommon-*                  Trigger/TrigT1/L1Topo
 use  L1TopoConfig               L1TopoConfig-*                  Trigger/TrigT1/L1Topo
 use  TrigStorageDefinitions     TrigStorageDefinitions-*        Trigger/TrigEvent

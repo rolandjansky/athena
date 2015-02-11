@@ -510,9 +510,6 @@ StatusCode TrigSteer::execute()
    //reset EB status (for merged system)
    m_stepForEB = 0;
 
-   //reset EB status (for merged system)
-   m_stepForEB = -1;
-
    if ( setEvent() != HLT::OK ) {
       return StatusCode::FAILURE;
    }
@@ -720,13 +717,22 @@ StatusCode TrigSteer::execute()
 
 
 void  TrigSteer::doPrefetching(bool &secondPass, bool& noError){
+  (*m_log) << MSG::DEBUG << "TrigSteer::doPrefetching starts " << m_stepForEB <<endreq;
+
+  // skip if EB already called in the steering
+  if( m_stepForEB != 0) return;// should be useless
+
 
   //  skip if the event is already in cache
   if (m_trigROBDataProvider.isValid()) {
-    if (m_trigROBDataProvider->isEventComplete()) return;
+    if (m_trigROBDataProvider->isEventComplete()){ // this is return always treu for offline running
+      (*m_log) << MSG::DEBUG <<"FPP Event is complete" <<endreq;
+      if ( m_strategyEB == 0){ // return for online, do the prefetching for testing EBstrategy=1
+	(*m_log) << MSG::DEBUG <<"FPP Event is complete; do not pre-fetch data for online running" <<endreq;
+	return;
+      }
+    }
   }
-  // skip if EB already called in the steering
-  if( m_stepForEB != 0) return;// should be useless
 
   // Prepare ROB requests at this step:
     
@@ -737,7 +743,6 @@ void  TrigSteer::doPrefetching(bool &secondPass, bool& noError){
   if (m_config->getMsgLvl() <=MSG::DEBUG)
     (*m_log) << MSG::DEBUG << "\n ///\n /// Start collecting ROB requests\n ///\n" << endreq;
 
-  // bool isFirstPass = ! secondPass;
 
   // clear the list of ROB IDs at the beginning of each step
   getAlgoConfig()->robRequestInfo()->clearRequestScheduledRobIDs();
