@@ -20,6 +20,8 @@ if not 'vp1Multinpsrc' in dir(): vp1Multinpsrc=""
 if not 'vp1Multinpcpy' in dir(): vp1Multinpcpy=""
 if not 'vp1MultiAvailableSrcDirs' in dir(): vp1MultiAvailableSrcDirs = []
 if not 'vp1TrigDecXML' in dir(): vp1TrigDecXML=""
+if not 'vp1Batch' in dir(): vp1Batch=False
+if not 'vp1BatchAllEvents' in dir(): vp1BatchAllEvents=False
 if not 'vp1LarHvData' in dir(): vp1LarHvData=False
 # if not 'vp1FullToroids' in dir(): vp1FullToroids=False
 if not 'vp1CruiseTime' in dir(): vp1CruiseTime=0
@@ -156,6 +158,23 @@ if vp1FilterEvents:
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
+
+
+#BATCH-MODE
+# If "vp1Batch" is TRUE, then set the corresponding env var. 
+# The GUI of VP1 will not be shown, but the config file will be taken
+# and in the end a render of the 3D window will be saved as PNG file.
+#
+# Moreover, if "vp1BatchAllEvents" is TRUE, then all the events 
+# in the provided data file will be processed with the same configuration
+# file provided by the user.
+# 
+if vp1Batch:
+    os.putenv("VP1_BATCHMODE","1")
+if vp1BatchAllEvents:
+    os.putenv("VP1_BATCHMODE_ALLEVENTS","1")
+
+
 
 #Detector setup:
 from AthenaCommon.DetFlags import DetFlags
