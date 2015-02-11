@@ -169,34 +169,23 @@ void TRTElectronicsProcessing::TabulateSignalShape() {
   };
 
 
-  // We need to build four LT\HT pairs of amplitudes with iMode = isArgonStraws + 2*isStreamer;
-  //
-  //   iMode = 0 (isArgon = 0, isStreamer = 0) : Xenon straw in proportional-mode
-  //   iMode = 1 (isArgon = 1, isStreamer = 0) : Argon straw in proportional-mode
-  //   iMode = 2 (isArgon = 0, isStreamer = 1) : Xenon straw in streamer-mode
-  //   iMode = 3 (isArgon = 1, isStreamer = 1) : Argon straw in streamer-mode
+  // We need to build four LT\HT pairs of amplitudes
+  // isArgon = 0 : Xenon straw in proportional-mode
+  // isArgon = 1 : Argon straw in proportional-mode
 
   // Temporary vectors
   std::vector<double> vpXeLT(m_numberOfPostZeroBins), vpXeHT(m_numberOfPostZeroBins);
   std::vector<double> vpArLT(m_numberOfPostZeroBins), vpArHT(m_numberOfPostZeroBins);
-  std::vector<double> vsXeLT(m_numberOfPostZeroBins), vsXeHT(m_numberOfPostZeroBins);
-  std::vector<double> vsArLT(m_numberOfPostZeroBins), vsArHT(m_numberOfPostZeroBins);
 
   // Copy arrays elements to the temporary vectors
   for (int k=0; k<m_numberOfPostZeroBins; ++k) {
     vpXeLT.at(k)=pXeLT[k]; vpXeHT.at(k)=pXeHT[k];
     vpArLT.at(k)=pArLT[k]; vpArHT.at(k)=pArHT[k];
-    //vsXeLT.at(k)=sXeLT[k]; vsXeHT.at(k)=sXeHT[k]; // Uncomment these if you want to use special
-    //vsArLT.at(k)=sArLT[k]; vsArHT.at(k)=sArHT[k]; // streamer-mode shaping functions (and comment below).
-    vsXeLT.at(k)=pXeLT[k]; vsXeHT.at(k)=pXeHT[k]; // NOTE: streamer-mode shaping is done using proportional-mode
-    vsArLT.at(k)=pArLT[k]; vsArHT.at(k)=pArHT[k]; // arrays; the streamer is modelled at ternary output stage.
   }
 
   // Build the vectors of shaping amplitudes
   m_lowThresholdSignalShape[0] = vpXeLT; m_highThresholdSignalShape[0] = vpXeHT;
   m_lowThresholdSignalShape[1] = vpArLT; m_highThresholdSignalShape[1] = vpArHT;
-  m_lowThresholdSignalShape[2] = vsXeLT; m_highThresholdSignalShape[2] = vsXeHT;
-  m_lowThresholdSignalShape[3] = vsArLT; m_highThresholdSignalShape[3] = vsArHT;
 
   if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "TRTElectronicsProcessing::TabulateSignalShape() done" << endreq;
 }
@@ -217,7 +206,6 @@ void TRTElectronicsProcessing::ProcessDeposits( const std::vector<TRTElectronics
   // - Apply signal shaping with a Xenon or Argon function.                                                 //
   // - Add noise (LT only)                                                                                  //
   // - Apply (fine-bin) threshold discrimination; threshold fluctuations are already applied by this point. //
-  // - *optionally* Modify the (fine-bin) HT discriminator array for streamers (if m_doStreamer = true).    //
   // - Turn the fine discriminator array into a 27-bit output digit.                                        //
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -263,10 +251,8 @@ void TRTElectronicsProcessing::ProcessDeposits( const std::vector<TRTElectronics
   //for (int i=0; i<m_totalNumberOfBins; ++i) std::cout << m_energyDistribution[i]*1.0e6 << " "; // (eV)
   //std::cout << std::endl;
 
-  // Signal shaping; 8 different shaping functions for:
-  // LT, HT, Argon, Xenon, proportional-mode, streamer mode.
-  bool isStreamer=0; // fixme: remove this.
-  SignalShaping(isArgonStraw,isStreamer); // fixme: isStreamer is always 0.
+  // Signal shaping; 4 different shaping functions for: LT, HT, Argon, Xenon
+  SignalShaping(isArgonStraw);
   //std::cout << "AJB after shaping ";
   //for (int i=0; i<m_totalNumberOfBins; ++i) std::cout <<  m_lowThresholdSignal[i]*1.0e6 << " "; // (eV); or m_highThresholdSignal[i]
   //std::cout << std::endl;
@@ -301,16 +287,10 @@ void TRTElectronicsProcessing::ProcessDeposits( const std::vector<TRTElectronics
 } // end of ProcessDeposits
 
 //___________________________________________________________________________
-void TRTElectronicsProcessing::SignalShaping(bool isArgonStraw, bool isStreamer) {
+void TRTElectronicsProcessing::SignalShaping(bool isArgonStraw) {
 
   // Build m_lowThresholdSignal[] and m_highThresholdSignal[] arrays by
   // convoluting the deposit m_energyDistribution[] with electronics shaping functions.
-
-  // Fixme: currently isStreamer is not used, and likely not to be in the future.
-  //        Consider removing isStreamer throughout the package (remove 4 out of
-  //        8 shaping functions and quite a bit off code).
-
-  const unsigned int iMode = isArgonStraw + 2*isStreamer;
 
   int i, j, k;
   for (i = 0; i < m_totalNumberOfBins; ++i)
@@ -322,8 +302,8 @@ void TRTElectronicsProcessing::SignalShaping(bool isArgonStraw, bool isStreamer)
       {
         k = j - i;
         if (k == m_numberOfPostZeroBins) { break; }
-        m_lowThresholdSignal[j]  +=  m_lowThresholdSignalShape[iMode][k] * energyInBin;
-        m_highThresholdSignal[j] += m_highThresholdSignalShape[iMode][k] * energyInBin;
+        m_lowThresholdSignal[j]  +=  m_lowThresholdSignalShape[isArgonStraw][k] * energyInBin;
+        m_highThresholdSignal[j] += m_highThresholdSignalShape[isArgonStraw][k] * energyInBin;
       }
     }
   }

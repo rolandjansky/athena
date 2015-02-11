@@ -209,8 +209,8 @@ class TRTDigSettings {
 
   //--- Field (for effects on drift time):
 
-  /** Get solenoidal field strength */
-  double solenoidalFieldStrength() const;
+  /** Get solenoid field strength */
+  double solenoidFieldStrength() const;
 
   //--- Special runs:
 
@@ -345,7 +345,7 @@ class TRTDigSettings {
 
   double m_relativeLowThresholdFluctuation;   /**< Relative low threshold fluctuation */
   double m_relativeHighThresholdFluctuation;  /**< Relative high threshold fluctuation */
-  double m_solenoidalFieldStrength;           /**< Solenoidal field strength */
+  double m_solenoidFieldStrength;             /**< Solenoid field strength */
 
   double m_strawLengthBarrel;
   //  double m_deadRegionLengthBarrel;

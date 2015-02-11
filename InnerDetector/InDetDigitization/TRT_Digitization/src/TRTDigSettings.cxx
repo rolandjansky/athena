@@ -114,7 +114,7 @@ void TRTDigSettings::defineVariables() {
   defineNewVariable("deadStrawFraction",&m_deadStrawFraction,"Fraction of dead/masked straws used for Fake Cond. Map","%",0.01,0.0,100.0);
   defineNewVariable("relativeLowThresholdFluctuation",&m_relativeLowThresholdFluctuation,"Relative LT fluct. (evt to evt & straw to straw)","%",0.01,0.0,35.0);
   defineNewVariable("relativeHighThresholdFluctuation",&m_relativeHighThresholdFluctuation,"Relative HT fluct. (evt to evt & straw to straw)","%",0.01,0.0,35.0);
-  defineNewVariable("solenoidalFieldStrength",&m_solenoidalFieldStrength,"Solenoidal Field Strength (assume perfect uniform field)","T",CLHEP::tesla,0.0,3.0);
+  defineNewVariable("solenoidFieldStrength",&m_solenoidFieldStrength,"Solenoid Field Strength (assume perfect uniform field)","T",CLHEP::tesla,0.0,3.0);
   defineNewVariable("jitterTimeOffset",&m_jitterTimeOffset,"Jitter time offset (simulate lack of cosmic bunchcrossing time","ns",CLHEP::ns,0.0,25.0);
   defineNewVariable("attenuationLength",&m_attenuationLength,"Signal attenuation length in the wire","cm",CLHEP::cm,100.0,700.0);
 
@@ -417,7 +417,7 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
   }
 
   // miscellaneous
-  m_solenoidalFieldStrength = 2.0*CLHEP::tesla;
+  m_solenoidFieldStrength = 2.0*CLHEP::tesla;
 
   // falses (unlikely to change)
   m_smearingFactorDependsOnRadius=false;

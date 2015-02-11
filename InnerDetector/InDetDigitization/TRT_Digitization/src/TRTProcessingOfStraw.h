@@ -148,6 +148,8 @@ private:
   double m_innerRadiusEndcap;
   double m_strawLengthBarrel;
 
+  double m_solenoidFieldStrength;
+
   const ComTime* m_ComTime;
 
   TRTTimeCorrection*        m_pTimeCorrection;
@@ -233,7 +235,6 @@ private:
   unsigned int  m_maxelectrons;         // maximum number of them (minmum is 100 for the Gaussian approx to be ok);
 
   bool m_usedrifttimespread;
-  double m_solenoidfieldstrength;
 
   CLHEP::HepRandomEngine * m_pHRengine;
 

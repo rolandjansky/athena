@@ -76,7 +76,6 @@ def GenericTRTDigitizationTool(name,**kwargs):
     digitizationFlags.rndmSeedList.addSeed( "TRT_ThresholdFluctuations", 12345, 34567 )
     digitizationFlags.rndmSeedList.addSeed( "TRT_ProcessStraw", 123456, 345678 )
     digitizationFlags.rndmSeedList.addSeed( "TRT_PAI", 12345678, 34567890 )
-    digitizationFlags.rndmSeedList.addSeed( "TRT_StreamerToHT", 3591, 2309736 )
     digitizationFlags.rndmSeedList.addSeed( "TRT_FakeConditions", 123456789, 345678901 )
     #This last one should, however, never be changed (unless you want a different layout of noisy channels etc.):
     return BasicTRTDigitizationTool(name,**kwargs)

@@ -101,10 +101,9 @@ private:
    * Shape electron drift signal according to appropriate signal shapes.
    * - input: @c m_energyDistribution[]
    * - @param isArgonStraw: straw type (Argon or Xenon)
-   * - @param isStreamer:   streamer/non-streamer mode
    * - output: @c m_lowThresholdSignal[], @c m_highThresholdSignal[]
    */
-  void SignalShaping(bool isArgonStraw, bool isStreamer);
+  void SignalShaping(bool isArgonStraw);
 
   /**
    * Simulate discriminator response
@@ -131,13 +130,6 @@ private:
 
   TRTElectronicsNoise * m_pElectronicsNoise;
   CLHEP::HepRandomEngine * m_pHRengine;
-  CLHEP::HepRandomEngine * m_pHRengine2;
-
-  // FastOR
-  bool m_doFastOr;
-  bool m_doStreamer;
-  double m_streamerThreshold;
-  int nBinsOverHT() const; // ToHT/0.78125 in streamer mode
 
   double m_timeInterval;       /**< Time interval covered by digit [75 ns] */
 
@@ -161,11 +153,9 @@ private:
   unsigned int m_maskHT;  /**< mask - ever used? */
 
   // Signal shaping functions for low and high thresholds are stored as discrete amplitudes.
-  // There are four LT\HT pairs of amplitudes with iMode = isArgonStraws + 2*isStreamer:
-  //   iMode = 0 (isArgon = 0, isStreamer = 0) : Xenon straw in proportional-mode
-  //   iMode = 1 (isArgon = 1, isStreamer = 0) : Argon straw in proportional-mode
-  //   iMode = 2 (isArgon = 0, isStreamer = 1) : Xenon straw in streamer-mode
-  //   iMode = 3 (isArgon = 1, isStreamer = 1) : Argon straw in streamer-mode
+  // There are two LT\HT pairs of amplitudes:
+  // isArgon = 0 : Xenon straw in proportional-mode
+  // isArgon = 1 : Argon straw in proportional-mode
   std::vector<double> m_lowThresholdSignalShape[4];
   std::vector<double> m_highThresholdSignalShape[4];
 
