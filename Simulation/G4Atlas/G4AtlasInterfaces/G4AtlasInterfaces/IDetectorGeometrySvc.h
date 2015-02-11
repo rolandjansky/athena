@@ -21,7 +21,7 @@ class IDetectorGeometrySvc : virtual public IService {
   virtual ~IDetectorGeometrySvc() {}
   static const InterfaceID& interfaceID() {
     static const InterfaceID IID_IDetectorGeometrySvc( "IDetectorGeometrySvc" , 1 , 0 ) ;
-    return IID_ISensitiveDetectorSvc ; 
+    return IID_IDetectorGeometrySvc ; 
   }
 
 };
