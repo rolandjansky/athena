@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JetElementCnvTool.cxx 576052 2013-12-18 09:13:50Z morrisj $
+// $Id: JetElementCnvTool.cxx 646317 2015-02-11 23:31:39Z morrisj $
 
 // EDM include(s):
 #include "TrigT1CaloEvent/JetElementCollection.h"
@@ -11,6 +11,17 @@
 
 // Local include(s):
 #include "JetElementCnvTool.h"
+
+namespace {
+  template <typename T>
+  std::vector<T> convertVector(const std::vector<int>& in) {
+    std::vector<T> result;
+    for(auto i : in) {
+      result.push_back(static_cast<T>(i));
+    }
+    return result;
+  }
+}
 
 namespace xAODMaker {
 
@@ -58,15 +69,15 @@ namespace xAODMaker {
         xAOD::JetElement* x = new xAOD::JetElement();
         xaod->push_back( x );
         
-        x->setPhi( (*itr)->phi() );
-        x->setEta( (*itr)->eta() );
-        x->setKey( (*itr)->key() );
-        x->setPeak( (*itr)->peak() );
-        x->setEmEnergyVec( (*itr)->emEnergyVec() );
-        x->setHadEnergyVec( (*itr)->hadEnergyVec() );
-        x->setEmErrorVec( (*itr)->emErrorVec() );
-        x->setHadErrorVec( (*itr)->hadErrorVec() );
-        x->setLinkErrorVec( (*itr)->linkErrorVec() );
+        x->initialize( (float)(*itr)->eta() ,
+                       (float)(*itr)->phi() ,
+                       (*itr)->key() ,
+                       convertVector<uint_least16_t>((*itr)->emEnergyVec()) ,
+                       convertVector<uint_least16_t>((*itr)->hadEnergyVec()) ,
+                       convertVector<uint_least8_t>((*itr)->emErrorVec()) ,
+                       convertVector<uint_least8_t>((*itr)->hadErrorVec()) ,
+                       convertVector<uint_least8_t>((*itr)->linkErrorVec()) ,
+                       (uint_least8_t)(*itr)->peak() );
       }
       
       // Return gracefully:

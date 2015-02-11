@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerTowerCnvTool.cxx 630277 2014-11-21 19:48:39Z vscharf $
+// $Id: TriggerTowerCnvTool.cxx 646317 2015-02-11 23:31:39Z morrisj $
 
 // EDM include(s):
 #include "TrigT1CaloEvent/TriggerTowerCollection.h"
@@ -72,7 +72,6 @@ namespace xAODMaker {
         xaod->push_back( x );
 
         x->initialize(0u, // coolId
-                      0u, // layer
                       tt->eta(), // eta
                       tt->phi(), // phi
                       convertVector<uint_least8_t>(tt->emLUT()), // lut_cp
@@ -82,6 +81,7 @@ namespace xAODMaker {
                       convertVector<uint_least8_t>(tt->emBCIDvec()), // bcidVec
                       convertVector<uint_least16_t>(tt->emADC()), // adc
                       convertVector<uint_least8_t>(tt->emBCIDext()), //bcidExt
+                      std::vector<uint_least8_t>(tt->emLUT().size(), 0u), // Sat80Vec
                       static_cast<uint_least16_t>(tt->emError()), // error
                       static_cast<uint_least8_t>(tt->emPeak()), // peak
                       static_cast<uint_least8_t>(tt->emADCPeak())); //adcPeak
@@ -91,7 +91,6 @@ namespace xAODMaker {
         xaod->push_back( x );
 
         x->initialize(0u,
-                      1u,
                       tt->eta(),
                       tt->phi(),
                       convertVector<uint_least8_t>(tt->hadLUT()),
@@ -101,6 +100,7 @@ namespace xAODMaker {
                       convertVector<uint_least8_t>(tt->hadBCIDvec()),
                       convertVector<uint_least16_t>(tt->hadADC()),
                       convertVector<uint_least8_t>(tt->hadBCIDext()),
+                      std::vector<uint_least8_t>(tt->hadLUT().size(), 0u),
                       static_cast<uint_least16_t>(tt->hadError()),
                       static_cast<uint_least8_t>(tt->hadPeak()),
                       static_cast<uint_least8_t>(tt->hadADCPeak()));
