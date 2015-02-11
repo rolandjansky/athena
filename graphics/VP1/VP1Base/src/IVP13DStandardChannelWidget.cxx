@@ -310,15 +310,24 @@ void IVP13DStandardChannelWidget::Imp::autoSnapshot()
 void IVP13DStandardChannelWidget::lastOfActiveSystemsRefreshed()
 {
   VP1Msg::messageVerbose("IVP13DStandardChannelWidget::lastOfActiveSystemsRefreshed() called.");
+
   if (d->need_initial_viewall) {
     d->viewer->viewAll();
     d->viewer->storeCameraParametersForReset();
     d->need_initial_viewall=false;
   }
+
   if(VP1QtUtils::environmentVariableIsSet("VP1_SCREENSHOTS_DIR"))
     d->autoSnapshot();
+
   if (d->viewer->startTourEachEvent())
     d->viewer->startTour();
+
+  // apparently this is the last method called when all systems have been drawn
+  // so we call here the renderPixmap() method is we are in "batch-mode"
+
+
+
 }
 
 //___________________________________________________________________________
@@ -410,9 +419,9 @@ void IVP13DStandardChannelWidget::stopSpinning()
 }
 
 //___________________________________________________________________________
-QPixmap IVP13DStandardChannelWidget::getSnapshot(bool transp, int width)
+QPixmap IVP13DStandardChannelWidget::getSnapshot(bool transp, int width, bool batch)
 {
-	VP1Msg::messageDebug("IVP13DStandardChannelWidget::getSnapshot()");
+	VP1Msg::messageDebug("IVP13DStandardChannelWidget::getSnapshot()  - transparent bkg: "+QString(transp)+" , width: "+QString::number(width)+" , batch: "+QString(batch));
   //   SoToVRML2Action tovrml2;
   //   tovrml2.apply(d->selection);
   //   SoVRMLGroup *newroot = tovrml2.getVRML2SceneGraph();

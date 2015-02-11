@@ -42,7 +42,7 @@ public:
   //We override this so we can also take care of the render areas.
   void setUpdatesEnabled ( bool enable );
 
-  virtual QPixmap getSnapshot(bool transp = false, int width = 0);
+  virtual QPixmap getSnapshot(bool transp = false, int width = 0, bool batch = false);
 
   virtual QByteArray saveState();
   virtual void restoreFromState(QByteArray);

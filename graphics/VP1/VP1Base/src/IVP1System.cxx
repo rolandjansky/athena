@@ -251,10 +251,15 @@ void IVP1System::allowUpdateGUI()
 
 //________________________________________________________
 void IVP1System::updateGUI() {
+//	messageDebug("IVP1System::updateGUI() - START");
   //assert(d->allowupdategui);
   //assert(d->state==ERASED);
-  if ( d->allowupdategui && qApp->hasPendingEvents() )
+
+  if ( d->allowupdategui && qApp->hasPendingEvents() ) {
     qApp->processEvents();
+  }
+
+//  messageDebug("IVP1System::updateGUI() - END");
 }
 
 //________________________________________________________
