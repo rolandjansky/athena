@@ -23,7 +23,7 @@
 #define SGASSERTERROR( FALSEEXPR )   \
     std::cerr << "Now we expect to see an error message:" << std::endl \
               << "----Error Message Starts--->>" << std::endl; \
-    assert(!FALSEEXPR); \
+    assert(!(FALSEEXPR));                                      \
     std::cerr<< "<<---Error Message Ends-------" << std::endl
 
 
