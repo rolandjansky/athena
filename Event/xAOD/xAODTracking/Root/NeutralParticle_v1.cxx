@@ -25,7 +25,7 @@ namespace xAOD {
   }
   
   NeutralParticle_v1::NeutralParticle_v1(const NeutralParticle_v1& tp ) 
-  : IParticle( tp ) {
+  : IParticle( tp ), m_p4(tp.m_p4), m_perigeeCached(tp.m_perigeeCached) {
     makePrivateStore( tp );
     #if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
     m_perigeeParameters = tp.m_perigeeParameters;
