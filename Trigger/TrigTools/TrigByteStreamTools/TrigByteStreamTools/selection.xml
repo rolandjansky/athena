@@ -1,13 +1,13 @@
 <!-- Maybe eventually this could be provided by the parent packages itself -->
 <lcgdict>
- <class name="CTP::ExtraPayload" />
- <class name="CTP::FolderEntry" />
- <class name="CTP::FolderIndex" />
+ <class name="CTPfragment::ExtraPayload" />
+ <class name="CTPfragment::FolderEntry" />
+ <class name="CTPfragment::FolderIndex" />
  <!-- Need to use the resolved type (unsigned short) instead of FolderIndex here -->
- <class name="std::map<const unsigned short, CTP::FolderEntry>" />
- <class name="std::map<unsigned short, CTP::FolderEntry>" />
- <class name="std::map<const unsigned short, CTP::FolderEntry>::iterator" />
- <class name="std::pair<const unsigned short, CTP::FolderEntry>" />
- <function name="CTP::getFolderUpdates" />
+ <class name="std::map<const unsigned short, CTPfragment::FolderEntry>" />
+ <class name="std::map<unsigned short, CTPfragment::FolderEntry>" />
+ <class name="std::map<const unsigned short, CTPfragment::FolderEntry>::iterator" />
+ <class name="std::pair<const unsigned short, CTPfragment::FolderEntry>" />
+ <function name="CTPfragment::getFolderUpdates" />
  <variable pattern="CTPdataformat::*" />
 </lcgdict>

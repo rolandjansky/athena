@@ -84,6 +84,36 @@ res = hltResult()
 featureSizes={}
 stats = {}
 
+
+def Lvl1_Info(event):
+  L1TriggerBP    = []
+  L1TriggerAP    = []
+  L1TriggerAV    = []
+  
+  lvl1_trigger0 = event.lvl1_trigger_info()[0]
+  k=-1
+  l=1
+  for j in range(24):
+    k+=1
+    if k==8: ## Count the three different sets of words - that is counter l
+      k=0
+      l+=1
+    for i in range(32):
+      L1IDed = ( event.lvl1_trigger_info()[j] >> i) & 0x1
+      
+      if (L1IDed):
+        id = i+k*32
+#          print 'L1 Item ID, WordSet, Name:',id, l , L1Chain_Names[id]
+        if (l==1):
+          L1TriggerBP.append(id)
+        if (l==2):
+          L1TriggerAP.append(id)
+        if (l==3):
+          L1TriggerAV.append(id)
+
+  return [L1TriggerBP, L1TriggerAP, L1TriggerAV]
+
+
 def my_dump(bsfile):
   """Runs the dumping routines"""
   
@@ -105,11 +135,13 @@ def my_dump(bsfile):
     event_count += 1
     if opt.events!=None and event_count>opt.events: break
     
-    print "======================= Event: %d,  LB: %d, LVL1_ID: %d, Global_ID: %d bunch-x: %d TT: x%x ==========================" \
-          % ( event_count, event.lumi_block(), event.lvl1_id(), event.global_id(), event.bc_id(), event.lvl1_trigger_type())
+    print "======================= RunNumber : %d , Event: %d,  LB: %d, LVL1_ID: %d, Global_ID: %d bunch-x: %d TT: x%x ==========================" \
+          % ( event.run_no(), event_count, event.lumi_block(), event.lvl1_id(), event.global_id(), event.bc_id(), event.lvl1_trigger_type())
     if opt.l1:
       print "L1 TriggerInfo: ", ["0x%x"%i for i in event.lvl1_trigger_info() ]
-  
+      print "L1 CTP IDs - TBP: ", Lvl1_Info(event)[0]
+      print "L1 CTP IDs - TAP: ", Lvl1_Info(event)[1]
+      print "L1 CTP IDs - TAV: ", Lvl1_Info(event)[2]
     if opt.l2:
       print "L2 TriggerInfo: ", ["0x%x"%i for i in event.lvl2_trigger_info() ]
 

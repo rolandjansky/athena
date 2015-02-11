@@ -13,9 +13,11 @@ import PyCintex
 
 PyCintex.loadDictionary('TrigByteStreamToolsDict')
 CTPdataformat = PyCintex.makeNamespace('CTPdataformat')()
-CTP = PyCintex.makeNamespace('CTP')
+_CTPfragment = PyCintex.makeNamespace('CTPfragment')
 PyCintex.makeNamespace('CTPdataformat::Helper')
 
+# Import classes from C++ namespace
+FolderEntry = _CTPfragment.FolderEntry
 
 def _versioned(obj, name, version):
    """Helper to return versioned members of CTPdataformat"""
@@ -82,12 +84,12 @@ def hltExtraPayloadWords(rob):
    return rob.rod_data()[-numberHltExtraPayloadWords(rob)+offset:] if n>0 else []
 
 def getExtraPayloadObject(rob):
-   """Return CTP::ExtraPayload object created from CTP ROB"""
+   """Return CTPfragment::ExtraPayload object created from CTP ROB"""
    v = PyCintex.gbl.std.vector('unsigned int')()
    for p in hltExtraPayloadWords(rob):
       v.push_back(p)
 
-   x = PyCintex.makeClass('CTP::ExtraPayload')(v)
+   x = PyCintex.makeClass('CTPfragment::ExtraPayload')(v)
    return x
    
 def setHltExtraPayloadWords(rob, extraWords):
@@ -153,11 +155,11 @@ def main():
          continue
 
       rob = ctp_robs[0]
-      fe = PyCintex.makeClass('CTP::FolderEntry')()
+      fe = PyCintex.makeClass('CTPfragment::FolderEntry')()
       fe.folderIndex = 1
       fe.lumiBlock = 54
 
-      fe2 = PyCintex.makeClass('CTP::FolderEntry')()
+      fe2 = PyCintex.makeClass('CTPfragment::FolderEntry')()
       fe2.folderIndex = 2
       fe2.lumiBlock = 59
 
@@ -180,12 +182,12 @@ def main():
       rob = new_ctp_rob
       
       x = getExtraPayloadObject(rob)
-      folderUpdates = CTP.getFolderUpdates(x)
+      folderUpdates = _CTPfragment.getFolderUpdates(x)
       upd = ''
       for f in folderUpdates:
          upd += ('[%d,%d]' % (f.second.folderIndex,f.second.lumiBlock))
 
-      print "L1ID %10d, LB %4d, Version %d, Bunch %d, HLT counter: %3d, Payload #%d %s PSK %d COOLUPD %s" % (
+      print "L1ID %10d, LB %4d, Version %d, Bunch %d, HLT counter: %3d, Payload #%d %s L1PSK %d BGK %d COOLUPD %s" % (
          event.lvl1_id(),
          event.lumi_block(),
          ctpFormatVersion(rob),
@@ -194,6 +196,7 @@ def main():
          numberHltExtraPayloadWords(rob),
          hltExtraPayloadWords(rob),
          x.getL1PSK(),
+         x.getBGK(),
          upd
          )
 

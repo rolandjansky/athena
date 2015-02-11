@@ -19,9 +19,10 @@ apply_pattern declare_scripts files="../bin/*.py \
 private
 
 use  AtlasReflex     AtlasReflex-*       External -no_auto_import
-use  TrigConfL1Data  TrigConfL1Data-*    Trigger/TrigConfiguration
+use  AtlasBoost      AtlasBoost-*        External      # needed to get correct pp_cppflags
 use  CTPfragment     *
 
 apply_pattern lcgdict dict=TrigByteStreamTools selectionfile=selection.xml \
 	              headerfiles="../TrigByteStreamTools/TrigByteStreamToolsDict.h"
 		      
+macro_append TrigByteStreamTools_linkopts " $(tdaqc_linkopts) -lCTPfragment "
