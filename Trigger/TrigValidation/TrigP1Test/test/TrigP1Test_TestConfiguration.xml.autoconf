@@ -127,6 +127,15 @@
                 <returnValue>0</returnValue> 
             </expectations> 
         </TEST>
+
+        <TEST name="HLT_physicsV5_COS_M8EXPRESS" type="script" suite="TrigP1HLTphysv5"> 
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV5_COS_M8EXPRESS --rundir HLT_physicsV5_COS_M8EXPRESS --conf TrigP1Test.conf</options_atn> 
+            <timelimit>20</timelimit> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST>
         <!-- ENABLE-IN-PROJECT-END --> 
             
         
@@ -186,6 +195,15 @@
         <!-- ENABLE-IN-PROJECT-BEGIN: AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasTrigger--> 
         <TEST name="HLT_physicsV5" type="script" suite="TrigP1HLTphysv5"> 
             <options_atn>trigtest.pl --cleardir --test HLT_physicsV5 --rundir HLT_physicsV5 --conf TrigP1Test.conf</options_atn> 
+            <timelimit>20</timelimit> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+
+        <TEST name="HLT_physicsV5_L1TopoRoI" type="script" suite="TrigP1HLTphysv5"> 
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV5_L1TopoRoI --rundir HLT_physicsV5_L1TopoRoI --conf TrigP1Test.conf</options_atn> 
             <timelimit>20</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 

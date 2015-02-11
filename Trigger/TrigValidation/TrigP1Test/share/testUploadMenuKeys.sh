@@ -38,10 +38,8 @@ l1topo=`find ../"${type}"_menu/ -name L1Topoconfig_\*.xml`
 hltmenu1=`find ../"${type}"_menu/ -name outputHLTconfig_\*.xml`
 
  
-
- 
 ConvertHLTSetup_txt2xml.py ../"${type}"_menu/ef_Default_setup.txt ../"${type}"_menu/ef_Default_setup_setup.txt > convertHLT1
-ef__setup1=../"${type}"_menu/ef_Default_setup.xml
+hlt__setup1=../"${type}"_menu/ef_Default_setup.xml
 
 
 p1_rel="P1HLT"
@@ -68,9 +66,8 @@ rundate=`date +%F" "%H:%M" "`
 
 # Upload SMK
 
-cmd="java -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release $p1_rel -l1_menu $l1menu -topo_menu $l1topo -hlt_menu $hltmenu1 -hlt_ef_setup $ef__setup1 -name 'P1HLTtest'  -l FINE --SMcomment \"${rundate}${nightly}_${rel}\" -dbConn $DBConn -w_n 25 -w_t 60  >& uploadSMK1"
+cmd="java -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release $p1_rel --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'P1HLTtest'  -l FINE --SMcomment \"${rundate}${nightly}_${rel}\" --dbConn $DBConn -w_n 25 -w_t 60  >& uploadSMK1"
 
-#cmd="java -jar TriggerTool.jar -up -release $p1_rel -l1_menu $l1menu -hlt_menu $hltmenu1 -hlt_l2_setup $l2__setup1 -hlt_ef_setup $ef__setup1 -name $menuname -l FINE --SMcomment \"${rundate}${nightly}_${rel}\" -dbConn $DBConn -w_n 25 -w_t 60"
 echo $cmd
 eval $cmd &> uploadSMK.log
 
