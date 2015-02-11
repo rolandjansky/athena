@@ -64,6 +64,7 @@
 
 //CondDB
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
+#include "TRT_ConditionsData/StrawStatusMultChanContainer.h"
 
 //AJB Temporary for debugging and development
 //#include "driftCircle.h"
@@ -102,8 +103,8 @@ TRTDigitizationTool::TRTDigitizationTool(const std::string& type,
     m_condDBdigverfoldersexists(false),
     m_HardScatterSplittingMode(0),
     m_HardScatterSplittingSkipper(false),
-    m_UseArgonStraws(false), // added by Sasha for Argon
-    m_useConditionsHTStatus(false), // added by Sasha for Argon
+    m_UseArgonStraws(false),         // Can use a postExec to set all straws to Argon
+    m_useConditionsHTStatus(true),   // We expect TRT/Cond/StatusHT to define the Xenon/Argon geometry.
     m_particleFlag(0),
     m_sumSvc("TRT_StrawStatusSummarySvc","TRT_StrawStatusSummarySvc") // added by Sasha for Argon
 
@@ -193,7 +194,7 @@ StatusCode TRTDigitizationTool::initialize()
     /// FIXME Sasha: this warning will appear every time when someone will run default setting for pure Xenon condition
     ATH_MSG_WARNING ( "Can't get the optional PAI Tool --> default PAI tool will be used for all straws (okay, if you don't use Argon straws)" );
   } else {
-    ATH_MSG_DEBUG ( "Retrieved the optional PAI Tool" );
+    ATH_MSG_DEBUG ( "Retrieved the optional PAI Tool for Argon straws" );
   }
   timer_getpaiservice.stop();
 
@@ -350,6 +351,19 @@ StatusCode TRTDigitizationTool::processBunchXing(int bunchXing,
 StatusCode TRTDigitizationTool::lateInitialize() {
 
   m_first_event=false;
+
+/*
+  // This returns "true" even with an old full Xenon HITs file! FIXME; how can we properly test for this?
+  if (m_useConditionsHTStatus) {
+    bool strawstatusHTcontainerexists = detStore()->StoreGateSvc::contains<TRTCond::StrawStatusMultChanContainer>("/TRT/Cond/StatusHT") ;
+    if (!strawstatusHTcontainerexists) {
+      ATH_MSG_WARNING ("Configured to use folder /TRT/Cond/StatusHT, but it's not available!");
+      ATH_MSG_WARNING (".... setting m_useConditionsHTStatus to false, ALL straws are Xenon.");
+      m_useConditionsHTStatus = false;
+      if (m_UseArgonStraws) ATH_MSG_WARNING ("m_UseArgonStraws is true, so now ALL straws are Argon. Were you expecting to use /TRT/Cond/StatusHT?");
+    }
+  }
+*/
 
   if (m_condDBdigverfoldersexists) {
 
@@ -536,6 +550,18 @@ StatusCode TRTDigitizationTool::processStraws(std::set<int>& sim_hitids, std::se
                                        m_ComTime,
                                        IsArgonStraw(idStraw),
                                        m_particleFlag);
+
+
+// Sorry, a lot of test code here before the output digit is saved.
+
+/*
+    unsigned int region = getRegion(hitID); // 1=barrelShort, 2=barrelLong, 3=ECA, 4=ECB
+    if (IsArgonStraw(idStraw)) {
+      std::cout << "AJB Argon " << region << std::endl;
+    } else {
+      std::cout << "AJB Xenon " << region << std::endl;
+    }
+*/
 
     // query m_particleFlag bits 0 to 15 (left-to-right)
     //std::cout << "AJB "; for (unsigned i=0;i<16;i++) std::cout << particleFlagQueryBit(i,m_particleFlag); std::cout << std::endl;
@@ -988,14 +1014,14 @@ StatusCode TRTDigitizationTool::update( IOVSVC_CALLBACK_ARGS_P(I,keys) ) {
 
 //_____________________________________________________________________________
 bool TRTDigitizationTool::IsArgonStraw(Identifier& TRT_Identifier) const {
-  bool isArgonStraw = false;
-  if(m_UseArgonStraws){
-    if (m_useConditionsHTStatus) {
-      if (m_sumSvc->getStatusHT(TRT_Identifier) != TRTCond::StrawStatus::Good) {
-        isArgonStraw = true;
-      }
+  // EStatus { Undefined, Dead, Good(Xe) }
+  bool isArgonStraw = m_UseArgonStraws; // If this is true then ALL straws are Argon
+  // But TRT/Cond/StatusHT will override this with specific Xe/Ar geometry if available:
+  if (m_useConditionsHTStatus) {
+    if ( m_sumSvc->getStatusHT(TRT_Identifier) != TRTCond::StrawStatus::Good ) {
+       isArgonStraw = true;  // Argon straw
     } else {
-      isArgonStraw = true;
+       isArgonStraw = false; // Xenon straw
     }
   }
   return isArgonStraw;

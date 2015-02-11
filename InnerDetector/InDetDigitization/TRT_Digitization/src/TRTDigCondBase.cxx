@@ -290,14 +290,14 @@ void TRTDigCondBase::setLvl (const std::string& lvl)
 
 //_____________________________________________________________________________
 bool TRTDigCondBase::IsArgonStraw(Identifier& TRT_Identifier) const {
-  bool isArgonStraw = false;
-  if(m_UseArgonStraws){
-    if (m_useConditionsHTStatus) {
-      if (m_sumSvc->getStatusHT(TRT_Identifier) != TRTCond::StrawStatus::Good) {
-        isArgonStraw = true;
-      }
+  // EStatus { Undefined, Dead, Good(Xe) }
+  bool isArgonStraw = m_UseArgonStraws; // If this is true then ALL straws are Argon
+  // But TRT/Cond/StatusHT will override this with specific Xe/Ar geometry if available:
+  if (m_useConditionsHTStatus) {
+    if ( m_sumSvc->getStatusHT(TRT_Identifier) != TRTCond::StrawStatus::Good ) {
+       isArgonStraw = true;  // Argon straw
     } else {
-      isArgonStraw = true;
+       isArgonStraw = false; // Xenon straw
     }
   }
   return isArgonStraw;

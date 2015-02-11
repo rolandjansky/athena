@@ -43,6 +43,7 @@ use TRT_PAI_Process               TRT_PAI_Process-*               InnerDetector/
 use MagFieldInterfaces            MagFieldInterfaces-*            MagneticField
 #use AtlasDetDescr                 AtlasDetDescr-*                 DetectorDescription
 #use InDetConditionsSummaryService InDetConditionsSummaryService-* InnerDetector/InDetConditions
+use TRT_ConditionsData            TRT_ConditionsData-*            InnerDetector/InDetConditions
 
 end_private
 
