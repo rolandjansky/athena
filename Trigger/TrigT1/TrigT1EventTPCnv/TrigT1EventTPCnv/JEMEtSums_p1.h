@@ -19,6 +19,8 @@
 #ifndef JEMEtSums_p1_H
 #define JEMEtSums_p1_H
   
+#include "AthenaPoolUtilities/TPObjRef.h"
+#include "TrigT1CaloEvent/JEMEtSums.h"
   
 /** T/P separation for TrigT1Calo::JEMEtSums class */
 

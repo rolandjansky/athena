@@ -11,6 +11,8 @@
 #ifndef CMXJetTob_p1_H
 #define CMXJetTob_p1_H
   
+#include "AthenaPoolUtilities/TPObjRef.h"
+#include "TrigT1CaloEvent/CMXJetTob.h"
   
 /** T/P separation for TrigT1Calo::CMXJetTob class */
 

@@ -20,6 +20,8 @@
 #define JETELEMENT_P1_H
 
 #include <vector>
+#include "TrigT1CaloEvent/JetElement.h"
+#include "AthenaPoolUtilities/TPObjRef.h"
 
 // Forward declaration of the convertor
 //class JetElementCnv_p1;

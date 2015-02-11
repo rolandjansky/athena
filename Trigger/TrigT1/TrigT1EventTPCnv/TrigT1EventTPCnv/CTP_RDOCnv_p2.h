@@ -6,7 +6,9 @@
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 // TrigT1 inlcude(s):
+#define private public
 #include "TrigT1Result/CTP_RDO.h"
+#undef private
 
 // Local include(s):
 #include "TrigT1EventTPCnv/CTP_RDO_p2.h"

@@ -24,12 +24,17 @@ CTP_RDOCnv_p2::CTP_RDOCnv_p2()
 void CTP_RDOCnv_p2::persToTrans( const CTP_RDO_p2* persObj, CTP_RDO* transObj,
                                  MsgStream& log ) {
 
-   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting CTP_RDO from persistent state..." << endmsg;
+   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting CTP_RDO from persistent state..." << endreq;
 
-   *transObj = CTP_RDO (0, persObj->m_dataWords);
-   transObj->setL1AcceptBunchPosition (persObj->m_l1AcceptPosition);
+   transObj->m_dataWords        = persObj->m_dataWords;
+   transObj->m_l1AcceptPosition = persObj->m_l1AcceptPosition;
 
-   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting CTP_RDO from persistent state [OK]" << endmsg;
+   // set m_activeBunch to default value (see constructor)
+
+   // calculate from data size (CTP_RDO::TIME_WORDS = 2, CTP_RDO::DAQ_WORDS_PER_BUNCH = 6+8+8+8)
+   transObj->m_numberOfBunches = (transObj->m_dataWords.size() - 2)/(6+8+8+8);
+
+   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converting CTP_RDO from persistent state [OK]" << endreq;
 
    return;
 
@@ -42,17 +47,17 @@ void CTP_RDOCnv_p2::persToTrans( const CTP_RDO_p2* persObj, CTP_RDO* transObj,
 void CTP_RDOCnv_p2::transToPers( const CTP_RDO* transObj, CTP_RDO_p2* persObj,
                                  MsgStream& log ) {
 
-   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Creating persistent state of CTP_RDO..." << endmsg;
+   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Creating persistent state of CTP_RDO..." << endreq;
 
    // not needed, will be recalculated
    // persObj->m_numberOfBunches = transObj->m_numberOfBunches;
    // not needed, will be taken as default
    // persObj->m_activeBunch     = transObj->m_activeBunch;
 
-   persObj->m_l1AcceptPosition = transObj->getL1AcceptBunchPosition();
-   persObj->m_dataWords        = transObj->getDataWords();
+   persObj->m_l1AcceptPosition = transObj->m_l1AcceptPosition;
+   persObj->m_dataWords        = transObj->m_dataWords;
 
-   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Creating persistent state of CTP_RDO [OK]" << endmsg;
+   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Creating persistent state of CTP_RDO [OK]" << endreq;
 
    return;
 
