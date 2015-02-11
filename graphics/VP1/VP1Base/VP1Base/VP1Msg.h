@@ -39,7 +39,10 @@ public:
 
   static void message(const QString&, IVP1System*sys = 0);//Non-zero sys pointer to get message in GUI
   static void messageDebug(const QString&);
+  static void messageWarning(const QString&);
   static void messageVerbose(const QString&);//This outputs only if verbose() is true.
+  static void messageWarningRed( const QString& str );
+  static void messageWarningAllRed( const QString& str );
 
   //Overloaded convenience methods, for outputting several lines:
   static void message(const QStringList&, const QString& addtoend = "", IVP1System*sys = 0 );
@@ -51,6 +54,7 @@ public:
 
   static const char* prefix_msg() { return "VP1MESSAGE";}
   static const char* prefix_debug() { return "VP1MSG_DEBUG";}
+  static const char* prefix_warning() { return "VP1MSG_WARNING";}
   static const char* prefix_verbose() { return "VP1MSG_VERBOSE";}
 
 private:

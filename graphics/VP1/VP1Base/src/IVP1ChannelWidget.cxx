@@ -129,7 +129,8 @@ void IVP1ChannelWidget::systemRefreshed(IVP1System*s)
 {
 	assert(d->state==READY);
 	assert(s->state()==IVP1System::REFRESHED);
-	s = 0;//get rid of compile warning in opt mode
+//	s = 0;//get rid of compile warning in opt mode
+	VP1Msg::messageDebug("systemRefreshed: "+s->name());
 }
 
 //_______________________________________________________
@@ -137,7 +138,8 @@ void IVP1ChannelWidget::systemErased(IVP1System*s)
 {
 	assert(d->state==READY);
 	assert(s->state()==IVP1System::ERASED);
-	s = 0;//get rid of compile warning in opt mode
+//	s = 0;//get rid of compile warning in opt mode
+	VP1Msg::messageDebug("systemErased: "+s->name());
 }
 
 //_______________________________________________________
@@ -292,10 +294,10 @@ void IVP1ChannelWidget::setCanRegister(const bool&c,const bool&s)
 }
 
 //_______________________________________________________
-QPixmap IVP1ChannelWidget::getSnapshot(bool transp, int width)
+QPixmap IVP1ChannelWidget::getSnapshot(bool transp, int width, bool batch)
 {
-	VP1Msg::messageVerbose("IVP1ChannelWidget::getSnapshot() - using QPixmap::grabWidget()");
-	return QPixmap::grabWidget( this );
+	VP1Msg::messageVerbose("IVP1ChannelWidget::getSnapshot() - transparent bkg: "+QString(transp)+" , width: "+QString::number(width)+" , batch: "+QString(batch) );
+	return QPixmap::grabWidget ( this );
 }
 
 //_______________________________________________________

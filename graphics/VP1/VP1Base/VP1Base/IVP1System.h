@@ -75,7 +75,7 @@ public:
                          //window of the application (through emission of the sysmessage signal below).
   void messageDebug(const QString&) const;//Output only to stdout.
   static bool verbose() { return s_vp1verbose; }// Returns true if env var VP1_VERBOSE_OUTPUT=1
-  void messageVerbose(const QString&) const;//Only outputs when vp1verbose()
+  void messageVerbose(const QString&) const;//Only outputs when verbose()
 
   //Overloaded convenience methods, for outputting several lines:
   void message(const QStringList&, const QString& addtoend = "" ) const;

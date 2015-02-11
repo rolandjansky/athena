@@ -100,7 +100,7 @@ public:
   const QString unique_name() const;
   const QString& information() const;
   const QString& contact_info() const;
-  virtual QPixmap getSnapshot(bool transp = false, int width = 0);
+  virtual QPixmap getSnapshot(bool transp = false, int width = 0, bool batch = false);
   virtual bool setAntiAliasing(bool aa) {VP1Msg::messageVerbose("You should not call this function directly, but one of its implementations in derived classes..."); return aa; };
   virtual bool isAntiAliasing() {VP1Msg::messageVerbose("You should not call this function directly, but one of its implementations in derived classes..."); return false; };
 

@@ -53,7 +53,7 @@ protected:
 public:
   void create();
   virtual ~IVP13DStandardChannelWidget();
-  virtual QPixmap getSnapshot(bool transp = false, int width = 0);
+  virtual QPixmap getSnapshot(bool transp = false, int width = 0, bool batch = false);
   //If overriding the following, remember to call this implementation:
   virtual void lastOfActiveSystemsRefreshed();
   virtual void systemRefreshed(IVP1System*);
