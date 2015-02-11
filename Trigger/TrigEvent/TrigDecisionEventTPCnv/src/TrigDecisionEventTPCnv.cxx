@@ -5,6 +5,8 @@
 // generate the T/P converter entries
 #include "AthenaKernel/TPCnvFactory.h"
 
+#define private public
+#define protected public
 #include "TrigDecisionEvent/TrigDecision.h"
 #include "TrigDecisionEventTPCnv/TrigDecision_p1.h"
 #include "TrigDecisionEventTPCnv/TrigDecision_p2.h"
@@ -16,6 +18,8 @@
 #include "TrigDecisionEventTPCnv/TrigDecisionCnv_p3.h"
 #include "TrigDecisionEventTPCnv/TrigDecisionCnv_p4.h"
 #include "TrigDecisionEventTPCnv/TrigDecisionCnv_p5.h"
+#undef private
+#undef protected
 
 using namespace TrigDec;
 
