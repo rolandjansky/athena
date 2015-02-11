@@ -2,23 +2,23 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigConfL1Data/CTPExtraWordsFormat.h"
+#include "CTPfragment/CTPExtraWordsFormat.h"
 #include "CTPfragment/CTPdataformat.h"
 #include <algorithm>
 
 // Declare some additional types
-//template class std::map<const CTP::FolderIndex, CTP::FolderEntry>;
-//template class std::pair<const CTP::FolderIndex, CTP::FolderEntry>;
+//template class std::map<const CTPfragment::FolderIndex, CTPfragment::FolderEntry>;
+//template class std::pair<const CTPfragment::FolderIndex, CTPfragment::FolderEntry>;
 
 namespace {
-  std::map<const CTP::FolderIndex, CTP::FolderEntry>::iterator my_iter;  
-  std::pair<const CTP::FolderIndex, CTP::FolderEntry> my_pair;
+  std::map<const CTPfragment::FolderIndex, CTPfragment::FolderEntry>::iterator my_iter;  
+  std::pair<const CTPfragment::FolderIndex, CTPfragment::FolderEntry> my_pair;
 }
 
-/* Type conversion. The reference returned by CTP::ExtraPayload::getFolderUpdates
+/* Type conversion. The reference returned by CTPfragment::ExtraPayload::getFolderUpdates
    doesn't work as python iterator. */
-namespace CTP {
-  std::map<const FolderIndex, FolderEntry> getFolderUpdates(const CTP::ExtraPayload& x) {
+namespace CTPfragment {
+  std::map<const FolderIndex, FolderEntry> getFolderUpdates(const CTPfragment::ExtraPayload& x) {
     std::map<const FolderIndex, FolderEntry> m;
     const std::map<FolderIndex, FolderEntry>& f = x.getFolderUpdates();
     std::copy(f.begin(), f.end(), std::inserter(m,m.end()));
