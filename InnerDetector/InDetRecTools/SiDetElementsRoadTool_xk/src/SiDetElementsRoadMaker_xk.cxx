@@ -133,9 +133,10 @@ StatusCode InDet::SiDetElementsRoadMaker_xk::initialize()
       return StatusCode::FAILURE;
   }
 
+
  std::string folder( "/EXT/DCS/MAGNETS/SENSORDATA" );
  const DataHandle<CondAttrListCollection> currentHandle;
- if (detStore()->contains<CondAttrListCollection>(folder)){
+ if (m_fieldmode != "NoField" && detStore()->contains<CondAttrListCollection>(folder)){
    
    sc = detStore()->regFcn(&InDet::SiDetElementsRoadMaker_xk::magneticFieldInit,
 			   this,currentHandle,folder);
@@ -146,7 +147,8 @@ StatusCode InDet::SiDetElementsRoadMaker_xk::initialize()
      msg(MSG::ERROR) << "Could not book callback from MagneticFieldSvc for " << name () << endreq;
      return StatusCode::FAILURE;
    }
- } else {
+ }
+ else {
    magneticFieldInit();
    ATH_MSG_INFO("Folder " << folder << " not present, magnetic field callback not set up. Not a problem if AtlasFieldSvc.useDCS=False");
  }
