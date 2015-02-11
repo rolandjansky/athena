@@ -19,5 +19,4 @@ class SuperRoiBuilderAllTE (TrigSuperRoiBuilderAllTE):
         self.JetOutputKey = "SuperRoi"
         self.EtaHalfWidth = 0.2
         self.PhiHalfWidth = 0.2
-        self.JetMinEt     = 15.0
-    
+        self.JetMinEt     = 30.0    

@@ -33,8 +33,7 @@ class TrigLeptonJetFexAllTE: public HLT::AllTEAlgo {
   HLT::ErrorCode hltInitialize();
   HLT::ErrorCode hltFinalize();
   HLT::ErrorCode hltExecute(std::vector<std::vector<HLT::TriggerElement*> >&,unsigned int);
-
-  bool reset();
+  HLT::ErrorCode hltEndEvent();
 
  private:
 

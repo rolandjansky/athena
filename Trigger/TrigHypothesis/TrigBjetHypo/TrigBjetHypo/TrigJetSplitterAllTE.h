@@ -34,8 +34,13 @@ class TrigJetSplitterAllTE : public HLT::AllTEAlgo {
 
   double m_etaHalfWidth;
   double m_phiHalfWidth;
+  double m_zHalfWidth;
 
-  double m_minJetEt; // is this needed still? (at least allows 1-to-1 tests with TrigEFBjetSequenceAllTE while we keep it at 15)
+  double m_minJetEt; // is this needed still? 
+                     // (at least allows 1-to-1 tests with TrigEFBjetSequenceAllTE while we keep it at 15)
+                     // ((not really a 1-1 comparison though, because of differences in the way the chains are configured))
+
+  double m_maxJetEta;
 
 };
  

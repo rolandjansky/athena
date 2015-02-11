@@ -35,7 +35,9 @@ TrigJetSplitterAllTE::TrigJetSplitterAllTE(const std::string & name, ISvcLocator
   declareProperty ("JetOutputKey", m_jetOutputKey = "SplitJet");
   declareProperty ("EtaHalfWidth", m_etaHalfWidth = 0.2);
   declareProperty ("PhiHalfWidth", m_phiHalfWidth = 0.2);
-  declareProperty ("JetMinEt",     m_minJetEt     = 15.0); // in GeV
+  declareProperty ("ZHalfWidth",   m_zHalfWidth   = 20.0);// in mm?
+  declareProperty ("JetMinEt",     m_minJetEt     = 30.0); // in GeV (increase from 15 GeV to be same as vertex threshold)
+  declareProperty ("JetMaxEta",    m_maxJetEta    = 2.5+m_etaHalfWidth);  // tracker acceptance + jet half-width
 }
 
 
@@ -50,10 +52,13 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltInitialize() {
   //* declareProperty overview *//
   if (msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << "declareProperty review:" << endreq;
-    msg() << MSG::DEBUG << " JetInputKey = "  << m_jetInputKey  << endreq; 
+    msg() << MSG::DEBUG << " JetInputKey  = "  << m_jetInputKey << endreq; 
     msg() << MSG::DEBUG << " JetOutputKey = " << m_jetOutputKey << endreq; 
     msg() << MSG::DEBUG << " EtaHalfWidth = " << m_etaHalfWidth << endreq; 
     msg() << MSG::DEBUG << " PhiHalfWidth = " << m_phiHalfWidth << endreq; 
+    msg() << MSG::DEBUG << " ZHalfWidth   = " << m_zHalfWidth   << endreq; 
+    msg() << MSG::DEBUG << " MinJetEt     = " << m_minJetEt     << endreq; 
+    msg() << MSG::DEBUG << " MaxJetEta    = " << m_maxJetEta    << endreq; 
   }
 
   return HLT::OK;
@@ -75,42 +80,103 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
 
   beforeExecMonitors().ignore();
 
-  if (inputTEs.size() != 1) {
-    msg() << MSG::WARNING << "Got more than one inputTE" << endreq;
+  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " inputTEs.size() " << inputTEs.size() << endreq;
+ 
+  if (inputTEs.size() == 0) {
+    msg() << MSG::WARNING << "No input TEs" << endreq;
     afterExecMonitors().ignore();
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
   }
 
-  std::vector<HLT::TriggerElement*>& inputTE = inputTEs.at(0);
+  if (inputTEs.size() == 1) {
+    msg() << MSG::DEBUG << "Only one input TE.  No z-position constraint will be applied!" << endreq;
+  }
 
-  if (inputTE.size() == 0) {
-    msg() << MSG::WARNING << "Got an empty inputTE" << endreq;
+  if (inputTEs.size() > 2) {
+    msg() << MSG::WARNING << "Too many TEs passed as input" << endreq;
+    afterExecMonitors().ignore();
+    return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
+  }
+
+  // -----------------------
+  // Retreive jets
+  // -----------------------
+
+  std::vector<HLT::TriggerElement*>& jetTE = inputTEs.at(0); // jet TE
+
+  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " jetTE.size() " << jetTE.size() << endreq;
+
+  if (jetTE.size() == 0) {
+    msg() << MSG::WARNING << "Got an empty inputTE (jets)" << endreq;
     afterExecMonitors().ignore();
     return HLT::MISSING_FEATURE; 
   }
 
-  if(msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << " inputTEs.size() " << inputTEs.size() << " inputTE.size() " << inputTE.size() << endreq;
-
-
-  // xAOD conversion const JetCollection* outJets(0);
   const xAOD::JetContainer* jets = 0;
-  //HLT::ErrorCode statusJets = getFeature(inputTE.front(), jets, m_jetInputKey);
-  HLT::ErrorCode statusJets = getFeature(inputTE.front(), jets);  // this should really be given a name - need to find out froim the jet guys what!
-  
+  //HLT::ErrorCode statusJets = getFeature(jetTE.front(), jets, m_jetInputKey);
+  HLT::ErrorCode statusJets = getFeature(jetTE.front(), jets);  // this should really be given a name - need to find out froim the jet guys what!
+
   if (statusJets != HLT::OK) {
-    if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Failed to retrieve features" << endreq;
+    if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Failed to retrieve features (jets)" << endreq;
     return HLT::NAV_ERROR;
-  } 
+  }
 
   if(jets==0) {
-    if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Missing feature." << endreq;
+    if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Missing feature (jets)." << endreq;
     return HLT::MISSING_FEATURE;
   }
 
+  // -----------------------------------
+  // Retreive primary vertex (optional)
+  // -----------------------------------
+
+  // If there is a 2nd TE given as input it should be the PV TE
+
+  bool use_z_constraint = false;
+  float prmVtx_z = -9e9;
+
+  if (inputTEs.size() == 2) {
+
+    std::vector<HLT::TriggerElement*>& vtxTE = inputTEs.at(1); // vertex TE
+
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " vtxTE.size() " << vtxTE.size() << endreq;
+
+    if (vtxTE.size() == 0) {
+      msg() << MSG::WARNING << "Got an empty inputTE (vertex)" << endreq;
+      afterExecMonitors().ignore();
+      return HLT::MISSING_FEATURE; 
+    }
+
+    use_z_constraint = true;
+
+    const xAOD::VertexContainer* vertices = 0;
+    HLT::ErrorCode statusVertices = getFeature(vtxTE.front(), vertices);  
+    
+    if (statusVertices != HLT::OK) {
+      if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Failed to retrieve features (PV)" << endreq;
+      return HLT::NAV_ERROR;
+    }
+    
+    if(vertices==0) {
+      if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Missing feature (vertices)." << endreq;
+      return HLT::MISSING_FEATURE;
+    }
+    
+    
+    if(vertices->size() > 1) {
+      if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "Retreived more than one primary vertex." << endreq;
+    }
+    
+    const xAOD::Vertex* prmVtx = vertices->at(0);
+    prmVtx_z = prmVtx->z();
+    if (msgLvl() <= MSG::DEBUG)
+      msg() << MSG::DEBUG << "Primary vertex z-position = " << prmVtx_z << endreq;
+  }
+
+  // -----------------------
+ 
   if (msgLvl() <= MSG::DEBUG)
     msg() << MSG::DEBUG << "Found " << jets->size() << " jets, creating corresponding RoIs" << endreq; 
-
 
   HLT::TriggerElement* initialTE = config()->getNavigation()->getInitialNode();
   
@@ -129,10 +195,19 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
 	msg() << MSG::DEBUG << "Jet "<< i << " below the " << m_minJetEt << " GeV threshold; Et " << jetEt << "; skipping this jet." << endreq;
       continue;
     }
+    if (fabs(jetEta) > m_maxJetEta) {
+      if (msgLvl() <= MSG::DEBUG)
+	msg() << MSG::DEBUG << "Jet "<< i << " outside the |eta| < 2.5 requirement; Eta = " << jetEta << "; skipping this jet." << endreq;
+      continue;
+    }
+    if (msgLvl() <= MSG::DEBUG)
+      msg() << MSG::DEBUG << "Jet "<< i << "; Et " << jetEt << "; eta "<< jetEta << "; phi " << jetPhi << endreq;
 
     // Create an output TE seeded by an empty vector
     HLT::TriggerElement* outputTE = config()->getNavigation()->addNode( initialTE, output );
     outputTE->setActiveState(true);
+
+    // Make deep copy of vertex and attach to output TE
 
     /// create RoI correspondinding to the jet
     double phiMinus = HLT::wrapPhi(jetPhi-m_phiHalfWidth); 
@@ -141,11 +216,23 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
     double etaMinus = jetEta-m_etaHalfWidth;  
     double etaPlus  = jetEta+m_etaHalfWidth;  
 
-    // Feed in vertex info and add in z, zplus and zminus
-    // as parameters when constructing the ROI here
-    TrigRoiDescriptor* roi =  new TrigRoiDescriptor(jetEta, etaMinus, etaPlus, 
-						    jetPhi, phiMinus, phiPlus );
-    
+    double zMinus   = prmVtx_z-m_zHalfWidth;
+    double zPlus    = prmVtx_z+m_zHalfWidth;
+
+    // Use z, zplus and zminus info if available when constructing the ROI.
+    // Otherwise, just do it the good old fashioned way.
+
+    TrigRoiDescriptor* roi = new TrigRoiDescriptor();
+    if (use_z_constraint && prmVtx_z > -9e9 ) { 
+      roi =  new TrigRoiDescriptor(jetEta,   etaMinus, etaPlus, 
+				   jetPhi,   phiMinus, phiPlus,
+				   prmVtx_z, zMinus,   zPlus  );
+    }
+    else {
+      roi =  new TrigRoiDescriptor(jetEta,   etaMinus, etaPlus, 
+				   jetPhi,   phiMinus, phiPlus);
+    }
+
     HLT::ErrorCode hltStatus = attachFeature(outputTE, roi, m_jetOutputKey);
     if ( hltStatus != HLT::OK ) {
       msg() << MSG::ERROR << "Failed to attach TrigRoiDescriptor as feature " << *roi << endreq;

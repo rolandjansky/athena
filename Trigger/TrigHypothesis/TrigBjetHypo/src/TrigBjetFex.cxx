@@ -877,6 +877,7 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
     double etajet = aJet->p4().Eta();
 
     msg() << MSG::DEBUG << "et  " << etjet << " and eta " << etajet << endreq;
+
   }
 
   // -----------------------------------
@@ -944,6 +945,7 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
   // -----------------------------------
   //HLT::ErrorCode status = getFeature(outputTE, pointerToEFTrackCollections, "");
   HLT::ErrorCode status = getFeature(outputTE, pointerToEFTrackCollections);
+
   if (status != HLT::OK) {
     msg() << MSG::DEBUG << "No HLT track collection retrieved" << endreq;
   } 

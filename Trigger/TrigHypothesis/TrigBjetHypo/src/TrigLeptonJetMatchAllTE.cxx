@@ -311,10 +311,10 @@ HLT::ErrorCode TrigLeptonJetMatchAllTE::hltFinalize() {
 //** ----------------------------------------------------------------------------------------------------------------- **//
 
 
-bool TrigLeptonJetMatchAllTE::reset() {
+HLT::ErrorCode TrigLeptonJetMatchAllTE::hltEndEvent() {
 
-  if ( !AllTEAlgo::reset() ) return false;
-  AllTEAlgo::reset();
+  if ( !AllTEAlgo::hltEndEvent() ) return false;
+  AllTEAlgo::hltEndEvent();
 
   return true;
 }

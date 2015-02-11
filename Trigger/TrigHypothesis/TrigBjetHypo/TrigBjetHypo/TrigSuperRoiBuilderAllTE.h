@@ -6,7 +6,7 @@
 //  
 //   Copyright (C) 2014 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: TrigSuperRoiBuilderAllTE.h 623211 2014-10-22 09:35:01Z kleney $
+//   $Id: TrigSuperRoiBuilderAllTE.h 645285 2015-02-09 18:51:17Z kleney $
 
 
 #ifndef  TRIGSUPERROIBUILDERALLTE_H
@@ -35,7 +35,8 @@ class TrigSuperRoiBuilderAllTE : public HLT::AllTEAlgo {
   double m_etaHalfWidth;
   double m_phiHalfWidth;
 
-  double m_minJetEt; // is this needed still?
+  double m_minJetEt; 
+  double m_maxJetEta;
 
 };
  
