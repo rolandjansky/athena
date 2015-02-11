@@ -96,6 +96,7 @@ std::string convertChamberName(int ChamberName , int ChamberEta , int ChamberPhi
       case 50 : m_Name_string = "CSS"; limits.push_back(1); limits.push_back(0); limits.push_back(1); limits.push_back(8); limits.push_back(-100); limits.push_back(-100); limits.push_back(-1); break;
       case 51 : m_Name_string = "CSL"; limits.push_back(1); limits.push_back(0); limits.push_back(1); limits.push_back(8); limits.push_back(-100); limits.push_back(-100); limits.push_back(1); break;
       case 52 : m_Name_string = "BIM"; limits.push_back(5); limits.push_back(0); limits.push_back(100); limits.push_back(-100); limits.push_back(6); limits.push_back(8); limits.push_back(1); break;
+      case 53 : m_Name_string = "BME"; limits.push_back(1); limits.push_back(0); limits.push_back(100); limits.push_back(-100); limits.push_back(7); limits.push_back(7); limits.push_back(-1); break;
       default : m_Name_string = "WrongName"; limits.push_back(-100); limits.push_back(-100); limits.push_back(-100); limits.push_back(-100); limits.push_back(-100); limits.push_back(-100);
       }
   } else if (m_Type=="RPC") {

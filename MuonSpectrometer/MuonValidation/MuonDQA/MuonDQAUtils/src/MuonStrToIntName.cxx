@@ -38,7 +38,7 @@ int convertStrToIntName(std::string ChamberName, std::string ChamberType) {
     else if (m_Name_str=="BMF") m_Name_int = 8; 
     else if (m_Name_str=="BOF") m_Name_int = 9; 
     else if (m_Name_str=="BOG") m_Name_int = 10;
-    else if (m_Name_str=="BOH") m_Name_int = 11;
+    else if (m_Name_str=="BME") m_Name_int = 53;
     else if (m_Name_str=="EIC") m_Name_int = 12;
     else if (m_Name_str=="EIL") m_Name_int = 13;
     else if (m_Name_str=="EEL") m_Name_int = 14;
