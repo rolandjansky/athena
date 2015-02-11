@@ -366,8 +366,6 @@ LVL1CTP::CTPSimulation::start() {
 	
    ATH_MSG_DEBUG("Start");
 
-   unsigned int ctpVersion = ( m_ctpVersion != 0 ? m_ctpVersion : m_configSvc->ctpConfig()->ctpVersion() );
-	
    //
    // monitoring
    //
@@ -1465,20 +1463,31 @@ LVL1CTP::CTPSimulation::extractMultiplicities() {
       //XXX Is there a better way to deal with overclocking at front panel?
       else if ( thr->cableName() == "TOPO1" ) {
 
-         ATH_MSG_DEBUG( " ---> Topo input " << dec << thr->name() << " on module TOPO1 with clock " << thr->clock() << ", cable start "
-                        << thr->cableStart() << " and end " << thr->cableEnd() << " word 0x" << setw(8) << setfill('0') << hex << m_topoCTP->cableWord0( thr->clock() ) << dec << setfill(' ') 
-                        );
+         if ( m_topoCTP.isValid() ) {
+            ATH_MSG_DEBUG( " ---> Topo input " << dec << thr->name() << " on module TOPO1 with clock " << thr->clock() << ", cable start "
+                           << thr->cableStart() << " and end " << thr->cableEnd() << " word 0x" << setw(8) << setfill('0') << hex << m_topoCTP->cableWord0( thr->clock() ) << dec << setfill(' ') 
+                           );
 
-         if ( m_topoCTP.isValid() )
             multiplicity = CTPUtil::getMult( m_topoCTP->cableWord0( thr->clock() ), thr->cableStart(), thr->cableEnd() );
+         }
 
       }   
 		
       else if ( thr->cableName() == "TOPO2" ) {
 			
-         if ( m_topoCTP.isValid() )
+         if ( m_topoCTP.isValid() ) {
+            ATH_MSG_DEBUG( " ---> Topo input " << dec << thr->name() << " on module TOPO1 with clock " << thr->clock() << ", cable start "
+                           << thr->cableStart() << " and end " << thr->cableEnd() << " word 0x" << setw(8) << setfill('0') << hex << m_topoCTP->cableWord1( thr->clock() ) << dec << setfill(' ') 
+                           );
+
             multiplicity = CTPUtil::getMult( m_topoCTP->cableWord1( thr->clock() ), thr->cableStart(), thr->cableEnd() );
 
+         }
+
+      }    
+
+      else if ( thr->cableName() == "ALFA" ) {
+	multiplicity = 1;
       }    
 		
       else if ( thr->cableName() == TrigConf::L1DataDef::nimType() ) {
@@ -1489,11 +1498,11 @@ LVL1CTP::CTPSimulation::extractMultiplicities() {
             int n_c=thr->name().find("MBTS_C");
             if (m_mbtsACTP.isValid() && n_a==0) {
                multiplicity = CTPUtil::getMult( m_mbtsACTP->cableWord0(), thr->cableStart(), thr->cableEnd() );
-               ATH_MSG_DEBUG("Extracted multi is: "<< multiplicity);
+               //ATH_MSG_DEBUG("Extracted multi is: "<< multiplicity);
             }
             if (m_mbtsCCTP.isValid() && n_c==0) {
                multiplicity = CTPUtil::getMult( m_mbtsCCTP->cableWord0(), thr->cableStart(), thr->cableEnd() );
-               ATH_MSG_DEBUG("Extracted multi is: "<< multiplicity);
+               //ATH_MSG_DEBUG("Extracted multi is: "<< multiplicity);
             }
          }
 			
@@ -1576,7 +1585,7 @@ LVL1CTP::CTPSimulation::extractMultiplicities() {
          return StatusCode::FAILURE;
       }
 		
-      ATH_MSG_DEBUG(" ---> Threshold with name: " << std::setw( 8 ) << thr->name() << " gets multiplicity: "
+      ATH_MSG_DEBUG(" ---> Threshold with name: " << std::setfill(' ') << std::setw( 8 ) << thr->name() << " gets multiplicity: "
                     << std::setw( 2 ) << multiplicity);
       m_decisionMap->decision( thr )->setValue( multiplicity );
 		
