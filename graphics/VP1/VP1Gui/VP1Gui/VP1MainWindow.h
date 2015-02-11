@@ -134,6 +134,10 @@ public:
 
   bool userRequestedExit() { return m_userRequestedExit; }
 
+  int getRunNumber() { return runnumber; }
+  int getEventNumber() { return eventnumber; }
+  int getEventTimestamp() { return timestamp; }
+
 protected:
   VP1ChannelManager * channelmanager;
   VP1TabManager * tabmanager;

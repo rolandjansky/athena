@@ -167,6 +167,8 @@ bool VP1Gui::hasBeenInitialised()
 //____________________________________________________________________
 void VP1Gui::init()
 {
+  VP1Msg::messageDebug("Start of VP1Gui::init()...");
+
   assert(!d->the_scheduler&&"Dont init twice!!");
   VP1Msg::message("");
   VP1Msg::message("===================================================");
@@ -180,6 +182,7 @@ void VP1Gui::init()
 						 d->localFileCacheLimit,
 						 d->availableLocalInputDirectories);
 
+  VP1Msg::messageDebug("end of VP1Gui::init().");
 }
 
 //____________________________________________________________________
@@ -193,9 +196,17 @@ void VP1Gui::cleanup()
 bool VP1Gui::executeNewEvent( const int& run, const int& event, const unsigned& triggerType, const unsigned& time )
 {
   VP1Msg::messageDebug("Examining new event ( run# "+QString::number(run)+", event# "+QString::number(event)+" )");
+
   bool b = d->the_scheduler->executeNewEvent(run,event,triggerType,time);
+
+  // NOTE:
+  // we will go on to the lines here below
+  // only when the user clicks on the "Next event" button.
+
   VP1Msg::messageDebug("Leaving event ( run# "+QString::number(run)+", event# "+QString::number(event)+" )"
 		       +(nextRequestedEventFile().empty()?QString(""):". Next requested event: "+QString(nextRequestedEventFile().c_str())));
+
+  VP1Msg::messageDebug("end of VP1Gui::executeNewEvent().");
 
   return b;
 }

@@ -328,6 +328,8 @@ bool VP1TabManager::eventFilter ( QObject *, QEvent * event ) {
 //___________________________________________________________________________________
 void VP1TabManager::setSelectedDockWidget(VP1DockWidget*dw) {
 
+	VP1Msg::messageDebug("VP1TabManager::setSelectedDockWidget()");
+
   if ( d->selecteddockwidget == dw )
     return;
 
@@ -578,6 +580,9 @@ void VP1TabManager::removeTab( QString tabname ) {
 
 //___________________________________________________________________________________
 void VP1TabManager::removeChannel(QString channeluniquename) {
+
+	VP1Msg::messageDebug("VP1TabManager::removeChannel()");
+
   if (!d->checkChannelNameExists(channeluniquename, true)) return;
 
   IVP1ChannelWidget* cw = d->channelmanager->uniqueName2Channel(channeluniquename);
