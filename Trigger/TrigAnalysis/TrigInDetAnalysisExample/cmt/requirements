@@ -23,7 +23,7 @@ use  	egammaEvent         	egammaEvent-*                   Reconstruction/egamma
 use     muonEvent               muonEvent-*                     Reconstruction/MuonIdentification
 use     tauEvent                tauEvent-*                      Reconstruction
 
-# use   TrigInDetTruthAlgs      TrigInDetTruthAlgs-*            Trigger/TrigAnalysis 
+# use   TrigInDetTruthAlgs      TrigInDetTruthAlgs-*            Trigger/TrigAnalysis
 # use   TrigInDetTruthEvent     TrigInDetTruthEvent-*           Trigger/TrigTruthEvent
 # use	AtlasReflex		AtlasReflex-*			External -no_auto_imports
 
@@ -34,15 +34,15 @@ use     McParticleEvent         McParticleEvent-*               PhysicsAnalysis/
 
 use     TrigDecisionTool        TrigDecisionTool-*              Trigger/TrigAnalysis
 use 	TrigSteeringEvent       TrigSteeringEvent-*		Trigger/TrigEvent
-use     TrkParticleCreator      TrkParticleCreator-*            Tracking/TrkTools   
+use     TrkParticleCreator      TrkParticleCreator-*            Tracking/TrkTools
 use     VxVertex                VxVertex-*                      Tracking/TrkEvent
 
 
 # ============================================================================================
 private
 
-use     AthenaMonitoring        AthenaMonitoring-*              Control
 use 	GaudiInterface		GaudiInterface-*		External
+use     AthenaMonitoring        AthenaMonitoring-*              Control
 
 
 use     TrkTrack                   TrkTrack-*                   Tracking/TrkEvent

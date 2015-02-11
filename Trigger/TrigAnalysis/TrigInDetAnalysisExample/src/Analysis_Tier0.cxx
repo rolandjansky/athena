@@ -12,6 +12,8 @@ Analysis_Tier0::Analysis_Tier0(const std::string& name, double pTCut, double eta
 
 void Analysis_Tier0::initialise() {
 
+  h_chain = new TH1D( "Chain", name().c_str(), 1, 0, 1 );
+
   h_total_efficiency = new TProfile ("Eff_overall",  "total efficiency",  1, 0., 1.);
 
   h_pTeff   = new TProfile ("Eff_pT",  "pT efficiency",  100, 0., 100.);
