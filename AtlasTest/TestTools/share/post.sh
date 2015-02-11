@@ -27,6 +27,7 @@ fi
 read -d '' II <<EOF
 s/StoreGateSvc_Impl/StoreGateSvc/
 s/SGImplSvc/StoreGateSvc/
+s/SG::DataProxyHolder::sgkey_t/sgkey_t/
 EOF
 
 # ignore diff annotations
@@ -112,6 +113,8 @@ PP="$PP"'|PluginService::SetDebug|setting LC_ALL'
 PP="$PP"'|^Warning in .* (header|class) .* is already in'
 # Ignore GaudiHive timeline printouts
 PP="$PP"'|^TimelineSvc +INFO'
+# StoreGate v3 migration
+PP="$PP"'|VERBOSE ServiceLocatorHelper::service: found service IncidentSvc'
 
 
 if [ "$extrapatterns" != "" ]; then
