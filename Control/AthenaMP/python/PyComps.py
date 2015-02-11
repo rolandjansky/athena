@@ -16,7 +16,7 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
         kw['name'] = name
         super(MpEvtLoopMgr, self).__init__(**kw)
 
-        os.putenv('XRD_ENABLEFORKHANDLERS','1')
+        os.putenv('XRD_RUNFORKHANDLER','1')
 
         from AthenaMPFlags import jobproperties as jp
         self.WorkerTopDir = jp.AthenaMPFlags.WorkerTopDir()
