@@ -410,7 +410,7 @@ HLT::ErrorCode Sequence::prepareRobRequests()
       if ( m_prepRobReqErrorCode.action() > HLT::Action::CONTINUE ) 
 	return m_prepRobReqErrorCode;
     }
-    return m_prepRobReqErrorCode;
+    //FPP    return m_prepRobReqErrorCode;
   }
 
   // debug output
@@ -439,7 +439,7 @@ HLT::ErrorCode Sequence::prepareRobRequests()
 
     for (unsigned int j = 0; j <  m_nextAlgos.size()+1; ++j) {
       
-      if (j>0) break; // only for the first algo the processRobRequests can be run 
+      // if (j>0) break; // only for the first algo the processRobRequests can be run 
 
       HLT::Algo* alg = ( j==0 ? m_firstAlgo : m_nextAlgos[j-1] );
 

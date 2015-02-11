@@ -18,6 +18,8 @@
 #include "TrigSteeringEvent/ScoutingInfo.h"
 #include "eformat/SourceIdentifier.h"
 
+#include "xAODEventInfo/EventInfo.h"
+
 using namespace HLT;
 
 ResultBuilder::ResultBuilder(const std::string& name, const std::string& type,
@@ -612,7 +614,38 @@ ErrorCode ResultBuilder::fillTriggerInfo(const std::vector<SteeringChain*>& acti
       (*m_log) << MSG::VERBOSE << (*triggerInfo) << endreq;
    }
 
+  
+  
+  /////////////////////////////////
+  //// Recording in xAODEventInfo
+  ////////////////////////////////
+  // put it all to SG xAOD::EventInfo object
+ 
+  const xAOD::EventInfo* constxEventInfo(0);
+  sc = m_storeGate->retrieve(constxEventInfo);
+  
+  if (sc.isFailure()) {   
+    if(m_logLvl <= MSG::FATAL)
+      (*m_log) << MSG::FATAL << "Can't get xAOD::EventInfo object for update of the StreamTag" << endreq;
+    return HLT::FATAL;
+  }
+  
 
+  //create xAOD::StreamTags
+  std::vector < xAOD::EventInfo::StreamTag > xAODStreamTags;
+  for (auto streamtag : m_uniqueStreams){
+    //copy streamtag into xAOD object
+    xAOD::EventInfo::StreamTag xstreamtag(streamtag.name(), streamtag.type(), streamtag.obeysLumiblock(), streamtag.robs(), streamtag.dets());
+    xAODStreamTags.push_back(xstreamtag);
+  }
+
+  xAOD::EventInfo* xeventInfo = const_cast<xAOD::EventInfo*>(constxEventInfo);
+  xeventInfo->setStreamTags(xAODStreamTags);
+  if(m_logLvl <= MSG::VERBOSE){
+    (*m_log) << MSG::VERBOSE << "Updated xAOD::StreamTags into xAOD::EventInfo:" << endreq;
+  }
+  
+  
    return HLT::OK;
 }
 
