@@ -18,5 +18,12 @@ if [ `grep "ERRORS found" TrigTest_CheckMerge.log | wc -l`  -gt 0 ]; then
   echo 'check merge failed'
   exit 127 
 fi 
+
+if [ `grep "WARNING" TrigTest_CheckMerge.log | wc -l`  -gt 0 ]; then
+  echo 'TrigTest_CheckMerge test has WARNING'
+  exit 0 
+fi 
+
+
 echo "check merge success"
 exit 0
