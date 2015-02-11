@@ -137,7 +137,7 @@ StatusCode InDet::TRT_DetElementsRoadMaker_xk::initialize()
   //
   std::string folder( "/EXT/DCS/MAGNETS/SENSORDATA" );
   const DataHandle<CondAttrListCollection> currentHandle;
-  if (detStore()->contains<CondAttrListCollection>(folder)){
+  if (m_fieldmode != "NoField" && detStore()->contains<CondAttrListCollection>(folder)){
     sc = detStore()->regFcn(&InDet::TRT_DetElementsRoadMaker_xk::magneticFieldInit,this,currentHandle,folder);
     
     if(sc==StatusCode::SUCCESS) {
