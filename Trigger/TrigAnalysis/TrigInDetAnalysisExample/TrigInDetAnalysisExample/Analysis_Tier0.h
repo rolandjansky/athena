@@ -67,6 +67,8 @@ class Analysis_Tier0 : public TrackAnalysis {
   TProfile* h_d0res;
   TProfile* h_z0res;
 
+  TH1D* h_chain;
+
   TH1D* h_trkpT;
   TH1D* h_trketa;
   TH1D* h_trkphi;
