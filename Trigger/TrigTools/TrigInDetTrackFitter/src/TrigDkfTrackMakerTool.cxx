@@ -102,8 +102,6 @@ bool TrigDkfTrackMakerTool::createDkfTrack(std::vector<const TrigSiSpacePoint*>&
   double C[3],N[3],M[3][3];int i;
   Amg::Vector3D mx,my,mz;
 
-  int outputLevel = msgSvc()->outputLevel( name() );
-
   vpTrkNodes.clear();
 
   if(siSpacePoints.size()==0) 
@@ -263,8 +261,7 @@ bool TrigDkfTrackMakerTool::createDkfTrack(std::vector<const TrigSiSpacePoint*>&
 	    }
 	}
     }
-  if (outputLevel <= MSG::DEBUG) 
-    ATH_MSG_DEBUG(vpTrkNodes.size());
+  ATH_MSG_DEBUG(vpTrkNodes.size());
 
   return true;
 }

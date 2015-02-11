@@ -18,6 +18,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <memory>
 #include "GaudiKernel/SystemOfUnits.h"
 
 #include "TrigInDetEvent/TrigInDetTrack.h"
@@ -175,7 +176,7 @@ Trk::TrkTrackState* TrigInDetTrackFitter::m_extrapolate(Trk::TrkTrackState* pTS,
   const double C=0.02999975/1000.0;//using GeV internally 
   const double minStep=30.0;
 	    
-  double J[5][5],Rf[5],AG[5][5],Gi[5][5],Gf[5][5],A[5][5];
+  double J[5][5],Rf[5],AG[5][5],Gf[5][5],A[5][5];
   int i,j,m;
 
   bool samePlane=false;
@@ -570,17 +571,19 @@ Trk::TrkTrackState* TrigInDetTrackFitter::m_extrapolate(Trk::TrkTrackState* pTS,
 
   pTE->m_setTrackState(Rf);//restore
 
-  for(i=0;i<5;i++) for(j=0;j<5;j++)
+  AmgSymMatrix(5) Gi;
+  for(i=0;i<5;i++) for(j=i;j<5;j++)
     {
-      Gi[i][j]=pTE->m_getTrackCovariance(i,j);
+      Gi(i,j)=pTE->m_getTrackCovariance(i,j);
+      Gi.fillSymmetric(i, j, pTE->m_getTrackCovariance(i,j));
     }
-
-  m_matrixInversion5x5(Gi);
+  Gi = Gi.inverse();
+  //m_matrixInversion5x5(Gi);
  
   for(i=0;i<5;i++) for(j=0;j<5;j++)
     {
       A[i][j]=0.0;
-      for(m=0;m<5;m++) A[i][j]+=AG[m][i]*Gi[m][j];
+      for(m=0;m<5;m++) A[i][j]+=AG[m][i]*Gi(m,j);
     }
   pTE->m_setPreviousState(pTS);
   pTE->m_setSmootherGain(A);
@@ -1057,22 +1060,31 @@ Trk::Track* TrigInDetTrackFitter::fitTrack(const Trk::Track& recoTrack, const Tr
 		double eta = -log(tan(0.5*theta));
 		double z0 = pTS->m_getTrackState(1);
 		double d0 = pTS->m_getTrackState(0);
+    bool bad_cov = false;
+    auto cov = std::unique_ptr<AmgSymMatrix(5)>(new AmgSymMatrix(5));
+    for(int i=0;i<5;i++) {
+      for(int j=i;j<5;j++)
+      {
+        double cov_val = pTS->m_getTrackCovariance(i,j);
+        if (i==j) {
+          if (cov_val < 0) {
+            bad_cov = true;//Diagonal elements must be positive
+		        ATH_MSG_DEBUG("REGTEST: cov(" << i << "," << j << ") =" << cov_val << " < 0, reject track");
+          }
+          
+        }
+        cov->fillSymmetric(i, j, cov_val);
+      }
+    }
 
-		if((ndoftot<0) || (fabs(pt)<100.0) || (std::isnan(pt)))
+		if((ndoftot<0) || (fabs(pt)<100.0) || (std::isnan(pt)) || bad_cov)
 		{
 		  ATH_MSG_DEBUG("Fit failed - possibly floating point problem");
 		}
 		else
 		{
-      AmgSymMatrix(5)* cov = new AmgSymMatrix(5);
-      for(int i=0;i<5;i++) {
-        for(int j=i;j<5;j++)
-        {
-          cov->fillSymmetric(i, j, pTS->m_getTrackCovariance(i,j));
-        }
-      }
       Trk::PerigeeSurface perigeeSurface;
-      Trk::Perigee* perigee = new Trk::Perigee(d0, z0, phi0, theta, qOverP, perigeeSurface, cov);
+      Trk::Perigee* perigee = new Trk::Perigee(d0, z0, phi0, theta, qOverP, perigeeSurface, cov.release());
       ATH_MSG_VERBOSE("perigee: " << *perigee);
 
       std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern;
