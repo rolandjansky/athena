@@ -85,11 +85,11 @@ HLT::ErrorCode TrigBjetEtHypo::hltExecute(const HLT::TriggerElement* outputTE, b
   
   if (stat == HLT::OK) {
     if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Using outputTE: " 
-	    << "RoI id "  << roiDescriptor->roiId()
-	    << ", Phi = " <<  roiDescriptor->phi()
-	    << ", Eta = " << roiDescriptor->eta() 
-	    << endreq;
+      msg() << MSG::DEBUG << "Using outputTE: ROI: " << &roiDescriptor << endreq;
+// 	    << "RoI id "  << roiDescriptor->roiId()
+// 	    << ", Phi = " <<  roiDescriptor->phi()
+// 	    << ", Eta = " << roiDescriptor->eta() 
+// 	    << endreq;
     }
   } else {
     if (msgLvl() <= MSG::WARNING) 
@@ -105,11 +105,14 @@ HLT::ErrorCode TrigBjetEtHypo::hltExecute(const HLT::TriggerElement* outputTE, b
       msg() << MSG::WARNING << "Failed to get TrigOperationalInfo" << endreq;
     }
     return HLT::MISSING_FEATURE;
-  } else {
+  } 
+  else {
     if (msgLvl() <= MSG::DEBUG) {
       msg() << MSG::DEBUG << "Number of TrigOperationalInfo objects: " << m_vectorOperationalInfo.size() << endreq;
     }
   }
+
+  pass = false;
 
   std::vector<const TrigOperationalInfo*>::const_iterator m_operationalInfo;
   for (m_operationalInfo=m_vectorOperationalInfo.begin(); m_operationalInfo!=m_vectorOperationalInfo.end(); ++m_operationalInfo) {    
@@ -126,87 +129,90 @@ HLT::ErrorCode TrigBjetEtHypo::hltExecute(const HLT::TriggerElement* outputTE, b
     
       if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Et jet: " << m_et << endreq;
     }
-  }
+    //} // KL commenting out this bracket and adding another one at the end
 
-  //xAOD jets from TE
- 
-  msg() << MSG::DEBUG << "pass Hypo 1 " << m_et << endreq;
-
- const xAOD::JetContainer* jets(0);
- HLT::ErrorCode ec = getFeature(outputTE, jets,"EFJet");
-
- if(ec!=HLT::OK) {
-   ATH_MSG_WARNING("Failed to get JetCollection");
-   return ec;
- } else {
-   ATH_MSG_DEBUG("Obtained JetContainer");
- }
-
-  msg() << MSG::DEBUG << "pass Hypo 2 " << &jets << endreq;
-
-  if(jets == 0){
-    ATH_MSG_WARNING("Jet collection pointer is 0");
-    return HLT::ERROR;
-  }
-
-  std::vector<const xAOD::Jet*> theJets(jets->begin(), jets->end());
-
-  msg() << MSG::DEBUG << "pass Hypo 2 jet size: " << theJets.size() 
-        << endreq;
-
-  std::size_t njets = theJets.size();
-  if( njets == 0 ){
-    ATH_MSG_DEBUG("JetCollection is empty");
-    return HLT::OK;
-          } else {
-            ATH_MSG_DEBUG("JetCollection contains " << njets <<"jets");
-  }
-  if(njets > 1)
-    ATH_MSG_DEBUG("Something is wrong, it should not be more than one jet");
-
-  for (const xAOD::Jet* aJet : theJets) {
-    double etjet = aJet->p4().Et();
-    double etajet = aJet->p4().Eta();
-
-    msg() << MSG::DEBUG << "in Hypo et  " << etjet << " and eta " << etajet << endreq;
-  }
-
-  /////////
- 
-  pass = false;
-
-  if (m_version=="StartSequence") {
-
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: Requiring EF jets to satisfy Et > " << m_etThreshold/1000 << endreq;
-
-    if (m_et >= m_etThreshold/1000)
-      pass = true;
-  }
-
-  if (m_version=="Btagging") {
-
-    if (m_acceptAll) {
-      if (msgLvl() <= MSG::DEBUG) {
-	msg() << MSG::DEBUG << "REGTEST: AcceptAll property is set: taking all events" << endreq;
-	msg() << MSG::DEBUG << "REGTEST: Trigger decision is 1" << endreq;
-      }
-      pass = true;
+    //xAOD jets from TE
+    
+    msg() << MSG::DEBUG << "pass Hypo 1 " << m_et << endreq;
+    
+    const xAOD::JetContainer* jets(0);
+    //HLT::ErrorCode ec = getFeature(outputTE, jets,"EFJet");
+    HLT::ErrorCode ec = getFeature(outputTE, jets);
+    
+    if(ec!=HLT::OK) {
+      ATH_MSG_WARNING("Failed to get JetCollection");
+      return ec;
     } else {
-
-      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: EF jet with et = " << m_et << endreq;
+      ATH_MSG_DEBUG("Obtained JetContainer");
+    }
+    
+    msg() << MSG::DEBUG << "pass Hypo 2 " << &jets << endreq;
+    
+    if(jets == 0){
+      ATH_MSG_WARNING("Jet collection pointer is 0");
+      return HLT::ERROR;
+    }
+    
+    std::vector<const xAOD::Jet*> theJets(jets->begin(), jets->end());
+    
+    msg() << MSG::DEBUG << "pass Hypo 2 jet size: " << theJets.size() << endreq;
+    
+    std::size_t njets = theJets.size();
+    if( njets == 0 ){
+      ATH_MSG_DEBUG("JetCollection is empty");
+      return HLT::OK;
+    } 
+    else {
+      ATH_MSG_DEBUG("JetCollection contains " << njets << " jets");
+    }
+    if(njets > 1)
+      ATH_MSG_DEBUG("Something is wrong, it should not be more than one jet");
+    
+    for (const xAOD::Jet* aJet : theJets) {
+      double etjet = aJet->p4().Et();
+      double etajet = aJet->p4().Eta();
+      
+      msg() << MSG::DEBUG << "in Hypo et  " << etjet << " and eta " << etajet << endreq;
+    }
+    
+    //====================
+      
+    // pass = false;
+    
+    if (m_version=="StartSequence") {
+      
       if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: Requiring EF jets to satisfy Et > " << m_etThreshold/1000 << endreq;
-
+      
       if (m_et >= m_etThreshold/1000)
 	pass = true;
     }
-  }
+    
+    if (m_version=="Btagging") {
+      
+      if (m_acceptAll) {
+	if (msgLvl() <= MSG::DEBUG) {
+	  msg() << MSG::DEBUG << "REGTEST: AcceptAll property is set: taking all events" << endreq;
+	  msg() << MSG::DEBUG << "REGTEST: Trigger decision is 1" << endreq;
+	}
+	pass = true;
+      } else {
+	
+	if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: EF jet with et = " << m_et << endreq;
+	if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: Requiring EF jets to satisfy Et > " << m_etThreshold/1000 << endreq;
+	
+	if (m_et >= m_etThreshold/1000)
+	  pass = true;
+      }
+    }
+  } // KL added this bracket here
 
   if (pass) {
     if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Selection cut satisfied, accepting the event" << endreq;
-  } else {
+  } 
+  else {
     if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Selection cut not satisfied, rejecting the event" << endreq;
   }
-
+  
   //* Print trigger decision *//
   if(msgLvl() <= MSG::DEBUG) 
     msg() << MSG::DEBUG << "REGTEST: Trigger decision is " << pass << endreq;

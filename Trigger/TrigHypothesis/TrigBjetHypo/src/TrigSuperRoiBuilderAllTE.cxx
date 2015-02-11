@@ -41,7 +41,8 @@ TrigSuperRoiBuilderAllTE::TrigSuperRoiBuilderAllTE(const std::string & name, ISv
   declareProperty ("JetOutputKey", m_jetOutputKey = "SuperRoi");
   declareProperty ("EtaHalfWidth", m_etaHalfWidth = 0.2);
   declareProperty ("PhiHalfWidth", m_phiHalfWidth = 0.2);
-  declareProperty ("JetMinEt",     m_minJetEt     = 15.0); // in GeV
+  declareProperty ("JetMinEt",     m_minJetEt     = 30.0); // in GeV
+  declareProperty ("JetMaxEta",    m_maxJetEta    = 2.5+m_etaHalfWidth);  // tracker acceptance + jet half-width
 }
 
 
@@ -61,6 +62,7 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltInitialize() {
     msg() << MSG::DEBUG << " EtaHalfWidth = " << m_etaHalfWidth << endreq; 
     msg() << MSG::DEBUG << " PhiHalfWidth = " << m_phiHalfWidth << endreq; 
     msg() << MSG::DEBUG << " MinJetEt     = " << m_minJetEt     << endreq; 
+    msg() << MSG::DEBUG << " MaxJetEta    = " << m_maxJetEta    << endreq; 
   }
 
   return HLT::OK;
@@ -140,6 +142,12 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT:
     if (jetEt < m_minJetEt) {
       if (msgLvl() <= MSG::DEBUG)
 	msg() << MSG::DEBUG << "Jet "<< i << " below the " << m_minJetEt << " GeV threshold; Et " << jetEt << "; skipping this jet." << endreq;
+      continue;
+    }
+
+    if (fabs(jetEta) > m_maxJetEta) {
+      if (msgLvl() <= MSG::DEBUG)
+	msg() << MSG::DEBUG << "Jet "<< i << " outside the |eta| < 2.5 requirement; Eta = " << jetEta << "; skipping this jet." << endreq;
       continue;
     }
 
