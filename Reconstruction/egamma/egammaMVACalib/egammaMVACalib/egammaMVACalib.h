@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 #ifndef egammaMVACalibNew_H
 #define egammaMVACalibNew_H
 
@@ -11,6 +12,7 @@
 
 #include <TString.h>
 #include <TObject.h>
+#include "AsgTools/AsgMessaging.h"
 
 class TTreeFormula;
 class TList;
@@ -49,7 +51,7 @@ namespace egammaMVACalibNmsp { class BDT; } // forward decl
   * see also https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/EgammaMVACalibration
   *
   **/
-class egammaMVACalib : public TObject
+class egammaMVACalib : public TObject,public asg::AsgMessaging
 {
   public:
     enum egammaType {egPHOTON, egELECTRON, NEGAMMATYPES};
@@ -84,7 +86,8 @@ class egammaMVACalib : public TObject
 	bool external;
     };
     
-    egammaMVACalib() { std::cout << "** DEFAULT " << std::endl;};
+ egammaMVACalib() :asg::AsgMessaging("egammaMVACalib")
+      { ATH_MSG_DEBUG ("** DEFAULT **");}
     
     /** Constructor
       * @param particle : photon or electron, @see egammaType
