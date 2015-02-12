@@ -16,6 +16,7 @@
 
 static LArShapeSubsetCnv_p1   TPconverter;
 
+#if 0
 namespace {
 
 /// Helper for double -> float conversion, to avoid overflows.
@@ -32,6 +33,7 @@ float toFloat (double x)
 }
 
 } // anonymous namespace
+#endif
 
 LArShapeSubset_p1*
 LArShape32MCCnv::createPersistent (LArShapeTransType* transObj)
