@@ -6,7 +6,8 @@
 #include <string>
 
 // Gaudi/Athena include(s):
-#include "GaudiKernel/Service.h" 
+#include "AthenaBaseComps/AthService.h"
+
 
 namespace LVL1 {
 
@@ -25,23 +26,23 @@ namespace LVL1 {
     *
     * @author Tadashi Maeno <Tadashi.Maeno.cern.ch>
     *
-    * $Revision: 187728 $
-    * $Date: 2009-05-27 18:18:06 +0200 (Wed, 27 May 2009) $
+    * $Revision: 646643 $
+    * $Date: 2015-02-12 23:58:09 +0100 (Thu, 12 Feb 2015) $
     */
-   class RecMuonRoiSvc : public Service {
+   class RecMuonRoiSvc : public AthService {
 
    public:
       RecMuonRoiSvc ( const std::string& name, ISvcLocator* svc )
-         : Service( name, svc ) {}
+         : AthService( name, svc ) {}
       virtual ~RecMuonRoiSvc ( void ) {}
 
-      static const InterfaceID& interfaceID() {
-         return IService::interfaceID();
-      }
-
-      virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIF ) {
-         return Service::queryInterface( riid, ppvIF );
-      }
+     static const InterfaceID& interfaceID() {
+       return IService::interfaceID();
+     }
+     
+     virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIF ) {
+       return AthService::queryInterface( riid, ppvIF );
+     }
 
       virtual StatusCode initialize ( void ) { return StatusCode::SUCCESS; }
       virtual StatusCode finalize ( void ) { return StatusCode::SUCCESS; }
