@@ -9,6 +9,7 @@ use AtlasPolicy         AtlasPolicy-*
 use GaudiInterface      GaudiInterface-*         External
 use StoreGate           StoreGate-*              Control
 use AtlasCLHEP          AtlasCLHEP-*             External
+use AthenaBaseComps	AthenaBaseComps-*	 Control
 
 private
 use AtlasPOOL           AtlasPOOL-*              External

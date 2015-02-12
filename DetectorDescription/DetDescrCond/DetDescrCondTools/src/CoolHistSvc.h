@@ -8,7 +8,7 @@
 // Richard Hawkings, started 22/1/07
 
 #include "GaudiKernel/IIncidentListener.h"
-#include "GaudiKernel/Service.h"
+#include "AthenaBaseComps/AthService.h"
 #include "DetDescrCondTools/ICoolHistSvc.h"
 
 class StoreGateSvc;
@@ -18,7 +18,7 @@ class TDirectory;
 
 class CoolHistSvc : public virtual ICoolHistSvc, 
 		    public virtual IIncidentListener,
-		    public virtual Service {
+		    public virtual AthService {
   template <class TYPE> class SvcFactory;
 
  public:
@@ -76,7 +76,6 @@ class CoolHistSvc : public virtual ICoolHistSvc,
   unsigned int par_maxfiles; // maximum number of files to have open
   StoreGateSvc* p_detstore;
   IPoolSvc* m_poolsvc;
-  MsgStream* m_log;
 
   // list of cached histograms and associated file GUIDs
   typedef std::map<std::string,std::pair<std::string, TObject*> > HistKeyMap;
