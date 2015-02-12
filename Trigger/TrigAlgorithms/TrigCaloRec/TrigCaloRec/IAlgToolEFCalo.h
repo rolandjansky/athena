@@ -17,7 +17,7 @@
 #define TRIGCALOREC_IALGTOOLEFCALO_H
 
 #include "GaudiKernel/IAlgTool.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/ToolHandle.h" 
 #include "GaudiKernel/ServiceHandle.h" 
@@ -31,7 +31,7 @@ class CaloCellContainer;
 
 static const InterfaceID IID_IAlgToolEFCalo("IAlgToolEFCalo",1,0);
 
-class IAlgToolEFCalo: public virtual IAlgTool, public AlgTool {
+class IAlgToolEFCalo: public virtual IAlgTool, public AthAlgTool {
 
  public:
 
@@ -41,7 +41,7 @@ class IAlgToolEFCalo: public virtual IAlgTool, public AlgTool {
 
   
 public:
-  IAlgToolEFCalo(const std::string & type, const std::string & name, const IInterface* parent) : AlgTool(type,name,parent){
+  IAlgToolEFCalo(const std::string & type, const std::string & name, const IInterface* parent) : AthAlgTool(type,name,parent){
     declareInterface<IAlgToolEFCalo>(this);
   }
   
