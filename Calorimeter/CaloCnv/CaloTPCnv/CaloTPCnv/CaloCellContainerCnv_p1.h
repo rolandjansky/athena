@@ -7,9 +7,9 @@
 #ifndef CALOTPCNV_CALOCELLCONTAINERCNV_P1_H
 #define CALOTPCNV_CALOCELLCONTAINERCNV_P1_H
 
+#include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "AthenaKernel/ITPCnvBase.h"
 #include "AthenaPoolCnvSvc/ITPConverter.h"
-#include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
 class ICaloCompactCellTool;
 class CaloCellContainer;

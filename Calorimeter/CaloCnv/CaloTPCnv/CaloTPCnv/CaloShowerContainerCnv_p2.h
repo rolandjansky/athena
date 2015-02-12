@@ -7,11 +7,11 @@
 #ifndef CALOTPCNV_CALOSHOWERCONTAINERCNV_P2_H
 #define CALOTPCNV_CALOSHOWERCONTAINERCNV_P2_H
 
+#include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "AthenaKernel/ITPCnvBase.h"
 #include "CaloTPCnv/CaloClusterMomentContainerCnv_p1.h"
 #include "CaloTPCnv/CaloSamplingDataContainerCnv_p1.h"
 #include "AthenaPoolCnvSvc/ITPConverter.h"
-#include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 #include "GaudiKernel/MsgStream.h"
 
 class CaloShowerContainer;
