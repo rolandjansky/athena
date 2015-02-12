@@ -43,7 +43,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 IOVDbTestAlg::IOVDbTestAlg(const std::string& name, ISvcLocator* pSvcLocator) :
-        Algorithm(name, pSvcLocator),
+        AthAlgorithm(name, pSvcLocator),
         m_writeCondObjs(false),
         m_regIOV(false),
         m_readWriteCool(false),

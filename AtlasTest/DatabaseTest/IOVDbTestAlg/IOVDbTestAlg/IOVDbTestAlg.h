@@ -15,7 +15,7 @@
 # define IOVDBTESTALG_IOVDBTESTALG_H
 
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "IOVDbTestConditions/IOVDbTestMDTEleMap.h"
 
 #include "StoreGate/DataHandle.h"
@@ -31,7 +31,7 @@ class IAthenaOutputStreamTool;
  ** Algorithm to test writing conditions data and reading them back.
  **/
 
-class IOVDbTestAlg: public Algorithm 
+class IOVDbTestAlg: public AthAlgorithm 
 {
 public:
     IOVDbTestAlg (const std::string& name, ISvcLocator* pSvcLocator);

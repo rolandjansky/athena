@@ -9,6 +9,7 @@ use AthenaKernel         AthenaKernel-*         Control
 use GaudiInterface       GaudiInterface-*       External 
 # use AtlasPOOL            AtlasPOOL-*            External
 # use AtlasReflex          AtlasReflex-*          External
+use AthenaBaseComps	 AthenaBaseComps-*	Control
 
 private
 use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL

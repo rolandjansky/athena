@@ -9,13 +9,13 @@
 // into an Athena algorithm
 // Richard Hawkings, started 9/9/05
 
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include <vector>
 #include <string>
 
 class StoreGateSvc;
 
-class IOVDbTestCoolDCS: public Algorithm
+class IOVDbTestCoolDCS: public AthAlgorithm
 {
  public:
     IOVDbTestCoolDCS(const std::string& name, ISvcLocator* pSvcLocator);
