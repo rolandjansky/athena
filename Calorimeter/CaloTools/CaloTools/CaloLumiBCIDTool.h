@@ -65,6 +65,12 @@ private:
 
   unsigned int m_bcidMax;
   int m_ncell;
+  unsigned int m_bcid;
+  int m_firstSampleEMB;
+  int m_firstSampleEMEC;
+  int m_firstSampleHEC;
+  int m_firstSampleFCAL;
+
 
   mutable bool m_cacheValid;
 
@@ -72,7 +78,6 @@ private:
   std::vector<HWIdentifier> m_hwid_sym;
   std::vector<float> m_eshift_sym;
   std::vector<int> m_symCellIndex;
-  unsigned int m_bcid;
 
 
 //Functions
