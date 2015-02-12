@@ -7,12 +7,11 @@
 
 #include <string>
 #include <vector>
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/DataHandle.h"
 
 
-class DetStoreDump : public Algorithm
+class DetStoreDump : public AthAlgorithm
 {
  public:
   DetStoreDump(const std::string& name, ISvcLocator* pSvcLocator);
@@ -26,8 +25,6 @@ class DetStoreDump : public Algorithm
   // parameters
   int m_mode;
 
-  MsgStream m_log;
-  StoreGateSvc* p_detstore;
   bool m_first;
 };
 

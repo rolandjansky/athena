@@ -4,6 +4,7 @@ author Richard Hawkings <richard.hawkings@cern.ch>
 
 use AtlasPolicy AtlasPolicy-*
 use AthenaKernel        AthenaKernel-*          Control
+use AthenaBaseComps	AthenaBaseComps-*	Control
 use AthenaPoolUtilities  AthenaPoolUtilities-*  Database/AthenaPOOL
 use CLIDSvc             CLIDSvc-*               Control
 use GaudiInterface      GaudiInterface-*        External

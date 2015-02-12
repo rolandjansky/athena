@@ -8,14 +8,13 @@
 #include <string>
 #include <vector>
 #include <fstream>
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/DataHandle.h"
 #include "AthenaDBTestRec/TestCoolRecFolder.h"
 
 class IOVTime;
 
-class TestCoolRecRead : public Algorithm
+class TestCoolRecRead : public AthAlgorithm
 {
  public:
   TestCoolRecRead(const std::string& name, ISvcLocator* pSvcLocator);
@@ -36,7 +35,6 @@ class TestCoolRecRead : public Algorithm
   int par_dumpchan;
   std::string par_dumpfile;
 
-  StoreGateSvc* p_storegate;
   StoreGateSvc* p_detstore;
   std::vector<TestCoolRecFolder> m_folderlist;
   int m_nbadaux;

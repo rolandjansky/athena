@@ -14,8 +14,8 @@
 
 DetStoreDump::DetStoreDump(const std::string& name, 
   ISvcLocator* pSvcLocator) :
-   Algorithm(name,pSvcLocator),  m_log (msgSvc(),name), 
-   p_detstore(0), m_first(true)
+   AthAlgorithm(name,pSvcLocator),
+   m_first(true)
 {
   declareProperty("Mode",m_mode); 
 }
@@ -24,25 +24,21 @@ DetStoreDump::~DetStoreDump() {}
 
 StatusCode DetStoreDump::initialize() {
 
-  if (StatusCode::SUCCESS!=service("DetectorStore",p_detstore)) {
-    m_log << MSG::FATAL << "Detector store not found" << endreq;
-    return StatusCode::FAILURE;
-  }
-  m_log << MSG::INFO << "Initialise - mode " << m_mode << endreq;
+  ATH_MSG_INFO("Initialise - mode " << m_mode);
 
-  m_log << MSG::INFO << "Dump of complete detector store at initialize"
-	<< p_detstore->dump() << endreq;
-  m_log << MSG::INFO << "Dump finished" << endreq;
+  msg(MSG::INFO) << "Dump of complete detector store at initialize"
+	<< detStore()->dump() << endreq;
+  msg(MSG::INFO) << "Dump finished" << endreq;
 
   return StatusCode::SUCCESS;
 }
 
 StatusCode DetStoreDump::execute() {
   if (m_first && m_mode>0) {
-    m_log << MSG::INFO << 
+    msg(MSG::INFO) << 
      "Dump of complete detector store at first event execute"
-	  << p_detstore->dump() << endreq;
-    m_log << MSG::INFO << "Dump finished" << endreq;
+	  << detStore()->dump() << endreq;
+    msg(MSG::INFO) << "Dump finished" << endreq;
   }
   m_first=false;
   return StatusCode::SUCCESS;
