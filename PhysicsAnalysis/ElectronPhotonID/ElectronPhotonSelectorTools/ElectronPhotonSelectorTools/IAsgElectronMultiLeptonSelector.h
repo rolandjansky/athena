@@ -49,6 +49,9 @@ public:
   /** The main accept method: the actual cuts are applied here */
   virtual const Root::TAccept& accept( const xAOD::Electron& part ) const = 0;
 
+  /** Method to get the operating point */
+  virtual std::string getOperatingPointName( ) const=0;
+
 }; // End: class definition
 
 #endif

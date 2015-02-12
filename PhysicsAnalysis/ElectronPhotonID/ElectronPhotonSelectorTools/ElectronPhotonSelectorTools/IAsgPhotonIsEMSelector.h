@@ -50,9 +50,8 @@ public:
 
   virtual unsigned int IsemValue() const =0;
 
-  virtual egammaPID::PID PIDName() const = 0;
-
-  //virtual const Root::TAccept& getTAccept( ) =0; 
+  /** Method to get the operating point */
+  virtual std::string getOperatingPointName( ) const =0;
  
 }; // End: class definition
 

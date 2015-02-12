@@ -40,7 +40,7 @@ class IAsgElectronLikelihoodTool : virtual public IAsgSelectionTool
   virtual ~IAsgElectronLikelihoodTool() {};
 
 
-  /** The main accept method: using the generic interface */
+  /** The main accept method: using the generic interface , with pointers*/
   virtual const Root::TAccept& accept( const xAOD::IParticle* part ) const = 0;
 
   /** The main accept method: the actual cuts are applied here */
@@ -56,7 +56,7 @@ class IAsgElectronLikelihoodTool : virtual public IAsgSelectionTool
   virtual const Root::TAccept& accept( const xAOD::Egamma* part, double mu ) const = 0;
 
 
-  /** The main accept method: using the generic interface */
+  /** The main accept method: using the generic interface, with reference */
   virtual const Root::TAccept& accept( const xAOD::IParticle& part) const = 0;
 
   /** The main accept method: the actual cuts are applied here */
@@ -90,6 +90,9 @@ class IAsgElectronLikelihoodTool : virtual public IAsgSelectionTool
 
   /** Method to get the plain TResult */
   virtual const Root::TResult& getTResult( ) const=0;
+
+  /** Method to get the operating point */
+  virtual std::string getOperatingPointName( ) const =0;
 
   //virtual const Root::TAccept& getTAccept( ) const =0; // in base
 

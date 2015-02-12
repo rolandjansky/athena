@@ -17,8 +17,8 @@ use xAODTracking                xAODTracking-*          Event/xAOD
 private
 use  GaudiInterface             GaudiInterface-*           External
 use  xAODCaloEvent              xAODCaloEvent-*           Event/xAOD
-use  xAODEventInfo              xAODEventInfo-*            Event/xAOD
 use  PathResolver               PathResolver-*             Tools
+
 # in AtlasEvent, even if in PhysicsAnalysis directory   
 end_private
 

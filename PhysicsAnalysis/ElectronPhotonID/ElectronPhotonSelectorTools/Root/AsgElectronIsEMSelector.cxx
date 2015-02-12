@@ -34,19 +34,23 @@ AsgElectronIsEMSelector::AsgElectronIsEMSelector(std::string myname) :
   m_rootTool(0)
 {
 
-  m_rootTool = new Root::TElectronIsEMSelector();
+  m_rootTool = new Root::TElectronIsEMSelector(myname.c_str());
+  m_rootTool->msg().setLevel(this->msg().level());
 
-  declareProperty("ConfigFile",m_configFile="ElectronPhotonSelectorTools/offline/dc14b_20150121/ElectronIsEMMediumSelectorCutDefs.conf","The config file to use (if not setting cuts one by one)");
+  declareProperty("ConfigFile",m_configFile="",
+		  "The config file to use (if not setting cuts one by one)");
   
-  // Name of the PID
+  // Name of the quality to use
   declareProperty("isEMMask",
-		  m_rootTool->isEMMask=egammaPID::ElectronMediumPP,
+		  m_rootTool->isEMMask=egammaPID::EgPidUndefined, //All pass by default, if not specified
 		  "The mask to use");
 
-  // Name of the PID
+  //Name of the PID kind. This is not used anymore, 
+  //Should remove, it bar python dependencies (py using this property still)
+  //Do not use, do not advertise
   declareProperty("PIDName",
-		  m_rootTool->PIDName=egammaPID::IsEM,
-		  "Name of the PID word to use");
+		  m_PIDName=0,
+		  "Name of the PID ");
   
   // Boolean to use b-layer prediction
   declareProperty("useBLayerHitPrediction", 
@@ -196,14 +200,9 @@ AsgElectronIsEMSelector::~AsgElectronIsEMSelector()
   if(finalize().isFailure()){
     ATH_MSG_ERROR ( "Failure in AsgElectronIsEMSelector finalize()");
   }
-
   delete m_rootTool;
 }
 
-
-//=============================================================================
-// Asgena initialize method
-//=============================================================================
 StatusCode AsgElectronIsEMSelector::initialize()
 {
   // The standard status code
@@ -211,8 +210,19 @@ StatusCode AsgElectronIsEMSelector::initialize()
 
   if(!m_configFile.empty()){
     
+    //find the file and read it in
     std::string filename = PathResolverFindCalibFile( m_configFile);
     TEnv env(filename.c_str());
+    
+    ///------- Read in the TEnv config ------///
+
+    //Override the mask via the config only if it is not set 
+    if(m_rootTool->isEMMask==egammaPID::EgPidUndefined){ 
+      unsigned int mask(env.GetValue("isEMMask",static_cast<int>(egammaPID::EgPidUndefined)));
+      m_rootTool->isEMMask=mask;
+    }
+    //
+    //From here on the conf ovverides all other properties
     bool useTRTOutliers(env.GetValue("useTRTOutliers", true));
     m_rootTool->useTRTOutliers =useTRTOutliers;
     bool useBLOutliers(env.GetValue("useBLOutliers", true));
@@ -228,6 +238,7 @@ StatusCode AsgElectronIsEMSelector::initialize()
     bool useBLayerHitPrediction (env.GetValue("useBLayerHitPrediction", false));
     m_rootTool->useBLayerHitPrediction =useBLayerHitPrediction;
 
+    ///------- Use helpers to read in the cut arrays ------///
     m_rootTool->CutBinEta  =AsgConfigHelper::HelperFloat("CutBinEta",env);
     m_rootTool->CutBinET = AsgConfigHelper::HelperFloat("CutBinET",env);
     m_rootTool->CutF1 = AsgConfigHelper::HelperFloat("CutF1",env);
@@ -258,14 +269,12 @@ StatusCode AsgElectronIsEMSelector::initialize()
     m_rootTool->CutBinET_TRT = AsgConfigHelper::HelperFloat("CutBinET_TRT",env); 
     m_rootTool->CutNumTRT = AsgConfigHelper::HelperFloat("CutNumTRT",env);        
     m_rootTool->CutTRTRatio = AsgConfigHelper::HelperFloat("CutTRTRatio",env);    
-    m_rootTool->CutTRTRatio90 = AsgConfigHelper::HelperFloat("CutTRTRatio90",env);   
-
-       
+    m_rootTool->CutTRTRatio90 = AsgConfigHelper::HelperFloat("CutTRTRatio90",env);  
   } else {
-    ATH_MSG_ERROR("Conf file empty: the racomanded are the one under : ElectronPhotonSelectorTools/offline/dc14b_20150121/");
-    sc = StatusCode::FAILURE;
-    return sc;
+    ATH_MSG_INFO("Conf file empty. Just user Input");
   }
+
+  ATH_MSG_INFO("operating point : " << this->getOperatingPointName());
 
   // We need to initialize the underlying ROOT TSelectorTool
   if ( 0 == m_rootTool->initialize() )
@@ -295,9 +304,6 @@ StatusCode AsgElectronIsEMSelector::finalize()
 
   return sc ;
 }
-
-
-
 
 //=============================================================================
 // The main accept method: the actual cuts are applied here 
@@ -355,6 +361,23 @@ const Root::TAccept& AsgElectronIsEMSelector::accept( const xAOD::Egamma* eg ) c
 }
 
 
+//=============================================================================
+/// Get the name of the current operating point
+//=============================================================================
+std::string AsgElectronIsEMSelector::getOperatingPointName() const
+{
+
+  if (m_rootTool->isEMMask == egammaPID::ElectronLoosePP){ return "Loose"; }
+  else if (m_rootTool->isEMMask == egammaPID::ElectronMediumPP ){ return "Medium"; }
+  else if (m_rootTool->isEMMask == egammaPID::ElectronTightPP){ return "Tight"; }
+  else if (m_rootTool->isEMMask == 0){ return "0 No cuts applied"; }
+  else{
+      ATH_MSG_INFO( "Didn't recognize the given operating point with mask: " << m_rootTool->isEMMask );
+      return "";
+    }
+}
+
+///==========================================================================================//
 // The stuff copied over from egammaElectronCutIDTool
 
 // ==============================================================

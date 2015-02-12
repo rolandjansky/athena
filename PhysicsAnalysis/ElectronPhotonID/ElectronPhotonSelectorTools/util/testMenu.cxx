@@ -19,7 +19,6 @@
 #endif // ROOTCORE
 
 // EDM include(s):
-#include "xAODEventInfo/EventInfo.h"
 #include "xAODEgamma/ElectronContainer.h" 
 #include "xAODEgamma/Egamma.h"
 
@@ -80,22 +79,59 @@ int main( int argc, char* argv[] ) {
    // Create a transient object store. Needed for the tools.
    //   xAOD::TStore *m_store;
 
+
+   std::string confDir = "ElectronPhotonSelectorTools/offline/dc14b_20150121/";
+
    //MultiLepton
    AsgElectronMultiLeptonSelector myMultiLepton ("myMultiLepton");
    myMultiLepton.initialize();
 
    //Likelihood
    AsgElectronLikelihoodTool myLikelihood ("myLikelihood");
-   myLikelihood.setProperty("primaryVertexContainer","PrimaryVertices" );
-   myLikelihood.setProperty("OperatingPoint",static_cast<unsigned int> (LikeEnum::Loose) );
-   myLikelihood.setProperty("inputPDFFileName","ElectronPhotonSelectorTools/offline/dc14b_20141031/DC14OfflinePDFs.root");
+   myLikelihood.setProperty("ConfigFile",confDir+"ElectronLikelihoodTightOfflineConfig2015.conf");
    myLikelihood.initialize();
 
+   //IsEM
    AsgElectronIsEMSelector myLoose ("myLoose"); 
-   myLoose.setProperty("ConfigFile","ElectronPhotonSelectorTools/offline/dc14b_20141031/ElectronIsEMLooseSelectorCutDefs.conf" );
+   myLoose.setProperty("ConfigFile",confDir+"ElectronIsEMLooseSelectorCutDefs.conf");
    myLoose.setProperty("isEMMask",static_cast<unsigned int> (egammaPID::ElectronLoosePP) );
-   myLoose.setProperty("PIDName",static_cast<int> (egammaPID::IsEMLoose) );
    myLoose.initialize();
+   myLoose.msg().setLevel(MSG::DEBUG); //set MSG LEVEL
+   //IsEM no cut 
+   AsgElectronIsEMSelector nocut ("nocut"); 
+   nocut.setProperty("isEMMask",static_cast<unsigned int> (0) );
+   nocut.initialize();
+
+   ///=========================================================================
+   //IsEM here I am an expert, added as an example of what we can do already...
+   AsgElectronIsEMSelector expert ("expert"); 
+   expert.setProperty("ConfigFile",confDir+"ElectronIsEMLooseSelectorCutDefs.conf");
+   expert.setProperty("isEMMask",static_cast<unsigned int> (egammaPID::ElectronLoosePP) );
+   expert.initialize();
+   std::cout<<"What I was :  "  << expert.getOperatingPointName( )<<std::endl;
+   //So far nothing dramatic I just got a std loose
+
+   //But the setProperty (via declareProperty) talks directly to the pimpl ;-)
+   expert.setProperty("isEMMask",static_cast<unsigned int> (egammaPID::ElectronMediumPP));
+   std::cout<< "Hey just changed that to something else  " << expert.getOperatingPointName( )<<std::endl;
+   //Now I am still using Loose cut values due to the conf but medium mask
+
+
+   //This could be also cut values
+   std::vector<int> expertcutpixel = {2, 2, 2, 2, 2, 2, 2, 2, 2, 2};
+   expert.setProperty("CutPi",expertcutpixel);
+   std::vector<int> whatpixel = *(expert.getProperty<std::vector<int> >("CutPi"));
+
+   std::cout<<"There are my pixel cuts now, remember I connect to  m_rootTool->CutPi  "; 
+   for (unsigned int i =0; i <whatpixel.size(); ++i){
+     std::cout<<whatpixel.at(i)<< " , ";
+   }
+   std::cout<<std::endl;
+   
+   //BUT IT CANNOT BE A DIFFERENT CONF file, it will work, 
+   //but without init will not pick up the new cut values
+   //The reason is that the conf was designed to get picked up in init
+
 
    // Loop over the events:
    for( Long64_t entry = 0; entry < entries; ++entry ) {
@@ -105,32 +141,28 @@ int main( int argc, char* argv[] ) {
      
      std::cout << "=================NEXT EVENT==========================" << std::endl;
      
-     const xAOD::EventInfo* event_info = 0;  
-     CHECK( event.retrieve( event_info, "EventInfo" ) ); 
-      
      const xAOD::ElectronContainer* electrons = 0 ;  
-     CHECK( event.retrieve(electrons, "ElectronCollection") );
+     CHECK( event.retrieve(electrons, "Electrons") );
      
-     if ( !event.retrieve( electrons, "ElectronCollection" ).isSuccess() ){ // retrieve arguments: container type, container key
+     if ( !event.retrieve( electrons, "Electrons" ).isSuccess() ){ // retrieve arguments: container type, container key
        Error("execute()", "Failed to retrieve El container. Exiting." );
      }
-     
-     //     auto el_it      = electrons->begin(); 
-     // auto el_it_last = electrons->end(); 
+
      xAOD::ElectronContainer::const_iterator el_it      = electrons->begin(); 
      xAOD::ElectronContainer::const_iterator el_it_last = electrons->end(); 
      unsigned int i = 0; 
      std::cout << "TEST " << std::endl; 
      
      for (; el_it != el_it_last; ++el_it, ++i) {
-       std::cout << "TEST 1" << std::endl;  
        const xAOD::Electron* el = (*el_it); 
        std::cout << "Electron " << el << " Num " << i << std::endl; 
-       std::cout << "xAOD/raw pt = " << (*el_it)->pt() << std::endl; 
+       std::cout << "xAOD pt = " << (*el_it)->pt() << std::endl; 
        Info (APP_NAME,"Electron #%d", i); 
 
        bool value=false;
        //////////////
+       Info (APP_NAME,"Electron No cut  accept() returns %d ", static_cast<bool> (nocut.accept(*el)) );      
+
        if(el->passSelection(value,"MultiLepton")){
 	 Info (APP_NAME,"Electron MultiLepton from Reco returns %d ", static_cast<bool> (value) );
        }
@@ -144,7 +176,6 @@ int main( int argc, char* argv[] ) {
 	 Info (APP_NAME,"Electron Loose from Reco returns %d ", static_cast<bool> (value) );
        }
        Info (APP_NAME,"Electron Loose accept() returns %d ", static_cast<bool> (myLoose.accept(*el)) );
-
      }
      
      Info( APP_NAME,
@@ -154,6 +185,7 @@ int main( int argc, char* argv[] ) {
    myMultiLepton.finalize();
    myLikelihood.finalize();
    myLoose.finalize();
+   nocut.finalize();
    // Return gracefully:
    return 0;
 }

@@ -506,7 +506,7 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Electron*
         allFound = allFound && t->summaryValue(nTRT, xAOD::numberOfTRTHits);
         allFound = allFound && t->summaryValue(nTRTOutliers, xAOD::numberOfTRTOutliers);
         allFound = allFound && t->summaryValue(nTRTXenon, xAOD::numberOfTRTXenonHits);
-        allFound = allFound && t->summaryValue(TRT_PID, xAOD::eProbabilityComb);
+        allFound = allFound && t->summaryValue(TRT_PID, xAOD::eProbabilityHT);
 
         unsigned int index;
         if( t->indexOfParameterAtPosition(index, xAOD::LastMeasurement) ) {
@@ -746,7 +746,23 @@ const Root::TResult& AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* e
 }
 
 //=============================================================================
-// Inline methods
+/// Get the name of the current operating point
+//=============================================================================
+std::string AsgElectronLikelihoodTool::getOperatingPointName() const
+{
+  if ( m_rootTool->OperatingPoint == LikeEnum::VeryLoose ){ return "LHVeryLoose"; }
+  else if (m_rootTool->OperatingPoint == LikeEnum::Loose ){ return "LHLoose"; }
+  else if (m_rootTool->OperatingPoint == LikeEnum::Medium ){ return "LHMedium"; }
+  else if (m_rootTool->OperatingPoint == LikeEnum::Tight ){ return "LHTight"; }
+  else if (m_rootTool->OperatingPoint == LikeEnum::VeryTight ){ return "LHVeryTight"; }
+  else if (m_rootTool->OperatingPoint == LikeEnum::LooseRelaxed ){ return "LHLooseRelaxed"; }
+  else if (m_rootTool->OperatingPoint == LikeEnum::CustomOperatingPoint ){ return "LHCustomOperatingPoint"; }
+  else
+    {
+      ATH_MSG_ERROR( "Didn't recognize the given operating point enum: " <<  m_operatingPoint );
+      return "";
+    }
+}
 //=============================================================================
 const Root::TAccept& AsgElectronLikelihoodTool::accept(const xAOD::IParticle* part) const
 {
@@ -803,21 +819,3 @@ unsigned int AsgElectronLikelihoodTool::getNPrimVertices() const
 }
 
 
-//=============================================================================
-/// Get the name of the current operating point
-//=============================================================================
-std::string AsgElectronLikelihoodTool::getOperatingPointName( const LikeEnum::Menu operating_point ) const
-{
-  if ( operating_point == LikeEnum::VeryLoose ){ return "VeryLoose"; }
-  else if ( operating_point == LikeEnum::Loose ){ return "Loose"; }
-  else if ( operating_point == LikeEnum::Medium ){ return "Medium"; }
-  else if ( operating_point == LikeEnum::Tight ){ return "Tight"; }
-  else if ( operating_point == LikeEnum::VeryTight ){ return "VeryTight"; }
-  else if ( operating_point == LikeEnum::LooseRelaxed ){ return "LooseRelaxed"; }
-  else if ( operating_point == LikeEnum::CustomOperatingPoint ){ return "CustomOperatingPoint"; }
-  else
-    {
-      ATH_MSG_ERROR( "Didn't recognize the given operating point enum: " << operating_point );
-      return "";
-    }
-}

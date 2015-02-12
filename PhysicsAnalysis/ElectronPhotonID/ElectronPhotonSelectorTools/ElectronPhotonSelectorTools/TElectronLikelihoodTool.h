@@ -3,34 +3,6 @@
 */
 
 // Dear emacs, this is -*-c++-*-
-
-#ifndef TELECTRONLIKELIHOODTOOL_H
-#define TELECTRONLIKELIHOODTOOL_H
-
-
-#include <fstream>
-#include <iostream>
-
-// ROOT includes
-#include "TFile.h"
-#include "TH1.h"
-
-// Include the return objects and the base class
-#include "PATCore/TAccept.h"
-#include "PATCore/TResult.h"
-#include "PATCore/TCalculatorToolBase.h"
-#include "PATCore/TSelectorToolBase.h"
-
-
-
-//#define IP_BINS 2
-//#define IP_BINS 1
-
-namespace{
-
-const unsigned int  IP_BINS=1;
-}
-
 //----------------------------------------------------------------------------------------
 
 /**
@@ -109,6 +81,34 @@ const unsigned int  IP_BINS=1;
 */
 //-------------------------------------------------------------------------------------------------------
 
+
+#ifndef TELECTRONLIKELIHOODTOOL_H
+#define TELECTRONLIKELIHOODTOOL_H
+
+
+#include <fstream>
+#include <iostream>
+
+// ROOT includes
+#include "TFile.h"
+#include "TH1.h"
+
+// Include the return objects and the base class
+#include "PATCore/TAccept.h"
+#include "PATCore/TResult.h"
+#include "PATCore/TCalculatorToolBase.h"
+#include "PATCore/TSelectorToolBase.h"
+#include "AsgTools/AsgMessaging.h"
+
+
+//#define IP_BINS 2
+//#define IP_BINS 1
+
+namespace{
+
+const unsigned int  IP_BINS=1;
+}
+
 namespace LikeEnum {
   enum Menu {
     VeryLoose,
@@ -164,26 +164,8 @@ namespace LikeEnum {
    struct ROOT6_NamespaceAutoloadHook{};
 }
 
-//This is an *ugly* solution due to what appears to be Root dict issue for interactive use
-
 namespace Root {
-
-  class ITElectronLikelihoodTool :   public TCalculatorToolBase, public TSelectorToolBase{
-
-  public :
-    ITElectronLikelihoodTool(const char* name="ITElectronLikelihoodTool") : 
-      TCalculatorToolBase(name),
-      TSelectorToolBase(name){}
-      
-    virtual int initialize()=0;
-
-    /// Finalize this class; everything that should be done after the event loop should go here
-    virtual int finalize() =0;
-  };
-}
-
-namespace Root {
-  class TElectronLikelihoodTool : public ITElectronLikelihoodTool 
+  class TElectronLikelihoodTool : public TCalculatorToolBase, public TSelectorToolBase, public asg::AsgMessaging
   {
 
   public: 

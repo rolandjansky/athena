@@ -32,7 +32,8 @@ AsgElectronMultiLeptonSelector::AsgElectronMultiLeptonSelector(std::string mynam
 {
  
   // Create an instance of the underlying ROOT tool
-  m_rootTool = new Root::TElectronMultiLeptonSelector();
+  m_rootTool = new Root::TElectronMultiLeptonSelector(myname.c_str());
+  m_rootTool->msg().setLevel(this->msg().level());
 
 }
 
@@ -205,11 +206,6 @@ const Root::TAccept& AsgElectronMultiLeptonSelector::accept( const xAOD::Electro
     return m_acceptDummy;
   }
 
-  // Get the message level
-  bool debug(false);
-  if ( this->msgLvl(MSG::VERBOSE) ) debug = true;
-
-
   // Get the answer from the underlying ROOT tool
   return m_rootTool->accept(eta, et,
                             Rhad, Rhad1,
@@ -221,8 +217,7 @@ const Root::TAccept& AsgElectronMultiLeptonSelector::accept( const xAOD::Electro
                             deltaPhiRescaled,
                             dpOverp,
                             rTRT, nTRTTotal,
-                            nBlayerHits, expectBlayer,
-                            debug );
+                            nBlayerHits, expectBlayer);
 }
 
 
@@ -237,4 +232,12 @@ const Root::TAccept& AsgElectronMultiLeptonSelector::accept(const xAOD::IParticl
     ATH_MSG_ERROR("AsgElectronMultiLeptonSelector::could not convert argument to accept");
     return m_acceptDummy;
   }
+}
+
+//=============================================================================
+/// Get the name of the current operating point
+//=============================================================================
+std::string AsgElectronMultiLeptonSelector::getOperatingPointName() const
+{
+  return "MultiLepton";
 }
