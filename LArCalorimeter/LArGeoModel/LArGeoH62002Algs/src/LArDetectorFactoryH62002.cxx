@@ -462,10 +462,12 @@ void LArGeo::LArDetectorFactoryH62002::create(GeoPhysVol *world)
       double startPhi = s==2 ?  -36*M_PI/64 : -38*M_PI/64;
       CellBinning  phiBinning(startPhi, startPhi+width*2*2*M_PI/64, width*nPhi);
       HECDetDescr *d = new HECDetDescr(hecDetManager,s,r,phiBinning); 
-      for (unsigned int endcap=1;endcap<2;endcap++) {
+      // Only POS endcap (1)
+      //for (unsigned int endcap=1;endcap<2;endcap++)
+      {
 	StoredPhysVol *vol;                                                   
-	if (StatusCode::SUCCESS==m_detectorStore->retrieve(vol, endcap==0 ? "HEC1_NEG" : "HEC1_POS")) {                
-	  HECDetectorRegion::DetectorSide side = (HECDetectorRegion::DetectorSide) endcap;
+	if (StatusCode::SUCCESS==m_detectorStore->retrieve(vol, "HEC1_POS")) {                
+	  HECDetectorRegion::DetectorSide side = HECDetectorRegion::POS;
 	  HECDetectorRegion *region = new HECDetectorRegion(vol->getPhysVol(),d,side);
 	  hecDetManager->addDetectorRegion(region);
 	}                                                                     

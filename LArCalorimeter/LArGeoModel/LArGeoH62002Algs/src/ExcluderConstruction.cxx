@@ -52,9 +52,6 @@
 #include <cmath>
 
 LArGeo::ExcluderConstruction::ExcluderConstruction()
-  :PhysExcluder(0),
-   pAccessSvc(0),
-   geoModelSvc(0)
 {
 }
 
@@ -103,21 +100,11 @@ GeoPhysVol* LArGeo::ExcluderConstruction::GetEnvelope()
   Rohacell->add(N,0.08377);
   Rohacell->lock();
 
-
-
-  // Database
-  StatusCode sc;
-  sc=svcLocator->service("RDBAccessSvc",pAccessSvc);
-  if (sc != StatusCode::SUCCESS) {
-    throw std::runtime_error ("Cannot locate RDBAccessSvc!!");
-  }
-
-  // GeoModelSvc
-  sc = svcLocator->service ("GeoModelSvc",geoModelSvc);
-  if (sc != StatusCode::SUCCESS) {
+  ServiceHandle<IGeoModelSvc> geoModelSvc ("GeoModelSvc", "WallsConstruction");
+  if (geoModelSvc.retrieve().isFailure()) {
     throw std::runtime_error ("Cannot locate GeoModelSvc!!");
   }
-  
+
   std::string AtlasVersion = geoModelSvc->atlasVersion();
   std::string LArVersion = geoModelSvc->LAr_VersionOverride();
 
@@ -160,8 +147,3 @@ GeoPhysVol* LArGeo::ExcluderConstruction::GetEnvelope()
   return PhysExcluder;
 
 }
-
-
-
-
-

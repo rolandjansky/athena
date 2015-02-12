@@ -6,8 +6,8 @@
 // Return an envelope that contains the LArH62002 Beam Instrumentation.
 // Apr-2006 mgf
 
-#ifndef __FrontBeamConstructionH62002_H__
-#define __FrontBeamConstructionH62002_H__
+#ifndef LARGEOH62002ALGS_FRONTBEAMCONSTRUCTIONH62002_H
+#define LARGEOH62002ALGS_FRONTBEAMCONSTRUCTIONH62002_H
 
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
@@ -26,22 +26,14 @@ namespace LArGeo {
     
     // Get the envelope containing this detector.
     virtual GeoVPhysVol* GetEnvelope();
-    void SetManager(LArDetDescrManager* mgr){_detectorManager = mgr;}
+    void SetManager(LArDetDescrManager* /*mgr*/){ }
 
     //void SetAxisVisState(bool state) {_axisVisState=state;}
       
   private:
-
-
-    GeoPhysVol          *H62002FrontBeamPhysical;
-    LArDetDescrManager  *_detectorManager;
-
-
-    IRDBAccessSvc       *pAccessSvc;
-    IGeoModelSvc        *geoModelSvc;
-    
+    GeoPhysVol          *m_H62002FrontBeamPhysical;
   };
 
 } // namespace LArGeo
 
-#endif // __FrontBeamConstructionH62002_H__
+#endif // LARGEOH62002ALGS_FRONTBEAMCONSTRUCTIONH62002_H
