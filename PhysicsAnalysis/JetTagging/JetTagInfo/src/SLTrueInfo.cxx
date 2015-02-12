@@ -20,7 +20,7 @@ SLTrueInfo::SLTrueInfo()
   m_ProductionVertex.setZero();
 }
 
-SLTrueInfo::SLTrueInfo(int barc, int pdg, int pdgm, bool b, bool d, bool w, const Eigen::Vector3d& p, const Eigen::Vector3d& r) {
+SLTrueInfo::SLTrueInfo(int barc, int pdg, int pdgm, bool b, bool d, bool w, Eigen::Vector3d& p, Eigen::Vector3d& r) {
   m_barcode          = barc;
   m_pdgCode          = pdg;
   m_pdgCodeMother    = pdgm;
@@ -41,7 +41,7 @@ MsgStream& operator<<( MsgStream& out, const SLTrueInfo& info) {
       << " pt = " << info.momentum().perp()
       << " pdgMother = " << info.pdgIdMother()
       << " From B = " << info.FromB() << " From D = " << info.FromD() << " From Gauge/Higgs = " << info.FromGH()
-      << endmsg; 
+      << endreq; 
   return out;
 }
   

@@ -108,9 +108,7 @@ public:
 
     /** Set-methods for the private data members of the class. */
     void setFitType(FitType type);
-    void setSecVtx(const Trk::RecVertex& secVtx,
-                   double fitProb,
-                   const TrackVec& fittedTrks);
+    void setSecVtx(Trk::RecVertex secVtx, double fitProb, TrackVec fittedTrks);
     void setNumSelTracksForFit(int numSelTracksForFit);
     void setMult(int mult);
     void setMass(double mass);
@@ -171,9 +169,7 @@ inline const Trk::RecVertex& SecVtxInfo::secVertexPos() const
 {
     return m_secVtxPos;
 }
-inline void SecVtxInfo::setSecVtx(const Trk::RecVertex& secVtx,
-                                  double fitProb, 
-                                  const TrackVec& fittedTrks)
+inline void SecVtxInfo::setSecVtx(Trk::RecVertex secVtx, double fitProb, TrackVec fittedTrks)
 {
     m_secVtxPos=secVtx;
     m_prob=fitProb;

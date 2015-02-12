@@ -49,9 +49,9 @@ SoftMuonInfo::~SoftMuonInfo()
   MsgStream& operator<<( MsgStream& out, const SoftMuonInfo& info) {
     int ntrk = info.numTrackInfo();
     out << " - Tag type " << info.infoType() 
-	<< " based on " << ntrk << " muon tracks:" << endmsg;
+	<< " based on " << ntrk << " muon tracks:" << endreq;
     for(int i=0;i<ntrk;i++) {
-      out << " -> " << i << info.getTrackInfo(i) << endmsg;
+      out << " -> " << i << info.getTrackInfo(i) << endreq;
     }
     return out;
   }

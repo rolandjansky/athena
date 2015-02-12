@@ -24,28 +24,18 @@ namespace Analysis {
                   const Electron* el,
                   double d0val,
                   double pTrel,
-		  const std::vector<double>& tagLikelihood);
+		  std::vector<double> tagLikelihood);
       SETrackInfo(const PhotonContainer* coll, 
                   const Photon* el,
                   double d0val,
                   double pTrel,
-		  const std::vector<double>& tagLikelihood);
-      SETrackInfo(const ElementLink<ElectronContainer>& eleLink,
-                  double d0val,
-                  double pTrel,
-		  std::vector<double>&& tagLikelihood);
-      SETrackInfo(const ElementLink<PhotonContainer>& gamLink,
-                  double d0val,
-                  double pTrel,
-		  std::vector<double>&& tagLikelihood);
+		  std::vector<double> tagLikelihood);
       virtual ~SETrackInfo();
       bool isPhoton() const;
       const egamma* electron() const;
       inline double d0Value() const { return m_valD0wrtPV; } 
       inline double pTrel() const { return m_pTrel; } 
-      inline const std::vector<double>& tagLikelihood() const { return m_tagLikelihood; }
-      inline const ElementLink<ElectronContainer>& electronLink() const { return m_electron; }
-      inline const ElementLink<PhotonContainer>& photonLink() const { return m_photon; }
+      inline std::vector<double> tagLikelihood() const { return m_tagLikelihood; }
     private:
       ElementLink<ElectronContainer> m_electron;
       ElementLink<PhotonContainer> m_photon;

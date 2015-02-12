@@ -26,7 +26,6 @@ class MultiSVInfoPlus : public BaseTagInfo
   
   /** assigenment operator */
   MultiSVInfoPlus &operator= (const MultiSVInfoPlus& rhs);
-  MultiSVInfoPlus &operator= (MultiSVInfoPlus&& rhs);
   
   /** default destructor */
   virtual ~MultiSVInfoPlus();
@@ -38,7 +37,6 @@ class MultiSVInfoPlus : public BaseTagInfo
   void setN2T(long int);
   void setNormDist(float);
   void addVtxInfo(MSVVtxInfo*); 
-  void addVtxInfo(std::unique_ptr<MSVVtxInfo>); 
 
   /** Get methods */
   long int              getNGTrackInJet() const;
@@ -63,7 +61,6 @@ class MultiSVInfoPlus : public BaseTagInfo
  inline void MultiSVInfoPlus::setN2T(long int li)          {m_N2Tpair  = li;}
  inline void MultiSVInfoPlus::setNormDist(float nd)        {m_normdist = nd;}
  inline void MultiSVInfoPlus::addVtxInfo(MSVVtxInfo* i) { m_vtxInfo.push_back(i); }
- inline void MultiSVInfoPlus::addVtxInfo(std::unique_ptr<MSVVtxInfo> i) { m_vtxInfo.push_back(i.release()); }
  //
  inline long int MultiSVInfoPlus::getNGTrackInJet() const              {return m_NGTinJet;}
  inline long int MultiSVInfoPlus::getNGTrackInSvx() const              {return m_NGTinSvx;}

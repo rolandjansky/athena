@@ -21,17 +21,12 @@ namespace Analysis {
                   const Muon* mu,
                   double d0val,
                   double pTrel,
-		  const std::vector<double>& tagLikelihood);
-      SMTrackInfo(const ElementLink<MuonContainer>& muonLink,
-                  double d0val,
-                  double pTrel,
-		  std::vector<double>&& tagLikelihood);
+		  std::vector<double> tagLikelihood);
       virtual ~SMTrackInfo();
       const Muon* muon() const;
-      inline const ElementLink<MuonContainer>& muonLink() const { return m_muon; }
       inline double d0Value() const { return m_valD0wrtPV; } 
       inline double pTrel() const { return m_pTrel; } 
-      inline const std::vector<double>& tagLikelihood() const { return m_tagLikelihood; }
+      inline std::vector<double> tagLikelihood() const { return m_tagLikelihood; }
     private:
       ElementLink<MuonContainer> m_muon;
       double m_valD0wrtPV;

@@ -19,7 +19,7 @@ SMTrackInfo::SMTrackInfo(const MuonContainer* coll,
 			 const Muon* mu,
 			 double d0val,
 			 double pTrel,
-			 const std::vector<double>& tagLikelihood) {
+			 std::vector<double> tagLikelihood) {
   ElementLink<MuonContainer> link;
   if( link.toContainedElement(*coll, const_cast<Muon*>(mu)) ) {
     m_muon = link;
@@ -29,17 +29,6 @@ SMTrackInfo::SMTrackInfo(const MuonContainer* coll,
   m_tagLikelihood = tagLikelihood;
 }
 	
-SMTrackInfo::SMTrackInfo(const ElementLink<MuonContainer>& muonLink,
-                         double d0val,
-                         double pTrel,
-                         std::vector<double>&& tagLikelihood)
-  : m_muon (muonLink),
-    m_valD0wrtPV (d0val),
-    m_pTrel (pTrel),
-    m_tagLikelihood (std::move (tagLikelihood))
-{
-}
-
 SMTrackInfo::~SMTrackInfo() {
 }
 
@@ -65,7 +54,7 @@ MsgStream& operator<<( MsgStream& out, const SMTrackInfo& info) {
       << " d0wrtPV= " << info.d0Value() 
       << " original 1/pt,phi,cotTh = "<<ipt<<" "<<phi<<" "<<cth
       << " pTrel= " << info.pTrel()
-      << endmsg; 
+      << endreq; 
   return out;
 }
   

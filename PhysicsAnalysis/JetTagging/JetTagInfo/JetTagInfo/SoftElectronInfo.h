@@ -54,7 +54,6 @@ public:
     numbers are needed in order to make normalisation possible when calculating 
     the combined likelihood in the algorithm. */
     void setTrackProb(const FloatVec& vec);
-    void setTrackProb(FloatVec&& vec);
     void setNTrackProb(double nTrackProb);
     const FloatVec& vectorTrackProb(void) const;
     double nTrackProb(void) const;
@@ -80,10 +79,6 @@ private:
 inline void SoftElectronInfo::setTrackProb(const FloatVec& vec)
 {
     m_vectorOfTrackProb=vec;
-}
-inline void SoftElectronInfo::setTrackProb(FloatVec&& vec)
-{
-    m_vectorOfTrackProb=std::move(vec);
 }
 inline void SoftElectronInfo::setNTrackProb(double nTrackProb)
 {

@@ -19,7 +19,7 @@ SETrackInfo::SETrackInfo(const ElectronContainer* coll,
 			 const Electron* mu,
 			 double d0val,
 			 double pTrel,
-			 const std::vector<double>& tagLikelihood) {
+			 std::vector<double> tagLikelihood) {
   ElementLink<ElectronContainer> link;
   if( link.toContainedElement(*coll, const_cast<Electron*>(mu)) ) {
     m_electron = link;
@@ -33,7 +33,7 @@ SETrackInfo::SETrackInfo(const PhotonContainer* coll,
 			 const Photon* mu,
 			 double d0val,
 			 double pTrel,
-			 const std::vector<double>& tagLikelihood) {
+			 std::vector<double> tagLikelihood) {
   ElementLink<PhotonContainer> link;
   if( link.toContainedElement(*coll, const_cast<Photon*>(mu)) ) {
     m_photon = link;
@@ -43,28 +43,6 @@ SETrackInfo::SETrackInfo(const PhotonContainer* coll,
   m_tagLikelihood = tagLikelihood;
 }
 	
-SETrackInfo::SETrackInfo(const ElementLink<ElectronContainer>& eleLink,
-			 double d0val,
-			 double pTrel,
-			 std::vector<double>&& tagLikelihood)
-  : m_electron (eleLink),
-    m_valD0wrtPV (d0val),
-    m_pTrel (pTrel),
-    m_tagLikelihood (std::move (tagLikelihood))
- {
-}
-
-SETrackInfo::SETrackInfo(const ElementLink<PhotonContainer>& gamLink,
-			 double d0val,
-			 double pTrel,
-			 std::vector<double>&& tagLikelihood)
-  : m_photon (gamLink),
-    m_valD0wrtPV (d0val),
-    m_pTrel (pTrel),
-    m_tagLikelihood (std::move (tagLikelihood))
- {
-}
-
 SETrackInfo::~SETrackInfo() {
 }
 
@@ -98,7 +76,7 @@ MsgStream& operator<<( MsgStream& out, const SETrackInfo& info) {
       << " d0wrtPV= " << info.d0Value() 
       << " original 1/pt,phi,cotTh = "<<ipt<<" "<<phi<<" "<<cth
       << " pTrel= " << info.pTrel()
-      << endmsg; 
+      << endreq; 
   return out;
 }
   
