@@ -41,7 +41,7 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 
-#include "GeoModelInterfaces/IGeoDbTagSvc.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -89,10 +89,13 @@ GeoVPhysVol* LArGeo::TableConstructionH62002::GetEnvelope()
     throw std::runtime_error("Error in TableConstructionH62002, cannot access DetectorStore");
   }
 
-  ServiceHandle<IGeoDbTagSvc> geoDbTagSvc ("GeoDbTagSvc", "WallsConstruction");
-  if (geoDbTagSvc.retrieve().isFailure()) {
-    throw std::runtime_error ("Cannot locate GeoDbTagSvc!!");
+
+  ServiceHandle<IGeoModelSvc> geoModelSvc ("GeoModelSvc", "WallsConstruction");
+  if (geoModelSvc.retrieve().isFailure()) {
+    throw std::runtime_error ("Cannot locate GeoModelSvc!!");
   }
+
+
 
   // Get the materials from the material manager:-----------------------------------------------------//
   //                                                                                                  //  
@@ -122,9 +125,9 @@ GeoVPhysVol* LArGeo::TableConstructionH62002::GetEnvelope()
   //                                                                                                 //
   //-------------------------------------------------------------------------------------------------//
 
-  std::string AtlasVersion = geoDbTagSvc->atlasVersion();
-  std::string LArVersion = geoDbTagSvc->LAr_VersionOverride();
-   
+  std::string AtlasVersion = geoModelSvc->atlasVersion();
+  std::string LArVersion = geoModelSvc->LAr_VersionOverride();
+
   std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
   std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
 
@@ -180,7 +183,7 @@ GeoVPhysVol* LArGeo::TableConstructionH62002::GetEnvelope()
   for ( unsigned int i = 0; i < v_ScintZ.size(); i++ ) {
     m_H62002TablePhysical->add( new GeoIdentifierTag(i) );
     m_H62002TablePhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, (v_ScintZ[ i ]-H62002TableZ) ) ) );
-    log << MSG::INFO << " Position the F Scintillator at: " << v_ScintZ[ i ] << endmsg ;
+    log << MSG::INFO << " Position the F Scintillator at: " << v_ScintZ[ i ] << endreq ;
     m_H62002TablePhysical->add( ScintPhysical );
   } 
 

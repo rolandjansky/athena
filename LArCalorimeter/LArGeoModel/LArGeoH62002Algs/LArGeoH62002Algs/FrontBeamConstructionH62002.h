@@ -10,14 +10,16 @@
 #define LARGEOH62002ALGS_FRONTBEAMCONSTRUCTIONH62002_H
 
 #include "GeoModelKernel/GeoPhysVol.h"
-
+#include "GeoModelKernel/GeoFullPhysVol.h"
+class IRDBAccessSvc;
+class IGeoModelSvc;
 class LArDetDescrManager;
 
 namespace LArGeo {
 
   class FrontBeamConstructionH62002 
-  {
-  public:
+    {
+    public:
     
     FrontBeamConstructionH62002();
     virtual ~FrontBeamConstructionH62002();
@@ -25,6 +27,8 @@ namespace LArGeo {
     // Get the envelope containing this detector.
     virtual GeoVPhysVol* GetEnvelope();
     void SetManager(LArDetDescrManager* /*mgr*/){ }
+
+    //void SetAxisVisState(bool state) {_axisVisState=state;}
       
   private:
     GeoPhysVol          *m_H62002FrontBeamPhysical;

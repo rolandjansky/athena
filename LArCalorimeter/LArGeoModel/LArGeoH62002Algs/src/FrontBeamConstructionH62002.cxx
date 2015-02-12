@@ -41,7 +41,7 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 
-#include "GeoModelInterfaces/IGeoDbTagSvc.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -90,10 +90,12 @@ GeoVPhysVol* LArGeo::FrontBeamConstructionH62002::GetEnvelope()
     throw std::runtime_error("Error in FrontBeamConstructionH62002, cannot access DetectorStore");
   }
 
-  ServiceHandle<IGeoDbTagSvc> geoDbTagSvc ("GeoDbTagSvc", "WallsConstruction");
-  if (geoDbTagSvc.retrieve().isFailure()) {
-    throw std::runtime_error ("Cannot locate GeoDbTagSvc!!");
+
+  ServiceHandle<IGeoModelSvc> geoModelSvc ("GeoModelSvc", "WallsConstruction");
+  if (geoModelSvc.retrieve().isFailure()) {
+    throw std::runtime_error ("Cannot locate GeoModelSvc!!");
   }
+
 
   // Get the materials from the material manager:-----------------------------------------------------//
   //                                                                                                  //
@@ -125,11 +127,14 @@ GeoVPhysVol* LArGeo::FrontBeamConstructionH62002::GetEnvelope()
   //                                                                                                 //
   //-------------------------------------------------------------------------------------------------//
 
-  std::string AtlasVersion = geoDbTagSvc->atlasVersion();
-  std::string LArVersion = geoDbTagSvc->LAr_VersionOverride();
-   
+
+  
+  std::string AtlasVersion = geoModelSvc->atlasVersion();
+  std::string LArVersion = geoModelSvc->LAr_VersionOverride();
+
   std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
-  std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";  
+  std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
+
 
   //////////////////////////////////////////////////////////////////
   // Define geometry

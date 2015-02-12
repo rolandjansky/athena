@@ -9,7 +9,7 @@
 
 
 #include "GeoModelUtilities/GeoModelExperiment.h"
-#include "GeoModelInterfaces/IGeoDbTagSvc.h"
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/MsgStream.h"
@@ -48,24 +48,33 @@ StatusCode
 LArDetectorToolH62002::create( StoreGateSvc* detStore )
 { 
   MsgStream log(msgSvc(), name()); 
-  
-  // Get the detector configuration.
-  IGeoDbTagSvc *geoDbTag;
-  service ("GeoModelSvc",geoDbTag);
-  
-  std::string AtlasVersion = geoDbTag->atlasVersion();
-  std::string LArVersion   = geoDbTag->LAr_VersionOverride();
 
+
+
+
+
+
+
+ // Get the detector configuration.
+  IGeoModelSvc *geoModel;
+  service ("GeoModelSvc",geoModel);
+  
+  std::string AtlasVersion = geoModel->atlasVersion();
+  std::string LArVersion   = geoModel->LAr_VersionOverride();
+  
   IRDBAccessSvc *accessSvc;
   service("RDBAccessSvc",accessSvc);
 
   std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
   std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
-  log << MSG::INFO << "Keys for LAr are "  << detectorKey  << "  " << detectorNode << endmsg;
+  log << MSG::INFO << "Keys for LAr are "  << detectorKey  << "  " << detectorNode << endreq;
 
 
-  log << MSG::INFO  << "Creating the LAr " << endmsg;
-  log << MSG::INFO  << "LAr Geometry Options:"   << endmsg;
+  log << MSG::INFO  << "Creating the LAr " << endreq;
+  log << MSG::INFO  << "LAr Geometry Options:"   << endreq;
+
+
+
 
   // 
   // Locate the top level experiment node 
@@ -74,7 +83,7 @@ LArDetectorToolH62002::create( StoreGateSvc* detStore )
   if (StatusCode::SUCCESS != detStore->retrieve( theExpt, "ATLAS" )) { 
     log << MSG::ERROR 
 	<< "Could not find GeoModelExperiment ATLAS" 
-	<< endmsg; 
+	<< endreq; 
     return (StatusCode::FAILURE); 
   } 
 
@@ -104,7 +113,7 @@ LArDetectorToolH62002::create( StoreGateSvc* detStore )
       GeoPhysVol *world=&*theExpt->getPhysVol();
       theLArFactory.create(world);
     } catch (std::bad_alloc) {
-      log << MSG::FATAL << "Could not create new H62002Node!" << endmsg;
+      log << MSG::FATAL << "Could not create new H62002Node!" << endreq;
       return StatusCode::FAILURE; 
     }
     // Register the H62002Node instance with the Transient Detector Store

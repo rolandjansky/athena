@@ -31,14 +31,13 @@
 
 #include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelUtilities/StoredPhysVol.h"
-#include "GeoModelUtilities/DecodeVersionKey.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
-
+#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include <string>
 #include <cmath>
 #include <iostream>
@@ -51,7 +50,7 @@ using namespace GeoXF;
 
 
 LArGeo::HECConstructionH62002::HECConstructionH62002()
-   :m_h6Phys(0)
+   :h6Phys(0)
 {
  // access source of detector parameters
   // m_parameters = LArGeo::VDetectorParameters::GetInstance();
@@ -66,7 +65,7 @@ LArGeo::HECConstructionH62002::~HECConstructionH62002()
 GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
 {
 
-  if (m_h6Phys) return (m_h6Phys);
+  if (h6Phys) return (h6Phys);
 
 
   ISvcLocator *svcLocator = Gaudi::svcLocator();
@@ -97,6 +96,13 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
   }
 
 
+  IGeoModelSvc *geoModel;
+  sc = svcLocator->service ("GeoModelSvc",geoModel);
+  if (sc != StatusCode::SUCCESS) {
+    throw std::runtime_error ("Cannot locate GeoModelSvc!!");
+  }
+
+
   DataHandle<StoredMaterialManager> materialManager;
   if (StatusCode::SUCCESS != detectorStore->retrieve(materialManager, std::string("MATERIALS"))) {
     return NULL; 
@@ -124,9 +130,11 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
   
 
   
-  DecodeVersionKey larVersionKey("LAr");
-  std::string detectorKey  =larVersionKey.tag();
-  std::string detectorNode = larVersionKey.node();
+  std::string AtlasVersion = geoModel->atlasVersion();
+  std::string LArVersion = geoModel->LAr_VersionOverride();
+
+  std::string detectorKey  = LArVersion.empty() ? AtlasVersion : LArVersion;
+  std::string detectorNode = LArVersion.empty() ? "ATLAS" : "LAr";
 
   const IRDBRecordset *hadronicEndcap       = pAccessSvc->getRecordset("HadronicEndcap",detectorKey, detectorNode); 
   const IRDBRecordset *hecLongitudinalBlock = pAccessSvc->getRecordset("HecLongitudinalBlock",detectorKey, detectorNode); 
@@ -164,12 +172,12 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
     }
 
   const GeoLogVol   *h6Log    = new GeoLogVol("HECMother", HECMotherShape, LAr); 
-  m_h6Phys   = new GeoFullPhysVol(h6Log);                          
+  h6Phys   = new GeoFullPhysVol(h6Log);                          
 
   std::string tag = std::string("HEC1_POS");
   StatusCode status;
   
-  StoredPhysVol *sPhysVol = new StoredPhysVol(m_h6Phys);
+  StoredPhysVol *sPhysVol = new StoredPhysVol(h6Phys);
   status=detectorStore->record(sPhysVol,tag);
   if(!status.isSuccess()) throw std::runtime_error ((std::string("Cannot store")+tag).c_str());
   
@@ -379,7 +387,7 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
      }
   const GeoLogVol* logicFrontHEC = new GeoLogVol(hecFrontName, solidFrontHEC , LAr);
   GeoPhysVol*  physiFrontHEC = new GeoPhysVol(logicFrontHEC);
-  m_h6Phys->add(physiFrontHEC);
+  h6Phys->add(physiFrontHEC);
   
 
   //----------------------------------------------------------------
@@ -396,7 +404,7 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
 
   const GeoLogVol* logicRearHEC = new GeoLogVol(hecRearName, solidRearHEC , LAr);
   GeoPhysVol* physiRearHEC = new GeoPhysVol(logicRearHEC);
-  m_h6Phys->add(physiRearHEC);
+  h6Phys->add(physiRearHEC);
   
 
 
@@ -816,7 +824,7 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
     
      
 
-  return m_h6Phys;
+  return h6Phys;
 
 }
 

@@ -10,21 +10,37 @@
 #ifndef LARGEOH62002ALGS_EXCLUDERCONSTRUCTION_H
 #define LARGEOH62002ALGS_EXCLUDERCONSTRUCTION_H
 
-class GeoPhysVol;
+#include "GeoModelKernel/GeoPhysVol.h"
+#include "GeoModelKernel/GeoFullPhysVol.h"
+#include "GeoModelKernel/GeoVFullPhysVol.h"
+
+class IRDBAccessSvc;
+class IGeoModelSvc;
 
 namespace LArGeo {
-  
+
   class ExcluderConstruction 
-  {
-  public:
+    {
+    public:
     
     ExcluderConstruction();
     virtual ~ExcluderConstruction();
     
     // Get the envelope containing this detector.
     virtual GeoPhysVol* GetEnvelope();
+/*     virtual GeoVFullPhysVol* GetEnvelope(); */
+/*     GeoPhysVol* GetLArPhysical(); */
+
       
   private:
+
+    //GeoFullPhysVol*     createEnvelope();
+
+    //GeoPhysVol          *m_PhysExcluder;
+/*     GeoPhysVol          *cryoEnvelopePhysical; */
+/*     GeoFullPhysVol      *cryoMotherPhysical; */
+/*     GeoPhysVol          *cryoLArPhys; */
+    
   };
 
 }    // namespace LArGeo
