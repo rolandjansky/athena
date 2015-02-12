@@ -960,13 +960,15 @@ bool InDetAlignDBTool::setTrans(const Identifier& ident, const int level,
     if (pat2!=0) {
       result=pat2->update(ident, Amg::EigenTransformToCLHEP(trans) );
       if (!result) ATH_MSG_ERROR(
-               "Attempt to set non-existant transform" );
-    } else {
-      ATH_MSG_ERROR("setTrans: cast fails for key " << key );
-    }
+				 "Attempt to set non-existant transform" );
+    } 
+    //Fix to coverity issue 13641. Suspected useless check
+    //else {
+    //  ATH_MSG_ERROR("setTrans: cast fails for key " << key );
+    // }
   } else {
     ATH_MSG_ERROR(
-            "setTrans: cannot retrieve AlignableTransform for key" << key );
+		  "setTrans: cannot retrieve AlignableTransform for key" << key );
   }
   return result;
 }

@@ -293,18 +293,24 @@ StatusCode InDetAlignFillTrack::FillTrack() {
     int nTracks = 0;
 
     const TrackTruthCollection *truthCol = NULL;
-
+    
     // retrieve all track truth collection from TDS  
     if (StatusCode::SUCCESS!=evtStore()->retrieve(truthCol, m_TruthTrkCol)) {
       if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Cannot find " << m_inputCol  << endreq;
       return StatusCode::FAILURE;
     }
     else {
+      if (!truthCol)
+	{
+	  if (msgLvl(MSG::ERROR)) {msg(MSG::ERROR) <<  "Failure retrieving " << m_TruthTrkCol << endreq;}
+	  return StatusCode::FAILURE;
+	}
+      
       if (msgLvl(MSG::DEBUG)) {
-        msg(MSG::DEBUG) << "Collection with name "<< m_TruthTrkCol <<" found in StoreGate" << endreq;
-        msg(MSG::DEBUG) << "Retrieved "<< truthCol->size() <<" truth tracks from StoreGate" << endreq;
+	msg(MSG::DEBUG) << "Collection with name "<< m_TruthTrkCol <<" found in StoreGate" << endreq;
+	msg(MSG::DEBUG) << "Retrieved "<< truthCol->size() <<" truth tracks from StoreGate" << endreq;
       }
-
+      
       nt_nmctracks = truthCol->size();
       
       TrackCollection::const_iterator trackItr  = tracks->begin();
@@ -319,225 +325,225 @@ StatusCode InDetAlignFillTrack::FillTrack() {
                   << nTracks << endreq;
           continue;
         }
-  
-        if (truthCol) {
+	//Coverity fix: 14309: useless check. Commented out
+        //if (truthCol) {
            
           // the key for the truth std::map is an ElementLink<TrackCollection> object
           // comprises a pointer to the track and reconstructed track collection
-          ElementLink<TrackCollection> trackLink;
-          trackLink.setElement(const_cast<Trk::Track*>(track));
-          trackLink.setStorableObject(*tracks);
-          const ElementLink<TrackCollection> trackLink2 = trackLink;
+	ElementLink<TrackCollection> trackLink;
+	trackLink.setElement(const_cast<Trk::Track*>(track));
+	trackLink.setStorableObject(*tracks);
+	const ElementLink<TrackCollection> trackLink2 = trackLink;
+	
+	// trying to find the std::map entry for this reconstructed track
+	TrackTruthCollection::const_iterator found = truthCol->find(trackLink2);
     
-          // trying to find the std::map entry for this reconstructed track
-          TrackTruthCollection::const_iterator found = truthCol->find(trackLink2);
-    
-          if (found != truthCol->end()) {
-      
-            // getting the TrackTruth object - the map element
-            TrackTruth trkTruth = found->second;
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "got trkTruth" << endreq;
-      
-            // probability of the reco<->truth match
-            float trkTruthProb =  trkTruth.probability();
-      
-            HepMcParticleLink HMPL = trkTruth.particleLink();
-      
-            if ( HMPL.isValid()) {
-              const HepMC::GenParticle *genParticle = HMPL.cptr(); 
-        
-              double charge = 1.0;      
-              if (genParticle->pdg_id()<0) charge=-charge;
-        
-              Amg::Vector3D productionVertex(genParticle->production_vertex()->position().x(),
-                                             genParticle->production_vertex()->position().y(),
-                                             genParticle->production_vertex()->position().z() );
-      
-              if (msgLvl(MSG::DEBUG)) {
-                msg(MSG::DEBUG) << nTracks << ". Generated Particle "<< endreq;
-                msg(MSG::DEBUG) << "   * PDG " << genParticle->pdg_id() 
-                    << ", Status " << genParticle->status() 
-                    << ", mass " << genParticle->momentum().m() << " CLHEP::MeV/c"
-                    << endreq;
-              }
-        
-              float genPt = sqrt((genParticle->momentum().x())*(genParticle->momentum().x()) 
-               + (genParticle->momentum().y())*(genParticle->momentum().y()));
-        
-              if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "   * pt " << genPt/CLHEP::GeV << " CLHEP::GeV/c"
-                    << ", p " << genParticle->momentum().e()/CLHEP::GeV << " CLHEP::GeV/c"
-                    << ", eta " << genParticle->momentum().eta() 
-                    << ", phi "<< genParticle->momentum().phi() << " CLHEP::rad"
-                    << endreq;
- 
-              nt_mc_trkistruth[nTracks] = 1;
-              nt_mc_Trk_pdg[nTracks] = genParticle->pdg_id();
-              nt_mc_Trk_prob[nTracks] = trkTruthProb;
-              float pX = genParticle->momentum().px();  float pY = genParticle->momentum().py();
-              float genParticlePt = sqrt((pX*pX)+(pY*pY));
-              nt_mc_Trk_genParticlePt[nTracks] = genParticlePt;
-              nt_mc_Trk_genParticleEta[nTracks] = genParticle->momentum().eta();
-              nt_mc_Trk_genParticlePhi[nTracks] = genParticle->momentum().phi();
-        
-              if(genParticle->pdg_id()==0) 
-                ATH_MSG_WARNING("Particle with PDG 0!");
-              else if(!genParticle->production_vertex()) 
-                ATH_MSG_WARNING( "No GenVertex (generator level) production vertex found!");
-              else {
-          // currently cannot configure the TruthToTrack tool properly
-    
-                const Trk::TrackParameters* generatedTrackPerigee = 0;
-    
-                //using a tool to produce perigee track parameters from generated parameters
-                generatedTrackPerigee = m_truthToTrack->makePerigeeParameters(genParticle);
-    
-                if (!generatedTrackPerigee) {
-                  if (msgLvl(MSG::DEBUG)) {
-                    msg(MSG::DEBUG) <<  "Unable to extrapolate genParticle to perigee!" << endreq;   
-                    msg(MSG::DEBUG) <<  "Trying to extrapolate directly to exclude material effects!" << endreq;   
-                  }
-      
-                  const TrackRecordCollection* recordCollection;
-      
-                  sc = evtStore()->retrieve(recordCollection, "CaloEntryLayer");
-                  if (sc==StatusCode::FAILURE) {
-                    if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get track record!" << endreq;
-                    return sc;
-                  }
-                  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "reading from track record, size = " 
-                            << recordCollection->size() << endreq;
-      
-                  int m_nmctracks = 0;
-      
-                  for (TrackRecordCollection::const_iterator record = recordCollection->begin();  
-                       record != recordCollection->end();++record) {
-        
-                    const HepPDT::ParticleData* particle = m_mctable->particle(abs((*record).GetPDGCode()));
-                    if (!particle) continue;
-        
-                    double charge=particle->charge();
-                    if (std::abs(charge)<0.01) continue;
-        
-                    HepGeom::Point3D<double> productionVertex = (*record).GetPosition();
-                    if ((*record).GetPDGCode()<0) charge=-charge; 
-                    if (fabs((*record).GetPDGCode())!=13) continue;
-        
-                    Amg::Vector3D direction((*record).GetMomentum().x(), 
-                                            (*record).GetMomentum().y(), 
-                                            (*record).GetMomentum().z());
-
-                    double momentum = direction.mag();
-                    if (momentum<500) continue;
-                    double genPar_qOverP = 1./direction.mag();
-                    direction *= genPar_qOverP;	      
-                    if (charge<0) genPar_qOverP = -genPar_qOverP;
-          
-          
-                    double genPar_phi = direction.phi();
-                    if(genPar_phi<0.) genPar_phi = genPar_phi+(4*asin(1.));
-          
-                    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Production vertex (x,y,z): (" 
-                              << productionVertex.x() << ", " 
-                              << productionVertex.y() << ", " 
-                              << productionVertex.z() << ")" 
-                              << endreq;
-          
-                    double genPar_theta  = direction.theta();
-        
-                    // Create a planar surface and transform the vertex information to a TrackParameters object      
-                    Amg::Transform3D* globalSurfaceCentre = new Amg::Transform3D();
-                    globalSurfaceCentre->setIdentity();
-                    *globalSurfaceCentre *= Amg::Translation3D(productionVertex.x(), productionVertex.y(), productionVertex.z() );
-        
-                    Trk::PlaneSurface planeSurface( globalSurfaceCentre, 5., 5. );
-        
-                    const Amg::Vector3D productionVertexAsGlobalPosition( productionVertex.x(), 
-                                productionVertex.y(), 
-                                productionVertex.z() );
-        
-                    const Trk::AtaPlane* productionVertexTrackParams 
-                      = new Trk::AtaPlane( productionVertexAsGlobalPosition,
-                         genPar_phi, genPar_theta, genPar_qOverP,
-                         planeSurface );
-          
-                    // Create a new perigee surface
-                    Trk::PerigeeSurface perigeeSurface;
-          
-                    if (!tracks->empty())
-                      perigeeSurface=((**tracks->begin()).perigeeParameters()->associatedSurface());
-        
-                    const Amg::Vector3D& perigeeGlobalPosition = perigeeSurface.center();
-        
-                    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Surface global centre (x,y,z): (" 
-                              << perigeeGlobalPosition.x() << ", " 
-                              << perigeeGlobalPosition.y() << ", " 
-                              << perigeeGlobalPosition.z() << ")"
-                              << endreq;
-          
-                    // Extrapolate the TrackParameters object to the perigee
-        
-                    // ( Establish the distance between perigee and generated vertex.
-                    // If less than tolerance don't bother with the propagation )
-                    const Amg::Vector3D difference = productionVertexAsGlobalPosition - perigeeGlobalPosition;
-        
-                    double distance = sqrt( difference.x() * difference.x() + difference.y() * difference.y() );
-                    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Distance between perigee point and generated vertex: " 
-                              << distance/CLHEP::m << " m" << endreq;
-          
-                    const Trk::TrackParameters* generatedTrackPerigee = 0;
-        
-                    // Extrapolate directly to exclude material effects!
-                    if ( distance > 1.e-4 ) {
-          
-                      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Distance between perigee and generated vertex exceeds tolerance (" 
-                                << 1.e-4 << " mm)... Extrapolating!" << endreq;
-      
-                      generatedTrackPerigee = m_extrapolator->extrapolateDirectly( *productionVertexTrackParams,
-                                   perigeeSurface,
-                                   Trk::anyDirection,
-                                   false,
-                                   Trk::nonInteracting );
-                      if (!generatedTrackPerigee) continue;
-                    }
-        
-                    else {
-                      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Distance between perigee and generated vertex is less than tolerance (" 
-                                << 1.e-4 << " CLHEP::mm)... " << "No propagation to perigee required" << endreq;
-          
-                      // Clone the parameters from the AtaPlane object on to perigee
-                      generatedTrackPerigee = new Trk::Perigee( 0., 0.,
-                            genPar_phi, genPar_theta, genPar_qOverP,
-                            Trk::PerigeeSurface(productionVertexAsGlobalPosition) );
-          
-                    }
-        
-                    dumpPerigee(generatedTrackPerigee, m_nmctracks); 
-                    nt_mc_Trk_vtxX[m_nmctracks] = productionVertex.x();
-                    nt_mc_Trk_vtxY[m_nmctracks] = productionVertex.y();
-                    nt_mc_Trk_vtxZ[m_nmctracks] = productionVertex.z();
-          
-                    delete productionVertexTrackParams;
-                    delete generatedTrackPerigee;
-        
-                    m_nmctracks++;
-                  }
-                }
-      
-                if (generatedTrackPerigee) {
-                  dumpPerigee(generatedTrackPerigee, nTracks);     
-                  nt_mc_Trk_vtxX[nTracks] = genParticle->production_vertex()->position().x();
-                  nt_mc_Trk_vtxY[nTracks] = genParticle->production_vertex()->position().y();
-                  nt_mc_Trk_vtxZ[nTracks] = genParticle->production_vertex()->position().z();
-
-                  delete generatedTrackPerigee;
-
-                }
-  
-              }
-            }
-            nt_mc_trkistruth[nTracks] = 0;
-          }
-        }
+	if (found != truthCol->end()) {
+	  
+	  // getting the TrackTruth object - the map element
+	  TrackTruth trkTruth = found->second;
+	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "got trkTruth" << endreq;
+	  
+	  // probability of the reco<->truth match
+	  float trkTruthProb =  trkTruth.probability();
+	  
+	  HepMcParticleLink HMPL = trkTruth.particleLink();
+	  
+	  if ( HMPL.isValid()) {
+	    const HepMC::GenParticle *genParticle = HMPL.cptr(); 
+	    
+	    double charge = 1.0;      
+	    if (genParticle->pdg_id()<0) charge=-charge;
+	    
+	    Amg::Vector3D productionVertex(genParticle->production_vertex()->position().x(),
+					   genParticle->production_vertex()->position().y(),
+					   genParticle->production_vertex()->position().z() );
+	    
+	    if (msgLvl(MSG::DEBUG)) {
+	      msg(MSG::DEBUG) << nTracks << ". Generated Particle "<< endreq;
+	      msg(MSG::DEBUG) << "   * PDG " << genParticle->pdg_id() 
+			      << ", Status " << genParticle->status() 
+			      << ", mass " << genParticle->momentum().m() << " CLHEP::MeV/c"
+			      << endreq;
+	    }
+	    
+	    float genPt = sqrt((genParticle->momentum().x())*(genParticle->momentum().x()) 
+			       + (genParticle->momentum().y())*(genParticle->momentum().y()));
+	    
+	    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "   * pt " << genPt/CLHEP::GeV << " CLHEP::GeV/c"
+						    << ", p " << genParticle->momentum().e()/CLHEP::GeV << " CLHEP::GeV/c"
+						    << ", eta " << genParticle->momentum().eta() 
+						    << ", phi "<< genParticle->momentum().phi() << " CLHEP::rad"
+						    << endreq;
+	    
+	    nt_mc_trkistruth[nTracks] = 1;
+	    nt_mc_Trk_pdg[nTracks] = genParticle->pdg_id();
+	    nt_mc_Trk_prob[nTracks] = trkTruthProb;
+	    float pX = genParticle->momentum().px();  float pY = genParticle->momentum().py();
+	    float genParticlePt = sqrt((pX*pX)+(pY*pY));
+	    nt_mc_Trk_genParticlePt[nTracks] = genParticlePt;
+	    nt_mc_Trk_genParticleEta[nTracks] = genParticle->momentum().eta();
+	    nt_mc_Trk_genParticlePhi[nTracks] = genParticle->momentum().phi();
+	    
+	    if(genParticle->pdg_id()==0) 
+	      ATH_MSG_WARNING("Particle with PDG 0!");
+	    else if(!genParticle->production_vertex()) 
+	      ATH_MSG_WARNING( "No GenVertex (generator level) production vertex found!");
+	    else {
+	      // currently cannot configure the TruthToTrack tool properly
+	      
+	      const Trk::TrackParameters* generatedTrackPerigee = 0;
+	      
+	      //using a tool to produce perigee track parameters from generated parameters
+	      generatedTrackPerigee = m_truthToTrack->makePerigeeParameters(genParticle);
+	      
+	      if (!generatedTrackPerigee) {
+		if (msgLvl(MSG::DEBUG)) {
+		  msg(MSG::DEBUG) <<  "Unable to extrapolate genParticle to perigee!" << endreq;   
+		  msg(MSG::DEBUG) <<  "Trying to extrapolate directly to exclude material effects!" << endreq;   
+		}
+		
+		const TrackRecordCollection* recordCollection;
+		
+		sc = evtStore()->retrieve(recordCollection, "CaloEntryLayer");
+		if (sc==StatusCode::FAILURE) {
+		  if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get track record!" << endreq;
+		  return sc;
+		}
+		if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "reading from track record, size = " 
+							<< recordCollection->size() << endreq;
+		
+		int m_nmctracks = 0;
+		
+		for (TrackRecordCollection::const_iterator record = recordCollection->begin();  
+		     record != recordCollection->end();++record) {
+		  
+		  const HepPDT::ParticleData* particle = m_mctable->particle(abs((*record).GetPDGCode()));
+		  if (!particle) continue;
+		  
+		  double charge=particle->charge();
+		  if (std::abs(charge)<0.01) continue;
+		  
+		  HepGeom::Point3D<double> productionVertex = (*record).GetPosition();
+		  if ((*record).GetPDGCode()<0) charge=-charge; 
+		  if (fabs((*record).GetPDGCode())!=13) continue;
+		  
+		  Amg::Vector3D direction((*record).GetMomentum().x(), 
+					  (*record).GetMomentum().y(), 
+					  (*record).GetMomentum().z());
+		  
+		  double momentum = direction.mag();
+		  if (momentum<500) continue;
+		  double genPar_qOverP = 1./direction.mag();
+		  direction *= genPar_qOverP;	      
+		  if (charge<0) genPar_qOverP = -genPar_qOverP;
+		  
+		  
+		  double genPar_phi = direction.phi();
+		  if(genPar_phi<0.) genPar_phi = genPar_phi+(4*asin(1.));
+		  
+		  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Production vertex (x,y,z): (" 
+							  << productionVertex.x() << ", " 
+							  << productionVertex.y() << ", " 
+							  << productionVertex.z() << ")" 
+							  << endreq;
+		  
+		  double genPar_theta  = direction.theta();
+		  
+		  // Create a planar surface and transform the vertex information to a TrackParameters object      
+		  Amg::Transform3D* globalSurfaceCentre = new Amg::Transform3D();
+		  globalSurfaceCentre->setIdentity();
+		  *globalSurfaceCentre *= Amg::Translation3D(productionVertex.x(), productionVertex.y(), productionVertex.z() );
+		  
+		  Trk::PlaneSurface planeSurface( globalSurfaceCentre, 5., 5. );
+		  
+		  const Amg::Vector3D productionVertexAsGlobalPosition( productionVertex.x(), 
+									productionVertex.y(), 
+									productionVertex.z() );
+		  
+		  const Trk::AtaPlane* productionVertexTrackParams 
+		    = new Trk::AtaPlane( productionVertexAsGlobalPosition,
+					 genPar_phi, genPar_theta, genPar_qOverP,
+					 planeSurface );
+		  
+		  // Create a new perigee surface
+		  Trk::PerigeeSurface perigeeSurface;
+		  
+		  if (!tracks->empty())
+		    perigeeSurface=((**tracks->begin()).perigeeParameters()->associatedSurface());
+		  
+		  const Amg::Vector3D& perigeeGlobalPosition = perigeeSurface.center();
+		  
+		  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Surface global centre (x,y,z): (" 
+							  << perigeeGlobalPosition.x() << ", " 
+							  << perigeeGlobalPosition.y() << ", " 
+							  << perigeeGlobalPosition.z() << ")"
+							  << endreq;
+		  
+		  // Extrapolate the TrackParameters object to the perigee
+		  
+		  // ( Establish the distance between perigee and generated vertex.
+		  // If less than tolerance don't bother with the propagation )
+		  const Amg::Vector3D difference = productionVertexAsGlobalPosition - perigeeGlobalPosition;
+		  
+		  double distance = sqrt( difference.x() * difference.x() + difference.y() * difference.y() );
+		  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Distance between perigee point and generated vertex: " 
+							  << distance/CLHEP::m << " m" << endreq;
+		  
+		  const Trk::TrackParameters* generatedTrackPerigee = 0;
+		  
+		  // Extrapolate directly to exclude material effects!
+		  if ( distance > 1.e-4 ) {
+		    
+		    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Distance between perigee and generated vertex exceeds tolerance (" 
+							    << 1.e-4 << " mm)... Extrapolating!" << endreq;
+		    
+		    generatedTrackPerigee = m_extrapolator->extrapolateDirectly( *productionVertexTrackParams,
+										 perigeeSurface,
+										 Trk::anyDirection,
+										 false,
+										 Trk::nonInteracting );
+		    if (!generatedTrackPerigee) continue;
+		  }
+		  
+		  else {
+		    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Distance between perigee and generated vertex is less than tolerance (" 
+							    << 1.e-4 << " CLHEP::mm)... " << "No propagation to perigee required" << endreq;
+		    
+		    // Clone the parameters from the AtaPlane object on to perigee
+		    generatedTrackPerigee = new Trk::Perigee( 0., 0.,
+							      genPar_phi, genPar_theta, genPar_qOverP,
+							      Trk::PerigeeSurface(productionVertexAsGlobalPosition) );
+		    
+		  }
+		  
+		  dumpPerigee(generatedTrackPerigee, m_nmctracks); 
+		  nt_mc_Trk_vtxX[m_nmctracks] = productionVertex.x();
+		  nt_mc_Trk_vtxY[m_nmctracks] = productionVertex.y();
+		  nt_mc_Trk_vtxZ[m_nmctracks] = productionVertex.z();
+		  
+		  delete productionVertexTrackParams;
+		  delete generatedTrackPerigee;
+		  
+		  m_nmctracks++;
+		}
+	      }
+	      
+	      if (generatedTrackPerigee) {
+		dumpPerigee(generatedTrackPerigee, nTracks);     
+		nt_mc_Trk_vtxX[nTracks] = genParticle->production_vertex()->position().x();
+		nt_mc_Trk_vtxY[nTracks] = genParticle->production_vertex()->position().y();
+		nt_mc_Trk_vtxZ[nTracks] = genParticle->production_vertex()->position().z();
+		
+		delete generatedTrackPerigee;
+		
+	      }
+	      
+	    }
+	  }
+	  nt_mc_trkistruth[nTracks] = 0;
+	}
+	//} // if (truthCol)  commented out for coverity 14309
   
         nTracks++; 
 	 
