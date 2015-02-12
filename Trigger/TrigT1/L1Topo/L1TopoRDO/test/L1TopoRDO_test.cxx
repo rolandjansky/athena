@@ -22,7 +22,7 @@ void test1()
   std::cout << "** test1: L1Topo::Header decoding **\n";
   uint32_t word(0xc0460023); // a header block 
   L1Topo::Header h(word);
-  std::cout << "L1Topo::Header created from word" << L1Topo::formatHex8(word) << std::endl;
+  std::cout << "L1Topo::Header created from word " << L1Topo::formatHex8(word) << std::endl;
   // check word was correctly copy-assigned internally
   assert (h.word() == word);
   // check word correctly decoded
@@ -49,8 +49,8 @@ void test2()
   uint32_t bcn_offset(2);
   L1Topo::Header h(version, active_fibres, payload_crc, fpga, last_block, bcn_sign, bcn_offset);
   uint32_t word(0xc0420034); // the header block that matches the above values 
-  std::cout << "L1Topo::Header encoded word" << L1Topo::formatHex8(h.word()) << std::endl;
-  std::cout << "L1Topo::Header     ref word" << L1Topo::formatHex8(word) << std::endl;
+  std::cout << "L1Topo::Header encoded word " << L1Topo::formatHex8(h.word()) << std::endl;
+  std::cout << "L1Topo::Header     ref word " << L1Topo::formatHex8(word) << std::endl;
   assert (h.word() == word);
 }
 
@@ -61,8 +61,8 @@ void test3()
   uint32_t word(0xc0460023); // a header block 
   L1Topo::Header h1(word);
   L1Topo::Header h2(h1.version(), h1.active_fibres(), h1.payload_crc(), h1.fpga(), h1.last_block(), h1.bcn_sign(), h1.bcn_offset());
-  std::cout << "L1Topo::Header  decoded from word" << L1Topo::formatHex8(word) << std::endl;
-  std::cout << "L1Topo::Header re-encoded to word" << L1Topo::formatHex8(h2.word()) << std::endl;
+  std::cout << "L1Topo::Header  decoded from word " << L1Topo::formatHex8(word) << std::endl;
+  std::cout << "L1Topo::Header re-encoded to word " << L1Topo::formatHex8(h2.word()) << std::endl;
   assert (h2.word() == word);
 }
 
@@ -83,7 +83,7 @@ void test5()
   std::cout << "** test5: L1Topo::L1TopoTOB encoding **\n";
   uint32_t word(0x83001037); 
   L1Topo::L1TopoTOB c(word);
-  std::cout << "L1Topo::L1TopoTOB created from word" << L1Topo::formatHex8(word) << std::endl;
+  std::cout << "L1Topo::L1TopoTOB created from word " << L1Topo::formatHex8(word) << std::endl;
   // check word was correctly copy-assigned internally
   assert (c.word() == word);
   // check word correctly decoded
@@ -113,8 +113,8 @@ void test7()
   uint32_t word(0x82000112); 
   L1Topo::L1TopoTOB c1(word);
   L1Topo::L1TopoTOB c2(c1.ctp_signal(),c1.overflow_bits(),c1.trigger_bits());
-  std::cout << "L1Topo::L1TopoTOB encoded from word" << L1Topo::formatHex8(c1.word()) << std::endl;
-  std::cout << "L1Topo::L1TopoTOB decoded   to word" << L1Topo::formatHex8(c2.word()) << std::endl;
+  std::cout << "L1Topo::L1TopoTOB encoded from word " << L1Topo::formatHex8(c1.word()) << std::endl;
+  std::cout << "L1Topo::L1TopoTOB decoded   to word " << L1Topo::formatHex8(c2.word()) << std::endl;
   assert (c2.word()==c1.word());
 }
 
@@ -204,7 +204,7 @@ void test10()
       L1Topo::L1TopoTOB c(r);
       uint32_t index = L1Topo::triggerBitIndex(m,c);
       uint32_t module = (m >> 4) & 0x1;
-      std::cout << module << " " << "0x" << std::hex << std::showbase << r << std::dec << " ( "  
+      std::cout << module << " " << std::hex << std::showbase << r << std::dec << " ( "  
 		<< c.index() << " "<< c.clock() << " " << c.fpga() << " ) -> " 
 		<< index << " " << std::boolalpha << bool(index%8==0) << std::endl;
     }
@@ -240,14 +240,14 @@ void test12()
   std::vector<uint32_t>  count = { 0, 1, 0, 6, 13 };
   uint32_t word(0xd0440668); // word that matches the above values 0x1101 0000 0100 0100 0000 0110 0110 1000 = 0xd0440668
   L1Topo::Fibre f1(status,count);
-  std::cout << "Fibre with status and sizes" << f1 << std::endl;  
-  std::cout << "Fibre word encoded from these" << L1Topo::formatHex8(f1.word()) << std::endl;
-  std::cout << "Compare to word" << L1Topo::formatHex8(word) << std::endl;
+  std::cout << "Fibre with status and sizes " << f1 << std::endl;  
+  std::cout << "Fibre word encoded from these " << L1Topo::formatHex8(f1.word()) << std::endl;
+  std::cout << "Compare to word " << L1Topo::formatHex8(word) << std::endl;
   assert (f1.word()==word);
   L1Topo::Fibre f2(word);
   L1Topo::Fibre f3(f2.status(),f2.count());
-  std::cout << "L1Topo::Fibre  decoded from word" << L1Topo::formatHex8(f2.word()) << std::endl;
-  std::cout << "L1Topo::Fibre re-encoded to word" << L1Topo::formatHex8(f3.word()) << std::endl;
+  std::cout << "L1Topo::Fibre  decoded from word " << L1Topo::formatHex8(f2.word()) << std::endl;
+  std::cout << "L1Topo::Fibre re-encoded to word " << L1Topo::formatHex8(f3.word()) << std::endl;
   assert (f3.word() == f2.word());
 }
 
@@ -261,8 +261,8 @@ void test13()
   assert (L1Topo::Status(0,0).word()==uint32_t(0xe0000000));
   L1Topo::Status s1(0xe8000000);
   L1Topo::Status s2(s1.overflow(),s1.crc());
-  std::cout << "L1Topo::Status  decoded from word" << L1Topo::formatHex8(s1.word()) << std::endl;
-  std::cout << "L1Topo::Status re-encoded to word" << L1Topo::formatHex8(s2.word()) << std::endl;
+  std::cout << "L1Topo::Status  decoded from word " << L1Topo::formatHex8(s1.word()) << std::endl;
+  std::cout << "L1Topo::Status re-encoded to word " << L1Topo::formatHex8(s2.word()) << std::endl;
   assert (s1.word() == s2.word());
 
 }
