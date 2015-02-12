@@ -15,10 +15,14 @@
 
 #include "PyDumper/PySTLAdaptor.h"
 #include "TrkTruthData/DetailedTrackTruthCollection.h"
+#include <set>
 
 
 struct PyDumperDict {
   PyDumperDict();
   PyDumper::PySTLAdaptor<DetailedTrackTruthCollection> a;
   PyDumper::PySTLAdaptor<DetailedTrackTruthCollection>::iterator a_i;
+
+  PyDumper::PySTLAdaptor<std::set<unsigned int> > s;
+  PyDumper::PySTLAdaptor<std::set<unsigned int> >::iterator s_i;
 };

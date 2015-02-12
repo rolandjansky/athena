@@ -3441,6 +3441,10 @@ def format_obj (x, name=None):
     if type(x) == PyAthena.xAOD.CaloClusterBadChannelData_v1:
         return '<BadChannel: %6.3f/%6.3f/%2d: %04x>' % \
                (x.eta(), x.phi(), x.layer(), x.badChannel())
+    if tname == 'set<unsigned int>':
+        acls=getattr(PyAthena, 'PyDumper::PySTLAdaptor<std::set<unsigned int>')
+        if acls:
+            return str(list(toiter1(acls(x))))
     return str(x)
 
 
@@ -3710,6 +3714,8 @@ dumpspecs = [
     ['xAOD::TruthVertexContainer',           dump_xAOD],
     ['DataVector<xAOD::Vertex_v1>',          dump_xAOD],
     ['xAOD::VertexContainer',                dump_xAOD],
+    ['DataVector<xAOD::L2IsoMuon_v1>',       dump_xAOD],
+    ['xAOD::L2IsoMuonContainer',             dump_xAOD],
     ['DataVector<xAOD::TrackParticleClusterAssociation_v1>', dump_xAOD],
     ['xAOD::TrackParticleClusterAssociationContainer', dump_xAOD],
     ['xAOD::MissingETContainer_v1',          dump_xAOD],
