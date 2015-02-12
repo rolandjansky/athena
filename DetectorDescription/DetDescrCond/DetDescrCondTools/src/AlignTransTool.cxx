@@ -20,7 +20,7 @@ static const InterfaceID
 
 AlignTransTool::AlignTransTool(const std::string& type,
       const std::string& name, const IInterface* parent)
-      : AlgTool(type,name,parent), m_log(msgSvc(),name),
+      : AthAlgTool(type,name,parent), 
       p_condstore(0),m_lastkey("null")
 {
   declareInterface<AlignTransTool>(this);
@@ -34,10 +34,10 @@ const InterfaceID& AlignTransTool::interfaceID()
 
 StatusCode AlignTransTool::initialize() 
 {
-  m_log << MSG::INFO << "AlignTransTool initialize method called" << endreq;
+  ATH_MSG_INFO("AlignTransTool initialize method called");
   // get storegate access to conditions store
   if (StatusCode::SUCCESS!=service("DetectorStore",p_condstore))
-    m_log << MSG::FATAL << "Detector store not found" << endreq;
+    ATH_MSG_FATAL("Detector store not found");
 
   m_keyvec.clear();
 
@@ -46,7 +46,7 @@ StatusCode AlignTransTool::initialize()
 
 StatusCode AlignTransTool::finalize()
 {
-  m_log << MSG::INFO << "AlignTransTool finalize method called" << endreq;
+  ATH_MSG_INFO("AlignTransTool finalize method called");
   return StatusCode::SUCCESS;
 }
 
@@ -78,17 +78,17 @@ const AlignableTransform* AlignTransTool::getptr(const std::string key) const {
 const HepGeom::Transform3D AlignTransTool::getTransform(const Identifier& ident, 
     const std::string& key) const
 {
-  m_log << MSG::DEBUG << "get transform called for key" << key << endreq;
+  ATH_MSG_DEBUG("get transform called for key "+key);
   // retreive the object from conditions store
   const AlignableTransform* pat;
   HepGeom::Transform3D trans;
   if (!(pat=getptr(key))) {
-    m_log << MSG::WARNING << "Cannot find AlignableTransform for key " << 
-        key <<       " return identity" << endreq;
+    ATH_MSG_WARNING("Cannot find AlignableTransform for key "+key+
+		    " return identity");
     return HepGeom::Transform3D();
   } else {
-    if (pat==0) m_log << MSG::ERROR << 
-		  "Pointer to AlignableTransform is null" << endreq;
+    if (pat==0) ATH_MSG_ERROR(
+			      "Pointer to AlignableTransform is null");
     // if asked for same key as before, skip the sorted check
     if (key!=m_lastkey) {
       // check if the object has already been sorted - find it in keylist
@@ -100,18 +100,16 @@ const HepGeom::Transform3D AlignTransTool::getTransform(const Identifier& ident,
 	// asking to sort is not really const
         (const_cast<AlignableTransform*>(pat))->sortv();
         keyloc->set_sorted(true);
-        m_log << MSG::DEBUG << "Sorted vector for key" << key << endreq;
+        ATH_MSG_DEBUG("Sorted vector for key "+key);
       }
       m_lastkey=key;
     } else {
-      m_log << MSG::DEBUG << "Skip sort check - same key" << m_lastkey 
-	    << endreq;
+      ATH_MSG_DEBUG("Skip sort check - same key "+m_lastkey);
     }
     // find the corresponding tranformation 
     AlignableTransform::AlignTransMem_citr it=pat->findIdent(ident);
     if (it==pat->end()) {
-      m_log << MSG::WARNING << "Identifier " << ident.getString() << 
-	" not found" << endreq;
+      ATH_MSG_WARNING("Identifier " +ident.getString()+" not found");
     } else {
       trans=it->transform();
     }
@@ -120,7 +118,7 @@ const HepGeom::Transform3D AlignTransTool::getTransform(const Identifier& ident,
 }
 
 StatusCode AlignTransTool::reset(const std::string& key) {
-  m_log << MSG::DEBUG << "Reset AlignTrans for key: " << key << endreq;
+  ATH_MSG_DEBUG("Reset AlignTrans for key: "+ key);
   // look for the object already in the keylist, if not found it will
   // be sorted by the getTransform method when it is first called
   // so only need to resort if has already been seen
@@ -130,8 +128,7 @@ StatusCode AlignTransTool::reset(const std::string& key) {
     keyloc->set_sorted(true);
     const AlignableTransform* pat;
     if (!(pat=getptr(key))) {
-      m_log << MSG::WARNING << "Cannot find AlignableTransform for key " << 
-	key << endreq;
+      ATH_MSG_WARNING("Cannot find AlignableTransform for key "+key);
       return StatusCode::FAILURE;
     } else {
       // apply sort to a const ref

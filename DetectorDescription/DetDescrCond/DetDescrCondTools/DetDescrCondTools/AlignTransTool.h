@@ -17,8 +17,7 @@
 //                              modified
 
 #include <string>
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "StoreGate/DataHandle.h"
 #include "DetDescrCondTools/AlignTransKey.h"
 #include "CLHEP/Geometry/Transform3D.h"
@@ -27,7 +26,7 @@
 class Identifier;
 class AlignableTransform;
 
-class AlignTransTool: public AlgTool {
+class AlignTransTool: public AthAlgTool {
  public:
   AlignTransTool(const std::string& type, const std::string& name,
 		 const IInterface* parent);
@@ -42,7 +41,6 @@ class AlignTransTool: public AlgTool {
 
  private:
   const AlignableTransform* getptr(const std::string) const;
-  mutable MsgStream m_log;
   StoreGateSvc* p_condstore;
   typedef std::vector<AlignTransKey>::iterator key_itr;
   mutable std::vector<AlignTransKey> m_keyvec;

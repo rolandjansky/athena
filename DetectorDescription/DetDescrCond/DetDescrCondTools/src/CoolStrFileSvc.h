@@ -8,10 +8,10 @@
 // Richard Hawkings, started 14/11/05
 
 #include "DetDescrCondTools/ICoolStrFileSvc.h"
-#include "GaudiKernel/Service.h"
-#include "StoreGate/StoreGate.h"
+#include "AthenaBaseComps/AthService.h"
 
-class CoolStrFileSvc : public virtual ICoolStrFileSvc, public virtual Service
+#include "StoreGate/StoreGate.h"
+class CoolStrFileSvc : public virtual ICoolStrFileSvc, public virtual AthService
 {
   template <class TYPE> class SvcFactory;
 
