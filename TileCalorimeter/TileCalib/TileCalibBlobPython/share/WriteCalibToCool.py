@@ -18,6 +18,7 @@ def usage():
     print "-c, --channel   if present, means that one constant per channel is expected (i.e. no gain field)"
     print "-d, --default   if present, means that also default values stored in AUX01-AUX20 should be updated"
     print "-a, --all       if present, means that all drawers are saved, otherwise only those which were updated"
+    print "-z, --zerp      if present, means that zero-sized blob is written for missing drawers"
     print "-g, -gain=      specify number of gains to store to DB, default is 2"
     print "-n, --nval=     specify number of values to store to DB, default is 0 - means all"
     print "-v, --version=  specify blob version, by default version from input DB is used" 
@@ -27,8 +28,8 @@ def usage():
     print "-o, --outschema=  specify the output schema to use, default is 'sqlite://;schema=tileSqlite.db;dbname=CONDBR2'"
     print "-s, --schema=     specify input/output schema to use when both input and output schemas are the same"
     
-letters = "hr:l:s:i:o:t:f:g:n:v:x:p:dca"
-keywords = ["help","run=","lumi=","schema=","inschema=","outschema=","tag=","folder=","gain=","nval=","version=","txtfile=","prefix=","default","channel","all"]
+letters = "hr:l:s:i:o:t:f:g:n:v:x:p:dcaz"
+keywords = ["help","run=","lumi=","schema=","inschema=","outschema=","tag=","folder=","gain=","nval=","version=","txtfile=","prefix=","default","channel","all","zero"]
 
 try:
     opts, extraparams = getopt.getopt(sys.argv[1:],letters,keywords)
@@ -48,6 +49,7 @@ tag = "RUN2-HLT-UPD1-00"
 readGain=True
 rosmin = 1
 all=False
+zero=False
 nchan = 48
 ngain = 2
 nval = 0
@@ -80,6 +82,8 @@ for o, a in opts:
         readGain = False
     elif o in ("-a","--all"):
         all = True
+    elif o in ("-z","--zero"):
+        zero = True
     elif o in ("-r","--run"):
         run = int(a)
     elif o in ("-l","--lumi"):
@@ -253,6 +257,8 @@ for ros in xrange(rosmin,5):
                     nvdef+=1
                     val = calibDrawer.getData(chn,adc,n)
                     log.debug("%i/%2i/%2i/%i: def data[%i] = %s" % (ros,mod,chn,adc, n, val))
+        if zero and newDrawer:
+            blobWriter.zeroBlob(ros,mod)
 
 
 log.info("%d/%d old channels*gains/values have been read from database" % (nold,nvold))
