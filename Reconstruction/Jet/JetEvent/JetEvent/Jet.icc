@@ -362,7 +362,7 @@ struct JetAnalysisEDMHelper<std::vector<T> > {
     
     std::string prefix = mName+"_";
     size_t msize = prefix.size();
-    size_t nMatch=0;
+    //size_t nMatch=0;
 
     //  match all moments starting by "mName_"
     for( size_t i=0; i< allMoms.size(); i++){
