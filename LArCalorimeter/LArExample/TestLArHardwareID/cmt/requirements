@@ -12,14 +12,13 @@ use RegistrationServices RegistrationServices-* Database
 use AthenaBaseComps      AthenaBaseComps-*      Control
 
 private
-use CxxUtils            CxxUtils-*              Control
 use StoreGate 		StoreGate-* 		Control
 use AthenaKernel     	AthenaKernel-*      	Control
 use PathResolver	PathResolver-*	        Tools
 use CaloIdentifier	CaloIdentifier-*	Calorimeter
 use CaloTriggerTool	CaloTriggerTool-*	Calorimeter
 use LArIdentifier	LArIdentifier-*	        LArCalorimeter
-use LArCabling    	LArCabling-*		LArCalorimeter
+use LArTools    	LArTools-*		LArCalorimeter
 end_private
 
 library TestLArHardwareID "*.cxx -s=../src/components *.cxx "

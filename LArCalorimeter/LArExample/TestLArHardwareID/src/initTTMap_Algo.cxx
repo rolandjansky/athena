@@ -23,11 +23,10 @@
 #include "CaloIdentifier/LArID_Exception.h"
 //#include "LArIdentifier/LArIdManager.h"
 //#include "LArIdentifier/LArOnlineID.h"
-#include "LArCabling/LArCablingService.h"
+#include "LArTools/LArCablingService.h"
 #include "CaloTriggerTool/CaloTriggerTowerService.h"
 #include "CaloTriggerTool/LArTTCell.h"
 #include "CaloTriggerTool/LArTTCellMap.h"
-#include "CxxUtils/make_unique.h"
 
 /********************************************************/
 initTTMap_Algo::initTTMap_Algo(const std::string &name , ISvcLocator* pSvcLocator) :
@@ -145,6 +144,7 @@ StatusCode initTTMap_Algo::initMap(){
   int nCell=0;
   int nNE=0;
   int nSkip=0;
+  int nDisc=0;
   LArTTCell d;
 
   // ....... init EM and HEC from hard coded mapping in LArCablingService
@@ -210,11 +210,24 @@ StatusCode initTTMap_Algo::initMap(){
 	    fcal=true;
 	    cell_det = 2;
 	    cell_samp = 0;
-            // FCAL sample==region
-            cell_pn = m_fcalHelper->pos_neg(cellId);
-            cell_reg = m_fcalHelper->module(cellId);
-            cell_eta = m_fcalHelper->eta(cellId);
-            cell_phi = m_fcalHelper->phi(cellId);
+	    // old bug concerning 2 disconnected channels (in hardcoded mapping)
+	    if(m_fcalHelper->is_connected(cellId)) {
+	      // FCAL sample==region
+	      cell_pn = m_fcalHelper->pos_neg(cellId);
+	      cell_reg = m_fcalHelper->module(cellId);
+	      cell_eta = m_fcalHelper->eta(cellId);
+	      cell_phi = m_fcalHelper->phi(cellId);
+	    } else {
+	      nDisc++;
+	      cell_pn = -2;
+	      cell_reg = 3;
+	      cell_eta = 15;
+	      cell_phi = 5;
+	      if(nDisc==2) {cell_phi = 13;}
+	      
+	      ATH_MSG_DEBUG ( "disc chan= " 
+                              << m_fcalHelper->show_to_string(cellId) );
+	    }
 	  } else {
 	    ATH_MSG_ERROR( "Cell not in EM, nor HEC, nor FCAL: "
                            << m_emHelper->show_to_string(cellId) 
@@ -305,6 +318,13 @@ StatusCode initTTMap_Algo::initMap(){
       t.region = module;
       t.eta = eta; 
       t.phi = phi;
+      // check that the id makes sense:
+      bool connected = m_fcalHelper->is_connected(t.pn,t.region,t.eta,t.phi); 
+      if(!connected) {
+	ATH_MSG_ERROR  ( "wrong dictionary ? cell not connected ! pn= "
+                         << t.pn << "reg= " << t.region << "eta= " << t.eta << "phi= " << t.phi 
+                         );
+      }
       
       // fields for the offline TT channel id
       int l1_pn=1; // A side
@@ -364,17 +384,17 @@ StatusCode initTTMap_Algo::testStruct(){
   ATH_MSG_DEBUG("  Dump of LArTTCellMap" );
   ATH_MSG_DEBUG(" Persistent LArTTCell_P version = "<<ttCell_P->m_version);
   int lines=0;
-  std::unique_ptr<std::ofstream> dumpFcal;
-  std::unique_ptr<std::ofstream> dumpOther;
+  std::ofstream* dumpFcal=0;
+  std::ofstream* dumpOther=0;
   std::string fcalFile="initDumpFCAL.txt";
   std::string otherFile="initDumpOther.txt";
   if(m_dumpMap) {
-    dumpFcal=CxxUtils::make_unique<std::ofstream>(fcalFile.c_str());   
+    dumpFcal=new std::ofstream(fcalFile.c_str());   
     if (dumpFcal==0) {
       std::cout << "Problem opening FCAL dump file" << std::endl;
       return 1;
     }
-    dumpOther=CxxUtils::make_unique<std::ofstream>(otherFile.c_str());   
+    dumpOther=new std::ofstream(otherFile.c_str());   
     if (dumpOther==0) {
       std::cout << "Problem opening other dump file" << std::endl;
       return 1;
@@ -437,7 +457,9 @@ StatusCode initTTMap_Algo::testStruct(){
 
   if(m_dumpMap) {
     dumpFcal->close();
+    delete dumpFcal;
     dumpOther->close();
+    delete dumpOther;
   }
 
   ATH_MSG_DEBUG(" number of lines found = "<< lines);

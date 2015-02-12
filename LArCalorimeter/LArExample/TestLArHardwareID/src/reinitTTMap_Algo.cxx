@@ -26,7 +26,6 @@
 
 #include "CaloTriggerTool/LArTTCell.h"
 #include "CaloTriggerTool/LArTTCellMap.h"
-#include "CxxUtils/make_unique.h"
 
 /********************************************************/
 reinitTTMap_Algo::reinitTTMap_Algo(const std::string &name , ISvcLocator* pSvcLocator) :
@@ -247,6 +246,14 @@ StatusCode reinitTTMap_Algo::initMap(){
     t.region = module;
     t.eta = eta; 
     t.phi = phi;
+    // check that the id makes sense:
+    bool connected = m_fcalHelper->is_connected(t.pn,t.region,t.eta,t.phi); 
+    if(!connected) {
+      ATH_MSG_ERROR 
+        ( "wrong dictionary ? cell not connected ! pn= "
+	  << t.pn << "reg= " << t.region << "eta= " << t.eta << "phi= " << t.phi 
+	  );
+    }
     
     // fields for the offline TT channel id
     int l1_pn=1; // A side
@@ -323,17 +330,17 @@ StatusCode reinitTTMap_Algo::testStruct(){
   ATH_MSG_DEBUG("  Dump of LArTTCellMap" );
   ATH_MSG_DEBUG(" Persistent LArTTCell_P version = "<<ttCell_P->m_version);
   int lines=0;
-  std::unique_ptr<std::ofstream> dumpFcal;
-  std::unique_ptr<std::ofstream> dumpOther;
+  std::ofstream* dumpFcal=0;
+  std::ofstream* dumpOther=0;
   std::string fcalFile="initDumpFCAL.txt";
   std::string otherFile="initDumpOther.txt";
   if(m_dumpMap) {
-    dumpFcal=CxxUtils::make_unique<std::ofstream>(fcalFile.c_str());   
+    dumpFcal=new std::ofstream(fcalFile.c_str());   
     if (dumpFcal==0) {
       std::cout << "Problem opening FCAL dump file" << std::endl;
       return 1;
     }
-    dumpOther=CxxUtils::make_unique<std::ofstream>(otherFile.c_str());   
+    dumpOther=new std::ofstream(otherFile.c_str());   
     if (dumpOther==0) {
       std::cout << "Problem opening other dump file" << std::endl;
       return 1;
@@ -396,7 +403,9 @@ StatusCode reinitTTMap_Algo::testStruct(){
 
   if(m_dumpMap) {
     dumpFcal->close();
+    delete dumpFcal;
     dumpOther->close();
+    delete dumpOther;
   }
 
   ATH_MSG_DEBUG(" number of lines found = "<< lines);
