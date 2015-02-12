@@ -7,30 +7,19 @@
 NAME:     TElectronIsEMSelector.cxx
 PACKAGE:  PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
 
-AUTHORS:  J. Mitrevski
-CREATED:  Dec 2011
-COMMENT:  evolved from egammaElectronCutIDTool by (F. Derue)
-
-PURPOSE:  Cut based identification of electrons
-
-UPDATED:
-
 *********************************************************************/
 
-// This class header
 #include "ElectronPhotonSelectorTools/TElectronIsEMSelector.h"
 #include <cmath>
 
-///***** UGLY!!!!!
-///***** in athena would just use the proper constant defined in the track summary header
-///***** but here am forced to do this dangerous thing that could break if they decide
-///***** to use different constants.
-const int SummaryTypeNotSet = -1;
+namespace{
+  const int SummaryTypeNotSet = -1;
+}
 
 Root::TElectronIsEMSelector::TElectronIsEMSelector(const char* name) :
   TSelectorToolBase(name),
-  isEMMask(egammaPID::ElectronMediumPP),
-  PIDName(egammaPID::IsEMMedium),
+  asg::AsgMessaging(std::string(name)), 
+  isEMMask(0), //All will pass if not specified
   useTRTOutliers(true),
   useBLOutliers(true),
   usePIXOutliers(true),
@@ -175,10 +164,10 @@ Root::TElectronIsEMSelector::~TElectronIsEMSelector()
 //=============================================================================
 // Initialize this selector tool
 //=============================================================================
-FakeStatusCode Root::TElectronIsEMSelector::initialize()
+int Root::TElectronIsEMSelector::initialize()
 {
 
-  FakeStatusCode sc(FkStatusCode::SUCCESS);
+  int  sc(1);
 
   // --------------------------------------------------------------------------
   // Register the cuts and check that the registration worked:
@@ -187,162 +176,162 @@ FakeStatusCode Root::TElectronIsEMSelector::initialize()
   /** @brief cluster eta range, bit 0 */
   m_cutPositionClusterEtaRange_Electron = 
     m_accept.addCut(m_cutNameClusterEtaRange_Electron, "Electron within eta range");
-  if (m_cutPositionClusterEtaRange_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterEtaRange_Electron < 0) sc = 0;
   
   /** @brief matching to photon (not necessarily conversion--the name is historical), but 1 */
   m_cutPositionConversionMatch_Electron = 
     m_accept.addCut(m_cutNameConversionMatch_Electron, "Electron matches a photon with AR > LOOSE");
-  if (m_cutPositionConversionMatch_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionConversionMatch_Electron < 0) sc = 0;
     
   /** @brief cluster leakage into the hadronic calorimeter, bit 2 */
   m_cutPositionClusterHadronicLeakage_Electron = 
     m_accept.addCut(m_cutNameClusterHadronicLeakage_Electron, "Had leakage < Cut");
-  if (m_cutPositionClusterHadronicLeakage_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterHadronicLeakage_Electron < 0) sc = 0;
 
   /** @brief et < 0 bit 3 */
   m_cutPositionClusterMiddleEnergy_Electron = 
     m_accept.addCut(m_cutNameClusterMiddleEnergy_Electron, "Et <0  Cut"); 
-  if (m_cutPositionClusterMiddleEnergy_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterMiddleEnergy_Electron < 0) sc = 0;
 
   /** @brief energy ratio in 2nd sampling (i.e. E237/E277), bit 4 */
   m_cutPositionClusterMiddleEratio37_Electron = 
     m_accept.addCut(m_cutNameClusterMiddleEratio37_Electron, "E237/377 > Cut");
-  if (m_cutPositionClusterMiddleEratio37_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterMiddleEratio37_Electron < 0) sc = 0;
 
   /** @brief energy ratio in 2nd sampling (i.e. E233/E237), bit 5 */
   m_cutPositionClusterMiddleEratio33_Electron = 
     m_accept.addCut(m_cutNameClusterMiddleEratio33_Electron, "E233/E237 > Cut");
-  if (m_cutPositionClusterMiddleEratio33_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterMiddleEratio33_Electron < 0) sc = 0;
 
   /** @brief width in the second sampling (i.e. Weta2), bit 6 */
   m_cutPositionClusterMiddleWidth_Electron = 
     m_accept.addCut(m_cutNameClusterMiddleWidth_Electron, "Weta2 < Cut");
-  if (m_cutPositionClusterMiddleWidth_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterMiddleWidth_Electron < 0) sc = 0;
 
   /** @brief energy fraction in the third layer, bit 7 */
   m_cutPositionClusterBackEnergyFraction_Electron = 
     m_accept.addCut(m_cutNameClusterBackEnergyFraction_Electron, "f3 < Cut");
-  if (m_cutPositionClusterBackEnergyFraction_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterBackEnergyFraction_Electron < 0) sc = 0;
 
   /** @brief fraction of energy found in 1st sampling (NB: not used in fact for electrons), bit 8*/
   m_cutPositionClusterStripsEratio_Electron = 
     m_accept.addCut(m_cutNameClusterStripsEratio_Electron, "No Cut");
-  if (m_cutPositionClusterStripsEratio_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterStripsEratio_Electron < 0) sc = 0;
 
   /** @brief energy of 2nd maximum in 1st sampling ~e2tsts1/(1000+const_lumi*et), bit 9 */
   m_cutPositionClusterStripsDeltaEmax2_Electron = 
     m_accept.addCut(m_cutNameClusterStripsDeltaEmax2_Electron, "emax2/(1000.+0.009*et) < Cut, where emax2 is the energy of the second max");
-  if (m_cutPositionClusterStripsDeltaEmax2_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterStripsDeltaEmax2_Electron < 0) sc = 0;
 
   /** @brief difference between 2nd maximum and 1st minimum in strips (e2tsts1-emins1), bit 10 */
   m_cutPositionClusterStripsDeltaE_Electron = 
     m_accept.addCut(m_cutNameClusterStripsDeltaE_Electron, "difference between 2nd maximium and first minimum < Cut");
-  if (m_cutPositionClusterStripsDeltaE_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterStripsDeltaE_Electron < 0) sc = 0;
 
   /** @brief shower width in 1st sampling, bit 11 */
   m_cutPositionClusterStripsWtot_Electron = 
     m_accept.addCut(m_cutNameClusterStripsWtot_Electron, "Total shower width in first sampling < Cut");
-  if (m_cutPositionClusterStripsWtot_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterStripsWtot_Electron < 0) sc = 0;
 
   /** @brief shower shape in shower core 1st sampling, bit 12 */
   m_cutPositionClusterStripsFracm_Electron = 
     m_accept.addCut(m_cutNameClusterStripsFracm_Electron, "Fracm (aka Fside) < Cut");
-  if (m_cutPositionClusterStripsFracm_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterStripsFracm_Electron < 0) sc = 0;
 
   /** @brief shower width weighted by distance from the maximum one, bit 13 */
   m_cutPositionClusterStripsWeta1c_Electron = 
     m_accept.addCut(m_cutNameClusterStripsWeta1c_Electron, "Shower width in 3 strips in first sampling < Cut");
-  if (m_cutPositionClusterStripsWeta1c_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterStripsWeta1c_Electron < 0) sc = 0;
 
   int voidcutpos = m_accept.addCut("VOID1", "No Cut"); // bit 14 is not used
-  if (voidcutpos < 0) sc = FkStatusCode::FAILURE;
+  if (voidcutpos < 0) sc = 0;
 
   /** @brief difference between max and 2nd max in strips, bit 15 */
   m_cutPositionClusterStripsDEmaxs1_Electron = 
     m_accept.addCut(m_cutNameClusterStripsDEmaxs1_Electron, "Difference between first and second max > Cut");
-  if (m_cutPositionClusterStripsDEmaxs1_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterStripsDEmaxs1_Electron < 0) sc = 0;
 
   /** @brief B layer hit, bit 16 */
   m_cutPositionTrackBlayer_Electron = 
     m_accept.addCut(m_cutNameTrackBlayer_Electron, "nBL > 0, maybe including outliers and using expectHitInBLayer");
-  if (m_cutPositionTrackBlayer_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionTrackBlayer_Electron < 0) sc = 0;
 
   /** @brief number of Pixel hits, bit 17 */
   m_cutPositionTrackPixel_Electron = 
     m_accept.addCut(m_cutNameTrackPixel_Electron, "nPi > Cut, maybe including outliers");
-  if (m_cutPositionTrackPixel_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionTrackPixel_Electron < 0) sc = 0;
 
   /** @brief number of Pixel and SCT hits, bit 18 */
   m_cutPositionTrackSi_Electron = 
     m_accept.addCut(m_cutNameTrackSi_Electron, "nSi > Cut, maybe including outliers");
-  if (m_cutPositionTrackSi_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionTrackSi_Electron < 0) sc = 0;
 
   /** @brief distance of closet approach, bit 19 */
   m_cutPositionTrackA0_Electron = 
     m_accept.addCut(m_cutNameTrackA0_Electron, "A0 (aka d0) wrt beam spot < Cut");
-  if (m_cutPositionTrackA0_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionTrackA0_Electron < 0) sc = 0;
 
   /** @brief eta difference between cluster and extrapolated track in the 1st sampling, bit 20 */
   m_cutPositionTrackMatchEta_Electron = 
     m_accept.addCut(m_cutNameTrackMatchEta_Electron, "Track match deta in 1st sampling < Cut");
-  if (m_cutPositionTrackMatchEta_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionTrackMatchEta_Electron < 0) sc = 0;
 
   /** @brief phi difference between cluster and extrapolated track in the 2nd sampling, bit 21 */
   m_cutPositionTrackMatchPhi_Electron = 
     m_accept.addCut(m_cutNameTrackMatchPhi_Electron, "Track match dphi in 2nd sampling < Cut");
-  if (m_cutPositionTrackMatchPhi_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionTrackMatchPhi_Electron < 0) sc = 0;
 
   /** @brief energy-momentum match, bit 22 */
   m_cutPositionTrackMatchEoverP_Electron = 
     m_accept.addCut(m_cutNameTrackMatchEoverP_Electron, "E/p < Cut");
-  if (m_cutPositionTrackMatchEoverP_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionTrackMatchEoverP_Electron < 0) sc = 0;
 
   voidcutpos = m_accept.addCut("VOID2", "No Cut"); // bit 23 is not used
-  if (voidcutpos < 0) sc = FkStatusCode::FAILURE;
+  if (voidcutpos < 0) sc = 0;
 
   /** @brief number of TRT hits, bit 24 */
   m_cutPositionTrackTRThits_Electron = 
     m_accept.addCut(m_cutNameTrackTRThits_Electron, "number of TRT hits > Cut");
-  if (m_cutPositionTrackTRThits_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionTrackTRThits_Electron < 0) sc = 0;
 
   /** @brief ratio of high to all TRT hits for isolated electrons, bit 25 */
   m_cutPositionTrackTRTratio_Electron = 
     m_accept.addCut(m_cutNameTrackTRTratio_Electron, "ration of high to all TRT hits > Cut");
-  if (m_cutPositionTrackTRTratio_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionTrackTRTratio_Electron < 0) sc = 0;
 
   /** @brief ratio of high to all TRT hits for non-isolated electrons (not for new ++ menus), bit 26 */    
   m_cutPositionTrackTRTratio90_Electron = 
     m_accept.addCut(m_cutNameTrackTRTratio90_Electron, "ration of high to all TRT hits > Cut, 90% cut, (only for old tight menu)");
-  if (m_cutPositionTrackTRTratio90_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionTrackTRTratio90_Electron < 0) sc = 0;
 
   /** @brief distance of closet approach for tight selection (not to be used in new ++ menus), bit 27 */
   m_cutPositionTrackA0Tight_Electron = 
     m_accept.addCut(m_cutNameTrackA0Tight_Electron, "tight cut on d0 for old tight menu (not used otherwis)");
-  if (m_cutPositionTrackA0Tight_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionTrackA0Tight_Electron < 0) sc = 0;
 
   /** @brief eta difference between cluster and extrapolated track in the 1st sampling for 
       tight selection (not to be used in new ++ menus), bit 28*/
   m_cutPositionTrackMatchEtaTight_Electron = 
     m_accept.addCut(m_cutNameTrackMatchEtaTight_Electron, "tight cut on deta only for old tight menu");
-  if (m_cutPositionTrackMatchEtaTight_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionTrackMatchEtaTight_Electron < 0) sc = 0;
 
   /** @brief isolation, bit 29 */
   m_cutPositionIsolation_Electron = 
     m_accept.addCut(m_cutNameIsolation_Electron, "Track and calorimetric isolation");
-  if (m_cutPositionIsolation_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionIsolation_Electron < 0) sc = 0;
 
   /** @brief calorimetric isolation, bit 30 */
   m_cutPositionClusterIsolation_Electron = 
     m_accept.addCut(m_cutNameClusterIsolation_Electron, "calorimetric isolation only");
-  if (m_cutPositionClusterIsolation_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterIsolation_Electron < 0) sc = 0;
 
   /** @brief tracker isolation, bit 31 */
   m_cutPositionTrackIsolation_Electron = 
     m_accept.addCut(m_cutNameTrackIsolation_Electron, "track isolation only");
-  if (m_cutPositionTrackIsolation_Electron < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionTrackIsolation_Electron < 0) sc = 0;
 
-  if (sc == FkStatusCode::FAILURE) {
-    FAKE_MSG_ERROR("Exceeded the number of allowed cuts in TElectronIsEMSelector");
+  if (sc == 0) {
+    ATH_MSG_ERROR("Exceeded the number of allowed cuts in TElectronIsEMSelector");
   }
 
   return sc;
@@ -354,7 +343,6 @@ const Root::TAccept& Root::TElectronIsEMSelector::fillAccept() const
     const unsigned int mask = (0x1 << i) & isEMMask;
     m_accept.setCutResult(i, (m_isEM & mask) == 0);
   }
-
   return m_accept;
 }
 
@@ -614,7 +602,6 @@ unsigned int Root::TElectronIsEMSelector::calocuts_electrons(
   // modifiy et when dealing with trigger
   // to be sure that it will take the correct bin (VD)
   if(trigEtTh > 0) et = trigEtTh*1.01; 
-
   std::vector<int> bins =FindEtEtaBin(et,eta2);
   int ibin_et= bins.at(0);
   int ibin_eta= bins.at(1);
@@ -971,25 +958,26 @@ std::vector<int> Root::TElectronIsEMSelector::FindEtEtaBin(double et, double eta
   //Try to figure out in which bin we belong
   int ibin_et = -1;
   // loop on ET range
-  for (unsigned int ibinET=0;ibinET<=CutBinET.size();++ibinET) {
-    if ( ibinET == 0 ) {
-      if (et < CutBinET[ibinET] ) {
-	ibin_et = ibinET;
+  if(CutBinET.size()>0){
+    for (unsigned int ibinET=0;ibinET<=CutBinET.size();++ibinET) {
+      if ( ibinET == 0 ) {
+	if (et < CutBinET[ibinET] ) {
+	  ibin_et = ibinET;
+	}
+      } 
+      else if ( ibinET > 0 && ibinET <CutBinET.size() ) {
+	if ( et >= CutBinET[ibinET-1] && 
+	     et < CutBinET[ibinET] ) {
+	  ibin_et = ibinET;
+	}
       }
-    } 
-    else if ( ibinET > 0 && ibinET <CutBinET.size() ) {
-      if ( et >= CutBinET[ibinET-1] && 
-	   et < CutBinET[ibinET] ) {
-	ibin_et = ibinET;
-      }
-    }
-    else if ( ibinET == CutBinET.size() ) {
-      if ( et >= CutBinET[ibinET-1] ) {
-	ibin_et = ibinET;
+      else if ( ibinET == CutBinET.size() ) {
+	if ( et >= CutBinET[ibinET-1] ) {
+	  ibin_et = ibinET;
+	}
       }
     }
   }
-  
   int ibin_eta = -1;
   // loop on eta range
   for (unsigned int ibinEta=0;ibinEta<CutBinEta.size();++ibinEta) {
@@ -1019,7 +1007,8 @@ std::vector<int> Root::TElectronIsEMSelector::FindEtEtaBin(double et, double eta
 
 // ==============================================================
 
-bool Root::TElectronIsEMSelector::CheckVar(const std::vector<float>& vec, int choice) const
+template<typename T> 
+bool Root::TElectronIsEMSelector::CheckVar(const std::vector<T>& vec, int choice) const
 {
   // check vector size
   // 0 : size should be 1
@@ -1056,7 +1045,7 @@ bool Root::TElectronIsEMSelector::CheckVar(const std::vector<float>& vec, int ch
   // check if size is 1 (give choice 0)
   if (choice==0) {
     if ( vec.size() != 1) {
-      FAKE_MSG_ERROR("choice 0 vector size is " 
+      ATH_MSG_ERROR("choice 0 vector size is " 
 		     << vec.size() << " but needs 1"); 
       return false;      
     }
@@ -1065,7 +1054,7 @@ bool Root::TElectronIsEMSelector::CheckVar(const std::vector<float>& vec, int ch
   // check if size is etaNB
   if (choice==1) {
     if ( vec.size() != etaNB ) {
-      FAKE_MSG_ERROR("choice 1 vector size is " 
+      ATH_MSG_ERROR("choice 1 vector size is " 
 		     << vec.size() << " but needs " 
 		     << etaNB);
       return false;      
@@ -1074,7 +1063,7 @@ bool Root::TElectronIsEMSelector::CheckVar(const std::vector<float>& vec, int ch
   // check if size is etaTRTNB
   if (choice==2) {
     if ( vec.size() != etaTRTNB ) {
-      FAKE_MSG_ERROR("choice 2 vector size is " 
+      ATH_MSG_ERROR("choice 2 vector size is " 
 		     << vec.size() << " but needs " 
 		     << etaTRTNB);
       return false;      
@@ -1084,7 +1073,7 @@ bool Root::TElectronIsEMSelector::CheckVar(const std::vector<float>& vec, int ch
   // check if size is etNB
   if (choice==3) {
     if ( vec.size() != etNB ) {
-      FAKE_MSG_ERROR("choice 3 vector size is " 
+      ATH_MSG_ERROR("choice 3 vector size is " 
 		     << vec.size() << " but needs " 
 		     << etNB);
       return false;      
@@ -1094,107 +1083,7 @@ bool Root::TElectronIsEMSelector::CheckVar(const std::vector<float>& vec, int ch
   // check if size is combinedNB 
   if (choice==4) {
     if ( vec.size() != combinedNB ) {
-      FAKE_MSG_ERROR("choice 4 vector size is " 
-		     << vec.size() << " but needs " 
-		     << combinedNB);
-      return false;      
-    }
-  }
-
-
-  // check if size is etaTRTNB
-  if (choice==5) {
-    if ( vec.size() != combinedTRTNB ) {
-      FAKE_MSG_ERROR("choice 5 vector size is " 
-		     << vec.size() << " but needs " 
-		     << combinedTRTNB);
-      return false;      
-    }
-  }
-  return true;
-}
-
-// ==============================================================
-bool Root::TElectronIsEMSelector::CheckVar(const std::vector<int>& vec, int choice) const
-{
-
-  // check vector size
-  // 0 : size should be 1
-  // 1 : vs etaNB
-  // 2 : vs etaTRTNB
-  // 3 : vs etNB
-  // 4 : vs combinedNB
-  // 5 : vs combinedTRTNB
-
-  // if size of vector is 0 it means cut is not defined
-  if (vec.size() == 0) return false;
-
-
-  unsigned int etaNB = CutBinEta.size();
-  unsigned int etaTRTNB = CutBinEta_TRT.size();
-  unsigned int etNB =  CutBinET.size();
-  unsigned int etTRTNB =  CutBinET_TRT.size();
-  unsigned int combinedNB = 0;
-  unsigned int combinedTRTNB = 0;
-
-  if (etNB>1) {
-    combinedNB = etaNB * (etNB+1);
-  }
-  else {
-    combinedNB = etaNB;
-  }
-
-  if (etTRTNB>1) {
-    combinedTRTNB = etaTRTNB * (etTRTNB+1);
-  }
-  else {
-    combinedTRTNB = etaTRTNB;
-  }
-
-
-  // check if size is 1
-  if (choice==0) {
-    if ( vec.size() != 1) {
-      FAKE_MSG_ERROR("choice 0 vector size is " 
-		     << vec.size() << " but needs 1"); 
-      return false;      
-    }
-  }
-
-  // check if size is etaNB
-  if (choice==1) {
-    if ( vec.size() != etaNB ) {
-      FAKE_MSG_ERROR("choice 1 vector size is " 
-		     << vec.size() << " but needs " 
-		     << etaNB);
-      return false;      
-    }
-  }
-
-  // check if size is etaTRTNB
-  if (choice==2) {
-    if ( vec.size() != etaTRTNB ) {
-      FAKE_MSG_ERROR("choice 2 vector size is " 
-		     << vec.size() << " but needs " 
-		     << etaTRTNB);
-      return false;      
-    }
-  }
-
-  // check if size is etNB
-  if (choice==3) {
-    if ( vec.size() != etNB ) {
-      FAKE_MSG_ERROR("choice 3 vector size is " 
-		     << vec.size() << " but needs " 
-		     << etNB);
-      return false;      
-    }
-  }
-
-  // check if size is combinedNB 
-  if (choice==4) {
-    if ( vec.size() != combinedNB ) {
-      FAKE_MSG_ERROR("choice 4 vector size is " 
+      ATH_MSG_ERROR("choice 4 vector size is " 
 		     << vec.size() << " but needs " 
 		     << combinedNB);
       return false;      
@@ -1204,12 +1093,14 @@ bool Root::TElectronIsEMSelector::CheckVar(const std::vector<int>& vec, int choi
   // check if size is etaTRTNB
   if (choice==5) {
     if ( vec.size() != combinedTRTNB ) {
-      FAKE_MSG_ERROR("choice 5 vector size is " 
+      ATH_MSG_ERROR("choice 5 vector size is " 
 		     << vec.size() << " but needs " 
 		     << combinedTRTNB);
       return false;      
     }
   }
- 
   return true;
 }
+
+template bool Root::TElectronIsEMSelector::CheckVar<float>  (const std::vector<float>& vec, int choice) const;
+template bool Root::TElectronIsEMSelector::CheckVar<int>  (const std::vector<int>& vec, int choice) const;

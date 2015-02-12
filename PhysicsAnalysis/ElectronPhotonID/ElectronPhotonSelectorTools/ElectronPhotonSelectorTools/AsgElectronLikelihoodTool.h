@@ -7,16 +7,6 @@
 #ifndef __ASGELECTRONLIKELIHOODTOOL__
 #define __ASGELECTRONLIKELIHOODTOOL__
 
-/**
-   @class AsgElectronLikelihoodTool
-   @brief Tool to select objects
-
-   @author Karsten Koeneke
-   @date   October 2012
-
-   09-APR-2014, convert to ASGTool (Jovan Mitrevski)
-
-*/
 
 // Atlas includes
 #include "AsgTools/AsgTool.h"
@@ -127,6 +117,7 @@ public:
     return m_rootTool->getTResult();
   }
 
+  virtual std::string getOperatingPointName( ) const;
 
   // Private methods
 private:
@@ -135,7 +126,7 @@ private:
 
 
   /// Get the name of the current operating point
-  std::string getOperatingPointName( const LikeEnum::Menu operating_point ) const;
+
 
 
   // Private member variables

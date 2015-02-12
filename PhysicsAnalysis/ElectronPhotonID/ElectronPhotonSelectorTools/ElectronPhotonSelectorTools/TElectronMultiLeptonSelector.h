@@ -16,15 +16,14 @@
 
 // ROOT includes
 #include <TString.h>
-
 // Include the return object and the base class
 #include "PATCore/TAccept.h"
 #include "PATCore/TSelectorToolBase.h"
-
+#include "AsgTools/AsgMessaging.h"
 
 
 namespace Root {
-  class TElectronMultiLeptonSelector : public TSelectorToolBase
+  class TElectronMultiLeptonSelector : public TSelectorToolBase,public asg::AsgMessaging
   {
 
   public: 
@@ -64,8 +63,7 @@ namespace Root {
                                  const double TRratio,
                                  const int nTRTTotal,
                                  const int nBlayerHits,
-                                 const bool expectBlayer,
-                                 const bool debug=false
+                                 const bool expectBlayer
                                  ) const;
 
 

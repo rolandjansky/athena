@@ -3,12 +3,12 @@
 */
 
 #include "ElectronPhotonSelectorTools/AsgElectronPhotonIsEMSelectorConfigHelper.h"
+#include "AsgTools/AsgMessaging.h"
 #include "TEnv.h"
 #include <vector>
 #include <iostream>
 #include <sstream>      // std::istringstream
 using namespace std;
-
 
   std::vector<double> AsgConfigHelper::HelperDouble(const std::string& input,  TEnv& env){
     std::vector<double> CutVector;    
@@ -62,10 +62,11 @@ std::vector<int> AsgConfigHelper::HelperInt(const std::string& input, TEnv& env)
 
 
 bool AsgConfigHelper::strtof(const std::string& input, float& f){
+
   int diff = 0 ;
   std::string tmp = input;
-  std::string::size_type first;
-  std::string::size_type last;
+  std::string::size_type first(0);
+  std::string::size_type last(0);
   
   first = ( input.find("#") ) ;
   if (first == std::string::npos) {
@@ -75,14 +76,14 @@ bool AsgConfigHelper::strtof(const std::string& input, float& f){
   else {
     last = (input.find("#",first+1) );
     if (last == std::string::npos) {
-      std::cout << " ERROR NOT 2 #  "<< std::endl;  
+      static asg::AsgMessaging m_msg("Egamma::AsgConfigHelper");
+      m_msg.msg(MSG::WARNING)<<" Improper comment format , inline comment should be enclosed between two #  "<<endmsg;
       return false;
     }  
     diff = last - first ;
     tmp= tmp.erase(first,diff+1);
     std::istringstream buffer (tmp);
     buffer>>f;
-
     return true;
   }
 }

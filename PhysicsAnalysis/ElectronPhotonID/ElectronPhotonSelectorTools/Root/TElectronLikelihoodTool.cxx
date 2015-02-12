@@ -3,10 +3,7 @@
 */
 
 #include "ElectronPhotonSelectorTools/TElectronLikelihoodTool.h"
-#include <iostream>
-#include <iomanip>
 #include <cmath>
-#include <cassert>
 #include "TSystem.h"
 
 /** 
@@ -21,7 +18,9 @@
 
 //----------------------------------------------------------------------------------------
 Root::TElectronLikelihoodTool::TElectronLikelihoodTool(const char* name) :
-  ITElectronLikelihoodTool(name),
+  TCalculatorToolBase(name),
+  TSelectorToolBase(name),
+  asg::AsgMessaging(std::string(name)),
   doCutConversion(false),
   doRemoveF3AtHighEt(false),
   doPileupTransform(false),
@@ -33,7 +32,7 @@ Root::TElectronLikelihoodTool::TElectronLikelihoodTool(const char* name) :
   m_debug(false),
   m_variableBitMask(0x0),
   m_ipBinning(""),
-  m_pdfFile(NULL),
+  m_pdfFile(0),
   m_resultPrefix(""),
   m_resultName("likelihood"),
   m_cutPosition_kinematic(-9),
@@ -85,7 +84,7 @@ Root::TElectronLikelihoodTool::~TElectronLikelihoodTool()
 
 int Root::TElectronLikelihoodTool::initialize()
 {
-  if (m_debug){ std::cout << "TElectronLikelihoodTool initialize." << std::endl; }
+  if (m_debug){ ATH_MSG_DEBUG( "TElectronLikelihoodTool initialize."); }
 
   // use an int as a StatusCode
   int sc(1);
@@ -93,27 +92,13 @@ int Root::TElectronLikelihoodTool::initialize()
   // Check that all needed variables are setup
   if ( PdfFileName.empty() )
     {
-      std::cout << "You need to specify the input PDF file name before you call initialize() with setPDFFileName('your/file/name.root') " << std::endl;
+      ATH_MSG_WARNING("You need to specify the input PDF file name before you call initialize() with setPDFFileName('your/file/name.root') ");
       sc = 0;
     }
   if ( sc == 0 )
     {
-      std::cout << "Could NOT initialize! Please fix the errors mentioned above..." << std::endl;
+      ATH_MSG_ERROR("Could NOT initialize! Please fix the errors mentioned above...");
       return sc;
-    }
-
-
-  // Load the ROOT file containing the PDFs
-  const char* fname;
-  fname = gSystem->ExpandPathName( PdfFileName.c_str() );
-  m_pdfFile = TFile::Open( fname, "READ" );
-  // Check that we could load the ROOT file
-  if ( !m_pdfFile )
-    {
-      std::cout << "ERROR!"// << this->getName()
-                << " (file: " << __FILE__ << ", line: " << __LINE__ << ") "
-                << "! No ROOT file found here: " << PdfFileName << std::endl;
-      return 0;
     }
 
   // --------------------------------------------------------------------------
@@ -171,12 +156,9 @@ int Root::TElectronLikelihoodTool::initialize()
   // Check that we got everything OK
   if ( sc == 0 )
     {
-      std::cout << "ERROR!" //<< this->getName()
-                << " (file: " << __FILE__ << ", line: " << __LINE__ << ") "
-                << "! Something went wrong with the setup of the return objects..." << std::endl;
+      ATH_MSG_ERROR("! Something went wrong with the setup of the return objects...");
       return 0;
     }
-
 
   // ----------------------------------
   // Get the correct bit mask for the current likelihood operating point
@@ -184,6 +166,19 @@ int Root::TElectronLikelihoodTool::initialize()
   setOperatingPoint(OperatingPoint);
   // ----------------------------------
   
+  //----------File/Histo operation------------------------------------
+  // Load the ROOT file containing the PDFs
+  const char* fname;
+  fname = gSystem->ExpandPathName( PdfFileName.c_str() );
+  m_pdfFile = TFile::Open( fname, "READ" );
+  // Check that we could load the ROOT file
+  if ( !m_pdfFile )
+    {
+      ATH_MSG_ERROR(" No ROOT file found here: " << PdfFileName);
+      return 0;
+    }
+
+  //Load the histograms
   for(unsigned int varIndex = 0; varIndex < fnVariables; varIndex++){
     std::string vstr = fVariables[varIndex];
     // Skip the loading of PDFs for variables we don't care about for this operating point.
@@ -191,32 +186,41 @@ int Root::TElectronLikelihoodTool::initialize()
     if(VariableNames.find(vstr) == std::string::npos && !VariableNames.empty()){
       continue;
     }
-
     LoadVarHistograms(vstr,varIndex);
   }
 
+  //TFile close does not free the memory
   m_pdfFile->Close();
-  if (m_debug){ std::cout << "Initialization complete for a LH tool with these specs:"
-			  << "\n - PdfFileName                                  : " << PdfFileName
-			  << "\n - OperatingPoint                               : " << (int)OperatingPoint
-			  << "\n - Result name                                  : " << (m_resultPrefix+m_resultName).c_str()
-			  << "\n - Variable bitmask                             : " << m_variableBitMask
-			  << std::endl;
-    if (OperatingPoint != LikeEnum::CustomOperatingPoint) std::cout << "   Taking all values from LikeEnum Operating point!"
-								    << "\n   To customize use LikeEnum::CustomOperatingPoint." << std::endl;
-    else std::cout << "\n - VariableNames                                : " << VariableNames
-		   << "\n - (bool)CutBL (yes/no)                         : " << (CutBL.size() ? "yes" : "no")
-		   << "\n - (bool)CutPi (yes/no)                         : " << (CutPi.size() ? "yes" : "no")
-		   << "\n - (bool)CutSi (yes/no)                         : " << (CutSi.size() ? "yes" : "no")
-		   << "\n - (bool)doCutConversion (yes/no)               : " << (doCutConversion ? "yes" : "no")
-		   << "\n - (bool)doRemoveF3AtHighEt (yes/no)            : " << (doRemoveF3AtHighEt ? "yes" : "no")
-		   << "\n - (bool)doPileupTransform (yes/no)             : " << (doPileupTransform ? "yes" : "no")
-		   << "\n - (bool)CutLikelihood (yes/no)                 : " << (CutLikelihood.size() ? "yes" : "no")
-		   << "\n - (bool)CutLikelihoodPileupCorrection (yes/no) : " << (CutLikelihoodPileupCorrection.size() ? "yes" : "no")
-		   << "\n - (bool)CutA0 (yes/no)                         : " << (CutA0.size() ? "yes" : "no")
-		   << "\n - (bool)CutDeltaEta (yes/no)                   : " << (CutDeltaEta.size() ? "yes" : "no")
-		   << "\n - (bool)CutDeltaPhiRes (yes/no)                : " << (CutDeltaPhiRes.size() ? "yes" : "no")
-		   << std::endl;
+  //We need the destructor to be called
+  delete m_pdfFile;
+  //----------End File/Histo operation------------------------------------
+
+  if (m_debug){ 
+    ATH_MSG_DEBUG("Initialization complete for a LH tool with these specs:"
+		  << "\n - PdfFileName                                  : " << PdfFileName
+		  << "\n - OperatingPoint                               : " << (int)OperatingPoint
+		  << "\n - Result name                                  : " << (m_resultPrefix+m_resultName).c_str()
+		  << "\n - Variable bitmask                             : " << m_variableBitMask);
+
+    if (OperatingPoint != LikeEnum::CustomOperatingPoint) {
+      ATH_MSG_DEBUG("   Taking all values from LikeEnum Operating point!"
+		    << "\n   To customize use LikeEnum::CustomOperatingPoint.");
+    }
+    else {
+      ATH_MSG_DEBUG("\n - VariableNames                                : " << VariableNames
+		    << "\n - (bool)CutBL (yes/no)                         : " << (CutBL.size() ? "yes" : "no")
+		    << "\n - (bool)CutPi (yes/no)                         : " << (CutPi.size() ? "yes" : "no")
+		    << "\n - (bool)CutSi (yes/no)                         : " << (CutSi.size() ? "yes" : "no")
+		    << "\n - (bool)doCutConversion (yes/no)               : " << (doCutConversion ? "yes" : "no")
+		    << "\n - (bool)doRemoveF3AtHighEt (yes/no)            : " << (doRemoveF3AtHighEt ? "yes" : "no")
+		    << "\n - (bool)doPileupTransform (yes/no)             : " << (doPileupTransform ? "yes" : "no")
+		    << "\n - (bool)CutLikelihood (yes/no)                 : " << (CutLikelihood.size() ? "yes" : "no")
+		    << "\n - (bool)CutLikelihoodPileupCorrection (yes/no) : " << (CutLikelihoodPileupCorrection.size() ? "yes" : "no")
+		    << "\n - (bool)CutA0 (yes/no)                         : " << (CutA0.size() ? "yes" : "no")
+		    << "\n - (bool)CutDeltaEta (yes/no)                   : " << (CutDeltaEta.size() ? "yes" : "no")
+		    << "\n - (bool)CutDeltaPhiRes (yes/no)                : " << (CutDeltaPhiRes.size() ? "yes" : "no")
+		    );
+    }
   }
   return sc;
 }
@@ -255,8 +259,8 @@ int Root::TElectronLikelihoodTool::LoadVarHistograms(std::string vstr,unsigned i
 	    fPDFIntegrals[s_or_b][ip][et][eta][varIndex] = fPDFbins[s_or_b][ip][et][eta][varIndex]->Integral(1,nbins);
 	  }
 	  else {
-	    std::cout << "Warning: Object " << pdf << " does not exist." << std::endl;
-	    std::cout << "Skipping all other histograms with this variable." << std::endl;
+	    ATH_MSG_INFO("Warning: Object " << pdf << " does not exist.");
+	    ATH_MSG_INFO("Skipping all other histograms with this variable.");
 	    return 1;
 	  }
 	}
@@ -300,7 +304,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   // Reset the cut result bits to zero (= fail cut)
   m_accept.clear();
 
-  if (m_debug) std::cout << "Likelihood macro: Using operating point " << OperatingPoint << std::endl;
+  if (m_debug) 	 ATH_MSG_DEBUG("Likelihood macro: Using operating point " << OperatingPoint);
 
   // Set up the individual cuts
   bool passKine(true);
@@ -314,7 +318,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   bool passDeltaPhiRes(true);
   
   if (fabs(vars_struct.eta) > 2.47) {
-    if (m_debug) std::cout << "This electron is fabs(eta)>2.47 Returning False." << std::endl;
+    if (m_debug) ATH_MSG_DEBUG("This electron is fabs(eta)>2.47 Returning False.");
     passKine = false;
   }
   
@@ -324,8 +328,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
 
   // sanity
   if (etbin  >= fnFineEtBins) {
-    std::cout << "Cannot evaluate likelihood for Et " << vars_struct.eT;
-    std::cout << ". Returning false.." << std::endl;
+    ATH_MSG_WARNING( "Cannot evaluate likelihood for Et " << vars_struct.eT<< ". Returning false..");
     passKine = false;
   }
 
@@ -335,14 +338,14 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
 
   // conversion bit
   if (doCutConversion && vars_struct.convBit){
-    if (m_debug) std::cout << "Likelihood macro: Conversion Bit Failed." << std::endl;
-    passConversion = false;
+      if (m_debug) ATH_MSG_DEBUG("Likelihood macro: Conversion Bit Failed." );
+      passConversion = false;
   }
 
   // blayer cut
   if (CutBL.size() && vars_struct.expectBlayer) {
     if(vars_struct.nBlayer + vars_struct.nBlayerOutliers < CutBL[etabin]) {
-      if (m_debug) std::cout << "Likelihood macro: Blayer Failed." << std::endl;
+      if (m_debug) ATH_MSG_DEBUG("Likelihood macro: Blayer Failed." );
       passNBlayer = false;
     }
   }
@@ -350,7 +353,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   // pixel cut
   if (CutPi.size()){
     if (vars_struct.nPix+vars_struct.nPixDeadSensors < CutPi[etabin]){
-      if (m_debug) std::cout << "Likelihood macro: Pixels Failed." << std::endl;
+      if (m_debug)  ATH_MSG_DEBUG("Likelihood macro: Pixels Failed.");
       passNPixel = false;
     }
   }
@@ -358,7 +361,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   // silicon cut
   if (CutSi.size()){
     if (vars_struct.nSi + vars_struct.nSiDeadSensors < CutSi[etabin]){
-      if (m_debug) std::cout << "Likelihood macro: Silicon Failed." << std::endl;
+      if (m_debug) ATH_MSG_DEBUG( "Likelihood macro: Silicon Failed.");
       passNSilicon = false;
     }
   }
@@ -371,18 +374,18 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   
   // Determine if the calculated likelihood value passes the cut
   if (m_debug){ 
-    std::cout << "Likelihood macro: Discriminant: " << vars_struct.likelihood << std::endl;
+    ATH_MSG_DEBUG("Likelihood macro: Discriminant: ");
   }
   if ( vars_struct.likelihood < cutDiscriminant )
     {
-      if (m_debug) std::cout << "Likelihood macro: Disciminant Cut Failed." << std::endl;
+      if (m_debug) ATH_MSG_DEBUG("Likelihood macro: Disciminant Cut Failed.");
       passLH = false;
     }
 
   // d0 cut
   if (CutA0.size()){
     if (fabs(vars_struct.d0) > CutA0[etabin]){
-      if (m_debug) std::cout << "Likelihood macro: D0 Failed." << std::endl;
+      if (m_debug) ATH_MSG_DEBUG("Likelihood macro: D0 Failed.");
       passTrackA0 = false;
     }
   }
@@ -390,7 +393,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   // deltaEta cut
   if (CutDeltaEta.size()){
     if ( fabs(vars_struct.deltaEta) > CutDeltaEta[etabin]){
-      if (m_debug) std::cout << "Likelihood macro: deltaEta Failed." << std::endl;
+      if (m_debug) ATH_MSG_DEBUG("Likelihood macro: deltaEta Failed.");
       passDeltaEta = false;
     }
   }
@@ -398,7 +401,7 @@ const Root::TAccept& Root::TElectronLikelihoodTool::accept( LikeEnum::LHAcceptVa
   // deltaPhiRes cut
   if (CutDeltaPhiRes.size()){
     if ( fabs(vars_struct.deltaphires) > CutDeltaPhiRes[etabin]){
-      if (m_debug) std::cout << "Likelihood macro: deltaphires Failed." << std::endl;
+      if (m_debug) ATH_MSG_DEBUG("Likelihood macro: deltaphires Failed.");
       passDeltaPhiRes = false;
     }
   }
@@ -501,20 +504,20 @@ double Root::TElectronLikelihoodTool::EvaluateLikelihood(std::vector<double> var
   unsigned int etabin = getLikelihoodEtaBin(eta);
   unsigned int ipbin  = getIpBin(ip);
 
-  if (m_debug) std::cout << "et: " << et << " eta: " << eta 
-                        << " etbin: " << etbin << " etabin: " << etabin << std::endl;
+  if (m_debug) ATH_MSG_DEBUG("et: " << et << " eta: " << eta 
+			     << " etbin: " << etbin << " etabin: " << etabin);
   
   if (etbin >= fnFineEtBins) {
-    std::cout << "skipping etbin " << etbin << ", et " << et << std::endl;
+    ATH_MSG_WARNING("skipping etbin " << etbin << ", et " << et);
     return -999.;
   }
   if (etabin >= fnEtaBins) {
-    std::cout << "skipping etabin " << etabin << ", eta " << eta << std::endl;
+    ATH_MSG_WARNING("skipping etabin " << etabin << ", eta " << eta);
     return -999.;
   }
   
   if (varVector.size() != fnVariables) 
-    std::cout << "Error! Variable vector size mismatch! Check your vector!" << std::endl;
+    ATH_MSG_WARNING("Error! Variable vector size mismatch! Check your vector!" );
   
   double SigmaS = 1.;
   double SigmaB = 1.;
@@ -549,7 +552,7 @@ double Root::TElectronLikelihoodTool::EvaluateLikelihood(std::vector<double> var
       
       double integral = double(fPDFIntegrals[s_or_b][ipbin][etbin][etabin][var]);
       if (integral == 0) {
-        std::cout << "Error! PDF integral == 0!" << std::endl;
+        ATH_MSG_WARNING("Error! PDF integral == 0!");
         return -1.35;
       }
       

@@ -26,10 +26,8 @@
 // Include the return object and the base class
 #include "PATCore/TAccept.h"
 #include "PATCore/TSelectorToolBase.h"
-
-#include "ElectronPhotonSelectorTools/FakeMsgStreamAndSC.h"
-#include "ElectronPhotonSelectorTools/EMAmbiguityToolDefs.h" // temporarily
 #include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
+#include "AsgTools/AsgMessaging.h"
 
 #include <vector>
 
@@ -37,7 +35,7 @@
 class AsgPhotonIsEMSelector;
 
 namespace Root {
-  class TPhotonIsEMSelector : public TSelectorToolBase
+  class TPhotonIsEMSelector : public TSelectorToolBase,public asg::AsgMessaging
   {
     
     friend class ::AsgPhotonIsEMSelector;
@@ -52,10 +50,10 @@ namespace Root {
 
     // Main methods
     /** Initialize this class */
-    FakeStatusCode initialize();
+    int initialize();
 
     /** Finalize this class; everything that should be done after the event loop should go here */
-    inline FakeStatusCode finalize() { return FkStatusCode::SUCCESS; };
+    inline int finalize() { return 1; };
 
 
     /** The main accept method: the actual cuts are applied here */
@@ -95,9 +93,7 @@ namespace Root {
 				// E/p
 				double ep,
 				// is it a conversion
-				bool isConversion,
-				// The ambiguity result 
-				EMAmbiguityType::AmbiguityResult ambiguityResult);
+				bool isConversion) ;
 
     // calculate the isEM. (Used internally by accept)
     unsigned int calcIsEm(
@@ -136,9 +132,7 @@ namespace Root {
 			  // E/p
 			  double ep,
 			  // is it a conversion
-			  bool isConversion,
-			  // The ambiguity result 
-			  EMAmbiguityType::AmbiguityResult ambiguityResult) const;
+			  bool isConversion ) const ;
 
     /** @brief Apply calorimeter cuts for selection of converted photons*/
     unsigned int calocuts_photonsConverted(
@@ -210,15 +204,9 @@ namespace Root {
 					      float f3,
 					      unsigned int iflag) const;
     
-    // used internally by calcIsEm, but left public because it can be useful for users.
-    unsigned int ambiguitycuts_photons(EMAmbiguityType::AmbiguityResult ambiguityResult, 
-				       unsigned int iflag) const;
 
     unsigned int isEM() const {return m_isEM; };
     //unsigned int isEMMask() const {return m_isEMMask; } // user should not need this
-
-    /** @the name of the PID that should be filled */
-    egammaPID::PID isEMPIDName() const {return static_cast<egammaPID::PID>(PIDName); };
 
 
     ///////////////////////////////////
@@ -228,8 +216,6 @@ namespace Root {
     /** @brief which subset of cuts to apply */
     unsigned int isEMMask;
 
-    /** @the name of the PID that should be filled */
-    int PIDName; // should really be egammaPID::PID
 
     /** @brief boolean to force to test converted photon hypothesis */
     bool forceConvertedPhotonPID;

@@ -23,8 +23,8 @@ UPDATED:
 
 Root::TPhotonIsEMSelector::TPhotonIsEMSelector(const char* name) :
   TSelectorToolBase(name),
-  isEMMask(egammaPID::PhotonTightAR),
-  PIDName(egammaPID::IsEM),
+  asg::AsgMessaging(std::string(name)),
+  isEMMask(0),//All will pass if not defined
   forceConvertedPhotonPID(false),
   forceNonConvertedPhotonPID(false),
   m_isEM(~0),
@@ -117,10 +117,10 @@ Root::TPhotonIsEMSelector::~TPhotonIsEMSelector()
 }
 
 // =================================================================
-FakeStatusCode Root::TPhotonIsEMSelector::initialize() 
+int Root::TPhotonIsEMSelector::initialize() 
 {
 
-  FakeStatusCode sc(FkStatusCode::SUCCESS);
+   int sc(1);
 
   // --------------------------------------------------------------------------
   // Register the cuts and check that the registration worked:
@@ -129,144 +129,144 @@ FakeStatusCode Root::TPhotonIsEMSelector::initialize()
   /** @brief cluster eta range, bit 0*/
   m_cutPositionClusterEtaRange_Photon = 
     m_accept.addCut(m_cutNameClusterEtaRange_Photon, "Photon within eta range");
-  if (m_cutPositionClusterEtaRange_Photon < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterEtaRange_Photon < 0) sc = 0;
 
   int voidcutpos = m_accept.addCut("VOID1", "No Cut"); // bit 1 is not used
-  if (voidcutpos < 0) sc = FkStatusCode::FAILURE;
+  if (voidcutpos < 0) sc = 0;
 
   voidcutpos = m_accept.addCut("VOID2", "No Cut"); // bit 2 is not used
-  if (voidcutpos < 0) sc = FkStatusCode::FAILURE;
+  if (voidcutpos < 0) sc = 0;
 
   voidcutpos = m_accept.addCut("VOID3", "No Cut"); // bit 3 is not used
-  if (voidcutpos < 0) sc = FkStatusCode::FAILURE;
+  if (voidcutpos < 0) sc = 0;
 
   voidcutpos = m_accept.addCut("VOID4", "No Cut"); // bit 4 is not used
-  if (voidcutpos < 0) sc = FkStatusCode::FAILURE;
+  if (voidcutpos < 0) sc = 0;
 
   voidcutpos = m_accept.addCut("VOID5", "No Cut"); // bit 5 is not used
-  if (voidcutpos < 0) sc = FkStatusCode::FAILURE;
+  if (voidcutpos < 0) sc = 0;
 
   voidcutpos = m_accept.addCut("VOID6", "No Cut"); // bit 6 is not used
-  if (voidcutpos < 0) sc = FkStatusCode::FAILURE;
+  if (voidcutpos < 0) sc = 0;
 
   /** @brief energy fraction in the third layer (f3), bit 7 */
   m_cutPositionClusterBackEnergyFraction_Photon = 
     m_accept.addCut(m_cutNameClusterBackEnergyFraction_Photon, "f3 < Cut");
-  if (m_cutPositionClusterBackEnergyFraction_Photon < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterBackEnergyFraction_Photon < 0) sc = 0;
   
   voidcutpos = m_accept.addCut("VOID7", "No Cut"); // bit 8 is not used
-  if (voidcutpos < 0) sc = FkStatusCode::FAILURE;
+  if (voidcutpos < 0) sc = 0;
 
   voidcutpos = m_accept.addCut("VOID8", "No Cut"); // bit 9 is not used
-  if (voidcutpos < 0) sc = FkStatusCode::FAILURE;
+  if (voidcutpos < 0) sc = 0;
 
   /** @brief cluster leakage into the hadronic calorimeter, bit 10 */
   m_cutPositionClusterHadronicLeakage_Photon = 
     m_accept.addCut(m_cutNameClusterHadronicLeakage_Photon, "Had leakage < Cut");
-  if (m_cutPositionClusterHadronicLeakage_Photon < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterHadronicLeakage_Photon < 0) sc = 0;
 
   /** @brief energy in 2nd sampling (e277), bit 11 */
   m_cutPositionClusterMiddleEnergy_Photon = 
     m_accept.addCut(m_cutNameClusterMiddleEnergy_Photon, "Energy in second sampling (E277) > Cut");
-  if (m_cutPositionClusterMiddleEnergy_Photon < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterMiddleEnergy_Photon < 0) sc = 0;
 
   /** @brief energy ratio in 2nd sampling, bit 12 */
   m_cutPositionClusterMiddleEratio37_Photon = 
     m_accept.addCut(m_cutNameClusterMiddleEratio37_Photon, "E237/E277 > Cut");
-  if (m_cutPositionClusterMiddleEratio37_Photon < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterMiddleEratio37_Photon < 0) sc = 0;
 
   /** @brief energy ratio in 2nd sampling for photons, bit 13 */
   m_cutPositionClusterMiddleEratio33_Photon = 
     m_accept.addCut(m_cutNameClusterMiddleEratio33_Photon, "E233/E237 > Cut");
-  if (m_cutPositionClusterMiddleEratio33_Photon < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterMiddleEratio33_Photon < 0) sc = 0;
 
   /** @brief width in the second sampling, bit 14 */
   m_cutPositionClusterMiddleWidth_Photon = 
     m_accept.addCut(m_cutNameClusterMiddleWidth_Photon, "Weta2 < Cut");
-  if (m_cutPositionClusterMiddleWidth_Photon < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterMiddleWidth_Photon < 0) sc = 0;
   
   /** @brief fraction of energy found in 1st sampling, bit 15 */
   m_cutPositionClusterStripsEratio_Photon = 
     m_accept.addCut(m_cutNameClusterStripsEratio_Photon, "f1 > Cut");
-  if (m_cutPositionClusterStripsEratio_Photon < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterStripsEratio_Photon < 0) sc = 0;
 
   /** @brief energy of 2nd maximum in 1st sampling ~e2tsts1/(1000+const_lumi*et), bit 16 */
   //m_cutPositionClusterStripsDeltaEmax2_Photon = 
   //  m_accept.addCut(m_cutNameClusterStripsDeltaEmax2_Photon, "DeltaEmax2 < Cut");
-  //if (m_cutPositionClusterStripsDeltaEmax2_Photon < 0) sc = FkStatusCode::FAILURE;
+  //if (m_cutPositionClusterStripsDeltaEmax2_Photon < 0) sc = 0;
   voidcutpos = m_accept.addCut("VOID9", "No Cut"); // bit 16 is not used
-  if (voidcutpos < 0) sc = FkStatusCode::FAILURE;
+  if (voidcutpos < 0) sc = 0;
 
   /** @brief difference between 2nd maximum and 1st minimum in strips (e2tsts1-emins1), bit 17 */
   m_cutPositionClusterStripsDeltaE_Photon = 
     m_accept.addCut(m_cutNameClusterStripsDeltaE_Photon, 
 		    "difference between 2nd maximum and 1st minimum in strips < Cut");
-  if (m_cutPositionClusterStripsDeltaE_Photon < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterStripsDeltaE_Photon < 0) sc = 0;
 
   /** @brief shower width in 1st sampling, bit 18 */
   m_cutPositionClusterStripsWtot_Photon = 
     m_accept.addCut(m_cutNameClusterStripsWtot_Photon, "Wtot < Cut");
-  if (m_cutPositionClusterStripsWtot_Photon < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterStripsWtot_Photon < 0) sc = 0;
 
   /** @brief shower shape in shower core 1st sampling, bit 19 */
   m_cutPositionClusterStripsFracm_Photon = 
     m_accept.addCut(m_cutNameClusterStripsFracm_Photon, "Fracm < Cut");
-  if (m_cutPositionClusterStripsFracm_Photon < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterStripsFracm_Photon < 0) sc = 0;
 
   /** @brief shower width weighted by distance from the maximum one, bit 20 */
   m_cutPositionClusterStripsWeta1c_Photon = 
     m_accept.addCut(m_cutNameClusterStripsWeta1c_Photon, "Weta1c < Cut");
-  if (m_cutPositionClusterStripsWeta1c_Photon < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterStripsWeta1c_Photon < 0) sc = 0;
 
   /** @brief difference between max and 2nd max in strips, bit 21 */
   m_cutPositionClusterStripsDEmaxs1_Photon = 
     m_accept.addCut(m_cutNameClusterStripsDEmaxs1_Photon, 
 		    "difference between max and 2nd max in strips > Cut");
-  if (m_cutPositionClusterStripsDEmaxs1_Photon < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterStripsDEmaxs1_Photon < 0) sc = 0;
   
   /** @brief energy-momentum match for photon selection, bit 22 */
   m_cutPositionTrackMatchEoverP_Photon = 
     m_accept.addCut(m_cutNameTrackMatchEoverP_Photon, "E/p within allowed range (conversions only)");
-  if (m_cutPositionTrackMatchEoverP_Photon < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionTrackMatchEoverP_Photon < 0) sc = 0;
   
   /** @brief ambiguity resolution for photon (vs electron), bit 23 */
   m_cutPositionAmbiguityResolution_Photon = 
     m_accept.addCut(m_cutNameAmbiguityResolution_Photon, 
 		    "Passes tighter ambiguity resolution vs electron");
-  if (m_cutPositionAmbiguityResolution_Photon < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionAmbiguityResolution_Photon < 0) sc = 0;
 
   voidcutpos = m_accept.addCut("VOID10", "No Cut"); // bit 24 is not used
-  if (voidcutpos < 0) sc = FkStatusCode::FAILURE;
+  if (voidcutpos < 0) sc = 0;
 
   voidcutpos = m_accept.addCut("VOID11", "No Cut"); // bit 25 is not used
-  if (voidcutpos < 0) sc = FkStatusCode::FAILURE;
+  if (voidcutpos < 0) sc = 0;
 
   voidcutpos = m_accept.addCut("VOID12", "No Cut"); // bit 26 is not used
-  if (voidcutpos < 0) sc = FkStatusCode::FAILURE;
+  if (voidcutpos < 0) sc = 0;
 
   voidcutpos = m_accept.addCut("VOID13", "No Cut"); // bit 27 is not used
-  if (voidcutpos < 0) sc = FkStatusCode::FAILURE;
+  if (voidcutpos < 0) sc = 0;
 
   voidcutpos = m_accept.addCut("VOID14", "No Cut"); // bit 28 is not used
-  if (voidcutpos < 0) sc = FkStatusCode::FAILURE;
+  if (voidcutpos < 0) sc = 0;
   
   /** @brief isolation, bit 29 */
   m_cutPositionIsolation_Photon = 
     m_accept.addCut(m_cutNameIsolation_Photon, "Track and calorimetric isolation");
-  if (m_cutPositionIsolation_Photon < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionIsolation_Photon < 0) sc = 0;
 
   /** @brief calorimetric isolation for photon selection, bit 30 */
   m_cutPositionClusterIsolation_Photon = 
     m_accept.addCut(m_cutNameClusterIsolation_Photon, "calorimetric isolation only");
-  if (m_cutPositionClusterIsolation_Photon < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionClusterIsolation_Photon < 0) sc = 0;
 
   /** @brief tracker isolation for photon selection, bit 31 */
   m_cutPositionTrackIsolation_Photon = 
     m_accept.addCut(m_cutNameTrackIsolation_Photon, "track isolation only");
-  if (m_cutPositionTrackIsolation_Photon < 0) sc = FkStatusCode::FAILURE;
+  if (m_cutPositionTrackIsolation_Photon < 0) sc = 0;
 
-  if (sc == FkStatusCode::FAILURE) {
-    FAKE_MSG_ERROR("Exceeded the number of allowed cuts in TPhotonIsEMSelector");
+  if (sc == 0) {
+    ATH_MSG_ERROR("Exceeded the number of allowed cuts in TPhotonIsEMSelector");
   }
 
   return sc;
@@ -321,9 +321,7 @@ const Root::TAccept& Root::TPhotonIsEMSelector::accept(
 						       // E/p
 						       double ep,
 						       // is it a conversion
-						       bool isConversion,
-						       // The ambiguity result 
-						       EMAmbiguityType::AmbiguityResult ambiguityResult)
+						       bool isConversion)
 {
   // Reset the cut result bits to zero (= pass cut)
   m_accept.clear();
@@ -348,8 +346,7 @@ const Root::TAccept& Root::TPhotonIsEMSelector::accept(
 		    fracm,
 		    f3,
 		    ep,
-		    isConversion,
-		    ambiguityResult);
+		    isConversion);
 
   return fillAccept();
 }
@@ -394,9 +391,7 @@ unsigned int Root::TPhotonIsEMSelector::calcIsEm(
 						 // E/p
 						 double ep,
 						 // is it a conversion
-						 bool isConversion,
-						 // The ambiguity result 
-						 EMAmbiguityType::AmbiguityResult ambiguityResult) const
+						 bool isConversion) const
 {
   unsigned int iflag = 0;
 
@@ -461,7 +456,6 @@ unsigned int Root::TPhotonIsEMSelector::calcIsEm(
 				      iflag);
   }
 
-  iflag = ambiguitycuts_photons(ambiguityResult, iflag);
 
   return iflag;
 }
@@ -929,21 +923,6 @@ unsigned int Root::TPhotonIsEMSelector::calocuts_photonsConverted(
 }
 
 // ==============================================================
-unsigned int Root::TPhotonIsEMSelector::ambiguitycuts_photons(EMAmbiguityType::AmbiguityResult ambiguityResult, 
-							      unsigned int iflag) const 
-{
-
-  if (ambiguityResult > EMAmbiguityType::LOOSE) {    
-    // set bit to 0 (passed)
-    iflag &= ~(0x1 << egammaPID::AmbiguityResolution_Photon); 
-  } else {
-    // set bit to 1 (not passed)
-    iflag |= (0x1 << egammaPID::AmbiguityResolution_Photon); 
-  }
-  return iflag;
-}
-
-// ==============================================================
 bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) const
 {
   //
@@ -1040,7 +1019,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   // check if size is 1
   if (choice==0) {
     if ( vec.size() != 1) {
-      FAKE_MSG_ERROR("vector size is " 
+      ATH_MSG_ERROR("vector size is " 
 		     << vec.size() << " but needs 1"); 
       return false;      
     }
@@ -1049,7 +1028,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   // check if size is etaNB_photonsConv
   if (choice==11) {
     if ( vec.size() != etaNB_photonsConv ) {
-      FAKE_MSG_ERROR("vector size is " 
+      ATH_MSG_ERROR("vector size is " 
 		     << vec.size() << " but needs etaNB_photonsConv " 
 		     << etaNB_photonsConv);
       return false;      
@@ -1059,7 +1038,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   // check if size is etNB_photonsConv 
   if (choice==12) {
     if ( vec.size() != etNB_photonsConv ) {
-      FAKE_MSG_ERROR("vector size is " 
+      ATH_MSG_ERROR("vector size is " 
 		     << vec.size() << " but needs etNB_photonsConv=" 
 		     << etNB_photonsConv);
       return false;      
@@ -1069,7 +1048,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   // check if size is combinedNB_photonsConv
   if (choice==13) {
     if ( vec.size() != combinedNB_photonsConv ) {
-      FAKE_MSG_ERROR("vector size is " 
+      ATH_MSG_ERROR("vector size is " 
 		     << vec.size() << " but needs combinedNB_photonsConv=" 
 		     << combinedNB_photonsConv);
       return false;      
@@ -1079,7 +1058,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   // check if size is etaStripsNB_photonsConv
   if (choice==14) {
     if ( vec.size() != etaStripsNB_photonsConv ) {
-      FAKE_MSG_ERROR("vector size is " 
+      ATH_MSG_ERROR("vector size is " 
 		     << vec.size() << " but needs etaStripsNB_photonsConv=" 
 		     << etaStripsNB_photonsConv);
       return false;      
@@ -1089,7 +1068,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   // check if size is etStripsNB_photonsConv
   if (choice==15) {
     if ( vec.size() != etStripsNB_photonsConv ) {
-      FAKE_MSG_ERROR("vector size is " 
+      ATH_MSG_ERROR("vector size is " 
 		     << vec.size() << " but needs etStripsNB_photonsConv=" 
 		     << etStripsNB_photonsConv);
       return false;      
@@ -1099,7 +1078,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   // check if size is combinedStripsNB_photonsConv
   if (choice==16) {
     if ( vec.size() != combinedStripsNB_photonsConv ) {
-      FAKE_MSG_ERROR("vector size is " 
+      ATH_MSG_ERROR("vector size is " 
 		     << vec.size() << " but needs combinedStripsNB_photonsConv=" 
 		     << combinedStripsNB_photonsConv);
       return false;      
@@ -1109,7 +1088,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   // check if size is etaNB_photonsNonConv
   if (choice==21) {
     if ( vec.size() != etaNB_photonsNonConv ) {
-      FAKE_MSG_ERROR("vector size is " 
+      ATH_MSG_ERROR("vector size is " 
 		     << vec.size() << " but needs etaNB_photonsNonConv " 
 		     << etaNB_photonsNonConv);
       return false;      
@@ -1119,7 +1098,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   // check if size is etNB_photonsNonConv 
   if (choice==22) {
     if ( vec.size() != etNB_photonsNonConv ) {
-      FAKE_MSG_ERROR("vector size is " 
+      ATH_MSG_ERROR("vector size is " 
 		     << vec.size() << " but needs etNB_photonsNonConv=" 
 		     << etNB_photonsNonConv);
       return false;      
@@ -1129,7 +1108,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   // check if size is combinedNB_photonsNonConv
   if (choice==23) {
     if ( vec.size() != combinedNB_photonsNonConv ) {
-      FAKE_MSG_ERROR("vector size is " 
+      ATH_MSG_ERROR("vector size is " 
 		     << vec.size() << " but needs combinedNB_photonsNonConv=" 
 		     << combinedNB_photonsNonConv);
       return false;      
@@ -1139,7 +1118,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   // check if size is etaStripsNB_photonsNonConv
   if (choice==24) {
     if ( vec.size() != etaStripsNB_photonsNonConv ) {
-      FAKE_MSG_ERROR("vector size is " 
+      ATH_MSG_ERROR("vector size is " 
 		     << vec.size() << " but needs etaStripsNB_photonsNonConv=" 
 		     << etaStripsNB_photonsNonConv);
       return false;      
@@ -1149,7 +1128,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   // check if size is etStripsNB_photonsNonConv
   if (choice==25) {
     if ( vec.size() != etStripsNB_photonsNonConv ) {
-      FAKE_MSG_ERROR("vector size is " 
+      ATH_MSG_ERROR("vector size is " 
 		     << vec.size() << " but needs etStripsNB_photonsNonConv=" 
 		     << etStripsNB_photonsNonConv);
       return false;      
@@ -1159,7 +1138,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<float> vec, int choice) con
   // check if size is combinedStripsNB_photonsNonConv
   if (choice==26) {
     if ( vec.size() != combinedStripsNB_photonsNonConv ) {
-      FAKE_MSG_ERROR("vector size is " 
+      ATH_MSG_ERROR("vector size is " 
 		     << vec.size() << " but needs combinedStripsNB_photonsNonConv=" 
 		     << combinedStripsNB_photonsNonConv);
       return false;      
@@ -1198,7 +1177,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
     // check if size is 1
   case 0:
     if ( vec.size() != 1) {
-      FAKE_MSG_ERROR("vector size is " 
+      ATH_MSG_ERROR("vector size is " 
 		     << vec.size() << " but needs 1"); 
       return false;      
     } else {
@@ -1212,7 +1191,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
       const unsigned int etaNB_photonsConv = 
 	CutBinEta_photonsConverted.size();
       if ( vec.size() != etaNB_photonsConv ) {
-	FAKE_MSG_ERROR("vector size is " 
+	ATH_MSG_ERROR("vector size is " 
 		       << vec.size() << " but needs etaNB_photonsConv " 
 		       << etaNB_photonsConv);
 	return false;      
@@ -1227,7 +1206,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
       const unsigned int etNB_photonsConv  = 
 	CutBinEnergy_photonsConverted.size();
       if ( vec.size() != etNB_photonsConv ) {
-	FAKE_MSG_ERROR("vector size is " 
+	ATH_MSG_ERROR("vector size is " 
 		       << vec.size() << " but needs etNB_photonsConv=" 
 		       << etNB_photonsConv);
 	return false;      
@@ -1251,7 +1230,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
 	combinedNB_photonsConv = 
 	  etaNB_photonsConv;
       if ( vec.size() != combinedNB_photonsConv ) {
-	FAKE_MSG_ERROR("vector size is " 
+	ATH_MSG_ERROR("vector size is " 
 		       << vec.size() << " but needs combinedNB_photonsConv=" 
 		       << combinedNB_photonsConv);
 	return false;      
@@ -1266,7 +1245,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
       const unsigned int etaStripsNB_photonsConv = 
 	CutBinEtaStrips_photonsConverted.size();
       if ( vec.size() != etaStripsNB_photonsConv ) {
-	FAKE_MSG_ERROR("vector size is " 
+	ATH_MSG_ERROR("vector size is " 
 		       << vec.size() << " but needs etaStripsNB_photonsConv=" 
 		       << etaStripsNB_photonsConv);
 	return false;      
@@ -1281,7 +1260,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
       const unsigned int etStripsNB_photonsConv = 
 	CutBinEnergyStrips_photonsConverted.size();
       if ( vec.size() != etStripsNB_photonsConv ) {
-	FAKE_MSG_ERROR("vector size is " 
+	ATH_MSG_ERROR("vector size is " 
 		       << vec.size() << " but needs etStripsNB_photonsConv=" 
 		       << etStripsNB_photonsConv);
 	return false;      
@@ -1305,7 +1284,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
 	combinedStripsNB_photonsConv =
 	  etaStripsNB_photonsConv;
       if ( vec.size() != combinedStripsNB_photonsConv ) {
-	FAKE_MSG_ERROR("vector size is " 
+	ATH_MSG_ERROR("vector size is " 
 		       << vec.size() << " but needs combinedStripsNB_photonsConv=" 
 		       << combinedStripsNB_photonsConv);
 	return false;      
@@ -1320,7 +1299,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
       const unsigned int etaNB_photonsNonConv = 
 	CutBinEta_photonsNonConverted.size();     
       if ( vec.size() != etaNB_photonsNonConv ) {
-	FAKE_MSG_ERROR("vector size is " 
+	ATH_MSG_ERROR("vector size is " 
 		       << vec.size() << " but needs etaNB_photonsNonConv " 
 		       << etaNB_photonsNonConv);
 	return false;      
@@ -1335,7 +1314,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
       const unsigned int etNB_photonsNonConv  = 
 	CutBinEnergy_photonsNonConverted.size();
       if ( vec.size() != etNB_photonsNonConv ) {
-	FAKE_MSG_ERROR("vector size is " 
+	ATH_MSG_ERROR("vector size is " 
 		       << vec.size() << " but needs etNB_photonsNonConv=" 
 		       << etNB_photonsNonConv);
 	return false;      
@@ -1358,7 +1337,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
 	combinedNB_photonsNonConv = etaNB_photonsNonConv;
       
       if ( vec.size() != combinedNB_photonsNonConv ) {
-	FAKE_MSG_ERROR("vector size is " 
+	ATH_MSG_ERROR("vector size is " 
 		       << vec.size() << " but needs combinedNB_photonsNonConv=" 
 		       << combinedNB_photonsNonConv);
 	return false;      
@@ -1373,7 +1352,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
       const unsigned int etaStripsNB_photonsNonConv = 
 	CutBinEtaStrips_photonsNonConverted.size();
       if ( vec.size() != etaStripsNB_photonsNonConv ) {
-	FAKE_MSG_ERROR("vector size is " 
+	ATH_MSG_ERROR("vector size is " 
 		       << vec.size() << " but needs etaStripsNB_photonsNonConv=" 
 		       << etaStripsNB_photonsNonConv);
 	return false;      
@@ -1388,7 +1367,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
       const unsigned int etStripsNB_photonsNonConv = 
 	CutBinEnergyStrips_photonsNonConverted.size();
       if ( vec.size() != etStripsNB_photonsNonConv ) {
-	FAKE_MSG_ERROR("vector size is " 
+	ATH_MSG_ERROR("vector size is " 
 		       << vec.size() << " but needs etStripsNB_photonsNonConv=" 
 		       << etStripsNB_photonsNonConv);
 	return false;      
@@ -1412,7 +1391,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
 	combinedStripsNB_photonsNonConv = 
 	  etaStripsNB_photonsNonConv;
       if ( vec.size() != combinedStripsNB_photonsNonConv ) {
-	FAKE_MSG_ERROR("vector size is " 
+	ATH_MSG_ERROR("vector size is " 
 		       << vec.size() << " but needs combinedStripsNB_photonsNonConv=" 
 		       << combinedStripsNB_photonsNonConv);
 	return false;      
@@ -1421,7 +1400,7 @@ bool Root::TPhotonIsEMSelector::CheckVar(std::vector<int> vec, int choice) const
       }
     }
   default:
-    FAKE_MSG_ERROR("choice " << choice << " is not implemented");
+    ATH_MSG_ERROR("choice " << choice << " is not implemented");
     return false;
   }
 }

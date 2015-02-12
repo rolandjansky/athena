@@ -17,24 +17,19 @@
    based on egammaElectronCutIDTool from F. Derue
 
 */
-
-
 // ROOT includes
 #include <TString.h>
-
 // Include the return object and the base class
 #include "PATCore/TAccept.h"
 #include "PATCore/TSelectorToolBase.h"
-
-#include "ElectronPhotonSelectorTools/FakeMsgStreamAndSC.h"
 #include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
-
+#include "AsgTools/AsgMessaging.h"
 #include <vector>
 
 class AsgElectronIsEMSelector;
 
 namespace Root {
-  class TElectronIsEMSelector : public TSelectorToolBase
+  class TElectronIsEMSelector : public TSelectorToolBase, public asg::AsgMessaging
   {
 
     friend class ::AsgElectronIsEMSelector;
@@ -49,10 +44,10 @@ namespace Root {
 
     // Main methods
     /** Initialize this class */
-    FakeStatusCode initialize();
+    int initialize();
 
     /** Finalize this class; everything that should be done after the event loop should go here */
-    inline FakeStatusCode finalize() { return FkStatusCode::SUCCESS; };
+    inline int finalize() { return 1 ;};
 
     /** The main accept method: the actual cuts are applied here */
     const Root::TAccept& accept(
@@ -259,18 +254,12 @@ namespace Root {
     unsigned int isEM() const {return m_isEM; };
     //unsigned int isEMMask() const {return m_isEMMask; } // user should not need this
 
-    /** @the name of the PID that should be filled */
-    egammaPID::PID isEMPIDName() const {return static_cast<egammaPID::PID>(PIDName); };
-
     ///////////////////////////////////
     // Public members (the cut values)
     ///////////////////////////////
 
     /** @brief which subset of cuts to apply */
     unsigned int isEMMask;
-
-    /** @the name of the PID that should be filled */
-    int PIDName; // should really be egammaPID::PID
 
     /** @brief use of TRT outliers*/
     bool useTRTOutliers;
@@ -362,8 +351,8 @@ namespace Root {
 
     std::vector<int> FindEtEtaBin(double et, double eta2) const;
 
-    bool CheckVar(const std::vector<float>& vec, int choice) const;
-    bool CheckVar(const std::vector<int>& vec, int choice) const;
+    template<typename T>
+    bool CheckVar(const std::vector<T>& vec, int choice) const;
 
     mutable unsigned int m_isEM;
 

@@ -29,6 +29,7 @@ Description: Electron selector tool to select objects in pure ROOT using the mul
 //=============================================================================
 Root::TElectronMultiLeptonSelector::TElectronMultiLeptonSelector(const char* name) :
   TSelectorToolBase(name),
+  asg::AsgMessaging(std::string(name)),
   GeV(1000.0),
   m_cutPosition_Coverage(-9),
   m_cutPosition_RHad(-9),
@@ -156,8 +157,7 @@ const Root::TAccept& Root::TElectronMultiLeptonSelector::accept( const double et
                                                                  const double TRratio,
                                                                  const int nTRTTotal,
                                                                  const int nBlayerHits,
-                                                                 const bool expectBlayer,
-                                                                 const bool debug
+                                                                 const bool expectBlayer
                                                                  )  const
 {
   // Reset the cut result bits to zero (= fail cut)
@@ -178,72 +178,72 @@ const Root::TAccept& Root::TElectronMultiLeptonSelector::accept( const double et
 
   // Coverage
   bool doPassCoverage = (fabs(eta)>2.47 ) ? false : true ;
-  if( debug && !doPassCoverage ){ std::cout << "Failed Coverage, et=" << eT << ", eta=" << eta << std::endl;}
+  if(  !doPassCoverage ){ ATH_MSG_DEBUG("Failed Coverage, et=" << eT << ", eta=" << eta);}
   m_accept.setCutResult( m_cutPosition_Coverage, doPassCoverage );
 
   // RHad
   bool doPassRHad = ( passRHad(rHad,rHad1,eTBin,etaBin) ) ? true : false ;
-  if( debug && !doPassRHad ){ std::cout << "Failed RHad, et=" << eT << ", eta=" << eta << std::endl;}
+  if(  !doPassRHad ){ ATH_MSG_DEBUG("Failed RHad, et=" << eT << ", eta=" << eta);}
   m_accept.setCutResult( m_cutPosition_RHad, doPassRHad );
 
   // f3
   bool doPassF3 = ( eT>=90*GeV || passF3(f3,eTBin,etaBin) ) ? true : false ;
-  if( debug && !doPassF3 ){ std::cout << "Failed F3, et=" << eT << ", eta=" << eta << std::endl;}
+  if(  !doPassF3 ){ ATH_MSG_DEBUG("Failed F3, et=" << eT << ", eta=" << eta);}
   m_accept.setCutResult( m_cutPosition_F3, doPassF3 );
 
   // Reta
   bool doPassReta = ( passReta(Reta,eTBin,etaBin) ) ? true : false ;
-  if( debug && !doPassReta ){ std::cout << "Failed Reta, et=" << eT << ", eta=" << eta << std::endl;}
+  if(  !doPassReta ){ ATH_MSG_DEBUG("Failed Reta, et=" << eT << ", eta=" << eta);}
   m_accept.setCutResult( m_cutPosition_Reta, doPassReta );
 
   // w2
   bool doPassW2 = ( passW2(w2,eTBin,etaBin) ) ? true : false ;
-  if( debug && !doPassW2 ){ std::cout << "Failed W2, et=" << eT << ", eta=" << eta << std::endl;}
+  if(  !doPassW2 ){ ATH_MSG_DEBUG("Failed W2, et=" << eT << ", eta=" << eta);}
   m_accept.setCutResult( m_cutPosition_W2, doPassW2 );
 
   // Check the energy in the strips before cutting on it
   bool doPassWstot = ( f1 <= 0.005 || passWstot(wstot,eTBin,etaBin) ) ? true : false ;
-  if( debug && !doPassWstot ){ std::cout << "Failed Wstot, et=" << eT << ", eta=" << eta << std::endl;}
+  if(  !doPassWstot ){ ATH_MSG_DEBUG("Failed Wstot, et=" << eT << ", eta=" << eta );}
   m_accept.setCutResult( m_cutPosition_Wstot, doPassWstot );
 
   // Eratio
   bool doPassEratio = ( f1 <= 0.005 || passEratio(DEmaxs1,eTBin,etaBin) ) ? true : false ;
-  if( debug && !doPassEratio ){ std::cout << "Failed Eratio, et=" << eT << ", eta=" << eta << std::endl;}
+  if(  !doPassEratio ){ ATH_MSG_DEBUG("Failed Eratio, et=" << eT << ", eta=" << eta );}
   m_accept.setCutResult( m_cutPosition_Eratio, doPassEratio );
   
   // Delta Eta
   bool doPassDeltaEta = ( passDeltaEta(deltaEta, eTBin, etaBin) ) ? true : false ;
-  if( debug && !doPassDeltaEta ){ std::cout << "Failed DeltaEta, et=" << eT << ", eta=" << eta << std::endl;}
+  if(  !doPassDeltaEta ){ ATH_MSG_DEBUG("Failed DeltaEta, et=" << eT << ", eta=" << eta );}
   m_accept.setCutResult( m_cutPosition_DeltaEta, doPassDeltaEta );
 
   // Rescale deltaPhi
   bool doPassDeltaPhiRes = ( passDeltaPhiRes(deltaPhiRes, isBrem, eTBin, etaBin) ) ? true : false ;
-  if( debug && !doPassDeltaPhiRes ){ std::cout << "Failed DeltaPhiRes, et=" << eT << ", eta=" << eta << std::endl;}
+  if(  !doPassDeltaPhiRes ){ ATH_MSG_DEBUG("Failed DeltaPhiRes, et=" << eT << ", eta=" << eta );}
   m_accept.setCutResult( m_cutPosition_DeltaPhiRes, doPassDeltaPhiRes );
   
   //Si
   bool doPassNSilicon = ( (nSi + nSiDeadSensors) < 7 ) ? false : true ;
-  if( debug && !doPassNSilicon ){ std::cout << "Failed NSilicon, et=" << eT << ", eta=" << eta << std::endl;}
+  if(  !doPassNSilicon ){ ATH_MSG_DEBUG("Failed NSilicon, et=" << eT << ", eta=" << eta );}
   m_accept.setCutResult( m_cutPosition_NSilicon, doPassNSilicon );
 
   //Pix
   bool doPassNPixel = ( (nPix+nPixDeadSensors) < 2 ) ? false : true ;
-  if( debug && !doPassNPixel ){ std::cout << "Failed NPixel, et=" << eT << ", eta=" << eta << std::endl;}
+  if(  !doPassNPixel ){ ATH_MSG_DEBUG("Failed NPixel, et=" << eT << ", eta=" << eta );}
   m_accept.setCutResult( m_cutPosition_NPixel, doPassNPixel );
  
   //BLayer
   bool doPassNBLayer = (expectBlayer && nBlayerHits < 1) ? false : true ;
-  if( debug && !doPassNBLayer ){ std::cout << "Failed NBLayer, et=" << eT << ", eta=" << eta << std::endl;}
+  if(  !doPassNBLayer ){ ATH_MSG_DEBUG("Failed NBLayer, et=" << eT << ", eta=" << eta );}
   m_accept.setCutResult( m_cutPosition_NBlayer, doPassNBLayer ); 
   
   //TRT Ratio in crack
   bool doPassTR = (passTR(TRratio,eta,nTRTTotal) ) ? true : false ;
-  if( debug && !doPassTR ){ std::cout << "Failed TR, et=" << eT << ", eta=" << eta << std::endl;}
+  if(  !doPassTR ){ ATH_MSG_DEBUG("Failed TR, et=" << eT << ", eta=" << eta );}
   m_accept.setCutResult( m_cutPosition_TR, doPassTR );
 
   //TightDeltaPhi cut 
   bool doPassTightDeltaPhi = ( passTightDeltaPhi(deltaPhiRes,  expectBlayer, nBlayerHits ,eTBin, etaBin) ) ? true : false ;
-  if( debug && !doPassTightDeltaPhi ){ std::cout << "Failed TightDeltaPhi, et=" << eT << ", eta=" << eta << std::endl;}
+  if(  !doPassTightDeltaPhi ){ ATH_MSG_DEBUG("Failed TightDeltaPhi, et=" << eT << ", eta=" << eta );}
   m_accept.setCutResult( m_cutPosition_TightDeltaPhi, doPassTightDeltaPhi );
 
   return m_accept;

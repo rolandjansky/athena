@@ -72,6 +72,9 @@ public:
     return m_rootTool->getTAccept();
   }
 
+  /** Method to get the operating point */
+  virtual std::string getOperatingPointName( ) const;
+
 
   // Private member variables
 private:

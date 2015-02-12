@@ -53,6 +53,10 @@ class AsgPhotonIsEMSelector : virtual public asg::AsgTool,
   /** The main accept method: the actual cuts are applied here */
   const Root::TAccept& accept( const xAOD::IParticle* part ) const;
 
+  const Root::TAccept& accept( const xAOD::IParticle& part ) const{
+    return accept (&part);
+  }
+
   /** The main accept method: the actual cuts are applied here */
   const Root::TAccept& accept( const xAOD::Photon* part ) const;
 
@@ -61,10 +65,14 @@ class AsgPhotonIsEMSelector : virtual public asg::AsgTool,
     return accept (&part);
   }
 
+  /** The value of the isem **/
   unsigned int IsemValue() const {return m_rootTool->isEM(); };
 
-  // what isEM should be filled
-  egammaPID::PID PIDName() const {return m_rootTool->isEMPIDName(); };
+  // what isEM should be filled. Here for legacy Job Options
+  int PIDName() const {return m_PIDName; };
+
+  /** Method to get the operating point */
+  virtual std::string getOperatingPointName( ) const;
 
   /** The basic isem */
   virtual StatusCode execute(const xAOD::Photon* eg) const;
@@ -85,6 +93,9 @@ private:
 
   /** Pointer to the underlying ROOT based tool */
   Root::TPhotonIsEMSelector* m_rootTool;
+
+  /** used to define the name of the operating point**/
+  int m_PIDName;
 
   /** @brief use f3core or f3 (default: use f3)*/
   bool m_useF3core;
