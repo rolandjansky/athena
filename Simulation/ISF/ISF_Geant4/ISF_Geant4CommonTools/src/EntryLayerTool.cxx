@@ -233,7 +233,7 @@ TrackRecord *ISF::EntryLayerTool::convert( const ISF::ISFParticle &p,
   CLHEP::Hep3Vector      mom( p.momentum().x(), p.momentum().y(), p.momentum().z() );// not optimal, but required by TrackRecord
   CLHEP::Hep3Vector      pos( p.position().x(), p.position().y(), p.position().z() );// not optimal, but required by TrackRecord
   double energy          = sqrt(mass*mass + mom.mag2());
-  double time            = 0.; //!< @TODO: fix time
+  double time            = p.timeStamp(); //!< @TODO: fix time
 
   // finally create the TrackRecord
   TrackRecord *tRec = new TrackRecord( p.pdgCode(),
