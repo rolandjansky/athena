@@ -51,9 +51,12 @@
 #include "xAODBTagging/BTaggingContainer.h"
 #include "xAODBTagging/BTagging.h"
 
+#include "xAODTracking/VertexContainer.h"
+
 #include "xAODTracking/TrackParticle.h"
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
+
 
 
 #include "TrigBjetMonitoring/HLTBjetMonTool.h"
@@ -84,9 +87,11 @@ HLTBjetMonTool::HLTBjetMonTool(const std::string & type, const std::string & nam
   m_prmVtxEFBj(0)
 {
   declareProperty ("Taggers",            m_taggers);
-  declareProperty ("TriggerChainBjet",       m_TriggerChainBjet);
-  declareProperty ("TriggerChainMujet",      m_TriggerChainMujet);
-  declareProperty ("TriggerChainMujet_phys",      m_TriggerChainMujet_phys);
+  //  declareProperty ("TriggerChainBjet",       m_TriggerChainBjet);
+  declareProperty ("monitoring_bjet",       m_TriggerChainBjet);           // change requested by Trigger Management 15/02/04
+  //  declareProperty ("TriggerChainMujet",      m_TriggerChainMujet);
+  declareProperty ("monitoring_mujet",      m_TriggerChainMujet);          // change requested by Trigger Management 15/02/04 
+  declareProperty ("TriggerChainMujet_phys",      m_TriggerChainMujet_phys);  // this will be probably eliminated later
 
   declareProperty ("Menu_ppV0",           m_Menu_ppV0);
 
@@ -228,6 +233,7 @@ StatusCode HLTBjetMonTool::book(){
     *m_log << MSG::INFO<< "  in HLTBjetMonTool::book added directory HLT/BjetMon/Shifter, run: " << run << " " << ManagedMonitorToolBase::ATTRIB_MANAGED << endreq;
 
     addHistogram(new TH1F("xAOD_XIP2D_pu","IP2D_pu probability distribution from xAOD", 200, -0.5, 1.5));
+    addHistogram(new TH1F("xAOD_XIP2D_pu_tr","Triggered IP2D_pu probability distribution from xAOD", 200, -0.5, 1.5));
     addHistogram(new TH1F("xAOD_XIP2D_pb","IP2D_pb probability distribution from xAOD", 200, -0.5, 1.5));
     addHistogram(new TH1F("xAOD_XIP2D_pc","IP2D_pc probability distribution from xAOD", 200, -0.5, 1.5));
     addHistogram(new TH1F("xAOD_XIP2D_Rbu","IP2D_pb/IP2D_pu probability ratio distribution from xAOD", 200, 0., 10.));
@@ -240,10 +246,17 @@ StatusCode HLTBjetMonTool::book(){
     addHistogram(new TH1F("xAOD_XSV1_pc","SV1_pc probability distribution from xAOD", 200, -0.5, 1.5));
     addHistogram(new TH1F("xAOD_XSV1_Rbu","SV1_pb/SV1_pu probability ratio distribution from xAOD", 200, 0., 10.));
     addHistogram(new TH1F("xAOD_nTrack","Number of tracks from xAOD", 20, 0., 20.));
-    addHistogram(new TH1F("xAOD_d0","d0 of tracks from xAOD", 200, -5., 5.));
+    addHistogram(new TH1F("xAOD_d0","d0 of tracks from xAOD", 200, -2., 2.));
     addHistogram(new TH1F("xAOD_z0","z0 of tracks from xAOD", 200, -100., 100.));
     addHistogram(new TH1F("xAOD_ed0","err_d0 of tracks from xAOD", 200, 0., 1.));
     addHistogram(new TH1F("xAOD_ez0","err_z0 of tracks from xAOD", 200, 0., 5.));
+    addHistogram(new TH1F("xAOD_diffz0PV","z0 of tracks wrt PV from xAOD", 200, -10., 10.));
+    addHistogram(new TH1F("xAOD_sigz0PV","z0-PV/errz0 from xAOD", 200, -20., 20.));
+    addHistogram(new TH1F("xAOD_nPV","Number of PV from xAOD", 20, 0., 20.));
+    addHistogram(new TH1F("xAOD_PVz","PV_z from xAOD", 200, -100., 100.));
+    addHistogram(new TH1F("xAOD_PVx","PV_x from xAOD", 200, -1.0, 1.0));
+    addHistogram(new TH1F("xAOD_PVy","PV_y from xAOD", 200, -1.0, 1.0));
+
     
     addHistogram(new TH1F("EFBjet_XIP1D","IP1D tagger distribution at EF", 200, -10, 15));
     addHistogram(new TH1F("EFBjet_XIP2D","IP2D tagger distribution at EF", 200, -10, 15));
@@ -372,7 +385,7 @@ StatusCode HLTBjetMonTool::book(){
 
 StatusCode HLTBjetMonTool::fill() {
 
-  *m_log << MSG::VERBOSE<< "====> Entering HLTBjetMonTool::fill()" << endreq;
+  *m_log << MSG::INFO<< "====> Entering HLTBjetMonTool::fill()" << endreq;
 
   StatusCode sc = StatusCode::FAILURE;
 
@@ -402,6 +415,23 @@ StatusCode HLTBjetMonTool::fill() {
   //* Retrieve xAOD b-jet object *//                                                                                                                                                               
   //////////////////////////////////////////                                                                                                                                                            
 
+
+  int size_TriggerChainBjet =m_TriggerChainBjet.size();
+  
+  std::string chainName;
+  if (size_TriggerChainBjet > 0) chainName = m_TriggerChainBjet.at(0);
+
+  for (int i =0; i<size_TriggerChainBjet; i++){
+    if (!getTDT()->isPassed(m_TriggerChainBjet.at(i))){
+      *m_log << MSG::INFO << " Trigger chain " << i << " " << m_TriggerChainBjet.at(i) << " not fired." << endreq;
+      //      return StatusCode::SUCCESS;
+    }else {
+      chainName = m_TriggerChainBjet.at(i);
+      *m_log << MSG::INFO << " Trigger chain " << i << " " << chainName << " fired." << endreq;
+    }
+  }
+
+
   const DataHandle<xAOD::BTaggingContainer> fBTag, lastBTag;
 
   sc = m_storeGate->retrieve(fBTag, lastBTag);
@@ -410,12 +440,15 @@ StatusCode HLTBjetMonTool::fill() {
   if( sc.isFailure() ){
     *m_log << MSG::INFO << "Failed to retrieve BTaggingContainer" << endreq;
   } else {
-    *m_log << MSG::VERBOSE << "Retrieved BTaggingContainer" << endreq;
+    *m_log << MSG::INFO << "Retrieve BTaggingContainer" << endreq;
+
     for(int j = 1; fBTag != lastBTag; ++fBTag, ++j) {
-      *m_log << MSG::VERBOSE << "Looking at BTaggingContainer " << j << endreq;
+      *m_log << MSG::INFO << "Looking at BTaggingContainer " << j << endreq;
       xAOD::BTaggingContainer::const_iterator pBTagItr    = fBTag->begin();
       xAOD::BTaggingContainer::const_iterator lastBTagItr = fBTag->end();
-      if (pBTagItr == lastBTagItr) *m_log << MSG::VERBOSE << " BTaggingContainer is empty - no HLT/BjetMon/Shifter/xAOD histos filled" << endreq;
+      if (pBTagItr == lastBTagItr) *m_log << MSG::INFO << " BTaggingContainer is empty - no HLT/BjetMon/Shifter/xAOD histos filled" << endreq;
+      
+      *m_log << MSG::VERBOSE << "Retrieve ==> All B-jets" << endreq;
       for (int k=1; pBTagItr != lastBTagItr; ++pBTagItr, ++k) {
         *m_log << MSG::VERBOSE << "Looking at Btag Container " << k << "/" << fBTag->size() << endreq;
         if ((*pBTagItr)) {
@@ -435,10 +468,27 @@ StatusCode HLTBjetMonTool::fill() {
 	  if ( (*pBTagItr)->IP2D_pu() > 0.) hist("xAOD_XIP2D_Rbu","HLT/BjetMon/Shifter")->Fill( (*pBTagItr)->IP2D_pb()/(*pBTagItr)->IP2D_pu() );
 	  if ( (*pBTagItr)->IP3D_pu() > 0.) hist("xAOD_XIP3D_Rbu","HLT/BjetMon/Shifter")->Fill( (*pBTagItr)->IP3D_pb()/(*pBTagItr)->IP3D_pu() );
 	  if ( (*pBTagItr)->SV1_pu() > 0.)  hist("xAOD_XSV1_Rbu","HLT/BjetMon/Shifter")->Fill( (*pBTagItr)->SV1_pb()/(*pBTagItr)->SV1_pu() );
-	}
-      }
-    }
-  }
+	  // Printing B-jet quantities
+	  *m_log << MSG::VERBOSE << "  " << k << "th jet in BTagging contener - IP2D_pu:  " << (*pBTagItr)->IP2D_pu() << endreq;
+	} // if
+      } // k
+           
+      *m_log << MSG::INFO << "Retrieve ==> Triggered B-jets" << endreq;
+      std::vector<Trig::Feature<xAOD::BTagging> > trigHLTBjetVector =
+	(getTDT()->features(chainName,TrigDefs::alsoDeactivateTEs)).get<xAOD::BTagging>();
+      std::vector<Trig::Feature<xAOD::BTagging> >::const_iterator pHLTBjetItr = trigHLTBjetVector.begin();
+      std::vector<Trig::Feature<xAOD::BTagging> >::const_iterator lastHLTBjetItr = trigHLTBjetVector.end();
+      for(int k = 1; pHLTBjetItr != lastHLTBjetItr; ++pHLTBjetItr, ++k) {
+	const xAOD::BTagging* TrBjet = (*pHLTBjetItr).cptr();
+	if ((TrBjet)) {
+	  hist("xAOD_XIP2D_pu_tr","HLT/BjetMon/Shifter")->Fill((TrBjet)->IP2D_pu());
+	  // Printing triggered B-jet quantities
+	  *m_log << MSG::VERBOSE << "  " << k << "th jet triggered -  IP2D_pu:  " << (TrBjet)->IP2D_pu() << endreq;
+	}  // if
+      } // k
+      
+    } // j
+  } // else
 
   /*
 
@@ -472,7 +522,7 @@ StatusCode HLTBjetMonTool::fill() {
   if( sc.isFailure() ){
     *m_log << MSG::INFO << "Failed to retrieve EF Bjet container" << endreq;
   } else {
-    *m_log << MSG::VERBOSE << "Retrieved EF Bjet container" << endreq;
+    *m_log << MSG::INFO << "Retrieved EF Bjet container" << endreq;
     
     for(int j = 1; trigEFBjet != lastTrigEFBjet; ++trigEFBjet, ++j) { 
       
@@ -539,7 +589,7 @@ StatusCode HLTBjetMonTool::fill() {
  
   int  size_TriggerChainMujet =m_TriggerChainMujet_phys.size();
 
-  *m_log << MSG::VERBOSE << "HLT/BjetMon/mu-jet" << endreq;
+  *m_log << MSG::INFO << "HLT/BjetMon/mu-jet" << endreq;
   
   // get muons
   const Analysis::MuonContainer* muonColl = 0;
@@ -655,9 +705,9 @@ StatusCode HLTBjetMonTool::fill() {
 	    sc = m_storeGate->retrieve(trigEFBjet,lastTrigEFBjet);
 	    if(sc.isFailure())
 	      *m_log << MSG::INFO << "Failed to retrieve EF Bjet container" << endreq;
-	    else {	  *m_log << MSG::VERBOSE << " Retrieved EF Bjet container" << endreq;
+	    else {	  *m_log << MSG::INFO << " Retrieved EF Bjet container" << endreq;
 	      for(int j = 1; trigEFBjet != lastTrigEFBjet; ++trigEFBjet, ++j) {
-		*m_log << MSG::VERBOSE << "Looking at TrigEFBjetContainer " << j << endreq;
+		*m_log << MSG::INFO << "Looking at TrigEFBjetContainer " << j << endreq;
 		TrigEFBjetContainer::const_iterator pEFBjetItr1    = trigEFBjet->begin();
 		TrigEFBjetContainer::const_iterator lastEFBjetItr1 = trigEFBjet->end();
 		
@@ -761,25 +811,10 @@ StatusCode HLTBjetMonTool::fill() {
   ////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////
   
-  *m_log << MSG::VERBOSE << "  Look for HLT/BjetMon/b-jet Trigger passing" << endreq;
+  *m_log << MSG::INFO << "  Look for HLT/BjetMon/b-jet Trigger passing" << endreq;
 
 
-  int size_TriggerChainBjet =m_TriggerChainBjet.size();
-  
-  std::string chainName;
-  if (size_TriggerChainBjet > 0) chainName = m_TriggerChainBjet.at(0);
-
-  for (int i =0; i<size_TriggerChainBjet; i++){
-    if (!getTDT()->isPassed(m_TriggerChainBjet.at(i))){
-      *m_log << MSG::INFO<< "IDTrkNoCut chain not fired." << endreq;
-      // return StatusCode::SUCCESS;
-    }else {
-      *m_log << MSG::INFO << "IDTrkNoCut chain fired." << endreq;
-      chainName = m_TriggerChainBjet.at(i);
-    }
-  }
-
-  *m_log << MSG::VERBOSE << " Retrieveing beam spot. Trigger chainName: " << chainName << endreq;  
+  *m_log << MSG::INFO << " Retrieveing beam spot. Trigger chainName: " << chainName << endreq;  
 
   ////////////******************//////////////
   //********** Retrieve beam spot **********//
@@ -811,61 +846,115 @@ StatusCode HLTBjetMonTool::fill() {
     m_sigmaY = 0.001;
     m_sigmaZ = 0.003;
 
-    *m_log << MSG::VERBOSE << " beam spot X " << m_sigmaX << " beam spot Y " << m_sigmaY << " beam spot Z " << m_sigmaZ<< endreq;
+    *m_log << MSG::INFO << " beam spot X " << m_sigmaX << " beam spot Y " << m_sigmaY << " beam spot Z " << m_sigmaZ<< endreq;
   }
 
 
+  ////////////*******************//////////////                                                                                                                                              
+
+  //********** Retrieve xAOD vertices ***********//                                                                                                                                          
+
+  ////////////*******************//////////////                                                                                                                                     
+  std::vector<float> zPV;         
+
+  *m_log << MSG::INFO << " Retrieve xAOD vertices " << endreq;
+
+  std::string vertex_container_name = "PrimaryVertices";
+  const xAOD::VertexContainer* vertex = 0;
+  sc = m_storeGate->retrieve( vertex, vertex_container_name);
+  //  evtStore()->retrieve( vertex, vertex_container_name);
+  if( sc.isFailure() ){
+    *m_log << MSG::INFO << " Failed to retrieve xAOD vertices " << endreq;
+  } else {
+    xAOD::VertexContainer::const_iterator vtx_itr = vertex->begin();
+    xAOD::VertexContainer::const_iterator vtx_end = vertex->end();
+
+    unsigned int nPV = vertex->size();
+    hist("xAOD_nPV","HLT/BjetMon/Shifter")->Fill(nPV);
+
+    for(int j = 1; vtx_itr != vtx_end; ++vtx_itr, ++j) {
+      float zv = (*vtx_itr)->z();
+      zPV.push_back(zv);
+      float xv = (*vtx_itr)->x();
+      float yv = (*vtx_itr)->y();
+      *m_log << MSG::INFO << " Primary vtx retrieved " << j << " z: " << zv << endreq;
+      hist("xAOD_PVz","HLT/BjetMon/Shifter")->Fill(zv);
+      hist("xAOD_PVx","HLT/BjetMon/Shifter")->Fill(xv);
+      hist("xAOD_PVy","HLT/BjetMon/Shifter")->Fill(yv);
+    } // j
+
+
+
+    *m_log << MSG::INFO << " Retrieved xAOD triggered vertices " << endreq;
+
+    *m_log << MSG::INFO << " Size of zPV " << zPV.size() << endreq;
+    for (unsigned int j = 0; j<zPV.size(); j++){
+      *m_log << MSG::INFO << " Primary vtx stored " << j+1 << " z: " << zPV[j] << endreq;
+    } // j
+  } // else
 
   ////////////*******************//////////////                                                                                                                                                         
   //********** Retrieve xAOD tracks ***********//                                                                                                                                                         
   ////////////*******************//////////////                                                                                                                                                         
 
-  *m_log << MSG::VERBOSE << " Retrieve xAOD tracks" << endreq;
+  *m_log << MSG::INFO << " Retrieve xAOD tracks" << endreq;
 
   const xAOD::TrackParticleContainer* pointerToHLTTrackCollection = 0;
 
   std::vector<Trig::Feature<xAOD::TrackParticleContainer> > trigHLTTrackVector =
     (getTDT()->features(chainName,TrigDefs::alsoDeactivateTEs)).get<xAOD::TrackParticleContainer>();
- std::vector<Trig::Feature<xAOD::TrackParticleContainer> >::const_iterator pHLTTrackItr = trigHLTTrackVector.begin();
- std::vector<Trig::Feature<xAOD::TrackParticleContainer> >::const_iterator lastHLTTrackItr = trigHLTTrackVector.end();
+  std::vector<Trig::Feature<xAOD::TrackParticleContainer> >::const_iterator pHLTTrackItr = trigHLTTrackVector.begin();
+  std::vector<Trig::Feature<xAOD::TrackParticleContainer> >::const_iterator lastHLTTrackItr = trigHLTTrackVector.end();
 
- for(int j = 1; pHLTTrackItr != lastHLTTrackItr; ++pHLTTrackItr, ++j) {
-
+  for(int j = 1; pHLTTrackItr != lastHLTTrackItr; ++pHLTTrackItr, ++j) {
    const xAOD::TrackParticleContainer* pHLTTrack = (*pHLTTrackItr).cptr();
-
    if (pHLTTrack->size() != 0) {
-     *m_log << MSG::VERBOSE << " Retrieved HLT tracks " <<endreq;
+     *m_log << MSG::INFO << " Retrieved HLT tracks " <<endreq;
      pointerToHLTTrackCollection = pHLTTrack;
    }
- }
+  }
+  if (pointerToHLTTrackCollection) {
+    *m_log << MSG::INFO << " pointerToHLTTrackCollection " << pointerToHLTTrackCollection << endreq;
+    unsigned int nTracks = pointerToHLTTrackCollection->size();
+    hist("xAOD_nTrack","HLT/BjetMon/Shifter")->Fill(nTracks);
+    for (unsigned int j = 0; j < nTracks; j++) {
+      const xAOD::TrackParticle* track = (*pointerToHLTTrackCollection)[j];
+      float d0t, z0t, errd0t, errz0t, diffz0PV, sigz0PV;
+      d0t = track->d0();
+      z0t = track->z0();
+      // Find the primary vertex closest in zPV
+      float distzMin = 1.e9;
+      unsigned int kmin = 0;
+      for (unsigned int k = 0; k<zPV.size(); k++){
+	float distz = fabs(zPV[k]-z0t);
+	if (distz < distzMin) {
+	  distzMin = distz;
+	  kmin = k;
+	}
+      } // k                                           
+      errd0t = Amg::error(track->definingParametersCovMatrix(), 0 );
+      errz0t = Amg::error(track->definingParametersCovMatrix(), 1 );
+      diffz0PV = z0t - zPV[kmin];
+      sigz0PV = 0; 
+      if (errz0t > 0.) sigz0PV = diffz0PV/errz0t;                                                                                                                           
+      hist("xAOD_d0","HLT/BjetMon/Shifter")->Fill(d0t);
+      hist("xAOD_z0","HLT/BjetMon/Shifter")->Fill(z0t);
+      hist("xAOD_ed0","HLT/BjetMon/Shifter")->Fill(errd0t);
+      hist("xAOD_ez0","HLT/BjetMon/Shifter")->Fill(errz0t);
+      hist("xAOD_diffz0PV","HLT/BjetMon/Shifter")->Fill(diffz0PV);
+      hist("xAOD_sigz0PV","HLT/BjetMon/Shifter")->Fill(sigz0PV);
+      *m_log << MSG::INFO << "HLT track " << j << " d0t " << d0t <<  " z0t " << z0t << " errd0t " << errd0t << " errz0t " << errz0t << endreq;
+    }
+  } else {
+    *m_log << MSG::INFO << " pointerToHLTTrackCollection not set " << endreq;
+  }
 
- if (pointerToHLTTrackCollection) {
-   *m_log << MSG::VERBOSE << " pointerToHLTTrackCollection " << pointerToHLTTrackCollection << endreq;
-   unsigned int nTracks = pointerToHLTTrackCollection->size();
-   hist("xAOD_nTrack","HLT/BjetMon/Shifter")->Fill(nTracks);
-   for (unsigned int j = 0; j < nTracks; j++) {
-     const xAOD::TrackParticle* track = (*pointerToHLTTrackCollection)[j];
-     float d0t, z0t, errd0t, errz0t;
-     d0t = track->d0();
-     z0t = track->z0();
-     errd0t = Amg::error(track->definingParametersCovMatrix(), 0 );
-     errz0t = Amg::error(track->definingParametersCovMatrix(), 1 );
-     hist("xAOD_d0","HLT/BjetMon/Shifter")->Fill(d0t);
-     hist("xAOD_z0","HLT/BjetMon/Shifter")->Fill(z0t);
-     hist("xAOD_ed0","HLT/BjetMon/Shifter")->Fill(errd0t);
-     hist("xAOD_ez0","HLT/BjetMon/Shifter")->Fill(errz0t);
-     *m_log << MSG::VERBOSE << "HLT track " << j << " d0t " << d0t <<  " z0t " << z0t << " errd0t " << errd0t << " errz0t " << errz0t << endreq;
-   }
- } else {
-   *m_log << MSG::INFO << " pointerToHLTTrackCollection not set " << endreq;
- }
-
-
+  
   ////////////*******************//////////////
   //********** Retrieve EF tracks ***********//
   ////////////*******************//////////////
 
-  *m_log << MSG::VERBOSE << " Retrieve EF tracks" << endreq;
+  *m_log << MSG::INFO << " Retrieve EF tracks" << endreq;
   
   const Rec::TrackParticleContainer* pointerToEFTrackCollection = 0;
   
@@ -879,7 +968,7 @@ StatusCode HLTBjetMonTool::fill() {
     const Rec::TrackParticleContainer* pEFTrack = (*pEFTrackItr).cptr();
     
     if (pEFTrack->size() != 0) {
-      *m_log << MSG::VERBOSE << " Retrieved EF tracks " <<endreq;
+      *m_log << MSG::INFO << " Retrieved EF tracks " <<endreq;
       pointerToEFTrackCollection = pEFTrack;
     }
   }
@@ -889,7 +978,7 @@ StatusCode HLTBjetMonTool::fill() {
   //********** Retrieve EF prm vtx **********//
   ////////////*******************//////////////
 
-  *m_log << MSG::VERBOSE << " Retrieve EF prm vtx" << endreq;
+  *m_log << MSG::INFO << " Retrieve EF prm vtx" << endreq;
 
   std::vector<Trig::Feature<TrigEFBjet> > trigEFBjetVector = 
     (getTDT()->features(chainName,TrigDefs::alsoDeactivateTEs)).get<TrigEFBjet>();
@@ -900,7 +989,7 @@ StatusCode HLTBjetMonTool::fill() {
 
     const TrigEFBjet* EFBjet = (*pEFBjetItr).cptr();
 
-    //*m_log << MSG::VERBOSE << "TrigEFBjet->prmVtx() = " << EFBjet->prmVtx() << endreq;
+    //*m_log << MSG::INFO << "TrigEFBjet->prmVtx() = " << EFBjet->prmVtx() << endreq;
 
     m_prmVtxEFBj = EFBjet->prmVtx();    
 
@@ -911,9 +1000,9 @@ StatusCode HLTBjetMonTool::fill() {
   ////////////********************//////////////  
   
 
-  *m_log << MSG::VERBOSE << " Compute EF b-tagging weights" << endreq;
+  *m_log << MSG::INFO << " Compute EF b-tagging weights" << endreq;
 
-  *m_log << MSG::VERBOSE << "  m_sigmaX = " << m_sigmaX << " m_setBeamSpotWidth = " << m_setBeamSpotWidth 
+  *m_log << MSG::INFO << "  m_sigmaX = " << m_sigmaX << " m_setBeamSpotWidth = " << m_setBeamSpotWidth 
 	 << " m_sigmaY = " << m_sigmaY << " m_setBeamSpotWidth = " << m_setBeamSpotWidth << endreq;
 
   if (m_sigmaX > m_setBeamSpotWidth || m_sigmaY > m_setBeamSpotWidth) {
@@ -982,7 +1071,7 @@ StatusCode HLTBjetMonTool::fill() {
   //* feature already retrieved above *//
 
 
-  *m_log << MSG::VERBOSE << " Try to fill HLT/BjetMon/b-jet/EFB histos" << endreq;
+  *m_log << MSG::INFO << " Try to fill HLT/BjetMon/b-jet/EFB histos" << endreq;
 
 
   pEFBjetItr = trigEFBjetVector.begin();
