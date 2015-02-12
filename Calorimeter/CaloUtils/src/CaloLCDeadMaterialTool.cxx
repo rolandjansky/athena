@@ -43,7 +43,8 @@ CaloLCDeadMaterialTool::CaloLCDeadMaterialTool(const std::string& type,
     m_MinCellEnergyToDeal(0.0),
     m_MaxChangeInCellWeight(30.0),
     m_useHadProbability(false),
-    m_interpolate(false)
+    m_interpolate(false),
+    m_absOpt(false)
 {
   declareInterface<IClusterCellWeightTool>(this);
   declareProperty("HadDMCoeffKey",m_key);
@@ -73,6 +74,8 @@ CaloLCDeadMaterialTool::CaloLCDeadMaterialTool(const std::string& type,
   m_interpolateDimensionNames[std::string("AREA_DMSMPW")] = vstr;
   declareProperty("InterpolateDimensionNames", m_interpolateDimensionNames);
   declareProperty("UpdateSamplingVars",m_updateSamplingVars=false);
+  //Use weighting of negative clusters?
+  declareProperty("WeightingOfNegClusters",m_absOpt);
 }
 
 
@@ -184,7 +187,7 @@ StatusCode  CaloLCDeadMaterialTool::weight(CaloCluster* theCluster)
   float wrong_dm_energy = 0.0;
   m_dm_total = 0.0;
 
-
+   
   double weightMom (1);
   theCluster->retrieveMoment(CaloCluster::DM_WEIGHT,weightMom);
   /* WTF?? re-setting the same moment??
@@ -616,6 +619,14 @@ CaloLCDeadMaterialTool::prepare_for_cluster
     cell_index++;
   } // itrCell
 
+//   Realculate sampling energy as the abs value of the original cluster, if you summed up energies, fluctuations wouldn't cancel and sample energy would be huge   
+ if(m_absOpt){
+    
+    for(unsigned int i=0; i != CaloSampling::Unknown; ++ i)   m_smp_energy[i] = fabs(theCluster->eSample((CaloSampling::CaloSample)i));
+    
+  } 
+  
+  
   // calculation of 'signal' which will be used for DM energy estimation
   float x(0), y(0);
 

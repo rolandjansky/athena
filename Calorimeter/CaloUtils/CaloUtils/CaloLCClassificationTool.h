@@ -115,6 +115,11 @@ class CaloLCClassificationTool : public AthAlgTool, virtual public IClusterClass
   //std::vector<CaloLocalHadDefs::LocalHadDimensionId> m_interpolateDimensions;
   std::vector<int> m_interpolateDimensions;
   
+  /** 
+   * @brief is set to true, classify neg. Clusters as well */
+  bool m_absOpt;
+  
+  
   
 };
 

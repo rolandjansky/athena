@@ -57,7 +57,7 @@ struct Testcell
 {
   int ieta;
   int iphi;
-  float energy;
+  double energy;
 };
 
 Testcell clust1[] = {
