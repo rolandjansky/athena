@@ -88,10 +88,10 @@ public:
   unsigned nTrigger() const {return m_nTrigger;}
 
   /** @brief Calculates and returns the Mean value of ADC samples */
-  float mean(int n_min=-1, int n_max=-1) const;
+  float mean() const;
 
   /** @brief Calculates and returns the RMS value of ADC samples  */
-  float RMS(int n_min=-1, int n_max=-1) const;
+  float RMS() const;
 
   /** @brief Compute the autocorrelation elements */
   //MGV implement switch m_normalize to normalize
