@@ -116,7 +116,7 @@ StatusCode PpmByteStreamV2Tool::finalize() {
   return StatusCode::SUCCESS;
 }
 // ===========================================================================
-void PpmByteStreamV2Tool::reserveMemory() {
+void PpmByteStreamV2Tool::reserveMemory( xAOD::TriggerTowerContainer* const ttCollection) {
   const int maxChannels = m_crates * m_modules * m_channels;
   const int chanBitVecSize = maxChannels/32;
   const int modBitVecSize = (m_crates * m_modules)/32;
@@ -126,8 +126,8 @@ void PpmByteStreamV2Tool::reserveMemory() {
 
   int dataCount = 0;
 
-  if (m_ttData.empty()) {
-     m_ttData.reserve(m_dataSize);
+  if (ttCollection->empty()) {
+	  ttCollection->reserve(m_dataSize);
      
      m_dataChan.resize(chanBitVecSize);
      m_chanLayer.resize(chanBitVecSize);
@@ -148,10 +148,8 @@ void PpmByteStreamV2Tool::reserveMemory() {
             int layer = 0;
             // unsigned int key = 0;
             if (m_ppmMaps->mapping(crate, module, channel, eta, phi, layer)) {
-              xAOD::TriggerTowerAuxContainer* aux = new xAOD::TriggerTowerAuxContainer();
-              xAOD::TriggerTower* tt =  new (m_sms->allocate<xAOD::TriggerTower>(SegMemSvc::JOB))xAOD::TriggerTower();
-              tt->setStore(aux);
-
+              xAOD::TriggerTower* tt =  new xAOD::TriggerTower();
+              ttCollection->push_back(tt);
 
               // tt->initialize(
               //         const uint_least32_t& coolId,
@@ -165,6 +163,7 @@ void PpmByteStreamV2Tool::reserveMemory() {
               //         const std::vector<uint_least8_t>& bcidVec,
               //         const std::vector<uint_least16_t>& adc,
               //         const std::vector<uint_least8_t>& bcidExt,
+              //          const std::vector<uint_least8_t>& Sat80Vec,
               //         const uint_least16_t& error,
               //         const uint_least8_t& peak,
               //         const uint_least8_t& adcPeak
@@ -175,7 +174,6 @@ void PpmByteStreamV2Tool::reserveMemory() {
               const std::vector<uint_least8_t> dummy_vector8 {0};
               tt->initialize(
                 0,
-                0,
                 eta,
                 phi,
                 dummy_vector8,
@@ -185,13 +183,14 @@ void PpmByteStreamV2Tool::reserveMemory() {
                 dummy_vector8,
                 dummy_vector16,
                 dummy_vector8,
+                dummy_vector8,
                 0,
                 0,
                 0
               );
 
 
-              m_ttData.push_back(tt);
+
               m_ttPos[index] = dataCount++;
               // ttMap.insert(std::make_pair(key,count));
               m_chanLayer[word] |= (layer << bit);
@@ -205,14 +204,15 @@ void PpmByteStreamV2Tool::reserveMemory() {
 }
 
 void PpmByteStreamV2Tool::collectTriggerTowers(
-  const IROBDataProviderSvc::VROBFRAG& robFrags
+  const IROBDataProviderSvc::VROBFRAG& robFrags,
+  xAOD::TriggerTowerContainer* const ttCollection
 ) 
 {
   // const bool debug   = msgLvl(MSG::DEBUG);
   // const bool verbose = msgLvl(MSG::VERBOSE);
   // if (debug) msg(MSG::DEBUG);
 
-  TriggerTowerVector& ttColRef = m_ttData;
+  // TriggerTowerVector& ttColRef = m_ttData;
   ChannelBitVector& colChan = m_dataChan;
   ChannelBitVector& colMod = m_dataMod;
 
@@ -610,7 +610,7 @@ void PpmByteStreamV2Tool::collectTriggerTowers(
           const int error = errorBits.error();
 
         // Save to TriggerTower
-          const int layer = ((m_chanLayer[word] >> bit) & 1);
+          // const int layer = ((m_chanLayer[word] >> bit) & 1);
           const int coolid = coolId(crate, module, channel);
 
           ATH_MSG_VERBOSE(
@@ -630,14 +630,13 @@ void PpmByteStreamV2Tool::collectTriggerTowers(
           
           m_foundChan[word] |= (1 << bit);
           ++ttCount;
-          xAOD::TriggerTower* tt = ttColRef[m_ttPos[index]];
+          xAOD::TriggerTower* tt = (*ttCollection)[m_ttPos[index]];
           
           // =================================================================
           // Update Trigger Towers objects
           // =================================================================
 
           tt->setCoolId(coolid);
-          tt->setLayer(layer);
           tt->setLut_cp(lutCp);
           tt->setLut_jep(lutJep);
           tt->setAdc(fadc);
@@ -706,18 +705,14 @@ uint_least32_t PpmByteStreamV2Tool::coolId(int crate, int module,
 // Conversion bytestream to trigger towers
 StatusCode PpmByteStreamV2Tool::convert(
     const IROBDataProviderSvc::VROBFRAG& robFrags,
-    xAOD::TriggerTowerContainer* const ttCollection) {
+	 xAOD::TriggerTowerContainer*  const ttCollection) {
 
-  reserveMemory();
-  collectTriggerTowers(robFrags);
-
-  for (auto* tt: m_ttData) {
-    if (tt->coolId()) {
-      ttCollection->push_back(tt);
-    }
-  }
-
-
+  reserveMemory(ttCollection);
+  collectTriggerTowers(robFrags, ttCollection);
+  std::remove_if(
+		  ttCollection->begin(),
+		  ttCollection->end(),
+		  [](const xAOD::TriggerTower* tt){ return tt->coolId() == 0; });
 
   return StatusCode::SUCCESS;
 }

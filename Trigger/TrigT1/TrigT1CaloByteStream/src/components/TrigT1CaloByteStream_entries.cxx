@@ -19,9 +19,6 @@
 #include "TrigT1CaloEvent/JEMHits.h"
 #include "TrigT1CaloEvent/JEMRoI.h"
 // Both
-#include "TrigT1CaloEvent/TriggerTower.h"
-#include "xAODTrigL1Calo/TriggerTower.h"
-#include "xAODTrigL1Calo/TriggerTowerContainer.h"
 #include "TrigT1CaloEvent/CPMTower.h"
 #include "TrigT1CaloEvent/JEMEtSums.h"
 #include "TrigT1CaloEvent/JetElement.h"
@@ -46,10 +43,31 @@
 #include "../CpReadByteStreamV1V2Cnv.h"
 #include "../JepReadByteStreamV1V2Cnv.h"
 
+// ============================================================================
+// Ppm
+// ============================================================================
+#include "TrigT1CaloEvent/TriggerTower.h"
+
+#include "xAODTrigL1Calo/TriggerTowerContainer.h"
+#include "xAODTrigL1Calo/TriggerTowerAuxContainer.h"
+
 #include "../PpmByteStreamV1Cnv.h"
-#include "../PpmByteStreamV1Tool.h"
 #include "../PpmByteStreamV2Cnv.h"
+#include "../PpmByteStreamV1Tool.h"
 #include "../PpmByteStreamV2Tool.h"
+// ============================================================================
+#include "xAODTrigL1Calo/TriggerTower.h"
+#include "xAODTrigL1Calo/TriggerTowerContainer.h"
+#include "xAODTrigL1Calo/CPMTower.h"
+#include "xAODTrigL1Calo/CPMTowerContainer.h"
+#include "xAODTrigL1Calo/CPMTowerAuxContainer.h"
+
+#include "../xaod/PpmByteStreamAuxCnv.h"
+#include "../xaod/PpmByteStreamxAODCnv.h"
+
+#include "../xaod/L1CaloByteStreamReadTool.h"
+// ============================================================================
+
 #include "../RodHeaderByteStreamCnv.h"
 #include "../L1CaloErrorByteStreamCnv.h"
 
@@ -71,6 +89,8 @@
 // #include "../PpmByteStreamSubsetTool.h"
 #include "../TriggerTowerSelectionTool.h"
 #include "../TrigT1CaloDataAccess.h"
+#include "../TrigT1CaloDataAccessV2.h"
+
 
 namespace LVL1BS {
 
@@ -80,6 +100,9 @@ typedef DataVector<LVL1::CMXCPHits>  CMXCPHitsCollection;
 typedef DataVector<LVL1::CMXJetTob>  CMXJetTobCollection;
 typedef DataVector<LVL1::CMXJetHits> CMXJetHitsCollection;
 typedef DataVector<LVL1::CMXEtSums>  CMXEtSumsCollection;
+
+
+
 typedef DataVector<LVL1::JEMTobRoI>  JEMTobRoICollection;
 // Pre-LS1
 typedef DataVector<LVL1::CPMHits>    CPMHitsCollection;
@@ -112,6 +135,11 @@ typedef JepRoiReadByteStreamV1Cnv<LVL1::CMMRoI>        JepRoiReadCRByteStreamV1C
 // Both
 typedef JepReadByteStreamV1V2Cnv<JetElementCollection> JepReadJEByteStreamV1V2CnvT;
 typedef JepReadByteStreamV1V2Cnv<JEMEtSumsCollection>  JepReadESByteStreamV1V2CnvT;
+
+
+// typedef L1CaloByteStreamAuxCnv<xAOD::CPMTowerContainer, xAOD::CPMTowerAuxContainer>  L1CaloByteStreamxAODCPMTowerCnvT;
+// typedef L1CaloByteStreamAuxCnv<xAOD::TriggerTowerContainer, xAOD::TriggerTowerAuxContainer> L1CaloByteStreamxAODTriggerTowerCnvT;
+
 }
 
 // declare 
@@ -143,13 +171,18 @@ DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, JepRoiReadCRByteStreamV1CnvT )
 DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, CpReadByteStreamV1V2Cnv )
 DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, JepReadJEByteStreamV1V2CnvT )
 DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, JepReadESByteStreamV1V2CnvT )
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, PpmByteStreamV2Cnv)
-DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, PpmByteStreamV1Cnv)
-
-
 DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, RodHeaderByteStreamCnv )
 DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, L1CaloErrorByteStreamCnv )
 
+// ============================================================================
+DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, PpmByteStreamV1Tool )
+DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, PpmByteStreamV2Tool )
+DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, L1CaloByteStreamReadTool )
+// ============================================================================
+DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, PpmByteStreamV1Cnv )
+DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, PpmByteStreamxAODCnv)
+DECLARE_NAMESPACE_CONVERTER_FACTORY( LVL1BS, PpmByteStreamAuxCnv)
+// ============================================================================
 // Post-LS1
 DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, CpByteStreamV2Tool )
 DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, CpmRoiByteStreamV2Tool )
@@ -164,12 +197,11 @@ DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, JepRoiByteStreamV1Tool )
 DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, RodHeaderByteStreamTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, L1CaloErrorByteStreamTool )
 
-DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, PpmByteStreamV1Tool )
-DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, PpmByteStreamV2Tool )
 
 // DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, PpmByteStreamSubsetTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, TriggerTowerSelectionTool )
 DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, TrigT1CaloDataAccess )
+DECLARE_NAMESPACE_TOOL_FACTORY( LVL1BS, TrigT1CaloDataAccessV2 )
 
 DECLARE_FACTORY_ENTRIES( TrigT1CaloByteStream )
 {
@@ -201,9 +233,14 @@ DECLARE_FACTORY_ENTRIES( TrigT1CaloByteStream )
   DECLARE_NAMESPACE_CONVERTER( LVL1BS, CpReadByteStreamV1V2Cnv )
   DECLARE_NAMESPACE_CONVERTER( LVL1BS, JepReadJEByteStreamV1V2CnvT )
   DECLARE_NAMESPACE_CONVERTER( LVL1BS, JepReadESByteStreamV1V2CnvT )
-  // Both
+  // ==========================================================================
+  // Ppm
   DECLARE_NAMESPACE_CONVERTER( LVL1BS, PpmByteStreamV1Cnv )
-  DECLARE_NAMESPACE_CONVERTER( LVL1BS, PpmByteStreamV2Cnv )
+  // V2 is named xAOD
+  DECLARE_NAMESPACE_CONVERTER( LVL1BS, PpmByteStreamxAODCnv )
+  DECLARE_NAMESPACE_CONVERTER( LVL1BS, PpmByteStreamAuxCnv)
+  DECLARE_NAMESPACE_TOOL(LVL1BS, L1CaloByteStreamReadTool)
+  // ==========================================================================
   DECLARE_NAMESPACE_CONVERTER( LVL1BS, RodHeaderByteStreamCnv )
   DECLARE_NAMESPACE_CONVERTER( LVL1BS, L1CaloErrorByteStreamCnv )
 
@@ -212,18 +249,18 @@ DECLARE_FACTORY_ENTRIES( TrigT1CaloByteStream )
   DECLARE_NAMESPACE_TOOL( LVL1BS, CpmRoiByteStreamV2Tool )
   DECLARE_NAMESPACE_TOOL( LVL1BS, JepByteStreamV2Tool )
   DECLARE_NAMESPACE_TOOL( LVL1BS, JepRoiByteStreamV2Tool )
-  DECLARE_NAMESPACE_TOOL( LVL1BS, PpmByteStreamV2Tool )
   // Pre-LS1
   DECLARE_NAMESPACE_TOOL( LVL1BS, CpByteStreamV1Tool )
   DECLARE_NAMESPACE_TOOL( LVL1BS, CpmRoiByteStreamV1Tool )
   DECLARE_NAMESPACE_TOOL( LVL1BS, JepByteStreamV1Tool )
   DECLARE_NAMESPACE_TOOL( LVL1BS, JepRoiByteStreamV1Tool )
   // Both
-  DECLARE_NAMESPACE_TOOL( LVL1BS, PpmByteStreamV2Tool )
   DECLARE_NAMESPACE_TOOL( LVL1BS, RodHeaderByteStreamTool )
   DECLARE_NAMESPACE_TOOL( LVL1BS, L1CaloErrorByteStreamTool )
 
   // DECLARE_NAMESPACE_TOOL( LVL1BS, PpmByteStreamSubsetTool )
   DECLARE_NAMESPACE_TOOL( LVL1BS, TriggerTowerSelectionTool )
   DECLARE_NAMESPACE_TOOL( LVL1BS, TrigT1CaloDataAccess )
+  DECLARE_NAMESPACE_TOOL( LVL1BS, TrigT1CaloDataAccessV2 )
 }
+
