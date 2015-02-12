@@ -139,7 +139,7 @@ private:
   void fill_tg_surfaces();
 
   // CaloDetDescr usal stuff
-  const CaloCell_ID* m_calo_id;
+  //const CaloCell_ID* m_calo_id;
   const CaloDetDescrManager* m_calo_dd;
 
   //TileDetDescr stuff
@@ -162,8 +162,8 @@ private:
   ToolHandle<Trk::ITrackingVolumeBuilder>       m_tileVolumeBuilder;             //!< Volume Builder for the Tile Calorimeter
 
 
-  IToolSvc* m_toolsvc;
-  IMessageSvc*  m_msgSvc;
+  //IToolSvc* m_toolsvc;
+  //IMessageSvc*  m_msgSvc;
 };
 
 inline std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> > CaloSurfaceBuilder::entrySurfaces()

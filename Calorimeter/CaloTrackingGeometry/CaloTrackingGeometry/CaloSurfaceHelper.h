@@ -67,9 +67,6 @@ private:
   std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> >   m_entrySurfs;            // owned by CaloSurfaceBuilder
   std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> >   m_flatEntrySurfs;        // owned by this class
   std::vector<std::pair<const Trk::Surface*,const Trk::Surface*> >   m_exitSurfs;             // owend by CaloSurfaceBuider
-
-  IToolSvc* m_toolsvc;
-  IMessageSvc*  m_msgSvc;
 };
 
  
