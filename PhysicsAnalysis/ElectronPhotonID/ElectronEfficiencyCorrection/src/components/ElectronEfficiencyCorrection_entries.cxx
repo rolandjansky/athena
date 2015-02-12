@@ -2,12 +2,16 @@
 
 #include "ElectronEfficiencyCorrection/AsgElectronEfficiencyCorrectionTool.h"
 
-DECLARE_TOOL_FACTORY( AsgElectronEfficiencyCorrectionTool )
+#include "../testAthenaElectronAlg.h"
 
+DECLARE_TOOL_FACTORY( AsgElectronEfficiencyCorrectionTool )
+DECLARE_ALGORITHM_FACTORY( testAthenaElectronAlg )
 
 DECLARE_FACTORY_ENTRIES( ElectronEfficiencyCorrection ) 
 {
   DECLARE_ALGTOOL( AsgElectronEfficiencyCorrectionTool )
+  DECLARE_ALGTOOL( testAthenaElectronAlg )
 }
+
 
 

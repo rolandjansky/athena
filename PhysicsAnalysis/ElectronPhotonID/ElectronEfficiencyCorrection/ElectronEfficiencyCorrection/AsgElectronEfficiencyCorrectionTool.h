@@ -19,12 +19,15 @@
 #include <vector>
 #include <string>
 
+// Utility includes
+#include "boost/unordered_map.hpp"
+
 // Include the return object and the underlying ROOT tool
 #include "PATCore/TResult.h"
 
 //xAOD includes
 #include "AsgTools/AsgTool.h"
-#include "PATInterfaces/SystematicsTool.h"
+#include "PATInterfaces/ISystematicsTool.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/CorrectionCode.h"
 #include "ElectronEfficiencyCorrection/TElectronEfficiencyCorrectionTool.h"
@@ -34,7 +37,6 @@
 
 class AsgElectronEfficiencyCorrectionTool
   : virtual public IAsgElectronEfficiencyCorrectionTool,
-    public CP::SystematicsTool,
     public asg::AsgTool
 {
   ASG_TOOL_CLASS(AsgElectronEfficiencyCorrectionTool, IAsgElectronEfficiencyCorrectionTool)
@@ -78,7 +80,13 @@ public:
   /// returns: the list of all systematics this tool recommends to use
   virtual CP::SystematicSet recommendedSystematics() const ;
 
-  virtual CP::SystematicCode sysApplySystematicVariation ( const CP::SystematicSet& systConfig ) ;
+  /// returns: the currently applied systematics
+  const CP::SystematicSet& appliedSystematics() const {
+    return *m_appliedSystematics;
+  }
+
+  /// Configure this tool for the given systematics
+  virtual CP::SystematicCode applySystematicVariation ( const CP::SystematicSet& systConfig ) ;
 
   CP::SystematicCode registerSystematics();
 
@@ -95,6 +103,12 @@ private:
 
   /// A dummy return TResult object
   Root::TResult m_resultDummy;
+
+  /// Systematics filter map
+  boost::unordered_map<CP::SystematicSet, CP::SystematicSet> m_systFilter;
+
+  /// Currently applied systematics
+  CP::SystematicSet* m_appliedSystematics;
 
   // Properties
 
