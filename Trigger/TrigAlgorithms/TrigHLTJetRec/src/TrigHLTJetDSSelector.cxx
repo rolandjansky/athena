@@ -59,9 +59,13 @@ HLT::ErrorCode TrigHLTJetDSSelector::hltInitialize() {
 
   ATH_MSG_INFO("Initializing " << name() << "...");
 
-  ATH_MSG_DEBUG("Name of output jet collection: " << m_jetCollectionName );
+  /*ATH_MSG_DEBUG("Name of output jet collection: " << m_jetCollectionName );
   ATH_MSG_DEBUG("pT threshold for output jet collection: " << m_jetCollectionName );
-  ATH_MSG_DEBUG("Maximum number of jets kept " << m_maxNJets );
+  ATH_MSG_DEBUG("Maximum number of jets kept " << m_maxNJets );*/
+  ATH_MSG_INFO("Name of output jet collection: " << m_jetCollectionName );
+  ATH_MSG_INFO("pT threshold for output jet collection: " << m_jetCollectionName );
+  ATH_MSG_INFO("Maximum number of jets kept " << m_maxNJets );
+
 
   return HLT::OK;
 }
@@ -76,8 +80,10 @@ HLT::ErrorCode TrigHLTJetDSSelector::hltExecute(const HLT::TriggerElement* input
     HLT::TriggerElement* outputTE) {  
 
   ATH_MSG_VERBOSE("Executing " << name() << "...");
-  ATH_MSG_DEBUG("inputTE->getId(): " << inputTE->getId());
-  ATH_MSG_DEBUG("outputTE->getId(): " << outputTE->getId());
+  /*ATH_MSG_DEBUG("inputTE->getId(): " << inputTE->getId());
+  ATH_MSG_DEBUG("outputTE->getId(): " << outputTE->getId());*/
+  ATH_MSG_INFO("inputTE->getId(): " << inputTE->getId());
+  ATH_MSG_INFO("outputTE->getId(): " << outputTE->getId());
 
 
   // get JetCollections from the trigger element:
@@ -91,7 +97,8 @@ HLT::ErrorCode TrigHLTJetDSSelector::hltExecute(const HLT::TriggerElement* input
     ATH_MSG_WARNING("Failed to get JetCollection");
     return ec;
   } else {
-    ATH_MSG_DEBUG("Obtained JetContainer");
+    //ATH_MSG_DEBUG("Obtained JetContainer");
+    ATH_MSG_INFO("Obtained JetContainer");
   }
 
   // check the pointer is valid
@@ -107,9 +114,11 @@ HLT::ErrorCode TrigHLTJetDSSelector::hltExecute(const HLT::TriggerElement* input
   std::size_t njets = originalJets.size();
   
   if( njets == 0 ){
-    ATH_MSG_DEBUG("JetCollection is empty");
+    //ATH_MSG_DEBUG("JetCollection is empty");
+    ATH_MSG_INFO("JetCollection is empty");
   } else {
-    ATH_MSG_DEBUG("JetCollection contains " << njets <<"jets");
+    //ATH_MSG_DEBUG("JetCollection contains " << njets <<"jets");
+    ATH_MSG_INFO("JetCollection contains " << njets <<"jets");
   }
 
   /*ATH_MSG_DEBUG("List of original jets, before sorting");
@@ -145,24 +154,28 @@ HLT::ErrorCode TrigHLTJetDSSelector::hltExecute(const HLT::TriggerElement* input
   std::vector<const xAOD::Jet*>::iterator ptThresholdBound;
   ptThresholdBound  = std::partition(originalJets.begin(), it_maxJetBound, HasPtAboveThreshold(m_jetPtThreshold));
 
-  //make a new container for the pointers of the jets that are selected
+  //make a new VIEW container for the pointers of the jets that are selected
   xAOD::JetContainer* outputJets = make_empty_jetcontainer();
 
   //push back pointers to selected jets
   for (auto it = originalJets.begin(); it != ptThresholdBound; ++it) {
+     //outputJets->push_back( const_cast<xAOD::Jet*>(*it) );//for the normal container, no const_cast, create new jet and psas the old jet as argument -> deep copy
      
     xAOD::Jet* newJet = new xAOD::Jet(*(*it));
     outputJets->push_back(newJet);
 
   }
   
-  /*ATH_MSG_DEBUG("List of output jets");
+  //ATH_MSG_DEBUG("List of output jets");
+  ATH_MSG_INFO("List of output jets");
   for ( unsigned int iJet=0; iJet < outputJets->size(); iJet++ ) {
     const xAOD::Jet* thisJet = outputJets->at(iJet);
-    ATH_MSG_DEBUG( "  jet pT = " << thisJet->pt() );
-  }*/
+    //ATH_MSG_DEBUG( "  jet pT = " << thisJet->pt() );
+    ATH_MSG_INFO( "  jet pT = " << thisJet->pt() );
+  }
 
-  ATH_MSG_DEBUG(outputJets->size() << " jets kept");
+  //ATH_MSG_DEBUG(outputJets->size() << " jets kept");
+  ATH_MSG_INFO(outputJets->size() << " jets kept");
   ec = attachJetCollection(outputTE, outputJets, m_jetCollectionName);
   
   return ec;
