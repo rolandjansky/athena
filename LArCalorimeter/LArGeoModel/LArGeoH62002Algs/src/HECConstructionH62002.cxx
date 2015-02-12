@@ -653,10 +653,11 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
 
 
   //----------------------------------------------------------------
-  //    Electronic boards of Front Slice
+  //    Electronic boards of Front/Rear Slice
+  //       0, 1: front; 2: rear
   //----------------------------------------------------------------
 
-  for(int islice=0; islice<2; islice++)
+  for(int islice=0; islice<3; islice++)
     {
       int indexKapton=1;  
       if (islice==0)
@@ -673,8 +674,20 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
 	  solidEstBoard = new GeoTubs(moduleRinner2,moduleRouter,(kaptonWidth[indexKapton]/2.+kaptonWidth[0]),
 				      modulePhistart[0],moduleDeltaPhi);
 	}
-      logiPadBoard  = new GeoLogVol(copperFrontName, solidPadBoard, Copper);
-      logiEstBoard  = new GeoLogVol(electrodeFrontName, solidEstBoard, Kapton );
+
+      std::string copperName, electrodeName;
+      if (islice == 2) {
+        // Rear
+        copperName = copperRearName;
+        electrodeName = electrodeRearName;
+      }
+      else {
+        // Front
+        copperName = copperFrontName;
+        electrodeName = electrodeFrontName;
+      }
+      logiPadBoard  = new GeoLogVol(copperName, solidPadBoard, Copper);
+      logiEstBoard  = new GeoLogVol(electrodeName, solidEstBoard, Kapton );
 
 
       double kaptonPositionZ = kaptonPosition[indexKapton]-gapSize/2.;
@@ -685,60 +698,13 @@ GeoVFullPhysVol* LArGeo::HECConstructionH62002::GetEnvelope()
       physiSlice[islice]->add(physiEstBoard);     
 
 
-      if(indexKapton==1) 
-        { 
-          physiPadBoard = new GeoPhysVol(logiPadBoard);
-          physiEstBoard->add(new GeoIdentifierTag(indexKapton));
-          physiEstBoard->add(new GeoTransform(HepGeom::Translate3D(0,0,0)));     
-          physiEstBoard->add(physiPadBoard);     
-
-        }
+      physiPadBoard = new GeoPhysVol(logiPadBoard);
+      physiEstBoard->add(new GeoIdentifierTag(indexKapton));
+      physiEstBoard->add(new GeoTransform(HepGeom::Translate3D(0,0,0)));     
+      physiEstBoard->add(physiPadBoard);     
 
     }//for islice
 
-
-  //----------------------------------------------------------------
-  //    Electronic boards of RearSlice
-  //----------------------------------------------------------------
-
-
-  for(int islice=2; islice<3; islice++)
-    {
-      int indexKapton=1;  
-      if (islice==0){
-	solidPadBoard = new GeoTubs(moduleRinner1,moduleRouter,copperPad/2.,
-				    modulePhistart[0],moduleDeltaPhi);                   
-	solidEstBoard = new GeoTubs(moduleRinner1,moduleRouter,(kaptonWidth[indexKapton]/2.+kaptonWidth[0]),
-				    modulePhistart[0],moduleDeltaPhi);
-      }
-      else{
-	solidPadBoard = new GeoTubs(moduleRinner2,moduleRouter,copperPad/2.,
-				    modulePhistart[0],moduleDeltaPhi);                   
-	solidEstBoard = new GeoTubs(moduleRinner2,moduleRouter,(kaptonWidth[indexKapton]/2.+kaptonWidth[0]),
-				    modulePhistart[0],moduleDeltaPhi);
-      }
-      logiPadBoard  = new GeoLogVol(copperRearName, solidPadBoard, Copper);
-      logiEstBoard  = new GeoLogVol(electrodeRearName, solidEstBoard, Kapton );
-
-
-      double kaptonPositionZ = kaptonPosition[indexKapton]-gapSize/2.;
-
-      physiEstBoard = new GeoPhysVol(logiEstBoard);
-      physiSlice[islice]->add(new GeoIdentifierTag(indexKapton));
-      physiSlice[islice]->add(new GeoTransform(HepGeom::Translate3D(0,0,kaptonPositionZ)));     
-      physiSlice[islice]->add(physiEstBoard);     
-
-
-      if(indexKapton==1) 
-        { 
-          physiPadBoard = new GeoPhysVol(logiPadBoard);
-          physiEstBoard->add(new GeoIdentifierTag(indexKapton));
-          physiEstBoard->add(new GeoTransform(HepGeom::Translate3D(0,0,0)));     
-          physiEstBoard->add(physiPadBoard);     
-
-        }//if	   
-
-    }//for islice
 
   //----------------------------------------------------------------
   //    Tie rods in Slice

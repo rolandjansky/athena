@@ -52,10 +52,7 @@
 #include <iostream>
 
 LArGeo::TableConstructionH62002::TableConstructionH62002()
-  :H62002TablePhysical(0),
-   _detectorManager(0),
-   pAccessSvc(0),
-   geoModelSvc(0)
+  : m_H62002TablePhysical(nullptr)
 {
 }
 
@@ -69,7 +66,7 @@ LArGeo::TableConstructionH62002::~TableConstructionH62002()
 GeoVPhysVol* LArGeo::TableConstructionH62002::GetEnvelope()
 {
 
-  if (H62002TablePhysical) return H62002TablePhysical;
+  if (m_H62002TablePhysical) return m_H62002TablePhysical;
 
   
   ISvcLocator *svcLocator = Gaudi::svcLocator();
@@ -93,11 +90,8 @@ GeoVPhysVol* LArGeo::TableConstructionH62002::GetEnvelope()
   }
 
 
-   StatusCode sc;
-
-  IGeoModelSvc *geoModelSvc;
-  sc = svcLocator->service ("GeoModelSvc",geoModelSvc);
-  if (sc != StatusCode::SUCCESS) {
+  ServiceHandle<IGeoModelSvc> geoModelSvc ("GeoModelSvc", "WallsConstruction");
+  if (geoModelSvc.retrieve().isFailure()) {
     throw std::runtime_error ("Cannot locate GeoModelSvc!!");
   }
 
@@ -158,8 +152,8 @@ GeoVPhysVol* LArGeo::TableConstructionH62002::GetEnvelope()
   GeoBox* H62002TableShape = new GeoBox( H62002TableXY, H62002TableXY, H62002TableZ );   
   const GeoLogVol* H62002TableLogical = new GeoLogVol( H62002TableName, H62002TableShape, Air );
 
-  H62002TablePhysical = new GeoPhysVol(H62002TableLogical);
-  //H62002TablePhysical->add( new GeoNameTag("LArTBTablePos") );
+  m_H62002TablePhysical = new GeoPhysVol(H62002TableLogical);
+  //m_H62002TablePhysical->add( new GeoNameTag("LArTBTablePos") );
 
 
 
@@ -187,10 +181,10 @@ GeoVPhysVol* LArGeo::TableConstructionH62002::GetEnvelope()
   GeoLogVol* ScintLogical = new GeoLogVol( ScintName, ScintShape, Scint );
   GeoPhysVol* ScintPhysical = new GeoPhysVol( ScintLogical );    
   for ( unsigned int i = 0; i < v_ScintZ.size(); i++ ) {
-    H62002TablePhysical->add( new GeoIdentifierTag(i) );
-    H62002TablePhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, (v_ScintZ[ i ]-H62002TableZ) ) ) );
+    m_H62002TablePhysical->add( new GeoIdentifierTag(i) );
+    m_H62002TablePhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, (v_ScintZ[ i ]-H62002TableZ) ) ) );
     log << MSG::INFO << " Position the F Scintillator at: " << v_ScintZ[ i ] << endreq ;
-    H62002TablePhysical->add( ScintPhysical );
+    m_H62002TablePhysical->add( ScintPhysical );
   } 
 
   //----- Done with F1/F2 Scintillators
@@ -211,9 +205,9 @@ GeoVPhysVol* LArGeo::TableConstructionH62002::GetEnvelope()
   GeoVPhysVol* mwpcEnvelope = mwpcXConstruction.GetEnvelope();
   for ( int imwpc = 0; imwpc<MwpcNumber ; imwpc++)
     { 
-      H62002TablePhysical->add(new GeoIdentifierTag(imwpc+2));
-      H62002TablePhysical->add( new GeoTransform(HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, (v_MwpcPos[imwpc]-H62002TableZ) ) ) );
-      H62002TablePhysical->add(mwpcEnvelope);    
+      m_H62002TablePhysical->add(new GeoIdentifierTag(imwpc+2));
+      m_H62002TablePhysical->add( new GeoTransform(HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, (v_MwpcPos[imwpc]-H62002TableZ) ) ) );
+      m_H62002TablePhysical->add(mwpcEnvelope);    
     }
   //------ Done with creating an MWPC from LArGeoH6Cryostats
 
@@ -222,7 +216,7 @@ GeoVPhysVol* LArGeo::TableConstructionH62002::GetEnvelope()
   // End Moveable Table detectors
 
 
-  return H62002TablePhysical;
+  return m_H62002TablePhysical;
 }
 
 

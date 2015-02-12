@@ -7,8 +7,8 @@
 // 
 // July-2006 JP Archambault, Mohsen Khakzad
 
-#ifndef __ExcluderConstruction_H__
-#define __ExcluderConstruction_H__
+#ifndef LARGEOH62002ALGS_EXCLUDERCONSTRUCTION_H
+#define LARGEOH62002ALGS_EXCLUDERCONSTRUCTION_H
 
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
@@ -36,16 +36,13 @@ namespace LArGeo {
 
     //GeoFullPhysVol*     createEnvelope();
 
-    GeoPhysVol          *PhysExcluder;
+    //GeoPhysVol          *m_PhysExcluder;
 /*     GeoPhysVol          *cryoEnvelopePhysical; */
 /*     GeoFullPhysVol      *cryoMotherPhysical; */
 /*     GeoPhysVol          *cryoLArPhys; */
-
-    IRDBAccessSvc       *pAccessSvc;
-    IGeoModelSvc        *geoModelSvc;
     
   };
 
 }    // namespace LArGeo
 
-#endif // __ExcluderConstruction_H__
+#endif // LARGEOH62002ALGS_EXCLUDERCONSTRUCTION_H

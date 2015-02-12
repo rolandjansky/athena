@@ -52,10 +52,7 @@
 #include <iostream>
 
 LArGeo::FrontBeamConstructionH62002::FrontBeamConstructionH62002()
-  :H62002FrontBeamPhysical(0),
-   _detectorManager(0),
-   pAccessSvc(0),
-   geoModelSvc(0)
+ : m_H62002FrontBeamPhysical(0)
 {
 }
 
@@ -69,7 +66,7 @@ LArGeo::FrontBeamConstructionH62002::~FrontBeamConstructionH62002()
 GeoVPhysVol* LArGeo::FrontBeamConstructionH62002::GetEnvelope()
 {
 
-  if (H62002FrontBeamPhysical) return H62002FrontBeamPhysical;
+  if (m_H62002FrontBeamPhysical) return m_H62002FrontBeamPhysical;
 
   // Get access to the material manager:
   
@@ -94,14 +91,10 @@ GeoVPhysVol* LArGeo::FrontBeamConstructionH62002::GetEnvelope()
   }
 
 
-  StatusCode sc;
-
-  IGeoModelSvc *geoModelSvc;
-  sc = svcLocator->service ("GeoModelSvc",geoModelSvc);
-  if (sc != StatusCode::SUCCESS) {
+  ServiceHandle<IGeoModelSvc> geoModelSvc ("GeoModelSvc", "WallsConstruction");
+  if (geoModelSvc.retrieve().isFailure()) {
     throw std::runtime_error ("Cannot locate GeoModelSvc!!");
   }
-
 
 
   // Get the materials from the material manager:-----------------------------------------------------//
@@ -163,8 +156,8 @@ GeoVPhysVol* LArGeo::FrontBeamConstructionH62002::GetEnvelope()
   GeoBox* H62002FrontBeamShape = new GeoBox( H62002FrontBeamXY, H62002FrontBeamXY, H62002FrontBeamZ );   
   const GeoLogVol* H62002FrontBeamLogical = new GeoLogVol( H62002FrontBeamName, H62002FrontBeamShape, Air );
 
-  H62002FrontBeamPhysical = new GeoPhysVol(H62002FrontBeamLogical);
-  //H62002FrontBeamPhysical->add( new GeoNameTag("LArTBFrontBeamPos") );
+  m_H62002FrontBeamPhysical = new GeoPhysVol(H62002FrontBeamLogical);
+  //m_H62002FrontBeamPhysical->add( new GeoNameTag("LArTBFrontBeamPos") );
 
 
 
@@ -208,12 +201,12 @@ GeoVPhysVol* LArGeo::FrontBeamConstructionH62002::GetEnvelope()
   //WScintPhysical->add( new GeoNameTag(ScintName) );
   //BScintPhysical->add( new GeoNameTag(ScintName) );
   for ( unsigned int i = 0; i < v_ScintZ.size(); i++ ) {
-    H62002FrontBeamPhysical->add( new GeoIdentifierTag(i) );
-    H62002FrontBeamPhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, (v_ScintZ[ i ]-H62002FrontBeamZ) ) ) ) ;     H62002FrontBeamPhysical->add( new GeoNameTag(ScintName) );
+    m_H62002FrontBeamPhysical->add( new GeoIdentifierTag(i) );
+    m_H62002FrontBeamPhysical->add( new GeoTransform( HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, (v_ScintZ[ i ]-H62002FrontBeamZ) ) ) ) ;     m_H62002FrontBeamPhysical->add( new GeoNameTag(ScintName) );
 
     switch(i) {
-    case 0: case 1: { H62002FrontBeamPhysical->add( WScintPhysical ); break; }
-    case 2:         { H62002FrontBeamPhysical->add( BScintPhysical ); break; }
+    case 0: case 1: { m_H62002FrontBeamPhysical->add( WScintPhysical ); break; }
+    case 2:         { m_H62002FrontBeamPhysical->add( BScintPhysical ); break; }
     default: { throw std::runtime_error("H62002FrontBeam wants too many Scintillators!!");   break; }
     }
   }
@@ -228,9 +221,9 @@ GeoVPhysVol* LArGeo::FrontBeamConstructionH62002::GetEnvelope()
   double WireStep = 2.*CLHEP::mm;
   MWPCConstruction  mwpcXConstruction (WireStep);
   GeoVPhysVol* mwpcEnvelope = mwpcXConstruction.GetEnvelope();
-  H62002FrontBeamPhysical->add(new GeoIdentifierTag(5));
-  H62002FrontBeamPhysical->add( new GeoTransform(HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, (MwpcPos-H62002FrontBeamZ) ) ) );
-  H62002FrontBeamPhysical->add(mwpcEnvelope);    
+  m_H62002FrontBeamPhysical->add(new GeoIdentifierTag(5));
+  m_H62002FrontBeamPhysical->add( new GeoTransform(HepGeom::Translate3D( 0.*CLHEP::cm, 0.*CLHEP::cm, (MwpcPos-H62002FrontBeamZ) ) ) );
+  m_H62002FrontBeamPhysical->add(mwpcEnvelope);    
   //------ Done with creating an MWPC from LArGeoH6Cryostats
 
 
@@ -239,7 +232,7 @@ GeoVPhysVol* LArGeo::FrontBeamConstructionH62002::GetEnvelope()
   // End Moveable FrontBeam detectors
 
 
-  return H62002FrontBeamPhysical;
+  return m_H62002FrontBeamPhysical;
 }
 
 

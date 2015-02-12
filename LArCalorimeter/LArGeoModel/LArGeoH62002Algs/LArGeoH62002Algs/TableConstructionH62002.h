@@ -7,8 +7,8 @@
 // Apr-2006 mgf
 
 
-#ifndef __TableConstructionH62002_H__
-#define __TableConstructionH62002_H__
+#ifndef LARGEOH62002ALGS_TABLECONSTRUCTIONH62002_H
+#define LARGEOH62002ALGS_TABLECONSTRUCTIONH62002_H
 
 #include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoFullPhysVol.h"
@@ -27,19 +27,13 @@ namespace LArGeo {
     
     // Get the envelope containing this detector.
     virtual GeoVPhysVol* GetEnvelope();
-    void SetManager(LArDetDescrManager* mgr){_detectorManager = mgr;}
+    void SetManager(LArDetDescrManager* /*mgr*/){}
 
       
   private:
-
-    GeoPhysVol          *H62002TablePhysical;
-    LArDetDescrManager  *_detectorManager;
-
-    IRDBAccessSvc       *pAccessSvc;
-    IGeoModelSvc        *geoModelSvc;
-    
+    GeoPhysVol          *m_H62002TablePhysical;
   };
 
 } // namespace LArGeo
 
-#endif // __TableConstructionH62002_H__
+#endif // LARGEOH62002ALGS_TABLECONSTRUCTIONH62002_H
