@@ -18,10 +18,10 @@
 
 TestCoolRecRead::TestCoolRecRead(const std::string& name, 
   ISvcLocator* pSvcLocator) :
-   Algorithm(name,pSvcLocator),  
+   AthAlgorithm(name,pSvcLocator),  
    par_checkmatch(true),par_delay(0),
    par_dumpchan(0),par_dumpfile("iovdump.txt"),
-   p_storegate(0),p_detstore(0),m_nbadaux(0),m_dumpf(0)
+   p_detstore(0),m_nbadaux(0),m_dumpf(0)
 {
   declareProperty("Folders",m_folders); 
   declareProperty("FTypes",m_ftypes);
@@ -35,35 +35,29 @@ TestCoolRecRead::TestCoolRecRead(const std::string& name,
 TestCoolRecRead::~TestCoolRecRead() {}
 
 StatusCode TestCoolRecRead::initialize() {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "In initialize()" << endreq;
 
-  if (StatusCode::SUCCESS!=service("StoreGateSvc",p_storegate)) {
-    log << MSG::FATAL << "Event store not found" << endreq;
-    return StatusCode::FAILURE;
-  }
+  // retrieve the DetStore old way as need pointer to pass to TestCoolRecFolder
   if (StatusCode::SUCCESS!=service("DetectorStore",p_detstore)) {
-    log << MSG::FATAL << "Detector store not found" << endreq;
+    ATH_MSG_FATAL("Detector store not found");
     return StatusCode::FAILURE;
   }
-  log << MSG::INFO << "Number of folders for read: " << m_folders.size()
-	<< endreq;
+  ATH_MSG_INFO("Number of folders for read: " << m_folders.size());
   // check consistency of folders and types
   if (m_folders.size()!=m_ftypes.size()) {
-    log << MSG::FATAL << "Number of folder types (" << m_ftypes.size() <<
-      ") does not match number of folders defined" << endreq;
+    ATH_MSG_FATAL("Number of folder types (" << m_ftypes.size() <<
+		  ") does not match number of folders defined");
     return StatusCode::FAILURE;
   }
 
   // setup dumpfile if needed
   if (par_dumpchan!=0) {
-    log << MSG::INFO << "First " << par_dumpchan << 
+    ATH_MSG_INFO("First " << par_dumpchan << 
       " channels will be dumped on file " << par_dumpfile << 
-      " for each event" << std::endl;
+		 " for each event");
     // attempt to open output file
     m_dumpf=new std::ofstream(par_dumpfile.c_str());
     if (m_dumpf==0) {
-      log << MSG::FATAL << "Cannot open output file" << endreq;
+      ATH_MSG_FATAL("Cannot open output file");
     }
     * m_dumpf << "# Folder EventNum Channel IOVKey Start Stop (Payload)" <<
       std::endl;
@@ -75,8 +69,8 @@ StatusCode TestCoolRecRead::initialize() {
     // this will result in folder references using the key name not the folder
     // name
     std::vector<const SG::DataProxy*> proxylist=p_detstore->proxies();
-    log << MSG::INFO << "Detector store contains " << proxylist.size() <<
-      " proxies - define folders from there" << endreq;
+    ATH_MSG_INFO("Detector store contains " << proxylist.size() <<
+		 " proxies - define folders from there");
     for (std::vector<const SG::DataProxy*>::const_iterator pitr=
 	 proxylist.begin();pitr!=proxylist.end();++pitr) {
       m_folderlist.push_back(TestCoolRecFolder((*pitr)->name(),3,*pitr,
@@ -92,23 +86,21 @@ StatusCode TestCoolRecRead::initialize() {
   }
   for (std::vector<TestCoolRecFolder>::iterator itr=m_folderlist.begin();
 	 itr!=m_folderlist.end();++itr) {
-    log << MSG::INFO << "Folder " << itr->name() << 
-			       " ( type " << itr->type() << ")" << endreq;
-    if (StatusCode::SUCCESS!=(itr->regCallBack(p_detstore)))
-      log << MSG::ERROR << "Failed to register callback for folder " << 
-         itr->name() << endreq;
+    ATH_MSG_INFO("Folder " << itr->name() << 
+		  " ( type " << itr->type() << ")");
+    if (StatusCode::SUCCESS!=(itr->regCallBack(p_detstore))) 
+      ATH_MSG_ERROR("Failed to register callback for folder " << 
+		    itr->name());
   }
-  if (par_checkmatch) log << MSG::INFO << 
-   "Conditions data matchup will be checked for consistency" << endreq;
-  if (par_delay>0) log << MSG::INFO << "Delay for " << par_delay << 
-		     " seconds at end of each event" << endreq;
+  if (par_checkmatch) ATH_MSG_INFO("Conditions data matchup will be checked for consistency");
+  if (par_delay>0) ATH_MSG_INFO("Delay for " << par_delay << 
+				" seconds at end of each event");
 
   if (m_auxfiles.size()>0) m_nbadaux=readAuxFiles();
   return StatusCode::SUCCESS;
-}
+  }
 
 StatusCode TestCoolRecRead::execute() {
-  MsgStream log(msgSvc(), name());
   // find the run number for mismatch check
   int run=0;
   int event=0;
@@ -116,14 +108,13 @@ StatusCode TestCoolRecRead::execute() {
   uint64_t nsTime=0;
   // const xAOD::EventInfo* eventInfo(0);
   const DataHandle<EventInfo> eventInfo;
-  if (StatusCode::SUCCESS==p_storegate->retrieve(eventInfo)) {
+  if (StatusCode::SUCCESS==evtStore()->retrieve(eventInfo)) {
     run=eventInfo->event_ID()->run_number();
     event=eventInfo->event_ID()->event_number();
     lumib=eventInfo->event_ID()->lumi_block();
     nsTime=eventInfo->event_ID()->time_stamp()*1000000000LL;
    } else {
-     log << MSG::WARNING << "Could not get Event object to find runnumber"
-	   << endreq;
+    ATH_MSG_WARNING("Could not get Event object to find runnumber");
    }
   IOVTime iovkey(run,lumib,nsTime);
   // loop through all folders and access data
@@ -131,11 +122,10 @@ StatusCode TestCoolRecRead::execute() {
        ifolder!=m_folderlist.end();++ifolder) {
     if (ifolder->access(p_detstore,run,event,iovkey)!=
 	StatusCode::SUCCESS)
-      log << MSG::ERROR << "Retrieve for class folder " << ifolder->name()
-	    << " failed" << endreq;
+      ATH_MSG_ERROR("Retrieve for class folder "+ifolder->name()+" failed");
   }
   if (par_delay>0) {
-    log << MSG::INFO << "Delaying for " << par_delay << " seconds" << endreq;
+    ATH_MSG_INFO("Delaying for " << par_delay << " seconds");
     char commstr[32];
     sprintf(commstr,"sleep %d\n",par_delay);
     system(commstr);
@@ -144,7 +134,6 @@ StatusCode TestCoolRecRead::execute() {
 }
 
 StatusCode TestCoolRecRead::finalize() {
-  MsgStream log(msgSvc(), name());
 
   int nerrorfold=0;
   int nemptyfold=0;
@@ -152,39 +141,37 @@ StatusCode TestCoolRecRead::finalize() {
   // print statistics for all folders
   for (std::vector<TestCoolRecFolder>::iterator ifolder=m_folderlist.begin();
        ifolder!=m_folderlist.end();++ifolder) {
-    log << MSG::INFO << "Folder " << ifolder->name() << " nAccess=" <<
+    ATH_MSG_INFO("Folder " << ifolder->name() << " nAccess=" <<
       ifolder->nAccess() <<   " nItems=" << ifolder->nItems() <<
-      " nCallBack=" << ifolder->nCallBack() << endreq;
+		 " nCallBack=" << ifolder->nCallBack());
     if (ifolder->nError()>0) {
       ++nerrorfold;
-      log << MSG::ERROR << "Folder " << ifolder->name() << " had " << 
-        ifolder->nError() << " access errors" << endreq;
+      ATH_MSG_ERROR("Folder " << ifolder->name() << " had " << 
+		    ifolder->nError() << " access errors");
     }
     if (ifolder->nMisMatch()>0 && par_checkmatch) {
-      log << MSG::ERROR << "Folder " << ifolder->name() << " had " <<
-	ifolder->nMisMatch() << " data mismatches" << endreq;
+      ATH_MSG_ERROR("Folder " << ifolder->name() << " had " <<
+	ifolder->nMisMatch() << " data mismatches");
       ++nmismatchfold;
     }
     if (ifolder->nItems()==0) {
       ++nemptyfold;
-      log << MSG::ERROR << "Folder " << ifolder->name() << " read no data"
-	    << endreq;
+      ATH_MSG_ERROR("Folder " << ifolder->name() << " read no data");
     }
   }
-  log << MSG::INFO << "TestCoolRecReadSummary: ";
+  msg(MSG::INFO) << "TestCoolRecReadSummary: "; 
   if (nerrorfold>0 || nemptyfold>0 || m_nbadaux>0 || 
       (nmismatchfold>0 && par_checkmatch)) {
-    log << "BAD (" << nerrorfold << "," << nemptyfold << "," << nmismatchfold
+    msg()  << "BAD (" << nerrorfold << "," << nemptyfold << "," << nmismatchfold
 	  << "," << m_nbadaux << 
        ") error, empty folders, msimatched folders, bad files " << endreq;
   } else {
-    log <<  "All folders OK" << endreq;
+    msg() <<  "All folders OK" << endreq;
   }
   return StatusCode::SUCCESS;
 }
 
 int TestCoolRecRead::readAuxFiles() {
-  MsgStream log(msgSvc(), name());
   // read auxilliary files to simulate (badly) some POOL file access
   int nbad=0;
   for (std::vector<std::string>::const_iterator auxfile=m_auxfiles.begin();
@@ -192,8 +179,7 @@ int TestCoolRecRead::readAuxFiles() {
     // attempt to open file
     std::ifstream readfile(auxfile->c_str(),std::ios::in | std::ios::binary);
     if (!readfile.is_open()) {
-      log << MSG::ERROR << "Could not open auxilliary file: " << *auxfile
-	    << endreq;
+      ATH_MSG_ERROR("Could not open auxilliary file: " << *auxfile);
       ++nbad;
     } else {
       int nbytes=0;
@@ -205,8 +191,8 @@ int TestCoolRecRead::readAuxFiles() {
       }
       readfile.close();
       delete[] buffer;
-      log << MSG::INFO << "Read " << nbytes << 
-	" bytes from auxilliary file: " << *auxfile << endreq;
+      ATH_MSG_INFO("Read " << nbytes << " bytes from auxilliary file: " << 
+		   *auxfile);
     }
   }
   return nbad;
