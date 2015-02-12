@@ -72,7 +72,7 @@ MsgStream& operator<<( MsgStream& out, const IPTrackInfo& info) {
         eta = tp->eta();
       }
       out << " -> IPTrackInfo " 
-          << " grade= " << (std::string)info.trackGrade()
+          << " grade= " << info.trackGrade().gradeString()
 	  << " fromV0= " << info.isFromV0()
           << " d0wrtPV= " << info.d0Value() << " S=" << info.d0Significance()
           << " z0wrtPV= " << info.z0Value() << " S=" << info.z0Significance()
@@ -98,7 +98,7 @@ std::ostream& operator<<( std::ostream& out, const IPTrackInfo& info) {
         eta = tp->eta();
       }
       out << " -> IPTrackInfo " 
-          << " grade= " << (std::string)info.trackGrade()
+          << " grade= " << info.trackGrade().gradeString()
 	  << " fromV0= " << info.isFromV0()
           << " d0wrtPV= " << info.d0Value() << " S=" << info.d0Significance()
           << " z0wrtPV= " << info.z0Value() << " S=" << info.z0Significance()
