@@ -1,7 +1,7 @@
 #include "TrigHLTJetRec/TrigHLTJetRec.h"
 #include "TrigHLTJetRec/TrigHLTJetRecFromCluster.h"
 #include "TrigHLTJetRec/TrigHLTJetRecFromJet.h"
-//#include "TrigHLTJetRec/TrigHLTJetRecFromTriggerTower.h"
+#include "TrigHLTJetRec/TrigHLTJetRecFromTriggerTower.h"
 #include "TrigHLTJetRec/TriggerPseudoJetGetter.h"
 #include "TrigHLTJetRec/PseudoJetSelectorAll.h"
 #include "TrigHLTJetRec/PseudoJetSelectorEtaPt.h"
@@ -20,7 +20,7 @@
 DECLARE_ALGORITHM_FACTORY( TrigHLTJetRec)
 DECLARE_ALGORITHM_FACTORY( TrigHLTJetRecFromCluster)
 DECLARE_ALGORITHM_FACTORY( TrigHLTJetRecFromJet)
-//DECLARE_ALGORITHM_FACTORY( TrigHLTJetRecFromTriggerTower)
+DECLARE_ALGORITHM_FACTORY( TrigHLTJetRecFromTriggerTower)
 DECLARE_ALGORITHM_FACTORY( TrigHLTJetDiagnostics)
 DECLARE_ALGORITHM_FACTORY( TrigHLTClusterDiagnostics)
 DECLARE_ALGORITHM_FACTORY( TrigHLTCellDiagnostics)
@@ -40,7 +40,7 @@ DECLARE_FACTORY_ENTRIES(TrigHLTJetRec) {
     DECLARE_ALGORITHM( TrigHLTJetRec);
     DECLARE_ALGORITHM( TrigHLTJetRecFromCluster);
     DECLARE_ALGORITHM( TrigHLTJetRecFromJet);
-    //    DECLARE_ALGORITHM( TrigHLTJetRecFromTriggerTower);
+    DECLARE_ALGORITHM( TrigHLTJetRecFromTriggerTower);
     DECLARE_ALGORITHM( TrigHLTJetDiagnostics);
     DECLARE_ALGORITHM( TrigHLTClusterDiagnostics);
     DECLARE_ALGORITHM( TrigHLTCellDiagnostics);

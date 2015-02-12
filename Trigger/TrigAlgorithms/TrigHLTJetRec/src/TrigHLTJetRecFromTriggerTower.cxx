@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
 // TrigHLTJetRecFromTriggerTower: Provide the xAOD::TriggerTower specific method
 // needed by TruggerHLTJetRec_Base to for m jets from clusters.
 
