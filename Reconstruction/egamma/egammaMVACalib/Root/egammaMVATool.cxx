@@ -70,6 +70,7 @@ StatusCode egammaMVATool::initialize(){
 				     true // ignore spectators
 				     );
   m_mvaElectron->InitTree(0);
+  m_mvaElectron->msg().setLevel(this->msg().level());
 	
   m_mvaPhoton = new egammaMVACalib(egammaMVACalib::egPHOTON, // particle type
 				   true, // use new BDT (not TMVA)
@@ -84,6 +85,9 @@ StatusCode egammaMVATool::initialize(){
 				   true // ignore spectators
 				   );
   m_mvaPhoton->InitTree(0);  
+  m_mvaPhoton->msg().setLevel(this->msg().level());
+
+
   return StatusCode::SUCCESS;
 }
 
@@ -304,8 +308,7 @@ bool egammaMVATool::getClusterVariables(const xAOD::CaloCluster* cluster){
     if(! (cluster->retrieveMoment(xAOD::CaloCluster::PHICALOFRAME,m_cl_phiCalo) ) ){
       ATH_MSG_ERROR("phiCalo not found in CaloCluster object");
       return false;
-    }
-    
+    }    
     return true;
 }
 
@@ -315,30 +318,47 @@ bool egammaMVATool::getConversionVariables(const xAOD::Vertex *phVertex){
 
   const xAOD::TrackParticle* tp0 = phVertex->trackParticle(0);
   const xAOD::TrackParticle* tp1 = phVertex->trackParticle(1);
-  
-  TLorentzVector sum;
+
+  float p1fraction = 1.;
+  static SG::AuxElement::Accessor<float> accP1fraction("p1fraction");
+  if (phVertex->nTrackParticles() != 1 && accP1fraction.isAvailable(*phVertex))
+    p1fraction = accP1fraction(*phVertex);
+  else{
+    ATH_MSG_WARNING("p1fraction not available, will approximate from first measurements");
+    float pt1 = getPtAtFirstMeasurement( tp0 );
+    float pt2 = getPtAtFirstMeasurement( tp1 );
+    p1fraction = pt1 > 0 ? pt1/(pt1+pt2) : 1.;
+  } 
+
   if(tp0){
-    sum += tp0->p4();
     uint8_t hits;
     tp0->summaryValue(hits,xAOD::numberOfPixelHits);
     m_convtrk1nPixHits = hits;
     tp0->summaryValue(hits,xAOD::numberOfSCTHits);
     m_convtrk1nSCTHits = hits;
-    m_pt1conv = static_cast<float>(tp0->pt());
   }
 
   if(tp1){
-    sum += tp1->p4();
     uint8_t hits;
     tp1->summaryValue(hits,xAOD::numberOfPixelHits);
     m_convtrk2nPixHits = hits;
     tp1->summaryValue(hits,xAOD::numberOfSCTHits);
     m_convtrk2nSCTHits = hits;
-    m_pt2conv = static_cast<float>(tp1->pt());
   }
 
-  m_ptconv = sum.Perp();
-
+  m_ptconv = xAOD::EgammaHelpers::momentumAtVertex(*phVertex).perp();
+  m_pt1conv = p1fraction * m_ptconv;
+  m_pt2conv = (1. - p1fraction) * m_ptconv;
   return true;
 }
 
+float egammaMVATool::getPtAtFirstMeasurement(const xAOD::TrackParticle* tp) const
+{
+  if (!tp) return 0;
+  for (unsigned int i = 0; i < tp->numberOfParameters(); ++i)
+    if (tp->parameterPosition(i) == xAOD::FirstMeasurement)
+      return hypot(tp->parameterPX(i), tp->parameterPY(i));
+  
+  ATH_MSG_WARNING("Could not find first parameter, return pt at perigee");
+  return tp->pt();
+}

@@ -10,6 +10,7 @@
 
 #include "AsgTools/AsgTool.h"
 #include "egammaMVACalib/IegammaMVATool.h"
+#include "xAODTracking/TrackParticleFwd.h"
 
 class egammaMVACalib;
 
@@ -47,6 +48,9 @@ private:
 
   bool getClusterVariables(const xAOD::CaloCluster*);
   bool getConversionVariables(const xAOD::Vertex*);
+  
+  //@brief Return the Pt at the first measurement point or at the perigee if not available
+  float getPtAtFirstMeasurement(const xAOD::TrackParticle*) const;
   
 private:
 
