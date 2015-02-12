@@ -28,9 +28,6 @@ InDetAlignHitQualSelTool::InDetAlignHitQualSelTool( const std::string& t
   , m_rejectEdgeChannels( true )
   , m_rejectGangedPixels( false )
   , m_maxIncidAngle( 0.8 ) //!< corresponds to 45 deg. -- recomm. by pixel ppl
-  , m_acceptIBLHits( true )
-  , m_acceptPixelHits( true )
-  , m_acceptSCTHits( true )
 {
   declareInterface<IInDetAlignHitQualSelTool>(this) ;
   declareProperty( "RejectOutliers",         m_rejectOutliers     ) ;
@@ -38,9 +35,6 @@ InDetAlignHitQualSelTool::InDetAlignHitQualSelTool( const std::string& t
   declareProperty( "RejectEdgeChannels",     m_rejectEdgeChannels ) ;
   declareProperty( "RejectGangedPixels",     m_rejectGangedPixels ) ;
   declareProperty( "MaxIncidAngle",          m_maxIncidAngle      ) ;
-  declareProperty( "AcceptIBLHits",          m_acceptIBLHits    ) ;
-  declareProperty( "AcceptPixelHits",        m_acceptPixelHits    ) ;
-  declareProperty( "AcceptSCTHits",          m_acceptSCTHits    ) ;
 }
 
 
@@ -59,16 +53,16 @@ StatusCode InDetAlignHitQualSelTool::initialize() {
     ATH_MSG_DEBUG( "DetectorStore retrieved!" );
   }
   if (detStore()->retrieve(m_sctID, "SCT_ID").isFailure()){
-    msg(MSG::FATAL) << "Could not get SCT ID helper" << endmsg;
+    msg(MSG::FATAL) << "Could not get SCT ID helper" << endreq;
     return StatusCode::FAILURE;
   }
-  else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "SCT ID is : "<< m_sctID <<endmsg ;
+  else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "SCT ID is : "<< m_sctID <<endreq ;
   
   if (detStore()->retrieve(m_pixelid, "PixelID").isFailure()){
-    msg(MSG::FATAL) << "Could not get PIXEL ID helper" << endmsg;
+    msg(MSG::FATAL) << "Could not get PIXEL ID helper" << endreq;
     return StatusCode::FAILURE;
   }
-  else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Pixel ID is : " << m_pixelid << endmsg;
+  else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Pixel ID is : " << m_pixelid << endreq;
   
   // get pixel manager
   sc = detStore()->retrieve( m_PIXManager, "Pixel" ) ;
@@ -153,9 +147,8 @@ const Trk::RIO_OnTrack* InDetAlignHitQualSelTool::getGoodHit( const Trk::TrackSt
 }
 
 bool InDetAlignHitQualSelTool::isGoodSiHit( const Trk::TrackStateOnSurface* tsos ) const {
+  ATH_MSG_DEBUG( "** isGoodSiHit ** dealing with a new tsos ** START ** " ) ;
   bool isSiliconHit = false;
-  bool isPixelHit = false;
-  bool isIBLHit = false;
 
   if( tsos == NULL ) {
     ATH_MSG_ERROR( "0 pointer passed for TSOS!" ) ;
@@ -197,34 +190,11 @@ bool InDetAlignHitQualSelTool::isGoodSiHit( const Trk::TrackStateOnSurface* tsos
   if (m_pixelid->is_pixel(hitId)) {
     ATH_MSG_DEBUG( " this is a PIX hit - PIX - PIX - ");
     isSiliconHit = true;
-    isPixelHit = true; // assume that is pixel hit
-    // but check if it is IBL
-    if (m_pixelid->layer_disk(hitId) == 0 && m_pixelid->barrel_ec(hitId) == 0 ) {isIBLHit = true; isPixelHit = false;}
   }
   
   if (!isSiliconHit) {
     ATH_MSG_DEBUG( "This is not a silicon hit. Keep it as good" ) ;
     return true;
-  }
-
-  // accept IBL hits ?
-  if (!m_acceptIBLHits && isIBLHit) {
-    ATH_MSG_INFO( "this is an IBL hit --> user wants to drop it" ) ;
-    return false;
-  }
-
-  // accept pixel hits ?
-  if (!m_acceptPixelHits && isPixelHit) {
-    ATH_MSG_INFO( "this is a pixel hit --> user wants to drop it" ) ;
-    return false;
-  }
-
-  // accept SCT hits ?
-  if (!m_acceptSCTHits) {
-    if (isSiliconHit && m_sctID->is_sct(hitId)) {
-      ATH_MSG_INFO( "this is a SCT hit --> user wants to drop it" ) ;
-      return false;
-    }
   }
 
   if( m_rejectGangedPixels && isGangedPixel( prd ) ) return false ;

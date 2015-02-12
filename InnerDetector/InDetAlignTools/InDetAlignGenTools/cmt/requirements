@@ -21,7 +21,6 @@ use CLIDSvc                   CLIDSvc-*                    Control
 use Identifier                Identifier-*                 DetectorDescription
 use EventPrimitives           EventPrimitives-*            Event
 use GeoPrimitives             GeoPrimitives-*              DetectorDescription
-use AthenaPoolUtilities  AthenaPoolUtilities-*       Database/AthenaPOOL
 
 private
 use AtlasHepMC                AtlasHepMC-*                 External
@@ -42,7 +41,6 @@ use TrkTruthData              TrkTruthData-*               Tracking/TrkEvent
 use TrkTrackSummary           TrkTrackSummary-*            Tracking/TrkEvent
 use TrkMeasurementBase        TrkMeasurementBase-*         Tracking/TrkEvent
 use TrkParameters             TrkParameters-*              Tracking/TrkEvent
-use AtlasCORAL           AtlasCORAL-*           External
 use TrkPrepRawData            TrkPrepRawData-*             Tracking/TrkEvent
 use TrkRIO_OnTrack            TrkRIO_OnTrack-*             Tracking/TrkEvent
 #use TrkTruthToTrack          TrkTruthToTrack-*           Tracking/TrkTools
