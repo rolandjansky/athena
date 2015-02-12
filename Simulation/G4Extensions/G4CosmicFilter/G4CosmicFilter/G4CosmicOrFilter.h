@@ -10,13 +10,14 @@
 #ifndef G4CosmicOrFilter_H
 #define G4CosmicOrFilter_H
 
+#include "FadsActions/ActionsBase.h"
 #include "FadsActions/UserAction.h"
 #include <string>
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "StoreGate/StoreGateSvc.h"
 
-class G4CosmicOrFilter: public FADS::UserAction {
+class G4CosmicOrFilter: public FADS::ActionsBase , public FADS::UserAction {
 private:
 
   int ntracks;
@@ -30,7 +31,7 @@ private:
   std::string m_collectionName3;
 	  
 public:
-	G4CosmicOrFilter(std::string s):FADS::UserAction(s),ntracks(0),m_storeGate(0),m_ntot(0),m_npass(0){};
+	G4CosmicOrFilter(std::string s):FADS::ActionsBase(s),FADS::UserAction(s),ntracks(0),m_storeGate(0),m_ntot(0),m_npass(0){};
 	void BeginOfEventAction(const G4Event*);
         void EndOfEventAction(const G4Event*);
         void BeginOfRunAction(const G4Run*);

@@ -3,18 +3,12 @@
 */
 
 #include "G4CosmicFilter/G4CosmicFilter.h"
-#include <iostream>
 #include <stdexcept>
-#include "G4UImanager.hh"
 #include "MCTruth/TrackHelper.h"
 #include "MCTruth/TrackRecorderSD.h"
-#include "FadsSensitiveDetector/FadsSensitiveDetector.h"
-#include "TrackRecord/TrackRecordCollection.h"
-#include "FadsSensitiveDetector/SensitiveDetectorCatalog.h"
 #include "TrackRecord/TrackRecordCollection.h"
 #include "G4RunManager.hh"
 #include "G4Event.hh"
-#include "GaudiKernel/MsgStream.h"
 
 static G4CosmicFilter ts1("G4CosmicFilter");
 
@@ -33,7 +27,7 @@ void G4CosmicFilter::EndOfEventAction(const G4Event*)
   StatusCode sc = m_storeGate->retrieve(coll,m_collectionName);
 
   if (sc.isFailure() || !coll) {
-    std::cout<< " G4CosmicFilter: EndOfEventAction Cannot retrieve TrackRecordCollection " << m_collectionName << std::endl;
+    ATH_MSG_WARNING( "Cannot retrieve TrackRecordCollection " << m_collectionName );
     counter = 0;
     G4RunManager::GetRunManager()->AbortEvent();
     return;
@@ -42,10 +36,10 @@ void G4CosmicFilter::EndOfEventAction(const G4Event*)
 
   if (m_magicID!=0 || m_ptMin>0 || m_ptMax>0){
     counter=0;
-    for (unsigned int i=0;i<coll->size();++i){
-      if (m_magicID!=0 && m_magicID != fabs(coll->operator[](i).GetPDGCode())) continue;
-      if (m_ptMin>0 && m_ptMin > coll->operator[](i).GetMomentum().perp() ) continue;
-      if (m_ptMax>0 && m_ptMax < coll->operator[](i).GetMomentum().perp() ) continue;
+    for (const auto& a_tr : *coll){
+      if (m_magicID!=0 && m_magicID != fabs(a_tr.GetPDGCode())) continue;
+      if (m_ptMin>0 && m_ptMin > a_tr.GetMomentum().perp() ) continue;
+      if (m_ptMax>0 && m_ptMax < a_tr.GetMomentum().perp() ) continue;
       counter++;
     }
   }
@@ -63,14 +57,14 @@ void G4CosmicFilter::BeginOfRunAction(const G4Run*)
 
 void G4CosmicFilter::ParseProperties(){
   if(theProperties.find("VolumeName")==theProperties.end()){
-    std::cout<<"G4CosmicFilter: no VolumeName specified, setting to default (=CaloEntryLayer)"<<std::endl;
+    ATH_MSG_INFO( "no VolumeName specified, setting to default (=CaloEntryLayer)" );
     theProperties["VolumeName"]="CaloEntryLayer";
   }
   m_collectionName = theProperties["VolumeName"].c_str();
-  std::cout<<"G4CosmicFilter: using collectionName "<<m_collectionName <<std::endl;
+  ATH_MSG_INFO( "using collectionName "<<m_collectionName );
 
   if(theProperties.find("PDG_ID")==theProperties.end()){
-    std::cout<<"G4CosmicFilter: no PDG ID specified, setting to default (=none)"<<std::endl;
+    ATH_MSG_INFO( "G4CosmicFilter: no PDG ID specified, setting to default (=none)" );
     theProperties["PDG_ID"]="0";
   }
   char *endptr; 
@@ -78,10 +72,10 @@ void G4CosmicFilter::ParseProperties(){
   if (endptr[0] != '\0') {  
     throw std::invalid_argument("Could not convert string to int: " + theProperties["PDG_ID"]);
   }
-  std::cout<<"G4CosmicFilter: using PDG ID "<<m_magicID<<std::endl;
+  ATH_MSG_INFO( "using PDG ID "<<m_magicID );
 
   if(theProperties.find("pTmin")==theProperties.end()){
-    std::cout<<"G4CosmicFilter: no pTmin specified, setting to default (=-1)"<<std::endl;
+    ATH_MSG_INFO( "no pTmin specified, setting to default (=-1)" );
     theProperties["pTmin"]="-1";
   }
   m_ptMin = strtol(theProperties["pTmin"].c_str(), &endptr, 0);
@@ -89,29 +83,29 @@ void G4CosmicFilter::ParseProperties(){
     throw std::invalid_argument("Could not convert string to int: " + theProperties["pTmin"]);
   }
 
-  std::cout<<"G4CosmicFilter: using pTmin "<<m_ptMin<<std::endl;
+  ATH_MSG_INFO( "using pTmin "<<m_ptMin );
 
   if(theProperties.find("pTmax")==theProperties.end()){
-    std::cout<<"G4CosmicFilter: no pTmax specified, setting to default (=-1)"<<std::endl;
+    ATH_MSG_INFO( "G4CosmicFilter: no pTmax specified, setting to default (=-1)" );
     theProperties["pTmax"]="-1";
   }
   m_ptMax = strtol(theProperties["pTmax"].c_str(), &endptr, 0);
   if (endptr[0] != '\0') {  
     throw std::invalid_argument("Could not convert string to int: " + theProperties["pTmax"]);
   }
-  std::cout<<"G4CosmicFilter: using pTmax "<<m_ptMax<<std::endl;
+  ATH_MSG_INFO( "using pTmax "<<m_ptMax );
 
   ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
   StatusCode status = svcLocator->service("StoreGateSvc", m_storeGate);
   if (status.isFailure()){
-      std::cout<< " G4CosmicFilter: BeginOfRunAction could not access StoreGateSvc!"<<std::endl;
+      ATH_MSG_WARNING( "Could not access StoreGateSvc!" );
   }
 
   m_init=true;
 }
 void G4CosmicFilter::EndOfRunAction(const G4Run*)
 {
-  std::cout<<"G4CosmicFilter: processed "<< m_ntot <<" events, "<< m_npass<<" events passed filter "<<std::endl;
+  ATH_MSG_INFO( "processed "<< m_ntot <<" events, "<< m_npass<<" events passed filter" );
 }
 
 void G4CosmicFilter::SteppingAction(const G4Step*){;}
