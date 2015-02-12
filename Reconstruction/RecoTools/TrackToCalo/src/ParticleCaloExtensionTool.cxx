@@ -274,7 +274,7 @@ namespace Trk
 
     if(!muonEntry && propDir == Trk::oppositeMomentum && fabs(startPars.position().perp()-4255.)<1.) {
 // muonEntry is right at the startPars position
-      muonEntry = &startPars;
+      muonEntry = startPars.clone();
     } 
 
     if( muonEntry ) {

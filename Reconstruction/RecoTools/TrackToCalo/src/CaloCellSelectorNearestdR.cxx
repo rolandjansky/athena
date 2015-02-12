@@ -15,6 +15,7 @@ namespace Trk
 {
 
   CaloCellSelectorNearestdR::CaloCellSelectorNearestdR( double coneSize ):
+    m_caloExtension(nullptr),
     m_coneSize2( coneSize*coneSize ){
   }
 
