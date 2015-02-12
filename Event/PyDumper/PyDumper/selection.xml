@@ -1,4 +1,7 @@
 <lcgdict>
   <class name="PyDumper::PySTLAdaptor<DetailedTrackTruthCollection>"/>
   <class name="PyDumper::PySTLAdaptor<DetailedTrackTruthCollection>::iterator"/>
+
+  <class name="PyDumper::PySTLAdaptor<std::set<unsigned int> >"/>
+  <class name="PyDumper::PySTLAdaptor<std::set<unsigned int> >::iterator"/>
 </lcgdict>
