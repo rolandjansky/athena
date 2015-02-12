@@ -31,16 +31,10 @@
 #include <iostream>
 #include <assert.h>
 
-TileGeoCutBuilder::TileGeoCutBuilder(DataHandle<StoredMaterialManager> & matManager,
-				     TileDddbManager * pDbManager,
+TileGeoCutBuilder::TileGeoCutBuilder(DataHandle<StoredMaterialManager> & /*matManager*/,
+				     TileDddbManager * /*pDbManager*/,
                                      MsgStream * log)
-  : theMaterialManager(matManager)
-  , dbManager(pDbManager)
-  , m_log(log)
-  , m_barrelPeriodThickness(0.)
-  , m_barrelGlue(0.)
-  , m_extendedPeriodThickness(0.)
-  , m_verbose(log->level()<=MSG::VERBOSE)
+  : m_log(log)
 {
 }
 
