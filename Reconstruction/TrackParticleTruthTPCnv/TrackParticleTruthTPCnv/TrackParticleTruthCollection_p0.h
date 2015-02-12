@@ -14,7 +14,7 @@
 #include <vector>
 #include <utility>
 
-struct TrackParticleTruthVector : 
+class TrackParticleTruthVector : 
   public std::vector<std::pair< ElementLink< Rec::TrackParticleContainer >, TrackParticleTruth> > 
 {};
 

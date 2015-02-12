@@ -13,7 +13,8 @@
 
 
 namespace Rec {
-  struct TrackParticleTruthCollection_p1 {
+  class TrackParticleTruthCollection_p1 {
+  public:
 
     DataLink_p1 m_trackCollectionLink;
 
