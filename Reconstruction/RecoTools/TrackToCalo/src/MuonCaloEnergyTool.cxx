@@ -30,9 +30,9 @@ namespace Rec {
     m_sigmasAboveNoise(4.),
     m_emEtCut(2.5*CLHEP::GeV),
     m_emF1Cut(0.15),
-    m_emipEM(0.45), // 0.70
-    m_emipTile(0.84), // 0.90
-    m_emipHEC(0.75)  // 0.85
+    m_emipEM(0.42), // 0.47
+    m_emipTile(0.86), // 0.85
+    m_emipHEC(0.65)  // 0.71
   {
     declareInterface<IMuonCaloEnergyTool>(this);
     declareProperty("ParticleCaloExtensionTool",      m_caloExtensionTool );
@@ -123,9 +123,15 @@ namespace Rec {
 //
 // To go to the  meanIonization loss one needs a scale factor scale_Ionization    
 //
-    int isign = 1;
-    if(meanIoni<0) isign = -1;
-    double mopIoni =  meanIoni - isign*3.59524*fabs(sigmaIoni);
+     if(!trk) return;
+     if(!trk->perigeeParameters()) return; 
+     if(trk->perigeeParameters()->parameters()[Trk::qOverP]==0.) return; 
+
+//    int isign = 1;
+//    if(meanIoni<0) isign = -1;
+//    double mopIoni =  meanIoni - isign*3.59524*fabs(sigmaIoni);
+    double mopIoni =  meanIoni;
+    
     double scale_Ionization = 0.9;
     if(fabs(deltaE)>0&&fabs(meanIoni)>0) scale_Ionization = mopIoni / deltaE;
     double error_ratio = 0.3;
@@ -161,11 +167,15 @@ namespace Rec {
       }
       if(tp) ATH_MSG_DEBUG( " Muon xAOD::TrackParticle found " << tp );
     }
-    
+   
+    std::unique_ptr<const xAOD::TrackParticle> tpholder;
     if(!tp) {
-      tp = m_particleCreator->createParticle(*trk, NULL, NULL, xAOD::muon);
+      tpholder = std::unique_ptr<const xAOD::TrackParticle>
+        (m_particleCreator->createParticle(*trk, NULL, NULL, xAOD::muon) );
+
+      tp = tpholder.get();
       if(tp) ATH_MSG_DEBUG( " xAOD::TrackParticle created from scratch " << tp );
-    }
+    } 
 
     if(!tp) return;
 
@@ -201,7 +211,7 @@ namespace Rec {
     } else {     
       Eloss = caloExtension.caloEntryLayerIntersection()->momentum().mag() - caloExtension.muonEntryLayerIntersection()->momentum().mag();
       ATH_MSG_DEBUG( " Energy loss from CaloExtension " << Eloss << " R muon Entry " << caloExtension.muonEntryLayerIntersection()->position().perp() << " Z muon Entry " << caloExtension.muonEntryLayerIntersection()->position().z() << " R calo entry " << caloExtension.caloEntryLayerIntersection()->position().perp() << " Z calo entry " << caloExtension.caloEntryLayerIntersection()->position().z() );
-     if(Eloss>10000.) { 
+     if(Eloss>25000.) { 
        ATH_MSG_WARNING( " Crazy Energy loss from CaloExtension " << Eloss << " p at CaloEntry " << caloExtension.caloEntryLayerIntersection()->momentum().mag() << " p at Muon Entry " << caloExtension.muonEntryLayerIntersection()->momentum().mag()); 
        scaleTG = mopIoni/Eloss;
      }
@@ -217,9 +227,9 @@ namespace Rec {
     ATH_MSG_DEBUG("eLossLayerMap " << eLossLayerMap.size() );
 
 
-    double scale_em_expected   = 0.73;
-    double scale_tile_expected = 0.92;
-    double scale_HEC_expected  = 0.98;
+    double scale_em_expected   = 0.73; // 0.73
+    double scale_tile_expected = 0.89; // 0.88
+    double scale_HEC_expected  = 0.84; // 0.86
 //   
 // TG expectations
 //   
@@ -378,10 +388,13 @@ namespace Rec {
     ATH_MSG_DEBUG( " No cuts NO length expected Energies em " << E_em_expall << " tile " << E_tile_expall << " HEC " << E_HEC_expall);
 
 // E resolution of calorimeters 
-
-    double sigma_em   = sqrt( 500.*E_em);    
-    double sigma_tile = sqrt(1000.*E_tile);    
-    double sigma_HEC  = sqrt(1000.*E_HEC);    
+// Resolution of Hadronic at low energies is not 100% but more like 50%/sqrt(E)
+    
+    double scaleError_tile = 0.20 + 0.80*E_tile/(10000.+E_tile);
+    double scaleError_HEC  = 0.20 + 0.80*E_HEC/(10000.+E_HEC);
+    double sigma_em   = sqrt( 500.*E_em);  
+    double sigma_tile = scaleError_tile*sqrt(1000.*E_tile);    
+    double sigma_HEC  = scaleError_HEC*sqrt(1000.*E_HEC);    
     
 // go from e.m. scale to Muon Energy scale
 
@@ -417,7 +430,9 @@ namespace Rec {
 
      if(scale_Ionization*Eloss>E_expected) E_expected = scale_Ionization*Eloss;
 
-     double E_dead = E_expected - E_em_expected - E_tile_expected - E_HEC_expected;
+// fix dead material in Tile with 0.05*EE_tile term
+
+     double E_dead = E_expected - E_em_expected - E_tile_expected - E_HEC_expected - 0.21*EE_tile - 0.12*EE_HEC;
 
 //  treatment of FSR
 
@@ -456,7 +471,7 @@ namespace Rec {
 //     E_HEC_exp   = E_HEC_expected;
 //     E_dead_exp  = E_dead; 
        
-     double EE_dead = E_expected - EE_emB - EE_emE - EE_tile - EE_HEC;
+     double EE_dead = E_expected - EE_emB - EE_emE - EE_tile - EE_HEC - 0.21*EE_tile - 0.12*EE_HEC;
 //
 //   move expected (to match the TG expected Eloss) and measured energies
 //

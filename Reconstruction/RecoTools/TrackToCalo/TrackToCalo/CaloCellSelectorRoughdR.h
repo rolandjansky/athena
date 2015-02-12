@@ -31,7 +31,8 @@ namespace Trk
     bool select( const CaloCell& cell )const; // select or reject the cell
 
   private:
-    double m_coneSize, m_coneSize2;
+    double m_coneSize;
+    double m_coneSize2;
     double m_midEta;
     double m_midPhi;
     double m_maxDiff;
