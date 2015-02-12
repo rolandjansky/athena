@@ -9,7 +9,7 @@
 #include <map>
 
 #include "DataModel/DataVector.h"
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 
 class StoreGateSvc;
@@ -30,7 +30,7 @@ class TriggerTower;
  *  @author Peter Faulkner
  */
 
-class MergeSlices : public Algorithm {
+class MergeSlices : public AthAlgorithm {
 
  public:
    MergeSlices(const std::string& name, ISvcLocator* pSvcLocator);

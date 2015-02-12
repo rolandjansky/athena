@@ -17,8 +17,6 @@
 // Utilities
 #include <cmath>
 
-#include "GaudiKernel/MsgStream.h"
-
 // This algorithm includes
 #include "TrigT1CaloSim/JEMEnergySim.h"
 #include "TrigT1CaloUtils/JetEnergyModuleKey.h" 
@@ -40,7 +38,7 @@ namespace LVL1 {
 
 JEMEnergySim::JEMEnergySim
   ( const std::string& name, ISvcLocator* pSvcLocator )
-    : Algorithm( name, pSvcLocator ), 
+    : AthAlgorithm( name, pSvcLocator ), 
       m_storeGate("StoreGateSvc", name),
       m_EtTool("LVL1::L1EtTools/L1EtTools"),
       m_jemContainer(0)
@@ -60,8 +58,7 @@ JEMEnergySim::JEMEnergySim
 
 // Destructor
 JEMEnergySim::~JEMEnergySim() {
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::INFO << "Destructor called" << endreq;
+  ATH_MSG_INFO("Destructor called" );
 	
 }
 
@@ -75,25 +72,24 @@ StatusCode JEMEnergySim::initialize()
 
   // We must here instantiate items which can only be made after
   // any job options have been set
-  MsgStream log( messageService(), name() ) ;
 
   //
   // Connect to StoreGate:
   //
   StatusCode sc = m_storeGate.retrieve();
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't connect to " << m_storeGate.typeAndName() 
-        << endreq;
+    ATH_MSG_ERROR("Couldn't connect to " << m_storeGate.typeAndName() 
+        );
     return sc;
   } else {
-    log << MSG::DEBUG << "Connected to " << m_storeGate.typeAndName() 
-        << endreq;
+    ATH_MSG_DEBUG("Connected to " << m_storeGate.typeAndName() 
+        );
   }
 
   // Retrieve L1EtTool tool
   sc = m_EtTool.retrieve();
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Problem retrieving EtTool. Abort execution" << endreq;
+    ATH_MSG_ERROR("Problem retrieving EtTool. Abort execution" );
     return StatusCode::SUCCESS;
   }
 
@@ -118,8 +114,7 @@ StatusCode JEMEnergySim::beginRun()
 
 StatusCode JEMEnergySim::finalize()
 {
-   MsgStream log( messageService(), name() ) ;
-   log << MSG::INFO << "Finalizing" << endreq;
+   ATH_MSG_INFO("Finalizing" );
    return StatusCode::SUCCESS ;
 }
 
@@ -133,9 +128,8 @@ StatusCode JEMEnergySim::execute( )
 {
   //make a message logging stream
 
-  MsgStream log( messageService(), name() );
   int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "Executing" << endreq;
+  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG("Executing" );
 
   // form module sums
   m_jemContainer = new DataVector<ModuleEnergy>;  
@@ -146,13 +140,13 @@ StatusCode JEMEnergySim::execute( )
     if ( sc==StatusCode::SUCCESS ) {
       // Warn if we find an empty container
       if (jetelements->size() == 0)
-        log << MSG::WARNING << "Empty JetElementContainer - looks like a problem" << endreq;
+        ATH_MSG_WARNING("Empty JetElementContainer - looks like a problem" );
     
       m_EtTool->moduleSums(jetelements, m_jemContainer);
     }
-    else log << MSG::WARNING << "Error retrieving JetElements" << endreq;
+    else ATH_MSG_WARNING("Error retrieving JetElements" );
   }
-  else log << MSG::WARNING << "No JetElementCollection at " << m_JetElementLocation << endreq;
+  else ATH_MSG_WARNING("No JetElementCollection at " << m_JetElementLocation );
     
   // Done the processing. Now form & save the various output data
 
@@ -179,9 +173,8 @@ void LVL1::JEMEnergySim::cleanup(){
 /** Form JEMEtSums and put into SG */
 void LVL1::JEMEnergySim::storeJEMEtSums() {
   
-  MsgStream log( messageService(), name() );
   int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG<<"storeJEMEtSums running"<<endreq;
+  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG("storeJEMEtSums running");
   
   JEMEtSumsCollection* JEMRvector = new  JEMEtSumsCollection;
 
@@ -197,13 +190,13 @@ void LVL1::JEMEnergySim::storeJEMEtSums() {
     JEMRvector->push_back(jemEtSums);
   }
 
-  if (outputLevel <= MSG::DEBUG) log <<MSG::DEBUG<< JEMRvector->size()<<" JEMEtSums objects are being saved"<<endreq;
+  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG(JEMRvector->size()<<" JEMEtSums objects are being saved");
   
   StatusCode sc = m_storeGate->overwrite(JEMRvector, m_jemEtSumsLocation,true,false,false);
-  if (sc != StatusCode::SUCCESS) log << MSG::ERROR << "Error registering JEMEtSums collection in TDS " << endreq;
+  if (sc != StatusCode::SUCCESS) ATH_MSG_ERROR("Error registering JEMEtSums collection in TDS " );
   else {
     StatusCode sc2 = m_storeGate->setConst(JEMRvector);
-    if (sc2 != StatusCode::SUCCESS) log << MSG::ERROR << "error setting JEMResult vector constant" << endreq;
+    if (sc2 != StatusCode::SUCCESS) ATH_MSG_ERROR("error setting JEMResult vector constant" );
   }
   
   return;
@@ -212,9 +205,8 @@ void LVL1::JEMEnergySim::storeJEMEtSums() {
 /** Form EnergyCMXData and put into SG */
 void LVL1::JEMEnergySim::storeBackplaneData() {
   
-  MsgStream log( messageService(), name() );
   int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG<<"storeBackplaneData running"<<endreq;
+  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG("storeBackplaneData running");
   
   EnergyCMXDataCollection* bpVector = new  EnergyCMXDataCollection;
 
@@ -225,10 +217,10 @@ void LVL1::JEMEnergySim::storeBackplaneData() {
     bpVector->push_back(bpData);
   }
 
-  if (outputLevel <= MSG::DEBUG) log <<MSG::DEBUG<< bpVector->size()<<" EnergyCMXData objects are being saved"<<endreq;
+  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( bpVector->size()<<" EnergyCMXData objects are being saved");
   
   StatusCode sc = m_storeGate->overwrite(bpVector, m_energyCMXDataLocation,true,false,false);
-  if (sc != StatusCode::SUCCESS) log << MSG::ERROR << "Error registering EnergyCMXData collection in TDS " << endreq;
+  if (sc != StatusCode::SUCCESS) ATH_MSG_ERROR("Error registering EnergyCMXData collection in TDS " );
   
   return;
 }

@@ -1,4 +1,3 @@
-
 // /***************************************************************************
 //                           ReprocessTriggerTowers.cxx  -  description
 //                              -------------------
@@ -37,7 +36,7 @@ const int ReprocessTriggerTowers::m_numTowers[m_Regions] = {m_nEMB,m_nEMEC,m_nFC
 
 ReprocessTriggerTowers::ReprocessTriggerTowers
   ( const std::string& name, ISvcLocator* pSvcLocator )
-    : Algorithm( name, pSvcLocator ), 
+    : AthAlgorithm( name, pSvcLocator ), 
       m_storeGate("StoreGateSvc", name),
       m_detStore("DetectorStore", name),
       m_TTtool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
@@ -96,8 +95,8 @@ ReprocessTriggerTowers::ReprocessTriggerTowers
 
 // Destructor
 ReprocessTriggerTowers::~ReprocessTriggerTowers() {
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::INFO << "Destructor called" << endreq;
+  
+  ATH_MSG_INFO( "Destructor called" );
 }
 
 
@@ -110,7 +109,7 @@ StatusCode ReprocessTriggerTowers::initialize()
 
   // We must here instantiate items which can only be made after
   // any job options have been set
-  MsgStream log( messageService(), name() ) ;
+  
   int outputLevel = msgSvc()->outputLevel( name() );
 
 
@@ -118,32 +117,31 @@ StatusCode ReprocessTriggerTowers::initialize()
 
   StatusCode sc = m_storeGate.retrieve();
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't connect to " << m_storeGate.typeAndName() 
-        << endreq;
+    ATH_MSG_ERROR( "Couldn't connect to " << m_storeGate.typeAndName() 
+        );
     return sc;
   } else if (outputLevel <= MSG::DEBUG) {
-    log << MSG::DEBUG << "Connected to " << m_storeGate.typeAndName() 
-        << endreq;
+    ATH_MSG_DEBUG( "Connected to " << m_storeGate.typeAndName() );
   }
   
   /// and the L1CaloCondSvc
   ///  - note: may use tools without DB, so don't abort if fail here
   // sc = service("L1CaloCondSvc", m_l1CondSvc);
   // if (sc.isFailure()) { 
-  //   log << MSG::WARNING << "Could not retrieve L1CaloCondSvc" << endreq;
+  //   ATH_MSG_WARNING( "Could not retrieve L1CaloCondSvc" );
   // }
 
   /// mapping tool
   sc = m_mappingTool.retrieve(); 
   if ( sc.isFailure() ) { 
-     log << MSG::ERROR << "Failed to retrieve tool " << m_mappingTool << endreq; 
+     ATH_MSG_ERROR( "Failed to retrieve tool " << m_mappingTool ); 
      return StatusCode::SUCCESS; 
-  } else log << MSG::INFO << "Retrieved tool " << m_mappingTool << endreq; 
+  } else ATH_MSG_INFO( "Retrieved tool " << m_mappingTool ); 
    
   /// Retrieve L1TriggerTowerTool
   sc = m_TTtool.retrieve();
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Problem retrieving L1TriggerTowerTool. Abort execution" << endreq;
+    ATH_MSG_ERROR( "Problem retrieving L1TriggerTowerTool. Abort execution" );
     return StatusCode::SUCCESS;
   }
    
@@ -151,9 +149,7 @@ StatusCode ReprocessTriggerTowers::initialize()
   IIncidentSvc* incSvc;
   sc = service("IncidentSvc", incSvc);
   if (sc.isFailure()) {
-     log << MSG::ERROR
-	  << "Unable to retrieve pointer to IncidentSvc "
-	  << endreq;
+     ATH_MSG_ERROR("Unable to retrieve pointer to IncidentSvc ");
      return StatusCode::FAILURE;
   }
 
@@ -172,9 +168,9 @@ StatusCode ReprocessTriggerTowers::initialize()
 void ReprocessTriggerTowers::handle(const Incident& inc) 
 {
   if (inc.type()=="BeginRun") {
-    MsgStream log( messageService(), name() ) ;
+    
     int outputLevel = msgSvc()->outputLevel( name() );
-    if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "Updating settings at start of run" << endreq;
+    if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "Updating settings at start of run" );
     
     /// Set all thresholds to user-specified values except where "hot channel" settings were in use
   /** Initialise user-specified parameters:
@@ -244,8 +240,8 @@ void ReprocessTriggerTowers::handle(const Incident& inc)
 
 StatusCode ReprocessTriggerTowers::finalize()
 {
-   MsgStream log( messageService(), name() ) ;
-   log << MSG::INFO << "Finalizing" << endreq;
+   
+   ATH_MSG_INFO( "Finalizing" );
    return StatusCode::SUCCESS ;
 }
 
@@ -261,9 +257,9 @@ StatusCode ReprocessTriggerTowers::execute( )
 
   //make a message logging stream
 
-  MsgStream log( messageService(), name() );
+  
   int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "in execute()" << endreq; 
+  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "in execute()" ); 
 
   // Create containers for this event
   m_outputTowers = new DataVector<TriggerTower>;       // Output tower container
@@ -274,15 +270,15 @@ StatusCode ReprocessTriggerTowers::execute( )
     if ( sc==StatusCode::SUCCESS ) {
        // Check size of TriggerTowerCollection - zero would indicate a problem
       if ( m_inputTowers->size() == 0)
-         log << MSG::WARNING << "Empty TriggerTowerContainer - looks like a problem" << endreq;
+         ATH_MSG_WARNING( "Empty TriggerTowerContainer - looks like a problem" );
   
       // Reprocess the TriggerTowers
       preProcess();
 
     }
-    else log << MSG::WARNING << "Error retrieving TriggerTowers" << endreq;
+    else ATH_MSG_WARNING( "Error retrieving TriggerTowers" );
   }
-  else log << MSG::WARNING << "No TriggerTowerContainer at " << m_InputTriggerTowerLocation << endreq;
+  else ATH_MSG_WARNING( "No TriggerTowerContainer at " << m_InputTriggerTowerLocation );
   
   // Save reprocessed towers in TES
   store();
@@ -298,14 +294,14 @@ StatusCode ReprocessTriggerTowers::execute( )
 void ReprocessTriggerTowers::preProcess() {
 
   //make a message logging stream
-  MsgStream log( messageService(), name() );
+  
   int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "in preProcess()" << endreq;
+  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "in preProcess()" );
   
   /** Retrieve conditions for L1TriggerTowerTool */
   StatusCode scCond = m_TTtool->retrieveConditions();
   if (scCond.isFailure()) {
-    log << MSG::WARNING << "Failed to retrieve conditions" << endreq;
+    ATH_MSG_WARNING( "Failed to retrieve conditions" );
     return;
   }
   /** Iterate through input TriggerTowerCollection */
@@ -377,7 +373,7 @@ void ReprocessTriggerTowers::preProcess() {
 	  if (offset < 0) offset = 0;
           strategy = m_LUTStrategy;
        }
-       else if (m_LUTStrategy > 1 && outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "Unknown LUT Strategy selected. Ignore";
+       else if (m_LUTStrategy > 1 && outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "Unknown LUT Strategy selected. Ignore");
     }
     /// Simulate filter
     m_TTtool->fir(emDigits, firCoeffs, emFIR);
@@ -406,7 +402,7 @@ void ReprocessTriggerTowers::preProcess() {
     int thresh = cut;
     std::map<unsigned int, unsigned int>::iterator itThresh=m_channelNoiseCuts.find( emChannel );
     if (itThresh != m_channelNoiseCuts.end()) thresh = itThresh->second;
-    //else log << MSG::VERBOSE << "No user-specified threshold for channel " << std::hex << emChannel << std::dec << endreq;
+    //else ATH_MSG_VERBOSE( "No user-specified threshold for channel " << std::hex << emChannel << std::dec );
 
     /// LUT simulation
     m_TTtool->lut(emLUTIn, slope, offset, thresh, pedValue, strategy, disabled, emLUTOut);
@@ -463,7 +459,7 @@ void ReprocessTriggerTowers::preProcess() {
 	  if (offset < 0) offset = 0;
           strategy = m_LUTStrategy;
        }
-       else if (m_LUTStrategy > 1 && outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "Unknown LUT Strategy selected. Ignore";
+       else if (m_LUTStrategy > 1 && outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "Unknown LUT Strategy selected. Ignore");
     }
     
     /// Simulate filter
@@ -492,7 +488,7 @@ void ReprocessTriggerTowers::preProcess() {
     thresh = cut;
     itThresh=m_channelNoiseCuts.find( hadChannel );
     if (itThresh != m_channelNoiseCuts.end()) thresh = itThresh->second;
-    //else log << MSG::VERBOSE << "No user-specified threshold for channel " << std::hex << hadChannel << std::dec << endreq;
+    //else ATH_MSG_VERBOSE( "No user-specified threshold for channel " << std::hex << hadChannel << std::dec );
 
     /// LUT simulation
     m_TTtool->lut(hadLUTIn, slope, offset, thresh, pedValue, strategy, disabled, hadLUTOut);
@@ -549,19 +545,19 @@ void ReprocessTriggerTowers::preProcess() {
 /** place final ROI objects in the TES. */
 void LVL1::ReprocessTriggerTowers::store() {
 
-  MsgStream log( messageService(), name() );
+  
   int outputLevel = msgSvc()->outputLevel( name() );
     
   StatusCode sc = m_storeGate->overwrite(m_outputTowers, m_OutputTriggerTowerLocation,true,false,false);
 
   if (sc.isSuccess()) {
      if (outputLevel <= MSG::VERBOSE)
-         log << MSG::VERBOSE << "Stored " <<m_outputTowers->size()
-             << " TriggerTowers at " << m_OutputTriggerTowerLocation << endreq;
+         ATH_MSG_VERBOSE( "Stored " <<m_outputTowers->size()
+             << " TriggerTowers at " << m_OutputTriggerTowerLocation );
   }
   else {
-     log << MSG::ERROR << "failed to write TriggerTowers to  "
-         << m_OutputTriggerTowerLocation << endreq;
+     ATH_MSG_ERROR( "failed to write TriggerTowers to  "
+         << m_OutputTriggerTowerLocation );
   } 
 
   return;

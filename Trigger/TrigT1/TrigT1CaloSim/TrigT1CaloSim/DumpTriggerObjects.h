@@ -31,8 +31,7 @@
 #include <vector>
 
 // Athena/Gaudi
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/DataObject.h"
 #include "DataModel/DataVector.h"
 
@@ -68,7 +67,7 @@ namespace LVL1 {
  The DumpTriggerObjects algorithm shows how to access EmTauROIs.
 */
 
-class DumpTriggerObjects : public Algorithm
+class DumpTriggerObjects : public AthAlgorithm
 {
 
  public:

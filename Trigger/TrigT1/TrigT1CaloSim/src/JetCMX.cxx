@@ -48,7 +48,7 @@ using namespace TrigConf;
 
 JetCMX::JetCMX
   ( const std::string& name, ISvcLocator* pSvcLocator )
-    : Algorithm( name, pSvcLocator ), 
+    : AthAlgorithm( name, pSvcLocator ), 
       m_storeGate("StoreGateSvc", name), 
       m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name)
 {
@@ -73,8 +73,7 @@ JetCMX::JetCMX
 
 // Destructor
 JetCMX::~JetCMX() {
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::INFO << "Destructor called" << endreq;
+  ATH_MSG_INFO("Destructor called" );
 }
 
 
@@ -87,7 +86,6 @@ StatusCode JetCMX::initialize()
 
   // We must here instantiate items which can only be made after
   // any job options have been set
-  MsgStream log( messageService(), name() ) ;
   int outputLevel = msgSvc()->outputLevel( name() );
 
      //
@@ -95,24 +93,24 @@ StatusCode JetCMX::initialize()
     //
   StatusCode sc = m_configSvc.retrieve();
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't connect to " << m_configSvc.typeAndName() 
-        << endreq;
+    ATH_MSG_ERROR("Couldn't connect to " << m_configSvc.typeAndName() 
+        );
     return sc;
   } else if (outputLevel <= MSG::DEBUG) {
-    log << MSG::DEBUG << "Connected to " << m_configSvc.typeAndName() 
-        << endreq;
+    ATH_MSG_DEBUG("Connected to " << m_configSvc.typeAndName() 
+        );
   }
 
   // Now connect to the StoreGateSvc
 
   sc = m_storeGate.retrieve();
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't connect to " << m_storeGate.typeAndName() 
-        << endreq;
+    ATH_MSG_ERROR("Couldn't connect to " << m_storeGate.typeAndName() 
+        );
     return sc;
   } else if (outputLevel <= MSG::DEBUG) {
-    log << MSG::DEBUG << "Connected to " << m_storeGate.typeAndName() 
-        << endreq;
+    ATH_MSG_DEBUG("Connected to " << m_storeGate.typeAndName() 
+        );
   }
     
   return StatusCode::SUCCESS ;
@@ -140,8 +138,7 @@ StatusCode JetCMX::beginRun()
 
 StatusCode JetCMX::finalize()
 {
-   MsgStream log( messageService(), name() ) ;
-   log << MSG::INFO << "Finalizing" << endreq;
+   ATH_MSG_INFO("Finalizing" );
    return StatusCode::SUCCESS ;
 }
 
@@ -165,9 +162,8 @@ StatusCode JetCMX::execute( )
 
   //make a message logging stream
 
-  MsgStream log( messageService(), name() );
   int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "starting JetCMX" << endreq;
+  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG("starting JetCMX" );
   
 
   /** Create containers for BS simulation */
@@ -259,7 +255,7 @@ StatusCode JetCMX::execute( )
 		        if ( num < 10 && Hits[num] < 7 )                   Hits[num]++;
 		        else if ( num >= 10 && Hits[num] < 3 )             Hits[num]++;
 		    }
-		    else log << MSG::WARNING << "Invalid threshold number " << num << endreq;
+		    else ATH_MSG_WARNING("Invalid threshold number " << num );
                 } // passes cuts
 		    
              } // JetThresholdValue pointer valid
@@ -346,22 +342,22 @@ StatusCode JetCMX::execute( )
   
   // Store output for BS simulation
   StatusCode sc = m_storeGate->overwrite(CMXTobs, m_CMXJetTobLocation,true,false,false);
-  if (sc != StatusCode::SUCCESS) log << MSG::WARNING << "Problem writeing CMXTobs to StoreGate" << endreq;
+  if (sc != StatusCode::SUCCESS) ATH_MSG_WARNING("Problem writeing CMXTobs to StoreGate" );
 
   sc = m_storeGate->overwrite(CMXHits, m_CMXJetHitLocation,true,false,false);
-  if (sc != StatusCode::SUCCESS) log << MSG::WARNING << "Problem writeing CMXHits to StoreGate" << endreq;
+  if (sc != StatusCode::SUCCESS) ATH_MSG_WARNING("Problem writeing CMXHits to StoreGate" );
 
   // Store Topo results
   sc = m_storeGate->overwrite(topoData, m_TopoOutputLocation,true,false,false);
-  if (sc != StatusCode::SUCCESS) log << MSG::WARNING << "Problem writeing CPCMXTopoData object to StoreGate" << endreq;
+  if (sc != StatusCode::SUCCESS) ATH_MSG_WARNING("Problem writeing CPCMXTopoData object to StoreGate" );
  
   // Store CTP results
   if (m_jetCTP == 0) {
     m_jetCTP = new JetCTP(0,0);
-    log << MSG::WARNING << "No JetCTP found. Creating empty object" << endreq;
+    ATH_MSG_WARNING("No JetCTP found. Creating empty object" );
   }
   sc = m_storeGate->overwrite(m_jetCTP, m_CTPOutputLocation,true,false,false);
-  if (sc != StatusCode::SUCCESS) log << MSG::WARNING << "Problem writeing JetCTP object to StoreGate" << endreq;
+  if (sc != StatusCode::SUCCESS) ATH_MSG_WARNING("Problem writeing JetCTP object to StoreGate" );
 
   return StatusCode::SUCCESS ;
 }
@@ -370,7 +366,6 @@ StatusCode JetCMX::execute( )
 
 /** print trigger configuration, for debugging purposes */
 void LVL1::JetCMX::printTriggerMenu(){
-  MsgStream log( messageService(), name() );
   
   /** This is all going to need updating for the new menu structure.
       Comment out in the meanwhile 
@@ -381,23 +376,23 @@ void LVL1::JetCMX::printTriggerMenu(){
   std::vector<TrigConf::TriggerThreshold*>::const_iterator it;
   for (it = thresholds.begin(); it != thresholds.end(); ++it) {
     if ( (*it)->type() == def.emType() || (*it)->type() == def.tauType() ) {
-      log << MSG::DEBUG << "TriggerThreshold " << (*it)->id() << " has name " << (*it)->name() << endreq
+      ATH_MSG_DEBUG("TriggerThreshold " << (*it)->id() << " has name " << (*it)->name() << endreq
           << "  threshold number " << (*it)->thresholdNumber() << endreq
-          << "  number of values = " << (*it)->numberofValues() << endreq;
+          << "  number of values = " << (*it)->numberofValues() );
       for (std::vector<TriggerThresholdValue*>::const_iterator tv = (*it)->thresholdValueVector().begin();
            tv != (*it)->thresholdValueVector().end(); ++tv) {
         ClusterThresholdValue* ctv;
         ctv = dynamic_cast<ClusterThresholdValue*> (*tv);
 	if (!ctv) {
-          log << MSG::ERROR << "Threshold type name is EM/Tau, but is not a ClusterThreshold object!" << endreq;
+          ATH_MSG_ERROR("Threshold type name is EM/Tau, but is not a ClusterThreshold object!" );
           continue;
         }
-        log << MSG::DEBUG << "ClusterThresholdValue: " << endreq
+        ATH_MSG_DEBUG("ClusterThresholdValue: " << endreq
             << "  Threshold value = " << ctv->thresholdValueCount() << endreq
             << "  EM isolation = " << ctv->emIsolationCount() << endreq
             << "  Had isolation = " << ctv->hadIsolationCount() << endreq
             << "  Had veto = " << ctv->hadVetoCount() << endreq
-            << "  EtaMin = " << ctv->etamin() << ", EtaMax = " << ctv->etamax() << endreq;
+            << "  EtaMin = " << ctv->etamin() << ", EtaMax = " << ctv->etamax() );
         
       } // end of loop over threshold values
     } //  is type == em or tau?

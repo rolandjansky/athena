@@ -28,10 +28,9 @@
  #include <vector>
  
  // Athena/Gaudi
- #include "GaudiKernel/Algorithm.h"
+ #include "AthenaBaseComps/AthAlgorithm.h"
  #include "GaudiKernel/ServiceHandle.h"    
  #include "GaudiKernel/ToolHandle.h"
- #include "GaudiKernel/MsgStream.h"
  
  #include "DataModel/DataVector.h"
  #include "StoreGate/StoreGateSvc.h"
@@ -62,7 +61,7 @@ using namespace TrigConf;
   thresholding, are performed when forming JetInputs. JetInputs are only
   used as local objects within JetTrigger, i.e. not placed in StoreGate.
    */
- class JetTrigger : public Algorithm
+ class JetTrigger : public AthAlgorithm
  {
 
   public:

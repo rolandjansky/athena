@@ -16,8 +16,7 @@
 #include <vector>
 
 // Athena/Gaudi
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "DataModel/DataVector.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -51,7 +50,7 @@ namespace LVL1 {
 The JetElementMaker class takes Trigger Towers from the TES and
 forms JetElements, which it then places back into the TES.
 */
-class JetElementMaker : public Algorithm
+class JetElementMaker : public AthAlgorithm
 {
   typedef DataVector<JetElement> JECollection;
   

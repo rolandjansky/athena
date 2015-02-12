@@ -14,7 +14,6 @@
 // running in Athena
 #include "TrigT1CaloSim/RoIROD.h"
 
-#include "GaudiKernel/MsgStream.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
@@ -25,7 +24,7 @@
 
 LVL1::RoIROD::RoIROD
   ( const std::string& name, ISvcLocator* pSvcLocator ) 
-    : Algorithm( name, pSvcLocator ),
+    : AthAlgorithm( name, pSvcLocator ),
     m_storeGate("StoreGateSvc", name), 
     m_eventNumber(0),
     m_emTauRoILocation(TrigT1CaloDefs::CPMTobRoILocation), 
@@ -64,19 +63,18 @@ StatusCode LVL1::RoIROD::initialize()
 
   // We must here instantiate items which can only be made after
   // any job options have been set
-  MsgStream log( messageService(), name() ) ;
 
   //
   // Connect to StoreGate:
   //
   StatusCode sc = m_storeGate.retrieve();
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't connect to " << m_storeGate.typeAndName() 
-        << endreq;
+    ATH_MSG_ERROR("Couldn't connect to " << m_storeGate.typeAndName() 
+        );
     return sc;
   } else {
-    log << MSG::DEBUG << "Connected to " << m_storeGate.typeAndName() 
-        << endreq;
+    ATH_MSG_DEBUG("Connected to " << m_storeGate.typeAndName() 
+        );
   }
 
   return StatusCode::SUCCESS ;
@@ -89,8 +87,7 @@ StatusCode LVL1::RoIROD::initialize()
 
 StatusCode LVL1::RoIROD::finalize()
 {
-   MsgStream log( messageService(), name() ) ;
-   log << MSG::INFO << "Finalizing" << endreq;
+   ATH_MSG_INFO("Finalizing" );
    return StatusCode::SUCCESS ;
 }
 
@@ -102,14 +99,13 @@ StatusCode LVL1::RoIROD::finalize()
 
 StatusCode LVL1::RoIROD::execute( )
 {
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::DEBUG << "Executing" << endreq;
+  ATH_MSG_DEBUG("Executing" );
 
   const EventInfo* evt;
   if (StatusCode::SUCCESS == m_storeGate->retrieve(evt)){
     m_eventNumber = evt->event_ID()->event_number();
   }else{
-    log << MSG::ERROR<< " Unable to retrieve EventInfo from StoreGate "<< endreq;
+    ATH_MSG_ERROR( " Unable to retrieve EventInfo from StoreGate ");
   }
 
   assignVectors();    // create new storage vectors 
@@ -121,8 +117,7 @@ StatusCode LVL1::RoIROD::execute( )
 
 /** get ROIwords and form Slink words from them, adding header and tail. */
 void LVL1::RoIROD::formSlinkObjects(){
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::DEBUG << "formSlinkObjects" << endreq;
+  ATH_MSG_DEBUG("formSlinkObjects" );
 
   /** Set SLink headers */
   for (unsigned int i = 0; i<TrigT1CaloDefs::numOfCPRoIRODs;i++){
@@ -134,12 +129,12 @@ void LVL1::RoIROD::formSlinkObjects(){
   
   
   /** Retrieve CPMTobRoIs and copy data to SLink vectors */
-  log << MSG::DEBUG<< "Load and process CPM TOBs"<<endreq;
+  ATH_MSG_DEBUG("Load and process CPM TOBs");
   const t_cpmTobRoIContainer* EMTaus ;
   StatusCode sc1 = m_storeGate->retrieve(EMTaus, m_emTauRoILocation);
 
   if ( sc1==StatusCode::FAILURE ) {
-    log << MSG::DEBUG<< "No CPMTobRoIs found. "<< endreq ;
+    ATH_MSG_DEBUG("No CPMTobRoIs found. ");
   }
   else{
     /// Push TOBs to ROD vectors
@@ -153,12 +148,12 @@ void LVL1::RoIROD::formSlinkObjects(){
   
   
   /** Retrieve JEMTobRoIs and copy data to SLink vectors */
-  log << MSG::DEBUG<< "Load and process Jet TOBs"<<endreq;
+  ATH_MSG_DEBUG("Load and process Jet TOBs");
   const t_jemTobRoIContainer* Jets ;
   StatusCode sc2 = m_storeGate->retrieve(Jets, m_JetRoILocation);
 
   if ( sc2==StatusCode::FAILURE ) {
-    log << MSG::DEBUG<< "No JEMTobRoIs found. "<< endreq ;
+    ATH_MSG_DEBUG("No JEMTobRoIs found. ");
   }
   else{
     /// Push TOBs to ROD vectors
@@ -176,7 +171,7 @@ void LVL1::RoIROD::formSlinkObjects(){
   StatusCode sc3 = m_storeGate->retrieve(energy, m_energyRoILocation);
 
   if  ( sc3==StatusCode::FAILURE ) {
-    log << MSG::DEBUG << "No EnergySum RoIs found."<< endreq ;
+    ATH_MSG_DEBUG("No EnergySum RoIs found.");
   }
   else{
     /** Add 6 ET RoIWords to crate 1 ROD data. */
@@ -230,8 +225,7 @@ void LVL1::RoIROD::addTail(DataVector<LVL1CTP::SlinkWord>* slink, unsigned int n
 
 /** save Slink Objects to SG */
 void LVL1::RoIROD::saveSlinkObjects(){
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::DEBUG<< "saveSlinkObjects"<<endreq;
+  ATH_MSG_DEBUG("saveSlinkObjects");
 
   /**\todo There must be a better way of doing this, but CERN doesn't seem to have sstream.h*/
   std::string emTauSlinkLocation[4];
@@ -245,10 +239,10 @@ void LVL1::RoIROD::saveSlinkObjects(){
     StatusCode sc = m_storeGate->overwrite(m_CPRoIROD[i],emTauSlinkLocation[i],true,false,false);
 
     if (sc.isSuccess() ){
-      log << MSG::DEBUG << "Stored EmTau Slink object at "<< emTauSlinkLocation[i] <<" with "
-          <<(m_CPRoIROD[i]->size())<<" words"<< endreq;
+      ATH_MSG_DEBUG("Stored EmTau Slink object at "<< emTauSlinkLocation[i] <<" with "
+          <<(m_CPRoIROD[i]->size())<<" words");
     } else {
-      log << MSG::ERROR << "Failed to write EmTau Slink object!"<< endreq;
+      ATH_MSG_ERROR("Failed to write EmTau Slink object!");
     } // endif
   }
 
@@ -258,10 +252,10 @@ void LVL1::RoIROD::saveSlinkObjects(){
   for (unsigned int i = 0; i<TrigT1CaloDefs::numOfJEPRoIRODs;++i){
     StatusCode sc = m_storeGate->overwrite(m_jepRoIROD[i],jepSlinkLocation[i],true,false,false);
     if (sc.isSuccess() ){
-      log << MSG::DEBUG << "Stored JetEnergy Slink object at "<< jepSlinkLocation[i] <<" with "
-          <<(m_jepRoIROD[i]->size())<<" words"<< endreq;
+      ATH_MSG_DEBUG("Stored JetEnergy Slink object at "<< jepSlinkLocation[i] <<" with "
+          <<(m_jepRoIROD[i]->size())<<" words");
     } else {
-      log << MSG::ERROR << "Failed to write JetEnergy Slink object!"<< endreq;
+      ATH_MSG_ERROR("Failed to write JetEnergy Slink object!");
     } // endif
   }
   
@@ -271,8 +265,7 @@ void LVL1::RoIROD::saveSlinkObjects(){
 
 /** Create the object vectors to be stored in SG and clear mult vectors*/
 void LVL1::RoIROD::assignVectors(){
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::DEBUG << "assignVectors" << endreq;
+  ATH_MSG_DEBUG("assignVectors" );
 
   for (unsigned int i = 0; i<TrigT1CaloDefs::numOfCPRoIRODs;i++){
     m_CPRoIROD[i]=new DataVector<LVL1CTP::SlinkWord>;
@@ -290,13 +283,12 @@ LVL1CTP::SlinkWord* LVL1::RoIROD::getWord(unsigned int tword){
 
 /** prints out the Slink info. */
 void LVL1::RoIROD::dumpSlinks() const{
-  MsgStream log( messageService(), name() ) ;
   for (unsigned int slink=0; slink<(TrigT1CaloDefs::numOfCPRoIRODs);slink++){
-    log << MSG::INFO<< "Slink cable  "<<slink
-        <<" has "<<(m_CPRoIROD[slink]->size())<<" words"<<endreq;
+    ATH_MSG_INFO("Slink cable  "<<slink
+        <<" has "<<(m_CPRoIROD[slink]->size())<<" words");
     for (DataVector<LVL1CTP::SlinkWord>::iterator i=m_CPRoIROD[slink]->begin();
                                       i!=m_CPRoIROD[slink]->end();++i){
-      log <<MSG::INFO<<"Word :"<<MSG::hex<<(*i)->word()<<MSG::dec<<endreq;
+      ATH_MSG_INFO("Word :"<<MSG::hex<<(*i)->word()<<MSG::dec);
     }
   }
 }

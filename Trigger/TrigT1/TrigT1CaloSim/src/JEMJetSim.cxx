@@ -49,7 +49,7 @@ using namespace TrigConf;
 
 JEMJetSim::JEMJetSim
   ( const std::string& name, ISvcLocator* pSvcLocator )
-    : Algorithm( name, pSvcLocator ), 
+    : AthAlgorithm( name, pSvcLocator ), 
       m_allTOBs(0),
       m_JetCMXData(0),
       m_storeGate("StoreGateSvc", name), 
@@ -73,8 +73,7 @@ JEMJetSim::JEMJetSim
 
 // Destructor
 JEMJetSim::~JEMJetSim() {
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::INFO << "Destructor called" << endreq;
+  ATH_MSG_INFO("Destructor called" );
 }
 
 
@@ -87,7 +86,6 @@ StatusCode JEMJetSim::initialize()
 
   // We must here instantiate items which can only be made after
   // any job options have been set
-  MsgStream log( messageService(), name() ) ;
   int outputLevel = msgSvc()->outputLevel( name() );
 
      //
@@ -95,30 +93,30 @@ StatusCode JEMJetSim::initialize()
     //
   StatusCode sc = m_configSvc.retrieve();
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't connect to " << m_configSvc.typeAndName() 
-        << endreq;
+    ATH_MSG_ERROR("Couldn't connect to " << m_configSvc.typeAndName() 
+        );
     return sc;
   } else if (outputLevel <= MSG::DEBUG) {
-    log << MSG::DEBUG << "Connected to " << m_configSvc.typeAndName() 
-        << endreq;
+    ATH_MSG_DEBUG("Connected to " << m_configSvc.typeAndName() 
+        );
   }
 
   // Now connect to the StoreGateSvc
 
   sc = m_storeGate.retrieve();
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't connect to " << m_storeGate.typeAndName() 
-        << endreq;
+    ATH_MSG_ERROR("Couldn't connect to " << m_storeGate.typeAndName() 
+        );
     return sc;
   } else if (outputLevel <= MSG::DEBUG) {
-    log << MSG::DEBUG << "Connected to " << m_storeGate.typeAndName() 
-        << endreq;
+    ATH_MSG_DEBUG("Connected to " << m_storeGate.typeAndName() 
+        );
   }
 
   // Retrieve L1CPMTool
   sc = m_JetTool.retrieve();
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Problem retrieving JetTool. Abort execution" << endreq;
+    ATH_MSG_ERROR("Problem retrieving JetTool. Abort execution" );
     return StatusCode::SUCCESS;
   }
     
@@ -147,8 +145,7 @@ StatusCode JEMJetSim::beginRun()
 
 StatusCode JEMJetSim::finalize()
 {
-   MsgStream log( messageService(), name() ) ;
-   log << MSG::INFO << "Finalizing" << endreq;
+   ATH_MSG_INFO("Finalizing" );
    return StatusCode::SUCCESS ;
 }
 
@@ -173,9 +170,8 @@ StatusCode JEMJetSim::execute( )
 
   //make a message logging stream
 
-  MsgStream log( messageService(), name() );
   int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "starting JEMJetSim" << endreq; 
+  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG("starting JEMJetSim" ); 
 
   // Create containers for this event
   m_JetCMXData   = new DataVector<JetCMXData>;  //Container of backplane data objects
@@ -188,7 +184,7 @@ StatusCode JEMJetSim::execute( )
     if ( sc==StatusCode::SUCCESS ) {
        // Check size of JetElementCollection - zero would indicate a problem
       if (storedJEs->size() == 0)
-         log << MSG::WARNING << "Empty JetElementContainer - looks like a problem" << endreq;
+         ATH_MSG_WARNING("Empty JetElementContainer - looks like a problem" );
 	
       // Form JetInputs and put them in a map
       std::map<int, JetInput*>* inputMap = new std::map<int, JetInput*> ;
@@ -216,9 +212,9 @@ StatusCode JEMJetSim::execute( )
   
     } // found TriggerTowers
     
-    else log << MSG::WARNING << "Error retrieving JetElements" << endreq;
+    else ATH_MSG_WARNING("Error retrieving JetElements" );
   }
-  else log << MSG::WARNING << "No JetElementContainer at " << m_JetElementLocation << endreq;
+  else ATH_MSG_WARNING("No JetElementContainer at " << m_JetElementLocation );
   
        
   // Store module readout and backplane results in the TES
@@ -235,7 +231,6 @@ StatusCode JEMJetSim::execute( )
 /** place backplane data objects (CPM -> CMX) in StoreGate */
 void LVL1::JEMJetSim::storeBackplaneTOBs() {
 
-  MsgStream log( messageService(), name() );
   int outputLevel = msgSvc()->outputLevel( name() );
     
   // Store backplane data objects
@@ -243,12 +238,12 @@ void LVL1::JEMJetSim::storeBackplaneTOBs() {
 
   if (sc.isSuccess()) {
      if (outputLevel <= MSG::VERBOSE)
-         log << MSG::VERBOSE << "Stored " << m_JetCMXData->size()
-             << " JetCMXData at " << m_JetCMXDataLocation << endreq;
+         ATH_MSG_VERBOSE("Stored " << m_JetCMXData->size()
+             << " JetCMXData at " << m_JetCMXDataLocation );
   }
   else {
-     log << MSG::ERROR << "failed to write JetCMXData to  "
-         << m_JetCMXDataLocation << endreq;
+     ATH_MSG_ERROR("failed to write JetCMXData to  "
+         << m_JetCMXDataLocation );
   } 
     
   return;
@@ -259,19 +254,18 @@ void LVL1::JEMJetSim::storeBackplaneTOBs() {
 /** place final ROI objects in the TES. */
 void LVL1::JEMJetSim::storeModuleRoIs() {
 
-  MsgStream log( messageService(), name() );
   int outputLevel = msgSvc()->outputLevel( name() );
     
   StatusCode sc = m_storeGate->overwrite(m_allTOBs, m_JEMTobRoILocation,true,false,false);
 
   if (sc.isSuccess()) {
      if (outputLevel <= MSG::VERBOSE)
-         log << MSG::VERBOSE << "Stored " << m_allTOBs->size()
-             << " Jet TOBs at " << m_JEMTobRoILocation << endreq;
+         ATH_MSG_VERBOSE("Stored " << m_allTOBs->size()
+             << " Jet TOBs at " << m_JEMTobRoILocation );
   }
   else {
-     log << MSG::ERROR << "failed to write JEMTobRoIs to  "
-         << m_JEMTobRoILocation << endreq;
+     ATH_MSG_ERROR("failed to write JEMTobRoIs to  "
+         << m_JEMTobRoILocation );
   } 
 
   return;
@@ -284,7 +278,6 @@ void LVL1::JEMJetSim::storeModuleRoIs() {
 
 /** print trigger configuration, for debugging purposes */
 void LVL1::JEMJetSim::printTriggerMenu(){
-  MsgStream log( messageService(), name() );
   
   /** This is all going to need updating for the new menu structure.
       Comment out in the meanwhile 
@@ -299,22 +292,22 @@ void LVL1::JEMJetSim::printTriggerMenu(){
          (*it)->type() == def.fjetType()  ||
          (*it)->type() == def.jfType()  ||
          (*it)->type() == def.jbType()) {
-      log << MSG::DEBUG << "TriggerThreshold " << (*it)->id() << " has name " << (*it)->name() << endreq
+      ATH_MSG_DEBUG("TriggerThreshold " << (*it)->id() << " has name " << (*it)->name() << endreq
           << "  threshold number " << (*it)->thresholdNumber() << endreq
-          << "  number of values = " << (*it)->numberofValues() << endreq;
+          << "  number of values = " << (*it)->numberofValues() );
       for (std::vector<TrigConf::TriggerThresholdValue*>::const_iterator tv = (*it)->thresholdValueVector().begin();
            tv != (*it)->thresholdValueVector().end(); ++tv) {
         TrigConf::JetThresholdValue* jtv;
         jtv = dynamic_cast<JetThresholdValue*> (*tv);
         if (!jtv) {
-          log << MSG::ERROR << "Threshold type name is Jet, but is not a JetThreshold object!" << endreq;
+          ATH_MSG_ERROR("Threshold type name is Jet, but is not a JetThreshold object!" );
           continue;
         }
-        log << MSG::DEBUG << "JetThresholdValue: " << endreq
+        ATH_MSG_DEBUG("JetThresholdValue: " << endreq
             << "  Type = " << (*it)->type() << endreq
             << "  Threshold value = " << jtv->thresholdValueCount() << endreq
             << "  Cluster size = " << jtv->window() << endreq
-            << "  EtaMin = " << jtv->etamin() << ", EtaMax = " << jtv->etamax() << endreq;
+            << "  EtaMin = " << jtv->etamin() << ", EtaMax = " << jtv->etamax() );
         
       } // end of loop over threshold values
       numThresh++;

@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "DataModel/DataVector.h"
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -33,7 +33,7 @@ class EmTauROI;
  *  @author Peter Faulkner
  */
 
-class CPCMMMaker : public Algorithm {
+class CPCMMMaker : public AthAlgorithm {
 
  public:
    CPCMMMaker(const std::string& name, ISvcLocator* pSvcLocator);

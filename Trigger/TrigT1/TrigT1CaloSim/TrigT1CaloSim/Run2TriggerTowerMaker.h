@@ -237,7 +237,8 @@ private:
     int slope;
     int FIRsum;
     int offset;
-    int thresh;
+    int thresh_cp;
+    int thresh_jep;
 
     // BCID decisions
     int EnergyLow;
@@ -250,8 +251,9 @@ private:
 
   // the two following should be added to struct ElementInfo, but can't because
   // they need to be initialized by @declareProperty
-  /** For full granularity eta-binned noise cuts */
-  std::array<std::vector<int>, s_NLAYER> m_ThresholdElement;
+  /** For full granularity eta-binned noise cuts individually for CP and JEP */
+  std::array<std::vector<int>, s_NLAYER> m_ThresholdElementCP;
+  std::array<std::vector<int>, s_NLAYER> m_ThresholdElementJEP;
   /** LUT calibration rescaling - either relative to nominal or fully manual,
       depending on the AutoCalibrateLUT setting  */
   std::array<std::vector<double>, s_NLAYER> m_CalibLUTElement;

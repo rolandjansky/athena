@@ -68,7 +68,7 @@ namespace LVL1{
 
 Tester::Tester
   ( const std::string& name, ISvcLocator* pSvcLocator ) 
-    : Algorithm( name, pSvcLocator ), 
+    : AthAlgorithm( name, pSvcLocator ), 
       m_storeGate("StoreGateSvc", name),
       m_VectorOfEmTauROIs(0),
       m_EmTauSlinkLocation(TrigT1CaloDefs::EmTauSlinkLocation),
@@ -123,8 +123,7 @@ Tester::Tester
 
 // Destructor
 Tester::~Tester() {
-    MsgStream log( messageService(), name() ) ;
-    log << MSG::INFO << "Destructor called" << endreq;
+    ATH_MSG_INFO( "Destructor called" );
 } 
 
 
@@ -137,15 +136,14 @@ StatusCode Tester::initialize()
 
   // We must here instantiate items which can only be made after
   // any job options have been set
-  MsgStream log( messageService(), name() ) ;
 
   StatusCode sc = m_storeGate.retrieve();
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't connect to " << m_storeGate.typeAndName() 
-        << endreq;
+    ATH_MSG_ERROR( "Couldn't connect to " << m_storeGate.typeAndName() 
+        );
   } else {
-    log << MSG::DEBUG << "Connected to " << m_storeGate.typeAndName() 
-        << endreq;
+    ATH_MSG_DEBUG( "Connected to " << m_storeGate.typeAndName() 
+        );
   }
 
   return StatusCode::SUCCESS ;
@@ -158,13 +156,12 @@ StatusCode Tester::initialize()
 
 StatusCode Tester::finalize()
 {
-   MsgStream log( messageService(), name() ) ;
-   log << MSG::INFO << "Finalizing" << endreq;
-	 log << MSG::INFO << "TOTAL ERRORS : " <<m_numberOfErrors<<" out of "<<m_numberOfEvents<<" examined events."<< endreq;
+   ATH_MSG_INFO( "Finalizing" );
+	 ATH_MSG_INFO( "TOTAL ERRORS : " <<m_numberOfErrors<<" out of "<<m_numberOfEvents<<" examined events.");
 	 
 	
    for( std::vector<int>::const_iterator it= m_eventsWithErrors.begin(); it < m_eventsWithErrors.end(); ++it){
-	   log << MSG::DEBUG<<"Error in event :"<<std::ios::dec<<(*it)<<endreq;
+	   ATH_MSG_DEBUG("Error in event :"<<std::ios::dec<<(*it));
    }
 
    return StatusCode::SUCCESS ;
@@ -183,8 +180,7 @@ StatusCode Tester::execute( )
   //................................
   // make a message logging stream
 
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::DEBUG << "Executing" << endreq;
+  ATH_MSG_DEBUG( "Executing" );
 
 
 	m_numberOfEvents++;
@@ -216,7 +212,6 @@ StatusCode Tester::execute( )
 }
 
 void LVL1::Tester::loadTriggerTowers(){
-//  MsgStream log( messageService(), name() ) ;
 //
 //  typedef DataVector<LVL1::TriggerTower> t_TTCollection ;
 //  DataHandle<t_TTCollection> TTVector;
@@ -225,7 +220,7 @@ void LVL1::Tester::loadTriggerTowers(){
 //    log << MSG::ERROR
 //        << "No TriggerTowers found in TES at "
 //        << m_TriggerTowerLocation
-//        << endreq ;
+//        );
 //    return;
 //  }
 //
@@ -233,7 +228,7 @@ void LVL1::Tester::loadTriggerTowers(){
 //      << "Got "
 //      << TTVector->size()
 //      << " Trigger Towers from TES"
-//      << endreq ;
+//      );
 //
 //
 //  return;
@@ -241,57 +236,46 @@ void LVL1::Tester::loadTriggerTowers(){
 
 /** prints useful TriggerTower values*/
 void LVL1::Tester::printTriggerTowerValues(){
-	  MsgStream log( messageService(), name() ) ;
 
 typedef DataVector<LVL1::TriggerTower> t_TTCollection ;
   const t_TTCollection* TTVector;
 
   if( m_storeGate->retrieve(TTVector, m_TriggerTowerLocation).isFailure() ){
-    log << MSG::DEBUG
-        << "No TriggerTowers found in TES at "
-        << m_TriggerTowerLocation
-        << endreq ;
+    ATH_MSG_DEBUG( "No TriggerTowers found in TES at "
+                   << m_TriggerTowerLocation );
   return;
   }
 
-  log << MSG::INFO
-      << "Got "
-      << TTVector->size()
-      << " Trigger Towers from TES"
-      << endreq ;
+  ATH_MSG_INFO( "Got " << TTVector->size()
+      << " Trigger Towers from TES" );
 
 	// Step over all TTs and print values...
   t_TTCollection::const_iterator it ;
 
   for( it  = TTVector->begin(); it < TTVector->end(); ++it ){
-	  log << MSG::INFO<<"TT has coords ("<<(*it)->phi()<<", "<<(*it)->eta()
-		    << " and energies : "<<(*it)->emEnergy()<<", "<<(*it)->hadEnergy()<<" (Em,Had)"<<endreq;
+	  ATH_MSG_INFO("TT has coords ("<<(*it)->phi()<<", "<<(*it)->eta()
+		    << " and energies : "<<(*it)->emEnergy()<<", "<<(*it)->hadEnergy()<<" (Em,Had)");
 	}//end it for-loop
 }//end of printTTs
 
 /** loads the EmTauROIs from the TES.*/
 void LVL1::Tester::loadEmTauROIs(){
-  MsgStream log( messageService(), name() ) ;
 
   const t_EmTauROICollection* ROIs;
   StatusCode sc1 = m_storeGate->retrieve(ROIs, m_EmTauROILocation);
 
   if( ! ROIs ) {
-    log << MSG::DEBUG
-        << "No ROIs found in TES at "
-        << m_EmTauROILocation
-        << endreq ;
-        return;
+    ATH_MSG_DEBUG( "No ROIs found in TES at "
+            << m_EmTauROILocation  );
+    return;
   } else {
-    log << MSG::DEBUG
-        << "Found "<<ROIs->size()
-        << " ROI(s)"<<endreq;
+    ATH_MSG_DEBUG("Found "<<ROIs->size() << " ROI(s)");
 
     t_EmTauROICollection::const_iterator it ;
 
     for( it  = ROIs->begin(); it < ROIs->end(); ++it){
        int tempROIword=(*it)->roiWord();
-       log << MSG::DEBUG<<"ROI has ROIword : " << std::hex
+       ATH_MSG_DEBUG("ROI has ROIword : " << std::hex
            <<  tempROIword << std::dec << endreq
            << "eta         : " << (*it)->eta() << endreq
            << "phi         : " << (*it)->phi() << endreq
@@ -300,7 +284,7 @@ void LVL1::Tester::loadEmTauROIs(){
            << "Tau cluster : " << (*it)->tauClusterEnergy() << endreq
            << "EM isol     : " << (*it)->emRingIsolationEnergy() << endreq
            << "Had isol    : " << (*it)->hadRingIsolationEnergy() << endreq
-           << "Had veto    : " << (*it)->hadCoreEnergy() << endreq;
+           << "Had veto    : " << (*it)->hadCoreEnergy() );
        //m_generatedROIWords.push_back(tempROIword);
     }
   }
@@ -309,7 +293,7 @@ void LVL1::Tester::loadEmTauROIs(){
   
   StatusCode sc = m_EmTauTool.retrieve();
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Problem retrieving EmTauTool" << endreq;
+    ATH_MSG_ERROR( "Problem retrieving EmTauTool" );
   }
   else {
     const DataVector<LVL1::TriggerTower>* TTVector;
@@ -318,7 +302,7 @@ void LVL1::Tester::loadEmTauROIs(){
       m_EmTauTool->findRoIs(TTVector,rois);
       DataVector<CPAlgorithm>::iterator cpw = rois->begin();
       for ( ; cpw != rois->end(); cpw++) {
-        log << MSG::DEBUG<<"CPAlgorithm has properties : " << std::hex
+        ATH_MSG_DEBUG("CPAlgorithm has properties : " << std::hex
            << "RoIWord     : " << std::hex << (*cpw)->RoIWord() << std::dec << endreq
            << "eta         : " << (*cpw)->eta() << endreq
            << "phi         : " << (*cpw)->phi() << endreq
@@ -327,7 +311,7 @@ void LVL1::Tester::loadEmTauROIs(){
            << "Tau cluster : " << (*cpw)->TauClus() << endreq
            << "EM isol     : " << (*cpw)->EMIsol() << endreq
            << "Had isol    : " << (*cpw)->HadIsol() << endreq
-           << "Had veto    : " << (*cpw)->HadVeto() << endreq;
+           << "Had veto    : " << (*cpw)->HadVeto() );
       }
       delete rois;
     }
@@ -338,23 +322,20 @@ void LVL1::Tester::loadEmTauROIs(){
 
 /** loads the Actual ROI words from the TES.*/
 void LVL1::Tester::loadActualROIWord(){
-	MsgStream log( messageService(), name() ) ;
 	char line[60]="";    // to read a line into
   long lineNumber=0;
   int numRows=2;
 
-  log<< MSG::DEBUG <<"Trying to open input file " << m_actualROIWordLocation.c_str() << endreq ;
+  ATH_MSG_DEBUG("Trying to open input file " << m_actualROIWordLocation.c_str() );
   std::ifstream in( m_actualROIWordLocation.c_str() );
   if (!in){
-    log << MSG::FATAL << "Could not find ROI words in "<<m_actualROIWordLocation.c_str() << endreq;
+    ATH_MSG_FATAL( "Could not find ROI words in "<<m_actualROIWordLocation.c_str() );
     return;
   }else{
   	TriggerTowerKey get(0.0, 0.0);
 
 
-  	log << MSG::DEBUG
-      	<< "Event Number : "<<std::ios::dec<<m_eventNumber
-	    	<<endreq;
+  	ATH_MSG_DEBUG("Event Number : "<<std::ios::dec<<m_eventNumber);
 
   	while ( lineNumber < ((m_eventNumber-1)*3) ){
     	in.getline(line,50);
@@ -374,10 +355,10 @@ void LVL1::Tester::loadActualROIWord(){
 			input &= 0x0000FFFF;
 
 			if (input>0){
-    		log << MSG::DEBUG
-	      		<< " LineNumber : "<<std::ios::dec<<lineNumber
+    		ATH_MSG_DEBUG(
+			   " LineNumber : "<<std::ios::dec<<lineNumber
 	      		<< " ROIword : "<<std::ios::dec<<input<<" and in hex : "<<std::ios::hex<<input
-	      		<<endreq;
+	      		);
 				m_actualROIWords.push_back(input);
 			}
   	} // end phi for loop
@@ -387,15 +368,14 @@ void LVL1::Tester::loadActualROIWord(){
 
 /** Compares generated ROIwords with actual ROIwords and checks to make sure they are the same.*/
 void LVL1::Tester::compareROIWords(){
-	MsgStream log( messageService(), name() ) ;
 	if (m_actualROIWords.size()!=m_generatedROIWords.size()){
-		log<< MSG::FATAL <<"Different numbers of ROI words in generated and actual data!" << endreq;
+		ATH_MSG_FATAL( "Different numbers of ROI words in generated and actual data!" );
 	}else{
 		sort(m_actualROIWords.begin(), m_actualROIWords.end());
 		sort(m_generatedROIWords.begin(), m_generatedROIWords.end());
 		if (equal(m_actualROIWords.begin(), m_actualROIWords.end(),m_generatedROIWords.begin() )){
 		}else{
-			log<< MSG::INFO <<"ROIWords do not match!!!!!!!!!!!!!!!!!!!!!" << endreq;
+			ATH_MSG_INFO("ROIWords do not match!!!!!!!!!!!!!!!!!!!!!" );
 			m_numberOfErrors++;
 			m_eventsWithErrors.push_back(m_eventNumber);
 		}
@@ -405,7 +385,6 @@ void LVL1::Tester::compareROIWords(){
 
 /** loads the EmTauROIs from the TES.*/
 void LVL1::Tester::testJetTool(){
-  MsgStream log( messageService(), name() ) ;
 
   const t_JetROICollection* ROIs;
   StatusCode sc1 = m_storeGate->retrieve(ROIs, m_JetROILocation);
@@ -419,38 +398,33 @@ void LVL1::Tester::testJetTool(){
   }
 
   if( ! ROIs ) {
-    log << MSG::DEBUG
-        << "No ROIs found in TES at "
-        << m_JetROILocation
-        << endreq ;
+    ATH_MSG_DEBUG("No ROIs found in TES at "<< m_JetROILocation);
 	delete jetInputs;
         return;
   } else {
-    log << MSG::DEBUG
-        << "Found "<<ROIs->size()
-        << " ROI(s)"<<endreq;
+    ATH_MSG_DEBUG("Found "<<ROIs->size() << " ROI(s)");
 
     t_JetROICollection::const_iterator it ;
 
     for( it  = ROIs->begin(); it < ROIs->end(); ++it){
        int tempROIword=(*it)->roiWord();
-       log << MSG::DEBUG<<"ROI has ROIword : " << std::hex
+       ATH_MSG_DEBUG("ROI has ROIword : " << std::hex
            <<  tempROIword << std::dec << endreq
            << "eta         : " << (*it)->eta() << endreq
            << "phi         : " << (*it)->phi() << endreq
            << "ET 4x4      : " << (*it)->clusterEnergy4() << endreq
            << "ET 6x6      : " << (*it)->clusterEnergy6() << endreq
-           << "ET 8x8      : " << (*it)->clusterEnergy8() << endreq;
+           << "ET 8x8      : " << (*it)->clusterEnergy8() );
        if (scTool.isSuccess()) {
          JetAlgorithm test = m_JetTool->findRoI((*it)->eta(), (*it)->phi(), jetInputs);
-         log << MSG::DEBUG << "JetAlgorithm gives: " << endreq
+         ATH_MSG_DEBUG( "JetAlgorithm gives: " << endreq
              << "ROIword     : " << test.RoIWord() << endreq
              << "isEtMax     : " << test.isEtMax() << endreq
              << "eta         : " << test.eta() << endreq
              << "phi         : " << test.phi() << endreq
              << "ET 4x4      : " << test.ET4x4() << endreq
              << "ET 6x6      : " << test.ET6x6() << endreq
-             << "ET 8x8      : " << test.ET8x8() << endreq;
+             << "ET 8x8      : " << test.ET8x8() );
        }
     }
   }
@@ -462,13 +436,13 @@ void LVL1::Tester::testJetTool(){
     m_JetTool->findRoIs(storedJEs, rois);
     DataVector<JetAlgorithm>::iterator cpw = rois->begin();
     for ( ; cpw != rois->end(); cpw++) {
-        log << MSG::DEBUG<<"JetAlgorithm has properties : " << endreq << std::hex
+        ATH_MSG_DEBUG("JetAlgorithm has properties : " << endreq << std::hex
            << "RoIWord     : " << std::hex << (*cpw)->RoIWord() << std::dec << endreq
            << "eta         : " << (*cpw)->eta() << endreq
            << "phi         : " << (*cpw)->phi() << endreq
            << "ET 4x4      : " << (*cpw)->ET4x4() << endreq
            << "ET 6x6      : " << (*cpw)->ET6x6() << endreq
-           << "ET 8x8      : " << (*cpw)->ET8x8() << endreq;
+           << "ET 8x8      : " << (*cpw)->ET8x8() );
     }
     delete rois;
   }
@@ -481,31 +455,25 @@ void LVL1::Tester::testJetTool(){
 
 /** prints useful TriggerTower values*/
 void LVL1::Tester::dumpEDM(){
-  MsgStream log( messageService(), name() ) ;
 
   typedef DataVector<LVL1::TriggerTower> t_TTCollection ;
   const t_TTCollection* TTVector;
 
   if( m_storeGate->retrieve(TTVector, m_TriggerTowerLocation).isFailure() ){
-    log << MSG::INFO
-        << "No TriggerTowers found in TES at "
-        << m_TriggerTowerLocation
-        << endreq ;
+    ATH_MSG_INFO("No TriggerTowers found in TES at "
+        << m_TriggerTowerLocation);
   }
   else {
 
-    log << MSG::INFO
-        << "Got "
-        << TTVector->size()
-        << " Trigger Towers from TES"
-        << endreq ;
+    ATH_MSG_INFO( "Got " << TTVector->size()
+                  << " Trigger Towers from TES");
 
         // Step over all TTs and print values...
     t_TTCollection::const_iterator it ;
 
     for( it  = TTVector->begin(); it < TTVector->end(); ++it ){
-          log << MSG::INFO<<"TT has coords ("<<(*it)->phi()<<", "<<(*it)->eta()
-                    << " and energies : "<<(*it)->emEnergy()<<", "<<(*it)->hadEnergy()<<" (Em,Had)"<<endreq;
+          ATH_MSG_INFO("TT has coords ("<<(*it)->phi()<<", "<<(*it)->eta()
+                    << " and energies : "<<(*it)->emEnergy()<<", "<<(*it)->hadEnergy()<<" (Em,Had)");
     }//end it for-loop
   }
 
@@ -514,18 +482,18 @@ void LVL1::Tester::dumpEDM(){
   const DataVector<LVL1::CPMTower>* CPMTVector;
 
   if( m_storeGate->retrieve(CPMTVector, TrigT1CaloDefs::CPMTowerLocation).isFailure() ){
-    log << MSG::INFO << "No CPMTowers found in TES at "
-        << TrigT1CaloDefs::CPMTowerLocation << endreq ;
+    ATH_MSG_INFO( "No CPMTowers found in TES at "
+        << TrigT1CaloDefs::CPMTowerLocation );
   }
   else {
  
-    log << MSG::INFO << "Got " << CPMTVector->size() << " CPMTowers from TES" << endreq ;
+    ATH_MSG_INFO( "Got " << CPMTVector->size() << " CPMTowers from TES" );
 
         // Step over all TTs and print values...
     DataVector<LVL1::CPMTower>::const_iterator it2 ;
     for( it2  = CPMTVector->begin(); it2 < CPMTVector->end(); ++it2 ){
-          log << MSG::INFO<<"CPMT has coords ("<<(*it2)->phi()<<", "<<(*it2)->eta()
-                    << " and energies : "<<(*it2)->emEnergy()<<", "<<(*it2)->hadEnergy()<<" (Em,Had)"<<endreq;
+          ATH_MSG_INFO("CPMT has coords ("<<(*it2)->phi()<<", "<<(*it2)->eta()
+                    << " and energies : "<<(*it2)->emEnergy()<<", "<<(*it2)->hadEnergy()<<" (Em,Had)");
     }//end it for-loop
   }
 
@@ -534,17 +502,17 @@ void LVL1::Tester::dumpEDM(){
   const DataVector<LVL1::JetElement>* JEVector;
 
   if( m_storeGate->retrieve(JEVector, TrigT1CaloDefs::JetElementLocation).isFailure() ){
-    log << MSG::INFO << "No JetElements found in TES at "
-        << TrigT1CaloDefs::JetElementLocation << endreq ;
+    ATH_MSG_INFO( "No JetElements found in TES at "
+        << TrigT1CaloDefs::JetElementLocation );
   }
   else {
-    log << MSG::INFO << "Got " << JEVector->size() << " JetElements from TES" << endreq ;
+    ATH_MSG_INFO( "Got " << JEVector->size() << " JetElements from TES" );
 
         // Step over all TTs and print values...
     DataVector<LVL1::JetElement>::const_iterator it3 ;
     for( it3 = JEVector->begin(); it3 < JEVector->end(); ++it3 ){
-          log << MSG::INFO<<"JE has coords ("<<(*it3)->phi()<<", "<<(*it3)->eta()
-                    << " and energies : "<<(*it3)->emEnergy()<<", "<<(*it3)->hadEnergy()<<" (Em,Had)"<<endreq;
+          ATH_MSG_INFO("JE has coords ("<<(*it3)->phi()<<", "<<(*it3)->eta()
+                    << " and energies : "<<(*it3)->emEnergy()<<", "<<(*it3)->hadEnergy()<<" (Em,Had)");
     }//end it for-loop
   }
 
@@ -553,20 +521,20 @@ void LVL1::Tester::dumpEDM(){
   const DataVector<LVL1::CPMHits>* CPMHVector;
 
   if( m_storeGate->retrieve(CPMHVector, TrigT1CaloDefs::CPMHitsLocation).isFailure() ){
-    log << MSG::INFO << "No CPMHits found in TES at "
-        << TrigT1CaloDefs::CPMHitsLocation << endreq ;
+    ATH_MSG_INFO( "No CPMHits found in TES at "
+        << TrigT1CaloDefs::CPMHitsLocation );
   }
   else {
   
-    log << MSG::INFO << "Got " << CPMHVector->size() << " CPMHits from TES" << endreq ;
+    ATH_MSG_INFO( "Got " << CPMHVector->size() << " CPMHits from TES" );
 
         // Step over all TTs and print values...
     DataVector<LVL1::CPMHits>::const_iterator it4 ;
     for( it4 = CPMHVector->begin(); it4 < CPMHVector->end(); ++it4 ){
-          log << MSG::INFO<<"CPMHits from crate "<<(*it4)->crate()
+          ATH_MSG_INFO("CPMHits from crate "<<(*it4)->crate()
                     <<" module "<<(*it4)->module() << " hitwords : "
                     << std::hex << (*it4)->HitWord0()<<", "<<(*it4)->HitWord1()
-                    << std::dec <<endreq;
+                    << std::dec );
     }//end it for-loop
   }
  
@@ -575,20 +543,20 @@ void LVL1::Tester::dumpEDM(){
   const DataVector<LVL1::CPMRoI>* CPMRVector;
 
   if( m_storeGate->retrieve(CPMRVector, TrigT1CaloDefs::CPMRoILocation).isFailure() ){
-    log << MSG::INFO << "No CPMRoIs found in TES at "
-        << TrigT1CaloDefs::CPMRoILocation << endreq ;
+    ATH_MSG_INFO( "No CPMRoIs found in TES at "
+        << TrigT1CaloDefs::CPMRoILocation );
   }
   else {
 
-    log << MSG::INFO << "Got " << CPMRVector->size() << " CPMRoIs from TES" << endreq ;
+    ATH_MSG_INFO( "Got " << CPMRVector->size() << " CPMRoIs from TES" );
 
         // Step over all TTs and print values...
     DataVector<LVL1::CPMRoI>::const_iterator it5 ;
     for( it5 = CPMRVector->begin(); it5 < CPMRVector->end(); ++it5 ){
-          log << MSG::INFO << "CPMRoI from crate " << (*it5)->crate()
+          ATH_MSG_INFO( "CPMRoI from crate " << (*it5)->crate()
                     <<" module " << (*it5)->cpm() << " chip " << (*it5)->chip()
                     << " LC " << (*it5)->location()
-                    << " word " << std::hex << (*it5)->hits() << std::dec <<endreq;
+                    << " word " << std::hex << (*it5)->hits() << std::dec );
     }//end it for-loop
   }
 
@@ -598,20 +566,20 @@ void LVL1::Tester::dumpEDM(){
   const DataVector<LVL1::CMMCPHits>* CMMCPHVector;
 
   if( m_storeGate->retrieve(CMMCPHVector, TrigT1CaloDefs::CMMCPHitsLocation).isFailure() ){
-    log << MSG::INFO << "No CMMCPHits found in TES at "
-        << TrigT1CaloDefs::CMMCPHitsLocation << endreq ;
+    ATH_MSG_INFO( "No CMMCPHits found in TES at "
+        << TrigT1CaloDefs::CMMCPHitsLocation );
   }
   else {
   
-    log << MSG::INFO << "Got " << CMMCPHVector->size() << " CMMCPHits from TES" << endreq ;
+    ATH_MSG_INFO( "Got " << CMMCPHVector->size() << " CMMCPHits from TES" );
 
         // Step over all TTs and print values...
     DataVector<LVL1::CMMCPHits>::const_iterator it6;
     for( it6 = CMMCPHVector->begin(); it6 < CMMCPHVector->end(); ++it6 ){
-          log << MSG::INFO<<"CMMCPHits from crate "<<(*it6)->crate()
+          ATH_MSG_INFO("CMMCPHits from crate "<<(*it6)->crate()
                     <<" dataID "<<(*it6)->dataID() << " hitwords : "
                     << std::hex << (*it6)->HitWord0()<<", "<<(*it6)->HitWord1()
-                    << std::dec <<endreq;
+                    << std::dec );
     }//end it for-loop
   }
 
@@ -620,20 +588,20 @@ void LVL1::Tester::dumpEDM(){
   const DataVector<LVL1::CMMJetHits>* CMMJHVector;
 
   if( m_storeGate->retrieve(CMMJHVector, TrigT1CaloDefs::CMMJetHitsLocation).isFailure() ){
-    log << MSG::INFO << "No CMMJetHits found in TES at "
-        << TrigT1CaloDefs::CMMJetHitsLocation << endreq ;
+    ATH_MSG_INFO( "No CMMJetHits found in TES at "
+        << TrigT1CaloDefs::CMMJetHitsLocation );
   }
   else {
 
-    log << MSG::INFO << "Got " << CMMJHVector->size() << " CMMJetHits from TES" << endreq ;
+    ATH_MSG_INFO( "Got " << CMMJHVector->size() << " CMMJetHits from TES" );
 
         // Step over all TTs and print values...
     DataVector<LVL1::CMMJetHits>::const_iterator it7;
     for( it7 = CMMJHVector->begin(); it7 < CMMJHVector->end(); ++it7 ){
-          log << MSG::INFO<<"CMMJetHits from crate "<<(*it7)->crate()
+          ATH_MSG_INFO("CMMJetHits from crate "<<(*it7)->crate()
                     <<" dataID "<<(*it7)->dataID() << " hitwords : "
                     << std::hex << (*it7)->Hits()
-                    << std::dec <<endreq;
+                    << std::dec );
     }//end it for-loop
   }
 
@@ -642,20 +610,20 @@ void LVL1::Tester::dumpEDM(){
   const DataVector<LVL1::CMMEtSums>* CMMESVector;
 
   if( m_storeGate->retrieve(CMMESVector, TrigT1CaloDefs::CMMEtSumsLocation).isFailure() ){
-    log << MSG::INFO << "No CMMEtSums found in TES at "
-        << TrigT1CaloDefs::CMMEtSumsLocation << endreq ;
+    ATH_MSG_INFO( "No CMMEtSums found in TES at "
+        << TrigT1CaloDefs::CMMEtSumsLocation );
   }
   else {
 
-    log << MSG::INFO << "Got " << CMMESVector->size() << " CMMEtSums from TES" << endreq ;
+    ATH_MSG_INFO( "Got " << CMMESVector->size() << " CMMEtSums from TES" );
 
         // Step over all TTs and print values...
     DataVector<LVL1::CMMEtSums>::const_iterator it8;
     for( it8 = CMMESVector->begin(); it8 < CMMESVector->end(); ++it8 ){
-          log << MSG::INFO<<"CMMEtSums from crate "<<(*it8)->crate()
+          ATH_MSG_INFO("CMMEtSums from crate "<<(*it8)->crate()
                     <<" dataID "<<(*it8)->dataID() << " ET: "
                     << (*it8)->Et() << " Ex: " << (*it8)->Ex() << " Ey: " << (*it8)->Ey()
-                    <<endreq;
+                    );
     }//end it for-loop
   }
 
@@ -664,20 +632,20 @@ void LVL1::Tester::dumpEDM(){
   const DataVector<LVL1::JEMHits>* JEMHVector;
 
   if( m_storeGate->retrieve(JEMHVector, TrigT1CaloDefs::JEMHitsLocation).isFailure() ){
-    log << MSG::INFO << "No JEMHits found in TES at "
-        << TrigT1CaloDefs::JEMHitsLocation << endreq ;
+    ATH_MSG_INFO( "No JEMHits found in TES at "
+        << TrigT1CaloDefs::JEMHitsLocation );
   }
   else {
 
-    log << MSG::INFO << "Got " << JEMHVector->size() << " JEMHits from TES" << endreq ;
+    ATH_MSG_INFO( "Got " << JEMHVector->size() << " JEMHits from TES" );
 
         // Step over all TTs and print values...
     DataVector<LVL1::JEMHits>::const_iterator it9 ;
     for( it9 = JEMHVector->begin(); it9 < JEMHVector->end(); ++it9 ){
-          log << MSG::INFO<<"JEMHits from crate "<<(*it9)->crate()
+          ATH_MSG_INFO("JEMHits from crate "<<(*it9)->crate()
                     <<" module "<<(*it9)->module() << " hitword : "
                     << std::hex << (*it9)->JetHits()
-                    << std::dec <<endreq;
+                    << std::dec );
     }//end it for-loop
   }
 
@@ -686,20 +654,20 @@ void LVL1::Tester::dumpEDM(){
   const DataVector<LVL1::JEMEtSums>* JEMESVector;
 
   if( m_storeGate->retrieve(JEMESVector, TrigT1CaloDefs::JEMEtSumsLocation).isFailure() ){
-    log << MSG::INFO << "No JEMEtSums found in TES at "
-        << TrigT1CaloDefs::JEMEtSumsLocation << endreq ;
+    ATH_MSG_INFO( "No JEMEtSums found in TES at "
+        << TrigT1CaloDefs::JEMEtSumsLocation );
   }
   else {
 
-    log << MSG::INFO << "Got " << JEMESVector->size() << " JEMEtSums from TES" << endreq ;
+    ATH_MSG_INFO( "Got " << JEMESVector->size() << " JEMEtSums from TES" );
 
         // Step over all TTs and print values...
     DataVector<LVL1::JEMEtSums>::const_iterator it10;
     for( it10 = JEMESVector->begin(); it10 < JEMESVector->end(); ++it10 ){
-          log << MSG::INFO<<"JEMEtSums from crate "<<(*it10)->crate()
+          ATH_MSG_INFO("JEMEtSums from crate "<<(*it10)->crate()
                     <<" module "<<(*it10)->module() << " ET: "
                     << (*it10)->Et() << " Ex: " << (*it10)->Ex() << " Ey: " << (*it10)->Ey()
-                    <<endreq;
+                    );
     }//end it for-loop
   }
  
@@ -708,20 +676,20 @@ void LVL1::Tester::dumpEDM(){
   const DataVector<LVL1::JEMRoI>* JEMRVector;
 
   if( m_storeGate->retrieve(JEMRVector, TrigT1CaloDefs::JEMRoILocation).isFailure() ){
-    log << MSG::INFO << "No JEMRoIs found in TES at "
-        << TrigT1CaloDefs::JEMRoILocation << endreq ;
+    ATH_MSG_INFO( "No JEMRoIs found in TES at "
+        << TrigT1CaloDefs::JEMRoILocation );
   }
   else {
   
-    log << MSG::INFO << "Got " << JEMRVector->size() << " JEMRoIs from TES" << endreq ;
+    ATH_MSG_INFO( "Got " << JEMRVector->size() << " JEMRoIs from TES" );
 
         // Step over all TTs and print values...
     DataVector<LVL1::JEMRoI>::const_iterator it11 ;
     for( it11 = JEMRVector->begin(); it11 < JEMRVector->end(); ++it11 ){
-          log << MSG::INFO << "JEMRoI from crate " << (*it11)->crate()
+          ATH_MSG_INFO( "JEMRoI from crate " << (*it11)->crate()
                     <<" module " << (*it11)->jem() << " frame " << (*it11)->frame()
                     << " LC " << (*it11)->location()
-                    << " hits " << std::hex << (*it11)->hits() << std::dec <<endreq;
+                    << " hits " << std::hex << (*it11)->hits() << std::dec );
     }//end it for-loop
   }
 
@@ -730,27 +698,27 @@ void LVL1::Tester::dumpEDM(){
   const DataVector<CPMTobRoI>* cpmtobrois;
 
   if( m_storeGate->retrieve(cpmtobrois, m_CPMTobRoILocation).isFailure() ){
-    log << MSG::INFO << "No CPMTobRoI found in TES at "
-        << m_CPMTobRoILocation << endreq ;
+    ATH_MSG_INFO( "No CPMTobRoI found in TES at "
+        << m_CPMTobRoILocation );
   }
   else {
   
-    log << MSG::INFO << "Got " << cpmtobrois->size() << " CPMTobRoI from TES" << endreq ;
+    ATH_MSG_INFO( "Got " << cpmtobrois->size() << " CPMTobRoI from TES" );
 
     // print values...
     DataVector<LVL1::CPMTobRoI>::const_iterator itcp ;
     for( itcp = cpmtobrois->begin(); itcp < cpmtobrois->end(); ++itcp ) {
-        log << MSG::INFO << std::hex
+        ATH_MSG_INFO( std::hex
                    << "RoI Word " << (*itcp)->roiWord()
                    << std::dec << " Crate = "
 		   << (*itcp)->crate() << ", Module = " << (*itcp)->cpm()
 		   << ", Chip = " << (*itcp)->chip() 
 		   << ", Coordinate = " << (*itcp)->location()
-		   << endreq;
-        log << MSG::INFO << " ET " << (*itcp)->energy()
+		   );
+        ATH_MSG_INFO( " ET " << (*itcp)->energy()
                    << " Isolation " << std::hex << (*itcp)->isolation() << std::dec
                    << " Type = " << (*itcp)->type()
-                   <<endreq;
+                   );
     }
     
   }
@@ -760,24 +728,22 @@ void LVL1::Tester::dumpEDM(){
   const DataVector<CPMCMXData>* emcmx;
 
   if( m_storeGate->retrieve(emcmx, m_CPMCMXDataLocation).isFailure() ){
-    log << MSG::INFO << "No CPMCMXData found in TES at "
-        << m_CPMCMXDataLocation << endreq ;
+    ATH_MSG_INFO( "No CPMCMXData found in TES at "
+        << m_CPMCMXDataLocation );
   }
   else {
   
-    log << MSG::INFO << "Got " << emcmx->size() << " CPMCMXData from TES" << endreq ;
+    ATH_MSG_INFO( "Got " << emcmx->size() << " CPMCMXData from TES" );
 
     // print values...
     DataVector<LVL1::CPMCMXData>::const_iterator item ;
     for( item = emcmx->begin(); item < emcmx->end(); ++item ) {
-        log << MSG::INFO
-                   << " Crate = " << (*item)->crate() << ", Module = " << (*item)->module()
-		   << ", Type = " << (*item)->type() 
-		   << endreq;
+        ATH_MSG_INFO( " Crate = " << (*item)->crate() << ", Module = " << (*item)->module()
+		          << ", Type = " << (*item)->type() );
 	std::vector<unsigned int> data = (*item)->DataWords();
-        log << MSG::INFO << " Map " << std::hex << (*item)->presenceMap() << std::dec << endreq;
-	log << MSG::INFO << " Data : " << std::hex << data[0] << "  " << data[1]
-	                 << "  " << data[2] << "  " << data[3] << std::dec << endreq;
+        ATH_MSG_INFO( " Map " << std::hex << (*item)->presenceMap() << std::dec );
+	ATH_MSG_INFO( " Data : " << std::hex << data[0] << "  " << data[1]
+	                 << "  " << data[2] << "  " << data[3] << std::dec );
     }
     
   }
@@ -788,26 +754,26 @@ void LVL1::Tester::dumpEDM(){
   const DataVector<JEMTobRoI>* jemtobrois;
 
   if( m_storeGate->retrieve(jemtobrois, m_JEMTobRoILocation).isFailure() ){
-    log << MSG::INFO << "No JEMTobRoI found in TES at "
-        << m_JEMTobRoILocation << endreq ;
+    ATH_MSG_INFO( "No JEMTobRoI found in TES at "
+        << m_JEMTobRoILocation );
   }
   else {
   
-    log << MSG::INFO << "Got " << jemtobrois->size() << " JEMTobRoI from TES" << endreq ;
+    ATH_MSG_INFO( "Got " << jemtobrois->size() << " JEMTobRoI from TES" );
 
     // print values...
     DataVector<LVL1::JEMTobRoI>::const_iterator itje ;
     for( itje = jemtobrois->begin(); itje < jemtobrois->end(); ++itje ) {
-        log << MSG::INFO << std::hex
+        ATH_MSG_INFO( std::hex
                    << "RoI Word " << (*itje)->roiWord()
                    << std::dec << " Crate = "
 		   << (*itje)->crate() << ", Module = " << (*itje)->jem()
 		   << ", Frame = " << (*itje)->frame() 
 		   << ", Coordinate = " << (*itje)->location()
-		   << endreq;
-        log << MSG::INFO << " ETLarge = " << (*itje)->energyLarge()
+		   );
+        ATH_MSG_INFO( " ETLarge = " << (*itje)->energyLarge()
                    << " ETSmall = " << (*itje)->energySmall()
-                   <<endreq;
+                   );
     }
     
   }
@@ -817,23 +783,21 @@ void LVL1::Tester::dumpEDM(){
   const DataVector<JetCMXData>* jetcmx;
 
   if( m_storeGate->retrieve(jetcmx, m_JetCMXDataLocation).isFailure() ){
-    log << MSG::INFO << "No JetCMXData found in TES at "
-        << m_JetCMXDataLocation << endreq ;
+    ATH_MSG_INFO( "No JetCMXData found in TES at "
+        << m_JetCMXDataLocation );
   }
   else {
   
-    log << MSG::INFO << "Got " << jetcmx->size() << " JetCMXData from TES" << endreq ;
+    ATH_MSG_INFO( "Got " << jetcmx->size() << " JetCMXData from TES" );
 
     // print values...
     DataVector<LVL1::JetCMXData>::const_iterator itjetcmx ;
     for( itjetcmx = jetcmx->begin(); itjetcmx < jetcmx->end(); ++itjetcmx ) {
-        log << MSG::INFO
-                   << " Crate = " << (*itjetcmx)->crate() << ", Module = " << (*itjetcmx)->module()
-		   << endreq;
+        ATH_MSG_INFO(" Crate = " << (*itjetcmx)->crate() << ", Module = " << (*itjetcmx)->module() );
 	std::vector<unsigned int> data = (*itjetcmx)->DataWords();
-        log << MSG::INFO << " Map " << std::hex << (*itjetcmx)->presenceMap() << std::dec << endreq;
-	log << MSG::INFO << " Data : " << std::hex << data[0] << "  " << data[1]
-	                 << "  " << data[2] << "  " << data[3] << std::dec << endreq;
+        ATH_MSG_INFO( " Map " << std::hex << (*itjetcmx)->presenceMap() << std::dec );
+	ATH_MSG_INFO( " Data : " << std::hex << data[0] << "  " << data[1]
+	                 << "  " << data[2] << "  " << data[3] << std::dec );
     }
     
   }
@@ -842,31 +806,30 @@ void LVL1::Tester::dumpEDM(){
   const DataVector<CPCMXTopoData>* cpcmxtopo;
 
   if( m_storeGate->retrieve(cpcmxtopo, m_CPCMXTopoDataLocation).isFailure() ){
-    log << MSG::INFO << "No CPCMXTopoData found in TES at "
-        << m_CPCMXTopoDataLocation << endreq ;
+    ATH_MSG_INFO( "No CPCMXTopoData found in TES at "
+        << m_CPCMXTopoDataLocation );
   }
   else {
   
-    log << MSG::INFO << "Got " << cpcmxtopo->size() << " CPCMXTopoData from TES" << endreq ;
+    ATH_MSG_INFO( "Got " << cpcmxtopo->size() << " CPCMXTopoData from TES" );
 
     // print values...
     DataVector<LVL1::CPCMXTopoData>::const_iterator itcpcmxtopo ;
     for( itcpcmxtopo = cpcmxtopo->begin(); itcpcmxtopo < cpcmxtopo->end(); ++itcpcmxtopo ) {
-        log << MSG::INFO
-                   << " Crate = " << (*itcpcmxtopo)->crate() << ", CMX = " << (*itcpcmxtopo)->cmx()
-		   << ", Overflow = " << (*itcpcmxtopo)->overflow() << endreq;
+        ATH_MSG_INFO( " Crate = " << (*itcpcmxtopo)->crate() << ", CMX = " << (*itcpcmxtopo)->cmx()
+		      << ", Overflow = " << (*itcpcmxtopo)->overflow() );
 	std::vector<unsigned int> data = (*itcpcmxtopo)->tobWords();
 	std::vector<CPTopoTOB> tobs;
 	(*itcpcmxtopo)->tobs(tobs);
 	if (tobs.size() == data.size()) {
 	   for (unsigned int i = 0; i < data.size(); ++i) {
-              log << MSG::INFO << " TOB word " << std::hex << data[i] << std::dec << 
+              ATH_MSG_INFO( " TOB word " << std::hex << data[i] << std::dec << 
 	                          " ET " << tobs[i].et() << ", isolation = 0x" << std::hex << tobs[i].isolation() << std::dec << endreq <<
 				  " Coordinate (" << tobs[i].eta() << ", " << tobs[i].phi() << ") => (" <<
-				  tobs[i].ieta() << ", " << tobs[i].iphi() << ")" << endreq;
+				  tobs[i].ieta() << ", " << tobs[i].iphi() << ")" );
 	   }
 	}
-	else log << MSG::INFO << "MisMatch: " << data.size() << " words but " << tobs.size() << " TOBs" << endreq;
+	else ATH_MSG_INFO( "MisMatch: " << data.size() << " words but " << tobs.size() << " TOBs" );
     }
     
   }
@@ -876,31 +839,30 @@ void LVL1::Tester::dumpEDM(){
   const DataVector<JetCMXTopoData>* jetcmxtopo;
 
   if( m_storeGate->retrieve(jetcmxtopo, m_JetCMXTopoDataLocation).isFailure() ){
-    log << MSG::INFO << "No JetCMXTopoData found in TES at "
-        << m_JetCMXTopoDataLocation << endreq ;
+    ATH_MSG_INFO( "No JetCMXTopoData found in TES at "
+        << m_JetCMXTopoDataLocation );
   }
   else {
   
-    log << MSG::INFO << "Got " << jetcmxtopo->size() << " JetCMXTopoData from TES" << endreq ;
+    ATH_MSG_INFO( "Got " << jetcmxtopo->size() << " JetCMXTopoData from TES" );
 
     // print values...
     DataVector<LVL1::JetCMXTopoData>::const_iterator itjetcmxtopo ;
     for( itjetcmxtopo = jetcmxtopo->begin(); itjetcmxtopo < jetcmxtopo->end(); ++itjetcmxtopo ) {
-        log << MSG::INFO
-                   << " Crate = " << (*itjetcmxtopo)->crate() 
-		   << ", Overflow = " << (*itjetcmxtopo)->overflow() << endreq;
+        ATH_MSG_INFO(" Crate = " << (*itjetcmxtopo)->crate() 
+		     << ", Overflow = " << (*itjetcmxtopo)->overflow() );
 	std::vector<unsigned int> data = (*itjetcmxtopo)->tobWords();
 	std::vector<JetTopoTOB> tobs;
 	(*itjetcmxtopo)->tobs(tobs);
 	if (tobs.size() == data.size()) {
 	   for (unsigned int i = 0; i < data.size(); ++i) {
-              log << MSG::INFO << " TOB word " << std::hex << data[i] << std::dec << 
+              ATH_MSG_INFO( " TOB word " << std::hex << data[i] << std::dec << 
 	                          " ETLarge " << tobs[i].etLarge() << ", ETSmall " << tobs[i].etSmall() << endreq <<
 				  " Coordinate (" << tobs[i].eta() << ", " << tobs[i].phi() << ") => (" <<
-				  tobs[i].ieta() << ", " << tobs[i].iphi() << ")" << endreq;
+				  tobs[i].ieta() << ", " << tobs[i].iphi() << ")" );
 	   }
 	}
-	else log << MSG::INFO << "MisMatch: " << data.size() << " words but " << tobs.size() << " TOBs" << endreq;
+	else ATH_MSG_INFO( "MisMatch: " << data.size() << " words but " << tobs.size() << " TOBs" );
     }
     
   }
@@ -910,13 +872,13 @@ void LVL1::Tester::dumpEDM(){
   const EnergyTopoData* energytopo;
 
   if( m_storeGate->retrieve(energytopo, m_EnergyTopoDataLocation).isFailure() ){
-    log << MSG::INFO << "No EnergyTopoData found in TES at "
-        << m_EnergyTopoDataLocation << endreq ;
+    ATH_MSG_INFO( "No EnergyTopoData found in TES at "
+        << m_EnergyTopoDataLocation );
   }
   else {
   
     // print values...
-    log << MSG::INFO << " EnergyTopoData:" << endreq
+    ATH_MSG_INFO( " EnergyTopoData:" << endreq
                      << "Word 0: " << MSG::hex << energytopo->word0() << ", Word 1:  " << energytopo->word1()
 		     << ", Word 2: " << energytopo->word2() << MSG::dec << endreq
 		     << "Ex: Full " << energytopo->Ex(LVL1::EnergyTopoData::Normal)
@@ -930,7 +892,7 @@ void LVL1::Tester::dumpEDM(){
 		     << "ET: Full " << energytopo->Et(LVL1::EnergyTopoData::Normal)
 		     << ", Restricted " << energytopo->Et(LVL1::EnergyTopoData::Restricted) 
 		     << ", Overflows " << energytopo->ExOverflow(LVL1::EnergyTopoData::Normal) << ", " << energytopo->ExOverflow(LVL1::EnergyTopoData::Restricted)
-		     << endreq;
+		     );
     
   }
 
@@ -938,36 +900,36 @@ void LVL1::Tester::dumpEDM(){
   // CTP Data
   const EmTauCTP* emtauctp;
   if( m_storeGate->retrieve(emtauctp, m_EmTauCTPLocation).isFailure() ){
-    log << MSG::INFO << "No EmTauCTP found in TES at "
-        << m_EmTauCTPLocation << endreq ;
+    ATH_MSG_INFO( "No EmTauCTP found in TES at "
+        << m_EmTauCTPLocation );
   }
   else {
     // print values...
-    log << MSG::INFO << " EmTauCTP:" << MSG::hex << endreq
+    ATH_MSG_INFO( " EmTauCTP:" << MSG::hex << endreq
                      << "Word 0: " << emtauctp->cableWord0() << ", Word 1:  " << emtauctp->cableWord1()
-		     << ", Word 2: " << emtauctp->cableWord2() << ", Word 3: " << emtauctp->cableWord3() << MSG::dec << endreq;   
+		     << ", Word 2: " << emtauctp->cableWord2() << ", Word 3: " << emtauctp->cableWord3() << MSG::dec );   
   }
    
   const JetCTP* jetctp;
   if( m_storeGate->retrieve(jetctp, m_JetCTPLocation).isFailure() ){
-    log << MSG::INFO << "No JetCTP found in TES at "
-        << m_JetCTPLocation << endreq ;
+    ATH_MSG_INFO( "No JetCTP found in TES at "
+        << m_JetCTPLocation );
   }
   else {
     // print values...
-    log << MSG::INFO << " JetCTP:" << MSG::hex << endreq
-                     << "Word 0: " << jetctp->cableWord0() << ", Word 1:  " << jetctp->cableWord1() << MSG::dec << endreq;   
+    ATH_MSG_INFO( " JetCTP:" << MSG::hex << endreq
+                     << "Word 0: " << jetctp->cableWord0() << ", Word 1:  " << jetctp->cableWord1() << MSG::dec );   
   }
  
   const EnergyCTP* energyctp;
   if( m_storeGate->retrieve(energyctp, m_EnergyCTPLocation).isFailure() ){
-    log << MSG::INFO << "No EnergyCTP found in TES at "
-        << m_EnergyCTPLocation << endreq ;
+    ATH_MSG_INFO( "No EnergyCTP found in TES at "
+        << m_EnergyCTPLocation );
   }
   else {
     // print values...
-    log << MSG::INFO << " EnergyCTP:" << MSG::hex << endreq
-                     << "Word 0: " << energyctp->cableWord0() << ", Word 1:  " << energyctp->cableWord1() << MSG::dec << endreq;   
+    ATH_MSG_INFO( " EnergyCTP:" << MSG::hex << endreq
+                     << "Word 0: " << energyctp->cableWord0() << ", Word 1:  " << energyctp->cableWord1() << MSG::dec );   
   }
 
 
@@ -975,23 +937,23 @@ void LVL1::Tester::dumpEDM(){
   const CMMRoI* cmmroi;
 
   if( m_storeGate->retrieve(cmmroi, TrigT1CaloDefs::CMMRoILocation).isFailure() ){
-    log << MSG::INFO << "No CMMRoI found in TES at "
-        << TrigT1CaloDefs::CMMRoILocation << endreq ;
+    ATH_MSG_INFO( "No CMMRoI found in TES at "
+        << TrigT1CaloDefs::CMMRoILocation );
   }
   else {
   
-    log << MSG::INFO << "Got CMMRoI from TES" << endreq ;
+    ATH_MSG_INFO( "Got CMMRoI from TES" );
 
     // print values...
-    log << MSG::INFO << std::hex
+    ATH_MSG_INFO( std::hex
                    << "jetEtHits " << cmmroi->jetEtHits()
                    << " sumEtHits " << cmmroi->sumEtHits()
                    << " EtMissHits " << cmmroi->missingEtHits()
-                   << std::dec << endreq;
-    log << MSG::INFO << " ET " << cmmroi->et()
+                   << std::dec );
+    ATH_MSG_INFO( " ET " << cmmroi->et()
                    << " Ex: " << cmmroi->ex()
                    << " Ey: " << cmmroi->ey()
-                   <<endreq;
+                   );
   }
 
         
@@ -1002,7 +964,7 @@ void LVL1::Tester::dumpEDM(){
 
 /** load and lookat SlinkObject. Form lost of EmTauRoIwords from them and check coordinates. */
 void LVL1::Tester::examineSlinkObjects(){
-  MsgStream log( messageService(), name() ) ;
+
   /**\todo There must be a better way of doing this, but CERN doesn't seem to have sstream.h*/
   std::string emTauSlinkLocation[4];
   emTauSlinkLocation[0]= m_EmTauSlinkLocation+"0";
@@ -1013,12 +975,10 @@ void LVL1::Tester::examineSlinkObjects(){
   for (unsigned int i = 0; i<TrigT1CaloDefs::numOfCPRoIRODs;i++){
       // Here we tell load a CTP object from the transient store.
     StatusCode sc1 = m_storeGate->retrieve(m_emTauSlink[i],emTauSlinkLocation[i]);
-    if( sc1.isFailure() ) {
-      log << MSG::ERROR
-          << "No Slink object found in TES at "
-          << emTauSlinkLocation[i]
-          << endreq ;
-          return;
+    if ( sc1.isFailure() ) {
+        ATH_MSG_ERROR( "No Slink object found in TES at "
+                       << emTauSlinkLocation[i] );
+        return;
     }
   }
 	//dumpSlinks();
@@ -1026,12 +986,11 @@ void LVL1::Tester::examineSlinkObjects(){
 }
 /** Compare RoI coords reconstructed from RoI words with coords from original RoI objects */
 void LVL1::Tester::compareRoIWordCoords(){
-  MsgStream log( messageService(), name() ) ;
   //Not finished yet. Not sure if this is actually needed.
   examineSlinkObjects();
   std::vector<unsigned int>* RoIWords = extractRoIWords();
   for (std::vector<unsigned int>::const_iterator i=RoIWords->begin(); i!=RoIWords->end(); i++){
-    log<<MSG::INFO << "Got RoIWord : "<<(*i)<<endreq;
+    ATH_MSG_INFO("Got RoIWord : "<<(*i));
   }
   delete RoIWords;
   return;
@@ -1039,7 +998,7 @@ void LVL1::Tester::compareRoIWordCoords(){
 /** returns a pointer to a vector of RoIwords extracted
 from the Slink fragment. Very much a cludge at the moment */
 std::vector<unsigned int>* LVL1::Tester::extractRoIWords(){
-  MsgStream log( messageService(), name() ) ;
+	
   std::vector<unsigned int>* extractedWords = new std::vector<unsigned int>;
 
   const unsigned int headerLength=10;
@@ -1058,19 +1017,16 @@ std::vector<unsigned int>* LVL1::Tester::extractRoIWords(){
 }
 /** dump the cells belonging to an RoI. */
 void LVL1::Tester::dumpROICells(){
-   MsgStream log( messageService(), name() ) ;
   const t_EmTauROICollection* ROIs;
   StatusCode sc1 = m_storeGate->retrieve(ROIs,
 					 m_EmTauROILocation);
 
   if( ! ROIs ) {
-    log << MSG::DEBUG
-        << "No ROIs found in TES at "
-        << m_EmTauROILocation
-        << endreq ;
+    ATH_MSG_DEBUG("No ROIs found in TES at "
+                  << m_EmTauROILocation );
         return;
   } else {
-    log << MSG::DEBUG << "Found "<<ROIs->size() << " ROI(s)"<<endreq;
+    ATH_MSG_DEBUG( "Found "<<ROIs->size() << " ROI(s)");
 
     t_EmTauROICollection::const_iterator it ;
      // I think these should provide enough of a signature....
@@ -1085,19 +1041,19 @@ void LVL1::Tester::dumpROICells(){
         // cludge for testing
         matchesSignature=true;
         if (matchesSignature){
-          log << MSG::DEBUG<< "Found matching iROI"<<endreq;
+          ATH_MSG_DEBUG( "Found matching iROI");
           //std::vector<LVL1::TriggerTower*>::const_iterator  ttIter=(*it)->getTowers().begin();
-          //log << MSG::DEBUG<< "which contains "<<(*it)->getTowers().size()<<" TriggerTowers"<<endreq;
+          //ATH_MSG_DEBUG( "which contains "<<(*it)->getTowers().size()<<" TriggerTowers");
           /*
           for(ttIter=(*it)->getTowers().begin(); ttIter!= (*it)->getTowers().end();++ttIter){
             std::vector<const CaloCell*>::const_iterator ccIter=(*ttIter)->containedGEANTCells().begin();
-            log << MSG::DEBUG<< "One TT contains "<<(*ttIter)->containedGEANTCells().size()<<" CaloCells"<<endreq;
+            ATH_MSG_DEBUG( "One TT contains "<<(*ttIter)->containedGEANTCells().size()<<" CaloCells");
             for( ccIter=(*ttIter)->containedGEANTCells().begin(); ccIter!=(*ttIter)->containedGEANTCells().end();++ccIter){
               CaloSampling::CaloSample  sampl = CaloSampling::getSampling((**ccIter) );
-              log << MSG::DEBUG<< "Cell has "<<std::endl<<"-----------"<<std::endl
+              ATH_MSG_DEBUG( "Cell has "<<std::endl<<"-----------"<<std::endl
                    << "Energy : "<<(*ccIter)->energy()
                    << "coords : "<<(*ccIter)->phi()<<", "<<  (*ccIter)->eta()
-                   << "and sampling "<<(static_cast<unsigned int>(sampl) ) <<endreq;
+                   << "and sampling "<<(static_cast<unsigned int>(sampl) ) );
             }//endfor
           }//endfor
 	  */
@@ -1108,23 +1064,19 @@ void LVL1::Tester::dumpROICells(){
 }                      
 /** dump the cells belonging to an RoI. */
 void LVL1::Tester::dumpJEMResults(){
-   MsgStream log( messageService(), name() ) ;
-  log << MSG::INFO << "loadJEMResults" << endreq;
+
+  ATH_MSG_INFO( "loadJEMResults" );
 
   const JEMHitsCollection* jemHits;
   StatusCode sc1 = m_storeGate->retrieve(jemHits, m_jemHitsLocation);
 
   if( (sc1==StatusCode::FAILURE) ) {
-    log << MSG::INFO
-        << "No JEMHits found in Storegate at "
-        << m_jemHitsLocation
-        << endreq ;      
+    ATH_MSG_INFO( "No JEMHits found in Storegate at "
+        << m_jemHitsLocation);      
   }
   else {
-    log << MSG::INFO
-        << jemHits->size() << " JEMHits found at "
-        << m_jemHitsLocation
-        << endreq ; 
+    ATH_MSG_INFO( jemHits->size() << " JEMHits found at "
+        << m_jemHitsLocation); 
 
      JEMHitsCollection::const_iterator it;     
      JetEnergyModuleKey testKey;
@@ -1133,9 +1085,8 @@ void LVL1::Tester::dumpJEMResults(){
        unsigned int crate =(*it)->crate();
        unsigned int module=(*it)->module();
        unsigned int hits=(*it)->JetHits();
-       log << MSG::INFO
-           << "Crate " << crate << " Module " << module
-	   << " -> Hits = " << std::ios::hex << hits << std::ios::dec << endreq;
+       ATH_MSG_INFO( "Crate " << crate << " Module " << module
+	   << " -> Hits = " << std::ios::hex << hits << std::ios::dec );
      }
   }
 
@@ -1143,16 +1094,12 @@ void LVL1::Tester::dumpJEMResults(){
   sc1 = m_storeGate->retrieve(jemEtSums, m_jemEtSumsLocation);
 
   if( (sc1==StatusCode::FAILURE) ) {
-    log << MSG::INFO
-        << "No JEMEtSums found in Storegate at "
-        << m_jemEtSumsLocation
-        << endreq ;      
+    ATH_MSG_INFO("No JEMEtSums found in Storegate at "
+        << m_jemEtSumsLocation);      
   }
   else {
-    log << MSG::INFO
-        << jemEtSums->size() << " JEMEtSums found at "
-        << m_jemEtSumsLocation
-        << endreq ;       
+    ATH_MSG_INFO(jemEtSums->size() << " JEMEtSums found at "
+        << m_jemEtSumsLocation);       
 
      JEMEtSumsCollection::const_iterator it;     
      JetEnergyModuleKey testKey;
@@ -1163,25 +1110,23 @@ void LVL1::Tester::dumpJEMResults(){
        unsigned int Ex=(*it)->Ex();
        unsigned int Ey=(*it)->Ey();
        unsigned int Et=(*it)->Et();
-       log << MSG::INFO
-           << "Crate " << crate << " Module " << module
-	   << " -> Ex = " << Ex << ", Ey = " << Ey << ", Et = " << Et 
-	   << endreq;
+       ATH_MSG_INFO("Crate " << crate << " Module " << module
+	   << " -> Ex = " << Ex << ", Ey = " << Ey << ", Et = " << Et );
      }
   }
   
 }
 /** test the ETmiss/ETsum tool */
 void LVL1::Tester::testEtTool(){
-   MsgStream log( messageService(), name() ) ;
-   log << MSG::INFO << "testEtTool" << endreq;
+
+   ATH_MSG_INFO( "testEtTool" );
 
    StatusCode sc = m_EtTool.retrieve();
-   if (sc.isFailure()) log << MSG::ERROR << "Problem retrieving EtTool" << endreq;
+   if (sc.isFailure()) ATH_MSG_ERROR( "Problem retrieving EtTool" );
 
    const DataVector<JetElement>* storedJEs;
    sc = m_storeGate->retrieve(storedJEs,m_JetElementLocation);
-   if (sc.isFailure()) log << MSG::ERROR << "Problem retrieving JetElements" << endreq;
+   if (sc.isFailure()) ATH_MSG_ERROR( "Problem retrieving JetElements" );
    
    DataVector<ModuleEnergy>* modules = new DataVector<ModuleEnergy>;
    m_EtTool->moduleSums(storedJEs, modules);
@@ -1189,13 +1134,13 @@ void LVL1::Tester::testEtTool(){
    m_EtTool->crateSums(modules, crates);
    SystemEnergy result = m_EtTool->systemSums(crates);
 
-   log << MSG::INFO << "Final Ex, Ey, ET = " << result.ex() << ", "
-       << result.ey() << ", " << result.et() << endreq;
+   ATH_MSG_INFO( "Final Ex, Ey, ET = " << result.ex() << ", "
+       << result.ey() << ", " << result.et() );
 
-   log << MSG::INFO << "RoI Words: " << endreq
+   ATH_MSG_INFO( "RoI Words: " << endreq
        << "   Word 0: " << std::hex <<  result.roiWord0() << std::dec << endreq
        << "   Word 1: " << std::hex <<  result.roiWord1() << std::dec << endreq
-       << "   Word 2: " << std::hex <<  result.roiWord2() << std::dec << endreq;
+       << "   Word 2: " << std::hex <<  result.roiWord2() << std::dec );
 
    delete modules;
    delete crates;

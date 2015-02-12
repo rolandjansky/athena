@@ -20,7 +20,7 @@
  #include <map>
 
  // Athena/Gaudi
- #include "GaudiKernel/Algorithm.h"
+ #include "AthenaBaseComps/AthAlgorithm.h"
  #include "GaudiKernel/ServiceHandle.h"  
  #include "GaudiKernel/ToolHandle.h"
  
@@ -58,7 +58,7 @@
  EnergyTrigger uses EnergyCrate and JetElement objects in order to closely follow
  the layout of the hardware.
    */
- class EnergyTrigger : public Algorithm
+ class EnergyTrigger : public AthAlgorithm
  {
   typedef DataVector<JEMEtSums> JEMEtSumsCollection;
   public:
