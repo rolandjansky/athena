@@ -82,15 +82,15 @@ StatusCode MboyGenTrackTool::GetMboyGenTrackStore(
     }
   }else{
     for (TrackRecordCollection::const_iterator trkit=pTrackRecordCollection->begin(); trkit != pTrackRecordCollection->end() ; ++trkit) {
-      double Pt = (*trkit)->GetEnergy()
-           /sqrt(1.+sinh((*trkit)->GetMomentum().eta())*sinh((*trkit)->GetMomentum().eta()) );
-      int    PDGCode = (*trkit)->GetPDGCode()                 ;
-      double PosX    = (*trkit)->GetPosition().x()            ;
-      double PosY    = (*trkit)->GetPosition().y()            ;
-      double PosZ    = (*trkit)->GetPosition().z()            ;
-      double PX      = Pt*cos((*trkit)->GetMomentum().phi())  ;
-      double PY      = Pt*sin((*trkit)->GetMomentum().phi())  ;
-      double PZ      = Pt*sinh((*trkit)->GetMomentum().eta()) ;
+      double Pt = (*trkit).GetEnergy()
+           /sqrt(1.+sinh((*trkit).GetMomentum().eta())*sinh((*trkit).GetMomentum().eta()) );
+      int    PDGCode = (*trkit).GetPDGCode()                 ;
+      double PosX    = (*trkit).GetPosition().x()            ;
+      double PosY    = (*trkit).GetPosition().y()            ;
+      double PosZ    = (*trkit).GetPosition().z()            ;
+      double PX      = Pt*cos((*trkit).GetMomentum().phi())  ;
+      double PY      = Pt*sin((*trkit).GetMomentum().phi())  ;
+      double PZ      = Pt*sinh((*trkit).GetMomentum().eta()) ;
       MboyGenTrack aMboyGenTrack;
       aMboyGenTrack.SetPDGCode(PDGCode); 
       aMboyGenTrack.SetPosX   (PosX   );
