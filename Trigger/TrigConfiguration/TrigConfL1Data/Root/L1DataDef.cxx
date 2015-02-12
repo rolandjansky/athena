@@ -46,13 +46,11 @@ registerTriggerType(LUCID,   2)
 registerTriggerType(TRT,     1)
 registerTriggerType(BCM,     3)
 registerTriggerType(ZDC,     3)
-
-
 // zero bias
 registerTriggerType(ZB,   10)
-
 // NEW: Topo
-registerTriggerType(TOPO, 192)
+registerTriggerType(TOPO, 128)
+registerTriggerType(ALFA, 64)
 
 
 void
@@ -66,7 +64,6 @@ TrigConf::L1DataDef::printMaxThresholds() {
 void
 TrigConf::L1DataDef::setMaxThresholdsFromL1Version(unsigned int l1version) {
    // this has to come from L1Common/L1CommonVersion.h
-
    if(l1version==0) {
       typeConfig(EM).max     =  16;
       typeConfig(TAU).max    =   8;
@@ -97,6 +94,7 @@ TrigConf::L1DataDef::setMaxThresholdsFromL1Version(unsigned int l1version) {
       typeConfig(ZDC).max    =   3;
       typeConfig(ZB).max     =  10;
       typeConfig(TOPO).max   =   0;
+      typeConfig(ALFA).max   =   0;
    } else if (l1version==1) {
       typeConfig(EM).max     =  16;
       typeConfig(TAU).max    =  16;
@@ -126,7 +124,8 @@ TrigConf::L1DataDef::setMaxThresholdsFromL1Version(unsigned int l1version) {
       typeConfig(BCM).max    =   3;
       typeConfig(ZDC).max    =   3;
       typeConfig(ZB).max     =  10;
-      typeConfig(TOPO).max   = 192;
+      typeConfig(TOPO).max   = 128;
+      typeConfig(ALFA).max   = 64;
    } else {
       cerr << "ERROR TrigConf::L1DataDef::setMaxThresholdsFromL1Version() L1Version not known:" << l1version << endl;
       throw(std::runtime_error("Unknown L1 Version"));
@@ -145,6 +144,7 @@ TrigConf::L1DataDef::setMaxThresholdsFromL1Version(unsigned int l1version) {
 TrigConf::L1DataDef::TriggerTypeConfig&
 TrigConf::L1DataDef::typeConfig(TriggerType tt) { 
    TypeConfigMap_t::iterator c = g_typeConfigs.find(tt);
+   //   cout << "tt " << tt << endl;
    if( c==g_typeConfigs.end() ) {
       cerr << "Trigger type " << tt << " is defined in L1DataDef.h but not registered in L1DataDef.cxx" << endl;
       throw runtime_error("TriggerType not registered");

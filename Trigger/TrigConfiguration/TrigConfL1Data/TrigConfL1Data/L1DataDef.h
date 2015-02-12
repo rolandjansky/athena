@@ -32,6 +32,7 @@ namespace TrigConf {
          MBTS, MBTSSI, LUCID, TRT, BCM, ZDC, NIM, // 13 - 19
          ZB, TH, M, BCMCMB, CALREQ, BPTX,         // 20 - 25
          TOPO,                                    // 26
+	 ALFA,                                    //???
          BGRP = 100, RNDM, PCLK,                  // 100 - 102
          UNDEF = 199                              // 199
       };

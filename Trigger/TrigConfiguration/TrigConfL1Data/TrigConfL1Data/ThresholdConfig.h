@@ -77,7 +77,10 @@ namespace TrigConf {
 
       TriggerThreshold* findTriggerThreshold(unsigned int id);
 
+      void setCtpVersion(unsigned int ctpVersion) { m_ctpVersion = ctpVersion; }
       unsigned int ctpVersion() const { return m_ctpVersion; }
+
+      void setL1Version(unsigned int l1Version) { m_l1Version = l1Version; }
       unsigned int l1Version() const { return m_l1Version; }
 
    private:
