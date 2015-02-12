@@ -106,6 +106,8 @@ namespace InDet{
       Trk::TrackInfo                 m_trackinfo     ;
       bool                           m_pix           ;
       bool                           m_sct           ;
+      bool                           m_usePix        ; //flags to set whether to use pixel/sct cluster, irrespective of what is in event
+      bool                           m_useSct        ;
       bool                           m_useassoTool   ; // Use prd-track association tool
       bool                           m_cosmicTrack   ; // Is it cosmic track
       bool                           m_simpleTrack   ; // Is it simple output track
@@ -156,7 +158,6 @@ namespace InDet{
       void globalPosition(const Trk::SpacePoint*,double*,double*,double*);
       void setTrackQualityCuts();
       void detectorElementsSelection(std::list<const InDetDD::SiDetectorElement*>&);
-      bool newClusters(const std::list<const Trk::SpacePoint*>&);
       bool newSeed    (const std::list<const Trk::SpacePoint*>&);
       bool isNewTrack(Trk::Track*);
       bool isCaloCompatible   ();
