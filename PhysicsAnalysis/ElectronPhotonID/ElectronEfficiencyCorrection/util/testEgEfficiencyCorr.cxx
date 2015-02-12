@@ -23,7 +23,12 @@
 #include "xAODEgamma/ElectronContainer.h" 
 #include "xAODEgamma/Egamma.h"
 #include "ElectronEfficiencyCorrection/AsgElectronEfficiencyCorrectionTool.h"
+#include "xAODCore/ShallowCopy.h"
+
+
 #include <string>
+
+#include "PATInterfaces/SystematicsUtil.h"
 
 #define CHECK( ARG )                                  \
 do {                                                  \
@@ -58,7 +63,8 @@ int main( int argc, char* argv[] ) {
    CHECK( ifile.get() );
 
    // Create a TEvent object:
-   xAOD::TEvent event( xAOD::TEvent::kBranchAccess );
+   //xAOD::TEvent event( xAOD::TEvent::kBranchAccess );
+   xAOD::TEvent event( xAOD::TEvent::kClassAccess );
    CHECK( event.readFrom( ifile.get() ) );
    Info( APP_NAME, "Number of events in the file: %i",
          static_cast< int >( event.getEntries() ) );
@@ -75,11 +81,19 @@ int main( int argc, char* argv[] ) {
 
    //Likelihood
    AsgElectronEfficiencyCorrectionTool myEgCorrections ("myEgCorrections");
-   std::vector<std::string> inputFiles{"ElectronEfficiencyCorrection/efficiencySF.offline.LooseLLH.2012.8TeV.rel17p2.v07.root"} ;
-   myEgCorrections.setProperty("CorrectionFileNameList",inputFiles);
-   myEgCorrections.initialize();
+   std::vector<std::string> inputFiles{"ElectronEfficiencyCorrection/efficiencySF.offline.Loose.2012.8TeV.rel17p2.v07.root"} ;
+   CHECK( myEgCorrections.setProperty("CorrectionFileNameList",inputFiles) );
+   CHECK( myEgCorrections.setProperty("ForceDataType",1) );
+
+   CHECK( myEgCorrections.initialize() );
+
+   // Get a list of systematics
+   CP::SystematicSet recSysts = myEgCorrections.recommendedSystematics();
+   // Convert into a simple list
+   std::vector<CP::SystematicSet> sysList = CP::make_systematics_vector(recSysts);
 
    // Loop over the events:
+   entries = 1;
    for( Long64_t entry = 0; entry < entries; ++entry ) {
      
      // Tell the object which entry to look at:
@@ -90,29 +104,66 @@ int main( int argc, char* argv[] ) {
      const xAOD::EventInfo* event_info = 0;  
      CHECK( event.retrieve( event_info, "EventInfo" ) ); 
       
-     const xAOD::ElectronContainer* electrons;  
+     const xAOD::ElectronContainer* electrons = 0;  
      CHECK( event.retrieve(electrons, "ElectronCollection") );
+
+     // Loop over systematics
+     for(const auto& sys : sysList){
      
-     auto el_it      = electrons->begin(); 
-     auto el_it_last = electrons->end(); 
-     unsigned int i = 0; 
-     for (; el_it != el_it_last; ++el_it, ++i) { 
-       const xAOD::Electron* el = *el_it; 
-       std::cout << "Electron " << i << std::endl; 
-       std::cout << "xAOD/raw pt = " << el->pt() << std::endl; 
-       Info (APP_NAME,"Electron #%d", i); 
+       Info(APP_NAME, "Processing syst: %s", sys.name().c_str());
 
-       const Root::TResult result= myEgCorrections.calculate(*el);
+       // Configure the tool for this systematic
+       CHECK( myEgCorrections.applySystematicVariation(sys) );
+       Info(APP_NAME, "Applied syst: %s", 
+            myEgCorrections.appliedSystematics().name().c_str());
 
-       Info( APP_NAME,"===>>> Result 0 position %f ",result.getResult(0));
+       // Create shallow copy for this systematic
+       std::pair< xAOD::ElectronContainer*, xAOD::ShallowAuxContainer* > electrons_shallowCopy =
+         xAOD::shallowCopyContainer( *electrons );
+     
+       //Iterate over the shallow copy
+       xAOD::ElectronContainer* elsCorr = electrons_shallowCopy.first;
+       xAOD::ElectronContainer::iterator el_it      = elsCorr->begin();
+       xAOD::ElectronContainer::iterator el_it_last      = elsCorr->end();
+     
+       unsigned int i = 0;
+       double SF = 0; 
+       for (; el_it != el_it_last; ++el_it, ++i) { 
        
+         xAOD::Electron* el = *el_it;
+         if(el->pt() < 7000) continue;//skip electrons outside of recommendations
+
+         std::cout << "Electron " << i << std::endl; 
+         std::cout << "xAOD/raw pt = " << el->pt() << ", eta: "
+                   << el->caloCluster()->etaBE(2) << std::endl; 
+
+         Info (APP_NAME,"Electron #%d", i); 
+
+         if(myEgCorrections.getEfficiencyScaleFactor(*el,SF) != CP::CorrectionCode::Ok){
+           Error( APP_NAME, "Problem in getEfficiencyScaleFactor");
+           return EXIT_FAILURE;
+         }
+
+         if(myEgCorrections.applyEfficiencyScaleFactor(*el) != CP::CorrectionCode::Ok){
+           Error( APP_NAME, "Problem in applyEfficiencyScaleFactor");
+           return EXIT_FAILURE;
+         }
+
+         Info( APP_NAME, "===>>> Resulting SF (from get function) %f, (from apply function) %f",
+               SF, el->auxdata< float >("SF"));       
+
+       }
+
      }
      
      Info( APP_NAME,
 	   "===>>>  done processing event #%lld ",entry);
-     
+         
    }
-   myEgCorrections.finalize();
+
+
+   CHECK( myEgCorrections.finalize() );
+
    // Return gracefully:
    return 0;
 }

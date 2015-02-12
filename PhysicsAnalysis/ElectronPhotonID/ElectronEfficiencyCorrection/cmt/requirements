@@ -12,14 +12,16 @@ use PATCore                     PATCore-*               PhysicsAnalysis/Analysis
 use PATInterfaces               PATInterfaces-*         PhysicsAnalysis/AnalysisCommon
 use AsgTools                    AsgTools-*              Control/AthToolSupport
 use xAODEgamma                  xAODEgamma-*            Event/xAOD
+use AtlasBoost                  AtlasBoost-*            External
+
 
 ## put here your package dependencies...
 private
 use  GaudiInterface             GaudiInterface-*                External
 use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
 use  PathResolver               PathResolver-*                  Tools
-
-
+use  AthenaBaseComps            AthenaBaseComps-*               Control #new
+use  xAODCore                   xAODCore-*                      Event/xAOD #new
 end_private
 ##
 
@@ -32,7 +34,8 @@ apply_tag       ROOTMathLibs
 branches ElectronEfficiencyCorrection python src Root share data
 
 # Create a dual-use library
-apply_pattern dual_use_library files="../Root/*.cxx"
+#apply_pattern dual_use_library files="../Root/*.cxx"
+apply_pattern dual_use_library files="*.cxx ../scr/*.cxx ../Root/*.cxx components/*.cxx"
 
 ## install our python modules
 apply_pattern declare_python_modules files="*.py"

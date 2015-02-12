@@ -40,7 +40,8 @@
 // =============================================================================
 AsgElectronEfficiencyCorrectionTool::AsgElectronEfficiencyCorrectionTool( std::string myname ) :
   AsgTool(myname),
-  m_rootTool(0)
+  m_rootTool(0),
+  m_appliedSystematics(0)
 {
 
   // Create an instance of the underlying ROOT tool
@@ -131,6 +132,12 @@ StatusCode AsgElectronEfficiencyCorrectionTool::initialize()
 
   // Add the recommended systematics to the registry
   if ( registerSystematics() != CP::SystematicCode::Ok) {
+    return StatusCode::FAILURE;
+  }
+
+  // Configure for nominal systematics
+  if(applySystematicVariation(CP::SystematicSet()) != CP::SystematicCode::Ok){
+    ATH_MSG_ERROR("Could not configure for nominal settings");
     return StatusCode::FAILURE;
   }
 
@@ -226,6 +233,10 @@ const Root::TResult& AsgElectronEfficiencyCorrectionTool::calculate( const xAOD:
 }
 CP::CorrectionCode AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor(const xAOD::Electron& inputObject, double& efficiencyScaleFactor) const{
   Root::TResult m_result = calculate(&inputObject);
+  if( &appliedSystematics()==0 ) {
+    efficiencyScaleFactor = m_result.getScaleFactor();
+    return CP::CorrectionCode::Ok;
+  }
   //Get the result + all of the uncertainties. These will be zero until applySystematicVariation() is called.
   double m_sys_Uncorr(0);
   double m_sys_Corr(0);
@@ -248,6 +259,10 @@ CP::CorrectionCode AsgElectronEfficiencyCorrectionTool::getEfficiencyScaleFactor
 CP::CorrectionCode AsgElectronEfficiencyCorrectionTool::applyEfficiencyScaleFactor(xAOD::Electron& inputObject) const {
   static SG::AuxElement::Decorator<float> dec (m_resultPrefix+m_resultName+"SF");
   Root::TResult m_result = calculate(&inputObject);
+  if( &appliedSystematics()==0 ) {
+    dec(inputObject) = m_result.getScaleFactor();
+    return CP::CorrectionCode::Ok;
+  }
   //Get the result + all of the uncertainties. These will be zero until applySystematicVariation() is called.
   double m_sys_Uncorr(0);
   double m_sys_Corr(0);
@@ -298,9 +313,7 @@ CP::SystematicSet AsgElectronEfficiencyCorrectionTool::affectingSystematics() co
 CP::SystematicCode AsgElectronEfficiencyCorrectionTool::registerSystematics() {
 
   CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
-  registry.registerSystematics( affectingSystematics() );
-
-  if (registry.addSystematicsToRecommended(recommendedSystematics()) != CP::SystematicCode::Ok) {
+  if (registry.registerSystematics(*this) != CP::SystematicCode::Ok) {
     ATH_MSG_ERROR("Failed to add systematic to list of recommended systematics.");
 	return CP::SystematicCode::Unsupported;
   }
@@ -313,23 +326,40 @@ CP::SystematicSet AsgElectronEfficiencyCorrectionTool::recommendedSystematics() 
   return affectingSystematics();
 }
 
-CP::SystematicCode AsgElectronEfficiencyCorrectionTool::sysApplySystematicVariation ( const CP::SystematicSet& systConfig ) {
-  CP::SystematicSet mySysConf;
-  static CP::SystematicSet affectingSys = affectingSystematics();
-  if (!CP::SystematicSet::filterForAffectingSystematics(systConfig,affectingSys, mySysConf)){
-	  Error("AsgElectronEfficiencyCorrectionTool", "Unsupported combination of systematics passed to the tool! ");
-	return CP::SystematicCode::Unsupported;
-	}
+CP::SystematicCode AsgElectronEfficiencyCorrectionTool::
+applySystematicVariation ( const CP::SystematicSet& systConfig )
+{
+  // First, check if we already know this systematic configuration
+  auto itr = m_systFilter.find(systConfig);
+
+  // If it's a new input set, we need to filter it
+  if( itr == m_systFilter.end() ){
+
+    // New systematic. We need to parse it.
+    static CP::SystematicSet affectingSys = affectingSystematics();
+    CP::SystematicSet filteredSys;
+    if (!CP::SystematicSet::filterForAffectingSystematics(systConfig, affectingSys, filteredSys)){
+      ATH_MSG_ERROR("Unsupported combination of systematics passed to the tool!");
+      return CP::SystematicCode::Unsupported;
+    }
+
+    // Insert filtered set into the map
+    itr = m_systFilter.insert(std::make_pair(systConfig, filteredSys)).first;
+  }
+
+  CP::SystematicSet& mySysConf = itr->second;
 
   // Check to see if the set of variations tries to add in the uncertainty up and down. Since the errors
   // are symetric this would result in 0 and so should not be done.
-  if( mySysConf.matchSystematic( CP::SystematicVariation("EL_EFF_UncorrUncertainty", 1)) && mySysConf.matchSystematic( CP::SystematicVariation("EL_EFF_UncorrUncertainty", -1)) ){
+  if( mySysConf.matchSystematic( CP::SystematicVariation("EL_EFF_UncorrUncertainty", 1)) &&
+      mySysConf.matchSystematic( CP::SystematicVariation("EL_EFF_UncorrUncertainty", -1)) ){
     return CP::SystematicCode::Unsupported;
   }
-  else if( mySysConf.matchSystematic( CP::SystematicVariation("EL_EFF_CorrUncertainty", 1)) && mySysConf.matchSystematic( CP::SystematicVariation("EL_EFF_CorrUncertainty", -1)) ){
+  else if( mySysConf.matchSystematic( CP::SystematicVariation("EL_EFF_CorrUncertainty", 1)) &&
+           mySysConf.matchSystematic( CP::SystematicVariation("EL_EFF_CorrUncertainty", -1)) ){
     return CP::SystematicCode::Unsupported;
   }
-  else{
-    return CP::SystematicCode::Ok;
-  }
+
+  m_appliedSystematics = &mySysConf;
+  return CP::SystematicCode::Ok;
 }
