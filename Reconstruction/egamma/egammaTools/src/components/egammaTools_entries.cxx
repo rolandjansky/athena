@@ -15,6 +15,7 @@
 #include "../egammaSwTool.h"
 #include "../egammaTopoClusterMap.h"
 #include "../egammaSuperClusterBuilder.h"
+#include "../egammaClusterOverlapMarker.h"
 
 DECLARE_TOOL_FACTORY     ( EMAmbiguityTool              )
 DECLARE_TOOL_FACTORY     ( EMBremCollectionBuilder      )
@@ -31,6 +32,7 @@ DECLARE_TOOL_FACTORY     ( EMPIDBuilder                 )
 DECLARE_TOOL_FACTORY     ( egammaSwTool                 )
 DECLARE_TOOL_FACTORY     ( egammaTopoClusterMap         )
 DECLARE_TOOL_FACTORY     ( egammaSuperClusterBuilder    )
+DECLARE_TOOL_FACTORY     ( egammaClusterOverlapMarker   )
 
 DECLARE_FACTORY_ENTRIES(egammaTools) {
     DECLARE_TOOL     ( EMAmbiguityTool              )
@@ -48,5 +50,6 @@ DECLARE_FACTORY_ENTRIES(egammaTools) {
     DECLARE_TOOL     ( egammaSwTool                 )
     DECLARE_TOOL     ( egammaTopoClusterMap         )
     DECLARE_TOOL     ( egammaSuperClusterBuilder    )
+    DECLARE_TOOL     ( egammaClusterOverlapMarker   )
 }
 

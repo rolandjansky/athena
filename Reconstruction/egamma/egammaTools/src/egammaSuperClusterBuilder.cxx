@@ -62,9 +62,14 @@ egammaSuperClusterBuilder::egammaSuperClusterBuilder(const std::string& type,
   m_ShowerShape("egammaShowerShape/egammashowershape")
 
 {
-  // Declare interface.
+  // Declare interface & properties.
   declareInterface<IegammaSuperClusterBuilder>(this);
 
+  declareProperty("InputClusterContainerName",
+		  m_inputClusterContainerName = "EMTopoCluster430",
+		  "Name of input cluster container");
+
+  //Used for layer calculations.
   m_caloCellDetPos = new CaloCellDetPos();
 
 }
@@ -86,7 +91,7 @@ StatusCode egammaSuperClusterBuilder::initialize() {
     ATH_MSG_ERROR("Unable to retrieve pointer to StoreGateSvc");
     return StatusCode::FAILURE;
   }
-
+  
   return StatusCode::SUCCESS;
 }
 
@@ -103,10 +108,19 @@ StatusCode egammaSuperClusterBuilder::execute()
 					      
 {
 
+  //Retrieve input egammaRec container.
+  EgammaRecContainer *egammaRecs = 0;
+  StatusCode sc=evtStore()->retrieve(egammaRecs, "TopoTrackClusterMatches" );
+  if(sc.isFailure()) {
+    ATH_MSG_INFO("Failed to retrieve TopoTrackClusterMatches!");
+    return StatusCode::FAILURE;
+  }
+
+  //Retrieve input clusters.
   const xAOD::CaloClusterContainer* clusters = 0;
-  StatusCode sc = evtStore()->retrieve(clusters,  "EMTopoCluster430");
+  sc = evtStore()->retrieve(clusters, m_inputClusterContainerName);
   if( sc.isFailure() ) {
-    ATH_MSG_ERROR("No input EM Cluster container found EMTopoCluster430");
+    ATH_MSG_ERROR("No input EM Cluster container found " << m_inputClusterContainerName);
     return StatusCode::SUCCESS;
   }
   
@@ -114,7 +128,7 @@ StatusCode egammaSuperClusterBuilder::execute()
   if( evtStore()->contains<CaloCellContainer>("AllCalo")) {  
     sc = evtStore()->retrieve(m_cellcoll, "AllCalo") ; 
     if(sc.isFailure() || !m_cellcoll) {
-      ATH_MSG_WARNING("newEgammaBuilder::PassesF1Cut: no Calo Cell Container");
+      ATH_MSG_WARNING("No Calo Cell Container?");
       return StatusCode::SUCCESS;
     }
   }
@@ -123,20 +137,11 @@ StatusCode egammaSuperClusterBuilder::execute()
   //Get list of refitted tracks.
   const xAOD::TrackParticleContainer  *refittedTracks = 0;
   sc=evtStore()->retrieve(refittedTracks, "GSFTrackParticles" );
+  //sc=evtStore()->retrieve(refittedTracks, "InDetTrackParticles" );
   if(sc.isFailure()) {
     ATH_MSG_INFO("Failed to retrieve GSFTrackParticles!");
     return StatusCode::FAILURE;
   }
-
-  //Get single topocluster egammaRec container.
-  EgammaRecContainer *egammaRecs = 0;
-  sc=evtStore()->retrieve(egammaRecs, "TopoTrackClusterMatches" );
-  if(sc.isFailure()) {
-    ATH_MSG_INFO("Failed to retrieve TopoTrackClusterMatches!");
-    return StatusCode::FAILURE;
-  }
-
-  ATH_MSG_INFO("Executing superclustering routine");
   
   //Clear out old list of used clusters.
   usedClusters.clear();
@@ -146,7 +151,8 @@ StatusCode egammaSuperClusterBuilder::execute()
   											     "egammaClusters", 
   											     msg());
   if (!outputClusterContainer) {
-    ATH_MSG_INFO("Could not make supercluster container!");
+    ATH_MSG_ERROR("Could not make supercluster container! StoreGate failure ...");
+    return StatusCode::FAILURE;
   }
   
   EgammaRecContainer *newEgammaRecs = new EgammaRecContainer();
@@ -174,12 +180,10 @@ StatusCode egammaSuperClusterBuilder::execute()
 
     //Search for secondary clusters.
     secondaryClusters.clear();
-    if (egRec->caloCluster()->pt() > 7E3) {
-      usedClusters.push_back(egRec->caloCluster());
-      secondaryClusters = SearchForSecondaryClusters(egRec->caloCluster(),
-						     clusters,
-						     egammaRecs);
-    }
+    usedClusters.push_back(egRec->caloCluster());
+    secondaryClusters = SearchForSecondaryClusters(egRec->caloCluster(),
+						   clusters,
+						   egammaRecs);
     
     ATH_MSG_INFO("Size of secondary clusters container: " << int(secondaryClusters.size()));
 
@@ -220,10 +224,20 @@ StatusCode egammaSuperClusterBuilder::execute()
 	static SG::AuxElement::Decorator<int> nClusters ("nClusters");
 	nClusters(*newClus) = secondaryClusters.size();
 
-	//Push it back into the output container.
-	if (outputClusterContainer)
-	  outputClusterContainer->push_back(newClus);
+	static SG::AuxElement::Decorator<int> allClusters("allClusters");
+	allClusters(*newClus) = clusters->size();
 
+	static SG::AuxElement::Decorator<int> seedIndex("seedIndex");
+	static SG::AuxElement::Decorator<float> seedE  ("seedE");
+	static SG::AuxElement::Decorator<float> seedPt ("seedPt");
+
+	seedIndex(*newClus) = secondaryClusters[0]->index();
+	seedE(*newClus)     = secondaryClusters[0]->e();
+	seedPt(*newClus)    = secondaryClusters[0]->pt();
+
+	//Push it back into the output container.
+	outputClusterContainer->push_back(newClus);
+	  
 	ElementLink< xAOD::CaloClusterContainer > clusterLink(newClus, *outputClusterContainer);
 	std::vector< ElementLink<xAOD::CaloClusterContainer> > elClusters {clusterLink};
 
@@ -237,7 +251,6 @@ StatusCode egammaSuperClusterBuilder::execute()
 	}
       }
     }
-
   } //End look on egammaRecs
 
   return StatusCode::SUCCESS;
@@ -250,6 +263,16 @@ std::vector<const xAOD::CaloCluster*> egammaSuperClusterBuilder::SearchForSecond
 {
 
   std::vector<const xAOD::CaloCluster*> secondaryClusters;
+
+  if (!cluster) {
+    ATH_MSG_INFO("Input cluster is null? Returning an empty vector ...");
+    return secondaryClusters;
+  }
+
+  if (!electrons) {
+    ATH_MSG_INFO("egammaRec container is null? Returning an empty vector ...");
+    return secondaryClusters;
+  }
 
   xAOD::CaloClusterContainer::const_iterator iter    = clusters->begin();
   xAOD::CaloClusterContainer::const_iterator iterEnd = clusters->end();
@@ -264,6 +287,7 @@ std::vector<const xAOD::CaloCluster*> egammaSuperClusterBuilder::SearchForSecond
     //Ignore cluster if it's already been used.
     if (ClusterIsUsed(clus)) continue;
 
+    /*
     EgammaRecContainer::iterator orig = std::find_if(electrons->begin(), electrons->end(), ClusCheck(cluster));
     EgammaRecContainer::iterator loc  = std::find_if(electrons->begin(), electrons->end(), ClusCheck(clus));
 
@@ -291,9 +315,11 @@ std::vector<const xAOD::CaloCluster*> egammaSuperClusterBuilder::SearchForSecond
       }
     }
 
+
     if (bLayerHits > 0)   continue;
     if (clus->e() < 400.) continue;
-    if (clus->e() > 15E3) continue;
+    //if (clus->e() > 15E3) continue;
+
 
     //Check on dEta, dPhi of cluster w.r.t. primary.
     float prim_pt(cluster->pt());
@@ -313,16 +339,17 @@ std::vector<const xAOD::CaloCluster*> egammaSuperClusterBuilder::SearchForSecond
       if (fabs(clus->eta()-cluster->eta()) > 0.2) continue;
       if (fabs(dPhi) > 0.3)                       continue;
     }
+    */
 
     //Shower shape plots show Ecore tops out at 20E3 for hadrons.
-    if (CalculateShowerShape("ecore",clus) < 20E3) continue;
+    //if (CalculateShowerShape("ecore",clus) < 20E3) continue;
 
     //Add it to the list of secondary clusters.
     secondaryClusters.push_back(clus); 
     usedClusters.push_back(clus);
     nClusters++;
 
-    if (nClusters>0) break;
+    //if (nClusters>0) break;
 
   }
     
@@ -348,7 +375,11 @@ xAOD::CaloCluster *egammaSuperClusterBuilder::AddTopoClusters(const std::vector 
   std::vector<const xAOD::CaloCluster*>::const_iterator  matchedClustersEnd = clusters.end();
   matchedClusters++;
 
+  int nClusters(-1);
   for (; matchedClusters!=matchedClustersEnd; matchedClusters++) {
+    nClusters++;
+
+    //const xAOD::CaloCluster *tmpCluster = *matchedClusters;
     const xAOD::CaloCluster *tmpCluster = *matchedClusters;
 
     ATH_MSG_INFO("Adding cells from cluster with energy " << tmpCluster->e());
@@ -365,10 +396,6 @@ xAOD::CaloCluster *egammaSuperClusterBuilder::AddTopoClusters(const std::vector 
   //Update cluster kinematics.
   ATH_MSG_INFO("Added cells, recalculating kinematics");
   CaloClusterKineHelper::calculateKine(myCluster,true,true);
-
-  ATH_MSG_INFO("Filling positions in calo");
-
-
 
   ATH_MSG_INFO("Made supercluster with energy " << myCluster->e());
 
