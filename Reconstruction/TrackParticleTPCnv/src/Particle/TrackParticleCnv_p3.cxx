@@ -54,7 +54,7 @@ void  TrackParticleCnv_p3::persToTrans(const Rec::TrackParticle_p3 * persObj, Re
     
     //----- Kinematics
     const Amg::Vector3D& mom = transObj->definingParameters().momentum();
-    std::vector<const Trk::TrackParameters*>::const_iterator it = transObj->m_trackParameters.begin();
+    //std::vector<const Trk::TrackParameters*>::const_iterator it = transObj->m_trackParameters.begin();
     transObj->setPx (mom[Trk::px]);
     transObj->setPy (mom[Trk::py]);
     transObj->setPz (mom[Trk::pz]);
