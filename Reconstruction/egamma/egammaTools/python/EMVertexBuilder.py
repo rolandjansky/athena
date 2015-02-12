@@ -10,7 +10,7 @@ from RecExConfig.RecFlags import rec
 from AthenaCommon.BeamFlags import jobproperties
 from egammaTrackTools.egammaTrackToolsFactories import EMExtrapolationTools
 
-from InDetTools import egammaInDetTrackSummaryTool, InDet__SingleTrackConversionTool, egammaExtrapolator
+from InDetTools import egammaInDetTrackSummaryTool, egammaExtrapolator
 
 class VertexFinderToolInstance(FcnWrapper):
   def __call__(self):
@@ -36,7 +36,6 @@ EMVertexBuilder = ToolFactory( egammaToolsConf.EMVertexBuilder,
     InputTrackParticleContainerName = egammaKeys.outputTrackParticleKey(),
     OutputConversionContainerName   = egammaKeys.outputConversionKey(),
     VertexFinderTool                = VertexFinderToolInstance(),
-    SingleTrackConversionTool = InDet__SingleTrackConversionTool,
     ExtrapolationTool = EMExtrapolationTools)
 
 

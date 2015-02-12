@@ -39,7 +39,7 @@ use VxVertex                   VxVertex-*              Tracking/TrkEvent
 use TrkTrackLink               TrkTrackLink-*          Tracking/TrkEvent
 use TrkToolInterfaces          TrkToolInterfaces-*     Tracking/TrkTools 
 use ParticleTruth              ParticleTruth-*         Reconstruction 
-
+use TrkPseudoMeasurementOnTrack TrkPseudoMeasurementOnTrack-* Tracking/TrkEvent
 
 use egammaInterfaces	       egammaInterfaces-*      Reconstruction/egamma
 use egammaRecEvent	       egammaRecEvent-*        Reconstruction/egamma

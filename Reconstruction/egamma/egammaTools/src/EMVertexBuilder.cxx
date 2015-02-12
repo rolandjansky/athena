@@ -36,7 +36,6 @@ EMVertexBuilder::EMVertexBuilder(const std::string& type, const std::string& nam
   egammaBaseTool(type, name, parent),
   m_storeGate(0),
   m_vertexFinderTool("InDet::InDetConversionFinderTools"),
-  m_singleTrkConvTool("InDet::SingleTrackConversionTool"),
   m_EMExtrapolationTool("EMExtrapolationTools")
 {
   declareProperty("InputTrackParticleContainerName", m_inputTrackParticleContainerName = "GSFTrackParticles");
@@ -44,10 +43,6 @@ EMVertexBuilder::EMVertexBuilder(const std::string& type, const std::string& nam
   declareProperty("OutputConversionContainerName",   m_outputConversionContainerName = "GSFConversionVertices");
 
   declareProperty("VertexFinderTool",                m_vertexFinderTool);
-
-  // Name of the single track conversion tool
-  declareProperty("SingleTrackConversionTool", m_singleTrkConvTool,
-		  "Handle of the single-track conversion tool");
 
   // Name of the extrapolation tool
   declareProperty("ExtrapolationTool",
@@ -85,15 +80,6 @@ StatusCode EMVertexBuilder::initialize() {
     return StatusCode::FAILURE;
   } else {
     ATH_MSG_DEBUG( "Retrieved tool " << m_vertexFinderTool);
-  }
-
-  //Retrieve Single Track Conversion Tool
-  if ( m_singleTrkConvTool.retrieve().isFailure() ) {
-    ATH_MSG_ERROR("Cannot retrieve single track conversion tool " << m_singleTrkConvTool);
-    return StatusCode::FAILURE;
-  }
-  else {
-    ATH_MSG_DEBUG("Retrieved  single track conversiontool " << m_singleTrkConvTool);
   }
 
   // Retrieve EMExtrapolationTool
@@ -145,12 +131,19 @@ StatusCode EMVertexBuilder::contExecute()
   xAOD::VertexContainer::iterator itVtxEnd = vertices.first->end();
   
   while (itVtx != itVtxEnd){
-
-    // false is to force the extrapolation
-    Amg::Vector3D momentum = m_EMExtrapolationTool->getMomentumAtVertex(**itVtx, false);
-    (*itVtx)->auxdata<float>("px") = momentum.x();
-    (*itVtx)->auxdata<float>("py") = momentum.y();
-    (*itVtx)->auxdata<float>("pz") = momentum.z();
+    xAOD::Vertex& vertex = **itVtx;
+    
+    float p1 = 0.;
+    Amg::Vector3D momentum(0., 0., 0.);
+    for (unsigned int i = 0; i < vertex.nTrackParticles(); ++i)
+    {
+      momentum += m_EMExtrapolationTool->getMomentumAtVertex(vertex, i);
+      if (i == 0) p1 = momentum.mag();
+    }
+    vertex.auxdata<float>("px") = momentum.x();
+    vertex.auxdata<float>("py") = momentum.y();
+    vertex.auxdata<float>("pz") = momentum.z();
+    vertex.auxdata<float>("p1fraction") = p1/momentum.mag();
     
     xAOD::EgammaParameters::ConversionType convType(xAOD::EgammaHelpers::conversionType((*itVtx)));
     bool vxDoubleTRT = (convType == xAOD::EgammaParameters::doubleTRT);

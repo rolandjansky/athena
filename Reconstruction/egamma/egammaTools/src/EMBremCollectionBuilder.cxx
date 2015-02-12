@@ -46,7 +46,7 @@ UPDATE :
 #include "xAODTracking/TrackParticleAuxContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODTruth/TruthParticleContainer.h"
-
+#include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 //std includes
 #include <stdint.h>
 #include <algorithm>
@@ -272,7 +272,7 @@ StatusCode EMBremCollectionBuilder::contExecute()
           ATH_MSG_WARNING("Problem in EMBreCollection Builder Refit");
         } 
 	else { 	
-	  // Add Auxiliary decorations to the GSFTrack
+	  // Add Auxiliary decorations to the GSF Track Particle
 	  // Set Element link to original Track Particle	  
           ElementLink<xAOD::TrackParticleContainer> linkToOriginal(*m_trackTES,trackNumber);
 	  xAOD::TrackParticle* gsfTrack = m_finalTrkPartContainer->back();	  
@@ -406,14 +406,28 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
 
   // Use the the refitted track and the original vertex to construct a new track particle
   xAOD::TrackParticle* aParticle = m_particleCreatorTool->createParticle( *trk_refit, m_finalTrkPartContainer, trkVtx, xAOD::electron );
-  delete trk_refit;
-  if(aParticle!=0) { //store in containers
+  delete trk_refit; 
+  if(aParticle!=0) { //store in container
+
     ElementLink<TrackCollection> trackLink( slimmed, *m_finalTracks);
     aParticle->setTrackLink( trackLink );     
+
+    static SG::AuxElement::Accessor<float > QoverPLM  ("QoverPLM");
+    auto tsos = slimmed->trackStateOnSurfaces()->rbegin();
+    for (;tsos != slimmed->trackStateOnSurfaces()->rend(); ++tsos){
+
+      if ((*tsos)->type(Trk::TrackStateOnSurface::Measurement) && (*tsos)->trackParameters()!=0 &&
+	  (*tsos)->measurementOnTrack()!=0 && !dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((*tsos)->measurementOnTrack())) {
+	QoverPLM(*aParticle) = (*tsos)->trackParameters()->parameters()[Trk::qOverP];
+	break;
+      }
+    }
     return StatusCode::SUCCESS;
   } else {
     return StatusCode::FAILURE;
   }
+
+
 }
 // =================================================================
 bool EMBremCollectionBuilder::Select(const xAOD::CaloCluster*   cluster,

@@ -54,6 +54,8 @@ class egammaSuperClusterBuilder : public AthAlgTool,  virtual public IegammaSupe
   
  private:
 
+  std::string m_inputClusterContainerName;
+
   //Superclustering routines.
   xAOD::CaloCluster* AddTopoClusters (const std::vector<const xAOD::CaloCluster*>&);
 

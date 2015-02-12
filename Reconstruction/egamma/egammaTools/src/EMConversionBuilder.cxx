@@ -77,13 +77,13 @@ EMConversionBuilder::EMConversionBuilder(const std::string& type,
   declareProperty("minSumPt_doubleTRT", m_minSumPt_doubleTRT = 2*GeV,
 		  "minimum sum pT for double TRT track conversion vertices");
 
-  declareProperty("maxEoverP_singleTrack", m_maxEoverP_singleTrack = 10. ,  
+  declareProperty("maxEoverP_singleTrack", m_maxEoverP_singleTrack = 10.,
       "Maximum E/p for single track conversion vertices");
 
-  declareProperty("maxEoverP_singleTrack_EtSf", m_maxEoverP_singleTrack_EtSf = 0. ,  
+  declareProperty("maxEoverP_singleTrack_EtSf", m_maxEoverP_singleTrack_EtSf = 0.01,  
       "Scale maxEoverP_singleTrack by ( 1+sf*Et(cluster)/GeV ) ");
   
-  declareProperty("maxTRTTubeHitFraction", m_maxTRTTubeHitFraction = 1. ,  
+  declareProperty("maxTRTTubeHitFraction", m_maxTRTTubeHitFraction = 0.6,
       "Maximum fraction of tube hits for vertices with TRT tracks");
   
 
