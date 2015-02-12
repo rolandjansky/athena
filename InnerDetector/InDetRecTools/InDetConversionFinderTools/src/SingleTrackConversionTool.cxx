@@ -323,7 +323,7 @@ namespace InDet {
       int nTrtXenonHits  = tSum->get(Trk::numberOfTRTXenonHits);
 
       if(ntrt > 0 && (!m_PIDonlyForXe || nTrtXenonHits==ntrt) ) { // only check TRT PID if m_PIDonlyForXe is false or all TRT hits are Xenon hits
-	      double prob = tSum->getPID(Trk::eProbabilityComb);
+	      double prob = tSum->getPID(Trk::eProbabilityHT);
 	      if(prob < m_singleThreshold) pass = false;
       }
 
@@ -522,7 +522,7 @@ namespace InDet {
 
     if(ntrt > 0 && (!m_PIDonlyForXe || nTrtXenonHits==ntrt) ) { // only check TRT PID if m_PIDonlyForXe is false or all TRT hits are Xenon hits
       float prob = 1.0;
-      if( !track->summaryValue(prob,xAOD::eProbabilityComb) )
+      if( !track->summaryValue(prob,xAOD::eProbabilityHT) )
       {
         ATH_MSG_WARNING("Could not retrieve TR probability");
         return false;
