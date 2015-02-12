@@ -26,7 +26,6 @@
 // Utilities
 #include <cmath>
 
-#include "GaudiKernel/MsgStream.h"
 
 // This algorithm includes
 #include "TrigT1CaloSim/EnergyCMX.h"
@@ -40,7 +39,7 @@ namespace LVL1 {
 
 EnergyCMX::EnergyCMX
   ( const std::string& name, ISvcLocator* pSvcLocator )
-    : Algorithm( name, pSvcLocator ), 
+    : AthAlgorithm( name, pSvcLocator ), 
       m_storeGate("StoreGateSvc", name),
       m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
       m_EtTool("LVL1::L1EtTools/L1EtTools"),
@@ -65,8 +64,7 @@ EnergyCMX::EnergyCMX
 
 // Destructor
 EnergyCMX::~EnergyCMX() {
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::INFO << "Destructor called" << endreq;
+  ATH_MSG_INFO("Destructor called");
 	
 }
 
@@ -80,19 +78,16 @@ StatusCode EnergyCMX::initialize()
 
   // We must here instantiate items which can only be made after
   // any job options have been set
-  MsgStream log( messageService(), name() ) ;
 
   //
   // Connect to the LVL1ConfigSvc for the trigger configuration:
   //
   StatusCode sc = m_configSvc.retrieve();
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't connect to " << m_configSvc.typeAndName() 
-        << endreq;
+    ATH_MSG_ERROR( "Couldn't connect to " << m_configSvc.typeAndName() );
     return sc;
   } else {
-    log << MSG::DEBUG << "Connected to " << m_configSvc.typeAndName() 
-        << endreq;
+    ATH_MSG_DEBUG("Connected to " << m_configSvc.typeAndName() );
   }
 
   //
@@ -100,18 +95,16 @@ StatusCode EnergyCMX::initialize()
   //
   sc = m_storeGate.retrieve();
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't connect to " << m_storeGate.typeAndName() 
-        << endreq;
+    ATH_MSG_ERROR( "Couldn't connect to " << m_storeGate.typeAndName() );
     return sc;
   } else {
-    log << MSG::DEBUG << "Connected to " << m_storeGate.typeAndName() 
-        << endreq;
+    ATH_MSG_DEBUG( "Connected to " << m_storeGate.typeAndName() );
   }
 
   // Retrieve L1EtTool tool
   sc = m_EtTool.retrieve();
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Problem retrieving EtTool. Abort execution" << endreq;
+    ATH_MSG_ERROR( "Problem retrieving EtTool. Abort execution" );
     return StatusCode::SUCCESS;
   }
 
@@ -139,8 +132,7 @@ StatusCode EnergyCMX::beginRun()
 
 StatusCode EnergyCMX::finalize()
 {
-   MsgStream log( messageService(), name() ) ;
-   log << MSG::INFO << "Finalizing" << endreq;
+   ATH_MSG_INFO( "Finalizing" );
    return StatusCode::SUCCESS ;
 }
 
@@ -155,25 +147,13 @@ StatusCode EnergyCMX::execute( )
 {
   //make a message logging stream
 
-  MsgStream log( messageService(), name() );
-  int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "Executing" << endreq;
+  ATH_MSG_DEBUG( "Executing" );
    
   // form module sums
   EnergyCMXDataCollection* jemContainer;
-  if (m_storeGate->contains<EnergyCMXDataCollection>(m_energyCMXDataLocation)) {
-  
-    StatusCode sc = m_storeGate->retrieve(jemContainer,m_energyCMXDataLocation);
-    if ( sc==StatusCode::SUCCESS ) {
-      // Warn if we find an empty container
-      if (jemContainer->size() == 0)
-        log << MSG::WARNING << "Empty EnergyCMXDataCollection - looks like a problem" << endreq;
     
-    }
-    else log << MSG::WARNING << "Error retrieving module ET sums" << endreq;
-  }
-  else log << MSG::WARNING << "No EnergyCMXDataCollection at " << m_energyCMXDataLocation << endreq;
-    
+  CHECK(evtStore()->retrieve(jemContainer,m_energyCMXDataLocation));
+      
   // form crate sums (full eta range)
   DataVector<CrateEnergy>* cratesFull  = new DataVector<CrateEnergy>;
   m_EtTool->crateSums(jemContainer, cratesFull);
@@ -181,8 +161,30 @@ StatusCode EnergyCMX::execute( )
   SystemEnergy resultsFull = m_EtTool->systemSums(cratesFull);
   m_resultsFull = &resultsFull;
   
+  /** Find restructed eta range.
+   *  This will use the min/max values for any threshold in the range 9-16 to define the ranges
+   */
+  float etaTrunc =  4.9;
+  
+  L1DataDef def;
+  std::vector<TriggerThreshold*> thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
+  std::vector<TriggerThreshold*>::const_iterator it;
+  
+  for (it = thresholds.begin(); it != thresholds.end(); ++it) {
+    if ( (*it)->type() == def.xeType() || (*it)->type() == def.teType() ) {
+      //if ( (*it)->thresholdNumber() > 8 ) {
+	std::vector<TriggerThresholdValue*> ttvs = (*it)->thresholdValueVector();
+	std::vector<TriggerThresholdValue*>::const_iterator itv;
+	for (itv = ttvs.begin(); itv != ttvs.end(); ++itv) {
+	  if ( abs((*itv)->etamin())*0.1 < etaTrunc ) etaTrunc = abs((*itv)->etamin())*0.1;
+	  if ( abs((*itv)->etamax())*0.1 < etaTrunc ) etaTrunc = abs((*itv)->etamax())*0.1;
+	}
+      //}
+    }
+  }
+  
+  
   // form crate sums (restricted eta range)
-  float etaTrunc = 2.4;
   DataVector<CrateEnergy>* cratesTrunc  = new DataVector<CrateEnergy>;
   m_EtTool->crateSums(jemContainer, cratesTrunc, etaTrunc);
   // system summation and threshold tests
@@ -276,7 +278,7 @@ StatusCode EnergyCMX::execute( )
   
   // save Sums in SG
   StatusCode sc1 = m_storeGate->overwrite(CMXSums, m_cmxEtsumsLocation,true,false,false);
-  if (!sc1.isSuccess()) log << MSG::ERROR << "Failed to store CMXEtsums" << endreq;
+  if (!sc1.isSuccess()) ATH_MSG_ERROR( "Failed to store CMXEtsums" );
    
   
   // Topo data
@@ -291,7 +293,7 @@ StatusCode EnergyCMX::execute( )
   topoData->addEt(m_resultsTrunc->et(),   m_resultsTrunc->etOverflow(), LVL1::EnergyTopoData::Restricted);
 
   StatusCode sc2 = m_storeGate->overwrite(topoData, m_energyTopoLocation,true,false,false);
-  if (!sc2.isSuccess()) log << MSG::ERROR << "Failed to store EnergyTopoData" << endreq;
+  if (!sc2.isSuccess()) ATH_MSG_ERROR( "Failed to store EnergyTopoData" );
 
   // tidy up at end of event
   delete cratesFull;
@@ -312,9 +314,7 @@ void LVL1::EnergyCMX::cleanup(){
 
 /** retrieves the Calo config put into detectorstore by TrigT1CTP and set up trigger menu */
 void LVL1::EnergyCMX::setupTriggerMenuFromCTP(){
-  MsgStream log( messageService(), name() );
-  int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG<<"Loading Trigger Menu"<<endreq;
+  ATH_MSG_DEBUG("Loading Trigger Menu");
   
   std::vector<TriggerThreshold*> thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
   std::vector<TriggerThreshold*>::const_iterator it;
@@ -323,11 +323,11 @@ void LVL1::EnergyCMX::setupTriggerMenuFromCTP(){
     /// Debug printout of menu
     if ( (*it)->type() == m_def.xeType() || (*it)->type() == m_def.teType() || (*it)->type() == m_def.xsType() ) {
      TriggerThresholdValue* tv = (*it)->triggerThresholdValue(0,0); // ET trigger thresholds can only have one global value
-     log << MSG::DEBUG << "TriggerThreshold " << (*it)->name() << " has:" << endreq
+     ATH_MSG_DEBUG("TriggerThreshold " << (*it)->name() << " has:" << endreq
          << "--------------------------" << endreq
          << " Number   = " << (*it)->thresholdNumber() << endreq
          << " Type     = " << (*it)->type() << endreq
-         << " Value    = " << (*tv).thresholdValueCount() << endreq;
+         << " Value    = " << (*tv).thresholdValueCount() );
 	         
     } //  is type == energySum trigger
   } // end of loop over thresholds
@@ -340,9 +340,7 @@ void LVL1::EnergyCMX::setupTriggerMenuFromCTP(){
 
 /** form CMXRoI & save in SG */
 void LVL1::EnergyCMX::saveRoIs(){
-  MsgStream log( messageService(), name() );
-  int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG<<"saveRoIs"<<endreq;
+  ATH_MSG_DEBUG("saveRoIs");
 
   // copy values into roi words
   unsigned int roiWord0 = m_resultsFull->roiWord0();
@@ -359,21 +357,21 @@ void LVL1::EnergyCMX::saveRoIs(){
   CMXRoI* daqRoI = new CMXRoI();
   // Add data to RoI object. The object will perform format checks on inputs
   bool added = daqRoI->setRoiWord(roiWord0);
-  if (!added) log << MSG::WARNING << "Failed to add RoI Word 0: " << MSG::hex << roiWord0 << MSG::dec << endreq;
+  if (!added) ATH_MSG_WARNING("Failed to add RoI Word 0: " << MSG::hex << roiWord0 << MSG::dec);
   added = daqRoI->setRoiWord(roiWord1);
-  if (!added) log << MSG::WARNING << "Failed to add RoI Word 1: " << MSG::hex << roiWord1 << MSG::dec << endreq;
+  if (!added) ATH_MSG_WARNING("Failed to add RoI Word 1: " << MSG::hex << roiWord1 << MSG::dec);
   added = daqRoI->setRoiWord(roiWord2);
-  if (!added) log << MSG::WARNING << "Failed to add RoI Word 2: " << MSG::hex << roiWord2 << MSG::dec << endreq;
+  if (!added) ATH_MSG_WARNING( "Failed to add RoI Word 2: " << MSG::hex << roiWord2 << MSG::dec );
   added = daqRoI->setRoiWord(roiWord3);
-  if (!added) log << MSG::WARNING << "Failed to add RoI Word 3: " << MSG::hex << roiWord3 << MSG::dec << endreq;
+  if (!added) ATH_MSG_WARNING( "Failed to add RoI Word 3: " << MSG::hex << roiWord3 << MSG::dec );
   added = daqRoI->setRoiWord(roiWord4);
-  if (!added) log << MSG::WARNING << "Failed to add RoI Word 4: " << MSG::hex << roiWord4 << MSG::dec << endreq;
+  if (!added) ATH_MSG_WARNING( "Failed to add RoI Word 4: " << MSG::hex << roiWord4 << MSG::dec );
   added = daqRoI->setRoiWord(roiWord5);
-  if (!added) log << MSG::WARNING << "Failed to add RoI Word 5: " << MSG::hex << roiWord5 << MSG::dec << endreq;
+  if (!added) ATH_MSG_WARNING( "Failed to add RoI Word 5: " << MSG::hex << roiWord5 << MSG::dec );
 
   // save RoIs in SG
   StatusCode sc = m_storeGate->overwrite(daqRoI, m_cmxRoILocation,true,false,false);
-  if (!sc.isSuccess()) log << MSG::ERROR << "Failed to store CMXRoI object" << endreq;
+  if (!sc.isSuccess()) ATH_MSG_ERROR( "Failed to store CMXRoI object" );
   
   return;
 }
@@ -387,9 +385,7 @@ unsigned int LVL1::EnergyCMX::ctpWord(unsigned int metSigPassed, unsigned int et
 
 /** form CTP objects and store them in SG. */
 void LVL1::EnergyCMX::saveCTPObjects(){
-  MsgStream log( messageService(), name() );
-  int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG<<"saveCTPObjects"<<endreq;
+  ATH_MSG_DEBUG("saveCTPObjects");
 
   // get bit words of thresholds passed
   unsigned int etSumHitsFull   = m_resultsFull->etSumHits();
@@ -411,11 +407,10 @@ void LVL1::EnergyCMX::saveCTPObjects(){
   // record in SG
   StatusCode sc = m_storeGate->overwrite(energyCTP, m_energyCTPLocation);
   if (sc.isSuccess() ){
-    if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG
-       << "Stored energy CTP object with words "<< std::hex
-       << (energyCTP->cableWord0()) << ", " <<  (energyCTP->cableWord1())<< std::dec << endreq;
+    ATH_MSG_DEBUG( "Stored energy CTP object with words "<< std::hex
+       << (energyCTP->cableWord0()) << ", " <<  (energyCTP->cableWord1())<< std::dec);
   }else{
-    log << MSG::ERROR << "Failed to store energy CTP object "<< endreq;
+    ATH_MSG_ERROR("Failed to store energy CTP object ");
   }
   return;  
 }

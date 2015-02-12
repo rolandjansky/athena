@@ -23,8 +23,7 @@
  #include <vector>
 
  // Athena/Gaudi
- #include "GaudiKernel/Algorithm.h"
- #include "GaudiKernel/MsgStream.h"
+ #include "AthenaBaseComps/AthAlgorithm.h"
  #include "GaudiKernel/ServiceHandle.h"
  #include "GaudiKernel/ToolHandle.h"
  
@@ -49,7 +48,7 @@
    /**
   The algorithm responsible for simulating the Em/tau calo trigger.
    */
- class CPCMX : public Algorithm
+ class CPCMX : public AthAlgorithm
  {
 
   typedef DataVector<LVL1::CPMCMXData> t_cpmDataContainer;

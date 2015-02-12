@@ -29,7 +29,7 @@ namespace LVL1 {
 */
   
 Run2JetElementMaker::Run2JetElementMaker( const std::string& name, ISvcLocator* pSvcLocator ) 
-  : Algorithm( name, pSvcLocator ), 
+  : AthAlgorithm( name, pSvcLocator ), 
     m_storeGate("StoreGateSvc", name),
     m_JetElementTool("LVL1::L1JetElementTools/L1JetElementTools")
 {
@@ -45,8 +45,7 @@ Run2JetElementMaker::Run2JetElementMaker( const std::string& name, ISvcLocator* 
 }
   
 Run2JetElementMaker::~Run2JetElementMaker() {
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::INFO << "Destructor called" << endreq;
+  ATH_MSG_INFO( "Destructor called" );
 } 
 
 
@@ -57,24 +56,23 @@ StatusCode Run2JetElementMaker::initialize()
   // We must here instantiate items which can only be made after
   // any job options have been set
 
-   MsgStream log( messageService(), name() ) ;
    int outputLevel = msgSvc()->outputLevel( name() );
-   log << MSG::INFO << "Initialising" << endreq;
+   ATH_MSG_INFO( "Initialising" );
 
    StatusCode sc = m_storeGate.retrieve();
    if ( sc.isFailure() ) {
-     log << MSG::ERROR << "Couldn't connect to " << m_storeGate.typeAndName() 
-         << endreq;
+     ATH_MSG_ERROR( "Couldn't connect to " << m_storeGate.typeAndName() 
+         );
      return sc;
    } else {
      if (outputLevel <= MSG::DEBUG)
-        log << MSG::DEBUG << "Connected to " << m_storeGate.typeAndName() << endreq;
+        ATH_MSG_DEBUG( "Connected to " << m_storeGate.typeAndName() );
    }
    
   // Retrieve L1JetElementTool
   sc = m_JetElementTool.retrieve();
   if (sc.isFailure())
-    log << MSG::ERROR << "Problem retrieving JetElementTool. There will be trouble." << endreq;
+    ATH_MSG_ERROR( "Problem retrieving JetElementTool. There will be trouble." );
   
    return StatusCode::SUCCESS ;
    
@@ -85,8 +83,7 @@ StatusCode Run2JetElementMaker::initialize()
 for deleting histograms and general tidying up*/
 StatusCode Run2JetElementMaker::finalize()
 {
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::INFO << "Finalizing" << endreq;
+  ATH_MSG_INFO( "Finalizing" );
   return StatusCode::SUCCESS ;
 }
 
@@ -106,10 +103,9 @@ StatusCode Run2JetElementMaker::execute( )
   //................................
   // make a message logging stream
 
-  MsgStream log( messageService(), name() ) ;
   int outputLevel = msgSvc()->outputLevel( name() );
 
-  if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "Executing" << endreq;
+  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "Executing" );
 
   // What we are (hopefully) going to make:
   JECollection* vectorOfJEs = new JECollection;
@@ -122,16 +118,16 @@ StatusCode Run2JetElementMaker::execute( )
       // Fill a DataVector of JetElements using L1JetElementTools
       m_JetElementTool->makeJetElements(vectorOfTTs, vectorOfJEs);
       if (outputLevel <= MSG::DEBUG)
-         log <<MSG::DEBUG<< vectorOfJEs->size()<<" JetElements have been generated"<<endreq;
+         ATH_MSG_DEBUG(vectorOfJEs->size()<<" JetElements have been generated");
     }
-    else log << MSG::WARNING << "Failed to retrieve TriggerTowers from " << m_triggerTowerLocation << endreq;
+    else ATH_MSG_WARNING( "Failed to retrieve TriggerTowers from " << m_triggerTowerLocation );
   }
-  else log << MSG::WARNING << "No TriggerTowerContainer at " << m_triggerTowerLocation << endreq;
+  else ATH_MSG_WARNING( "No TriggerTowerContainer at " << m_triggerTowerLocation );
   
   // Save JetElements in the TES
   StatusCode sc = m_storeGate->record(vectorOfJEs, m_jetElementLocation);
   if (sc.isFailure())
-    log << MSG::WARNING << "Failed to write JetElements to TES at " << m_jetElementLocation << endreq;
+    ATH_MSG_WARNING( "Failed to write JetElements to TES at " << m_jetElementLocation );
 																	 
   // and we're done
   vectorOfJEs=0;

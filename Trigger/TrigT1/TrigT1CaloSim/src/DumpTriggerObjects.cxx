@@ -35,7 +35,7 @@ namespace LVL1{
 
 DumpTriggerObjects::DumpTriggerObjects
   (const std::string& name, ISvcLocator* pSvcLocator)
-    : Algorithm(name, pSvcLocator), 
+    : AthAlgorithm(name, pSvcLocator), 
       m_storedTTs(0),
       jetElements(0),
       m_storeGate("StoreGateSvc", name),
@@ -58,8 +58,8 @@ DumpTriggerObjects::DumpTriggerObjects
 // Destructor
 DumpTriggerObjects::~DumpTriggerObjects()
 {
-    MsgStream log(messageService(), name());
-    log << MSG::INFO << "Destructor called" << endreq;
+    
+    ATH_MSG_INFO( "Destructor called" );
     
     m_oFile->close();
     delete m_ttContainer;
@@ -75,16 +75,16 @@ StatusCode DumpTriggerObjects::initialize()
 
   // We must here instantiate items which can only be made after
   // any job options have been set
-  MsgStream log(messageService(), name()) ;
+  
 
   // This isn't good code - very poor error checking!
   StatusCode sc = m_storeGate.retrieve();
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't connect to " << m_storeGate.typeAndName() 
-        << endreq;
+    ATH_MSG_ERROR( "Couldn't connect to " << m_storeGate.typeAndName() 
+        );
   } else {
-    log << MSG::DEBUG << "Connected to " << m_storeGate.typeAndName() 
-        << endreq;
+    ATH_MSG_DEBUG( "Connected to " << m_storeGate.typeAndName() 
+        );
   }
   
   return StatusCode::SUCCESS ;
@@ -97,8 +97,8 @@ StatusCode DumpTriggerObjects::initialize()
 
 StatusCode DumpTriggerObjects::finalize()
 {
-    MsgStream log(messageService(), name()) ;
-    log << MSG::INFO << "Finalizing" << endreq;
+    
+    ATH_MSG_INFO( "Finalizing" );
     return StatusCode::SUCCESS ;
 }
 
@@ -113,8 +113,8 @@ StatusCode DumpTriggerObjects::execute( )
 {
   // make a message logging stream
 
-    MsgStream log(messageService(), name()) ;
-    log << MSG::DEBUG << "Executing" << endreq;
+    
+    ATH_MSG_DEBUG( "Executing" );
 
     //Create a map to hold the towers
     m_jetElementContainer = new std::map<int, JetElement*>; 
@@ -150,7 +150,7 @@ StatusCode DumpTriggerObjects::execute( )
 
 StatusCode DumpTriggerObjects::loadTriggerTowers()
 {
-    MsgStream log(messageService(), name());
+    
     // Find trigger towers in TES
     StatusCode sc1 = m_storeGate->retrieve(m_storedTTs, m_triggerTowerLocation);
 
@@ -159,19 +159,15 @@ StatusCode DumpTriggerObjects::loadTriggerTowers()
 
     if((sc1 == StatusCode::FAILURE))
     {
-        log << MSG::DEBUG
-            << " No TriggerTowers found in TES at "
-            << m_triggerTowerLocation
-            << endreq ;
+        ATH_MSG_DEBUG(" No TriggerTowers found in TES at "
+            << m_triggerTowerLocation);
         return StatusCode::SUCCESS;
     }
     
     if((sc2 == StatusCode::FAILURE))
     {
-        log << MSG::DEBUG
-            << " No JetElements found in TES at "
-            << m_jetElementLocation
-            << endreq ;
+        ATH_MSG_DEBUG( " No JetElements found in TES at "
+            << m_jetElementLocation);
         return StatusCode::SUCCESS;
     }
 
@@ -191,9 +187,7 @@ StatusCode DumpTriggerObjects::loadTriggerTowers()
         EMData = InitialiseArray();
         HData = InitialiseArray();
     }catch(char *str){
-        log << MSG::ERROR
-	    << str
-	    << endreq;
+        ATH_MSG_ERROR(str);
 	EMData = 0;
 	HData =0;
     }
@@ -205,9 +199,7 @@ StatusCode DumpTriggerObjects::loadTriggerTowers()
         EMData = FinaliseArray(EMData);
         HData = FinaliseArray(HData);
     }else{
-       log << MSG::ERROR
-	   << "Trigger Tower Arrays not initialised."
-	   << endreq;
+       ATH_MSG_ERROR("Trigger Tower Arrays not initialised.");
     }
    
     *m_oFile << std::endl;
@@ -221,9 +213,7 @@ StatusCode DumpTriggerObjects::loadTriggerTowers()
         EMData = InitialiseArray();
         HData = InitialiseArray();
     }catch(char *str){
-        log << MSG::ERROR
-	    << str
-	    << endreq;
+        ATH_MSG_ERROR(str);
 	EMData = 0;
 	HData = 0;
     }
@@ -235,9 +225,7 @@ StatusCode DumpTriggerObjects::loadTriggerTowers()
         EMData = FinaliseArray(EMData);       
         HData = FinaliseArray(HData);       
     }else{
-       log << MSG::ERROR
-	   << "Jet Array not initialised."
-	   << endreq;
+        ATH_MSG_ERROR("Jet Array not initialised.");
     }
    
    
@@ -252,8 +240,8 @@ StatusCode DumpTriggerObjects::loadTriggerTowers()
  */
 void DumpTriggerObjects::JEDumpOutput()
 {
-    MsgStream log(messageService(), name()) ;
-    log << MSG::INFO << "Dumping Full Jet Element Output to file: JetElementOutput.dat" << endreq;
+    
+    ATH_MSG_INFO( "Dumping Full Jet Element Output to file: JetElementOutput.dat" );
 
     std::ofstream *output = new std::ofstream("JetElementOuput.dat", std::ios::app|std::ios::out);
     for(int i = 0; i < EtaMax; i+=4){
@@ -273,8 +261,8 @@ void DumpTriggerObjects::JEDumpOutput()
 int DumpTriggerObjects::Phi2Bin(double phi)
 {
     if(phi >= 2*M_PI || phi < 0){
-        MsgStream log(messageService(), name()) ;
-    	log << MSG::ERROR << "Phi out of range.  Setting phi to 0." << endreq;
+        
+    	ATH_MSG_ERROR( "Phi out of range.  Setting phi to 0." );
 	phi = 0;
     }
     return int(PhiMax*phi/(2*M_PI));
@@ -291,8 +279,8 @@ int DumpTriggerObjects::Phi2Bin(double phi)
 int DumpTriggerObjects::JEEta2Bin(double eta)
 {
     if(eta >= 5 || eta < -5){
-        MsgStream log(messageService(), name());
-        log << MSG::ERROR << "Eta out of range.  Setting eta to 0." << endreq;
+        
+        ATH_MSG_ERROR( "Eta out of range.  Setting eta to 0." );
 	eta = -5;
     }
     return int(EtaMax*(eta+5)/10);
@@ -359,14 +347,12 @@ void DumpTriggerObjects::JELoadArray()
             int jetElementPhiBin = Phi2Bin((*ij)->phi());
 	    int jetElementEtaBin = JEEta2Bin((*ij)->eta());
  
-            MsgStream log(messageService(), name());   
-            log << MSG::VERBOSE
-	        << "Dump: JE has coords ("
-	        << (*ij)->phi()<<", "
-      	        << (*ij)->eta()
-                << " and energy : " 
-	        << (*ij)->energy()
-	        << endreq;
+               
+            ATH_MSG_VERBOSE( "Dump: JE has coords ("
+			    << (*ij)->phi()<<", "
+			    << (*ij)->eta()
+			    << " and energy : " 
+			    << (*ij)->energy());
 				     
             EMData[jetElementPhiBin][jetElementEtaBin] += (*ij)->emEnergy();
             HData[jetElementPhiBin][jetElementEtaBin] += (*ij)->hadEnergy();
@@ -389,14 +375,12 @@ void DumpTriggerObjects::TTLoadArray()
             int ttElementPhiBin = Phi2Bin((*it)->phi());
   	    int ttElementEtaBin = TTEta2Bin((*it)->eta());
 	
-	    MsgStream log(messageService(), name());
-	    log << MSG::VERBOSE 
-	        << "Dump: TT has coords (" 
-	        << (*it)->phi() << ", " 
-	        << (*it)->eta() << " and energies : " 
-	        << (*it)->emEnergy() << ", " 
-	        << (*it)->hadEnergy() << " (Em,Had)" 
-	        << endreq;
+	    
+	    ATH_MSG_VERBOSE( "Dump: TT has coords (" 
+			      << (*it)->phi() << ", " 
+			      << (*it)->eta() << " and energies : " 
+			      << (*it)->emEnergy() << ", " 
+			      << (*it)->hadEnergy() << " (Em,Had)" );
 	     
 	    EMData[ttElementPhiBin][ttElementEtaBin] += (*it)->emEnergy();
 	    HData[ttElementPhiBin][ttElementEtaBin] += (*it)->hadEnergy();
@@ -413,8 +397,8 @@ void DumpTriggerObjects::TTLoadArray()
  */
 void DumpTriggerObjects::TTDumpOutput()
 {
-    MsgStream log(messageService(), name()) ;
-    log << MSG::INFO << "Dumping Trigger Tower full output to file: TriggerTowerOutput.dat" << endreq;
+    
+    ATH_MSG_INFO( "Dumping Trigger Tower full output to file: TriggerTowerOutput.dat" );
 
     std::ofstream *output = new std::ofstream("TriggerTowerOutput.dat", std::ios::app|std::ios::out);
     for(int i = 0; i < EtaMax; i+=4)
@@ -464,8 +448,8 @@ int **DumpTriggerObjects::InitialiseArray()
  */
 int **DumpTriggerObjects::FinaliseArray(int **data)
 {
-    MsgStream log(messageService(), name());
-    log << MSG::DEBUG << "Clearing data array." << endreq;
+    
+    ATH_MSG_DEBUG( "Clearing data array." );
 
     for(int i = 0; i < PhiMax; i++){
         delete [] data[i];
@@ -484,8 +468,8 @@ int **DumpTriggerObjects::FinaliseArray(int **data)
  */
 void DumpTriggerObjects::TTHighestOutput()
 {
-    MsgStream log(messageService(), name());
-    log << MSG::INFO << "Dumping Highest TT values per group to file: HighestTriggerTowers.dat" << endreq;
+    
+    ATH_MSG_INFO( "Dumping Highest TT values per group to file: HighestTriggerTowers.dat" );
 
     std::ofstream *output = new std::ofstream("HighestTriggerTowers.dat", std::ios::out|std::ios::app);
     int highestEnergy = 0;
@@ -526,8 +510,8 @@ void DumpTriggerObjects::TTHighestOutput()
  */
 void DumpTriggerObjects::JEHighestOutput()
 {
-    MsgStream log(messageService(), name()) ;
-    log << MSG::INFO << "Dumping highest JE values per group to file: JemInputMain_Athena.txt" << endreq;
+    
+    ATH_MSG_INFO( "Dumping highest JE values per group to file: JemInputMain_Athena.txt" );
 
     std::ofstream *output = new std::ofstream("JemInputMain_Athena.txt", std::ios::out|std::ios::app);
     int highestEnergy = 0;

@@ -47,7 +47,7 @@ using namespace TrigConf;
 
 CPMSim::CPMSim
   ( const std::string& name, ISvcLocator* pSvcLocator )
-    : Algorithm( name, pSvcLocator ), 
+    : AthAlgorithm( name, pSvcLocator ), 
       m_allTOBs(0),
       m_CMXData(0),
       m_storeGate("StoreGateSvc", name), 
@@ -80,8 +80,7 @@ CPMSim::CPMSim
 
 // Destructor
 CPMSim::~CPMSim() {
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::INFO << "Destructor called" << endreq;
+  ATH_MSG_INFO("Destructor called" );
 }
 
 
@@ -94,7 +93,6 @@ StatusCode CPMSim::initialize()
 
   // We must here instantiate items which can only be made after
   // any job options have been set
-  MsgStream log( messageService(), name() ) ;
   int outputLevel = msgSvc()->outputLevel( name() );
 
      //
@@ -102,30 +100,30 @@ StatusCode CPMSim::initialize()
     //
   StatusCode sc = m_configSvc.retrieve();
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't connect to " << m_configSvc.typeAndName() 
-        << endreq;
+    ATH_MSG_ERROR("Couldn't connect to " << m_configSvc.typeAndName() 
+        );
     return sc;
   } else if (outputLevel <= MSG::DEBUG) {
-    log << MSG::DEBUG << "Connected to " << m_configSvc.typeAndName() 
-        << endreq;
+    ATH_MSG_DEBUG("Connected to " << m_configSvc.typeAndName() 
+        );
   }
 
   // Now connect to the StoreGateSvc
 
   sc = m_storeGate.retrieve();
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't connect to " << m_storeGate.typeAndName() 
-        << endreq;
+    ATH_MSG_ERROR("Couldn't connect to " << m_storeGate.typeAndName() 
+        );
     return sc;
   } else if (outputLevel <= MSG::DEBUG) {
-    log << MSG::DEBUG << "Connected to " << m_storeGate.typeAndName() 
-        << endreq;
+    ATH_MSG_DEBUG("Connected to " << m_storeGate.typeAndName() 
+        );
   }
 
   // Retrieve L1CPMTool
   sc = m_CPMTool.retrieve();
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Problem retrieving CPMTool. Abort execution" << endreq;
+    ATH_MSG_ERROR("Problem retrieving CPMTool. Abort execution" );
     return StatusCode::SUCCESS;
   }
     
@@ -154,8 +152,7 @@ StatusCode CPMSim::beginRun()
 
 StatusCode CPMSim::finalize()
 {
-   MsgStream log( messageService(), name() ) ;
-   log << MSG::INFO << "Finalizing" << endreq;
+   ATH_MSG_INFO("Finalizing" );
    return StatusCode::SUCCESS ;
 }
 
@@ -178,16 +175,15 @@ StatusCode CPMSim::execute( )
 
   //make a message logging stream
 
-  MsgStream log( messageService(), name() );
   int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "starting CPMSim" << endreq; 
+  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG("starting CPMSim" ); 
 
   // For RoI output SLink record
   const EventInfo* evt;
   if (StatusCode::SUCCESS == m_storeGate->retrieve(evt)){
     m_eventNumber = evt->event_ID()->event_number();
   }else{
-    log << MSG::ERROR<< " Unable to retrieve EventInfo from StoreGate "<< endreq;
+    ATH_MSG_ERROR(" Unable to retrieve EventInfo from StoreGate ");
   }
 
   // Create containers for this event
@@ -201,7 +197,7 @@ StatusCode CPMSim::execute( )
     if ( sc==StatusCode::SUCCESS ) {
        // Check size of TriggerTowerCollection - zero would indicate a problem
       if (storedCPMTs->size() == 0)
-         log << MSG::WARNING << "Empty CPMTowerContainer - looks like a problem" << endreq;
+         ATH_MSG_WARNING("Empty CPMTowerContainer - looks like a problem" );
 	
       // Map the CPMTs
       std::map<int, CPMTower*>* towerMap = new std::map<int, CPMTower*>;
@@ -229,9 +225,9 @@ StatusCode CPMSim::execute( )
   
     } // found TriggerTowers
     
-    else log << MSG::WARNING << "Error retrieving CPMTowers" << endreq;
+    else ATH_MSG_WARNING("Error retrieving CPMTowers" );
   }
-  else log << MSG::WARNING << "No CPMTowerContainer at " << m_CPMTowerLocation << endreq;
+  else ATH_MSG_WARNING("No CPMTowerContainer at " << m_CPMTowerLocation );
   
       
   // Store RoIB output, module readout and backplane results in the TES
@@ -249,7 +245,6 @@ StatusCode CPMSim::execute( )
 /** place backplane data objects (CPM -> CMX) in StoreGate */
 void CPMSim::storeBackplaneTOBs() {
 
-  MsgStream log( messageService(), name() );
   int outputLevel = msgSvc()->outputLevel( name() );
     
   // Store backplane data objects
@@ -257,12 +252,12 @@ void CPMSim::storeBackplaneTOBs() {
 
   if (sc.isSuccess()) {
      if (outputLevel <= MSG::VERBOSE)
-         log << MSG::VERBOSE << "Stored " << m_CMXData->size()
-             << " CPMCMXData at " << m_CPMCMXDataLocation << endreq;
+         ATH_MSG_VERBOSE("Stored " << m_CMXData->size()
+             << " CPMCMXData at " << m_CPMCMXDataLocation );
   }
   else {
-     log << MSG::ERROR << "failed to write CPMCMXData to  "
-         << m_CPMCMXDataLocation << endreq;
+     ATH_MSG_ERROR("failed to write CPMCMXData to  "
+         << m_CPMCMXDataLocation );
   } 
 
   return;
@@ -273,19 +268,18 @@ void CPMSim::storeBackplaneTOBs() {
 /** place final ROI objects in the TES. */
 void CPMSim::storeModuleRoIs() {
 
-  MsgStream log( messageService(), name() );
   int outputLevel = msgSvc()->outputLevel( name() );
     
   StatusCode sc = m_storeGate->overwrite(m_allTOBs, m_CPMTobRoILocation,true,false,false);
 
   if (sc.isSuccess()) {
      if (outputLevel <= MSG::VERBOSE)
-         log << MSG::VERBOSE << "Stored " << m_allTOBs->size()
-             << " EM & Tau TOBs at " << m_CPMTobRoILocation << endreq;
+         ATH_MSG_VERBOSE("Stored " << m_allTOBs->size()
+             << " EM & Tau TOBs at " << m_CPMTobRoILocation );
   }
   else {
-     log << MSG::ERROR << "failed to write CPMTobRoIs to  "
-         << m_CPMTobRoILocation << endreq;
+     ATH_MSG_ERROR("failed to write CPMTobRoIs to  "
+         << m_CPMTobRoILocation );
   } 
 
   return;
@@ -294,8 +288,8 @@ void CPMSim::storeModuleRoIs() {
 
 /** Simulate SLink streams to RoIB */
 void CPMSim::storeSlinkObjects(){
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::DEBUG << "storeSlinkObjects" << endreq;
+    
+  ATH_MSG_DEBUG("storeSlinkObjects" );
 
   /// Create words and add headers
   for (unsigned int i = 0; i<TrigT1CaloDefs::numOfCPRoIRODs;i++){
@@ -328,11 +322,11 @@ void CPMSim::storeSlinkObjects(){
   /** TEMPORARY: dump contents to log */
   /*
   for (unsigned int slink=0; slink<(TrigT1CaloDefs::numOfCPRoIRODs);slink++){
-    log << MSG::INFO<< "Slink cable  "<<slink
-        <<" has "<<(m_CPRoIROD[slink]->size())<<" words"<<endreq;
+    ATH_MSG_INFO("Slink cable  "<<slink
+        <<" has "<<(m_CPRoIROD[slink]->size())<<" words");
     for (DataVector<LVL1CTP::SlinkWord>::iterator i=m_CPRoIROD[slink]->begin();
                                       i!=m_CPRoIROD[slink]->end();++i){
-      log <<MSG::INFO<<"Word :"<<hex<<(*i)->word()<<dec<<endreq;
+      ATH_MSG_INFO<<"Word :"<<hex<<(*i)->word()<<dec);
     }
   }
   */
@@ -340,10 +334,10 @@ void CPMSim::storeSlinkObjects(){
   for (unsigned int i = 0; i<TrigT1CaloDefs::numOfCPRoIRODs;++i){
     StatusCode sc = m_storeGate->overwrite(m_CPRoIROD[i],emTauSlinkLocation[i],true,false,false);
     if (sc.isSuccess() ){
-      log << MSG::DEBUG << "Stored EM/Tau Slink object at "<< emTauSlinkLocation[i] <<" with "
-          <<(m_CPRoIROD[i]->size())<<" words"<< endreq;
+      ATH_MSG_DEBUG("Stored EM/Tau Slink object at "<< emTauSlinkLocation[i] <<" with "
+          <<(m_CPRoIROD[i]->size())<<" words");
     } else {
-      log << MSG::ERROR << "Failed to write EM/Tau Slink object!"<< endreq;
+      ATH_MSG_ERROR("Failed to write EM/Tau Slink object!");
     } // endif
   }
   
@@ -390,7 +384,6 @@ LVL1CTP::SlinkWord* CPMSim::getWord(unsigned int tword){
 
 /** print trigger configuration, for debugging purposes */
 void LVL1::CPMSim::printTriggerMenu(){
-  MsgStream log( messageService(), name() );
   
   /** This is all going to need updating for the new menu structure.
       Comment out in the meanwhile 
@@ -401,23 +394,23 @@ void LVL1::CPMSim::printTriggerMenu(){
   std::vector<TrigConf::TriggerThreshold*>::const_iterator it;
   for (it = thresholds.begin(); it != thresholds.end(); ++it) {
     if ( (*it)->type() == def.emType() || (*it)->type() == def.tauType() ) {
-      log << MSG::DEBUG << "TriggerThreshold " << (*it)->id() << " has name " << (*it)->name() << endreq
+      ATH_MSG_DEBUG("TriggerThreshold " << (*it)->id() << " has name " << (*it)->name() << endreq
           << "  threshold number " << (*it)->thresholdNumber() << endreq
-          << "  number of values = " << (*it)->numberofValues() << endreq;
+          << "  number of values = " << (*it)->numberofValues() );
       for (std::vector<TriggerThresholdValue*>::const_iterator tv = (*it)->thresholdValueVector().begin();
            tv != (*it)->thresholdValueVector().end(); ++tv) {
         ClusterThresholdValue* ctv;
         ctv = dynamic_cast<ClusterThresholdValue*> (*tv);
 	if (!ctv) {
-          log << MSG::ERROR << "Threshold type name is EM/Tau, but is not a ClusterThreshold object!" << endreq;
+          ATH_MSG_ERROR("Threshold type name is EM/Tau, but is not a ClusterThreshold object!" );
           continue;
         }
-        log << MSG::DEBUG << "ClusterThresholdValue: " << endreq
+        ATH_MSG_DEBUG("ClusterThresholdValue: " << endreq
             << "  Threshold value = " << ctv->thresholdValueCount() << endreq
             << "  EM isolation = " << ctv->emIsolationCount() << endreq
             << "  Had isolation = " << ctv->hadIsolationCount() << endreq
             << "  Had veto = " << ctv->hadVetoCount() << endreq
-            << "  EtaMin = " << ctv->etamin() << ", EtaMax = " << ctv->etamax() << endreq;
+            << "  EtaMin = " << ctv->etamin() << ", EtaMax = " << ctv->etamax() );
         
       } // end of loop over threshold values
     } //  is type == em or tau?

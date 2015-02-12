@@ -48,7 +48,7 @@ namespace LVL1{
 
 JetTrigger::JetTrigger
   ( const std::string& name, ISvcLocator* pSvcLocator ) 
-    : Algorithm( name, pSvcLocator ), 
+    : AthAlgorithm( name, pSvcLocator ), 
       m_storeGate("StoreGateSvc", name),
       m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
       m_JetTool("LVL1::L1JetTools/L1JetTools"),
@@ -74,8 +74,8 @@ JetTrigger::JetTrigger
 
 // Destructor
 JetTrigger::~JetTrigger() {
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::INFO << "Destructor called" << endreq;
+  
+  ATH_MSG_INFO( "Destructor called" );
 }
 
 
@@ -88,7 +88,7 @@ StatusCode JetTrigger::initialize()
 
   // We must here instantiate items which can only be made after
   // any job options have been set
-  MsgStream log( messageService(), name() ) ;
+  
   int outputLevel = msgSvc()->outputLevel( name() );
 
   //
@@ -97,12 +97,12 @@ StatusCode JetTrigger::initialize()
 
   StatusCode sc = m_configSvc.retrieve();
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't connect to " << m_configSvc.typeAndName() 
-        << endreq;
+    ATH_MSG_ERROR( "Couldn't connect to " << m_configSvc.typeAndName() 
+        );
     return sc;
   } else if (outputLevel <= MSG::DEBUG) {
-    log << MSG::DEBUG << "Connected to " << m_configSvc.typeAndName() 
-        << endreq;
+    ATH_MSG_DEBUG( "Connected to " << m_configSvc.typeAndName() 
+        );
   }
 
   //
@@ -110,15 +110,15 @@ StatusCode JetTrigger::initialize()
   //
   sc = m_storeGate.retrieve();
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't connect to " << m_storeGate.typeAndName() 
-        << endreq;
+    ATH_MSG_ERROR( "Couldn't connect to " << m_storeGate.typeAndName() 
+        );
     return sc;
   }
 
   // Retrieve L1JetTool
   sc = m_JetTool.retrieve();
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Problem retrieving JetTool. Abort execution" << endreq;
+    ATH_MSG_ERROR( "Problem retrieving JetTool. Abort execution" );
     return StatusCode::SUCCESS;
   }
     
@@ -146,8 +146,8 @@ StatusCode JetTrigger::beginRun()
 
 StatusCode JetTrigger::finalize()
 {
-   MsgStream log( messageService(), name() ) ;
-   log << MSG::INFO << "Finalizing" << endreq;
+   
+   ATH_MSG_INFO( "Finalizing" );
    return StatusCode::SUCCESS ;
 }
 
@@ -162,9 +162,9 @@ StatusCode JetTrigger::execute( )
 {
   //make a message logging stream
 
-  MsgStream log( messageService(), name() );
+  
   int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "Executing" << endreq;
+  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "Executing" );
 
   m_intROIContainer   =new DataVector<JetAlgorithm>;    //Container to hold the ROIs
   m_vectorOfJetROIs   =new DataVector<JetROI>;          //Container to hold Rois in TES.
@@ -177,7 +177,7 @@ StatusCode JetTrigger::execute( )
     if ( sc==StatusCode::SUCCESS ) {
       // Warn if the stored collection is empty
       if (storedJEs->size() == 0)
-         log << MSG::WARNING << "Empty JetElementCollection - looks like a problem" << endreq;
+         ATH_MSG_WARNING( "Empty JetElementCollection - looks like a problem" );
   
       // Use L1EJetTools to produce DataVector of RoIs passing trigger conditions
       m_JetTool->findRoIs(storedJEs, m_intROIContainer);
@@ -187,14 +187,14 @@ StatusCode JetTrigger::execute( )
       for ( ; intROI_it!=m_intROIContainer->end() ; intROI_it++){
         JetROI* test = (*intROI_it)->produceExternal();
         if (outputLevel <= MSG::DEBUG)
-            log << MSG::DEBUG << "*****InternalROI passes trigger : created an external ROI with ROI word "
-                << std::hex << test->roiWord() << std::dec<<endreq;
+            ATH_MSG_DEBUG( "*****InternalROI passes trigger : created an external ROI with ROI word "
+                << std::hex << test->roiWord() << std::dec);
         m_vectorOfJetROIs->push_back( test );
       }//end for loop
     }
-    else log << MSG::WARNING << "Error retrieving JetElements" << endreq;
+    else ATH_MSG_WARNING( "Error retrieving JetElements" );
   }
-  else log << MSG::WARNING << "No JetElementCollection at " << m_JetElementLocation << endreq;
+  else ATH_MSG_WARNING( "No JetElementCollection at " << m_JetElementLocation );
   
   // save external RoIs in TEX
   saveExternalROIs();
@@ -213,25 +213,25 @@ StatusCode JetTrigger::execute( )
 
 /** save JetROI objects */
 void LVL1::JetTrigger::saveExternalROIs(){
-  MsgStream log( messageService(), name() );
+  
 
   StatusCode sc = m_storeGate->overwrite(m_vectorOfJetROIs,
     m_jetROIOutputLocation,true,false,false);
   if (sc.isSuccess() ){
-    log << MSG::VERBOSE << "Stored " <<m_vectorOfJetROIs->size()
-        << " JetROls at "<< m_jetROIOutputLocation << endreq;
+    ATH_MSG_VERBOSE( "Stored " <<m_vectorOfJetROIs->size()
+        << " JetROls at "<< m_jetROIOutputLocation );
   } else {
-    log << MSG::ERROR << "failed to write JetROIs to  "
-        << m_jetROIOutputLocation << endreq;
+    ATH_MSG_ERROR( "failed to write JetROIs to  "
+        << m_jetROIOutputLocation );
   } // endif
   return;
 }
 
 /** Store JEM energy sums for bytestream simulation */
 void LVL1::JetTrigger::formJEMHits() {
-  MsgStream log(messageService(), name() );
+  
   int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "formJEMHits executing" << endreq;
+  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "formJEMHits executing" );
   
   JetEnergyModuleKey testKey;
   CoordToHardware conv;
@@ -246,34 +246,34 @@ void LVL1::JetTrigger::formJEMHits() {
     unsigned int crate = conv.jepCrate(coord);
     unsigned int module = conv.jepModule(coord);
     unsigned int key = testKey.jemKey(crate, module);
-    if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "Found RoI with JEM key = " << key << endreq;
+    if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "Found RoI with JEM key = " << key );
     JEMHits* jemHits=0;
    // find whether corresponding JEMHits already exists
     std::map<int, JEMHits*>::iterator test=m_jemHitsContainer->find(key);
     // if not, create it
     if ( test==m_jemHitsContainer->end()){
-      if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "New key. JEM has crate = "
+      if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "New key. JEM has crate = "
                                                 << crate << ", Module = " 
-						<< module << endreq;
-      if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "Create new JEMHits" << endreq; 
+						<< module );
+      if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "Create new JEMHits" ); 
       jemHits = new JEMHits(crate, module);
-      if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "and insert into map" << endreq; 
+      if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "and insert into map" ); 
       m_jemHitsContainer->insert(std::map<int,JEMHits*>::value_type(key,jemHits));
       //m_jemHitsContainer->insert(key,jemHits);
     }
     else {
-      if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "Existing JEMHits" << endreq; 
+      if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "Existing JEMHits" ); 
       jemHits = test->second; // Already exists, so set pointer
     }
     // increment hit multiplicity. Word format different for FCAL JEMs
-    if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "Update jet hits" << endreq; 
+    if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "Update jet hits" ); 
     unsigned int hits = jemHits->JetHits();
     bool forward = (testKey.region(coord) != JetEnergyModuleKey::MidJEM); 
     hits = addHits(hits,(*it)->roiWord()&0xFFF,forward);
     std::vector<unsigned int> hitvec; // JEMHits stored as vector, to allow for multi-slice readout
     hitvec.push_back(hits);
     jemHits->addJetHits(hitvec);
-    if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "All done for this one" << endreq; 
+    if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( "All done for this one" ); 
   }
   
   // Now add them to the TES
@@ -284,9 +284,9 @@ void LVL1::JetTrigger::formJEMHits() {
 
 /** put JEMHits into SG */
 void LVL1::JetTrigger::saveJEMHits(){
-  MsgStream log( messageService(), name() );
+  
   int outputLevel = msgSvc()->outputLevel( name() );
-  if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG<<"saveJEMHits running"<<endreq;
+  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG("saveJEMHits running");
   
   JEMHitsCollection* JEMHvector = new  JEMHitsCollection;
 
@@ -295,16 +295,14 @@ void LVL1::JetTrigger::saveJEMHits(){
      JEMHvector->push_back(it->second);
   }
 
-  if (outputLevel <= MSG::DEBUG) log <<MSG::DEBUG<< m_jemHitsContainer->size()<<" JEMHits have been saved"<<endreq;
+  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG( m_jemHitsContainer->size()<<" JEMHits have been saved");
   StatusCode sc = m_storeGate->overwrite(JEMHvector, m_jemHitsLocation,true,false,false);
   if (sc == StatusCode::SUCCESS) {
     StatusCode sc2 = m_storeGate->setConst(JEMHvector);
-    if (sc2 != StatusCode::SUCCESS) log << MSG::ERROR << "problem setting JEMHits vector constant" << endreq;
+    if (sc2 != StatusCode::SUCCESS) ATH_MSG_ERROR( "problem setting JEMHits vector constant" );
   }
   else {
-    log << MSG::ERROR
-        << "Error registering JEMHits collection in TES "
-        << endreq;
+    ATH_MSG_ERROR("Error registering JEMHits collection in TES ");
   }
   
   return;
@@ -312,12 +310,12 @@ void LVL1::JetTrigger::saveJEMHits(){
 
 /** Increment JEM hit word */
 unsigned int LVL1::JetTrigger::addHits(unsigned int hitMult, unsigned int hitVec, bool forward) {
-  MsgStream log( messageService(), name() );
+  
   int outputLevel = msgSvc()->outputLevel( name() );
   
   if (outputLevel <= MSG::DEBUG) 
-     log << MSG::DEBUG<<"addHits: Original hitMult = " << hex << hitMult
-         << ". Add hitWord = " << hitVec << dec<<endreq;
+     ATH_MSG_DEBUG("addHits: Original hitMult = " << hex << hitMult
+         << ". Add hitWord = " << hitVec << dec);
 	 
   int nthresh = TrigT1CaloDefs::numOfJetThresholds;
   if (forward) nthresh += TrigT1CaloDefs::numOfFwdJetThresholds;
@@ -325,8 +323,8 @@ unsigned int LVL1::JetTrigger::addHits(unsigned int hitMult, unsigned int hitVec
   int nbits = 24/nthresh;  // 24 bit multiplicity word -> number of bits/threshold
   
   if (outputLevel <= MSG::DEBUG) 
-     log << MSG::DEBUG<<"Forward JEM = " << forward
-         << ". Bits per threshold = " << nbits <<endreq;
+     ATH_MSG_DEBUG("Forward JEM = " << forward
+         << ". Bits per threshold = " << nbits );
   
   int max = (1<<nbits) - 1;
   unsigned int multMask = max;
@@ -346,7 +344,7 @@ unsigned int LVL1::JetTrigger::addHits(unsigned int hitMult, unsigned int hitVec
   }
   
   if (outputLevel <= MSG::DEBUG) 
-     log << MSG::DEBUG<<"addHits returning hitMult = " << hex << hits << dec << endreq;
+     ATH_MSG_DEBUG("addHits returning hitMult = " << hex << hits << dec );
   
   return hits;
 }
@@ -355,7 +353,7 @@ unsigned int LVL1::JetTrigger::addHits(unsigned int hitMult, unsigned int hitVec
 
 /** retrieves the Calo config put into detectorstore by TrigT1CTP and set up trigger menu */
 void LVL1::JetTrigger::setupTriggerMenuFromCTP(){
-  MsgStream log( messageService(), name() );
+  
 
   
   L1DataDef def;
@@ -368,22 +366,22 @@ void LVL1::JetTrigger::setupTriggerMenuFromCTP(){
          (*it)->type() == def.fjetType()  ||
          (*it)->type() == def.jfType()  ||
          (*it)->type() == def.jbType()) {
-      log << MSG::DEBUG << "TriggerThreshold " << (*it)->id() << " has name " << (*it)->name() << endreq
+      ATH_MSG_DEBUG( "TriggerThreshold " << (*it)->id() << " has name " << (*it)->name() << endreq
           << "  threshold number " << (*it)->thresholdNumber() << endreq
-          << "  number of values = " << (*it)->numberofValues() << endreq;
+          << "  number of values = " << (*it)->numberofValues() );
       for (std::vector<TrigConf::TriggerThresholdValue*>::const_iterator tv = (*it)->thresholdValueVector().begin();
            tv != (*it)->thresholdValueVector().end(); ++tv) {
         TrigConf::JetThresholdValue* jtv;
         jtv = dynamic_cast<JetThresholdValue*> (*tv);
 	if (!jtv) {
-          log << MSG::ERROR << "Threshold type name is Jet, but is not a JetThreshold object!" << endreq;
+          ATH_MSG_ERROR( "Threshold type name is Jet, but is not a JetThreshold object!" );
           continue;
         }
-        log << MSG::DEBUG << "JetThresholdValue: " << endreq
+        ATH_MSG_DEBUG( "JetThresholdValue: " << endreq
             << "  Type = " << (*it)->type() << endreq
             << "  Threshold value = " << jtv->thresholdValueCount() << endreq
             << "  Cluster size = " << jtv->window() << endreq
-            << "  EtaMin = " << jtv->etamin() << ", EtaMax = " << jtv->etamax() << endreq;
+            << "  EtaMin = " << jtv->etamin() << ", EtaMax = " << jtv->etamax() );
         
       } // end of loop over threshold values
       numThresh++;

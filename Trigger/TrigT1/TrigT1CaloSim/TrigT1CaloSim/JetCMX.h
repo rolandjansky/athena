@@ -23,8 +23,7 @@
  #include <vector>
 
  // Athena/Gaudi
- #include "GaudiKernel/Algorithm.h"
- #include "GaudiKernel/MsgStream.h"
+ #include "AthenaBaseComps/AthAlgorithm.h"
  #include "GaudiKernel/ServiceHandle.h"
  #include "GaudiKernel/ToolHandle.h"
  
@@ -49,7 +48,7 @@
    /**
   The algorithm responsible for simulating the Em/tau calo trigger.
    */
- class JetCMX : public Algorithm
+ class JetCMX : public AthAlgorithm
  {
 
   typedef DataVector<LVL1::JetCMXData> t_jemDataContainer;

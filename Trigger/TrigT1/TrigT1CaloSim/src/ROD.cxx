@@ -43,7 +43,7 @@
 
 LVL1::ROD::ROD
   ( const std::string& name, ISvcLocator* pSvcLocator ) 
-    : Algorithm( name, pSvcLocator ),
+    : AthAlgorithm( name, pSvcLocator ),
     m_storeGate("StoreGateSvc", name), 
     m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name), 
     m_eventNumber(0),
@@ -110,18 +110,18 @@ StatusCode LVL1::ROD::initialize()
 
   // We must here instantiate items which can only be made after
   // any job options have been set
-  MsgStream log( messageService(), name() ) ;
+  
 
   //
   // Connect to the LVL1ConfigSvc for the trigger configuration:
   //
   StatusCode sc = m_configSvc.retrieve();
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't connect to " << m_configSvc.typeAndName() 
-        << endreq;
+    ATH_MSG_ERROR( "Couldn't connect to " << m_configSvc.typeAndName() 
+        );
     return sc;
   } else {
-    log << MSG::DEBUG << "Connected to " << m_configSvc.typeAndName() << endreq;
+    ATH_MSG_DEBUG( "Connected to " << m_configSvc.typeAndName() );
   }
 
   //
@@ -129,12 +129,12 @@ StatusCode LVL1::ROD::initialize()
   //
   sc = m_storeGate.retrieve();
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't connect to " << m_storeGate.typeAndName() 
-        << endreq;
+    ATH_MSG_ERROR( "Couldn't connect to " << m_storeGate.typeAndName() 
+        );
     return sc;
   } else {
-    log << MSG::DEBUG << "Connected to " << m_storeGate.typeAndName() 
-        << endreq;
+    ATH_MSG_DEBUG( "Connected to " << m_storeGate.typeAndName() 
+        );
   }
 
   return StatusCode::SUCCESS ;
@@ -158,8 +158,8 @@ StatusCode LVL1::ROD::beginRun()
 
 StatusCode LVL1::ROD::finalize()
 {
-   MsgStream log( messageService(), name() ) ;
-   log << MSG::INFO << "Finalizing" << endreq;
+   
+   ATH_MSG_INFO( "Finalizing" );
    return StatusCode::SUCCESS ;
 }
 
@@ -172,14 +172,14 @@ StatusCode LVL1::ROD::finalize()
 
 StatusCode LVL1::ROD::execute( )
 {
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::DEBUG << "Executing" << endreq;
+  
+  ATH_MSG_DEBUG( "Executing" );
 
   const EventInfo* evt;
   if (StatusCode::SUCCESS == m_storeGate->retrieve(evt)){
     m_eventNumber = evt->event_ID()->event_number();
   }else{
-    log << MSG::ERROR<< " Unable to retrieve EventInfo from StoreGate "<< endreq;
+    ATH_MSG_ERROR( " Unable to retrieve EventInfo from StoreGate ");
   }
 
   assignVectors();    // create new storage vectors and clear mult vectors
@@ -197,8 +197,8 @@ StatusCode LVL1::ROD::execute( )
 
 /** get ROIwords and form Slink words from them, adding header and tail. */
 void LVL1::ROD::formSlinkObjects(){
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::DEBUG << "formSlinkObjects" << endreq;
+  
+  ATH_MSG_DEBUG( "formSlinkObjects" );
 
   for (unsigned int i = 0; i<TrigT1CaloDefs::numOfCPRoIRODs;i++){
     addHeader(m_CPRoIROD[i],0x72,i);//set modID to crate #
@@ -246,8 +246,8 @@ void LVL1::ROD::addTail(DataVector<LVL1CTP::SlinkWord>* slink, unsigned int numb
 
 /** save Slink Objects to SG */
 void LVL1::ROD::saveSlinkObjects(){
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::DEBUG<< "saveSlinkObjects"<<endreq;
+  
+  ATH_MSG_DEBUG( "saveSlinkObjects");
 
   /**\todo There must be a better way of doing this, but CERN doesn't seem to have sstream.h*/
   std::string emTauSlinkLocation[4];
@@ -261,10 +261,10 @@ void LVL1::ROD::saveSlinkObjects(){
     StatusCode sc = m_storeGate->overwrite(m_CPRoIROD[i],emTauSlinkLocation[i],true,false,false);
 
     if (sc.isSuccess() ){
-      log << MSG::DEBUG << "Stored EmTau Slink object at "<< emTauSlinkLocation[i] <<" with "
-          <<(m_CPRoIROD[i]->size())<<" words"<< endreq;
+      ATH_MSG_DEBUG( "Stored EmTau Slink object at "<< emTauSlinkLocation[i] <<" with "
+          <<(m_CPRoIROD[i]->size())<<" words");
     } else {
-      log << MSG::ERROR << "Failed to write EmTau Slink object!"<< endreq;
+      ATH_MSG_ERROR( "Failed to write EmTau Slink object!");
     } // endif
   }
 
@@ -274,10 +274,10 @@ void LVL1::ROD::saveSlinkObjects(){
   for (unsigned int i = 0; i<TrigT1CaloDefs::numOfJEPRoIRODs;++i){
     StatusCode sc = m_storeGate->overwrite(m_jepRoIROD[i],jepSlinkLocation[i],true,false,false);
     if (sc.isSuccess() ){
-      log << MSG::DEBUG << "Stored JetEnergy Slink object at "<< jepSlinkLocation[i] <<" with "
-          <<(m_jepRoIROD[i]->size())<<" words"<< endreq;
+      ATH_MSG_DEBUG( "Stored JetEnergy Slink object at "<< jepSlinkLocation[i] <<" with "
+          <<(m_jepRoIROD[i]->size())<<" words");
     } else {
-      log << MSG::ERROR << "Failed to write JetEnergy Slink object!"<< endreq;
+      ATH_MSG_ERROR( "Failed to write JetEnergy Slink object!");
     } // endif
   }
   
@@ -286,38 +286,38 @@ void LVL1::ROD::saveSlinkObjects(){
 
 /** save CTP Objects to SG */
 void LVL1::ROD::saveCTPObjects(){
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::DEBUG<< "saveCTPObjects"<<endreq;
+  
+  ATH_MSG_DEBUG( "saveCTPObjects");
 
   StatusCode sc = m_storeGate->overwrite(m_emTauCTP,m_emTauCTPLocation,true,false,false);
 
   if (sc.isSuccess() ){
-    log << MSG::DEBUG << "Stored EmTau CTP object at "<< m_emTauCTPLocation << endreq;
+    ATH_MSG_DEBUG( "Stored EmTau CTP object at "<< m_emTauCTPLocation );
   } else {
-    log << MSG::ERROR << "Failed to write EmTau CTP object!"<< endreq;
+    ATH_MSG_ERROR( "Failed to write EmTau CTP object!");
   } // endif
 
   sc = m_storeGate->overwrite(m_JetCTP, m_JetCTPLocation,true,false,false);
 
   if (sc.isSuccess() ){
-    log << MSG::DEBUG << "Stored Jet CTP object, which has cableword 0 = 0x"
+    ATH_MSG_DEBUG( "Stored Jet CTP object, which has cableword 0 = 0x"
         <<hex<<(m_JetCTP->cableWord0() )<<" cableword 1 = 0x"
-        <<(m_JetCTP->cableWord1() )<<dec<< endreq;
+        <<(m_JetCTP->cableWord1() )<<dec);
   } else {
-    log << MSG::ERROR << "Failed to write jet CTP object!"<< endreq;
+    ATH_MSG_ERROR( "Failed to write jet CTP object!");
   } // endif
   return;
 }
 
 /** Get Jet, Energy and EmTau RoI objects. */
 void LVL1::ROD::loadRoIs(){
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::DEBUG<< "loadRoIs"<<endreq;
+  
+  ATH_MSG_DEBUG( "loadRoIs");
   const t_emTauRoIContainer* EMs ;
   StatusCode sc1 = m_storeGate->retrieve(EMs, m_emTauRoILocation);
 
   if( sc1==StatusCode::FAILURE ) {
-    log << MSG::DEBUG<< "No EmTauRoIs found. "<< endreq ;
+    ATH_MSG_DEBUG( "No EmTauRoIs found. ");
   }else{
     processRoIs(EMs);
   }
@@ -326,7 +326,7 @@ void LVL1::ROD::loadRoIs(){
   sc1 = m_storeGate->retrieve(Jets, m_JetRoILocation);
 
   if( sc1==StatusCode::FAILURE ) {
-    log << MSG::DEBUG << "No JetRoIs found."<< endreq ;
+    ATH_MSG_DEBUG( "No JetRoIs found.");
   }else{
     processRoIs(Jets);
   }
@@ -335,7 +335,7 @@ void LVL1::ROD::loadRoIs(){
   sc1 = m_storeGate->retrieve(energy, m_energyRoILocation);
 
   if( sc1==StatusCode::FAILURE ) {
-    log << MSG::DEBUG << "No Energy RoI found."<< endreq ;
+    ATH_MSG_DEBUG( "No Energy RoI found.");
   }else{
     processRoIs(energy);
   }
@@ -345,32 +345,32 @@ void LVL1::ROD::loadRoIs(){
 
 /** process Em/Tau RoIs extracting RoI words and counting multiplicities */
 void LVL1::ROD::processRoIs(const t_emTauRoIContainer* EMs){
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::DEBUG<< "processing EmTau RoIs"<<endreq;
+  
+  ATH_MSG_DEBUG( "processing EmTau RoIs");
   int crate = 0;
   unsigned int RoIWord=0;
   unsigned int count=0;
   unsigned int maxMult = (1<<m_bitsPerThresh)-1;  
   for (t_emTauRoIContainer::const_iterator it=EMs->begin(); it!=EMs->end(); it++){
     RoIWord=(*it)->roiWord();
-    log << MSG::DEBUG<< "examining EmTau RoI : "<<++count
+    ATH_MSG_DEBUG( "examining EmTau RoI : "<<++count
         << " which has RoIword : "<<hex<<RoIWord<<dec
-        << " with coords ("<<(*it)->phi()<<","<<(*it)->eta()<<")"<<endreq;
+        << " with coords ("<<(*it)->phi()<<","<<(*it)->eta()<<")");
     CPRoIDecoder conv;
     crate=conv.crate(RoIWord);
-    log << MSG::DEBUG<< "Adding RoI to crate : "<<crate<<endreq;
+    ATH_MSG_DEBUG( "Adding RoI to crate : "<<crate);
     m_CPRoIROD[crate]->push_back( getWord(RoIWord) );
     for (unsigned int thresh=0; thresh< TrigT1CaloDefs::numOfCPThresholds; thresh++){
       if ((*it)->thresholdPassed(thresh+1)&&m_emTauMult[thresh]<maxMult) (m_emTauMult[thresh])++;
     }
     CoordinateRange roi=conv.coordinate(RoIWord);
     Coordinate centre((*it)->phi(), (*it)->eta());
-    if ( (roi.contains(centre) )!=true) log << MSG::ERROR << "Error in processRoIs with roiword :"
+    if ( (roi.contains(centre) )!=true) ATH_MSG_ERROR( "Error in processRoIs with roiword :"
         <<hex<<RoIWord<<dec<<endl
         << "roi centre ("<<centre.phi()<<", "<<centre.eta()<<") isn't in range phi: "
         <<roi.phiRange().min()<<" to "<<roi.phiRange().max()<<", eta:"
         <<roi.etaRange().min()<<" to "<<roi.etaRange().max()
-        <<endreq;
+        );
 
   }
   return;
@@ -378,8 +378,8 @@ void LVL1::ROD::processRoIs(const t_emTauRoIContainer* EMs){
 
 /** process jet RoIs extracting RoI words and counting multiplicities */
 void LVL1::ROD::processRoIs(const t_jetRoIContainer* jets){
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::DEBUG<< "processing Jet RoIs"<<endreq;
+  
+  ATH_MSG_DEBUG( "processing Jet RoIs");
   int crate = 0;
   unsigned int RoIWord=0;
   unsigned int count=0;
@@ -387,15 +387,15 @@ void LVL1::ROD::processRoIs(const t_jetRoIContainer* jets){
   unsigned int maxFwdMult = (1<<m_bitsPerFwdThresh)-1;
   for (t_jetRoIContainer::const_iterator it=jets->begin(); it!=jets->end(); it++){
     RoIWord=(*it)->roiWord();
-    log << MSG::DEBUG<< "examining Jet RoI : "<<++count
+    ATH_MSG_DEBUG( "examining Jet RoI : "<<++count
         << " which has RoIword : "<<hex<<RoIWord<<dec
-        << " with coords ("<<(*it)->phi()<<","<<(*it)->eta()<<")"<<endreq;
+        << " with coords ("<<(*it)->phi()<<","<<(*it)->eta()<<")");
     JEPRoIDecoder conv;
     crate=conv.crate(RoIWord);
-    log << MSG::DEBUG<< "Adding RoI to crate : "<<crate<<endreq;
+    ATH_MSG_DEBUG( "Adding RoI to crate : "<<crate);
     m_jepRoIROD[crate]->push_back( getWord(RoIWord) );
     if ((*it)->isForward()) {
-      log << MSG::VERBOSE<< "JetRoI with "<<RoIWord<<" is forward jet. "<<crate<<endreq;
+      ATH_MSG_VERBOSE( "JetRoI with "<<RoIWord<<" is forward jet. "<<crate);
 
       for (unsigned int thresh=0; thresh< TrigT1CaloDefs::numOfFwdJetThresholds; ++thresh){
         if ((*it)->fwdThresholdPassed(thresh+1)) {
@@ -415,14 +415,14 @@ void LVL1::ROD::processRoIs(const t_jetRoIContainer* jets){
 
 /** process energy RoI extracting RoI words and counting multiplicities */
 void LVL1::ROD::processRoIs(const t_EnergyRoIContainer* energy){
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::DEBUG<< "processing energy RoI"<<endreq;
+  
+  ATH_MSG_DEBUG( "processing energy RoI");
 
-    log << MSG::DEBUG<< "examining energy RoI : "
+    ATH_MSG_DEBUG( "examining energy RoI : "
         << " which has RoIword 0: "<<hex<<(energy->roiWord0())<<dec
         << " which has RoIword 1: "<<hex<<(energy->roiWord1())<<dec
         << " which has RoIword 2: "<<hex<<(energy->roiWord2())<<dec
-        <<endreq;
+        );
 
   m_jepRoIROD[1]->push_back(getWord(energy->roiWord0()));
   m_jepRoIROD[1]->push_back(getWord(energy->roiWord1()));
@@ -433,8 +433,8 @@ void LVL1::ROD::processRoIs(const t_EnergyRoIContainer* energy){
 
 /** Create the object vectors to be stored in SG and clear mult vectors*/
 void LVL1::ROD::assignVectors(){
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::DEBUG << "assignVectors" << endreq;
+  
+  ATH_MSG_DEBUG( "assignVectors" );
 
   for (unsigned int i = 0; i<TrigT1CaloDefs::numOfCPRoIRODs;i++){
     m_CPRoIROD[i]=new DataVector<LVL1CTP::SlinkWord>;
@@ -470,8 +470,8 @@ LVL1CTP::SlinkWord* LVL1::ROD::getWord(unsigned int tword){
 
 /** create objects to be passed to CTP. */
 void LVL1::ROD::formCTPObjects(){
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::DEBUG<< "formCTPObjects"<<endreq;
+  
+  ATH_MSG_DEBUG( "formCTPObjects");
   formEmTauCTPObjects();
   formJetCTPObjects();
   // Energy CTP objects formed in EnergyTrigger.
@@ -484,8 +484,8 @@ unsigned int LVL1::ROD::jetCTPWord0(){
   const unsigned int first=1;
   const unsigned int last =TrigT1CaloDefs::numOfJetThresholds;
 
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::DEBUG<< "Forming Jet CTP threshold word 0 between "<<first<<" and "<<last<<endreq;
+  
+  ATH_MSG_DEBUG( "Forming Jet CTP threshold word 0 between "<<first<<" and "<<last);
   unsigned int temp=0;
   unsigned int mult=0;
   unsigned int multMask=0;
@@ -497,12 +497,12 @@ unsigned int LVL1::ROD::jetCTPWord0(){
       if (mult>maxMult) {m_jetOverflow->push_back(count);mult=maxMult;}
       multMask=(mult<<(m_bitsPerThresh*(count-first+1)));
       temp=(temp|multMask);
-      log << MSG::DEBUG<< "Threshold "<<(count+1)<<" has multiplicity of "<<mult<<" : (temp = "<<temp
-          <<") from multMask :"<<multMask<<endreq;
+      ATH_MSG_DEBUG( "Threshold "<<(count+1)<<" has multiplicity of "<<mult<<" : (temp = "<<temp
+          <<") from multMask :"<<multMask);
     }
   }else{
-    log << MSG::ERROR<< "LVL1::jetCTP::word - threshold # outside bounds. Asked for "
-        <<first<<" to "<<last<<endreq;
+    ATH_MSG_ERROR( "LVL1::jetCTP::word - threshold # outside bounds. Asked for "
+        <<first<<" to "<<last);
   }
   // bits 0-23 are the 8 thresholds.
   // bits 24-27 are the JetEtMap
@@ -520,8 +520,8 @@ unsigned int LVL1::ROD::jetCTPWord1(){
   const unsigned int first=1;
   const unsigned int last =TrigT1CaloDefs::numOfFwdJetThresholds;
 
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::DEBUG<< "Forming Jet CTP threshold word 1 between "<<first<<" and "<<last<<endreq;
+  
+  ATH_MSG_DEBUG( "Forming Jet CTP threshold word 1 between "<<first<<" and "<<last);
   unsigned int temp=0;
   unsigned int mult=0;
   unsigned int multMask=0;
@@ -533,20 +533,20 @@ unsigned int LVL1::ROD::jetCTPWord1(){
       if (mult>maxMult) {m_jetOverflow->push_back(count);mult=maxMult;}
       multMask=(mult<<(m_bitsPerFwdThresh*(count-first+1)));
       temp=(temp|multMask);
-      log << MSG::DEBUG<< "Fwd Threshold "<<(count+1)<<" has multiplicity of "<<mult<<" for L and ";
+      ATH_MSG_DEBUG( "Fwd Threshold "<<(count+1)<<" has multiplicity of "<<mult<<" for L and ");
 
       mult=m_rightFwdJetMult[count];
-      log << MSG::DEBUG << "Right threshold " << count << " has mult = " << mult << endreq;
+      ATH_MSG_DEBUG( "Right threshold " << count << " has mult = " << mult );
       if (mult>maxMult) {m_jetOverflow->push_back(count);mult=maxMult;}
       multMask=(mult<<(m_bitsPerFwdThresh*(count-first+1)+8));
       //shifted left by 8 to leave space for L thr.
       temp=(temp|multMask);
-      log << MSG::DEBUG<<mult<<" for R"<<endreq;
+      ATH_MSG_DEBUG(mult<<" for R");
 
     }
   }else{
-    log << MSG::ERROR<< "LVL1::jetCTP::word 1 - threshold # outside bounds. Asked for "
-        <<first<<" to "<<last<<endreq;
+    ATH_MSG_ERROR( "LVL1::jetCTP::word 1 - threshold # outside bounds. Asked for "
+        <<first<<" to "<<last);
   }
   // bits 0-15 are the forward jet thresholds.
   // bit 32 is parity - but we can't do that in a 32 bit word!
@@ -558,8 +558,8 @@ unsigned int LVL1::ROD::jetCTPWord1(){
 /** returns a mult. data word with 3 bits per threshold, starting at thresh first and ending at thresh last.
 <pre> 6*0 | 2b (reserved) | 1b Parity | Th8 | Th7 | Th6 | Th5 | Th4| Th3 | Th2 | Th1 | 0</pre>*/
 unsigned int LVL1::ROD::EmTauCTPWord(unsigned int first, unsigned int last){
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::DEBUG<< "Forming EmTau CTP threshold word between "<<first<<" and "<<last<<endreq;
+  
+  ATH_MSG_DEBUG( "Forming EmTau CTP threshold word between "<<first<<" and "<<last);
   unsigned int temp=0;
   unsigned int mult=0;
   unsigned int multMask=0;
@@ -571,12 +571,12 @@ unsigned int LVL1::ROD::EmTauCTPWord(unsigned int first, unsigned int last){
       if (mult>maxMult) {m_emTauOverflow->push_back(count);mult=maxMult;}
       multMask=(mult<<(m_bitsPerThresh*(count-first+1)));
       temp=(temp|multMask);
-      log << MSG::DEBUG<< "Threshold "<<(count+1)<<" has multiplicity of "<<mult<<" : (temp = "<<temp
-          <<") from multMask :"<<multMask<<endreq;
+      ATH_MSG_DEBUG( "Threshold "<<(count+1)<<" has multiplicity of "<<mult<<" : (temp = "<<temp
+          <<") from multMask :"<<multMask);
     }
   }else{
-    log << MSG::ERROR<< "LVL1::EmTauCTP::word - threshold # outside bounds. Asked for "
-        <<first<<" to "<<last<<endreq;
+    ATH_MSG_ERROR( "LVL1::EmTauCTP::word - threshold # outside bounds. Asked for "
+        <<first<<" to "<<last);
   }
   // Parity should be in bit 32, but can't do that in 32 bit word.
   //Parity genParity;
@@ -604,23 +604,23 @@ void LVL1::ROD::formJetCTPObjects(){
 }
 /** dump details of any threshold overflows (i.e. more RoIs pass threshold(s) than can be indicated to CTP) */
 void LVL1::ROD::printOverflows() const{
-  MsgStream log( messageService(), name() ) ;
+  
 
   for (std::vector<unsigned int>::iterator it=m_emTauOverflow->begin();
                                  it!=m_emTauOverflow->end(); it++){
-    log << MSG::DEBUG << "EM/TAU: Overflow with threshold : "<<*it<<endreq;
+    ATH_MSG_DEBUG( "EM/TAU: Overflow with threshold : "<<*it);
   }
 
   for (std::vector<unsigned int>::iterator it=m_jetOverflow->begin();
                                  it!=m_jetOverflow->end(); it++){
-    log << MSG::DEBUG << "JET: Overflow with threshold : "<<*it<<endreq;
+    ATH_MSG_DEBUG( "JET: Overflow with threshold : "<<*it);
   }
   return;
 }
 /** add tails to Slink objects. */
 void LVL1::ROD::finaliseSlinkObjects(){
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::DEBUG << "finalising Slink Objects: "<<endreq;
+  
+  ATH_MSG_DEBUG( "finalising Slink Objects: ");
   /**\todo get rid of hard coded number-of-header-words*/
   const unsigned int headerWords=8+1;//8 in Slink head + control word
 
@@ -636,13 +636,13 @@ void LVL1::ROD::finaliseSlinkObjects(){
 
 /** prints out the Slink info. */
 void LVL1::ROD::dumpSlinks() const{
-  MsgStream log( messageService(), name() ) ;
+  
   for (unsigned int slink=0; slink<(TrigT1CaloDefs::numOfCPRoIRODs);slink++){
-    log << MSG::INFO<< "Slink cable  "<<slink
-        <<" has "<<(m_CPRoIROD[slink]->size())<<" words"<<endreq;
+    ATH_MSG_INFO( "Slink cable  "<<slink
+        <<" has "<<(m_CPRoIROD[slink]->size())<<" words");
     for (DataVector<LVL1CTP::SlinkWord>::iterator i=m_CPRoIROD[slink]->begin();
                                       i!=m_CPRoIROD[slink]->end();++i){
-      log <<MSG::INFO<<"Word :"<<hex<<(*i)->word()<<dec<<endreq;
+      ATH_MSG_INFO("Word :"<<hex<<(*i)->word()<<dec);
     }
   }
 }
@@ -651,23 +651,23 @@ void LVL1::ROD::dumpSlinks() const{
     Calculation is simple: JetET = sum(multiplicity*factor).
     You just have to calculate appropriate factors first */
 unsigned int LVL1::ROD::getJetEt() const{
-  MsgStream log( messageService(), name() ) ;
+  
 
   unsigned int jetEt = 0;
   
   // Once you've calculated factors, you do not need a sorted threshold list
   for (unsigned int j=0; j<TrigT1CaloDefs::numOfJetThresholds; j++) {
     jetEt += m_jetMult[j] * m_factor[j];
-    log << MSG::DEBUG << "Jet Threshold " << j << 
+    ATH_MSG_DEBUG( "Jet Threshold " << j << 
            " has multiplicity " << m_jetMult[j] <<
-           " giving jetEt = " << jetEt << endreq; 
+           " giving jetEt = " << jetEt ); 
   }
   for (unsigned int j=0; j<TrigT1CaloDefs::numOfFwdJetThresholds; j++) {
     jetEt += (m_leftFwdJetMult[j]+m_rightFwdJetMult[j]) * m_fwdfactor[j];
-    log << MSG::DEBUG << "Forward Jet Threshold " << j << 
+    ATH_MSG_DEBUG( "Forward Jet Threshold " << j << 
            " has multiplicity " << 
 	     m_leftFwdJetMult[j]+m_rightFwdJetMult[j] <<
-           " giving jetEt = " << jetEt << endreq; 
+           " giving jetEt = " << jetEt ); 
   }
   
   return jetEt;
@@ -675,13 +675,13 @@ unsigned int LVL1::ROD::getJetEt() const{
 
 /** Obtains factors for JetET trigger */
 void::LVL1::ROD::jetEtFactors() {
-  MsgStream log( messageService(), name() ) ;
+  
   
  // Get factors from configSvc
  const std::vector<int> factors = m_configSvc->thresholdConfig()->caloInfo().jetWeights();
- log << MSG::INFO << "Jet Weights from configSvc: " << endreq;
+ ATH_MSG_INFO( "Jet Weights from configSvc: " );
  for (std::vector<int>::const_iterator it = factors.begin(); it != factors.end(); ++it) {
-   log << MSG::INFO << "   " << (*it) << endreq;
+   ATH_MSG_INFO( "   " << (*it) );
  }
 
   // First 8 factors are for central jets, last 4 for forward
@@ -706,7 +706,7 @@ void::LVL1::ROD::jetEtFactors() {
 
 /** estimates Jet ET and does trigger. */
 void LVL1::ROD::jetEtTrigger(){
-  MsgStream log( messageService(), name() ) ;
+  
   
   L1DataDef def;
   
@@ -714,7 +714,7 @@ void LVL1::ROD::jetEtTrigger(){
   unsigned int jetEt=getJetEt();
   m_jetEtThreshMap=0;
  
-  log << MSG::DEBUG<<"starting jetEtTrigger() with jetEt="<<jetEt<<endreq;
+  ATH_MSG_DEBUG("starting jetEtTrigger() with jetEt="<<jetEt);
   
   std::vector<TriggerThreshold*> thresholds = m_configSvc->ctpConfig()->menu().thresholdVector();
   std::vector<TriggerThreshold*>::const_iterator it;
@@ -725,15 +725,15 @@ void LVL1::ROD::jetEtTrigger(){
       unsigned int thresholdValue = static_cast<unsigned>((*tv).ptcut());
       // set bit if relevant threshold is passed
       if (jetEt>thresholdValue) m_jetEtThreshMap=m_jetEtThreshMap|(1<<(threshNum));
-      log << MSG::DEBUG<<"Passed threshold "<<(threshNum+1)
-          << " (" << thresholdValue << " GeV)"<<endreq;
+      ATH_MSG_DEBUG("Passed threshold "<<(threshNum+1)
+          << " (" << thresholdValue << " GeV)");
     }
   }
   
   // create RoIWord
   unsigned int roiWord = (TrigT1CaloDefs::jetRoIType<<30) + (TrigT1CaloDefs::jetEtRoI<<29);
   roiWord += m_jetEtThreshMap;
-  log << MSG::DEBUG << "JetEt RoIWord = " << hex << roiWord << dec << endreq;
+  ATH_MSG_DEBUG( "JetEt RoIWord = " << hex << roiWord << dec );
   
   // create RoI
   m_jetEtRoI = new JetEtRoI(roiWord, jetEt);
@@ -744,7 +744,7 @@ void LVL1::ROD::jetEtTrigger(){
   
   // and add to StoreGate (for later persistency)
   StatusCode sc = m_storeGate->overwrite(m_jetEtRoI, m_JetEtRoILocation,true,false,false);
-  if (sc != StatusCode::SUCCESS) log << MSG::ERROR << "Failed to record jetEtRoI" << endreq; 
+  if (sc != StatusCode::SUCCESS) ATH_MSG_ERROR( "Failed to record jetEtRoI" ); 
  
   return;  
 }

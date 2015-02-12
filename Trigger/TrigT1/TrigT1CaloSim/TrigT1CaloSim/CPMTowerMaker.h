@@ -16,8 +16,7 @@
 #include <vector>
 
 // Athena/Gaudi
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "DataModel/DataVector.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -51,7 +50,7 @@ The CPMTowerMaker class takes Trigger Towers from the TES and
 forms CPMTowers, which it then places back into the TES.
 The CPMTowers so formed are used for the bytestream simulation.
 */
-class CPMTowerMaker : public Algorithm
+class CPMTowerMaker : public AthAlgorithm
 {
   typedef DataVector<CPMTower> CPMTCollection;
   typedef DataVector<TriggerTower> TTCollection ;

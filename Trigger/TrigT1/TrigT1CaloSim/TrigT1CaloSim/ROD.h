@@ -27,7 +27,7 @@
 #include <vector>
 
 //Athena
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "DataModel/DataVector.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -75,7 +75,7 @@ i.e.
 -Jet ROD to RoIB<br>
 *@author Ed Moyse
 */
-class ROD : public Algorithm
+class ROD : public AthAlgorithm
 {
   typedef DataVector<LVL1::EmTauROI> t_emTauRoIContainer;
   typedef DataVector<LVL1::JetROI> t_jetRoIContainer;

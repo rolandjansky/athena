@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "DataModel/DataVector.h"
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -38,7 +38,7 @@ class JetROI;
  *  @author Peter Faulkner
  */
 
-class JEPCMMMaker : public Algorithm {
+class JEPCMMMaker : public AthAlgorithm {
 
  public:
    JEPCMMMaker(const std::string& name, ISvcLocator* pSvcLocator);

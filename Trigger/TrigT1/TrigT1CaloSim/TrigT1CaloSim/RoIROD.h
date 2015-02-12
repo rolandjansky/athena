@@ -23,7 +23,7 @@
 #include <vector>
 
 //Athena
-#include "GaudiKernel/Algorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "DataModel/DataVector.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -50,7 +50,7 @@ i.e.
 -Cluster (Em & Tau) ROD to RoIB<br>
 -Jet/Energy ROD to RoIB<br>
 */
-class RoIROD : public Algorithm
+class RoIROD : public AthAlgorithm
 {
   typedef DataVector<LVL1::CPMTobRoI> t_cpmTobRoIContainer;
   typedef DataVector<LVL1::JEMTobRoI> t_jemTobRoIContainer;

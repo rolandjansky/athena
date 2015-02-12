@@ -5,9 +5,6 @@
 // ================================================
 // Run2TriggerTowerMaker class Implementation
 // ================================================
-// TODO:
-// - configuration source
-
 #include "TrigT1CaloSim/Run2TriggerTowerMaker.h"
 
 // trigger include(s)
@@ -119,7 +116,8 @@ Run2TriggerTowerMaker::Run2TriggerTowerMaker(const std::string& name, ISvcLocato
   // parameters for elements (eta bins)
   for(int i = 0; i < s_NLAYER; ++i) {
     m_CalibLUTElement[i].assign(s_NELEMENT, 1.);
-    m_ThresholdElement[i].assign(s_NELEMENT, 0);
+    m_ThresholdElementCP[i].assign(s_NELEMENT, 0);
+    m_ThresholdElementJEP[i].assign(s_NELEMENT, 0);
 
     m_SatLowElement[i].assign(s_NELEMENT, 0);
     m_SatHighElement[i].assign(s_NELEMENT, 0);
@@ -127,8 +125,10 @@ Run2TriggerTowerMaker::Run2TriggerTowerMaker(const std::string& name, ISvcLocato
       m_elementInfo[i][j].FIRCoeff.assign(s_FIRLENGTH, 0); //default all to zero
     }
   }
-  declareProperty("EmThreshElement", m_ThresholdElement[0]);
-  declareProperty("HadThreshElement", m_ThresholdElement[1]);
+  declareProperty("EmThreshElementCP", m_ThresholdElementCP[0]);
+  declareProperty("HadThreshElementCP", m_ThresholdElementCP[1]);
+  declareProperty("EmThreshElementJEP", m_ThresholdElementJEP[0]);
+  declareProperty("HadThreshElementJEP", m_ThresholdElementJEP[1]);
   declareProperty("EmSlopeElement", m_CalibLUTElement[0]);
   declareProperty("HadSlopeElement", m_CalibLUTElement[1]);
   declareProperty("EmSatLowElement", m_SatLowElement[0]);
@@ -209,10 +209,10 @@ Run2TriggerTowerMaker::Run2TriggerTowerMaker(const std::string& name, ISvcLocato
   // BCID thresholds, ranges, decision criteria
   declareProperty("EnergyLow", m_EnergyLow=0);
   declareProperty("EnergyHigh", m_EnergyHigh=255);
-  declareProperty("DecisionSource", m_DecisionSource=1); // Use FIR for range decision
-  declareProperty("BcidDecision1", m_BcidDecision[0] = 0xF0);  // FIR+peakfinder
-  declareProperty("BcidDecision2", m_BcidDecision[1]= 0xF0); // FIR+peakfinder
-  declareProperty("BcidDecision3", m_BcidDecision[2]= 0xCC); // Saturated pulse BCID
+  declareProperty("DecisionSource", m_DecisionSource=1);    // Use FIR for range decision
+  declareProperty("BcidDecision1", m_BcidDecision[0]=0xF0); // FIR+peakfinder
+  declareProperty("BcidDecision2", m_BcidDecision[1]=0xF0); // FIR+peakfinder
+  declareProperty("BcidDecision3", m_BcidDecision[2]=0xCC); // Saturated pulse BCID
   declareProperty("SatOverride1", m_SatOverride[0]=0);
   declareProperty("SatOverride2", m_SatOverride[1]=0);
   declareProperty("SatOverride3", m_SatOverride[2]=1);
@@ -572,9 +572,15 @@ void Run2TriggerTowerMaker::handy(int cal, int iLayer, int iElement) {
   int slope = element.slope;
   int FIRsum = element.FIRsum;
   int dropBits = element.nDrop;
-  element.thresh = m_ThresholdElement[iLayer][iElement];
+  element.thresh_cp = m_ThresholdElementCP[iLayer][iElement];
+  element.thresh_jep = m_ThresholdElementJEP[iLayer][iElement];
   // in case it is not given fall back to default value per layer
-  if(element.thresh <= 0) element.thresh = (iLayer == 0) ? m_emThresh : m_hadThresh;
+  if(element.thresh_cp <= 0) {
+    element.thresh_cp = (iLayer == 0) ? m_emThresh : m_hadThresh;
+  }
+  if(element.thresh_jep <= 0) {
+    element.thresh_jep = element.thresh_cp;
+  }
 
   float calslope = int(slope*m_CalibLUTElement[iLayer][iElement]);
   for(int iphi = 0; iphi < nPhi; ++iphi) {
@@ -853,7 +859,6 @@ StatusCode LVL1::Run2TriggerTowerMaker::getTriggerTowers()
     // auto t = m_xaodTowers->back();
     auto t = (*m_xaodTowers)[m_curIndex++] = new xAOD::TriggerTower;
     t->setCoolId(channelId(tower->eta(), tower->phi(), 0).id());
-    t->setLayer(0u);
     t->setEta(tower->eta());
     t->setPhi(tower->phi());
     t->setAdc(std::vector<uint_least16_t>(std::begin(tower->emADC()), std::end(tower->emADC())));
@@ -864,7 +869,6 @@ StatusCode LVL1::Run2TriggerTowerMaker::getTriggerTowers()
     // t = m_xaodTowers->back();
     t = (*m_xaodTowers)[m_curIndex++] = new xAOD::TriggerTower;
     t->setCoolId(channelId(tower->eta(), tower->phi(), 1).id());
-    t->setLayer(1u);
     t->setEta(tower->eta());
     t->setPhi(tower->phi());
     t->setAdc(std::vector<uint_least16_t>(std::begin(tower->hadADC()), std::end(tower->hadADC())));
@@ -977,7 +981,6 @@ void LVL1::Run2TriggerTowerMaker::processLArTowers(const LArTTL1Container * towe
     // auto t = m_xaodTowers->back();
     auto t = (*m_xaodTowers)[m_curIndex++] = new xAOD::TriggerTower;
     t->setCoolId(coolId.id());
-    t->setLayer(unsigned(layer));
     t->setEta(eta);
     t->setPhi(phi);
     m_xaodTowersAmps[t->index()] = std::move(amps);
@@ -1041,7 +1044,6 @@ void LVL1::Run2TriggerTowerMaker::processTileTowers(const TileTTL1Container * to
       // auto t = m_xaodTowers->back();
       auto t = (*m_xaodTowers)[m_curIndex++] = new xAOD::TriggerTower;
       t->setCoolId(channelId(tower_eta, tower_phi, 1).id());
-      t->setLayer(1u);
       t->setEta(tower_eta);
       t->setPhi(tower_phi);
       m_xaodTowersAmps[t->index()] = std::move(amps);
@@ -1099,7 +1101,8 @@ void LVL1::Run2TriggerTowerMaker::preProcessTower(xAOD::TriggerTower *tower, int
     pedsub = element.offset;
   }
   int slope = element.slope;
-  int thresh = element.thresh;
+  int thresh_cp = element.thresh_cp;
+  int thresh_jep = element.thresh_jep;
 
   int firPed = element.FIRsum * floor(pedvalue + 0.5);
 
@@ -1117,19 +1120,19 @@ void LVL1::Run2TriggerTowerMaker::preProcessTower(xAOD::TriggerTower *tower, int
     // and need to be multiplied by the scale factor
 
     // CP Lut
-    m_TTtool->lut(lutIn, m_cpLutScale*slope, m_cpLutScale*pedsub, m_cpLutScale*thresh,
+    m_TTtool->lut(lutIn, m_cpLutScale*slope, m_cpLutScale*pedsub, m_cpLutScale*thresh_cp,
                   int(m_pedVal), m_LUTStrategy, false, lutOut_cp);
     // JEP Lut
-    m_TTtool->lut(lutIn, m_jepLutScale*slope, m_jepLutScale*pedsub, m_jepLutScale*thresh,
+    m_TTtool->lut(lutIn, m_jepLutScale*slope, m_jepLutScale*pedsub, m_jepLutScale*thresh_jep,
                   int(m_pedVal), m_LUTStrategy, false, lutOut_jep);
   } else if(m_LUTStrategy == 0) {
     // for old strategy pedsub and thresh are in units of LUTIn and *do not*
     // need to be multiplied by the scale factor
 
     // CP Lut
-    m_TTtool->lut(lutIn, m_cpLutScale*slope, pedsub, thresh, int(m_pedVal), m_LUTStrategy, false, lutOut_cp);
+    m_TTtool->lut(lutIn, m_cpLutScale*slope, pedsub, thresh_cp, int(m_pedVal), m_LUTStrategy, false, lutOut_cp);
     // JEP Lut
-    m_TTtool->lut(lutIn, m_jepLutScale*slope, pedsub, thresh, int(m_pedVal), m_LUTStrategy, false, lutOut_jep);
+    m_TTtool->lut(lutIn, m_jepLutScale*slope, pedsub, thresh_jep, int(m_pedVal), m_LUTStrategy, false, lutOut_jep);
   }
   m_TTtool->bcid(fir, digits, m_PeakFinderCond, element.SatLow, element.SatHigh, m_SatLevel, BCIDOut);
 
@@ -1306,7 +1309,7 @@ std::pair<float,float> LVL1::Run2TriggerTowerMaker::elementToEta(int element, in
     return std::make_pair(-eta, eta);
   }
 
-  // elements (everything in coolid maps) provided in 2-1,2-2,3-1,3-2 pattern,
+  // elements (everything in coolid maps) provided in 2-1,3-1,2-2,3-2 pattern,
   // but tower etap is: 2-1,3-1,2-2,3-2, etam is: 2-2,3-2,2-1,3-1 (left to right)
   switch(element) {
   case 25: return std::make_pair(-2.6f, 2.6f);
@@ -1314,8 +1317,8 @@ std::pair<float,float> LVL1::Run2TriggerTowerMaker::elementToEta(int element, in
   case 27: return std::make_pair(-3.0f, 3.0f);
   case 28: return std::make_pair(-3.15f, 3.15f);
   case 29: return layer ? std::make_pair(-4.2625f, 3.4125f) : std::make_pair(-3.4125f, 3.4125f);
-  case 30: return layer ? std::make_pair(-3.4125f, 4.2625f) : std::make_pair(-3.8375f, 3.8375f);
-  case 31: return layer ? std::make_pair(-4.6875f, 3.8375f) : std::make_pair(-4.2625f, 4.2625f);
+  case 30: return layer ? std::make_pair(-4.6875f, 3.8375f) : std::make_pair(-4.2625f, 4.2625f);
+  case 31: return layer ? std::make_pair(-3.4125f, 4.2625f) : std::make_pair(-3.8375f, 3.8375f);
   case 32: return layer ? std::make_pair(-3.8375f, 4.6875f) : std::make_pair(-4.6875f, 4.6875f);
   default:
     ATH_MSG_ERROR("element out of range");
@@ -1346,12 +1349,13 @@ int LVL1::Run2TriggerTowerMaker::etaToElement(float feta, int layer) const
       }
     }
   }
-  if      (layer == 1 && (element == 0 || element == 64)) element = 2; // FCal2-2
+  if      (layer == 1 && (element == 0 || element == 64)) element = 1; // FCal2-2
   else if (layer == 1 && (element == 1 || element == 65)) element = 0; // FCal3-2
   else if (layer == 1 && (element == 2 || element == 62)) element = 3; // FCal2-1
-  else if (layer == 1 && (element == 3 || element == 63)) element = 1; // FCal3-1
+  else if (layer == 1 && (element == 3 || element == 63)) element = 2; // FCal3-1
   else if (element > 32) element = 65-element;
 
+  // element 29 = FCal2-1, element 30 = FCal3-1, element 31 = FCal2-2, element 32 = FCal3-2
   element = s_NELEMENT-element-1;
 
   return element;

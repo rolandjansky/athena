@@ -31,7 +31,7 @@ namespace LVL1 {
 */
   
 Run2CPMTowerMaker::Run2CPMTowerMaker( const std::string& name, ISvcLocator* pSvcLocator ) 
-  : Algorithm( name, pSvcLocator ), 
+  : AthAlgorithm( name, pSvcLocator ), 
     m_storeGate("StoreGateSvc", name),
     m_CPMTowerTool("LVL1::L1CPMTowerTools/L1CPMTowerTools")
 {
@@ -47,8 +47,7 @@ Run2CPMTowerMaker::Run2CPMTowerMaker( const std::string& name, ISvcLocator* pSvc
 }
   
 Run2CPMTowerMaker::~Run2CPMTowerMaker() {
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::INFO << "Destructor called" << endreq;
+  ATH_MSG_INFO("Destructor called" );
 } 
 
 
@@ -59,23 +58,22 @@ StatusCode Run2CPMTowerMaker::initialize()
   // We must here instantiate items which can only be made after
   // any job options have been set
 
-   MsgStream log( messageService(), name() ) ;
-   log << MSG::INFO << "Initialising" << endreq;
+   ATH_MSG_INFO("Initialising" );
 
    StatusCode sc = m_storeGate.retrieve();
   if ( sc.isFailure() ) {
-    log << MSG::ERROR << "Couldn't connect to " << m_storeGate.typeAndName() 
-        << endreq;
+    ATH_MSG_ERROR("Couldn't connect to " << m_storeGate.typeAndName() 
+        );
     return sc;
   } else {
-    log << MSG::DEBUG << "Connected to " << m_storeGate.typeAndName() 
-        << endreq;
+    ATH_MSG_DEBUG("Connected to " << m_storeGate.typeAndName() 
+        );
   }
    
   // Retrieve L1CPMTowerTool
   sc = m_CPMTowerTool.retrieve();
   if (sc.isFailure())
-    log << MSG::ERROR << "Problem retrieving CPMTowerTool. There will be trouble." << endreq;
+    ATH_MSG_ERROR("Problem retrieving CPMTowerTool. There will be trouble." );
 
    return StatusCode::SUCCESS ;
    
@@ -86,8 +84,7 @@ StatusCode Run2CPMTowerMaker::initialize()
 for deleting histograms and general tidying up*/
 StatusCode Run2CPMTowerMaker::finalize()
 {
-  MsgStream log( messageService(), name() ) ;
-  log << MSG::INFO << "Finalizing" << endreq;
+  ATH_MSG_INFO("Finalizing" );
   return StatusCode::SUCCESS ;
 }
 
@@ -109,15 +106,13 @@ StatusCode Run2CPMTowerMaker::execute( )
   //................................
   // make a message logging stream
 
-  MsgStream log( messageService(), name() ) ;
   int outputLevel = msgSvc()->outputLevel( name() );
   StatusCode sc;
 	
-  if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG << "Executing" << endreq;
+  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG("Executing" );
 
-  if (outputLevel <= MSG::DEBUG) log << MSG::DEBUG 
-                                     << "looking for trigger towers at "
-				     << m_triggerTowerLocation << endreq;
+  if (outputLevel <= MSG::DEBUG) ATH_MSG_DEBUG("looking for trigger towers at "
+						<< m_triggerTowerLocation );
 				      
   // Vector to store CPMTs in
   CPMTCollection* vectorOfCPMTs = new  CPMTCollection;
@@ -130,21 +125,19 @@ StatusCode Run2CPMTowerMaker::execute( )
       // Fill a DataVector of CPMTowers using L1CPMTowerTools
       m_CPMTowerTool->makeCPMTowers(vectorOfTTs, vectorOfCPMTs, true);
       if (outputLevel <= MSG::DEBUG)
-         log <<MSG::DEBUG<< vectorOfCPMTs->size()<<" CPMTowers have been generated"<<endreq;
+         ATH_MSG_DEBUG(vectorOfCPMTs->size()<<" CPMTowers have been generated");
     }
-    else log << MSG::WARNING << "Failed to retrieve TriggerTowers from " << m_triggerTowerLocation << endreq;
+    else ATH_MSG_WARNING("Failed to retrieve TriggerTowers from " << m_triggerTowerLocation );
   }
-  else log << MSG::WARNING << "No TriggerTowerContainer at " << m_triggerTowerLocation << endreq;
+  else ATH_MSG_WARNING("No TriggerTowerContainer at " << m_triggerTowerLocation );
 
   if (outputLevel <= MSG::DEBUG) {
-    log << MSG::DEBUG
-        << "Formed " << vectorOfCPMTs->size() << " CPM Towers "
-        << endreq ;
+    ATH_MSG_DEBUG("Formed " << vectorOfCPMTs->size() << " CPM Towers ");
     
     CPMTCollection::const_iterator itCPMT;
     for (itCPMT = vectorOfCPMTs->begin(); itCPMT != vectorOfCPMTs->end(); ++itCPMT)
-      log << MSG::DEBUG << "CPMT has coords (" << (*itCPMT)->eta() <<", "<< (*itCPMT)->phi() << ") and energies : "
-          << (*itCPMT)->emEnergy() <<", "<< (*itCPMT)->hadEnergy() <<" (Em,Had)" << endreq;
+      ATH_MSG_DEBUG("CPMT has coords (" << (*itCPMT)->eta() <<", "<< (*itCPMT)->phi() << ") and energies : "
+          << (*itCPMT)->emEnergy() <<", "<< (*itCPMT)->hadEnergy() <<" (Em,Had)" );
 
   }
       
@@ -153,10 +146,10 @@ StatusCode Run2CPMTowerMaker::execute( )
   
   // Report success or failure
   if (sc != StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Error registering CPM Tower collection in TES " << endreq;
+    ATH_MSG_ERROR("Error registering CPM Tower collection in TES " );
   }
   else if (outputLevel <= MSG::DEBUG) {
-    log << MSG::DEBUG << "Stored CPM Towers in TES at "<< m_cpmTowerLocation << endreq;
+    ATH_MSG_DEBUG("Stored CPM Towers in TES at "<< m_cpmTowerLocation );
   }
   
   // Report success in any case, or else job will terminate
