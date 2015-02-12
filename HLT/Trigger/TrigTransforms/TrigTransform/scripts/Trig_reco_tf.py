@@ -47,7 +47,7 @@ def getTransform():
     executorSet.add(trigRecoExecutor(name = 'BSRDOtoRAW', skeletonFile = 'TriggerRelease/runHLT_standalone.py',
                                      exe = 'athenaHLT.py',
                                      substep = 'b2r', tryDropAndReload = False,
-                                     inData = ['BS_RDO', 'RDO'], outData = ['BS', 'HIST_HLTMON'], 
+                                     inData = ['BS_RDO', 'RDO'], outData = ['BS', 'HIST_HLTMON','HIST_DEBUGSTREAMMON'], 
                                      perfMonFile = 'ntuple_BSRDOtoRAW.pmon.gz',
                                      literalRunargs = ['writeBS = runArgs.writeBS',
                                                        'BSRDOInput = runArgs.inputBS_RDOFile',
@@ -161,6 +161,12 @@ def addTriggerArgs(parser):
     parser.add_argument('--triggerConfig', nargs='+', metavar='substep:TRIGGERCONFIG',
                         type=trfArgClasses.argFactory(trfArgClasses.argSubstep, runarg=True),
                         help='Trigger Configuration String.', group='Trigger')
+    parser.add_argument('--debug_stream', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help='Runs debug_stream analysis', group='Trigger')
+    parser.add_argument('--outputHIST_DEBUGSTREAMMONFile', nargs='+', 
+                        type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', runarg=True, countable=False),
+                        help='Output DEBUGSTREAMMON file', group='Trigger')    
+
 
 
     

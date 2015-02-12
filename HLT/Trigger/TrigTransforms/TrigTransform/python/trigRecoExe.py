@@ -17,7 +17,9 @@ from PyJobTransforms.trfExe import athenaExecutor
 #imports for preExecute
 from PyJobTransforms.trfUtils import asetupReport
 import PyJobTransforms.trfEnv as trfEnv
-     
+import TrigTransform.dbgAnalysis as dbgStream
+
+
 class trigRecoExecutor(athenaExecutor):
     # Trig_reco_tf.py executor
     # used to change the extra output filenames
@@ -26,10 +28,9 @@ class trigRecoExecutor(athenaExecutor):
     # - removed athenaMP
     # - removed environment so does not require the noimf notcmalloc flags
     # - added swap of argument name for runargs file so that athenaHLT reads it in
-    
+
     def preExecute(self, input = set(), output = set()):
         msg.debug('Preparing for execution of {0} with inputs {1} and outputs {2}'.format(self.name, input, output))
-        
         ## Try to detect AthenaMP mode
         #self._athenaMP = self._detectAthenaMP()
         #
@@ -68,7 +69,7 @@ class trigRecoExecutor(athenaExecutor):
                 if dataArg.io == 'input' and self._name in dataArg.executor:
                     inputFiles[dataArg.subtype] = dataArg
                 
-            msg.debug('Input Files: {0}; Output Files: {1}'.format(inputFiles, outputFiles))
+            msg.info('Input Files: {0}; Output Files: {1}'.format(inputFiles, outputFiles))
             
             # Get the list of top options files that will be passed to athena (=runargs file + all skeletons)
             self._topOptionsFiles = self._jobOptionsTemplate.getTopOptions(input = inputFiles, 
@@ -119,8 +120,33 @@ class trigRecoExecutor(athenaExecutor):
         self._prepAthenaCommandLine() 
         
         #to get athenaHLT to read in the relevant parts from the runargs file we have to add the -F option
-        self._cmd=['-F runargs.BSRDOtoRAW.py' if x=='runargs.BSRDOtoRAW.py' else x for x in self._cmd]
+        if 'athenaHLT' in self._exe:
+            self._cmd=['-F runargs.BSRDOtoRAW.py' if x=='runargs.BSRDOtoRAW.py' else x for x in self._cmd]
+
+            #Run preRun step debug_stream analysis if debug_stream=True
+            if 'debug_stream' in self.conf.argdict:
+                inputFiles = dict()
+                for dataType in input:
+                    inputFiles[dataType] = self.conf.dataDictionary[dataType]
+                outputFiles = dict()
+                for dataType in output:
+                    outputFiles[dataType] = self.conf.dataDictionary[dataType]
                 
+                #set default file name for debug_stream analysis output
+                fileNameDbg = ['debug-stream-monitoring.root']
+                if 'HIST_DEBUGSTREAMMON' in output:
+                    fileNameDbg = outputFiles['HIST_DEBUGSTREAMMON'].value
+                
+                #if file exist then rename file to -old.root to keep as backup
+                if(os.path.isfile(fileNameDbg[0])):
+                    oldOutputFileNameDbg = fileNameDbg[0].replace(".root","_old.root")
+                    msg.info('Renaming %s to %s' % (fileNameDbg[0], oldOutputFileNameDbg) )                    
+                    os.rename(fileNameDbg[0], oldOutputFileNameDbg)
+
+                #do debug_stream preRun step
+                dbgStream.dbgPreRun(inputFiles['BS_RDO'],fileNameDbg)
+                
+
         #call athenaExecutor parent as the above overrides what athenaExecutor would have done 
         super(athenaExecutor, self).preExecute(input, output)
         
@@ -135,7 +161,8 @@ class trigRecoExecutor(athenaExecutor):
                 
         #runHLT_standalone.py generates the file expert-monitoring.root
         #to save on panda it is defined as output via the outputHIST_HLTMONFile argument        
-        
+        msg.warning("message from msg.warning in postExecute")
+        print("message from print in postExecute")        
         #TODO hard-coded default filename!
         fileName = 'expert-monitoring.root'
         #check file is created
@@ -157,7 +184,7 @@ class trigRecoExecutor(athenaExecutor):
         #The following is needed to handle the BS file being written with a different name (or names)
         #base is from either the tmp value created by the transform or the value entered by the user
         originalFileArg = self.conf.dataDictionary['BS']
-        fileNameBase = originalFileArg.value[0] + '*'
+        fileNameBase = originalFileArg.value[0] + '*.data'
         fileNameMatches = []
         #loop over all files in folder to find matching outputs
         for file in os.listdir('.'):
@@ -170,7 +197,26 @@ class trigRecoExecutor(athenaExecutor):
             msg.info('Renaming internal BS arg from %s to %s' % (originalFileArg.value[0], fileNameMatches))
         else:
             msg.error('no BS files created with expected name' % fileNameMatches )
-        
+
+        #Run PostRun step debug_stream analysis if debug_stream=True
+        if 'debug_stream' in self.conf.argdict:
+            msg.info("debug_stream analysis in postExecute")
+                
+            #set default file name for debug_stream analysis output
+            fileNameDbg = ['debug-stream-monitoring.root']
+            for arg in self.conf.argdict:
+                if arg == "outputHIST_DEBUGSTREAMMONFile":
+                    fileNameDbg= self.conf.argdict[arg].value                
+                    msg.info('outputHIST_DEBUGSTREAMMONFile argument is {0}'.format(fileNameDbg) )
+
+            if(os.path.isfile(fileNameDbg[0])):
+                #keep filename if not defined
+                msg.info('Will use file created  in PreRun steep %s'.format(fileNameDbg) )
+            else :
+                msg.info('No file created  in PreRun steep {0}'.format(fileNameDbg) )
+
+            #do debug_stream postRun step
+            dbgStream.dbgPostRun(originalFileArg,fileNameDbg)
 
         msg.info('Now run athenaExecutor:postExecute')
         super(trigRecoExecutor, self).postExecute()

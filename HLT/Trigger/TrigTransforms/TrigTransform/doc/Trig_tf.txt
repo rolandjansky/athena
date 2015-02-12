@@ -101,6 +101,9 @@ scripts/Trig_reco_tf.py
      --outputBSFile=out.BS
   3) To save the HLTMON file can add it to the outputs and also rename the file
      --outputHIST_HLTMONFile=expert-monitoring-new.root
+  4) To run with plain athena rather than athenaHLT use:
+  	 --athena "athena.py"
+  	 **BS is created but not checked if matches exactly the BS from athenaHLT
   
   Options now set automatically so no longer required above:
   --testPhysicsV4=true 
