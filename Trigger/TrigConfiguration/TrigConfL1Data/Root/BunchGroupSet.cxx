@@ -50,8 +50,8 @@ void
 BunchGroupSet::print(const std::string& indent, unsigned int detail) const {
    if(detail>=1) {
       cout << indent << "BunchGroupSet "; printNameIdV(); 
+      cout << indent << "  number of bunch groups: " << m_BunchGroups.size() << endl;
       if(detail>=2) {
-         cout << indent << "        number of bunch groups: " << m_BunchGroups.size() << endl;
          for(BunchGroup bg: m_BunchGroups)
             bg.print(indent + "  ", detail);
       }
