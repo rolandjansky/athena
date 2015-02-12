@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CMXEtSums_v2.h 642659 2015-01-29 12:41:06Z morrisj $
+// $Id: CMXEtSums_v2.h 646335 2015-02-12 01:16:10Z morrisj $
 #ifndef XAODTRIGL1CALO_VERSIONS_CMXETSUMS_V2_H
 #define XAODTRIGL1CALO_VERSIONS_CMXETSUMS_V2_H
 
@@ -21,42 +21,46 @@ namespace xAOD{
   ///
   /// @author John Morris <john.morris@cern.ch>
   ///
-  /// $Revision: 642659 $
-  /// $Date: 2015-01-29 13:41:06 +0100 (Thu, 29 Jan 2015) $
+  /// $Revision: 646335 $
+  /// $Date: 2015-02-12 02:16:10 +0100 (Thu, 12 Feb 2015) $
 
   class CMXEtSums_v2 : public SG::AuxElement {
     public:
       /// Default constructor
       CMXEtSums_v2();
-      /// Alternative constructor
-      CMXEtSums_v2(const int crate,const int source);
-      /// Alternative constructor
-      CMXEtSums_v2(const int crate,const int source,
-                   const std::vector<unsigned int>& etVec,
-                   const std::vector<unsigned int>& exVec,
-                   const std::vector<unsigned int>& eyVec,
-                   const std::vector<int>& etErrorVec,
-                   const std::vector<int>& exErrorVec,
-                   const std::vector<int>& eyErrorVec,
-                   const uint_least8_t peak);
+      /// Default desturctor
+      virtual ~CMXEtSums_v2(){}       
+      
+      /// initialize
+      virtual void initialize(const uint_least8_t crate,const uint_least8_t source);
+      
+      /// initialize
+      virtual void initialize(const uint_least8_t crate,const uint_least8_t source,
+                              const std::vector<uint_least16_t>& etVec,
+                              const std::vector<uint_least16_t>& exVec,
+                              const std::vector<uint_least16_t>& eyVec,
+                              const std::vector<uint_least8_t>& etErrorVec,
+                              const std::vector<uint_least8_t>& exErrorVec,
+                              const std::vector<uint_least8_t>& eyErrorVec,
+                              const uint_least8_t peak);
       
       /// add data to existing object
       /// add Et
-      void addEt(const std::vector<unsigned int>& etVec,const std::vector<int>& etErrorVec);
+      void addEt(const std::vector<uint_least16_t>& etVec,const std::vector<uint_least8_t>& etErrorVec);
       /// add Ex
-      void addEx(const std::vector<unsigned int>& exVec,const std::vector<int>& exErrorVec);      
+      void addEx(const std::vector<uint_least16_t>& exVec,const std::vector<uint_least8_t>& exErrorVec);      
       /// add Ey
-      void addEy(const std::vector<unsigned int>& eyVec,const std::vector<int>& eyErrorVec);      
+      void addEy(const std::vector<uint_least16_t>& eyVec,const std::vector<uint_least8_t>& eyErrorVec);      
       
       /// get crate
-      int crate() const;
+      uint_least8_t crate() const;
       /// set crate
-      void setCrate(int);
+      void setCrate(uint_least8_t);
 
       /// get source
-      int source() const;
+      uint_least8_t source() const;
       /// set source
-      void setSource(int);
+      void setSource(uint_least8_t);
 
       /// get peak
       uint_least8_t peak() const;
@@ -64,56 +68,56 @@ namespace xAOD{
       void setPeak(uint_least8_t);
 
       /// get etVec
-      const std::vector<unsigned int>& etVec() const;
+      const std::vector<uint_least16_t>& etVec() const;
       /// set etVec
-      void setEtVec(const std::vector<unsigned int>&);
+      void setEtVec(const std::vector<uint_least16_t>&);
 
       /// get exVec
-      const std::vector<unsigned int>& exVec() const;
+      const std::vector<uint_least16_t>& exVec() const;
       /// set exVec
-      void setExVec(const std::vector<unsigned int>&);
+      void setExVec(const std::vector<uint_least16_t>&);
 
       /// get eyVec
-      const std::vector<unsigned int>& eyVec() const;
+      const std::vector<uint_least16_t>& eyVec() const;
       /// set eyVec
-      void setEyVec(const std::vector<unsigned int>&);
+      void setEyVec(const std::vector<uint_least16_t>&);
 
       /// get etErrorVec
-      const std::vector<int>& etErrorVec() const;
+      const std::vector<uint_least8_t>& etErrorVec() const;
       /// set etErrorVec
-      void setEtErrorVec(const std::vector<int>&);
+      void setEtErrorVec(const std::vector<uint_least8_t>&);
 
       /// get exErrorVec
-      const std::vector<int>& exErrorVec() const;
+      const std::vector<uint_least8_t>& exErrorVec() const;
       /// set exErrorVec
-      void setExErrorVec(const std::vector<int>&);
+      void setExErrorVec(const std::vector<uint_least8_t>&);
 
       /// get eyErrorVec
-      const std::vector<int>& eyErrorVec() const;
+      const std::vector<uint_least8_t>& eyErrorVec() const;
       /// set eyErrorVec
-      void setEyErrorVec(const std::vector<int>&);
+      void setEyErrorVec(const std::vector<uint_least8_t>&);
 
       /// Peak functions - return value of peak bunch crossing
       /// Assuming we have got the timing calibration correct,
       /// This is the bunch crossing containing the collision
 
       /// get etVec at peak bunch crossing
-      unsigned int et() const;
+      uint_least16_t et() const;
 
       /// get exVec at peak bunch crossing
-      unsigned int ex() const;
+      uint_least16_t ex() const;
 
       /// get eyVec at peak bunch crossing
-      unsigned int ey() const;
+      uint_least16_t ey() const;
 
       /// get etErrorVec at peak bunch crossing
-      int etError() const;
+      uint_least8_t etError() const;
 
       /// get exErrorVec at peak bunch crossing
-      int exError() const;
+      uint_least8_t exError() const;
 
       /// get eyErrorVec at peak bunch crossing
-      int eyError() const;
+      uint_least8_t eyError() const;
 
   }; // class CMXEtSums_v2
 } // namespace xAOD

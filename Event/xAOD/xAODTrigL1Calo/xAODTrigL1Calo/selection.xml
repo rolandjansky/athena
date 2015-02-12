@@ -1,6 +1,9 @@
 <lcgdict>
 
   <!--  dictionaries: -->
+  
+  <!-- Run1 EDM -->
+  
   <!--   JEMHits -->
   <class name="xAOD::JEMHits_v1" />
   <class name="xAOD::JEMHitsContainer_v1"
@@ -137,7 +140,7 @@
          id="3C5D20CF-6F77-4E67-B182-674EDFD2FE38" />  
   
   
-  <!-- Moving onto run2 classes -->
+  <!-- Moving onto Run2 EDM -->
     
   <!--   TriggerTower -->
   <class name="xAOD::TriggerTower_v2" >
@@ -219,6 +222,13 @@
          id="B84B5967-8B6C-4743-AC18-FF68E13D9EA6" />
   <class name="xAOD::CPMTobRoIAuxContainer_v2"
          id="38CB660E-139B-4280-9517-B571CA680A37" />
+  
+  <!-- JEMEtSums -->
+  <class name="xAOD::JEMEtSums_v2" />
+  <class name="xAOD::JEMEtSumsContainer_v2"
+         id="9EE079C0-5737-4710-A81D-278D97F01E50" />
+  <class name="xAOD::JEMEtSumsAuxContainer_v2"
+         id="015D34AC-2FD5-4357-850E-04FD5EF6F945" />   
 
 
   <!-- JEMTobRoI_v2 -->

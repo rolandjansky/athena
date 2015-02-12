@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerTower_v2.h 642659 2015-01-29 12:41:06Z morrisj $
+// $Id: TriggerTower_v2.h 646335 2015-02-12 01:16:10Z morrisj $
 #ifndef XAODTRIGL1CALO_VERSIONS_TRIGGERTOWER_V2_H
 #define XAODTRIGL1CALO_VERSIONS_TRIGGERTOWER_V2_H
 
@@ -26,8 +26,8 @@ namespace xAOD {
   ///
   /// @author John Morris <john.morris@cern.ch>
   ///
-  /// $Revision: 642659 $
-  /// $Date: 2015-01-29 13:41:06 +0100 (Thu, 29 Jan 2015) $  
+  /// $Revision: 646335 $
+  /// $Date: 2015-02-12 02:16:10 +0100 (Thu, 12 Feb 2015) $  
   ///  
   /// Trigger towers are the inputs to all other parts of the calorimeter trigger.
   /// They are formed by analogue summation of cells (represented in simulation
@@ -36,11 +36,7 @@ namespace xAOD {
   /// to 8 bit words.
   ///   
   /// The TriggerTower class represents the output of the PreProcessor.
-  /// Each TriggerTower object actually contains information from a pair of
-  /// trigger towers, one EM and one Hadronic, sharing the same eta, phi
-  /// coordinates. This is convenient for algorithm emulation, though it does
-  /// not represent the readout arrangement.
-  ///    
+  ///
   /// For each tower, the TriggerTower contains the final ET (LUT output)
   /// as well as a vector of ADC data (at 25ns intervals) from which it was
   /// formed, plus error flags and raw BCID output. As the PreProcessor
@@ -48,16 +44,19 @@ namespace xAOD {
   /// internal storage is in std::vectors, and methods exist to return all
   /// slices as well as just the data corresponding to the triggered crossing.
   ///
+  /// The TriggerTower_v2 class inherits from IParticle in order to assist
+  /// The Level 1.5 jet HLT algorithm
+  ///
   
   class TriggerTower_v2 : public IParticle{
     public:
-      // Default constructor
+      /// Default constructor
       TriggerTower_v2();
-      // Copy constructor
+      /// Copy constructor
       TriggerTower_v2(const TriggerTower_v2& other);
-      // Assignment operator
+      /// Assignment operator
       TriggerTower_v2& operator=(const TriggerTower_v2& other);
-      // Default desturctor
+      /// Default desturctor
       virtual ~TriggerTower_v2(){}
       
       /// @name xAOD::IParticle functions
@@ -95,15 +94,18 @@ namespace xAOD {
           
       /// @}
       
-      /// Fill tower with all information
-      void initialize(const uint_least32_t CoolId,const uint_least8_t Layer,const float Eta,const float Phi,
-                      const std::vector<uint_least8_t>& Lut_cp,const std::vector<uint_least8_t>& Lut_jep,
-                      const std::vector<int_least16_t>& Correction,const std::vector<uint_least8_t>& CorrectionEnabled,
-                      const std::vector<uint_least8_t>& BcidVec,const std::vector<uint_least16_t>& Adc,
-                      const std::vector<uint_least8_t>& BcidExt,
-                      const uint_least16_t Error,
-                      const uint_least8_t Peak,
-                      const uint_least8_t AdcPeak);
+      /// initialize
+      
+      virtual void initialize(const uint_least32_t CoolId,const float Eta,const float Phi);
+      
+      virtual void initialize(const uint_least32_t CoolId,const float Eta,const float Phi,
+                              const std::vector<uint_least8_t>& Lut_cp,const std::vector<uint_least8_t>& Lut_jep,
+                              const std::vector<int_least16_t>& Correction,const std::vector<uint_least8_t>& CorrectionEnabled,
+                              const std::vector<uint_least8_t>& BcidVec,const std::vector<uint_least16_t>& Adc,
+                              const std::vector<uint_least8_t>& BcidExt,const std::vector<uint_least8_t>& Sat80Vec,
+                              const uint_least16_t Error,
+                              const uint_least8_t Peak,
+                              const uint_least8_t AdcPeak);
 
       // Tower identifiers
   
@@ -114,10 +116,7 @@ namespace xAOD {
       
       /// get layer
       uint_least8_t layer() const;
-      /// set layer
-      void setLayer(uint_least8_t);
 
- 
       // Quantities with same number of slices as LUT data
       
       /// get lut_cp
@@ -156,7 +155,12 @@ namespace xAOD {
       /// get bcidExt
       const std::vector<uint_least8_t>& bcidExt() const;
       /// set bcidExt
-      void setBcidExt(const std::vector<uint_least8_t>&);       
+      void setBcidExt(const std::vector<uint_least8_t>&);   
+      
+      /// get sat80Vec
+      const std::vector<uint_least8_t>& sat80Vec() const;
+      /// set sat80Vec
+      void setSat80Vec(const std::vector<uint_least8_t>&);
       
 
       // One error word/tower/event

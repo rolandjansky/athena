@@ -8,10 +8,11 @@
 // Local include(s):
 #include "xAODTrigL1Calo/JEMEtSums.h"
 #include "xAODTrigL1Calo/versions/JEMEtSumsContainer_v1.h"
+#include "xAODTrigL1Calo/versions/JEMEtSumsContainer_v2.h"
 
 namespace xAOD {
    /// Define the latest version of the JEMEtSums container
-   typedef JEMEtSumsContainer_v1 JEMEtSumsContainer;
+   typedef JEMEtSumsContainer_v2 JEMEtSumsContainer;
 }
 
 #include "xAODCore/CLASS_DEF.h"

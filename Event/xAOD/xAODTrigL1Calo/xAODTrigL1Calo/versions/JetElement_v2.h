@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JetElement_v2.h 642659 2015-01-29 12:41:06Z morrisj $
+// $Id: JetElement_v2.h 646335 2015-02-12 01:16:10Z morrisj $
 #ifndef XAODTRIGL1CALO_VERSIONS_JETELEMENT_V2_H
 #define XAODTRIGL1CALO_VERSIONS_JETELEMENT_V2_H
 
@@ -20,23 +20,37 @@ namespace xAOD {
   ///
   /// @author John Morris <john.morris@cern.ch>
   ///
-  /// $Revision: 642659 $
-  /// $Date: 2015-01-29 13:41:06 +0100 (Thu, 29 Jan 2015) $  
+  /// $Revision: 646335 $
+  /// $Date: 2015-02-12 02:16:10 +0100 (Thu, 12 Feb 2015) $  
   
   class JetElement_v2 : public SG::AuxElement{
     public:
-      // Default constructor
+      /// Default constructor
       JetElement_v2();
+      /// Default desturctor
+      virtual ~JetElement_v2(){}      
       
-      /// get phi (note that for L1Calo phi runs from 0 to 2pi)
-      float phi() const;
-      /// set phi
-      void setPhi(float);
+      /// initialize
+      virtual void initialize(const float eta,const float phi,const unsigned int key);
+      
+      /// initialize
+      virtual void initialize(const float eta,const float phi,const unsigned int key,
+                              const std::vector<uint_least16_t>& emEnergyVec,
+                              const std::vector<uint_least16_t>& hadEnergyVec,
+                              const std::vector<uint_least8_t>& emErrorVec,
+                              const std::vector<uint_least8_t>& hadErrorVec,
+                              const std::vector<uint_least8_t>& linkErrorVec,
+                              const uint_least8_t peak);
       
       /// get eta
       float eta() const;
       /// set eta
       void setEta(float); 
+      
+      /// get phi (note that for L1Calo phi runs from 0 to 2pi)
+      float phi() const;
+      /// set phi
+      void setPhi(float);     
       
       /// get key
       unsigned int key() const;
@@ -49,48 +63,44 @@ namespace xAOD {
       void setPeak(uint_least8_t);
       
       /// get emEnergyVec - emEnergy for all time slices
-      const std::vector<int>& emEnergyVec() const;
+      const std::vector<uint_least16_t>& emEnergyVec() const;
       /// set emEnergyVec - emEnergy for all time slices
-      void setEmEnergyVec(const std::vector<int>&);
+      void setEmEnergyVec(const std::vector<uint_least16_t>&);
       
       /// get hadEnergyVec - hadEnergy for all time slices
-      const std::vector<int>& hadEnergyVec() const;
+      const std::vector<uint_least16_t>& hadEnergyVec() const;
       /// set hadEnergyVec - hadEnergy for all time slices
-      void setHadEnergyVec(const std::vector<int>&); 
+      void setHadEnergyVec(const std::vector<uint_least16_t>&); 
       
       /// get emErrorVec - emError for all time slices
-      const std::vector<int>& emErrorVec() const;
+      const std::vector<uint_least8_t>& emErrorVec() const;
       /// set emErrorVec - emError for all time slices
-      void setEmErrorVec(const std::vector<int>&);
+      void setEmErrorVec(const std::vector<uint_least8_t>&);
       
       /// get hadErrorVec - hadError for all time slices
-      const std::vector<int>& hadErrorVec() const;
+      const std::vector<uint_least8_t>& hadErrorVec() const;
       /// set hadErrorVec - hadError for all time slices
-      void setHadErrorVec(const std::vector<int>&);      
+      void setHadErrorVec(const std::vector<uint_least8_t>&);      
 
       /// get linkErrorVec - linkError for all time slices
-      const std::vector<int>& linkErrorVec() const;
+      const std::vector<uint_least8_t>& linkErrorVec() const;
       /// set linkErrorVec - linkError for all time slices
-      void setLinkErrorVec(const std::vector<int>&); 
+      void setLinkErrorVec(const std::vector<uint_least8_t>&); 
       
-      /// Add ET to triggered time slice 
-      void addEnergy(int emEnergy, int hadEnergy);
-      /// Add ET values to specified slice 
-      void addSlice(int slice, int emEnergy, int hadEnergy,int emError, int hadError, int linkError);
 
       /// get emEnery for emEnergyVec[peak]  - time slice that (hopefully) contains the collision  
-      int emEnergy()  const;
+      unsigned int emEnergy()  const;
       /// get hadEnery for hadEnergyVec[peak]  - time slice that (hopefully) contains the collision 
-      int hadEnergy() const;
+      unsigned int hadEnergy() const;
       /// get total energy. returns emEnergy() + hadEnergy()
-      int energy()    const;
+      unsigned int energy()    const;
 
       /// get emEnery for emEnergyVec[slice] - time slice for arbitary slice
-      int emSliceEnergy(int slice) const;
+      unsigned int emSliceEnergy(unsigned int slice) const;
       /// get hadEnery for hadEnergyVec[slice] - time slice for arbitary slice
-      int hadSliceEnergy(int slice) const;
+      unsigned int hadSliceEnergy(unsigned int slice) const;
       /// get total energy. returns emSliceEnergy(slice) + hadSliceEnergy(slice)
-      int sliceEnergy(int slice) const;
+      unsigned int sliceEnergy(unsigned int slice) const;
 
       /// is JetElement saturated?
       bool isSaturated()    const;
@@ -100,11 +110,11 @@ namespace xAOD {
       bool isHadSaturated() const;
       
       /// get emError for emErrorVec[peak] - time slice that (hopefully) contains the collision
-      int emError()   const;
+      uint_least8_t emError()   const;
       /// get hadError for hadErrorVec[peak] - time slice that (hopefully) contains the collision
-      int hadError()  const;
+      uint_least8_t hadError()  const;
       /// get linkError for linkErrorVec[peak] - time slice that (hopefully) contains the collision
-      int linkError() const;
+      uint_least8_t linkError() const;
     
     private:
       static const int m_saturationThreshold = 1023;
