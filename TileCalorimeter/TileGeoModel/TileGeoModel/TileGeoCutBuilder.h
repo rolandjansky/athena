@@ -3,15 +3,15 @@
 */
 
 /**
- * @file TileGeoSectionBuioder.h
+ * @file TileGeoCutBuilder.h
  *
  * @brief Definition of TileGeoSectionBuioder class
  *
  * @author Sergey Baranov
  *
  */
-#ifndef TileGeoCutBuilder_h
-#define TileGeoCutBuilder_h 1
+#ifndef TILEGEOMODEL_TILEGEOCUTBUILDER_H
+#define TILEGEOMODEL_TILEGEOCUTBUILDER_H
 
 #include "StoreGate/StoreGateSvc.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -50,17 +50,9 @@ class TileGeoCutBuilder
 
  private:
 
-  DataHandle<StoredMaterialManager>     theMaterialManager;
-  TileDddbManager *                     dbManager;
+  //DataHandle<StoredMaterialManager>     theMaterialManager;
   MsgStream *                           m_log;
-
-  double       m_barrelPeriodThickness;
-  double       m_barrelGlue;
-  double       m_extendedPeriodThickness;
-
-  /** Flag for activation verbose level for debugging */
-  bool         m_verbose;
 };
 
-#endif
+#endif // not TILEGEOMODEL_TILEGEOCUTBUILDER_H
 
