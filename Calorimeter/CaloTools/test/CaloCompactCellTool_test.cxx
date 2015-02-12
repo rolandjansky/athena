@@ -32,7 +32,6 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthAllocators/Arena.h"
-#include "AthAllocators/ArenaHeaderGaudiClear.h"
 #include "IdDictParser/IdDictParser.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "TestTools/initGaudi.h"
@@ -1127,7 +1126,6 @@ std::vector<CaloCell*> init (ICaloCompactCellTool* & tool)
   CHECK( detstore->record (idmgr, "CaloIdManager") );
 
   arena = new SG::Arena ("arena");
-  SG::ArenaHeaderGaudiClear::disable();
 
   g_mgr = mgr;
 
