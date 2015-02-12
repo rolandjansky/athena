@@ -66,7 +66,7 @@ void MboyViewPointerDumperTool::DumpPointer(
 }
 void MboyViewPointerDumperTool::DumpPointer(
             std::ofstream* pOut ,
-            TrackRecord* pTrackRecord
+            const TrackRecord* pTrackRecord
 ){
   if ( m_DoDump  == 1 ) *pOut<< std::setw(20) << (uintptr_t)pTrackRecord  << " " ;
 }

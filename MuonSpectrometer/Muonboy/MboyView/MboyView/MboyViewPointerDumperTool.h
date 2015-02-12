@@ -42,7 +42,7 @@ public:
               );
    void DumpPointer(
                std::ofstream* pOut ,
-               TrackRecord* pTrackRecord
+               const TrackRecord* pTrackRecord
               );
 
 private:

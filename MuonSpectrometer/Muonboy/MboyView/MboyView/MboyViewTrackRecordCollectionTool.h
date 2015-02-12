@@ -49,7 +49,7 @@ private:
 
    /**Get Kine */
    void GetKineTrackRecord(
-         TrackRecord* pTrackRecord,
+         const TrackRecord* pTrackRecord,
          int&    PDGCode ,
          double& PosX    ,
          double& PosY    ,

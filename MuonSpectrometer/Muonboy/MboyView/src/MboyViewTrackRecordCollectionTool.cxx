@@ -113,7 +113,7 @@ StatusCode MboyViewTrackRecordCollectionTool::ViewTrackRecordCollection(
     double PZ      ;      
     double Pt      ;
     GetKineTrackRecord(
-     (*trkit),
+     &(*trkit),
      PDGCode ,
      PosX    ,
      PosY    ,
@@ -142,7 +142,7 @@ StatusCode MboyViewTrackRecordCollectionTool::ViewTrackRecordCollection(
           << std::setw(3)<<std::setprecision(0) <<charge   << " "
           << std::setw(8)<<std::setprecision(3) <<PDGCode << " "
           ;
-    p_MboyViewPointerDumperTool->DumpPointer(pOut,(*trkit)); 
+    p_MboyViewPointerDumperTool->DumpPointer(pOut,&(*trkit)); 
     *pOut << std::endl;
   }
 
@@ -150,7 +150,7 @@ StatusCode MboyViewTrackRecordCollectionTool::ViewTrackRecordCollection(
 
 }
 void MboyViewTrackRecordCollectionTool::GetKineTrackRecord(
- TrackRecord* pTrackRecord,
+ const TrackRecord* pTrackRecord,
  int&    PDGCode ,
  double& PosX    ,
  double& PosY    ,

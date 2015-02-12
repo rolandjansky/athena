@@ -76,7 +76,7 @@ StatusCode MboyViewGenEventSelectionTool::EventSelection(
     	return( StatusCode::SUCCESS );
       }
       for (TrackRecordCollection::const_iterator trkit=pTrackRecordCollection->begin();trkit != pTrackRecordCollection->end() ; ++trkit) {
-        double AbsEta = fabs( (*trkit)->GetMomentum().eta() ) ;
+        double AbsEta = fabs( (*trkit).GetMomentum().eta() ) ;
         if ( GenEvtSelectionEtaMin <= AbsEta  && AbsEta <= GenEvtSelectionEtaMax ) return StatusCode::SUCCESS;
       }
     }
