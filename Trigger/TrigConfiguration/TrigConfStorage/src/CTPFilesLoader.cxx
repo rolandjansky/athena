@@ -487,6 +487,7 @@ void TrigConf::CTPFilesLoader::parseHexString(std::vector<u_int>& vec,const std:
       }
    } else {
       TRG_MSG_INFO("DB File content is 0, which is expected for MC, Reprocessing, and ATN databases");
+      return;
    }
 
    for(u_int i=0; i < vec.size(); ++i) {

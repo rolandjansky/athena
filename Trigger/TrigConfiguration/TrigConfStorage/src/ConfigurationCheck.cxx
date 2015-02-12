@@ -1691,7 +1691,7 @@ ConfigurationCheck::ConfigurationCheck(TrigConf::CTPConfig* ctp, TrigConf::HLTFr
   //m_tests.push_back(new CrossLevelAlgSeeding());
   //m_tests.push_back(new FJBJThresholdSymetric());
   m_tests.push_back(new FJBJThrsholdsUsedInPairs());
-  m_tests.push_back(new ThrSeqMismatch());
+  //m_tests.push_back(new ThrSeqMismatch()); //CB temp commented out (ATR-10063)
   m_tests.push_back(new CoherentPrescales());
   m_tests.push_back(new L1CaloThrDef());
   //m_tests.push_back(new L1CaloThrOrder()); //CB 23.05.2014: disabled for now, need to check with L1Calo about eta items order
