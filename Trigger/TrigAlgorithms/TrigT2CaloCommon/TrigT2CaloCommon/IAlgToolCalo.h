@@ -24,7 +24,7 @@
 #define TRIGT2CALOCOMMON_IALGTOOLCALO_H
 
 #include "GaudiKernel/IAlgTool.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -59,11 +59,11 @@ static const InterfaceID IID_IAlgToolCalo("IAlgToolCalo",1,0);
 /** Base Class for Tools used for Egamma and Tau Feature
 	Extraction Algorithms */
 class IAlgToolCalo: public virtual IAlgTool, 
-                       public AlgTool {
+                       public AthAlgTool {
   public:
     /** Constructor */
     IAlgToolCalo(const std::string & type, const std::string & name,
-                 const IInterface* parent) : AlgTool(type,name,parent),
+                 const IInterface* parent) : AthAlgTool(type,name,parent),
 		 m_timersvc("TrigTimerSvc","IAlgToolCalo"),
 		 m_geometryTool("T2GeometryTool/T2GeometryTool", this ),
 		 m_data("TrigDataAccess/TrigDataAccess"),

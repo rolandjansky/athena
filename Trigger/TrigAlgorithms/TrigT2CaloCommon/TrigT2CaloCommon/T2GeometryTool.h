@@ -16,7 +16,7 @@
 
 #ifndef TRIGT2CALO_T2GEOMETRY
 #define TRIGT2CALO_T2GEOMETRY
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/MsgStream.h"
 #include "TrigT2CaloCommon/T2GeometryTool.h"
 #include "TrigT2CaloCommon/IT2GeometryTool.h"
@@ -24,7 +24,7 @@
 #include <math.h>
 
 
-class T2GeometryTool : virtual public IT2GeometryTool , public AlgTool{
+class T2GeometryTool : virtual public IT2GeometryTool , public AthAlgTool{
 public :
 	/** Constructor. Loads cluster size definition tables. */
 	T2GeometryTool (const std::string & type, const std::string &name,

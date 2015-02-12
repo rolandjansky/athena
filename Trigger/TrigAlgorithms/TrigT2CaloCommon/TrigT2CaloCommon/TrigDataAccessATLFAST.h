@@ -21,7 +21,7 @@
 #define TRIGT2CALOCOMMONATLFAST_TRIGDATAACCESS_H
 
 #include "GaudiKernel/IAlgTool.h"
-#include "GaudiKernel/AlgTool.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IProperty.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
@@ -68,12 +68,12 @@ class T2CaloConfig;
 
 /** Class that provides access to data for
     Calorimeter LVL2 Algorithms */
-class TrigDataAccessATLFAST: virtual public ITrigDataAccess, public AlgTool,
+class TrigDataAccessATLFAST: virtual public ITrigDataAccess, public AthAlgTool,
 	virtual public IIncidentListener {
   public:
     /** Real Constructor */
     TrigDataAccessATLFAST(const std::string & type, const std::string & name,
-                 const IInterface* parent) : AlgTool(type,name,parent),
+                 const IInterface* parent) : AthAlgTool(type,name,parent),
 		 m_pRegionSelector("RegSelSvc/RegSelSvc","TrigDataAccess"){
 	declareInterface<ITrigDataAccess>(this); 
 	declareProperty("RegSelSvc",m_pRegionSelector,"Region Selector Service access");
@@ -154,7 +154,7 @@ class TrigDataAccessATLFAST: virtual public ITrigDataAccess, public AlgTool,
     
     void RegionSelectorRobID (const int sampling, const double etamin,
 			      const double etamax, const double phimin, const double phimax,
-			      const DETID detid=TTEM, bool fetchROBs = true) { 
+			      const DETID detid=TTEM, bool /* fetchROBs*/ = true) { 
       TrigRoiDescriptor roi( 0.5*(etamin+etamax), etamin, etamax, HLT::phimean(phimin,phimax), phimin, phimax);
       RegionSelectorRobID(sampling, roi, detid);
     }
