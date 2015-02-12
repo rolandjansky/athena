@@ -12,6 +12,7 @@
 #define ELECTRONPHOTONFOURMOMENTUMCORRECTION_ELECTRONPHOTONFOURMOMENTUMCORRECTIONDICT_H
 
 #include "ElectronPhotonFourMomentumCorrection/egammaEnergyCorrectionTool.h"
+#include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h" 
 
 #endif
 

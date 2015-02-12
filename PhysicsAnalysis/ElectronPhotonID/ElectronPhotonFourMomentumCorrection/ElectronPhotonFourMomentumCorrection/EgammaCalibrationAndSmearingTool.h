@@ -8,6 +8,9 @@
 #ifndef EGAMMA_CALIB_TOOL_H_
 #define EGAMMA_CALIB_TOOL_H_
 
+#include <functional>
+#include <string>
+
 #include "AsgTools/AsgTool.h"
 #include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h"
 #include "PATInterfaces/ISystematicsTool.h"
@@ -23,15 +26,17 @@
 namespace CP {
 
 class EgammaCalibrationAndSmearingTool : virtual public IEgammaCalibrationAndSmearingTool, 
-			virtual public CP::ISystematicsTool, 
-			public asg::AsgTool {
+					 virtual public CP::ISystematicsTool, 
+					 public asg::AsgTool {
   // Create a proper constructor for Athena
   ASG_TOOL_CLASS2( EgammaCalibrationAndSmearingTool, IEgammaCalibrationAndSmearingTool, CP::ISystematicsTool)
-
+  
 public:
-  
+  typedef unsigned int RandomNumber;
+  typedef std::function<int(const EgammaCalibrationAndSmearingTool&, const xAOD::Egamma&, const xAOD::EventInfo&)> IdFunction;
+    
   EgammaCalibrationAndSmearingTool( const std::string& name );
-  
+    
   ~EgammaCalibrationAndSmearingTool() {};
   
   StatusCode initialize();
@@ -39,11 +44,12 @@ public:
   StatusCode finalize();
 
   //Apply the correction on a modifyable egamma object 
-  virtual CP::CorrectionCode applyCorrection(xAOD::Egamma&, const xAOD::EventInfo*);
+  virtual CP::CorrectionCode applyCorrection(xAOD::Egamma&);
   
   //Create a corrected copy from a constant egamma object
-  //WARNING: this method compiles but crashes when running in ROOT => under investigation, do not use for now
-  virtual CP::CorrectionCode correctedCopy( const xAOD::Egamma&, xAOD::Egamma*&, const xAOD::EventInfo*);
+  //  virtual CP::CorrectionCode correctedCopy(const xAOD::Egamma&, xAOD::Egamma*&);
+  virtual CP::CorrectionCode correctedCopy(const xAOD::Electron&, xAOD::Electron*&);
+  virtual CP::CorrectionCode correctedCopy(const xAOD::Photon&, xAOD::Photon*&);
   
   //systematics 
   //Which systematics have an effect on the tool's behaviour?
@@ -55,18 +61,19 @@ public:
   //Use specific systematic
   virtual CP::SystematicCode applySystematicVariation ( const CP::SystematicSet& systConfig );
   //set default configuration 
-  virtual void setDefaultConfiguration(const xAOD::EventInfo*);
   virtual void forceSmearing( bool force); 
   virtual void forceScaleCorrection( bool force);
   virtual void setRandomSeed( unsigned seed=0 );
+  virtual void setRandomSeedFunction(const IdFunction&& function) { m_set_seed_function = function; }
   
 private:
+
   std::string m_ESModel;             
   egEnergyCorr::ESModel m_TESModel;
-  unsigned m_seed;
   bool m_debug;
   bool m_doScaleCorrection;
   bool m_doSmearing;
+  bool m_auto_reseed;
   double m_varSF;
   std::string m_ResolutionType;
   egEnergyCorr::Resolution::resolutionType m_TResolutionType;
@@ -86,7 +93,7 @@ private:
   bool m_forceIntermoduleCorrection;
   bool m_forcePhiUniformCorrection;
   bool m_forceGainCorrection;
-  
+
 public:
   virtual double getEnergy(const xAOD::Egamma*, const xAOD::EventInfo*); 
   virtual double getElectronEnergy(const xAOD::Electron*, const xAOD::EventInfo*); 
@@ -94,9 +101,6 @@ public:
   virtual double getElectronMomentum(const xAOD::Electron*, const xAOD::EventInfo*);
   
 private:
-  double m_CalibratedEnergy;
-  double m_CorrectedMomentum;
-  
   // A pointer to the underlying ROOT tool 
   AtlasRoot::egammaEnergyCorrectionTool* m_rootTool;
 
@@ -107,7 +111,10 @@ private:
   //These are modified by the ISystematicsTool methods 
   egEnergyCorr::Scale::Variation m_currentScaleVariation; 
   egEnergyCorr::Resolution::Variation m_currentResolutionVariation;
-  
+  IdFunction m_set_seed_function;
+
+  inline float retrieve_phi_calo(const xAOD::CaloCluster&, bool do_throw=false) const;
+  inline float retrieve_eta_calo(const xAOD::CaloCluster&, bool do_throw=false) const;
 };
 
 }

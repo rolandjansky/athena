@@ -24,13 +24,13 @@ namespace CP {
 EgammaCalibrationAndSmearingTool::EgammaCalibrationAndSmearingTool( const std::string &name )
   : asg::AsgTool(name),
     m_TESModel(egEnergyCorr::UNDEFINED),
-    m_seed(0),
     m_TResolutionType(egEnergyCorr::Resolution::SigmaEff90),
-    m_CalibratedEnergy(-1), // why do we need this?
-    m_CorrectedMomentum(-1), // why do we need this?
     m_rootTool(0),
     m_currentScaleVariation(egEnergyCorr::Scale::Nominal), 
-    m_currentResolutionVariation(egEnergyCorr::Resolution::Nominal)
+    m_currentResolutionVariation(egEnergyCorr::Resolution::Nominal),
+    m_set_seed_function([](const EgammaCalibrationAndSmearingTool&,
+			   const xAOD::Egamma& egamma,
+			   const xAOD::EventInfo& ei) { return static_cast<RandomNumber>(egamma.phi() * 1E6 + egamma.eta() * 1E3 + ei.eventNumber()); })
 {
   declareProperty("ESModel", m_ESModel = "es2012c");
   declareProperty("ResolutionType", m_ResolutionType = "SigmaEff90");
@@ -52,6 +52,7 @@ EgammaCalibrationAndSmearingTool::EgammaCalibrationAndSmearingTool( const std::s
   declareProperty("forcePhiUniformCorrection", m_forcePhiUniformCorrection = false);  
   declareProperty("useGainCorrection", m_useGainCorrection = false);
   declareProperty("forceGainCorrection", m_forceGainCorrection = false);
+  declareProperty("autoReseed", m_auto_reseed = true);
 }
 
 StatusCode EgammaCalibrationAndSmearingTool::initialize(){
@@ -138,22 +139,9 @@ void EgammaCalibrationAndSmearingTool::setRandomSeed ( unsigned seed )
   m_rootTool->setRandomSeed(seed);
 }
 
-void EgammaCalibrationAndSmearingTool::setDefaultConfiguration(const xAOD::EventInfo* event_info)
-{
-  PATCore::ParticleDataType::DataType dataType = (event_info->eventType(xAOD::EventInfo::IS_SIMULATION)) ? PATCore::ParticleDataType::Full : PATCore::ParticleDataType::Data;
-  if(dataType==PATCore::ParticleDataType::Full){//MC
-    m_currentScaleVariation = egEnergyCorr::Scale::None;  
-    m_currentResolutionVariation = egEnergyCorr::Resolution::Nominal;
-  } 
-  else{//DATA
-    m_currentScaleVariation = egEnergyCorr::Scale::Nominal;   
-    m_currentResolutionVariation = egEnergyCorr::Resolution::None;
-  }
-}
-
 void EgammaCalibrationAndSmearingTool::forceSmearing(bool force)
 {
-  if(force) m_currentResolutionVariation = egEnergyCorr::Resolution::Nominal;
+  if (force) m_currentResolutionVariation = egEnergyCorr::Resolution::Nominal;
   else m_currentResolutionVariation = egEnergyCorr::Resolution::None; 
 }
 
@@ -163,34 +151,41 @@ void EgammaCalibrationAndSmearingTool::forceScaleCorrection(bool force)
   else m_currentScaleVariation = egEnergyCorr::Scale::None;
 }
 
-CP::CorrectionCode EgammaCalibrationAndSmearingTool::applyCorrection(xAOD::Egamma & input, const xAOD::EventInfo* event_info) 
+CP::CorrectionCode EgammaCalibrationAndSmearingTool::applyCorrection(xAOD::Egamma & input)
 { 
-  const double new_energy = getEnergy(&input, event_info);
+  // Retrieve the event information:
+  const xAOD::EventInfo* ei = 0;
+  if (evtStore()->retrieve(ei, "EventInfo").isFailure()) {
+    ATH_MSG_ERROR("No EventInfo object could be retrieved");
+    ATH_MSG_WARNING("Random number generation not configured correctly");
+  }
+
+  if (m_auto_reseed) { setRandomSeed(m_set_seed_function(*this, input, *ei)); }
+
+  const double new_energy = getEnergy(&input, ei);
   const double cosh_eta = input.e() / input.pt(); 
   input.setPt(new_energy / cosh_eta); 
   return CP::CorrectionCode::Ok; 
 }
 
-CP::CorrectionCode EgammaCalibrationAndSmearingTool::correctedCopy( const xAOD::Egamma& input, xAOD::Egamma*& output, const xAOD::EventInfo* event_info)
+CP::CorrectionCode EgammaCalibrationAndSmearingTool::correctedCopy(const xAOD::Electron& input, xAOD::Electron*& output)
 {
   // A sanity check:
-  if( output ) ATH_MSG_WARNING( "Non-null pointer received. " "There's a possible memory leak!" );
+  if (output) ATH_MSG_WARNING( "Non-null pointer received. " "There's a possible memory leak!" );
 
-  if ( input.type() == xAOD::Type::Electron ) {
-    output = new xAOD::Electron();
-    output->makePrivateStore( static_cast<const xAOD::Electron&>(input) );
-    return applyCorrection( *output, event_info );
-  }
-  else if ( input.type() == xAOD::Type::Photon ) {
-    output = new xAOD::Photon();
-    output->makePrivateStore( static_cast<const xAOD::Photon&>(input) );
-    return applyCorrection( *output, event_info );
-  }
-  else {
-    ATH_MSG_WARNING("Didn't get an electron or photon");
-    return CP::CorrectionCode::Error;
-  }
-  
+  output = new xAOD::Electron();
+  output->makePrivateStore(input);
+  return applyCorrection(*output);
+}
+
+CP::CorrectionCode EgammaCalibrationAndSmearingTool::correctedCopy(const xAOD::Photon& input, xAOD::Photon*& output)
+{
+  // A sanity check:
+  if (output) ATH_MSG_WARNING( "Non-null pointer received. " "There's a possible memory leak!" );
+
+  output = new xAOD::Photon();
+  output->makePrivateStore(input);
+  return applyCorrection(*output);
 }
 
 double EgammaCalibrationAndSmearingTool::getEnergy(const xAOD::Egamma* p, const xAOD::EventInfo* event_info)
@@ -216,87 +211,60 @@ double EgammaCalibrationAndSmearingTool::getElectronEnergy(const xAOD::Electron 
     ATH_MSG_ERROR("electron without CaloCluster");
     return -1;
   }
-
-  float m_el_rawcl_Es0 = -999.; 
-  float m_el_rawcl_Es1 = -999.; 
-  float m_el_rawcl_Es2 = -999.; 
-  float m_el_rawcl_Es3 = -999.; 
-  float m_el_cl_eta = -999.; 
-  float m_el_cl_phi = -999.; 
-  float m_el_cl_E = -999.; 
-  float m_el_cl_etaCalo = -999.; 
-  float m_el_cl_phiCalo = -999.; 
-  //float m_el_rawcl_calibHitsShowerDepth = -999.; 
-  float m_el_tracketa = -999.; 
   
-  m_el_rawcl_Es0 = eCluster->energyBE(0);
-  m_el_rawcl_Es1 = eCluster->energyBE(1);
-  m_el_rawcl_Es2 = eCluster->energyBE(2);
-  m_el_rawcl_Es3 = eCluster->energyBE(3);
-  m_el_cl_eta = eCluster->eta();   
-  m_el_cl_phi = eCluster->phi();
-  m_el_cl_E = eCluster->e();
-  
-  //cluster moments
-  //the following does not work for now: use the code below, copied from egammaMvaTool
-  //=> need to validate that these are the correct quantities
-  /*
-  double el_cl_etaCalo_tmp = 999.;
-  if(eCluster->retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,el_cl_etaCalo_tmp)) m_el_cl_etaCalo=el_cl_etaCalo_tmp;
-  //m_el_cl_etaCalo=eCluster()->isAvailable<float>("etaCalo");
-  //std::cout << m_el_cl_etaCalo << std::endl;
-  double el_cl_phiCalo_tmp = 999.;
-  if(eCluster->retrieveMoment(xAOD::CaloCluster::PHICALOFRAME,el_cl_phiCalo_tmp)) m_el_cl_phiCalo=el_cl_phiCalo_tmp;
-  //!!!temporary hack!!! => gets 0 for both moments
-  m_el_cl_etaCalo = m_el_cl_eta;
-  m_el_cl_phiCalo = m_el_cl_phi;
-  */
-  
-  if(eCluster->isAvailable<float>("etaCalo")) 
-    m_el_cl_etaCalo = eCluster->auxdata<float>("etaCalo"); 
-  else{
-    std::cout << "WARNING: etaCalo not available as auxilliary variable => setting it to 0" << std::endl; 
-    m_el_cl_etaCalo = 0.; 
-  }
-  if(eCluster->isAvailable<float>("phiCalo")) 
-    m_el_cl_phiCalo = eCluster->auxdata<float>("phiCalo"); 
-  else{
-    std::cout << "WARNING: phiCalo not available as auxilliary variable => setting it to 0" << std::endl;
-    m_el_cl_phiCalo = 0.; 
-  }
-  
-  //track eta 
+  const float m_el_rawcl_Es0 = eCluster->energyBE(0);
+  const float m_el_rawcl_Es1 = eCluster->energyBE(1);
+  const float m_el_rawcl_Es2 = eCluster->energyBE(2);
+  const float m_el_rawcl_Es3 = eCluster->energyBE(3);
+  const float m_el_cl_eta = eCluster->eta();
+  const float m_el_cl_phi = eCluster->phi();
+  const float m_el_cl_E = eCluster->e();
   const xAOD::TrackParticle* eTrack = el->trackParticle(); 
-  m_el_tracketa = eTrack->eta();
+  const float m_el_tracketa = eTrack->eta();     // TODO: why not electron->eta() ?
 
-   //decide if we are doing nominal case (will have both 'variations' set to nominal)
-   egEnergyCorr::Scale::Variation thisScaleVariation = m_currentScaleVariation;
-   egEnergyCorr::Resolution::Variation thisResolutionVariation = m_currentResolutionVariation;
+  const float m_el_cl_etaCalo = retrieve_eta_calo(*eCluster, false);
+  const float m_el_cl_phiCalo = retrieve_phi_calo(*eCluster, false);
+  
+  if (dataType == PATCore::ParticleDataType::Data) {
+    m_currentScaleVariation = egEnergyCorr::Scale::Nominal;
+    m_currentResolutionVariation = egEnergyCorr::Resolution::None;
+  }
+  else { // MC
+    // if there are no systematics on the scale
+    if (m_currentScaleVariation == egEnergyCorr::Scale::None or
+	m_currentScaleVariation == egEnergyCorr::Scale::Nominal) {
+      m_currentScaleVariation = egEnergyCorr::Scale::None;
+    }
+    // if there are no systematics on the resolution
+    if (m_currentResolutionVariation == egEnergyCorr::Resolution::None or
+	m_currentResolutionVariation == egEnergyCorr::Resolution::Nominal) {
+      m_currentResolutionVariation = egEnergyCorr::Resolution::Nominal;
+    }
+  }
 
-   if(m_currentScaleVariation==egEnergyCorr::Scale::Nominal && m_currentResolutionVariation == egEnergyCorr::Resolution::Nominal) {
-	//assume we are actually doing the 'default configuration'
-	if(dataType==PATCore::ParticleDataType::Full) thisScaleVariation=egEnergyCorr::Scale::None; //MC
-	else thisResolutionVariation=egEnergyCorr::Resolution::None; //Data
-   }
+  if (not m_doSmearing) { m_currentResolutionVariation = egEnergyCorr::Resolution::None; }
+  if (not m_doScaleCorrection) { m_currentScaleVariation = egEnergyCorr::Scale::None; }
 
-  m_CalibratedEnergy = m_rootTool->getCorrectedEnergy(runnumber,  
-						      dataType,
-						      ParticleInformation(m_el_rawcl_Es0,  
-									  m_el_rawcl_Es1,  
-									  m_el_rawcl_Es2,  
+  if (m_currentResolutionVariation != egEnergyCorr::Resolution::None and
+      m_currentResolutionVariation != egEnergyCorr::Resolution::Nominal)
+    assert (m_currentScaleVariation == egEnergyCorr::Scale::None);
+
+  return m_rootTool->getCorrectedEnergy(runnumber,  
+					dataType,
+					ParticleInformation(m_el_rawcl_Es0,  
+							    m_el_rawcl_Es1,  
+							    m_el_rawcl_Es2,  
 									  m_el_rawcl_Es3,  
-									  m_el_cl_eta,  
-									  m_el_cl_phi,  
-									  m_el_tracketa,  
-									  m_el_cl_E,  
-									  m_el_cl_etaCalo,  
-									  m_el_cl_phiCalo),  
-						      thisScaleVariation,
-						      thisResolutionVariation,
-						      m_TResolutionType,
-						      m_varSF);
-
-  return m_CalibratedEnergy;
+							    m_el_cl_eta,  
+							    m_el_cl_phi,  
+							    m_el_tracketa,  
+							    m_el_cl_E,  
+							    m_el_cl_etaCalo,  
+							    m_el_cl_phiCalo),  
+					m_currentScaleVariation,
+					m_currentResolutionVariation,
+					m_TResolutionType,
+					m_varSF);
   
 }
 
@@ -312,73 +280,30 @@ double EgammaCalibrationAndSmearingTool::getPhotonEnergy(const xAOD::Photon *ph,
     return -1;
   }
   
-  float m_ph_rawcl_Es0 = -999.; 
-  float m_ph_rawcl_Es1 = -999.; 
-  float m_ph_rawcl_Es2 = -999.; 
-  float m_ph_rawcl_Es3 = -999.; 
-  float m_ph_cl_eta = -999.; 
-  float m_ph_cl_phi = -999.; 
-  float m_ph_cl_E = -999.; 
-  float m_ph_ptconv = -999.; 
-  float m_ph_pt1conv = -999.; 
-  float m_ph_pt2conv = -999.; 
-  float m_ph_cl_etaCalo = -999.; 
-  float m_ph_cl_phiCalo = -999.; 
-  int m_ph_convtrk1nPixHits = -999; 
-  int m_ph_convtrk1nSCTHits = -999; 
-  int m_ph_convtrk2nPixHits = -999; 
-  int m_ph_convtrk2nSCTHits = -999; 
+  const float m_ph_rawcl_Es0 = eCluster->energyBE(0);
+  const float m_ph_rawcl_Es1 = eCluster->energyBE(1);
+  const float m_ph_rawcl_Es2 = eCluster->energyBE(2);
+  const float m_ph_rawcl_Es3 = eCluster->energyBE(3);
+  const float m_ph_cl_eta = eCluster->eta();
+  const float m_ph_cl_phi = eCluster->phi();
+  const float m_ph_cl_E = eCluster->e();
+  const float m_ph_cl_etaCalo = retrieve_eta_calo(*eCluster, false);
+  const float m_ph_cl_phiCalo = retrieve_phi_calo(*eCluster, false);
+
+  // initialize conversion variables as for unconv
+  float m_ph_ptconv = 0.;
+  float m_ph_pt1conv = 0.; 
+  float m_ph_pt2conv = 0.; 
+  int m_ph_convtrk1nPixHits = 0;
+  int m_ph_convtrk1nSCTHits = 0;
+  int m_ph_convtrk2nPixHits = 0;
+  int m_ph_convtrk2nSCTHits = 0;
+  float m_ph_Rconv = 0.;
   //float m_ph_rawcl_calibHitsShowerDepth = -999.; 
-  float m_ph_Rconv = -999.;
 
-
-  m_ph_rawcl_Es0 = eCluster->energyBE(0);
-  m_ph_rawcl_Es1 = eCluster->energyBE(1);
-  m_ph_rawcl_Es2 = eCluster->energyBE(2);
-  m_ph_rawcl_Es3 = eCluster->energyBE(3);
-  m_ph_cl_eta = eCluster->eta();   
-  m_ph_cl_phi = eCluster->phi();
-  m_ph_cl_E = eCluster->e();
-  
-  //cluster moments
-  //the following does not work for now: use the code below, copied from egammaMvaTool 
-  //=> need to validate that these are the correct quantities
-  /*
-  double ph_cl_etaCalo_tmp = 999.;
-  if(eCluster->retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,ph_cl_etaCalo_tmp)) m_ph_cl_etaCalo=ph_cl_etaCalo_tmp;
-  double ph_cl_phiCalo_tmp = 999.;
-  if(eCluster->retrieveMoment(xAOD::CaloCluster::PHICALOFRAME,ph_cl_phiCalo_tmp)) m_ph_cl_phiCalo=ph_cl_phiCalo_tmp;
-  //!!!temporary hack!!! => gets 0 for both moments
-  m_ph_cl_etaCalo = m_ph_cl_eta;
-  m_ph_cl_phiCalo = m_ph_cl_phi;
-  */
-
-  if(eCluster->isAvailable<float>("etaCalo"))  
-    m_ph_cl_etaCalo = eCluster->auxdata<float>("etaCalo");  
-  else{ 
-    std::cout << "WARNING: etaCalo not available as auxilliary variable => setting it to 0" << std::endl;  
-    m_ph_cl_etaCalo = 0.;  
-  } 
-  if(eCluster->isAvailable<float>("phiCalo"))  
-    m_ph_cl_phiCalo = eCluster->auxdata<float>("phiCalo");  
-  else{ 
-    std::cout << "WARNING: phiCalo not available as auxilliary variable => setting it to 0" << std::endl; 
-    m_ph_cl_phiCalo = 0.;  
-  }
-  
   //conversion
   const xAOD::Vertex* phVertex = ph->vertex();
-  if(!phVertex){
-    m_ph_ptconv = 0;
-    m_ph_pt1conv = 0;
-    m_ph_pt2conv = 0;
-    m_ph_convtrk1nPixHits = 0;
-    m_ph_convtrk1nSCTHits = 0;
-    m_ph_convtrk2nPixHits = 0;
-    m_ph_convtrk2nSCTHits = 0;
-    m_ph_Rconv = 0;
-  }
-  else{
+  if (phVertex) {
     const Amg::Vector3D pos = phVertex->position();
     m_ph_Rconv = static_cast<float>(hypot (pos.x(), pos.y()));
 
@@ -411,66 +336,57 @@ double EgammaCalibrationAndSmearingTool::getPhotonEnergy(const xAOD::Photon *ph,
     m_ph_ptconv = sum.Perp();
   }
   
-   //decide if we are doing nominal case (will have both 'variations' set to nominal)
-   egEnergyCorr::Scale::Variation thisScaleVariation = m_currentScaleVariation;
-   egEnergyCorr::Resolution::Variation thisResolutionVariation = m_currentResolutionVariation;
-   if(m_currentScaleVariation==egEnergyCorr::Scale::Nominal && m_currentResolutionVariation == egEnergyCorr::Resolution::Nominal) {
-	//assume we are actually doing the 'default configuration'
-	if(dataType==PATCore::ParticleDataType::Full) thisScaleVariation=egEnergyCorr::Scale::None; //MC
-	else thisResolutionVariation=egEnergyCorr::Resolution::None; //Data
-   }
+  //decide if we are doing nominal case (will have both 'variations' set to nominal)
+  egEnergyCorr::Scale::Variation thisScaleVariation = m_currentScaleVariation;
+  egEnergyCorr::Resolution::Variation thisResolutionVariation = m_currentResolutionVariation;
+  if(m_currentScaleVariation==egEnergyCorr::Scale::Nominal && m_currentResolutionVariation == egEnergyCorr::Resolution::Nominal) {
+    //assume we are actually doing the 'default configuration'
+    if(dataType==PATCore::ParticleDataType::Full) thisScaleVariation=egEnergyCorr::Scale::None; //MC
+    else thisResolutionVariation=egEnergyCorr::Resolution::None; //Data
+  }
 
-  m_CalibratedEnergy = m_rootTool->getCorrectedEnergy(runnumber,  
-						      dataType,
-						      ParticleInformation(m_ph_rawcl_Es0,  
-									  m_ph_rawcl_Es1,  
-									  m_ph_rawcl_Es2,  
-									  m_ph_rawcl_Es3,  
-									  m_ph_cl_eta,  
-									  m_ph_cl_phi,  
-									  m_ph_cl_E,  
-									  m_ph_cl_etaCalo,  
-									  m_ph_cl_phiCalo,  
-									  m_ph_ptconv,
-									  m_ph_pt1conv,
-									  m_ph_pt2conv,
-									  m_ph_convtrk1nPixHits,
-									  m_ph_convtrk1nSCTHits,
-									  m_ph_convtrk2nPixHits,
-									  m_ph_convtrk2nSCTHits,
-									  m_ph_Rconv),
-						      thisScaleVariation,
-						      thisResolutionVariation,
-						      m_TResolutionType, 
-                                                      m_varSF);
-  
-  return m_CalibratedEnergy;
-  
+  return m_rootTool->getCorrectedEnergy(runnumber,  
+					dataType,
+					ParticleInformation(m_ph_rawcl_Es0,  
+							    m_ph_rawcl_Es1,  
+							    m_ph_rawcl_Es2,  
+							    m_ph_rawcl_Es3,  
+							    m_ph_cl_eta,  
+							    m_ph_cl_phi,  
+							    m_ph_cl_E,  
+							    m_ph_cl_etaCalo,  
+							    m_ph_cl_phiCalo,  
+							    m_ph_ptconv,
+							    m_ph_pt1conv,
+							    m_ph_pt2conv,
+							    m_ph_convtrk1nPixHits,
+							    m_ph_convtrk1nSCTHits,
+							    m_ph_convtrk2nPixHits,
+							    m_ph_convtrk2nSCTHits,
+							    m_ph_Rconv),
+					thisScaleVariation,
+					thisResolutionVariation,
+					m_TResolutionType, 
+					m_varSF);
+   
 }
 
 double EgammaCalibrationAndSmearingTool::getElectronMomentum(const xAOD::Electron *el, const xAOD::EventInfo* event_info) 
 { 
   PATCore::ParticleDataType::DataType dataType = (event_info->eventType(xAOD::EventInfo::IS_SIMULATION)) ? PATCore::ParticleDataType::Full : PATCore::ParticleDataType::Data;
   
-  //adjust by hand the ParticleType
-  PATCore::ParticleType::Type ptype = PATCore::ParticleType::Electron;
+  const xAOD::TrackParticle* eTrack = el->trackParticle();  
   
   //track momentum and eta
-  float m_el_tracketa = -999.;  
-  float m_el_trackmomentum = -999.;
+  const float m_el_tracketa = eTrack->eta();
+  const float m_el_trackmomentum = eTrack->pt() * cosh(el->eta());
   
-  const xAOD::TrackParticle* eTrack = el->trackParticle();  
-  m_el_tracketa = eTrack->eta(); 
-  m_el_trackmomentum = eTrack->pt()*cosh(el->eta());
-  
-  m_CorrectedMomentum = m_rootTool->getCorrectedMomentum(dataType,
-							 ptype,
-							 m_el_trackmomentum,
-							 m_el_tracketa,
-							 m_currentScaleVariation,
-							 m_varSF);
-  
-  return m_CorrectedMomentum;
+  return m_rootTool->getCorrectedMomentum(dataType,
+					  PATCore::ParticleType::Electron,
+					  m_el_trackmomentum,
+					  m_el_tracketa,
+					  m_currentScaleVariation,
+					  m_varSF);
 }
 
 //Systematics
@@ -592,21 +508,21 @@ CP::SystematicSet EgammaCalibrationAndSmearingTool::recommendedSystematics() con
 } 
 
 CP::SystematicCode EgammaCalibrationAndSmearingTool::applySystematicVariation( const CP::SystematicSet& systConfig ) { 
-
-   //switch to 'nominal' which we flag by both scale and resolution variations being equal to nominal
-   //in the actual calibration function (above) it will use the data/mc flag to decide which of these to switch to 'none'
-   m_currentScaleVariation = egEnergyCorr::Scale::Nominal;
-   m_currentResolutionVariation = egEnergyCorr::Resolution::Nominal;
-
-   //the following code allows only ONE systematic variation at a time. If you try and do two, only the last one in the map will be applied
-
+  
+  //switch to 'nominal' which we flag by both scale and resolution variations being equal to nominal
+  //in the actual calibration function (above) it will use the data/mc flag to decide which of these to switch to 'none'
+  m_currentScaleVariation = egEnergyCorr::Scale::Nominal;
+  m_currentResolutionVariation = egEnergyCorr::Resolution::Nominal;
+  
+  //the following code allows only ONE systematic variation at a time. If you try and do two, only the last one in the map will be applied
+  
   std::map<egEnergyCorr::Scale::Variation, CP::SystematicVariation>::iterator scaleIter;
   for(scaleIter=m_scaleSystMap.begin();scaleIter!=m_scaleSystMap.end();scaleIter++){
     if(systConfig.find( scaleIter->second )!=systConfig.end()) {
       m_currentScaleVariation = scaleIter->first;
       m_currentResolutionVariation = egEnergyCorr::Resolution::Nominal;
     }
-    }
+  }
   
   std::map<egEnergyCorr::Resolution::Variation, CP::SystematicVariation>::iterator resIter;
   for(resIter=m_resSystMap.begin();resIter!=m_resSystMap.end();resIter++){ 
@@ -619,4 +535,39 @@ CP::SystematicCode EgammaCalibrationAndSmearingTool::applySystematicVariation( c
   return CP::SystematicCode::Ok; 
 }
 
+inline float EgammaCalibrationAndSmearingTool::retrieve_phi_calo(const xAOD::CaloCluster& cluster, bool do_throw) const
+{
+  double phi_calo;
+  if (cluster.retrieveMoment(xAOD::CaloCluster::PHICALOFRAME,
+			       phi_calo)) { }
+  else if (cluster.isAvailable<float>("phiCalo")) {
+    phi_calo = cluster.auxdata<float>("phiCalo"); 
+  }
+  else {
+    ATH_MSG_ERROR("phiCalo not available as auxilliary variable");
+    if (do_throw) { throw std::runtime_error("phiCalo not available as auxilliary variable"); }
+    ATH_MSG_WARNING("using phi as phiCalo");
+    phi_calo = cluster.phi();
+  }
+  return phi_calo;
 }
+
+inline float EgammaCalibrationAndSmearingTool::retrieve_eta_calo(const xAOD::CaloCluster& cluster, bool do_throw) const
+{
+  double eta_calo;
+  if (cluster.retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,
+			       eta_calo)) { }
+  else if (cluster.isAvailable<float>("etaCalo")) {
+    eta_calo = cluster.auxdata<float>("etaCalo"); 
+  }
+  else {
+    ATH_MSG_ERROR("etaCalo not available as auxilliary variable");
+    if (do_throw) { throw std::runtime_error("etaCalo not available as auxilliary variable"); }
+    ATH_MSG_WARNING("using eta as etaCalo");
+    eta_calo = cluster.eta();
+  }
+  return eta_calo;
+}
+
+  
+} // namespace CP

@@ -77,9 +77,7 @@ StatusCode CalibratedEgammaProvider::execute() {
 
    for(auto iParticle : *(out.first)) { 
          if(msg().level()==MSG::VERBOSE) std::cout << name() << " Old pt=" << iParticle->pt();
-         //set the random seed, for reproducibility of results .. use combination of event number and particle index
-         m_tool->setRandomSeed(event_info->eventNumber()+iParticle->index()*100);
-         if(m_tool->applyCorrection(*iParticle, event_info).code()==CorrectionCode::Error) return StatusCode::FAILURE;
+         if(m_tool->applyCorrection(*iParticle).code()==CorrectionCode::Error) return StatusCode::FAILURE;
          if(msg().level()==MSG::VERBOSE) std::cout << " New pt=" << iParticle->pt() << std::endl;
    }
 
