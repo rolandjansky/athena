@@ -38,9 +38,9 @@ jetFlags.debug = 0
 
 from JetRec.JetRecStandard import jtm
 from JetRec.JetRecCalibrationFinder import jrcf
-
-cfg_file = "JES_Full2012dataset_Preliminary_Trigger_NoPileup.config"
-jrcf.configDict["triggerNoPileup"] = cfg_file
+# Calibration Configurarion file (now defined in offline code)
+#cfg_file = "JES_Full2012dataset_Preliminary_Trigger_NoPileup.config"
+#jrcf.configDict["triggerNoPileup"] = cfg_file
 
 from EventShapeTools.EventShapeToolsConf import EventDensityTool
 
@@ -101,6 +101,10 @@ def _getJetBuildTool(merge_param,
     
     mymods = [calib_str] if calib_str else []
     
+    mymods.extend([
+            jtm.jetens,
+            jtm.caloqual_cluster,
+            ])
 
     if not do_minimalist_setup:
         # add in extra modofiers. This allows monitoring the ability
