@@ -25,7 +25,11 @@ CaloLumiBCIDTool::CaloLumiBCIDTool (const std::string& type,
     m_keyShape("LArShape"), m_keyMinBiasAverage("LArPileupAverage"),m_keyOFC("LArOFC"),
     m_bcidMax(3564),
     m_ncell(0),
-    m_bcid(0xFFFF) //Larger than m_bcidmax 
+    m_bcid(0xFFFF), //Larger than m_bcidmax 
+    m_firstSampleEMB(0),
+    m_firstSampleEMEC(0),
+    m_firstSampleHEC(1),
+    m_firstSampleFCAL(0)
 { 
   declareInterface<ICaloLumiBCIDTool>(this);
   declareProperty("LArOFCTool",m_OFCTool,"Tool handle for OFC");
@@ -35,6 +39,10 @@ CaloLumiBCIDTool::CaloLumiBCIDTool (const std::string& type,
   declareProperty("keyShape",m_keyShape);
   declareProperty("keyMinBiasAverge",m_keyMinBiasAverage);
   declareProperty("keyOFC",m_keyOFC);
+  declareProperty("firstSampleEMB",m_firstSampleEMB,"First sample EMB in 4 samples mode");
+  declareProperty("firstSampleEMEC",m_firstSampleEMEC,"First sample EMEC in 4 samples mode");
+  declareProperty("firstSampleHEC",m_firstSampleHEC,"First sample HEC in 4 samples mode");
+  declareProperty("firstSampleFCAL",m_firstSampleFCAL,"First sample FCAL in 4 samples mode");
 }
                                                                                 
 //-----------------------------------------------------------------
@@ -345,6 +353,16 @@ StatusCode CaloLumiBCIDTool::computeValues(unsigned int bcid)
 
       unsigned int nsamples = OFC.size();
 
+      // choise of first sample : i.e sample on the pulse shape to which first OFC sample is applied
+      unsigned int ifirst= 0;
+      if (nsamples==4) {
+          if (m_lar_on_id->isEMBchannel(id)) ifirst=m_firstSampleEMB;
+          if (m_lar_on_id->isEMECchannel(id)) ifirst=m_firstSampleEMEC;
+          if (m_lar_on_id->isHECchannel(id)) ifirst=m_firstSampleHEC;
+          if (m_lar_on_id->isFCALchannel(id)) ifirst=m_firstSampleFCAL;
+      }
+
+
       unsigned int nshapes = Shape.size();
       if (nshapes < nsamples) {
 	msg(MSG::ERROR) << " Not enough samples in Shape " << nshapes << "   less than in OFC " << nsamples << endreq;
@@ -354,11 +372,12 @@ StatusCode CaloLumiBCIDTool::computeValues(unsigned int bcid)
       //std::cout << " loop over bcid ";
       for (unsigned int i=0;i<nsamples;i++) {
           float sumShape=0.;
+          unsigned int ishift = i + ifirst ; // correct for first sample
           for (unsigned int j=0;j<nshapes;j++) {
                unsigned int k;
-               if ((bcid+i)<j) k = m_bcidMax+bcid+i-j;
-               else if ((bcid+i)>=(m_bcidMax+j)) k = i-j+bcid-m_bcidMax;
-               else k = bcid+i-j;
+               if ((bcid+ishift)<j) k = m_bcidMax+bcid+ishift-j;
+               else if ((bcid+ishift)>=(m_bcidMax+j)) k = ishift-j+bcid-m_bcidMax;
+               else k = bcid+ishift-j;
 
                float lumi;
                if (m_isMC) lumi= m_bunchCrossingTool->bcIntensity(k)*xlumiMC;   // convert to luminosity per bunch in 10**30 units
