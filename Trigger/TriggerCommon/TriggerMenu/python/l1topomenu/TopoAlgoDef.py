@@ -335,7 +335,7 @@ class TopoAlgoDef:
                 alg.addvariable('MinET1', ocut, bitid)
                 alg.addvariable('MinET2', 0, bitid)
                 alg.addvariable('MinMSqr', (minInvm * _emscale_for_decision)*(minInvm * _emscale_for_decision), bitid) 
-                alg.addvariable('MaxMSqr', 4294967295, bitid)
+                alg.addvariable('MaxMSqr', (maxInvm * _emscale_for_decision)*(maxInvm * _emscale_for_decision), bitid)
                 
             tm.registerAlgo(alg)
             

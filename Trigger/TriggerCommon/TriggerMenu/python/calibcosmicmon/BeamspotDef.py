@@ -88,32 +88,49 @@ class L2EFChain_Beamspot(L2EFChainDef):
        from TrigGenericAlgs.TrigGenericAlgsConf import PrescaleAlgo
        theAlg = PrescaleAlgo("terminateAlgo")   
 
-            
-     if 'trkFS' in self.chainPart['addInfo'] :         
-       from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_L2StarB
-       theFex = T2VertexBeamSpot_L2StarB()
-     elif 'activeTE' in self.chainPart['addInfo']:         
-       from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeTE_L2StarB
-       theFex = T2VertexBeamSpot_activeTE_L2StarB()
-     elif 'allTE' in self.chainPart['addInfo']:         
-       from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeAllTE_L2StarB
-       theFex =  T2VertexBeamSpot_activeAllTE_L2StarB()
-     else:
-       mlog.error('Cannot assemble chain %s - only configured for trkFS,allTE and activeTE' % (self.chainPartName))
+     if  ('L2StarB' in self.l2IDAlg):            
+        if 'trkFS' in self.chainPart['addInfo'] :         
+           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_L2StarB
+           theFex = T2VertexBeamSpot_L2StarB()
+        elif 'activeTE' in self.chainPart['addInfo']:         
+           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeTE_L2StarB
+           theFex = T2VertexBeamSpot_activeTE_L2StarB()
+        elif 'allTE' in self.chainPart['addInfo']:         
+           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeAllTE_L2StarB
+           theFex =  T2VertexBeamSpot_activeAllTE_L2StarB()
+        else:
+           mlog.error('Cannot assemble chain %s - only configured for trkFS,allTE and activeTE' % (self.chainPartName))
+     elif ('trkfast' in self.l2IDAlg):
+        if 'trkFS' in self.chainPart['addInfo'] :
+           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_FTF
+           theFex = T2VertexBeamSpot_FTF()
+        elif 'activeTE' in self.chainPart['addInfo']:
+           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeTE_FTF
+           theFex = T2VertexBeamSpot_activeTE_FTF()
+        elif 'allTE' in self.chainPart['addInfo']:
+           from TrigT2BeamSpot.T2VertexBeamSpotConfig import T2VertexBeamSpot_activeAllTE_FTF
+           theFex =  T2VertexBeamSpot_activeAllTE_FTF()
+        else:
+           mlog.error('Cannot assemble chain %s - only configured for trkFS,allTE and activeTE' % (self.chainPartName))
 
-
-     #commenting out because of ATR-8976 (removal of package)
      if  ('L2StarB' in self.l2IDAlg):
        #from TrigSiTrack.TrigSiTrack_Config import TrigSiTrack_BeamSpot
         TrigL2SiTrackFinder_Config = __import__('TrigL2SiTrackFinder.TrigL2SiTrackFinder_Config', fromlist=[""])      
-        trk_alg = getattr(TrigL2SiTrackFinder_Config, "TrigL2SiTrackFinder_BeamSpotB") 
+        my_trk_alg = getattr(TrigL2SiTrackFinder_Config, "TrigL2SiTrackFinder_BeamSpotB") 
+        trk_alg = [my_trk_alg()] 
         teaddition = 'L2StarB'
+     elif ('trkfast' in self.l2IDAlg):
+        from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+        [trk_alg] = TrigInDetSequence("BeamSpot", "beamSpot", "IDTrig", "FTF").getSequence()
+        teaddition = 'trkfast'
      else:
         mlog.error('Cannot assemble chain %s - only configured for L2StarB' % (self.chainPartName))
      
     
      from TrigGenericAlgs.TrigGenericAlgsConf import  PESA__DummyUnseededAllTEAlgo
-     self.L2sequenceList += [ [[""], [PESA__DummyUnseededAllTEAlgo("L2DummyAlgo"), trk_alg()], 'L2_BeamSpottracks']]
+     self.L2sequenceList += [ [[""], [PESA__DummyUnseededAllTEAlgo("L2DummyAlgo")]+trk_alg, 'L2_BeamSpottracks']]
+#     self.L2sequenceList += [ [[""], [trk_alg], 'L2_BeamSpottracks']]
+
 
 #     self.L2sequenceList +=[[ self.L2InputTE, [theFex], 'L2_fex']]
 #     self.L2sequenceList +=[[['L2_fex'], [theAlg], 'L2_']]  
@@ -128,7 +145,8 @@ class L2EFChain_Beamspot(L2EFChainDef):
      
      self.TErenamingDict = {
        'L2_fex'           : mergeRemovingOverlap('L2_', self.chainName+'_fex'),        
-       'L2_'              : mergeRemovingOverlap('L2_', self.chainName+self.chainPart['addInfo'][0]),        
+       #'L2_'              : mergeRemovingOverlap('L2_', self.chainName+self.chainPart['addInfo'][0]),        
+       'L2_'              : mergeRemovingOverlap('L2_', self.chainName),        
        'L2_BeamSpottracks': mergeRemovingOverlap('L2_', self.chainName+'_BeamSpottracks'),        
        }    
 

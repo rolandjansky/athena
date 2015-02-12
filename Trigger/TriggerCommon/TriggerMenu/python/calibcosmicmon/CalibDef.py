@@ -104,6 +104,8 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
       if 'idcalib' in self.chainPart['purpose']:         
          self.L2InputTE = roi1
          self.setupTrkCalibChains()
+      elif 'ibllumi' in self.chainPart['purpose']:
+        self.setupIBLLumiChains()
       elif ('larcalib' in self.chainPart['purpose']) or ('tilelarcalib' in self.chainPart['purpose']):
          self.setupLArROBListWWriterLvl1Chain()
       elif 'l1calocalib' in self.chainPart['purpose']:
@@ -136,6 +138,23 @@ class L2EFChain_CalibTemplate(L2EFChainDef):
    def defineTErenaming(self):
       self.TErenamingMap=self.TErenamingDict
 
+
+   ###########################################################################
+   # IBL luminosity chains
+   ###########################################################################
+   def setupIBLLumiChains(self):
+      
+      from TrigDetCalib.TrigDetCalibConfig import IBLSubDetListWriter
+      l2_iblSubDetListWriter = IBLSubDetListWriter("IBLSubDetListWriter")
+      l2_iblSubDetListWriter.Subdetectors = "IBL"
+      l2_iblSubDetListWriter.MaxRoIsPerEvent = 1
+      self.iblWriter = [l2_iblSubDetListWriter]                
+
+      self.L2sequenceList += [[ '', self.iblWriter, 'L2_' ]]
+      self.L2signatureList += [[['L2_']]]
+      self.TErenamingDict = {
+         'L2_':     'L2_ibllumi',
+         }
 
    ###########################################################################
    # L1CaloCalibration chains

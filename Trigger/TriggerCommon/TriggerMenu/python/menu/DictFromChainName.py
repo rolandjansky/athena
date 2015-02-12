@@ -287,7 +287,7 @@ class DictFromChainName(object):
                     L1item = L1itemfromChainName[:2]+'_'+L1itemfromChainName[2:]
                     if (L1item[-1] == '_'): 
                         L1item = L1item[:-1]
-
+                        
                 chainpartsNoL1 = chainparts[:L1index-1] # -1 to also remove _
 
             else: 
@@ -325,7 +325,11 @@ class DictFromChainName(object):
             chainProperties['threshold']=mdicts[chainindex]['threshold']
             chainProperties['signature']=mdicts[chainindex]['signature']
 
+            # if we have a L1 topo in a multi-chain then we want to remove it from the chain name
             chainProperties['chainPartName'] = chainparts
+            if ('-' in L1item) and (len(multichainparts) > 1):
+                chainProperties['chainPartName'] = chainpartsNoL1
+            
 
             logDict.debug('Chainparts: '+ str(chainparts))
             if (chainProperties['signature'] != 'Cosmic') \

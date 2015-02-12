@@ -34,7 +34,8 @@ from TrigHLTJetRec.TrigHLTJetRecConfig import (TrigHLTJetDiagnostics_named,
                                                TrigHLTCellDiagnostics_named,
                                                TrigHLTHypoDiagnostics_named,
                                                TrigHLTJetRec_param,
-                                               TrigHLTEnergyDensity)
+                                               TrigHLTEnergyDensity,
+                                               TrigHLTJetDSSelector,)
 
 from TrigJetHypo.TrigJetHypoConfig import (EFJetHypo,
                                            # EFCentJetHypo,

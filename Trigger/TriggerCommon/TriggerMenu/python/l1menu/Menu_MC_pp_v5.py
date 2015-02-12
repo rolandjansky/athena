@@ -95,8 +95,9 @@ def defineMenu():
         # 3 x CALREQ
         'CAL0','CAL1','CAL2',
 
-#        # 1 x ZB
-#        'ZB_EM12',
+#        # 2 x ZB
+        'ZB_EM15',
+	'ZB_J20',
 
 
         ### Forced for MBTSSI
@@ -106,8 +107,8 @@ def defineMenu():
         'MBTS_C8',  'MBTS_C10', 'MBTS_C12' , 'MBTS_C14',
 
         ##ALFA
-        #'ALFA_B7R1L', 'ALFA_B7R1U', 'ALFA_A7R1L', 'ALFA_A7R1U', 'ALFA_A7L1L', 'ALFA_A7L1U', 'ALFA_B7L1L', 'ALFA_B7L1U',
-        #'ALFA_B7R1L_OD', 'ALFA_B7R1U_OD', 'ALFA_A7R1L_OD', 'ALFA_A7R1U_OD', 'ALFA_A7L1L_OD', 'ALFA_A7L1U_OD', 'ALFA_B7L1L_OD', 'ALFA_B7L1U_OD', 
+        'ALFA_B7R1L', 'ALFA_B7R1U', 'ALFA_A7R1L', 'ALFA_A7R1U', 'ALFA_A7L1L', 'ALFA_A7L1U', 'ALFA_B7L1L', 'ALFA_B7L1U',
+        'ALFA_B7R1L_OD', 'ALFA_B7R1U_OD', 'ALFA_A7R1L_OD', 'ALFA_A7R1U_OD', 'ALFA_A7L1L_OD', 'ALFA_A7L1U_OD', 'ALFA_B7L1L_OD', 'ALFA_B7L1U_OD', 
 
         #-------------------------------------------------------------------
         #L1 TOPO inputs 
@@ -375,8 +376,15 @@ def defineMenu():
     #CALREQ
     "L1_CALREQ2",
     
+    #ZB
+    "L1_ZB",
+    "L1_ZB_J20",
+
     # BCM
     'L1_BCM_Wide_BGRP0','L1_BCM_AC_CA_BGRP0', 'L1_BCM_Wide_EMPTY','L1_BCM_Wide_UNPAIRED_ISO','L1_BCM_Wide_UNPAIRED_NONISO', 'L1_BCM_AC_CA_UNPAIRED_ISO',
+
+    #ALFA
+        'L1_ALFA_ANY',
 
     #--------------------------------
     # TOPO items

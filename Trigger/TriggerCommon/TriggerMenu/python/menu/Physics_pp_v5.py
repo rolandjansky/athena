@@ -49,19 +49,19 @@ def setupMenu():
     
     TriggerFlags.JetSlice.signatures = [   
         # Performance chains
+        ['j0_perf_ds1_L1All',     'L1_All', [], ['DataScouting_05_Jets'], ['RATE:Cosmic_Jets_DS', 'BW:Jets'], -1],
         ['j0_perf_L1RD0_EMPTY',      'L1_RD0_EMPTY',[], [PhysicsStream], ['RATE:SingleJet', 'BW:Jets'], -1],
         ['j0_perf_L1MU10',           'L1_MU10',[], [PhysicsStream], ['RATE:SingleJet', 'BW:Jets'], -1],
         ['j0_perf_L1J12',        'L1_J12',[], [PhysicsStream], ['RATE:SingleJet', 'BW:Jets'], -1],
         ['ht0_perf_L1J12',       'L1_J12',[], [PhysicsStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-
-        ['j0_perf_ds1_L1MU4',  'L1_MU4', [], ['DataScouting_05_Jets'], ["RATE:Cosmic_Jets_DS", "BW:Jets"], -1],
 
         ['j0_L1J12',               'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jets'], -1],
         ['j0_jes_L1J12',           'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jets'], -1],
         ['j0_lcw_jes_L1J12',       'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jets'], -1],
         ['j0_sub_L1J12',           'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jets'], -1],
         ['j0_nojcalib_L1J12',      'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jets'], -1],
-
+        ['j0_PS_L1J12',            'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jets'], -1],
+        
         ['j0_a10_nojcalib_L1J12',  'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jets'], -1],
         ['j0_a10_lcw_sub_L1J12',   'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jets'], -1],
         ['j0_a10r_lcw_sub_L1J12',  'L1_J12', [], [PhysicsStream], ['RATE:SingleJet', 'BW:Jets'], -1],
@@ -83,37 +83,37 @@ def setupMenu():
         ]
     
     TriggerFlags.METSlice.signatures = [
-        ['xe0_L1All',                              'L1_All' ,[], ['Main'], ['Rate:MET', 'BW:MET'], -1],
-        ['xe0_L1XE35',                             'L1_XE35',[], ['Main'], ['Rate:MET', 'BW:MET'], -1],
-        ['xe0_tc_lcw_L1All',                       'L1_All' ,[], ['Main'], ['Rate:MET', 'BW:MET'], -1],
-        ['xe0_tc_lcw_L1XE35',                      'L1_XE35',[], ['Main'], ['Rate:MET', 'BW:MET'], -1],
-        ['xe0_tc_em_L1All',                        'L1_All' ,[], ['Main'], ['Rate:MET', 'BW:MET'], -1],
-        ['xe0_tc_em_L1XE35',                       'L1_XE35',[], ['Main'], ['Rate:MET', 'BW:MET'], -1],
-        ['xe0_tc_pueta_L1All',                     'L1_All' ,[], ['Main'], ['Rate:MET', 'BW:MET'], -1],
-        ['xe0_tc_pueta_L1XE35',                    'L1_XE35',[], ['Main'], ['Rate:MET', 'BW:MET'], -1],
-        ['xe0_tc_pufit_L1All',                     'L1_All' ,[], ['Main'], ['Rate:MET', 'BW:MET'], -1],
-        ['xe0_tc_pufit_L1XE35',                    'L1_XE35',[], ['Main'], ['Rate:MET', 'BW:MET'], -1],
-        ['xe0_tc_mht_L1All',                       'L1_All' ,[], ['Main'], ['Rate:MET', 'BW:MET'], -1],
-        ['xe0_tc_mht_L1XE35',                      'L1_XE35',[], ['Main'], ['Rate:MET', 'BW:MET'], -1],
-        ['xe0_L2FS_L1All',                         'L1_All' ,[], ['Main'], ['Rate:MET', 'BW:MET'],  1],
-        ['xe0_L2FS_L1XE35',                        'L1_XE35',[], ['Main'], ['Rate:MET', 'BW:MET'],  1],
-        ['xe0_l2fsperf_wEFMuFEB_wEFMu_L1All',      'L1_All' ,[], ['Main'], ['Rate:MET', 'BW:MET'], -1],
-        ['xe0_l2fsperf_wEFMuFEB_wEFMu_L1XE35',     'L1_XE35',[], ['Main'], ['Rate:MET', 'BW:MET'], -1],
+        ['xe0_L1All',                              'L1_All' ,[], [PhysicsStream], ['Rate:MET', 'BW:MET'], -1],
+        ['xe0_L1XE35',                             'L1_XE35',[], [PhysicsStream], ['Rate:MET', 'BW:MET'], -1],
+        ['xe0_tc_lcw_L1All',                       'L1_All' ,[], [PhysicsStream], ['Rate:MET', 'BW:MET'], -1],
+        ['xe0_tc_lcw_L1XE35',                      'L1_XE35',[], [PhysicsStream], ['Rate:MET', 'BW:MET'], -1],
+        ['xe0_tc_em_L1All',                        'L1_All' ,[], [PhysicsStream], ['Rate:MET', 'BW:MET'], -1],
+        ['xe0_tc_em_L1XE35',                       'L1_XE35',[], [PhysicsStream], ['Rate:MET', 'BW:MET'], -1],
+        ['xe0_tc_pueta_L1All',                     'L1_All' ,[], [PhysicsStream], ['Rate:MET', 'BW:MET'], -1],
+        ['xe0_tc_pueta_L1XE35',                    'L1_XE35',[], [PhysicsStream], ['Rate:MET', 'BW:MET'], -1],
+        ['xe0_tc_pufit_L1All',                     'L1_All' ,[], [PhysicsStream], ['Rate:MET', 'BW:MET'], -1],
+        ['xe0_tc_pufit_L1XE35',                    'L1_XE35',[], [PhysicsStream], ['Rate:MET', 'BW:MET'], -1],
+        ['xe0_tc_mht_L1All',                       'L1_All' ,[], [PhysicsStream], ['Rate:MET', 'BW:MET'], -1],
+        ['xe0_tc_mht_L1XE35',                      'L1_XE35',[], [PhysicsStream], ['Rate:MET', 'BW:MET'], -1],
+        ['xe0_L2FS_L1All',                         'L1_All' ,[], [PhysicsStream], ['Rate:MET', 'BW:MET'], -1],
+        ['xe0_L2FS_L1XE35',                        'L1_XE35',[], [PhysicsStream], ['Rate:MET', 'BW:MET'], -1],
+        ['xe0_l2fsperf_wEFMuFEB_wEFMu_L1All',      'L1_All' ,[], [PhysicsStream], ['Rate:MET', 'BW:MET'], -1],
+        ['xe0_l2fsperf_wEFMuFEB_wEFMu_L1XE35',     'L1_XE35',[], [PhysicsStream], ['Rate:MET', 'BW:MET'], -1],
 
-        ['xe35',                                   'L1_XE35',[], ['Main'], ['Rate:MET', 'BW:MET'], -1],
-        ['xe35_tc_lcw',                            'L1_XE35',[], ['Main'], ['Rate:MET', 'BW:MET'], -1],
-        ['xe35_tc_em',                             'L1_XE35',[], ['Main'], ['Rate:MET', 'BW:MET'], -1],
-        ['xe35_pueta',                             'L1_XE35',[], ['Main'], ['Rate:MET', 'BW:MET'], -1],
-        ['xe35_pufit',                             'L1_XE35',[], ['Main'], ['Rate:MET', 'BW:MET'], -1],
-        ['xe35_mht',                               'L1_XE35',[], ['Main'], ['Rate:MET', 'BW:MET'], -1],
-        ['xe35_L2FS',                              'L1_XE35',[], ['Main'], ['Rate:MET', 'BW:MET'], -1],
-        ['xe35_l2fsperf_wEFMuFEB_wEFMu',           'L1_XE35',[], ['Main'], ['Rate:MET', 'BW:MET'], -1],
+        ['xe35',                                   'L1_XE35',[], [PhysicsStream], ['Rate:MET', 'BW:MET'], -1],
+        ['xe35_tc_lcw',                            'L1_XE35',[], [PhysicsStream], ['Rate:MET', 'BW:MET'], -1],
+        ['xe35_tc_em',                             'L1_XE35',[], [PhysicsStream], ['Rate:MET', 'BW:MET'], -1],
+        ['xe35_pueta',                             'L1_XE35',[], [PhysicsStream], ['Rate:MET', 'BW:MET'], -1],
+        ['xe35_pufit',                             'L1_XE35',[], [PhysicsStream], ['Rate:MET', 'BW:MET'], -1],
+        ['xe35_mht',                               'L1_XE35',[], [PhysicsStream], ['Rate:MET', 'BW:MET'], -1],
+        ['xe35_L2FS',                              'L1_XE35',[], [PhysicsStream], ['Rate:MET', 'BW:MET'], -1],
+        ['xe35_l2fsperf_wEFMuFEB_wEFMu',           'L1_XE35',[], [PhysicsStream], ['Rate:MET', 'BW:MET'], -1],
 
-        ['te20',                                   'L1_TE20',[], ['Main'], ['Rate:MET', 'BW:MET'], -1],
-        ['te20_tc_lcw',                            'L1_TE20',[], ['Main'], ['Rate:MET', 'BW:MET'], -1],
+        ['te20',                                   'L1_TE20',[], [PhysicsStream], ['Rate:MET', 'BW:MET'], -1],
+        ['te20_tc_lcw',                            'L1_TE20',[], [PhysicsStream], ['Rate:MET', 'BW:MET'], -1],
         
-        ['xs30',                                   'L1_XS30',[], ['Main'], ['Rate:MET', 'BW:MET'], -1],
-        ['xs30_tc_lcw',                            'L1_XS30',[], ['Main'], ['Rate:MET', 'BW:MET'], -1],
+        ['xs30',                                   'L1_XS30',[], [PhysicsStream], ['Rate:MET', 'BW:MET'], -1],
+        ['xs30_tc_lcw',                            'L1_XS30',[], [PhysicsStream], ['Rate:MET', 'BW:MET'], -1],
 
         ]
     
@@ -156,6 +156,8 @@ def setupMenu():
         ]
  #Beamspot chanis first try ATR-9847                                                                                                               
     TriggerFlags.BeamspotSlice.signatures = [
+        ['beamspot_allTE_L2StarB_L1RDO_FILLED',           'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:BeamSpot',  'BW:BeamSpot'], -1],
+        ['beamspot_allTE_trkfast_L1RDO_FILLED',           'L1_RD0_FILLED', [], [PhysicsStream], ['RATE:BeamSpot',  'BW:BeamSpot'], -1],
         ]   
 
     TriggerFlags.MinBiasSlice.signatures = [
@@ -178,8 +180,8 @@ def setupMenu():
         ]
 
     TriggerFlags.CalibSlice.signatures   = [
-        ['larnoiseburst_L1All',       'L1_All',       [], [PhysicsStream], ["BW:Jets", "RATE:SingleJet"], -1],
-        ['larnoiseburst_L1RD0_EMPTY', 'L1_RD0_EMPTY', [], [PhysicsStream], ["BW:Jets", "RATE:SingleJet"], -1],        
+        ['larnoiseburst_L1All',       'L1_All',       [], ['LArNoiseBurst'], ["RATE:Calibration", "BW:Detector"], -1],
+        ['larnoiseburst_L1RD0_EMPTY', 'L1_RD0_EMPTY', [], ['LArNoiseBurst'], ["RATE:Calibration", "BW:Detector"], -1],        
 
         ['l1calocalib',             'L1_RD0_FILLED',     [], ['L1CaloCalib'], ["RATE:Calibration", "RATE:L1CaloCalib", "BW:Detector"], -1],
         ['l1calocalib_L1BGRP7',     'L1_BGRP7',          [], ['L1CaloCalib'], ["RATE:Calibration", "RATE:L1CaloCalib", "BW:Detector"], -1], 
@@ -189,11 +191,6 @@ def setupMenu():
         ['larcalib_L1J12_EMPTY',    'L1_J12_EMPTY',      [], ['LArCellsEmpty'], ["RATE:Calibration", "BW:Detector"], -1],
         ['larcalib_L1J3032ETA49_EMPTY',  'L1_J30.32ETA49_EMPTY',     [], ['LArCellsEmpty'], ["RATE:Calibration", "BW:Detector"], -1],
 
-        # DCM level monitoring chain for CSC (#104895, ATR-8082)
-        ['larcalib_L1MU10',   'L1_MU10',     [], ['CSC'], ["RATE:Monitoring", "BW:Detector"], -1],
-        ['larcalib_L1EM3',    'L1_EM3',     [], ['CSC'], ["RATE:Monitoring", "BW:Detector"], -1],
-        ['larcalib_L1J12',    'L1_J12',     [], ['CSC'], ["RATE:Monitoring", "BW:Detector"], -1],
-        
         ['tilelarcalib_L1EM3_EMPTY',     'L1_EM3_EMPTY',      [], ['LArCellsEmpty'], ["RATE:Calibration", "BW:Detector"], -1],
         ['tilelarcalib_L1TAU8_EMPTY',    'L1_TAU8_EMPTY',     [], ['LArCellsEmpty'], ["RATE:Calibration", "BW:Detector"], -1],
         ['tilelarcalib_L1J12_EMPTY',     'L1_J12_EMPTY',      [], ['LArCellsEmpty'], ["RATE:Calibration", "BW:Detector"], -1],
@@ -201,6 +198,12 @@ def setupMenu():
 
         #ALFA
         #['alfa_alfacalib',   'L1_ALFA_EMPTY', [], ['ALFACalib'], [ 'RATE:ALFACalibration','BW:Detector'], -1],        
+
+
+        #IBL
+        ['ibllumi_L1RD0_EMPTY',    'L1_RD0_EMPTY', [], ['IBLLumi'], [ 'RATE:IBLLumi','BW:Detector'], -1],
+        ['ibllumi_L1RD0_FILLED',    'L1_RD0_FILLED', [], ['IBLLumi'], [ 'RATE:IBLLumi','BW:Detector'], -1],
+        ['ibllumi_L1RD0_UNPAIRED_ISO',    'L1_RD0_UNPAIRED_ISO', [], ['IBLLumi'], [ 'RATE:IBLLumi','BW:Detector'], -1],
         ]
 
     TriggerFlags.CosmicSlice.signatures  = [ 
@@ -234,6 +237,7 @@ def setupMenu():
 
         ]
     TriggerFlags.StreamingSlice.signatures = [
+
         #DCM level monitoring test chain
         ['noalg_dcmmon_L1RD0_EMPTY',   'L1_RD0_EMPTY',        [], ['monitoring_random'], ["RATE:DISCARD","BW:DISCARD"], -1], 
 
@@ -270,7 +274,12 @@ def setupMenu():
         
         # id cosmic streamer
         #['noalg_idcosmic_L1TRT',    'L1_TRT',              [], ['IDCosmic'], ["BW:MinBias", "RATE:Minbias"], -1],
+
+        #Zero bias streamers
+        ['noalg_zb_L1ZB','L1_ZB', [], ['ZeroBias'], ["BW:ZeroBias", "RATE:ZeroBias"], -1],
+        ['noalg_zb_L1ZB_J20','L1_ZB_J20', [], ['ZeroBias'], ["BW:ZeroBias", "RATE:ZeroBias"], -1],
         
+
         # Cosmic calo streamer
         ['noalg_cosmiccalo_L1EM3_EMPTY',         'L1_EM3_EMPTY',        [], ['CosmicCalo'], ["BW:MinBias", "RATE:Cosmic_Calo"], -1],        
         ['noalg_cosmiccalo_L1RD1_EMPTY',         'L1_RD1_EMPTY',        [], ['CosmicCalo'], ["BW:MinBias", "RATE:Cosmic_Calo"], -1],        
@@ -282,13 +291,7 @@ def setupMenu():
         
         #HLT pass through
         ['noalg_L1All',                  'L1_All',              [], ['HLTPassthrough'], ["RATE:SeededStreamers", "BW:Detector"], -1],
-        ['noalg_L1J12',                  'L1_J12',              [], ['HLTPassthrough'], ["RATE:SeededStreamers", "BW:Detector"], -1],
-        ['noalg_L1TAU8',                 'L1_TAU8',             [], ['HLTPassthrough'], ["RATE:SeededStreamers", "BW:Detector"], -1],
-        ['noalg_L1EM3',                  'L1_EM3',             [],  ['HLTPassthrough'], ["RATE:SeededStreamers", "BW:Detector"], -1],
-        
-        # jettauetmiss streamer
-        ['noalg_jettauetmiss_L1RD0_FIRSTEMPTY',  'L1_RD0_FIRSTEMPTY',  [], ['JetTauEtmiss'], ["RATE:SeededStreamers", "BW:Detector"], -1],
-        
+                
         # Enhanced bias item
         ['noalg_eb_L1BGRP7',                  'L1_BGRP7',              [], ['EnhancedBias'], ["RATE:EnhancedBias", "BW:Detector"], -1],
         #['noalg_eb_L1RD1_FILLED',            'L1_RD1_FILLED',        [], ['EnhancedBias'], ["RATE:EnhancedBias", "BW:Detector"], -1],

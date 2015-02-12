@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!ENTITY % input_name '(SLOT7 | SLOT8 | SLOT9 | CTPCORE) "SLOT9"'>
+<!ENTITY % type_name '(ELECTRICAL | OPTICAL) "ELECTRICAL"'>
+<!ENTITY % cable_name '(CON0 | CON1 | CON2 | CON3) "CON0"'>
+<!ENTITY % counter_name '(CTPIN | CTPMON | CORETBP | CORETAP | CORETAV) "CTPIN"'>
+<!ENTITY % trigger_name '(BGRP0 | BGRP1 | BGRP2 | BGRP3 | BGRP4 | BGRP5 | BGRP6 | BGRP7 | BGRP8 | BGRP9 | BGRP10 | BGRP11 | BGRP12 | BGRP13 | BGRP14 | BGRP15 | RNDM0 | RNDM1 | RNDM2 | RNDM3) '>
+
+<!ELEMENT LVL1Config (TriggerMenu,PrescaleSet,TriggerCounterList?,TriggerThresholdList,Random,BunchGroupSet,PrescaledClock,CaloInfo,MuctpiInfo)>
+<!ATTLIST LVL1Config
+     name               CDATA           #IMPLIED
+     ctpVersion         CDATA           #IMPLIED
+     l1Version          CDATA           #IMPLIED
+     id                 CDATA           #IMPLIED>
+
+<!ELEMENT TriggerMenu (TriggerItem)*>
+<!ATTLIST TriggerMenu
+     name               ID              #REQUIRED
+     version            CDATA           #IMPLIED
+     phase              CDATA           #IMPLIED>
+
+<!ELEMENT  TriggerItem (AND|OR|NOT|TriggerCondition|InternalTrigger)>
+<!ATTLIST  TriggerItem
+     id                 CDATA           #IMPLIED
+     name               CDATA           #REQUIRED
+     version            CDATA           #IMPLIED
+     ctpid              CDATA           #REQUIRED
+     partition          CDATA           #IMPLIED
+     complex_deadtime   CDATA           #IMPLIED
+     definition         CDATA           #IMPLIED
+     trigger_type       CDATA           #IMPLIED
+     monitor            CDATA           #IMPLIED>
+
+<!ELEMENT AND (AND|OR|NOT|TriggerCondition|InternalTrigger)+>
+
+<!ELEMENT OR (AND|OR|NOT|TriggerCondition|InternalTrigger)+>
+
+<!ELEMENT NOT (AND|OR|NOT|TriggerCondition|InternalTrigger)>
+
+<!ELEMENT TriggerCondition EMPTY>
+<!ATTLIST TriggerCondition
+     id                 CDATA           #IMPLIED
+     name               CDATA           #REQUIRED
+     version            CDATA           #IMPLIED
+     triggerthreshold   CDATA           #REQUIRED
+     multi              CDATA           #REQUIRED>
+
+<!ELEMENT InternalTrigger EMPTY>
+<!ATTLIST InternalTrigger
+     id                 CDATA           #IMPLIED
+     name               %trigger_name;  #REQUIRED>
+
+<!ELEMENT TriggerThresholdList (TriggerThreshold*)>
+
+<!ELEMENT TriggerThreshold (TriggerThresholdValue*, Cable)>
+<!ATTLIST TriggerThreshold
+     id                 CDATA           #IMPLIED
+     name               CDATA           #REQUIRED
+     version            CDATA           #IMPLIED
+     type               CDATA           #REQUIRED
+     bitnum             CDATA           #REQUIRED
+     OPL                CDATA           "NO"
+     confirm            CDATA           "0"
+     active             CDATA           #IMPLIED
+     mapping            CDATA           #IMPLIED
+     input              CDATA           #IMPLIED
+     seed               CDATA           #IMPLIED
+     seed_multi         CDATA           #IMPLIED
+     bcdelay            CDATA           #IMPLIED>
+
+<!ELEMENT TriggerThresholdValue EMPTY>
+<!ATTLIST TriggerThresholdValue
+     id                 CDATA           #IMPLIED
+     name               CDATA           #REQUIRED
+     version            CDATA           #IMPLIED
+     type               CDATA           #REQUIRED
+     thresholdval       CDATA           #REQUIRED
+     em_isolation       CDATA           "5"
+     had_isolation      CDATA           "10"
+     had_veto           CDATA           "20"
+     window             CDATA           "2"
+     phimin             CDATA           #REQUIRED
+     phimax             CDATA           #REQUIRED
+     etamin             CDATA           #REQUIRED
+     etamax             CDATA           #REQUIRED
+     priority           CDATA           #IMPLIED
+     isobits            CDATA           #IMPLIED
+     windowSize         CDATA           #IMPLIED>
+
+<!ELEMENT Cable (Signal+)>
+<!ATTLIST Cable
+     name               CDATA           #REQUIRED
+     input              %input_name;
+     ctpin              CDATA           #IMPLIED
+     type               %type_name;
+     connector          %cable_name;>
+
+<!ELEMENT Signal EMPTY>
+<!ATTLIST Signal
+     range_begin        CDATA           #REQUIRED
+     range_end          CDATA           #REQUIRED
+     clock              CDATA           #IMPLIED
+     phase              CDATA           #IMPLIED>
+
+<!ELEMENT TriggerCounterList (TriggerCounter*)>
+
+<!ELEMENT TriggerCounter (AND|OR|NOT|TriggerCondition)*>
+<!ATTLIST TriggerCounter
+     id                 CDATA           #IMPLIED
+     name               CDATA           #REQUIRED
+     version            CDATA           #IMPLIED
+     type               %counter_name;>
+
+<!ELEMENT Random EMPTY>
+<!ATTLIST Random
+     name0              CDATA           #REQUIRED
+     cut0               CDATA           #REQUIRED
+     name1              CDATA           #REQUIRED
+     cut1               CDATA           #REQUIRED
+     name2              CDATA           #REQUIRED
+     cut2               CDATA           #REQUIRED
+     name3              CDATA           #REQUIRED
+     cut3               CDATA           #REQUIRED>     
+
+<!ELEMENT PrescaleSet (Prescale*)>
+<!ATTLIST PrescaleSet 
+     name               CDATA           #REQUIRED
+     type               CDATA           #IMPLIED
+     menuPartition      CDATA           #IMPLIED>
+     
+<!ELEMENT Prescale (#PCDATA)>
+<!ATTLIST Prescale
+     ctpid              CDATA           #REQUIRED
+     cut                CDATA           #IMPLIED
+     value              CDATA           #IMPLIED>
+     
+<!ELEMENT BunchGroupSet (BunchGroup*,Bunch*)>
+<!ATTLIST BunchGroupSet
+     name              CDATA            #REQUIRED
+     menuPartition     CDATA            #IMPLIED>
+
+<!ELEMENT BunchGroup (Bunch*)>
+<!ATTLIST BunchGroup
+     internalNumber    CDATA            #REQUIRED
+     name              CDATA            #REQUIRED>
+
+<!ELEMENT Bunch EMPTY>
+<!ATTLIST Bunch
+     bunchNumber       CDATA            #REQUIRED>
+
+<!ELEMENT PrescaledClock EMPTY>
+<!ATTLIST PrescaledClock
+     name              CDATA            #REQUIRED
+     clock1            CDATA            #REQUIRED
+     clock2            CDATA            #REQUIRED>
+     
+<!ELEMENT CaloInfo (METSignificance*,Isolation*,MinimumTOBPt*)>
+<!ATTLIST CaloInfo
+     name              CDATA            #REQUIRED
+     global_em_scale   CDATA            #REQUIRED
+     global_jet_scale  CDATA            #REQUIRED>
+
+<!ELEMENT METSignificance (#PCDATA)>
+<!ATTLIST METSignificance
+     xeMin             CDATA            #REQUIRED
+     xeMax             CDATA            #REQUIRED
+     teSqrtMin         CDATA            #REQUIRED
+     teSqrtMax         CDATA            #REQUIRED
+     xsSigmaScale      CDATA            #REQUIRED
+     xsSigmaOffset     CDATA            #REQUIRED>
+
+<!ELEMENT Isolation (Parametrization*)>
+<!ATTLIST Isolation
+     thrtype           CDATA            #REQUIRED>
+
+<!ELEMENT Parametrization (#PCDATA)>
+<!ATTLIST Parametrization
+     isobit            CDATA            #REQUIRED
+     offset            CDATA            #REQUIRED
+     slope             CDATA            #REQUIRED
+     mincut            CDATA            #REQUIRED
+     upperlimit        CDATA            #REQUIRED
+     etamin            CDATA            #REQUIRED
+     etamax            CDATA            #REQUIRED
+     priority          CDATA            #REQUIRED>
+
+<!ELEMENT MinimumTOBPt (#PCDATA)>
+<!ATTLIST MinimumTOBPt
+     thrtype           CDATA            #REQUIRED
+     ptmin             CDATA            #REQUIRED
+     etamin            CDATA            #REQUIRED
+     etamax            CDATA            #REQUIRED
+     priority          CDATA            #REQUIRED
+     window            CDATA            #IMPLIED>
+
+<!ELEMENT MuctpiInfo (#PCDATA)>
+<!ATTLIST MuctpiInfo
+     name           CDATA            #REQUIRED
+     low_pt             CDATA            #REQUIRED
+     high_pt            CDATA            #REQUIRED
+     max_cand            CDATA            #REQUIRED>
+

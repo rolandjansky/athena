@@ -2,7 +2,7 @@
 
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-import sys
+import sys,os
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags as TF
 from TriggerMenu.TriggerConfigLVL1 import TriggerConfigLVL1
@@ -11,7 +11,8 @@ from TriggerMenu.l1.Lvl1Flags import Lvl1Flags
 def generateL1Menu(menu, useTopoMenu="MATCH"):
 
     from AthenaCommon.Logging import logging
-    logging.getLogger("TriggerConfigLVL1").setLevel(logging.INFO)
+    log = logging.getLogger("TriggerConfigLVL1")
+    log.setLevel(logging.INFO)
 
     # what menu to build
     TF.triggerMenuSetup = menu
@@ -23,7 +24,13 @@ def generateL1Menu(menu, useTopoMenu="MATCH"):
     tpcl1.generateMenu()
 
     # write xml file
-    tpcl1.writeXML()
+    outfilename = tpcl1.writeXML()
+
+    # consistency checker
+    checkResult = os.system("get_files -xmls -symlink LVL1config.dtd")
+    checkResult = os.system("xmllint --noout --dtdvalid LVL1config.dtd %s" % outfilename)
+    if checkResult != 0:
+        log.error("the XML does not follow the document type definition LVL1config.dtd")
 
     return tpcl1.menu
 

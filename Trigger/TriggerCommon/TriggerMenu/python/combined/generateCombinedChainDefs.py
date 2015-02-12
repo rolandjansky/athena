@@ -116,6 +116,8 @@ def _addDPhiMetJet(theChainDef,chainDicts,listOfChainDefs):
     logCombined.debug("Input TEs to DPhi algorithm: %s" % inputTEsEF)
 
     EFChainName = "EF_" + chainDicts[0]['chainName']
+    if '_L1' in EFChainName:
+        EFChainName = EFChainName.split("_L1")[0]
     
     theChainDef.addSequence([DPhiMetJet_Hypo],inputTEsEF,EFChainName)
     theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])    
