@@ -13,7 +13,11 @@ from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__CpByteStreamV2
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__CpmRoiByteStreamV2Tool
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__JepByteStreamV2Tool
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__JepRoiByteStreamV2Tool
+
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__PpmByteStreamV2Tool
+from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__L1CaloByteStreamReadTool
+
+
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__RodHeaderByteStreamTool
 from TrigT1CaloByteStream.TrigT1CaloByteStreamConf import LVL1BS__L1CaloErrorByteStreamTool
 ToolSvc = Service("ToolSvc")
@@ -25,6 +29,7 @@ ToolSvc += LVL1BS__PpmByteStreamV2Tool("PpmByteStreamTool",
            PpmMappingTool="LVL1::PpmCoolOrBuiltinMappingTool/PpmCoolOrBuiltinMappingTool",
            PrintCompStats=1
 )
+ToolSvc += LVL1BS__L1CaloByteStreamReadTool("L1CaloByteStreamReadTool")
 ToolSvc += LVL1BS__RodHeaderByteStreamTool("RodHeaderByteStreamTool")
 ToolSvc += LVL1BS__L1CaloErrorByteStreamTool("L1CaloErrorByteStreamTool")
 
@@ -45,9 +50,15 @@ ByteStreamAddressProviderSvc.TypeNames += [ "DataVector<LVL1::JEMTobRoI>/JEMTobR
 ByteStreamAddressProviderSvc.TypeNames += [ "DataVector<LVL1::JEMTobRoI>/JEMTobRoIsRoIB" ]
 ByteStreamAddressProviderSvc.TypeNames += [ "LVL1::CMXRoI/CMXRoIs" ]
 ByteStreamAddressProviderSvc.TypeNames += [ "LVL1::CMXRoI/CMXRoIsRoIB" ]
-ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerContainer/xAODTriggerTowers" ]
-ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerContainer/xAODTriggerTowersSpare" ]
-ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerContainer/xAODTriggerTowersMuon" ]
+
+ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerContainer/xAODTriggerTowers"]
+ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerAuxContainer/xAODTriggerTowersAux."]
+ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerContainer/xAODTriggerTowersMuon"]
+ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerAuxContainer/xAODTriggerTowersMuonAux."]
+ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerContainer/xAODTriggerTowersSpare"]
+ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::TriggerTowerAuxContainer/xAODTriggerTowersSpareAux."]
+ByteStreamAddressProviderSvc.TypeNames += [ "xAOD::CPMTowerContainer/xAODCPMTowers" ]
+
 ByteStreamAddressProviderSvc.TypeNames += [ "DataVector<LVL1::RODHeader>/RODHeaders" ]
 ByteStreamAddressProviderSvc.TypeNames += [ "DataVector<LVL1::RODHeader>/RODHeadersPP" ]
 ByteStreamAddressProviderSvc.TypeNames += [ "DataVector<LVL1::RODHeader>/RODHeadersCP" ]

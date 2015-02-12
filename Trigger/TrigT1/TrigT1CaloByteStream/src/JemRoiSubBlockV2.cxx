@@ -74,7 +74,7 @@ bool JemRoiSubBlockV2::pack()
 {
   bool rc = false;
   switch (version()) {
-    case 2:                                               //<< CHECK
+    case 1:                                               //<< CHECK
       switch (format()) {
         case NEUTRAL:
 	  rc = packNeutral();

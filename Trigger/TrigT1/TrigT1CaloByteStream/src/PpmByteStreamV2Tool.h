@@ -16,7 +16,7 @@
 #include <vector>
 #include <sstream>
 // ===========================================================================
-// Atheana:
+// Athena:
 // ===========================================================================
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
@@ -77,7 +77,7 @@ public:
 
   /// Convert ROB fragments to trigger towers
   StatusCode convert(const IROBDataProviderSvc::VROBFRAG& robFrags,
-      xAOD::TriggerTowerContainer* ttCollection);
+       xAOD::TriggerTowerContainer* const ttCollection);
 
   /// Convert trigger towers to bytestream
   StatusCode convert(const xAOD::TriggerTowerContainer* ttCollection,
@@ -87,8 +87,9 @@ public:
   const std::vector<uint32_t>& sourceIDs(const std::string& sgKey);
 
 private:
-  void reserveMemory();
-  void collectTriggerTowers(const IROBDataProviderSvc::VROBFRAG& robFrags);
+  void reserveMemory(xAOD::TriggerTowerContainer* const ttCollection);
+  void collectTriggerTowers(const IROBDataProviderSvc::VROBFRAG& robFrags,
+		  xAOD::TriggerTowerContainer* const ttCollection);
   uint_least32_t coolId(int crate, int module, int channel) const;
  /// Add compression stats to totals
  void addCompStats(const std::vector<uint32_t>& stats);
