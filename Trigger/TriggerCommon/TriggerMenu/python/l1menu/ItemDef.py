@@ -403,9 +403,13 @@ class ItemDef:
         LVL1MenuItem('L1_3J15.0ETA24' ).setLogic( J150ETA24.x(3) & physcond).setTriggerType(TT.calo)
         LVL1MenuItem('L1_5J15.0ETA24' ).setLogic( J150ETA24.x(5) & physcond).setTriggerType(TT.calo)
 
+        LVL1MenuItem('L1_ZB_J20').setLogic(ZB_EM15 & J20 & physcond).setTriggerType(TT.zerobs)
         if ('Physics_HI_v3' in TriggerFlags.triggerMenuSetup()):
             LVL1MenuItem('L1_ZB', ctpid=240).setLogic(ZB_J75 & physcond).setTriggerType(TT.zerobs)
-        
+        else:
+            LVL1MenuItem('L1_ZB', ctpid=240).setLogic(ZB_EM15 & physcond).setTriggerType(TT.zerobs)
+
+
         # combined jet - xe
         #LVL1MenuItem('L1_J40_XE50').setLogic( J75 & XE40 & physcond).setTriggerType(TT.calo)#CB ERROR???
         LVL1MenuItem('L1_J40_XE50').setLogic( J40 & XE50 & physcond).setTriggerType(TT.calo)
@@ -586,7 +590,7 @@ class ItemDef:
         LVL1MenuItem('L1_RD0_FIRSTEMPTY'     ).setLogic( RNDM0 & firstempty         ).setTriggerType(TT.rand)
 
         LVL1MenuItem('L1_RD1_FILLED'         ).setLogic( RNDM1 & physcond           ).setTriggerType(TT.rand)
-        LVL1MenuItem('L1_RD1_EMPTY'          ).setLogic( RNDM1 & cosmiccond         ).setTriggerType(TT.rand)
+        LVL1MenuItem('L1_RD1_EMPTY'          ).setLogic( RNDM1 & cosmiccond         ).setTriggerType(TT.zerobs)
 
         # BGRP
         LVL1MenuItem('L1_BGRP0').setLogic( BGRP0 ).setTriggerType(TT.rand)
@@ -601,15 +605,16 @@ class ItemDef:
         LVL1MenuItem('L1_MLZ_C', ctpid=-1).setLogic( (MBTS_C|ZDC_C|LUCID_C) & physcond).setTriggerType(TT.minb) 
         LVL1MenuItem('L1_MBLZ',  ctpid=-1).setLogic( ( (MBTS_A|ZDC_A|LUCID_A) & (MBTS_C|ZDC_C|LUCID_C) | BCM_Wide) & physcond ).setTriggerType(TT.minb)  
 
-        LVL1MenuItem('L1_CALREQ0', ctpid=0xfd).setLogic( CAL0 & calibcond).setTriggerType(TT.calreq0)
-        LVL1MenuItem('L1_CALREQ1', ctpid=0xfe).setLogic( CAL1 & calibcond).setTriggerType(TT.calreq1)
-        LVL1MenuItem('L1_CALREQ2', ctpid=0xff).setLogic( CAL2 & calibcond).setTriggerType(TT.calreq2)   
+        LVL1MenuItem('L1_CALREQ0', ctpid=0x1fd).setLogic( CAL0 & calibcond).setTriggerType(TT.calreq0) 
+        LVL1MenuItem('L1_CALREQ1', ctpid=0x1fe).setLogic( CAL1 & calibcond).setTriggerType(TT.calreq1)
+        LVL1MenuItem('L1_CALREQ2', ctpid=0x1ff).setLogic( CAL2 & calibcond).setTriggerType(TT.calreq2)   
 
         # TRT
         LVL1MenuItem('L1_TRT', ctpid=0x4e).setLogic(NIMTRT & BGRP0).setTriggerType(TT.rpcout)
 
-        # ALFA will be very different for run 2
-        # LVL1MenuItem('L1_ALFA_EMPTY').setLogic( NIM_ALFA_LOG & cosmiccond).setTriggerType(TT.rpcout)
+        # ALFA 
+        LVL1MenuItem('L1_ALFA_ANY').setLogic((ALFA_B7L1U | ALFA_B7L1L | ALFA_A7L1U | ALFA_A7L1L | ALFA_A7R1U | ALFA_A7R1L | ALFA_B7R1U | ALFA_B7R1L) & physcond).setTriggerType(TT.rpcout)
+
 
         # Topo items (keep them all together)
         try:
@@ -791,7 +796,10 @@ class ItemDef:
 
         LVL1MenuItem.currentPartition = 3
 
-
         LVL1MenuItem.currentPartition = 1
+
+
+
+
 
         LVL1MenuItem.l1configForRegistration = None

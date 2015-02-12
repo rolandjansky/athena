@@ -383,6 +383,7 @@ items in BGRP1"""
             self.theEFHLTChains.append(chain)
         elif chain.isHLT():
             self.theHLTChains.append(chain)
+                        
         else:
             raise Exception( 'ERROR: Chain: ' + chain.chain_name + 'has incorrectly defined level')
 

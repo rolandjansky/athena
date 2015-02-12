@@ -167,7 +167,7 @@ class TriggerConfigLVL1:
         FH.close()
         from l1.Lvl1MenuUtil import oldStyle
         log.info("Wrote %s in %s" % (self.outputFile, "run 1 style" if oldStyle() else "run 2 style"))
-
+        return self.outputFile
 
 
 

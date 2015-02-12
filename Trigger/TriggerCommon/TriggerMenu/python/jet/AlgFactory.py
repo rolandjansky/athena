@@ -39,7 +39,7 @@ class Alg(object):
         - the factory function (usally the class name) 
         used to obtain an instance of the Athena Alg python class
 
-        - arguments which can be passed to teh construtor as
+        - arguments which can be passed to the construtor as
         *list or **kwds
 
         - "manual_attributes " which are set post instantiation using
@@ -104,10 +104,10 @@ class AlgFactory(object):
         self.hypo_params = self.menu_data.hypo_params
 
     def tt_unpacker(self):
-        return Alg('T2L1Unpacking_TT', (), {})
+        return [Alg('T2L1Unpacking_TT', (), {})]
 
     def fullscan_roi(self):
-        return Alg('DummyAlgo', ('"RoiCreator"',), {})
+        return [Alg('DummyAlgo', ('"RoiCreator"',), {})]
 
     def jetrec(self):
         """Instantiate a python object for TrigHLTJetRec. Incoming
@@ -130,7 +130,7 @@ class AlgFactory(object):
             self.fex_params.fex_label)
         }
 
-        return Alg('TrigHLTJetRec_param', (), kwds)
+        return [Alg('TrigHLTJetRec_param', (), kwds)]
 
     def jetrec_cluster(self):
         """Instantiate a python object for TrigHLTJetRec that will
@@ -153,7 +153,7 @@ class AlgFactory(object):
             self.fex_params.fex_label)
         }
 
-        return Alg(factory, (), kwds)
+        return [Alg(factory, (), kwds)]
 
 
     def jetrec_recluster(self):
@@ -181,7 +181,7 @@ class AlgFactory(object):
             'etaMaxCut': self.recluster_params.etaMaxCut,
         }
 
-        return Alg(factory, (), kwds)
+        return [Alg(factory, (), kwds)]
 
     def jr_hypo_single(self):
         """
@@ -219,7 +219,7 @@ class AlgFactory(object):
     
         args = [name, str(GeV * ja.threshold), etaMin, etaMax]
     
-        return Alg('EFJetHypo', args, kargs)
+        return [Alg('EFJetHypo', args, kargs)]
 
     def jr_hypo_multi(self):
         """
@@ -265,18 +265,18 @@ class AlgFactory(object):
                  'etaMax': etaMax,
              }
 
-        return Alg(
+        return [Alg(
             'EFCentFullScanMultiJetHypo',
             (name,),
-            kargs)
+            kargs)]
 
     def superRoIMaker(self):
         factory = 'SeededAlgo'
-        return Alg(factory,
+        return [Alg(factory,
                    (),
                    {'UseRoiSizes':False,
                     'EtaHalfWidth':0.5,
-                    'PhiHalfWidth':0.5})
+                    'PhiHalfWidth':0.5})]
 
     def cellMaker_superPS_topo(self):
         """assign a name which identifies the fex sequence and
@@ -288,11 +288,11 @@ class AlgFactory(object):
         class_name = 'TrigCaloCellMaker_jet_super'
         instance_name = '"%s"' % 'PS'
 
-        return Alg(class_name,
+        return [Alg(class_name,
                    (instance_name,
                     'doNoise=0',
                     'AbsE=True'),
-                   {})
+                   {})]
 
     def cellMaker_fullcalo_topo(self):
         # assign a name which identifies the fex sequence and
@@ -301,12 +301,12 @@ class AlgFactory(object):
         class_name = 'TrigCaloCellMaker_jet_fullcalo'
         instance_name = '"%s"' % 'FS'
 
-        return Alg(class_name,
+        return [Alg(class_name,
                    (instance_name,
                     'doNoise=0',
                     'AbsE=True',
                     'doPers=True'),
-                   {})
+                   {})]
 
     def topoClusterMaker(self):
         
@@ -317,28 +317,28 @@ class AlgFactory(object):
         instance_name = '"%s_%s"' % (class_name,
                                      self.cluster_params.cluster_label)
 
-        return Alg(class_name,
+        return [Alg(class_name,
                    (instance_name,),
                    {'doMoments': True,
-                    'doLC': self.cluster_params.do_lc})
+                    'doLC': self.cluster_params.do_lc})]
         
     def roiDiagnostics(self):
         factory = 'TrigHLTRoIDiagnostics'
-        return Alg(factory, (), {})
+        return [Alg(factory, (), {})]
 
     def jetRecDiagnostics(self):
         chain_name = self.chain_config.chain_name.replace('.', '_')
         factory = 'TrigHLTJetDiagnostics_named'
         kwds = {'name': "'TrigHLTJetDiagnostics_%s'" % chain_name,
                 'chain_name': "'%s'" % chain_name}
-        return Alg(factory, (), kwds)
+        return [Alg(factory, (), kwds)]
 
     def jetHypoDiagnostics(self):
         chain_name = self.chain_config.chain_name.replace('.', '_')
         factory = 'TrigHLTHypoDiagnostics_named'
         kwds = {'name': "'TrigHLTHypoDiagnostics_%s'" % chain_name,
                 'chain_name': "'%s'" % chain_name}
-        return Alg(factory, (), kwds)
+        return [Alg(factory, (), kwds)]
 
 
     def clusterDiagnostics(self):
@@ -346,7 +346,7 @@ class AlgFactory(object):
         factory = 'TrigHLTClusterDiagnostics_named'
         kwds = {'name': "'TrigHLTClusterDiagnostics_%s'" % chain_name,
                 'chain_name': "'%s'" % chain_name}
-        return Alg(factory, (), kwds)
+        return [Alg(factory, (), kwds)]
 
 
     def cellDiagnostics(self):
@@ -354,7 +354,7 @@ class AlgFactory(object):
         factory = 'TrigHLTCellDiagnostics_named'
         kwds = {'name': "'TrigHLTCellDiagnostics_%s'" % chain_name,
                 'chain_name': "'%s'" % chain_name}
-        return Alg(factory, (), kwds)
+        return [Alg(factory, (), kwds)]
 
 
     def energyDensityAlg(self):
@@ -391,47 +391,93 @@ class AlgFactory(object):
                 'ed_merge_param': ed_merge_param
             }
     
-        return Alg(factory, (), kwds)
+        return [Alg(factory, (), kwds)]
 
 
-    def dataScoutingAlg1(self):
+    def dataScoutingAlg1(self, manual_attrs):
         factory = 'ScoutingStreamWriter'
+        manual_attrs = manual_attrs
+          
+        return [Alg(factory, ("'JetDataScouting'",), {}, manual_attrs)]
+          
+          
+    def dataScoutingAlg2(self, manual_attrs):
+        factory = 'ScoutingStreamWriter'
+        manual_attrs = manual_attrs
+
+        return [Alg(factory, ("'JetDataScouting'",), {}, manual_attrs)]
+              
+
+    def dataScouting_TrigHLTJetTLASelector(self,
+                                           object_name,
+                                           jetCollectionName,
+                                           jetPtThreshold,
+                                           maxNJets):
+        factory = 'TrigHLTJetDSSelector'
+        
+        kwds = {'name': object_name,
+                'jetCollectionName': jetCollectionName,
+                'jetPtThreshold': jetPtThreshold,
+                'maxNJets': maxNJets}
+        
+        return [Alg(factory, (), kwds)]
+
+
+    def getDataScoutingAlgs(self):
+        """Provide the arguments to instantiate data scouting Alg
+        object. These arguments arr not provided by the ChainConfig
+        object, from which other Alg objects get their parmeters"""
+
+        jetPtThreshold =  0.* GeV
+        maxNJets =  -1
+
+        name_frag = '%d_%d' % (int(jetPtThreshold),  maxNJets)
+        object_name = '"TrigHLTJetDSSelector_%s"' % name_frag
+        jetCollectionName = '"TrigHLTJetDSSelectorCollection"'
+
+        selector_alg =  self.dataScouting_TrigHLTJetTLASelector(
+            object_name,
+            jetCollectionName,
+            jetPtThreshold,
+            maxNJets)
+        
         manual_attrs ={
             'CollectionTypeName':
-            str(['xAOD::JetContainer_v1#TrigHLTJetRec', 
-                 'xAOD::JetTrigAuxContainer_v1#TrigHLTJetRecAux'])} 
+            str(['xAOD::JetContainer#TrigHLTJetDSSelectorCollection',
+                 'xAOD::JetTrigAuxContainer#TrigHLTJetDSSelectorCollectionAux'])}
+        
+        writer_alg = self.dataScoutingAlg1(manual_attrs)
 
-        return Alg(factory, ("'JetDataScouting'",), {}, manual_attrs)
-
-
-    def dataScoutingAlg2(self):
-        factory = 'ScoutingStreamWriter'
-        manual_attrs ={
-            'CollectionTypeName': 
-            str(['xAOD::JetContainer_v1#TrigHLTJetRec', 
-                 'xAOD::JetTrigAuxContainer_v1#TrigHLTJetRecAux'])} 
-
-        return Alg(factory, ("'JetDataScouting'",), {}, manual_attrs)
+        algs = []
+        algs.extend(selector_alg)
+        algs.extend(writer_alg)
+        return algs
 
 
+    def getDataScoutingAlgs1(self):
+        return self.getDataScoutingAlgs()
+
+
+    def getDataScoutingAlgs2(self):
+        return self.getDataScoutingAlgs()
 
 
 # old code....
- # NEEDS UPDATING FOR ETA RANGE HANDLING
- # def jr_hypo_testCleaning(params):
- # 
- #     assert len(params.hypo_data) == 1
- #     hd = params.hypo_data[0]
- # 
- #     if hd.eta_region == 'j':
- #         factory = 'EFJetHypo_doBasicCleaning'
- #         arg0 = '"EFJetHypo_doBasicCleaning_%s"' % hd.sig
- #     elif hd.eta_region == 'fj':
- #         factory = 'EFFwdJetHypo_doBasicCleaning'
- #         arg0 = '"EFFwdJetHypo_doBasicCleaning_%s"' % hd.sig
- #     else:
- #         assert False
- # 
- #     return Alg(factory, (arg0, str(GeV * hd.threshold)), {})
- # 
- # 
+# NEEDS UPDATING FOR ETA RANGE HANDLING
+# def jr_hypo_testCleaning(params):
+# 
+#     assert len(params.hypo_data) == 1
+#     hd = params.hypo_data[0]
+# 
+#     if hd.eta_region == 'j':
+#         factory = 'EFJetHypo_doBasicCleaning'
+#         arg0 = '"EFJetHypo_doBasicCleaning_%s"' % hd.sig
+#     elif hd.eta_region == 'fj':
+#         factory = 'EFFwdJetHypo_doBasicCleaning'
+#         arg0 = '"EFFwdJetHypo_doBasicCleaning_%s"' % hd.sig
+#     else:
+#         assert False
+# 
+#     return Alg(factory, (arg0, str(GeV * hd.threshold)), {})
+# 
+#

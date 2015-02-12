@@ -206,10 +206,6 @@ class ChainConfigMaker(object):
 
         self.check_and_set('fex_label', fex_label)
         
-        # check whether to run the hypo
-        run_hypo =  'perf' not in part['addInfo']
-        
-        self.check_and_set('run_hypo', run_hypo)
 
 
         # ------- data scouting parameters ----------
@@ -224,6 +220,10 @@ class ChainConfigMaker(object):
             raise RuntimeError(msg)
 
         self.check_and_set('data_scouting', ds1 + ds2)
+
+        # check whether to run the hypo
+        run_hypo =  'perf' not in part['addInfo'] and not self.data_scouting
+        self.check_and_set('run_hypo', run_hypo)
 
         # --------  hypo parameters ----------------
         scan_type = part['scan']

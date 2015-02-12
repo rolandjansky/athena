@@ -158,14 +158,14 @@ class JetSequencesBuilder(object):
     def make_fs(self):
         """make full scan Alglist"""
 
-        return AlgList(alg_list=[self.alg_factory.fullscan_roi()],
+        return AlgList(alg_list=self.alg_factory.fullscan_roi(),
                        alias='fullroi')
 
 
     def make_ps(self):
         """make partial scan Alglist"""
 
-        return AlgList(alg_list=[self.alg_factory.superRoIMaker()],
+        return AlgList(alg_list=self.alg_factory.superRoIMaker(),
                        alias='superroi')
 
 
@@ -180,12 +180,13 @@ class JetSequencesBuilder(object):
         # a radius of 0.4 (it does its own jet finding).
         # if this is ever varied, it should go into ists own
         # sequence.
-        return AlgList(
-            alg_list=[self.alg_factory.cellMaker_fullcalo_topo(),
-                      self.alg_factory.topoClusterMaker(),
-                      self.alg_factory.energyDensityAlg(),
-                  ],
-            alias=alias)
+        
+        algs = []
+        [algs.extend(f()) for f in (self.alg_factory.cellMaker_fullcalo_topo,
+                                    self.alg_factory.topoClusterMaker,
+                                    self.alg_factory.energyDensityAlg)]
+
+        return AlgList(algs, alias=alias)
 
 
     def make_cm(self):
@@ -198,11 +199,11 @@ class JetSequencesBuilder(object):
         # flag to do local cluster calibration
         cluster_params = self.chain_config.menu_data.cluster_params
         alias = 'cluster_%s' % cluster_params.cluster_label
-        return AlgList(
-            alg_list=[self.alg_factory.cellMaker_superPS_topo(),
-                      self.alg_factory.topoClusterMaker(),
-                  ],
-            alias=alias)
+
+        algs = []
+        [algs.extend(f()) for f in (self.alg_factory.cellMaker_superPS_topo,
+                                    self.alg_factory.topoClusterMaker)]
+        return AlgList(alg_list=algs, alias=alias)
 
     
     def make_jr_clusters(self):
@@ -217,7 +218,7 @@ class JetSequencesBuilder(object):
 
         alias = 'jetrec_%s' % fex_params.fex_label
 
-        return AlgList([self.alg_factory.jetrec_cluster()], alias)
+        return AlgList(self.alg_factory.jetrec_cluster(), alias)
 
         # return AlgList([self.alg_factory.jetrec_cluster(),
         #                self.alg_factory.jetrec_jet()], alias)
@@ -236,7 +237,7 @@ class JetSequencesBuilder(object):
 
         alias = 'jetrec_%s' % recluster_params.fex_label
 
-        return AlgList([self.alg_factory.jetrec_recluster()], alias)
+        return AlgList(self.alg_factory.jetrec_recluster(), alias)
 
         # return AlgList([self.alg_factory.jetrec_cluster(),
         #                self.alg_factory.jetrec_jet()], alias)
@@ -260,45 +261,43 @@ class JetSequencesBuilder(object):
         
         # return a list of algs that form the jr sequence
         if single_jet:
-            return AlgList([self.alg_factory.jr_hypo_single()], alias)
+            return AlgList(self.alg_factory.jr_hypo_single(), alias)
         else:
-            return AlgList([self.alg_factory.jr_hypo_multi()], alias)
+            return AlgList(self.alg_factory.jr_hypo_multi(), alias)
 
 
     def make_tt(self):
         """Create an alg_list for the trigger tower unpacker"""
 
         unpacker = self.alg_factory.tt_unpacker()
-        return AlgList(alg_list=[unpacker], alias='tt_unpacker')
+        return AlgList(alg_list=unpacker, alias='tt_unpacker')
         
 
     def make_jhd(self):
         diag_alg = self.alg_factory.jetHypoDiagnostics()
-        return AlgList(alg_list=[diag_alg], alias='jethypo_diag')
+        return AlgList(alg_list=diag_alg, alias='jethypo_diag')
 
 
     def make_fexd(self):
         """make an Alglist of fex diagnostics -
         to be run before the hypo alg"""
 
-        rd = self.alg_factory.roiDiagnostics()
-        ced = self.alg_factory.cellDiagnostics()
-        cld = self.alg_factory.clusterDiagnostics()
-        jrd = self.alg_factory.jetRecDiagnostics()
+        algs = []
+        algs.extend([f() for f in (self.alg_factory.roiDiagnostics,
+                                   self.alg_factory.cellDiagnostics,
+                                   self.alg_factory.clusterDiagnostics,
+                                   self.alg_factory.jetRecDiagnostics)])
         
-        return AlgList(alg_list=[rd,
-                                 ced,
-                                 cld,
-                                 jrd],
+        return AlgList(alg_list=algs,
                        alias='fexd_%s' % self.chain_config.chain_name)
 
 
     def make_datascouting(self):
 
         # get the factory fn according to the data scouting flag
-        ff = {'ds1': self.alg_factory.dataScoutingAlg1,
-              'ds2': self.alg_factory.dataScoutingAlg2}.get(
+        ff = {'ds1': self.alg_factory.getDataScoutingAlgs1,
+              'ds2': self.alg_factory.getDataScoutingAlgs2}.get(
                   self.chain_config.data_scouting)
 
         alias='data_scouting_%s' % self.chain_config.chain_name
-        return AlgList(alg_list=[ff()], alias=alias)
+        return AlgList(alg_list=ff(), alias=alias)

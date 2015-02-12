@@ -27,7 +27,6 @@ def lumi(triggerPythonConfig):
     elif menu_name == 'default_tight': menu_name = 'MC_pp_v4_tight_mc_prescale'
 
     log.info( 'Menu name: '+ menu_name)
-    TriggerFlags.Lvl1.RemapThresholdsAsListed = True
 
     if menu_name.startswith('Physics_pp_v4') :
         log.info('MEOW in physics pp v4 menu setup')

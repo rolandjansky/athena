@@ -22,6 +22,7 @@ from TriggerMenu.test.TestSliceFlags                   import TestSliceFlags
 
 # hlt
 from TriggerMenu.menu.TriggerPythonConfig  import TriggerPythonConfig
+from TriggerMenu.menu.CPS  import addCPS
 
 from TriggerMenu.menu.Lumi                 import lumi, applyPrescales
 from TriggerMenu.menu.MenuUtil             import checkTriggerGroupAssignment, checkStreamConsistency 
@@ -901,6 +902,12 @@ class GenerateMenu:
         log.info('GenerateMenu: generate: checkTriggerGroupAssignment')
         #checkTriggerGroupAssignment(self.triggerPythonConfig)
 
+
+
+        cpsMenus = ['Physics_pp_v5']
+        if TriggerFlags.triggerMenuSetup() in cpsMenus:
+            log.info('Assigning CPS groups now')
+            addCPS(self.triggerPythonConfig)
 
         # (*)
         #log.info('GenerateMenu: generate: applyPrescales')

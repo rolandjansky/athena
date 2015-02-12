@@ -16,6 +16,7 @@ physicsStreams = ['Main',
                   'Muon', 
                   'Met', 'Jet', 'Tau', 
                   'MinBias',
+                  'ZeroBias',
                   'Standby', 
                   'L1Muon', 'L1Calo', 'L1MinBias', 
                   'IDCosmic','CosmicCalo',
@@ -30,14 +31,16 @@ physicsStreams = ['Main',
 
 calibStreams = ['Background', 
                 'Tile', 
-                'L1CaloCalib', 
+                'L1CaloCalib',
+                'LArNoiseBurst',
                 'LArCellsEmpty',
                 'PixelNoise', 'PixelBeam', 
                 'SCTNoise',
                 'CostMonitoring',
                 'beamspot',
                 'Muon_Calibration',
-                'ALFACalib'
+                'ALFACalib',
+                'IBLLumi',
                 ]
 
 ##NOTE: DataScouting_xx_NAME: 

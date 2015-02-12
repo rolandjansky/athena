@@ -191,7 +191,9 @@ class ThresholdDef:
 
         # ZB
         tc.registerThr('ZB_EM12', 'ZB', seed='EM12',seed_ttype = 'EM',  seed_multi=1, bcdelay=3564)
+        tc.registerThr('ZB_EM15', 'ZB', seed='EM15',seed_ttype = 'EM',  seed_multi=1, bcdelay=3564)
         tc.registerThr('ZB_J10',  'ZB', seed='J10', seed_ttype = 'JET', seed_multi=1, bcdelay=3564)
+        tc.registerThr('ZB_J20',  'ZB', seed='J20', seed_ttype = 'JET', seed_multi=1, bcdelay=3564)
         tc.registerThr('ZB_J75',  'ZB', seed='J75', seed_ttype = 'JET', seed_multi=1, bcdelay=3564)
 
         # JE
@@ -295,9 +297,9 @@ class ThresholdDef:
 
 
         # ALFA NIMS will not exist in run 2        
-        #for i, alfa in enumerate( ['B7R1L', 'B7R1U', 'A7R1L', 'A7R1U', 'A7L1L', 'A7L1U', 'B7L1L', 'B7L1U', 'ALFA_LOG'] ):
-        #    tc.registerThr('ALFA_%s'    % alfa, 'ALFA', mapping=i).addThrValue(40) 
-        #    tc.registerThr('ALFA_%s_OD' % alfa, 'ALFA', mapping=33+i).addThrValue(40) 
+        for i, alfa in enumerate( ['B7R1L', 'B7R1U', 'A7R1L', 'A7R1U', 'A7L1L', 'A7L1U', 'B7L1L', 'B7L1U'] ):
+            tc.registerThr('ALFA_%s'    % alfa, 'ALFA', mapping=i)
+            tc.registerThr('ALFA_%s_OD' % alfa, 'ALFA', mapping=33+i)
 
         # Muon NIMS for Barrel and Endcap
         

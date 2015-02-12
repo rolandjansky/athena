@@ -60,7 +60,7 @@ def getL1BackgroundSeed(menul1items):
 
 ##############################
 def getL1StandbySeed(l1items):        
-    standby_seeds    = ",".join([ x for x in l1items if "_EMPTY" not in x and "CALREQ" not in x and "ZB" not in x])
+    standby_seeds    = ",".join([ x for x in l1items if "_EMPTY" not in x and "CALREQ" not in x and "ZB" not in x and "-" not in x])
     return standby_seeds
 
 

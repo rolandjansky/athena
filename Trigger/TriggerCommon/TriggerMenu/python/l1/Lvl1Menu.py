@@ -85,8 +85,8 @@ class Lvl1Menu:
         s += '  <!--No. L1 thresholds defined: %i-->\n' % len(self.thresholds)
         s += '  <!--No. L1 items defined: %i-->\n' % len(self.items)
         s += self.items.xml()
-        s += self.thresholds.xml()
         s += self.counters.xml()
+        s += self.thresholds.xml()
         s += self.CTPInfo.xml()
         s += self.CaloInfo.xml()
         s += self.MuctpiInfo.xml()
@@ -151,16 +151,16 @@ class Lvl1Menu:
         if not success:
             raise RuntimeError("There is a problem in the menu that needs fixing")
 
-        # Check all items are in the correct partition
-        for item in self.items:
-            partitionRange = Lvl1Menu.partitioning()[item.partition]
-            if not (item.ctpid>=partitionRange[0] and item.ctpid<partitionRange[1]):
-                log.error('Item %s (ctpid %i, partition %i) outside allowed range for partition %r!' % (item.name, item.ctpid, item.partition, partitionRange))
-                success = False
+        # # Check all items are in the correct partition
+        # for item in self.items:
+        #     partitionRange = Lvl1Menu.partitioning()[item.partition]
+        #     if not (item.ctpid>=partitionRange[0] and item.ctpid<partitionRange[1]):
+        #         log.error('Item %s (ctpid %i, partition %i) outside allowed range for partition %r!' % (item.name, item.ctpid, item.partition, partitionRange))
+        #         success = False
 
-        if not success:
-            raise RuntimeError("There is a problem in the menu that needs fixing")
-
+        # if not success:
+        #     raise RuntimeError("There is a problem in the menu that needs fixing")
+        
         # Check all items if bunchgroups are in the same partition
         bgpart = dict( [("BGRP%i" % bg.internalNumber, bg.menuPartition) for bg in self.CTPInfo.bunchGroupSet.bunchGroups] )
         for item in self.items:

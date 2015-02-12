@@ -42,6 +42,7 @@ ChainDictTemplate = {
     'groups'        : [],
     'EBstep'        : '',
     'chainParts'   : [],
+    'topoStartsFrom' : False,
 }
 
 
@@ -325,7 +326,7 @@ ElectronChainParts = {
     'signature'      : ['Electron'],
     'chainPartName'  : '',
     'L1item'         : '',
-    'extra'          : '',
+    'extra'          : 'ion',
     'multiplicity'   : '',    
     'trigType'       : ['e'],
     'threshold'      : '',
@@ -374,7 +375,7 @@ PhotonChainParts = {
     'multiplicity'   : '',    
     'trigType'       : ['g'],
     'threshold'      : '',
-    'extra'          : ['i', 'i5', 'i6', 'ns', 'Tvh'],
+    'extra'          : ['i', 'i5', 'i6', 'ns', 'Tvh', 'ion'],
     'IDinfo'         : [ 'loose', 'medium', 'tight', 'NoCut', 'nocut','loose1', 'medium1', 'tight1'],
     'isoInfo'        : '',
     'reccalibInfo'   : 'MSonly',
@@ -458,14 +459,14 @@ MinBiasChainParts = {
     'multiplicity'   : '',    
     'trigType'       : ['mb'],
     'threshold'      : '',
-    'extra'          : ['noisesup', ],
+    'extra'          : ['noisesup', 'ion',],
     'IDinfo'         : [],
     'trkInfo'        : ['hlttr', 'ftk', 'costr'],
     'hypoL2Info'     : ['sp1800', 'sp2000', 'sp2500', 'sp3000', ],
     'pileupInfo'     : ['pusup600', 'pusup700', 'pusup750', 'pusup800',],
     'hypoEFInfo'     : ['trk50', 'trk60', 'trk70', 'trk90', 'trk120',],
     'hypoEFsumEtInfo': ['sumet70', 'sumet110', 'sumet150',],
-    'recoAlg'        : ['mbts', 'sptrk', 'noalg', 'perf', 'hmt', 'hmtperf', 'idperf'],
+    'recoAlg'        : ['mbts', 'sptrk', 'sp', 'noalg', 'perf', 'hmt', 'hmtperf', 'idperf'],
     'addInfo'        : [ ],
     }
 # ---- MinBiasDictinary of default Values ----
@@ -543,9 +544,9 @@ StreamingChainParts = {
     'L1item'       : '',
     'threshold'      : '',
     'multiplicity'   : '',
-    'streamingInfo'  : ['bkg', 'idmon', 'mb', 'eb', 
+    'streamingInfo'  : ['bkg', 'idmon', 'mb', 'eb', 'zb',
                         'hltpassthrough', 'jettauetmiss',
-                        'cosmiccalo', 'cosmicmuons','idcosmic', 'dcmmon'],
+                        'cosmiccalo', 'cosmicmuons','idcosmic', 'dcmmon','zb'],
     'trigType'       : 'streamer', 
     'extra'          : '',
     'streamType'        : AllowedStreamingChainIdentifiers,
@@ -568,7 +569,14 @@ StreamingChainParts_Default = {
 #==========================================================
 # ---- CalibDef chains -----
 #==========================================================
-AllowedCalibChainIdentifiers = ['csccalib','larcalib', 'idcalib', 'l1calocalib', 'tilelarcalib','alfacalib','larnoiseburst']
+AllowedCalibChainIdentifiers = ['csccalib',
+                                'larcalib', 
+                                'idcalib', 
+                                'l1calocalib', 
+                                'tilelarcalib',
+                                'alfacalib',
+                                'larnoiseburst',
+                                'ibllumi', ]
 
 # ---- Calib Chain Dictinary of all allowed Values ----
 CalibChainParts = {
@@ -679,8 +687,6 @@ EnhancedBiasChainParts_Default = {
 # ---- BeamspotDef chains -----
 #==========================================================
 AllowedBeamspotChainIdentifiers = ['beamspot',]
-
-# ---- Beamspot Chain Dictinary of all allowed Values ----
 BeamspotChainParts = {
     'signature'      : ['Beamspot'],
     'chainPartName'  : '',
@@ -689,7 +695,7 @@ BeamspotChainParts = {
     'location'       : ['vtx'],
     'addInfo'        : ['trkFS', 'allTE', 'activeTE'],
     'hypo'           : [],
-    'l2IDAlg'        : ['L2StarB',],
+    'l2IDAlg'        : ['L2StarB','trkfast'],
     'threshold'      : '',
     'multiplicity'   : '',
     'trigType'       : 'beamspot',
@@ -703,9 +709,9 @@ BeamspotChainParts_Default = {
     'chainPartName'  : '',
     'L1item'       : '',
     'monType'        : [],
-    'addInfo'        : ['activeTE'],
+    'addInfo'        : [],
     'hypo'           : [],
-    'l2IDAlg'        : ['L2StarB'],
+    'l2IDAlg'        : [],
     'threshold'      : '',
     'multiplicity'   : '',
     'location'   : 'vtx',

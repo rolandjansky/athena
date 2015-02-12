@@ -8,7 +8,12 @@ import inspect
 class TestAlgFactory(unittest.TestCase):
 
     def setUp(self):
-        self.special_cases = ('jr_hypo_multi',)
+        self.special_cases = ('jr_hypo_multi',
+                              # follwoing 3 methods tested indirectly
+                              'dataScoutingAlg1',  
+                              'dataScoutingAlg2',
+                              'dataScouting_TrigHLTJetTLASelector',
+                          )
 
     def make_algfactory_singlejet(self):
 
@@ -61,39 +66,26 @@ class TestAlgFactory(unittest.TestCase):
             if name in self.special_cases:
                 continue
 
-            a = m()
-            self.assertTrue(a.__class__.__name__ == 'Alg')
+            algs = m()
+
+            for alg in algs:
+                self.assertTrue(alg.__class__.__name__ == 'Alg')
+                str(alg)
+                alg.asString()
+
 
     def test_1(self):
         "call special case factory methods"
 
         self.make_algfactory_multijet()
 
-        a = self.alg_factory.jr_hypo_multi()
-        self.assertTrue(a.__class__.__name__ == 'Alg')
+        algs = self.alg_factory.jr_hypo_multi()
+        for alg in algs:
+            self.assertTrue(alg.__class__.__name__ == 'Alg')
 
-        str(a)
-        a.asString()
+            str(alg)
+            alg.asString()
 
-    def test_2(self):
-        "call methods of "
-        self.make_algfactory_singlejet()
-
-        for name, m in inspect.getmembers(self.alg_factory,
-                                          predicate=inspect.ismethod):
-
-            if name.startswith ('__'):
-                continue
-
-            print 'running Algfactory methods', name
-
-            if name in self.special_cases:
-                continue
-
-            a = m()
-            str(a)
-            a.asString()
-            return
 
 if __name__ == '__main__':
     unittest.main()

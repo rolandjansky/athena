@@ -54,9 +54,9 @@ NIM2   : 12x1b MBTSSI [0..11]  - mapping 12-23 C-side
 
 CTPCORE-slot10
 --------------
+ALFA    : 64x1b ALFA mapping 0-63
 L1Topo0 : 64x1b TOPO mapping 0-63
 L1Topo1 : 64x1b TOPO mapping 64-127
-ALFA    : 64x1b ALFA mapping 0-63
 
 * Notes:
 - JET1: 8x3b will occupy all CTPIN LUTs, leaving only 2b per LUT.
@@ -199,7 +199,7 @@ class InputCable:
         #self.bitnum = Cabling.calcBitnum(self.thrtype)
         #if self.bitnum == 0:
         #    return;
-
+        
         # CTPIN
         if not self.isDirectIn:
 
@@ -237,12 +237,14 @@ class InputCable:
         else:
             # CTPCORE
             self.bitnum = 1
-            module = int(self.mapping) / 64
-            self.connector   = "CON%i" % module
             self.clock = (self.mapping % 64) / 32
             self.range_begin = self.mapping % 32
             self.range_end   = self.range_begin
-            #print "Connectpr ",self.connector,"  clock=",self.clock," range",self.range_begin," ",self.range_end
+            if self.thrtype=="ALFA":
+                self.connector = "CON0"
+            else:
+                module = int(self.mapping) / 64
+                self.connector = "CON%i" % (module+1)
 
 
 
