@@ -73,18 +73,19 @@ def TrigBjetMonitoringConfig():
 
 
 # Used for MC
-	HLTBjetMon.TriggerChainBjet      = ["HLT_j55_bperf"]
+#	HLTBjetMon.monitoring_bjet      = ["HLT_j55_bperf"]
+#	HLTBjetMon.TriggerChainBjet      = ["HLT_j55_bperf"]
 #	HLTBjetMon.TriggerChainBjet      = ["HLT_j55_bperf_EFID"]
-#	HLTBjetMon.TriggerChainBjet      = ["HLT_j0_bperf_EFID"]
-#	HLTBjetMon.TriggerChainBjet      = ["HLT_j0_bperf"]
+
 
 #  Used in cosmics
-#	HLTBjetMon.TriggerChainBjet      = ["HLT_j0_perf_bperf_L1RD0_EMPTY"]
-#	HLTBjetMon.TriggerChainBjet      = ["HLT_j0_perf_bperf_L1J12"]
-#	HLTBjetMon.TriggerChainBjet      = ["HLT_j0_perf_bperf_L1MU10"]
+#	HLTBjetMon.monitoring_bjet      = ["HLT_j0_perf_bperf_L1RD0_EMPTY"]
+	HLTBjetMon.monitoring_bjet      = ["HLT_j0_perf_bperf_L1J12"]
+#	HLTBjetMon.monitoring_bjet      = ["HLT_j0_perf_bperf_L1MU10"]
 
 #  Dummy to use the code
-	HLTBjetMon.TriggerChainMujet          = ["EF_mu4_L1J10_matched", "EF_mu4_L1J20_matched", "EF_mu4_L1J30_matched",
+#	HLTBjetMon.TriggerChainMujet          = ["EF_mu4_L1J10_matched", "EF_mu4_L1J20_matched", "EF_mu4_L1J30_matched",
+	HLTBjetMon.monitoring_mujet          = ["EF_mu4_L1J10_matched", "EF_mu4_L1J20_matched", "EF_mu4_L1J30_matched",
                                                  "EF_mu4_L1J50_matched", "EF_mu4_L1J75_matched", "EF_mu4_j10_a4tc_EFFS",
                                                  "EF_mu4_j135_a4tc_EFFS_L1matched", "EF_mu4_j180_a4tc_EFFS_L1matched"]
 	HLTBjetMon.TriggerChainMujet_phys       = ["EF_mu4T_j15_a4tchad_matched", "EF_mu4T_j25_a4tchad_matched"]
