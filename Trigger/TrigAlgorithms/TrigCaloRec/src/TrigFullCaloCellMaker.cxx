@@ -180,7 +180,7 @@ HLT::ErrorCode TrigFullCaloCellMaker::hltExecute( std::vector<std::vector<HLT::T
 
   // CACHING
    if (msgLvl() <= MSG::DEBUG)  
-      msg() << MSG::DEBUG << "Executing this EFMissingET " << name() << " in cached mode" << endreq;
+      msg() << MSG::DEBUG << "Executing TrigFullCaloCellMaker/" << name() << " in cached mode" << endreq;
 
   // get all input TEs (for seeding relation of navigation structure)
   HLT::TEVec allTEs;

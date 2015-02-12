@@ -22,6 +22,7 @@ use AthenaMonitoring	    AthenaMonitoring-*	 	 Control
 use TrigCaloEvent           TrigCaloEvent-*              Trigger/TrigEvent
 use CLIDSvc		    CLIDSvc-*			 Control
 use AthenaKernel            AthenaKernel-*               Control
+use AthenaBaseComps         AthenaBaseComps-*            Control
 use xAODCaloEvent           xAODCaloEvent-*              Event/xAOD
 use IRegionSelector         IRegionSelector-*            DetectorDescription
 # =====================================================================
