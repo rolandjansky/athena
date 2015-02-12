@@ -8,7 +8,7 @@
 #include "TrigT2CaloCommon/T2GeometryTool.h"
 
 T2GeometryTool::T2GeometryTool(const std::string &type, const std::string & name,
-                    const IInterface* parent) : AlgTool(type,name,parent)
+                    const IInterface* parent) : AthAlgTool(type,name,parent)
 {
 
   declareInterface<IT2GeometryTool>(this);
@@ -73,7 +73,7 @@ T2GeometryTool::~T2GeometryTool()
 StatusCode T2GeometryTool::initialize()
 {
 
-  m_log = new MsgStream(AlgTool::msgSvc(), name());
+  m_log = new MsgStream(AthAlgTool::msgSvc(), name());
 #ifndef NDEBUG
     (*m_log) << MSG::INFO << "in initialize() by T2GeometryTool" << endreq;
 #endif

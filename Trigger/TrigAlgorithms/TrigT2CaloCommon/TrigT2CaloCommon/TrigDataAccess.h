@@ -77,13 +77,13 @@ class ICaloLumiBCIDTool;
 
 /** Class that provides access to data for
     Calorimeter LVL2 Algorithms */
-class TrigDataAccess: virtual public ITrigDataAccess, public AlgTool,
+class TrigDataAccess: virtual public ITrigDataAccess, public AthAlgTool,
 		      virtual public IIncidentListener {
 public:
   /** Real Constructor */
   TrigDataAccess(const std::string & type, const std::string & name,
                  const IInterface* parent) 
-  : AlgTool(type,name,parent),
+  : AthAlgTool(type,name,parent),
     m_pRegionSelector("RegSelSvc/RegSelSvc","TrigDataAccess"),
     m_robDataProvider("ROBDataProviderSvc/ROBDataProviderSvc","TrigDataAccess"),
     m_lardecoder("LArRodDecoder/LArRodDecoder"),

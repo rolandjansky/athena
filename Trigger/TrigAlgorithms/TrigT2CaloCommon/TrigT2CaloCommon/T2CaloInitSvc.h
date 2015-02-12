@@ -16,10 +16,10 @@
  */
 
 #include <string>
-#include "GaudiKernel/Service.h"
+#include "AthenaBaseComps/AthService.h"
 #include "TrigT2CaloCommon/IT2CaloInitSvc.h"
 
-class T2CaloInitSvc : public Service,
+class T2CaloInitSvc : public AthService,
                  virtual public IT2CaloInitSvc
 {
     public:

@@ -20,7 +20,7 @@ using namespace std;
 //const ISvcFactory& T2CaloInitSvcFactory = s_factory; 
 
 T2CaloInitSvc::T2CaloInitSvc(const std::string& name,ISvcLocator* sl) :
-    Service(name,sl) 
+    AthService(name,sl) 
 {
 }
 
@@ -33,7 +33,7 @@ StatusCode T2CaloInitSvc::queryInterface(const InterfaceID& riid, void** ppvIF)
     } else { 
         MsgStream log(messageService(), name());
         log << MSG::DEBUG << name() << " cannot found the interface!" <<endreq;
-        return Service::queryInterface(riid, ppvIF); 
+        return AthService::queryInterface(riid, ppvIF); 
     }
     return StatusCode::SUCCESS;
 } 
@@ -45,7 +45,7 @@ StatusCode T2CaloInitSvc::initialize()
     MsgStream log(messageService(), name());
     log << MSG::DEBUG << name() << ": Start of run initialisation" << endreq;
 
-    sc = Service::initialize();
+    sc = AthService::initialize();
     if ( sc.isFailure() ) return sc;
     
     //ISvcLocator* svcLoc = Gaudi::svcLocator( );

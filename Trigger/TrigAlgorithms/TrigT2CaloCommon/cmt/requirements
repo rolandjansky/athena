@@ -8,9 +8,10 @@ author Pilar Casado <casado@ifae.es>
 public
 use AtlasPolicy         AtlasPolicy-*
 use GaudiInterface      GaudiInterface-*             External
-#use AtlasAIDA           AtlasAIDA-00-*               External
-#use AtlasCLHEP          AtlasCLHEP-*                 External
+#use AtlasAIDA          AtlasAIDA-00-*               External
+#use AtlasCLHEP         AtlasCLHEP-*                 External
 use AthenaKernel	AthenaKernel-*		     Control
+use AthenaBaseComps     AthenaBaseComps-*	     Control
 use DataCollection      DataCollection-*             External
 
 use StoreGate           StoreGate-*                  Control
