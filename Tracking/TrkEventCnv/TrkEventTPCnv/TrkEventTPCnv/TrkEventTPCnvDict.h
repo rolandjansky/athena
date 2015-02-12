@@ -12,15 +12,10 @@
 #include "TrkEventTPCnv/TrackCollection_tlp4.h"
 #include "TrkEventTPCnv/TrackCollection_tlp5.h"
 #include "TrkEventTPCnv/VxContainer_tlp1.h"
-#include "TrkEventTPCnv/VxContainerCnv_tlp1.h"
 #include "TrkEventTPCnv/VxContainer_tlp2.h"
-#include "TrkEventTPCnv/VxContainerCnv_tlp2.h"
 #include "TrkEventTPCnv/MVFVxContainer_tlp1.h"
-#include "TrkEventTPCnv/MVFVxContainerCnv_tlp1.h"
 #include "TrkEventTPCnv/V0Container_tlp1.h"
-#include "TrkEventTPCnv/V0ContainerCnv_tlp1.h"
 #include "TrkEventTPCnv/V0Container_tlp2.h"
-#include "TrkEventTPCnv/V0ContainerCnv_tlp2.h"
 #include "TrkEventTPCnv/SegmentCollection_tlp3.h"
 #include "TrkEventTPCnv/SegmentCollection_tlp2.h"
 #include "TrkEventTPCnv/SegmentCollection_tlp1.h"
@@ -238,11 +233,6 @@ struct TrackEventTPCnvDict
     std::vector< Trk::EstimatedBremOnTrack_p1 >         m_v49;
     std::vector< Trk::VertexOnTrack_p1 >                m_v50;
     std::vector< Trk::Track_p4 >                        m_v52;
-    
-    T_TPCnv<VxContainer,    Trk::VxContainer_tlp1 >        m_vxcnv;
-    T_TPCnv<VxContainer,    Trk::VxContainer_tlp2 >        m_vxcnv2;
-    T_TPCnv<MVFVxContainer, Trk::MVFVxContainer_tlp1 >     m_mvfvxcnv;
-    
 };
 
 #endif // TRKEVENTTPCNV_H
