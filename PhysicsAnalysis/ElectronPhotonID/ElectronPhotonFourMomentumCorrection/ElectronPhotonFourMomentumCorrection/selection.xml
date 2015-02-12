@@ -1,7 +1,8 @@
  <lcgdict>
 
    <class name="AtlasRoot::egammaEnergyCorrectionTool" />
-
+   <class name="CP::IEgammaCalibrationAndSmearingTool" /> 
+   
    <enum pattern="egammaEnergyCorrection::*"/>
    <variable pattern="egammaEnergyCorrection::*"/>
 

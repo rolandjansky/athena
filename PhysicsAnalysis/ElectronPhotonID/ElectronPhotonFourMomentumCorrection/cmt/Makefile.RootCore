@@ -3,7 +3,7 @@ PACKAGE_PRELOAD  = Hist Physics
 PACKAGE_CXXFLAGS = 
 PACKAGE_LDFLAGS  = 
 PACKAGE_BINFLAGS = 
-PACKAGE_DEP      = AsgTools PATCore egammaLayerRecalibTool egammaMVACalib PATInterfaces xAODEventInfo xAODEgamma
+PACKAGE_DEP      = AsgTools PATCore egammaLayerRecalibTool egammaMVACalib PATInterfaces xAODEventInfo xAODEgamma PathResolver
 PACKAGE_PEDANTIC = 1
 PACKAGE_REFLEX = 1
 

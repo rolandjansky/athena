@@ -59,8 +59,8 @@ StatusCode testAthenaEgammaCalibTool::execute()
   std::vector<CP::SystematicSet> sysList;
   // this is the nominal set
   sysList.push_back(CP::SystematicSet());
-   
-  std::cout << "SIZE of the systematics set:" << recommendedSystematics.size() << std::endl;
+
+  ATH_MSG_INFO("SIZE of the systematics set:" << recommendedSystematics.size()); 
    
   for(CP::SystematicSet::const_iterator sysItr = recommendedSystematics.begin();
       sysItr != recommendedSystematics.end(); ++sysItr)
@@ -78,17 +78,16 @@ StatusCode testAthenaEgammaCalibTool::execute()
   unsigned int i = 0;
   for (; el_it != el_it_last; ++el_it, ++i) {
     xAOD::Electron* el = *el_it;
-    std::cout << "Electron " << i << std::endl;
-    std::cout << "xAOD/raw pt = " << el->pt() << std::endl;
+    ATH_MSG_INFO("Electron " << i); 
+    ATH_MSG_INFO("xAOD/raw pt = " << el->pt()); 
     
-    if(!m_EgammaCalibrationAndSmearingTool->applyCorrection(*el, event_info)){
+    if(m_EgammaCalibrationAndSmearingTool->applyCorrection(*el) != CP::CorrectionCode::Ok){
       ATH_MSG_WARNING("Cannot calibrate electron");
     }
-    
-    std::cout << "Calibrated pt = " << el->pt() << std::endl;
+    ATH_MSG_INFO("Calibrated pt = " << el->pt()); 
     
     //systematics
-    std::cout << "=============SYSTEMATICS CHECK NOW" << std::endl;
+    ATH_MSG_INFO("=============SYSTEMATICS CHECK NOW"); 
     for (sysListItr = sysList.begin(); sysListItr != sysList.end(); ++sysListItr)
       {
 	// Tell the calibration tool which variation to apply
@@ -99,21 +98,21 @@ StatusCode testAthenaEgammaCalibTool::execute()
 	//For now remove by hand the photon ones
 	TString syst_name = TString(sysListItr->name());
 	if(!syst_name.BeginsWith("EL") && !syst_name.BeginsWith("EG")) continue;
-	//std::cout << "SYSTEMATIC: " << syst_name << std::endl;
            
-	if(m_EgammaCalibrationAndSmearingTool->applyCorrection(*el, event_info) != CP::CorrectionCode::Ok){ 
+	if(m_EgammaCalibrationAndSmearingTool->applyCorrection(*el) != CP::CorrectionCode::Ok){ 
 	  ATH_MSG_WARNING("Cannot calibrate electron"); 
 	}
-	std::cout << "Calibrated pt with systematic " << syst_name << " = " << el->pt() << std::endl;
+
+	ATH_MSG_INFO("Calibrated pt with systematic " << syst_name << " = " << el->pt()); 
       }
-    std::cout << "=============END SYSTEMATICS " << std::endl;
+	ATH_MSG_INFO("=============END SYSTEMATICS "); 
   }
   
   //test the correctedCopy method
   unsigned int j = 0; 
   for (; el_it != el_it_last; ++el_it, ++j) { 
-    xAOD::Egamma *copy_el = NULL; // new object 
-    if (m_EgammaCalibrationAndSmearingTool->correctedCopy( **el_it, copy_el, event_info) != CP::CorrectionCode::Ok){ 
+    xAOD::Electron *copy_el = NULL; // new object 
+    if (m_EgammaCalibrationAndSmearingTool->correctedCopy( **el_it, copy_el) != CP::CorrectionCode::Ok){ 
       ATH_MSG_WARNING("Could not apply correction to new electron object"); 
       continue; 
     }

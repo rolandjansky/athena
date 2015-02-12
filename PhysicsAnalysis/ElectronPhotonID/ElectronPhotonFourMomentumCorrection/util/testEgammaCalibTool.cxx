@@ -140,12 +140,10 @@ int main( int argc, char* argv[] ) {
        std::cout << "Electron " << i << std::endl; 
        std::cout << "xAOD/raw pt = " << el->pt() << std::endl; 
        
-       //configure the tool for the standard DATA/MC use
-       m_EgammaCalibrationAndSmearingTool->setDefaultConfiguration(event_info);
        //set seed for smearing 
        m_EgammaCalibrationAndSmearingTool->setRandomSeed(event_info->eventNumber()+100*i);
        
-       if(!m_EgammaCalibrationAndSmearingTool->applyCorrection(*el, event_info)){ 
+       if(!m_EgammaCalibrationAndSmearingTool->applyCorrection(*el)){ 
 	 Error(APP_NAME, "Cannot calibrate electron");
        } 
        std::cout << "Calibrated pt = " << el->pt() << std::endl; 
@@ -163,7 +161,7 @@ int main( int argc, char* argv[] ) {
 	   TString syst_name = TString(sysListItr->name()); 
 	   if(!syst_name.BeginsWith("EL") && !syst_name.BeginsWith("EG")) continue; 
 	   
-	   if(!m_EgammaCalibrationAndSmearingTool->applyCorrection(*el, event_info)){  
+	   if(!m_EgammaCalibrationAndSmearingTool->applyCorrection(*el)){  
 	     Error(APP_NAME, "Cannot calibrate electron");
 	   } 
 	   std::cout << "Calibrated pt with systematic " << syst_name << " = " << el->pt() << std::endl; 

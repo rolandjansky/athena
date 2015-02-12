@@ -49,6 +49,7 @@ namespace egEnergyCorr {
   
   // Resolution error variations
   namespace Resolution {
+
     enum Variation {
 
       // ZSmearing,SamplingTerm,Material,PileUp only implemented for mc12c...
@@ -88,11 +89,13 @@ namespace egEnergyCorr {
        // sigma_eff 90%
        SigmaEff90
     };
-  }
+
+  } // End: namespace Resolution
   
   
   // Scale error variations
   namespace Scale {
+
     enum Variation { 
       
       // Nothing to be done
@@ -111,7 +114,7 @@ namespace egEnergyCorr {
       // The following apply to electrons and photons
 
       // ... Zee scale uncertainty variations : Stat uncorrelated; Syst correlated vs eta
-      ZeeStatUp, ZeeStatDown, ZeeSystUp, ZeeSystDown, ZeeAllUp, ZeeAllDown,
+      ZeeStatUp, ZeeStatDown, ZeeSystUp, ZeeSystDown, ZeePhysUp, ZeePhysDown, ZeeAllUp, ZeeAllDown,
       
       // ... LAr systematics on scale and material determinations : correlated vs eta
       LArCalibUp, LArCalibDown, LArUnconvCalibUp, LArUnconvCalibDown, LArElecCalibUp, LArElecCalibDown, LArElecUnconvUp, LArElecUnconvDown, 
@@ -148,19 +151,32 @@ namespace egEnergyCorr {
       LastScaleVariation
 
     };
-  }
+
+  } // End: namespace Scale
   
   
   // ES model
 
   enum ESModel {
-    es2010,        // legacy
-    es2011c,       // mc11c : faulty G4; old geometry
-    es2011d,       // mc11d : corrected G4; new geometry == final Run1 scheme
-    es2012a,       // mc12a : "crude" G4 fix; old geometry
-    es2012c,       // mc12c : corrected G4; new geometry == final Run1 scheme
+
+    es2010,                 // legacy
+
+    es2011c,                // mc11c : faulty G4; old geometry
+
+    es2011d,                // mc11d : corrected G4; new geometry == final Run1 scheme
+    es2011dMedium,          // mc11d : ditto, medium electrons, |eta|<2.47
+    es2011dTight,           // mc11d : ditto, tight electrons, |eta|<2.47
+
+    es2012a,                // mc12a : "crude" G4 fix; old geometry
+
+    es2012c,                // mc12c : corrected G4; new geometry == final Run1 scheme
+    es2012cMedium,          // mc12c : ditto, medium electrons, |eta|<2.47
+    es2012cTight,           // mc12c : ditto, tight electrons, |eta|<2.47
+
     es2015_day0_3percent,   // temporary for day0 run2
+
     UNDEFINED
+
   };
   
   // Geometry dostortions
@@ -564,6 +580,7 @@ namespace AtlasRoot {
 
     TH1D*         m_zeeNom;
     TH1D*         m_zeeSyst;
+    TH1D*         m_zeePhys;
 
     TH1D*         m_resNom;
     TH1D*         m_resSyst;

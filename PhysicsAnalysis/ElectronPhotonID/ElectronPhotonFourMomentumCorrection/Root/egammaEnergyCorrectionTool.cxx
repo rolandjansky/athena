@@ -8,6 +8,7 @@
 ///
 
 #include <cassert>
+#include <exception>
 
 #include "ElectronPhotonFourMomentumCorrection/egammaEnergyCorrectionTool.h"
 #include "ElectronPhotonFourMomentumCorrection/GainTool.h"
@@ -19,9 +20,7 @@
 
 #include "egammaLayerRecalibTool/egammaLayerRecalibTool.h"
 
-#ifndef ROOTCORE
 #include "PathResolver/PathResolver.h"
-#endif
 
 
 namespace AtlasRoot {
@@ -34,11 +33,12 @@ namespace AtlasRoot {
   {
 
     m_rootFile = 0;
-#ifdef ROOTCORE
-    m_rootFileName = "$ROOTCOREBIN/data/ElectronPhotonFourMomentumCorrection/egammaEnergyCorrectionData.root";
-#else
-    m_rootFileName = PathResolver::find_file ("ElectronPhotonFourMomentumCorrection/egammaEnergyCorrectionData.root", "XMLPATH");
-#endif
+
+    m_rootFileName = PathResolverFindCalibFile("ElectronPhotonFourMomentumCorrection/v2/egammaEnergyCorrectionData.root");
+    //m_rootFileName = PathResolverFindCalibFile("dev/ElectronPhotonFourMomentumCorrection/egammaEnergyCorrectionData.root");
+    if (m_rootFileName.empty()) {
+      throw std::runtime_error("cannot find file");
+    }
 
     m_begRunNumber = 0;
     m_endRunNumber = 0;
@@ -51,6 +51,7 @@ namespace AtlasRoot {
     m_daS12Cor = 0;
     m_zeeNom = 0; 
     m_zeeSyst = 0;
+    m_zeePhys = 0;
 
     m_resNom = 0;
     m_resSyst = 0;
@@ -131,7 +132,6 @@ namespace AtlasRoot {
 
     m_initialized = false;
     m_debug = false;
-
   }
   
 
@@ -156,6 +156,7 @@ namespace AtlasRoot {
     if ( m_daS12Cor )                   delete m_daS12Cor;
     if ( m_zeeNom )                     delete m_zeeNom;
     if ( m_zeeSyst )                    delete m_zeeSyst;
+    if ( m_zeePhys )                    delete m_zeePhys;
     if ( m_resNom )                     delete m_resNom;
     if ( m_resSyst )                    delete m_resSyst;
     if ( m_peakResData )                delete m_peakResData;
@@ -269,7 +270,7 @@ namespace AtlasRoot {
     // mc11d : correct MSc in G4; new geometry
     // Final Run1 calibration scheme
 
-    } else if ( m_esmodel==egEnergyCorr::es2011d ) {
+    } else if ( m_esmodel==egEnergyCorr::es2011d || m_esmodel==egEnergyCorr::es2011dMedium || m_esmodel==egEnergyCorr::es2011dTight ) {
       
       m_aPSNom       = (TH1D*) m_rootFile->Get("Scales/es2011d/alphaPS_uncor");                 m_aPSNom->SetDirectory(0);
       m_daPSCor      = (TH1D*) m_rootFile->Get("Scales/es2011d/dalphaPS_cor");                  m_daPSCor->SetDirectory(0);
@@ -277,12 +278,31 @@ namespace AtlasRoot {
       m_daS12Cor     = (TH1D*) m_rootFile->Get("Scales/es2011d/dalphaS12_cor");                 m_daS12Cor->SetDirectory(0);
 
       m_trkSyst      = (TH1D*) m_rootFile->Get("Scales/es2011d/momentum_errSyst");              m_trkSyst->SetDirectory(0);
+      
+      if( m_esmodel==egEnergyCorr::es2011d ) {
 
-      m_zeeNom       = (TH1D*) m_rootFile->Get("Scales/es2011d/alphaZee_errStat");              m_zeeNom->SetDirectory(0);      	
-      m_zeeSyst      = (TH1D*) m_rootFile->Get("Scales/es2011d/alphaZee_errSyst");              m_zeeSyst->SetDirectory(0);
+	m_zeeNom       = (TH1D*) m_rootFile->Get("Scales/es2011d/alphaZee_errStat");              m_zeeNom->SetDirectory(0);      	
+	m_zeeSyst      = (TH1D*) m_rootFile->Get("Scales/es2011d/alphaZee_errSyst");              m_zeeSyst->SetDirectory(0);
+	m_resNom       = (TH1D*) m_rootFile->Get("Resolution/es2011d/ctZee_errStat");             m_resNom->SetDirectory(0); 
+	m_resSyst      = (TH1D*) m_rootFile->Get("Resolution/es2011d/ctZee_errSyst");             m_resSyst->SetDirectory(0);
 
-      m_resNom       = (TH1D*) m_rootFile->Get("Resolution/es2011d/ctZee_errStat");             m_resNom->SetDirectory(0); 
-      m_resSyst      = (TH1D*) m_rootFile->Get("Resolution/es2011d/ctZee_errSyst");             m_resSyst->SetDirectory(0);
+      } else if( m_esmodel==egEnergyCorr::es2011dMedium ) {
+
+	m_zeeNom       = (TH1D*) m_rootFile->Get("Scales/es2011dMedium/alphaZee_errStat");        m_zeeNom->SetDirectory(0);      	
+	m_zeeSyst      = (TH1D*) m_rootFile->Get("Scales/es2011dMedium/alphaZee_errSyst");        m_zeeSyst->SetDirectory(0);
+	m_zeePhys      = (TH1D*) m_rootFile->Get("Scales/es2011dMedium/alphaZee_errPhys");        m_zeePhys->SetDirectory(0);
+	m_resNom       = (TH1D*) m_rootFile->Get("Resolution/es2011dMedium/ctZee_errStat");       m_resNom->SetDirectory(0); 
+	m_resSyst      = (TH1D*) m_rootFile->Get("Resolution/es2011dMedium/ctZee_errSyst");       m_resSyst->SetDirectory(0);
+
+      } else if( m_esmodel==egEnergyCorr::es2011dTight ) {
+
+	m_zeeNom       = (TH1D*) m_rootFile->Get("Scales/es2011dTight/alphaZee_errStat");         m_zeeNom->SetDirectory(0);      	
+	m_zeeSyst      = (TH1D*) m_rootFile->Get("Scales/es2011dTight/alphaZee_errSyst");         m_zeeSyst->SetDirectory(0);
+	m_zeePhys      = (TH1D*) m_rootFile->Get("Scales/es2011dTight/alphaZee_errPhys");         m_zeePhys->SetDirectory(0);
+	m_resNom       = (TH1D*) m_rootFile->Get("Resolution/es2011dTight/ctZee_errStat");        m_resNom->SetDirectory(0); 
+	m_resSyst      = (TH1D*) m_rootFile->Get("Resolution/es2011dTight/ctZee_errSyst");        m_resSyst->SetDirectory(0);
+
+      }
 
       m_pedestalL0   = (TH1D*) m_rootFile->Get("Pedestals/es2011d/pedestals_l0");               m_pedestalL0->SetDirectory(0);
       m_pedestalL1   = (TH1D*) m_rootFile->Get("Pedestals/es2011d/pedestals_l1");               m_pedestalL1->SetDirectory(0);
@@ -400,9 +420,9 @@ namespace AtlasRoot {
 
       m_begRunNumber = 195847;
       m_endRunNumber = 219365;
-      
+
       m_layer_recalibration_tool = new egammaLayerRecalibTool("2012_alt_with_layer2");
-      
+
       m_use_layer_correction = true;
       m_use_MVA_calibration = true;
       m_use_gain_correction = true;
@@ -425,15 +445,15 @@ namespace AtlasRoot {
       
     } else if ( m_esmodel==egEnergyCorr::es2015_day0_3percent ) {
 
-			m_aPSNom       = (TH1D*) m_rootFile->Get("Scales/es2015_day0/alphaPS_uncor");                 m_aPSNom->SetDirectory(0);         // old one
-      m_daPSCor      = (TH1D*) m_rootFile->Get("Scales/es2015_day0/dalphaPS_cor");                  m_daPSCor->SetDirectory(0);        // old one
-      m_aS12Nom      = (TH1D*) m_rootFile->Get("Scales/es2015_day0/alphaS12_uncor");                m_aS12Nom->SetDirectory(0);        // old one
-      m_daS12Cor     = (TH1D*) m_rootFile->Get("Scales/es2015_day0/dalphaS12_cor");                 m_daS12Cor->SetDirectory(0);       // old one
+      m_aPSNom       = (TH1D*) m_rootFile->Get("Scales/es2015_day0/alphaPS_uncor");             m_aPSNom->SetDirectory(0);         // old one
+      m_daPSCor      = (TH1D*) m_rootFile->Get("Scales/es2015_day0/dalphaPS_cor");              m_daPSCor->SetDirectory(0);        // old one
+      m_aS12Nom      = (TH1D*) m_rootFile->Get("Scales/es2015_day0/alphaS12_uncor");            m_aS12Nom->SetDirectory(0);        // old one
+      m_daS12Cor     = (TH1D*) m_rootFile->Get("Scales/es2015_day0/dalphaS12_cor");             m_daS12Cor->SetDirectory(0);       // old one
 
-      m_trkSyst      = (TH1D*) m_rootFile->Get("Scales/es2015_day0/momentum_errSyst");              m_trkSyst->SetDirectory(0);        // old one
+      m_trkSyst      = (TH1D*) m_rootFile->Get("Scales/es2015_day0/momentum_errSyst");          m_trkSyst->SetDirectory(0);        // old one
       
-      m_zeeNom       = (TH1D*) m_rootFile->Get("Scales/es2015_day0/alphaZee_errStat");              m_zeeNom->SetDirectory(0);      	 // old one
-      m_zeeSyst      = (TH1D*) m_rootFile->Get("Scales/es2015_day0/alphaZee_errSyst");              m_zeeSyst->SetDirectory(0);        // old one
+      m_zeeNom       = (TH1D*) m_rootFile->Get("Scales/es2015_day0/alphaZee_errStat");          m_zeeNom->SetDirectory(0);         // old one
+      m_zeeSyst      = (TH1D*) m_rootFile->Get("Scales/es2015_day0/alphaZee_errSyst");          m_zeeSyst->SetDirectory(0);        // old one
 
       m_resNom       = (TH1D*) m_rootFile->Get("Resolution/es2012c/ctZee_errStat");             m_resNom->SetDirectory(0);         // old one
       m_resSyst      = (TH1D*) m_rootFile->Get("Resolution/es2012c/ctZee_errSyst");             m_resSyst->SetDirectory(0);        // old one
@@ -1526,17 +1546,24 @@ namespace AtlasRoot {
     //sig2 += pow(dataConstantTerm( cl_eta ), 2);
     
     double sig2 =0;
-    if ( m_esmodel==egEnergyCorr::es2012c || m_esmodel==egEnergyCorr::es2011d ){
+
+    if ( m_esmodel==egEnergyCorr::es2012c || m_esmodel==egEnergyCorr::es2012cMedium || m_esmodel==egEnergyCorr::es2012cTight || 
+	 m_esmodel==egEnergyCorr::es2011d || m_esmodel==egEnergyCorr::es2011dMedium || m_esmodel==egEnergyCorr::es2011dTight ) {
+
       sig2=pow(m_resolution_tool->getResolution(eg_resolution_ptype, energy, cl_eta, resType), 2);
       double et = energy/cosh(cl_eta);
       sig2 += pow(pileUpTerm(cl_eta,eg_resolution_ptype)/et,2);
-    } else {
+
+    } else { // OLD model
+
       double energyGeV = energy/GeV;
       double a = mcSamplingTerm( cl_eta );
       double b = mcNoiseTerm( cl_eta );
       double c = mcConstantTerm( cl_eta );
       sig2 = a*a/energyGeV + b*b/energyGeV/energyGeV + c*c;
+
     }
+
     if( withCT )
       sig2 += pow(dataConstantTerm( cl_eta ), 2);
     
@@ -1597,7 +1624,8 @@ namespace AtlasRoot {
     resMC   = resolution( energy, eta, ptype, false ,resType);
     resData = resolution( energy, eta, ptype, true  ,resType);
 
-    if ( m_esmodel==egEnergyCorr::es2012c || m_esmodel==egEnergyCorr::es2011d ) {
+    if ( m_esmodel==egEnergyCorr::es2012c || m_esmodel==egEnergyCorr::es2012cMedium || m_esmodel==egEnergyCorr::es2012cTight || 
+	 m_esmodel==egEnergyCorr::es2011d || m_esmodel==egEnergyCorr::es2011dMedium || m_esmodel==egEnergyCorr::es2011dTight ) {
 
        resData *= 1 + getResolutionError(energy,eta,ptype,value,resType);
 
@@ -1705,6 +1733,7 @@ namespace AtlasRoot {
     int ieta = m_zeeNom->GetXaxis()->FindBin( cl_eta );
     double value = m_zeeNom->GetBinContent(ieta);
     
+
     if( var==egEnergyCorr::Scale::ZeeStatUp ) 
       
       value += m_zeeNom->GetBinError(ieta) * varSF;
@@ -1712,6 +1741,7 @@ namespace AtlasRoot {
     else if( var==egEnergyCorr::Scale::ZeeStatDown )
 
       value -= m_zeeNom->GetBinError(ieta) * varSF;
+
 
     else if( var==egEnergyCorr::Scale::ZeeSystUp && m_zeeSyst ) {
 
@@ -1729,31 +1759,54 @@ namespace AtlasRoot {
       if( m_debug )
         std::cout << "  ZeeSystDown : " << m_zeeSyst->GetBinContent(ieta) << std::endl;
     
+
+    } else if( var==egEnergyCorr::Scale::ZeePhysUp && m_zeePhys ) {
+      
+      ieta = m_zeePhys->GetXaxis()->FindBin( cl_eta );
+      value += m_zeePhys->GetBinContent(ieta) * varSF;
+      
+      if( m_debug )
+        std::cout << "  ZeePhysUp : " << m_zeePhys->GetBinContent(ieta) << std::endl;
+
+    } else if( var==egEnergyCorr::Scale::ZeePhysDown && m_zeePhys ) {
+
+      ieta = m_zeePhys->GetXaxis()->FindBin( cl_eta );
+      value -= m_zeePhys->GetBinContent(ieta) * varSF;
+
+      if( m_debug )
+        std::cout << "  ZeePhysDown : " << m_zeePhys->GetBinContent(ieta) << std::endl;
+      
+      
     } else if( var==egEnergyCorr::Scale::ZeeAllDown || var==egEnergyCorr::Scale::ZeeAllUp ) {
       
       ieta = m_zeeNom->GetXaxis()->FindBin( cl_eta );
       double diff = pow(m_zeeNom->GetBinError(ieta) * varSF, 2);
-
+      
       if( m_zeeSyst ) {
         ieta = m_zeeSyst->GetXaxis()->FindBin( cl_eta );
         diff += pow(m_zeeSyst->GetBinContent(ieta) * varSF, 2);
       }
 
+      if( m_zeePhys ) {
+        ieta = m_zeePhys->GetXaxis()->FindBin( cl_eta );
+        diff += pow(m_zeePhys->GetBinContent(ieta) * varSF, 2);
+      }
+      
       if( var==egEnergyCorr::Scale::ZeeAllUp )
         value += sqrt(diff);
       else if( var==egEnergyCorr::Scale::ZeeAllDown )
         value -= sqrt(diff);
-
+      
     }
-
+    
     return value;
-
+    
   }
-
-
+  
+  
   // Layer scale uncertainties and induced non-linearity
   //////////////////////////////////////////////////////
-    
+  
   double egammaEnergyCorrectionTool::getLayerUncertainty( int iLayer, 
 							  double cl_eta, 
 							  egEnergyCorr::Scale::Variation var,
@@ -2689,6 +2742,12 @@ namespace AtlasRoot {
     case egEnergyCorr::Scale::ZeeSystDown:
       name = "ZeeSystDown";
       break;
+    case egEnergyCorr::Scale::ZeePhysUp:
+      name = "ZeeSystUp";
+      break;
+    case egEnergyCorr::Scale::ZeePhysDown:
+      name = "ZeeSystDown";
+      break;
     case egEnergyCorr::Scale::ZeeAllUp:
       name = "ZeeAllUp";
       break;
@@ -2902,6 +2961,8 @@ namespace AtlasRoot {
     else if( var == "ZeeStatDown" )            TheVar = egEnergyCorr::Scale::ZeeStatDown;
     else if( var == "ZeeSystUp" )              TheVar = egEnergyCorr::Scale::ZeeSystUp;
     else if( var == "ZeeSystDown" )            TheVar = egEnergyCorr::Scale::ZeeSystDown;
+    else if( var == "ZeePhysUp" )              TheVar = egEnergyCorr::Scale::ZeePhysUp;
+    else if( var == "ZeePhysDown" )            TheVar = egEnergyCorr::Scale::ZeePhysDown;
     else if( var == "ZeeAllUp" )               TheVar = egEnergyCorr::Scale::ZeeAllUp;
     else if( var == "ZeeAllDown" )             TheVar = egEnergyCorr::Scale::ZeeAllDown;
     else if( var == "LArCalibUp" )             TheVar = egEnergyCorr::Scale::LArCalibUp;
