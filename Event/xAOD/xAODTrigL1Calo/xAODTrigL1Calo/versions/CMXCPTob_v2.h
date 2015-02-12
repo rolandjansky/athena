@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CMXCPTob_v2.h 642659 2015-01-29 12:41:06Z morrisj $
+// $Id: CMXCPTob_v2.h 646335 2015-02-12 01:16:10Z morrisj $
 #ifndef XAODTRIGL1CALO_VERSIONS_CMXCPTOB_V2_H
 #define XAODTRIGL1CALO_VERSIONS_CMXCPTOB_V2_H
 
@@ -21,53 +21,59 @@ namespace xAOD{
   ///
   /// @author John Morris <john.morris@cern.ch>
   ///
-  /// $Revision: 642659 $
-  /// $Date: 2015-01-29 13:41:06 +0100 (Thu, 29 Jan 2015) $
+  /// $Revision: 646335 $
+  /// $Date: 2015-02-12 02:16:10 +0100 (Thu, 12 Feb 2015) $
 
   class CMXCPTob_v2 : public SG::AuxElement {
     public:
       /// Default constructor
       CMXCPTob_v2();
-      /// Alternative constructor
-      CMXCPTob_v2(const int crate,const int cmx,const int cpm,const int chip,const int loc);
-      /// Alternative constructor
-      CMXCPTob_v2(const int crate,const int cmx,const int cpm,const int chip,const int loc,
-                  const std::vector<int>& energyVec,
-                  const std::vector<int>& isolationVec,
-                  const std::vector<int>& errorVec,
-                  const std::vector<unsigned int>& presenceMapVec,
-                  const uint_least8_t peak);
+      /// Default desturctor
+      virtual ~CMXCPTob_v2(){}      
+      
+      /// initialize     
+      virtual void initialize(const uint_least8_t crate,const uint_least8_t cmx,
+                              const uint_least8_t cpm,const uint_least8_t chip,const uint_least8_t loc);
+      
+      /// initialize
+      virtual void initialize(const uint_least8_t crate,const uint_least8_t cmx,
+                              const uint_least8_t cpm,const uint_least8_t chip,const uint_least8_t loc,
+                              const std::vector<uint_least8_t>& energyVec,
+                              const std::vector<uint_least8_t>& isolationVec,
+                              const std::vector<uint_least8_t>& errorVec,
+                              const std::vector<uint_least16_t>& presenceMapVec,
+                              const uint_least8_t peak);
       
       /// add data to existing object
-      void addTob(const std::vector<int>& energyVec,
-                  const std::vector<int>& isolationVec,
-                  const std::vector<int>& errorVec,
-                  const std::vector<unsigned int>& presenceMapVec);
+      void addTob(const std::vector<uint_least8_t>& energyVec,
+                  const std::vector<uint_least8_t>& isolationVec,
+                  const std::vector<uint_least8_t>& errorVec,
+                  const std::vector<uint_least16_t>& presenceMapVec);
 
       /// get crate
-      int crate() const;
+      uint_least8_t crate() const;
       /// set crate
-      void setCrate(int);
+      void setCrate(uint_least8_t);
 
       /// get cmx
-      int cmx() const;
+      uint_least8_t cmx() const;
       /// set cmx
-      void setCmx(int);
+      void setCmx(uint_least8_t);
 
       /// get cpm
-      int cpm() const;
+      uint_least8_t cpm() const;
       /// set cpm
-      void setCpm(int);
+      void setCpm(uint_least8_t);
 
       /// get chip
-      int chip() const;
+      uint_least8_t chip() const;
       /// set chip
-      void setChip(int);
+      void setChip(uint_least8_t);
 
       /// get location
-      int location() const;
+      uint_least8_t location() const;
       /// set location
-      void setLocation(int);
+      void setLocation(uint_least8_t);
 
       /// get peak
       uint_least8_t peak() const;
@@ -75,40 +81,40 @@ namespace xAOD{
       void setPeak(uint_least8_t);
 
       /// get energyVec
-      const std::vector<int>& energyVec() const;
+      const std::vector<uint_least8_t>& energyVec() const;
       /// set energyVec
-      void setEnergyVec(const std::vector<int>&);
+      void setEnergyVec(const std::vector<uint_least8_t>&);
 
       /// get isolationVec
-      const std::vector<int>& isolationVec() const;
+      const std::vector<uint_least8_t>& isolationVec() const;
       /// set isolationVec
-      void setIsolationVec(const std::vector<int>&);
+      void setIsolationVec(const std::vector<uint_least8_t>&);
 
       /// get errorVec
-      const std::vector<int>& errorVec() const;
+      const std::vector<uint_least8_t>& errorVec() const;
       /// set errorVec
-      void setErrorVec(const std::vector<int>&);
+      void setErrorVec(const std::vector<uint_least8_t>&);
 
       /// get presenceMapVec
-      const std::vector<unsigned int>& presenceMapVec() const;
+      const std::vector<uint_least16_t>& presenceMapVec() const;
       /// set presenceMapVec
-      void setPresenceMapVec(const std::vector<unsigned int>&);
+      void setPresenceMapVec(const std::vector<uint_least16_t>&);
 
       /// Peak functions - return value of peak bunch crossing
       /// Assuming we have got the timing calibration correct,
       /// This is the bunch crossing containing the collision
 
       /// get energyVec at peak bunch crossing
-      int energy() const;
+      uint_least8_t energy() const;
 
       /// get isolationVec at peak bunch crossing
-      int isolation() const;
+      uint_least8_t isolation() const;
 
       /// get errorVec at peak bunch crossing
-      int error() const;
+      uint_least8_t error() const;
 
       /// get presenceMapVec at peak bunch crossing
-      unsigned int presenceMap() const;
+      uint_least16_t presenceMap() const;
 
   }; // class CMXCPTob_v2
 } // namespace xAOD

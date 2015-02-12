@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JetElement_v2.cxx 642659 2015-01-29 12:41:06Z morrisj $
+// $Id: JetElement_v2.cxx 646335 2015-02-12 01:16:10Z morrisj $
 
 // System include(s):
 #include <cmath>
@@ -20,125 +20,46 @@ namespace xAOD{
   {        
   }
   
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( JetElement_v2 , float , phi , setPhi )
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( JetElement_v2 , float , eta , setEta )
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( JetElement_v2 , unsigned int , key , setKey )  
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( JetElement_v2 , uint_least8_t , peak , setPeak )
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<int> , emEnergyVec , setEmEnergyVec )  
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<int> , hadEnergyVec , setHadEnergyVec )
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<int> , emErrorVec , setEmErrorVec )  
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<int> , hadErrorVec , setHadErrorVec )
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<int> , linkErrorVec , setLinkErrorVec )    
- 
-  void JetElement_v2::addEnergy(int emEnergyIn, int hadEnergyIn)
-  {
-    /// EM Section
-    
-    /// Calclate the modified energy
-    /// if it is above saturation threshold, set it to the saturation threshold
-    int modifiedEmEnergy = emEnergy() + emEnergyIn;
-    if( modifiedEmEnergy > m_layerSaturationThreshold ){
-      modifiedEmEnergy = m_layerSaturationThreshold;
-    }
-    
-    // copy (I don't like this) the current Aux const data member vector to a non-const stack vector
-    // modify the content of the stack vector and set it as the Aux data member
-    std::vector<int> modifiedEmEnergyVec;
-    const std::vector<int> currentEmEnergyVec = emEnergyVec();
-    for(std::vector<int>::const_iterator i=currentEmEnergyVec.begin();i!=currentEmEnergyVec.end();++i){
-      modifiedEmEnergyVec.push_back( (*i) );
-    }
-    modifiedEmEnergyVec[ peak() ] = modifiedEmEnergy;
-    setEmEnergyVec( modifiedEmEnergyVec );
-    
-    
-    /// Had Section
-    
-    /// Calclate the modified energy
-    /// if it is above saturation threshold, set it to the saturation threshold
-    int modifiedHadEnergy = hadEnergy() + hadEnergyIn;
-    if( modifiedHadEnergy > m_layerSaturationThreshold ){
-      modifiedEmEnergy = m_layerSaturationThreshold;
-    }
-    
-    // copy (I don't like this) the current Aux const data member vector to a non-const stack vector
-    // modify the content of the stack vector and set it as the Aux data member
-    std::vector<int> modifiedHadEnergyVec;
-    const std::vector<int> currentHadEnergyVec = hadEnergyVec();
-    for(std::vector<int>::const_iterator i=currentHadEnergyVec.begin();i!=currentHadEnergyVec.end();++i){
-      modifiedHadEnergyVec.push_back( (*i) );
-    }
-    modifiedHadEnergyVec[ peak() ] = modifiedHadEnergy;
-    setHadEnergyVec( modifiedHadEnergyVec );    
-    
-    
+  /// initialize
+  void JetElement_v2::initialize(const float eta,const float phi,const unsigned int key)
+  {     
+    setEta( eta );
+    setPhi( phi );
+    setKey( key );
   }
   
-
-  void JetElement_v2::addSlice(int slice, int emEnergyIn, int hadEnergyIn,int emErrorIn, int hadErrorIn, int linkErrorIn)
-  {
-    /// This functions works just like addEnergy, it's just got more in it
-
-    // EM Energy
-    int modifiedEmEnergy = emSliceEnergy( slice ) + emEnergyIn;
-    if( modifiedEmEnergy > m_layerSaturationThreshold ){
-      modifiedEmEnergy = m_layerSaturationThreshold;
-    }   
-    std::vector<int> modifiedEmEnergyVec;
-    const std::vector<int> currentEmEnergyVec = emEnergyVec();
-    for(std::vector<int>::const_iterator i=currentEmEnergyVec.begin();i!=currentEmEnergyVec.end();++i){
-      modifiedEmEnergyVec.push_back( (*i) );
-    }
-    modifiedEmEnergyVec[ slice ] = modifiedEmEnergy;
-    setEmEnergyVec( modifiedEmEnergyVec ); 
-    
-    // Had Energy
-    int modifiedHadEnergy = hadSliceEnergy( slice ) + hadEnergyIn;
-    if( modifiedHadEnergy > m_layerSaturationThreshold ){
-      modifiedEmEnergy = m_layerSaturationThreshold;
-    }
-    std::vector<int> modifiedHadEnergyVec;
-    const std::vector<int> currentHadEnergyVec = hadEnergyVec();
-    for(std::vector<int>::const_iterator i=currentHadEnergyVec.begin();i!=currentHadEnergyVec.end();++i){
-      modifiedHadEnergyVec.push_back( (*i) );
-    }
-    modifiedHadEnergyVec[ slice ] = modifiedHadEnergy;
-    setHadEnergyVec( modifiedHadEnergyVec );      
-    
-    // EM Error
-    int modifiedEmError = emErrorVec()[ slice ] + emErrorIn;
-    std::vector<int> modifiedEmErrorVec;
-    const std::vector<int> currentEmErrorVec = emErrorVec();
-    for(std::vector<int>::const_iterator i=currentEmErrorVec.begin();i!=currentEmErrorVec.end();++i){
-      modifiedEmErrorVec.push_back( (*i) );
-    }
-    modifiedEmErrorVec[ slice ] = modifiedEmError;
-    setEmErrorVec( modifiedEmErrorVec );  
-    
-    // Had Error
-    int modifiedHadError = hadErrorVec()[ slice ] + hadErrorIn;
-    std::vector<int> modifiedHadErrorVec;
-    const std::vector<int> currentHadErrorVec = hadErrorVec();
-    for(std::vector<int>::const_iterator i=currentHadErrorVec.begin();i!=currentHadErrorVec.end();++i){
-      modifiedHadErrorVec.push_back( (*i) );
-    }
-    modifiedHadErrorVec[ slice ] = modifiedHadError;
-    setHadErrorVec( modifiedHadErrorVec );   
-    
-    // Link Error
-    int modifiedLinkError = linkErrorVec()[ slice ] + linkErrorIn;
-    std::vector<int> modifiedLinkErrorVec;
-    const std::vector<int> currentLinkErrorVec = linkErrorVec();
-    for(std::vector<int>::const_iterator i=currentLinkErrorVec.begin();i!=currentLinkErrorVec.end();++i){
-      modifiedLinkErrorVec.push_back( (*i) );
-    }
-    modifiedLinkErrorVec[ slice ] = modifiedLinkError;
-    setLinkErrorVec( modifiedLinkErrorVec );      
-    
-    
+  /// initialize
+  void JetElement_v2::initialize(const float eta,const float phi,const unsigned int key,
+                                 const std::vector<uint_least16_t>& emEnergyVec,
+                                 const std::vector<uint_least16_t>& hadEnergyVec,
+                                 const std::vector<uint_least8_t>& emErrorVec,
+                                 const std::vector<uint_least8_t>& hadErrorVec,
+                                 const std::vector<uint_least8_t>& linkErrorVec,
+                                 const uint_least8_t peak)
+  {  
+    setEta( eta );
+    setPhi( phi );
+    setKey( key );
+    setEmEnergyVec( emEnergyVec );
+    setHadEnergyVec( hadEnergyVec );
+    setEmErrorVec( emErrorVec );
+    setHadErrorVec( hadErrorVec );
+    setLinkErrorVec( linkErrorVec );
+    setPeak( peak );
   }
+  
+  
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( JetElement_v2 , float , eta , setEta )
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( JetElement_v2 , float , phi , setPhi )  
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( JetElement_v2 , unsigned int , key , setKey )  
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( JetElement_v2 , uint_least8_t , peak , setPeak )
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<uint_least16_t> , emEnergyVec , setEmEnergyVec )  
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<uint_least16_t> , hadEnergyVec , setHadEnergyVec )
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<uint_least8_t> , emErrorVec , setEmErrorVec )  
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<uint_least8_t> , hadErrorVec , setHadErrorVec )
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( JetElement_v2 , std::vector<uint_least8_t> , linkErrorVec , setLinkErrorVec )    
 
-  int JetElement_v2::emEnergy()  const
+  unsigned int JetElement_v2::emEnergy()  const
   {
     if( emEnergyVec()[ peak() ] < m_layerSaturationThreshold) {
       return emEnergyVec()[ peak() ];
@@ -146,7 +67,7 @@ namespace xAOD{
     return m_layerSaturationThreshold;    
   }
   
-  int JetElement_v2::hadEnergy() const
+  unsigned int JetElement_v2::hadEnergy() const
   {
     if( hadEnergyVec()[ peak() ] < m_layerSaturationThreshold) {
       return hadEnergyVec()[ peak() ];
@@ -154,7 +75,7 @@ namespace xAOD{
     return m_layerSaturationThreshold;      
   }
   
-  int JetElement_v2::energy()    const
+  unsigned int JetElement_v2::energy()    const
   {
     
     if( ( emEnergy()  >= m_layerSaturationThreshold ) ||
@@ -162,12 +83,12 @@ namespace xAOD{
         ( ( emEnergy() + hadEnergy() ) >= m_saturationThreshold ) ){
           return m_saturationThreshold;
     }
-    return emEnergy() + hadEnergy();  
+    return emEnergy() + hadEnergy();
   }
 
-  int JetElement_v2::emSliceEnergy(int slice) const
+  unsigned int JetElement_v2::emSliceEnergy(unsigned int slice) const
   {
-    if( slice >= 0 && slice < (int)emEnergyVec().size() ) {
+    if( slice < emEnergyVec().size() ) {
       if( emEnergyVec()[ slice ] < m_layerSaturationThreshold ) {
         return emEnergyVec()[ slice ];
       }
@@ -176,9 +97,9 @@ namespace xAOD{
     return 0;    
   }
   
-  int JetElement_v2::hadSliceEnergy(int slice) const
+  unsigned int JetElement_v2::hadSliceEnergy(unsigned int slice) const
   {
-    if( slice >= 0 && slice < (int)hadEnergyVec().size() ) {
+    if( slice < hadEnergyVec().size() ) {
       if( hadEnergyVec()[ slice ] < m_layerSaturationThreshold ) {
         return hadEnergyVec()[ slice ];
       }
@@ -187,7 +108,7 @@ namespace xAOD{
     return 0;     
   }
   
-  int JetElement_v2::sliceEnergy(int slice) const
+  unsigned int JetElement_v2::sliceEnergy(unsigned int slice) const
   {
     if( ( emSliceEnergy(slice)  >= m_layerSaturationThreshold ) ||
         ( hadSliceEnergy(slice) >= m_layerSaturationThreshold ) ||
@@ -222,17 +143,17 @@ namespace xAOD{
     return false;    
   }
   
-  int JetElement_v2::emError()   const
+  uint_least8_t JetElement_v2::emError()   const
   {
     return emErrorVec()[ peak() ];
   }
   
-  int JetElement_v2::hadError()  const
+  uint_least8_t JetElement_v2::hadError()  const
   {
     return hadErrorVec()[ peak() ];
   }
   
-  int JetElement_v2::linkError() const
+  uint_least8_t JetElement_v2::linkError() const
   {
     return linkErrorVec()[ peak() ];
   }

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CMXJetHits_v2.h 642659 2015-01-29 12:41:06Z morrisj $
+// $Id: CMXJetHits_v2.h 646335 2015-02-12 01:16:10Z morrisj $
 #ifndef XAODTRIGL1CALO_VERSIONS_CMXJETHITS_V2_H
 #define XAODTRIGL1CALO_VERSIONS_CMXJETHITS_V2_H
 
@@ -12,6 +12,8 @@
 #include "AthLinks/ElementLink.h"
 #include "AthContainers/AuxElement.h"
 
+// STL include(s):
+#include <vector>
 // System include(s):
 #include <stdint.h>
 
@@ -21,38 +23,42 @@ namespace xAOD{
   ///
   /// @author John Morris <john.morris@cern.ch>
   ///
-  /// $Revision: 642659 $
-  /// $Date: 2015-01-29 13:41:06 +0100 (Thu, 29 Jan 2015) $
+  /// $Revision: 646335 $
+  /// $Date: 2015-02-12 02:16:10 +0100 (Thu, 12 Feb 2015) $
 
   class CMXJetHits_v2 : public SG::AuxElement {
     public:
       /// Default constructor
       CMXJetHits_v2();
-      /// Alternative constructor
-      CMXJetHits_v2(const int crate,const int source);
-      /// Alternative constructor
-      CMXJetHits_v2(const int crate,const int source,
-                    const std::vector<unsigned int>& hitsVec0,
-                    const std::vector<unsigned int>& hitsVec1,
-                    const std::vector<int>& errorVec0,
-                    const std::vector<int>& errorVec1,
-                    const uint_least8_t peak);
+      /// Default desturctor
+      virtual ~CMXJetHits_v2(){}        
+      
+      /// initialize
+      virtual void initialize(const uint_least8_t crate,const uint_least8_t source);
+      
+      /// initialize
+      virtual void initialize(const uint_least8_t crate,const uint_least8_t source,
+                              const std::vector<uint_least8_t>& hitsVec0,
+                              const std::vector<uint_least8_t>& hitsVec1,
+                              const std::vector<uint_least8_t>& errorVec0,
+                              const std::vector<uint_least8_t>& errorVec1,
+                              const uint_least8_t peak);
       
       /// add data to existing object
-      void addHits(const std::vector<unsigned int>& hitsVec0,
-                   const std::vector<unsigned int>& hitsVec1,
-                   const std::vector<int>& errorVec0,
-                   const std::vector<int>& errorVec1);
+      void addHits(const std::vector<uint_least8_t>& hitsVec0,
+                   const std::vector<uint_least8_t>& hitsVec1,
+                   const std::vector<uint_least8_t>& errorVec0,
+                   const std::vector<uint_least8_t>& errorVec1);
       
       /// get crate
-      int crate() const;
+      uint_least8_t crate() const;
       /// set crate
-      void setCrate(int);
+      void setCrate(uint_least8_t);
 
       /// get source
-      int source() const;
+      uint_least8_t source() const;
       /// set source
-      void setSource(int);
+      void setSource(uint_least8_t);
 
       /// get peak
       uint_least8_t peak() const;
@@ -60,40 +66,40 @@ namespace xAOD{
       void setPeak(uint_least8_t);
 
       /// get hitsVec0
-      const std::vector<unsigned int>& hitsVec0() const;
+      const std::vector<uint_least8_t>& hitsVec0() const;
       /// set hitsVec0
-      void setHitsVec0(const std::vector<unsigned int>&);
+      void setHitsVec0(const std::vector<uint_least8_t>&);
 
       /// get hitsVec1
-      const std::vector<unsigned int>& hitsVec1() const;
+      const std::vector<uint_least8_t>& hitsVec1() const;
       /// set hitsVec1
-      void setHitsVec1(const std::vector<unsigned int>&);
+      void setHitsVec1(const std::vector<uint_least8_t>&);
 
       /// get errorVec0
-      const std::vector<int>& errorVec0() const;
+      const std::vector<uint_least8_t>& errorVec0() const;
       /// set errorVec0
-      void setErrorVec0(const std::vector<int>&);
+      void setErrorVec0(const std::vector<uint_least8_t>&);
 
       /// get errorVec1
-      const std::vector<int>& errorVec1() const;
+      const std::vector<uint_least8_t>& errorVec1() const;
       /// set errorVec1
-      void setErrorVec1(const std::vector<int>&);
+      void setErrorVec1(const std::vector<uint_least8_t>&);
 
       /// Peak functions - return value of peak bunch crossing
       /// Assuming we have got the timing calibration correct,
       /// This is the bunch crossing containing the collision
 
       /// get hitsVec0 at peak bunch crossing
-      unsigned int hits0() const;
+      uint_least8_t hits0() const;
 
       /// get hitsVec1 at peak bunch crossing
-      unsigned int hits1() const;
+      uint_least8_t hits1() const;
 
       /// get errorVec0 at peak bunch crossing
-      int error0() const;
+      uint_least8_t error0() const;
 
       /// get errorVec1 at peak bunch crossing
-      int error1() const;
+      uint_least8_t error1() const;
 
   }; // class CMXJetHits_v2
 } // namespace xAOD

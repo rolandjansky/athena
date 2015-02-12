@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: JEMTobRoI_v2.h 639736 2015-01-15 15:27:50Z morrisj $
+// $Id: JEMTobRoI_v2.h 646335 2015-02-12 01:16:10Z morrisj $
 #ifndef XAODTRIGL1CALO_VERSIONS_JEMTOBROI_V2_H
 #define XAODTRIGL1CALO_VERSIONS_JEMTOBROI_V2_H
 
@@ -18,13 +18,15 @@ namespace xAOD{
   ///
   /// @author John Morris <john.morris@cern.ch>
   ///
-  /// $Revision: 639736 $
-  /// $Date: 2015-01-15 16:27:50 +0100 (Thu, 15 Jan 2015) $
+  /// $Revision: 646335 $
+  /// $Date: 2015-02-12 02:16:10 +0100 (Thu, 12 Feb 2015) $
 
   class JEMTobRoI_v2 : public SG::AuxElement {
     public:
       /// Default constructor
       JEMTobRoI_v2();
+      /// Default desturctor
+      virtual ~JEMTobRoI_v2(){}        
 
       /// get roiWord
       uint32_t roiWord() const;

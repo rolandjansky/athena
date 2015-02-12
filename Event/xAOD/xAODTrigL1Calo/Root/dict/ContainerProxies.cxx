@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ContainerProxies.cxx 642659 2015-01-29 12:41:06Z morrisj $
+// $Id: ContainerProxies.cxx 646335 2015-02-12 01:16:10Z morrisj $
 
 // xAOD include(s):
 #include "xAODCore/AddDVProxy.h"
@@ -38,6 +38,7 @@
 #include "xAODTrigL1Calo/versions/CPMTowerContainer_v2.h"
 #include "xAODTrigL1Calo/versions/CPMTobRoIContainer_v2.h"
 
+#include "xAODTrigL1Calo/versions/JEMEtSumsContainer_v2.h"
 #include "xAODTrigL1Calo/versions/JEMTobRoIContainer_v2.h"
 
 #include "xAODTrigL1Calo/versions/JetElementContainer_v2.h"
@@ -72,6 +73,6 @@ ADD_NS_DV_PROXY( xAOD , CMXEtSumsContainer_v2 );
 ADD_NS_DV_PROXY( xAOD , CPMTowerContainer_v2 );
 ADD_NS_DV_PROXY( xAOD , CPMTobRoIContainer_v2 );
 
+ADD_NS_DV_PROXY( xAOD , JEMEtSumsContainer_v2 );
 ADD_NS_DV_PROXY( xAOD , JEMTobRoIContainer_v2 );
-
 ADD_NS_DV_PROXY( xAOD , JetElementContainer_v2 );

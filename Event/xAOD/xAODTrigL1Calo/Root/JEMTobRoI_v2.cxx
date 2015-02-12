@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id
+// $Id: JEMTobRoI_v2.cxx 646335 2015-02-12 01:16:10Z morrisj $
 
 // EDM includes(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CPMTower_v2.cxx 642659 2015-01-29 12:41:06Z morrisj $
+// $Id: CPMTower_v2.cxx 646335 2015-02-12 01:16:10Z morrisj $
 
 // System include(s):
 #include <cmath>
@@ -20,62 +20,86 @@ namespace xAOD{
   {        
   }
   
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( CPMTower_v2 , std::vector<int> , emEnergyVec , setEmEnergyVec )  
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( CPMTower_v2 , std::vector<int> , hadEnergyVec , setHadEnergyVec )    
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( CPMTower_v2 , std::vector<int> , emErrorVec , setEmErrorVec )  
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( CPMTower_v2 , std::vector<int> , hadErrorVec , setHadErrorVec )     
+  /// initialize
+  void CPMTower_v2::initialize(const float eta,const float phi)
+  {        
+    setEta( eta );
+    setPhi( phi );
+  }  
+  
+  /// initialize
+  void CPMTower_v2::initialize(const float eta,const float phi,
+              const std::vector<uint_least8_t>& emEnergyVec,
+              const std::vector<uint_least8_t>& hadEnergyVec,
+              const std::vector<uint_least8_t>& emErrorVec,
+              const std::vector<uint_least8_t>& hadErrorVec,
+              const uint_least8_t peak)
+  { 
+    setEta( eta );
+    setPhi( phi );
+    setEmEnergyVec( emEnergyVec );
+    setHadEnergyVec( hadEnergyVec );
+    setEmErrorVec( emErrorVec );
+    setHadErrorVec( hadErrorVec );
+    setPeak( peak );
+  }  
+  
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( CPMTower_v2 , std::vector<uint_least8_t> , emEnergyVec , setEmEnergyVec )  
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( CPMTower_v2 , std::vector<uint_least8_t> , hadEnergyVec , setHadEnergyVec )    
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( CPMTower_v2 , std::vector<uint_least8_t> , emErrorVec , setEmErrorVec )  
+  AUXSTORE_OBJECT_SETTER_AND_GETTER( CPMTower_v2 , std::vector<uint_least8_t> , hadErrorVec , setHadErrorVec )     
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( CPMTower_v2 , float , eta , setEta )   
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( CPMTower_v2 , float , phi , setPhi )  
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( CPMTower_v2 , uint_least8_t , peak , setPeak )  
  
   /** return the final ET values using the in algorithms */
-  int CPMTower_v2::emEnergy() const
+  uint_least8_t CPMTower_v2::emEnergy() const
   {
     return emEnergyVec()[ peak() ];
   }
   
-  int CPMTower_v2::hadEnergy() const
+  uint_least8_t CPMTower_v2::hadEnergy() const
   {
     return hadEnergyVec()[ peak() ];
   }
 
-  int CPMTower_v2::emSliceEnergy(int slice) const
+  uint_least8_t CPMTower_v2::emSliceEnergy(unsigned int slice) const
   {
-    if( slice >= 0 && slice < (int)emEnergyVec().size() ){
+    if( slice < emEnergyVec().size() ){
       return emEnergyVec()[ slice ];
     }
     return 0;    
   }
   
-  int CPMTower_v2::hadSliceEnergy(int slice) const
+  uint_least8_t CPMTower_v2::hadSliceEnergy(unsigned int slice) const
   {
-    if( slice >= 0 && slice < (int)hadEnergyVec().size() ){
+    if( slice < hadEnergyVec().size() ){
       return hadEnergyVec()[ slice ];
     }
     return 0;        
   }
   
-  int CPMTower_v2::emError() const
+  uint_least8_t CPMTower_v2::emError() const
   {
     return emErrorVec()[ peak() ];
   }
   
-  int CPMTower_v2::hadError() const
+  uint_least8_t CPMTower_v2::hadError() const
   {
     return hadErrorVec()[ peak() ];
   }
   
-  int CPMTower_v2::emSliceError(int slice) const
+  uint_least8_t CPMTower_v2::emSliceError(unsigned int slice) const
   {
-    if( slice >= 0 && slice < (int)emErrorVec().size() ){
+    if( slice < emErrorVec().size() ){
       return emErrorVec()[ slice ];
     }
     return 0;      
   }
   
-  int CPMTower_v2::hadSliceError(int slice) const
+  uint_least8_t CPMTower_v2::hadSliceError(unsigned int slice) const
   {
-    if( slice >= 0 && slice < (int)hadErrorVec().size() ){
+    if( slice < hadErrorVec().size() ){
       return hadErrorVec()[ slice ];
     }
     return 0;      

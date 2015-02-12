@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CPMTower_v2.h 642659 2015-01-29 12:41:06Z morrisj $
+// $Id: CPMTower_v2.h 646335 2015-02-12 01:16:10Z morrisj $
 #ifndef XAODTRIGL1CALO_VERSIONS_CPMTOWER_V2_H
 #define XAODTRIGL1CALO_VERSIONS_CPMTOWER_V2_H
 
@@ -20,33 +20,46 @@ namespace xAOD {
   ///
   /// @author John Morris <john.morris@cern.ch>
   ///
-  /// $Revision: 642659 $
-  /// $Date: 2015-01-29 13:41:06 +0100 (Thu, 29 Jan 2015) $  
+  /// $Revision: 646335 $
+  /// $Date: 2015-02-12 02:16:10 +0100 (Thu, 12 Feb 2015) $  
   
   class CPMTower_v2 : public SG::AuxElement{
     public:
-      // Default constructor
+      /// Default constructor
       CPMTower_v2();
+      /// Default desturctor
+      virtual ~CPMTower_v2(){}        
+      
+      /// initialize
+      virtual void initialize(const float eta,const float phi);
+      
+      /// initialize
+      virtual void initialize(const float eta,const float phi,
+                              const std::vector<uint_least8_t>& emEnergyVec,
+                              const std::vector<uint_least8_t>& hadEnergyVec,
+                              const std::vector<uint_least8_t>& emErrorVec,
+                              const std::vector<uint_least8_t>& hadErrorVec,
+                              const uint_least8_t peak);
       
       /// get emEnergyVec - emEnergy for all time slices
-      const std::vector<int>& emEnergyVec() const;
+      const std::vector<uint_least8_t>& emEnergyVec() const;
       /// set emEnergyVec - emEnergy for all time slices
-      void setEmEnergyVec(const std::vector<int>&);
+      void setEmEnergyVec(const std::vector<uint_least8_t>&);
       
       /// get hadEnergyVec - hadEnergy for all time slices
-      const std::vector<int>& hadEnergyVec() const;
+      const std::vector<uint_least8_t>& hadEnergyVec() const;
       /// set hadEnergyVec - hadEnergy for all time slices
-      void setHadEnergyVec(const std::vector<int>&);  
+      void setHadEnergyVec(const std::vector<uint_least8_t>&);  
       
       /// get emErrorVec - emError for all time slices
-      const std::vector<int>& emErrorVec() const;
+      const std::vector<uint_least8_t>& emErrorVec() const;
       /// set emErrorVec - emError for all time slices
-      void setEmErrorVec(const std::vector<int>&);
+      void setEmErrorVec(const std::vector<uint_least8_t>&);
       
       /// get hadErrorVec - hadError for all time slices
-      const std::vector<int>& hadErrorVec() const;
+      const std::vector<uint_least8_t>& hadErrorVec() const;
       /// set hadErrorVec - hadError for all time slices
-      void setHadErrorVec(const std::vector<int>&);      
+      void setHadErrorVec(const std::vector<uint_least8_t>&);      
           
       /// get eta
       float eta() const;
@@ -63,24 +76,24 @@ namespace xAOD {
         
               
       /// get emEnergy for emEnergyVec[peak]  - time slice that (hopefully) contains the collision
-      int emEnergy() const;
+      uint_least8_t emEnergy() const;
       /// get hadEnergy for hadEnergyVec[peak]  - time slice that (hopefully) contains the collision      
-      int hadEnergy() const;
+      uint_least8_t hadEnergy() const;
 
       /// get emEnergy for emEnergyVec[slice] - time slice for arbitary slice
-      int emSliceEnergy(int slice) const;
+      uint_least8_t emSliceEnergy(unsigned int slice) const;
       /// get hadEnergy for hadEnergyVec[slice] - time slice for arbitary slice
-      int hadSliceEnergy(int slice) const;
+      uint_least8_t hadSliceEnergy(unsigned int slice) const;
 
       // get emError for emErrorVec[peak]  - time slice that (hopefully) contains the collision
-      int emError() const;
+      uint_least8_t emError() const;
       // get hadError for hadErrorVec[peak]  - time slice that (hopefully) contains the collision
-      int hadError() const;
+      uint_least8_t hadError() const;
       
       /// get emError for emErrorVec[slice] - time slice for arbitary slice
-      int emSliceError(int slice) const;
+      uint_least8_t emSliceError(unsigned int slice) const;
       /// get hadError for hadErrorVec[slice] - time slice for arbitary slice
-      int hadSliceError(int slice) const;
+      uint_least8_t hadSliceError(unsigned int slice) const;
 
   };
 } // namespace xAOD

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrigL1CaloDict.h 642659 2015-01-29 12:41:06Z morrisj $
+// $Id: xAODTrigL1CaloDict.h 646335 2015-02-12 01:16:10Z morrisj $
 #ifndef XAODTRIGL1CALO_XAODTRIGL1CALOCALOEVENTDICT_H
 #define XAODTRIGL1CALO_XAODTRIGL1CALOCALOEVENTDICT_H
 
@@ -101,6 +101,11 @@
 #include "xAODTrigL1Calo/versions/CPMTobRoI_v2.h"
 #include "xAODTrigL1Calo/versions/CPMTobRoIContainer_v2.h"
 #include "xAODTrigL1Calo/versions/CPMTobRoIAuxContainer_v2.h"
+
+
+#include "xAODTrigL1Calo/versions/JEMEtSums_v2.h"
+#include "xAODTrigL1Calo/versions/JEMEtSumsContainer_v2.h"
+#include "xAODTrigL1Calo/versions/JEMEtSumsAuxContainer_v2.h"
 
 #include "xAODTrigL1Calo/versions/JEMTobRoI_v2.h"
 #include "xAODTrigL1Calo/versions/JEMTobRoIContainer_v2.h"
@@ -324,6 +329,15 @@ namespace {
     ElementLinkVector< xAOD::CPMTobRoIContainer_v2 > CPMTobRoI_elv1;
     std::vector< ElementLinkVector< xAOD::CPMTobRoIContainer_v2 > > CPMTobRoI_elv2;
 
+    // JEMEtSums
+    // Container(s):
+    xAOD::JEMEtSumsContainer_v2 JEMEtSums_v2_c1;
+    // Element link(s):
+    ElementLink< xAOD::JEMEtSumsContainer_v2 > JEMEtSums_v2_el1;
+    std::vector< ElementLink< xAOD::JEMEtSumsContainer_v2 > > JEMEtSums_v2_el2;
+    // Element link vector(s):
+    ElementLinkVector< xAOD::JEMEtSumsContainer_v2 > JEMEtSums_v2_elv1;
+    std::vector< ElementLinkVector< xAOD::JEMEtSumsContainer_v2 > > JEMEtSums_v2_elv2;      
 
     // JEMTobRoI
     // Container(s):

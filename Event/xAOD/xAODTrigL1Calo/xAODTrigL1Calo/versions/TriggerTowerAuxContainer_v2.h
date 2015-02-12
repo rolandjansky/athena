@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerTowerAuxContainer_v2.h 638229 2015-01-08 12:35:15Z morrisj $
+// $Id: TriggerTowerAuxContainer_v2.h 646335 2015-02-12 01:16:10Z morrisj $
 #ifndef XAODTRIGL1CALO_VERSIONS_TRIGGERTOWERAUXCONTAINER_V2_H
 #define XAODTRIGL1CALO_VERSIONS_TRIGGERTOWERAUXCONTAINER_V2_H
 
@@ -22,8 +22,8 @@ namespace xAOD{
   ///
   /// @author John Morris <john.morris@cern.ch>
   ///
-  /// $Revision: 638229 $
-  /// $Date: 2015-01-08 13:35:15 +0100 (Thu, 08 Jan 2015) $
+  /// $Revision: 646335 $
+  /// $Date: 2015-02-12 02:16:10 +0100 (Thu, 12 Feb 2015) $
   ///
   class TriggerTowerAuxContainer_v2 : public AuxContainerBase {
   public:
@@ -36,7 +36,6 @@ namespace xAOD{
     std::vector<float> eta;           
     std::vector<float> phi; 
     std::vector<uint_least32_t> coolId;
-    std::vector<uint_least8_t> layer;
 
     // Quantities with same number of slices as LUT data
     std::vector<std::vector<uint_least8_t> > lut_cp;
@@ -48,6 +47,8 @@ namespace xAOD{
     // Quantities with same number of slices as ADC data
     std::vector<std::vector<uint_least16_t> > adc;
     std::vector<std::vector<uint_least8_t> > bcidExt;
+    std::vector<std::vector<uint_least8_t> > sat80Vec;
+    
 
     // One error word/tower/event
     std::vector<uint_least16_t> error;
