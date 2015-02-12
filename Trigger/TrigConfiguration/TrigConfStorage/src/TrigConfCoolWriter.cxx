@@ -748,12 +748,16 @@ TrigConf::TrigConfCoolWriter::writeL1MenuPayload( ValidityRange vr,
             lvl1ThresholdFolder->storeObject(vr.since(), vr.until(), payloadThr, thrChannel++);
          }
 
-         m_ostream << "Writing (to buffer) LVL1 threshold 'JetWeights':";
-         const std::vector<int>& jetweights = lvl1Menu.caloInfo().jetWeights();
-         std::copy(jetweights.begin(), jetweights.end(), std::ostream_iterator<int>(m_ostream, ", "));
-         m_ostream << endl;
-         Record payloadJW = TrigConfCoolL1PayloadConverters::createLvl1JetWeightPayload( lvl1ThresholdFolder, lvl1Menu.caloInfo().jetWeights() );
-         lvl1ThresholdFolder->storeObject(vr.since(), vr.until(), payloadJW, thrChannel++);
+
+         // TODO
+         if( lvl1Menu.thresholdConfig().l1Version() == 0 ) {
+            m_ostream << "Writing (to buffer) LVL1 threshold 'JetWeights':";
+            const std::vector<int>& jetweights = lvl1Menu.caloInfo().jetWeights();
+            std::copy(jetweights.begin(), jetweights.end(), std::ostream_iterator<int>(m_ostream, ", "));
+            m_ostream << endl;
+            Record payloadJW = TrigConfCoolL1PayloadConverters::createLvl1JetWeightPayload( lvl1ThresholdFolder, lvl1Menu.caloInfo().jetWeights() );
+            lvl1ThresholdFolder->storeObject(vr.since(), vr.until(), payloadJW, thrChannel++);
+         }
 
          m_ostream << "Writing (to buffer) LVL1 threshold 'MET Significance parameters':";
          lvl1Menu.caloInfo().metSigParam().print();
@@ -1272,9 +1276,6 @@ TrigConfCoolWriter::readL1Payload( unsigned int run,
     */
 
    readL1Menu( run, ctpc );
-
-   
-
 }
 
 void 
@@ -1440,7 +1441,6 @@ TrigConfCoolWriter::readL1Menu(unsigned int run, CTPConfig & ctpc)
 
    Menu & menu = ctpc.menu();
 
-
    // thresholds
    vector<TriggerThreshold*> thrs;
    readL1Thresholds(run, thrs);
@@ -1475,11 +1475,14 @@ TrigConfCoolWriter::readL1Menu(unsigned int run, CTPConfig & ctpc)
    readL1ItemDef(run, items, thrs);
 
    CaloInfo ci;
+
    for(TriggerThreshold* thr: thrs) {
 
       if ( thr->name()=="JetWeights" ) {
-         for ( const string& weights : split( thr->cableName(),",")  )
-            ci.addJetWeight( boost::lexical_cast<int, string>(weights) );
+         if(!isRun2) {
+            for ( const string& weights : split( thr->cableName(),",")  )
+               ci.addJetWeight( boost::lexical_cast<int, string>(weights) );
+         }
       }
       else if ( thr->name()=="METSigParams" ) {
          vector<string> metvals = split( thr->cableName(),",");
@@ -1496,7 +1499,6 @@ TrigConfCoolWriter::readL1Menu(unsigned int run, CTPConfig & ctpc)
          // trigger thresholds sorted by type
          menu.thresholdConfig().addTriggerThreshold(thr);
       }
-
    }
    menu.setCaloInfo(ci);
 

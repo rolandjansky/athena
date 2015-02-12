@@ -119,7 +119,7 @@ TrigConf::MasterTableLoader::load(CTPConfig& ctpc) {
    try {
       CTPConfigLoader& ctpLoader = 
          dynamic_cast<CTPConfigLoader&>(m_storageMgr.ctpConfigLoader());
-      ctpLoader.setVerbose(DBLoader::verbose());
+      ctpLoader.setLevel(outputLevel());
       try {
          return ctpLoader.load(ctpc);
       } catch ( const std::exception& e ) {
@@ -149,7 +149,7 @@ TrigConf::MasterTableLoader::load(Muctpi& m) {
    }
    try {
       MuctpiLoader& muctpiLoader = dynamic_cast<MuctpiLoader&>( m_storageMgr.muctpiLoader() );
-      muctpiLoader.setVerbose(DBLoader::verbose());
+      muctpiLoader.setLevel(outputLevel());
       return muctpiLoader.load(m);
    } catch (std::bad_cast& ex) {
       msg() << "Caught exception in MasterTableLoader : "
@@ -161,7 +161,7 @@ TrigConf::MasterTableLoader::load(Muctpi& m) {
 bool TrigConf::MasterTableLoader::load(TXC::L1TopoMenu& l1topo){
    try {
       L1TopoMenuLoader& l1topoLoader = dynamic_cast<L1TopoMenuLoader&>(m_storageMgr.l1topoMenuLoader());
-      l1topoLoader.setVerbose(DBLoader::verbose());
+      l1topoLoader.setLevel(outputLevel());
       return l1topoLoader.load(l1topo);
    } catch (std::exception& ex) {
       msg() << "Caught exception in MasterTableLoader : "

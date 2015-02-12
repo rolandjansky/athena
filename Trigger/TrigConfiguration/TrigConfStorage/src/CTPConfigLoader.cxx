@@ -127,7 +127,7 @@ bool TrigConf::CTPConfigLoader::load(CTPConfig& ctpcTarget) {
             commitSession();
             throw std::runtime_error( "CTPConfigLoader >> CTPConfig not available" );
          }
-       
+
          const coral::AttributeList& row = cursor.currentRow();
          long filesid = row["L1TM_CTP_FILES_ID"].data<long>();
          long smxid = row["L1TM_CTP_SMX_ID"].data<long>();
@@ -140,7 +140,6 @@ bool TrigConf::CTPConfigLoader::load(CTPConfig& ctpcTarget) {
             files->setLoadCtpcoreFiles( ctpcTarget.loadCtpcoreFiles() );
             files->setLoadCtpinFiles( ctpcTarget.loadCtpinFiles() );
             files->setLoadCtpmonFiles( ctpcTarget.loadCtpmonFiles() );
-
             try {
                CTPFilesLoader& ctpfilesldr =
                   dynamic_cast<CTPFilesLoader&>(m_storageMgr.ctpFilesLoader());
@@ -160,32 +159,34 @@ bool TrigConf::CTPConfigLoader::load(CTPConfig& ctpcTarget) {
             }
          } else {
             TRG_MSG_ERROR("Error loading CTP files, no files pointed to by the menu. CTP files id = " << filesid << ", SMX files id = " << smxid);
-         } 
+         }
+ 
          CTPFiles * files = ctpcTarget.ctpfiles();
          if( files != nullptr ) {
             TRG_MSG_INFO("Loaded CTPfiles. CAM size=" << files->ctpcoreCAM().size() << ", LUT size=" << files->ctpcoreCAM().size());
          }
 
          //load the priorityset
-         try {
-            PrioritySetLoader& prsldr = dynamic_cast<PrioritySetLoader&>(m_storageMgr.prioritySetLoader());
-            PrioritySet prs;
-            prs.setLvl1MasterTableId(ctpcTarget.lvl1MasterTableId());
-            if ( !prsldr.load( prs ) ) {
-               TRG_MSG_ERROR("Can't load PrioritySet " << prs.lvl1MasterTableId());
+         if(isRun1()) {
+            try {
+               PrioritySetLoader& prsldr = dynamic_cast<PrioritySetLoader&>(m_storageMgr.prioritySetLoader());
+               PrioritySet prs;
+               prs.setLvl1MasterTableId(ctpcTarget.lvl1MasterTableId());
+               if ( !prsldr.load( prs ) ) {
+                  TRG_MSG_ERROR("Can't load PrioritySet " << prs.lvl1MasterTableId());
+                  commitSession();
+                  throw std::runtime_error( "CTPConfigLoader: Error loading PrioritySet" );
+               }
+               ctpcTarget.setPrioritySet(prs);
+            } catch (std::bad_cast& ex) {
+               TRG_MSG_ERROR("Caught exception in CTPConfigLoader : " << ex.what() );
                commitSession();
-               throw std::runtime_error( "CTPConfigLoader: Error loading PrioritySet" );
+               throw std::runtime_error( "CTPConfigLoader: Error casting PrioritySetLoader" );
             }
-            ctpcTarget.setPrioritySet(prs);
-         } catch (std::bad_cast& ex) {
-            TRG_MSG_ERROR("Caught exception in CTPConfigLoader : " << ex.what() );
-            commitSession();
-            throw std::runtime_error( "CTPConfigLoader: Error casting PrioritySetLoader" );
          }
       } else {
          TRG_MSG_INFO("No loading of CTPFiles");
       }
-
 
 
 
