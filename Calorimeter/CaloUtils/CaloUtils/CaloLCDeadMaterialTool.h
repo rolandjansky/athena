@@ -165,6 +165,10 @@ class CaloLCDeadMaterialTool : public AthAlgTool, virtual public IClusterCellWei
    /** 
     * @brief actual set of dimension id's to interpolate (in the DM areas corrected with sampling weight approach)*/
    std::vector<int > m_interpolateDimensionsSampling;
+   
+   /** 
+    * @brief In Abs Option case, DM calculation has to be handled in a slightly different way*/
+   bool m_absOpt;
 
     // variables for DM areas
     float m_cls_unweighted_energy;

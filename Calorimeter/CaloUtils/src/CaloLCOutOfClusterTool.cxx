@@ -177,6 +177,8 @@ StatusCode CaloLCOutOfClusterTool::weight(CaloCluster *theCluster)
     ATH_MSG_DEBUG("Basic Energy is 0. Use weighted energy instead");
     eEM = eWeighted;
   }
+  
+  
 
   // subtract the samplings to ignore from eEM and eWeighted, assuming that
   // they would not have received any cell weights in prior calibration 
@@ -184,10 +186,10 @@ StatusCode CaloLCOutOfClusterTool::weight(CaloCluster *theCluster)
   std::set<int>::const_iterator ivSamplingIter = m_invalidSamplings.begin(); 
   std::set<int>::const_iterator ivSamplingIterEnd = m_invalidSamplings.end(); 
   for(; ivSamplingIter!=ivSamplingIterEnd; ivSamplingIter++) {
-    eEM -= theCluster->eSample((CaloCluster::CaloSample)(*ivSamplingIter));
+    eEM       -= theCluster->eSample((CaloCluster::CaloSample)(*ivSamplingIter));
     eWeighted -= theCluster->eSample((CaloCluster::CaloSample)(*ivSamplingIter));
   }
-  
+
   if ( eEM > 0 && eWeighted > 0 ) {
     // ratio is em energy over weighted energy without the samplings
     // to ignore. This means also the OOC weight tables have to be made 

@@ -34,7 +34,8 @@ CaloLCClassificationTool::CaloLCClassificationTool(const std::string& type,
     m_useNormalizedEnergyDensity(true),
     m_maxProbability(0.5),
     m_storeClassificationProbabilityInAOD(true),
-    m_interpolate(false)
+    m_interpolate(false),
+    m_absOpt(false)
 { 
 
    declareInterface<IClusterClassificationTool>(this);
@@ -51,6 +52,8 @@ CaloLCClassificationTool::CaloLCClassificationTool(const std::string& type,
   declareProperty("StoreClassificationProbabilityInAOD",m_storeClassificationProbabilityInAOD);
   // Use Interpolation or not
   declareProperty("Interpolate",m_interpolate);
+  //Use weighting of negative clusters?
+  declareProperty("WeightingOfNegClusters",m_absOpt);
 
   m_interpolateDimensionNames.resize(3);
   m_interpolateDimensionNames[0] = "DIMC_ETA";
@@ -106,8 +109,9 @@ CaloRecoStatus::StatusIndicator CaloLCClassificationTool::classify(CaloCluster* 
   double probPi0 = 0;
   // on ESD only
   std::vector<float> vars(6);
-  if ( thisCluster->e() > 0 ) {
+  if ( thisCluster->e() > 0 || m_absOpt ) { //with abs option, always weight cluster
     double log10cluse = log10(thisCluster->e());
+    if( m_absOpt ) log10cluse = log10(fabs(thisCluster->e()));
     double log10cluseOrig = log10cluse;
     
     const CaloLocalHadCoeff::LocalHadDimension *logeDim = m_data->getArea(0)->getDimension(3);
