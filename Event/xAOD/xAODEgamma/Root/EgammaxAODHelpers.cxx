@@ -58,7 +58,6 @@ const std::set<const xAOD::TrackParticle*> xAOD::EgammaHelpers::getTrackParticle
     if (ph) return getTrackParticles(ph, useBremAssoc);
   }
 
-  std::cerr << "egamma object not electron nor photon" << std::endl;
   return std::set<const xAOD::TrackParticle*>();
 }
 

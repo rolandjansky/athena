@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EgammaTruthxAODHelpers.h 636327 2014-12-16 16:34:24Z christos $
+// $Id: EgammaTruthxAODHelpers.h 643687 2015-02-03 04:35:51Z christos $
 #ifndef XAOD_EGAMMATRUTHXAODHELPERS_H
 #define XAOD_EGAMMATRUTHXAODHELPERS_H
 
@@ -24,26 +24,22 @@ namespace xAOD {
     
     /// @brief Access to element link to object of type T stored in auxdata
     template<class T>
-    const T* getLink(const xAOD::IParticle* particle, std::string name, bool debug=false){
+    const T* getLink(const xAOD::IParticle* particle, std::string name){
       if (!particle) return 0;
       typedef ElementLink< DataVector<T> > Link_t;
       
-      if (!particle->isAvailable< Link_t >(name) ) 
-	{ 
-	  if (debug) std::cerr<< "Link not available" << std::endl; 
+      if (!particle->isAvailable< Link_t >(name) ) { 
 	  return 0; 
 	}  
       const Link_t link = particle->auxdata<Link_t>(name);
-      if (!link.isValid()) 
-	{ 
-	  if (debug) std::cerr << "Invalid link" << std::endl; 
+      if (!link.isValid()) { 
 	  return 0; 
 	}
       return *link;
     }
     
     ///@brief return the truthParticle associated to the given IParticle (if any)
-    const xAOD::TruthParticle* getTruthParticle(const xAOD::IParticle*, bool debug = false);
+    const xAOD::TruthParticle* getTruthParticle(const xAOD::IParticle*);
 
     ///@brief return the  particle's truth Type (as defined by the MC Truth Classifier) 
     int getParticleTruthType(const xAOD::IParticle* particle);
@@ -52,10 +48,10 @@ namespace xAOD {
     int getParticleTruthOrigin(const xAOD::IParticle* particle);
     
     ///@brief return the reco electron associated to the given TruthParticle (if any)
-    const xAOD::Electron* getRecoElectron(const xAOD::TruthParticle*, bool debug = false);
+    const xAOD::Electron* getRecoElectron(const xAOD::TruthParticle*);
     
     ///@brief return the reco photon associated to the given TruthParticle (if any)
-    const xAOD::Photon* getRecoPhoton(const xAOD::TruthParticle* particle, bool debug = false);
+    const xAOD::Photon* getRecoPhoton(const xAOD::TruthParticle* particle);
         
     ///@brief is the object matched to a true converted photon with R < maxRadius
     bool isTrueConvertedPhoton(const xAOD::Photon* ph, float maxRadius = 800.);

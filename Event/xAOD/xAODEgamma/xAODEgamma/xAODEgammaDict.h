@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODEgammaDict.h 636327 2014-12-16 16:34:24Z christos $
+// $Id: xAODEgammaDict.h 645853 2015-02-10 20:40:06Z blenzi $
 #ifndef XAODEGAMMA_XAODEGAMMADICT_H
 #define XAODEGAMMA_XAODEGAMMADICT_H
 
@@ -81,6 +81,8 @@ namespace {
      std::vector< ElementLink< xAOD::CaloClusterContainer > > auxlink4;
      ElementLink< xAOD::VertexContainer > auxlink5;
      std::vector< ElementLink< xAOD::VertexContainer > > auxlink6;
+     
+     std::set<const xAOD::TrackParticle*> setTP;
 
    };
 }

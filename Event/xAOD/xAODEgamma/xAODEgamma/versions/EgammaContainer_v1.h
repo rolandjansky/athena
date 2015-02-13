@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EgammaContainer_v1.h 632191 2014-11-29 16:24:08Z christos $
+// $Id: EgammaContainer_v1.h 644948 2015-02-07 01:33:06Z christos $
 #ifndef XAODEGAMMA_VERSIONS_EGAMMACONTAINER_V1_H
 #define XAODEGAMMA_VERSIONS_EGAMMACONTAINER_V1_H
 
@@ -14,10 +14,10 @@
 
 // Local include(s):
 #include "xAODEgamma/versions/Egamma_v1.h"
+#include "xAODEgamma/EgammaContainerFwd.h"
 
-// Declare IParticle as a base class of Egamma_v1:
-DATAVECTOR_BASE( xAOD::Egamma_v1, xAOD::IParticle );
-
+//Need that to compler the DATAVECTOR_BASE_FWD
+template struct DataVector_detail::DVLEltBaseInit< xAOD::Egamma_v1>;
 namespace xAOD {
    /// The container is a simple typedef for now
    typedef DataVector< xAOD::Egamma_v1 > EgammaContainer_v1;

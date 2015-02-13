@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Photon_v1.h 634194 2014-12-06 14:20:09Z christos $
+// $Id: Photon_v1.h 645853 2015-02-10 20:40:06Z blenzi $
 #ifndef XAODEGAMMA_VERSIONS_PHOTON_V1_H
 #define XAODEGAMMA_VERSIONS_PHOTON_V1_H
 
@@ -18,6 +18,7 @@
 
 // Local include(s):
 #include "xAODEgamma/versions/Egamma_v1.h"
+#include "xAODEgamma/PhotonxAODHelpers.h"
 //CxxUtils for override final
 #include "CxxUtils/final.h"
 #include "CxxUtils/override.h"
@@ -30,8 +31,8 @@ namespace xAOD {
   /// @author Christos Anastopoulos
   /// @author Anthony Morley
   ///
-  /// $Revision: 634194 $
-  /// $Date: 2014-12-06 15:20:09 +0100 (Sat, 06 Dec 2014) $
+  /// $Revision: 645853 $
+  /// $Date: 2015-02-10 21:40:06 +0100 (Tue, 10 Feb 2015) $
   ///
   class Photon_v1 :public xAOD::Egamma_v1 {
 
@@ -102,6 +103,19 @@ namespace xAOD {
 
     ///@brief Set method for CaloMatch values.
     bool  setVertexCaloMatchValue( float& value, const EgammaParameters::VertexCaloMatchType information );
+
+    ///@brief return the photon conversion type (see EgammaEnums)
+    xAOD::EgammaParameters::ConversionType conversionType()
+    {
+      return xAOD::EgammaHelpers::conversionType(this);
+    }
+    
+    ///@brief return the photon conversion radius
+    float conversionRadius()
+    {
+      return xAOD::EgammaHelpers::conversionRadius(this);
+    }
+    
 
     /// @}
 
