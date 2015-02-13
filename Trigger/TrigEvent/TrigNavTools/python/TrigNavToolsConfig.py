@@ -24,6 +24,9 @@ def navigationSlimming( config ):
     SlimTool.Actions = [  'DropFeatures', 'Squeeze', 'Reload', 'DropFeaturelessTerminals', 'SyncThinning', 'DropChains', 'Save', 'Restore']
   if config['mode'] == 'trigger':    
     SlimTool.Actions = [ 'DropFeatures', 'Reload', 'SyncThinning', 'DropChains', 'Save', 'Restore']
+  if config['mode'] == 'cleanup':    
+    SlimTool.Actions = [ 'DropFeatures', 'Reload', 'SyncThinning', 'Save']
+
   if 'Print' in SlimTool.Actions:
     from AthenaCommon.Constants import DEBUG
     SlimTool.OutputLevel=DEBUG
@@ -31,7 +34,7 @@ def navigationSlimming( config ):
 
   ThinTool = TrigNavigationThinningTool(config['name']+'Thin')
   ThinTool.ThinningSvc = config['ThinningSvc']
-  ThinTool.ActInPlace=False
+  #  ThinTool.ActInPlace=False
   if config.has_key('result'):
     ThinTool.ResultKey=config['result']
   else:
