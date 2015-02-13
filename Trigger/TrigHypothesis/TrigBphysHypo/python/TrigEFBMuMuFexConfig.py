@@ -171,7 +171,7 @@ class EFBMuMuFex_DiMu (TrigEFBMuMuFex):
         super( TrigEFBMuMuFex, self ).__init__( name )
 
         # AcceptAll flag: if true take events regardless of cuts
-        #self.AcceptAll = False
+        self.AcceptAll = False
 
         ## L2 Bmumu cuts
         self.LowerMassCut      = 1000.
